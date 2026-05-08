@@ -194,7 +194,7 @@ const { data: articles } = await useAsyncData(
 
 import type { Collections, ScienceEnCollectionItem } from '@nuxt/content'
 
-const { data: scienceData } = await useAsyncData('science-data', () => {
+const { data: scienceData } = await useAsyncData(`science-data-${locale.value}`, () => {
   const collection = `science_${locale.value || 'en'}` as keyof Collections
   return queryCollection(collection).first() as Promise<ScienceEnCollectionItem | null>
 }, { watch: [locale] })

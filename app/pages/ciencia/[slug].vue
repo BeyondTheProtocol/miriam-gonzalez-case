@@ -92,22 +92,20 @@ const { data } = await useAsyncData(
   `ciencia-article-${slug}-${locale.value}`,
   async () => {
     if (locale.value === 'en') {
-      const enArticle = await queryCollection('science_articles')
-        .where('stem', '=', `en/science/${slug}`)
-        .first()
+      const enArticle = await queryCollection('science_articles').path(`/en/science/${slug}`).first()
       if (enArticle) return { article: enArticle, isFallback: false }
+
       // fallback to ES version with matching translationKey
       const esArticle = await queryCollection('ciencia_articles')
         .where('translationKey', '=', slug)
         .first()
-      if (esArticle) return { article: esArticle, isFallback: true }
-      return { article: null, isFallback: false }
+      return { article: esArticle ?? null, isFallback: !!esArticle }
     }
-    const esArticle = await queryCollection('ciencia_articles')
-      .where('stem', '=', `es/ciencia/${slug}`)
-      .first()
+
+    const esArticle = await queryCollection('ciencia_articles').path(`/es/ciencia/${slug}`).first()
     return { article: esArticle ?? null, isFallback: false }
   },
+  { watch: [locale] },
 )
 
 const article = computed(() => data.value?.article)

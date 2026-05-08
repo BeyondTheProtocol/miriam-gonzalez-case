@@ -89,38 +89,38 @@ const localePath = useLocalePath()
 
 const slug = route.params.slug as string
 
+import type { HistoriaEsCollectionItem, HistoriaEnCollectionItem } from '@nuxt/content'
+
+type ChapterItem = HistoriaEsCollectionItem | HistoriaEnCollectionItem
+
 const { data } = await useAsyncData(
   `historia-chapter-${slug}-${locale.value}`,
   async () => {
-    let current = null
+    let current: ChapterItem | null = null
     let isFallback = false
-    let allChapters: typeof current[] = []
+    let allChapters: ChapterItem[] = []
 
     if (locale.value === 'en') {
-      const enChapter = await queryCollection('story')
-        .where('stem', '=', `en/story/${slug}`)
-        .first()
+      const enChapter = await queryCollection('historia_en').path(`/en/story/${slug}`).first()
       if (enChapter) {
         current = enChapter
-        allChapters = await queryCollection('story').order('order', 'ASC').all()
+        allChapters = await queryCollection('historia_en').order('order', 'ASC').all()
       } else {
         // fallback: find by translationKey in ES collection
-        const esChapter = await queryCollection('historia')
+        const esChapter = await queryCollection('historia_es')
           .where('translationKey', '=', slug)
           .first()
         if (esChapter) {
           current = esChapter
           isFallback = true
-          allChapters = await queryCollection('historia').order('order', 'ASC').all()
+          allChapters = await queryCollection('historia_es').order('order', 'ASC').all()
         }
       }
     } else {
-      const esChapter = await queryCollection('historia')
-        .where('stem', '=', `es/historia/${slug}`)
-        .first()
+      const esChapter = await queryCollection('historia_es').path(`/es/historia/${slug}`).first()
       if (esChapter) {
         current = esChapter
-        allChapters = await queryCollection('historia').order('order', 'ASC').all()
+        allChapters = await queryCollection('historia_es').order('order', 'ASC').all()
       }
     }
 
@@ -134,6 +134,7 @@ const { data } = await useAsyncData(
       isFallback,
     }
   },
+  { default: () => ({ chapter: null, prevChapter: null, nextChapter: null, isFallback: false }), watch: [locale] },
 )
 
 const chapter = computed(() => data.value?.chapter)

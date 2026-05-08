@@ -26,7 +26,7 @@
           <nav :aria-label="$t('historia.chapters')" class="space-y-3 mb-12">
             <NuxtLink
               v-for="chapter in chapters"
-              :key="chapter._path"
+              :key="chapter.path"
               :to="localePath(`/historia/${chapter.stem?.split('/').pop()}`)"
               class="card-base flex items-start justify-between gap-4 hover:border-gold-300 transition-colors group"
             >
@@ -69,13 +69,10 @@ useSeoMeta({
 
 const { data: chapters } = await useAsyncData(
   `historia-index-${locale.value}`,
-  async () => {
-    if (locale.value === 'en') {
-      const enChapters = await queryCollection('story').order('order', 'ASC').all()
-      if (enChapters.length) return enChapters
-    }
-    return queryCollection('historia').order('order', 'ASC').all()
+  () => {
+    if (locale.value === 'en') return queryCollection('historia_en').order('order', 'ASC').all()
+    return queryCollection('historia_es').order('order', 'ASC').all()
   },
-  { watch: [locale] },
+  { watch: [locale], default: () => [] },
 )
 </script>

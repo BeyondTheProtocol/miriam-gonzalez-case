@@ -57,10 +57,10 @@
 import type { Collections, TeamEnCollectionItem } from '@nuxt/content'
 const { locale } = useI18n()
 
-const { data: teamData } = await useAsyncData('team-data', () => {
+const { data: teamData } = await useAsyncData(`team-data-${locale.value}`, () => {
   const collection = `team_${locale.value || 'en'}` as keyof Collections
   return queryCollection(collection).first() as Promise<TeamEnCollectionItem | null>
-})
+}, { watch: [locale] })
 
 const coreTeam = computed(() => teamData.value?.coreTeam ?? [])
 const medicalNetwork = computed(() => teamData.value?.medicalNetwork ?? [])

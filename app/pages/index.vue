@@ -73,10 +73,10 @@ import type { Collections, PressEnCollectionItem } from '@nuxt/content'
 const { locale } = useI18n()
 const localePath = useLocalePath()
 
-const { data: pressData } = await useAsyncData('press-data', () => {
+const { data: pressData } = await useAsyncData(`press-data-${locale.value}`, () => {
   const collection = `press_${locale.value || 'en'}` as keyof Collections
   return queryCollection(collection).first() as Promise<PressEnCollectionItem | null>
-})
+}, { watch: [locale] })
 
 useSeoMeta({
   title: () => locale.value === 'es'

@@ -91,12 +91,12 @@ export default defineContentConfig({
       source: 'en/timeline.yml',
       schema: z.object({ entries: z.array(timelineEntrySchema) }),
     }),
-    historia: defineCollection({
+    historia_es: defineCollection({
       type: 'page',
       source: 'es/historia/*.md',
       schema: chapterSchema,
     }),
-    story: defineCollection({
+    historia_en: defineCollection({
       type: 'page',
       source: 'en/story/*.md',
       schema: chapterSchema,
