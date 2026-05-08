@@ -25,11 +25,11 @@
         <h2 class="heading-display text-2xl sm:text-3xl text-ink-950 mb-10 text-center">
           {{ $t('index.in_the_press') }}
         </h2>
-        <div class="flex flex-wrap justify-center gap-8 sm:gap-12">
+        <div class="flex flex-wrap justify-center gap-8 sm:gap-12" v-if="pressData?.articles">
           <a
-            v-for="article in currentArticles"
+            v-for="article in pressData.articles"
             :key="article.url"
-            :href="article.url"
+            :href="article.url" 
             target="_blank"
             rel="noopener noreferrer"
             class="group flex flex-col items-center justify-center gap-3 p-6 bg-white rounded-xl shadow-sm hover:shadow-md transition-all duration-300 min-w-[280px] max-w-[400px]"
@@ -41,6 +41,11 @@
               {{ article.title }}
             </span>
           </a>
+        </div>
+        <div v-else>
+          <p class="text-center text-ink-600">
+            {{ $t('index.no_press_articles') }}
+          </p>
         </div>
       </div>
     </section>
@@ -64,8 +69,14 @@
 </template>
 
 <script setup lang="ts">
-const { locale, t } = useI18n()
+import type { Collections, PressEnCollectionItem } from '@nuxt/content'
+const { locale } = useI18n()
 const localePath = useLocalePath()
+
+const { data: pressData } = await useAsyncData('press-data', () => {
+  const collection = `press_${locale.value || 'en'}` as keyof Collections
+  return queryCollection(collection).first() as Promise<PressEnCollectionItem | null>
+})
 
 useSeoMeta({
   title: () => locale.value === 'es'
@@ -90,7 +101,4 @@ useSeoMeta({
     ? 'BC-NED con amplificación FGFR1 ×13. Apoya la rebiopsia molecular avanzada.'
     : 'BC-NED with FGFR1 ×13 amplification. Support the advanced molecular rebiopsy.',
 })
-
-import pressData from '../locales/press.json'
-const currentArticles = computed(() => pressData[locale.value] || pressData.es)
 </script>

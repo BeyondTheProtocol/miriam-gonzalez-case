@@ -97,7 +97,8 @@
     "molecular_profile": "The molecular profile",
     "see_full_science": "See the full science →",
     "in_the_press": "In the press",
-    "core_thesis": "Core thesis"
+    "core_thesis": "Core thesis",
+    "no_press_articles": "No press articles found"
   },
   "ciencia": {
     "treatment_history": "Treatment history",
@@ -124,7 +125,8 @@
     "subtitle": "A multidisciplinary group that formed spontaneously around a common goal",
     "medical_support_network": "Medical support network",
     "integrative_support": "Integrative Support",
-    "how_it_formed": "This team wasn't planned. It formed organically when professionals from different fields (technology, medicine, AI, research) saw a case that challenged them and decided to contribute what they knew. There is no formal hierarchy. There is a shared goal: let this tumor's biology guide treatment."
+    "how_it_formed": "This team wasn't planned. It formed organically when professionals from different fields (technology, medicine, AI, research) saw a case that challenged them and decided to contribute what they knew. There is no formal hierarchy. There is a shared goal: let this tumor's biology guide treatment.",
+    "miriam_team": "Miriam's Team"
   },
   "historia": {
     "chapter": "Chapter",

@@ -54,7 +54,17 @@
 </template>
 
 <script setup lang="ts">
+import type { Collections, TeamEnCollectionItem } from '@nuxt/content'
 const { locale } = useI18n()
+
+const { data: teamData } = await useAsyncData('team-data', () => {
+  const collection = `team_${locale.value || 'en'}` as keyof Collections
+  return queryCollection(collection).first() as Promise<TeamEnCollectionItem | null>
+})
+
+const coreTeam = computed(() => teamData.value?.coreTeam ?? [])
+const medicalNetwork = computed(() => teamData.value?.medicalNetwork ?? [])
+const integrativeSupport = computed(() => teamData.value?.integrativeSupport ?? [])
 
 useSeoMeta({
   title: () => locale.value === 'es'
@@ -69,10 +79,4 @@ useSeoMeta({
   ogType: 'website',
   twitterCard: 'summary',
 })
-
-import teamData from '../locales/team.json'
-
-const coreTeam = computed(() => teamData[locale.value]?.coreTeam || teamData.es.coreTeam)
-const medicalNetwork = computed(() => teamData[locale.value]?.medicalNetwork || teamData.es.medicalNetwork)
-const integrativeSupport = computed(() => teamData[locale.value]?.integrativeSupport || teamData.es.integrativeSupport)
 </script>

@@ -57,7 +57,7 @@
     "integrative_support": "Apoyo integral",
     "how_it_formed": "Este equipo no se planificó. Se formó de manera orgánica cuando profesionales de distintos campos (tecnología, medicina, IA, investigación) vieron un caso que les interpeló y decidieron aportar lo que sabían. No hay jerarquía formal. Hay un objetivo compartido: que la biología de este tumor guíe el tratamiento."
   },
-"timeline": {
+  "timeline": {
     "title": "Cronología",
     "subtitle": "Semana a semana, cada hito importa",
     "notice": "Esta cronología se actualiza semanalmente. Puedes seguir el día a día en tiempo real en X/Twitter.",
@@ -105,7 +105,8 @@
     "molecular_profile": "El perfil molecular",
     "see_full_science": "Ver la ciencia completa →",
     "in_the_press": "En los medios",
-    "core_thesis": "Tesis central"
+    "core_thesis": "Tesis central",
+    "no_press_articles": "No se encontraron artículos de prensa"
   },
   "ciencia": {
     "treatment_history": "Historia de tratamientos",

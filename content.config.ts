@@ -29,6 +29,56 @@ const articleSchema = z.object({
     .optional(),
 })
 
+const teamMemberSchema = z.object({
+  role: z.string(),
+  description: z.string(),
+  icon: z.string(),
+  color: z.enum(['gold', 'ocean', 'ink']).optional(),
+})
+
+const teamSchema = z.object({
+  coreTeam: z.array(teamMemberSchema),
+  medicalNetwork: z.array(teamMemberSchema),
+  integrativeSupport: z.array(teamMemberSchema),
+})
+
+const pressItemSchema = z.object({
+  outlet: z.string(),
+  url: z.string(),
+  title: z.string(),
+})
+
+const pressSchema = z.object({
+  articles: z.array(pressItemSchema),
+})
+
+const scienceSchema = z.object({
+  treatments: z.array(
+    z.object({
+      line: z.string(),
+      regimen: z.string(),
+      outcome: z.string(),
+      active: z.boolean(),
+    }),
+  ),
+  papers: z.array(
+    z.object({
+      ref: z.string(),
+      finding: z.string(),
+      relevance: z.string(),
+      link: z.string().nullable().optional(),
+    }),
+  ),
+  panelRows: z.array(
+    z.object({
+      component: z.string(),
+      method: z.string(),
+      targets: z.string(),
+      implication: z.string(),
+    }),
+  ),
+})
+
 export default defineContentConfig({
   collections: {
     timeline_es: defineCollection({
@@ -60,6 +110,36 @@ export default defineContentConfig({
       type: 'page',
       source: 'en/science/*.md',
       schema: articleSchema,
+    }),
+    team_es: defineCollection({
+      type: 'data',
+      source: 'es/team.yml',
+      schema: teamSchema,
+    }),
+    team_en: defineCollection({
+      type: 'data',
+      source: 'en/team.yml',
+      schema: teamSchema,
+    }),
+    press_es: defineCollection({
+      type: 'data',
+      source: 'es/presss.yml',
+      schema: pressSchema,
+    }),
+    press_en: defineCollection({
+      type: 'data',
+      source: 'en/press.yml',
+      schema: pressSchema,
+    }),
+    science_es: defineCollection({
+      type: 'data',
+      source: 'es/science.yml',
+      schema: scienceSchema,
+    }),
+    science_en: defineCollection({
+      type: 'data',
+      source: 'en/science.yml',
+      schema: scienceSchema,
     }),
   },
 })

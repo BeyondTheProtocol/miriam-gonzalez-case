@@ -137,7 +137,7 @@
           <div class="space-y-4">
             <NuxtLink
               v-for="article in articles"
-              :key="article._path"
+              :key="article.path"
               :to="localePath(`/ciencia/${article.stem?.split('/').pop()}`)"
               class="card-base flex items-start justify-between gap-4 hover:border-gold-300 transition-colors group"
             >
@@ -192,9 +192,14 @@ const { data: articles } = await useAsyncData(
   { watch: [locale] },
 )
 
-import cienciaData from '../../locales/ciencia.json'
+import type { Collections, ScienceEnCollectionItem } from '@nuxt/content'
 
-const treatments = computed(() => cienciaData[locale.value]?.treatments || cienciaData.es.treatments)
-const papers = computed(() => cienciaData[locale.value]?.papers || cienciaData.es.papers)
-const panelRows = computed(() => cienciaData[locale.value]?.panelRows || cienciaData.es.panelRows)
+const { data: scienceData } = await useAsyncData('science-data', () => {
+  const collection = `science_${locale.value || 'en'}` as keyof Collections
+  return queryCollection(collection).first() as Promise<ScienceEnCollectionItem | null>
+}, { watch: [locale] })
+
+const treatments = computed(() => scienceData.value?.treatments ?? [])
+const papers = computed(() => scienceData.value?.papers ?? [])
+const panelRows = computed(() => scienceData.value?.panelRows ?? [])
 </script>
