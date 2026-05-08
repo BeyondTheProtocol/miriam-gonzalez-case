@@ -1,0 +1,80 @@
+treatments:
+  - line: 1L
+    regimen: Letrozole + Ribociclib + Zoladex (goserelin) + zoledronic acid
+    outcome: >-
+      Ribociclib discontinued after the 1st cycle due to toxicity. Zoladex
+      continued.
+    active: false
+  - line: 2L
+    regimen: Fulvestrant + Abemaciclib + Zoladex (goserelin) + zoledronic acid
+    outcome: >-
+      On confirmed progression, letrozole is replaced by fulvestrant and
+      ribociclib by abemaciclib. Zoladex and zoledronic acid are maintained.
+    active: false
+  - line: →
+    regimen: Bone progression + abemaciclib discontinuation (March 2026)
+    outcome: >-
+      PET-CT confirms new bone foci in pelvis and right femur. Abemaciclib is
+      discontinued due to bone progression and hepatic toxicity (DILI G2-3).
+      Zoladex and zoledronic acid continue. ECOG 0. No visceral crisis.
+    active: true
+papers:
+  - ref: 'Frontiers in Medicine, 2025'
+    finding: >-
+      Neuroendocrine breast carcinoma (NEBC): The FGFR1 profile is the main
+      driver
+    relevance: >-
+      This case series is the most recent publication on the genomic profile of
+      NEBC. It confirms that alterations in the FGFR1/2 and PI3K/AKT/mTOR
+      pathways are canonical in this extremely rare subtype, validating the
+      clinical strategy of targeting Miriam's FGFR1 amplification.
+    link: 'https://doi.org/10.3389/fmed.2025.1551309'
+  - ref: Ignite Proteomics y Dana-Farber Cancer Institute (2025-2026)
+    finding: 'Functional proteomics: Analyzing proteins, not just DNA'
+    relevance: >-
+      Recent studies show that protein profiling (RPPA) predicts therapeutic
+      responses more accurately than standard genomics. It is vital in complex
+      tumors to identify which active proteins are driving treatment resistance,
+      going beyond DNA mutations alone.
+    link: null
+  - ref: 'Ozaki et al., 2022 — Cancers (DOI: 10.3390/cancers14010196)'
+    finding: 'Neuroendocrine neoplasms of the breast: WHO classification and prognosis'
+    relevance: >-
+      Comprehensive review synthesising the WHO 2019 classification and
+      providing survival data across the neuroendocrine spectrum of breast
+      cancer. It contextualizes the rarity and poorer prognosis associated with
+      this component in Miriam's case.
+    link: 'https://doi.org/10.3390/cancers14010196'
+  - ref: 'Formisano et al., 2019 — Nat. Commun. (DOI: 10.1038/s41467-019-09068-2)'
+    finding: 'FGFR1 amplification: central resistance mechanism to CDK4/6 inhibitors'
+    relevance: >-
+      Mechanistic study identifying FGFR1 amplification as a central driver of
+      resistance to therapies like ribociclib and fulvestrant in metastatic ER+
+      tumors. It directly explains the early clinical progression observed in
+      the first line of treatment.
+    link: 'https://doi.org/10.1038/s41467-019-09068-2'
+panelRows:
+  - component: Broad NGS (tissue)
+    method: Panel ≥500 genes
+    targets: 'ESR1, PIK3CA, AKT1, PTEN, RB1, TP53, FGFR1-4, CCND1, NF1'
+    implication: Biomarker-matched therapy/trial selection
+  - component: ctDNA (liquid)
+    method: Validated plasma assay
+    targets: 'ESR1 (preferred), PIK3CA, TP53, RB1, FGFR pathway'
+    implication: Clonal heterogeneity; ESR1 superior in plasma
+  - component: Extended IHC
+    method: Tissue IHC
+    targets: 'ER, PR, HER2 (ultralow), FGFR1 prot., SSTR2, CgA, SYN'
+    implication: HER2-low→T-DXd; FGFR1→FGFR trial; SSTR2→PRRT
+  - component: Functional IHC
+    method: Phospho-IHC
+    targets: 'p-AKT (Thr308/Ser473), p-ERK1/2'
+    implication: Real PI3K/MAPK pathway activation
+  - component: RPPA (if feasible)
+    method: Functional proteomics
+    targets: 'p-4EBP1, p-S6RP, p-p70S6K'
+    implication: Hierarchical PI3K/MAPK clustering
+  - component: DOTATATE PET/CT
+    method: If SSTR2+ on IHC
+    targets: Krenning score
+    implication: PRRT eligibility (Krenning ≥3)

@@ -40,18 +40,15 @@ export default defineNuxtConfig({
   },
 
   i18n: {
-    baseUrl: 'https://helpmiriam.com',
     locales: [
       { code: 'es', language: 'es-ES', name: 'Español', file: 'es.json' },
       { code: 'en', language: 'en-US', name: 'English', file: 'en.json' },
     ],
     defaultLocale: 'es',
     strategy: 'prefix_except_default',
-    lazy: true,
-    restructureDir: false,
     langDir: 'locales/',
     detectBrowserLanguage: {
-      useCookie: true,
+      useCookie: true ,
       cookieKey: 'i18n_redirected',
       redirectOn: 'root',
       fallbackLocale: 'es',

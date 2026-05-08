@@ -1,0 +1,82 @@
+treatments:
+  - line: 1L
+    regimen: Letrozol + Ribociclib + Zoladex (goserelina) + ác. zoledrónico
+    outcome: >-
+      Ribociclib suspendido tras el 1er ciclo por toxicidad. Zoladex se
+      mantiene.
+    active: false
+  - line: 2L
+    regimen: Fulvestrant + Abemaciclib + Zoladex (goserelina) + ác. zoledrónico
+    outcome: >-
+      Al confirmarse progresión, se sustituye letrozol por fulvestrant y
+      ribociclib por abemaciclib. Zoladex y ácido zoledrónico se mantienen.
+    active: false
+  - line: →
+    regimen: Progresión ósea + suspensión de abemaciclib (marzo 2026)
+    outcome: >-
+      PET-TAC confirma nuevos focos óseos en pelvis y fémur derecho. El
+      abemaciclib se suspende por progresión ósea y toxicidad hepática (DILI
+      G2-3). Zoladex y ácido zoledrónico continúan. ECOG 0. Sin crisis visceral.
+    active: true
+papers:
+  - ref: 'Frontiers in Medicine, 2025'
+    finding: >-
+      Carcinoma de mama neuroendocrino (NEBC): El perfil FGFR1 es el driver
+      principal
+    relevance: >-
+      Esta serie de casos es la publicación más reciente sobre el perfil
+      genómico del NEBC. Confirma que las alteraciones en las vías FGFR1/2 y
+      PI3K/AKT/mTOR son canónicas en este subtipo extremadamente inusual,
+      validando la estrategia clínica de atacar la amplificación de FGFR1 en el
+      caso de Míriam.
+    link: 'https://doi.org/10.3389/fmed.2025.1551309'
+  - ref: Ignite Proteomics y Dana-Farber Cancer Institute (2025-2026)
+    finding: 'Proteómica funcional: Analizar proteínas, no solo ADN'
+    relevance: >-
+      Estudios recientes demuestran que el perfil de proteínas (RPPA) predice
+      respuestas terapéuticas de forma más precisa que la genómica estándar.
+      Resulta vital en tumores complejos para identificar qué proteínas activas
+      impulsan la resistencia a los tratamientos, más allá de las mutaciones en
+      el ADN.
+    link: null
+  - ref: 'Ozaki et al., 2022 — Cancers (DOI: 10.3390/cancers14010196)'
+    finding: 'Neoplasias neuroendocrinas de mama: clasificación WHO y pronóstico'
+    relevance: >-
+      Revisión comprensiva que sintetiza la clasificación WHO 2019 y aporta
+      datos de supervivencia en el espectro neuroendocrino del cáncer de mama.
+      Contextualiza la rareza y el peor pronóstico asociado a este componente en
+      el caso de Míriam.
+    link: 'https://doi.org/10.3390/cancers14010196'
+  - ref: 'Formisano et al., 2019 — Nat. Commun. (DOI: 10.1038/s41467-019-09068-2)'
+    finding: 'Amplificación FGFR1: mecanismo central de resistencia a inhibidores CDK4/6'
+    relevance: >-
+      Estudio mecanístico que identificó FGFR1 como driver central de
+      resistencia a ribociclib y fulvestrant en tumores ER+ metastásicos.
+      Explica directamente la progresión clínica temprana observada en la
+      primera línea de tratamiento.
+    link: 'https://doi.org/10.1038/s41467-019-09068-2'
+panelRows:
+  - component: NGS amplio (tejido)
+    method: Panel ≥500 genes
+    targets: 'ESR1, PIK3CA, AKT1, PTEN, RB1, TP53, FGFR1-4, CCND1, NF1'
+    implication: Selección de terapia/ensayo por biomarcador
+  - component: ctDNA (líquida)
+    method: Ensayo validado plasma
+    targets: 'ESR1 (pref.), PIK3CA, TP53, RB1, FGFR pathway'
+    implication: Heterogeneidad clonal; ESR1 superior en plasma
+  - component: IHQ extendida
+    method: IHQ en tejido
+    targets: 'ER, PR, HER2 (ultralow), FGFR1 prot., SSTR2, CgA, SYN'
+    implication: HER2-low→T-DXd; FGFR1→FGFR trial; SSTR2→PRRT
+  - component: IHQ funcional
+    method: Fosfo-IHQ
+    targets: 'p-AKT (Thr308/Ser473), p-ERK1/2'
+    implication: Activación real de vías PI3K/MAPK
+  - component: RPPA (si viable)
+    method: Proteómica funcional
+    targets: 'p-4EBP1, p-S6RP, p-p70S6K'
+    implication: Clustering jerárquico PI3K/MAPK
+  - component: DOTATATE PET/CT
+    method: Si SSTR2+ en IHQ
+    targets: Krenning score
+    implication: Elegibilidad PRRT (Krenning ≥3)

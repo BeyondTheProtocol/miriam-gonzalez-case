@@ -1,0 +1,98 @@
+---
+coreTeam:
+- role: La paciente
+  description: Ingeniera de software y divulgadora tecnológica. Investiga activamente
+    su caso combinando oncología de precisión e inteligencia artificial. Coordina
+    toda la iniciativa.
+  icon: ph:user-circle-fill
+  color: gold
+- role: Expertos en IA y documentación clínica
+  description: Expertos en inteligencia artificial. Generan y estructuran la documentación
+    clínica del caso con modelos de lenguaje avanzados, conectando la parte técnica
+    con la médica.
+  icon: ph:brain-fill
+  color: ocean
+- role: Experta en bioinformática y decisiones clínicas
+  description: Doctoranda en bioingeniería aplicada a las ciencias de la salud. Ha
+    trabajado en modelos de machine learning para predicción de respuesta farmacológica
+    a partir de datos de expresión génica, una de las líneas de investigación más
+    directamente relacionadas con el perfil molecular de Míriam. Ayuda a interpretar
+    los datos moleculares y a definir los próximos pasos del plan diagnóstico y terapéutico.
+  icon: ph:strategy-fill
+  color: gold
+- role: Web y comunicación
+  description: Se encarga de la web, mantiene la información actualizada y cuida que
+    todo sea comprensible para cualquier visitante.
+  icon: ph:code-fill
+  color: ocean
+- role: Estrategia y navegación sanitaria
+  description: Experiencia directa navegando el sistema sanitario español para acceder
+    a tratamientos complejos. Aporta asesoramiento estratégico y conocimiento del
+    contexto regulatorio.
+  icon: ph:compass-fill
+  color: ink
+- role: Parte humana del caso
+  description: 'Se encarga de contar la historia de Míriam desde dentro: quién es
+    más allá del diagnóstico, cómo vive, qué la mueve y por qué este caso importa
+    más allá de la oncología.'
+  icon: ph:pen-nib-fill
+  color: gold
+medicalNetwork:
+- role: Oncóloga de precisión (EE.UU.)
+  description: Reconocida mundialmente como una de las 25 voces más influyentes en
+    medicina de precisión. Directora asociada de investigación clínica en oncología
+    de precisión, con más de 950 publicaciones científicas y responsable de llevar
+    8 fármacos a la aprobación de la FDA. Interesada en el caso de Miriam para su
+    discusión en redes internacionales de oncología de precisión.
+  icon: ph:stethoscope-fill
+  color: gold
+- role: Oncólogo molecular (Europa)
+  description: Especialista en oncología molecular con reconocimiento internacional.
+    Apoya la estrategia de análisis molecular, coordina con laboratorios de referencia
+    y valida el enfoque clínico del caso.
+  icon: ph:stethoscope-fill
+  color: gold
+- role: Especialista en oncología radioterápica (España)
+  description: Lleva el caso a comité tumoral multidisciplinar. Conexión directa con
+    ensayos de terapia avanzada relevantes para este perfil.
+  icon: ph:atom-fill
+  color: ocean
+- role: Oncóloga tratante (España)
+  description: Oncóloga que sigue el caso desde el diagnóstico. Abierta a nuevos enfoques
+    y en constante actualización con los últimos avances en oncología de precisión.
+  icon: ph:stethoscope-fill
+  color: ink
+integrativeSupport:
+- role: Oncología metabólica (España)
+  description: Especialista en el abordaje metabólico del cáncer. Diseña el protocolo
+    de suplementación y soporte metabólico de Míriam.
+  icon: ph:flask-fill
+  color: ocean
+- role: Doctor en Ciencias del Deporte y oncología del ejercicio (España)
+  description: Investigador principal en la Fundación OncSport — Never Surrender.
+    Diseña y supervisa el programa de entrenamiento individualizado de Miriam, adaptado
+    a su situación de metástasis ósea. El objetivo es mantenerla en ECOG 0 — es decir,
+    con plena capacidad funcional — lo que es determinante para acceder a ensayos
+    clínicos y tolerar los tratamientos que vienen.
+  icon: ph:barbell-fill
+  color: ocean
+- role: Nutricionista oncológica
+  description: Especializada en nutrición para pacientes oncológicos. Lleva el seguimiento
+    nutricional de Míriam a lo largo del tratamiento.
+  icon: ph:plant-fill
+  color: gold
+- role: Psicología oncológica (Asociación AECC)
+  description: Psicóloga especializada en acompañamiento emocional a personas con
+    cáncer. Colabora desde la Asociación AECC.
+  icon: ph:heart-fill
+  color: gold
+- role: Psicología y altas capacidades
+  description: Psicóloga con especialización en altas capacidades. Acompaña a Míriam
+    integrando la dimensión cognitiva con el proceso oncológico.
+  icon: ph:brain-fill
+  color: ocean
+- role: Fisioterapia y acupuntura (medicina tradicional china)
+  description: Fisioterapeuta con formación en medicina tradicional china. Complementa
+    el programa de ejercicio y movilidad de Míriam.
+  icon: ph:hand-palm-fill
+  color: ink
