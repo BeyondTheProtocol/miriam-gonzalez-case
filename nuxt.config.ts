@@ -40,6 +40,7 @@ export default defineNuxtConfig({
   },
 
   i18n: {
+    baseUrl: 'https://helpmiriam.com',
     locales: [
       { code: 'es', language: 'es-ES', name: 'Español', file: 'es.json' },
       { code: 'en', language: 'en-US', name: 'English', file: 'en.json' },
