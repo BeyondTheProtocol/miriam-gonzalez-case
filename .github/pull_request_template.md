@@ -1,3 +1,4 @@
+
 ## 📋 Pull Request
 
 ### Description
@@ -11,6 +12,7 @@
 - [ ] BEM naming convention for custom CSS
 - [ ] Accessibility: semantic HTML, proper labels, keyboard navigation
 - [ ] Both ES and EN languages supported (if applicable)
+- [ ] AGENTS.md and README.md have been updated if significant changes are introduced
 
 ### Related Issue
 <!-- Link to the related issue (e.g., "Closes #12" or "Related to #12") -->
