@@ -5,7 +5,7 @@
         <PageHeader
           :title="$t('science.title')"
           :subtitle="$t('science.subtitle')"
-          tag="BC-NED + FGFR1 × 13"
+          :tag="$t('science.page_tag')"
         />
 
         <h2 class="sr-only">{{ locale === 'es' ? 'Perfil molecular' : 'Molecular profile' }}</h2>
@@ -118,6 +118,21 @@
           </div>
         </section>
 
+        <section class="card-base mb-14 border-l-4 border-ocean-500 bg-ocean-50/20" :aria-label="$t('ciencia.therapeutic_case_reading_title')">
+          <h2 class="font-display font-semibold text-ink-900 text-lg mb-4">
+            {{ $t('ciencia.therapeutic_case_reading_title') }}
+          </h2>
+          <p class="text-sm text-ink-700 leading-relaxed mb-3">
+            {{ $t('ciencia.therapeutic_case_reading_p1') }}
+          </p>
+          <p class="text-sm text-ink-700 leading-relaxed mb-3">
+            {{ $t('ciencia.therapeutic_case_reading_p2') }}
+          </p>
+          <p class="text-sm text-ink-700 leading-relaxed">
+            {{ $t('ciencia.therapeutic_case_reading_p3') }}
+          </p>
+        </section>
+
         <div class="card-base bg-ink-950 text-white border-0 mb-16">
           <div class="flex items-center gap-2.5 mb-4">
             <span class="w-9 h-9 rounded-xl bg-gold-500/20 flex items-center justify-center">
@@ -171,17 +186,17 @@ const localePath = useLocalePath()
 
 useSeoMeta({
   title: () => locale.value === 'es'
-    ? 'Perfil Molecular BC-NED + FGFR1 ×13 — Ciencia'
-    : 'Molecular Profile BC-NED + FGFR1 ×13 — Science',
+    ? 'Perfil molecular — carcinoma NE IV multirresistente (RB1/ESR1) — Ciencia'
+    : 'Molecular profile — stage IV multi-resistant NE breast (RB1/ESR1) — Science',
   description: () => locale.value === 'es'
-    ? 'Análisis científico completo del caso: cáncer de mama con ~80% diferenciación neuroendocrina, amplificación FGFR1 ×13, CCND1 ×20. Historia de tratamientos, rebiopsia propuesta y ensayos clínicos relevantes.'
-    : 'Full scientific analysis: breast cancer with ~80% neuroendocrine differentiation, FGFR1 ×13 amplification, CCND1 ×20. Treatment history, proposed rebiopsy, and relevant clinical trials.',
+    ? 'Carcinoma de mama neuroendocrino IV (óseo): ctDNA abril 2026 (RB1 ×3, ESR1 D538G), FGFR1/CCND1 confirmados, PET con progresión. Historia de tratamientos, literatura y propuesta N-of-1.'
+    : 'Stage IV neuroendocrine breast carcinoma (bone): April 2026 ctDNA (RB1 ×3, ESR1 D538G), confirmed FGFR1/CCND1, PET-documented progression. Treatment history, literature, and N-of-1 rationale.',
   ogTitle: () => locale.value === 'es'
-    ? 'Perfil Molecular BC-NED + FGFR1 ×13'
-    : 'Molecular Profile BC-NED + FGFR1 ×13',
+    ? 'Ciencia — carcinoma NE IV multirresistente'
+    : 'Science — stage IV multi-resistant NE breast',
   ogDescription: () => locale.value === 'es'
-    ? 'Análisis científico del caso: BC-NED, FGFR1 ×13, CCND1 ×20. Metástasis óseas, ECOG 0, sin crisis visceral. Rebiopsia molecular avanzada como siguiente paso.'
-    : 'Scientific case analysis: BC-NED, FGFR1 ×13, CCND1 ×20. Bone metastases, ECOG 0, no visceral crisis. Advanced molecular rebiopsy as the next step.',
+    ? 'RB1 triple, ESR1 en plasma, FGFR1/CCND1 mantenidos. Argumentación para terapia dirigida no luminal y ensayo N-of-1.'
+    : 'Triple RB1, plasma ESR1, sustained FGFR1/CCND1. Rationale for non-luminal targeted therapy and N-of-1 trial.',
   ogType: 'article',
   twitterCard: 'summary_large_image',
 })

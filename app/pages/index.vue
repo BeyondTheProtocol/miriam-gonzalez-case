@@ -91,8 +91,8 @@ const { data: pressData } = await useAsyncData(`press-data-${locale.value}`, () 
 }, { watch: [locale] })
 
 defineOgImage('Default.takumi', {
-  title: locale.value === 'es' ? 'Oncología de precisión para un tumor ultra-raro' : 'Precision Oncology for an Ultra-Rare Tumor',
-  description: locale.value === 'es' ? 'BC-NED con amplificación FGFR1 ×13. Apoya la rebiopsia molecular avanzada que puede cambiar su tratamiento.' : 'BC-NED with FGFR1 ×13 amplification. Support the advanced molecular rebiopsy that could change her treatment.',
+  title: locale.value === 'es' ? 'Carcinoma NE IV — perfil multirresistente' : 'Stage IV NE breast — multi-resistant profile',
+  description: locale.value === 'es' ? 'RB1/ESR1 en plasma · FGFR1/CCND1 confirmados · urgen terapias no luminales.' : 'Plasma RB1/ESR1 · confirmed FGFR1/CCND1 · non-luminal targeted therapy is urgent.',
   colorMode: 'light'
 })
 
@@ -101,14 +101,14 @@ useSeoMeta({
     ? 'Miriam González — Oncología de precisión para un tumor ultra-raro'
     : 'Miriam González — Precision Oncology for an Ultra-Rare Tumor',
   description: () => locale.value === 'es'
-    ? 'BC-NED con amplificación FGFR1 ×13. Una paciente con cáncer de mama metastásico que usa IA y una red internacional de expertos para acceder a la oncología de precisión. Apoya la rebiopsia molecular.'
-    : 'BC-NED with FGFR1 ×13 amplification. A metastatic breast cancer patient using AI and an international expert network to access precision oncology. Support the molecular rebiopsy.',
+    ? 'Carcinoma de mama neuroendocrino IV (óseo), RB1 y ESR1 en plasma (abril 2026). Apoya la estrategia de precisión que la sanidad pública no cubre.'
+    : 'Stage IV neuroendocrine breast carcinoma (bone), plasma RB1 and ESR1 (April 2026). Support the precision strategy public healthcare does not fund.',
   ogTitle: () => locale.value === 'es'
     ? 'Miriam González — Oncología de precisión para un tumor ultra-raro'
     : 'Miriam González — Precision Oncology for an Ultra-Rare Tumor',
   ogDescription: () => locale.value === 'es'
-    ? 'BC-NED con amplificación FGFR1 ×13. Apoya la rebiopsia molecular avanzada que puede cambiar su tratamiento.'
-    : 'BC-NED with FGFR1 ×13 amplification. Support the advanced molecular rebiopsy that could change her treatment.',
+    ? 'Diagnóstico formal 2026, ctDNA de resistencia. Cada donación acerca una tercera línea alineada con la biología real del tumor.'
+    : 'Formal 2026 diagnosis and resistance ctDNA. Every donation brings a third-line plan aligned with the tumour\'s real biology closer.',
   ogType: 'website',
   ogUrl: () => locale.value === 'es' ? 'https://helpmiriam.com' : 'https://helpmiriam.com/en',
   twitterCard: 'summary_large_image',
@@ -116,7 +116,7 @@ useSeoMeta({
     ? 'Miriam González — Oncología de precisión para un tumor ultra-raro'
     : 'Miriam González — Precision Oncology for an Ultra-Rare Tumor',
   twitterDescription: () => locale.value === 'es'
-    ? 'BC-NED con amplificación FGFR1 ×13. Apoya la rebiopsia molecular avanzada.'
-    : 'BC-NED with FGFR1 ×13 amplification. Support the advanced molecular rebiopsy.',
+    ? 'Carcinoma NE IV multirresistente — documentación abierta y crowdfund para pruebas y acceso a comité.'
+    : 'Multi-resistant stage IV NE breast — open documentation and crowdfunding for workups and tumour board access.',
 })
 </script>

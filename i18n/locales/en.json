@@ -23,7 +23,7 @@
   },
   "hero": {
     "tagline": "One patient. A unique tumor. A real chance.",
-    "title": "Miriam has metastatic breast cancer and standard medicine has no answers for her case.",
+    "title": "Miriam has metastatic neuroendocrine breast cancer with a multi-resistant profile and standard medicine has no answers for her case.",
     "subtitle": "Her tumor doesn't respond to any standard treatment. Finding the right one requires tests that public healthcare won't fund. And time cannot wait.",
     "cta_donate": "Support Miriam",
     "cta_science": "See the science",
@@ -42,7 +42,7 @@
       "Any additional test that arises throughout the process"
     ],
     "why_title": "Why isn't this covered by public healthcare?",
-    "why_text": "Current clinical guidelines classify this tumour as \"standard HR+\", but its real biology — with 80% neuroendocrine differentiation and FGFR1 ×13 amplification — needs precision tests that are not included in the protocol. Without them, the treatment is insufficient for what Miriam actually has.",
+    "why_text": "Guidelines still file many such cases as \"standard HR+\", but in 2026 this is stage IV neuroendocrine breast carcinoma (bone) with ctDNA showing three RB1 alterations and ESR1 D538G — a biological signature of resistance to CDK4/6 inhibitors and aromatase targeting. That requires workups and decisions aligned with the NE phenotype, not only the luminal playbook.",
     "transparency_title": "Full transparency",
     "transparency_text": "Every expense is publicly documented. We request quotes from international reference centers and share them with the community.",
     "raised": "Raised",
@@ -51,7 +51,8 @@
   },
   "science": {
     "title": "The science behind the case",
-    "subtitle": "An ultra-rare molecular profile that challenges current clinical guidelines"
+    "subtitle": "From the 11q13 profile to resistance ctDNA: a neuroendocrine tumour that no longer follows standard hormone therapy alone",
+    "page_tag": "Stage IV NE breast (bone) · multi-resistant · FGFR1/CCND1"
   },
   "timeline": {
     "title": "Timeline",
@@ -99,8 +100,8 @@
   },
   "entry_disclaimer": {
     "badge": "May 2026 update",
-    "title": "New molecular alterations detected",
-    "body": "Guardant360 and VHIO360 liquid biopsies (April 2026) have revealed new molecular alterations: ESR1 D538G (endocrine resistance) and 3 RB1 mutations (a predictor of neuroendocrine transition). The molecular profile has become more complex and reinforces the need to explore the neuroendocrine pathway in parallel with the luminal one.",
+    "title": "Neuroendocrine breast carcinoma (BC-NED) with a multi-resistant profile (altered RB1 and ESR1 in plasma). Urgent need for non-luminal targeted therapy.",
+    "body": "Guardant360 and the VHIO/SOLTI report (April 2026) provide the resistance evidence: three RB1 alterations — a key mechanism versus CDK4/6 inhibitors such as abemaciclib — and ESR1 p.D538G (VAF 0.24%), consistent with first-line letrozole failure. FGFR1 and CCND1 amplifications persist (reported plasma copy numbers ~6.95 and ~7.63). Current clinical and pathology diagnosis (Hospital Morales Meseguer, April–May 2026): \"stage IV neuroendocrine breast carcinoma (bone disease).\" The 30/04/2026 bone biopsy may be falsely negative (\"no neoplasia identified\"); third-line strategy therefore rests on ctDNA, clinical correlation, and PET-CT showing clear progression (e.g. SUVmax up to 9.43 in the femur).",
     "cta": "Continue"
   },
   "index": {
@@ -120,13 +121,17 @@
     "implication": "Implication",
     "proposed_panel_caption": "Proposed re-biopsy panel: components, methods, targets and clinical implication",
     "goal_n_of_1": "Goal: N-of-1 Trial",
-    "goal_n_of_1_desc": "A trial where Miriam is the sole unit of analysis, with therapeutic decisions guided by her specific molecular profile rather than \"generic HR+\". The path: re-biopsy with advanced panel → MTB at WIN Consortium international board for a molecularly-directed N-of-1 trial with AI.",
+    "goal_n_of_1_desc": "A trial where Miriam is the sole unit of analysis, with decisions driven by plasma biology (RB1, ESR1, FGFR1/CCND1) and the formal NE diagnosis, not the generic HR+ label. The pathway prioritises tumour board review with integrated reading: SSTR imaging (Ga-68 DOTATOC/TATE PET when appropriate), radioligand therapy with Lu-177-DOTATATE or Ac-225 options when receptor biology supports it, and bridging options cited on liquid biopsy reports for approved neuroendocrine pathways (e.g. surufatinib and FGFR axis).",
     "win_consortium_desc": "WIN Consortium (Worldwide Innovative Network in Oncology) is an international network connecting centres of excellence in precision oncology to design personalised diagnostic and therapeutic strategies.",
     "win_consortium_precedent": "This would set a precedent: precision oncology adapted to each patient, without bureaucracy around the primary tumor.",
     "detailed_analyses": "Detailed analyses",
     "view_reference": "View reference",
     "why_no_fit_guidelines": "Why doesn't this tumor fit the guidelines?",
-    "why_no_fit_guidelines_text": "Formally it is a luminal breast cancer (HR+), but with ~80% neuroendocrine differentiation and an FGFR1 ×13. Guidelines tend to recommend treating it as standard luminal, minimizing the neuroendocrine component. Literature and clinical reasoning suggest this hybrid subtype (BC-NED) has worse prognosis and may require completely different strategies.",
+    "why_no_fit_guidelines_text": "In 2026 pathology reads as stage IV neuroendocrine breast carcinoma (bone). ctDNA shows likely RB1 loss-of-function (three variants) and endocrine resistance (ESR1 D538G), with FGFR1/CCND1 maintained: biologically this is no longer standard luminal disease that can be met with further hormone-only plus CDK4/6 rotation. National pathways often lag the NE breast algorithms that NCCN/ENETS describe for SSTR imaging and PRRT.",
+    "therapeutic_case_reading_title": "Therapeutic proposal — integrated case reading",
+    "therapeutic_case_reading_p1": "Phenotypic switch: as classical luminal routes fail (ESR1 in plasma and altered RB1), tumour growth can be sustained by the dominant neuroendocrine programme. That links first- and second-line failure to current biology and to the formal neuroendocrine breast carcinoma diagnosis.",
+    "therapeutic_case_reading_p2": "SSTR targeting: recognising NE disease supports requesting somatostatin analogue PET (Ga-68 DOTATOC/TATE). If uptake is positive, Lu-177-DOTATATE or Ac-225-based radioligand approaches are justified by receptor biology relative to breast origin alone.",
+    "therapeutic_case_reading_p3": "Options flagged on the liquid report (e.g. surufatinib, with FGFR1 relevance in approved neuroendocrine settings) can serve as a therapeutic bridge and as committee-facing rationale when the luminal algorithm is closed by documented resistance.",
     "thesis": "The thesis: biology, not the organ of origin, should guide treatment.",
     "thesis_goal": "Goal: an N-of-1 trial that sets a precedent for precision oncology in ultra-rare subtypes."
   },
@@ -150,7 +155,7 @@
     "chapter_navigation": "Chapter navigation",
     "pending_notice": "This section is being written by someone close to Miriam. It will tell her story from before the diagnosis: who she is beyond cancer, how she got here, and why what she's doing matters. Coming soon.",
     "story_teaser_1": "Three years ago, Miriam was working full-time as a software developer and creating content about technology. Within a matter of months, her life took a radical turn.",
-    "story_teaser_2": "It all began with back pain, physiotherapy sessions and GPs who couldn't find a solution. As the pain persisted and the healthcare system offered no answers, she decided to arrange an MRI scan herself. One Thursday in January 2024, she found the test results in her inbox: «probable vertebral metastases». A couple of weeks later, the definitive diagnosis arrived: «Stage IV breast cancer with neuroendocrine differentiation».",
+    "story_teaser_2": "It all began with back pain, physiotherapy sessions and GPs who couldn't find a solution. As the pain persisted and the healthcare system offered no answers, she decided to arrange an MRI scan herself. One Thursday in January 2024, she found the test results in her inbox: «probable vertebral metastases». The case later evolved to the formal 2026 diagnosis: «stage IV neuroendocrine breast carcinoma (bone disease)».",
     "story_teaser_3": "For two years, Miriam has been rebuilding her life piece by piece with treatments that have given her time and peace of mind, but with an end date. In 2026, everything has moved forward at breakneck speed. What if these advances, combined with the specific nature of her cancer, opened doors that previously seemed closed?",
     "story_teaser_4": "In this story, we want to tell you about Míriam's case, her journey and her daily routine so that you can truly understand what it means to live with stage 4 cancer."
   }

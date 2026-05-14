@@ -62,15 +62,32 @@ entries:
     highlight: false
 
   - date: "Marzo de 2026, Progresión"
-    title: Progresión ósea — se suspende el abemaciclib
+    title: Progresión ósea confirmada por PET-TAC
     description: >
-      PET-TAC confirma nuevos focos óseos. La progresión es la razón principal del cambio
-      de estrategia. El abemaciclib se suspende también por toxicidad hepática (DILI G2-3),
+      PET-TAC confirma nueva actividad metabólica ósea con SUVmax de hasta ~9,43 en fémur
+      y nuevos focos en pelvis y fémur derecho. Es la prueba objetiva del cambio de
+      estrategia. El abemaciclib se suspende también por toxicidad hepática (DILI G2-3),
       sin llegar a ser grave. El resto del tratamiento — Zoladex y ácido zoledrónico —
       continúa. Se inicia búsqueda activa de tercera línea.
     highlight: false
 
-  - date: "Abril 2026, Semana 1"
+  - date: "Abril de 2026, Biología (Guardant360 / VHIO-SOLTI)"
+    title: ctDNA — tres alteraciones en RB1 y ESR1 D538G
+    description: >
+      La biopsia líquida identifica la firma de resistencia: RB1 (F226, R661W, V622Yfs*33*)
+      como argumento biológico principal frente a inhibidores CDK4/6, y ESR1 p.D538G (VAF 0,24%),
+      coherente con el fracaso del letrozol en 1L. FGFR1 y CCND1 quedan confirmados y amplificados
+      (copias de informe ~6,95 y ~7,63).
+    highlight: true
+
+  - date: "Mayo de 2026, Diagnóstico formal"
+    title: Carcinoma de mama neuroendocrino IV — anatomía patológica Morales Meseguer
+    description: >
+      Informe abril–mayo 2026 que recoge el diagnóstico «Carcinoma de mama neuroendocrino IV
+      (enfermedad ósea)». La biopsia ósea del 30/04/2026 conclusión «No se observa neoplasia»
+      ilustra el riesgo de falsos negativos en hueso; la estrategia se apoya en ctDNA,
+      correlación clínica y PET-TAC.
+    highlight: true
     title: Se forma el equipo y empieza la búsqueda
     description: >
       Miriam empieza a investigar su caso con inteligencia artificial. Un hilo en Twitter.

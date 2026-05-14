@@ -12,24 +12,31 @@ treatments:
       ribociclib by abemaciclib. Zoladex and zoledronic acid are maintained.
     active: false
   - line: →
-    regimen: Bone progression + abemaciclib discontinuation (March 2026)
+    regimen: Bone progression + abemaciclib discontinued (March 2026) — current status
     outcome: >-
-      PET-CT confirms new bone foci in pelvis and right femur. Abemaciclib is
-      discontinued due to bone progression and hepatic toxicity (DILI G2-3).
-      Zoladex and zoledronic acid continue. ECOG 0. No visceral crisis.
+      PET-CT confirms bone progression with new foci in pelvis and right femur
+      (SUVmax up to ~9.43 in the femur). Abemaciclib is discontinued for progression
+      and hepatic toxicity (DILI G2-3). Formal 2026 diagnosis: stage IV
+      neuroendocrine breast carcinoma (bone disease). 30/04/2026 bone biopsy
+      reported “no neoplasia identified” — common false negative on bone; strategy
+      relies on ctDNA (Guardant360 / VHIO-SOLTI, April 2026) and clinical-radiologic
+      correlation. Zoladex and zoledronic acid continue. ECOG 0. No visceral crisis.
     active: true
 paperSections:
   - title: Section 1 — Neuroendocrine Transition and RB1 Loss
-    subtitle: Most critical recent finding, 3 RB1 mutations detected in Guardant360 (April 2026)
+    subtitle: >-
+      Three RB1 alterations on Guardant360 (April 2026): F226, R661W, V622Yfs*33*
+      — predicted functional loss and intrinsic CDK4/6i resistance
     papers:
       - ref: 'Park et al., 2018 — Science (DOI: 10.1126/science.aat5749)'
         finding: 'RB1 + TP53 loss: reprogramming toward a neuroendocrine phenotype'
         relevance: >-
           Foundational experimental study showing that combined RB1 and TP53
           loss reprograms hormone-dependent epithelial tissues toward an
-          aggressive neuroendocrine phenotype. It is the direct biological basis
-          of neuroendocrine transition risk in this case, where 3 distinct RB1
-          mutations were detected in Guardant360 liquid biopsy (April 2026).
+          aggressive neuroendocrine phenotype. It is the direct biological basis of
+          neuroendocrine transition risk in this case, where 3 distinct RB1
+          alterations were detected on liquid biopsy Guardant360 / VHIO-SOLTI (April 2026):
+          F226, R661W, V622Yfs*33.
         link: 'https://doi.org/10.1126/science.aat5749'
       - ref: 'Aggarwal et al., 2018 — Journal of Clinical Oncology (DOI: 10.1200/JCO.2017.77.6880)'
         finding: 'Neuroendocrine transition under hormonal pressure: 17% of hormone-dependent tumors'

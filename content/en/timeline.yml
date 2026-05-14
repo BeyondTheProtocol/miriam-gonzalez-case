@@ -62,13 +62,32 @@ entries:
     highlight: false
 
   - date: "March 2026, Progression"
-    title: Bone progression — abemaciclib discontinued
+    title: Bone progression confirmed on PET-CT
     description: >
-      PET-CT confirms new bone foci. Progression is the main reason for the change in
+      PET-CT confirms new bone metabolic activity with SUVmax up to ~9.43 in the femur
+      and new foci in the pelvis and right femur. This is the objective basis for changing
       strategy. Abemaciclib is also discontinued due to hepatic toxicity (DILI G2-3),
-      though not severe. The rest of the treatment — Zoladex and zoledronic acid —
-      continues. Active search for a third line begins.
+      though not severe. The rest of treatment — Zoladex and zoledronic acid — continues.
+      Active search for a third line begins.
     highlight: false
+
+  - date: "April 2026, Biology (Guardant360 / VHIO-SOLTI)"
+    title: ctDNA — three RB1 alterations and ESR1 D538G
+    description: >
+      Liquid biopsy defines the resistance signature: RB1 (F226, R661W, V622Yfs*33*) as
+      the main biological argument against CDK4/6 inhibitors, and ESR1 p.D538G (VAF 0.24%),
+      consistent with first-line letrozole failure. FGFR1 and CCND1 remain confirmed amplified
+      (reported copies ~6.95 and ~7.63).
+    highlight: true
+
+  - date: "May 2026, Formal diagnosis"
+    title: Stage IV neuroendocrine breast carcinoma — Morales Meseguer pathology
+    description: >
+      April–May 2026 pathology report documents the diagnosis \"stage IV neuroendocrine
+      breast carcinoma (bone disease).\" The 30/04/2026 bone biopsy conclusion \"no neoplasia
+      seen\" illustrates false-negative risk on bone; strategy relies on ctDNA, clinical
+      correlation, and PET-CT.
+    highlight: true
 
   - date: "April 2026, Week 1"
     title: The team forms and the search begins
