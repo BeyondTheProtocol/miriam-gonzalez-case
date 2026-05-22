@@ -61,37 +61,41 @@ const scienceSchema = z.object({
       regimen: z.string(),
       outcome: z.string(),
       active: z.boolean(),
-    }),
+    })
   ),
-  papers: z.array(
-    z.object({
-      ref: z.string(),
-      finding: z.string(),
-      relevance: z.string(),
-      link: z.string().nullable().optional(),
-    }),
-  ).optional(),
-  paperSections: z.array(
-    z.object({
-      title: z.string(),
-      subtitle: z.string().optional(),
-      papers: z.array(
-        z.object({
-          ref: z.string(),
-          finding: z.string(),
-          relevance: z.string(),
-          link: z.string().nullable().optional(),
-        }),
-      ),
-    }),
-  ).optional(),
+  papers: z
+    .array(
+      z.object({
+        ref: z.string(),
+        finding: z.string(),
+        relevance: z.string(),
+        link: z.string().nullable().optional(),
+      })
+    )
+    .optional(),
+  paperSections: z
+    .array(
+      z.object({
+        title: z.string(),
+        subtitle: z.string().optional(),
+        papers: z.array(
+          z.object({
+            ref: z.string(),
+            finding: z.string(),
+            relevance: z.string(),
+            link: z.string().nullable().optional(),
+          })
+        ),
+      })
+    )
+    .optional(),
   panelRows: z.array(
     z.object({
       component: z.string(),
       method: z.string(),
       targets: z.string(),
       implication: z.string(),
-    }),
+    })
   ),
 })
 

@@ -1,0 +1,18 @@
+{
+  "$schema": "./node_modules/oxfmt/configuration_schema.json",
+  "ignorePatterns": [
+    "*.md",
+    "netlify.toml",
+    "nuxt.config.ts",
+    "tailwind.config.js",
+    ".github/ISSUE_TEMPLATE/"
+  ],
+  "endOfLine": "lf",
+  "insertFinalNewline": true,
+  "printWidth": 80,
+  "semi": false,
+  "singleQuote": true,
+  "tabWidth": 2,
+  "trailingComma": "es5",
+  "useTabs": false
+}

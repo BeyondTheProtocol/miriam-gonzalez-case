@@ -2,21 +2,33 @@
   <header
     :aria-label="$t('footer.site_header')"
     class="sticky top-0 z-50 transition-all duration-300"
-    :class="scrolled ? 'bg-ink-50/90 backdrop-blur-lg border-b border-ink-200/50 shadow-sm' : 'bg-transparent'"
+    :class="
+      scrolled
+        ? 'bg-ink-50/90 backdrop-blur-lg border-b border-ink-200/50 shadow-sm'
+        : 'bg-transparent'
+    "
   >
     <div class="section-wide flex items-center justify-between h-16 sm:h-18">
       <!-- Logo -->
       <NuxtLink :to="localePath('/')" class="flex items-center gap-2.5 group">
-        <span class="w-8 h-8 rounded-lg bg-gold-600 text-white flex items-center justify-center font-display font-bold text-sm group-hover:bg-gold-700 transition-colors" aria-hidden="true">
+        <span
+          class="w-8 h-8 rounded-lg bg-gold-600 text-white flex items-center justify-center font-display font-bold text-sm group-hover:bg-gold-700 transition-colors"
+          aria-hidden="true"
+        >
           M
         </span>
-        <span class="font-display font-semibold text-ink-900 text-sm sm:text-base tracking-tight hidden sm:block">
+        <span
+          class="font-display font-semibold text-ink-900 text-sm sm:text-base tracking-tight hidden sm:block"
+        >
           {{ $t('site.title') }}
         </span>
       </NuxtLink>
 
       <!-- Desktop nav -->
-      <nav :aria-label="$t('nav.main_label')" class="hidden lg:flex items-center gap-1">
+      <nav
+        :aria-label="$t('nav.main_label')"
+        class="hidden lg:flex items-center gap-1"
+      >
         <NuxtLink
           v-for="item in navItems"
           :key="item.key"
@@ -26,6 +38,14 @@
         >
           {{ $t(`nav.${item.key}`) }}
         </NuxtLink>
+        <a
+          href="https://helpmiriam.notion.site/colabora"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="px-3 py-1.5 text-sm font-medium text-ink-700 hover:text-ink-950 rounded-lg hover:bg-ink-100/60 transition-all"
+        >
+          {{ $t('nav.collaborate') }}
+        </a>
       </nav>
 
       <!-- Right side: lang switch + CTA + mobile menu -->
@@ -58,7 +78,11 @@
           :aria-label="mobileOpen ? $t('nav.close_menu') : $t('nav.open_menu')"
           class="lg:hidden p-2 -mr-2 text-ink-700 hover:text-ink-950"
         >
-          <Icon :name="mobileOpen ? 'ph:x-bold' : 'ph:list-bold'" class="w-5 h-5" aria-hidden="true" />
+          <Icon
+            :name="mobileOpen ? 'ph:x-bold' : 'ph:list-bold'"
+            class="w-5 h-5"
+            aria-hidden="true"
+          />
         </button>
       </div>
     </div>
@@ -77,7 +101,10 @@
         id="mobile-nav"
         class="lg:hidden border-t border-ink-200/50 bg-ink-50/95 backdrop-blur-lg"
       >
-        <nav :aria-label="$t('nav.mobile_label')" class="section-wide py-4 flex flex-col gap-1">
+        <nav
+          :aria-label="$t('nav.mobile_label')"
+          class="section-wide py-4 flex flex-col gap-1"
+        >
           <NuxtLink
             v-for="item in navItems"
             :key="item.key"
@@ -88,6 +115,15 @@
           >
             {{ $t(`nav.${item.key}`) }}
           </NuxtLink>
+          <a
+            href="https://helpmiriam.notion.site/colabora"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="px-4 py-2.5 text-sm font-medium text-ink-700 hover:text-ink-950 rounded-lg hover:bg-ink-100/60 transition-all"
+            @click="mobileOpen = false"
+          >
+            {{ $t('nav.collaborate') }}
+          </a>
           <a
             href="https://gofund.me/3e25cae99"
             target="_blank"

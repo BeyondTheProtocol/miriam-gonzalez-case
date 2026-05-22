@@ -38,15 +38,18 @@
 const { locale } = useI18n()
 
 useSeoMeta({
-  title: () => locale.value === 'es'
-    ? 'Cronología del caso — Miriam González'
-    : 'Case Timeline — Miriam González',
-  description: () => locale.value === 'es'
-    ? 'Seguimiento cronológico del caso de Miriam González: diagnóstico, tratamientos, progresión y avances en la búsqueda de oncología de precisión para BC-NED con FGFR1 ×13.'
-    : 'Chronological follow-up of Miriam González\'s case: diagnosis, treatments, progression, and advances in the search for precision oncology for BC-NED with FGFR1 ×13.',
-  ogTitle: () => locale.value === 'es'
-    ? 'Cronología del caso — Miriam González'
-    : 'Case Timeline — Miriam González',
+  title: () =>
+    locale.value === 'es'
+      ? 'Cronología del caso — Miriam González'
+      : 'Case Timeline — Miriam González',
+  description: () =>
+    locale.value === 'es'
+      ? 'Seguimiento cronológico del caso de Miriam González: diagnóstico, tratamientos, progresión y avances en la búsqueda de oncología de precisión para BC-NED con FGFR1 ×13.'
+      : "Chronological follow-up of Miriam González's case: diagnosis, treatments, progression, and advances in the search for precision oncology for BC-NED with FGFR1 ×13.",
+  ogTitle: () =>
+    locale.value === 'es'
+      ? 'Cronología del caso — Miriam González'
+      : 'Case Timeline — Miriam González',
   ogType: 'website',
   twitterCard: 'summary',
 })
@@ -61,6 +64,6 @@ const { data: timelineEntries } = await useAsyncData(
     const esData = await queryCollection('timeline_es').first()
     return esData?.entries ?? []
   },
-  { watch: [locale] },
+  { watch: [locale] }
 )
 </script>

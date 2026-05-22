@@ -20,12 +20,20 @@
                 rel="noopener"
                 class="card-base flex items-center gap-4 hover:shadow-md transition-shadow group"
               >
-                <span class="w-10 h-10 rounded-xl bg-ink-900 flex items-center justify-center shrink-0">
+                <span
+                  class="w-10 h-10 rounded-xl bg-ink-900 flex items-center justify-center shrink-0"
+                >
                   <Icon name="ph:x-logo-fill" class="w-5 h-5 text-white" />
                 </span>
                 <div>
-                  <p class="font-semibold text-ink-900 text-sm group-hover:text-ocean-700 transition-colors">{{ $t('contact.twitter_label') }}</p>
-                  <p class="text-xs text-ink-600">{{ $t('timeline.follow_twitter') }}</p>
+                  <p
+                    class="font-semibold text-ink-900 text-sm group-hover:text-ocean-700 transition-colors"
+                  >
+                    {{ $t('contact.twitter_label') }}
+                  </p>
+                  <p class="text-xs text-ink-600">
+                    {{ $t('timeline.follow_twitter') }}
+                  </p>
                 </div>
               </a>
 
@@ -35,11 +43,20 @@
                 rel="noopener"
                 class="card-base flex items-center gap-4 hover:shadow-md transition-shadow group"
               >
-                <span class="w-10 h-10 rounded-xl bg-pink-500 flex items-center justify-center shrink-0">
-                  <Icon name="ph:instagram-logo-fill" class="w-5 h-5 text-white" />
+                <span
+                  class="w-10 h-10 rounded-xl bg-pink-500 flex items-center justify-center shrink-0"
+                >
+                  <Icon
+                    name="ph:instagram-logo-fill"
+                    class="w-5 h-5 text-white"
+                  />
                 </span>
                 <div>
-                  <p class="font-semibold text-ink-900 text-sm group-hover:text-ocean-700 transition-colors">Instagram</p>
+                  <p
+                    class="font-semibold text-ink-900 text-sm group-hover:text-ocean-700 transition-colors"
+                  >
+                    Instagram
+                  </p>
                   <p class="text-xs text-ink-600">@miriamgonp</p>
                 </div>
               </a>
@@ -50,11 +67,20 @@
                 rel="noopener"
                 class="card-base flex items-center gap-4 hover:shadow-md transition-shadow group"
               >
-                <span class="w-10 h-10 rounded-xl bg-blue-700 flex items-center justify-center shrink-0">
-                  <Icon name="ph:linkedin-logo-fill" class="w-5 h-5 text-white" />
+                <span
+                  class="w-10 h-10 rounded-xl bg-blue-700 flex items-center justify-center shrink-0"
+                >
+                  <Icon
+                    name="ph:linkedin-logo-fill"
+                    class="w-5 h-5 text-white"
+                  />
                 </span>
                 <div>
-                  <p class="font-semibold text-ink-900 text-sm group-hover:text-ocean-700 transition-colors">{{ $t('contact.linkedin_label') }}</p>
+                  <p
+                    class="font-semibold text-ink-900 text-sm group-hover:text-ocean-700 transition-colors"
+                  >
+                    {{ $t('contact.linkedin_label') }}
+                  </p>
                   <p class="text-xs text-ink-600">linkedin.com/in/miriamgonp</p>
                 </div>
               </a>
@@ -65,11 +91,17 @@
                 rel="noopener"
                 class="card-base flex items-center gap-4 hover:shadow-md transition-shadow group"
               >
-                <span class="w-10 h-10 rounded-xl bg-gold-500 flex items-center justify-center shrink-0">
+                <span
+                  class="w-10 h-10 rounded-xl bg-gold-500 flex items-center justify-center shrink-0"
+                >
                   <Icon name="ph:heart-fill" class="w-5 h-5 text-white" />
                 </span>
                 <div>
-                  <p class="font-semibold text-ink-900 text-sm group-hover:text-ocean-700 transition-colors">{{ $t('contact.gofundme_label') }}</p>
+                  <p
+                    class="font-semibold text-ink-900 text-sm group-hover:text-ocean-700 transition-colors"
+                  >
+                    {{ $t('contact.gofundme_label') }}
+                  </p>
                   <p class="text-xs text-ink-600">gofund.me/3e25cae99</p>
                 </div>
               </a>
@@ -94,12 +126,19 @@
               class="card-base space-y-5"
             >
               <input type="hidden" name="form-name" value="contact" />
-              <input type="hidden" name="subject" value="Nuevo mensaje de contacto — miriamgonp.com" />
+              <input
+                type="hidden"
+                name="subject"
+                value="Nuevo mensaje de contacto — miriamgonp.com"
+              />
               <p hidden>
                 <label>No rellenes esto: <input name="bot-field" /></label>
               </p>
               <div>
-                <label for="name" class="block text-sm font-medium text-ink-800 mb-1.5">
+                <label
+                  for="name"
+                  class="block text-sm font-medium text-ink-800 mb-1.5"
+                >
                   {{ $t('contact.name_label') }}
                 </label>
                 <input
@@ -114,7 +153,10 @@
               </div>
 
               <div>
-                <label for="email" class="block text-sm font-medium text-ink-800 mb-1.5">
+                <label
+                  for="email"
+                  class="block text-sm font-medium text-ink-800 mb-1.5"
+                >
                   Email
                 </label>
                 <input
@@ -129,7 +171,10 @@
               </div>
 
               <div>
-                <label for="role" class="block text-sm font-medium text-ink-800 mb-1.5">
+                <label
+                  for="role"
+                  class="block text-sm font-medium text-ink-800 mb-1.5"
+                >
                   {{ $t('contact.role_label') }}
                 </label>
                 <select
@@ -137,18 +182,31 @@
                   name="role"
                   class="w-full px-4 py-2.5 bg-ink-50 border border-ink-200 rounded-xl text-sm text-ink-800 focus:outline-none focus:ring-2 focus:ring-gold-600/50 focus:border-gold-600 transition-all"
                 >
-                  <option value="" disabled selected>{{ $t('contact.role_placeholder') }}</option>
-                  <option value="oncologist">{{ $t('contact.role_oncologist') }}</option>
-                  <option value="researcher">{{ $t('contact.role_researcher') }}</option>
-                  <option value="journalist">{{ $t('contact.role_journalist') }}</option>
-                  <option value="patient">{{ $t('contact.role_patient') }}</option>
+                  <option value="" disabled selected>
+                    {{ $t('contact.role_placeholder') }}
+                  </option>
+                  <option value="oncologist">
+                    {{ $t('contact.role_oncologist') }}
+                  </option>
+                  <option value="researcher">
+                    {{ $t('contact.role_researcher') }}
+                  </option>
+                  <option value="journalist">
+                    {{ $t('contact.role_journalist') }}
+                  </option>
+                  <option value="patient">
+                    {{ $t('contact.role_patient') }}
+                  </option>
                   <option value="tech">{{ $t('contact.role_tech') }}</option>
                   <option value="other">{{ $t('contact.role_other') }}</option>
                 </select>
               </div>
 
               <div>
-                <label for="message" class="block text-sm font-medium text-ink-800 mb-1.5">
+                <label
+                  for="message"
+                  class="block text-sm font-medium text-ink-800 mb-1.5"
+                >
                   {{ $t('contact.message_label') }}
                 </label>
                 <textarea
@@ -183,15 +241,18 @@
 const { locale } = useI18n()
 
 useSeoMeta({
-  title: () => locale.value === 'es'
-    ? 'Contacto — Miriam González'
-    : 'Contact — Miriam González',
-  description: () => locale.value === 'es'
-    ? '¿Eres oncólogo/a, investigador/a o periodista con interés en el caso? Contacta con el equipo de Miriam González para documentación clínica o colaboración.'
-    : 'Are you an oncologist, researcher, or journalist interested in the case? Contact Miriam González\'s team for clinical documentation or collaboration.',
-  ogTitle: () => locale.value === 'es'
-    ? 'Contacto — Miriam González'
-    : 'Contact — Miriam González',
+  title: () =>
+    locale.value === 'es'
+      ? 'Contacto — Miriam González'
+      : 'Contact — Miriam González',
+  description: () =>
+    locale.value === 'es'
+      ? '¿Eres oncólogo/a, investigador/a o periodista con interés en el caso? Contacta con el equipo de Miriam González para documentación clínica o colaboración.'
+      : "Are you an oncologist, researcher, or journalist interested in the case? Contact Miriam González's team for clinical documentation or collaboration.",
+  ogTitle: () =>
+    locale.value === 'es'
+      ? 'Contacto — Miriam González'
+      : 'Contact — Miriam González',
   ogType: 'website',
   twitterCard: 'summary',
   robots: 'noindex',

@@ -2,7 +2,6 @@
   <div>
     <section class="section-spacing" :aria-label="article?.title">
       <div class="section-container">
-
         <!-- Back link -->
         <NuxtLink
           :to="localePath('/ciencia')"
@@ -18,19 +17,33 @@
           class="card-base border-l-4 border-l-gold-400 mb-8 bg-gold-50/40"
         >
           <p class="text-sm text-ink-600 italic">
-            {{ locale === 'es'
-              ? 'Este artículo aún no está disponible en inglés. Se muestra la versión en español.'
-              : 'This article is not yet available in English. Showing the Spanish version.'
+            {{
+              locale === 'es'
+                ? 'Este artículo aún no está disponible en inglés. Se muestra la versión en español.'
+                : 'This article is not yet available in English. Showing the Spanish version.'
             }}
           </p>
         </div>
 
         <!-- 404 -->
         <div v-if="!article" class="card-base text-center py-16">
-          <Icon name="ph:file-x" class="w-12 h-12 text-ink-300 mx-auto mb-4" aria-hidden="true" />
-          <p class="text-ink-600">{{ locale === 'es' ? 'Artículo no encontrado.' : 'Article not found.' }}</p>
-          <NuxtLink :to="localePath('/ciencia')" class="mt-4 inline-block text-sm text-ocean-600 hover:text-ocean-800 transition-colors">
-            {{ locale === 'es' ? 'Ver todos los análisis' : 'View all analyses' }}
+          <Icon
+            name="ph:file-x"
+            class="w-12 h-12 text-ink-300 mx-auto mb-4"
+            aria-hidden="true"
+          />
+          <p class="text-ink-600">
+            {{
+              locale === 'es' ? 'Artículo no encontrado.' : 'Article not found.'
+            }}
+          </p>
+          <NuxtLink
+            :to="localePath('/ciencia')"
+            class="mt-4 inline-block text-sm text-ocean-600 hover:text-ocean-800 transition-colors"
+          >
+            {{
+              locale === 'es' ? 'Ver todos los análisis' : 'View all analyses'
+            }}
           </NuxtLink>
         </div>
 
@@ -38,9 +51,13 @@
           <!-- Header -->
           <div class="max-w-2xl mb-10">
             <div class="flex flex-wrap items-center gap-1.5 mb-4">
-              <span v-for="tag in article.tags" :key="tag" class="tag-ocean">{{ tag }}</span>
+              <span v-for="tag in article.tags" :key="tag" class="tag-ocean">{{
+                tag
+              }}</span>
             </div>
-            <h1 class="heading-display text-3xl sm:text-4xl text-ink-950 mb-4">{{ article.title }}</h1>
+            <h1 class="heading-display text-3xl sm:text-4xl text-ink-950 mb-4">
+              {{ article.title }}
+            </h1>
             <p class="text-ink-600 text-sm font-mono">
               {{ formatDate(article.date) }}
             </p>
@@ -48,14 +65,16 @@
 
           <!-- Body -->
           <div class="max-w-2xl">
-            <ContentRenderer
-              :value="article"
-              class="prose prose-ink"
-            />
+            <ContentRenderer :value="article" class="prose prose-ink" />
 
             <!-- References -->
-            <div v-if="article.references?.length" class="mt-12 pt-8 border-t border-ink-200">
-              <h2 class="font-display font-semibold text-ink-900 text-base mb-4">
+            <div
+              v-if="article.references?.length"
+              class="mt-12 pt-8 border-t border-ink-200"
+            >
+              <h2
+                class="font-display font-semibold text-ink-900 text-base mb-4"
+              >
                 {{ locale === 'es' ? 'Referencias' : 'References' }}
               </h2>
               <ul class="space-y-2">
@@ -70,7 +89,8 @@
                     target="_blank"
                     rel="noopener"
                     class="text-ocean-600 hover:text-ocean-800 transition-colors break-all"
-                  >{{ ref.link }}</a>
+                    >{{ ref.link }}</a
+                  >
                 </li>
               </ul>
             </div>
@@ -92,7 +112,9 @@ const { data } = await useAsyncData(
   `ciencia-article-${slug}-${locale.value}`,
   async () => {
     if (locale.value === 'en') {
-      const enArticle = await queryCollection('science_articles').path(`/en/science/${slug}`).first()
+      const enArticle = await queryCollection('science_articles')
+        .path(`/en/science/${slug}`)
+        .first()
       if (enArticle) return { article: enArticle, isFallback: false }
 
       // fallback to ES version with matching translationKey
@@ -102,10 +124,12 @@ const { data } = await useAsyncData(
       return { article: esArticle ?? null, isFallback: !!esArticle }
     }
 
-    const esArticle = await queryCollection('ciencia_articles').path(`/es/ciencia/${slug}`).first()
+    const esArticle = await queryCollection('ciencia_articles')
+      .path(`/es/ciencia/${slug}`)
+      .first()
     return { article: esArticle ?? null, isFallback: false }
   },
-  { watch: [locale] },
+  { watch: [locale] }
 )
 
 const article = computed(() => data.value?.article)
@@ -121,9 +145,17 @@ function formatDate(dateStr: string) {
 }
 
 useSeoMeta({
-  title: computed(() => article.value ? `${article.value.title} — Miriam González` : 'Miriam González'),
+  title: computed(() =>
+    article.value
+      ? `${article.value.title} — Miriam González`
+      : 'Miriam González'
+  ),
   description: computed(() => article.value?.excerpt ?? ''),
-  ogTitle: computed(() => article.value ? `${article.value.title} — Miriam González` : 'Miriam González'),
+  ogTitle: computed(() =>
+    article.value
+      ? `${article.value.title} — Miriam González`
+      : 'Miriam González'
+  ),
   ogDescription: computed(() => article.value?.excerpt ?? ''),
   ogType: 'article',
   twitterCard: 'summary_large_image',

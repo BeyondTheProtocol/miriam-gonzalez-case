@@ -8,6 +8,11 @@
     "generate": "nuxt generate",
     "preview": "nuxt preview",
     "postinstall": "nuxt prepare",
+    "format": "oxfmt",
+    "format:check": "oxfmt --check",
+    "lint": "oxlint",
+    "lint:fix": "oxlint --fix",
+    "lint:github": "oxlint --format=github",
     "icons": "nuxt-seo-utils icons --source favicon.svg"
   },
   "dependencies": {
@@ -30,6 +35,8 @@
     "@nuxtjs/tailwindcss": "^6.13.0",
     "@tailwindcss/typography": "^0.5.16",
     "nuxt-seo-utils": "^8.1.11",
+    "oxfmt": "^0.50.0",
+    "oxlint": "^1.65.0",
     "typescript": "^5.7.0"
   },
   "packageManager": "pnpm@11.0.9"

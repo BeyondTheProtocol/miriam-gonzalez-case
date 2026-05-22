@@ -1,19 +1,19 @@
 entries:
-  - date: "2021, Antecedentes"
+  - date: '2021, Antecedentes'
     title: Un primer aviso que quedó sin respuesta
     description: >
       Miriam acude a urgencias por un sangrado en la mama. Le realizan una ecografía.
       El resultado es normal. Y ahí se queda la cosa.
     highlight: false
 
-  - date: "31 de octubre de 2023, Síntomas"
+  - date: '31 de octubre de 2023, Síntomas'
     title: Empieza el dolor de espalda
     description: >
       Miriam empieza a notar un dolor lumbar persistente. Semanas de fisioterapia y
       consultas sin una respuesta clara. Hasta que ella misma solicita una resonancia magnética.
     highlight: false
 
-  - date: "11 de enero de 2024, Diagnóstico"
+  - date: '11 de enero de 2024, Diagnóstico'
     title: El resultado llega por email
     description: >
       El informe de la resonancia llega por email, un jueves por la mañana. La conclusión:
@@ -24,16 +24,16 @@ entries:
       radioterapia sobre las vértebras afectadas.
     highlight: true
 
-  - date: "Enero–febrero de 2024, Primera línea"
-    title: "Tratamiento: Letrozol + Ribociclib"
+  - date: 'Enero–febrero de 2024, Primera línea'
+    title: 'Tratamiento: Letrozol + Ribociclib'
     description: >
       Se inicia primera línea de tratamiento con letrozol, ribociclib, Zoladex (goserelina) y
       ácido zoledrónico. Tras el primer ciclo, Miriam ingresa de urgencias con dificultad
       respiratoria aguda. El ribociclib se suspende definitivamente.
     highlight: false
 
-  - date: "Febrero–abril de 2024, Ingreso urgente"
-    title: "50 días hospitalizada, 10 en UCI"
+  - date: 'Febrero–abril de 2024, Ingreso urgente'
+    title: '50 días hospitalizada, 10 en UCI'
     description: >
       La neutropenia severa causada por el ribociclib derivó en una neumonía necrotizante
       bilateral con áreas de necrosis pulmonar. Miriam ingresa en UCI con insuficiencia
@@ -43,7 +43,7 @@ entries:
     highlight: true
     image: /img/hospital.jpg
 
-  - date: "Julio de 2024, DIPCAN"
+  - date: 'Julio de 2024, DIPCAN'
     title: El tumor revela su identidad molecular
     description: >
       Miriam participa en el estudio DIPCAN, que permite realizar un análisis genómico completo
@@ -54,14 +54,14 @@ entries:
       diferencia con implicaciones directas en la elección del tratamiento hormonal.
     highlight: true
 
-  - date: "Enero de 2025, Segunda línea"
-    title: "Tratamiento: Fulvestrant + Abemaciclib"
+  - date: 'Enero de 2025, Segunda línea'
+    title: 'Tratamiento: Fulvestrant + Abemaciclib'
     description: >
       Tras confirmar progresión en PET-TAC, se pasa a segunda línea: se sustituye letrozol
       por fulvestrant y ribociclib por abemaciclib. Zoladex se mantiene.
     highlight: false
 
-  - date: "Marzo de 2026, Progresión"
+  - date: 'Marzo de 2026, Progresión'
     title: Progresión ósea confirmada por PET-TAC
     description: >
       PET-TAC confirma nueva actividad metabólica ósea con SUVmax de hasta ~9,43 en fémur
@@ -71,7 +71,7 @@ entries:
       continúa. Se inicia búsqueda activa de tercera línea.
     highlight: false
 
-  - date: "Abril de 2026, Biología (Guardant360 / VHIO-SOLTI)"
+  - date: 'Abril de 2026, Biología (Guardant360 / VHIO-SOLTI)'
     title: ctDNA — tres alteraciones en RB1 y ESR1 D538G
     description: >
       La biopsia líquida identifica la firma de resistencia: RB1 (F226, R661W, V622Yfs*33*)
@@ -80,7 +80,7 @@ entries:
       (copias de informe ~6,95 y ~7,63).
     highlight: true
 
-  - date: "Mayo de 2026, Diagnóstico formal"
+  - date: 'Mayo de 2026, Diagnóstico formal'
     title: Carcinoma de mama neuroendocrino IV — anatomía patológica Morales Meseguer
     description: >
       Informe abril–mayo 2026 que recoge el diagnóstico «Carcinoma de mama neuroendocrino IV
@@ -88,6 +88,8 @@ entries:
       ilustra el riesgo de falsos negativos en hueso; la estrategia se apoya en ctDNA,
       correlación clínica y PET-TAC.
     highlight: true
+
+  - date: 'Abril 2026, Semana 1'
     title: Se forma el equipo y empieza la búsqueda
     description: >
       Miriam empieza a investigar su caso con inteligencia artificial. Un hilo en Twitter.
@@ -95,9 +97,9 @@ entries:
       multidisciplinar espontáneo con especialistas de cuatro países.
     highlight: true
     link: https://x.com/miriamgonp/status/2041824144484917749
-    linkLabel: "Ver el hilo original en Twitter →"
+    linkLabel: 'Ver el hilo original en Twitter →'
 
-  - date: "8–9 de abril de 2026, IA"
+  - date: '8–9 de abril de 2026, IA'
     title: Documentación clínica generada con IA
     description: >
       Se genera el resumen clínico completo del caso usando modelos de lenguaje avanzados.
@@ -105,9 +107,9 @@ entries:
       el caso a especialistas de alto nivel.
     highlight: true
     link: https://x.com/javilop/status/2041905341059973294
-    linkLabel: "Ver hilo de documentación →"
+    linkLabel: 'Ver hilo de documentación →'
 
-  - date: "Abril 2026, DIVULGACIÓN"
+  - date: 'Abril 2026, DIVULGACIÓN'
     title: Ponencia en Codemotion Madrid
     description: >
       Míriam sube al escenario de Codemotion Madrid para hablar de cómo la IA está ayudando
@@ -115,4 +117,4 @@ entries:
       ecosistema tech tras dos años.
     highlight: true
     link: https://x.com/miriamgonp/status/2046266823209890162
-    linkLabel: "Ver el hilo en Twitter →"
+    linkLabel: 'Ver el hilo en Twitter →'

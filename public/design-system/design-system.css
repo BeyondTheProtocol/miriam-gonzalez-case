@@ -2,7 +2,10 @@
    Imports tokens.css for variables and base components. */
 
 /* Prevent horizontal overflow globally */
-body { overflow-x: hidden; max-width: 100%; }
+body {
+  overflow-x: hidden;
+  max-width: 100%;
+}
 
 /* Layout shell */
 .ds-shell {
@@ -169,9 +172,15 @@ body { overflow-x: hidden; max-width: 100%; }
   letter-spacing: -0.02em;
   margin-bottom: 12px;
 }
-.journey .step-1 h4 { color: var(--color-text); }
-.journey .step-2 h4 { color: var(--color-miriam); }
-.journey .step-3 h4 { color: var(--color-cta); }
+.journey .step-1 h4 {
+  color: var(--color-text);
+}
+.journey .step-2 h4 {
+  color: var(--color-miriam);
+}
+.journey .step-3 h4 {
+  color: var(--color-cta);
+}
 .journey p {
   font-size: 14px;
   color: var(--color-text-soft);
@@ -210,7 +219,9 @@ body { overflow-x: hidden; max-width: 100%; }
   text-transform: uppercase;
   color: var(--color-text-soft);
 }
-.ratio-table td b { font-weight: 600; }
+.ratio-table td b {
+  font-weight: 600;
+}
 .ratio-bar {
   display: flex;
   height: 8px;
@@ -219,8 +230,12 @@ body { overflow-x: hidden; max-width: 100%; }
   background: var(--color-bg-card);
   width: 140px;
 }
-.ratio-bar .sci { background: var(--color-text); }
-.ratio-bar .hum { background: var(--color-miriam); }
+.ratio-bar .sci {
+  background: var(--color-text);
+}
+.ratio-bar .hum {
+  background: var(--color-miriam);
+}
 .ratio-vals {
   font-family: var(--font-mono);
   font-size: 12px;
@@ -304,8 +319,12 @@ body { overflow-x: hidden; max-width: 100%; }
   margin-bottom: 6px;
   font-weight: 600;
 }
-.rule.do   { border-left: 3px solid var(--color-miriam); }
-.rule.dont { border-left: 3px solid var(--color-cta); }
+.rule.do {
+  border-left: 3px solid var(--color-miriam);
+}
+.rule.dont {
+  border-left: 3px solid var(--color-cta);
+}
 
 /* Type specimens */
 .specimen {
@@ -337,9 +356,18 @@ body { overflow-x: hidden; max-width: 100%; }
   line-height: 1;
   color: var(--color-text);
 }
-.specimen.h1 .glyph { font-size: 96px; letter-spacing: -0.05em; }
-.specimen.h2 .glyph { font-size: 60px; letter-spacing: -0.04em; }
-.specimen.h3 .glyph { font-size: 32px; letter-spacing: -0.03em; }
+.specimen.h1 .glyph {
+  font-size: 96px;
+  letter-spacing: -0.05em;
+}
+.specimen.h2 .glyph {
+  font-size: 60px;
+  letter-spacing: -0.04em;
+}
+.specimen.h3 .glyph {
+  font-size: 32px;
+  letter-spacing: -0.03em;
+}
 .specimen.body .glyph {
   font-family: var(--font-body);
   font-weight: 400;
@@ -593,8 +621,12 @@ body { overflow-x: hidden; max-width: 100%; }
   overflow-x: auto;
   margin: 12px 0;
 }
-.code .c-key { color: var(--color-miriam-soft); }
-.code .c-val { color: #FFE0D6; }
+.code .c-key {
+  color: var(--color-miriam-soft);
+}
+.code .c-val {
+  color: #ffe0d6;
+}
 .code .c-com {
   color: rgba(245, 239, 230, 0.45);
   font-style: italic;
@@ -615,7 +647,7 @@ ul.checklist li {
   line-height: 1.5;
 }
 ul.checklist li::before {
-  content: "";
+  content: '';
   position: absolute;
   left: 0;
   top: 6px;
@@ -623,18 +655,35 @@ ul.checklist li::before {
   height: 16px;
   border-radius: 4px;
   background: var(--color-miriam-soft);
-  background-image: linear-gradient(135deg, transparent 40%, var(--color-miriam) 40% 60%, transparent 60%);
+  background-image: linear-gradient(
+    135deg,
+    transparent 40%,
+    var(--color-miriam) 40% 60%,
+    transparent 60%
+  );
 }
 ul.checklist.dont li::before {
   background: rgba(255, 107, 71, 0.18);
   background-image:
-    linear-gradient(45deg, transparent 45%, var(--color-cta) 45% 55%, transparent 55%),
-    linear-gradient(-45deg, transparent 45%, var(--color-cta) 45% 55%, transparent 55%);
+    linear-gradient(
+      45deg,
+      transparent 45%,
+      var(--color-cta) 45% 55%,
+      transparent 55%
+    ),
+    linear-gradient(
+      -45deg,
+      transparent 45%,
+      var(--color-cta) 45% 55%,
+      transparent 55%
+    );
 }
 
 /* Loading spinner — used in section 17 (Estados de UI) */
 @keyframes ds-spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 /* Footer */
@@ -652,35 +701,77 @@ ul.checklist.dont li::before {
 }
 
 /* Responsive grid utilities */
-.grid-2 { grid-template-columns: 1fr 1fr; }
-.grid-3 { grid-template-columns: repeat(3, 1fr); }
-.grid-4 { grid-template-columns: repeat(4, 1fr); }
-.grid-2 > *, .grid-3 > *, .grid-4 > * { min-width: 0; }
+.grid-2 {
+  grid-template-columns: 1fr 1fr;
+}
+.grid-3 {
+  grid-template-columns: repeat(3, 1fr);
+}
+.grid-4 {
+  grid-template-columns: repeat(4, 1fr);
+}
+.grid-2 > *,
+.grid-3 > *,
+.grid-4 > * {
+  min-width: 0;
+}
 
 @media (max-width: 900px) {
-  .ds-shell { grid-template-columns: 1fr; }
+  .ds-shell {
+    grid-template-columns: 1fr;
+  }
   .ds-side {
     position: static;
     height: auto;
     border-right: 0;
     border-bottom: 1px solid rgba(45, 27, 61, 0.08);
   }
-  .journey { grid-template-columns: 1fr; }
-  .rules { grid-template-columns: 1fr; }
-  .avatar-row { grid-template-columns: 1fr; }
-  .specimen.h1 .glyph { font-size: 56px; }
-  .specimen.h2 .glyph { font-size: 40px; }
-  .specimen.stat .glyph { font-size: 80px; }
-  .grid-3 { grid-template-columns: 1fr; }
-  .grid-4 { grid-template-columns: repeat(2, 1fr); }
-  .ds-main { padding: 40px 5vw 80px; }
-  .ds-hero { padding: 48px 5vw 40px; }
+  .journey {
+    grid-template-columns: 1fr;
+  }
+  .rules {
+    grid-template-columns: 1fr;
+  }
+  .avatar-row {
+    grid-template-columns: 1fr;
+  }
+  .specimen.h1 .glyph {
+    font-size: 56px;
+  }
+  .specimen.h2 .glyph {
+    font-size: 40px;
+  }
+  .specimen.stat .glyph {
+    font-size: 80px;
+  }
+  .grid-3 {
+    grid-template-columns: 1fr;
+  }
+  .grid-4 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .ds-main {
+    padding: 40px 5vw 80px;
+  }
+  .ds-hero {
+    padding: 48px 5vw 40px;
+  }
 }
 
 @media (max-width: 600px) {
-  .grid-2 { grid-template-columns: 1fr; }
-  .grid-4 { grid-template-columns: 1fr; }
-  .ds-main { padding: 24px 4vw 64px; }
-  .ds-hero { padding: 32px 4vw 32px; }
-  .ratio-bar { width: 80px; }
+  .grid-2 {
+    grid-template-columns: 1fr;
+  }
+  .grid-4 {
+    grid-template-columns: 1fr;
+  }
+  .ds-main {
+    padding: 24px 4vw 64px;
+  }
+  .ds-hero {
+    padding: 32px 4vw 32px;
+  }
+  .ratio-bar {
+    width: 80px;
+  }
 }

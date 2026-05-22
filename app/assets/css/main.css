@@ -16,7 +16,8 @@
     left: 0;
     z-index: 9999;
     padding: 8px 16px;
-    background: theme('colors.ink.950'); /* #1f1933 — contraste ~15:1 con blanco */
+    background: theme('colors.ink.950');
+    /* #1f1933 — contraste ~15:1 con blanco */
     color: #fff;
     font-size: 0.875rem;
     font-weight: 600;
@@ -95,7 +96,10 @@
   .link-underline {
     @apply relative text-ocean-700 font-medium;
     /* gold-600 sobre ink-50: 8.1:1 → pasa non-text 3:1 ✓ */
-    background-image: linear-gradient(theme('colors.gold.600'), theme('colors.gold.600'));
+    background-image: linear-gradient(
+      theme('colors.gold.600'),
+      theme('colors.gold.600')
+    );
     background-size: 0% 2px;
     background-position: left bottom;
     background-repeat: no-repeat;
@@ -127,10 +131,22 @@
   .stagger-children > * {
     animation: fade-up 0.5s ease-out both;
   }
-  .stagger-children > *:nth-child(1) { animation-delay: 0.05s; }
-  .stagger-children > *:nth-child(2) { animation-delay: 0.1s; }
-  .stagger-children > *:nth-child(3) { animation-delay: 0.15s; }
-  .stagger-children > *:nth-child(4) { animation-delay: 0.2s; }
-  .stagger-children > *:nth-child(5) { animation-delay: 0.25s; }
-  .stagger-children > *:nth-child(6) { animation-delay: 0.3s; }
+  .stagger-children > *:nth-child(1) {
+    animation-delay: 0.05s;
+  }
+  .stagger-children > *:nth-child(2) {
+    animation-delay: 0.1s;
+  }
+  .stagger-children > *:nth-child(3) {
+    animation-delay: 0.15s;
+  }
+  .stagger-children > *:nth-child(4) {
+    animation-delay: 0.2s;
+  }
+  .stagger-children > *:nth-child(5) {
+    animation-delay: 0.25s;
+  }
+  .stagger-children > *:nth-child(6) {
+    animation-delay: 0.3s;
+  }
 }

@@ -1,14 +1,18 @@
 <template>
   <li class="relative pl-8 pb-10 last:pb-0 group">
     <!-- Vertical line -->
-    <div class="absolute left-[11px] top-3 bottom-0 w-px bg-ink-200 group-last:hidden" />
+    <div
+      class="absolute left-[11px] top-3 bottom-0 w-px bg-ink-200 group-last:hidden"
+    />
 
     <!-- Dot -->
     <div
       class="absolute left-0 top-1.5 w-[23px] h-[23px] rounded-full border-2 flex items-center justify-center"
-      :class="entry.highlight
-        ? 'border-gold-400 bg-gold-100'
-        : 'border-ink-300 bg-white'"
+      :class="
+        entry.highlight
+          ? 'border-gold-400 bg-gold-100'
+          : 'border-ink-300 bg-white'
+      "
     >
       <div
         class="w-2 h-2 rounded-full"

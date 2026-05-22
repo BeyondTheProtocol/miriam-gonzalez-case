@@ -1,19 +1,19 @@
 entries:
-  - date: "2021, Background"
+  - date: '2021, Background'
     title: A first warning that went unanswered
     description: >
       Miriam goes to the emergency room due to bleeding in the breast. An ultrasound is
       performed. The result is normal. And that's where it ends.
     highlight: false
 
-  - date: "October 31, 2023, Symptoms"
+  - date: 'October 31, 2023, Symptoms'
     title: Back pain begins
     description: >
       Miriam begins to notice persistent lower back pain. Weeks of physiotherapy and
       consultations with no clear answer. Until she requests an MRI herself.
     highlight: false
 
-  - date: "January 11, 2024, Diagnosis"
+  - date: 'January 11, 2024, Diagnosis'
     title: The result arrives by email
     description: >
       The MRI report arrives by email on a Thursday morning. The conclusion: "probable
@@ -24,16 +24,16 @@ entries:
       radiotherapy begins on the affected vertebrae.
     highlight: true
 
-  - date: "January–February 2024, First line"
-    title: "Treatment: Letrozole + Ribociclib"
+  - date: 'January–February 2024, First line'
+    title: 'Treatment: Letrozole + Ribociclib'
     description: >
       First-line treatment begins with letrozole, ribociclib, Zoladex (goserelin), and
       zoledronic acid. After the first cycle, Miriam is urgently admitted with acute
       respiratory failure. Ribociclib is permanently discontinued.
     highlight: false
 
-  - date: "February–April 2024, Urgent admission"
-    title: "50 days hospitalized, 10 in ICU"
+  - date: 'February–April 2024, Urgent admission'
+    title: '50 days hospitalized, 10 in ICU'
     description: >
       The severe neutropenia caused by ribociclib led to bilateral necrotizing pneumonia
       with areas of pulmonary necrosis. Miriam is admitted to the ICU with severe respiratory
@@ -43,7 +43,7 @@ entries:
     highlight: true
     image: /img/hospital.jpg
 
-  - date: "July 2024, DIPCAN"
+  - date: 'July 2024, DIPCAN'
     title: The tumor reveals its molecular identity
     description: >
       Miriam participates in the DIPCAN study, enabling a complete genomic analysis of the
@@ -54,14 +54,14 @@ entries:
       for hormonal treatment decisions.
     highlight: true
 
-  - date: "January 2025, Second line"
-    title: "Treatment: Fulvestrant + Abemaciclib"
+  - date: 'January 2025, Second line'
+    title: 'Treatment: Fulvestrant + Abemaciclib'
     description: >
       Following confirmed progression on PET-CT, second-line treatment begins: letrozole
       is switched to fulvestrant and ribociclib to abemaciclib. Zoladex continued.
     highlight: false
 
-  - date: "March 2026, Progression"
+  - date: 'March 2026, Progression'
     title: Bone progression confirmed on PET-CT
     description: >
       PET-CT confirms new bone metabolic activity with SUVmax up to ~9.43 in the femur
@@ -71,7 +71,7 @@ entries:
       Active search for a third line begins.
     highlight: false
 
-  - date: "April 2026, Biology (Guardant360 / VHIO-SOLTI)"
+  - date: 'April 2026, Biology (Guardant360 / VHIO-SOLTI)'
     title: ctDNA — three RB1 alterations and ESR1 D538G
     description: >
       Liquid biopsy defines the resistance signature: RB1 (F226, R661W, V622Yfs*33*) as
@@ -80,16 +80,16 @@ entries:
       (reported copies ~6.95 and ~7.63).
     highlight: true
 
-  - date: "May 2026, Formal diagnosis"
+  - date: 'May 2026, Formal diagnosis'
     title: Stage IV neuroendocrine breast carcinoma — Morales Meseguer pathology
     description: >
-      April–May 2026 pathology report documents the diagnosis \"stage IV neuroendocrine
-      breast carcinoma (bone disease).\" The 30/04/2026 bone biopsy conclusion \"no neoplasia
-      seen\" illustrates false-negative risk on bone; strategy relies on ctDNA, clinical
+      April–May 2026 pathology report documents the diagnosis "stage IV neuroendocrine
+      breast carcinoma (bone disease)." The 30/04/2026 bone biopsy conclusion "no neoplasia
+      seen" illustrates false-negative risk on bone; strategy relies on ctDNA, clinical
       correlation, and PET-CT.
     highlight: true
 
-  - date: "April 2026, Week 1"
+  - date: 'April 2026, Week 1'
     title: The team forms and the search begins
     description: >
       Miriam begins researching her own case with artificial intelligence. A thread on Twitter.
@@ -97,9 +97,9 @@ entries:
       multidisciplinary team forms with specialists from four countries.
     highlight: true
     link: https://x.com/miriamgonp/status/2041824144484917749
-    linkLabel: "See the original thread on Twitter →"
+    linkLabel: 'See the original thread on Twitter →'
 
-  - date: "April 8–9, 2026, AI"
+  - date: 'April 8–9, 2026, AI'
     title: Clinical documentation generated with AI
     description: >
       A complete clinical summary of the case is generated using advanced language models.
@@ -107,9 +107,9 @@ entries:
       to high-level specialists.
     highlight: true
     link: https://x.com/javilop/status/2041905341059973294
-    linkLabel: "See documentation thread →"
+    linkLabel: 'See documentation thread →'
 
-  - date: "April 2026, OUTREACH"
+  - date: 'April 2026, OUTREACH'
     title: Talk at Codemotion Madrid
     description: >
       Miriam takes the stage at Codemotion Madrid to talk about how AI is helping advance
@@ -117,4 +117,4 @@ entries:
       ecosystem after two years.
     highlight: true
     link: https://x.com/miriamgonp/status/2046266823209890162
-    linkLabel: "See the thread on Twitter →"
+    linkLabel: 'See the thread on Twitter →'

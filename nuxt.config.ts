@@ -60,5 +60,9 @@ export default defineNuxtConfig({
     prerender: {
       crawlLinks: true,
     },
+    routeRules: {
+      '/colabora': { redirect: { to: 'https://helpmiriam.notion.site/colabora', statusCode: 301 } },
+      '/collaborate': { redirect: { to: 'https://helpmiriam.notion.site/colabora', statusCode: 301 } },
+    },
   },
 })
