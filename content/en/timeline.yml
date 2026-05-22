@@ -65,10 +65,11 @@ entries:
     title: Bone progression confirmed on PET-CT
     description: >
       PET-CT confirms new bone metabolic activity with SUVmax up to ~9.43 in the femur
-      and new foci in the pelvis and right femur. This is the objective basis for changing
-      strategy. Abemaciclib is also discontinued due to hepatic toxicity (DILI G2-3),
-      though not severe. The rest of treatment — Zoladex and zoledronic acid — continues.
-      Active search for a third line begins.
+      and new foci in the pelvis and right femur. Progression imaging plus emergence of ESR1
+      resistance in ctDNA (April liquid biopsy series) underpin stopping abemaciclib; chart
+      review shows only transient Grade 1 aminotransferase rises, not framed as primary reason for change.
+      The remainder of therapy — Zoladex and zoledronic acid — continues. Functional status summarized
+      for public timelines as ECOG 1 on last clinic review excerpted here. Active third-line exploration begins.
     highlight: false
 
   - date: 'April 2026, Biology (Guardant360 / VHIO-SOLTI)'
@@ -81,12 +82,13 @@ entries:
     highlight: true
 
   - date: 'May 2026, Formal diagnosis'
-    title: Stage IV neuroendocrine breast carcinoma — Morales Meseguer pathology
+    title: Formal diagnosis — stage IV neuroendocrine breast carcinoma
     description: >
-      April–May 2026 pathology report documents the diagnosis "stage IV neuroendocrine
-      breast carcinoma (bone disease)." The 30/04/2026 bone biopsy conclusion "no neoplasia
-      seen" illustrates false-negative risk on bone; strategy relies on ctDNA, clinical
-      correlation, and PET-CT.
+      Local pathology from April–May 2026 records the verbatim line used in oncology notes:
+      breast cancer with pronounced neuroendocrine differentiation, stage IV with multifocal bone
+      involvement. A bone specimen returned marrow fat without tumour on histology—a classic sampling
+      false negative when disease is marrow-only clinically; onward planning combined liquid ctDNA with
+      expert imaging correlation. Functional performance after this milestone is summarized as ECOG 1 here.
     highlight: true
 
   - date: 'April 2026, Week 1'

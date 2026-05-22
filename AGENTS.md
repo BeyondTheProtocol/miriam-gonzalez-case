@@ -132,7 +132,7 @@ These data are medically accurate and should not be modified without verificatio
 - Low TMB, low MSI
 - No pathogenic SNVs or INDELs, no fusions
 - PIK3CA and ESR1 not detected in primary tissue
-- ECOG 0 (April 2026)
+- ECOG 1 (oncology summary reflected on public site from mid‑2026 onward)
 - Exclusively bone metastases
 - Drago 2019 = PMC6825550 (don't confuse with other Drago)
 - Spanish trial = NCT04483505 (9.1 vs 1.9 months, FGFR1 protein by IHC)

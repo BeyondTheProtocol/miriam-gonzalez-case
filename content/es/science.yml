@@ -14,19 +14,22 @@ treatments:
   - line: →
     regimen: Progresión ósea + suspensión de abemaciclib (marzo 2026) — situación actual
     outcome: >-
-      PET-TAC confirma progresión ósea con nuevos focos en pelvis y fémur derecho
-      (SUVmax hasta ~9,43 en fémur). El abemaciclib se suspende por progresión y
-      toxicidad hepática (DILI G2-3). Diagnóstico formal 2026: carcinoma de mama
-      neuroendocrino IV (enfermedad ósea). Biopsia ósea 30/04/2026 «No se observa
-      neoplasia» — falso negativo frecuente en hueso; la estrategia se apoya en
-      ctDNA (Guardant360 / VHIO-SOLTI, abril 2026) y en correlación clínico-radiológica.
-      Zoladex y ácido zoledrónico continúan. ECOG 0. Sin crisis visceral.
+      PET-TAC confirma nueva actividad ósea objetiva con nuevos focos en pelvis y fémur
+      derecho (SUVmax hasta ~9,43 en fémur): base formal del cambio de línea junto con la
+      pérdida de dependencia hormonal documentada en biopsía líquida abril 2026 (mutación
+      ESR1 emergente tras 25 meses de terapia endocrina + CDK4/6i en dos líneas).
+      Documentación paralela registra transaminitis G1 transitoria sin ser el motivo formal
+      de decisión. Diagnóstico descrito en anatomía patológica local: carcinoma de mama con
+      diferenciación neuroendocrina, estadio IV (órganos óseos). Biopsia ósea sin lesión neoplásica
+      histológica visible — resultado frecuentemente discordante cuando la enfermedad es sólo ósea;
+      la estrategia se apoya en biopsía líquida, imagen y correlación clínica. Abemaciclib se
+      suspende en este punto clínico. Zoladex y ácido zoledrónico continúan. ECOG 1 según último ciclo revisado aquí públicamente.
+      Sin crisis visceral.
     active: true
 paperSections:
   - title: Sección 1 — Transición Neuroendocrina y Pérdida de RB1
     subtitle: >-
       Tres alteraciones en RB1 en Guardant360 (abril 2026): F226, R661W, V622Yfs*33*
-      — pérdida funcional prevista y resistencia intrínseca a CDK4/6i
     papers:
       - ref: 'Park et al., 2018 — Science (DOI: 10.1126/science.aat5749)'
         finding: 'Pérdida de RB1 + TP53: reprogramación hacia fenotipo neuroendocrino'
@@ -35,8 +38,9 @@ paperSections:
           combinada de RB1 y TP53 reprograma tejidos epiteliales
           hormono-dependientes hacia un fenotipo neuroendocrino agresivo. Es la
           base biológica directa del riesgo de transición neuroendocrina en este
-          caso, donde se detectaron 3 mutaciones distintas en RB1 en la biopsia
-          líquida Guardant360 / VHIO-SOLTI (abril 2026): F226, R661W, V622Yfs*33.
+          caso, donde aparecen tres alteraciones en RB1 emergentes en ctDNA (biopsía
+          líquida, abril 2026): F226*, R661W, V622Yfs*33 — pérdida funcional prevista;
+          mecanismo descrito en la literatura como resistencia intrínseca a CDK4/6i.
         link: 'https://doi.org/10.1126/science.aat5749'
       - ref: 'Aggarwal et al., 2018 — Journal of Clinical Oncology (DOI: 10.1200/JCO.2017.77.6880)'
         finding: 'Transición neuroendocrina bajo presión hormonal: 17% de los tumores hormono-dependientes'

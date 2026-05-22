@@ -65,10 +65,12 @@ entries:
     title: Progresión ósea confirmada por PET-TAC
     description: >
       PET-TAC confirma nueva actividad metabólica ósea con SUVmax de hasta ~9,43 en fémur
-      y nuevos focos en pelvis y fémur derecho. Es la prueba objetiva del cambio de
-      estrategia. El abemaciclib se suspende también por toxicidad hepática (DILI G2-3),
-      sin llegar a ser grave. El resto del tratamiento — Zoladex y ácido zoledrónico —
-      continúa. Se inicia búsqueda activa de tercera línea.
+      y nuevos focos en pelvis y fémur derecho; junto con la mutación ESR1 emergente en
+      biopsía líquida abril 2026 constituye el fundamento objetivo para suspender el abemaciclib.
+      En la historia paralela aparecen ascensos transitorios de transaminasas G1 reversibles sin
+      descrita como causa formal única del cambio. El resto del tratamiento — Zoladex y ácido
+      zoledrónico — continúa. ECOG 1 según la última revisión trasladada públicamente desde oncología ambulatoria.
+      Se inicia búsqueda activa de tercera línea.
     highlight: false
 
   - date: 'Abril de 2026, Biología (Guardant360 / VHIO-SOLTI)'
@@ -81,12 +83,14 @@ entries:
     highlight: true
 
   - date: 'Mayo de 2026, Diagnóstico formal'
-    title: Carcinoma de mama neuroendocrino IV — anatomía patológica Morales Meseguer
+    title: Diagnóstico formal — carcinoma neuroendocrino de mama, estadio IV
     description: >
-      Informe abril–mayo 2026 que recoge el diagnóstico «Carcinoma de mama neuroendocrino IV
-      (enfermedad ósea)». La biopsia ósea del 30/04/2026 conclusión «No se observa neoplasia»
-      ilustra el riesgo de falsos negativos en hueso; la estrategia se apoya en ctDNA,
-      correlación clínica y PET-TAC.
+      La anatomía patológica local (abril–mayo 2026) consolida el informe textual como
+      «carcinoma de mama con diferenciación neuroendocrina, estadio IV (metástasis óseas múltiples)».
+      Una biopsia ósea ofrece un informe histológico sin neoplasia identificada — ejemplo de falsos negativos
+      frecuentes en hueso. Las siguientes estrategias se apoyaron en biopsía líquida, PET-TAC,
+      segunda lectura multicéntrica cuando existió y correlación clínica. ECOG 1 como estado funcional
+      referido públicamente después de ese hito.
     highlight: true
 
   - date: 'Abril 2026, Semana 1'

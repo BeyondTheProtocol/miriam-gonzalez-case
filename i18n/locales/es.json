@@ -23,8 +23,8 @@
   },
   "hero": {
     "tagline": "Una paciente. Un tumor único. Una oportunidad real.",
-    "title": "Miriam tiene un carcinoma de mama neuroendocrino metastásico con perfil multirresistente y la medicina estándar no tiene respuestas para su caso.",
-    "subtitle": "Su tumor no responde a ningún tratamiento estándar. Para encontrar el correcto necesita pruebas que la sanidad pública no financia. Y el tiempo no puede esperar.",
+    "title": "Miriam tiene un cáncer raro que la OMS reconoce desde 2019. Las guías españolas todavía no.",
+    "subtitle": "Misma paciente, misma biología, dos hojas de ruta distintas según el marco que se aplique. Las pruebas que pueden cerrar ese gap no las cubre la sanidad pública, y la próxima decisión terapéutica tiene que tomarse en semanas.",
     "cta_donate": "Apoyar a Miriam",
     "cta_science": "Ver la ciencia",
     "section_label": "Presentación del caso"
@@ -42,7 +42,7 @@
       "Cualquier prueba adicional que surja a lo largo del proceso"
     ],
     "why_title": "¿Por qué no lo cubre la sanidad pública?",
-    "why_text": "Las guías suelen etiquetar el caso como \"HR+ estándar\", pero en 2026 el cuadro es de carcinoma de mama neuroendocrino IV (óseo) con ctDNA que muestra RB1 alterado en tres variantes y ESR1 D538G — firma biológica de resistencia a inhibidores CDK4/6 y a aromatasa. Eso exige pruebas y decisiones alineadas con el fenotipo NE, no solo con el recetario luminal.",
+    "why_text": "La OMS reconoce el BC-NED como entidad propia desde 2019. Las guías españolas (SEOM) todavía lo clasifican como «HR+ estándar» y aplican el algoritmo hormonal genérico. Las internacionales (NCCN Neuroendocrine Tumors 2025, ENETS Consensus 2023) sí lo reconocen y abren un eje terapéutico propio. El problema es el marco, no los clínicos: las pruebas que cierran ese gap son las que la sanidad pública no financia.",
     "transparency_title": "Máxima transparencia",
     "transparency_text": "Cada gasto está documentado públicamente. Pedimos presupuestos a centros de referencia internacionales y los compartimos con la comunidad.",
     "raised": "Recaudados",
@@ -108,8 +108,8 @@
   },
   "entry_disclaimer": {
     "badge": "Actualización mayo 2026",
-    "title": "Carcinoma de mama neuroendocrino (BC-NED) con perfil multirresistente (RB1 alterado y ESR1 en plasma). Necesidad urgente de terapia dirigida no luminal.",
-    "body": "Guardant360 y el informe VHIO/SOLTI (abril 2026) aportan la evidencia de resistencia: tres alteraciones en RB1 — mecanismo clave frente a inhibidores CDK4/6 como el abemaciclib — y ESR1 p.D538G (VAF 0,24%), coherente con el fracaso del letrozol en primera línea. FGFR1 y CCND1 permanecen amplificados (copias de informe en plasma ~6,95 y ~7,63). Diagnóstico clínico y anatomopatológico actual (Hospital Morales Meseguer, abril–mayo 2026): «Carcinoma de mama neuroendocrino IV (enfermedad ósea)». La biopsia ósea del 30/04/2026 puede ser negativa por tejido («No se observa neoplasia»); por ello la estrategia se fundamenta en ctDNA, correlación clínica y PET-TAC con progresión clara (p. ej. SUVmax hasta 9,43 en fémur).",
+    "title": "Perfil híbrido luminal + neuroendocrino con múltiples drivers de resistencia activos a la vez. El plan local cubre la dimensión luminal; falta la estrategia que las guías internacionales contemplan para BC-NED.",
+    "body": "Tras 25 meses de terapia endocrina + CDK4/6i en dos líneas, las biopsias líquidas de abril 2026 muestran la firma de resistencia: tres alteraciones distintas en RB1 emergentes en ctDNA, ESR1 D538G subclonal y las amplificaciones FGFR1 + CCND1 (eje 11q13) mantenidas. La progresión es exclusivamente ósea multifocal, con actividad metabólica creciente en PET. El informe clínico actual recoge el diagnóstico literal: «carcinoma de mama con diferenciación neuroendocrina, estadio IV (óseas múltiples)». La biopsia ósea fue negativa por tejido — falso negativo frecuente en hueso —; las decisiones se apoyan en ctDNA, imagen y correlación clínica.",
     "cta": "Entendido"
   },
   "index": {
@@ -129,19 +129,19 @@
     "implication": "Implicación",
     "proposed_panel_caption": "Panel de rebiopsia propuesto: componentes, métodos, dianas e implicación clínica",
     "goal_n_of_1": "Objetivo: Ensayo N-of-1",
-    "goal_n_of_1_desc": "Un ensayo donde Míriam es la única unidad de análisis, con decisiones guiadas por biología demostrada en plasma (RB1, ESR1, FGFR1/CCND1) y por el diagnóstico NE formal, no por la etiqueta genérica de HR+. La ruta prioriza MTB / comité con lectura integrada: imagen SSTR (PET con Ga-68-DOTATOC/TATE si procede), radioligandos Lu-177-DOTATATE u opciones con Ac-225 si el receptor lo justifica, y puente farmacológico cuando los informes citan vías aprobadas en tumores neuroendocrinos (p. ej. surufatinib y eje FGFR).",
+    "goal_n_of_1_desc": "Un ensayo donde Miriam es la única unidad de análisis. Las decisiones se guían por la biología demostrada en plasma y por el diagnóstico formal de carcinoma neuroendocrino, aplicando el algoritmo internacional para BC-NED (NCCN, ENETS) en paralelo al algoritmo luminal local: imagen SSTR2 → radioligandos Lu-177-DOTATATE si la captación es positiva, y eje FGFR1 (incluyendo surufatinib) cuando la vía luminal está cerrada por resistencia documentada.",
     "win_consortium_desc": "WIN Consortium (Worldwide Innovative Network in Oncology) es una red internacional que conecta centros de excelencia en oncología de precisión con el objetivo de diseñar estrategias diagnósticas y terapéuticas personalizadas.",
     "win_consortium_precedent": "Esto sentaría un precedente: la oncología de precisión adaptada a cada paciente, sin burocracia con el tumor principal.",
     "detailed_analyses": "Análisis detallados",
     "view_reference": "Ver referencia",
     "why_no_fit_guidelines": "¿Por qué este tumor no encaja en las guías?",
-    "why_no_fit_guidelines_text": "En 2026 el cuadro patológico es de carcinoma de mama neuroendocrino IV (óseo). El ctDNA muestra pérdida de función en RB1 (tres variantes) y activación de resistencia endocrina (ESR1 D538G), además de mantener FGFR1/CCND1: biológicamente ya no es un luminal estándar al que bastan nuevas rotaciones solo hormonales + CDK4/6. Las guías nacionales a menudo rezagan el algoritmo NE mamario que sí contemplan NCCN/ENETS para SSTR y PRRT.",
-    "therapeutic_case_reading_title": "Propuesta terapéutica — lectura integrada del caso",
-    "therapeutic_case_reading_p1": "Switch fenotípico: al agotarse las vías luminales clásicas (ESR1 en plasma y RB1 alterado), el tumor ha podido sostenerse por el programa neuroendocrino dominante. Eso conecta el fallo de 1L/2L con la biología actual y con el diagnóstico formal de carcinoma neuroendocrino mamario.",
-    "therapeutic_case_reading_p2": "La diana SSTR: el reconocimiento NE habilita solicitar PET con análogos de somatostatina (Ga-68-DOTATOC/TATE). Si la captación es positiva, Lu-177-DOTATATE (lutecio) u opciones con Ac-225 (actinio) se fundamentan por biología de receptor, con independencia parcial del órgano de origen mamario.",
-    "therapeutic_case_reading_p3": "Alternativas registradas en el informe líquido (p. ej. surufatinib, activo sobre FGFR1 en el contexto de tumores neuroendocrinos aprobados) pueden servir de puente terapéutico y de argumentación frente a comités cuando el algoritmo luminal está cerrado por resistencia documentada.",
+    "why_no_fit_guidelines_text": "El BC-NED es una categoría reconocida por la OMS desde 2019. Las guías españolas (SEOM) y el resto de guías nacionales en su línea aún clasifican el caso bajo el algoritmo HR+/HER2-, sin algoritmo específico para BC-NED. Las guías internacionales (NCCN Neuroendocrine Tumors 2025, ENETS Consensus 2023) sí lo reconocen y abren un eje terapéutico propio que incluye valoración de SSTR2 y PRRT (Lu-177-DOTATATE). Misma paciente, misma biología, dos hojas de ruta distintas según el marco aplicado.",
+    "therapeutic_case_reading_title": "Lo que las guías internacionales sí contemplan para BC-NED",
+    "therapeutic_case_reading_p1": "El BC-NED tiene un eje terapéutico propio en NCCN Neuroendocrine Tumors 2025 y ENETS Consensus 2023, distinto del algoritmo HR+/HER2- al que actualmente lo asignan las guías españolas. Cuando una entidad rara se mete en un algoritmo genérico, la biología se aplana y los ejes accesibles se pierden.",
+    "therapeutic_case_reading_p2": "Eje SSTR2 + PRRT: las guías internacionales para tumores neuroendocrinos (NCCN 2025, ENETS 2023) recomiendan, en pacientes con expresión de SSTR2 confirmada por PET con análogos de somatostatina (Ga-68 DOTATOC/TATE), terapia con radioligandos (Lu-177-DOTATATE). El algoritmo está disponible para BC-NED en la literatura aplicable: la pieza que falta es la imagen SSTR2 que aún no se ha solicitado en mi caso.",
+    "therapeutic_case_reading_p3": "Eje FGFR1: las amplificaciones FGFR1 + CCND1 (×13 y ×20 en tejido, mantenidas en plasma) son drivers documentados en mi caso. Las opciones aprobadas en tumores neuroendocrinos con actividad sobre FGFR1 — entre ellas surufatinib — están disponibles como argumentación de comité molecular una vez que la vía luminal está cerrada por la resistencia que muestra el ctDNA.",
     "thesis": "La tesis: la biología, no el órgano de origen, debería guiar el tratamiento.",
-    "thesis_goal": "Objetivo: un ensayo N-of-1 que siente precedente para la oncología de precisión en subtipos ultra-raros."
+    "thesis_goal": "Objetivo: que mi caso ayude a impulsar la actualización de guías que beneficie a otras pacientes con subtipos raros."
   },
   "historia": {
     "chapter": "Capítulo",
@@ -155,7 +155,7 @@
     "chapter_navigation": "Navegación entre capítulos",
     "pending_notice": "Esta sección está siendo escrita por una persona cercana a Miriam. Contará su historia desde antes del diagnóstico: quién es más allá del cáncer, cómo llegó hasta aquí, y por qué importa lo que está haciendo. Estará disponible pronto.",
     "story_teaser_1": "Hace tres años, Míriam se dedicaba a tiempo completo a programar y crear contenido sobre tecnología. En cuestión de meses, su vida dio un giro radical.",
-    "story_teaser_2": "Todo empezó con un dolor de espalda, sesiones de fisioterapia y médicos de cabecera que no buscaban una solución. Como el dolor no remitía y el sistema sanitario no le ofrecía respuestas, decidió solicitar por su cuenta una resonancia magnética. Un jueves de enero de 2024, encontró en su bandeja de entrada el resultado de la prueba: «probable metástasis vertebrales». El caso evolucionó hasta el diagnóstico formal, en 2026, de «Carcinoma de mama neuroendocrino IV (enfermedad ósea)».",
+    "story_teaser_2": "Todo empezó con un dolor de espalda, sesiones de fisioterapia y médicos de cabecera que no buscaban una solución. Como el dolor no remitía y el sistema sanitario no le ofrecía respuestas, decidió solicitar por su cuenta una resonancia magnética. Un jueves de enero de 2024, encontró en su bandeja de entrada el resultado de la prueba: «probable metástasis vertebrales». El caso evolucionó hasta el diagnóstico formal de 2026: «carcinoma de mama con diferenciación neuroendocrina, estadio IV (óseas múltiples)».",
     "story_teaser_3": "Durante dos años, Míriam ha ido reconstruyendo su vida pieza por pieza con tratamientos que le han dado tiempo y calma, pero con fecha de caducidad. En 2026, todo ha avanzado a gran velocidad. ¿Y si esos avances, sumados a las particularidades de su cáncer, abrieran puertas que antes parecían cerradas?",
     "story_teaser_4": "En esta historia queremos contarte el caso de Míriam, su proceso y su rutina para que conozcas de verdad lo que implica vivir con cáncer en fase 4."
   }

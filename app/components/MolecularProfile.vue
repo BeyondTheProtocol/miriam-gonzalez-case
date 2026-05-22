@@ -143,8 +143,8 @@
       >
         {{
           locale === 'es'
-            ? 'Biopsia ósea 30/04/2026 (Hospital Morales Meseguer): «No se observa neoplasia». En hueso los falsos negativos histológicos son frecuentes; las decisiones de tercera línea se apoyan en ctDNA, correlación clínica y PET-TAC (p. ej. SUVmax hasta 9,43 en fémur).'
-            : 'Bone biopsy 30/04/2026 (Hospital Morales Meseguer): “no malignancy seen.” False-negative histology on bone is common; third-line decisions rely on ctDNA, clinical correlation, and PET-CT (e.g. SUVmax up to 9.43 in the femur).'
+            ? 'Biopsia ósea 30/04/2026 (patología local): «No se observa neoplasia». Los falsos negativos histológicos en hueso son frecuentes; las decisiones de tercera línea se apoyaron en ctDNA, correlación clínica y PET-TAC de progresión (p. ej. SUVmax hasta 9,43 en diáfisis femoral).'
+            : '30/04/2026 bone biopsy (local pathology): “no malignant tissue identified.” False-negative marrow sampling is frequent; decisions rely on ctDNA, clinical correlation and progressive PET findings (e.g. SUVmax up to 9.43 in femoral marrow).'
         }}
       </p>
     </div>
@@ -152,8 +152,8 @@
     <p class="text-xs text-ink-600 leading-relaxed">
       {{
         locale === 'es'
-          ? '⁺ La categoría HER2-ultralow (tinción de membrana en <10% de las células) está presente en este caso según los datos del estudio DIPCAN / MD Anderson Madrid.'
-          : '⁺ The HER2-ultralow category (membrane staining in <10% of cells) is present in this case according to data from the DIPCAN study / MD Anderson Madrid.'
+          ? '⁺ La categoría HER2-ultralow (tinción de membrana incompleta y casi imperceptible en <10% de las células) se infiere de la descripción de la segunda lectura de patología en un centro de referencia internacional (2024); los informes de origen no usan literalmente esa etiqueta.'
+          : '⁺ The HER2-ultralow category (faint, incomplete membrane staining in <10% of cells) is inferred from the second-read pathology at an international reference centre (2024); the source reports do not use that exact label.'
       }}
     </p>
     <p class="mt-2 text-xs text-ink-600 leading-relaxed">
@@ -172,6 +172,20 @@ const { locale } = useI18n()
 const markers = computed(() =>
   locale.value === 'es'
     ? [
+        {
+          marker: 'RB1',
+          result: 'F226*, R661W, p.V622Yfs*33',
+          note:
+            'Tres alteraciones emergentes en biopsía líquida abril 2026 (panel correlacionado con informe VHIO/SOLTI). No aparecen variantes patogénicas equivalentes en el panel de tejido 2024; ver tabla siguiente para contexto longitudinal.',
+          highlight: true,
+        },
+        {
+          marker: 'ESR1',
+          result: 'p.D538G (VAF 0,24%)',
+          note:
+            'Subclonal en plasma abril 2026; ausente del tejido 2024. Coherente con pérdida progresiva de dependencia hormonal clínica después de líneas combinadas hormonal + CDK4/6i.',
+          highlight: true,
+        },
         {
           marker: 'FGFR1',
           result: 'Amplificado ×13',
@@ -201,7 +215,7 @@ const markers = computed(() =>
           marker: 'Ki67',
           result: '60%',
           note:
-            'Alto índice proliferativo en mama. En tumores neuroendocrinos, Ki67 ≥20% define el grado de agresividad: un 60% sitúa este tumor en grado 3 (NEC) ⁺⁺',
+            'Índice proliferativo Ki67 60%. La AP local clasifica el tumor como G2 (Nottingham 3+2+2); en los modelos de gradación neuroendocrina (G1 <3%, G2 3–20%, G3 >20%) un 60% encajaría en NEC G3 — comportamiento biológicamente más agresivo que un carcinoma luminal convencional ⁺⁺',
           highlight: false,
         },
         {
@@ -239,6 +253,20 @@ const markers = computed(() =>
       ]
     : [
         {
+          marker: 'RB1',
+          result: 'F226*, R661W, p.V622Yfs*33',
+          note:
+            'Three alterations emerging April 2026 liquid biopsy (panel aligned with VHIO/SOLTI report). No comparable pathogenic RB1 variants on 2024 tissue panel; see second table for longitudinal framing.',
+          highlight: true,
+        },
+        {
+          marker: 'ESR1',
+          result: 'p.D538G (VAF 0.24%)',
+          note:
+            'Subclonal in April 2026 plasma; absent in 2024 tissue. Fits progressive loss of strict hormonal dependence after combined endocrine plus CDK4/6 inhibitor lines.',
+          highlight: true,
+        },
+        {
           marker: 'FGFR1',
           result: 'Amplified ×13',
           note:
@@ -267,7 +295,7 @@ const markers = computed(() =>
           marker: 'Ki67',
           result: '60%',
           note:
-            'High proliferative index in breast cancer. In neuroendocrine tumours, Ki67 ≥20% defines aggressiveness grade: 60% places this tumour at grade 3 (NEC) ⁺⁺',
+            'Ki67 60%. Local pathology reports the tumour as G2 (Nottingham 3+2+2); under neuroendocrine grading models (G1 <3%, G2 3–20%, G3 >20%) a Ki67 of 60% would fit NEC G3 — biologically more aggressive than a conventional luminal breast cancer ⁺⁺',
           highlight: false,
         },
         {
@@ -308,9 +336,9 @@ const liquidMarkers = computed(() =>
     ? [
         {
           marker: 'RB1',
-          result: '3 alteraciones',
+          result: 'F226*, R661W, p.V622Yfs*33',
           note:
-            'Alteraciones F226, R661W, V622Yfs*33* (nomenclatura según informe) — pérdida funcional; mecanismo principal de resistencia intrínseca a inhibidores CDK4/6 (p. ej. abemaciclib). Señala que prolongar solo estrategias luminales estándar carece de fundamento biológico.',
+            'Alteraciones funcionales consolidadas sólo en biopsía líquida abril 2026 — firma molecular de resistencia intrínseca esperada frente a inhibición CDK4/6 repetida tras dos líneas endocrinas.',
           highlight: true,
         },
         {
@@ -338,9 +366,9 @@ const liquidMarkers = computed(() =>
     : [
         {
           marker: 'RB1',
-          result: '3 alterations',
+          result: 'F226*, R661W, p.V622Yfs*33',
           note:
-            'Alterations F226, R661W, V622Yfs*33* (as reported) — functional loss; principal mechanism of intrinsic resistance to CDK4/6 inhibitors (e.g. abemaciclib). Indicates that extending standard luminal-only strategy lacks biological support.',
+            'Functional hits confirmed on April 2026 liquid biopsy — expected molecular signature limiting further CDK4/6 inhibitor benefit after two endocrine-based lines.',
           highlight: true,
         },
         {

@@ -15,18 +15,21 @@ treatments:
     regimen: Bone progression + abemaciclib discontinued (March 2026) — current status
     outcome: >-
       PET-CT confirms bone progression with new foci in pelvis and right femur
-      (SUVmax up to ~9.43 in the femur). Abemaciclib is discontinued for progression
-      and hepatic toxicity (DILI G2-3). Formal 2026 diagnosis: stage IV
-      neuroendocrine breast carcinoma (bone disease). 30/04/2026 bone biopsy
-      reported “no neoplasia identified” — common false negative on bone; strategy
-      relies on ctDNA (Guardant360 / VHIO-SOLTI, April 2026) and clinical-radiologic
-      correlation. Zoladex and zoledronic acid continue. ECOG 0. No visceral crisis.
+      (SUVmax up to ~9.43 in the femur). Objective bone progression drives the treatment
+      change alongside loss of hormonal dependence documented by April 2026 liquid biopsy
+      (ESR1 mutation emerging after 25 months of endocrine therapy + CDK4/6 inhibitors
+      across two lines). Records note transient G1 transaminopathy that is not the formal
+      reason for discontinuation. Diagnosis on local pathology wording: breast cancer with
+      neuroendocrine differentiation, stage IV (bone sites only). Bone biopsy was
+      tissue-negative — sampling often misses bone-only disease —; planning relies on ctDNA,
+      metabolic bone imaging (~9.43 femoral uptake) and clinical correlation. Zoladex and
+      zoledronic acid continue. ECOG 1 on latest oncology clinic note summarized for public
+      copy. No visceral crisis.
     active: true
 paperSections:
   - title: Section 1 — Neuroendocrine Transition and RB1 Loss
     subtitle: >-
       Three RB1 alterations on Guardant360 (April 2026): F226, R661W, V622Yfs*33*
-      — predicted functional loss and intrinsic CDK4/6i resistance
     papers:
       - ref: 'Park et al., 2018 — Science (DOI: 10.1126/science.aat5749)'
         finding: 'RB1 + TP53 loss: reprogramming toward a neuroendocrine phenotype'
@@ -34,9 +37,10 @@ paperSections:
           Foundational experimental study showing that combined RB1 and TP53
           loss reprograms hormone-dependent epithelial tissues toward an
           aggressive neuroendocrine phenotype. It is the direct biological basis of
-          neuroendocrine transition risk in this case, where 3 distinct RB1
-          alterations were detected on liquid biopsy Guardant360 / VHIO-SOLTI (April 2026):
-          F226, R661W, V622Yfs*33.
+          neuroendocrine transition risk in this case, where three RB1 alterations
+          emerging in ctDNA (liquid biopsy, April 2026): F226*, R661W, V622Yfs*33 —
+          predicted functional loss; mechanism described in the literature as
+          intrinsic CDK4/6i resistance.
         link: 'https://doi.org/10.1126/science.aat5749'
       - ref: 'Aggarwal et al., 2018 — Journal of Clinical Oncology (DOI: 10.1200/JCO.2017.77.6880)'
         finding: 'Neuroendocrine transition under hormonal pressure: 17% of hormone-dependent tumors'
