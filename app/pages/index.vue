@@ -75,29 +75,6 @@
         </p>
       </div>
     </section>
-
-    <section class="bg-ink-900 border-t border-ink-800" :aria-label="$t('index.supported_by')">
-      <div class="section-container py-10 sm:py-12 text-center">
-        <p class="text-ink-200 text-xs font-medium uppercase tracking-widest mb-8">
-          {{ $t('index.supported_by') }}
-        </p>
-        <div class="flex flex-wrap justify-center items-center gap-12 sm:gap-20">
-          <div class="flex flex-col items-center gap-3">
-            <img src="/svg/github.svg" alt="GitHub" class="h-10 w-auto object-contain" width="40" height="40" />
-            <span class="text-ink-200 text-xs font-medium tracking-wide">GitHub</span>
-          </div>
-          <div class="flex flex-col items-center gap-3">
-            <img src="/img/thae.png" alt="Thae" class="h-10 w-auto object-contain" width="auto" height="40" />
-            <span class="text-ink-200 text-xs font-medium tracking-wide">Thae</span>
-          </div>
-          <div class="flex flex-col items-center gap-3">
-            <img src="/img/neversurrender.jpeg" alt="Never Surrender" class="h-10 w-auto object-contain rounded-lg"
-              width="auto" height="40" />
-            <span class="text-ink-200 text-xs font-medium tracking-wide">Never Surrender</span>
-          </div>
-        </div>
-      </div>
-    </section>
   </div>
 </template>
 
