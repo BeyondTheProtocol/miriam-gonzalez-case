@@ -24,6 +24,12 @@ export default defineNuxtConfig({
     },
   },
 
+  vite: {
+    optimizeDeps: {
+      include: []
+    }
+  },
+
   plausible: {
     ignoredHostnames: ['localhost'],
   },
