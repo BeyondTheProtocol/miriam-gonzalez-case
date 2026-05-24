@@ -48,7 +48,8 @@
     "transparency_text": "Every expense is publicly documented. We request quotes from international reference centers and share them with the community.",
     "raised": "Raised",
     "donators": "donators",
-    "donate_now": "Donate now"
+    "donate_now": "Donate now",
+    "progress_label": "GoFundMe campaign progress"
   },
   "science": {
     "title": "The science behind the case",
@@ -92,6 +93,7 @@
   "footer": {
     "disclaimer": "This site is an informational resource maintained by the patient's support team. It does not replace professional medical advice.",
     "updated": "Last updated",
+    "month_updated": "May",
     "nav_heading": "Navigation",
     "social_heading": "Social",
     "made_with": "Made with care, science, and a lot of AI.",
@@ -109,7 +111,8 @@
     "see_full_science": "See the full science →",
     "in_the_press": "In the press",
     "core_thesis": "Core thesis",
-    "no_press_articles": "No press articles found"
+    "no_press_articles": "No press articles found",
+    "supported_by": "Supported by"
   },
   "ciencia": {
     "treatment_history": "Treatment history",
