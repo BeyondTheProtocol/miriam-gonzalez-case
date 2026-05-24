@@ -11,6 +11,7 @@
 - [ ] BEM naming convention for custom CSS
 - [ ] Accessibility: semantic HTML, proper labels, keyboard navigation
 - [ ] Both ES and EN languages supported (if applicable)
+- [ ] `AGENTS.md` updated if architecture, routes, or conventions changed
 
 ### Related Issue
 <!-- Link to the related issue (e.g., "Closes #12" or "Related to #12") -->
