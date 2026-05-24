@@ -47,7 +47,8 @@
     "transparency_text": "Cada gasto está documentado públicamente. Pedimos presupuestos a centros de referencia internacionales y los compartimos con la comunidad.",
     "raised": "Recaudados",
     "donators": "donantes",
-    "donate_now": "Donar ahora"
+    "donate_now": "Donar ahora",
+    "progress_label": "Progreso de la campaña GoFundMe"
   },
   "science": {
     "title": "La ciencia detrás del caso",
@@ -99,6 +100,7 @@
   "footer": {
     "disclaimer": "Este sitio es un recurso informativo mantenido por el equipo de apoyo de la paciente. No sustituye asesoramiento médico profesional.",
     "updated": "Última actualización",
+    "month_updated": "Mayo",
     "nav_heading": "Navegación",
     "social_heading": "Social",
     "made_with": "Hecho con cariño, ciencia y mucha IA.",
@@ -116,7 +118,8 @@
     "see_full_science": "Ver la ciencia completa →",
     "in_the_press": "En los medios",
     "core_thesis": "Tesis central",
-    "no_press_articles": "No se encontraron artículos de prensa"
+    "no_press_articles": "No se encontraron artículos de prensa",
+    "supported_by": "Con el apoyo de"
   },
   "ciencia": {
     "treatment_history": "Historia de tratamientos",

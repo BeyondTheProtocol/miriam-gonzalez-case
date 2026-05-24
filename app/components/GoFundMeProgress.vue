@@ -13,6 +13,7 @@ const { data } = useGoFundMe(
     :aria-valuenow="data.currentAmount.amount"
     aria-valuemin="0"
     :aria-valuemax="data.goalAmount.amount"
+    :aria-label="$t('gofundme.progress_label')"
   >
     <div class="h-2 w-full rounded-full bg-ink-200/50">
       <div
