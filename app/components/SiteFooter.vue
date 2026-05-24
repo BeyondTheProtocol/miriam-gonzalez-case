@@ -12,16 +12,20 @@
             <span class="text-ink-200 text-xs font-medium tracking-wide">GitHub</span>
           </div>
           <div class="flex flex-col items-center gap-3">
-            <a href="https://tahecosmetics.com" target="_blank" rel="sponsored noopener"
-              class="flex flex-col items-center gap-3">
-              <img src="/img/thae.png" alt="Thae" class="h-10 w-auto object-contain" width="auto" height="40" />
-              <span class="text-ink-200 text-xs font-medium tracking-wide">Thae</span>
-            </a>
+            <img src="/svg/notion.svg" alt="Notion" class="h-10 w-auto object-contain" width="40" height="40" />
+            <span class="text-ink-200 text-xs font-medium tracking-wide">Notion</span>
           </div>
           <div class="flex flex-col items-center gap-3">
             <img src="/img/neversurrender.jpeg" alt="Never Surrender" class="h-10 w-auto object-contain rounded-lg"
               width="auto" height="40" />
             <span class="text-ink-200 text-xs font-medium tracking-wide">Never Surrender</span>
+          </div>
+          <div class="flex flex-col items-center gap-3">
+            <a href="https://tahecosmetics.com" target="_blank" rel="sponsored noopener"
+              class="flex flex-col items-center gap-3">
+              <img src="/img/thae.png" alt="Thae" class="h-10 w-auto object-contain" width="auto" height="40" />
+              <span class="text-ink-200 text-xs font-medium tracking-wide">Thae</span>
+            </a>
           </div>
         </div>
       </div>
