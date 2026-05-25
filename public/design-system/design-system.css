@@ -176,10 +176,10 @@ body {
   color: var(--color-text);
 }
 .journey .step-2 h4 {
-  color: var(--color-miriam);
+  color: var(--color-text);
 }
 .journey .step-3 h4 {
-  color: var(--color-cta);
+  color: var(--color-text);
 }
 .journey p {
   font-size: 14px;
@@ -628,7 +628,7 @@ body {
   color: #ffe0d6;
 }
 .code .c-com {
-  color: rgba(245, 239, 230, 0.45);
+  color: #a89ab2;
   font-style: italic;
 }
 
@@ -774,4 +774,8 @@ ul.checklist.dont li::before {
   .ratio-bar {
     width: 80px;
   }
+}
+
+@keyframes ds-spin {
+  to { transform: rotate(360deg); }
 }

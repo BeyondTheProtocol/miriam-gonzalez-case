@@ -6,12 +6,13 @@
   --color-bg-card: #f5efe6; /* Crema profunda — cards */
   --color-text: #2d1b3d; /* Berenjena — texto principal, trazos */
   --color-text-soft: #3a3340; /* Tinta — texto secundario */
-  --color-miriam: #a855b5; /* Violeta Miriam — FIRMA (identidad) */
+  --color-miriam: #a44db2; /* Violeta — FIRMA. AA s/ crema (#faf6f0) toda talla. Solo titulares s/ crema-card y berenjena */
   --color-miriam-soft: #e8d4ed; /* Violeta soft — badges genómicos */
   --color-cta: #ff6b47; /* Coral — ACCIÓN (CTA único) */
   --color-cta-hover: #e5573a;
 
   /* Aliases semánticos */
+  /* Links sobre crema → violeta. Links sobre crema-card o berenjena → berenjena */
   --color-link: var(--color-miriam);
   --color-emphasis: var(--color-miriam);
   --color-action: var(--color-cta);
@@ -75,11 +76,12 @@ p {
 }
 a {
   color: var(--color-link);
-  text-decoration: none;
-}
-a:hover {
   text-decoration: underline;
   text-underline-offset: 3px;
+  text-decoration-color: rgba(45, 27, 61, 0.35);
+}
+a:hover {
+  text-decoration-color: var(--color-link);
 }
 code,
 kbd,
@@ -107,11 +109,11 @@ samp {
 }
 .btn-primary {
   background: var(--color-cta);
-  color: var(--color-bg);
+  color: var(--color-text);
   padding: 14px 24px;
 }
 .btn-primary:hover {
-  background: var(--color-cta-hover);
+  box-shadow: 0 0 0 2px var(--color-text);
   transform: translateY(-1px);
   text-decoration: none;
 }
@@ -140,7 +142,7 @@ samp {
 .badge-genomic {
   display: inline-block;
   background: var(--color-miriam-soft);
-  color: var(--color-miriam);
+  color: var(--color-text);
   border-radius: var(--radius-pill);
   padding: 4px 12px;
   font-family: var(--font-mono);
@@ -169,6 +171,7 @@ samp {
 .stat-number--firma {
   color: var(--color-miriam);
 }
+/* coral solo pasa sobre berenjena — usar únicamente en superficies oscuras */
 .stat-number--cta {
   color: var(--color-cta);
 }
