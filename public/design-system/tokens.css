@@ -12,7 +12,6 @@
   --color-cta-hover: #e5573a;
 
   /* Aliases semánticos */
-  /* Links sobre crema → violeta. Links sobre crema-card o berenjena → berenjena */
   --color-link: var(--color-miriam);
   --color-emphasis: var(--color-miriam);
   --color-action: var(--color-cta);
