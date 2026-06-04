@@ -13,13 +13,15 @@ An informational website about Miriam González Pérez's case: metastatic breast
 - **@nuxtjs/plausible** — privacy-first analytics (ignores localhost)
 - **Tailwind CSS** — styles
 - **@nuxt/icon** — icons (Phosphor Icons via Iconify)
+- **Netlify Functions** — scheduled function for GoFundMe data sync
 - **Netlify Forms** — contact form (no backend)
 
 ## Setup
 
 ```bash
 pnpm install
-pnpm dev
+pnpm dev                # local dev at http://localhost:3000
+pnpm update-fundraiser  # manually sync GoFundMe progress to public/fundraiser.json
 ```
 
 Open `http://localhost:3000`.
@@ -63,6 +65,15 @@ app/
     TimelineEntry.vue      → Individual timeline entry
     TeamCard.vue           → Team member card
     PageHeader.vue         → Reusable page header
+
+netlify/functions/
+    get-fundraiser-function.mts  → Scheduled (hourly) GoFundMe data sync
+
+utils/
+    fundraiser.ts          → GoFundMe GraphQL client + types + save logic
+
+public/
+    fundraiser.json        → Static snapshot of GoFundMe progress (committed, serves as SSG seed)
 
 content/
   es/  →  timeline.yml, team.yml, press.yml, science.yml, historia/*.md, ciencia/*.md
@@ -111,4 +122,4 @@ If you have a good idea, feature request, or notice something that could be impr
 - [ ] Verify `helpmiriam.com` in Google Search Console and request indexing
 - [ ] Think about a way to auto-update the timeline from social media posts
 - [ ] Talk to Miriam about what images she wants to use
-- [x] Research if GoFundMe API can be used instead of iframe
+- [x] ~~Research if GoFundMe API can be used instead of iframe~~ → Migrated to Netlify scheduled function + static JSON
