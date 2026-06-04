@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { GoFundMeFundraiser } from '../../types/fundraiser'
+import type { GoFundMeFundraiser } from '../../utils/fundraiser'
 const { locale } = useI18n()
 const data = ref<GoFundMeFundraiser | null>(null)
 onMounted(async () => {
