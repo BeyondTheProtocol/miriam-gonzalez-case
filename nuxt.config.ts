@@ -57,6 +57,8 @@ export default defineNuxtConfig({
       'historia/[slug]': { en: '/story/[slug]' },
       'equipo': { en: '/team' },
       'contacto': { en: '/contact' },
+      'colabora': { en: '/collaborate' },
+      'gastos': { en: '/expenses' },
     },
   },
 
@@ -66,9 +68,6 @@ export default defineNuxtConfig({
     prerender: {
       crawlLinks: true,
     },
-    routeRules: {
-      '/colabora': { redirect: { to: 'https://helpmiriam.notion.site/colabora', statusCode: 301 } },
-      '/collaborate': { redirect: { to: 'https://helpmiriam.notion.site/colabora', statusCode: 301 } },
-    },
+    routeRules: {},
   },
 })

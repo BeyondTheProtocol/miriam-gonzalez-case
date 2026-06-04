@@ -1,19 +1,22 @@
 entries:
-  - date: '2021, Antecedentes'
+  - date: '2021'
+    tag: Antecedentes
     title: Un primer aviso que quedó sin respuesta
     description: >
       Miriam acude a urgencias por un sangrado en la mama. Le realizan una ecografía.
       El resultado es normal. Y ahí se queda la cosa.
     highlight: false
 
-  - date: '31 de octubre de 2023, Síntomas'
+  - date: '31 oct 2023'
+    tag: Síntomas
     title: Empieza el dolor de espalda
     description: >
       Miriam empieza a notar un dolor lumbar persistente. Semanas de fisioterapia y
       consultas sin una respuesta clara. Hasta que ella misma solicita una resonancia magnética.
     highlight: false
 
-  - date: '11 de enero de 2024, Diagnóstico'
+  - date: '11 ene 2024'
+    tag: Diagnóstico
     title: El resultado llega por email
     description: >
       El informe de la resonancia llega por email, un jueves por la mañana. La conclusión:
@@ -24,7 +27,8 @@ entries:
       radioterapia sobre las vértebras afectadas.
     highlight: true
 
-  - date: 'Enero–febrero de 2024, Primera línea'
+  - date: 'ene–feb 2024'
+    tag: Primera línea
     title: 'Tratamiento: Letrozol + Ribociclib'
     description: >
       Se inicia primera línea de tratamiento con letrozol, ribociclib, Zoladex (goserelina) y
@@ -32,7 +36,8 @@ entries:
       respiratoria aguda. El ribociclib se suspende definitivamente.
     highlight: false
 
-  - date: 'Febrero–abril de 2024, Ingreso urgente'
+  - date: 'feb–abr 2024'
+    tag: Ingreso urgente
     title: '50 días hospitalizada, 10 en UCI'
     description: >
       La neutropenia severa causada por el ribociclib derivó en una neumonía necrotizante
@@ -44,8 +49,8 @@ entries:
     image: /img/hospital.jpg
     imageAlt: "Miriam en la UCI durante su ingreso hospitalario. Entubada pero divina, haciendose el skincare"
 
-
-  - date: 'Julio de 2024, DIPCAN'
+  - date: 'jul 2024'
+    tag: DIPCAN
     title: El tumor revela su identidad molecular
     description: >
       Miriam participa en el estudio DIPCAN, que permite realizar un análisis genómico completo
@@ -56,23 +61,26 @@ entries:
       diferencia con implicaciones directas en la elección del tratamiento hormonal.
     highlight: true
 
-  - date: 'Enero de 2025, Segunda línea'
+  - date: 'ene 2025'
+    tag: Segunda línea
     title: 'Tratamiento: Fulvestrant + Abemaciclib'
     description: >
-      Tras confirmar progresión en PET-TAC, se pasa a segunda línea: se sustituye letrozol
+      Tras confirmar progresión en PET-CT, se pasa a segunda línea: se sustituye letrozol
       por fulvestrant y ribociclib por abemaciclib. Zoladex se mantiene.
     highlight: false
 
-  - date: 'Marzo de 2026, Progresión'
+  - date: 'mar 2026'
+    tag: Progresión
     title: Progresión ósea — se suspende el abemaciclib
     description: >
-      PET-TAC confirma nuevos focos óseos. La progresión es la razón principal del cambio
+      PET-CT confirma nuevos focos óseos. La progresión es la razón principal del cambio
       de estrategia. El abemaciclib se suspende también por toxicidad hepática (DILI G2-3),
       sin llegar a ser grave. El resto del tratamiento — Zoladex y ácido zoledrónico —
       continúa. Se inicia búsqueda activa de tercera línea.
     highlight: false
 
-  - date: 'Abril 2026, Semana 1'
+  - date: 'abr 2026'
+    tag: Equipo
     title: Se forma el equipo y empieza la búsqueda
     description: >
       Miriam empieza a investigar su caso con inteligencia artificial. Un hilo en Twitter.
@@ -82,7 +90,16 @@ entries:
     link: https://x.com/miriamgonp/status/2041824144484917749
     linkLabel: 'Ver el hilo original en Twitter →'
 
-  - date: '8–9 de abril de 2026, IA'
+  - date: '7 abr 2026'
+    tag: Molecular
+    title: Biopsia líquida VHIO360 (HOPE)
+    description: >
+      Primer ctDNA en plasma dentro del ensayo HOPE-FOCUS SOLTI-2401. Perfil basal del tumor
+      sin necesidad de tejido. Resultados: ESR1 D538G detectada y estado MSI bajo.
+    highlight: false
+
+  - date: '8–9 abr 2026'
+    tag: IA
     title: Documentación clínica generada con IA
     description: >
       Se genera el resumen clínico completo del caso usando modelos de lenguaje avanzados.
@@ -92,12 +109,71 @@ entries:
     link: https://x.com/javilop/status/2041905341059973294
     linkLabel: 'Ver hilo de documentación →'
 
-  - date: 'Abril 2026, DIVULGACIÓN'
+  - date: '13 abr 2026'
+    tag: Molecular
+    title: Biopsia líquida Guardant360 (1ª)
+    description: >
+      Primer ctDNA en sangre con el panel Guardant360. Resultados: ESR1 D538G, 3 mutaciones
+      distintas en RB1, FGFR1 amplificado y CCND1 amplificado.
+    highlight: false
+
+  - date: '20 abr 2026'
+    tag: Divulgación
     title: Ponencia en Codemotion Madrid
     description: >
-      Míriam sube al escenario de Codemotion Madrid para hablar de cómo la IA está ayudando
+      Miriam sube al escenario de Codemotion Madrid para hablar de cómo la IA está ayudando
       a avanzar su caso. Primer acto público de divulgación del proyecto y regreso al
       ecosistema tech tras dos años.
     highlight: true
     link: https://x.com/miriamgonp/status/2046266823209890162
     linkLabel: 'Ver el hilo en Twitter →'
+
+  - date: '30 abr 2026'
+    tag: Molecular
+    title: Biopsia ósea (lesión ilíaca derecha)
+    description: >
+      La aguja accede a la lesión, pero la muestra obtenida es de hueso, no de tumor activo.
+      Resultados: trabéculas óseas mineralizadas y fibras musculares, sin células neoplásicas.
+      No descarta la enfermedad; solo confirma que por esta vía no se podrá hacer perfilado
+      tisular. La información molecular se sigue obteniendo del ctDNA en sangre.
+    highlight: false
+
+  - date: '13 may 2026'
+    tag: Molecular
+    title: Biopsia líquida Guardant360 CDx (2ª)
+    description: >
+      Segundo ctDNA en sangre con el panel Guardant360 CDx. Resultados: ESR1 D538G (0,84%),
+      CCND1 amplificado (6,83), FGFR1 amplificado (5,86), RB1 V622Yfs*33 (0,19%) y la nueva
+      SMO V319D (0,26%) — significado clínico incierto, en vigilancia.
+    highlight: false
+
+  - date: '17 may 2026'
+    tag: Divulgación
+    title: El problema de los protocolos españoles
+    description: >
+      Vídeo explicando por qué los protocolos españoles se quedan cortos para este perfil y
+      llamamiento para difundir el caso.
+    highlight: false
+    link: https://x.com/miriamgonp/status/2055872406858682514
+    linkLabel: 'Ver el vídeo →'
+
+  - date: '21 may 2026'
+    tag: Clínico
+    title: Comité tumoral internacional (WIN Consortium)
+    description: >
+      Se celebra el comité molecular internacional del WIN Consortium sobre el caso de
+      Miriam.
+    highlight: true
+
+  - date: '30 may 2026'
+    tag: Molecular
+    title: PET Galio-68 (DOTATOC) — SSTR positivo
+    description: >
+      PET-CT con Galio-68 DOTATOC. Múltiples metástasis
+      óseas blásticas con sobreexpresión de receptores de somatostatina y captación focal
+      en la cola de la mama derecha. Confirma los “dos motores” del tumor (FGFR1/CCND1
+      luminal + comportamiento neuroendocrino RB1 + SSTR) y abre la vía de la terapia con
+      radioligandos (PRRT con Lu-177 / Ac-225).
+    highlight: true
+    link: https://x.com/miriamgonp/status/2060649242037723567
+    linkLabel: 'Ver el hilo del PET Galio →'

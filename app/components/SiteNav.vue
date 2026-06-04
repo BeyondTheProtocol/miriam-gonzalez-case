@@ -4,26 +4,61 @@
     class="sticky top-0 z-50 transition-all duration-300"
     :class="
       scrolled
-        ? 'bg-ink-50/90 backdrop-blur-lg border-b border-ink-200/50 shadow-sm'
-        : 'bg-transparent'
+        ? 'bg-cream/95 backdrop-blur-lg shadow-sm'
+        : 'bg-cream'
     "
+    style="border-bottom: 1px solid rgba(45,27,61,0.08)"
   >
     <div class="section-wide flex items-center justify-between h-16 sm:h-18">
       <!-- Logo -->
-      <NuxtLink :to="localePath('/')" class="flex items-center gap-2.5 group">
-        <span
-          class="w-8 h-8 rounded-lg bg-gold-600 text-white flex items-center justify-center font-display font-bold text-sm group-hover:bg-gold-700 transition-colors"
-          aria-hidden="true"
-        >
-          M
-        </span>
-        <span
-          class="font-display font-semibold text-ink-900 text-sm sm:text-base tracking-tight hidden sm:block"
-        >
-          {{ $t('site.title') }}
-        </span>
-      </NuxtLink>
-
+      <NuxtLink :to="localePath('/')" class="flex items-center gap-2.5 group" style="text-decoration: none">
+          <span
+            class="w-9 h-9 rounded-lg flex items-center justify-center transition-colors"
+            aria-hidden="true"
+            style="background: #2d1b3d;"
+          >
+            <svg viewBox="0 0 64 64" width="24" height="24" aria-hidden="true">
+              <rect width="64" height="64" rx="14" fill="#2D1B3D" />
+              <text
+                x="32"
+                y="46"
+                font-family="Fraunces, Georgia, serif"
+                font-weight="600"
+                font-style="italic"
+                font-size="40"
+                fill="#FAF6F0"
+                text-anchor="middle"
+                letter-spacing="-0.02em"
+              >
+                m
+              </text>
+              <path
+                d="M 12 16 L 12.7 18 L 14.7 18.7 L 12.7 19.4 L 12 21.4 L 11.3 19.4 L 9.3 18.7 L 11.3 18 Z"
+                fill="#A44DB2"
+              />
+              <path
+                d="M 52 14 L 53 17 L 56 18 L 53 19 L 52 22 L 51 19 L 48 18 L 51 17 Z"
+                fill="#FAF6F0"
+              />
+              <path
+                d="M 50 50 L 50.7 52 L 52.7 52.7 L 50.7 53.4 L 50 55.4 L 49.3 53.4 L 47.3 52.7 L 49.3 52 Z"
+                fill="#A44DB2"
+              />
+            </svg>
+          </span>
+          <span class="flex flex-col leading-none">
+            <span
+              class="font-display font-semibold text-berenjena text-sm sm:text-base tracking-tight"
+            >
+              {{ $t('site.title') }}
+            </span>
+            <span
+              class="font-mono text-[10px] tracking-[0.04em] text-miriam mt-1"
+            >
+              helpmiriam.com
+            </span>
+          </span>
+        </NuxtLink>
       <!-- Desktop nav -->
       <nav
         :aria-label="$t('nav.main_label')"
@@ -33,19 +68,20 @@
           v-for="item in navItems"
           :key="item.key"
           :to="localePath(item.to)"
-          class="px-3 py-1.5 text-sm font-medium text-ink-700 hover:text-ink-950 rounded-lg hover:bg-ink-100/60 transition-all"
-          active-class="!text-ink-950 !bg-ink-100/80"
+          class="px-3 py-1.5 text-sm font-medium text-tinta hover:text-miriam rounded-lg transition-all"
+          style="text-decoration: none"
+          active-class="!text-miriam"
         >
           {{ $t(`nav.${item.key}`) }}
         </NuxtLink>
-        <a
-          href="https://helpmiriam.notion.site/colabora"
-          target="_blank"
-          rel="noopener noreferrer"
-          class="px-3 py-1.5 text-sm font-medium text-ink-700 hover:text-ink-950 rounded-lg hover:bg-ink-100/60 transition-all"
+        <NuxtLink
+          :to="localePath('colabora')"
+          class="px-3 py-1.5 text-sm font-medium text-tinta hover:text-miriam rounded-lg transition-all"
+          style="text-decoration: none"
+          active-class="!text-miriam"
         >
           {{ $t('nav.collaborate') }}
-        </a>
+        </NuxtLink>
       </nav>
 
       <!-- Right side: lang switch + CTA + mobile menu -->
@@ -54,7 +90,8 @@
         <button
           @click="toggleLocale"
           :aria-label="langAriaLabel"
-          class="text-2xs font-mono font-medium tracking-widest uppercase px-2.5 py-1 rounded-md border border-ink-200 text-ink-700 hover:text-ink-950 hover:border-ink-300 transition-colors"
+          class="text-[11px] font-mono font-medium tracking-widest uppercase px-2.5 py-1 rounded-md text-tinta hover:text-berenjena transition-colors"
+          style="border: 1px solid rgba(45,27,61,0.15)"
         >
           {{ locale === 'es' ? 'EN' : 'ES' }}
         </button>
@@ -64,7 +101,8 @@
           href="https://gofund.me/3e25cae99"
           target="_blank"
           rel="noopener noreferrer"
-          class="hidden sm:inline-flex items-center gap-1.5 px-4 py-2 bg-gold-500 hover:bg-gold-600 text-white text-sm font-semibold rounded-xl transition-colors shadow-sm"
+          class="hidden sm:inline-flex items-center gap-1.5 px-4 py-2 bg-coral hover:bg-coral-hover text-berenjena text-sm font-semibold rounded-btn transition-all"
+          style="text-decoration: none"
         >
           <Icon name="ph:heart-fill" class="w-3.5 h-3.5" aria-hidden="true" />
           {{ $t('nav.donate') }}
@@ -76,7 +114,7 @@
           :aria-expanded="mobileOpen"
           aria-controls="mobile-nav"
           :aria-label="mobileOpen ? $t('nav.close_menu') : $t('nav.open_menu')"
-          class="lg:hidden p-2 -mr-2 text-ink-700 hover:text-ink-950"
+          class="lg:hidden p-2 -mr-2 text-berenjena"
         >
           <Icon
             :name="mobileOpen ? 'ph:x-bold' : 'ph:list-bold'"
@@ -99,7 +137,8 @@
       <div
         v-if="mobileOpen"
         id="mobile-nav"
-        class="lg:hidden border-t border-ink-200/50 bg-ink-50/95 backdrop-blur-lg"
+        class="lg:hidden bg-cream/95 backdrop-blur-lg"
+        style="border-top: 1px solid rgba(45,27,61,0.08)"
       >
         <nav
           :aria-label="$t('nav.mobile_label')"
@@ -109,26 +148,28 @@
             v-for="item in navItems"
             :key="item.key"
             :to="localePath(item.to)"
-            class="px-4 py-2.5 text-sm font-medium text-ink-700 hover:text-ink-950 rounded-lg hover:bg-ink-100/60 transition-all"
-            active-class="!text-ink-950 !bg-ink-100/80"
+            class="px-4 py-2.5 text-sm font-medium text-tinta hover:text-miriam rounded-lg transition-all"
+            style="text-decoration: none"
+            active-class="!text-miriam"
             @click="mobileOpen = false"
           >
             {{ $t(`nav.${item.key}`) }}
           </NuxtLink>
-          <a
-            href="https://helpmiriam.notion.site/colabora"
-            target="_blank"
-            rel="noopener noreferrer"
-            class="px-4 py-2.5 text-sm font-medium text-ink-700 hover:text-ink-950 rounded-lg hover:bg-ink-100/60 transition-all"
+          <NuxtLink
+            :to="localePath('colabora')"
+            class="px-4 py-2.5 text-sm font-medium text-tinta hover:text-miriam rounded-lg transition-all"
+            style="text-decoration: none"
+            active-class="!text-miriam"
             @click="mobileOpen = false"
           >
             {{ $t('nav.collaborate') }}
-          </a>
+          </NuxtLink>
           <a
             href="https://gofund.me/3e25cae99"
             target="_blank"
             rel="noopener noreferrer"
-            class="mt-2 flex items-center justify-center gap-1.5 px-4 py-2.5 bg-gold-500 hover:bg-gold-600 text-white text-sm font-semibold rounded-xl"
+            class="mt-2 flex items-center justify-center gap-1.5 px-4 py-2.5 bg-coral hover:bg-coral-hover text-berenjena text-sm font-semibold rounded-btn"
+            style="text-decoration: none"
           >
             <Icon name="ph:heart-fill" class="w-3.5 h-3.5" aria-hidden="true" />
             {{ $t('nav.donate') }}
@@ -155,10 +196,8 @@ const langAriaLabel = computed(() =>
 const navItems = [
   { key: 'home', to: { name: 'index' } },
   { key: 'science', to: { name: 'ciencia' } },
-  { key: 'team', to: { name: 'equipo' } },
   { key: 'timeline', to: { name: 'timeline' } },
-  { key: 'story', to: { name: 'historia' } },
-  { key: 'contact', to: { name: 'contacto' } },
+  { key: 'team', to: { name: 'equipo' } },
 ]
 
 function toggleLocale() {

@@ -1,61 +1,68 @@
 <script setup>
-const props = defineProps({
+defineProps({
   colorMode: { type: String, required: false, default: 'light' },
   title: { type: String, required: false, default: 'title' },
   description: { type: String, required: false },
   width: { type: Number, required: false, default: 1200 },
-  height: { type: Number, required: false, default: 600 },
+  height: { type: Number, required: false, default: 630 },
 })
 </script>
 
 <template>
   <div
-    class="w-full h-full flex flex-col justify-center items-center relative p-10 lg:p-[60px] bg-white text-neutral-900 dark:bg-neutral-900 dark:text-neutral-50"
+    class="w-full h-full flex flex-row items-center relative"
+    style="background-color: #faf6f0; color: #2d1b3d; font-family: 'Fraunces', serif;"
   >
-    <!-- Gradient background -->
+    <!-- Portrait column -->
     <div
-      class="absolute top-0 left-0 right-0 bottom-0"
-      :style="{
-        backgroundImage: `radial-gradient(at 100% 100%, rgba(124, 58, 237, 0.15), transparent)`,
-      }"
-    />
-    <div
-      class="absolute top-0 left-0 right-0 bottom-0"
-      :style="{
-        backgroundImage: `radial-gradient(at 0% 0%, rgba(124, 58, 237, 0.1), transparent)`,
-      }"
-    />
+      class="flex items-center justify-center h-full shrink-0"
+      style="width: 420px; background-color: #e8d4ed;"
+    >
+      <img
+        src="/design-system/assets/miriam-avatar.png"
+        alt=""
+        width="320"
+        height="320"
+        style="width: 320px; height: 320px; border-radius: 9999px; object-fit: cover; border: 6px solid #faf6f0;"
+      />
+    </div>
 
-    <div class="relative flex flex-col items-center text-center gap-5 lg:gap-8">
-      <!-- Logo -->
-      <div class="flex items-center gap-3">
-        <span class="text-[32px] lg:text-[42px] font-bold tracking-tight">
-          Miriam González
+    <!-- Text column -->
+    <div class="flex flex-col justify-center h-full" style="padding: 60px; gap: 24px; flex: 1;">
+      <div class="flex items-center" style="gap: 12px;">
+        <div style="width: 32px; height: 4px; background-color: #a44db2;" />
+        <span
+          style="font-family: 'JetBrains Mono', monospace; font-size: 18px; letter-spacing: 0.16em; text-transform: uppercase; color: #6b5a78;"
+        >
+          helpmiriam.com
         </span>
       </div>
 
-      <div class="items-center justify-center w-full">
-        <!-- Title -->
-        <h1
-          class="text-[48px] lg:text-[80px] font-bold m-0 leading-tight max-w-[700px] lg:max-w-[1000px]"
-          style="
-            display: block;
-            line-clamp: 3;
-            text-overflow: ellipsis;
-            text-wrap: balance;
-          "
-        >
-          {{ title }}
-        </h1>
-      </div>
+      <h1
+        style="font-size: 60px; font-weight: 600; line-height: 1.05; letter-spacing: -0.03em; margin: 0; color: #2d1b3d;"
+      >
+        {{ title }}
+      </h1>
 
-      <!-- Description -->
       <p
         v-if="description"
-        class="text-[24px] lg:text-[32px] opacity-70 max-w-[650px] lg:max-w-[900px] leading-relaxed"
+        style="font-family: 'Source Sans 3', sans-serif; font-size: 26px; line-height: 1.45; color: #5a4a68; margin: 0;"
       >
         {{ description }}
       </p>
+
+      <div
+        class="flex items-center"
+        style="gap: 14px; margin-top: 12px; padding-top: 20px; border-top: 1px solid rgba(45,27,61,0.12);"
+      >
+        <span style="font-family: 'JetBrains Mono', monospace; font-size: 16px; color: #2d1b3d;">
+          Miriam González · 35
+        </span>
+        <span style="color: #a44db2;">·</span>
+        <span style="font-family: 'JetBrains Mono', monospace; font-size: 16px; color: #5a4a68;">
+          BC-NED · FGFR1 ×13 · SSTR+
+        </span>
+      </div>
     </div>
   </div>
 </template>

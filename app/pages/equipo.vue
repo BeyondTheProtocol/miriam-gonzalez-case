@@ -4,15 +4,15 @@
       <div class="section-container">
         <PageHeader :title="$t('team.title')" :subtitle="$t('team.subtitle')" />
 
-        <div class="card-base mb-12 border-l-4 border-l-gold-400">
-          <p class="text-sm text-ink-700 leading-relaxed">
+        <div class="card-base mb-12" style="border-left: 4px solid #a44db2">
+          <p class="text-sm text-tinta leading-relaxed">
             {{ $t('team.how_it_formed') }}
           </p>
         </div>
 
-        <h3 id="team-miriam" class="font-display font-semibold text-ink-800 text-sm uppercase tracking-wider mb-6">
+        <h2 id="team-miriam" class="eyebrow mb-6 block">
           {{ $t('team.miriam_team') }}
-        </h3>
+        </h2>
 
         <ul aria-labelledby="team-miriam" class="grid sm:grid-cols-2 gap-4 mb-12 stagger-children">
           <li v-for="member in coreTeam" :key="member.role">
@@ -20,9 +20,9 @@
           </li>
         </ul>
 
-        <h3 id="team-medical" class="font-display font-semibold text-ink-800 text-sm uppercase tracking-wider mb-6">
+        <h2 id="team-medical" class="eyebrow mb-6 block">
           {{ $t('team.medical_support_network') }}
-        </h3>
+        </h2>
 
         <ul aria-labelledby="team-medical" class="grid sm:grid-cols-2 gap-4 mb-12 stagger-children">
           <li v-for="member in medicalNetwork" :key="member.role">
@@ -30,9 +30,9 @@
           </li>
         </ul>
 
-        <h3 id="team-integrative" class="font-display font-semibold text-ink-800 text-sm uppercase tracking-wider mb-6">
+        <h2 id="team-integrative" class="eyebrow mb-6 block">
           {{ $t('team.integrative_support') }}
-        </h3>
+        </h2>
 
         <ul aria-labelledby="team-integrative" class="grid sm:grid-cols-2 gap-4 stagger-children">
           <li v-for="member in integrativeSupport" :key="member.role">
@@ -46,7 +46,7 @@
 
 <script setup lang="ts">
 import type { Collections, TeamEnCollectionItem } from '@nuxt/content'
-const { locale } = useI18n()
+const { locale, t } = useI18n()
 
 const { data: teamData } = await useAsyncData(
   `team-data-${locale.value}`,
@@ -66,19 +66,30 @@ const integrativeSupport = computed(
 )
 
 useSeoMeta({
-  title: () =>
-    locale.value === 'es'
-      ? 'El equipo — Miriam González'
-      : 'The Team — Miriam González',
+  title: () => (locale.value === 'es' ? 'El equipo' : 'The team'),
   description: () =>
     locale.value === 'es'
       ? 'El equipo internacional que trabaja en el caso de Miriam: oncólogos, especialistas en FGFR1, investigadores de IA médica y colaboradores de 4 países.'
       : "The international team working on Miriam's case: oncologists, FGFR1 specialists, medical AI researchers, and collaborators from 4 countries.",
-  ogTitle: () =>
+  ogTitle: () => (locale.value === 'es' ? 'El equipo' : 'The team'),
+  ogDescription: () =>
     locale.value === 'es'
-      ? 'El equipo — Miriam González'
-      : 'The Team — Miriam González',
+      ? 'Una paciente, un equipo internacional e inteligencia artificial.'
+      : 'One patient, an international team, and artificial intelligence.',
   ogType: 'website',
-  twitterCard: 'summary',
+  twitterCard: 'summary_large_image',
+  twitterTitle: () => (locale.value === 'es' ? 'El equipo' : 'The team'),
+  twitterDescription: () =>
+    locale.value === 'es'
+      ? 'Una paciente, un equipo internacional e inteligencia artificial.'
+      : 'One patient, an international team, and artificial intelligence.',
+})
+
+defineOgImage('Default.takumi', {
+  title: () => t('team.title'),
+  description: () =>
+    locale.value === 'es'
+      ? 'Una paciente, un equipo internacional e IA.'
+      : 'One patient, an international team, and AI.',
 })
 </script>

@@ -14,7 +14,7 @@ treatments:
   - line: →
     regimen: Progresión ósea + suspensión de abemaciclib (marzo 2026)
     outcome: >-
-      PET-TAC confirma nuevos focos óseos en pelvis y fémur derecho. El
+      PET-CT confirma nuevos focos óseos en pelvis y fémur derecho. El
       abemaciclib se suspende por progresión ósea y toxicidad hepática (DILI
       G2-3). Zoladex y ácido zoledrónico continúan. ECOG 0. Sin crisis visceral.
     active: true
@@ -122,7 +122,7 @@ paperSections:
           recomendaciones nacionales e internacionales.
         link: null
       - ref: 'ENETS Consensus Guidelines, 2023 — European Neuroendocrine Tumor Society'
-        finding: 'Recomendación europea: valoración SSTR2 en NE breast carcinomas avanzados'
+        finding: 'Recomendación europea: valoración de SSTR2 en carcinomas de mama NE avanzados'
         relevance: >-
           El consenso ENETS 2023 recomienda valorar expresión de SSTR2 y
           considerar imagen funcional con DOTATATE en carcinomas
@@ -155,3 +155,94 @@ panelRows:
     method: Si SSTR2+ en IHQ
     targets: Krenning score
     implication: Elegibilidad PRRT (Krenning ≥3)
+liquidBiopsies:
+  - id: ctdna-1
+    date: 7 abr 2026
+    source: VHIO360 — ensayo HOPE-FOCUS SOLTI-2401
+    findings: Panel de ctDNA en plasma — perfil basal
+  - id: ctdna-2
+    date: Abril 2026
+    source: Guardant360
+    findings: 'ESR1 D538G · 3 mutaciones distintas en RB1 · FGFR1 amplificado · CCND1 amplificado'
+    highlight: true
+  - id: ctdna-3
+    date: Extracción 13/05/2026 · informe 26/05/2026
+    source: Guardant360 CDx
+    findings: 'ESR1 D538G (0,84%) · CCND1 amp (6,83) · FGFR1 amp (5,86) · RB1 V622Yfs*33 (0,19%) · SMO V319D (0,26%) — nuevo'
+    highlight: true
+liquidBiopsyPivot:
+  samples:
+    - id: vhio360
+      label: VHIO360
+      date: 07/04/26
+      matrix: plasma
+    - id: guardant1
+      label: Guardant360
+      date: 13/04/26
+      matrix: plasma
+    - id: guardantcdx
+      label: Guardant360 CDx
+      date: 13/05/26
+      matrix: plasma
+  rows:
+    - alteration: ESR1
+      subscript: p.D538G
+      values:
+        vhio360: { value: 'detectada', tone: warn }
+        guardant1: { value: 'detectada', tone: warn }
+        guardantcdx: { value: '0,84%', tone: warn }
+    - alteration: RB1
+      subscript: p.V622Yfs*33
+      values:
+        vhio360: { plain: true }
+        guardant1: { value: 'detectada', tone: warn }
+        guardantcdx: { value: '0,19%', tone: warn }
+    - alteration: CCND1
+      subscript: amplificación
+      values:
+        vhio360: { plain: true }
+        guardant1: { value: 'amplificada', tone: violet }
+        guardantcdx: { value: '6,83', tone: violet }
+    - alteration: FGFR1
+      subscript: amplificación
+      values:
+        vhio360: { plain: true }
+        guardant1: { value: 'amplificada', tone: violet }
+        guardantcdx: { value: '5,86', tone: violet }
+    - alteration: SMO
+      subscript: 'p.V319D · VUS'
+      values:
+        vhio360: { plain: true }
+        guardant1: { plain: true }
+        guardantcdx: { value: '0,26% — nuevo', tone: neutral }
+    - alteration: MSI Status
+      values:
+        vhio360: { value: 'MSI-LOW', plain: true }
+        guardant1: { plain: true }
+        guardantcdx: { plain: true }
+  sources: 'Fuentes: 2026-04-07 VHIO360 (HOPE-FOCUS SOLTI-2401) · 2026-04-13 Guardant360 · 2026-05-13 Guardant360 CDx (informe 26/05/26)'
+imaging:
+  title: PET-CT con Galio-68 DOTATOC
+  date: 26 de mayo de 2026
+  summary: >-
+    Múltiples metástasis óseas blásticas con sobreexpresión de receptores de
+    somatostatina (SSTR+). Captación focal en cola de mama derecha pendiente
+    de estudio dirigido.
+  meaning: >-
+    El tumor expresa receptores de somatostatina — diana de la terapia con
+    radioligandos (PRRT) con lutecio-177 o actinio-225. Confirma sobre imagen
+    los dos motores del tumor (luminal FGFR1/CCND1 + neuroendocrino
+    RB1 + SSTR) y abre una vía que los protocolos de mama no contemplan de forma
+    estándar.
+  quote: >-
+    Estudio con múltiples metástasis óseas blásticas con sobreexpresión de
+    receptores de somatostatina. Captación focal en cola de mama derecha a
+    valorar en estudio dirigido.
+boneBiopsy:
+  title: Biopsia ósea (lesión ilíaca derecha)
+  date: Recibida 30/04/2026 · informe 08/05/2026
+  site: Lesión ilíaca derecha
+  result: >-
+    No contenía tumor — «trabéculas óseas mineralizadas y fibras músculo
+    esqueléticas, no se observa neoplasia». La información molecular se
+    obtiene del ctDNA en sangre.

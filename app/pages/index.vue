@@ -1,100 +1,373 @@
 <template>
   <div>
     <SectionHero />
-    <section class="border-b border-gold-300/50 bg-gradient-to-r from-gold-100 via-ink-50 to-ocean-50">
-      <div class="section-container py-4 sm:py-5">
-        <p class="tag-gold">{{ $t('entry_disclaimer.badge') }}</p>
-        <h2 class="heading-display mt-3 text-xl text-ink-950 sm:text-2xl">
-          {{ $t('entry_disclaimer.title') }}
-        </h2>
-        <p class="mt-3 max-w-4xl text-sm leading-7 text-ink-800 sm:text-base">
-          {{ $t('entry_disclaimer.body') }}
+
+    <!-- La historia + en sus propias palabras (beat humano: persona antes que problema) -->
+    <section class="py-24 sm:py-32 relative overflow-hidden" :aria-label="$t('home.story_eyebrow')" style="background: #2d1b3d; color: #faf6f0">
+      <div class="absolute inset-0 opacity-[0.04]" style="background-image: radial-gradient(circle at 1px 1px, #faf6f0 1px, transparent 0); background-size: 32px 32px;" />
+      <div class="relative section-container max-w-4xl">
+        <p class="font-mono text-[12px] uppercase tracking-[0.14em]" style="color: #e8d4ed">
+          {{ $t('home.story_eyebrow') }}
         </p>
-      </div>
-    </section>
-    <SectionCampaign />
-
-    <section class="section-spacing" :aria-label="$t('index.molecular_profile')">
-      <div class="section-container">
-        <div class="flex items-center justify-between mb-8">
-          <h2 class="heading-display text-2xl sm:text-3xl text-ink-950">
-            {{ $t('index.molecular_profile') }}
-          </h2>
-          <NuxtLink :to="localePath({ name: 'ciencia' })" class="link-underline text-sm">
-            {{ $t('index.see_full_science') }}
-          </NuxtLink>
-        </div>
-        <MolecularProfile />
-      </div>
-    </section>
-
-    <section class="section-spacing bg-white/50" :aria-label="$t('index.in_the_press')">
-      <div class="section-container">
-        <h2 class="heading-display text-2xl sm:text-3xl text-ink-950 mb-10 text-center">
-          {{ $t('index.in_the_press') }}
+        <h2 class="heading-display text-3xl sm:text-4xl mt-4 mb-6" style="color: #faf6f0; letter-spacing: -0.03em">
+          {{ $t('home.story_heading') }}
         </h2>
-        <div class="flex flex-wrap justify-center gap-8 sm:gap-12" v-if="pressData?.articles">
-          <a v-for="article in pressData.articles" :key="article.url" :href="article.url" target="_blank"
-            rel="noopener noreferrer"
-            class="group flex flex-col items-center justify-center gap-3 p-6 bg-white rounded-xl shadow-sm hover:shadow-md transition-all duration-300 min-w-[280px] max-w-[400px]">
-            <span class="font-display font-bold text-lg text-ink-600 group-hover:text-ink-900 transition-colors">
-              {{ article.outlet }}
-            </span>
-            <span class="text-sm text-ink-600 text-center leading-relaxed">
-              {{ article.title }}
-            </span>
-          </a>
-        </div>
-        <div v-else>
-          <p class="text-center text-ink-600">
-            {{ $t('index.no_press_articles') }}
+        <p class="text-base sm:text-lg leading-relaxed max-w-2xl" style="color: rgba(250,246,240,0.92)">
+          {{ $t('home.story_p1')
+          }}<strong class="font-semibold text-cream">{{ $t('home.story_p1_rarity') }}</strong>.
+        </p>
+        <NuxtLink
+          :to="localePath({ name: 'historia' })"
+          class="link-underline mt-7 inline-flex items-center gap-2 text-sm font-medium text-cream"
+        >
+          {{ $t('home.story_link') }}
+          <Icon name="ph:arrow-right" class="w-4 h-4" aria-hidden="true" />
+        </NuxtLink>
+
+        <!-- En sus propias palabras -->
+        <div class="mt-14 pt-12" style="border-top: 1px solid rgba(250,246,240,0.15)">
+          <p class="font-mono text-[12px] uppercase tracking-[0.14em] mb-8" style="color: #e8d4ed">
+            {{ $t('home.s6_eyebrow') }}
+          </p>
+          <blockquote class="font-display text-2xl sm:text-3xl lg:text-4xl font-semibold leading-[1.2] max-w-3xl" style="letter-spacing: -0.025em">
+            <span style="color: #ff6b47">«</span>{{ $t('home.s6_quote') }}<span style="color: #ff6b47">»</span>
+          </blockquote>
+          <p class="mt-8 font-display italic text-xl" style="color: #e8d4ed">
+            — {{ $t('home.s6_signature') }}
+          </p>
+          <p class="mt-8 leading-relaxed text-sm max-w-2xl" style="color: rgba(250,246,240,0.7)">
+            {{ $t('home.s6_outro') }}
           </p>
         </div>
       </div>
     </section>
 
-    <section class="py-20 bg-ink-950 text-white relative overflow-hidden" :aria-label="$t('index.core_thesis')">
-      <div class="absolute inset-0 opacity-5" style="
-          background-image: radial-gradient(
-            circle at 1px 1px,
-            white 1px,
-            transparent 0
-          );
-          background-size: 24px 24px;
-        " />
-
-      <div class="relative section-container text-center">
-        <span class="tag bg-gold-500/20 text-gold-300 border-gold-500/30 mb-6 inline-flex">
-          {{ $t('index.core_thesis') }}
-        </span>
-        <blockquote class="font-display text-2xl sm:text-3xl lg:text-4xl font-semibold leading-snug max-w-3xl mx-auto">
-          {{ $t('ciencia.thesis') }}
-        </blockquote>
-        <p class="mt-6 text-ink-400 max-w-xl mx-auto leading-relaxed">
-          {{ $t('ciencia.thesis_goal') }}
+    <!-- S3 · Por qué no lo cubre la sanidad pública (brecha clínica · respuesta principal) -->
+    <section
+      class="section-spacing bg-cream-card"
+      :aria-label="$t('home.s3_eyebrow')"
+      style="border-top: 1px solid rgba(45,27,61,0.08); border-bottom: 1px solid rgba(45,27,61,0.08)"
+    >
+      <div class="section-container max-w-5xl">
+        <p class="eyebrow mb-4 block">{{ $t('home.s3_eyebrow') }}</p>
+        <h2 class="heading-display text-3xl sm:text-5xl text-berenjena mb-4" style="letter-spacing: -0.03em">
+          {{ $t('home.s3_heading') }}
+        </h2>
+        <p class="text-lg sm:text-xl text-berenjena font-medium mb-6 max-w-2xl font-display italic" style="line-height: 1.45">
+          {{ $t('home.s3_subheading') }}
         </p>
+        <!-- Resumen en lenguaje llano (DS §13): el detalle molecular y el
+             hallazgo PET viven en /ciencia; aquí solo la idea. -->
+        <i18n-t
+          keypath="home.s3_summary"
+          tag="p"
+          class="text-base text-tinta leading-relaxed max-w-2xl"
+        >
+          <template #luminal><Term id="luminal" /></template>
+          <template #neuroendocrino><Term id="neuroendocrino" /></template>
+        </i18n-t>
+
+        <!-- "Lo que existe / lo que falta" · dos paneles (mobile-first: apilan
+             en móvil, lado a lado en sm+). Lo cubierto queda sereno; lo que falta
+             se eleva con filete violeta (patrón callout del DS). -->
+        <h3 class="font-display font-semibold text-berenjena text-xl mt-12 mb-5">
+          {{ $t('home.s3_table_title') }}
+        </h3>
+        <!-- Misma estructura en ambos paneles; "lo que falta" destaca por inversión
+             (fondo berenjena + texto crema + puntos coral), no por otro layout. -->
+        <div class="grid gap-4 sm:grid-cols-2 sm:items-stretch">
+          <!-- Panel · lo que cubren (claro, sereno) -->
+          <div class="card-base" style="background: #faf6f0">
+            <p
+              class="font-mono uppercase text-[11px] tracking-[0.1em] text-tinta pb-4 mb-1"
+              style="border-bottom: 1px solid rgba(45,27,61,0.1)"
+            >
+              {{ $t('home.s3_col_has') }}
+            </p>
+            <ul class="divide-y divide-berenjena/[0.06]">
+              <li
+                v-for="(row, i) in s3Rows"
+                :key="i"
+                class="flex items-start gap-3 py-3.5"
+              >
+                <span class="mt-[7px] w-1.5 h-1.5 rounded-full bg-miriam shrink-0" aria-hidden="true" />
+                <span class="text-sm text-tinta leading-relaxed">{{ row[0] }}</span>
+              </li>
+            </ul>
+          </div>
+          <!-- Panel · lo que falta (misma estructura, invertido para destacar) -->
+          <div class="card-base" style="background: #2d1b3d; border-color: transparent">
+            <p
+              class="font-mono uppercase text-[11px] tracking-[0.1em] text-coral pb-4 mb-1"
+              style="border-bottom: 1px solid rgba(250,246,240,0.15)"
+            >
+              {{ $t('home.s3_col_missing') }}
+            </p>
+            <ul class="divide-y divide-[rgba(250,246,240,0.1)]">
+              <li
+                v-for="(row, i) in s3Rows"
+                :key="i"
+                class="flex items-start gap-3 py-3.5"
+              >
+                <span class="mt-[7px] w-1.5 h-1.5 rounded-full bg-coral shrink-0" aria-hidden="true" />
+                <span class="text-sm text-cream leading-relaxed">{{ row[1] }}</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+        <p class="mt-6 text-sm text-tinta italic max-w-2xl">
+          {{ $t('home.s3_outro') }}
+        </p>
+      </div>
+    </section>
+
+    <!-- Hacia dónde va · objetivo N-of-1 + perfil molecular en una línea (detalle completo en /ciencia) -->
+    <section class="section-spacing bg-cream" :aria-label="$t('home.s8_eyebrow')" style="border-bottom: 1px solid rgba(45,27,61,0.08)">
+      <div class="section-container max-w-5xl">
+        <p class="eyebrow mb-4 block">{{ $t('home.s8_eyebrow') }}</p>
+        <h2 class="heading-display text-3xl sm:text-5xl text-berenjena mb-6" style="letter-spacing: -0.03em">
+          {{ $t('home.s8_heading') }}
+        </h2>
+        <i18n-t
+          keypath="home.s8_p1"
+          tag="p"
+          class="text-base text-tinta leading-relaxed mb-8 max-w-2xl"
+        >
+          <template #nof1><Term id="nof1" /></template>
+        </i18n-t>
+
+        <div class="card-base mb-10 max-w-3xl" style="background: #f5efe6">
+          <p class="font-display font-semibold text-berenjena text-lg mb-3">{{ $t('home.s8_advantages_title') }}</p>
+          <ul class="space-y-2.5">
+            <li
+              v-for="(item, i) in $tm('home.s8_advantages')"
+              :key="i"
+              class="flex items-start gap-2.5"
+            >
+              <Icon name="ph:check-circle-fill" class="mt-0.5 w-4 h-4 text-miriam shrink-0" aria-hidden="true" />
+              <span class="text-sm text-tinta leading-relaxed">{{ $rt(item) }}</span>
+            </li>
+          </ul>
+        </div>
+
+        <!-- Perfil molecular en una línea · detalle completo en /ciencia -->
+        <div>
+          <p class="font-mono uppercase text-[11px] tracking-[0.12em] font-medium text-tinta mb-3">
+            {{ $t('home.s8_markers_title') }}
+          </p>
+          <div class="flex flex-wrap gap-2">
+            <span
+              v-for="m in $tm('home.s8_markers')"
+              :key="String($rt(m))"
+              class="badge-genomic"
+            >
+              {{ $rt(m) }}
+            </span>
+          </div>
+          <p class="mt-4 text-xs text-tinta leading-relaxed max-w-2xl">
+            {{ $t('home.s8_markers_note') }}
+          </p>
+        </div>
+
+        <div class="mt-8 flex flex-col sm:flex-row sm:items-center gap-4">
+          <NuxtLink :to="localePath({ name: 'ciencia' })" class="btn-secondary w-full sm:w-auto">
+            <Icon name="ph:flask-fill" class="w-4 h-4" aria-hidden="true" />
+            {{ $t('home.s8_science_button') }}
+          </NuxtLink>
+          <p class="text-xs text-tinta">{{ $t('home.s8_science_caption') }}</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- S4 · ¿Por qué necesitamos tu ayuda? · Destino del dinero -->
+    <section class="section-spacing bg-cream-card" id="campaign" :aria-label="$t('home.s4_eyebrow')" style="border-top: 1px solid rgba(45,27,61,0.08)">
+      <div class="section-container max-w-5xl">
+        <p class="eyebrow mb-4 block">{{ $t('home.s4_eyebrow') }}</p>
+        <h2 class="heading-display text-3xl sm:text-5xl text-berenjena mb-6" style="letter-spacing: -0.03em">
+          {{ $t('home.s4_heading') }}
+        </h2>
+        <div class="space-y-4 text-base text-tinta leading-relaxed mb-8 max-w-2xl">
+          <p>
+            {{ $t('home.s4_p1')
+            }}<strong class="font-semibold text-berenjena">{{ $t('home.s4_p1_blind') }}</strong>.
+          </p>
+          <p>
+            {{ $t('home.s4_p2') }}
+            <span class="inline-flex items-center gap-1 ml-1 px-2 py-0.5 rounded-md text-xs font-mono" style="background: rgba(45,27,61,0.06); color: #3a3340">
+              {{ $t('home.s4_expenses_soon') }}
+            </span>
+          </p>
+        </div>
+
+        <!-- Resumen de 4 categorías; el desglose completo (12 partidas) vive en
+             /gastos para no sobrecargar el home (DS §13: resúmenes al inicio). -->
+        <div class="card-base">
+          <p class="font-display font-semibold text-berenjena text-lg mb-4">{{ $t('home.s4_buckets_title') }}</p>
+          <ul class="grid sm:grid-cols-2 gap-x-10">
+            <li
+              v-for="(item, i) in $tm('home.s4_buckets')"
+              :key="i"
+              class="flex items-start gap-3 py-2.5 border-t border-berenjena/[0.07]"
+            >
+              <span
+                class="mt-[7px] w-1.5 h-1.5 rounded-full bg-miriam shrink-0"
+                aria-hidden="true"
+              />
+              <span class="text-sm text-tinta leading-relaxed">{{ $rt(item) }}</span>
+            </li>
+          </ul>
+          <NuxtLink
+            :to="localePath('gastos')"
+            class="mt-5 inline-flex items-center gap-1.5 text-sm font-medium text-miriam hover:text-berenjena transition-colors"
+          >
+            {{ $t('home.s4_full_breakdown') }}
+            <Icon name="ph:arrow-right" class="w-4 h-4" aria-hidden="true" />
+          </NuxtLink>
+        </div>
+
+        <div class="mt-8 flex flex-col sm:flex-row sm:items-center gap-3">
+          <a
+            href="https://gofund.me/3e25cae99"
+            target="_blank"
+            rel="noopener"
+            class="btn-cta w-full sm:w-auto"
+          >
+            <Icon name="ph:heart-fill" class="w-4 h-4" aria-hidden="true" />
+            {{ $t('home.s4_cta_button') }}
+          </a>
+          <p class="text-xs text-tinta">{{ $t('home.s4_cta_caption') }}</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- S10 · CTAs en escalera -->
+    <section class="section-spacing bg-cream" :aria-label="$t('home.s10_eyebrow')" style="border-top: 1px solid rgba(45,27,61,0.08)">
+      <div class="section-container max-w-5xl">
+        <p class="eyebrow mb-4 block">{{ $t('home.s10_eyebrow') }}</p>
+        <h2 class="heading-display text-3xl sm:text-4xl text-berenjena mb-6" style="letter-spacing: -0.03em">
+          {{ $t('home.s10_intro') }}
+        </h2>
+        <div class="grid sm:grid-cols-3 gap-6 text-left mt-12">
+          <article class="card-base flex flex-col" style="background: #faf6f0">
+            <p class="font-mono uppercase text-[11px] tracking-[0.12em] text-tinta mb-2">01</p>
+            <h3 class="font-display font-semibold text-berenjena text-xl mb-3">{{ $t('home.s10_l1_title') }}</h3>
+            <p class="text-sm text-tinta leading-relaxed mb-5 flex-1">{{ $t('home.s10_l1_text') }}</p>
+            <button type="button" class="btn-ghost w-full h-12 justify-center whitespace-nowrap" style="border: 1px solid rgba(45,27,61,0.2)" @click="shareCase">
+              <Icon name="ph:share-network" class="w-4 h-4" aria-hidden="true" />
+              {{ $t('home.s10_l1_button') }}
+            </button>
+            <p class="mt-2 text-xs text-tinta sm:min-h-[2.25rem]">{{ $t('home.s10_l1_caption') }}</p>
+          </article>
+          <article class="card-base flex flex-col" style="background: #faf6f0">
+            <p class="font-mono uppercase text-[11px] tracking-[0.12em] text-tinta mb-2">02</p>
+            <h3 class="font-display font-semibold text-berenjena text-xl mb-3">{{ $t('home.s10_l2_title') }}</h3>
+            <p class="text-sm text-tinta leading-relaxed mb-5 flex-1">{{ $t('home.s10_l2_text') }}</p>
+            <NuxtLink :to="localePath({ name: 'ciencia' })" class="btn-secondary w-full h-12 justify-center whitespace-nowrap">
+              <Icon name="ph:flask-fill" class="w-4 h-4" aria-hidden="true" />
+              {{ $t('home.s10_l2_button') }}
+            </NuxtLink>
+            <p class="mt-2 text-xs text-tinta sm:min-h-[2.25rem]">{{ $t('home.s10_l2_caption') }}</p>
+          </article>
+          <article class="card-base flex flex-col" style="background: #faf6f0">
+            <p class="font-mono uppercase text-[11px] tracking-[0.12em] text-tinta mb-2">03</p>
+            <h3 class="font-display font-semibold text-berenjena text-xl mb-3">{{ $t('home.s10_l3_title') }}</h3>
+            <p class="text-sm text-tinta leading-relaxed mb-5 flex-1">{{ $t('home.s10_l3_text') }}</p>
+            <a href="https://gofund.me/3e25cae99" target="_blank" rel="noopener" class="btn-cta w-full h-12 justify-center whitespace-nowrap">
+              <Icon name="ph:heart-fill" class="w-4 h-4" aria-hidden="true" />
+              {{ $t('home.s10_l3_button') }}
+            </a>
+            <p class="mt-2 text-xs text-tinta sm:min-h-[2.25rem]">{{ $t('home.s10_l3_caption') }}</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- Cierre · estado de la campaña + caso en prensa (lo último de todo) -->
+    <section class="section-spacing bg-cream-card" :aria-label="$t('home.s5_eyebrow')" style="border-top: 1px solid rgba(45,27,61,0.08)">
+      <div class="section-container max-w-5xl">
+        <p class="eyebrow mb-3 block">{{ $t('home.s5_eyebrow') }}</p>
+        <h2 class="font-display font-semibold text-berenjena text-2xl sm:text-3xl mb-6" style="letter-spacing: -0.02em">
+          {{ $t('home.s5_heading') }}
+        </h2>
+        <GoFundMeProgress card />
+
+        <!-- Caso en prensa · tira de medios + contacto de prensa (estilo prototipo) -->
+        <div
+          class="mt-10 pt-6 flex flex-wrap items-center gap-x-6 gap-y-3"
+          style="border-top: 1px solid rgba(45,27,61,0.08)"
+        >
+          <span class="font-mono uppercase text-[11px] tracking-[0.14em] text-tinta">
+            {{ $t('home.s9_strip_label') }}
+          </span>
+          <a
+            :href="elPaisUrl"
+            target="_blank"
+            rel="noopener"
+            class="font-mono text-base text-miriam underline decoration-1 decoration-miriam/50 underline-offset-[3px] hover:text-berenjena hover:decoration-berenjena transition-colors"
+          >El País</a>
+          <a
+            :href="murciaUrl"
+            target="_blank"
+            rel="noopener"
+            class="font-mono text-base text-miriam underline decoration-1 decoration-miriam/50 underline-offset-[3px] hover:text-berenjena hover:decoration-berenjena transition-colors"
+          >La Opinión de Murcia</a>
+          <a
+            :href="la7Url"
+            target="_blank"
+            rel="noopener"
+            class="font-mono text-base text-miriam underline decoration-1 decoration-miriam/50 underline-offset-[3px] hover:text-berenjena hover:decoration-berenjena transition-colors"
+          >La 7</a>
+          <NuxtLink
+            :to="localePath({ name: 'contacto' })"
+            class="sm:ml-auto inline-flex items-center gap-1.5 font-mono text-[12px] text-miriam hover:text-berenjena transition-colors"
+          >
+            {{ $t('home.s9_press_contact') }}
+            <Icon name="ph:arrow-right" class="w-3.5 h-3.5" aria-hidden="true" />
+          </NuxtLink>
+        </div>
       </div>
     </section>
   </div>
 </template>
 
 <script setup lang="ts">
-defineOgImage('BlogPostTakumi')
-
-import type { Collections, PressEnCollectionItem } from '@nuxt/content'
-const { locale } = useI18n()
+const { locale, tm, rt } = useI18n()
 const localePath = useLocalePath()
 
-const { data: pressData } = await useAsyncData(
-  `press-data-${locale.value}`,
-  () => {
-    const collection = `press_${locale.value || 'en'}` as keyof Collections
-    return queryCollection(
-      collection
-    ).first() as Promise<PressEnCollectionItem | null>
-  },
-  { watch: [locale] }
-)
+// Cobertura de prensa real (verificada)
+const elPaisUrl =
+  'https://elpais.com/tecnologia/2026-04-23/asi-usa-una-paciente-con-cancer-metastasico-la-ia-para-entender-su-enfermedad-cual-es-el-mejor-metodo-para-hablar-de-salud-con-chatbots.html'
+const murciaUrl =
+  'https://www.laopiniondemurcia.es/comunidad/2026/05/30/paciente-murciana-aguarda-nuevo-tratamiento-130816775.html'
+const la7Url = 'https://www.instagram.com/p/DZDT2hIAMPU/?hl=es'
+
+const s3Rows = computed(() => {
+  const raw = tm('home.s3_rows') as unknown
+  const list = Array.isArray(raw) ? raw : Object.values(raw as Record<string, unknown>)
+  return list.map((row) => {
+    const arr = Array.isArray(row) ? row : Object.values(row as Record<string, unknown>)
+    return [rt(arr[0] as string), rt(arr[1] as string)]
+  })
+})
+
+const shareCase = async () => {
+  const url = typeof window !== 'undefined' ? window.location.href : 'https://helpmiriam.com'
+  const title =
+    locale.value === 'es'
+      ? 'Miriam González — Oncología de precisión para un tumor ultra-raro'
+      : 'Miriam González — Precision oncology for an ultra-rare tumor'
+  if (typeof navigator !== 'undefined' && navigator.share) {
+    try {
+      await navigator.share({ title, url })
+      return
+    } catch {
+      /* user cancelled */
+    }
+  }
+  if (typeof navigator !== 'undefined' && navigator.clipboard) {
+    await navigator.clipboard.writeText(url)
+  }
+}
 
 defineOgImage('Default.takumi', {
   title:
@@ -103,8 +376,8 @@ defineOgImage('Default.takumi', {
       : 'Precision Oncology for an Ultra-Rare Tumor',
   description:
     locale.value === 'es'
-      ? 'BC-NED con amplificación FGFR1 ×13. Apoya la rebiopsia molecular avanzada que puede cambiar su tratamiento.'
-      : 'BC-NED with FGFR1 ×13 amplification. Support the advanced molecular rebiopsy that could change her treatment.',
+      ? 'BC-NED con FGFR1 ×13 y SSTR+. Apoya la rebiopsia molecular avanzada que puede cambiar su tratamiento.'
+      : 'BC-NED with FGFR1 ×13 and SSTR+. Support the advanced molecular rebiopsy that could change her treatment.',
   colorMode: 'light',
 })
 
@@ -115,16 +388,16 @@ useSeoMeta({
       : 'Miriam González — Precision Oncology for an Ultra-Rare Tumor',
   description: () =>
     locale.value === 'es'
-      ? 'BC-NED con amplificación FGFR1 ×13. Una paciente con cáncer de mama metastásico que usa IA y una red internacional de expertos para acceder a la oncología de precisión. Apoya la rebiopsia molecular.'
-      : 'BC-NED with FGFR1 ×13 amplification. A metastatic breast cancer patient using AI and an international expert network to access precision oncology. Support the molecular rebiopsy.',
+      ? 'BC-NED con FGFR1 ×13 y SSTR+. Una paciente con cáncer de mama metastásico que usa IA y una red internacional de expertos para acceder a la oncología de precisión. Apoya la rebiopsia molecular.'
+      : 'BC-NED with FGFR1 ×13 and SSTR+. A metastatic breast cancer patient using AI and an international expert network to access precision oncology. Support the molecular rebiopsy.',
   ogTitle: () =>
     locale.value === 'es'
       ? 'Miriam González — Oncología de precisión para un tumor ultra-raro'
       : 'Miriam González — Precision Oncology for an Ultra-Rare Tumor',
   ogDescription: () =>
     locale.value === 'es'
-      ? 'BC-NED con amplificación FGFR1 ×13. Apoya la rebiopsia molecular avanzada que puede cambiar su tratamiento.'
-      : 'BC-NED with FGFR1 ×13 amplification. Support the advanced molecular rebiopsy that could change her treatment.',
+      ? 'BC-NED con FGFR1 ×13 y SSTR+. Apoya la rebiopsia molecular avanzada que puede cambiar su tratamiento.'
+      : 'BC-NED with FGFR1 ×13 and SSTR+. Support the advanced molecular rebiopsy that could change her treatment.',
   ogType: 'website',
   ogUrl: () =>
     locale.value === 'es'
@@ -137,7 +410,7 @@ useSeoMeta({
       : 'Miriam González — Precision Oncology for an Ultra-Rare Tumor',
   twitterDescription: () =>
     locale.value === 'es'
-      ? 'BC-NED con amplificación FGFR1 ×13. Apoya la rebiopsia molecular avanzada.'
-      : 'BC-NED with FGFR1 ×13 amplification. Support the advanced molecular rebiopsy.',
+      ? 'BC-NED con FGFR1 ×13 y SSTR+. Apoya la rebiopsia molecular avanzada.'
+      : 'BC-NED with FGFR1 ×13 and SSTR+. Support the advanced molecular rebiopsy.',
 })
 </script>

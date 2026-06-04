@@ -4,7 +4,7 @@
       <div class="section-container">
         <NuxtLink
           :to="localePath('/historia')"
-          class="inline-flex items-center gap-1.5 text-sm text-ink-600 hover:text-ink-900 mb-8 transition-colors"
+          class="inline-flex items-center gap-1.5 text-sm text-tinta hover:text-miriam mb-8 transition-colors"
         >
           <Icon name="ph:arrow-left" class="w-4 h-4" aria-hidden="true" />
           {{ $t('historia.back_to_story') }}
@@ -12,9 +12,9 @@
 
         <div
           v-if="isFallback"
-          class="card-base border-l-4 border-l-gold-400 mb-8 bg-gold-50/40"
+          class="alert-callout mb-8"
         >
-          <p class="text-sm text-ink-600 italic">
+          <p class="text-sm text-tinta italic">
             {{ $t('historia.fallback_notice') }}
           </p>
         </div>
@@ -22,13 +22,13 @@
         <div v-if="!chapter" class="card-base text-center py-16">
           <Icon
             name="ph:book-open"
-            class="w-12 h-12 text-ink-300 mx-auto mb-4"
+            class="w-12 h-12 text-tinta opacity-40 mx-auto mb-4"
             aria-hidden="true"
           />
-          <p class="text-ink-600">{{ $t('historia.chapter_not_found') }}</p>
+          <p class="text-tinta">{{ $t('historia.chapter_not_found') }}</p>
           <NuxtLink
             :to="localePath('/historia')"
-            class="mt-4 inline-block text-sm text-ocean-600 hover:text-ocean-800 transition-colors"
+            class="mt-4 inline-block text-sm text-miriam hover:text-berenjena transition-colors"
           >
             {{ $t('historia.back_to_chapters') }}
           </NuxtLink>
@@ -36,15 +36,15 @@
 
         <template v-else>
           <div class="max-w-2xl mb-10">
-            <span class="text-xs font-mono text-ink-400 mb-3 block">
+            <span class="eyebrow mb-3 block">
               {{ $t('historia.chapter') }} {{ chapter.order }}
             </span>
-            <h1 class="heading-display text-3xl sm:text-4xl text-ink-950 mb-3">
+            <h1 class="heading-display text-3xl sm:text-4xl text-berenjena mb-3" style="letter-spacing:-0.03em">
               {{ chapter.title }}
             </h1>
             <p
               v-if="chapter.subtitle"
-              class="text-ink-600 text-lg leading-relaxed"
+              class="text-tinta text-lg leading-relaxed"
             >
               {{ chapter.subtitle }}
             </p>
@@ -54,21 +54,23 @@
 
           <nav
             :aria-label="$t('historia.chapter_navigation')"
-            class="max-w-2xl mt-16 pt-8 border-t border-ink-200 grid grid-cols-2 gap-4"
+            class="max-w-2xl mt-16 pt-8 grid grid-cols-2 gap-4"
+            style="border-top: 1px solid rgba(45,27,61,0.12)"
           >
             <NuxtLink
               v-if="prevChapter"
               :to="
                 localePath(`/historia/${prevChapter.stem?.split('/').pop()}`)
               "
-              class="card-base flex flex-col gap-1 hover:border-gold-300 transition-colors group"
+              class="card-base flex flex-col gap-1 transition-all group hover:-translate-y-0.5"
+              style="text-decoration:none"
             >
-              <span class="text-xs text-ink-400 flex items-center gap-1">
+              <span class="text-xs text-tinta flex items-center gap-1">
                 <Icon name="ph:arrow-left" class="w-3 h-3" aria-hidden="true" />
                 {{ $t('historia.previous') }}
               </span>
               <span
-                class="text-sm font-semibold text-ink-900 group-hover:text-gold-700 transition-colors line-clamp-2"
+                class="text-sm font-semibold text-berenjena group-hover:text-miriam transition-colors line-clamp-2"
               >
                 {{ prevChapter.title }}
               </span>
@@ -80,10 +82,11 @@
               :to="
                 localePath(`/historia/${nextChapter.stem?.split('/').pop()}`)
               "
-              class="card-base flex flex-col gap-1 text-right hover:border-gold-300 transition-colors group"
+              class="card-base flex flex-col gap-1 text-right transition-all group hover:-translate-y-0.5"
+              style="text-decoration:none"
             >
               <span
-                class="text-xs text-ink-400 flex items-center justify-end gap-1"
+                class="text-xs text-tinta flex items-center justify-end gap-1"
               >
                 {{ $t('historia.next') }}
                 <Icon
@@ -93,7 +96,7 @@
                 />
               </span>
               <span
-                class="text-sm font-semibold text-ink-900 group-hover:text-gold-700 transition-colors line-clamp-2"
+                class="text-sm font-semibold text-berenjena group-hover:text-miriam transition-colors line-clamp-2"
               >
                 {{ nextChapter.title }}
               </span>
@@ -193,18 +196,39 @@ const prevChapter = computed(() => data.value?.prevChapter)
 const nextChapter = computed(() => data.value?.nextChapter)
 const isFallback = computed(() => data.value?.isFallback ?? false)
 
+const fallbackDesc = computed(() =>
+  locale.value === 'es'
+    ? 'La historia personal de Miriam González más allá del diagnóstico de cáncer de mama metastásico.'
+    : "Miriam González's personal story beyond her metastatic breast cancer diagnosis."
+)
+
 useSeoMeta({
   title: () =>
     chapter.value
-      ? `${chapter.value.title} — Miriam González`
-      : 'Miriam González',
-  description: () => chapter.value?.excerpt ?? '',
-  ogTitle: () =>
-    chapter.value
-      ? `${chapter.value.title} — Miriam González`
-      : 'Miriam González',
-  ogDescription: () => chapter.value?.excerpt ?? '',
+      ? chapter.value.title
+      : locale.value === 'es'
+        ? 'Capítulo no encontrado'
+        : 'Chapter not found',
+  description: () => chapter.value?.excerpt || fallbackDesc.value,
+  ogTitle: () => (chapter.value ? chapter.value.title : 'Miriam González'),
+  ogDescription: () => chapter.value?.excerpt || fallbackDesc.value,
   ogType: 'article',
   twitterCard: 'summary_large_image',
+  twitterTitle: () => (chapter.value ? chapter.value.title : 'Miriam González'),
+  twitterDescription: () => chapter.value?.excerpt || fallbackDesc.value,
+  robots: () => (chapter.value ? undefined : 'noindex, follow'),
 })
+
+defineOgImage('Default.takumi', {
+  title: () => chapter.value?.title || 'Miriam González',
+  description: () => chapter.value?.excerpt || '',
+})
+
+useSchemaOrg([
+  defineArticle({
+    headline: () => chapter.value?.title,
+    inLanguage: locale.value === 'es' ? 'es-ES' : 'en-US',
+    author: { name: 'Miriam González' },
+  }),
+])
 </script>

@@ -80,11 +80,10 @@ integrativeSupport:
     color: ocean
   - role: Doctor of Sport Sciences & Exercise Oncology (Spain)
     description:
-      Principal investigator at Fundación OncSport — Never Surrender. Designs
-      and supervises Miriam's individualised training programme, adapted to her bone
-      metastasis situation. The goal is to keep her at ECOG 0 — meaning full functional
-      capacity — which is critical for accessing clinical trials and tolerating upcoming
-      treatments.
+      Principal investigator at OncSport (Never Surrender). Designs and
+      supervises Miriam's individualised exercise programme to keep her at
+      full functional capacity (ECOG 0), key to accessing trials and
+      tolerating treatments.
     icon: ph:barbell-fill
     color: ocean
   - role: Oncology Nutritionist
@@ -101,7 +100,7 @@ integrativeSupport:
     color: gold
   - role: Psychology & High Abilities
     description:
-      Psychologist specialising in high abilities. Supports Míriam by integrating
+      Psychologist specialising in high abilities. Supports Miriam by integrating
       the cognitive and emotional dimensions of her process.
     icon: ph:brain-fill
     color: ocean

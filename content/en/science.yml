@@ -151,3 +151,92 @@ panelRows:
     method: If SSTR2+ on IHC
     targets: Krenning score
     implication: PRRT eligibility (Krenning ≥3)
+liquidBiopsies:
+  - id: ctdna-1
+    date: Apr 7, 2026
+    source: VHIO360 — HOPE-FOCUS SOLTI-2401 trial
+    findings: Plasma ctDNA panel — baseline profile
+  - id: ctdna-2
+    date: April 2026
+    source: Guardant360
+    findings: 'ESR1 D538G · 3 distinct RB1 mutations · FGFR1 amplified · CCND1 amplified'
+    highlight: true
+  - id: ctdna-3
+    date: Drawn 2026-05-13 · report 2026-05-26
+    source: Guardant360 CDx
+    findings: 'ESR1 D538G (0.84%) · CCND1 amp (6.83) · FGFR1 amp (5.86) · RB1 V622Yfs*33 (0.19%) · SMO V319D (0.26%) — new'
+    highlight: true
+liquidBiopsyPivot:
+  samples:
+    - id: vhio360
+      label: VHIO360
+      date: 2026-04-07
+      matrix: plasma
+    - id: guardant1
+      label: Guardant360
+      date: 2026-04-13
+      matrix: plasma
+    - id: guardantcdx
+      label: Guardant360 CDx
+      date: 2026-05-13
+      matrix: plasma
+  rows:
+    - alteration: ESR1
+      subscript: p.D538G
+      values:
+        vhio360: { value: 'detected', tone: warn }
+        guardant1: { value: 'detected', tone: warn }
+        guardantcdx: { value: '0.84%', tone: warn }
+    - alteration: RB1
+      subscript: p.V622Yfs*33
+      values:
+        vhio360: { plain: true }
+        guardant1: { value: 'detected', tone: warn }
+        guardantcdx: { value: '0.19%', tone: warn }
+    - alteration: CCND1
+      subscript: amplification
+      values:
+        vhio360: { plain: true }
+        guardant1: { value: 'amplified', tone: violet }
+        guardantcdx: { value: '6.83', tone: violet }
+    - alteration: FGFR1
+      subscript: amplification
+      values:
+        vhio360: { plain: true }
+        guardant1: { value: 'amplified', tone: violet }
+        guardantcdx: { value: '5.86', tone: violet }
+    - alteration: SMO
+      subscript: 'p.V319D · VUS'
+      values:
+        vhio360: { plain: true }
+        guardant1: { plain: true }
+        guardantcdx: { value: '0.26% — new', tone: neutral }
+    - alteration: MSI Status
+      values:
+        vhio360: { value: 'MSI-LOW', plain: true }
+        guardant1: { plain: true }
+        guardantcdx: { plain: true }
+  sources: 'Sources: 2026-04-07 VHIO360 (HOPE-FOCUS SOLTI-2401) · 2026-04-13 Guardant360 · 2026-05-13 Guardant360 CDx (report 2026-05-26)'
+imaging:
+  title: Gallium-68 DOTATOC PET-CT
+  date: May 26, 2026
+  summary: >-
+    Multiple blastic bone metastases with somatostatin receptor overexpression
+    (SSTR+). Focal uptake in the right breast tail pending a dedicated study.
+  meaning: >-
+    The tumor expresses somatostatin receptors — the target of radioligand
+    therapy (PRRT) with lutetium-177 or actinium-225. It confirms on imaging
+    both tumor drivers (luminal FGFR1/CCND1 + neuroendocrine RB1 + SSTR) and
+    opens a route that breast-cancer protocols do not contemplate as standard.
+  quote: >-
+    Study showing multiple blastic bone metastases with somatostatin receptor
+    overexpression. Focal uptake in the right breast tail to be evaluated in a
+    dedicated study.
+boneBiopsy:
+  title: Bone biopsy (right iliac lesion)
+  date: Received 2026-04-30 · report 2026-05-08
+  site: Right iliac lesion
+  result: >-
+    No tumor present — “mineralized bone trabeculae and skeletal muscle
+    fibers, no neoplasm observed”. Molecular information is obtained from
+    plasma ctDNA instead.

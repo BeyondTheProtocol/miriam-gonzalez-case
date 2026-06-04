@@ -16,9 +16,8 @@
     left: 0;
     z-index: 9999;
     padding: 8px 16px;
-    background: theme('colors.ink.950');
-    /* #1f1933 — contraste ~15:1 con blanco */
-    color: #fff;
+    background: #2d1b3d; /* berenjena */
+    color: #faf6f0;
     font-size: 0.875rem;
     font-weight: 600;
     text-decoration: none;
@@ -30,22 +29,25 @@
   }
 
   body {
-    @apply font-body text-ink-800 bg-ink-50;
+    @apply font-body bg-cream text-berenjena;
+    font-size: 16px;
+    line-height: 1.55;
   }
 
   ::selection {
-    @apply bg-gold-200 text-ink-950;
+    @apply bg-miriam-soft text-berenjena;
   }
 
-  /* Subtle grain texture overlay */
-  body::before {
-    content: '';
-    position: fixed;
-    inset: 0;
-    pointer-events: none;
-    z-index: 9999;
-    opacity: 0.015;
-    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+  /* Headings — Fraunces display */
+  h1, h2, h3, h4 {
+    @apply font-display;
+    letter-spacing: -0.02em;
+    line-height: 1.1;
+    text-wrap: balance;
+  }
+
+  p {
+    text-wrap: pretty;
   }
 }
 
@@ -66,47 +68,397 @@
     @apply font-display font-semibold tracking-tight;
   }
 
-  .gold-accent {
-    @apply relative inline-block;
-  }
-  .gold-accent::after {
-    content: '';
-    /* gold-600 sobre ink-50: (0.988+0.05)/(0.079+0.05) = 8.1:1 → pasa non-text 3:1 ✓ */
-    @apply absolute -bottom-1 left-0 w-full h-[3px] bg-gold-600 rounded-full;
+  /* DS firma — Fraunces italic en violeta miriam */
+  .firma {
+    @apply font-display italic text-miriam;
   }
 
+  /* DS card — cream-card sobre cream */
   .card-base {
-    @apply bg-white/70 backdrop-blur-sm border border-ink-200/60 rounded-2xl p-6 sm:p-8;
-    @apply shadow-[0_1px_3px_rgba(0,0,0,0.04),0_8px_24px_rgba(0,0,0,0.03)];
+    @apply bg-cream-card rounded-card p-6 sm:p-8;
+    border: 1px solid rgba(45, 27, 61, 0.08);
+  }
+
+  /* DS botones */
+  .btn-cta {
+    @apply inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-btn font-semibold text-berenjena bg-coral hover:bg-coral-hover transition-all;
+    box-shadow: 0 0 0 0 transparent;
+  }
+  .btn-cta:hover {
+    box-shadow: 0 0 0 2px #2d1b3d;
+    transform: translateY(-1px);
+  }
+  .btn-secondary {
+    @apply inline-flex items-center justify-center gap-2 px-5 py-3 rounded-btn font-semibold text-berenjena bg-transparent transition-colors;
+    border: 2px solid #2d1b3d;
+  }
+  .btn-secondary:hover {
+    @apply bg-berenjena text-cream;
+  }
+  /* DS botón sólido oscuro — berenjena sobre crema (hero, acciones secundarias) */
+  .btn-dark {
+    @apply inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-btn font-semibold text-cream bg-berenjena transition-all;
+    box-shadow: 0 0 0 0 transparent;
+  }
+  .btn-dark:hover {
+    background: #3d2752;
+    transform: translateY(-1px);
+  }
+  .btn-ghost {
+    @apply inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-btn font-semibold text-berenjena bg-transparent transition-colors;
+  }
+  .btn-ghost:hover {
+    @apply text-miriam;
+  }
+
+  /* Tag / eyebrow */
+  .eyebrow {
+    @apply font-mono uppercase text-[12px] font-medium tracking-[0.12em] text-tinta;
   }
 
   .tag {
     @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-2xs font-medium tracking-wide uppercase;
   }
 
-  .tag-gold {
-    @apply tag bg-gold-100 text-gold-800 border border-gold-200;
+  /* DS badge genómico — violet pill, mono */
+  .badge-genomic, .tag-gold {
+    @apply inline-block bg-miriam-soft text-berenjena rounded-full px-3 py-1 font-mono text-[13px] font-semibold;
+    letter-spacing: 0;
   }
 
+  /* Ocean tag (legacy) → outlined berenjena */
   .tag-ocean {
-    @apply tag bg-ocean-50 text-ocean-800 border border-ocean-200;
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-2xs font-medium tracking-wide uppercase;
+    background: rgba(45, 27, 61, 0.06);
+    color: #2d1b3d;
+    border: 1px solid rgba(45, 27, 61, 0.12);
   }
 
-  /* Animated underline for links */
+  /* Stat number — Fraunces display */
+  .stat-number {
+    @apply font-display font-semibold text-berenjena;
+    font-size: clamp(48px, 6vw, 72px);
+    line-height: 0.95;
+    letter-spacing: -0.04em;
+  }
+  .stat-number--firma {
+    @apply text-miriam;
+  }
+  .stat-label {
+    @apply font-body text-tinta;
+    font-size: 13px;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+  }
+
+  /* ────────────────────────────────────────────────────────────
+     Scientific data / medical-app vibe
+     Pills, status badges, stat readouts, alerts, data tables.
+     Stays in the warm berenjena/cream world but adds the soft
+     semantic tints needed to read clinical data at a glance.
+     ──────────────────────────────────────────────────────────── */
+
+  /* Data table base */
+  .data-table {
+    @apply w-full text-sm border-collapse;
+  }
+  .data-table thead th {
+    @apply text-left font-medium text-tinta;
+    font-size: 12px;
+    letter-spacing: 0.02em;
+    padding: 14px 16px;
+    background: #f5efe6; /* cream-card */
+    border-bottom: 1px solid rgba(45, 27, 61, 0.08);
+  }
+  .data-table thead th:first-child { border-top-left-radius: 12px; }
+  .data-table thead th:last-child  { border-top-right-radius: 12px; }
+  .data-table tbody td {
+    padding: 14px 16px;
+    border-bottom: 1px solid rgba(45, 27, 61, 0.06);
+    vertical-align: middle;
+    color: #2d1b3d;
+  }
+  .data-table tbody tr:last-child td { border-bottom: 0; }
+  .data-table tbody tr:hover td { background: rgba(164, 77, 178, 0.04); }
+  .data-table .col-marker {
+    @apply font-mono;
+    font-size: 13px;
+    font-weight: 500;
+    white-space: nowrap;
+  }
+  .data-table .col-note {
+    color: #3a3340;
+    font-size: 13px;
+    line-height: 1.5;
+  }
+
+  /* Dense variant: tighter rows + smaller type for clinical tables with many columns */
+  .data-table--dense thead th {
+    padding: 10px 12px;
+    font-size: 11px;
+  }
+  .data-table--dense tbody td {
+    padding: 10px 12px;
+    font-size: 12.5px;
+  }
+  .data-table--dense .col-marker,
+  .data-table--dense .col-note {
+    font-size: 12px;
+  }
+
+  /* Card wrapper around a data table — keeps the rounded look from the mockups */
+  .data-card {
+    @apply bg-cream rounded-card overflow-hidden;
+    border: 1px solid rgba(45, 27, 61, 0.08);
+  }
+
+  /* ────────────────────────────────────────────────────────────
+     Responsive tables → card stack on mobile
+     Below 640px the table collapses into one card per row, with
+     each cell shown as a label/value pair (label from data-label).
+     Keeps the semantic <table> intact on tablet/desktop.
+     ──────────────────────────────────────────────────────────── */
+  @media (max-width: 639px) {
+    .data-table--cards thead {
+      display: none;
+    }
+    .data-table--cards,
+    .data-table--cards tbody,
+    .data-table--cards tr,
+    .data-table--cards td {
+      display: block;
+      width: 100%;
+    }
+    .data-table--cards tr {
+      padding: 14px 16px;
+      border-bottom: 1px solid rgba(45, 27, 61, 0.10);
+    }
+    .data-table--cards tbody tr:last-child {
+      border-bottom: 0;
+    }
+    .data-table--cards tbody tr:hover td {
+      background: transparent;
+    }
+    .data-table--cards td {
+      border: 0 !important;
+      padding: 7px 0 !important;
+      display: grid;
+      grid-template-columns: 38% 1fr;
+      gap: 6px 12px;
+      align-items: baseline;
+      text-align: left;
+      white-space: normal !important;
+      overflow-wrap: anywhere;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+    .data-table--cards td::before {
+      content: attr(data-label);
+      text-align: left;
+      font-family: 'JetBrains Mono', ui-monospace, monospace;
+      font-size: 10.5px;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: #3a3340;
+      font-weight: 500;
+      line-height: 1.4;
+    }
+    /* Row title cell — full-width heading, no label */
+    .data-table--cards td.cell-head {
+      display: block;
+      text-align: left;
+      padding: 2px 0 9px !important;
+      margin-bottom: 4px;
+      border-bottom: 1px solid rgba(45, 27, 61, 0.06) !important;
+      font-family: 'Fraunces', Georgia, serif;
+      font-weight: 600;
+      font-size: 16px;
+      letter-spacing: -0.01em;
+      color: #2d1b3d;
+    }
+    .data-table--cards td.cell-head::before {
+      display: none;
+    }
+    /* Long-text cell — label stacked above the value, left aligned */
+    .data-table--cards td.cell-block {
+      display: block;
+      text-align: left;
+    }
+    .data-table--cards td.cell-block::before {
+      display: block;
+      flex: none;
+      margin-bottom: 4px;
+    }
+    /* Empty matrix cell ("—") stays subtle and right-aligned */
+    .data-table--cards td:empty {
+      display: none;
+    }
+  }
+
+  /* Pills used inside cells to surface a value */
+  .pill-data {
+    @apply inline-flex items-center font-mono font-medium;
+    font-size: 12px;
+    padding: 4px 10px;
+    border-radius: 999px;
+    letter-spacing: 0;
+    line-height: 1.4;
+    white-space: nowrap;
+  }
+  .pill-data--info     { background: #e0ecf8; color: #1e4a6f; }
+  .pill-data--warn     { background: #fde4cc; color: #8a4a1a; }
+  .pill-data--positive { background: #d8ede0; color: #1f5a3a; }
+  .pill-data--neutral  { background: rgba(45,27,61,0.06); color: #3a3340; }
+  .pill-data--violet   { background: #e8d4ed; color: #5a2466; }
+
+  /* Status badges (uppercase mono) — for clinical/trial status */
+  .status-badge {
+    @apply inline-flex items-center font-mono font-semibold uppercase;
+    font-size: 10px;
+    letter-spacing: 0.08em;
+    padding: 4px 9px;
+    border-radius: 6px;
+    line-height: 1.4;
+    white-space: nowrap;
+  }
+  .status-badge--active    { background: #d8ede0; color: #1f5a3a; }
+  .status-badge--complete  { background: rgba(45,27,61,0.06); color: #3a3340; }
+  .status-badge--candidate { background: #fde4cc; color: #8a4a1a; }
+  .status-badge--reference {
+    background: #e0ecf8;
+    color: #1e4a6f;
+    /* References can be long citations — allow wrapping so they never
+       force horizontal overflow on narrow screens. */
+    white-space: normal;
+    text-align: left;
+    max-width: 100%;
+    overflow-wrap: anywhere;
+  }
+  .status-badge--paused    { background: #f0d4cc; color: #7a3018; }
+  .status-badge--firma     { background: #e8d4ed; color: #5a2466; }
+
+  /* Stat readout card — small label / big mono value / unit-range caption */
+  .stat-readout {
+    @apply bg-cream rounded-card;
+    border: 1px solid rgba(45, 27, 61, 0.08);
+    padding: 14px 16px;
+  }
+  .stat-readout__label {
+    @apply font-body text-tinta;
+    font-size: 12px;
+    letter-spacing: 0.01em;
+    margin-bottom: 4px;
+  }
+  .stat-readout__value {
+    @apply font-display font-semibold text-berenjena;
+    font-size: 26px;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+  }
+  .stat-readout__unit {
+    @apply font-body text-tinta;
+    font-size: 11px;
+    margin-top: 4px;
+  }
+
+  /* Soft alert callout — peach background, berenjena text */
+  .alert-callout {
+    background: #fceedb;
+    border: 1px solid rgba(138, 74, 26, 0.18);
+    border-radius: 12px;
+    padding: 14px 18px;
+    color: #5a3010;
+    font-size: 14px;
+    line-height: 1.5;
+  }
+  .alert-callout__title {
+    @apply font-semibold;
+    color: #5a3010;
+    margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  /* Status dots — for in-range / out-of-range indicators */
+  .dot-status {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 999px;
+    vertical-align: middle;
+  }
+  .dot-status--ok    { background: #2f8a5a; }
+  .dot-status--alert { background: #d4633c; }
+
+  /* Form controls — cream background, miriam focus ring */
+  .form-input {
+    @apply w-full px-4 py-2.5 bg-cream rounded-btn text-sm text-berenjena transition-all;
+    border: 1px solid rgba(45, 27, 61, 0.12);
+  }
+  .form-input::placeholder { color: rgba(58, 51, 64, 0.55); }
+  .form-input:focus {
+    outline: none;
+    border-color: #a44db2;
+    box-shadow: 0 0 0 3px rgba(164, 77, 178, 0.18);
+  }
+  .form-label {
+    @apply block text-sm font-medium text-berenjena mb-1.5;
+  }
+
+  /* Animated underline for links — miriam violet */
   .link-underline {
-    @apply relative text-ocean-700 font-medium;
-    /* gold-600 sobre ink-50: 8.1:1 → pasa non-text 3:1 ✓ */
-    background-image: linear-gradient(
-      theme('colors.gold.600'),
-      theme('colors.gold.600')
-    );
+    @apply relative text-miriam font-medium;
+    background-image: linear-gradient(#a44db2, #a44db2);
     background-size: 0% 2px;
     background-position: left bottom;
     background-repeat: no-repeat;
     transition: background-size 0.3s ease;
+    text-decoration: none;
   }
   .link-underline:hover {
     background-size: 100% 2px;
+  }
+}
+
+/* Fade-in animation for sections — only when user hasn't requested reduced motion */
+@media (prefers-reduced-motion: no-preference) {
+  @keyframes fade-up {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .animate-fade-up {
+    animation: fade-up 0.6s ease-out both;
+  }
+
+  /* Staggered children */
+  .stagger-children > * {
+    animation: fade-up 0.5s ease-out both;
+  }
+  .stagger-children > *:nth-child(1) {
+    animation-delay: 0.05s;
+  }
+  .stagger-children > *:nth-child(2) {
+    animation-delay: 0.1s;
+  }
+  .stagger-children > *:nth-child(3) {
+    animation-delay: 0.15s;
+  }
+  .stagger-children > *:nth-child(4) {
+    animation-delay: 0.2s;
+  }
+  .stagger-children > *:nth-child(5) {
+    animation-delay: 0.25s;
+  }
+  .stagger-children > *:nth-child(6) {
+    animation-delay: 0.3s;
   }
 }
 

@@ -9,7 +9,7 @@
 
         <div class="grid md:grid-cols-2 gap-8 lg:gap-12">
           <div>
-            <p class="text-ink-600 leading-relaxed mb-8">
+            <p class="text-tinta leading-relaxed mb-8">
               {{ $t('contact.message') }}
             </p>
 
@@ -19,19 +19,20 @@
                 target="_blank"
                 rel="noopener"
                 class="card-base flex items-center gap-4 hover:shadow-md transition-shadow group"
+                style="text-decoration: none"
               >
                 <span
-                  class="w-10 h-10 rounded-xl bg-ink-900 flex items-center justify-center shrink-0"
+                  class="w-10 h-10 rounded-xl bg-berenjena flex items-center justify-center shrink-0"
                 >
-                  <Icon name="ph:x-logo-fill" class="w-5 h-5 text-white" />
+                  <Icon name="ph:x-logo-fill" class="w-5 h-5 text-cream" aria-hidden="true" />
                 </span>
                 <div>
                   <p
-                    class="font-semibold text-ink-900 text-sm group-hover:text-ocean-700 transition-colors"
+                    class="font-semibold text-berenjena text-sm group-hover:text-miriam transition-colors"
                   >
                     {{ $t('contact.twitter_label') }}
                   </p>
-                  <p class="text-xs text-ink-600">
+                  <p class="text-xs text-tinta">
                     {{ $t('timeline.follow_twitter') }}
                   </p>
                 </div>
@@ -42,22 +43,24 @@
                 target="_blank"
                 rel="noopener"
                 class="card-base flex items-center gap-4 hover:shadow-md transition-shadow group"
+                style="text-decoration: none"
               >
                 <span
-                  class="w-10 h-10 rounded-xl bg-pink-500 flex items-center justify-center shrink-0"
+                  class="w-10 h-10 rounded-xl bg-miriam flex items-center justify-center shrink-0"
                 >
                   <Icon
                     name="ph:instagram-logo-fill"
-                    class="w-5 h-5 text-white"
+                    class="w-5 h-5 text-cream"
+                    aria-hidden="true"
                   />
                 </span>
                 <div>
                   <p
-                    class="font-semibold text-ink-900 text-sm group-hover:text-ocean-700 transition-colors"
+                    class="font-semibold text-berenjena text-sm group-hover:text-miriam transition-colors"
                   >
                     Instagram
                   </p>
-                  <p class="text-xs text-ink-600">@miriamgonp</p>
+                  <p class="text-xs text-tinta">{{'@'}}miriamgonp</p>
                 </div>
               </a>
 
@@ -66,22 +69,24 @@
                 target="_blank"
                 rel="noopener"
                 class="card-base flex items-center gap-4 hover:shadow-md transition-shadow group"
+                style="text-decoration: none"
               >
                 <span
-                  class="w-10 h-10 rounded-xl bg-blue-700 flex items-center justify-center shrink-0"
+                  class="w-10 h-10 rounded-xl bg-tinta flex items-center justify-center shrink-0"
                 >
                   <Icon
                     name="ph:linkedin-logo-fill"
-                    class="w-5 h-5 text-white"
+                    class="w-5 h-5 text-cream"
+                    aria-hidden="true"
                   />
                 </span>
                 <div>
                   <p
-                    class="font-semibold text-ink-900 text-sm group-hover:text-ocean-700 transition-colors"
+                    class="font-semibold text-berenjena text-sm group-hover:text-miriam transition-colors"
                   >
                     {{ $t('contact.linkedin_label') }}
                   </p>
-                  <p class="text-xs text-ink-600">linkedin.com/in/miriamgonp</p>
+                  <p class="text-xs text-tinta">linkedin.com/in/miriamgonp</p>
                 </div>
               </a>
 
@@ -90,28 +95,29 @@
                 target="_blank"
                 rel="noopener"
                 class="card-base flex items-center gap-4 hover:shadow-md transition-shadow group"
+                style="text-decoration: none"
               >
                 <span
-                  class="w-10 h-10 rounded-xl bg-gold-500 flex items-center justify-center shrink-0"
+                  class="w-10 h-10 rounded-xl bg-coral flex items-center justify-center shrink-0"
                 >
-                  <Icon name="ph:heart-fill" class="w-5 h-5 text-white" />
+                  <Icon name="ph:heart-fill" class="w-5 h-5 text-berenjena" aria-hidden="true" />
                 </span>
                 <div>
                   <p
-                    class="font-semibold text-ink-900 text-sm group-hover:text-ocean-700 transition-colors"
+                    class="font-semibold text-berenjena text-sm group-hover:text-coral transition-colors"
                   >
                     {{ $t('contact.gofundme_label') }}
                   </p>
-                  <p class="text-xs text-ink-600">gofund.me/3e25cae99</p>
+                  <p class="text-xs text-tinta">gofund.me/3e25cae99</p>
                 </div>
               </a>
             </div>
 
-            <div class="mt-10 card-base bg-ocean-50/40 border-ocean-200/50">
-              <h3 class="font-display font-semibold text-ink-900 text-sm mb-2">
+            <div class="mt-10 card-base" style="border-left: 4px solid #a44db2">
+              <h2 class="font-display font-semibold text-berenjena text-sm mb-2">
                 {{ $t('contact.for_professionals') }}
-              </h3>
-              <p class="text-xs text-ink-600 leading-relaxed">
+              </h2>
+              <p class="text-xs text-tinta leading-relaxed">
                 {{ $t('contact.for_professionals_desc') }}
               </p>
             </div>
@@ -129,16 +135,13 @@
               <input
                 type="hidden"
                 name="subject"
-                value="Nuevo mensaje de contacto — miriamgonp.com"
+                value="Nuevo mensaje de contacto — helpmiriam.com"
               />
               <p hidden>
                 <label>No rellenes esto: <input name="bot-field" /></label>
               </p>
               <div>
-                <label
-                  for="name"
-                  class="block text-sm font-medium text-ink-800 mb-1.5"
-                >
+                <label for="name" class="form-label">
                   {{ $t('contact.name_label') }}
                 </label>
                 <input
@@ -147,16 +150,13 @@
                   name="name"
                   required
                   autocomplete="name"
-                  class="w-full px-4 py-2.5 bg-ink-50 border border-ink-200 rounded-xl text-sm text-ink-800 placeholder:text-ink-600 focus:outline-none focus:ring-2 focus:ring-gold-600/50 focus:border-gold-600 transition-all"
+                  class="form-input"
                   :placeholder="$t('contact.name_placeholder')"
                 />
               </div>
 
               <div>
-                <label
-                  for="email"
-                  class="block text-sm font-medium text-ink-800 mb-1.5"
-                >
+                <label for="email" class="form-label">
                   Email
                 </label>
                 <input
@@ -165,23 +165,16 @@
                   name="email"
                   required
                   autocomplete="email"
-                  class="w-full px-4 py-2.5 bg-ink-50 border border-ink-200 rounded-xl text-sm text-ink-800 placeholder:text-ink-600 focus:outline-none focus:ring-2 focus:ring-gold-600/50 focus:border-gold-600 transition-all"
+                  class="form-input"
                   placeholder="email@ejemplo.com"
                 />
               </div>
 
               <div>
-                <label
-                  for="role"
-                  class="block text-sm font-medium text-ink-800 mb-1.5"
-                >
+                <label for="role" class="form-label">
                   {{ $t('contact.role_label') }}
                 </label>
-                <select
-                  id="role"
-                  name="role"
-                  class="w-full px-4 py-2.5 bg-ink-50 border border-ink-200 rounded-xl text-sm text-ink-800 focus:outline-none focus:ring-2 focus:ring-gold-600/50 focus:border-gold-600 transition-all"
-                >
+                <select id="role" name="role" class="form-input">
                   <option value="" disabled selected>
                     {{ $t('contact.role_placeholder') }}
                   </option>
@@ -203,10 +196,7 @@
               </div>
 
               <div>
-                <label
-                  for="message"
-                  class="block text-sm font-medium text-ink-800 mb-1.5"
-                >
+                <label for="message" class="form-label">
                   {{ $t('contact.message_label') }}
                 </label>
                 <textarea
@@ -214,19 +204,16 @@
                   name="message"
                   rows="4"
                   required
-                  class="w-full px-4 py-2.5 bg-ink-50 border border-ink-200 rounded-xl text-sm text-ink-800 placeholder:text-ink-600 focus:outline-none focus:ring-2 focus:ring-gold-600/50 focus:border-gold-600 transition-all resize-y"
+                  class="form-input resize-y"
                   :placeholder="$t('contact.message_placeholder')"
                 ></textarea>
               </div>
 
-              <button
-                type="submit"
-                class="w-full px-6 py-3 bg-ink-900 hover:bg-ink-800 text-white font-semibold rounded-xl transition-colors text-sm"
-              >
+              <button type="submit" class="btn-cta w-full">
                 {{ $t('contact.submit') }}
               </button>
 
-              <p class="text-2xs text-ink-600 text-center">
+              <p class="text-[11px] text-tinta text-center">
                 {{ $t('contact.privacy_notice') }}
               </p>
             </form>
@@ -241,18 +228,12 @@
 const { locale } = useI18n()
 
 useSeoMeta({
-  title: () =>
-    locale.value === 'es'
-      ? 'Contacto — Miriam González'
-      : 'Contact — Miriam González',
+  title: () => (locale.value === 'es' ? 'Contacto' : 'Contact'),
   description: () =>
     locale.value === 'es'
       ? '¿Eres oncólogo/a, investigador/a o periodista con interés en el caso? Contacta con el equipo de Miriam González para documentación clínica o colaboración.'
       : "Are you an oncologist, researcher, or journalist interested in the case? Contact Miriam González's team for clinical documentation or collaboration.",
-  ogTitle: () =>
-    locale.value === 'es'
-      ? 'Contacto — Miriam González'
-      : 'Contact — Miriam González',
+  ogTitle: () => (locale.value === 'es' ? 'Contacto' : 'Contact'),
   ogType: 'website',
   twitterCard: 'summary',
   robots: 'noindex',

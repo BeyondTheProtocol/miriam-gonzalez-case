@@ -10,48 +10,72 @@ export default {
   theme: {
     extend: {
       colors: {
-        // Lilac palette: orchid as accent, indigo-violet for science, lilac-tinted neutrals as base
-        // All text/bg combinations verified for WCAG AA (≥4.5:1 contrast ratio)
+        // Design system tokens — Caso Miriam
+        // Base palette (5 colors): cream bg, berenjena text, miriam violet (accent), coral (CTA)
+        cream: '#faf6f0',         // var(--color-bg)
+        'cream-card': '#f5efe6',  // var(--color-bg-card)
+        berenjena: '#2d1b3d',     // var(--color-text)
+        tinta: '#3a3340',         // var(--color-text-soft)
+        miriam: {
+          // Firma / emphasis / links. Oscurecido de #a44db2 a #9d44ab para que el
+          // texto pase WCAG AA (4.5:1) también sobre cream-card (4.77:1), no solo
+          // sobre cream. El violeta sigue siendo prácticamente el mismo.
+          DEFAULT: '#9d44ab',
+          soft: '#e8d4ed',        // var(--color-miriam-soft) — badge genómico bg
+        },
+        coral: {
+          DEFAULT: '#ff6b47',     // var(--color-cta) — ÚNICO color de acción (fondos / decoración)
+          hover: '#e5573a',
+          // Coral accesible para TEXTO sobre fondos claros: pasa WCAG AA
+          // (4.7:1 sobre cream-card, 5.0:1 sobre cream). El coral DEFAULT
+          // solo cumple contraste como fondo o como texto sobre berenjena.
+          deep: '#bb4128',
+          500: '#ff6b47',
+          600: '#e5573a',
+        },
+
+        // Legacy palette aliases — remapped to DS tokens so existing classNames
+        // produce design-system colors without rewriting every template.
         ink: {
-          50:  '#f8f7fc', // bg principal — contraste 8.8:1 con ink-800
-          100: '#f0ecf9',
-          200: '#dcd5f2',
-          300: '#bfb5e6',
-          400: '#9e8fd5',
-          500: '#8270c3',
-          600: '#6e5baf',
-          700: '#5c4a93',
-          800: '#4a3c78', // texto cuerpo — 8.8:1 sobre ink-50
-          900: '#3c3060',
-          950: '#1f1933', // texto display — 15:1 sobre ink-50
+          50:  '#faf6f0', // → cream bg
+          100: '#f5efe6', // → cream-card
+          200: '#ebe2d7', // borders soft
+          300: '#c8bdd3',
+          400: '#9a8ca8',
+          500: '#6b5d75',
+          600: '#3a3340', // → tinta soft
+          700: '#2d1b3d', // → berenjena
+          800: '#2d1b3d', // → berenjena
+          900: '#2d1b3d', // → berenjena
+          950: '#1c1126', // berenjena profundo (dark sections)
         },
         gold: {
-          // 50-400: decorativos (fondos, badges). NO usar como fondo de texto sin verificar.
-          // 500+: fondos de botón → usar con text-white (pasan 4.5:1)
-          50:  '#fdf5ff',
-          100: '#f7e8ff', // bg tag — 8.6:1 con gold-800 ✓
-          200: '#ecd0fd',
-          300: '#d8a8f9',
-          400: '#c275f3', // decorativo, NO para texto
-          500: '#9c3fd5', // botones con text-white → 5.1:1 ✓
-          600: '#7a1da9', // hover botones con text-white → 8.2:1 ✓
-          700: '#641893', // accents oscuros con text-white → 10.1:1 ✓
-          800: '#601e8b', // texto tag sobre gold-100 → 8.6:1 ✓
-          900: '#511b74',
-          950: '#320a4d',
+          // Antiguo "gold" → ahora miriam violet
+          50:  '#faf2fc',
+          100: '#e8d4ed', // → miriam-soft (badge bg)
+          200: '#d9b8e2',
+          300: '#c69bd2',
+          400: '#b870c3',
+          500: '#a44db2', // → miriam
+          600: '#8a3f97', // hover
+          700: '#6b3175', // texto sobre miriam-soft
+          800: '#4d2354', // texto deep
+          900: '#3a1a40',
+          950: '#23102a',
         },
         ocean: {
-          50:  '#f2f0ff', // bg tag — contraste 10:1 con ocean-800
-          100: '#e6e1ff',
-          200: '#cdc5ff',
-          300: '#ab9dff',
-          400: '#8574ff',
-          500: '#6452f0',
-          600: '#5040dc',
-          700: '#4132bc', // texto links — 8.4:1 sobre blanco / 7.9:1 sobre ink-50
-          800: '#352896', // texto tag — 10:1 sobre ocean-50
-          900: '#2b2278',
-          950: '#170f47',
+          // Antiguo "ocean" → también miriam (DS = un solo accent)
+          50:  '#faf2fc',
+          100: '#e8d4ed',
+          200: '#d9b8e2',
+          300: '#c69bd2',
+          400: '#b870c3',
+          500: '#a44db2',
+          600: '#8a3f97',
+          700: '#6b3175',
+          800: '#4d2354',
+          900: '#3a1a40',
+          950: '#23102a',
         },
       },
       fontFamily: {
@@ -62,13 +86,17 @@ export default {
       fontSize: {
         '2xs': ['0.65rem', { lineHeight: '1rem' }],
       },
+      borderRadius: {
+        btn: '12px',
+        card: '16px',
+      },
       typography: (theme) => ({
         DEFAULT: {
           css: {
-            '--tw-prose-body': theme('colors.ink.800'),
-            '--tw-prose-headings': theme('colors.ink.950'),
-            '--tw-prose-links': theme('colors.ocean.700'),
-            '--tw-prose-bold': theme('colors.ink.900'),
+            '--tw-prose-body': theme('colors.berenjena'),
+            '--tw-prose-headings': theme('colors.berenjena'),
+            '--tw-prose-links': theme('colors.miriam.DEFAULT'),
+            '--tw-prose-bold': theme('colors.berenjena'),
             fontFamily: theme('fontFamily.body').join(', '),
             h1: { fontFamily: theme('fontFamily.display').join(', ') },
             h2: { fontFamily: theme('fontFamily.display').join(', ') },

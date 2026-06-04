@@ -18,7 +18,7 @@ coreTeam:
       Doctoranda en bioingeniería aplicada a las ciencias de la salud. Ha
       trabajado en modelos de machine learning para predicción de respuesta farmacológica
       a partir de datos de expresión génica, una de las líneas de investigación más
-      directamente relacionadas con el perfil molecular de Míriam. Ayuda a interpretar
+      directamente relacionadas con el perfil molecular de Miriam. Ayuda a interpretar
       los datos moleculares y a definir los próximos pasos del plan diagnóstico y terapéutico.
     icon: ph:strategy-fill
     color: gold
@@ -37,7 +37,7 @@ coreTeam:
     color: ink
   - role: Parte humana del caso
     description:
-      'Se encarga de contar la historia de Míriam desde dentro: quién es
+      'Se encarga de contar la historia de Miriam desde dentro: quién es
       más allá del diagnóstico, cómo vive, qué la mueve y por qué este caso importa
       más allá de la oncología.'
     icon: ph:pen-nib-fill
@@ -75,22 +75,21 @@ integrativeSupport:
   - role: Oncología metabólica (España)
     description:
       Especialista en el abordaje metabólico del cáncer. Diseña el protocolo
-      de suplementación y soporte metabólico de Míriam.
+      de suplementación y soporte metabólico de Miriam.
     icon: ph:flask-fill
     color: ocean
   - role: Doctor en Ciencias del Deporte y oncología del ejercicio (España)
     description:
-      Investigador principal en la Fundación OncSport — Never Surrender.
-      Diseña y supervisa el programa de entrenamiento individualizado de Miriam, adaptado
-      a su situación de metástasis ósea. El objetivo es mantenerla en ECOG 0 — es decir,
-      con plena capacidad funcional — lo que es determinante para acceder a ensayos
-      clínicos y tolerar los tratamientos que vienen.
+      Investigador principal en OncSport (Never Surrender). Diseña y supervisa
+      el programa de ejercicio individualizado de Miriam para mantenerla en
+      plena capacidad funcional (ECOG 0), clave para acceder a ensayos y
+      tolerar los tratamientos.
     icon: ph:barbell-fill
     color: ocean
   - role: Nutricionista oncológica
     description:
       Especializada en nutrición para pacientes oncológicos. Lleva el seguimiento
-      nutricional de Míriam a lo largo del tratamiento.
+      nutricional de Miriam a lo largo del tratamiento.
     icon: ph:plant-fill
     color: gold
   - role: Psicología oncológica (Asociación AECC)
@@ -101,13 +100,13 @@ integrativeSupport:
     color: gold
   - role: Psicología y altas capacidades
     description:
-      Psicóloga con especialización en altas capacidades. Acompaña a Míriam
+      Psicóloga con especialización en altas capacidades. Acompaña a Miriam
       integrando la dimensión cognitiva con el proceso oncológico.
     icon: ph:brain-fill
     color: ocean
   - role: Fisioterapia y acupuntura (medicina tradicional china)
     description:
       Fisioterapeuta con formación en medicina tradicional china. Complementa
-      el programa de ejercicio y movilidad de Míriam.
+      el programa de ejercicio y movilidad de Miriam.
     icon: ph:hand-palm-fill
     color: ink
