@@ -21,7 +21,7 @@ An informational website about Miriam González Pérez's case: metastatic breast
 ```bash
 pnpm install
 pnpm dev                # local dev at http://localhost:3000
-pnpm update-fundraiser  # manually sync GoFundMe progress to public/fundraiser.json
+pnpm update-fundraiser  # manually sync GoFundMe progress (add --force to overwrite existing file)
 ```
 
 Open `http://localhost:3000`.
@@ -73,7 +73,7 @@ utils/
     fundraiser.ts          → GoFundMe GraphQL client + types + save logic
 
 public/
-    fundraiser.json        → Static snapshot of GoFundMe progress (committed, serves as SSG seed)
+    fundraiser.json        → Static snapshot of GoFundMe progress (gitignored, auto-generated at build time)
 
 content/
   es/  →  timeline.yml, team.yml, press.yml, science.yml, historia/*.md, ciencia/*.md

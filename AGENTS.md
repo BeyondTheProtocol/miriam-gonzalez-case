@@ -49,8 +49,9 @@ The website has two audiences: scientists/physicians (science page, molecular pr
 
 ### GoFundMe Data Sync
 - Scheduled function `netlify/functions/get-fundraiser-function.mts` runs **hourly** (`@hourly`), fetches fundraiser data from GoFundMe's GraphQL API and writes it to `public/fundraiser.json`.
-- Utility module `utils/fundraiser.ts` defines the types (`GoFundMeFundraiser`, `GoFundMeAmount`, `GoFundMeResponse`), `getFundraiser()` (fetches from GoFundMe GraphQL), and `saveFundraiser()` (fetches + writes to JSON).
-- CLI script `pnpm update-fundraiser` runs `tsx update-fundraiser.ts` manually to update the `public/fundraiser.json` file.
+- Utility module `utils/fundraiser.ts` defines the types (`GoFundMeFundraiser`, `GoFundMeAmount`, `GoFundMeResponse`), `getFundraiser()` (fetches from GoFundMe GraphQL), and `saveFundraiser(overwrite?)` (fetches + writes to JSON). `saveFundraiser()` is **idempotent**: it skips writing if the file already exists, unless `overwrite` is `true`.
+- CLI script `pnpm update-fundraiser` runs `tsx update-fundraiser.ts`. Pass `--force` to overwrite an existing file.
+- `public/fundraiser.json` is **gitignored** — never committed. It is auto-generated at build time by lifecycle scripts.
 - `GoFundMeProgress.vue` component fetches the fundraiser data from `public/fundraiser.json` via `$fetch('/fundraiser.json')` on mount.
 
 ### Nitro Route Rules
@@ -150,10 +151,10 @@ Replace the placeholder content in `app/pages/historia/index.vue` with the real 
 ## Commands
 
 ```bash
-pnpm dev               # local dev at http://localhost:3000
-pnpm generate          # generate static site to .output/public/
+pnpm dev               # local dev at http://localhost:3000 (auto-fetches fundraiser)
+pnpm generate          # generate static site to .output/public/ (auto-fetches fundraiser)
 pnpm preview           # preview static build
-pnpm update-fundraiser # manually fetch & write public/fundraiser.json
+pnpm update-fundraiser # manually fetch & write public/fundraiser.json (add --force to overwrite)
 ```
 
 ### Code Standards
