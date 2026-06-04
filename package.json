@@ -3,9 +3,9 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "nuxt build",
-    "dev": "nuxt dev",
-    "generate": "nuxt generate",
+    "build": "pnpm update-fundraiser && nuxt build",
+    "dev": "pnpm update-fundraiser --force && nuxt dev",
+    "generate": "pnpm update-fundraiser && nuxt generate",
     "preview": "nuxt preview",
     "postinstall": "nuxt prepare",
     "format": "oxfmt",
@@ -43,5 +43,5 @@
     "tsx": "^4.22.4",
     "typescript": "^5.7.0"
   },
-  "packageManager": "pnpm@11.0.9"
+  "packageManager": "pnpm@11.5.1"
 }
