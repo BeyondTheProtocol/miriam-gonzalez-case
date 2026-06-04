@@ -18,6 +18,7 @@ export interface GoFundMeResponse {
   }
 }
 
+const path = 'public/fundraiser.json'
 const request = 'https://graphql.gofundme.com/graphql'
 const operationName = 'GetFundraiser'
 const query = `query GetFundraiser($slug: ID!) {
@@ -59,7 +60,25 @@ export const getFundraiser = () =>
     .then((res) => res.json())
     .then(({ data }: GoFundMeResponse) => data.fundraiser)
 
-export async function saveFundraiser() {
+async function fileExists(path: string) {
+  try {
+    await fs.access(path)
+    return true
+  } catch {
+    return false
+  }
+}
+
+export async function saveFundraiser(overwrite = false) {
+  if (await fileExists(path)) {
+    if (overwrite) {
+      console.log('Updating fundraiser...')
+    } else {
+      console.log(`Fundraiser file already exists: ${path}.`)
+      return
+    }
+  }
   const fundraiser = await getFundraiser()
-  await fs.writeFile('public/fundraiser.json', JSON.stringify(fundraiser))
+  await fs.writeFile(path, JSON.stringify(fundraiser))
+  console.log(`✔ Fundraiser saved to: ${path}`)
 }

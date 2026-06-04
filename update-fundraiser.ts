@@ -1,9 +1,8 @@
 import { saveFundraiser } from './utils/fundraiser'
 
 try {
-  console.log('Updating fundraiser...')
-  await saveFundraiser()
-  console.log('Fundraiser updated successfully')
+  const overwrite = process.argv.includes('--force')
+  await saveFundraiser(overwrite)
 } catch (error) {
   console.error('Error updating fundraiser:', error)
   process.exit(1)
