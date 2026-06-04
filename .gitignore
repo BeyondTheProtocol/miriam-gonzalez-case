@@ -25,6 +25,3 @@ Thumbs.db
 
 # Local Netlify folder
 .netlify
-
-# data
-public/fundraiser.json
