@@ -1,8 +1,10 @@
 <script setup lang="ts">
+import type { GoFundMeFundraiser } from '../../utils/fundraiser'
 const { locale } = useI18n()
-const { data } = useGoFundMe(
-  'biopsia-molecular-que-puede-cambiar-su-tratamiento'
-)
+const data = ref<GoFundMeFundraiser | null>(null)
+onMounted(async () => {
+  data.value = await $fetch('/fundraiser.json')
+})
 </script>
 
 <template>
