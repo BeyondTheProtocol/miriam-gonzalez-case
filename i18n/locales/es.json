@@ -107,10 +107,19 @@
     "miriam_team": "El equipo de Miriam",
     "medical_support_network": "Red médica de apoyo",
     "integrative_support": "Apoyo integral",
-    "network_origin_label": "Red de origen",
+    "network_origin_label": "Próximamente",
     "network_origin_title": "Beyond the Protocol",
-    "network_origin_body": "Parte del equipo viene de Beyond the Protocol, una red de pacientes y profesionales que documenta casos cuando los protocolos estándar se quedan cortos. Otras personas se sumaron específicamente por el caso de Miriam.",
-    "network_origin_cta": "Cómo colaborar",
+    "network_origin_body": "Una asociación de investigación científica y tecnológica (biotech, IA, datos). La estamos preparando. Mientras tanto, puedes ayudar al caso:",
+    "network_origin_cta": "Cómo ayudar",
+    "notus_eyebrow": "Honestidad operativa",
+    "notus_title": "Lo que NO somos.",
+    "notus_list": [
+      "No prometemos curas. Documentamos hipótesis biológicas y sus probabilidades reales.",
+      "No usamos vocabulario de «lucha» ni «guerrera». Hablamos de biología, datos y decisiones clínicas.",
+      "No sustituimos al equipo médico. Aportamos análisis externos; las decisiones clínicas las firma la oncología de Miriam.",
+      "No publicamos datos clínicos sin revisión. La transparencia exige rigor, no velocidad.",
+      "No somos una IA perfecta. La IA que usamos a veces alucina —y las personas que la revisamos, también—. Si ves una errata, avísanos."
+    ],
     "how_it_formed": "Este equipo no se planificó: se formó de manera orgánica. Profesionales de la tecnología, la medicina, la IA y la investigación vieron un caso que les interpeló y decidieron aportar lo que saben. No hay jerarquía ni protagonismos: cada uno asesora y acompaña desde su campo. Hay un único objetivo compartido: que la biología de este tumor guíe el tratamiento. Las decisiones clínicas siguen siempre en manos de los médicos de Miriam."
   },
   "timeline": {
@@ -412,13 +421,14 @@
     "story_teaser_4": "En esta historia queremos contarte el caso de Miriam, su proceso y su rutina para que conozcas de verdad lo que implica vivir con cáncer en fase 4."
   },
   "collaborate": {
-    "meta_title": "Colabora con el caso · 5 perfiles concretos",
+    "meta_title": "Cómo ayudar con el caso · 5 perfiles concretos",
     "meta_description": "Cinco vías técnicas para contribuir al caso de Miriam González: revisión clínica, financiación dirigida, difusión, pipeline IA/datos y apoyo entre pacientes.",
     "eyebrow": "Colabora",
-    "title": "Cómo colaborar con el caso",
+    "title": "Cómo ayudar con el caso",
     "intro": "Cinco vías concretas, una por perfil.",
-    "hero_title": "Cinco perfiles. Cinco formas de mover el caso.",
-    "hero_intro": "Ya conoces el contexto clínico. Elige la vía que encaja con tu expertise y escríbenos, o financia directamente el siguiente paso de la investigación.",
+    "hero_title": "Cómo ayudar con el caso",
+    "hero_intro": "La vía más directa para mover el caso es financiar el siguiente paso de la investigación. Si prefieres aportar de otra forma, hay una para cada perfil.",
+    "hero_cta_ways": "Ver las cinco vías",
     "hero_claim": "Cada acción cuenta, sea tiempo, conocimiento, alcance o dinero.",
     "hero_claim_label": "Principio operativo",
     "hero_principle": "La biología, no el órgano de origen, debe dirigir el tratamiento.",
@@ -514,15 +524,6 @@
     "profile5_cta_label": "Escribir a Miriam",
     "profile5_cta_subject": "Hola Miriam",
     "profile5_cta_caption": "Miriam o alguien del equipo intentará responderte.",
-    "notus_eyebrow": "Honestidad operativa",
-    "notus_title": "Lo que NO somos.",
-    "notus_list": [
-      "No somos una asociación de pacientes. Somos un equipo voluntario centrado en un caso concreto.",
-      "No prometemos curas. Documentamos hipótesis biológicas y sus probabilidades reales.",
-      "No usamos vocabulario de «lucha» ni «guerrera». Hablamos de biología, datos y decisiones clínicas.",
-      "No sustituimos al equipo médico. Aportamos análisis externos; las decisiones clínicas las firma la oncología de Miriam.",
-      "No publicamos datos clínicos sin revisión. La transparencia exige rigor, no velocidad."
-    ],
     "links_eyebrow": "Enlaces",
     "links_title": "Todo lo público, en un solo sitio.",
     "links_sub": "Si no sabes por dónde empezar, comparte helpmiriam.com. Que el caso llegue al oncólogo, investigador o paciente adecuado es, muchas veces, la diferencia entre encontrar una diana terapéutica y no encontrarla.",

@@ -46,11 +46,12 @@
           </li>
         </ul>
 
-        <!-- Red de origen · Beyond the Protocol (sección oscura sobria, estilo home) -->
+        <!-- Cierre · "Lo que NO somos" (honestidad operativa) + Beyond the
+             Protocol (próximamente) + cómo ayudar. Panel oscuro sobrio. -->
         <section
           class="mt-16 relative overflow-hidden rounded-card p-8 sm:p-12"
           style="background: #2d1b3d; color: #faf6f0"
-          :aria-label="$t('team.network_origin_title')"
+          :aria-labelledby="'notus-title'"
         >
           <div
             aria-hidden="true"
@@ -59,28 +60,60 @@
           />
           <div class="relative max-w-2xl">
             <p class="eyebrow mb-3 block" style="color: rgba(250,246,240,0.55)">
-              {{ $t('team.network_origin_label') }}
+              {{ $t('team.notus_eyebrow') }}
             </p>
             <h2
-              class="heading-display text-2xl sm:text-3xl mb-4"
+              id="notus-title"
+              class="heading-display text-2xl sm:text-3xl mb-6"
               style="color: #faf6f0; letter-spacing: -0.02em"
             >
-              {{ $t('team.network_origin_title') }}
+              {{ $t('team.notus_title') }}
             </h2>
-            <p class="text-sm leading-relaxed" style="color: rgba(250,246,240,0.78)">
-              {{ $t('team.network_origin_body') }}
-            </p>
-            <NuxtLink
-              :to="localePath('colabora')"
-              class="link-action group mt-6 text-sm text-cream"
-            >
-              {{ $t('team.network_origin_cta') }}
-              <Icon
-                name="ph:arrow-right"
-                class="w-4 h-4 transition-transform group-hover:translate-x-0.5"
-                aria-hidden="true"
-              />
-            </NuxtLink>
+
+            <ul class="space-y-4">
+              <li
+                v-for="(item, i) in notUsList"
+                :key="i"
+                class="flex items-start gap-4 text-[15px] leading-relaxed"
+                style="color: rgba(250,246,240,0.9)"
+              >
+                <span
+                  class="shrink-0 mt-0.5 inline-flex items-center justify-center w-[22px] h-[22px] rounded-md"
+                  style="background: rgba(255,107,71,0.18)"
+                  aria-hidden="true"
+                >
+                  <Icon name="ph:x-bold" class="w-3.5 h-3.5 text-coral" />
+                </span>
+                <span>{{ item }}</span>
+              </li>
+            </ul>
+
+            <!-- Beyond the Protocol · próximamente + cómo ayudar -->
+            <div class="mt-8 pt-6" style="border-top: 1px solid rgba(250,246,240,0.15)">
+              <p class="eyebrow mb-2 block" style="color: rgba(250,246,240,0.55)">
+                {{ $t('team.network_origin_label') }}
+              </p>
+              <h3
+                class="heading-display text-xl sm:text-2xl mb-3"
+                style="color: #faf6f0; letter-spacing: -0.02em"
+              >
+                {{ $t('team.network_origin_title') }}
+              </h3>
+              <p class="text-sm leading-relaxed" style="color: rgba(250,246,240,0.78)">
+                {{ $t('team.network_origin_body') }}
+              </p>
+              <NuxtLink
+                :to="localePath('colabora')"
+                class="link-action group mt-5 text-sm text-cream"
+              >
+                {{ $t('team.network_origin_cta') }}
+                <Icon
+                  name="ph:arrow-right"
+                  class="w-4 h-4 transition-transform group-hover:translate-x-0.5"
+                  aria-hidden="true"
+                />
+              </NuxtLink>
+            </div>
           </div>
         </section>
       </div>
@@ -90,7 +123,15 @@
 
 <script setup lang="ts">
 import type { Collections, TeamEnCollectionItem } from '@nuxt/content'
-const { locale, t } = useI18n()
+const { locale, t, tm, rt } = useI18n()
+
+// Lista "Lo que NO somos" (array i18n) — mismo helper que /colabora.
+function arr(key: string): string[] {
+  const raw = tm(key) as unknown
+  const list = Array.isArray(raw) ? raw : Object.values((raw ?? {}) as Record<string, unknown>)
+  return list.map((item) => rt(item as never))
+}
+const notUsList = computed(() => arr('team.notus_list'))
 
 const { data: teamData } = await useAsyncData(
   `team-data-${locale.value}`,

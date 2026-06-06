@@ -27,9 +27,28 @@
         >
           {{ $t('collaborate.hero_title') }}
         </h1>
-        <p class="text-lg text-tinta leading-relaxed mb-10 max-w-2xl">
+        <p class="text-lg text-tinta leading-relaxed mb-6 max-w-2xl">
           {{ $t('collaborate.hero_intro') }}
         </p>
+
+        <!-- CTA primario arriba (financiación, vía anclada) + secundario a las
+             vías. El primario se repite en la tarjeta destacada de abajo. -->
+        <div class="flex flex-col sm:flex-row gap-3 mb-10">
+          <a
+            :href="GOFUNDME"
+            target="_blank"
+            rel="noopener"
+            class="btn-cta w-full sm:w-auto"
+            style="text-decoration: none"
+          >
+            <Icon name="ph:heart-fill" class="heart-beat heart-beat--alive w-4 h-4" aria-hidden="true" />
+            {{ $t('collaborate.profile2_cta_label') }}
+          </a>
+          <a href="#profiles-title" class="btn-secondary w-full sm:w-auto">
+            <Icon name="ph:arrow-down" class="w-4 h-4" aria-hidden="true" />
+            {{ $t('collaborate.hero_cta_ways') }}
+          </a>
+        </div>
 
         <!-- Cita / principio: card-base en violet-soft (badge genómico del DS) -->
         <aside class="card-base bg-miriam-soft border-transparent max-w-2xl">
@@ -196,40 +215,6 @@
       </div>
     </section>
 
-    <!-- ░░ LO QUE NO SOMOS ░░ bg-cream · panel berenjena (mismo patrón que la
-         sección oscura de /equipo) -->
-    <section v-reveal class="section-spacing bg-cream" :aria-labelledby="'notus-title'">
-      <div class="section-container">
-        <div class="rounded-card p-8 sm:p-10 bg-berenjena text-cream">
-          <p class="eyebrow mb-3 block text-miriam-soft">{{ $t('collaborate.notus_eyebrow') }}</p>
-          <h2
-            id="notus-title"
-            class="heading-display text-3xl sm:text-4xl text-cream mb-8"
-            style="letter-spacing: -0.02em"
-          >
-            {{ $t('collaborate.notus_title') }}
-          </h2>
-
-          <ul class="space-y-4">
-            <li
-              v-for="(item, i) in notUsList"
-              :key="i"
-              class="flex items-start gap-4 text-[15px] leading-relaxed text-cream/90"
-            >
-              <span
-                class="shrink-0 mt-0.5 inline-flex items-center justify-center w-[22px] h-[22px] rounded-md"
-                style="background: rgba(255, 107, 71, 0.18)"
-                aria-hidden="true"
-              >
-                <Icon name="ph:x-bold" class="w-3.5 h-3.5 text-coral" />
-              </span>
-              <span>{{ item }}</span>
-            </li>
-          </ul>
-        </div>
-      </div>
-    </section>
-
     <!-- ░░ ENLACES RÁPIDOS ░░ bg-cream-card · panel neutro -->
     <section v-reveal class="section-spacing bg-cream-card" :aria-labelledby="'links-title'">
       <div class="section-container">
@@ -300,8 +285,6 @@ function arrObj<T extends Record<string, string>>(key: string): T[] {
     return out as T
   })
 }
-
-const notUsList = computed(() => arr('collaborate.notus_list'))
 
 interface QuickLink { label: string; url: string; external: boolean }
 const quickLinks = computed<QuickLink[]>(() => {
