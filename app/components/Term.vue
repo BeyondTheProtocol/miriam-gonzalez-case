@@ -130,6 +130,16 @@ const GLOSSARY: Record<string, Entry> = {
       def: 'Circulating tumor DNA: tumor fragments floating in the blood that let you track its evolution with a blood test, no biopsy.',
     },
   },
+  ecog: {
+    es: {
+      label: 'ECOG 0',
+      def: 'Escala ECOG, grado 0 — totalmente activa: hace vida normal, sin restricciones, como antes de la enfermedad.',
+    },
+    en: {
+      label: 'ECOG 0',
+      def: 'ECOG scale, grade 0 — fully active: able to carry on all normal, pre-illness activities without restriction.',
+    },
+  },
 }
 
 const entry = computed(() => {
