@@ -99,13 +99,22 @@
   },
   "science": {
     "title": "The science behind the case",
-    "subtitle": "Luminal breast carcinoma (HR+/HER2−) with ~80% neuroendocrine differentiation, FGFR1 ×13 and CCND1 ×20. Most recent finding: somatostatin receptor overexpression (SSTR+) confirmed by Gallium PET."
+    "subtitle": "Luminal breast carcinoma (HR+/HER2−) with ~80% neuroendocrine differentiation (BC-NED), FGFR1 ×13 and CCND1 ×20. Most recent finding: somatostatin receptor subtype 2 (SSTR2) overexpression confirmed by Gallium PET."
   },
   "timeline": {
     "title": "Timeline",
-    "subtitle": "Week by week, every milestone matters",
+    "subtitle": "From an unexpected diagnosis to an active search. Every milestone, in order.",
+    "meta_milestones": "{count} milestones",
+    "meta_span": "2021 – today",
+    "meta_network": "network across 4 countries",
+    "filter_aria": "Filter the timeline by milestone type",
+    "filter_all": "All",
+    "filter_clinical": "Clinical milestones",
+    "filter_molecular": "Molecular profile",
+    "filter_network": "Team & outreach",
     "notice": "This timeline is updated weekly. You can follow the day-to-day in real time on X/Twitter.",
     "follow_twitter": "miriamgonp on X",
+    "cta_science": "Understand the science",
     "latest_badge": "Latest",
     "read_more": "Read the article"
   },
@@ -156,7 +165,7 @@
   "entry_disclaimer": {
     "badge": "May 2026 update",
     "title": "New molecular and imaging findings",
-    "body": "Liquid biopsies (April–May 2026) have revealed new alterations: ESR1 D538G (endocrine resistance) and RB1 mutations (a predictor of neuroendocrine transition). The Ga-68 DOTATOC PET-CT confirms multiple bone metastases with somatostatin receptor overexpression (SSTR+) — a new therapeutic target via radioligand therapy (PRRT). The molecular profile has become more complex and reinforces the need to explore the neuroendocrine pathway in parallel with the breast (luminal) one.",
+    "body": "Liquid biopsies (April–May 2026) have revealed new alterations: ESR1 D538G (endocrine resistance) and RB1 mutations (a predictor of neuroendocrine transformation). The Ga-68 DOTATOC PET-CT confirms multiple bone metastases with somatostatin receptor subtype 2 (SSTR2) overexpression — a new therapeutic target via radioligand therapy (PRRT). The molecular profile has become more complex and reinforces the need to explore the neuroendocrine pathway in parallel with the breast (luminal) one.",
     "cta": "Got it"
   },
   "index": {
@@ -181,7 +190,7 @@
     "s3_p2": "Practical result: hormonal treatment covers the breast (luminal) component. The neuroendocrine component, with its own dynamics and targets, is left unaddressed.",
     "s3_p3": "Oncologists cannot prescribe off-protocol without solid evidence. Generating that evidence requires molecular rebiopsy, advanced panels and international review boards. None of this is funded by public healthcare for a low-frequency case.",
     "s3_pet_label": "Latest imaging finding",
-    "s3_pet_paragraph": "Gallium-68 DOTATOC PET-CT: multiple bone metastases with somatostatin receptor overexpression (SSTR+) and focal uptake in the right breast tail. The tumor expresses a target that breast protocols do not contemplate as standard, opening the radioligand path (Lu-177 / Ac-225).",
+    "s3_pet_paragraph": "Gallium-68 DOTATOC PET-CT: multiple bone metastases with somatostatin receptor overexpression (subtype 2, SSTR2) and focal uptake in the right breast tail. The tumor expresses a target that breast protocols do not contemplate as standard, opening the radioligand path (PRRT).",
     "s3_table_title": "What exists vs. what is missing",
     "s3_col_has": "What the protocols cover",
     "s3_col_missing": "What is missing and not covered",
@@ -206,7 +215,7 @@
     "s3_outro": "Full technical analysis in The case. The essential point: a measurable gap exists between the treatment she receives and the one her biology requires.",
     "s4_eyebrow": "Where the money goes · Radical transparency",
     "s4_heading": "The tumor evolves. The strategy has to evolve with it.",
-    "s4_p1": "The tumor evolves under treatment pressure. New resistance mutations appear (ESR1 D538G, RB1) and new targets emerge (SSTR+). Without periodic molecular rebiopsy, clinical decisions are made ",
+    "s4_p1": "The tumor evolves under treatment pressure. New resistance mutations appear (ESR1 D538G, RB1) and new targets emerge (SSTR2+). Without periodic molecular rebiopsy, clinical decisions are made ",
     "s4_p2": "Every euro is assigned to a concrete line item and publicly documented at helpmiriam.com/expenses.",
     "s4_expenses_soon": "/expenses page coming soon",
     "s4_list_intro": "The money raised covers, in whatever order is needed:",
@@ -251,7 +260,7 @@
       "RB1 ×3",
       "NEC G3?",
       "ctDNA+",
-      "SSTR+"
+      "SSTR2+"
     ],
     "s8_markers_note": "Markers with “?” are hypotheses with partial evidence, pending confirmation. Full analysis in The case.",
     "s8_science_button": "See the full molecular profile",
@@ -297,8 +306,7 @@
     "key_evidence": "Key scientific evidence",
     "evidence_page_intro": "Every hypothesis in this case is grounded in peer-reviewed literature and clinical trials. Here is the evidence behind the therapeutic axes, grouped by theme.",
     "evidence_hook_eyebrow": "Scientific evidence",
-    "evidence_inline_cta": "See the peer-reviewed evidence behind this",
-    "evidence_hook_body": "The peer-reviewed studies and clinical trials that back each hypothesis in the case —FGFR1, PRRT/SSTR, the neuroendocrine transition and more— gathered on a dedicated page.",
+    "evidence_hook_body": "The peer-reviewed studies and clinical trials that back each hypothesis in the case —FGFR1, PRRT/SSTR, the neuroendocrine transformation and more— gathered on a dedicated page.",
     "evidence_hook_cta": "See the full evidence",
     "component": "Component",
     "method": "Method",
@@ -308,9 +316,9 @@
     "proposed_panel_caption": "Proposed bone rebiopsy protocol: component, method and core/format, targets and clinical implication",
     "axes": [
       "FGFR1 ×13 → FGFRi",
-      "SSTR2+ → ¹⁷⁷Lu-PRRT",
+      "SSTR2+ → PRRT",
       "ESR1 D538G → oral SERD",
-      "NE transition → neuroendocrine axis"
+      "NE transformation → neuroendocrine axis"
     ],
     "axes_note": "Hypotheses derived from the molecular profile, not a prescribed treatment. The advanced rebiopsy will confirm or rule them out before defining the N-of-1 strategy.",
     "goal_n_of_1": "Goal: N-of-1 Trial",
@@ -320,7 +328,7 @@
     "detailed_analyses": "Detailed analyses",
     "view_reference": "View reference",
     "why_no_fit_guidelines": "Why doesn't this tumor fit the protocols?",
-    "why_no_fit_guidelines_text": "On paper this is a {luminal} breast cancer (HR+/HER2−). Under the microscope, ~80% of the tumor shows neuroendocrine differentiation, with {fgfr1} and {ccnd1} amplification. Protocols recommend treating it as standard luminal and ignoring the {neuroendocrino} component. Clinical literature shows this hybrid subtype ({bcned}) has worse prognosis and usually needs different strategies.",
+    "why_no_fit_guidelines_text": "On paper this is a {luminal} breast cancer (HR+/HER2−). Under the microscope, ~80% of the tumor shows neuroendocrine differentiation, with {fgfr1} and {ccnd1} amplification. Spanish protocols recommend treating it as standard luminal and ignoring the {neuroendocrino} component; yet the WHO has recognized breast neuroendocrine neoplasms as a distinct entity since its 2019 classification, and clinical literature shows this hybrid subtype ({bcned}) has worse prognosis and usually needs different strategies.",
     "thesis": "The thesis: biology, not the organ of origin, should guide treatment.",
     "thesis_goal": "Goal: an N-of-1 trial that sets a precedent for precision oncology in ultra-rare subtypes.",
     "updates_2026_title": "2026 molecular updates",
@@ -328,8 +336,8 @@
     "ctdna_title": "Plasma ctDNA sequencing",
     "ctdna_what": "Circulating tumor DNA (ctDNA) from peripheral blood analyzed by NGS. A standard blood draw detects mutations, amplifications and clonal dynamics without a tissue biopsy. Especially useful in bone-only disease, where tissue is scarce or molecularly uninformative.",
     "imaging_title": "Functional imaging — Gallium-68 PET",
-    "imaging_intro": "Is there an actionable target visible in vivo? The Gallium-68 PET shows the tumor expresses {sstr} —the target of {prrt}—, a route standard breast-cancer protocols do not consider.",
-    "imaging_what": "PET with the 68Ga-DOTATOC radiotracer, which binds somatostatin receptors (SSTR). Visualizes in vivo which lesions express SSTR and could therefore respond to radioligand therapy (PRRT).",
+    "imaging_intro": "The tracer reveals an actionable target visible in vivo: the tumour expresses {sstr}, the target of {prrt}. Standard breast-cancer protocols do not consider this route.",
+    "imaging_what": "PET with the 68Ga-DOTATOC radiotracer, which binds mainly the somatostatin receptor subtype 2 (SSTR2). Visualizes in vivo which lesions express SSTR2 and could therefore respond to radioligand therapy (PRRT).",
     "bone_biopsy_title": "Bone biopsy",
     "meaning_label": "Clinical meaning",
     "center_label": "Lab",
@@ -354,11 +362,11 @@
     "snapshot_resistance_label": "Resistance & progression",
     "snapshot_resistance": "ESR1 D538G · RB1 loss (3 variants in ctDNA) · CDK4/6i resistance",
     "snapshot_target_label": "Functional target",
-    "snapshot_target": "SSTR+ on Ga-68 PET → radioligand therapy (PRRT) candidate",
+    "snapshot_target": "SSTR2+ on Ga-68 PET → radioligand therapy (PRRT) candidate",
     "snapshot_status_label": "2026 status",
     "snapshot_status": "ECOG 0 · multiple bone metastases (no visceral involvement) · abemaciclib stopped (March 2026)",
     "snapshot_grade_label": "Receptors & grade",
-    "snapshot_grade": "ER 95% · PR 5% · HER2 0 (ultralow) · Ki67 60% · G2 · low TMB and MSI",
+    "snapshot_grade": "ER 95% · PR 5% · HER2 0 (ultralow) · Ki67 60% · G2 (Nottingham) · low TMB and MSI",
     "snapshot_diagnosis_tag": "Stage IV",
     "snapshot_drivers_tag": "Amplification",
     "snapshot_target_tag": "Opportunity",
@@ -368,11 +376,11 @@
     "molecular_profile_title": "The tumour’s genomic map",
     "ctdna_dynamics_title": "How it evolves in the blood",
     "ctdna_dynamics_intro": "The tumour isn’t static: ctDNA tracks its changes (VAF) across three plasma draws, with no biopsy needed.",
-    "app_inline_text": "What if you could explore every report, every PET and every molecular result yourself? We are bringing it all together in an interactive app.",
-    "app_inline_cta": "See the app preview",
+    "app_inline_text": "What if you could follow the case over time —the response to each treatment line and how the ctDNA (VAF) shifts between draws— yourself? We are bringing it together in an interactive app.",
+    "app_inline_cta": "Request access",
     "app_hook_eyebrow": "Coming soon",
     "app_hook_title": "Download the structured clinical history",
-    "app_hook_body": "A dashboard for oncologists: the full case in a queryable, exportable format —timeline, reports and molecular profile— built for second opinions and tumor boards.",
+    "app_hook_body": "A dashboard for oncology teams: the full case in a queryable, exportable format (timeline, reports and molecular profile), built for second opinions and tumor boards.",
     "app_hook_cta": "Request early access"
   },
   "team": {
@@ -380,6 +388,10 @@
     "subtitle": "One patient, an international team, and artificial intelligence searching for the therapy that conventional oncology doesn't consider.",
     "medical_support_network": "Medical support network",
     "integrative_support": "Integrative Support",
+    "network_origin_label": "Origin network",
+    "network_origin_title": "Beyond the Protocol",
+    "network_origin_body": "Part of the team comes from Beyond the Protocol, a network of patients and professionals that documents cases when standard protocols fall short. Others joined specifically for Miriam's case.",
+    "network_origin_cta": "How to collaborate",
     "how_it_formed": "This team wasn't planned. It formed organically when professionals from different fields (technology, medicine, AI, research) saw a case that challenged them and decided to contribute what they knew. There is no formal hierarchy. There is a shared goal: let this tumor's biology guide treatment.",
     "miriam_team": "Miriam's Team"
   },

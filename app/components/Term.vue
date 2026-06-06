@@ -62,12 +62,12 @@ const GLOSSARY: Record<string, Entry> = {
   },
   sstr: {
     es: {
-      label: 'SSTR+',
-      def: 'Receptor de somatostatina presente en el tumor. Abre la vía de las terapias con radioligandos.',
+      label: 'SSTR2+',
+      def: 'Receptor de somatostatina de subtipo 2 (SSTR2), el que ilumina el PET de Ga-68 DOTATOC. Abre la vía de las terapias con radioligandos.',
     },
     en: {
-      label: 'SSTR+',
-      def: 'Somatostatin receptor present in the tumor. Opens the radioligand-therapy path.',
+      label: 'SSTR2+',
+      def: 'Somatostatin receptor subtype 2 (SSTR2), the one lit up by the Ga-68 DOTATOC PET. Opens the radioligand-therapy path.',
     },
   },
   ccnd1: {
@@ -139,37 +139,116 @@ const entry = computed(() => {
 })
 
 const open = ref(false)
+const positioned = ref(false)
+const placement = ref<'top' | 'bottom'>('top')
+const caretLeft = ref(16)
+const triggerRef = ref<HTMLElement | null>(null)
+const popRef = ref<HTMLElement | null>(null)
+const popStyle = reactive({ top: '0px', left: '0px', width: 'auto' })
+
+/** Solo abrimos en hover cuando el dispositivo tiene puntero fino (escritorio).
+ *  En táctil el tooltip se gobierna íntegramente con el tap (toggle). */
+const canHover = () =>
+  typeof window !== 'undefined' && window.matchMedia('(hover: hover)').matches
+
+/** Posicionamiento fijo respecto al viewport: el popover se teletransporta a
+ *  <body>, así nunca lo recorta un ancestro con overflow, y se ajusta (clamp)
+ *  a los bordes de la pantalla — clave en móvil cuando el término va a la derecha. */
+function position() {
+  const trigger = triggerRef.value
+  const pop = popRef.value
+  if (!trigger || !pop) return
+  const margin = 8
+  const r = trigger.getBoundingClientRect()
+  const popW = Math.min(300, window.innerWidth - margin * 2)
+  popStyle.width = `${popW}px`
+  const left = Math.max(margin, Math.min(r.left, window.innerWidth - popW - margin))
+  const popH = pop.offsetHeight
+  let top = r.top - popH - 10
+  placement.value = 'top'
+  if (top < margin) {
+    top = r.bottom + 10
+    placement.value = 'bottom'
+  }
+  popStyle.top = `${top}px`
+  popStyle.left = `${left}px`
+  caretLeft.value = Math.max(14, Math.min(r.left + r.width / 2 - left, popW - 14))
+  positioned.value = true
+}
+
+async function show() {
+  if (!entry.value.def) return
+  open.value = true
+  positioned.value = false
+  await nextTick()
+  position()
+}
+function hide() {
+  open.value = false
+}
+function toggle() {
+  open.value ? hide() : show()
+}
+
+watch(open, (isOpen) => {
+  if (typeof window === 'undefined') return
+  if (isOpen) {
+    window.addEventListener('scroll', position, true)
+    window.addEventListener('resize', position)
+  } else {
+    window.removeEventListener('scroll', position, true)
+    window.removeEventListener('resize', position)
+  }
+})
+
+onBeforeUnmount(() => {
+  if (typeof window === 'undefined') return
+  window.removeEventListener('scroll', position, true)
+  window.removeEventListener('resize', position)
+})
+
+onClickOutside(triggerRef, () => hide(), { ignore: [popRef] })
 </script>
 
 <template>
-  <span
-    class="term-wrap"
-    @mouseenter="open = true"
-    @mouseleave="open = false"
-  >
+  <span class="term-wrap">
     <button
+      ref="triggerRef"
       type="button"
       class="term"
       :aria-label="`${entry.label}. ${entry.def}`"
       :aria-expanded="open"
-      @click="open = !open"
-      @focus="open = true"
-      @blur="open = false"
-      @keydown.escape="open = false"
+      @click="toggle"
+      @mouseenter="canHover() && show()"
+      @mouseleave="canHover() && hide()"
+      @keydown.escape="hide"
+      @blur="hide"
     >{{ entry.label }}</button>
-    <span v-if="open && entry.def" role="tooltip" class="term-pop">{{ entry.def }}</span>
+    <Teleport to="body">
+      <span
+        v-if="open && entry.def"
+        ref="popRef"
+        role="tooltip"
+        class="term-pop"
+        :class="[`term-pop--${placement}`, { 'is-positioned': positioned }]"
+        :style="popStyle"
+      >
+        {{ entry.def }}
+        <span class="term-caret" :style="{ left: `${caretLeft}px` }" aria-hidden="true" />
+      </span>
+    </Teleport>
   </span>
 </template>
 
 <style scoped>
 .term-wrap {
   position: relative;
-  white-space: nowrap;
 }
-/* Anotación, no enlace: subrayado sólido en violeta pero el texto mantiene
+/* Anotación, no enlace: subrayado punteado en violeta pero el texto mantiene
    el color del cuerpo (berenjena) — los enlaces son violeta —, con cursor de
    ayuda y tooltip. Así se lee como «palabra con definición», no como navegación.
-   El subrayado se refuerza al pasar/enfocar/abrir, en sintonía con el tooltip. */
+   El punteado señala «tócame/pásame» también en móvil; se refuerza a sólido al
+   pasar/enfocar/abrir, en sintonía con el tooltip. */
 .term {
   font: inherit;
   color: inherit;
@@ -178,15 +257,19 @@ const open = ref(false)
   padding: 0;
   cursor: help;
   text-decoration: underline;
+  text-decoration-style: dotted;
   text-decoration-thickness: 1.5px;
   text-underline-offset: 3px;
-  text-decoration-color: rgba(157, 68, 171, 0.55);
+  text-decoration-color: rgba(157, 68, 171, 0.6);
   transition: text-decoration-color 0.2s ease;
   white-space: normal;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
 }
 .term:hover,
 .term:focus-visible,
 .term[aria-expanded='true'] {
+  text-decoration-style: solid;
   text-decoration-color: #9d44ab;
 }
 .term:focus-visible {
@@ -200,25 +283,43 @@ const open = ref(false)
   }
 }
 .term-pop {
-  position: absolute;
-  left: 0;
-  bottom: calc(100% + 8px);
-  z-index: 30;
-  width: max-content;
-  max-width: min(300px, 80vw);
-  padding: 10px 12px;
-  border-radius: 10px;
+  position: fixed;
+  z-index: 60;
+  padding: 11px 13px;
+  border-radius: 11px;
   background: #2d1b3d;
   color: #faf6f0;
   font-family: 'Source Sans 3', system-ui, sans-serif;
-  font-size: 13px;
+  font-size: 13.5px;
   line-height: 1.5;
   white-space: normal;
-  box-shadow: 0 12px 30px -12px rgba(45, 27, 61, 0.5);
+  box-shadow: 0 14px 34px -12px rgba(45, 27, 61, 0.55);
+  opacity: 0;
+  transform: translateY(3px);
+  transition: opacity 0.16s ease, transform 0.16s ease;
+}
+.term-pop.is-positioned {
+  opacity: 1;
+  transform: none;
+}
+.term-caret {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  margin-left: -5px;
+  background: #2d1b3d;
+  transform: rotate(45deg);
+}
+.term-pop--top .term-caret {
+  bottom: -5px;
+}
+.term-pop--bottom .term-caret {
+  top: -5px;
 }
 @media (prefers-reduced-motion: reduce) {
   .term-pop {
     transition: none;
+    transform: none;
   }
 }
 </style>

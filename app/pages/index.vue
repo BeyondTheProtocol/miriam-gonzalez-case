@@ -6,7 +6,7 @@
     <section v-reveal class="py-24 sm:py-32 relative overflow-hidden" :aria-label="$t('home.story_eyebrow')" style="background: #2d1b3d; color: #faf6f0">
       <div class="absolute inset-0 opacity-[0.04]" style="background-image: radial-gradient(circle at 1px 1px, #faf6f0 1px, transparent 0); background-size: 32px 32px;" />
       <div class="relative section-container max-w-4xl">
-        <p class="font-mono text-[12px] uppercase tracking-[0.14em]" style="color: #e8d4ed">
+        <p class="eyebrow block" style="color: #e8d4ed">
           {{ $t('home.story_eyebrow') }}
         </p>
         <h2 class="heading-display text-3xl sm:text-4xl mt-4 mb-6" style="color: #faf6f0; letter-spacing: -0.03em">
@@ -26,7 +26,7 @@
 
         <!-- En sus propias palabras -->
         <div class="mt-14 pt-12" style="border-top: 1px solid rgba(250,246,240,0.15)">
-          <p class="font-mono text-[12px] uppercase tracking-[0.14em] mb-8" style="color: #e8d4ed">
+          <p class="eyebrow mb-8 block" style="color: #e8d4ed">
             {{ $t('home.s6_eyebrow') }}
           </p>
           <blockquote class="font-display text-2xl sm:text-3xl lg:text-4xl font-semibold leading-[1.2] max-w-3xl" style="letter-spacing: -0.025em">
@@ -312,7 +312,7 @@
           class="mt-10 pt-6 flex flex-wrap items-baseline gap-x-7 gap-y-3"
           style="border-top: 1px solid rgba(45,27,61,0.08)"
         >
-          <span class="font-mono uppercase text-[11px] tracking-[0.14em] text-tinta self-center">
+          <span class="font-mono uppercase text-[11px] tracking-[0.12em] text-tinta self-center">
             {{ $t('home.s9_strip_label') }}
           </span>
           <a
@@ -392,8 +392,8 @@ defineOgImage('Default.takumi', {
       : 'Precision Oncology for an Ultra-Rare Tumor',
   description:
     locale.value === 'es'
-      ? 'BC-NED con FGFR1 ×13 y SSTR+. Apoya la rebiopsia molecular avanzada que puede cambiar su tratamiento.'
-      : 'BC-NED with FGFR1 ×13 and SSTR+. Support the advanced molecular rebiopsy that could change her treatment.',
+      ? 'BC-NED con FGFR1 ×13 y SSTR2+. Apoya la rebiopsia molecular avanzada que puede cambiar su tratamiento.'
+      : 'BC-NED with FGFR1 ×13 and SSTR2+. Support the advanced molecular rebiopsy that could change her treatment.',
   colorMode: 'light',
 })
 
@@ -404,16 +404,16 @@ useSeoMeta({
       : 'Miriam González — Precision Oncology for an Ultra-Rare Tumor',
   description: () =>
     locale.value === 'es'
-      ? 'BC-NED con FGFR1 ×13 y SSTR+. Una paciente con cáncer de mama metastásico que usa IA y una red internacional de expertos para acceder a la oncología de precisión. Apoya la rebiopsia molecular.'
-      : 'BC-NED with FGFR1 ×13 and SSTR+. A metastatic breast cancer patient using AI and an international expert network to access precision oncology. Support the molecular rebiopsy.',
+      ? 'BC-NED con FGFR1 ×13 y SSTR2+. Una paciente con cáncer de mama metastásico que usa IA y una red internacional de expertos para acceder a la oncología de precisión. Apoya la rebiopsia molecular.'
+      : 'BC-NED with FGFR1 ×13 and SSTR2+. A metastatic breast cancer patient using AI and an international expert network to access precision oncology. Support the molecular rebiopsy.',
   ogTitle: () =>
     locale.value === 'es'
       ? 'Miriam González — Oncología de precisión para un tumor ultra-raro'
       : 'Miriam González — Precision Oncology for an Ultra-Rare Tumor',
   ogDescription: () =>
     locale.value === 'es'
-      ? 'BC-NED con FGFR1 ×13 y SSTR+. Apoya la rebiopsia molecular avanzada que puede cambiar su tratamiento.'
-      : 'BC-NED with FGFR1 ×13 and SSTR+. Support the advanced molecular rebiopsy that could change her treatment.',
+      ? 'BC-NED con FGFR1 ×13 y SSTR2+. Apoya la rebiopsia molecular avanzada que puede cambiar su tratamiento.'
+      : 'BC-NED with FGFR1 ×13 and SSTR2+. Support the advanced molecular rebiopsy that could change her treatment.',
   ogType: 'website',
   ogUrl: () =>
     locale.value === 'es'
@@ -426,7 +426,7 @@ useSeoMeta({
       : 'Miriam González — Precision Oncology for an Ultra-Rare Tumor',
   twitterDescription: () =>
     locale.value === 'es'
-      ? 'BC-NED con FGFR1 ×13 y SSTR+. Apoya la rebiopsia molecular avanzada.'
-      : 'BC-NED with FGFR1 ×13 and SSTR+. Support the advanced molecular rebiopsy.',
+      ? 'BC-NED con FGFR1 ×13 y SSTR2+. Apoya la rebiopsia molecular avanzada.'
+      : 'BC-NED with FGFR1 ×13 and SSTR2+. Support the advanced molecular rebiopsy.',
 })
 </script>

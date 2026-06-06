@@ -21,6 +21,15 @@ export default defineNuxtConfig({
 
   sitemap: {},
 
+  // Usa el SQLite nativo de Node (node:sqlite, Node 22+) en lugar del SQLite
+  // WASM por defecto. El WASM falla al insertar filas muy grandes —como
+  // science.yml, que lleva treatments + paperSections en un solo registro—
+  // con «The supplied SQL string contains no statements», dejando la colección
+  // vacía en dev. El nativo no tiene ese límite.
+  content: {
+    experimental: { nativeSqlite: true },
+  },
+
   app: {
     head: {
       title: 'Miriam González — Buscando un tratamiento oncológico de precisión',

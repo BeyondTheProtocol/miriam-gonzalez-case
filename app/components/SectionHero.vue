@@ -3,7 +3,7 @@
     class="relative overflow-hidden bg-cream"
     :aria-label="$t('hero.section_label')"
   >
-    <div class="relative section-wide pt-7 pb-12 sm:pt-28 sm:pb-20">
+    <div class="relative section-wide pt-7 pb-12 sm:pt-16 sm:pb-20 lg:pt-20">
       <!-- Editorial hero. Mobile-first: el orden del DOM crea el ritmo narrativo
            en móvil (título → cara → brecha → acción → en vivo). En desktop, las
            clases md: recolocan en dos columnas (texto izq · retrato dcha centrado),

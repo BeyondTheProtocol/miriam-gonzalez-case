@@ -46,8 +46,8 @@ useSchemaOrg([
     name: 'Miriam González',
     description:
       locale.value === 'es'
-        ? 'Paciente con cáncer de mama metastásico de perfil molecular ultra-raro (BC-NED, FGFR1 ×13, SSTR+).'
-        : 'Patient with metastatic breast cancer of an ultra-rare molecular profile (BC-NED, FGFR1 ×13, SSTR+).',
+        ? 'Paciente con cáncer de mama metastásico de perfil molecular ultra-raro (BC-NED, FGFR1 ×13, SSTR2+).'
+        : 'Patient with metastatic breast cancer of an ultra-rare molecular profile (BC-NED, FGFR1 ×13, SSTR2+).',
     sameAs: [
       'https://x.com/miriamgonp',
       'https://www.instagram.com/miriamgonp',

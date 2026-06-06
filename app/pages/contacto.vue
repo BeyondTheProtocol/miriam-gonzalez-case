@@ -113,7 +113,7 @@
               </a>
             </div>
 
-            <div class="mt-10 card-base" style="border-left: 4px solid #a44db2">
+            <div class="mt-10 card-base">
               <h2 class="font-display font-semibold text-berenjena text-sm mb-2">
                 {{ $t('contact.for_professionals') }}
               </h2>

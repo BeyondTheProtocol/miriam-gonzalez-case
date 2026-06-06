@@ -38,6 +38,9 @@ const teamMemberSchema = z.object({
   description: z.string(),
   icon: z.string(),
   color: z.enum(['gold', 'ocean', 'ink']).optional(),
+  name: z.string().optional(),
+  photo: z.string().optional(),
+  featured: z.boolean().optional(),
 })
 
 const teamSchema = z.object({

@@ -28,8 +28,8 @@ treatments:
       G2-3). Zoladex y ácido zoledrónico continúan. ECOG 0. Sin crisis visceral.
     active: true
 paperSections:
-  - title: Transición Neuroendocrina y Pérdida de RB1
-    tag: Transición NE
+  - title: Transformación Neuroendocrina y Pérdida de RB1
+    tag: Transformación NE
     tone: warn
     subtitle: 'El hallazgo más crítico: 3 variantes de RB1 (p.V622Yfs*33, p.R661W, p.F226*) en ctDNA Guardant360, abril 2026'
     papers:
@@ -39,12 +39,12 @@ paperSections:
           Estudio experimental fundacional que demuestra que la pérdida
           combinada de RB1 y TP53 reprograma tejidos epiteliales
           hormono-dependientes hacia un fenotipo neuroendocrino agresivo. Es la
-          base biológica directa del riesgo de transición neuroendocrina en este
+          base biológica directa del riesgo de transformación neuroendocrina en este
           caso, donde se detectaron 3 mutaciones distintas en RB1 en la biopsia
           líquida Guardant360 (abril 2026).
         link: 'https://doi.org/10.1126/science.aat5749'
       - ref: 'Aggarwal et al., 2018 — Journal of Clinical Oncology (DOI: 10.1200/JCO.2017.77.6880)'
-        finding: 'Transición neuroendocrina bajo presión hormonal: 17% de los tumores hormono-dependientes'
+        finding: 'Transformación neuroendocrina bajo presión hormonal: 17% de los tumores hormono-dependientes'
         relevance: >-
           Estudio prospectivo multi-institucional que documenta que el 17% de
           los pacientes con tumores hormono-dependientes bajo terapia dirigida
@@ -159,7 +159,7 @@ panelRows:
     targets: 'mRNA FGFR1, FGF3/4/19, MYC; firma NE; PAM50'
     implication: 'Mejor predictor de respuesta a FGFRi que la amplificación sola; confirma el circuito autocrino FGFR'
   - component: IHQ extendida (30)
-    method: 'IHQ + RNAScope · FFPE Core 3'
+    method: 'IHQ + RNAscope · FFPE Core 3'
     targets: 'ER, PR, HER2 (ultralow), FGFR1, SSTR2, TROP-2, B7-H3, DLL3, CgA, SYN, INSM1, Rb, Cyclin E1, GR'
     implication: 'HER2-low→T-DXd · SSTR2→PRRT · DLL3→anti-DLL3 · Cyclin E1 / pérdida de Rb→resistencia a CDK4/6i'
   - component: Single-cell Multiome + CITE-seq
@@ -253,11 +253,11 @@ imaging:
   date: 26 de mayo de 2026
   summary: >-
     Múltiples metástasis óseas blásticas con sobreexpresión de receptores de
-    somatostatina (SSTR+). Captación focal en cola de mama derecha pendiente
+    somatostatina (subtipo 2, SSTR2). Captación focal en cola de mama derecha pendiente
     de estudio dirigido.
   meaning: >-
     El tumor expresa receptores de somatostatina — diana de la terapia con
-    radioligandos (PRRT) con lutecio-177 o actinio-225. Confirma sobre imagen
+    radioligandos (PRRT). Confirma sobre imagen
     los dos motores del tumor (luminal FGFR1/CCND1 + neuroendocrino
     RB1 + SSTR) y abre una vía que los protocolos de mama no contemplan de forma
     estándar.

@@ -29,7 +29,7 @@ entries:
 
   - date: 'ene–feb 2024'
     tag: Primera línea
-    title: 'Tratamiento: Letrozol + Ribociclib'
+    title: Empieza el primer tratamiento
     description: >
       Se inicia primera línea de tratamiento con letrozol, ribociclib, Zoladex (goserelina) y
       ácido zoledrónico. Tras el primer ciclo, Miriam ingresa de urgencias con dificultad
@@ -63,7 +63,7 @@ entries:
 
   - date: 'ene 2025'
     tag: Segunda línea
-    title: 'Tratamiento: Fulvestrant + Abemaciclib'
+    title: Un cambio de plan tras la progresión
     description: >
       Tras confirmar progresión en PET-CT, se pasa a segunda línea: se sustituye letrozol
       por fulvestrant y ribociclib por abemaciclib. Zoladex se mantiene.
@@ -92,15 +92,17 @@ entries:
 
   - date: '7 abr 2026'
     tag: Molecular
-    title: Biopsia líquida VHIO360 (HOPE)
+    title: Leer el tumor sin tocarlo
     description: >
       Primer ctDNA en plasma dentro del ensayo HOPE-FOCUS SOLTI-2401. Perfil basal del tumor
       sin necesidad de tejido. Resultados: ESR1 D538G detectada y estado MSI bajo.
     highlight: false
+    link: https://clinicaltrials.gov/study/NCT06991946
+    linkLabel: 'Ver cómo funciona el ensayo HOPE-Focus →'
 
   - date: '8–9 abr 2026'
     tag: IA
-    title: Documentación clínica generada con IA
+    title: Poner todo el caso por escrito
     description: >
       Se genera el resumen clínico completo del caso usando modelos de lenguaje avanzados.
       El documento está diseñado para segundas opiniones internacionales y para comunicar
@@ -111,7 +113,7 @@ entries:
 
   - date: '13 abr 2026'
     tag: Molecular
-    title: Biopsia líquida Guardant360 (1ª)
+    title: Una segunda lectura confirma el perfil
     description: >
       Primer ctDNA en sangre con el panel Guardant360. Resultados: ESR1 D538G, 3 mutaciones
       distintas en RB1, FGFR1 amplificado y CCND1 amplificado.
@@ -130,7 +132,7 @@ entries:
 
   - date: '30 abr 2026'
     tag: Molecular
-    title: Biopsia ósea (lesión ilíaca derecha)
+    title: La aguja no encuentra tumor
     description: >
       La aguja accede a la lesión, pero la muestra obtenida es de hueso, no de tumor activo.
       Resultados: trabéculas óseas mineralizadas y fibras musculares, sin células neoplásicas.
@@ -140,7 +142,7 @@ entries:
 
   - date: '13 may 2026'
     tag: Molecular
-    title: Biopsia líquida Guardant360 CDx (2ª)
+    title: El tumor sigue cambiando
     description: >
       Segundo ctDNA en sangre con el panel Guardant360 CDx. Resultados: ESR1 D538G (0,84%),
       CCND1 amplificado (6,83), FGFR1 amplificado (5,86), RB1 V622Yfs*33 (0,19%) y la nueva
@@ -159,7 +161,7 @@ entries:
 
   - date: '21 may 2026'
     tag: Clínico
-    title: Comité tumoral internacional (WIN Consortium)
+    title: Expertos de varios países revisan el caso
     description: >
       Se celebra el comité molecular internacional del WIN Consortium sobre el caso de
       Miriam.
@@ -167,13 +169,13 @@ entries:
 
   - date: '30 may 2026'
     tag: Molecular
-    title: PET Galio-68 (DOTATOC) — SSTR positivo
+    title: Una nueva imagen abre otra puerta
     description: >
       PET-CT con Galio-68 DOTATOC. Múltiples metástasis
       óseas blásticas con sobreexpresión de receptores de somatostatina y captación focal
       en la cola de la mama derecha. Confirma los “dos motores” del tumor (FGFR1/CCND1
       luminal + comportamiento neuroendocrino RB1 + SSTR) y abre la vía de la terapia con
-      radioligandos (PRRT con Lu-177 / Ac-225).
+      radioligandos (PRRT).
     highlight: true
     link: https://x.com/miriamgonp/status/2060649242037723567
     linkLabel: 'Ver el hilo del PET Galio →'

@@ -21,7 +21,7 @@
         >
           {{ $t('ciencia.key_evidence') }}
         </h1>
-        <p class="text-sm text-tinta leading-relaxed mb-12 max-w-2xl">
+        <p class="text-lg text-tinta leading-relaxed mb-12 max-w-2xl">
           {{ $t('ciencia.evidence_page_intro') }}
         </p>
 

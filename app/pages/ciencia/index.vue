@@ -5,7 +5,7 @@
         <PageHeader
           :title="$t('science.title')"
           :subtitle="$t('science.subtitle')"
-          tag="BC-NED + FGFR1 ×13 + SSTR+"
+          tag="BC-NED + FGFR1 ×13 + SSTR2+"
         />
 
         <!-- Case snapshot: orient an oncologist in ~10s -->
@@ -27,7 +27,6 @@
                 v-for="row in snapshotRows"
                 :key="row.label"
                 :class="row.wide ? 'sm:col-span-2' : ''"
-                style="border-left: 2px solid #a44db2; padding-left: 14px"
               >
                 <dt class="flex items-center gap-2 mb-1.5">
                   <span class="eyebrow">{{ row.label }}</span>
@@ -72,14 +71,6 @@
             <template #neuroendocrino><Term id="neuroendocrino" /></template>
             <template #bcned><Term id="bcned" /></template>
           </i18n-t>
-          <NuxtLink
-            :to="localePath('/ciencia/evidencia')"
-            class="group inline-flex items-center gap-1.5 text-sm font-medium mb-4 transition-colors"
-            style="color:#8a4a1a"
-          >
-            <span class="underline decoration-[1.5px] underline-offset-[3px] decoration-[#8a4a1a]/40 group-hover:decoration-[#8a4a1a]">{{ $t('ciencia.evidence_inline_cta') }}</span>
-            <Icon name="ph:arrow-right" class="w-4 h-4 transition-transform group-hover:translate-x-0.5" aria-hidden="true" />
-          </NuxtLink>
           <p class="text-sm text-berenjena leading-relaxed font-medium">
             {{ $t('ciencia.thesis_goal') }}
           </p>
@@ -96,52 +87,10 @@
         </h2>
         <p class="text-sm text-tinta leading-relaxed mb-6 max-w-2xl">
           {{ locale === 'es'
-            ? '¿Qué alteraciones definen el tumor y con qué pruebas se han medido? El perfil combina el tejido primario (NGS, 2024) con biopsia líquida de ctDNA en plasma (2026): amplificación focal de FGFR1 (11q13), CCND1 y el clúster FGF3/FGF4/FGF19, sobre un fondo HR+/HER2−.'
-            : 'Which alterations define the tumour, and how were they measured? The profile combines primary tissue (NGS, 2024) with plasma ctDNA liquid biopsy (2026): focal amplification of FGFR1 (11q13), CCND1 and the FGF3/FGF4/FGF19 cluster, on an HR+/HER2− background.' }}
+            ? 'El perfil combina el tejido primario (NGS, 2024) con la biopsia líquida de ctDNA en plasma (2026). Sobre un fondo luminal HR+/HER2− destacan la amplificación focal de FGFR1 en 11q13, CCND1 y el clúster FGF3/FGF4/FGF19; cada fila indica con qué prueba se midió.'
+            : 'The profile combines primary tissue (NGS, 2024) with plasma ctDNA liquid biopsy (2026). Against a luminal HR+/HER2− background, the standouts are focal amplification of FGFR1 at 11q13, CCND1 and the FGF3/FGF4/FGF19 cluster; each row notes how it was measured.' }}
         </p>
         <MolecularProfileDetailed class="mb-12" />
-
-        <div v-if="liquidBiopsyPivot" class="mb-12">
-          <LiquidBiopsyPivot :data="liquidBiopsyPivot" />
-          <div
-            v-if="boneBiopsy"
-            class="mt-4 flex items-start gap-2.5 text-sm text-tinta leading-relaxed max-w-2xl"
-          >
-            <Icon name="ph:bone" class="w-4 h-4 mt-1 shrink-0 text-tinta" aria-hidden="true" />
-            <p>
-              <span class="font-semibold text-berenjena">{{ locale === 'es' ? 'Por qué se sigue en sangre:' : 'Why it is tracked in blood:' }}</span>
-              {{ locale === 'es'
-                ? ' la biopsia de la lesión ósea (ilíaca derecha, abril 2026) no contenía tumor evaluable —solo trabéculas óseas mineralizadas y tejido muscular—, así que el perfil molecular se obtiene del ctDNA. Es también la razón de dirigir la rebiopsia avanzada al componente de tejido blando, donde la NGS rinde mucho mejor que en hueso puro.'
-                : ' the bone-lesion biopsy (right iliac, April 2026) contained no evaluable tumour —only mineralised bone trabeculae and muscle tissue—, so the molecular profile is read from ctDNA. It is also why the advanced rebiopsy targets the soft-tissue component, where NGS performs far better than in pure bone.' }}
-            </p>
-          </div>
-        </div>
-
-        <div v-else-if="liquidBiopsies.length" class="mb-12">
-          <p class="eyebrow mb-2 block">{{ locale === 'es' ? 'Biopsias líquidas' : 'Liquid biopsies' }}</p>
-          <h2 class="heading-display text-2xl text-berenjena mb-2" style="letter-spacing: -0.02em">
-            {{ $t('ciencia.ctdna_dynamics_title') }}
-          </h2>
-          <p class="text-sm text-tinta leading-relaxed mb-5 max-w-2xl">
-            {{ $t('ciencia.ctdna_dynamics_intro') }}
-          </p>
-          <ul class="space-y-3">
-            <li
-              v-for="lb in liquidBiopsies"
-              :key="lb.id"
-              class="card-base"
-              :style="lb.highlight ? 'border-color: rgba(164,77,178,0.45)' : ''"
-            >
-              <div class="flex flex-wrap items-center gap-2 mb-2">
-                <span class="status-badge status-badge--reference">{{ lb.date }}</span>
-                <span class="text-xs text-tinta">{{ lb.source }}</span>
-              </div>
-              <p class="font-mono text-xs text-berenjena leading-relaxed">
-                {{ lb.findings }}
-              </p>
-            </li>
-          </ul>
-        </div>
 
         <section v-if="imaging" class="mb-14" aria-labelledby="imaging-tissue-title">
           <p class="eyebrow mb-2 block">{{ locale === 'es' ? 'Imagen funcional' : 'Functional imaging' }}</p>
@@ -202,29 +151,8 @@
           </div>
         </section>
 
-        <!-- Inline app entry: invite exploration right after the data peak (curiosity) -->
-        <NuxtLink
-          :to="localePath('/contacto')"
-          class="group flex items-center gap-3.5 rounded-2xl px-4 sm:px-5 py-4 mb-14 transition-all hover:-translate-y-0.5"
-          style="background:rgba(232,212,237,0.30);text-decoration:none"
-        >
-          <span
-            class="shrink-0 w-9 h-9 rounded-xl bg-miriam-soft flex items-center justify-center"
-          >
-            <Icon name="ph:squares-four-fill" class="w-5 h-5 text-berenjena" aria-hidden="true" />
-          </span>
-          <p class="flex-1 text-sm text-tinta leading-relaxed">
-            {{ $t('ciencia.app_inline_text') }}
-          </p>
-          <span
-            class="hidden sm:inline-flex shrink-0 items-center gap-2 text-sm font-medium text-berenjena group-hover:text-miriam transition-colors"
-          >
-            {{ $t('ciencia.app_inline_cta') }}
-            <Icon name="ph:arrow-right" class="w-4 h-4 transition-transform group-hover:translate-x-0.5" aria-hidden="true" />
-          </span>
-        </NuxtLink>
-
-        <p class="eyebrow mb-2 block mt-14">{{ locale === 'es' ? 'Historia clínica' : 'Clinical history' }}</p>
+        <hr class="chapter-rule" aria-hidden="true" />
+        <p class="eyebrow mb-2 block">{{ locale === 'es' ? 'Historia clínica' : 'Clinical history' }}</p>
         <h2
           id="treatment-title"
           class="heading-display text-2xl text-berenjena mb-2"
@@ -234,8 +162,8 @@
         </h2>
         <p class="text-sm text-tinta leading-relaxed mb-6 max-w-2xl">
           {{ locale === 'es'
-            ? '¿Qué se ha probado ya y por qué no basta? Cada línea controla la enfermedad un tiempo y después el tumor escapa: el patrón esperable cuando se trata solo el eje hormonal y se ignora el componente neuroendocrino.'
-            : 'What has already been tried, and why isn’t it enough? Each line controls the disease for a while and then the tumour escapes: the expected pattern when only the hormonal axis is treated and the neuroendocrine component is ignored.' }}
+            ? 'Cada línea de tratamiento ha controlado la enfermedad durante un tiempo antes de que el tumor escape: el patrón esperable cuando se ataca solo el eje hormonal y se deja fuera el componente neuroendocrino.'
+            : 'Each treatment line has held the disease for a while before the tumour escapes again: the pattern to expect when only the hormonal axis is targeted and the neuroendocrine component is left out.' }}
         </p>
         <ul class="space-y-3 mb-14" aria-labelledby="treatment-title">
           <li v-for="tx in treatments" :key="tx.line" class="card-base flex items-center gap-4">
@@ -258,7 +186,34 @@
           </li>
         </ul>
 
+        <!-- App entry: the longitudinal layer (treatment response + ctDNA over time) lives in the app.
+             Mobile-first: en móvil el CTA baja a una píldora a ancho completo, claramente pulsable;
+             en sm+ vuelve a la fila con el CTA alineado a la derecha. -->
+        <NuxtLink
+          :to="localePath('/contacto')"
+          class="group flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-3.5 rounded-2xl px-4 sm:px-5 py-4 mb-14 transition-all active:scale-[0.99] sm:hover:-translate-y-0.5"
+          style="background:rgba(232,212,237,0.30);text-decoration:none"
+        >
+          <div class="flex items-start gap-3.5 flex-1">
+            <span
+              class="shrink-0 w-9 h-9 rounded-xl bg-miriam-soft flex items-center justify-center"
+            >
+              <Icon name="ph:squares-four-fill" class="w-5 h-5 text-berenjena" aria-hidden="true" />
+            </span>
+            <p class="flex-1 text-sm text-tinta leading-relaxed">
+              {{ $t('ciencia.app_inline_text') }}
+            </p>
+          </div>
+          <span
+            class="inline-flex w-full sm:w-auto shrink-0 items-center justify-center sm:justify-start gap-2 text-sm font-semibold text-berenjena group-hover:text-miriam transition-colors rounded-xl bg-miriam-soft sm:bg-transparent px-4 sm:px-0 py-2.5 sm:py-0"
+          >
+            {{ $t('ciencia.app_inline_cta') }}
+            <Icon name="ph:arrow-right" class="w-4 h-4 transition-transform group-hover:translate-x-0.5" aria-hidden="true" />
+          </span>
+        </NuxtLink>
+
         <!-- Candidate therapeutic axes: one-line synthesis (confirmed by the panel, detailed in the papers) -->
+        <hr class="chapter-rule" aria-hidden="true" />
         <section class="mb-14" aria-labelledby="axes-title">
           <p class="eyebrow mb-2 block">{{ locale === 'es' ? 'Ejes terapéuticos' : 'Therapeutic axes' }}</p>
           <h2
@@ -270,8 +225,8 @@
           </h2>
           <p class="text-sm text-tinta leading-relaxed mb-6 max-w-2xl">
             {{ locale === 'es'
-              ? '¿Qué dianas se desprenden de todo lo anterior? Estos son los ejes terapéuticos candidatos que sugiere el perfil molecular, cada uno con su lógica de tratamiento.'
-              : 'Which targets follow from everything above? These are the candidate therapeutic axes the molecular profile suggests, each with its treatment rationale.' }}
+              ? 'De todo lo anterior se desprenden varias dianas. Estos son los ejes terapéuticos candidatos que sugiere el perfil molecular, cada uno con su propia lógica de tratamiento.'
+              : 'Several candidate targets follow from all of the above. These are the therapeutic axes the molecular profile points to, each with its own treatment rationale.' }}
           </p>
           <div class="flex flex-wrap gap-2" translate="no">
             <span
@@ -282,9 +237,14 @@
               {{ $rt(axis) }}
             </span>
           </div>
-          <p class="mt-4 text-xs text-tinta leading-relaxed max-w-2xl">
-            {{ $t('ciencia.axes_note') }}
-          </p>
+          <details class="notes-disclosure mt-4">
+            <summary>
+              {{ locale === 'es' ? 'Cómo interpretar estos ejes' : 'How to read these axes' }}
+            </summary>
+            <p class="text-xs text-tinta leading-relaxed max-w-2xl">
+              {{ $t('ciencia.axes_note') }}
+            </p>
+          </details>
         </section>
 
         <section v-if="panelRows.length">
@@ -300,6 +260,11 @@
             {{ locale === 'es'
               ? 'Una sola biopsia ósea de la que extraer todo lo que la ciencia permite hoy: 13 cores en 6 formatos de preservación (FFPE, congelado, lisado, OCT, fresco y tejido vivo). Lo que no se procesa ahora se banca para analizarlo durante más de 10 años sin volver a biopsiar. Es lo que financia la campaña.'
               : 'A single bone biopsy from which to extract everything current science allows: 13 cores across 6 preservation formats (FFPE, frozen, lysate, OCT, fresh and live tissue). Whatever isn’t processed now is banked to be analysed for 10+ years without re-biopsying. This is what the campaign funds.' }}
+          </p>
+          <p class="text-sm text-berenjena leading-relaxed font-medium mb-6 max-w-2xl">
+            {{ locale === 'es'
+              ? 'Próximo paso (junio 2026): rebiopsia ósea y nueva ctDNA para confirmar cómo evoluciona el perfil y priorizar las dianas terapéuticas.'
+              : 'Next step (June 2026): bone rebiopsy and fresh ctDNA to confirm how the profile is evolving and prioritise the therapeutic targets.' }}
           </p>
           <div class="data-card mb-14">
             <div class="overflow-x-auto">
@@ -440,6 +405,13 @@
             </NuxtLink>
           </div>
         </div>
+
+        <p
+          class="mt-12 pt-6 text-xs text-tinta font-mono"
+          style="border-top: 1px solid rgba(45,27,61,0.08)"
+        >
+          {{ locale === 'es' ? 'Última actualización: 6 de junio de 2026' : 'Last updated: 6 June 2026' }}
+        </p>
       </div>
     </section>
   </div>
@@ -452,30 +424,30 @@ const localePath = useLocalePath()
 useSeoMeta({
   title: () =>
     locale.value === 'es'
-      ? 'Perfil molecular del tumor: BC-NED, FGFR1 ×13 y SSTR+'
-      : 'Tumor molecular profile: BC-NED, FGFR1 ×13, SSTR+',
+      ? 'Perfil molecular del tumor: BC-NED, FGFR1 ×13 y SSTR2+'
+      : 'Tumor molecular profile: BC-NED, FGFR1 ×13, SSTR2+',
   description: () =>
     locale.value === 'es'
-      ? 'Análisis científico completo del caso: cáncer de mama con ~80% diferenciación neuroendocrina, amplificación FGFR1 ×13, CCND1 ×20 y SSTR+ (PET Ga-68). Historia de tratamientos, rebiopsia propuesta y ensayos clínicos relevantes.'
-      : 'Full scientific analysis: breast cancer with ~80% neuroendocrine differentiation, FGFR1 ×13 amplification, CCND1 ×20 and SSTR+ (Ga-68 PET). Treatment history, proposed rebiopsy, and relevant clinical trials.',
+      ? 'Análisis científico completo del caso: cáncer de mama con ~80% diferenciación neuroendocrina, amplificación FGFR1 ×13, CCND1 ×20 y SSTR2+ (PET Ga-68). Historia de tratamientos, rebiopsia propuesta y ensayos clínicos relevantes.'
+      : 'Full scientific analysis: breast cancer with ~80% neuroendocrine differentiation, FGFR1 ×13 amplification, CCND1 ×20 and SSTR2+ (Ga-68 PET). Treatment history, proposed rebiopsy, and relevant clinical trials.',
   ogTitle: () =>
     locale.value === 'es'
-      ? 'Perfil molecular BC-NED + FGFR1 ×13 + SSTR+'
-      : 'Molecular profile BC-NED + FGFR1 ×13 + SSTR+',
+      ? 'Perfil molecular BC-NED + FGFR1 ×13 + SSTR2+'
+      : 'Molecular profile BC-NED + FGFR1 ×13 + SSTR2+',
   ogDescription: () =>
     locale.value === 'es'
-      ? 'Análisis científico del caso: BC-NED, FGFR1 ×13, CCND1 ×20, SSTR+ (PET Ga-68). Metástasis óseas, ECOG 0, sin crisis visceral. Rebiopsia molecular avanzada como siguiente paso.'
-      : 'Scientific case analysis: BC-NED, FGFR1 ×13, CCND1 ×20, SSTR+ (Ga-68 PET). Bone metastases, ECOG 0, no visceral crisis. Advanced molecular rebiopsy as the next step.',
+      ? 'Análisis científico del caso: BC-NED, FGFR1 ×13, CCND1 ×20, SSTR2+ (PET Ga-68). Metástasis óseas, ECOG 0, sin crisis visceral. Rebiopsia molecular avanzada como siguiente paso.'
+      : 'Scientific case analysis: BC-NED, FGFR1 ×13, CCND1 ×20, SSTR2+ (Ga-68 PET). Bone metastases, ECOG 0, no visceral crisis. Advanced molecular rebiopsy as the next step.',
   ogType: 'article',
   twitterCard: 'summary_large_image',
   twitterTitle: () =>
     locale.value === 'es'
-      ? 'Perfil molecular BC-NED + FGFR1 ×13 + SSTR+'
-      : 'Molecular profile BC-NED + FGFR1 ×13 + SSTR+',
+      ? 'Perfil molecular BC-NED + FGFR1 ×13 + SSTR2+'
+      : 'Molecular profile BC-NED + FGFR1 ×13 + SSTR2+',
   twitterDescription: () =>
     locale.value === 'es'
-      ? 'BC-NED, FGFR1 ×13, CCND1 ×20, SSTR+ (PET Ga-68). El perfil molecular completo del tumor de Miriam.'
-      : "BC-NED, FGFR1 ×13, CCND1 ×20, SSTR+ (Ga-68 PET). Miriam's full tumor molecular profile.",
+      ? 'BC-NED, FGFR1 ×13, CCND1 ×20, SSTR2+ (PET Ga-68). El perfil molecular completo del tumor de Miriam.'
+      : "BC-NED, FGFR1 ×13, CCND1 ×20, SSTR2+ (Ga-68 PET). Miriam's full tumor molecular profile.",
 })
 
 defineOgImage('Default.takumi', {
@@ -495,7 +467,7 @@ const faq =
         },
         {
           q: '¿Qué dianas accionables tiene el tumor?',
-          a: 'El PET con Galio-68 demuestra expresión de receptores de somatostatina (SSTR+), diana de la terapia con radioligandos (PRRT). El perfil molecular añade la amplificación FGFR1 ×13 como diana candidata frente a inhibidores de FGFR.',
+          a: 'El PET con Galio-68 demuestra expresión de receptores de somatostatina de subtipo 2 (SSTR2), diana de la terapia con radioligandos (PRRT). El perfil molecular añade la amplificación FGFR1 ×13 como diana candidata frente a inhibidores de FGFR.',
         },
         {
           q: '¿Cuál es el siguiente paso del caso?',
@@ -509,7 +481,7 @@ const faq =
         },
         {
           q: 'What actionable targets does the tumor have?',
-          a: 'The Gallium-68 PET shows somatostatin-receptor expression (SSTR+), the target of radioligand therapy (PRRT). The molecular profile adds FGFR1 ×13 amplification as a candidate target for FGFR inhibitors.',
+          a: 'The Gallium-68 PET shows somatostatin-receptor subtype 2 (SSTR2) expression, the target of radioligand therapy (PRRT). The molecular profile adds FGFR1 ×13 amplification as a candidate target for FGFR inhibitors.',
         },
         {
           q: 'What is the next step in the case?',
@@ -556,10 +528,7 @@ const { data: scienceData } = await useAsyncData(
 
 const treatments = computed(() => scienceData.value?.treatments ?? [])
 const panelRows = computed(() => scienceData.value?.panelRows ?? [])
-const liquidBiopsies = computed(() => scienceData.value?.liquidBiopsies ?? [])
-const liquidBiopsyPivot = computed(() => scienceData.value?.liquidBiopsyPivot ?? null)
 const imaging = computed(() => scienceData.value?.imaging ?? null)
-const boneBiopsy = computed(() => scienceData.value?.boneBiopsy ?? null)
 
 const snapshotRows = computed(() =>
   [

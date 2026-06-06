@@ -86,6 +86,11 @@ export default {
       fontSize: {
         '2xs': ['0.65rem', { lineHeight: '1rem' }],
       },
+      spacing: {
+        // Altura del header sticky en ≥sm (h-18). Sin este token, `sm:h-18` era
+        // un no-op y el menú se quedaba en 64px (h-16) en todos los tamaños.
+        18: '4.5rem',
+      },
       borderRadius: {
         btn: '12px',
         card: '16px',

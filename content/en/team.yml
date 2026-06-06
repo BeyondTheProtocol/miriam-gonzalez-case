@@ -1,19 +1,33 @@
 coreTeam:
   - role: The patient
+    name: Miriam González
+    photo: /img/team/miriam.webp
+    featured: true
     description:
       Software engineer and tech communicator. Actively researches her own
       case combining precision oncology and artificial intelligence. Coordinates the
       entire initiative.
     icon: ph:user-circle-fill
     color: gold
-  - role: AI & Clinical Documentation Experts
+  - role: AI & clinical documentation
+    name: Víctor
+    photo: /img/team/victor.webp
     description:
-      Artificial intelligence experts. Generate and structure the clinical
-      documentation using advanced language models, bridging the technical and medical
-      domains.
+      Generates and structures the case's clinical documentation using advanced
+      language models, bridging the technical and medical domains.
     icon: ph:brain-fill
     color: ocean
-  - role: Bioinformatics & Clinical Decision Expert
+  - role: AI & clinical documentation
+    name: Alby
+    photo: /img/team/alby.webp
+    description:
+      Works on the case's clinical documentation with artificial intelligence,
+      bridging the technical and medical sides.
+    icon: ph:brain-fill
+    color: ocean
+  - role: Bioinformatics & clinical decisions
+    name: Paola
+    photo: /img/team/paola.webp
     description:
       PhD candidate in bioengineering applied to health sciences. Has worked
       on machine learning models for drug response prediction from gene expression data
@@ -22,13 +36,17 @@ coreTeam:
       therapeutic plan.
     icon: ph:strategy-fill
     color: gold
-  - role: Web & Communication
+  - role: Web & communication
+    name: Ceci
+    photo: /img/team/ceci.webp
     description:
       Manages the website, keeps information up to date, and ensures everything
       is understandable for any visitor.
     icon: ph:code-fill
     color: ocean
-  - role: Strategy & Healthcare Navigation
+  - role: Strategy & healthcare navigation
+    name: Alejandro
+    photo: /img/team/alejandro.webp
     description:
       Direct experience navigating the Spanish healthcare system to access
       complex treatments. Provides strategic advice and knowledge of the regulatory
@@ -36,6 +54,8 @@ coreTeam:
     icon: ph:compass-fill
     color: ink
   - role: The human side of the story
+    name: Alba
+    photo: /img/team/alba.webp
     description:
       "Responsible for telling Miriam's story from the inside: who she is
       beyond the diagnosis, what drives her, and why this case matters beyond oncology."

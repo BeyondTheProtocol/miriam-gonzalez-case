@@ -28,8 +28,8 @@ treatments:
       Zoladex and zoledronic acid continue. ECOG 0. No visceral crisis.
     active: true
 paperSections:
-  - title: Neuroendocrine Transition and RB1 Loss
-    tag: NE transition
+  - title: Neuroendocrine Transformation and RB1 Loss
+    tag: NE transformation
     tone: warn
     subtitle: 'Most critical finding: 3 RB1 variants (p.V622Yfs*33, p.R661W, p.F226*) in Guardant360 ctDNA, April 2026'
     papers:
@@ -39,11 +39,11 @@ paperSections:
           Foundational experimental study showing that combined RB1 and TP53
           loss reprograms hormone-dependent epithelial tissues toward an
           aggressive neuroendocrine phenotype. It is the direct biological basis
-          of neuroendocrine transition risk in this case, where 3 distinct RB1
+          of neuroendocrine transformation risk in this case, where 3 distinct RB1
           mutations were detected in Guardant360 liquid biopsy (April 2026).
         link: 'https://doi.org/10.1126/science.aat5749'
       - ref: 'Aggarwal et al., 2018 — Journal of Clinical Oncology (DOI: 10.1200/JCO.2017.77.6880)'
-        finding: 'Neuroendocrine transition under hormonal pressure: 17% of hormone-dependent tumors'
+        finding: 'Neuroendocrine transformation under hormonal pressure: 17% of hormone-dependent tumors'
         relevance: >-
           Prospective multi-institutional study documenting that 17% of patients
           with hormone-dependent tumors under targeted therapy develop transition
@@ -155,7 +155,7 @@ panelRows:
     targets: 'mRNA FGFR1, FGF3/4/19, MYC; NE signature; PAM50'
     implication: 'Better predictor of FGFRi response than amplification alone; confirms the FGFR autocrine circuit'
   - component: Extended IHC (30)
-    method: 'IHC + RNAScope · FFPE Core 3'
+    method: 'IHC + RNAscope · FFPE Core 3'
     targets: 'ER, PR, HER2 (ultralow), FGFR1, SSTR2, TROP-2, B7-H3, DLL3, CgA, SYN, INSM1, Rb, Cyclin E1, GR'
     implication: 'HER2-low→T-DXd · SSTR2→PRRT · DLL3→anti-DLL3 · Cyclin E1 / Rb loss→CDK4/6i resistance'
   - component: Single-cell Multiome + CITE-seq
@@ -249,10 +249,10 @@ imaging:
   date: May 26, 2026
   summary: >-
     Multiple blastic bone metastases with somatostatin receptor overexpression
-    (SSTR+). Focal uptake in the right breast tail pending a dedicated study.
+    (subtype 2, SSTR2). Focal uptake in the right breast tail pending a dedicated study.
   meaning: >-
     The tumor expresses somatostatin receptors — the target of radioligand
-    therapy (PRRT) with lutetium-177 or actinium-225. It confirms on imaging
+    therapy (PRRT). It confirms on imaging
     both tumor drivers (luminal FGFR1/CCND1 + neuroendocrine RB1 + SSTR) and
     opens a route that breast-cancer protocols do not contemplate as standard.
   quote: >-

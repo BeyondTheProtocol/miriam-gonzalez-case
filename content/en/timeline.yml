@@ -29,7 +29,7 @@ entries:
 
   - date: 'Jan–Feb 2024'
     tag: First line
-    title: 'Treatment: Letrozole + Ribociclib'
+    title: The first treatment begins
     description: >
       First-line treatment begins with letrozole, ribociclib, Zoladex (goserelin), and
       zoledronic acid. After the first cycle, Miriam is urgently admitted with acute
@@ -63,7 +63,7 @@ entries:
 
   - date: 'Jan 2025'
     tag: Second line
-    title: 'Treatment: Fulvestrant + Abemaciclib'
+    title: A change of plan after progression
     description: >
       Following confirmed progression on PET-CT, second-line treatment begins: letrozole
       is switched to fulvestrant and ribociclib to abemaciclib. Zoladex continued.
@@ -92,15 +92,17 @@ entries:
 
   - date: 'Apr 7, 2026'
     tag: Molecular
-    title: VHIO360 (HOPE) liquid biopsy
+    title: Reading the tumor without touching it
     description: >
       First plasma ctDNA within the HOPE-FOCUS SOLTI-2401 trial. Baseline profile of the
       tumor without needing tissue. Results: ESR1 D538G detected and low MSI status.
     highlight: false
+    link: https://clinicaltrials.gov/study/NCT06991946
+    linkLabel: 'See how the HOPE-Focus trial works →'
 
   - date: 'Apr 8–9, 2026'
     tag: AI
-    title: Clinical documentation generated with AI
+    title: Putting the whole case in writing
     description: >
       A complete clinical summary of the case is generated using advanced language models.
       The document is designed for international second opinions and to communicate the case
@@ -111,7 +113,7 @@ entries:
 
   - date: 'Apr 13, 2026'
     tag: Molecular
-    title: Guardant360 (1st) liquid biopsy
+    title: A second reading confirms the profile
     description: >
       First blood ctDNA on the Guardant360 panel. Results: ESR1 D538G, 3 distinct RB1
       mutations, FGFR1 amplified and CCND1 amplified.
@@ -130,7 +132,7 @@ entries:
 
   - date: 'Apr 30, 2026'
     tag: Molecular
-    title: Bone biopsy (right iliac lesion)
+    title: The needle finds no tumor
     description: >
       The needle reaches the lesion, but the sample collected is bone tissue, not active
       tumor. Results: mineralized bone trabeculae and skeletal muscle fibers, with no
@@ -141,7 +143,7 @@ entries:
 
   - date: 'May 13, 2026'
     tag: Molecular
-    title: Guardant360 CDx (2nd) liquid biopsy
+    title: The tumor keeps changing
     description: >
       Second blood ctDNA on the Guardant360 CDx panel. Results: ESR1 D538G (0.84%), CCND1
       amplified (6.83), FGFR1 amplified (5.86), RB1 V622Yfs*33 (0.19%) and the new SMO V319D
@@ -160,20 +162,19 @@ entries:
 
   - date: 'May 21, 2026'
     tag: Clinical
-    title: International tumor board (WIN Consortium)
+    title: Experts from several countries review the case
     description: >
       The WIN Consortium international molecular tumor board meets to review Miriam's case.
     highlight: true
 
   - date: 'May 30, 2026'
     tag: Molecular
-    title: Gallium-68 PET (DOTATOC) — SSTR positive
+    title: A new scan opens another door
     description: >
       Ga-68 DOTATOC PET-CT. Multiple blastic bone
       metastases with somatostatin receptor overexpression and focal uptake in the right
       breast tail. Confirms the tumor's "two engines" (luminal FGFR1/CCND1 + neuroendocrine
-      RB1 + SSTR behavior) and opens the radioligand therapy path (PRRT with Lu-177 /
-      Ac-225).
+      RB1 + SSTR behavior) and opens the radioligand therapy path (PRRT).
     highlight: true
     link: https://x.com/miriamgonp/status/2060649242037723567
     linkLabel: 'See the Ga-68 PET thread →'

@@ -16,7 +16,6 @@
         <div
           v-if="isFallback"
           class="card-base mb-8"
-          style="border-left: 4px solid #a44db2"
         >
           <p class="text-sm text-tinta italic">
             {{ $t('ciencia.article_fallback_notice') }}

@@ -99,7 +99,7 @@
   },
   "science": {
     "title": "La ciencia detrás del caso",
-    "subtitle": "Carcinoma de mama luminal (HR+/HER2−) con ~80% de diferenciación neuroendocrina, FGFR1 ×13 y CCND1 ×20. Hallazgo más reciente: sobreexpresión de receptores de somatostatina (SSTR+) confirmada por PET-Galio."
+    "subtitle": "Carcinoma de mama luminal (HR+/HER2−) con ~80% de diferenciación neuroendocrina (BC-NED), FGFR1 ×13 y CCND1 ×20. Hallazgo más reciente: sobreexpresión de receptores de somatostatina de subtipo 2 (SSTR2) confirmada por PET-Galio."
   },
   "team": {
     "title": "El equipo",
@@ -107,13 +107,26 @@
     "miriam_team": "El equipo de Miriam",
     "medical_support_network": "Red médica de apoyo",
     "integrative_support": "Apoyo integral",
+    "network_origin_label": "Red de origen",
+    "network_origin_title": "Beyond the Protocol",
+    "network_origin_body": "Parte del equipo viene de Beyond the Protocol, una red de pacientes y profesionales que documenta casos cuando los protocolos estándar se quedan cortos. Otras personas se sumaron específicamente por el caso de Miriam.",
+    "network_origin_cta": "Cómo colaborar",
     "how_it_formed": "Este equipo no se planificó. Se formó de manera orgánica cuando profesionales de distintos campos (tecnología, medicina, IA, investigación) vieron un caso que les interpeló y decidieron aportar lo que sabían. No hay jerarquía formal. Hay un objetivo compartido: que la biología de este tumor guíe el tratamiento."
   },
   "timeline": {
     "title": "Cronología",
-    "subtitle": "Semana a semana, cada hito importa",
+    "subtitle": "De un diagnóstico inesperado a una búsqueda activa, hito a hito.",
+    "meta_milestones": "{count} hitos",
+    "meta_span": "2021 – hoy",
+    "meta_network": "red en 4 países",
+    "filter_aria": "Filtrar la cronología por tipo de hito",
+    "filter_all": "Todo",
+    "filter_clinical": "Hitos clínicos",
+    "filter_molecular": "Perfil molecular",
+    "filter_network": "Equipo y difusión",
     "notice": "Esta cronología se actualiza semanalmente. Puedes seguir el día a día en tiempo real en X/Twitter.",
     "follow_twitter": "miriamgonp en X",
+    "cta_science": "Entender la ciencia del caso",
     "latest_badge": "Lo más reciente",
     "read_more": "Leer la noticia"
   },
@@ -164,7 +177,7 @@
   "entry_disclaimer": {
     "badge": "Actualización mayo 2026",
     "title": "Nuevos hallazgos moleculares y de imagen",
-    "body": "Las biopsias líquidas (abril–mayo 2026) han revelado nuevas alteraciones: ESR1 D538G (resistencia endocrina) y mutaciones RB1 (predictor de transición neuroendocrina). El PET-CT con Galio-68 DOTATOC confirma múltiples metástasis óseas con sobreexpresión de receptores de somatostatina (SSTR+) — una nueva diana terapéutica vía radioligandos (PRRT). El perfil molecular se vuelve más complejo y reafirma la necesidad de explorar la vía neuroendocrina en paralelo a la de mama (luminal).",
+    "body": "Las biopsias líquidas (abril–mayo 2026) han revelado nuevas alteraciones: ESR1 D538G (resistencia endocrina) y mutaciones RB1 (predictor de transformación neuroendocrina). El PET-CT con Galio-68 DOTATOC confirma múltiples metástasis óseas con sobreexpresión de receptores de somatostatina de subtipo 2 (SSTR2) — una nueva diana terapéutica vía radioligandos (PRRT). El perfil molecular se vuelve más complejo y reafirma la necesidad de explorar la vía neuroendocrina en paralelo a la de mama (luminal).",
     "cta": "Entendido"
   },
   "index": {
@@ -189,7 +202,7 @@
     "s3_p2": "Resultado práctico: el tratamiento hormonal cubre la parte de mama (luminal). El componente neuroendocrino, con su propia dinámica y dianas, queda sin abordar.",
     "s3_p3": "Los oncólogos no pueden prescribir fuera de protocolo sin evidencia sólida. Generar esa evidencia exige rebiopsia molecular, paneles avanzados y revisiones internacionales. Nada de eso está financiado por sanidad para un caso de baja frecuencia.",
     "s3_pet_label": "Último hallazgo de imagen",
-    "s3_pet_paragraph": "PET-CT con Galio-68 DOTATOC: múltiples metástasis óseas con sobreexpresión de receptores de somatostatina (SSTR+) y captación focal en la cola de la mama derecha. El tumor expresa una diana que los protocolos de mama no contemplan de forma estándar y que abre la vía de los radioligándos (Lu-177 / Ac-225).",
+    "s3_pet_paragraph": "PET-CT con Galio-68 DOTATOC: múltiples metástasis óseas con sobreexpresión de receptores de somatostatina (subtipo 2, SSTR2) y captación focal en la cola de la mama derecha. El tumor expresa una diana que los protocolos de mama no contemplan de forma estándar y que abre la vía de los radioligandos (PRRT).",
     "s3_table_title": "Lo que existe frente a lo que falta",
     "s3_col_has": "Lo que cubren los protocolos",
     "s3_col_missing": "Lo que hace falta y no está cubierto",
@@ -214,7 +227,7 @@
     "s3_outro": "El análisis técnico completo está en El caso. Lo esencial: hay una brecha medible entre el tratamiento que recibe y el que su biología requiere.",
     "s4_eyebrow": "Destino del dinero · Transparencia radical",
     "s4_heading": "El tumor evoluciona. La estrategia tiene que evolucionar con él.",
-    "s4_p1": "El tumor evoluciona bajo la presión del tratamiento. Aparecen mutaciones de resistencia (ESR1 D538G, RB1) y dianas nuevas (SSTR+). Sin rebiopsia molecular periódica, las decisiones clínicas se toman ",
+    "s4_p1": "El tumor evoluciona bajo la presión del tratamiento. Aparecen mutaciones de resistencia (ESR1 D538G, RB1) y dianas nuevas (SSTR2+). Sin rebiopsia molecular periódica, las decisiones clínicas se toman ",
     "s4_p2": "Cada euro se asigna a una partida concreta y queda documentado públicamente en helpmiriam.com/gastos.",
     "s4_expenses_soon": "Página /gastos próximamente",
     "s4_list_intro": "El dinero recaudado cubre, en el orden que haga falta:",
@@ -259,7 +272,7 @@
       "RB1 ×3",
       "NEC G3?",
       "ctDNA+",
-      "SSTR+"
+      "SSTR2+"
     ],
     "s8_markers_note": "Los marcadores con «?» son hipótesis con evidencia parcial, pendientes de confirmación. Análisis completo en El caso.",
     "s8_science_button": "Ver el perfil molecular completo",
@@ -305,8 +318,7 @@
     "key_evidence": "Evidencia científica clave",
     "evidence_page_intro": "Cada hipótesis del caso se apoya en literatura revisada por pares y ensayos clínicos. Aquí está la evidencia que sustenta los ejes terapéuticos, agrupada por tema.",
     "evidence_hook_eyebrow": "Evidencia científica",
-    "evidence_inline_cta": "Ver la evidencia revisada por pares que lo respalda",
-    "evidence_hook_body": "Los estudios revisados por pares y los ensayos clínicos que respaldan cada hipótesis del caso —FGFR1, PRRT/SSTR, la transición neuroendocrina y más— reunidos en una página aparte.",
+    "evidence_hook_body": "Los estudios revisados por pares y los ensayos clínicos que respaldan cada hipótesis del caso —FGFR1, PRRT/SSTR, la transformación neuroendocrina y más— reunidos en una página aparte.",
     "evidence_hook_cta": "Ver la evidencia completa",
     "component": "Componente",
     "method": "Método",
@@ -316,9 +328,9 @@
     "proposed_panel_caption": "Protocolo de rebiopsia ósea propuesto: componente, método y core/formato, dianas e implicación clínica",
     "axes": [
       "FGFR1 ×13 → FGFRi",
-      "SSTR2+ → ¹⁷⁷Lu-PRRT",
+      "SSTR2+ → PRRT",
       "ESR1 D538G → SERD oral",
-      "Transición NE → eje neuroendocrino"
+      "Transformación NE → eje neuroendocrino"
     ],
     "axes_note": "Hipótesis derivadas del perfil molecular, no un tratamiento prescrito. La rebiopsia avanzada las confirmará o descartará antes de definir la estrategia N-of-1.",
     "goal_n_of_1": "Objetivo: Ensayo N-of-1",
@@ -328,7 +340,7 @@
     "detailed_analyses": "Análisis detallados",
     "view_reference": "Ver referencia",
     "why_no_fit_guidelines": "¿Por qué este tumor no encaja en los protocolos?",
-    "why_no_fit_guidelines_text": "Sobre el papel es un cáncer de mama {luminal} (HR+/HER2−). En el microscopio, ~80% del tumor muestra diferenciación neuroendocrina, con amplificación {fgfr1} y {ccnd1}. Los protocolos recomiendan tratarlo como luminal estándar e ignorar el componente {neuroendocrino}. La literatura clínica indica que este subtipo híbrido ({bcned}) tiene peor pronóstico y suele necesitar estrategias distintas.",
+    "why_no_fit_guidelines_text": "Sobre el papel es un cáncer de mama {luminal} (HR+/HER2−). En el microscopio, ~80% del tumor muestra diferenciación neuroendocrina, con amplificación {fgfr1} y {ccnd1}. Los protocolos españoles recomiendan tratarlo como luminal estándar e ignorar el componente {neuroendocrino}; sin embargo, la OMS reconoce las neoplasias neuroendocrinas de mama como entidad propia desde su clasificación de 2019, y la literatura clínica indica que este subtipo híbrido ({bcned}) tiene peor pronóstico y suele necesitar estrategias distintas.",
     "thesis": "La tesis: la biología, no el órgano de origen, debería guiar el tratamiento.",
     "thesis_goal": "Objetivo: un ensayo N-of-1 que siente precedente para la oncología de precisión en subtipos ultra-raros.",
     "updates_2026_title": "Actualizaciones moleculares 2026",
@@ -336,8 +348,8 @@
     "ctdna_title": "Secuenciación de ctDNA en plasma",
     "ctdna_what": "ADN tumoral circulante (ctDNA) en sangre periférica analizado por NGS. Una extracción estándar detecta mutaciones, amplificaciones y dinámica clonal sin biopsia tisular. Especialmente útil en enfermedad solo ósea, donde el tejido es escaso o no aporta material molecular.",
     "imaging_title": "Imagen funcional — PET con Galio-68",
-    "imaging_intro": "¿Hay una diana accionable que se vea in vivo? El PET con Galio-68 demuestra que el tumor expresa {sstr} —la diana de la {prrt}—, una vía que los protocolos estándar de cáncer de mama no contemplan.",
-    "imaging_what": "PET con radiotrazador 68Ga-DOTATOC que se une a receptores de somatostatina (SSTR). Visualiza in vivo qué lesiones expresan SSTR y, por tanto, podrían responder a radioligandos (PRRT).",
+    "imaging_intro": "El rastreador revela una diana accionable visible in vivo: el tumor expresa {sstr}, la diana de la {prrt}. Es una vía que los protocolos estándar de cáncer de mama no contemplan.",
+    "imaging_what": "PET con radiotrazador 68Ga-DOTATOC, que se une principalmente al receptor de somatostatina de subtipo 2 (SSTR2). Visualiza in vivo qué lesiones expresan SSTR2 y, por tanto, podrían responder a radioligandos (PRRT).",
     "bone_biopsy_title": "Biopsia ósea",
     "meaning_label": "Significado clínico",
     "center_label": "Laboratorio",
@@ -362,11 +374,11 @@
     "snapshot_resistance_label": "Resistencia y progresión",
     "snapshot_resistance": "ESR1 D538G · pérdida de RB1 (3 variantes en ctDNA) · resistencia a CDK4/6i",
     "snapshot_target_label": "Diana funcional",
-    "snapshot_target": "SSTR+ en PET Ga-68 → candidata a radioligandos (PRRT)",
+    "snapshot_target": "SSTR2+ en PET Ga-68 → candidata a radioligandos (PRRT)",
     "snapshot_status_label": "Estado 2026",
     "snapshot_status": "ECOG 0 · metástasis óseas múltiples (sin afectación visceral) · abemaciclib suspendido (marzo 2026)",
     "snapshot_grade_label": "Receptores y grado",
-    "snapshot_grade": "RE 95% · RP 5% · HER2 0 (ultralow) · Ki67 60% · G2 · TMB y MSI bajos",
+    "snapshot_grade": "RE 95% · RP 5% · HER2 0 (ultralow) · Ki67 60% · G2 (Nottingham) · TMB y MSI bajos",
     "snapshot_diagnosis_tag": "Estadio IV",
     "snapshot_drivers_tag": "Amplificación",
     "snapshot_target_tag": "Oportunidad",
@@ -376,11 +388,11 @@
     "molecular_profile_title": "El mapa genómico del tumor",
     "ctdna_dynamics_title": "Cómo evoluciona en sangre",
     "ctdna_dynamics_intro": "El tumor no es estático: el ctDNA sigue sus cambios (VAF) a lo largo de tres extracciones de plasma, sin necesidad de biopsiar.",
-    "app_inline_text": "¿Y si pudieras explorar cada informe, cada PET y cada resultado molecular por ti mismo? Lo estamos reuniendo todo en una app interactiva.",
-    "app_inline_cta": "Ver el avance de la app",
+    "app_inline_text": "¿Y si pudieras seguir la evolución del caso en el tiempo —la respuesta a cada línea de tratamiento y cómo cambia el ctDNA (VAF) entre extracciones— de primera mano? Lo estamos reuniendo en una app interactiva.",
+    "app_inline_cta": "Solicitar acceso",
     "app_hook_eyebrow": "Próximamente",
     "app_hook_title": "Descarga la historia clínica estructurada",
-    "app_hook_body": "Un panel para oncólogos: el caso completo en formato consultable y exportable —cronología, informes y perfil molecular— pensado para segundas opiniones y tumor boards.",
+    "app_hook_body": "Un panel para equipos de oncología: el caso completo en formato consultable y exportable (cronología, informes y perfil molecular), pensado para segundas opiniones y tumor boards.",
     "app_hook_cta": "Solicitar acceso anticipado"
   },
   "historia": {

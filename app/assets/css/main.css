@@ -75,6 +75,25 @@
     @apply py-20 sm:py-28;
   }
 
+  /* Borde superior con el menú: la PRIMERA sección de cada página vive justo bajo
+     el nav sticky, que ya aporta separación. Su top debe ser menor que el ritmo
+     entre secciones (py-28 = 112px), que se reserva para los saltos intermedios.
+     Selector de mayor especificidad → solo afecta a la sección de cabecera; las
+     secciones apiladas de home/colabora conservan su respiración completa. */
+  main section.section-spacing:first-of-type {
+    padding-top: 3.5rem; /* 56px móvil */
+  }
+  @media (min-width: 640px) {
+    main section.section-spacing:first-of-type {
+      padding-top: 4rem; /* 64px tablet (antes 112) */
+    }
+  }
+  @media (min-width: 1024px) {
+    main section.section-spacing:first-of-type {
+      padding-top: 5rem; /* 80px desktop (antes 112) */
+    }
+  }
+
   .heading-display {
     @apply font-display font-semibold tracking-tight;
   }
@@ -207,7 +226,8 @@
     @apply font-mono;
     font-size: 13px;
     font-weight: 500;
-    overflow-wrap: anywhere;
+    overflow-wrap: break-word;
+    word-break: normal;
   }
   .data-table .col-note {
     color: #3a3340;
@@ -572,6 +592,16 @@
     .notes-disclosure > summary::before {
       transition: none;
     }
+  }
+
+  /* Filete editorial entre capítulos de una página larga y continua
+     (mismo lenguaje de línea fina que separa las bandas de la home).
+     Marca "aquí empieza una sección" sin fragmentar el argumento ni
+     competir con las bandas de color con significado (anomalía/objetivo). */
+  .chapter-rule {
+    border: 0;
+    border-top: 1px solid rgba(45, 27, 61, 0.08);
+    margin: 0 0 2.75rem;
   }
 }
 

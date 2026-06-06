@@ -75,9 +75,10 @@ const markers = computed<MarkerRow[]>(() =>
         { marker: 'Ki67', result: '60%', note: 'Alto índice proliferativo en mama. En tumores neuroendocrinos, Ki67 ≥20% define el grado de agresividad: un 60% sitúa este tumor en grado 3 (NEC) ⁺⁺', tone: 'warn' },
         { marker: 'TMB / MSI', result: 'Baja / Baja', note: '—', tone: 'neutral' },
         { marker: 'SNVs/INDELs', result: 'Ninguna patogénica', note: 'Sin fusiones detectadas', tone: 'neutral' },
-        { marker: 'PIK3CA / ESR1', result: 'No detectados', note: 'Pendiente análisis complementario', tone: 'neutral' },
+        { marker: 'ESR1 p.D538G', result: 'Detectada (ctDNA 2026)', note: 'Resistencia endocrina adquirida a inhibidores de aromatasa', tone: 'info' },
+        { marker: 'PIK3CA', result: 'No detectado', note: 'Pendiente reanálisis sobre tejido actualizado', tone: 'neutral' },
         { marker: 'HER2', result: 'Negativo (0)', note: 'Tinción negativa ⁺', tone: 'neutral' },
-        { marker: 'RP', result: 'Positivo', note: 'En evaluación', tone: 'info' },
+        { marker: 'RP', result: 'Positivo (5%)', note: 'Receptor de progesterona', tone: 'info' },
       ]
     : [
         { marker: 'FGFR1', result: 'Amplified ×13', note: 'Main driver; CDK4/6i resistance, everolimus sensitivity', tone: 'violet' },
@@ -88,9 +89,10 @@ const markers = computed<MarkerRow[]>(() =>
         { marker: 'Ki67', result: '60%', note: 'High proliferative index in breast cancer. In neuroendocrine tumours, Ki67 ≥20% defines aggressiveness grade: 60% places this tumour at grade 3 (NEC) ⁺⁺', tone: 'warn' },
         { marker: 'TMB / MSI', result: 'Low / Low', note: '—', tone: 'neutral' },
         { marker: 'SNVs/INDELs', result: 'None pathogenic', note: 'No fusions detected', tone: 'neutral' },
-        { marker: 'PIK3CA / ESR1', result: 'Not detected', note: 'Pending complementary analysis', tone: 'neutral' },
+        { marker: 'ESR1 p.D538G', result: 'Detected (ctDNA 2026)', note: 'Acquired endocrine resistance to aromatase inhibitors', tone: 'info' },
+        { marker: 'PIK3CA', result: 'Not detected', note: 'Pending re-analysis on updated tissue', tone: 'neutral' },
         { marker: 'HER2', result: 'Negative (0)', note: 'Negative staining ⁺', tone: 'neutral' },
-        { marker: 'PR', result: 'Positive', note: 'Under evaluation', tone: 'info' },
+        { marker: 'PR', result: 'Positive (5%)', note: 'Progesterone receptor', tone: 'info' },
       ]
 )
 </script>
