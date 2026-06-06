@@ -1,14 +1,6 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="favicon Miriam constelación m minúscula">
-  <rect width="64" height="64" rx="14" fill="#2D1B3D"></rect>
-  <text x="32" y="46" font-family="Fraunces, Georgia, serif" font-weight="600" font-style="italic" font-size="40" fill="#FAF6F0" text-anchor="middle" letter-spacing="-0.02em">m</text>
-  
-  <path d="M 12 16 L 12.7 18 L 14.7 18.7 L 12.7 19.4 L 12 21.4 L 11.3 19.4 L 9.3 18.7 L 11.3 18 Z" fill="#A855B5"></path>
-  
-  <path d="M 52 14 L 53 17 L 56 18 L 53 19 L 52 22 L 51 19 L 48 18 L 51 17 Z" fill="#FAF6F0"></path>
-  
-  <path d="M 50 50 L 50.7 52 L 52.7 52.7 L 50.7 53.4 L 50 55.4 L 49.3 53.4 L 47.3 52.7 L 49.3 52 Z" fill="#A855B5"></path>
-  
-  <circle cx="14" cy="48" r="1" fill="#FAF6F0" opacity="0.7"></circle>
-  
-  <circle cx="56" cy="32" r="1" fill="#FAF6F0" opacity="0.5"></circle>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="helpmiriam.com">
+  <circle cx="32" cy="32" r="30" fill="#2D1B3D"/>
+  <text x="32" y="45" font-family="Fraunces, Georgia, serif" font-weight="600" font-style="italic" font-size="40" fill="#FAF6F0" text-anchor="middle" letter-spacing="-0.02em">m</text>
+  <path d="M 49 12 L 50.2 15.3 L 53.5 16.5 L 50.2 17.7 L 49 21 L 47.8 17.7 L 44.5 16.5 L 47.8 15.3 Z" fill="#9D44AB"/>
+  <circle cx="17" cy="46" r="1.5" fill="#9D44AB" opacity="0.7"/>
 </svg>
