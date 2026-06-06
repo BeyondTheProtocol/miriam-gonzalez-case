@@ -1,132 +1,115 @@
 coreTeam:
-  - role: The patient
+  - role: "Patient & founder"
     name: Miriam González
     photo: /img/team/miriam.webp
     featured: true
-    description:
-      Software engineer and tech communicator. Actively researches her own
-      case combining precision oncology and artificial intelligence. Coordinates the
-      entire initiative.
+    description: "Software engineer and technology communicator. She actively researches her case and coordinates the entire initiative."
     icon: ph:user-circle-fill
     color: gold
-  - role: AI & clinical documentation
-    name: Víctor
-    photo: /img/team/victor.webp
-    description:
-      Generates and structures the case's clinical documentation using advanced
-      language models, bridging the technical and medical domains.
-    icon: ph:brain-fill
-    color: ocean
-  - role: AI & clinical documentation
-    name: Alby
-    photo: /img/team/alby.webp
-    description:
-      Works on the case's clinical documentation with artificial intelligence,
-      bridging the technical and medical sides.
-    icon: ph:brain-fill
-    color: ocean
-  - role: Bioinformatics & clinical decisions
+  - role: "Precision oncology & molecular profiling"
     name: Paola
     photo: /img/team/paola.webp
-    description:
-      PhD candidate in bioengineering applied to health sciences. Has worked
-      on machine learning models for drug response prediction from gene expression data
-      — one of the research lines most directly relevant to Miriam's molecular profile.
-      Helps interpret molecular data and define the next steps in the diagnostic and
-      therapeutic plan.
-    icon: ph:strategy-fill
+    description: "A scientist with a background in bioengineering. She's the one who best understands the molecular and DNA side of the case, and advises on it."
+    icon: ph:pulse-fill
     color: gold
-  - role: Web & communication
-    name: Ceci
-    photo: /img/team/ceci.webp
-    description:
-      Manages the website, keeps information up to date, and ensures everything
-      is understandable for any visitor.
-    icon: ph:code-fill
-    color: ocean
-  - role: Strategy & healthcare navigation
+  - role: "Research & clinical trials"
     name: Alejandro
     photo: /img/team/alejandro.webp
-    description:
-      Direct experience navigating the Spanish healthcare system to access
-      complex treatments. Provides strategic advice and knowledge of the regulatory
-      context.
-    icon: ph:compass-fill
+    description: "He holds a doctorate. He researches alongside the team and advises on clinical trials, helping steer the case's options."
+    icon: ph:clipboard-text-fill
+    color: gold
+  - role: "Breast cancer advisory"
+    name: Víctor
+    photo: /img/team/victor.webp
+    description: "Specialized in breast cancer. Together with David, he covers the clinical advisory side of the case, each from their own specialty."
+    icon: ph:stethoscope-fill
+    color: ocean
+  - role: "Neuroendocrine tumor advisory"
+    name: David
+    description: "Specialized in neuroendocrine tumors. Together with Víctor, he covers the clinical advisory side of the case, each from their own specialty."
+    icon: ph:stethoscope-fill
+    color: ocean
+  - role: "Cancer research"
+    name: Paloma
+    description: "Researcher at the Dana-Farber Cancer Institute, a Harvard-affiliated center, where she studies neuroendocrine differentiation."
+    icon: ph:flask-fill
+    color: gold
+  - role: "AI & outreach"
+    name: Javi
+    description: "With artificial intelligence he produces the reports that inform the treatment proposal, and collaborates on outreach."
+    icon: ph:megaphone-fill
+    color: ocean
+  - role: "Artificial intelligence"
+    name: Alby
+    photo: /img/team/alby.webp
+    description: "He leads the project's artificial intelligence. He adapts tools to the specifics of the case to organize information and reduce manual work."
+    icon: ph:robot-fill
+    color: ocean
+  - role: "Digital tools & product"
+    name: Dani
+    description: "He builds the project's digital tools — among them, the app that gathers and organizes the case's medical history so it's always at hand."
+    icon: ph:device-mobile-fill
     color: ink
-  - role: The human side of the story
+  - role: "Web & communication"
+    name: Ceci
+    photo: /img/team/ceci.webp
+    description: "In charge of the website. She builds and maintains helpmiriam.com, and makes sure every piece of information is clear at first read."
+    icon: ph:code-fill
+    color: ocean
+  - role: "Community coordination"
+    name: Afor
+    description: "She coordinates the community members who collaborate on helpmiriam's projects."
+    icon: ph:users-three-fill
+    color: ink
+  - role: "Narrative & copy"
     name: Alba
     photo: /img/team/alba.webp
-    description:
-      "Responsible for telling Miriam's story from the inside: who she is
-      beyond the diagnosis, what drives her, and why this case matters beyond oncology."
+    description: "She gives a human touch to everything that's published. She looks after the story, the tone and the words of the project."
     icon: ph:pen-nib-fill
     color: gold
 medicalNetwork:
-  - role: Precision Oncologist (USA)
-    description:
-      Globally recognized as one of the 25 most influential voices in precision
-      medicine. Associate Director of Clinical Research in precision oncology, with
-      over 950 scientific publications and responsible for bringing 8 drugs to FDA approval.
-      Interested in Miriam's case for discussion in international precision oncology
-      networks.
-    icon: ph:stethoscope-fill
-    color: gold
-  - role: Molecular Oncologist (Europe)
-    description:
-      Internationally recognized specialist in molecular oncology. Supports
-      the molecular analysis strategy, coordinates with reference laboratories, and
-      validates the clinical approach.
-    icon: ph:stethoscope-fill
-    color: gold
-  - role: Radiation Oncology Specialist (Spain)
-    description:
-      Brings the case to the multidisciplinary tumor committee. Direct connection
-      to advanced therapy trials relevant to this profile.
-    icon: ph:atom-fill
-    color: ocean
-  - role: Treating Oncologist (Spain)
-    description:
-      Treating oncologist who has followed the case since diagnosis. Open
-      to new approaches and continuously updating her knowledge on the latest precision
-      oncology advances.
+  - role: "Treating oncologist (Spain)"
+    description: "The oncologist who has followed the case since diagnosis. Open to new approaches and up to date with the latest advances in precision oncology."
     icon: ph:stethoscope-fill
     color: ink
+  - role: "Radiation oncology · Vall d'Hebron (VHIO, Barcelona)"
+    description: "Brings the case to the Vall d'Hebron (VHIO) multidisciplinary tumor board and opens a direct line to advanced-therapy trials relevant to this profile."
+    icon: ph:atom-fill
+    color: ocean
+  - role: "Molecular oncology (Europe)"
+    description: "An internationally recognized molecular oncology specialist. Supports the molecular analysis strategy, coordinates with reference labs and validates the case's clinical approach."
+    icon: ph:stethoscope-fill
+    color: gold
+  - role: "Precision oncology (USA)"
+    description: "Recognized worldwide as one of the 25 most influential voices in precision medicine. Associate director of clinical research in precision oncology, with more than 950 scientific publications and behind the FDA approval of 8 drugs. Interested in Miriam's case to discuss it within international precision-oncology networks."
+    icon: ph:stethoscope-fill
+    color: gold
+  - role: "Dana-Farber · Harvard (USA)"
+    description: "A link to the Dana-Farber Cancer Institute, a Harvard-affiliated center, through the team's researcher who studies neuroendocrine differentiation there."
+    icon: ph:graduation-cap-fill
+    color: gold
 integrativeSupport:
-  - role: Metabolic Oncology (Spain)
-    description:
-      Specialist in the metabolic approach to cancer. Designs Miriam's supplementation
-      and metabolic support protocol.
+  - role: "Metabolic oncology (Spain)"
+    description: "A specialist in the metabolic approach to cancer. Designs Miriam's supplementation and metabolic support protocol."
     icon: ph:flask-fill
     color: ocean
-  - role: Doctor of Sport Sciences & Exercise Oncology (Spain)
-    description:
-      Principal investigator at OncSport (Never Surrender). Designs and
-      supervises Miriam's individualised exercise programme to keep her at
-      full functional capacity (ECOG 0), key to accessing trials and
-      tolerating treatments.
+  - role: "PhD in Sports Science & exercise oncology (Spain)"
+    description: "Lead researcher at the OncSport — Never Surrender Foundation. Designs and oversees Miriam's individualized training, adapted to her bone metastasis, to keep her at ECOG 0 (full functional capacity)."
     icon: ph:barbell-fill
-    color: ocean
-  - role: Oncology Nutritionist
-    description:
-      Specialised in nutrition for oncology patients. Monitors Miriam's nutritional
-      follow-up throughout treatment.
+    color: ink
+  - role: "Oncology nutritionist"
+    description: "Specialized in nutrition for cancer patients. Manages Miriam's nutritional follow-up throughout the treatment."
     icon: ph:plant-fill
     color: gold
-  - role: Oncology Psychology (AECC Association)
-    description:
-      Psychologist specialised in emotional support for people with cancer.
-      Collaborates through the AECC Association.
+  - role: "Oncology psychology (AECC association)"
+    description: "A psychologist specialized in emotional support for people with cancer. Collaborates through the AECC association."
     icon: ph:heart-fill
     color: gold
-  - role: Psychology & High Abilities
-    description:
-      Psychologist specialising in high abilities. Supports Miriam by integrating
-      the cognitive and emotional dimensions of her process.
+  - role: "Psychology & giftedness"
+    description: "A psychologist specialized in giftedness. Supports Miriam, integrating the cognitive dimension with the oncology process."
     icon: ph:brain-fill
     color: ocean
-  - role: Physiotherapy & Acupuncture (Traditional Chinese Medicine)
-    description:
-      Physiotherapist trained in traditional Chinese medicine. Complements
-      Miriam's exercise and mobility programme.
+  - role: "Physiotherapy & acupuncture (TCM)"
+    description: "A physiotherapist trained in traditional Chinese medicine. Complements Miriam's exercise and mobility program."
     icon: ph:hand-palm-fill
     color: ink

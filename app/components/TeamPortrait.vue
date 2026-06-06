@@ -2,12 +2,16 @@
   <figure class="team-portrait">
     <div class="team-portrait__frame">
       <img
+        v-if="member.photo"
         :src="member.photo"
         :alt="member.name"
         class="team-portrait__img"
         loading="lazy"
         decoding="async"
       />
+      <span v-else class="team-portrait__placeholder" aria-hidden="true">{{
+        initial
+      }}</span>
     </div>
     <figcaption class="team-portrait__caption">
       <p class="team-portrait__role" :class="roleColor">{{ member.role }}</p>
@@ -32,6 +36,10 @@ const props = defineProps<{
 
 const roleColor = computed(() =>
   props.member.color === 'ink' ? 'text-tinta' : 'text-miriam'
+)
+
+const initial = computed(
+  () => props.member.name?.trim().charAt(0).toUpperCase() ?? ''
 )
 </script>
 
@@ -65,6 +73,25 @@ const roleColor = computed(() =>
   mix-blend-mode: multiply;
 }
 
+.team-portrait__placeholder {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-display, 'Fraunces', serif);
+  font-style: italic;
+  font-weight: 500;
+  font-size: 3.5rem;
+  letter-spacing: -0.04em;
+  color: #9d44ab; /* miriam */
+  background: linear-gradient(
+    180deg,
+    rgba(157, 68, 171, 0.08),
+    rgba(157, 68, 171, 0.02)
+  );
+}
+
 .team-portrait__caption {
   margin-top: 14px;
 }
@@ -75,6 +102,13 @@ const roleColor = computed(() =>
   font-size: 11px;
   font-weight: 500;
   letter-spacing: 0.12em;
+  line-height: 1.3;
+  /* Los roles ocupan 1 o 2 líneas. Reservamos siempre el alto de 2 para que
+     el nombre y la descripción arranquen a la misma altura entre columnas:
+     sin esto, en tablet/desktop (grid de 2–3 columnas) un rol de 1 línea
+     junto a otro de 2 descuadra la fila. En móvil ya respiraba; esto no le
+     resta nada. */
+  min-height: 2.6em; /* 2 × line-height a 11px */
 }
 
 .team-portrait__name {

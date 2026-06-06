@@ -2,21 +2,28 @@
   <div>
     <!--
       ════════════════════════════════════════════════════════════
-        Página /colabora · estrictamente las 6 recetas DS
-        Una card = una historia = un acento.
-        Sin border-lefts inventados, sin emoji-circles, sin
-        miriam sobre cream-card. Solo lo que el design-system
-        canon documenta.
+        Página /colabora · compuesta SOLO con clases del design-system
+        (mismas que equipo/contacto/ciencia): .section-container,
+        .section-wide, .card-base, .eyebrow, .heading-display, tokens
+        de color (berenjena/tinta/cream/miriam/coral). Cero hex sueltos,
+        cero font-size inline, cero tipografía propia.
+
+        · v-reveal en cada sección (despliegue al scroll, respeta
+          prefers-reduced-motion) — igual que home/timeline.
+        · Cabecera de card con cuadradito de icono sólido + icono crema,
+          el mismo patrón que las tarjetas de /contacto.
+        · Financiación (único coral) es featured a ancho completo arriba:
+          el camino principal destaca con cuadradito y filete coral.
       ════════════════════════════════════════════════════════════
     -->
 
-    <!-- ░░ HERO ░░ bg-cream · receta cita = card 5 (violet-soft) -->
-    <section class="section-spacing bg-cream" :aria-label="$t('collaborate.title')">
-      <div class="section-container max-w-4xl">
+    <!-- ░░ HERO ░░ bg-cream -->
+    <section v-reveal class="section-spacing bg-cream" :aria-label="$t('collaborate.title')">
+      <div class="section-container">
         <p class="eyebrow mb-4 block">{{ $t('collaborate.eyebrow') }}</p>
         <h1
-          class="heading-display text-4xl sm:text-5xl text-berenjena mb-5 max-w-3xl"
-          style="letter-spacing: -0.03em; font-weight: 500"
+          class="heading-display text-3xl sm:text-4xl lg:text-5xl text-berenjena mb-4 max-w-3xl"
+          style="letter-spacing: -0.03em"
         >
           {{ $t('collaborate.hero_title') }}
         </h1>
@@ -24,21 +31,10 @@
           {{ $t('collaborate.hero_intro') }}
         </p>
 
-        <!-- Receta canon nº5: violet-soft + berenjena italic (cita / principio) -->
-        <aside
-          class="rounded-card max-w-2xl"
-          style="background: #e8d4ed; padding: 28px"
-        >
-          <p
-            class="font-mono uppercase mb-2"
-            style="font-size: 11px; letter-spacing: 0.08em; color: #2d1b3d"
-          >
-            {{ $t('collaborate.hero_claim_label') }}
-          </p>
-          <p
-            class="font-display italic text-berenjena"
-            style="font-size: 24px; line-height: 1.25; font-weight: 500"
-          >
+        <!-- Cita / principio: card-base en violet-soft (badge genómico del DS) -->
+        <aside class="card-base bg-miriam-soft border-transparent max-w-2xl">
+          <p class="eyebrow mb-2 block text-berenjena">{{ $t('collaborate.hero_claim_label') }}</p>
+          <p class="font-display italic font-medium text-berenjena text-2xl leading-snug">
             {{ $t('collaborate.hero_principle') }}
           </p>
         </aside>
@@ -52,14 +48,14 @@
       </div>
     </section>
 
-    <!-- ░░ 5 PERFILES ░░ bg-cream-card · cards unificadas sobre crema -->
-    <section class="bg-cream-card section-spacing" :aria-labelledby="'profiles-title'">
-      <div class="section-container max-w-6xl">
+    <!-- ░░ 5 PERFILES ░░ bg-cream-card · cards bg-cream para contraste -->
+    <section v-reveal class="bg-cream-card section-spacing" :aria-labelledby="'profiles-title'">
+      <div class="section-wide">
         <p class="eyebrow mb-3 block">{{ $t('collaborate.profiles_eyebrow') }}</p>
         <h2
           id="profiles-title"
-          class="heading-display text-berenjena mb-3"
-          style="font-size: clamp(28px, 4vw, 40px); letter-spacing: -0.02em; font-weight: 500"
+          class="heading-display text-3xl sm:text-4xl text-berenjena mb-3"
+          style="letter-spacing: -0.02em"
         >
           {{ $t('collaborate.profiles_title') }}
         </h2>
@@ -68,127 +64,148 @@
         </p>
 
         <div class="grid md:grid-cols-2 gap-4">
-          <!-- ─ Card 1 (canon #1) — crema + berenjena · clínica ─ -->
-          <article
-            class="flex flex-col rounded-card"
-            style="background: #faf6f0; padding: 28px; border: 1px solid rgba(45,27,61,0.08)"
-          >
-            <p class="profile-eyebrow">{{ $t('collaborate.profile1_tag') }}</p>
-            <h3 class="profile-title">{{ $t('collaborate.profile1_title') }}</h3>
-            <ul class="profile-list">
-              <li v-for="(item, i) in arr('collaborate.profile1_list')" :key="i">{{ item }}</li>
-            </ul>
-            <div class="mt-auto pt-2">
-              <NuxtLink :to="localePath('contacto')" class="btn-secondary w-full justify-center">
-                <Icon name="ph:envelope-simple-fill" class="w-4 h-4" aria-hidden="true" />
-                {{ $t('collaborate.profile1_cta_label') }}
-              </NuxtLink>
+          <!-- ─ Card 2 — FEATURED · el camino principal: financiación.
+               Único coral del sitio: cuadradito + filete coral a ancho
+               completo para que el ojo aterrice aquí primero. ─ -->
+          <article class="card-base bg-cream border-coral/40 md:col-span-2 flex flex-col">
+            <div class="flex items-center gap-4 mb-4">
+              <span class="w-10 h-10 rounded-xl bg-coral flex items-center justify-center shrink-0" aria-hidden="true">
+                <Icon name="ph:hand-heart-fill" class="w-5 h-5 text-berenjena" />
+              </span>
+              <p class="eyebrow">{{ $t('collaborate.profile2_tag') }}</p>
             </div>
-          </article>
-
-          <!-- ─ Card 2 (canon #4) — crema + berenjena + coral CTA · financiación (único coral) ─ -->
-          <article
-            class="flex flex-col rounded-card"
-            style="background: #faf6f0; padding: 28px; border: 1px solid rgba(45,27,61,0.08)"
-          >
-            <p class="profile-eyebrow">{{ $t('collaborate.profile2_tag') }}</p>
-            <h3 class="profile-title">{{ $t('collaborate.profile2_title') }}</h3>
-            <p class="profile-body">{{ $t('collaborate.profile2_text') }}</p>
-            <div class="mt-auto pt-2">
+            <h3 class="heading-display text-xl sm:text-2xl text-berenjena mb-3">
+              {{ $t('collaborate.profile2_title') }}
+            </h3>
+            <p class="text-sm text-tinta leading-relaxed mb-5 max-w-2xl">
+              {{ $t('collaborate.profile2_text') }}
+            </p>
+            <div class="mt-auto">
               <a
                 :href="GOFUNDME"
                 target="_blank"
                 rel="noopener"
-                class="btn-cta w-full justify-center"
+                class="btn-cta"
                 style="text-decoration: none"
               >
                 <Icon name="ph:heart-fill" class="heart-beat w-4 h-4" aria-hidden="true" />
                 {{ $t('collaborate.profile2_cta_label') }}
               </a>
+              <p class="mt-3 text-xs text-tinta">{{ $t('collaborate.profile2_cta_caption') }}</p>
+            </div>
+          </article>
+
+          <!-- ─ Card 1 — revisión clínica ─ -->
+          <article class="card-base bg-cream flex flex-col">
+            <div class="flex items-center gap-4 mb-4">
+              <span class="w-10 h-10 rounded-xl bg-berenjena flex items-center justify-center shrink-0" aria-hidden="true">
+                <Icon name="ph:stethoscope" class="w-5 h-5 text-cream" />
+              </span>
+              <p class="eyebrow">{{ $t('collaborate.profile1_tag') }}</p>
+            </div>
+            <h3 class="heading-display text-xl text-berenjena mb-3">
+              {{ $t('collaborate.profile1_title') }}
+            </h3>
+            <ul class="text-sm text-tinta leading-relaxed list-disc pl-5 space-y-1.5 mb-5 marker:text-berenjena">
+              <li v-for="(item, i) in arr('collaborate.profile1_list')" :key="i">{{ item }}</li>
+            </ul>
+            <div class="mt-auto">
+              <NuxtLink :to="localePath('contacto')" class="btn-secondary w-full h-12 justify-center">
+                <Icon name="ph:envelope-simple-fill" class="w-4 h-4" aria-hidden="true" />
+                {{ $t('collaborate.profile1_cta_label') }}
+              </NuxtLink>
+              <p class="mt-2 text-xs text-tinta sm:min-h-[2.25rem]">{{ $t('collaborate.profile1_cta_caption') }}</p>
             </div>
           </article>
 
           <!-- ─ Card 3 — difusión ─ -->
-          <article
-            class="flex flex-col rounded-card"
-            style="background: #faf6f0; padding: 28px; border: 1px solid rgba(45,27,61,0.08)"
-          >
-            <p class="profile-eyebrow">{{ $t('collaborate.profile3_tag') }}</p>
-            <h3 class="profile-title">{{ $t('collaborate.profile3_title') }}</h3>
-            <p class="profile-body">{{ $t('collaborate.profile3_text') }}</p>
-            <div class="mt-auto pt-2">
-              <NuxtLink :to="localePath('contacto')" class="btn-secondary w-full justify-center">
+          <article class="card-base bg-cream flex flex-col">
+            <div class="flex items-center gap-4 mb-4">
+              <span class="w-10 h-10 rounded-xl bg-berenjena flex items-center justify-center shrink-0" aria-hidden="true">
+                <Icon name="ph:megaphone-simple-fill" class="w-5 h-5 text-cream" />
+              </span>
+              <p class="eyebrow">{{ $t('collaborate.profile3_tag') }}</p>
+            </div>
+            <h3 class="heading-display text-xl text-berenjena mb-3">
+              {{ $t('collaborate.profile3_title') }}
+            </h3>
+            <p class="text-sm text-tinta leading-relaxed mb-5">{{ $t('collaborate.profile3_text') }}</p>
+            <div class="mt-auto">
+              <NuxtLink :to="localePath('contacto')" class="btn-secondary w-full h-12 justify-center">
                 <Icon name="ph:envelope-simple-fill" class="w-4 h-4" aria-hidden="true" />
                 {{ $t('collaborate.profile3_cta_label') }}
               </NuxtLink>
+              <p class="mt-2 text-xs text-tinta sm:min-h-[2.25rem]">{{ $t('collaborate.profile3_cta_caption') }}</p>
             </div>
           </article>
 
           <!-- ─ Card 4 — tech & IA ─ -->
-          <article
-            class="flex flex-col rounded-card"
-            style="background: #faf6f0; padding: 28px; border: 1px solid rgba(45,27,61,0.08)"
-          >
-            <p class="profile-eyebrow">{{ $t('collaborate.profile4_tag') }}</p>
-            <h3 class="profile-title">{{ $t('collaborate.profile4_title') }}</h3>
-            <p class="profile-body">{{ $t('collaborate.profile4_text') }}</p>
+          <article class="card-base bg-cream flex flex-col">
+            <div class="flex items-center gap-4 mb-4">
+              <span class="w-10 h-10 rounded-xl bg-berenjena flex items-center justify-center shrink-0" aria-hidden="true">
+                <Icon name="ph:flask-fill" class="w-5 h-5 text-cream" />
+              </span>
+              <p class="eyebrow">{{ $t('collaborate.profile4_tag') }}</p>
+            </div>
+            <h3 class="heading-display text-xl text-berenjena mb-3">
+              {{ $t('collaborate.profile4_title') }}
+            </h3>
+            <p class="text-sm text-tinta leading-relaxed mb-4">{{ $t('collaborate.profile4_text') }}</p>
             <ul class="space-y-1.5 mb-5">
               <li v-for="(lnk, i) in arrObj('collaborate.profile4_links')" :key="i">
                 <a
                   :href="lnk.url"
                   target="_blank"
                   rel="noopener"
-                  class="font-mono text-berenjena"
-                  style="font-size: 13px; text-decoration: underline; text-underline-offset: 3px; text-decoration-color: rgba(45,27,61,0.3)"
+                  class="link-underline font-mono text-[13px]"
                 >
                   → {{ lnk.label }}
                 </a>
               </li>
             </ul>
-            <div class="mt-auto pt-2">
-              <NuxtLink :to="localePath('contacto')" class="btn-secondary w-full justify-center">
+            <div class="mt-auto">
+              <NuxtLink :to="localePath('contacto')" class="btn-secondary w-full h-12 justify-center">
                 <Icon name="ph:envelope-simple-fill" class="w-4 h-4" aria-hidden="true" />
                 {{ $t('collaborate.profile4_cta_label') }}
               </NuxtLink>
+              <p class="mt-2 text-xs text-tinta sm:min-h-[2.25rem]">{{ $t('collaborate.profile4_cta_caption') }}</p>
             </div>
           </article>
 
-          <!-- ─ Card 5 — apoyo mutuo (full-width) ─ -->
-          <article
-            class="md:col-span-2 flex flex-col rounded-card"
-            style="background: #faf6f0; padding: 28px; border: 1px solid rgba(45,27,61,0.08)"
-          >
-            <p class="profile-eyebrow">{{ $t('collaborate.profile5_tag') }}</p>
-            <h3 class="profile-title">{{ $t('collaborate.profile5_title') }}</h3>
-            <p class="profile-body max-w-3xl">{{ $t('collaborate.profile5_text') }}</p>
-            <div class="mt-auto pt-2">
-              <NuxtLink :to="localePath('contacto')" class="btn-secondary">
+          <!-- ─ Card 5 — apoyo mutuo ─ -->
+          <article class="card-base bg-cream flex flex-col">
+            <div class="flex items-center gap-4 mb-4">
+              <span class="w-10 h-10 rounded-xl bg-berenjena flex items-center justify-center shrink-0" aria-hidden="true">
+                <Icon name="ph:hands-praying-fill" class="w-5 h-5 text-cream" />
+              </span>
+              <p class="eyebrow">{{ $t('collaborate.profile5_tag') }}</p>
+            </div>
+            <h3 class="heading-display text-xl text-berenjena mb-3">
+              {{ $t('collaborate.profile5_title') }}
+            </h3>
+            <p class="text-sm text-tinta leading-relaxed mb-5">{{ $t('collaborate.profile5_text') }}</p>
+            <div class="mt-auto">
+              <NuxtLink :to="localePath('contacto')" class="btn-secondary w-full h-12 justify-center">
                 <Icon name="ph:envelope-simple-fill" class="w-4 h-4" aria-hidden="true" />
                 {{ $t('collaborate.profile5_cta_label') }}
               </NuxtLink>
+              <p class="mt-2 text-xs text-tinta sm:min-h-[2.25rem]">{{ $t('collaborate.profile5_cta_caption') }}</p>
             </div>
           </article>
         </div>
       </div>
     </section>
 
-    <!-- ░░ LO QUE NO SOMOS ░░ bg-cream · receta canon nº2 invertida (berenjena oscura) -->
-    <section class="section-spacing bg-cream" :aria-labelledby="'notus-title'">
-      <div class="section-container max-w-4xl">
-        <div
-          class="rounded-card"
-          style="background: #2d1b3d; padding: 32px sm:40px; padding: 40px"
-        >
-          <p
-            class="font-mono uppercase mb-3"
-            style="font-size: 11px; letter-spacing: 0.08em; color: #e8d4ed"
-          >
-            {{ $t('collaborate.notus_eyebrow') }}
-          </p>
+    <!-- ░░ LO QUE NO SOMOS ░░ bg-cream · panel berenjena (mismo patrón que la
+         sección oscura de /equipo) -->
+    <section v-reveal class="section-spacing bg-cream" :aria-labelledby="'notus-title'">
+      <div class="section-container">
+        <div class="rounded-card p-8 sm:p-10 bg-berenjena text-cream">
+          <p class="eyebrow mb-3 block text-miriam-soft">{{ $t('collaborate.notus_eyebrow') }}</p>
           <h2
             id="notus-title"
-            class="font-display mb-8"
-            style="font-size: clamp(28px, 4vw, 36px); line-height: 1.15; font-weight: 500; color: #faf6f0; letter-spacing: -0.02em"
+            class="heading-display text-3xl sm:text-4xl text-cream mb-8"
+            style="letter-spacing: -0.02em"
           >
             {{ $t('collaborate.notus_title') }}
           </h2>
@@ -197,12 +214,11 @@
             <li
               v-for="(item, i) in notUsList"
               :key="i"
-              class="flex items-start gap-4"
-              style="color: rgba(250,246,240,0.92); font-size: 15px; line-height: 1.6"
+              class="flex items-start gap-4 text-[15px] leading-relaxed text-cream/90"
             >
               <span
-                class="shrink-0 mt-0.5 inline-flex items-center justify-center w-[22px] h-[22px] rounded-[6px]"
-                style="background: rgba(255,107,71,0.18)"
+                class="shrink-0 mt-0.5 inline-flex items-center justify-center w-[22px] h-[22px] rounded-md"
+                style="background: rgba(255, 107, 71, 0.18)"
                 aria-hidden="true"
               >
                 <Icon name="ph:x-bold" class="w-3.5 h-3.5 text-coral" />
@@ -210,25 +226,18 @@
               <span>{{ item }}</span>
             </li>
           </ul>
-
-          <p
-            class="font-mono mt-8 pt-6"
-            style="font-size: 10px; color: rgba(250,246,240,0.6); border-top: 1px solid rgba(250,246,240,0.15)"
-          >
-            berenjena + crema · 14.6:1 · AAA
-          </p>
         </div>
       </div>
     </section>
 
-    <!-- ░░ ENLACES RÁPIDOS ░░ bg-cream-card · receta canon nº6 (panel neutro) -->
-    <section class="section-spacing bg-cream-card" :aria-labelledby="'links-title'">
-      <div class="section-container max-w-4xl">
+    <!-- ░░ ENLACES RÁPIDOS ░░ bg-cream-card · panel neutro -->
+    <section v-reveal class="section-spacing bg-cream-card" :aria-labelledby="'links-title'">
+      <div class="section-container">
         <p class="eyebrow mb-3 block">{{ $t('collaborate.links_eyebrow') }}</p>
         <h2
           id="links-title"
-          class="heading-display text-berenjena mb-3"
-          style="font-size: clamp(28px, 4vw, 36px); letter-spacing: -0.02em; font-weight: 500"
+          class="heading-display text-3xl sm:text-4xl text-berenjena mb-3"
+          style="letter-spacing: -0.02em"
         >
           {{ $t('collaborate.links_title') }}
         </h2>
@@ -236,22 +245,14 @@
           {{ $t('collaborate.links_sub') }}
         </p>
 
-        <div
-          class="rounded-card"
-          style="background: #faf6f0; padding: 28px; border: 1px solid rgba(45,27,61,0.08)"
-        >
+        <div class="card-base bg-cream">
           <ul class="grid sm:grid-cols-2 gap-x-10 gap-y-3">
             <li v-for="lnk in quickLinks" :key="lnk.url" class="flex items-baseline gap-3">
-              <span
-                class="font-mono shrink-0"
-                style="font-size: 11px; color: #3a3340; min-width: 18px"
-                aria-hidden="true"
-              >→</span>
+              <span class="font-mono text-tinta text-[11px] shrink-0 min-w-[18px]" aria-hidden="true">→</span>
               <NuxtLink
                 v-if="!lnk.external"
                 :to="lnk.url"
-                class="link-underline"
-                style="font-size: 14px"
+                class="link-underline text-sm"
               >
                 {{ lnk.label }}
               </NuxtLink>
@@ -260,8 +261,7 @@
                 :href="lnk.url"
                 target="_blank"
                 rel="noopener"
-                class="link-underline"
-                style="font-size: 14px"
+                class="link-underline text-sm"
               >
                 {{ lnk.label }}
               </a>
@@ -269,11 +269,7 @@
           </ul>
         </div>
 
-        <!-- firma: solo permitida sobre bg-cream-card en mono tinta; firma miriam queda fuera de la card -->
-        <p
-          class="font-mono mt-6 text-center"
-          style="font-size: 12px; color: #3a3340; letter-spacing: 0.04em"
-        >
+        <p class="font-mono text-xs text-tinta tracking-wide mt-6 text-center">
           {{ $t('collaborate.links_signature') }}
         </p>
       </div>
@@ -350,55 +346,3 @@ defineOgImage('Default.takumi', {
 <script lang="ts">
 export default { name: 'CollaboratePage' }
 </script>
-
-<style scoped>
-.profile-eyebrow {
-  font-family: 'JetBrains Mono', ui-monospace, monospace;
-  font-size: 11px;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: #3a3340;
-  margin: 0 0 14px;
-}
-.profile-eyebrow--violet {
-  color: #2d1b3d;
-}
-.profile-title {
-  font-family: 'Fraunces', Georgia, serif;
-  font-weight: 500;
-  font-size: 24px;
-  line-height: 1.15;
-  letter-spacing: -0.01em;
-  color: #2d1b3d;
-  margin: 0 0 14px;
-}
-.profile-body {
-  font-size: 14px;
-  line-height: 1.6;
-  color: rgba(45, 27, 61, 0.85);
-  margin: 0 0 18px;
-}
-.profile-list {
-  margin: 0 0 18px;
-  padding: 0;
-  list-style: none;
-  font-size: 14px;
-  line-height: 1.55;
-  color: rgba(45, 27, 61, 0.85);
-}
-.profile-list li {
-  position: relative;
-  padding-left: 18px;
-  margin-bottom: 8px;
-}
-.profile-list li::before {
-  content: '·';
-  position: absolute;
-  left: 4px;
-  top: -2px;
-  color: #2d1b3d;
-  font-weight: 700;
-  font-size: 18px;
-  line-height: 1;
-}
-</style>
