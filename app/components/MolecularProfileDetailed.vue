@@ -40,7 +40,7 @@
         </thead>
         <tbody>
           <tr v-for="(row, i) in rows" :key="i">
-            <td class="cell-head font-semibold text-berenjena whitespace-nowrap">{{ row.alteration }}</td>
+            <td class="cell-head font-semibold text-berenjena whitespace-nowrap" translate="no">{{ row.alteration }}</td>
             <td :data-label="headers[1]">
               <span :class="['pill-data', `pill-data--${row.tone}`]">{{ row.result }}</span>
             </td>
@@ -105,13 +105,13 @@ const rows = computed<Row[]>(() =>
         { alteration: 'SSTR2 (somatostatina)', result: 'Positivo', source: 'PET Ga-68 DOTATOC', category: 'Diana radioligando', implication: 'Sobreexpresión en metástasis óseas y captación focal en mama. Abre la puerta a PRRT con Lu-177 / Ac-225.', tone: 'positive' },
         { alteration: 'Ki67', result: '60%', source: 'IHC tejido primario', category: 'Grado', implication: 'Alto índice proliferativo. En NEC, Ki67 ≥20% corresponde a grado 3 ⁺⁺.', tone: 'warn' },
         { alteration: 'ESR1 p.D538G', result: 'Detectada', source: 'ctDNA (Guardant360 + VHIO360, 2026)', category: 'Resistencia endocrina', implication: 'Resistencia adquirida a inhibidores de aromatasa; criterio de entrada al estudio con elacestrant (ADELA).', tone: 'info' },
-        { alteration: 'RB1 p.V622Yfs*33', result: 'Detectada', source: 'ctDNA (Guardant360 CDx, 26 may 2026)', category: 'Resistencia / progresión', implication: 'Pérdida de RB1 asociada a resistencia a CDK4/6i y a transformación hacia fenotipos más agresivos / neuroendocrinos.', tone: 'warn' },
+        { alteration: 'RB1', result: '3 variantes', source: 'ctDNA Guardant360 (abr 2026)', category: 'Resistencia / progresión', implication: 'p.V622Yfs*33 (1,58%), p.R661W (1,48%) y p.F226* (subclonal); ausentes en el tumor primario (TSO500, 2024). Pérdida de RB1 asociada a resistencia a CDK4/6i y a transformación hacia fenotipos más agresivos / neuroendocrinos.', tone: 'warn' },
         { alteration: 'SMO p.V319D', result: 'Detectada (VUS)', source: 'ctDNA (Guardant360 CDx, 26 may 2026)', category: 'Significado incierto', implication: 'Variante de significado clínico incierto, en vigilancia.', tone: 'neutral' },
         { alteration: 'TMB / MSI', result: 'Baja / Baja', source: 'TSO500 tejido', category: 'Inmunoterapia', implication: 'Sin perfil candidato a inhibidores de checkpoint.', tone: 'neutral' },
         { alteration: 'SNVs / INDELs / fusiones', result: 'Ninguna patogénica', source: 'TSO500 tejido', category: 'Resto del panel', implication: 'Sin otras dianas accionables en el panel original.', tone: 'neutral' },
         { alteration: 'PIK3CA', result: 'No detectado', source: 'TSO500 tejido', category: 'Diana PI3K', implication: 'Pendiente reanálisis sobre tejido actualizado.', tone: 'neutral' },
         { alteration: 'HER2', result: 'Negativo (0)', source: 'IHC tejido primario', category: 'Receptor', implication: 'Tinción negativa; HER2-ultralow presente según DIPCAN ⁺.', tone: 'neutral' },
-        { alteration: 'RE / RP', result: 'RE+ / RP+', source: 'IHC tejido primario', category: 'Receptor hormonal', implication: 'Componente luminal del tumor — base de la línea endocrina actual.', tone: 'info' },
+        { alteration: 'RE / RP', result: 'RE 95% / RP 5%', source: 'IHC tejido primario', category: 'Receptor hormonal', implication: 'Componente luminal del tumor — base de la línea endocrina actual.', tone: 'info' },
       ]
     : [
         { alteration: 'FGFR1', result: 'Amplified ×13', source: 'TSO500 tissue', category: 'Luminal driver', implication: 'CDK4/6i resistance; potential sensitivity to everolimus and to FGFR inhibitors (erdafitinib, futibatinib, ponatinib).', tone: 'violet' },
@@ -121,13 +121,13 @@ const rows = computed<Row[]>(() =>
         { alteration: 'SSTR2 (somatostatin)', result: 'Positive', source: 'Ga-68 DOTATOC PET', category: 'Radioligand target', implication: 'Overexpression in bone metastases and focal uptake in the breast. Opens the door to PRRT with Lu-177 / Ac-225.', tone: 'positive' },
         { alteration: 'Ki67', result: '60%', source: 'IHC primary tissue', category: 'Grade', implication: 'High proliferative index. In NEC, Ki67 ≥20% maps to grade 3 ⁺⁺.', tone: 'warn' },
         { alteration: 'ESR1 p.D538G', result: 'Detected', source: 'ctDNA (Guardant360 + VHIO360, 2026)', category: 'Endocrine resistance', implication: 'Acquired resistance to aromatase inhibitors; entry criterion for the elacestrant trial (ADELA).', tone: 'info' },
-        { alteration: 'RB1 p.V622Yfs*33', result: 'Detected', source: 'ctDNA (Guardant360 CDx, May 26, 2026)', category: 'Resistance / progression', implication: 'RB1 loss associated with CDK4/6i resistance and transformation to more aggressive / neuroendocrine phenotypes.', tone: 'warn' },
+        { alteration: 'RB1', result: '3 variants', source: 'ctDNA Guardant360 (Apr 2026)', category: 'Resistance / progression', implication: 'p.V622Yfs*33 (1.58%), p.R661W (1.48%) and p.F226* (subclonal); absent in the primary tumour (TSO500, 2024). RB1 loss associated with CDK4/6i resistance and transformation to more aggressive / neuroendocrine phenotypes.', tone: 'warn' },
         { alteration: 'SMO p.V319D', result: 'Detected (VUS)', source: 'ctDNA (Guardant360 CDx, May 26, 2026)', category: 'Uncertain significance', implication: 'Variant of uncertain clinical significance, under watch.', tone: 'neutral' },
         { alteration: 'TMB / MSI', result: 'Low / Low', source: 'TSO500 tissue', category: 'Immunotherapy', implication: 'No profile for checkpoint inhibitors.', tone: 'neutral' },
         { alteration: 'SNVs / INDELs / fusions', result: 'None pathogenic', source: 'TSO500 tissue', category: 'Rest of the panel', implication: 'No other actionable targets in the original panel.', tone: 'neutral' },
         { alteration: 'PIK3CA', result: 'Not detected', source: 'TSO500 tissue', category: 'PI3K target', implication: 'Pending re-analysis on updated tissue.', tone: 'neutral' },
         { alteration: 'HER2', result: 'Negative (0)', source: 'IHC primary tissue', category: 'Receptor', implication: 'Negative staining; HER2-ultralow present per DIPCAN ⁺.', tone: 'neutral' },
-        { alteration: 'ER / PR', result: 'ER+ / PR+', source: 'IHC primary tissue', category: 'Hormone receptor', implication: 'Luminal component of the tumour — basis of the current endocrine line.', tone: 'info' },
+        { alteration: 'ER / PR', result: 'ER 95% / PR 5%', source: 'IHC primary tissue', category: 'Hormone receptor', implication: 'Luminal component of the tumour — basis of the current endocrine line.', tone: 'info' },
       ]
 )
 </script>

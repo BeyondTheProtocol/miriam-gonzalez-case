@@ -1,4 +1,13 @@
 treatments:
+  - line: dx
+    regimen: Diagnóstico y radioterapia paliativa (enero–febrero 2024)
+    outcome: >-
+      Diagnóstico en enero de 2024 tras acudir a urgencias por dolor lumbar:
+      se hallan metástasis vertebrales. Premenopáusica. Se inicia tratamiento
+      sistémico paliativo en febrero de 2024 con objetivo de prolongar la
+      supervivencia. Recibe radioterapia sobre columna con buena respuesta:
+      mejoría progresiva, estabilidad vertebral y sin fracturas.
+    active: false
   - line: 1L
     regimen: Letrozol + Ribociclib + Zoladex (goserelina) + ác. zoledrónico
     outcome: >-
@@ -19,8 +28,10 @@ treatments:
       G2-3). Zoladex y ácido zoledrónico continúan. ECOG 0. Sin crisis visceral.
     active: true
 paperSections:
-  - title: Sección 1 — Transición Neuroendocrina y Pérdida de RB1
-    subtitle: El hallazgo más crítico y reciente, 3 mutaciones RB1 detectadas en Guardant360 (abril 2026)
+  - title: Transición Neuroendocrina y Pérdida de RB1
+    tag: Transición NE
+    tone: warn
+    subtitle: 'El hallazgo más crítico: 3 variantes de RB1 (p.V622Yfs*33, p.R661W, p.F226*) en ctDNA Guardant360, abril 2026'
     papers:
       - ref: 'Park et al., 2018 — Science (DOI: 10.1126/science.aat5749)'
         finding: 'Pérdida de RB1 + TP53: reprogramación hacia fenotipo neuroendocrino'
@@ -52,7 +63,9 @@ paperSections:
           explorar el eje neuroendocrino cuando emergen alteraciones en RB1 bajo
           terapia hormonal prolongada.
         link: 'https://doi.org/10.1158/2159-8290.CD-24-0837'
-  - title: Sección 2 — Biología del Carcinoma de Mama con Diferenciación Neuroendocrina
+  - title: Biología del Carcinoma de Mama con Diferenciación Neuroendocrina
+    tag: Biología BC-NED
+    tone: info
     subtitle: Caracterización del subtipo tumoral BC-NED con Cg/Syn al 80%
     papers:
       - ref: 'Marchiò et al., 2017 — Journal of Pathology (DOI: 10.1002/path.4837)'
@@ -74,7 +87,9 @@ paperSections:
           tardíamente bajo presión terapéutica, fenómeno relevante para esta
           trayectoria clínica.
         link: 'https://doi.org/10.1136/jclinpath-2020-207002'
-  - title: Sección 3 — Vía SSTR2 y Terapia con Radioligandos (PRRT)
+  - title: Vía SSTR2 y Terapia con Radioligandos (PRRT)
+    tag: SSTR2 · PRRT
+    tone: positive
     subtitle: Fundamento para solicitar IHQ SSTR2 y PET-DOTATATE como rama terapéutica de reserva
     papers:
       - ref: 'Terlević et al., 2019 — Annals of Diagnostic Pathology (DOI: 10.1016/j.anndiagpath.2018.11.002)'
@@ -95,7 +110,9 @@ paperSections:
           NETs gastroenteropancreáticos. Aporta evidencia clínica de actividad de
           PRRT en este subtipo mamario.
         link: 'https://doi.org/10.1007/s00259-020-05054-9'
-  - title: Sección 4 — Eje FGFR1/CCND1 y Resistencia a CDK4/6i
+  - title: Eje FGFR1/CCND1 y Resistencia a CDK4/6i
+    tag: FGFR1 / CCND1
+    tone: violet
     subtitle: Mecanismo molecular de la resistencia clínica observada en las dos primeras líneas
     papers:
       - ref: 'Formisano et al., 2019 — Nature Communications (DOI: 10.1038/s41467-019-09367-8)'
@@ -108,7 +125,9 @@ paperSections:
           base molecular que explica la resistencia clínica observada en las dos
           primeras líneas de tratamiento.
         link: 'https://doi.org/10.1038/s41467-019-09367-8'
-  - title: Sección 5 — Guías Internacionales de Consenso
+  - title: Guías Internacionales de Consenso
+    tag: Guías
+    tone: neutral
     subtitle: Respaldo formal a las peticiones clínicas planteadas al equipo tratante
     papers:
       - ref: 'NCCN Guidelines — Neuroendocrine and Adrenal Tumors, Version 1.2025'
@@ -131,30 +150,38 @@ paperSections:
           corresponda.
         link: null
 panelRows:
-  - component: NGS amplio (tejido)
-    method: Panel ≥500 genes
-    targets: 'ESR1, PIK3CA, AKT1, PTEN, RB1, TP53, FGFR1-4, CCND1, NF1'
-    implication: Selección de terapia/ensayo por biomarcador
-  - component: ctDNA (líquida)
-    method: Ensayo validado plasma
-    targets: 'ESR1 (pref.), PIK3CA, TP53, RB1, FGFR pathway'
-    implication: Heterogeneidad clonal; ESR1 superior en plasma
-  - component: IHQ extendida
-    method: IHQ en tejido
-    targets: 'ER, PR, HER2 (ultralow), FGFR1 prot., SSTR2, CgA, SYN'
-    implication: HER2-low→T-DXd; FGFR1→FGFR trial; SSTR2→PRRT
-  - component: IHQ funcional
-    method: Fosfo-IHQ
-    targets: 'p-AKT (Thr308/Ser473), p-ERK1/2'
-    implication: Activación real de vías PI3K/MAPK
-  - component: RPPA (si viable)
-    method: Proteómica funcional
-    targets: 'p-4EBP1, p-S6RP, p-p70S6K'
-    implication: Clustering jerárquico PI3K/MAPK
-  - component: DOTATATE PET/CT
-    method: Si SSTR2+ en IHQ
-    targets: Krenning score
-    implication: Elegibilidad PRRT (Krenning ≥3)
+  - component: NGS amplio + WGS
+    method: 'Panel ≥500 genes + WGS · FFPE Core 5 / congelado Core 6'
+    targets: 'FGFR1-4, CCND1, CDK4, FGF3/4/19, ESR1, PIK3CA, PTEN, RB1, TP53, MET; CNV, TMB, MSI, fusiones, SV'
+    implication: 'Drivers dominantes y co-alteraciones. PTEN y CDK4 sólo fiables en tejido; CDK4 co-amplificado en 11q13 implica resistencia a CDK4/6i'
+  - component: RNA-seq (expresión)
+    method: 'RNA-seq bulk · congelado Core 6'
+    targets: 'mRNA FGFR1, FGF3/4/19, MYC; firma NE; PAM50'
+    implication: 'Mejor predictor de respuesta a FGFRi que la amplificación sola; confirma el circuito autocrino FGFR'
+  - component: IHQ extendida (30)
+    method: 'IHQ + RNAScope · FFPE Core 3'
+    targets: 'ER, PR, HER2 (ultralow), FGFR1, SSTR2, TROP-2, B7-H3, DLL3, CgA, SYN, INSM1, Rb, Cyclin E1, GR'
+    implication: 'HER2-low→T-DXd · SSTR2→PRRT · DLL3→anti-DLL3 · Cyclin E1 / pérdida de Rb→resistencia a CDK4/6i'
+  - component: Single-cell Multiome + CITE-seq
+    method: 'snRNA + ATAC, TCR/BCR · congelado Core 7'
+    targets: 'Estados transcripcionales + cromatina; ER/HER2/SSTR2/TROP-2/B7-H3/PD-L1; repertorio T/B'
+    implication: 'Programa NE vs luminal, clones resistentes y microambiente inmune (tumor frío vs caliente)'
+  - component: RPPA / fosfoproteómica
+    method: '~95 proteínas · lisado Core 9'
+    targets: 'p-FRS2α, p-AKT, p-ERK, p-Rb, p-S6, Cyclin E1, GR, p-ER'
+    implication: 'Activación REAL de las vías (FGFR, PI3K, MAPK, ciclo celular); guía combinaciones'
+  - component: Transcriptómica espacial
+    method: 'Visium / Xenium · OCT Cores 10–11'
+    targets: 'Arquitectura tumor–estroma–hueso; ¿NE homogénea o islotes HR+ residuales?'
+    implication: 'Define si dirigir sólo el fenotipo NE o también el componente luminal residual'
+  - component: Organoides + drug screening
+    method: 'Cultivo ex vivo · fresco Core 12 / crio-vivo Core 13'
+    targets: 'Sensibilidad ex vivo: FGFRi, CDK4/6i, T-DXd, capivasertib, everolimus y combinaciones'
+    implication: 'Los PDOs predicen respuesta ~78% y mejoran la PFS al guiar el tratamiento (11,0 vs 5,0 meses)'
+  - component: ctDNA seriado
+    method: 'Plasma cada 6–8 semanas'
+    targets: 'FGFR1 amp, ESR1 (Y537S/D538G), PIK3CA, mutaciones kinasa FGFR; fracción tumoral ≥1%'
+    implication: 'Cierra el bucle: detecta resistencia 4–8 semanas antes que la imagen, sin rebiopsiar'
 liquidBiopsies:
   - id: ctdna-1
     date: 7 abr 2026
@@ -163,7 +190,7 @@ liquidBiopsies:
   - id: ctdna-2
     date: Abril 2026
     source: Guardant360
-    findings: 'ESR1 D538G · 3 mutaciones distintas en RB1 · FGFR1 amplificado · CCND1 amplificado'
+    findings: 'ESR1 D538G · RB1 ×3 (p.V622Yfs*33 1,58% · p.R661W 1,48% · p.F226* subclonal) · FGFR1 amplificado · CCND1 amplificado'
     highlight: true
   - id: ctdna-3
     date: Extracción 13/05/2026 · informe 26/05/2026
@@ -195,7 +222,7 @@ liquidBiopsyPivot:
       subscript: p.V622Yfs*33
       values:
         vhio360: { plain: true }
-        guardant1: { value: 'detectada', tone: warn }
+        guardant1: { value: '1,58%', tone: warn }
         guardantcdx: { value: '0,19%', tone: warn }
     - alteration: CCND1
       subscript: amplificación

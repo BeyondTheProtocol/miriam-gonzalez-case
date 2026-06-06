@@ -7,14 +7,10 @@
       </p>
     </div>
     <h3 id="liquid-pivot-title" class="heading-display text-xl text-berenjena mb-1">
-      {{ locale === 'es' ? 'Alteraciones detectadas por muestra' : 'Alterations detected per sample' }}
+      {{ $t('ciencia.ctdna_dynamics_title') }}
     </h3>
     <p class="text-sm text-tinta leading-relaxed mb-5 max-w-2xl">
-      {{
-        locale === 'es'
-          ? 'Vista comparada del ctDNA en plasma a lo largo del tiempo. Cada columna es una muestra; las celdas vacías (—) significan ausencia o no reportado.'
-          : 'Time-comparison of plasma ctDNA. Each column is one sample; empty cells (—) mean absent or not reported.'
-      }}
+      {{ $t('ciencia.ctdna_dynamics_intro') }}
     </p>
 
     <div class="data-card overflow-x-auto">
@@ -47,7 +43,7 @@
         </thead>
         <tbody>
           <tr v-for="(row, i) in data.rows" :key="i">
-            <td class="cell-head">
+            <td class="cell-head" translate="no">
               <span class="text-berenjena font-semibold">{{ row.alteration }}</span>
               <span v-if="row.subscript" class="ml-2 font-mono text-tinta" style="font-size:11px">{{ row.subscript }}</span>
             </td>

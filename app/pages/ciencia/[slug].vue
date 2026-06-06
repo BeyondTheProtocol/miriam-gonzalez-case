@@ -9,7 +9,7 @@
           style="text-decoration: none"
         >
           <Icon name="ph:arrow-left" class="w-4 h-4" aria-hidden="true" />
-          {{ locale === 'es' ? 'Volver a la ciencia' : 'Back to science' }}
+          {{ $t('ciencia.back_to_science') }}
         </NuxtLink>
 
         <!-- Language fallback notice -->
@@ -19,11 +19,7 @@
           style="border-left: 4px solid #a44db2"
         >
           <p class="text-sm text-tinta italic">
-            {{
-              locale === 'es'
-                ? 'Este artículo aún no está disponible en inglés. Se muestra la versión en español.'
-                : 'This article is not yet available in English. Showing the Spanish version.'
-            }}
+            {{ $t('ciencia.article_fallback_notice') }}
           </p>
         </div>
 
@@ -36,18 +32,14 @@
             aria-hidden="true"
           />
           <p class="text-tinta">
-            {{
-              locale === 'es' ? 'Artículo no encontrado.' : 'Article not found.'
-            }}
+            {{ $t('ciencia.article_not_found') }}
           </p>
           <NuxtLink
             :to="localePath('/ciencia')"
             class="mt-4 inline-block text-sm text-miriam hover:text-berenjena transition-colors"
             style="text-decoration: none"
           >
-            {{
-              locale === 'es' ? 'Ver todos los análisis' : 'View all analyses'
-            }}
+            {{ $t('ciencia.view_all_analyses') }}
           </NuxtLink>
         </div>
 
@@ -80,7 +72,7 @@
               <h2
                 class="font-display font-semibold text-berenjena text-base mb-4"
               >
-                {{ locale === 'es' ? 'Referencias' : 'References' }}
+                {{ $t('ciencia.references') }}
               </h2>
               <ul class="space-y-2">
                 <li
@@ -93,7 +85,7 @@
                     :href="ref.link"
                     target="_blank"
                     rel="noopener"
-                    :aria-label="`${locale === 'es' ? 'Referencia' : 'Reference'} ${ref.id}: ${ref.link}`"
+                    :aria-label="`${$t('ciencia.reference')} ${ref.id}: ${ref.link}`"
                     class="text-miriam hover:text-berenjena transition-colors"
                     style="text-decoration: none"
                     >{{ refHost(ref.link) }}</a

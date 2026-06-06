@@ -31,7 +31,7 @@
         </thead>
         <tbody>
           <tr v-for="(row, i) in markers" :key="i">
-            <td class="col-marker cell-head">{{ row.marker }}</td>
+            <td class="col-marker cell-head" translate="no">{{ row.marker }}</td>
             <td :data-label="locale === 'es' ? 'Resultado' : 'Result'">
               <span :class="['pill-data', `pill-data--${row.tone}`]">{{ row.result }}</span>
             </td>

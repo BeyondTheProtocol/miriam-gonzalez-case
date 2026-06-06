@@ -79,6 +79,8 @@ const scienceSchema = z.object({
     .array(
       z.object({
         title: z.string(),
+        tag: z.string().optional(),
+        tone: z.enum(['violet', 'info', 'warn', 'positive', 'neutral']).optional(),
         subtitle: z.string().optional(),
         papers: z.array(
           z.object({
