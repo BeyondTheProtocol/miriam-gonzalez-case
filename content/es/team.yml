@@ -3,62 +3,62 @@ coreTeam:
     name: Miriam González
     photo: /img/team/miriam.webp
     featured: true
-    description: "Ingeniera de software y divulgadora tecnológica. Investiga activamente su caso y coordina toda la iniciativa."
+    description: "Ingeniera de software y divulgadora tecnológica. Investiga su propio caso y coordina toda la iniciativa."
     icon: ph:user-circle-fill
     color: gold
   - role: "Oncología de precisión y perfil molecular"
     name: Paola
     photo: /img/team/paola.webp
-    description: "Científica con formación en bioingeniería. Es quien mejor entiende la parte molecular y de ADN del caso, y asesora en ello."
+    description: "Bioingeniera. Ayuda a interpretar los datos moleculares y a orientar los próximos pasos del plan."
     icon: ph:pulse-fill
     color: gold
   - role: "Investigación y ensayos clínicos"
     name: Alejandro
     photo: /img/team/alejandro.webp
-    description: "Doctor. Investiga junto al equipo y asesora en ensayos clínicos, y ayuda a orientar las opciones del caso."
+    description: "Doctor e investigador. Trabaja con el equipo y asesora en ensayos clínicos para orientar las opciones del caso."
     icon: ph:clipboard-text-fill
     color: gold
   - role: "Asesoría en cáncer de mama"
     name: Víctor
     photo: /img/team/victor.webp
-    description: "Especializado en cáncer de mama. Junto a David cubre la asesoría clínica del caso, cada uno desde su especialidad."
+    description: "Aporta su experiencia clínica para orientar las decisiones del caso."
     icon: ph:stethoscope-fill
     color: ocean
-  - role: "Asesoría en tumores neuroendocrinos"
+  - role: "Asesoría en neuroendocrinos"
     name: David
-    description: "Especializado en tumores neuroendocrinos. Junto a Víctor cubre la asesoría clínica del caso, cada uno desde su especialidad."
+    description: "Aporta su experiencia clínica para orientar las decisiones del caso."
     icon: ph:stethoscope-fill
     color: ocean
   - role: "Investigación oncológica"
     name: Paloma
-    description: "Investigadora en el Dana-Farber Cancer Institute, centro afiliado a Harvard, donde estudia la diferenciación neuroendocrina."
+    description: "Investigadora en el Dana-Farber Cancer Institute (Harvard). Estudia la diferenciación neuroendocrina."
     icon: ph:flask-fill
     color: gold
   - role: "Inteligencia artificial y difusión"
     name: Javi
-    description: "Con inteligencia artificial genera los informes que sirven de base a la propuesta de tratamiento, y colabora en la difusión."
+    description: "Con inteligencia artificial, genera los informes que sustentan la propuesta de tratamiento y colabora en la difusión."
     icon: ph:megaphone-fill
     color: ocean
   - role: "Inteligencia artificial"
     name: Alby
     photo: /img/team/alby.webp
-    description: "Lleva la inteligencia artificial del proyecto. Adapta herramientas a medida del caso para ordenar la información y aligerar el trabajo manual."
+    description: "Adapta las herramientas de IA al caso de Miriam para ordenar la información y aligerar el trabajo manual."
     icon: ph:robot-fill
     color: ocean
   - role: "Desarrollo de herramientas digitales"
     name: Dani
-    description: "Desarrolla las herramientas digitales del proyecto. Entre ellas, la app que reúne y ordena el historial médico del caso para tenerlo siempre a mano."
+    description: "Construye y mantiene las herramientas digitales que usa el equipo."
     icon: ph:device-mobile-fill
     color: ink
   - role: "Web y comunicación"
     name: Ceci
     photo: /img/team/ceci.webp
-    description: "Responsable de la web. Desarrolla y mantiene helpmiriam.com, y cuida que toda la información se entienda a la primera."
+    description: "Desarrolla y mantiene helpmiriam.com, y cuida que toda la información se entienda a la primera."
     icon: ph:code-fill
     color: ocean
   - role: "Coordinación de comunidad"
     name: Afor
-    description: "Coordina a las personas de la comunidad que colaboran en los proyectos de helpmiriam."
+    description: "Conecta y organiza a las personas de la comunidad que colaboran en los proyectos de helpmiriam."
     icon: ph:users-three-fill
     color: ink
   - role: "Narrativa y textos"
@@ -68,24 +68,20 @@ coreTeam:
     icon: ph:pen-nib-fill
     color: gold
 medicalNetwork:
-  - role: "Oncóloga tratante (España)"
-    description: "Oncóloga que sigue el caso desde el diagnóstico. Abierta a nuevos enfoques y al día de los últimos avances en oncología de precisión."
-    icon: ph:stethoscope-fill
-    color: ink
-  - role: "Oncología radioterápica · Vall d'Hebron (VHIO, Barcelona)"
-    description: "Lleva el caso al comité tumoral multidisciplinar del Vall d'Hebron (VHIO) y abre conexión directa con ensayos de terapia avanzada relevantes para este perfil."
+  - role: "Vall d'Hebron · VHIO (Barcelona)"
+    description: "Lleva el caso a su comité tumoral multidisciplinar y abre una vía directa a ensayos de terapia avanzada relevantes para este perfil."
     icon: ph:atom-fill
     color: ocean
-  - role: "Oncología molecular (Europa)"
-    description: "Especialista en oncología molecular de reconocimiento internacional. Apoya la estrategia de análisis molecular, coordina con laboratorios de referencia y valida el enfoque clínico del caso."
+  - role: "Oncología molecular · Zúrich (Suiza)"
+    description: "Equipo de oncología molecular de reconocimiento internacional. Ayuda con la biopsia y el análisis molecular, y con la estrategia de tratamiento integrada para este perfil de mama con diferenciación neuroendocrina."
     icon: ph:stethoscope-fill
     color: gold
   - role: "Oncología de precisión (EE.UU.)"
-    description: "Reconocida mundialmente como una de las 25 voces más influyentes en medicina de precisión. Directora asociada de investigación clínica en oncología de precisión, con más de 950 publicaciones científicas y responsable de llevar 8 fármacos a la aprobación de la FDA. Interesada en el caso de Miriam para discutirlo en redes internacionales de oncología de precisión."
+    description: "Una de las 25 voces más influyentes del mundo en medicina de precisión, con cientos de publicaciones y varios fármacos aprobados por la FDA. Se ha interesado por el caso de Miriam para discutirlo en redes internacionales."
     icon: ph:stethoscope-fill
     color: gold
   - role: "Dana-Farber · Harvard (EE.UU.)"
-    description: "Conexión con el Dana-Farber Cancer Institute, centro afiliado a Harvard, a través de la investigadora del equipo que estudia allí la diferenciación neuroendocrina."
+    description: "Vínculo con el Dana-Farber Cancer Institute, afiliado a Harvard, a través de la investigadora del equipo que estudia allí la diferenciación neuroendocrina."
     icon: ph:graduation-cap-fill
     color: gold
 integrativeSupport:
@@ -93,16 +89,16 @@ integrativeSupport:
     description: "Especialista en el abordaje metabólico del cáncer. Diseña el protocolo de suplementación y soporte metabólico de Miriam."
     icon: ph:flask-fill
     color: ocean
-  - role: "Doctor en Ciencias del Deporte y oncología del ejercicio (España)"
-    description: "Investigador principal en la Fundación OncSport — Never Surrender. Diseña y supervisa el entrenamiento individualizado de Miriam, adaptado a su metástasis ósea, para mantenerla en ECOG 0 (plena capacidad funcional)."
+  - role: "Entrenamiento y oncología del ejercicio (España)"
+    description: "Diseña el entrenamiento de Miriam para mantenerla en {ecog}."
     icon: ph:barbell-fill
     color: ink
   - role: "Nutricionista oncológica"
     description: "Especializada en nutrición para pacientes oncológicos. Lleva el seguimiento nutricional de Miriam a lo largo del tratamiento."
     icon: ph:plant-fill
     color: gold
-  - role: "Psicología oncológica (Asociación AECC)"
-    description: "Psicóloga especializada en acompañamiento emocional a personas con cáncer. Colabora desde la Asociación AECC."
+  - role: "Psicología oncológica"
+    description: "Psicóloga especializada en acompañamiento emocional a personas con cáncer."
     icon: ph:heart-fill
     color: gold
   - role: "Psicología y altas capacidades"
