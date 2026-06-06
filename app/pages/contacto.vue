@@ -166,7 +166,7 @@
                   required
                   autocomplete="email"
                   class="form-input"
-                  placeholder="email@ejemplo.com"
+                  :placeholder="$t('contact.email_placeholder')"
                 />
               </div>
 

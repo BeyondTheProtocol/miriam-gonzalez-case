@@ -106,6 +106,10 @@ const open = ref(false)
   position: relative;
   white-space: nowrap;
 }
+/* Anotación, no enlace: subrayado sólido en violeta pero el texto mantiene
+   el color del cuerpo (berenjena) — los enlaces son violeta —, con cursor de
+   ayuda y tooltip. Así se lee como «palabra con definición», no como navegación.
+   El subrayado se refuerza al pasar/enfocar/abrir, en sintonía con el tooltip. */
 .term {
   font: inherit;
   color: inherit;
@@ -113,15 +117,27 @@ const open = ref(false)
   border: 0;
   padding: 0;
   cursor: help;
-  text-decoration: underline dotted;
+  text-decoration: underline;
+  text-decoration-thickness: 1.5px;
   text-underline-offset: 3px;
-  text-decoration-color: rgba(164, 77, 178, 0.6);
+  text-decoration-color: rgba(157, 68, 171, 0.55);
+  transition: text-decoration-color 0.2s ease;
   white-space: normal;
+}
+.term:hover,
+.term:focus-visible,
+.term[aria-expanded='true'] {
+  text-decoration-color: #9d44ab;
 }
 .term:focus-visible {
   outline: 2px solid #ff6b47;
   outline-offset: 2px;
   border-radius: 2px;
+}
+@media (prefers-reduced-motion: reduce) {
+  .term {
+    transition: none;
+  }
 }
 .term-pop {
   position: absolute;

@@ -46,12 +46,11 @@
         {{ entry.description }}
       </p>
       <img v-if="entry.image" :src="entry.image" :alt="entry.imageAlt || ''"
-        class="mt-4 rounded-card w-full max-w-sm object-cover" />
+        class="mt-4 rounded-card w-full max-w-sm object-cover" loading="lazy" decoding="async" />
       <a v-if="entry.link" :href="entry.link" target="_blank" rel="noopener"
-        class="inline-flex items-center gap-1 mt-2 text-xs font-medium text-miriam hover:text-berenjena transition-colors"
-        style="text-decoration: none">
+        class="link-action mt-2 text-xs text-miriam">
         <Icon name="ph:arrow-up-right-bold" class="w-3 h-3" aria-hidden="true" />
-        {{ entry.linkLabel || $t('timeline.read_more') }}
+        {{ entry.linkLabel || $t('timeline.read_more') }}<span class="sr-only"> {{ $t('a11y.new_tab') }}</span>
       </a>
     </div>
   </li>

@@ -1,5 +1,6 @@
 <template>
   <header
+    ref="headerRef"
     :aria-label="$t('footer.site_header')"
     class="sticky top-0 z-50 transition-all duration-300"
     :class="
@@ -12,51 +13,21 @@
     <div class="section-wide flex items-center justify-between h-16 sm:h-18">
       <!-- Logo -->
       <NuxtLink :to="localePath('/')" class="flex items-center gap-2.5 group" style="text-decoration: none">
-          <span
-            class="w-9 h-9 rounded-lg flex items-center justify-center transition-colors"
-            aria-hidden="true"
-            style="background: #2d1b3d;"
-          >
-            <svg viewBox="0 0 64 64" width="24" height="24" aria-hidden="true">
-              <rect width="64" height="64" rx="14" fill="#2D1B3D" />
-              <text
-                x="32"
-                y="46"
-                font-family="Fraunces, Georgia, serif"
-                font-weight="600"
-                font-style="italic"
-                font-size="40"
-                fill="#FAF6F0"
-                text-anchor="middle"
-                letter-spacing="-0.02em"
-              >
-                m
-              </text>
-              <path
-                d="M 12 16 L 12.7 18 L 14.7 18.7 L 12.7 19.4 L 12 21.4 L 11.3 19.4 L 9.3 18.7 L 11.3 18 Z"
-                fill="#A44DB2"
-              />
-              <path
-                d="M 52 14 L 53 17 L 56 18 L 53 19 L 52 22 L 51 19 L 48 18 L 51 17 Z"
-                fill="#FAF6F0"
-              />
-              <path
-                d="M 50 50 L 50.7 52 L 52.7 52.7 L 50.7 53.4 L 50 55.4 L 49.3 53.4 L 47.3 52.7 L 49.3 52 Z"
-                fill="#A44DB2"
-              />
-            </svg>
-          </span>
-          <span class="flex flex-col leading-none">
-            <span
-              class="font-display font-semibold text-berenjena text-sm sm:text-base tracking-tight"
-            >
+          <!-- Logo redondo: monograma «m» + constelación de destellos (DS, violeta miriam) -->
+          <svg class="w-11 h-11 shrink-0" viewBox="0 0 240 240" aria-hidden="true">
+            <path d="M192.94 24.47 L199.74 37.67 L212.94 44.47 L199.74 51.27 L192.94 64.47 L186.14 51.27 L172.94 44.47 L186.14 37.67 Z" fill="#9d44ab" />
+            <path d="M48.33 173.84 L52.75 182.42 L61.33 186.84 L52.75 191.26 L48.33 199.84 L43.91 191.26 L35.33 186.84 L43.91 182.42 Z" fill="#9d44ab" />
+            <path d="M55.05 44.24 L57.94 49.85 L63.55 52.74 L57.94 55.63 L55.05 61.24 L52.16 55.63 L46.55 52.74 L52.16 49.85 Z" fill="#9d44ab" opacity="0.5" />
+            <circle cx="182.5" cy="184.7" r="3.4" fill="#9d44ab" />
+            <circle cx="212.8" cy="134.7" r="2.3" fill="#9d44ab" opacity="0.5" />
+            <circle cx="120" cy="120" r="76" fill="#2d1b3d" />
+            <text x="120" y="147" text-anchor="middle" font-family="Fraunces, Georgia, serif" font-style="italic" font-weight="600" font-size="120" fill="#faf6f0">m</text>
+          </svg>
+          <span class="flex flex-col leading-none" translate="no">
+            <span class="font-display font-semibold text-berenjena text-sm tracking-tight">
               {{ $t('site.title') }}
             </span>
-            <span
-              class="font-mono text-[10px] tracking-[0.04em] text-miriam mt-1"
-            >
-              helpmiriam.com
-            </span>
+            <span class="font-mono text-[11px] tracking-[0.04em] text-miriam mt-1">helpmiriam.com</span>
           </span>
         </NuxtLink>
       <!-- Desktop nav -->
@@ -65,47 +36,57 @@
         class="hidden lg:flex items-center gap-1"
       >
         <NuxtLink
-          v-for="item in navItems"
+          v-for="item in allNav"
           :key="item.key"
           :to="localePath(item.to)"
-          class="px-3 py-1.5 text-sm font-medium text-tinta hover:text-miriam rounded-lg transition-all"
-          style="text-decoration: none"
-          active-class="!text-miriam"
+          :class="navClass(item.to)"
+          :aria-current="isActive(item.to) ? 'page' : undefined"
         >
           {{ $t(`nav.${item.key}`) }}
-        </NuxtLink>
-        <NuxtLink
-          :to="localePath('colabora')"
-          class="px-3 py-1.5 text-sm font-medium text-tinta hover:text-miriam rounded-lg transition-all"
-          style="text-decoration: none"
-          active-class="!text-miriam"
-        >
-          {{ $t('nav.collaborate') }}
         </NuxtLink>
       </nav>
 
       <!-- Right side: lang switch + CTA + mobile menu -->
       <div class="flex items-center gap-3">
-        <!-- Language switch -->
-        <button
-          @click="toggleLocale"
-          :aria-label="langAriaLabel"
-          class="text-[11px] font-mono font-medium tracking-widest uppercase px-2.5 py-1 rounded-md text-tinta hover:text-berenjena transition-colors"
-          style="border: 1px solid rgba(45,27,61,0.15)"
+        <!-- Language switch — toggle segmentado discreto: muestra ambos idiomas y
+             marca el activo con un tinte suave (no una píldora rellena), para no
+             competir con el CTA coral. Oculto en móviles pequeños (<sm): allí vive
+             dentro del menú desplegable. setLocale() escribe el cookie
+             i18n_redirected → la elección persiste y no rebota con la detección. -->
+        <div
+          role="group"
+          :aria-label="$t('nav.language')"
+          class="hidden sm:flex items-center rounded-md overflow-hidden font-mono text-[11px] font-semibold tracking-widest uppercase"
+          style="border: 1px solid rgba(45,27,61,0.10)"
         >
-          {{ locale === 'es' ? 'EN' : 'ES' }}
-        </button>
+          <button
+            type="button"
+            @click="switchLang('es')"
+            aria-label="Español"
+            :aria-pressed="locale === 'es'"
+            class="inline-flex items-center justify-center px-2.5 py-2 min-h-[36px] transition-colors"
+            :class="locale === 'es' ? 'bg-miriam-soft text-berenjena' : 'text-tinta hover:text-berenjena'"
+          >ES</button>
+          <button
+            type="button"
+            @click="switchLang('en')"
+            aria-label="English"
+            :aria-pressed="locale === 'en'"
+            class="inline-flex items-center justify-center px-2.5 py-2 min-h-[36px] transition-colors"
+            :class="locale === 'en' ? 'bg-miriam-soft text-berenjena' : 'text-tinta hover:text-berenjena'"
+          >EN</button>
+        </div>
 
         <!-- Donate CTA -->
         <a
           href="https://gofund.me/3e25cae99"
           target="_blank"
           rel="noopener noreferrer"
-          class="hidden sm:inline-flex items-center gap-1.5 px-4 py-2 bg-coral hover:bg-coral-hover text-berenjena text-sm font-semibold rounded-btn transition-all"
+          class="donate-cta hidden sm:inline-flex items-center gap-1.5 min-h-[44px] px-4 py-2 bg-coral hover:bg-coral-hover text-berenjena text-sm font-semibold rounded-btn transition-all hover:-translate-y-0.5 hover:shadow-[0_10px_22px_-8px_rgba(255,107,71,0.55)]"
           style="text-decoration: none"
         >
-          <Icon name="ph:heart-fill" class="w-3.5 h-3.5" aria-hidden="true" />
-          {{ $t('nav.donate') }}
+          <Icon name="ph:heart-fill" class="heart-beat w-3.5 h-3.5" aria-hidden="true" />
+          {{ $t('nav.donate') }}<span class="sr-only"> {{ $t('a11y.new_tab') }}</span>
         </a>
 
         <!-- Mobile hamburger -->
@@ -114,7 +95,7 @@
           :aria-expanded="mobileOpen"
           aria-controls="mobile-nav"
           :aria-label="mobileOpen ? $t('nav.close_menu') : $t('nav.open_menu')"
-          class="lg:hidden p-2 -mr-2 text-berenjena"
+          class="lg:hidden inline-flex items-center justify-center min-w-[44px] min-h-[44px] -mr-2 text-berenjena"
         >
           <Icon
             :name="mobileOpen ? 'ph:x-bold' : 'ph:list-bold'"
@@ -142,38 +123,61 @@
       >
         <nav
           :aria-label="$t('nav.mobile_label')"
-          class="section-wide py-4 flex flex-col gap-1"
+          class="section-wide py-4 flex flex-col gap-1 stagger-children"
         >
           <NuxtLink
-            v-for="item in navItems"
+            v-for="item in allNav"
             :key="item.key"
             :to="localePath(item.to)"
-            class="px-4 py-2.5 text-sm font-medium text-tinta hover:text-miriam rounded-lg transition-all"
-            style="text-decoration: none"
-            active-class="!text-miriam"
+            :class="navClass(item.to)"
+            :aria-current="isActive(item.to) ? 'page' : undefined"
             @click="mobileOpen = false"
           >
             {{ $t(`nav.${item.key}`) }}
-          </NuxtLink>
-          <NuxtLink
-            :to="localePath('colabora')"
-            class="px-4 py-2.5 text-sm font-medium text-tinta hover:text-miriam rounded-lg transition-all"
-            style="text-decoration: none"
-            active-class="!text-miriam"
-            @click="mobileOpen = false"
-          >
-            {{ $t('nav.collaborate') }}
           </NuxtLink>
           <a
             href="https://gofund.me/3e25cae99"
             target="_blank"
             rel="noopener noreferrer"
-            class="mt-2 flex items-center justify-center gap-1.5 px-4 py-2.5 bg-coral hover:bg-coral-hover text-berenjena text-sm font-semibold rounded-btn"
+            class="donate-cta mt-2 flex items-center justify-center gap-1.5 px-4 py-2.5 bg-coral hover:bg-coral-hover text-berenjena text-sm font-semibold rounded-btn"
             style="text-decoration: none"
           >
-            <Icon name="ph:heart-fill" class="w-3.5 h-3.5" aria-hidden="true" />
-            {{ $t('nav.donate') }}
+            <Icon name="ph:heart-fill" class="heart-beat w-3.5 h-3.5" aria-hidden="true" />
+            {{ $t('nav.donate') }}<span class="sr-only"> {{ $t('a11y.new_tab') }}</span>
           </a>
+
+          <!-- Language switch — vive aquí en móvil para descongestionar la cabecera -->
+          <div
+            class="mt-3 pt-3 flex items-center justify-between"
+            style="border-top: 1px solid rgba(45,27,61,0.08)"
+          >
+            <span class="font-mono text-[11px] uppercase tracking-widest text-tinta">
+              {{ $t('nav.language') }}
+            </span>
+            <div
+              role="group"
+              :aria-label="$t('nav.language')"
+              class="flex items-center rounded-md overflow-hidden font-mono text-[11px] font-semibold tracking-widest uppercase"
+              style="border: 1px solid rgba(45,27,61,0.10)"
+            >
+              <button
+                type="button"
+                @click="switchLang('es')"
+                aria-label="Español"
+                :aria-pressed="locale === 'es'"
+                class="inline-flex items-center justify-center px-4 py-2 min-h-[44px] transition-colors"
+                :class="locale === 'es' ? 'bg-miriam-soft text-berenjena' : 'text-tinta'"
+              >ES</button>
+              <button
+                type="button"
+                @click="switchLang('en')"
+                aria-label="English"
+                :aria-pressed="locale === 'en'"
+                class="inline-flex items-center justify-center px-4 py-2 min-h-[44px] transition-colors"
+                :class="locale === 'en' ? 'bg-miriam-soft text-berenjena' : 'text-tinta'"
+              >EN</button>
+            </div>
+          </div>
         </nav>
       </div>
     </Transition>
@@ -181,17 +185,14 @@
 </template>
 
 <script setup lang="ts">
-const { locale, t } = useI18n()
+const { locale, setLocale } = useI18n()
 const localePath = useLocalePath()
-const switchLocalePath = useSwitchLocalePath()
+const route = useRoute()
 const { y } = useWindowScroll()
 
+const headerRef = ref<HTMLElement | null>(null)
 const mobileOpen = ref(false)
 const scrolled = computed(() => y.value > 20)
-
-const langAriaLabel = computed(() =>
-  locale.value === 'es' ? t('nav.switch_to_en') : t('nav.switch_to_es')
-)
 
 const navItems = [
   { key: 'home', to: { name: 'index' } },
@@ -199,9 +200,48 @@ const navItems = [
   { key: 'timeline', to: { name: 'timeline' } },
   { key: 'team', to: { name: 'equipo' } },
 ]
+// "Colabora" ahora vive en el array (antes era markup duplicado suelto).
+const allNav = [...navItems, { key: 'collaborate', to: 'colabora' as const }]
 
-function toggleLocale() {
-  const newLocale = locale.value === 'es' ? 'en' : 'es'
-  navigateTo(switchLocalePath(newLocale))
+// Página actual: marca el ítem activo también en subpáginas (p. ej. un
+// artículo /ciencia/algo resalta "El caso"). El home solo en coincidencia exacta.
+function isActive(to: unknown): boolean {
+  const target = (localePath(to as never) || '/').replace(/\/+$/, '') || '/'
+  const path = route.path.replace(/\/+$/, '') || '/'
+  if (typeof to === 'object' && to !== null && (to as { name?: string }).name === 'index') {
+    return path === target
+  }
+  return path === target || path.startsWith(target + '/')
 }
+
+// Estados del enlace de menú:
+// · reposo  → gris (tinta)
+// · hover   → píldora de fondo miriam-soft + texto berenjena
+// · activo  → violeta miriam + subrayado fijo → distinto del hover ("estás aquí")
+function navClass(to: unknown): (string | undefined)[] {
+  return [
+    'px-3 py-1.5 text-sm font-medium rounded-lg transition-colors',
+    // hover (ratón) + active (táctil, sin hover): misma píldora miriam-soft
+    'hover:bg-miriam-soft/60 hover:text-berenjena active:bg-miriam-soft/60 active:text-berenjena',
+    isActive(to)
+      ? 'text-miriam underline decoration-2 decoration-miriam underline-offset-[6px]'
+      : 'text-tinta',
+  ]
+}
+
+// Cambiar de idioma manualmente: setLocale escribe el cookie y navega, así la
+// elección del usuario prevalece sobre la detección del navegador (que solo
+// actúa en la primera visita, sin cookie).
+async function switchLang(code: 'es' | 'en') {
+  if (code !== locale.value) await setLocale(code)
+  mobileOpen.value = false
+}
+
+// Cerrar el menú móvil con Escape y al pulsar fuera de la cabecera.
+onKeyStroke('Escape', () => {
+  if (mobileOpen.value) mobileOpen.value = false
+})
+onClickOutside(headerRef, () => {
+  if (mobileOpen.value) mobileOpen.value = false
+})
 </script>

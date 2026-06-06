@@ -32,11 +32,10 @@
             href="https://x.com/miriamgonp"
             target="_blank"
             rel="noopener"
-            class="mt-3 inline-flex items-center gap-1.5 text-sm font-medium text-miriam hover:text-berenjena transition-colors"
-            style="text-decoration: none"
+            class="link-action mt-3 text-sm text-miriam"
           >
             <Icon name="ph:x-logo-fill" class="w-4 h-4" aria-hidden="true" />
-            {{ $t('timeline.follow_twitter') }}
+            {{ $t('timeline.follow_twitter') }}<span class="sr-only"> {{ $t('a11y.new_tab') }}</span>
           </a>
         </div>
       </div>

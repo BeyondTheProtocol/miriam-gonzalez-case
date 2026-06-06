@@ -3,7 +3,7 @@
     <SectionHero />
 
     <!-- La historia + en sus propias palabras (beat humano: persona antes que problema) -->
-    <section class="py-24 sm:py-32 relative overflow-hidden" :aria-label="$t('home.story_eyebrow')" style="background: #2d1b3d; color: #faf6f0">
+    <section v-reveal class="py-24 sm:py-32 relative overflow-hidden" :aria-label="$t('home.story_eyebrow')" style="background: #2d1b3d; color: #faf6f0">
       <div class="absolute inset-0 opacity-[0.04]" style="background-image: radial-gradient(circle at 1px 1px, #faf6f0 1px, transparent 0); background-size: 32px 32px;" />
       <div class="relative section-container max-w-4xl">
         <p class="font-mono text-[12px] uppercase tracking-[0.14em]" style="color: #e8d4ed">
@@ -14,14 +14,14 @@
         </h2>
         <p class="text-base sm:text-lg leading-relaxed max-w-2xl" style="color: rgba(250,246,240,0.92)">
           {{ $t('home.story_p1')
-          }}<strong class="font-semibold text-cream">{{ $t('home.story_p1_rarity') }}</strong>.
+          }}<strong class="font-semibold text-cream">{{ $t('home.story_p1_rarity') }}</strong>{{ $t('home.story_p1_tail') }}
         </p>
         <NuxtLink
           :to="localePath({ name: 'historia' })"
-          class="link-underline mt-7 inline-flex items-center gap-2 text-sm font-medium text-cream"
+          class="link-action group mt-7 text-sm text-cream"
         >
           {{ $t('home.story_link') }}
-          <Icon name="ph:arrow-right" class="w-4 h-4" aria-hidden="true" />
+          <Icon name="ph:arrow-right" class="w-4 h-4 transition-transform group-hover:translate-x-0.5" aria-hidden="true" />
         </NuxtLink>
 
         <!-- En sus propias palabras -->
@@ -35,15 +35,12 @@
           <p class="mt-8 font-display italic text-xl" style="color: #e8d4ed">
             — {{ $t('home.s6_signature') }}
           </p>
-          <p class="mt-8 leading-relaxed text-sm max-w-2xl" style="color: rgba(250,246,240,0.7)">
-            {{ $t('home.s6_outro') }}
-          </p>
         </div>
       </div>
     </section>
 
     <!-- S3 · Por qué no lo cubre la sanidad pública (brecha clínica · respuesta principal) -->
-    <section
+    <section v-reveal
       class="section-spacing bg-cream-card"
       :aria-label="$t('home.s3_eyebrow')"
       style="border-top: 1px solid rgba(45,27,61,0.08); border-bottom: 1px solid rgba(45,27,61,0.08)"
@@ -122,7 +119,7 @@
     </section>
 
     <!-- Hacia dónde va · objetivo N-of-1 + perfil molecular en una línea (detalle completo en /ciencia) -->
-    <section class="section-spacing bg-cream" :aria-label="$t('home.s8_eyebrow')" style="border-bottom: 1px solid rgba(45,27,61,0.08)">
+    <section v-reveal class="section-spacing bg-cream" :aria-label="$t('home.s8_eyebrow')" style="border-bottom: 1px solid rgba(45,27,61,0.08)">
       <div class="section-container max-w-5xl">
         <p class="eyebrow mb-4 block">{{ $t('home.s8_eyebrow') }}</p>
         <h2 class="heading-display text-3xl sm:text-5xl text-berenjena mb-6" style="letter-spacing: -0.03em">
@@ -180,7 +177,7 @@
     </section>
 
     <!-- S4 · ¿Por qué necesitamos tu ayuda? · Destino del dinero -->
-    <section class="section-spacing bg-cream-card" id="campaign" :aria-label="$t('home.s4_eyebrow')" style="border-top: 1px solid rgba(45,27,61,0.08)">
+    <section v-reveal class="section-spacing bg-cream-card" id="campaign" :aria-label="$t('home.s4_eyebrow')" style="border-top: 1px solid rgba(45,27,61,0.08)">
       <div class="section-container max-w-5xl">
         <p class="eyebrow mb-4 block">{{ $t('home.s4_eyebrow') }}</p>
         <h2 class="heading-display text-3xl sm:text-5xl text-berenjena mb-6" style="letter-spacing: -0.03em">
@@ -209,8 +206,9 @@
               :key="i"
               class="flex items-start gap-3 py-2.5 border-t border-berenjena/[0.07]"
             >
-              <span
-                class="mt-[7px] w-1.5 h-1.5 rounded-full bg-miriam shrink-0"
+              <Icon
+                name="ph:check-circle-fill"
+                class="mt-0.5 w-4 h-4 text-miriam shrink-0"
                 aria-hidden="true"
               />
               <span class="text-sm text-tinta leading-relaxed">{{ $rt(item) }}</span>
@@ -218,10 +216,10 @@
           </ul>
           <NuxtLink
             :to="localePath('gastos')"
-            class="mt-5 inline-flex items-center gap-1.5 text-sm font-medium text-miriam hover:text-berenjena transition-colors"
+            class="link-action group mt-5 text-sm text-miriam"
           >
             {{ $t('home.s4_full_breakdown') }}
-            <Icon name="ph:arrow-right" class="w-4 h-4" aria-hidden="true" />
+            <Icon name="ph:arrow-right" class="w-4 h-4 transition-transform group-hover:translate-x-0.5" aria-hidden="true" />
           </NuxtLink>
         </div>
 
@@ -241,7 +239,7 @@
     </section>
 
     <!-- S10 · CTAs en escalera -->
-    <section class="section-spacing bg-cream" :aria-label="$t('home.s10_eyebrow')" style="border-top: 1px solid rgba(45,27,61,0.08)">
+    <section v-reveal class="section-spacing bg-cream" :aria-label="$t('home.s10_eyebrow')" style="border-top: 1px solid rgba(45,27,61,0.08)">
       <div class="section-container max-w-5xl">
         <p class="eyebrow mb-4 block">{{ $t('home.s10_eyebrow') }}</p>
         <h2 class="heading-display text-3xl sm:text-4xl text-berenjena mb-6" style="letter-spacing: -0.03em">
@@ -273,7 +271,7 @@
             <h3 class="font-display font-semibold text-berenjena text-xl mb-3">{{ $t('home.s10_l3_title') }}</h3>
             <p class="text-sm text-tinta leading-relaxed mb-5 flex-1">{{ $t('home.s10_l3_text') }}</p>
             <a href="https://gofund.me/3e25cae99" target="_blank" rel="noopener" class="btn-cta w-full h-12 justify-center whitespace-nowrap">
-              <Icon name="ph:heart-fill" class="w-4 h-4" aria-hidden="true" />
+              <Icon name="ph:heart-fill" class="heart-beat w-4 h-4" aria-hidden="true" />
               {{ $t('home.s10_l3_button') }}
             </a>
             <p class="mt-2 text-xs text-tinta sm:min-h-[2.25rem]">{{ $t('home.s10_l3_caption') }}</p>
@@ -283,7 +281,7 @@
     </section>
 
     <!-- Cierre · estado de la campaña + caso en prensa (lo último de todo) -->
-    <section class="section-spacing bg-cream-card" :aria-label="$t('home.s5_eyebrow')" style="border-top: 1px solid rgba(45,27,61,0.08)">
+    <section v-reveal class="section-spacing bg-cream-card" :aria-label="$t('home.s5_eyebrow')" style="border-top: 1px solid rgba(45,27,61,0.08)">
       <div class="section-container max-w-5xl">
         <p class="eyebrow mb-3 block">{{ $t('home.s5_eyebrow') }}</p>
         <h2 class="font-display font-semibold text-berenjena text-2xl sm:text-3xl mb-6" style="letter-spacing: -0.02em">
@@ -293,36 +291,36 @@
 
         <!-- Caso en prensa · tira de medios + contacto de prensa (estilo prototipo) -->
         <div
-          class="mt-10 pt-6 flex flex-wrap items-center gap-x-6 gap-y-3"
+          class="mt-10 pt-6 flex flex-wrap items-baseline gap-x-7 gap-y-3"
           style="border-top: 1px solid rgba(45,27,61,0.08)"
         >
-          <span class="font-mono uppercase text-[11px] tracking-[0.14em] text-tinta">
+          <span class="font-mono uppercase text-[11px] tracking-[0.14em] text-tinta self-center">
             {{ $t('home.s9_strip_label') }}
           </span>
           <a
             :href="elPaisUrl"
             target="_blank"
             rel="noopener"
-            class="font-mono text-base text-miriam underline decoration-1 decoration-miriam/50 underline-offset-[3px] hover:text-berenjena hover:decoration-berenjena transition-colors"
-          >El País</a>
+            class="link-logo text-2xl sm:text-3xl"
+          >El País<span class="sr-only"> {{ $t('a11y.new_tab') }}</span></a>
           <a
             :href="murciaUrl"
             target="_blank"
             rel="noopener"
-            class="font-mono text-base text-miriam underline decoration-1 decoration-miriam/50 underline-offset-[3px] hover:text-berenjena hover:decoration-berenjena transition-colors"
-          >La Opinión de Murcia</a>
+            class="link-logo text-2xl sm:text-3xl"
+          >La Opinión de Murcia<span class="sr-only"> {{ $t('a11y.new_tab') }}</span></a>
           <a
             :href="la7Url"
             target="_blank"
             rel="noopener"
-            class="font-mono text-base text-miriam underline decoration-1 decoration-miriam/50 underline-offset-[3px] hover:text-berenjena hover:decoration-berenjena transition-colors"
-          >La 7</a>
+            class="link-logo text-2xl sm:text-3xl"
+          >La 7<span class="sr-only"> {{ $t('a11y.new_tab') }}</span></a>
           <NuxtLink
             :to="localePath({ name: 'contacto' })"
-            class="sm:ml-auto inline-flex items-center gap-1.5 font-mono text-[12px] text-miriam hover:text-berenjena transition-colors"
+            class="link-action group sm:ml-auto self-center font-mono text-[12px] text-miriam"
           >
             {{ $t('home.s9_press_contact') }}
-            <Icon name="ph:arrow-right" class="w-3.5 h-3.5" aria-hidden="true" />
+            <Icon name="ph:arrow-right" class="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5" aria-hidden="true" />
           </NuxtLink>
         </div>
       </div>

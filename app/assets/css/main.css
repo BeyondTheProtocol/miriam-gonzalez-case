@@ -34,6 +34,17 @@
     line-height: 1.55;
   }
 
+  /* Foco de teclado visible y consistente en toda la interfaz (WCAG 2.4.7).
+     El anillo violeta miriam destaca sobre las superficies claras; el halo
+     crema lo hace visible también sobre las secciones oscuras (berenjena).
+     Solo :focus-visible → no molesta al click de ratón, sí guía al teclado. */
+  :where(a, button, summary, [role="button"], [tabindex]):focus-visible {
+    outline: 2px solid #9d44ab;
+    outline-offset: 2px;
+    border-radius: 4px;
+    box-shadow: 0 0 0 4px rgba(250, 246, 240, 0.55);
+  }
+
   ::selection {
     @apply bg-miriam-soft text-berenjena;
   }
@@ -73,6 +84,12 @@
     @apply font-display italic text-miriam;
   }
 
+  /* Cifras alineadas: tabular-nums evita el "salto" de anchura al cambiar
+     dígitos (importes de campaña, %, contadores, celdas de datos). */
+  .nums {
+    font-variant-numeric: tabular-nums;
+  }
+
   /* DS card — cream-card sobre cream */
   .card-base {
     @apply bg-cream-card rounded-card p-6 sm:p-8;
@@ -85,8 +102,13 @@
     box-shadow: 0 0 0 0 transparent;
   }
   .btn-cta:hover {
-    box-shadow: 0 0 0 2px #2d1b3d;
-    transform: translateY(-1px);
+    box-shadow: 0 10px 22px -8px rgba(255, 107, 71, 0.55);
+    transform: translateY(-2px);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .btn-cta:hover {
+      transform: none;
+    }
   }
   .btn-secondary {
     @apply inline-flex items-center justify-center gap-2 px-5 py-3 rounded-btn font-semibold text-berenjena bg-transparent transition-colors;
@@ -177,6 +199,7 @@
     border-bottom: 1px solid rgba(45, 27, 61, 0.06);
     vertical-align: middle;
     color: #2d1b3d;
+    font-variant-numeric: tabular-nums;
   }
   .data-table tbody tr:last-child td { border-bottom: 0; }
   .data-table tbody tr:hover td { background: rgba(164, 77, 178, 0.04); }
@@ -184,7 +207,7 @@
     @apply font-mono;
     font-size: 13px;
     font-weight: 500;
-    white-space: nowrap;
+    overflow-wrap: anywhere;
   }
   .data-table .col-note {
     color: #3a3340;
@@ -406,18 +429,216 @@
     @apply block text-sm font-medium text-berenjena mb-1.5;
   }
 
-  /* Animated underline for links — miriam violet */
+  /* ────────────────────────────────────────────────────────────
+     Enlaces — sistema unificado, accesible
+     · link-inline  → texto corrido: subrayado SIEMPRE visible
+       (WCAG 1.4.1, no depende del color), con resaltado tipo
+       marcador miriam-soft que barre de izquierda a derecha al
+       pasar o enfocar. El texto pasa a berenjena para leerse
+       bien sobre el resaltado claro.
+     · link-action  → enlaces con flecha fuera de texto (CTA suave):
+       sin subrayado en reposo (la flecha + el contexto son la
+       pista), subrayado al pasar/enfocar y la flecha se desplaza.
+     El foco de teclado lo aporta la regla global :focus-visible.
+     ──────────────────────────────────────────────────────────── */
+  .link-inline,
   .link-underline {
-    @apply relative text-miriam font-medium;
-    background-image: linear-gradient(#a44db2, #a44db2);
-    background-size: 0% 2px;
-    background-position: left bottom;
+    @apply text-miriam font-medium;
+    text-decoration: underline;
+    text-decoration-color: rgba(157, 68, 171, 0.45);
+    text-decoration-thickness: 1px;
+    text-underline-offset: 3px;
+    background-image: linear-gradient(#e8d4ed, #e8d4ed);
+    background-size: 0% 60%;
+    background-position: 0 90%;
     background-repeat: no-repeat;
-    transition: background-size 0.3s ease;
+    border-radius: 2px;
+    transition: background-size 0.3s ease, color 0.2s ease,
+      text-decoration-color 0.2s ease;
+  }
+  .link-inline:hover,
+  .link-inline:focus-visible,
+  .link-underline:hover,
+  .link-underline:focus-visible {
+    color: #2d1b3d;
+    text-decoration-color: #9d44ab;
+    background-size: 100% 60%;
+  }
+
+  /* Variante sobre fondo oscuro (hero, sección historia): el texto crema
+     se mantiene; el resaltado claro aporta el contraste al pasar. */
+  .link-inline--invert {
+    @apply text-cream;
+    text-decoration-color: rgba(250, 246, 240, 0.5);
+  }
+
+  .link-action {
+    @apply inline-flex items-center gap-1.5 font-medium;
     text-decoration: none;
+    text-underline-offset: 3px;
+    text-decoration-thickness: 2px;
   }
-  .link-underline:hover {
-    background-size: 100% 2px;
+  .link-action:hover,
+  .link-action:focus-visible {
+    text-decoration: underline;
+  }
+
+  /* Wordmarks de prensa — se leen como logos en gris, sin líneas en reposo.
+     Al pasar/enfocar «se encienden» al violeta miriam (el color de enlace del
+     sistema) con un leve realce, como los botones → señal clara y coherente de
+     que son pinchables. Identificables como enlaces por el rótulo del grupo. */
+  .link-logo {
+    @apply font-display font-semibold tracking-tight;
+    color: #6b5d75; /* gris malva atenuado, legible en texto grande */
+    text-decoration: none;
+    display: inline-block;
+    transition: color 0.25s ease, transform 0.2s ease;
+  }
+  .link-logo:hover,
+  .link-logo:focus-visible {
+    color: #9d44ab; /* miriam */
+    transform: translateY(-1px);
+  }
+
+  /* Enlaces dentro de contenido (markdown/prose): el plugin typography ya
+     los subraya; aquí solo les añadimos el mismo resaltado de marca. */
+  .prose a {
+    text-decoration-color: rgba(157, 68, 171, 0.45);
+    text-underline-offset: 3px;
+    background-image: linear-gradient(#e8d4ed, #e8d4ed);
+    background-size: 0% 60%;
+    background-position: 0 90%;
+    background-repeat: no-repeat;
+    border-radius: 2px;
+    transition: background-size 0.3s ease, color 0.2s ease,
+      text-decoration-color 0.2s ease;
+  }
+  .prose a:hover,
+  .prose a:focus-visible {
+    color: #2d1b3d;
+    text-decoration-color: #9d44ab;
+    background-size: 100% 60%;
+  }
+}
+
+/* Sin animación de barrido si el usuario pide menos movimiento: el
+   resaltado aparece igual (instantáneo), así nunca se pierde el estado. */
+@media (prefers-reduced-motion: reduce) {
+  .link-inline,
+  .link-underline,
+  .link-logo,
+  .prose a {
+    transition: none;
+  }
+  .link-logo:hover,
+  .link-logo:focus-visible {
+    transform: none;
+  }
+}
+
+/* ────────────────────────────────────────────────────────────
+   Toques con alma — un corazón = vida.
+   · El corazón de TODO botón de donar late al pasar/enfocar.
+   · El CTA principal (hero) late despacio siempre (el «pulso» de
+     la campaña) y se acelera al interactuar.
+   · La barra de progreso «crece» al aparecer (el apoyo que suma).
+   Todo bajo prefers-reduced-motion: si se pide menos movimiento,
+   nada se mueve (WCAG 2.3.3).
+   ──────────────────────────────────────────────────────────── */
+/* Latido potente — para la interacción (hover/focus): responde a la persona. */
+@keyframes heart-beat {
+  0%, 100% { transform: scale(1); }
+  15% { transform: scale(1.25); }
+  30% { transform: scale(1); }
+  45% { transform: scale(1.16); }
+  60% { transform: scale(1); }
+}
+/* Latido suave — ambiente permanente del hero: presente, calmado, digno. */
+@keyframes heart-beat-soft {
+  0%, 100% { transform: scale(1); }
+  18% { transform: scale(1.10); }
+  32% { transform: scale(1); }
+  46% { transform: scale(1.06); }
+  60% { transform: scale(1); }
+}
+@keyframes grow-x {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+.heart-beat {
+  transform-origin: center;
+  will-change: transform;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .btn-cta:hover .heart-beat,
+  .btn-cta:focus-visible .heart-beat,
+  .donate-cta:hover .heart-beat,
+  .donate-cta:focus-visible .heart-beat {
+    animation: heart-beat 0.9s ease-in-out infinite;
+  }
+  /* Variante «viva»: latido suave permanente (ambiente), que pasa al latido
+     potente al interactuar — calmado en reposo, vivo cuando actúas. */
+  .heart-beat--alive {
+    animation: heart-beat-soft 2.8s ease-in-out infinite;
+  }
+  .btn-cta:hover .heart-beat--alive,
+  .btn-cta:focus-visible .heart-beat--alive {
+    animation: heart-beat 0.9s ease-in-out infinite;
+  }
+  .progress-fill {
+    transform-origin: left center;
+    animation: grow-x 1.3s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+}
+
+/* ────────────────────────────────────────────────────────────
+   Táctil (mobile-first): en pantallas sin hover el feedback vive en
+   :active (al pulsar). Reflejamos los mismos efectos que en hover
+   —marcador de enlaces, latido, hundido— para que el móvil tenga la
+   misma alma. Los efectos de color valen siempre; los de movimiento,
+   bajo prefers-reduced-motion.
+   ──────────────────────────────────────────────────────────── */
+.link-inline:active,
+.link-underline:active,
+.prose a:active {
+  color: #2d1b3d;
+  text-decoration-color: #9d44ab;
+  background-size: 100% 60%;
+}
+.link-logo:active {
+  color: #9d44ab;
+}
+.link-action:active {
+  text-decoration: underline;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  /* Botones: se "hunden" al pulsar — feedback físico en táctil */
+  .btn-cta:active,
+  .btn-dark:active,
+  .btn-secondary:active,
+  .btn-ghost:active,
+  .donate-cta:active {
+    transform: scale(0.97);
+  }
+  /* Sin hover en táctil → el corazón late también al pulsar el CTA */
+  .btn-cta:active .heart-beat,
+  .donate-cta:active .heart-beat {
+    animation: heart-beat 0.9s ease-in-out infinite;
+  }
+
+  /* Reveal al hacer scroll: la narrativa se despliega (clave en el scroll
+     largo del móvil). El directive v-reveal solo oculta lo que está bajo el
+     pliegue; lo visible y lo que carga sin JS se muestra siempre. */
+  .reveal-init {
+    opacity: 0;
+    transform: translateY(18px);
+    transition: opacity 0.6s ease, transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+    will-change: opacity, transform;
+  }
+  .reveal-init.reveal-in {
+    opacity: 1;
+    transform: none;
   }
 }
 
@@ -501,4 +722,106 @@
   .stagger-children > *:nth-child(6) {
     animation-delay: 0.3s;
   }
+}
+
+/* ────────────────────────────────────────────────────────────
+   Fotografía — tratamientos del sistema (DS §16).
+   Las fotos del caso pasan por uno de estos filtros para respirar
+   con la paleta cálida sin parecer "filtradas". Un filtro por pieza.
+   · .pic          → firma (default): cálido, editorial, fiel
+   · .pic.subtle   → press kit / headshots (más fiel al color real)
+   · .pic.cool     → escenas clínicas (frío, no romantiza)
+   · .pic.bw       → citas / openers (B/N cálido, no obituario)
+   · .pic.duotone  → editorial puro (berenjena→crema, vía filtro SVG)
+   El filtro SVG #duotone-berenjena vive en app.vue (global).
+   ──────────────────────────────────────────────────────────── */
+.pic {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: sepia(0.12) saturate(0.82) contrast(1.06) brightness(1.02) hue-rotate(-4deg);
+  transition: filter 240ms ease;
+}
+.pic.subtle {
+  filter: sepia(0.06) saturate(0.92) contrast(1.03) brightness(1.01);
+}
+.pic.cool {
+  filter: saturate(0.78) contrast(1.05) brightness(1.02) hue-rotate(8deg);
+}
+.pic.bw {
+  filter: grayscale(1) contrast(1.08) brightness(1.02) sepia(0.08);
+}
+.pic.duotone {
+  filter: contrast(1.1) brightness(1.05) url(#duotone-berenjena);
+}
+@media (prefers-reduced-motion: reduce) {
+  .pic {
+    transition: none;
+  }
+}
+
+/* ────────────────────────────────────────────────────────────
+   Splash de carga — marca de bienvenida.
+   Best practice: solo cliente + una vez por sesión (el contenido va
+   SSR debajo, no bloquea SEO ni a quien no tiene JS), y desaparece al
+   montar. Con prefers-reduced-motion no aparece.
+   ──────────────────────────────────────────────────────────── */
+.app-splash {
+  position: fixed;
+  inset: 0;
+  z-index: 9998;
+  display: grid;
+  place-items: center;
+  gap: 28px;
+  background: #faf6f0;
+  transition: opacity 0.5s ease, visibility 0.5s ease;
+}
+.app-splash[data-hide='true'] {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+.app-splash__mark {
+  width: 132px;
+  height: 132px;
+}
+.app-splash__word {
+  font-family: 'Fraunces', Georgia, serif;
+  font-weight: 600;
+  font-size: 30px;
+  letter-spacing: -0.02em;
+  color: #2d1b3d;
+}
+.app-splash__word .firma { color: #9d44ab; }
+.app-splash__word .tld { color: #3a3340; }
+.app-splash__bar {
+  width: 150px;
+  height: 4px;
+  border-radius: 999px;
+  background: rgba(45, 27, 61, 0.1);
+  overflow: hidden;
+  position: relative;
+}
+.app-splash__bar::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  width: 40%;
+  border-radius: 999px;
+  background: #9d44ab;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .app-splash__star {
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: twinkle 2.4s ease-in-out infinite;
+  }
+  .app-splash__star.s2 { animation-delay: 0.5s; }
+  .app-splash__star.s3 { animation-delay: 1s; }
+  .app-splash__bar::after { animation: splash-slide 1.3s ease-in-out infinite; }
+}
+@keyframes splash-slide {
+  0% { transform: translateX(-120%); }
+  100% { transform: translateX(320%); }
 }

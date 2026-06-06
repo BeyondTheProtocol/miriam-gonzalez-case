@@ -1,15 +1,76 @@
 <template>
   <div>
-    <PageHeader :title="$t('expenses.title')" :subtitle="$t('expenses.subtitle')" />
-
     <section class="section-spacing bg-cream" :aria-label="$t('expenses.title')">
       <div class="section-container max-w-3xl">
+        <PageHeader :title="$t('expenses.title')" :subtitle="$t('expenses.subtitle')" />
+
         <p class="text-base text-tinta leading-relaxed mb-8 max-w-2xl">
           {{ $t('expenses.intro') }}
         </p>
 
+        <!-- Coste de la rebiopsia: dos bloques (analizar ahora / preservar y bancar) -->
+        <div class="card-base mb-6">
+          <p class="font-display font-semibold text-berenjena text-lg mb-2">
+            {{ $t('expenses.rebiopsy_title') }}
+          </p>
+          <p class="text-sm text-tinta leading-relaxed mb-5 max-w-2xl">
+            {{ $t('expenses.rebiopsy_intro') }}
+          </p>
+          <div class="grid sm:grid-cols-2 gap-4">
+            <div
+              class="rounded-card bg-cream p-4"
+              style="border: 1px solid rgba(45,27,61,0.08)"
+            >
+              <p
+                class="font-mono uppercase text-[11px] tracking-[0.12em] font-medium text-tinta mb-1"
+              >
+                {{ $t('expenses.rebiopsy_now_label') }}
+              </p>
+              <p
+                class="font-display font-semibold text-berenjena text-xl mb-2"
+                style="font-variant-numeric: tabular-nums"
+              >
+                {{ $t('expenses.rebiopsy_now_range') }}
+              </p>
+              <p class="text-sm text-tinta leading-relaxed">
+                {{ $t('expenses.rebiopsy_now_desc') }}
+              </p>
+            </div>
+            <div
+              class="rounded-card bg-cream p-4"
+              style="border: 1px solid rgba(45,27,61,0.08)"
+            >
+              <p
+                class="font-mono uppercase text-[11px] tracking-[0.12em] font-medium text-tinta mb-1"
+              >
+                {{ $t('expenses.rebiopsy_bank_label') }}
+              </p>
+              <p
+                class="font-display font-semibold text-berenjena text-xl mb-2"
+                style="font-variant-numeric: tabular-nums"
+              >
+                {{ $t('expenses.rebiopsy_bank_range') }}
+              </p>
+              <p class="text-sm text-tinta leading-relaxed">
+                {{ $t('expenses.rebiopsy_bank_desc') }}
+              </p>
+            </div>
+          </div>
+          <p class="mt-5 flex items-start gap-2 text-sm text-berenjena font-medium">
+            <Icon
+              name="ph:seal-check-fill"
+              class="w-4 h-4 mt-0.5 shrink-0 text-miriam"
+              aria-hidden="true"
+            />
+            <span>{{ $t('expenses.rebiopsy_value') }}</span>
+          </p>
+          <p class="mt-3 text-xs text-tinta italic">
+            {{ $t('expenses.rebiopsy_note') }}
+          </p>
+        </div>
+
         <!-- Desglose completo (12 partidas) · cuenta itemizada -->
-        <div class="card-base">
+        <div class="card-base mb-6">
           <p class="font-display font-semibold text-berenjena text-lg mb-4">
             {{ $t('home.s4_list_intro') }}
           </p>
@@ -19,8 +80,9 @@
               :key="i"
               class="flex items-start gap-3 py-2.5 border-t border-berenjena/[0.07]"
             >
-              <span
-                class="mt-[7px] w-1.5 h-1.5 rounded-full bg-miriam shrink-0"
+              <Icon
+                name="ph:check-circle-fill"
+                class="mt-0.5 w-4 h-4 text-miriam shrink-0"
                 aria-hidden="true"
               />
               <span class="text-sm text-tinta leading-relaxed">{{ $rt(item) }}</span>
@@ -28,7 +90,40 @@
           </ul>
         </div>
 
-        <p class="mt-6 text-sm text-tinta italic max-w-2xl">
+        <!-- Preguntas frecuentes de donantes -->
+        <div class="card-base mb-6">
+          <p class="font-display font-semibold text-berenjena text-lg mb-4">
+            {{ $t('expenses.faq_title') }}
+          </p>
+          <dl class="space-y-4">
+            <div
+              v-for="n in 4"
+              :key="n"
+              class="border-t border-berenjena/[0.07] pt-4 first:border-t-0 first:pt-0"
+            >
+              <dt class="text-sm font-semibold text-berenjena mb-1">
+                {{ $t(`expenses.faq_q${n}`) }}
+              </dt>
+              <dd class="text-sm text-tinta leading-relaxed">
+                {{ $t(`expenses.faq_a${n}`) }}
+                <NuxtLink
+                  v-if="n === 4"
+                  :to="localePath('colabora')"
+                  class="link-inline"
+                  >{{ $t('expenses.faq_a4_link') }}</NuxtLink
+                ><template v-if="n === 4">.</template>
+              </dd>
+            </div>
+          </dl>
+          <p class="mt-5 text-sm text-tinta">
+            {{ $t('expenses.faq_help') }}
+            <NuxtLink :to="localePath('contacto')" class="link-inline">{{
+              $t('expenses.faq_help_link')
+            }}</NuxtLink>.
+          </p>
+        </div>
+
+        <p class="text-sm text-tinta italic max-w-2xl">
           {{ $t('expenses.note') }}
         </p>
 
@@ -39,7 +134,7 @@
             rel="noopener"
             class="btn-cta w-full sm:w-auto"
           >
-            <Icon name="ph:heart-fill" class="w-4 h-4" aria-hidden="true" />
+            <Icon name="ph:heart-fill" class="heart-beat w-4 h-4" aria-hidden="true" />
             {{ $t('home.s4_cta_button') }}
           </a>
           <p class="text-xs text-tinta">{{ $t('home.s4_cta_caption') }}</p>
@@ -51,6 +146,7 @@
 
 <script setup lang="ts">
 const { t } = useI18n()
+const localePath = useLocalePath()
 
 useSeoMeta({
   title: () => t('expenses.title'),

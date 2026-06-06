@@ -45,7 +45,7 @@
 
         <p class="text-sm text-tinta leading-relaxed mt-10 max-w-2xl">
           {{ $t('collaborate.hero_context') }}
-          <NuxtLink :to="localePath('index')" class="link-underline">
+          <NuxtLink :to="localePath('index')" class="link-inline">
             helpmiriam.com
           </NuxtLink>.
         </p>
@@ -102,7 +102,7 @@
                 class="btn-cta w-full justify-center"
                 style="text-decoration: none"
               >
-                <Icon name="ph:heart-fill" class="w-4 h-4" aria-hidden="true" />
+                <Icon name="ph:heart-fill" class="heart-beat w-4 h-4" aria-hidden="true" />
                 {{ $t('collaborate.profile2_cta_label') }}
               </a>
             </div>

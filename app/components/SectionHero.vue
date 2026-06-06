@@ -40,15 +40,14 @@
                  fino y sombra (DS). Sin fondo beige ni blend que la tiñan. -->
             <div
               class="relative overflow-hidden rounded-[20px]"
-              style="
-                border: 1px solid rgba(45, 27, 61, 0.08);
-                box-shadow: 0 18px 44px -22px rgba(45, 27, 61, 0.45);
-              "
+              style="box-shadow: 0 18px 44px -22px rgba(45, 27, 61, 0.45);"
             >
               <img
                 src="/design-system/assets/miriam-avatar.png"
                 :alt="$t('home.s6_photo_alt')"
                 class="block w-full object-cover aspect-square"
+                width="640"
+                height="640"
                 fetchpriority="high"
                 decoding="async"
               />
@@ -58,6 +57,7 @@
             <span
               class="absolute right-2 -top-3 sm:-right-2 sm:top-7 z-10 px-2.5 py-1 sm:px-3.5 sm:py-2 rounded-full bg-miriam text-cream font-mono text-[10px] sm:text-[11px] tracking-[0.04em] shadow-lg rotate-2"
               aria-hidden="true"
+              translate="no"
             >
               @miriamgonp
             </span>
@@ -66,6 +66,7 @@
             <span
               class="absolute -left-2 bottom-7 z-10 px-2.5 py-1 sm:px-4 sm:py-2.5 rounded-xl bg-berenjena text-cream font-mono text-[10px] sm:text-[11px] tracking-[0.06em] sm:tracking-[0.08em] shadow-xl"
               aria-hidden="true"
+              translate="no"
             >
               MIRIAM GONZÁLEZ · 35
             </span>
@@ -98,7 +99,7 @@
                 rel="noopener noreferrer"
                 class="btn-cta w-full sm:w-auto whitespace-nowrap"
               >
-                <Icon name="ph:heart-fill" class="w-4 h-4" aria-hidden="true" />
+                <Icon name="ph:heart-fill" class="heart-beat heart-beat--alive w-4 h-4" aria-hidden="true" />
                 {{ $t('hero.cta_donate') }}
               </a>
               <p class="font-mono text-[10px] sm:text-[11px] leading-relaxed text-tinta sm:max-w-[15rem] px-0.5 whitespace-nowrap sm:whitespace-normal">
@@ -119,24 +120,21 @@
             </div>
           </div>
 
-          <!-- Lo último de la cronología (dinámico, lo que pasa ahora mismo) -->
+          <!-- Lo último de la cronología (dinámico, lo que pasa ahora mismo).
+               Título subrayado + flecha → señala que es un enlace a la cronología. -->
           <NuxtLink
             v-if="latest"
             :to="localePath({ name: 'timeline' })"
-            class="group mt-8 sm:mt-10 block animate-fade-up"
-            style="animation-delay: 0.35s; text-decoration: none"
+            class="group mt-8 sm:mt-10 block no-underline animate-fade-up"
+            style="animation-delay: 0.35s"
           >
             <span class="flex items-center gap-2 mb-1.5">
-              <span
-                class="hero-live-dot h-2 w-2 shrink-0 rounded-full bg-coral"
-                aria-hidden="true"
-              />
+              <span class="hero-live-dot h-2 w-2 shrink-0 rounded-full bg-coral" aria-hidden="true" />
               <span class="font-mono uppercase text-[11px] tracking-[0.16em] font-semibold text-coral-deep">
                 {{ $t('hero.latest_label') }}
               </span>
             </span>
-            <span
-              class="block font-mono text-sm text-miriam transition-opacity group-hover:opacity-80"
+            <span class="block font-mono text-sm text-miriam underline decoration-1 decoration-miriam/50 underline-offset-[3px] transition-colors group-hover:decoration-miriam"
               >{{ latest.title }}<Icon
                 name="ph:arrow-right"
                 class="ml-1.5 inline-block w-3.5 h-3.5 align-[-2px] transition-transform group-hover:translate-x-0.5"
@@ -159,7 +157,7 @@
           class="text-left sm:px-7 sm:border-l sm:border-berenjena/[0.14] sm:first:border-l-0 sm:first:pl-0"
         >
           <p
-            class="font-display font-semibold leading-none"
+            class="font-display font-semibold leading-none nums"
             :class="i === 3 ? 'firma' : 'text-berenjena'"
             style="font-size: clamp(36px, 4.4vw, 60px); letter-spacing: -0.04em"
           >
