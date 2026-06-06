@@ -3555,6 +3555,173 @@
               </ul>
             </div>
           </div>
+
+          <!-- Diccionario de marcadores de lista: cada símbolo tiene una semántica
+               fija. No mezclar. Documentado tras detectar usos inconsistentes
+               (dots neutros en listas que pedían afirmación o contraste). -->
+          <h3 style="margin-top: 56px">Marcadores de lista — cuándo usar cada uno</h3>
+          <p
+            style="
+              font-size: 14px;
+              color: var(--color-text-soft);
+              max-width: 68ch;
+            "
+          >
+            Cuatro marcadores, cuatro significados distintos. El símbolo — no solo
+            el color — comunica la intención. Elegir por significado, nunca por
+            estética.
+          </p>
+
+          <div
+            style="
+              display: grid;
+              gap: 0;
+              margin-top: 20px;
+              border: 1px solid rgba(45, 27, 61, 0.1);
+              border-radius: 12px;
+              overflow: hidden;
+              max-width: 760px;
+            "
+          >
+            <!-- ✓ círculo relleno -->
+            <div
+              style="
+                display: flex;
+                align-items: flex-start;
+                gap: 16px;
+                padding: 18px 20px;
+                background: #faf6f0;
+              "
+            >
+              <span
+                style="
+                  flex-shrink: 0;
+                  width: 22px;
+                  height: 22px;
+                  border-radius: 999px;
+                  background: var(--color-miriam-soft);
+                  color: #2d1b3d;
+                  display: inline-flex;
+                  align-items: center;
+                  justify-content: center;
+                  font-size: 13px;
+                  font-weight: 700;
+                "
+                >✓</span
+              >
+              <div>
+                <strong style="color: #2d1b3d">Círculo relleno · logrado / incluido</strong>
+                <p style="font-size: 13px; color: var(--color-text-soft); margin: 4px 0 0">
+                  Afirmaciones cumplidas o cosas que entran. Listas de gastos cubiertos,
+                  ventajas del ensayo N-of-1. <em>En la web: icono <code>ph:check-circle-fill</code> / <code>ph:check-bold</code>.</em>
+                </p>
+              </div>
+            </div>
+            <!-- ○ círculo hueco -->
+            <div
+              style="
+                display: flex;
+                align-items: flex-start;
+                gap: 16px;
+                padding: 18px 20px;
+                background: #fff;
+                border-top: 1px solid rgba(45, 27, 61, 0.08);
+              "
+            >
+              <span
+                style="
+                  flex-shrink: 0;
+                  width: 22px;
+                  height: 22px;
+                  border-radius: 999px;
+                  border: 1.5px dashed var(--color-cta);
+                  color: var(--color-cta);
+                  display: inline-flex;
+                  align-items: center;
+                  justify-content: center;
+                "
+                aria-hidden="true"
+              ></span>
+              <div>
+                <strong style="color: #2d1b3d">Círculo hueco · pendiente / falta</strong>
+                <p style="font-size: 13px; color: var(--color-text-soft); margin: 4px 0 0">
+                  Algo deseado que todavía no está. La columna "lo que falta" de la home.
+                  Dice "aún no", no "rechazado". <em>En la web: icono <code>ph:circle-dashed-bold</code>.</em>
+                </p>
+              </div>
+            </div>
+            <!-- ✗ suelta -->
+            <div
+              style="
+                display: flex;
+                align-items: flex-start;
+                gap: 16px;
+                padding: 18px 20px;
+                background: #faf6f0;
+                border-top: 1px solid rgba(45, 27, 61, 0.08);
+              "
+            >
+              <span
+                style="
+                  flex-shrink: 0;
+                  width: 22px;
+                  height: 22px;
+                  border-radius: 6px;
+                  background: rgba(255, 107, 71, 0.18);
+                  color: var(--color-cta);
+                  display: inline-flex;
+                  align-items: center;
+                  justify-content: center;
+                  font-size: 13px;
+                  font-weight: 700;
+                "
+                >✕</span
+              >
+              <div>
+                <strong style="color: #2d1b3d">Aspa · rechazo / posicionamiento</strong>
+                <p style="font-size: 13px; color: var(--color-text-soft); margin: 4px 0 0">
+                  Lo que conscientemente NO se es o NO se hace. "Lo que NO somos" en colabora.
+                  <em>En la web: icono <code>ph:x-bold</code> en recuadro coral.</em>
+                </p>
+              </div>
+            </div>
+            <!-- ▣ cuadrito checklist -->
+            <div
+              style="
+                display: flex;
+                align-items: flex-start;
+                gap: 16px;
+                padding: 18px 20px;
+                background: #fff;
+                border-top: 1px solid rgba(45, 27, 61, 0.08);
+              "
+            >
+              <span
+                style="
+                  flex-shrink: 0;
+                  width: 22px;
+                  height: 22px;
+                  border-radius: 5px;
+                  background: var(--color-miriam-soft);
+                  background-image: linear-gradient(
+                    135deg,
+                    transparent 40%,
+                    var(--color-miriam) 40% 60%,
+                    transparent 60%
+                  );
+                "
+                aria-hidden="true"
+              ></span>
+              <div>
+                <strong style="color: #2d1b3d">Cuadrito ✓/✗ (<code>ul.checklist</code>) · directriz sí/no</strong>
+                <p style="font-size: 13px; color: var(--color-text-soft); margin: 4px 0 0">
+                  Reservado para guías de buenas-vs-malas prácticas emparejadas (do/don't),
+                  como la guía de lenguaje de arriba. <strong>No usar</strong> para afirmaciones
+                  simples, pendientes ni rechazos: para eso están los tres de arriba.
+                </p>
+              </div>
+            </div>
+          </div>
         </section>
 
         <!-- 12 HABLAR CON IAs -->

@@ -70,6 +70,66 @@ const GLOSSARY: Record<string, Entry> = {
       def: 'Somatostatin receptor present in the tumor. Opens the radioligand-therapy path.',
     },
   },
+  ccnd1: {
+    es: {
+      label: 'CCND1 ×20',
+      def: 'Gen de la ciclina D1 amplificado 20 veces. Acelera la división celular y se asocia a resistencia a ciertas terapias hormonales.',
+    },
+    en: {
+      label: 'CCND1 ×20',
+      def: 'Cyclin D1 gene amplified 20 times. It speeds up cell division and is linked to resistance to some hormone therapies.',
+    },
+  },
+  esr1: {
+    es: {
+      label: 'ESR1 D538G',
+      def: 'Mutación en el receptor de estrógeno que aparece tras el tratamiento hormonal y vuelve al tumor resistente a él.',
+    },
+    en: {
+      label: 'ESR1 D538G',
+      def: 'Estrogen-receptor mutation that emerges after hormone therapy and makes the tumor resistant to it.',
+    },
+  },
+  rb1: {
+    es: {
+      label: 'pérdida de RB1',
+      def: 'Pérdida de un gen «freno» del ciclo celular. Suele indicar un tumor más agresivo y resistencia a los inhibidores de CDK4/6.',
+    },
+    en: {
+      label: 'RB1 loss',
+      def: 'Loss of a cell-cycle “brake” gene. It usually signals a more aggressive tumor and resistance to CDK4/6 inhibitors.',
+    },
+  },
+  cdk46i: {
+    es: {
+      label: 'inhibidores de CDK4/6',
+      def: 'Fármacos (como abemaciclib o palbociclib) que frenan la división de las células tumorales en el cáncer de mama hormonal.',
+    },
+    en: {
+      label: 'CDK4/6 inhibitors',
+      def: 'Drugs (such as abemaciclib or palbociclib) that slow tumor-cell division in hormone-driven breast cancer.',
+    },
+  },
+  prrt: {
+    es: {
+      label: 'PRRT',
+      def: 'Terapia con radioligandos: un fármaco radiactivo se une a los receptores de somatostatina del tumor y lo irradia desde dentro.',
+    },
+    en: {
+      label: 'PRRT',
+      def: 'Radioligand therapy: a radioactive drug binds the tumor’s somatostatin receptors and irradiates it from within.',
+    },
+  },
+  ctdna: {
+    es: {
+      label: 'ctDNA',
+      def: 'ADN tumoral circulante: fragmentos del tumor que flotan en la sangre y permiten seguir su evolución con un análisis, sin biopsia.',
+    },
+    en: {
+      label: 'ctDNA',
+      def: 'Circulating tumor DNA: tumor fragments floating in the blood that let you track its evolution with a blood test, no biopsy.',
+    },
+  },
 }
 
 const entry = computed(() => {

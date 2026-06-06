@@ -52,27 +52,32 @@
       </table>
     </div>
 
-    <p class="mt-4 text-xs text-tinta leading-relaxed font-mono">
-      {{
-        locale === 'es'
-          ? 'Fuentes: TSO500 sobre tejido FFPE primario (DIPCAN, MD Anderson Madrid, 2024) · IHC sobre tejido primario · ctDNA Guardant360 / VHIO360 (abril–mayo 2026) · PET-CT Galio-68 DOTATOC (Virgen de la Arrixaca, mayo 2026).'
-          : 'Sources: TSO500 on primary FFPE tissue (DIPCAN, MD Anderson Madrid, 2024) · IHC on primary tissue · Guardant360 / VHIO360 ctDNA (April–May 2026) · Ga-68 DOTATOC PET-CT (Virgen de la Arrixaca, May 2026).'
-      }}
-    </p>
-    <p class="mt-2 text-xs text-tinta leading-relaxed">
-      {{
-        locale === 'es'
-          ? '⁺ La categoría HER2-ultralow (tinción de membrana en <10% de las células) está presente en este caso según los datos del estudio DIPCAN / MD Anderson Madrid.'
-          : '⁺ The HER2-ultralow category (membrane staining in <10% of cells) is present in this case according to data from the DIPCAN study / MD Anderson Madrid.'
-      }}
-    </p>
-    <p class="mt-2 text-xs text-tinta leading-relaxed">
-      {{
-        locale === 'es'
-          ? '⁺⁺ En oncología neuroendocrina, el Ki67 es el marcador principal de gradación: G1 (<3%), G2 (3–20%), G3 (>20%). Un Ki67 del 60% corresponde a un carcinoma neuroendocrino de alto grado (NEC G3).'
-          : '⁺⁺ In neuroendocrine oncology, Ki67 is the primary grading marker: G1 (<3%), G2 (3–20%), G3 (>20%). A Ki67 of 60% corresponds to a high-grade neuroendocrine carcinoma (NEC G3).'
-      }}
-    </p>
+    <details class="notes-disclosure mt-4">
+      <summary>
+        {{ locale === 'es' ? 'Fuentes y notas metodológicas' : 'Sources and methodological notes' }}
+      </summary>
+      <p class="mt-3 text-xs text-tinta leading-relaxed font-mono">
+        {{
+          locale === 'es'
+            ? 'Fuentes: TSO500 sobre tejido FFPE primario (DIPCAN, MD Anderson Madrid, 2024) · IHC sobre tejido primario · ctDNA Guardant360 / VHIO360 (abril–mayo 2026) · PET-CT Galio-68 DOTATOC (Virgen de la Arrixaca, mayo 2026).'
+            : 'Sources: TSO500 on primary FFPE tissue (DIPCAN, MD Anderson Madrid, 2024) · IHC on primary tissue · Guardant360 / VHIO360 ctDNA (April–May 2026) · Ga-68 DOTATOC PET-CT (Virgen de la Arrixaca, May 2026).'
+        }}
+      </p>
+      <p class="mt-2 text-xs text-tinta leading-relaxed">
+        {{
+          locale === 'es'
+            ? '⁺ La categoría HER2-ultralow (tinción de membrana en <10% de las células) está presente en este caso según los datos del estudio DIPCAN / MD Anderson Madrid.'
+            : '⁺ The HER2-ultralow category (membrane staining in <10% of cells) is present in this case according to data from the DIPCAN study / MD Anderson Madrid.'
+        }}
+      </p>
+      <p class="mt-2 text-xs text-tinta leading-relaxed">
+        {{
+          locale === 'es'
+            ? '⁺⁺ En oncología neuroendocrina, el Ki67 es el marcador principal de gradación: G1 (<3%), G2 (3–20%), G3 (>20%). Un Ki67 del 60% corresponde a un carcinoma neuroendocrino de alto grado (NEC G3).'
+            : '⁺⁺ In neuroendocrine oncology, Ki67 is the primary grading marker: G1 (<3%), G2 (3–20%), G3 (>20%). A Ki67 of 60% corresponds to a high-grade neuroendocrine carcinoma (NEC G3).'
+        }}
+      </p>
+    </details>
   </section>
 </template>
 

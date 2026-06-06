@@ -519,6 +519,60 @@
     text-decoration-color: #9d44ab;
     background-size: 100% 60%;
   }
+
+  /* ────────────────────────────────────────────────────────────
+     Notas y fuentes plegables — progressive disclosure.
+     Mantiene la información (verificabilidad científica) accesible
+     sin que ocupe scroll por defecto. <details>/<summary> nativos:
+     accesibles por teclado y sin JS. El resumen «se enciende» al
+     violeta de firma al pasar/enfocar, como el resto de pistas
+     interactivas del sistema. */
+  .notes-disclosure {
+    border-top: 1px solid rgba(45, 27, 61, 0.08);
+  }
+  .notes-disclosure > summary {
+    @apply font-mono uppercase tracking-[0.12em] text-tinta;
+    font-size: 11px;
+    font-weight: 500;
+    list-style: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 14px 0 0;
+    transition: color 0.2s ease;
+  }
+  .notes-disclosure > summary::-webkit-details-marker {
+    display: none;
+  }
+  .notes-disclosure > summary::before {
+    content: '';
+    width: 7px;
+    height: 7px;
+    border-right: 1.5px solid currentColor;
+    border-bottom: 1.5px solid currentColor;
+    transform: rotate(-45deg);
+    transition: transform 0.2s ease;
+    flex-shrink: 0;
+  }
+  .notes-disclosure[open] > summary::before {
+    transform: rotate(45deg);
+  }
+  .notes-disclosure > summary:hover,
+  .notes-disclosure > summary:focus-visible {
+    color: #a44db2;
+    outline: none;
+  }
+  .notes-disclosure[open] > summary {
+    color: #a44db2;
+    margin-bottom: 4px;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .notes-disclosure > summary,
+    .notes-disclosure > summary::before {
+      transition: none;
+    }
+  }
 }
 
 /* Sin animación de barrido si el usuario pide menos movimiento: el

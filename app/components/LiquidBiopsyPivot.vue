@@ -6,9 +6,9 @@
         {{ data.samples.length }} {{ locale === 'es' ? 'muestras' : 'samples' }}
       </p>
     </div>
-    <h3 id="liquid-pivot-title" class="heading-display text-xl text-berenjena mb-1">
+    <h2 id="liquid-pivot-title" class="heading-display text-2xl text-berenjena mb-2" style="letter-spacing: -0.02em">
       {{ $t('ciencia.ctdna_dynamics_title') }}
-    </h3>
+    </h2>
     <p class="text-sm text-tinta leading-relaxed mb-5 max-w-2xl">
       {{ $t('ciencia.ctdna_dynamics_intro') }}
     </p>

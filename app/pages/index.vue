@@ -70,46 +70,64 @@
         <h3 class="font-display font-semibold text-berenjena text-xl mt-12 mb-5">
           {{ $t('home.s3_table_title') }}
         </h3>
-        <!-- Misma estructura en ambos paneles; "lo que falta" destaca por inversión
-             (fondo berenjena + texto crema + puntos coral), no por otro layout. -->
-        <div class="grid gap-4 sm:grid-cols-2 sm:items-stretch">
-          <!-- Panel · lo que cubren (claro, sereno) -->
-          <div class="card-base" style="background: #faf6f0">
+        <!-- Comparación alineada fila a fila: cada par antitético queda enfrentado
+             (✓ cubierto · ✗ falta). En móvil el par se apila junto; en sm+ va
+             lado a lado con divisor central. El símbolo —no solo el color— comunica
+             la oposición; el lado "falta" pesa por marcador coral + texto más firme. -->
+        <div class="card-base p-0 overflow-hidden">
+          <!-- Cabeceras de columna (solo sm+: en móvil los símbolos ✓/✗ orientan) -->
+          <div class="hidden sm:grid sm:grid-cols-2">
             <p
-              class="font-mono uppercase text-[11px] tracking-[0.1em] text-tinta pb-4 mb-1"
-              style="border-bottom: 1px solid rgba(45,27,61,0.1)"
+              class="font-mono uppercase text-[11px] tracking-[0.1em] text-tinta px-5 sm:px-6 py-4"
+              style="border-bottom: 1px solid rgba(45,27,61,0.10)"
             >
               {{ $t('home.s3_col_has') }}
             </p>
-            <ul class="divide-y divide-berenjena/[0.06]">
-              <li
-                v-for="(row, i) in s3Rows"
-                :key="i"
-                class="flex items-start gap-3 py-3.5"
-              >
-                <span class="mt-[7px] w-1.5 h-1.5 rounded-full bg-miriam shrink-0" aria-hidden="true" />
-                <span class="text-sm text-tinta leading-relaxed">{{ row[0] }}</span>
-              </li>
-            </ul>
-          </div>
-          <!-- Panel · lo que falta (misma estructura, invertido para destacar) -->
-          <div class="card-base" style="background: #2d1b3d; border-color: transparent">
             <p
-              class="font-mono uppercase text-[11px] tracking-[0.1em] text-coral pb-4 mb-1"
-              style="border-bottom: 1px solid rgba(250,246,240,0.15)"
+              class="font-mono uppercase text-[11px] tracking-[0.1em] text-coral px-5 sm:px-6 py-4"
+              style="border-bottom: 1px solid rgba(45,27,61,0.10); border-left: 1px solid rgba(45,27,61,0.08); background: rgba(255,107,71,0.04)"
             >
               {{ $t('home.s3_col_missing') }}
             </p>
-            <ul class="divide-y divide-[rgba(250,246,240,0.1)]">
-              <li
-                v-for="(row, i) in s3Rows"
-                :key="i"
-                class="flex items-start gap-3 py-3.5"
+          </div>
+          <!-- Filas: cada fila del grid empareja cubierto/falta y comparten altura -->
+          <div
+            v-for="(row, i) in s3Rows"
+            :key="i"
+            class="grid sm:grid-cols-2 sm:items-stretch"
+          >
+            <!-- ✓ Lo que cubren -->
+            <div
+              class="flex items-start gap-3 px-5 sm:px-6 py-4"
+              :class="i > 0 ? 'border-t border-berenjena/[0.07]' : ''"
+            >
+              <span
+                class="mt-0.5 shrink-0 inline-flex items-center justify-center w-[18px] h-[18px] rounded-[5px] bg-miriam-soft"
+                aria-hidden="true"
               >
-                <span class="mt-[7px] w-1.5 h-1.5 rounded-full bg-coral shrink-0" aria-hidden="true" />
-                <span class="text-sm text-cream leading-relaxed">{{ row[1] }}</span>
-              </li>
-            </ul>
+                <Icon name="ph:check-bold" class="w-3 h-3 text-berenjena" />
+              </span>
+              <span class="text-sm text-tinta leading-relaxed">
+                <span class="sr-only">{{ $t('home.s3_col_has') }}: </span>{{ row[0] }}
+              </span>
+            </div>
+            <!-- ✗ Lo que falta -->
+            <div
+              class="flex items-start gap-3 px-5 sm:px-6 py-4 border-berenjena/[0.07] border-t sm:border-l"
+              :class="i === 0 ? 'sm:border-t-0' : 'sm:border-t'"
+              style="background: rgba(255,107,71,0.04)"
+            >
+              <span
+                class="mt-0.5 shrink-0 inline-flex items-center justify-center w-[18px] h-[18px] rounded-[5px]"
+                style="background: rgba(255,107,71,0.16)"
+                aria-hidden="true"
+              >
+                <Icon name="ph:circle-dashed-bold" class="w-3 h-3 text-coral" />
+              </span>
+              <span class="text-sm text-berenjena leading-relaxed">
+                <span class="sr-only">{{ $t('home.s3_col_missing') }}: </span>{{ row[1] }}
+              </span>
+            </div>
           </div>
         </div>
         <p class="mt-6 text-sm text-tinta italic max-w-2xl">

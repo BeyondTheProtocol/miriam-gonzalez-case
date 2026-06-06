@@ -201,10 +201,11 @@
               style="color: rgba(250,246,240,0.92); font-size: 15px; line-height: 1.6"
             >
               <span
-                class="font-mono shrink-0 mt-0.5"
-                style="font-size: 14px; color: #e8d4ed; min-width: 24px"
+                class="shrink-0 mt-0.5 inline-flex items-center justify-center w-[22px] h-[22px] rounded-[6px]"
+                style="background: rgba(255,107,71,0.18)"
+                aria-hidden="true"
               >
-                {{ String(i + 1).padStart(2, '0') }}
+                <Icon name="ph:x-bold" class="w-3.5 h-3.5 text-coral" />
               </span>
               <span>{{ item }}</span>
             </li>
