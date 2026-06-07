@@ -86,15 +86,7 @@
               <!-- «dos caras»: un trazo a mano (como las anotaciones de la
                    ilustración) se PINTA bajo la frase al entrar — primero la
                    mitad magenta (luminal), luego la coral (neuroendocrina). -->
-              <span class="two-faces">{{ $t('hero.twofaces') }}<svg
-                class="two-faces__stroke"
-                viewBox="0 0 100 8"
-                preserveAspectRatio="none"
-                aria-hidden="true"
-              >
-                <path class="tf-half tf-half--a" pathLength="1" d="M2 5.2 C 16 3.4, 34 6.6, 50 4.6" />
-                <path class="tf-half tf-half--b" pathLength="1" d="M50 4.6 C 66 3.0, 84 6.4, 98 4.4" />
-              </svg></span>
+              <span class="two-faces">{{ $t('hero.twofaces') }}</span>
             </template>
           </i18n-t>
 
@@ -280,50 +272,36 @@ const stats = computed(() => [
 </script>
 
 <style scoped>
-/* «dos caras»: trazo a mano bajo la frase, que se pinta al entrar —
-   mitad magenta (luminal) y mitad coral (neuroendocrina), en secuencia.
-   Con reduced-motion el trazo aparece ya pintado. */
+/* «dos caras»: la propia palabra es bicolor — la tinta magenta (luminal)
+   funde a coral (neuroendocrina) dentro del texto. Al entrar, la segunda cara
+   se desliza una vez desde la derecha. Coral-deep para contraste AA sobre crema.
+   Con reduced-motion (o sin background-clip:text) queda pintada sin animar. */
 .two-faces {
-  position: relative;
   font-style: italic;
   white-space: nowrap;
+  color: #9d44ab;
 }
-.two-faces__stroke {
-  position: absolute;
-  left: -2%;
-  bottom: -0.22em;
-  width: 104%;
-  height: 0.34em;
-  overflow: visible;
-  pointer-events: none;
-}
-.tf-half {
-  fill: none;
-  stroke-width: 2.6;
-  stroke-linecap: round;
-}
-.tf-half--a {
-  stroke: #9d44ab;
-}
-.tf-half--b {
-  stroke: #ff6b47;
-}
-@media (prefers-reduced-motion: no-preference) {
-  .tf-half {
-    stroke-dasharray: 1;
-    stroke-dashoffset: 1;
-    animation: tf-draw 0.5s ease-out forwards;
+@supports ((-webkit-background-clip: text) or (background-clip: text)) {
+  .two-faces {
+    background-image: linear-gradient(95deg, #9d44ab 0%, #9d44ab 50%, #bb4128 78%, #bb4128 100%);
+    background-size: 200% 100%;
+    background-position: 100% 0;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
   }
-  .tf-half--a {
-    animation-delay: 0.7s;
-  }
-  .tf-half--b {
-    animation-delay: 1.15s;
-  }
-  @keyframes tf-draw {
-    to {
-      stroke-dashoffset: 0;
+  @media (prefers-reduced-motion: no-preference) {
+    .two-faces {
+      animation: tf-paint 1.1s ease-out 0.7s both;
     }
+  }
+}
+@keyframes tf-paint {
+  from {
+    background-position: 0% 0;
+  }
+  to {
+    background-position: 100% 0;
   }
 }
 
