@@ -1,12 +1,13 @@
 <template>
   <section
+    id="gracias"
     v-reveal
-    class="section-spacing bg-cream-card relative overflow-hidden"
+    class="section-spacing bg-cream-card relative overflow-hidden scroll-mt-24"
     :aria-labelledby="'gracias-title'"
   >
     <!-- Cielo de estrellas (las del logo) en toda la sección; la máscara las
          atenúa en la zona del texto y la tabla esmerilada deja verlas debajo. -->
-    <Constellation v-if="constellation" class="dw-sky" :count="donations.length || 60" />
+    <Constellation class="dw-sky" :count="donations.length || 60" />
     <div class="section-container relative z-10">
       <div class="mb-6">
         <p class="eyebrow mb-3 block">{{ $t('thanksWall.eyebrow') }}</p>
@@ -15,12 +16,12 @@
           class="heading-display text-3xl sm:text-4xl text-berenjena mb-3"
           style="letter-spacing: -0.02em"
         >
-          {{ paginated ? $t('thanksWall.all_title') : $t('thanksWall.title') }}
+          {{ $t('thanksWall.title') }}
         </h2>
         <p class="text-tinta leading-relaxed max-w-2xl">{{ $t('thanksWall.subtitle') }}</p>
         <!-- La metáfora, explícita: cada aportación es una estrella (conteo real). -->
         <i18n-t
-          v-if="constellation && loaded && sorted.length"
+          v-if="loaded && sorted.length"
           keypath="thanksWall.stars_line"
           tag="p"
           class="mt-4 flex items-center gap-2 font-display italic text-lg text-berenjena"
@@ -101,15 +102,8 @@
       </div>
       <p v-else-if="loaded" class="text-tinta text-sm">{{ $t('thanksWall.empty') }}</p>
 
-      <!-- Avance (en /colabora): enlace a la página con todas -->
-      <p v-if="!paginated && limit && sorted.length > limit" class="mt-4">
-        <NuxtLink :to="localePath('donantes')" class="link-inline">
-          {{ $t('thanksWall.see_all', { n: sorted.length }) }} →
-        </NuxtLink>
-      </p>
-
-      <!-- Paginación (en /donantes) -->
-      <div v-if="paginated && totalPages > 1" class="mt-6 flex items-center gap-4">
+      <!-- Paginación -->
+      <div v-if="totalPages > 1" class="mt-6 flex items-center gap-4">
         <button type="button" class="dw-page-btn" :disabled="page === 0" @click="page--">
           ← {{ $t('thanksWall.prev') }}
         </button>
@@ -132,31 +126,20 @@
 <script setup lang="ts">
 /**
  * Muro de gracias estilo GoFundMe: pestañas Recientes/Top, fecha relativa
- * («hace 3 días») y tabla sencilla nombre + importe.
- *  · `:limit` (en /colabora) → muestra N + enlace a /donantes.
- *  · `paginated` (en /donantes) → todas las personas, paginadas (25/página).
- *  · `default-sort` → pestaña inicial ('recent' | 'top').
+ * («hace 3 días»), tabla nombre + importe paginada y constelación de fondo.
+ * Vive como sección #gracias en /colabora, justo después de la card de apoyar:
+ * la prueba social respalda a la petición. Aquí enlaza el widget de la home.
  * Datos reales de /donations.json (función Netlify horaria). Anónimos = "Anónimo".
  */
 import type { GoFundMeFundraiser, PublicDonation } from '../../utils/fundraiser'
 
-const props = withDefaults(
-  defineProps<{
-    limit?: number
-    paginated?: boolean
-    defaultSort?: 'recent' | 'top'
-    constellation?: boolean
-  }>(),
-  { defaultSort: 'recent' }
-)
-const localePath = useLocalePath()
 const { locale } = useI18n()
 
-const PAGE_SIZE = 25
+const PAGE_SIZE = 12
 const donations = ref<PublicDonation[]>([])
 const loaded = ref(false)
 const page = ref(0)
-const sort = ref<'recent' | 'top'>(props.defaultSort)
+const sort = ref<'recent' | 'top'>('recent')
 
 function setSort(s: 'recent' | 'top') {
   sort.value = s
@@ -203,14 +186,11 @@ const sorted = computed(() => {
 })
 
 const totalPages = computed(() => Math.max(1, Math.ceil(sorted.value.length / PAGE_SIZE)))
-const rankStart = computed(() => (props.paginated ? page.value * PAGE_SIZE : 0))
+const rankStart = computed(() => page.value * PAGE_SIZE)
 
 const pageRows = computed(() => {
-  if (props.paginated) {
-    const start = page.value * PAGE_SIZE
-    return sorted.value.slice(start, start + PAGE_SIZE)
-  }
-  return props.limit ? sorted.value.slice(0, props.limit) : sorted.value
+  const start = page.value * PAGE_SIZE
+  return sorted.value.slice(start, start + PAGE_SIZE)
 })
 
 function money(d: PublicDonation) {
