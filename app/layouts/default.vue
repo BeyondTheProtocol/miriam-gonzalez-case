@@ -13,6 +13,7 @@
       <slot />
     </main>
     <SiteFooter />
+    <MobileSupportBar />
   </div>
 </template>
 
