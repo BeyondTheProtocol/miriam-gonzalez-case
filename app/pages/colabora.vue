@@ -12,8 +12,9 @@
           prefers-reduced-motion) — igual que home/timeline.
         · Cabecera de card con cuadradito de icono sólido + icono crema,
           el mismo patrón que las tarjetas de /contacto.
-        · Financiación (único coral) es featured a ancho completo arriba:
-          el camino principal destaca con cuadradito y filete coral.
+        · Financiación es una card más de la parrilla (una opción entre
+          iguales), pero conserva el único coral de la página: cuadradito
+          y CTA primario marcan el camino principal sin gritar.
       ════════════════════════════════════════════════════════════
     -->
 
@@ -31,8 +32,8 @@
           {{ $t('collaborate.hero_intro') }}
         </p>
 
-        <!-- Decisión 3·B: el hero NO lleva botón de donar; solo el espíritu.
-             El bloque de financiación es el remate, al final de la página.
+        <!-- El hero NO lleva botón de donar; solo el espíritu. La card de
+             financiación vive en la parrilla de perfiles, como una opción más.
              Cita / principio: card-base en violet-soft (badge genómico del DS) -->
         <aside class="max-w-2xl pl-4" style="border-left: 2px solid #9d44ab">
           <p class="eyebrow mb-2 block">{{ $t('collaborate.hero_claim_label') }}</p>
@@ -72,6 +73,35 @@
         </p>
 
         <div class="grid md:grid-cols-2 gap-4">
+          <!-- ─ Card — financiar (la que más mueve la aguja; único coral de la página) ─ -->
+          <article id="financiar" class="card-base bg-cream flex flex-col scroll-mt-24">
+            <div class="flex items-center gap-4 mb-4">
+              <span class="w-10 h-10 rounded-xl bg-coral flex items-center justify-center shrink-0" aria-hidden="true">
+                <Icon name="ph:hand-heart-fill" class="w-5 h-5 text-berenjena" />
+              </span>
+              <p class="eyebrow">{{ $t('collaborate.profile2_tag') }}</p>
+            </div>
+            <h3 class="heading-display text-xl text-berenjena mb-3">
+              {{ $t('collaborate.profile2_title') }}
+            </h3>
+            <p class="text-sm text-tinta leading-relaxed mb-5">{{ $t('collaborate.profile2_text') }}</p>
+            <div class="mt-auto">
+              <a
+                :href="GOFUNDME"
+                target="_blank"
+                rel="noopener"
+                data-support-cta
+                class="btn-cta w-full h-12 justify-center"
+                style="text-decoration: none"
+                @click="trackSupport('colabora_cierre')"
+              >
+                <Icon name="ph:heart-fill" class="heart-beat heart-beat--alive w-4 h-4" aria-hidden="true" />
+                {{ $t('collaborate.profile2_cta_label') }}
+              </a>
+              <p class="mt-2 text-xs text-tinta sm:min-h-[2.25rem]">{{ $t('collaborate.profile2_cta_caption') }}</p>
+            </div>
+          </article>
+
           <!-- ─ Card 1 — revisión clínica ─ -->
           <article id="revision-clinica" class="card-base bg-cream flex flex-col scroll-mt-24">
             <div class="flex items-center gap-4 mb-4">
@@ -173,51 +203,14 @@
       </div>
     </section>
 
-    <!-- ░░ FINANCIAR ░░ bg-cream · remate destacado (Decisión 3·B: el dinero, al
-         final). Único primario coral de la página. -->
-    <section v-reveal class="section-spacing bg-cream" :aria-labelledby="'fund-title'">
-      <div class="section-container">
-        <div class="card-base bg-cream border-coral/40">
-          <div class="flex items-center gap-4 mb-4">
-            <span class="w-10 h-10 rounded-xl bg-coral flex items-center justify-center shrink-0" aria-hidden="true">
-              <Icon name="ph:hand-heart-fill" class="w-5 h-5 text-berenjena" />
-            </span>
-            <p class="eyebrow">{{ $t('collaborate.profile2_tag') }}</p>
-          </div>
-          <h2
-            id="fund-title"
-            class="heading-display text-2xl sm:text-3xl text-berenjena mb-3"
-            style="letter-spacing: -0.02em"
-          >
-            {{ $t('collaborate.profile2_title') }}
-          </h2>
-          <p class="text-tinta leading-relaxed mb-6 max-w-2xl">
-            {{ $t('collaborate.profile2_text') }}
-          </p>
-          <a
-            :href="GOFUNDME"
-            target="_blank"
-            rel="noopener"
-            @click="trackSupport('colabora_cierre')"
-            data-support-cta
-            class="btn-cta"
-            style="text-decoration: none"
-          >
-            <Icon name="ph:heart-fill" class="heart-beat heart-beat--alive w-4 h-4" aria-hidden="true" />
-            {{ $t('collaborate.profile2_cta_label') }}
-          </a>
-          <p class="mt-3 text-xs text-tinta">{{ $t('collaborate.profile2_cta_caption') }}</p>
-        </div>
-      </div>
-    </section>
-
-    <!-- ░░ GRACIAS ░░ #gracias · el muro completo (paginado + constelación) justo
-         debajo de la card de apoyar: la prueba social respalda a la petición,
-         como en GoFundMe. Aquí enlaza el contador de donantes del widget. -->
-    <DonationsWall />
-
-    <!-- Latido como división: gracias y enlaces comparten fondo (cream-card). -->
+    <!-- Latido como división: perfiles y gracias comparten fondo (cream-card). -->
     <EcgDivider class="bg-cream-card" />
+
+    <!-- ░░ GRACIAS ░░ #gracias · el muro completo (paginado + constelación) tras
+         los perfiles, con la card de apoyar arriba en la parrilla: la prueba
+         social respalda a la petición. Aquí enlaza el widget de la home.
+         Gracias→enlaces no lleva divisor: la constelación ya marca el límite. -->
+    <DonationsWall />
 
     <!-- ░░ ENLACES RÁPIDOS ░░ bg-cream-card · panel neutro -->
     <section v-reveal class="section-spacing bg-cream-card" :aria-labelledby="'links-title'">
