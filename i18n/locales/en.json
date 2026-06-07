@@ -29,16 +29,27 @@
   "glossary": {
     "hint": "Tap or hover the underlined words to see what they mean."
   },
+  "donatePrompt": {
+    "q": "Did you contribute? Thank you, truly.",
+    "cta": "See the constellation",
+    "dismiss": "Close"
+  },
   "counter": {
-    "now": "Now",
     "label": "days waiting for a new line of treatment",
-    "sub": "since abemaciclib was stopped, on 30 Mar 2026"
+    "short": "days without a new line"
   },
   "thanksWall": {
     "eyebrow": "Thank you",
     "title": "Thanks to those who make it possible",
-    "subtitle": "Everyone who has already contributed to Miriam's case. Thank you for being here — every amount brings the next test closer.",
+    "subtitle": "Everyone who has contributed to Miriam's case, ordered by their contribution. Thank you for being here — every amount brings the next test closer.",
+    "all_title": "Everyone who has contributed",
+    "sort_label": "Sort donations",
+    "recent": "Recent",
+    "top": "Top",
     "see_all": "See all {n} people",
+    "prev": "Previous",
+    "next": "Next",
+    "page": "{c} of {t}",
     "empty": "No donations to show yet."
   },
   "error": {
@@ -71,7 +82,8 @@
     "title": "A rare cancer, {op}.",
     "title_short": "A rare cancer, a real opportunity.",
     "title_emphasis": "a real opportunity",
-    "subtitle": "{lead} has a tumor with two sides that Spanish protocols don't account for. The tests she needs to treat it aren't covered by public healthcare. This site exists to fund them.",
+    "subtitle": "{lead} has a tumor with {twofaces} that Spanish protocols don't account for. The tests she needs to treat it aren't covered by public healthcare. This site exists to fund them.",
+    "twofaces": "two sides",
     "subtitle_lead": "Miriam, 35,",
     "cta_donate": "Support Miriam",
     "cta_science": "See the science",
@@ -128,6 +140,7 @@
     "meta_span": "2021 – today",
     "meta_network": "network across 3 countries",
     "filter_aria": "Filter the timeline by milestone type",
+    "filter_label": "Filter",
     "filter_all": "All",
     "filter_clinical": "Clinical milestones",
     "filter_molecular": "Molecular profile",
@@ -166,6 +179,10 @@
     "message_label": "Message",
     "message_placeholder": "How can you help or what information do you have?",
     "submit": "Send message",
+    "sending": "Sending…",
+    "failed": "Couldn't send. Try again or reach us on social.",
+    "sent_title": "Message sent",
+    "sent_body": "We read everything with care. If you left your email, we'll get back to you.",
     "privacy_notice": "Your data is only used to respond to your message. It is not shared with third parties."
   },
   "footer": {
@@ -343,7 +360,7 @@
       "FGFR1 ×13 → FGFRi",
       "SSTR2+ → PRRT",
       "ESR1 D538G → oral SERD",
-      "NE transformation → neuroendocrine axis"
+      "RB1 loss → neuroendocrine axis"
     ],
     "axes_note": "Hypotheses derived from the molecular profile, not a prescribed treatment. The advanced rebiopsy will confirm or rule them out before defining the N-of-1 strategy.",
     "goal_n_of_1": "Goal: N-of-1 Trial",
