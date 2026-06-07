@@ -56,6 +56,35 @@
     "page": "{c} de {t}",
     "empty": "Aún no hay donaciones que mostrar."
   },
+    "twofaces": {
+      "eyebrow": "Las dos caras",
+      "title": "Un tumor con dos caras",
+      "intro": "No es un tumor: son dos biologías en el mismo cuerpo. Hay que tratar las dos a la vez — si solo atacas una, la otra avanza.",
+      "lum_label": "Cara de mama · luminal",
+      "lum_status": "La conocemos bien y tiene tratamiento estándar.",
+      "lum_markers": [
+        "Receptores ER/PR",
+        "CDK4/6",
+        "FGFR1",
+        "CCND1",
+        "ESR1"
+      ],
+      "join": "un solo tumor",
+      "ne_label": "Cara neuroendocrina",
+      "ne_status": "Apenas conocida. Dos certezas, ganadas a pulso.",
+      "ne_known": [
+        {
+          "m": "RB1",
+          "d": "el motor de la transformación neuroendocrina"
+        },
+        {
+          "m": "SSTR2",
+          "d": "abre la vía de radioligandos (PRRT)"
+        }
+      ],
+      "ne_unknown": "Lo que aún no sabemos",
+      "together": "Un mismo tumor. Las dos caras se tratan juntas."
+    },
   "error": {
     "e404_code": "Error 404",
     "e404_label": "Página no encontrada",

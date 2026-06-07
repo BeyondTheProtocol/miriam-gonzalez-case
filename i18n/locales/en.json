@@ -56,6 +56,35 @@
     "page": "{c} of {t}",
     "empty": "No donations to show yet."
   },
+    "twofaces": {
+      "eyebrow": "The two faces",
+      "title": "One tumor, two faces",
+      "intro": "It is not one tumor: it is two biologies in the same body. Both must be treated at once — hit only one and the other advances.",
+      "lum_label": "Breast face · luminal",
+      "lum_status": "Well understood, with standard treatment.",
+      "lum_markers": [
+        "ER/PR receptors",
+        "CDK4/6",
+        "FGFR1",
+        "CCND1",
+        "ESR1"
+      ],
+      "join": "one single tumor",
+      "ne_label": "Neuroendocrine face",
+      "ne_status": "Barely understood. Two hard-won certainties.",
+      "ne_known": [
+        {
+          "m": "RB1",
+          "d": "the driver of neuroendocrine transformation"
+        },
+        {
+          "m": "SSTR2",
+          "d": "opens the radioligand route (PRRT)"
+        }
+      ],
+      "ne_unknown": "What we still don't know",
+      "together": "One same tumor. Both faces are treated together."
+    },
   "error": {
     "e404_code": "Error 404",
     "e404_label": "Page not found",

@@ -79,6 +79,10 @@
           </p>
         </section>
 
+        <!-- Explicador conceptual: las dos caras del tumor (una célula, dos
+             biologías) antes de entrar en el perfil molecular detallado. -->
+        <TwoFaces class="mb-12" />
+
         <!-- Molecular profile: single canonical source of alterations -->
         <p class="eyebrow mb-2 block">{{ locale === 'es' ? 'Perfil molecular' : 'Molecular profile' }}</p>
         <h2
