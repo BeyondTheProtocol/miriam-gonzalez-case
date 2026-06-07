@@ -94,6 +94,7 @@
                 href="https://gofund.me/3e25cae99"
                 target="_blank"
                 rel="noopener"
+                @click="trackSupport('contacto')"
                 class="card-base flex items-center gap-4 hover:shadow-md transition-shadow group"
                 style="text-decoration: none"
               >
@@ -226,6 +227,7 @@
 
 <script setup lang="ts">
 const { locale } = useI18n()
+const { trackSupport } = useSupport()
 
 const metaTitle = () => (locale.value === 'es' ? 'Contacto' : 'Contact')
 const metaDesc = () =>

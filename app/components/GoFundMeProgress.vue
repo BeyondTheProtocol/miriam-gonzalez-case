@@ -2,6 +2,7 @@
 withDefaults(defineProps<{ card?: boolean }>(), { card: false })
 
 const { locale } = useI18n()
+const { trackSupport } = useSupport()
 const { data } = useGoFundMe(
   'biopsia-molecular-que-puede-cambiar-su-tratamiento'
 )
@@ -66,6 +67,7 @@ const pct = computed(() => {
       href="https://gofund.me/3e25cae99"
       target="_blank"
       rel="noopener noreferrer"
+      @click="trackSupport('gofundme_widget')"
       class="btn-cta mt-7 w-full sm:w-auto"
     >
       <Icon name="ph:heart-fill" class="heart-beat w-4 h-4" aria-hidden="true" />

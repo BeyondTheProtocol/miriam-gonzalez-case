@@ -97,6 +97,7 @@
                 href="https://gofund.me/3e25cae99"
                 target="_blank"
                 rel="noopener noreferrer"
+                @click="trackSupport('home_hero')"
                 class="btn-cta w-full sm:w-auto whitespace-nowrap"
               >
                 <Icon name="ph:heart-fill" class="heart-beat heart-beat--alive w-4 h-4" aria-hidden="true" />
@@ -175,6 +176,7 @@
 <script setup lang="ts">
 const localePath = useLocalePath()
 const { locale, t } = useI18n()
+const { trackSupport } = useSupport()
 
 const { data: gofundme } = useGoFundMe(
   'biopsia-molecular-que-puede-cambiar-su-tratamiento'

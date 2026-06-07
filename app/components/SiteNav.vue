@@ -82,6 +82,7 @@
           href="https://gofund.me/3e25cae99"
           target="_blank"
           rel="noopener noreferrer"
+          @click="trackSupport('cabecera')"
           class="donate-cta hidden sm:inline-flex items-center gap-1.5 min-h-[44px] px-4 py-2 bg-coral hover:bg-coral-hover text-berenjena text-sm font-semibold rounded-btn transition-all hover:-translate-y-0.5 hover:shadow-[0_10px_22px_-8px_rgba(255,107,71,0.55)]"
           style="text-decoration: none"
         >
@@ -139,6 +140,7 @@
             href="https://gofund.me/3e25cae99"
             target="_blank"
             rel="noopener noreferrer"
+            @click="trackSupport('menu_movil')"
             class="donate-cta mt-2 flex items-center justify-center gap-1.5 px-4 py-2.5 bg-coral hover:bg-coral-hover text-berenjena text-sm font-semibold rounded-btn"
             style="text-decoration: none"
           >
@@ -189,6 +191,7 @@ const { locale, setLocale } = useI18n()
 const localePath = useLocalePath()
 const route = useRoute()
 const { y } = useWindowScroll()
+const { trackSupport } = useSupport()
 
 const headerRef = ref<HTMLElement | null>(null)
 const mobileOpen = ref(false)

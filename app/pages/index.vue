@@ -248,6 +248,7 @@
             href="https://gofund.me/3e25cae99"
             target="_blank"
             rel="noopener"
+            @click="trackSupport('home_campaign')"
             class="btn-cta w-full sm:w-auto"
           >
             <Icon name="ph:heart-fill" class="w-4 h-4" aria-hidden="true" />
@@ -290,7 +291,7 @@
             <p class="font-mono uppercase text-[11px] tracking-[0.12em] text-tinta mb-2">03</p>
             <h3 class="font-display font-semibold text-berenjena text-xl mb-3">{{ $t('home.s10_l3_title') }}</h3>
             <p class="text-sm text-tinta leading-relaxed mb-5 flex-1">{{ $t('home.s10_l3_text') }}</p>
-            <a href="https://gofund.me/3e25cae99" target="_blank" rel="noopener" class="btn-cta w-full h-12 justify-center whitespace-nowrap">
+            <a href="https://gofund.me/3e25cae99" target="_blank" rel="noopener" @click="trackSupport('home_ladder')" class="btn-cta w-full h-12 justify-center whitespace-nowrap">
               <Icon name="ph:heart-fill" class="heart-beat w-4 h-4" aria-hidden="true" />
               {{ $t('home.s10_l3_button') }}
             </a>
@@ -375,6 +376,7 @@
 <script setup lang="ts">
 const { locale, tm, rt } = useI18n()
 const localePath = useLocalePath()
+const { trackSupport } = useSupport()
 
 // Cobertura de prensa real (verificada)
 const elPaisUrl =

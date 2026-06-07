@@ -38,6 +38,7 @@
             :href="GOFUNDME"
             target="_blank"
             rel="noopener"
+            @click="trackSupport('colabora_hero')"
             class="btn-cta w-full sm:w-auto"
             style="text-decoration: none"
           >
@@ -104,6 +105,7 @@
                 :href="GOFUNDME"
                 target="_blank"
                 rel="noopener"
+                @click="trackSupport('colabora_cierre')"
                 class="btn-cta"
                 style="text-decoration: none"
               >
@@ -265,6 +267,7 @@
 <script setup lang="ts">
 const { t, tm, rt, locale } = useI18n()
 const localePath = useLocalePath()
+const { trackSupport } = useSupport()
 
 const GOFUNDME = 'https://gofund.me/3e25cae99'
 
