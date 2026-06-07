@@ -173,6 +173,9 @@
       </div>
     </section>
 
+    <!-- ░░ GRACIAS ░░ avance del muro de donantes (8) + enlace a /donantes. -->
+    <DonationsWall :limit="8" />
+
     <!-- ░░ FINANCIAR ░░ bg-cream · remate destacado (Decisión 3·B: el dinero, al
          final). Único primario coral de la página. -->
     <section v-reveal class="section-spacing bg-cream" :aria-labelledby="'fund-title'">
