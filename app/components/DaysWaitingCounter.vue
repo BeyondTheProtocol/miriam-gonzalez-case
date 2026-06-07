@@ -1,26 +1,39 @@
 <template>
-  <div class="card-base bg-cream text-center" role="status" aria-live="polite">
-    <span
-      class="block heading-display text-coral-deep leading-none nums"
-      style="font-size: clamp(2.2rem, 9vw, 3.4rem); letter-spacing: -0.03em"
-      >{{ days }}</span
-    >
-    <p class="mt-2 text-sm font-semibold text-berenjena">{{ $t('counter.label') }}</p>
-    <small class="mt-1 block text-xs text-tinta">{{ $t('counter.sub') }}</small>
-  </div>
+  <!-- El dato de estado del caso como tag destacado entre los metadatos de la
+       cronología: coral, negrita y punto vivo — lo único que late en la fila.
+       El title lleva la frase completa para quien quiera el detalle. -->
+  <span
+    class="counter-tag inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 font-mono text-[11px] uppercase tracking-[0.08em] font-semibold text-coral-deep"
+    role="status"
+    aria-live="polite"
+    :title="$t('counter.label')"
+  >
+    <span class="counter-dot w-1.5 h-1.5 shrink-0 rounded-full bg-coral" aria-hidden="true" />
+    <span><span class="nums">{{ days }}</span> {{ $t('counter.short') }}</span>
+  </span>
 </template>
 
 <script setup lang="ts">
-/**
- * Contador "días esperando una nueva línea" (plan clínico · P3c).
- * Día 0 = 30/04/2026, suspensión de la 2ª línea (abemaciclib).
- * Texto real (role=status, aria-live). font-size con clamp() (mobile-first).
- */
-const DAY_ZERO = '2026-04-30'
-const days = computed(() =>
-  Math.max(
-    0,
-    Math.floor((Date.now() - new Date(`${DAY_ZERO}T00:00:00`).getTime()) / 86400000)
-  )
-)
+const { days } = useDaysWaiting()
 </script>
+
+<style scoped>
+.counter-tag {
+  background: rgba(255, 107, 71, 0.1);
+  border: 1px solid rgba(255, 107, 71, 0.3);
+}
+@media (prefers-reduced-motion: no-preference) {
+  .counter-dot {
+    animation: counter-pulse 2.4s ease-in-out infinite;
+  }
+  @keyframes counter-pulse {
+    0%,
+    100% {
+      box-shadow: 0 0 0 0 rgba(187, 65, 40, 0.4);
+    }
+    50% {
+      box-shadow: 0 0 0 6px rgba(187, 65, 40, 0);
+    }
+  }
+}
+</style>

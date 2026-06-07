@@ -25,6 +25,12 @@ const TAG_CATEGORY: Record<string, TimelineCategory> = {
   'second line': 'clinical',
   'progresión': 'clinical',
   progression: 'clinical',
+  'tercera línea': 'clinical',
+  'third line': 'clinical',
+  'ensayos clínicos': 'clinical',
+  'clinical trials': 'clinical',
+  tratamiento: 'clinical',
+  treatment: 'clinical',
   'clínico': 'clinical',
   clinical: 'clinical',
   // molecular

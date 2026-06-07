@@ -4,6 +4,7 @@ import type { GoFundMeFundraiser } from '../../utils/fundraiser'
 withDefaults(defineProps<{ card?: boolean }>(), { card: false })
 
 const { locale } = useI18n()
+const localePath = useLocalePath()
 const { trackSupport } = useSupport()
 
 // Datos de la campaña: JSON estático regenerado por la función de Netlify
@@ -57,10 +58,14 @@ const pct = computed(() => {
       style="color: rgba(250,246,240,0.65)"
     >
       <span class="nums" style="color: #faf6f0">{{ pct }}% {{ $t('gofundme.pct_raised') }}</span>
-      <span class="inline-flex items-center gap-1.5 nums">
+      <NuxtLink
+        :to="localePath('donantes')"
+        class="dw-donors-link inline-flex items-center gap-1.5 nums"
+      >
         <Icon name="ph:users-three" class="size-3.5" aria-hidden="true" />
         {{ data.donationCount }} {{ $t('gofundme.donators') }}
-      </span>
+        <Icon name="ph:arrow-right" class="size-3 transition-transform" aria-hidden="true" />
+      </NuxtLink>
     </div>
 
     <a
@@ -119,10 +124,34 @@ const pct = computed(() => {
           )
         }}</span>
       </p>
-      <p class="inline-flex items-center gap-2 text-tinta nums">
+      <NuxtLink
+        :to="localePath('donantes')"
+        class="dw-donors-link inline-flex items-center gap-2 text-tinta nums"
+      >
         <Icon name="ph:users-three" class="size-4" aria-hidden="true" />
         {{ data.donationCount }} {{ $t('gofundme.donators') }}
-      </p>
+        <Icon name="ph:arrow-right" class="size-3 transition-transform" aria-hidden="true" />
+      </NuxtLink>
     </div>
   </div>
 </template>
+
+<style scoped>
+.dw-donors-link {
+  text-decoration: none;
+  transition: opacity 0.2s ease;
+  cursor: pointer;
+}
+.dw-donors-link:hover {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.dw-donors-link:hover svg:last-child {
+  transform: translateX(2px);
+}
+.dw-donors-link:focus-visible {
+  outline: 2px solid #ff6b47;
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+</style>

@@ -125,12 +125,30 @@
           </div>
 
           <div>
+            <!-- Gracias tras enviar: segundo momento emocional del sitio. -->
+            <div
+              v-if="sent"
+              class="card-base text-center py-12"
+              role="status"
+              aria-live="polite"
+            >
+              <Icon name="ph:heart-fill" class="heart-beat heart-beat--alive w-8 h-8 mx-auto text-coral" aria-hidden="true" />
+              <h2 class="heading-display text-2xl text-berenjena mt-4 mb-2">
+                {{ $t('contact.sent_title') }}
+              </h2>
+              <p class="text-sm text-tinta leading-relaxed max-w-xs mx-auto">
+                {{ $t('contact.sent_body') }}
+              </p>
+            </div>
+
             <form
+              v-else
               name="contact"
               method="POST"
               data-netlify="true"
               data-netlify-honeypot="bot-field"
               class="card-base space-y-5"
+              @submit.prevent="onSubmit"
             >
               <input type="hidden" name="form-name" value="contact" />
               <input
@@ -210,10 +228,13 @@
                 ></textarea>
               </div>
 
-              <button type="submit" class="btn-cta w-full">
-                {{ $t('contact.submit') }}
+              <button type="submit" class="btn-cta w-full" :disabled="sending">
+                {{ sending ? $t('contact.sending') : $t('contact.submit') }}
               </button>
 
+              <p v-if="failed" class="text-xs text-coral-deep text-center" role="alert">
+                {{ $t('contact.failed') }}
+              </p>
               <p class="text-[11px] text-tinta text-center">
                 {{ $t('contact.privacy_notice') }}
               </p>
@@ -228,6 +249,31 @@
 <script setup lang="ts">
 const { locale } = useI18n()
 const { trackSupport } = useSupport()
+
+// Envío AJAX a Netlify Forms: mismo endpoint (POST a "/" con urlencode), pero
+// mostramos el agradecimiento en la propia página en vez de redirigir.
+const sent = ref(false)
+const sending = ref(false)
+const failed = ref(false)
+
+async function onSubmit(e: Event) {
+  const form = e.target as HTMLFormElement
+  const body = new URLSearchParams(new FormData(form) as unknown as Record<string, string>).toString()
+  sending.value = true
+  failed.value = false
+  try {
+    await $fetch('/', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body,
+    })
+    sent.value = true
+  } catch {
+    failed.value = true
+  } finally {
+    sending.value = false
+  }
+}
 
 const metaTitle = () => (locale.value === 'es' ? 'Contacto' : 'Contact')
 const metaDesc = () =>

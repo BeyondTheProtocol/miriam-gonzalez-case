@@ -173,6 +173,10 @@
       </div>
     </section>
 
+    <!-- Latido como división: perfiles y gracias comparten fondo (cream-card),
+         así que aquí la línea no compite con ningún cambio de color. -->
+    <EcgDivider class="bg-cream-card" />
+
     <!-- ░░ GRACIAS ░░ avance del muro de donantes (8) + enlace a /donantes. -->
     <DonationsWall :limit="8" />
 

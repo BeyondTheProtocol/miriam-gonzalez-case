@@ -24,25 +24,21 @@ treatments:
     regimen: Bone progression (March 2026)
     outcome: >-
       The PET-CT (24 Mar 2026) confirms bone progression (increased uptake in
-      pelvis and right femur; new foci in D1 and left iliac). During this line
-      there was a mild (G1) transaminase elevation, nearly normalized and
-      possibly linked to supplements, which led to reducing abemaciclib from 150
-      to 100 mg (not stopping it). Because of the progression + the ESR1
-      resistance mutation, abemaciclib is withdrawn in May 2026. Zoladex and
-      zoledronic acid continue. No visceral crisis.
+      pelvis and right femur; new foci in D1 and left iliac). Abemaciclib (always
+      at 100 mg) is stopped on 30 Mar 2026 due to progression and mild
+      hepatotoxicity that normalized once it was withdrawn. Zoladex and zoledronic
+      acid continue. No visceral crisis.
     active: false
   - line: →
     regimen: Current status (2026)
     outcome: >-
       As a standard 3rd line, elacestrant has been offered (ESR1 route, with
-      public funding approved), pending start. In parallel, in screening
-      (prescreening) for two phase 3 clinical trials in HR+/HER2− breast cancer
-      after CDK4/6i progression: ADELA (elacestrant + everolimus, for
-      ESR1-mutated tumors like hers) and KATSIS-1 (KAT6 inhibitor
-      prifetrastat/PF-07248144 + fulvestrant). A first bone rebiopsy (April 2026)
-      did not yield viable tumor, so an extended PET-guided bone rebiopsy is
-      planned — the central test the campaign funds. Current performance status:
-      ECOG 1.
+      public funding approved), pending start. In parallel, she is in screening
+      for two phase 3 trials in HR+/HER2− breast cancer after CDK4/6i: ADELA
+      (elacestrant + everolimus, for her ESR1 mutation) and KATSIS-1 (KAT6
+      inhibitor + fulvestrant). The first bone rebiopsy (April 2026) did not
+      yield viable tumor, so an extended PET-guided bone rebiopsy is planned —
+      the central test the campaign funds. Functional status: ECOG 1.
     active: true
 paperSections:
   - title: Neuroendocrine Transformation and RB1 Loss

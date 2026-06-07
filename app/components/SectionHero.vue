@@ -59,10 +59,11 @@
               @miriamgonp
             </span>
 
-            <!-- Rol bajo la foto: quién es (sin repetir nombre/edad), legible y sin
-                 solaparse con la ilustración. -->
-            <figcaption class="mt-3.5 flex justify-center">
-              <span class="inline-block rounded-full bg-berenjena text-cream font-mono text-[10px] sm:text-[11px] uppercase tracking-[0.12em] px-3.5 py-1.5">
+            <!-- Rol cabalgando el borde inferior de la foto (mitad dentro, mitad
+                 fuera), como el handle de arriba: flotante pero legible, porque
+                 la pastilla es sólida y va con sombra. -->
+            <figcaption class="relative z-10 -mt-3.5 sm:-mt-4 flex justify-center">
+              <span class="inline-block rounded-full bg-berenjena text-cream font-mono text-[10px] sm:text-[11px] uppercase tracking-[0.12em] px-3.5 py-1.5 shadow-xl">
                 {{ $t('hero.photo_tag') }}
               </span>
             </figcaption>
@@ -80,6 +81,20 @@
           >
             <template #lead>
               <strong class="font-semibold text-berenjena">{{ $t('hero.subtitle_lead') }}</strong>
+            </template>
+            <template #twofaces>
+              <!-- «dos caras»: un trazo a mano (como las anotaciones de la
+                   ilustración) se PINTA bajo la frase al entrar — primero la
+                   mitad magenta (luminal), luego la coral (neuroendocrina). -->
+              <span class="two-faces">{{ $t('hero.twofaces') }}<svg
+                class="two-faces__stroke"
+                viewBox="0 0 100 8"
+                preserveAspectRatio="none"
+                aria-hidden="true"
+              >
+                <path class="tf-half tf-half--a" pathLength="1" d="M2 5.2 C 16 3.4, 34 6.6, 50 4.6" />
+                <path class="tf-half tf-half--b" pathLength="1" d="M50 4.6 C 66 3.0, 84 6.4, 98 4.4" />
+              </svg></span>
             </template>
           </i18n-t>
 
@@ -120,9 +135,10 @@
 
           <!-- Lo último de la cronología (dinámico, lo que pasa ahora mismo).
                Título subrayado + flecha → señala que es un enlace a la cronología. -->
+          <!-- El hash #lo-ultimo hace que el hito de destino "salude" (eco) al aterrizar. -->
           <NuxtLink
             v-if="latest"
-            :to="localePath({ name: 'timeline' })"
+            :to="localePath({ name: 'timeline' }) + '#lo-ultimo'"
             class="group mt-8 sm:mt-10 block no-underline animate-fade-up"
             style="animation-delay: 0.35s"
           >
@@ -264,6 +280,53 @@ const stats = computed(() => [
 </script>
 
 <style scoped>
+/* «dos caras»: trazo a mano bajo la frase, que se pinta al entrar —
+   mitad magenta (luminal) y mitad coral (neuroendocrina), en secuencia.
+   Con reduced-motion el trazo aparece ya pintado. */
+.two-faces {
+  position: relative;
+  font-style: italic;
+  white-space: nowrap;
+}
+.two-faces__stroke {
+  position: absolute;
+  left: -2%;
+  bottom: -0.22em;
+  width: 104%;
+  height: 0.34em;
+  overflow: visible;
+  pointer-events: none;
+}
+.tf-half {
+  fill: none;
+  stroke-width: 2.6;
+  stroke-linecap: round;
+}
+.tf-half--a {
+  stroke: #9d44ab;
+}
+.tf-half--b {
+  stroke: #ff6b47;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .tf-half {
+    stroke-dasharray: 1;
+    stroke-dashoffset: 1;
+    animation: tf-draw 0.5s ease-out forwards;
+  }
+  .tf-half--a {
+    animation-delay: 0.7s;
+  }
+  .tf-half--b {
+    animation-delay: 1.15s;
+  }
+  @keyframes tf-draw {
+    to {
+      stroke-dashoffset: 0;
+    }
+  }
+}
+
 .hero-live-dot {
   animation: hero-pulse 2s ease-in-out infinite;
 }

@@ -25,6 +25,12 @@ export function useSupport() {
     // mantiene por si algún día se activa el plan con propiedades.
     plausible?.trackEvent?.('Apoyar', { props: { location } })
     plausible?.trackEvent?.(`Apoyar: ${location}`)
+    // Marca para el aviso suave al volver de GoFundMe (DonationReturnPrompt).
+    try {
+      sessionStorage.setItem('hm_support_ts', String(Date.now()))
+    } catch {
+      /* sin sessionStorage */
+    }
   }
 
   return { GOFUNDME_URL, trackSupport }

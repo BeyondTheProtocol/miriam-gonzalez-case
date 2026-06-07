@@ -23,26 +23,22 @@ treatments:
   - line: →
     regimen: Progresión ósea (marzo 2026)
     outcome: >-
-      El PET-TC (24/03/2026) confirma progresión ósea (aumento de captación en
-      pelvis y fémur derecho; nuevos focos en D1 e ilíaco izquierdo). Durante
-      esta línea hubo una elevación leve (G1) de transaminasas, casi normalizada
-      y posiblemente ligada a suplementos, que motivó reducir abemaciclib de 150
-      a 100 mg (no su retirada). Por la progresión + la mutación de resistencia
-      ESR1, el abemaciclib se retira en mayo de 2026. Zoladex y ácido zoledrónico
-      continúan. Sin crisis visceral.
+      El PET-TC (24/03/2026) confirma progresión ósea (más captación en pelvis y
+      fémur derecho; nuevos focos en D1 e ilíaco izquierdo). El abemaciclib
+      (siempre a 100 mg) se suspende el 30/03/2026 por la progresión y una
+      hepatotoxicidad leve que se normalizó al retirarlo. Zoladex y ácido
+      zoledrónico continúan. Sin crisis visceral.
     active: false
   - line: →
     regimen: Estado actual (2026)
     outcome: >-
       Como 3ª línea estándar se ha ofrecido elacestrant (vía ESR1, con
-      financiación pública aprobada), pendiente de inicio. En paralelo, en
-      cribado (prescreening) para dos ensayos clínicos de fase 3 en mama
-      HR+/HER2− tras progresión a CDK4/6i: ADELA (elacestrant + everolimus, para
-      tumores con mutación ESR1 como el suyo) y KATSIS-1 (inhibidor de KAT6
-      prifetrastat/PF-07248144 + fulvestrant). Una primera rebiopsia ósea (abril
-      2026) no obtuvo tumor viable, por lo que se plantea una rebiopsia ósea
-      extendida guiada por PET — la prueba central que financia la campaña.
-      Estado funcional actual: ECOG 1.
+      financiación pública aprobada), pendiente de inicio. En paralelo, está en
+      cribado para dos ensayos de fase 3 en mama HR+/HER2− tras CDK4/6i: ADELA
+      (elacestrant + everolimus, para su mutación ESR1) y KATSIS-1 (inhibidor de
+      KAT6 + fulvestrant). La primera rebiopsia ósea (abril 2026) no obtuvo tumor
+      viable, así que se plantea una rebiopsia ósea extendida guiada por PET — la
+      prueba central que financia la campaña. Estado funcional: ECOG 1.
     active: true
 paperSections:
   - title: Transformación Neuroendocrina y Pérdida de RB1

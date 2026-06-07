@@ -29,9 +29,29 @@
   "glossary": {
     "hint": "Tap or hover the underlined words to see what they mean."
   },
+  "donatePrompt": {
+    "q": "Did you contribute? Thank you, truly.",
+    "cta": "See the constellation",
+    "dismiss": "Close"
+  },
   "counter": {
     "label": "days waiting for a new line of treatment",
-    "sub": "since the 2nd line (abemaciclib) was stopped, on 30 Apr 2026"
+    "short": "days without a new line"
+  },
+  "thanksWall": {
+    "eyebrow": "Thank you",
+    "title": "Thanks to those who make it possible",
+    "subtitle": "Everyone who has contributed to Miriam's case, ordered by their contribution. Thank you for being here — every amount brings the next test closer.",
+    "all_title": "Everyone who has contributed",
+    "stars_line": "{star} Every contribution is a star — {n} are already shining, adding up to {total}.",
+    "sort_label": "Sort donations",
+    "recent": "Recent",
+    "top": "Top",
+    "see_all": "See all {n} people",
+    "prev": "Previous",
+    "next": "Next",
+    "page": "{c} of {t}",
+    "empty": "No donations to show yet."
   },
   "thanksWall": {
     "eyebrow": "Thank you",
@@ -70,7 +90,8 @@
     "title": "A rare cancer, {op}.",
     "title_short": "A rare cancer, a real opportunity.",
     "title_emphasis": "a real opportunity",
-    "subtitle": "{lead} has a tumor with two sides that Spanish protocols don't account for. The tests she needs to treat it aren't covered by public healthcare. This site exists to fund them.",
+    "subtitle": "{lead} has a tumor with {twofaces} that Spanish protocols don't account for. The tests she needs to treat it aren't covered by public healthcare. This site exists to fund them.",
+    "twofaces": "two sides",
     "subtitle_lead": "Miriam, 35,",
     "cta_donate": "Support Miriam",
     "cta_science": "See the science",
@@ -127,6 +148,7 @@
     "meta_span": "2021 – today",
     "meta_network": "network across 3 countries",
     "filter_aria": "Filter the timeline by milestone type",
+    "filter_label": "Filter",
     "filter_all": "All",
     "filter_clinical": "Clinical milestones",
     "filter_molecular": "Molecular profile",
@@ -165,6 +187,10 @@
     "message_label": "Message",
     "message_placeholder": "How can you help or what information do you have?",
     "submit": "Send message",
+    "sending": "Sending…",
+    "failed": "Couldn't send. Try again or reach us on social.",
+    "sent_title": "Message sent",
+    "sent_body": "We read everything with care. If you left your email, we'll get back to you.",
     "privacy_notice": "Your data is only used to respond to your message. It is not shared with third parties."
   },
   "footer": {
@@ -342,7 +368,7 @@
       "FGFR1 ×13 → FGFRi",
       "SSTR2+ → PRRT",
       "ESR1 D538G → oral SERD",
-      "NE transformation → neuroendocrine axis"
+      "RB1 loss → neuroendocrine axis"
     ],
     "axes_note": "Hypotheses derived from the molecular profile, not a prescribed treatment. The advanced rebiopsy will confirm or rule them out before defining the N-of-1 strategy.",
     "goal_n_of_1": "Goal: N-of-1 Trial",
@@ -388,7 +414,7 @@
     "snapshot_target_label": "Functional target",
     "snapshot_target": "SSTR2+ on Ga-68 PET → radioligand therapy (PRRT) candidate",
     "snapshot_status_label": "2026 status",
-    "snapshot_status": "ECOG 1 · multiple bone metastases (no visceral involvement) · abemaciclib withdrawn (May 2026)",
+    "snapshot_status": "ECOG 1 · multiple bone metastases (no visceral involvement) · abemaciclib withdrawn (30 Mar 2026)",
     "snapshot_grade_label": "Receptors & grade",
     "snapshot_grade": "ER 95% · PR 5% · HER2 0 (ultralow) · Ki67 60% · G2 (Nottingham) · low TMB and MSI",
     "snapshot_diagnosis_tag": "Stage IV",
@@ -400,8 +426,8 @@
     "molecular_profile_title": "The tumour’s genomic map",
     "ctdna_dynamics_title": "How it evolves in the blood",
     "ctdna_dynamics_intro": "The tumour isn’t static: ctDNA tracks its changes (VAF) across three plasma draws, with no biopsy needed.",
-    "app_inline_text": "Researching this profile or seeing it in clinic? Access the full clinical reports of the case —sequencing, ctDNA (VAF) and imaging— in a structured format to review or download.",
-    "app_inline_cta": "Request the reports",
+    "app_inline_text": "Want to dig deeper into the case? Get the full clinical reports —sequencing, ctDNA (VAF) and imaging— in a structured format to review or download.",
+    "app_inline_cta": "Get the reports",
     "app_hook_eyebrow": "Coming soon · for oncology and research",
     "app_hook_title": "The full case, in a queryable format",
     "app_hook_body": "Access Miriam's case as a structured clinical dataset: timeline, reports, molecular profile (FGFR1, SSTR2, ESR1, ctDNA) and the response to each treatment line. Queryable and exportable for second opinions and tumor boards (MTB).",

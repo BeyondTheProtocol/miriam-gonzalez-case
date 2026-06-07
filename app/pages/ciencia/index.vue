@@ -234,14 +234,17 @@
               ? 'De todo lo anterior se desprenden varias dianas. Estos son los ejes terapéuticos candidatos que sugiere el perfil molecular, cada uno con su propia lógica de tratamiento.'
               : 'Several candidate targets follow from all of the above. These are the therapeutic axes the molecular profile points to, each with its own treatment rationale.' }}
           </p>
+          <!-- Cada eje, con tooltip que explica qué hace esa opción de tratamiento. -->
           <div class="flex flex-wrap gap-2" translate="no">
-            <span
-              v-for="axis in $tm('ciencia.axes')"
-              :key="String($rt(axis))"
-              class="badge-genomic"
-            >
-              {{ $rt(axis) }}
-            </span>
+            <template v-for="(axis, ai) in $tm('ciencia.axes')" :key="ai">
+              <Term
+                v-if="axisTerms[ai]"
+                :id="axisTerms[ai]"
+                :label="String($rt(axis))"
+                variant="badge"
+              />
+              <span v-else class="badge-genomic">{{ $rt(axis) }}</span>
+            </template>
           </div>
           <details class="notes-disclosure mt-4">
             <summary>
@@ -426,6 +429,9 @@
 <script setup lang="ts">
 const { locale, t } = useI18n()
 const localePath = useLocalePath()
+
+// Mapa eje terapéutico → id de glosario (Term), mismo orden que ciencia.axes.
+const axisTerms = ['axis_fgfr', 'axis_sstr', 'axis_esr1', 'axis_ne']
 
 useSeoMeta({
   title: () =>

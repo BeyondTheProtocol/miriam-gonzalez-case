@@ -1,16 +1,23 @@
 <template>
   <ClientOnly>
     <div class="constellation" aria-hidden="true">
-      <svg class="constellation__svg" viewBox="0 0 600 320" preserveAspectRatio="xMidYMid slice">
-        <circle
-          v-for="(s, i) in stars"
-          :key="i"
-          :cx="s.x"
-          :cy="s.y"
-          :r="s.r"
+      <svg
+        v-for="(s, i) in stars"
+        :key="i"
+        class="constellation__star"
+        :class="{ constellation__new: s.new }"
+        :style="{
+          left: s.x + '%',
+          top: s.y + '%',
+          width: s.size + 'px',
+          height: s.size + 'px',
+          opacity: s.new ? undefined : s.o,
+        }"
+        viewBox="0 0 20 20"
+      >
+        <path
           :fill="s.new ? '#ff6b47' : '#9d44ab'"
-          :class="s.new ? 'constellation__new' : ''"
-          :style="s.new ? null : { opacity: s.o }"
+          d="M10 0 L13.4 6.6 L20 10 L13.4 13.4 L10 20 L6.6 13.4 L0 10 L6.6 6.6 Z"
         />
       </svg>
     </div>
@@ -19,12 +26,10 @@
 
 <script setup lang="ts">
 /**
- * Constelación de quienes apoyan (/gracias · detalles con alma · B1).
- * Cielo de estrellas sutil (violeta) y una estrella NUEVA coral que se enciende
- * una vez al aterrizar tras donar — enlaza con la constelación del logo.
- * Decorativo (aria-hidden) y ClientOnly: el mensaje de gracias sigue en
- * texto/SSR. Con reduced-motion la estrella nueva ya aparece encendida.
- * Posiciones deterministas (PRNG con semilla fija) → sin saltos.
+ * Constelación de quienes apoyan — la estrella de 4 puntas del logo, en
+ * TAMAÑO FIJO en píxeles (5–11px): no escala con la sección, así nunca se
+ * hace grande aunque la página sea larga. Posiciones deterministas (PRNG),
+ * tope de estrellas, decorativa (aria-hidden) y ClientOnly.
  */
 const props = withDefaults(defineProps<{ count?: number }>(), { count: 60 })
 
@@ -40,20 +45,20 @@ function mulberry32(seed: number) {
 }
 
 const stars = computed(() => {
-  // Densidad ligada a donantes, con tope para no penalizar el render.
-  const n = Math.max(18, Math.min(props.count, 110))
+  const n = Math.max(18, Math.min(Math.round(props.count / 12), 70))
   const rnd = mulberry32(20240127)
-  const out: { x: number; y: number; r: number; o: number; new: boolean }[] = []
+  const out: { x: number; y: number; size: number; o: number; new: boolean }[] = []
   for (let i = 0; i < n; i++) {
     out.push({
-      x: Math.round(rnd() * 600),
-      y: Math.round(rnd() * 320),
-      r: +(0.5 + rnd() * 1.4).toFixed(1),
-      o: +(0.12 + rnd() * 0.4).toFixed(2),
+      x: +(rnd() * 100).toFixed(2),
+      y: +(rnd() * 100).toFixed(2),
+      size: +(5 + rnd() * 6).toFixed(1),
+      o: +(0.16 + rnd() * 0.34).toFixed(2),
       new: false,
     })
   }
-  out.push({ x: 300, y: 96, r: 3.2, o: 1, new: true })
+  // La estrella nueva (coral): la de quien acaba de llegar.
+  out.push({ x: 50, y: 26, size: 14, o: 1, new: true })
   return out
 })
 </script>
@@ -64,11 +69,12 @@ const stars = computed(() => {
   inset: 0;
   z-index: 0;
   pointer-events: none;
+  overflow: hidden;
 }
-.constellation__svg {
-  width: 100%;
-  height: 100%;
+.constellation__star {
+  position: absolute;
   display: block;
+  transform: translate(-50%, -50%);
 }
 .constellation__new {
   opacity: 1;

@@ -29,9 +29,29 @@
   "glossary": {
     "hint": "Toca o pasa el cursor por las palabras subrayadas para ver qué significan."
   },
+  "donatePrompt": {
+    "q": "¿Has aportado? Gracias de corazón.",
+    "cta": "Mira la constelación",
+    "dismiss": "Cerrar"
+  },
   "counter": {
     "label": "días esperando una nueva línea de tratamiento",
-    "sub": "desde que se suspendió la 2ª línea (abemaciclib), el 30/04/2026"
+    "short": "días sin nueva línea"
+  },
+  "thanksWall": {
+    "eyebrow": "Gracias",
+    "title": "Gracias a quienes lo hacen posible",
+    "subtitle": "Quienes ya han aportado al caso de Miriam, ordenados por su aportación. Gracias por estar — cada cantidad acerca el siguiente análisis.",
+    "all_title": "Todas las personas que han aportado",
+    "stars_line": "{star} Cada aportación es una estrella — ya brillan {n}, que suman {total}.",
+    "sort_label": "Ordenar donaciones",
+    "recent": "Recientes",
+    "top": "Top",
+    "see_all": "Ver a las {n} personas",
+    "prev": "Anteriores",
+    "next": "Siguientes",
+    "page": "{c} de {t}",
+    "empty": "Aún no hay donaciones que mostrar."
   },
   "thanksWall": {
     "eyebrow": "Gracias",
@@ -70,7 +90,8 @@
     "title": "Un cáncer raro, {op} real.",
     "title_short": "Un cáncer raro, una oportunidad real.",
     "title_emphasis": "una oportunidad",
-    "subtitle": "{lead} tiene un tumor con dos caras que los protocolos españoles no contemplan. Las pruebas que necesita para tratarlo no las cubre la sanidad pública. Esta web existe para financiarlas.",
+    "subtitle": "{lead} tiene un tumor con {twofaces} que los protocolos españoles no contemplan. Las pruebas que necesita para tratarlo no las cubre la sanidad pública. Esta web existe para financiarlas.",
+    "twofaces": "dos caras",
     "subtitle_lead": "Miriam, 35 años,",
     "cta_donate": "Apoyar a Miriam",
     "cta_science": "Ver la ciencia del caso",
@@ -150,6 +171,7 @@
     "meta_span": "2021 – hoy",
     "meta_network": "red en 3 países",
     "filter_aria": "Filtrar la cronología por tipo de hito",
+    "filter_label": "Filtrar",
     "filter_all": "Todo",
     "filter_clinical": "Hitos clínicos",
     "filter_molecular": "Perfil molecular",
@@ -188,6 +210,10 @@
     "message_label": "Mensaje",
     "message_placeholder": "¿Cómo puedes ayudar o qué información tienes?",
     "submit": "Enviar mensaje",
+    "sending": "Enviando…",
+    "failed": "No se pudo enviar. Inténtalo de nuevo o escríbenos por redes.",
+    "sent_title": "Mensaje enviado",
+    "sent_body": "Te leemos con calma. Si dejaste tu email, te responderemos.",
     "privacy_notice": "Tus datos solo se usan para responder a tu mensaje. No se comparten con terceros."
   },
   "footer": {
@@ -365,7 +391,7 @@
       "FGFR1 ×13 → FGFRi",
       "SSTR2+ → PRRT",
       "ESR1 D538G → SERD oral",
-      "Transformación NE → eje neuroendocrino"
+      "Pérdida de RB1 → eje neuroendocrino"
     ],
     "axes_note": "Hipótesis derivadas del perfil molecular, no un tratamiento prescrito. La rebiopsia avanzada las confirmará o descartará antes de definir la estrategia N-of-1.",
     "goal_n_of_1": "Objetivo: Ensayo N-of-1",
@@ -411,7 +437,7 @@
     "snapshot_target_label": "Diana funcional",
     "snapshot_target": "SSTR2+ en PET Ga-68 → candidata a radioligandos (PRRT)",
     "snapshot_status_label": "Estado 2026",
-    "snapshot_status": "ECOG 1 · metástasis óseas múltiples (sin afectación visceral) · abemaciclib retirado (mayo 2026)",
+    "snapshot_status": "ECOG 1 · metástasis óseas múltiples (sin afectación visceral) · abemaciclib retirado (30/03/2026)",
     "snapshot_grade_label": "Receptores y grado",
     "snapshot_grade": "RE 95% · RP 5% · HER2 0 (ultralow) · Ki67 60% · G2 (Nottingham) · TMB y MSI bajos",
     "snapshot_diagnosis_tag": "Estadio IV",
@@ -423,8 +449,8 @@
     "molecular_profile_title": "El mapa genómico del tumor",
     "ctdna_dynamics_title": "Cómo evoluciona en sangre",
     "ctdna_dynamics_intro": "El tumor no es estático: el ctDNA sigue sus cambios (VAF) a lo largo de tres extracciones de plasma, sin necesidad de biopsiar.",
-    "app_inline_text": "¿Investigas este perfil o lo ves en consulta? Accede a los informes clínicos completos del caso —secuenciación, ctDNA (VAF) e imagen— en formato estructurado para revisarlos o descargarlos.",
-    "app_inline_cta": "Solicitar los informes",
+    "app_inline_text": "¿Quieres profundizar en el caso? Consigue los informes clínicos completos —secuenciación, ctDNA (VAF) e imagen— en formato estructurado para revisarlos o descargarlos.",
+    "app_inline_cta": "Conseguir los informes",
     "app_hook_eyebrow": "Pronto · para oncología e investigación",
     "app_hook_title": "El caso completo, en formato consultable",
     "app_hook_body": "Accede al caso de Miriam como dataset clínico estructurado: cronología, informes, perfil molecular (FGFR1, SSTR2, ESR1, ctDNA) y la respuesta a cada línea de tratamiento. Consultable y exportable para segundas opiniones y comités de tumores (MTB).",

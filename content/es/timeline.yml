@@ -50,7 +50,7 @@ entries:
     imageAlt: "Miriam en la UCI durante su ingreso hospitalario. Entubada pero divina, haciendose el skincare"
 
   - date: 'jul 2024'
-    tag: DIPCAN
+    tag: Molecular
     title: El tumor revela su identidad molecular
     description: >
       Miriam participa en el estudio DIPCAN, que permite realizar un análisis genómico completo
@@ -73,12 +73,12 @@ entries:
     tag: Progresión
     title: Progresión ósea
     description: >
-      El PET-TC del 24/03/2026 confirma progresión de la enfermedad ósea (más captación
-      en pelvis y fémur derecho, nuevos focos en D1 e ilíaco izquierdo). El abemaciclib ya
-      estaba a dosis reducida (100 mg) por una leve elevación de transaminasas, casi
-      normalizada. Se mantienen Zoladex y ácido zoledrónico y empieza la búsqueda de la
-      siguiente estrategia.
-    highlight: false
+      El PET-TC del 24/03/2026 confirma progresión ósea (más captación en pelvis y fémur
+      derecho; nuevos focos en D1 e ilíaco izquierdo). El 30/03 se suspende el abemaciclib
+      —siempre a 100 mg— por la progresión y una hepatotoxicidad leve que se normalizó al
+      retirarlo. Zoladex y ácido zoledrónico continúan; empieza la búsqueda de la siguiente
+      estrategia.
+    highlight: true
 
   - date: 'abr 2026'
     tag: Equipo
@@ -152,12 +152,11 @@ entries:
 
   - date: 'may 2026'
     tag: Tercera línea
-    title: Cambio de estrategia
+    title: Se ofrece la tercera línea
     description: >
-      Por la progresión y la mutación de resistencia ESR1 (D538G), se retira el
-      abemaciclib. Se ofrece como 3ª línea estándar elacestrant (financiación aprobada),
-      pendiente de inicio, mientras se valoran en paralelo ensayos clínicos y la vía de
-      radioligandos.
+      Con la mutación de resistencia ESR1 (D538G) confirmada en sangre, se ofrece como 3ª
+      línea estándar elacestrant (financiación pública aprobada), pendiente de inicio. En
+      paralelo se valoran ensayos clínicos y la vía de radioligandos (PRRT).
     highlight: false
   - date: '17 may 2026'
     tag: Divulgación
@@ -170,7 +169,7 @@ entries:
     linkLabel: 'Ver el vídeo →'
 
   - date: '21 may 2026'
-    tag: Clínico
+    tag: Molecular
     title: Expertos de varios países revisan el caso
     description: >
       Se celebra el comité molecular internacional del WIN Consortium sobre el caso de
@@ -189,13 +188,3 @@ entries:
     highlight: true
     link: https://x.com/miriamgonp/status/2060649242037723567
     linkLabel: 'Ver el hilo del PET Galio →'
-
-  - date: 'jun 2026'
-    tag: Tratamiento
-    title: A la espera de una nueva línea
-    description: >
-      Sigue sin una nueva línea activa. En cribado (prescreening) para dos ensayos
-      clínicos de fase 3: ADELA (elacestrant + everolimus, para tumores con mutación
-      ESR1) y KATSIS-1 (inhibidor de KAT6 prifetrastat + fulvestrant). Para ADELA/KATSIS
-      se ha realizado una rebiopsia de mama de cribado.
-    highlight: true

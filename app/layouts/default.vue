@@ -14,6 +14,7 @@
     </main>
     <SiteFooter />
     <MobileSupportBar />
+    <DonationReturnPrompt />
   </div>
 </template>
 

@@ -950,3 +950,44 @@
   0% { transform: translateX(-120%); }
   100% { transform: translateX(320%); }
 }
+
+/* ── Impresión ──────────────────────────────────────────────────────────────
+   Pensado sobre todo para /ciencia: un oncólogo imprime el caso y se lo lleva
+   al comité. Fuera el cromo de navegación; texto en negro sobre blanco; las
+   URLs de los enlaces del contenido se muestran para que el papel sea útil. */
+@media print {
+  header,
+  footer,
+  .mobile-support-bar,
+  [data-print-hide] {
+    display: none !important;
+  }
+  .btn-cta,
+  .btn-secondary,
+  .btn-ghost,
+  .btn-dark {
+    display: none !important;
+  }
+  body {
+    background: #fff !important;
+  }
+  * {
+    color: #1a1a1a !important;
+    box-shadow: none !important;
+  }
+  .card-base,
+  section,
+  article,
+  li,
+  tr {
+    break-inside: avoid;
+    background: #fff !important;
+    border-color: #ccc !important;
+  }
+  main a[href^="http"]::after {
+    content: " (" attr(href) ")";
+    font-size: 0.85em;
+    color: #555 !important;
+    word-break: break-all;
+  }
+}
