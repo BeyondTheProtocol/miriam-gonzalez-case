@@ -63,11 +63,11 @@ const GLOSSARY: Record<string, Entry> = {
   sstr: {
     es: {
       label: 'SSTR2+',
-      def: 'Receptor de somatostatina de subtipo 2 (SSTR2), el que ilumina el PET de Ga-68 DOTATOC. Abre la vía de las terapias con radioligandos.',
+      def: 'Sobreexpresión de receptores de somatostatina confirmada por PET-68Ga-DOTATOC (26/05/2026). Es un hallazgo funcional (por imagen); la confirmación en tejido (IHQ SSTR2) está pendiente de la rebiopsia. Abre la vía de terapia con radioligandos (PRRT).',
     },
     en: {
       label: 'SSTR2+',
-      def: 'Somatostatin receptor subtype 2 (SSTR2), the one lit up by the Ga-68 DOTATOC PET. Opens the radioligand-therapy path.',
+      def: 'Somatostatin-receptor overexpression confirmed by 68Ga-DOTATOC PET (26 May 2026). This is a functional (imaging) finding; tissue confirmation (SSTR2 IHC) is pending the rebiopsy. It opens the radioligand therapy (PRRT) route.',
     },
   },
   ccnd1: {
@@ -132,12 +132,12 @@ const GLOSSARY: Record<string, Entry> = {
   },
   ecog: {
     es: {
-      label: 'ECOG 0',
-      def: 'Escala ECOG, grado 0 — totalmente activa: hace vida normal, sin restricciones, como antes de la enfermedad.',
+      label: 'ECOG 1',
+      def: 'Escala ECOG: 0 desde el diagnóstico (enero 2024) hasta el 01/04/2026; 1 desde el 30/04/2026 (aumento del dolor óseo en cadera, capacidad funcional conservada).',
     },
     en: {
-      label: 'ECOG 0',
-      def: 'ECOG scale, grade 0 — fully active: able to carry on all normal, pre-illness activities without restriction.',
+      label: 'ECOG 1',
+      def: 'ECOG scale: 0 from diagnosis (January 2024) until 01 Apr 2026; 1 since 30 Apr 2026 (increased hip bone pain, preserved functional capacity).',
     },
   },
   ki67: {

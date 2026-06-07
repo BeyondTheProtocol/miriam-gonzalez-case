@@ -29,6 +29,10 @@
   "glossary": {
     "hint": "Tap or hover the underlined words to see what they mean."
   },
+  "counter": {
+    "label": "days waiting for a new line of treatment",
+    "sub": "since the 2nd line (abemaciclib) was stopped, on 30 Apr 2026"
+  },
   "error": {
     "e404_code": "Error 404",
     "e404_label": "Page not found",
@@ -159,7 +163,7 @@
   "footer": {
     "disclaimer": "This site is an informational resource maintained by the patient's support team. It does not replace professional medical advice.",
     "updated": "Last updated",
-    "month_updated": "May",
+    "month_updated": "June",
     "nav_heading": "Navigation",
     "social_heading": "Social",
     "made_with": "Made with care, science, and a lot of AI.",
@@ -377,14 +381,14 @@
     "snapshot_target_label": "Functional target",
     "snapshot_target": "SSTR2+ on Ga-68 PET → radioligand therapy (PRRT) candidate",
     "snapshot_status_label": "2026 status",
-    "snapshot_status": "ECOG 0 · multiple bone metastases (no visceral involvement) · abemaciclib stopped (March 2026)",
+    "snapshot_status": "ECOG 1 · multiple bone metastases (no visceral involvement) · abemaciclib withdrawn (May 2026)",
     "snapshot_grade_label": "Receptors & grade",
     "snapshot_grade": "ER 95% · PR 5% · HER2 0 (ultralow) · Ki67 60% · G2 (Nottingham) · low TMB and MSI",
     "snapshot_diagnosis_tag": "Stage IV",
     "snapshot_drivers_tag": "Amplification",
     "snapshot_target_tag": "Opportunity",
     "snapshot_resistance_tag": "Acquired",
-    "snapshot_status_tag": "ECOG 0",
+    "snapshot_status_tag": "ECOG 1",
     "snapshot_grade_tag": "HR+",
     "molecular_profile_title": "The tumour’s genomic map",
     "ctdna_dynamics_title": "How it evolves in the blood",

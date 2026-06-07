@@ -29,6 +29,10 @@
   "glossary": {
     "hint": "Toca o pasa el cursor por las palabras subrayadas para ver qué significan."
   },
+  "counter": {
+    "label": "días esperando una nueva línea de tratamiento",
+    "sub": "desde que se suspendió la 2ª línea (abemaciclib), el 30/04/2026"
+  },
   "error": {
     "e404_code": "Error 404",
     "e404_label": "Página no encontrada",
@@ -182,7 +186,7 @@
   "footer": {
     "disclaimer": "Este sitio es un recurso informativo mantenido por el equipo de apoyo de la paciente. No sustituye asesoramiento médico profesional.",
     "updated": "Última actualización",
-    "month_updated": "mayo de",
+    "month_updated": "junio de",
     "nav_heading": "Navegación",
     "social_heading": "Social",
     "made_with": "Hecho con cariño, ciencia y mucha IA.",
@@ -400,14 +404,14 @@
     "snapshot_target_label": "Diana funcional",
     "snapshot_target": "SSTR2+ en PET Ga-68 → candidata a radioligandos (PRRT)",
     "snapshot_status_label": "Estado 2026",
-    "snapshot_status": "ECOG 0 · metástasis óseas múltiples (sin afectación visceral) · abemaciclib suspendido (marzo 2026)",
+    "snapshot_status": "ECOG 1 · metástasis óseas múltiples (sin afectación visceral) · abemaciclib retirado (mayo 2026)",
     "snapshot_grade_label": "Receptores y grado",
     "snapshot_grade": "RE 95% · RP 5% · HER2 0 (ultralow) · Ki67 60% · G2 (Nottingham) · TMB y MSI bajos",
     "snapshot_diagnosis_tag": "Estadio IV",
     "snapshot_drivers_tag": "Amplificación",
     "snapshot_target_tag": "Oportunidad",
     "snapshot_resistance_tag": "Adquirida",
-    "snapshot_status_tag": "ECOG 0",
+    "snapshot_status_tag": "ECOG 1",
     "snapshot_grade_tag": "HR+",
     "molecular_profile_title": "El mapa genómico del tumor",
     "ctdna_dynamics_title": "Cómo evoluciona en sangre",

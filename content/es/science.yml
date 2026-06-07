@@ -21,11 +21,28 @@ treatments:
       ribociclib por abemaciclib. Zoladex y ácido zoledrónico se mantienen.
     active: false
   - line: →
-    regimen: Progresión ósea + suspensión de abemaciclib (marzo 2026)
+    regimen: Progresión ósea (marzo 2026)
     outcome: >-
-      PET-CT confirma nuevos focos óseos en pelvis y fémur derecho. El
-      abemaciclib se suspende por progresión ósea y toxicidad hepática (DILI
-      G2-3). Zoladex y ácido zoledrónico continúan. ECOG 0. Sin crisis visceral.
+      El PET-TC (24/03/2026) confirma progresión ósea (aumento de captación en
+      pelvis y fémur derecho; nuevos focos en D1 e ilíaco izquierdo). Durante
+      esta línea hubo una elevación leve (G1) de transaminasas, casi normalizada
+      y posiblemente ligada a suplementos, que motivó reducir abemaciclib de 150
+      a 100 mg (no su retirada). Por la progresión + la mutación de resistencia
+      ESR1, el abemaciclib se retira en mayo de 2026. Zoladex y ácido zoledrónico
+      continúan. Sin crisis visceral.
+    active: false
+  - line: →
+    regimen: Estado actual (2026)
+    outcome: >-
+      Como 3ª línea estándar se ha ofrecido elacestrant (vía ESR1, con
+      financiación pública aprobada), pendiente de inicio. En paralelo, en
+      cribado (prescreening) para dos ensayos clínicos de fase 3 en mama
+      HR+/HER2− tras progresión a CDK4/6i: ADELA (elacestrant + everolimus, para
+      tumores con mutación ESR1 como el suyo) y KATSIS-1 (inhibidor de KAT6
+      prifetrastat/PF-07248144 + fulvestrant). Una primera rebiopsia ósea (abril
+      2026) no obtuvo tumor viable, por lo que se plantea una rebiopsia ósea
+      extendida guiada por PET — la prueba central que financia la campaña.
+      Estado funcional actual: ECOG 1.
     active: true
 paperSections:
   - title: Transformación Neuroendocrina y Pérdida de RB1
@@ -90,16 +107,16 @@ paperSections:
   - title: Vía SSTR2 y Terapia con Radioligandos (PRRT)
     tag: SSTR2 · PRRT
     tone: positive
-    subtitle: Fundamento para solicitar IHQ SSTR2 y PET-DOTATATE como rama terapéutica de reserva
+    subtitle: El PET-68Ga-DOTATOC (26/05/2026) confirmó sobreexpresión de SSTR2 en las metástasis óseas → abre la vía PRRT (177Lu-DOTATATE); IHQ de SSTR2 en tejido pendiente de la rebiopsia
     papers:
       - ref: 'Terlević et al., 2019 — Annals of Diagnostic Pathology (DOI: 10.1016/j.anndiagpath.2018.11.002)'
-        finding: 'Expresión de SSTR2 en carcinoma de mama neuroendocrino: 71% positivos'
+        finding: 'Expresión de SSTR2 en carcinoma de mama neuroendocrino: 71% positivos (≈36% moderada-fuerte)'
         relevance: >-
-          Estudio inmunohistoquímico que demuestra que el 71% de los carcinomas
-          de mama neuroendocrinos expresan SSTR2A con intensidad suficiente para
-          considerar PRRT con 177Lu-DOTATATE. Justifica solicitar IHQ de SSTR2
-          en cualquier rebiopsia futura y un PET-DOTATATE como cribado
-          funcional.
+          Estudio inmunohistoquímico: el 71% de los carcinomas de mama
+          neuroendocrinos expresan SSTR2A (cualquier intensidad); ~36% con
+          intensidad moderada-fuerte, la más relevante para PRRT con
+          177Lu-DOTATATE. Respalda la imagen funcional con PET-68Ga-DOTATOC y
+          solicitar IHQ de SSTR2 en la rebiopsia.
         link: 'https://doi.org/10.1016/j.anndiagpath.2018.11.002'
       - ref: 'Sharma et al., 2021 — European Journal of Nuclear Medicine and Molecular Imaging (DOI: 10.1007/s00259-020-05054-9)'
         finding: '177Lu-DOTATATE en cáncer de mama neuroendocrino metastásico: evidencia clínica'
@@ -115,7 +132,7 @@ paperSections:
     tone: violet
     subtitle: Mecanismo molecular de la resistencia clínica observada en las dos primeras líneas
     papers:
-      - ref: 'Formisano et al., 2019 — Nature Communications (DOI: 10.1038/s41467-019-09367-8)'
+      - ref: 'Formisano et al., 2019 — Nature Communications (DOI: 10.1038/s41467-019-09068-2)'
         finding: 'FGFR1 como driver de resistencia a terapia endocrina y CDK4/6i en mama HR+/HER2-'
         relevance: >-
           Estudio molecular que demuestra que la amplificación de FGFR1 activa
@@ -124,7 +141,7 @@ paperSections:
           endocrina e inhibidores de CDK4/6 en cáncer de mama HR+/HER2-. Es la
           base molecular que explica la resistencia clínica observada en las dos
           primeras líneas de tratamiento.
-        link: 'https://doi.org/10.1038/s41467-019-09367-8'
+        link: 'https://doi.org/10.1038/s41467-019-09068-2'
   - title: Guías Internacionales de Consenso
     tag: Guías
     tone: neutral

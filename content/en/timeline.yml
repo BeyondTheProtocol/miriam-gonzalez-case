@@ -71,12 +71,12 @@ entries:
 
   - date: 'Mar 2026'
     tag: Progression
-    title: Bone progression — abemaciclib discontinued
+    title: Bone progression
     description: >
-      PET-CT confirms new bone foci. Progression is the main reason for the change in
-      strategy. Abemaciclib is also discontinued due to hepatic toxicity (DILI G2-3),
-      though not severe. The rest of the treatment — Zoladex and zoledronic acid —
-      continues. Active search for a third line begins.
+      The PET-CT of 24 Mar 2026 confirms progression of bone disease (more uptake in
+      pelvis and right femur, new foci in D1 and left iliac). Abemaciclib was already
+      dose-reduced (100 mg) due to a mild, nearly normalized transaminase rise. Zoladex
+      and zoledronic acid continue, and the search for the next strategy begins.
     highlight: false
 
   - date: 'Apr 2026'
@@ -150,6 +150,14 @@ entries:
       (0.26%) — clinical significance uncertain, under watch.
     highlight: false
 
+  - date: 'May 2026'
+    tag: Third line
+    title: Change of strategy
+    description: >
+      Because of the progression and the ESR1 resistance mutation (D538G), abemaciclib is
+      withdrawn. Elacestrant is offered as a standard 3rd line (funding approved), pending
+      start, while clinical trials and the radioligand route are evaluated in parallel.
+    highlight: false
   - date: 'May 17, 2026'
     tag: Outreach
     title: The problem with the Spanish protocols
@@ -178,3 +186,13 @@ entries:
     highlight: true
     link: https://x.com/miriamgonp/status/2060649242037723567
     linkLabel: 'See the Ga-68 PET thread →'
+
+  - date: 'Jun 2026'
+    tag: Treatment
+    title: Waiting for a new line
+    description: >
+      Still without a new active line. In screening (prescreening) for two phase 3
+      clinical trials: ADELA (elacestrant + everolimus, for ESR1-mutated tumors) and
+      KATSIS-1 (KAT6 inhibitor prifetrastat + fulvestrant). A screening breast rebiopsy
+      has been performed for ADELA/KATSIS.
+    highlight: true

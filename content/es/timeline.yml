@@ -71,12 +71,13 @@ entries:
 
   - date: 'mar 2026'
     tag: Progresión
-    title: Progresión ósea — se suspende el abemaciclib
+    title: Progresión ósea
     description: >
-      PET-CT confirma nuevos focos óseos. La progresión es la razón principal del cambio
-      de estrategia. El abemaciclib se suspende también por toxicidad hepática (DILI G2-3),
-      sin llegar a ser grave. El resto del tratamiento — Zoladex y ácido zoledrónico —
-      continúa. Se inicia búsqueda activa de tercera línea.
+      El PET-TC del 24/03/2026 confirma progresión de la enfermedad ósea (más captación
+      en pelvis y fémur derecho, nuevos focos en D1 e ilíaco izquierdo). El abemaciclib ya
+      estaba a dosis reducida (100 mg) por una leve elevación de transaminasas, casi
+      normalizada. Se mantienen Zoladex y ácido zoledrónico y empieza la búsqueda de la
+      siguiente estrategia.
     highlight: false
 
   - date: 'abr 2026'
@@ -149,6 +150,15 @@ entries:
       SMO V319D (0,26%) — significado clínico incierto, en vigilancia.
     highlight: false
 
+  - date: 'may 2026'
+    tag: Tercera línea
+    title: Cambio de estrategia
+    description: >
+      Por la progresión y la mutación de resistencia ESR1 (D538G), se retira el
+      abemaciclib. Se ofrece como 3ª línea estándar elacestrant (financiación aprobada),
+      pendiente de inicio, mientras se valoran en paralelo ensayos clínicos y la vía de
+      radioligandos.
+    highlight: false
   - date: '17 may 2026'
     tag: Divulgación
     title: El problema de los protocolos españoles
@@ -179,3 +189,13 @@ entries:
     highlight: true
     link: https://x.com/miriamgonp/status/2060649242037723567
     linkLabel: 'Ver el hilo del PET Galio →'
+
+  - date: 'jun 2026'
+    tag: Tratamiento
+    title: A la espera de una nueva línea
+    description: >
+      Sigue sin una nueva línea activa. En cribado (prescreening) para dos ensayos
+      clínicos de fase 3: ADELA (elacestrant + everolimus, para tumores con mutación
+      ESR1) y KATSIS-1 (inhibidor de KAT6 prifetrastat + fulvestrant). Para ADELA/KATSIS
+      se ha realizado una rebiopsia de mama de cribado.
+    highlight: true
