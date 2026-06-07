@@ -86,7 +86,7 @@
               <!-- «dos caras»: un trazo a mano (como las anotaciones de la
                    ilustración) se PINTA bajo la frase al entrar — primero la
                    mitad magenta (luminal), luego la coral (neuroendocrina). -->
-              <span class="two-faces">{{ $t('hero.twofaces') }}</span>
+              <span class="two-faces"><span class="tf-w tf-w--a">{{ tfWords[0] }}</span> <span class="tf-w tf-w--b">{{ tfWords[1] }}</span></span>
             </template>
           </i18n-t>
 
@@ -225,6 +225,12 @@ function parseTimelineDate(s?: string): Date | null {
   const d = new Date(s)
   return isNaN(+d) ? null : d
 }
+// «dos caras» → ['dos','caras'] (primera palabra, resto): cada una se pinta a su tiempo.
+const tfWords = computed(() => {
+  const words = t('hero.twofaces').trim().split(' ')
+  return [words[0] ?? '', words.slice(1).join(' ')]
+})
+
 const latestAgo = computed(() => {
   const d = parseTimelineDate((latest.value as { date?: string } | null)?.date)
   if (!d) return null
@@ -272,36 +278,50 @@ const stats = computed(() => [
 </script>
 
 <style scoped>
-/* «dos caras»: la propia palabra es bicolor — la tinta magenta (luminal)
-   funde a coral (neuroendocrina) dentro del texto. Al entrar, la segunda cara
-   se desliza una vez desde la derecha. Coral-deep para contraste AA sobre crema.
-   Con reduced-motion (o sin background-clip:text) queda pintada sin animar. */
+/* «dos caras»: en negrita y cada palabra se pinta a su tiempo — primero
+   «dos» (magenta, luminal), luego «caras» (coral profundo, neuroendocrina):
+   la tinta barre cada palabra de izquierda a derecha, como escribiéndola.
+   Coral-deep = contraste AA sobre crema. Con reduced-motion (o sin
+   background-clip:text) las palabras aparecen ya pintadas, sin animación. */
 .two-faces {
   font-style: italic;
+  font-weight: 700;
   white-space: nowrap;
-  color: #9d44ab;
+  color: #9d44ab; /* fallback sin background-clip */
 }
 @supports ((-webkit-background-clip: text) or (background-clip: text)) {
-  .two-faces {
-    background-image: linear-gradient(95deg, #9d44ab 0%, #9d44ab 50%, #bb4128 78%, #bb4128 100%);
-    background-size: 200% 100%;
-    background-position: 100% 0;
+  .tf-w {
+    background-size: 205% 100%;
+    background-position: 0% 0; /* estático / reduced-motion: pintada */
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;
   }
+  .tf-w--a {
+    background-image: linear-gradient(100deg, #9d44ab 49.8%, #3a3340 50.2%);
+  }
+  .tf-w--b {
+    background-image: linear-gradient(100deg, #bb4128 49.8%, #3a3340 50.2%);
+  }
   @media (prefers-reduced-motion: no-preference) {
-    .two-faces {
-      animation: tf-paint 1.1s ease-out 0.7s both;
+    .tf-w {
+      background-position: 100% 0; /* sin pintar (tinta) hasta su turno */
+      animation: tf-wipe 0.6s ease-out both;
+    }
+    .tf-w--a {
+      animation-delay: 0.7s;
+    }
+    .tf-w--b {
+      animation-delay: 1.4s;
     }
   }
 }
-@keyframes tf-paint {
+@keyframes tf-wipe {
   from {
-    background-position: 0% 0;
+    background-position: 100% 0;
   }
   to {
-    background-position: 100% 0;
+    background-position: 0% 0;
   }
 }
 
