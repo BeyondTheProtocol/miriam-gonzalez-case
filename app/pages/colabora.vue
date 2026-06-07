@@ -73,35 +73,6 @@
         </p>
 
         <div class="grid md:grid-cols-2 gap-4">
-          <!-- ─ Card — financiar (la que más mueve la aguja; único coral de la página) ─ -->
-          <article id="financiar" class="card-base bg-cream flex flex-col scroll-mt-24">
-            <div class="flex items-center gap-4 mb-4">
-              <span class="w-10 h-10 rounded-xl bg-coral flex items-center justify-center shrink-0" aria-hidden="true">
-                <Icon name="ph:hand-heart-fill" class="w-5 h-5 text-berenjena" />
-              </span>
-              <p class="eyebrow">{{ $t('collaborate.profile2_tag') }}</p>
-            </div>
-            <h3 class="heading-display text-xl text-berenjena mb-3">
-              {{ $t('collaborate.profile2_title') }}
-            </h3>
-            <p class="text-sm text-tinta leading-relaxed mb-5">{{ $t('collaborate.profile2_text') }}</p>
-            <div class="mt-auto">
-              <a
-                :href="GOFUNDME"
-                target="_blank"
-                rel="noopener"
-                data-support-cta
-                class="btn-cta w-full h-12 justify-center"
-                style="text-decoration: none"
-                @click="trackSupport('colabora_cierre')"
-              >
-                <Icon name="ph:heart-fill" class="heart-beat heart-beat--alive w-4 h-4" aria-hidden="true" />
-                {{ $t('collaborate.profile2_cta_label') }}
-              </a>
-              <p class="mt-2 text-xs text-tinta sm:min-h-[2.25rem]">{{ $t('collaborate.profile2_cta_caption') }}</p>
-            </div>
-          </article>
-
           <!-- ─ Card 1 — revisión clínica ─ -->
           <article id="revision-clinica" class="card-base bg-cream flex flex-col scroll-mt-24">
             <div class="flex items-center gap-4 mb-4">
@@ -197,6 +168,36 @@
                 {{ $t('collaborate.profile5_cta_label') }}
               </NuxtLink>
               <p class="mt-2 text-xs text-tinta sm:min-h-[2.25rem]">{{ $t('collaborate.profile5_cta_caption') }}</p>
+            </div>
+          </article>
+
+          <!-- ─ Card final — financiar (la que más mueve la aguja cierra la lista;
+               único coral de la página, posición de remate) ─ -->
+          <article id="financiar" class="card-base bg-cream flex flex-col scroll-mt-24">
+            <div class="flex items-center gap-4 mb-4">
+              <span class="w-10 h-10 rounded-xl bg-coral flex items-center justify-center shrink-0" aria-hidden="true">
+                <Icon name="ph:hand-heart-fill" class="w-5 h-5 text-berenjena" />
+              </span>
+              <p class="eyebrow">{{ $t('collaborate.profile2_tag') }}</p>
+            </div>
+            <h3 class="heading-display text-xl text-berenjena mb-3">
+              {{ $t('collaborate.profile2_title') }}
+            </h3>
+            <p class="text-sm text-tinta leading-relaxed mb-5">{{ $t('collaborate.profile2_text') }}</p>
+            <div class="mt-auto">
+              <a
+                :href="GOFUNDME"
+                target="_blank"
+                rel="noopener"
+                data-support-cta
+                class="btn-cta w-full h-12 justify-center"
+                style="text-decoration: none"
+                @click="trackSupport('colabora_cierre')"
+              >
+                <Icon name="ph:heart-fill" class="heart-beat heart-beat--alive w-4 h-4" aria-hidden="true" />
+                {{ $t('collaborate.profile2_cta_label') }}
+              </a>
+              <p class="mt-2 text-xs text-tinta sm:min-h-[2.25rem]">{{ $t('collaborate.profile2_cta_caption') }}</p>
             </div>
           </article>
         </div>
