@@ -1,5 +1,8 @@
 <template>
-  <main class="section-container max-w-2xl py-20 sm:py-28 text-center">
+  <main class="relative overflow-hidden section-container max-w-2xl py-20 sm:py-28 text-center">
+    <!-- B1 · constelación de quienes apoyan (decorativa, detrás del mensaje) -->
+    <Constellation :count="donorCount" />
+    <div class="relative z-10">
     <!-- Monograma redondo con constelación -->
     <svg class="mx-auto mb-8 w-24 h-24 sm:w-28 sm:h-28" viewBox="0 0 240 240" aria-hidden="true">
       <path d="M192.94 24.47 L199.74 37.67 L212.94 44.47 L199.74 51.27 L192.94 64.47 L186.14 51.27 L172.94 44.47 L186.14 37.67 Z" fill="#9d44ab" />
@@ -33,12 +36,17 @@
     <p class="mt-10 font-mono text-xs text-tinta">
       {{ $t('thanks.follow') }}
     </p>
+    </div>
   </main>
 </template>
 
 <script setup lang="ts">
 const { t } = useI18n()
 const localePath = useLocalePath()
+
+// Densidad de la constelación ~ donantes (solo para el cielo, no 1:1).
+const { data: campaign } = useGoFundMe('biopsia-molecular-que-puede-cambiar-su-tratamiento')
+const donorCount = computed(() => campaign.value?.donationCount ?? 60)
 
 // Página de cortesía post-donación: no debe indexarse.
 useSeoMeta({
