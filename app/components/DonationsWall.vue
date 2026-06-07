@@ -18,6 +18,25 @@
           {{ paginated ? $t('thanksWall.all_title') : $t('thanksWall.title') }}
         </h2>
         <p class="text-tinta leading-relaxed max-w-2xl">{{ $t('thanksWall.subtitle') }}</p>
+        <!-- La metáfora, explícita: cada aportación es una estrella (conteo real). -->
+        <i18n-t
+          v-if="constellation && loaded && sorted.length"
+          keypath="thanksWall.stars_line"
+          tag="p"
+          class="mt-4 flex items-center gap-2 font-display italic text-lg text-berenjena"
+        >
+          <template #star>
+            <svg class="w-4 h-4 shrink-0" viewBox="0 0 20 20" aria-hidden="true">
+              <path
+                fill="#ff6b47"
+                d="M10 0 L13.4 6.6 L20 10 L13.4 13.4 L10 20 L6.6 13.4 L0 10 L6.6 6.6 Z"
+              />
+            </svg>
+          </template>
+          <template #n>
+            <strong class="font-semibold not-italic text-coral-deep nums">{{ sorted.length }}</strong>
+          </template>
+        </i18n-t>
       </div>
 
       <!-- Pestañas estilo GoFundMe: Recientes · Top -->
