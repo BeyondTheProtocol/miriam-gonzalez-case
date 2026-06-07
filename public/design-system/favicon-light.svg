@@ -1,4 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="helpmiriam.com">
-  <rect width="64" height="64" rx="14" fill="#FAF6F0" stroke="#2D1B3D" stroke-width="2"></rect>
-  <text x="32" y="48" text-anchor="middle" font-family="Fraunces, Georgia, serif" font-size="48" font-style="italic" font-weight="600" fill="#A855B5" letter-spacing="-0.04em">m</text>
+  <circle cx="32" cy="32" r="29" fill="#FAF6F0" stroke="#2D1B3D" stroke-width="2"/>
+  <text x="32" y="45" text-anchor="middle" font-family="Fraunces, Georgia, serif" font-size="40" font-style="italic" font-weight="600" fill="#9D44AB" letter-spacing="-0.02em">m</text>
+  <path d="M 49 13 L 50.1 16 L 53.1 17.1 L 50.1 18.2 L 49 21.2 L 47.9 18.2 L 44.9 17.1 L 47.9 16 Z" fill="#9D44AB"/>
 </svg>

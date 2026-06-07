@@ -37,8 +37,9 @@
               :key="i"
               class="flex items-start gap-2.5"
             >
-              <span
-                class="mt-1.5 w-1.5 h-1.5 rounded-full bg-gold-600 shrink-0"
+              <Icon
+                name="ph:check-circle-fill"
+                class="mt-0.5 w-4 h-4 text-gold-600 shrink-0"
                 aria-hidden="true"
               />
               <span class="text-sm text-ink-700 leading-relaxed">{{
@@ -89,9 +90,9 @@
               href="https://gofund.me/60665ab35"
               target="_blank"
               rel="noopener"
-              class="inline-flex items-center gap-2 px-5 py-2.5 bg-gold-500 hover:bg-gold-600 text-white text-sm font-semibold rounded-xl transition-colors"
+              class="donate-cta inline-flex items-center gap-2 px-5 py-2.5 bg-gold-500 hover:bg-gold-600 text-white text-sm font-semibold rounded-xl transition-colors"
             >
-              <Icon name="ph:heart-fill" class="size-3.5" aria-hidden="true" />
+              <Icon name="ph:heart-fill" class="heart-beat size-3.5" aria-hidden="true" />
               {{ $t('gofundme.donate_now') }}
             </a>
             <a
@@ -105,7 +106,7 @@
                 class="size-3.5"
                 aria-hidden="true"
               />
-              GoFundMe
+              <span translate="no">GoFundMe</span>
             </a>
           </div>
         </div>

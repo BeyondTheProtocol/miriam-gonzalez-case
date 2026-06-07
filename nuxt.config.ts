@@ -1,7 +1,18 @@
 export default defineNuxtConfig({
   compatibilityDate: '2025-04-01',
 
-  modules: ['@nuxtjs/tailwindcss', '@nuxtjs/i18n', '@nuxt/icon', '@nuxtjs/seo', '@nuxtjs/sitemap', '@nuxt/content', 'nuxt-ai-ready', '@nuxtjs/plausible', '@vueuse/nuxt'],
+  modules: ['@nuxtjs/tailwindcss', '@nuxtjs/i18n', '@nuxt/icon', '@nuxtjs/seo', '@nuxtjs/sitemap', '@nuxt/content', 'nuxt-ai-ready', '@nuxtjs/plausible', '@vueuse/nuxt', '@nuxt/fonts'],
+
+  // Fuentes auto-alojadas: @nuxt/fonts las descarga en build y las sirve desde
+  // el propio dominio (el cliente nunca contacta con Google → sin transferencia
+  // de IP), con subsetting y font-display: swap. Sin <link> a Google Fonts.
+  fonts: {
+    families: [
+      { name: 'Fraunces', provider: 'google', weights: [400, 500, 600, 700], styles: ['normal', 'italic'] },
+      { name: 'Source Sans 3', provider: 'google', weights: [400, 500, 600, 700], styles: ['normal', 'italic'] },
+      { name: 'JetBrains Mono', provider: 'google', weights: [400, 500] },
+    ],
+  },
 
   site: {
     url: 'https://helpmiriam.com',
@@ -10,16 +21,20 @@ export default defineNuxtConfig({
 
   sitemap: {},
 
+  // Usa el SQLite nativo de Node (node:sqlite, Node 22+) en lugar del SQLite
+  // WASM por defecto. El WASM falla al insertar filas muy grandes —como
+  // science.yml, que lleva treatments + paperSections en un solo registro—
+  // con «The supplied SQL string contains no statements», dejando la colección
+  // vacía en dev. El nativo no tiene ese límite.
+  content: {
+    experimental: { nativeSqlite: true },
+  },
+
   app: {
     head: {
       title: 'Miriam González — Buscando un tratamiento oncológico de precisión',
-      link: [
-        { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
-        { rel: 'preconnect', href: 'https://fonts.gstatic.com', crossorigin: '' },
-        {
-          rel: 'stylesheet',
-          href: 'https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..900;1,9..144,300..900&family=Source+Sans+3:ital,wght@0,300..900;1,300..900&family=JetBrains+Mono:wght@400;500&display=swap',
-        },
+      meta: [
+        { name: 'theme-color', content: '#faf6f0' },
       ],
     },
   },
@@ -52,11 +67,18 @@ export default defineNuxtConfig({
     customRoutes: 'config',
     pages: {
       'ciencia/index': { en: '/science' },
+      'ciencia/evidencia': { en: '/science/evidence' },
       'ciencia/[slug]': { en: '/science/[slug]' },
       'historia/index': { en: '/story' },
       'historia/[slug]': { en: '/story/[slug]' },
       'equipo': { en: '/team' },
       'contacto': { en: '/contact' },
+      'colabora': { en: '/collaborate' },
+      'gastos': { en: '/expenses' },
+      'gracias': { en: '/thank-you' },
+      'aviso-legal': { en: '/legal-notice' },
+      'privacidad': { en: '/privacy' },
+      'cookies': { en: '/cookies-policy' },
     },
   },
 
@@ -66,9 +88,6 @@ export default defineNuxtConfig({
     prerender: {
       crawlLinks: true,
     },
-    routeRules: {
-      '/colabora': { redirect: { to: 'https://helpmiriam.notion.site/colabora', statusCode: 301 } },
-      '/collaborate': { redirect: { to: 'https://helpmiriam.notion.site/colabora', statusCode: 301 } },
-    },
+    routeRules: {},
   },
 })

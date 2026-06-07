@@ -8,12 +8,12 @@
         />
 
         <article class="prose prose-ink max-w-2xl">
-          <div class="card-base border-l-4 border-l-gold-400 mb-10">
-            <p class="text-sm text-ink-600 italic leading-relaxed">
+          <div class="alert-callout mb-10">
+            <p class="text-sm text-tinta italic leading-relaxed">
               {{ $t('historia.pending_notice') }}
             </p>
           </div>
-          <div class="space-y-6 text-ink-700">
+          <div class="space-y-6 text-tinta">
             <p>{{ $t('historia.story_teaser_1') }}</p>
             <p>{{ $t('historia.story_teaser_2') }}</p>
             <p>{{ $t('historia.story_teaser_3') }}</p>
@@ -21,9 +21,9 @@
           </div>
         </article>
 
-        <!-- Here is where the story chapters that live under content/es/historia content/en/story will render -->
+        <!-- Capítulos publicados bajo content/es/historia · content/en/story -->
         <div
-          v-if="false && chapters && chapters.length > 0"
+          v-if="chapters && chapters.length > 0"
           class="max-w-2xl mt-12"
         >
           <nav :aria-label="$t('historia.chapters')" class="space-y-3 mb-12">
@@ -31,27 +31,28 @@
               v-for="chapter in chapters"
               :key="chapter.path"
               :to="localePath(`/historia/${chapter.stem?.split('/').pop()}`)"
-              class="card-base flex items-start justify-between gap-4 hover:border-gold-300 transition-colors group"
+              class="card-base flex items-start justify-between gap-4 transition-all group hover:-translate-y-0.5"
+              style="text-decoration:none"
             >
               <div class="flex-1 min-w-0">
-                <span class="text-xs font-mono text-ink-400 mb-1 block">
+                <span class="eyebrow mb-1 block">
                   {{ $t('historia.chapter') }} {{ chapter.order }}
                 </span>
                 <h2
-                  class="font-semibold text-ink-900 text-sm mb-1 group-hover:text-gold-700 transition-colors"
+                  class="font-display font-semibold text-berenjena text-base mb-1 group-hover:text-miriam transition-colors"
                 >
                   {{ chapter.title }}
                 </h2>
-                <p v-if="chapter.subtitle" class="text-xs text-ink-600 mb-1.5">
+                <p v-if="chapter.subtitle" class="text-xs text-tinta mb-1.5">
                   {{ chapter.subtitle }}
                 </p>
-                <p class="text-xs text-ink-600 leading-relaxed line-clamp-2">
+                <p class="text-xs text-tinta leading-relaxed line-clamp-2">
                   {{ chapter.excerpt }}
                 </p>
               </div>
               <Icon
                 name="ph:arrow-right"
-                class="shrink-0 w-4 h-4 text-ink-400 group-hover:text-gold-600 transition-colors mt-0.5"
+                class="shrink-0 w-4 h-4 text-tinta group-hover:text-miriam transition-colors mt-0.5"
                 aria-hidden="true"
               />
             </NuxtLink>
@@ -63,24 +64,35 @@
 </template>
 
 <script setup lang="ts">
-const { locale } = useI18n()
+const { locale, t } = useI18n()
 const localePath = useLocalePath()
 
 useSeoMeta({
   title: () =>
-    locale.value === 'es'
-      ? 'La historia de Miriam — Miriam González'
-      : "Miriam's Story — Miriam González",
+    locale.value === 'es' ? 'La historia de Miriam' : "Miriam's story",
   description: () =>
     locale.value === 'es'
       ? 'La historia personal de Miriam González: vida con cáncer de mama metastásico en fase 4, su proceso con los tratamientos y la búsqueda de una solución de precisión.'
       : 'The personal story of Miriam González: life with stage 4 metastatic breast cancer, her treatment journey, and the search for a precision solution.',
   ogTitle: () =>
+    locale.value === 'es' ? 'La historia de Miriam' : "Miriam's story",
+  ogDescription: () =>
     locale.value === 'es'
-      ? 'La historia de Miriam — Miriam González'
-      : "Miriam's Story — Miriam González",
+      ? 'Vida con cáncer de mama metastásico en fase 4 y la búsqueda de una solución de precisión.'
+      : 'Life with stage 4 metastatic breast cancer and the search for a precision solution.',
   ogType: 'article',
   twitterCard: 'summary_large_image',
+  twitterTitle: () =>
+    locale.value === 'es' ? 'La historia de Miriam' : "Miriam's story",
+  twitterDescription: () =>
+    locale.value === 'es'
+      ? 'Vida con cáncer de mama metastásico en fase 4 y la búsqueda de una solución de precisión.'
+      : 'Life with stage 4 metastatic breast cancer and the search for a precision solution.',
+})
+
+defineOgImage('Default.takumi', {
+  title: () => t('story.title'),
+  description: () => t('story.subtitle'),
 })
 
 const { data: chapters } = await useAsyncData(

@@ -4,12 +4,14 @@ import { defineSitemapSchema } from '@nuxtjs/sitemap/content'
 
 const timelineEntrySchema = z.object({
   date: z.string(),
+  tag: z.string().optional(),
   title: z.string(),
   description: z.string(),
   highlight: z.boolean(),
   link: z.string().optional(),
   linkLabel: z.string().optional(),
   image: z.string().optional(),
+  imageAlt: z.string().optional(),
 })
 
 const chapterSchema = z.object({
@@ -36,6 +38,9 @@ const teamMemberSchema = z.object({
   description: z.string(),
   icon: z.string(),
   color: z.enum(['gold', 'ocean', 'ink']).optional(),
+  name: z.string().optional(),
+  photo: z.string().optional(),
+  featured: z.boolean().optional(),
 })
 
 const teamSchema = z.object({
@@ -77,6 +82,8 @@ const scienceSchema = z.object({
     .array(
       z.object({
         title: z.string(),
+        tag: z.string().optional(),
+        tone: z.enum(['violet', 'info', 'warn', 'positive', 'neutral']).optional(),
         subtitle: z.string().optional(),
         papers: z.array(
           z.object({
@@ -97,6 +104,65 @@ const scienceSchema = z.object({
       implication: z.string(),
     })
   ),
+  liquidBiopsies: z
+    .array(
+      z.object({
+        id: z.string(),
+        date: z.string(),
+        source: z.string(),
+        findings: z.string(),
+        highlight: z.boolean().optional(),
+      })
+    )
+    .optional(),
+  liquidBiopsyPivot: z
+    .object({
+      samples: z.array(
+        z.object({
+          id: z.string(),
+          label: z.string(),
+          date: z.string(),
+          matrix: z.string().optional(),
+        })
+      ),
+      rows: z.array(
+        z.object({
+          alteration: z.string(),
+          subscript: z.string().optional(),
+          values: z.record(
+            z.string(),
+            z.object({
+              value: z.string().optional(),
+              tone: z
+                .enum(['violet', 'info', 'warn', 'positive', 'neutral'])
+                .optional(),
+              plain: z.boolean().optional(),
+            })
+          ),
+        })
+      ),
+      sources: z.string().optional(),
+    })
+    .optional(),
+  imaging: z
+    .object({
+      title: z.string(),
+      date: z.string(),
+      center: z.string().optional(),
+      summary: z.string(),
+      meaning: z.string(),
+      quote: z.string().optional(),
+    })
+    .optional(),
+  boneBiopsy: z
+    .object({
+      title: z.string(),
+      date: z.string(),
+      center: z.string().optional(),
+      site: z.string(),
+      result: z.string(),
+    })
+    .optional(),
 })
 
 export default defineContentConfig({
