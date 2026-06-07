@@ -73,10 +73,7 @@
             <template #neuroendocrino><Term id="neuroendocrino" /></template>
             <template #bcned><Term id="bcned" /></template>
           </i18n-t>
-          <p class="flex items-center gap-1.5 text-xs text-tinta/80 mb-4">
-            <Icon name="ph:hand-tap" class="w-3.5 h-3.5 text-miriam shrink-0" aria-hidden="true" />
-            {{ $t('glossary.hint') }}
-          </p>
+          <Nota class="mb-4">{{ $t('glossary.hint') }}</Nota>
           <p class="text-sm text-berenjena leading-relaxed font-medium">
             {{ $t('ciencia.thesis_goal') }}
           </p>
@@ -218,8 +215,9 @@
           </span>
         </NuxtLink>
 
-        <!-- Candidate therapeutic axes: one-line synthesis (confirmed by the panel, detailed in the papers) -->
-        <hr class="chapter-rule" aria-hidden="true" />
+        <!-- Candidate therapeutic axes: one-line synthesis (confirmed by the panel, detailed in the papers).
+             El capítulo genómico se abre con la doble hélice (en vez del chapter-rule). -->
+        <DnaDivider class="mb-10" />
         <section class="mb-14" aria-labelledby="axes-title">
           <p class="eyebrow mb-2 block">{{ locale === 'es' ? 'Ejes terapéuticos' : 'Therapeutic axes' }}</p>
           <h2
@@ -415,12 +413,9 @@
           </div>
         </div>
 
-        <p
-          class="mt-12 pt-6 text-xs text-tinta font-mono"
-          style="border-top: 1px solid rgba(45,27,61,0.08)"
-        >
+        <Nota class="mt-12 pt-6" style="border-top: 1px solid rgba(45,27,61,0.08)">
           {{ locale === 'es' ? 'Última actualización: 6 de junio de 2026' : 'Last updated: 6 June 2026' }}
-        </p>
+        </Nota>
       </div>
     </section>
   </div>
