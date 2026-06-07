@@ -73,6 +73,10 @@
             <template #neuroendocrino><Term id="neuroendocrino" /></template>
             <template #bcned><Term id="bcned" /></template>
           </i18n-t>
+          <p class="flex items-center gap-1.5 text-xs text-tinta/80 mb-4">
+            <Icon name="ph:hand-tap" class="w-3.5 h-3.5 text-miriam shrink-0" aria-hidden="true" />
+            {{ $t('glossary.hint') }}
+          </p>
           <p class="text-sm text-berenjena leading-relaxed font-medium">
             {{ $t('ciencia.thesis_goal') }}
           </p>

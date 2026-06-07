@@ -20,7 +20,7 @@ entries:
     title: El resultado llega por email
     description: >
       El informe de la resonancia llega por email, un jueves por la mañana. La conclusión:
-      "probable metástasis vertebrales". Sin médico al lado. Sin contexto. Solo una pantalla.
+      "probable metástasis vertebrales". Sin nadie del equipo médico al lado. Sin contexto. Solo una pantalla.
       Ese mismo día, Miriam ingresa por urgencias. El martes siguiente tiene el diagnóstico
       completo: carcinoma de mama con diferenciación neuroendocrina estadio IV, con metástasis
       óseas múltiples y compresión medular en L3. Tiene 33 años. Ese mismo martes inicia
@@ -84,8 +84,8 @@ entries:
     title: Se forma el equipo y empieza la búsqueda
     description: >
       Miriam empieza a investigar su caso con inteligencia artificial. Un hilo en Twitter.
-      Unos profesionales que lo ven y dicen: yo puedo ayudar. En días, se forma un equipo
-      multidisciplinar espontáneo con especialistas de cuatro países.
+      Profesionales que lo ven y dicen: yo puedo ayudar. En días, se forma un equipo
+      multidisciplinar espontáneo con especialistas de tres países.
     highlight: true
     link: https://x.com/miriamgonp/status/2041824144484917749
     linkLabel: 'Ver el hilo original en Twitter →'

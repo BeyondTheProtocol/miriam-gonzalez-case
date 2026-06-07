@@ -102,10 +102,10 @@
           </div>
         </div>
 
-        <!-- Conclusión · alineada bajo el nodo terminal, lee como cierre del recorrido -->
-        <div class="max-w-2xl pl-8">
-          <div class="card-base">
-            <p class="text-sm text-tinta leading-relaxed">
+        <!-- Conclusión · anotación de cierre, separada del recorrido por un filete -->
+        <div class="max-w-2xl pl-8 mt-8">
+          <div class="pt-6" style="border-top: 1px solid rgba(45,27,61,0.10)">
+            <p class="text-sm text-tinta italic leading-relaxed max-w-xl">
               {{ $t('timeline.notice') }}
             </p>
             <div class="mt-4 flex flex-wrap items-center gap-x-6 gap-y-3">
@@ -113,17 +113,18 @@
                 href="https://x.com/miriamgonp"
                 target="_blank"
                 rel="noopener"
-                class="link-action text-sm text-miriam"
+                class="link-action group text-sm text-miriam"
               >
                 <Icon name="ph:x-logo-fill" class="w-4 h-4" aria-hidden="true" />
                 {{ $t('timeline.follow_twitter') }}<span class="sr-only"> {{ $t('a11y.new_tab') }}</span>
               </a>
               <NuxtLink
                 :to="localePath({ name: 'ciencia' })"
-                class="link-action text-sm text-berenjena"
+                class="link-action group text-sm text-miriam"
               >
                 <Icon name="ph:flask-fill" class="w-4 h-4" aria-hidden="true" />
                 {{ $t('timeline.cta_science') }}
+                <Icon name="ph:arrow-right" class="w-4 h-4 transition-transform group-hover:translate-x-0.5" aria-hidden="true" />
               </NuxtLink>
             </div>
           </div>

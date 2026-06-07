@@ -26,6 +26,9 @@
   "a11y": {
     "new_tab": "(opens in a new tab)"
   },
+  "glossary": {
+    "hint": "Tap or hover the underlined words to see what they mean."
+  },
   "error": {
     "e404_code": "Error 404",
     "e404_label": "Page not found",
@@ -53,8 +56,8 @@
     "follow": "Want to follow the case closely? {'@'}miriamgonp on Instagram"
   },
   "hero": {
-    "title": "Miriam has metastatic breast cancer, and standard medicine has no answers for her case.",
-    "title_short": "Miriam has a cancer that standard medicine doesn't know how to treat.",
+    "title": "A rare cancer, {op}.",
+    "title_short": "A rare cancer, a real opportunity.",
     "title_emphasis": "a real opportunity",
     "subtitle": "{lead} has a tumor with two sides that Spanish protocols don't account for. The tests she needs to treat it aren't covered by public healthcare. This site exists to fund them.",
     "subtitle_lead": "Miriam, 35,",
@@ -70,7 +73,8 @@
     "latest_label": "Latest",
     "updated_today": "updated today",
     "updated_ago_one": "updated yesterday",
-    "updated_ago": "updated {n} days ago"
+    "updated_ago": "updated {n} days ago",
+    "photo_tag": "Engineer · Communicator"
   },
   "gofundme": {
     "title": "Why do we need your help?",
@@ -271,7 +275,7 @@
       "ctDNA+",
       "SSTR2+"
     ],
-    "s8_markers_note": "Markers with “?” are hypotheses with partial evidence, pending confirmation. Full analysis in The science.",
+    "s8_markers_note": "Tap each marker to see what it means. Those with “?” are hypotheses with partial evidence, pending confirmation. Full analysis in The science.",
     "s8_science_button": "See the full molecular profile",
     "s8_science_caption": "Open clinical documentation. Updated in 2026.",
     "s10_eyebrow": "Three ways to contribute · Pick yours",
@@ -385,8 +389,8 @@
     "molecular_profile_title": "The tumour’s genomic map",
     "ctdna_dynamics_title": "How it evolves in the blood",
     "ctdna_dynamics_intro": "The tumour isn’t static: ctDNA tracks its changes (VAF) across three plasma draws, with no biopsy needed.",
-    "app_inline_text": "What if you could follow the case over time —the response to each treatment line and how the ctDNA (VAF) shifts between draws— yourself? We are bringing it together in an interactive app.",
-    "app_inline_cta": "Request access",
+    "app_inline_text": "Researching this profile or seeing it in clinic? Access the full clinical reports of the case —sequencing, ctDNA (VAF) and imaging— in a structured format to review or download.",
+    "app_inline_cta": "Request the reports",
     "app_hook_eyebrow": "Coming soon · for oncology and research",
     "app_hook_title": "The full case, in a queryable format",
     "app_hook_body": "Access Miriam's case as a structured clinical dataset: timeline, reports, molecular profile (FGFR1, SSTR2, ESR1, ctDNA) and the response to each treatment line. Queryable and exportable for second opinions and tumor boards (MTB).",

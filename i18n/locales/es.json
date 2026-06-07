@@ -26,6 +26,9 @@
   "a11y": {
     "new_tab": "(se abre en una pestaña nueva)"
   },
+  "glossary": {
+    "hint": "Toca o pasa el cursor por las palabras subrayadas para ver qué significan."
+  },
   "error": {
     "e404_code": "Error 404",
     "e404_label": "Página no encontrada",
@@ -53,8 +56,8 @@
     "follow": "¿Quieres seguir el caso de cerca? {'@'}miriamgonp en Instagram"
   },
   "hero": {
-    "title": "Miriam tiene cáncer de mama metastásico y la medicina estándar no tiene respuestas para su caso.",
-    "title_short": "Miriam tiene un cáncer que la medicina estándar no sabe tratar.",
+    "title": "Un cáncer raro, {op} real.",
+    "title_short": "Un cáncer raro, una oportunidad real.",
     "title_emphasis": "una oportunidad",
     "subtitle": "{lead} tiene un tumor con dos caras que los protocolos españoles no contemplan. Las pruebas que necesita para tratarlo no las cubre la sanidad pública. Esta web existe para financiarlas.",
     "subtitle_lead": "Miriam, 35 años,",
@@ -70,11 +73,12 @@
     "latest_label": "Lo último",
     "updated_today": "actualizado hoy",
     "updated_ago_one": "actualizado ayer",
-    "updated_ago": "actualizado hace {n} días"
+    "updated_ago": "actualizado hace {n} días",
+    "photo_tag": "Ingeniera · Divulgadora"
   },
   "gofundme": {
     "title": "¿Por qué necesitamos tu ayuda?",
-    "subtitle": "La sanidad pública cubre la parte de mama, pero el caso de Miriam se sale de los protocolos y necesita un abordaje personalizado que combine mama y neuroendocrino. La campaña financia todo el tratamiento — y puede sentar un precedente para otros pacientes con tumores fuera de protocolo.",
+    "subtitle": "La sanidad pública cubre la parte de mama, pero el caso de Miriam se sale de los protocolos y necesita un abordaje personalizado que combine mama y neuroendocrino. La campaña financia todo el tratamiento — y puede sentar un precedente para otras personas con tumores fuera de protocolo.",
     "what_title": "¿Qué financiamos?",
     "what_intro": "El dinero recaudado cubre, en el orden en que haga falta, los gastos del caso: médicos, diagnósticos, de tratamiento y logísticos. No es solo para pruebas — es para todo el tratamiento personalizado.",
     "what_items": [
@@ -275,14 +279,14 @@
     "s8_advantages": [
       "El tratamiento se ajusta al perfil real del tumor, no a un protocolo diseñado para la mayoría.",
       "Se pueden aplicar fármacos adecuados a cada parte del tumor de forma simultánea.",
-      "Cada resultado que se obtiene aporta evidencia para otros pacientes con perfiles similares.",
+      "Cada resultado que se obtiene aporta evidencia para otras personas con perfiles similares.",
       "Miriam deja de depender de un único protocolo que no da respuesta a su caso."
     ],
     "s8_markers_title": "En una línea, para quien quiera el detalle:",
     "pro_eyebrow": "Perfiles de alto impacto",
-    "pro_text": "¿Eres médico, investigador o prensa?",
+    "pro_text": "¿Trabajas en medicina, investigación o prensa?",
     "pro_sub": "Hay una puerta directa para ti.",
-    "pro_clinical": "Médico / investigador",
+    "pro_clinical": "Medicina / investigación",
     "pro_press": "Prensa / medios",
     "s8_markers": [
       "FGFR1 ×13",
@@ -294,7 +298,7 @@
       "ctDNA+",
       "SSTR2+"
     ],
-    "s8_markers_note": "Los marcadores con «?» son hipótesis con evidencia parcial, pendientes de confirmación. Análisis completo en La ciencia.",
+    "s8_markers_note": "Toca cada marcador para ver qué significa. Los que llevan «?» son hipótesis con evidencia parcial, pendientes de confirmación. Análisis completo en La ciencia.",
     "s8_science_button": "Ver el perfil molecular completo",
     "s8_science_caption": "Documentación clínica abierta. Actualizada en 2026.",
     "s10_eyebrow": "Tres formas de contribuir · Elige la tuya",
@@ -356,7 +360,7 @@
     "goal_n_of_1": "Objetivo: Ensayo N-of-1",
     "goal_n_of_1_desc": "Un ensayo clínico con una sola paciente. Las decisiones terapéuticas se diseñan sobre el perfil molecular real del tumor, no sobre el promedio HR+ genérico. La ruta: rebiopsia con panel avanzado → revisión en MTB internacional del WIN Consortium → tratamiento N-of-1 molecularmente dirigido.",
     "win_consortium_desc": "WIN Consortium (Worldwide Innovative Network in Oncology) conecta centros de excelencia en oncología de precisión para diseñar estrategias diagnósticas y terapéuticas individualizadas.",
-    "win_consortium_precedent": "Un precedente: oncología de precisión decidida sobre los datos moleculares del paciente, no sobre la etiqueta del tumor.",
+    "win_consortium_precedent": "Un precedente: oncología de precisión decidida sobre los datos moleculares de cada paciente, no sobre la etiqueta del tumor.",
     "detailed_analyses": "Análisis detallados",
     "view_reference": "Ver referencia",
     "why_no_fit_guidelines": "¿Por qué este tumor no encaja en los protocolos?",
@@ -408,8 +412,8 @@
     "molecular_profile_title": "El mapa genómico del tumor",
     "ctdna_dynamics_title": "Cómo evoluciona en sangre",
     "ctdna_dynamics_intro": "El tumor no es estático: el ctDNA sigue sus cambios (VAF) a lo largo de tres extracciones de plasma, sin necesidad de biopsiar.",
-    "app_inline_text": "¿Y si pudieras seguir la evolución del caso en el tiempo —la respuesta a cada línea de tratamiento y cómo cambia el ctDNA (VAF) entre extracciones— de primera mano? Lo estamos reuniendo en una app interactiva.",
-    "app_inline_cta": "Solicitar acceso",
+    "app_inline_text": "¿Investigas este perfil o lo ves en consulta? Accede a los informes clínicos completos del caso —secuenciación, ctDNA (VAF) e imagen— en formato estructurado para revisarlos o descargarlos.",
+    "app_inline_cta": "Solicitar los informes",
     "app_hook_eyebrow": "Pronto · para oncología e investigación",
     "app_hook_title": "El caso completo, en formato consultable",
     "app_hook_body": "Accede al caso de Miriam como dataset clínico estructurado: cronología, informes, perfil molecular (FGFR1, SSTR2, ESR1, ctDNA) y la respuesta a cada línea de tratamiento. Consultable y exportable para segundas opiniones y comités de tumores (MTB).",
@@ -427,13 +431,13 @@
     "chapter_navigation": "Navegación entre capítulos",
     "pending_notice": "Esta es la parte más personal de la web, y la está escribiendo alguien que conoce a Miriam de cerca: quién es más allá del cáncer, a qué se dedicaba y por qué hace lo que hace. Estará lista muy pronto. Mientras tanto, puedes seguir el día a día en sus redes o conocer el caso en La ciencia.",
     "story_teaser_1": "Hace tres años, Miriam se dedicaba a tiempo completo a programar y crear contenido sobre tecnología. En cuestión de meses, su vida dio un giro radical.",
-    "story_teaser_2": "Todo empezó con un dolor de espalda, sesiones de fisioterapia y médicos de cabecera que no buscaban una solución. Como el dolor no remitía y no encontraba respuestas, decidió solicitar por su cuenta una resonancia magnética. Un jueves de enero de 2024, encontró en su bandeja de entrada el resultado de la prueba: «probable metástasis vertebrales». Un par de semanas después, llegó el diagnóstico final: «Carcinoma de mama con diferenciación neuroendocrina en estadio IV».",
+    "story_teaser_2": "Todo empezó con un dolor de espalda, sesiones de fisioterapia y profesionales de la salud que no buscaban una solución. Como el dolor no remitía y no encontraba respuestas, decidió solicitar por su cuenta una resonancia magnética. Un jueves de enero de 2024, encontró en su bandeja de entrada el resultado de la prueba: «probable metástasis vertebrales». Un par de semanas después, llegó el diagnóstico final: «Carcinoma de mama con diferenciación neuroendocrina en estadio IV».",
     "story_teaser_3": "Durante dos años, Miriam ha ido reconstruyendo su vida pieza por pieza con tratamientos que le han dado tiempo y calma, pero con fecha de caducidad. En 2026, todo ha avanzado a gran velocidad. ¿Y si esos avances, sumados a las particularidades de su cáncer, abrieran puertas que antes parecían cerradas?",
     "story_teaser_4": "En esta historia queremos contarte el caso de Miriam, su proceso y su rutina para que conozcas de verdad lo que implica vivir con cáncer en fase 4."
   },
   "collaborate": {
     "meta_title": "Cómo ayudar con el caso · por perfil",
-    "meta_description": "Cómo ayudar en el caso de Miriam: apoya la investigación o aporta desde tu perfil — médico, prensa, tecnología o como paciente.",
+    "meta_description": "Cómo ayudar en el caso de Miriam: apoya la investigación o aporta desde tu perfil — medicina, prensa, tecnología o como paciente.",
     "eyebrow": "Cómo ayudar",
     "title": "Cómo ayudar con el caso",
     "intro": "Formas de ayudar, una por perfil.",
@@ -450,7 +454,7 @@
     "level1_label": "Nivel 1",
     "level1_caption": "Coste cero",
     "level1_title": "Compartir",
-    "level1_text": "Si conoces a alguien con un caso similar, a un oncólogo o a un investigador, compartir es la acción más rápida y la que más puertas abre.",
+    "level1_text": "Si conoces a alguien con un caso similar, o que trabaje en oncología o investigación, compartir es la acción más rápida y la que más puertas abre.",
     "level1_cta": "Compartir el caso",
     "level2_label": "Nivel 2",
     "level2_caption": "Compromiso cognitivo",
@@ -488,7 +492,7 @@
     "profile1_list": [
       "Segunda lectura del perfil molecular (FGFR1 ×13, CCND1 ×20, diferenciación neuroendocrina ~80%).",
       "Acceso a ensayos N-of-1, FGFR, neuroendocrinos u oncología de precisión.",
-      "Contactos con oncólogos especializados en BC-NED o amplificación 11q13.",
+      "Contactos con especialistas en BC-NED o amplificación 11q13.",
       "Propuestas de líneas terapéuticas dirigidas a las dianas activas."
     ],
     "profile1_cta_label": "Aportar revisión clínica",
