@@ -109,19 +109,20 @@ function titleCase(s: string): string {
     .replace(/(^|[\s\-'’.])(\p{L})/gu, (_m, sep: string, ch: string) => sep + ch.toLocaleUpperCase('es-ES'))
 }
 
-export async function getDonations(maxItems = 400): Promise<PublicDonation[]> {
+export async function getDonations(maxItems = 1500): Promise<PublicDonation[]> {
   const out: PublicDonation[] = []
   const limit = 20
   let offset = 0
-  // Paginación por offset (verificada contra el feed); para en has_next=false.
-  for (let guard = 0; guard < 20 && out.length < maxItems; guard++) {
+  // El feed pagina por offset pero NO manda un has_next fiable (viene null), así
+  // que paramos cuando una página llega incompleta (< limit) o vacía, o al tope.
+  for (let guard = 0; guard < 120 && out.length < maxItems; guard++) {
     const res = await fetch(
       `${donationsFeed}?limit=${limit}&sort=recent&offset=${offset}`,
       { headers: { 'User-Agent': headers['User-Agent'] }, signal: AbortSignal.timeout(8000) }
     )
+    if (!res.ok) break
     const json = (await res.json()) as {
       references?: { donations?: Array<Record<string, unknown>> }
-      meta?: { meta?: { has_next?: boolean } }
     }
     const list = json.references?.donations ?? []
     if (list.length === 0) break
@@ -138,7 +139,7 @@ export async function getDonations(maxItems = 400): Promise<PublicDonation[]> {
         anonymous,
       })
     }
-    if (!json.meta?.meta?.has_next) break
+    if (list.length < limit) break
     offset += limit
   }
   return out
