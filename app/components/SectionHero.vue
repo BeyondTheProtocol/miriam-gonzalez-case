@@ -227,10 +227,35 @@ const latestAgo = computed(() => {
   return t('hero.updated_ago', { n: days })
 })
 
+// A5 · count-up: las cifras (recaudado, donantes) suben de 0 al llegar los
+// datos. rAF puntual; reduced-motion → valor final directo. Sin CLS (nums).
+const tween = ref(0)
+function runCountUp() {
+  if (typeof window === 'undefined') {
+    tween.value = 1
+    return
+  }
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    tween.value = 1
+    return
+  }
+  const start = performance.now()
+  const dur = 1100
+  const step = (now: number) => {
+    const p = Math.min(1, (now - start) / dur)
+    tween.value = 1 - Math.pow(1 - p, 3)
+    if (p < 1) requestAnimationFrame(step)
+  }
+  requestAnimationFrame(step)
+}
+watch(gofundme, (v, old) => {
+  if (v && !old) runCountUp()
+})
+
 const raisedFormatted = computed(() => {
   if (!gofundme.value) return '—'
   return formatCurrency(
-    gofundme.value.currentAmount.amount,
+    Math.round(gofundme.value.currentAmount.amount * tween.value),
     gofundme.value.currentAmount.currencyCode,
     locale.value
   )
@@ -239,7 +264,7 @@ const raisedFormatted = computed(() => {
 const donorsFormatted = computed(() => {
   if (!gofundme.value) return '—'
   return new Intl.NumberFormat(locale.value === 'es' ? 'es-ES' : 'en-US').format(
-    gofundme.value.donationCount
+    Math.round(gofundme.value.donationCount * tween.value)
   )
 })
 
