@@ -23,7 +23,7 @@ entries:
       "probable metástasis vertebrales". Sin médico al lado. Sin contexto. Solo una pantalla.
       Ese mismo día, Miriam ingresa por urgencias. El martes siguiente tiene el diagnóstico
       completo: carcinoma de mama con diferenciación neuroendocrina estadio IV, con metástasis
-      óseas múltiples y compresión medular en L3. Tiene 32 años. Ese mismo martes inicia
+      óseas múltiples y compresión medular en L3. Tiene 33 años. Ese mismo martes inicia
       radioterapia sobre las vértebras afectadas.
     highlight: true
 
@@ -173,7 +173,7 @@ entries:
     description: >
       PET-CT con Galio-68 DOTATOC. Múltiples metástasis
       óseas blásticas con sobreexpresión de receptores de somatostatina y captación focal
-      en la cola de la mama derecha. Confirma los “dos motores” del tumor (FGFR1/CCND1
+      en la cola de la mama derecha. Confirma las “dos caras” del tumor (FGFR1/CCND1
       luminal + comportamiento neuroendocrino RB1 + SSTR) y abre la vía de la terapia con
       radioligandos (PRRT).
     highlight: true
