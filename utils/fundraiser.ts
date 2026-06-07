@@ -82,3 +82,70 @@ export async function saveFundraiser(overwrite = false) {
   await fs.writeFile(path, JSON.stringify(fundraiser))
   console.log(`✔ Fundraiser saved to: ${path}`)
 }
+
+// ── Donaciones públicas (muro de gracias · paridad con GoFundMe) ─────────────
+// El feed público de GoFundMe ya muestra nombre + importe + anónimo + fecha.
+// Re-publicamos lo mismo. OPT_OUT: nombres (no anónimos) a excluir si alguien
+// pide quitarse (red de seguridad RGPD). Los anónimos salen como "Anónimo".
+const donationsPath = 'public/donations.json'
+const donationsFeed = `https://gateway.gofundme.com/web-gateway/v1/feed/${variables.slug}/donations`
+const OPT_OUT: string[] = []
+
+export interface PublicDonation {
+  id: number
+  name: string
+  amount: number
+  currencyCode: string
+  createdAt: string
+  anonymous: boolean
+}
+
+export async function getDonations(maxItems = 140): Promise<PublicDonation[]> {
+  const out: PublicDonation[] = []
+  const limit = 20
+  let offset = 0
+  // Paginación por offset (verificada contra el feed); para en has_next=false.
+  for (let guard = 0; guard < 20 && out.length < maxItems; guard++) {
+    const res = await fetch(
+      `${donationsFeed}?limit=${limit}&sort=recent&offset=${offset}`,
+      { headers: { 'User-Agent': headers['User-Agent'] }, signal: AbortSignal.timeout(8000) }
+    )
+    const json = (await res.json()) as {
+      references?: { donations?: Array<Record<string, unknown>> }
+      meta?: { meta?: { has_next?: boolean } }
+    }
+    const list = json.references?.donations ?? []
+    if (list.length === 0) break
+    for (const d of list) {
+      const anonymous = Boolean(d.is_anonymous)
+      const name = anonymous ? 'Anónimo' : String(d.name || 'Anónimo')
+      if (!anonymous && OPT_OUT.includes(name)) continue
+      out.push({
+        id: Number(d.donation_id),
+        name,
+        amount: Number(d.amount),
+        currencyCode: String(d.currencycode || 'EUR'),
+        createdAt: String(d.created_at),
+        anonymous,
+      })
+    }
+    if (!json.meta?.meta?.has_next) break
+    offset += limit
+  }
+  return out
+}
+
+export async function saveDonations() {
+  try {
+    const donations = await getDonations()
+    if (donations.length === 0) {
+      console.log('No donations fetched; keeping existing file.')
+      return
+    }
+    await fs.writeFile(donationsPath, JSON.stringify(donations))
+    console.log(`✔ Donations saved (${donations.length}) to: ${donationsPath}`)
+  } catch (error) {
+    // No bloquear el build/dev ni sobrescribir con vacío si el feed falla.
+    console.warn('Donations fetch failed; keeping existing file.', error)
+  }
+}
