@@ -200,6 +200,46 @@ const GLOSSARY: Record<string, Entry> = {
       def: 'A therapy that delivers a radioactive particle straight to cells expressing the SSTR2 target.',
     },
   },
+  axis_fgfr: {
+    es: {
+      label: 'FGFR1 ×13 → FGFRi',
+      def: 'FGFRi: inhibidores de FGFR (erdafitinib, futibatinib, ponatinib) que bloquean la señal del gen FGFR1, amplificado ×13, uno de los motores del tumor.',
+    },
+    en: {
+      label: 'FGFR1 ×13 → FGFRi',
+      def: 'FGFRi: FGFR inhibitors (erdafitinib, futibatinib, ponatinib) that block signaling from FGFR1, amplified ×13 — one of the tumor’s drivers.',
+    },
+  },
+  axis_sstr: {
+    es: {
+      label: 'SSTR2+ → PRRT',
+      def: 'PRRT: terapia con radioligandos. Un fármaco radiactivo se une a los receptores de somatostatina (SSTR2) del tumor y lo irradia desde dentro.',
+    },
+    en: {
+      label: 'SSTR2+ → PRRT',
+      def: 'PRRT: radioligand therapy. A radioactive drug binds the tumor’s somatostatin receptors (SSTR2) and irradiates it from within.',
+    },
+  },
+  axis_esr1: {
+    es: {
+      label: 'ESR1 D538G → SERD oral',
+      def: 'SERD oral (p. ej. elacestrant): degrada el receptor de estrógeno mutado (ESR1 D538G) que volvió resistente la terapia hormonal previa.',
+    },
+    en: {
+      label: 'ESR1 D538G → oral SERD',
+      def: 'Oral SERD (e.g. elacestrant): degrades the mutated estrogen receptor (ESR1 D538G) that made the previous hormone therapy resistant.',
+    },
+  },
+  axis_ne: {
+    es: {
+      label: 'Pérdida de RB1 → eje neuroendocrino',
+      def: 'La pérdida de RB1 (3 variantes en sangre) es la que señala el riesgo de transformación neuroendocrina. Tratarla por la vía neuroendocrina abre además el acceso a la terapia con radioligandos (PRRT) sobre las lesiones SSTR2+.',
+    },
+    en: {
+      label: 'RB1 loss → neuroendocrine axis',
+      def: 'RB1 loss (3 variants in blood) is what signals the risk of neuroendocrine transformation. Treating it via the neuroendocrine route also opens access to radioligand therapy (PRRT) on the SSTR2+ lesions.',
+    },
+  },
 }
 
 const entry = computed(() => {
