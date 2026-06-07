@@ -19,7 +19,12 @@ export function useSupport() {
     const plausible = nuxtApp.$plausible as
       | { trackEvent?: (name: string, opts?: { props?: Record<string, string> }) => void }
       | undefined
+    // Doble evento: «Apoyar» = total de conversiones (un solo número), y
+    // «Apoyar: <botón>» = desglose por ubicación sin custom properties (de
+    // pago en Plausible). Cada nombre tiene su goal en el panel. El props se
+    // mantiene por si algún día se activa el plan con propiedades.
     plausible?.trackEvent?.('Apoyar', { props: { location } })
+    plausible?.trackEvent?.(`Apoyar: ${location}`)
   }
 
   return { GOFUNDME_URL, trackSupport }
