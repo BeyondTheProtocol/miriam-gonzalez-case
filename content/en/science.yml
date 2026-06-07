@@ -21,11 +21,28 @@ treatments:
       ribociclib by abemaciclib. Zoladex and zoledronic acid are maintained.
     active: false
   - line: →
-    regimen: Bone progression + abemaciclib discontinuation (March 2026)
+    regimen: Bone progression (March 2026)
     outcome: >-
-      PET-CT confirms new bone foci in pelvis and right femur. Abemaciclib is
-      discontinued due to bone progression and hepatic toxicity (DILI G2-3).
-      Zoladex and zoledronic acid continue. ECOG 0. No visceral crisis.
+      The PET-CT (24 Mar 2026) confirms bone progression (increased uptake in
+      pelvis and right femur; new foci in D1 and left iliac). During this line
+      there was a mild (G1) transaminase elevation, nearly normalized and
+      possibly linked to supplements, which led to reducing abemaciclib from 150
+      to 100 mg (not stopping it). Because of the progression + the ESR1
+      resistance mutation, abemaciclib is withdrawn in May 2026. Zoladex and
+      zoledronic acid continue. No visceral crisis.
+    active: false
+  - line: →
+    regimen: Current status (2026)
+    outcome: >-
+      As a standard 3rd line, elacestrant has been offered (ESR1 route, with
+      public funding approved), pending start. In parallel, in screening
+      (prescreening) for two phase 3 clinical trials in HR+/HER2− breast cancer
+      after CDK4/6i progression: ADELA (elacestrant + everolimus, for
+      ESR1-mutated tumors like hers) and KATSIS-1 (KAT6 inhibitor
+      prifetrastat/PF-07248144 + fulvestrant). A first bone rebiopsy (April 2026)
+      did not yield viable tumor, so an extended PET-guided bone rebiopsy is
+      planned — the central test the campaign funds. Current performance status:
+      ECOG 1.
     active: true
 paperSections:
   - title: Neuroendocrine Transformation and RB1 Loss
@@ -89,15 +106,16 @@ paperSections:
   - title: SSTR2 Pathway and Radioligand Therapy (PRRT)
     tag: SSTR2 · PRRT
     tone: positive
-    subtitle: Rationale to request SSTR2 IHC and DOTATATE PET as a reserve therapeutic branch
+    subtitle: The 68Ga-DOTATOC PET (26 May 2026) confirmed SSTR2 overexpression in the bone metastases → opens the PRRT route (177Lu-DOTATATE); SSTR2 IHC on tissue pending the rebiopsy
     papers:
       - ref: 'Terlević et al., 2019 — Annals of Diagnostic Pathology (DOI: 10.1016/j.anndiagpath.2018.11.002)'
-        finding: 'SSTR2 expression in neuroendocrine breast carcinoma: 71% positive'
+        finding: 'SSTR2 expression in neuroendocrine breast carcinoma: 71% positive (≈36% moderate-strong)'
         relevance: >-
-          Immunohistochemical study showing that 71% of neuroendocrine breast
-          carcinomas express SSTR2A with intensity sufficient to consider PRRT
-          with 177Lu-DOTATATE. Supports requesting SSTR2 IHC in future
-          rebiopsies and DOTATATE PET as functional screening.
+          Immunohistochemical study: 71% of neuroendocrine breast carcinomas
+          express SSTR2A (any intensity); ~36% with moderate-strong intensity,
+          the range most relevant for PRRT with 177Lu-DOTATATE. Supports
+          functional 68Ga-DOTATOC PET imaging and requesting SSTR2 IHC at the
+          rebiopsy.
         link: 'https://doi.org/10.1016/j.anndiagpath.2018.11.002'
       - ref: 'Sharma et al., 2021 — European Journal of Nuclear Medicine and Molecular Imaging (DOI: 10.1007/s00259-020-05054-9)'
         finding: '177Lu-DOTATATE in metastatic neuroendocrine breast cancer: clinical evidence'
@@ -113,7 +131,7 @@ paperSections:
     tone: violet
     subtitle: Molecular mechanism behind the observed clinical resistance in the first two lines
     papers:
-      - ref: 'Formisano et al., 2019 — Nature Communications (DOI: 10.1038/s41467-019-09367-8)'
+      - ref: 'Formisano et al., 2019 — Nature Communications (DOI: 10.1038/s41467-019-09068-2)'
         finding: 'FGFR1 as a resistance driver to endocrine therapy and CDK4/6i in HR+/HER2- breast cancer'
         relevance: >-
           Molecular study showing that FGFR1 amplification functionally
@@ -121,7 +139,7 @@ paperSections:
           represents a known acquired resistance mechanism to endocrine therapy
           and CDK4/6 inhibitors in HR+/HER2- breast cancer. It explains the
           clinical resistance observed in the first two treatment lines.
-        link: 'https://doi.org/10.1038/s41467-019-09367-8'
+        link: 'https://doi.org/10.1038/s41467-019-09068-2'
   - title: International Consensus Guidelines
     tag: Guidelines
     tone: neutral
