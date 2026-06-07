@@ -88,11 +88,5 @@ export default defineNuxtConfig({
     prerender: {
       crawlLinks: true,
     },
-    routeRules: {
-      // /donantes se fusionó en /colabora (sección #gracias); 301 para que los
-      // enlaces ya compartidos sigan funcionando.
-      '/donantes': { redirect: { to: '/colabora#gracias', statusCode: 301 } },
-      '/en/donantes': { redirect: { to: '/en/collaborate#gracias', statusCode: 301 } },
-    },
   },
 })
