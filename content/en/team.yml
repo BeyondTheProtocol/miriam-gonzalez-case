@@ -6,7 +6,7 @@ coreTeam:
     description: "Software engineer and tech communicator. She researches her own case and coordinates the entire initiative."
     icon: ph:user-circle-fill
     color: gold
-  - role: "Precision oncology & molecular profiling"
+  - role: "Genomics & molecular profiling"
     name: Paola
     photo: /img/team/paola.webp
     description: "Bioengineer. She helps interpret the molecular data and guide the next steps in the plan."
