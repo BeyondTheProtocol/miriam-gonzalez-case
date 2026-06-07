@@ -234,8 +234,8 @@ const groups = computed(() => {
   display: inline-flex;
   align-items: center;
   gap: 7px;
-  min-height: 40px;
-  padding: 6px 14px;
+  min-height: 44px;
+  padding: 8px 14px;
   border-radius: 9999px;
   border: 1px solid rgba(45, 27, 61, 0.16);
   background: #faf6f0;

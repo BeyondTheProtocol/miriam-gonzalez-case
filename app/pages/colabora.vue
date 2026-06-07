@@ -115,7 +115,7 @@
           </article>
 
           <!-- ─ Card 1 — revisión clínica ─ -->
-          <article class="card-base bg-cream flex flex-col">
+          <article id="revision-clinica" class="card-base bg-cream flex flex-col scroll-mt-24">
             <div class="flex items-center gap-4 mb-4">
               <span class="w-10 h-10 rounded-xl bg-berenjena flex items-center justify-center shrink-0" aria-hidden="true">
                 <Icon name="ph:stethoscope" class="w-5 h-5 text-cream" />
@@ -138,7 +138,7 @@
           </article>
 
           <!-- ─ Card 3 — difusión ─ -->
-          <article class="card-base bg-cream flex flex-col">
+          <article id="alcance" class="card-base bg-cream flex flex-col scroll-mt-24">
             <div class="flex items-center gap-4 mb-4">
               <span class="w-10 h-10 rounded-xl bg-berenjena flex items-center justify-center shrink-0" aria-hidden="true">
                 <Icon name="ph:megaphone-simple-fill" class="w-5 h-5 text-cream" />

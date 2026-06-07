@@ -169,7 +169,7 @@
 
         <!-- Perfil molecular en una línea · detalle completo en /ciencia -->
         <div>
-          <p class="font-mono uppercase text-[11px] tracking-[0.12em] font-medium text-tinta mb-3">
+          <p class="text-sm text-tinta mb-3">
             {{ $t('home.s8_markers_title') }}
           </p>
           <div class="flex flex-wrap gap-2">
@@ -296,6 +296,30 @@
             </a>
             <p class="mt-2 text-xs text-tinta sm:min-h-[2.25rem]">{{ $t('home.s10_l3_caption') }}</p>
           </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- Perfiles de alto impacto · acceso directo a las vías de /colabora.
+         (Plausible: /colabora apenas se ve; la gente de alto valor entra por la home.) -->
+    <section v-reveal class="section-spacing bg-cream" :aria-label="$t('home.pro_eyebrow')" style="border-top: 1px solid rgba(45,27,61,0.08)">
+      <div class="section-container max-w-3xl">
+        <div class="card-base flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <p class="eyebrow mb-2 block">{{ $t('home.pro_eyebrow') }}</p>
+            <p class="font-display font-semibold text-berenjena text-lg">{{ $t('home.pro_text') }}</p>
+            <p class="text-sm text-tinta mt-1">{{ $t('home.pro_sub') }}</p>
+          </div>
+          <div class="flex flex-col sm:flex-row gap-3 shrink-0">
+            <NuxtLink :to="localePath('colabora') + '#revision-clinica'" class="btn-secondary">
+              <Icon name="ph:stethoscope" class="w-4 h-4" aria-hidden="true" />
+              {{ $t('home.pro_clinical') }}
+            </NuxtLink>
+            <NuxtLink :to="localePath('colabora') + '#alcance'" class="btn-secondary">
+              <Icon name="ph:megaphone-simple-fill" class="w-4 h-4" aria-hidden="true" />
+              {{ $t('home.pro_press') }}
+            </NuxtLink>
+          </div>
         </div>
       </div>
     </section>

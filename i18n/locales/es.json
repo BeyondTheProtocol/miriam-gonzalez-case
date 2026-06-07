@@ -272,7 +272,12 @@
       "Cada resultado que se obtiene aporta evidencia para otros pacientes con perfiles similares.",
       "Miriam deja de depender de un único protocolo que no da respuesta a su caso."
     ],
-    "s8_markers_title": "Perfil molecular en una línea",
+    "s8_markers_title": "En una línea, para quien quiera el detalle:",
+    "pro_eyebrow": "Perfiles de alto impacto",
+    "pro_text": "¿Eres médico, investigador o prensa?",
+    "pro_sub": "Hay una puerta directa para ti.",
+    "pro_clinical": "Médico / investigador",
+    "pro_press": "Prensa / medios",
     "s8_markers": [
       "FGFR1 ×13",
       "BC-NED",

@@ -251,7 +251,12 @@
       "Every result obtained contributes evidence for other patients with similar profiles.",
       "Miriam stops depending on a single protocol that does not answer her case."
     ],
-    "s8_markers_title": "Molecular profile, in one line",
+    "s8_markers_title": "In one line, for anyone who wants the detail:",
+    "pro_eyebrow": "High-impact profiles",
+    "pro_text": "Are you a doctor, researcher or journalist?",
+    "pro_sub": "There's a direct door for you.",
+    "pro_clinical": "Doctor / researcher",
+    "pro_press": "Press / media",
     "s8_markers": [
       "FGFR1 ×13",
       "BC-NED",

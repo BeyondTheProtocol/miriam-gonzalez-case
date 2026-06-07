@@ -102,7 +102,7 @@
                 <Icon name="ph:heart-fill" class="heart-beat heart-beat--alive w-4 h-4" aria-hidden="true" />
                 {{ $t('hero.cta_donate') }}
               </a>
-              <p class="font-mono text-[10px] sm:text-[11px] leading-relaxed text-tinta sm:max-w-[15rem] px-0.5 whitespace-nowrap sm:whitespace-normal">
+              <p class="text-xs leading-relaxed text-tinta sm:max-w-[15rem] px-0.5">
                 {{ $t('home.hero_cta_donate_caption') }}
               </p>
             </div>
@@ -114,7 +114,7 @@
                 <Icon name="ph:flask-fill" class="w-4 h-4" aria-hidden="true" />
                 {{ $t('hero.cta_science') }}
               </NuxtLink>
-              <p class="font-mono text-[10px] sm:text-[11px] leading-relaxed text-tinta sm:max-w-[15rem] px-0.5 whitespace-nowrap sm:whitespace-normal">
+              <p class="text-xs leading-relaxed text-tinta sm:max-w-[15rem] px-0.5">
                 {{ $t('home.hero_cta_science_caption') }}
               </p>
             </div>
