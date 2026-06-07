@@ -77,58 +77,94 @@
              lado a lado con divisor central. El símbolo —no solo el color— comunica
              la oposición; el lado "falta" pesa por marcador coral + texto más firme. -->
         <div class="card-base p-0 overflow-hidden">
-          <!-- Cabeceras de columna (solo sm+: en móvil los símbolos ✓/✗ orientan) -->
-          <div class="hidden sm:grid sm:grid-cols-2">
-            <p
-              class="font-mono uppercase text-[11px] tracking-[0.1em] text-tinta px-5 sm:px-6 py-4"
-              style="border-bottom: 1px solid rgba(45,27,61,0.10)"
-            >
-              {{ $t('home.s3_col_has') }}
-            </p>
-            <p
-              class="font-mono uppercase text-[11px] tracking-[0.1em] text-berenjena px-5 sm:px-6 py-4"
-              style="border-bottom: 1px solid rgba(45,27,61,0.10); border-left: 1px solid rgba(45,27,61,0.08); background: rgba(255,107,71,0.04)"
-            >
-              {{ $t('home.s3_col_missing') }}
-            </p>
-          </div>
-          <!-- Filas: cada fila del grid empareja cubierto/falta y comparten altura -->
-          <div
-            v-for="(row, i) in s3Rows"
-            :key="i"
-            class="grid sm:grid-cols-2 sm:items-stretch"
-          >
-            <!-- ✓ Lo que cubren -->
-            <div
-              class="flex items-start gap-3 px-5 sm:px-6 py-4"
-              :class="i > 0 ? 'border-t border-berenjena/[0.07]' : ''"
-            >
-              <span
-                class="mt-0.5 shrink-0 inline-flex items-center justify-center w-[18px] h-[18px] rounded-[5px] bg-miriam-soft"
-                aria-hidden="true"
+          <!-- DESKTOP (sm+): comparación lado a lado, fila a fila -->
+          <div class="hidden sm:block">
+            <div class="grid grid-cols-2">
+              <p
+                class="font-mono uppercase text-[11px] tracking-[0.1em] text-tinta px-6 py-4"
+                style="border-bottom: 1px solid rgba(45,27,61,0.10)"
               >
-                <Icon name="ph:check-bold" class="w-3 h-3 text-berenjena" />
-              </span>
-              <span class="text-sm text-tinta leading-relaxed">
-                <span class="sr-only">{{ $t('home.s3_col_has') }}: </span>{{ row[0] }}
-              </span>
+                {{ $t('home.s3_col_has') }}
+              </p>
+              <p
+                class="font-mono uppercase text-[11px] tracking-[0.1em] text-berenjena px-6 py-4"
+                style="border-bottom: 1px solid rgba(45,27,61,0.10); border-left: 1px solid rgba(45,27,61,0.08); background: rgba(255,107,71,0.04)"
+              >
+                {{ $t('home.s3_col_missing') }}
+              </p>
             </div>
-            <!-- ✗ Lo que falta -->
             <div
-              class="flex items-start gap-3 px-5 sm:px-6 py-4 border-berenjena/[0.07] border-t sm:border-l"
-              :class="i === 0 ? 'sm:border-t-0' : 'sm:border-t'"
-              style="background: rgba(255,107,71,0.04)"
+              v-for="(row, i) in s3Rows"
+              :key="i"
+              class="grid grid-cols-2 items-stretch"
             >
-              <span
-                class="mt-0.5 shrink-0 inline-flex items-center justify-center w-[18px] h-[18px] rounded-[5px]"
-                style="background: rgba(255,107,71,0.16)"
-                aria-hidden="true"
+              <div
+                class="flex items-start gap-3 px-6 py-4"
+                :class="i > 0 ? 'border-t border-berenjena/[0.07]' : ''"
               >
-                <Icon name="ph:circle-dashed-bold" class="w-3 h-3 text-coral" />
-              </span>
-              <span class="text-sm text-berenjena leading-relaxed">
-                <span class="sr-only">{{ $t('home.s3_col_missing') }}: </span>{{ row[1] }}
-              </span>
+                <span
+                  class="mt-0.5 shrink-0 inline-flex items-center justify-center w-[18px] h-[18px] rounded-[5px] bg-miriam-soft"
+                  aria-hidden="true"
+                >
+                  <Icon name="ph:check-bold" class="w-3 h-3 text-berenjena" />
+                </span>
+                <span class="text-sm text-tinta leading-relaxed">{{ row[0] }}</span>
+              </div>
+              <div
+                class="flex items-start gap-3 px-6 py-4 border-berenjena/[0.07] border-l"
+                :class="i > 0 ? 'border-t' : ''"
+                style="background: rgba(255,107,71,0.04)"
+              >
+                <span
+                  class="mt-0.5 shrink-0 inline-flex items-center justify-center w-[18px] h-[18px] rounded-[5px]"
+                  style="background: rgba(255,107,71,0.16)"
+                  aria-hidden="true"
+                >
+                  <Icon name="ph:circle-dashed-bold" class="w-3 h-3 text-coral" />
+                </span>
+                <span class="text-sm text-berenjena leading-relaxed">{{ row[1] }}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- MÓVIL (<sm): dos sub-bloques etiquetados, conserva el "frente a"
+               que la lista alternada perdía (plan D.2). -->
+          <div class="sm:hidden">
+            <div class="px-5 py-4">
+              <p class="font-mono uppercase text-[11px] tracking-[0.1em] text-tinta mb-3">
+                {{ $t('home.s3_col_has') }}
+              </p>
+              <ul class="space-y-2.5">
+                <li v-for="(row, i) in s3Rows" :key="`h${i}`" class="flex items-start gap-3">
+                  <span
+                    class="mt-0.5 shrink-0 inline-flex items-center justify-center w-[18px] h-[18px] rounded-[5px] bg-miriam-soft"
+                    aria-hidden="true"
+                  >
+                    <Icon name="ph:check-bold" class="w-3 h-3 text-berenjena" />
+                  </span>
+                  <span class="text-sm text-tinta leading-relaxed">{{ row[0] }}</span>
+                </li>
+              </ul>
+            </div>
+            <div
+              class="px-5 py-4"
+              style="background: rgba(255,107,71,0.04); border-top: 1px solid rgba(45,27,61,0.10)"
+            >
+              <p class="font-mono uppercase text-[11px] tracking-[0.1em] text-berenjena mb-3">
+                {{ $t('home.s3_col_missing') }}
+              </p>
+              <ul class="space-y-2.5">
+                <li v-for="(row, i) in s3Rows" :key="`m${i}`" class="flex items-start gap-3">
+                  <span
+                    class="mt-0.5 shrink-0 inline-flex items-center justify-center w-[18px] h-[18px] rounded-[5px]"
+                    style="background: rgba(255,107,71,0.16)"
+                    aria-hidden="true"
+                  >
+                    <Icon name="ph:circle-dashed-bold" class="w-3 h-3 text-coral" />
+                  </span>
+                  <span class="text-sm text-berenjena leading-relaxed">{{ row[1] }}</span>
+                </li>
+              </ul>
             </div>
           </div>
         </div>
