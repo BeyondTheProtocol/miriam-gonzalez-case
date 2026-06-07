@@ -41,7 +41,7 @@
   "thanksWall": {
     "eyebrow": "Thank you",
     "title": "Thanks to those who make it possible",
-    "subtitle": "Everyone who has contributed to Miriam's case, ordered by their contribution. Thank you for being here — every amount brings the next test closer.",
+    "subtitle": "Everyone who has already contributed to Miriam’s case. Thank you for being here — every amount brings the next test closer.",
     "all_title": "Everyone who has contributed",
     "stars_line": "{star} Every contribution is a star — {n} are already shining, adding up to {total}.",
     "sort_label": "Sort donations",
@@ -51,13 +51,6 @@
     "prev": "Previous",
     "next": "Next",
     "page": "{c} of {t}",
-    "empty": "No donations to show yet."
-  },
-  "thanksWall": {
-    "eyebrow": "Thank you",
-    "title": "Thanks to those who make it possible",
-    "subtitle": "Everyone who has already contributed to Miriam's case. Thank you for being here — every amount brings the next test closer.",
-    "see_all": "See all {n} people",
     "empty": "No donations to show yet."
   },
   "error": {
