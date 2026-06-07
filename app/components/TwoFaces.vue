@@ -6,59 +6,54 @@
     </h2>
     <p class="text-sm text-tinta leading-relaxed mb-6 max-w-2xl">{{ $t('twofaces.intro') }}</p>
 
-    <!-- Página de cuaderno de laboratorio: el conocimiento es luz. La cara
-         luminal es una red densa cartografiada a mano; la neuroendocrina, casi
-         a oscuras, con dos certezas rodeadas a boli (RB1, SSTR2). Todo el trazo
-         pasa por un filtro de "temblor" para el efecto dibujado a mano. -->
+    <!-- Página de cuaderno de laboratorio (ADN gráfico del design system):
+         tinta berenjena, trazo a pluma imperfecto, UN solo acento (coral) sobre
+         las dos certezas que financia la campaña; el lado luminal "conocido" se
+         dibuja por densidad de tinta, no por color. Todo anotado a mano dentro
+         de la página — sin leyenda fuera. La lectura completa va en sr-only. -->
     <figure ref="root" class="tf2" :class="{ 'tf2-in': inView }">
-      <svg class="tf2__svg" viewBox="0 0 420 372" role="img" :aria-label="ariaLabel">
+      <svg class="tf2__svg" viewBox="0 0 440 384" role="img" :aria-label="ariaLabel">
         <defs>
-          <filter id="tf2-rough" x="-5%" y="-5%" width="110%" height="110%">
-            <feTurbulence type="fractalNoise" baseFrequency="0.013" numOctaves="2" seed="7" result="n" />
-            <feDisplacementMap in="SourceGraphic" in2="n" scale="2.6" xChannelSelector="R" yChannelSelector="G" />
+          <filter id="tf2-rough" x="-6%" y="-6%" width="112%" height="112%">
+            <feTurbulence type="fractalNoise" baseFrequency="0.012" numOctaves="2" seed="7" result="n" />
+            <feDisplacementMap in="SourceGraphic" in2="n" scale="2.4" xChannelSelector="R" yChannelSelector="G" />
           </filter>
+          <filter id="tf2-grain"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" stitchTiles="stitch" /></filter>
           <pattern id="tf2-grid" width="22" height="22" patternUnits="userSpaceOnUse">
-            <path d="M22 0 H0 V22" fill="none" stroke="rgba(45,27,61,0.07)" stroke-width="1" />
+            <path d="M22 0 H0 V22" fill="none" stroke="rgba(45,27,61,0.06)" stroke-width="1" />
           </pattern>
-          <clipPath id="tf2-cell"><circle :cx="cx" :cy="cy" :r="R" /></clipPath>
+          <marker id="tf2-arrow" markerWidth="7" markerHeight="7" refX="5" refY="3" orient="auto">
+            <path d="M0 0 L6 3 L0 6 Z" fill="#2d1b3d" />
+          </marker>
+          <marker id="tf2-arrow-c" markerWidth="7" markerHeight="7" refX="5" refY="3" orient="auto">
+            <path d="M0 0 L6 3 L0 6 Z" fill="#bb4128" />
+          </marker>
         </defs>
 
-        <!-- Papel cuadriculado -->
-        <rect x="2" y="2" width="416" height="368" rx="14" fill="#fbf7ef" stroke="rgba(45,27,61,0.12)" />
-        <rect x="2" y="2" width="416" height="368" rx="14" fill="url(#tf2-grid)" />
+        <!-- Papel crema + grano sutil + cuadrícula de libreta -->
+        <rect x="2" y="2" width="436" height="380" rx="14" fill="#faf6f0" stroke="rgba(45,27,61,0.16)" />
+        <rect x="2" y="2" width="436" height="380" rx="14" fill="url(#tf2-grid)" />
+        <rect x="2" y="2" width="436" height="380" rx="14" filter="url(#tf2-grain)" opacity="0.04" />
 
-        <!-- Cara luminal iluminada · cara NE en penumbra (la luz = conocimiento) -->
-        <g clip-path="url(#tf2-cell)">
-          <rect :x="cx - R" :y="cy - R" :width="R" :height="2 * R" fill="#9d44ab" opacity="0.06" />
-          <rect :x="cx" :y="cy - R" :width="R" :height="2 * R" fill="#2d1b3d" opacity="0.10" />
-        </g>
-
-        <!-- ── Trazo a mano (filtro de temblor) ───────────────────────── -->
-        <g filter="url(#tf2-rough)" fill="none">
-          <!-- Membrana de la célula, a boli -->
-          <circle :cx="cx" :cy="cy" :r="R" stroke="rgba(45,27,61,0.5)" stroke-width="1.6" stroke-linecap="round" />
-          <!-- Costura central -->
-          <line :x1="cx" :y1="cy - R + 8" :x2="cx" :y2="cy + R - 8" stroke="rgba(45,27,61,0.3)" stroke-width="1.2" stroke-dasharray="2 4" />
-
-          <!-- Puentes: las dos certezas cruzan hacia la red conocida -->
-          <line
-            v-for="(b, i) in bridges"
-            :key="'b' + i"
-            class="tf2__bridge"
-            :x1="b.x1"
-            :y1="b.y1"
-            :x2="b.x2"
-            :y2="b.y2"
-            stroke="#ff6b47"
-            stroke-width="1.1"
-            stroke-dasharray="3 3"
+        <!-- ── Trazo a pluma (con temblor): todo en tinta berenjena ─────── -->
+        <g filter="url(#tf2-rough)">
+          <!-- Membrana de la célula, dibujada a mano (no es un círculo perfecto) -->
+          <path
+            :d="cellPath"
+            fill="none"
+            stroke="#2d1b3d"
+            stroke-width="2.2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
           />
+          <!-- Costura central a lápiz -->
+          <path :d="seamPath" fill="none" stroke="#2d1b3d" stroke-width="1.4" stroke-dasharray="2 5" opacity="0.55" />
 
-          <!-- Red luminal: lápiz que une los nodos (biología cartografiada) -->
-          <g class="tf2__web" stroke="#9d44ab" stroke-width="0.9" stroke-linecap="round">
-            <line v-for="(l, i) in webLines" :key="'l' + i" :x1="l.x1" :y1="l.y1" :x2="l.x2" :y2="l.y2" />
+          <!-- Lado MAMA: red densa cartografiada (tinta) -->
+          <g class="tf2__web" stroke="#2d1b3d" stroke-width="0.9" stroke-linecap="round" fill="none" opacity="0.8">
+            <path v-for="(l, i) in webLines" :key="'l' + i" :d="l.d" />
           </g>
-          <g fill="#9d44ab" stroke="none">
+          <g fill="#2d1b3d" stroke="none">
             <circle
               v-for="(n, i) in lumNodes"
               :key="'n' + i"
@@ -70,88 +65,92 @@
             />
           </g>
 
-          <!-- Lo desconocido (cara NE): circulitos huecos a lápiz, sin conectar -->
-          <g stroke="rgba(58,51,64,0.45)" stroke-width="1">
-            <circle v-for="(u, i) in unknownNodes" :key="'u' + i" class="tf2__unknown" :cx="u.x" :cy="u.y" :r="u.r" />
+          <!-- Lado NEUROENDOCRINO: penumbra de puntitos (stippling = lo desconocido) -->
+          <g fill="#2d1b3d" stroke="none" opacity="0.32">
+            <circle v-for="(u, i) in unknownNodes" :key="'u' + i" :cx="u.x" :cy="u.y" :r="u.r" />
           </g>
 
-          <!-- Las dos certezas: punto coral + círculo rodeado a mano -->
+          <!-- Puentes coral: las certezas cruzan hacia la red (se tratan juntas) -->
+          <path
+            v-for="(b, i) in bridges"
+            :key="'b' + i"
+            class="tf2__bridge"
+            :d="b.d"
+            fill="none"
+            stroke="#ff6b47"
+            stroke-width="1.2"
+            stroke-dasharray="3 3"
+          />
+
+          <!-- Las dos certezas: punto coral + círculo rodeado a mano (único acento) -->
           <g class="tf2__known" v-for="(k, i) in knownNodes" :key="'k' + i" :style="{ '--d': (0.9 + 0.35 * i).toFixed(2) + 's' }">
             <circle :cx="k.x" :cy="k.y" r="4.5" fill="#ff6b47" stroke="none" />
-            <ellipse :cx="k.x" :cy="k.y" rx="15" ry="12" :transform="`rotate(${k.rot} ${k.x} ${k.y})`" stroke="#ff6b47" stroke-width="1.4" />
-            <line :x1="k.ax1" :y1="k.ay1" :x2="k.ax2" :y2="k.ay2" stroke="#bb4128" stroke-width="1.1" />
+            <path :d="k.ring" fill="none" stroke="#ff6b47" stroke-width="1.6" stroke-linecap="round" />
           </g>
         </g>
 
-        <!-- ── Anotaciones manuscritas (sin filtro: legibles) ─────────── -->
-        <g class="tf2__hand" fill="#3a3340">
-          <text :x="cx - R * 0.55" :y="cy - R - 6" text-anchor="middle" class="tf2__face-word" fill="#9d44ab">{{ $t('twofaces.lum_word') }}</text>
-          <text :x="cx + R * 0.55" :y="cy - R - 6" text-anchor="middle" class="tf2__face-word" fill="#bb4128">{{ $t('twofaces.ne_word') }}</text>
-          <text
-            v-for="(k, i) in knownNodes"
-            :key="'kl' + i"
-            :x="k.lx"
-            :y="k.ly"
-            :text-anchor="k.anchor"
-            class="tf2__hand-label"
-            translate="no"
-          >{{ k.m }}</text>
-          <text :x="cx + R * 0.42" :y="cy + R - 2" text-anchor="middle" class="tf2__hand-note">{{ $t('twofaces.ne_unknown') }}</text>
+        <!-- ── Anotaciones manuscritas (sin filtro, legibles) ──────────── -->
+        <!-- Flechas curvas finas -->
+        <g fill="none" stroke-width="1.3">
+          <path :d="ann.mama.arrow" stroke="#2d1b3d" marker-end="url(#tf2-arrow)" />
+          <path :d="ann.ne.arrow" stroke="#2d1b3d" marker-end="url(#tf2-arrow)" />
+          <path :d="ann.mapped.arrow" stroke="#2d1b3d" opacity="0.7" marker-end="url(#tf2-arrow)" />
+          <path v-for="(k, i) in knownNodes" :key="'ka' + i" :d="k.arrow" stroke="#bb4128" marker-end="url(#tf2-arrow-c)" />
+        </g>
+        <!-- Etiquetas -->
+        <g class="tf2__hand" fill="#2d1b3d">
+          <text :x="ann.mama.x" :y="ann.mama.y" :transform="`rotate(-7 ${ann.mama.x} ${ann.mama.y})`" class="tf2__label tf2__up">{{ $t('twofaces.lum_word') }}</text>
+          <text :x="ann.ne.x" :y="ann.ne.y" :transform="`rotate(5 ${ann.ne.x} ${ann.ne.y})`" class="tf2__label tf2__up">{{ $t('twofaces.ne_word') }}</text>
+          <text :x="ann.mapped.x" :y="ann.mapped.y" :transform="`rotate(-4 ${ann.mapped.x} ${ann.mapped.y})`" class="tf2__note tf2__up" opacity="0.75">{{ $t('twofaces.note_mapped') }}</text>
+          <text :x="ann.dark.x" :y="ann.dark.y" :transform="`rotate(4 ${ann.dark.x} ${ann.dark.y})`" class="tf2__note tf2__up" opacity="0.6">{{ $t('twofaces.note_dark') }}</text>
+          <!-- ? sobre la penumbra -->
+          <text v-for="(q, i) in qmarks" :key="'q' + i" :x="q.x" :y="q.y" class="tf2__q" opacity="0.4">?</text>
+        </g>
+        <!-- Certezas: nombre coral + significado a mano -->
+        <g class="tf2__hand">
+          <template v-for="(k, i) in knownNodes" :key="'kt' + i">
+            <text :x="k.lx" :y="k.ly" class="tf2__label tf2__up" fill="#bb4128" translate="no">{{ k.m }}</text>
+            <text :x="k.lx" :y="k.ly + 16" class="tf2__note" fill="#3a3340">{{ k.note }}</text>
+          </template>
+        </g>
+        <!-- Cierre: un mismo tumor, se tratan juntas (subrayado coral a mano) -->
+        <g class="tf2__hand">
+          <text x="220" y="366" text-anchor="middle" class="tf2__together-txt" fill="#2d1b3d">{{ $t('twofaces.together') }}</text>
+          <path d="M96 373 Q220 379 344 372" fill="none" stroke="#ff6b47" stroke-width="2" stroke-linecap="round" />
         </g>
       </svg>
-
-      <!-- Pies de cara: la lectura, en palabras (legible siempre) -->
-      <figcaption class="tf2__caps">
-        <span class="tf2__cap">
-          <span class="tf2__cap-dot" style="background:#9d44ab" aria-hidden="true" />
-          <span><strong style="color:#6a2475">{{ $t('twofaces.lum_label') }}</strong> — {{ $t('twofaces.lum_status') }}</span>
-        </span>
-        <span class="tf2__cap">
-          <span class="tf2__cap-dot" style="background:#ff6b47" aria-hidden="true" />
-          <span><strong style="color:#bb4128">{{ $t('twofaces.ne_label') }}</strong> — {{ $t('twofaces.ne_status') }}</span>
-        </span>
-      </figcaption>
     </figure>
 
-    <!-- Las dos certezas, nombradas, debajo del arte -->
-    <ul class="tf2__certs">
-      <li v-for="(k, i) in known" :key="i" class="tf2__cert">
-        <span class="tf2__cert-m" translate="no">{{ k.m }}</span>
-        <span class="tf2__cert-d">{{ k.d }}</span>
-      </li>
-    </ul>
-
-    <p class="tf2__together">
-      <svg class="tf2__together-mark" viewBox="0 0 20 20" aria-hidden="true">
-        <path
-          fill="currentColor"
-          d="M10 0 L13.4 6.6 L20 10 L13.4 13.4 L10 20 L6.6 13.4 L0 10 L6.6 6.6 Z"
-        />
-      </svg>
-      {{ $t('twofaces.together') }}
-    </p>
+    <!-- Lectura accesible (lectores de pantalla / SEO): lo que el dibujo cuenta. -->
+    <div class="sr-only">
+      <p>{{ $t('twofaces.lum_label') }}: {{ $t('twofaces.lum_status') }}</p>
+      <p>{{ $t('twofaces.ne_label') }}: {{ $t('twofaces.ne_status') }}</p>
+      <ul>
+        <li v-for="(k, i) in known" :key="i">{{ k.m }} — {{ k.d }}</li>
+      </ul>
+      <p>{{ $t('twofaces.together') }}</p>
+    </div>
   </section>
 </template>
 
 <script setup lang="ts">
 /**
- * «Las dos caras» — data-art con estética de cuaderno de laboratorio. Papel
- * cuadriculado + todo el trazo pasado por un filtro de temblor (feTurbulence +
- * feDisplacementMap) para el aire dibujado a mano; las etiquetas, en manuscrita
- * (Caveat). El conocimiento se codifica como densidad de luz:
- *  · Cara luminal (magenta): red densa de nodos conectados = cartografiada.
- *  · Cara neuroendocrina (coral): penumbra con circulitos huecos (lo
- *    desconocido) y SOLO dos certezas rodeadas a boli — RB1 (motor de la
- *    transformación) y SSTR2 (vía de radioligandos), documentadas en /ciencia.
- * Puentes cruzando la costura: un mismo tumor, se tratan juntas.
- * Posiciones deterministas (PRNG). Mobile-first (viewBox), prefers-reduced-
- * motion, role=img + aria-label (el texto da la lectura completa).
+ * «Las dos caras» — página de cuaderno de laboratorio según el ADN gráfico del
+ * design system: ilustración a pluma en tinta berenjena (#2d1b3d), trazo
+ * imperfecto, UN solo acento (coral #ff6b47) reservado a las dos certezas que
+ * financia la campaña. El lado luminal "conocido" se representa por densidad de
+ * tinta (red cartografiada); el neuroendocrino, por penumbra de puntitos
+ * (stippling) + las dos certezas rodeadas a mano: RB1 (el motor) y SSTR2 (vía
+ * PRRT), documentadas en /ciencia. Todo anotado a mano DENTRO de la página
+ * (mayúsculas + flechas curvas), sin leyenda fuera. La lectura completa va en
+ * un bloque sr-only (a11y/SEO). Posiciones deterministas (PRNG), mobile-first
+ * (viewBox), animaciones con prefers-reduced-motion.
  */
 const { t, tm, rt } = useI18n()
 
-const R = 138
-const cx = 200
-const cy = 176
+const R = 132
+const cx = 206
+const cy = 178
 
 function mulberry32(seed: number) {
   let a = seed
@@ -166,33 +165,73 @@ function mulberry32(seed: number) {
 function inCell(x: number, y: number, pad = 10) {
   return (x - cx) ** 2 + (y - cy) ** 2 <= (R - pad) ** 2
 }
+function penLine(x1: number, y1: number, x2: number, y2: number, rnd: () => number) {
+  const mx = (x1 + x2) / 2
+  const my = (y1 + y2) / 2
+  const dx = x2 - x1
+  const dy = y2 - y1
+  const len = Math.hypot(dx, dy) || 1
+  const off = (rnd() * 2 - 1) * Math.min(5, len * 0.16)
+  return `M${x1} ${y1} Q${(mx + (-dy / len) * off).toFixed(1)} ${(my + (dx / len) * off).toFixed(1)} ${x2} ${y2}`
+}
+
+// Célula dibujada a mano: círculo "imperfecto" con radios ligeramente variables.
+const cellPath = computed(() => {
+  const rnd = mulberry32(99)
+  const pts: string[] = []
+  const N = 16
+  for (let i = 0; i <= N; i++) {
+    const ang = (i / N) * Math.PI * 2
+    const rr = R + (rnd() * 2 - 1) * 5
+    const x = (cx + Math.cos(ang) * rr).toFixed(1)
+    const y = (cy + Math.sin(ang) * rr * 0.98).toFixed(1)
+    pts.push((i === 0 ? 'M' : 'L') + x + ' ' + y)
+  }
+  return pts.join(' ') + ' Z'
+})
+const seamPath = `M${cx} ${cy - R + 10} Q${cx + 6} ${cy} ${cx - 4} ${cy + R - 10}`
 
 interface Node { x: number; y: number; r: number; o: number }
 
-// Las dos certezas: punto, círculo a mano (rotación), arrow corta y etiqueta.
-const knownNodes = [
-  { x: 286, y: 120, m: 'RB1', rot: -8, ax1: 286, ay1: 105, ax2: 286, ay2: 99, lx: 286, ly: 92, anchor: 'middle' as const },
-  { x: 276, y: 236, m: 'SSTR2', rot: 6, ax1: 276, ay1: 250, ax2: 276, ay2: 256, lx: 276, ly: 270, anchor: 'middle' as const },
-]
+// Las dos certezas: punto, círculo rodeado a mano, flecha y etiqueta+significado.
+const knownNodes = computed(() => {
+  const mk = (x: number, y: number, m: string, note: string, lx: number, ly: number, ax: number, ay: number) => ({
+    x, y, m, note, lx, ly,
+    ring: handRing(x, y, 16, 13),
+    arrow: penLine(ax, ay, x + 13, y - 6, mulberry32(Math.round(x * y))),
+  })
+  return [
+    mk(300, 116, 'RB1', t('twofaces.rb1_note'), 352, 104, 350, 100),
+    mk(286, 244, 'SSTR2', t('twofaces.sstr2_note'), 338, 250, 336, 246),
+  ]
+})
+function handRing(x: number, y: number, rx: number, ry: number) {
+  // Elipse abierta dibujada a mano (empieza y acaba con un pequeño solape).
+  const p: string[] = []
+  const N = 14
+  const rnd = mulberry32(Math.round(x + y))
+  for (let i = 0; i <= N + 2; i++) {
+    const ang = (i / N) * Math.PI * 2 - 0.5
+    const jx = (rnd() * 2 - 1) * 1.4
+    const jy = (rnd() * 2 - 1) * 1.4
+    p.push((i === 0 ? 'M' : 'L') + (x + Math.cos(ang) * rx + jx).toFixed(1) + ' ' + (y + Math.sin(ang) * ry + jy).toFixed(1))
+  }
+  return p.join(' ')
+}
 
 const geometry = computed(() => {
   const rnd = mulberry32(20240127)
   const lumNodes: Node[] = []
   let guard = 0
-  while (lumNodes.length < 52 && guard < 6000) {
+  while (lumNodes.length < 46 && guard < 6000) {
     guard++
     const x = cx - R + rnd() * R
     const y = cy - R + rnd() * (2 * R)
     if (x < cx - 8 && inCell(x, y)) {
-      lumNodes.push({
-        x: +x.toFixed(1),
-        y: +y.toFixed(1),
-        r: +(1.6 + rnd() * 2).toFixed(1),
-        o: +(0.5 + rnd() * 0.45).toFixed(2),
-      })
+      lumNodes.push({ x: +x.toFixed(1), y: +y.toFixed(1), r: +(1.6 + rnd() * 1.9).toFixed(1), o: +(0.55 + rnd() * 0.4).toFixed(2) })
     }
   }
-  const webLines: { x1: number; y1: number; x2: number; y2: number }[] = []
+  const webLines: { d: string }[] = []
   for (let i = 1; i < lumNodes.length; i++) {
     let best = -1
     let bd = Infinity
@@ -200,39 +239,32 @@ const geometry = computed(() => {
       const dx = lumNodes[i]!.x - lumNodes[j]!.x
       const dy = lumNodes[i]!.y - lumNodes[j]!.y
       const d = dx * dx + dy * dy
-      if (d < bd) {
-        bd = d
-        best = j
-      }
+      if (d < bd) { bd = d; best = j }
     }
     if (best >= 0 && bd < 40 * 40) {
-      webLines.push({
-        x1: lumNodes[i]!.x, y1: lumNodes[i]!.y, x2: lumNodes[best]!.x, y2: lumNodes[best]!.y,
-      })
+      webLines.push({ d: penLine(lumNodes[i]!.x, lumNodes[i]!.y, lumNodes[best]!.x, lumNodes[best]!.y, rnd) })
     }
   }
   const unknownNodes: { x: number; y: number; r: number }[] = []
   guard = 0
-  while (unknownNodes.length < 11 && guard < 6000) {
+  const kn = knownNodes.value
+  while (unknownNodes.length < 14 && guard < 6000) {
     guard++
     const x = cx + rnd() * R
     const y = cy - R + rnd() * (2 * R)
-    const farFromKnown = knownNodes.every((k) => (k.x - x) ** 2 + (k.y - y) ** 2 > 34 * 34)
+    const farFromKnown = kn.every((k) => (k.x - x) ** 2 + (k.y - y) ** 2 > 30 * 30)
     if (x > cx + 10 && inCell(x, y, 14) && farFromKnown) {
-      unknownNodes.push({ x: +x.toFixed(1), y: +y.toFixed(1), r: +(2 + rnd() * 1.8).toFixed(1) })
+      unknownNodes.push({ x: +x.toFixed(1), y: +y.toFixed(1), r: +(1.2 + rnd() * 1.4).toFixed(1) })
     }
   }
-  const bridges = knownNodes.map((k) => {
+  const bridges = kn.map((k) => {
     let best = lumNodes[0]!
     let bd = Infinity
     for (const n of lumNodes) {
       const d = (n.x - k.x) ** 2 + (n.y - k.y) ** 2
-      if (d < bd) {
-        bd = d
-        best = n
-      }
+      if (d < bd) { bd = d; best = n }
     }
-    return { x1: k.x, y1: k.y, x2: best.x, y2: best.y }
+    return { d: penLine(k.x, k.y, best.x, best.y, rnd) }
   })
   return { lumNodes, webLines, unknownNodes, bridges }
 })
@@ -241,21 +273,33 @@ const webLines = computed(() => geometry.value.webLines)
 const unknownNodes = computed(() => geometry.value.unknownNodes)
 const bridges = computed(() => geometry.value.bridges)
 
+// ¿ marcas sobre la penumbra (lo desconocido)
+const qmarks = [
+  { x: 322, y: 150 },
+  { x: 268, y: 196 },
+  { x: 330, y: 210 },
+]
+
+// Anotaciones manuscritas con flecha (posiciones fijas).
+const ann = computed(() => ({
+  mama: { x: 44, y: 60, arrow: 'M70 66 Q92 78 110 104' },
+  ne: { x: 250, y: 44, arrow: 'M300 52 Q318 66 318 92' },
+  mapped: { x: 34, y: 300, arrow: 'M96 296 Q120 280 138 250' },
+  dark: { x: 250, y: 322, arrow: 'M300 316 Q300 296 296 276' },
+}))
+
 interface Known { m: string; d: string }
 const known = computed<Known[]>(() => {
   const raw = tm('twofaces.ne_known') as unknown
   if (!Array.isArray(raw)) return []
-  return raw.map((e) => ({
-    m: rt((e as Record<string, unknown>).m as never),
-    d: rt((e as Record<string, unknown>).d as never),
-  }))
+  return raw.map((e) => ({ m: rt((e as Record<string, unknown>).m as never), d: rt((e as Record<string, unknown>).d as never) }))
 })
 
 const ariaLabel = computed(() => {
   const lum = t('twofaces.lum_label') + ': ' + t('twofaces.lum_status')
   const ne = t('twofaces.ne_label') + ': ' + t('twofaces.ne_status')
-  const certs = known.value.map((k) => k.m).join(', ')
-  return `${lum} ${ne} (${certs}).`
+  const certs = known.value.map((k) => `${k.m} (${k.d})`).join(', ')
+  return `${lum} ${ne} ${certs}. ${t('twofaces.together')}`
 })
 
 const root = ref<HTMLElement | null>(null)
@@ -290,102 +334,35 @@ onBeforeUnmount(() => io?.disconnect())
 .tf2__svg {
   display: block;
   width: 100%;
-  max-width: 480px;
+  max-width: 500px;
   height: auto;
   margin: 0 auto;
 }
-/* Manuscrita de cuaderno */
 .tf2__hand {
   font-family: 'Caveat', 'Bradley Hand', cursive;
 }
-.tf2__face-word {
+.tf2__up {
+  text-transform: uppercase;
+}
+.tf2__label {
+  font-size: 20px;
+  font-weight: 700;
+}
+.tf2__note {
+  font-size: 15px;
+}
+.tf2__q {
+  font-family: 'Caveat', cursive;
+  font-size: 22px;
+  font-weight: 700;
+  fill: #2d1b3d;
+}
+.tf2__together-txt {
   font-size: 19px;
   font-weight: 700;
 }
-.tf2__hand-label {
-  font-size: 20px;
-  font-weight: 700;
-  fill: #bb4128;
-}
-.tf2__hand-note {
-  font-size: 15px;
-  fill: rgba(58, 51, 64, 0.6);
-}
-/* Pies de cara */
-.tf2__caps {
-  display: flex;
-  flex-direction: column;
-  gap: 0.6rem;
-  max-width: 30rem;
-  margin: 0.5rem auto 0;
-}
-.tf2__cap {
-  display: flex;
-  align-items: baseline;
-  gap: 0.5rem;
-  font-size: 13px;
-  line-height: 1.45;
-  color: #3a3340;
-}
-.tf2__cap-dot {
-  width: 9px;
-  height: 9px;
-  border-radius: 9999px;
-  flex-shrink: 0;
-  transform: translateY(1px);
-}
-/* Las dos certezas, nombradas */
-.tf2__certs {
-  list-style: none;
-  padding: 0;
-  margin: 1.25rem 0 0;
-  display: grid;
-  gap: 0.5rem;
-}
-@media (min-width: 640px) {
-  .tf2__certs {
-    grid-template-columns: 1fr 1fr;
-    gap: 0.75rem 1.5rem;
-  }
-}
-.tf2__cert {
-  display: flex;
-  align-items: baseline;
-  gap: 0.6rem;
-  padding-left: 0.75rem;
-  border-left: 2px solid #ff6b47;
-}
-.tf2__cert-m {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 13px;
-  font-weight: 700;
-  color: #bb4128;
-  flex-shrink: 0;
-}
-.tf2__cert-d {
-  font-size: 13px;
-  line-height: 1.4;
-  color: #3a3340;
-}
-.tf2__together {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  margin-top: 1.25rem;
-  font-family: 'Fraunces', serif;
-  font-style: italic;
-  font-weight: 600;
-  font-size: 1.05rem;
-  color: #2d1b3d;
-}
-.tf2__together-mark {
-  width: 16px;
-  height: 16px;
-  flex-shrink: 0;
-  color: #ff6b47;
-}
 
-/* Estado base = visible (también lo que ve reduced-motion: nada oculto). */
+/* Estado base = visible (lo que ve reduced-motion: nada oculto). */
 .tf2__lum-node { opacity: var(--o, 0.7); }
 .tf2__lum-node,
 .tf2__known {
@@ -393,7 +370,7 @@ onBeforeUnmount(() => io?.disconnect())
   transform-origin: center;
 }
 
-/* ── Animación: la red luminal se enciende; las certezas, al final ──── */
+/* ── Animación: la red se dibuja; las certezas se rodean al final ───── */
 @media (prefers-reduced-motion: no-preference) {
   .tf2__web { transition: opacity 0.6s ease; }
   .tf2:not(.tf2-in) .tf2__web { opacity: 0; }

@@ -85,6 +85,11 @@
       "ne_unknown": "Lo que aún no sabemos",
     "lum_word": "mama",
     "ne_word": "neuroendocrino",
+    "note_mapped": "cartografiada",
+    "note_dark": "casi a oscuras",
+    "rb1_note": "el motor",
+    "sstr2_note": "vía PRRT",
+    "unknown_mark": "lo que falta",
       "together": "Un mismo tumor. Las dos caras se tratan juntas."
     },
   "error": {
