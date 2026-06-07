@@ -4,9 +4,14 @@
 
 @layer base {
   html {
-    scroll-behavior: smooth;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+  }
+  /* Smooth-scroll solo si el usuario no pide menos movimiento (WCAG 2.3.3). */
+  @media (prefers-reduced-motion: no-preference) {
+    html {
+      scroll-behavior: smooth;
+    }
   }
 
   /* Skip link — visually hidden until focused */
