@@ -33,6 +33,13 @@
     "label": "días esperando una nueva línea de tratamiento",
     "sub": "desde que se suspendió la 2ª línea (abemaciclib), el 30/04/2026"
   },
+  "thanksWall": {
+    "eyebrow": "Gracias",
+    "title": "Gracias a quienes lo hacen posible",
+    "subtitle": "Todas las personas que ya han aportado al caso de Miriam. Gracias por estar — cada cantidad acerca el siguiente análisis.",
+    "see_all": "Ver a las {n} personas",
+    "empty": "Aún no hay donaciones que mostrar."
+  },
   "error": {
     "e404_code": "Error 404",
     "e404_label": "Página no encontrada",

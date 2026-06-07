@@ -28,3 +28,4 @@ Thumbs.db
 
 # data
 public/fundraiser.json
+public/donations.json
