@@ -67,7 +67,10 @@
     "stat_specialists_label": "especialistas en 3 países",
     "stat_ne_value": "80%",
     "stat_ne_label": "diferenciación neuroendocrina",
-    "latest_label": "Lo último"
+    "latest_label": "Lo último",
+    "updated_today": "actualizado hoy",
+    "updated_ago_one": "actualizado ayer",
+    "updated_ago": "actualizado hace {n} días"
   },
   "gofundme": {
     "title": "¿Por qué necesitamos tu ayuda?",

@@ -127,11 +127,12 @@
             class="group mt-8 sm:mt-10 block no-underline animate-fade-up"
             style="animation-delay: 0.35s"
           >
-            <span class="flex items-center gap-2 mb-1.5">
+            <span class="flex flex-wrap items-center gap-x-2 gap-y-0.5 mb-1.5">
               <span class="hero-live-dot h-2 w-2 shrink-0 rounded-full bg-coral" aria-hidden="true" />
               <span class="font-mono uppercase text-[11px] tracking-[0.16em] font-semibold text-coral-deep">
                 {{ $t('hero.latest_label') }}
               </span>
+              <span v-if="latestAgo" class="font-mono text-[11px] text-tinta">· {{ latestAgo }}</span>
             </span>
             <span class="block font-mono text-sm text-miriam underline decoration-1 decoration-miriam/50 underline-offset-[3px] transition-colors group-hover:decoration-miriam"
               >{{ latest.title }}<Icon
@@ -195,6 +196,35 @@ const { data: latest } = await useAsyncData(
   },
   { watch: [locale] }
 )
+
+// A3 · "actualizado hace N días" (texto real). Las fechas del timeline van en
+// español ("30 may 2026", "11 ene 2024", "2021", "ene–feb 2024"), que new Date()
+// no parsea de forma fiable → parser propio de meses ES, con fallback ISO/inglés.
+const ES_MONTHS: Record<string, number> = {
+  ene: 0, feb: 1, mar: 2, abr: 3, may: 4, jun: 5,
+  jul: 6, ago: 7, sep: 8, oct: 9, nov: 10, dic: 11,
+}
+function parseTimelineDate(s?: string): Date | null {
+  if (!s) return null
+  const m = s.toLowerCase().match(/(\d{1,2})?\s*([a-zñ]{3,})\.?\s*(\d{4})/)
+  if (m) {
+    const mon = ES_MONTHS[(m[2] ?? '').slice(0, 3)]
+    if (mon !== undefined) return new Date(Number(m[3]), mon, m[1] ? Number(m[1]) : 1)
+  }
+  const y = s.match(/^\s*(\d{4})\s*$/)
+  if (y) return new Date(Number(y[1]), 0, 1)
+  const d = new Date(s)
+  return isNaN(+d) ? null : d
+}
+const latestAgo = computed(() => {
+  const d = parseTimelineDate((latest.value as { date?: string } | null)?.date)
+  if (!d) return null
+  const days = Math.floor((Date.now() - d.getTime()) / 86400000)
+  if (days < 0) return null
+  if (days === 0) return t('hero.updated_today')
+  if (days === 1) return t('hero.updated_ago_one')
+  return t('hero.updated_ago', { n: days })
+})
 
 const raisedFormatted = computed(() => {
   if (!gofundme.value) return '—'

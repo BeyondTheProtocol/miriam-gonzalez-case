@@ -364,12 +364,15 @@ onClickOutside(triggerRef, () => hide(), { ignore: [popRef] })
   text-decoration: none;
   border: 1px solid transparent;
   cursor: help;
+  transition: box-shadow 0.2s ease, border-color 0.2s ease;
 }
+/* A4 · brillo sutil al pasar/enfocar: refuerza que el badge abre tooltip. */
 .term--badge:hover,
 .term--badge:focus-visible,
 .term--badge[aria-expanded='true'] {
   text-decoration: none;
   border-color: #9d44ab; /* miriam */
+  box-shadow: 0 0 0 3px rgba(157, 68, 171, 0.18);
 }
 .term--badge:focus-visible {
   border-radius: 9999px;

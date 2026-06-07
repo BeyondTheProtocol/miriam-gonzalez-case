@@ -67,7 +67,10 @@
     "stat_specialists_label": "specialists in 3 countries",
     "stat_ne_value": "80%",
     "stat_ne_label": "neuroendocrine differentiation",
-    "latest_label": "Latest"
+    "latest_label": "Latest",
+    "updated_today": "updated today",
+    "updated_ago_one": "updated yesterday",
+    "updated_ago": "updated {n} days ago"
   },
   "gofundme": {
     "title": "Why do we need your help?",

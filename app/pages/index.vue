@@ -235,7 +235,9 @@
     </section>
 
     <!-- S4 · ¿Por qué necesitamos tu ayuda? · Destino del dinero -->
-    <section v-reveal class="section-spacing bg-cream-card" id="campaign" :aria-label="$t('home.s4_eyebrow')" style="border-top: 1px solid rgba(45,27,61,0.08)">
+    <EcgDivider class="bg-cream" />
+
+    <section v-reveal class="section-spacing bg-cream-card" id="campaign" :aria-label="$t('home.s4_eyebrow')">
       <div class="section-container max-w-5xl">
         <p class="eyebrow mb-4 block">{{ $t('home.s4_eyebrow') }}</p>
         <h2 class="heading-display text-3xl sm:text-5xl text-berenjena mb-6" style="letter-spacing: -0.03em">

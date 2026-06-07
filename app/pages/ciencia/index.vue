@@ -8,6 +8,8 @@
           tag="BC-NED + FGFR1 ×13 + SSTR2+"
         />
 
+        <EcgDivider class="mb-12" />
+
         <!-- Case snapshot: orient an oncologist in ~10s -->
         <section aria-labelledby="snapshot-title" class="mb-12">
           <p class="eyebrow mb-2 block">{{ $t('ciencia.snapshot_eyebrow') }}</p>

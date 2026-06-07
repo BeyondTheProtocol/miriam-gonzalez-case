@@ -8,6 +8,8 @@
           {{ $t('expenses.intro') }}
         </p>
 
+        <EcgDivider class="mb-8" />
+
         <!-- Coste de la rebiopsia: dos bloques (analizar ahora / preservar y bancar) -->
         <div class="card-base mb-6">
           <h2 class="font-display font-semibold text-berenjena text-lg mb-2">

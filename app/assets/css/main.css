@@ -170,6 +170,13 @@
   .badge-genomic, .tag-gold {
     @apply inline-block bg-miriam-soft text-berenjena rounded-full px-3 py-1 font-mono text-[13px] font-semibold;
     letter-spacing: 0;
+    transition: box-shadow 0.2s ease;
+  }
+  /* A4 · brillo sutil al pasar/enfocar — "hasta los detalles respiran".
+     Sin movimiento (solo box-shadow), seguro siempre. */
+  .badge-genomic:hover, .badge-genomic:focus-visible,
+  .tag-gold:hover, .tag-gold:focus-visible {
+    box-shadow: 0 0 0 3px rgba(157, 68, 171, 0.18);
   }
 
   /* Ocean tag (legacy) → outlined berenjena */
@@ -654,6 +661,19 @@
   from { transform: scaleX(0); }
   to { transform: scaleX(1); }
 }
+/* Detalles con alma — keyframes compartidos. Solo se aplican dentro de
+   @media (prefers-reduced-motion: no-preference); con reduced-motion el
+   elemento queda estático (mismo patrón que heart-beat).
+   · soft-pulse → punto coral en el borde de avance de la barra (latido).
+   · draw-in    → trazado de líneas SVG (ECG / sparkline ctDNA). */
+@keyframes soft-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(255, 107, 71, 0.45); }
+  50% { box-shadow: 0 0 0 7px rgba(255, 107, 71, 0); }
+}
+@keyframes draw-in {
+  from { stroke-dashoffset: var(--len, 400); }
+  to { stroke-dashoffset: 0; }
+}
 .heart-beat {
   transform-origin: center;
   will-change: transform;
@@ -678,6 +698,22 @@
     transform-origin: left center;
     animation: grow-x 1.3s cubic-bezier(0.22, 1, 0.36, 1) both;
   }
+  .progress-pulse {
+    animation: soft-pulse 2.4s ease-in-out infinite;
+  }
+}
+
+/* A2 · punto de latido en el borde de avance de la barra. Estático por defecto
+   (el anillo solo pulsa con no-preference, regla de arriba). */
+.progress-pulse {
+  position: absolute;
+  right: 0;
+  top: 50%;
+  width: 8px;
+  height: 8px;
+  margin: -4px -4px 0 0;
+  border-radius: 9999px;
+  background: #ff6b47;
 }
 
 /* ────────────────────────────────────────────────────────────

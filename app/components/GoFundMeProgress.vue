@@ -37,7 +37,7 @@ const pct = computed(() => {
     </p>
 
     <div
-      class="mt-6 h-2 w-full rounded-full overflow-hidden"
+      class="mt-6 h-2 w-full rounded-full"
       style="background: rgba(250,246,240,0.12)"
       role="progressbar"
       :aria-valuenow="data.currentAmount.amount"
@@ -45,7 +45,9 @@ const pct = computed(() => {
       :aria-valuemax="data.goalAmount.amount"
       :aria-label="$t('gofundme.progress_label')"
     >
-      <div class="progress-fill h-full rounded-full bg-coral" :style="{ width: `${pct}%` }" />
+      <div class="progress-fill h-full rounded-full bg-coral relative" :style="{ width: `${pct}%` }">
+        <span class="progress-pulse" aria-hidden="true" />
+      </div>
     </div>
 
     <div
@@ -91,11 +93,14 @@ const pct = computed(() => {
       :aria-label="$t('gofundme.progress_label')"
     >
       <div
-        class="progress-fill h-full rounded-full bg-coral"
+        class="progress-fill h-full rounded-full bg-coral relative"
         :style="{
           width: `${(data.currentAmount.amount * 100) / data.goalAmount.amount}%`,
         }"
-      ></div>
+      >
+        <!-- A2 · latido en el borde de avance (decorativo). El % sigue como texto. -->
+        <span class="progress-pulse" aria-hidden="true" />
+      </div>
     </div>
     <div class="flex flex-wrap items-center justify-between gap-x-4 gap-y-1">
       <p class="nums">
