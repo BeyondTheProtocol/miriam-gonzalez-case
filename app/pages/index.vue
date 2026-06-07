@@ -67,10 +67,7 @@
           <template #luminal><Term id="luminal" /></template>
           <template #neuroendocrino><Term id="neuroendocrino" /></template>
         </i18n-t>
-        <p class="mt-3 flex items-center gap-1.5 text-xs text-tinta/80">
-          <Icon name="ph:hand-tap" class="w-3.5 h-3.5 text-miriam shrink-0" aria-hidden="true" />
-          {{ $t('glossary.hint') }}
-        </p>
+        <Nota icon="tap" class="mt-3">{{ $t('glossary.hint') }}</Nota>
 
         <!-- "Lo que existe / lo que falta" · dos paneles (mobile-first: apilan
              en móvil, lado a lado en sm+). Lo cubierto queda sereno; lo que falta
