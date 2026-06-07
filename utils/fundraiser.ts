@@ -100,7 +100,16 @@ export interface PublicDonation {
   anonymous: boolean
 }
 
-export async function getDonations(maxItems = 140): Promise<PublicDonation[]> {
+// Normaliza nombres a Título (GoFundMe los devuelve en MAYÚS/minús irregular).
+// Unicode-aware (respeta acentos). Primera letra de cada palabra en mayúscula.
+function titleCase(s: string): string {
+  return s
+    .trim()
+    .toLocaleLowerCase('es-ES')
+    .replace(/(^|[\s\-'’.])(\p{L})/gu, (_m, sep: string, ch: string) => sep + ch.toLocaleUpperCase('es-ES'))
+}
+
+export async function getDonations(maxItems = 400): Promise<PublicDonation[]> {
   const out: PublicDonation[] = []
   const limit = 20
   let offset = 0
@@ -118,7 +127,7 @@ export async function getDonations(maxItems = 140): Promise<PublicDonation[]> {
     if (list.length === 0) break
     for (const d of list) {
       const anonymous = Boolean(d.is_anonymous)
-      const name = anonymous ? 'Anónimo' : String(d.name || 'Anónimo')
+      const name = anonymous ? 'Anónimo' : titleCase(String(d.name || 'Anónimo')) || 'Anónimo'
       if (!anonymous && OPT_OUT.includes(name)) continue
       out.push({
         id: Number(d.donation_id),

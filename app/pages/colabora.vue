@@ -176,7 +176,7 @@
     <!-- ░░ GRACIAS ░░ P6 — muro de donaciones reales de GoFundMe (nombre +
          importe, Recientes/Top, anónimo→Anónimo). Prueba social antes de la
          pedida. Datos auto desde /donations.json (función Netlify horaria). -->
-    <DonationsWall />
+    <DonationsWall :limit="8" />
 
     <!-- ░░ FINANCIAR ░░ bg-cream · remate destacado (Decisión 3·B: el dinero, al
          final). Único primario coral de la página. -->

@@ -37,10 +37,8 @@
   "thanksWall": {
     "eyebrow": "Gracias",
     "title": "Gracias a quienes lo hacen posible",
-    "subtitle": "Quienes ya han aportado al caso de Miriam. Cada cantidad acerca el siguiente análisis.",
-    "views_label": "Ver donaciones",
-    "recent": "Recientes",
-    "top": "Top",
+    "subtitle": "Todas las personas que ya han aportado al caso de Miriam. Gracias por estar — cada cantidad acerca el siguiente análisis.",
+    "see_all": "Ver a las {n} personas",
     "empty": "Aún no hay donaciones que mostrar."
   },
   "error": {

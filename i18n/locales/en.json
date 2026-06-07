@@ -37,10 +37,8 @@
   "thanksWall": {
     "eyebrow": "Thank you",
     "title": "Thanks to those who make it possible",
-    "subtitle": "Everyone who has already contributed to Miriam's case. Every amount brings the next test closer.",
-    "views_label": "View donations",
-    "recent": "Recent",
-    "top": "Top",
+    "subtitle": "Everyone who has already contributed to Miriam's case. Thank you for being here — every amount brings the next test closer.",
+    "see_all": "See all {n} people",
     "empty": "No donations to show yet."
   },
   "error": {
