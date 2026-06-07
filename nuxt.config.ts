@@ -11,6 +11,9 @@ export default defineNuxtConfig({
       { name: 'Fraunces', provider: 'google', weights: [400, 500, 600, 700], styles: ['normal', 'italic'] },
       { name: 'Source Sans 3', provider: 'google', weights: [400, 500, 600, 700], styles: ['normal', 'italic'] },
       { name: 'JetBrains Mono', provider: 'google', weights: [400, 500] },
+      // Manuscrita para las anotaciones «de cuaderno de laboratorio»
+      // (las dos caras, las estrellas). Subset latino, font-display: swap.
+      { name: 'Caveat', provider: 'google', weights: [400, 600, 700] },
     ],
   },
 

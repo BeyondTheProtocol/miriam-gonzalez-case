@@ -83,6 +83,8 @@
         }
       ],
       "ne_unknown": "What we still don't know",
+    "lum_word": "breast",
+    "ne_word": "neuroendocrine",
       "together": "One same tumor. Both faces are treated together."
     },
   "error": {

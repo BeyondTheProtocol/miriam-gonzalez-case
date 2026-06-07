@@ -6,113 +6,97 @@
     </h2>
     <p class="text-sm text-tinta leading-relaxed mb-6 max-w-2xl">{{ $t('twofaces.intro') }}</p>
 
-    <!-- Data-art: una célula, dos caras. El conocimiento es luz. La cara luminal
-         es una red densa y cartografiada; la neuroendocrina, casi a oscuras, con
-         solo dos certezas encendidas (RB1, SSTR2). La asimetría es el mensaje. -->
+    <!-- Página de cuaderno de laboratorio: el conocimiento es luz. La cara
+         luminal es una red densa cartografiada a mano; la neuroendocrina, casi
+         a oscuras, con dos certezas rodeadas a boli (RB1, SSTR2). Todo el trazo
+         pasa por un filtro de "temblor" para el efecto dibujado a mano. -->
     <figure ref="root" class="tf2" :class="{ 'tf2-in': inView }">
-      <svg class="tf2__svg" viewBox="0 0 420 360" role="img" :aria-label="ariaLabel">
+      <svg class="tf2__svg" viewBox="0 0 420 372" role="img" :aria-label="ariaLabel">
         <defs>
-          <radialGradient id="tf2-lum" cx="32%" cy="42%" r="70%">
-            <stop offset="0%" stop-color="#9d44ab" stop-opacity="0.16" />
-            <stop offset="100%" stop-color="#9d44ab" stop-opacity="0" />
-          </radialGradient>
-          <radialGradient id="tf2-ne" cx="70%" cy="55%" r="70%">
-            <stop offset="0%" stop-color="#2d1b3d" stop-opacity="0.30" />
-            <stop offset="100%" stop-color="#2d1b3d" stop-opacity="0.06" />
-          </radialGradient>
-          <linearGradient id="tf2-seam" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stop-color="#9d44ab" />
-            <stop offset="100%" stop-color="#ff6b47" />
-          </linearGradient>
-          <linearGradient id="tf2-bridge" x1="0" y1="0" x2="1" y2="0">
-            <stop offset="0%" stop-color="#9d44ab" />
-            <stop offset="100%" stop-color="#ff6b47" />
-          </linearGradient>
+          <filter id="tf2-rough" x="-5%" y="-5%" width="110%" height="110%">
+            <feTurbulence type="fractalNoise" baseFrequency="0.013" numOctaves="2" seed="7" result="n" />
+            <feDisplacementMap in="SourceGraphic" in2="n" scale="2.6" xChannelSelector="R" yChannelSelector="G" />
+          </filter>
+          <pattern id="tf2-grid" width="22" height="22" patternUnits="userSpaceOnUse">
+            <path d="M22 0 H0 V22" fill="none" stroke="rgba(45,27,61,0.07)" stroke-width="1" />
+          </pattern>
+          <clipPath id="tf2-cell"><circle :cx="cx" :cy="cy" :r="R" /></clipPath>
         </defs>
 
-        <!-- Membrana de la célula -->
-        <circle :cx="cx" :cy="cy" :r="R" fill="none" stroke="rgba(45,27,61,0.14)" stroke-width="1" />
-        <!-- Fondo de cada cara: luminal iluminada, neuroendocrina en penumbra -->
-        <clipPath id="tf2-clip"><circle :cx="cx" :cy="cy" :r="R" /></clipPath>
-        <g clip-path="url(#tf2-clip)">
-          <rect :x="cx - R" :y="cy - R" :width="R" :height="2 * R" fill="url(#tf2-lum)" />
-          <rect :x="cx" :y="cy - R" :width="R" :height="2 * R" fill="url(#tf2-ne)" />
+        <!-- Papel cuadriculado -->
+        <rect x="2" y="2" width="416" height="368" rx="14" fill="#fbf7ef" stroke="rgba(45,27,61,0.12)" />
+        <rect x="2" y="2" width="416" height="368" rx="14" fill="url(#tf2-grid)" />
+
+        <!-- Cara luminal iluminada · cara NE en penumbra (la luz = conocimiento) -->
+        <g clip-path="url(#tf2-cell)">
+          <rect :x="cx - R" :y="cy - R" :width="R" :height="2 * R" fill="#9d44ab" opacity="0.06" />
+          <rect :x="cx" :y="cy - R" :width="R" :height="2 * R" fill="#2d1b3d" opacity="0.10" />
         </g>
 
-        <!-- Puentes: las dos certezas cruzan la costura hacia la red conocida
-             (un mismo tumor, se tratan juntas) -->
-        <line
-          v-for="(b, i) in bridges"
-          :key="'b' + i"
-          class="tf2__bridge"
-          :x1="b.x1"
-          :y1="b.y1"
-          :x2="b.x2"
-          :y2="b.y2"
-          stroke="url(#tf2-bridge)"
-          stroke-width="1"
-        />
+        <!-- ── Trazo a mano (filtro de temblor) ───────────────────────── -->
+        <g filter="url(#tf2-rough)" fill="none">
+          <!-- Membrana de la célula, a boli -->
+          <circle :cx="cx" :cy="cy" :r="R" stroke="rgba(45,27,61,0.5)" stroke-width="1.6" stroke-linecap="round" />
+          <!-- Costura central -->
+          <line :x1="cx" :y1="cy - R + 8" :x2="cx" :y2="cy + R - 8" stroke="rgba(45,27,61,0.3)" stroke-width="1.2" stroke-dasharray="2 4" />
 
-        <!-- Red luminal: nodos conectados (biología cartografiada) -->
-        <g class="tf2__web">
+          <!-- Puentes: las dos certezas cruzan hacia la red conocida -->
           <line
-            v-for="(l, i) in webLines"
-            :key="'l' + i"
-            :x1="l.x1"
-            :y1="l.y1"
-            :x2="l.x2"
-            :y2="l.y2"
-            stroke="#9d44ab"
-            stroke-width="0.8"
-            vector-effect="non-scaling-stroke"
+            v-for="(b, i) in bridges"
+            :key="'b' + i"
+            class="tf2__bridge"
+            :x1="b.x1"
+            :y1="b.y1"
+            :x2="b.x2"
+            :y2="b.y2"
+            stroke="#ff6b47"
+            stroke-width="1.1"
+            stroke-dasharray="3 3"
           />
-          <circle
-            v-for="(n, i) in lumNodes"
-            :key="'n' + i"
-            class="tf2__lum-node"
-            :cx="n.x"
-            :cy="n.y"
-            :r="n.r"
-            fill="#9d44ab"
-            :style="{ '--o': String(n.o), '--d': (0.02 * i).toFixed(2) + 's' }"
-          />
+
+          <!-- Red luminal: lápiz que une los nodos (biología cartografiada) -->
+          <g class="tf2__web" stroke="#9d44ab" stroke-width="0.9" stroke-linecap="round">
+            <line v-for="(l, i) in webLines" :key="'l' + i" :x1="l.x1" :y1="l.y1" :x2="l.x2" :y2="l.y2" />
+          </g>
+          <g fill="#9d44ab" stroke="none">
+            <circle
+              v-for="(n, i) in lumNodes"
+              :key="'n' + i"
+              class="tf2__lum-node"
+              :cx="n.x"
+              :cy="n.y"
+              :r="n.r"
+              :style="{ '--o': String(n.o), '--d': (0.02 * i).toFixed(2) + 's' }"
+            />
+          </g>
+
+          <!-- Lo desconocido (cara NE): circulitos huecos a lápiz, sin conectar -->
+          <g stroke="rgba(58,51,64,0.45)" stroke-width="1">
+            <circle v-for="(u, i) in unknownNodes" :key="'u' + i" class="tf2__unknown" :cx="u.x" :cy="u.y" :r="u.r" />
+          </g>
+
+          <!-- Las dos certezas: punto coral + círculo rodeado a mano -->
+          <g class="tf2__known" v-for="(k, i) in knownNodes" :key="'k' + i" :style="{ '--d': (0.9 + 0.35 * i).toFixed(2) + 's' }">
+            <circle :cx="k.x" :cy="k.y" r="4.5" fill="#ff6b47" stroke="none" />
+            <ellipse :cx="k.x" :cy="k.y" rx="15" ry="12" :transform="`rotate(${k.rot} ${k.x} ${k.y})`" stroke="#ff6b47" stroke-width="1.4" />
+            <line :x1="k.ax1" :y1="k.ay1" :x2="k.ax2" :y2="k.ay2" stroke="#bb4128" stroke-width="1.1" />
+          </g>
         </g>
 
-        <!-- Cara neuroendocrina: lo desconocido (puntos huecos, sin conectar) -->
-        <circle
-          v-for="(u, i) in unknownNodes"
-          :key="'u' + i"
-          class="tf2__unknown"
-          :cx="u.x"
-          :cy="u.y"
-          :r="u.r"
-          fill="none"
-          stroke="rgba(58,51,64,0.4)"
-          stroke-width="0.8"
-          stroke-dasharray="1.5 1.5"
-        />
-
-        <!-- Costura: la misma célula -->
-        <line
-          :x1="cx"
-          :y1="cy - R + 6"
-          :x2="cx"
-          :y2="cy + R - 6"
-          stroke="url(#tf2-seam)"
-          stroke-width="1"
-          stroke-opacity="0.5"
-        />
-
-        <!-- Las dos certezas: nodos coral encendidos, con halo -->
-        <g
-          v-for="(k, i) in knownNodes"
-          :key="'k' + i"
-          class="tf2__known"
-          :style="{ '--d': (0.9 + 0.35 * i).toFixed(2) + 's' }"
-        >
-          <circle class="tf2__halo" :cx="k.x" :cy="k.y" r="13" fill="#ff6b47" />
-          <circle :cx="k.x" :cy="k.y" r="5" fill="#ff6b47" />
-          <text :x="k.lx" :y="k.ly" :text-anchor="k.anchor" class="tf2__label" translate="no">{{ k.m }}</text>
+        <!-- ── Anotaciones manuscritas (sin filtro: legibles) ─────────── -->
+        <g class="tf2__hand" fill="#3a3340">
+          <text :x="cx - R * 0.55" :y="cy - R - 6" text-anchor="middle" class="tf2__face-word" fill="#9d44ab">{{ $t('twofaces.lum_word') }}</text>
+          <text :x="cx + R * 0.55" :y="cy - R - 6" text-anchor="middle" class="tf2__face-word" fill="#bb4128">{{ $t('twofaces.ne_word') }}</text>
+          <text
+            v-for="(k, i) in knownNodes"
+            :key="'kl' + i"
+            :x="k.lx"
+            :y="k.ly"
+            :text-anchor="k.anchor"
+            class="tf2__hand-label"
+            translate="no"
+          >{{ k.m }}</text>
+          <text :x="cx + R * 0.42" :y="cy + R - 2" text-anchor="middle" class="tf2__hand-note">{{ $t('twofaces.ne_unknown') }}</text>
         </g>
       </svg>
 
@@ -151,22 +135,23 @@
 
 <script setup lang="ts">
 /**
- * «Las dos caras» — data-art conceptual del tumor. Una célula partida en dos:
- *  · Cara luminal (magenta): red densa de nodos conectados = biología
- *    ampliamente cartografiada, con tratamiento estándar.
- *  · Cara neuroendocrina (coral): penumbra con puntos huecos (lo desconocido)
- *    y SOLO dos nodos encendidos — RB1 (motor de la transformación) y SSTR2
- *    (vía de radioligandos), las dos certezas ganadas a pulso y documentadas
- *    en /ciencia. Puentes cruzando la costura: un mismo tumor, se tratan juntas.
- * El conocimiento se codifica como densidad de luz: la asimetría es el dato.
- * Posiciones deterministas (PRNG). Mobile-first (SVG con viewBox), animaciones
- * con prefers-reduced-motion, role=img + aria-label (el texto da la lectura).
+ * «Las dos caras» — data-art con estética de cuaderno de laboratorio. Papel
+ * cuadriculado + todo el trazo pasado por un filtro de temblor (feTurbulence +
+ * feDisplacementMap) para el aire dibujado a mano; las etiquetas, en manuscrita
+ * (Caveat). El conocimiento se codifica como densidad de luz:
+ *  · Cara luminal (magenta): red densa de nodos conectados = cartografiada.
+ *  · Cara neuroendocrina (coral): penumbra con circulitos huecos (lo
+ *    desconocido) y SOLO dos certezas rodeadas a boli — RB1 (motor de la
+ *    transformación) y SSTR2 (vía de radioligandos), documentadas en /ciencia.
+ * Puentes cruzando la costura: un mismo tumor, se tratan juntas.
+ * Posiciones deterministas (PRNG). Mobile-first (viewBox), prefers-reduced-
+ * motion, role=img + aria-label (el texto da la lectura completa).
  */
 const { t, tm, rt } = useI18n()
 
-const R = 150
+const R = 138
 const cx = 200
-const cy = 178
+const cy = 176
 
 function mulberry32(seed: number) {
   let a = seed
@@ -178,36 +163,35 @@ function mulberry32(seed: number) {
     return ((t2 ^ (t2 >>> 14)) >>> 0) / 4294967296
   }
 }
-function inCell(x: number, y: number, pad = 8) {
+function inCell(x: number, y: number, pad = 10) {
   return (x - cx) ** 2 + (y - cy) ** 2 <= (R - pad) ** 2
 }
 
 interface Node { x: number; y: number; r: number; o: number }
 
-// Las dos certezas, en posiciones fijas y agradables dentro de la cara NE.
+// Las dos certezas: punto, círculo a mano (rotación), arrow corta y etiqueta.
 const knownNodes = [
-  { x: 300, y: 118, m: 'RB1', lx: 300, ly: 100, anchor: 'middle' as const },
-  { x: 286, y: 232, m: 'SSTR2', lx: 286, ly: 254, anchor: 'middle' as const },
+  { x: 286, y: 120, m: 'RB1', rot: -8, ax1: 286, ay1: 105, ax2: 286, ay2: 99, lx: 286, ly: 92, anchor: 'middle' as const },
+  { x: 276, y: 236, m: 'SSTR2', rot: 6, ax1: 276, ay1: 250, ax2: 276, ay2: 256, lx: 276, ly: 270, anchor: 'middle' as const },
 ]
 
 const geometry = computed(() => {
   const rnd = mulberry32(20240127)
   const lumNodes: Node[] = []
   let guard = 0
-  while (lumNodes.length < 54 && guard < 6000) {
+  while (lumNodes.length < 52 && guard < 6000) {
     guard++
     const x = cx - R + rnd() * R
     const y = cy - R + rnd() * (2 * R)
-    if (x < cx - 7 && inCell(x, y)) {
+    if (x < cx - 8 && inCell(x, y)) {
       lumNodes.push({
         x: +x.toFixed(1),
         y: +y.toFixed(1),
-        r: +(1.5 + rnd() * 2).toFixed(1),
-        o: +(0.45 + rnd() * 0.5).toFixed(2),
+        r: +(1.6 + rnd() * 2).toFixed(1),
+        o: +(0.5 + rnd() * 0.45).toFixed(2),
       })
     }
   }
-  // Red: cada nodo se une a su vecino previo más cercano (ventana acotada).
   const webLines: { x1: number; y1: number; x2: number; y2: number }[] = []
   for (let i = 1; i < lumNodes.length; i++) {
     let best = -1
@@ -223,26 +207,21 @@ const geometry = computed(() => {
     }
     if (best >= 0 && bd < 40 * 40) {
       webLines.push({
-        x1: lumNodes[i]!.x,
-        y1: lumNodes[i]!.y,
-        x2: lumNodes[best]!.x,
-        y2: lumNodes[best]!.y,
+        x1: lumNodes[i]!.x, y1: lumNodes[i]!.y, x2: lumNodes[best]!.x, y2: lumNodes[best]!.y,
       })
     }
   }
-  // Lo desconocido (cara NE): puntos huecos dispersos, sin conexión.
   const unknownNodes: { x: number; y: number; r: number }[] = []
   guard = 0
-  while (unknownNodes.length < 12 && guard < 6000) {
+  while (unknownNodes.length < 11 && guard < 6000) {
     guard++
     const x = cx + rnd() * R
     const y = cy - R + rnd() * (2 * R)
-    const farFromKnown = knownNodes.every((k) => (k.x - x) ** 2 + (k.y - y) ** 2 > 30 * 30)
-    if (x > cx + 9 && inCell(x, y, 12) && farFromKnown) {
-      unknownNodes.push({ x: +x.toFixed(1), y: +y.toFixed(1), r: +(1.3 + rnd() * 1.6).toFixed(1) })
+    const farFromKnown = knownNodes.every((k) => (k.x - x) ** 2 + (k.y - y) ** 2 > 34 * 34)
+    if (x > cx + 10 && inCell(x, y, 14) && farFromKnown) {
+      unknownNodes.push({ x: +x.toFixed(1), y: +y.toFixed(1), r: +(2 + rnd() * 1.8).toFixed(1) })
     }
   }
-  // Puentes: de cada certeza al nodo luminal más cercano (cruzan la costura).
   const bridges = knownNodes.map((k) => {
     let best = lumNodes[0]!
     let bd = Infinity
@@ -311,21 +290,26 @@ onBeforeUnmount(() => io?.disconnect())
 .tf2__svg {
   display: block;
   width: 100%;
-  max-width: 460px;
+  max-width: 480px;
   height: auto;
   margin: 0 auto;
 }
-.tf2__label {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 12px;
+/* Manuscrita de cuaderno */
+.tf2__hand {
+  font-family: 'Caveat', 'Bradley Hand', cursive;
+}
+.tf2__face-word {
+  font-size: 19px;
+  font-weight: 700;
+}
+.tf2__hand-label {
+  font-size: 20px;
   font-weight: 700;
   fill: #bb4128;
 }
-.tf2__bridge {
-  opacity: 0.3;
-}
-.tf2__halo {
-  opacity: 0.22;
+.tf2__hand-note {
+  font-size: 15px;
+  fill: rgba(58, 51, 64, 0.6);
 }
 /* Pies de cara */
 .tf2__caps {
@@ -401,11 +385,11 @@ onBeforeUnmount(() => io?.disconnect())
   color: #ff6b47;
 }
 
-/* Estado base = visible (también es lo que ve reduced-motion: nada oculto). */
+/* Estado base = visible (también lo que ve reduced-motion: nada oculto). */
 .tf2__lum-node { opacity: var(--o, 0.7); }
 .tf2__lum-node,
 .tf2__known {
-  transform-box: fill-box; /* scale() gira sobre el centro del propio nodo */
+  transform-box: fill-box;
   transform-origin: center;
 }
 

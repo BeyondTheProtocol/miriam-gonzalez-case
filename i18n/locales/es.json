@@ -83,6 +83,8 @@
         }
       ],
       "ne_unknown": "Lo que aún no sabemos",
+    "lum_word": "mama",
+    "ne_word": "neuroendocrino",
       "together": "Un mismo tumor. Las dos caras se tratan juntas."
     },
   "error": {
