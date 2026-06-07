@@ -155,7 +155,7 @@ const localePath = useLocalePath()
 
 useSeoMeta({
   title: () => t('expenses.title'),
-  description: () => t('expenses.intro'),
+  description: () => t('expenses.meta_description'),
   ogTitle: () => t('expenses.title'),
   ogDescription: () => t('expenses.subtitle'),
   ogType: 'website',

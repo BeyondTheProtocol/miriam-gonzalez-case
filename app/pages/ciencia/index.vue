@@ -428,8 +428,8 @@ useSeoMeta({
       : 'Tumor molecular profile: BC-NED, FGFR1 ×13, SSTR2+',
   description: () =>
     locale.value === 'es'
-      ? 'Análisis científico completo del caso: cáncer de mama con ~80% diferenciación neuroendocrina, amplificación FGFR1 ×13, CCND1 ×20 y SSTR2+ (PET Ga-68). Historia de tratamientos, rebiopsia propuesta y ensayos clínicos relevantes.'
-      : 'Full scientific analysis: breast cancer with ~80% neuroendocrine differentiation, FGFR1 ×13 amplification, CCND1 ×20 and SSTR2+ (Ga-68 PET). Treatment history, proposed rebiopsy, and relevant clinical trials.',
+      ? 'El perfil molecular del tumor de Miriam: cáncer de mama con diferenciación neuroendocrina, FGFR1 ×13 y SSTR2+. Documentación clínica abierta.'
+      : "Miriam's tumor molecular profile: breast cancer with neuroendocrine differentiation, FGFR1 ×13 and SSTR2+. Open clinical documentation.",
   ogTitle: () =>
     locale.value === 'es'
       ? 'Perfil molecular BC-NED + FGFR1 ×13 + SSTR2+'

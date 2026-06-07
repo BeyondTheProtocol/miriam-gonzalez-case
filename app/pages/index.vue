@@ -406,8 +406,8 @@ useSeoMeta({
       : 'Miriam González — Precision Oncology for an Ultra-Rare Tumor',
   description: () =>
     locale.value === 'es'
-      ? 'BC-NED con FGFR1 ×13 y SSTR2+. Una paciente con cáncer de mama metastásico que usa IA y una red internacional de expertos para acceder a la oncología de precisión. Apoya la rebiopsia molecular.'
-      : 'BC-NED with FGFR1 ×13 and SSTR2+. A metastatic breast cancer patient using AI and an international expert network to access precision oncology. Support the molecular rebiopsy.',
+      ? 'Miriam tiene un cáncer de mama metastásico ultra-raro que los protocolos no cubren. Apoya las pruebas de precisión que pueden cambiar su tratamiento.'
+      : "Miriam has an ultra-rare metastatic breast cancer that protocols don't cover. Support the precision tests that could change her treatment.",
   ogTitle: () =>
     locale.value === 'es'
       ? 'Miriam González — Oncología de precisión para un tumor ultra-raro'

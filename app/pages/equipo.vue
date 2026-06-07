@@ -156,8 +156,8 @@ useSeoMeta({
   title: () => (locale.value === 'es' ? 'El equipo' : 'The team'),
   description: () =>
     locale.value === 'es'
-      ? 'El equipo internacional que trabaja en el caso de Miriam: oncólogos, especialistas en FGFR1, investigadores de IA médica y colaboradores de 3 países.'
-      : "The international team working on Miriam's case: oncologists, FGFR1 specialists, medical AI researchers, and collaborators from 3 countries.",
+      ? 'El equipo que acompaña a Miriam: medicina, investigación, IA y una red internacional para que la biología del tumor guíe el tratamiento.'
+      : "The team supporting Miriam: medicine, research, AI and an international network so the tumor's biology guides the treatment.",
   ogTitle: () => (locale.value === 'es' ? 'El equipo' : 'The team'),
   ogDescription: () =>
     locale.value === 'es'

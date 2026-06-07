@@ -142,8 +142,8 @@ useSeoMeta({
     locale.value === 'es' ? 'Cronología del caso' : 'Case timeline',
   description: () =>
     locale.value === 'es'
-      ? 'Seguimiento cronológico del caso de Miriam González: diagnóstico, tratamientos, progresión y avances en la búsqueda de oncología de precisión para BC-NED con FGFR1 ×13 y SSTR2+.'
-      : "Chronological follow-up of Miriam González's case: diagnosis, treatments, progression, and advances in the search for precision oncology for BC-NED with FGFR1 ×13 and SSTR2+.",
+      ? 'La cronología del caso de Miriam, hito a hito: del diagnóstico a la búsqueda activa de un tratamiento de precisión con una red internacional.'
+      : "Miriam's case timeline, milestone by milestone: from diagnosis to the active search for a precision treatment with an international network.",
   ogTitle: () =>
     locale.value === 'es' ? 'Cronología del caso' : 'Case timeline',
   ogDescription: () =>
