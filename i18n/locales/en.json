@@ -43,7 +43,7 @@
     "title": "Thanks to those who make it possible",
     "subtitle": "Everyone who has contributed to Miriam's case, ordered by their contribution. Thank you for being here — every amount brings the next test closer.",
     "all_title": "Everyone who has contributed",
-    "stars_line": "{star} Every contribution is a star — {n} are already shining.",
+    "stars_line": "{star} Every contribution is a star — {n} are already shining, adding up to {total}.",
     "sort_label": "Sort donations",
     "recent": "Recent",
     "top": "Top",

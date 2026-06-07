@@ -43,7 +43,7 @@
     "title": "Gracias a quienes lo hacen posible",
     "subtitle": "Quienes ya han aportado al caso de Miriam, ordenados por su aportación. Gracias por estar — cada cantidad acerca el siguiente análisis.",
     "all_title": "Todas las personas que han aportado",
-    "stars_line": "{star} Cada aportación es una estrella — ya brillan {n}.",
+    "stars_line": "{star} Cada aportación es una estrella — ya brillan {n}, que suman {total}.",
     "sort_label": "Ordenar donaciones",
     "recent": "Recientes",
     "top": "Top",

@@ -36,6 +36,9 @@
           <template #n>
             <strong class="font-semibold not-italic text-coral-deep nums">{{ sorted.length }}</strong>
           </template>
+          <template #total>
+            <strong class="font-semibold not-italic text-coral-deep nums whitespace-nowrap">{{ totalRaised }}</strong>
+          </template>
         </i18n-t>
       </div>
 
@@ -135,7 +138,7 @@
  *  · `default-sort` → pestaña inicial ('recent' | 'top').
  * Datos reales de /donations.json (función Netlify horaria). Anónimos = "Anónimo".
  */
-import type { PublicDonation } from '../../utils/fundraiser'
+import type { GoFundMeFundraiser, PublicDonation } from '../../utils/fundraiser'
 
 const props = withDefaults(
   defineProps<{
@@ -160,6 +163,8 @@ function setSort(s: 'recent' | 'top') {
   page.value = 0
 }
 
+const campaign = ref<GoFundMeFundraiser | null>(null)
+
 onMounted(async () => {
   try {
     donations.value = await $fetch<PublicDonation[]>('/donations.json')
@@ -168,6 +173,23 @@ onMounted(async () => {
   } finally {
     loaded.value = true
   }
+  try {
+    campaign.value = await $fetch<GoFundMeFundraiser>('/fundraiser.json')
+  } catch {
+    /* el total cae al sumatorio de donaciones */
+  }
+})
+
+// Total recaudado: el oficial de la campaña; si no llega, suma de donaciones.
+const totalRaised = computed(() => {
+  const official = campaign.value?.currentAmount
+  const amount = official?.amount ?? donations.value.reduce((acc, d) => acc + d.amount, 0)
+  const currency = official?.currencyCode || donations.value[0]?.currencyCode || 'EUR'
+  return new Intl.NumberFormat(locale.value === 'es' ? 'es-ES' : 'en-US', {
+    style: 'currency',
+    currency,
+    maximumFractionDigits: 0,
+  }).format(amount)
 })
 
 const sorted = computed(() => {
