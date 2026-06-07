@@ -59,7 +59,7 @@ const pct = computed(() => {
     >
       <span class="nums" style="color: #faf6f0">{{ pct }}% {{ $t('gofundme.pct_raised') }}</span>
       <NuxtLink
-        :to="localePath('donantes')"
+        :to="localePath('colabora') + '#gracias'"
         class="dw-donors-link inline-flex items-center gap-1.5 nums"
       >
         <Icon name="ph:users-three" class="size-3.5" aria-hidden="true" />
@@ -125,7 +125,7 @@ const pct = computed(() => {
         }}</span>
       </p>
       <NuxtLink
-        :to="localePath('donantes')"
+        :to="localePath('colabora') + '#gracias'"
         class="dw-donors-link inline-flex items-center gap-2 text-tinta nums"
       >
         <Icon name="ph:users-three" class="size-4" aria-hidden="true" />

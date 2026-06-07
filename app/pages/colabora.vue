@@ -173,13 +173,6 @@
       </div>
     </section>
 
-    <!-- Latido como división: perfiles y gracias comparten fondo (cream-card),
-         así que aquí la línea no compite con ningún cambio de color. -->
-    <EcgDivider class="bg-cream-card" />
-
-    <!-- ░░ GRACIAS ░░ avance del muro de donantes (8) + enlace a /donantes. -->
-    <DonationsWall :limit="8" />
-
     <!-- ░░ FINANCIAR ░░ bg-cream · remate destacado (Decisión 3·B: el dinero, al
          final). Único primario coral de la página. -->
     <section v-reveal class="section-spacing bg-cream" :aria-labelledby="'fund-title'">
@@ -217,6 +210,14 @@
         </div>
       </div>
     </section>
+
+    <!-- ░░ GRACIAS ░░ #gracias · el muro completo (paginado + constelación) justo
+         debajo de la card de apoyar: la prueba social respalda a la petición,
+         como en GoFundMe. Aquí enlaza el contador de donantes del widget. -->
+    <DonationsWall />
+
+    <!-- Latido como división: gracias y enlaces comparten fondo (cream-card). -->
+    <EcgDivider class="bg-cream-card" />
 
     <!-- ░░ ENLACES RÁPIDOS ░░ bg-cream-card · panel neutro -->
     <section v-reveal class="section-spacing bg-cream-card" :aria-labelledby="'links-title'">
