@@ -50,7 +50,7 @@ entries:
     imageAlt: "Miriam in the ICU during her hospital stay. Intubated but looking divine, doing her skincare routine."
 
   - date: 'Jul 2024'
-    tag: DIPCAN
+    tag: Molecular
     title: The tumor reveals its molecular identity
     description: >
       Miriam participates in the DIPCAN study, enabling a complete genomic analysis of the
@@ -73,11 +73,11 @@ entries:
     tag: Progression
     title: Bone progression
     description: >
-      The PET-CT of 24 Mar 2026 confirms progression of bone disease (more uptake in
-      pelvis and right femur, new foci in D1 and left iliac). Abemaciclib was already
-      dose-reduced (100 mg) due to a mild, nearly normalized transaminase rise. Zoladex
-      and zoledronic acid continue, and the search for the next strategy begins.
-    highlight: false
+      The PET-CT of 24 Mar 2026 confirms bone progression (more uptake in pelvis and right
+      femur; new foci in D1 and left iliac). On 30 Mar abemaciclib —always at 100 mg— is
+      stopped due to the progression and mild hepatotoxicity that normalized once withdrawn.
+      Zoladex and zoledronic acid continue; the search for the next strategy begins.
+    highlight: true
 
   - date: 'Apr 2026'
     tag: Team
@@ -152,11 +152,11 @@ entries:
 
   - date: 'May 2026'
     tag: Third line
-    title: Change of strategy
+    title: The third line is offered
     description: >
-      Because of the progression and the ESR1 resistance mutation (D538G), abemaciclib is
-      withdrawn. Elacestrant is offered as a standard 3rd line (funding approved), pending
-      start, while clinical trials and the radioligand route are evaluated in parallel.
+      With the ESR1 resistance mutation (D538G) confirmed in blood, elacestrant is offered
+      as a standard 3rd line (public funding approved), pending start. In parallel, clinical
+      trials and the radioligand route (PRRT) are evaluated.
     highlight: false
   - date: 'May 17, 2026'
     tag: Outreach
@@ -169,7 +169,7 @@ entries:
     linkLabel: 'Watch the video →'
 
   - date: 'May 21, 2026'
-    tag: Clinical
+    tag: Molecular
     title: Experts from several countries review the case
     description: >
       The WIN Consortium international molecular tumor board meets to review Miriam's case.
@@ -186,13 +186,3 @@ entries:
     highlight: true
     link: https://x.com/miriamgonp/status/2060649242037723567
     linkLabel: 'See the Ga-68 PET thread →'
-
-  - date: 'Jun 2026'
-    tag: Treatment
-    title: Waiting for a new line
-    description: >
-      Still without a new active line. In screening (prescreening) for two phase 3
-      clinical trials: ADELA (elacestrant + everolimus, for ESR1-mutated tumors) and
-      KATSIS-1 (KAT6 inhibitor prifetrastat + fulvestrant). A screening breast rebiopsy
-      has been performed for ADELA/KATSIS.
-    highlight: true

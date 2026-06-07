@@ -30,8 +30,9 @@
     "hint": "Toca o pasa el cursor por las palabras subrayadas para ver qué significan."
   },
   "counter": {
+    "now": "Ahora",
     "label": "días esperando una nueva línea de tratamiento",
-    "sub": "desde que se suspendió la 2ª línea (abemaciclib), el 30/04/2026"
+    "sub": "desde la suspensión de abemaciclib, el 30/03/2026"
   },
   "thanksWall": {
     "eyebrow": "Gracias",
@@ -411,7 +412,7 @@
     "snapshot_target_label": "Diana funcional",
     "snapshot_target": "SSTR2+ en PET Ga-68 → candidata a radioligandos (PRRT)",
     "snapshot_status_label": "Estado 2026",
-    "snapshot_status": "ECOG 1 · metástasis óseas múltiples (sin afectación visceral) · abemaciclib retirado (mayo 2026)",
+    "snapshot_status": "ECOG 1 · metástasis óseas múltiples (sin afectación visceral) · abemaciclib retirado (30/03/2026)",
     "snapshot_grade_label": "Receptores y grado",
     "snapshot_grade": "RE 95% · RP 5% · HER2 0 (ultralow) · Ki67 60% · G2 (Nottingham) · TMB y MSI bajos",
     "snapshot_diagnosis_tag": "Estadio IV",
@@ -423,8 +424,8 @@
     "molecular_profile_title": "El mapa genómico del tumor",
     "ctdna_dynamics_title": "Cómo evoluciona en sangre",
     "ctdna_dynamics_intro": "El tumor no es estático: el ctDNA sigue sus cambios (VAF) a lo largo de tres extracciones de plasma, sin necesidad de biopsiar.",
-    "app_inline_text": "¿Investigas este perfil o lo ves en consulta? Accede a los informes clínicos completos del caso —secuenciación, ctDNA (VAF) e imagen— en formato estructurado para revisarlos o descargarlos.",
-    "app_inline_cta": "Solicitar los informes",
+    "app_inline_text": "¿Quieres profundizar en el caso? Consigue los informes clínicos completos —secuenciación, ctDNA (VAF) e imagen— en formato estructurado para revisarlos o descargarlos.",
+    "app_inline_cta": "Conseguir los informes",
     "app_hook_eyebrow": "Pronto · para oncología e investigación",
     "app_hook_title": "El caso completo, en formato consultable",
     "app_hook_body": "Accede al caso de Miriam como dataset clínico estructurado: cronología, informes, perfil molecular (FGFR1, SSTR2, ESR1, ctDNA) y la respuesta a cada línea de tratamiento. Consultable y exportable para segundas opiniones y comités de tumores (MTB).",
