@@ -7,7 +7,11 @@
   >
     <!-- Cielo de estrellas (las del logo) en toda la sección; la máscara las
          atenúa en la zona del texto y la tabla esmerilada deja verlas debajo. -->
-    <Constellation class="dw-sky" :count="donations.length || 60" />
+    <Constellation
+      class="dw-sky"
+      :count="donations.length || 60"
+      :amounts="donations.map((d) => d.amount)"
+    />
     <div class="section-container relative z-10">
       <div class="mb-6">
         <p class="eyebrow mb-3 block">{{ $t('thanksWall.eyebrow') }}</p>
@@ -41,6 +45,10 @@
             <strong class="font-semibold not-italic text-coral-deep nums whitespace-nowrap">{{ totalRaised }}</strong>
           </template>
         </i18n-t>
+        <!-- La ciencia de la metáfora, en nota al margen: magnitud logarítmica. -->
+        <Nota v-if="loaded && sorted.length" class="mt-2">
+          {{ $t('thanksWall.magnitude_note') }}
+        </Nota>
       </div>
 
       <!-- Pestañas estilo GoFundMe: Recientes · Top -->
@@ -242,6 +250,27 @@ function timeAgo(iso?: string): string {
     rgba(0, 0, 0, 0.35) 45%,
     rgba(0, 0, 0, 1) 75%
   );
+}
+/* Móvil: el texto ocupa todo el ancho, así que la máscara lateral apagaría el
+   cielo entero. Pasa a vertical: banda superior brillante, suave tras el texto
+   y la tabla (que ya va esmerilada), y remonta hacia la paginación. */
+@media (max-width: 639px) {
+  .dw-sky {
+    -webkit-mask-image: linear-gradient(
+      180deg,
+      rgba(0, 0, 0, 0.9) 0%,
+      rgba(0, 0, 0, 0.45) 28%,
+      rgba(0, 0, 0, 0.5) 75%,
+      rgba(0, 0, 0, 0.95) 100%
+    );
+    mask-image: linear-gradient(
+      180deg,
+      rgba(0, 0, 0, 0.9) 0%,
+      rgba(0, 0, 0, 0.45) 28%,
+      rgba(0, 0, 0, 0.5) 75%,
+      rgba(0, 0, 0, 0.95) 100%
+    );
+  }
 }
 
 .dw-page-btn {

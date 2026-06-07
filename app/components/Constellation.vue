@@ -1,6 +1,21 @@
 <template>
   <ClientOnly>
     <div class="constellation" aria-hidden="true">
+      <!-- Carta celeste: trazos finos entre estrellas vecinas. Las constelaciones
+           nunca fueron los astros — son las líneas que dibujamos para navegar. -->
+      <svg class="constellation__lines" viewBox="0 0 100 100" preserveAspectRatio="none">
+        <line
+          v-for="(l, i) in lines"
+          :key="i"
+          :x1="l.x1"
+          :y1="l.y1"
+          :x2="l.x2"
+          :y2="l.y2"
+          stroke="#9d44ab"
+          stroke-width="1"
+          vector-effect="non-scaling-stroke"
+        />
+      </svg>
       <svg
         v-for="(s, i) in stars"
         :key="i"
@@ -11,7 +26,7 @@
           top: s.y + '%',
           width: s.size + 'px',
           height: s.size + 'px',
-          opacity: s.new ? undefined : s.o,
+          '--o': String(s.o),
         }"
         viewBox="0 0 20 20"
       >
@@ -26,12 +41,21 @@
 
 <script setup lang="ts">
 /**
- * Constelación de quienes apoyan — la estrella de 4 puntas del logo, en
- * TAMAÑO FIJO en píxeles (5–11px): no escala con la sección, así nunca se
- * hace grande aunque la página sea larga. Posiciones deterministas (PRNG),
- * tope de estrellas, decorativa (aria-hidden) y ClientOnly.
+ * Constelación de quienes apoyan — metáfora con la ciencia de verdad dentro:
+ *  · Estrella de 4 puntas = picos de difracción (así se ven los astros en
+ *    las fotos de telescopio; el logo ya lo era).
+ *  · MAGNITUD: si llegan importes, el tamaño sigue una escala logarítmica
+ *    (como la magnitud de Pogson): una aportación 100× mayor brilla solo
+ *    unos pasos más — todas cuentan, ninguna eclipsa a las demás.
+ *  · LÍNEAS: cada estrella se une a su vecina más cercana, como en una
+ *    carta celeste: la constelación es el mapa, no los puntos.
+ * Tamaños FIJOS en píxeles (no escalan con la sección), posiciones
+ * deterministas (PRNG con semilla), tope de estrellas, decorativa
+ * (aria-hidden) y ClientOnly. En móvil sube la opacidad (media query).
  */
-const props = withDefaults(defineProps<{ count?: number }>(), { count: 60 })
+const props = withDefaults(defineProps<{ count?: number; amounts?: number[] }>(), {
+  count: 60,
+})
 
 function mulberry32(seed: number) {
   let a = seed
@@ -44,23 +68,60 @@ function mulberry32(seed: number) {
   }
 }
 
-const stars = computed(() => {
+interface Star {
+  x: number
+  y: number
+  size: number
+  o: number
+  new: boolean
+}
+
+const sky = computed(() => {
   const n = Math.max(18, Math.min(Math.round(props.count / 12), 70))
   const rnd = mulberry32(20240127)
-  const out: { x: number; y: number; size: number; o: number; new: boolean }[] = []
+  const amts = (props.amounts ?? []).filter((a) => a > 0)
+  const median = amts.length ? [...amts].sort((a, b) => a - b)[Math.floor(amts.length / 2)]! : 0
+
+  const stars: Star[] = []
   for (let i = 0; i < n; i++) {
-    out.push({
-      x: +(rnd() * 100).toFixed(2),
-      y: +(rnd() * 100).toFixed(2),
-      size: +(5 + rnd() * 6).toFixed(1),
-      o: +(0.16 + rnd() * 0.34).toFixed(2),
-      new: false,
-    })
+    const x = +(rnd() * 100).toFixed(2)
+    const y = +(rnd() * 100).toFixed(2)
+    const o = +(0.16 + rnd() * 0.34).toFixed(2)
+    let size = +(5 + rnd() * 6).toFixed(1)
+    if (median > 0) {
+      // Magnitud (log): 6px en la mediana, ±2.2px por década de importe.
+      const a = amts[Math.floor(rnd() * amts.length)]!
+      size = +Math.min(12, Math.max(4.5, 6 + 2.2 * Math.log10(a / median))).toFixed(1)
+    }
+    stars.push({ x, y, size, o, new: false })
   }
-  // La estrella nueva (coral): la de quien acaba de llegar.
-  out.push({ x: 50, y: 26, size: 14, o: 1, new: true })
-  return out
+  // La estrella nueva (coral): la de quien acaba de llegar — recién descubierta.
+  stars.push({ x: 50, y: 26, size: 14, o: 1, new: true })
+
+  // Bosque de segmentos: cada estrella con su vecina previa más cercana.
+  const lines: { x1: number; y1: number; x2: number; y2: number }[] = []
+  const MAX_D2 = 24 * 24
+  for (let i = 1; i < stars.length; i++) {
+    let best = -1
+    let bd = Infinity
+    for (let j = 0; j < i; j++) {
+      const dx = stars[i]!.x - stars[j]!.x
+      const dy = stars[i]!.y - stars[j]!.y
+      const d2 = dx * dx + dy * dy
+      if (d2 < bd) {
+        bd = d2
+        best = j
+      }
+    }
+    if (best >= 0 && bd < MAX_D2) {
+      lines.push({ x1: stars[i]!.x, y1: stars[i]!.y, x2: stars[best]!.x, y2: stars[best]!.y })
+    }
+  }
+  return { stars, lines }
 })
+
+const stars = computed(() => sky.value.stars)
+const lines = computed(() => sky.value.lines)
 </script>
 
 <style scoped>
@@ -71,13 +132,27 @@ const stars = computed(() => {
   pointer-events: none;
   overflow: hidden;
 }
+.constellation__lines {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0.12;
+}
 .constellation__star {
   position: absolute;
   display: block;
   transform: translate(-50%, -50%);
+  opacity: var(--o, 0.3);
 }
-.constellation__new {
-  opacity: 1;
+/* Móvil: el cielo gana presencia (pantalla pequeña, máscara vertical aparte). */
+@media (max-width: 639px) {
+  .constellation__star {
+    opacity: calc(var(--o, 0.3) + 0.15);
+  }
+  .constellation__lines {
+    opacity: 0.18;
+  }
 }
 @keyframes star-ignite {
   0% { opacity: 0; }
