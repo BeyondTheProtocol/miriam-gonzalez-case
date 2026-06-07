@@ -1,0 +1,8 @@
+{
+  "_nota": "Ranking de EMBAJADORES (difusión), no de dinero. Cada persona tiene un 'ref' que usa en su enlace: helpmiriam.com/?ref=CODE. Se ordena por donaciones/clics atribuidos vía Plausible (evento 'Apoyar' + propiedad 'ref'). NUNCA se muestran importes. Módulo opcional (fase 2): requiere añadir la propiedad personalizada 'ref' en Plausible.",
+  "labels": {
+    "es": { "title": "Embajadores que mueven el caso", "subtitle": "Quien más lo comparte, más cerca pone el siguiente análisis.", "metric": "personas han llegado gracias a ti" },
+    "en": { "title": "Ambassadors moving the case", "subtitle": "The more you share, the closer the next test.", "metric": "people reached thanks to you" }
+  },
+  "entries": []
+}

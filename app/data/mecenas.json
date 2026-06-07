@@ -1,0 +1,28 @@
+{
+  "_nota": "Muro de mecenas / Wall of patrons — lista propia, independiente de la pasarela de pago. Para añadir a alguien, copia un objeto de 'entries' y rellénalo. Pon 'anonymous': true para no mostrar el nombre. 'message' se muestra tal cual lo escribió la persona. Publica SOLO con su consentimiento (RGPD). NUNCA se muestran importes por persona.",
+  "labels": {
+    "es": {
+      "title": "Gracias a quienes lo hacen posible",
+      "subtitle": "Cada aportación —de dinero, tiempo o difusión— acerca el siguiente análisis.",
+      "anon": "Anónimo",
+      "tiers": { "mecenas": "Mecenas", "impulsor": "Impulsor", "colaborador": "Colaborador", "difusion": "Difusión" }
+    },
+    "en": {
+      "title": "Thanks to those who make it possible",
+      "subtitle": "Every contribution —money, time or sharing— brings the next test closer.",
+      "anon": "Anonymous",
+      "tiers": { "mecenas": "Patron", "impulsor": "Backer", "colaborador": "Collaborator", "difusion": "Outreach" }
+    }
+  },
+  "entries": [
+    {
+      "name": "Tahe Cosmetics",
+      "tier": "colaborador",
+      "message": "",
+      "date": "2026-05-01",
+      "anonymous": false,
+      "type": "colaborador",
+      "url": "https://tahecosmetics.com"
+    }
+  ]
+}

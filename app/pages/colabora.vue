@@ -173,6 +173,10 @@
       </div>
     </section>
 
+    <!-- ░░ GRACIAS ░░ P6·Módulo 1 — muro de quienes ya apoyan (prueba social
+         antes de la pedida). Sin importes por persona (RGPD). -->
+    <MecenasWall />
+
     <!-- ░░ FINANCIAR ░░ bg-cream · remate destacado (Decisión 3·B: el dinero, al
          final). Único primario coral de la página. -->
     <section v-reveal class="section-spacing bg-cream" :aria-labelledby="'fund-title'">
