@@ -3,9 +3,9 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "nuxt build",
-    "dev": "nuxt dev",
-    "generate": "nuxt generate",
+    "build": "pnpm update-fundraiser && nuxt build",
+    "dev": "pnpm update-fundraiser --force && nuxt dev",
+    "generate": "pnpm update-fundraiser && nuxt generate",
     "preview": "nuxt preview",
     "postinstall": "nuxt prepare",
     "format": "oxfmt",
@@ -13,9 +13,11 @@
     "lint": "oxlint",
     "lint:fix": "oxlint --fix",
     "lint:github": "oxlint --format=github",
-    "icons": "nuxt-seo-utils icons --source favicon.svg"
+    "icons": "nuxt-seo-utils icons --source favicon.svg",
+    "update-fundraiser": "tsx update-fundraiser.ts"
   },
   "dependencies": {
+    "@netlify/functions": "^5.3.0",
     "@nuxt/content": "^3.13.0",
     "@nuxtjs/i18n": "^10.3.0",
     "@nuxtjs/plausible": "3.0.2",
@@ -35,10 +37,12 @@
     "@nuxt/icon": "^1.12.0",
     "@nuxtjs/tailwindcss": "^6.13.0",
     "@tailwindcss/typography": "^0.5.16",
+    "@types/node": "^25.9.1",
     "nuxt-seo-utils": "^8.1.11",
     "oxfmt": "^0.50.0",
     "oxlint": "^1.65.0",
+    "tsx": "^4.22.4",
     "typescript": "^5.7.0"
   },
-  "packageManager": "pnpm@11.0.9"
+  "packageManager": "pnpm@11.5.1"
 }

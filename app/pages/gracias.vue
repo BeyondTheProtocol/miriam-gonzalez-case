@@ -45,7 +45,11 @@ const { t } = useI18n()
 const localePath = useLocalePath()
 
 // Densidad de la constelación ~ donantes (solo para el cielo, no 1:1).
-const { data: campaign } = useGoFundMe('biopsia-molecular-que-puede-cambiar-su-tratamiento')
+// Datos de campaña: JSON estático de main (función Netlify), carga en cliente.
+const campaign = ref<import('../../utils/fundraiser').GoFundMeFundraiser | null>(null)
+onMounted(async () => {
+  campaign.value = await $fetch('/fundraiser.json')
+})
 const donorCount = computed(() => campaign.value?.donationCount ?? 60)
 
 // Página de cortesía post-donación: no debe indexarse.

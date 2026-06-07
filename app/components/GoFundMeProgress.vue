@@ -1,15 +1,17 @@
 <script setup lang="ts">
+import type { GoFundMeFundraiser } from '../../utils/fundraiser'
+
 withDefaults(defineProps<{ card?: boolean }>(), { card: false })
 
 const { locale } = useI18n()
 const { trackSupport } = useSupport()
-const { data } = useGoFundMe(
-  'biopsia-molecular-que-puede-cambiar-su-tratamiento'
-)
 
-const elapsed = computed(() =>
-  getCampaignElapsed(data.value?.launchDate, locale.value)
-)
+// Datos de la campaña: JSON estático regenerado por la función de Netlify
+// (arquitectura de main). Se carga en cliente; las cifras tienen fallback.
+const data = ref<GoFundMeFundraiser | null>(null)
+onMounted(async () => {
+  data.value = await $fetch('/fundraiser.json')
+})
 
 const pct = computed(() => {
   if (!data.value) return 0
@@ -58,10 +60,6 @@ const pct = computed(() => {
       <span class="inline-flex items-center gap-1.5 nums">
         <Icon name="ph:users-three" class="size-3.5" aria-hidden="true" />
         {{ data.donationCount }} {{ $t('gofundme.donators') }}
-      </span>
-      <span class="inline-flex items-center gap-1.5 nums">
-        <Icon name="ph:clock" class="size-3.5" aria-hidden="true" />
-        {{ elapsed }} {{ $t('gofundme.active_for') }}
       </span>
     </div>
 
@@ -124,10 +122,6 @@ const pct = computed(() => {
       <p class="inline-flex items-center gap-2 text-tinta nums">
         <Icon name="ph:users-three" class="size-4" aria-hidden="true" />
         {{ data.donationCount }} {{ $t('gofundme.donators') }}
-      </p>
-      <p class="inline-flex items-center gap-2 text-tinta nums">
-        <Icon name="ph:clock" class="size-4" aria-hidden="true" />
-        {{ elapsed }} {{ $t('gofundme.active_for') }}
       </p>
     </div>
   </div>

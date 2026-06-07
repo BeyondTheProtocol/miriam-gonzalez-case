@@ -176,9 +176,11 @@ const localePath = useLocalePath()
 const { locale, t } = useI18n()
 const { trackSupport } = useSupport()
 
-const { data: gofundme } = useGoFundMe(
-  'biopsia-molecular-que-puede-cambiar-su-tratamiento'
-)
+// Datos de campaña: JSON estático de main (función Netlify). Carga en cliente.
+const gofundme = ref<import('../../utils/fundraiser').GoFundMeFundraiser | null>(null)
+onMounted(async () => {
+  gofundme.value = await $fetch('/fundraiser.json')
+})
 
 // Lo más reciente de la cronología: las entradas están ordenadas de más
 // antigua a más nueva, así que la última del array es el hito actual.
