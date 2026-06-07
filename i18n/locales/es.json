@@ -53,6 +53,13 @@
     "page": "{c} de {t}",
     "empty": "Aún no hay donaciones que mostrar."
   },
+  "thanksWall": {
+    "eyebrow": "Gracias",
+    "title": "Gracias a quienes lo hacen posible",
+    "subtitle": "Todas las personas que ya han aportado al caso de Miriam. Gracias por estar — cada cantidad acerca el siguiente análisis.",
+    "see_all": "Ver a las {n} personas",
+    "empty": "Aún no hay donaciones que mostrar."
+  },
   "error": {
     "e404_code": "Error 404",
     "e404_label": "Página no encontrada",

@@ -53,6 +53,13 @@
     "page": "{c} of {t}",
     "empty": "No donations to show yet."
   },
+  "thanksWall": {
+    "eyebrow": "Thank you",
+    "title": "Thanks to those who make it possible",
+    "subtitle": "Everyone who has already contributed to Miriam's case. Thank you for being here — every amount brings the next test closer.",
+    "see_all": "See all {n} people",
+    "empty": "No donations to show yet."
+  },
   "error": {
     "e404_code": "Error 404",
     "e404_label": "Page not found",
