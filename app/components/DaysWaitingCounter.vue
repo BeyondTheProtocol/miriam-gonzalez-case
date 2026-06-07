@@ -1,44 +1,27 @@
 <template>
-  <!-- Nota de estado, no hito: el raíl es solo para hechos ocurridos. Esto es
-       un apunte discreto "a tener en cuenta" — mini-card sutil con el punto
-       vivo, arriba de la cronología. -->
-  <div
-    class="inline-flex items-start gap-3 rounded-xl px-4 py-3"
-    style="background: rgba(255, 107, 71, 0.06); border: 1px solid rgba(255, 107, 71, 0.18)"
+  <!-- El dato de estado del caso como tag destacado entre los metadatos de la
+       cronología: coral, negrita y punto vivo — lo único que late en la fila.
+       El title lleva la frase completa para quien quiera el detalle. -->
+  <span
+    class="counter-tag inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 font-mono text-[11px] uppercase tracking-[0.08em] font-semibold text-coral-deep"
     role="status"
     aria-live="polite"
+    :title="$t('counter.label')"
   >
-    <span
-      class="counter-dot mt-[7px] w-2 h-2 shrink-0 rounded-full"
-      style="background: #bb4128"
-      aria-hidden="true"
-    />
-    <div>
-      <p class="text-sm text-berenjena font-semibold leading-snug">
-        <span class="font-display text-coral-deep nums text-xl leading-none align-[-1px]">{{ days }}</span>
-        {{ $t('counter.label') }}
-      </p>
-      <p class="mt-0.5 text-xs text-tinta">{{ $t('counter.sub') }}</p>
-    </div>
-  </div>
+    <span class="counter-dot w-1.5 h-1.5 shrink-0 rounded-full bg-coral" aria-hidden="true" />
+    <span><span class="nums">{{ days }}</span> {{ $t('counter.short') }}</span>
+  </span>
 </template>
 
 <script setup lang="ts">
-/**
- * Contador "días esperando una nueva línea de tratamiento".
- * Día 0 = 30/03/2026, suspensión de abemaciclib (fin de la 2ª línea).
- * Texto real (role=status, aria-live).
- */
-const DAY_ZERO = '2026-03-30'
-const days = computed(() =>
-  Math.max(
-    0,
-    Math.floor((Date.now() - new Date(`${DAY_ZERO}T00:00:00`).getTime()) / 86400000)
-  )
-)
+const { days } = useDaysWaiting()
 </script>
 
 <style scoped>
+.counter-tag {
+  background: rgba(255, 107, 71, 0.1);
+  border: 1px solid rgba(255, 107, 71, 0.3);
+}
 @media (prefers-reduced-motion: no-preference) {
   .counter-dot {
     animation: counter-pulse 2.4s ease-in-out infinite;

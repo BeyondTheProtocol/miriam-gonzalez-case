@@ -1,10 +1,11 @@
 <template>
-  <li class="relative pl-8 pb-9 last:pb-0 group">
+  <li :id="live ? 'lo-ultimo' : undefined" class="relative pl-8 pb-9 last:pb-0 group scroll-mt-24">
     <!-- Dot · color por categoría (clinical/molecular/network); el más reciente
-         destacado late en coral -->
+         destacado late en coral. `echo` = doble pulso de saludo al aterrizar
+         desde "Lo último" del hero. -->
     <div
       class="tl-dot absolute left-0 top-1.5 w-[23px] h-[23px] rounded-full flex items-center justify-center transition-transform duration-200 group-hover:scale-110"
-      :class="{ 'tl-dot-live': live }"
+      :class="{ 'tl-dot-live': live, 'tl-dot-echo': echo }"
       :style="dotStyle"
     >
       <div class="w-2 h-2 rounded-full transition-colors" :style="innerStyle" />
@@ -54,6 +55,7 @@
 <script setup lang="ts">
 const props = defineProps<{
   live?: boolean
+  echo?: boolean
   entry: {
     date: string
     tag?: string
@@ -91,6 +93,14 @@ const innerStyle = computed(() => {
   0%, 100% { box-shadow: 0 0 0 0 rgba(255, 107, 71, 0.35); }
   50% { box-shadow: 0 0 0 6px rgba(255, 107, 71, 0); }
 }
+/* Eco de llegada: doble pulso más amplio, una sola vez, y vuelve a la calma. */
+.tl-dot-echo {
+  animation: tl-echo 1.2s ease-in-out 2;
+}
+@keyframes tl-echo {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(255, 107, 71, 0.5); }
+  50% { box-shadow: 0 0 0 14px rgba(255, 107, 71, 0); }
+}
 /* Afordancia del enlace: leve realce de fondo al pasar/enfocar (toque cómodo). */
 .tl-link:hover,
 .tl-link:focus-visible {
@@ -104,6 +114,7 @@ const innerStyle = computed(() => {
 }
 @media (prefers-reduced-motion: reduce) {
   .tl-dot-live { animation: none; }
+  .tl-dot-echo { animation: none; }
   .tl-dot { transition: none; }
 }
 </style>

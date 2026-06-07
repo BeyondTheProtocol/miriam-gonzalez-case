@@ -6,30 +6,35 @@
           :title="$t('timeline.title')"
           :subtitle="$t('timeline.subtitle')"
         >
-          <!-- Recorrido de un vistazo: da escala emocional (de un email a una red
-               internacional) antes de entrar al detalle. -->
-          <p class="mt-5 font-mono text-[11px] uppercase tracking-[0.12em] text-tinta flex flex-wrap items-center gap-x-2.5 gap-y-1.5">
-            <span class="inline-flex items-center gap-1.5">
-              <span class="hero-live-dot h-1.5 w-1.5 rounded-full bg-coral" aria-hidden="true" />
-              {{ $t('timeline.meta_milestones', { count: counts.all }) }}
-            </span>
+          <!-- El dato importante es LA ÚNICA píldora de esta fila (coral, punto
+               vivo): así destaca y no se confunde con los filtros de abajo. El
+               resto de la escala (hitos · años · red) va en texto plano. -->
+          <div class="mt-5 flex flex-wrap items-center gap-x-2.5 gap-y-2 font-mono text-[11px] uppercase tracking-[0.12em] text-tinta">
+            <DaysWaitingCounter class="mr-1" />
+            <span>{{ $t('timeline.meta_milestones', { count: counts.all }) }}</span>
             <span class="text-tinta/35" aria-hidden="true">·</span>
             <span>{{ $t('timeline.meta_span') }}</span>
             <span class="text-tinta/35" aria-hidden="true">·</span>
             <span>{{ $t('timeline.meta_network') }}</span>
-          </p>
+          </div>
         </PageHeader>
-
-        <!-- Nota de estado (no es un hito): días sin línea activa, discreto. -->
-        <DaysWaitingCounter class="mb-10" />
 
         <!-- Filtro por tipo de hito: doble público — quien busca la ciencia salta a
              «Perfil molecular»; quien sigue la historia, a «Equipo y difusión». -->
         <div
-          class="flex flex-wrap gap-2 mb-10 -mt-2"
+          class="flex flex-wrap items-center gap-2 mb-10 -mt-2"
           role="group"
           :aria-label="$t('timeline.filter_aria')"
         >
+          <!-- Etiqueta de función: deja claro que estas píldoras son controles,
+               no datos (evita confundirlas con la fila meta de arriba). -->
+          <span
+            class="inline-flex items-center gap-1.5 mr-1 font-mono text-[11px] uppercase tracking-[0.12em] text-tinta"
+            aria-hidden="true"
+          >
+            <Icon name="ph:funnel-simple" class="w-3.5 h-3.5" />
+            {{ $t('timeline.filter_label') }}
+          </span>
           <button
             v-for="opt in chipOptions"
             :key="opt.key"
@@ -68,18 +73,10 @@
               v-reveal
               class="tl-group"
             >
-              <!-- Estación de año (capítulo) -->
-              <div class="relative pl-8 pt-1 pb-5">
-                <span
-                  aria-hidden="true"
-                  class="absolute left-[2px] top-[3px] w-[19px] h-[19px] rounded-full flex items-center justify-center"
-                  style="background:#faf6f0;border:2px solid rgba(45,27,61,0.32)"
-                >
-                  <span class="w-[7px] h-[7px] rounded-full" style="background:#2d1b3d" />
-                </span>
-                <h2 class="font-mono text-[15px] font-semibold text-berenjena tracking-[0.04em] nums">
-                  {{ group.year }}
-                </h2>
+              <!-- Año = cabecera de capítulo: chip sólido que interrumpe el raíl.
+                   No se confunde con los puntos redondos de los hitos. -->
+              <div class="relative pt-3 pb-5 first:pt-0">
+                <h2 class="tl-year nums">{{ group.year }}</h2>
               </div>
               <ul>
                 <TimelineEntry
@@ -87,22 +84,13 @@
                   :key="entry.date"
                   :entry="entry"
                   :live="entry.date === liveDate"
+                  :echo="echo && entry.date === liveDate"
                 />
               </ul>
             </div>
           </div>
 
-          <!-- Nodo terminal · el raíl se cierra en un punto sereno tras recorrer
-               toda la historia: cierre visual sin cortar en seco. -->
-          <div class="relative pl-8 h-6">
-            <span
-              aria-hidden="true"
-              class="absolute left-[2px] top-0 w-[19px] h-[19px] rounded-full flex items-center justify-center"
-              style="background:#faf6f0;border:2px solid rgba(45,27,61,0.32)"
-            >
-              <span class="w-[7px] h-[7px] rounded-full" style="background:#2d1b3d" />
-            </span>
-          </div>
+          <!-- El raíl se desvanece solo (gradiente); sin nodo terminal duro. -->
         </div>
 
         <!-- Conclusión · anotación de cierre, separada del recorrido por un filete -->
@@ -140,6 +128,17 @@
 <script setup lang="ts">
 const { locale, t } = useI18n()
 const localePath = useLocalePath()
+const route = useRoute()
+
+// Eco al aterrizar: si se llega desde "Lo último" del hero (#lo-ultimo), el
+// hito vivo saluda con un doble pulso y se calma.
+const echo = ref(false)
+onMounted(() => {
+  if (route.hash === '#lo-ultimo') {
+    echo.value = true
+    window.setTimeout(() => (echo.value = false), 2800)
+  }
+})
 
 useSeoMeta({
   title: () =>
@@ -233,6 +232,22 @@ const groups = computed(() => {
 </script>
 
 <style scoped>
+/* Año = cabecera de capítulo: chip sólido berenjena que interrumpe el raíl.
+   Inconfundible frente a los puntos redondos de los hitos. */
+.tl-year {
+  display: inline-flex;
+  align-items: center;
+  position: relative;
+  background: #2d1b3d;
+  color: #faf6f0;
+  font-family: 'Fraunces', Georgia, serif;
+  font-weight: 600;
+  font-size: 15px;
+  letter-spacing: 0.04em;
+  padding: 4px 12px;
+  border-radius: 8px;
+}
+
 /* Píldoras de filtro: toque cómodo (>=40px alto), acento de categoría al activar. */
 .tl-chip {
   display: inline-flex;
