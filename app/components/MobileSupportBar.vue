@@ -39,6 +39,18 @@ const { GOFUNDME_URL, trackSupport } = useSupport()
 
 const visible = ref(false)
 
+// ¿Hay un botón coral de apoyo (data-support-cta) dentro del viewport? Si lo hay,
+// ocultamos la barra para no mostrar dos CTA coral idénticos a la vez.
+function anyCtaVisible(): boolean {
+  if (typeof document === 'undefined') return false
+  const els = document.querySelectorAll<HTMLElement>('[data-support-cta]')
+  for (const el of els) {
+    const r = el.getBoundingClientRect()
+    if (r.bottom > 0 && r.top < window.innerHeight) return true
+  }
+  return false
+}
+
 function update() {
   if (typeof window === 'undefined') return
   if (route.path.includes('gracias')) {
@@ -48,7 +60,7 @@ function update() {
   const pastHero = y.value > 480
   const docH = document.documentElement.scrollHeight
   const nearBottom = y.value + window.innerHeight >= docH - 240
-  visible.value = pastHero && !nearBottom
+  visible.value = pastHero && !nearBottom && !anyCtaVisible()
 }
 
 watch(y, update)

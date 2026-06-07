@@ -4,7 +4,7 @@
  * definición en hover/focus/tap, sin sacar al usuario de la página. El
  * `aria-label` lleva término + definición para lectores de pantalla.
  */
-const props = defineProps<{ id: string }>()
+const props = defineProps<{ id: string; label?: string; variant?: 'inline' | 'badge' }>()
 const { locale } = useI18n()
 
 type Entry = { es: { label: string; def: string }; en: { label: string; def: string } }
@@ -140,6 +140,66 @@ const GLOSSARY: Record<string, Entry> = {
       def: 'ECOG scale, grade 0 — fully active: able to carry on all normal, pre-illness activities without restriction.',
     },
   },
+  ki67: {
+    es: {
+      label: 'Ki67 60%',
+      def: 'Marca cuántas células del tumor se están dividiendo; un valor alto indica un tumor más proliferativo.',
+    },
+    en: {
+      label: 'Ki67 60%',
+      def: 'Shows how many tumor cells are dividing; a high value means a more proliferative tumor.',
+    },
+  },
+  nec: {
+    es: {
+      label: 'NEC G3',
+      def: 'Carcinoma neuroendocrino de alto grado: una hipótesis del caso, aún pendiente de confirmar.',
+    },
+    en: {
+      label: 'NEC G3',
+      def: 'High-grade neuroendocrine carcinoma: a hypothesis in this case, still to be confirmed.',
+    },
+  },
+  her2: {
+    es: {
+      label: 'HER2−',
+      def: 'Proteína que en otros cánceres de mama guía el tratamiento; en este tumor es negativa.',
+    },
+    en: {
+      label: 'HER2−',
+      def: 'A protein that guides treatment in other breast cancers; in this tumor it is negative.',
+    },
+  },
+  hr: {
+    es: {
+      label: 'HR+',
+      def: 'El tumor crece con hormonas (receptores de estrógeno y progesterona positivos).',
+    },
+    en: {
+      label: 'HR+',
+      def: 'The tumor grows with hormones (estrogen and progesterone receptor positive).',
+    },
+  },
+  metastasico: {
+    es: {
+      label: 'metastásico',
+      def: 'El cáncer se ha extendido más allá de la mama; en su caso, al hueso.',
+    },
+    en: {
+      label: 'metastatic',
+      def: 'The cancer has spread beyond the breast; in her case, to the bone.',
+    },
+  },
+  radioligandos: {
+    es: {
+      label: 'radioligandos (PRRT)',
+      def: 'Tratamiento que lleva una partícula radiactiva directa a las células que expresan la diana SSTR2.',
+    },
+    en: {
+      label: 'radioligands (PRRT)',
+      def: 'A therapy that delivers a radioactive particle straight to cells expressing the SSTR2 target.',
+    },
+  },
 }
 
 const entry = computed(() => {
@@ -197,7 +257,8 @@ function hide() {
   open.value = false
 }
 function toggle() {
-  open.value ? hide() : show()
+  if (open.value) hide()
+  else show()
 }
 
 watch(open, (isOpen) => {
@@ -225,7 +286,7 @@ onClickOutside(triggerRef, () => hide(), { ignore: [popRef] })
     <button
       ref="triggerRef"
       type="button"
-      class="term"
+      :class="['term', variant === 'badge' && 'term--badge']"
       :aria-label="`${entry.label}. ${entry.def}`"
       :aria-expanded="open"
       @click="toggle"
@@ -233,7 +294,7 @@ onClickOutside(triggerRef, () => hide(), { ignore: [popRef] })
       @mouseleave="canHover() && hide()"
       @keydown.escape="hide"
       @blur="hide"
-    >{{ entry.label }}</button>
+    >{{ label ?? entry.label }}</button>
     <Teleport to="body">
       <span
         v-if="open && entry.def"
@@ -286,6 +347,32 @@ onClickOutside(triggerRef, () => hide(), { ignore: [popRef] })
   outline: 2px solid #ff6b47;
   outline-offset: 2px;
   border-radius: 2px;
+}
+/* Variante "badge": mantiene el pill genómico (miriam-soft) pero es disparador
+   de tooltip. Anula los resets de .term (sin subrayado, con fondo y padding). */
+.term--badge {
+  display: inline-block;
+  background: #e8d4ed; /* miriam-soft */
+  color: #2d1b3d; /* berenjena */
+  border-radius: 9999px;
+  padding: 4px 12px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0;
+  line-height: 1.2;
+  text-decoration: none;
+  border: 1px solid transparent;
+  cursor: help;
+}
+.term--badge:hover,
+.term--badge:focus-visible,
+.term--badge[aria-expanded='true'] {
+  text-decoration: none;
+  border-color: #9d44ab; /* miriam */
+}
+.term--badge:focus-visible {
+  border-radius: 9999px;
 }
 @media (prefers-reduced-motion: reduce) {
   .term {

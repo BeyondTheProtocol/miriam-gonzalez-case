@@ -41,12 +41,18 @@
           </p>
         </aside>
 
-        <p class="text-sm text-tinta leading-relaxed mt-10 max-w-2xl">
-          {{ $t('collaborate.hero_context') }}
-          <NuxtLink :to="localePath('index')" class="link-inline">
-            helpmiriam.com
-          </NuxtLink>.
-        </p>
+        <i18n-t
+          keypath="collaborate.hero_context"
+          tag="p"
+          class="text-sm text-tinta leading-relaxed mt-10 max-w-2xl"
+        >
+          <template #science>
+            <NuxtLink :to="localePath({ name: 'ciencia' })" class="link-inline">{{ $t('nav.science') }}</NuxtLink>
+          </template>
+          <template #timeline>
+            <NuxtLink :to="localePath({ name: 'timeline' })" class="link-inline">{{ $t('nav.timeline') }}</NuxtLink>
+          </template>
+        </i18n-t>
       </div>
     </section>
 
@@ -193,6 +199,7 @@
             target="_blank"
             rel="noopener"
             @click="trackSupport('colabora_cierre')"
+            data-support-cta
             class="btn-cta"
             style="text-decoration: none"
           >
@@ -282,7 +289,7 @@ const quickLinks = computed<QuickLink[]>(() => {
   const timelinePath = locale.value === 'es' ? '/timeline' : '/en/timeline'
   const homePath = locale.value === 'es' ? '/' : '/en'
   return [
-    { label: 'helpmiriam.com', url: homePath, external: false },
+    { label: locale.value === 'es' ? 'Inicio' : 'Home', url: homePath, external: false },
     { label: locale.value === 'es' ? 'La ciencia' : 'The science', url: sciencePath, external: false },
     { label: 'Timeline', url: timelinePath, external: false },
     { label: 'Repo · GitHub', url: 'https://github.com/beyondtheprotocol/miriam-gonzalez-case', external: true },

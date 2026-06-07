@@ -209,13 +209,15 @@
             {{ $t('home.s8_markers_title') }}
           </p>
           <div class="flex flex-wrap gap-2">
-            <span
-              v-for="m in $tm('home.s8_markers')"
-              :key="String($rt(m))"
-              class="badge-genomic"
-            >
-              {{ $rt(m) }}
-            </span>
+            <template v-for="(m, mi) in $tm('home.s8_markers')" :key="mi">
+              <Term
+                v-if="markerTerms[mi]"
+                :id="markerTerms[mi]"
+                :label="String($rt(m))"
+                variant="badge"
+              />
+              <span v-else class="badge-genomic">{{ $rt(m) }}</span>
+            </template>
           </div>
           <p class="mt-4 text-xs text-tinta leading-relaxed max-w-2xl">
             {{ $t('home.s8_markers_note') }}
@@ -246,9 +248,6 @@
           </p>
           <p>
             {{ $t('home.s4_p2') }}
-            <span class="inline-flex items-center gap-1 ml-1 px-2 py-0.5 rounded-md text-xs font-mono" style="background: rgba(45,27,61,0.06); color: #3a3340">
-              {{ $t('home.s4_expenses_soon') }}
-            </span>
           </p>
         </div>
 
@@ -277,20 +276,6 @@
             {{ $t('home.s4_full_breakdown') }}
             <Icon name="ph:arrow-right" class="w-4 h-4 transition-transform group-hover:translate-x-0.5" aria-hidden="true" />
           </NuxtLink>
-        </div>
-
-        <div class="mt-8 flex flex-col sm:flex-row sm:items-center gap-3">
-          <a
-            href="https://gofund.me/3e25cae99"
-            target="_blank"
-            rel="noopener"
-            @click="trackSupport('home_campaign')"
-            class="btn-cta w-full sm:w-auto"
-          >
-            <Icon name="ph:heart-fill" class="w-4 h-4" aria-hidden="true" />
-            {{ $t('home.s4_cta_button') }}
-          </a>
-          <p class="text-xs text-tinta">{{ $t('home.s4_cta_caption') }}</p>
         </div>
       </div>
     </section>
@@ -327,7 +312,7 @@
             <p class="font-mono uppercase text-[11px] tracking-[0.12em] text-tinta mb-2">03</p>
             <h3 class="font-display font-semibold text-berenjena text-xl mb-3">{{ $t('home.s10_l3_title') }}</h3>
             <p class="text-sm text-tinta leading-relaxed mb-5 flex-1">{{ $t('home.s10_l3_text') }}</p>
-            <a href="https://gofund.me/3e25cae99" target="_blank" rel="noopener" @click="trackSupport('home_ladder')" class="btn-cta w-full h-12 justify-center whitespace-nowrap">
+            <a href="https://gofund.me/3e25cae99" target="_blank" rel="noopener" @click="trackSupport('home_ladder')" data-support-cta class="btn-cta w-full h-12 justify-center whitespace-nowrap">
               <Icon name="ph:heart-fill" class="heart-beat w-4 h-4" aria-hidden="true" />
               {{ $t('home.s10_l3_button') }}
             </a>
@@ -413,6 +398,10 @@
 const { locale, tm, rt } = useI18n()
 const localePath = useLocalePath()
 const { trackSupport } = useSupport()
+
+// Mapa badge molecular → id de glosario (Term), mismo orden que home.s8_markers
+// (idéntico en ES y EN). Da tooltip a cada marcador sin perder el pill.
+const markerTerms = ['fgfr1', 'bcned', 'ki67', 'esr1', 'rb1', 'nec', 'ctdna', 'sstr']
 
 // Cobertura de prensa real (verificada)
 const elPaisUrl =

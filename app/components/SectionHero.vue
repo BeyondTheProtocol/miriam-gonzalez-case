@@ -95,6 +95,7 @@
                 target="_blank"
                 rel="noopener noreferrer"
                 @click="trackSupport('home_hero')"
+                data-support-cta
                 class="btn-cta w-full sm:w-auto whitespace-nowrap"
               >
                 <Icon name="ph:heart-fill" class="heart-beat heart-beat--alive w-4 h-4" aria-hidden="true" />

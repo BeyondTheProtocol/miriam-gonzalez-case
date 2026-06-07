@@ -68,6 +68,7 @@ const pct = computed(() => {
       target="_blank"
       rel="noopener noreferrer"
       @click="trackSupport('gofundme_widget')"
+      data-support-cta
       class="btn-cta mt-7 w-full sm:w-auto"
     >
       <Icon name="ph:heart-fill" class="heart-beat w-4 h-4" aria-hidden="true" />

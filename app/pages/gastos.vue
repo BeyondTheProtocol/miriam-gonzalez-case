@@ -138,6 +138,7 @@
             target="_blank"
             rel="noopener"
             @click="trackSupport('gastos')"
+            data-support-cta
             class="btn-cta w-full sm:w-auto"
           >
             <Icon name="ph:heart-fill" class="heart-beat w-4 h-4" aria-hidden="true" />

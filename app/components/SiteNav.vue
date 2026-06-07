@@ -14,15 +14,7 @@
       <!-- Logo -->
       <NuxtLink :to="localePath('/')" class="flex items-center gap-2.5 group" style="text-decoration: none">
           <!-- Logo redondo: monograma «m» + constelación de destellos (DS, violeta miriam) -->
-          <svg class="w-11 h-11 shrink-0" viewBox="0 0 240 240" aria-hidden="true">
-            <path d="M192.94 24.47 L199.74 37.67 L212.94 44.47 L199.74 51.27 L192.94 64.47 L186.14 51.27 L172.94 44.47 L186.14 37.67 Z" fill="#9d44ab" />
-            <path d="M48.33 173.84 L52.75 182.42 L61.33 186.84 L52.75 191.26 L48.33 199.84 L43.91 191.26 L35.33 186.84 L43.91 182.42 Z" fill="#9d44ab" />
-            <path d="M55.05 44.24 L57.94 49.85 L63.55 52.74 L57.94 55.63 L55.05 61.24 L52.16 55.63 L46.55 52.74 L52.16 49.85 Z" fill="#9d44ab" opacity="0.5" />
-            <circle cx="182.5" cy="184.7" r="3.4" fill="#9d44ab" />
-            <circle cx="212.8" cy="134.7" r="2.3" fill="#9d44ab" opacity="0.5" />
-            <circle cx="120" cy="120" r="76" fill="#2d1b3d" />
-            <text x="120" y="147" text-anchor="middle" font-family="Fraunces, Georgia, serif" font-style="italic" font-weight="600" font-size="120" fill="#faf6f0">m</text>
-          </svg>
+          <BrandMark class="w-11 h-11 shrink-0" />
           <span class="flex flex-col leading-none" translate="no">
             <span class="font-display font-semibold text-berenjena text-sm tracking-tight">
               {{ $t('site.title') }}
@@ -65,7 +57,7 @@
             aria-label="Español"
             :aria-pressed="locale === 'es'"
             class="inline-flex items-center justify-center px-2.5 py-2 min-h-[36px] transition-colors"
-            :class="locale === 'es' ? 'bg-miriam-soft text-berenjena' : 'text-tinta hover:text-berenjena'"
+            :class="locale === 'es' ? 'bg-berenjena text-cream' : 'text-tinta hover:text-berenjena'"
           >ES</button>
           <button
             type="button"
@@ -73,7 +65,7 @@
             aria-label="English"
             :aria-pressed="locale === 'en'"
             class="inline-flex items-center justify-center px-2.5 py-2 min-h-[36px] transition-colors"
-            :class="locale === 'en' ? 'bg-miriam-soft text-berenjena' : 'text-tinta hover:text-berenjena'"
+            :class="locale === 'en' ? 'bg-berenjena text-cream' : 'text-tinta hover:text-berenjena'"
           >EN</button>
         </div>
 
@@ -168,7 +160,7 @@
                 aria-label="Español"
                 :aria-pressed="locale === 'es'"
                 class="inline-flex items-center justify-center px-4 py-2 min-h-[44px] transition-colors"
-                :class="locale === 'es' ? 'bg-miriam-soft text-berenjena' : 'text-tinta'"
+                :class="locale === 'es' ? 'bg-berenjena text-cream' : 'text-tinta'"
               >ES</button>
               <button
                 type="button"
@@ -176,7 +168,7 @@
                 aria-label="English"
                 :aria-pressed="locale === 'en'"
                 class="inline-flex items-center justify-center px-4 py-2 min-h-[44px] transition-colors"
-                :class="locale === 'en' ? 'bg-miriam-soft text-berenjena' : 'text-tinta'"
+                :class="locale === 'en' ? 'bg-berenjena text-cream' : 'text-tinta'"
               >EN</button>
             </div>
           </div>

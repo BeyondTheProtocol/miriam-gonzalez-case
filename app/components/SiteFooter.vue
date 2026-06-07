@@ -1,33 +1,44 @@
 <template>
   <footer :aria-label="$t('footer.site_footer')" class="bg-cream-card" style="border-top: 1px solid rgba(45,27,61,0.08)">
-    <!-- Supported by -->
+    <!-- Con el apoyo de — muro de logos uniforme: todos iguales, misma altura,
+         centrados en rejilla y sin etiqueta de texto (logo wall limpio). -->
     <section class="bg-berenjena" :aria-label="$t('index.supported_by')">
       <div class="section-container py-10 sm:py-12 text-center">
         <p class="text-cream/70 text-xs font-mono font-medium uppercase tracking-[0.12em] mb-8">
           {{ $t('index.supported_by') }}
         </p>
-        <div class="flex flex-wrap justify-center items-center gap-12 sm:gap-20">
-          <div class="flex flex-col items-center gap-3">
-            <img src="/svg/github.svg" alt="GitHub" class="h-10 w-auto object-contain opacity-90" width="40" height="40" loading="lazy" decoding="async" />
-            <span class="text-cream/80 text-xs font-medium tracking-wide" translate="no">GitHub</span>
-          </div>
-          <div class="flex flex-col items-center gap-3">
-            <img src="/svg/notion.svg" alt="Notion" class="h-10 w-auto object-contain opacity-90" width="40" height="40" loading="lazy" decoding="async" />
-            <span class="text-cream/80 text-xs font-medium tracking-wide" translate="no">Notion</span>
-          </div>
-          <div class="flex flex-col items-center gap-3">
-            <img src="/img/neversurrender.jpeg" alt="Never Surrender" class="h-10 w-auto object-contain rounded-lg"
-              style="filter: grayscale(1); opacity: 0.85" width="auto" height="40" loading="lazy" decoding="async" />
-            <span class="text-cream/80 text-xs font-medium tracking-wide" translate="no">Never Surrender</span>
-          </div>
-          <div class="flex flex-col items-center gap-3">
-            <a href="https://tahecosmetics.com" target="_blank" rel="sponsored noopener"
-              class="flex flex-col items-center gap-3" style="text-decoration: none">
-              <img src="/img/thae.png" alt="Thae" class="h-10 w-auto object-contain" width="auto" height="40" loading="lazy" decoding="async" />
-              <span class="text-cream/80 text-xs font-medium tracking-wide" translate="no">Thae</span>
+        <ul class="grid grid-cols-2 sm:grid-cols-4 items-center justify-items-center gap-x-8 gap-y-9 max-w-2xl mx-auto">
+          <li v-for="s in supporters" :key="s.name" class="flex items-center justify-center">
+            <a
+              v-if="s.url"
+              :href="s.url"
+              target="_blank"
+              rel="sponsored noopener"
+              class="inline-flex items-center justify-center opacity-90 hover:opacity-100 transition-opacity"
+              :aria-label="s.name"
+            >
+              <img
+                :src="s.img"
+                :alt="s.name"
+                class="h-9 w-auto max-w-[130px] object-contain"
+                :class="{ 'rounded-lg': s.mono }"
+                :style="s.mono ? 'filter: grayscale(1)' : ''"
+                loading="lazy"
+                decoding="async"
+              />
             </a>
-          </div>
-        </div>
+            <img
+              v-else
+              :src="s.img"
+              :alt="s.name"
+              class="h-9 w-auto max-w-[130px] object-contain opacity-90"
+              :class="{ 'rounded-lg': s.mono }"
+              :style="s.mono ? 'filter: grayscale(1)' : ''"
+              loading="lazy"
+              decoding="async"
+            />
+          </li>
+        </ul>
       </div>
     </section>
     <div class="section-wide py-12 sm:py-16">
@@ -35,11 +46,7 @@
         <!-- Brand -->
         <div>
           <div class="flex items-center gap-2.5 mb-3">
-            <span
-              class="w-7 h-7 rounded-lg bg-berenjena flex items-center justify-center text-cream font-display font-semibold text-xs"
-              aria-hidden="true">
-              M
-            </span>
+            <BrandMark class="w-8 h-8 shrink-0" />
             <span class="font-display font-semibold text-berenjena text-sm">
               {{ $t('site.title') }}
             </span>
@@ -122,6 +129,16 @@
 <script setup lang="ts">
 const localePath = useLocalePath()
 const { trackSupport } = useSupport()
+
+// "Con el apoyo de" — todos iguales (logos de empresas/colaboradores). `mono`
+// marca los que son foto/raster y necesitan grayscale para encajar en el muro.
+// (Para una uniformidad perfecta, Never Surrender pide un PNG blanco/transparente.)
+const supporters = [
+  { name: 'GitHub', img: '/svg/github.svg' },
+  { name: 'Notion', img: '/svg/notion.svg' },
+  { name: 'Never Surrender', img: '/img/neversurrender.jpeg', mono: true },
+  { name: 'Tahe', img: '/img/thae.png', url: 'https://tahecosmetics.com' },
+]
 
 // Mismo orden que el menú superior + "Cómo ayudar" y "Contacto" al final.
 const navItems = [
