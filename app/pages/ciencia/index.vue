@@ -100,6 +100,9 @@
         </p>
         <MolecularProfileDetailed class="mb-12" />
 
+        <!-- ctDNA seriado (3 extracciones) + sparkline B2 de la dinámica. -->
+        <LiquidBiopsyPivot v-if="liquidBiopsyPivot" :data="liquidBiopsyPivot" class="mb-12" />
+
         <section v-if="imaging" class="mb-14" aria-labelledby="imaging-tissue-title">
           <p class="eyebrow mb-2 block">{{ locale === 'es' ? 'Imagen funcional' : 'Functional imaging' }}</p>
           <h2
@@ -541,6 +544,9 @@ const { data: scienceData } = await useAsyncData(
 const treatments = computed(() => scienceData.value?.treatments ?? [])
 const panelRows = computed(() => scienceData.value?.panelRows ?? [])
 const imaging = computed(() => scienceData.value?.imaging ?? null)
+const liquidBiopsyPivot = computed(
+  () => (scienceData.value as Record<string, unknown> | null)?.liquidBiopsyPivot ?? null
+)
 
 const snapshotRows = computed(() =>
   [
