@@ -17,7 +17,7 @@
           </div>
           <div class="flex flex-col items-center gap-3">
             <img src="/img/neversurrender.jpeg" alt="Never Surrender" class="h-10 w-auto object-contain rounded-lg"
-              width="auto" height="40" loading="lazy" decoding="async" />
+              style="filter: grayscale(1); opacity: 0.85" width="auto" height="40" loading="lazy" decoding="async" />
             <span class="text-cream/80 text-xs font-medium tracking-wide" translate="no">Never Surrender</span>
           </div>
           <div class="flex flex-col items-center gap-3">
@@ -121,11 +121,13 @@
 <script setup lang="ts">
 const localePath = useLocalePath()
 
+// Mismo orden que el menú superior + "Cómo ayudar" y "Contacto" al final.
 const navItems = [
   { key: 'home', to: '/' },
   { key: 'science', to: '/ciencia' },
-  { key: 'team', to: '/equipo' },
   { key: 'timeline', to: '/timeline' },
+  { key: 'team', to: '/equipo' },
+  { key: 'collaborate', to: '/colabora' },
   { key: 'contact', to: '/contacto' },
 ]
 </script>

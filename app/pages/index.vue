@@ -16,9 +16,11 @@
           {{ $t('home.story_p1')
           }}<strong class="font-semibold text-cream">{{ $t('home.story_p1_rarity') }}</strong>{{ $t('home.story_p1_tail') }}
         </p>
+        <!-- Atenuado mientras /historia esté en preparación: no manda tráfico
+             "fuerte" a una página aún provisional (la nota ya enlaza redes + La ciencia). -->
         <NuxtLink
           :to="localePath({ name: 'historia' })"
-          class="link-action group mt-7 text-sm text-cream"
+          class="link-action group mt-7 text-sm text-cream/55"
         >
           {{ $t('home.story_link') }}
           <Icon name="ph:arrow-right" class="w-4 h-4 transition-transform group-hover:translate-x-0.5" aria-hidden="true" />
@@ -84,7 +86,7 @@
               {{ $t('home.s3_col_has') }}
             </p>
             <p
-              class="font-mono uppercase text-[11px] tracking-[0.1em] text-coral px-5 sm:px-6 py-4"
+              class="font-mono uppercase text-[11px] tracking-[0.1em] text-berenjena px-5 sm:px-6 py-4"
               style="border-bottom: 1px solid rgba(45,27,61,0.10); border-left: 1px solid rgba(45,27,61,0.08); background: rgba(255,107,71,0.04)"
             >
               {{ $t('home.s3_col_missing') }}
