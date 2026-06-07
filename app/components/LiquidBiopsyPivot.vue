@@ -70,6 +70,18 @@
       </table>
     </div>
 
+    <!-- B2 · dinámica del ctDNA: la señal de RB1 a lo largo de las extracciones.
+         Los valores siguen en la tabla (accesibles); el sparkline es complemento
+         visual decorativo. -->
+    <div v-if="rbTrend" class="mt-5 flex items-center gap-4 flex-wrap">
+      <Sparkline :points="rbTrend.points" />
+      <p class="text-sm text-tinta leading-relaxed">
+        <strong class="text-berenjena" translate="no">RB1 {{ rbTrend.sub }}</strong>
+        {{ locale === 'es' ? 'en sangre' : 'in blood' }}:
+        <span class="font-mono nums text-berenjena">{{ rbTrend.from }} → {{ rbTrend.to }}</span>
+      </p>
+    </div>
+
     <p v-if="data.sources" class="mt-4 text-xs text-tinta leading-relaxed font-mono">
       {{ data.sources }}
     </p>
@@ -92,4 +104,24 @@ const { locale } = useI18n()
 function cell(row: Row, sampleId: string): CellValue | undefined {
   return row.values?.[sampleId]
 }
+
+// B2 · serie numérica de RB1 (VAF %) a lo largo de las muestras, para el
+// sparkline. Solo si hay ≥2 puntos numéricos; si no, no se muestra.
+const rbTrend = computed(() => {
+  const row = props.data?.rows?.find((r) => r.alteration === 'RB1')
+  if (!row || !props.data) return null
+  const seq: { value: string; n: number }[] = []
+  for (const s of props.data.samples) {
+    const v = row.values?.[s.id]?.value
+    const m = typeof v === 'string' ? v.match(/(\d+(?:[.,]\d+)?)\s*%/) : null
+    if (m) seq.push({ value: m[0], n: parseFloat((m[1] ?? '').replace(',', '.')) })
+  }
+  if (seq.length < 2) return null
+  return {
+    points: seq.map((x) => x.n),
+    from: seq[0]?.value ?? '',
+    to: seq[seq.length - 1]?.value ?? '',
+    sub: row.subscript ?? '',
+  }
+})
 </script>
