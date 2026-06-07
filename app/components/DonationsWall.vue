@@ -5,13 +5,6 @@
     class="section-spacing bg-cream-card relative overflow-hidden scroll-mt-24"
     :aria-labelledby="'gracias-title'"
   >
-    <!-- Cielo de estrellas (las del logo) en toda la sección; la máscara las
-         atenúa en la zona del texto y la tabla esmerilada deja verlas debajo. -->
-    <Constellation
-      class="dw-sky"
-      :count="donations.length || 60"
-      :amounts="donations.map((d) => d.amount)"
-    />
     <div class="section-container relative z-10">
       <div class="mb-6">
         <p class="eyebrow mb-3 block">{{ $t('thanksWall.eyebrow') }}</p>
@@ -51,6 +44,10 @@
         </Nota>
       </div>
 
+      <!-- La carta celeste interactiva: 1 estrella = 1 aportación, tocable.
+           En su propio panel — nada de cielo detrás del texto (legibilidad). -->
+      <StarMap v-if="loaded && donations.length" :donations="donations" class="mb-8" />
+
       <!-- Pestañas estilo GoFundMe: Recientes · Top -->
       <div
         class="inline-flex items-center rounded-full mb-5 overflow-hidden font-mono text-[12px] font-semibold tracking-wide"
@@ -78,10 +75,10 @@
         </button>
       </div>
 
-      <!-- Tabla esmerilada: deja entrever las estrellas sin perder contraste. -->
+      <!-- El catálogo: la versión accesible y ordenable del mismo cielo. -->
       <div
         v-if="pageRows.length"
-        class="rounded-2xl border border-berenjena/10 bg-cream/75 backdrop-blur-[3px] overflow-hidden"
+        class="rounded-2xl border border-berenjena/10 bg-cream overflow-hidden"
       >
         <table class="w-full">
           <caption class="sr-only">{{ $t('thanksWall.title') }}</caption>
@@ -229,50 +226,6 @@ function timeAgo(iso?: string): string {
 </script>
 
 <style scoped>
-/* Banda de cabecera con la constelación detrás: algo de aire para que el cielo
-   se vea por encima y por debajo del texto. */
-.dw-header {
-  padding-top: 0.25rem;
-  padding-bottom: 1.5rem;
-}
-/* La legibilidad manda: la máscara atenúa las estrellas donde está el texto
-   (izquierda) y las deja brillar hacia el espacio vacío de la derecha. */
-.dw-sky {
-  -webkit-mask-image: linear-gradient(
-    100deg,
-    rgba(0, 0, 0, 0.15) 0%,
-    rgba(0, 0, 0, 0.35) 45%,
-    rgba(0, 0, 0, 1) 75%
-  );
-  mask-image: linear-gradient(
-    100deg,
-    rgba(0, 0, 0, 0.15) 0%,
-    rgba(0, 0, 0, 0.35) 45%,
-    rgba(0, 0, 0, 1) 75%
-  );
-}
-/* Móvil: el texto ocupa todo el ancho, así que la máscara lateral apagaría el
-   cielo entero. Pasa a vertical: banda superior brillante, suave tras el texto
-   y la tabla (que ya va esmerilada), y remonta hacia la paginación. */
-@media (max-width: 639px) {
-  .dw-sky {
-    -webkit-mask-image: linear-gradient(
-      180deg,
-      rgba(0, 0, 0, 0.9) 0%,
-      rgba(0, 0, 0, 0.45) 28%,
-      rgba(0, 0, 0, 0.5) 75%,
-      rgba(0, 0, 0, 0.95) 100%
-    );
-    mask-image: linear-gradient(
-      180deg,
-      rgba(0, 0, 0, 0.9) 0%,
-      rgba(0, 0, 0, 0.45) 28%,
-      rgba(0, 0, 0, 0.5) 75%,
-      rgba(0, 0, 0, 0.95) 100%
-    );
-  }
-}
-
 .dw-page-btn {
   display: inline-flex;
   align-items: center;
