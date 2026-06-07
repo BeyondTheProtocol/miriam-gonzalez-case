@@ -27,31 +27,13 @@
         >
           {{ $t('collaborate.hero_title') }}
         </h1>
-        <p class="text-lg text-tinta leading-relaxed mb-6 max-w-2xl">
+        <p class="text-lg text-tinta leading-relaxed mb-10 max-w-2xl">
           {{ $t('collaborate.hero_intro') }}
         </p>
 
-        <!-- CTA primario arriba (financiación, vía anclada) + secundario a las
-             vías. El primario se repite en la tarjeta destacada de abajo. -->
-        <div class="flex flex-col sm:flex-row gap-3 mb-10">
-          <a
-            :href="GOFUNDME"
-            target="_blank"
-            rel="noopener"
-            @click="trackSupport('colabora_hero')"
-            class="btn-cta w-full sm:w-auto"
-            style="text-decoration: none"
-          >
-            <Icon name="ph:heart-fill" class="heart-beat heart-beat--alive w-4 h-4" aria-hidden="true" />
-            {{ $t('collaborate.profile2_cta_label') }}
-          </a>
-          <a href="#profiles-title" class="btn-secondary w-full sm:w-auto">
-            <Icon name="ph:arrow-down" class="w-4 h-4" aria-hidden="true" />
-            {{ $t('collaborate.hero_cta_ways') }}
-          </a>
-        </div>
-
-        <!-- Cita / principio: card-base en violet-soft (badge genómico del DS) -->
+        <!-- Decisión 3·B: el hero NO lleva botón de donar; solo el espíritu.
+             El bloque de financiación es el remate, al final de la página.
+             Cita / principio: card-base en violet-soft (badge genómico del DS) -->
         <aside class="card-base bg-miriam-soft border-transparent max-w-2xl">
           <p class="eyebrow mb-2 block text-berenjena">{{ $t('collaborate.hero_claim_label') }}</p>
           <p class="font-display italic font-medium text-berenjena text-2xl leading-snug">
@@ -84,38 +66,6 @@
         </p>
 
         <div class="grid md:grid-cols-2 gap-4">
-          <!-- ─ Card 2 — FEATURED · el camino principal: financiación.
-               Único coral del sitio: cuadradito + filete coral a ancho
-               completo para que el ojo aterrice aquí primero. ─ -->
-          <article class="card-base bg-cream border-coral/40 md:col-span-2 flex flex-col">
-            <div class="flex items-center gap-4 mb-4">
-              <span class="w-10 h-10 rounded-xl bg-coral flex items-center justify-center shrink-0" aria-hidden="true">
-                <Icon name="ph:hand-heart-fill" class="w-5 h-5 text-berenjena" />
-              </span>
-              <p class="eyebrow">{{ $t('collaborate.profile2_tag') }}</p>
-            </div>
-            <h3 class="heading-display text-xl sm:text-2xl text-berenjena mb-3">
-              {{ $t('collaborate.profile2_title') }}
-            </h3>
-            <p class="text-sm text-tinta leading-relaxed mb-5 max-w-2xl">
-              {{ $t('collaborate.profile2_text') }}
-            </p>
-            <div class="mt-auto">
-              <a
-                :href="GOFUNDME"
-                target="_blank"
-                rel="noopener"
-                @click="trackSupport('colabora_cierre')"
-                class="btn-cta"
-                style="text-decoration: none"
-              >
-                <Icon name="ph:heart-fill" class="heart-beat w-4 h-4" aria-hidden="true" />
-                {{ $t('collaborate.profile2_cta_label') }}
-              </a>
-              <p class="mt-3 text-xs text-tinta">{{ $t('collaborate.profile2_cta_caption') }}</p>
-            </div>
-          </article>
-
           <!-- ─ Card 1 — revisión clínica ─ -->
           <article id="revision-clinica" class="card-base bg-cream flex flex-col scroll-mt-24">
             <div class="flex items-center gap-4 mb-4">
@@ -213,6 +163,43 @@
               <p class="mt-2 text-xs text-tinta sm:min-h-[2.25rem]">{{ $t('collaborate.profile5_cta_caption') }}</p>
             </div>
           </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- ░░ FINANCIAR ░░ bg-cream · remate destacado (Decisión 3·B: el dinero, al
+         final). Único primario coral de la página. -->
+    <section v-reveal class="section-spacing bg-cream" :aria-labelledby="'fund-title'">
+      <div class="section-container">
+        <div class="card-base bg-cream border-coral/40">
+          <div class="flex items-center gap-4 mb-4">
+            <span class="w-10 h-10 rounded-xl bg-coral flex items-center justify-center shrink-0" aria-hidden="true">
+              <Icon name="ph:hand-heart-fill" class="w-5 h-5 text-berenjena" />
+            </span>
+            <p class="eyebrow">{{ $t('collaborate.profile2_tag') }}</p>
+          </div>
+          <h2
+            id="fund-title"
+            class="heading-display text-2xl sm:text-3xl text-berenjena mb-3"
+            style="letter-spacing: -0.02em"
+          >
+            {{ $t('collaborate.profile2_title') }}
+          </h2>
+          <p class="text-tinta leading-relaxed mb-6 max-w-2xl">
+            {{ $t('collaborate.profile2_text') }}
+          </p>
+          <a
+            :href="GOFUNDME"
+            target="_blank"
+            rel="noopener"
+            @click="trackSupport('colabora_cierre')"
+            class="btn-cta"
+            style="text-decoration: none"
+          >
+            <Icon name="ph:heart-fill" class="heart-beat heart-beat--alive w-4 h-4" aria-hidden="true" />
+            {{ $t('collaborate.profile2_cta_label') }}
+          </a>
+          <p class="mt-3 text-xs text-tinta">{{ $t('collaborate.profile2_cta_caption') }}</p>
         </div>
       </div>
     </section>
