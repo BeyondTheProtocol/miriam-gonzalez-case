@@ -31,8 +31,10 @@
           <p class="eyebrow mb-8 block" style="color: #e8d4ed">
             {{ $t('home.s6_eyebrow') }}
           </p>
+          <!-- Las comillas en dos tonos —coral y violeta— son el guiño a las
+               «dos caras» del tumor de las que habla la cita. Decorativo. -->
           <blockquote class="font-display text-2xl sm:text-3xl lg:text-4xl font-semibold leading-[1.2] max-w-3xl" style="letter-spacing: -0.025em">
-            <span style="color: #ff6b47">«</span>{{ $t('home.s6_quote') }}<span style="color: #ff6b47">»</span>
+            <span style="color: #ff6b47">«</span>{{ $t('home.s6_quote') }}<span style="color: #b870c3">»</span>
           </blockquote>
           <p class="mt-8 font-display italic text-xl" style="color: #e8d4ed">
             — {{ $t('home.s6_signature') }}
@@ -179,7 +181,8 @@
     </section>
 
     <!-- Hacia dónde va · objetivo N-of-1 + perfil molecular en una línea (detalle completo en /ciencia) -->
-    <section v-reveal class="section-spacing bg-cream" :aria-label="$t('home.s8_eyebrow')" style="border-bottom: 1px solid rgba(45,27,61,0.08)">
+    <!-- Sin border-bottom: el separador aquí es la línea de latido (EcgDivider). -->
+    <section v-reveal class="section-spacing bg-cream" :aria-label="$t('home.s8_eyebrow')">
       <div class="section-container max-w-5xl">
         <p class="eyebrow mb-4 block">{{ $t('home.s8_eyebrow') }}</p>
         <h2 class="heading-display text-3xl sm:text-5xl text-berenjena mb-6" style="letter-spacing: -0.03em">
@@ -238,9 +241,8 @@
       </div>
     </section>
 
-    <!-- S4 · ¿Por qué necesitamos tu ayuda? · Destino del dinero -->
-    <EcgDivider class="bg-cream" />
-
+    <!-- S4 · ¿Por qué necesitamos tu ayuda? · Destino del dinero
+         (aquí el separador es el propio cambio de color de sección) -->
     <section v-reveal class="section-spacing bg-cream-card" id="campaign" :aria-label="$t('home.s4_eyebrow')">
       <div class="section-container max-w-5xl">
         <p class="eyebrow mb-4 block">{{ $t('home.s4_eyebrow') }}</p>
@@ -330,7 +332,11 @@
 
     <!-- Perfiles de alto impacto · acceso directo a las vías de /colabora.
          (Plausible: /colabora apenas se ve; la gente de alto valor entra por la home.) -->
-    <section v-reveal class="section-spacing bg-cream" :aria-label="$t('home.pro_eyebrow')" style="border-top: 1px solid rgba(45,27,61,0.08)">
+    <!-- Línea de latido como único separador: ambas secciones comparten fondo
+         crema, así que aquí no compite con ningún cambio de color. -->
+    <EcgDivider class="bg-cream" />
+
+    <section v-reveal class="section-spacing bg-cream" :aria-label="$t('home.pro_eyebrow')">
       <div class="section-container max-w-3xl">
         <div class="card-base flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
           <div>
