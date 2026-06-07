@@ -16,18 +16,15 @@
             <span class="eyebrow block whitespace-normal text-[10px] tracking-[0.06em] sm:text-[12px] sm:tracking-[0.12em]">{{ $t('home.hero_eyebrow') }}</span>
           </div>
 
-          <!-- Main heading -->
-          <i18n-t
-            keypath="hero.title"
-            tag="h1"
-            class="heading-display text-[clamp(36px,5.2vw,72px)] text-berenjena max-w-[18ch] mt-5 sm:mt-6 animate-fade-up"
-            style="animation-delay: 0.1s; letter-spacing: -0.04em; line-height: 1.05"
+          <!-- Main heading (Decisión 1·B: titular de producción; variante corta
+               en pantallas muy estrechas para no irse a 4 líneas). -->
+          <h1
+            class="heading-display text-[clamp(29px,4.4vw,52px)] text-berenjena max-w-[20ch] mt-5 sm:mt-6 animate-fade-up"
+            style="animation-delay: 0.1s; letter-spacing: -0.03em; line-height: 1.08"
           >
-            <template #emphasis>
-              <br />
-              <span class="firma">{{ $t('hero.title_emphasis') }}</span>
-            </template>
-          </i18n-t>
+            <span class="max-[399px]:hidden">{{ $t('hero.title') }}</span>
+            <span class="hidden max-[399px]:inline">{{ $t('hero.title_short') }}</span>
+          </h1>
         </div>
 
         <!-- Beat 2 · La cara (en móvil entre título y subtítulo; en desktop, columna dcha) -->
@@ -110,7 +107,7 @@
             <div class="flex flex-col gap-2.5">
               <NuxtLink
                 :to="localePath({ name: 'ciencia' })"
-                class="btn-dark w-full sm:w-auto whitespace-nowrap"
+                class="btn-secondary w-full sm:w-auto whitespace-nowrap"
               >
                 <Icon name="ph:flask-fill" class="w-4 h-4" aria-hidden="true" />
                 {{ $t('hero.cta_science') }}
