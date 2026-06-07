@@ -3,11 +3,27 @@
     <div class="shrink-0 w-11 h-11 rounded-xl flex items-center justify-center" :class="colorClasses">
       <Icon :name="member.icon" class="w-5 h-5" />
     </div>
-    <div>
+    <div class="min-w-0">
       <h3 class="font-display font-semibold text-berenjena text-sm">
         {{ member.role }}
       </h3>
-      <p class="text-xs text-tinta mt-1 leading-relaxed"><template v-for="(part, i) in descParts" :key="i"><Term v-if="part.term" :id="part.value" /><template v-else>{{ part.value }}</template></template></p>
+      <!-- Divulgación progresiva (móvil): descripción al tocar; visible en sm+. -->
+      <p :id="descId" class="text-xs text-tinta mt-1 leading-relaxed" :class="expanded ? 'block' : 'hidden sm:block'"><template v-for="(part, i) in descParts" :key="i"><Term v-if="part.term" :id="part.value" /><template v-else>{{ part.value }}</template></template></p>
+      <button
+        type="button"
+        class="sm:hidden mt-1.5 inline-flex items-center gap-1 font-mono text-[11px] font-medium text-miriam py-1.5"
+        :aria-expanded="expanded"
+        :aria-controls="descId"
+        @click="expanded = !expanded"
+      >
+        {{ expanded ? $t('team.less') : $t('team.more') }}
+        <Icon
+          name="ph:caret-down-bold"
+          class="w-3 h-3 transition-transform"
+          :class="{ 'rotate-180': expanded }"
+          aria-hidden="true"
+        />
+      </button>
     </div>
   </div>
 </template>
@@ -21,6 +37,9 @@ const props = defineProps<{
     color?: 'gold' | 'ocean' | 'ink'
   }
 }>()
+
+const expanded = ref(false)
+const descId = useId()
 
 const colorClasses = computed(() => {
   switch (props.member.color) {

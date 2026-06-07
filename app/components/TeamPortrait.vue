@@ -16,9 +16,32 @@
     <figcaption class="team-portrait__caption">
       <p class="team-portrait__role" :class="roleColor">{{ member.role }}</p>
       <h3 class="team-portrait__name">{{ member.name }}</h3>
-      <p v-if="member.description" class="team-portrait__desc">
+      <!-- Divulgación progresiva (móvil): la descripción se revela al tocar;
+           en sm+ se ve siempre. CSS para el breakpoint (sin mismatch de hidratación). -->
+      <p
+        v-if="member.description"
+        :id="descId"
+        class="team-portrait__desc"
+        :class="expanded ? 'block' : 'hidden sm:block'"
+      >
         {{ member.description }}
       </p>
+      <button
+        v-if="member.description"
+        type="button"
+        class="sm:hidden mt-1.5 inline-flex items-center gap-1 font-mono text-[11px] font-medium text-miriam py-1.5"
+        :aria-expanded="expanded"
+        :aria-controls="descId"
+        @click="expanded = !expanded"
+      >
+        {{ expanded ? $t('team.less') : $t('team.more') }}
+        <Icon
+          name="ph:caret-down-bold"
+          class="w-3 h-3 transition-transform"
+          :class="{ 'rotate-180': expanded }"
+          aria-hidden="true"
+        />
+      </button>
     </figcaption>
   </figure>
 </template>
@@ -41,6 +64,10 @@ const roleColor = computed(() =>
 const initial = computed(
   () => props.member.name?.trim().charAt(0).toUpperCase() ?? ''
 )
+
+// Acordeón móvil (revelar descripción al tocar). id estable para aria-controls.
+const expanded = ref(false)
+const descId = useId()
 </script>
 
 <style scoped>

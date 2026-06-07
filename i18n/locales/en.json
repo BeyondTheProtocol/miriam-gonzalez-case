@@ -393,6 +393,8 @@
     "title": "The team",
     "subtitle": "One patient, an international team and artificial intelligence, searching for the therapy that standard oncology doesn't yet consider.",
     "medical_support_network": "Medical support network",
+    "more": "Details",
+    "less": "Hide",
     "integrative_support": "Integrative Support",
     "network_origin_label": "Coming soon",
     "network_origin_title": "Beyond the Protocol",

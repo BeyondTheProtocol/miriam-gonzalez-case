@@ -34,9 +34,9 @@
         <!-- Decisión 3·B: el hero NO lleva botón de donar; solo el espíritu.
              El bloque de financiación es el remate, al final de la página.
              Cita / principio: card-base en violet-soft (badge genómico del DS) -->
-        <aside class="card-base bg-miriam-soft border-transparent max-w-2xl">
-          <p class="eyebrow mb-2 block text-berenjena">{{ $t('collaborate.hero_claim_label') }}</p>
-          <p class="font-display italic font-medium text-berenjena text-2xl leading-snug">
+        <aside class="max-w-2xl pl-4" style="border-left: 2px solid #9d44ab">
+          <p class="eyebrow mb-2 block">{{ $t('collaborate.hero_claim_label') }}</p>
+          <p class="font-display italic font-medium text-berenjena text-xl leading-snug">
             {{ $t('collaborate.hero_principle') }}
           </p>
         </aside>
