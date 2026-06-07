@@ -14,15 +14,14 @@
       @pointerleave="hoverIdx = null"
     >
       <svg class="starmap__lines" viewBox="0 0 100 100" preserveAspectRatio="none">
-        <line
+        <path
           v-for="(l, i) in lines"
           :key="i"
-          :x1="l.x1"
-          :y1="l.y1"
-          :x2="l.x2"
-          :y2="l.y2"
+          :d="l.d"
+          fill="none"
           stroke="#9d44ab"
           stroke-width="1"
+          stroke-linecap="round"
           vector-effect="non-scaling-stroke"
         />
       </svg>
@@ -37,13 +36,11 @@
           width: s.size + 'px',
           height: s.size + 'px',
           '--o': String(s.o),
+          '--rot': s.rot + 'deg',
         }"
         viewBox="0 0 20 20"
       >
-        <path
-          :fill="s.newest ? '#ff6b47' : '#9d44ab'"
-          d="M10 0 L13.4 6.6 L20 10 L13.4 13.4 L10 20 L6.6 13.4 L0 10 L6.6 6.6 Z"
-        />
+        <path :fill="s.newest ? '#ff6b47' : '#9d44ab'" :d="STAR_D" />
       </svg>
 
       <!-- Quién encendió la estrella activa -->
@@ -96,7 +93,25 @@ const props = defineProps<{ donations: PublicDonation[] }>()
 const { locale } = useI18n()
 const { GOFUNDME_URL, trackSupport } = useSupport()
 
-const MAX_STARS = 1200 // techo de cordura para el DOM
+const MAX_STARS = 2000 // techo de cordura para el DOM (efectivamente, todas)
+
+// Estrella de 4 puntas dibujada a mano (brazos curvos y asimétricos): cada
+// donación es una estrella garabateada en el cuaderno.
+const STAR_D =
+  'M10 1.6 C10.8 5,11.4 6.2,12.6 7.4 C14 8.8,16.4 9.4,18.4 10 C16.2 10.8,14.2 11.4,12.8 12.7 C11.5 13.9,10.9 15.7,10 18.4 C9.3 15.9,8.5 14.2,7.2 12.9 C5.8 11.6,3.4 10.7,1.6 10 C3.8 9.1,5.8 8.4,7.2 7.1 C8.4 6,9.2 4.2,10 1.6 Z'
+
+// Traza una línea «a mano»: recta con leve curvatura perpendicular en el medio.
+function penLine(x1: number, y1: number, x2: number, y2: number, rnd: () => number) {
+  const mx = (x1 + x2) / 2
+  const my = (y1 + y2) / 2
+  const dx = x2 - x1
+  const dy = y2 - y1
+  const len = Math.hypot(dx, dy) || 1
+  const off = (rnd() * 2 - 1) * Math.min(2.5, len * 0.12)
+  const cxp = (mx + (-dy / len) * off).toFixed(1)
+  const cyp = (my + (dx / len) * off).toFixed(1)
+  return `M${x1} ${y1} Q${cxp} ${cyp} ${x2} ${y2}`
+}
 
 function mulberry32(seed: number) {
   let a = seed
@@ -120,6 +135,7 @@ interface Star {
   y: number
   size: number
   o: number
+  rot: number
   newest: boolean
   name: string
   amount: number
@@ -158,6 +174,7 @@ const stars = computed<Star[]>(() => {
       y,
       size: newest ? 14 : size,
       o: newest ? 1 : o,
+      rot: +(rnd() * 44 - 22).toFixed(1),
       newest,
       name: d.name,
       amount: d.amount,
@@ -171,8 +188,9 @@ const stars = computed<Star[]>(() => {
 // distancia ponderada al formato apaisado del panel; pocas y finas.
 const lines = computed(() => {
   const st = stars.value
-  const out: { x1: number; y1: number; x2: number; y2: number }[] = []
-  for (let i = 1; i < st.length && out.length < 140; i++) {
+  const rnd = mulberry32(424242)
+  const out: { d: string }[] = []
+  for (let i = 1; i < st.length && out.length < 160; i++) {
     let best = -1
     let bd = Infinity
     for (let j = Math.max(0, i - 60); j < i; j++) {
@@ -185,7 +203,7 @@ const lines = computed(() => {
       }
     }
     if (best >= 0 && bd < 49) {
-      out.push({ x1: st[i]!.x, y1: st[i]!.y, x2: st[best]!.x, y2: st[best]!.y })
+      out.push({ d: penLine(st[i]!.x, st[i]!.y, st[best]!.x, st[best]!.y, rnd) })
     }
   }
   return out
@@ -284,7 +302,12 @@ function timeAgo(iso?: string): string {
   cursor: pointer;
   /* El tap selecciona, pero el scroll vertical del pulgar sigue pasando. */
   touch-action: pan-y;
-  background: radial-gradient(120% 90% at 50% 0%, #f5efe6 0%, #ede4d6 100%);
+  /* Papel de cuaderno cuadriculado (mismo lenguaje que «las dos caras»). */
+  background-color: #fbf7ef;
+  background-image:
+    linear-gradient(rgba(45, 27, 61, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(45, 27, 61, 0.05) 1px, transparent 1px);
+  background-size: 22px 22px;
 }
 @media (min-width: 640px) {
   .starmap {
@@ -301,7 +324,7 @@ function timeAgo(iso?: string): string {
 .starmap__star {
   position: absolute;
   display: block;
-  transform: translate(-50%, -50%);
+  transform: translate(-50%, -50%) rotate(var(--rot, 0deg));
   opacity: var(--o, 0.5);
   transition: opacity 0.25s ease, filter 0.25s ease;
 }
@@ -327,10 +350,11 @@ function timeAgo(iso?: string): string {
   box-shadow: 0 6px 18px rgba(45, 27, 61, 0.28);
 }
 .starmap__tip-name {
-  font-family: 'Fraunces', serif;
-  font-weight: 600;
-  font-size: 14px;
-  line-height: 1.25;
+  /* Manuscrita: como un nombre anotado a mano junto a su estrella. */
+  font-family: 'Caveat', 'Bradley Hand', cursive;
+  font-weight: 700;
+  font-size: 19px;
+  line-height: 1.1;
 }
 .starmap__tip-meta {
   font-family: 'JetBrains Mono', monospace;

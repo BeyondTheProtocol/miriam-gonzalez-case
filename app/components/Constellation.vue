@@ -1,18 +1,18 @@
 <template>
   <ClientOnly>
     <div class="constellation" aria-hidden="true">
-      <!-- Carta celeste: trazos finos entre estrellas vecinas. Las constelaciones
-           nunca fueron los astros — son las líneas que dibujamos para navegar. -->
+      <!-- Carta celeste dibujada a mano: conectores a lápiz (curvados) entre
+           estrellas vecinas. Las constelaciones nunca fueron los astros — son
+           las líneas que trazamos para navegar. -->
       <svg class="constellation__lines" viewBox="0 0 100 100" preserveAspectRatio="none">
-        <line
+        <path
           v-for="(l, i) in lines"
           :key="i"
-          :x1="l.x1"
-          :y1="l.y1"
-          :x2="l.x2"
-          :y2="l.y2"
+          :d="l.d"
+          fill="none"
           stroke="#9d44ab"
           stroke-width="1"
+          stroke-linecap="round"
           vector-effect="non-scaling-stroke"
         />
       </svg>
@@ -27,13 +27,11 @@
           width: s.size + 'px',
           height: s.size + 'px',
           '--o': String(s.o),
+          '--rot': s.rot + 'deg',
         }"
         viewBox="0 0 20 20"
       >
-        <path
-          :fill="s.new ? '#ff6b47' : '#9d44ab'"
-          d="M10 0 L13.4 6.6 L20 10 L13.4 13.4 L10 20 L6.6 13.4 L0 10 L6.6 6.6 Z"
-        />
+        <path :fill="s.new ? '#ff6b47' : '#9d44ab'" :d="STAR_D" />
       </svg>
     </div>
   </ClientOnly>
@@ -41,21 +39,22 @@
 
 <script setup lang="ts">
 /**
- * Constelación de quienes apoyan — metáfora con la ciencia de verdad dentro:
- *  · Estrella de 4 puntas = picos de difracción (así se ven los astros en
- *    las fotos de telescopio; el logo ya lo era).
- *  · MAGNITUD: si llegan importes, el tamaño sigue una escala logarítmica
- *    (como la magnitud de Pogson): una aportación 100× mayor brilla solo
- *    unos pasos más — todas cuentan, ninguna eclipsa a las demás.
- *  · LÍNEAS: cada estrella se une a su vecina más cercana, como en una
- *    carta celeste: la constelación es el mapa, no los puntos.
- * Tamaños FIJOS en píxeles (no escalan con la sección), posiciones
- * deterministas (PRNG con semilla), tope de estrellas, decorativa
+ * Constelación de quienes apoyan — trazo de cuaderno (estrella dibujada a mano,
+ * con leve rotación propia y conectores a lápiz curvados). La ciencia dentro:
+ *  · MAGNITUD: si llegan importes, el tamaño sigue escala logarítmica (Pogson):
+ *    una aportación 100× mayor brilla solo unos pasos más — ninguna eclipsa.
+ *  · LÍNEAS: cada estrella se une a su vecina, como en una carta celeste.
+ * Genera UNA estrella por aportación real (todas, con tope de cordura para el
+ * DOM). Tamaños fijos en píxeles, posiciones deterministas (PRNG), decorativa
  * (aria-hidden) y ClientOnly. En móvil sube la opacidad (media query).
  */
 const props = withDefaults(defineProps<{ count?: number; amounts?: number[] }>(), {
   count: 60,
 })
+
+// Estrella de 4 puntas dibujada a mano: brazos ligeramente curvos y asimétricos.
+const STAR_D =
+  'M10 1.6 C10.8 5,11.4 6.2,12.6 7.4 C14 8.8,16.4 9.4,18.4 10 C16.2 10.8,14.2 11.4,12.8 12.7 C11.5 13.9,10.9 15.7,10 18.4 C9.3 15.9,8.5 14.2,7.2 12.9 C5.8 11.6,3.4 10.7,1.6 10 C3.8 9.1,5.8 8.4,7.2 7.1 C8.4 6,9.2 4.2,10 1.6 Z'
 
 function mulberry32(seed: number) {
   let a = seed
@@ -73,11 +72,13 @@ interface Star {
   y: number
   size: number
   o: number
+  rot: number
   new: boolean
 }
 
 const sky = computed(() => {
-  const n = Math.max(18, Math.min(Math.round(props.count / 12), 70))
+  // Una estrella por aportación real (todas); tope para no saturar el DOM.
+  const n = Math.max(18, Math.min(props.count, 600))
   const rnd = mulberry32(20240127)
   const amts = (props.amounts ?? []).filter((a) => a > 0)
   const median = amts.length ? [...amts].sort((a, b) => a - b)[Math.floor(amts.length / 2)]! : 0
@@ -89,17 +90,16 @@ const sky = computed(() => {
     const o = +(0.16 + rnd() * 0.34).toFixed(2)
     let size = +(5 + rnd() * 6).toFixed(1)
     if (median > 0) {
-      // Magnitud (log): 6px en la mediana, ±2.2px por década de importe.
       const a = amts[Math.floor(rnd() * amts.length)]!
       size = +Math.min(12, Math.max(4.5, 6 + 2.2 * Math.log10(a / median))).toFixed(1)
     }
-    stars.push({ x, y, size, o, new: false })
+    stars.push({ x, y, size, o, rot: +(rnd() * 44 - 22).toFixed(1), new: false })
   }
   // La estrella nueva (coral): la de quien acaba de llegar — recién descubierta.
-  stars.push({ x: 50, y: 26, size: 14, o: 1, new: true })
+  stars.push({ x: 50, y: 26, size: 14, o: 1, rot: -6, new: true })
 
-  // Bosque de segmentos: cada estrella con su vecina previa más cercana.
-  const lines: { x1: number; y1: number; x2: number; y2: number }[] = []
+  // Conectores a lápiz: cada estrella con su vecina previa más cercana, curvados.
+  const lines: { d: string }[] = []
   const MAX_D2 = 24 * 24
   for (let i = 1; i < stars.length; i++) {
     let best = -1
@@ -114,11 +114,24 @@ const sky = computed(() => {
       }
     }
     if (best >= 0 && bd < MAX_D2) {
-      lines.push({ x1: stars[i]!.x, y1: stars[i]!.y, x2: stars[best]!.x, y2: stars[best]!.y })
+      lines.push({ d: penLine(stars[i]!.x, stars[i]!.y, stars[best]!.x, stars[best]!.y, rnd) })
     }
   }
   return { stars, lines }
 })
+
+// Traza una línea «a mano»: recta con leve curvatura perpendicular en el medio.
+function penLine(x1: number, y1: number, x2: number, y2: number, rnd: () => number) {
+  const mx = (x1 + x2) / 2
+  const my = (y1 + y2) / 2
+  const dx = x2 - x1
+  const dy = y2 - y1
+  const len = Math.hypot(dx, dy) || 1
+  const off = (rnd() * 2 - 1) * Math.min(2.5, len * 0.12)
+  const cxp = (mx + (-dy / len) * off).toFixed(1)
+  const cyp = (my + (dx / len) * off).toFixed(1)
+  return `M${x1} ${y1} Q${cxp} ${cyp} ${x2} ${y2}`
+}
 
 const stars = computed(() => sky.value.stars)
 const lines = computed(() => sky.value.lines)
@@ -142,7 +155,7 @@ const lines = computed(() => sky.value.lines)
 .constellation__star {
   position: absolute;
   display: block;
-  transform: translate(-50%, -50%);
+  transform: translate(-50%, -50%) rotate(var(--rot, 0deg));
   opacity: var(--o, 0.3);
 }
 /* Móvil: el cielo gana presencia (pantalla pequeña, máscara vertical aparte). */
