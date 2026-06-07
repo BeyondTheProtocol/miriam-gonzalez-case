@@ -10,9 +10,9 @@
 
         <!-- Coste de la rebiopsia: dos bloques (analizar ahora / preservar y bancar) -->
         <div class="card-base mb-6">
-          <p class="font-display font-semibold text-berenjena text-lg mb-2">
+          <h2 class="font-display font-semibold text-berenjena text-lg mb-2">
             {{ $t('expenses.rebiopsy_title') }}
-          </p>
+          </h2>
           <p class="text-sm text-tinta leading-relaxed mb-5 max-w-2xl">
             {{ $t('expenses.rebiopsy_intro') }}
           </p>
@@ -69,11 +69,16 @@
           </p>
         </div>
 
-        <!-- Desglose completo (12 partidas) · cuenta itemizada -->
+        <!-- Coste vs objetivo: cierra la duda "¿40k lo cubre todo?" -->
+        <p class="text-sm text-tinta italic mb-6 max-w-2xl">
+          {{ $t('expenses.cost_vs_goal') }}
+        </p>
+
+        <!-- Desglose completo · cuenta itemizada -->
         <div class="card-base mb-6">
-          <p class="font-display font-semibold text-berenjena text-lg mb-4">
+          <h2 class="font-display font-semibold text-berenjena text-lg mb-4">
             {{ $t('home.s4_list_intro') }}
-          </p>
+          </h2>
           <ul class="grid sm:grid-cols-2 gap-x-10">
             <li
               v-for="(item, i) in $tm('home.s4_list')"
@@ -92,19 +97,19 @@
 
         <!-- Preguntas frecuentes de donantes -->
         <div class="card-base mb-6">
-          <p class="font-display font-semibold text-berenjena text-lg mb-4">
+          <h2 class="font-display font-semibold text-berenjena text-lg mb-4">
             {{ $t('expenses.faq_title') }}
-          </p>
-          <dl class="space-y-4">
+          </h2>
+          <div class="space-y-4">
             <div
               v-for="n in 4"
               :key="n"
               class="border-t border-berenjena/[0.07] pt-4 first:border-t-0 first:pt-0"
             >
-              <dt class="text-sm font-semibold text-berenjena mb-1">
+              <h3 class="text-sm font-semibold text-berenjena mb-1">
                 {{ $t(`expenses.faq_q${n}`) }}
-              </dt>
-              <dd class="text-sm text-tinta leading-relaxed">
+              </h3>
+              <div class="text-sm text-tinta leading-relaxed">
                 {{ $t(`expenses.faq_a${n}`) }}
                 <NuxtLink
                   v-if="n === 4"
@@ -112,9 +117,9 @@
                   class="link-inline"
                   >{{ $t('expenses.faq_a4_link') }}</NuxtLink
                 ><template v-if="n === 4">.</template>
-              </dd>
+              </div>
             </div>
-          </dl>
+          </div>
           <p class="mt-5 text-sm text-tinta">
             {{ $t('expenses.faq_help') }}
             <NuxtLink :to="localePath('contacto')" class="link-inline">{{
@@ -162,5 +167,21 @@ useSeoMeta({
 defineOgImage('Default.takumi', {
   title: () => t('expenses.title'),
   description: () => t('expenses.subtitle'),
+})
+
+// FAQPage JSON-LD: las 4 preguntas/respuestas de donantes para rich results (C.6).
+const faqJsonLd = computed(() =>
+  JSON.stringify({
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: [1, 2, 3, 4].map((n) => ({
+      '@type': 'Question',
+      name: t(`expenses.faq_q${n}`),
+      acceptedAnswer: { '@type': 'Answer', text: t(`expenses.faq_a${n}`) },
+    })),
+  })
+)
+useHead({
+  script: [{ type: 'application/ld+json', innerHTML: faqJsonLd }],
 })
 </script>

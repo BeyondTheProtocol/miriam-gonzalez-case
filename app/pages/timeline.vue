@@ -74,9 +74,9 @@
                 >
                   <span class="w-[7px] h-[7px] rounded-full" style="background:#2d1b3d" />
                 </span>
-                <span class="font-mono text-[15px] font-semibold text-berenjena tracking-[0.04em] nums">
+                <h2 class="font-mono text-[15px] font-semibold text-berenjena tracking-[0.04em] nums">
                   {{ group.year }}
-                </span>
+                </h2>
               </div>
               <ul>
                 <TimelineEntry

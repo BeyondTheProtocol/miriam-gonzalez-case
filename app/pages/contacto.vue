@@ -227,15 +227,26 @@
 <script setup lang="ts">
 const { locale } = useI18n()
 
+const metaTitle = () => (locale.value === 'es' ? 'Contacto' : 'Contact')
+const metaDesc = () =>
+  locale.value === 'es'
+    ? '¿Eres profesional de la oncología, investigador, periodista o quieres ayudar? Escríbenos sobre el caso de Miriam.'
+    : "Are you an oncology professional, researcher, journalist or do you want to help? Write to us about Miriam's case."
+
 useSeoMeta({
-  title: () => (locale.value === 'es' ? 'Contacto' : 'Contact'),
-  description: () =>
-    locale.value === 'es'
-      ? '¿Eres oncólogo/a, investigador/a o periodista con interés en el caso? Contacta con el equipo de Miriam González para documentación clínica o colaboración.'
-      : "Are you an oncologist, researcher, or journalist interested in the case? Contact Miriam González's team for clinical documentation or collaboration.",
-  ogTitle: () => (locale.value === 'es' ? 'Contacto' : 'Contact'),
+  title: metaTitle,
+  description: metaDesc,
+  ogTitle: metaTitle,
+  ogDescription: metaDesc,
   ogType: 'website',
-  twitterCard: 'summary',
+  twitterCard: 'summary_large_image',
+  twitterTitle: metaTitle,
+  twitterDescription: metaDesc,
   robots: 'noindex',
+})
+
+defineOgImage('Default.takumi', {
+  title: metaTitle,
+  description: metaDesc,
 })
 </script>
