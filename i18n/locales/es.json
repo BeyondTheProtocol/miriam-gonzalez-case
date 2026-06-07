@@ -27,7 +27,7 @@
     "new_tab": "(se abre en una pestaña nueva)"
   },
   "glossary": {
-    "hint": "Toca o pasa el cursor por las palabras subrayadas para ver qué significan."
+    "hint": "Toca o pasa el cursor por las palabras y marcadores resaltados para ver qué significan."
   },
   "donatePrompt": {
     "q": "¿Has aportado? Gracias de corazón.",
@@ -331,7 +331,7 @@
       "ctDNA+",
       "SSTR2+"
     ],
-    "s8_markers_note": "Toca cada marcador para ver qué significa. Los que llevan «?» son hipótesis con evidencia parcial, pendientes de confirmación. Análisis completo en La ciencia.",
+    "s8_markers_note": "Los que llevan «?» son hipótesis con evidencia parcial, pendientes de confirmación. Análisis completo en La ciencia.",
     "s8_science_button": "Ver el perfil molecular completo",
     "s8_science_caption": "Documentación clínica abierta. Actualizada en 2026.",
     "s10_eyebrow": "Tres formas de contribuir · Elige la tuya",
@@ -368,6 +368,7 @@
     ],
     "s4_full_breakdown": "Ver el desglose completo",
     "story_p1_rarity": "menos de 1 de cada 1.000 casos",
+    "story_p1_source": "Fuente: análisis poblacional SEER · Transl. Cancer Res., 2023",
     "s4_p1_blind": "a ciegas"
   },
   "ciencia": {

@@ -16,6 +16,17 @@
           {{ $t('home.story_p1')
           }}<strong class="font-semibold text-cream">{{ $t('home.story_p1_rarity') }}</strong>{{ $t('home.story_p1_tail') }}
         </p>
+        <!-- Cita verificable de la rareza: que nadie pueda decir que es inventada. -->
+        <p class="mt-2.5 font-mono text-xs" style="color: rgba(250,246,240,0.5)">
+          <a
+            href="https://doi.org/10.21037/tcr-23-368"
+            target="_blank"
+            rel="noopener"
+            class="underline underline-offset-2 decoration-cream/25 transition-colors hover:text-cream/85"
+          >
+            {{ $t('home.story_p1_source') }}
+          </a>
+        </p>
         <!-- Atenuado mientras /historia esté en preparación: no manda tráfico
              "fuerte" a una página aún provisional (la nota ya enlaza redes + La ciencia). -->
         <NuxtLink
@@ -223,9 +234,7 @@
               <span v-else class="badge-genomic">{{ $rt(m) }}</span>
             </template>
           </div>
-          <p class="mt-4 text-xs text-tinta leading-relaxed max-w-2xl">
-            {{ $t('home.s8_markers_note') }}
-          </p>
+          <Nota class="mt-4 max-w-2xl">{{ $t('home.s8_markers_note') }}</Nota>
         </div>
 
         <div class="mt-8 flex flex-col sm:flex-row sm:items-center gap-4">
