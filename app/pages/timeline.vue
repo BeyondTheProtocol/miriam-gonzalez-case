@@ -20,6 +20,9 @@
           </p>
         </PageHeader>
 
+        <!-- Contador del estado actual: días sin una nueva línea activa (P3c). -->
+        <DaysWaitingCounter class="max-w-[17rem] mb-10" />
+
         <!-- Filtro por tipo de hito: doble público — quien busca la ciencia salta a
              «Perfil molecular»; quien sigue la historia, a «Equipo y difusión». -->
         <div

@@ -29,6 +29,10 @@
   "glossary": {
     "hint": "Toca o pasa el cursor por las palabras subrayadas para ver qué significan."
   },
+  "counter": {
+    "label": "días esperando una nueva línea de tratamiento",
+    "sub": "desde que se suspendió la 2ª línea (abemaciclib), el 30/04/2026"
+  },
   "error": {
     "e404_code": "Error 404",
     "e404_label": "Página no encontrada",

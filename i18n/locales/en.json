@@ -29,6 +29,10 @@
   "glossary": {
     "hint": "Tap or hover the underlined words to see what they mean."
   },
+  "counter": {
+    "label": "days waiting for a new line of treatment",
+    "sub": "since the 2nd line (abemaciclib) was stopped, on 30 Apr 2026"
+  },
   "error": {
     "e404_code": "Error 404",
     "e404_label": "Page not found",
