@@ -73,7 +73,7 @@
           <span
             v-for="a in anchors"
             :key="'lbl-' + a.key"
-            class="starmap__label"
+            :class="['starmap__label', a.side ? 'starmap__label--' + a.side : '']"
             :style="{ left: a.x + '%', top: a.y + '%' }"
           >{{ a.name }}</span>
           <span class="starmap__m44" :style="{ left: BEEHIVE.x + '%', top: BEEHIVE.y + '%' }">M44 · el Pesebre<small>≈1000 estrellas</small></span>
@@ -179,11 +179,13 @@ function penLine(x1: number, y1: number, x2: number, y2: number, rnd: () => numb
 // ── La constelación de Cáncer (Y invertida); tamaño del ancla por magnitud. ──
 const BEEHIVE = { x: 41, y: 48 }
 const anchors = [
-  { key: 'tarf', name: 'Tarf', x: 13, y: 78, mag: 3.5 },
-  { key: 'asAus', name: 'Asellus Australis', x: 45, y: 60, mag: 3.9 },
-  { key: 'asBor', name: 'Asellus Borealis', x: 48, y: 34, mag: 4.7 },
-  { key: 'iota', name: 'Iota Cnc', x: 53, y: 13, mag: 4.0 },
-  { key: 'acubens', name: 'Acubens', x: 85, y: 64, mag: 4.2 },
+  { key: 'tarf', name: 'Tarf', x: 13, y: 78, mag: 3.5, side: '' },
+  // δ con la etiqueta DEBAJO: arriba chocaba con la anotación de M44.
+  { key: 'asAus', name: 'Asellus Australis', x: 45, y: 60, mag: 3.9, side: 'below' },
+  { key: 'asBor', name: 'Asellus Borealis', x: 48, y: 34, mag: 4.7, side: '' },
+  { key: 'iota', name: 'Iota Cnc', x: 53, y: 13, mag: 4.0, side: '' },
+  // α pegada al borde derecho: etiqueta hacia la izquierda para no recortarse en móvil.
+  { key: 'acubens', name: 'Acubens', x: 85, y: 64, mag: 4.2, side: 'left' },
 ].map((a) => ({ ...a, size: +Math.max(8, 17 - (a.mag - 3.5) * 3).toFixed(1) }))
 
 const asterism = computed(() => {
@@ -239,20 +241,29 @@ const stars = computed<Star[]>(() => {
       newestIdx = i
     }
   })
+  // Rebote en los bordes: si una estrella se sale, vuelve hacia dentro (el
+  // clamp duro creaba columnas de estrellas pegadas a las paredes).
+  const reflect = (v: number, min: number, max: number) => {
+    if (v < min) v = min + (min - v)
+    if (v > max) v = max - (v - max)
+    return Math.max(min, Math.min(max, v))
+  }
   return ds.map((d, i) => {
     const rnd = mulberry32(hashStr(String(d.id ?? `${d.name}-${d.createdAt ?? i}`)))
     // Radio desde el corazón: mayor importe → más cerca (núcleo del Pesebre).
+    // Núcleo con algo más de aire (radio mínimo 8, jitter ±5) para que a
+    // escala 1 sea un cúmulo denso pero no una masa sólida.
     const p = d.amount > 0 ? pct(d.amount) : rnd()
-    const radius = 4 + (1 - p) * 44 + (rnd() - 0.5) * 6
+    const radius = 8 + (1 - p) * 38 + (rnd() - 0.5) * 10
     const ang = rnd() * Math.PI * 2
-    let x = BEEHIVE.x + Math.cos(ang) * radius * 1.3
+    let x = BEEHIVE.x + Math.cos(ang) * radius * 1.25
     let y = BEEHIVE.y + Math.sin(ang) * radius
-    x = +Math.max(2, Math.min(98, x)).toFixed(2)
-    y = +Math.max(6, Math.min(94, y)).toFixed(2)
-    const o = +(0.42 + rnd() * 0.35).toFixed(2)
-    let size = +(5 + rnd() * 3).toFixed(1)
+    x = +reflect(x, 2, 98).toFixed(2)
+    y = +reflect(y, 6, 94).toFixed(2)
+    const o = +(0.4 + rnd() * 0.35).toFixed(2)
+    let size = +(4.5 + rnd() * 2.5).toFixed(1)
     if (median > 0 && d.amount > 0) {
-      size = +Math.min(11, Math.max(4.5, 7 + 2.4 * Math.log10(d.amount / median))).toFixed(1)
+      size = +Math.min(10, Math.max(4, 7 + 2.2 * Math.log10(d.amount / median))).toFixed(1)
     }
     const newest = i === newestIdx
     return {
@@ -565,11 +576,21 @@ const tipStyle = computed(() => {
   color: rgba(58, 51, 64, 0.72);
   pointer-events: none;
 }
+.starmap__label--below {
+  transform: translate(12px, 18px);
+}
+.starmap__label--left {
+  transform: translate(-12px, -22px) translateX(-100%);
+}
+/* M44 anotado a la IZQUIERDA del aura, alineado a la derecha hacia el cúmulo
+   (antes caía encima de la etiqueta de Asellus Australis). */
 .starmap__m44 {
   position: absolute;
   display: flex;
   flex-direction: column;
-  transform: translate(14px, 16px);
+  align-items: flex-end;
+  text-align: right;
+  transform: translate(-12px, -10px) translateX(-100%);
   font-family: 'Caveat', 'Bradley Hand', cursive;
   font-size: 16px;
   font-weight: 700;
