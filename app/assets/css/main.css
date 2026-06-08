@@ -132,6 +132,28 @@
     border: 1px solid rgba(45, 27, 61, 0.08);
   }
 
+  /* D8 · pulido desktop: lift sutil al pasar el cursor SOLO en tarjetas
+     interactivas (las que son enlace o botón). Gated a punteros finos
+     (@media hover) → el táctil/móvil no se ve afectado; sin movimiento con
+     reduced-motion. Las tarjetas estáticas (div.card-base) no se mueven. */
+  @media (hover: hover) {
+    a.card-base,
+    button.card-base {
+      transition: transform 0.18s ease, box-shadow 0.18s ease;
+    }
+    a.card-base:hover,
+    button.card-base:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 14px 34px rgba(45, 27, 61, 0.1);
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    a.card-base:hover,
+    button.card-base:hover {
+      transform: none;
+    }
+  }
+
   /* DS botones */
   .btn-cta {
     @apply inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-btn font-semibold text-berenjena bg-coral hover:bg-coral-hover transition-all;
