@@ -70,7 +70,7 @@
           </g>
 
           <!-- Lado NEUROENDOCRINO: penumbra de puntitos (stippling = lo desconocido) -->
-          <g fill="#2d1b3d" stroke="none" opacity="0.32">
+          <g fill="#2d1b3d" stroke="none" opacity="0.38">
             <circle v-for="(u, i) in unknownNodes" :key="'u' + i" :cx="u.x" :cy="u.y" :r="u.r" />
           </g>
 
@@ -104,7 +104,7 @@
         <!-- Etiquetas -->
         <g class="tf2__hand" fill="#2d1b3d">
           <text :x="ann.mama.x" :y="ann.mama.y" :transform="`rotate(-7 ${ann.mama.x} ${ann.mama.y})`" class="tf2__label tf2__up">{{ $t('twofaces.lum_word') }}</text>
-          <text :x="ann.ne.x" :y="ann.ne.y" :transform="`rotate(5 ${ann.ne.x} ${ann.ne.y})`" class="tf2__label tf2__up">{{ $t('twofaces.ne_word') }}</text>
+          <text :x="ann.ne.x" :y="ann.ne.y" :transform="`rotate(5 ${ann.ne.x} ${ann.ne.y})`" class="tf2__label tf2__label--sm tf2__up">{{ $t('twofaces.ne_word') }}</text>
           <text :x="ann.mapped.x" :y="ann.mapped.y" :transform="`rotate(-4 ${ann.mapped.x} ${ann.mapped.y})`" class="tf2__note tf2__up" opacity="0.75">{{ $t('twofaces.note_mapped') }}</text>
           <text :x="ann.dark.x" :y="ann.dark.y" :transform="`rotate(4 ${ann.dark.x} ${ann.dark.y})`" class="tf2__note tf2__up" opacity="0.6">{{ $t('twofaces.note_dark') }}</text>
           <!-- ? sobre la penumbra -->
@@ -119,8 +119,8 @@
         </g>
         <!-- Cierre: un mismo tumor, se tratan juntas (subrayado coral a mano) -->
         <g class="tf2__hand">
-          <text x="220" y="366" text-anchor="middle" class="tf2__together-txt" fill="#2d1b3d">{{ $t('twofaces.together') }}</text>
-          <path d="M96 373 Q220 379 344 372" fill="none" stroke="#ff6b47" stroke-width="2" stroke-linecap="round" />
+          <text x="220" y="366" text-anchor="middle" class="tf2__together-txt" fill="#2d1b3d">{{ $t('twofaces.together_short') }}</text>
+          <path d="M118 372 Q220 377 322 371" fill="none" stroke="#ff6b47" stroke-width="2" stroke-linecap="round" />
         </g>
       </svg>
     </figure>
@@ -181,19 +181,37 @@ function penLine(x1: number, y1: number, x2: number, y2: number, rnd: () => numb
   return `M${x1} ${y1} Q${(mx + (-dy / len) * off).toFixed(1)} ${(my + (dx / len) * off).toFixed(1)} ${x2} ${y2}`
 }
 
-// Célula dibujada a mano: círculo "imperfecto" con radios ligeramente variables.
+// Cierra una nube de puntos con curvas suaves (Catmull-Rom → Bézier):
+// el wobble queda orgánico, como trazo de boli, no facetado.
+function smoothClosed(pts: { x: number; y: number }[]) {
+  const n = pts.length
+  const P = (i: number) => pts[((i % n) + n) % n]!
+  let d = `M${P(0).x.toFixed(1)} ${P(0).y.toFixed(1)}`
+  for (let i = 0; i < n; i++) {
+    const p0 = P(i - 1)
+    const p1 = P(i)
+    const p2 = P(i + 1)
+    const p3 = P(i + 2)
+    const c1x = p1.x + (p2.x - p0.x) / 6
+    const c1y = p1.y + (p2.y - p0.y) / 6
+    const c2x = p2.x - (p3.x - p1.x) / 6
+    const c2y = p2.y - (p3.y - p1.y) / 6
+    d += ` C${c1x.toFixed(1)} ${c1y.toFixed(1)}, ${c2x.toFixed(1)} ${c2y.toFixed(1)}, ${p2.x.toFixed(1)} ${p2.y.toFixed(1)}`
+  }
+  return d + ' Z'
+}
+
+// Célula dibujada a mano: blob suave con radios ligeramente variables.
 const cellPath = computed(() => {
   const rnd = mulberry32(99)
-  const pts: string[] = []
+  const pts: { x: number; y: number }[] = []
   const N = 16
-  for (let i = 0; i <= N; i++) {
+  for (let i = 0; i < N; i++) {
     const ang = (i / N) * Math.PI * 2
     const rr = R + (rnd() * 2 - 1) * 5
-    const x = (cx + Math.cos(ang) * rr).toFixed(1)
-    const y = (cy + Math.sin(ang) * rr * 0.98).toFixed(1)
-    pts.push((i === 0 ? 'M' : 'L') + x + ' ' + y)
+    pts.push({ x: cx + Math.cos(ang) * rr, y: cy + Math.sin(ang) * rr * 0.98 })
   }
-  return pts.join(' ') + ' Z'
+  return smoothClosed(pts)
 })
 const seamPath = `M${cx} ${cy - R + 10} Q${cx + 6} ${cy} ${cx - 4} ${cy + R - 10}`
 
@@ -207,22 +225,20 @@ const knownNodes = computed(() => {
     arrow: penLine(ax, ay, x + 13, y - 6, mulberry32(Math.round(x * y))),
   })
   return [
-    mk(300, 116, 'RB1', t('twofaces.rb1_note'), 352, 104, 350, 100),
+    mk(294, 122, 'RB1', t('twofaces.rb1_note'), 348, 108, 346, 104),
     mk(286, 244, 'SSTR2', t('twofaces.sstr2_note'), 338, 250, 336, 246),
   ]
 })
 function handRing(x: number, y: number, rx: number, ry: number) {
-  // Elipse abierta dibujada a mano (empieza y acaba con un pequeño solape).
-  const p: string[] = []
-  const N = 14
+  // Aro rodeado a boli: elipse suave con leve temblor (curvas, no facetas).
+  const pts: { x: number; y: number }[] = []
+  const N = 12
   const rnd = mulberry32(Math.round(x + y))
-  for (let i = 0; i <= N + 2; i++) {
+  for (let i = 0; i < N; i++) {
     const ang = (i / N) * Math.PI * 2 - 0.5
-    const jx = (rnd() * 2 - 1) * 1.4
-    const jy = (rnd() * 2 - 1) * 1.4
-    p.push((i === 0 ? 'M' : 'L') + (x + Math.cos(ang) * rx + jx).toFixed(1) + ' ' + (y + Math.sin(ang) * ry + jy).toFixed(1))
+    pts.push({ x: x + Math.cos(ang) * rx + (rnd() * 2 - 1) * 1.2, y: y + Math.sin(ang) * ry + (rnd() * 2 - 1) * 1.2 })
   }
-  return p.join(' ')
+  return smoothClosed(pts)
 }
 
 const geometry = computed(() => {
@@ -260,7 +276,7 @@ const geometry = computed(() => {
     const y = cy - R + rnd() * (2 * R)
     const farFromKnown = kn.every((k) => (k.x - x) ** 2 + (k.y - y) ** 2 > 30 * 30)
     if (x > cx + 10 && inCell(x, y, 14) && farFromKnown) {
-      unknownNodes.push({ x: +x.toFixed(1), y: +y.toFixed(1), r: +(1.2 + rnd() * 1.4).toFixed(1) })
+      unknownNodes.push({ x: +x.toFixed(1), y: +y.toFixed(1), r: +(1.6 + rnd() * 1.6).toFixed(1) })
     }
   }
   const bridges = kn.map((k) => {
@@ -289,8 +305,8 @@ const qmarks = [
 // Anotaciones manuscritas con flecha (posiciones fijas).
 const ann = computed(() => ({
   mama: { x: 44, y: 60, arrow: 'M70 66 Q92 78 110 104' },
-  ne: { x: 250, y: 44, arrow: 'M300 52 Q318 66 318 92' },
-  mapped: { x: 34, y: 300, arrow: 'M96 296 Q120 280 138 250' },
+  ne: { x: 244, y: 44, arrow: 'M298 52 Q318 66 318 92' },
+  mapped: { x: 28, y: 318, arrow: 'M92 310 Q118 288 140 256' },
   dark: { x: 250, y: 322, arrow: 'M300 316 Q300 296 296 276' },
 }))
 
@@ -354,6 +370,9 @@ onBeforeUnmount(() => io?.disconnect())
   font-size: 20px;
   font-weight: 700;
 }
+.tf2__label--sm {
+  font-size: 17px;
+}
 .tf2__note {
   font-size: 15px;
 }
@@ -364,7 +383,7 @@ onBeforeUnmount(() => io?.disconnect())
   fill: #2d1b3d;
 }
 .tf2__together-txt {
-  font-size: 19px;
+  font-size: 18px;
   font-weight: 700;
 }
 

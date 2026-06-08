@@ -94,7 +94,8 @@
     "rb1_note": "the driver",
     "sstr2_note": "PRRT route",
     "unknown_mark": "what is missing",
-      "together": "One same tumor. Both faces are treated together."
+      "together": "One same tumor. Both faces are treated together.",
+    "together_short": "Both faces are treated together."
     },
   "error": {
     "e404_code": "Error 404",
