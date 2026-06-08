@@ -65,6 +65,8 @@
       "intro": "No es un tumor: son dos biologías en el mismo cuerpo, y hay que tratarlas a la vez.",
       "lum_head": "MAMA · luminal",
       "lum_sub": "la conocemos entera",
+    "lum_g1": "HR+ · HER2− · ESR1",
+    "lum_g2": "FGFR1 · CCND1",
       "lum_markers": [
         "HER2−",
         "HR+",
@@ -83,7 +85,7 @@
     "hr": "HR+",
     "her2": "HER2−",
       "rb1": "RB1 perdido",
-      "rb1_note": "el interruptor",
+      "rb1_note": "dispara el 80%",
       "sstr2": "SSTR2",
       "sstr2_note": "receptores → PRRT",
       "close1": "Bloquéalo por un lado y escapa por el otro.",
