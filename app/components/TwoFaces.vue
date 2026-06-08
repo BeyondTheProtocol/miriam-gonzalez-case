@@ -40,20 +40,25 @@
         <text x="324" y="150" text-anchor="middle" class="tf2__pct">{{ $t('twofaces.pct') }}</text>
         <text x="324" y="167" text-anchor="middle" class="tf2__cgsyn" translate="no">{{ $t('twofaces.cgsyn') }}</text>
 
-        <!-- Lo conocido (luminal): un glifo por tipo de hallazgo —
-             amplificación = círculo doble (copias), mutación = rombo,
-             receptor = «Y» (HER2 tachado por negativo). Nombres legibles. -->
+        <!-- Receptores hormonales HR+ sobre la membrana luminal (presentes, lila,
+             igual que SSTR2 pero magenta) -->
+        <g stroke="#9d44ab" stroke-width="1.6" stroke-linecap="round" fill="none">
+          <path v-for="(r, i) in hrReceptors" :key="'hr' + i" :d="r" />
+        </g>
+        <text x="10" y="160" class="tf2__rec-lab" translate="no">HR+</text>
+        <!-- HER2 negativo = NO lo tiene: receptor ausente (fantasma punteado) -->
+        <path :d="her2Ghost" fill="none" stroke="#9d44ab" stroke-width="1.4" stroke-linecap="round" stroke-dasharray="2 2" opacity="0.45" />
+        <text x="10" y="92" class="tf2__rec-off" translate="no">HER2−</text>
+
+        <!-- Alteraciones genómicas del lado luminal (dentro): amplificación =
+             círculo doble (copias), mutación = rombo. Nombres legibles. -->
         <g v-for="(g, i) in genes" :key="'g' + i">
           <template v-if="g.t === 'amp'">
-            <circle cx="58" :cy="gy(i)" r="4.5" fill="none" stroke="#9d44ab" stroke-width="1.4" />
-            <circle cx="58" :cy="gy(i)" r="1.7" fill="#9d44ab" />
+            <circle cx="104" :cy="gy(i)" r="4.5" fill="none" stroke="#9d44ab" stroke-width="1.4" />
+            <circle cx="104" :cy="gy(i)" r="1.7" fill="#9d44ab" />
           </template>
-          <path v-else-if="g.t === 'mut'" :d="diamond(58, gy(i))" fill="none" stroke="#9d44ab" stroke-width="1.4" />
-          <template v-else>
-            <path :d="recGlyph(58, gy(i))" fill="none" stroke="#9d44ab" stroke-width="1.5" stroke-linecap="round" />
-            <path v-if="g.t === 'recneg'" :d="slash(58, gy(i))" stroke="#bb4128" stroke-width="1.5" stroke-linecap="round" />
-          </template>
-          <text x="72" :y="gy(i) + 4" class="tf2__genes" translate="no">{{ g.n }}</text>
+          <path v-else :d="diamond(104, gy(i))" fill="none" stroke="#9d44ab" stroke-width="1.4" />
+          <text x="116" :y="gy(i) + 4" class="tf2__genes" translate="no">{{ g.n }}</text>
         </g>
 
         <!-- Las dos certezas neuroendocrinas -->
@@ -190,21 +195,28 @@ const genes = [
   { n: 'FGFR1', t: 'amp' },
   { n: 'CCND1', t: 'amp' },
   { n: 'ESR1', t: 'mut' },
-  { n: 'HR+', t: 'rec' },
-  { n: 'HER2−', t: 'recneg' },
 ]
 function gy(i: number) {
-  return 98 + i * 19
+  return 100 + i * 22
 }
 function diamond(x: number, y: number) {
   return `M${x} ${y - 4} l4 4 l-4 4 l-4 -4 z`
 }
-function recGlyph(x: number, y: number) {
-  return `M${x} ${y + 5} L${x} ${y - 1} M${x} ${y - 1} L${x - 3.5} ${y - 5} M${x} ${y - 1} L${x + 3.5} ${y - 5}`
-}
-function slash(x: number, y: number) {
-  return `M${x - 4} ${y + 3} L${x + 4} ${y - 5}`
-}
+
+// Receptores hormonales HR+ sobre la membrana luminal (presentes, arco izq.).
+const hrReceptors = computed(() => {
+  const out: string[] = []
+  for (const deg of [156, 174, 192]) {
+    const a = (deg * Math.PI) / 180
+    out.push(recPath(FX + Math.cos(a) * RX, FY + Math.sin(a) * RY, Math.cos(a), Math.sin(a)))
+  }
+  return out
+})
+// HER2 negativo: receptor ausente (un solo «fantasma» en el arco superior izq.).
+const her2Ghost = (() => {
+  const a = (208 * Math.PI) / 180
+  return recPath(FX + Math.cos(a) * RX, FY + Math.sin(a) * RY, Math.cos(a), Math.sin(a))
+})()
 // Gránulos Cg/Syn (el 80%), esquivando RB1, SSTR2, el rótulo central y el borde.
 const granules = computed(() => {
   const rnd = mulberry32(424242)
@@ -259,6 +271,18 @@ const ariaLabel = computed(() => t('twofaces.sr'))
   font-size: 15px;
   font-weight: 700;
   fill: #6a2475;
+}
+.tf2__rec-lab {
+  font-family: 'Caveat', 'Bradley Hand', cursive;
+  font-size: 14px;
+  font-weight: 700;
+  fill: #6a2475;
+}
+.tf2__rec-off {
+  font-family: 'Caveat', 'Bradley Hand', cursive;
+  font-size: 14px;
+  font-weight: 700;
+  fill: #8a857e;
 }
 .tf2__known-m {
   font-family: 'Caveat', 'Bradley Hand', cursive;
