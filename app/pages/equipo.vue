@@ -1,7 +1,7 @@
 <template>
   <div>
     <section class="section-spacing" :aria-label="$t('team.title')">
-      <div class="section-container">
+      <div class="section-wide">
         <PageHeader :title="$t('team.title')" :subtitle="$t('team.subtitle')" />
 
         <!-- El equipo de Miriam · retratos del círculo cercano (Miriam, primera) -->
@@ -26,7 +26,7 @@
         </h2>
         <ul
           aria-labelledby="team-medical"
-          class="grid sm:grid-cols-2 gap-4 mb-14 stagger-children"
+          class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-14 stagger-children"
         >
           <li v-for="member in medicalNetwork" :key="member.role">
             <TeamCard :member="member" />
@@ -39,7 +39,7 @@
         </h2>
         <ul
           aria-labelledby="team-integrative"
-          class="grid sm:grid-cols-2 gap-4 stagger-children"
+          class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 stagger-children"
         >
           <li v-for="member in integrativeSupport" :key="member.role">
             <TeamCard :member="member" />
@@ -47,9 +47,11 @@
         </ul>
 
         <!-- Cierre · "Lo que NO somos" (honestidad operativa) + Beyond the
-             Protocol (próximamente) + cómo ayudar. Panel oscuro sobrio. -->
+             Protocol (próximamente) + cómo ayudar. Panel oscuro sobrio.
+             D5: contenido a max-w-4xl (alineado a la izquierda del shell) para
+             que el panel no quede con un hueco grande a la derecha a 1200px. -->
         <section
-          class="mt-16 relative overflow-hidden rounded-card p-8 sm:p-12"
+          class="mt-16 relative overflow-hidden rounded-card p-8 sm:p-12 max-w-4xl"
           style="background: #2d1b3d; color: #faf6f0"
           :aria-labelledby="'notus-title'"
         >

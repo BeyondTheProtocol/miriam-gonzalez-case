@@ -73,7 +73,19 @@
   }
 
   .section-wide {
-    @apply max-w-6xl mx-auto px-6 sm:px-8 lg:px-12;
+    @apply mx-auto px-6 sm:px-8 lg:px-12;
+    /* Ancho canónico ÚNICO para header, footer y cuerpo de todas las páginas
+       (D1). 1200px (antes max-w-6xl = 1152) respira mejor a 1920 y sigue cómodo
+       a 1440. En < 1200px el max-width no aplica → móvil intacto. */
+    max-width: 75rem;
+  }
+
+  /* Medida de lectura para párrafos largos DENTRO del shell ancho: limita el
+     ancho pero alineado a la IZQUIERDA del shell (no centrado), para que cuadre
+     con el logo y el H1. Solo es un tope: en móvil ocupa el 100%. */
+  .measure {
+    max-width: 72ch;
+    margin-inline-start: 0;
   }
 
   .section-spacing {
@@ -118,6 +130,28 @@
   .card-base {
     @apply bg-cream-card rounded-card p-6 sm:p-8;
     border: 1px solid rgba(45, 27, 61, 0.08);
+  }
+
+  /* D8 · pulido desktop: lift sutil al pasar el cursor SOLO en tarjetas
+     interactivas (las que son enlace o botón). Gated a punteros finos
+     (@media hover) → el táctil/móvil no se ve afectado; sin movimiento con
+     reduced-motion. Las tarjetas estáticas (div.card-base) no se mueven. */
+  @media (hover: hover) {
+    a.card-base,
+    button.card-base {
+      transition: transform 0.18s ease, box-shadow 0.18s ease;
+    }
+    a.card-base:hover,
+    button.card-base:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 14px 34px rgba(45, 27, 61, 0.1);
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    a.card-base:hover,
+    button.card-base:hover {
+      transform: none;
+    }
   }
 
   /* DS botones */

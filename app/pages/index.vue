@@ -344,13 +344,16 @@
 
     <section v-reveal class="section-spacing bg-cream" :aria-label="$t('home.pro_eyebrow')">
       <div class="section-container max-w-3xl">
-        <div class="card-base flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
+        <!-- D7: en desktop apila (título a todo el ancho arriba, botones debajo)
+             en vez de texto|botones lado a lado, que estrujaba el título a 4
+             líneas y dejaba hueco abajo. En móvil ya era flex-col → idéntico. -->
+        <div class="card-base flex flex-col gap-5">
           <div>
             <p class="eyebrow mb-2 block">{{ $t('home.pro_eyebrow') }}</p>
-            <p class="font-display font-semibold text-berenjena text-lg">{{ $t('home.pro_text') }}</p>
+            <p class="font-display font-semibold text-berenjena text-lg sm:text-xl max-w-2xl">{{ $t('home.pro_text') }}</p>
             <p class="text-sm text-tinta mt-1">{{ $t('home.pro_sub') }}</p>
           </div>
-          <div class="flex flex-col sm:flex-row gap-3 shrink-0">
+          <div class="flex flex-col sm:flex-row gap-3">
             <NuxtLink :to="localePath('colabora') + '#revision-clinica'" class="btn-secondary">
               <Icon name="ph:stethoscope" class="w-4 h-4" aria-hidden="true" />
               {{ $t('home.pro_clinical') }}

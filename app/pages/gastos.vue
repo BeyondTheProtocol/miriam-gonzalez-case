@@ -1,10 +1,10 @@
 <template>
   <div>
     <section class="section-spacing bg-cream" :aria-label="$t('expenses.title')">
-      <div class="section-container max-w-3xl">
+      <div class="section-wide">
         <PageHeader :title="$t('expenses.title')" :subtitle="$t('expenses.subtitle')" />
 
-        <p class="text-base text-tinta leading-relaxed mb-8 max-w-2xl">
+        <p class="text-base text-tinta leading-relaxed mb-8 measure">
           {{ $t('expenses.intro') }}
         </p>
 
