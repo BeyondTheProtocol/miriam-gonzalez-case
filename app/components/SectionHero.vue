@@ -86,7 +86,14 @@
               <!-- «dos caras»: un trazo a mano (como las anotaciones de la
                    ilustración) se PINTA bajo la frase al entrar — primero la
                    mitad magenta (luminal), luego la coral (neuroendocrina). -->
-              <span class="two-faces"><span class="tf-w tf-w--a">{{ tfWords[0] }}</span> <span class="tf-w tf-w--b">{{ tfWords[1] }}</span></span>
+              <span class="two-faces">{{ $t('hero.twofaces') }}<svg
+                class="two-faces__stroke"
+                viewBox="0 0 100 8"
+                preserveAspectRatio="none"
+                aria-hidden="true"
+              >
+                <path class="tf-line" pathLength="1" d="M2 5.4 C 16 3.4, 38 7, 58 4.8 C 74 3.2, 90 6, 98 4.6" />
+              </svg></span>
             </template>
           </i18n-t>
 
@@ -225,12 +232,6 @@ function parseTimelineDate(s?: string): Date | null {
   const d = new Date(s)
   return isNaN(+d) ? null : d
 }
-// «dos caras» → ['dos','caras'] (primera palabra, resto): cada una se pinta a su tiempo.
-const tfWords = computed(() => {
-  const words = t('hero.twofaces').trim().split(' ')
-  return [words[0] ?? '', words.slice(1).join(' ')]
-})
-
 const latestAgo = computed(() => {
   const d = parseTimelineDate((latest.value as { date?: string } | null)?.date)
   if (!d) return null
@@ -278,50 +279,42 @@ const stats = computed(() => [
 </script>
 
 <style scoped>
-/* «dos caras»: en negrita y cada palabra se pinta a su tiempo — primero
-   «dos» (magenta, luminal), luego «caras» (coral profundo, neuroendocrina):
-   la tinta barre cada palabra de izquierda a derecha, como escribiéndola.
-   Coral-deep = contraste AA sobre crema. Con reduced-motion (o sin
-   background-clip:text) las palabras aparecen ya pintadas, sin animación. */
+/* «dos caras»: anotación del cuaderno — subrayado a mano alzada en UN solo
+   color (magenta = concepto), que se traza una vez al entrar, como si la
+   frase la hubiera subrayado Miriam a boli. La dualidad del tumor ya la
+   cuenta /ciencia; aquí basta el gesto. Con reduced-motion (o sin soporte)
+   el trazo aparece ya dibujado. */
 .two-faces {
+  position: relative;
   font-style: italic;
   font-weight: 700;
   white-space: nowrap;
-  color: #9d44ab; /* fallback sin background-clip */
 }
-@supports ((-webkit-background-clip: text) or (background-clip: text)) {
-  .tf-w {
-    background-size: 205% 100%;
-    background-position: 0% 0; /* estático / reduced-motion: pintada */
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
-  }
-  .tf-w--a {
-    background-image: linear-gradient(100deg, #9d44ab 49.8%, #3a3340 50.2%);
-  }
-  .tf-w--b {
-    background-image: linear-gradient(100deg, #bb4128 49.8%, #3a3340 50.2%);
-  }
-  @media (prefers-reduced-motion: no-preference) {
-    .tf-w {
-      background-position: 100% 0; /* sin pintar (tinta) hasta su turno */
-      animation: tf-wipe 0.6s ease-out both;
-    }
-    .tf-w--a {
-      animation-delay: 0.7s;
-    }
-    .tf-w--b {
-      animation-delay: 1.4s;
-    }
-  }
+.two-faces__stroke {
+  position: absolute;
+  left: -1.5%;
+  bottom: -0.22em;
+  width: 103%;
+  height: 0.34em;
+  overflow: visible;
+  pointer-events: none;
 }
-@keyframes tf-wipe {
-  from {
-    background-position: 100% 0;
+.tf-line {
+  fill: none;
+  stroke: #9d44ab;
+  stroke-width: 2.6;
+  stroke-linecap: round;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .tf-line {
+    stroke-dasharray: 1;
+    stroke-dashoffset: 1;
+    animation: tf-draw 0.55s ease-out 0.8s forwards;
   }
-  to {
-    background-position: 0% 0;
+  @keyframes tf-draw {
+    to {
+      stroke-dashoffset: 0;
+    }
   }
 }
 
