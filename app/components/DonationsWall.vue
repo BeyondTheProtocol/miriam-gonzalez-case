@@ -6,10 +6,19 @@
     :aria-labelledby="'gracias-title'"
   >
     <div class="section-container relative z-10">
-      <!-- El mapa ES la pieza (como la imagen del cuaderno): sin encabezado
-           visible — el título queda solo para lectores de pantalla y SEO.
-           El pie manuscrito y la nota de navegación viven dentro de StarMap. -->
-      <h2 id="gracias-title" class="sr-only">{{ $t('thanksWall.title') }}</h2>
+      <!-- Encabezado + la pieza: la frase manuscrita va ENCIMA del mapa
+           (dentro de StarMap) y la nota de navegación + botón, debajo. -->
+      <div class="mb-6">
+        <p class="eyebrow mb-3 block">{{ $t('thanksWall.eyebrow') }}</p>
+        <h2
+          id="gracias-title"
+          class="heading-display text-3xl sm:text-4xl text-berenjena mb-3"
+          style="letter-spacing: -0.02em"
+        >
+          {{ $t('thanksWall.title') }}
+        </h2>
+        <p class="text-tinta leading-relaxed max-w-2xl">{{ $t('thanksWall.subtitle') }}</p>
+      </div>
       <StarMap
         v-if="loaded && donations.length"
         :donations="donations"
