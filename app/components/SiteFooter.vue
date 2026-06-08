@@ -7,7 +7,7 @@
         <p class="text-cream/70 text-xs font-mono font-medium uppercase tracking-[0.12em] mb-8">
           {{ $t('index.supported_by') }}
         </p>
-        <ul class="grid grid-cols-2 sm:grid-cols-4 items-center justify-items-center gap-x-8 gap-y-9 max-w-2xl mx-auto">
+        <ul class="grid grid-cols-2 sm:grid-cols-4 items-center justify-items-center gap-x-8 sm:gap-x-14 gap-y-9 max-w-2xl mx-auto">
           <li v-for="s in supporters" :key="s.name" class="flex items-center justify-center">
             <a
               v-if="s.url"
@@ -42,7 +42,9 @@
       </div>
     </section>
     <div class="section-wide py-12 sm:py-16">
-      <div class="grid sm:grid-cols-3 gap-8">
+      <!-- D6: marca (2fr) + Navegación/Social (1fr c/u) repartidas a lo ancho del
+           shell. En < md se apila (1 col); en móvil 375-390 es idéntico a hoy. -->
+      <div class="grid gap-10 md:grid-cols-[2fr_1fr_1fr] lg:gap-16 items-start">
         <!-- Brand -->
         <div>
           <div class="flex items-center gap-2.5 mb-3">
