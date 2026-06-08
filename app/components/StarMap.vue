@@ -3,16 +3,22 @@
     <!-- Cómo se juega: nota de gesto (dedito), antes del cielo. -->
     <Nota icon="tap" class="mb-3">{{ $t('thanksWall.sky_hint') }}</Nota>
 
-    <!-- La carta celeste. Interactiva pero decorativa para lectores de
-         pantalla: la tabla de abajo es la versión accesible de estos datos. -->
-    <div
-      ref="card"
-      class="starmap"
-      aria-hidden="true"
-      @pointerdown="onTap"
-      @pointermove="onMove"
-      @pointerleave="hoverIdx = null"
-    >
+    <!-- La carta celeste: más grande que la pantalla — se explora deslizando.
+         Scroll nativo horizontal: el gesto vertical sigue haciendo scroll de
+         página (no secuestramos el pulgar) y en desktop se arrastra con el
+         ratón o con la barra fina. Interactiva pero decorativa para lectores
+         de pantalla: la tabla de abajo es la vía accesible a estos datos. -->
+    <div class="starmap-frame">
+      <div ref="scroller" class="starmap-scroll">
+        <div
+          ref="card"
+          class="starmap-world"
+          aria-hidden="true"
+          @pointerdown="onDown"
+          @pointerup="onUp"
+          @pointermove="onMove"
+          @pointerleave="onLeave"
+        >
       <svg class="starmap__lines" viewBox="0 0 100 100" preserveAspectRatio="none">
         <path
           v-for="(l, i) in lines"
@@ -43,10 +49,12 @@
         <path :fill="s.newest ? '#ff6b47' : '#9d44ab'" :d="STAR_D" />
       </svg>
 
-      <!-- Quién encendió la estrella activa -->
-      <div v-if="active" class="starmap__tip" :style="tipStyle">
-        <span class="starmap__tip-name">{{ active.name }}</span>
-        <span class="starmap__tip-meta nums">{{ money(active) }} · {{ timeAgo(active.createdAt) }}</span>
+          <!-- Quién encendió la estrella activa -->
+          <div v-if="active" class="starmap__tip" :style="tipStyle">
+            <span class="starmap__tip-name">{{ active.name }}</span>
+            <span class="starmap__tip-meta nums">{{ money(active) }} · {{ timeAgo(active.createdAt) }}</span>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -164,18 +172,19 @@ const stars = computed<Star[]>(() => {
     const rnd = mulberry32(hashStr(String(d.id ?? `${d.name}-${d.createdAt ?? i}`)))
     const x = +(2 + rnd() * 96).toFixed(2)
     const y = +(5 + rnd() * 90).toFixed(2)
-    const o = +(0.35 + rnd() * 0.4).toFixed(2)
-    let size = +(5 + rnd() * 5).toFixed(1)
+    const o = +(0.45 + rnd() * 0.35).toFixed(2)
+    let size = +(7 + rnd() * 6).toFixed(1)
     if (median > 0 && d.amount > 0) {
-      // Magnitud (log): 6px en la mediana, ±2.2px por década de importe.
-      size = +Math.min(12, Math.max(4.5, 6 + 2.2 * Math.log10(d.amount / median))).toFixed(1)
+      // Magnitud (log): 9px en la mediana, ±2.8px por década de importe.
+      // El mundo es ancho (se explora), así que las estrellas pueden respirar.
+      size = +Math.min(17, Math.max(7, 9 + 2.8 * Math.log10(d.amount / median))).toFixed(1)
     }
     const newest = i === newestIdx
     return {
       id: String(d.id ?? i),
       x,
       y,
-      size: newest ? 14 : size,
+      size: newest ? 20 : size,
       o: newest ? 1 : o,
       rot: +(rnd() * 44 - 22).toFixed(1),
       newest,
@@ -214,6 +223,7 @@ const lines = computed(() => {
 
 /* ── Interacción: la estrella más cercana al puntero ───────────────── */
 const card = ref<HTMLElement | null>(null)
+const scroller = ref<HTMLElement | null>(null)
 const tapIdx = ref<number | null>(null)
 const hoverIdx = ref<number | null>(null)
 const activeIdx = computed(() => tapIdx.value ?? hoverIdx.value)
@@ -242,20 +252,62 @@ function nearest(e: PointerEvent): number | null {
   return best >= 0 ? best : null
 }
 
-function onTap(e: PointerEvent) {
-  const i = nearest(e)
-  tapIdx.value = i === tapIdx.value ? null : i
+/* Tap vs. arrastre: si el dedo/ratón se movió < 8px entre down y up, es un
+ * tap (enciende la estrella más cercana); si no, era exploración del mapa. */
+let downX = 0
+let downY = 0
+let mousePanning = false
+
+function onDown(e: PointerEvent) {
+  downX = e.clientX
+  downY = e.clientY
+  mousePanning = e.pointerType === 'mouse'
+}
+function onUp(e: PointerEvent) {
+  mousePanning = false
+  if (Math.hypot(e.clientX - downX, e.clientY - downY) < 8) {
+    const i = nearest(e)
+    tapIdx.value = i === tapIdx.value ? null : i
+  }
+}
+function onLeave() {
+  hoverIdx.value = null
+  mousePanning = false
 }
 
 let raf = 0
 function onMove(e: PointerEvent) {
   if (e.pointerType !== 'mouse') return
+  // Desktop: arrastrar con el ratón también recorre el cielo.
+  if (mousePanning && e.buttons === 1 && scroller.value) {
+    scroller.value.scrollLeft -= e.movementX
+    return
+  }
   cancelAnimationFrame(raf)
   raf = requestAnimationFrame(() => {
     hoverIdx.value = nearest(e)
   })
 }
 onBeforeUnmount(() => cancelAnimationFrame(raf))
+
+/* Vista inicial: centrada en la estrella más reciente (la coral), para que el
+ * mapa abra con un punto focal y se descubra que hay cielo a ambos lados. */
+const centered = ref(false)
+watch(
+  stars,
+  async (st) => {
+    if (centered.value || !st.length) return
+    await nextTick()
+    const sc = scroller.value
+    const world = card.value
+    if (!sc || !world) return
+    const target = st.find((s) => s.newest) ?? st[0]!
+    const x = (target.x / 100) * world.offsetWidth
+    sc.scrollLeft = Math.max(0, Math.min(x - sc.clientWidth / 2, world.offsetWidth - sc.clientWidth))
+    centered.value = true
+  },
+  { immediate: true }
+)
 
 // El globito, sin salirse del panel: clampa X y baja si la estrella está arriba.
 const tipStyle = computed(() => {
@@ -296,25 +348,61 @@ function timeAgo(iso?: string): string {
 </script>
 
 <style scoped>
-.starmap {
+/* Marco con fundidos en los bordes: pista de que el cielo continúa. */
+.starmap-frame {
   position: relative;
-  height: 300px;
+}
+.starmap-frame::before,
+.starmap-frame::after {
+  content: '';
+  position: absolute;
+  top: 1px;
+  bottom: 1px;
+  width: 26px;
+  z-index: 2;
+  pointer-events: none;
+}
+.starmap-frame::before {
+  left: 1px;
+  border-radius: 16px 0 0 16px;
+  background: linear-gradient(90deg, #fbf7ef, rgba(251, 247, 239, 0));
+}
+.starmap-frame::after {
+  right: 1px;
+  border-radius: 0 16px 16px 0;
+  background: linear-gradient(270deg, #fbf7ef, rgba(251, 247, 239, 0));
+}
+/* Scroll nativo horizontal: gesto horizontal explora, el vertical sigue
+   haciendo scroll de página; con teclado/trackpad también funciona. */
+.starmap-scroll {
+  overflow-x: auto;
+  overflow-y: hidden;
   border-radius: 16px;
   border: 1px solid rgba(45, 27, 61, 0.12);
-  overflow: hidden;
-  cursor: pointer;
-  /* El tap selecciona, pero el scroll vertical del pulgar sigue pasando. */
-  touch-action: pan-y;
-  /* Papel de cuaderno cuadriculado (mismo lenguaje que «las dos caras»). */
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(45, 27, 61, 0.25) transparent;
+}
+/* El mundo: más ancho que la pantalla (en desktop grande cabe entero). */
+.starmap-world {
+  position: relative;
+  width: max(1200px, 100%);
+  height: 340px;
+  cursor: grab;
+  /* Papel de cuaderno cuadriculado (mismo lenguaje que «las dos caras»);
+     viaja con el scroll: explorar mueve la página entera de la libreta. */
   background-color: #fbf7ef;
   background-image:
     linear-gradient(rgba(45, 27, 61, 0.05) 1px, transparent 1px),
     linear-gradient(90deg, rgba(45, 27, 61, 0.05) 1px, transparent 1px);
   background-size: 22px 22px;
 }
+.starmap-world:active {
+  cursor: grabbing;
+}
 @media (min-width: 640px) {
-  .starmap {
-    height: 380px;
+  .starmap-world {
+    height: 420px;
   }
 }
 .starmap__lines {

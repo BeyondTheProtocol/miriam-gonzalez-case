@@ -44,7 +44,7 @@
     "subtitle": "Todas las personas que ya han aportado al caso de Miriam. Gracias por estar — cada cantidad acerca el siguiente análisis.",
     "stars_line": "{star} Cada aportación es una estrella — ya brillan {n}, suman {total} y, unidas, dibujan el mapa con el que navegamos.",
     "magnitude_note": "Como en los catálogos estelares, el brillo crece en escala logarítmica: ninguna estrella eclipsa a las demás.",
-    "sky_hint": "Toca el cielo: la estrella más cercana te dice quién la encendió.",
+    "sky_hint": "Desliza para recorrer el cielo y toca cualquier punto: la estrella más cercana te dice quién la encendió.",
     "sky_cta_pre": "¿Aún no tienes la tuya?",
     "sky_cta": "Enciende tu estrella",
     "sky_cta_note": "Tu nombre aparece en el mapa en menos de una hora.",
