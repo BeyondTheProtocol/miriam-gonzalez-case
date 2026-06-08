@@ -13,18 +13,22 @@ export const GOFUNDME_URL = 'https://gofund.me/3e25cae99'
 export function useSupport() {
   const nuxtApp = useNuxtApp()
 
-  function trackSupport(location: string) {
+  // Doble evento: «<Nombre>» = total (un solo número) y «<Nombre>: <botón>» =
+  // desglose por ubicación sin custom properties (de pago en Plausible). Cada
+  // nombre tiene su goal en el panel; el props se mantiene por si algún día se
+  // activa el plan con propiedades.
+  function fire(name: string, location: string) {
     if (!import.meta.client) return
     // $plausible lo inyecta @nuxtjs/plausible (solo en cliente).
     const plausible = nuxtApp.$plausible as
       | { trackEvent?: (name: string, opts?: { props?: Record<string, string> }) => void }
       | undefined
-    // Doble evento: «Apoyar» = total de conversiones (un solo número), y
-    // «Apoyar: <botón>» = desglose por ubicación sin custom properties (de
-    // pago en Plausible). Cada nombre tiene su goal en el panel. El props se
-    // mantiene por si algún día se activa el plan con propiedades.
-    plausible?.trackEvent?.('Apoyar', { props: { location } })
-    plausible?.trackEvent?.(`Apoyar: ${location}`)
+    plausible?.trackEvent?.(name, { props: { location } })
+    plausible?.trackEvent?.(`${name}: ${location}`)
+  }
+
+  function trackSupport(location: string) {
+    fire('Apoyar', location)
     // Marca para el aviso suave al volver de GoFundMe (DonationReturnPrompt).
     try {
       sessionStorage.setItem('hm_support_ts', String(Date.now()))
@@ -33,5 +37,11 @@ export function useSupport() {
     }
   }
 
-  return { GOFUNDME_URL, trackSupport }
+  // P6 · mide quién elige LEER la ciencia (vs donar) para ver el reparto del
+  // embudo más allá del clic del héroe. No toca el goal «Apoyar».
+  function trackScience(location: string) {
+    fire('VerCiencia', location)
+  }
+
+  return { GOFUNDME_URL, trackSupport, trackScience }
 }

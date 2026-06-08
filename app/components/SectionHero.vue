@@ -122,6 +122,7 @@
               <NuxtLink
                 :to="localePath({ name: 'ciencia' })"
                 class="btn-secondary w-full sm:w-auto whitespace-nowrap"
+                @click="trackScience('home_hero')"
               >
                 <Icon name="ph:flask-fill" class="w-4 h-4" aria-hidden="true" />
                 {{ $t('hero.cta_science') }}
@@ -131,6 +132,19 @@
               </p>
             </div>
           </div>
+
+          <!-- P2 · prueba social junto al CTA: nº de donantes EN VIVO + prensa,
+               para que también lo vea quien no baja al panel de cifras. -->
+          <p
+            v-if="gofundme?.donationCount"
+            class="mt-4 flex items-center gap-2 text-sm text-tinta animate-fade-up"
+            style="animation-delay: 0.34s"
+          >
+            <Icon name="ph:heart-fill" class="w-3.5 h-3.5 shrink-0 text-coral" aria-hidden="true" />
+            <i18n-t keypath="home.hero_social_proof" tag="span">
+              <template #n><strong class="text-berenjena nums">{{ donorsFormatted }}</strong></template>
+            </i18n-t>
+          </p>
 
           <!-- Lo último de la cronología (dinámico, lo que pasa ahora mismo).
                Título subrayado + flecha → señala que es un enlace a la cronología. -->
@@ -189,13 +203,31 @@
 <script setup lang="ts">
 const localePath = useLocalePath()
 const { locale, t } = useI18n()
-const { trackSupport } = useSupport()
+const { trackSupport, trackScience } = useSupport()
 
-// Datos de campaña EN VIVO: /fundraiser.json lo sirve una función Netlify
-// (GoFundMe + caché de CDN). Carga en cliente, así refleja el dato actual.
-const gofundme = ref<import('../../utils/fundraiser').GoFundMeFundraiser | null>(null)
-onMounted(async () => {
-  gofundme.value = await $fetch('/fundraiser.json')
+// Datos de campaña. En PRERENDER leemos la semilla del disco
+// (public/fundraiser.json, generada por update-fundraiser antes del build) para
+// hornear la cifra real en el HTML y que NUNCA salga "—". En cliente refrescamos
+// al dato EN VIVO que sirve la función Netlify (mismo endpoint /fundraiser.json,
+// vía redirect de netlify.toml). $fetch del JSON en SSR no es fiable (lo resuelve
+// el router), por eso en servidor vamos a disco. Si algo falla, queda null.
+type GoFundMeFundraiser = import('../../utils/fundraiser').GoFundMeFundraiser
+const { data: gofundme, refresh: refreshFundraiser } = await useAsyncData<GoFundMeFundraiser | null>(
+  'hero-fundraiser',
+  async () => {
+    if (import.meta.server) {
+      try {
+        const { readFile } = await import('node:fs/promises')
+        return JSON.parse(await readFile('public/fundraiser.json', 'utf-8'))
+      } catch {
+        return null
+      }
+    }
+    return $fetch<GoFundMeFundraiser>('/fundraiser.json')
+  }
+)
+onMounted(() => {
+  refreshFundraiser()
 })
 
 // Lo más reciente de la cronología: las entradas están ordenadas de más

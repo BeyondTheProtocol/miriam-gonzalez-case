@@ -67,12 +67,29 @@
             <path fill="#9d44ab" :d="STAR_D" />
           </svg>
 
-          <!-- Donantes: una estrella por aportación; importe → brillo y cercanía al corazón -->
+          <!-- Puntas de difracción + halo de las estrellas PRINCIPALES (detrás
+               de los núcleos): la firma de las mayores aportaciones. -->
+          <svg
+            v-for="s in principals"
+            :key="'spike-' + s.id"
+            class="starmap__spike"
+            :style="{ left: s.x + '%', top: s.y + '%', width: s.size * 2.7 + 'px', height: s.size * 2.7 + 'px' }"
+            viewBox="0 0 40 40"
+            aria-hidden="true"
+          >
+            <path d="M20 3 V37 M3 20 H37" stroke="#9d44ab" stroke-width="0.8" stroke-linecap="round" opacity="0.42" />
+          </svg>
+
+          <!-- Donantes: una estrella por aportación; importe → magnitud (brillo +
+               tamaño) y cercanía al corazón. Principales/brillantes con halo. -->
           <svg
             v-for="(s, i) in stars"
             :key="s.id"
             class="starmap__star"
-            :class="{ 'starmap__star--new': s.newest, 'starmap__star--lit': i === activeIdx }"
+            :class="[
+              s.tier === 'principal' ? 'starmap__star--principal' : s.tier === 'bright' ? 'starmap__star--bright' : '',
+              { 'starmap__star--new': s.newest, 'starmap__star--lit': i === activeIdx },
+            ]"
             :style="{
               left: s.x + '%',
               top: s.y + '%',
@@ -84,6 +101,7 @@
             viewBox="0 0 20 20"
           >
             <path :fill="s.newest ? '#ff6b47' : '#9d44ab'" :d="STAR_D" />
+            <circle v-if="s.tier === 'principal' && !s.newest" cx="10" cy="10" r="2" fill="#fdf7fb" opacity="0.9" />
           </svg>
 
           <!-- Anotaciones a mano (cuaderno) -->
@@ -114,6 +132,8 @@
 
     <!-- Cómo se juega: nota de gesto (dedito), pequeña, bajo el mapa. -->
     <Nota icon="tap" class="mt-3">{{ $t('thanksWall.sky_hint') }}</Nota>
+    <!-- Cómo leerlo: el brillo crece en escala log (✱ nota al margen). -->
+    <Nota class="mt-2">{{ $t('thanksWall.magnitude_note') }}</Nota>
 
     <!-- El juego: tu estrella se enciende donando (solo el botón; el resto
          del texto se quitó — el pie manuscrito ya cuenta la historia). -->
@@ -229,6 +249,7 @@ interface Star {
   o: number
   rot: number
   newest: boolean
+  tier: 'faint' | 'bright' | 'principal'
   name: string
   amount: number
   currencyCode?: string
@@ -241,6 +262,13 @@ const stars = computed<Star[]>(() => {
   const amts = ds.map((d) => d.amount).filter((a) => a > 0)
   const sorted = [...amts].sort((a, b) => a - b)
   const median = sorted.length ? sorted[Math.floor(sorted.length / 2)]! : 0
+  // Magnitud (brillo + tamaño) por importe en escala LOGARÍTMICA —como en los
+  // catálogos estelares: ninguna estrella eclipsa a las demás—, normalizada
+  // entre el p5 y el p98 para que un extremo no aplaste a todo el resto.
+  const at = (f: number) =>
+    sorted.length ? sorted[Math.min(sorted.length - 1, Math.max(0, Math.floor(sorted.length * f)))]! : 1
+  const lLo = Math.log(Math.max(1, at(0.05)))
+  const lHi = Math.log(Math.max(Math.max(1, at(0.05)) + 1, at(0.98)))
   // Percentil del importe (0 = menor, 1 = mayor) → cercanía al corazón.
   const pct = (a: number) => {
     if (sorted.length < 2) return 0.5
@@ -281,20 +309,24 @@ const stars = computed<Star[]>(() => {
     let y = BEEHIVE.y + Math.sin(ang) * radius
     x = +reflect(x, 2, 98).toFixed(2)
     y = +reflect(y, 6, 94).toFixed(2)
-    const o = +(0.4 + rnd() * 0.35).toFixed(2)
-    let size = +(4.5 + rnd() * 2.5).toFixed(1)
-    if (median > 0 && d.amount > 0) {
-      size = +Math.min(10, Math.max(4, 7 + 2.2 * Math.log10(d.amount / median))).toFixed(1)
-    }
+    // Brillo (opacidad) y tamaño según la magnitud: las mayores casi opacas y
+    // grandes; las menores, tenues y pequeñas. Suave (log) para no eclipsar.
+    const b = d.amount > 0 ? Math.min(1, Math.max(0, (Math.log(d.amount) - lLo) / (lHi - lLo || 1))) : 0.12
+    const o = +(0.34 + b * 0.62).toFixed(2)
+    const size = +(3.5 + b * 12.5).toFixed(1)
+    // Jerarquía por percentil: principales (≈top 1.5%) con halo + puntas de
+    // difracción; brillantes (top 20%) con halo suave; el resto, tenues.
+    const tier: Star['tier'] = d.amount <= 0 ? 'faint' : p >= 0.985 ? 'principal' : p >= 0.8 ? 'bright' : 'faint'
     const newest = i === newestIdx
     return {
       id: String(d.id ?? i),
       x,
       y,
-      size: newest ? 18 : size,
+      size: newest ? 17 : size,
       o: newest ? 1 : o,
       rot: +(rnd() * 44 - 22).toFixed(1),
       newest,
+      tier,
       name: d.name,
       amount: d.amount,
       currencyCode: d.currencyCode,
@@ -302,6 +334,10 @@ const stars = computed<Star[]>(() => {
     }
   })
 })
+
+// Las principales (mayores aportaciones, salvo la recién encendida) llevan halo
+// y puntas de difracción, dibujadas en una capa propia detrás de los núcleos.
+const principals = computed(() => stars.value.filter((s) => s.tier === 'principal' && !s.newest))
 
 /* ── Zoom + pan ───────────────────────────────────────────────────────── */
 const viewport = ref<HTMLElement | null>(null)
@@ -563,6 +599,20 @@ const tipStyle = computed(() => {
   transform: translate(-50%, -50%) rotate(var(--rot, 0deg));
   opacity: var(--o, 0.5);
   transition: opacity 0.25s ease, filter 0.25s ease;
+}
+/* Magnitud: las brillantes y principales ganan un halo (las mayores aportaciones). */
+.starmap__star--bright {
+  filter: drop-shadow(0 0 3px rgba(157, 68, 171, 0.4));
+}
+.starmap__star--principal {
+  filter: drop-shadow(0 0 6px rgba(157, 68, 171, 0.55));
+}
+/* Puntas de difracción de las principales (capa propia, detrás de los núcleos). */
+.starmap__spike {
+  position: absolute;
+  display: block;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
 }
 .starmap__star--lit {
   opacity: 1;
