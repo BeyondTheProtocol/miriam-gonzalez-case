@@ -73,7 +73,19 @@
   }
 
   .section-wide {
-    @apply max-w-6xl mx-auto px-6 sm:px-8 lg:px-12;
+    @apply mx-auto px-6 sm:px-8 lg:px-12;
+    /* Ancho canónico ÚNICO para header, footer y cuerpo de todas las páginas
+       (D1). 1200px (antes max-w-6xl = 1152) respira mejor a 1920 y sigue cómodo
+       a 1440. En < 1200px el max-width no aplica → móvil intacto. */
+    max-width: 75rem;
+  }
+
+  /* Medida de lectura para párrafos largos DENTRO del shell ancho: limita el
+     ancho pero alineado a la IZQUIERDA del shell (no centrado), para que cuadre
+     con el logo y el H1. Solo es un tope: en móvil ocupa el 100%. */
+  .measure {
+    max-width: 72ch;
+    margin-inline-start: 0;
   }
 
   .section-spacing {

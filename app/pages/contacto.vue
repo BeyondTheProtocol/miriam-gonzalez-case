@@ -1,7 +1,7 @@
 <template>
   <div>
     <section class="section-spacing" :aria-label="$t('contact.title')">
-      <div class="section-container">
+      <div class="section-wide">
         <PageHeader
           :title="$t('contact.title')"
           :subtitle="$t('contact.subtitle')"
