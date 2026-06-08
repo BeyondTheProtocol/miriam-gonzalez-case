@@ -158,7 +158,10 @@ const stars = computed<Star[]>(() => {
     }
   })
   return ds.map((d, i) => {
-    const rnd = mulberry32(hashStr(d.id || `${d.name}-${d.createdAt ?? i}`))
+    // OJO: d.id es numérico en el JSON real — hay que pasarlo a string para
+    // que el hash itere sus caracteres (con un número devolvía siempre la
+    // misma semilla y las 900+ estrellas se apilaban en el mismo punto).
+    const rnd = mulberry32(hashStr(String(d.id ?? `${d.name}-${d.createdAt ?? i}`)))
     const x = +(2 + rnd() * 96).toFixed(2)
     const y = +(5 + rnd() * 90).toFixed(2)
     const o = +(0.35 + rnd() * 0.4).toFixed(2)
@@ -169,7 +172,7 @@ const stars = computed<Star[]>(() => {
     }
     const newest = i === newestIdx
     return {
-      id: d.id || `${i}`,
+      id: String(d.id ?? i),
       x,
       y,
       size: newest ? 14 : size,
