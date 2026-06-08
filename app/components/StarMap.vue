@@ -3,24 +3,24 @@
     <!-- Cómo se juega: nota de gesto (dedito), antes del cielo. -->
     <Nota icon="tap" class="mb-3">{{ $t('thanksWall.sky_hint') }}</Nota>
 
-    <!-- Carta celeste = la constelación REAL de Cáncer (el Cangrejo, una Y
-         invertida). Sus estrellas con nombre (Tarf, los dos Asellus, Acubens,
-         Iota) son el esqueleto; en el corazón, el Cúmulo del Pesebre (M44) es
-         un nudo denso de donantes. Cada donación es una estrella; el asterismo
-         se recorre deslizando. Decorativa para lectores de pantalla: la tabla
-         de abajo y el resumen sr-only son la vía accesible a estos datos. -->
+    <!-- Carta celeste = la constelación REAL de Cáncer (el Cangrejo). Sus
+         estrellas con nombre son el esqueleto; en el corazón, el Cúmulo del
+         Pesebre (M44) reúne las aportaciones mayores (núcleo brillante), y las
+         menores forman el halo. Lienzo con zoom y arrastre para deshacer el
+         apelotonamiento. Decorativa para lectores de pantalla: los botones de
+         zoom son operables por teclado y la tabla de abajo es la vía accesible
+         a los datos. -->
     <div class="starmap-frame">
-      <div ref="scroller" class="starmap-scroll">
-        <div
-          ref="card"
-          class="starmap-world"
-          aria-hidden="true"
-          :style="{ '--world-w': worldWidth + 'px' }"
-          @pointerdown="onDown"
-          @pointerup="onUp"
-          @pointermove="onMove"
-          @pointerleave="onLeave"
-        >
+      <div
+        ref="viewport"
+        class="starmap-viewport"
+        :style="{ touchAction: scale > 1 ? 'none' : 'pan-y' }"
+        @pointerdown="onDown"
+        @pointermove="onMove"
+        @pointerup="onUp"
+        @pointercancel="onUp"
+      >
+        <div ref="content" class="starmap-content" :style="contentStyle" aria-hidden="true">
           <!-- Asterismo de Cáncer: líneas a lápiz entre las estrellas con nombre -->
           <svg class="starmap__lines" viewBox="0 0 100 100" preserveAspectRatio="none">
             <path
@@ -35,7 +35,7 @@
             />
           </svg>
 
-          <!-- Cúmulo del Pesebre (M44): aura tenue tras el enjambre de donantes -->
+          <!-- Aura del Pesebre (M44) -->
           <div class="starmap__beehive" :style="{ left: BEEHIVE.x + '%', top: BEEHIVE.y + '%' }" />
 
           <!-- Estrellas con nombre (anclas reales de la constelación) -->
@@ -49,7 +49,7 @@
             <path fill="#9d44ab" :d="STAR_D" />
           </svg>
 
-          <!-- Donantes: una estrella por aportación (el Pesebre concentra muchas) -->
+          <!-- Donantes: una estrella por aportación; importe → brillo y cercanía al corazón -->
           <svg
             v-for="(s, i) in stars"
             :key="s.id"
@@ -68,25 +68,28 @@
             <path :fill="s.newest ? '#ff6b47' : '#9d44ab'" :d="STAR_D" />
           </svg>
 
-          <!-- Anotaciones a mano (cuaderno): título + nombres de estrellas + M44 -->
-          <span class="starmap__title" :style="{ left: '4%', top: '7%' }">
-            Cáncer<small>la constelación</small>
-          </span>
+          <!-- Anotaciones a mano (cuaderno) -->
+          <span class="starmap__title" :style="{ left: '4%', top: '7%' }">Cáncer<small>la constelación</small></span>
           <span
             v-for="a in anchors"
             :key="'lbl-' + a.key"
             class="starmap__label"
             :style="{ left: a.x + '%', top: a.y + '%' }"
           >{{ a.name }}</span>
-          <span class="starmap__m44" :style="{ left: BEEHIVE.x + '%', top: BEEHIVE.y + '%' }">
-            M44 · el Pesebre<small>≈1000 estrellas</small>
-          </span>
+          <span class="starmap__m44" :style="{ left: BEEHIVE.x + '%', top: BEEHIVE.y + '%' }">M44 · el Pesebre<small>≈1000 estrellas</small></span>
+        </div>
 
-          <!-- Quién encendió la estrella activa -->
-          <div v-if="active" class="starmap__tip" :style="tipStyle">
-            <span class="starmap__tip-name">{{ active.name }}</span>
-            <span class="starmap__tip-meta nums">{{ money(active) }} · {{ timeAgo(active.createdAt) }}</span>
-          </div>
+        <!-- Quién encendió la estrella activa (fuera del transform: no se escala) -->
+        <div v-if="active" class="starmap__tip" :style="tipStyle">
+          <span class="starmap__tip-name">{{ active.name }}</span>
+          <span class="starmap__tip-meta nums">{{ money(active) }} · {{ timeAgo(active.createdAt) }}</span>
+        </div>
+
+        <!-- Controles de zoom (accesibles por teclado) -->
+        <div class="starmap__zoom">
+          <button type="button" :aria-label="$t('thanksWall.zoom_in')" @click="zoomBy(1.5)">+</button>
+          <button type="button" :aria-label="$t('thanksWall.zoom_out')" @click="zoomBy(1 / 1.5)">−</button>
+          <button type="button" :aria-label="$t('thanksWall.zoom_reset')" @click="resetView">⟲</button>
         </div>
       </div>
     </div>
@@ -121,18 +124,21 @@
 <script setup lang="ts">
 /**
  * Carta celeste = la constelación REAL de Cáncer (el Cangrejo, Y invertida).
- *  · CONCEPTO: «Cáncer» es también una constelación. Aquí la dibujan las
+ *  · CONCEPTO: «Cáncer» es también una constelación; aquí la dibujan las
  *    donaciones — se reapropia la palabra. En su corazón, el Cúmulo del Pesebre
- *    (M44 / Praesepe, ~1000 estrellas reales) es el nudo denso de donantes.
- *  · CIENCIA: estrellas con nombre en sus posiciones relativas reales (Tarf β,
- *    Asellus Australis δ, Asellus Borealis γ, Acubens α, Iota ι) unidas por el
- *    asterismo; tamaño de las anclas por magnitud aparente. Donantes: magnitud
- *    logarítmica por importe (Pogson). Posiciones de donante estables por hash.
- *  · MOBILE FIRST: el mundo es más ancho que la pantalla y se recorre
- *    deslizando (scroll nativo; el gesto vertical sigue scrolleando la página).
- *    Tap = enciende la estrella más cercana; arrastre con ratón en desktop.
- *  · A11Y: aria-hidden + resumen sr-only; la tabla de DonationsWall es la vía
- *    accesible a los datos. Animaciones con prefers-reduced-motion.
+ *    (M44/Praesepe, ~1000 estrellas reales) reúne las aportaciones mayores.
+ *  · CRITERIO (por aportación, doble): el importe define el BRILLO (magnitud
+ *    logarítmica, como en los catálogos estelares) y la CERCANÍA al corazón
+ *    (las mayores al núcleo brillante del Pesebre; las menores, al halo).
+ *    Ángulo estable por hash → tu estrella no se mueve.
+ *  · CIENCIA: estrellas con nombre en posiciones relativas reales (Tarf β,
+ *    Asellus Australis δ, Asellus Borealis γ, Acubens α, Iota ι) + asterismo.
+ *  · ZOOM/PAN: rueda o pellizco para acercar, arrastre para mover, y botones
+ *    +/−/reinicio operables por teclado. Un dedo NO se secuestra con el mapa
+ *    alejado (touch-action: pan-y → la página sigue scrolleando); al acercar
+ *    pasa a pan. Tap = enciende la estrella más cercana.
+ *  · A11Y: lienzo aria-hidden + resumen sr-only; la tabla de DonationsWall es
+ *    la vía accesible a los datos. Animaciones con prefers-reduced-motion.
  */
 import type { PublicDonation } from '../../utils/fundraiser'
 
@@ -142,7 +148,6 @@ const { GOFUNDME_URL, trackSupport } = useSupport()
 
 const MAX_STARS = 2000
 
-// Estrella de 4 puntas dibujada a mano (brazos curvos y asimétricos).
 const STAR_D =
   'M10 1.6 C10.8 5,11.4 6.2,12.6 7.4 C14 8.8,16.4 9.4,18.4 10 C16.2 10.8,14.2 11.4,12.8 12.7 C11.5 13.9,10.9 15.7,10 18.4 C9.3 15.9,8.5 14.2,7.2 12.9 C5.8 11.6,3.4 10.7,1.6 10 C3.8 9.1,5.8 8.4,7.2 7.1 C8.4 6,9.2 4.2,10 1.6 Z'
 
@@ -171,18 +176,16 @@ function penLine(x1: number, y1: number, x2: number, y2: number, rnd: () => numb
   return `M${x1} ${y1} Q${(mx + (-dy / len) * off).toFixed(1)} ${(my + (dx / len) * off).toFixed(1)} ${x2} ${y2}`
 }
 
-// ── La constelación de Cáncer: estrellas con nombre en posiciones relativas
-//    reales (Y invertida) y su magnitud aparente → tamaño del ancla. ──────────
-const BEEHIVE = { x: 40, y: 47 } // M44, entre los dos Asellus (el pesebre)
+// ── La constelación de Cáncer (Y invertida); tamaño del ancla por magnitud. ──
+const BEEHIVE = { x: 41, y: 48 }
 const anchors = [
-  { key: 'tarf', name: 'Tarf', x: 13, y: 76, mag: 3.5 }, // β, la más brillante (pata SO)
-  { key: 'asAus', name: 'Asellus Australis', x: 44, y: 58, mag: 3.9 }, // δ, centro
-  { key: 'asBor', name: 'Asellus Borealis', x: 47, y: 33, mag: 4.7 }, // γ, al norte de δ
-  { key: 'iota', name: 'Iota Cnc', x: 52, y: 13, mag: 4.0 }, // ι, vértice norte
-  { key: 'acubens', name: 'Acubens', x: 84, y: 63, mag: 4.2 }, // α, la pinza (E)
-].map((a) => ({ ...a, size: +Math.max(7, 16 - (a.mag - 3.5) * 3).toFixed(1) }))
+  { key: 'tarf', name: 'Tarf', x: 13, y: 78, mag: 3.5 },
+  { key: 'asAus', name: 'Asellus Australis', x: 45, y: 60, mag: 3.9 },
+  { key: 'asBor', name: 'Asellus Borealis', x: 48, y: 34, mag: 4.7 },
+  { key: 'iota', name: 'Iota Cnc', x: 53, y: 13, mag: 4.0 },
+  { key: 'acubens', name: 'Acubens', x: 85, y: 64, mag: 4.2 },
+].map((a) => ({ ...a, size: +Math.max(8, 17 - (a.mag - 3.5) * 3).toFixed(1) }))
 
-// Asterismo: la Y invertida del Cangrejo (ι→γ→δ, y δ se bifurca a β y a α).
 const asterism = computed(() => {
   const by = Object.fromEntries(anchors.map((a) => [a.key, a]))
   const rnd = mulberry32(7)
@@ -213,7 +216,20 @@ const stars = computed<Star[]>(() => {
   const ds = props.donations.slice(0, MAX_STARS)
   if (!ds.length) return []
   const amts = ds.map((d) => d.amount).filter((a) => a > 0)
-  const median = amts.length ? [...amts].sort((a, b) => a - b)[Math.floor(amts.length / 2)]! : 0
+  const sorted = [...amts].sort((a, b) => a - b)
+  const median = sorted.length ? sorted[Math.floor(sorted.length / 2)]! : 0
+  // Percentil del importe (0 = menor, 1 = mayor) → cercanía al corazón.
+  const pct = (a: number) => {
+    if (sorted.length < 2) return 0.5
+    let lo = 0
+    let hi = sorted.length
+    while (lo < hi) {
+      const m = (lo + hi) >> 1
+      if (sorted[m]! <= a) lo = m + 1
+      else hi = m
+    }
+    return (lo - 1) / (sorted.length - 1)
+  }
   let newestIdx = 0
   let newestT = -Infinity
   ds.forEach((d, i) => {
@@ -225,25 +241,17 @@ const stars = computed<Star[]>(() => {
   })
   return ds.map((d, i) => {
     const rnd = mulberry32(hashStr(String(d.id ?? `${d.name}-${d.createdAt ?? i}`)))
-    // ~30% caen en el Pesebre (Gaussiana ancha → cúmulo, no borrón); el resto,
-    // cielo abierto repartido por todo el mundo (que es ancho → respira).
-    let x: number
-    let y: number
-    if (rnd() < 0.3) {
-      const gx = (rnd() + rnd() + rnd()) / 3 - 0.5
-      const gy = (rnd() + rnd() + rnd()) / 3 - 0.5
-      x = BEEHIVE.x + gx * 22
-      y = BEEHIVE.y + gy * 38
-    } else {
-      x = 2 + rnd() * 96
-      y = 8 + rnd() * 84
-    }
+    // Radio desde el corazón: mayor importe → más cerca (núcleo del Pesebre).
+    const p = d.amount > 0 ? pct(d.amount) : rnd()
+    const radius = 4 + (1 - p) * 44 + (rnd() - 0.5) * 6
+    const ang = rnd() * Math.PI * 2
+    let x = BEEHIVE.x + Math.cos(ang) * radius * 1.3
+    let y = BEEHIVE.y + Math.sin(ang) * radius
     x = +Math.max(2, Math.min(98, x)).toFixed(2)
-    y = +Math.max(6, Math.min(93, y)).toFixed(2)
-    const o = +(0.4 + rnd() * 0.35).toFixed(2)
-    let size = +(5 + rnd() * 3.5).toFixed(1)
+    y = +Math.max(6, Math.min(94, y)).toFixed(2)
+    const o = +(0.42 + rnd() * 0.35).toFixed(2)
+    let size = +(5 + rnd() * 3).toFixed(1)
     if (median > 0 && d.amount > 0) {
-      // Magnitud (log): ~7px en la mediana, ±2.4px por década; tope < anclas.
       size = +Math.min(11, Math.max(4.5, 7 + 2.4 * Math.log10(d.amount / median))).toFixed(1)
     }
     const newest = i === newestIdx
@@ -263,30 +271,150 @@ const stars = computed<Star[]>(() => {
   })
 })
 
-// El mundo se ensancha con el nº de estrellas: cuantas más, más cielo para que
-// respiren (en vez de apelotonarse). Se explora deslizando.
-const worldWidth = computed(() => Math.min(2600, Math.max(1180, Math.round(stars.value.length * 1.4))))
+/* ── Zoom + pan ───────────────────────────────────────────────────────── */
+const viewport = ref<HTMLElement | null>(null)
+const content = ref<HTMLElement | null>(null)
+const scale = ref(1)
+const tx = ref(0)
+const ty = ref(0)
+const MIN_S = 1
+const MAX_S = 5
 
-/* ── Interacción: la estrella (donante) más cercana al puntero ─────────── */
-const card = ref<HTMLElement | null>(null)
-const scroller = ref<HTMLElement | null>(null)
+const contentStyle = computed(() => ({
+  transform: `translate(${tx.value}px, ${ty.value}px) scale(${scale.value})`,
+  transformOrigin: '0 0',
+}))
+
+function clampPan() {
+  const vp = viewport.value
+  if (!vp) return
+  const w = vp.clientWidth
+  const h = vp.clientHeight
+  tx.value = Math.min(0, Math.max(w * (1 - scale.value), tx.value))
+  ty.value = Math.min(0, Math.max(h * (1 - scale.value), ty.value))
+}
+// Zoom hacia un punto (px relativo al viewport).
+function zoomAt(factor: number, px: number, py: number) {
+  const ns = Math.min(MAX_S, Math.max(MIN_S, scale.value * factor))
+  const k = ns / scale.value
+  tx.value = px - (px - tx.value) * k
+  ty.value = py - (py - ty.value) * k
+  scale.value = ns
+  clampPan()
+}
+function zoomBy(factor: number) {
+  const vp = viewport.value
+  if (!vp) return
+  zoomAt(factor, vp.clientWidth / 2, vp.clientHeight / 2)
+}
+function resetView() {
+  scale.value = 1
+  tx.value = 0
+  ty.value = 0
+}
+
+let onWheel: ((e: WheelEvent) => void) | null = null
+onMounted(() => {
+  const vp = viewport.value
+  if (!vp) return
+  onWheel = (e: WheelEvent) => {
+    e.preventDefault()
+    const r = vp.getBoundingClientRect()
+    zoomAt(e.deltaY < 0 ? 1.12 : 1 / 1.12, e.clientX - r.left, e.clientY - r.top)
+  }
+  vp.addEventListener('wheel', onWheel, { passive: false })
+})
+onBeforeUnmount(() => {
+  if (viewport.value && onWheel) viewport.value.removeEventListener('wheel', onWheel)
+  cancelAnimationFrame(raf)
+})
+
+/* ── Punteros: tap (selección), arrastre (pan), pellizco (zoom) ─────────── */
+const ptrs = new Map<number, { x: number; y: number }>()
+let downX = 0
+let downY = 0
+let moved = false
+let pinchDist = 0
+let pinchMid = { x: 0, y: 0 }
+
+function onDown(e: PointerEvent) {
+  ;(e.target as Element).setPointerCapture?.(e.pointerId)
+  ptrs.set(e.pointerId, { x: e.clientX, y: e.clientY })
+  downX = e.clientX
+  downY = e.clientY
+  moved = false
+  if (ptrs.size === 2) {
+    const [a, b] = [...ptrs.values()]
+    pinchDist = Math.hypot(a!.x - b!.x, a!.y - b!.y)
+    pinchMid = { x: (a!.x + b!.x) / 2, y: (a!.y + b!.y) / 2 }
+  }
+}
+function onMove(e: PointerEvent) {
+  if (!ptrs.has(e.pointerId)) {
+    // Hover (ratón) sobre el cielo: resalta la estrella más cercana.
+    if (e.pointerType === 'mouse' && scale.value >= 1) hoverNearest(e)
+    return
+  }
+  ptrs.set(e.pointerId, { x: e.clientX, y: e.clientY })
+
+  if (ptrs.size >= 2) {
+    e.preventDefault()
+    const [a, b] = [...ptrs.values()]
+    const dist = Math.hypot(a!.x - b!.x, a!.y - b!.y)
+    const mid = { x: (a!.x + b!.x) / 2, y: (a!.y + b!.y) / 2 }
+    const r = viewport.value!.getBoundingClientRect()
+    if (pinchDist > 0) zoomAt(dist / pinchDist, mid.x - r.left, mid.y - r.top)
+    tx.value += mid.x - pinchMid.x
+    ty.value += mid.y - pinchMid.y
+    clampPan()
+    pinchDist = dist
+    pinchMid = mid
+    return
+  }
+
+  // Un solo puntero
+  if (Math.hypot(e.clientX - downX, e.clientY - downY) > 6) moved = true
+  const isMouse = e.pointerType === 'mouse'
+  if ((isMouse && e.buttons === 1) || (!isMouse && scale.value > 1)) {
+    // Arrastre = pan (ratón siempre; táctil solo si estamos acercados).
+    e.preventDefault()
+    tx.value += e.movementX || 0
+    ty.value += e.movementY || 0
+    clampPan()
+  }
+}
+function onUp(e: PointerEvent) {
+  const wasOne = ptrs.size === 1
+  ptrs.delete(e.pointerId)
+  if (ptrs.size < 2) pinchDist = 0
+  if (wasOne && !moved) {
+    const i = nearestAt(e.clientX, e.clientY)
+    tapIdx.value = i === tapIdx.value ? null : i
+  }
+}
+
+/* ── Selección de estrella (tiene en cuenta el transform) ──────────────── */
 const tapIdx = ref<number | null>(null)
 const hoverIdx = ref<number | null>(null)
 const activeIdx = computed(() => tapIdx.value ?? hoverIdx.value)
 const active = computed(() => (activeIdx.value != null ? (stars.value[activeIdx.value] ?? null) : null))
 
-function nearest(e: PointerEvent): number | null {
-  const el = card.value
-  if (!el) return null
-  const r = el.getBoundingClientRect()
-  const px = e.clientX - r.left
-  const py = e.clientY - r.top
+function nearestAt(clientX: number, clientY: number): number | null {
+  const vp = viewport.value
+  const ct = content.value
+  if (!vp || !ct) return null
+  const r = vp.getBoundingClientRect()
+  const W = ct.clientWidth
+  const H = ct.clientHeight
+  // px del puntero → coordenadas de contenido (deshaciendo translate+scale)
+  const cx = (clientX - r.left - tx.value) / scale.value
+  const cy = (clientY - r.top - ty.value) / scale.value
   let best = -1
   let bd = Infinity
   const st = stars.value
   for (let i = 0; i < st.length; i++) {
-    const dx = (st[i]!.x / 100) * r.width - px
-    const dy = (st[i]!.y / 100) * r.height - py
+    const dx = (st[i]!.x / 100) * W - cx
+    const dy = (st[i]!.y / 100) * H - cy
     const d2 = dx * dx + dy * dy
     if (d2 < bd) {
       bd = d2
@@ -295,57 +423,13 @@ function nearest(e: PointerEvent): number | null {
   }
   return best >= 0 ? best : null
 }
-
-// Tap vs. arrastre: < 8px entre down y up es un tap; si no, exploraba el mapa.
-let downX = 0
-let downY = 0
-let mousePanning = false
-function onDown(e: PointerEvent) {
-  downX = e.clientX
-  downY = e.clientY
-  mousePanning = e.pointerType === 'mouse'
-}
-function onUp(e: PointerEvent) {
-  mousePanning = false
-  if (Math.hypot(e.clientX - downX, e.clientY - downY) < 8) {
-    const i = nearest(e)
-    tapIdx.value = i === tapIdx.value ? null : i
-  }
-}
-function onLeave() {
-  hoverIdx.value = null
-  mousePanning = false
-}
 let raf = 0
-function onMove(e: PointerEvent) {
-  if (e.pointerType !== 'mouse') return
-  if (mousePanning && e.buttons === 1 && scroller.value) {
-    scroller.value.scrollLeft -= e.movementX
-    return
-  }
+function hoverNearest(e: PointerEvent) {
   cancelAnimationFrame(raf)
   raf = requestAnimationFrame(() => {
-    hoverIdx.value = nearest(e)
+    hoverIdx.value = nearestAt(e.clientX, e.clientY)
   })
 }
-onBeforeUnmount(() => cancelAnimationFrame(raf))
-
-// Vista inicial centrada en el corazón (el Pesebre): abre con foco y revela cielo a los lados.
-const centered = ref(false)
-watch(
-  stars,
-  async (st) => {
-    if (centered.value || !st.length) return
-    await nextTick()
-    const sc = scroller.value
-    const world = card.value
-    if (!sc || !world) return
-    const x = (BEEHIVE.x / 100) * world.offsetWidth
-    sc.scrollLeft = Math.max(0, Math.min(x - sc.clientWidth / 2, world.offsetWidth - sc.clientWidth))
-    centered.value = true
-  },
-  { immediate: true }
-)
 
 function money(d: { amount: number; currencyCode?: string }) {
   return new Intl.NumberFormat(locale.value === 'es' ? 'es-ES' : 'en-US', {
@@ -369,58 +453,34 @@ function timeAgo(iso?: string): string {
   return rtf.format(months, 'month')
 }
 
-// Globito sin salirse del mundo.
+// Globito: posición en pantalla de la estrella activa (con el transform aplicado).
 const tipStyle = computed(() => {
   const s = active.value
-  if (!s) return {}
-  const left = Math.min(92, Math.max(8, s.x))
-  const below = s.y < 22
+  const ct = content.value
+  if (!s || !ct) return { display: 'none' }
+  const W = ct.clientWidth
+  const H = ct.clientHeight
+  const sx = tx.value + (s.x / 100) * W * scale.value
+  const sy = ty.value + (s.y / 100) * H * scale.value
+  const below = sy < 60
   return {
-    left: left + '%',
-    top: s.y + '%',
+    left: Math.max(70, Math.min((viewport.value?.clientWidth ?? W) - 70, sx)) + 'px',
+    top: sy + 'px',
     transform: below ? 'translate(-50%, 16px)' : 'translate(-50%, calc(-100% - 14px))',
   }
 })
 </script>
 
 <style scoped>
-/* Marco con fundidos en los bordes: pista de que el cielo continúa. */
 .starmap-frame {
   position: relative;
 }
-.starmap-frame::before,
-.starmap-frame::after {
-  content: '';
-  position: absolute;
-  top: 1px;
-  bottom: 1px;
-  width: 26px;
-  z-index: 4;
-  pointer-events: none;
-}
-.starmap-frame::before {
-  left: 1px;
-  border-radius: 16px 0 0 16px;
-  background: linear-gradient(90deg, #fbf7ef, rgba(251, 247, 239, 0));
-}
-.starmap-frame::after {
-  right: 1px;
-  border-radius: 0 16px 16px 0;
-  background: linear-gradient(270deg, #fbf7ef, rgba(251, 247, 239, 0));
-}
-.starmap-scroll {
-  overflow-x: auto;
-  overflow-y: hidden;
+.starmap-viewport {
+  position: relative;
+  overflow: hidden;
+  height: 400px;
   border-radius: 16px;
   border: 1px solid rgba(45, 27, 61, 0.12);
-  -webkit-overflow-scrolling: touch;
-  scrollbar-width: thin;
-  scrollbar-color: rgba(45, 27, 61, 0.25) transparent;
-}
-.starmap-world {
-  position: relative;
-  width: max(var(--world-w, 1180px), 100%);
-  height: 400px;
   cursor: grab;
   /* Papel de cuaderno cuadriculado (mismo lenguaje que «las dos caras»). */
   background-color: #fbf7ef;
@@ -429,13 +489,18 @@ const tipStyle = computed(() => {
     linear-gradient(90deg, rgba(45, 27, 61, 0.05) 1px, transparent 1px);
   background-size: 22px 22px;
 }
-.starmap-world:active {
+.starmap-viewport:active {
   cursor: grabbing;
 }
 @media (min-width: 640px) {
-  .starmap-world {
-    height: 440px;
+  .starmap-viewport {
+    height: 470px;
   }
+}
+.starmap-content {
+  position: absolute;
+  inset: 0;
+  will-change: transform;
 }
 .starmap__lines {
   position: absolute;
@@ -444,7 +509,6 @@ const tipStyle = computed(() => {
   height: 100%;
   opacity: 0.28;
 }
-/* Aura del Pesebre (M44): halo suave que insinúa el cúmulo bajo el enjambre. */
 .starmap__beehive {
   position: absolute;
   width: 150px;
@@ -475,10 +539,6 @@ const tipStyle = computed(() => {
 .starmap__star--new {
   filter: drop-shadow(0 0 7px rgba(255, 107, 71, 0.8));
 }
-.starmap__star--new.starmap__star--lit {
-  filter: drop-shadow(0 0 9px rgba(255, 107, 71, 0.9));
-}
-/* Anotaciones manuscritas (cuaderno) */
 .starmap__title {
   position: absolute;
   display: flex;
@@ -489,7 +549,6 @@ const tipStyle = computed(() => {
   line-height: 0.9;
   color: #2d1b3d;
   pointer-events: none;
-  z-index: 3;
 }
 .starmap__title small {
   font-size: 14px;
@@ -505,20 +564,18 @@ const tipStyle = computed(() => {
   white-space: nowrap;
   color: rgba(58, 51, 64, 0.72);
   pointer-events: none;
-  z-index: 3;
 }
 .starmap__m44 {
   position: absolute;
   display: flex;
   flex-direction: column;
-  transform: translate(14px, 20px);
+  transform: translate(14px, 16px);
   font-family: 'Caveat', 'Bradley Hand', cursive;
   font-size: 16px;
   font-weight: 700;
   line-height: 1;
   color: #bb4128;
   pointer-events: none;
-  z-index: 3;
 }
 .starmap__m44 small {
   font-size: 12px;
@@ -527,7 +584,7 @@ const tipStyle = computed(() => {
 }
 .starmap__tip {
   position: absolute;
-  z-index: 5;
+  z-index: 6;
   display: flex;
   flex-direction: column;
   gap: 2px;
@@ -549,6 +606,40 @@ const tipStyle = computed(() => {
   font-family: 'JetBrains Mono', monospace;
   font-size: 11px;
   color: rgba(250, 246, 240, 0.78);
+}
+/* Controles de zoom: operables por teclado (foco visible). */
+.starmap__zoom {
+  position: absolute;
+  right: 10px;
+  bottom: 10px;
+  z-index: 6;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.starmap__zoom button {
+  width: 38px;
+  height: 38px;
+  border-radius: 9999px;
+  border: 1px solid rgba(45, 27, 61, 0.18);
+  background: rgba(250, 246, 240, 0.92);
+  color: #2d1b3d;
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+.starmap__zoom button:hover {
+  background: #f5efe6;
+  border-color: rgba(45, 27, 61, 0.32);
+}
+.starmap__zoom button:focus-visible {
+  outline: 2px solid #ff6b47;
+  outline-offset: 2px;
 }
 @keyframes star-ignite {
   0% { opacity: 0; }
