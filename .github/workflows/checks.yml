@@ -1,0 +1,30 @@
+name: Checks
+
+# Control de calidad de código para el vibe coding: Vite Doctor escanea cada PR
+# y cada push a main en busca de bugs de framework (hidratación, reactividad,
+# SSR, secretos en config pública…). Falla SOLO ante diagnósticos `high`
+# (blockers/errors); los warnings se informan pero no bloquean. Para subir el
+# listón más adelante, añade `--max-warnings 0` al script `doctor`.
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  vite-doctor:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Vite Doctor (fails only on high-severity diagnostics)
+        run: pnpm doctor
