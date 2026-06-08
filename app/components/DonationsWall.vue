@@ -12,12 +12,11 @@
         <p class="eyebrow mb-3 block">{{ $t('thanksWall.eyebrow') }}</p>
         <h2
           id="gracias-title"
-          class="heading-display text-3xl sm:text-4xl text-berenjena mb-3"
+          class="heading-display text-3xl sm:text-4xl text-berenjena"
           style="letter-spacing: -0.02em"
         >
           {{ $t('thanksWall.title') }}
         </h2>
-        <p class="text-tinta leading-relaxed max-w-2xl">{{ $t('thanksWall.subtitle') }}</p>
       </div>
       <StarMap
         v-if="loaded && donations.length"

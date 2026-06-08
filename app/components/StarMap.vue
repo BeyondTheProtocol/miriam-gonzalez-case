@@ -1,11 +1,12 @@
 <template>
   <div>
-    <!-- La frase, escrita a mano ENCIMA del mapa: abre la página del cuaderno. -->
+    <!-- La frase con las cantidades, ENCIMA del mapa, en tipografía normal
+         (hace de intro de la sección). -->
     <i18n-t
       v-if="stars.length && total"
       keypath="thanksWall.stars_line"
       tag="p"
-      class="starmap-caption"
+      class="mb-4 text-tinta leading-relaxed max-w-2xl"
     >
       <template #star>
         <svg class="inline-block w-4 h-4" style="vertical-align: -0.08em" viewBox="0 0 20 20" aria-hidden="true">
@@ -13,10 +14,10 @@
         </svg>
       </template>
       <template #n>
-        <strong class="starmap-caption__num">{{ stars.length }}</strong>
+        <strong class="font-semibold text-coral-deep nums">{{ stars.length }}</strong>
       </template>
       <template #total>
-        <strong class="starmap-caption__num" style="white-space: nowrap">{{ total }}</strong>
+        <strong class="font-semibold text-coral-deep nums" style="white-space: nowrap">{{ total }}</strong>
       </template>
     </i18n-t>
 
@@ -133,6 +134,7 @@
         </svg>
         {{ $t('thanksWall.sky_cta') }}
       </a>
+      <p class="mt-2 text-xs text-tinta/80">{{ $t('thanksWall.sky_cta_note') }}</p>
     </div>
 
     <!-- Lectura accesible del concepto (el mapa es decorativo / aria-hidden). -->
@@ -621,25 +623,6 @@ const tipStyle = computed(() => {
   font-size: 12px;
   font-weight: 400;
   color: rgba(58, 51, 64, 0.6);
-}
-/* La frase manuscrita, encima del mapa (abre la página del cuaderno). */
-.starmap-caption {
-  margin: 0 0 0.9rem;
-  font-family: 'Caveat', 'Bradley Hand', cursive;
-  font-size: 21px;
-  font-weight: 600;
-  line-height: 1.3;
-  color: #2d1b3d;
-  max-width: 38rem;
-}
-@media (min-width: 640px) {
-  .starmap-caption {
-    font-size: 23px;
-  }
-}
-.starmap-caption__num {
-  font-weight: 700;
-  color: #bb4128;
 }
 .starmap__tip {
   position: absolute;
