@@ -99,11 +99,11 @@ function retry() {
   .dot {
     transform-box: fill-box;
     transform-origin: center;
-    animation: twinkle 2.6s ease-in-out 2;
+    animation: twinkle 2.6s ease-in-out 1;
   }
   .star.s2 { animation-delay: 0.5s; }
   .star.s3 { animation-delay: 1.1s; }
-  .dot { animation: twinkle 3.2s ease-in-out 2 0.8s; }
+  .dot { animation: twinkle 3.2s ease-in-out 1 0.8s; }
 }
 @keyframes twinkle {
   0%, 100% { opacity: 0.4; transform: scale(0.85); }
