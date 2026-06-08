@@ -318,8 +318,10 @@ const stats = computed(() => [
   }
 }
 
+/* «Vivo»: late 3 veces al entrar y se queda quieto (regla del cuaderno:
+   se dibuja una vez, no en bucle — amable con la neurodivergencia). */
 .hero-live-dot {
-  animation: hero-pulse 2s ease-in-out infinite;
+  animation: hero-pulse 2s ease-in-out 3;
 }
 @keyframes hero-pulse {
   0%, 100% { box-shadow: 0 0 0 0 rgba(255, 107, 71, 0.4); }
