@@ -15,6 +15,7 @@
           ref="card"
           class="starmap-world"
           aria-hidden="true"
+          :style="{ '--world-w': worldWidth + 'px' }"
           @pointerdown="onDown"
           @pointerup="onUp"
           @pointermove="onMove"
@@ -224,25 +225,26 @@ const stars = computed<Star[]>(() => {
   })
   return ds.map((d, i) => {
     const rnd = mulberry32(hashStr(String(d.id ?? `${d.name}-${d.createdAt ?? i}`)))
-    // ~45% de los donantes caen en el Pesebre (Gaussiana); el resto, cielo abierto.
+    // ~30% caen en el Pesebre (Gaussiana ancha → cúmulo, no borrón); el resto,
+    // cielo abierto repartido por todo el mundo (que es ancho → respira).
     let x: number
     let y: number
-    if (rnd() < 0.45) {
+    if (rnd() < 0.3) {
       const gx = (rnd() + rnd() + rnd()) / 3 - 0.5
       const gy = (rnd() + rnd() + rnd()) / 3 - 0.5
-      x = BEEHIVE.x + gx * 17
-      y = BEEHIVE.y + gy * 22
+      x = BEEHIVE.x + gx * 22
+      y = BEEHIVE.y + gy * 38
     } else {
-      x = 3 + rnd() * 94
-      y = 9 + rnd() * 82
+      x = 2 + rnd() * 96
+      y = 8 + rnd() * 84
     }
     x = +Math.max(2, Math.min(98, x)).toFixed(2)
     y = +Math.max(6, Math.min(93, y)).toFixed(2)
-    const o = +(0.45 + rnd() * 0.35).toFixed(2)
-    let size = +(6 + rnd() * 4).toFixed(1)
+    const o = +(0.4 + rnd() * 0.35).toFixed(2)
+    let size = +(5 + rnd() * 3.5).toFixed(1)
     if (median > 0 && d.amount > 0) {
-      // Magnitud (log): ~8px en la mediana, ±2.6px por década; tope < anclas.
-      size = +Math.min(12, Math.max(5, 8 + 2.6 * Math.log10(d.amount / median))).toFixed(1)
+      // Magnitud (log): ~7px en la mediana, ±2.4px por década; tope < anclas.
+      size = +Math.min(11, Math.max(4.5, 7 + 2.4 * Math.log10(d.amount / median))).toFixed(1)
     }
     const newest = i === newestIdx
     return {
@@ -260,6 +262,10 @@ const stars = computed<Star[]>(() => {
     }
   })
 })
+
+// El mundo se ensancha con el nº de estrellas: cuantas más, más cielo para que
+// respiren (en vez de apelotonarse). Se explora deslizando.
+const worldWidth = computed(() => Math.min(2600, Math.max(1180, Math.round(stars.value.length * 1.4))))
 
 /* ── Interacción: la estrella (donante) más cercana al puntero ─────────── */
 const card = ref<HTMLElement | null>(null)
@@ -413,8 +419,8 @@ const tipStyle = computed(() => {
 }
 .starmap-world {
   position: relative;
-  width: max(1180px, 100%);
-  height: 360px;
+  width: max(var(--world-w, 1180px), 100%);
+  height: 400px;
   cursor: grab;
   /* Papel de cuaderno cuadriculado (mismo lenguaje que «las dos caras»). */
   background-color: #fbf7ef;

@@ -16,15 +16,16 @@
           {{ $t('thanksWall.title') }}
         </h2>
         <p class="text-tinta leading-relaxed max-w-2xl">{{ $t('thanksWall.subtitle') }}</p>
-        <!-- La metáfora, explícita: cada aportación es una estrella (conteo real). -->
+
+        <!-- La metáfora, en una sola línea de display (bloque, fluye natural) -->
         <i18n-t
           v-if="loaded && sorted.length"
           keypath="thanksWall.stars_line"
           tag="p"
-          class="mt-4 flex items-center gap-2 font-display italic text-lg text-berenjena"
+          class="mt-5 font-display italic text-xl sm:text-2xl text-berenjena leading-snug max-w-2xl"
         >
           <template #star>
-            <svg class="w-4 h-4 shrink-0" viewBox="0 0 20 20" aria-hidden="true">
+            <svg class="inline-block w-5 h-5 mr-1" style="vertical-align: -0.12em" viewBox="0 0 20 20" aria-hidden="true">
               <path
                 fill="#ff6b47"
                 d="M10 0 L13.4 6.6 L20 10 L13.4 13.4 L10 20 L6.6 13.4 L0 10 L6.6 6.6 Z"
@@ -38,10 +39,6 @@
             <strong class="font-semibold not-italic text-coral-deep nums whitespace-nowrap">{{ totalRaised }}</strong>
           </template>
         </i18n-t>
-        <!-- La ciencia de la metáfora, en nota al margen: magnitud logarítmica. -->
-        <Nota v-if="loaded && sorted.length" class="mt-2">
-          {{ $t('thanksWall.magnitude_note') }}
-        </Nota>
       </div>
 
       <!-- La carta celeste interactiva: 1 estrella = 1 aportación, tocable.

@@ -42,7 +42,7 @@
     "eyebrow": "Thank you",
     "title": "Thanks to those who make it possible",
     "subtitle": "Everyone who has already contributed to Miriam’s case. Thank you for being here — every amount brings the next test closer.",
-    "stars_line": "{star} Cancer is also a constellation. This one is drawn by everyone who gave — {n} stars adding up to {total}.",
+    "stars_line": "{star} Cancer is also a constellation — and this one is drawn by everyone who gave: {n} stars already adding up to {total}.",
     "magnitude_note": "As in star catalogues, brightness grows on a logarithmic scale: no star outshines the rest.",
     "sky_hint": "Swipe to roam the sky and tap anywhere: the nearest star tells you who lit it.",
     "sky_cta_pre": "Don’t have yours yet?",

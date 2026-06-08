@@ -42,7 +42,7 @@
     "eyebrow": "Gracias",
     "title": "Gracias a quienes lo hacen posible",
     "subtitle": "Todas las personas que ya han aportado al caso de Miriam. Gracias por estar — cada cantidad acerca el siguiente análisis.",
-    "stars_line": "{star} Cáncer también es una constelación. Esta la dibujáis quienes habéis aportado: {n} estrellas que suman {total}.",
+    "stars_line": "{star} Cáncer también es una constelación — y esta la dibujan quienes han aportado: {n} estrellas que ya suman {total}.",
     "magnitude_note": "Como en los catálogos estelares, el brillo crece en escala logarítmica: ninguna estrella eclipsa a las demás.",
     "sky_hint": "Desliza para recorrer el cielo y toca cualquier punto: la estrella más cercana te dice quién la encendió.",
     "sky_cta_pre": "¿Aún no tienes la tuya?",
