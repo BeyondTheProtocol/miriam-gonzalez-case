@@ -1,7 +1,12 @@
 <template>
   <div>
     <section class="section-spacing" :aria-label="$t('timeline.title')">
-      <div class="section-container">
+      <!-- D4: a partir de lg, 2 columnas dentro del shell — raíl izquierdo
+           pegajoso (cabecera + meta + filtros) y los hitos a la derecha. En
+           < lg la rejilla no aplica → se apila idéntico al móvil de hoy. -->
+      <div class="section-wide lg:grid lg:grid-cols-[320px_minmax(0,1fr)] lg:gap-16 xl:gap-24">
+        <!-- Columna izquierda · cabecera + filtros (sticky en desktop) -->
+        <aside class="lg:sticky lg:top-24 lg:self-start">
         <PageHeader
           :title="$t('timeline.title')"
           :subtitle="$t('timeline.subtitle')"
@@ -55,7 +60,10 @@
             <span class="tl-chip__count">{{ opt.count }}</span>
           </button>
         </div>
+        </aside>
 
+        <!-- Columna derecha · los hitos (raíl) + el cierre -->
+        <div class="lg:max-w-[760px]">
         <!-- Cronología con raíl continuo + estaciones por año -->
         <div class="relative max-w-2xl">
           <span
@@ -119,6 +127,7 @@
               </NuxtLink>
             </div>
           </div>
+        </div>
         </div>
       </div>
     </section>
