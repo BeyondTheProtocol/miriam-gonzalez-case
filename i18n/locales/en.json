@@ -64,7 +64,7 @@
       "title": "One tumor, two faces",
       "intro": "It is not one tumor: it is two biologies in the same body, and both must be treated at once.",
       "lum_head": "BREAST · luminal",
-      "lum_sub": "fully mapped",
+      "lum_sub": "we know it",
     "lum_g1": "HR+ · HER2− · ESR1",
     "lum_g2": "FGFR1 · CCND1",
       "lum_markers": [
@@ -75,7 +75,7 @@
         "CCND1"
       ],
       "ne_head": "neuroendocrine differentiation",
-      "ne_sub": "dominant (80%), in the dark",
+      "ne_sub": "the one we need to know",
       "pct": "80%",
     "cgsyn": "Cg · Syn",
     "amplicon": "11q13 amplicon",
@@ -88,8 +88,8 @@
       "rb1_note": "triggers the 80%",
       "sstr2": "SSTR2",
       "sstr2_note": "receptors → PRRT",
-      "close1": "Block one side and it escapes through the other.",
-      "close2": "It must be treated as a whole.",
+      "close1": "Two populations, one tumor.",
+      "close2": "Treating only one selects for the other.",
       "sr": "Tumor schematic. Luminal breast, the known part: HR+ receptors, HER2 negative, an 11q13 amplicon (FGFR1 ×13, CCND1 ×20, FGF3/4/19 ×18) and an ESR1 mutation in ctDNA. Neuroendocrine differentiation (Cg/Syn in ~80% of cells), barely known: loss of RB1, the switch, and SSTR2 receptors, the PRRT target. Block one side and it escapes through the other; it must be treated as a whole."
     },
   "thanks": {

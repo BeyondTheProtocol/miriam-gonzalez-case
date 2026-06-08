@@ -33,20 +33,28 @@
         <path :d="fieldPath" fill="none" stroke="rgba(45,27,61,0.45)" stroke-width="2" stroke-linecap="round" />
         <path :d="seamPath" fill="none" stroke="rgba(45,27,61,0.3)" stroke-width="1.3" stroke-dasharray="2 5" />
 
-        <!-- Textura tenue del lado conocido (luminal) -->
-        <g fill="#9d44ab" opacity="0.5">
-          <circle v-for="(d, i) in dots" :key="'d' + i" :cx="d.x" :cy="d.y" :r="d.r" />
-        </g>
         <!-- Gránulos Cg/Syn = el 80% neuroendocrino -->
         <g fill="#2d1b3d" opacity="0.28">
           <circle v-for="(gr, i) in granules" :key="'gr' + i" :cx="gr.x" :cy="gr.y" :r="gr.r" />
         </g>
-        <text x="322" y="150" text-anchor="middle" class="tf2__pct">{{ $t('twofaces.pct') }}</text>
-        <text x="322" y="167" text-anchor="middle" class="tf2__cgsyn" translate="no">{{ $t('twofaces.cgsyn') }}</text>
+        <text x="324" y="150" text-anchor="middle" class="tf2__pct">{{ $t('twofaces.pct') }}</text>
+        <text x="324" y="167" text-anchor="middle" class="tf2__cgsyn" translate="no">{{ $t('twofaces.cgsyn') }}</text>
 
-        <!-- Lo conocido (luminal): marcadores nombrados, en claro -->
-        <text x="50" y="112" class="tf2__genes" translate="no">{{ $t('twofaces.lum_g1') }}</text>
-        <text x="50" y="132" class="tf2__genes" translate="no">{{ $t('twofaces.lum_g2') }}</text>
+        <!-- Lo conocido (luminal): un glifo por tipo de hallazgo —
+             amplificación = círculo doble (copias), mutación = rombo,
+             receptor = «Y» (HER2 tachado por negativo). Nombres legibles. -->
+        <g v-for="(g, i) in genes" :key="'g' + i">
+          <template v-if="g.t === 'amp'">
+            <circle cx="58" :cy="gy(i)" r="4.5" fill="none" stroke="#9d44ab" stroke-width="1.4" />
+            <circle cx="58" :cy="gy(i)" r="1.7" fill="#9d44ab" />
+          </template>
+          <path v-else-if="g.t === 'mut'" :d="diamond(58, gy(i))" fill="none" stroke="#9d44ab" stroke-width="1.4" />
+          <template v-else>
+            <path :d="recGlyph(58, gy(i))" fill="none" stroke="#9d44ab" stroke-width="1.5" stroke-linecap="round" />
+            <path v-if="g.t === 'recneg'" :d="slash(58, gy(i))" stroke="#bb4128" stroke-width="1.5" stroke-linecap="round" />
+          </template>
+          <text x="72" :y="gy(i) + 4" class="tf2__genes" translate="no">{{ g.n }}</text>
+        </g>
 
         <!-- Las dos certezas neuroendocrinas -->
         <circle cx="300" cy="96" r="4.5" fill="#ff6b47" />
@@ -55,22 +63,24 @@
         <text x="320" y="106" class="tf2__known-n">{{ $t('twofaces.rb1_note') }}</text>
 
         <!-- SSTR2 = receptores sobre la membrana NE (lo característico: siempre
-             los tendrá; sobreexpresados → diana de la PRRT) -->
+             los tendrá; sobreexpresados → diana de la PRRT). Etiqueta pegada
+             al racimo de receptores. -->
         <g stroke="#ff6b47" stroke-width="1.6" stroke-linecap="round" fill="none">
           <path v-for="(r, i) in receptors" :key="'r' + i" :d="r" />
         </g>
-        <text x="470" y="236" text-anchor="end" class="tf2__known-m" translate="no">{{ $t('twofaces.sstr2') }}</text>
-        <text x="470" y="250" text-anchor="end" class="tf2__known-n">{{ $t('twofaces.sstr2_note') }}</text>
+        <text x="470" y="196" text-anchor="end" class="tf2__known-m" translate="no">{{ $t('twofaces.sstr2') }}</text>
+        <text x="470" y="210" text-anchor="end" class="tf2__known-n">{{ $t('twofaces.sstr2_note') }}</text>
 
         <!-- Títulos (derecha en dos líneas → no chocan en móvil) -->
         <text x="34" y="26" class="tf2__head">{{ $t('twofaces.lum_head') }}</text>
         <text x="34" y="42" class="tf2__sub">{{ $t('twofaces.lum_sub') }}</text>
         <text x="470" y="24" text-anchor="end" class="tf2__head">{{ neHead[0] }}</text>
         <text x="470" y="41" text-anchor="end" class="tf2__head">{{ neHead[1] }}</text>
+        <text x="470" y="57" text-anchor="end" class="tf2__sub">{{ $t('twofaces.ne_sub') }}</text>
 
         <!-- Cierre -->
-        <text x="240" y="266" text-anchor="middle" class="tf2__close">{{ $t('twofaces.close1') }}</text>
-        <text x="240" y="283" text-anchor="middle" class="tf2__close tf2__close--coral">{{ $t('twofaces.close2') }}</text>
+        <text x="240" y="266" text-anchor="middle" class="tf2__close tf2__close--soft">{{ $t('twofaces.close1') }}</text>
+        <text x="240" y="283" text-anchor="middle" class="tf2__close">{{ $t('twofaces.close2') }}</text>
       </svg>
     </figure>
 
@@ -162,31 +172,39 @@ function recPath(px: number, py: number, nx: number, ny: number, len = 8) {
     `M${tx.toFixed(1)} ${ty.toFixed(1)} L${(tx - perpx * 3.5 - nx).toFixed(1)} ${(ty - perpy * 3.5 - ny).toFixed(1)}`
   )
 }
-// SSTR2 sobreexpresados: varios receptores sobre el arco derecho (NE).
+// SSTR2 sobreexpresados: racimo de receptores en el arco inferior-derecho (NE),
+// junto a su etiqueta (para que se lean cerca).
 const receptors = computed(() => {
   const out: string[] = []
-  for (let i = 0; i < 6; i++) {
-    const a = ((-46 + i * 18) * Math.PI) / 180
+  for (let i = 0; i < 5; i++) {
+    const a = ((8 + i * 12) * Math.PI) / 180
     out.push(recPath(FX + Math.cos(a) * RX, FY + Math.sin(a) * RY, Math.cos(a), Math.sin(a)))
   }
   return out
 })
 
-// Textura tenue del lado conocido (sin etiqueta: solo densidad).
-const dots = computed(() => {
-  const rnd = mulberry32(5)
-  const out: { x: number; y: number; r: number }[] = []
-  let guard = 0
-  while (out.length < 6 && guard < 4000) {
-    guard++
-    const x = FX - RX + 10 + rnd() * (BX - (FX - RX) - 20)
-    const y = FY - RY + rnd() * (2 * RY)
-    if (((x - FX) / (RX - 14)) ** 2 + ((y - FY) / (RY - 12)) ** 2 <= 1 && x < BX - 10) {
-      out.push({ x: +x.toFixed(1), y: +y.toFixed(1), r: +(1.4 + rnd() * 1).toFixed(1) })
-    }
-  }
-  return out
-})
+// Marcadores conocidos del lado luminal, un glifo por tipo de hallazgo:
+//  amp = amplificación (círculo doble = copias) · mut = mutación (rombo) ·
+//  rec = receptor presente («Y») · recneg = receptor negativo («Y» tachado).
+const genes = [
+  { n: 'FGFR1', t: 'amp' },
+  { n: 'CCND1', t: 'amp' },
+  { n: 'ESR1', t: 'mut' },
+  { n: 'HR+', t: 'rec' },
+  { n: 'HER2−', t: 'recneg' },
+]
+function gy(i: number) {
+  return 98 + i * 19
+}
+function diamond(x: number, y: number) {
+  return `M${x} ${y - 4} l4 4 l-4 4 l-4 -4 z`
+}
+function recGlyph(x: number, y: number) {
+  return `M${x} ${y + 5} L${x} ${y - 1} M${x} ${y - 1} L${x - 3.5} ${y - 5} M${x} ${y - 1} L${x + 3.5} ${y - 5}`
+}
+function slash(x: number, y: number) {
+  return `M${x - 4} ${y + 3} L${x + 4} ${y - 5}`
+}
 // Gránulos Cg/Syn (el 80%), esquivando RB1, SSTR2, el rótulo central y el borde.
 const granules = computed(() => {
   const rnd = mulberry32(424242)
@@ -198,9 +216,9 @@ const granules = computed(() => {
     const y = FY - RY + rnd() * (2 * RY)
     const inF = ((x - FX) / (RX - 16)) ** 2 + ((y - FY) / (RY - 14)) ** 2 <= 1
     const farRB1 = (x - 300) ** 2 + (y - 96) ** 2 > 26 * 26
-    const farSSTR = (x - 320) ** 2 + (y - 182) ** 2 > 24 * 24
-    const farCenter = Math.abs(x - 322) > 50 || y < 132 || y > 176
-    if (inF && farRB1 && farSSTR && farCenter) {
+    const farCenter = Math.abs(x - 324) > 50 || y < 132 || y > 176
+    const farLabel = !(x > 352 && y > 180 && y < 214)
+    if (inF && farRB1 && farCenter && farLabel) {
       out.push({ x: +x.toFixed(1), y: +y.toFixed(1), r: +(1.5 + rnd() * 1).toFixed(1) })
     }
   }
@@ -269,12 +287,12 @@ const ariaLabel = computed(() => t('twofaces.sr'))
 }
 .tf2__close {
   font-family: 'Caveat', 'Bradley Hand', cursive;
-  font-size: 18px;
+  font-size: 17px;
   font-weight: 700;
   fill: #2d1b3d;
 }
-.tf2__close--coral {
-  font-size: 16px;
-  fill: #ff6b47;
+.tf2__close--soft {
+  font-weight: 400;
+  fill: #3a3340;
 }
 </style>
