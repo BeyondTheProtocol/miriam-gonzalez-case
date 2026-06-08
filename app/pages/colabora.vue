@@ -20,7 +20,9 @@
 
     <!-- ░░ HERO ░░ bg-cream -->
     <section v-reveal class="section-spacing bg-cream" :aria-label="$t('collaborate.title')">
-      <div class="section-container">
+      <!-- D1/D3: shell ancho para alinear el hero con las tarjetas de abajo
+           (mismo borde izquierdo); intro/cita/contexto se topan con .measure. -->
+      <div class="section-wide">
         <p class="eyebrow mb-4 block">{{ $t('collaborate.eyebrow') }}</p>
         <h1
           class="heading-display text-3xl sm:text-4xl lg:text-5xl text-berenjena mb-4 max-w-3xl"
@@ -215,7 +217,7 @@
 
     <!-- ░░ ENLACES RÁPIDOS ░░ bg-cream-card · panel neutro -->
     <section v-reveal class="section-spacing bg-cream-card" :aria-labelledby="'links-title'">
-      <div class="section-container">
+      <div class="section-wide">
         <p class="eyebrow mb-3 block">{{ $t('collaborate.links_eyebrow') }}</p>
         <h2
           id="links-title"
