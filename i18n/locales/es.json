@@ -94,7 +94,8 @@
     "rb1_note": "el motor",
     "sstr2_note": "vía PRRT",
     "unknown_mark": "lo que falta",
-      "together": "Un mismo tumor. Las dos caras se tratan juntas."
+      "together": "Un mismo tumor. Las dos caras se tratan juntas.",
+    "together_short": "Las dos caras se tratan juntas."
     },
   "error": {
     "e404_code": "Error 404",
