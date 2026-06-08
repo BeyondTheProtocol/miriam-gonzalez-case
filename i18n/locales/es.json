@@ -64,7 +64,7 @@
       "title": "Un tumor con dos caras",
       "intro": "No es un tumor: son dos biologías en el mismo cuerpo, y hay que tratarlas a la vez.",
       "lum_head": "MAMA · luminal",
-      "lum_sub": "la conocemos entera",
+      "lum_sub": "la conocemos",
     "lum_g1": "HR+ · HER2− · ESR1",
     "lum_g2": "FGFR1 · CCND1",
       "lum_markers": [
@@ -75,7 +75,7 @@
         "CCND1"
       ],
       "ne_head": "diferenciación neuroendocrina",
-      "ne_sub": "manda (80%), casi a oscuras",
+      "ne_sub": "la que necesitamos conocer",
       "pct": "80%",
     "cgsyn": "Cg · Syn",
     "amplicon": "amplicón 11q13",
@@ -88,8 +88,8 @@
       "rb1_note": "dispara el 80%",
       "sstr2": "SSTR2",
       "sstr2_note": "receptores → PRRT",
-      "close1": "Bloquéalo por un lado y escapa por el otro.",
-      "close2": "Hay que atacarlo entero.",
+      "close1": "Dos poblaciones, un mismo tumor.",
+      "close2": "Tratar una sola selecciona a la otra.",
       "sr": "Esquema del tumor. Mama luminal, la parte conocida: receptores HR+ y HER2 negativo, amplicón 11q13 (FGFR1 ×13, CCND1 ×20, FGF3/4/19 ×18) y mutación de ESR1 en ctDNA. Diferenciación neuroendocrina (Cg/Syn en ~80% de las células), apenas conocida: pérdida de RB1, el interruptor, y receptores SSTR2, diana de la PRRT. Si se bloquea un lado, escapa por el otro; hay que tratarlo entero."
     },
   "thanks": {
