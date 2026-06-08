@@ -84,13 +84,19 @@
     "esr1": "ESR1 mut. (ctDNA)",
     "hr": "HR+",
     "her2": "HER2−",
-      "rb1": "RB1 lost",
-      "rb1_note": "triggers the 80%",
+      "rb1": "RB1 · the brake",
+      "rb1_note": "being lost",
       "sstr2": "SSTR2",
       "sstr2_note": "receptors → PRRT",
+    "hr_note": "hormone receptors",
       "close1": "Two populations, one tumor.",
       "close2": "Treating only one selects for the other.",
-      "sr": "Tumor schematic. Luminal breast, the known part: HR+ receptors, HER2 negative, an 11q13 amplicon (FGFR1 ×13, CCND1 ×20, FGF3/4/19 ×18) and an ESR1 mutation in ctDNA. Neuroendocrine differentiation (Cg/Syn in ~80% of cells), barely known: loss of RB1, the switch, and SSTR2 receptors, the PRRT target. Block one side and it escapes through the other; it must be treated as a whole."
+      "sr": "Tumor schematic. Luminal breast, the known part: HR+ receptors, HER2 negative, an 11q13 amplicon (FGFR1 ×13, CCND1 ×20, FGF3/4/19 ×18) and an ESR1 mutation in ctDNA. Neuroendocrine differentiation (Cg/Syn in ~80% of cells), barely known: loss of RB1, the switch, and SSTR2 receptors, the PRRT target. Block one side and it escapes through the other; it must be treated as a whole.",
+    "legend_rec": "Receptors: targets to attack.",
+    "legend_amp": "Amplifications: extra copies that push the tumor.",
+    "legend_mut": "Mutations: resistances the tumor builds to keep growing.",
+    "legend_rb1": "RB1: a brake that is being lost.",
+    "legend_her2": "HER2: it does not have it."
     },
   "thanks": {
     "eyebrow": "Donation received · Thank you",

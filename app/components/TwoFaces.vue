@@ -8,14 +8,13 @@
       <p class="text-sm text-tinta leading-relaxed mb-6 max-w-2xl">{{ $t('twofaces.intro') }}</p>
     </template>
 
-    <!-- ESQUEMA claro (home, gente de a pie). Una célula, dos biologías que
-         conviven: lo CONOCIDO es lo pequeño (mama luminal, con sus marcadores
-         nombrados); lo que MANDA es el 80% neuroendocrino (Cg/Syn), apenas
-         conocido — solo dos certezas: RB1 perdido (dispara el 80%) y SSTR2
-         (receptores → PRRT). Bloquéalo por un lado y escapa por el otro →
-         hay que tratarlo entero. El detalle genómico riguroso vive en /ciencia. -->
+    <!-- ESQUEMA claro (home). Una célula, dos biologías que conviven. Receptores
+         FUERA (membrana): HR+ presentes (lila), HER2 ausente (fantasma), SSTR2
+         sobreexpresados (coral). ADN DENTRO: amplificaciones (FGFR1, CCND1) y
+         mutación (ESR1). El 80% que manda (Cg/Syn) es lo que falta por conocer;
+         RB1 es el freno que se está perdiendo. El detalle riguroso, en /ciencia. -->
     <figure class="tf2">
-      <svg class="tf2__svg" viewBox="0 0 480 288" role="img" :aria-label="ariaLabel">
+      <svg class="tf2__svg" viewBox="0 0 480 246" role="img" :aria-label="ariaLabel">
         <defs>
           <pattern id="tf2-grid" width="22" height="22" patternUnits="userSpaceOnUse">
             <path d="M22 0 H0 V22" fill="none" stroke="rgba(45,27,61,0.06)" stroke-width="1" />
@@ -23,8 +22,8 @@
           <clipPath id="tf2-field"><path :d="fieldPath" /></clipPath>
         </defs>
 
-        <rect x="2" y="2" width="476" height="284" rx="14" fill="#faf6f0" stroke="rgba(45,27,61,0.16)" />
-        <rect x="2" y="2" width="476" height="284" rx="14" fill="url(#tf2-grid)" />
+        <rect x="2" y="2" width="476" height="242" rx="14" fill="#faf6f0" stroke="rgba(45,27,61,0.16)" />
+        <rect x="2" y="2" width="476" height="242" rx="14" fill="url(#tf2-grid)" />
 
         <g clip-path="url(#tf2-field)">
           <rect :x="FX - RX" :y="FY - RY" :width="BX - (FX - RX)" :height="2 * RY" fill="#9d44ab" opacity="0.08" />
@@ -37,21 +36,21 @@
         <g fill="#2d1b3d" opacity="0.28">
           <circle v-for="(gr, i) in granules" :key="'gr' + i" :cx="gr.x" :cy="gr.y" :r="gr.r" />
         </g>
-        <text x="324" y="150" text-anchor="middle" class="tf2__pct">{{ $t('twofaces.pct') }}</text>
-        <text x="324" y="167" text-anchor="middle" class="tf2__cgsyn" translate="no">{{ $t('twofaces.cgsyn') }}</text>
+        <text x="324" y="170" text-anchor="middle" class="tf2__pct">{{ $t('twofaces.pct') }}</text>
+        <text x="324" y="187" text-anchor="middle" class="tf2__cgsyn" translate="no">{{ $t('twofaces.cgsyn') }}</text>
 
-        <!-- Receptores hormonales HR+ sobre la membrana luminal (presentes, lila,
-             igual que SSTR2 pero magenta) -->
+        <!-- Receptores hormonales HR+ (presentes, lila) en la membrana luminal -->
         <g stroke="#9d44ab" stroke-width="1.6" stroke-linecap="round" fill="none">
           <path v-for="(r, i) in hrReceptors" :key="'hr' + i" :d="r" />
         </g>
-        <text x="10" y="160" class="tf2__rec-lab" translate="no">HR+</text>
+        <text x="8" y="206" class="tf2__rec-lab" translate="no">HR+</text>
+        <text x="8" y="220" class="tf2__rec-note">{{ $t('twofaces.hr_note') }}</text>
         <!-- HER2 negativo = NO lo tiene: receptor ausente (fantasma punteado) -->
         <path :d="her2Ghost" fill="none" stroke="#9d44ab" stroke-width="1.4" stroke-linecap="round" stroke-dasharray="2 2" opacity="0.45" />
-        <text x="10" y="92" class="tf2__rec-off" translate="no">HER2−</text>
+        <text x="8" y="110" class="tf2__rec-off" translate="no">HER2−</text>
 
-        <!-- Alteraciones genómicas del lado luminal (dentro): amplificación =
-             círculo doble (copias), mutación = rombo. Nombres legibles. -->
+        <!-- Alteraciones genómicas (dentro): amplificación = círculo doble (copias),
+             mutación = rombo. -->
         <g v-for="(g, i) in genes" :key="'g' + i">
           <template v-if="g.t === 'amp'">
             <circle cx="104" :cy="gy(i)" r="4.5" fill="none" stroke="#9d44ab" stroke-width="1.4" />
@@ -61,32 +60,52 @@
           <text x="116" :y="gy(i) + 4" class="tf2__genes" translate="no">{{ g.n }}</text>
         </g>
 
-        <!-- Las dos certezas neuroendocrinas -->
-        <circle cx="300" cy="96" r="4.5" fill="#ff6b47" />
-        <path :d="rb1Ring" fill="none" stroke="#ff6b47" stroke-width="1.6" />
-        <text x="320" y="92" class="tf2__known-m" translate="no">{{ $t('twofaces.rb1') }}</text>
-        <text x="320" y="106" class="tf2__known-n">{{ $t('twofaces.rb1_note') }}</text>
+        <!-- RB1 = el freno que se está perdiendo (aro ROTO, no entero) -->
+        <circle cx="300" cy="116" r="4.5" fill="#ff6b47" />
+        <path :d="rb1Broken" fill="none" stroke="#ff6b47" stroke-width="1.6" stroke-linecap="round" />
+        <text x="320" y="112" class="tf2__known-m" translate="no">{{ $t('twofaces.rb1') }}</text>
+        <text x="320" y="126" class="tf2__known-n">{{ $t('twofaces.rb1_note') }}</text>
 
-        <!-- SSTR2 = receptores sobre la membrana NE (lo característico: siempre
-             los tendrá; sobreexpresados → diana de la PRRT). Etiqueta pegada
-             al racimo de receptores. -->
+        <!-- SSTR2 = receptores sobreexpresados (coral) en la membrana NE -->
         <g stroke="#ff6b47" stroke-width="1.6" stroke-linecap="round" fill="none">
           <path v-for="(r, i) in receptors" :key="'r' + i" :d="r" />
         </g>
-        <text x="470" y="196" text-anchor="end" class="tf2__known-m" translate="no">{{ $t('twofaces.sstr2') }}</text>
-        <text x="470" y="210" text-anchor="end" class="tf2__known-n">{{ $t('twofaces.sstr2_note') }}</text>
+        <text x="472" y="214" text-anchor="end" class="tf2__known-m" translate="no">{{ $t('twofaces.sstr2') }}</text>
+        <text x="472" y="228" text-anchor="end" class="tf2__known-n">{{ $t('twofaces.sstr2_note') }}</text>
 
-        <!-- Títulos (derecha en dos líneas → no chocan en móvil) -->
-        <text x="34" y="26" class="tf2__head">{{ $t('twofaces.lum_head') }}</text>
-        <text x="34" y="42" class="tf2__sub">{{ $t('twofaces.lum_sub') }}</text>
-        <text x="470" y="24" text-anchor="end" class="tf2__head">{{ neHead[0] }}</text>
-        <text x="470" y="41" text-anchor="end" class="tf2__head">{{ neHead[1] }}</text>
-        <text x="470" y="57" text-anchor="end" class="tf2__sub">{{ $t('twofaces.ne_sub') }}</text>
-
-        <!-- Cierre -->
-        <text x="240" y="266" text-anchor="middle" class="tf2__close tf2__close--soft">{{ $t('twofaces.close1') }}</text>
-        <text x="240" y="283" text-anchor="middle" class="tf2__close">{{ $t('twofaces.close2') }}</text>
+        <!-- Títulos (derecha en dos líneas + subtítulo, con aire) -->
+        <text x="34" y="28" class="tf2__head">{{ $t('twofaces.lum_head') }}</text>
+        <text x="34" y="44" class="tf2__sub">{{ $t('twofaces.lum_sub') }}</text>
+        <text x="470" y="26" text-anchor="end" class="tf2__head">{{ neHead[0] }}</text>
+        <text x="470" y="43" text-anchor="end" class="tf2__head">{{ neHead[1] }}</text>
+        <text x="470" y="59" text-anchor="end" class="tf2__sub">{{ $t('twofaces.ne_sub') }}</text>
       </svg>
+
+      <!-- Leyenda en lenguaje llano (ocupa el hueco del cierre): qué significa
+           cada glifo, para que la gente lo entienda. Los mini-iconos mapean al
+           dibujo. -->
+      <figcaption class="tf2-legend">
+        <span class="tf2-legend__item">
+          <svg class="tf2-legend__g" viewBox="0 0 18 18" aria-hidden="true"><path d="M9 16 L9 9 M9 9 L5 4 M9 9 L13 4" fill="none" stroke="#ff6b47" stroke-width="1.6" stroke-linecap="round" /></svg>
+          {{ $t('twofaces.legend_rec') }}
+        </span>
+        <span class="tf2-legend__item">
+          <svg class="tf2-legend__g" viewBox="0 0 18 18" aria-hidden="true"><circle cx="9" cy="9" r="5" fill="none" stroke="#9d44ab" stroke-width="1.4" /><circle cx="9" cy="9" r="2" fill="#9d44ab" /></svg>
+          {{ $t('twofaces.legend_amp') }}
+        </span>
+        <span class="tf2-legend__item">
+          <svg class="tf2-legend__g" viewBox="0 0 18 18" aria-hidden="true"><path d="M9 3 l5 6 l-5 6 l-5 -6 z" fill="none" stroke="#9d44ab" stroke-width="1.4" /></svg>
+          {{ $t('twofaces.legend_mut') }}
+        </span>
+        <span class="tf2-legend__item">
+          <svg class="tf2-legend__g" viewBox="0 0 18 18" aria-hidden="true"><path d="M13.5 5.2 A5 5 0 1 0 13.5 12.8" fill="none" stroke="#ff6b47" stroke-width="1.6" stroke-linecap="round" /></svg>
+          {{ $t('twofaces.legend_rb1') }}
+        </span>
+        <span class="tf2-legend__item">
+          <svg class="tf2-legend__g" viewBox="0 0 18 18" aria-hidden="true"><path d="M9 16 L9 9 M9 9 L5 4 M9 9 L13 4" fill="none" stroke="#8a857e" stroke-width="1.4" stroke-linecap="round" stroke-dasharray="2 2" /></svg>
+          {{ $t('twofaces.legend_her2') }}
+        </span>
+      </figcaption>
     </figure>
 
     <p class="sr-only">{{ $t('twofaces.sr') }}</p>
@@ -95,22 +114,20 @@
 
 <script setup lang="ts">
 /**
- * «Un tumor con dos caras» — ESQUEMA claro para la home (gente de a pie). Una
- * célula, dos biologías que conviven: lo conocido es lo pequeño (mama luminal,
- * marcadores nombrados); lo que manda es el 80% neuroendocrino (gránulos
- * Cg/Syn), apenas conocido — solo dos certezas: RB1 perdido (su pérdida dispara
- * el 80%) y SSTR2 (receptores → PRRT). Mensaje: bloquéalo por un lado y escapa
- * por el otro → tratarlo entero. «Diferenciación neuroendocrina», nunca
- * «neuroendocrino» a secas. El detalle genómico riguroso (amplicón 11q13 con
- * ×N, mutaciones, receptores) vive en /ciencia. viewBox fijo (mobile-first),
- * texto real en sr-only, sin animación (regla de calma).
+ * «Un tumor con dos caras» — ESQUEMA claro para la home. Receptores en la
+ * membrana (HR+ presentes lila, HER2 ausente/fantasma, SSTR2 sobreexpresados
+ * coral); alteraciones genómicas dentro (FGFR1/CCND1 amplificados, ESR1 mutado).
+ * El 80% (Cg/Syn) es lo que manda y lo que falta por conocer; RB1 es el freno
+ * que se está perdiendo (aro roto). Lo conocido es pequeño; lo dominante,
+ * apenas conocido. El detalle riguroso (amplicón 11q13 con ×N, etc.) → /ciencia.
+ * viewBox fijo (mobile-first), texto real en sr-only, sin animación (calma).
  */
 defineProps<{ compact?: boolean }>()
 
 const { t } = useI18n()
 
 const FX = 250
-const FY = 128
+const FY = 148
 const RX = 192
 const RY = 82
 const BX = 178
@@ -152,17 +169,6 @@ const fieldPath = computed(() => {
 })
 const seamPath = `M${BX - 2} ${FY - RY + 14} Q${BX + 8} ${FY} ${BX - 6} ${FY + RY - 14}`
 
-function handRing(x: number, y: number, rx = 14, ry = 11) {
-  const rnd = mulberry32(Math.round(x + y))
-  const pts: { x: number; y: number }[] = []
-  for (let i = 0; i < 12; i++) {
-    const a = (i / 12) * Math.PI * 2 - 0.5
-    pts.push({ x: x + Math.cos(a) * rx + (rnd() * 2 - 1) * 1.1, y: y + Math.sin(a) * ry + (rnd() * 2 - 1) * 1.1 })
-  }
-  return smoothClosed(pts)
-}
-const rb1Ring = handRing(300, 96)
-
 // Receptor «Y» en un punto de la membrana, hacia fuera.
 function recPath(px: number, py: number, nx: number, ny: number, len = 8) {
   const bx = px - nx * 2
@@ -177,47 +183,47 @@ function recPath(px: number, py: number, nx: number, ny: number, len = 8) {
     `M${tx.toFixed(1)} ${ty.toFixed(1)} L${(tx - perpx * 3.5 - nx).toFixed(1)} ${(ty - perpy * 3.5 - ny).toFixed(1)}`
   )
 }
-// SSTR2 sobreexpresados: racimo de receptores en el arco inferior-derecho (NE),
-// junto a su etiqueta (para que se lean cerca).
-const receptors = computed(() => {
-  const out: string[] = []
-  for (let i = 0; i < 5; i++) {
-    const a = ((8 + i * 12) * Math.PI) / 180
-    out.push(recPath(FX + Math.cos(a) * RX, FY + Math.sin(a) * RY, Math.cos(a), Math.sin(a)))
-  }
-  return out
-})
+function arcRec(deg: number) {
+  const a = (deg * Math.PI) / 180
+  return recPath(FX + Math.cos(a) * RX, FY + Math.sin(a) * RY, Math.cos(a), Math.sin(a))
+}
+const hrReceptors = computed(() => [156, 174, 192].map(arcRec))
+const her2Ghost = arcRec(208)
+const receptors = computed(() => [8, 20, 32, 44, 56].map(arcRec))
 
-// Marcadores conocidos del lado luminal, un glifo por tipo de hallazgo:
-//  amp = amplificación (círculo doble = copias) · mut = mutación (rombo) ·
-//  rec = receptor presente («Y») · recneg = receptor negativo («Y» tachado).
+// RB1 = el freno: aro ROTO (abierto, con un hueco) = se está perdiendo.
+const rb1Broken = (() => {
+  const x = 300
+  const y = 116
+  const rx = 14
+  const ry = 11
+  const rnd = mulberry32(417)
+  const pts: string[] = []
+  const N = 12
+  const shown = 9 // deja un hueco: el aro no cierra (freno partido)
+  for (let i = 0; i <= shown; i++) {
+    const a = (i / N) * Math.PI * 2 - 0.4
+    pts.push(
+      `${(x + Math.cos(a) * rx + (rnd() * 2 - 1) * 1.1).toFixed(1)} ${(y + Math.sin(a) * ry + (rnd() * 2 - 1) * 1.1).toFixed(1)}`
+    )
+  }
+  return 'M' + pts.join(' L')
+})()
+
 const genes = [
   { n: 'FGFR1', t: 'amp' },
   { n: 'CCND1', t: 'amp' },
   { n: 'ESR1', t: 'mut' },
 ]
 function gy(i: number) {
-  return 100 + i * 22
+  return 120 + i * 22
 }
 function diamond(x: number, y: number) {
   return `M${x} ${y - 4} l4 4 l-4 4 l-4 -4 z`
 }
 
-// Receptores hormonales HR+ sobre la membrana luminal (presentes, arco izq.).
-const hrReceptors = computed(() => {
-  const out: string[] = []
-  for (const deg of [156, 174, 192]) {
-    const a = (deg * Math.PI) / 180
-    out.push(recPath(FX + Math.cos(a) * RX, FY + Math.sin(a) * RY, Math.cos(a), Math.sin(a)))
-  }
-  return out
-})
-// HER2 negativo: receptor ausente (un solo «fantasma» en el arco superior izq.).
-const her2Ghost = (() => {
-  const a = (208 * Math.PI) / 180
-  return recPath(FX + Math.cos(a) * RX, FY + Math.sin(a) * RY, Math.cos(a), Math.sin(a))
-})()
-// Gránulos Cg/Syn (el 80%), esquivando RB1, SSTR2, el rótulo central y el borde.
+// Gránulos Cg/Syn (el 80%), esquivando RB1, el rótulo central, el borde y la
+// etiqueta de SSTR2.
 const granules = computed(() => {
   const rnd = mulberry32(424242)
   const out: { x: number; y: number; r: number }[] = []
@@ -227,9 +233,9 @@ const granules = computed(() => {
     const x = BX + 18 + rnd() * (FX + RX - (BX + 38))
     const y = FY - RY + rnd() * (2 * RY)
     const inF = ((x - FX) / (RX - 16)) ** 2 + ((y - FY) / (RY - 14)) ** 2 <= 1
-    const farRB1 = (x - 300) ** 2 + (y - 96) ** 2 > 26 * 26
-    const farCenter = Math.abs(x - 324) > 50 || y < 132 || y > 176
-    const farLabel = !(x > 352 && y > 180 && y < 214)
+    const farRB1 = (x - 300) ** 2 + (y - 116) ** 2 > 26 * 26
+    const farCenter = Math.abs(x - 324) > 50 || y < 152 || y > 196
+    const farLabel = !(x > 352 && y > 198 && y < 232)
     if (inF && farRB1 && farCenter && farLabel) {
       out.push({ x: +x.toFixed(1), y: +y.toFixed(1), r: +(1.5 + rnd() * 1).toFixed(1) })
     }
@@ -278,6 +284,11 @@ const ariaLabel = computed(() => t('twofaces.sr'))
   font-weight: 700;
   fill: #6a2475;
 }
+.tf2__rec-note {
+  font-family: 'Caveat', 'Bradley Hand', cursive;
+  font-size: 11px;
+  fill: #8a857e;
+}
 .tf2__rec-off {
   font-family: 'Caveat', 'Bradley Hand', cursive;
   font-size: 14px;
@@ -309,14 +320,31 @@ const ariaLabel = computed(() => t('twofaces.sr'))
   fill: #2d1b3d;
   opacity: 0.4;
 }
-.tf2__close {
-  font-family: 'Caveat', 'Bradley Hand', cursive;
-  font-size: 17px;
-  font-weight: 700;
-  fill: #2d1b3d;
+/* Leyenda en lenguaje llano bajo el esquema (sustituye al cierre). */
+.tf2-legend {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 6px 18px;
+  max-width: 540px;
+  margin: 0.6rem auto 0;
+  padding: 0 4px;
 }
-.tf2__close--soft {
-  font-weight: 400;
-  fill: #3a3340;
+@media (min-width: 560px) {
+  .tf2-legend {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+.tf2-legend__item {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 13px;
+  line-height: 1.35;
+  color: #3a3340;
+}
+.tf2-legend__g {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
 }
 </style>

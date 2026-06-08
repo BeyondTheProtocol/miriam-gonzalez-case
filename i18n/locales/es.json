@@ -84,13 +84,19 @@
     "esr1": "ESR1 mut. (ctDNA)",
     "hr": "HR+",
     "her2": "HER2−",
-      "rb1": "RB1 perdido",
-      "rb1_note": "dispara el 80%",
+      "rb1": "RB1 · el freno",
+      "rb1_note": "se está perdiendo",
       "sstr2": "SSTR2",
       "sstr2_note": "receptores → PRRT",
+    "hr_note": "receptores hormonales",
       "close1": "Dos poblaciones, un mismo tumor.",
       "close2": "Tratar una sola selecciona a la otra.",
-      "sr": "Esquema del tumor. Mama luminal, la parte conocida: receptores HR+ y HER2 negativo, amplicón 11q13 (FGFR1 ×13, CCND1 ×20, FGF3/4/19 ×18) y mutación de ESR1 en ctDNA. Diferenciación neuroendocrina (Cg/Syn en ~80% de las células), apenas conocida: pérdida de RB1, el interruptor, y receptores SSTR2, diana de la PRRT. Si se bloquea un lado, escapa por el otro; hay que tratarlo entero."
+      "sr": "Esquema del tumor. Mama luminal, la parte conocida: receptores HR+ y HER2 negativo, amplicón 11q13 (FGFR1 ×13, CCND1 ×20, FGF3/4/19 ×18) y mutación de ESR1 en ctDNA. Diferenciación neuroendocrina (Cg/Syn en ~80% de las células), apenas conocida: pérdida de RB1, el interruptor, y receptores SSTR2, diana de la PRRT. Si se bloquea un lado, escapa por el otro; hay que tratarlo entero.",
+    "legend_rec": "Receptores: dianas para atacar.",
+    "legend_amp": "Amplificaciones: copias de más que empujan el tumor.",
+    "legend_mut": "Mutaciones: resistencias que el tumor crea para crecer.",
+    "legend_rb1": "RB1: un freno que se va perdiendo.",
+    "legend_her2": "HER2: no lo tiene."
     },
   "thanks": {
     "eyebrow": "Donación recibida · Gracias",
