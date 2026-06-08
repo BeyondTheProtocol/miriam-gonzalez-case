@@ -5,3 +5,25 @@
 [build.environment]
   NODE_VERSION = "22"
   PNPM_VERSION = "10"
+
+# ── Datos en vivo ────────────────────────────────────────────────────────────
+# El total y la lista de donantes (estrellas + tabla) se sirven desde funciones
+# que consultan GoFundMe al vuelo y se cachean en la CDN (no hace falta redeploy).
+# La semilla generada en build (public/*.json) se incluye en el bundle de las
+# funciones como fallback por si GoFundMe no responde.
+[functions]
+  included_files = ["public/fundraiser.json", "public/donations.json"]
+
+# /fundraiser.json y /donations.json apuntan a las funciones (force gana al
+# fichero estático del mismo nombre). El cliente sigue pidiendo las mismas URLs.
+[[redirects]]
+  from = "/fundraiser.json"
+  to = "/.netlify/functions/fundraiser"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/donations.json"
+  to = "/.netlify/functions/donations"
+  status = 200
+  force = true

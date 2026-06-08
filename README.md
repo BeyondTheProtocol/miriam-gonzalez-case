@@ -13,7 +13,7 @@ An informational website about Miriam González Pérez's case: metastatic breast
 - **@nuxtjs/plausible** — privacy-first analytics (ignores localhost)
 - **Tailwind CSS** — styles
 - **@nuxt/icon** — icons (Phosphor Icons via Iconify)
-- **Netlify Functions** — scheduled function for GoFundMe data sync
+- **Netlify Functions** — live GoFundMe data endpoints (CDN-cached, no redeploy)
 - **Netlify Forms** — contact form (no backend)
 
 ## Setup
@@ -67,10 +67,12 @@ app/
     PageHeader.vue         → Reusable page header
 
 netlify/functions/
-    get-fundraiser-function.mts  → Scheduled (hourly) GoFundMe data sync
+    fundraiser.mts         → Live GoFundMe total (CDN-cached ~15 min)
+    donations.mts          → Live donor list / stars (parallel fetch, CDN-cached ~1 h)
 
 utils/
-    fundraiser.ts          → GoFundMe GraphQL client + types + save logic
+    fundraiser.ts          → GoFundMe GraphQL + feed client, types, fetchers + build seed
+    seed.ts                → reads build-time public/*.json as a fallback
 
 public/
     fundraiser.json        → Static snapshot of GoFundMe progress (gitignored, auto-generated at build time)
@@ -122,4 +124,4 @@ If you have a good idea, feature request, or notice something that could be impr
 - [ ] Verify `helpmiriam.com` in Google Search Console and request indexing
 - [ ] Think about a way to auto-update the timeline from social media posts
 - [ ] Talk to Miriam about what images she wants to use
-- [x] ~~Research if GoFundMe API can be used instead of iframe~~ → Migrated to Netlify scheduled function + static JSON
+- [x] ~~Research if GoFundMe API can be used instead of iframe~~ → Live Netlify Function endpoints querying GoFundMe, CDN-cached (no redeploy needed)

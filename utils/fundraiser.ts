@@ -109,23 +109,20 @@ function titleCase(s: string): string {
     .replace(/(^|[\s\-'’.])(\p{L})/gu, (_m, sep: string, ch: string) => sep + ch.toLocaleUpperCase('es-ES'))
 }
 
-export async function getDonations(maxItems = 1500): Promise<PublicDonation[]> {
-  const out: PublicDonation[] = []
-  const limit = 20
-  let offset = 0
-  // El feed pagina por offset pero NO manda un has_next fiable (viene null), así
-  // que paramos cuando una página llega incompleta (< limit) o vacía, o al tope.
-  for (let guard = 0; guard < 120 && out.length < maxItems; guard++) {
-    const res = await fetch(
-      `${donationsFeed}?limit=${limit}&sort=recent&offset=${offset}`,
-      { headers: { 'User-Agent': headers['User-Agent'] }, signal: AbortSignal.timeout(8000) }
-    )
-    if (!res.ok) break
+// Una página del feed (por offset) → donaciones normalizadas. Devuelve [] si la
+// página falla (timeout / !ok), para no romper el barrido completo.
+async function fetchDonationsPage(offset: number, limit = 20): Promise<PublicDonation[]> {
+  try {
+    const res = await fetch(`${donationsFeed}?limit=${limit}&sort=recent&offset=${offset}`, {
+      headers: { 'User-Agent': headers['User-Agent'] },
+      signal: AbortSignal.timeout(8000),
+    })
+    if (!res.ok) return []
     const json = (await res.json()) as {
       references?: { donations?: Array<Record<string, unknown>> }
     }
     const list = json.references?.donations ?? []
-    if (list.length === 0) break
+    const out: PublicDonation[] = []
     for (const d of list) {
       const anonymous = Boolean(d.is_anonymous)
       const name = anonymous ? 'Anónimo' : titleCase(String(d.name || 'Anónimo')) || 'Anónimo'
@@ -139,10 +136,51 @@ export async function getDonations(maxItems = 1500): Promise<PublicDonation[]> {
         anonymous,
       })
     }
+    return out
+  } catch {
+    return []
+  }
+}
+
+// Barrido SECUENCIAL (para el build/semilla). El feed no manda un has_next
+// fiable (viene null), así que paramos al llegar una página incompleta o vacía.
+export async function getDonations(maxItems = 1500): Promise<PublicDonation[]> {
+  const out: PublicDonation[] = []
+  const limit = 20
+  for (let offset = 0, guard = 0; guard < 120 && out.length < maxItems; guard++, offset += limit) {
+    const list = await fetchDonationsPage(offset, limit)
+    if (list.length === 0) break
+    out.push(...list)
     if (list.length < limit) break
-    offset += limit
   }
   return out
+}
+
+// Barrido en PARALELO acotado por el total de donaciones (lo da el fundraiser),
+// para el endpoint EN VIVO, donde el tiempo de respuesta importa: lanza las
+// páginas en oleadas de baja concurrencia, deduplica por id y ordena por fecha.
+// Sin total conocido, cae al barrido secuencial.
+export async function getDonationsFast(total?: number, maxItems = 1500): Promise<PublicDonation[]> {
+  const limit = 20
+  if (!total || total <= 0) return getDonations(maxItems)
+  const pages = Math.min(Math.ceil(total / limit), Math.ceil(maxItems / limit), 120)
+  const offsets = Array.from({ length: pages }, (_, i) => i * limit)
+  const concurrency = 6
+  const all: PublicDonation[] = []
+  for (let i = 0; i < offsets.length; i += concurrency) {
+    const wave = offsets.slice(i, i + concurrency)
+    const lists = await Promise.all(wave.map((o) => fetchDonationsPage(o, limit)))
+    for (const l of lists) all.push(...l)
+  }
+  const seen = new Set<number>()
+  const dedup: PublicDonation[] = []
+  for (const d of all) {
+    if (seen.has(d.id)) continue
+    seen.add(d.id)
+    dedup.push(d)
+  }
+  dedup.sort((a, b) => +new Date(b.createdAt) - +new Date(a.createdAt))
+  return dedup.slice(0, maxItems)
 }
 
 export async function saveDonations() {

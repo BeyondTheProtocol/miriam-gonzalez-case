@@ -47,12 +47,14 @@ The website has two audiences: scientists/physicians (science page, molecular pr
 ### Contact Form
 - Netlify Forms integrated (no backend, no Formspree). The form lives in `app/pages/contacto.vue`.
 
-### GoFundMe Data Sync
-- Scheduled function `netlify/functions/get-fundraiser-function.mts` runs **hourly** (`@hourly`), fetches fundraiser data from GoFundMe's GraphQL API and writes it to `public/fundraiser.json`.
-- Utility module `utils/fundraiser.ts` defines the types (`GoFundMeFundraiser`, `GoFundMeAmount`, `GoFundMeResponse`), `getFundraiser()` (fetches from GoFundMe GraphQL), and `saveFundraiser(overwrite?)` (fetches + writes to JSON). `saveFundraiser()` is **idempotent**: it skips writing if the file already exists, unless `overwrite` is `true`.
-- CLI script `pnpm update-fundraiser` runs `tsx update-fundraiser.ts`. Pass `--force` to overwrite an existing file.
-- `public/fundraiser.json` is **gitignored** — never committed. It is auto-generated at build time by lifecycle scripts.
-- `GoFundMeProgress.vue` component fetches the fundraiser data from `public/fundraiser.json` via `$fetch('/fundraiser.json')` on mount.
+### GoFundMe Data Sync (live endpoints)
+- `/fundraiser.json` (total) and `/donations.json` (donor list → stars + table) are served by **on-request Netlify Functions** that query GoFundMe live and are cached at Netlify's CDN (`Netlify-CDN-Cache-Control` with `stale-while-revalidate`/`stale-if-error`), so the data refreshes **without a redeploy**. `netlify.toml` redirects map those paths to the functions (`force = true`); the Vue components keep fetching the same URLs on mount.
+  - `netlify/functions/fundraiser.mts` — one GraphQL call, CDN-cached ~15 min.
+  - `netlify/functions/donations.mts` — the public feed fetched in **parallel** (bounded by `donationCount` so it stays within the function time budget), CDN-cached ~1 h with `stale-while-revalidate` (users always get the cached copy instantly; revalidation is background).
+- `utils/fundraiser.ts` defines the types (`GoFundMeFundraiser`, `GoFundMeAmount`, `GoFundMeResponse`, `PublicDonation`) and the fetchers: `getFundraiser()`, `getDonations()` (sequential, for the build seed), `getDonationsFast(total?)` (parallel, for the live endpoint), plus `saveFundraiser()/saveDonations()` that write the build-time seed.
+- `utils/seed.ts` `readSeed()` reads the build-time `public/*.json` (bundled into the functions via `included_files`) as a fallback when GoFundMe is unreachable, so the total and stars never go blank.
+- CLI `pnpm update-fundraiser` (runs at build via `pnpm generate`) regenerates the seed. `public/fundraiser.json` and `public/donations.json` are **gitignored** — never committed, auto-generated at build.
+- The previous hourly scheduled function was removed: a Netlify function cannot rewrite the already-deployed static files, so writing `public/*.json` at runtime never reached the served assets (the data only changed on redeploy). The live endpoints replace it.
 
 ### Nitro Route Rules
 - `/colabora` and `/collaborate` → 301 redirect to `https://helpmiriam.notion.site/colabora`. This is the collaboration guide for new contributors.

@@ -191,7 +191,8 @@ const localePath = useLocalePath()
 const { locale, t } = useI18n()
 const { trackSupport } = useSupport()
 
-// Datos de campaña: JSON estático de main (función Netlify). Carga en cliente.
+// Datos de campaña EN VIVO: /fundraiser.json lo sirve una función Netlify
+// (GoFundMe + caché de CDN). Carga en cliente, así refleja el dato actual.
 const gofundme = ref<import('../../utils/fundraiser').GoFundMeFundraiser | null>(null)
 onMounted(async () => {
   gofundme.value = await $fetch('/fundraiser.json')
