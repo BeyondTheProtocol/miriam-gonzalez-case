@@ -60,58 +60,36 @@
     "page": "{c} of {t}",
     "empty": "No donations to show yet."
   },
-    "twofaces": {
-      "eyebrow": "The two faces",
+      "twofaces": {
       "title": "One tumor, two faces",
-      "intro": "It is not one tumor: it is two biologies in the same body. Both must be treated at once — hit only one and the other advances.",
-      "lum_label": "Breast face · luminal",
-      "lum_status": "Well understood, with standard treatment.",
+      "intro": "It is not one tumor: it is two biologies in the same body, and both must be treated at once.",
+      "lum_head": "BREAST · luminal",
+      "lum_sub": "fully mapped",
       "lum_markers": [
-        "ER/PR receptors",
-        "CDK4/6",
+        "HER2−",
+        "HR+",
+        "ESR1",
         "FGFR1",
-        "CCND1",
-        "ESR1"
+        "CCND1"
       ],
-      "join": "one single tumor",
-      "ne_label": "Neuroendocrine face",
-      "ne_status": "Barely understood. Two hard-won certainties.",
-      "ne_known": [
-        {
-          "m": "RB1",
-          "d": "the driver of neuroendocrine transformation"
-        },
-        {
-          "m": "SSTR2",
-          "d": "opens the radioligand route (PRRT)"
-        }
-      ],
-      "ne_unknown": "What we still don't know",
-    "lum_word": "breast",
-    "ne_word": "neuroendocrine",
-    "note_mapped": "mapped",
-    "note_dark": "almost dark",
-    "rb1_note": "the driver",
-    "sstr2_note": "PRRT route",
-    "unknown_mark": "what is missing",
-      "together": "One same tumor. Both faces are treated together.",
-    "together_short": "Both faces are treated together."
+      "ne_head": "neuroendocrine differentiation",
+      "ne_sub": "dominant (80%), in the dark",
+      "pct": "80%",
+    "cgsyn": "Cg · Syn",
+    "amplicon": "11q13 amplicon",
+    "amplicon_g1": "FGFR1 ×13 · CCND1 ×20",
+    "amplicon_g2": "FGF3/4/19 ×18",
+    "esr1": "ESR1 mut. (ctDNA)",
+    "hr": "HR+",
+    "her2": "HER2−",
+      "rb1": "RB1 lost",
+      "rb1_note": "the switch",
+      "sstr2": "SSTR2",
+      "sstr2_note": "receptors → PRRT",
+      "close1": "Block one side and it escapes through the other.",
+      "close2": "It must be treated as a whole.",
+      "sr": "Tumor schematic. Luminal breast, the known part: HR+ receptors, HER2 negative, an 11q13 amplicon (FGFR1 ×13, CCND1 ×20, FGF3/4/19 ×18) and an ESR1 mutation in ctDNA. Neuroendocrine differentiation (Cg/Syn in ~80% of cells), barely known: loss of RB1, the switch, and SSTR2 receptors, the PRRT target. Block one side and it escapes through the other; it must be treated as a whole."
     },
-  "error": {
-    "e404_code": "Error 404",
-    "e404_label": "Page not found",
-    "e404_title": "This address isn't in the {firma}.",
-    "e404_firma": "record",
-    "e404_lede": "The link you followed doesn't exist or has moved. It's nothing serious — the case is right where you left it.",
-    "e500_code": "Error 500",
-    "e500_label": "Something went wrong",
-    "e500_title": "Something broke on our {firma}.",
-    "e500_firma": "end",
-    "e500_lede": "It's on us, not you. We're already looking into it. Try reloading in a moment — the case and the campaign will be back shortly.",
-    "home": "Back to home",
-    "retry": "Try again",
-    "case": "See the clinical case"
-  },
   "thanks": {
     "eyebrow": "Donation received · Thank you",
     "title": "You've just brought the next {firma} closer.",
