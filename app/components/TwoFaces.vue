@@ -54,10 +54,13 @@
         <text x="320" y="92" class="tf2__known-m" translate="no">{{ $t('twofaces.rb1') }}</text>
         <text x="320" y="106" class="tf2__known-n">{{ $t('twofaces.rb1_note') }}</text>
 
-        <circle cx="320" cy="182" r="4.5" fill="#ff6b47" />
-        <path :d="sstr2Ring" fill="none" stroke="#ff6b47" stroke-width="1.6" />
-        <text x="340" y="179" class="tf2__known-m" translate="no">{{ $t('twofaces.sstr2') }}</text>
-        <text x="340" y="193" class="tf2__known-n">{{ $t('twofaces.sstr2_note') }}</text>
+        <!-- SSTR2 = receptores sobre la membrana NE (lo característico: siempre
+             los tendrá; sobreexpresados → diana de la PRRT) -->
+        <g stroke="#ff6b47" stroke-width="1.6" stroke-linecap="round" fill="none">
+          <path v-for="(r, i) in receptors" :key="'r' + i" :d="r" />
+        </g>
+        <text x="470" y="236" text-anchor="end" class="tf2__known-m" translate="no">{{ $t('twofaces.sstr2') }}</text>
+        <text x="470" y="250" text-anchor="end" class="tf2__known-n">{{ $t('twofaces.sstr2_note') }}</text>
 
         <!-- Títulos (derecha en dos líneas → no chocan en móvil) -->
         <text x="34" y="26" class="tf2__head">{{ $t('twofaces.lum_head') }}</text>
@@ -144,7 +147,30 @@ function handRing(x: number, y: number, rx = 14, ry = 11) {
   return smoothClosed(pts)
 }
 const rb1Ring = handRing(300, 96)
-const sstr2Ring = handRing(320, 182)
+
+// Receptor «Y» en un punto de la membrana, hacia fuera.
+function recPath(px: number, py: number, nx: number, ny: number, len = 8) {
+  const bx = px - nx * 2
+  const by = py - ny * 2
+  const tx = px + nx * len
+  const ty = py + ny * len
+  const perpx = -ny
+  const perpy = nx
+  return (
+    `M${bx.toFixed(1)} ${by.toFixed(1)} L${tx.toFixed(1)} ${ty.toFixed(1)} ` +
+    `M${tx.toFixed(1)} ${ty.toFixed(1)} L${(tx + perpx * 3.5 - nx).toFixed(1)} ${(ty + perpy * 3.5 - ny).toFixed(1)} ` +
+    `M${tx.toFixed(1)} ${ty.toFixed(1)} L${(tx - perpx * 3.5 - nx).toFixed(1)} ${(ty - perpy * 3.5 - ny).toFixed(1)}`
+  )
+}
+// SSTR2 sobreexpresados: varios receptores sobre el arco derecho (NE).
+const receptors = computed(() => {
+  const out: string[] = []
+  for (let i = 0; i < 6; i++) {
+    const a = ((-46 + i * 18) * Math.PI) / 180
+    out.push(recPath(FX + Math.cos(a) * RX, FY + Math.sin(a) * RY, Math.cos(a), Math.sin(a)))
+  }
+  return out
+})
 
 // Textura tenue del lado conocido (sin etiqueta: solo densidad).
 const dots = computed(() => {
