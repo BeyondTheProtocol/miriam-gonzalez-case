@@ -6,44 +6,16 @@
     :aria-labelledby="'gracias-title'"
   >
     <div class="section-container relative z-10">
-      <div class="mb-6">
-        <p class="eyebrow mb-3 block">{{ $t('thanksWall.eyebrow') }}</p>
-        <h2
-          id="gracias-title"
-          class="heading-display text-3xl sm:text-4xl text-berenjena mb-3"
-          style="letter-spacing: -0.02em"
-        >
-          {{ $t('thanksWall.title') }}
-        </h2>
-        <p class="text-tinta leading-relaxed max-w-2xl">{{ $t('thanksWall.subtitle') }}</p>
-
-        <!-- La metáfora, en una sola línea de display (bloque, fluye natural) -->
-        <i18n-t
-          v-if="loaded && sorted.length"
-          keypath="thanksWall.stars_line"
-          tag="p"
-          class="mt-5 font-display italic text-xl sm:text-2xl text-berenjena leading-snug max-w-2xl"
-        >
-          <template #star>
-            <svg class="inline-block w-5 h-5 mr-1" style="vertical-align: -0.12em" viewBox="0 0 20 20" aria-hidden="true">
-              <path
-                fill="#ff6b47"
-                d="M10 0 L13.4 6.6 L20 10 L13.4 13.4 L10 20 L6.6 13.4 L0 10 L6.6 6.6 Z"
-              />
-            </svg>
-          </template>
-          <template #n>
-            <strong class="font-semibold not-italic text-coral-deep nums">{{ sorted.length }}</strong>
-          </template>
-          <template #total>
-            <strong class="font-semibold not-italic text-coral-deep nums whitespace-nowrap">{{ totalRaised }}</strong>
-          </template>
-        </i18n-t>
-      </div>
-
-      <!-- La carta celeste interactiva: 1 estrella = 1 aportación, tocable.
-           En su propio panel — nada de cielo detrás del texto (legibilidad). -->
-      <StarMap v-if="loaded && donations.length" :donations="donations" class="mb-8" />
+      <!-- El mapa ES la pieza (como la imagen del cuaderno): sin encabezado
+           visible — el título queda solo para lectores de pantalla y SEO.
+           El pie manuscrito y la nota de navegación viven dentro de StarMap. -->
+      <h2 id="gracias-title" class="sr-only">{{ $t('thanksWall.title') }}</h2>
+      <StarMap
+        v-if="loaded && donations.length"
+        :donations="donations"
+        :total="totalRaised"
+        class="mb-8"
+      />
 
       <!-- Pestañas estilo GoFundMe: Recientes · Top -->
       <div

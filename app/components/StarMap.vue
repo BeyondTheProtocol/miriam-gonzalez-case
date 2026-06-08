@@ -1,8 +1,5 @@
 <template>
   <div>
-    <!-- Cómo se juega: nota de gesto (dedito), antes del cielo. -->
-    <Nota icon="tap" class="mb-3">{{ $t('thanksWall.sky_hint') }}</Nota>
-
     <!-- Carta celeste = la constelación REAL de Cáncer (el Cangrejo). Sus
          estrellas con nombre son el esqueleto; en el corazón, el Cúmulo del
          Pesebre (M44) reúne las aportaciones mayores (núcleo brillante), y las
@@ -94,9 +91,32 @@
       </div>
     </div>
 
-    <!-- El juego: tu estrella se enciende donando. -->
-    <div class="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2">
-      <p class="text-sm text-tinta">{{ $t('thanksWall.sky_cta_pre') }}</p>
+    <!-- El pie, escrito a mano bajo el mapa: la misma página del cuaderno. -->
+    <i18n-t
+      v-if="stars.length && total"
+      keypath="thanksWall.stars_line"
+      tag="p"
+      class="starmap-caption"
+    >
+      <template #star>
+        <svg class="inline-block w-4 h-4" style="vertical-align: -0.08em" viewBox="0 0 20 20" aria-hidden="true">
+          <path fill="#ff6b47" d="M10 0 L13.4 6.6 L20 10 L13.4 13.4 L10 20 L6.6 13.4 L0 10 L6.6 6.6 Z" />
+        </svg>
+      </template>
+      <template #n>
+        <strong class="starmap-caption__num">{{ stars.length }}</strong>
+      </template>
+      <template #total>
+        <strong class="starmap-caption__num" style="white-space: nowrap">{{ total }}</strong>
+      </template>
+    </i18n-t>
+
+    <!-- Cómo se juega: nota de gesto (dedito), pequeña, tras el pie. -->
+    <Nota icon="tap" class="mt-2">{{ $t('thanksWall.sky_hint') }}</Nota>
+
+    <!-- El juego: tu estrella se enciende donando (solo el botón; el resto
+         del texto se quitó — el pie manuscrito ya cuenta la historia). -->
+    <div class="mt-4">
       <a
         :href="GOFUNDME_URL"
         target="_blank"
@@ -113,7 +133,6 @@
         </svg>
         {{ $t('thanksWall.sky_cta') }}
       </a>
-      <p class="text-xs text-tinta/80">{{ $t('thanksWall.sky_cta_note') }}</p>
     </div>
 
     <!-- Lectura accesible del concepto (el mapa es decorativo / aria-hidden). -->
@@ -142,7 +161,7 @@
  */
 import type { PublicDonation } from '../../utils/fundraiser'
 
-const props = defineProps<{ donations: PublicDonation[] }>()
+const props = defineProps<{ donations: PublicDonation[]; total?: string }>()
 const { t, locale } = useI18n()
 const { GOFUNDME_URL, trackSupport } = useSupport()
 
@@ -602,6 +621,25 @@ const tipStyle = computed(() => {
   font-size: 12px;
   font-weight: 400;
   color: rgba(58, 51, 64, 0.6);
+}
+/* Pie manuscrito bajo el mapa (la frase de la constelación, como en el cuaderno). */
+.starmap-caption {
+  margin-top: 0.8rem;
+  font-family: 'Caveat', 'Bradley Hand', cursive;
+  font-size: 21px;
+  font-weight: 600;
+  line-height: 1.3;
+  color: #2d1b3d;
+  max-width: 38rem;
+}
+@media (min-width: 640px) {
+  .starmap-caption {
+    font-size: 23px;
+  }
+}
+.starmap-caption__num {
+  font-weight: 700;
+  color: #bb4128;
 }
 .starmap__tip {
   position: absolute;
