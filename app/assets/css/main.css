@@ -698,8 +698,10 @@
     transform-origin: left center;
     animation: grow-x 1.3s cubic-bezier(0.22, 1, 0.36, 1) both;
   }
+  /* 3 latidos al entrar y calma (un solo latido perpetuo en la web: el
+     corazón del CTA de apoyar). */
   .progress-pulse {
-    animation: soft-pulse 2.4s ease-in-out infinite;
+    animation: soft-pulse 2.4s ease-in-out 3;
   }
 }
 

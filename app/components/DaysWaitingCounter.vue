@@ -22,18 +22,4 @@ const { days } = useDaysWaiting()
   background: rgba(255, 107, 71, 0.1);
   border: 1px solid rgba(255, 107, 71, 0.3);
 }
-@media (prefers-reduced-motion: no-preference) {
-  .counter-dot {
-    animation: counter-pulse 2.4s ease-in-out infinite;
-  }
-  @keyframes counter-pulse {
-    0%,
-    100% {
-      box-shadow: 0 0 0 0 rgba(187, 65, 40, 0.4);
-    }
-    50% {
-      box-shadow: 0 0 0 6px rgba(187, 65, 40, 0);
-    }
-  }
-}
 </style>

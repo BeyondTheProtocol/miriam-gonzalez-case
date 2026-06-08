@@ -83,6 +83,48 @@ The website has two audiences: scientists/physicians (science page, molecular pr
 - The team is presented **without names** (only profession + country/city). This is intentional: collaborator privacy.
 - The story section has a **placeholder with teaser text**. Alba Silvente will write the final content. Don't remove the teaser until the real text arrives.
 
+## The Notebook — annotation alphabet & motion grammar
+
+Root concept that unifies the whole site: **a lab-notebook page that Miriam
+annotates by hand**. Real science + a human hand + warmth. Every new visual
+solution must be readable as "something annotated in that notebook".
+
+### Annotation alphabet (one mark = one meaning, site-wide)
+
+| Mark | Meaning | Where |
+|---|---|---|
+| ✦ coral spark | gratitude · donation · action | star map, support CTAs |
+| hand-tap icon (`<Nota icon="tap">`) | "you can touch this" (gesture) | glossary hint, star map |
+| ✱ magenta asterisk (`<Nota>`) | passive margin/meta note | last-updated stamps, legends |
+| Caveat handwriting | scientific annotation, names, captions | two-faces, star-map labels |
+| hand-drawn underline (single ink) | emphasis | "dos caras" in the hero |
+| graph-paper grid | the page surface | two-faces, star map |
+
+Ink is berenjena `#2d1b3d`. **One accent per piece** — magenta `#9d44ab`
+(concept / Miriam) OR coral `#ff6b47` (action / urgency), never both in the
+same piece. Science labels in handwriting go UPPERCASE. Never below 11px.
+
+### Motion grammar (psychology, neurodivergence-aware)
+
+> **Motion draws once on entry, then rests.** Animation tells how the stroke
+> was made (it paints, traces, ignites) and goes still. Infinite loops are the
+> exception, not the rule.
+
+- **Once on entry**: dividers (ECG, DNA) trace on scroll; logo twinkle; the
+  hero underline; reveals; the newest star ignites; timeline landing echo.
+- **Interaction-driven**: term tooltips, star highlight on tap/hover, CTA
+  hearts speed up on hover/press. Always fine — the user asked for it.
+- **Perpetual loops: exactly ONE** — the support-CTA heart
+  (`heart-beat--alive`), plus the loading splash (disappears by definition).
+  "Live" dots beat 3 times on entry and stop. Do not add new infinite loops.
+- Always honour `prefers-reduced-motion` (this codebase uses the
+  `reduce { animation: none }` override pattern — keep doing it).
+- Decorative animation is `aria-hidden`; the data it illustrates must exist
+  as text (donor table, sr-only summaries). Interactive pieces need visible
+  focus and keyboard operability (e.g., the star-map zoom buttons).
+- Coral as TEXT on cream must be `coral-deep #bb4128` (AA). Tap targets
+  ≥ 40px. Gestures never hijack page scroll (one finger keeps scrolling).
+
 ## Important Clinical Data (don't break these when editing)
 
 These data are medically accurate and should not be modified without verification:

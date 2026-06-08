@@ -6,47 +6,24 @@
     :aria-labelledby="'gracias-title'"
   >
     <div class="section-container relative z-10">
+      <!-- Encabezado + la pieza: la frase manuscrita va ENCIMA del mapa
+           (dentro de StarMap) y la nota de navegación + botón, debajo. -->
       <div class="mb-6">
         <p class="eyebrow mb-3 block">{{ $t('thanksWall.eyebrow') }}</p>
         <h2
           id="gracias-title"
-          class="heading-display text-3xl sm:text-4xl text-berenjena mb-3"
+          class="heading-display text-3xl sm:text-4xl text-berenjena"
           style="letter-spacing: -0.02em"
         >
           {{ $t('thanksWall.title') }}
         </h2>
-        <p class="text-tinta leading-relaxed max-w-2xl">{{ $t('thanksWall.subtitle') }}</p>
-        <!-- La metáfora, explícita: cada aportación es una estrella (conteo real). -->
-        <i18n-t
-          v-if="loaded && sorted.length"
-          keypath="thanksWall.stars_line"
-          tag="p"
-          class="mt-4 flex items-center gap-2 font-display italic text-lg text-berenjena"
-        >
-          <template #star>
-            <svg class="w-4 h-4 shrink-0" viewBox="0 0 20 20" aria-hidden="true">
-              <path
-                fill="#ff6b47"
-                d="M10 0 L13.4 6.6 L20 10 L13.4 13.4 L10 20 L6.6 13.4 L0 10 L6.6 6.6 Z"
-              />
-            </svg>
-          </template>
-          <template #n>
-            <strong class="font-semibold not-italic text-coral-deep nums">{{ sorted.length }}</strong>
-          </template>
-          <template #total>
-            <strong class="font-semibold not-italic text-coral-deep nums whitespace-nowrap">{{ totalRaised }}</strong>
-          </template>
-        </i18n-t>
-        <!-- La ciencia de la metáfora, en nota al margen: magnitud logarítmica. -->
-        <Nota v-if="loaded && sorted.length" class="mt-2">
-          {{ $t('thanksWall.magnitude_note') }}
-        </Nota>
       </div>
-
-      <!-- La carta celeste interactiva: 1 estrella = 1 aportación, tocable.
-           En su propio panel — nada de cielo detrás del texto (legibilidad). -->
-      <StarMap v-if="loaded && donations.length" :donations="donations" class="mb-8" />
+      <StarMap
+        v-if="loaded && donations.length"
+        :donations="donations"
+        :total="totalRaised"
+        class="mb-8"
+      />
 
       <!-- Pestañas estilo GoFundMe: Recientes · Top -->
       <div

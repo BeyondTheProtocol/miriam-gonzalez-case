@@ -86,8 +86,9 @@ const innerStyle = computed(() => {
 </script>
 
 <style scoped>
+/* «Vivo»: 3 latidos al entrar y calma (nada late para siempre). */
 .tl-dot-live {
-  animation: tl-pulse 2s ease-in-out infinite;
+  animation: tl-pulse 2s ease-in-out 3;
 }
 @keyframes tl-pulse {
   0%, 100% { box-shadow: 0 0 0 0 rgba(255, 107, 71, 0.35); }
