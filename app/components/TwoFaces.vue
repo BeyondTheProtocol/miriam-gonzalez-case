@@ -1,10 +1,14 @@
 <template>
   <section :aria-label="$t('twofaces.title')">
-    <p class="eyebrow mb-2 block">{{ $t('twofaces.eyebrow') }}</p>
-    <h2 class="heading-display text-2xl text-berenjena mb-2" style="letter-spacing: -0.02em">
-      {{ $t('twofaces.title') }}
-    </h2>
-    <p class="text-sm text-tinta leading-relaxed mb-6 max-w-2xl">{{ $t('twofaces.intro') }}</p>
+    <!-- En modo compacto (home) el texto de la sección anfitriona ya hace de
+         intro: solo se pinta la página del cuaderno. -->
+    <template v-if="!compact">
+      <p class="eyebrow mb-2 block">{{ $t('twofaces.eyebrow') }}</p>
+      <h2 class="heading-display text-2xl text-berenjena mb-2" style="letter-spacing: -0.02em">
+        {{ $t('twofaces.title') }}
+      </h2>
+      <p class="text-sm text-tinta leading-relaxed mb-6 max-w-2xl">{{ $t('twofaces.intro') }}</p>
+    </template>
 
     <!-- Página de cuaderno de laboratorio (ADN gráfico del design system):
          tinta berenjena, trazo a pluma imperfecto, UN solo acento (coral) sobre
@@ -146,6 +150,8 @@
  * un bloque sr-only (a11y/SEO). Posiciones deterministas (PRNG), mobile-first
  * (viewBox), animaciones con prefers-reduced-motion.
  */
+defineProps<{ compact?: boolean }>()
+
 const { t, tm, rt } = useI18n()
 
 const R = 132
