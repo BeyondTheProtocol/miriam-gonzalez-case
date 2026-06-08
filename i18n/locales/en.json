@@ -62,6 +62,7 @@
   },
       "twofaces": {
       "title": "One tumor, two faces",
+      "eyebrow": "The tumor, in schematic form",
       "intro": "It is not one tumor: it is two biologies in the same body, and both must be treated at once.",
       "lum_head": "BREAST · luminal",
       "lum_sub": "we know it",
@@ -91,12 +92,13 @@
     "hr_note": "hormone receptors",
       "close1": "Two populations, one tumor.",
       "close2": "Treating only one selects for the other.",
-      "sr": "Tumor schematic. Luminal breast, the known part: HR+ receptors, HER2 negative, an 11q13 amplicon (FGFR1 ×13, CCND1 ×20, FGF3/4/19 ×18) and an ESR1 mutation in ctDNA. Neuroendocrine differentiation (Cg/Syn in ~80% of cells), barely known: loss of RB1, the switch, and SSTR2 receptors, the PRRT target. Block one side and it escapes through the other; it must be treated as a whole.",
-    "legend_rec": "Receptors: targets to attack.",
+      "sr": "Tumor schematic. Luminal breast, the known part: HR+ receptors, HER2 negative, an 11q13 amplicon (FGFR1 ×13, CCND1 ×20, FGF3/4/19 ×18) and an ESR1 mutation in ctDNA. Neuroendocrine differentiation (Cg/Syn in ~80% of cells), barely known: loss of RB1 (a brake that is being lost) and SSTR2 receptors, the PRRT target. Block one side and it escapes through the other; it must be treated as a whole.",
+    "legend_rec": "Receptors: targets to attack (HR and SSTR2).",
     "legend_amp": "Amplifications: extra copies that push the tumor.",
     "legend_mut": "Mutations: resistances the tumor builds to keep growing.",
     "legend_rb1": "RB1: a brake that is being lost.",
-    "legend_her2": "HER2: it does not have it."
+    "legend_her2": "HER2: a receptor she does not have (no target).",
+    "legend_cgsyn": "Cg · Syn: neuroendocrine granules (80% of the tumor)."
     },
   "thanks": {
     "eyebrow": "Donation received · Thank you",

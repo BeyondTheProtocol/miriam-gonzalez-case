@@ -79,6 +79,11 @@
           </p>
         </section>
 
+        <!-- El esquema de las dos caras: puente visual entre la anomalía y el
+             perfil molecular. Movido desde la home; con la leyenda completa, el
+             detalle vive mejor aquí. -->
+        <TwoFaces class="mb-12" />
+
         <!-- Molecular profile: single canonical source of alterations -->
         <p class="eyebrow mb-2 block">{{ locale === 'es' ? 'Perfil molecular' : 'Molecular profile' }}</p>
         <h2

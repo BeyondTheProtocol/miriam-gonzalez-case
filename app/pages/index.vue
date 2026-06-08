@@ -80,11 +80,6 @@
         </i18n-t>
         <Nota icon="tap" class="mt-3">{{ $t('glossary.hint') }}</Nota>
 
-        <!-- La célula de las dos caras (página del cuaderno): el puente visual
-             entre la explicación de arriba y la tabla de lo que existe/falta.
-             Compacta: sin su propio título, el texto de la sección ya lo es. -->
-        <TwoFaces compact class="mt-12" />
-
         <!-- "Lo que existe / lo que falta" · dos paneles (mobile-first: apilan
              en móvil, lado a lado en sm+). Lo cubierto queda sereno; lo que falta
              se eleva con filete violeta (patrón callout del DS). -->

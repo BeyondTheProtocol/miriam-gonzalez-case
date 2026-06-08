@@ -45,8 +45,9 @@
         </g>
         <text x="8" y="206" class="tf2__rec-lab" translate="no">HR+</text>
         <text x="8" y="220" class="tf2__rec-note">{{ $t('twofaces.hr_note') }}</text>
-        <!-- HER2 negativo = NO lo tiene: receptor ausente (fantasma punteado) -->
-        <path :d="her2Ghost" fill="none" stroke="#9d44ab" stroke-width="1.4" stroke-linecap="round" stroke-dasharray="2 2" opacity="0.45" />
+        <!-- HER2 negativo = NO lo tiene: receptor ausente. En GRIS (no es diana,
+             no está) y punteado, frente al lila/coral de los que sí hay. -->
+        <path :d="her2Ghost" fill="none" stroke="#8a857e" stroke-width="1.4" stroke-linecap="round" stroke-dasharray="2 2" opacity="0.7" />
         <text x="8" y="110" class="tf2__rec-off" translate="no">HER2−</text>
 
         <!-- Alteraciones genómicas (dentro): amplificación = círculo doble (copias),
@@ -85,9 +86,18 @@
            cada glifo, para que la gente lo entienda. Los mini-iconos mapean al
            dibujo. -->
       <figcaption class="tf2-legend">
+        <!-- Receptores diana: dos colores (lila = HR, coral = SSTR2), los que SÍ hay -->
         <span class="tf2-legend__item">
-          <svg class="tf2-legend__g" viewBox="0 0 18 18" aria-hidden="true"><path d="M9 16 L9 9 M9 9 L5 4 M9 9 L13 4" fill="none" stroke="#ff6b47" stroke-width="1.6" stroke-linecap="round" /></svg>
+          <svg class="tf2-legend__g" viewBox="0 0 26 18" aria-hidden="true" style="width: 26px">
+            <path d="M7 16 L7 9 M7 9 L4 5 M7 9 L10 5" fill="none" stroke="#9d44ab" stroke-width="1.5" stroke-linecap="round" />
+            <path d="M18 16 L18 9 M18 9 L15 5 M18 9 L21 5" fill="none" stroke="#ff6b47" stroke-width="1.5" stroke-linecap="round" />
+          </svg>
           {{ $t('twofaces.legend_rec') }}
+        </span>
+        <!-- HER2: gris y punteado = el receptor que NO tiene -->
+        <span class="tf2-legend__item">
+          <svg class="tf2-legend__g" viewBox="0 0 18 18" aria-hidden="true"><path d="M9 16 L9 9 M9 9 L5 4 M9 9 L13 4" fill="none" stroke="#8a857e" stroke-width="1.4" stroke-linecap="round" stroke-dasharray="2 2" /></svg>
+          {{ $t('twofaces.legend_her2') }}
         </span>
         <span class="tf2-legend__item">
           <svg class="tf2-legend__g" viewBox="0 0 18 18" aria-hidden="true"><circle cx="9" cy="9" r="5" fill="none" stroke="#9d44ab" stroke-width="1.4" /><circle cx="9" cy="9" r="2" fill="#9d44ab" /></svg>
@@ -101,9 +111,10 @@
           <svg class="tf2-legend__g" viewBox="0 0 18 18" aria-hidden="true"><path d="M13.5 5.2 A5 5 0 1 0 13.5 12.8" fill="none" stroke="#ff6b47" stroke-width="1.6" stroke-linecap="round" /></svg>
           {{ $t('twofaces.legend_rb1') }}
         </span>
+        <!-- Cg·Syn: los puntitos = gránulos neuroendocrinos, el 80% -->
         <span class="tf2-legend__item">
-          <svg class="tf2-legend__g" viewBox="0 0 18 18" aria-hidden="true"><path d="M9 16 L9 9 M9 9 L5 4 M9 9 L13 4" fill="none" stroke="#8a857e" stroke-width="1.4" stroke-linecap="round" stroke-dasharray="2 2" /></svg>
-          {{ $t('twofaces.legend_her2') }}
+          <svg class="tf2-legend__g" viewBox="0 0 18 18" aria-hidden="true" fill="#2d1b3d"><circle cx="6" cy="7" r="1.9" /><circle cx="12.5" cy="9.5" r="1.7" /><circle cx="8" cy="13" r="1.6" /></svg>
+          {{ $t('twofaces.legend_cgsyn') }}
         </span>
       </figcaption>
     </figure>
