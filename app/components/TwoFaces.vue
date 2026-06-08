@@ -13,7 +13,7 @@
          sobreexpresados (coral). ADN DENTRO: amplificaciones (FGFR1, CCND1) y
          mutación (ESR1). El 80% que manda (Cg/Syn) es lo que falta por conocer;
          RB1 es el freno que se está perdiendo. El detalle riguroso, en /ciencia. -->
-    <figure class="tf2">
+    <figure ref="figEl" class="tf2">
       <svg class="tf2__svg" viewBox="0 0 480 246" role="img" :aria-label="ariaLabel">
         <defs>
           <pattern id="tf2-grid" width="22" height="22" patternUnits="userSpaceOnUse">
@@ -25,67 +25,74 @@
         <rect x="2" y="2" width="476" height="242" rx="14" fill="#faf6f0" stroke="rgba(45,27,61,0.16)" />
         <rect x="2" y="2" width="476" height="242" rx="14" fill="url(#tf2-grid)" />
 
-        <g clip-path="url(#tf2-field)">
+        <!-- Territorios (tintes): el luminal con r1, el neuroendocrino con r2,
+             para que cada lado «se encienda» en su turno. -->
+        <g clip-path="url(#tf2-field)" class="tf2__reveal tf2__r1">
           <rect :x="FX - RX" :y="FY - RY" :width="BX - (FX - RX)" :height="2 * RY" fill="#9d44ab" opacity="0.08" />
+        </g>
+        <g clip-path="url(#tf2-field)" class="tf2__reveal tf2__r2">
           <rect :x="BX" :y="FY - RY" :width="FX + RX - BX" :height="2 * RY" fill="#2d1b3d" opacity="0.13" />
         </g>
-        <path :d="fieldPath" fill="none" stroke="rgba(45,27,61,0.45)" stroke-width="2" stroke-linecap="round" />
-        <path :d="seamPath" fill="none" stroke="rgba(45,27,61,0.3)" stroke-width="1.3" stroke-dasharray="2 5" />
 
-        <!-- Gránulos Cg/Syn = el 80% neuroendocrino -->
-        <g fill="#2d1b3d" opacity="0.28">
-          <circle v-for="(gr, i) in granules" :key="'gr' + i" :cx="gr.x" :cy="gr.y" :r="gr.r" />
-        </g>
-        <text x="324" y="170" text-anchor="middle" class="tf2__pct">{{ $t('twofaces.pct') }}</text>
-        <text x="324" y="187" text-anchor="middle" class="tf2__cgsyn" translate="no">{{ $t('twofaces.cgsyn') }}</text>
+        <!-- La célula se dibuja sola (primer trazo del cuaderno) -->
+        <path :d="fieldPath" class="tf2__outline" pathLength="1" fill="none" stroke="rgba(45,27,61,0.45)" stroke-width="2" stroke-linecap="round" />
+        <path :d="seamPath" class="tf2__reveal tf2__r2" fill="none" stroke="rgba(45,27,61,0.3)" stroke-width="1.3" stroke-dasharray="2 5" />
 
-        <!-- Receptores hormonales HR+ (presentes, lila) en la membrana luminal -->
-        <g stroke="#9d44ab" stroke-width="1.6" stroke-linecap="round" fill="none">
-          <path v-for="(r, i) in hrReceptors" :key="'hr' + i" :d="r" />
-        </g>
-        <text x="8" y="206" class="tf2__rec-lab" translate="no">HR+</text>
-        <text x="8" y="220" class="tf2__rec-note">{{ $t('twofaces.hr_note') }}</text>
-        <!-- HER2 negativo = NO lo tiene: receptor ausente. En GRIS (no es diana,
-             no está) y punteado, frente al lila/coral de los que sí hay. -->
-        <path :d="her2Ghost" fill="none" stroke="#8a857e" stroke-width="1.4" stroke-linecap="round" stroke-dasharray="2 2" opacity="0.7" />
-        <text x="8" y="110" class="tf2__rec-off" translate="no">HER2−</text>
-
-        <!-- Alteraciones genómicas (dentro): amplificación = círculo doble (copias),
-             mutación = rombo. -->
-        <g v-for="(g, i) in genes" :key="'g' + i">
-          <template v-if="g.t === 'amp'">
-            <circle cx="104" :cy="gy(i)" r="4.5" fill="none" stroke="#9d44ab" stroke-width="1.4" />
-            <circle cx="104" :cy="gy(i)" r="1.7" fill="#9d44ab" />
-          </template>
-          <path v-else :d="diamond(104, gy(i))" fill="none" stroke="#9d44ab" stroke-width="1.4" />
-          <text x="116" :y="gy(i) + 4" class="tf2__genes" translate="no">{{ g.n }}</text>
+        <!-- FASE 1 · LADO LUMINAL: lo que conocemos (HR+, HER2−, genes, título) -->
+        <g class="tf2__reveal tf2__r1">
+          <g stroke="#9d44ab" stroke-width="1.6" stroke-linecap="round" fill="none">
+            <path v-for="(r, i) in hrReceptors" :key="'hr' + i" :d="r" />
+          </g>
+          <text x="8" y="206" class="tf2__rec-lab" translate="no">HR+</text>
+          <text x="8" y="220" class="tf2__rec-note">{{ $t('twofaces.hr_note') }}</text>
+          <!-- HER2 negativo = NO lo tiene: receptor ausente, en GRIS (no es diana). -->
+          <path :d="her2Ghost" fill="none" stroke="#8a857e" stroke-width="1.4" stroke-linecap="round" stroke-dasharray="2 2" opacity="0.7" />
+          <text x="8" y="110" class="tf2__rec-off" translate="no">HER2−</text>
+          <!-- Alteraciones genómicas: amplificación = círculo doble, mutación = rombo. -->
+          <g v-for="(g, i) in genes" :key="'g' + i">
+            <template v-if="g.t === 'amp'">
+              <circle cx="104" :cy="gy(i)" r="4.5" fill="none" stroke="#9d44ab" stroke-width="1.4" />
+              <circle cx="104" :cy="gy(i)" r="1.7" fill="#9d44ab" />
+            </template>
+            <path v-else :d="diamond(104, gy(i))" fill="none" stroke="#9d44ab" stroke-width="1.4" />
+            <text x="116" :y="gy(i) + 4" class="tf2__genes" translate="no">{{ g.n }}</text>
+          </g>
+          <text x="34" y="28" class="tf2__head">{{ $t('twofaces.lum_head') }}</text>
+          <text x="34" y="44" class="tf2__sub">{{ $t('twofaces.lum_sub') }}</text>
         </g>
 
-        <!-- RB1 = el freno que se está perdiendo (aro ROTO, no entero) -->
-        <circle cx="300" cy="116" r="4.5" fill="#ff6b47" />
-        <path :d="rb1Broken" fill="none" stroke="#ff6b47" stroke-width="1.6" stroke-linecap="round" />
-        <text x="320" y="112" class="tf2__known-m" translate="no">{{ $t('twofaces.rb1') }}</text>
-        <text x="320" y="126" class="tf2__known-n">{{ $t('twofaces.rb1_note') }}</text>
-
-        <!-- SSTR2 = receptores sobreexpresados (coral) en la membrana NE -->
-        <g stroke="#ff6b47" stroke-width="1.6" stroke-linecap="round" fill="none">
-          <path v-for="(r, i) in receptors" :key="'r' + i" :d="r" />
+        <!-- FASE 2 · EL 80% NEUROENDOCRINO: lo que falta por conocer (gránulos
+             Cg/Syn, el «80%» y el título de la cara desconocida) -->
+        <g class="tf2__reveal tf2__r2">
+          <g fill="#2d1b3d" opacity="0.28">
+            <circle v-for="(gr, i) in granules" :key="'gr' + i" :cx="gr.x" :cy="gr.y" :r="gr.r" />
+          </g>
+          <text x="324" y="170" text-anchor="middle" class="tf2__pct">{{ $t('twofaces.pct') }}</text>
+          <text x="324" y="187" text-anchor="middle" class="tf2__cgsyn" translate="no">{{ $t('twofaces.cgsyn') }}</text>
+          <text x="470" y="26" text-anchor="end" class="tf2__head">{{ neHead[0] }}</text>
+          <text x="470" y="43" text-anchor="end" class="tf2__head">{{ neHead[1] }}</text>
+          <text x="470" y="59" text-anchor="end" class="tf2__sub">{{ $t('twofaces.ne_sub') }}</text>
         </g>
-        <text x="472" y="214" text-anchor="end" class="tf2__known-m" translate="no">{{ $t('twofaces.sstr2') }}</text>
-        <text x="472" y="228" text-anchor="end" class="tf2__known-n">{{ $t('twofaces.sstr2_note') }}</text>
 
-        <!-- Títulos (derecha en dos líneas + subtítulo, con aire) -->
-        <text x="34" y="28" class="tf2__head">{{ $t('twofaces.lum_head') }}</text>
-        <text x="34" y="44" class="tf2__sub">{{ $t('twofaces.lum_sub') }}</text>
-        <text x="470" y="26" text-anchor="end" class="tf2__head">{{ neHead[0] }}</text>
-        <text x="470" y="43" text-anchor="end" class="tf2__head">{{ neHead[1] }}</text>
-        <text x="470" y="59" text-anchor="end" class="tf2__sub">{{ $t('twofaces.ne_sub') }}</text>
+        <!-- FASE 3 · lo poco que SÍ sabemos del lado NE: RB1 (freno que se pierde)
+             y SSTR2 (receptores diana de la PRRT) -->
+        <g class="tf2__reveal tf2__r3">
+          <circle cx="300" cy="116" r="4.5" fill="#ff6b47" />
+          <path :d="rb1Broken" fill="none" stroke="#ff6b47" stroke-width="1.6" stroke-linecap="round" />
+          <text x="320" y="112" class="tf2__known-m" translate="no">{{ $t('twofaces.rb1') }}</text>
+          <text x="320" y="126" class="tf2__known-n">{{ $t('twofaces.rb1_note') }}</text>
+          <g stroke="#ff6b47" stroke-width="1.6" stroke-linecap="round" fill="none">
+            <path v-for="(r, i) in receptors" :key="'r' + i" :d="r" />
+          </g>
+          <text x="472" y="214" text-anchor="end" class="tf2__known-m" translate="no">{{ $t('twofaces.sstr2') }}</text>
+          <text x="472" y="228" text-anchor="end" class="tf2__known-n">{{ $t('twofaces.sstr2_note') }}</text>
+        </g>
       </svg>
 
       <!-- Leyenda en lenguaje llano (ocupa el hueco del cierre): qué significa
            cada glifo, para que la gente lo entienda. Los mini-iconos mapean al
            dibujo. -->
-      <figcaption class="tf2-legend">
+      <figcaption class="tf2-legend tf2__reveal tf2__r4">
         <!-- Receptores diana: dos colores (lila = HR, coral = SSTR2), los que SÍ hay -->
         <span class="tf2-legend__item">
           <svg class="tf2-legend__g" viewBox="0 0 26 18" aria-hidden="true" style="width: 26px">
@@ -131,11 +138,47 @@
  * El 80% (Cg/Syn) es lo que manda y lo que falta por conocer; RB1 es el freno
  * que se está perdiendo (aro roto). Lo conocido es pequeño; lo dominante,
  * apenas conocido. El detalle riguroso (amplicón 11q13 con ×N, etc.) → /ciencia.
- * viewBox fijo (mobile-first), texto real en sr-only, sin animación (calma).
+ * viewBox fijo (mobile-first), texto real en sr-only.
+ *
+ * Revelado narrativo: al entrar en pantalla se dibuja una sola vez en el orden
+ * de la historia —célula → lado luminal (lo conocido) → el 80% neuroendocrino
+ * (lo que falta) → RB1/SSTR2 → leyenda—. El movimiento «cuenta» el concepto y
+ * reparte la carga cognitiva. Sin bucles; se desactiva con prefers-reduced-motion
+ * y nunca esconde nada si no hay JS (el estado base es visible).
  */
 defineProps<{ compact?: boolean }>()
 
 const { t } = useI18n()
+
+// Revelado por fases al entrar en viewport (una sola vez).
+const figEl = ref<HTMLElement | null>(null)
+onMounted(() => {
+  const el = figEl.value
+  if (!el) return
+  // Respeta la preferencia de movimiento reducido: no marcamos «ready», así el
+  // CSS deja todo visible y no se anima nada.
+  const reduce = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
+  if (reduce) return
+  el.classList.add('tf2--ready')
+  if (!('IntersectionObserver' in window)) {
+    el.classList.add('is-in')
+    return
+  }
+  const io = new IntersectionObserver(
+    (entries) => {
+      for (const e of entries) {
+        if (e.isIntersecting) {
+          el.classList.add('is-in')
+          io.disconnect()
+          break
+        }
+      }
+    },
+    { threshold: 0.25 }
+  )
+  io.observe(el)
+  onBeforeUnmount(() => io.disconnect())
+})
 
 const FX = 250
 const FY = 148
@@ -357,5 +400,52 @@ const ariaLabel = computed(() => t('twofaces.sr'))
   width: 18px;
   height: 18px;
   flex-shrink: 0;
+}
+
+/* --- Revelado narrativo: una sola vez, al entrar en viewport ---
+   Estado base (SSR / sin JS / reduce-motion): TODO visible. El ocultado inicial
+   solo se aplica cuando el JS añade .tf2--ready Y se permite movimiento, de modo
+   que nadie se queda sin ver el esquema. */
+@media (prefers-reduced-motion: no-preference) {
+  .tf2--ready .tf2__reveal {
+    opacity: 0;
+  }
+  .tf2--ready .tf2__outline {
+    stroke-dasharray: 1;
+    stroke-dashoffset: 1;
+  }
+  .tf2--ready.is-in .tf2__outline {
+    animation: tf2-draw 0.9s ease forwards;
+  }
+  .tf2--ready.is-in .tf2__reveal {
+    animation: tf2-fade 0.6s ease forwards;
+  }
+  /* Orden de la historia: luminal (conocido) → 80% NE (lo que falta) →
+     RB1/SSTR2 → leyenda. */
+  .tf2--ready.is-in .tf2__r1 {
+    animation-delay: 0.45s;
+  }
+  .tf2--ready.is-in .tf2__r2 {
+    animation-delay: 0.85s;
+  }
+  .tf2--ready.is-in .tf2__r3 {
+    animation-delay: 1.1s;
+  }
+  .tf2--ready.is-in .tf2__r4 {
+    animation-delay: 1.3s;
+  }
+}
+@keyframes tf2-draw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+@keyframes tf2-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 </style>
