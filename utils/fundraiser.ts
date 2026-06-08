@@ -109,6 +109,25 @@ function titleCase(s: string): string {
     .replace(/(^|[\s\-'’.])(\p{L})/gu, (_m, sep: string, ch: string) => sep + ch.toLocaleUpperCase('es-ES'))
 }
 
+// Partículas que no cuentan como apellido al sacar iniciales (de la Cruz → C.).
+const NAME_PARTICLES = new Set([
+  'de', 'del', 'la', 'las', 'los', 'y', 'e', 'i', 'da', 'das', 'do', 'dos', 'van', 'von', 'di', 'lo',
+])
+
+// Privacidad del muro: deja el nombre de pila y abrevia cada apellido a su
+// inicial. "María González Pérez" → "María G. P."; "Juan Pérez" → "Juan P.";
+// un solo token (o un nombre sin apellido) se deja igual. Las partículas no
+// generan inicial. Los anónimos no pasan por aquí.
+function maskSurnames(fullName: string): string {
+  const tokens = fullName.split(/\s+/).filter(Boolean)
+  if (tokens.length <= 1) return fullName
+  const initials = tokens
+    .slice(1)
+    .filter((t) => !NAME_PARTICLES.has(t.toLocaleLowerCase('es-ES')))
+    .map((t) => `${t.charAt(0).toLocaleUpperCase('es-ES')}.`)
+  return initials.length ? `${tokens[0]} ${initials.join(' ')}` : tokens[0]
+}
+
 // Una página del feed (por offset) → donaciones normalizadas. Devuelve [] si la
 // página falla (timeout / !ok), para no romper el barrido completo.
 async function fetchDonationsPage(offset: number, limit = 20): Promise<PublicDonation[]> {
@@ -125,8 +144,9 @@ async function fetchDonationsPage(offset: number, limit = 20): Promise<PublicDon
     const out: PublicDonation[] = []
     for (const d of list) {
       const anonymous = Boolean(d.is_anonymous)
-      const name = anonymous ? 'Anónimo' : titleCase(String(d.name || 'Anónimo')) || 'Anónimo'
-      if (!anonymous && OPT_OUT.includes(name)) continue
+      const fullName = titleCase(String(d.name || 'Anónimo')) || 'Anónimo'
+      if (!anonymous && OPT_OUT.includes(fullName)) continue
+      const name = anonymous ? 'Anónimo' : maskSurnames(fullName)
       out.push({
         id: Number(d.donation_id),
         name,
