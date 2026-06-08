@@ -65,6 +65,8 @@
       "intro": "It is not one tumor: it is two biologies in the same body, and both must be treated at once.",
       "lum_head": "BREAST · luminal",
       "lum_sub": "fully mapped",
+    "lum_g1": "HR+ · HER2− · ESR1",
+    "lum_g2": "FGFR1 · CCND1",
       "lum_markers": [
         "HER2−",
         "HR+",
@@ -83,7 +85,7 @@
     "hr": "HR+",
     "her2": "HER2−",
       "rb1": "RB1 lost",
-      "rb1_note": "the switch",
+      "rb1_note": "triggers the 80%",
       "sstr2": "SSTR2",
       "sstr2_note": "receptors → PRRT",
       "close1": "Block one side and it escapes through the other.",
