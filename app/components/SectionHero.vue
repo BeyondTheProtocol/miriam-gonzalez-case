@@ -40,7 +40,7 @@
               style="box-shadow: 0 18px 44px -22px rgba(45, 27, 61, 0.45);"
             >
               <img
-                src="/design-system/assets/miriam-avatar.png"
+                src="/img/miriam-avatar.webp"
                 :alt="$t('home.s6_photo_alt')"
                 class="block w-full object-cover aspect-square"
                 width="640"
