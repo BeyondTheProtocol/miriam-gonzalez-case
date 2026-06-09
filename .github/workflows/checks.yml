@@ -4,7 +4,9 @@ name: Checks
 # y cada push a main en busca de bugs de framework (hidratación, reactividad,
 # SSR, secretos en config pública…). Falla SOLO ante diagnósticos `high`
 # (blockers/errors); los warnings se informan pero no bloquean. Para subir el
-# listón más adelante, añade `--max-warnings 0` al script `doctor`.
+# listón más adelante, añade `--max-warnings 0` al script `doctor`. La versión
+# de vite-doctor va FIJADA en el script (no "la última"), para que el CI corra
+# siempre exactamente la que se revisó.
 on:
   pull_request:
   push:
