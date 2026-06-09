@@ -1,11 +1,15 @@
 <template>
   <figure class="team-portrait">
     <div class="team-portrait__frame">
-      <img
+      <NuxtImg
         v-if="member.photo"
         :src="member.photo"
         :alt="member.name"
         class="team-portrait__img"
+        width="400"
+        height="400"
+        sizes="165px md:230px lg:380px"
+        format="webp"
         loading="lazy"
         decoding="async"
       />

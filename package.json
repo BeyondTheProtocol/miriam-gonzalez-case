@@ -35,6 +35,7 @@
   "devDependencies": {
     "@nuxt/fonts": "^0.14.0",
     "@nuxt/icon": "^1.12.0",
+    "@nuxt/image": "^2.0.0",
     "@nuxtjs/tailwindcss": "^6.13.0",
     "@tailwindcss/typography": "^0.5.16",
     "@types/node": "^25.9.1",

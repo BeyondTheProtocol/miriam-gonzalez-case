@@ -1,7 +1,7 @@
 export default defineNuxtConfig({
   compatibilityDate: '2025-04-01',
 
-  modules: ['@nuxtjs/tailwindcss', '@nuxtjs/i18n', '@nuxt/icon', '@nuxtjs/seo', '@nuxtjs/sitemap', '@nuxt/content', 'nuxt-ai-ready', '@nuxtjs/plausible', '@vueuse/nuxt', '@nuxt/fonts'],
+  modules: ['@nuxtjs/tailwindcss', '@nuxtjs/i18n', '@nuxt/icon', '@nuxtjs/seo', '@nuxtjs/sitemap', '@nuxt/content', 'nuxt-ai-ready', '@nuxtjs/plausible', '@vueuse/nuxt', '@nuxt/fonts', '@nuxt/image'],
 
   // Fuentes auto-alojadas: @nuxt/fonts las descarga en build y las sirve desde
   // el propio dominio (el cliente nunca contacta con Google → sin transferencia
