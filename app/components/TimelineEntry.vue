@@ -41,8 +41,10 @@
       <p class="text-sm text-tinta leading-relaxed">
         {{ entry.description }}
       </p>
+      <!-- aspect-[4/3] reserva el espacio antes de cargar (evita CLS); la imagen
+           actual ya es 4:3 (1100×825) → se ve idéntica, object-cover encuadra. -->
       <img v-if="entry.image" :src="entry.image" :alt="entry.imageAlt || ''"
-        class="mt-4 rounded-card w-full max-w-sm object-cover" loading="lazy" decoding="async" />
+        class="mt-4 rounded-card w-full max-w-sm aspect-[4/3] object-cover" loading="lazy" decoding="async" />
       <a v-if="entry.link" :href="entry.link" target="_blank" rel="noopener"
         class="tl-link mt-3 inline-flex items-center gap-1.5 rounded-lg py-1.5 pr-2 text-xs font-medium text-miriam transition-colors">
         <Icon name="ph:arrow-up-right-bold" class="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" aria-hidden="true" />
