@@ -39,12 +39,17 @@
               class="relative overflow-hidden rounded-[20px]"
               style="box-shadow: 0 18px 44px -22px rgba(45, 27, 61, 0.45);"
             >
-              <img
+              <!-- LCP: NuxtImg genera srcset responsive (móvil recibe ~200px,
+                   no 1024) + negociación de formato, sobre el webp ya optimizado.
+                   sizes = ancho mostrado por breakpoint (max-w-[200px] / sm:420). -->
+              <NuxtImg
                 src="/img/miriam-avatar.webp"
                 :alt="$t('home.s6_photo_alt')"
                 class="block w-full object-cover aspect-square"
                 width="640"
                 height="640"
+                sizes="200px sm:420px"
+                format="webp"
                 fetchpriority="high"
                 decoding="async"
               />

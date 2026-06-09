@@ -43,7 +43,8 @@
       </p>
       <!-- aspect-[4/3] reserva el espacio antes de cargar (evita CLS); la imagen
            actual ya es 4:3 (1100×825) → se ve idéntica, object-cover encuadra. -->
-      <img v-if="entry.image" :src="entry.image" :alt="entry.imageAlt || ''"
+      <NuxtImg v-if="entry.image" :src="entry.image" :alt="entry.imageAlt || ''"
+        width="384" height="288" sizes="100vw sm:384px" format="webp"
         class="mt-4 rounded-card w-full max-w-sm aspect-[4/3] object-cover" loading="lazy" decoding="async" />
       <a v-if="entry.link" :href="entry.link" target="_blank" rel="noopener"
         class="tl-link mt-3 inline-flex items-center gap-1.5 rounded-lg py-1.5 pr-2 text-xs font-medium text-miriam transition-colors">
