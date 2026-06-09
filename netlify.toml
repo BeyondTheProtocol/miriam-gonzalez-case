@@ -27,3 +27,13 @@
   to = "/.netlify/functions/donations"
   status = 200
   force = true
+
+# SEO · /sitemap.xml no es un fichero estático (es un índice que apunta a los
+# sitemaps por idioma), así que Netlify le añadía la barra (/sitemap.xml/) y
+# servía HTML, no XML → Google no lo parseaba (declarado en robots.txt). Esta
+# regla sirve el índice válido directamente en /sitemap.xml (force gana al slash).
+[[redirects]]
+  from = "/sitemap.xml"
+  to = "/sitemap_index.xml"
+  status = 200
+  force = true
