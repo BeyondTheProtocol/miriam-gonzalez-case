@@ -73,11 +73,12 @@
             v-for="s in principals"
             :key="'spike-' + s.id"
             class="starmap__spike"
-            :style="{ left: s.x + '%', top: s.y + '%', width: s.size * 2.7 + 'px', height: s.size * 2.7 + 'px' }"
+            :style="{ left: s.x + '%', top: s.y + '%', width: s.size * (2.2 + s.b * 1.7) + 'px', height: s.size * (2.2 + s.b * 1.7) + 'px' }"
             viewBox="0 0 40 40"
             aria-hidden="true"
           >
-            <path d="M20 3 V37 M3 20 H37" stroke="#9d44ab" stroke-width="0.8" stroke-linecap="round" opacity="0.42" />
+            <path d="M20 2 V38 M2 20 H38" stroke="#9d44ab" :stroke-width="0.7 + s.b * 0.5" stroke-linecap="round" :opacity="0.3 + s.b * 0.28" />
+            <path v-if="s.eight" d="M8 8 L32 32 M32 8 L8 32" stroke="#9d44ab" stroke-width="0.6" stroke-linecap="round" :opacity="0.14 + s.b * 0.14" />
           </svg>
 
           <!-- Donantes: una estrella por aportación; importe → magnitud (brillo +
@@ -101,7 +102,7 @@
             viewBox="0 0 20 20"
           >
             <path :fill="s.newest ? '#ff6b47' : '#9d44ab'" :d="STAR_D" />
-            <circle v-if="s.tier === 'principal' && !s.newest" cx="10" cy="10" r="2" fill="#fdf7fb" opacity="0.9" />
+            <circle v-if="s.tier === 'principal' && !s.newest" cx="10" cy="10" :r="1.4 + s.b * 1.2" fill="#fff6fb" :opacity="0.7 + s.b * 0.2" />
           </svg>
 
           <!-- Anotaciones a mano (cuaderno) -->
@@ -250,6 +251,8 @@ interface Star {
   rot: number
   newest: boolean
   tier: 'faint' | 'bright' | 'principal'
+  b: number
+  eight: boolean
   name: string
   amount: number
   currencyCode?: string
@@ -268,7 +271,9 @@ const stars = computed<Star[]>(() => {
   const at = (f: number) =>
     sorted.length ? sorted[Math.min(sorted.length - 1, Math.max(0, Math.floor(sorted.length * f)))]! : 1
   const lLo = Math.log(Math.max(1, at(0.05)))
-  const lHi = Math.log(Math.max(Math.max(1, at(0.05)) + 1, at(0.98)))
+  // Tope cerca del máximo (p99.7, robusto a un outlier suelto) para que la
+  // cúspide —las mayores aportaciones— tenga recorrido propio de magnitud.
+  const lHi = Math.log(Math.max(Math.max(1, at(0.05)) + 1, at(0.997)))
   // Percentil del importe (0 = menor, 1 = mayor) → cercanía al corazón.
   const pct = (a: number) => {
     if (sorted.length < 2) return 0.5
@@ -309,14 +314,18 @@ const stars = computed<Star[]>(() => {
     let y = BEEHIVE.y + Math.sin(ang) * radius
     x = +reflect(x, 2, 98).toFixed(2)
     y = +reflect(y, 6, 94).toFixed(2)
-    // Brillo (opacidad) y tamaño según la magnitud: las mayores casi opacas y
-    // grandes; las menores, tenues y pequeñas. Suave (log) para no eclipsar.
-    const b = d.amount > 0 ? Math.min(1, Math.max(0, (Math.log(d.amount) - lLo) / (lHi - lLo || 1))) : 0.12
-    const o = +(0.34 + b * 0.62).toFixed(2)
-    const size = +(3.5 + b * 12.5).toFixed(1)
+    // Magnitud (0..1) por importe en log. Brillo con leve gamma (los medios
+    // suben un punto) + jitter determinista ±0.025 para que el campo no salga
+    // «en bandas». Tamaño también con gamma suave.
+    const b = d.amount > 0 ? Math.min(1, Math.max(0, (Math.log(d.amount) - lLo) / (lHi - lLo || 1))) : 0.1
+    const o = +Math.min(1, Math.max(0.26, 0.3 + Math.pow(b, 0.85) * 0.64 + (rnd() - 0.5) * 0.05)).toFixed(2)
+    const size = +(3.2 + Math.pow(b, 0.9) * 13.3).toFixed(1)
     // Jerarquía por percentil: principales (≈top 1.5%) con halo + puntas de
-    // difracción; brillantes (top 20%) con halo suave; el resto, tenues.
-    const tier: Star['tier'] = d.amount <= 0 ? 'faint' : p >= 0.985 ? 'principal' : p >= 0.8 ? 'bright' : 'faint'
+    // difracción (las más brillantes, además, en 8 radios); brillantes (top 20%)
+    // con halo suave; el resto, tenues.
+    const tier: Star['tier'] = d.amount <= 0 ? 'faint' : p >= 0.99 ? 'principal' : p >= 0.85 ? 'bright' : 'faint'
+    // Solo la cúspide (≈top 0.3%) luce 8 radios en vez de 4.
+    const eight = tier === 'principal' && p >= 0.997
     const newest = i === newestIdx
     return {
       id: String(d.id ?? i),
@@ -327,6 +336,8 @@ const stars = computed<Star[]>(() => {
       rot: +(rnd() * 44 - 22).toFixed(1),
       newest,
       tier,
+      b: +b.toFixed(3),
+      eight,
       name: d.name,
       amount: d.amount,
       currencyCode: d.currencyCode,
@@ -602,10 +613,10 @@ const tipStyle = computed(() => {
 }
 /* Magnitud: las brillantes y principales ganan un halo (las mayores aportaciones). */
 .starmap__star--bright {
-  filter: drop-shadow(0 0 3px rgba(157, 68, 171, 0.4));
+  filter: drop-shadow(0 0 2.5px rgba(157, 68, 171, 0.42));
 }
 .starmap__star--principal {
-  filter: drop-shadow(0 0 6px rgba(157, 68, 171, 0.55));
+  filter: drop-shadow(0 0 7px rgba(157, 68, 171, 0.6));
 }
 /* Puntas de difracción de las principales (capa propia, detrás de los núcleos). */
 .starmap__spike {

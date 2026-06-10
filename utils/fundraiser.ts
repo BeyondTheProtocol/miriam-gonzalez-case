@@ -70,7 +70,8 @@ async function fileExists(path: string) {
 }
 
 export async function saveFundraiser(overwrite = false) {
-  if (await fileExists(path)) {
+  const exists = await fileExists(path)
+  if (exists) {
     if (overwrite) {
       console.log('Updating fundraiser...')
     } else {
@@ -78,9 +79,20 @@ export async function saveFundraiser(overwrite = false) {
       return
     }
   }
-  const fundraiser = await getFundraiser()
-  await fs.writeFile(path, JSON.stringify(fundraiser))
-  console.log(`✔ Fundraiser saved to: ${path}`)
+  try {
+    const fundraiser = await getFundraiser()
+    await fs.writeFile(path, JSON.stringify(fundraiser))
+    console.log(`✔ Fundraiser saved to: ${path}`)
+  } catch (error) {
+    // Si GoFundMe no responde (p. ej. ECONNRESET por su anti-bot), no bloqueamos
+    // el build/dev: conservamos el fundraiser.json existente —igual que hace
+    // saveDonations—. Solo fallamos si no hay datos previos a los que recurrir.
+    if (exists) {
+      console.warn(`Fundraiser fetch failed; keeping existing file (${path}).`, error)
+      return
+    }
+    throw error
+  }
 }
 
 // ── Donaciones públicas (muro de gracias · paridad con GoFundMe) ─────────────

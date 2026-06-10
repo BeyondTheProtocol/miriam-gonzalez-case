@@ -24,6 +24,14 @@ export default defineNuxtConfig({
 
   sitemap: {},
 
+  // El «sistema de diseño» es una página estática suelta (public/design-system/),
+  // no una ruta de Nuxt, así que el link-checker no la reconoce y la marca como
+  // 404. El enlace es válido en producción (/design-system/); lo excluimos de la
+  // inspección en lugar de degradarlo a una URL absoluta con barra final.
+  linkChecker: {
+    excludeLinks: ['/design-system', '/design-system/', '/design-system/**'],
+  },
+
   // Usa el SQLite nativo de Node (node:sqlite, Node 22+) en lugar del SQLite
   // WASM por defecto. El WASM falla al insertar filas muy grandes —como
   // science.yml, que lleva treatments + paperSections en un solo registro—
@@ -90,6 +98,10 @@ export default defineNuxtConfig({
   nitro: {
     prerender: {
       crawlLinks: true,
+      // /design-system/ es un export estático en public/, no una ruta de Nuxt.
+      // crawlLinks lo descubre desde /colabora, intenta prerenderizarlo, da 404
+      // y aborta el build. Lo ignoramos: el archivo estático se copia igual.
+      ignore: ['/design-system'],
     },
   },
 })
