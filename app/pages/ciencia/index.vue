@@ -4,14 +4,36 @@
       <div class="section-container">
         <PageHeader
           :title="$t('science.title')"
-          :subtitle="$t('science.subtitle')"
-          tag="BC-NED + FGFR1 ×13 + SSTR2+"
+          :subtitle="headerSubtitle"
+          :tag="level === 'simple' ? '' : 'BC-NED + FGFR1 ×13 + SSTR2+'"
         />
+
+        <!-- Ciencia en 3 capas (auditoría 3.4): la página es densa; cada lector
+             elige profundidad. 'Para médicos' es el nivel por defecto y muestra
+             todo (la página completa). Las capas usan v-show (display) sobre
+             contenedores `display:contents`, así el HTML estático no cambia y el
+             SEO/hidratación siguen intactos. -->
+        <div class="reading-level mb-10" role="group" :aria-label="$t('ciencia.level_aria')">
+          <span class="reading-level__hint">{{ $t('ciencia.level_hint') }}</span>
+          <div class="reading-level__seg">
+            <button
+              v-for="opt in levelOptions"
+              :key="opt.id"
+              type="button"
+              class="reading-level__btn"
+              :class="{ 'is-active': level === opt.id }"
+              :aria-pressed="level === opt.id"
+              @click="level = opt.id"
+            >
+              {{ opt.label }}
+            </button>
+          </div>
+        </div>
 
         <EcgDivider class="mb-12" />
 
-        <!-- Case snapshot: orient an oncologist in ~10s -->
-        <section aria-labelledby="snapshot-title" class="mb-12">
+        <!-- Case snapshot (médicos + tabla completa; técnico, fuera del resumen simple) -->
+        <section v-show="showData" aria-labelledby="snapshot-title" class="mb-12">
           <p class="eyebrow mb-2 block">{{ $t('ciencia.snapshot_eyebrow') }}</p>
           <h2
             id="snapshot-title"
@@ -56,6 +78,69 @@
           </div>
         </section>
 
+        <!-- El mismo tejido, leído tres veces (anatomía patológica · 3 lecturas) -->
+        <section v-show="showData" class="mb-12" aria-labelledby="tejido-3veces">
+          <p class="eyebrow mb-2 block">{{ L('Anatomía patológica', 'Pathology') }}</p>
+          <h2 id="tejido-3veces" class="heading-display text-2xl text-berenjena mb-2" style="letter-spacing: -0.02em">
+            {{ L('El mismo tejido, leído tres veces', 'The same tissue, read three times') }}
+          </h2>
+          <p class="text-sm text-tinta leading-relaxed mb-3 max-w-2xl">
+            {{ L('El mismo tumor se ha analizado tres veces. Las diferencias entre lecturas son parte de la información; la columna de Vall d\'Hebron (VHIO) es la referencia actual.',
+                  'The same tumour has been analysed three times. The differences between reads are themselves information; the Vall d\'Hebron (VHIO) column is the current reference.') }}
+          </p>
+          <div class="data-card overflow-x-auto">
+            <table class="data-table data-table--dense">
+              <caption class="sr-only">{{ L('El mismo tejido, leído tres veces', 'The same tissue, read three times') }}</caption>
+              <thead>
+                <tr>
+                  <th scope="col"></th>
+                  <th scope="col">{{ L('Local · Murcia · 2024', 'Local · Murcia · 2024') }}</th>
+                  <th scope="col">MD Anderson · DIPCAN · 2024</th>
+                  <th scope="col" class="reads-vh">VHIO · Vall d’Hebron · 2026</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr><td class="font-semibold text-berenjena">{{ L('RE (estrógeno)', 'ER (estrogen)') }}</td><td class="font-mono">95%</td><td class="font-mono">100%</td><td class="font-mono reads-vh">{{ L('85% · alta · H 225', '85% · high · H 225') }}</td></tr>
+                <tr><td class="font-semibold text-berenjena">{{ L('RP (progesterona)', 'PR (progesterone)') }}</td><td class="font-mono">5%</td><td class="font-mono">100%</td><td class="font-mono reads-vh">{{ L('20% · baja · H 25', '20% · low · H 25') }}</td></tr>
+                <tr><td class="font-semibold text-berenjena">HER2</td><td class="font-mono">0</td><td class="font-mono">0</td><td class="text-sm reads-vh">{{ L('0 (sin tinción de membrana)', '0 (no membrane staining)') }}</td></tr>
+                <tr><td class="font-semibold text-berenjena">Ki-67</td><td class="font-mono">60%</td><td class="font-mono">—</td><td class="font-mono reads-vh">40%</td></tr>
+                <tr><td class="font-semibold text-berenjena">{{ L('Grado (Nottingham)', 'Grade (Nottingham)') }}</td><td class="font-mono">II (3+2+2)</td><td class="font-mono">—</td><td class="font-mono reads-vh">2 (3+2+1)</td></tr>
+                <tr><td class="font-semibold text-berenjena">{{ L('Subtipo (IHQ)', 'Subtype (IHC)') }}</td><td>—</td><td>—</td><td class="reads-vh"><span class="pill-data pill-data--warn">Luminal B · HER2−</span></td></tr>
+                <tr><td class="font-semibold text-berenjena">{{ L('Diferenciación neuroendocrina', 'Neuroendocrine differentiation') }}</td><td>{{ L('confirmada', 'confirmed') }}</td><td>—</td><td class="text-sm reads-vh">{{ L('Sinaptofisina heterogénea · Cromogranina focal+ · INSM1 en mosaico', 'Heterogeneous synaptophysin · focal+ chromogranin · mosaic INSM1') }}</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="text-xs text-tinta mt-2 font-mono leading-relaxed">
+            {{ L('Murcia 2024 (biopsia local) · MD Anderson · DIPCAN 2024 (perfil ampliado) · Vall d\'Hebron · Anatomía Patológica VH-26-B-17664 · Dr. V. Peg Cámara · caso Dra. C. Saura (VHIO) · 19/05/2026.',
+                  'Murcia 2024 (local biopsy) · MD Anderson · DIPCAN 2024 (extended profile) · Vall d\'Hebron · Pathology VH-26-B-17664 · Dr. V. Peg Cámara · case Dr. C. Saura (VHIO) · 19/05/2026.') }}
+          </p>
+        </section>
+
+        <!-- Capa «Resumen simple»: VERSIÓN propia en lenguaje llano (no es la
+             página médica con secciones ocultas: es un texto escrito para quien
+             no es del campo). Solo se muestra en el nivel simple. -->
+        <section v-show="level === 'simple'" class="mb-12" aria-labelledby="simple-summary-title">
+          <p class="eyebrow mb-2 block">{{ $t('ciencia.simple_eyebrow') }}</p>
+          <h2 id="simple-summary-title" class="heading-display text-2xl text-berenjena mb-3" style="letter-spacing: -0.02em">
+            {{ $t('ciencia.simple_title') }}
+          </h2>
+          <p class="text-[15px] text-berenjena leading-relaxed mb-6 max-w-2xl">
+            {{ $t('ciencia.simple_body') }}
+          </p>
+          <div class="space-y-4">
+            <div v-for="(p, i) in simplePoints" :key="i" class="card-base">
+              <h3 class="font-display font-semibold text-berenjena text-base mb-1.5">{{ p.q }}</h3>
+              <p class="text-sm text-tinta leading-relaxed">{{ p.a }}</p>
+            </div>
+          </div>
+          <p class="mt-6 text-sm text-tinta leading-relaxed max-w-2xl">
+            {{ $t('ciencia.simple_more') }}
+          </p>
+        </section>
+
+        <!-- Solo «Para médicos»: el marco técnico de por qué no encaja en guías
+             (usa términos como FGFR1/CCND1, por eso no va en el resumen simple). -->
+        <div style="display: contents" v-show="showMedicoOnly">
         <!-- Thesis framing: why this tumor doesn't fit the protocols -->
         <section class="alert-callout mb-12">
           <p class="eyebrow mb-2 block">{{ locale === 'es' ? 'La anomalía' : 'The anomaly' }}</p>
@@ -78,12 +163,20 @@
             {{ $t('ciencia.thesis_goal') }}
           </p>
         </section>
+        </div>
+        <!-- /solo médicos (marco técnico) -->
 
+        <!-- Capa narrativa (simple + médicos): el esquema visual de las dos caras. -->
+        <div style="display: contents" v-show="showNarrative">
         <!-- El esquema de las dos caras: puente visual entre la anomalía y el
              perfil molecular. Movido desde la home; con la leyenda completa, el
              detalle vive mejor aquí. -->
         <TwoFaces class="mb-12" />
+        </div>
+        <!-- /capa narrativa -->
 
+        <!-- Capa de datos (médicos + tabla completa): perfil molecular → panel. -->
+        <div style="display: contents" v-show="showData">
         <!-- Molecular profile: single canonical source of alterations -->
         <p class="eyebrow mb-2 block">{{ locale === 'es' ? 'Perfil molecular' : 'Molecular profile' }}</p>
         <h2
@@ -157,6 +250,28 @@
               {{ imaging.meaning }}
             </p>
           </div>
+
+          <!-- Acceso al mapa interactivo de metástasis (doble trazador, lesión a lesión) -->
+          <NuxtLink
+            :to="localePath('/mapa-metastasis')"
+            class="group flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-3.5 rounded-2xl px-4 sm:px-5 py-4 mt-5 transition-all active:scale-[0.99] sm:hover:-translate-y-0.5"
+            style="background:rgba(232,212,237,0.30);text-decoration:none"
+          >
+            <div class="flex items-start gap-3.5 flex-1">
+              <span class="shrink-0 w-9 h-9 rounded-xl bg-miriam-soft flex items-center justify-center">
+                <Icon name="ph:map-pin-fill" class="w-5 h-5 text-berenjena" aria-hidden="true" />
+              </span>
+              <p class="flex-1 text-sm text-tinta leading-relaxed">
+                {{ locale === 'es'
+                  ? 'Mapa interactivo de las metástasis óseas con doble trazador (Galio-68 y FDG): cada lesión, una a una, con su localización en 3D, sus SUV y la lectura de la RM de columna.'
+                  : 'Interactive bone-metastasis map with dual tracers (Gallium-68 and FDG): every lesion, one by one, with its 3D location, SUVs and the spine-MRI reading.' }}
+              </p>
+            </div>
+            <span class="inline-flex w-full sm:w-auto shrink-0 items-center justify-center sm:justify-start gap-2 text-sm font-semibold text-berenjena group-hover:text-miriam transition-colors rounded-xl bg-miriam-soft sm:bg-transparent px-4 sm:px-0 py-2.5 sm:py-0">
+              {{ locale === 'es' ? 'Abrir el mapa de metástasis' : 'Open the metastasis map' }}
+              <Icon name="ph:arrow-right" class="w-4 h-4 transition-transform group-hover:translate-x-0.5" aria-hidden="true" />
+            </span>
+          </NuxtLink>
         </section>
 
         <hr class="chapter-rule" aria-hidden="true" />
@@ -193,7 +308,11 @@
             </div>
           </li>
         </ul>
+        </div>
+        <!-- /capa de datos (parte 1) -->
 
+        <!-- Solo «Para médicos»: enlace a la capa longitudinal de la app. -->
+        <div style="display: contents" v-show="showMedicoOnly">
         <!-- App entry: the longitudinal layer (treatment response + ctDNA over time) lives in the app.
              Mobile-first: en móvil el CTA baja a una píldora a ancho completo, claramente pulsable;
              en sm+ vuelve a la fila con el CTA alineado a la derecha. -->
@@ -219,7 +338,11 @@
             <Icon name="ph:arrow-right" class="w-4 h-4 transition-transform group-hover:translate-x-0.5" aria-hidden="true" />
           </span>
         </NuxtLink>
+        </div>
+        <!-- /solo médicos -->
 
+        <!-- Capa de datos (médicos + tabla completa): ejes terapéuticos → panel. -->
+        <div style="display: contents" v-show="showData">
         <!-- Candidate therapeutic axes: one-line synthesis (confirmed by the panel, detailed in the papers).
              El capítulo genómico se abre con la doble hélice (en vez del chapter-rule). -->
         <DnaDivider class="mb-10" />
@@ -317,8 +440,11 @@
             </details>
           </div>
         </section>
+        </div>
+        <!-- /capa de datos (parte 2) -->
 
-        <div class="card-base mb-16" style="background:#2d1b3d;color:#faf6f0;border:none">
+        <!-- Capa narrativa (simple + médicos): el objetivo N-of-1. -->
+        <div v-show="showNarrative" class="card-base mb-16" style="background:#2d1b3d;color:#faf6f0;border:none">
           <div class="flex items-center gap-2.5 mb-4">
             <span
               class="w-9 h-9 rounded-xl flex items-center justify-center"
@@ -344,6 +470,8 @@
           </p>
         </div>
 
+        <!-- Solo «Para médicos»: dossier de evidencia + análisis detallados. -->
+        <div style="display: contents" v-show="showMedicoOnly">
         <!-- Deeper dive: full evidence dossier (its own page) -->
         <div class="mb-16">
           <!-- Teaser: full evidence dossier (moved to its own page) -->
@@ -417,6 +545,8 @@
             </NuxtLink>
           </div>
         </div>
+        </div>
+        <!-- /solo médicos -->
 
         <Nota class="mt-12 pt-6" style="border-top: 1px solid rgba(45,27,61,0.08)">
           {{ locale === 'es' ? 'Última actualización: 6 de junio de 2026' : 'Last updated: 6 June 2026' }}
@@ -429,9 +559,45 @@
 <script setup lang="ts">
 const { locale, t } = useI18n()
 const localePath = useLocalePath()
+const L = (es: string, en: string) => (locale.value === 'es' ? es : en)
 
 // Mapa eje terapéutico → id de glosario (Term), mismo orden que ciencia.axes.
 const axisTerms = ['axis_fgfr', 'axis_sstr', 'axis_esr1', 'axis_ne']
+
+// Ciencia en 2 versiones por audiencia (auditoría 3.4). 'pro' por defecto =
+// página clínica completa. Las versiones controlan visibilidad con v-show (no
+// v-if) sobre contenedores `display:contents`, así no cambian el HTML estático
+// ni la hidratación.
+// Dos versiones por tipo de lector (la doble audiencia del sitio): «Para todos»
+// (sin tecnicismos) y «Para profesionales» (la página clínica completa). 'pro'
+// es el valor por defecto → el HTML estático lleva el caso clínico íntegro (SEO).
+type ReadingLevel = 'simple' | 'pro'
+const level = ref<ReadingLevel>('pro')
+const levelOptions = computed(() => [
+  { id: 'simple' as const, label: t('ciencia.level_simple') },
+  { id: 'pro' as const, label: t('ciencia.level_pro') },
+])
+// Todo el contenido técnico (snapshot, anomalía, perfil, imagen, tratamientos,
+// ejes, panel, dossier, artículos) solo en «Para profesionales». showData y
+// showMedicoOnly coinciden ahora que hay dos versiones; se mantienen ambos
+// nombres para no tocar las plantillas.
+const showData = computed(() => level.value === 'pro')
+const showMedicoOnly = computed(() => level.value === 'pro')
+// El esquema visual «dos caras» y el objetivo se muestran en ambas versiones.
+const showNarrative = true
+
+// Subtítulo de cabecera según el nivel: en simple, sin tecnicismos.
+const headerSubtitle = computed(() =>
+  level.value === 'simple' ? t('science.subtitle_simple') : t('science.subtitle')
+)
+
+// Contenido propio del «Resumen simple»: preguntas en lenguaje llano.
+const simplePoints = computed(() =>
+  [1, 2, 3, 4].map((n) => ({
+    q: t(`ciencia.simple_q${n}`),
+    a: t(`ciencia.simple_a${n}`),
+  }))
+)
 
 useSeoMeta({
   title: () =>
@@ -511,6 +677,34 @@ useSchemaOrg([
   ),
 ])
 
+// MedicalCondition JSON-LD: describe la entidad clínica de forma estructurada
+// para buscadores médicos y agentes de IA. Datos verificados (ver CLAUDE.md);
+// deliberadamente NO declara tratamientos (mantener el principio de no prometer
+// terapias). Raw JSON-LD vía useHead, ya que schema-org no expone el helper.
+const conditionJsonLd = computed(() =>
+  JSON.stringify({
+    '@context': 'https://schema.org',
+    '@type': 'MedicalCondition',
+    name:
+      locale.value === 'es'
+        ? 'Cáncer de mama metastásico HR+/HER2− con diferenciación neuroendocrina (BC-NED)'
+        : 'Metastatic HR+/HER2− breast cancer with neuroendocrine differentiation (BC-NED)',
+    alternateName: ['BC-NED', 'Breast carcinoma with neuroendocrine differentiation'],
+    description:
+      locale.value === 'es'
+        ? 'Carcinoma de mama luminal (HR+/HER2−) con ~80% de diferenciación neuroendocrina y amplificación FGFR1 ×13, CCND1 ×20 (clúster 11q13); expresión de SSTR2 en PET Ga-68. Metástasis exclusivamente óseas.'
+        : 'Luminal breast carcinoma (HR+/HER2−) with ~80% neuroendocrine differentiation and FGFR1 ×13, CCND1 ×20 amplification (11q13 cluster); SSTR2 expression on Ga-68 PET. Bone-only metastases.',
+    associatedAnatomy: [
+      { '@type': 'AnatomicalStructure', name: locale.value === 'es' ? 'Mama' : 'Breast' },
+      { '@type': 'AnatomicalStructure', name: locale.value === 'es' ? 'Hueso (metástasis)' : 'Bone (metastases)' },
+    ],
+  })
+)
+
+useHead({
+  script: [{ type: 'application/ld+json', innerHTML: conditionJsonLd }],
+})
+
 const { data: articles } = await useAsyncData(
   `ciencia-index-${locale.value}`,
   async () => {
@@ -560,3 +754,81 @@ const snapshotRows = computed(() =>
   })
 )
 </script>
+
+<style scoped>
+/* Columna de referencia (VHIO) resaltada en la tabla de patología "3 lecturas". */
+.reads-vh { background: rgba(157, 68, 171, 0.07); }
+
+/* Conmutador de nivel de lectura (ciencia en 3 capas). Sigue la paleta del
+   sistema: berenjena para el activo, mono para las etiquetas. Tap target ≥40px. */
+.reading-level {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 0.875rem;
+}
+.reading-level__hint {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(45, 27, 61, 0.55);
+}
+.reading-level__seg {
+  /* Móvil: ocupa el ancho y las pastillas se reparten la fila (etiquetas largas
+     como «Para mentes curiosas» no se salen). En sm+ vuelve a tamaño automático. */
+  display: flex;
+  width: 100%;
+  max-width: 440px;
+  padding: 3px;
+  border-radius: 999px;
+  background: rgba(45, 27, 61, 0.05);
+  border: 1px solid rgba(45, 27, 61, 0.1);
+}
+.reading-level__btn {
+  appearance: none;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  flex: 1 1 0;
+  min-width: 0;
+  text-align: center;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  letter-spacing: 0.02em;
+  line-height: 1.15;
+  color: rgba(45, 27, 61, 0.62);
+  padding: 8px 12px;
+  min-height: 40px;
+  border-radius: 999px;
+  transition: background 0.18s ease, color 0.18s ease;
+}
+@media (min-width: 640px) {
+  .reading-level__seg {
+    width: auto;
+    max-width: none;
+  }
+  .reading-level__btn {
+    flex: 0 0 auto;
+    white-space: nowrap;
+    padding: 9px 16px;
+  }
+}
+.reading-level__btn:hover {
+  color: #2d1b3d;
+}
+.reading-level__btn.is-active {
+  background: #2d1b3d;
+  color: #faf6f0;
+  font-weight: 600;
+}
+.reading-level__btn:focus-visible {
+  outline: 2px solid #ff6b47;
+  outline-offset: 2px;
+}
+@media (prefers-reduced-motion: reduce) {
+  .reading-level__btn {
+    transition: none;
+  }
+}
+</style>
