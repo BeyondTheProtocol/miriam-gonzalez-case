@@ -27,3 +27,18 @@
   to = "/.netlify/functions/donations"
   status = 200
   force = true
+
+# ── Cabeceras de seguridad (auditoría 5.5) ───────────────────────────────────
+# Sitio de salud + donaciones = la confianza es crítica. Subconjunto SEGURO que
+# no rompe nada (Plausible, enlaces a GoFundMe, fuentes auto-alojadas, OG image).
+# NO se incluye una Content-Security-Policy estricta a propósito: una CSP mal
+# afinada bloquearía esos recursos. Queda como mejora futura (probar en
+# report-only antes de forzarla).
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    X-Frame-Options = "SAMEORIGIN"
+    Permissions-Policy = "camera=(), microphone=(), geolocation=(), browsing-topics=()"
+    Strict-Transport-Security = "max-age=31536000; includeSubDomains"
