@@ -95,6 +95,7 @@ const LES: Lesion[] = [
   },
   {
     id: 5, x: 220, y: 234, side: 'C', dota: 6.17, fdg: null, pheno: 'ne', size: '14 × 10',
+    img: 'les05',
     level: { es: 'D5 (T5) · cuerpo vertebral', en: 'T5 · vertebral body' },
     region: { es: 'Columna dorsal media', en: 'Mid-thoracic spine' },
     what: { es: 'Cuerpo de una vértebra de la mitad de la espalda. Captación moderada-alta del receptor, sin azúcar: componente neuroendocrino.', en: 'Body of a mid-back vertebra. Moderate-high receptor uptake, no sugar: neuroendocrine component.' },
