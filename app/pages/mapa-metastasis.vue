@@ -288,6 +288,44 @@ function visible(le: Lesion): boolean {
 function pick(id: number) { selected.value = id }
 
 /* ------------------------------------------------------------------ */
+/*  Agrupar focos por vértebra → un marcador por vértebra afectada     */
+/*  en el esqueleto (D11: #7+#8 · L1: #9+#10). Los focos internos se    */
+/*  conmutan con chips en la ficha. Solo vértebras (token C/D/L); el    */
+/*  resto de huesos son su propio grupo (foco individual).              */
+/* ------------------------------------------------------------------ */
+interface LesGroup { key: string; foci: Lesion[]; primary: Lesion; x: number; y: number; multi: boolean }
+function vertLevelKey(le: Lesion): string | null {
+  const m = (le.level?.es || '').match(/\b([CDL]\d{1,2})\b/)
+  return m ? m[1] : null
+}
+function groupKey(le: Lesion): string { return vertLevelKey(le) ?? 'solo-' + le.id }
+const GROUPS: LesGroup[] = (() => {
+  const m = new Map<string, Lesion[]>()
+  LES.forEach((l) => { const k = groupKey(l); if (!m.has(k)) m.set(k, []); m.get(k)!.push(l) })
+  return [...m.entries()].map(([key, foci]) => {
+    const primary = [...foci].sort((a, b) => Math.max(b.dota ?? 0, b.fdg ?? 0) - Math.max(a.dota ?? 0, a.fdg ?? 0))[0]
+    return { key, foci, primary, multi: foci.length > 1,
+      x: foci.reduce((s, l) => s + l.x, 0) / foci.length,
+      y: foci.reduce((s, l) => s + l.y, 0) / foci.length }
+  })
+})()
+function groupVisible(g: LesGroup): boolean { return g.foci.some(visible) }
+function gPresentAt(g: LesGroup, f: number): boolean { return g.foci.some((l) => presentAt(l, f)) }
+function gRadius(g: LesGroup, f: number): number {
+  const rs = g.foci.filter((l) => presentAt(l, f)).map((l) => frameRadius(l, f))
+  return (rs.length ? Math.max(...rs) : 5) + (g.multi ? 1.5 : 0)
+}
+function gNewAt(g: LesGroup, f: number): boolean { return g.foci.some((l) => isNewAt(l, f) && presentAt(l, f)) }
+function gSelected(g: LesGroup): boolean { return g.foci.some((l) => l.id === selected.value) }
+function pickGroup(g: LesGroup) { selected.value = g.primary.id }
+const selGroup = computed<LesGroup>(() => GROUPS.find((g) => g.foci.some((l) => l.id === selected.value)) ?? GROUPS[0])
+/* sub-localización del foco dentro de la vértebra (cuerpo, pedículo, espinosa…) para los chips */
+function focusPart(le: Lesion): string {
+  const parts = (le.level[lang.value] || '').split('·')
+  return (parts.length > 1 ? parts.slice(1).join('·') : (le.region[lang.value] || '')).trim()
+}
+
+/* ------------------------------------------------------------------ */
 /*  Línea de tiempo                                                    */
 /* ------------------------------------------------------------------ */
 const frame = ref<number>(2) // arranca en may 2026 (Galio, el estudio más reciente)
@@ -819,33 +857,40 @@ const ticks = [
                   <text v-for="tk in ticks" :key="tk.t" x="358" :y="tk.y + 3" text-anchor="start">{{ tk.t }}</text>
                   <line v-for="tk in ticks" :key="'l' + tk.t" x1="346" :y1="tk.y" x2="354" :y2="tk.y" stroke="#d8d2c5" stroke-width="0.8" />
                 </g>
-                <!-- lesiones -->
-                <g v-for="le in LES" :key="le.id" v-show="visible(le)">
+                <!-- lesiones: un marcador por grupo (vértebra con 1+ focos, o hueso) -->
+                <g v-for="g in GROUPS" :key="g.key" v-show="groupVisible(g)">
                   <!-- halo PET: brillo del foco en el color del fenotipo -->
-                  <circle v-if="presentAt(le, frame)" :cx="le.x" :cy="le.y"
-                    :r="frameRadius(le, frame) + 8" :fill="`url(#skHalo-${le.pheno})`"
+                  <circle v-if="gPresentAt(g, frame)" :cx="g.x" :cy="g.y"
+                    :r="gRadius(g, frame) + 8" :fill="`url(#skHalo-${g.primary.pheno})`"
                     class="pointer-events-none" />
-                  <!-- anillo pulsante: foco que aparece por primera vez -->
-                  <circle v-if="isNewAt(le, frame) && presentAt(le, frame)"
-                    :cx="le.x" :cy="le.y" :r="frameRadius(le, frame) + 4"
-                    fill="none" :stroke="phenoColor(le)" stroke-width="2"
+                  <!-- anillo pulsante: algún foco aparece por primera vez -->
+                  <circle v-if="gNewAt(g, frame) && gPresentAt(g, frame)"
+                    :cx="g.x" :cy="g.y" :r="gRadius(g, frame) + 4"
+                    fill="none" :stroke="phenoColor(g.primary)" stroke-width="2"
                     class="pulse-ring pointer-events-none" />
                   <circle
-                    :cx="le.x" :cy="le.y"
-                    :r="(presentAt(le, frame) ? frameRadius(le, frame) : 5) + (selected === le.id ? 3 : 0)"
-                    :fill="presentAt(le, frame) ? phenoColor(le) : 'none'"
-                    :fill-opacity="selected === le.id ? 1 : 0.82"
-                    :stroke="selected === le.id ? '#2d1b3d' : (presentAt(le, frame) ? '#ffffff' : phenoColor(le))"
-                    :stroke-width="selected === le.id ? 2 : 1.4"
-                    :stroke-dasharray="presentAt(le, frame) ? undefined : '3 2'"
-                    :opacity="presentAt(le, frame) ? 1 : 0.4"
+                    :cx="g.x" :cy="g.y"
+                    :r="(gPresentAt(g, frame) ? gRadius(g, frame) : 5) + (gSelected(g) ? 3 : 0)"
+                    :fill="gPresentAt(g, frame) ? phenoColor(g.primary) : 'none'"
+                    :fill-opacity="gSelected(g) ? 1 : 0.82"
+                    :stroke="gSelected(g) ? '#2d1b3d' : (gPresentAt(g, frame) ? '#ffffff' : phenoColor(g.primary))"
+                    :stroke-width="gSelected(g) ? 2 : 1.4"
+                    :stroke-dasharray="gPresentAt(g, frame) ? undefined : '3 2'"
+                    :opacity="gPresentAt(g, frame) ? 1 : 0.4"
                     class="cursor-pointer transition-all"
                     tabindex="0" role="button"
-                    :aria-label="`${le.level[lang]} — ${phenoLabel(le)}`"
-                    @click="pick(le.id)" @keydown.enter="pick(le.id)" @keydown.space.prevent="pick(le.id)" />
-                  <text v-if="presentAt(le, frame)" :x="le.x" :y="le.y + 3.5" text-anchor="middle"
+                    :aria-label="g.multi ? `${g.foci[0].level[lang]} — ${g.foci.length} ${L('focos', 'foci')}` : `${g.primary.level[lang]} — ${phenoLabel(g.primary)}`"
+                    @click="pickGroup(g)" @keydown.enter="pickGroup(g)" @keydown.space.prevent="pickGroup(g)" />
+                  <!-- foco único: id dentro; varios focos: insignia de recuento -->
+                  <text v-if="!g.multi && gPresentAt(g, frame)" :x="g.x" :y="g.y + 3.5" text-anchor="middle"
                     font-family="Source Sans 3, sans-serif" font-size="10" font-weight="700" fill="#fff"
-                    class="pointer-events-none select-none">{{ le.id }}</text>
+                    class="pointer-events-none select-none">{{ g.primary.id }}</text>
+                  <g v-if="g.multi && gPresentAt(g, frame)" class="pointer-events-none select-none">
+                    <circle :cx="g.x + gRadius(g, frame) + 1.5" :cy="g.y - gRadius(g, frame) - 1.5" r="6.5"
+                      fill="#2d1b3d" stroke="#fff" stroke-width="1.2" />
+                    <text :x="g.x + gRadius(g, frame) + 1.5" :y="g.y - gRadius(g, frame) + 1.3" text-anchor="middle"
+                      font-family="Source Sans 3, sans-serif" font-size="9" font-weight="700" fill="#fff">{{ g.foci.length }}</text>
+                  </g>
                 </g>
               </svg>
               <!-- leyenda gradiente -->
@@ -868,6 +913,18 @@ const ticks = [
                   <p class="text-xs text-tinta">{{ sel.region[lang] }} ·
                     {{ sel.side === 'R' ? L('lado derecho', 'right side') : sel.side === 'L' ? L('lado izquierdo', 'left side') : L('línea media', 'midline') }}</p>
                 </div>
+              </div>
+
+              <!-- conmutador de focos dentro de la misma vértebra -->
+              <div v-if="selGroup.multi" class="flex flex-wrap items-center gap-1.5 mb-3">
+                <span class="text-[11px] text-tinta">{{ L('Focos en esta vértebra', 'Foci in this vertebra') }}:</span>
+                <button v-for="f in selGroup.foci" :key="f.id" type="button" @click="pick(f.id)"
+                  class="px-2 py-0.5 rounded-full text-[11px] font-semibold border transition-colors"
+                  :style="selected === f.id
+                    ? { background: phenoColor(f), color: '#fff', borderColor: phenoColor(f) }
+                    : { background: 'transparent', color: phenoColor(f), borderColor: phenoColor(f) + '55' }">
+                  #{{ f.id }} · {{ focusPart(f) }}
+                </button>
               </div>
 
               <span class="pill-data mt-2 mb-3 inline-flex" :style="{ background: phenoColor(sel) + '22', color: phenoColor(sel) }">{{ phenoLabel(sel) }}</span>
