@@ -20,7 +20,8 @@ let raf = 0, ro: ResizeObserver | null = null
 function resize() {
   if (!host.value || !renderer) return
   const w = host.value.clientWidth, h = host.value.clientHeight || Math.round(w * 0.8)
-  renderer.setSize(w, h, false); camera.aspect = w / h; camera.updateProjectionMatrix()
+  renderer.setSize(w, h)            // updateStyle=true: el canvas llena el contenedor (si no, se dibuja gigante y se ve solo una esquina)
+  camera.aspect = w / h; camera.updateProjectionMatrix()
 }
 function init() {
   const el = host.value!
@@ -51,8 +52,8 @@ function load(key: string) {
       geo.computeBoundingSphere(); const s = geo.boundingSphere
       const r = (s && s.radius) || 50
       if (s) mesh.position.set(-s.center.x, -s.center.y, -s.center.z)
-      camera.position.set(0, 0, r * 3.0); camera.near = r * 0.05; camera.far = r * 30; camera.updateProjectionMatrix()
-      controls.target.set(0, 0, 0); controls.minDistance = r * 1.25; controls.maxDistance = r * 6; controls.update()
+      camera.position.set(0, 0, r * 3.4); camera.near = r * 0.03; camera.far = r * 40; camera.updateProjectionMatrix()
+      controls.target.set(0, 0, 0); controls.minDistance = r * 1.4; controls.maxDistance = r * 8; controls.update()
       loading.value = false
     } catch (e) { console.error('[BoneViewer3D] build', e); loading.value = false; failed.value = true }
   }, undefined, (e) => { console.error('[BoneViewer3D] PLY load error', e); loading.value = false; failed.value = true })
