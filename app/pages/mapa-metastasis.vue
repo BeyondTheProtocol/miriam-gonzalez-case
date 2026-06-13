@@ -309,7 +309,12 @@ const GROUPS: LesGroup[] = (() => {
       y: foci.reduce((s, l) => s + l.y, 0) / foci.length }
   })
 })()
-function groupVisible(g: LesGroup): boolean { return g.foci.some(visible) }
+const onlyNew = ref(false)
+function isNewFocus(l: Lesion): boolean { return isNewAt(l, 1) }   // foco que enciende por primera vez (FDG)
+const newCount = computed(() => LES.filter(isNewFocus).length)
+function groupVisible(g: LesGroup): boolean {
+  return g.foci.some(visible) && (!onlyNew.value || g.foci.some(isNewFocus))
+}
 function gPresentAt(g: LesGroup, f: number): boolean { return g.foci.some((l) => presentAt(l, f)) }
 function gRadius(g: LesGroup, f: number): number {
   const rs = g.foci.filter((l) => presentAt(l, f)).map((l) => frameRadius(l, f))
@@ -783,12 +788,13 @@ const ticks = [
                 @input="setFrame(+($event.target as HTMLInputElement).value)"
                 class="flex-1 min-w-[140px] accent-berenjena"
                 :aria-label="L('Línea de tiempo', 'Timeline')" />
-              <div class="inline-flex rounded-full border border-[rgba(45,27,61,0.2)] overflow-hidden text-xs font-semibold">
-                <button type="button" @click="setFrame(1)" class="px-3 py-1.5 transition-colors"
-                  :class="!isGalio ? 'text-cream' : 'text-tinta'" :style="!isGalio ? { background: '#bb4128' } : {}">FDG</button>
-                <button type="button" @click="setFrame(2)" class="px-3 py-1.5 transition-colors"
-                  :class="isGalio ? 'text-cream' : 'text-tinta'" :style="isGalio ? { background: '#9d44ab' } : {}">Galio</button>
-              </div>
+              <button type="button" @click="onlyNew = !onlyNew"
+                class="shrink-0 inline-flex items-center gap-2 text-xs font-semibold px-3.5 py-1.5 rounded-full border transition-colors"
+                :class="onlyNew ? 'bg-berenjena text-cream border-berenjena' : 'bg-transparent text-tinta border-[rgba(45,27,61,0.25)] hover:border-[rgba(45,27,61,0.45)]'"
+                :aria-pressed="onlyNew">
+                <span class="w-2 h-2 rounded-full" :class="onlyNew ? '' : 'animate-pulse'" :style="{ background: onlyNew ? '#fff' : '#bb4128' }" />
+                {{ onlyNew ? L('Viendo solo focos nuevos', 'Showing new foci only') : L('Solo focos nuevos', 'New foci only') }} ({{ newCount }})
+              </button>
             </div>
             <div class="flex justify-between mt-3 px-1">
               <button v-for="(d, i) in FDATES" :key="i" type="button" @click="setFrame(i)"
