@@ -291,6 +291,19 @@ function fmove(e: PointerEvent) {
   if (step !== 0) { vframe.value = ((vframe.value + step) % NF + NF) % NF; facc = 0 }
 }
 function fup() { fdrag = false }
+
+/* ---------- PASO 3 · morfología (densidad del CT) · visor de fotogramas ---------- */
+const mframe = ref(3)
+const msrc = computed(() => (hasFrames.value ? `/metastasis/morfo/${props.vertKey}-${String(mframe.value).padStart(2, '0')}.jpg` : ''))
+let mdrag = false, mlx = 0, macc = 0
+function mdown(e: PointerEvent) { mdrag = true; mlx = e.clientX; macc = 0 }
+function mmove(e: PointerEvent) {
+  if (!mdrag) return
+  macc += e.clientX - mlx; mlx = e.clientX
+  const s = Math.trunc(macc / 14)
+  if (s !== 0) { mframe.value = ((mframe.value + s) % NF + NF) % NF; macc = 0 }
+}
+function mup() { mdrag = false }
 </script>
 
 <template>
@@ -312,9 +325,9 @@ function fup() { fdrag = false }
       </figure>
     </div>
 
-    <!-- PASO 2 · CÓMO ES (morfología real reconstruida del CT) -->
+    <!-- PASO 2 · QUÉ CAPTA (hueso real del CT + doble trazador co-registrado) -->
     <div v-if="hasFrames">
-      <p class="bn-step">{{ isVert ? L('2 · Cómo es · tu vértebra real', '2 · What it looks like · your real vertebra') : L('2 · Cómo es · tu hueso real', '2 · What it looks like · your real bone') }}</p>
+      <p class="bn-step">{{ L('2 · Qué capta · Galio vs FDG · tu hueso real', '2 · What it takes up · gallium vs FDG · your real bone') }}</p>
       <figure class="m-0 rounded-lg p-2" style="background:#0d1117">
         <img :src="vsrc"
           :alt="isVert ? L('Tu vértebra real reconstruida del CT, con la metástasis', 'Your real vertebra reconstructed from the CT, with the metastasis') : L('Tu hueso real reconstruido del CT, con la metástasis', 'Your real bone reconstructed from the CT, with the metastasis')"
@@ -327,9 +340,24 @@ function fup() { fdrag = false }
       </figure>
     </div>
 
-    <!-- PASO 3 · CUÁNTO CAPTA CADA TRAZADOR -->
+    <!-- PASO 3 · CÓMO ES POR DENTRO (morfología: densidad del CT) -->
+    <div v-if="hasFrames">
+      <p class="bn-step">{{ L('3 · Cómo es por dentro · morfología', '3 · What it is like inside · morphology') }}</p>
+      <figure class="m-0 rounded-lg p-2" style="background:#0d1117">
+        <img :src="msrc"
+          :alt="L('Morfología del hueso reconstruida de tu CT', 'Bone morphology reconstructed from your CT')"
+          class="w-full block select-none cursor-grab active:cursor-grabbing rounded-md" draggable="false"
+          @pointerdown="mdown" @pointermove="mmove" @pointerup="mup" @pointerleave="mup" />
+        <figcaption class="bn-cap">
+          {{ L('Densidad del hueso (tu CT) · arrastra para girar', 'Bone density (your CT) · drag to rotate') }}<br>
+          <span style="color:#cdd8ee">●</span> {{ L('blanco denso = blástico (hueso duro)', 'dense white = blastic (hard bone)') }} · {{ L('marfil = hueso normal', 'ivory = normal bone') }}
+        </figcaption>
+      </figure>
+    </div>
+
+    <!-- PASO 4 · CUÁNTO CAPTA CADA TRAZADOR (SUVmáx) -->
     <div>
-      <p class="bn-step">{{ (vertKey ? '3' : '2') + ' · ' + L('Cuánto capta · Galio vs FDG', 'How much · gallium vs FDG') }}</p>
+      <p class="bn-step">{{ (hasFrames ? '4' : '2') + ' · ' + L('Cuánto capta · SUVmáx', 'How much · SUVmax') }}</p>
       <div class="mb-2">
         <div class="flex justify-between text-[11px] mb-1">
           <span style="color:#9d44ab">{{ L('Receptor · Galio', 'Receptor · gallium') }} {{ le.dota != null ? le.dota.toFixed(1) : '—' }}</span>
