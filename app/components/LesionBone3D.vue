@@ -325,39 +325,21 @@ function mup() { mdrag = false }
       </figure>
     </div>
 
-    <!-- PASO 2 · QUÉ CAPTA (hueso real del CT + doble trazador co-registrado) -->
+    <!-- PASO 2 · TU HUESO REAL EN 3D (morfología + captación unificadas · rotación libre 360°) -->
     <div v-if="hasFrames">
-      <p class="bn-step">{{ L('2 · Qué capta · Galio vs FDG · tu hueso real', '2 · What it takes up · gallium vs FDG · your real bone') }}</p>
-      <figure class="m-0 rounded-lg p-2" style="background:#0d1117">
-        <img :src="vsrc"
-          :alt="isVert ? L('Tu vértebra real reconstruida del CT, con la metástasis', 'Your real vertebra reconstructed from the CT, with the metastasis') : L('Tu hueso real reconstruido del CT, con la metástasis', 'Your real bone reconstructed from the CT, with the metastasis')"
-          class="w-full block select-none cursor-grab active:cursor-grabbing rounded-md" draggable="false"
-          @pointerdown="fdown" @pointermove="fmove" @pointerup="fup" @pointerleave="fup" />
-        <figcaption class="bn-cap">
-          {{ L('Reconstrucción de tu CT (IA) · arrastra para girar', 'Reconstruction from your CT (AI) · drag to rotate') }}<br>
-          <span style="color:#c061d6">●</span> {{ L('receptor (Galio)', 'receptor (gallium)') }} · <span style="color:#f08a3a">●</span> {{ L('azúcar (FDG)', 'sugar (FDG)') }} · {{ L('co-registrados sobre el hueso', 'co-registered on the bone') }}
+      <p class="bn-step">{{ L('2 · Tu hueso real en 3D · gira 360°', '2 · Your real bone in 3D · rotate 360°') }}</p>
+      <figure class="m-0">
+        <BoneViewer3D :mesh-key="vertKey" />
+        <figcaption class="bn-cap mt-1.5">
+          {{ L('Reconstruido de tu CT (IA) · arrastra para girar en cualquier dirección · rueda para acercar', 'Reconstructed from your CT (AI) · drag to rotate any direction · scroll to zoom') }}<br>
+          <span style="color:#dbe4f7">●</span> {{ L('blanco denso = blástico (hueso duro)', 'dense white = blastic (hard bone)') }} · <span style="color:#c061d6">●</span> {{ L('receptor · Galio', 'receptor · gallium') }} · <span style="color:#f08a3a">●</span> {{ L('azúcar · FDG', 'sugar · FDG') }}
         </figcaption>
       </figure>
     </div>
 
-    <!-- PASO 3 · CÓMO ES POR DENTRO (morfología: densidad del CT) -->
-    <div v-if="hasFrames">
-      <p class="bn-step">{{ L('3 · Cómo es por dentro · morfología', '3 · What it is like inside · morphology') }}</p>
-      <figure class="m-0 rounded-lg p-2" style="background:#0d1117">
-        <img :src="msrc"
-          :alt="L('Morfología del hueso reconstruida de tu CT', 'Bone morphology reconstructed from your CT')"
-          class="w-full block select-none cursor-grab active:cursor-grabbing rounded-md" draggable="false"
-          @pointerdown="mdown" @pointermove="mmove" @pointerup="mup" @pointerleave="mup" />
-        <figcaption class="bn-cap">
-          {{ L('Densidad del hueso (tu CT) · arrastra para girar', 'Bone density (your CT) · drag to rotate') }}<br>
-          <span style="color:#cdd8ee">●</span> {{ L('blanco denso = blástico (hueso duro)', 'dense white = blastic (hard bone)') }} · {{ L('marfil = hueso normal', 'ivory = normal bone') }}
-        </figcaption>
-      </figure>
-    </div>
-
-    <!-- PASO 4 · CUÁNTO CAPTA CADA TRAZADOR (SUVmáx) -->
+    <!-- PASO 3 · CUÁNTO CAPTA CADA TRAZADOR (SUVmáx) -->
     <div>
-      <p class="bn-step">{{ (hasFrames ? '4' : '2') + ' · ' + L('Cuánto capta · SUVmáx', 'How much · SUVmax') }}</p>
+      <p class="bn-step">{{ (hasFrames ? '3' : '2') + ' · ' + L('Cuánto capta · SUVmáx', 'How much · SUVmax') }}</p>
       <div class="mb-2">
         <div class="flex justify-between text-[11px] mb-1">
           <span style="color:#9d44ab">{{ L('Receptor · Galio', 'Receptor · gallium') }} {{ le.dota != null ? le.dota.toFixed(1) : '—' }}</span>

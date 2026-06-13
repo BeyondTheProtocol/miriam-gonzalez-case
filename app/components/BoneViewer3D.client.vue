@@ -1,0 +1,73 @@
+<script setup lang="ts">
+/**
+ * Visor 3D real (WebGL) del hueso reconstruido del CT, con color por vértice
+ * unificado: morfología (densidad CT: blástico/marfil) + captación co-registrada
+ * (púrpura = receptor/Galio, naranja = azúcar/FDG). Rotación libre 360° (todos los
+ * ejes) con arrastre; rueda para acercar. Malla PLY en /public/metastasis/mesh.
+ */
+import * as THREE from 'three'
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
+import { PLYLoader } from 'three/examples/jsm/loaders/PLYLoader.js'
+
+const props = defineProps<{ meshKey?: string }>()
+const host = ref<HTMLDivElement | null>(null)
+const loading = ref(true)
+const failed = ref(false)
+let renderer: THREE.WebGLRenderer, scene: THREE.Scene, camera: THREE.PerspectiveCamera, controls: OrbitControls
+let mesh: THREE.Mesh | null = null
+let raf = 0, ro: ResizeObserver | null = null
+
+function resize() {
+  if (!host.value || !renderer) return
+  const w = host.value.clientWidth, h = host.value.clientHeight || Math.round(w * 0.8)
+  renderer.setSize(w, h, false); camera.aspect = w / h; camera.updateProjectionMatrix()
+}
+function init() {
+  const el = host.value!
+  scene = new THREE.Scene(); scene.background = new THREE.Color(0x0d1117)
+  camera = new THREE.PerspectiveCamera(38, 1.25, 0.1, 8000)
+  renderer = new THREE.WebGLRenderer({ antialias: true })
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
+  el.appendChild(renderer.domElement)
+  scene.add(new THREE.HemisphereLight(0xffffff, 0x202028, 0.95))
+  const key = new THREE.DirectionalLight(0xfff4ea, 1.55); key.position.set(-0.6, 0.9, 1.0); scene.add(key)
+  const fill = new THREE.DirectionalLight(0xbcd0ff, 0.45); fill.position.set(0.7, -0.2, -0.7); scene.add(fill)
+  controls = new OrbitControls(camera, renderer.domElement)
+  controls.enableDamping = true; controls.dampingFactor = 0.08; controls.enablePan = false
+  controls.rotateSpeed = 0.9; controls.minDistance = 1; controls.maxDistance = 100000
+  resize()
+  ro = new ResizeObserver(resize); ro.observe(el)
+  const tick = () => { raf = requestAnimationFrame(tick); controls.update(); renderer.render(scene, camera) }
+  tick()
+}
+function load(key: string) {
+  loading.value = true; failed.value = false
+  new PLYLoader().load(`/metastasis/mesh/${key}.ply`, (geo) => {
+    if (!geo.getAttribute('normal')) geo.computeVertexNormals()
+    if (mesh) { scene.remove(mesh); mesh.geometry.dispose(); (mesh.material as THREE.Material).dispose() }
+    const mat = new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.6, metalness: 0.03 })
+    mesh = new THREE.Mesh(geo, mat); scene.add(mesh)
+    geo.computeBoundingSphere(); const s = geo.boundingSphere!
+    mesh.position.set(-s.center.x, -s.center.y, -s.center.z)
+    const r = s.radius || 50
+    camera.position.set(0, 0, r * 3.0); camera.near = r * 0.05; camera.far = r * 30; camera.updateProjectionMatrix()
+    controls.target.set(0, 0, 0); controls.minDistance = r * 1.25; controls.maxDistance = r * 6; controls.update()
+    loading.value = false
+  }, undefined, () => { loading.value = false; failed.value = true })
+}
+onMounted(() => { init(); if (props.meshKey) load(props.meshKey) })
+watch(() => props.meshKey, (k) => { if (k && renderer) load(k) })
+onBeforeUnmount(() => {
+  cancelAnimationFrame(raf); ro?.disconnect()
+  if (mesh) { mesh.geometry.dispose(); (mesh.material as THREE.Material).dispose() }
+  renderer?.dispose()
+})
+</script>
+
+<template>
+  <div class="relative w-full select-none" style="aspect-ratio:5/4;background:#0d1117;border-radius:0.5rem;overflow:hidden">
+    <div ref="host" class="absolute inset-0 cursor-grab active:cursor-grabbing" />
+    <div v-if="loading && !failed" class="absolute inset-0 flex items-center justify-center text-[12px] pointer-events-none" style="color:#aeb6c2">cargando 3D…</div>
+    <div v-if="failed" class="absolute inset-0 flex items-center justify-center text-[12px] pointer-events-none" style="color:#aeb6c2">3D no disponible</div>
+  </div>
+</template>
