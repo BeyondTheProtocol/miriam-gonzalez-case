@@ -320,7 +320,10 @@ function fup() { fdrag = false }
           :alt="isVert ? L('Tu vértebra real reconstruida del CT, con la metástasis', 'Your real vertebra reconstructed from the CT, with the metastasis') : L('Tu hueso real reconstruido del CT, con la metástasis', 'Your real bone reconstructed from the CT, with the metastasis')"
           class="w-full block select-none cursor-grab active:cursor-grabbing rounded-md" draggable="false"
           @pointerdown="fdown" @pointermove="fmove" @pointerup="fup" @pointerleave="fup" />
-        <figcaption class="bn-cap">{{ L('Reconstrucción de tu CT (IA) · captación del receptor (Galio) en color · arrastra para girar', 'Reconstruction from your CT (AI) · receptor (gallium) uptake in colour · drag to rotate') }}</figcaption>
+        <figcaption class="bn-cap">
+          {{ L('Reconstrucción de tu CT (IA) · arrastra para girar', 'Reconstruction from your CT (AI) · drag to rotate') }}<br>
+          <span style="color:#c061d6">●</span> {{ L('receptor (Galio)', 'receptor (gallium)') }} · <span style="color:#f08a3a">●</span> {{ L('azúcar (FDG)', 'sugar (FDG)') }} · {{ L('co-registrados sobre el hueso', 'co-registered on the bone') }}
+        </figcaption>
       </figure>
     </div>
 
