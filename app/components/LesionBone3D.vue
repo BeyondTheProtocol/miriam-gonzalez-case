@@ -313,7 +313,7 @@ function fup() { fdrag = false }
           :alt="L('Tu vértebra real reconstruida del CT, con la metástasis', 'Your real vertebra reconstructed from the CT, with the metastasis')"
           class="w-full block select-none cursor-grab active:cursor-grabbing rounded-md" draggable="false"
           @pointerdown="fdown" @pointermove="fmove" @pointerup="fup" @pointerleave="fup" />
-        <figcaption class="bn-cap">{{ L('Reconstruida de tu CT · la metástasis en color · arrastra para girar', 'Reconstructed from your CT · metastasis in colour · drag to rotate') }}</figcaption>
+        <figcaption class="bn-cap">{{ L('Reconstruida de tu CT (IA) · captación del receptor (Galio) en color · arrastra para girar', 'Reconstructed from your CT (AI) · receptor (gallium) uptake in colour · drag to rotate') }}</figcaption>
       </figure>
     </div>
 
