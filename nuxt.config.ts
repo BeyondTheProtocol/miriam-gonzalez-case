@@ -83,6 +83,7 @@ export default defineNuxtConfig({
       'historia/index': { en: '/story' },
       'historia/[slug]': { en: '/story/[slug]' },
       'equipo': { en: '/team' },
+      'prensa': { en: '/press' },
       'contacto': { en: '/contact' },
       'colabora': { en: '/collaborate' },
       'gastos': { en: '/expenses' },

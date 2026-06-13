@@ -85,7 +85,7 @@
             style="animation-delay: 0.2s"
           >
             <template #lead>
-              <strong class="font-semibold text-berenjena">{{ $t('hero.subtitle_lead') }}</strong>
+              <strong class="font-semibold text-berenjena">{{ $t('hero.subtitle_lead', { age: caseData.currentAge }) }}</strong>
             </template>
             <template #twofaces>
               <!-- «dos caras»: un trazo a mano (como las anotaciones de la
@@ -306,8 +306,9 @@ const stats = computed(() => [
     label: t('hero.stat_donors_label'),
   },
   {
-    value: t('hero.stat_specialists_value'),
-    label: t('hero.stat_specialists_label'),
+    // Valor y nº de países desde la fuente única (caseData), no hardcodeados.
+    value: caseData.specialists,
+    label: t('hero.stat_specialists_label', { countries: caseData.countries }),
   },
   {
     value: t('hero.stat_ne_value'),

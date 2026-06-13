@@ -403,7 +403,7 @@
             class="link-logo text-2xl sm:text-3xl"
           >La 7<span class="sr-only"> {{ $t('a11y.new_tab') }}</span></a>
           <NuxtLink
-            :to="localePath({ name: 'contacto' })"
+            :to="localePath({ name: 'prensa' })"
             class="link-action group sm:ml-auto self-center font-mono text-[12px] text-miriam"
           >
             {{ $t('home.s9_press_contact') }}
@@ -502,5 +502,35 @@ useSeoMeta({
     locale.value === 'es'
       ? 'BC-NED con FGFR1 ×13 y SSTR2+. Apoya la rebiopsia molecular avanzada.'
       : 'BC-NED with FGFR1 ×13 and SSTR2+. Support the advanced molecular rebiopsy.',
+})
+
+// DonateAction JSON-LD: declara la vía canónica de donación (GoFundMe) para
+// buscadores y agentes de IA que responden «cómo donar / cómo ayudar a Miriam».
+// Raw JSON-LD vía useHead (mismo patrón que el FAQPage de gastos.vue), porque
+// schema-org no expone un helper dedicado para DonateAction.
+const donateJsonLd = computed(() =>
+  JSON.stringify({
+    '@context': 'https://schema.org',
+    '@type': 'DonateAction',
+    name: locale.value === 'es' ? 'Donar para el caso de Miriam González' : "Donate to Miriam González's case",
+    recipient: {
+      '@type': 'Person',
+      name: 'Miriam González',
+      url: 'https://helpmiriam.com',
+    },
+    target: {
+      '@type': 'EntryPoint',
+      urlTemplate: 'https://gofund.me/3e25cae99',
+      inLanguage: locale.value === 'es' ? 'es-ES' : 'en-US',
+      actionPlatform: [
+        'https://schema.org/DesktopWebPlatform',
+        'https://schema.org/MobileWebPlatform',
+      ],
+    },
+  })
+)
+
+useHead({
+  script: [{ type: 'application/ld+json', innerHTML: donateJsonLd }],
 })
 </script>

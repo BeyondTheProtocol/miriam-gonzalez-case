@@ -1,4 +1,12 @@
 articles:
-  - outlet: El País
+  - outlet: El País (English)
     url: https://english.elpais.com/technology/2026-04-25/whats-the-best-way-to-talk-about-health-with-chatbots.html?outputType=amp
     title: What's the best way to talk about health with chatbots
+    date: '2026-04-25'
+  - outlet: La Opinión de Murcia
+    url: https://www.laopiniondemurcia.es/comunidad/2026/05/30/paciente-murciana-aguarda-nuevo-tratamiento-130816775.html
+    title: 'A patient from Murcia awaits a new precision treatment (in Spanish)'
+    date: '2026-05-30'
+  - outlet: La 7
+    url: https://www.instagram.com/p/DZDT2hIAMPU/?hl=es
+    title: "Miriam's case on Murcia's regional television (in Spanish)"

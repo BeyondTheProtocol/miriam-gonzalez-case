@@ -20,6 +20,17 @@ const pct = computed(() => {
     (data.value.currentAmount.amount * 100) / data.value.goalAmount.amount
   )
 })
+
+// «Mejora medida» (decisión de producto): evitar que la campaña «parezca
+// terminada» mostrando cuánto falta para el primer objetivo y qué desbloquea —
+// sin convertir la barra única en un tablero de hitos. Lenguaje prudente.
+const remaining = computed(() => {
+  if (!data.value) return 0
+  return Math.max(
+    0,
+    data.value.goalAmount.amount - data.value.currentAmount.amount
+  )
+})
 </script>
 
 <template>
@@ -68,13 +79,46 @@ const pct = computed(() => {
       </NuxtLink>
     </div>
 
+    <!-- «Faltan X €» + qué desbloquea el objetivo: la campaña no «parece
+         terminada». Tira con acento coral (el único acento de la tarjeta) para
+         darle jerarquía. Solo si aún falta para la meta. -->
+    <div
+      v-if="remaining > 0"
+      class="mt-5 flex items-start gap-3 rounded-xl px-4 py-3.5"
+      style="background: rgba(255,107,71,0.10)"
+    >
+      <Icon name="ph:flag-pennant-fill" class="size-4 shrink-0 mt-0.5 text-coral" aria-hidden="true" />
+      <div>
+        <i18n-t
+          keypath="gofundme.remaining"
+          tag="p"
+          class="font-mono text-[13px] leading-snug nums"
+          style="color: #faf6f0"
+        >
+          <template #amount>
+            <span class="text-coral font-semibold">{{
+              formatCurrency(remaining, data.currentAmount.currencyCode, locale)
+            }}</span>
+          </template>
+        </i18n-t>
+        <p class="mt-1 font-mono text-[11.5px] leading-relaxed" style="color: rgba(250,246,240,0.62)">
+          {{ $t('gofundme.goal_unlocks') }}
+        </p>
+      </div>
+    </div>
+
+    <!-- Prueba social (auditoría 4.3): «únete a quienes ya lo hacen». El número
+         de donantes ya aparece arriba, así que aquí solo va el encuadre. -->
+    <p class="mt-6 font-mono text-[12px] tracking-[0.03em]" style="color: rgba(250,246,240,0.7)">
+      {{ $t('gofundme.social_proof') }}
+    </p>
     <a
       href="https://gofund.me/3e25cae99"
       target="_blank"
       rel="noopener noreferrer"
       @click="trackSupport('gofundme_widget')"
       data-support-cta
-      class="btn-cta mt-7 w-full sm:w-auto"
+      class="btn-cta mt-3 w-full sm:w-auto"
     >
       <Icon name="ph:heart-fill" class="heart-beat w-4 h-4" aria-hidden="true" />
       {{ $t('gofundme.donate_now') }}

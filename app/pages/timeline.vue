@@ -20,7 +20,7 @@
             <span class="text-tinta/35" aria-hidden="true">·</span>
             <span>{{ $t('timeline.meta_span') }}</span>
             <span class="text-tinta/35" aria-hidden="true">·</span>
-            <span>{{ $t('timeline.meta_network') }}</span>
+            <span>{{ $t('timeline.meta_network', { countries: caseData.countries }) }}</span>
           </div>
         </PageHeader>
 
