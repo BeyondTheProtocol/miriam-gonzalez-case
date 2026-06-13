@@ -552,11 +552,12 @@ const AUTO_NEW_FDG: { suvmax: number; mtv: number; hu: number; morph: string; si
 function autoOf(le: Lesion) { return AUTO[le.id] || null }
 const selAuto = computed(() => autoOf(sel.value))
 /* lesiones con hueso 3D real reconstruido del CT (IA, TotalSegmentator) — frames en
-   /metastasis/vertebra. Vértebras y huesos planos. Pendientes de otra pasada de
-   segmentación: #1 C3, #2 C4, #3 escápula, #15 ilíaco izq, #17 costilla, #19. */
+   /metastasis/vertebra. Vértebras y huesos planos. Solo quedan sin reconstruir los 2
+   focos «IA de David» no confirmados en el informe (#17 costilla, #19). */
 const BONE3D_KEY: Record<number, string> = {
+  1: 'C3', 2: 'C4', 3: 'ESCAPULA_R',
   4: 'D1', 5: 'D5', 6: 'D9', 7: 'D11', 8: 'D11', 9: 'L1', 10: 'L1', 11: 'L5',
-  12: 'SACRO', 13: 'ILIACO_R', 14: 'ILIACO_R', 16: 'FEMUR_R', 18: 'ILIACO_R',
+  12: 'SACRO', 13: 'ILIACO_R', 14: 'ILIACO_R', 15: 'ILIACO_L', 16: 'FEMUR_R', 18: 'ILIACO_R',
 }
 function bone3dKeyOf(le: Lesion) { return BONE3D_KEY[le.id] }
 const hasAuto = computed(() => { const a = selAuto.value; return !!a && (a.fdgAuto != null || a.gaAuto != null) })

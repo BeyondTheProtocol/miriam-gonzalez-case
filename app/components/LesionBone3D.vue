@@ -276,7 +276,7 @@ function up() { dragging = false }
    El Paso 2 SOLO se muestra para estas claves: cualquier otra lesión (pelvis, fémur,
    sacro, escápula, o vértebras sin reconstruir) no tiene frames y mostraría una imagen
    rota. El propio componente lo decide, no depende de quién pase la prop. */
-const FRAME_KEYS = ['D1', 'D5', 'D9', 'D11', 'L1', 'L5', 'SACRO', 'ILIACO_R', 'FEMUR_R']
+const FRAME_KEYS = ['C3', 'C4', 'D1', 'D5', 'D9', 'D11', 'L1', 'L5', 'ESCAPULA_R', 'SACRO', 'ILIACO_R', 'ILIACO_L', 'FEMUR_R']
 const hasFrames = computed(() => !!props.vertKey && FRAME_KEYS.includes(props.vertKey))
 const isVert = computed(() => boneType(props.le) === 'vertebra')
 const NF = 12
