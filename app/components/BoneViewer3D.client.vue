@@ -58,8 +58,16 @@ function load(key: string) {
   }, undefined, (e) => { console.error('[BoneViewer3D] PLY load error', e); loading.value = false; failed.value = true })
 }
 onMounted(() => {
-  try { init(); if (props.meshKey) load(props.meshKey) }
-  catch (e) { console.error('[BoneViewer3D] init', e); failed.value = true; loading.value = false }
+  let tries = 0
+  const start = () => {
+    if (!host.value) {                               // el ref del contenedor aún no está enganchado
+      if (tries++ < 30) { requestAnimationFrame(start); return }
+      console.error('[BoneViewer3D] host nunca disponible'); failed.value = true; loading.value = false; return
+    }
+    try { init(); if (props.meshKey) load(props.meshKey) }
+    catch (e) { console.error('[BoneViewer3D] init', e); failed.value = true; loading.value = false }
+  }
+  start()
 })
 watch(() => props.meshKey, (k) => {
   if (!k || !renderer) return
