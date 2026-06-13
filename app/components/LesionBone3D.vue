@@ -272,9 +272,15 @@ function moveR(e: PointerEvent) {
 function up() { dragging = false }
 
 /* ---------- vértebra REAL del CT: visor de fotogramas (arrastra para girar) ---------- */
+/* Vértebras con frames reales reconstruidos en /public/metastasis/vertebra (12 c/u).
+   El Paso 2 SOLO se muestra para estas claves: cualquier otra lesión (pelvis, fémur,
+   sacro, escápula, o vértebras sin reconstruir) no tiene frames y mostraría una imagen
+   rota. El propio componente lo decide, no depende de quién pase la prop. */
+const FRAME_KEYS = ['D1', 'D11', 'L1', 'L5']
+const hasFrames = computed(() => !!props.vertKey && FRAME_KEYS.includes(props.vertKey))
 const NF = 12
 const vframe = ref(3)
-const vsrc = computed(() => (props.vertKey ? `/metastasis/vertebra/${props.vertKey}-${String(vframe.value).padStart(2, '0')}.jpg` : ''))
+const vsrc = computed(() => (hasFrames.value ? `/metastasis/vertebra/${props.vertKey}-${String(vframe.value).padStart(2, '0')}.jpg` : ''))
 let fdrag = false, flx = 0, facc = 0
 function fdown(e: PointerEvent) { fdrag = true; flx = e.clientX; facc = 0 }
 function fmove(e: PointerEvent) {
@@ -306,7 +312,7 @@ function fup() { fdrag = false }
     </div>
 
     <!-- PASO 2 · CÓMO ES (morfología real reconstruida del CT) -->
-    <div v-if="vertKey">
+    <div v-if="hasFrames">
       <p class="bn-step">{{ L('2 · Cómo es · tu vértebra real', '2 · What it looks like · your real vertebra') }}</p>
       <figure class="m-0 rounded-lg p-2" style="background:#0d1117">
         <img :src="vsrc"
