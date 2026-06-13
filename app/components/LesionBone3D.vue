@@ -16,6 +16,8 @@ const L = (es: string, en: string) => (lang.value === 'en' ? en : es)
 
 const PH: Record<string, string> = { ne: '#9d44ab', mixNe: '#8a5bb3', mixBal: '#c9921e', mixAgg: '#df7a44', agg: '#bb4128' }
 const col = (l: any) => PH[l.pheno] || '#8a5bb3'
+/* proporción orientativa receptor (Galio) vs azúcar (FDG) para la barra del paso 3 */
+const neShare = (l: any) => (l.fdg == null ? 0.9 : l.dota == null ? 0.1 : l.dota / (l.dota + l.fdg))
 
 /* ---------- tiny vec3 ---------- */
 type V3 = number[]
