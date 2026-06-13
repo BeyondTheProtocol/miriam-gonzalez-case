@@ -329,7 +329,14 @@ function mup() { mdrag = false }
     <div v-if="hasFrames">
       <p class="bn-step">{{ L('2 · Tu hueso real en 3D · gira 360°', '2 · Your real bone in 3D · rotate 360°') }}</p>
       <figure class="m-0">
-        <BoneViewer3D :mesh-key="vertKey" />
+        <NuxtErrorBoundary>
+          <BoneViewer3D :mesh-key="vertKey" />
+          <template #error="{ error }">
+            <div class="rounded-lg p-4 text-center text-[12px] flex items-center justify-center" style="background:#0d1117;color:#aeb6c2;aspect-ratio:5/4">
+              {{ L('No se pudo cargar el visor 3D en este navegador.', 'Could not load the 3D viewer in this browser.') }}
+            </div>
+          </template>
+        </NuxtErrorBoundary>
         <figcaption class="bn-cap mt-1.5">
           {{ L('Reconstruido de tu CT (IA) · arrastra para girar en cualquier dirección · rueda para acercar', 'Reconstructed from your CT (AI) · drag to rotate any direction · scroll to zoom') }}<br>
           <span style="color:#dbe4f7">●</span> {{ L('blanco denso = blástico (hueso duro)', 'dense white = blastic (hard bone)') }} · <span style="color:#c061d6">●</span> {{ L('receptor · Galio', 'receptor · gallium') }} · <span style="color:#f08a3a">●</span> {{ L('azúcar · FDG', 'sugar · FDG') }}

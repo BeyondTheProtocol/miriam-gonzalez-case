@@ -43,20 +43,28 @@ function init() {
 function load(key: string) {
   loading.value = true; failed.value = false
   new PLYLoader().load(`/metastasis/mesh/${key}.ply`, (geo) => {
-    if (!geo.getAttribute('normal')) geo.computeVertexNormals()
-    if (mesh) { scene.remove(mesh); mesh.geometry.dispose(); (mesh.material as THREE.Material).dispose() }
-    const mat = new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.6, metalness: 0.03 })
-    mesh = new THREE.Mesh(geo, mat); scene.add(mesh)
-    geo.computeBoundingSphere(); const s = geo.boundingSphere!
-    mesh.position.set(-s.center.x, -s.center.y, -s.center.z)
-    const r = s.radius || 50
-    camera.position.set(0, 0, r * 3.0); camera.near = r * 0.05; camera.far = r * 30; camera.updateProjectionMatrix()
-    controls.target.set(0, 0, 0); controls.minDistance = r * 1.25; controls.maxDistance = r * 6; controls.update()
-    loading.value = false
-  }, undefined, () => { loading.value = false; failed.value = true })
+    try {
+      if (!geo.getAttribute('normal')) geo.computeVertexNormals()
+      if (mesh) { scene.remove(mesh); mesh.geometry.dispose(); (mesh.material as THREE.Material).dispose() }
+      const mat = new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.6, metalness: 0.03 })
+      mesh = new THREE.Mesh(geo, mat); scene.add(mesh)
+      geo.computeBoundingSphere(); const s = geo.boundingSphere
+      const r = (s && s.radius) || 50
+      if (s) mesh.position.set(-s.center.x, -s.center.y, -s.center.z)
+      camera.position.set(0, 0, r * 3.0); camera.near = r * 0.05; camera.far = r * 30; camera.updateProjectionMatrix()
+      controls.target.set(0, 0, 0); controls.minDistance = r * 1.25; controls.maxDistance = r * 6; controls.update()
+      loading.value = false
+    } catch (e) { console.error('[BoneViewer3D] build', e); loading.value = false; failed.value = true }
+  }, undefined, (e) => { console.error('[BoneViewer3D] PLY load error', e); loading.value = false; failed.value = true })
 }
-onMounted(() => { init(); if (props.meshKey) load(props.meshKey) })
-watch(() => props.meshKey, (k) => { if (k && renderer) load(k) })
+onMounted(() => {
+  try { init(); if (props.meshKey) load(props.meshKey) }
+  catch (e) { console.error('[BoneViewer3D] init', e); failed.value = true; loading.value = false }
+})
+watch(() => props.meshKey, (k) => {
+  if (!k || !renderer) return
+  try { load(k) } catch (e) { console.error('[BoneViewer3D] load', e); failed.value = true; loading.value = false }
+})
 onBeforeUnmount(() => {
   cancelAnimationFrame(raf); ro?.disconnect()
   if (mesh) { mesh.geometry.dispose(); (mesh.material as THREE.Material).dispose() }
