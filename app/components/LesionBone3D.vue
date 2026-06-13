@@ -279,6 +279,8 @@ function up() { dragging = false }
 const FRAME_KEYS = ['C3', 'C4', 'D1', 'D5', 'D9', 'D11', 'L1', 'L5', 'ESCAPULA_R', 'SACRO', 'ILIACO_R', 'ILIACO_L', 'FEMUR_R']
 const hasFrames = computed(() => !!props.vertKey && FRAME_KEYS.includes(props.vertKey))
 const isVert = computed(() => boneType(props.le) === 'vertebra')
+/* clave de malla 3D: la PROP vertKey (no la función vertKey() interna, que colisiona de nombre) */
+const meshKey = computed(() => props.vertKey)
 const NF = 12
 const vframe = ref(3)
 const vsrc = computed(() => (hasFrames.value ? `/metastasis/vertebra/${props.vertKey}-${String(vframe.value).padStart(2, '0')}.jpg` : ''))
@@ -330,7 +332,7 @@ function mup() { mdrag = false }
       <p class="bn-step">{{ L('2 · Tu hueso real en 3D · gira 360°', '2 · Your real bone in 3D · rotate 360°') }}</p>
       <figure class="m-0">
         <NuxtErrorBoundary>
-          <BoneViewer3D :mesh-key="vertKey" />
+          <BoneViewer3D :mesh-key="meshKey" />
           <template #error="{ error }">
             <div class="rounded-lg p-4 text-center text-[12px] flex items-center justify-center" style="background:#0d1117;color:#aeb6c2;aspect-ratio:5/4">
               {{ L('No se pudo cargar el visor 3D en este navegador.', 'Could not load the 3D viewer in this browser.') }}
