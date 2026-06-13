@@ -551,9 +551,14 @@ const AUTO_NEW_FDG: { suvmax: number; mtv: number; hu: number; morph: string; si
 ]
 function autoOf(le: Lesion) { return AUTO[le.id] || null }
 const selAuto = computed(() => autoOf(sel.value))
-/* lesiones cuya vértebra está reconstruida en 3D real desde el CT (frames en /metastasis/vertebra) */
-const VERT_KEY: Record<number, string> = { 4: 'D1', 7: 'D11', 8: 'D11', 9: 'L1', 10: 'L1', 11: 'L5' }
-function vertKeyOf(le: Lesion) { return VERT_KEY[le.id] }
+/* lesiones con hueso 3D real reconstruido del CT (IA, TotalSegmentator) — frames en
+   /metastasis/vertebra. Vértebras y huesos planos. Pendientes de otra pasada de
+   segmentación: #1 C3, #2 C4, #3 escápula, #15 ilíaco izq, #17 costilla, #19. */
+const BONE3D_KEY: Record<number, string> = {
+  4: 'D1', 5: 'D5', 6: 'D9', 7: 'D11', 8: 'D11', 9: 'L1', 10: 'L1', 11: 'L5',
+  12: 'SACRO', 13: 'ILIACO_R', 14: 'ILIACO_R', 16: 'FEMUR_R', 18: 'ILIACO_R',
+}
+function bone3dKeyOf(le: Lesion) { return BONE3D_KEY[le.id] }
 const hasAuto = computed(() => { const a = selAuto.value; return !!a && (a.fdgAuto != null || a.gaAuto != null) })
 
 /* Niveles afectados según el informe de RM de columna (11/06/2026). Texto del
@@ -962,7 +967,7 @@ const ticks = [
               <div class="mb-4">
                 <p class="eyebrow mb-2 block">{{ L('Anatomía y captación · paso a paso', 'Anatomy & uptake · step by step') }}</p>
                 <ClientOnly>
-                  <LesionBone3D :le="sel" :all="LES" :vert-key="vertKeyOf(sel)" />
+                  <LesionBone3D :le="sel" :all="LES" :vert-key="bone3dKeyOf(sel)" />
                 </ClientOnly>
               </div>
 

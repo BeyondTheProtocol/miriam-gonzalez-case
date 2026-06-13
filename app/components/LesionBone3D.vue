@@ -276,8 +276,9 @@ function up() { dragging = false }
    El Paso 2 SOLO se muestra para estas claves: cualquier otra lesión (pelvis, fémur,
    sacro, escápula, o vértebras sin reconstruir) no tiene frames y mostraría una imagen
    rota. El propio componente lo decide, no depende de quién pase la prop. */
-const FRAME_KEYS = ['D1', 'D11', 'L1', 'L5']
+const FRAME_KEYS = ['D1', 'D5', 'D9', 'D11', 'L1', 'L5', 'SACRO', 'ILIACO_R', 'FEMUR_R']
 const hasFrames = computed(() => !!props.vertKey && FRAME_KEYS.includes(props.vertKey))
+const isVert = computed(() => boneType(props.le) === 'vertebra')
 const NF = 12
 const vframe = ref(3)
 const vsrc = computed(() => (hasFrames.value ? `/metastasis/vertebra/${props.vertKey}-${String(vframe.value).padStart(2, '0')}.jpg` : ''))
@@ -313,13 +314,13 @@ function fup() { fdrag = false }
 
     <!-- PASO 2 · CÓMO ES (morfología real reconstruida del CT) -->
     <div v-if="hasFrames">
-      <p class="bn-step">{{ L('2 · Cómo es · tu vértebra real', '2 · What it looks like · your real vertebra') }}</p>
+      <p class="bn-step">{{ isVert ? L('2 · Cómo es · tu vértebra real', '2 · What it looks like · your real vertebra') : L('2 · Cómo es · tu hueso real', '2 · What it looks like · your real bone') }}</p>
       <figure class="m-0 rounded-lg p-2" style="background:#0d1117">
         <img :src="vsrc"
-          :alt="L('Tu vértebra real reconstruida del CT, con la metástasis', 'Your real vertebra reconstructed from the CT, with the metastasis')"
+          :alt="isVert ? L('Tu vértebra real reconstruida del CT, con la metástasis', 'Your real vertebra reconstructed from the CT, with the metastasis') : L('Tu hueso real reconstruido del CT, con la metástasis', 'Your real bone reconstructed from the CT, with the metastasis')"
           class="w-full block select-none cursor-grab active:cursor-grabbing rounded-md" draggable="false"
           @pointerdown="fdown" @pointermove="fmove" @pointerup="fup" @pointerleave="fup" />
-        <figcaption class="bn-cap">{{ L('Reconstruida de tu CT (IA) · captación del receptor (Galio) en color · arrastra para girar', 'Reconstructed from your CT (AI) · receptor (gallium) uptake in colour · drag to rotate') }}</figcaption>
+        <figcaption class="bn-cap">{{ L('Reconstrucción de tu CT (IA) · captación del receptor (Galio) en color · arrastra para girar', 'Reconstruction from your CT (AI) · receptor (gallium) uptake in colour · drag to rotate') }}</figcaption>
       </figure>
     </div>
 
