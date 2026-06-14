@@ -280,6 +280,7 @@ async function onSubmit(e: Event) {
       body,
     })
     sent.value = true
+    trackUmami('Contacto-enviado', { rol: role.value || 'otro' })
   } catch {
     failed.value = true
   } finally {

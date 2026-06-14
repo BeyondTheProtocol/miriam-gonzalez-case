@@ -67,6 +67,7 @@ async function share() {
   if (navigator.share) {
     try {
       await navigator.share(data)
+      trackUmami('Compartir', { metodo: 'nativo', desde: 'gracias' })
     } catch {
       /* usuario canceló — sin acción */
     }
@@ -74,6 +75,7 @@ async function share() {
     try {
       await navigator.clipboard.writeText(url)
       copied.value = true
+      trackUmami('Compartir', { metodo: 'copiar', desde: 'gracias' })
       setTimeout(() => (copied.value = false), 2500)
     } catch {
       /* sin clipboard — sin acción */
