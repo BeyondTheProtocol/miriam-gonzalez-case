@@ -26,16 +26,19 @@ coreTeam:
     color: ocean
   - role: "Asesoría en neuroendocrinos"
     name: David
+    photo: /img/team/david.webp
     description: "Aporta su experiencia clínica para orientar las decisiones del caso."
     icon: ph:stethoscope-fill
     color: ocean
   - role: "Investigación oncológica"
     name: Paloma
+    photo: /img/team/paloma.webp
     description: "Investigadora en el Dana-Farber Cancer Institute (Harvard). Estudia la diferenciación neuroendocrina."
     icon: ph:flask-fill
     color: gold
   - role: "Inteligencia artificial y difusión"
     name: Javi
+    photo: /img/team/javi.webp
     description: "Con inteligencia artificial, genera los informes que sustentan la propuesta de tratamiento y colabora en la difusión."
     icon: ph:megaphone-fill
     color: ocean
@@ -47,6 +50,7 @@ coreTeam:
     color: ocean
   - role: "Desarrollo de herramientas digitales"
     name: Dani
+    photo: /img/team/dani.webp
     description: "Construye y mantiene las herramientas digitales que usa el equipo."
     icon: ph:device-mobile-fill
     color: ink
@@ -58,6 +62,7 @@ coreTeam:
     color: ocean
   - role: "Coordinación de comunidad"
     name: Afor
+    photo: /img/team/afor.webp
     description: "Conecta y organiza a las personas de la comunidad que colaboran en los proyectos de helpmiriam."
     icon: ph:users-three-fill
     color: ink

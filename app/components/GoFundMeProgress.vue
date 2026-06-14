@@ -3,7 +3,7 @@ import type { GoFundMeFundraiser } from '../../utils/fundraiser'
 
 withDefaults(defineProps<{ card?: boolean }>(), { card: false })
 
-const { locale } = useI18n()
+const { locale, t } = useI18n()
 const localePath = useLocalePath()
 const { trackSupport } = useSupport()
 
@@ -19,6 +19,54 @@ const pct = computed(() => {
   return Math.round(
     (data.value.currentAmount.amount * 100) / data.value.goalAmount.amount
   )
+})
+
+// Hitos del caso: la barra se segmenta en fases para que NUNCA «parezca
+// terminada» — siempre hay un hito por delante. Los importes intermedios salen
+// de la página de gastos (rebiopsia ≈ 40k; +banco de tejido ≈ 60k). El último
+// hito es SIEMPRE el objetivo vivo de GoFundMe (goalAmount): si la meta sube en
+// GoFundMe, el tramo final sube con ella sin tocar código.
+const INTERMEDIATE_MILESTONES = [
+  { amount: 40000, key: 'rebiopsy' },
+  { amount: 60000, key: 'bank' },
+]
+
+const milestones = computed(() => {
+  if (!data.value) return []
+  const goal = data.value.goalAmount.amount
+  const current = data.value.currentAmount.amount
+  const stops = [
+    ...INTERMEDIATE_MILESTONES.filter((m) => m.amount < goal),
+    { amount: goal, key: 'treatment' },
+  ]
+  return stops.map((m) => ({
+    key: m.key,
+    amount: m.amount,
+    pct: Math.min(100, Math.round((m.amount / goal) * 100)),
+    reached: current >= m.amount,
+  }))
+})
+
+// Hito activo = primero no alcanzado (o el último si ya están todos).
+const activeIndex = computed(() => {
+  const i = milestones.value.findIndex((m) => !m.reached)
+  return i === -1 ? Math.max(0, milestones.value.length - 1) : i
+})
+const remainingToNext = computed(() => {
+  const next = milestones.value[activeIndex.value]
+  if (!data.value || !next) return 0
+  return Math.max(0, next.amount - data.value.currentAmount.amount)
+})
+
+// Progreso hacia el hito activo → anillo «casi lleno» en la leyenda. Una bandera
+// o un check en el hito en curso daban sensación de «ya logrado»; el anillo
+// parcial deja claro que está EN CURSO (en el hito 1 va ≈ 97 %). RING_C = perímetro
+// del círculo (r=6.4) para el stroke-dasharray.
+const RING_C = 2 * Math.PI * 6.4
+const activeProgress = computed(() => {
+  const m = milestones.value[activeIndex.value]
+  if (!data.value || !m || m.amount <= 0) return 0
+  return Math.max(0, Math.min(1, data.value.currentAmount.amount / m.amount))
 })
 </script>
 
@@ -39,18 +87,34 @@ const pct = computed(() => {
       {{ formatCurrency(data.goalAmount.amount, data.goalAmount.currencyCode, locale) }} · {{ $t('gofundme.goal_total') }}
     </p>
 
-    <div
-      class="mt-6 h-2 w-full rounded-full"
-      style="background: rgba(250,246,240,0.12)"
-      role="progressbar"
-      :aria-valuenow="data.currentAmount.amount"
-      aria-valuemin="0"
-      :aria-valuemax="data.goalAmount.amount"
-      :aria-label="$t('gofundme.progress_label')"
-    >
-      <div class="progress-fill h-full rounded-full bg-coral relative" :style="{ width: `${pct}%` }">
-        <span class="progress-pulse" aria-hidden="true" />
+    <div class="mt-6 relative pb-7">
+      <div
+        class="h-2.5 w-full rounded-full"
+        style="background: rgba(250,246,240,0.12)"
+        role="progressbar"
+        :aria-valuenow="data.currentAmount.amount"
+        aria-valuemin="0"
+        :aria-valuemax="data.goalAmount.amount"
+        :aria-label="$t('gofundme.progress_label')"
+      >
+        <div class="progress-fill h-full rounded-full bg-coral relative" :style="{ width: `${pct}%` }">
+          <span class="progress-pulse" aria-hidden="true" />
+        </div>
       </div>
+      <!-- Marcas de hito por enmedio con el IMPORTE siempre visible bajo cada
+           tick: de un vistazo se ve qué objetivo hay en cada punto y cuál es
+           cuál, sin tener que pasar el cursor. Alcanzado → coral con ✓. -->
+      <template v-for="m in milestones" :key="m.key">
+        <span v-if="m.pct < 100" class="ms-marker" :style="{ left: `${m.pct}%` }">
+          <span class="ms-tick ms-tick--light" aria-hidden="true" />
+          <span
+            class="ms-amt font-mono nums"
+            :style="{ color: m.reached ? '#ff6b47' : 'rgba(250,246,240,0.72)' }"
+          >
+            <span v-if="m.reached" aria-hidden="true">✓ </span>{{ formatCurrency(m.amount, data.goalAmount.currencyCode, locale) }}
+          </span>
+        </span>
+      </template>
     </div>
 
     <div
@@ -68,13 +132,107 @@ const pct = computed(() => {
       </NuxtLink>
     </div>
 
+    <!-- Hitos del caso: cada fase con su estado (✓ alcanzado · ▸ activo · ○
+         próximo). El activo muestra cuánto falta. La barra nunca «parece
+         terminada» porque siempre queda un hito por delante. -->
+    <p
+      v-if="milestones.length"
+      class="mt-6 font-mono text-[11px] uppercase tracking-[0.12em]"
+      style="color: rgba(250,246,240,0.5)"
+    >
+      {{ t('gofundme.phase_count', { current: activeIndex + 1, total: milestones.length }) }}
+    </p>
+    <ol v-if="milestones.length" class="mt-2 space-y-px overflow-hidden rounded-xl">
+      <li
+        v-for="(m, i) in milestones"
+        :key="m.key"
+        class="flex items-start gap-3 px-4 py-3"
+        :style="i === activeIndex ? 'background: rgba(255,107,71,0.10)' : 'background: rgba(250,246,240,0.04)'"
+      >
+        <!-- Estado del hito (progresión clara, sin banderas): ○ pendiente →
+             anillo que se llena = en curso → ✓ cumplido. -->
+        <Icon
+          v-if="m.reached"
+          name="ph:check-circle-fill"
+          class="size-4 shrink-0 mt-0.5"
+          style="color: #ff6b47"
+          aria-hidden="true"
+        />
+        <svg
+          v-else-if="i === activeIndex"
+          viewBox="0 0 16 16"
+          class="size-4 shrink-0 mt-0.5 -rotate-90"
+          aria-hidden="true"
+        >
+          <circle cx="8" cy="8" r="6.4" fill="none" stroke="rgba(255,107,71,0.28)" stroke-width="2.3" />
+          <circle
+            cx="8"
+            cy="8"
+            r="6.4"
+            fill="none"
+            stroke="#ff6b47"
+            stroke-width="2.3"
+            stroke-linecap="round"
+            :stroke-dasharray="RING_C"
+            :stroke-dashoffset="RING_C * (1 - activeProgress)"
+          />
+        </svg>
+        <Icon
+          v-else
+          name="ph:circle"
+          class="size-4 shrink-0 mt-0.5"
+          style="color: rgba(250,246,240,0.3)"
+          aria-hidden="true"
+        />
+        <div class="min-w-0 flex-1">
+          <div class="flex items-baseline justify-between gap-3">
+            <p
+              class="font-mono text-[13px] nums"
+              :style="{ color: m.reached || i === activeIndex ? '#faf6f0' : 'rgba(250,246,240,0.55)' }"
+            >
+              {{ t(`gofundme.milestones.${m.key}.label`) }}
+            </p>
+            <span
+              class="shrink-0 font-mono text-[12px] nums"
+              :style="{ color: m.reached ? '#ff6b47' : 'rgba(250,246,240,0.55)' }"
+            >{{ formatCurrency(m.amount, data.goalAmount.currencyCode, locale) }}</span>
+          </div>
+          <i18n-t
+            v-if="i === activeIndex && remainingToNext > 0"
+            keypath="gofundme.remaining"
+            tag="p"
+            class="mt-0.5 font-mono text-[11.5px] leading-snug nums"
+            style="color: rgba(250,246,240,0.72)"
+          >
+            <template #amount>
+              <span class="font-semibold text-coral">{{
+                formatCurrency(remainingToNext, data.goalAmount.currencyCode, locale)
+              }}</span>
+            </template>
+          </i18n-t>
+          <p
+            v-else
+            class="mt-0.5 font-mono text-[11px] leading-snug"
+            style="color: rgba(250,246,240,0.5)"
+          >
+            {{ t(`gofundme.milestones.${m.key}.desc`) }}
+          </p>
+        </div>
+      </li>
+    </ol>
+
+    <!-- Prueba social (auditoría 4.3): «únete a quienes ya lo hacen». El número
+         de donantes ya aparece arriba, así que aquí solo va el encuadre. -->
+    <p class="mt-6 font-mono text-[12px] tracking-[0.03em]" style="color: rgba(250,246,240,0.7)">
+      {{ $t('gofundme.social_proof') }}
+    </p>
     <a
       href="https://gofund.me/3e25cae99"
       target="_blank"
       rel="noopener noreferrer"
       @click="trackSupport('gofundme_widget')"
       data-support-cta
-      class="btn-cta mt-7 w-full sm:w-auto"
+      class="btn-cta mt-3 w-full sm:w-auto"
     >
       <Icon name="ph:heart-fill" class="heart-beat w-4 h-4" aria-hidden="true" />
       {{ $t('gofundme.donate_now') }}
@@ -86,24 +244,37 @@ const pct = computed(() => {
     v-else-if="data"
     class="mt-5 space-y-2 text-sm text-berenjena"
   >
-    <div
-      class="h-2 w-full rounded-full"
-      style="background: rgba(45,27,61,0.10)"
-      role="progressbar"
-      :aria-valuenow="data.currentAmount.amount"
-      aria-valuemin="0"
-      :aria-valuemax="data.goalAmount.amount"
-      :aria-label="$t('gofundme.progress_label')"
-    >
+    <div class="relative pb-6">
       <div
-        class="progress-fill h-full rounded-full bg-coral relative"
-        :style="{
-          width: `${(data.currentAmount.amount * 100) / data.goalAmount.amount}%`,
-        }"
+        class="h-2 w-full rounded-full"
+        style="background: rgba(45,27,61,0.10)"
+        role="progressbar"
+        :aria-valuenow="data.currentAmount.amount"
+        aria-valuemin="0"
+        :aria-valuemax="data.goalAmount.amount"
+        :aria-label="$t('gofundme.progress_label')"
       >
-        <!-- A2 · latido en el borde de avance (decorativo). El % sigue como texto. -->
-        <span class="progress-pulse" aria-hidden="true" />
+        <div
+          class="progress-fill h-full rounded-full bg-coral relative"
+          :style="{ width: `${pct}%` }"
+        >
+          <!-- A2 · latido en el borde de avance (decorativo). El % sigue como texto. -->
+          <span class="progress-pulse" aria-hidden="true" />
+        </div>
       </div>
+      <!-- Importe del hito siempre visible bajo cada tick (mismo patrón que la
+           tarjeta; tono berenjena sobre fondo claro). -->
+      <template v-for="m in milestones" :key="m.key">
+        <span v-if="m.pct < 100" class="ms-marker" :style="{ left: `${m.pct}%` }">
+          <span class="ms-tick ms-tick--dark" aria-hidden="true" />
+          <span
+            class="ms-amt font-mono nums"
+            :style="{ color: m.reached ? '#ff6b47' : 'rgba(45,27,61,0.6)' }"
+          >
+            <span v-if="m.reached" aria-hidden="true">✓ </span>{{ formatCurrency(m.amount, data.goalAmount.currencyCode, locale) }}
+          </span>
+        </span>
+      </template>
     </div>
     <div class="flex flex-wrap items-center justify-between gap-x-4 gap-y-1">
       <p class="nums">
@@ -153,5 +324,38 @@ const pct = computed(() => {
   outline: 2px solid #ff6b47;
   outline-offset: 2px;
   border-radius: 4px;
+}
+
+/* ── Marcas de hito con el importe SIEMPRE visible bajo cada tick ───────────
+   Tick fino sobre la barra + el importe del objetivo justo debajo, alineado a
+   su posición (left = % del hito), para ver de un vistazo qué objetivo hay en
+   cada punto. Alcanzado → coral con ✓ (color desde el template por variante). */
+.ms-marker {
+  position: absolute;
+  top: 0;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  pointer-events: none;
+}
+.ms-tick {
+  width: 2px;
+  border-radius: 9999px;
+}
+.ms-tick--light {
+  height: 10px;
+  background: rgba(250, 246, 240, 0.6);
+}
+.ms-tick--dark {
+  height: 8px;
+  background: rgba(45, 27, 61, 0.45);
+}
+.ms-amt {
+  margin-top: 7px;
+  font-size: 11px;
+  line-height: 1;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
 }
 </style>

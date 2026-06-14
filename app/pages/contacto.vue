@@ -193,8 +193,8 @@
                 <label for="role" class="form-label">
                   {{ $t('contact.role_label') }}
                 </label>
-                <select id="role" name="role" class="form-input">
-                  <option value="" disabled selected>
+                <select id="role" name="role" v-model="role" class="form-input">
+                  <option value="" disabled>
                     {{ $t('contact.role_placeholder') }}
                   </option>
                   <option value="oncologist">
@@ -249,6 +249,18 @@
 <script setup lang="ts">
 const { locale } = useI18n()
 const { trackSupport } = useSupport()
+const route = useRoute()
+
+// Pre-relleno del selector de perfil desde ?role=… — los enlaces de la home y de
+// /colabora ya saben quién escribe (oncología, prensa, tech, paciente…), así que
+// llegan con su perfil elegido. Solo aceptamos valores válidos; si no, vacío.
+const VALID_ROLES = ['oncologist', 'researcher', 'journalist', 'patient', 'tech', 'other']
+const roleFromQuery = () => {
+  const r = route.query.role
+  return typeof r === 'string' && VALID_ROLES.includes(r) ? r : ''
+}
+const role = ref(roleFromQuery())
+watch(() => route.query.role, () => { role.value = roleFromQuery() })
 
 // Envío AJAX a Netlify Forms: mismo endpoint (POST a "/" con urlencode), pero
 // mostramos el agradecimiento en la propia página en vez de redirigir.

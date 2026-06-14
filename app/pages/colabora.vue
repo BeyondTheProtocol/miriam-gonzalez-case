@@ -90,7 +90,7 @@
               <li v-for="(item, i) in arr('collaborate.profile1_list')" :key="i">{{ item }}</li>
             </ul>
             <div class="mt-auto">
-              <NuxtLink :to="localePath('contacto')" class="btn-secondary w-full h-12 justify-center">
+              <NuxtLink :to="localePath('contacto') + '?role=oncologist'" class="btn-secondary w-full h-12 justify-center">
                 <Icon name="ph:envelope-simple-fill" class="w-4 h-4" aria-hidden="true" />
                 {{ $t('collaborate.profile1_cta_label') }}
               </NuxtLink>
@@ -111,7 +111,7 @@
             </h3>
             <p class="text-sm text-tinta leading-relaxed mb-5">{{ $t('collaborate.profile3_text') }}</p>
             <div class="mt-auto">
-              <NuxtLink :to="localePath('contacto')" class="btn-secondary w-full h-12 justify-center">
+              <NuxtLink :to="localePath('contacto') + '?role=journalist'" class="btn-secondary w-full h-12 justify-center">
                 <Icon name="ph:envelope-simple-fill" class="w-4 h-4" aria-hidden="true" />
                 {{ $t('collaborate.profile3_cta_label') }}
               </NuxtLink>
@@ -144,7 +144,7 @@
               </li>
             </ul>
             <div class="mt-auto">
-              <NuxtLink :to="localePath('contacto')" class="btn-secondary w-full h-12 justify-center">
+              <NuxtLink :to="localePath('contacto') + '?role=tech'" class="btn-secondary w-full h-12 justify-center">
                 <Icon name="ph:envelope-simple-fill" class="w-4 h-4" aria-hidden="true" />
                 {{ $t('collaborate.profile4_cta_label') }}
               </NuxtLink>
@@ -165,7 +165,7 @@
             </h3>
             <p class="text-sm text-tinta leading-relaxed mb-5">{{ $t('collaborate.profile5_text') }}</p>
             <div class="mt-auto">
-              <NuxtLink :to="localePath('contacto')" class="btn-secondary w-full h-12 justify-center">
+              <NuxtLink :to="localePath('contacto') + '?role=patient'" class="btn-secondary w-full h-12 justify-center">
                 <Icon name="ph:envelope-simple-fill" class="w-4 h-4" aria-hidden="true" />
                 {{ $t('collaborate.profile5_cta_label') }}
               </NuxtLink>
@@ -175,7 +175,7 @@
 
           <!-- ─ Card final — financiar (la que más mueve la aguja cierra la lista;
                único coral de la página, posición de remate) ─ -->
-          <article id="financiar" class="card-base bg-cream flex flex-col scroll-mt-24">
+          <article id="financiar" class="card-base bg-cream flex flex-col scroll-mt-24 md:col-span-2">
             <div class="flex items-center gap-4 mb-4">
               <span class="w-10 h-10 rounded-xl bg-coral flex items-center justify-center shrink-0" aria-hidden="true">
                 <Icon name="ph:hand-heart-fill" class="w-5 h-5 text-berenjena" />
@@ -186,6 +186,11 @@
               {{ $t('collaborate.profile2_title') }}
             </h3>
             <p class="text-sm text-tinta leading-relaxed mb-5">{{ $t('collaborate.profile2_text') }}</p>
+            <!-- En /colabora también se ve el dinero: misma barra con hitos que
+                 el resto del sitio (variante inline). -->
+            <div class="mb-6">
+              <GoFundMeProgress />
+            </div>
             <div class="mt-auto">
               <a
                 :href="GOFUNDME"
@@ -212,8 +217,12 @@
     <!-- ░░ GRACIAS ░░ #gracias · el muro completo (paginado + constelación) tras
          los perfiles, con la card de apoyar arriba en la parrilla: la prueba
          social respalda a la petición. Aquí enlaza el widget de la home.
-         Gracias→enlaces no lleva divisor: la constelación ya marca el límite. -->
+         Tras el muro, un separador de constelación cierra la sección. -->
     <DonationsWall />
+
+    <!-- Separador de estrellas: remata el muro de donantes (constelación) y lo
+         separa de los enlaces rápidos. Comparten fondo (cream-card). -->
+    <StarDivider class="bg-cream-card" />
 
     <!-- ░░ ENLACES RÁPIDOS ░░ bg-cream-card · panel neutro -->
     <section v-reveal class="section-spacing bg-cream-card" :aria-labelledby="'links-title'">
