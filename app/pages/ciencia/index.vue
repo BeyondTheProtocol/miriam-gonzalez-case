@@ -911,15 +911,16 @@ const snapshotRows = computed(() =>
 </script>
 
 <style scoped>
-/* El índice pegajoso (top-24 = 6rem) y el salto por anclas necesitan que el
-   título destino no quede pegado al borde superior al saltar. */
+/* Salto por anclas del índice: el objetivo es el <h2>, pero encima lleva un
+   rótulo (eyebrow). El margen debe despejar la cabecera pegajosa (~73px) Y ese
+   rótulo, para que no quede medio tapado («no se ve Perfil molecular»). */
 #snapshot-title,
 #tejido-3veces,
 #molecular-profile-title,
 #imaging-tissue-title,
 #panel-title,
 #treatment-title {
-  scroll-margin-top: 5.5rem;
+  scroll-margin-top: 7.5rem;
 }
 /* Columna de referencia (VHIO) resaltada en la tabla de patología "3 lecturas". */
 .reads-vh { background: rgba(157, 68, 171, 0.07); }
