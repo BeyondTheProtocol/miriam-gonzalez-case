@@ -1,7 +1,7 @@
 <template>
   <div>
     <section class="section-spacing" :aria-label="$t('science.title')">
-      <div class="section-container">
+      <div :class="level === 'pro' ? 'section-wide' : 'section-container'">
         <PageHeader
           :title="$t('science.title')"
           :subtitle="headerSubtitle"
@@ -48,6 +48,18 @@
         </button>
 
         <EcgDivider class="mb-12" />
+
+        <!-- Índice de secciones (solo pro): rail pegajoso a la izquierda en lg+,
+             desplegable «Saltar a…» en móvil. El grid solo se activa en pro;
+             en simple el contenido fluye a ancho completo (sin índice). -->
+        <div
+          :class="level === 'pro' ? 'lg:grid lg:grid-cols-[220px_minmax(0,1fr)] lg:gap-12 xl:gap-16 lg:items-start' : ''"
+        >
+          <CienciaSectionNav
+            v-if="level === 'pro'"
+            class="mb-8 lg:mb-0 lg:sticky lg:top-24 lg:self-start"
+          />
+          <div class="min-w-0">
 
         <!-- Case snapshot (médicos + tabla completa; técnico, fuera del resumen simple) -->
         <section v-show="showData" aria-labelledby="snapshot-title" class="mb-12">
@@ -644,6 +656,10 @@
         <Nota class="mt-12 pt-6" style="border-top: 1px solid rgba(45,27,61,0.08)">
           {{ locale === 'es' ? 'Última actualización: 6 de junio de 2026' : 'Last updated: 6 June 2026' }}
         </Nota>
+          </div>
+          <!-- /columna de contenido del dossier -->
+        </div>
+        <!-- /grid índice + contenido (pro) -->
       </div>
     </section>
   </div>
@@ -891,6 +907,16 @@ const snapshotRows = computed(() =>
 </script>
 
 <style scoped>
+/* El índice pegajoso (top-24 = 6rem) y el salto por anclas necesitan que el
+   título destino no quede pegado al borde superior al saltar. */
+#snapshot-title,
+#tejido-3veces,
+#molecular-profile-title,
+#imaging-tissue-title,
+#panel-title,
+#treatment-title {
+  scroll-margin-top: 5.5rem;
+}
 /* Columna de referencia (VHIO) resaltada en la tabla de patología "3 lecturas". */
 .reads-vh { background: rgba(157, 68, 171, 0.07); }
 

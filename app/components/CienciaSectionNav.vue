@@ -1,0 +1,212 @@
+<template>
+  <!-- Índice de secciones del dossier clínico (modo pro de /ciencia). Comité:
+       rail pegajoso a la izquierda en lg+, desplegable «Saltar a…» en móvil;
+       etiquetas clínicas en sans bajo un único rótulo mono; activo en
+       berenjena + punto violeta (NUNCA coral, reservado al CTA); foco
+       gestionado al saltar y respeto por prefers-reduced-motion. -->
+  <nav :aria-label="locale === 'es' ? 'Índice de secciones' : 'Section index'">
+    <!-- Móvil: desplegable en el flujo (no pegajoso) -->
+    <details class="cn-m lg:hidden">
+      <summary class="cn-m__summary">
+        <Icon name="ph:list-bold" class="w-4 h-4 shrink-0" aria-hidden="true" />
+        {{ locale === 'es' ? 'Saltar a una sección' : 'Jump to a section' }}
+        <Icon name="ph:caret-down" class="cn-m__caret w-3.5 h-3.5 shrink-0" aria-hidden="true" />
+      </summary>
+      <ul class="cn-m__list">
+        <li v-for="c in chapters" :key="c.id">
+          <a :href="`#${c.id}`" @click="jumpTo($event, c.id)">{{ c.label }}</a>
+        </li>
+      </ul>
+    </details>
+
+    <!-- Desktop: lista; el aside padre aporta el sticky -->
+    <div class="cn-d hidden lg:block">
+      <p class="eyebrow cn-d__title">{{ locale === 'es' ? 'Índice' : 'Contents' }}</p>
+      <ul>
+        <li v-for="c in chapters" :key="c.id">
+          <a
+            :href="`#${c.id}`"
+            class="cn-d__link"
+            :class="{ 'is-active': activeId === c.id }"
+            :aria-current="activeId === c.id ? 'location' : undefined"
+            @click="jumpTo($event, c.id)"
+          >
+            <span class="cn-d__dot" aria-hidden="true" />
+            {{ c.label }}
+          </a>
+        </li>
+      </ul>
+    </div>
+  </nav>
+</template>
+
+<script setup lang="ts">
+const { locale } = useI18n()
+
+// 6 capítulos clínicos mapeados a ids de título ya existentes en la página
+// (orden de lectura tras subir el panel sobre la historia clínica).
+const chapters = computed(() =>
+  locale.value === 'es'
+    ? [
+        { id: 'snapshot-title', label: 'Diagnóstico' },
+        { id: 'tejido-3veces', label: 'Anatomía patológica' },
+        { id: 'molecular-profile-title', label: 'Perfil molecular' },
+        { id: 'imaging-tissue-title', label: 'Imagen (PET Ga-68)' },
+        { id: 'panel-title', label: 'Rebiopsia' },
+        { id: 'treatment-title', label: 'Historia clínica' },
+      ]
+    : [
+        { id: 'snapshot-title', label: 'Diagnosis' },
+        { id: 'tejido-3veces', label: 'Pathology' },
+        { id: 'molecular-profile-title', label: 'Molecular profile' },
+        { id: 'imaging-tissue-title', label: 'Imaging (Ga-68 PET)' },
+        { id: 'panel-title', label: 'Rebiopsy' },
+        { id: 'treatment-title', label: 'Clinical history' },
+      ]
+)
+
+const activeId = ref('')
+let observer: IntersectionObserver | null = null
+
+onMounted(() => {
+  const els = chapters.value
+    .map((c) => document.getElementById(c.id))
+    .filter((el): el is HTMLElement => !!el)
+  if (!els.length) return
+  // Scroll-spy: el capítulo se activa cuando su título entra en la banda
+  // superior del viewport. aria-current cambia como mucho una vez por sección.
+  observer = new IntersectionObserver(
+    (entries) => {
+      for (const e of entries) {
+        if (e.isIntersecting) activeId.value = (e.target as HTMLElement).id
+      }
+    },
+    { rootMargin: '-80px 0px -72% 0px', threshold: 0 }
+  )
+  els.forEach((el) => observer!.observe(el))
+})
+
+onBeforeUnmount(() => observer?.disconnect())
+
+function jumpTo(e: Event, id: string) {
+  const el = document.getElementById(id)
+  if (!el) return
+  e.preventDefault()
+  // A11y: el foco va al título destino (no se queda perdido); respeta
+  // prefers-reduced-motion (sin scroll animado).
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+  el.setAttribute('tabindex', '-1')
+  el.focus({ preventScroll: true })
+  el.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' })
+  activeId.value = id
+  // cerrar el desplegable móvil tras saltar
+  const details = (e.currentTarget as HTMLElement).closest('details')
+  if (details) (details as HTMLDetailsElement).open = false
+}
+</script>
+
+<style scoped>
+/* Desktop */
+.cn-d__title {
+  margin-bottom: 0.75rem;
+}
+.cn-d ul {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  border-left: 1px solid rgba(45, 27, 61, 0.12);
+}
+.cn-d__link {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-left: -1px;
+  padding: 6px 0 6px 14px;
+  border-left: 2px solid transparent;
+  font-size: 13.5px;
+  line-height: 1.3;
+  color: rgba(45, 27, 61, 0.58);
+  text-decoration: none;
+  transition: color 0.18s ease, border-color 0.18s ease;
+}
+.cn-d__dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 9999px;
+  background: transparent;
+  flex-shrink: 0;
+  transition: background 0.18s ease;
+}
+.cn-d__link:hover {
+  color: #2d1b3d;
+}
+.cn-d__link.is-active {
+  color: #2d1b3d;
+  font-weight: 600;
+  border-left-color: #9d44ab;
+}
+.cn-d__link.is-active .cn-d__dot {
+  background: #9d44ab;
+}
+.cn-d__link:focus-visible {
+  outline: 2px solid #ff6b47;
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+/* Móvil */
+.cn-m {
+  border: 1px solid rgba(45, 27, 61, 0.12);
+  border-radius: 12px;
+  background: #f5efe6;
+}
+.cn-m__summary {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: 44px;
+  padding: 0 14px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #2d1b3d;
+  cursor: pointer;
+  list-style: none;
+}
+.cn-m__summary::-webkit-details-marker {
+  display: none;
+}
+.cn-m__caret {
+  margin-left: auto;
+  transition: transform 0.2s ease;
+}
+.cn-m[open] .cn-m__caret {
+  transform: rotate(180deg);
+}
+.cn-m__list {
+  padding: 2px 14px 10px;
+  display: flex;
+  flex-direction: column;
+}
+.cn-m__list a {
+  display: block;
+  padding: 9px 0;
+  font-size: 14px;
+  color: #2d1b3d;
+  text-decoration: none;
+  border-top: 1px solid rgba(45, 27, 61, 0.07);
+}
+.cn-m__summary:focus-visible,
+.cn-m__list a:focus-visible {
+  outline: 2px solid #ff6b47;
+  outline-offset: 2px;
+}
+@media (prefers-reduced-motion: reduce) {
+  .cn-d__link,
+  .cn-d__dot,
+  .cn-m__caret {
+    transition: none;
+  }
+}
+</style>
