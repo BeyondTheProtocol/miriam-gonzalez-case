@@ -111,8 +111,8 @@
             </h3>
             <p class="text-sm text-tinta leading-relaxed mb-5">{{ $t('collaborate.profile3_text') }}</p>
             <div class="mt-auto">
-              <NuxtLink :to="localePath('contacto') + '?role=journalist'" class="btn-secondary w-full h-12 justify-center">
-                <Icon name="ph:envelope-simple-fill" class="w-4 h-4" aria-hidden="true" />
+              <NuxtLink :to="localePath('prensa')" class="btn-secondary w-full h-12 justify-center">
+                <Icon name="ph:megaphone-simple-fill" class="w-4 h-4" aria-hidden="true" />
                 {{ $t('collaborate.profile3_cta_label') }}
               </NuxtLink>
               <p class="mt-2 text-xs text-tinta sm:min-h-[2.25rem]">{{ $t('collaborate.profile3_cta_caption') }}</p>
@@ -211,18 +211,19 @@
       </div>
     </section>
 
-    <!-- Latido como división: perfiles y gracias comparten fondo (cream-card). -->
-    <EcgDivider class="bg-cream-card" />
+    <!-- Constelación como división: las estrellas ABREN el muro de gracias
+         (perfiles y gracias comparten fondo cream-card). -->
+    <StarDivider class="bg-cream-card" />
 
     <!-- ░░ GRACIAS ░░ #gracias · el muro completo (paginado + constelación) tras
          los perfiles, con la card de apoyar arriba en la parrilla: la prueba
          social respalda a la petición. Aquí enlaza el widget de la home.
-         Tras el muro, un separador de constelación cierra la sección. -->
+         Tras el muro, el latido cierra la sección. -->
     <DonationsWall />
 
-    <!-- Separador de estrellas: remata el muro de donantes (constelación) y lo
-         separa de los enlaces rápidos. Comparten fondo (cream-card). -->
-    <StarDivider class="bg-cream-card" />
+    <!-- Latido coral: remata el muro de donantes y lo separa de los enlaces
+         rápidos. Comparten fondo (cream-card). -->
+    <EcgDivider class="bg-cream-card" />
 
     <!-- ░░ ENLACES RÁPIDOS ░░ bg-cream-card · panel neutro -->
     <section v-reveal class="section-spacing bg-cream-card" :aria-labelledby="'links-title'">

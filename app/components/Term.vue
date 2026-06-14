@@ -133,11 +133,11 @@ const GLOSSARY: Record<string, Entry> = {
   ecog: {
     es: {
       label: 'ECOG 1',
-      def: 'Escala ECOG: 0 desde el diagnóstico (enero 2024) hasta el 01/04/2026; 1 desde el 30/04/2026 (aumento del dolor óseo en cadera, capacidad funcional conservada).',
+      def: 'Escala ECOG: 0 desde el diagnóstico (enero 2024) hasta abril de 2026; 1 desde entonces (aumento del dolor óseo en cadera, capacidad funcional conservada).',
     },
     en: {
       label: 'ECOG 1',
-      def: 'ECOG scale: 0 from diagnosis (January 2024) until 01 Apr 2026; 1 since 30 Apr 2026 (increased hip bone pain, preserved functional capacity).',
+      def: 'ECOG scale: 0 from diagnosis (January 2024) until April 2026; 1 since then (increased hip bone pain, preserved functional capacity).',
     },
   },
   ki67: {

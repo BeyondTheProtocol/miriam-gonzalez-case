@@ -47,6 +47,25 @@ export default defineNuxtConfig({
       meta: [
         { name: 'theme-color', content: '#faf6f0' },
       ],
+      // Analítica Umami (privada, SIN cookies, agregada). Convive con Plausible.
+      // Vive AQUÍ (no por «Snippet injection» de Netlify): si se añade el snippet
+      // además de esto, script.js se cargaría dos veces y se duplicarían las
+      // visitas. Mantener una sola fuente: el repo.
+      // data-domains: solo envía desde el dominio real (no localhost/previews).
+      // data-performance: recoge Core Web Vitals reales de los visitantes.
+      // NOTA RGPD: NO se carga el recorder.js (session replays + heatmaps). En un
+      // sitio de salud, grabar sesiones individuales requeriría consentimiento;
+      // por eso solo usamos analítica cookieless y agregada, sin banner. Si algún
+      // día se quieren replays, hay que añadir un flujo de consentimiento primero.
+      script: [
+        {
+          src: 'https://cloud.umami.is/script.js',
+          defer: true,
+          'data-website-id': '30a40c53-5573-45c0-8ac9-8f0f94621ecf',
+          'data-domains': 'helpmiriam.com',
+          'data-performance': 'true',
+        },
+      ],
     },
   },
 
@@ -105,6 +124,12 @@ export default defineNuxtConfig({
       // crawlLinks lo descubre desde /colabora, intenta prerenderizarlo, da 404
       // y aborta el build. Lo ignoramos: el archivo estático se copia igual.
       ignore: ['/design-system'],
+      // URLs SIN barra final, coherentes con los links y el canonical del sitio
+      // (que ya usan «/colabora», no «/colabora/»). Genera «colabora.html» en
+      // vez de «colabora/index.html», así Netlify sirve «/colabora» directo sin
+      // redirigir a «/colabora/». Evita que la analítica (Umami) cuente cada
+      // página dos veces (/x y /x/) y arregla el desajuste canonical↔URL servida.
+      autoSubfolderIndex: false,
     },
   },
 })

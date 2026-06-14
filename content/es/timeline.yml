@@ -47,7 +47,7 @@ entries:
       La estancia total supera los 50 días. Fue el momento más grave desde el diagnóstico.
     highlight: true
     image: /img/hospital.webp
-    imageAlt: "Miriam en la UCI durante su ingreso hospitalario. Entubada pero divina, haciendose el skincare"
+    imageAlt: "Miriam en la UCI durante su ingreso hospitalario. Entubada pero divina, haciéndose el skincare"
 
   - date: 'jul 2024'
     tag: Molecular
@@ -215,7 +215,7 @@ entries:
     tag: Progresión
     title: Una lesión que amenaza la médula y radioterapia de urgencia
     description: >
-      Una resonancia de control, tras 60 días sin tratamiento, muestra progresión ósea clara y,
+      Una resonancia de control, tras 73 días sin tratamiento, muestra progresión ósea clara y,
       sobre todo, una lesión en la vértebra D11 que empieza a amenazar el canal medular: el riesgo
       de compresión medular es real. Se programa radioterapia SBRT de urgencia para reducir la
       lesión y proteger la médula.

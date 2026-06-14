@@ -67,65 +67,64 @@ onBeforeUnmount(() => io?.disconnect())
   opacity: 0.55;
 }
 @media (prefers-reduced-motion: no-preference) {
-  /* Oculta antes de entrar; al entrar en viewport, cada destello parpadea en
-     BUCLE con su propia duración y fase → constelación viva y orgánica, nunca
-     al unísono. (Como el resto del sitio: aquí también hay movimiento continuo.) */
+  /* Oculta antes de entrar; al entrar en viewport, cada destello parpadea UNA
+     sola vez (del centro hacia fuera) y se queda fijo. Sin bucle: el movimiento
+     ocurre solo la primera vez que la constelación aparece en pantalla. */
   .star-divider:not(.star-in) .st {
     opacity: 0;
   }
   .star-in .st {
-    animation: star-tw var(--d, 3s) ease-in-out var(--o, 0s) infinite both;
+    animation: star-tw var(--d, 0.9s) ease-out var(--o, 0s) 1 both;
   }
   .star-in .st--d1,
   .star-in .st--d2 {
     animation-name: star-tw-soft;
   }
-  /* duración + desfase propios por destello; delays negativos para que arranquen
-     a media intensidad (sin salto brusco desde 0). */
+  /* mismo destello para todos; el desfase (center-out) hace la entrada orgánica
+     y escalonada del centro hacia los lados. */
   .st--c {
-    --d: 3.2s;
-    --o: -0.2s;
+    --o: 0s;
   }
-  .st--m1 {
-    --d: 2.7s;
-    --o: -1.1s;
-  }
+  .st--m1,
   .st--m2 {
-    --d: 2.9s;
-    --o: -1.9s;
+    --o: 0.12s;
   }
-  .st--s1 {
-    --d: 2.4s;
-    --o: -0.6s;
-  }
+  .st--s1,
   .st--s2 {
-    --d: 2.6s;
-    --o: -1.5s;
+    --o: 0.24s;
   }
-  .st--d1 {
-    --d: 3.4s;
-    --o: -2.2s;
-  }
+  .st--d1,
   .st--d2 {
-    --d: 3.1s;
-    --o: -0.9s;
+    --o: 0.36s;
   }
+  /* Un único destello: aparece, parpadea una vez y queda en su opacidad final
+     (both → conserva el 100%). */
   @keyframes star-tw {
-    0%,
+    0% {
+      opacity: 0;
+    }
+    45% {
+      opacity: 1;
+    }
+    68% {
+      opacity: 0.3;
+    }
     100% {
       opacity: 1;
     }
-    50% {
-      opacity: 0.3;
-    }
   }
   @keyframes star-tw-soft {
-    0%,
-    100% {
+    0% {
+      opacity: 0;
+    }
+    45% {
       opacity: 0.55;
     }
-    50% {
+    68% {
       opacity: 0.15;
+    }
+    100% {
+      opacity: 0.55;
     }
   }
 }

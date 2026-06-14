@@ -358,7 +358,7 @@
               <Icon name="ph:stethoscope" class="w-4 h-4" aria-hidden="true" />
               {{ $t('home.pro_clinical') }}
             </NuxtLink>
-            <NuxtLink :to="localePath({ name: 'prensa' })" class="btn-secondary">
+            <NuxtLink :to="localePath('prensa')" class="btn-secondary">
               <Icon name="ph:megaphone-simple-fill" class="w-4 h-4" aria-hidden="true" />
               {{ $t('home.pro_press') }}
             </NuxtLink>
@@ -388,22 +388,28 @@
             :href="elPaisUrl"
             target="_blank"
             rel="noopener"
+            data-umami-event="Clic-prensa"
+            data-umami-event-medio="El País"
             class="link-logo text-2xl sm:text-3xl"
           >El País<span class="sr-only"> {{ $t('a11y.new_tab') }}</span></a>
           <a
             :href="murciaUrl"
             target="_blank"
             rel="noopener"
+            data-umami-event="Clic-prensa"
+            data-umami-event-medio="La Opinión de Murcia"
             class="link-logo text-2xl sm:text-3xl"
           >La Opinión de Murcia<span class="sr-only"> {{ $t('a11y.new_tab') }}</span></a>
           <a
             :href="la7Url"
             target="_blank"
             rel="noopener"
+            data-umami-event="Clic-prensa"
+            data-umami-event-medio="La 7"
             class="link-logo text-2xl sm:text-3xl"
           >La 7<span class="sr-only"> {{ $t('a11y.new_tab') }}</span></a>
           <NuxtLink
-            :to="localePath({ name: 'prensa' })"
+            :to="localePath('prensa')"
             class="link-action group sm:ml-auto self-center font-mono text-[12px] text-miriam"
           >
             {{ $t('home.s9_press_contact') }}
@@ -449,6 +455,7 @@ const shareCase = async () => {
   if (typeof navigator !== 'undefined' && navigator.share) {
     try {
       await navigator.share({ title, url })
+      trackUmami('Compartir', { metodo: 'nativo' })
       return
     } catch {
       /* user cancelled */
@@ -456,6 +463,7 @@ const shareCase = async () => {
   }
   if (typeof navigator !== 'undefined' && navigator.clipboard) {
     await navigator.clipboard.writeText(url)
+    trackUmami('Compartir', { metodo: 'copiar' })
   }
 }
 

@@ -29,6 +29,8 @@ export function useSupport() {
 
   function trackSupport(location: string) {
     fire('Apoyar', location)
+    // Umami (convivencia con Plausible): «Donar» con el botón como propiedad.
+    trackUmami('Donar', { location })
     // Marca para el aviso suave al volver de GoFundMe (DonationReturnPrompt).
     try {
       sessionStorage.setItem('hm_support_ts', String(Date.now()))
@@ -41,6 +43,9 @@ export function useSupport() {
   // embudo más allá del clic del héroe. No toca el goal «Apoyar».
   function trackScience(location: string) {
     fire('VerCiencia', location)
+    // Umami (convivencia con Plausible): mismo evento «VerCiencia», con el botón
+    // como propiedad. Mismo patrón que «Donar» en trackSupport.
+    trackUmami('VerCiencia', { location })
   }
 
   return { GOFUNDME_URL, trackSupport, trackScience }

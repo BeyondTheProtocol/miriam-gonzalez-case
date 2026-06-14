@@ -36,8 +36,8 @@
     "dismiss": "Cerrar"
   },
   "counter": {
-    "label": "días esperando una nueva línea de tratamiento",
-    "short": "días sin nueva línea"
+    "label": "días sin tratamiento",
+    "short": "días sin tratamiento"
   },
   "thanksWall": {
     "eyebrow": "Gracias",
@@ -111,6 +111,21 @@
     "copied": "¡Enlace copiado!",
     "home": "Volver al inicio",
     "follow": "¿Quieres seguir el caso de cerca? {'@'}miriamgonp en Instagram"
+  },
+  "error": {
+    "e404_code": "404",
+    "e404_label": "Página no encontrada",
+    "e404_title": "Esta página se nos {firma}",
+    "e404_firma": "ha escapado",
+    "e404_lede": "Puede que el enlace esté roto o que la página se haya movido. Pero el caso de Miriam sigue aquí.",
+    "e500_code": "500",
+    "e500_label": "Error del servidor",
+    "e500_title": "Algo se ha {firma}",
+    "e500_firma": "torcido",
+    "e500_lede": "Ha fallado algo por nuestra parte. Vuelve a intentarlo en un momento.",
+    "home": "Volver al inicio",
+    "case": "Ver la ciencia del caso",
+    "retry": "Reintentar"
   },
   "hero": {
     "title": "Un cáncer raro, {op} real.",
@@ -331,12 +346,6 @@
     "supported_by": "Con el apoyo de"
   },
   "home": {
-    "intro_eyebrow": "Sobre Miriam",
-    "intro_name": "Miriam González, 35 años",
-    "intro_role": "Ingeniera de software",
-    "intro_line": "Diagnosticada en marzo de 2026 con carcinoma de mama luminal y un componente neuroendocrino que no encaja en el protocolo estándar.",
-    "intro_cta": "Leer su historia",
-    "intro_photo_alt": "Retrato de Miriam González",
     "s3_eyebrow": "Brecha clínica",
     "s3_heading": "Lo que los protocolos españoles no cubren, lo cubrimos nosotros.",
     "s3_subheading": "Los protocolos españoles solo contemplan la mitad de la biología del tumor: están pensados para el cáncer de mama HR+ estándar, y el de Miriam no lo es.",
@@ -371,7 +380,6 @@
     "s4_heading": "El tumor evoluciona. La estrategia tiene que evolucionar con él.",
     "s4_p1": "El tumor evoluciona bajo la presión del tratamiento. Aparecen mutaciones de resistencia (ESR1 D538G, RB1) y dianas nuevas (SSTR2+). Sin rebiopsia molecular periódica, las decisiones clínicas se toman ",
     "s4_p2": "Cada euro se asigna a una partida concreta y queda documentado en la página de Gastos.",
-    "s4_expenses_soon": "Página /gastos próximamente",
     "s4_list_intro": "El dinero recaudado cubre, en el orden que haga falta:",
     "s4_list": [
       "Gastos médicos y asistenciales relacionados con el caso.",
@@ -632,11 +640,6 @@
     "destination_title": "A dónde va el dinero",
     "destination_sub": "Transparencia total. Cada gasto se documenta y se publicará en la página de gastos.",
     "destination_intro": "El dinero recaudado cubre, en el orden que haga falta:",
-    "destination_footer": "Página /gastos próximamente, con el detalle mensual.",
-    "brands_eyebrow": "Empresas y marcas",
-    "brands_title": "¿Eres empresa o marca?",
-    "brands_text": "Si tu empresa quiere apoyar el caso, ponemos vuestro logo en la web como colaboradores. Cualquier ayuda, de producto o económica, es bienvenida.",
-    "brands_cta": "Quiero colaborar como marca",
     "closing_eyebrow": "Para terminar",
     "closing_title": "Cada aportación acerca una decisión mejor.",
     "closing_text": "Gracias por aportar tu granito de arena. Cada euro va directamente al caso de Miriam.",
@@ -666,9 +669,9 @@
     "profile3_tag": "Alcance",
     "profile3_title": "Tienes audiencia, comunidad o medio",
     "profile3_text": "El caso necesita llegar a la persona indicada: oncología, investigación o pacientes. Comparte la web o cualquier post en redes. Si cubres salud, biotech o ciencia, escríbenos y enviamos kit de prensa con datos verificables.",
-    "profile3_cta_label": "Solicitar kit de prensa",
+    "profile3_cta_label": "Ir a la sala de prensa",
     "profile3_cta_subject": "Prensa",
-    "profile3_cta_caption": "Te enviamos el kit de prensa por email.",
+    "profile3_cta_caption": "Hechos verificados, cobertura y kit de prensa para periodistas.",
     "profile4_icon": "🔬",
     "profile4_tag": "Tech & IA",
     "profile4_title": "Background en software, IA, datos o bioinformática",
