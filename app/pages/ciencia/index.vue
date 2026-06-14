@@ -2,6 +2,18 @@
   <div>
     <section class="section-spacing" :aria-label="$t('science.title')">
       <div :class="level === 'pro' ? 'section-wide' : 'section-container'">
+        <!-- Layout pro: índice pegajoso (izq, lg+) + contenido en grid; la
+             cabecera va DENTRO de la columna de contenido para que el título
+             alinee con el cuerpo, no con el índice. En simple, sin grid. -->
+        <div
+          :class="level === 'pro' ? 'lg:grid lg:grid-cols-[220px_minmax(0,1fr)] lg:gap-12 xl:gap-16 lg:items-start' : ''"
+        >
+          <CienciaSectionNav
+            v-if="level === 'pro'"
+            variant="rail"
+            class="hidden lg:block lg:sticky lg:top-24 lg:self-start"
+          />
+          <div class="min-w-0">
         <PageHeader
           :title="$t('science.title')"
           :subtitle="headerSubtitle"
@@ -49,17 +61,9 @@
 
         <EcgDivider class="mb-12" />
 
-        <!-- Índice de secciones (solo pro): rail pegajoso a la izquierda en lg+,
-             desplegable «Saltar a…» en móvil. El grid solo se activa en pro;
-             en simple el contenido fluye a ancho completo (sin índice). -->
-        <div
-          :class="level === 'pro' ? 'lg:grid lg:grid-cols-[220px_minmax(0,1fr)] lg:gap-12 xl:gap-16 lg:items-start' : ''"
-        >
-          <CienciaSectionNav
-            v-if="level === 'pro'"
-            class="mb-8 lg:mb-0 lg:sticky lg:top-24 lg:self-start"
-          />
-          <div class="min-w-0">
+        <!-- Índice móvil: desplegable «Saltar a…» en el flujo, tras la cabecera
+             (solo pro, <lg). El rail de escritorio va arriba, junto al título. -->
+        <CienciaSectionNav v-if="level === 'pro'" variant="mobile" class="lg:hidden mb-8" />
 
         <!-- Case snapshot (médicos + tabla completa; técnico, fuera del resumen simple) -->
         <section v-show="showData" aria-labelledby="snapshot-title" class="mb-12">

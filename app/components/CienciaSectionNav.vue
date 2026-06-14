@@ -1,12 +1,12 @@
 <template>
   <!-- Índice de secciones del dossier clínico (modo pro de /ciencia). Comité:
-       rail pegajoso a la izquierda en lg+, desplegable «Saltar a…» en móvil;
-       etiquetas clínicas en sans bajo un único rótulo mono; activo en
-       berenjena + punto violeta (NUNCA coral, reservado al CTA); foco
+       rail pegajoso a la izquierda en lg+ (variant="rail"), desplegable
+       «Saltar a…» en móvil (variant="mobile"); etiquetas clínicas en sans bajo
+       un rótulo mono; activo en berenjena + punto violeta (NUNCA coral); foco
        gestionado al saltar y respeto por prefers-reduced-motion. -->
   <nav :aria-label="locale === 'es' ? 'Índice de secciones' : 'Section index'">
     <!-- Móvil: desplegable en el flujo (no pegajoso) -->
-    <details class="cn-m lg:hidden">
+    <details v-if="variant === 'mobile'" class="cn-m">
       <summary class="cn-m__summary">
         <Icon name="ph:list-bold" class="w-4 h-4 shrink-0" aria-hidden="true" />
         {{ locale === 'es' ? 'Saltar a una sección' : 'Jump to a section' }}
@@ -19,8 +19,8 @@
       </ul>
     </details>
 
-    <!-- Desktop: lista; el aside padre aporta el sticky -->
-    <div class="cn-d hidden lg:block">
+    <!-- Desktop: lista; el contenedor padre aporta el sticky -->
+    <div v-else class="cn-d">
       <p class="eyebrow cn-d__title">{{ locale === 'es' ? 'Índice' : 'Contents' }}</p>
       <ul>
         <li v-for="c in chapters" :key="c.id">
@@ -41,6 +41,9 @@
 </template>
 
 <script setup lang="ts">
+const props = withDefaults(defineProps<{ variant?: 'rail' | 'mobile' }>(), {
+  variant: 'rail',
+})
 const { locale } = useI18n()
 
 // 6 capítulos clínicos mapeados a ids de título ya existentes en la página
@@ -69,12 +72,12 @@ const activeId = ref('')
 let observer: IntersectionObserver | null = null
 
 onMounted(() => {
+  // El scroll-spy solo lo necesita el rail de escritorio (resalta el activo).
+  if (props.variant !== 'rail') return
   const els = chapters.value
     .map((c) => document.getElementById(c.id))
     .filter((el): el is HTMLElement => !!el)
   if (!els.length) return
-  // Scroll-spy: el capítulo se activa cuando su título entra en la banda
-  // superior del viewport. aria-current cambia como mucho una vez por sección.
   observer = new IntersectionObserver(
     (entries) => {
       for (const e of entries) {
@@ -92,8 +95,7 @@ function jumpTo(e: Event, id: string) {
   const el = document.getElementById(id)
   if (!el) return
   e.preventDefault()
-  // A11y: el foco va al título destino (no se queda perdido); respeta
-  // prefers-reduced-motion (sin scroll animado).
+  // A11y: el foco va al título destino; respeta prefers-reduced-motion.
   const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches
   el.setAttribute('tabindex', '-1')
   el.focus({ preventScroll: true })
