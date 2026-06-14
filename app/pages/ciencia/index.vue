@@ -590,6 +590,51 @@
         </div>
         <!-- /solo médicos -->
 
+        <!-- Cierre mode-aware (comité · conversión + psico-onco): en llano la
+             donación es la resolución; en pro, acción profesional con la
+             financiación como nota al pie (no como venta). Coral = solo
+             campaña; el resto, navegación. -->
+        <section v-show="level === 'simple'" class="card-base mt-4" aria-labelledby="ciencia-help-title">
+          <p class="eyebrow mb-2 block">{{ $t('ciencia.help_eyebrow') }}</p>
+          <h2 id="ciencia-help-title" class="heading-display text-xl text-berenjena mb-2">{{ $t('ciencia.help_title') }}</h2>
+          <p class="text-sm text-tinta leading-relaxed mb-5 max-w-2xl">{{ $t('ciencia.help_body') }}</p>
+          <div class="flex flex-col sm:flex-row gap-3">
+            <a
+              :href="GOFUNDME_URL"
+              target="_blank"
+              rel="noopener noreferrer"
+              @click="trackSupport('ciencia_simple')"
+              data-support-cta
+              class="btn-cta justify-center"
+            >
+              <Icon name="ph:heart-fill" class="heart-beat w-4 h-4" aria-hidden="true" />
+              {{ $t('ciencia.help_cta') }}
+            </a>
+            <NuxtLink :to="localePath('colabora')" class="btn-secondary justify-center">
+              {{ $t('ciencia.help_share') }}
+            </NuxtLink>
+          </div>
+        </section>
+
+        <section v-show="showData" class="card-base mt-4" aria-labelledby="ciencia-pro-help-title">
+          <p class="eyebrow mb-2 block">{{ $t('ciencia.pro_help_eyebrow') }}</p>
+          <h2 id="ciencia-pro-help-title" class="heading-display text-xl text-berenjena mb-3">{{ $t('ciencia.pro_help_title') }}</h2>
+          <ul class="space-y-2.5 mb-4">
+            <li class="flex items-start gap-3 text-sm text-tinta leading-relaxed">
+              <Icon name="ph:chat-circle-text-fill" class="w-4 h-4 mt-0.5 shrink-0 text-miriam" aria-hidden="true" />
+              <NuxtLink :to="localePath('/contacto') + '?role=oncologist'" class="link-inline">{{ $t('ciencia.pro_help_contribute') }}</NuxtLink>
+            </li>
+            <li class="flex items-start gap-3 text-sm text-tinta leading-relaxed">
+              <Icon name="ph:share-network-fill" class="w-4 h-4 mt-0.5 shrink-0 text-miriam" aria-hidden="true" />
+              <NuxtLink :to="localePath('colabora')" class="link-inline">{{ $t('ciencia.pro_help_share') }}</NuxtLink>
+            </li>
+          </ul>
+          <p class="text-xs text-tinta leading-relaxed">
+            {{ $t('ciencia.pro_help_fund') }}
+            <a :href="GOFUNDME_URL" target="_blank" rel="noopener noreferrer" @click="trackSupport('ciencia_pro')" class="link-inline">{{ $t('ciencia.pro_help_fund_cta') }}</a>.
+          </p>
+        </section>
+
         <Nota class="mt-12 pt-6" style="border-top: 1px solid rgba(45,27,61,0.08)">
           {{ locale === 'es' ? 'Última actualización: 6 de junio de 2026' : 'Last updated: 6 June 2026' }}
         </Nota>
@@ -602,6 +647,9 @@
 const { locale, t } = useI18n()
 const localePath = useLocalePath()
 const L = (es: string, en: string) => (locale.value === 'es' ? es : en)
+// Cierre de conversión: donación (llano) y financiación como nota (pro). Mismo
+// patrón que el resto del sitio; dispara el goal de apoyo con su ubicación.
+const { GOFUNDME_URL, trackSupport } = useSupport()
 
 // Mapa eje terapéutico → id de glosario (Term), mismo orden que ciencia.axes.
 const axisTerms = ['axis_fgfr', 'axis_sstr', 'axis_esr1', 'axis_ne']
