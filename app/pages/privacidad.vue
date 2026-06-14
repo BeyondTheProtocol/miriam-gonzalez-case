@@ -5,7 +5,7 @@
       Política de privacidad
     </h1>
     <p class="font-mono text-xs text-tinta mb-8">
-      Última actualización · 6 de junio de 2026
+      Última actualización · 14 de junio de 2026
     </p>
 
     <div class="alert-callout mb-10">
@@ -38,7 +38,7 @@
       <p>No vendemos ni cedemos tus datos, salvo obligación legal. Empleamos proveedores que actúan como encargados del tratamiento (art. 28 RGPD):</p>
       <ul>
         <li><strong>Netlify, Inc.</strong> (EE. UU., con cláusulas contractuales tipo) — alojamiento del sitio y gestión del formulario de contacto (Netlify Forms).</li>
-        <li><strong>Plausible Analytics</strong> (UE) — analítica de visitas agregada, <strong>sin cookies</strong> y sin rastreo individual.</li>
+        <li><strong>Plausible Analytics</strong> (UE) y <strong>Umami Cloud</strong> (UE) — analítica de visitas agregada, <strong>sin cookies</strong> y sin rastreo individual.</li>
         <li><strong>GoFundMe</strong> — plataforma de donación; los datos de pago se rigen por su propia política.</li>
       </ul>
       <p>Las tipografías se sirven <strong>desde nuestro propio dominio</strong> (auto-alojadas): no se cargan desde servidores de terceros ni se transfiere tu dirección IP a Google.</p>
