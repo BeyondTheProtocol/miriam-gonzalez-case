@@ -1,7 +1,7 @@
 <template>
   <main class="relative overflow-hidden section-container max-w-2xl py-20 sm:py-28 text-center">
     <!-- B1 · constelación de quienes apoyan (decorativa, detrás del mensaje) -->
-    <Constellation :count="donorCount" />
+    <Constellation :count="donorCount" :donations="donations" />
     <div class="relative z-10">
     <!-- Monograma redondo con constelación -->
     <svg class="mx-auto mb-8 w-24 h-24 sm:w-28 sm:h-28" viewBox="0 0 240 240" aria-hidden="true">
@@ -47,8 +47,15 @@ const localePath = useLocalePath()
 // Densidad de la constelación ~ donantes (solo para el cielo, no 1:1).
 // Datos de campaña: JSON estático de main (función Netlify), carga en cliente.
 const campaign = ref<import('../../utils/fundraiser').GoFundMeFundraiser | null>(null)
+// Lista de donaciones con importe (para la constelación: magnitud por aportación).
+const donations = ref<{ amount: number; createdAt?: string }[]>([])
 onMounted(async () => {
   campaign.value = await $fetch('/fundraiser.json')
+  try {
+    donations.value = await $fetch('/donations.json')
+  } catch {
+    /* sin lista — la constelación cae a densidad por nº de donantes */
+  }
 })
 const donorCount = computed(() => campaign.value?.donationCount ?? 60)
 
