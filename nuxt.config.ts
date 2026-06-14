@@ -47,6 +47,14 @@ export default defineNuxtConfig({
       meta: [
         { name: 'theme-color', content: '#faf6f0' },
       ],
+      // Analítica Umami (privada, sin cookies). Convive con Plausible.
+      script: [
+        {
+          src: 'https://cloud.umami.is/script.js',
+          defer: true,
+          'data-website-id': '30a40c53-5573-45c0-8ac9-8f0f94621ecf',
+        },
+      ],
     },
   },
 
