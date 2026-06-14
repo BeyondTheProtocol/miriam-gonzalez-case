@@ -111,8 +111,8 @@
             </h3>
             <p class="text-sm text-tinta leading-relaxed mb-5">{{ $t('collaborate.profile3_text') }}</p>
             <div class="mt-auto">
-              <NuxtLink :to="localePath('contacto') + '?role=journalist'" class="btn-secondary w-full h-12 justify-center">
-                <Icon name="ph:envelope-simple-fill" class="w-4 h-4" aria-hidden="true" />
+              <NuxtLink :to="localePath('prensa')" class="btn-secondary w-full h-12 justify-center">
+                <Icon name="ph:megaphone-simple-fill" class="w-4 h-4" aria-hidden="true" />
                 {{ $t('collaborate.profile3_cta_label') }}
               </NuxtLink>
               <p class="mt-2 text-xs text-tinta sm:min-h-[2.25rem]">{{ $t('collaborate.profile3_cta_caption') }}</p>

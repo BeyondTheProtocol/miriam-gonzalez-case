@@ -358,7 +358,7 @@
               <Icon name="ph:stethoscope" class="w-4 h-4" aria-hidden="true" />
               {{ $t('home.pro_clinical') }}
             </NuxtLink>
-            <NuxtLink :to="localePath('colabora') + '#alcance'" class="btn-secondary">
+            <NuxtLink :to="localePath('prensa')" class="btn-secondary">
               <Icon name="ph:megaphone-simple-fill" class="w-4 h-4" aria-hidden="true" />
               {{ $t('home.pro_press') }}
             </NuxtLink>
@@ -403,7 +403,7 @@
             class="link-logo text-2xl sm:text-3xl"
           >La 7<span class="sr-only"> {{ $t('a11y.new_tab') }}</span></a>
           <NuxtLink
-            :to="localePath({ name: 'contacto' })"
+            :to="localePath('prensa')"
             class="link-action group sm:ml-auto self-center font-mono text-[12px] text-miriam"
           >
             {{ $t('home.s9_press_contact') }}
