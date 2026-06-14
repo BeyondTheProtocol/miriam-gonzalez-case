@@ -258,6 +258,20 @@
     "title": "La historia de Miriam",
     "subtitle": "Mucho más allá del diagnóstico"
   },
+  "follow": {
+    "eyebrow": "Sigue el caso",
+    "title": "Te aviso cuando haya una novedad",
+    "body": "Un email solo cuando pasa algo importante —un resultado nuevo, una decisión clínica, un hito—. Nada de spam, y te das de baja cuando quieras.",
+    "email_label": "Tu correo electrónico",
+    "placeholder": "tu{'@'}email.com",
+    "cta": "Avísame",
+    "sending": "Enviando…",
+    "sent": "¡Hecho! Te escribiré cuando haya novedad.",
+    "failed": "No se pudo enviar. Inténtalo de nuevo.",
+    "consent": "Acepto recibir avisos del caso por email y he leído la {privacy}. Puedo darme de baja en cualquier momento.",
+    "privacy_link": "política de privacidad",
+    "bot": "No rellenes esto:"
+  },
   "contact": {
     "title": "Contacto",
     "subtitle": "Si te dedicas a la oncología, la investigación o el periodismo, o simplemente quieres ayudar",

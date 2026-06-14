@@ -235,6 +235,20 @@
     "title": "Miriam's story",
     "subtitle": "Far beyond the diagnosis"
   },
+  "follow": {
+    "eyebrow": "Follow the case",
+    "title": "I'll let you know when there's news",
+    "body": "One email only when something important happens —a new result, a clinical decision, a milestone—. No spam, and you can unsubscribe anytime.",
+    "email_label": "Your email address",
+    "placeholder": "you{'@'}email.com",
+    "cta": "Keep me posted",
+    "sending": "Sending…",
+    "sent": "Done! I'll write when there's news.",
+    "failed": "Couldn't send. Try again.",
+    "consent": "I agree to receive case updates by email and have read the {privacy}. I can unsubscribe at any time.",
+    "privacy_link": "privacy policy",
+    "bot": "Don't fill this in:"
+  },
   "contact": {
     "title": "Contact",
     "subtitle": "If you're an oncology professional, researcher, journalist or simply want to help",

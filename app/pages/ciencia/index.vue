@@ -635,6 +635,10 @@
           </p>
         </section>
 
+        <!-- Captura de audiencia (retención): sigue el caso por email. Visible
+             en ambos modos. RGPD-compliant (ver componente). -->
+        <CaseFollowSignup class="mt-4" />
+
         <Nota class="mt-12 pt-6" style="border-top: 1px solid rgba(45,27,61,0.08)">
           {{ locale === 'es' ? 'Última actualización: 6 de junio de 2026' : 'Last updated: 6 June 2026' }}
         </Nota>
