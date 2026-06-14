@@ -5,7 +5,7 @@
       Aviso legal
     </h1>
     <p class="font-mono text-xs text-tinta mb-8">
-      Última actualización · 6 de junio de 2026
+      Última actualización · 14 de junio de 2026
     </p>
 
     <div class="alert-callout mb-10">

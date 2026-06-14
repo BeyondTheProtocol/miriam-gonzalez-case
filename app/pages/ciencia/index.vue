@@ -658,7 +658,7 @@
         <CaseFollowSignup class="mt-4" />
 
         <Nota class="mt-12 pt-6" style="border-top: 1px solid rgba(45,27,61,0.08)">
-          {{ locale === 'es' ? 'Última actualización: 6 de junio de 2026' : 'Last updated: 6 June 2026' }}
+          {{ locale === 'es' ? 'Última actualización: 14 de junio de 2026' : 'Last updated: 14 June 2026' }}
         </Nota>
           </div>
           <!-- /columna de contenido del dossier -->
