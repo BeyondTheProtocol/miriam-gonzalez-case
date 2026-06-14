@@ -36,8 +36,8 @@
     "dismiss": "Close"
   },
   "counter": {
-    "label": "days waiting for a new line of treatment",
-    "short": "days without a new line"
+    "label": "days without treatment",
+    "short": "days without treatment"
   },
   "thanksWall": {
     "eyebrow": "Thank you",
