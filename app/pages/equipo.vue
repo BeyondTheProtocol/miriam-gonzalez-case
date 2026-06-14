@@ -51,7 +51,7 @@
              D5: contenido a max-w-4xl (alineado a la izquierda del shell) para
              que el panel no quede con un hueco grande a la derecha a 1200px. -->
         <section
-          class="mt-16 relative overflow-hidden rounded-card p-8 sm:p-12 max-w-4xl"
+          class="mt-16 relative overflow-hidden rounded-card p-8 sm:p-12"
           style="background: #2d1b3d; color: #faf6f0"
           :aria-labelledby="'notus-title'"
         >
@@ -60,7 +60,7 @@
             class="absolute inset-0 opacity-[0.04]"
             style="background-image: radial-gradient(circle at 1px 1px, #faf6f0 1px, transparent 0); background-size: 32px 32px"
           />
-          <div class="relative max-w-2xl">
+          <div class="relative">
             <p class="eyebrow mb-3 block" style="color: rgba(250,246,240,0.55)">
               {{ $t('team.notus_eyebrow') }}
             </p>
@@ -72,7 +72,7 @@
               {{ $t('team.notus_title') }}
             </h2>
 
-            <ul class="space-y-4">
+            <ul class="grid gap-x-10 lg:gap-x-16 gap-y-4 lg:grid-cols-2">
               <li
                 v-for="(item, i) in notUsItems"
                 :key="i"
@@ -101,7 +101,7 @@
               >
                 {{ $t('team.network_origin_title') }}
               </h3>
-              <p class="text-sm leading-relaxed" style="color: rgba(250,246,240,0.78)">
+              <p class="text-sm leading-relaxed max-w-2xl" style="color: rgba(250,246,240,0.78)">
                 {{ $t('team.network_origin_body') }}
               </p>
               <NuxtLink
