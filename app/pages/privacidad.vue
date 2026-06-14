@@ -5,7 +5,7 @@
       Política de privacidad
     </h1>
     <p class="font-mono text-xs text-tinta mb-8">
-      Última actualización · 6 de junio de 2026
+      Última actualización · 14 de junio de 2026
     </p>
 
     <div class="alert-callout mb-10">
@@ -25,19 +25,23 @@
       </ul>
 
       <h2>2 · Datos que tratamos y con qué finalidad</h2>
-      <p>Solo tratamos los datos que nos facilitas voluntariamente a través del formulario de contacto (nombre, email, perfil y mensaje), con la finalidad de <strong>responder a tu consulta</strong> y, en su caso, valorar una posible colaboración con el caso.</p>
+      <p>Solo tratamos los datos que nos facilitas voluntariamente:</p>
+      <ul>
+        <li><strong>Formulario de contacto</strong> (nombre, email, perfil y mensaje): para <strong>responder a tu consulta</strong> y, en su caso, valorar una posible colaboración con el caso.</li>
+        <li><strong>«Sigue el caso»</strong> (solo tu email): para <strong>avisarte de novedades del caso</strong> —un nuevo resultado, una decisión clínica, un hito—. Te puedes <strong>dar de baja</strong> en cualquier momento escribiéndonos; no se usa para ninguna otra finalidad ni se cede a terceros con fines comerciales.</li>
+      </ul>
       <p>Las donaciones se gestionan en plataformas de terceros (p. ej. GoFundMe); sus datos de pago se rigen por la política de privacidad de dichas plataformas, no por esta.</p>
 
       <h2>3 · Base jurídica</h2>
       <p>El tratamiento se basa en tu <strong>consentimiento</strong> (art. 6.1.a RGPD), que otorgas al enviar el formulario, y en el interés legítimo de atender tu comunicación.</p>
 
       <h2>4 · Conservación</h2>
-      <p>Conservamos tus datos el tiempo necesario para atender tu solicitud y, después, durante los plazos legalmente exigibles. Cuando dejen de ser necesarios, se suprimen.</p>
+      <p>Conservamos tus datos el tiempo necesario para atender tu solicitud y, después, durante los plazos legalmente exigibles. Cuando dejen de ser necesarios, se suprimen. Los emails de «Sigue el caso» se conservan <strong>hasta que solicitas la baja</strong>.</p>
 
       <h2>5 · Destinatarios y encargados del tratamiento</h2>
       <p>No vendemos ni cedemos tus datos, salvo obligación legal. Empleamos proveedores que actúan como encargados del tratamiento (art. 28 RGPD):</p>
       <ul>
-        <li><strong>Netlify, Inc.</strong> (EE. UU., con cláusulas contractuales tipo) — alojamiento del sitio y gestión del formulario de contacto (Netlify Forms).</li>
+        <li><strong>Netlify, Inc.</strong> (EE. UU., con cláusulas contractuales tipo) — alojamiento del sitio y gestión de los formularios de contacto y de «Sigue el caso» (Netlify Forms).</li>
         <li><strong>Plausible Analytics</strong> (UE) — analítica de visitas agregada, <strong>sin cookies</strong> y sin rastreo individual.</li>
         <li><strong>GoFundMe</strong> — plataforma de donación; los datos de pago se rigen por su propia política.</li>
       </ul>
