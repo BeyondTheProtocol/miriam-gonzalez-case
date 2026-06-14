@@ -85,7 +85,7 @@
             style="animation-delay: 0.2s"
           >
             <template #lead>
-              <strong class="font-semibold text-berenjena">{{ $t('hero.subtitle_lead') }}</strong>
+              <strong class="font-semibold text-berenjena">{{ $t('hero.subtitle_lead', { age: caseData.currentAge }) }}</strong>
             </template>
             <template #twofaces>
               <!-- «dos caras»: un trazo a mano (como las anotaciones de la
