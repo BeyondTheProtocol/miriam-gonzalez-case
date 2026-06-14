@@ -149,6 +149,7 @@ const navItems = [
   { key: 'timeline', to: '/timeline' },
   { key: 'team', to: '/equipo' },
   { key: 'collaborate', to: '/colabora' },
+  { key: 'press', to: '/prensa' },
   { key: 'contact', to: '/contacto' },
 ]
 </script>
