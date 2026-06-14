@@ -114,6 +114,12 @@ export default defineNuxtConfig({
       // crawlLinks lo descubre desde /colabora, intenta prerenderizarlo, da 404
       // y aborta el build. Lo ignoramos: el archivo estático se copia igual.
       ignore: ['/design-system'],
+      // URLs SIN barra final, coherentes con los links y el canonical del sitio
+      // (que ya usan «/colabora», no «/colabora/»). Genera «colabora.html» en
+      // vez de «colabora/index.html», así Netlify sirve «/colabora» directo sin
+      // redirigir a «/colabora/». Evita que la analítica (Umami) cuente cada
+      // página dos veces (/x y /x/) y arregla el desajuste canonical↔URL servida.
+      autoSubfolderIndex: false,
     },
   },
 })
