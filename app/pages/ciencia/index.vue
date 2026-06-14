@@ -30,6 +30,23 @@
           </div>
         </div>
 
+        <!-- A11y: anuncia el cambio de modo a lectores de pantalla (el comité
+             marcó «nada de cambios de contenido silenciosos» como prioridad). -->
+        <div aria-live="polite" class="sr-only">{{ levelAnnounce }}</div>
+
+        <!-- Retorno claro al resumen desde el modo clínico (orientación ·
+             neurodivergencia: salida obvia, siempre en el mismo sitio). -->
+        <button
+          v-show="level === 'pro'"
+          type="button"
+          @click="level = 'simple'"
+          class="inline-flex items-center gap-1.5 mb-8 -mt-4 text-sm text-tinta hover:text-miriam transition-colors group"
+          style="text-decoration: none"
+        >
+          <Icon name="ph:arrow-left" class="w-4 h-4 transition-transform group-hover:-translate-x-0.5" aria-hidden="true" />
+          {{ $t('ciencia.back_to_summary') }}
+        </button>
+
         <EcgDivider class="mb-12" />
 
         <!-- Case snapshot (médicos + tabla completa; técnico, fuera del resumen simple) -->
@@ -115,8 +132,8 @@
                   'Murcia 2024 (local biopsy) · MD Anderson · DIPCAN 2024 (extended profile) · Vall d\'Hebron · Pathology VH-26-B-17664 · VHIO · 19/05/2026.') }}
           </p>
           <Nota class="mt-3">
-            {{ L('Estas lecturas describen el tejido; no son un diagnóstico de consenso. Armonizar las discordancias está pendiente de valoración por el comité de tumores.',
-                  'These reads describe the tissue; they are not a consensus diagnosis. Reconciling the discordances is pending tumour-board review.') }}
+            {{ L('Estas lecturas describen el tejido; no son un diagnóstico de consenso. Armonizar las discordancias está pendiente de valoración por el comité de tumores —y es, en buena parte, lo que la rebiopsia molecular y esa revisión vienen a aclarar.',
+                  'These reads describe the tissue; they are not a consensus diagnosis. Reconciling the discordances is pending tumour-board review —and is, in good part, what the molecular rebiopsy and that review are there to clarify.') }}
           </Nota>
         </section>
 
@@ -619,6 +636,11 @@ watch(level, (v) => {
     /* noop */
   }
 })
+// A11y: texto que un lector de pantalla anuncia al cambiar de modo (región
+// aria-live) — para que el cambio de contenido nunca sea silencioso.
+const levelAnnounce = computed(() =>
+  level.value === 'pro' ? t('ciencia.announce_pro') : t('ciencia.announce_simple')
+)
 // Abre el detalle clínico desde la puerta-invitación y lleva al inicio de la capa
 // pro, gestionando el foco (a11y: el cambio de contenido no debe ser silencioso).
 function goPro() {
