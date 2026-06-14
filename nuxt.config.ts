@@ -48,11 +48,15 @@ export default defineNuxtConfig({
         { name: 'theme-color', content: '#faf6f0' },
       ],
       // Analítica Umami (privada, sin cookies). Convive con Plausible.
+      // data-domains: solo envía desde el dominio real (no localhost/previews).
+      // data-performance: recoge Core Web Vitals reales de los visitantes.
       script: [
         {
           src: 'https://cloud.umami.is/script.js',
           defer: true,
           'data-website-id': '30a40c53-5573-45c0-8ac9-8f0f94621ecf',
+          'data-domains': 'helpmiriam.com',
+          'data-performance': 'true',
         },
       ],
     },

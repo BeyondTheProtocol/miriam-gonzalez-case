@@ -70,6 +70,8 @@
                 :href="item.url"
                 target="_blank"
                 rel="noopener"
+                data-umami-event="Clic-prensa"
+                :data-umami-event-medio="item.outlet"
                 class="press-mention card-base flex items-start gap-4 group"
               >
                 <Icon

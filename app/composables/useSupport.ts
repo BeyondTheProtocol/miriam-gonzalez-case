@@ -29,6 +29,8 @@ export function useSupport() {
 
   function trackSupport(location: string) {
     fire('Apoyar', location)
+    // Umami (convivencia con Plausible): «Donar» con el botón como propiedad.
+    trackUmami('Donar', { location })
     // Marca para el aviso suave al volver de GoFundMe (DonationReturnPrompt).
     try {
       sessionStorage.setItem('hm_support_ts', String(Date.now()))
