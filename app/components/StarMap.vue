@@ -38,7 +38,7 @@
         @pointerup="onUp"
         @pointercancel="onUp"
       >
-        <div ref="content" class="starmap-content" :style="contentStyle" aria-hidden="true">
+        <div ref="content" class="starmap-content" :class="{ 'is-still': still }" :style="contentStyle" aria-hidden="true">
           <!-- Asterismo de Cáncer: líneas a lápiz entre las estrellas con nombre -->
           <svg class="starmap__lines" viewBox="0 0 100 100" preserveAspectRatio="none">
             <path
@@ -359,6 +359,17 @@ const ty = ref(0)
 const MIN_S = 1
 const MAX_S = 5
 
+// Fluidez del zoom: mientras se interactúa (zoom/arrastre/pellizco) apagamos los
+// halos (filter: drop-shadow) de las ~220 estrellas brillantes —se re-rasterizan
+// en cada frame y son la causa del tirón— y los devolvemos ~220 ms tras soltar.
+const still = ref(true)
+let stillTimer: ReturnType<typeof setTimeout> | undefined
+function bump() {
+  if (still.value) still.value = false
+  clearTimeout(stillTimer)
+  stillTimer = setTimeout(() => (still.value = true), 220)
+}
+
 const contentStyle = computed(() => ({
   transform: `translate(${tx.value}px, ${ty.value}px) scale(${scale.value})`,
   transformOrigin: '0 0',
@@ -374,6 +385,7 @@ function clampPan() {
 }
 // Zoom hacia un punto (px relativo al viewport).
 function zoomAt(factor: number, px: number, py: number) {
+  bump()
   const ns = Math.min(MAX_S, Math.max(MIN_S, scale.value * factor))
   const k = ns / scale.value
   tx.value = px - (px - tx.value) * k
@@ -406,6 +418,7 @@ onMounted(() => {
 onBeforeUnmount(() => {
   if (viewport.value && onWheel) viewport.value.removeEventListener('wheel', onWheel)
   cancelAnimationFrame(raf)
+  clearTimeout(stillTimer)
 })
 
 /* ── Punteros: tap (selección), arrastre (pan), pellizco (zoom) ─────────── */
@@ -417,6 +430,7 @@ let pinchDist = 0
 let pinchMid = { x: 0, y: 0 }
 
 function onDown(e: PointerEvent) {
+  bump()
   ;(e.target as Element).setPointerCapture?.(e.pointerId)
   ptrs.set(e.pointerId, { x: e.clientX, y: e.clientY })
   downX = e.clientX
@@ -457,6 +471,7 @@ function onMove(e: PointerEvent) {
   if ((isMouse && e.buttons === 1) || (!isMouse && scale.value > 1)) {
     // Arrastre = pan (ratón siempre; táctil solo si estamos acercados).
     e.preventDefault()
+    bump()
     tx.value += e.movementX || 0
     ty.value += e.movementY || 0
     clampPan()
@@ -602,6 +617,8 @@ const tipStyle = computed(() => {
   display: block;
   transform: translate(-50%, -50%);
   opacity: 0.95;
+}
+.starmap-content.is-still .starmap__anchor {
   filter: drop-shadow(0 0 5px rgba(157, 68, 171, 0.5));
 }
 .starmap__star {
@@ -609,13 +626,13 @@ const tipStyle = computed(() => {
   display: block;
   transform: translate(-50%, -50%) rotate(var(--rot, 0deg));
   opacity: var(--o, 0.5);
-  transition: opacity 0.25s ease, filter 0.25s ease;
+  transition: opacity 0.25s ease;
 }
 /* Magnitud: las brillantes y principales ganan un halo (las mayores aportaciones). */
-.starmap__star--bright {
+.starmap-content.is-still .starmap__star--bright {
   filter: drop-shadow(0 0 2.5px rgba(157, 68, 171, 0.42));
 }
-.starmap__star--principal {
+.starmap-content.is-still .starmap__star--principal {
   filter: drop-shadow(0 0 7px rgba(157, 68, 171, 0.6));
 }
 /* Puntas de difracción de las principales (capa propia, detrás de los núcleos). */
