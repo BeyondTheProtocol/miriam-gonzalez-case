@@ -88,8 +88,8 @@
       <p class="mt-2 text-xs text-tinta leading-relaxed">
         {{
           locale === 'es'
-            ? '⁺⁺ En oncología neuroendocrina, el Ki67 es el marcador principal de gradación: G1 (<3%), G2 (3–20%), G3 (>20%). Un Ki67 del 60% corresponde a un carcinoma neuroendocrino de alto grado (NEC G3).'
-            : '⁺⁺ In neuroendocrine oncology, Ki67 is the primary grading marker: G1 (<3%), G2 (3–20%), G3 (>20%). A Ki67 of 60% corresponds to a high-grade neuroendocrine carcinoma (NEC G3).'
+            ? '⁺⁺ En oncología neuroendocrina, el Ki67 es el marcador principal de gradación: G1 (<3%), G2 (3–20%), G3 (>20%). Por esa lógica, un Ki67 alto sería compatible con un componente neuroendocrino de alto grado (NEC G3): una hipótesis, no el grado asignado. El grado histológico confirmado es Grado II de Nottingham; armonizarlo queda pendiente del comité de tumores.'
+            : '⁺⁺ In neuroendocrine oncology, Ki67 is the primary grading marker: G1 (<3%), G2 (3–20%), G3 (>20%). By that logic, a high Ki67 would be compatible with a high-grade neuroendocrine component (NEC G3): a hypothesis, not the assigned grade. The confirmed histological grade is Nottingham Grade II; reconciling it is pending tumour-board review.'
         }}
       </p>
       </details>
@@ -124,7 +124,7 @@ const rows = computed<Row[]>(() =>
         { alteration: 'FGF3 / FGF4 / FGF19', result: 'Amplificado ×18', source: 'TSO500 tejido', category: 'Cluster 11q13', implication: 'Co-amplificación característica del 11q13; sin diana directa, marcador de biología agresiva.', tone: 'violet' },
         { alteration: 'Diferenciación NE', result: '~80% (CgA, SYN)', source: 'IHQ tejido primario', category: 'Subtipo BC-NED', implication: 'Comportamiento neuroendocrino dominante. Justifica explorar terapias propias de tumores NE (PRRT, regímenes platino).', tone: 'warn' },
         { alteration: 'SSTR2 (somatostatina)', result: 'Positivo', source: 'PET Ga-68 DOTATOC', category: 'Diana radioligando', implication: 'Sobreexpresión en metástasis óseas y captación focal en mama. Abre la puerta a PRRT (radioligandos).', tone: 'positive' },
-        { alteration: 'Ki67', result: '60%', source: 'IHQ tejido primario', category: 'Grado', implication: 'Alto índice proliferativo. En NEC, Ki67 ≥20% corresponde a grado 3 ⁺⁺.', tone: 'warn' },
+        { alteration: 'Ki67', result: '60%', source: 'IHQ tejido primario (2024) · VHIO 2026: 40%', category: 'Grado', implication: 'Alto índice proliferativo. Un Ki67 ≥20% sería compatible con alto grado NE: hipótesis, no el grado asignado (confirmado: Grado II de Nottingham) ⁺⁺.', tone: 'warn' },
         { alteration: 'ESR1 p.D538G', result: 'Detectada', source: 'ctDNA (Guardant360 + VHIO360, 2026)', category: 'Resistencia endocrina', implication: 'Resistencia adquirida a inhibidores de aromatasa; criterio de entrada al estudio con elacestrant (ADELA).', tone: 'info' },
         { alteration: 'RB1', result: '3 variantes', source: 'ctDNA Guardant360 (abr 2026)', category: 'Resistencia / progresión', implication: 'p.V622Yfs*33 (1,58%), p.R661W (1,48%) y p.F226* (subclonal); ausentes en el tumor primario (TSO500, 2024). Pérdida de RB1 asociada a resistencia a CDK4/6i y a transformación hacia fenotipos más agresivos / neuroendocrinos.', tone: 'warn' },
         { alteration: 'SMO p.V319D', result: 'Detectada (VUS)', source: 'ctDNA (Guardant360 CDx, 26 may 2026)', category: 'Significado incierto', implication: 'Variante de significado clínico incierto, en vigilancia.', tone: 'neutral' },
@@ -140,7 +140,7 @@ const rows = computed<Row[]>(() =>
         { alteration: 'FGF3 / FGF4 / FGF19', result: 'Amplified ×18', source: 'TSO500 tissue', category: '11q13 cluster', implication: 'Characteristic 11q13 co-amplification; no direct target, marker of aggressive biology.', tone: 'violet' },
         { alteration: 'NE differentiation', result: '~80% (CgA, SYN)', source: 'IHC primary tissue', category: 'BC-NED subtype', implication: 'Dominant neuroendocrine behaviour. Justifies exploring NE-tumour therapies (PRRT, platinum regimens).', tone: 'warn' },
         { alteration: 'SSTR2 (somatostatin)', result: 'Positive', source: 'Ga-68 DOTATOC PET', category: 'Radioligand target', implication: 'Overexpression in bone metastases and focal uptake in the breast. Opens the door to PRRT (radioligand therapy).', tone: 'positive' },
-        { alteration: 'Ki67', result: '60%', source: 'IHC primary tissue', category: 'Grade', implication: 'High proliferative index. In NEC, Ki67 ≥20% maps to grade 3 ⁺⁺.', tone: 'warn' },
+        { alteration: 'Ki67', result: '60%', source: 'IHC primary tissue (2024) · VHIO 2026: 40%', category: 'Grade', implication: 'High proliferative index. Ki67 ≥20% would be compatible with high NE grade: a hypothesis, not the assigned grade (confirmed: Nottingham Grade II) ⁺⁺.', tone: 'warn' },
         { alteration: 'ESR1 p.D538G', result: 'Detected', source: 'ctDNA (Guardant360 + VHIO360, 2026)', category: 'Endocrine resistance', implication: 'Acquired resistance to aromatase inhibitors; entry criterion for the elacestrant trial (ADELA).', tone: 'info' },
         { alteration: 'RB1', result: '3 variants', source: 'ctDNA Guardant360 (Apr 2026)', category: 'Resistance / progression', implication: 'p.V622Yfs*33 (1.58%), p.R661W (1.48%) and p.F226* (subclonal); absent in the primary tumour (TSO500, 2024). RB1 loss associated with CDK4/6i resistance and transformation to more aggressive / neuroendocrine phenotypes.', tone: 'warn' },
         { alteration: 'SMO p.V319D', result: 'Detected (VUS)', source: 'ctDNA (Guardant360 CDx, May 26, 2026)', category: 'Uncertain significance', implication: 'Variant of uncertain clinical significance, under watch.', tone: 'neutral' },

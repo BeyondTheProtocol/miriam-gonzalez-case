@@ -51,8 +51,8 @@
     <p class="mt-2 text-xs text-tinta leading-relaxed">
       {{
         locale === 'es'
-          ? '⁺⁺ En oncología neuroendocrina, el Ki67 es el marcador principal de gradación: G1 (<3%), G2 (3–20%), G3 (>20%). Un Ki67 del 60% corresponde a un carcinoma neuroendocrino de alto grado (NEC G3), con un comportamiento biológico mucho más agresivo que el cáncer de mama luminal convencional.'
-          : '⁺⁺ In neuroendocrine oncology, Ki67 is the primary grading marker: G1 (<3%), G2 (3–20%), G3 (>20%). A Ki67 of 60% corresponds to a high-grade neuroendocrine carcinoma (NEC G3), with a biologically far more aggressive behaviour than conventional luminal breast cancer.'
+          ? '⁺⁺ En oncología neuroendocrina, el Ki67 es el marcador principal de gradación: G1 (<3%), G2 (3–20%), G3 (>20%). Por esa lógica, un Ki67 alto sería compatible con un componente neuroendocrino de alto grado (NEC G3). Es una hipótesis sobre la biología del tumor —no el grado asignado: el grado histológico confirmado es Grado II de Nottingham (Murcia 2024; VHIO 2026)— y queda pendiente de confirmación en la rebiopsia y de valoración por el comité de tumores.'
+          : '⁺⁺ In neuroendocrine oncology, Ki67 is the primary grading marker: G1 (<3%), G2 (3–20%), G3 (>20%). By that logic, a high Ki67 would be compatible with a high-grade neuroendocrine component (NEC G3). This is a hypothesis about the tumour\'s biology —not the assigned grade: the confirmed histological grade is Nottingham Grade II (Murcia 2024; VHIO 2026)— pending confirmation at rebiopsy and tumour-board review.'
       }}
     </p>
   </section>
@@ -72,7 +72,7 @@ const markers = computed<MarkerRow[]>(() =>
         { marker: 'FGF3/4/19', result: 'Amplificado ×18', note: 'Cluster 11q13', tone: 'violet' },
         { marker: 'Dif. NE', result: '~80% (CgA, SYN)', note: 'Subtipo BC-NED: biología neuroendocrina dominante', tone: 'warn' },
         { marker: 'SSTR2 (PET Ga-68)', result: 'Positivo', note: 'PET-CT Galio-68 DOTATOC (mayo 2026): metástasis óseas con sobreexpresión de receptores de somatostatina — diana de terapia con radioligandos (PRRT)', tone: 'positive' },
-        { marker: 'Ki67', result: '60%', note: 'Alto índice proliferativo en mama. En tumores neuroendocrinos, Ki67 ≥20% define el grado de agresividad: un 60% sitúa este tumor en grado 3 (NEC) ⁺⁺', tone: 'warn' },
+        { marker: 'Ki67', result: '60%', note: 'Alto índice proliferativo (lectura de 2024; VHIO 2026 lo situó en 40%). En tumores NE, un Ki67 ≥20% sería compatible con alto grado: una hipótesis, no el grado asignado (confirmado: Grado II de Nottingham) ⁺⁺', tone: 'warn' },
         { marker: 'TMB / MSI', result: 'Baja / Baja', note: '—', tone: 'neutral' },
         { marker: 'SNVs/INDELs', result: 'Ninguna patogénica', note: 'Sin fusiones detectadas', tone: 'neutral' },
         { marker: 'ESR1 p.D538G', result: 'Detectada (ctDNA 2026)', note: 'Resistencia endocrina adquirida a inhibidores de aromatasa', tone: 'info' },
@@ -86,7 +86,7 @@ const markers = computed<MarkerRow[]>(() =>
         { marker: 'FGF3/4/19', result: 'Amplified ×18', note: '11q13 cluster', tone: 'violet' },
         { marker: 'NE Diff.', result: '~80% (CgA, SYN)', note: 'BC-NED subtype: dominant neuroendocrine biology', tone: 'warn' },
         { marker: 'SSTR2 (Ga-68 PET)', result: 'Positive', note: 'Ga-68 DOTATOC PET-CT (May 2026): bone metastases with somatostatin receptor overexpression — target for peptide receptor radionuclide therapy (PRRT)', tone: 'positive' },
-        { marker: 'Ki67', result: '60%', note: 'High proliferative index in breast cancer. In neuroendocrine tumours, Ki67 ≥20% defines aggressiveness grade: 60% places this tumour at grade 3 (NEC) ⁺⁺', tone: 'warn' },
+        { marker: 'Ki67', result: '60%', note: 'High proliferative index (2024 read; VHIO 2026 read it at 40%). In NE tumours, Ki67 ≥20% would be compatible with high grade: a hypothesis, not the assigned grade (confirmed: Nottingham Grade II) ⁺⁺', tone: 'warn' },
         { marker: 'TMB / MSI', result: 'Low / Low', note: '—', tone: 'neutral' },
         { marker: 'SNVs/INDELs', result: 'None pathogenic', note: 'No fusions detected', tone: 'neutral' },
         { marker: 'ESR1 p.D538G', result: 'Detected (ctDNA 2026)', note: 'Acquired endocrine resistance to aromatase inhibitors', tone: 'info' },

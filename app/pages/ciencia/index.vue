@@ -85,8 +85,8 @@
             {{ L('El mismo tejido, leído tres veces', 'The same tissue, read three times') }}
           </h2>
           <p class="text-sm text-tinta leading-relaxed mb-3 max-w-2xl">
-            {{ L('El mismo tumor se ha analizado tres veces. Las diferencias entre lecturas son parte de la información; la columna de Vall d\'Hebron (VHIO) es la referencia actual.',
-                  'The same tumour has been analysed three times. The differences between reads are themselves information; the Vall d\'Hebron (VHIO) column is the current reference.') }}
+            {{ L('El mismo tumor se ha analizado tres veces, en tres centros y momentos distintos. Las diferencias entre lecturas son parte de la información, no un error: la columna más reciente (VHIO, 2026) es la más completa, no necesariamente la «correcta».',
+                  'The same tumour has been analysed three times, at three centres and time points. The differences between reads are themselves information, not an error: the most recent column (VHIO, 2026) is the most complete, not necessarily the “correct” one.') }}
           </p>
           <div class="data-card overflow-x-auto">
             <table class="data-table data-table--dense data-table--cards">
@@ -105,7 +105,7 @@
                 <tr><td class="font-semibold text-berenjena cell-head">HER2</td><td class="font-mono" data-label="Local · Murcia · 2024">0</td><td class="font-mono" data-label="MD Anderson · DIPCAN · 2024">0</td><td class="text-sm reads-vh" data-label="VHIO · Vall d’Hebron · 2026">{{ L('0 (sin tinción de membrana)', '0 (no membrane staining)') }}</td></tr>
                 <tr><td class="font-semibold text-berenjena cell-head">Ki-67</td><td class="font-mono" data-label="Local · Murcia · 2024">60%</td><td class="font-mono" data-label="MD Anderson · DIPCAN · 2024">—</td><td class="font-mono reads-vh" data-label="VHIO · Vall d’Hebron · 2026">40%</td></tr>
                 <tr><td class="font-semibold text-berenjena cell-head">{{ L('Grado (Nottingham)', 'Grade (Nottingham)') }}</td><td class="font-mono" data-label="Local · Murcia · 2024">II (3+2+2)</td><td class="font-mono" data-label="MD Anderson · DIPCAN · 2024">—</td><td class="font-mono reads-vh" data-label="VHIO · Vall d’Hebron · 2026">2 (3+2+1)</td></tr>
-                <tr><td class="font-semibold text-berenjena cell-head">{{ L('Subtipo (IHQ)', 'Subtype (IHC)') }}</td><td data-label="Local · Murcia · 2024">—</td><td data-label="MD Anderson · DIPCAN · 2024">—</td><td class="reads-vh" data-label="VHIO · Vall d’Hebron · 2026"><span class="pill-data pill-data--warn">Luminal B · HER2−</span></td></tr>
+                <tr><td class="font-semibold text-berenjena cell-head">{{ L('Subtipo (IHQ)', 'Subtype (IHC)') }}</td><td data-label="Local · Murcia · 2024">—</td><td data-label="MD Anderson · DIPCAN · 2024">—</td><td class="reads-vh" data-label="VHIO · Vall d’Hebron · 2026"><span class="pill-data pill-data--violet">Luminal B · HER2−</span></td></tr>
                 <tr><td class="font-semibold text-berenjena cell-head">{{ L('Diferenciación neuroendocrina', 'Neuroendocrine differentiation') }}</td><td data-label="Local · Murcia · 2024">{{ L('confirmada', 'confirmed') }}</td><td data-label="MD Anderson · DIPCAN · 2024">—</td><td class="text-sm reads-vh" data-label="VHIO · Vall d’Hebron · 2026">{{ L('Sinaptofisina heterogénea · Cromogranina focal+ · INSM1 en mosaico', 'Heterogeneous synaptophysin · focal+ chromogranin · mosaic INSM1') }}</td></tr>
               </tbody>
             </table>
@@ -114,6 +114,10 @@
             {{ L('Murcia 2024 (biopsia local) · MD Anderson · DIPCAN 2024 (perfil ampliado) · Vall d\'Hebron · Anatomía Patológica VH-26-B-17664 · VHIO · 19/05/2026.',
                   'Murcia 2024 (local biopsy) · MD Anderson · DIPCAN 2024 (extended profile) · Vall d\'Hebron · Pathology VH-26-B-17664 · VHIO · 19/05/2026.') }}
           </p>
+          <Nota class="mt-3">
+            {{ L('Estas lecturas describen el tejido; no son un diagnóstico de consenso. Armonizar las discordancias está pendiente de valoración por el comité de tumores.',
+                  'These reads describe the tissue; they are not a consensus diagnosis. Reconciling the discordances is pending tumour-board review.') }}
+          </Nota>
         </section>
 
         <!-- Capa «Resumen simple»: VERSIÓN propia en lenguaje llano (no es la
