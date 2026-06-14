@@ -140,6 +140,27 @@
           <p class="mt-6 text-sm text-tinta leading-relaxed max-w-2xl">
             {{ $t('ciencia.simple_more') }}
           </p>
+          <!-- Puerta-invitación al detalle clínico (plain-first → pro). NO es coral
+               (el coral se reserva al CTA de campaña): es una invitación, no un muro.
+               Dice qué hay dentro y el tiempo de lectura. -->
+          <button
+            type="button"
+            @click="goPro()"
+            class="ciencia-door card-base w-full text-left flex items-start gap-4 hover:shadow-md transition-shadow group mt-8 max-w-2xl"
+            style="text-decoration: none"
+          >
+            <span class="w-10 h-10 rounded-xl bg-miriam-soft flex items-center justify-center shrink-0" aria-hidden="true">
+              <Icon name="ph:dna" class="w-5 h-5 text-berenjena" />
+            </span>
+            <span class="min-w-0 flex-1">
+              <span class="eyebrow mb-1 block">{{ $t('ciencia.door_eyebrow') }}</span>
+              <span class="block font-display font-semibold text-berenjena group-hover:text-miriam transition-colors">
+                {{ $t('ciencia.door_title') }}
+              </span>
+              <span class="block text-sm text-tinta leading-relaxed mt-0.5">{{ $t('ciencia.door_body') }}</span>
+            </span>
+            <Icon name="ph:arrow-right" class="w-4 h-4 text-tinta mt-1 shrink-0 transition-transform group-hover:translate-x-0.5" aria-hidden="true" />
+          </button>
         </section>
 
         <!-- Solo «Para médicos»: el marco técnico de por qué no encaja en guías
@@ -573,14 +594,44 @@ const axisTerms = ['axis_fgfr', 'axis_sstr', 'axis_esr1', 'axis_ne']
 // v-if) sobre contenedores `display:contents`, así no cambian el HTML estático
 // ni la hidratación.
 // Dos versiones por tipo de lector (la doble audiencia del sitio): «Para todos»
-// (sin tecnicismos) y «Para profesionales» (la página clínica completa). 'pro'
-// es el valor por defecto → el HTML estático lleva el caso clínico íntegro (SEO).
+// (sin tecnicismos, POR DEFECTO) y «Para profesionales» (la página clínica
+// completa). Plain-first: todos entran en el resumen llano; el modo clínico se
+// abre con un tap o llega directo vía ?nivel=pro (botón «Medicina/investigación»
+// del home). Todo el contenido pro sigue en el HTML vía v-show → SEO y agentes
+// de IA lo ven igual aunque entres en simple.
 type ReadingLevel = 'simple' | 'pro'
-// El nivel inicial puede venir de la URL (?nivel=pro|simple) para enlazar directo
-// al modo científico — p. ej. el botón «Medicina / investigación» del home. Por
-// defecto 'pro' (HTML estático con el caso clínico íntegro, SEO).
 const route = useRoute()
-const level = ref<ReadingLevel>(route.query.nivel === 'simple' ? 'simple' : 'pro')
+const level = ref<ReadingLevel>(route.query.nivel === 'pro' ? 'pro' : 'simple')
+onMounted(() => {
+  // La URL manda sobre lo recordado; sin ?nivel, recupera la última elección.
+  if (route.query.nivel === 'pro' || route.query.nivel === 'simple') return
+  try {
+    const saved = localStorage.getItem('hm_ciencia_nivel')
+    if (saved === 'pro' || saved === 'simple') level.value = saved as ReadingLevel
+  } catch {
+    /* sin localStorage */
+  }
+})
+watch(level, (v) => {
+  try {
+    localStorage.setItem('hm_ciencia_nivel', v)
+  } catch {
+    /* noop */
+  }
+})
+// Abre el detalle clínico desde la puerta-invitación y lleva al inicio de la capa
+// pro, gestionando el foco (a11y: el cambio de contenido no debe ser silencioso).
+function goPro() {
+  level.value = 'pro'
+  nextTick(() => {
+    const el = document.getElementById('snapshot-title')
+    if (el) {
+      el.setAttribute('tabindex', '-1')
+      el.focus({ preventScroll: true })
+      el.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    }
+  })
+}
 const levelOptions = computed(() => [
   { id: 'simple' as const, label: t('ciencia.level_simple') },
   { id: 'pro' as const, label: t('ciencia.level_pro') },
