@@ -7,6 +7,17 @@ export default {
     './content/**/*.md',
     './app.vue',
   ],
+  // Tonos de pill-data construidos dinámicamente (`pill-data--${tone}`) en las
+  // tablas clínicas (snapshot, perfil molecular, biopsia líquida, evidencia).
+  // Sin safelist, Tailwind los purga —no los ve literales— y los tags salen sin
+  // fondo (transparentes). Mantener en sync con app/assets/css/main.css.
+  safelist: [
+    'pill-data--info',
+    'pill-data--warn',
+    'pill-data--positive',
+    'pill-data--neutral',
+    'pill-data--violet',
+  ],
   theme: {
     extend: {
       colors: {
