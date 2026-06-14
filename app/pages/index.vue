@@ -354,11 +354,11 @@
             <p class="text-sm text-tinta mt-1">{{ $t('home.pro_sub') }}</p>
           </div>
           <div class="flex flex-col sm:flex-row gap-3">
-            <NuxtLink :to="localePath('colabora') + '#revision-clinica'" class="btn-secondary">
+            <NuxtLink :to="localePath({ name: 'ciencia' }) + '?nivel=pro'" class="btn-secondary">
               <Icon name="ph:stethoscope" class="w-4 h-4" aria-hidden="true" />
               {{ $t('home.pro_clinical') }}
             </NuxtLink>
-            <NuxtLink :to="localePath('colabora') + '#alcance'" class="btn-secondary">
+            <NuxtLink :to="localePath({ name: 'prensa' })" class="btn-secondary">
               <Icon name="ph:megaphone-simple-fill" class="w-4 h-4" aria-hidden="true" />
               {{ $t('home.pro_press') }}
             </NuxtLink>

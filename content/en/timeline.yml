@@ -186,3 +186,32 @@ entries:
     highlight: true
     link: https://x.com/miriamgonp/status/2060649242037723567
     linkLabel: 'See the Ga-68 PET thread →'
+
+  - date: 'Jun 5, 2026'
+    tag: Molecular
+    title: The breast biopsy doesn't yield enough tumor
+    description: >
+      A breast biopsy is done to try to qualify for the phase 3 KATSIS-1 trial, which requires
+      tumor tissue. The analyzable sample is tiny (0.3 mm), not enough to meet the criteria, so
+      this route doesn't allow entry into that trial.
+    highlight: false
+    link: https://clinicaltrials.gov/study/NCT07062965
+    linkLabel: 'See the KATSIS-1 trial →'
+
+  - date: 'Jun 9, 2026'
+    tag: Outreach
+    title: helpmiriam.com at the Chiara Awards in Barcelona
+    description: >
+      Miriam presents the project at the Chiara Awards —awards for metastatic breast cancer
+      research— held in Barcelona. Very well received.
+    highlight: true
+
+  - date: 'Jun 11, 2026'
+    tag: Progression
+    title: A lesion threatening the spinal cord, and urgent radiotherapy
+    description: >
+      A follow-up MRI, after 60 days without treatment, shows clear bone progression and, above
+      all, a lesion in the T11 vertebra starting to threaten the spinal canal: the risk of cord
+      compression is real. Urgent SBRT radiotherapy is scheduled to shrink the lesion and protect
+      the spinal cord.
+    highlight: true

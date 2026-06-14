@@ -485,8 +485,8 @@ function triageTone(tone: string): string {
 /* ------------------------------------------------------------------ */
 /*  Lectura RM (11/06/2026) + valoración SBRT por lesión.              */
 /*  Transcrito del «Documento de apoyo · valoración SBRT» (12/06/2026),*/
-/*  que cita el informe de RM de columna (11/06/2026, Dra. Martínez    */
-/*  Fernández) y los informes PET. Es orientación para el comité, NO   */
+/*  que cita el informe de RM de columna (11/06/2026) y los informes   */
+/*  PET. Es orientación para el comité, NO                             */
 /*  diagnóstico ni indicación. No modifica ningún SUV.                 */
 /* ------------------------------------------------------------------ */
 const SBRT_GROUP: Record<'A' | 'B' | 'C', { es: string; en: string; c: string }> = {
@@ -964,7 +964,7 @@ const ticks = [
                     <span class="status-badge" :style="{ background: (selSbrtMeta?.c || '#6b6470') + '22', color: selSbrtMeta?.c || '#6b6470' }">{{ L('Grupo', 'Group') }} {{ selSbrt?.group }} · {{ lang === 'en' ? selSbrtMeta?.en : selSbrtMeta?.es }}</span>
                   </p>
                   <p class="text-[13px] text-tinta leading-snug">{{ lang === 'en' ? selSbrt?.en : selSbrt?.es }}</p>
-                  <p class="text-[10px] text-tinta mt-1.5 italic leading-relaxed">{{ L('Según el documento de apoyo para Oncología Radioterápica (12/06/2026), que cita el informe de RM de columna (11/06/2026, Dra. Martínez Fernández) y los PET. Documento de apoyo, no diagnóstico: la decisión es del radioncólogo y del comité.', 'From the supportive document for Radiation Oncology (12 Jun 2026), citing the spine MRI report (11 Jun 2026, Dr. Martínez Fernández) and the PET studies. Supportive document, not a diagnosis: the decision belongs to the radiation oncologist and the tumour board.') }}</p>
+                  <p class="text-[10px] text-tinta mt-1.5 italic leading-relaxed">{{ L('Según el documento de apoyo para Oncología Radioterápica (12/06/2026), que cita el informe de RM de columna (11/06/2026) y los PET. Documento de apoyo, no diagnóstico: la decisión es del radioncólogo y del comité.', 'From the supportive document for Radiation Oncology (12 Jun 2026), citing the spine MRI report (11 Jun 2026) and the PET studies. Supportive document, not a diagnosis: the decision belongs to the radiation oncologist and the tumour board.') }}</p>
                 </div>
 
                 <p class="text-[10px] text-tinta mt-2 leading-relaxed">{{ L('Lectura orientativa derivada de tus propios SUV y morfología, para apoyar la conversación con tu equipo. No es consejo médico ni una indicación de tratamiento.', 'Orientation derived from your own SUVs and morphology, to support the conversation with your team. Not medical advice or a treatment indication.') }}</p>
@@ -1201,8 +1201,8 @@ const ticks = [
             <p class="eyebrow mb-2 block">{{ L('Lectura del informe · citada', 'Report findings · cited') }}</p>
             <h3 class="heading-display text-lg text-berenjena mb-2">{{ L('Lo que dice tu RM de columna (11/06/2026)', 'What your spine MRI says (11 Jun 2026)') }}</h3>
             <p class="text-sm text-tinta leading-relaxed mb-4">
-              {{ L('Resumen del informe de RM (Dra. Martínez Fernández), recogido en el documento de apoyo para Oncología Radioterápica (12/06/2026). Es el texto del informe, no una relectura de la imagen por esta herramienta.',
-                    'Summary of the MRI report (Dr. Martínez Fernández), as captured in the supportive document for Radiation Oncology (12 Jun 2026). It is the report’s text, not a re-reading of the image by this tool.') }}
+              {{ L('Resumen del informe de RM, recogido en el documento de apoyo para Oncología Radioterápica (12/06/2026). Es el texto del informe, no una relectura de la imagen por esta herramienta.',
+                    'Summary of the MRI report, as captured in the supportive document for Radiation Oncology (12 Jun 2026). It is the report’s text, not a re-reading of the image by this tool.') }}
             </p>
             <p class="text-[12px] font-semibold text-berenjena mb-1.5">{{ L('Niveles con metástasis (multinivel):', 'Levels with metastasis (multilevel):') }}</p>
             <div class="flex flex-wrap gap-1.5 mb-4">

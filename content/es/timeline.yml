@@ -188,3 +188,32 @@ entries:
     highlight: true
     link: https://x.com/miriamgonp/status/2060649242037723567
     linkLabel: 'Ver el hilo del PET Galio →'
+
+  - date: '5 jun 2026'
+    tag: Molecular
+    title: La biopsia de mama no da tumor suficiente
+    description: >
+      Se realiza una biopsia de la mama para optar al ensayo en fase 3 KATSIS-1, que requiere
+      tejido tumoral. La muestra analizable es mínima (0,3 mm), insuficiente para cumplir los
+      criterios, así que por esta vía no es posible entrar en ese ensayo.
+    highlight: false
+    link: https://clinicaltrials.gov/study/NCT07062965
+    linkLabel: 'Ver el ensayo KATSIS-1 →'
+
+  - date: '9 jun 2026'
+    tag: Divulgación
+    title: helpmiriam.com en los Premios Chiara, en Barcelona
+    description: >
+      Miriam presenta el proyecto en la entrega de los Premios Chiara —premios a la investigación
+      del cáncer de mama metastásico— celebrada en Barcelona. Muy buena aceptación.
+    highlight: true
+
+  - date: '11 jun 2026'
+    tag: Progresión
+    title: Una lesión que amenaza la médula y radioterapia de urgencia
+    description: >
+      Una resonancia de control, tras 60 días sin tratamiento, muestra progresión ósea clara y,
+      sobre todo, una lesión en la vértebra D11 que empieza a amenazar el canal medular: el riesgo
+      de compresión medular es real. Se programa radioterapia SBRT de urgencia para reducir la
+      lesión y proteger la médula.
+    highlight: true

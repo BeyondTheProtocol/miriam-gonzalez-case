@@ -26,7 +26,7 @@
         </h2>
         <ul
           aria-labelledby="team-medical"
-          class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-14 stagger-children"
+          class="grid sm:grid-cols-2 gap-4 mb-14 stagger-children"
         >
           <li v-for="member in medicalNetwork" :key="member.role">
             <TeamCard :member="member" />

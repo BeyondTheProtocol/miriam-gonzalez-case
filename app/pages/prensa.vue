@@ -145,7 +145,7 @@
             <p class="text-[15px] leading-relaxed" style="color: rgba(250,246,240,0.85)">
               {{ $t('press.contact_body') }}
             </p>
-            <NuxtLink :to="localePath('contacto')" class="btn-cta mt-7">
+            <NuxtLink :to="localePath('contacto') + '?role=journalist'" class="btn-cta mt-7">
               <Icon name="ph:envelope-simple" class="w-4 h-4" aria-hidden="true" />
               {{ $t('press.contact_cta') }}
             </NuxtLink>

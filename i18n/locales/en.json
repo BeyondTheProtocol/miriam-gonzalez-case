@@ -159,11 +159,25 @@
     "active_for": "active",
     "donate_now": "Support Miriam",
     "progress_label": "GoFundMe campaign progress",
-    "goal_total": "first goal",
+    "goal_total": "goal",
     "pct_raised": "raised",
     "social_proof": "Join the people already making it possible.",
-    "remaining": "{amount} to go to close the first goal.",
-    "goal_unlocks": "The first goal funds the advanced molecular rebiopsy: obtaining and preserving the tissue for precision analyses. After that, the case is funded in phases."
+    "remaining": "{amount} to go to the next milestone.",
+    "phase_count": "Milestone {current} of {total}",
+    "milestones": {
+      "rebiopsy": {
+        "label": "Molecular rebiopsy",
+        "desc": "Obtain the tissue and the first precision analyses."
+      },
+      "bank": {
+        "label": "Tissue bank",
+        "desc": "Preserve and bank the tissue and complete sequencing."
+      },
+      "treatment": {
+        "label": "Personalized treatment",
+        "desc": "Start the combined approach: breast and neuroendocrine."
+      }
+    }
   },
   "press": {
     "tag": "For journalists",

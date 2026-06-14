@@ -89,7 +89,7 @@
                   'The same tumour has been analysed three times. The differences between reads are themselves information; the Vall d\'Hebron (VHIO) column is the current reference.') }}
           </p>
           <div class="data-card overflow-x-auto">
-            <table class="data-table data-table--dense">
+            <table class="data-table data-table--dense data-table--cards">
               <caption class="sr-only">{{ L('El mismo tejido, leído tres veces', 'The same tissue, read three times') }}</caption>
               <thead>
                 <tr>
@@ -100,19 +100,19 @@
                 </tr>
               </thead>
               <tbody>
-                <tr><td class="font-semibold text-berenjena">{{ L('RE (estrógeno)', 'ER (estrogen)') }}</td><td class="font-mono">95%</td><td class="font-mono">100%</td><td class="font-mono reads-vh">{{ L('85% · alta · H 225', '85% · high · H 225') }}</td></tr>
-                <tr><td class="font-semibold text-berenjena">{{ L('RP (progesterona)', 'PR (progesterone)') }}</td><td class="font-mono">5%</td><td class="font-mono">100%</td><td class="font-mono reads-vh">{{ L('20% · baja · H 25', '20% · low · H 25') }}</td></tr>
-                <tr><td class="font-semibold text-berenjena">HER2</td><td class="font-mono">0</td><td class="font-mono">0</td><td class="text-sm reads-vh">{{ L('0 (sin tinción de membrana)', '0 (no membrane staining)') }}</td></tr>
-                <tr><td class="font-semibold text-berenjena">Ki-67</td><td class="font-mono">60%</td><td class="font-mono">—</td><td class="font-mono reads-vh">40%</td></tr>
-                <tr><td class="font-semibold text-berenjena">{{ L('Grado (Nottingham)', 'Grade (Nottingham)') }}</td><td class="font-mono">II (3+2+2)</td><td class="font-mono">—</td><td class="font-mono reads-vh">2 (3+2+1)</td></tr>
-                <tr><td class="font-semibold text-berenjena">{{ L('Subtipo (IHQ)', 'Subtype (IHC)') }}</td><td>—</td><td>—</td><td class="reads-vh"><span class="pill-data pill-data--warn">Luminal B · HER2−</span></td></tr>
-                <tr><td class="font-semibold text-berenjena">{{ L('Diferenciación neuroendocrina', 'Neuroendocrine differentiation') }}</td><td>{{ L('confirmada', 'confirmed') }}</td><td>—</td><td class="text-sm reads-vh">{{ L('Sinaptofisina heterogénea · Cromogranina focal+ · INSM1 en mosaico', 'Heterogeneous synaptophysin · focal+ chromogranin · mosaic INSM1') }}</td></tr>
+                <tr><td class="font-semibold text-berenjena cell-head">{{ L('RE (estrógeno)', 'ER (estrogen)') }}</td><td class="font-mono" data-label="Local · Murcia · 2024">95%</td><td class="font-mono" data-label="MD Anderson · DIPCAN · 2024">100%</td><td class="font-mono reads-vh" data-label="VHIO · Vall d’Hebron · 2026">{{ L('85% · alta · H 225', '85% · high · H 225') }}</td></tr>
+                <tr><td class="font-semibold text-berenjena cell-head">{{ L('RP (progesterona)', 'PR (progesterone)') }}</td><td class="font-mono" data-label="Local · Murcia · 2024">5%</td><td class="font-mono" data-label="MD Anderson · DIPCAN · 2024">100%</td><td class="font-mono reads-vh" data-label="VHIO · Vall d’Hebron · 2026">{{ L('20% · baja · H 25', '20% · low · H 25') }}</td></tr>
+                <tr><td class="font-semibold text-berenjena cell-head">HER2</td><td class="font-mono" data-label="Local · Murcia · 2024">0</td><td class="font-mono" data-label="MD Anderson · DIPCAN · 2024">0</td><td class="text-sm reads-vh" data-label="VHIO · Vall d’Hebron · 2026">{{ L('0 (sin tinción de membrana)', '0 (no membrane staining)') }}</td></tr>
+                <tr><td class="font-semibold text-berenjena cell-head">Ki-67</td><td class="font-mono" data-label="Local · Murcia · 2024">60%</td><td class="font-mono" data-label="MD Anderson · DIPCAN · 2024">—</td><td class="font-mono reads-vh" data-label="VHIO · Vall d’Hebron · 2026">40%</td></tr>
+                <tr><td class="font-semibold text-berenjena cell-head">{{ L('Grado (Nottingham)', 'Grade (Nottingham)') }}</td><td class="font-mono" data-label="Local · Murcia · 2024">II (3+2+2)</td><td class="font-mono" data-label="MD Anderson · DIPCAN · 2024">—</td><td class="font-mono reads-vh" data-label="VHIO · Vall d’Hebron · 2026">2 (3+2+1)</td></tr>
+                <tr><td class="font-semibold text-berenjena cell-head">{{ L('Subtipo (IHQ)', 'Subtype (IHC)') }}</td><td data-label="Local · Murcia · 2024">—</td><td data-label="MD Anderson · DIPCAN · 2024">—</td><td class="reads-vh" data-label="VHIO · Vall d’Hebron · 2026"><span class="pill-data pill-data--warn">Luminal B · HER2−</span></td></tr>
+                <tr><td class="font-semibold text-berenjena cell-head">{{ L('Diferenciación neuroendocrina', 'Neuroendocrine differentiation') }}</td><td data-label="Local · Murcia · 2024">{{ L('confirmada', 'confirmed') }}</td><td data-label="MD Anderson · DIPCAN · 2024">—</td><td class="text-sm reads-vh" data-label="VHIO · Vall d’Hebron · 2026">{{ L('Sinaptofisina heterogénea · Cromogranina focal+ · INSM1 en mosaico', 'Heterogeneous synaptophysin · focal+ chromogranin · mosaic INSM1') }}</td></tr>
               </tbody>
             </table>
           </div>
           <p class="text-xs text-tinta mt-2 font-mono leading-relaxed">
-            {{ L('Murcia 2024 (biopsia local) · MD Anderson · DIPCAN 2024 (perfil ampliado) · Vall d\'Hebron · Anatomía Patológica VH-26-B-17664 · Dr. V. Peg Cámara · caso Dra. C. Saura (VHIO) · 19/05/2026.',
-                  'Murcia 2024 (local biopsy) · MD Anderson · DIPCAN 2024 (extended profile) · Vall d\'Hebron · Pathology VH-26-B-17664 · Dr. V. Peg Cámara · case Dr. C. Saura (VHIO) · 19/05/2026.') }}
+            {{ L('Murcia 2024 (biopsia local) · MD Anderson · DIPCAN 2024 (perfil ampliado) · Vall d\'Hebron · Anatomía Patológica VH-26-B-17664 · VHIO · 19/05/2026.',
+                  'Murcia 2024 (local biopsy) · MD Anderson · DIPCAN 2024 (extended profile) · Vall d\'Hebron · Pathology VH-26-B-17664 · VHIO · 19/05/2026.') }}
           </p>
         </section>
 
@@ -317,7 +317,7 @@
              Mobile-first: en móvil el CTA baja a una píldora a ancho completo, claramente pulsable;
              en sm+ vuelve a la fila con el CTA alineado a la derecha. -->
         <NuxtLink
-          :to="localePath('/contacto')"
+          :to="localePath('/contacto') + '?role=oncologist'"
           class="group flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-3.5 rounded-2xl px-4 sm:px-5 py-4 mb-14 transition-all active:scale-[0.99] sm:hover:-translate-y-0.5"
           style="background:rgba(232,212,237,0.30);text-decoration:none"
         >
@@ -572,7 +572,11 @@ const axisTerms = ['axis_fgfr', 'axis_sstr', 'axis_esr1', 'axis_ne']
 // (sin tecnicismos) y «Para profesionales» (la página clínica completa). 'pro'
 // es el valor por defecto → el HTML estático lleva el caso clínico íntegro (SEO).
 type ReadingLevel = 'simple' | 'pro'
-const level = ref<ReadingLevel>('pro')
+// El nivel inicial puede venir de la URL (?nivel=pro|simple) para enlazar directo
+// al modo científico — p. ej. el botón «Medicina / investigación» del home. Por
+// defecto 'pro' (HTML estático con el caso clínico íntegro, SEO).
+const route = useRoute()
+const level = ref<ReadingLevel>(route.query.nivel === 'simple' ? 'simple' : 'pro')
 const levelOptions = computed(() => [
   { id: 'simple' as const, label: t('ciencia.level_simple') },
   { id: 'pro' as const, label: t('ciencia.level_pro') },

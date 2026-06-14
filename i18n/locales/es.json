@@ -159,11 +159,25 @@
     "active_for": "activa",
     "donate_now": "Apoyar a Miriam",
     "progress_label": "Progreso de la campaña GoFundMe",
-    "goal_total": "primer objetivo",
+    "goal_total": "objetivo",
     "pct_raised": "recaudado",
     "social_proof": "Únete a quienes ya lo hacen posible.",
-    "remaining": "Faltan {amount} para cerrar el primer objetivo.",
-    "goal_unlocks": "El primer objetivo financia la rebiopsia molecular avanzada: obtener y preservar el tejido para los análisis de precisión. Después, el caso se financia por fases."
+    "remaining": "Faltan {amount} para el siguiente hito.",
+    "phase_count": "Hito {current} de {total}",
+    "milestones": {
+      "rebiopsy": {
+        "label": "Rebiopsia molecular",
+        "desc": "Obtener el tejido y los primeros análisis de precisión."
+      },
+      "bank": {
+        "label": "Banco de tejido",
+        "desc": "Preservar y bancar el tejido y completar la secuenciación."
+      },
+      "treatment": {
+        "label": "Tratamiento personalizado",
+        "desc": "Arranque del abordaje combinado: mama y neuroendocrino."
+      }
+    }
   },
   "press": {
     "tag": "Para periodistas",
