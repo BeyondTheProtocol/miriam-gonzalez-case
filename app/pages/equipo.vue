@@ -74,19 +74,19 @@
 
             <ul class="space-y-4">
               <li
-                v-for="(item, i) in notUsList"
+                v-for="(item, i) in notUsItems"
                 :key="i"
-                class="flex items-start gap-4 text-[15px] leading-relaxed"
-                style="color: rgba(250,246,240,0.9)"
+                class="flex items-start gap-3.5 text-[15px] leading-relaxed"
               >
                 <span
-                  class="shrink-0 mt-0.5 inline-flex items-center justify-center w-[22px] h-[22px] rounded-md"
-                  style="background: rgba(255,107,71,0.18)"
+                  class="shrink-0 mt-[11px] h-[2px] w-3.5 rounded-full"
+                  style="background: rgba(255,107,71,0.7)"
                   aria-hidden="true"
+                />
+                <span style="color: rgba(250,246,240,0.72)"
+                  ><strong class="font-semibold" style="color: #faf6f0">{{ item.lead }}</strong
+                  >{{ item.rest ? ' ' + item.rest : '' }}</span
                 >
-                  <Icon name="ph:x-bold" class="w-3.5 h-3.5 text-coral" />
-                </span>
-                <span>{{ item }}</span>
               </li>
             </ul>
 
@@ -134,6 +134,17 @@ function arr(key: string): string[] {
   return list.map((item) => rt(item as never))
 }
 const notUsList = computed(() => arr('team.notus_list'))
+
+// "Lo que NO somos": separa la frase-tesis de su explicación para destacarla en
+// negrita y sustituir el muro de iconos ✗ repetidos por jerarquía tipográfica.
+const notUsItems = computed(() =>
+  notUsList.value.map((s) => {
+    const idx = s.indexOf('. ')
+    return idx === -1
+      ? { lead: s, rest: '' }
+      : { lead: s.slice(0, idx + 1), rest: s.slice(idx + 2) }
+  })
+)
 
 const { data: teamData } = await useAsyncData(
   `team-data-${locale.value}`,

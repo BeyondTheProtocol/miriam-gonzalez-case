@@ -4,7 +4,7 @@
          destacado late en coral. `echo` = doble pulso de saludo al aterrizar
          desde "Lo último" del hero. -->
     <div
-      class="tl-dot absolute left-0 top-1.5 w-[23px] h-[23px] rounded-full flex items-center justify-center transition-transform duration-200 group-hover:scale-110"
+      class="tl-dot absolute left-0 top-1.5 w-[22px] h-[22px] rounded-full flex items-center justify-center transition-transform duration-200 group-hover:scale-110"
       :class="{ 'tl-dot-live': live, 'tl-dot-echo': echo }"
       :style="dotStyle"
     >

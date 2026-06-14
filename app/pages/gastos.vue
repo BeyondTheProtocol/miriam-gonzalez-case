@@ -89,7 +89,7 @@
             >
               <Icon
                 name="ph:check-circle-fill"
-                class="mt-0.5 w-4 h-4 text-miriam shrink-0"
+                class="mt-[3px] w-4 h-4 text-miriam shrink-0"
                 aria-hidden="true"
               />
               <span class="text-sm text-tinta leading-relaxed">{{ $rt(item) }}</span>
