@@ -112,6 +112,21 @@
     "home": "Volver al inicio",
     "follow": "¿Quieres seguir el caso de cerca? {'@'}miriamgonp en Instagram"
   },
+  "error": {
+    "e404_code": "404",
+    "e404_label": "Página no encontrada",
+    "e404_title": "Esta página se nos {firma}",
+    "e404_firma": "ha escapado",
+    "e404_lede": "Puede que el enlace esté roto o que la página se haya movido. Pero el caso de Miriam sigue aquí.",
+    "e500_code": "500",
+    "e500_label": "Error del servidor",
+    "e500_title": "Algo se ha {firma}",
+    "e500_firma": "torcido",
+    "e500_lede": "Ha fallado algo por nuestra parte. Vuelve a intentarlo en un momento.",
+    "home": "Volver al inicio",
+    "case": "Ver la ciencia del caso",
+    "retry": "Reintentar"
+  },
   "hero": {
     "title": "Un cáncer raro, {op} real.",
     "title_short": "Un cáncer raro, una oportunidad real.",
@@ -124,7 +139,8 @@
     "section_label": "Presentación del caso",
     "stat_raised_label": "recaudados hasta ahora",
     "stat_donors_label": "personas ya han contribuido",
-    "stat_specialists_label": "especialistas en {countries} países",
+    "stat_specialists_value": "5+",
+    "stat_specialists_label": "especialistas en 3 países",
     "stat_ne_value": "80%",
     "stat_ne_label": "diferenciación neuroendocrina",
     "latest_label": "Lo último",

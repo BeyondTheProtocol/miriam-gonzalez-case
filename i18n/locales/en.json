@@ -112,6 +112,21 @@
     "home": "Back to home",
     "follow": "Want to follow the case closely? {'@'}miriamgonp on Instagram"
   },
+  "error": {
+    "e404_code": "404",
+    "e404_label": "Page not found",
+    "e404_title": "This page has {firma}",
+    "e404_firma": "wandered off",
+    "e404_lede": "The link may be broken or the page may have moved. But Miriam's case is still here.",
+    "e500_code": "500",
+    "e500_label": "Server error",
+    "e500_title": "Something went {firma}",
+    "e500_firma": "sideways",
+    "e500_lede": "Something failed on our side. Please try again in a moment.",
+    "home": "Back to home",
+    "case": "See the science",
+    "retry": "Retry"
+  },
   "hero": {
     "title": "A rare cancer, {op}.",
     "title_short": "A rare cancer, a real opportunity.",
@@ -124,7 +139,8 @@
     "section_label": "Case overview",
     "stat_raised_label": "raised so far",
     "stat_donors_label": "people have contributed",
-    "stat_specialists_label": "specialists in {countries} countries",
+    "stat_specialists_value": "5+",
+    "stat_specialists_label": "specialists in 3 countries",
     "stat_ne_value": "80%",
     "stat_ne_label": "neuroendocrine differentiation",
     "latest_label": "Latest",
