@@ -210,9 +210,9 @@
             <li
               v-for="(item, i) in $tm('home.s8_advantages')"
               :key="i"
-              class="flex items-start gap-2.5"
+              class="flex items-start gap-3"
             >
-              <Icon name="ph:check-circle-fill" class="mt-0.5 w-4 h-4 text-miriam shrink-0" aria-hidden="true" />
+              <Icon name="ph:check-circle-fill" class="mt-[3px] w-4 h-4 text-miriam shrink-0" aria-hidden="true" />
               <span class="text-sm text-tinta leading-relaxed">{{ $rt(item) }}</span>
             </li>
           </ul>
@@ -277,7 +277,7 @@
             >
               <Icon
                 name="ph:check-circle-fill"
-                class="mt-0.5 w-4 h-4 text-miriam shrink-0"
+                class="mt-[3px] w-4 h-4 text-miriam shrink-0"
                 aria-hidden="true"
               />
               <span class="text-sm text-tinta leading-relaxed">{{ $rt(item) }}</span>
