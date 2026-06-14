@@ -51,19 +51,19 @@ const { locale } = useI18n()
 const chapters = computed(() =>
   locale.value === 'es'
     ? [
-        { id: 'snapshot-title', label: 'Diagnóstico' },
+        { id: 'snapshot-title', label: 'Resumen clínico' },
         { id: 'tejido-3veces', label: 'Anatomía patológica' },
         { id: 'molecular-profile-title', label: 'Perfil molecular' },
-        { id: 'imaging-tissue-title', label: 'Imagen (PET Ga-68)' },
-        { id: 'panel-title', label: 'Rebiopsia' },
+        { id: 'imaging-tissue-title', label: 'Imagen funcional' },
+        { id: 'panel-title', label: 'El siguiente paso' },
         { id: 'treatment-title', label: 'Historia clínica' },
       ]
     : [
-        { id: 'snapshot-title', label: 'Diagnosis' },
+        { id: 'snapshot-title', label: 'Clinical summary' },
         { id: 'tejido-3veces', label: 'Pathology' },
         { id: 'molecular-profile-title', label: 'Molecular profile' },
-        { id: 'imaging-tissue-title', label: 'Imaging (Ga-68 PET)' },
-        { id: 'panel-title', label: 'Rebiopsy' },
+        { id: 'imaging-tissue-title', label: 'Functional imaging' },
+        { id: 'panel-title', label: 'The next step' },
         { id: 'treatment-title', label: 'Clinical history' },
       ]
 )
