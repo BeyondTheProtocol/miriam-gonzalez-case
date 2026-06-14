@@ -316,6 +316,110 @@
           </NuxtLink>
         </section>
 
+        <!-- Ejes terapéuticos → panel de rebiopsia, subidos por encima de la
+             historia clínica (es la «petición» del caso; no debe quedar al fondo).
+             Siguen dentro de la capa de datos (showData) abierta más arriba. -->
+        <DnaDivider class="mb-10" />
+        <section class="mb-14" aria-labelledby="axes-title">
+          <p class="eyebrow mb-2 block">{{ locale === 'es' ? 'Ejes terapéuticos' : 'Therapeutic axes' }}</p>
+          <h2
+            id="axes-title"
+            class="heading-display text-2xl text-berenjena mb-2"
+            style="letter-spacing: -0.02em"
+          >
+            {{ locale === 'es' ? 'Hacia dónde apuntar' : 'Where to aim' }}
+          </h2>
+          <p class="text-sm text-tinta leading-relaxed mb-6 max-w-2xl">
+            {{ locale === 'es'
+              ? 'De todo lo anterior se desprenden varias dianas. Estos son los ejes terapéuticos candidatos que sugiere el perfil molecular, cada uno con su propia lógica de tratamiento.'
+              : 'Several candidate targets follow from all of the above. These are the therapeutic axes the molecular profile points to, each with its own treatment rationale.' }}
+          </p>
+          <!-- Cada eje, con tooltip que explica qué hace esa opción de tratamiento. -->
+          <div class="flex flex-wrap gap-2" translate="no">
+            <template v-for="(axis, ai) in $tm('ciencia.axes')" :key="ai">
+              <Term
+                v-if="axisTerms[ai]"
+                :id="axisTerms[ai]"
+                :label="String($rt(axis))"
+                variant="badge"
+              />
+              <span v-else class="badge-genomic">{{ $rt(axis) }}</span>
+            </template>
+          </div>
+          <details class="notes-disclosure mt-4">
+            <summary>
+              {{ locale === 'es' ? 'Cómo interpretar estos ejes' : 'How to read these axes' }}
+            </summary>
+            <p class="text-xs text-tinta leading-relaxed max-w-2xl">
+              {{ $t('ciencia.axes_note') }}
+            </p>
+          </details>
+        </section>
+
+        <section v-if="panelRows.length">
+          <p class="eyebrow mb-2 block">{{ locale === 'es' ? 'El siguiente paso' : 'The next step' }}</p>
+          <h2
+            id="panel-title"
+            class="heading-display text-2xl text-berenjena mb-2"
+            style="letter-spacing: -0.02em"
+          >
+            {{ $t('ciencia.proposed_panel') }}
+          </h2>
+          <p class="text-sm text-tinta leading-relaxed mb-6 max-w-2xl">
+            {{ locale === 'es'
+              ? 'Una sola intervención de la que sacar la caracterización más completa posible del tumor —genómica, inmunogenómica y epigenética— para no tener que volver a biopsiar. El objetivo realista son 3–5 cores en un plan escalonado: primero se confirma que hay tumor (≥30 % de celularidad) y luego se reparte el material por prioridad; como muchos análisis comparten muestra, los trozos físicos necesarios son pocos. Una referencia germinal —un tubo de sangre o saliva, cualquier día— y la biopsia líquida añaden información sin gastar ningún core. Es lo que financia la campaña.'
+              : 'A single procedure from which to extract the most complete characterisation possible of the tumour —genomic, immunogenomic and epigenetic— so there is no need to re-biopsy. The realistic target is 3–5 cores in a staged plan: first confirm there is tumour (≥30% cellularity), then allocate the material by priority; because many assays share the same sample, few physical pieces are actually needed. A germline reference —a tube of blood or saliva, any day— and the liquid biopsy add information without spending a single core. This is what the campaign funds.' }}
+          </p>
+          <p class="text-sm text-berenjena leading-relaxed font-medium mb-6 max-w-2xl">
+            {{ locale === 'es'
+              ? 'Próximo paso (junio 2026): rebiopsia ósea con plan escalonado de 3–5 cores y nueva biopsia líquida, para completar el perfil molecular y ver cómo evoluciona.'
+              : 'Next step (June 2026): bone rebiopsy with a staged 3–5-core plan and fresh liquid biopsy, to complete the molecular profile and track how it evolves.' }}
+          </p>
+          <div class="data-card mb-14">
+            <div class="overflow-x-auto">
+              <table
+                class="data-table data-table--dense data-table--cards"
+                :aria-labelledby="locale === 'es' ? 'panel-title' : undefined"
+              >
+                <caption class="sr-only">
+                  {{ $t('ciencia.proposed_panel_caption') }}
+                </caption>
+                <thead>
+                  <tr>
+                    <th scope="col">{{ $t('ciencia.component') }}</th>
+                    <th scope="col" class="col-marker">{{ $t('ciencia.method') }}</th>
+                    <th scope="col">{{ $t('ciencia.targets') }}</th>
+                    <th scope="col" class="col-note">{{ $t('ciencia.implication') }}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr v-for="(row, i) in panelRows" :key="i">
+                    <td class="cell-head font-semibold text-berenjena">{{ row.component }}</td>
+                    <td class="col-marker" :data-label="$t('ciencia.method')">{{ row.method }}</td>
+                    <td :data-label="$t('ciencia.targets')">{{ row.targets }}</td>
+                    <td class="col-note cell-block" :data-label="$t('ciencia.implication')">{{ row.implication }}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <details class="notes-disclosure px-4 sm:px-5 pb-4">
+              <summary>
+                {{ locale === 'es' ? 'Especificaciones técnicas de la biopsia' : 'Biopsy technical specifications' }}
+              </summary>
+              <p class="text-xs text-tinta leading-relaxed">
+                {{ locale === 'es'
+                  ? 'Aguja coaxial 14G sobre partes blandas perilesionales, sin descalcificar (el ácido degrada el ADN ~10×; si hay que descalcificar hueso, solo EDTA, nunca ácido). Touch-prep/ROSE para confirmar ≥30 % de celularidad tumoral antes de repartir nada. La referencia germinal (sangre/saliva) va aparte, cualquier día. No se comprometen WES+WGS+RNA-seq a un único core: se reservan 1–2 cores congelados para genómica y transcriptómica. Las biopsias líquidas seriadas cierran el bucle con las decisiones en tiempo real.'
+                  : '14G coaxial needle into peri-lesional soft tissue, without decalcification (acid degrades DNA ~10×; if bone must be decalcified, EDTA only, never acid). Touch-prep/ROSE to confirm ≥30% tumour cellularity before allocating anything. The germline reference (blood/saliva) goes separately, any day. WES+WGS+RNA-seq are not committed to a single core: 1–2 frozen cores are reserved for genomics and transcriptomics. Serial liquid biopsies close the loop with real-time decisions.' }}
+              </p>
+            </details>
+          </div>
+          <Nota class="mt-4">
+            {{ locale === 'es'
+              ? 'Material de apoyo a la consulta: describe lo que una sola biopsia podría extraer; no es una indicación de tratamiento. Las decisiones —dónde pinchar, cuántos cores son seguros, qué ensayos son viables— las toma el equipo médico tratante.'
+              : 'Consultation support material: it describes what a single biopsy could extract; it is not a treatment indication. The decisions —where to sample, how many cores are safe, which assays are feasible— are made by the treating medical team.' }}
+          </Nota>
+        </section>
+
         <hr class="chapter-rule" aria-hidden="true" />
         <p class="eyebrow mb-2 block">{{ locale === 'es' ? 'Historia clínica' : 'Clinical history' }}</p>
         <h2
@@ -382,108 +486,6 @@
         </NuxtLink>
         </div>
         <!-- /solo médicos -->
-
-        <!-- Capa de datos (médicos + tabla completa): ejes terapéuticos → panel. -->
-        <div style="display: contents" v-show="showData">
-        <!-- Candidate therapeutic axes: one-line synthesis (confirmed by the panel, detailed in the papers).
-             El capítulo genómico se abre con la doble hélice (en vez del chapter-rule). -->
-        <DnaDivider class="mb-10" />
-        <section class="mb-14" aria-labelledby="axes-title">
-          <p class="eyebrow mb-2 block">{{ locale === 'es' ? 'Ejes terapéuticos' : 'Therapeutic axes' }}</p>
-          <h2
-            id="axes-title"
-            class="heading-display text-2xl text-berenjena mb-2"
-            style="letter-spacing: -0.02em"
-          >
-            {{ locale === 'es' ? 'Hacia dónde apuntar' : 'Where to aim' }}
-          </h2>
-          <p class="text-sm text-tinta leading-relaxed mb-6 max-w-2xl">
-            {{ locale === 'es'
-              ? 'De todo lo anterior se desprenden varias dianas. Estos son los ejes terapéuticos candidatos que sugiere el perfil molecular, cada uno con su propia lógica de tratamiento.'
-              : 'Several candidate targets follow from all of the above. These are the therapeutic axes the molecular profile points to, each with its own treatment rationale.' }}
-          </p>
-          <!-- Cada eje, con tooltip que explica qué hace esa opción de tratamiento. -->
-          <div class="flex flex-wrap gap-2" translate="no">
-            <template v-for="(axis, ai) in $tm('ciencia.axes')" :key="ai">
-              <Term
-                v-if="axisTerms[ai]"
-                :id="axisTerms[ai]"
-                :label="String($rt(axis))"
-                variant="badge"
-              />
-              <span v-else class="badge-genomic">{{ $rt(axis) }}</span>
-            </template>
-          </div>
-          <details class="notes-disclosure mt-4">
-            <summary>
-              {{ locale === 'es' ? 'Cómo interpretar estos ejes' : 'How to read these axes' }}
-            </summary>
-            <p class="text-xs text-tinta leading-relaxed max-w-2xl">
-              {{ $t('ciencia.axes_note') }}
-            </p>
-          </details>
-        </section>
-
-        <section v-if="panelRows.length">
-          <p class="eyebrow mb-2 block">{{ locale === 'es' ? 'El siguiente paso' : 'The next step' }}</p>
-          <h2
-            id="panel-title"
-            class="heading-display text-2xl text-berenjena mb-2"
-            style="letter-spacing: -0.02em"
-          >
-            {{ $t('ciencia.proposed_panel') }}
-          </h2>
-          <p class="text-sm text-tinta leading-relaxed mb-6 max-w-2xl">
-            {{ locale === 'es'
-              ? 'Una sola biopsia ósea de la que extraer todo lo que la ciencia permite hoy: 13 cores en 6 formatos de preservación (FFPE, congelado, lisado, OCT, fresco y tejido vivo). Lo que no se procesa ahora se banca para analizarlo durante más de 10 años sin volver a biopsiar. Es lo que financia la campaña.'
-              : 'A single bone biopsy from which to extract everything current science allows: 13 cores across 6 preservation formats (FFPE, frozen, lysate, OCT, fresh and live tissue). Whatever isn’t processed now is banked to be analysed for 10+ years without re-biopsying. This is what the campaign funds.' }}
-          </p>
-          <p class="text-sm text-berenjena leading-relaxed font-medium mb-6 max-w-2xl">
-            {{ locale === 'es'
-              ? 'Próximo paso (junio 2026): rebiopsia ósea y nueva ctDNA para confirmar cómo evoluciona el perfil y priorizar las dianas terapéuticas.'
-              : 'Next step (June 2026): bone rebiopsy and fresh ctDNA to confirm how the profile is evolving and prioritise the therapeutic targets.' }}
-          </p>
-          <div class="data-card mb-14">
-            <div class="overflow-x-auto">
-              <table
-                class="data-table data-table--dense data-table--cards"
-                :aria-labelledby="locale === 'es' ? 'panel-title' : undefined"
-              >
-                <caption class="sr-only">
-                  {{ $t('ciencia.proposed_panel_caption') }}
-                </caption>
-                <thead>
-                  <tr>
-                    <th scope="col">{{ $t('ciencia.component') }}</th>
-                    <th scope="col" class="col-marker">{{ $t('ciencia.method') }}</th>
-                    <th scope="col">{{ $t('ciencia.targets') }}</th>
-                    <th scope="col" class="col-note">{{ $t('ciencia.implication') }}</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr v-for="(row, i) in panelRows" :key="i">
-                    <td class="cell-head font-semibold text-berenjena">{{ row.component }}</td>
-                    <td class="col-marker" :data-label="$t('ciencia.method')">{{ row.method }}</td>
-                    <td :data-label="$t('ciencia.targets')">{{ row.targets }}</td>
-                    <td class="col-note cell-block" :data-label="$t('ciencia.implication')">{{ row.implication }}</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-            <details class="notes-disclosure px-4 sm:px-5 pb-4">
-              <summary>
-                {{ locale === 'es' ? 'Especificaciones técnicas de la biopsia' : 'Biopsy technical specifications' }}
-              </summary>
-              <p class="text-xs text-tinta leading-relaxed">
-                {{ locale === 'es'
-                  ? 'Aguja coaxial 14G sobre el componente de tejido blando perilesional (la NGS falla en el 36% del hueso puro frente al 2,3% en tejido blando), ≥20 mm de tejido y ≥20% de celularidad tumoral confirmada por touch-prep. Las biopsias líquidas seriadas cierran el bucle entre el tejido y las decisiones terapéuticas en tiempo real.'
-                  : '14G coaxial needle into the peri-lesional soft-tissue component (NGS fails in 36% of pure bone vs 2.3% in soft tissue), ≥20 mm of tissue and ≥20% tumour cellularity confirmed by touch-prep. Serial liquid biopsies close the loop between tissue and real-time therapeutic decisions.' }}
-              </p>
-            </details>
-          </div>
-        </section>
-        </div>
-        <!-- /capa de datos (parte 2) -->
 
         <!-- Capa narrativa (simple + médicos): el objetivo N-of-1. -->
         <div v-show="showNarrative" class="card-base mb-16" style="background:#2d1b3d;color:#faf6f0;border:none">

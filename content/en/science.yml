@@ -160,38 +160,46 @@ paperSections:
           therapies, including PRRT when appropriate.
         link: null
 panelRows:
-  - component: Broad NGS + WGS
-    method: '≥500-gene panel + WGS · FFPE Core 5 / frozen Core 6'
-    targets: 'FGFR1-4, CCND1, CDK4, FGF3/4/19, ESR1, PIK3CA, PTEN, RB1, TP53, MET; CNV, TMB, MSI, fusions, SV'
+  - component: Germline reference (tumour-normal)
+    method: 'One tube of blood or saliva · any day, spends no core'
+    targets: 'Paired germline to separate inherited from tumour variants'
+    implication: 'The highest-impact, near-zero-cost change: makes the WES/WGS somatic calls reliable'
+  - component: WES + WGS (genomics)
+    method: '≥500-gene panel from the FFPE block (Core 1) + quality WES/WGS from snap-frozen (Core 2), with paired germline'
+    targets: 'FGFR1-4, CCND1, CDK4, FGF3/4/19, ESR1, PIK3CA, PTEN, RB1, TP53, MET; CNV, SV, fusions'
     implication: 'Dominant drivers and co-alterations. PTEN and CDK4 reliable only in tissue; CDK4 co-amplified at 11q13 implies CDK4/6i resistance'
-  - component: RNA-seq (expression)
-    method: 'Bulk RNA-seq · frozen Core 6'
-    targets: 'mRNA FGFR1, FGF3/4/19, MYC; NE signature; PAM50'
-    implication: 'Better predictor of FGFRi response than amplification alone; confirms the FGFR autocrine circuit'
-  - component: Extended IHC (30)
-    method: 'IHC + RNAscope · FFPE Core 3'
-    targets: 'ER, PR, HER2 (ultralow), FGFR1, SSTR2, TROP-2, B7-H3, DLL3, CgA, SYN, INSM1, Rb, Cyclin E1, GR'
+  - component: Deep RNA-seq (expression + antigens)
+    method: 'Snap-frozen (Core 2) · prioritise RNA quality'
+    targets: 'FGFR1/FGF3-4-19/MYC expression, NE signature, PAM50; non-SNV antigens (fusions, splicing) and cancer-testis'
+    implication: 'With low TMB, the main antigen source; better predictor of FGFRi response than amplification alone'
+  - component: Extended IHC + HLA typing
+    method: 'IHC + RNAscope from the FFPE block (Core 1); HLA derived from sequencing'
+    targets: 'ER, PR, HER2 (ultralow), FGFR1, SSTR2, TROP-2, B7-H3, DLL3, CgA, SYN, INSM1, Rb, Cyclin E1; HLA I/II'
     implication: 'HER2-low→T-DXd · SSTR2→PRRT · DLL3→anti-DLL3 · Cyclin E1 / Rb loss→CDK4/6i resistance'
-  - component: Single-cell Multiome + CITE-seq
-    method: 'snRNA + ATAC, TCR/BCR · frozen Core 7'
-    targets: 'Transcriptional states + chromatin; ER/HER2/SSTR2/TROP-2/B7-H3/PD-L1; T/B repertoire'
-    implication: 'NE vs luminal program, resistant clones and immune microenvironment (cold vs hot tumour)'
-  - component: RPPA / phosphoproteomics
-    method: '~95 proteins · lysate Core 9'
-    targets: 'p-FRS2α, p-AKT, p-ERK, p-Rb, p-S6, Cyclin E1, GR, p-ER'
+  - component: Immunopeptidomics (HLA peptidome)
+    method: 'FRESH core to the lab as soon as possible, ischaemia ≤30 min (Core 3)'
+    targets: 'Peptides actually presented on HLA (from ~15 mg → thousands of peptides)'
+    implication: 'Confirms which antigens really reach the cell surface; basis for an N-of-1 strategy'
+  - component: Phosphoproteomics (RPPA / MS)
+    method: 'Ultra-fast snap-freeze — the phosphoproteome changes in minutes (Core 4)'
+    targets: 'p-FRS2α, p-AKT, p-ERK, p-Rb, p-S6, Cyclin E1, p-ER'
     implication: 'REAL pathway activation (FGFR, PI3K, MAPK, cell cycle); guides combinations'
-  - component: Spatial transcriptomics
-    method: 'Visium / Xenium · OCT Cores 10–11'
-    targets: 'Tumour–stroma–bone architecture; is the NE differentiation homogeneous or are there residual HR+ islands?'
-    implication: 'Determines whether to target only the NE phenotype or also the residual luminal component'
+  - component: Epigenetics (methylation)
+    method: 'EPIC + EM-seq from leftover DNA or the FFPE block · no extra core'
+    targets: 'Methylome and methylation classifier; NE vs luminal'
+    implication: 'Modulates antigen expression and immune evasion; helps classify the tumour'
+  - component: Single-cell + spatial transcriptomics
+    method: 'Viable or snap-frozen tissue (Core 5); spatial from FFPE (Visium) or dedicated OCT (Xenium)'
+    targets: 'NE vs luminal states, resistant clones, immune microenvironment; tumour–stroma–bone architecture'
+    implication: 'Determines whether to target only the NE phenotype or also the residual luminal component (cold vs hot tumour)'
   - component: Organoids + drug screening
-    method: 'Ex vivo culture · fresh Core 12 / live-cryo Core 13'
+    method: 'Fresh or live-cryopreserved tissue (DMSO) to grow them later (Core 5)'
     targets: 'Ex vivo sensitivity: FGFRi, CDK4/6i, T-DXd, capivasertib, everolimus and combinations'
-    implication: 'PDOs predict response ~78% and improve PFS when guiding treatment (11.0 vs 5.0 months)'
-  - component: Serial ctDNA
-    method: 'Plasma every 6–8 weeks'
-    targets: 'FGFR1 amp, ESR1 (Y537S/D538G), PIK3CA, FGFR kinase mutations; tumour fraction ≥1%'
-    implication: 'Closes the loop: detects resistance 4–8 weeks before imaging, without re-biopsying'
+    implication: 'PDOs predict response and improve PFS when guiding treatment'
+  - component: Serial liquid biopsy (ctDNA)
+    method: 'Plasma (Guardant, HOPE/SOLTI) every 6–8 weeks · complement, no core'
+    targets: 'FGFR1 amp, ESR1 (Y537S/D538G), PIK3CA, FGFR kinase mutations'
+    implication: 'Closes the loop: detects resistance before imaging, without re-biopsying'
 liquidBiopsies:
   - id: ctdna-1
     date: Apr 7, 2026
