@@ -148,6 +148,7 @@ const navItems = [
   { key: 'science', to: '/ciencia' },
   { key: 'timeline', to: '/timeline' },
   { key: 'team', to: '/equipo' },
+  { key: 'press', to: '/prensa' },
   { key: 'collaborate', to: '/colabora' },
   { key: 'press', to: '/prensa' },
   { key: 'contact', to: '/contacto' },

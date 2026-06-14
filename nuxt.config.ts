@@ -71,7 +71,9 @@ export default defineNuxtConfig({
 
   vite: {
     optimizeDeps: {
-      include: []
+      // pre-empaquetar three (visor 3D del hueso) evita que Vite lo descubra en
+      // caliente y recargue a media página (causaba un 500 transitorio en dev)
+      include: ['three', 'three/examples/jsm/controls/OrbitControls.js', 'three/examples/jsm/loaders/PLYLoader.js']
     }
   },
 
@@ -102,6 +104,7 @@ export default defineNuxtConfig({
       'historia/index': { en: '/story' },
       'historia/[slug]': { en: '/story/[slug]' },
       'equipo': { en: '/team' },
+      'prensa': { en: '/press' },
       'contacto': { en: '/contact' },
       'colabora': { en: '/collaborate' },
       'gastos': { en: '/expenses' },

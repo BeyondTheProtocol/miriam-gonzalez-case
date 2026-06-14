@@ -20,7 +20,7 @@
             <span class="text-tinta/35" aria-hidden="true">·</span>
             <span>{{ $t('timeline.meta_span') }}</span>
             <span class="text-tinta/35" aria-hidden="true">·</span>
-            <span>{{ $t('timeline.meta_network') }}</span>
+            <span>{{ $t('timeline.meta_network', { countries: caseData.countries }) }}</span>
           </div>
         </PageHeader>
 
@@ -68,7 +68,7 @@
         <div class="relative max-w-2xl">
           <span
             aria-hidden="true"
-            class="absolute left-[11px] top-2 bottom-3 w-[2px] rounded-full"
+            class="absolute left-[10px] top-2 bottom-3 w-[2px] rounded-full"
             style="background: linear-gradient(180deg, #a44db2 0%, rgba(164,77,178,0.15) 100%)"
           />
           <!-- key=selected → al filtrar, el bloque se remonta y reproduce un fundido

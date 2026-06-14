@@ -32,3 +32,6 @@ public/donations.json
 
 # Config local de agentes (sesiones de Claude)
 .claude/
+
+# Documentos clínicos privados (informes, PET/biopsia) — NO subir a repo público
+docs/

@@ -306,8 +306,9 @@ const stats = computed(() => [
     label: t('hero.stat_donors_label'),
   },
   {
-    value: t('hero.stat_specialists_value'),
-    label: t('hero.stat_specialists_label'),
+    // Valor y nº de países desde la fuente única (caseData), no hardcodeados.
+    value: caseData.specialists,
+    label: t('hero.stat_specialists_label', { countries: caseData.countries }),
   },
   {
     value: t('hero.stat_ne_value'),

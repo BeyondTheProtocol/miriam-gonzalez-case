@@ -53,6 +53,9 @@ const pressItemSchema = z.object({
   outlet: z.string(),
   url: z.string(),
   title: z.string(),
+  // Fecha de publicación (ISO o 'YYYY-MM'). Opcional: algunas piezas (TV, RRSS)
+  // no tienen fecha exacta verificable.
+  date: z.string().optional(),
 })
 
 const pressSchema = z.object({
