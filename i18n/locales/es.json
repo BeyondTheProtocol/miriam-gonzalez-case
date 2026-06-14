@@ -36,8 +36,8 @@
     "dismiss": "Cerrar"
   },
   "counter": {
-    "label": "días esperando una nueva línea de tratamiento",
-    "short": "días sin nueva línea"
+    "label": "días sin tratamiento",
+    "short": "días sin tratamiento"
   },
   "thanksWall": {
     "eyebrow": "Gracias",
