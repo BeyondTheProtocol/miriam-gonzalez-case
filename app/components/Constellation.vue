@@ -1,9 +1,9 @@
 <template>
   <ClientOnly>
     <div class="constellation" aria-hidden="true">
-      <!-- Carta celeste dibujada a mano: conectores a lápiz (curvados) entre
-           estrellas vecinas. Las constelaciones nunca fueron los astros — son
-           las líneas que trazamos para navegar. -->
+      <!-- Asterismos: unas pocas figuras dibujadas a lápiz en los márgenes
+           (no una malla). Las constelaciones nunca fueron los astros —
+           son las líneas que trazamos para navegar. -->
       <svg class="constellation__lines" viewBox="0 0 100 100" preserveAspectRatio="none">
         <path
           v-for="(l, i) in lines"
@@ -16,11 +16,22 @@
           vector-effect="non-scaling-stroke"
         />
       </svg>
+
+      <!-- Halos suaves: la estrella «tú» (coral) y la estrella guía (violeta). -->
+      <span
+        v-for="(h, i) in halos"
+        :key="'h' + i"
+        class="constellation__halo"
+        :class="h.kind === 'you' ? 'is-you' : 'is-north'"
+        :style="{ left: h.x + '%', top: h.y + '%', width: h.r + 'px', height: h.r + 'px' }"
+      />
+
+      <!-- Estrellas -->
       <svg
         v-for="(s, i) in stars"
         :key="i"
         class="constellation__star"
-        :class="{ constellation__new: s.new }"
+        :class="{ 'is-you': s.kind === 'you', twinkle: s.twinkle }"
         :style="{
           left: s.x + '%',
           top: s.y + '%',
@@ -28,10 +39,13 @@
           height: s.size + 'px',
           '--o': String(s.o),
           '--rot': s.rot + 'deg',
+          '--blur': s.blur + 'px',
+          '--delay': s.delay + 's',
+          '--dur': s.dur + 's',
         }"
         viewBox="0 0 20 20"
       >
-        <path :fill="s.new ? '#ff6b47' : '#9d44ab'" :d="STAR_D" />
+        <path :fill="s.kind === 'you' ? '#ff6b47' : '#9d44ab'" :d="STAR_D" />
       </svg>
     </div>
   </ClientOnly>
@@ -39,18 +53,21 @@
 
 <script setup lang="ts">
 /**
- * Constelación de quienes apoyan — trazo de cuaderno (estrella dibujada a mano,
- * con leve rotación propia y conectores a lápiz curvados). La ciencia dentro:
- *  · MAGNITUD: si llegan importes, el tamaño sigue escala logarítmica (Pogson):
- *    una aportación 100× mayor brilla solo unos pasos más — ninguna eclipsa.
- *  · LÍNEAS: cada estrella se une a su vecina, como en una carta celeste.
- * Genera UNA estrella por aportación real (todas, con tope de cordura para el
- * DOM). Tamaños fijos en píxeles, posiciones deterministas (PRNG), decorativa
- * (aria-hidden) y ClientOnly. En móvil sube la opacidad (media query).
+ * Constelación de quienes apoyan — un cielo violeta tras el mensaje de gracias.
+ * Repaso de diseño de datos:
+ *  · DISTRIBUCIÓN: rejilla con jitter (azul-ruido) → densidad pareja, sin grumos.
+ *  · ZONA TRANQUILA: elipse central tras el texto donde las estrellas se atenúan
+ *    (la mirada cae siempre en las palabras, nunca en un astro).
+ *  · FIGURAS: unas pocas constelaciones cortas a lápiz en los márgenes, no una
+ *    malla de todos-con-todos.
+ *  · PROFUNDIDAD: 3 capas (tamaño + opacidad + leve desenfoque) → cielo con aire.
+ *  · MOVIMIENTO: parpadeo lento y desincronizado, solo CSS, off con reduced-motion.
+ *  · «TÚ»: la estrella de quien acaba de llegar, coral, con halo, que se enciende
+ *    y completa una línea. Y una estrella-guía violeta como ancla.
+ * Una estrella por aportación (densidad = nº de donantes). Decorativa
+ * (aria-hidden), determinista (PRNG) y ClientOnly.
  */
-const props = withDefaults(defineProps<{ count?: number; amounts?: number[] }>(), {
-  count: 60,
-})
+const props = withDefaults(defineProps<{ count?: number }>(), { count: 60 })
 
 // Estrella de 4 puntas dibujada a mano: brazos ligeramente curvos y asimétricos.
 const STAR_D =
@@ -72,55 +89,25 @@ interface Star {
   y: number
   size: number
   o: number
+  blur: number
   rot: number
-  new: boolean
+  twinkle: boolean
+  delay: number
+  dur: number
+  kind: 'field' | 'north' | 'you'
 }
 
-const sky = computed(() => {
-  // Una estrella por aportación real (todas); tope para no saturar el DOM.
-  const n = Math.max(18, Math.min(props.count, 600))
-  const rnd = mulberry32(20240127)
-  const amts = (props.amounts ?? []).filter((a) => a > 0)
-  const median = amts.length ? [...amts].sort((a, b) => a - b)[Math.floor(amts.length / 2)]! : 0
+// Zona tranquila: elipse central donde vive el texto. Las estrellas que caen
+// dentro se atenúan (factor < 1) para no robarle legibilidad al mensaje.
+const QZ = { cx: 50, cy: 48, rx: 34, ry: 31 }
+function quiet(x: number, y: number) {
+  const dx = (x - QZ.cx) / QZ.rx
+  const dy = (y - QZ.cy) / QZ.ry
+  const d = Math.sqrt(dx * dx + dy * dy)
+  return Math.max(0.1, Math.min(1, d * d))
+}
 
-  const stars: Star[] = []
-  for (let i = 0; i < n; i++) {
-    const x = +(rnd() * 100).toFixed(2)
-    const y = +(rnd() * 100).toFixed(2)
-    const o = +(0.16 + rnd() * 0.34).toFixed(2)
-    let size = +(5 + rnd() * 6).toFixed(1)
-    if (median > 0) {
-      const a = amts[Math.floor(rnd() * amts.length)]!
-      size = +Math.min(12, Math.max(4.5, 6 + 2.2 * Math.log10(a / median))).toFixed(1)
-    }
-    stars.push({ x, y, size, o, rot: +(rnd() * 44 - 22).toFixed(1), new: false })
-  }
-  // La estrella nueva (coral): la de quien acaba de llegar — recién descubierta.
-  stars.push({ x: 50, y: 26, size: 14, o: 1, rot: -6, new: true })
-
-  // Conectores a lápiz: cada estrella con su vecina previa más cercana, curvados.
-  const lines: { d: string }[] = []
-  const MAX_D2 = 24 * 24
-  for (let i = 1; i < stars.length; i++) {
-    let best = -1
-    let bd = Infinity
-    for (let j = 0; j < i; j++) {
-      const dx = stars[i]!.x - stars[j]!.x
-      const dy = stars[i]!.y - stars[j]!.y
-      const d2 = dx * dx + dy * dy
-      if (d2 < bd) {
-        bd = d2
-        best = j
-      }
-    }
-    if (best >= 0 && bd < MAX_D2) {
-      lines.push({ d: penLine(stars[i]!.x, stars[i]!.y, stars[best]!.x, stars[best]!.y, rnd) })
-    }
-  }
-  return { stars, lines }
-})
-
-// Traza una línea «a mano»: recta con leve curvatura perpendicular en el medio.
+// Línea «a lápiz»: recta con leve curvatura perpendicular en el medio.
 function penLine(x1: number, y1: number, x2: number, y2: number, rnd: () => number) {
   const mx = (x1 + x2) / 2
   const my = (y1 + y2) / 2
@@ -133,8 +120,179 @@ function penLine(x1: number, y1: number, x2: number, y2: number, rnd: () => numb
   return `M${x1} ${y1} Q${cxp} ${cyp} ${x2} ${y2}`
 }
 
+function pickNearest(stars: Star[], ax: number, ay: number) {
+  let best: Star | null = null
+  let bd = Infinity
+  for (const s of stars) {
+    if (s.kind !== 'field' || quiet(s.x, s.y) < 0.85) continue
+    const d = (s.x - ax) ** 2 + (s.y - ay) ** 2
+    if (d < bd) {
+      bd = d
+      best = s
+    }
+  }
+  return best
+}
+
+function greedyPath(pts: Star[], start: Star): Star[] {
+  const rem = pts.filter((p) => p !== start)
+  const path = [start]
+  while (rem.length) {
+    const last = path[path.length - 1]!
+    let bi = 0
+    let bd = Infinity
+    for (let i = 0; i < rem.length; i++) {
+      const d = (rem[i]!.x - last.x) ** 2 + (rem[i]!.y - last.y) ** 2
+      if (d < bd) {
+        bd = d
+        bi = i
+      }
+    }
+    path.push(rem.splice(bi, 1)[0]!)
+  }
+  return path
+}
+
+const sky = computed(() => {
+  const n = Math.max(18, Math.min(props.count, 600))
+  const rnd = mulberry32(20240127)
+
+  // Rejilla con jitter: una estrella por celda (orden barajado), centro ± offset.
+  const cols = Math.ceil(Math.sqrt(n * 1.6))
+  const rows = Math.ceil(n / cols)
+  const cw = 100 / cols
+  const ch = 100 / rows
+  const cells = Array.from({ length: rows * cols }, (_, i) => i)
+  for (let i = cells.length - 1; i > 0; i--) {
+    const j = Math.floor(rnd() * (i + 1))
+    ;[cells[i], cells[j]] = [cells[j]!, cells[i]!]
+  }
+
+  const stars: Star[] = []
+  for (let k = 0; k < n; k++) {
+    const cell = cells[k]!
+    const c = cell % cols
+    const r = Math.floor(cell / cols)
+    let x = (c + 0.5 + (rnd() - 0.5) * 0.7) * cw
+    let y = (r + 0.5 + (rnd() - 0.5) * 0.7) * ch
+    x = Math.max(1, Math.min(99, x))
+    y = Math.max(1, Math.min(99, y))
+
+    // 3 capas: lejos (pequeña/tenue/borrosa) · media · cerca (grande/nítida).
+    const t = rnd()
+    let size: number
+    let o: number
+    let blur: number
+    if (t < 0.58) {
+      size = 3 + rnd() * 2
+      o = 0.1 + rnd() * 0.08
+      blur = 0.4
+    } else if (t < 0.88) {
+      size = 5 + rnd() * 3
+      o = 0.18 + rnd() * 0.12
+      blur = 0
+    } else {
+      size = 8 + rnd() * 4
+      o = 0.3 + rnd() * 0.12
+      blur = 0
+    }
+
+    const q = quiet(x, y)
+    o *= q
+    // Parpadeo: ~30% de las pequeñas/medianas, nunca dentro de la zona del texto.
+    const twinkle = t < 0.88 && q > 0.6 && rnd() < 0.32
+
+    stars.push({
+      x: +x.toFixed(2),
+      y: +y.toFixed(2),
+      size: +size.toFixed(1),
+      o: +o.toFixed(3),
+      blur,
+      rot: +(rnd() * 44 - 22).toFixed(1),
+      twinkle,
+      delay: +(rnd() * 8).toFixed(1),
+      dur: +(6 + rnd() * 5).toFixed(1),
+      kind: 'field',
+    })
+  }
+
+  // Estrella-guía (violeta, brillante) cerca del margen superior-izquierdo: ancla.
+  const north = pickNearest(stars, 21, 27)
+  if (north) {
+    north.size = 13
+    north.o = 0.5
+    north.blur = 0
+    north.kind = 'north'
+    north.twinkle = false
+  }
+
+  // Estrella «tú» (coral): quien acaba de llegar, sobre el monograma.
+  const you: Star = {
+    x: 56,
+    y: 14,
+    size: 14,
+    o: 1,
+    blur: 0,
+    rot: -6,
+    twinkle: false,
+    delay: 0,
+    dur: 0,
+    kind: 'you',
+  }
+  stars.push(you)
+
+  // Figuras: 3–4 asterismos cortos en los márgenes (fuera de la zona del texto).
+  const lines: { d: string }[] = []
+  const used = new Set<Star>()
+  const cand = stars.filter((s) => s.kind === 'field' && quiet(s.x, s.y) > 0.9)
+  const anchors: { x: number; y: number; seed: Star | null }[] = [
+    { x: north?.x ?? 21, y: north?.y ?? 27, seed: north },
+    { x: 82, y: 30, seed: null },
+    { x: 24, y: 80, seed: null },
+    { x: 78, y: 78, seed: null },
+  ]
+  for (const a of anchors) {
+    const near = cand
+      .filter((s) => !used.has(s))
+      .map((s) => ({ s, d: (s.x - a.x) ** 2 + (s.y - a.y) ** 2 }))
+      .sort((p, q) => p.d - q.d)
+      .slice(0, 4 + Math.floor(rnd() * 2))
+      .map((p) => p.s)
+    const figure = a.seed ? [a.seed, ...near.filter((s) => s !== a.seed)] : near
+    if (figure.length < 3) continue
+    figure.forEach((s) => used.add(s))
+    const path = greedyPath(figure, a.seed ?? figure[0]!)
+    for (let i = 1; i < path.length; i++) {
+      lines.push({ d: penLine(path[i - 1]!.x, path[i - 1]!.y, path[i]!.x, path[i]!.y, rnd) })
+    }
+  }
+
+  // «Tú» enciende su propia mini-figura: 1–2 estrellas cercanas de la franja alta.
+  const top = stars
+    .filter((s) => s.kind === 'field' && s.y < 26 && quiet(s.x, s.y) > 0.85)
+    .map((s) => ({ s, d: (s.x - you.x) ** 2 + (s.y - you.y) ** 2 }))
+    .sort((p, q) => p.d - q.d)
+    .slice(0, 2)
+    .map((p) => p.s)
+  let prev = you
+  for (const s of top) {
+    if ((s.x - prev.x) ** 2 + (s.y - prev.y) ** 2 < 26 * 26) {
+      lines.push({ d: penLine(prev.x, prev.y, s.x, s.y, rnd) })
+    }
+    prev = s
+  }
+
+  // Halos suaves para las dos estrellas especiales.
+  const halos = stars
+    .filter((s) => s.kind === 'you' || s.kind === 'north')
+    .map((s) => ({ x: s.x, y: s.y, r: +(s.size * 3.4).toFixed(1), kind: s.kind }))
+
+  return { stars, lines, halos }
+})
+
 const stars = computed(() => sky.value.stars)
 const lines = computed(() => sky.value.lines)
+const halos = computed(() => sky.value.halos)
 </script>
 
 <style scoped>
@@ -150,32 +308,85 @@ const lines = computed(() => sky.value.lines)
   inset: 0;
   width: 100%;
   height: 100%;
-  opacity: 0.12;
+  opacity: 0.1;
 }
 .constellation__star {
   position: absolute;
   display: block;
   transform: translate(-50%, -50%) rotate(var(--rot, 0deg));
   opacity: var(--o, 0.3);
+  filter: blur(var(--blur, 0px));
+  will-change: opacity;
 }
-/* Móvil: el cielo gana presencia (pantalla pequeña, máscara vertical aparte). */
+.constellation__halo {
+  position: absolute;
+  display: block;
+  transform: translate(-50%, -50%);
+  border-radius: 9999px;
+  pointer-events: none;
+}
+.constellation__halo.is-you {
+  background: radial-gradient(circle, rgba(255, 107, 71, 0.16), transparent 70%);
+}
+.constellation__halo.is-north {
+  background: radial-gradient(circle, rgba(157, 68, 171, 0.1), transparent 70%);
+}
+/* Fallback estático (reduced-motion o SSR): «tú» visible sin animación. */
+.constellation__star.is-you {
+  opacity: 0.92;
+}
+
+/* Móvil: el cielo gana un poco de presencia (pantalla pequeña). */
 @media (max-width: 639px) {
   .constellation__star {
-    opacity: calc(var(--o, 0.3) + 0.15);
+    opacity: calc(var(--o, 0.3) + 0.1);
   }
   .constellation__lines {
-    opacity: 0.18;
+    opacity: 0.14;
   }
 }
+
 @keyframes star-ignite {
-  0% { opacity: 0; }
-  60% { opacity: 1; }
-  100% { opacity: 0.9; }
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -50%) rotate(var(--rot, 0deg)) scale(0.6);
+  }
+  60% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0.92;
+    transform: translate(-50%, -50%) rotate(var(--rot, 0deg)) scale(1);
+  }
+}
+@keyframes halo-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes twinkle {
+  0%,
+  100% {
+    opacity: var(--o, 0.3);
+  }
+  50% {
+    opacity: calc(var(--o, 0.3) * 0.5);
+  }
 }
 @media (prefers-reduced-motion: no-preference) {
-  .constellation__new {
+  .constellation__star.is-you {
     opacity: 0;
-    animation: star-ignite 1.6s ease-out 0.4s forwards;
+    animation: star-ignite 1.6s ease-out 0.5s forwards;
+  }
+  .constellation__halo.is-you {
+    opacity: 0;
+    animation: halo-in 1.6s ease-out 0.5s forwards;
+  }
+  .constellation__star.twinkle {
+    animation: twinkle var(--dur, 8s) ease-in-out var(--delay, 0s) infinite;
   }
 }
 </style>
