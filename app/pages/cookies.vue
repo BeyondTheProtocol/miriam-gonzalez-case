@@ -5,7 +5,7 @@
       Política de cookies
     </h1>
     <p class="font-mono text-xs text-tinta mb-8">
-      Última actualización · 6 de junio de 2026
+      Última actualización · 14 de junio de 2026
     </p>
 
     <article class="prose prose-ink max-w-none">
@@ -15,7 +15,7 @@
       <h2>2 · Cookies que usamos</h2>
       <ul>
         <li><strong>Técnicas / necesarias:</strong> recordar tu <strong>idioma</strong> (cookie <code>i18n_redirected</code>). Imprescindibles para el funcionamiento; no requieren consentimiento.</li>
-        <li><strong>Analítica sin cookies:</strong> usamos Plausible Analytics, que mide visitas de forma agregada y <strong>no instala cookies ni rastrea</strong> a personas individuales.</li>
+        <li><strong>Analítica sin cookies:</strong> usamos Plausible Analytics y Umami, que miden visitas de forma agregada y <strong>no instalan cookies ni rastrean</strong> a personas individuales.</li>
         <li><strong>De terceros:</strong> al pulsar enlaces externos (GoFundMe, redes sociales) esos sitios pueden instalar sus propias cookies, regidas por sus políticas.</li>
       </ul>
 

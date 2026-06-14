@@ -47,12 +47,16 @@ export default defineNuxtConfig({
       meta: [
         { name: 'theme-color', content: '#faf6f0' },
       ],
-      // Analítica Umami (privada, sin cookies). Convive con Plausible. Ambos
-      // scripts viven AQUÍ (no por «Snippet injection» de Netlify): si se añade
-      // el snippet además de esto, script.js se cargaría dos veces y se
-      // duplicarían las visitas. Mantener una sola fuente: el repo.
+      // Analítica Umami (privada, SIN cookies, agregada). Convive con Plausible.
+      // Vive AQUÍ (no por «Snippet injection» de Netlify): si se añade el snippet
+      // además de esto, script.js se cargaría dos veces y se duplicarían las
+      // visitas. Mantener una sola fuente: el repo.
       // data-domains: solo envía desde el dominio real (no localhost/previews).
       // data-performance: recoge Core Web Vitals reales de los visitantes.
+      // NOTA RGPD: NO se carga el recorder.js (session replays + heatmaps). En un
+      // sitio de salud, grabar sesiones individuales requeriría consentimiento;
+      // por eso solo usamos analítica cookieless y agregada, sin banner. Si algún
+      // día se quieren replays, hay que añadir un flujo de consentimiento primero.
       script: [
         {
           src: 'https://cloud.umami.is/script.js',
@@ -60,13 +64,6 @@ export default defineNuxtConfig({
           'data-website-id': '30a40c53-5573-45c0-8ac9-8f0f94621ecf',
           'data-domains': 'helpmiriam.com',
           'data-performance': 'true',
-        },
-        // recorder.js · Replays + Heatmaps (plan Business). Se activan/desactivan
-        // desde Umami → Settings; aquí solo se carga el grabador.
-        {
-          src: 'https://cloud.umami.is/recorder.js',
-          defer: true,
-          'data-website-id': '30a40c53-5573-45c0-8ac9-8f0f94621ecf',
         },
       ],
     },
