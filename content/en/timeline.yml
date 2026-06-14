@@ -200,11 +200,14 @@ entries:
 
   - date: 'Jun 9, 2026'
     tag: Outreach
-    title: helpmiriam.com at the Chiara Awards in Barcelona
+    title: helpmiriam.com at the M. Chiara Giorgetti Award, in Barcelona
     description: >
-      Miriam presents the project at the Chiara Awards —awards for metastatic breast cancer
-      research— held in Barcelona. Very well received.
+      Miriam presents the project at the M. Chiara Giorgetti Award ceremony —given by the Spanish
+      Metastatic Breast Cancer Association for research into this cancer— held in Barcelona. Very
+      well received.
     highlight: true
+    link: https://www.cancermamametastasico.es/premio-chiara/
+    linkLabel: 'About the M. Chiara Giorgetti Award →'
 
   - date: 'Jun 11, 2026'
     tag: Progression

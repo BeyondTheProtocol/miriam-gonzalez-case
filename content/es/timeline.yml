@@ -202,11 +202,14 @@ entries:
 
   - date: '9 jun 2026'
     tag: Divulgación
-    title: helpmiriam.com en los Premios Chiara, en Barcelona
+    title: helpmiriam.com en el Premio M. Chiara Giorgetti, en Barcelona
     description: >
-      Miriam presenta el proyecto en la entrega de los Premios Chiara —premios a la investigación
-      del cáncer de mama metastásico— celebrada en Barcelona. Muy buena aceptación.
+      Miriam presenta el proyecto en la entrega del Premio M. Chiara Giorgetti —que la Asociación
+      Española de Cáncer de Mama Metastásico concede a la investigación en este cáncer— celebrada
+      en Barcelona. Muy buena aceptación.
     highlight: true
+    link: https://www.cancermamametastasico.es/premio-chiara/
+    linkLabel: 'Sobre el Premio M. Chiara Giorgetti →'
 
   - date: '11 jun 2026'
     tag: Progresión
