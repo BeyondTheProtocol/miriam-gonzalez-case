@@ -290,6 +290,8 @@
     "pct_raised": "recaudado",
     "social_proof": "Únete a quienes ya lo hacen posible.",
     "remaining": "Faltan {amount} para el siguiente hito.",
+    "remaining_here": "Faltan {amount} para llegar a este hito.",
+    "tap_hint": "Toca un hito para ver cuánto faltaría.",
     "phase_count": "Hito {current} de {total}",
     "milestones": {
       "rebiopsy": {
