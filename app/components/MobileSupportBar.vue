@@ -19,6 +19,13 @@
         <Icon name="ph:heart-fill" class="heart-beat w-4 h-4" aria-hidden="true" />
         {{ $t('nav.donate') }}<span class="sr-only"> {{ $t('a11y.new_tab') }}</span>
       </a>
+      <NuxtLink
+        :to="localePath('colabora')"
+        class="mobile-support-bar__more"
+      >
+        {{ $t('a11y.more_ways') }}
+        <Icon name="ph:arrow-right" class="w-3 h-3" aria-hidden="true" />
+      </NuxtLink>
     </div>
   </Transition>
 </template>
@@ -35,6 +42,7 @@
  */
 const { y } = useWindowScroll()
 const route = useRoute()
+const localePath = useLocalePath()
 const { GOFUNDME_URL, trackSupport } = useSupport()
 
 const visible = ref(false)
@@ -82,8 +90,28 @@ onBeforeUnmount(() => {
   bottom: 0;
   z-index: 40;
   background: #2d1b3d; /* berenjena */
-  padding: 10px 16px;
-  padding-bottom: calc(10px + env(safe-area-inset-bottom, 0px));
+  padding: 10px 16px 8px;
+  padding-bottom: calc(8px + env(safe-area-inset-bottom, 0px));
   border-top: 1px solid rgba(250, 246, 240, 0.12);
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+.mobile-support-bar__more {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.3rem;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: rgba(250, 246, 240, 0.72);
+  text-decoration: none;
+  padding-bottom: 2px;
+}
+.mobile-support-bar__more:hover {
+  color: #faf6f0;
+  text-decoration: underline;
+  text-underline-offset: 3px;
 }
 </style>

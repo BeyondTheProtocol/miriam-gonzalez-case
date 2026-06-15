@@ -7,6 +7,16 @@
           :subtitle="$t('contact.subtitle')"
         />
 
+        <p
+          v-if="roleLabel"
+          class="pathway-comfort mb-8 max-w-2xl"
+          role="status"
+          aria-live="polite"
+        >
+          <Icon name="ph:identification-badge" class="pathway-comfort__icon" aria-hidden="true" />
+          {{ $t('a11y.role_detected', { role: roleLabel }) }}
+        </p>
+
         <div class="grid md:grid-cols-2 gap-8 lg:gap-12">
           <div>
             <p class="text-tinta leading-relaxed mb-8">
@@ -261,6 +271,19 @@ const roleFromQuery = () => {
 }
 const role = ref(roleFromQuery())
 watch(() => route.query.role, () => { role.value = roleFromQuery() })
+
+const { t } = useI18n()
+const roleLabel = computed(() => {
+  const map: Record<string, string> = {
+    oncologist: t('contact.role_oncologist'),
+    researcher: t('contact.role_researcher'),
+    journalist: t('contact.role_journalist'),
+    patient: t('contact.role_patient'),
+    tech: t('contact.role_tech'),
+    other: t('contact.role_other'),
+  }
+  return role.value ? map[role.value] ?? '' : ''
+})
 
 // Envío AJAX a Netlify Forms: mismo endpoint (POST a "/" con urlencode), pero
 // mostramos el agradecimiento en la propia página en vez de redirigir.

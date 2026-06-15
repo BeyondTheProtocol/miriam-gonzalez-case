@@ -2,7 +2,9 @@
   <section
     class="relative overflow-hidden bg-cream"
     :aria-label="$t('hero.section_label')"
+    :aria-describedby="'hero-sr-summary'"
   >
+    <p id="hero-sr-summary" class="sr-only">{{ $t('pathways.hero_sr_summary') }}</p>
     <div class="relative section-wide pt-7 pb-12 sm:pt-16 sm:pb-20 lg:pt-20">
       <!-- Editorial hero. Mobile-first: el orden del DOM crea el ritmo narrativo
            en móvil (título → cara → brecha → acción → en vivo). En desktop, las

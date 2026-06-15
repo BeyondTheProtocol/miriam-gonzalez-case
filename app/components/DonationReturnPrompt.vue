@@ -98,7 +98,7 @@ onBeforeUnmount(() => document.removeEventListener('visibilitychange', maybeShow
 /* En móvil, sobre la barra de apoyo persistente. */
 @media (max-width: 639px) {
   .drp {
-    bottom: calc(72px + env(safe-area-inset-bottom, 0px));
+    bottom: calc(88px + env(safe-area-inset-bottom, 0px));
   }
 }
 .drp__cta {

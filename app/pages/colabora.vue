@@ -70,9 +70,11 @@
         >
           {{ $t('collaborate.profiles_title') }}
         </h2>
-        <p class="text-tinta leading-relaxed mb-10 max-w-2xl">
+        <p class="text-tinta leading-relaxed mb-6 max-w-2xl">
           {{ $t('collaborate.profiles_sub') }}
         </p>
+
+        <VisitorPathways variant="colabora" class="mb-10" />
 
         <div class="grid md:grid-cols-2 gap-4">
           <!-- ─ Card 1 — revisión clínica ─ -->
@@ -120,7 +122,7 @@
           </article>
 
           <!-- ─ Card 4 — tech & IA ─ -->
-          <article class="card-base bg-cream flex flex-col">
+          <article id="tech-ia" class="card-base bg-cream flex flex-col scroll-mt-24">
             <div class="flex items-center gap-4 mb-4">
               <span class="w-10 h-10 rounded-xl bg-berenjena flex items-center justify-center shrink-0" aria-hidden="true">
                 <Icon name="ph:flask-fill" class="w-5 h-5 text-cream" />
@@ -153,7 +155,7 @@
           </article>
 
           <!-- ─ Card 5 — apoyo mutuo ─ -->
-          <article class="card-base bg-cream flex flex-col">
+          <article id="apoyo-mutuo" class="card-base bg-cream flex flex-col scroll-mt-24">
             <div class="flex items-center gap-4 mb-4">
               <span class="w-10 h-10 rounded-xl bg-berenjena flex items-center justify-center shrink-0" aria-hidden="true">
                 <Icon name="ph:hands-praying-fill" class="w-5 h-5 text-cream" />
