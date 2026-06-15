@@ -129,7 +129,7 @@
     "brief_outro": "To go deeper, The science has a summary for everyone and a professional mode with tables and imaging.",
     "brief_cta_science": "View the science",
     "brief_cta_help": "See all ways to help",
-    "hero_sr_summary": "Miriam González has an ultra-rare metastatic breast cancer with two biologies. This site funds precision tests that public healthcare does not cover. You can donate, read the science, collaborate by profile, or share the campaign."
+    "hero_sr_summary": "Miriam González has metastatic breast cancer with two biologies. Public healthcare does not cover the precision tests she needs. You can support the campaign or read the clinical case in The science."
   },
   "glossary": {
     "hint": "Tap or hover the highlighted words and markers to see what they mean."
@@ -243,7 +243,8 @@
     "title": "A rare cancer, {op}.",
     "title_short": "A rare cancer, a real opportunity.",
     "title_emphasis": "a real opportunity",
-    "subtitle": "{lead} has a tumor with {twofaces} that Spanish protocols don't account for. The tests she needs to treat it aren't covered by public healthcare. This site exists to fund them.",
+    "subtitle": "Spanish protocols only cover half of her tumor. This campaign funds the precision tests that are missing.",
+    "cta_science_link": "See the science behind the case",
     "twofaces": "two sides",
     "subtitle_lead": "Miriam, {age},",
     "cta_donate": "Support Miriam",
@@ -544,10 +545,11 @@
     "s10_l3_text": "Every euro funds research applied to the case: deep sequencing, molecular rebiopsy, international second opinions, N-of-1 trial.",
     "s10_l3_button": "Support Miriam",
     "s10_l3_caption": "Secure payment. Receipt available. 100% to Miriam's case.",
-    "hero_cta_donate_caption": "Every euro funds clinical research applied to her case.",
+    "hero_cta_donate_caption": "Secure payment · Receipt available · 100% to the case.",
     "hero_cta_science_caption": "Open the full molecular profile in The science.",
     "hero_social_proof": "Already supported by {n} people · featured in El País",
-    "hero_eyebrow": "Metastatic breast cancer · Ultra-rare molecular profile",
+    "hero_trust_line": "{raised} raised · {n} people · El País",
+    "hero_eyebrow": "Metastatic breast · two biologies",
     "story_eyebrow": "The story",
     "story_heading": "A diagnosis that fit no protocol.",
     "story_p1": "At 33, Miriam was diagnosed with a metastatic breast cancer so rare it is seen in ",
