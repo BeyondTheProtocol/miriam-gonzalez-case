@@ -26,7 +26,7 @@
         </h2>
         <ul
           aria-labelledby="team-medical"
-          class="grid sm:grid-cols-2 gap-4 mb-14 stagger-children"
+          class="grid sm:grid-cols-2 gap-4 mb-16 stagger-children"
         >
           <li v-for="member in medicalNetwork" :key="member.role">
             <TeamCard :member="member" />
@@ -77,6 +77,7 @@
                 v-for="(item, i) in notUsItems"
                 :key="i"
                 class="flex items-start gap-3.5 text-[15px] leading-relaxed"
+                :class="{ 'lg:col-span-2': i === notUsItems.length - 1 && notUsItems.length % 2 === 1 }"
               >
                 <span
                   class="shrink-0 mt-[11px] h-[2px] w-3.5 rounded-full"

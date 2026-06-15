@@ -24,11 +24,11 @@
     </p>
 
     <div class="mt-9 flex flex-wrap gap-3 justify-center">
-      <button type="button" class="btn-secondary" @click="share">
+      <button type="button" class="btn-secondary w-full sm:w-auto" @click="share">
         <Icon :name="copied ? 'ph:check-bold' : 'ph:share-network-fill'" class="w-4 h-4" aria-hidden="true" />
         {{ copied ? $t('thanks.copied') : $t('thanks.share') }}
       </button>
-      <NuxtLink :to="localePath('/')" class="btn-secondary">
+      <NuxtLink :to="localePath('/')" class="btn-secondary w-full sm:w-auto">
         {{ $t('thanks.home') }}
       </NuxtLink>
     </div>

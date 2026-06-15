@@ -166,7 +166,7 @@
 
         <!-- Contacto de prensa -->
         <section
-          class="mt-16 relative overflow-hidden rounded-card p-8 sm:p-12 max-w-4xl"
+          class="mt-16 relative overflow-hidden rounded-card p-8 sm:p-12"
           style="background: #2d1b3d; color: #faf6f0"
           aria-labelledby="press-contact-title"
         >

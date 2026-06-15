@@ -475,7 +475,7 @@
             : 'Each treatment line has held the disease for a while before the tumour escapes again: the pattern to expect when only the hormonal axis is targeted and the neuroendocrine component is left out.' }}
         </p>
         <ul class="space-y-3 mb-14" aria-labelledby="treatment-title">
-          <li v-for="tx in treatments" :key="tx.line" class="card-base flex items-center gap-4">
+          <li v-for="tx in treatments" :key="tx.line" class="card-base flex items-start gap-4">
             <span
               class="shrink-0 w-9 h-9 rounded-lg flex items-center justify-center font-mono text-xs font-bold"
               :class="tx.active ? 'bg-miriam-soft text-berenjena' : 'bg-cream text-tinta'"
