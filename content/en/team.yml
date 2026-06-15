@@ -20,7 +20,7 @@ coreTeam:
     color: gold
   - role: "Biomedicine · translational"
     name: Mariú
-    description: "Biomedicine and master's in clinical research (translational oncology, PRBB-Barcelona). Contributes independently and applies AI to the case's clinical and research workflow."
+    description: "Biomedicine and master's in clinical research (translational oncology, PRBB-Barcelona). She is building an AI decision-support tool for the case."
     icon: ph:dna-fill
     color: gold
   - role: "Technical advisory · breast"
@@ -29,16 +29,16 @@ coreTeam:
     description: "Technical profile. Years of self-directed study in breast oncology; brings judgment and context to the case."
     icon: ph:books-fill
     color: ocean
-  - role: "Medical imaging & AI"
+  - role: "Technical advisory · neuroendocrine"
     name: David
     photo: /img/team/david.webp
-    description: "Trained in advanced imaging techniques. Analyses PET/DICOM with AI and flags foci for Nuclear Medicine review."
-    icon: ph:scan-fill
+    description: "Technical profile. Training in advanced imaging techniques; brings judgment on the tumor's neuroendocrine component."
+    icon: ph:books-fill
     color: ocean
   - role: "Epigenomics · Dana-Farber"
     name: Paloma
     photo: /img/team/paloma.webp
-    description: "PhD. Associate Scientific Director at Dana-Farber (Harvard). Cancer epigenetics, biomarkers and tumor heterogeneity."
+    description: "PhD. Associate Scientific Director at Dana-Farber (Harvard). She researches neuroendocrine differentiation in the tumor, alongside epigenetics and biomarkers."
     icon: ph:flask-fill
     color: gold
   - role: "AI & outreach"

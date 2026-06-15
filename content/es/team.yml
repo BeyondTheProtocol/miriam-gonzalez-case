@@ -20,7 +20,7 @@ coreTeam:
     color: gold
   - role: "Biomedicina · traslacional"
     name: Mariú
-    description: "Biomedicina y máster en investigación clínica (oncología traslacional, PRBB-Barcelona). Aporta de forma independiente y aplica IA al uso clínico e investigacional del caso."
+    description: "Biomedicina y máster en investigación clínica (oncología traslacional, PRBB-Barcelona). Desarrolla una herramienta de apoyo a la toma de decisiones con IA para el caso."
     icon: ph:dna-fill
     color: gold
   - role: "Asesoría técnica · mama"
@@ -29,16 +29,16 @@ coreTeam:
     description: "Perfil técnico. Años de estudio autodidacta en oncología de mama; aporta criterio y contexto al caso."
     icon: ph:books-fill
     color: ocean
-  - role: "Imagen médica e IA"
+  - role: "Asesoría técnica · neuroendocrino"
     name: David
     photo: /img/team/david.webp
-    description: "Formación en técnicas avanzadas de imagen. Analiza PET/DICOM con IA y señala focos para revisar con Medicina Nuclear."
-    icon: ph:scan-fill
+    description: "Perfil técnico. Formación en técnicas avanzadas de imagen; aporta criterio sobre el componente neuroendocrino del caso."
+    icon: ph:books-fill
     color: ocean
   - role: "Epigenómica · Dana-Farber"
     name: Paloma
     photo: /img/team/paloma.webp
-    description: "PhD. Directora científica asociada en Dana-Farber (Harvard). Epigenética, biomarcadores e heterogeneidad tumoral."
+    description: "PhD. Directora científica asociada en Dana-Farber (Harvard). Investiga la diferenciación neuroendocrina del tumor, con epigenética y biomarcadores."
     icon: ph:flask-fill
     color: gold
   - role: "Inteligencia artificial y difusión"
