@@ -952,13 +952,25 @@
   .pathway-grid {
     display: grid;
     gap: 1rem;
-    grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr));
+    grid-template-columns: 1fr;
+    align-items: stretch;
+  }
+  @media (min-width: 640px) {
+    .pathway-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+  @media (min-width: 1280px) {
+    .pathway-grid {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
   }
 
   .pathway-card {
     display: flex;
     flex-direction: column;
     gap: 0.65rem;
+    height: 100%;
     padding: 1.25rem 1.35rem;
     border-radius: 16px;
     background: #faf6f0;

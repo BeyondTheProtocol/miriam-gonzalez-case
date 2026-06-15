@@ -8,53 +8,54 @@
 
     <div class="hero__shell section-wide">
       <div class="hero__grid">
-        <!-- Beat 1 · meta + titular -->
-        <div class="hero__head">
-          <div class="hero__meta animate-fade-up">
-            <span class="hero__eyebrow eyebrow">{{ $t('home.hero_eyebrow') }}</span>
-            <DaysWaitingCounter />
+        <!-- Fila superior: titular + retrato (misma altura visual, sin hueco lateral debajo) -->
+        <div class="hero__intro">
+          <div class="hero__head">
+            <div class="hero__meta animate-fade-up">
+              <span class="hero__eyebrow eyebrow">{{ $t('home.hero_eyebrow') }}</span>
+              <DaysWaitingCounter />
+            </div>
+
+            <i18n-t
+              keypath="hero.title"
+              tag="h1"
+              class="hero__title heading-display text-berenjena animate-fade-up"
+              style="animation-delay: 0.1s"
+            >
+              <template #op><span class="italic text-miriam">{{ $t('hero.title_emphasis') }}</span></template>
+            </i18n-t>
           </div>
 
-          <i18n-t
-            keypath="hero.title"
-            tag="h1"
-            class="hero__title heading-display text-berenjena animate-fade-up"
-            style="animation-delay: 0.1s"
-          >
-            <template #op><span class="italic text-miriam">{{ $t('hero.title_emphasis') }}</span></template>
-          </i18n-t>
+          <figure class="hero__portrait animate-fade-up" style="animation-delay: 0.15s">
+            <div class="hero__portrait-frame">
+              <NuxtImg
+                src="/img/miriam-avatar.webp"
+                :alt="$t('home.s6_photo_alt')"
+                class="hero__portrait-img"
+                width="640"
+                height="640"
+                sizes="(max-width: 639px) 168px, (max-width: 1023px) 200px, 240px"
+                format="webp"
+                fetchpriority="high"
+                decoding="async"
+              />
+            </div>
+
+            <span
+              class="hero__handle hero__handle--top"
+              aria-hidden="true"
+              translate="no"
+            >
+              @miriamgonp
+            </span>
+
+            <figcaption class="hero__portrait-tag">
+              <span>{{ $t('hero.photo_tag') }}</span>
+            </figcaption>
+          </figure>
         </div>
 
-        <!-- Beat 2 · retrato -->
-        <figure class="hero__portrait animate-fade-up" style="animation-delay: 0.15s">
-          <div class="hero__portrait-frame">
-            <NuxtImg
-              src="/img/miriam-avatar.webp"
-              :alt="$t('home.s6_photo_alt')"
-              class="hero__portrait-img"
-              width="640"
-              height="640"
-              sizes="(max-width: 639px) 200px, (max-width: 1023px) 280px, 380px"
-              format="webp"
-              fetchpriority="high"
-              decoding="async"
-            />
-          </div>
-
-          <span
-            class="hero__handle hero__handle--top"
-            aria-hidden="true"
-            translate="no"
-          >
-            @miriamgonp
-          </span>
-
-          <figcaption class="hero__portrait-tag">
-            <span>{{ $t('hero.photo_tag') }}</span>
-          </figcaption>
-        </figure>
-
-        <!-- Beat 3 · brecha, acción, estado -->
+        <!-- Cuerpo a ancho completo bajo la intro -->
         <div class="hero__body">
           <i18n-t
             keypath="hero.subtitle"
@@ -269,12 +270,29 @@ const stats = computed(() => [
 }
 
 .hero__grid {
-  display: grid;
-  gap: 1rem;
-  align-items: start;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  min-width: 0;
 }
+
+.hero__intro {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  min-width: 0;
+}
+
+.hero__head,
+.hero__body,
+.hero__portrait {
+  min-width: 0;
+}
+
 @media (max-width: 767px) {
-  /* Narrativa continua: titular → texto/CTA → retrato (evita hueco entre H1 y lede). */
+  .hero__intro {
+    display: contents;
+  }
   .hero__head {
     order: 1;
   }
@@ -286,16 +304,36 @@ const stats = computed(() => [
     margin-top: 0.25rem;
   }
 }
-@media (min-width: 640px) {
-  .hero__grid {
-    gap: 1.5rem;
+
+@media (min-width: 768px) and (max-width: 1023px) {
+  .hero__intro {
+    display: contents;
+  }
+  .hero__head {
+    order: 1;
+  }
+  .hero__body {
+    order: 2;
+  }
+  .hero__portrait {
+    order: 3;
+    max-width: 200px;
+    margin-inline: auto;
+    margin-top: 0.5rem;
   }
 }
-@media (min-width: 768px) {
+
+@media (min-width: 1024px) {
+  /* Fila 1: titular + retrato. Fila 2: cuerpo a ancho completo (sin hueco lateral derecho). */
   .hero__grid {
-    grid-template-columns: minmax(0, 1fr) minmax(220px, 36%);
-    column-gap: clamp(2rem, 4vw, 3.25rem);
-    row-gap: 1.25rem;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) clamp(200px, 22vw, 260px);
+    column-gap: clamp(2rem, 3vw, 2.75rem);
+    row-gap: 1.5rem;
+    align-items: start;
+  }
+  .hero__intro {
+    display: contents;
   }
   .hero__head {
     grid-column: 1;
@@ -303,15 +341,23 @@ const stats = computed(() => [
   }
   .hero__portrait {
     grid-column: 2;
-    grid-row: 1 / span 2;
+    grid-row: 1;
     justify-self: end;
     align-self: start;
     width: 100%;
-    max-width: min(380px, 100%);
+    max-width: 260px;
   }
   .hero__body {
-    grid-column: 1;
+    grid-column: 1 / -1;
     grid-row: 2;
+    max-width: none;
+  }
+  .hero__lede,
+  .hero__status {
+    max-width: 42rem;
+  }
+  .hero__cta {
+    max-width: 42rem;
   }
 }
 
@@ -342,7 +388,7 @@ const stats = computed(() => [
     max-width: 16ch;
   }
 }
-@media (min-width: 768px) {
+@media (min-width: 1024px) {
   /* Misma medida que lede/CTA: el titular no «estrecha» la columna en desktop. */
   .hero__title {
     max-width: 36rem;
@@ -362,7 +408,7 @@ const stats = computed(() => [
     max-width: 240px;
   }
 }
-@media (min-width: 768px) {
+@media (min-width: 1024px) {
   .hero__portrait {
     margin-inline: 0;
   }
@@ -402,20 +448,20 @@ const stats = computed(() => [
   }
 }
 .hero__handle--top {
-  right: 0.5rem;
-  top: -0.65rem;
+  right: 0.25rem;
+  top: 0.5rem;
 }
 @media (min-width: 640px) {
   .hero__handle--top {
-    right: -0.35rem;
-    top: 1.5rem;
+    right: 0.5rem;
+    top: 0.75rem;
   }
 }
 
 .hero__portrait-tag {
   display: flex;
   justify-content: center;
-  margin-top: -0.85rem;
+  margin-top: 0.65rem;
   position: relative;
   z-index: 2;
 }
@@ -469,7 +515,7 @@ const stats = computed(() => [
   gap: 1rem;
   max-width: 36rem;
 }
-@media (min-width: 480px) {
+@media (min-width: 768px) {
   .hero__cta {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 1rem 1.25rem;
@@ -555,12 +601,12 @@ const stats = computed(() => [
   padding-top: 1.75rem;
   border-top: 1px solid rgba(45, 27, 61, 0.1);
 }
-@media (min-width: 640px) {
+@media (min-width: 768px) {
   .hero__stats {
     grid-template-columns: repeat(4, minmax(0, 1fr));
     gap: 0;
-    margin-top: 3rem;
-    padding-top: 2.25rem;
+    margin-top: 2.5rem;
+    padding-top: 2rem;
   }
 }
 
@@ -594,11 +640,18 @@ const stats = computed(() => [
 .hero__stat-label {
   margin: 0.625rem 0 0;
   font-family: 'JetBrains Mono', monospace;
-  font-size: 11px;
+  font-size: 10px;
   line-height: 1.35;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
   color: #3a3340;
+  word-break: break-word;
+}
+@media (min-width: 1024px) {
+  .hero__stat-label {
+    font-size: 11px;
+    letter-spacing: 0.08em;
+  }
 }
 
 /* «dos caras» */
@@ -606,7 +659,12 @@ const stats = computed(() => [
   position: relative;
   font-style: italic;
   font-weight: 700;
-  white-space: nowrap;
+  white-space: normal;
+}
+@media (min-width: 480px) {
+  .two-faces {
+    white-space: nowrap;
+  }
 }
 .two-faces__stroke {
   position: absolute;
