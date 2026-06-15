@@ -8,53 +8,54 @@
 
     <div class="hero__shell section-wide">
       <div class="hero__grid">
-        <!-- Beat 1 · meta + titular -->
-        <div class="hero__head">
-          <div class="hero__meta animate-fade-up">
-            <span class="hero__eyebrow eyebrow">{{ $t('home.hero_eyebrow') }}</span>
-            <DaysWaitingCounter />
+        <!-- Fila superior: titular + retrato (misma altura visual, sin hueco lateral debajo) -->
+        <div class="hero__intro">
+          <div class="hero__head">
+            <div class="hero__meta animate-fade-up">
+              <span class="hero__eyebrow eyebrow">{{ $t('home.hero_eyebrow') }}</span>
+              <DaysWaitingCounter />
+            </div>
+
+            <i18n-t
+              keypath="hero.title"
+              tag="h1"
+              class="hero__title heading-display text-berenjena animate-fade-up"
+              style="animation-delay: 0.1s"
+            >
+              <template #op><span class="italic text-miriam">{{ $t('hero.title_emphasis') }}</span></template>
+            </i18n-t>
           </div>
 
-          <i18n-t
-            keypath="hero.title"
-            tag="h1"
-            class="hero__title heading-display text-berenjena animate-fade-up"
-            style="animation-delay: 0.1s"
-          >
-            <template #op><span class="italic text-miriam">{{ $t('hero.title_emphasis') }}</span></template>
-          </i18n-t>
+          <figure class="hero__portrait animate-fade-up" style="animation-delay: 0.15s">
+            <div class="hero__portrait-frame">
+              <NuxtImg
+                src="/img/miriam-avatar.webp"
+                :alt="$t('home.s6_photo_alt')"
+                class="hero__portrait-img"
+                width="640"
+                height="640"
+                sizes="(max-width: 639px) 168px, (max-width: 1023px) 200px, 240px"
+                format="webp"
+                fetchpriority="high"
+                decoding="async"
+              />
+            </div>
+
+            <span
+              class="hero__handle hero__handle--top"
+              aria-hidden="true"
+              translate="no"
+            >
+              @miriamgonp
+            </span>
+
+            <figcaption class="hero__portrait-tag">
+              <span>{{ $t('hero.photo_tag') }}</span>
+            </figcaption>
+          </figure>
         </div>
 
-        <!-- Beat 2 · retrato -->
-        <figure class="hero__portrait animate-fade-up" style="animation-delay: 0.15s">
-          <div class="hero__portrait-frame">
-            <NuxtImg
-              src="/img/miriam-avatar.webp"
-              :alt="$t('home.s6_photo_alt')"
-              class="hero__portrait-img"
-              width="640"
-              height="640"
-              sizes="(max-width: 639px) 168px, (max-width: 1023px) 200px, 240px"
-              format="webp"
-              fetchpriority="high"
-              decoding="async"
-            />
-          </div>
-
-          <span
-            class="hero__handle hero__handle--top"
-            aria-hidden="true"
-            translate="no"
-          >
-            @miriamgonp
-          </span>
-
-          <figcaption class="hero__portrait-tag">
-            <span>{{ $t('hero.photo_tag') }}</span>
-          </figcaption>
-        </figure>
-
-        <!-- Beat 3 · brecha, acción, estado -->
+        <!-- Cuerpo a ancho completo bajo la intro -->
         <div class="hero__body">
           <i18n-t
             keypath="hero.subtitle"
@@ -269,18 +270,29 @@ const stats = computed(() => [
 }
 
 .hero__grid {
-  display: grid;
-  gap: 1rem;
-  align-items: start;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
   min-width: 0;
 }
+
+.hero__intro {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  min-width: 0;
+}
+
 .hero__head,
 .hero__body,
 .hero__portrait {
   min-width: 0;
 }
+
 @media (max-width: 767px) {
-  /* Narrativa continua: titular → texto/CTA → retrato (evita hueco entre H1 y lede). */
+  .hero__intro {
+    display: contents;
+  }
   .hero__head {
     order: 1;
   }
@@ -292,13 +304,11 @@ const stats = computed(() => [
     margin-top: 0.25rem;
   }
 }
-@media (min-width: 640px) {
-  .hero__grid {
-    gap: 1.5rem;
-  }
-}
-/* Tablet / ventana estrecha en laptop: una columna, foto contenida */
+
 @media (min-width: 768px) and (max-width: 1023px) {
+  .hero__intro {
+    display: contents;
+  }
   .hero__head {
     order: 1;
   }
@@ -313,28 +323,19 @@ const stats = computed(() => [
   }
 }
 
-/* Desktop (≥1024): foto solo junto al titular; cuerpo a ancho completo (sin hueco lateral). */
 @media (min-width: 1024px) {
-  .hero__grid {
-    grid-template-columns: minmax(0, 1fr) clamp(180px, 20vw, 240px);
-    column-gap: clamp(1.75rem, 3vw, 2.5rem);
-    row-gap: 1.5rem;
-  }
-  .hero__head {
-    grid-column: 1;
-    grid-row: 1;
+  .hero__intro {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) clamp(200px, 22vw, 260px);
+    column-gap: clamp(2rem, 3vw, 2.75rem);
+    align-items: center;
   }
   .hero__portrait {
-    grid-column: 2;
-    grid-row: 1;
     justify-self: end;
-    align-self: start;
     width: 100%;
-    max-width: 240px;
+    max-width: 260px;
   }
   .hero__body {
-    grid-column: 1 / -1;
-    grid-row: 2;
     max-width: 42rem;
   }
 }
@@ -426,20 +427,20 @@ const stats = computed(() => [
   }
 }
 .hero__handle--top {
-  right: 0.5rem;
-  top: -0.65rem;
+  right: 0.25rem;
+  top: 0.5rem;
 }
 @media (min-width: 640px) {
   .hero__handle--top {
-    right: -0.35rem;
-    top: 1.5rem;
+    right: 0.5rem;
+    top: 0.75rem;
   }
 }
 
 .hero__portrait-tag {
   display: flex;
   justify-content: center;
-  margin-top: -0.85rem;
+  margin-top: 0.65rem;
   position: relative;
   z-index: 2;
 }
@@ -579,12 +580,12 @@ const stats = computed(() => [
   padding-top: 1.75rem;
   border-top: 1px solid rgba(45, 27, 61, 0.1);
 }
-@media (min-width: 1024px) {
+@media (min-width: 768px) {
   .hero__stats {
     grid-template-columns: repeat(4, minmax(0, 1fr));
     gap: 0;
-    margin-top: 3rem;
-    padding-top: 2.25rem;
+    margin-top: 2.5rem;
+    padding-top: 2rem;
   }
 }
 
