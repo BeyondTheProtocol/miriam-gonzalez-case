@@ -324,18 +324,39 @@ const stats = computed(() => [
 }
 
 @media (min-width: 1024px) {
-  .hero__intro {
+  /* Fila 1: titular + retrato. Fila 2: cuerpo a ancho completo (sin hueco lateral derecho). */
+  .hero__grid {
     display: grid;
     grid-template-columns: minmax(0, 1fr) clamp(200px, 22vw, 260px);
     column-gap: clamp(2rem, 3vw, 2.75rem);
-    align-items: center;
+    row-gap: 1.5rem;
+    align-items: start;
+  }
+  .hero__intro {
+    display: contents;
+  }
+  .hero__head {
+    grid-column: 1;
+    grid-row: 1;
   }
   .hero__portrait {
+    grid-column: 2;
+    grid-row: 1;
     justify-self: end;
+    align-self: start;
     width: 100%;
     max-width: 260px;
   }
   .hero__body {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    max-width: none;
+  }
+  .hero__lede,
+  .hero__status {
+    max-width: 42rem;
+  }
+  .hero__cta {
     max-width: 42rem;
   }
 }
