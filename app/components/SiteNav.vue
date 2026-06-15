@@ -194,6 +194,8 @@ const navItems = [
   { key: 'science', to: { name: 'ciencia' } },
   { key: 'timeline', to: { name: 'timeline' } },
   { key: 'team', to: { name: 'equipo' } },
+  { key: 'press', to: { name: 'prensa' } },
+  { key: 'expenses', to: { name: 'gastos' } },
 ]
 // "Colabora" ahora vive en el array (antes era markup duplicado suelto).
 const allNav = [...navItems, { key: 'collaborate', to: 'colabora' as const }]
