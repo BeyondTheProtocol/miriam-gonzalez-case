@@ -74,7 +74,7 @@ const activeProgress = computed(() => {
   <!-- Card variant — dark editorial progress block -->
   <div
     v-if="card && data"
-    class="rounded-[24px] p-8 sm:p-10"
+    class="rounded-[24px] p-6 sm:p-8 lg:p-10"
     style="background: #2d1b3d; color: #faf6f0"
   >
     <p

@@ -95,8 +95,8 @@ onBeforeUnmount(() => document.removeEventListener('visibilitychange', maybeShow
   background: #2d1b3d;
   box-shadow: 0 16px 40px -12px rgba(45, 27, 61, 0.5);
 }
-/* En móvil, sobre la barra de apoyo persistente. */
-@media (max-width: 639px) {
+/* Sobre la barra de apoyo persistente (<lg). En desktop queda abajo a la derecha. */
+@media (max-width: 1023px) {
   .drp {
     bottom: calc(88px + env(safe-area-inset-bottom, 0px));
   }

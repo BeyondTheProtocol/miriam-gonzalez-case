@@ -80,7 +80,7 @@
              vivo y prueba social en un solo vistazo. -->
         <aside class="card-base bg-cream mb-10" :aria-label="$t('collaborate.trust_aria')">
           <p class="eyebrow mb-4 block">{{ $t('collaborate.trust_eyebrow') }}</p>
-          <div class="grid gap-6 sm:grid-cols-3 sm:items-start">
+          <div class="grid gap-6 lg:grid-cols-3 lg:items-start">
             <div class="flex flex-col">
               <h3 class="font-display font-semibold text-berenjena text-base mb-1.5">
                 {{ $t('collaborate.trust_transparency_title') }}

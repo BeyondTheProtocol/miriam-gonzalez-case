@@ -92,6 +92,13 @@
     @apply py-20 sm:py-28;
   }
 
+  /* Espacio bajo el contenido cuando la barra de apoyo fija está activa (<lg). */
+  @media (max-width: 1023px) {
+    main {
+      padding-bottom: calc(4.5rem + env(safe-area-inset-bottom, 0px));
+    }
+  }
+
   /* Borde superior con el menú: la PRIMERA sección de cada página vive justo bajo
      el nav sticky, que ya aporta separación. Su top debe ser menor que el ritmo
      entre secciones (py-28 = 112px), que se reserva para los saltos intermedios.
@@ -945,7 +952,7 @@
   .pathway-grid {
     display: grid;
     gap: 1rem;
-    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr));
   }
 
   .pathway-card {
