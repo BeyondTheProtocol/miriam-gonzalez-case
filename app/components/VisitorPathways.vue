@@ -75,7 +75,7 @@
           :key="chip.id"
           :href="chip.hash"
           class="pathway-chip"
-          @click="scrollTo(chip.hash)"
+          @click="scrollTo(chip.hash); trackPathway(chip.id)"
         >
           <Icon :name="chip.icon" class="w-4 h-4 shrink-0" aria-hidden="true" />
           <span class="pathway-chip__label">{{ chip.label }}</span>
@@ -102,7 +102,11 @@
           </ol>
           <p class="text-sm text-tinta mt-5 leading-relaxed">{{ $t('pathways.brief_outro') }}</p>
           <div class="flex flex-col sm:flex-row gap-3 mt-6">
-            <NuxtLink :to="localePath({ name: 'ciencia' })" class="btn-secondary w-full sm:w-auto justify-center">
+            <NuxtLink
+              :to="localePath({ name: 'ciencia' })"
+              class="btn-secondary w-full sm:w-auto justify-center"
+              @click="trackScience('pathway_brief')"
+            >
               <Icon name="ph:flask-fill" class="w-4 h-4" aria-hidden="true" />
               {{ $t('pathways.brief_cta_science') }}
             </NuxtLink>
@@ -125,7 +129,7 @@ const props = withDefaults(
 
 const { t, tm, rt } = useI18n()
 const localePath = useLocalePath()
-const { GOFUNDME_URL, trackSupport } = useSupport()
+const { GOFUNDME_URL, trackSupport, trackScience, trackPathway } = useSupport()
 
 const titleId = computed(() => `pathways-title-${props.variant}`)
 
@@ -203,6 +207,10 @@ const homePaths = computed<HomePath[]>(() => [
     ctaIcon: 'ph:flask-fill',
     caption: t('pathways.clinician_caption'),
     linkProps: { to: localePath({ name: 'ciencia' }) + '?nivel=pro' },
+    onClick: () => {
+      trackScience('pathway_clinician')
+      trackPathway('clinician')
+    },
   },
   {
     id: 'press',
@@ -216,6 +224,7 @@ const homePaths = computed<HomePath[]>(() => [
     ctaIcon: 'ph:megaphone-simple-fill',
     caption: t('pathways.press_caption'),
     linkProps: { to: localePath('prensa') },
+    onClick: () => trackPathway('press'),
   },
   {
     id: 'tech',
@@ -229,6 +238,7 @@ const homePaths = computed<HomePath[]>(() => [
     ctaIcon: 'ph:envelope-simple-fill',
     caption: t('pathways.tech_caption'),
     linkProps: { to: localePath('contacto') + '?role=tech' },
+    onClick: () => trackPathway('tech'),
   },
   {
     id: 'peer',
@@ -242,6 +252,7 @@ const homePaths = computed<HomePath[]>(() => [
     ctaIcon: 'ph:envelope-simple-fill',
     caption: t('pathways.peer_caption'),
     linkProps: { to: localePath('contacto') + '?role=patient' },
+    onClick: () => trackPathway('peer'),
   },
 ])
 

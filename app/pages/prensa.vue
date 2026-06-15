@@ -70,9 +70,8 @@
                 :href="item.url"
                 target="_blank"
                 rel="noopener"
-                data-umami-event="Clic-prensa"
-                :data-umami-event-medio="item.outlet"
                 class="press-mention card-base flex items-start gap-4 group"
+                @click="trackPress(item.outlet)"
               >
                 <Icon
                   name="ph:newspaper-clipping"
@@ -96,6 +95,28 @@
               </a>
             </li>
           </ul>
+        </div>
+
+        <!-- Boilerplate listo para copiar (kit prensa) -->
+        <div class="mt-16">
+          <h2 id="press-boilerplate" class="eyebrow mb-2 block">
+            {{ $t('press.boilerplate_title') }}
+          </h2>
+          <p class="text-sm text-tinta mb-4 max-w-2xl">{{ $t('press.boilerplate_note') }}</p>
+          <div class="card-base">
+            <p id="press-boilerplate-text" class="text-sm text-berenjena leading-relaxed whitespace-pre-line">
+              {{ boilerplateText }}
+            </p>
+            <button
+              type="button"
+              class="btn-secondary mt-5"
+              data-print-hide
+              @click="copyBoilerplate"
+            >
+              <Icon name="ph:copy" class="w-4 h-4" aria-hidden="true" />
+              {{ copyLabel }}
+            </button>
+          </div>
         </div>
 
         <!-- Material descargable / enlaces de referencia -->
@@ -122,6 +143,24 @@
                 {{ $t('press.resource_llms_desc') }}
               </span>
             </a>
+            <NuxtLink :to="localePath('gastos')" class="press-resource card-base group">
+              <Icon name="ph:receipt" class="size-5 text-miriam mb-3" aria-hidden="true" />
+              <span class="block font-display font-semibold text-berenjena text-[15px]">
+                {{ $t('press.resource_expenses') }}
+              </span>
+              <span class="mt-1 block text-[13px] text-tinta leading-relaxed">
+                {{ $t('press.resource_expenses_desc') }}
+              </span>
+            </NuxtLink>
+            <NuxtLink :to="localePath('colabora')" class="press-resource card-base group">
+              <Icon name="ph:hand-heart" class="size-5 text-miriam mb-3" aria-hidden="true" />
+              <span class="block font-display font-semibold text-berenjena text-[15px]">
+                {{ $t('press.resource_collaborate') }}
+              </span>
+              <span class="mt-1 block text-[13px] text-tinta leading-relaxed">
+                {{ $t('press.resource_collaborate_desc') }}
+              </span>
+            </NuxtLink>
           </div>
         </div>
 
@@ -167,6 +206,28 @@ import type { Collections, PressEnCollectionItem } from '@nuxt/content'
 
 const { locale, t } = useI18n()
 const localePath = useLocalePath()
+const { trackPress } = useSupport()
+
+const boilerplateText = computed(() =>
+  t('press.boilerplate_text', {
+    age: caseData.currentAge,
+    countries: caseData.countries,
+  })
+)
+
+const copyLabel = ref(t('press.boilerplate_copy'))
+async function copyBoilerplate() {
+  if (!import.meta.client) return
+  try {
+    await navigator.clipboard.writeText(boilerplateText.value)
+    copyLabel.value = t('press.boilerplate_copied')
+    setTimeout(() => {
+      copyLabel.value = t('press.boilerplate_copy')
+    }, 2000)
+  } catch {
+    /* sin clipboard */
+  }
+}
 
 // Hechos clave · las cifras que pueden desincronizarse (edad, nº de países)
 // vienen de la fuente única (caseData), no del texto i18n.
@@ -223,6 +284,31 @@ defineOgImage('Default.takumi', {
     locale.value === 'es'
       ? 'Hechos verificados y contacto para periodistas.'
       : 'Verified facts and a contact for journalists.',
+})
+
+const pressJsonLd = computed(() =>
+  JSON.stringify({
+    '@context': 'https://schema.org',
+    '@type': 'WebPage',
+    name: locale.value === 'es' ? 'Sala de prensa · Miriam González' : 'Press room · Miriam González',
+    description: t('press.subtitle'),
+    url: locale.value === 'es' ? 'https://helpmiriam.com/prensa' : 'https://helpmiriam.com/en/press',
+    inLanguage: locale.value === 'es' ? 'es-ES' : 'en-US',
+    about: {
+      '@type': 'Person',
+      name: 'Miriam González',
+      url: 'https://helpmiriam.com',
+      jobTitle: locale.value === 'es' ? 'Paciente e ingeniera de software' : 'Patient and software engineer',
+    },
+    audience: {
+      '@type': 'Audience',
+      audienceType: locale.value === 'es' ? 'Periodistas y medios' : 'Journalists and media',
+    },
+  })
+)
+
+useHead({
+  script: [{ type: 'application/ld+json', innerHTML: pressJsonLd }],
 })
 </script>
 

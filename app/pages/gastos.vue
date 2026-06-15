@@ -8,6 +8,39 @@
           {{ $t('expenses.intro') }}
         </p>
 
+        <div class="card-base mb-8" data-print-hide>
+          <p class="eyebrow mb-3 block">{{ $t('expenses.campaign_eyebrow') }}</p>
+          <GoFundMeProgress />
+        </div>
+
+        <div class="card-base mb-8">
+          <h2 class="font-display font-semibold text-berenjena text-lg mb-2">
+            {{ $t('expenses.phases_title') }}
+          </h2>
+          <p class="text-sm text-tinta leading-relaxed mb-5 max-w-2xl">
+            {{ $t('expenses.phases_intro') }}
+          </p>
+          <ol class="space-y-4">
+            <li
+              v-for="n in 3"
+              :key="n"
+              class="flex items-start gap-3 border-t border-berenjena/[0.07] pt-4 first:border-t-0 first:pt-0"
+            >
+              <span class="font-mono text-[11px] uppercase tracking-[0.1em] text-tinta shrink-0 pt-0.5">
+                {{ String(n).padStart(2, '0') }}
+              </span>
+              <div>
+                <h3 class="text-sm font-semibold text-berenjena mb-1">
+                  {{ $t(`expenses.phase${n}_title`) }}
+                </h3>
+                <p class="text-sm text-tinta leading-relaxed">
+                  {{ $t(`expenses.phase${n}_desc`) }}
+                </p>
+              </div>
+            </li>
+          </ol>
+        </div>
+
         <EcgDivider class="mb-8" />
 
         <!-- Coste de la rebiopsia: dos bloques (analizar ahora / preservar y bancar) -->
@@ -136,7 +169,7 @@
 
         <div class="mt-8 flex flex-col sm:flex-row sm:items-center gap-3">
           <a
-            href="https://gofund.me/3e25cae99"
+            :href="GOFUNDME_URL"
             target="_blank"
             rel="noopener"
             @click="trackSupport('gastos')"
@@ -144,9 +177,11 @@
             class="btn-cta w-full sm:w-auto"
           >
             <Icon name="ph:heart-fill" class="heart-beat w-4 h-4" aria-hidden="true" />
-            {{ $t('home.s4_cta_button') }}
+            {{ $t('expenses.help_cta') }}
           </a>
-          <p class="text-xs text-tinta">{{ $t('home.s4_cta_caption') }}</p>
+          <NuxtLink :to="localePath('colabora')" class="btn-secondary w-full sm:w-auto justify-center">
+            {{ $t('expenses.transparency_link') }}
+          </NuxtLink>
         </div>
       </div>
     </section>
@@ -154,9 +189,9 @@
 </template>
 
 <script setup lang="ts">
-const { t } = useI18n()
+const { locale, t } = useI18n()
 const localePath = useLocalePath()
-const { trackSupport } = useSupport()
+const { GOFUNDME_URL, trackSupport } = useSupport()
 
 useSeoMeta({
   title: () => t('expenses.title'),
@@ -186,7 +221,20 @@ const faqJsonLd = computed(() =>
     })),
   })
 )
+const donateJsonLd = computed(() =>
+  JSON.stringify({
+    '@context': 'https://schema.org',
+    '@type': 'DonateAction',
+    name: locale.value === 'es' ? 'Donar para el caso de Miriam González' : "Donate to Miriam González's case",
+    recipient: { '@type': 'Person', name: 'Miriam González', url: 'https://helpmiriam.com' },
+    target: { '@type': 'EntryPoint', urlTemplate: GOFUNDME_URL },
+  })
+)
+
 useHead({
-  script: [{ type: 'application/ld+json', innerHTML: faqJsonLd }],
+  script: [
+    { type: 'application/ld+json', innerHTML: faqJsonLd },
+    { type: 'application/ld+json', innerHTML: donateJsonLd },
+  ],
 })
 </script>
