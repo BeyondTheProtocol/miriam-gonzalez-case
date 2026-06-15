@@ -38,7 +38,13 @@
         @pointerup="onUp"
         @pointercancel="onUp"
       >
-        <div ref="content" class="starmap-content" :class="{ 'is-still': still }" :style="contentStyle" aria-hidden="true">
+        <div
+          ref="content"
+          class="starmap-content"
+          :class="{ 'is-still': still, 'starmap-content--spotlight': spotlight }"
+          :style="contentStyle"
+          aria-hidden="true"
+        >
           <!-- Asterismo de Cáncer: líneas a lápiz entre las estrellas con nombre -->
           <svg class="starmap__lines" viewBox="0 0 100 100" preserveAspectRatio="none">
             <path
@@ -89,7 +95,11 @@
             class="starmap__star"
             :class="[
               s.tier === 'principal' ? 'starmap__star--principal' : s.tier === 'bright' ? 'starmap__star--bright' : '',
-              { 'starmap__star--new': s.newest, 'starmap__star--lit': i === activeIdx },
+              {
+                'starmap__star--new': s.newest,
+                'starmap__star--lit': i === activeIdx,
+                'starmap__star--spotlight': spotlight && i === tapIdx,
+              },
             ]"
             :style="{
               left: s.x + '%',
@@ -399,10 +409,102 @@ function zoomBy(factor: number) {
   zoomAt(factor, vp.clientWidth / 2, vp.clientHeight / 2)
 }
 function resetView() {
+  cancelFly()
+  spotlight.value = false
+  tapIdx.value = null
   scale.value = 1
   tx.value = 0
   ty.value = 0
 }
+
+/* ── Buscar y enfocar una estrella (tabla / búsqueda por nombre) ─────── */
+const spotlight = ref(false)
+let flyRaf = 0
+
+function cancelFly() {
+  cancelAnimationFrame(flyRaf)
+  flyRaf = 0
+}
+
+function normName(s: string) {
+  return s
+    .normalize('NFD')
+    .replace(/\p{M}/gu, '')
+    .toLowerCase()
+    .trim()
+}
+
+function findIndexByName(query: string): number | null {
+  const q = normName(query)
+  if (!q) return null
+  const st = stars.value
+  const exact = st.findIndex((s) => normName(s.name) === q)
+  if (exact >= 0) return exact
+  const incl = st.findIndex((s) => normName(s.name).includes(q))
+  if (incl >= 0) return incl
+  const words = q.split(/\s+/).filter(Boolean)
+  if (!words.length) return null
+  const wordHit = st.findIndex((s) => {
+    const n = normName(s.name)
+    return words.every((w) => n.includes(w))
+  })
+  return wordHit >= 0 ? wordHit : null
+}
+
+function flyToIndex(idx: number): boolean {
+  const vp = viewport.value
+  const ct = content.value
+  const s = stars.value[idx]
+  if (!vp || !ct || !s) return false
+
+  cancelFly()
+  spotlight.value = true
+  tapIdx.value = idx
+  hoverIdx.value = null
+
+  const W = ct.clientWidth
+  const H = ct.clientHeight
+  const targetScale = Math.min(MAX_S, Math.max(2.8, scale.value))
+  const starPxX = (s.x / 100) * W
+  const starPxY = (s.y / 100) * H
+  const targetTx = vp.clientWidth / 2 - starPxX * targetScale
+  const targetTy = vp.clientHeight / 2 - starPxY * targetScale
+
+  const startS = scale.value
+  const startTx = tx.value
+  const startTy = ty.value
+  const t0 = performance.now()
+  const dur = 480
+
+  bump()
+  function frame(now: number) {
+    const t = Math.min(1, (now - t0) / dur)
+    const ease = 1 - (1 - t) ** 3
+    scale.value = startS + (targetScale - startS) * ease
+    tx.value = startTx + (targetTx - startTx) * ease
+    ty.value = startTy + (targetTy - startTy) * ease
+    if (t < 1) flyRaf = requestAnimationFrame(frame)
+    else {
+      flyRaf = 0
+      clampPan()
+    }
+  }
+  flyRaf = requestAnimationFrame(frame)
+  vp.scrollIntoView({ behavior: 'smooth', block: 'center' })
+  return true
+}
+
+function focusById(id: string | number): boolean {
+  const idx = stars.value.findIndex((s) => s.id === String(id))
+  return idx >= 0 ? flyToIndex(idx) : false
+}
+
+function focusByName(query: string): boolean {
+  const idx = findIndexByName(query)
+  return idx != null ? flyToIndex(idx) : false
+}
+
+defineExpose({ focusById, focusByName })
 
 let onWheel: ((e: WheelEvent) => void) | null = null
 onMounted(() => {
@@ -418,6 +520,7 @@ onMounted(() => {
 onBeforeUnmount(() => {
   if (viewport.value && onWheel) viewport.value.removeEventListener('wheel', onWheel)
   cancelAnimationFrame(raf)
+  cancelFly()
   clearTimeout(stillTimer)
 })
 
@@ -483,7 +586,12 @@ function onUp(e: PointerEvent) {
   if (ptrs.size < 2) pinchDist = 0
   if (wasOne && !moved) {
     const i = nearestAt(e.clientX, e.clientY)
-    tapIdx.value = i === tapIdx.value ? null : i
+    if (i === tapIdx.value) {
+      tapIdx.value = null
+      spotlight.value = false
+    } else if (i != null) {
+      flyToIndex(i)
+    }
   }
 }
 
@@ -507,10 +615,13 @@ function nearestAt(clientX: number, clientY: number): number | null {
   let bd = Infinity
   const st = stars.value
   for (let i = 0; i < st.length; i++) {
-    const dx = (st[i]!.x / 100) * W - cx
-    const dy = (st[i]!.y / 100) * H - cy
+    const star = st[i]!
+    const dx = (star.x / 100) * W - cx
+    const dy = (star.y / 100) * H - cy
+    // Radio de captura generoso (crece con el tamaño de la estrella y el zoom).
+    const hit = Math.max(14, star.size * 1.8) / scale.value
     const d2 = dx * dx + dy * dy
-    if (d2 < bd) {
+    if (d2 < hit * hit && d2 < bd) {
       bd = d2
       best = i
     }
@@ -645,6 +756,27 @@ const tipStyle = computed(() => {
 .starmap__star--lit {
   opacity: 1;
   filter: drop-shadow(0 0 6px rgba(157, 68, 171, 0.85));
+}
+.starmap-content--spotlight .starmap__star:not(.starmap__star--lit) {
+  opacity: 0.14;
+}
+.starmap__star--spotlight {
+  opacity: 1 !important;
+  filter: drop-shadow(0 0 10px rgba(255, 107, 71, 0.95)) drop-shadow(0 0 18px rgba(255, 107, 71, 0.45));
+}
+@media (prefers-reduced-motion: no-preference) {
+  .starmap__star--spotlight {
+    animation: star-spotlight 1.8s ease-in-out infinite;
+  }
+}
+@keyframes star-spotlight {
+  0%,
+  100% {
+    filter: drop-shadow(0 0 8px rgba(255, 107, 71, 0.85)) drop-shadow(0 0 14px rgba(255, 107, 71, 0.35));
+  }
+  50% {
+    filter: drop-shadow(0 0 14px rgba(255, 107, 71, 1)) drop-shadow(0 0 24px rgba(255, 107, 71, 0.55));
+  }
 }
 .starmap__star--new {
   filter: drop-shadow(0 0 7px rgba(255, 107, 71, 0.8));
