@@ -18,6 +18,11 @@ coreTeam:
     description: "Research doctorate. He advises on clinical trials and on translating findings into an N-of-1 approach."
     icon: ph:clipboard-text-fill
     color: gold
+  - role: "Biomedicine · translational"
+    name: Mariú
+    description: "Biomedicine and master's in clinical research (translational oncology, PRBB-Barcelona). Contributes independently and applies AI to the case's clinical and research workflow."
+    icon: ph:dna-fill
+    color: gold
   - role: "Technical advisory · breast"
     name: Víctor
     photo: /img/team/victor.webp
