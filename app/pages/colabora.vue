@@ -106,7 +106,7 @@
               <p class="text-sm text-tinta leading-relaxed mb-3">
                 {{ $t('collaborate.trust_social_body') }}
               </p>
-              <NuxtLink :to="localePath('colabora') + '#gracias'" class="link-action text-sm text-miriam">
+              <NuxtLink :to="localePath('gracias')" class="link-action text-sm text-miriam">
                 {{ $t('collaborate.trust_social_link') }}
                 <Icon name="ph:arrow-right" class="w-3.5 h-3.5" aria-hidden="true" />
               </NuxtLink>
