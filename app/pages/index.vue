@@ -2,6 +2,59 @@
   <div>
     <SectionHero />
 
+    <!-- Confianza temprana: progreso de campaña + prensa antes del segundo scroll -->
+    <section
+      v-reveal
+      class="py-12 sm:py-16 bg-cream-card"
+      :aria-label="$t('home.s5_eyebrow')"
+      style="border-bottom: 1px solid rgba(45,27,61,0.08)"
+    >
+      <div class="section-wide">
+        <p class="eyebrow mb-3 block">{{ $t('home.s5_eyebrow') }}</p>
+        <h2 class="font-display font-semibold text-berenjena text-xl sm:text-2xl mb-5" style="letter-spacing: -0.02em">
+          {{ $t('home.s5_heading') }}
+        </h2>
+        <GoFundMeProgress card />
+
+        <div
+          class="mt-8 pt-6 flex flex-wrap items-baseline gap-x-7 gap-y-3"
+          style="border-top: 1px solid rgba(45,27,61,0.08)"
+        >
+          <span class="font-mono uppercase text-[11px] tracking-[0.12em] text-tinta self-center">
+            {{ $t('home.s9_strip_label') }}
+          </span>
+          <a
+            :href="elPaisUrl"
+            target="_blank"
+            rel="noopener"
+            class="link-logo text-2xl sm:text-3xl"
+            @click="trackPress('El País')"
+          >El País<span class="sr-only"> {{ $t('a11y.new_tab') }}</span></a>
+          <a
+            :href="murciaUrl"
+            target="_blank"
+            rel="noopener"
+            class="link-logo text-2xl sm:text-3xl"
+            @click="trackPress('La Opinión de Murcia')"
+          >La Opinión de Murcia<span class="sr-only"> {{ $t('a11y.new_tab') }}</span></a>
+          <a
+            :href="la7Url"
+            target="_blank"
+            rel="noopener"
+            class="link-logo text-2xl sm:text-3xl"
+            @click="trackPress('La 7')"
+          >La 7<span class="sr-only"> {{ $t('a11y.new_tab') }}</span></a>
+          <NuxtLink
+            :to="localePath('prensa')"
+            class="link-action group sm:ml-auto self-center font-mono text-[12px] text-miriam"
+          >
+            {{ $t('home.s9_press_contact') }}
+            <Icon name="ph:arrow-right" class="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5" aria-hidden="true" />
+          </NuxtLink>
+        </div>
+      </div>
+    </section>
+
     <VisitorPathways variant="home" />
 
     <!-- La historia + en sus propias palabras (beat humano: persona antes que problema) -->
@@ -373,54 +426,6 @@
       </div>
     </section>
 
-    <!-- Cierre · estado de la campaña + caso en prensa (lo último de todo) -->
-    <section v-reveal class="section-spacing bg-cream-card" :aria-label="$t('home.s5_eyebrow')" style="border-top: 1px solid rgba(45,27,61,0.08)">
-      <div class="section-wide">
-        <p class="eyebrow mb-3 block">{{ $t('home.s5_eyebrow') }}</p>
-        <h2 class="font-display font-semibold text-berenjena text-2xl sm:text-3xl mb-6" style="letter-spacing: -0.02em">
-          {{ $t('home.s5_heading') }}
-        </h2>
-        <GoFundMeProgress card />
-
-        <!-- Caso en prensa · tira de medios + contacto de prensa (estilo prototipo) -->
-        <div
-          class="mt-10 pt-6 flex flex-wrap items-baseline gap-x-7 gap-y-3"
-          style="border-top: 1px solid rgba(45,27,61,0.08)"
-        >
-          <span class="font-mono uppercase text-[11px] tracking-[0.12em] text-tinta self-center">
-            {{ $t('home.s9_strip_label') }}
-          </span>
-          <a
-            :href="elPaisUrl"
-            target="_blank"
-            rel="noopener"
-            class="link-logo text-2xl sm:text-3xl"
-            @click="trackPress('El País')"
-          >El País<span class="sr-only"> {{ $t('a11y.new_tab') }}</span></a>
-          <a
-            :href="murciaUrl"
-            target="_blank"
-            rel="noopener"
-            class="link-logo text-2xl sm:text-3xl"
-            @click="trackPress('La Opinión de Murcia')"
-          >La Opinión de Murcia<span class="sr-only"> {{ $t('a11y.new_tab') }}</span></a>
-          <a
-            :href="la7Url"
-            target="_blank"
-            rel="noopener"
-            class="link-logo text-2xl sm:text-3xl"
-            @click="trackPress('La 7')"
-          >La 7<span class="sr-only"> {{ $t('a11y.new_tab') }}</span></a>
-          <NuxtLink
-            :to="localePath('prensa')"
-            class="link-action group sm:ml-auto self-center font-mono text-[12px] text-miriam"
-          >
-            {{ $t('home.s9_press_contact') }}
-            <Icon name="ph:arrow-right" class="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5" aria-hidden="true" />
-          </NuxtLink>
-        </div>
-      </div>
-    </section>
   </div>
 </template>
 
