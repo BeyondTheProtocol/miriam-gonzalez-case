@@ -34,7 +34,7 @@
               class="hero__portrait-img"
               width="640"
               height="640"
-              sizes="(max-width: 639px) 168px, (max-width: 1023px) 200px, 280px"
+              sizes="(max-width: 639px) 168px, (max-width: 1023px) 200px, 240px"
               format="webp"
               fetchpriority="high"
               decoding="async"
@@ -307,12 +307,12 @@ const stats = computed(() => [
   }
 }
 
-/* Desktop (≥1024): dos columnas con retrato proporcionado, no dominante */
+/* Desktop (≥1024): foto solo junto al titular; cuerpo a ancho completo (sin hueco lateral). */
 @media (min-width: 1024px) {
   .hero__grid {
-    grid-template-columns: minmax(0, 1fr) clamp(200px, 26vw, 280px);
-    column-gap: clamp(2rem, 3vw, 2.75rem);
-    row-gap: 1.25rem;
+    grid-template-columns: minmax(0, 1fr) clamp(180px, 20vw, 240px);
+    column-gap: clamp(1.75rem, 3vw, 2.5rem);
+    row-gap: 1.5rem;
   }
   .hero__head {
     grid-column: 1;
@@ -320,15 +320,16 @@ const stats = computed(() => [
   }
   .hero__portrait {
     grid-column: 2;
-    grid-row: 1 / span 2;
+    grid-row: 1;
     justify-self: end;
     align-self: start;
     width: 100%;
-    max-width: 280px;
+    max-width: 240px;
   }
   .hero__body {
-    grid-column: 1;
+    grid-column: 1 / -1;
     grid-row: 2;
+    max-width: 42rem;
   }
 }
 

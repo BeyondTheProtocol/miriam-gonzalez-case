@@ -955,12 +955,12 @@
     grid-template-columns: 1fr;
   }
   @media (min-width: 640px) {
+    /* 2×2 legible en laptop 13" (~1280px); 4 en fila solo en pantallas anchas */
     .pathway-grid {
       grid-template-columns: repeat(2, minmax(0, 1fr));
     }
   }
-  @media (min-width: 1024px) {
-    /* Mac 13" y desktop: las 4 vías en una fila, sin quedar 2+2 huérfanas */
+  @media (min-width: 1440px) {
     .pathway-grid {
       grid-template-columns: repeat(4, minmax(0, 1fr));
     }
