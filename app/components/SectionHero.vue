@@ -520,6 +520,26 @@ const stats = computed(() => [
 .hero__pulse-counter {
   align-self: flex-start;
 }
+/* En desktop la fila viva usa todo el ancho (como las cifras): contador a la
+   izquierda, «lo último» a la derecha — para que no se agolpe a la izquierda. */
+@media (min-width: 768px) {
+  .hero__pulse {
+    flex-direction: row;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1.5rem 2.5rem;
+  }
+  .hero__pulse-counter {
+    margin-top: 0.15rem;
+  }
+  .hero__pulse .hero__latest {
+    text-align: right;
+    max-width: 34rem;
+  }
+  .hero__pulse .hero__latest-meta {
+    justify-content: flex-end;
+  }
+}
 
 .hero__latest {
   display: block;
