@@ -13,7 +13,7 @@
         </p>
         <ul
           aria-labelledby="team-miriam"
-          class="grid grid-cols-2 md:grid-cols-3 gap-x-6 gap-y-9 mb-16 stagger-children"
+          class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-x-6 gap-y-9 mb-16 stagger-children"
         >
           <li v-for="member in coreTeam" :key="member.name">
             <TeamPortrait :member="member" />

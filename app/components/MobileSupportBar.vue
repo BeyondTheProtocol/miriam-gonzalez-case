@@ -7,7 +7,7 @@
     leave-from-class="translate-y-0"
     leave-to-class="translate-y-full"
   >
-    <div v-if="visible" class="mobile-support-bar sm:hidden">
+    <div v-if="visible" class="mobile-support-bar lg:hidden">
       <a
         :href="GOFUNDME_URL"
         target="_blank"
@@ -35,7 +35,7 @@
  * Barra de apoyo persistente en móvil (plan Decisión 5, default B).
  * La cabecera oculta el botón de donar por debajo de `sm`; con ~80% del
  * tráfico en móvil hace falta un CTA siempre a mano, donde vive el pulgar.
- * · Solo en móvil (`sm:hidden`).
+ * · Solo en móvil y tablet estrecha (`lg:hidden`; desktop ≥1024px sin barra).
  * · Aparece tras pasar el hero.
  * · Se oculta cerca del footer/cierre (para no duplicar el CTA) y en /gracias.
  * · Respeta safe-area-inset-bottom y prefers-reduced-motion.
@@ -59,8 +59,14 @@ function anyCtaVisible(): boolean {
   return false
 }
 
+const DESKTOP_MIN = 1024
+
 function update() {
   if (typeof window === 'undefined') return
+  if (window.innerWidth >= DESKTOP_MIN) {
+    visible.value = false
+    return
+  }
   if (route.path.includes('gracias')) {
     visible.value = false
     return
@@ -83,6 +89,12 @@ onBeforeUnmount(() => {
 </script>
 
 <style scoped>
+@media (min-width: 1024px) {
+  .mobile-support-bar {
+    display: none !important;
+  }
+}
+
 .mobile-support-bar {
   position: fixed;
   left: 0;

@@ -270,19 +270,32 @@ const stats = computed(() => [
 
 .hero__grid {
   display: grid;
-  gap: 1.25rem;
+  gap: 1rem;
   align-items: start;
+}
+@media (max-width: 767px) {
+  /* Narrativa continua: titular → texto/CTA → retrato (evita hueco entre H1 y lede). */
+  .hero__head {
+    order: 1;
+  }
+  .hero__body {
+    order: 2;
+  }
+  .hero__portrait {
+    order: 3;
+    margin-top: 0.25rem;
+  }
 }
 @media (min-width: 640px) {
   .hero__grid {
-    gap: 2rem;
+    gap: 1.5rem;
   }
 }
 @media (min-width: 768px) {
   .hero__grid {
-    grid-template-columns: minmax(0, 1fr) minmax(240px, 38%);
-    column-gap: 3.5rem;
-    row-gap: 1.5rem;
+    grid-template-columns: minmax(0, 1fr) minmax(220px, 36%);
+    column-gap: clamp(2rem, 4vw, 3.25rem);
+    row-gap: 1.25rem;
   }
   .hero__head {
     grid-column: 1;
@@ -292,8 +305,9 @@ const stats = computed(() => [
     grid-column: 2;
     grid-row: 1 / span 2;
     justify-self: end;
+    align-self: start;
     width: 100%;
-    max-width: 380px;
+    max-width: min(380px, 100%);
   }
   .hero__body {
     grid-column: 1;
@@ -340,12 +354,12 @@ const stats = computed(() => [
   position: relative;
   margin: 0;
   width: 100%;
-  max-width: 200px;
+  max-width: 168px;
   margin-inline: auto;
 }
 @media (min-width: 640px) {
   .hero__portrait {
-    max-width: 280px;
+    max-width: 240px;
   }
 }
 @media (min-width: 768px) {
@@ -536,9 +550,9 @@ const stats = computed(() => [
 .hero__stats {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 1.5rem 1.25rem;
-  margin-top: 2.5rem;
-  padding-top: 2rem;
+  gap: 1.25rem 1rem;
+  margin-top: 2rem;
+  padding-top: 1.75rem;
   border-top: 1px solid rgba(45, 27, 61, 0.1);
 }
 @media (min-width: 640px) {
@@ -572,7 +586,7 @@ const stats = computed(() => [
   margin: 0;
   font-family: 'Fraunces', serif;
   font-weight: 600;
-  font-size: clamp(2.25rem, 4.2vw, 3.75rem);
+  font-size: clamp(1.875rem, 5vw, 3.75rem);
   line-height: 1;
   letter-spacing: -0.04em;
 }

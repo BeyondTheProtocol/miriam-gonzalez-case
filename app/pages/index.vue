@@ -5,7 +5,7 @@
     <VisitorPathways variant="home" />
 
     <!-- La historia + en sus propias palabras (beat humano: persona antes que problema) -->
-    <section v-reveal class="py-24 sm:py-32 relative overflow-hidden" :aria-label="$t('home.story_eyebrow')" style="background: #2d1b3d; color: #faf6f0">
+    <section v-reveal class="py-20 sm:py-28 relative overflow-hidden" :aria-label="$t('home.story_eyebrow')" style="background: #2d1b3d; color: #faf6f0">
       <div class="absolute inset-0 opacity-[0.04]" style="background-image: radial-gradient(circle at 1px 1px, #faf6f0 1px, transparent 0); background-size: 32px 32px;" />
       <div class="relative section-wide">
         <p class="eyebrow block" style="color: #e8d4ed">
@@ -303,7 +303,7 @@
         <h2 class="heading-display text-3xl sm:text-4xl text-berenjena mb-6" style="letter-spacing: -0.03em">
           {{ $t('home.s10_intro') }}
         </h2>
-        <div class="grid sm:grid-cols-3 gap-6 text-left mt-12">
+        <div class="grid md:grid-cols-3 gap-6 text-left mt-12">
           <article class="card-base flex flex-col" style="background: #faf6f0">
             <p class="font-mono uppercase text-[11px] tracking-[0.12em] text-tinta mb-2">01</p>
             <h3 class="font-display font-semibold text-berenjena text-xl mb-3">{{ $t('home.s10_l1_title') }}</h3>
