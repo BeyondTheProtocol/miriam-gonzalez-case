@@ -26,7 +26,7 @@
           v-if="chapters && chapters.length > 0"
           class="max-w-2xl mt-12"
         >
-          <nav :aria-label="$t('historia.chapters')" class="space-y-3 mb-12">
+          <nav :aria-label="$t('historia.chapters')" class="space-y-3">
             <NuxtLink
               v-for="chapter in chapters"
               :key="chapter.path"
