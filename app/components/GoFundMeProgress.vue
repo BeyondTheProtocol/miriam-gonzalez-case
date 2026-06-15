@@ -68,6 +68,28 @@ const activeProgress = computed(() => {
   if (!data.value || !m || m.amount <= 0) return 0
   return Math.max(0, Math.min(1, data.value.currentAmount.amount / m.amount))
 })
+
+// Vista previa de hito: al pinchar una fila del listado, la barra proyecta en
+// translúcido desde lo recaudado hasta ese hito («ver cuánto faltaría»). Volver
+// a pinchar lo quita. Solo aplica a la variante con listado (card).
+const preview = ref<number | null>(null)
+function togglePreview(i: number) {
+  preview.value = preview.value === i ? null : i
+}
+const previewPct = computed(() => {
+  if (preview.value === null) return null
+  return milestones.value[preview.value]?.pct ?? null
+})
+const previewRemaining = computed(() => {
+  if (preview.value === null || !data.value) return 0
+  const m = milestones.value[preview.value]
+  return m ? Math.max(0, m.amount - data.value.currentAmount.amount) : 0
+})
+function rowBg(i: number) {
+  if (preview.value === i) return 'background: rgba(255,107,71,0.18)'
+  if (i === activeIndex.value) return 'background: rgba(255,107,71,0.10)'
+  return 'background: rgba(250,246,240,0.04)'
+}
 </script>
 
 <template>
@@ -89,7 +111,7 @@ const activeProgress = computed(() => {
 
     <div class="mt-6 relative pb-7">
       <div
-        class="h-2.5 w-full rounded-full"
+        class="relative h-2.5 w-full overflow-hidden rounded-full"
         style="background: rgba(250,246,240,0.12)"
         role="progressbar"
         :aria-valuenow="data.currentAmount.amount"
@@ -97,6 +119,13 @@ const activeProgress = computed(() => {
         :aria-valuemax="data.goalAmount.amount"
         :aria-label="$t('gofundme.progress_label')"
       >
+        <!-- Proyección translúcida hasta el hito pinchado en el listado. -->
+        <div
+          v-if="previewPct !== null && previewPct > pct"
+          class="ms-ghost absolute inset-y-0"
+          :style="{ left: `${pct}%`, width: `${previewPct - pct}%` }"
+          aria-hidden="true"
+        />
         <div class="progress-fill h-full rounded-full bg-coral relative" :style="{ width: `${pct}%` }">
           <span class="progress-pulse" aria-hidden="true" />
         </div>
@@ -143,83 +172,106 @@ const activeProgress = computed(() => {
       {{ t('gofundme.phase_count', { current: activeIndex + 1, total: milestones.length }) }}
     </p>
     <ol v-if="milestones.length" class="mt-2 space-y-px overflow-hidden rounded-xl">
-      <li
-        v-for="(m, i) in milestones"
-        :key="m.key"
-        class="flex items-start gap-3 px-4 py-3"
-        :style="i === activeIndex ? 'background: rgba(255,107,71,0.10)' : 'background: rgba(250,246,240,0.04)'"
-      >
-        <!-- Estado del hito (progresión clara, sin banderas): ○ pendiente →
-             anillo que se llena = en curso → ✓ cumplido. -->
-        <Icon
-          v-if="m.reached"
-          name="ph:check-circle-fill"
-          class="size-4 shrink-0 mt-0.5"
-          style="color: #ff6b47"
-          aria-hidden="true"
-        />
-        <svg
-          v-else-if="i === activeIndex"
-          viewBox="0 0 16 16"
-          class="size-4 shrink-0 mt-0.5 -rotate-90"
-          aria-hidden="true"
+      <li v-for="(m, i) in milestones" :key="m.key">
+        <!-- Fila clicable: proyecta en la barra cuánto faltaría para este hito. -->
+        <button
+          type="button"
+          class="ms-row flex w-full items-start gap-3 px-4 py-3 text-left"
+          :style="rowBg(i)"
+          :aria-pressed="preview === i"
+          @click="togglePreview(i)"
         >
-          <circle cx="8" cy="8" r="6.4" fill="none" stroke="rgba(255,107,71,0.28)" stroke-width="2.3" />
-          <circle
-            cx="8"
-            cy="8"
-            r="6.4"
-            fill="none"
-            stroke="#ff6b47"
-            stroke-width="2.3"
-            stroke-linecap="round"
-            :stroke-dasharray="RING_C"
-            :stroke-dashoffset="RING_C * (1 - activeProgress)"
+          <!-- Estado del hito: ○ pendiente → anillo en curso → ✓ cumplido. -->
+          <Icon
+            v-if="m.reached"
+            name="ph:check-circle-fill"
+            class="size-4 shrink-0 mt-0.5"
+            style="color: #ff6b47"
+            aria-hidden="true"
           />
-        </svg>
-        <Icon
-          v-else
-          name="ph:circle"
-          class="size-4 shrink-0 mt-0.5"
-          style="color: rgba(250,246,240,0.3)"
-          aria-hidden="true"
-        />
-        <div class="min-w-0 flex-1">
-          <div class="flex items-baseline justify-between gap-3">
-            <p
-              class="font-mono text-[13px] nums"
-              :style="{ color: m.reached || i === activeIndex ? '#faf6f0' : 'rgba(250,246,240,0.55)' }"
-            >
-              {{ t(`gofundme.milestones.${m.key}.label`) }}
-            </p>
-            <span
-              class="shrink-0 font-mono text-[12px] nums"
-              :style="{ color: m.reached ? '#ff6b47' : 'rgba(250,246,240,0.55)' }"
-            >{{ formatCurrency(m.amount, data.goalAmount.currencyCode, locale) }}</span>
-          </div>
-          <i18n-t
-            v-if="i === activeIndex && remainingToNext > 0"
-            keypath="gofundme.remaining"
-            tag="p"
-            class="mt-0.5 font-mono text-[11.5px] leading-snug nums"
-            style="color: rgba(250,246,240,0.72)"
+          <svg
+            v-else-if="i === activeIndex"
+            viewBox="0 0 16 16"
+            class="size-4 shrink-0 mt-0.5 -rotate-90"
+            aria-hidden="true"
           >
-            <template #amount>
-              <span class="font-semibold text-coral">{{
-                formatCurrency(remainingToNext, data.goalAmount.currencyCode, locale)
-              }}</span>
-            </template>
-          </i18n-t>
-          <p
+            <circle cx="8" cy="8" r="6.4" fill="none" stroke="rgba(255,107,71,0.28)" stroke-width="2.3" />
+            <circle
+              cx="8"
+              cy="8"
+              r="6.4"
+              fill="none"
+              stroke="#ff6b47"
+              stroke-width="2.3"
+              stroke-linecap="round"
+              :stroke-dasharray="RING_C"
+              :stroke-dashoffset="RING_C * (1 - activeProgress)"
+            />
+          </svg>
+          <Icon
             v-else
-            class="mt-0.5 font-mono text-[11px] leading-snug"
-            style="color: rgba(250,246,240,0.5)"
-          >
-            {{ t(`gofundme.milestones.${m.key}.desc`) }}
-          </p>
-        </div>
+            name="ph:circle"
+            class="size-4 shrink-0 mt-0.5"
+            style="color: rgba(250,246,240,0.3)"
+            aria-hidden="true"
+          />
+          <div class="min-w-0 flex-1">
+            <div class="flex items-baseline justify-between gap-3">
+              <p
+                class="font-mono text-[13px] nums"
+                :style="{ color: m.reached || i === activeIndex || preview === i ? '#faf6f0' : 'rgba(250,246,240,0.55)' }"
+              >
+                {{ t(`gofundme.milestones.${m.key}.label`) }}
+              </p>
+              <span
+                class="shrink-0 font-mono text-[12px] nums"
+                :style="{ color: m.reached || preview === i ? '#ff6b47' : 'rgba(250,246,240,0.55)' }"
+              >{{ formatCurrency(m.amount, data.goalAmount.currencyCode, locale) }}</span>
+            </div>
+            <i18n-t
+              v-if="preview === i && previewRemaining > 0"
+              keypath="gofundme.remaining_here"
+              tag="p"
+              class="mt-0.5 font-mono text-[11.5px] leading-snug nums"
+              style="color: rgba(250,246,240,0.72)"
+            >
+              <template #amount>
+                <span class="font-semibold text-coral">{{
+                  formatCurrency(previewRemaining, data.goalAmount.currencyCode, locale)
+                }}</span>
+              </template>
+            </i18n-t>
+            <i18n-t
+              v-else-if="preview === null && i === activeIndex && remainingToNext > 0"
+              keypath="gofundme.remaining"
+              tag="p"
+              class="mt-0.5 font-mono text-[11.5px] leading-snug nums"
+              style="color: rgba(250,246,240,0.72)"
+            >
+              <template #amount>
+                <span class="font-semibold text-coral">{{
+                  formatCurrency(remainingToNext, data.goalAmount.currencyCode, locale)
+                }}</span>
+              </template>
+            </i18n-t>
+            <p
+              v-else
+              class="mt-0.5 font-mono text-[11px] leading-snug"
+              style="color: rgba(250,246,240,0.5)"
+            >
+              {{ t(`gofundme.milestones.${m.key}.desc`) }}
+            </p>
+          </div>
+        </button>
       </li>
     </ol>
+    <p
+      v-if="milestones.length"
+      class="mt-2 px-1 font-mono text-[10.5px] tracking-[0.04em]"
+      style="color: rgba(250,246,240,0.4)"
+    >
+      {{ $t('gofundme.tap_hint') }}
+    </p>
 
     <!-- Prueba social (auditoría 4.3): «únete a quienes ya lo hacen». El número
          de donantes ya aparece arriba, así que aquí solo va el encuadre. -->
@@ -357,5 +409,29 @@ const activeProgress = computed(() => {
   line-height: 1;
   white-space: nowrap;
   font-variant-numeric: tabular-nums;
+}
+
+/* Proyección «cuánto faltaría» al pinchar un hito del listado. Translúcida →
+   se distingue del recaudado real (coral sólido) y no falsea la cifra. */
+.ms-ghost {
+  background: rgba(255, 107, 71, 0.32);
+  transition: width 0.35s ease, left 0.35s ease;
+}
+/* Filas del listado clicables (vista previa). */
+.ms-row {
+  cursor: pointer;
+  border-radius: 8px;
+  transition: background 0.15s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+.ms-row:hover {
+  background: rgba(255, 107, 71, 0.14) !important;
+}
+.ms-row:focus-visible {
+  outline: 2px solid #ff6b47;
+  outline-offset: -2px;
+}
+@media (prefers-reduced-motion: reduce) {
+  .ms-ghost { transition: none; }
 }
 </style>

@@ -290,6 +290,8 @@
     "pct_raised": "raised",
     "social_proof": "Join the people already making it possible.",
     "remaining": "{amount} to go to the next milestone.",
+    "remaining_here": "{amount} to go to reach this milestone.",
+    "tap_hint": "Tap a milestone to see how much is left.",
     "phase_count": "Milestone {current} of {total}",
     "milestones": {
       "rebiopsy": {
