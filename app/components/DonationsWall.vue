@@ -5,7 +5,7 @@
     class="section-spacing bg-cream-card relative overflow-hidden scroll-mt-24"
     :aria-labelledby="'gracias-title'"
   >
-    <div class="section-container relative z-10">
+    <div class="section-wide relative z-10">
       <!-- Encabezado + la pieza: la frase manuscrita va ENCIMA del mapa
            (dentro de StarMap) y la nota de navegación + botón, debajo. -->
       <div class="mb-6">

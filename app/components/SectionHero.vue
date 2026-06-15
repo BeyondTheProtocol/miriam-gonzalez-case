@@ -328,6 +328,12 @@ const stats = computed(() => [
     max-width: 16ch;
   }
 }
+@media (min-width: 768px) {
+  /* Misma medida que lede/CTA: el titular no «estrecha» la columna en desktop. */
+  .hero__title {
+    max-width: 36rem;
+  }
+}
 
 /* Retrato */
 .hero__portrait {
