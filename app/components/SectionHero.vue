@@ -31,7 +31,7 @@
               class="hero__portrait-img"
               width="640"
               height="640"
-              sizes="(max-width: 639px) 200px, (max-width: 767px) 280px, 400px"
+              sizes="(max-width: 639px) 224px, (max-width: 767px) 280px, 400px"
               format="webp"
               fetchpriority="high"
               decoding="async"
@@ -274,15 +274,17 @@ const stats = computed(() => [
 }
 
 @media (max-width: 767px) {
+  /* En móvil la foto sube justo bajo el titular (gancho emocional antes del
+     lede y los CTAs). El donar siempre está accesible vía la barra fija inferior. */
   .hero__head {
     order: 1;
   }
-  .hero__body {
-    order: 2;
-  }
   .hero__portrait {
+    order: 2;
+    margin-top: 0.875rem;
+  }
+  .hero__body {
     order: 3;
-    margin-top: 0.25rem;
   }
 }
 
@@ -360,7 +362,7 @@ const stats = computed(() => [
 }
 @media (max-width: 767px) {
   .hero__portrait {
-    max-width: 200px;
+    max-width: 224px;
     margin-inline: auto;
   }
 }
@@ -491,6 +493,12 @@ const stats = computed(() => [
   line-height: 1.45;
   color: #3a3340;
   min-height: 2.25rem;
+}
+/* En móvil los CTAs se apilan (1 col), no hay que igualar captions → sin hueco muerto. */
+@media (max-width: 767px) {
+  .hero__cta-caption {
+    min-height: 0;
+  }
 }
 
 /* Zona de evidencia · una sola banda a ancho del shell (señales vivas + cifras)
