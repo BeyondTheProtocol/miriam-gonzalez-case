@@ -136,12 +136,12 @@ These data are medically accurate and should not be modified without verificatio
 - FGF3/FGF4/FGF19 amplified ×18
 - Neuroendocrine differentiation ~80% (not 70%, not 90%)
 - Initial Ki67: 60%
-- HER2 negative (0), with mention of ultralow
+- HER2 negative (0)
 - Discordant RP: 5% local vs 100% external
 - Low TMB, low MSI
 - No pathogenic SNVs or INDELs, no fusions
 - PIK3CA and ESR1 not detected in primary tissue
-- ECOG 0 (April 2026)
+- ECOG 1 (since April 2026; ECOG 0 from diagnosis until then)
 - Exclusively bone metastases
 - Drago 2019 = PMC6825550 (don't confuse with other Drago)
 - Spanish trial = NCT04483505 (9.1 vs 1.9 months, FGFR1 protein by IHC)

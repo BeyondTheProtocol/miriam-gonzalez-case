@@ -383,13 +383,13 @@
           </h2>
           <p class="text-sm text-tinta leading-relaxed mb-6 max-w-2xl">
             {{ locale === 'es'
-              ? 'Una sola intervención de la que sacar la caracterización más completa posible del tumor —genómica, inmunogenómica y epigenética— para no tener que volver a biopsiar. El objetivo realista son 3–5 cores en un plan escalonado: primero se confirma que hay tumor (≥30 % de celularidad) y luego se reparte el material por prioridad; como muchos análisis comparten muestra, los trozos físicos necesarios son pocos. Una referencia germinal —un tubo de sangre o saliva, cualquier día— y la biopsia líquida añaden información sin gastar ningún core. Es lo que financia la campaña.'
-              : 'A single procedure from which to extract the most complete characterisation possible of the tumour —genomic, immunogenomic and epigenetic— so there is no need to re-biopsy. The realistic target is 3–5 cores in a staged plan: first confirm there is tumour (≥30% cellularity), then allocate the material by priority; because many assays share the same sample, few physical pieces are actually needed. A germline reference —a tube of blood or saliva, any day— and the liquid biopsy add information without spending a single core. This is what the campaign funds.' }}
+              ? 'Una sola biopsia de la que sacar la caracterización del tumor más completa que la ciencia permite hoy —genómica, inmunogenómica y epigenética—, para no tener que repetirla. Es lo que financia la campaña.'
+              : 'A single biopsy from which to obtain the most complete tumour characterisation that science currently allows —genomic, immunogenomic and epigenetic—, so it doesn’t have to be repeated. This is what the campaign funds.' }}
           </p>
           <p class="text-sm text-berenjena leading-relaxed font-medium mb-6 max-w-2xl">
             {{ locale === 'es'
-              ? 'Próximo paso (junio 2026): rebiopsia ósea con plan escalonado de 3–5 cores y nueva biopsia líquida, para completar el perfil molecular y ver cómo evoluciona.'
-              : 'Next step (June 2026): bone rebiopsy with a staged 3–5-core plan and fresh liquid biopsy, to complete the molecular profile and track how it evolves.' }}
+              ? 'Próximo paso (junio 2026): una rebiopsia ósea extendida, guiada por PET. La primera (abril 2026) no obtuvo tumor viable; esta busca asegurarlo para completar el perfil molecular y ver cómo evoluciona.'
+              : 'Next step (June 2026): an extended, PET-guided bone rebiopsy. The first one (April 2026) did not yield viable tumour; this one aims to secure it, to complete the molecular profile and track how it evolves.' }}
           </p>
           <div class="data-card mb-14">
             <div class="overflow-x-auto">

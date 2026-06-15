@@ -44,13 +44,6 @@
     <p class="mt-4 text-xs text-tinta leading-relaxed">
       {{
         locale === 'es'
-          ? '⁺ La categoría HER2-ultralow (tinción de membrana en <10% de las células) está presente en este caso según los datos del estudio DIPCAN / MD Anderson Madrid.'
-          : '⁺ The HER2-ultralow category (membrane staining in <10% of cells) is present in this case according to data from the DIPCAN study / MD Anderson Madrid.'
-      }}
-    </p>
-    <p class="mt-2 text-xs text-tinta leading-relaxed">
-      {{
-        locale === 'es'
           ? '⁺⁺ En oncología neuroendocrina, el Ki67 es el marcador principal de gradación: G1 (<3%), G2 (3–20%), G3 (>20%). Por esa lógica, un Ki67 alto sería compatible con un componente neuroendocrino de alto grado (NEC G3). Es una hipótesis sobre la biología del tumor —no el grado asignado: el grado histológico confirmado es Grado II de Nottingham (Murcia 2024; VHIO 2026)— y queda pendiente de confirmación en la rebiopsia y de valoración por el comité de tumores.'
           : '⁺⁺ In neuroendocrine oncology, Ki67 is the primary grading marker: G1 (<3%), G2 (3–20%), G3 (>20%). By that logic, a high Ki67 would be compatible with a high-grade neuroendocrine component (NEC G3). This is a hypothesis about the tumour\'s biology —not the assigned grade: the confirmed histological grade is Nottingham Grade II (Murcia 2024; VHIO 2026)— pending confirmation at rebiopsy and tumour-board review.'
       }}
@@ -77,7 +70,7 @@ const markers = computed<MarkerRow[]>(() =>
         { marker: 'SNVs/INDELs', result: 'Ninguna patogénica', note: 'Sin fusiones detectadas', tone: 'neutral' },
         { marker: 'ESR1 p.D538G', result: 'Detectada (ctDNA 2026)', note: 'Resistencia endocrina adquirida a inhibidores de aromatasa', tone: 'info' },
         { marker: 'PIK3CA', result: 'No detectado', note: 'Pendiente reanálisis sobre tejido actualizado', tone: 'neutral' },
-        { marker: 'HER2', result: 'Negativo (0)', note: 'Tinción negativa ⁺', tone: 'neutral' },
+        { marker: 'HER2', result: 'Negativo (0)', note: 'Tinción negativa', tone: 'neutral' },
         { marker: 'RP', result: 'Positivo (5%)', note: 'Receptor de progesterona', tone: 'info' },
       ]
     : [
@@ -91,7 +84,7 @@ const markers = computed<MarkerRow[]>(() =>
         { marker: 'SNVs/INDELs', result: 'None pathogenic', note: 'No fusions detected', tone: 'neutral' },
         { marker: 'ESR1 p.D538G', result: 'Detected (ctDNA 2026)', note: 'Acquired endocrine resistance to aromatase inhibitors', tone: 'info' },
         { marker: 'PIK3CA', result: 'Not detected', note: 'Pending re-analysis on updated tissue', tone: 'neutral' },
-        { marker: 'HER2', result: 'Negative (0)', note: 'Negative staining ⁺', tone: 'neutral' },
+        { marker: 'HER2', result: 'Negative (0)', note: 'Negative staining', tone: 'neutral' },
         { marker: 'PR', result: 'Positive (5%)', note: 'Progesterone receptor', tone: 'info' },
       ]
 )
