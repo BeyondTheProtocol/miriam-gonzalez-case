@@ -53,9 +53,9 @@ export default defineNuxtConfig({
       // visitas. Mantener una sola fuente: el repo.
       // data-domains: solo envía desde el dominio real (no localhost/previews).
       // data-performance: recoge Core Web Vitals reales de los visitantes.
-      // recorder.js · Replays + Heatmaps (plan Business). Mask level «moderate» en
-      // Umami → Settings (enmascara inputs). Sample rate 100% mientras el volumen
-      // es bajo. Convive con script.js; no duplicar vía Snippet injection.
+      // NOTA RGPD: NO se carga recorder.js (session replays + heatmaps). En un sitio
+      // de salud, grabar sesiones individuales empuja a pedir consentimiento; por
+      // eso solo usamos analítica cookieless y agregada (script.js), sin banner.
       script: [
         {
           src: 'https://cloud.umami.is/script.js',
@@ -63,11 +63,6 @@ export default defineNuxtConfig({
           'data-website-id': '30a40c53-5573-45c0-8ac9-8f0f94621ecf',
           'data-domains': 'helpmiriam.com',
           'data-performance': 'true',
-        },
-        {
-          src: 'https://cloud.umami.is/recorder.js',
-          defer: true,
-          'data-website-id': '30a40c53-5573-45c0-8ac9-8f0f94621ecf',
         },
       ],
     },
