@@ -3,73 +3,73 @@ coreTeam:
     name: Miriam González
     photo: /img/team/miriam.webp
     featured: true
-    description: "Software engineer and tech communicator. She researches her own case and coordinates the entire initiative."
+    description: "Software engineer and communicator. She researches her own case and coordinates the initiative."
     icon: ph:user-circle-fill
     color: gold
-  - role: "Genomics & molecular profiling"
+  - role: "Genomics & proteomics"
     name: Paola
     photo: /img/team/paola.webp
-    description: "Bioengineer. She helps interpret the molecular data and guide the next steps in the plan."
+    description: "Bioengineer. She interprets the molecular profile and the tumor's functional proteomics pathway."
     icon: ph:pulse-fill
     color: gold
-  - role: "Research & clinical trials"
+  - role: "Research & trials"
     name: Alejandro
     photo: /img/team/alejandro.webp
-    description: "A researcher with a doctorate. He works with the team and advises on clinical trials to help steer the case's options."
+    description: "Research doctorate. He advises on clinical trials and on translating findings into an N-of-1 approach."
     icon: ph:clipboard-text-fill
     color: gold
-  - role: "Breast cancer advisory"
+  - role: "Technical advisory · breast"
     name: Víctor
     photo: /img/team/victor.webp
-    description: "He brings his clinical experience to help guide the case's decisions."
-    icon: ph:stethoscope-fill
+    description: "Technical profile. Years of self-directed study in breast oncology; brings judgment and context to the case."
+    icon: ph:books-fill
     color: ocean
-  - role: "Neuroendocrine advisory"
+  - role: "Medical imaging & AI"
     name: David
     photo: /img/team/david.webp
-    description: "He brings his clinical experience to help guide the case's decisions."
-    icon: ph:stethoscope-fill
+    description: "Trained in advanced imaging techniques. Analyses PET/DICOM with AI and flags foci for Nuclear Medicine review."
+    icon: ph:scan-fill
     color: ocean
-  - role: "Cancer research"
+  - role: "Epigenomics · Dana-Farber"
     name: Paloma
     photo: /img/team/paloma.webp
-    description: "Researcher at the Dana-Farber Cancer Institute (Harvard). She studies neuroendocrine differentiation."
+    description: "PhD. Associate Scientific Director at Dana-Farber (Harvard). Cancer epigenetics, biomarkers and tumor heterogeneity."
     icon: ph:flask-fill
     color: gold
   - role: "AI & outreach"
     name: Javi
     photo: /img/team/javi.webp
-    description: "Using AI, he generates the reports that underpin the treatment proposal, and helps spread the word."
+    description: "Uses AI to produce synthesis reports for the treatment proposal and supports case outreach."
     icon: ph:megaphone-fill
     color: ocean
-  - role: "Artificial intelligence"
+  - role: "AI engineering"
     name: Alby
     photo: /img/team/alby.webp
-    description: "He adapts AI tools to Miriam's case to organize information and ease the manual work."
+    description: "Designs AI agents and pipelines for the case: they organize information and ease manual work."
     icon: ph:robot-fill
     color: ocean
-  - role: "Digital tools & product"
+  - role: "Web development · product"
     name: Dani
     photo: /img/team/dani.webp
-    description: "He builds and maintains the digital tools the team uses."
+    description: "Google Developer Expert in web technologies. Builds and maintains the team's digital tools."
     icon: ph:device-mobile-fill
     color: ink
-  - role: "Web & communication"
+  - role: "Web & accessibility"
     name: Ceci
     photo: /img/team/ceci.webp
-    description: "She builds and maintains helpmiriam.com, and makes sure every piece of information is clear at first read."
+    description: "Front-end developer. Builds helpmiriam.com with accessibility rigor and clarity."
     icon: ph:code-fill
     color: ocean
   - role: "Community coordination"
     name: Afor
     photo: /img/team/afor.webp
-    description: "She connects and organizes the community members who collaborate on helpmiriam's projects."
+    description: "She connects and organizes community members who collaborate on helpmiriam projects."
     icon: ph:users-three-fill
     color: ink
   - role: "Narrative & copy"
     name: Alba
     photo: /img/team/alba.webp
-    description: "She gives a human touch to everything that's published. She looks after the story, the tone and the words of the project."
+    description: "She looks after the story, tone and words of the project in everything that's published."
     icon: ph:pen-nib-fill
     color: gold
 medicalNetwork:
@@ -78,7 +78,7 @@ medicalNetwork:
     icon: ph:atom-fill
     color: ocean
   - role: "Molecular oncology · Zürich (Switzerland)"
-    description: "An internationally recognized molecular oncology team. Helps with the biopsy and the molecular analysis, and with the integrated treatment strategy for this breast profile with neuroendocrine differentiation."
+    description: "An internationally recognized molecular oncology team. Helps with the biopsy and molecular analysis, and with integrated treatment strategy for this breast profile with neuroendocrine differentiation."
     icon: ph:stethoscope-fill
     color: gold
   - role: "Precision oncology (USA)"
@@ -86,7 +86,7 @@ medicalNetwork:
     icon: ph:stethoscope-fill
     color: gold
   - role: "Dana-Farber · Harvard (USA)"
-    description: "A link to the Dana-Farber Cancer Institute, Harvard-affiliated, through the team's researcher who studies neuroendocrine differentiation there."
+    description: "Direct link to Dana-Farber (Harvard) through Paloma Cejas, PhD, Associate Scientific Director at the institute."
     icon: ph:graduation-cap-fill
     color: gold
 integrativeSupport:
@@ -99,7 +99,7 @@ integrativeSupport:
     icon: ph:barbell-fill
     color: ink
   - role: "Oncology nutritionist"
-    description: "Specialized in nutrition for cancer patients. Manages Miriam's nutritional follow-up throughout the treatment."
+    description: "Specialized in nutrition for cancer patients. Manages Miriam's nutritional follow-up throughout treatment."
     icon: ph:plant-fill
     color: gold
   - role: "Oncology psychology"

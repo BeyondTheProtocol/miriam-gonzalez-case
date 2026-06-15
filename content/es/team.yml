@@ -3,61 +3,61 @@ coreTeam:
     name: Miriam González
     photo: /img/team/miriam.webp
     featured: true
-    description: "Ingeniera de software y divulgadora tecnológica. Investiga su propio caso y coordina toda la iniciativa."
+    description: "Ingeniera de software y divulgadora. Investiga su propio caso y coordina la iniciativa."
     icon: ph:user-circle-fill
     color: gold
-  - role: "Genómica y perfil molecular"
+  - role: "Genómica y proteómica"
     name: Paola
     photo: /img/team/paola.webp
-    description: "Bioingeniera. Ayuda a interpretar los datos moleculares y a orientar los próximos pasos del plan."
+    description: "Bioingeniera. Interpreta el perfil molecular y la vía de proteómica funcional del tumor."
     icon: ph:pulse-fill
     color: gold
-  - role: "Investigación y ensayos clínicos"
+  - role: "Investigación y ensayos"
     name: Alejandro
     photo: /img/team/alejandro.webp
-    description: "Doctor e investigador. Trabaja con el equipo y asesora en ensayos clínicos para orientar las opciones del caso."
+    description: "Doctor en investigación. Asesora en ensayos clínicos y en la traducción al abordaje N-of-1."
     icon: ph:clipboard-text-fill
     color: gold
-  - role: "Asesoría en cáncer de mama"
+  - role: "Asesoría técnica · mama"
     name: Víctor
     photo: /img/team/victor.webp
-    description: "Aporta su experiencia clínica para orientar las decisiones del caso."
-    icon: ph:stethoscope-fill
+    description: "Perfil técnico. Años de estudio autodidacta en oncología de mama; aporta criterio y contexto al caso."
+    icon: ph:books-fill
     color: ocean
-  - role: "Asesoría en neuroendocrinos"
+  - role: "Imagen médica e IA"
     name: David
     photo: /img/team/david.webp
-    description: "Aporta su experiencia clínica para orientar las decisiones del caso."
-    icon: ph:stethoscope-fill
+    description: "Formación en técnicas avanzadas de imagen. Analiza PET/DICOM con IA y señala focos para revisar con Medicina Nuclear."
+    icon: ph:scan-fill
     color: ocean
-  - role: "Investigación oncológica"
+  - role: "Epigenómica · Dana-Farber"
     name: Paloma
     photo: /img/team/paloma.webp
-    description: "Investigadora en el Dana-Farber Cancer Institute (Harvard). Estudia la diferenciación neuroendocrina."
+    description: "PhD. Directora científica asociada en Dana-Farber (Harvard). Epigenética, biomarcadores e heterogeneidad tumoral."
     icon: ph:flask-fill
     color: gold
   - role: "Inteligencia artificial y difusión"
     name: Javi
     photo: /img/team/javi.webp
-    description: "Con inteligencia artificial, genera los informes que sustentan la propuesta de tratamiento y colabora en la difusión."
+    description: "Con IA, genera informes de síntesis para la propuesta terapéutica y apoya la difusión del caso."
     icon: ph:megaphone-fill
     color: ocean
-  - role: "Inteligencia artificial"
+  - role: "Ingeniería de IA"
     name: Alby
     photo: /img/team/alby.webp
-    description: "Adapta las herramientas de IA al caso de Miriam para ordenar la información y aligerar el trabajo manual."
+    description: "Diseña agentes y pipelines de IA para el caso: ordenan la información y aligeran el trabajo manual."
     icon: ph:robot-fill
     color: ocean
-  - role: "Desarrollo de herramientas digitales"
+  - role: "Desarrollo web · producto"
     name: Dani
     photo: /img/team/dani.webp
-    description: "Construye y mantiene las herramientas digitales que usa el equipo."
+    description: "GDE en tecnologías web. Construye y mantiene las herramientas digitales del equipo."
     icon: ph:device-mobile-fill
     color: ink
-  - role: "Web y comunicación"
+  - role: "Web y accesibilidad"
     name: Ceci
     photo: /img/team/ceci.webp
-    description: "Desarrolla y mantiene helpmiriam.com, y cuida que toda la información se entienda a la primera."
+    description: "Desarrolladora front-end. Construye helpmiriam.com con rigor de accesibilidad y claridad."
     icon: ph:code-fill
     color: ocean
   - role: "Coordinación de comunidad"
@@ -69,7 +69,7 @@ coreTeam:
   - role: "Narrativa y textos"
     name: Alba
     photo: /img/team/alba.webp
-    description: "Da el toque humano a todo lo que se publica. Cuida la historia, el tono y las palabras del proyecto."
+    description: "Cuida la historia, el tono y las palabras del proyecto en todo lo que se publica."
     icon: ph:pen-nib-fill
     color: gold
 medicalNetwork:
@@ -86,7 +86,7 @@ medicalNetwork:
     icon: ph:stethoscope-fill
     color: gold
   - role: "Dana-Farber · Harvard (EE.UU.)"
-    description: "Vínculo con el Dana-Farber Cancer Institute, afiliado a Harvard, a través de la investigadora del equipo que estudia allí la diferenciación neuroendocrina."
+    description: "Enlace directo con Dana-Farber (Harvard) a través de Paloma Cejas, PhD, directora científica asociada del instituto."
     icon: ph:graduation-cap-fill
     color: gold
 integrativeSupport:
