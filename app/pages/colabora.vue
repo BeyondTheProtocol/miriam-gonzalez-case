@@ -76,6 +76,44 @@
 
         <VisitorPathways variant="colabora" class="mb-10" />
 
+        <!-- CRO: confianza antes de elegir perfil — transparencia, campaña en
+             vivo y prueba social en un solo vistazo. -->
+        <aside class="card-base bg-cream mb-10" :aria-label="$t('collaborate.trust_aria')">
+          <p class="eyebrow mb-4 block">{{ $t('collaborate.trust_eyebrow') }}</p>
+          <div class="grid gap-6 sm:grid-cols-3">
+            <div>
+              <h3 class="font-display font-semibold text-berenjena text-base mb-1.5">
+                {{ $t('collaborate.trust_transparency_title') }}
+              </h3>
+              <p class="text-sm text-tinta leading-relaxed mb-3">
+                {{ $t('collaborate.trust_transparency_body') }}
+              </p>
+              <NuxtLink :to="localePath('gastos')" class="link-action text-sm text-miriam">
+                {{ $t('collaborate.trust_transparency_link') }}
+                <Icon name="ph:arrow-right" class="w-3.5 h-3.5" aria-hidden="true" />
+              </NuxtLink>
+            </div>
+            <div>
+              <h3 class="font-display font-semibold text-berenjena text-base mb-3">
+                {{ $t('collaborate.trust_campaign_title') }}
+              </h3>
+              <GoFundMeProgress />
+            </div>
+            <div>
+              <h3 class="font-display font-semibold text-berenjena text-base mb-1.5">
+                {{ $t('collaborate.trust_social_title') }}
+              </h3>
+              <p class="text-sm text-tinta leading-relaxed mb-3">
+                {{ $t('collaborate.trust_social_body') }}
+              </p>
+              <NuxtLink :to="localePath('gracias')" class="link-action text-sm text-miriam">
+                {{ $t('collaborate.trust_social_link') }}
+                <Icon name="ph:arrow-right" class="w-3.5 h-3.5" aria-hidden="true" />
+              </NuxtLink>
+            </div>
+          </div>
+        </aside>
+
         <div class="grid md:grid-cols-2 gap-4">
           <!-- ─ Card 1 — revisión clínica ─ -->
           <article id="revision-clinica" class="card-base bg-cream flex flex-col scroll-mt-24">
@@ -92,7 +130,11 @@
               <li v-for="(item, i) in arr('collaborate.profile1_list')" :key="i">{{ item }}</li>
             </ul>
             <div class="mt-auto">
-              <NuxtLink :to="localePath('contacto') + '?role=oncologist'" class="btn-secondary w-full h-12 justify-center">
+              <NuxtLink
+                :to="localePath('contacto') + '?role=oncologist'"
+                class="btn-secondary w-full h-12 justify-center"
+                @click="trackContact('oncologist')"
+              >
                 <Icon name="ph:envelope-simple-fill" class="w-4 h-4" aria-hidden="true" />
                 {{ $t('collaborate.profile1_cta_label') }}
               </NuxtLink>
@@ -113,7 +155,11 @@
             </h3>
             <p class="text-sm text-tinta leading-relaxed mb-5">{{ $t('collaborate.profile3_text') }}</p>
             <div class="mt-auto">
-              <NuxtLink :to="localePath('prensa')" class="btn-secondary w-full h-12 justify-center">
+              <NuxtLink
+                :to="localePath('prensa')"
+                class="btn-secondary w-full h-12 justify-center"
+                @click="trackContact('press')"
+              >
                 <Icon name="ph:megaphone-simple-fill" class="w-4 h-4" aria-hidden="true" />
                 {{ $t('collaborate.profile3_cta_label') }}
               </NuxtLink>
@@ -146,7 +192,11 @@
               </li>
             </ul>
             <div class="mt-auto">
-              <NuxtLink :to="localePath('contacto') + '?role=tech'" class="btn-secondary w-full h-12 justify-center">
+              <NuxtLink
+                :to="localePath('contacto') + '?role=tech'"
+                class="btn-secondary w-full h-12 justify-center"
+                @click="trackContact('tech')"
+              >
                 <Icon name="ph:envelope-simple-fill" class="w-4 h-4" aria-hidden="true" />
                 {{ $t('collaborate.profile4_cta_label') }}
               </NuxtLink>
@@ -167,7 +217,11 @@
             </h3>
             <p class="text-sm text-tinta leading-relaxed mb-5">{{ $t('collaborate.profile5_text') }}</p>
             <div class="mt-auto">
-              <NuxtLink :to="localePath('contacto') + '?role=patient'" class="btn-secondary w-full h-12 justify-center">
+              <NuxtLink
+                :to="localePath('contacto') + '?role=patient'"
+                class="btn-secondary w-full h-12 justify-center"
+                @click="trackContact('patient')"
+              >
                 <Icon name="ph:envelope-simple-fill" class="w-4 h-4" aria-hidden="true" />
                 {{ $t('collaborate.profile5_cta_label') }}
               </NuxtLink>
@@ -187,7 +241,15 @@
             <h3 class="heading-display text-xl text-berenjena mb-3">
               {{ $t('collaborate.profile2_title') }}
             </h3>
-            <p class="text-sm text-tinta leading-relaxed mb-5">{{ $t('collaborate.profile2_text') }}</p>
+            <i18n-t
+              keypath="collaborate.profile2_text"
+              tag="p"
+              class="text-sm text-tinta leading-relaxed mb-5"
+            >
+              <template #expenses>
+                <NuxtLink :to="localePath('gastos')" class="link-inline">{{ $t('collaborate.profile2_expenses_link') }}</NuxtLink>
+              </template>
+            </i18n-t>
             <!-- En /colabora también se ve el dinero: misma barra con hitos que
                  el resto del sitio (variante inline). -->
             <div class="mb-6">
@@ -195,7 +257,7 @@
             </div>
             <div class="mt-auto">
               <a
-                :href="GOFUNDME"
+                :href="GOFUNDME_URL"
                 target="_blank"
                 rel="noopener"
                 data-support-cta
@@ -277,9 +339,7 @@
 <script setup lang="ts">
 const { t, tm, rt, locale } = useI18n()
 const localePath = useLocalePath()
-const { trackSupport } = useSupport()
-
-const GOFUNDME = 'https://gofund.me/3e25cae99'
+const { GOFUNDME_URL, trackSupport, trackContact } = useSupport()
 
 function arr(key: string): string[] {
   const raw = tm(key) as unknown
@@ -309,7 +369,7 @@ const quickLinks = computed<QuickLink[]>(() => {
     { label: locale.value === 'es' ? 'La ciencia' : 'The science', url: sciencePath, external: false },
     { label: 'Timeline', url: timelinePath, external: false },
     { label: 'Repo · GitHub', url: 'https://github.com/beyondtheprotocol/miriam-gonzalez-case', external: true },
-    { label: 'GoFundMe · ' + GOFUNDME.replace('https://', ''), url: GOFUNDME, external: true },
+    { label: 'GoFundMe · ' + GOFUNDME_URL.replace('https://', ''), url: GOFUNDME_URL, external: true },
     { label: '@miriamgonp · Instagram', url: 'https://instagram.com/miriamgonp', external: true },
     { label: '@miriamgonp · X', url: 'https://x.com/miriamgonp', external: true },
     { label: '@miriamgonp · TikTok', url: 'https://tiktok.com/@miriamgonp', external: true },
@@ -336,6 +396,40 @@ defineOgImage('Default.takumi', {
     locale.value === 'es'
       ? '5 formas concretas de mover el caso.'
       : '5 concrete ways to move the case forward.',
+})
+
+const colaboraBase = computed(() =>
+  locale.value === 'es' ? 'https://helpmiriam.com/colabora' : 'https://helpmiriam.com/en/collaborate'
+)
+
+const profilesJsonLd = computed(() =>
+  JSON.stringify({
+    '@context': 'https://schema.org',
+    '@type': 'WebPage',
+    name: t('collaborate.meta_title'),
+    description: t('collaborate.meta_description'),
+    url: colaboraBase.value,
+    inLanguage: locale.value === 'es' ? 'es-ES' : 'en-US',
+    mainEntity: {
+      '@type': 'ItemList',
+      itemListElement: [
+        { '@type': 'ListItem', position: 1, name: t('collaborate.profile1_title'), url: `${colaboraBase.value}#revision-clinica` },
+        { '@type': 'ListItem', position: 2, name: t('collaborate.profile3_title'), url: `${colaboraBase.value}#alcance` },
+        { '@type': 'ListItem', position: 3, name: t('collaborate.profile4_title'), url: `${colaboraBase.value}#tech-ia` },
+        { '@type': 'ListItem', position: 4, name: t('collaborate.profile5_title'), url: `${colaboraBase.value}#apoyo-mutuo` },
+        { '@type': 'ListItem', position: 5, name: t('collaborate.profile2_title'), url: `${colaboraBase.value}#financiar` },
+      ],
+    },
+    potentialAction: {
+      '@type': 'DonateAction',
+      target: GOFUNDME_URL,
+      recipient: { '@type': 'Person', name: 'Miriam González' },
+    },
+  })
+)
+
+useHead({
+  script: [{ type: 'application/ld+json', innerHTML: profilesJsonLd }],
 })
 </script>
 

@@ -48,5 +48,29 @@ export function useSupport() {
     trackUmami('VerCiencia', { location })
   }
 
-  return { GOFUNDME_URL, trackSupport, trackScience }
+  function trackPress(outlet: string) {
+    trackUmami('Clic-prensa', { medio: outlet })
+  }
+
+  function trackContact(role: string) {
+    trackUmami('Contacto', { rol: role })
+  }
+
+  function trackPathway(route: string) {
+    trackUmami('Pathway', { ruta: route })
+  }
+
+  function trackShare(method: string, from?: string) {
+    trackUmami('Compartir', { metodo: method, ...(from ? { desde: from } : {}) })
+  }
+
+  return {
+    GOFUNDME_URL,
+    trackSupport,
+    trackScience,
+    trackPress,
+    trackContact,
+    trackPathway,
+    trackShare,
+  }
 }

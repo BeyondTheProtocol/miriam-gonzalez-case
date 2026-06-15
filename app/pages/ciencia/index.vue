@@ -30,6 +30,25 @@
           {{ $t('pathways.comfort') }}
         </p>
 
+        <!-- AI SEO: bloque extractable de 40–60 palabras para agentes y buscadores. -->
+        <aside class="card-base mb-6" :aria-label="$t('ciencia.ai_summary_aria')">
+          <p class="eyebrow mb-2 block">{{ $t('ciencia.ai_summary_eyebrow') }}</p>
+          <p class="text-sm text-berenjena leading-relaxed max-w-3xl">
+            {{ $t('ciencia.ai_summary_text', { age: caseData.currentAge }) }}
+          </p>
+        </aside>
+
+        <div class="flex flex-wrap items-center gap-3 mb-6" data-print-hide>
+          <button
+            type="button"
+            class="btn-ghost text-sm"
+            @click="printPage"
+          >
+            <Icon name="ph:printer" class="w-4 h-4" aria-hidden="true" />
+            {{ $t('ciencia.print_btn') }}
+          </button>
+        </div>
+
         <div class="reading-level mb-10" role="group" :aria-label="$t('ciencia.level_aria')">
           <span class="reading-level__hint">{{ $t('ciencia.level_hint') }}</span>
           <div class="reading-level__seg">
@@ -680,7 +699,12 @@ const localePath = useLocalePath()
 const L = (es: string, en: string) => (locale.value === 'es' ? es : en)
 // Cierre de conversión: donación (llano) y financiación como nota (pro). Mismo
 // patrón que el resto del sitio; dispara el goal de apoyo con su ubicación.
-const { GOFUNDME_URL, trackSupport } = useSupport()
+const { GOFUNDME_URL, trackSupport, trackScience } = useSupport()
+
+function printPage() {
+  if (!import.meta.client) return
+  window.print()
+}
 
 // Mapa eje terapéutico → id de glosario (Term), mismo orden que ciencia.axes.
 const axisTerms = ['axis_fgfr', 'axis_sstr', 'axis_esr1', 'axis_ne']
@@ -708,12 +732,13 @@ onMounted(() => {
     /* sin localStorage */
   }
 })
-watch(level, (v) => {
+watch(level, (v, prev) => {
   try {
     localStorage.setItem('hm_ciencia_nivel', v)
   } catch {
     /* noop */
   }
+  if (prev && v === 'pro' && prev !== 'pro') trackScience('ciencia_nivel_pro')
 })
 // A11y: texto que un lector de pantalla anuncia al cambiar de modo (región
 // aria-live) — para que el cambio de contenido nunca sea silencioso.

@@ -43,6 +43,17 @@ useHead({
 
 // Datos estructurados base (Schema.org / JSON-LD) en todo el sitio.
 useSchemaOrg([
+  defineOrganization({
+    name: 'Beyond the Protocol',
+    url: 'https://helpmiriam.com',
+    logo: 'https://helpmiriam.com/img/miriam-avatar.webp',
+    sameAs: [
+      'https://github.com/beyondtheprotocol/miriam-gonzalez-case',
+      'https://x.com/miriamgonp',
+      'https://www.instagram.com/miriamgonp',
+      'https://www.linkedin.com/in/miriamgonp',
+    ],
+  }),
   defineWebSite({
     name: 'Help Miriam',
     description:

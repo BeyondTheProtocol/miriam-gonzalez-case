@@ -43,6 +43,7 @@
 <script setup lang="ts">
 const { t } = useI18n()
 const localePath = useLocalePath()
+const { trackShare } = useSupport()
 
 // Densidad de la constelación ~ donantes (solo para el cielo, no 1:1).
 // Datos de campaña: JSON estático de main (función Netlify), carga en cliente.
@@ -74,7 +75,7 @@ async function share() {
   if (navigator.share) {
     try {
       await navigator.share(data)
-      trackUmami('Compartir', { metodo: 'nativo', desde: 'gracias' })
+      trackShare('nativo', 'gracias')
     } catch {
       /* usuario canceló — sin acción */
     }
@@ -82,7 +83,7 @@ async function share() {
     try {
       await navigator.clipboard.writeText(url)
       copied.value = true
-      trackUmami('Compartir', { metodo: 'copiar', desde: 'gracias' })
+      trackShare('copiar', 'gracias')
       setTimeout(() => (copied.value = false), 2500)
     } catch {
       /* sin clipboard — sin acción */

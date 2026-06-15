@@ -1169,6 +1169,9 @@
   header,
   footer,
   .mobile-support-bar,
+  .skip-link,
+  .reading-level,
+  .donation-return-prompt,
   [data-print-hide] {
     display: none !important;
   }
@@ -1180,6 +1183,8 @@
   }
   body {
     background: #fff !important;
+    font-size: 11pt;
+    line-height: 1.45;
   }
   * {
     color: #1a1a1a !important;
@@ -1194,10 +1199,28 @@
     background: #fff !important;
     border-color: #ccc !important;
   }
+  .heading-display,
+  h1,
+  h2,
+  h3 {
+    break-after: avoid;
+  }
+  .data-table {
+    font-size: 9pt;
+  }
+  .data-table th,
+  .data-table td {
+    border: 1px solid #ccc !important;
+    padding: 4px 6px !important;
+  }
   main a[href^="http"]::after {
     content: " (" attr(href) ")";
     font-size: 0.85em;
     color: #555 !important;
     word-break: break-all;
+  }
+  main a[href^="/"]::after,
+  main a[href^="#"]::after {
+    content: none;
   }
 }

@@ -318,7 +318,11 @@
             <p class="font-mono uppercase text-[11px] tracking-[0.12em] text-tinta mb-2">02</p>
             <h3 class="font-display font-semibold text-berenjena text-xl mb-3">{{ $t('home.s10_l2_title') }}</h3>
             <p class="text-sm text-tinta leading-relaxed mb-5 flex-1">{{ $t('home.s10_l2_text') }}</p>
-            <NuxtLink :to="localePath({ name: 'ciencia' })" class="btn-secondary w-full h-12 justify-center whitespace-nowrap">
+            <NuxtLink
+              :to="localePath({ name: 'ciencia' })"
+              class="btn-secondary w-full h-12 justify-center whitespace-nowrap"
+              @click="trackScience('home_ladder')"
+            >
               <Icon name="ph:flask-fill" class="w-4 h-4" aria-hidden="true" />
               {{ $t('home.s10_l2_button') }}
             </NuxtLink>
@@ -328,7 +332,7 @@
             <p class="font-mono uppercase text-[11px] tracking-[0.12em] text-tinta mb-2">03</p>
             <h3 class="font-display font-semibold text-berenjena text-xl mb-3">{{ $t('home.s10_l3_title') }}</h3>
             <p class="text-sm text-tinta leading-relaxed mb-5 flex-1">{{ $t('home.s10_l3_text') }}</p>
-            <a href="https://gofund.me/3e25cae99" target="_blank" rel="noopener" @click="trackSupport('home_ladder')" data-support-cta class="btn-cta w-full h-12 justify-center whitespace-nowrap">
+            <a :href="GOFUNDME_URL" target="_blank" rel="noopener" @click="trackSupport('home_ladder')" data-support-cta class="btn-cta w-full h-12 justify-center whitespace-nowrap">
               <Icon name="ph:heart-fill" class="heart-beat w-4 h-4" aria-hidden="true" />
               {{ $t('home.s10_l3_button') }}
             </a>
@@ -390,25 +394,22 @@
             :href="elPaisUrl"
             target="_blank"
             rel="noopener"
-            data-umami-event="Clic-prensa"
-            data-umami-event-medio="El País"
             class="link-logo text-2xl sm:text-3xl"
+            @click="trackPress('El País')"
           >El País<span class="sr-only"> {{ $t('a11y.new_tab') }}</span></a>
           <a
             :href="murciaUrl"
             target="_blank"
             rel="noopener"
-            data-umami-event="Clic-prensa"
-            data-umami-event-medio="La Opinión de Murcia"
             class="link-logo text-2xl sm:text-3xl"
+            @click="trackPress('La Opinión de Murcia')"
           >La Opinión de Murcia<span class="sr-only"> {{ $t('a11y.new_tab') }}</span></a>
           <a
             :href="la7Url"
             target="_blank"
             rel="noopener"
-            data-umami-event="Clic-prensa"
-            data-umami-event-medio="La 7"
             class="link-logo text-2xl sm:text-3xl"
+            @click="trackPress('La 7')"
           >La 7<span class="sr-only"> {{ $t('a11y.new_tab') }}</span></a>
           <NuxtLink
             :to="localePath('prensa')"
@@ -426,7 +427,7 @@
 <script setup lang="ts">
 const { locale, tm, rt } = useI18n()
 const localePath = useLocalePath()
-const { trackSupport } = useSupport()
+const { GOFUNDME_URL, trackSupport, trackScience, trackPress, trackShare } = useSupport()
 
 // Mapa badge molecular → id de glosario (Term), mismo orden que home.s8_markers
 // (idéntico en ES y EN). Da tooltip a cada marcador sin perder el pill.
@@ -457,7 +458,7 @@ const shareCase = async () => {
   if (typeof navigator !== 'undefined' && navigator.share) {
     try {
       await navigator.share({ title, url })
-      trackUmami('Compartir', { metodo: 'nativo' })
+      trackShare('nativo', 'home')
       return
     } catch {
       /* user cancelled */
@@ -465,7 +466,7 @@ const shareCase = async () => {
   }
   if (typeof navigator !== 'undefined' && navigator.clipboard) {
     await navigator.clipboard.writeText(url)
-    trackUmami('Compartir', { metodo: 'copiar' })
+    trackShare('copiar', 'home')
   }
 }
 

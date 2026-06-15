@@ -78,16 +78,31 @@
             {{ $t('footer.social_heading') }}
           </h3>
           <div class="flex flex-col gap-1.5">
-            <a href="https://x.com/miriamgonp" target="_blank" rel="noopener noreferrer"
-              class="text-sm text-tinta hover:text-miriam hover:underline underline-offset-2 transition-colors">
+            <a
+              href="https://x.com/miriamgonp"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="text-sm text-tinta hover:text-miriam hover:underline underline-offset-2 transition-colors"
+              @click="trackShare('x', 'footer')"
+            >
               X / Twitter<span class="sr-only"> {{ $t('a11y.new_tab') }}</span>
             </a>
-            <a href="https://www.instagram.com/miriamgonp" target="_blank" rel="noopener noreferrer"
-              class="text-sm text-tinta hover:text-miriam hover:underline underline-offset-2 transition-colors">
+            <a
+              href="https://www.instagram.com/miriamgonp"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="text-sm text-tinta hover:text-miriam hover:underline underline-offset-2 transition-colors"
+              @click="trackShare('instagram', 'footer')"
+            >
               Instagram<span class="sr-only"> {{ $t('a11y.new_tab') }}</span>
             </a>
-            <a href="https://www.linkedin.com/in/miriamgonp" target="_blank" rel="noopener noreferrer"
-              class="text-sm text-tinta hover:text-miriam hover:underline underline-offset-2 transition-colors">
+            <a
+              href="https://www.linkedin.com/in/miriamgonp"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="text-sm text-tinta hover:text-miriam hover:underline underline-offset-2 transition-colors"
+              @click="trackShare('linkedin', 'footer')"
+            >
               LinkedIn<span class="sr-only"> {{ $t('a11y.new_tab') }}</span>
             </a>
             <a href="https://gofund.me/3e25cae99" target="_blank" rel="noopener noreferrer"
@@ -130,7 +145,7 @@
 
 <script setup lang="ts">
 const localePath = useLocalePath()
-const { trackSupport } = useSupport()
+const { trackSupport, trackShare } = useSupport()
 
 // "Con el apoyo de" — todos iguales (logos de empresas/colaboradores). `mono`
 // marca los que son foto/raster y necesitan grayscale para encajar en el muro.
@@ -150,7 +165,7 @@ const navItems = [
   { key: 'team', to: '/equipo' },
   { key: 'press', to: '/prensa' },
   { key: 'collaborate', to: '/colabora' },
-  { key: 'press', to: '/prensa' },
+  { key: 'expenses', to: '/gastos' },
   { key: 'contact', to: '/contacto' },
 ]
 </script>
