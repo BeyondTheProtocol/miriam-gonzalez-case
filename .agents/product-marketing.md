@@ -41,7 +41,7 @@ This site serves **two distinct audiences** — keep both in mind for every page
 - BC with **neuroendocrine differentiation (~80%)** + **FGFR1 ×13**, **CCND1 ×20**, **FGF3/FGF4/FGF19 ×18**, 11q13 cluster.
 - **SSTR-positive** (somatostatin-receptor) → rationale for PRRT exploration (NCT04529044).
 - FGFR1-protein-by-IHC predictive signal (Spanish trial NCT04483505: 9.1 vs 1.9 months).
-- Exclusively bone metastases, ECOG 0 (April 2026), low TMB / low MSI, HER2 0 (ultralow mention).
+- Exclusively bone metastases, ECOG 1, low TMB / low MSI, HER2 0.
 - A documented, open, AI-assisted, expert-network-driven precision-oncology journey.
 
 ## The Ask (conversion actions)
@@ -64,9 +64,9 @@ This site serves **two distinct audiences** — keep both in mind for every page
 
 ## Hard Constraints (do not violate)
 - **Clinical accuracy is non-negotiable.** Never alter the medical data in AGENTS.md
-  (FGFR1 ×13, CCND1 ×20, FGF3/4/19 ×18, NED ~80%, Ki67 60%, HER2 0/ultralow,
+  (FGFR1 ×13, CCND1 ×20, FGF3/4/19 ×18, NED ~80%, Ki67 60%, HER2 0,
   discordant RP 5% vs 100%, low TMB/MSI, no pathogenic SNVs/INDELs/fusions,
-  PIK3CA/ESR1 not detected in primary, ECOG 0, bone-only mets, Drago 2019 =
+  PIK3CA/ESR1 not detected in primary, ECOG 1, bone-only mets, Drago 2019 =
   PMC6825550, NCT04483505, NCT04529044). Verify before changing any number or claim.
 - **Collaborator privacy:** the team is presented by profession + country/city only,
   **never names**. Do not add names.

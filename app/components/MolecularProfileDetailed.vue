@@ -81,13 +81,6 @@
       <p class="mt-2 text-xs text-tinta leading-relaxed">
         {{
           locale === 'es'
-            ? '⁺ La categoría HER2-ultralow (tinción de membrana en <10% de las células) está presente en este caso según los datos del estudio DIPCAN / MD Anderson Madrid.'
-            : '⁺ The HER2-ultralow category (membrane staining in <10% of cells) is present in this case according to data from the DIPCAN study / MD Anderson Madrid.'
-        }}
-      </p>
-      <p class="mt-2 text-xs text-tinta leading-relaxed">
-        {{
-          locale === 'es'
             ? '⁺⁺ En oncología neuroendocrina, el Ki67 es el marcador principal de gradación: G1 (<3%), G2 (3–20%), G3 (>20%). Por esa lógica, un Ki67 alto sería compatible con un componente neuroendocrino de alto grado (NEC G3): una hipótesis, no el grado asignado. El grado histológico confirmado es Grado II de Nottingham; armonizarlo queda pendiente del comité de tumores.'
             : '⁺⁺ In neuroendocrine oncology, Ki67 is the primary grading marker: G1 (<3%), G2 (3–20%), G3 (>20%). By that logic, a high Ki67 would be compatible with a high-grade neuroendocrine component (NEC G3): a hypothesis, not the assigned grade. The confirmed histological grade is Nottingham Grade II; reconciling it is pending tumour-board review.'
         }}
@@ -131,7 +124,7 @@ const rows = computed<Row[]>(() =>
         { alteration: 'TMB / MSI', result: 'Baja / Baja', source: 'TSO500 tejido', category: 'Inmunoterapia', implication: 'Sin perfil candidato a inhibidores de checkpoint.', tone: 'neutral' },
         { alteration: 'SNVs / INDELs / fusiones', result: 'Ninguna patogénica', source: 'TSO500 tejido', category: 'Resto del panel', implication: 'Sin otras dianas accionables en el panel original.', tone: 'neutral' },
         { alteration: 'PIK3CA', result: 'No detectado', source: 'TSO500 tejido', category: 'Diana PI3K', implication: 'Pendiente reanálisis sobre tejido actualizado.', tone: 'neutral' },
-        { alteration: 'HER2', result: 'Negativo (0)', source: 'IHQ tejido primario', category: 'Receptor', implication: 'Tinción negativa; HER2-ultralow presente según DIPCAN ⁺.', tone: 'neutral' },
+        { alteration: 'HER2', result: 'Negativo (0)', source: 'IHQ tejido primario', category: 'Receptor', implication: 'Tinción negativa.', tone: 'neutral' },
         { alteration: 'RE / RP', result: 'RE 95% / RP 5%', source: 'IHQ tejido primario', category: 'Receptor hormonal', implication: 'Componente luminal del tumor — base de la línea endocrina actual.', tone: 'info' },
       ]
     : [
@@ -147,7 +140,7 @@ const rows = computed<Row[]>(() =>
         { alteration: 'TMB / MSI', result: 'Low / Low', source: 'TSO500 tissue', category: 'Immunotherapy', implication: 'No profile for checkpoint inhibitors.', tone: 'neutral' },
         { alteration: 'SNVs / INDELs / fusions', result: 'None pathogenic', source: 'TSO500 tissue', category: 'Rest of the panel', implication: 'No other actionable targets in the original panel.', tone: 'neutral' },
         { alteration: 'PIK3CA', result: 'Not detected', source: 'TSO500 tissue', category: 'PI3K target', implication: 'Pending re-analysis on updated tissue.', tone: 'neutral' },
-        { alteration: 'HER2', result: 'Negative (0)', source: 'IHC primary tissue', category: 'Receptor', implication: 'Negative staining; HER2-ultralow present per DIPCAN ⁺.', tone: 'neutral' },
+        { alteration: 'HER2', result: 'Negative (0)', source: 'IHC primary tissue', category: 'Receptor', implication: 'Negative staining.', tone: 'neutral' },
         { alteration: 'ER / PR', result: 'ER 95% / PR 5%', source: 'IHC primary tissue', category: 'Hormone receptor', implication: 'Luminal component of the tumour — basis of the current endocrine line.', tone: 'info' },
       ]
 )

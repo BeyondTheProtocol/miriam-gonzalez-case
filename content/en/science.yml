@@ -174,7 +174,7 @@ panelRows:
     implication: 'With low TMB, the main antigen source; better predictor of FGFRi response than amplification alone'
   - component: Extended IHC + HLA typing
     method: 'IHC + RNAscope from the FFPE block (Core 1); HLA derived from sequencing'
-    targets: 'ER, PR, HER2 (ultralow), FGFR1, SSTR2, TROP-2, B7-H3, DLL3, CgA, SYN, INSM1, Rb, Cyclin E1; HLA I/II'
+    targets: 'ER, PR, HER2, FGFR1, SSTR2, TROP-2, B7-H3, DLL3, CgA, SYN, INSM1, Rb, Cyclin E1; HLA I/II'
     implication: 'HER2-low→T-DXd · SSTR2→PRRT · DLL3→anti-DLL3 · Cyclin E1 / Rb loss→CDK4/6i resistance'
   - component: Immunopeptidomics (HLA peptidome)
     method: 'FRESH core to the lab as soon as possible, ischaemia ≤30 min (Core 3)'
