@@ -129,7 +129,7 @@
     "brief_outro": "Si quieres profundizar, La ciencia tiene un resumen para todos y un modo profesional con tablas e imágenes.",
     "brief_cta_science": "Ver la ciencia",
     "brief_cta_help": "Ver todas las formas de ayudar",
-    "hero_sr_summary": "Miriam González tiene un cáncer de mama metastásico ultra-raro con dos biologías. Esta web financia las pruebas de precisión que la sanidad pública no cubre. Puedes apoyar económicamente, leer la ciencia del caso, colaborar según tu perfil o compartir la campaña."
+    "hero_sr_summary": "Miriam González tiene cáncer de mama metastásico con dos biologías. La sanidad pública no cubre las pruebas de precisión que necesita. Puedes apoyar la campaña o leer el caso clínico en La ciencia."
   },
   "glossary": {
     "hint": "Toca o pasa el cursor por las palabras y marcadores resaltados para ver qué significan."
@@ -243,7 +243,8 @@
     "title": "Un cáncer raro, {op} real.",
     "title_short": "Un cáncer raro, una oportunidad real.",
     "title_emphasis": "una oportunidad",
-    "subtitle": "{lead} tiene un tumor con {twofaces} que los protocolos españoles no contemplan. Las pruebas que necesita para tratarlo no las cubre la sanidad pública. Esta web existe para financiarlas.",
+    "subtitle": "Los protocolos españoles solo cubren la mitad de su tumor. Esta campaña financia las pruebas de precisión que faltan.",
+    "cta_science_link": "Ver la ciencia del caso",
     "twofaces": "dos caras",
     "subtitle_lead": "Miriam, {age} años,",
     "cta_donate": "Apoyar a Miriam",
@@ -567,10 +568,11 @@
     "s10_l3_text": "Cada euro financia investigación aplicada al caso: secuenciación profunda, rebiopsia molecular, segundas opiniones internacionales, ensayo N-of-1.",
     "s10_l3_button": "Apoyar a Miriam",
     "s10_l3_caption": "Pago seguro. Recibo disponible. 100% al caso de Miriam.",
-    "hero_cta_donate_caption": "Cada euro va a investigación clínica aplicada a su caso.",
+    "hero_cta_donate_caption": "Pago seguro · Recibo disponible · 100% al caso.",
     "hero_cta_science_caption": "Accede al perfil molecular completo en La ciencia.",
     "hero_social_proof": "Ya nos apoyan {n} personas · visto en El País",
-    "hero_eyebrow": "Cáncer de mama metastásico · Perfil molecular ultra-raro",
+    "hero_trust_line": "{raised} recaudados · {n} personas · El País",
+    "hero_eyebrow": "Mama metastásica · dos biologías",
     "story_eyebrow": "La historia",
     "story_heading": "Un diagnóstico que no cabía en ningún protocolo.",
     "story_p1": "Con 33 años, a Miriam le diagnosticaron un cáncer de mama metastásico tan raro que se ve en ",
