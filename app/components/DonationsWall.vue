@@ -20,10 +20,37 @@
       </div>
       <StarMap
         v-if="loaded && donations.length"
+        ref="starMapRef"
         :donations="donations"
         :total="totalRaised"
-        class="mb-8"
+        class="mb-6"
       />
+
+      <!-- Buscar tu estrella: el mapa es poesía colectiva; el nombre es el GPS. -->
+      <form
+        v-if="loaded && donations.length"
+        class="mb-6 max-w-md"
+        role="search"
+        @submit.prevent="submitFind"
+      >
+        <label for="find-star-input" class="block text-sm font-semibold text-berenjena mb-2">
+          {{ $t('thanksWall.find_star_label') }}
+        </label>
+        <div class="flex gap-2">
+          <input
+            id="find-star-input"
+            v-model="findQuery"
+            type="search"
+            autocomplete="name"
+            class="dw-find-input flex-1 min-h-[44px]"
+            :placeholder="$t('thanksWall.find_star_placeholder')"
+          />
+          <button type="submit" class="dw-find-btn min-h-[44px] shrink-0">
+            {{ $t('thanksWall.find_star_btn') }}
+          </button>
+        </div>
+        <p v-if="findError" class="mt-2 text-xs text-coral-deep" role="status">{{ findError }}</p>
+      </form>
 
       <!-- Pestañas estilo GoFundMe: Recientes · Top -->
       <div
@@ -52,6 +79,8 @@
         </button>
       </div>
 
+      <p v-if="pageRows.length" class="mb-3 text-xs text-tinta/80">{{ $t('thanksWall.find_star_table_hint') }}</p>
+
       <!-- El catálogo: la versión accesible y ordenable del mismo cielo. -->
       <div
         v-if="pageRows.length"
@@ -63,7 +92,13 @@
             <tr
               v-for="(d, i) in pageRows"
               :key="d.id"
-              class="border-b border-berenjena/[0.07] last:border-b-0"
+              class="dw-row border-b border-berenjena/[0.07] last:border-b-0"
+              :class="{ 'dw-row--active': activeDonorId === d.id }"
+              tabindex="0"
+              role="button"
+              @click="focusDonor(d)"
+              @keydown.enter.prevent="focusDonor(d)"
+              @keydown.space.prevent="focusDonor(d)"
             >
               <td
                 v-if="sort === 'top'"
@@ -114,14 +149,20 @@
  * Datos reales de /donations.json (función Netlify horaria). Anónimos = "Anónimo".
  */
 import type { GoFundMeFundraiser, PublicDonation } from '../../utils/fundraiser'
+import type StarMap from './StarMap.vue'
 
-const { locale } = useI18n()
+const { locale, t } = useI18n()
+const route = useRoute()
 
 const PAGE_SIZE = 12
 const donations = ref<PublicDonation[]>([])
 const loaded = ref(false)
 const page = ref(0)
 const sort = ref<'recent' | 'top'>('recent')
+const starMapRef = ref<InstanceType<typeof StarMap> | null>(null)
+const findQuery = ref('')
+const findError = ref('')
+const activeDonorId = ref<number | null>(null)
 
 function setSort(s: 'recent' | 'top') {
   sort.value = s
@@ -129,6 +170,29 @@ function setSort(s: 'recent' | 'top') {
 }
 
 const campaign = ref<GoFundMeFundraiser | null>(null)
+
+function focusDonor(d: PublicDonation) {
+  findError.value = ''
+  activeDonorId.value = d.id
+  const ok = starMapRef.value?.focusById(d.id)
+  if (!ok) findError.value = t('thanksWall.find_star_no_match')
+}
+
+function submitFind() {
+  findError.value = ''
+  const q = findQuery.value.trim()
+  if (!q) return
+  const ok = starMapRef.value?.focusByName(q)
+  if (!ok) {
+    findError.value = t('thanksWall.find_star_no_match')
+    activeDonorId.value = null
+    return
+  }
+  const hit = donations.value.find((d) =>
+    d.name.toLowerCase().includes(q.toLowerCase())
+  )
+  activeDonorId.value = hit?.id ?? null
+}
 
 onMounted(async () => {
   try {
@@ -142,6 +206,13 @@ onMounted(async () => {
     campaign.value = await $fetch<GoFundMeFundraiser>('/fundraiser.json')
   } catch {
     /* el total cae al sumatorio de donaciones */
+  }
+
+  const q = route.query.find
+  if (typeof q === 'string' && q.trim()) {
+    findQuery.value = q.trim()
+    await nextTick()
+    submitFind()
   }
 })
 
@@ -230,5 +301,49 @@ function timeAgo(iso?: string): string {
 button:focus-visible {
   outline: 2px solid #ff6b47;
   outline-offset: 2px;
+}
+.dw-find-input {
+  padding: 10px 14px;
+  border-radius: 12px;
+  border: 1px solid rgba(45, 27, 61, 0.16);
+  background: #faf6f0;
+  font-size: 14px;
+  color: #2d1b3d;
+}
+.dw-find-input:focus-visible {
+  outline: 2px solid #ff6b47;
+  outline-offset: 2px;
+  border-color: rgba(45, 27, 61, 0.28);
+}
+.dw-find-btn {
+  padding: 10px 16px;
+  border-radius: 12px;
+  border: 1px solid rgba(45, 27, 61, 0.16);
+  background: #2d1b3d;
+  color: #faf6f0;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+.dw-find-btn:hover {
+  background: #3d254f;
+}
+.dw-row {
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+.dw-row:hover,
+.dw-row:focus-visible {
+  background: rgba(157, 68, 171, 0.06);
+  outline: none;
+}
+.dw-row--active {
+  background: rgba(255, 107, 71, 0.08);
+}
+.dw-row:focus-visible {
+  outline: 2px solid #ff6b47;
+  outline-offset: -2px;
 }
 </style>
