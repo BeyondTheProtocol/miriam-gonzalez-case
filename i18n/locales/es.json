@@ -32,6 +32,11 @@
     "skip_focused": "Contenido principal",
     "more_ways": "Más formas de ayudar"
   },
+  "captcha": {
+    "required": "Confirma la verificación antes de enviar.",
+    "failed": "No pudimos verificar el captcha. Inténtalo de nuevo.",
+    "load_error": "No se pudo cargar la verificación. Recarga la página o inténtalo más tarde."
+  },
   "pathways": {
     "eyebrow": "¿Por dónde empiezo?",
     "home_title": "Elige tu camino",

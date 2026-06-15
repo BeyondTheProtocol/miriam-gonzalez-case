@@ -238,10 +238,25 @@
                 ></textarea>
               </div>
 
-              <button type="submit" class="btn-cta w-full" :disabled="sending">
+              <TurnstileWidget
+                ref="turnstileRef"
+                action="contact"
+                @token="turnstileToken = $event"
+                @expired="turnstileToken = ''"
+                @error="turnstileToken = ''"
+              />
+
+              <button
+                type="submit"
+                class="btn-cta w-full"
+                :disabled="sending || (turnstileEnabled && !turnstileToken)"
+              >
                 {{ sending ? $t('contact.sending') : $t('contact.submit') }}
               </button>
 
+              <p v-if="captchaFailed" class="text-xs text-coral-deep text-center" role="alert">
+                {{ turnstileToken ? $t('captcha.failed') : $t('captcha.required') }}
+              </p>
               <p v-if="failed" class="text-xs text-coral-deep text-center" role="alert">
                 {{ $t('contact.failed') }}
               </p>
@@ -290,12 +305,32 @@ const roleLabel = computed(() => {
 const sent = ref(false)
 const sending = ref(false)
 const failed = ref(false)
+const captchaFailed = ref(false)
+const turnstileToken = ref('')
+const turnstileRef = ref<{ reset: () => void } | null>(null)
+const { enabled: turnstileEnabled, verifyToken } = useTurnstile()
 
 async function onSubmit(e: Event) {
   const form = e.target as HTMLFormElement
+  captchaFailed.value = false
+  failed.value = false
+
+  if (turnstileEnabled.value) {
+    if (!turnstileToken.value) {
+      captchaFailed.value = true
+      return
+    }
+    const verified = await verifyToken(turnstileToken.value)
+    if (!verified) {
+      captchaFailed.value = true
+      turnstileToken.value = ''
+      turnstileRef.value?.reset()
+      return
+    }
+  }
+
   const body = new URLSearchParams(new FormData(form) as unknown as Record<string, string>).toString()
   sending.value = true
-  failed.value = false
   try {
     await $fetch('/', {
       method: 'POST',

@@ -3,6 +3,21 @@ export default defineNuxtConfig({
 
   modules: ['@nuxtjs/tailwindcss', '@nuxtjs/i18n', '@nuxt/icon', '@nuxtjs/seo', '@nuxtjs/sitemap', '@nuxt/content', 'nuxt-ai-ready', '@nuxtjs/plausible', '@vueuse/nuxt', '@nuxt/fonts', '@nuxt/image'],
 
+  runtimeConfig: {
+    turnstileSecretKey: process.env.TURNSTILE_SECRET_KEY || '',
+    public: {
+      turnstileSiteKey: process.env.NUXT_PUBLIC_TURNSTILE_SITE_KEY || '',
+    },
+  },
+
+  aiReady: {
+    llmsTxt: {
+      notes: [
+        'Clinical metastasis map (/mapa-metastasis) is intentionally excluded from AI exports (noindex, patient imaging data).',
+      ],
+    },
+  },
+
   // Fuentes auto-alojadas: @nuxt/fonts las descarga en build y las sirve desde
   // el propio dominio (el cliente nunca contacta con Google → sin transferencia
   // de IP), con subsetting y font-display: swap. Sin <link> a Google Fonts.
@@ -22,7 +37,9 @@ export default defineNuxtConfig({
     name: 'Help Miriam',
   },
 
-  sitemap: {},
+  sitemap: {
+    exclude: ['/mapa-metastasis', '/en/mapa-metastasis'],
+  },
 
   // El «sistema de diseño» es una página estática suelta (public/design-system/),
   // no una ruta de Nuxt, así que el link-checker no la reconoce y la marca como
@@ -122,7 +139,7 @@ export default defineNuxtConfig({
       // /design-system/ es un export estático en public/, no una ruta de Nuxt.
       // crawlLinks lo descubre desde /colabora, intenta prerenderizarlo, da 404
       // y aborta el build. Lo ignoramos: el archivo estático se copia igual.
-      ignore: ['/design-system'],
+      ignore: ['/design-system', '/mapa-metastasis.md', '/en/mapa-metastasis.md'],
       // URLs SIN barra final, coherentes con los links y el canonical del sitio
       // (que ya usan «/colabora», no «/colabora/»). Genera «colabora.html» en
       // vez de «colabora/index.html», así Netlify sirve «/colabora» directo sin
@@ -131,4 +148,5 @@ export default defineNuxtConfig({
       autoSubfolderIndex: false,
     },
   },
+
 })
