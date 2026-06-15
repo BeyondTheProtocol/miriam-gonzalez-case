@@ -80,8 +80,8 @@
              vivo y prueba social en un solo vistazo. -->
         <aside class="card-base bg-cream mb-10" :aria-label="$t('collaborate.trust_aria')">
           <p class="eyebrow mb-4 block">{{ $t('collaborate.trust_eyebrow') }}</p>
-          <div class="grid gap-6 sm:grid-cols-3">
-            <div>
+          <div class="grid gap-6 sm:grid-cols-3 sm:items-start">
+            <div class="flex flex-col">
               <h3 class="font-display font-semibold text-berenjena text-base mb-1.5">
                 {{ $t('collaborate.trust_transparency_title') }}
               </h3>
@@ -93,13 +93,13 @@
                 <Icon name="ph:arrow-right" class="w-3.5 h-3.5" aria-hidden="true" />
               </NuxtLink>
             </div>
-            <div>
-              <h3 class="font-display font-semibold text-berenjena text-base mb-3">
+            <div class="flex flex-col min-w-0">
+              <h3 class="font-display font-semibold text-berenjena text-base mb-1.5">
                 {{ $t('collaborate.trust_campaign_title') }}
               </h3>
               <GoFundMeProgress />
             </div>
-            <div>
+            <div class="flex flex-col">
               <h3 class="font-display font-semibold text-berenjena text-base mb-1.5">
                 {{ $t('collaborate.trust_social_title') }}
               </h3>

@@ -7,7 +7,7 @@
     <!-- La historia + en sus propias palabras (beat humano: persona antes que problema) -->
     <section v-reveal class="py-24 sm:py-32 relative overflow-hidden" :aria-label="$t('home.story_eyebrow')" style="background: #2d1b3d; color: #faf6f0">
       <div class="absolute inset-0 opacity-[0.04]" style="background-image: radial-gradient(circle at 1px 1px, #faf6f0 1px, transparent 0); background-size: 32px 32px;" />
-      <div class="relative section-container max-w-4xl">
+      <div class="relative section-wide">
         <p class="eyebrow block" style="color: #e8d4ed">
           {{ $t('home.story_eyebrow') }}
         </p>
@@ -62,7 +62,7 @@
       :aria-label="$t('home.s3_eyebrow')"
       style="border-top: 1px solid rgba(45,27,61,0.08); border-bottom: 1px solid rgba(45,27,61,0.08)"
     >
-      <div class="section-container max-w-5xl">
+      <div class="section-wide">
         <p class="eyebrow mb-4 block">{{ $t('home.s3_eyebrow') }}</p>
         <h2 class="heading-display text-3xl sm:text-5xl text-berenjena mb-4" style="letter-spacing: -0.03em">
           {{ $t('home.s3_heading') }}
@@ -193,7 +193,7 @@
     <!-- Hacia dónde va · objetivo N-of-1 + perfil molecular en una línea (detalle completo en /ciencia) -->
     <!-- Sin border-bottom: el separador aquí es la línea de latido (EcgDivider). -->
     <section v-reveal class="section-spacing bg-cream" :aria-label="$t('home.s8_eyebrow')">
-      <div class="section-container max-w-5xl">
+      <div class="section-wide">
         <p class="eyebrow mb-4 block">{{ $t('home.s8_eyebrow') }}</p>
         <h2 class="heading-display text-3xl sm:text-5xl text-berenjena mb-6" style="letter-spacing: -0.03em">
           {{ $t('home.s8_heading') }}
@@ -252,7 +252,7 @@
     <!-- S4 · ¿Por qué necesitamos tu ayuda? · Destino del dinero
          (aquí el separador es el propio cambio de color de sección) -->
     <section v-reveal class="section-spacing bg-cream-card" id="campaign" :aria-label="$t('home.s4_eyebrow')">
-      <div class="section-container max-w-5xl">
+      <div class="section-wide">
         <p class="eyebrow mb-4 block">{{ $t('home.s4_eyebrow') }}</p>
         <h2 class="heading-display text-3xl sm:text-5xl text-berenjena mb-6" style="letter-spacing: -0.03em">
           {{ $t('home.s4_heading') }}
@@ -298,7 +298,7 @@
 
     <!-- S10 · CTAs en escalera -->
     <section v-reveal class="section-spacing bg-cream" :aria-label="$t('home.s10_eyebrow')" style="border-top: 1px solid rgba(45,27,61,0.08)">
-      <div class="section-container max-w-5xl">
+      <div class="section-wide">
         <p class="eyebrow mb-4 block">{{ $t('home.s10_eyebrow') }}</p>
         <h2 class="heading-display text-3xl sm:text-4xl text-berenjena mb-6" style="letter-spacing: -0.03em">
           {{ $t('home.s10_intro') }}
@@ -349,7 +349,7 @@
     <EcgDivider class="bg-cream" />
 
     <section v-reveal class="section-spacing bg-cream" :aria-label="$t('home.pro_eyebrow')">
-      <div class="section-container max-w-3xl">
+      <div class="section-wide">
         <!-- D7: en desktop apila (título a todo el ancho arriba, botones debajo)
              en vez de texto|botones lado a lado, que estrujaba el título a 4
              líneas y dejaba hueco abajo. En móvil ya era flex-col → idéntico. -->
@@ -375,7 +375,7 @@
 
     <!-- Cierre · estado de la campaña + caso en prensa (lo último de todo) -->
     <section v-reveal class="section-spacing bg-cream-card" :aria-label="$t('home.s5_eyebrow')" style="border-top: 1px solid rgba(45,27,61,0.08)">
-      <div class="section-container max-w-5xl">
+      <div class="section-wide">
         <p class="eyebrow mb-3 block">{{ $t('home.s5_eyebrow') }}</p>
         <h2 class="font-display font-semibold text-berenjena text-2xl sm:text-3xl mb-6" style="letter-spacing: -0.02em">
           {{ $t('home.s5_heading') }}

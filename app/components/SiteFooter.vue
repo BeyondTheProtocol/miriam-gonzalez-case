@@ -3,7 +3,7 @@
     <!-- Con el apoyo de — muro de logos uniforme: todos iguales, misma altura,
          centrados en rejilla y sin etiqueta de texto (logo wall limpio). -->
     <section class="bg-berenjena" :aria-label="$t('index.supported_by')">
-      <div class="section-container py-10 sm:py-12 text-center">
+      <div class="section-wide py-10 sm:py-12 text-center">
         <p class="text-cream/70 text-xs font-mono font-medium uppercase tracking-[0.12em] mb-8">
           {{ $t('index.supported_by') }}
         </p>
