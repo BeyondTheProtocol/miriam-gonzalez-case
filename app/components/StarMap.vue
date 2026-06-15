@@ -3,7 +3,7 @@
     <!-- La frase con las cantidades, ENCIMA del mapa, en tipografía normal
          (hace de intro de la sección). -->
     <i18n-t
-      v-if="stars.length && total"
+      v-if="donationCount && total"
       keypath="thanksWall.stars_line"
       tag="p"
       class="mb-4 text-tinta leading-relaxed max-w-2xl"
@@ -14,7 +14,7 @@
         </svg>
       </template>
       <template #n>
-        <strong class="font-semibold text-coral-deep nums">{{ stars.length }}</strong>
+        <strong class="font-semibold text-coral-deep nums">{{ donationCount }}</strong>
       </template>
       <template #total>
         <strong class="font-semibold text-coral-deep nums" style="white-space: nowrap">{{ total }}</strong>
@@ -62,15 +62,31 @@
           <!-- Aura del Pesebre (M44) -->
           <div class="starmap__beehive" :style="{ left: BEEHIVE.x + '%', top: BEEHIVE.y + '%' }" />
 
-          <!-- Estrellas con nombre (anclas reales de la constelación) -->
+          <!-- Mecenas: las 5 mayores aportaciones marcan el dibujo de la constelación -->
           <svg
-            v-for="a in anchors"
-            :key="a.key"
-            class="starmap__anchor"
+            v-for="a in patronSpikes"
+            :key="'spike-patron-' + a.id"
+            class="starmap__spike starmap__spike--patron"
+            :style="{ left: a.x + '%', top: a.y + '%', width: a.size * 2.8 + 'px', height: a.size * 2.8 + 'px' }"
+            viewBox="0 0 40 40"
+            aria-hidden="true"
+          >
+            <path d="M20 2 V38 M2 20 H38" stroke="#ff6b47" stroke-width="1" stroke-linecap="round" :opacity="a.rank === 1 ? 0.55 : 0.35" />
+          </svg>
+          <svg
+            v-for="a in anchorMarkers"
+            :key="'anc-' + a.id"
+            class="starmap__anchor starmap__anchor--patron"
+            :class="{
+              'starmap__anchor--patron-1': a.rank === 1,
+              'starmap__star--lit': markerLit(a.id),
+              'starmap__star--spotlight': spotlight && activeId === a.id,
+            }"
             :style="{ left: a.x + '%', top: a.y + '%', width: a.size + 'px', height: a.size + 'px' }"
             viewBox="0 0 20 20"
           >
-            <path fill="#9d44ab" :d="STAR_D" />
+            <path :fill="a.rank === 1 ? '#ff6b47' : '#9d44ab'" :d="STAR_D" />
+            <circle v-if="a.rank === 1" cx="10" cy="10" r="2.2" fill="#fff6fb" opacity="0.85" />
           </svg>
 
           <!-- Puntas de difracción + halo de las estrellas PRINCIPALES (detrás
@@ -90,15 +106,15 @@
           <!-- Donantes: una estrella por aportación; importe → magnitud (brillo +
                tamaño) y cercanía al corazón. Principales/brillantes con halo. -->
           <svg
-            v-for="(s, i) in stars"
+            v-for="s in fieldStars"
             :key="s.id"
             class="starmap__star"
             :class="[
               s.tier === 'principal' ? 'starmap__star--principal' : s.tier === 'bright' ? 'starmap__star--bright' : '',
               {
                 'starmap__star--new': s.newest,
-                'starmap__star--lit': i === activeIdx,
-                'starmap__star--spotlight': spotlight && i === tapIdx,
+                'starmap__star--lit': markerLit(s.id),
+                'starmap__star--spotlight': spotlight && activeId === s.id,
               },
             ]"
             :style="{
@@ -118,12 +134,14 @@
           <!-- Anotaciones a mano (cuaderno) -->
           <span class="starmap__title" :style="{ left: '4%', top: '7%' }">Cáncer<small>la constelación</small></span>
           <span
-            v-for="a in anchors"
-            :key="'lbl-' + a.key"
-            :class="['starmap__label', a.side ? 'starmap__label--' + a.side : '']"
+            v-for="a in anchorMarkers"
+            :key="'lbl-' + a.id"
+            :class="['starmap__label', 'starmap__label--patron', a.side ? 'starmap__label--' + a.side : '']"
             :style="{ left: a.x + '%', top: a.y + '%' }"
           >{{ a.name }}</span>
-          <span class="starmap__m44" :style="{ left: BEEHIVE.x + '%', top: BEEHIVE.y + '%' }">M44 · el Pesebre<small>≈1000 estrellas</small></span>
+          <span class="starmap__m44" :style="{ left: BEEHIVE.x + '%', top: BEEHIVE.y + '%' }">
+            M44 · el Pesebre<small>{{ $t('thanksWall.m44_subtitle') }}</small>
+          </span>
         </div>
 
         <!-- Quién encendió la estrella activa (fuera del transform: no se escala) -->
@@ -132,17 +150,25 @@
           <span class="starmap__tip-meta nums">{{ money(active) }} · {{ timeAgo(active.createdAt) }}</span>
         </div>
 
-        <!-- Controles de zoom (accesibles por teclado) -->
-        <div class="starmap__zoom">
-          <button type="button" :aria-label="$t('thanksWall.zoom_in')" @click="zoomBy(1.5)">+</button>
-          <button type="button" :aria-label="$t('thanksWall.zoom_out')" @click="zoomBy(1 / 1.5)">−</button>
-          <button type="button" :aria-label="$t('thanksWall.zoom_reset')" @click="resetView">⟲</button>
+        <!-- Controles de zoom -->
+        <div class="starmap__zoom" role="toolbar" :aria-label="$t('thanksWall.zoom_toolbar')">
+          <button type="button" class="starmap__zoom-btn" :aria-label="$t('thanksWall.zoom_in')" @click="zoomBy(1.5)">
+            <Icon name="ph:plus-bold" class="w-4 h-4" aria-hidden="true" />
+          </button>
+          <button type="button" class="starmap__zoom-btn" :aria-label="$t('thanksWall.zoom_out')" @click="zoomBy(1 / 1.5)">
+            <Icon name="ph:minus-bold" class="w-4 h-4" aria-hidden="true" />
+          </button>
+          <span class="starmap__zoom-sep" aria-hidden="true" />
+          <button type="button" class="starmap__zoom-btn starmap__zoom-btn--reset" :aria-label="$t('thanksWall.zoom_reset')" @click="resetView">
+            <Icon name="ph:compass-bold" class="w-4 h-4" aria-hidden="true" />
+          </button>
         </div>
       </div>
     </div>
 
+    <Nota v-if="anchorMarkers.length" class="mt-3">{{ $t('thanksWall.patrons_note') }}</Nota>
     <!-- Cómo se juega: nota de gesto (dedito), pequeña, bajo el mapa. -->
-    <Nota icon="tap" class="mt-3">{{ $t('thanksWall.sky_hint') }}</Nota>
+    <Nota icon="tap" class="mt-2">{{ $t('thanksWall.sky_hint') }}</Nota>
     <!-- Cómo leerlo: el brillo crece en escala log (✱ nota al margen). -->
     <Nota class="mt-2">{{ $t('thanksWall.magnitude_note') }}</Nota>
 
@@ -169,7 +195,7 @@
     </div>
 
     <!-- Lectura accesible del concepto (el mapa es decorativo / aria-hidden). -->
-    <p class="sr-only">{{ $t('thanksWall.sky_a11y', { n: stars.length }) }}</p>
+    <p class="sr-only">{{ $t('thanksWall.sky_a11y', { n: donationCount }) }}</p>
   </div>
 </template>
 
@@ -228,20 +254,66 @@ function penLine(x1: number, y1: number, x2: number, y2: number, rnd: () => numb
   return `M${x1} ${y1} Q${(mx + (-dy / len) * off).toFixed(1)} ${(my + (dx / len) * off).toFixed(1)} ${x2} ${y2}`
 }
 
-// ── La constelación de Cáncer (Y invertida); tamaño del ancla por magnitud. ──
+// ── La constelación de Cáncer (Y invertida): 5 vértices fijos del dibujo. ──
 const BEEHIVE = { x: 41, y: 48 }
-const anchors = [
-  { key: 'tarf', name: 'Tarf', x: 13, y: 78, mag: 3.5, side: '' },
-  // δ con la etiqueta DEBAJO: arriba chocaba con la anotación de M44.
-  { key: 'asAus', name: 'Asellus Australis', x: 45, y: 60, mag: 3.9, side: 'below' },
-  { key: 'asBor', name: 'Asellus Borealis', x: 48, y: 34, mag: 4.7, side: '' },
-  { key: 'iota', name: 'Iota Cnc', x: 53, y: 13, mag: 4.0, side: '' },
-  // α pegada al borde derecho: etiqueta hacia la izquierda para no recortarse en móvil.
-  { key: 'acubens', name: 'Acubens', x: 85, y: 64, mag: 4.2, side: 'left' },
-].map((a) => ({ ...a, size: +Math.max(8, 17 - (a.mag - 3.5) * 3).toFixed(1) }))
+const ANCHOR_SLOTS = [
+  { key: 'tarf', x: 13, y: 78, mag: 3.5, side: '' },
+  { key: 'asAus', x: 45, y: 60, mag: 3.9, side: 'below' },
+  { key: 'asBor', x: 48, y: 34, mag: 4.7, side: '' },
+  { key: 'iota', x: 53, y: 13, mag: 4.0, side: '' },
+  { key: 'acubens', x: 85, y: 64, mag: 4.2, side: 'left' },
+]
+
+const donationCount = computed(() => props.donations.length)
+
+const topPatrons = computed(() =>
+  [...props.donations]
+    .filter((d) => d.amount > 0)
+    .sort((a, b) => b.amount - a.amount || (b.createdAt ?? '').localeCompare(a.createdAt ?? ''))
+    .slice(0, ANCHOR_SLOTS.length)
+)
+
+interface PatronMarker {
+  id: string
+  key: string
+  name: string
+  x: number
+  y: number
+  size: number
+  rank: number
+  side: string
+  amount: number
+  currencyCode?: string
+  createdAt?: string
+}
+
+const anchorMarkers = computed<PatronMarker[]>(() =>
+  ANCHOR_SLOTS.map((slot, i) => {
+    const d = topPatrons.value[i]
+    const rank = i + 1
+    const baseSize = Math.max(8, 17 - (slot.mag - 3.5) * 3)
+    return {
+      id: d ? String(d.id) : `slot-${slot.key}`,
+      key: slot.key,
+      name: d?.name ?? '—',
+      x: slot.x,
+      y: slot.y,
+      size: +(rank === 1 ? baseSize + 5 : rank <= 2 ? baseSize + 2 : baseSize).toFixed(1),
+      rank,
+      side: slot.side,
+      amount: d?.amount ?? 0,
+      currencyCode: d?.currencyCode,
+      createdAt: d?.createdAt,
+    }
+  }).filter((a) => a.amount > 0)
+)
+
+const patronSpikes = computed(() => anchorMarkers.value.filter((a) => a.rank <= 2))
+
+const patronIds = computed(() => new Set(anchorMarkers.value.map((a) => a.id)))
 
 const asterism = computed(() => {
-  const by = Object.fromEntries(anchors.map((a) => [a.key, a]))
+  const by = Object.fromEntries(ANCHOR_SLOTS.map((a) => [a.key, a]))
   const rnd = mulberry32(7)
   const edges: [string, string][] = [
     ['iota', 'asBor'],
@@ -269,8 +341,10 @@ interface Star {
   createdAt?: string
 }
 
-const stars = computed<Star[]>(() => {
-  const ds = props.donations.slice(0, MAX_STARS)
+const fieldStars = computed<Star[]>(() => {
+  const ds = props.donations
+    .filter((d) => !patronIds.value.has(String(d.id)))
+    .slice(0, MAX_STARS)
   if (!ds.length) return []
   const amts = ds.map((d) => d.amount).filter((a) => a > 0)
   const sorted = [...amts].sort((a, b) => a - b)
@@ -358,7 +432,17 @@ const stars = computed<Star[]>(() => {
 
 // Las principales (mayores aportaciones, salvo la recién encendida) llevan halo
 // y puntas de difracción, dibujadas en una capa propia detrás de los núcleos.
-const principals = computed(() => stars.value.filter((s) => s.tier === 'principal' && !s.newest))
+const principals = computed(() => fieldStars.value.filter((s) => s.tier === 'principal' && !s.newest))
+
+type MapMarker = Star | PatronMarker
+
+function getMarker(id: string): MapMarker | null {
+  return anchorMarkers.value.find((a) => a.id === id) ?? fieldStars.value.find((s) => s.id === id) ?? null
+}
+
+function markerLit(id: string) {
+  return id === activeId.value || id === hoverId.value
+}
 
 /* ── Zoom + pan ───────────────────────────────────────────────────────── */
 const viewport = ref<HTMLElement | null>(null)
@@ -411,7 +495,7 @@ function zoomBy(factor: number) {
 function resetView() {
   cancelFly()
   spotlight.value = false
-  tapIdx.value = null
+  activeId.value = null
   scale.value = 1
   tx.value = 0
   ty.value = 0
@@ -434,39 +518,39 @@ function normName(s: string) {
     .trim()
 }
 
-function findIndexByName(query: string): number | null {
+function findIdByName(query: string): string | null {
   const q = normName(query)
   if (!q) return null
-  const st = stars.value
-  const exact = st.findIndex((s) => normName(s.name) === q)
-  if (exact >= 0) return exact
-  const incl = st.findIndex((s) => normName(s.name).includes(q))
-  if (incl >= 0) return incl
+  const all = [...anchorMarkers.value, ...fieldStars.value]
+  const exact = all.find((s) => normName(s.name) === q)
+  if (exact) return exact.id
+  const incl = all.find((s) => normName(s.name).includes(q))
+  if (incl) return incl.id
   const words = q.split(/\s+/).filter(Boolean)
   if (!words.length) return null
-  const wordHit = st.findIndex((s) => {
+  const wordHit = all.find((s) => {
     const n = normName(s.name)
     return words.every((w) => n.includes(w))
   })
-  return wordHit >= 0 ? wordHit : null
+  return wordHit?.id ?? null
 }
 
-function flyToIndex(idx: number): boolean {
+function flyToId(id: string): boolean {
   const vp = viewport.value
   const ct = content.value
-  const s = stars.value[idx]
-  if (!vp || !ct || !s) return false
+  const m = getMarker(id)
+  if (!vp || !ct || !m) return false
 
   cancelFly()
   spotlight.value = true
-  tapIdx.value = idx
-  hoverIdx.value = null
+  activeId.value = id
+  hoverId.value = null
 
   const W = ct.clientWidth
   const H = ct.clientHeight
   const targetScale = Math.min(MAX_S, Math.max(2.8, scale.value))
-  const starPxX = (s.x / 100) * W
-  const starPxY = (s.y / 100) * H
+  const starPxX = (m.x / 100) * W
+  const starPxY = (m.y / 100) * H
   const targetTx = vp.clientWidth / 2 - starPxX * targetScale
   const targetTy = vp.clientHeight / 2 - starPxY * targetScale
 
@@ -495,13 +579,14 @@ function flyToIndex(idx: number): boolean {
 }
 
 function focusById(id: string | number): boolean {
-  const idx = stars.value.findIndex((s) => s.id === String(id))
-  return idx >= 0 ? flyToIndex(idx) : false
+  const sid = String(id)
+  if (getMarker(sid)) return flyToId(sid)
+  return false
 }
 
 function focusByName(query: string): boolean {
-  const idx = findIndexByName(query)
-  return idx != null ? flyToIndex(idx) : false
+  const id = findIdByName(query)
+  return id ? flyToId(id) : false
 }
 
 defineExpose({ focusById, focusByName })
@@ -585,54 +670,54 @@ function onUp(e: PointerEvent) {
   ptrs.delete(e.pointerId)
   if (ptrs.size < 2) pinchDist = 0
   if (wasOne && !moved) {
-    const i = nearestAt(e.clientX, e.clientY)
-    if (i === tapIdx.value) {
-      tapIdx.value = null
+    const id = nearestIdAt(e.clientX, e.clientY)
+    if (id === activeId.value) {
+      activeId.value = null
       spotlight.value = false
-    } else if (i != null) {
-      flyToIndex(i)
+    } else if (id) {
+      flyToId(id)
     }
   }
 }
 
 /* ── Selección de estrella (tiene en cuenta el transform) ──────────────── */
-const tapIdx = ref<number | null>(null)
-const hoverIdx = ref<number | null>(null)
-const activeIdx = computed(() => tapIdx.value ?? hoverIdx.value)
-const active = computed(() => (activeIdx.value != null ? (stars.value[activeIdx.value] ?? null) : null))
+const activeId = ref<string | null>(null)
+const hoverId = ref<string | null>(null)
+const active = computed(() => {
+  const id = activeId.value ?? hoverId.value
+  return id ? getMarker(id) : null
+})
 
-function nearestAt(clientX: number, clientY: number): number | null {
+function nearestIdAt(clientX: number, clientY: number): string | null {
   const vp = viewport.value
   const ct = content.value
   if (!vp || !ct) return null
   const r = vp.getBoundingClientRect()
   const W = ct.clientWidth
   const H = ct.clientHeight
-  // px del puntero → coordenadas de contenido (deshaciendo translate+scale)
   const cx = (clientX - r.left - tx.value) / scale.value
   const cy = (clientY - r.top - ty.value) / scale.value
-  let best = -1
+  let bestId: string | null = null
   let bd = Infinity
-  const st = stars.value
-  for (let i = 0; i < st.length; i++) {
-    const star = st[i]!
-    const dx = (star.x / 100) * W - cx
-    const dy = (star.y / 100) * H - cy
-    // Radio de captura generoso (crece con el tamaño de la estrella y el zoom).
-    const hit = Math.max(14, star.size * 1.8) / scale.value
+  const check = (m: { id: string; x: number; y: number; size: number }, boost = 1) => {
+    const dx = (m.x / 100) * W - cx
+    const dy = (m.y / 100) * H - cy
+    const hit = (Math.max(16, m.size * 2.2) * boost) / scale.value
     const d2 = dx * dx + dy * dy
     if (d2 < hit * hit && d2 < bd) {
       bd = d2
-      best = i
+      bestId = m.id
     }
   }
-  return best >= 0 ? best : null
+  for (const a of anchorMarkers.value) check(a, 1.35)
+  for (const s of fieldStars.value) check(s)
+  return bestId
 }
 let raf = 0
 function hoverNearest(e: PointerEvent) {
   cancelAnimationFrame(raf)
   raf = requestAnimationFrame(() => {
-    hoverIdx.value = nearestAt(e.clientX, e.clientY)
+    hoverId.value = nearestIdAt(e.clientX, e.clientY)
   })
 }
 
@@ -859,37 +944,64 @@ const tipStyle = computed(() => {
   font-size: 11px;
   color: rgba(250, 246, 240, 0.78);
 }
-/* Controles de zoom: operables por teclado (foco visible). */
+.starmap__anchor--patron {
+  filter: drop-shadow(0 0 8px rgba(157, 68, 171, 0.65));
+  z-index: 2;
+}
+.starmap__anchor--patron-1 {
+  filter: drop-shadow(0 0 12px rgba(255, 107, 71, 0.75));
+}
+.starmap__label--patron {
+  font-size: 16px;
+  font-weight: 700;
+  color: #2d1b3d;
+  max-width: 9rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+/* Controles de zoom: barra segmentada (design system). */
 .starmap__zoom {
   position: absolute;
-  right: 10px;
-  bottom: 10px;
+  right: 12px;
+  bottom: 12px;
   z-index: 6;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-.starmap__zoom button {
-  width: 38px;
-  height: 38px;
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding: 4px;
   border-radius: 9999px;
-  border: 1px solid rgba(45, 27, 61, 0.18);
-  background: rgba(250, 246, 240, 0.92);
+  border: 1px solid rgba(45, 27, 61, 0.14);
+  background: rgba(250, 246, 240, 0.94);
+  box-shadow: 0 4px 14px rgba(45, 27, 61, 0.1);
+  backdrop-filter: blur(6px);
+}
+.starmap__zoom-sep {
+  width: 1px;
+  height: 22px;
+  margin: 0 2px;
+  background: rgba(45, 27, 61, 0.14);
+}
+.starmap__zoom-btn {
+  width: 36px;
+  height: 36px;
+  border: none;
+  border-radius: 9999px;
+  background: transparent;
   color: #2d1b3d;
-  font-size: 18px;
-  font-weight: 600;
-  line-height: 1;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: background 0.15s ease, border-color 0.15s ease;
+  transition: background 0.15s ease, color 0.15s ease;
 }
-.starmap__zoom button:hover {
-  background: #f5efe6;
-  border-color: rgba(45, 27, 61, 0.32);
+.starmap__zoom-btn:hover {
+  background: rgba(45, 27, 61, 0.08);
 }
-.starmap__zoom button:focus-visible {
+.starmap__zoom-btn--reset:hover {
+  color: #ff6b47;
+}
+.starmap__zoom-btn:focus-visible {
   outline: 2px solid #ff6b47;
   outline-offset: 2px;
 }
