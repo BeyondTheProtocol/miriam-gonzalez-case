@@ -138,7 +138,7 @@
                 <Icon name="ph:envelope-simple-fill" class="w-4 h-4" aria-hidden="true" />
                 {{ $t('collaborate.profile1_cta_label') }}
               </NuxtLink>
-              <p class="mt-2 text-xs text-tinta sm:min-h-[2.25rem]">{{ $t('collaborate.profile1_cta_caption') }}</p>
+              <p class="mt-2 text-xs text-tinta md:min-h-[2.25rem]">{{ $t('collaborate.profile1_cta_caption') }}</p>
             </div>
           </article>
 
@@ -163,7 +163,7 @@
                 <Icon name="ph:megaphone-simple-fill" class="w-4 h-4" aria-hidden="true" />
                 {{ $t('collaborate.profile3_cta_label') }}
               </NuxtLink>
-              <p class="mt-2 text-xs text-tinta sm:min-h-[2.25rem]">{{ $t('collaborate.profile3_cta_caption') }}</p>
+              <p class="mt-2 text-xs text-tinta md:min-h-[2.25rem]">{{ $t('collaborate.profile3_cta_caption') }}</p>
             </div>
           </article>
 
@@ -200,7 +200,7 @@
                 <Icon name="ph:envelope-simple-fill" class="w-4 h-4" aria-hidden="true" />
                 {{ $t('collaborate.profile4_cta_label') }}
               </NuxtLink>
-              <p class="mt-2 text-xs text-tinta sm:min-h-[2.25rem]">{{ $t('collaborate.profile4_cta_caption') }}</p>
+              <p class="mt-2 text-xs text-tinta md:min-h-[2.25rem]">{{ $t('collaborate.profile4_cta_caption') }}</p>
             </div>
           </article>
 
@@ -225,7 +225,7 @@
                 <Icon name="ph:envelope-simple-fill" class="w-4 h-4" aria-hidden="true" />
                 {{ $t('collaborate.profile5_cta_label') }}
               </NuxtLink>
-              <p class="mt-2 text-xs text-tinta sm:min-h-[2.25rem]">{{ $t('collaborate.profile5_cta_caption') }}</p>
+              <p class="mt-2 text-xs text-tinta md:min-h-[2.25rem]">{{ $t('collaborate.profile5_cta_caption') }}</p>
             </div>
           </article>
 
@@ -268,7 +268,7 @@
                 <Icon name="ph:heart-fill" class="heart-beat heart-beat--alive w-4 h-4" aria-hidden="true" />
                 {{ $t('collaborate.profile2_cta_label') }}
               </a>
-              <p class="mt-2 text-xs text-tinta sm:min-h-[2.25rem]">{{ $t('collaborate.profile2_cta_caption') }}</p>
+              <p class="mt-2 text-xs text-tinta md:min-h-[2.25rem]">{{ $t('collaborate.profile2_cta_caption') }}</p>
             </div>
           </article>
         </div>
@@ -300,7 +300,7 @@
         >
           {{ $t('collaborate.links_title') }}
         </h2>
-        <p class="text-tinta leading-relaxed mb-8 max-w-2xl">
+        <p class="text-tinta leading-relaxed mb-6 max-w-2xl">
           {{ $t('collaborate.links_sub') }}
         </p>
 

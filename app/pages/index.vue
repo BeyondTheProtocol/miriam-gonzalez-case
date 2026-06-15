@@ -303,7 +303,7 @@
         <h2 class="heading-display text-3xl sm:text-4xl text-berenjena mb-6" style="letter-spacing: -0.03em">
           {{ $t('home.s10_intro') }}
         </h2>
-        <div class="grid md:grid-cols-3 gap-6 text-left mt-12">
+        <div class="grid md:grid-cols-3 gap-6 text-left mt-8">
           <article class="card-base flex flex-col" style="background: #faf6f0">
             <p class="font-mono uppercase text-[11px] tracking-[0.12em] text-tinta mb-2">01</p>
             <h3 class="font-display font-semibold text-berenjena text-xl mb-3">{{ $t('home.s10_l1_title') }}</h3>

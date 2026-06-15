@@ -44,7 +44,7 @@
         <EcgDivider class="mb-8" />
 
         <!-- Coste de la rebiopsia: dos bloques (analizar ahora / preservar y bancar) -->
-        <div class="card-base mb-6">
+        <div class="card-base mb-8">
           <h2 class="font-display font-semibold text-berenjena text-lg mb-2">
             {{ $t('expenses.rebiopsy_title') }}
           </h2>
@@ -105,12 +105,12 @@
         </div>
 
         <!-- Coste vs objetivo: cierra la duda "¿40k lo cubre todo?" -->
-        <p class="text-sm text-tinta italic mb-6 max-w-2xl">
+        <p class="text-sm text-tinta italic mb-8 max-w-2xl">
           {{ $t('expenses.cost_vs_goal') }}
         </p>
 
         <!-- Desglose completo · cuenta itemizada -->
-        <div class="card-base mb-6">
+        <div class="card-base mb-8">
           <h2 class="font-display font-semibold text-berenjena text-lg mb-4">
             {{ $t('home.s4_list_intro') }}
           </h2>
@@ -131,7 +131,7 @@
         </div>
 
         <!-- Preguntas frecuentes de donantes -->
-        <div class="card-base mb-6">
+        <div class="card-base mb-8">
           <h2 class="font-display font-semibold text-berenjena text-lg mb-4">
             {{ $t('expenses.faq_title') }}
           </h2>

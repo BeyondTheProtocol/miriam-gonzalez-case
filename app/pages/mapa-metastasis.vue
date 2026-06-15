@@ -675,7 +675,7 @@ const ticks = [
               'La revisión de los mejores patólogos de Vall d\'Hebron (VHIO) sobre la biopsia de 2024 confirma un carcinoma de mama con diferenciación neuroendocrina. Es decir: una misma enfermedad con dos componentes mezclados. Por eso tiene sentido mirarla con dos trazadores — cada uno “ve” una de las caras.',
               'The review by Vall d\'Hebron\'s (VHIO) top pathologists of the 2024 biopsy confirms a breast carcinoma with neuroendocrine differentiation. That is: a single disease with two intermingled components. That is why it makes sense to image it with two tracers — each one “sees” one of the faces.') }}
           </p>
-          <div class="grid md:grid-cols-2 gap-4 mb-5">
+          <div class="grid md:grid-cols-2 gap-4">
             <div class="card-base">
               <p class="font-semibold text-berenjena mb-1" :style="{ color: '#bb4128' }">
                 {{ L('Cara mama / luminal (agresiva)', 'Breast / luminal face (aggressive)') }}
@@ -735,12 +735,12 @@ const ticks = [
               'Maximum-intensity projection (the whole body at a glance), reconstructed from your DICOM. The intense areas outside the skeleton are normal uptake of each tracer (brain and heart on FDG; kidneys, spleen and liver on gallium); the metastases are the skeletal foci.') }}
           </p>
           <div class="grid grid-cols-2 gap-4 max-w-2xl">
-            <figure class="card-base !p-3">
-              <img src="/metastasis/gal_mip_hot.jpg" :alt="L('MIP Galio-68 DOTATOC', 'Ga-68 DOTATOC MIP')" class="w-full rounded-lg bg-black" loading="lazy" />
+            <figure class="card-base !p-3 flex flex-col">
+              <img src="/metastasis/gal_mip_hot.jpg" :alt="L('MIP Galio-68 DOTATOC', 'Ga-68 DOTATOC MIP')" class="w-full flex-1 min-h-0 object-contain rounded-lg bg-black" loading="lazy" />
               <figcaption class="text-xs text-center mt-2 font-semibold" :style="{ color: '#9d44ab' }">⁶⁸Ga-DOTATOC · {{ L('receptor', 'receptor') }}</figcaption>
             </figure>
-            <figure class="card-base !p-3">
-              <img src="/metastasis/fdg_mip_hot.jpg" :alt="L('MIP FDG', 'FDG MIP')" class="w-full rounded-lg bg-black" loading="lazy" />
+            <figure class="card-base !p-3 flex flex-col">
+              <img src="/metastasis/fdg_mip_hot.jpg" :alt="L('MIP FDG', 'FDG MIP')" class="w-full flex-1 min-h-0 object-contain rounded-lg bg-black" loading="lazy" />
               <figcaption class="text-xs text-center mt-2 font-semibold" :style="{ color: '#bb4128' }">¹⁸F-FDG · {{ L('azúcar', 'sugar') }}</figcaption>
             </figure>
           </div>
@@ -1246,12 +1246,12 @@ const ticks = [
                   'Sagittal (side) slice with CT in grey and PET overlaid in colour. Left, the receptor (gallium); right, the sugar (FDG). Compare which vertebrae light up with each tracer.') }}
           </p>
           <div class="grid grid-cols-2 gap-4 max-w-xl">
-            <figure class="card-base !p-3">
-              <img src="/metastasis/gal_spine.jpg" :alt="L('Fusión sagital Galio', 'Gallium sagittal fusion')" class="w-full rounded-lg bg-black" loading="lazy" />
+            <figure class="card-base !p-3 flex flex-col">
+              <img src="/metastasis/gal_spine.jpg" :alt="L('Fusión sagital Galio', 'Gallium sagittal fusion')" class="w-full flex-1 min-h-0 object-contain rounded-lg bg-black" loading="lazy" />
               <figcaption class="text-xs text-center mt-2 font-semibold" :style="{ color: '#9d44ab' }">⁶⁸Ga-DOTATOC</figcaption>
             </figure>
-            <figure class="card-base !p-3">
-              <img src="/metastasis/fdg_spine.jpg" :alt="L('Fusión sagital FDG', 'FDG sagittal fusion')" class="w-full rounded-lg bg-black" loading="lazy" />
+            <figure class="card-base !p-3 flex flex-col">
+              <img src="/metastasis/fdg_spine.jpg" :alt="L('Fusión sagital FDG', 'FDG sagittal fusion')" class="w-full flex-1 min-h-0 object-contain rounded-lg bg-black" loading="lazy" />
               <figcaption class="text-xs text-center mt-2 font-semibold" :style="{ color: '#bb4128' }">¹⁸F-FDG</figcaption>
             </figure>
           </div>

@@ -8,54 +8,49 @@
 
     <div class="hero__shell section-wide">
       <div class="hero__grid">
-        <!-- Fila superior: titular + retrato (misma altura visual, sin hueco lateral debajo) -->
-        <div class="hero__intro">
-          <div class="hero__head">
-            <div class="hero__meta animate-fade-up">
-              <span class="hero__eyebrow eyebrow">{{ $t('home.hero_eyebrow') }}</span>
-              <DaysWaitingCounter />
-            </div>
-
-            <i18n-t
-              keypath="hero.title"
-              tag="h1"
-              class="hero__title heading-display text-berenjena animate-fade-up"
-              style="animation-delay: 0.1s"
-            >
-              <template #op><span class="italic text-miriam">{{ $t('hero.title_emphasis') }}</span></template>
-            </i18n-t>
+        <div class="hero__head">
+          <div class="hero__meta animate-fade-up">
+            <span class="hero__eyebrow eyebrow">{{ $t('home.hero_eyebrow') }}</span>
           </div>
 
-          <figure class="hero__portrait animate-fade-up" style="animation-delay: 0.15s">
-            <div class="hero__portrait-frame">
-              <NuxtImg
-                src="/img/miriam-avatar.webp"
-                :alt="$t('home.s6_photo_alt')"
-                class="hero__portrait-img"
-                width="640"
-                height="640"
-                sizes="(max-width: 639px) 168px, (max-width: 1023px) 200px, 240px"
-                format="webp"
-                fetchpriority="high"
-                decoding="async"
-              />
-            </div>
-
-            <span
-              class="hero__handle hero__handle--top"
-              aria-hidden="true"
-              translate="no"
-            >
-              @miriamgonp
-            </span>
-
-            <figcaption class="hero__portrait-tag">
-              <span>{{ $t('hero.photo_tag') }}</span>
-            </figcaption>
-          </figure>
+          <i18n-t
+            keypath="hero.title"
+            tag="h1"
+            class="hero__title heading-display text-berenjena animate-fade-up"
+            style="animation-delay: 0.1s"
+          >
+            <template #op><span class="italic text-miriam">{{ $t('hero.title_emphasis') }}</span></template>
+          </i18n-t>
         </div>
 
-        <!-- Cuerpo a ancho completo bajo la intro -->
+        <figure class="hero__portrait animate-fade-up" style="animation-delay: 0.15s">
+          <div class="hero__portrait-frame">
+            <NuxtImg
+              src="/img/miriam-avatar.webp"
+              :alt="$t('home.s6_photo_alt')"
+              class="hero__portrait-img"
+              width="640"
+              height="640"
+              sizes="(max-width: 639px) 200px, (max-width: 767px) 280px, 400px"
+              format="webp"
+              fetchpriority="high"
+              decoding="async"
+            />
+          </div>
+
+          <span
+            class="hero__handle hero__handle--top"
+            aria-hidden="true"
+            translate="no"
+          >
+            @miriamgonp
+          </span>
+
+          <figcaption class="hero__portrait-tag">
+            <span>{{ $t('hero.photo_tag') }}</span>
+          </figcaption>
+        </figure>
+
         <div class="hero__body">
           <i18n-t
             keypath="hero.subtitle"
@@ -107,6 +102,7 @@
           </div>
 
           <div class="hero__status animate-fade-up" style="animation-delay: 0.34s">
+            <DaysWaitingCounter class="hero__status-counter" />
             <p
               v-if="gofundme?.donationCount"
               class="hero__social"
@@ -276,13 +272,6 @@ const stats = computed(() => [
   min-width: 0;
 }
 
-.hero__intro {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-  min-width: 0;
-}
-
 .hero__head,
 .hero__body,
 .hero__portrait {
@@ -290,9 +279,6 @@ const stats = computed(() => [
 }
 
 @media (max-width: 767px) {
-  .hero__intro {
-    display: contents;
-  }
   .hero__head {
     order: 1;
   }
@@ -305,35 +291,15 @@ const stats = computed(() => [
   }
 }
 
-@media (min-width: 768px) and (max-width: 1023px) {
-  .hero__intro {
-    display: contents;
-  }
-  .hero__head {
-    order: 1;
-  }
-  .hero__body {
-    order: 2;
-  }
-  .hero__portrait {
-    order: 3;
-    max-width: 200px;
-    margin-inline: auto;
-    margin-top: 0.5rem;
-  }
-}
-
-@media (min-width: 1024px) {
-  /* Fila 1: titular + retrato. Fila 2: cuerpo a ancho completo (sin hueco lateral derecho). */
+@media (min-width: 768px) {
   .hero__grid {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) clamp(200px, 22vw, 260px);
-    column-gap: clamp(2rem, 3vw, 2.75rem);
-    row-gap: 1.5rem;
+    /* Pista de la foto más estrecha (~320–400px) + gutter normal → cierra el
+       «valle» central que dejaba el texto (36rem) frente a la foto anclada. */
+    grid-template-columns: minmax(0, 1fr) clamp(20rem, 26vw, 25rem);
+    column-gap: clamp(2rem, 3.5vw, 3.25rem);
+    row-gap: 1.25rem;
     align-items: start;
-  }
-  .hero__intro {
-    display: contents;
   }
   .hero__head {
     grid-column: 1;
@@ -341,23 +307,18 @@ const stats = computed(() => [
   }
   .hero__portrait {
     grid-column: 2;
-    grid-row: 1;
-    justify-self: end;
+    grid-row: 1 / span 2;
+    /* La pista gobierna el ancho (mata el bug de cascada 280px) y la foto se
+       ancla arriba, junto al titular, en vez de flotar centrada. */
+    justify-self: stretch;
     align-self: start;
     width: 100%;
-    max-width: 260px;
+    max-width: none;
+    margin-top: 0.5rem;
   }
   .hero__body {
-    grid-column: 1 / -1;
+    grid-column: 1;
     grid-row: 2;
-    max-width: none;
-  }
-  .hero__lede,
-  .hero__status {
-    max-width: 42rem;
-  }
-  .hero__cta {
-    max-width: 42rem;
   }
 }
 
@@ -395,22 +356,22 @@ const stats = computed(() => [
   }
 }
 
-/* Retrato */
+/* Retrato — el tamaño SOLO se fija en móvil/tablet (apilado). En desktop (≥768)
+   lo gobierna la pista del grid; sin max-width aquí para no pisar (bug de cascada). */
 .hero__portrait {
   position: relative;
   margin: 0;
   width: 100%;
-  max-width: 168px;
-  margin-inline: auto;
 }
-@media (min-width: 640px) {
+@media (max-width: 767px) {
   .hero__portrait {
-    max-width: 240px;
+    max-width: 200px;
+    margin-inline: auto;
   }
 }
-@media (min-width: 1024px) {
+@media (min-width: 640px) and (max-width: 767px) {
   .hero__portrait {
-    margin-inline: 0;
+    max-width: 280px;
   }
 }
 
@@ -448,20 +409,20 @@ const stats = computed(() => [
   }
 }
 .hero__handle--top {
-  right: 0.25rem;
-  top: 0.5rem;
+  right: 0.5rem;
+  top: -0.65rem;
 }
 @media (min-width: 640px) {
   .hero__handle--top {
-    right: 0.5rem;
-    top: 0.75rem;
+    right: -0.35rem;
+    top: 1.5rem;
   }
 }
 
 .hero__portrait-tag {
   display: flex;
   justify-content: center;
-  margin-top: 0.65rem;
+  margin-top: -0.85rem;
   position: relative;
   z-index: 2;
 }
@@ -545,6 +506,10 @@ const stats = computed(() => [
   max-width: 36rem;
   padding-top: 1.25rem;
   border-top: 1px solid rgba(45, 27, 61, 0.08);
+}
+/* El contador (píldora) no debe estirarse a todo el ancho del bloque flex. */
+.hero__status-counter {
+  align-self: flex-start;
 }
 @media (min-width: 640px) {
   .hero__status {

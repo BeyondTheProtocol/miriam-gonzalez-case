@@ -160,9 +160,10 @@
               class="card-base space-y-5"
               @submit.prevent="onSubmit"
             >
-              <input type="hidden" name="form-name" value="contact" />
+              <input type="hidden" hidden name="form-name" value="contact" />
               <input
                 type="hidden"
+                hidden
                 name="subject"
                 value="Nuevo mensaje de contacto — helpmiriam.com"
               />
