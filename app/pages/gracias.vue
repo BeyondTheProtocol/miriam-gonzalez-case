@@ -24,10 +24,6 @@
     </p>
 
     <div class="mt-9 flex flex-wrap gap-3 justify-center">
-      <NuxtLink :to="localePath('colabora') + '#gracias'" class="btn-secondary">
-        <Icon name="ph:star-four-fill" class="w-4 h-4" aria-hidden="true" />
-        {{ $t('thanksWall.find_star_label') }}
-      </NuxtLink>
       <button type="button" class="btn-secondary" @click="share">
         <Icon :name="copied ? 'ph:check-bold' : 'ph:share-network-fill'" class="w-4 h-4" aria-hidden="true" />
         {{ copied ? $t('thanks.copied') : $t('thanks.share') }}
