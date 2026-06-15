@@ -34,7 +34,7 @@
               class="hero__portrait-img"
               width="640"
               height="640"
-              sizes="(max-width: 639px) 200px, (max-width: 1023px) 280px, 380px"
+              sizes="(max-width: 639px) 168px, (max-width: 1023px) 200px, 280px"
               format="webp"
               fetchpriority="high"
               decoding="async"
@@ -291,10 +291,27 @@ const stats = computed(() => [
     gap: 1.5rem;
   }
 }
-@media (min-width: 768px) {
+/* Tablet / ventana estrecha en laptop: una columna, foto contenida */
+@media (min-width: 768px) and (max-width: 1023px) {
+  .hero__head {
+    order: 1;
+  }
+  .hero__body {
+    order: 2;
+  }
+  .hero__portrait {
+    order: 3;
+    max-width: 200px;
+    margin-inline: auto;
+    margin-top: 0.5rem;
+  }
+}
+
+/* Desktop (≥1024): dos columnas con retrato proporcionado, no dominante */
+@media (min-width: 1024px) {
   .hero__grid {
-    grid-template-columns: minmax(0, 1fr) minmax(220px, 36%);
-    column-gap: clamp(2rem, 4vw, 3.25rem);
+    grid-template-columns: minmax(0, 1fr) clamp(200px, 26vw, 280px);
+    column-gap: clamp(2rem, 3vw, 2.75rem);
     row-gap: 1.25rem;
   }
   .hero__head {
@@ -307,7 +324,7 @@ const stats = computed(() => [
     justify-self: end;
     align-self: start;
     width: 100%;
-    max-width: min(380px, 100%);
+    max-width: 280px;
   }
   .hero__body {
     grid-column: 1;
@@ -342,7 +359,7 @@ const stats = computed(() => [
     max-width: 16ch;
   }
 }
-@media (min-width: 768px) {
+@media (min-width: 1024px) {
   /* Misma medida que lede/CTA: el titular no «estrecha» la columna en desktop. */
   .hero__title {
     max-width: 36rem;
@@ -362,7 +379,7 @@ const stats = computed(() => [
     max-width: 240px;
   }
 }
-@media (min-width: 768px) {
+@media (min-width: 1024px) {
   .hero__portrait {
     margin-inline: 0;
   }
