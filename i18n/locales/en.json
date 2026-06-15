@@ -25,7 +25,105 @@
     "language": "Language"
   },
   "a11y": {
-    "new_tab": "(opens in a new tab)"
+    "new_tab": "(opens in a new tab)",
+    "external_link": "External link",
+    "role_detected": "Profile detected: {role}. You can change it in the form.",
+    "skip_focused": "Main content",
+    "more_ways": "More ways to help"
+  },
+  "pathways": {
+    "eyebrow": "Where do I start?",
+    "home_title": "Pick your path",
+    "home_sub": "You don't have to read everything. Tell us who you are and we'll take you to the next step.",
+    "colabora_title": "Jump to your profile",
+    "colabora_sub": "Five routes, one per person. Tap yours and go straight to what matters for you.",
+    "comfort": "Take all the time you need. You can come back anytime; nothing is lost.",
+    "grid_aria": "Paths based on who is visiting",
+    "chips_aria": "Jump to each way of helping",
+    "time_1": "~1 min",
+    "time_2": "~2 min",
+    "time_3": "~3 min",
+    "time_4": "~4 min",
+    "time_5": "~5 min",
+    "time_6": "~6 min",
+    "supporter_title": "I want to help now",
+    "supporter_desc": "You know Miriam or trust the cause. Your gift funds the next test.",
+    "supporter_steps": [
+      "Open GoFundMe (secure payment)",
+      "Choose an amount that fits you",
+      "Your name appears on the thank-you constellation"
+    ],
+    "supporter_steps_aria": "Steps to support financially",
+    "supporter_cta": "Support Miriam",
+    "supporter_caption": "Secure payment. Receipt available. 100% to the case.",
+    "curious_title": "I just arrived",
+    "curious_desc": "You want to understand what this is about before deciding anything.",
+    "curious_steps": [
+      "Read the 2-minute summary",
+      "Skim the clinical gap if you like",
+      "Choose how to help when it feels clear"
+    ],
+    "curious_steps_aria": "Steps to understand the case",
+    "curious_cta": "See 2-minute summary",
+    "curious_caption": "No signup. No pressure.",
+    "clinician_title": "Medicine or research",
+    "clinician_desc": "You want clinical detail: markers, imaging, therapeutic lines.",
+    "clinician_steps": [
+      "Molecular profile and three tissue reads",
+      "Functional imaging and active targets",
+      "Form for second opinion or contact"
+    ],
+    "clinician_steps_aria": "Steps for clinical professionals",
+    "clinician_cta": "View clinical detail",
+    "clinician_caption": "Professional mode · ~6 min · printable.",
+    "press_title": "Press or outreach",
+    "press_desc": "You have an audience or cover health. You need verifiable facts.",
+    "press_steps": [
+      "Press room with real coverage",
+      "Case data ready to cite",
+      "Direct contact for interviews"
+    ],
+    "press_steps_aria": "Steps for journalists",
+    "press_cta": "Go to the press room",
+    "press_caption": "Verifiable kit. No spin.",
+    "tech_title": "Tech, data, or AI",
+    "tech_desc": "You want to contribute code, pipelines, or analysis to the open case.",
+    "tech_steps": [
+      "Public repo and documentation",
+      "Links to Beyond the Protocol",
+      "Contact with tech profile pre-selected"
+    ],
+    "tech_steps_aria": "Steps for technical profiles",
+    "tech_cta": "Write to the tech team",
+    "tech_caption": "Open code. Non-sensitive data public.",
+    "peer_title": "Patient or caregiver",
+    "peer_desc": "You're going through something similar or want to connect without pressure.",
+    "peer_steps": [
+      "Read the case at your pace",
+      "Write if you want to share experience",
+      "Follow on social if it helps"
+    ],
+    "peer_steps_aria": "Steps for patients and caregivers",
+    "peer_cta": "Write to Miriam",
+    "peer_caption": "We reply by email. No obligation.",
+    "chip_clinical": "Clinical review",
+    "chip_press": "Reach",
+    "chip_tech": "Tech & AI",
+    "chip_peer": "Peer support",
+    "chip_donate": "Fund research",
+    "brief_toggle": "2-minute case summary",
+    "brief_time": "2 min",
+    "brief_heading": "The essentials, in four ideas",
+    "brief_points": [
+      "Miriam has metastatic breast cancer with two biologies at once: luminal (HR+) and neuroendocrine (~80%). Spanish protocols only cover the first.",
+      "Without molecular rebiopsy and advanced panels, treatment is decided blind while the tumor evolves.",
+      "The campaign funds precision tests, second opinions, and a possible N-of-1 trial designed for her exact biology.",
+      "Every euro is documented. There are ways to help beyond money: clinical review, outreach, tech, or simply being here."
+    ],
+    "brief_outro": "To go deeper, The science has a summary for everyone and a professional mode with tables and imaging.",
+    "brief_cta_science": "View the science",
+    "brief_cta_help": "See all ways to help",
+    "hero_sr_summary": "Miriam González has an ultra-rare metastatic breast cancer with two biologies. This site funds precision tests that public healthcare does not cover. You can donate, read the science, collaborate by profile, or share the campaign."
   },
   "glossary": {
     "hint": "Tap or hover the highlighted words and markers to see what they mean."

@@ -2,6 +2,8 @@
   <div>
     <SectionHero />
 
+    <VisitorPathways variant="home" />
+
     <!-- La historia + en sus propias palabras (beat humano: persona antes que problema) -->
     <section v-reveal class="py-24 sm:py-32 relative overflow-hidden" :aria-label="$t('home.story_eyebrow')" style="background: #2d1b3d; color: #faf6f0">
       <div class="absolute inset-0 opacity-[0.04]" style="background-image: radial-gradient(circle at 1px 1px, #faf6f0 1px, transparent 0); background-size: 32px 32px;" />

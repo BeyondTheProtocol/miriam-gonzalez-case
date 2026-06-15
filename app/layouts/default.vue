@@ -1,6 +1,6 @@
 <template>
   <div class="min-h-screen flex flex-col">
-    <a href="#main-content" class="skip-link">{{
+    <a href="#main-content" class="skip-link" @click="focusMain">{{
       $t('nav.skip_to_content')
     }}</a>
     <SiteNav />
@@ -20,6 +20,13 @@
 
 <script setup lang="ts">
 const { locale } = useI18n()
+
+function focusMain() {
+  nextTick(() => {
+    const main = document.getElementById('main-content')
+    main?.focus()
+  })
+}
 
 const head = useLocaleHead({ dir: true, lang: true, seo: true })
 useHead(head)

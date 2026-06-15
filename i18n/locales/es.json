@@ -25,7 +25,105 @@
     "language": "Idioma"
   },
   "a11y": {
-    "new_tab": "(se abre en una pestaña nueva)"
+    "new_tab": "(se abre en una pestaña nueva)",
+    "external_link": "Enlace externo",
+    "role_detected": "Perfil detectado: {role}. Puedes cambiarlo en el formulario.",
+    "skip_focused": "Contenido principal",
+    "more_ways": "Más formas de ayudar"
+  },
+  "pathways": {
+    "eyebrow": "¿Por dónde empiezo?",
+    "home_title": "Elige tu camino",
+    "home_sub": "No hace falta leerlo todo. Dinos quién eres y te llevamos al siguiente paso.",
+    "colabora_title": "Salta a tu perfil",
+    "colabora_sub": "Cinco vías, una por persona. Toca la tuya y baja directo a lo que te toca.",
+    "comfort": "Tómate el tiempo que necesites. Puedes volver cuando quieras; nada se pierde.",
+    "grid_aria": "Caminos según quién visita la web",
+    "chips_aria": "Ir directo a cada forma de ayudar",
+    "time_1": "~1 min",
+    "time_2": "~2 min",
+    "time_3": "~3 min",
+    "time_4": "~4 min",
+    "time_5": "~5 min",
+    "time_6": "~6 min",
+    "supporter_title": "Quiero ayudar ya",
+    "supporter_desc": "Conoces a Miriam o confías en la causa. Tu aportación financia el siguiente análisis.",
+    "supporter_steps": [
+      "Abres GoFundMe (pago seguro)",
+      "Eliges la cantidad que te encaje",
+      "Tu nombre aparece en la constelación de gracias"
+    ],
+    "supporter_steps_aria": "Pasos para apoyar económicamente",
+    "supporter_cta": "Apoyar a Miriam",
+    "supporter_caption": "Pago seguro. Recibo disponible. 100% al caso.",
+    "curious_title": "Acabo de llegar",
+    "curious_desc": "Quieres entender de qué va esto antes de decidir nada.",
+    "curious_steps": [
+      "Lee el resumen de 2 minutos",
+      "Mira la brecha clínica si te apetece",
+      "Elige cómo ayudar cuando lo tengas claro"
+    ],
+    "curious_steps_aria": "Pasos para entender el caso",
+    "curious_cta": "Ver resumen de 2 min",
+    "curious_caption": "Sin registro. Sin presión.",
+    "clinician_title": "Medicina o investigación",
+    "clinician_desc": "Buscas el detalle clínico: marcadores, imágenes, líneas terapéuticas.",
+    "clinician_steps": [
+      "Perfil molecular y tres lecturas del tejido",
+      "Imagen funcional y dianas activas",
+      "Formulario para segunda opinión o contacto"
+    ],
+    "clinician_steps_aria": "Pasos para profesionales clínicos",
+    "clinician_cta": "Ver detalle clínico",
+    "clinician_caption": "Modo profesional · ~6 min · imprimible.",
+    "press_title": "Prensa o difusión",
+    "press_desc": "Tienes audiencia o cubres salud. Necesitas hechos verificables.",
+    "press_steps": [
+      "Sala de prensa con cobertura real",
+      "Datos del caso listos para citar",
+      "Contacto directo para entrevistas"
+    ],
+    "press_steps_aria": "Pasos para periodistas",
+    "press_cta": "Ir a la sala de prensa",
+    "press_caption": "Kit verificable. Sin spin.",
+    "tech_title": "Tech, datos o IA",
+    "tech_desc": "Quieres aportar código, pipelines o análisis al caso abierto.",
+    "tech_steps": [
+      "Repo público y documentación",
+      "Enlaces a Beyond the Protocol",
+      "Contacto con perfil tech preseleccionado"
+    ],
+    "tech_steps_aria": "Pasos para perfiles técnicos",
+    "tech_cta": "Escribir al equipo tech",
+    "tech_caption": "Código abierto. Datos no sensibles públicos.",
+    "peer_title": "Paciente o cuidador",
+    "peer_desc": "Vives algo parecido o quieres conectar con Miriam sin exigirte nada.",
+    "peer_steps": [
+      "Lee el caso a tu ritmo",
+      "Escríbenos si quieres compartir experiencia",
+      "Síguela en redes si te ayuda"
+    ],
+    "peer_steps_aria": "Pasos para pacientes y cuidadores",
+    "peer_cta": "Escribir a Miriam",
+    "peer_caption": "Te respondemos por email. Sin compromiso.",
+    "chip_clinical": "Revisión clínica",
+    "chip_press": "Alcance",
+    "chip_tech": "Tech & IA",
+    "chip_peer": "Apoyo mutuo",
+    "chip_donate": "Financiar",
+    "brief_toggle": "Resumen del caso en 2 minutos",
+    "brief_time": "2 min",
+    "brief_heading": "Lo esencial, en cuatro ideas",
+    "brief_points": [
+      "Miriam tiene un cáncer de mama metastásico con dos biologías a la vez: luminal (HR+) y neuroendocrina (~80%). Los protocolos españoles solo cubren la primera.",
+      "Sin rebiopsia molecular y paneles avanzados, el tratamiento se decide a ciegas mientras el tumor evoluciona.",
+      "La campaña financia pruebas de precisión, segundas opiniones y un posible ensayo N-of-1 diseñado para su biología exacta.",
+      "Cada euro queda documentado. Hay formas de ayudar además del dinero: revisión clínica, difusión, tech o simplemente estar."
+    ],
+    "brief_outro": "Si quieres profundizar, La ciencia tiene un resumen para todos y un modo profesional con tablas e imágenes.",
+    "brief_cta_science": "Ver la ciencia",
+    "brief_cta_help": "Ver todas las formas de ayudar",
+    "hero_sr_summary": "Miriam González tiene un cáncer de mama metastásico ultra-raro con dos biologías. Esta web financia las pruebas de precisión que la sanidad pública no cubre. Puedes apoyar económicamente, leer la ciencia del caso, colaborar según tu perfil o compartir la campaña."
   },
   "glossary": {
     "hint": "Toca o pasa el cursor por las palabras y marcadores resaltados para ver qué significan."

@@ -923,6 +923,244 @@
   }
 }
 
+/* ── Visitor pathways · orientación por persona ─────────────────────────── */
+.pathway-comfort {
+    display: flex;
+    align-items: baseline;
+    gap: 0.45rem;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    line-height: 1.55;
+    color: rgba(58, 51, 64, 0.82);
+    margin-top: 0.25rem;
+  }
+  .pathway-comfort__icon {
+    width: 14px;
+    height: 14px;
+    color: #9d44ab;
+    flex-shrink: 0;
+    align-self: center;
+  }
+
+  .pathway-grid {
+    display: grid;
+    gap: 1rem;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  }
+
+  .pathway-card {
+    display: flex;
+    flex-direction: column;
+    gap: 0.65rem;
+    padding: 1.25rem 1.35rem;
+    border-radius: 16px;
+    background: #faf6f0;
+    border: 1px solid rgba(45, 27, 61, 0.08);
+    transition: box-shadow 0.18s ease;
+  }
+  @media (hover: hover) {
+    .pathway-card:hover {
+      box-shadow: 0 10px 28px rgba(45, 27, 61, 0.08);
+    }
+  }
+  .pathway-card__head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+  }
+  .pathway-card__icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.25rem;
+    height: 2.25rem;
+    border-radius: 10px;
+    background: rgba(164, 77, 178, 0.12);
+    color: #2d1b3d;
+  }
+  .pathway-card__time {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10.5px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: rgba(58, 51, 64, 0.72);
+    white-space: nowrap;
+  }
+  .pathway-card__title {
+    font-family: 'Fraunces', serif;
+    font-weight: 600;
+    font-size: 1.05rem;
+    line-height: 1.25;
+    color: #2d1b3d;
+    text-wrap: balance;
+  }
+  .pathway-card__desc {
+    font-size: 0.875rem;
+    line-height: 1.55;
+    color: #3a3340;
+    flex: 1;
+  }
+  .pathway-card__steps {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    font-size: 0.78rem;
+    line-height: 1.45;
+    color: rgba(58, 51, 64, 0.88);
+  }
+  .pathway-card__steps li {
+    display: flex;
+    gap: 0.4rem;
+    align-items: baseline;
+  }
+  .pathway-card__steps li::before {
+    content: '→';
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: #9d44ab;
+    flex-shrink: 0;
+  }
+  .pathway-card__cta {
+    margin-top: auto;
+    padding-top: 0.35rem;
+  }
+  .pathway-card__caption {
+    margin-top: 0.45rem;
+    font-size: 0.72rem;
+    line-height: 1.45;
+    color: rgba(58, 51, 64, 0.78);
+    min-height: 2rem;
+  }
+
+  .pathway-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+  .pathway-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    padding: 0.55rem 0.85rem;
+    border-radius: 999px;
+    border: 1px solid rgba(45, 27, 61, 0.12);
+    background: #faf6f0;
+    color: #2d1b3d;
+    font-size: 0.82rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: background 0.15s ease, border-color 0.15s ease;
+  }
+  .pathway-chip:hover {
+    background: rgba(164, 77, 178, 0.1);
+    border-color: rgba(157, 68, 171, 0.28);
+  }
+  .pathway-chip__label {
+    white-space: nowrap;
+  }
+  .pathway-chip__time {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: rgba(58, 51, 64, 0.65);
+    margin-left: 0.1rem;
+  }
+
+  .pathway-brief__summary {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem 0.75rem;
+    cursor: pointer;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: #2d1b3d;
+    list-style: none;
+    padding: 0.65rem 0;
+  }
+  .pathway-brief__summary::-webkit-details-marker {
+    display: none;
+  }
+  .pathway-brief__summary::before {
+    content: '▸';
+    color: #9d44ab;
+    transition: transform 0.15s ease;
+  }
+  .pathway-brief[open] .pathway-brief__summary::before {
+    transform: rotate(90deg);
+  }
+  .pathway-brief__badge {
+    font-size: 10px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    padding: 0.2rem 0.55rem;
+    border-radius: 999px;
+    background: rgba(164, 77, 178, 0.12);
+    color: #2d1b3d;
+  }
+  .pathway-brief__list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.85rem;
+  }
+  .pathway-brief__list li {
+    display: flex;
+    gap: 0.75rem;
+    align-items: flex-start;
+    font-size: 0.9rem;
+    line-height: 1.55;
+    color: #3a3340;
+  }
+  .pathway-brief__num {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.5rem;
+    height: 1.5rem;
+    border-radius: 6px;
+    background: rgba(164, 77, 178, 0.14);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    font-weight: 700;
+    color: #2d1b3d;
+    flex-shrink: 0;
+  }
+
+  /* Alto contraste: refuerzo suave sin romper la marca */
+  @media (prefers-contrast: more) {
+    .pathway-card,
+    .pathway-chip,
+    .card-base {
+      border-color: rgba(45, 27, 61, 0.22);
+    }
+    .pathway-card__desc,
+    .pathway-comfort,
+    .nota {
+      color: #2d1b3d;
+    }
+    .btn-secondary {
+      border-width: 2.5px;
+    }
+  }
+
+@media (prefers-reduced-motion: reduce) {
+  .pathway-brief__summary::before {
+    transition: none;
+  }
+  .pathway-card {
+    transition: none;
+  }
+}
+
 /* ── Impresión ──────────────────────────────────────────────────────────────
    Pensado sobre todo para /ciencia: un oncólogo imprime el caso y se lo lleva
    al comité. Fuera el cromo de navegación; texto en negro sobre blanco; las

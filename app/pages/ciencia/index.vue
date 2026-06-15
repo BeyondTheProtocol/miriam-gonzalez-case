@@ -25,6 +25,11 @@
              todo (la página completa). Las capas usan v-show (display) sobre
              contenedores `display:contents`, así el HTML estático no cambia y el
              SEO/hidratación siguen intactos. -->
+        <p class="pathway-comfort mb-6 max-w-2xl" role="note">
+          <Icon name="ph:leaf" class="pathway-comfort__icon" aria-hidden="true" />
+          {{ $t('pathways.comfort') }}
+        </p>
+
         <div class="reading-level mb-10" role="group" :aria-label="$t('ciencia.level_aria')">
           <span class="reading-level__hint">{{ $t('ciencia.level_hint') }}</span>
           <div class="reading-level__seg">
