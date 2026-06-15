@@ -101,55 +101,50 @@
             </div>
           </div>
 
-          <div class="hero__status animate-fade-up" style="animation-delay: 0.34s">
-            <DaysWaitingCounter class="hero__status-counter" />
-            <p
-              v-if="gofundme?.donationCount"
-              class="hero__social"
-            >
-              <Icon name="ph:heart-fill" class="w-3.5 h-3.5 shrink-0 text-coral" aria-hidden="true" />
-              <i18n-t keypath="home.hero_social_proof" tag="span">
-                <template #n><strong class="text-berenjena nums">{{ donorsFormatted }}</strong></template>
-              </i18n-t>
-            </p>
-
-            <NuxtLink
-              v-if="latest"
-              :to="localePath({ name: 'timeline' }) + '#lo-ultimo'"
-              class="hero__latest group"
-            >
-              <span class="hero__latest-meta">
-                <span class="hero-live-dot h-2 w-2 shrink-0 rounded-full bg-coral" aria-hidden="true" />
-                <span class="font-mono uppercase text-[11px] tracking-[0.16em] font-semibold text-coral-deep">
-                  {{ $t('hero.latest_label') }}
-                </span>
-                <span v-if="latestAgo" class="font-mono text-[11px] text-tinta">· {{ latestAgo }}</span>
-              </span>
-              <span class="hero__latest-title">
-                {{ latest.title }}
-                <Icon
-                  name="ph:arrow-right"
-                  class="ml-1.5 inline-block w-3.5 h-3.5 align-[-2px] transition-transform group-hover:translate-x-0.5"
-                  aria-hidden="true"
-                />
-              </span>
-            </NuxtLink>
-          </div>
         </div>
       </div>
 
-      <!-- Cifras · panel alineado al shell -->
-      <div class="hero__stats animate-fade-up" style="animation-delay: 0.4s">
-        <div
-          v-for="(stat, i) in stats"
-          :key="stat.label"
-          class="hero__stat"
-          :class="{ 'hero__stat--firma': i === 3 }"
-        >
-          <p class="hero__stat-value nums" :class="i === 3 ? 'firma' : 'text-berenjena'">
-            {{ stat.value }}
-          </p>
-          <p class="hero__stat-label">{{ stat.label }}</p>
+      <!-- Zona de evidencia · una sola banda a ancho del shell con un único
+           divisor: señales vivas (urgencia + recencia) arriba, cifras debajo.
+           El nº de donantes vive SOLO en las cifras (sin duplicar el 997). -->
+      <div class="hero__proof animate-fade-up" style="animation-delay: 0.4s">
+        <div class="hero__pulse">
+          <DaysWaitingCounter class="hero__pulse-counter" />
+          <NuxtLink
+            v-if="latest"
+            :to="localePath({ name: 'timeline' }) + '#lo-ultimo'"
+            class="hero__latest group"
+          >
+            <span class="hero__latest-meta">
+              <span class="hero-live-dot h-2 w-2 shrink-0 rounded-full bg-coral" aria-hidden="true" />
+              <span class="font-mono uppercase text-[11px] tracking-[0.16em] font-semibold text-coral-deep">
+                {{ $t('hero.latest_label') }}
+              </span>
+              <span v-if="latestAgo" class="font-mono text-[11px] text-tinta">· {{ latestAgo }}</span>
+            </span>
+            <span class="hero__latest-title">
+              {{ latest.title }}
+              <Icon
+                name="ph:arrow-right"
+                class="ml-1.5 inline-block w-3.5 h-3.5 align-[-2px] transition-transform group-hover:translate-x-0.5"
+                aria-hidden="true"
+              />
+            </span>
+          </NuxtLink>
+        </div>
+
+        <div class="hero__stats">
+          <div
+            v-for="(stat, i) in stats"
+            :key="stat.label"
+            class="hero__stat"
+            :class="{ 'hero__stat--firma': i === 3 }"
+          >
+            <p class="hero__stat-value nums" :class="i === 3 ? 'firma' : 'text-berenjena'">
+              {{ stat.value }}
+            </p>
+            <p class="hero__stat-label">{{ stat.label }}</p>
+          </div>
         </div>
       </div>
     </div>
@@ -498,34 +493,32 @@ const stats = computed(() => [
   min-height: 2.25rem;
 }
 
-/* Estado · bloque encuadrado, sin zona muerta */
-.hero__status {
+/* Zona de evidencia · una sola banda a ancho del shell (señales vivas + cifras)
+   con un único divisor. Sustituye al antiguo hero__status, que vivía estrecho en
+   la columna izquierda y duplicaba el 997 con las cifras. */
+.hero__proof {
+  margin-top: 2.5rem;
+  padding-top: 1.75rem;
+  border-top: 1px solid rgba(45, 27, 61, 0.1);
   display: flex;
   flex-direction: column;
-  gap: 0.875rem;
-  max-width: 36rem;
-  padding-top: 1.25rem;
-  border-top: 1px solid rgba(45, 27, 61, 0.08);
+  gap: 1.5rem;
 }
-/* El contador (píldora) no debe estirarse a todo el ancho del bloque flex. */
-.hero__status-counter {
-  align-self: flex-start;
-}
-@media (min-width: 640px) {
-  .hero__status {
-    padding-top: 1.5rem;
-    gap: 1rem;
+@media (min-width: 768px) {
+  .hero__proof {
+    margin-top: 3rem;
+    padding-top: 2rem;
   }
 }
 
-.hero__social {
+.hero__pulse {
   display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  margin: 0;
-  font-size: 0.875rem;
-  line-height: 1.45;
-  color: #3a3340;
+  flex-direction: column;
+  gap: 0.875rem;
+}
+/* La píldora del contador no debe estirarse a todo el ancho de la banda. */
+.hero__pulse-counter {
+  align-self: flex-start;
 }
 
 .hero__latest {
@@ -557,21 +550,16 @@ const stats = computed(() => [
   text-decoration-color: #9d44ab;
 }
 
-/* Stats · rejilla cerrada, alturas iguales */
+/* Stats · rejilla cerrada, alturas iguales. Sin divisor propio: cuelga de hero__proof. */
 .hero__stats {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 1.25rem 1rem;
-  margin-top: 2rem;
-  padding-top: 1.75rem;
-  border-top: 1px solid rgba(45, 27, 61, 0.1);
 }
 @media (min-width: 768px) {
   .hero__stats {
     grid-template-columns: repeat(4, minmax(0, 1fr));
     gap: 0;
-    margin-top: 2.5rem;
-    padding-top: 2rem;
   }
 }
 
