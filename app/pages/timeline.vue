@@ -79,11 +79,11 @@
               v-for="group in groups"
               :key="group.year"
               v-reveal
-              class="tl-group"
+              class="tl-group pt-10 first:pt-0"
             >
               <!-- Año = cabecera de capítulo: chip sólido que interrumpe el raíl.
                    No se confunde con los puntos redondos de los hitos. -->
-              <div class="relative pt-3 pb-5 first:pt-0">
+              <div class="relative pb-5">
                 <h2 class="tl-year nums">{{ group.year }}</h2>
               </div>
               <ul>
