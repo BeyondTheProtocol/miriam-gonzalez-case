@@ -18,6 +18,11 @@ coreTeam:
     description: "Doctor en investigación. Asesora en ensayos clínicos y en la traducción al abordaje N-of-1."
     icon: ph:clipboard-text-fill
     color: gold
+  - role: "Biomedicina · traslacional"
+    name: Mariú
+    description: "Biomedicina y máster en investigación clínica (oncología traslacional, PRBB-Barcelona). Aporta de forma independiente y aplica IA al uso clínico e investigacional del caso."
+    icon: ph:dna-fill
+    color: gold
   - role: "Asesoría técnica · mama"
     name: Víctor
     photo: /img/team/victor.webp
