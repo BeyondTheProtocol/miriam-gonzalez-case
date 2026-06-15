@@ -272,6 +272,12 @@ const stats = computed(() => [
   display: grid;
   gap: 1rem;
   align-items: start;
+  min-width: 0;
+}
+.hero__head,
+.hero__body,
+.hero__portrait {
+  min-width: 0;
 }
 @media (max-width: 767px) {
   /* Narrativa continua: titular → texto/CTA → retrato (evita hueco entre H1 y lede). */
@@ -487,7 +493,7 @@ const stats = computed(() => [
   gap: 1rem;
   max-width: 36rem;
 }
-@media (min-width: 480px) {
+@media (min-width: 768px) {
   .hero__cta {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 1rem 1.25rem;
@@ -573,7 +579,7 @@ const stats = computed(() => [
   padding-top: 1.75rem;
   border-top: 1px solid rgba(45, 27, 61, 0.1);
 }
-@media (min-width: 640px) {
+@media (min-width: 1024px) {
   .hero__stats {
     grid-template-columns: repeat(4, minmax(0, 1fr));
     gap: 0;
@@ -612,11 +618,18 @@ const stats = computed(() => [
 .hero__stat-label {
   margin: 0.625rem 0 0;
   font-family: 'JetBrains Mono', monospace;
-  font-size: 11px;
+  font-size: 10px;
   line-height: 1.35;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
   color: #3a3340;
+  word-break: break-word;
+}
+@media (min-width: 1024px) {
+  .hero__stat-label {
+    font-size: 11px;
+    letter-spacing: 0.08em;
+  }
 }
 
 /* «dos caras» */
@@ -624,7 +637,12 @@ const stats = computed(() => [
   position: relative;
   font-style: italic;
   font-weight: 700;
-  white-space: nowrap;
+  white-space: normal;
+}
+@media (min-width: 480px) {
+  .two-faces {
+    white-space: nowrap;
+  }
 }
 .two-faces__stroke {
   position: absolute;
