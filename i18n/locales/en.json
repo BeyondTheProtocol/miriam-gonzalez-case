@@ -32,6 +32,11 @@
     "skip_focused": "Main content",
     "more_ways": "More ways to help"
   },
+  "captcha": {
+    "required": "Complete the verification before sending.",
+    "failed": "We couldn't verify the captcha. Please try again.",
+    "load_error": "Verification couldn't load. Reload the page or try again later."
+  },
   "pathways": {
     "eyebrow": "Where do I start?",
     "home_title": "Pick your path",

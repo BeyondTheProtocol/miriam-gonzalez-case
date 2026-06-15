@@ -147,21 +147,22 @@
  * la prueba social respalda a la petición. Aquí enlaza el widget de la home.
  * Datos reales de /donations.json (función Netlify horaria). Anónimos = "Anónimo".
  */
-import type { GoFundMeFundraiser, PublicDonation } from '../../utils/fundraiser'
+import type { GoFundMeFundraiser } from '../../utils/fundraiser'
+import type { PublicDonationSafe } from '../../utils/donationsPublic'
 import type StarMap from './StarMap.vue'
 
 const { locale, t } = useI18n()
 const route = useRoute()
 
 const PAGE_SIZE = 12
-const donations = ref<PublicDonation[]>([])
+const donations = ref<PublicDonationSafe[]>([])
 const loaded = ref(false)
 const page = ref(0)
 const sort = ref<'recent' | 'top'>('recent')
 const starMapRef = ref<InstanceType<typeof StarMap> | null>(null)
 const findQuery = ref('')
 const findError = ref('')
-const activeDonorId = ref<number | null>(null)
+const activeDonorId = ref<string | null>(null)
 
 const patronIdRanks = computed(() => {
   const sorted = [...donations.value]
@@ -171,11 +172,11 @@ const patronIdRanks = computed(() => {
   return new Map(sorted.map((d, i) => [d.id, i + 1]))
 })
 
-function isPatron(id: number) {
+function isPatron(id: string) {
   return patronIdRanks.value.has(id)
 }
 
-function patronRank(id: number) {
+function patronRank(id: string) {
   return patronIdRanks.value.get(id) ?? 0
 }
 
@@ -186,7 +187,7 @@ function setSort(s: 'recent' | 'top') {
 
 const campaign = ref<GoFundMeFundraiser | null>(null)
 
-function focusDonor(d: PublicDonation) {
+function focusDonor(d: PublicDonationSafe) {
   findError.value = ''
   activeDonorId.value = d.id
   const ok = starMapRef.value?.focusById(d.id)
@@ -211,7 +212,7 @@ function submitFind() {
 
 onMounted(async () => {
   try {
-    donations.value = await $fetch<PublicDonation[]>('/donations.json')
+    donations.value = await $fetch<PublicDonationSafe[]>('/donations.json')
   } catch {
     /* sin datos */
   } finally {
@@ -261,7 +262,7 @@ const pageRows = computed(() => {
   return sorted.value.slice(start, start + PAGE_SIZE)
 })
 
-function money(d: PublicDonation) {
+function money(d: PublicDonationSafe) {
   return new Intl.NumberFormat(locale.value === 'es' ? 'es-ES' : 'en-US', {
     style: 'currency',
     currency: d.currencyCode || 'EUR',

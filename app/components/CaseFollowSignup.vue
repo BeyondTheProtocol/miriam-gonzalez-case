@@ -50,12 +50,21 @@
         />
         <button
           type="submit"
-          :disabled="sending || !consent"
+          :disabled="sending || !consent || (turnstileEnabled && !turnstileToken)"
           class="btn-cta justify-center disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {{ sending ? $t('follow.sending') : $t('follow.cta') }}
         </button>
       </div>
+
+      <TurnstileWidget
+        ref="turnstileRef"
+        action="case-follow"
+        class="mt-3"
+        @token="turnstileToken = $event"
+        @expired="turnstileToken = ''"
+        @error="turnstileToken = ''"
+      />
 
       <label class="flex items-start gap-2.5 mt-3 text-xs text-tinta leading-relaxed cursor-pointer">
         <input
@@ -75,6 +84,9 @@
         </span>
       </label>
 
+      <p v-if="captchaFailed" class="mt-2 text-xs text-coral-deep" role="alert">
+        {{ turnstileToken ? $t('captcha.failed') : $t('captcha.required') }}
+      </p>
       <p v-if="failed" class="mt-2 text-xs text-coral-deep" role="alert">{{ $t('follow.failed') }}</p>
     </form>
   </section>
@@ -87,15 +99,35 @@ const consent = ref(false)
 const sending = ref(false)
 const sent = ref(false)
 const failed = ref(false)
+const captchaFailed = ref(false)
+const turnstileToken = ref('')
+const turnstileRef = ref<{ reset: () => void } | null>(null)
+const { enabled: turnstileEnabled, verifyToken } = useTurnstile()
 
 async function onSubmit(e: Event) {
   if (!consent.value) return // RGPD: sin consentimiento explícito, no se envía.
+  captchaFailed.value = false
+  failed.value = false
+
+  if (turnstileEnabled.value) {
+    if (!turnstileToken.value) {
+      captchaFailed.value = true
+      return
+    }
+    const verified = await verifyToken(turnstileToken.value)
+    if (!verified) {
+      captchaFailed.value = true
+      turnstileToken.value = ''
+      turnstileRef.value?.reset()
+      return
+    }
+  }
+
   const form = e.target as HTMLFormElement
   const body = new URLSearchParams(
     new FormData(form) as unknown as Record<string, string>
   ).toString()
   sending.value = true
-  failed.value = false
   try {
     await $fetch('/', {
       method: 'POST',

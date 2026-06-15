@@ -218,9 +218,9 @@
  *  · A11Y: lienzo aria-hidden + resumen sr-only; la tabla de DonationsWall es
  *    la vía accesible a los datos. Animaciones con prefers-reduced-motion.
  */
-import type { PublicDonation } from '../../utils/fundraiser'
+import type { PublicDonationSafe } from '../../utils/donationsPublic'
 
-const props = defineProps<{ donations: PublicDonation[]; total?: string }>()
+const props = defineProps<{ donations: PublicDonationSafe[]; total?: string }>()
 const { t, locale } = useI18n()
 const { GOFUNDME_URL, trackSupport } = useSupport()
 

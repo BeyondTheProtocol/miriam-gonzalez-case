@@ -5,7 +5,7 @@
   "scripts": {
     "build": "pnpm update-fundraiser && nuxt build",
     "dev": "pnpm update-fundraiser --force && nuxt dev",
-    "generate": "pnpm update-fundraiser && nuxt generate",
+    "generate": "pnpm update-fundraiser && nuxt generate && tsx scripts/filter-llms-export.ts",
     "preview": "nuxt preview",
     "postinstall": "nuxt prepare",
     "format": "oxfmt",
