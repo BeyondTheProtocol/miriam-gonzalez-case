@@ -5,29 +5,34 @@
  * sólo se reescribe el ATRIBUTO DE COLOR POR VÉRTICE (rápido). Rotación libre 360° con
  * arrastre, rueda para acercar. Malla PLY en /public/metastasis/mesh.
  *
- * EL DATO: las mallas .ply traen UN solo color RGB por vértice, con dos señales horneadas
- * JUNTAS: la DENSIDAD del CT vive en la LUMINANCIA y la CAPTACIÓN del PET en el CROMA/MATIZ
- * (magenta ≈ receptor/Galio, naranja-cálido ≈ azúcar/FDG). La separación de trazadores es
- * una HEURÍSTICA del matiz, no perfecta; donde Galio y FDG solapan el matiz no puede
- * separar ambos. No hace falta otra malla ni textura: cada modo deriva su color del MISMO
- * RGB por vértice. (Confirmado sobre los PLY: la luminancia ósea está comprimida muy arriba
- * —p2≈0.80, p50≈0.86–0.94— por eso «todo blanco»; el croma es débil y variable por hueso
- * —sat máx 0.10 en C3 a 0.33 en D11— por eso los umbrales son adaptativos por hueso.)
+ * EL DATO (mallas re-generadas): cada vértice trae, además del RGB, TRES canales float
+ * REALES y SEPARADOS, leídos con PLYLoader.setCustomPropertyNameMapping → quedan en
+ * geometry.attributes.density / .fdg / .ga (Float32, itemSize 1):
+ *   · density_hu  → densidad del CT en HU (~0–1000; cortical/blástico alto).
+ *   · suv_fdg     → SUV de FDG real, co-registrado (0–~7; pico por foco).
+ *   · suv_ga      → SUV de Galio (receptor) — PROXY transferido de la malla previa
+ *                   (0–~13), por ahora APROXIMADO hasta tener su volumen propio.
+ * El color de cada modo se calcula DESDE estos canales reales (no del RGB horneado). Como
+ * FDG y Galio son canales distintos, los trazadores ya se separan limpio: donde domina el
+ * receptor se ve violeta y donde domina el azúcar, naranja. El RGB empaquetado
+ * (R=HU/1500, G=FDG/15, B=GA/15) queda sólo como FALLBACK si algún día faltan los canales.
  *
  * MODOS:
- *  1) «Área» (por defecto) — la HUELLA de la lesión. Se umbraliza el croma por vértice
- *     (adaptativo por hueso, con suelo absoluto y borde suave) → los vértices por encima
- *     del umbral se pintan como REGIÓN contigua en el color del trazador que domina en
- *     cada vértice (violeta receptor / naranja FDG); el resto del hueso en marfil mate.
- *     La lesión ES el área: NO hay diana-punto flotante. «Dónde y cuánto», no un punto.
- *  2) «Mapa de calor» — intensidad de captación continua: score de captación por vértice
- *     → rampa térmica perceptual (azul→cian→amarillo→rojo), normalizada a una referencia
- *     ABSOLUTA (comparable entre huesos, no se sobre-dramatizan los huesos planos). Marca
- *     discreta del punto más caliente (SUVmáx) si hay captación apreciable.
- *  3) «Morfología» — densidad/forma del CT. La LUMINANCIA por vértice (estirada por hueso,
- *     p2→p98, con gamma que reserva el extremo a lo más denso) → rampa SIN BLANCO ARRIBA:
- *     tostado/neutro (normal) → azul oscuro saturado (blástico/denso). El sombreado de las
- *     luces (Lambert/PBR mate) da el volumen encima. Es FORMA, no biología, no trazador.
+ *  1) «Área» (por defecto) — la HUELLA REAL de captación (tipo MTV). Un vértice está dentro
+ *     de la lesión si suv_fdg ≥ ~2.5 o suv_ga ≥ ~2.5 (umbral SUV CRUDO de cada canal, borde
+ *     difuso por smoothstep en [0.7·THR, THR]) → REGIÓN contigua en el color del trazador
+ *     DOMINANTE. La dominancia es ESCALA-JUSTA: como el canal Ga es un proxy con rango mayor
+ *     (~0–13) que el FDG real (~0–8), se NORMALIZA cada canal por su referencia antes de
+ *     comparar (gaN = suv_ga/13 vs fdgN = suv_fdg/8); gaN > fdgN → violeta receptor, si no
+ *     naranja FDG, y donde ambos normalizados son altos y parecidos se mezclan (mixta). El
+ *     resto del hueso en marfil mate. La lesión ES el área: NO hay diana-punto flotante.
+ *  2) «Mapa de calor» — intensidad continua: t = clamp(max(suv_fdg, suv_ga)/8, 0, 1) →
+ *     rampa térmica perceptual (azul→cian→amarillo→naranja→rojo). Referencia ABSOLUTA
+ *     (comparable entre huesos). Marca discreta del vértice más caliente (SUVmáx).
+ *  3) «Morfología» — densidad REAL del CT (HU). t = clamp((density_hu−150)/(850−150), 0, 1)
+ *     con gamma ~1.3 → rampa SIN BLANCO ARRIBA: trabecular/normal (t bajo) = tostado/marfil
+ *     neutro; denso/blástico (t alto) = AZUL OSCURO SATURADO. El sombreado de las luces
+ *     (Lambert/PBR mate) da el volumen encima. Es FORMA, no biología, no trazador.
  *
  * HUESO MATE Y OPACO (no romper la opacidad ya arreglada): MeshStandardMaterial muy rugoso,
  * sin metal, casi sin entorno; DoubleSide + normales recalculadas del winding → nunca se ve
@@ -80,15 +85,27 @@ let curKey = ''
 let boneCenter = new THREE.Vector3()
 let boneRadius = 50
 
-/* ---- datos por vértice derivados del RGB horneado (se calculan UNA vez al cargar) ---- */
-let vRecLean: Float32Array | null = null   // magenta-lean (receptor) por vértice
-let vWarmLean: Float32Array | null = null  // warm-lean (FDG) por vértice
-let vScore: Float32Array | null = null     // score de captación = max(recLean, warmLean)
-let vLum: Float32Array | null = null       // luminancia (densidad del CT) por vértice
+/* ---- canales REALES por vértice (Float32, itemSize 1) leídos del PLY ---- */
+let vDensity: Float32Array | null = null   // density_hu · densidad del CT (HU)
+let vFdg: Float32Array | null = null       // suv_fdg · SUV de FDG real (azúcar)
+let vGa: Float32Array | null = null        // suv_ga · SUV de Galio (receptor) · PROXY aprox.
 let outColors: Float32Array | null = null  // buffer de salida reutilizado (count*3, LINEAL)
-let scoreHi = 0.04                          // máximo robusto del score (p99.5)
-let lumLo = 0, lumHi = 1                     // p2 / p98 de luminancia (estiramiento por hueso)
-let hotIndex = -1                           // vértice del punto más caliente
+let hotIndex = -1                           // vértice del punto más caliente (máx SUV)
+let hotSuv = 0                              // SUV del punto más caliente
+
+/* umbrales / rangos del color-math (SUV absolutos y banda de HU del CT) */
+const THR_SUV = 2.5             // «Área»: pertenencia a la lesión, SUV absoluto (FDG o Ga)
+const HEAT_MAX = 8              // «Calor»: SUV que satura la rampa (rojo) — referencia absoluta
+const HU_LO = 150, HU_HI = 850 // «Morfología»: trabecular/normal → blástico denso
+/* «Área» · dominancia de trazador ESCALA-JUSTA: el canal Ga es un PROXY con rango mayor
+   (~0–13) que el FDG real (~0–8); comparar SUV crudos (g>f) sesga la dominancia hacia
+   violeta. Antes de comparar, cada canal se normaliza por su MÁXIMO observado (su referencia)
+   → fdgN = suv_fdg/FDG_REF, gaN = suv_ga/GA_REF. La PERTENENCIA al área sigue sobre el SUV
+   crudo (un vértice capta de verdad si supera THR en cualquier trazador); sólo el COLOR usa
+   los normalizados. Donde ambos normalizados son altos y parecidos → captación MIXTA. */
+const FDG_REF = 8               // máx observado del canal FDG real → normaliza para comparar
+const GA_REF = 13               // máx observado del canal Ga (proxy, rango mayor) → normaliza
+const MIX_BAND = 0.15           // |gaN−fdgN| ≤ banda → mezcla violeta+naranja (captación mixta)
 
 /* ---------- color: sRGB → lineal (three multiplica los colores por vértice en LINEAL) ---------- */
 function lin(hex: string): [number, number, number] {
@@ -139,11 +156,6 @@ const morphoRamp = makeRamp([
 function smoothstep(e0: number, e1: number, x: number): number {
   if (e1 <= e0) return x >= e1 ? 1 : 0
   let t = (x - e0) / (e1 - e0); t = t < 0 ? 0 : t > 1 ? 1 : t; return t * t * (3 - 2 * t)
-}
-function percentile(sorted: Float32Array, p: number): number {
-  if (!sorted.length) return 0
-  const i = Math.min(sorted.length - 1, Math.max(0, Math.floor(sorted.length * p)))
-  return sorted[i]
 }
 
 function resize() {
@@ -201,67 +213,86 @@ function frameObject(fill = 0.9) {
 }
 function reframe() { frameObject() }
 
-/* ---------- precálculo por vértice a partir del RGB horneado ---------- */
+/* ---------- precálculo por vértice desde los canales REALES (density/fdg/ga) ----------
+   Los tres canales llegan como atributos Float32 itemSize 1 (PLYLoader custom mapping).
+   FALLBACK si faltan: se desempaquetan del RGB horneado (R=HU/1500, G=FDG/15, B=GA/15). */
 function precompute(geo: THREE.BufferGeometry) {
   const pos = geo.getAttribute('position') as THREE.BufferAttribute
-  const col = geo.getAttribute('color') as THREE.BufferAttribute | undefined
   const n = pos.count
-  vRecLean = new Float32Array(n); vWarmLean = new Float32Array(n)
-  vScore = new Float32Array(n); vLum = new Float32Array(n)
+  const dAttr = geo.getAttribute('density') as THREE.BufferAttribute | undefined
+  const fAttr = geo.getAttribute('fdg') as THREE.BufferAttribute | undefined
+  const gAttr = geo.getAttribute('ga') as THREE.BufferAttribute | undefined
+  const hasReal = !!(dAttr && fAttr && gAttr)
+  const col = geo.getAttribute('color') as THREE.BufferAttribute | undefined
+  vDensity = new Float32Array(n); vFdg = new Float32Array(n); vGa = new Float32Array(n)
   outColors = new Float32Array(n * 3)
-  hotIndex = -1
-  let best = -1
+  hotIndex = -1; hotSuv = 0
   for (let i = 0; i < n; i++) {
-    const r = col ? col.getX(i) : 0.86, g = col ? col.getY(i) : 0.83, b = col ? col.getZ(i) : 0.76
-    const rl = Math.max(0, (r + b) / 2 - g)   // magenta-lean (receptor)
-    const wl = Math.max(0, r - b)             // warm-lean (FDG)
-    vRecLean[i] = rl; vWarmLean[i] = wl
-    const s = Math.max(rl, wl); vScore[i] = s
-    vLum[i] = 0.2126 * r + 0.7152 * g + 0.114 * b
-    if (s > best) { best = s; hotIndex = i }
+    let d: number, f: number, g: number
+    if (hasReal) {
+      d = dAttr!.getX(i); f = fAttr!.getX(i); g = gAttr!.getX(i)
+    } else {
+      // fallback: desempaquetar del RGB horneado (sRGB→lineal ya aplicado por el loader,
+      // pero la magnitud relativa se conserva lo suficiente para no quedar a oscuras)
+      d = (col ? col.getX(i) : 0.5) * 1500
+      f = (col ? col.getY(i) : 0) * 15
+      g = (col ? col.getZ(i) : 0) * 15
+    }
+    vDensity[i] = d; vFdg[i] = f; vGa[i] = g
+    const s = f > g ? f : g
+    if (s > hotSuv) { hotSuv = s; hotIndex = i }
   }
-  // estadística robusta: máximo de score (p99.5) y banda de luminancia (p2..p98)
-  const ss = Float32Array.from(vScore).sort(); scoreHi = Math.max(0.04, percentile(ss, 0.995))
-  const ll = Float32Array.from(vLum).sort(); lumLo = percentile(ll, 0.02); lumHi = percentile(ll, 0.98)
-  if (lumHi - lumLo < 1e-3) lumHi = lumLo + 1e-3
 }
 
 /* ---------- pintar el atributo de color por vértice según el modo ---------- */
 function applyMode() {
-  if (!mesh || !vScore || !vLum || !outColors || !vRecLean || !vWarmLean) return
+  if (!mesh || !vDensity || !vFdg || !vGa || !outColors) return
   const geo = mesh.geometry
-  const n = vScore.length
+  const n = vDensity.length
   const out = outColors
   const m = mode.value
+  const fdgA = vFdg, gaA = vGa, denA = vDensity
 
   if (m === 'area') {
-    // umbral adaptativo por hueso + suelo absoluto; borde suave → REGIÓN contigua
-    const floor = 0.06
-    const thr = Math.max(floor, 0.42 * scoreHi)
-    const e0 = thr * 0.62
+    // huella REAL de captación (tipo MTV): dentro de lesión si suv_fdg≥THR o suv_ga≥THR
+    // (SUV CRUDO de cada canal — la pertenencia no se normaliza). Borde difuso con smoothstep
+    // en [0.7·THR, THR]. El COLOR (qué trazador domina) es ESCALA-JUSTA: se normaliza cada
+    // canal por su referencia (fdgN=f/FDG_REF, gaN=g/GA_REF) y se compara gaN vs fdgN, así el
+    // proxy Ga (rango mayor) no sesga hacia violeta. En la banda |gaN−fdgN|≤MIX_BAND ambos
+    // normalizados son parecidos → mezcla violeta+naranja (captación mixta), sin forzar uno.
+    const thr = THR_SUV
+    const e0 = 0.7 * thr
+    const fInv = 1 / FDG_REF, gInv = 1 / GA_REF
     for (let i = 0; i < n; i++) {
-      const a = smoothstep(e0, thr, vScore[i])                 // pertenencia 0..1 (suave)
-      const tr = vRecLean[i] >= vWarmLean[i] ? REC_LIN : FDG_LIN  // color del trazador dominante EN ESTE vértice
+      const f = fdgA[i], g = gaA[i]
+      const a = Math.max(smoothstep(e0, thr, f), smoothstep(e0, thr, g)) // pertenencia 0..1 (SUV crudo)
+      // dominancia normalizada: gaN≫fdgN → violeta (1); fdgN≫gaN → naranja (0); parecidos → mezcla (~0.5)
+      const wRec = smoothstep(-MIX_BAND, MIX_BAND, g * gInv - f * fInv)
+      const tr0 = FDG_LIN[0] + (REC_LIN[0] - FDG_LIN[0]) * wRec
+      const tr1 = FDG_LIN[1] + (REC_LIN[1] - FDG_LIN[1]) * wRec
+      const tr2 = FDG_LIN[2] + (REC_LIN[2] - FDG_LIN[2]) * wRec
       const k = i * 3
-      out[k] = IVORY_LIN[0] + (tr[0] - IVORY_LIN[0]) * a
-      out[k + 1] = IVORY_LIN[1] + (tr[1] - IVORY_LIN[1]) * a
-      out[k + 2] = IVORY_LIN[2] + (tr[2] - IVORY_LIN[2]) * a
+      out[k] = IVORY_LIN[0] + (tr0 - IVORY_LIN[0]) * a
+      out[k + 1] = IVORY_LIN[1] + (tr1 - IVORY_LIN[1]) * a
+      out[k + 2] = IVORY_LIN[2] + (tr2 - IVORY_LIN[2]) * a
     }
   } else if (m === 'heat') {
-    // intensidad continua normalizada a una referencia ABSOLUTA (comparable entre huesos)
-    const REF = 0.28
+    // intensidad continua: t = clamp(max(suv_fdg, suv_ga)/8, 0, 1) → rampa térmica.
+    // Referencia ABSOLUTA (8 SUV satura el rojo) → comparable entre huesos.
+    const inv = 1 / HEAT_MAX
     for (let i = 0; i < n; i++) {
-      let t = vScore[i] / REF; t = t > 1 ? 1 : t
-      t = Math.pow(t, 0.9)
+      const s = fdgA[i] > gaA[i] ? fdgA[i] : gaA[i]
+      let t = s * inv; t = t < 0 ? 0 : t > 1 ? 1 : t
       const c = heatRamp(t)
       const k = i * 3; out[k] = c[0]; out[k + 1] = c[1]; out[k + 2] = c[2]
     }
   } else {
-    // morfología: luminancia estirada por hueso; gamma>1 reserva el azul oscuro a lo más denso
-    const inv = 1 / (lumHi - lumLo)
+    // morfología: densidad REAL del CT (HU). t = clamp((HU−150)/(850−150), 0, 1)^1.3 →
+    // rampa SIN BLANCO arriba: trabecular/normal = tostado; blástico/denso = azul oscuro.
+    const inv = 1 / (HU_HI - HU_LO)
     for (let i = 0; i < n; i++) {
-      let t = (vLum[i] - lumLo) * inv; t = t < 0 ? 0 : t > 1 ? 1 : t
-      t = Math.pow(t, 1.45)   // gamma>1 reserva el azul oscuro a lo MÁS denso (blástico)
+      let t = (denA[i] - HU_LO) * inv; t = t < 0 ? 0 : t > 1 ? 1 : t
+      t = Math.pow(t, 1.3)   // gamma>1 reserva el azul oscuro a lo MÁS denso (blástico)
       const c = morphoRamp(t)
       const k = i * 3; out[k] = c[0]; out[k + 1] = c[1]; out[k + 2] = c[2]
     }
@@ -305,8 +336,9 @@ function disposeMarkers() {
 function buildMarkers() {
   if (!mesh || !markerGroup) return
   disposeMarkers()
-  // SOLO el modo calor lleva marca (el punto más caliente). «Área» NO usa diana-punto; «Morfología» es forma.
-  if (mode.value !== 'heat' || hotIndex < 0 || scoreHi < 0.07) return
+  // SOLO el modo calor lleva marca (el punto más caliente, SUVmáx). «Área» NO usa
+  // diana-punto (el área ES la lesión); «Morfología» es forma. Sólo si hay captación real.
+  if (mode.value !== 'heat' || hotIndex < 0 || hotSuv < THR_SUV) return
   const geo = mesh.geometry
   const posA = geo.getAttribute('position') as THREE.BufferAttribute
   const norA = geo.getAttribute('normal') as THREE.BufferAttribute | undefined
@@ -330,7 +362,10 @@ function buildMarkers() {
 
 function load(key: string) {
   loading.value = true; failed.value = false; curKey = key
-  new PLYLoader().load(`/metastasis/mesh/${key}.ply`, (geo) => {
+  const loader = new PLYLoader()
+  // canales float REALES por vértice → geometry.attributes.density / .fdg / .ga (itemSize 1)
+  loader.setCustomPropertyNameMapping({ density: ['density_hu'], fdg: ['suv_fdg'], ga: ['suv_ga'] })
+  loader.load(`/metastasis/mesh/${key}.ply`, (geo) => {
     try {
       if (curKey !== key) return
       // Normales recalculadas del winding (la reconstrucción trae winding inconsistente);
@@ -455,9 +490,9 @@ onBeforeUnmount(() => {
       <p class="bv-cap">
         <template v-if="mode === 'area'">
           {{ L('Reconstrucción del CT · arrastra para girar · rueda para acercar', 'Reconstruction from the CT · drag to rotate · scroll to zoom') }}<br>
-          <span :style="{ color: C_REC }">●</span> {{ L('receptor · Galio', 'receptor · gallium') }} ·
-          <span :style="{ color: C_FDG }">●</span> {{ L('azúcar · FDG', 'sugar · FDG') }}
-          <span style="color:#7c8694"> · {{ L('Área de captación real (PET) sobre el hueso — aproximada por la resolución del PET (~4–5 mm) y el co-registro; muestra la zona, no el borde exacto.', 'Real PET uptake area on the bone — approximated by the PET resolution (~4–5 mm) and the co-registration; it shows the zone, not the exact edge.') }}</span>
+          <span :style="{ color: C_REC }">●</span> {{ L('violeta · receptor (Galio)', 'violet · receptor (gallium)') }} ·
+          <span :style="{ color: C_FDG }">●</span> {{ L('naranja · azúcar (FDG)', 'orange · sugar (FDG)') }}
+          <span style="color:#7c8694"> · {{ L('Área de captación real (PET) sobre el hueso — SUV ≥ ~2.5; difusa por la resolución del PET (~4–5 mm). El Galio es un proxy aproximado por ahora.', 'Real PET uptake area on the bone — SUV ≥ ~2.5; diffuse due to PET resolution (~4–5 mm). Gallium is an approximate proxy for now.') }}</span>
         </template>
 
         <template v-else-if="mode === 'heat'">
@@ -466,14 +501,14 @@ onBeforeUnmount(() => {
           <span style="color:#0db9c8">●</span> <span style="color:#e8e030">●</span>
           <span style="color:#f58a1a">●</span> <span style="color:#de1c1c">●</span> {{ L('caliente', 'hot') }} ·
           <span style="color:#cdd5e0">○ {{ L('punto más caliente (SUVmáx)', 'hottest point (SUVmax)') }}</span>
-          <span style="color:#7c8694"> · {{ L('intensidad de captación (orientativa).', 'uptake intensity (indicative).') }}</span>
+          <span style="color:#7c8694"> · {{ L('Intensidad de captación (SUV real); rampa fría→caliente. El Galio es un proxy aproximado por ahora.', 'Uptake intensity (real SUV); cool→hot ramp. Gallium is an approximate proxy for now.') }}</span>
         </template>
 
         <template v-else>
           {{ L('Reconstrucción del CT · arrastra para girar · rueda para acercar', 'Reconstruction from the CT · drag to rotate · scroll to zoom') }}<br>
           <span style="color:#9c794a">●</span> {{ L('tostado · hueso normal', 'tan · normal bone') }} →
           <span style="color:#2c5cb2">●</span> {{ L('azul oscuro · blástico (denso)', 'dark blue · blastic (dense)') }}
-          <span style="color:#7c8694"> · {{ L('realce de densidad del CT — blástico (denso) resaltado; orientativo, no es una medida (HU).', 'CT density enhancement — blastic (dense) highlighted; indicative, not a measurement (HU).') }}</span>
+          <span style="color:#7c8694"> · {{ L('Densidad real del CT (HU): el hueso denso/blástico resalta en azul oscuro. Orientativo para la factibilidad de biopsia (el blástico denso rinde menos tejido).', 'Real CT density (HU): dense/blastic bone stands out in dark blue. Indicative of biopsy feasibility (dense blastic bone yields less tissue).') }}</span>
         </template>
       </p>
     </template>
