@@ -17,13 +17,22 @@
  * se distingue como heat sobre el blanco mate, mientras el hueso blanco/marfil queda
  * intacto. No toca el material: sigue mate, no vuelve a cristal.
  *
- * MARCADOR (remate, sólo en esta vista 3D principal): una DIANA limpia y fina —
- * anillo del color del trazador (SIN borde blanco grueso de pegatina) con centro
- * transparente para no tapar la textura, y un punto central diminuto que fija el
- * centroide. Es un sprite (siempre de cara a la cámara) con depthTest:false +
- * renderOrder alto → no se pierde al girar aunque el hueso quede delante. Tamaño
- * ∝ SUVmáx, contenido. Si co-localizan receptor y FDG se dibuja UNA sola diana, en
- * el color del trazador dominante, para no saturar. Marca la ZONA (aprox.), rotulada.
+ * MARCADOR (remate, sólo en esta vista 3D principal): un DISCO plano pequeño INTEGRADO
+ * en la superficie del hueso (feedback de la paciente: "menos invasivo, más integrado
+ * en la pieza", ya no una pegatina/HUD flotante). Se coloca en el punto de superficie
+ * que cubre la lesión —raycast desde la cámara hacia el centroide de captación, primer
+ * impacto = cara visible sobre la zona (con respaldo radial desde el centro si fallara)—
+ * y se ORIENTA a la normal de la superficie (su cara mira hacia fuera, siguiendo la
+ * inclinación de la pieza), pegado con un offset mínimo. (Probé THREE.DecalGeometry,
+ * la opción preferente, pero sobre la curvatura alta de las vértebras el decal se
+ * RASGABA en barras inconexas → descartado por robustez; el disco orientado no rasga.)
+ * El trazo es TENUE: mancha radial suave + anillo finísimo + punto central, opacidad
+ * baja, en el color del trazador → complementa la textura, no la tapa. depthTest:true
+ * (la profundidad la escribe el HUESO, no el marcador) → cuando la lesión queda en la
+ * cara TRASERA al girar, el hueso OCLUYE el marcador: se comporta como parte del 3D.
+ * Cambia el criterio anterior de "nunca-perdido": ahora prima la INTEGRACIÓN (la mancha
+ * de color de la textura ya indica la zona aunque el punto quede oculto). Una sola
+ * marca, en el trazador dominante; tamaño ∝ SUVmáx, contenido. Marca la ZONA (aprox.).
  */
 import * as THREE from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
@@ -184,50 +193,120 @@ function uptakeCentroids(geo: THREE.BufferGeometry) {
   warmPos = ww > 1e-4 ? clampTo(new THREE.Vector3(wx / ww, wy / ww, wz / ww)) : center.clone()
 }
 
-/* ---------- marcador = DIANA limpia y fina del color del trazador ----------
-   Decisión de experto: un ANILLO fino (no un disco) + un punto central diminuto.
-   Por qué el anillo: rodea la zona de captación SIN taparla (el centro es
-   transparente → la textura/heat se sigue viendo dentro), y es el convenio de
-   "región de interés" en imagen médica → se lee como "aquí está la lesión" con
-   precisión. El punto central fija el centroide (remata). SIN borde blanco grueso
-   tipo pegatina (rechazado): trazo del propio color del trazador, alfa ~0.9, fino.
-   Blending NORMAL (no aditivo) → línea nítida, no un glow difuso. */
-function ringTexture(hex: string): THREE.CanvasTexture {
+/* ---------- marcador = DISCO plano integrado en la superficie ----------
+   Decisión de experto (feedback: "menos invasivo, más integrado en la pieza"): NO un
+   sprite/HUD que siempre mira a cámara y nunca se ocluye, sino un DISCO plano pequeño
+   colocado en el punto de superficie sobre la lesión y ORIENTADO a la normal (su cara
+   mira hacia fuera siguiendo la inclinación de la pieza), pegado con un offset mínimo.
+   Trazo TENUE del color del trazador con bordes suaves; depthTest:true → el hueso lo
+   OCLUYE al girar detrás (parte del 3D, no overlay). Preferí THREE.DecalGeometry, pero
+   sobre la curvatura alta de las vértebras el decal se RASGABA en barras inconexas; el
+   disco orientado es robusto y no rasga. */
+function hexA(hex: string, a: number): string {
+  const n = parseInt(hex.slice(1), 16)
+  return `rgba(${(n >> 16) & 255},${(n >> 8) & 255},${n & 255},${a})`
+}
+/* trazo: mancha radial suave (energía concentrada en el centro, se desvanece antes del
+   borde) + anillo finísimo a media distancia + punto central diminuto, todo tenue y
+   del color del trazador. Bordes por degradado → "pintado", no pegatina de borde duro. */
+function markerTexture(hex: string): THREE.CanvasTexture {
   const S = 256, cv = document.createElement('canvas'); cv.width = cv.height = S
   const ctx = cv.getContext('2d')!
   const c = S / 2
   ctx.clearRect(0, 0, S, S)
-  ctx.lineCap = 'round'
-  // anillo fino del color del trazador, centro transparente (no tapa la textura)
-  ctx.strokeStyle = hex; ctx.globalAlpha = 0.92; ctx.lineWidth = S * 0.034
-  ctx.beginPath(); ctx.arc(c, c, S * 0.40, 0, Math.PI * 2); ctx.stroke()
-  // punto central diminuto: fija el centroide ("remata"), sin cubrir la zona
-  ctx.globalAlpha = 0.95; ctx.fillStyle = hex
-  ctx.beginPath(); ctx.arc(c, c, S * 0.045, 0, Math.PI * 2); ctx.fill()
+  const g = ctx.createRadialGradient(c, c, 0, c, c, c)
+  g.addColorStop(0, hexA(hex, 0.50))
+  g.addColorStop(0.40, hexA(hex, 0.24))
+  g.addColorStop(0.72, hexA(hex, 0.05))
+  g.addColorStop(1, hexA(hex, 0))
+  ctx.fillStyle = g
+  ctx.beginPath(); ctx.arc(c, c, c, 0, Math.PI * 2); ctx.fill()
+  // anillo finísimo a media distancia → "región de interés" identificable sin dominar
+  ctx.strokeStyle = hex; ctx.globalAlpha = 0.5; ctx.lineWidth = S * 0.016; ctx.lineCap = 'round'
+  ctx.beginPath(); ctx.arc(c, c, S * 0.34, 0, Math.PI * 2); ctx.stroke()
+  // punto central diminuto → fija el centroide
+  ctx.globalAlpha = 0.66; ctx.fillStyle = hex
+  ctx.beginPath(); ctx.arc(c, c, S * 0.03, 0, Math.PI * 2); ctx.fill()
   const t = new THREE.CanvasTexture(cv); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 4
   return t
 }
-function makeSprite(tex: THREE.CanvasTexture, worldSize: number, order: number, opacity = 0.95): THREE.Sprite {
-  // sprite = siempre de cara a la cámara (el anillo nunca se ve "de canto" al girar).
-  // depthTest:false + renderOrder alto → no se pierde aunque el hueso quede delante.
-  // Blending NORMAL → trazo nítido (no un glow difuso), pero no es un disco opaco.
-  const mat = new THREE.SpriteMaterial({ map: tex, transparent: true, opacity, depthTest: false, depthWrite: false, blending: THREE.NormalBlending })
-  const sp = new THREE.Sprite(mat); sp.scale.set(worldSize, worldSize, 1); sp.renderOrder = order
-  return sp
+/* material del marcador: unlit (color del trazador fiel), transparente y tenue.
+   depthTest:true → el hueso lo OCLUYE al girar detrás. depthWrite:false → no perturba
+   la profundidad del hueso. polygonOffset negativo → lo levanta un pelo sobre la
+   superficie y evita z-fighting. DoubleSide → nunca se cula sobre la cara visible. */
+function markerMaterial(hex: string): THREE.MeshBasicMaterial {
+  return new THREE.MeshBasicMaterial({
+    map: markerTexture(hex),
+    transparent: true,
+    opacity: 0.85,
+    depthTest: true,
+    depthWrite: false,
+    polygonOffset: true,
+    polygonOffsetFactor: -4,
+    polygonOffsetUnits: -4,
+    side: THREE.DoubleSide,
+    blending: THREE.NormalBlending,
+    toneMapped: false,
+  })
+}
+/* normal hacia el observador (lado `from`) a partir de un impacto del raycaster. */
+function hitNormal(h: THREE.Intersection, from: THREE.Vector3, fallbackDir: THREE.Vector3): THREE.Vector3 {
+  const n = new THREE.Vector3()
+  if (h.face && mesh) {
+    n.copy(h.face.normal).applyNormalMatrix(new THREE.Matrix3().getNormalMatrix(mesh.matrixWorld)).normalize()
+    if (n.dot(from.clone().sub(h.point)) < 0) n.negate()   // que mire hacia el observador
+  } else { n.copy(fallbackDir).normalize() }
+  return n
+}
+/* punto de superficie que CUBRE la lesión + su normal. El centroide de captación está
+   DENTRO del hueso; lo proyectamos a la superficie así: (1) raycast desde la CÁMARA
+   hacia el centroide → primer impacto = la cara VISIBLE sobre la zona (queda integrado
+   en la vista por defecto y se ocluye al girar detrás); (2) respaldo: raycast radial
+   desde fuera, en la dirección del centroide, por si el rayo de cámara no impacta. */
+function surfaceHit(inner: THREE.Vector3): { point: THREE.Vector3; normal: THREE.Vector3 } | null {
+  if (!mesh || !camera) return null
+  mesh.updateMatrixWorld(true); camera.updateMatrixWorld(true)
+  const camPos = camera.position.clone()
+  const toLesion = inner.clone().sub(camPos)
+  if (toLesion.lengthSq() > 1e-8) {
+    const dir = toLesion.clone().normalize()
+    const hits = new THREE.Raycaster(camPos, dir, 0.01, boneRadius * 12).intersectObject(mesh, false)
+    if (hits.length) return { point: hits[0].point.clone(), normal: hitNormal(hits[0], camPos, dir.clone().negate()) }
+  }
+  // respaldo radial desde el centro (boneCenter ya es el origen)
+  const rad = inner.clone().sub(boneCenter)
+  if (rad.lengthSq() < 1e-8) rad.set(0, 0, 1)
+  rad.normalize()
+  const origin = boneCenter.clone().add(rad.clone().multiplyScalar(boneRadius * 2.2))
+  const hits = new THREE.Raycaster(origin, rad.clone().negate(), 0.01, boneRadius * 4.5).intersectObject(mesh, false)
+  if (!hits.length) return null
+  return { point: hits[0].point.clone(), normal: hitNormal(hits[0], origin, rad) }
+}
+/* DISCO plano pequeño en el punto de superficie, orientado a la normal (robusto: a
+   diferencia del decal, no se rasga sobre curvatura alta). */
+function makeOrientedDisc(point: THREE.Vector3, normal: THREE.Vector3, diameter: number, hex: string): THREE.Mesh {
+  const geo = new THREE.CircleGeometry(diameter / 2, 48)
+  const d = new THREE.Mesh(geo, markerMaterial(hex))
+  d.position.copy(point).add(normal.clone().multiplyScalar(boneRadius * 0.004))   // pegado, offset mínimo
+  d.quaternion.setFromUnitVectors(new THREE.Vector3(0, 0, 1), normal.clone().normalize())  // +Z → normal (mira afuera)
+  d.renderOrder = 5
+  return d
 }
 function disposeMarkers() {
   if (!markerGroup) return
   markerGroup.children.forEach((o) => {
-    const m = (o as THREE.Sprite).material as THREE.SpriteMaterial
-    m.map?.dispose(); m.dispose()
+    const me = o as THREE.Mesh
+    const mt = me.material as THREE.MeshBasicMaterial
+    mt.map?.dispose(); mt.dispose(); me.geometry?.dispose()
   })
   markerGroup.clear()
 }
-/* tamaño del marcador ∝ SUVmáx (acotado), en unidades de mundo. Pequeño y
-   discreto: solo señala la zona, no compite con la forma del hueso. */
+/* diámetro del disco ∝ SUVmáx (acotado). El degradado concentra el trazo visible en el
+   centro (~70% del disco) → la mancha visible queda pequeña y discreta, y el disco es
+   lo bastante pequeño para abrazar la superficie sin separarse en la curvatura. */
 function markerSize(suv: number | null | undefined): number {
   const s = Math.min(Math.max(suv || 0, 0), 14) / 14
-  return boneRadius * (0.20 + 0.26 * s)
+  return boneRadius * (0.20 + 0.14 * s)
 }
 function buildMarkers() {
   if (!mesh || !markerGroup) return
@@ -236,17 +315,17 @@ function buildMarkers() {
   const hasRec = props.dota != null
   const hasFdg = props.fdg != null
   if (!hasRec && !hasFdg) return
-  // UNA sola diana, en el color del trazador DOMINANTE (mayor SUVmáx), para no
-  // saturar cuando receptor y FDG co-localizan: la textura por vértice ya distingue
-  // los dos colores; el marcador sólo remata sobre la zona dominante. Violeta =
-  // receptor (Galio) · naranja = azúcar (FDG). Marca la ZONA (aprox.); caption lo dice.
+  // UNA sola marca, en el color del trazador DOMINANTE (mayor SUVmáx): la textura por
+  // vértice ya distingue receptor (violeta) y azúcar (naranja); la marca sólo remata la
+  // zona dominante, sin saturar. Marca la ZONA (aprox.); el caption lo dice.
   const useRec = hasRec && (!hasFdg || (props.dota ?? 0) >= (props.fdg ?? 0))
-  const color = useRec ? C_REC : C_FDG
-  const pos = useRec ? recPos : warmPos
+  const hex = useRec ? C_REC : C_FDG
+  const inner = useRec ? recPos : warmPos
   const suv = useRec ? props.dota : props.fdg
-  markerGroup.add(positioned(makeSprite(ringTexture(color), markerSize(suv), 20), pos))
+  const hit = surfaceHit(inner)
+  if (!hit) return                                  // sin intersección → sin marca (la textura ya indica la zona)
+  markerGroup.add(makeOrientedDisc(hit.point, hit.normal, markerSize(suv), hex))
 }
-function positioned(sp: THREE.Sprite, p: THREE.Vector3): THREE.Sprite { sp.position.copy(p); return sp }
 
 function load(key: string) {
   loading.value = true; failed.value = false; curKey = key
