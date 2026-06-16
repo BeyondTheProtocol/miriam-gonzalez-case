@@ -66,6 +66,8 @@ interface Lesion {
   source?: 'informe' | 'ambos' | 'ia-david'
   /* lectura de la RMN de columna (cervical/dorsal) — solo donde la RMN cubre el nivel */
   rmn?: { es: string; en: string }
+  /* biopsia previa de ESTE foco (hecho del caso). Honesto y neutral: informa, no concluye. */
+  priorBiopsy?: { es: string; en: string }
 }
 
 /* ------------------------------------------------------------------ */
@@ -182,6 +184,10 @@ const LES: Lesion[] = [
     img: 'crop_iliac',
     what: { es: 'Hueso de la pelvis (ala ilíaca) derecho. Capta los dos trazadores, con más azúcar que receptor.', en: 'Right pelvic bone (iliac wing). Takes up both tracers, more sugar than receptor.' },
     tech: { es: 'DOTATOC 4.32 / FDG 7.71 (previo 7.0, ligero aumento). Mixto, más azúcar que receptor.', en: 'DOTATOC 4.32 / FDG 7.71 (prior 7.0, slight rise). Mixed, more sugar than receptor.' },
+    priorBiopsy: {
+      es: 'Biopsia previa de este foco (26B585): solo dio hueso y músculo, sin tumor evaluable. El hueso blástico denso es difícil de rentabilizar en la biopsia (suele dar poco tejido tumoral).',
+      en: 'Prior biopsy of this focus (26B585): yielded only bone and muscle, no evaluable tumour. Dense blastic bone is hard to make diagnostic on biopsy (it usually yields little tumour tissue).',
+    },
   },
   {
     id: 14, x: 172, y: 585, side: 'R', dota: 3.96, fdg: 9.33, prevFdg: 4.0, load: true, pheno: 'mixAgg', size: '14 × 11',
@@ -700,6 +706,55 @@ const AUTO_NEW_FDG: { suvmax: number; mtv: number; hu: number; morph: string; si
 ]
 function autoOf(le: Lesion) { return AUTO[le.id] || null }
 const selAuto = computed(() => autoOf(sel.value))
+
+/* ------------------------------------------------------------------ */
+/*  Morfología (FORMA del hueso) + MTV — dato de PRIMERA CLASE en la    */
+/*  ficha. La morfología (lítico/blástico/mixto) es el predictor clave  */
+/*  del RENDIMIENTO de la biopsia: el hueso blástico denso suele rendir */
+/*  menos tejido. Es FORMA (densidad CT), no biología ni trazador. Se   */
+/*  deriva de la morfología medida sobre el CT (bloque AUTO) + scler.   */
+/* ------------------------------------------------------------------ */
+type Morph = 'blástica' | 'lítica' | 'mixta'
+function morphCat(le: Lesion): Morph | null {
+  const cats = new Set<Morph>()
+  const push = (s?: string) => {
+    if (!s) return
+    if (/blást/i.test(s)) cats.add('blástica')
+    else if (/lít/i.test(s)) cats.add('lítica')
+    else if (/mixt/i.test(s)) cats.add('mixta')
+  }
+  const a = autoOf(le)
+  push(a?.gaMorph); push(a?.fdgMorph)
+  if (le.scler) cats.add('blástica')
+  if (cats.size === 0) return null
+  if (cats.size === 1) return [...cats][0]
+  return 'mixta'   // las dos pruebas ven forma distinta → mixta (honesto)
+}
+function morphLabel(le: Lesion): string {
+  const m = morphCat(le)
+  if (m === 'blástica') return L('blástica (hueso denso)', 'blastic (dense bone)')
+  if (m === 'lítica') return L('lítica (partes blandas / medular)', 'lytic (soft tissue / marrow)')
+  if (m === 'mixta') return L('mixta (densa y lítica a la vez)', 'mixed (dense and lytic at once)')
+  return L('— · por confirmar', '— · to confirm')
+}
+/* nota neutral de rendimiento de tejido por morfología (es FORMA, no biología; informa, no concluye) */
+function morphYieldNote(le: Lesion): string {
+  const m = morphCat(le)
+  if (m === 'blástica') return L('Blástico / escleroso = hueso denso; suele rendir menos tejido tumoral.', 'Blastic / sclerotic = dense bone; usually yields less tumour tissue.')
+  if (m === 'lítica') return L('Lítico / partes blandas; suele rendir más tejido.', 'Lytic / soft tissue; usually yields more tissue.')
+  if (m === 'mixta') return L('Mixta: conviven zonas densas (rinden menos) y líticas (rinden más).', 'Mixed: dense areas (yield less) and lytic areas (yield more) coexist.')
+  return L('Forma por confirmar.', 'Shape to confirm.')
+}
+/* MTV (volumen tumoral metabólico, ml) medido sobre los DICOM, por trazador presente.
+   Orientativo: «cantidad de tumor metabólico». */
+function mtvList(le: Lesion): { tr: string; v: number }[] {
+  const a = autoOf(le)
+  const out: { tr: string; v: number }[] = []
+  if (a?.fdgMtv != null) out.push({ tr: 'FDG', v: a.fdgMtv })
+  if (a?.gaMtv != null) out.push({ tr: 'Ga', v: a.gaMtv })
+  return out
+}
+const hasMtv = computed(() => mtvList(sel.value).length > 0)
 /* lesiones con hueso 3D real reconstruido del CT (IA, TotalSegmentator) — frames en
    /metastasis/vertebra. Vértebras y huesos planos. Solo quedan sin reconstruir los 2
    focos «detectados por IA» no confirmados en el informe (#17 costilla, #19). */
@@ -1277,6 +1332,45 @@ const ticks = [
                   </div>
                 </div>
                 <p class="px-3 py-2 text-[10px] text-tinta leading-relaxed border-t border-[rgba(45,27,61,0.08)]">{{ L('«Blástico/escleroso» describe la FORMA del hueso (denso); no es un tercer trazador ni un tercer color. Describe los hallazgos; no concluye.', '“Blastic/sclerotic” describes the SHAPE of the bone (dense); it is not a third tracer or a third colour. It describes the findings; it does not conclude.') }}</p>
+              </div>
+
+              <!-- ===== MORFOLOGÍA (forma del hueso) + MTV · dato de PRIMERA CLASE =====
+                   La morfología (lítico/blástico/mixto) es el predictor clave del
+                   RENDIMIENTO de la biopsia; se promueve aquí desde la verificación.
+                   Es FORMA del hueso (densidad CT), no biología ni trazador. -->
+              <div class="mb-4 rounded-card border border-[rgba(45,27,61,0.12)] bg-cream-card p-3">
+                <p class="text-[11px] font-semibold text-berenjena uppercase tracking-wide mb-2 flex items-center gap-2 flex-wrap">
+                  <span class="inline-block w-2.5 h-2.5 rounded-full" :style="{ background: '#1f6b57' }" />
+                  {{ L('Forma del hueso y cantidad de tumor', 'Bone shape and tumour amount') }}
+                  <span class="status-badge" :style="{ background: 'rgba(31,107,87,0.12)', color: '#1f6b57' }">{{ L('morfología · CT', 'morphology · CT') }}</span>
+                </p>
+                <div class="grid sm:grid-cols-2 gap-3">
+                  <!-- morfología (forma) -->
+                  <div class="rounded-card bg-cream px-3 py-2 border-l-4" :style="{ borderColor: '#1f6b57' }">
+                    <p class="text-[11px] text-tinta">{{ L('Morfología (forma)', 'Morphology (shape)') }}</p>
+                    <p class="font-semibold text-berenjena leading-snug">{{ morphLabel(sel) }}</p>
+                    <p class="text-[12px] text-tinta leading-snug mt-1">{{ morphYieldNote(sel) }}</p>
+                  </div>
+                  <!-- MTV (cantidad de tumor metabólico) -->
+                  <div class="rounded-card bg-cream px-3 py-2 border-l-4" :style="{ borderColor: '#6b6470' }">
+                    <p class="text-[11px] text-tinta">{{ L('Tumor metabólico (MTV)', 'Metabolic tumour (MTV)') }}</p>
+                    <p v-if="hasMtv" class="leading-snug mt-0.5">
+                      <span v-for="(m, i) in mtvList(sel)" :key="i" class="font-mono text-berenjena mr-2">{{ m.tr }} {{ m.v }} ml</span>
+                    </p>
+                    <p v-else class="font-semibold text-tinta mt-0.5">{{ L('— · no medido', '— · not measured') }}</p>
+                    <p class="text-[12px] text-tinta leading-snug mt-1">{{ L('cantidad de tumor metabólico (orientativo)', 'amount of metabolic tumour (indicative)') }}</p>
+                  </div>
+                </div>
+                <p class="text-[10px] text-tinta mt-2 leading-relaxed">{{ L('Es la FORMA del hueso medida sobre el CT (densidad), no la biología ni un trazador. Orientativo para el rendimiento de tejido; describe, no concluye.', 'This is the SHAPE of the bone measured on the CT (density), not the biology or a tracer. Indicative of tissue yield; it describes, it does not conclude.') }}</p>
+              </div>
+
+              <!-- ===== BIOPSIA PREVIA del foco (hecho del caso · honesto, neutral) ===== -->
+              <div v-if="sel.priorBiopsy" class="mb-4 rounded-card border-l-4 px-3 py-3" :style="{ borderLeftColor: '#8a5a1a', background: '#fbf6ec' }">
+                <p class="text-[11px] font-semibold uppercase tracking-wide mb-1 flex items-center gap-2 flex-wrap" :style="{ color: '#8a5a1a' }">
+                  {{ L('Biopsia previa de este foco', 'Prior biopsy of this focus') }}
+                  <span class="status-badge" :style="{ background: '#f0e2c8', color: '#8a5a1a' }">26B585</span>
+                </p>
+                <p class="text-[13px] text-tinta leading-snug">{{ sel.priorBiopsy[lang] }}</p>
               </div>
 
               <!-- capa CLARA -->

@@ -1,9 +1,11 @@
 <script setup lang="ts">
 /**
- * Visor 3D real (WebGL) del hueso reconstruido del CT, con color por vértice
- * unificado: morfología (densidad CT: blástico/marfil) + captación co-registrada
- * (violeta = receptor/Galio, naranja = azúcar/FDG). Rotación libre 360° (todos los
- * ejes) con arrastre; rueda para acercar. Malla PLY en /public/metastasis/mesh.
+ * Visor 3D real (WebGL) del hueso reconstruido del CT, en color HUESO uniforme mate
+ * (marfil): la forma se lee por iluminación, sin tinte de captación por vértice (se
+ * quitó: las "manchitas" de color disperso por el hueso confundían y competían con el
+ * marcador). La captación se señala SOLO con un marcador por foco (ver abajo). Rotación
+ * libre 360° (todos los ejes) con arrastre; rueda para acercar. Malla PLY en
+ * /public/metastasis/mesh.
  *
  * Encuadre: el hueso ENTERO llena el marco (boundingSphere → distancia de cámara
  * con margen pequeño, sensible al aspecto). Material MATE y OPACO (roughness ~0.95,
@@ -11,13 +13,14 @@
  * aspecto de cristal/cera. Las aberturas anatómicas (canal medular / foramen) se
  * respetan, no se rellenan.
  *
- * TEXTURA (indicador primario): la captación co-registrada viene horneada como tinte
- * por vértice (violeta=receptor/Galio, naranja=azúcar/FDG). Antes de pintar realzamos
- * su SATURACIÓN sólo donde hay croma (boostUptakeSaturation) → la mancha de captación
- * se distingue como heat sobre el blanco mate, mientras el hueso blanco/marfil queda
- * intacto. No toca el material: sigue mate, no vuelve a cristal.
+ * SIN TEXTURA DE CAPTACIÓN: el PLY trae la captación horneada como tinte por vértice,
+ * pero NO la pintamos (vertexColors:false + color hueso uniforme) → el hueso queda mate
+ * y limpio, sin manchas de color dispersas que compitan con el marcador. El tinte por
+ * vértice se sigue LEYENDO (no se pinta) sólo para calcular el centroide de captación y
+ * colocar ahí el marcador. La captación como textura difusa se conserva en la vista
+ * «Captación · CT» (fotogramas), no aquí.
  *
- * MARCADOR (remate, sólo en esta vista 3D principal): un DISCO plano pequeño INTEGRADO
+ * MARCADOR (único indicador de captación en esta vista 3D): un DISCO plano pequeño INTEGRADO
  * en la superficie del hueso (feedback de la paciente: "menos invasivo, más integrado
  * en la pieza", ya no una pegatina/HUD flotante). Se coloca en el punto de superficie
  * que cubre la lesión —raycast desde la cámara hacia el centroide de captación, primer
@@ -26,13 +29,12 @@
  * inclinación de la pieza), pegado con un offset mínimo. (Probé THREE.DecalGeometry,
  * la opción preferente, pero sobre la curvatura alta de las vértebras el decal se
  * RASGABA en barras inconexas → descartado por robustez; el disco orientado no rasga.)
- * El trazo es TENUE: mancha radial suave + anillo finísimo + punto central, opacidad
- * baja, en el color del trazador → complementa la textura, no la tapa. depthTest:true
- * (la profundidad la escribe el HUESO, no el marcador) → cuando la lesión queda en la
- * cara TRASERA al girar, el hueso OCLUYE el marcador: se comporta como parte del 3D.
- * Cambia el criterio anterior de "nunca-perdido": ahora prima la INTEGRACIÓN (la mancha
- * de color de la textura ya indica la zona aunque el punto quede oculto). Una sola
- * marca, en el trazador dominante; tamaño ∝ SUVmáx, contenido. Marca la ZONA (aprox.).
+ * El trazo es contenido: mancha radial suave + anillo finísimo + punto central, en el
+ * color del trazador. depthTest:true (la profundidad la escribe el HUESO, no el
+ * marcador) → cuando la lesión queda en la cara TRASERA al girar, el hueso OCLUYE el
+ * marcador: se comporta como parte del 3D (prima la INTEGRACIÓN sobre el "nunca
+ * perdido"). Una sola marca, en el trazador dominante; color = trazador (violeta
+ * receptor / naranja FDG), tamaño ∝ SUVmáx. Marca la ZONA (aprox.).
  */
 import * as THREE from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
@@ -132,36 +134,6 @@ function frameObject(fill = 0.9) {
   controls.update()
 }
 function reframe() { frameObject() }
-
-/* ---------- realce de la TEXTURA: saturación de la captación por vértice ----------
-   El PLY trae la captación como tinte por vértice, pero suave. La realzamos para que
-   la mancha de captación se distinga como heat sobre el blanco mate, SIN tocar el
-   material (sigue mate, no cristal) y SIN teñir el hueso: sólo saturamos donde hay
-   croma. Por vértice: chroma = max−min de canales; un smoothstep apaga el realce en
-   el hueso casi-gris (chroma baja) y lo sube en la captación clara (chroma alta);
-   saturamos alrededor de la luminancia (preserva el brillo → no oscurece, no clip a
-   blanco) → más saturación/contraste, no un color nuevo. */
-function boostUptakeSaturation(geo: THREE.BufferGeometry) {
-  const col = geo.getAttribute('color') as THREE.BufferAttribute | undefined
-  if (!col) return
-  const SAT_MAX = 1.85          // realce máximo de saturación en la captación clara
-  const C0 = 0.045, C1 = 0.16   // umbral de croma: <C0 = hueso (sin tocar) · >C1 = captación plena
-  const lum = (r: number, g: number, b: number) => 0.30 * r + 0.59 * g + 0.11 * b
-  for (let i = 0; i < col.count; i++) {
-    const r = col.getX(i), g = col.getY(i), b = col.getZ(i)
-    const chroma = Math.max(r, g, b) - Math.min(r, g, b)
-    if (chroma <= C0) continue                                  // hueso blanco/marfil: intacto
-    const t = Math.min(1, Math.max(0, (chroma - C0) / (C1 - C0)))
-    const tt = t * t * (3 - 2 * t)                              // smoothstep → rampa suave, sin escalón
-    const sat = 1 + (SAT_MAX - 1) * tt
-    const y = lum(r, g, b)
-    const nr = Math.min(1, Math.max(0, y + (r - y) * sat))
-    const ng = Math.min(1, Math.max(0, y + (g - y) * sat))
-    const nb = Math.min(1, Math.max(0, y + (b - y) * sat))
-    col.setXYZ(i, nr, ng, nb)
-  }
-  col.needsUpdate = true
-}
 
 /* ---------- centroides de captación a partir del tinte por vértice ----------
    La captación PET viene co-registrada como tinte por vértice. No separa limpio,
@@ -348,7 +320,9 @@ function load(key: string) {
         for (let i = 0; i < n; i++) { rgb[i * 3] = colAttr.getX(i); rgb[i * 3 + 1] = colAttr.getY(i); rgb[i * 3 + 2] = colAttr.getZ(i) }
         geo.setAttribute('color', new THREE.BufferAttribute(rgb, 3))
       }
-      boostUptakeSaturation(geo)   // realza la TEXTURA: la captación destaca como heat sobre el blanco mate
+      // NO pintamos el tinte de captación por vértice: el color se conserva en la
+      // geometría sólo para leer el centroide (uptakeCentroids); el hueso se renderiza
+      // en color uniforme (vertexColors:false) → limpio, sin manchitas que confundan.
       if (mesh) { scene.remove(mesh); mesh.geometry.dispose(); (mesh.material as THREE.Material).dispose() }
       disposeMarkers()
       // HUESO MACIZO MATE (como los fotogramas): muy rugoso, sin metal, casi sin
@@ -357,8 +331,12 @@ function load(key: string) {
       // culan caras): robusto frente al winding invertido/inconsistente de la malla
       // reconstruida → nunca se ve "a través" del hueso hacia el interior, gire como
       // gire. Sin transparencia ni alfa: 100% opaco y escribe profundidad.
+      // vertexColors:false + color marfil uniforme → SIN manchitas de captación: el
+      // hueso queda limpio y la forma se lee por iluminación; la captación la marca
+      // sólo el disco (un foco = un marcador claro).
       const mat = new THREE.MeshStandardMaterial({
-        vertexColors: true,
+        color: new THREE.Color(0xdcd3c2),   // marfil/hueso mate, uniforme
+        vertexColors: false,
         roughness: 0.95,
         metalness: 0.0,
         envMapIntensity: 0.08,
@@ -472,13 +450,13 @@ onBeforeUnmount(() => {
         </div>
       </div>
 
-      <!-- leyenda / caption (voz neutral) -->
+      <!-- leyenda / caption (voz neutral): en esta vista el hueso va MATE y limpio (sin
+           tinte de captación por vértice); la captación la indica SÓLO el marcador. -->
       <p class="bv-cap">
-        {{ L('Reconstrucción del CT · arrastra para girar · rueda para acercar', 'Reconstruction from the CT · drag to rotate · scroll to zoom') }}<br>
-        <span style="color:#dbe4f7">●</span> {{ L('blanco denso = blástico (hueso duro)', 'dense white = blastic (hard bone)') }} ·
-        <span :style="{ color: C_REC }">●</span> {{ L('receptor · Galio', 'receptor · gallium') }} ·
-        <span :style="{ color: C_FDG }">●</span> {{ L('azúcar · FDG', 'sugar · FDG') }}
-        <span style="color:#7c8694"> · {{ L('co-registrados sobre el hueso; el marcador señala la zona de captación (aprox.)', 'co-registered on the bone; the marker shows the uptake zone (approx.)') }}</span>
+        {{ L('Reconstrucción del CT · hueso mate · arrastra para girar · rueda para acercar', 'Reconstruction from the CT · matte bone · drag to rotate · scroll to zoom') }}<br>
+        <span :style="{ color: C_REC }">●</span> {{ L('marcador receptor · Galio', 'receptor marker · gallium') }} ·
+        <span :style="{ color: C_FDG }">●</span> {{ L('marcador azúcar · FDG', 'sugar marker · FDG') }}
+        <span style="color:#7c8694"> · {{ L('color del marcador = trazador dominante · tamaño ∝ SUVmáx · señala la zona de captación (aprox.)', 'marker colour = dominant tracer · size ∝ SUVmax · marks the uptake zone (approx.)') }}</span>
       </p>
     </template>
   </div>
