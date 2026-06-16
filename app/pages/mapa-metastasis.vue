@@ -1225,11 +1225,16 @@ const ticks = [
                 <p class="text-[10px] text-tinta mt-2 leading-relaxed">{{ L('Descripción de los hallazgos del foco a partir de los SUV, la tendencia y la morfología del propio foco. No es consejo médico ni una indicación de tratamiento.', 'A description of the focus’s findings from its own SUVs, trend and morphology. Not medical advice or a treatment indication.') }}</p>
               </div>
 
-              <!-- hueso 3D + mapa de calor (científico) -->
+              <!-- hueso 3D reconstruido del CT (real) + captación co-registrada -->
               <div class="mb-4">
-                <p class="eyebrow mb-2 block">{{ L('Anatomía y captación · paso a paso', 'Anatomy & uptake · step by step') }}</p>
+                <p class="eyebrow mb-2 block">{{ L('Hueso reconstruido del CT · captación co-registrada', 'Bone reconstructed from the CT · co-registered uptake') }}</p>
                 <ClientOnly>
-                  <LesionBone3D :le="sel" :all="LES" :vert-key="bone3dKeyOf(sel)" />
+                  <BoneViewer3D :mesh-key="bone3dKeyOf(sel)" :dota="sel.dota" :fdg="sel.fdg" :pheno="sel.pheno" :focus-id="sel.id" />
+                  <template #fallback>
+                    <div class="rounded-lg flex items-center justify-center text-[12px]" style="aspect-ratio:5/4;background:#0d1117;color:#aeb6c2">
+                      {{ L('cargando visor 3D…', 'loading 3D viewer…') }}
+                    </div>
+                  </template>
                 </ClientOnly>
               </div>
 

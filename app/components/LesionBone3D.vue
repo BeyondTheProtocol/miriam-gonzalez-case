@@ -369,9 +369,9 @@ function mup() { mdrag = false }
       </figure>
     </div>
 
-    <!-- PASO 2 · TU HUESO REAL EN 3D (morfología + captación unificadas · rotación libre 360°) -->
+    <!-- PASO 2 · EL HUESO REAL EN 3D (morfología + captación unificadas · rotación libre 360°) -->
     <div v-if="hasFrames">
-      <p class="bn-step">{{ L('2 · Tu hueso real en 3D · gira 360°', '2 · Your real bone in 3D · rotate 360°') }}</p>
+      <p class="bn-step">{{ L('2 · El hueso real en 3D · gira 360°', '2 · The real bone in 3D · rotate 360°') }}</p>
       <figure class="m-0">
         <NuxtErrorBoundary>
           <BoneViewer3D :mesh-key="meshKey" />
@@ -382,7 +382,7 @@ function mup() { mdrag = false }
           </template>
         </NuxtErrorBoundary>
         <figcaption class="bn-cap mt-1.5">
-          {{ L('Reconstruido de tu CT (IA) · arrastra para girar en cualquier dirección · rueda para acercar', 'Reconstructed from your CT (AI) · drag to rotate any direction · scroll to zoom') }}<br>
+          {{ L('Reconstruido del CT (IA) · arrastra para girar en cualquier dirección · rueda para acercar', 'Reconstructed from the CT (AI) · drag to rotate any direction · scroll to zoom') }}<br>
           <span style="color:#dbe4f7">●</span> {{ L('blanco denso = blástico (hueso duro)', 'dense white = blastic (hard bone)') }} · <span style="color:#c061d6">●</span> {{ L('receptor · Galio', 'receptor · gallium') }} · <span style="color:#f08a3a">●</span> {{ L('azúcar · FDG', 'sugar · FDG') }}
         </figcaption>
       </figure>
