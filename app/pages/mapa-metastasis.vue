@@ -1078,9 +1078,17 @@ const ticks = [
           <div class="grid lg:grid-cols-[380px_1fr] gap-8 items-start">
             <!-- ESQUELETO SVG -->
             <div class="card-base !p-4 lg:sticky lg:top-24">
-              <div class="flex justify-between text-[11px] text-tinta px-1 mb-1">
-                <span>{{ L('Derecha del cuerpo', 'Body right') }}</span>
-                <span>{{ L('Izquierda del cuerpo', 'Body left') }}</span>
+              <!-- ORIENTACIÓN · vista anterior (criterio radiológico/PET, el
+                   mismo de las MIP): se mira a la persona DE FRENTE, así que la
+                   DERECHA del cuerpo se dibuja a la IZQUIERDA de la imagen. La
+                   banda lo dice explícito para que un médico lo lea como
+                   convención estándar y un lego no lo malinterprete. -->
+              <p class="text-[10px] text-tinta leading-snug px-1 mb-1.5">
+                {{ L('Vista de frente · la derecha del cuerpo queda a tu izquierda', 'Front view · the body’s right is on your left') }}
+              </p>
+              <div class="flex justify-between text-[11px] font-semibold text-berenjena px-1 mb-1">
+                <span>{{ L('Dcha. del cuerpo', 'Body’s right') }}</span>
+                <span>{{ L('Izq. del cuerpo', 'Body’s left') }}</span>
               </div>
               <svg viewBox="0 0 440 700" class="w-full" role="img" :aria-label="L('Esquema del esqueleto con las lesiones', 'Skeleton schematic with the lesions')">
                 <defs>
