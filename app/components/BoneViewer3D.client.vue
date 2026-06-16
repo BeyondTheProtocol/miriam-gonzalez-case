@@ -6,14 +6,24 @@
  * ejes) con arrastre; rueda para acercar. Malla PLY en /public/metastasis/mesh.
  *
  * Encuadre: el hueso ENTERO llena el marco (boundingSphere → distancia de cámara
- * con margen pequeño, sensible al aspecto). Hueso macizo y opaco; las aberturas
- * anatómicas (canal medular / foramen) se respetan, no se rellenan.
+ * con margen pequeño, sensible al aspecto). Material MATE y OPACO (roughness ~0.95,
+ * sin metal, casi sin entorno) → se lee la forma como en los fotogramas del CT, sin
+ * aspecto de cristal/cera. Las aberturas anatómicas (canal medular / foramen) se
+ * respetan, no se rellenan.
  *
- * Marcador de captación: sprite billboard SIEMPRE visible (depthTest:false,
- * renderOrder alto) anclado a la ZONA de captación del foco — el centroide de la
- * malla ponderado por el tinte del trazador co-registrado (violeta=receptor,
- * naranja=FDG). Tamaño ∝ SUVmáx. No finge precisión sub-milimétrica: es la zona,
- * y se rotula como aproximada.
+ * TEXTURA (indicador primario): la captación co-registrada viene horneada como tinte
+ * por vértice (violeta=receptor/Galio, naranja=azúcar/FDG). Antes de pintar realzamos
+ * su SATURACIÓN sólo donde hay croma (boostUptakeSaturation) → la mancha de captación
+ * se distingue como heat sobre el blanco mate, mientras el hueso blanco/marfil queda
+ * intacto. No toca el material: sigue mate, no vuelve a cristal.
+ *
+ * MARCADOR (remate, sólo en esta vista 3D principal): una DIANA limpia y fina —
+ * anillo del color del trazador (SIN borde blanco grueso de pegatina) con centro
+ * transparente para no tapar la textura, y un punto central diminuto que fija el
+ * centroide. Es un sprite (siempre de cara a la cámara) con depthTest:false +
+ * renderOrder alto → no se pierde al girar aunque el hueso quede delante. Tamaño
+ * ∝ SUVmáx, contenido. Si co-localizan receptor y FDG se dibuja UNA sola diana, en
+ * el color del trazador dominante, para no saturar. Marca la ZONA (aprox.), rotulada.
  */
 import * as THREE from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
@@ -70,16 +80,19 @@ function init() {
   renderer = new THREE.WebGLRenderer({ antialias: true })
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
   renderer.outputColorSpace = THREE.SRGBColorSpace
-  renderer.toneMapping = THREE.ACESFilmicToneMapping       // filmic roll-off → el hueso no se "quema"
-  renderer.toneMappingExposure = 1.05
+  renderer.toneMapping = THREE.ACESFilmicToneMapping       // filmic roll-off → el hueso blanco no se "quema"
+  renderer.toneMappingExposure = 0.95                      // <1: evita el glaseado a blanco
   el.appendChild(renderer.domElement)
-  // entorno suave (room) para reflejos sutiles → la superficie ósea gana volumen
+  // ambiente tenue (room) SOLO como relleno difuso — sin reflejos especulares: con
+  // roughness ~0.95 + envMapIntensity ~0.08 el entorno no crea brillos de cristal,
+  // solo aporta un poco de luz indirecta para que el volumen no quede plano.
   pmrem = new THREE.PMREMGenerator(renderer)
   scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture
-  scene.add(new THREE.HemisphereLight(0xffffff, 0x202028, 0.65))
-  const key = new THREE.DirectionalLight(0xfff4ea, 1.45); key.position.set(-0.6, 0.9, 1.0); scene.add(key)
-  const fill = new THREE.DirectionalLight(0xbcd0ff, 0.40); fill.position.set(0.7, -0.2, -0.7); scene.add(fill)
-  const rim = new THREE.DirectionalLight(0xffffff, 0.55); rim.position.set(0.2, 0.4, -1.0); scene.add(rim) // contraluz para separar del fondo
+  // luz difusa/hemisférica protagonista → look de HUESO MACIZO mate (como los fotogramas)
+  scene.add(new THREE.HemisphereLight(0xffffff, 0x1a1d26, 0.95))
+  const key = new THREE.DirectionalLight(0xfff4ea, 0.85); key.position.set(-0.6, 0.9, 1.0); scene.add(key)
+  const fill = new THREE.DirectionalLight(0xbcd0ff, 0.38); fill.position.set(0.7, -0.2, -0.7); scene.add(fill)
+  const rim = new THREE.DirectionalLight(0xffffff, 0.28); rim.position.set(0.2, 0.4, -1.0); scene.add(rim) // contraluz suave para separar del fondo (no especular)
   controls = new OrbitControls(camera, renderer.domElement)
   controls.enableDamping = true; controls.dampingFactor = 0.08; controls.enablePan = false
   controls.rotateSpeed = 0.9; controls.minDistance = 1; controls.maxDistance = 100000
@@ -111,6 +124,36 @@ function frameObject(fill = 0.9) {
 }
 function reframe() { frameObject() }
 
+/* ---------- realce de la TEXTURA: saturación de la captación por vértice ----------
+   El PLY trae la captación como tinte por vértice, pero suave. La realzamos para que
+   la mancha de captación se distinga como heat sobre el blanco mate, SIN tocar el
+   material (sigue mate, no cristal) y SIN teñir el hueso: sólo saturamos donde hay
+   croma. Por vértice: chroma = max−min de canales; un smoothstep apaga el realce en
+   el hueso casi-gris (chroma baja) y lo sube en la captación clara (chroma alta);
+   saturamos alrededor de la luminancia (preserva el brillo → no oscurece, no clip a
+   blanco) → más saturación/contraste, no un color nuevo. */
+function boostUptakeSaturation(geo: THREE.BufferGeometry) {
+  const col = geo.getAttribute('color') as THREE.BufferAttribute | undefined
+  if (!col) return
+  const SAT_MAX = 1.85          // realce máximo de saturación en la captación clara
+  const C0 = 0.045, C1 = 0.16   // umbral de croma: <C0 = hueso (sin tocar) · >C1 = captación plena
+  const lum = (r: number, g: number, b: number) => 0.30 * r + 0.59 * g + 0.11 * b
+  for (let i = 0; i < col.count; i++) {
+    const r = col.getX(i), g = col.getY(i), b = col.getZ(i)
+    const chroma = Math.max(r, g, b) - Math.min(r, g, b)
+    if (chroma <= C0) continue                                  // hueso blanco/marfil: intacto
+    const t = Math.min(1, Math.max(0, (chroma - C0) / (C1 - C0)))
+    const tt = t * t * (3 - 2 * t)                              // smoothstep → rampa suave, sin escalón
+    const sat = 1 + (SAT_MAX - 1) * tt
+    const y = lum(r, g, b)
+    const nr = Math.min(1, Math.max(0, y + (r - y) * sat))
+    const ng = Math.min(1, Math.max(0, y + (g - y) * sat))
+    const nb = Math.min(1, Math.max(0, y + (b - y) * sat))
+    col.setXYZ(i, nr, ng, nb)
+  }
+  col.needsUpdate = true
+}
+
 /* ---------- centroides de captación a partir del tinte por vértice ----------
    La captación PET viene co-registrada como tinte por vértice. No separa limpio,
    así que ponderamos: receptor = verde suprimido frente a rojo/azul (magenta);
@@ -141,31 +184,34 @@ function uptakeCentroids(geo: THREE.BufferGeometry) {
   warmPos = ww > 1e-4 ? clampTo(new THREE.Vector3(wx / ww, wy / ww, wz / ww)) : center.clone()
 }
 
-/* ---------- sprites de marcador (canvas → textura) ---------- */
-function discTexture(hex: string, hollow: boolean): THREE.CanvasTexture {
-  const S = 128, cv = document.createElement('canvas'); cv.width = cv.height = S
+/* ---------- marcador = DIANA limpia y fina del color del trazador ----------
+   Decisión de experto: un ANILLO fino (no un disco) + un punto central diminuto.
+   Por qué el anillo: rodea la zona de captación SIN taparla (el centro es
+   transparente → la textura/heat se sigue viendo dentro), y es el convenio de
+   "región de interés" en imagen médica → se lee como "aquí está la lesión" con
+   precisión. El punto central fija el centroide (remata). SIN borde blanco grueso
+   tipo pegatina (rechazado): trazo del propio color del trazador, alfa ~0.9, fino.
+   Blending NORMAL (no aditivo) → línea nítida, no un glow difuso. */
+function ringTexture(hex: string): THREE.CanvasTexture {
+  const S = 256, cv = document.createElement('canvas'); cv.width = cv.height = S
   const ctx = cv.getContext('2d')!
   const c = S / 2
-  // halo suave
-  const g = ctx.createRadialGradient(c, c, 0, c, c, c)
-  g.addColorStop(0, hex + 'cc'); g.addColorStop(0.45, hex + '66'); g.addColorStop(1, hex + '00')
-  ctx.fillStyle = g; ctx.beginPath(); ctx.arc(c, c, c, 0, Math.PI * 2); ctx.fill()
-  if (hollow) {
-    // anillo (para el segundo trazador → lectura bicolor cuando co-localizan)
-    ctx.lineWidth = S * 0.12; ctx.strokeStyle = '#ffffff'
-    ctx.beginPath(); ctx.arc(c, c, c * 0.5, 0, Math.PI * 2); ctx.stroke()
-    ctx.lineWidth = S * 0.085; ctx.strokeStyle = hex
-    ctx.beginPath(); ctx.arc(c, c, c * 0.5, 0, Math.PI * 2); ctx.stroke()
-  } else {
-    // núcleo sólido con borde blanco
-    ctx.beginPath(); ctx.arc(c, c, c * 0.34, 0, Math.PI * 2)
-    ctx.fillStyle = hex; ctx.fill(); ctx.lineWidth = S * 0.05; ctx.strokeStyle = '#ffffff'; ctx.stroke()
-  }
+  ctx.clearRect(0, 0, S, S)
+  ctx.lineCap = 'round'
+  // anillo fino del color del trazador, centro transparente (no tapa la textura)
+  ctx.strokeStyle = hex; ctx.globalAlpha = 0.92; ctx.lineWidth = S * 0.034
+  ctx.beginPath(); ctx.arc(c, c, S * 0.40, 0, Math.PI * 2); ctx.stroke()
+  // punto central diminuto: fija el centroide ("remata"), sin cubrir la zona
+  ctx.globalAlpha = 0.95; ctx.fillStyle = hex
+  ctx.beginPath(); ctx.arc(c, c, S * 0.045, 0, Math.PI * 2); ctx.fill()
   const t = new THREE.CanvasTexture(cv); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 4
   return t
 }
-function makeSprite(tex: THREE.CanvasTexture, worldSize: number, order: number): THREE.Sprite {
-  const mat = new THREE.SpriteMaterial({ map: tex, transparent: true, depthTest: false, depthWrite: false })
+function makeSprite(tex: THREE.CanvasTexture, worldSize: number, order: number, opacity = 0.95): THREE.Sprite {
+  // sprite = siempre de cara a la cámara (el anillo nunca se ve "de canto" al girar).
+  // depthTest:false + renderOrder alto → no se pierde aunque el hueso quede delante.
+  // Blending NORMAL → trazo nítido (no un glow difuso), pero no es un disco opaco.
+  const mat = new THREE.SpriteMaterial({ map: tex, transparent: true, opacity, depthTest: false, depthWrite: false, blending: THREE.NormalBlending })
   const sp = new THREE.Sprite(mat); sp.scale.set(worldSize, worldSize, 1); sp.renderOrder = order
   return sp
 }
@@ -177,10 +223,11 @@ function disposeMarkers() {
   })
   markerGroup.clear()
 }
-/* tamaño del marcador ∝ SUVmáx (acotado), en unidades de mundo */
+/* tamaño del marcador ∝ SUVmáx (acotado), en unidades de mundo. Pequeño y
+   discreto: solo señala la zona, no compite con la forma del hueso. */
 function markerSize(suv: number | null | undefined): number {
   const s = Math.min(Math.max(suv || 0, 0), 14) / 14
-  return boneRadius * (0.30 + 0.42 * s)
+  return boneRadius * (0.20 + 0.26 * s)
 }
 function buildMarkers() {
   if (!mesh || !markerGroup) return
@@ -188,11 +235,16 @@ function buildMarkers() {
   markerGroup.position.set(0, 0, 0)   // recPos/warmPos ya están en coords. de escena (mesh recentrado)
   const hasRec = props.dota != null
   const hasFdg = props.fdg != null
-  // receptor = disco sólido violeta · FDG = anillo naranja (bicolor al co-localizar)
-  // receptor = disco sólido violeta · FDG = anillo naranja (bicolor al co-localizar).
-  // Honestidad: marcan la ZONA de captación (aprox.); el caption lo deja explícito.
-  if (hasRec) markerGroup.add(positioned(makeSprite(discTexture(C_REC, false), markerSize(props.dota), 20), recPos))
-  if (hasFdg) markerGroup.add(positioned(makeSprite(discTexture(C_FDG, true), markerSize(props.fdg), 21), warmPos))
+  if (!hasRec && !hasFdg) return
+  // UNA sola diana, en el color del trazador DOMINANTE (mayor SUVmáx), para no
+  // saturar cuando receptor y FDG co-localizan: la textura por vértice ya distingue
+  // los dos colores; el marcador sólo remata sobre la zona dominante. Violeta =
+  // receptor (Galio) · naranja = azúcar (FDG). Marca la ZONA (aprox.); caption lo dice.
+  const useRec = hasRec && (!hasFdg || (props.dota ?? 0) >= (props.fdg ?? 0))
+  const color = useRec ? C_REC : C_FDG
+  const pos = useRec ? recPos : warmPos
+  const suv = useRec ? props.dota : props.fdg
+  markerGroup.add(positioned(makeSprite(ringTexture(color), markerSize(suv), 20), pos))
 }
 function positioned(sp: THREE.Sprite, p: THREE.Vector3): THREE.Sprite { sp.position.copy(p); return sp }
 
@@ -202,9 +254,30 @@ function load(key: string) {
     try {
       if (curKey !== key) return                  // llegó tarde: hay una carga más reciente
       if (!geo.getAttribute('normal')) geo.computeVertexNormals()
+      // Descartar alfa por vértice si el PLY trae color RGBA: una alfa <1 podría
+      // translucir el hueso ("zonas transparentes"). Forzamos color RGB opaco.
+      const colAttr = geo.getAttribute('color') as THREE.BufferAttribute | undefined
+      if (colAttr && colAttr.itemSize === 4) {
+        const n = colAttr.count, rgb = new Float32Array(n * 3)
+        for (let i = 0; i < n; i++) { rgb[i * 3] = colAttr.getX(i); rgb[i * 3 + 1] = colAttr.getY(i); rgb[i * 3 + 2] = colAttr.getZ(i) }
+        geo.setAttribute('color', new THREE.BufferAttribute(rgb, 3))
+      }
+      boostUptakeSaturation(geo)   // realza la TEXTURA: la captación destaca como heat sobre el blanco mate
       if (mesh) { scene.remove(mesh); mesh.geometry.dispose(); (mesh.material as THREE.Material).dispose() }
       disposeMarkers()
-      const mat = new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.58, metalness: 0.0, envMapIntensity: 0.55 })
+      // HUESO MACIZO MATE (como los fotogramas): muy rugoso, sin metal, casi sin
+      // entorno → sin reflejos de cristal ni cera. Opaco y de una sola cara, con
+      // escritura de profundidad → la forma se lee, sin zonas transparentes.
+      const mat = new THREE.MeshStandardMaterial({
+        vertexColors: true,
+        roughness: 0.95,
+        metalness: 0.0,
+        envMapIntensity: 0.08,
+        transparent: false,
+        opacity: 1,
+        depthWrite: true,
+        side: THREE.FrontSide,
+      })
       mesh = new THREE.Mesh(geo, mat); scene.add(mesh)
       geo.computeBoundingSphere(); const s = geo.boundingSphere
       boneRadius = (s && s.radius) || 50
@@ -313,7 +386,7 @@ onBeforeUnmount(() => {
         {{ L('Reconstrucción del CT · arrastra para girar · rueda para acercar', 'Reconstruction from the CT · drag to rotate · scroll to zoom') }}<br>
         <span style="color:#dbe4f7">●</span> {{ L('blanco denso = blástico (hueso duro)', 'dense white = blastic (hard bone)') }} ·
         <span :style="{ color: C_REC }">●</span> {{ L('receptor · Galio', 'receptor · gallium') }} ·
-        <span :style="{ color: C_FDG }">○</span> {{ L('azúcar · FDG', 'sugar · FDG') }}
+        <span :style="{ color: C_FDG }">●</span> {{ L('azúcar · FDG', 'sugar · FDG') }}
         <span style="color:#7c8694"> · {{ L('co-registrados sobre el hueso; el marcador señala la zona de captación (aprox.)', 'co-registered on the bone; the marker shows the uptake zone (approx.)') }}</span>
       </p>
     </template>

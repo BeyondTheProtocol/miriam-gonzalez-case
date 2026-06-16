@@ -727,6 +727,10 @@ const BONE3D_VIEWS: { id: Bone3dView; es: string; en: string }[] = [
   { id: 'uptakect', es: 'Captación · CT', en: 'Uptake · CT' },
   { id: 'morpho', es: 'Morfología', en: 'Morphology' },
 ]
+/* Por defecto «Captación · 3D» (WebGL interactivo): ahora el hueso es mate/opaco,
+   la captación se lee como TEXTURA (heat por vértice) sobre el blanco mate y un
+   marcador limpio (diana fina) remata de señalar la zona — es la vista bandera.
+   «Captación · CT» y «Morfología» (fotogramas) quedan como opciones seleccionables. */
 const bone3dView = ref<Bone3dView>('uptake3d')
 const bone3dTablist = ref<HTMLElement | null>(null)
 const bone3dViewAnnounce = computed(() => {
