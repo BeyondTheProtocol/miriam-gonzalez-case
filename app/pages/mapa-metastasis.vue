@@ -64,6 +64,24 @@ interface Lesion {
   tech: { es: string; en: string }
   img?: string
   source?: 'informe' | 'ambos' | 'ia-david'
+  /* lectura de la RMN de columna (cervical/dorsal) — solo donde la RMN cubre el nivel */
+  rmn?: { es: string; en: string }
+}
+
+/* ------------------------------------------------------------------ */
+/*  view = la MEJOR imagen real para cada foco (P0 · enlace foco↔imagen) */
+/*    kind 'axial'   → recorte axial PET/TC, la lesión va centrada (sin marcador)   */
+/*    kind 'sagittal'→ sagital PET del trazador dominante + diana APROXIMADA        */
+/*    kind 'mip'     → MIP de cuerpo entero + diana APROXIMADA (último recurso)      */
+/*  fx/fy = fracción 0-1 del marcador; approx = la posición es estimada por anatomía */
+interface LesionView {
+  src: string
+  fx: number | null
+  fy: number | null
+  zoom: number
+  kind: 'axial' | 'sagittal' | 'mip'
+  approx: boolean
+  tracer: 'ga' | 'fdg' | null
 }
 
 const LES: Lesion[] = [
@@ -94,6 +112,7 @@ const LES: Lesion[] = [
     region: { es: 'Columna dorsal alta', en: 'Upper thoracic spine' },
     what: { es: 'Primera vértebra dorsal, justo bajo el cuello. Foco nuevo: en el PET previo casi no se veía y ahora capta azúcar con fuerza.', en: 'First thoracic vertebra, just below the neck. New focus: barely visible on the prior PET and now strongly sugar-avid.' },
     tech: { es: 'DOTATOC 4.23 / FDG 6.97 (previo 2.8, no significativo). Foco nuevo: más captación de azúcar (FDG) que en el PET previo. Capta más azúcar que receptor.', en: 'DOTATOC 4.23 / FDG 6.97 (prior 2.8, non-significant). New focus: more sugar (FDG) uptake than in the prior PET. More sugar than receptor.' },
+    rmn: { es: 'Nivel dorsal: la RMN de columna cubre esta zona. Forma: componente blástico (hueso denso) en la verificación por TC. La forma y la médula ósea se ven mejor en la RMN — míralo en el visor.', en: 'Thoracic level: the spine MRI covers this area. Shape: blastic component (dense bone) on the CT check. Shape and bone marrow are better seen on MRI — view it in the viewer.' },
   },
   {
     id: 5, x: 220, y: 234, side: 'C', dota: 6.17, fdg: null, pheno: 'ne', size: '14 × 10',
@@ -102,6 +121,7 @@ const LES: Lesion[] = [
     region: { es: 'Columna dorsal media', en: 'Mid-thoracic spine' },
     what: { es: 'Cuerpo de una vértebra de la mitad de la espalda. Captación moderada-alta del receptor (Galio), sin azúcar (FDG).', en: 'Body of a mid-back vertebra. Moderate-high receptor (gallium) uptake, no sugar (FDG).' },
     tech: { es: 'DOTATOC SUVmáx 6.17, sin FDG. Capta solo el receptor (Galio), de intensidad moderada.', en: 'DOTATOC SUVmax 6.17, no FDG. Takes up only the receptor (gallium), moderate intensity.' },
+    rmn: { es: 'Nivel dorsal: la RMN de columna cubre esta zona. Forma: lesión blástica (hueso denso). Es un dato de FORMA, no un tercer color.', en: 'Thoracic level: the spine MRI covers this area. Shape: blastic lesion (dense bone). This is a SHAPE finding, not a third colour.' },
   },
   {
     id: 6, x: 212, y: 313, side: 'R', dota: 1.37, fdg: null, pheno: 'ne',
@@ -117,6 +137,7 @@ const LES: Lesion[] = [
     img: 'gal_spine',
     what: { es: 'Una de las lesiones más intensas. Es la que más capta el receptor (Galio) de todas, y también capta algo de azúcar, aunque el azúcar ha bajado respecto al PET previo. Hueso denso (blástico).', en: 'One of the most intense lesions. It is the one that takes up the most receptor (gallium) of all, and also takes up some sugar, though sugar dropped versus the prior PET. Dense (blastic) bone.' },
     tech: { es: 'DOTATOC SUVmáx 13.27 (captación de Galio muy intensa) / FDG 7.61 (previo 10.19, en descenso). Mixto: capta mucho más receptor (Galio) que azúcar (FDG). Lesión blástica.', en: 'DOTATOC SUVmax 13.27 (very intense gallium uptake) / FDG 7.61 (prior 10.19, decreasing). Mixed: takes up far more receptor (gallium) than sugar (FDG). Blastic lesion.' },
+    rmn: { es: 'Nivel dorsal: la RMN de columna cubre esta zona. Forma: lesión blástica (hueso denso). El informe de RM describe en D11 extensión al espacio epidural anterior y afectación del canal lateral izquierdo. Es un dato de FORMA, no un tercer color.', en: 'Thoracic level: the spine MRI covers this area. Shape: blastic lesion (dense bone). The MRI report describes anterior epidural extension and left lateral canal compromise at D11. This is a SHAPE finding, not a third colour.' },
   },
   {
     id: 8, x: 237, y: 352, side: 'L', dota: 11.63, fdg: null, pheno: 'ne', size: '13 × 10',
@@ -124,6 +145,7 @@ const LES: Lesion[] = [
     region: { es: 'Unión dorsolumbar', en: 'Thoracolumbar junction' },
     what: { es: 'En la MISMA vértebra que la #7 pero en el pedículo izquierdo (el puente óseo lateral): aquí solo capta el receptor, no azúcar. Misma vértebra, dos comportamientos distintos.', en: 'In the SAME vertebra as #7 but in the left pedicle (the lateral bony bridge): here only the receptor lights up, no sugar. Same vertebra, two different behaviours.' },
     tech: { es: 'DOTATOC SUVmáx 11.63, sin FDG. Receptor-puro intenso. Ilustra la heterogeneidad intra-vértebra junto a la #7.', en: 'DOTATOC SUVmax 11.63, no FDG. Intense receptor-only. Illustrates intra-vertebral heterogeneity alongside #7.' },
+    rmn: { es: 'Misma vértebra D11 (la RMN de columna cubre este nivel). Forma: componente blástico; el detalle de la médula ósea se ve en el visor RMN.', en: 'Same D11 vertebra (the spine MRI covers this level). Shape: blastic component; bone-marrow detail is visible in the MRI viewer.' },
   },
   {
     id: 9, x: 220, y: 392, side: 'C', dota: 3.66, fdg: null, pheno: 'ne', size: '10 × 8',
@@ -289,6 +311,99 @@ function isNewAt(le: Lesion, f: number): boolean {
 const selected = ref<number>(7)
 const filter = ref<'all' | Pheno | 'load'>('all')
 const sel = computed(() => LES.find((l) => l.id === selected.value)!)
+
+/* pestañas de imagen real reconstruida de los DICOM (mip · pet · rmn) */
+const imgTab = ref<'mip' | 'pet' | 'rmn'>('mip')
+
+/* ------------------------------------------------------------------ */
+/*  P0 · Enlace foco ↔ imagen (la MEJOR imagen real de cada foco)      */
+/*  Prioridad: (1) recorte axial centrado · (2) sagital PET del        */
+/*  trazador dominante con diana APROXIMADA por nivel vertebral ·       */
+/*  (3) MIP de cuerpo entero con diana aproximada (último recurso).     */
+/*  Marcadores: fy calibrado sobre los propios sagitales (el foco       */
+/*  gal D11 cae en fy≈0.53; vejiga FDG ≈0.85; cráneo ≈0.05); el resto   */
+/*  se interpola por anatomía. fx por trazador (el sagital FDG va algo  */
+/*  más a la derecha). Honesto: la posición es ESTIMADA, no medida.     */
+const AXIAL_IMGS = new Set(['les05', 'crop_iliac', 'crop_femur'])
+function domTracer(le: Lesion): 'ga' | 'fdg' {
+  if (le.dota == null) return 'fdg'
+  if (le.fdg == null) return 'ga'
+  return le.dota >= le.fdg ? 'ga' : 'fdg'
+}
+/* clave de nivel en columna (vértebra C/D/L) o sacro */
+function spineKey(le: Lesion): string | null {
+  const v = vertLevelKey(le)
+  if (v) return v
+  if (/sacr/i.test(le.region.es) || /sacr/i.test(le.level.es)) return 'SACRO'
+  return null
+}
+/* fy 0-1 (vertical) y fx 0-1 (horizontal) del marcador en el sagital, afinado en gal_spine */
+const SPINE_XY: Record<string, { fx: number; fy: number }> = {
+  C3: { fx: 0.46, fy: 0.235 },
+  C4: { fx: 0.46, fy: 0.255 },
+  D1: { fx: 0.52, fy: 0.33 }, // solo FDG → +0.06
+  D5: { fx: 0.58, fy: 0.42 },
+  D9: { fx: 0.6, fy: 0.5 },
+  D11: { fx: 0.59, fy: 0.55 },
+  L1: { fx: 0.56, fy: 0.6 },
+  L5: { fx: 0.57, fy: 0.72 },
+  SACRO: { fx: 0.52, fy: 0.78 }, // FDG dominante → +0.06
+}
+/* MIP (coronal): lado derecho del cuerpo → izquierda del visor (fx<0.5). Aproximado. */
+const MIP_XY: Record<number, { fx: number; fy: number; tracer: 'ga' | 'fdg' }> = {
+  3: { fx: 0.34, fy: 0.26, tracer: 'ga' }, // escápula derecha (cintura escapular)
+  15: { fx: 0.62, fy: 0.78, tracer: 'fdg' }, // ilíaco izquierdo supraacetabular
+  17: { fx: 0.55, fy: 0.33, tracer: 'fdg' }, // tórax alto / costilla
+  18: { fx: 0.4, fy: 0.74, tracer: 'ga' }, // pélvico / ilíaco-femoral derecho
+  19: { fx: 0.5, fy: 0.28, tracer: 'ga' }, // cervicotorácica, línea media
+}
+function lesionView(le: Lesion): LesionView {
+  // 1) recorte axial real: la lesión ya va centrada → sin marcador
+  if (le.img && AXIAL_IMGS.has(le.img))
+    return { src: `/metastasis/${le.img}.jpg`, fx: null, fy: null, zoom: 1, kind: 'axial', approx: false, tracer: null }
+  // 2) sagital PET del trazador dominante + diana aproximada por nivel vertebral
+  const sk = spineKey(le)
+  if (sk && SPINE_XY[sk]) {
+    const tr = domTracer(le)
+    const base = SPINE_XY[sk]
+    const fx = tr === 'fdg' ? Math.min(base.fx + 0.06, 0.92) : base.fx
+    return { src: tr === 'ga' ? '/metastasis/gal_spine.jpg' : '/metastasis/fdg_spine.jpg', fx, fy: base.fy, zoom: 1, kind: 'sagittal', approx: true, tracer: tr }
+  }
+  // 3) MIP de cuerpo entero + diana aproximada (último recurso)
+  const m = MIP_XY[le.id]
+  if (m)
+    return { src: m.tracer === 'ga' ? '/metastasis/gal_mip_hot.jpg' : '/metastasis/fdg_mip_hot.jpg', fx: m.fx, fy: m.fy, zoom: 1, kind: 'mip', approx: true, tracer: m.tracer }
+  const tr = domTracer(le)
+  return { src: tr === 'ga' ? '/metastasis/gal_mip_hot.jpg' : '/metastasis/fdg_mip_hot.jpg', fx: 0.5, fy: 0.5, zoom: 1, kind: 'mip', approx: true, tracer: tr }
+}
+const selView = computed(() => lesionView(sel.value))
+const selViewCaption = computed(() => {
+  const v = selView.value
+  const tr = v.tracer === 'ga' ? L('Galio-68 DOTATOC (receptor)', 'Gallium-68 DOTATOC (receptor)') : v.tracer === 'fdg' ? L('FDG (azúcar)', 'FDG (sugar)') : L('PET/TC', 'PET/CT')
+  if (v.kind === 'axial')
+    return L('Corte axial PET/TC reconstruido de los DICOM — la lesión va centrada.', 'Axial PET/CT slice reconstructed from the DICOM — the lesion is centered.')
+  if (v.kind === 'sagittal')
+    return L('Sagital PET · ' + tr + ' (reconstruido de los DICOM). La diana marca la ubicación APROXIMADA por nivel vertebral.', 'Sagittal PET · ' + tr + ' (reconstructed from the DICOM). The target marks the APPROXIMATE location by vertebral level.')
+  return L('MIP de cuerpo entero · ' + tr + ' (reconstruido de los DICOM). La diana marca la ubicación APROXIMADA.', 'Whole-body MIP · ' + tr + ' (reconstructed from the DICOM). The target marks the APPROXIMATE location.')
+})
+
+/* ------------------------------------------------------------------ */
+/*  P1 · La lectura RMN (forma) por foco. La RMN disponible cubre        */
+/*  cervical y dorsal; en lumbar/sacro/pelvis/cadera no cubre el nivel.  */
+function mriCovers(le: Lesion): boolean {
+  const v = vertLevelKey(le)
+  if (v) { const lvl = v[0]; return lvl === 'C' || lvl === 'D' }
+  return /cervico|dorsal/i.test(le.region.es) && !/lumbar|sacro|pelvis|cadera|escapular|costal/i.test(le.region.es)
+}
+function rmnNote(le: Lesion): string {
+  if (le.rmn) return le.rmn[lang.value]
+  return L('La RMN de columna cubre este nivel (cervical/dorsal). El detalle de la forma y la médula ósea se ve en el visor.',
+           'The spine MRI covers this level (cervical/thoracic). Shape and bone-marrow detail are visible in the viewer.')
+}
+function goToMRI() {
+  imgTab.value = 'rmn'
+  if (import.meta.client) nextTick(() => document.getElementById('imagen')?.scrollIntoView({ behavior: 'smooth', block: 'start' }))
+}
 
 function visible(le: Lesion): boolean {
   if (filter.value === 'all') return true
@@ -469,9 +584,6 @@ const dotaRange = computed(() => suvRange(confirmedFoci.value.map((l) => l.dota)
 const fdgRange = computed(() => suvRange(confirmedFoci.value.map((l) => l.fdg)))
 const dotaRangeLabel = computed(() => (dotaRange.value ? dotaRange.value.min.toFixed(1) + '–' + dotaRange.value.max.toFixed(1) : '—'))
 const fdgRangeLabel = computed(() => (fdgRange.value ? fdgRange.value.min.toFixed(1) + '–' + fdgRange.value.max.toFixed(1) : '—'))
-
-/* pestañas de imagen real reconstruida de los DICOM */
-const imgTab = ref<'mip' | 'pet' | 'rmn'>('mip')
 
 /* ------------------------------------------------------------------ */
 /*  Mapa de fenotipo — dispersión SUV FDG (x) vs SUV Galio/receptor (y) */
@@ -1056,6 +1168,45 @@ const ticks = [
                 </div>
               </div>
 
+              <!-- ===== LAS TRES LECTURAS · una por prueba (etiquetadas por prueba) ===== -->
+              <div class="mb-4 rounded-card border border-[rgba(45,27,61,0.12)] overflow-hidden">
+                <div class="px-3 py-2 bg-[rgba(45,27,61,0.04)] border-b border-[rgba(45,27,61,0.08)]">
+                  <p class="text-[11px] font-semibold text-berenjena uppercase tracking-wide">{{ L('Las tres lecturas · una por prueba', 'The three readings · one per test') }}</p>
+                  <p class="text-[11px] text-tinta leading-snug mt-0.5">{{ L('Tres pruebas miran el mismo foco. Etiquetadas por la prueba, no por la biología.', 'Three tests look at the same focus. Labelled by the test, not the biology.') }}</p>
+                </div>
+                <div class="grid sm:grid-cols-3 divide-y sm:divide-y-0 sm:divide-x divide-[rgba(45,27,61,0.08)]">
+                  <!-- 1 · Receptor (Galio) -->
+                  <div class="p-3 border-l-4" :style="{ borderColor: '#9d44ab' }">
+                    <p class="text-[11px] font-semibold leading-tight" :style="{ color: '#9d44ab' }">{{ L('Receptor', 'Receptor') }} · ⁶⁸Ga-DOTATOC</p>
+                    <p class="text-[10px] text-tinta mb-1.5">{{ L('el trazador del receptor (SSTR)', 'the receptor tracer (SSTR)') }}</p>
+                    <p class="font-mono text-lg leading-none text-berenjena">{{ sel.dota != null ? sel.dota.toFixed(2) : '—' }}</p>
+                    <p class="text-[11px] text-tinta mt-1">{{ sel.dota != null ? L('SUVmáx SSTR', 'SSTR SUVmax') : L('sin captación del receptor', 'no receptor uptake') }}</p>
+                  </div>
+                  <!-- 2 · Azúcar (FDG) -->
+                  <div class="p-3 border-l-4" :style="{ borderColor: '#bb4128' }">
+                    <p class="text-[11px] font-semibold leading-tight" :style="{ color: '#bb4128' }">{{ L('Azúcar', 'Sugar') }} · ¹⁸F-FDG</p>
+                    <p class="text-[10px] text-tinta mb-1.5">{{ L('el trazador del azúcar (glucosa)', 'the sugar tracer (glucose)') }}</p>
+                    <p class="font-mono text-lg leading-none text-berenjena">
+                      {{ sel.fdg != null ? sel.fdg.toFixed(2) : '—' }}<span v-if="trend(sel)" class="text-[12px] ml-1" :style="deltaStyle(sel)">({{ deltaFdg(sel) }})</span>
+                    </p>
+                    <p class="text-[11px] text-tinta mt-1">{{ sel.fdg != null ? (trend(sel) ? L('SUVmáx · Δ vs previo', 'SUVmax · Δ vs prior') : L('SUVmáx', 'SUVmax')) : L('sin captación de azúcar', 'no sugar uptake') }}</p>
+                  </div>
+                  <!-- 3 · RMN (forma) — color distinto, NO violeta/coral: no es un trazador -->
+                  <div class="p-3 border-l-4" :style="{ borderColor: '#1f6b57' }">
+                    <p class="text-[11px] font-semibold leading-tight" :style="{ color: '#1f6b57' }">{{ L('RMN', 'MRI') }} · {{ L('forma', 'shape') }}</p>
+                    <p class="text-[10px] text-tinta mb-1.5">{{ L('morfología — canal de forma, no un 3er color', 'morphology — a shape channel, not a 3rd colour') }}</p>
+                    <template v-if="mriCovers(sel)">
+                      <p class="text-[12px] text-berenjena leading-snug">{{ rmnNote(sel) }}</p>
+                      <button type="button" @click="goToMRI()" class="link-action text-miriam text-[12px] mt-1.5 inline-flex items-center gap-1">
+                        {{ L('Ver en el visor RMN', 'Open the MRI viewer') }} <span aria-hidden="true">→</span>
+                      </button>
+                    </template>
+                    <p v-else class="text-[12px] text-tinta leading-snug">{{ L('La RMN de columna mostrada (cervical y dorsal) no cubre este nivel.', 'The spine MRI shown (cervical and thoracic) does not cover this level.') }}</p>
+                  </div>
+                </div>
+                <p class="px-3 py-2 text-[10px] text-tinta leading-relaxed border-t border-[rgba(45,27,61,0.08)]">{{ L('«Blástico/escleroso» describe la FORMA del hueso (denso); no es un tercer trazador ni un tercer color. Describe los hallazgos; no concluye.', '“Blastic/sclerotic” describes the SHAPE of the bone (dense); it is not a third tracer or a third colour. It describes the findings; it does not conclude.') }}</p>
+              </div>
+
               <!-- capa CLARA -->
               <p class="text-[15px] text-berenjena leading-relaxed mb-4">{{ sel.what[lang] }}</p>
 
@@ -1135,10 +1286,28 @@ const ticks = [
                 </div>
               </div>
 
-              <!-- imagen real si existe -->
-              <figure v-if="sel.img" class="mb-4">
-                <img :src="`/metastasis/${sel.img}.jpg`" :alt="L('Imagen PET/TC de la lesión', 'PET/CT image of the lesion')" class="rounded-lg bg-black max-h-72 mx-auto" loading="lazy" />
-                <figcaption class="text-[10px] text-tinta text-center mt-1">{{ L('Reconstruido de los DICOM · fusión PET/TC', 'Reconstructed from DICOM · PET/CT fusion') }}</figcaption>
+              <!-- imagen real del foco · visor con zoom/pan + diana (P0) -->
+              <figure class="mb-4">
+                <div class="flex items-center justify-between mb-1.5 flex-wrap gap-1">
+                  <span class="text-[11px] font-semibold text-berenjena">{{ L('La imagen de este foco', 'This focus’s image') }}</span>
+                  <span v-if="selView.approx" class="status-badge" style="background:#fde4cc;color:#8a4a1a">{{ L('ubicación aproximada', 'approximate location') }}</span>
+                  <span v-else class="status-badge" style="background:rgba(31,90,58,0.12);color:#1f5a3a">{{ L('lesión centrada', 'lesion centered') }}</span>
+                </div>
+                <ClientOnly>
+                  <ImageZoomViewer
+                    :src="selView.src"
+                    :alt="L('Imagen PET de la lesión #' + sel.id + ' · ' + sel.level.es, 'PET image of lesion #' + sel.id + ' · ' + sel.level.en)"
+                    :marker-x="selView.fx"
+                    :marker-y="selView.fy"
+                    :approx="selView.approx"
+                    :max-width="selView.kind === 'axial' ? '320px' : '380px'" />
+                  <template #fallback>
+                    <img :src="selView.src" :alt="L('Imagen PET de la lesión', 'PET image of the lesion')" class="rounded-lg bg-black mx-auto block" :style="{ maxWidth: selView.kind === 'axial' ? '320px' : '380px' }" loading="lazy" />
+                  </template>
+                </ClientOnly>
+                <figcaption class="text-[10px] text-tinta text-center mt-1.5 leading-relaxed max-w-md mx-auto">
+                  <template v-if="selView.approx"><strong>{{ L('Ubicación aproximada — referencia, no medición.', 'Approximate location — reference, not a measurement.') }}</strong> </template>{{ selViewCaption }}
+                </figcaption>
               </figure>
 
               <!-- capa TÉCNICA -->
@@ -1266,14 +1435,21 @@ const ticks = [
             </p>
             <div class="grid grid-cols-2 gap-4 max-w-2xl">
               <figure class="card-base !p-3 flex flex-col">
-                <img src="/metastasis/gal_mip_hot.jpg" :alt="L('MIP Galio-68 DOTATOC', 'Ga-68 DOTATOC MIP')" class="w-full flex-1 min-h-0 object-contain rounded-lg bg-black" loading="lazy" />
+                <ClientOnly>
+                  <ImageZoomViewer src="/metastasis/gal_mip_hot.jpg" :alt="L('MIP Galio-68 DOTATOC', 'Ga-68 DOTATOC MIP')" max-width="100%" />
+                  <template #fallback><img src="/metastasis/gal_mip_hot.jpg" :alt="L('MIP Galio-68 DOTATOC', 'Ga-68 DOTATOC MIP')" class="w-full object-contain rounded-lg bg-black" loading="lazy" /></template>
+                </ClientOnly>
                 <figcaption class="text-xs text-center mt-2 font-semibold" :style="{ color: '#9d44ab' }">⁶⁸Ga-DOTATOC · {{ L('receptor', 'receptor') }}</figcaption>
               </figure>
               <figure class="card-base !p-3 flex flex-col">
-                <img src="/metastasis/fdg_mip_hot.jpg" :alt="L('MIP FDG', 'FDG MIP')" class="w-full flex-1 min-h-0 object-contain rounded-lg bg-black" loading="lazy" />
+                <ClientOnly>
+                  <ImageZoomViewer src="/metastasis/fdg_mip_hot.jpg" :alt="L('MIP FDG', 'FDG MIP')" max-width="100%" />
+                  <template #fallback><img src="/metastasis/fdg_mip_hot.jpg" :alt="L('MIP FDG', 'FDG MIP')" class="w-full object-contain rounded-lg bg-black" loading="lazy" /></template>
+                </ClientOnly>
                 <figcaption class="text-xs text-center mt-2 font-semibold" :style="{ color: '#bb4128' }">¹⁸F-FDG · {{ L('azúcar', 'sugar') }}</figcaption>
               </figure>
             </div>
+            <p class="text-[11px] text-tinta mt-3 max-w-2xl">{{ L('Rueda o pinza para acercar, arrastra para mover, doble clic para restablecer.', 'Wheel or pinch to zoom, drag to pan, double-click to reset.') }}</p>
           </div>
 
           <!-- panel · columna sagital en PET -->
@@ -1284,14 +1460,21 @@ const ticks = [
             </p>
             <div class="grid grid-cols-2 gap-4 max-w-xl">
               <figure class="card-base !p-3 flex flex-col">
-                <img src="/metastasis/gal_spine.jpg" :alt="L('Fusión sagital Galio', 'Gallium sagittal fusion')" class="w-full flex-1 min-h-0 object-contain rounded-lg bg-black" loading="lazy" />
+                <ClientOnly>
+                  <ImageZoomViewer src="/metastasis/gal_spine.jpg" :alt="L('Fusión sagital Galio', 'Gallium sagittal fusion')" max-width="100%" />
+                  <template #fallback><img src="/metastasis/gal_spine.jpg" :alt="L('Fusión sagital Galio', 'Gallium sagittal fusion')" class="w-full object-contain rounded-lg bg-black" loading="lazy" /></template>
+                </ClientOnly>
                 <figcaption class="text-xs text-center mt-2 font-semibold" :style="{ color: '#9d44ab' }">⁶⁸Ga-DOTATOC</figcaption>
               </figure>
               <figure class="card-base !p-3 flex flex-col">
-                <img src="/metastasis/fdg_spine.jpg" :alt="L('Fusión sagital FDG', 'FDG sagittal fusion')" class="w-full flex-1 min-h-0 object-contain rounded-lg bg-black" loading="lazy" />
+                <ClientOnly>
+                  <ImageZoomViewer src="/metastasis/fdg_spine.jpg" :alt="L('Fusión sagital FDG', 'FDG sagittal fusion')" max-width="100%" />
+                  <template #fallback><img src="/metastasis/fdg_spine.jpg" :alt="L('Fusión sagital FDG', 'FDG sagittal fusion')" class="w-full object-contain rounded-lg bg-black" loading="lazy" /></template>
+                </ClientOnly>
                 <figcaption class="text-xs text-center mt-2 font-semibold" :style="{ color: '#bb4128' }">¹⁸F-FDG</figcaption>
               </figure>
             </div>
+            <p class="text-[11px] text-tinta mt-3 max-w-xl">{{ L('Rueda o pinza para acercar, arrastra para mover, doble clic para restablecer.', 'Wheel or pinch to zoom, drag to pan, double-click to reset.') }}</p>
           </div>
 
           <!-- panel · columna en RMN -->
