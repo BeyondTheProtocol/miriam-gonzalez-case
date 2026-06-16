@@ -11,6 +11,7 @@
  * Herramienta de comprensión y apoyo a la conversación clínica — no es consejo médico.
  */
 const { locale } = useI18n()
+const localePath = useLocalePath()
 const lang = computed<'es' | 'en'>(() => (locale.value === 'en' ? 'en' : 'es'))
 const L = (es: string, en: string) => (lang.value === 'en' ? en : es)
 
@@ -115,7 +116,7 @@ const LES: Lesion[] = [
     region: { es: 'Unión dorsolumbar', en: 'Thoracolumbar junction' },
     img: 'gal_spine',
     what: { es: 'Una de las lesiones más intensas. Es la que más capta el receptor (Galio) de todas, y también capta algo de azúcar, aunque el azúcar ha bajado respecto al PET previo. Hueso denso (blástico).', en: 'One of the most intense lesions. It is the one that takes up the most receptor (gallium) of all, and also takes up some sugar, though sugar dropped versus the prior PET. Dense (blastic) bone.' },
-    tech: { es: 'DOTATOC SUVmáx 13.27 (captación de Galio muy intensa, ≈ Krenning 3, estimado) / FDG 7.61 (previo 10.19, en descenso). Mixto: capta mucho más receptor (Galio) que azúcar (FDG). Lesión blástica.', en: 'DOTATOC SUVmax 13.27 (very intense gallium uptake, ≈ Krenning 3, estimated) / FDG 7.61 (prior 10.19, decreasing). Mixed: takes up far more receptor (gallium) than sugar (FDG). Blastic lesion.' },
+    tech: { es: 'DOTATOC SUVmáx 13.27 (captación de Galio muy intensa) / FDG 7.61 (previo 10.19, en descenso). Mixto: capta mucho más receptor (Galio) que azúcar (FDG). Lesión blástica.', en: 'DOTATOC SUVmax 13.27 (very intense gallium uptake) / FDG 7.61 (prior 10.19, decreasing). Mixed: takes up far more receptor (gallium) than sugar (FDG). Blastic lesion.' },
   },
   {
     id: 8, x: 237, y: 352, side: 'L', dota: 11.63, fdg: null, pheno: 'ne', size: '13 × 10',
@@ -187,21 +188,21 @@ const LES: Lesion[] = [
     id: 17, x: 182, y: 198, side: 'C', dota: 1.6, fdg: 4.8, pheno: 'mixAgg', size: '≤ 8', source: 'ia-david',
     level: { es: 'Tórax alto / costilla', en: 'Upper thorax / rib' },
     region: { es: 'Parrilla costal', en: 'Rib cage' },
-    what: { es: 'Foco en tórax alto / costilla que capta sobre todo azúcar (FDG), de baja intensidad. Lo señaló la IA de David sobre los DICOM y el propio análisis lo marca como dudoso — a revisar en visor; no está en el informe oficial.', en: 'Upper thorax / rib focus, mainly sugar-avid (FDG), low intensity. Flagged by David’s AI on the DICOM and the analysis itself marks it as uncertain — to review in a viewer; not in the official report.' },
+    what: { es: 'Foco en tórax alto / costilla que capta sobre todo azúcar (FDG), de baja intensidad. Lo detectó una IA sobre los DICOM (por confirmar) y el propio análisis lo marca como dudoso — a revisar en visor; no está en el informe oficial.', en: 'Upper thorax / rib focus, mainly sugar-avid (FDG), low intensity. Detected by an AI on the DICOM (to confirm) and the analysis itself marks it as uncertain — to review in a viewer; not in the official report.' },
     tech: { es: 'DOTATOC ~1.6 / FDG ~4.8 (aproximados, medidos sobre los DICOM). Patrón FDG+ con receptor bajo. No confirmado como metástasis en informe oficial; revisar con Medicina Nuclear.', en: 'DOTATOC ~1.6 / FDG ~4.8 (approximate, measured on the DICOM). FDG+ pattern with low receptor. Not confirmed as metastasis in the official report; review with Nuclear Medicine.' },
   },
   {
     id: 18, x: 178, y: 560, side: 'R', dota: 4.3, fdg: 1.7, pheno: 'mixNe', size: '8 × 6', source: 'ia-david',
     level: { es: 'Pélvico / ilíaco-femoral', en: 'Pelvic / iliac-femoral' },
     region: { es: 'Pelvis', en: 'Pelvis' },
-    what: { es: 'Foco pélvico leve (zona ilíaco-femoral) que capta sobre todo el receptor (Galio); el azúcar es bajo. Patrón favorable a la diana del receptor. Aportado por la IA de David; no está en el informe oficial.', en: 'Mild pelvic focus (iliac-femoral area) taking up mainly the receptor (gallium); sugar is low. Pattern favourable to the receptor target. Provided by David’s AI; not in the official report.' },
+    what: { es: 'Foco pélvico leve (zona ilíaco-femoral) que capta sobre todo el receptor (Galio); el azúcar es bajo. Patrón favorable a la diana del receptor. Detectado por IA, por confirmar; no está en el informe oficial.', en: 'Mild pelvic focus (iliac-femoral area) taking up mainly the receptor (gallium); sugar is low. Pattern favourable to the receptor target. AI-detected, to confirm; not in the official report.' },
     tech: { es: 'DOTATOC ~4.3 / FDG ~1.7 (aproximados, sobre los DICOM). Patrón SSTR-favorable. No en informe oficial.', en: 'DOTATOC ~4.3 / FDG ~1.7 (approximate, on the DICOM). SSTR-favourable pattern. Not in the official report.' },
   },
   {
     id: 19, x: 232, y: 150, side: 'C', dota: 4.8, fdg: 3.1, pheno: 'mixBal', size: '8–10', source: 'ia-david',
     level: { es: 'Cervicotorácica / dorsal baja', en: 'Cervicothoracic / lower dorsal' },
     region: { es: 'Transición cervicotorácica', en: 'Cervicothoracic junction' },
-    what: { es: 'Foco óseo leve en la zona cervicotorácica, con captación débil de los dos trazadores. Baja intensidad, a correlacionar. Aportado por la IA de David; no está en el informe oficial.', en: 'Mild bone focus in the cervicothoracic area, with weak uptake of both tracers. Low intensity, to be correlated. Provided by David’s AI; not in the official report.' },
+    what: { es: 'Foco óseo leve en la zona cervicotorácica, con captación débil de los dos trazadores. Baja intensidad, a correlacionar. Detectado por IA, por confirmar; no está en el informe oficial.', en: 'Mild bone focus in the cervicothoracic area, with weak uptake of both tracers. Low intensity, to be correlated. AI-detected, to confirm; not in the official report.' },
     tech: { es: 'DOTATOC ~4.8 / FDG ~3.1 (aproximados, sobre los DICOM). Baja intensidad; correlacionar. No en informe oficial.', en: 'DOTATOC ~4.8 / FDG ~3.1 (approximate, on the DICOM). Low intensity; correlate. Not in the official report.' },
   },
 ]
@@ -214,6 +215,13 @@ function neShare(le: Lesion): number {
 }
 function phenoColor(le: Lesion) { return PHENO[le.pheno].c }
 function phenoLabel(le: Lesion) { return L(PHENO[le.pheno].es, PHENO[le.pheno].en) }
+/* color del fenotipo SOLO para TEXTO: los naranjas/ámbar de relleno fallan AA
+   sobre el cream, así que el texto usa tonos oscuros (b07d1e / 8a4a1a). Los
+   rellenos/puntos/marcadores siguen usando phenoColor (el tono vivo). */
+const PHENO_TEXT: Record<Pheno, string> = {
+  ne: '#9d44ab', mixNe: '#7a4d9e', mixBal: '#b07d1e', mixAgg: '#8a4a1a', agg: '#bb4128',
+}
+function phenoText(le: Lesion) { return PHENO_TEXT[le.pheno] }
 
 /* Δ FDG frente al estudio previo (rojo = sube · verde = baja) */
 function deltaFdg(le: Lesion): string {
@@ -229,11 +237,12 @@ function deltaStyle(le: Lesion) {
   return {}
 }
 
-/* procedencia del dato de cada foco (la IA de David = tabla de DICOM aportada) */
-const SOURCE: Record<'informe' | 'ambos' | 'ia-david', { es: string; en: string; c: string }> = {
-  informe: { es: 'Informe', en: 'Report', c: '#1f5a3a' },
-  ambos: { es: 'Ambos', en: 'Both', c: '#9d44ab' },
-  'ia-david': { es: 'IA David', en: 'David AI', c: '#bf7d2c' },
+/* procedencia del dato de cada foco (la IA = tabla medida sobre los DICOM, por
+   confirmar). `c` = relleno/punto (tono vivo) · `tc` = color de TEXTO (AA sobre cream). */
+const SOURCE: Record<'informe' | 'ambos' | 'ia-david', { es: string; en: string; c: string; tc: string }> = {
+  informe: { es: 'Informe', en: 'Report', c: '#1f5a3a', tc: '#1f5a3a' },
+  ambos: { es: 'Ambos', en: 'Both', c: '#9d44ab', tc: '#9d44ab' },
+  'ia-david': { es: 'Detectado por IA · por confirmar', en: 'AI-detected · to confirm', c: '#bf7d2c', tc: '#8a4a1a' },
 }
 /* si no tiene fuente explícita: con tamaño = en ambos (casó con el PDF); sin tamaño = solo informe */
 function sourceOf(le: Lesion): 'informe' | 'ambos' | 'ia-david' {
@@ -419,10 +428,16 @@ const counts = computed(() => ({
 /* ------------------------------------------------------------------ */
 const density = ref<'plain' | 'clinical'>('plain')
 const isClinical = computed(() => density.value === 'clinical')
+/* A11y: anuncia el cambio de modo a lectores de pantalla (igual que /ciencia
+   con su selector) — ningún cambio de contenido debe ser silencioso. */
+const densityAnnounce = computed(() =>
+  isClinical.value
+    ? L('Modo clínico: detalle técnico, cuantificación y tabla abiertos.', 'Clinical mode: technical detail, quantification and table open.')
+    : L('Modo en claro: detalle técnico, cuantificación y tabla plegados.', 'Plain mode: technical detail, quantification and table folded.'))
 
 /* ------------------------------------------------------------------ */
 /*  Panel-cockpit — KPIs SOLO descriptivos (sin verbos de acción).      */
-/*  Separa los 16 focos del informe de los 3 «IA de David» (por         */
+/*  Separa los focos del informe de los 3 «detectados por IA» (por      */
 /*  confirmar). Todo derivado del array LES; no añade interpretación.   */
 /* ------------------------------------------------------------------ */
 function isAiDavid(le: Lesion): boolean { return sourceOf(le) === 'ia-david' }
@@ -496,15 +511,15 @@ const trajectory = computed(() => {
   })
   return { up, down, stable, neu, withPrev, rising }
 })
-/* focos en hueso de carga con FDG que no baja (señal para el equipo) */
-const riskFoci = computed(() => LES.filter((l) => l.load && l.fdg != null && (l.prevFdg == null || l.fdg >= l.prevFdg)))
+/* focos en hueso de carga con FDG igual o mayor que el previo (descriptivo) */
+const loadBearingFdgFoci = computed(() => LES.filter((l) => l.load && l.fdg != null && (l.prevFdg == null || l.fdg >= l.prevFdg)))
 
 /* ------------------------------------------------------------------ */
 /*  Hallazgos por lesión — describe LO QUE MUESTRA el propio foco.      */
 /*  Solo refleja los datos del foco (SUV, tendencia, morfología,        */
 /*  procedencia). No interpreta, no triaja, no sugiere tratamiento.     */
 /* ------------------------------------------------------------------ */
-function triage(l: Lesion): { tone: string; es: string; en: string }[] {
+function focusObservations(l: Lesion): { tone: string; es: string; en: string }[] {
   const out: { tone: string; es: string; en: string }[] = []
   const t = trend(l)
   if (l.dota != null && l.dota >= 6)
@@ -529,13 +544,13 @@ function triage(l: Lesion): { tone: string; es: string; en: string }[] {
     out.push({ tone: 'neutral', es: 'No consta en el informe oficial (medida aproximada sobre DICOM).', en: 'Not in the official report (approximate DICOM measurement).' })
   return out
 }
-function triageTone(tone: string): string {
+function observationTone(tone: string): string {
   return tone === 'violet' ? '#9d44ab' : tone === 'warn' ? '#bb4128' : tone === 'positive' ? '#1f5a3a' : '#6b6470'
 }
 
 /* ------------------------------------------------------------------ */
 /*  Cuantificación automática (verificación, NO diagnóstico).          */
-/*  Medida por Claude sobre tus DICOM: SUV con corrección de decaim.,  */
+/*  Medida automática sobre los DICOM: SUV con corrección de decaim.,  */
 /*  máscara ósea del CT, componentes conectados anclados a la tabla.   */
 /*  FDG (24/03, 1.65 mm) es fina; Galio (26/05, 4 mm) es más gruesa.   */
 /*  "—" = no medido automáticamente (vale el dato de la tabla).        */
@@ -575,7 +590,7 @@ function autoOf(le: Lesion) { return AUTO[le.id] || null }
 const selAuto = computed(() => autoOf(sel.value))
 /* lesiones con hueso 3D real reconstruido del CT (IA, TotalSegmentator) — frames en
    /metastasis/vertebra. Vértebras y huesos planos. Solo quedan sin reconstruir los 2
-   focos «IA de David» no confirmados en el informe (#17 costilla, #19). */
+   focos «detectados por IA» no confirmados en el informe (#17 costilla, #19). */
 const BONE3D_KEY: Record<number, string> = {
   1: 'C3', 2: 'C4', 3: 'ESCAPULA_R',
   4: 'D1', 5: 'D5', 6: 'D9', 7: 'D11', 8: 'D11', 9: 'L1', 10: 'L1', 11: 'L5',
@@ -673,8 +688,8 @@ const ticks = [
         <!-- Aviso -->
         <div class="rounded-card border border-[#efb27a] bg-[#fbf0df] text-[#7a4a12] px-4 py-3 text-sm leading-relaxed mb-10">
           {{ L(
-            'Esta página reúne y visualiza tus propios estudios (PET-FDG 24/03/2026, PET Galio-68 DOTATOC 26/05/2026 y tu RMN de columna cervical y dorsal). Es una herramienta para entender y para apoyar la conversación con tu equipo médico — no sustituye su criterio ni es consejo médico. Los SUV son los de los informes oficiales del PET; las imágenes (PET y RMN) se reconstruyeron desde tus DICOM. La RMN se muestra para verla: su lectura formal corresponde a tu radiólogo.',
-            'This page gathers and visualises your own studies (FDG-PET 24/03/2026, Ga-68 DOTATOC PET 26/05/2026 and your cervical and thoracic spine MRI). It is a tool to understand and to support the conversation with your medical team — it does not replace their judgement and is not medical advice. SUVs are those of the official PET reports; the images (PET and MRI) were reconstructed from your DICOM. The MRI is shown for viewing: its formal reading belongs to your radiologist.') }}
+            'Esta página reúne y visualiza los estudios de la paciente (PET-FDG 24/03/2026, PET Galio-68 DOTATOC 26/05/2026 y la RMN de columna cervical y dorsal). Es una herramienta para entender y para apoyar la conversación con el equipo médico — no sustituye su criterio ni es consejo médico. Los SUV son los de los informes oficiales del PET; las imágenes (PET y RMN) se reconstruyeron desde los DICOM. La RMN se muestra para verla: su lectura formal corresponde al radiólogo.',
+            'This page gathers and visualises the patient’s studies (FDG-PET 24/03/2026, Ga-68 DOTATOC PET 26/05/2026 and the cervical and thoracic spine MRI). It is a tool to understand and to support the conversation with the medical team — it does not replace their judgement and is not medical advice. SUVs are those of the official PET reports; the images (PET and MRI) were reconstructed from the DICOM. The MRI is shown for viewing: its formal reading belongs to the radiologist.') }}
         </div>
 
         <!-- ===== TOGGLE PEGAJOSO · densidad En claro / Clínico ===== -->
@@ -695,6 +710,8 @@ const ticks = [
             </div>
             <span class="text-[11px] text-tinta leading-snug max-w-md">{{ L('No oculta nada: fija si el detalle técnico, la cuantificación y la tabla van plegados (en claro) o abiertos (clínico).', 'Hides nothing: it sets whether technical detail, quantification and the table are folded (plain) or open (clinical).') }}</span>
           </div>
+          <!-- A11y: anuncia el cambio de modo a lectores de pantalla (como /ciencia). -->
+          <div aria-live="polite" class="sr-only">{{ densityAnnounce }}</div>
         </div>
 
         <!-- ===== PANEL-COCKPIT · KPIs descriptivos ===== -->
@@ -702,8 +719,8 @@ const ticks = [
           <p class="eyebrow mb-2 block">{{ L('Resumen de un vistazo', 'At a glance') }}</p>
           <h2 id="cockpit" class="heading-display text-2xl text-berenjena mb-2">{{ L('Panel de la enfermedad ósea', 'Bone-disease panel') }}</h2>
           <p class="text-sm text-tinta leading-relaxed mb-5 max-w-3xl">
-            {{ L('Cifras descriptivas de tus dos PET, sin interpretación. Los focos del informe oficial y los señalados por la IA de David (por confirmar) van por separado.',
-                  'Descriptive figures from your two PET studies, with no interpretation. Foci from the official report and those flagged by David’s AI (to confirm) are kept separate.') }}
+            {{ L('Cifras descriptivas de los dos PET, sin interpretación. Los focos del informe oficial y los detectados por IA (por confirmar) van por separado.',
+                  'Descriptive figures from the two PET studies, with no interpretation. Foci from the official report and those detected by AI (to confirm) are kept separate.') }}
           </p>
 
           <!-- KPIs -->
@@ -711,7 +728,7 @@ const ticks = [
             <div class="stat-readout">
               <div class="stat-readout__label">{{ L('Carga ósea', 'Bone burden') }}</div>
               <div class="stat-readout__value tabular-nums">{{ confirmedFoci.length }} <span class="text-base text-tinta">+{{ aiFoci.length }}</span></div>
-              <div class="stat-readout__unit">{{ L('focos en el informe · +' + aiFoci.length + ' por confirmar (IA David)', 'foci in the report · +' + aiFoci.length + ' to confirm (David AI)') }}</div>
+              <div class="stat-readout__unit">{{ L('focos en el informe · +' + aiFoci.length + ' por confirmar (detectados por IA)', 'foci in the report · +' + aiFoci.length + ' to confirm (AI-detected)') }}</div>
             </div>
             <div class="stat-readout">
               <div class="stat-readout__label">{{ L('Reparto en el esqueleto', 'Skeletal distribution') }}</div>
@@ -737,7 +754,7 @@ const ticks = [
               <div class="flex h-6 rounded-full overflow-hidden border border-[rgba(45,27,61,0.1)]" role="img"
                 :aria-label="L(concordance.ne + ' solo receptor, ' + concordance.mix + ' mixtos, ' + concordance.agg + ' solo FDG', concordance.ne + ' receptor-only, ' + concordance.mix + ' mixed, ' + concordance.agg + ' FDG-only')">
                 <div v-if="concordance.ne" :style="{ width: concPct(concordance.ne), background: '#9d44ab' }" class="flex items-center justify-center text-[11px] font-semibold text-white">{{ concordance.ne }}</div>
-                <div v-if="concordance.mix" :style="{ width: concPct(concordance.mix), background: '#df7a44' }" class="flex items-center justify-center text-[11px] font-semibold text-white">{{ concordance.mix }}</div>
+                <div v-if="concordance.mix" :style="{ width: concPct(concordance.mix), background: '#df7a44' }" class="flex items-center justify-center text-[11px] font-semibold text-berenjena">{{ concordance.mix }}</div>
                 <div v-if="concordance.agg" :style="{ width: concPct(concordance.agg), background: '#bb4128' }" class="flex items-center justify-center text-[11px] font-semibold text-white">{{ concordance.agg }}</div>
               </div>
               <div class="flex flex-wrap gap-x-4 gap-y-1 mt-2 text-[12px] text-tinta">
@@ -760,11 +777,11 @@ const ticks = [
 
           <!-- plegable: resumen para el equipo (abre en modo Clínico) -->
           <details class="notes-disclosure mt-3" :open="isClinical">
-            <summary>{{ L('Resumen para tu equipo', 'Summary for your team') }}</summary>
+            <summary>{{ L('Resumen para el equipo médico', 'Summary for the medical team') }}</summary>
             <p class="mt-3 text-sm text-tinta leading-relaxed">
               {{ L(
-                'Enfermedad ósea multinivel. ' + confirmedFoci.length + ' focos en el informe oficial (' + skeletonSplit.axial + ' axiales — columna y sacro — y ' + skeletonSplit.append + ' apendiculares — escápula, pelvis y cadera), más ' + aiFoci.length + ' focos por confirmar señalados por la IA de David. Reparto receptor↔azúcar: ' + concordance.ne + ' captan solo receptor (Ga+/FDG−), ' + concordance.mix + ' son mixtos (ambos trazadores) y ' + concordance.agg + ' capta solo azúcar (Ga−/FDG+). Rango de SUVmáx: ⁶⁸Ga-DOTATOC ' + dotaRangeLabel + '; ¹⁸F-FDG ' + fdgRangeLabel + '. Frente al PET previo (sobre ' + trajectory.withPrev + ' focos con valor previo): ' + trajectory.neu + ' nuevos, ' + trajectory.up + ' con más FDG, ' + trajectory.down + ' con menos y ' + trajectory.stable + ' estables. Las cifras son las de los informes oficiales del PET; el detalle por foco está en la ficha y en la tabla. Descripción, no consejo médico.',
-                'Multilevel bone disease. ' + confirmedFoci.length + ' foci in the official report (' + skeletonSplit.axial + ' axial — spine and sacrum — and ' + skeletonSplit.append + ' appendicular — scapula, pelvis and hip), plus ' + aiFoci.length + ' foci to confirm flagged by David’s AI. Receptor↔sugar split: ' + concordance.ne + ' receptor-only (Ga+/FDG−), ' + concordance.mix + ' mixed (both tracers) and ' + concordance.agg + ' sugar-only (Ga−/FDG+). SUVmax range: ⁶⁸Ga-DOTATOC ' + dotaRangeLabel + '; ¹⁸F-FDG ' + fdgRangeLabel + '. Versus the prior PET (over ' + trajectory.withPrev + ' foci with a prior value): ' + trajectory.neu + ' new, ' + trajectory.up + ' with more FDG, ' + trajectory.down + ' with less and ' + trajectory.stable + ' stable. Figures are those of the official PET reports; the per-focus detail is in the card and the table. Description, not medical advice.') }}
+                'Enfermedad ósea multinivel. ' + confirmedFoci.length + ' focos en el informe oficial (' + skeletonSplit.axial + ' axiales — columna y sacro — y ' + skeletonSplit.append + ' apendiculares — escápula, pelvis y cadera), más ' + aiFoci.length + ' focos por confirmar detectados por IA. Reparto receptor↔azúcar: ' + concordance.ne + ' captan solo receptor (Ga+/FDG−), ' + concordance.mix + ' son mixtos (ambos trazadores) y ' + concordance.agg + ' capta solo azúcar (Ga−/FDG+). Rango de SUVmáx: ⁶⁸Ga-DOTATOC ' + dotaRangeLabel + '; ¹⁸F-FDG ' + fdgRangeLabel + '. Frente al PET previo (sobre ' + trajectory.withPrev + ' focos con valor previo): ' + trajectory.neu + ' nuevos, ' + trajectory.up + ' con más FDG, ' + trajectory.down + ' con menos y ' + trajectory.stable + ' estables. Las cifras son las de los informes oficiales del PET; el detalle por foco está en la ficha y en la tabla. Descripción, no consejo médico.',
+                'Multilevel bone disease. ' + confirmedFoci.length + ' foci in the official report (' + skeletonSplit.axial + ' axial — spine and sacrum — and ' + skeletonSplit.append + ' appendicular — scapula, pelvis and hip), plus ' + aiFoci.length + ' foci to confirm detected by AI. Receptor↔sugar split: ' + concordance.ne + ' receptor-only (Ga+/FDG−), ' + concordance.mix + ' mixed (both tracers) and ' + concordance.agg + ' sugar-only (Ga−/FDG+). SUVmax range: ⁶⁸Ga-DOTATOC ' + dotaRangeLabel + '; ¹⁸F-FDG ' + fdgRangeLabel + '. Versus the prior PET (over ' + trajectory.withPrev + ' foci with a prior value): ' + trajectory.neu + ' new, ' + trajectory.up + ' with more FDG, ' + trajectory.down + ' with less and ' + trajectory.stable + ' stable. Figures are those of the official PET reports; the per-focus detail is in the card and the table. Description, not medical advice.') }}
             </p>
           </details>
         </section>
@@ -827,7 +844,7 @@ const ticks = [
               <p class="text-[13px] text-tinta leading-snug">{{ L('Capta el receptor (Galio) y poco o nada de azúcar.', 'Takes up the receptor (gallium) and little or no sugar.') }}</p>
             </div>
             <div class="card-base !p-4 border-t-4" :style="{ borderColor: '#df7a44' }">
-              <p class="font-semibold text-sm mb-1" :style="{ color: '#df7a44' }">{{ L('Mixto (ambos)', 'Mixed (both)') }}</p>
+              <p class="font-semibold text-sm mb-1" :style="{ color: '#b07d1e' }">{{ L('Mixto (ambos)', 'Mixed (both)') }}</p>
               <p class="text-[13px] text-tinta leading-snug">{{ L('Capta los dos trazadores: receptor y azúcar a la vez.', 'Takes up both tracers: receptor and sugar at once.') }}</p>
             </div>
             <div class="card-base !p-4 border-t-4" :style="{ borderColor: '#bb4128' }">
@@ -971,7 +988,7 @@ const ticks = [
                     :fill-opacity="gSelected(g) ? 1 : 0.82"
                     :stroke="gSelected(g) ? '#2d1b3d' : (gPresentAt(g, frame) ? '#ffffff' : phenoColor(g.primary))"
                     :stroke-width="gSelected(g) ? 2 : 1.4"
-                    :stroke-dasharray="gPresentAt(g, frame) ? undefined : '3 2'"
+                    :stroke-dasharray="sourceOf(g.primary) === 'ia-david' ? '2 1.6' : (gPresentAt(g, frame) ? undefined : '3 2')"
                     :opacity="gPresentAt(g, frame) ? 1 : 0.4"
                     class="cursor-pointer transition-all"
                     tabindex="0" role="button"
@@ -996,6 +1013,7 @@ const ticks = [
                   <span>{{ L('Solo receptor (Galio)', 'Receptor only (gallium)') }}</span>
                   <span>{{ L('Solo azúcar (FDG)', 'Sugar only (FDG)') }}</span>
                 </div>
+                <p class="text-[10px] text-tinta mt-1.5 leading-snug">{{ L('El contorno punteado marca los focos detectados por IA, por confirmar (no en el informe).', 'A dashed outline marks AI-detected foci, to confirm (not in the report).') }}</p>
               </div>
             </div>
 
@@ -1018,12 +1036,12 @@ const ticks = [
                   class="px-2 py-0.5 rounded-full text-[11px] font-semibold border transition-colors"
                   :style="selected === f.id
                     ? { background: phenoColor(f), color: '#fff', borderColor: phenoColor(f) }
-                    : { background: 'transparent', color: phenoColor(f), borderColor: phenoColor(f) + '55' }">
+                    : { background: 'transparent', color: phenoText(f), borderColor: phenoColor(f) + '55' }">
                   #{{ f.id }} · {{ focusPart(f) }}
                 </button>
               </div>
 
-              <span class="pill-data mt-2 mb-3 inline-flex" :style="{ background: phenoColor(sel) + '22', color: phenoColor(sel) }">{{ phenoLabel(sel) }}</span>
+              <span class="pill-data mt-2 mb-3 inline-flex" :style="{ background: phenoColor(sel) + '22', color: phenoText(sel) }">{{ phenoLabel(sel) }}</span>
 
               <!-- barra «dos caras»: proporción receptor (violeta) ↔ azúcar (coral) -->
               <div class="mb-4">
@@ -1048,12 +1066,12 @@ const ticks = [
                   {{ L('Lo que muestra este foco', 'What this focus shows') }}
                 </p>
                 <ul class="space-y-1.5">
-                  <li v-for="(tg, i) in triage(sel)" :key="i" class="flex gap-2 text-[13px] leading-snug">
-                    <span class="mt-1.5 shrink-0 w-1.5 h-1.5 rounded-full" :style="{ background: triageTone(tg.tone) }" />
+                  <li v-for="(tg, i) in focusObservations(sel)" :key="i" class="flex gap-2 text-[13px] leading-snug">
+                    <span class="mt-1.5 shrink-0 w-1.5 h-1.5 rounded-full" :style="{ background: observationTone(tg.tone) }" />
                     <span class="text-tinta">{{ lang === 'en' ? tg.en : tg.es }}</span>
                   </li>
                 </ul>
-                <p class="text-[10px] text-tinta mt-2 leading-relaxed">{{ L('Descripción de los hallazgos del foco a partir de tus propios SUV, tendencia y morfología. No es consejo médico ni una indicación de tratamiento.', 'A description of the focus’s findings from your own SUVs, trend and morphology. Not medical advice or a treatment indication.') }}</p>
+                <p class="text-[10px] text-tinta mt-2 leading-relaxed">{{ L('Descripción de los hallazgos del foco a partir de los SUV, la tendencia y la morfología del propio foco. No es consejo médico ni una indicación de tratamiento.', 'A description of the focus’s findings from its own SUVs, trend and morphology. Not medical advice or a treatment indication.') }}</p>
               </div>
 
               <!-- hueso 3D + mapa de calor (científico) -->
@@ -1066,7 +1084,7 @@ const ticks = [
 
               <!-- CUANTIFICACIÓN AUTOMÁTICA medida sobre los DICOM (verificación) — abre en modo Clínico -->
               <details v-if="hasAuto" class="notes-disclosure mb-4" :open="isClinical">
-                <summary>{{ L('Medido sobre tus DICOM (verificación automática)', 'Measured from your DICOM (automatic verification)') }}</summary>
+                <summary>{{ L('Medido sobre los DICOM (verificación automática)', 'Measured from the DICOM (automatic verification)') }}</summary>
                 <p class="text-[11px] font-semibold text-berenjena uppercase tracking-wide mt-3 mb-2 flex items-center gap-2 flex-wrap">
                   <span class="inline-block w-2.5 h-2.5 rounded-full" :style="{ background: '#1f5a3a' }" />
                   {{ L('SUV automático frente a tabla', 'Automatic SUV versus table') }}
@@ -1078,7 +1096,7 @@ const ticks = [
                     <div class="text-[12.5px] text-tinta leading-relaxed">
                       <div>{{ L('Tabla', 'Table') }} <span class="font-mono text-berenjena font-semibold">{{ sel.fdg != null ? sel.fdg.toFixed(2) : '—' }}</span>
                         <template v-if="selAuto?.fdgAuto != null"> · {{ L('auto', 'auto') }} <span class="font-mono">{{ selAuto?.fdgAuto?.toFixed(2) }}</span>
-                          <span v-if="sel.fdg != null" class="font-semibold" :style="{ color: Math.abs((sel.fdg || 0) - (selAuto?.fdgAuto || 0)) < 0.6 ? '#1f5a3a' : '#c9921e' }">{{ Math.abs((sel.fdg || 0) - (selAuto?.fdgAuto || 0)) < 0.6 ? ' ✓' : ' ≈' }}</span>
+                          <span v-if="sel.fdg != null" class="font-semibold" :style="{ color: Math.abs((sel.fdg || 0) - (selAuto?.fdgAuto || 0)) < 0.6 ? '#1f5a3a' : '#b07d1e' }">{{ Math.abs((sel.fdg || 0) - (selAuto?.fdgAuto || 0)) < 0.6 ? ' ✓' : ' ≈' }}</span>
                         </template>
                       </div>
                       <div v-if="selAuto?.fdgAuto != null">MTV <span class="font-mono text-berenjena">{{ selAuto?.fdgMtv }} ml</span> · TLG <span class="font-mono text-berenjena">{{ selAuto?.fdgTlg }}</span> · <span class="text-berenjena">{{ selAuto?.fdgMorph }}</span></div>
@@ -1089,7 +1107,7 @@ const ticks = [
                     <div class="text-[12.5px] text-tinta leading-relaxed">
                       <div>{{ L('Tabla', 'Table') }} <span class="font-mono text-berenjena font-semibold">{{ sel.dota != null ? sel.dota.toFixed(2) : '—' }}</span>
                         <template v-if="selAuto?.gaAuto != null"> · {{ L('auto', 'auto') }} <span class="font-mono">{{ selAuto?.gaAuto?.toFixed(2) }}</span>
-                          <span v-if="sel.dota != null" class="font-semibold" :style="{ color: Math.abs((sel.dota || 0) - (selAuto?.gaAuto || 0)) < 1.2 ? '#1f5a3a' : '#c9921e' }">{{ Math.abs((sel.dota || 0) - (selAuto?.gaAuto || 0)) < 1.2 ? ' ✓' : ' ≈' }}</span>
+                          <span v-if="sel.dota != null" class="font-semibold" :style="{ color: Math.abs((sel.dota || 0) - (selAuto?.gaAuto || 0)) < 1.2 ? '#1f5a3a' : '#b07d1e' }">{{ Math.abs((sel.dota || 0) - (selAuto?.gaAuto || 0)) < 1.2 ? ' ✓' : ' ≈' }}</span>
                         </template>
                       </div>
                       <div v-if="selAuto?.gaAuto != null">MTV <span class="font-mono text-berenjena">{{ selAuto?.gaMtv }} ml</span> · <span class="text-berenjena">{{ selAuto?.gaMorph }}</span></div>
@@ -1097,7 +1115,7 @@ const ticks = [
                     </div>
                   </div>
                 </div>
-                <p class="text-[10px] text-tinta mt-2 leading-relaxed">{{ L('SUV recalculado del DICOM (corrección de decaimiento), volumen metabólico (MTV) y carga glucolítica (TLG) con máscara ósea del CT; morfología por densidad CT. El FDG (1,65 mm) es fino; el Galio (4 mm), más grueso. Verificación automática, no diagnóstico: manda tu tabla y el criterio del equipo.', 'SUV recomputed from the DICOM (decay-corrected), metabolic volume (MTV) and glycolytic load (TLG) with a CT bone mask; morphology from CT density. FDG (1.65 mm) is fine; gallium (4 mm) coarser. Automatic verification, not a diagnosis: your table and the team’s judgement prevail.') }}</p>
+                <p class="text-[10px] text-tinta mt-2 leading-relaxed">{{ L('SUV recalculado del DICOM (corrección de decaimiento), volumen metabólico (MTV) y carga glucolítica (TLG) con máscara ósea del CT; morfología por densidad CT. El FDG (1,65 mm) es fino; el Galio (4 mm), más grueso. Verificación automática, no diagnóstico: manda la tabla y el criterio del equipo.', 'SUV recomputed from the DICOM (decay-corrected), metabolic volume (MTV) and glycolytic load (TLG) with a CT bone mask; morphology from CT density. FDG (1.65 mm) is fine; gallium (4 mm) coarser. Automatic verification, not a diagnosis: the table and the team’s judgement prevail.') }}</p>
               </details>
 
               <!-- evolución del FDG (solo si hay dos medidas; el Galio tiene una sola) -->
@@ -1125,7 +1143,7 @@ const ticks = [
 
               <!-- capa TÉCNICA -->
               <details class="notes-disclosure" :open="isClinical">
-                <summary>{{ L('Detalle técnico (para tu equipo médico)', 'Technical detail (for your medical team)') }}</summary>
+                <summary>{{ L('Detalle técnico (para el equipo médico)', 'Technical detail (for the medical team)') }}</summary>
                 <p class="mt-3 text-sm text-tinta leading-relaxed">{{ sel.tech[lang] }}</p>
                 <div class="grid grid-cols-2 gap-x-6 gap-y-2 mt-3 text-sm">
                   <div><span class="text-tinta">DOTATOC SUVmáx</span><br><span class="font-mono text-berenjena">{{ sel.dota != null ? sel.dota.toFixed(2) : L('sin captación', 'no uptake') }}</span></div>
@@ -1204,7 +1222,7 @@ const ticks = [
                 <li><span class="inline-block w-2.5 h-2.5 rounded-full align-middle mr-1.5" :style="{ background: '#9d44ab' }" />{{ L('Arriba-izquierda: capta receptor y poco azúcar.', 'Top-left: receptor-avid, little sugar.') }}</li>
                 <li><span class="inline-block w-2.5 h-2.5 rounded-full align-middle mr-1.5" :style="{ background: '#bb4128' }" />{{ L('Abajo-derecha: mucho azúcar y poco receptor.', 'Bottom-right: lots of sugar, little receptor.') }}</li>
                 <li><span class="inline-block w-2.5 h-2.5 rounded-full align-middle mr-1.5" :style="{ background: '#df7a44' }" />{{ L('Arriba-derecha: las dos caras conviven (mixto).', 'Top-right: both faces coexist (mixed).') }}</li>
-                <li class="pt-1 text-[12px]">{{ L('El contorno punteado marca los focos de la IA de David, no confirmados en el informe.', 'A dashed outline marks David’s-AI foci, not confirmed in the report.') }}</li>
+                <li class="pt-1 text-[12px]">{{ L('El contorno punteado marca los focos detectados por IA, por confirmar (no en el informe).', 'A dashed outline marks AI-detected foci, to confirm (not in the report).') }}</li>
               </ul>
             </aside>
           </div>
@@ -1212,13 +1230,13 @@ const ticks = [
 
         <!-- ===== ZONA C · IMAGEN REAL (pestañas) ===== -->
         <section class="mb-14" aria-labelledby="imagen">
-          <p class="eyebrow mb-2 block">{{ L('Tu imagen real', 'Your real imaging') }}</p>
+          <p class="eyebrow mb-2 block">{{ L('La imagen real', 'The real imaging') }}</p>
           <h2 id="imagen" class="heading-display text-2xl text-berenjena mb-2">
-            {{ L('La imagen real, reconstruida de tus DICOM', 'The real imaging, reconstructed from your DICOM') }}
+            {{ L('La imagen real, reconstruida de los DICOM', 'The real imaging, reconstructed from the DICOM') }}
           </h2>
           <p class="text-sm text-tinta leading-relaxed mb-5 max-w-3xl">
-            {{ L('Tres vistas de tus propios estudios, todas reconstruidas a partir de los DICOM: el cuerpo entero (MIP), la columna en el PET y la columna en resonancia (RMN). Cambia de pestaña para compararlas.',
-                  'Three views of your own studies, all reconstructed from the DICOM: the whole body (MIP), the spine on PET and the spine on MRI. Switch tabs to compare them.') }}
+            {{ L('Tres vistas de los estudios, todas reconstruidas a partir de los DICOM: el cuerpo entero (MIP), la columna en el PET y la columna en resonancia (RMN). Cambia de pestaña para compararlas.',
+                  'Three views of the studies, all reconstructed from the DICOM: the whole body (MIP), the spine on PET and the spine on MRI. Switch tabs to compare them.') }}
           </p>
 
           <!-- pestañas -->
@@ -1279,8 +1297,8 @@ const ticks = [
           <!-- panel · columna en RMN -->
           <div v-show="imgTab === 'rmn'" role="tabpanel">
             <p class="text-sm text-tinta leading-relaxed mb-4 max-w-3xl">
-              {{ L('Imágenes reales de tu resonancia de columna (cervical y dorsal). La RMN ve el hueso y la médula ósea con mucho más detalle que el CT de baja dosis del PET. Cambia de región y de secuencia, y desliza para recorrer los cortes.',
-                    'Real images from your spine MRI (cervical and thoracic). MRI shows bone and bone marrow in far more detail than the low-dose CT of the PET. Switch region and sequence, and slide to scroll through the slices.') }}
+              {{ L('Imágenes reales de la resonancia de columna (cervical y dorsal). La RMN ve el hueso y la médula ósea con mucho más detalle que el CT de baja dosis del PET. Cambia de región y de secuencia, y desliza para recorrer los cortes.',
+                    'Real images from the spine MRI (cervical and thoracic). MRI shows bone and bone marrow in far more detail than the low-dose CT of the PET. Switch region and sequence, and slide to scroll through the slices.') }}
             </p>
             <div class="card-base">
               <ClientOnly>
@@ -1291,7 +1309,7 @@ const ticks = [
             <!-- hallazgos del informe de RM (citados, descriptivos) -->
             <div class="card-base mt-4">
               <p class="eyebrow mb-2 block">{{ L('Lectura del informe · citada', 'Report findings · cited') }}</p>
-              <h3 class="heading-display text-lg text-berenjena mb-2">{{ L('Lo que dice tu RM de columna (11/06/2026)', 'What your spine MRI says (11 Jun 2026)') }}</h3>
+              <h3 class="heading-display text-lg text-berenjena mb-2">{{ L('Lo que dice la RM de columna (11/06/2026)', 'What the spine MRI says (11 Jun 2026)') }}</h3>
               <p class="text-sm text-tinta leading-relaxed mb-4">
                 {{ L('Texto transcrito del informe de RM, recogido en el documento de apoyo (12/06/2026). Es el texto del informe, no una relectura de la imagen por esta herramienta.',
                       'Text transcribed from the MRI report, captured in the supportive document (12 Jun 2026). It is the report’s text, not a re-reading of the image by this tool.') }}
@@ -1308,8 +1326,8 @@ const ticks = [
             </div>
 
             <div class="rounded-card border border-[#efb27a] bg-[#fbf0df] text-[#7a4a12] px-4 py-3 text-sm leading-relaxed mt-4">
-              {{ L('Las imágenes de la RMN se muestran para verlas; los hallazgos de arriba están transcritos del informe de RM (11/06/2026) y no son una relectura de la imagen por esta herramienta. Su lectura formal corresponde a tu radiólogo. Los SUV del resto de la página vienen de los informes del PET.',
-                    'The MRI images are shown for viewing; the findings above are transcribed from the MRI report (11 Jun 2026) and are not a re-reading of the image by this tool. Its formal reading belongs to your radiologist. The SUVs in the rest of the page come from the PET reports.') }}
+              {{ L('Las imágenes de la RMN se muestran para verlas; los hallazgos de arriba están transcritos del informe de RM (11/06/2026) y no son una relectura de la imagen por esta herramienta. Su lectura formal corresponde al radiólogo. Los SUV del resto de la página vienen de los informes del PET.',
+                    'The MRI images are shown for viewing; the findings above are transcribed from the MRI report (11 Jun 2026) and are not a re-reading of the image by this tool. Its formal reading belongs to the radiologist. The SUVs in the rest of the page come from the PET reports.') }}
             </div>
           </div>
         </section>
@@ -1347,24 +1365,24 @@ const ticks = [
               <div class="stat-readout__unit">{{ L('encienden ahora', 'lighting up now') }}</div>
             </div>
           </div>
-          <div v-if="riskFoci.length" class="alert-callout">
-            <div class="alert-callout__title">{{ L('Hallazgo: hueso de carga con FDG que no baja', 'Finding: weight-bearing bone with FDG not falling') }}</div>
+          <div v-if="loadBearingFdgFoci.length" class="alert-callout">
+            <div class="alert-callout__title">{{ L('Focos en hueso de carga con FDG igual o mayor que el previo (descriptivo)', 'Weight-bearing foci with FDG equal to or above the prior study (descriptive)') }}</div>
             {{ L(
-              'Focos en hueso de carga cuyo FDG iguala o supera el del estudio previo: ' + riskFoci.map((l) => '#' + l.id + ' ' + l.level.es).join(' · ') + '. Oncología Radioterápica ya los revisó. Descripción de los datos, no consejo médico.',
-              'Foci in weight-bearing bone whose FDG matches or exceeds the prior study: ' + riskFoci.map((l) => '#' + l.id + ' ' + l.level.en).join(' · ') + '. Radiation Oncology has already reviewed them. Description of the data, not medical advice.') }}
+              'Focos en hueso de carga cuyo FDG iguala o supera el del estudio previo: ' + loadBearingFdgFoci.map((l) => '#' + l.id + ' ' + l.level.es).join(' · ') + '. Oncología Radioterápica ya los revisó. Descripción de los datos, no consejo médico.',
+              'Foci in weight-bearing bone whose FDG matches or exceeds the prior study: ' + loadBearingFdgFoci.map((l) => '#' + l.id + ' ' + l.level.en).join(' · ') + '. Radiation Oncology has already reviewed them. Description of the data, not medical advice.') }}
           </div>
         </section>
 
         <!-- ===== ZONA E · APÉNDICE DE REFERENCIA (tabla) — abre en modo Clínico ===== -->
         <section class="mb-14" aria-labelledby="tabla">
-          <p class="eyebrow mb-2 block">{{ L('Para tu equipo · referencia', 'For your team · reference') }}</p>
+          <p class="eyebrow mb-2 block">{{ L('Para el equipo · referencia', 'For the team · reference') }}</p>
           <h2 id="tabla" class="heading-display text-2xl text-berenjena mb-2">{{ L('Apéndice: los focos en una tabla', 'Appendix: the foci in a table') }}</h2>
           <p class="text-sm text-tinta leading-relaxed mb-4 max-w-3xl">{{ L('Tabla completa con SUVmáx por trazador, tendencia, tamaño, patrón y procedencia, más los focos extra detectados de forma automática. Detalle clínico: se abre en el modo «Clínico».', 'Full table with SUVmax per tracer, trend, size, pattern and provenance, plus the automatically detected extra foci. Clinical detail: it opens in “Clinical” mode.') }}</p>
           <details class="notes-disclosure" :open="isClinical">
             <summary>{{ L('Abrir la tabla, la procedencia y los focos extra', 'Open the table, provenance and extra foci') }}</summary>
           <p class="text-[12px] text-tinta mt-3 mb-4 leading-relaxed max-w-3xl">
-            {{ L('Pulsa una cabecera para ordenar. Fuente: «Informe» = informe oficial · «Ambos» = en el informe y en el análisis de la IA de David · «IA David» = solo en el análisis de la IA de David (medidas aproximadas sobre DICOM, a revisar).',
-                  'Click a header to sort. Source: “Report” = official report · “Both” = in the report and in David’s AI analysis · “David AI” = only in David’s AI analysis (approximate DICOM measurements, to review).') }}
+            {{ L('Pulsa una cabecera para ordenar. Fuente: «Informe» = informe oficial · «Ambos» = en el informe y en el análisis por IA · «Detectado por IA · por confirmar» = solo en el análisis por IA (medidas aproximadas sobre DICOM, a revisar).',
+                  'Click a header to sort. Source: “Report” = official report · “Both” = in the report and in the AI analysis · “AI-detected · to confirm” = only in the AI analysis (approximate DICOM measurements, to review).') }}
           </p>
           <div class="data-card overflow-x-auto">
             <table class="data-table data-table--dense">
@@ -1401,7 +1419,7 @@ const ticks = [
                       <span>{{ phenoLabel(le) }}</span>
                     </span>
                   </td>
-                  <td><span class="pill-data whitespace-nowrap" :style="{ background: sourceMeta(le).c + '22', color: sourceMeta(le).c }">{{ L(sourceMeta(le).es, sourceMeta(le).en) }}</span></td>
+                  <td><span class="pill-data whitespace-nowrap" :style="{ background: sourceMeta(le).c + '22', color: sourceMeta(le).tc }">{{ L(sourceMeta(le).es, sourceMeta(le).en) }}</span></td>
                 </tr>
               </tbody>
             </table>
@@ -1412,8 +1430,8 @@ const ticks = [
             <strong>{{ L('Por aclarar / pendiente de confirmar', 'To clarify / pending confirmation') }}</strong>
             <ul class="list-disc pl-5 mt-1.5 space-y-1">
               <li>{{ L('Faltan los tamaños de 6 focos: #1 C3, #2 C4, #3 escápula, #6 T9, #10 pedículo L1 y #15 ilíaco izquierdo.', 'Sizes missing for 6 foci: #1 C3, #2 C4, #3 scapula, #6 T9, #10 L1 pedicle and #15 left iliac.') }}</li>
-              <li>{{ L('Confirmar el #12: aquí figura como sacro derecho, pero la tabla de la IA de David lo describe como vértebra lumbar.', 'Confirm #12: shown here as right sacrum, but David’s AI table describes it as a lumbar vertebra.') }}</li>
-              <li>{{ L('Los 3 focos marcados «IA David» (#17–#19) son medidas aproximadas sobre los DICOM, no confirmadas en el informe oficial — a revisar con Medicina Nuclear.', 'The 3 “David AI” foci (#17–#19) are approximate DICOM measurements, not confirmed in the official report — to review with Nuclear Medicine.') }}</li>
+              <li>{{ L('Confirmar el #12: aquí figura como sacro derecho, pero la tabla del análisis por IA lo describe como vértebra lumbar.', 'Confirm #12: shown here as right sacrum, but the AI-analysis table describes it as a lumbar vertebra.') }}</li>
+              <li>{{ L('Los 3 focos marcados «Detectado por IA» (#17–#19) son medidas aproximadas sobre los DICOM, no confirmadas en el informe oficial — a revisar con Medicina Nuclear.', 'The 3 “AI-detected” foci (#17–#19) are approximate DICOM measurements, not confirmed in the official report — to review with Nuclear Medicine.') }}</li>
             </ul>
           </div>
 
@@ -1424,7 +1442,7 @@ const ticks = [
                 {{ L('Focos extra detectados (automático, no en la tabla)', 'Extra foci detected (automatic, not in the table)') }}
                 <span class="status-badge" :style="{ background: 'rgba(31,90,58,0.12)', color: '#1f5a3a' }">{{ L('verificación', 'verification') }}</span>
               </p>
-              <p class="text-[12px] text-tinta leading-relaxed mb-2">{{ L('Focos FDG que la detección automática halló sobre el DICOM y que NO están en tu tabla. No es diagnóstico: es para que el equipo decida si añadir alguno. El primero (HU 1) probablemente es captación de partes blandas; el blástico de SUVmáx 5,82 (HU 704, lado izq.) es el más sugestivo de lesión real no listada.', 'FDG foci the automatic detection found on the DICOM that are NOT in your table. Not a diagnosis: for the team to decide whether to add any. The first (HU 1) is likely soft-tissue uptake; the blastic SUVmax 5.82 (HU 704, left) is the most suggestive of a real unlisted lesion.') }}</p>
+              <p class="text-[12px] text-tinta leading-relaxed mb-2">{{ L('Focos FDG que la detección automática halló sobre el DICOM y que NO están en la tabla. No es diagnóstico: es para que el equipo decida si añadir alguno. El primero (HU 1) probablemente es captación de partes blandas; el blástico de SUVmáx 5,82 (HU 704, lado izq.) es el más sugestivo de lesión real no listada.', 'FDG foci the automatic detection found on the DICOM that are NOT in the table. Not a diagnosis: for the team to decide whether to add any. The first (HU 1) is likely soft-tissue uptake; the blastic SUVmax 5.82 (HU 704, left) is the most suggestive of a real unlisted lesion.') }}</p>
               <div class="flex flex-wrap gap-2">
                 <span v-for="(c, i) in AUTO_NEW_FDG" :key="i" class="pill-data" :style="{ background: c.flag ? '#fde4cc' : 'rgba(45,27,61,0.06)', color: c.flag ? '#8a4a1a' : '#3a3340' }">
                   SUVmáx {{ c.suvmax }} · {{ c.morph }} · {{ c.size }} mm · {{ c.side }}<template v-if="c.flag"> · {{ c.flag }}</template>
@@ -1446,6 +1464,14 @@ const ticks = [
               'SUV and locations: ¹⁸F-FDG PET-CT report 24/03/2026 and ⁶⁸Ga-DOTATOC PET-CT report 26/05/2026 (Nuclear Medicine, Virgen de la Arrixaca Hospital). PET images: MIP, sagittal fusion and axial slices reconstructed from the DICOM of both studies (attenuation-corrected PET + CT). SUVs computed from the DICOM agree with the report within ~10–12% (expected difference between voxel-max and ROI). MRI: sagittal slices of the cervical and thoracic spine (STIR and T1 sequences) exported from the MR DICOM; shown for visualisation only and pending formal radiology reading.') }}
           </p>
         </details>
+
+        <!-- retorno a /ciencia (coherencia de sitio) -->
+        <div class="mt-10 pt-6 border-t border-[rgba(45,27,61,0.1)]">
+          <NuxtLink :to="localePath('ciencia')" class="link-action text-miriam">
+            {{ L('El tejido y la biología molecular, en La ciencia', 'Tissue and molecular biology, in The science') }}
+            <span aria-hidden="true">→</span>
+          </NuxtLink>
+        </div>
       </div>
     </section>
   </div>
