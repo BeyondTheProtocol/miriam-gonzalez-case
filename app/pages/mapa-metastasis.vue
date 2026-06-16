@@ -826,6 +826,94 @@ function bone3dTabKey(e: KeyboardEvent) {
    informe recogido en el documento de apoyo; no es una relectura de la imagen. */
 const MRI_LEVELS = ['D1-D3', 'D4-D5', 'D8-D9', 'D11-D12', 'L1', 'L2-L3', 'L5', 'S1-S2']
 
+/* ================================================================== */
+/*  LENTE · IDONEIDAD COMO DIANA (orientativa, transparente)           */
+/*  Ordena los focos por las SEÑALES que importan para elegir dónde    */
+/*  rebiopsiar: tumor viable (FDG/Galio) y rendimiento tisular esperado */
+/*  (lítico/partes blandas rinde; blástico denso rinde poco). EQUIPA la */
+/*  decisión del equipo; NO indica dónde biopsiar ni concluye nada.    */
+/*                                                                      */
+/*  No es una caja negra: la puntuación es el PRODUCTO de tres factores */
+/*  visibles, etiquetados por trazador/forma (nunca por biología):     */
+/*    idoneidad(0-100) = 100 · viable · rendimiento · tamaño           */
+/*    · viable   (0-1) = 0.78·(FDG/10) + 0.22·(Ga/14)  → tumor activo;  */
+/*                        el FDG manda, el Ga confirma tumor/receptor.  */
+/*    · rendimiento(0-1)= forma (morfología): lítico 1 · mixto 0.6 ·    */
+/*                        blástico denso 0.3 · sin dato 0.5.            */
+/*    · tamaño  (0.6-1) = eje mayor (≥18 mm → 1; ~8 mm → 0.6); s/d 0.75.*/
+/*  Antecedente (biopsia 26B585 fallida en #13) y accesibilidad NO se   */
+/*  meten en el número: se MUESTRAN como avisos que el equipo pondera.  */
+/*  Accesibilidad/seguridad no la tenemos → «a valorar por radiología   */
+/*  intervencionista»; no se inventa.                                   */
+/* ================================================================== */
+function clamp01(x: number): number { return Math.max(0, Math.min(1, x)) }
+
+/* eje mayor del tamaño (mm), si el informe lo da (p.ej. «18 × 13» → 18) */
+function sizeMajorMm(le: Lesion): number | null {
+  const nums = (le.size?.match(/\d+(?:[.,]\d+)?/g) || []).map((s) => Number(s.replace(',', '.')))
+  return nums.length ? Math.max(...nums) : null
+}
+/* factor de tumor viable (0-1): FDG (tumor metabólicamente activo) manda; Ga confirma */
+function viableFactor(le: Lesion): number {
+  return clamp01(0.78 * ((le.fdg ?? 0) / 10) + 0.22 * ((le.dota ?? 0) / 14))
+}
+/* factor de rendimiento tisular esperado (0-1) por FORMA del hueso (morfología CT).
+   Ancla al fallo 26B585: el blástico denso suele rendir poco tejido tumoral. */
+function yieldFactor(le: Lesion): number {
+  const m = morphCat(le)
+  if (m === 'lítica') return 1
+  if (m === 'mixta') return 0.6
+  if (m === 'blástica') return 0.3
+  return 0.5 // forma sin confirmar
+}
+/* factor de tamaño (0.6-1): el eje mayor; más grande = más fácil/más tejido. s/d = 0.75 */
+function sizeFactor(le: Lesion): number {
+  const mm = sizeMajorMm(le)
+  if (mm == null) return 0.75
+  return Math.max(0.6, Math.min(1, 0.6 + ((mm - 8) / 10) * 0.4))
+}
+/* idoneidad compuesta 0-100 (orientativa). Producto de los tres factores visibles. */
+function suitabilityScore(le: Lesion): number {
+  return Math.round(100 * viableFactor(le) * yieldFactor(le) * sizeFactor(le))
+}
+/* palabra corta de forma (para las mini-barras de rendimiento) */
+function morphShort(le: Lesion): string {
+  const m = morphCat(le)
+  if (m === 'lítica') return L('lítico · rinde', 'lytic · yields')
+  if (m === 'mixta') return L('mixto', 'mixed')
+  if (m === 'blástica') return L('blástico denso · rinde poco', 'dense blastic · low yield')
+  return L('forma s/c', 'shape n/c')
+}
+/* los factores explícitos por foco (para mostrarlos, no solo el número) */
+function suitabilityFactors(le: Lesion) {
+  return {
+    score: suitabilityScore(le),
+    viable: viableFactor(le),
+    yieldF: yieldFactor(le),
+    sizeF: sizeFactor(le),
+    fdg: le.fdg,
+    ga: le.dota,
+    morph: morphCat(le),
+    morphLabel: morphLabel(le),
+    sizeMm: sizeMajorMm(le),
+    mtv: mtvList(le),
+    priorFail: !!le.priorBiopsy,
+    isAi: isAiDavid(le),
+  }
+}
+/* candidatos CONFIRMADOS ordenados por idoneidad (los focos del informe).
+   Los detectados por IA quedan fuera del orden → lista aparte, marcados. */
+const rankedFoci = computed(() =>
+  [...confirmedFoci.value].sort((a, b) => suitabilityScore(b) - suitabilityScore(a) || a.id - b.id),
+)
+/* focos detectados por IA (por confirmar): candidatos sí, peso real no */
+const aiCandidates = computed(() =>
+  [...aiFoci.value].sort((a, b) => suitabilityScore(b) - suitabilityScore(a) || a.id - b.id),
+)
+const suitMax = computed(() => Math.max(1, ...LES.map(suitabilityScore)))
+/* ancho 0-100% de una barra de factor (para las mini-barras inline) */
+function pct01(x: number): string { return (clamp01(x) * 100).toFixed(0) + '%' }
+
 /* ------------------------------------------------------------------ */
 /*  Orden de la tabla                                                  */
 /* ------------------------------------------------------------------ */
@@ -852,6 +940,7 @@ function sortVal(le: Lesion, key: string): number | string {
     case 'prev': return le.prevFdg ?? -1
     case 'delta': return le.fdg != null && le.prevFdg != null ? le.fdg - le.prevFdg : -999
     case 'size': { const m = le.size?.match(/\d+/g); return m ? Number(m[0]) * (m[1] ? Number(m[1]) : 1) : -1 }
+    case 'suit': return suitabilityScore(le)
     case 'pheno': return ['ne', 'mixNe', 'mixBal', 'mixAgg', 'agg'].indexOf(le.pheno)
     case 'source': return ['informe', 'ambos', 'ia-david'].indexOf(sourceOf(le))
     default: return le.id
@@ -860,6 +949,12 @@ function sortVal(le: Lesion, key: string): number | string {
 const sortedLES = computed(() => {
   const k = sortKey.value, d = sortDir.value
   return [...LES].sort((a, b) => {
+    // Idoneidad: los focos «detectados por IA» (sin confirmar) NO compiten en el
+    // orden → siempre al fondo, con independencia del sentido del orden.
+    if (k === 'suit') {
+      const aAi = isAiDavid(a), bAi = isAiDavid(b)
+      if (aAi !== bAi) return aAi ? 1 : -1
+    }
     const va = sortVal(a, k), vb = sortVal(b, k)
     if (va < vb) return -d
     if (va > vb) return d
@@ -1783,11 +1878,158 @@ const ticks = [
           </div>
         </section>
 
+        <!-- ===== LENTE · IDONEIDAD COMO DIANA (pieza central del panel) ===== -->
+        <section class="mb-14" aria-labelledby="idoneidad">
+          <p class="eyebrow mb-2 block">{{ L('La lente · elegir dónde rebiopsiar', 'The lens · choosing where to rebiopsy') }}</p>
+          <h2 id="idoneidad" class="heading-display text-2xl text-berenjena mb-2">
+            {{ L('Idoneidad como diana de biopsia', 'Suitability as a biopsy target') }}
+          </h2>
+
+          <!-- TARJETA-LENTE · marco ético (equipa, no indica) -->
+          <div class="rounded-card border-l-4 px-4 py-4 mb-6" :style="{ borderLeftColor: '#9d44ab', background: '#f7eef9' }">
+            <p class="text-[11px] font-semibold uppercase tracking-wide mb-1.5 flex items-center gap-2 flex-wrap" :style="{ color: '#7a2f86' }">
+              <span class="inline-block w-2.5 h-2.5 rounded-full" :style="{ background: '#9d44ab' }" />
+              {{ L('Cómo leer esta lente', 'How to read this lens') }}
+              <span class="status-badge" :style="{ background: '#e8d4ed', color: '#5a2466' }">{{ L('equipa, no indica', 'equips, does not indicate') }}</span>
+            </p>
+            <p class="text-[14px] text-berenjena leading-relaxed">
+              {{ L(
+                'Esta vista ordena los focos por las señales que importan para elegir dónde rebiopsiar — tumor viable (FDG/Galio) y rendimiento tisular esperado (lítico/partes blandas rinde; blástico denso rinde poco). EQUIPA la decisión del equipo médico; NO indica dónde biopsiar ni concluye tratamiento o pronóstico. La accesibilidad y seguridad las valora radiología intervencionista.',
+                'This view orders the foci by the signals that matter for choosing where to rebiopsy — viable tumour (FDG/gallium) and expected tissue yield (lytic/soft tissue yields; dense blastic yields little). It EQUIPS the medical team’s decision; it does NOT indicate where to biopsy nor conclude treatment or prognosis. Accessibility and safety are assessed by interventional radiology.') }}
+            </p>
+          </div>
+
+          <!-- LOS FACTORES que componen la idoneidad (explícitos, etiquetados por trazador/forma) -->
+          <p class="text-sm text-tinta leading-relaxed mb-3 max-w-3xl">
+            {{ L('La idoneidad no es una caja negra: es el producto de tres factores visibles, más dos avisos que el equipo pondera (no van en el número).',
+                  'Suitability is not a black box: it is the product of three visible factors, plus two flags the team weighs (they are not in the number).') }}
+          </p>
+          <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-3 mb-6">
+            <div class="card-base !p-3.5 border-t-4" :style="{ borderColor: '#bb4128' }">
+              <p class="text-[12px] font-semibold mb-1" :style="{ color: '#bb4128' }">{{ L('1 · Tumor viable', '1 · Viable tumour') }}</p>
+              <p class="text-[12.5px] text-tinta leading-snug">{{ L('FDG SUVmáx: cuanto más alto, más tumor metabólicamente activo que muestrear. El Galio confirma tumor / receptor (teranóstico).', 'FDG SUVmax: the higher, the more metabolically active tumour to sample. Gallium confirms tumour / receptor (theranostic).') }}</p>
+            </div>
+            <div class="card-base !p-3.5 border-t-4" :style="{ borderColor: '#1f6b57' }">
+              <p class="text-[12px] font-semibold mb-1" :style="{ color: '#1f6b57' }">{{ L('2 · Rendimiento esperado', '2 · Expected yield') }}</p>
+              <p class="text-[12.5px] text-tinta leading-snug">{{ L('Forma del hueso: lítico / partes blandas suele rendir más tejido; blástico denso rinde poco (como falló la biopsia ilíaca 26B585). Es FORMA, no biología.', 'Bone shape: lytic / soft tissue usually yields more tissue; dense blastic yields little (as the 26B585 iliac biopsy failed). It is SHAPE, not biology.') }}</p>
+            </div>
+            <div class="card-base !p-3.5 border-t-4" :style="{ borderColor: '#6b6470' }">
+              <p class="text-[12px] font-semibold mb-1" :style="{ color: '#3a3340' }">{{ L('3 · Tamaño / cantidad', '3 · Size / amount') }}</p>
+              <p class="text-[12.5px] text-tinta leading-snug">{{ L('Eje mayor de la lesión (más grande = más fácil y más tejido) y, donde se midió, el MTV (volumen tumoral metabólico).', 'Lesion major axis (larger = easier and more tissue) and, where measured, the MTV (metabolic tumour volume).') }}</p>
+            </div>
+            <div class="card-base !p-3.5 border-t-4" :style="{ borderColor: '#8a5a1a' }">
+              <p class="text-[12px] font-semibold mb-1" :style="{ color: '#8a5a1a' }">{{ L('Aviso · antecedente', 'Flag · prior history') }}</p>
+              <p class="text-[12.5px] text-tinta leading-snug">{{ L('La biopsia previa 26B585 (ilíaco derecho, #13) FALLÓ: solo dio hueso y músculo, sin tumor evaluable. Se muestra como aviso; no entra en el número.', 'The prior 26B585 biopsy (right iliac, #13) FAILED: only bone and muscle, no evaluable tumour. Shown as a flag; not part of the number.') }}</p>
+            </div>
+            <div class="card-base !p-3.5 border-t-4" :style="{ borderColor: '#6b6470' }">
+              <p class="text-[12px] font-semibold mb-1" :style="{ color: '#3a3340' }">{{ L('Aviso · accesibilidad', 'Flag · accessibility') }}</p>
+              <p class="text-[12.5px] text-tinta leading-snug">{{ L('La accesibilidad y la seguridad no las tenemos como dato fiable: las valora radiología intervencionista. No se inventan ni se puntúan.', 'Accessibility and safety are not available to us as a reliable datum: interventional radiology assesses them. They are neither invented nor scored.') }}</p>
+            </div>
+            <div class="card-base !p-3.5 border-t-4" :style="{ borderColor: '#9d44ab' }">
+              <p class="text-[12px] font-semibold mb-1" :style="{ color: '#7a2f86' }">{{ L('La fórmula', 'The formula') }}</p>
+              <p class="text-[12px] text-tinta leading-snug font-mono">idoneidad = 100 · viable · rendimiento · tamaño</p>
+              <p class="text-[11px] text-tinta leading-snug mt-1">{{ L('viable = 0.78·(FDG/10) + 0.22·(Ga/14) · rendimiento = lítico 1 / mixto 0.6 / blástico 0.3 · tamaño = 0.6–1 por eje mayor. Orientativa.', 'viable = 0.78·(FDG/10) + 0.22·(Ga/14) · yield = lytic 1 / mixed 0.6 / blastic 0.3 · size = 0.6–1 by major axis. Indicative.') }}</p>
+            </div>
+          </div>
+
+          <!-- ORDEN ORIENTATIVO · candidatos confirmados (los focos del informe) -->
+          <div class="flex items-baseline justify-between flex-wrap gap-2 mb-2">
+            <h3 class="heading-display text-lg text-berenjena">{{ L('Focos del informe, ordenados por idoneidad', 'Report foci, ordered by suitability') }}</h3>
+            <span class="text-[11px] text-tinta">{{ L('orden orientativo · toca un foco para abrir su ficha', 'indicative order · tap a focus to open its card') }}</span>
+          </div>
+          <ul class="space-y-2 mb-3">
+            <li v-for="(le, i) in rankedFoci" :key="le.id">
+              <button type="button" @click="pick(le.id); $event.currentTarget.scrollIntoView({ behavior: 'smooth', block: 'center' })"
+                class="w-full text-left rounded-card border px-3.5 py-3 transition-colors"
+                :class="selected === le.id ? 'border-[#9d44ab] bg-[rgba(157,68,171,0.07)]' : 'border-[rgba(45,27,61,0.12)] bg-cream-card hover:border-[rgba(45,27,61,0.3)]'">
+                <div class="flex items-center gap-3">
+                  <span class="w-5 shrink-0 text-right font-mono text-[13px] text-tinta tabular-nums">{{ i + 1 }}</span>
+                  <span class="inline-flex w-7 h-7 shrink-0 rounded-full items-center justify-center text-white text-xs font-semibold" :style="{ background: phenoColor(le) }">{{ le.id }}</span>
+                  <div class="flex-1 min-w-0">
+                    <p class="font-semibold text-berenjena text-sm leading-tight">{{ le.level[lang] }}</p>
+                    <p class="text-[11px] text-tinta leading-tight">{{ le.region[lang] }} · {{ le.side === 'R' ? L('dcha', 'R') : le.side === 'L' ? L('izda', 'L') : L('centro', 'mid') }}</p>
+                  </div>
+                  <div class="text-right shrink-0">
+                    <div class="font-display text-2xl text-berenjena tabular-nums leading-none">{{ suitabilityScore(le) }}</div>
+                    <div class="text-[9px] text-tinta uppercase tracking-wide">{{ L('idoneidad', 'suitability') }}</div>
+                  </div>
+                </div>
+                <!-- los tres factores que componen el número (visibles, no solo el total) -->
+                <div class="mt-3 grid sm:grid-cols-3 gap-x-4 gap-y-2">
+                  <div>
+                    <div class="flex justify-between items-baseline text-[10.5px] mb-0.5">
+                      <span class="text-tinta">{{ L('Tumor viable (FDG/Ga)', 'Viable tumour (FDG/Ga)') }}</span>
+                      <span class="font-mono" :style="{ color: '#bb4128' }">FDG {{ le.fdg != null ? le.fdg.toFixed(1) : '—' }} · Ga {{ le.dota != null ? le.dota.toFixed(1) : '—' }}</span>
+                    </div>
+                    <div class="h-1.5 rounded-full overflow-hidden" :style="{ background: 'rgba(45,27,61,0.08)' }">
+                      <div class="h-full rounded-full" :style="{ width: pct01(viableFactor(le)), background: '#bb4128' }" />
+                    </div>
+                  </div>
+                  <div>
+                    <div class="flex justify-between items-baseline text-[10.5px] mb-0.5">
+                      <span class="text-tinta">{{ L('Rendimiento (forma)', 'Yield (shape)') }}</span>
+                      <span class="font-mono" :style="{ color: '#1f6b57' }">{{ morphShort(le) }}</span>
+                    </div>
+                    <div class="h-1.5 rounded-full overflow-hidden" :style="{ background: 'rgba(45,27,61,0.08)' }">
+                      <div class="h-full rounded-full" :style="{ width: pct01(yieldFactor(le)), background: '#1f6b57' }" />
+                    </div>
+                  </div>
+                  <div>
+                    <div class="flex justify-between items-baseline text-[10.5px] mb-0.5">
+                      <span class="text-tinta">{{ L('Tamaño / cantidad', 'Size / amount') }}</span>
+                      <span class="font-mono text-tinta">{{ sizeMajorMm(le) != null ? sizeMajorMm(le) + ' mm' : L('s/d', 'n/a') }}<template v-if="mtvList(le).length"> · MTV {{ mtvList(le)[0].v }} ml</template></span>
+                    </div>
+                    <div class="h-1.5 rounded-full overflow-hidden" :style="{ background: 'rgba(45,27,61,0.08)' }">
+                      <div class="h-full rounded-full" :style="{ width: pct01(sizeFactor(le)), background: '#6b6470' }" />
+                    </div>
+                  </div>
+                </div>
+                <!-- avisos (no van en el número): antecedente / hueso de carga -->
+                <div v-if="le.priorBiopsy || le.load" class="mt-2.5 flex flex-wrap gap-1.5">
+                  <span v-if="le.priorBiopsy" class="pill-data" :style="{ background: '#f0e2c8', color: '#8a5a1a' }">{{ L('⚑ biopsia previa 26B585 FALLÓ aquí', '⚑ prior biopsy 26B585 FAILED here') }}</span>
+                  <span v-if="le.load" class="pill-data" :style="{ background: 'rgba(45,27,61,0.06)', color: '#3a3340' }">{{ L('hueso de carga · revisado (Oncología RT)', 'weight-bearing · reviewed (Radiation Oncology)') }}</span>
+                </div>
+              </button>
+            </li>
+          </ul>
+          <p class="text-[12px] text-tinta leading-relaxed mb-8 max-w-3xl">
+            {{ L('Recordatorio: es un ORDEN ORIENTATIVO por las señales de imagen, no una orden de qué biopsiar. La decisión —incluida la accesibilidad y la seguridad— es del equipo médico con radiología intervencionista.',
+                  'Reminder: this is an INDICATIVE ORDER by imaging signals, not an instruction on what to biopsy. The decision — including accessibility and safety — belongs to the medical team with interventional radiology.') }}
+          </p>
+
+          <!-- FOCOS DETECTADOS POR IA · separados del orden (candidatos sí, peso real no) -->
+          <div class="rounded-card border px-4 py-4" :style="{ borderColor: '#efb27a', background: '#fbf5ea' }">
+            <p class="text-[11px] font-semibold uppercase tracking-wide mb-1.5 flex items-center gap-2 flex-wrap" :style="{ color: '#8a4a1a' }">
+              <span class="inline-block w-2.5 h-2.5 rounded-full" :style="{ background: '#bf7d2c' }" />
+              {{ L('Detectados por IA · fuera del orden', 'AI-detected · outside the order') }}
+              <span class="status-badge" :style="{ background: '#fde4cc', color: '#8a4a1a' }">{{ L('sin confirmar', 'unconfirmed') }}</span>
+            </p>
+            <p class="text-[12.5px] text-tinta leading-relaxed mb-3">
+              {{ L('Estos focos los detectó una IA sobre los DICOM y no constan en el informe oficial. Candidatos sí, peso real no: requieren correlación de imagen con Medicina Nuclear antes de considerarse diana. Por eso quedan fuera del orden de arriba.',
+                    'These foci were detected by an AI on the DICOM and are not in the official report. Candidates yes, real weight no: they require imaging correlation with Nuclear Medicine before being considered a target. That is why they stay outside the order above.') }}
+            </p>
+            <ul class="space-y-2">
+              <li v-for="le in aiCandidates" :key="le.id">
+                <button type="button" @click="pick(le.id); $event.currentTarget.scrollIntoView({ behavior: 'smooth', block: 'center' })"
+                  class="w-full text-left rounded-card border px-3 py-2.5 transition-colors flex items-center gap-3"
+                  :class="selected === le.id ? 'border-[#bf7d2c] bg-[rgba(191,125,44,0.08)]' : 'border-[rgba(138,74,26,0.25)] bg-cream hover:border-[rgba(138,74,26,0.5)]'">
+                  <span class="inline-flex w-7 h-7 shrink-0 rounded-full items-center justify-center text-white text-xs font-semibold" :style="{ background: phenoColor(le) }">{{ le.id }}</span>
+                  <div class="flex-1 min-w-0">
+                    <p class="font-semibold text-berenjena text-sm leading-tight">{{ le.level[lang] }}</p>
+                    <p class="text-[11px] text-tinta leading-tight">FDG ~{{ le.fdg != null ? le.fdg.toFixed(1) : '—' }} · Ga ~{{ le.dota != null ? le.dota.toFixed(1) : '—' }} · {{ morphShort(le) }}</p>
+                  </div>
+                  <span class="status-badge shrink-0" :style="{ background: '#fde4cc', color: '#8a4a1a' }">{{ L('requiere correlación', 'needs correlation') }}</span>
+                </button>
+              </li>
+            </ul>
+          </div>
+        </section>
+
         <!-- ===== ZONA E · APÉNDICE DE REFERENCIA (tabla) — abre en modo Clínico ===== -->
         <section class="mb-14" aria-labelledby="tabla">
           <p class="eyebrow mb-2 block">{{ L('Para el equipo · referencia', 'For the team · reference') }}</p>
           <h2 id="tabla" class="heading-display text-2xl text-berenjena mb-2">{{ L('Apéndice: los focos en una tabla', 'Appendix: the foci in a table') }}</h2>
-          <p class="text-sm text-tinta leading-relaxed mb-4 max-w-3xl">{{ L('Tabla completa con SUVmáx por trazador, tendencia, tamaño, patrón y procedencia, más los focos extra detectados de forma automática. Detalle clínico: se abre en el modo «Clínico».', 'Full table with SUVmax per tracer, trend, size, pattern and provenance, plus the automatically detected extra foci. Clinical detail: it opens in “Clinical” mode.') }}</p>
+          <p class="text-sm text-tinta leading-relaxed mb-4 max-w-3xl">{{ L('Tabla completa con la idoneidad orientativa como diana, SUVmáx por trazador, tendencia, tamaño, patrón y procedencia, más los focos extra detectados de forma automática. Pulsa «Idoneidad» para ordenar los candidatos (los focos detectados por IA quedan al fondo, sin confirmar). Detalle clínico: se abre en el modo «Clínico».', 'Full table with the indicative suitability as a target, SUVmax per tracer, trend, size, pattern and provenance, plus the automatically detected extra foci. Click “Suitability” to order the candidates (AI-detected foci sink to the bottom, unconfirmed). Clinical detail: it opens in “Clinical” mode.') }}</p>
           <details class="notes-disclosure" :open="isClinical">
             <summary>{{ L('Abrir la tabla, la procedencia y los focos extra', 'Open the table, provenance and extra foci') }}</summary>
           <p class="text-[12px] text-tinta mt-3 mb-4 leading-relaxed max-w-3xl">
@@ -1801,6 +2043,7 @@ const ticks = [
                   <th scope="col" :aria-sort="ariaSort('id')"><button type="button" class="th-sort" @click="sortBy('id')"># <span class="th-arrow">{{ sortArrow('id') }}</span></button></th>
                   <th scope="col" :aria-sort="ariaSort('level')"><button type="button" class="th-sort" @click="sortBy('level')">{{ L('Localización', 'Location') }} <span class="th-arrow">{{ sortArrow('level') }}</span></button></th>
                   <th scope="col" :aria-sort="ariaSort('side')"><button type="button" class="th-sort" @click="sortBy('side')">{{ L('Lado', 'Side') }} <span class="th-arrow">{{ sortArrow('side') }}</span></button></th>
+                  <th scope="col" :aria-sort="ariaSort('suit')"><button type="button" class="th-sort" @click="sortBy('suit')">{{ L('Idoneidad', 'Suitability') }} <span class="th-arrow">{{ sortArrow('suit') }}</span></button></th>
                   <th scope="col" :aria-sort="ariaSort('dota')"><button type="button" class="th-sort" @click="sortBy('dota')">Ga SUVmáx <span class="th-arrow">{{ sortArrow('dota') }}</span></button></th>
                   <th scope="col" :aria-sort="ariaSort('fdg')"><button type="button" class="th-sort" @click="sortBy('fdg')">FDG SUVmáx <span class="th-arrow">{{ sortArrow('fdg') }}</span></button></th>
                   <th scope="col" :aria-sort="ariaSort('prev')"><button type="button" class="th-sort" @click="sortBy('prev')">{{ L('FDG previo', 'Prior FDG') }} <span class="th-arrow">{{ sortArrow('prev') }}</span></button></th>
@@ -1815,6 +2058,18 @@ const ticks = [
                   <td><span class="inline-flex w-6 h-6 rounded-full items-center justify-center text-white text-xs font-semibold" :style="{ background: phenoColor(le) }">{{ le.id }}</span></td>
                   <td class="font-semibold text-berenjena">{{ le.level[lang] }}</td>
                   <td class="text-xs">{{ le.side === 'R' ? L('Dcha', 'R') : le.side === 'L' ? L('Izda', 'L') : L('Centro', 'Mid') }}</td>
+                  <td>
+                    <div class="flex items-center gap-2">
+                      <span class="font-mono font-semibold text-berenjena tabular-nums w-6 shrink-0" :style="isAiDavid(le) ? { color: '#8a4a1a', opacity: 0.85 } : {}">{{ suitabilityScore(le) }}</span>
+                      <span class="inline-flex h-2 w-12 shrink-0 rounded-full overflow-hidden" :style="{ background: 'rgba(45,27,61,0.08)' }" aria-hidden="true">
+                        <span class="h-full rounded-full" :style="{ width: ((suitabilityScore(le) / suitMax) * 100).toFixed(0) + '%', background: isAiDavid(le) ? '#bf7d2c' : '#2d1b3d' }" />
+                      </span>
+                    </div>
+                    <div class="flex flex-wrap gap-1 mt-1">
+                      <span v-if="le.priorBiopsy" class="pill-data !px-1.5 !py-0 !text-[10px]" :style="{ background: '#f0e2c8', color: '#8a5a1a' }">{{ L('⚑ 26B585 falló', '⚑ 26B585 failed') }}</span>
+                      <span v-if="isAiDavid(le)" class="pill-data !px-1.5 !py-0 !text-[10px]" :style="{ background: '#fde4cc', color: '#8a4a1a' }">{{ L('sin confirmar', 'unconfirmed') }}</span>
+                    </div>
+                  </td>
                   <td class="font-mono">{{ le.dota != null ? le.dota.toFixed(1) : '—' }}</td>
                   <td class="font-mono">{{ le.fdg != null ? le.fdg.toFixed(1) : '—' }}</td>
                   <td class="font-mono text-tinta">{{ le.prevFdg != null ? le.prevFdg.toFixed(1) : '—' }}</td>
