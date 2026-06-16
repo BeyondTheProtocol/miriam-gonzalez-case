@@ -253,7 +253,14 @@ function load(key: string) {
   new PLYLoader().load(`/metastasis/mesh/${key}.ply`, (geo) => {
     try {
       if (curKey !== key) return                  // llegó tarde: hay una carga más reciente
-      if (!geo.getAttribute('normal')) geo.computeVertexNormals()
+      // Normales SIEMPRE recalculadas del winding de la malla. La reconstrucción
+      // (marching cubes / TotalSegmentator) trae triángulos con winding invertido/
+      // inconsistente; con FrontSide se culaban las caras frontales y se veía la
+      // pared INTERIOR del fondo → el hueso parecía translúcido. Recalcular las
+      // normales del propio winding las deja coherentes con DoubleSide (gl_FrontFacing
+      // voltea la normal en la cara visible) → la cara que mira a cámara se ilumina
+      // bien, sin importar el sentido de los triángulos.
+      geo.deleteAttribute('normal'); geo.computeVertexNormals()
       // Descartar alfa por vértice si el PLY trae color RGBA: una alfa <1 podría
       // translucir el hueso ("zonas transparentes"). Forzamos color RGB opaco.
       const colAttr = geo.getAttribute('color') as THREE.BufferAttribute | undefined
@@ -266,8 +273,11 @@ function load(key: string) {
       if (mesh) { scene.remove(mesh); mesh.geometry.dispose(); (mesh.material as THREE.Material).dispose() }
       disposeMarkers()
       // HUESO MACIZO MATE (como los fotogramas): muy rugoso, sin metal, casi sin
-      // entorno → sin reflejos de cristal ni cera. Opaco y de una sola cara, con
-      // escritura de profundidad → la forma se lee, sin zonas transparentes.
+      // entorno → sin reflejos de cristal ni cera. Opaco, con escritura y test de
+      // profundidad → la forma se lee, sin zonas transparentes. DoubleSide (NO se
+      // culan caras): robusto frente al winding invertido/inconsistente de la malla
+      // reconstruida → nunca se ve "a través" del hueso hacia el interior, gire como
+      // gire. Sin transparencia ni alfa: 100% opaco y escribe profundidad.
       const mat = new THREE.MeshStandardMaterial({
         vertexColors: true,
         roughness: 0.95,
@@ -276,7 +286,9 @@ function load(key: string) {
         transparent: false,
         opacity: 1,
         depthWrite: true,
-        side: THREE.FrontSide,
+        depthTest: true,
+        flatShading: false,
+        side: THREE.DoubleSide,
       })
       mesh = new THREE.Mesh(geo, mat); scene.add(mesh)
       geo.computeBoundingSphere(); const s = geo.boundingSphere

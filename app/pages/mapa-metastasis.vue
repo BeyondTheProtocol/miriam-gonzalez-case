@@ -448,8 +448,8 @@ function gRadius(g: LesGroup, f: number): number {
 function gNewAt(g: LesGroup, f: number): boolean { return g.foci.some((l) => isNewAt(l, f) && presentAt(l, f)) }
 function gSelected(g: LesGroup): boolean { return g.foci.some((l) => l.id === selected.value) }
 function pickGroup(g: LesGroup) { selected.value = g.primary.id }
-const selGroup = computed<LesGroup>(() => GROUPS.find((g) => g.foci.some((l) => l.id === selected.value)) ?? GROUPS[0])
-/* sub-localización del foco dentro de la vértebra (cuerpo, pedículo, espinosa…) para los chips */
+/* sub-localización del foco dentro del hueso (cuerpo, pedículo, espinosa…) — se usa
+   en la lista de focos co-localizados de la zona (ya no en chips conmutables). */
 function focusPart(le: Lesion): string {
   const parts = (le.level[lang.value] || '').split('·')
   return (parts.length > 1 ? parts.slice(1).join('·') : (le.region[lang.value] || '')).trim()
@@ -709,6 +709,18 @@ const BONE3D_KEY: Record<number, string> = {
   12: 'SACRO', 13: 'ILIACO_R', 14: 'ILIACO_R', 15: 'ILIACO_L', 16: 'FEMUR_R', 18: 'ILIACO_R',
 }
 function bone3dKeyOf(le: Lesion) { return BONE3D_KEY[le.id] }
+/* focos CO-LOCALIZADOS en la MISMA malla 3D (mismo hueso reconstruido del CT). Se
+   muestran JUNTOS, como un solo hueso, con un rótulo de «N focos» — SIN selector (la
+   paciente: el selector hace que la gente se pierda). Cubre las zonas con 2+ focos en
+   una sola malla: D11 (#7+#8), L1 (#9+#10) e ILÍACO derecho (#13+#14+#18). No tenemos
+   posición 3D fiable por foco dentro del hueso, así que no clavamos varios marcadores:
+   un solo realce de zona + el rótulo «N focos» (honestidad: informa, no concluye). */
+const coFoci = computed<Lesion[]>(() => {
+  const k = bone3dKeyOf(sel.value)
+  if (!k) return [sel.value]
+  return LES.filter((l) => bone3dKeyOf(l) === k)
+})
+const isMultiFocusBone = computed(() => coFoci.value.length > 1)
 const hasAuto = computed(() => { const a = selAuto.value; return !!a && (a.fdgAuto != null || a.gaAuto != null) })
 
 /* ------------------------------------------------------------------ */
@@ -1184,16 +1196,25 @@ const ticks = [
                 </div>
               </div>
 
-              <!-- conmutador de focos dentro de la misma vértebra -->
-              <div v-if="selGroup.multi" class="flex flex-wrap items-center gap-1.5 mb-3">
-                <span class="text-[11px] text-tinta">{{ L('Focos en esta vértebra', 'Foci in this vertebra') }}:</span>
-                <button v-for="f in selGroup.foci" :key="f.id" type="button" @click="pick(f.id)"
-                  class="px-2 py-0.5 rounded-full text-[11px] font-semibold border transition-colors"
-                  :style="selected === f.id
-                    ? { background: phenoColor(f), color: '#fff', borderColor: phenoColor(f) }
-                    : { background: 'transparent', color: phenoText(f), borderColor: phenoColor(f) + '55' }">
-                  #{{ f.id }} · {{ focusPart(f) }}
-                </button>
+              <!-- zona con 2+ focos co-localizados: se muestran JUNTOS, como un solo
+                   hueso, con un rótulo de «N focos» — SIN selector (la paciente: el
+                   selector hace que la gente se pierda). Lista breve, etiquetada por
+                   trazador; el realce 3D señala la zona, no cada foco. -->
+              <div v-if="isMultiFocusBone" class="mb-3 rounded-card border border-[rgba(45,27,61,0.12)] bg-cream-card p-3">
+                <p class="text-[11px] font-semibold text-berenjena leading-snug">
+                  {{ L('Esta zona aloja ' + coFoci.length + ' focos', 'This area hosts ' + coFoci.length + ' foci') }}
+                  <span class="font-normal text-tinta">· {{ L('se muestran como un solo hueso', 'shown as a single bone') }}</span>
+                </p>
+                <ul class="mt-2 space-y-1.5">
+                  <li v-for="f in coFoci" :key="f.id" class="text-[12px] leading-snug flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
+                    <span class="font-mono text-berenjena">#{{ f.id }}</span>
+                    <span class="text-tinta">{{ focusPart(f) }}</span>
+                    <span class="text-tinta">·</span>
+                    <span :style="{ color: '#9d44ab' }">{{ L('receptor · ⁶⁸Ga', 'receptor · ⁶⁸Ga') }} <span class="font-mono">{{ f.dota != null ? f.dota.toFixed(2) : '—' }}</span></span>
+                    <span :style="{ color: '#bb4128' }">{{ L('azúcar · FDG', 'sugar · FDG') }} <span class="font-mono">{{ f.fdg != null ? f.fdg.toFixed(2) : '—' }}</span></span>
+                  </li>
+                </ul>
+                <p class="text-[10px] text-tinta mt-2 leading-relaxed">{{ L('El detalle ampliado de abajo corresponde al foco principal de la zona; el resto está en la tabla. Describe los hallazgos; no concluye.', 'The expanded detail below is for the area’s main focus; the rest is in the table. It describes the findings; it does not conclude.') }}</p>
               </div>
 
               <span class="pill-data mt-2 mb-3 inline-flex" :style="{ background: phenoColor(sel) + '22', color: phenoText(sel) }">{{ phenoLabel(sel) }}</span>
@@ -1271,6 +1292,12 @@ const ticks = [
               <!-- hueso reconstruido del CT (real) · 3 vistas conmutables -->
               <div class="mb-4">
                 <p class="eyebrow mb-2 block">{{ L('Hueso reconstruido del CT · captación co-registrada', 'Bone reconstructed from the CT · co-registered uptake') }}</p>
+
+                <!-- zona con varios focos: rótulo junto al visor. El realce marca la
+                     ZONA (no cada foco: no hay posición 3D fiable por foco). -->
+                <p v-if="isMultiFocusBone" class="text-[11px] text-tinta leading-snug mb-2">
+                  {{ L('Esta zona tiene ' + coFoci.length + ' focos co-localizados (receptor/azúcar); el realce señala la zona. Detalle de cada foco arriba y en la tabla.', 'This area has ' + coFoci.length + ' co-localized foci (receptor/sugar); the highlight marks the area. Each focus is detailed above and in the table.') }}
+                </p>
 
                 <!-- foco con reconstrucción: selector de vista + visor -->
                 <template v-if="bone3dKeyOf(sel)">
