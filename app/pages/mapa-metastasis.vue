@@ -711,6 +711,45 @@ const BONE3D_KEY: Record<number, string> = {
 function bone3dKeyOf(le: Lesion) { return BONE3D_KEY[le.id] }
 const hasAuto = computed(() => { const a = selAuto.value; return !!a && (a.fdgAuto != null || a.gaAuto != null) })
 
+/* ------------------------------------------------------------------ */
+/*  Selector de vista del hueso 3D (segmented control · tablist a11y). */
+/*  La paciente alterna entre las 3 formas que le resultan útiles:     */
+/*   · «Captación · 3D»  → BoneViewer3D (WebGL, rotar/zoom, marcadores) */
+/*   · «Captación · CT»  → fotogramas vertebra/ (el CT con captación)   */
+/*   · «Morfología»      → fotogramas morfo/ con realce de densidad     */
+/*     (resuelve el "todo blanco": el blástico SÍ se aprecia).          */
+/*  Todas las claves con malla tienen también los dos juegos de         */
+/*  fotogramas; los focos sin malla (#17, #19) no muestran selector.    */
+/* ------------------------------------------------------------------ */
+type Bone3dView = 'uptake3d' | 'uptakect' | 'morpho'
+const BONE3D_VIEWS: { id: Bone3dView; es: string; en: string }[] = [
+  { id: 'uptake3d', es: 'Captación · 3D', en: 'Uptake · 3D' },
+  { id: 'uptakect', es: 'Captación · CT', en: 'Uptake · CT' },
+  { id: 'morpho', es: 'Morfología', en: 'Morphology' },
+]
+const bone3dView = ref<Bone3dView>('uptake3d')
+const bone3dTablist = ref<HTMLElement | null>(null)
+const bone3dViewAnnounce = computed(() => {
+  const v = bone3dView.value
+  if (v === 'uptake3d') return L('Vista captación 3D: hueso interactivo (girar y acercar) con la captación co-registrada.', 'Uptake 3D view: interactive bone (rotate and zoom) with co-registered uptake.')
+  if (v === 'uptakect') return L('Vista captación CT: fotogramas del CT con la captación co-registrada; arrastra para girar.', 'Uptake CT view: CT frames with co-registered uptake; drag to rotate.')
+  return L('Vista morfología: la forma del hueso con realce de densidad para que el blástico se aprecie.', 'Morphology view: the bone shape with density enhancement so the blastic shows.')
+})
+/* teclado del tablist: ←/→ (y ↑/↓, Inicio/Fin) mueven la selección y el foco */
+function bone3dTabKey(e: KeyboardEvent) {
+  const order = BONE3D_VIEWS.map((v) => v.id)
+  const i = order.indexOf(bone3dView.value)
+  let n = i
+  if (e.key === 'ArrowRight' || e.key === 'ArrowDown') n = (i + 1) % order.length
+  else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') n = (i - 1 + order.length) % order.length
+  else if (e.key === 'Home') n = 0
+  else if (e.key === 'End') n = order.length - 1
+  else return
+  e.preventDefault()
+  bone3dView.value = order[n]
+  nextTick(() => { bone3dTablist.value?.querySelectorAll<HTMLButtonElement>('[role="tab"]')[n]?.focus() })
+}
+
 /* Niveles afectados según el informe de RM de columna (11/06/2026). Texto del
    informe recogido en el documento de apoyo; no es una relectura de la imagen. */
 const MRI_LEVELS = ['D1-D3', 'D4-D5', 'D8-D9', 'D11-D12', 'L1', 'L2-L3', 'L5', 'S1-S2']
@@ -1225,11 +1264,79 @@ const ticks = [
                 <p class="text-[10px] text-tinta mt-2 leading-relaxed">{{ L('Descripción de los hallazgos del foco a partir de los SUV, la tendencia y la morfología del propio foco. No es consejo médico ni una indicación de tratamiento.', 'A description of the focus’s findings from its own SUVs, trend and morphology. Not medical advice or a treatment indication.') }}</p>
               </div>
 
-              <!-- hueso 3D reconstruido del CT (real) + captación co-registrada -->
+              <!-- hueso reconstruido del CT (real) · 3 vistas conmutables -->
               <div class="mb-4">
                 <p class="eyebrow mb-2 block">{{ L('Hueso reconstruido del CT · captación co-registrada', 'Bone reconstructed from the CT · co-registered uptake') }}</p>
-                <ClientOnly>
-                  <BoneViewer3D :mesh-key="bone3dKeyOf(sel)" :dota="sel.dota" :fdg="sel.fdg" :pheno="sel.pheno" :focus-id="sel.id" />
+
+                <!-- foco con reconstrucción: selector de vista + visor -->
+                <template v-if="bone3dKeyOf(sel)">
+                  <!-- selector de vista (segmented control · tablist accesible) -->
+                  <div
+                    ref="bone3dTablist"
+                    class="inline-flex rounded-full border border-[rgba(45,27,61,0.18)] overflow-hidden mb-2.5"
+                    role="tablist"
+                    :aria-label="L('Forma de ver el hueso', 'How to view the bone')"
+                    @keydown="bone3dTabKey"
+                  >
+                    <button
+                      v-for="(v, i) in BONE3D_VIEWS" :key="v.id"
+                      type="button" role="tab"
+                      :id="'bone3dtab-' + v.id"
+                      :aria-selected="bone3dView === v.id"
+                      :aria-controls="'bone3dpanel'"
+                      :tabindex="bone3dView === v.id ? 0 : -1"
+                      class="px-3.5 py-1.5 text-[13px] font-semibold transition-colors"
+                      :class="[
+                        bone3dView === v.id ? 'bg-berenjena text-cream' : 'bg-transparent text-tinta hover:bg-[rgba(45,27,61,0.05)]',
+                        i > 0 ? 'border-l border-[rgba(45,27,61,0.18)]' : ''
+                      ]"
+                      @click="bone3dView = v.id"
+                    >{{ L(v.es, v.en) }}</button>
+                  </div>
+
+                  <div id="bone3dpanel" role="tabpanel" :aria-labelledby="'bone3dtab-' + bone3dView">
+                    <ClientOnly>
+                      <!-- VISTA 1 · Captación 3D (WebGL interactivo · marcadores que no se pierden) -->
+                      <BoneViewer3D
+                        v-if="bone3dView === 'uptake3d'"
+                        :mesh-key="bone3dKeyOf(sel)" :dota="sel.dota" :fdg="sel.fdg" :pheno="sel.pheno" :focus-id="sel.id"
+                      />
+
+                      <!-- VISTA 2 · Captación CT (fotogramas con captación co-registrada) -->
+                      <template v-else-if="bone3dView === 'uptakect'">
+                        <BoneFrameViewer :mesh-key="bone3dKeyOf(sel)" kind="vertebra" />
+                        <p class="bone3d-cap">
+                          {{ L('El CT con la captación co-registrada (IA) · arrastra o ←/→ para girar', 'The CT with co-registered uptake (AI) · drag or ←/→ to rotate') }}<br>
+                          <span style="color:#c061d6">●</span> {{ L('receptor · Galio', 'receptor · gallium') }} ·
+                          <span style="color:#ff8a3a">●</span> {{ L('azúcar · FDG', 'sugar · FDG') }}
+                        </p>
+                      </template>
+
+                      <!-- VISTA 3 · Morfología (forma del hueso · realce de densidad → el blástico se aprecia) -->
+                      <template v-else>
+                        <BoneFrameViewer :mesh-key="bone3dKeyOf(sel)" kind="morfo" enhance />
+                        <p class="bone3d-cap">
+                          {{ L('La forma del hueso (IA) · arrastra o ←/→ para girar', 'The bone shape (AI) · drag or ←/→ to rotate') }}<br>
+                          <span style="color:#9c794a">●</span> {{ L('recoveco / sombra', 'recess / shadow') }} ·
+                          <span style="color:#dbe4f7">●</span> {{ L('hueso denso / blástico', 'dense / blastic bone') }}
+                          <span style="color:#7c8694"> · {{ L('realce de densidad/relieve del CT — orientativo, no es una medida', 'CT density/relief enhancement — indicative, not a measurement') }}</span>
+                        </p>
+                      </template>
+
+                      <template #fallback>
+                        <div class="rounded-lg flex items-center justify-center text-[12px]" style="aspect-ratio:5/4;background:#0d1117;color:#aeb6c2">
+                          {{ L('cargando visor…', 'loading viewer…') }}
+                        </div>
+                      </template>
+                    </ClientOnly>
+                  </div>
+                  <!-- A11y: anuncia el cambio de vista (ningún cambio debe ser silencioso) -->
+                  <div aria-live="polite" class="sr-only">{{ bone3dViewAnnounce }}</div>
+                </template>
+
+                <!-- foco SIN reconstrucción individual (#17 costilla, #19): estado honesto -->
+                <ClientOnly v-else>
+                  <BoneViewer3D :mesh-key="undefined" :dota="sel.dota" :fdg="sel.fdg" :pheno="sel.pheno" :focus-id="sel.id" />
                   <template #fallback>
                     <div class="rounded-lg flex items-center justify-center text-[12px]" style="aspect-ratio:5/4;background:#0d1117;color:#aeb6c2">
                       {{ L('cargando visor 3D…', 'loading 3D viewer…') }}
@@ -1691,4 +1798,12 @@ const ticks = [
 .th-sort:hover { color: #2d1b3d; }
 .th-arrow { font-size: 9px; opacity: 0.55; }
 .reads-vh { background: rgba(157, 68, 171, 0.07); }
+.bone3d-cap {
+  font-size: 10px;
+  text-align: center;
+  margin-top: 6px;
+  font-family: ui-monospace, monospace;
+  line-height: 1.4;
+  color: #aeb6c2;
+}
 </style>
