@@ -779,32 +779,33 @@ const isMultiFocusBone = computed(() => coFoci.value.length > 1)
 const hasAuto = computed(() => { const a = selAuto.value; return !!a && (a.fdgAuto != null || a.gaAuto != null) })
 
 /* ------------------------------------------------------------------ */
-/*  Selector de vista del hueso 3D (segmented control · tablist a11y). */
-/*  La paciente alterna entre las 3 formas que le resultan útiles:     */
-/*   · «Captación · 3D»  → BoneViewer3D (WebGL, rotar/zoom, marcadores) */
-/*   · «Captación · CT»  → fotogramas vertebra/ (el CT con captación)   */
-/*   · «Morfología»      → fotogramas morfo/ con realce de densidad     */
-/*     (resuelve el "todo blanco": el blástico SÍ se aprecia).          */
-/*  Todas las claves con malla tienen también los dos juegos de         */
-/*  fotogramas; los focos sin malla (#17, #19) no muestran selector.    */
+/*  Selector de MODO del visor 3D (segmented control · tablist a11y).   */
+/*  UN SOLO visor WebGL (misma geometría, mismo PLY); cada modo deriva  */
+/*  su color del MISMO RGB por vértice (no recarga la malla):           */
+/*   · «Área» (por defecto) → huella de captación umbralizada del croma */
+/*     (región contigua en el color del trazador; el resto marfil mate).*/
+/*   · «Mapa de calor»      → intensidad continua → rampa térmica.       */
+/*   · «Morfología»         → densidad del CT → rampa SIN blanco arriba  */
+/*     (blástico = azul oscuro; resuelve el "todo blanco").             */
+/*  Fallback sin-WebGL (dentro del visor): fotogramas vertebra/ (área y  */
+/*  calor) y morfo/ realzado (morfología). #17/#19 (sin malla) no salen. */
 /* ------------------------------------------------------------------ */
-type Bone3dView = 'uptake3d' | 'uptakect' | 'morpho'
+type Bone3dView = 'area' | 'heat' | 'morpho'
 const BONE3D_VIEWS: { id: Bone3dView; es: string; en: string }[] = [
-  { id: 'uptake3d', es: 'Captación · 3D', en: 'Uptake · 3D' },
-  { id: 'uptakect', es: 'Captación · CT', en: 'Uptake · CT' },
+  { id: 'area', es: 'Área', en: 'Area' },
+  { id: 'heat', es: 'Mapa de calor', en: 'Heat map' },
   { id: 'morpho', es: 'Morfología', en: 'Morphology' },
 ]
-/* Por defecto «Captación · 3D» (WebGL interactivo): ahora el hueso es mate/opaco,
-   la captación se lee como TEXTURA (heat por vértice) sobre el blanco mate y un
-   marcador limpio (diana fina) remata de señalar la zona — es la vista bandera.
-   «Captación · CT» y «Morfología» (fotogramas) quedan como opciones seleccionables. */
-const bone3dView = ref<Bone3dView>('uptake3d')
+/* Por defecto «Área»: la huella/extensión de la captación sobre el hueso (dónde y
+   cuánto), no un punto. Los tres modos comparten el MISMO visor y geometría; cambiar
+   de modo sólo reescribe el color por vértice. */
+const bone3dView = ref<Bone3dView>('area')
 const bone3dTablist = ref<HTMLElement | null>(null)
 const bone3dViewAnnounce = computed(() => {
   const v = bone3dView.value
-  if (v === 'uptake3d') return L('Vista captación 3D: hueso interactivo (girar y acercar) con la captación co-registrada.', 'Uptake 3D view: interactive bone (rotate and zoom) with co-registered uptake.')
-  if (v === 'uptakect') return L('Vista captación CT: fotogramas del CT con la captación co-registrada; arrastra para girar.', 'Uptake CT view: CT frames with co-registered uptake; drag to rotate.')
-  return L('Vista morfología: la forma del hueso con realce de densidad para que el blástico se aprecie.', 'Morphology view: the bone shape with density enhancement so the blastic shows.')
+  if (v === 'area') return L('Modo área: la huella de la captación sobre el hueso, como región de color del trazador; el resto del hueso en marfil mate.', 'Area mode: the uptake footprint on the bone, as a coloured tracer region; the rest of the bone in matte ivory.')
+  if (v === 'heat') return L('Modo mapa de calor: la intensidad de captación en una rampa térmica de frío a caliente, con el punto más caliente marcado.', 'Heat-map mode: uptake intensity on a cool-to-hot thermal ramp, with the hottest point marked.')
+  return L('Modo morfología: la densidad del CT realzada, con el hueso blástico (denso) en azul oscuro para que se distinga.', 'Morphology mode: enhanced CT density, with blastic (dense) bone in dark blue so it stands out.')
 })
 /* teclado del tablist: ←/→ (y ↑/↓, Inicio/Fin) mueven la selección y el foco */
 function bone3dTabKey(e: KeyboardEvent) {
@@ -1429,32 +1430,13 @@ const ticks = [
 
                   <div id="bone3dpanel" role="tabpanel" :aria-labelledby="'bone3dtab-' + bone3dView">
                     <ClientOnly>
-                      <!-- VISTA 1 · Captación 3D (WebGL interactivo · marcadores que no se pierden) -->
+                      <!-- UN SOLO visor WebGL para los 3 modos: cambiar de modo sólo
+                           reescribe el color por vértice (no recarga la malla). El caption
+                           honesto por modo lo pinta el propio visor. -->
                       <BoneViewer3D
-                        v-if="bone3dView === 'uptake3d'"
-                        :mesh-key="bone3dKeyOf(sel)" :dota="sel.dota" :fdg="sel.fdg" :pheno="sel.pheno" :focus-id="sel.id"
+                        :mesh-key="bone3dKeyOf(sel)" :mode="bone3dView"
+                        :dota="sel.dota" :fdg="sel.fdg" :pheno="sel.pheno" :focus-id="sel.id"
                       />
-
-                      <!-- VISTA 2 · Captación CT (fotogramas con captación co-registrada) -->
-                      <template v-else-if="bone3dView === 'uptakect'">
-                        <BoneFrameViewer :mesh-key="bone3dKeyOf(sel)" kind="vertebra" />
-                        <p class="bone3d-cap">
-                          {{ L('El CT con la captación co-registrada (IA) · arrastra o ←/→ para girar', 'The CT with co-registered uptake (AI) · drag or ←/→ to rotate') }}<br>
-                          <span style="color:#c061d6">●</span> {{ L('receptor · Galio', 'receptor · gallium') }} ·
-                          <span style="color:#ff8a3a">●</span> {{ L('azúcar · FDG', 'sugar · FDG') }}
-                        </p>
-                      </template>
-
-                      <!-- VISTA 3 · Morfología (forma del hueso · realce de densidad → el blástico se aprecia) -->
-                      <template v-else>
-                        <BoneFrameViewer :mesh-key="bone3dKeyOf(sel)" kind="morfo" enhance />
-                        <p class="bone3d-cap">
-                          {{ L('La forma del hueso (IA) · arrastra o ←/→ para girar', 'The bone shape (AI) · drag or ←/→ to rotate') }}<br>
-                          <span style="color:#9c794a">●</span> {{ L('recoveco / sombra', 'recess / shadow') }} ·
-                          <span style="color:#dbe4f7">●</span> {{ L('hueso denso / blástico', 'dense / blastic bone') }}
-                          <span style="color:#7c8694"> · {{ L('realce de densidad/relieve del CT — orientativo, no es una medida', 'CT density/relief enhancement — indicative, not a measurement') }}</span>
-                        </p>
-                      </template>
 
                       <template #fallback>
                         <div class="rounded-lg flex items-center justify-center text-[12px]" style="aspect-ratio:5/4;background:#0d1117;color:#aeb6c2">
@@ -1931,12 +1913,4 @@ const ticks = [
 .th-sort:hover { color: #2d1b3d; }
 .th-arrow { font-size: 9px; opacity: 0.55; }
 .reads-vh { background: rgba(157, 68, 171, 0.07); }
-.bone3d-cap {
-  font-size: 10px;
-  text-align: center;
-  margin-top: 6px;
-  font-family: ui-monospace, monospace;
-  line-height: 1.4;
-  color: #aeb6c2;
-}
 </style>
