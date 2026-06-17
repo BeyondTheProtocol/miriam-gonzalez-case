@@ -1980,31 +1980,9 @@ const ticks = [
                 </div>
               </div>
 
-              <!-- imagen real del foco · visor con zoom/pan + diana (P0) -->
-              <figure class="mb-4">
-                <div class="flex items-center justify-between mb-1.5 flex-wrap gap-1">
-                  <span class="text-[11px] font-semibold text-berenjena">{{ L('La imagen de este foco', 'This focus’s image') }}</span>
-                  <span v-if="selView.approx" class="status-badge" style="background:#fde4cc;color:#8a4a1a">{{ L('ubicación aproximada', 'approximate location') }}</span>
-                  <span v-else class="status-badge" style="background:rgba(31,90,58,0.12);color:#1f5a3a">{{ L('lesión centrada', 'lesion centered') }}</span>
-                </div>
-                <ClientOnly>
-                  <ImageZoomViewer
-                    :src="selView.src"
-                    :alt="L('Imagen PET de la lesión #' + sel.id + ' · ' + sel.level.es, 'PET image of lesion #' + sel.id + ' · ' + sel.level.en)"
-                    :marker-x="selView.fx"
-                    :marker-y="selView.fy"
-                    :approx="selView.approx"
-                    :max-width="selView.kind === 'axial' ? '320px' : '380px'" />
-                  <template #fallback>
-                    <img :src="selView.src" :alt="L('Imagen PET de la lesión', 'PET image of the lesion')" class="rounded-lg bg-black mx-auto block" :style="{ maxWidth: selView.kind === 'axial' ? '320px' : '380px' }" loading="lazy" />
-                  </template>
-                </ClientOnly>
-                <figcaption class="text-[10px] text-tinta text-center mt-1.5 leading-relaxed max-w-md mx-auto">
-                  <template v-if="selView.approx"><strong>{{ L('Ubicación aproximada — referencia, no medición.', 'Approximate location — reference, not a measurement.') }}</strong> </template>{{ selViewCaption }}
-                </figcaption>
-              </figure>
-
-              <!-- IMAGEN CLAVE DEL FOCO (corte CT+PET fusionado con anillo · comité) -->
+              <!-- IMAGEN CLAVE DEL FOCO (corte CT+PET fusionado con anillo · comité) ·
+                   única imagen del foco: el círculo va SOBRE el hueso (no un marcador
+                   aproximado anterior que parecía víscera y restaba confianza) -->
               <figure class="mb-4">
                 <div class="flex items-center justify-between mb-1.5 flex-wrap gap-1">
                   <span class="text-[11px] font-semibold text-berenjena">{{ L('Imagen clave del foco', 'Focus key image') }}</span>
@@ -2862,7 +2840,8 @@ const ticks = [
                 :key="selKeyActive.src"
                 :src="selKeyActive.src"
                 :alt="L('Imagen clave (' + selKeyActive.label.es.toLowerCase() + ') del foco #' + sel.id + ' · ' + sel.level.es, 'Key image (' + selKeyActive.label.en.toLowerCase() + ') of focus #' + sel.id + ' · ' + sel.level.en)"
-                max-width="100%" />
+                max-width="100%"
+                max-height="74vh" />
             </div>
 
             <p class="foco-key-lb__cap">{{ selKeyCaption }}</p>
@@ -2905,12 +2884,12 @@ const ticks = [
               <!-- las 4 PET en cuadrícula 2×2, cada una con su propio zoom -->
               <div v-if="petLightboxMode === 'grid'" class="pet-lb-grid">
                 <figure v-for="p in PET_IMGS" :key="p.src" class="pet-lb-grid__cell">
-                  <ImageZoomViewer :src="p.src" :alt="L(p.es, p.en)" max-width="100%" />
+                  <ImageZoomViewer :src="p.src" :alt="L(p.es, p.en)" max-width="100%" max-height="42vh" />
                   <figcaption class="pet-lb-grid__cap" :style="{ color: petTracerColor(p) }">{{ L(p.es, p.en) }}</figcaption>
                 </figure>
               </div>
               <!-- una sola, ampliada al máximo -->
-              <ImageZoomViewer v-else :key="petLightboxSrc" :src="petLightboxSrc" :alt="L(petLightboxImg.es, petLightboxImg.en)" max-width="100%" />
+              <ImageZoomViewer v-else :key="petLightboxSrc" :src="petLightboxSrc" :alt="L(petLightboxImg.es, petLightboxImg.en)" max-width="100%" max-height="80vh" />
             </div>
 
             <p class="foco-key-lb__cap">{{ L('Imágenes reconstruidas de los DICOM (PET-FDG 24/03/2026 y PET ⁶⁸Ga-DOTATOC 26/05/2026). Lo intenso fuera del esqueleto es captación normal de cada trazador. Para verlas y compararlas; su lectura formal corresponde al radiólogo.', 'Images reconstructed from the DICOM (FDG-PET 24/03/2026 and ⁶⁸Ga-DOTATOC PET 26/05/2026). The intense areas outside the skeleton are normal uptake of each tracer. For viewing and comparing; their formal reading belongs to the radiologist.') }}</p>

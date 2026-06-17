@@ -19,8 +19,9 @@ const props = withDefaults(
     maxZoom?: number
     initialZoom?: number
     maxWidth?: string
+    maxHeight?: string
   }>(),
-  { alt: '', markerX: null, markerY: null, approx: false, minZoom: 1, maxZoom: 6, initialZoom: 1, maxWidth: '420px' }
+  { alt: '', markerX: null, markerY: null, approx: false, minZoom: 1, maxZoom: 6, initialZoom: 1, maxWidth: '420px', maxHeight: '' }
 )
 
 const { locale } = useI18n()
@@ -37,6 +38,14 @@ const stageStyle = computed(() => ({
   transform: `translate(${tx.value.toFixed(2)}px, ${ty.value.toFixed(2)}px) scale(${scale.value.toFixed(3)})`,
 }))
 const zoomPct = computed(() => Math.round(scale.value * 100))
+/* modo "ajustar" (lightbox): cuando se da maxHeight, la imagen se CONTIENE entera
+   (ajustada al alto disponible) en vez de llenar el ancho → no se corta al ampliar. */
+const fit = computed(() => !!props.maxHeight)
+const imgStyle = computed(() =>
+  fit.value
+    ? { width: 'auto', height: 'auto', maxWidth: '100%', maxHeight: props.maxHeight, margin: '0 auto' }
+    : { width: '100%', height: 'auto' }
+)
 
 function clampPan() {
   const el = frame.value
@@ -141,7 +150,7 @@ watch(() => [props.src, props.markerX, props.markerY], () => reset())
     <div
       ref="frame"
       class="izv-frame"
-      :class="scale > minZoom ? 'cursor-grab' : 'cursor-zoom-in'"
+      :class="[scale > minZoom ? 'cursor-grab' : 'cursor-zoom-in', { 'izv-frame--fit': fit }]"
       tabindex="0"
       role="group"
       :aria-label="(props.alt || L('Imagen', 'Image')) + ' — ' + L('visor con zoom', 'zoom viewer')"
@@ -155,7 +164,7 @@ watch(() => [props.src, props.markerX, props.markerY], () => reset())
       @dblclick="reset"
       @keydown="onKey">
       <div class="izv-stage" :style="stageStyle">
-        <img :src="props.src" :alt="props.alt" class="izv-img" draggable="false" loading="lazy" />
+        <img :src="props.src" :alt="props.alt" class="izv-img" :style="imgStyle" draggable="false" loading="lazy" />
         <!-- diana: ubicación aproximada del foco -->
         <div v-if="hasMarker" class="izv-marker" :style="{ left: (props.markerX as number) * 100 + '%', top: (props.markerY as number) * 100 + '%' }">
           <div class="izv-marker__inner" :style="{ transform: `translate(-50%,-50%) scale(${(1 / scale).toFixed(3)})` }">
@@ -200,6 +209,8 @@ watch(() => [props.src, props.markerX, props.markerY], () => reset())
   outline-offset: 2px;
 }
 .izv-frame:focus-visible { outline: 2px solid #9d44ab; }
+/* modo ajustar (lightbox): centra la imagen contenida (no se corta) */
+.izv-frame--fit { display: flex; align-items: center; justify-content: center; }
 .izv-stage {
   transform-origin: 0 0;
   will-change: transform;
