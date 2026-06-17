@@ -223,22 +223,28 @@ watch(() => [props.src, props.markerX, props.markerY], () => reset())
   right: 6px;
   bottom: 6px;
   display: flex;
-  gap: 4px;
+  gap: 6px;
 }
+/* WCAG 2.2 (2.5.8) — botones de zoom con área táctil cómoda (44px en táctil,
+   ≥34px en escritorio). Siempre por encima del mínimo de 24px. */
 .izv-btn {
-  width: 30px;
-  height: 30px;
+  width: 34px;
+  height: 34px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   border-radius: 9999px;
   background: rgba(20, 14, 22, 0.78);
   color: #fff;
-  font-size: 17px;
+  font-size: 18px;
   line-height: 1;
   border: 1px solid rgba(255, 255, 255, 0.4);
   cursor: pointer;
   transition: background 0.15s;
+}
+@media (pointer: coarse) {
+  .izv-controls { gap: 8px; }
+  .izv-btn { width: 44px; height: 44px; font-size: 20px; }
 }
 .izv-btn:hover { background: rgba(45, 27, 61, 0.95); }
 .izv-btn:focus-visible { outline: 2px solid #ffd166; outline-offset: 1px; }

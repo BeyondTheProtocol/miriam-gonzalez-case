@@ -653,6 +653,10 @@ const densityAnnounce = computed(() =>
 function isAiDavid(le: Lesion): boolean { return sourceOf(le) === 'ia-david' }
 const confirmedFoci = computed(() => LES.filter((l) => !isAiDavid(l)))
 const aiFoci = computed(() => LES.filter(isAiDavid))
+/* el foco seleccionado, ¿es uno detectado por IA (por confirmar)? — para el
+   banner digno de la ficha (misma info que el resto, marcada «pendiente de
+   validación por los radiólogos»). Informa, no concluye. */
+const selIsAi = computed(() => isAiDavid(sel.value))
 /* eje axial (columna, sacro, costillas) vs apendicular (escápula, pelvis, cadera/fémur) */
 function isAxial(le: Lesion): boolean { return !/escapular|pelvis|cadera/i.test(le.region.es) }
 const skeletonSplit = computed(() => {
@@ -1503,6 +1507,22 @@ const ticks = [
                 </div>
               </div>
 
+              <!-- ===== BANNER · foco DETECTADO POR IA, pendiente de validación =====
+                   Foco #17/#18/#19: se muestra con la MISMA información que el resto
+                   para que el equipo pueda corroborarlo, marcado con claridad (sin
+                   alarmismo) como pendiente de validación radiológica. Informa, no
+                   concluye: no afirma que sea maligno. -->
+              <div v-if="selIsAi" class="mb-4 rounded-card border-l-4 px-3.5 py-3" style="border-left-color:#bf7d2c;background:#fbf5ea">
+                <p class="text-[11px] font-semibold uppercase tracking-wide mb-1 flex items-center gap-2 flex-wrap" style="color:#8a4a1a">
+                  <span class="inline-block w-2.5 h-2.5 rounded-full" style="background:#bf7d2c" aria-hidden="true" />
+                  {{ L('Detectado por IA · pendiente de validación por los radiólogos', 'AI-detected · pending validation by the radiologists') }}
+                </p>
+                <p class="text-[13px] leading-snug" style="color:#7a4a12">
+                  {{ L('Este foco lo detectó una herramienta de IA sobre los DICOM y no consta en el informe oficial. Se muestra con la MISMA información que el resto de focos —las tres lecturas, la forma, la extensión y la idoneidad— para que el equipo pueda corroborarlo. Aún no está confirmado: los valores son aproximados (medidos sobre el DICOM) y, donde el dato no es fiable, se indica «— · por confirmar». No es una relectura formal ni afirma que sea una metástasis: a validar con Medicina Nuclear.',
+                        'This focus was detected by an AI tool on the DICOM and is not in the official report. It is shown with the SAME information as every other focus —the three readings, the shape, the extent and the suitability— so the team can corroborate it. It is not yet confirmed: the values are approximate (measured on the DICOM) and, where the datum is not reliable, it reads “— · to confirm”. It is not a formal re-read and does not claim it is a metastasis: to validate with Nuclear Medicine.') }}
+                </p>
+              </div>
+
               <!-- zona con 2+ focos co-localizados: se muestran JUNTOS, como un solo
                    hueso, con un rótulo de «N focos» — SIN selector (la paciente: el
                    selector hace que la gente se pierda). Lista breve, etiquetada por
@@ -2207,14 +2227,54 @@ const ticks = [
             <ul class="space-y-2">
               <li v-for="le in aiCandidates" :key="le.id">
                 <button type="button" @click="pick(le.id); $event.currentTarget.scrollIntoView({ behavior: 'smooth', block: 'center' })"
-                  class="w-full text-left rounded-card border px-3 py-2.5 transition-colors flex items-center gap-3"
+                  class="w-full text-left rounded-card border px-3.5 py-3 transition-colors"
                   :class="selected === le.id ? 'border-[#bf7d2c] bg-[rgba(191,125,44,0.08)]' : 'border-[rgba(138,74,26,0.25)] bg-cream hover:border-[rgba(138,74,26,0.5)]'">
-                  <span class="inline-flex w-7 h-7 shrink-0 rounded-full items-center justify-center text-white text-xs font-semibold" :style="{ background: phenoColor(le) }">{{ le.id }}</span>
-                  <div class="flex-1 min-w-0">
-                    <p class="font-semibold text-berenjena text-sm leading-tight">{{ le.level[lang] }}</p>
-                    <p class="text-[11px] text-tinta leading-tight">FDG ~{{ le.fdg != null ? le.fdg.toFixed(1) : '—' }} · Ga ~{{ le.dota != null ? le.dota.toFixed(1) : '—' }} · {{ morphShort(le) }}</p>
+                  <div class="flex items-center gap-3">
+                    <span class="inline-flex w-7 h-7 shrink-0 rounded-full items-center justify-center text-white text-xs font-semibold ai-dot" :style="{ background: phenoColor(le) }">{{ le.id }}</span>
+                    <div class="flex-1 min-w-0">
+                      <p class="font-semibold text-berenjena text-sm leading-tight">{{ le.level[lang] }}</p>
+                      <p class="text-[11px] text-tinta leading-tight">{{ le.region[lang] }} · {{ le.side === 'R' ? L('dcha', 'R') : le.side === 'L' ? L('izda', 'L') : L('centro', 'mid') }}</p>
+                    </div>
+                    <div class="text-right shrink-0">
+                      <div class="font-display text-2xl tabular-nums leading-none" :style="{ color: '#8a4a1a' }">{{ suitabilityScore(le) }}</div>
+                      <div class="text-[9px] uppercase tracking-wide" :style="{ color: '#8a4a1a' }">{{ L('idoneidad · s/c', 'suitability · n/c') }}</div>
+                    </div>
                   </div>
-                  <span class="status-badge shrink-0" :style="{ background: '#fde4cc', color: '#8a4a1a' }">{{ L('requiere correlación', 'needs correlation') }}</span>
+                  <!-- los MISMOS tres factores que un foco confirmado (visibles, no solo el total) -->
+                  <div class="mt-3 grid sm:grid-cols-3 gap-x-4 gap-y-2">
+                    <div>
+                      <div class="flex justify-between items-baseline text-[10.5px] mb-0.5">
+                        <span class="text-tinta">{{ L('Tumor viable (FDG/Ga)', 'Viable tumour (FDG/Ga)') }}</span>
+                        <span class="font-mono" :style="{ color: '#bb4128' }">FDG ~{{ le.fdg != null ? le.fdg.toFixed(1) : '—' }} · Ga ~{{ le.dota != null ? le.dota.toFixed(1) : '—' }}</span>
+                      </div>
+                      <div class="h-1.5 rounded-full overflow-hidden" :style="{ background: 'rgba(45,27,61,0.08)' }">
+                        <div class="h-full rounded-full" :style="{ width: pct01(viableFactor(le)), background: '#bb4128' }" />
+                      </div>
+                    </div>
+                    <div>
+                      <div class="flex justify-between items-baseline text-[10.5px] mb-0.5">
+                        <span class="text-tinta">{{ L('Rendimiento (forma)', 'Yield (shape)') }}</span>
+                        <span class="font-mono" :style="{ color: '#1f6b57' }">{{ morphShort(le) }}</span>
+                      </div>
+                      <div class="h-1.5 rounded-full overflow-hidden" :style="{ background: 'rgba(45,27,61,0.08)' }">
+                        <div class="h-full rounded-full" :style="{ width: pct01(yieldFactor(le)), background: '#1f6b57' }" />
+                      </div>
+                    </div>
+                    <div>
+                      <div class="flex justify-between items-baseline text-[10.5px] mb-0.5">
+                        <span class="text-tinta">{{ L('Extensión metabólica', 'Metabolic extent') }}</span>
+                        <span class="font-mono text-tinta">{{ metExtentLabel(le) }}</span>
+                      </div>
+                      <div class="h-1.5 rounded-full overflow-hidden" :style="{ background: 'rgba(45,27,61,0.08)' }">
+                        <div class="h-full rounded-full" :style="{ width: pct01(sizeFactor(le)), background: '#6b6470' }" />
+                      </div>
+                    </div>
+                  </div>
+                  <!-- marca digna, no en el número: pendiente de validación radiológica -->
+                  <div class="mt-2.5 flex flex-wrap gap-1.5">
+                    <span class="pill-data" :style="{ background: '#fde4cc', color: '#8a4a1a' }">{{ L('detectado por IA · pendiente de validación', 'AI-detected · pending validation') }}</span>
+                    <span class="pill-data" :style="{ background: 'rgba(138,74,26,0.08)', color: '#8a4a1a' }">{{ L('requiere correlación (Medicina Nuclear)', 'needs correlation (Nuclear Medicine)') }}</span>
+                  </div>
                 </button>
               </li>
             </ul>
