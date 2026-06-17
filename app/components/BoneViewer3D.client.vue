@@ -489,14 +489,14 @@ onBeforeUnmount(() => {
       <!-- leyenda / caption HONESTO según el modo (voz neutral; informa, no concluye) -->
       <p class="bv-cap">
         <template v-if="mode === 'area'">
-          {{ L('Reconstrucción del CT · arrastra para girar · rueda para acercar', 'Reconstruction from the CT · drag to rotate · scroll to zoom') }}<br>
+          {{ failed ? L('Reconstrucción del CT · vista estática', 'Reconstruction from the CT · static view') : L('Reconstrucción del CT · arrastra para girar · rueda para acercar', 'Reconstruction from the CT · drag to rotate · scroll to zoom') }}<br>
           <span :style="{ color: C_REC }">●</span> {{ L('violeta · receptor (Galio)', 'violet · receptor (gallium)') }} ·
           <span :style="{ color: C_FDG }">●</span> {{ L('naranja · azúcar (FDG)', 'orange · sugar (FDG)') }}
           <span style="color:#7c8694"> · {{ L('Área de captación real (PET) sobre el hueso — SUV ≥ ~2.5; difusa por la resolución del PET (~4–5 mm). El Galio es un proxy aproximado por ahora.', 'Real PET uptake area on the bone — SUV ≥ ~2.5; diffuse due to PET resolution (~4–5 mm). Gallium is an approximate proxy for now.') }}</span>
         </template>
 
         <template v-else-if="mode === 'heat'">
-          {{ L('Reconstrucción del CT · arrastra para girar · rueda para acercar', 'Reconstruction from the CT · drag to rotate · scroll to zoom') }}<br>
+          {{ failed ? L('Reconstrucción del CT · vista estática', 'Reconstruction from the CT · static view') : L('Reconstrucción del CT · arrastra para girar · rueda para acercar', 'Reconstruction from the CT · drag to rotate · scroll to zoom') }}<br>
           <span style="color:#1f6ed6">●</span> {{ L('frío', 'cool') }} →
           <span style="color:#0db9c8">●</span> <span style="color:#e8e030">●</span>
           <span style="color:#f58a1a">●</span> <span style="color:#de1c1c">●</span> {{ L('caliente', 'hot') }} ·
@@ -505,7 +505,7 @@ onBeforeUnmount(() => {
         </template>
 
         <template v-else>
-          {{ L('Reconstrucción del CT · arrastra para girar · rueda para acercar', 'Reconstruction from the CT · drag to rotate · scroll to zoom') }}<br>
+          {{ failed ? L('Reconstrucción del CT · vista estática', 'Reconstruction from the CT · static view') : L('Reconstrucción del CT · arrastra para girar · rueda para acercar', 'Reconstruction from the CT · drag to rotate · scroll to zoom') }}<br>
           <span style="color:#9c794a">●</span> {{ L('tostado · hueso normal', 'tan · normal bone') }} →
           <span style="color:#2c5cb2">●</span> {{ L('azul oscuro · blástico (denso)', 'dark blue · blastic (dense)') }}
           <span style="color:#7c8694"> · {{ L('Densidad real del CT (HU): el hueso denso/blástico resalta en azul oscuro. Orientativo para la factibilidad de biopsia (el blástico denso rinde menos tejido).', 'Real CT density (HU): dense/blastic bone stands out in dark blue. Indicative of biopsy feasibility (dense blastic bone yields less tissue).') }}</span>

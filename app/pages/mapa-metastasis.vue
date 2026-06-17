@@ -179,7 +179,7 @@ const LES: Lesion[] = [
   },
   {
     id: 13, x: 165, y: 545, side: 'R', dota: 4.32, fdg: 7.71, prevFdg: 7.0, pheno: 'mixAgg', size: '11 × 8',
-    level: { es: 'Ilíaco derecho', en: 'Right iliac bone' },
+    level: { es: 'Ilíaco derecho · ala ilíaca', en: 'Right iliac · iliac wing' },
     region: { es: 'Pelvis', en: 'Pelvis' },
     img: 'crop_iliac',
     what: { es: 'Hueso de la pelvis (ala ilíaca) derecho. Capta los dos trazadores, con más azúcar que receptor.', en: 'Right pelvic bone (iliac wing). Takes up both tracers, more sugar than receptor.' },
@@ -221,7 +221,7 @@ const LES: Lesion[] = [
   },
   {
     id: 18, x: 178, y: 560, side: 'R', dota: 4.3, fdg: 1.7, pheno: 'mixNe', size: '8 × 6', source: 'ia-david',
-    level: { es: 'Pélvico / ilíaco-femoral', en: 'Pelvic / iliac-femoral' },
+    level: { es: 'Ilíaco derecho · unión ilíaco-femoral', en: 'Right iliac · iliac-femoral junction' },
     region: { es: 'Pelvis', en: 'Pelvis' },
     what: { es: 'Foco pélvico leve (zona ilíaco-femoral) que capta sobre todo el receptor (Galio); el azúcar es bajo. Patrón favorable a la diana del receptor. Detectado por IA, por confirmar; no está en el informe oficial.', en: 'Mild pelvic focus (iliac-femoral area) taking up mainly the receptor (gallium); sugar is low. Pattern favourable to the receptor target. AI-detected, to confirm; not in the official report.' },
     tech: { es: 'DOTATOC ~4.3 / FDG ~1.7 (aproximados, sobre los DICOM). Patrón SSTR-favorable. No en informe oficial.', en: 'DOTATOC ~4.3 / FDG ~1.7 (approximate, on the DICOM). SSTR-favourable pattern. Not in the official report.' },
@@ -1439,10 +1439,10 @@ const ticks = [
                 <path d="M114,182 Q146,188 146,192 L141,242 Q138,246 134,240 Z" fill="url(#skBone)" stroke="#c8bda6" stroke-width="0.6" stroke-opacity="0.7" />
                 <path d="M326,182 Q294,188 294,192 L299,242 Q302,246 306,240 Z" fill="url(#skBone)" stroke="#c8bda6" stroke-width="0.6" stroke-opacity="0.7" />
                 </g>
-                <!-- ticks de nivel -->
-                <g font-family="JetBrains Mono, monospace" font-size="8.5" fill="#a39e93">
+                <!-- ticks de nivel (contraste AA para orientación rápida) -->
+                <g font-family="JetBrains Mono, monospace" font-size="9" fill="#5a5550" font-weight="600">
                   <text v-for="tk in ticks" :key="tk.t" x="358" :y="tk.y + 3" text-anchor="start">{{ tk.t }}</text>
-                  <line v-for="tk in ticks" :key="'l' + tk.t" x1="346" :y1="tk.y" x2="354" :y2="tk.y" stroke="#d8d2c5" stroke-width="0.8" />
+                  <line v-for="tk in ticks" :key="'l' + tk.t" x1="346" :y1="tk.y" x2="354" :y2="tk.y" stroke="#9b8f7c" stroke-width="1" />
                 </g>
                 <!-- lesiones: un marcador por grupo (vértebra con 1+ focos, o hueso) -->
                 <g v-for="g in GROUPS" :key="g.key" v-show="groupVisible(g)">
@@ -1914,7 +1914,7 @@ const ticks = [
         <!-- ===== ZONA C · IMAGEN REAL (pestañas) ===== -->
         <section class="mb-14" aria-labelledby="imagen">
           <p class="eyebrow mb-2 block">{{ L('La imagen real', 'The real imaging') }}</p>
-          <h2 id="imagen" class="heading-display text-2xl text-berenjena mb-2">
+          <h2 id="imagen" class="heading-display text-2xl text-berenjena mb-2 scroll-mt-32 sm:scroll-mt-36">
             {{ L('La imagen real, reconstruida de los DICOM', 'The real imaging, reconstructed from the DICOM') }}
           </h2>
           <p class="text-sm text-tinta leading-relaxed mb-5 max-w-3xl">
@@ -2062,8 +2062,11 @@ const ticks = [
               <div class="stat-readout__unit">{{ L('encienden ahora', 'lighting up now') }}</div>
             </div>
           </div>
-          <div v-if="loadBearingFdgFoci.length" class="alert-callout">
-            <div class="alert-callout__title">{{ L('Focos en hueso de carga con FDG igual o mayor que el previo (descriptivo)', 'Weight-bearing foci with FDG equal to or above the prior study (descriptive)') }}</div>
+          <div v-if="loadBearingFdgFoci.length" class="rounded-card border border-[rgba(45,27,61,0.1)] bg-[rgba(45,27,61,0.04)] text-[#3a3340] px-4 py-3.5 text-sm leading-relaxed">
+            <div class="font-semibold text-berenjena mb-1.5 flex items-center gap-2">
+              <span class="inline-block w-2 h-2 rounded-full" :style="{ background: '#6b6470' }" aria-hidden="true" />
+              {{ L('Focos en hueso de carga con FDG igual o mayor que el previo (descriptivo)', 'Weight-bearing foci with FDG equal to or above the prior study (descriptive)') }}
+            </div>
             {{ L(
               'Focos en hueso de carga cuyo FDG iguala o supera el del estudio previo: ' + loadBearingFdgFoci.map((l) => '#' + l.id + ' ' + l.level.es).join(' · ') + '. Oncología Radioterápica ya los revisó. Descripción de los datos, no consejo médico.',
               'Foci in weight-bearing bone whose FDG matches or exceeds the prior study: ' + loadBearingFdgFoci.map((l) => '#' + l.id + ' ' + l.level.en).join(' · ') + '. Radiation Oncology has already reviewed them. Description of the data, not medical advice.') }}
@@ -2229,7 +2232,7 @@ const ticks = [
             {{ L('Pulsa una cabecera para ordenar. Primero van los focos del informe oficial y, al final, en su propio grupo, los detectados por IA (medidas aproximadas sobre los DICOM, por confirmar con Medicina Nuclear). La extensión metabólica es lo que cada foco capta por encima del umbral (41% del SUVmáx local), confinado a hueso; no es el tamaño anatómico exacto y el volumen parcial subestima los focos < ~10 mm.',
                   'Click a header to sort. Report foci come first and, at the end, in their own group, the AI-detected ones (approximate DICOM measurements, to confirm with Nuclear Medicine). The metabolic extent is what each focus takes up above the threshold (41% of the local SUVmax), confined to bone; it is not the exact anatomical size and partial volume underestimates foci < ~10 mm.') }}
           </p>
-          <div class="data-card overflow-x-auto">
+          <div class="data-card overflow-x-auto tabla-focos">
             <table class="data-table data-table--dense">
               <thead>
                 <tr>
@@ -2410,6 +2413,32 @@ const ticks = [
 @media (prefers-reduced-motion: reduce) {
   .pulse-ring { animation: none; opacity: 0.5; }
 }
+/* ── Tabla de focos · cabecera pegajosa ──────────────────────────────
+   El contenedor scrollea (vertical + horizontal) y el <thead> se queda fijo
+   en su borde superior mientras se escanea/ordena las ~19 filas. Stick DENTRO
+   del propio contenedor (no contra el viewport) → evita el conflicto con el
+   doble stack pegajoso del sitio (cabecera + toggle En claro/Clínico).
+   Fondo OPACO (#f5efe6, ya en .data-table) para que las filas no se
+   transparenten al pasar por debajo. */
+.tabla-focos {
+  max-height: min(70vh, 640px);
+  overflow: auto;
+  overscroll-behavior: contain;
+}
+.tabla-focos thead th {
+  position: sticky;
+  top: 0;
+  z-index: 6;
+  background: #f5efe6; /* refuerza la opacidad del thead global */
+}
+.tabla-focos thead th:first-child { border-top-left-radius: 0; }
+.tabla-focos thead th:last-child { border-top-right-radius: 0; }
+/* el subtítulo del grupo de IA (un <td> dentro del tbody) queda por debajo
+   del thead pegajoso al pasar bajo él */
+.tabla-focos .ai-group-head td { position: relative; z-index: 1; }
+/* al saltar a una fila (scrollIntoView block:center) deja hueco bajo el thead */
+.tabla-focos tbody tr { scroll-margin-top: 3.25rem; }
+
 .th-sort {
   display: inline-flex;
   align-items: center;
@@ -2418,8 +2447,15 @@ const ticks = [
   color: inherit;
   cursor: pointer;
   white-space: nowrap;
+  /* WCAG 2.2 (2.5.8) — área táctil cómoda (≥24px, aquí 44px de alto) sin
+     descuadrar la cabecera: el padding negativo recupera el hueco visual. */
+  min-height: 44px;
+  padding: 4px 6px;
+  margin: -4px -6px;
+  border-radius: 6px;
 }
 .th-sort:hover { color: #2d1b3d; }
+.th-sort:focus-visible { outline: 2px solid #9d44ab; outline-offset: 1px; }
 .th-arrow { font-size: 9px; opacity: 0.55; }
 .reads-vh { background: rgba(157, 68, 171, 0.07); }
 /* grupo de focos detectados por IA (al final de la tabla) — fila de subtítulo
