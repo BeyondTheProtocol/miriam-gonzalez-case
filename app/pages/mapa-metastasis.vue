@@ -529,6 +529,21 @@ const GROUPS: LesGroup[] = (() => {
 })()
 function isNewFocus(l: Lesion): boolean { return isNewAt(l, 1) }   // foco que enciende por primera vez (FDG)
 const newCount = computed(() => LES.filter(isNewFocus).length)
+/* ------------------------------------------------------------------ */
+/*  Mayor avidez de azúcar (FDG) — PULSO SUTIL.                         */
+/*  Criterio descriptivo, por DATO del estudio (no biología): los focos */
+/*  con más captación de azúcar, FDG SUVmáx ≥ HOT_FDG. Marca avidez,    */
+/*  no malignidad. Es DISTINTO del anillo de «foco nuevo» (que pulsa por */
+/*  encender por primera vez en FDG): aquí pulsa el propio marcador, no  */
+/*  un anillo aparte, y se explica en la leyenda. Solo focos con valor   */
+/*  FDG del informe (los de IA son aproximados → no se destacan así).    */
+const HOT_FDG = 7
+function isHotFdg(l: Lesion): boolean {
+  return l.source !== 'ia-david' && l.fdg != null && l.fdg >= HOT_FDG
+}
+function gHotFdgAt(g: LesGroup, f: number): boolean {
+  return f === 1 && g.foci.some((l) => isHotFdg(l) && presentAt(l, f))
+}
 /* «foco nuevo» y «detectado por IA» son ahora chips de la fila de filtros
    (vía visible()); el grupo aparece si alguno de sus focos pasa el filtro. */
 function groupVisible(g: LesGroup): boolean {
@@ -606,7 +621,11 @@ const evoChartSvg = computed(() => {
   const le = sel.value
   const prev = le.prevFdg, cur = le.fdg
   if (prev == null || cur == null) return ''
-  const W = 300, H = 116, padL = 26, padR = 16, padT = 12, padB = 22
+  // Más aire arriba/abajo: con SUV muy alto (>12) el punto rozaba el techo y
+  // con SUV muy bajo (<3) la cifra chocaba con el eje de fechas. padT/padB
+  // generosos + colocación inteligente de la etiqueta (arriba si hay sitio,
+  // si no abajo; nunca encima de las fechas).
+  const W = 300, H = 128, padL = 26, padR = 18, padT = 22, padB = 30
   const mx = Math.max(8, Math.ceil(Math.max(prev, cur)))
   const X = (f: number) => padL + f * (W - padL - padR)
   const Y = (v: number) => H - padB - (v / mx) * (H - padT - padB)
@@ -616,13 +635,18 @@ const evoChartSvg = computed(() => {
     g += `<line x1="${padL}" y1="${Y(yy).toFixed(1)}" x2="${W - padR}" y2="${Y(yy).toFixed(1)}" stroke="#eee6da"/><text x="${padL - 4}" y="${(Y(yy) + 3).toFixed(1)}" text-anchor="end" font-family="monospace" font-size="8" fill="#9b95a0">${yy}</text>`
   }
   for (let f = 0; f < 2; f++) {
-    g += `<text x="${X(f).toFixed(1)}" y="${H - 7}" text-anchor="middle" font-family="monospace" font-size="8" fill="#9b95a0">${FDATES[f][lang.value].split(' ')[0]}</text>`
+    g += `<text x="${X(f).toFixed(1)}" y="${H - 9}" text-anchor="middle" font-family="monospace" font-size="8" fill="#9b95a0">${FDATES[f][lang.value].split(' ')[0]}</text>`
   }
   g += `<line x1="${X(0).toFixed(1)}" y1="${Y(prev).toFixed(1)}" x2="${X(1).toFixed(1)}" y2="${Y(cur).toFixed(1)}" stroke="#e8633a" stroke-width="1.4"/>`
   const pts: [number, number][] = [[0, prev], [1, cur]]
   pts.forEach(([f, vv]) => {
     const x = X(f), y = Y(vv)
-    g += `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${f === 1 ? 3.2 : 2.6}" fill="#e8633a" stroke="#fff" stroke-width="0.8"/><text x="${x.toFixed(1)}" y="${(y - 6).toFixed(1)}" text-anchor="middle" font-family="monospace" font-size="8" fill="#6b6470">${vv.toFixed(1)}</text>`
+    // etiqueta arriba por defecto; si el punto está muy alto (sin aire arriba),
+    // colócala debajo; si está muy bajo (rozaría las fechas), fuérzala arriba.
+    const near = (a: number, b: number) => Math.abs(a - b) < 8
+    const below = y - padT < 11 && !near(y, H - padB)
+    const ly = below ? y + 13 : y - 7
+    g += `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${f === 1 ? 3.2 : 2.6}" fill="#e8633a" stroke="#fff" stroke-width="0.8"/><text x="${x.toFixed(1)}" y="${ly.toFixed(1)}" text-anchor="middle" font-family="monospace" font-size="8.5" font-weight="600" fill="#5a4a52">${vv.toFixed(1)}</text>`
   })
   return `<svg viewBox="0 0 ${W} ${H}" style="width:100%;height:auto" role="img" aria-label="${L('Evolución del FDG (SUVmáx) por fecha', 'FDG (SUVmax) evolution by date')}">${g}</svg>`
 })
@@ -677,6 +701,12 @@ function concPct(n: number): string {
   const t = concordance.value.total || 1
   return ((n / t) * 100).toFixed(1) + '%'
 }
+/* un segmento es «estrecho» si su cifra no cabe legible dentro de la barra
+   (<8% del total) → la etiqueta va FUERA (encima), no embutida dentro. */
+function concNarrow(n: number): boolean {
+  const t = concordance.value.total || 1
+  return (n / t) * 100 < 8
+}
 /* rango de SUVmáx por trazador (solo focos del informe) */
 function suvRange(vals: (number | null | undefined)[]): { min: number; max: number } | null {
   const xs = vals.filter((v): v is number => v != null)
@@ -696,17 +726,58 @@ const qX = (v: number) => Q.padL + (Math.max(0, Math.min(v, Q.xmax)) / Q.xmax) *
 const qY = (v: number) => Q.H - Q.padB - (Math.max(0, Math.min(v, Q.ymax)) / Q.ymax) * (Q.H - Q.padT - Q.padB)
 const qxTicks = [0, 2, 4, 6, 8, 10]
 const qyTicks = [0, 2, 4, 6, 8, 10, 12, 14]
-const quadDots = computed(() =>
-  LES.map((le) => {
+/* jitter determinista (±px por id) — desempata posiciones idénticas de forma
+   reproducible (el mismo id da SIEMPRE el mismo valor; no salta entre renders). */
+function jitter(id: number, axis: 0 | 1): number {
+  const s = Math.sin(id * (axis ? 78.233 : 12.9898)) * 43758.5453
+  return ((s - Math.floor(s)) - 0.5) * 2 // ±1px
+}
+/* Posiciones de los puntos del scatter. Los focos solo-receptor de bajo SUV caen
+   casi todos en la misma esquina inferior-izquierda (FDG nulo → x≈0, receptor
+   bajo → y similar) y se MONTAN. Tras situarlos por su dato, una pasada de
+   separación DETERMINISTA (orden estable por id) empuja los que se solapan hasta
+   dejar un hueco mínimo entre centros → los números no se pisan. No altera el
+   dato (los SUV siguen siendo los del informe): solo desencima los marcadores. */
+const quadDots = computed(() => {
+  const dots = LES.map((le) => {
     const mx = Math.max(le.dota || 0, le.fdg || 0)
     const r = 5.5 + Math.min(mx, 14) * 0.38
-    let px = qX(le.fdg == null ? 0 : le.fdg)
-    let py = qY(le.dota == null ? 0 : le.dota)
+    let px = qX(le.fdg == null ? 0 : le.fdg) + jitter(le.id, 0)
+    let py = qY(le.dota == null ? 0 : le.dota) + jitter(le.id, 1)
     if (le.fdg == null) px += r * 0.8
     if (le.dota == null) py -= r * 0.8
     return { le, px, py, r }
   })
-)
+  // separación: si dos centros quedan más cerca que (r1+r2)*0.9, sepáralos por
+  // igual a lo largo de su eje. Orden estable + iteraciones fijas = determinista.
+  for (let pass = 0; pass < 24; pass++) {
+    let moved = false
+    for (let i = 0; i < dots.length; i++) {
+      for (let j = i + 1; j < dots.length; j++) {
+        const a = dots[i], b = dots[j]
+        let dx = b.px - a.px, dy = b.py - a.py
+        let dist = Math.hypot(dx, dy)
+        const minD = (a.r + b.r) * 0.9
+        if (dist < minD) {
+          if (dist < 0.01) { dx = (a.le.id - b.le.id) || 1; dy = 0.5; dist = Math.hypot(dx, dy) }
+          const push = (minD - dist) / 2
+          const ux = dx / dist, uy = dy / dist
+          a.px -= ux * push; a.py -= uy * push
+          b.px += ux * push; b.py += uy * push
+          moved = true
+        }
+      }
+    }
+    if (!moved) break
+  }
+  // mantén los puntos dentro del área de dibujo (no se salgan por los ejes)
+  const minX = qX(0) + 2, maxX = Q.W - 2, minY = Q.padT + 2, maxY = qY(0) - 2
+  dots.forEach((d) => {
+    d.px = Math.max(minX + d.r * 0.4, Math.min(maxX, d.px))
+    d.py = Math.max(minY, Math.min(maxY - d.r * 0.4, d.py))
+  })
+  return dots
+})
 
 /* ------------------------------------------------------------------ */
 /*  Trayectoria vs estudio previo (todo derivado del array LES)        */
@@ -1207,13 +1278,13 @@ const ticks = [
           <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
             <div class="stat-readout">
               <div class="stat-readout__label">{{ L('Carga ósea', 'Bone burden') }}</div>
-              <div class="stat-readout__value tabular-nums">{{ confirmedFoci.length }} <span class="text-base text-tinta">+{{ aiFoci.length }}</span></div>
-              <div class="stat-readout__unit">{{ L('focos en el informe · +' + aiFoci.length + ' por confirmar (detectados por IA)', 'foci in the report · +' + aiFoci.length + ' to confirm (AI-detected)') }}</div>
+              <div class="stat-readout__value tabular-nums">{{ confirmedFoci.length }} <span class="font-body font-semibold text-[15px] text-tinta align-middle">+{{ aiFoci.length }}</span></div>
+              <div class="stat-readout__unit">{{ L('focos en el informe · +' + aiFoci.length + ' por confirmar (IA)', 'foci in the report · +' + aiFoci.length + ' to confirm (AI)') }}</div>
             </div>
             <div class="stat-readout">
               <div class="stat-readout__label">{{ L('Reparto en el esqueleto', 'Skeletal distribution') }}</div>
-              <div class="stat-readout__value tabular-nums">{{ skeletonSplit.axial }} · {{ skeletonSplit.append }}</div>
-              <div class="stat-readout__unit">{{ L('axial (columna/sacro) · apendicular (escápula/pelvis/cadera)', 'axial (spine/sacrum) · appendicular (scapula/pelvis/hip)') }}</div>
+              <div class="stat-readout__value tabular-nums">{{ skeletonSplit.axial }} <span class="font-body text-[15px] text-tinta align-middle">·</span> {{ skeletonSplit.append }}</div>
+              <div class="stat-readout__unit">{{ L('axial (columna/sacro) · apendicular (pelvis/cadera)', 'axial (spine/sacrum) · appendicular (pelvis/hip)') }}</div>
             </div>
             <div class="stat-readout">
               <div class="stat-readout__label" :style="{ color: '#9d44ab' }">{{ L('SUVmáx ⁶⁸Ga-DOTATOC', '⁶⁸Ga-DOTATOC SUVmax') }}</div>
@@ -1231,16 +1302,34 @@ const ticks = [
           <div class="grid md:grid-cols-2 gap-4">
             <div class="card-base !p-4">
               <p class="text-[11px] font-semibold text-berenjena uppercase tracking-wide mb-2">{{ L('Concordancia receptor ↔ azúcar', 'Receptor ↔ sugar concordance') }}</p>
-              <div class="flex h-6 rounded-full overflow-hidden border border-[rgba(45,27,61,0.1)]" role="img"
-                :aria-label="L(concordance.ne + ' solo receptor, ' + concordance.mix + ' mixtos, ' + concordance.agg + ' solo FDG', concordance.ne + ' receptor-only, ' + concordance.mix + ' mixed, ' + concordance.agg + ' FDG-only')">
-                <div v-if="concordance.ne" :style="{ width: concPct(concordance.ne), background: '#9d44ab' }" class="flex items-center justify-center text-[11px] font-semibold text-white">{{ concordance.ne }}</div>
-                <div v-if="concordance.mix" :style="{ width: concPct(concordance.mix), background: '#df7a44' }" class="flex items-center justify-center text-[11px] font-semibold text-berenjena">{{ concordance.mix }}</div>
-                <div v-if="concordance.agg" :style="{ width: concPct(concordance.agg), background: '#bb4128' }" class="flex items-center justify-center text-[11px] font-semibold text-white">{{ concordance.agg }}</div>
+              <!-- barra apilada. Las cifras de los segmentos ANCHOS van dentro;
+                   las de los segmentos ESTRECHOS (<8%) no caben → van fuera, en
+                   una fila superior con una pequeña marca y el número. Toda cifra
+                   se repite además en la leyenda inferior (siempre legible, AA). -->
+              <div class="relative">
+                <!-- etiquetas externas para los segmentos que no admiten la cifra dentro -->
+                <div class="flex h-4 mb-0.5 text-[10px] font-semibold leading-none">
+                  <div v-if="concordance.ne" :style="{ width: concPct(concordance.ne) }" class="flex items-end justify-center">
+                    <span v-if="concNarrow(concordance.ne)" :style="{ color: '#7a2e85' }">{{ concordance.ne }}</span>
+                  </div>
+                  <div v-if="concordance.mix" :style="{ width: concPct(concordance.mix) }" class="flex items-end justify-center">
+                    <span v-if="concNarrow(concordance.mix)" :style="{ color: '#8a4a1a' }">{{ concordance.mix }}</span>
+                  </div>
+                  <div v-if="concordance.agg" :style="{ width: concPct(concordance.agg) }" class="flex items-end justify-center">
+                    <span v-if="concNarrow(concordance.agg)" :style="{ color: '#bb4128' }">{{ concordance.agg }}</span>
+                  </div>
+                </div>
+                <div class="flex h-7 rounded-full overflow-hidden border border-[rgba(45,27,61,0.1)]" role="img"
+                  :aria-label="L(concordance.ne + ' solo receptor, ' + concordance.mix + ' mixtos, ' + concordance.agg + ' solo FDG', concordance.ne + ' receptor-only, ' + concordance.mix + ' mixed, ' + concordance.agg + ' FDG-only')">
+                  <div v-if="concordance.ne" :style="{ width: concPct(concordance.ne), background: '#9d44ab' }" class="flex items-center justify-center text-[12px] font-semibold text-white">{{ concNarrow(concordance.ne) ? '' : concordance.ne }}</div>
+                  <div v-if="concordance.mix" :style="{ width: concPct(concordance.mix), background: '#df7a44' }" class="flex items-center justify-center text-[12px] font-semibold text-berenjena">{{ concNarrow(concordance.mix) ? '' : concordance.mix }}</div>
+                  <div v-if="concordance.agg" :style="{ width: concPct(concordance.agg), background: '#bb4128' }" class="flex items-center justify-center text-[12px] font-semibold text-white">{{ concNarrow(concordance.agg) ? '' : concordance.agg }}</div>
+                </div>
               </div>
               <div class="flex flex-wrap gap-x-4 gap-y-1 mt-2 text-[12px] text-tinta">
-                <span class="inline-flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full" :style="{ background: '#9d44ab' }" />{{ L('solo receptor (Ga+/FDG−)', 'receptor-only (Ga+/FDG−)') }}</span>
-                <span class="inline-flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full" :style="{ background: '#df7a44' }" />{{ L('mixtos (ambos)', 'mixed (both)') }}</span>
-                <span class="inline-flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full" :style="{ background: '#bb4128' }" />{{ L('solo FDG (Ga−/FDG+)', 'FDG-only (Ga−/FDG+)') }}</span>
+                <span class="inline-flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full" :style="{ background: '#9d44ab' }" /><span class="font-semibold tabular-nums text-berenjena">{{ concordance.ne }}</span> {{ L('solo receptor (Ga+/FDG−)', 'receptor-only (Ga+/FDG−)') }}</span>
+                <span class="inline-flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full" :style="{ background: '#df7a44' }" /><span class="font-semibold tabular-nums text-berenjena">{{ concordance.mix }}</span> {{ L('mixtos (ambos)', 'mixed (both)') }}</span>
+                <span class="inline-flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full" :style="{ background: '#bb4128' }" /><span class="font-semibold tabular-nums text-berenjena">{{ concordance.agg }}</span> {{ L('solo FDG (Ga−/FDG+)', 'FDG-only (Ga−/FDG+)') }}</span>
               </div>
             </div>
             <div class="card-base !p-4">
@@ -1462,6 +1551,13 @@ const ticks = [
                     :cx="g.x" :cy="g.y" :r="gRadius(g, frame) + 4"
                     fill="none" :stroke="phenoColor(g.primary)" stroke-width="2"
                     class="pulse-ring pointer-events-none" />
+                  <!-- parpadeo SUTIL = mayor avidez de azúcar (FDG alto). Distinto
+                       del anillo «foco nuevo»: aquí late el propio relleno del
+                       marcador (sin anillo extra). Solo en el frame FDG. -->
+                  <circle v-if="gHotFdgAt(g, frame) && !gSelected(g)"
+                    :cx="g.x" :cy="g.y" :r="gRadius(g, frame)"
+                    :fill="phenoColor(g.primary)"
+                    class="pulse-hot pointer-events-none" />
                   <circle
                     :cx="g.x" :cy="g.y"
                     :r="(gPresentAt(g, frame) ? gRadius(g, frame) : 5) + (gSelected(g) ? 3 : 0)"
@@ -1495,6 +1591,10 @@ const ticks = [
                   <span>{{ L('Solo azúcar (FDG)', 'Sugar only (FDG)') }}</span>
                 </div>
                 <p class="text-[10px] text-tinta mt-1.5 leading-snug">{{ L('El contorno punteado marca los focos detectados por IA, por confirmar (no en el informe).', 'A dashed outline marks AI-detected foci, to confirm (not in the report).') }}</p>
+                <p class="text-[10px] text-tinta mt-1 leading-snug flex items-start gap-1.5">
+                  <span class="legend-pulse-dot shrink-0 mt-0.5" aria-hidden="true" />
+                  <span>{{ L('En la vista de azúcar (FDG), los focos que parpadean son los de mayor avidez de azúcar (FDG SUVmáx ≥ ' + HOT_FDG + '). Descriptivo, no es una conclusión.', 'In the sugar (FDG) view, the blinking foci are the most sugar-avid ones (FDG SUVmax ≥ ' + HOT_FDG + '). Descriptive, not a conclusion.') }}</span>
+                </p>
               </div>
             </div>
 
@@ -1919,6 +2019,8 @@ const ticks = [
                 <text :transform="`translate(13,${(qY(Q.ymax) + qY(0)) / 2}) rotate(-90)`" text-anchor="middle" font-family="Source Sans 3, sans-serif" font-size="10.5" font-weight="600" fill="#2d1b3d">{{ L('⁶⁸Ga SUVmáx · receptor (↑)', '⁶⁸Ga SUVmax · receptor (↑)') }}</text>
                 <!-- puntos = lesiones -->
                 <g v-for="d in quadDots" :key="'qd' + d.le.id" v-show="visible(d.le)">
+                  <!-- parpadeo sutil = mayor avidez de azúcar (FDG alto) -->
+                  <circle v-if="isHotFdg(d.le)" :cx="d.px" :cy="d.py" :r="d.r" :fill="phenoColor(d.le)" class="pulse-hot pointer-events-none" />
                   <circle :cx="d.px" :cy="d.py" :r="d.r + 5" :fill="phenoColor(d.le)" opacity="0.16" class="pointer-events-none" />
                   <circle :cx="d.px" :cy="d.py" :r="d.r + (selected === d.le.id ? 2.5 : 0)"
                     :fill="phenoColor(d.le)"
@@ -1938,6 +2040,7 @@ const ticks = [
                 <li><span class="inline-block w-2.5 h-2.5 rounded-full align-middle mr-1.5" :style="{ background: '#9d44ab' }" />{{ L('Arriba-izquierda: capta receptor y poco azúcar.', 'Top-left: receptor-avid, little sugar.') }}</li>
                 <li><span class="inline-block w-2.5 h-2.5 rounded-full align-middle mr-1.5" :style="{ background: '#bb4128' }" />{{ L('Abajo-derecha: mucho azúcar y poco receptor.', 'Bottom-right: lots of sugar, little receptor.') }}</li>
                 <li><span class="inline-block w-2.5 h-2.5 rounded-full align-middle mr-1.5" :style="{ background: '#df7a44' }" />{{ L('Arriba-derecha: las dos caras conviven (mixto).', 'Top-right: both faces coexist (mixed).') }}</li>
+                <li class="pt-1 text-[12px] flex items-start gap-1.5"><span class="legend-pulse-dot shrink-0 mt-1" aria-hidden="true" />{{ L('Parpadeo = mayor avidez de azúcar (FDG SUVmáx ≥ ' + HOT_FDG + '). Descriptivo, no es una conclusión.', 'Blink = most sugar-avid (FDG SUVmax ≥ ' + HOT_FDG + '). Descriptive, not a conclusion.') }}</li>
                 <li class="pt-1 text-[12px]">{{ L('El contorno punteado marca los focos detectados por IA, por confirmar (no en el informe).', 'A dashed outline marks AI-detected foci, to confirm (not in the report).') }}</li>
               </ul>
             </aside>
@@ -2532,8 +2635,36 @@ const ticks = [
   transform-origin: center;
   animation: pulsering 1.6s ease-out infinite;
 }
+/* Parpadeo SUTIL = mayor avidez de azúcar (FDG alto). Reutiliza el patrón de
+   pulsering pero sobre el RELLENO del marcador (un halo que late suave), no un
+   anillo expansivo: así se distingue del anillo de «foco nuevo». */
+@keyframes pulsehot {
+  0%   { opacity: 0.55; transform: scale(1); }
+  50%  { opacity: 0;    transform: scale(1.45); }
+  100% { opacity: 0;    transform: scale(1.45); }
+}
+.pulse-hot {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: pulsehot 2.2s ease-in-out infinite;
+}
+/* punto de leyenda que late igual que los focos FDG altos (sin escala, solo
+   opacidad — un viñetado dentro del texto). */
+.legend-pulse-dot {
+  display: inline-block;
+  width: 9px; height: 9px;
+  border-radius: 9999px;
+  background: #bb4128;
+  animation: legendpulse 2.2s ease-in-out infinite;
+}
+@keyframes legendpulse {
+  0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(187, 65, 40, 0.5); }
+  50%      { opacity: 0.55; box-shadow: 0 0 0 3px rgba(187, 65, 40, 0); }
+}
 @media (prefers-reduced-motion: reduce) {
   .pulse-ring { animation: none; opacity: 0.5; }
+  .pulse-hot { animation: none; opacity: 0; }
+  .legend-pulse-dot { animation: none; }
 }
 /* ── Tabla de focos · cabecera pegajosa ──────────────────────────────
    El contenedor scrollea (vertical + horizontal) y el <thead> se queda fijo
