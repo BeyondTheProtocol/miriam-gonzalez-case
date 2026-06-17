@@ -492,6 +492,46 @@ function openKeyLightboxFor(id: number, plane: KeyPlane = 'axial') {
 watch(selected, () => { if (!keyLightboxOpen.value) keyPlane.value = 'axial' })
 
 /* ------------------------------------------------------------------ */
+/*  LIGHTBOX de la IMAGEN REAL (pestañas MIP / PET) — petición paciente: */
+/*  ampliar en popup grande con zoom y poder ver «las 4 a la vez» (las 4 */
+/*  PET: MIP Galio, MIP FDG, sagital Galio, sagital FDG) en cuadrícula   */
+/*  2×2 para compararlas de golpe. Reutiliza ImageZoomViewer (mismo visor */
+/*  de zoom/pan) y el mismo patrón de modal/Teleport que la key-image.   */
+interface PetImg { src: string; tracer: 'ga' | 'fdg'; kind: 'mip' | 'sag'; es: string; en: string }
+const PET_IMGS: PetImg[] = [
+  { src: '/metastasis/gal_mip_hot.jpg', tracer: 'ga', kind: 'mip', es: 'MIP · ⁶⁸Ga-DOTATOC (receptor)', en: 'MIP · ⁶⁸Ga-DOTATOC (receptor)' },
+  { src: '/metastasis/fdg_mip_hot.jpg', tracer: 'fdg', kind: 'mip', es: 'MIP · ¹⁸F-FDG (azúcar)', en: 'MIP · ¹⁸F-FDG (sugar)' },
+  { src: '/metastasis/gal_spine.jpg', tracer: 'ga', kind: 'sag', es: 'Columna sagital · ⁶⁸Ga-DOTATOC (receptor)', en: 'Sagittal spine · ⁶⁸Ga-DOTATOC (receptor)' },
+  { src: '/metastasis/fdg_spine.jpg', tracer: 'fdg', kind: 'sag', es: 'Columna sagital · ¹⁸F-FDG (azúcar)', en: 'Sagittal spine · ¹⁸F-FDG (sugar)' },
+]
+function petTracerColor(p: PetImg): string { return p.tracer === 'ga' ? '#9d44ab' : '#bb4128' }
+/* abierto + modo: 'single' (una ampliada) | 'grid' (las 4 PET a la vez 2×2) */
+const petLightboxOpen = ref(false)
+const petLightboxMode = ref<'single' | 'grid'>('single')
+const petLightboxSrc = ref<string>(PET_IMGS[0].src)
+const petLightboxImg = computed(() => PET_IMGS.find((p) => p.src === petLightboxSrc.value) ?? PET_IMGS[0])
+function openPetLightbox(src: string) {
+  petLightboxMode.value = 'single'
+  petLightboxSrc.value = src
+  petLightboxOpen.value = true
+}
+function openPetGrid() {
+  petLightboxMode.value = 'grid'
+  petLightboxOpen.value = true
+}
+function closePetLightbox() { petLightboxOpen.value = false }
+/* dentro del popup: de la cuadrícula → ampliar una sola; de una sola → volver a las 4 */
+function petLightboxShowSingle(src: string) { petLightboxSrc.value = src; petLightboxMode.value = 'single' }
+function petLightboxShowGrid() { petLightboxMode.value = 'grid' }
+function onPetLightboxEsc(e: KeyboardEvent) { if (e.key === 'Escape') closePetLightbox() }
+watch(petLightboxOpen, (open) => {
+  if (!import.meta.client) return
+  document.body.style.overflow = open ? 'hidden' : ''
+  if (open) document.addEventListener('keydown', onPetLightboxEsc)
+  else document.removeEventListener('keydown', onPetLightboxEsc)
+})
+
+/* ------------------------------------------------------------------ */
 /*  GALERÍA "contact-sheet" de TODAS las key-images (petición paciente) */
 /*  Confirmadas primero (por id), focos de IA al final con su marca.    */
 /*  Etiqueta por miniatura: #id · localización · trazador SUVmáx.       */
@@ -511,6 +551,11 @@ function keyTracerColor(le: Lesion): string {
 /* planos extra disponibles ("+Sag", "+Cor"), sin el axial (siempre presente) */
 function keyExtraPlanes(le: Lesion): string[] {
   return focoKey(le).planes.filter((p) => p.plane !== 'axial').map((p) => '+' + p.label[lang.value])
+}
+/* nombre de descarga de la PNG de una key-image (el propio fichero foco-NN[-plano].png).
+   Petición de la paciente: poder descargar la imagen de cada foco. */
+function keyDownloadName(src: string): string {
+  return src.split('/').pop() || 'foco.png'
 }
 
 /* ------------------------------------------------------------------ */
@@ -628,6 +673,7 @@ onBeforeUnmount(() => {
   if (import.meta.client) {
     document.body.style.overflow = ''
     document.removeEventListener('keydown', onKeyLightboxEsc)
+    document.removeEventListener('keydown', onPetLightboxEsc)
   }
 })
 
@@ -659,7 +705,10 @@ const evoChartSvg = computed(() => {
   // Más aire arriba/abajo: con SUV muy alto (>12) el punto rozaba el techo y
   // con SUV muy bajo (<3) la cifra chocaba con el eje de fechas. padT/padB
   // generosos + colocación inteligente de la etiqueta (arriba si hay sitio,
-  // si no abajo; nunca encima de las fechas).
+  // si no abajo; nunca encima de las fechas). EN HORIZONTAL: la cifra del punto
+  // inicial se ancla a la derecha del punto (no centrada) para no pisar la
+  // columna del eje Y; la del punto final se ancla a su izquierda para no
+  // salirse por el borde derecho.
   const W = 300, H = 128, padL = 26, padR = 18, padT = 22, padB = 30
   const mx = Math.max(8, Math.ceil(Math.max(prev, cur)))
   const X = (f: number) => padL + f * (W - padL - padR)
@@ -681,7 +730,15 @@ const evoChartSvg = computed(() => {
     const near = (a: number, b: number) => Math.abs(a - b) < 8
     const below = y - padT < 11 && !near(y, H - padB)
     const ly = below ? y + 13 : y - 7
-    g += `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${f === 1 ? 3.2 : 2.6}" fill="#e8633a" stroke="#fff" stroke-width="0.8"/><text x="${x.toFixed(1)}" y="${ly.toFixed(1)}" text-anchor="middle" font-family="monospace" font-size="8.5" font-weight="600" fill="#5a4a52">${vv.toFixed(1)}</text>`
+    // HORIZONTAL: el punto inicial (f=0) cae en x=padL, justo sobre la columna
+    // del eje Y (los 0/3/6…, anclados a x=padL-4) y el borde izquierdo → su
+    // cifra centrada (p.ej. «10.2») los pisaba. Lo resolvemos anclando la cifra
+    // a la IZQUIERDA y desplazándola a la DERECHA del punto, dentro del área del
+    // gráfico. El punto final (f=1) cae en el borde derecho → la anclamos a la
+    // derecha para que no se salga. Así ninguna cifra pisa el eje Y ni las fechas.
+    const anchor = f === 0 ? 'start' : 'end'
+    const lx = f === 0 ? x + 4 : x - 4
+    g += `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${f === 1 ? 3.2 : 2.6}" fill="#e8633a" stroke="#fff" stroke-width="0.8"/><text x="${lx.toFixed(1)}" y="${ly.toFixed(1)}" text-anchor="${anchor}" font-family="monospace" font-size="8.5" font-weight="600" fill="#5a4a52">${vv.toFixed(1)}</text>`
   })
   return `<svg viewBox="0 0 ${W} ${H}" style="width:100%;height:auto" role="img" aria-label="${L('Evolución del FDG (SUVmáx) por fecha', 'FDG (SUVmax) evolution by date')}">${g}</svg>`
 })
@@ -2069,15 +2126,67 @@ const ticks = [
                 </g>
               </svg>
             </div>
-            <aside class="text-sm">
-              <p class="text-[11px] font-semibold text-berenjena uppercase tracking-wide mb-2">{{ L('Cómo leerlo', 'How to read it') }}</p>
-              <ul class="space-y-2 text-tinta leading-relaxed">
-                <li><span class="inline-block w-2.5 h-2.5 rounded-full align-middle mr-1.5" :style="{ background: '#9d44ab' }" />{{ L('Arriba-izquierda: capta receptor y poco azúcar.', 'Top-left: receptor-avid, little sugar.') }}</li>
-                <li><span class="inline-block w-2.5 h-2.5 rounded-full align-middle mr-1.5" :style="{ background: '#bb4128' }" />{{ L('Abajo-derecha: mucho azúcar y poco receptor.', 'Bottom-right: lots of sugar, little receptor.') }}</li>
-                <li><span class="inline-block w-2.5 h-2.5 rounded-full align-middle mr-1.5" :style="{ background: '#df7a44' }" />{{ L('Arriba-derecha: las dos caras conviven (mixto).', 'Top-right: both faces coexist (mixed).') }}</li>
-                <li class="pt-1 text-[12px] flex items-start gap-1.5"><span class="legend-pulse-dot shrink-0 mt-1" aria-hidden="true" />{{ L('Parpadeo = mayor avidez de azúcar (FDG SUVmáx ≥ ' + HOT_FDG + '). Descriptivo, no es una conclusión.', 'Blink = most sugar-avid (FDG SUVmax ≥ ' + HOT_FDG + '). Descriptive, not a conclusion.') }}</li>
-                <li class="pt-1 text-[12px]">{{ L('El contorno punteado marca los focos detectados por IA, por confirmar (no en el informe).', 'A dashed outline marks AI-detected foci, to confirm (not in the report).') }}</li>
+            <!-- LEYENDA · qué significa cada cosa del marcador (petición de la
+                 paciente). Pensada para que un radiólogo y un lego lean cada
+                 símbolo: qué es el tamaño, el color/relleno, el halo, el
+                 contorno punteado, el anillo de selección, el parpadeo y los
+                 cuadrantes. Etiquetado por trazador/forma, nunca biología. -->
+            <aside class="text-sm" aria-labelledby="scatter-legend-title">
+              <p id="scatter-legend-title" class="text-[11px] font-semibold text-berenjena uppercase tracking-wide mb-2">{{ L('Qué significa cada círculo', 'What each circle means') }}</p>
+
+              <!-- 1 · LOS SÍMBOLOS del marcador -->
+              <ul class="space-y-2.5 text-tinta leading-snug">
+                <!-- tamaño ∝ SUVmáx -->
+                <li class="flex items-start gap-2.5">
+                  <svg width="34" height="22" viewBox="0 0 34 22" class="shrink-0 mt-0.5" aria-hidden="true">
+                    <circle cx="8" cy="11" r="4" :fill="PHENO.mixAgg.c" /><circle cx="25" cy="11" r="9" :fill="PHENO.mixAgg.c" />
+                  </svg>
+                  <span><strong class="text-berenjena">{{ L('Tamaño', 'Size') }}</strong> {{ L('— a mayor círculo, mayor SUVmáx (más avidez del trazador dominante).', '— the larger the circle, the higher the SUVmax (more avidity of the dominant tracer).') }}</span>
+                </li>
+                <!-- color/relleno -->
+                <li class="flex items-start gap-2.5">
+                  <svg width="34" height="22" viewBox="0 0 34 22" class="shrink-0 mt-0.5" aria-hidden="true">
+                    <circle cx="8" cy="11" r="6" :fill="PHENO.ne.c" /><circle cx="25" cy="11" r="6" :fill="PHENO.agg.c" />
+                  </svg>
+                  <span><strong class="text-berenjena">{{ L('Color / relleno', 'Colour / fill') }}</strong> {{ L('— el del trazador dominante: violeta = receptor (Galio); naranja-coral = azúcar (FDG). Los tonos intermedios = mixto.', '— that of the dominant tracer: violet = receptor (gallium); orange-coral = sugar (FDG). Intermediate tones = mixed.') }}</span>
+                </li>
+                <!-- halo / aura -->
+                <li class="flex items-start gap-2.5">
+                  <svg width="34" height="22" viewBox="0 0 34 22" class="shrink-0 mt-0.5" aria-hidden="true">
+                    <circle cx="17" cy="11" r="10" :fill="PHENO.mixNe.c" opacity="0.16" /><circle cx="17" cy="11" r="6" :fill="PHENO.mixNe.c" />
+                  </svg>
+                  <span><strong class="text-berenjena">{{ L('Halo (aura)', 'Halo (aura)') }}</strong> {{ L('— un brillo suave alrededor en el mismo color; ayuda a localizar el foco, no añade dato.', '— a soft glow around it in the same colour; it helps spot the focus, it adds no data.') }}</span>
+                </li>
+                <!-- contorno punteado = IA por confirmar -->
+                <li class="flex items-start gap-2.5">
+                  <svg width="34" height="22" viewBox="0 0 34 22" class="shrink-0 mt-0.5" aria-hidden="true">
+                    <circle cx="17" cy="11" r="6.5" fill="#8a4a1a" fill-opacity="0.18" stroke="#8a4a1a" stroke-width="1.4" stroke-dasharray="2 1.6" />
+                  </svg>
+                  <span><strong class="text-berenjena">{{ L('Contorno punteado', 'Dashed outline') }}</strong> {{ L('= foco detectado por IA, por confirmar (no consta en el informe). Focos #17, #18 y #19.', '= AI-detected focus, to confirm (not in the report). Foci #17, #18 and #19.') }}</span>
+                </li>
+                <!-- anillo grueso/oscuro = seleccionado -->
+                <li class="flex items-start gap-2.5">
+                  <svg width="34" height="22" viewBox="0 0 34 22" class="shrink-0 mt-0.5" aria-hidden="true">
+                    <circle cx="17" cy="11" r="7" :fill="PHENO.mixBal.c" stroke="#2d1b3d" stroke-width="2" />
+                  </svg>
+                  <span><strong class="text-berenjena">{{ L('Anillo grueso oscuro', 'Thick dark ring') }}</strong> {{ L('= el foco seleccionado ahora (el de la ficha). Toca otro círculo para cambiarlo.', '= the focus selected now (the one in the card). Tap another circle to change it.') }}</span>
+                </li>
+                <!-- parpadeo = FDG alto -->
+                <li class="flex items-start gap-2.5">
+                  <span class="legend-pulse-dot shrink-0 mt-1 ml-3" aria-hidden="true" />
+                  <span><strong class="text-berenjena">{{ L('Parpadeo', 'Blink') }}</strong> {{ L('= mayor avidez de azúcar (FDG SUVmáx ≥ ' + HOT_FDG + '). Es descriptivo, no una conclusión.', '= most sugar-avid (FDG SUVmax ≥ ' + HOT_FDG + '). It is descriptive, not a conclusion.') }}</span>
+                </li>
               </ul>
+
+              <!-- 2 · LOS CUADRANTES (posición en los ejes) -->
+              <p class="text-[11px] font-semibold text-berenjena uppercase tracking-wide mt-4 mb-2 pt-3 border-t border-[rgba(45,27,61,0.1)]">{{ L('Y los cuadrantes (la posición)', 'And the quadrants (the position)') }}</p>
+              <ul class="space-y-1.5 text-[12.5px] text-tinta leading-snug">
+                <li class="flex items-start gap-2"><span class="inline-block w-2.5 h-2.5 rounded-full shrink-0 mt-1" :style="{ background: '#9d44ab' }" /><span><strong class="text-berenjena">{{ L('Arriba-izquierda · Solo receptor', 'Top-left · Receptor only') }}</strong> — {{ L('capta receptor (Galio) y poco o ningún azúcar.', 'receptor-avid (gallium), little or no sugar.') }}</span></li>
+                <li class="flex items-start gap-2"><span class="inline-block w-2.5 h-2.5 rounded-full shrink-0 mt-1" :style="{ background: '#df7a44' }" /><span><strong class="text-berenjena">{{ L('Arriba-derecha · Mixto', 'Top-right · Mixed') }}</strong> — {{ L('capta los dos trazadores a la vez (receptor y azúcar).', 'takes up both tracers at once (receptor and sugar).') }}</span></li>
+                <li class="flex items-start gap-2"><span class="inline-block w-2.5 h-2.5 rounded-full shrink-0 mt-1" :style="{ background: '#bb4128' }" /><span><strong class="text-berenjena">{{ L('Abajo-derecha · Solo azúcar', 'Bottom-right · Sugar only') }}</strong> — {{ L('mucho azúcar (FDG) y poco o ningún receptor.', 'lots of sugar (FDG), little or no receptor.') }}</span></li>
+                <li class="flex items-start gap-2"><span class="inline-block w-2.5 h-2.5 rounded-full shrink-0 mt-1" :style="{ background: '#6b6470' }" /><span><strong class="text-berenjena">{{ L('Abajo-izquierda · Baja avidez', 'Bottom-left · Low avidity') }}</strong> — {{ L('poca captación de los dos trazadores.', 'low uptake of both tracers.') }}</span></li>
+              </ul>
+              <p class="text-[10.5px] text-tinta leading-relaxed mt-3">{{ L('El eje horizontal es el azúcar (FDG) y el vertical el receptor (Galio); ambos SUVmáx de los informes. Las divisiones son orientativas. Etiquetado por trazador y forma, no por biología; describe, no concluye.', 'The horizontal axis is sugar (FDG) and the vertical the receptor (gallium); both SUVmax from the reports. The dividers are orientative. Labelled by tracer and shape, not by biology; it describes, it does not conclude.') }}</p>
             </aside>
           </div>
         </section>
@@ -2118,23 +2227,38 @@ const ticks = [
               {{ L('Proyección de máxima intensidad (todo el cuerpo de un vistazo). Lo intenso fuera del esqueleto es captación normal de cada trazador (cerebro y corazón en FDG; riñones, bazo e hígado en Galio); las metástasis son los focos del esqueleto.',
                     'Maximum-intensity projection (the whole body at a glance). The intense areas outside the skeleton are normal uptake of each tracer (brain and heart on FDG; kidneys, spleen and liver on gallium); the metastases are the skeletal foci.') }}
             </p>
-            <div class="grid grid-cols-2 gap-4 max-w-2xl">
+            <!-- botón «ver las 4 PET a la vez» (MIP + sagital, los dos trazadores) -->
+            <button type="button" class="pet-grid-cta" @click="openPetGrid()">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1" /><rect x="14" y="3" width="7" height="7" rx="1" /><rect x="3" y="14" width="7" height="7" rx="1" /><rect x="14" y="14" width="7" height="7" rx="1" /></svg>
+              {{ L('Ver las 4 PET a la vez', 'View all 4 PET at once') }}
+            </button>
+            <div class="grid grid-cols-2 gap-4 max-w-2xl mt-3">
               <figure class="card-base !p-3 flex flex-col">
-                <ClientOnly>
-                  <ImageZoomViewer src="/metastasis/gal_mip_hot.jpg" :alt="L('MIP Galio-68 DOTATOC', 'Ga-68 DOTATOC MIP')" max-width="100%" />
-                  <template #fallback><img src="/metastasis/gal_mip_hot.jpg" :alt="L('MIP Galio-68 DOTATOC', 'Ga-68 DOTATOC MIP')" class="w-full object-contain rounded-lg bg-black" loading="lazy" /></template>
-                </ClientOnly>
+                <div class="pet-fig">
+                  <ClientOnly>
+                    <ImageZoomViewer src="/metastasis/gal_mip_hot.jpg" :alt="L('MIP Galio-68 DOTATOC', 'Ga-68 DOTATOC MIP')" max-width="100%" />
+                    <template #fallback><img src="/metastasis/gal_mip_hot.jpg" :alt="L('MIP Galio-68 DOTATOC', 'Ga-68 DOTATOC MIP')" class="w-full object-contain rounded-lg bg-black" loading="lazy" /></template>
+                  </ClientOnly>
+                  <button type="button" class="pet-fig__open" :aria-label="L('Ampliar el MIP de Galio en un popup grande', 'Enlarge the gallium MIP in a large popup')" @click="openPetLightbox('/metastasis/gal_mip_hot.jpg')">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7" /><line x1="21" y1="21" x2="16.5" y2="16.5" /><line x1="11" y1="8" x2="11" y2="14" /><line x1="8" y1="11" x2="14" y2="11" /></svg> {{ L('ampliar', 'enlarge') }}
+                  </button>
+                </div>
                 <figcaption class="text-xs text-center mt-2 font-semibold" :style="{ color: '#9d44ab' }">⁶⁸Ga-DOTATOC · {{ L('receptor', 'receptor') }}</figcaption>
               </figure>
               <figure class="card-base !p-3 flex flex-col">
-                <ClientOnly>
-                  <ImageZoomViewer src="/metastasis/fdg_mip_hot.jpg" :alt="L('MIP FDG', 'FDG MIP')" max-width="100%" />
-                  <template #fallback><img src="/metastasis/fdg_mip_hot.jpg" :alt="L('MIP FDG', 'FDG MIP')" class="w-full object-contain rounded-lg bg-black" loading="lazy" /></template>
-                </ClientOnly>
+                <div class="pet-fig">
+                  <ClientOnly>
+                    <ImageZoomViewer src="/metastasis/fdg_mip_hot.jpg" :alt="L('MIP FDG', 'FDG MIP')" max-width="100%" />
+                    <template #fallback><img src="/metastasis/fdg_mip_hot.jpg" :alt="L('MIP FDG', 'FDG MIP')" class="w-full object-contain rounded-lg bg-black" loading="lazy" /></template>
+                  </ClientOnly>
+                  <button type="button" class="pet-fig__open" :aria-label="L('Ampliar el MIP de FDG en un popup grande', 'Enlarge the FDG MIP in a large popup')" @click="openPetLightbox('/metastasis/fdg_mip_hot.jpg')">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7" /><line x1="21" y1="21" x2="16.5" y2="16.5" /><line x1="11" y1="8" x2="11" y2="14" /><line x1="8" y1="11" x2="14" y2="11" /></svg> {{ L('ampliar', 'enlarge') }}
+                  </button>
+                </div>
                 <figcaption class="text-xs text-center mt-2 font-semibold" :style="{ color: '#bb4128' }">¹⁸F-FDG · {{ L('azúcar', 'sugar') }}</figcaption>
               </figure>
             </div>
-            <p class="text-[11px] text-tinta mt-3 max-w-2xl">{{ L('Rueda o pinza para acercar, arrastra para mover, doble clic para restablecer.', 'Wheel or pinch to zoom, drag to pan, double-click to reset.') }}</p>
+            <p class="text-[11px] text-tinta mt-3 max-w-2xl">{{ L('Rueda o pinza para acercar, arrastra para mover, doble clic para restablecer. Pulsa «ampliar» para abrirla en grande, o «ver las 4 PET a la vez» para compararlas.', 'Wheel or pinch to zoom, drag to pan, double-click to reset. Press “enlarge” to open it large, or “view all 4 PET at once” to compare them.') }}</p>
           </div>
 
           <!-- panel · columna sagital en PET -->
@@ -2143,23 +2267,38 @@ const ticks = [
               {{ L('Corte sagital (perfil) con el TC en gris y el PET superpuesto en color. A la izquierda, el receptor (Galio); a la derecha, el azúcar (FDG). Compara qué vértebras encienden con cada trazador.',
                     'Sagittal (side) slice with CT in grey and PET overlaid in colour. Left, the receptor (gallium); right, the sugar (FDG). Compare which vertebrae light up with each tracer.') }}
             </p>
-            <div class="grid grid-cols-2 gap-4 max-w-xl">
+            <!-- botón «ver las 4 PET a la vez» (MIP + sagital, los dos trazadores) -->
+            <button type="button" class="pet-grid-cta" @click="openPetGrid()">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1" /><rect x="14" y="3" width="7" height="7" rx="1" /><rect x="3" y="14" width="7" height="7" rx="1" /><rect x="14" y="14" width="7" height="7" rx="1" /></svg>
+              {{ L('Ver las 4 PET a la vez', 'View all 4 PET at once') }}
+            </button>
+            <div class="grid grid-cols-2 gap-4 max-w-xl mt-3">
               <figure class="card-base !p-3 flex flex-col">
-                <ClientOnly>
-                  <ImageZoomViewer src="/metastasis/gal_spine.jpg" :alt="L('Fusión sagital Galio', 'Gallium sagittal fusion')" max-width="100%" />
-                  <template #fallback><img src="/metastasis/gal_spine.jpg" :alt="L('Fusión sagital Galio', 'Gallium sagittal fusion')" class="w-full object-contain rounded-lg bg-black" loading="lazy" /></template>
-                </ClientOnly>
+                <div class="pet-fig">
+                  <ClientOnly>
+                    <ImageZoomViewer src="/metastasis/gal_spine.jpg" :alt="L('Fusión sagital Galio', 'Gallium sagittal fusion')" max-width="100%" />
+                    <template #fallback><img src="/metastasis/gal_spine.jpg" :alt="L('Fusión sagital Galio', 'Gallium sagittal fusion')" class="w-full object-contain rounded-lg bg-black" loading="lazy" /></template>
+                  </ClientOnly>
+                  <button type="button" class="pet-fig__open" :aria-label="L('Ampliar la columna sagital de Galio en un popup grande', 'Enlarge the gallium sagittal spine in a large popup')" @click="openPetLightbox('/metastasis/gal_spine.jpg')">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7" /><line x1="21" y1="21" x2="16.5" y2="16.5" /><line x1="11" y1="8" x2="11" y2="14" /><line x1="8" y1="11" x2="14" y2="11" /></svg> {{ L('ampliar', 'enlarge') }}
+                  </button>
+                </div>
                 <figcaption class="text-xs text-center mt-2 font-semibold" :style="{ color: '#9d44ab' }">⁶⁸Ga-DOTATOC</figcaption>
               </figure>
               <figure class="card-base !p-3 flex flex-col">
-                <ClientOnly>
-                  <ImageZoomViewer src="/metastasis/fdg_spine.jpg" :alt="L('Fusión sagital FDG', 'FDG sagittal fusion')" max-width="100%" />
-                  <template #fallback><img src="/metastasis/fdg_spine.jpg" :alt="L('Fusión sagital FDG', 'FDG sagittal fusion')" class="w-full object-contain rounded-lg bg-black" loading="lazy" /></template>
-                </ClientOnly>
+                <div class="pet-fig">
+                  <ClientOnly>
+                    <ImageZoomViewer src="/metastasis/fdg_spine.jpg" :alt="L('Fusión sagital FDG', 'FDG sagittal fusion')" max-width="100%" />
+                    <template #fallback><img src="/metastasis/fdg_spine.jpg" :alt="L('Fusión sagital FDG', 'FDG sagittal fusion')" class="w-full object-contain rounded-lg bg-black" loading="lazy" /></template>
+                  </ClientOnly>
+                  <button type="button" class="pet-fig__open" :aria-label="L('Ampliar la columna sagital de FDG en un popup grande', 'Enlarge the FDG sagittal spine in a large popup')" @click="openPetLightbox('/metastasis/fdg_spine.jpg')">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7" /><line x1="21" y1="21" x2="16.5" y2="16.5" /><line x1="11" y1="8" x2="11" y2="14" /><line x1="8" y1="11" x2="14" y2="11" /></svg> {{ L('ampliar', 'enlarge') }}
+                  </button>
+                </div>
                 <figcaption class="text-xs text-center mt-2 font-semibold" :style="{ color: '#bb4128' }">¹⁸F-FDG</figcaption>
               </figure>
             </div>
-            <p class="text-[11px] text-tinta mt-3 max-w-xl">{{ L('Rueda o pinza para acercar, arrastra para mover, doble clic para restablecer.', 'Wheel or pinch to zoom, drag to pan, double-click to reset.') }}</p>
+            <p class="text-[11px] text-tinta mt-3 max-w-xl">{{ L('Rueda o pinza para acercar, arrastra para mover, doble clic para restablecer. Pulsa «ampliar» para abrirla en grande, o «ver las 4 PET a la vez» para compararlas.', 'Wheel or pinch to zoom, drag to pan, double-click to reset. Press “enlarge” to open it large, or “view all 4 PET at once” to compare them.') }}</p>
           </div>
 
           <!-- panel · columna en RMN -->
@@ -2225,32 +2364,43 @@ const ticks = [
             <ul class="foco-key-grid" role="list">
               <li v-for="le in keyGallery" :key="'gal-' + le.id" class="foco-key-cell">
                 <!-- foco con imagen fiable → miniatura pulsable que abre el lightbox grande -->
-                <button
-                  v-if="focoKey(le).hasReliable"
-                  type="button"
-                  class="foco-key-tile"
-                  :class="{ 'is-ai': focoKey(le).ai }"
-                  :aria-label="L('Ampliar la imagen clave del foco #' + le.id + ' · ' + le.level.es, 'Enlarge the key image of focus #' + le.id + ' · ' + le.level.en)"
-                  @click="openKeyLightboxFor(le.id, 'axial')">
-                  <span class="foco-key-tile__frame">
-                    <img
-                      :src="fk(le.id, 'axial')"
-                      :alt="L('Imagen clave (axial) del foco #' + le.id + ' · ' + le.level.es, 'Key image (axial) of focus #' + le.id + ' · ' + le.level.en)"
-                      class="foco-key-tile__img"
-                      loading="lazy" />
-                    <span class="foco-key-tile__zoom" aria-hidden="true">
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7" /><line x1="21" y1="21" x2="16.5" y2="16.5" /><line x1="11" y1="8" x2="11" y2="14" /><line x1="8" y1="11" x2="14" y2="11" /></svg>
+                <template v-if="focoKey(le).hasReliable">
+                  <button
+                    type="button"
+                    class="foco-key-tile"
+                    :class="{ 'is-ai': focoKey(le).ai }"
+                    :aria-label="L('Ampliar la imagen clave del foco #' + le.id + ' · ' + le.level.es, 'Enlarge the key image of focus #' + le.id + ' · ' + le.level.en)"
+                    @click="openKeyLightboxFor(le.id, 'axial')">
+                    <span class="foco-key-tile__frame">
+                      <img
+                        :src="fk(le.id, 'axial')"
+                        :alt="L('Imagen clave (axial) del foco #' + le.id + ' · ' + le.level.es, 'Key image (axial) of focus #' + le.id + ' · ' + le.level.en)"
+                        class="foco-key-tile__img"
+                        loading="lazy" />
+                      <span class="foco-key-tile__zoom" aria-hidden="true">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7" /><line x1="21" y1="21" x2="16.5" y2="16.5" /><line x1="11" y1="8" x2="11" y2="14" /><line x1="8" y1="11" x2="14" y2="11" /></svg>
+                      </span>
+                      <span v-if="keyExtraPlanes(le).length" class="foco-key-tile__planes" aria-hidden="true">{{ keyExtraPlanes(le).join(' ') }}</span>
+                      <span v-if="focoKey(le).dotted || focoKey(le).ai" class="foco-key-tile__flag">{{ L('IA · aprox.', 'AI · approx.') }}</span>
                     </span>
-                    <span v-if="keyExtraPlanes(le).length" class="foco-key-tile__planes" aria-hidden="true">{{ keyExtraPlanes(le).join(' ') }}</span>
-                    <span v-if="focoKey(le).dotted || focoKey(le).ai" class="foco-key-tile__flag">{{ L('IA · aprox.', 'AI · approx.') }}</span>
-                  </span>
-                  <span class="foco-key-tile__meta">
-                    <span class="foco-key-tile__id">#{{ le.id }}</span>
-                    <span class="foco-key-tile__loc">{{ le.level[lang] }}</span>
-                    <span class="foco-key-tile__suv" :style="{ color: keyTracerColor(le) }">{{ keyTracerLabel(le) }}</span>
-                    <span v-if="focoKey(le).ai" class="foco-key-tile__confirm">{{ L('detectado por IA · aproximado · por confirmar', 'AI-detected · approximate · to confirm') }}</span>
-                  </span>
-                </button>
+                    <span class="foco-key-tile__meta">
+                      <span class="foco-key-tile__id">#{{ le.id }}</span>
+                      <span class="foco-key-tile__loc">{{ le.level[lang] }}</span>
+                      <span class="foco-key-tile__suv" :style="{ color: keyTracerColor(le) }">{{ keyTracerLabel(le) }}</span>
+                      <span v-if="focoKey(le).ai" class="foco-key-tile__confirm">{{ L('detectado por IA · aproximado · por confirmar', 'AI-detected · approximate · to confirm') }}</span>
+                    </span>
+                  </button>
+                  <!-- DESCARGA · la PNG del foco (axial). Va FUERA del botón (no se
+                       puede anidar un <a> en un <button>) y se superpone en la esquina. -->
+                  <a
+                    class="foco-key-dl"
+                    :href="fk(le.id, 'axial')"
+                    :download="keyDownloadName(fk(le.id, 'axial'))"
+                    :aria-label="L('Descargar la imagen clave del foco #' + le.id + ' (PNG)', 'Download the key image of focus #' + le.id + ' (PNG)')"
+                    @click.stop>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12" /><path d="M7 11l5 5 5-5" /><path d="M5 21h14" /></svg>
+                  </a>
+                </template>
 
                 <!-- foco SIN círculo fiable (#19) → celda-nota, sin lightbox -->
                 <div v-else class="foco-key-tile foco-key-tile--note is-ai">
@@ -2707,6 +2857,16 @@ const ticks = [
                     :aria-pressed="keyPlane === p.plane"
                     @click="keyPlane = p.plane">{{ p.label[lang] }}</button>
                 </div>
+                <!-- DESCARGA · la PNG del plano activo (foco-NN[-plano].png) -->
+                <a
+                  v-if="selKeyActive"
+                  class="foco-key-lb__dl"
+                  :href="selKeyActive.src"
+                  :download="keyDownloadName(selKeyActive.src)"
+                  :aria-label="L('Descargar esta imagen clave (PNG)', 'Download this key image (PNG)')">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12" /><path d="M7 11l5 5 5-5" /><path d="M5 21h14" /></svg>
+                  <span class="foco-key-lb__dl-txt">{{ L('Descargar', 'Download') }}</span>
+                </a>
                 <button
                   type="button"
                   class="foco-key-lb__close"
@@ -2724,6 +2884,54 @@ const ticks = [
             </div>
 
             <p class="foco-key-lb__cap">{{ selKeyCaption }}</p>
+          </div>
+        </div>
+      </Teleport>
+    </ClientOnly>
+
+    <!-- ===== LIGHTBOX · IMAGEN REAL PET (zoom) · una ampliada o las 4 a la vez =====
+         Petición de la paciente: ampliar las imágenes PET en un popup grande con
+         zoom, y poder ver «las 4 a la vez» (MIP Galio, MIP FDG, columna sagital
+         Galio, columna sagital FDG) en cuadrícula 2×2 para compararlas de golpe,
+         todas ampliables. Reutiliza ImageZoomViewer (mismo visor de zoom/pan). -->
+    <ClientOnly>
+      <Teleport to="body">
+        <div
+          v-if="petLightboxOpen"
+          class="foco-key-lb"
+          role="dialog"
+          aria-modal="true"
+          :aria-label="petLightboxMode === 'grid' ? L('Las 4 imágenes PET a la vez', 'All 4 PET images at once') : L('Imagen PET ampliada', 'Enlarged PET image')"
+          @click.self="closePetLightbox">
+          <div class="foco-key-lb__panel foco-key-lb__panel--wide">
+            <div class="foco-key-lb__bar">
+              <div class="min-w-0">
+                <p class="foco-key-lb__title">{{ petLightboxMode === 'grid' ? L('Las 4 PET a la vez', 'All 4 PET at once') : petLightboxImg[lang] }}</p>
+                <p class="foco-key-lb__sub">{{ petLightboxMode === 'grid' ? L('MIP y columna sagital · receptor (Galio) y azúcar (FDG)', 'MIP and sagittal spine · receptor (gallium) and sugar (FDG)') : L('reconstruida de los DICOM · rueda/pinza para acercar, arrastra para mover', 'reconstructed from the DICOM · wheel/pinch to zoom, drag to pan') }}</p>
+              </div>
+              <div class="flex items-center gap-2">
+                <!-- conmutar: las 4 ↔ una ampliada -->
+                <div class="foco-key-lb__planes" role="group" :aria-label="L('Vista del popup', 'Popup view')">
+                  <button type="button" class="foco-key-lb__plane" :class="{ 'is-active': petLightboxMode === 'grid' }" :aria-pressed="petLightboxMode === 'grid'" @click="petLightboxShowGrid()">{{ L('Las 4', 'All 4') }}</button>
+                  <button type="button" class="foco-key-lb__plane" :class="{ 'is-active': petLightboxMode === 'single' }" :aria-pressed="petLightboxMode === 'single'" @click="petLightboxShowSingle(petLightboxSrc)">{{ L('Una', 'One') }}</button>
+                </div>
+                <button type="button" class="foco-key-lb__close" :aria-label="L('Cerrar', 'Close')" @click="closePetLightbox">×</button>
+              </div>
+            </div>
+
+            <div class="foco-key-lb__stage">
+              <!-- las 4 PET en cuadrícula 2×2, cada una con su propio zoom -->
+              <div v-if="petLightboxMode === 'grid'" class="pet-lb-grid">
+                <figure v-for="p in PET_IMGS" :key="p.src" class="pet-lb-grid__cell">
+                  <ImageZoomViewer :src="p.src" :alt="L(p.es, p.en)" max-width="100%" />
+                  <figcaption class="pet-lb-grid__cap" :style="{ color: petTracerColor(p) }">{{ L(p.es, p.en) }}</figcaption>
+                </figure>
+              </div>
+              <!-- una sola, ampliada al máximo -->
+              <ImageZoomViewer v-else :key="petLightboxSrc" :src="petLightboxSrc" :alt="L(petLightboxImg.es, petLightboxImg.en)" max-width="100%" />
+            </div>
+
+            <p class="foco-key-lb__cap">{{ L('Imágenes reconstruidas de los DICOM (PET-FDG 24/03/2026 y PET ⁶⁸Ga-DOTATOC 26/05/2026). Lo intenso fuera del esqueleto es captación normal de cada trazador. Para verlas y compararlas; su lectura formal corresponde al radiólogo.', 'Images reconstructed from the DICOM (FDG-PET 24/03/2026 and ⁶⁸Ga-DOTATOC PET 26/05/2026). The intense areas outside the skeleton are normal uptake of each tracer. For viewing and comparing; their formal reading belongs to the radiologist.') }}</p>
           </div>
         </div>
       </Teleport>
@@ -2881,7 +3089,27 @@ const ticks = [
 @media (max-width: 420px) {
   .foco-key-grid { grid-template-columns: repeat(2, 1fr); gap: 0.6rem; }
 }
-.foco-key-cell { margin: 0; }
+.foco-key-cell { margin: 0; position: relative; }
+/* botón de DESCARGA de la key-image (PNG): superpuesto en la esquina superior
+   derecha del tile, fuera del botón que abre el lightbox. */
+.foco-key-dl {
+  position: absolute;
+  right: 6px;
+  top: 6px;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 9999px;
+  background: rgba(20, 14, 22, 0.78);
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  transition: background 0.15s;
+}
+.foco-key-dl:hover { background: rgba(45, 27, 61, 0.95); }
+.foco-key-dl:focus-visible { outline: 2px solid #ffd166; outline-offset: 1px; }
 .foco-key-tile {
   display: flex;
   flex-direction: column;
@@ -2966,6 +3194,48 @@ const ticks = [
 .foco-key-tile__suv { font-family: 'JetBrains Mono', monospace; font-size: 10.5px; font-weight: 600; }
 .foco-key-tile__confirm { font-size: 9.5px; line-height: 1.3; color: #8a4a1a; margin-top: 1px; }
 
+/* ---- Imagen real PET: botón «ver las 4 a la vez» + botón «ampliar» por figura ---- */
+.pet-grid-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 0.45rem 0.9rem;
+  border-radius: 9999px;
+  border: 1px solid rgba(45, 27, 61, 0.2);
+  background: #fff;
+  color: #2d1b3d;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, box-shadow 0.15s;
+}
+.pet-grid-cta:hover { border-color: rgba(157, 68, 171, 0.55); box-shadow: 0 2px 10px rgba(45, 27, 61, 0.12); }
+.pet-grid-cta:focus-visible { outline: 2px solid #9d44ab; outline-offset: 2px; }
+.pet-fig { position: relative; }
+/* botón «ampliar»: superpuesto en la esquina, NO envuelve el visor de zoom (así
+   el zoom/pan del ImageZoomViewer sigue funcionando). */
+.pet-fig__open {
+  position: absolute;
+  left: 8px;
+  top: 8px;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1;
+  padding: 5px 9px;
+  border-radius: 9999px;
+  background: rgba(20, 14, 22, 0.78);
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  cursor: zoom-in;
+  transition: background 0.15s;
+}
+.pet-fig__open:hover { background: rgba(45, 27, 61, 0.95); }
+.pet-fig__open:focus-visible { outline: 2px solid #ffd166; outline-offset: 1px; }
+
 /* ---- Lightbox de la imagen clave ---- */
 .foco-key-lb {
   position: fixed;
@@ -2987,6 +3257,25 @@ const ticks = [
   border-radius: 0.9rem;
   overflow: hidden;
   box-shadow: 0 18px 60px rgba(0, 0, 0, 0.5);
+}
+/* popup más ancho para las 4 PET en 2×2 */
+.foco-key-lb__panel--wide { width: min(1100px, 100%); }
+/* cuadrícula 2×2 de las 4 PET, cada una con su zoom */
+.pet-lb-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+@media (max-width: 560px) {
+  .pet-lb-grid { grid-template-columns: 1fr; }
+}
+.pet-lb-grid__cell { margin: 0; display: flex; flex-direction: column; }
+.pet-lb-grid__cap {
+  margin-top: 0.4rem;
+  text-align: center;
+  font-size: 0.72rem;
+  font-weight: 600;
+  line-height: 1.2;
 }
 .foco-key-lb__bar {
   display: flex;
@@ -3012,6 +3301,25 @@ const ticks = [
 .foco-key-lb__plane:hover { color: #2d1b3d; }
 .foco-key-lb__plane.is-active { background: #2d1b3d; color: #fdf6ef; }
 .foco-key-lb__plane:focus-visible { outline: 2px solid #9d44ab; outline-offset: -2px; }
+.foco-key-lb__dl {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  flex-shrink: 0;
+  height: 34px;
+  padding: 0 0.7rem;
+  border-radius: 9999px;
+  border: 1px solid rgba(45, 27, 61, 0.2);
+  background: #fff;
+  color: #2d1b3d;
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+.foco-key-lb__dl:hover { background: #f0e7f3; border-color: rgba(157, 68, 171, 0.5); }
+.foco-key-lb__dl:focus-visible { outline: 2px solid #9d44ab; outline-offset: 1px; }
+@media (max-width: 420px) { .foco-key-lb__dl-txt { display: none; } }
 .foco-key-lb__close {
   flex-shrink: 0;
   width: 34px;
