@@ -1692,6 +1692,7 @@ const ticks = [
                       <BoneViewer3D
                         :mesh-key="bone3dKeyOf(sel)" :mode="bone3dView"
                         :dota="sel.dota" :fdg="sel.fdg" :pheno="sel.pheno" :focus-id="sel.id"
+                        :n-foci="coFoci.length"
                       />
 
                       <template #fallback>
