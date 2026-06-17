@@ -90,9 +90,11 @@ const { locale } = useI18n()
 const L = (es: string, en: string) => (locale.value === 'en' ? en : es)
 const mode = computed<Mode>(() => props.mode ?? 'area')
 
-/* colores de trazador (vivos, leen sobre marfil y sobre fondo oscuro) */
-const C_REC = '#c061d6'    // receptor · Galio (violeta)
-const C_FDG = '#ff8a3a'    // azúcar · FDG (naranja)
+/* colores de trazador (vivos, leen sobre marfil y sobre fondo oscuro). VÍVIDOS porque el
+   gradiente «lavado» anterior los pintaba a baja opacidad → violeta pálido difuminado; ahora el
+   núcleo llega a opacidad alta con estos hue saturados → se ve NÍTIDO de un vistazo. */
+const C_REC = '#b53cdb'    // receptor · Galio (violeta saturado, intenso en el núcleo)
+const C_FDG = '#ff7a1f'    // azúcar · FDG (naranja saturado)
 const C_IVORY = '#dcd3c2'  // hueso mate, uniforme (igual que el look ya aprobado)
 /* NIVEL DE REFERENCIA (antes «contorno»): NO es un borde tumoral neto. La captación PET es un
    GRADIENTE continuo (sin límite anatómico); dibujar la iso-línea en cian chillón (#19e3d6) la
@@ -163,6 +165,12 @@ let lesionFoci: LesionFocus[] = []
 let vAdj: number[][] | null = null
 /* SUV-máx (max(fdg,ga)) SUAVIZADO por vértice — base del campo del contorno y del ranking. */
 let suvSmooth: Float32Array | null = null
+/* focos elegidos (pico local) → base de los niveles iso-SUV (curvas de nivel del «Área»). */
+let chosenPeaks: number[] = []
+/* segmentos de las LÍNEAS ISO-SUV (Opción A): por cada nivel, los cruces de la iso sobre el campo
+   suavizado dentro de las regiones de los focos. Float32 (A,B por arista). Sólo modo «Área». */
+let isoLinePos: Float32Array | null = null
+let isoLineGroup: THREE.Group | null = null
 
 /* umbrales / rangos del color-math (SUV absolutos y banda de HU del CT) */
 const THR_SUV = 2.5             // «Área»: pertenencia a la lesión (color), SUV absoluto (FDG o Ga)
@@ -191,18 +199,28 @@ const HU_LO = 150, HU_HI = 850 // «Morfología»: trabecular/normal → blásti
 const FDG_REF = 8               // máx observado del canal FDG real → normaliza para comparar
 const GA_REF = 13               // máx observado del canal Ga (proxy, rango mayor) → normaliza
 const MIX_BAND = 0.15           // |gaN−fdgN| ≤ banda → mezcla violeta+naranja (captación mixta)
-/* «Área» · GRADIENTE HONESTO keyed al SUV real. La captación PET es un GRADIENTE continuo:
-   intensa en el núcleo del foco, se desvanece suavemente hacia el fondo (no hay borde tumoral
-   neto). El COLOR del trazador se mezcla con el marfil con una opacidad ∝ SUV: por debajo de
-   GRAD_BG (≈ fondo) la opacidad es 0 (marfil neutro); sube suavemente (smoothstep) hasta plena
-   en GRAD_HI. Así se ve la distribución REAL — más color donde más capta, menos en la periferia —
-   sin un corte duro que falsee la extensión. GRAD_HI se ancla al pico del hueso (suvMaxBone) con
-   un mínimo, para que el núcleo siempre llegue a la intensidad máxima en cualquier hueso. */
-const GRAD_BG = 1.8             // SUV (max fdg/ga) de FONDO → por debajo, marfil (opacidad 0)
+/* «Área» · GRADIENTE HONESTO keyed al SUV real, MÁS CONTRASTADO (Opción A). La captación PET es
+   un GRADIENTE continuo: intensa en el núcleo, se desvanece hacia el fondo (no hay borde tumoral
+   neto). El COLOR del trazador se mezcla con el marfil con opacidad ∝ SUV. El problema del look
+   anterior («lavado»): gamma<1 LEVANTABA la periferia → todo violeta pálido difuminado y tope de
+   opacidad 0.92 → el núcleo no se veía vívido. AHORA:
+     · GRAD_GAMMA > 1 → curva PRONUNCIADA: la opacidad sube LENTO al principio (la periferia queda
+       tenue, casi marfil) y DISPARA cerca del pico → el núcleo destaca nítido, no «lavado».
+     · GRAD_MAX_OPACITY ≈ 1 → el núcleo llega a color PLENO/vívido (no violeta pálido).
+     · GRAD_FLOOR_A: un suelo de opacidad MÍNIMO (>0) en cuanto se supera el fondo, para que la
+       periferia con captación real no desaparezca del todo (sigue siendo honesto: hay color donde
+       hay SUV), pero discreta frente al núcleo.
+   Sigue SIN corte duro: es la misma curva continua, sólo con más contraste núcleo↔periferia. */
+const GRAD_BG = 1.8             // SUV (max fdg/ga) de FONDO → por debajo, marfil (opacidad ~0)
 const GRAD_HI_MIN = 4.5         // SUV mínimo que satura el color (suelo, para huesos de baja captación)
-const GRAD_HI_FRAC = 0.9        // el color satura a GRAD_HI_FRAC·pico del hueso (el núcleo = color pleno)
-const GRAD_GAMMA = 0.85         // gamma<1 levanta un poco la periferia → el gradiente se LEE (no salta)
-const GRAD_MAX_OPACITY = 0.92   // tope de mezcla con marfil (deja que la luz sombree el volumen)
+const GRAD_HI_FRAC = 0.82       // el color satura a GRAD_HI_FRAC·pico del hueso (el núcleo = color pleno antes del pico exacto → núcleo más ancho y vívido)
+const GRAD_GAMMA = 1.9          // gamma>1 → caída MARCADA: periferia tenue, el núcleo dispara y se ve VÍVIDO (antes 0.85 = lavado)
+const GRAD_FLOOR_A = 0.10       // opacidad mínima sobre el fondo: la periferia con SUV real no se borra (honesto), pero discreta
+const GRAD_MAX_OPACITY = 1.0    // núcleo a color PLENO/vívido (la luz aún sombrea el volumen vía vertexColors)
+/* NIVELES ISO-SUV (Opción A · «curvas de nivel»): 2–3 iso-líneas FINAS en gris neutro a fracciones
+   del pico local del foco → dan ESTRUCTURA al gradiente (se «aprecia» dónde sube la captación) sin
+   inventar un único borde tumoral. Son orientativas; la captación sigue siendo un gradiente. */
+const ISO_SUV_FRACS = [0.55, 0.72, 0.88]   // fracciones del pico LOCAL de cada foco → 3 niveles iso
 
 /* ---------- color: sRGB → lineal (three multiplica los colores por vértice en LINEAL) ---------- */
 function lin(hex: string): [number, number, number] {
@@ -355,6 +373,8 @@ function precompute(geo: THREE.BufferGeometry) {
   computeFoci(geo)
   // contorno (iso-línea sobre membOut, ya restringido a los focos reales)
   computeOutline(geo)
+  // líneas iso-SUV (curvas de nivel del «Área»): estructura del gradiente, restringidas a los focos
+  computeIsoLines(geo)
 }
 
 /* adyacencia por aristas: lista de vecinos por vértice (sin duplicar la arista). */
@@ -409,6 +429,7 @@ const ISO = 0.5
    suave, restringido a las regiones de los focos elegidos → el borde sólo los encierra a ellos). */
 function computeFoci(geo: THREE.BufferGeometry) {
   lesionFoci = []
+  chosenPeaks = []
   if (!membOut) membOut = new Float32Array((geo.getAttribute('position') as THREE.BufferAttribute).count)
   membOut.fill(0)
   if (!suvSmooth || !vAdj) return
@@ -509,6 +530,7 @@ function computeFoci(geo: THREE.BufferGeometry) {
   foci.sort((a, b) => b.total - a.total)
   const keep = Math.max(1, props.nFoci ?? 1)
   const chosen = foci.slice(0, keep)
+  chosenPeaks = chosen.map((c) => c.peak)   // picos locales → niveles iso-SUV (curvas de nivel)
   // construye anclaje (diana) + campo del realce por cada foco elegido
   let recScore = 0, fdgScore = 0   // dominancia escala-justa acumulada (para teñir el parche)
   for (const fo of chosen) {
@@ -745,6 +767,51 @@ function computeOutline(geo: THREE.BufferGeometry) {
   borderIndices = border.length ? new Uint32Array(border) : null
 }
 
+/* ---------- LÍNEAS ISO-SUV (curvas de nivel del «Área», Opción A) ----------
+   Da ESTRUCTURA al gradiente: 2–3 iso-líneas FINAS a fracciones del pico local (ISO_SUV_FRACS) →
+   se «aprecia» dónde sube la captación, como las curvas de nivel de un mapa, SIN imponer un único
+   borde tumoral. Cada nivel es un SUV absoluto level = frac·pico; extraemos sus cruces sobre el
+   campo SUAVIZADO (suvSmooth) recorriendo los triángulos. Restringimos a las REGIONES de los focos
+   (membOut≥ISO en ≥1 vértice del triángulo) para no dibujar curvas por todo el hueso. Son
+   orientativas (la captación es un gradiente continuo). */
+function computeIsoLines(geo: THREE.BufferGeometry) {
+  isoLinePos = null
+  if (!suvSmooth || !membOut || !chosenPeaks.length) return
+  const pos = geo.getAttribute('position') as THREE.BufferAttribute
+  const idx = geo.getIndex()
+  const triCount = idx ? idx.count / 3 : pos.count / 3
+  const gi = (k: number) => (idx ? idx.getX(k) : k)
+  const ax = (i: number) => pos.getX(i), ay = (i: number) => pos.getY(i), az = (i: number) => pos.getZ(i)
+  // niveles iso ABSOLUTOS desde el pico DOMINANTE (el mayor de los focos elegidos) — consistentes
+  // como curvas de nivel; el suelo de zona evita niveles por debajo del fondo.
+  const peak = Math.max(...chosenPeaks)
+  const levels = ISO_SUV_FRACS.map((fr) => Math.max(THR_ZONE_FLOOR, fr * peak))
+  const segs: number[] = []
+  // cruce de la iso 'lev' sobre la arista (i,j): añade el punto interpolado a 'segs'
+  const cross = (i: number, j: number, lev: number) => {
+    const si = suvSmooth![i], sj = suvSmooth![j]
+    const t = (lev - si) / (sj - si)   // ∈(0,1) por construcción (lados distintos del nivel)
+    segs.push(ax(i) + (ax(j) - ax(i)) * t, ay(i) + (ay(j) - ay(i)) * t, az(i) + (az(j) - az(i)) * t)
+  }
+  for (let t = 0; t < triCount; t++) {
+    const a = gi(t * 3), b = gi(t * 3 + 1), c = gi(t * 3 + 2)
+    // sólo triángulos que tocan una región de foco (al menos un vértice dentro) → no por todo el hueso
+    if (membOut![a] < ISO && membOut![b] < ISO && membOut![c] < ISO) continue
+    const sa = suvSmooth[a], sb = suvSmooth[b], sc = suvSmooth[c]
+    for (const lev of levels) {
+      const ia = sa >= lev, ib = sb >= lev, ic = sc >= lev
+      const inCount = (ia ? 1 : 0) + (ib ? 1 : 0) + (ic ? 1 : 0)
+      if (inCount === 0 || inCount === 3) continue   // el nivel no cruza este triángulo
+      const cr: Array<[number, number]> = []
+      if (ia !== ib) cr.push([a, b])
+      if (ib !== ic) cr.push([b, c])
+      if (ic !== ia) cr.push([c, a])
+      if (cr.length === 2) { cross(cr[0][0], cr[0][1], lev); cross(cr[1][0], cr[1][1], lev) }
+    }
+  }
+  isoLinePos = segs.length ? new Float32Array(segs) : null
+}
+
 /* ---------- pintar el atributo de color por vértice según el modo ---------- */
 function applyMode() {
   if (!mesh || !vDensity || !vFdg || !vGa || !outColors) return
@@ -773,9 +840,12 @@ function applyMode() {
     for (let i = 0; i < n; i++) {
       const f = fdgA[i], g = gaA[i]
       const s = f > g ? f : g                       // SUV crudo del vértice = captación real
-      // opacidad ∝ SUV: desvanece a 0 en el fondo, plena en el núcleo (gamma levanta la periferia)
-      let a = smoothstep(GRAD_BG, hi, s)
-      a = Math.pow(a, GRAD_GAMMA) * GRAD_MAX_OPACITY
+      // opacidad ∝ SUV con curva CONTRASTADA (gamma>1): el núcleo dispara (vívido) y la periferia
+      // queda tenue → se «aprecia bien» sin corte duro. Un suelo de opacidad (GRAD_FLOOR_A) mantiene
+      // visible la periferia con SUV real (honesto), discreta frente al núcleo.
+      const t = smoothstep(GRAD_BG, hi, s)
+      let a = Math.pow(t, GRAD_GAMMA) * GRAD_MAX_OPACITY
+      if (t > 0) a = GRAD_FLOOR_A + (1 - GRAD_FLOOR_A) * a   // periferia con captación real no se borra
       // dominancia normalizada: gaN≫fdgN → violeta (1); fdgN≫gaN → naranja (0); parecidos → mezcla (~0.5)
       const wRec = smoothstep(-MIX_BAND, MIX_BAND, g * gInv - f * fInv)
       const tr0 = FDG_LIN[0] + (REC_LIN[0] - FDG_LIN[0]) * wRec
@@ -820,6 +890,7 @@ function applyMode() {
   buildPatch(false)            // sin parche plano en ningún modo (el gradiente/mapa hace el relleno)
   buildBorder()                // banda gris fina · nivel de referencia (no borde neto)
   buildOutline()               // iso-línea gris de remate · nivel de referencia
+  buildIsoLines()              // 2–3 curvas de nivel iso-SUV (sólo «Área») · estructura del gradiente
   buildMarkers()               // diana en el pico (SUVmáx)
 }
 
@@ -886,7 +957,7 @@ function buildBorder() {
   borderGeo.setAttribute('position', new THREE.BufferAttribute(new Float32Array(src.array as Float32Array), 3))
   borderGeo.setIndex(new THREE.BufferAttribute(borderIndices, 1))
   const mtl = new THREE.MeshBasicMaterial({
-    color: new THREE.Color(C_REF), transparent: true, opacity: 0.34,   // gris claro, SUTIL (no chillón)
+    color: new THREE.Color(C_REF), transparent: true, opacity: 0.50,   // gris claro, más DEFINIDO (antes 0.34 = muy tenue) pero sin chillar
     depthTest: true, depthWrite: false, side: THREE.DoubleSide,
     toneMapped: false, blending: THREE.NormalBlending,
     polygonOffset: true, polygonOffsetFactor: -6, polygonOffsetUnits: -6,
@@ -938,6 +1009,43 @@ function buildOutline() {
   outlineGroup.add(halo); outlineGroup.add(core)
 }
 
+/* ===================== LÍNEAS ISO-SUV (curvas de nivel del «Área») =====================
+   2–3 iso-líneas FINAS en GRIS neutro a fracciones del pico → dan estructura «tipo curvas de
+   nivel» al gradiente (se aprecia dónde sube la captación) sin inventar un borde tumoral único.
+   SÓLO en modo «Área» (en «Calor»/«Morfología» el mapa ya estructura el hueso entero). depthTest
+   ON + polygonOffset negativo → se asientan sobre la superficie y el hueso las ocluye al girar. */
+function disposeIsoLines() {
+  if (!isoLineGroup) return
+  isoLineGroup.children.forEach((o) => {
+    const ln = o as THREE.LineSegments
+    ;(ln.material as THREE.Material).dispose(); ln.geometry?.dispose()
+  })
+  isoLineGroup.clear()
+}
+function buildIsoLines() {
+  if (!mesh || !isoLineGroup) return
+  disposeIsoLines()
+  if (mode.value !== 'area') return            // curvas de nivel sólo en «Área»
+  if (!isoLinePos || isoLinePos.length < 6) return
+  const g = new THREE.BufferGeometry()
+  g.setAttribute('position', new THREE.BufferAttribute(isoLinePos, 3))
+  // halo gris OSCURO sutil + core gris CLARO encima → la curva lee sobre el gradiente
+  // violeta/naranja y sobre el marfil, fina y discreta (no un borde duro).
+  const halo = new THREE.LineSegments(g, new THREE.LineBasicMaterial({
+    color: new THREE.Color(C_REF_DK), transparent: true, opacity: 0.40, linewidth: 1,
+    depthTest: true, depthWrite: false, toneMapped: false,
+    polygonOffset: true, polygonOffsetFactor: -7, polygonOffsetUnits: -7,
+  }))
+  halo.renderOrder = 4
+  const core = new THREE.LineSegments(g, new THREE.LineBasicMaterial({
+    color: new THREE.Color(C_REF), transparent: true, opacity: 0.62, linewidth: 1,
+    depthTest: true, depthWrite: false, toneMapped: false,
+    polygonOffset: true, polygonOffsetFactor: -9, polygonOffsetUnits: -9,
+  }))
+  core.renderOrder = 5
+  isoLineGroup.add(halo); isoLineGroup.add(core)
+}
+
 /* ===================== DIANA SUTIL ANCLADA A LA SUPERFICIE (los 3 modos) =====================
    Marca FÍSICA «pintada» sobre el hueso en el centro de cada foco: un disco plano (anillo
    fino + punto central) posado en el punto de superficie del foco y ORIENTADO a su normal.
@@ -963,17 +1071,19 @@ function targetTexture(): THREE.CanvasTexture {
   // gris claro lea sobre marfil, sobre el gradiente violeta/naranja y sobre el azul del blástico.
   // Discreta pero legible: anillo fino, punto pequeño; semitransparente vía opacity.
   const R = S * 0.31
-  // 1) halo oscuro neutro del anillo (un pelín más ancho)
-  ctx.strokeStyle = hexA('#23262b', 0.55); ctx.lineWidth = S * 0.075
+  // diana MÁS DEFINIDA (la paciente: «quedó muy tenue»): anillo un pelín más grueso, halo oscuro
+  // más marcado y punto central mayor → se lee de un vistazo sobre el gradiente, sin chillar.
+  // 1) halo oscuro neutro del anillo (más ancho → contraste sobre marfil/violeta/naranja)
+  ctx.strokeStyle = hexA('#1b1e23', 0.75); ctx.lineWidth = S * 0.095
   ctx.beginPath(); ctx.arc(c, c, R, 0, Math.PI * 2); ctx.stroke()
-  // 2) anillo gris claro
-  ctx.strokeStyle = C_REF; ctx.globalAlpha = 1; ctx.lineWidth = S * 0.040
+  // 2) anillo gris claro (más grueso, nítido)
+  ctx.strokeStyle = C_REF; ctx.globalAlpha = 1; ctx.lineWidth = S * 0.055
   ctx.beginPath(); ctx.arc(c, c, R, 0, Math.PI * 2); ctx.stroke()
-  // 3) punto central: halo oscuro neutro + punto gris claro sólido (la marca del PICO)
-  ctx.fillStyle = hexA('#23262b', 0.6)
-  ctx.beginPath(); ctx.arc(c, c, S * 0.105, 0, Math.PI * 2); ctx.fill()
+  // 3) punto central: halo oscuro neutro + punto gris claro sólido (la marca del PICO), más visible
+  ctx.fillStyle = hexA('#1b1e23', 0.8)
+  ctx.beginPath(); ctx.arc(c, c, S * 0.125, 0, Math.PI * 2); ctx.fill()
   ctx.fillStyle = C_REF
-  ctx.beginPath(); ctx.arc(c, c, S * 0.075, 0, Math.PI * 2); ctx.fill()
+  ctx.beginPath(); ctx.arc(c, c, S * 0.090, 0, Math.PI * 2); ctx.fill()
   const t = new THREE.CanvasTexture(cv); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 4
   return t
 }
@@ -1047,7 +1157,7 @@ function load(key: string) {
         geo.setAttribute('color', new THREE.BufferAttribute(rgb, 3))
       }
       if (mesh) { scene.remove(mesh); mesh.geometry.dispose(); (mesh.material as THREE.Material).dispose() }
-      disposeMarkers(); disposeOutline(); disposePatch(); disposeBorder()
+      disposeMarkers(); disposeOutline(); disposePatch(); disposeBorder(); disposeIsoLines()
       // HUESO MACIZO MATE y OPACO. vertexColors:true + color blanco → el color por vértice
       // ES el albedo (lo escribe applyMode por modo); las luces lo sombrean encima (volumen).
       const mat = new THREE.MeshStandardMaterial({
@@ -1084,6 +1194,8 @@ function load(key: string) {
       mesh.add(borderGroup); borderGroup.position.set(0, 0, 0)
       if (!outlineGroup) outlineGroup = new THREE.Group()
       mesh.add(outlineGroup); outlineGroup.position.set(0, 0, 0)
+      if (!isoLineGroup) isoLineGroup = new THREE.Group()
+      mesh.add(isoLineGroup); isoLineGroup.position.set(0, 0, 0)
       frameObject()
       applyMode()
       loading.value = false
@@ -1115,7 +1227,7 @@ watch(mode, () => {
 })
 onBeforeUnmount(() => {
   cancelAnimationFrame(raf); ro?.disconnect()
-  disposeMarkers(); disposeOutline(); disposePatch(); disposeBorder()
+  disposeMarkers(); disposeOutline(); disposePatch(); disposeBorder(); disposeIsoLines()
   if (mesh) { mesh.geometry.dispose(); (mesh.material as THREE.Material).dispose() }
   pmrem?.dispose()
   renderer?.dispose()
@@ -1171,9 +1283,9 @@ onBeforeUnmount(() => {
           {{ failed ? L('Reconstrucción del CT · vista estática', 'Reconstruction from the CT · static view') : L('Reconstrucción del CT · arrastra para girar · rueda para acercar', 'Reconstruction from the CT · drag to rotate · scroll to zoom') }}<br>
           <span :style="{ color: C_REC }">●</span> {{ L('violeta · receptor (Galio)', 'violet · receptor (gallium)') }} ·
           <span :style="{ color: C_FDG }">●</span> {{ L('naranja · azúcar (FDG)', 'orange · sugar (FDG)') }} ·
-          <span :style="{ color: C_REF }">▢</span> {{ L('nivel de referencia (SUV≥X) · la captación es un gradiente, no un borde neto', 'reference level (SUV≥X) · uptake is a gradient, not a sharp border') }} ·
+          <span :style="{ color: C_REF }">≈</span> {{ L('niveles de captación (iso-SUV), orientativos · la captación es un gradiente, no un borde neto', 'uptake levels (iso-SUV), indicative · uptake is a gradient, not a sharp border') }} ·
           <span :style="{ color: C_REF }">◎</span> {{ L('pico (SUVmáx)', 'peak (SUVmax)') }}
-          <span style="color:#7c8694"> · {{ L('La intensidad del color sigue al SUV REAL por punto: más intenso donde más capta (el núcleo) y se DESVANECE suavemente hacia el fondo — porque la captación PET es un GRADIENTE continuo, sin un borde tumoral neto (limitado por la resolución ~4–5 mm). La línea gris marca SÓLO un nivel de referencia de SUV, no el límite del tumor; la diana marca el pico (SUVmáx). El Galio es un proxy aproximado por ahora.', 'Colour intensity follows the REAL per-point SUV: brightest where uptake is highest (the core) and FADING smoothly toward background — because PET uptake is a continuous GRADIENT, with no sharp tumour border (limited by ~4–5 mm resolution). The grey line marks ONLY a reference SUV level, not the tumour boundary; the marker shows the peak (SUVmax). Gallium is an approximate proxy for now.') }}</span>
+          <span style="color:#7c8694"> · {{ L('La intensidad del color sigue al SUV REAL por punto: VÍVIDO en el núcleo (donde más capta) y se DESVANECE hacia el fondo — porque la captación PET es un GRADIENTE continuo, sin un borde tumoral neto (limitado por la resolución ~4–5 mm). Las líneas grises finas son NIVELES de captación (iso-SUV), como curvas de nivel: orientan dónde sube, NO son el límite del tumor. La diana marca el pico (SUVmáx). El Galio es un proxy aproximado por ahora.', 'Colour intensity follows the REAL per-point SUV: VIVID at the core (highest uptake) and FADING toward background — because PET uptake is a continuous GRADIENT, with no sharp tumour border (limited by ~4–5 mm resolution). The thin grey lines are uptake LEVELS (iso-SUV), like contour lines: they show where uptake rises, NOT the tumour boundary. The marker shows the peak (SUVmax). Gallium is an approximate proxy for now.') }}</span>
         </template>
 
         <template v-else-if="mode === 'heat'">
