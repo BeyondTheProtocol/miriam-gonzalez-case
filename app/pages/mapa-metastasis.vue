@@ -2276,7 +2276,8 @@ const ticks = [
             {{ L('La idoneidad no es una caja negra: es el producto de tres factores visibles, más tres avisos de FACTIBILIDAD que el equipo pondera (no van en el número).',
                   'Suitability is not a black box: it is the product of three visible factors, plus three FEASIBILITY flags the team weighs (they are not in the number).') }}
           </p>
-          <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-3 mb-6">
+          <!-- GRUPO A · los 3 factores que MULTIPLICAN el número → grid de 3 col (llena exacto). -->
+          <div class="grid sm:grid-cols-3 gap-3 mb-3">
             <div class="card-base !p-3.5 border-t-4" :style="{ borderColor: '#bb4128' }">
               <p class="text-[12px] font-semibold mb-1" :style="{ color: '#bb4128' }">{{ L('1 · Tumor viable', '1 · Viable tumour') }}</p>
               <p class="text-[12.5px] text-tinta leading-snug">{{ L('FDG SUVmáx: cuanto más alto, más tumor metabólicamente activo que muestrear. El Galio confirma tumor / receptor (teranóstico).', 'FDG SUVmax: the higher, the more metabolically active tumour to sample. Gallium confirms tumour / receptor (theranostic).') }}</p>
@@ -2289,6 +2290,12 @@ const ticks = [
               <p class="text-[12px] font-semibold mb-1" :style="{ color: '#3a3340' }">{{ L('3 · Tamaño / cantidad', '3 · Size / amount') }}</p>
               <p class="text-[12.5px] text-tinta leading-snug">{{ L('Eje mayor de la lesión (más grande = más fácil y más tejido) y, donde se midió, el MTV (volumen tumoral metabólico).', 'Lesion major axis (larger = easier and more tissue) and, where measured, the MTV (metabolic tumour volume).') }}</p>
             </div>
+          </div>
+          <!-- GRUPO B · 3 avisos de factibilidad + «La fórmula» = 4 tarjetas → grid que LLENA parejo
+               a cada ancho (2 col en sm, 4 col en xl), sin tarjeta huérfana ni hueco a la derecha.
+               «La fórmula» deja de quedar aislada al final: cierra la fila de cuatro a lo ancho del
+               modo wiki. En móvil apila en 1 col. -->
+          <div class="grid sm:grid-cols-2 xl:grid-cols-4 gap-3 mb-6">
             <div class="card-base !p-3.5 border-t-4" :style="{ borderColor: '#8a5a1a' }">
               <p class="text-[12px] font-semibold mb-1 flex items-center gap-1.5 flex-wrap" :style="{ color: '#8a5a1a' }">{{ L('Aviso · antecedente 26B585', 'Flag · prior history 26B585') }}<span class="status-badge" :style="{ background: '#f0e2c8', color: '#8a5a1a' }">{{ L('lección', 'lesson') }}</span></p>
               <p class="text-[12.5px] text-tinta leading-snug">{{ L('La biopsia previa 26B585 (ilíaco derecho, #13) FALLÓ: solo dio hueso y músculo, sin tumor evaluable. La lección: ese foco era blástico denso, que rinde poco — por eso el rendimiento (forma) pesa en la lente y conviene priorizar focos con tejido lítico / partes blandas. Se muestra como aviso; no entra en el número.', 'The prior 26B585 biopsy (right iliac, #13) FAILED: only bone and muscle, no evaluable tumour. The lesson: that focus was dense blastic, which yields little — that is why yield (shape) weighs in the lens and lytic / soft-tissue targets are worth prioritising. Shown as a flag; not part of the number.') }}</p>

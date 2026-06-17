@@ -18,14 +18,17 @@
  * (R=HU/1500, G=FDG/15, B=GA/15) queda sólo como FALLBACK si algún día faltan los canales.
  *
  * MODOS:
- *  1) «Área» (por defecto) — la HUELLA REAL de captación (tipo MTV). Un vértice está dentro
- *     de la lesión si suv_fdg ≥ ~2.5 o suv_ga ≥ ~2.5 (umbral SUV CRUDO de cada canal, borde
- *     difuso por smoothstep en [0.7·THR, THR]) → REGIÓN contigua en el color del trazador
- *     DOMINANTE. La dominancia es ESCALA-JUSTA: como el canal Ga es un proxy con rango mayor
- *     (~0–13) que el FDG real (~0–8), se NORMALIZA cada canal por su referencia antes de
- *     comparar (gaN = suv_ga/13 vs fdgN = suv_fdg/8); gaN > fdgN → violeta receptor, si no
- *     naranja FDG, y donde ambos normalizados son altos y parecidos se mezclan (mixta). El
- *     resto del hueso en marfil mate.
+ *  1) «Área» (por defecto) — GRADIENTE HONESTO de captación keyed al SUV REAL. La captación PET es
+ *     un GRADIENTE continuo (intensa en el núcleo del foco, se desvanece hacia el fondo, SIN borde
+ *     tumoral neto — limitada por la resolución ~4–5 mm). El color del trazador se mezcla con el
+ *     marfil con OPACIDAD ∝ SUV: a = smoothstep(GRAD_BG, hi, max(fdg,ga))^γ, con hi anclado al pico
+ *     del hueso; por debajo del fondo → marfil neutro. Así se ve la distribución REAL (núcleo intenso
+ *     → periferia que se desvanece), sin un corte duro que falsee la extensión. (Una versión previa
+ *     CONFINABA el color a membOut = al contorno; eso ocultaba la captación real de bajo nivel y
+ *     era MENOS honesto → revertido.) La dominancia del trazador (el HUE) es ESCALA-JUSTA: el canal
+ *     Ga es un proxy de rango mayor (~0–13) que el FDG real (~0–8), así que se NORMALIZA cada canal
+ *     antes de comparar (gaN = suv_ga/13 vs fdgN = suv_fdg/8); gaN > fdgN → violeta receptor, si no
+ *     naranja FDG, y donde ambos normalizados son altos y parecidos se mezclan (mixta).
  *  2) «Mapa de calor» — intensidad continua: t = clamp(max(suv_fdg, suv_ga)/8, 0, 1) →
  *     rampa térmica perceptual (azul→cian→amarillo→naranja→rojo). Referencia ABSOLUTA
  *     (comparable entre huesos).
@@ -42,15 +45,16 @@
  * sólo las nFoci mayores (el resto = ruido, descartado; NO hay diana «de consolación» si ya
  * hay un foco). El CONTORNO es la ISO-LÍNEA membOut=0.5 (cruce interpolado por arista) sobre
  * ese campo suavizado y restringido a esas regiones → curva LIMPIA y cerrada (no espagueti),
- * sólo alrededor de los focos reales. En «Área» y «Mapa de calor» se rellena además un PARCHE
- * translúcido de la zona (la «malla por encima») + el borde grueso; en «Morfología» SOLO el
- * borde (sin relleno) para no tapar la densidad/blástico que se ve por dentro. La DIANA (disco
- * anillo+punto, MALLA plana ANCLADA a la superficie del foco, orientada a la NORMAL, lift
- * 0.12·r, depthTest TRUE) marca el centro de cada foco real: ROTA con la pieza y se OCLUYE
- * cuando el foco cae en la cara trasera (no es un HUD). Parche/contorno/diana van con
- * depthTest:true + polygonOffset → se asientan en la superficie y el hueso los ocluye al
- * girar. Informa, no concluye: la línea es la frontera de la captación PET, aproximada por la
- * resolución (~4–5 mm).
+ * sólo alrededor de los focos reales. Esa iso-línea NO es el borde del tumor: es un NIVEL DE
+ * REFERENCIA de SUV (la captación es un gradiente), dibujado FINO y en GRIS NEUTRO (no cian
+ * chillón) para que no se lea como un límite anatómico. NO se rellena con parche plano en ningún
+ * modo (el gradiente en «Área» y los mapas de calor/densidad ya hacen el relleno honesto; un
+ * parche plano re-impondría un corte duro). La DIANA (disco anillo+punto GRIS, MALLA plana
+ * ANCLADA a la superficie del foco, orientada a la NORMAL, lift 0.02·r, depthTest TRUE) marca el
+ * PICO (SUVmáx) de cada foco real: ROTA con la pieza y se OCLUYE cuando el foco cae en la cara
+ * trasera (no es un HUD). Línea/diana van con depthTest:true + polygonOffset → se asientan en la
+ * superficie y el hueso los ocluye al girar. Informa, no concluye: ni bordes ni tamaños tumorales
+ * exactos; la captación es un gradiente, aproximado por la resolución (~4–5 mm).
  *
  * LENGUAJE VISUAL DE MARCADORES (A4, unificado): relleno/color = trazador (violeta receptor ·
  * coral azúcar · mixto); punteado = detectado por IA · por confirmar (un solo uso); parpadeo =
@@ -90,7 +94,12 @@ const mode = computed<Mode>(() => props.mode ?? 'area')
 const C_REC = '#c061d6'    // receptor · Galio (violeta)
 const C_FDG = '#ff8a3a'    // azúcar · FDG (naranja)
 const C_IVORY = '#dcd3c2'  // hueso mate, uniforme (igual que el look ya aprobado)
-const C_OUTLINE = '#19e3d6' // contorno de la lesión · cian/teal brillante (lee sobre marfil, heat y azul)
+/* NIVEL DE REFERENCIA (antes «contorno»): NO es un borde tumoral neto. La captación PET es un
+   GRADIENTE continuo (sin límite anatómico); dibujar la iso-línea en cian chillón (#19e3d6) la
+   leía como si fuera el borde del tumor — falso. Ahora es una línea FINA y GRIS NEUTRA, sutil,
+   que sólo marca un nivel de referencia de SUV (≥X) para orientar la lectura. */
+const C_REF = '#c2c6cc'    // nivel de referencia · gris claro neutro (lee sobre marfil, heat y azul, sin chillar)
+const C_REF_DK = '#5a5f66' // halo del nivel de referencia · gris oscuro neutro (contraste sutil)
 
 const host = ref<HTMLDivElement | null>(null)
 const loading = ref(true)
@@ -118,9 +127,9 @@ let outColors: Float32Array | null = null  // buffer de salida reutilizado (coun
 let hotIndex = -1                           // vértice del punto más caliente (máx SUV)
 let hotSuv = 0                              // SUV del punto más caliente
 let suvMaxBone = 0                          // SUV-máx de TODO el hueso → base del umbral RELATIVO del realce
-/* color del trazador DOMINANTE de la zona (para teñir el parche en «Área»/«Calor»): se
-   decide con la dominancia escala-justa (gaN vs fdgN) sobre el pico del foco. */
-let zoneTracerHex = C_OUTLINE
+/* color del trazador DOMINANTE de la zona (informativo; en «Área» el color ya es el gradiente
+   por vértice, no un parche plano): se decide con la dominancia escala-justa (gaN vs fdgN). */
+let zoneTracerHex = C_REF
 
 /* ---- contorno de la lesión: campo de pertenencia + segmentos de iso-línea ----
    El CONTORNO (A3) NO usa el mismo umbral suave que el color de «Área». Para que la curva
@@ -170,7 +179,7 @@ const THR_ZONE_FLOOR = 3.2      // suelo absoluto (SUV suavizado) — no realza 
 const SMOOTH_ITERS = 4          // pasadas de media por aristas del campo SUV (suaviza el ruido PET)
 const MEMB_SMOOTH_ITERS = 3     // pasadas de media sobre membOut (cierra tendones finos → borde redondeado)
 const MEMB_CLOSE_ITERS = 2      // cierre morfológico (dilatar+erosionar) sobre la región → mancha continua
-const BORDER_RING = 1           // grosor de la BANDA del borde, en aristas a cada lado de la iso (ribete grueso)
+const BORDER_RING = 0           // nivel de referencia FINO: sólo los triángulos frontera, sin dilatar (línea sutil, no ribete grueso)
 const HEAT_MAX = 8              // «Calor»: SUV que satura la rampa (rojo) — referencia absoluta
 const HU_LO = 150, HU_HI = 850 // «Morfología»: trabecular/normal → blástico denso
 /* «Área» · dominancia de trazador ESCALA-JUSTA: el canal Ga es un PROXY con rango mayor
@@ -182,6 +191,18 @@ const HU_LO = 150, HU_HI = 850 // «Morfología»: trabecular/normal → blásti
 const FDG_REF = 8               // máx observado del canal FDG real → normaliza para comparar
 const GA_REF = 13               // máx observado del canal Ga (proxy, rango mayor) → normaliza
 const MIX_BAND = 0.15           // |gaN−fdgN| ≤ banda → mezcla violeta+naranja (captación mixta)
+/* «Área» · GRADIENTE HONESTO keyed al SUV real. La captación PET es un GRADIENTE continuo:
+   intensa en el núcleo del foco, se desvanece suavemente hacia el fondo (no hay borde tumoral
+   neto). El COLOR del trazador se mezcla con el marfil con una opacidad ∝ SUV: por debajo de
+   GRAD_BG (≈ fondo) la opacidad es 0 (marfil neutro); sube suavemente (smoothstep) hasta plena
+   en GRAD_HI. Así se ve la distribución REAL — más color donde más capta, menos en la periferia —
+   sin un corte duro que falsee la extensión. GRAD_HI se ancla al pico del hueso (suvMaxBone) con
+   un mínimo, para que el núcleo siempre llegue a la intensidad máxima en cualquier hueso. */
+const GRAD_BG = 1.8             // SUV (max fdg/ga) de FONDO → por debajo, marfil (opacidad 0)
+const GRAD_HI_MIN = 4.5         // SUV mínimo que satura el color (suelo, para huesos de baja captación)
+const GRAD_HI_FRAC = 0.9        // el color satura a GRAD_HI_FRAC·pico del hueso (el núcleo = color pleno)
+const GRAD_GAMMA = 0.85         // gamma<1 levanta un poco la periferia → el gradiente se LEE (no salta)
+const GRAD_MAX_OPACITY = 0.92   // tope de mezcla con marfil (deja que la luz sombree el volumen)
 
 /* ---------- color: sRGB → lineal (three multiplica los colores por vértice en LINEAL) ---------- */
 function lin(hex: string): [number, number, number] {
@@ -734,18 +755,27 @@ function applyMode() {
   const fdgA = vFdg, gaA = vGa, denA = vDensity
 
   if (m === 'area') {
-    // huella REAL de captación (tipo MTV): dentro de lesión si suv_fdg≥THR o suv_ga≥THR
-    // (SUV CRUDO de cada canal — la pertenencia no se normaliza). Borde difuso con smoothstep
-    // en [0.7·THR, THR]. El COLOR (qué trazador domina) es ESCALA-JUSTA: se normaliza cada
-    // canal por su referencia (fdgN=f/FDG_REF, gaN=g/GA_REF) y se compara gaN vs fdgN, así el
-    // proxy Ga (rango mayor) no sesga hacia violeta. En la banda |gaN−fdgN|≤MIX_BAND ambos
-    // normalizados son parecidos → mezcla violeta+naranja (captación mixta), sin forzar uno.
-    const thr = THR_SUV
-    const e0 = 0.7 * thr
+    // GRADIENTE HONESTO keyed al SUV REAL (no un corte duro). La paciente preguntó por qué había
+    // color fuera del contorno; al confinarlo (enmascarar por membOut, el núcleo de alta captación)
+    // nos dimos cuenta de que ESO OCULTA la captación real de bajo nivel. La verdad clínica: la
+    // captación PET es un GRADIENTE continuo —intensa en el núcleo del foco, se desvanece hacia el
+    // fondo, sin borde tumoral neto (limitado por la resolución ~4–5 mm)—. Confinar el color =
+    // imponer un corte arbitrario y esconder ese gradiente = MENOS honesto.
+    //   Aquí la OPACIDAD del trazador sobre el marfil ∝ SUV: a = smoothstep(GRAD_BG, hi, SUV)^γ,
+    // con SUV = max(fdg, ga) por vértice. Por debajo del fondo (GRAD_BG) → marfil neutro (a=0);
+    // sube suave hasta plena en hi = max(GRAD_HI_MIN, GRAD_HI_FRAC·pico del hueso). Así el NÚCLEO
+    // se ve intenso y la PERIFERIA se desvanece de verdad — la distribución REAL, sin cortar.
+    //   El HUE sigue la dominancia ESCALA-JUSTA (violeta receptor / naranja azúcar / mixto):
+    // gaN = ga/GA_REF vs fdgN = fdg/FDG_REF; gaN≫fdgN → violeta, fdgN≫gaN → naranja, parecidos →
+    // mezcla. (Sólo el hue usa los normalizados; la opacidad usa el SUV crudo = captación real.)
     const fInv = 1 / FDG_REF, gInv = 1 / GA_REF
+    const hi = Math.max(GRAD_HI_MIN, GRAD_HI_FRAC * suvMaxBone)
     for (let i = 0; i < n; i++) {
       const f = fdgA[i], g = gaA[i]
-      const a = Math.max(smoothstep(e0, thr, f), smoothstep(e0, thr, g)) // pertenencia 0..1 (SUV crudo)
+      const s = f > g ? f : g                       // SUV crudo del vértice = captación real
+      // opacidad ∝ SUV: desvanece a 0 en el fondo, plena en el núcleo (gamma levanta la periferia)
+      let a = smoothstep(GRAD_BG, hi, s)
+      a = Math.pow(a, GRAD_GAMMA) * GRAD_MAX_OPACITY
       // dominancia normalizada: gaN≫fdgN → violeta (1); fdgN≫gaN → naranja (0); parecidos → mezcla (~0.5)
       const wRec = smoothstep(-MIX_BAND, MIX_BAND, g * gInv - f * fInv)
       const tr0 = FDG_LIN[0] + (REC_LIN[0] - FDG_LIN[0]) * wRec
@@ -781,15 +811,16 @@ function applyMode() {
   const existing = geo.getAttribute('color') as THREE.BufferAttribute | undefined
   if (existing && existing.array === out) { existing.needsUpdate = true }
   else geo.setAttribute('color', new THREE.BufferAttribute(out, 3))
-  // REALCE DE ZONA = PARCHE (relleno) + BANDA del borde + iso-línea de remate + DIANA central.
-  // El PARCHE translúcido teñido del trazador SÓLO en «Área» y «Mapa de calor» (la «malla por
-  // encima»); en «Morfología» NO se rellena (sólo el borde) para no tapar la densidad/blástico
-  // que se ve por dentro. La BANDA del borde, la iso-línea y la diana van en LOS 3 MODOS → la
-  // zona tumoral queda marcada igual siempre: «al cambiar de modo, siempre sé dónde está».
-  buildPatch(m !== 'morpho')
-  buildBorder()
-  buildOutline()
-  buildMarkers()
+  // NIVEL DE REFERENCIA (no «realce de zona» con corte duro). El RELLENO de la zona ya NO es un
+  // parche plano: en «Área» el color es el GRADIENTE por vértice (∝ SUV) y en «Calor»/«Morfología»
+  // es el mapa sobre todo el hueso → el parche translúcido se ELIMINA (re-imponía un corte duro que
+  // falseaba la extensión). Lo que queda es la iso-línea FINA y GRIS como NIVEL DE REFERENCIA (un
+  // SUV≥X), NO un borde tumoral neto, y la DIANA en el pico (SUVmáx). Ambos en los 3 modos: «al
+  // cambiar de modo, siempre sé dónde está el foco», pero sin afirmar un límite del tumor.
+  buildPatch(false)            // sin parche plano en ningún modo (el gradiente/mapa hace el relleno)
+  buildBorder()                // banda gris fina · nivel de referencia (no borde neto)
+  buildOutline()               // iso-línea gris de remate · nivel de referencia
+  buildMarkers()               // diana en el pico (SUVmáx)
 }
 
 /* ===================== PARCHE TRANSLÚCIDO DEL ÁREA («malla por encima») =====================
@@ -855,13 +886,13 @@ function buildBorder() {
   borderGeo.setAttribute('position', new THREE.BufferAttribute(new Float32Array(src.array as Float32Array), 3))
   borderGeo.setIndex(new THREE.BufferAttribute(borderIndices, 1))
   const mtl = new THREE.MeshBasicMaterial({
-    color: new THREE.Color(C_OUTLINE), transparent: true, opacity: 0.92,
+    color: new THREE.Color(C_REF), transparent: true, opacity: 0.34,   // gris claro, SUTIL (no chillón)
     depthTest: true, depthWrite: false, side: THREE.DoubleSide,
     toneMapped: false, blending: THREE.NormalBlending,
     polygonOffset: true, polygonOffsetFactor: -6, polygonOffsetUnits: -6,
   })
   const bm = new THREE.Mesh(borderGeo, mtl)
-  bm.renderOrder = 3                                  // sobre el parche, bajo la iso-línea y la diana
+  bm.renderOrder = 3                                  // bajo la iso-línea y la diana
   borderGroup.add(bm)
 }
 
@@ -886,18 +917,20 @@ function buildOutline() {
   if (!outlinePos || outlinePos.length < 6) return
   const g = new THREE.BufferGeometry()
   g.setAttribute('position', new THREE.BufferAttribute(outlinePos, 3))
-  // BORDE GRUESO Y CLARO (A3). WebGL ignora linewidth>1, así que el grosor se logra con un
-  // HALO oscuro detrás (contraste sobre marfil/heat/azul) + el CORE cian brillante a opacidad
-  // plena encima; los offsets distintos los separan un pelín en profundidad para que el halo
-  // no tape el core. depthTest:true → el hueso lo OCLUYE al girar (integrado en la superficie).
+  // NIVEL DE REFERENCIA, NO un borde tumoral neto (A3). La iso-línea marca SÓLO un nivel de SUV de
+  // referencia para orientar la lectura; la captación REAL es un gradiente (ver el color «Área»),
+  // sin límite anatómico. Por eso la línea es FINA y GRIS NEUTRA (no el cian chillón que se leía
+  // como «el borde del tumor»): un halo gris OSCURO sutil para contraste + el core gris CLARO
+  // encima, ambos a opacidad moderada. depthTest:true → el hueso la OCLUYE al girar (se asienta
+  // sobre la superficie, no flota).
   const halo = new THREE.LineSegments(g, new THREE.LineBasicMaterial({
-    color: new THREE.Color('#04181f'), transparent: true, opacity: 0.7, linewidth: 1,
+    color: new THREE.Color(C_REF_DK), transparent: true, opacity: 0.45, linewidth: 1,
     depthTest: true, depthWrite: false, toneMapped: false,
     polygonOffset: true, polygonOffsetFactor: -8, polygonOffsetUnits: -8,
   }))
   halo.renderOrder = 4
   const core = new THREE.LineSegments(g, new THREE.LineBasicMaterial({
-    color: new THREE.Color(C_OUTLINE), transparent: true, opacity: 1, linewidth: 1,
+    color: new THREE.Color(C_REF), transparent: true, opacity: 0.85, linewidth: 1,
     depthTest: true, depthWrite: false, toneMapped: false,
     polygonOffset: true, polygonOffsetFactor: -10, polygonOffsetUnits: -10,
   }))
@@ -924,22 +957,22 @@ function targetTexture(): THREE.CanvasTexture {
   const ctx = cv.getContext('2d')!; const c = S / 2
   ctx.clearRect(0, 0, S, S)
   ctx.lineCap = 'round'
-  // DIANA: anillo fino + punto central, color del contorno (cian/teal) → coherente con la
-  // línea, pero con SILUETA de diana (anillo + punto sólido, que el contorno no tiene) para
-  // distinguirla. Halo oscuro detrás de CADA trazo para que el cian lea tanto sobre marfil
-  // como sobre la captación violeta/naranja y sobre el azul del blástico. Discreta pero
-  // legible: el anillo es fino, el punto pequeño; se mantiene semitransparente vía opacity.
+  // DIANA: anillo fino + punto central que marca el PICO (SUVmáx) del foco. Color GRIS NEUTRO,
+  // coherente con el nivel de referencia (no el cian chillón). SILUETA de diana (anillo + punto
+  // sólido) para distinguirla de la iso-línea. Halo gris OSCURO detrás de cada trazo para que el
+  // gris claro lea sobre marfil, sobre el gradiente violeta/naranja y sobre el azul del blástico.
+  // Discreta pero legible: anillo fino, punto pequeño; semitransparente vía opacity.
   const R = S * 0.31
-  // 1) halo oscuro del anillo (un pelín más ancho)
-  ctx.strokeStyle = hexA('#04181f', 0.55); ctx.lineWidth = S * 0.075
+  // 1) halo oscuro neutro del anillo (un pelín más ancho)
+  ctx.strokeStyle = hexA('#23262b', 0.55); ctx.lineWidth = S * 0.075
   ctx.beginPath(); ctx.arc(c, c, R, 0, Math.PI * 2); ctx.stroke()
-  // 2) anillo cian
-  ctx.strokeStyle = C_OUTLINE; ctx.globalAlpha = 1; ctx.lineWidth = S * 0.040
+  // 2) anillo gris claro
+  ctx.strokeStyle = C_REF; ctx.globalAlpha = 1; ctx.lineWidth = S * 0.040
   ctx.beginPath(); ctx.arc(c, c, R, 0, Math.PI * 2); ctx.stroke()
-  // 3) punto central: halo oscuro + punto cian sólido (la marca de «centro»)
-  ctx.fillStyle = hexA('#04181f', 0.6)
+  // 3) punto central: halo oscuro neutro + punto gris claro sólido (la marca del PICO)
+  ctx.fillStyle = hexA('#23262b', 0.6)
   ctx.beginPath(); ctx.arc(c, c, S * 0.105, 0, Math.PI * 2); ctx.fill()
-  ctx.fillStyle = C_OUTLINE
+  ctx.fillStyle = C_REF
   ctx.beginPath(); ctx.arc(c, c, S * 0.075, 0, Math.PI * 2); ctx.fill()
   const t = new THREE.CanvasTexture(cv); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 4
   return t
@@ -1138,9 +1171,9 @@ onBeforeUnmount(() => {
           {{ failed ? L('Reconstrucción del CT · vista estática', 'Reconstruction from the CT · static view') : L('Reconstrucción del CT · arrastra para girar · rueda para acercar', 'Reconstruction from the CT · drag to rotate · scroll to zoom') }}<br>
           <span :style="{ color: C_REC }">●</span> {{ L('violeta · receptor (Galio)', 'violet · receptor (gallium)') }} ·
           <span :style="{ color: C_FDG }">●</span> {{ L('naranja · azúcar (FDG)', 'orange · sugar (FDG)') }} ·
-          <span :style="{ color: C_OUTLINE }">▣</span> {{ L('zona realzada (relleno del trazador + borde)', 'highlighted zone (tracer fill + border)') }} ·
-          <span :style="{ color: C_OUTLINE }">◎</span> {{ L('centro del foco', 'focus center') }}
-          <span style="color:#7c8694"> · {{ L('Zona de captación real (PET) sobre el hueso, marcada por el parche teñido del trazador y el borde liso; difusa por la resolución del PET (~4–5 mm). La zona se acota al núcleo del foco; la diana marca su centro. Dentro se ve la captación. El Galio es un proxy aproximado por ahora.', 'Real PET uptake zone on the bone, marked by the tracer-tinted patch and the smooth border; diffuse due to PET resolution (~4–5 mm). The zone is confined to the focus core; the marker shows its center. Uptake is shown inside. Gallium is an approximate proxy for now.') }}</span>
+          <span :style="{ color: C_REF }">▢</span> {{ L('nivel de referencia (SUV≥X) · la captación es un gradiente, no un borde neto', 'reference level (SUV≥X) · uptake is a gradient, not a sharp border') }} ·
+          <span :style="{ color: C_REF }">◎</span> {{ L('pico (SUVmáx)', 'peak (SUVmax)') }}
+          <span style="color:#7c8694"> · {{ L('La intensidad del color sigue al SUV REAL por punto: más intenso donde más capta (el núcleo) y se DESVANECE suavemente hacia el fondo — porque la captación PET es un GRADIENTE continuo, sin un borde tumoral neto (limitado por la resolución ~4–5 mm). La línea gris marca SÓLO un nivel de referencia de SUV, no el límite del tumor; la diana marca el pico (SUVmáx). El Galio es un proxy aproximado por ahora.', 'Colour intensity follows the REAL per-point SUV: brightest where uptake is highest (the core) and FADING smoothly toward background — because PET uptake is a continuous GRADIENT, with no sharp tumour border (limited by ~4–5 mm resolution). The grey line marks ONLY a reference SUV level, not the tumour boundary; the marker shows the peak (SUVmax). Gallium is an approximate proxy for now.') }}</span>
         </template>
 
         <template v-else-if="mode === 'heat'">
@@ -1148,18 +1181,18 @@ onBeforeUnmount(() => {
           <span style="color:#1f6ed6">●</span> {{ L('frío', 'cool') }} →
           <span style="color:#0db9c8">●</span> <span style="color:#e8e030">●</span>
           <span style="color:#f58a1a">●</span> <span style="color:#de1c1c">●</span> {{ L('caliente', 'hot') }} ·
-          <span :style="{ color: C_OUTLINE }">▣</span> {{ L('zona realzada (relleno + borde)', 'highlighted zone (fill + border)') }} ·
-          <span :style="{ color: C_OUTLINE }">◎</span> {{ L('centro del foco', 'focus center') }}
-          <span style="color:#7c8694"> · {{ L('Intensidad de captación (SUV real); rampa fría→caliente. El parche y el borde marcan la zona del foco y la diana su centro; dentro se ve el calor. El Galio es un proxy aproximado por ahora.', 'Uptake intensity (real SUV); cool→hot ramp. The patch and border mark the focus zone and the marker its center; heat is shown inside. Gallium is an approximate proxy for now.') }}</span>
+          <span :style="{ color: C_REF }">▢</span> {{ L('nivel de referencia (SUV≥X), no un borde neto', 'reference level (SUV≥X), not a sharp border') }} ·
+          <span :style="{ color: C_REF }">◎</span> {{ L('pico (SUVmáx)', 'peak (SUVmax)') }}
+          <span style="color:#7c8694"> · {{ L('TODO el hueso muestra la intensidad de captación (SUV real), rampa fría→caliente — es un mapa continuo sobre el hueso entero. La captación es un GRADIENTE, no un borde: la línea gris marca sólo un nivel de referencia de SUV dentro del mapa y la diana el pico (SUVmáx). El Galio es un proxy aproximado por ahora.', 'The WHOLE bone shows uptake intensity (real SUV), cool→hot ramp — a continuous map over the entire bone. Uptake is a GRADIENT, not a border: the grey line marks only a reference SUV level within the map and the marker the peak (SUVmax). Gallium is an approximate proxy for now.') }}</span>
         </template>
 
         <template v-else>
           {{ failed ? L('Reconstrucción del CT · vista estática', 'Reconstruction from the CT · static view') : L('Reconstrucción del CT · arrastra para girar · rueda para acercar', 'Reconstruction from the CT · drag to rotate · scroll to zoom') }}<br>
           <span style="color:#9c794a">●</span> {{ L('tostado · hueso normal', 'tan · normal bone') }} →
           <span style="color:#2c5cb2">●</span> {{ L('azul oscuro · blástico (denso)', 'dark blue · blastic (dense)') }} ·
-          <span :style="{ color: C_OUTLINE }">▭</span> {{ L('borde de la zona (sin relleno)', 'zone border (no fill)') }} ·
-          <span :style="{ color: C_OUTLINE }">◎</span> {{ L('centro del foco', 'focus center') }}
-          <span style="color:#7c8694"> · {{ L('Densidad real del CT (HU): el hueso denso/blástico resalta en azul oscuro. El borde marca la zona de lesión (captación PET, aproximado por la resolución); aquí SIN relleno, para ver la densidad por dentro — cómo es. Orientativo para la factibilidad de biopsia (el blástico denso rinde menos tejido).', 'Real CT density (HU): dense/blastic bone stands out in dark blue. The border marks the lesion zone (PET uptake, approximate due to resolution); here WITHOUT fill, so the density inside is visible — how it looks. Indicative of biopsy feasibility (dense blastic bone yields less tissue).') }}</span>
+          <span :style="{ color: C_REF }">▭</span> {{ L('nivel de referencia (SUV≥X), no un borde neto', 'reference level (SUV≥X), not a sharp border') }} ·
+          <span :style="{ color: C_REF }">◎</span> {{ L('pico (SUVmáx)', 'peak (SUVmax)') }}
+          <span style="color:#7c8694"> · {{ L('TODO el hueso muestra la densidad real del CT (HU): el hueso denso/blástico resalta en azul oscuro — un mapa sobre el hueso entero. La línea gris marca sólo un nivel de referencia de SUV (captación PET) dentro del mapa, no un borde tumoral neto —la captación es un gradiente—; SIN relleno, para ver la densidad por dentro. Orientativo para la factibilidad de biopsia (el blástico denso rinde menos tejido).', 'The WHOLE bone shows real CT density (HU): dense/blastic bone stands out in dark blue — a map over the entire bone. The grey line marks only a reference SUV level (PET uptake) within the map, not a sharp tumour border —uptake is a gradient—; WITHOUT fill, so the density inside is visible. Indicative of biopsy feasibility (dense blastic bone yields less tissue).') }}</span>
         </template>
       </p>
     </template>
