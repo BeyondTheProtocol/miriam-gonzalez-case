@@ -2393,11 +2393,11 @@ const ticks = [
 
           <!-- nota: cosas por aclarar -->
           <div class="rounded-card border border-[#efb27a] bg-[#fbf0df] text-[#7a4a12] px-4 py-3 text-sm leading-relaxed mt-4">
-            <strong>{{ L('Por aclarar / pendiente de confirmar', 'To clarify / pending confirmation') }}</strong>
+            <strong>{{ L('Por aclarar', 'To clarify') }}</strong>
+            <p class="mt-1 mb-1.5">{{ L('Los datos de este panel provienen de una re-lectura cuantitativa sobre el DICOM nativo (validada): es una medición asistida, no sustituye la lectura formal de Medicina Nuclear. Quedan estas incertidumbres reales:', 'The data in this panel come from a quantitative re-reading of the native DICOM (validated): it is an assisted measurement, it does not replace the formal Nuclear Medicine reading. These genuine uncertainties remain:') }}</p>
             <ul class="list-disc pl-5 mt-1.5 space-y-1">
-              <li>{{ L('La extensión metabólica del #2 (C4) y del #6 (D9) no es fiable: su captación es ≈ el fondo óseo y no se separa del hueso normal. Los focos de IA #17 (costilla) y #19 (cervicotorácica) no son medibles aquí.', 'The metabolic extent of #2 (C4) and #6 (D9) is not reliable: their uptake is ≈ bone background and cannot be separated from normal bone. AI foci #17 (rib) and #19 (cervicothoracic) are not measurable here.') }}</li>
-              <li>{{ L('Confirmar el #12: aquí figura como sacro derecho, pero la tabla del análisis por IA lo describe como vértebra lumbar.', 'Confirm #12: shown here as right sacrum, but the AI-analysis table describes it as a lumbar vertebra.') }}</li>
-              <li>{{ L('Los 3 focos marcados «Detectado por IA» (#17–#19) son medidas aproximadas sobre los DICOM, no confirmadas en el informe oficial — a revisar con Medicina Nuclear.', 'The 3 “AI-detected” foci (#17–#19) are approximate DICOM measurements, not confirmed in the official report — to review with Nuclear Medicine.') }}</li>
+              <li>{{ L('La extensión metabólica del #2 (C4) y del #6 (D9) no es fiable: su captación es ≈ el fondo óseo y no se separa del hueso normal.', 'The metabolic extent of #2 (C4) and #6 (D9) is not reliable: their uptake is ≈ bone background and cannot be separated from normal bone.') }}</li>
+              <li>{{ L('Los focos #17 (costilla) y #19 (cervicotorácica), detectados por IA, son medidas aproximadas sobre el DICOM y no constan en el informe oficial — a revisar con Medicina Nuclear.', 'Foci #17 (rib) and #19 (cervicothoracic), AI-detected, are approximate measurements on the DICOM and are not in the official report — to review with Nuclear Medicine.') }}</li>
             </ul>
           </div>
 
