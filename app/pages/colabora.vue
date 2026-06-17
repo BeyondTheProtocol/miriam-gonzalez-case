@@ -368,6 +368,7 @@ const quickLinks = computed<QuickLink[]>(() => {
     { label: locale.value === 'es' ? 'Inicio' : 'Home', url: homePath, external: false },
     { label: locale.value === 'es' ? 'La ciencia' : 'The science', url: sciencePath, external: false },
     { label: 'Timeline', url: timelinePath, external: false },
+    { label: locale.value === 'es' ? 'Marcas · co-creación' : 'Brands · co-creation', url: localePath('marcas'), external: false },
     { label: 'Repo · GitHub', url: 'https://github.com/beyondtheprotocol/miriam-gonzalez-case', external: true },
     { label: 'GoFundMe · ' + GOFUNDME_URL.replace('https://', ''), url: GOFUNDME_URL, external: true },
     { label: '@miriamgonp · Instagram', url: 'https://instagram.com/miriamgonp', external: true },

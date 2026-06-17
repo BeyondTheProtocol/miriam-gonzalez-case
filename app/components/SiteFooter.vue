@@ -165,6 +165,7 @@ const navItems = [
   { key: 'team', to: '/equipo' },
   { key: 'press', to: '/prensa' },
   { key: 'collaborate', to: '/colabora' },
+  { key: 'brands', to: '/marcas' },
   { key: 'expenses', to: '/gastos' },
   { key: 'contact', to: '/contacto' },
 ]
