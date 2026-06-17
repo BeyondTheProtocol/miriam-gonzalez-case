@@ -16,16 +16,21 @@ const lang = computed<'es' | 'en'>(() => (locale.value === 'en' ? 'en' : 'es'))
 const L = (es: string, en: string) => (lang.value === 'en' ? en : es)
 
 useHead({
+  // Panel clínico para el equipo (radiología / medicina nuclear): apoya la
+  // conversación sobre qué foco rebiopsiar. Página privada (noindex): el título
+  // y la meta describen el contenido con honestidad, sin objetivo SEO.
   title: () =>
     lang.value === 'en'
-      ? 'Metastasis map — dual-tracer PET'
-      : 'Mapa de metástasis — PET doble trazador',
+      ? 'Bone lesion map — dual-tracer PET (biopsy targeting)'
+      : 'Mapa de lesiones óseas — PET doble trazador (elección de diana)',
   meta: [
     { name: 'robots', content: 'noindex, nofollow' },
     {
       name: 'description',
-      content:
-        'Mapa interactivo de las lesiones óseas con doble trazador (Galio-68 DOTATOC y FDG) sobre los informes propios de la paciente.',
+      content: () =>
+        lang.value === 'en'
+          ? 'Interactive panel of the bone lesions with dual-tracer PET (Gallium-68 DOTATOC and FDG) over the patient’s own reports, to support choosing a re-biopsy target. Describes the findings; it does not conclude.'
+          : 'Panel interactivo de las lesiones óseas con PET doble trazador (Galio-68 DOTATOC y FDG) sobre los informes propios de la paciente, para apoyar la elección de la diana de rebiopsia. Describe los hallazgos; no concluye.',
     },
   ],
 })
@@ -317,7 +322,7 @@ function isNewAt(le: Lesion, f: number): boolean {
 /*  Estado interactivo                                                 */
 /* ------------------------------------------------------------------ */
 const selected = ref<number>(7)
-const filter = ref<'all' | Pheno | 'load'>('all')
+const filter = ref<'all' | Pheno | 'load' | 'new' | 'ia'>('all')
 const sel = computed(() => LES.find((l) => l.id === selected.value)!)
 
 /* pestañas de imagen real reconstruida de los DICOM (mip · pet · rmn) */
@@ -494,6 +499,8 @@ function goToMRI() {
 function visible(le: Lesion): boolean {
   if (filter.value === 'all') return true
   if (filter.value === 'load') return !!le.load
+  if (filter.value === 'new') return isNewFocus(le)          // foco que enciende por primera vez (FDG)
+  if (filter.value === 'ia') return sourceOf(le) === 'ia-david' // detectado por IA (por confirmar)
   return le.pheno === filter.value
 }
 function pick(id: number) { selected.value = id }
@@ -520,11 +527,12 @@ const GROUPS: LesGroup[] = (() => {
       y: foci.reduce((s, l) => s + l.y, 0) / foci.length }
   })
 })()
-const onlyNew = ref(false)
 function isNewFocus(l: Lesion): boolean { return isNewAt(l, 1) }   // foco que enciende por primera vez (FDG)
 const newCount = computed(() => LES.filter(isNewFocus).length)
+/* «foco nuevo» y «detectado por IA» son ahora chips de la fila de filtros
+   (vía visible()); el grupo aparece si alguno de sus focos pasa el filtro. */
 function groupVisible(g: LesGroup): boolean {
-  return g.foci.some(visible) && (!onlyNew.value || g.foci.some(isNewFocus))
+  return g.foci.some(visible)
 }
 function gPresentAt(g: LesGroup, f: number): boolean { return g.foci.some((l) => presentAt(l, f)) }
 function gRadius(g: LesGroup, f: number): number {
@@ -626,6 +634,10 @@ const filters = computed(() => [
   { key: 'mixAgg', label: L('Mixto · azúcar', 'Mixed · sugar'), c: PHENO.mixAgg.c },
   { key: 'agg', label: L('Solo azúcar', 'Sugar only'), c: PHENO.agg.c },
   { key: 'load', label: L('Hueso de carga', 'Weight-bearing'), c: '#bb4128' },
+  // Foco nuevo (enciende por primera vez en FDG) y detectado por IA (por
+  // confirmar). Etiquetado por dato del estudio/procedencia, nunca biología.
+  { key: 'new', label: L('Foco nuevo', 'New focus') + ` (${newCount.value})`, c: '#bb4128' },
+  { key: 'ia', label: L('Detectado por IA', 'AI-detected') + ` (${aiFoci.value.length})`, c: '#6b6470' },
 ])
 
 /* resumen */
@@ -1147,6 +1159,15 @@ const ticks = [
   <div>
     <section class="section-spacing" aria-label="Mapa de metástasis">
       <div class="section-wide">
+        <!-- Layout panel: índice pegajoso (izq, lg+) + contenido en grid; la
+             cabecera va DENTRO de la columna de contenido para que el título
+             alinee con el cuerpo, no con el índice (mismo patrón que /ciencia). -->
+        <div class="lg:grid lg:grid-cols-[220px_minmax(0,1fr)] lg:gap-12 xl:gap-16 lg:items-start">
+          <MapaSectionNav
+            variant="rail"
+            class="hidden lg:block lg:sticky lg:top-24 lg:self-start"
+          />
+          <div class="min-w-0">
         <PageHeader
           :title="L('Mapa de metástasis', 'Metastasis map')"
           :subtitle="L(
@@ -1156,16 +1177,20 @@ const ticks = [
         />
 
         <!-- Aviso -->
-        <div class="rounded-card border border-[#efb27a] bg-[#fbf0df] text-[#7a4a12] px-4 py-3 text-sm leading-relaxed mb-10">
+        <div class="rounded-card border border-[#efb27a] bg-[#fbf0df] text-[#7a4a12] px-4 py-3 text-sm leading-relaxed mb-6">
           {{ L(
             'Esta página reúne y visualiza los estudios de la paciente (PET-FDG 24/03/2026, PET Galio-68 DOTATOC 26/05/2026 y la RMN de columna cervical y dorsal). Es una herramienta para entender y para apoyar la conversación con el equipo médico — no sustituye su criterio ni es consejo médico. Los SUV son los de los informes oficiales del PET; las imágenes (PET y RMN) se reconstruyeron desde los DICOM. La RMN se muestra para verla: su lectura formal corresponde al radiólogo.',
             'This page gathers and visualises the patient’s studies (FDG-PET 24/03/2026, Ga-68 DOTATOC PET 26/05/2026 and the cervical and thoracic spine MRI). It is a tool to understand and to support the conversation with the medical team — it does not replace their judgement and is not medical advice. SUVs are those of the official PET reports; the images (PET and MRI) were reconstructed from the DICOM. The MRI is shown for viewing: its formal reading belongs to the radiologist.') }}
         </div>
 
+        <!-- Índice móvil: desplegable «Saltar a…» en el flujo, tras la cabecera
+             (solo <lg). El rail de escritorio va arriba, junto al título. -->
+        <MapaSectionNav variant="mobile" class="lg:hidden mb-10" />
+
         <!-- ===== PANEL-COCKPIT · KPIs descriptivos ===== -->
         <section class="mb-12" aria-labelledby="cockpit">
           <p class="eyebrow mb-2 block">{{ L('Resumen de un vistazo', 'At a glance') }}</p>
-          <h2 id="cockpit" class="heading-display text-2xl text-berenjena mb-2">{{ L('Panel de la enfermedad ósea', 'Bone-disease panel') }}</h2>
+          <h2 id="cockpit" class="heading-display text-2xl text-berenjena mb-2 scroll-mt-[7.5rem]">{{ L('Panel de la enfermedad ósea', 'Bone-disease panel') }}</h2>
           <p class="text-sm text-tinta leading-relaxed mb-5 max-w-3xl">
             {{ L('Cifras descriptivas de los dos PET, sin interpretación. Los focos del informe oficial y los detectados por IA (por confirmar) van por separado.',
                   'Descriptive figures from the two PET studies, with no interpretation. Foci from the official report and those detected by AI (to confirm) are kept separate.') }}
@@ -1237,7 +1262,7 @@ const ticks = [
         <!-- ===== EXPLICADOR · una lesión, dos trazadores ===== -->
         <section class="mb-14" aria-labelledby="dos-caras">
           <p class="eyebrow mb-2 block">{{ L('Cómo se lee', 'How to read it') }}</p>
-          <h2 id="dos-caras" class="heading-display text-2xl text-berenjena mb-2">
+          <h2 id="dos-caras" class="heading-display text-2xl text-berenjena mb-2 scroll-mt-[7.5rem]">
             {{ L('Una lesión, dos trazadores', 'One lesion, two tracers') }}
           </h2>
           <p class="text-sm text-tinta leading-relaxed mb-6 max-w-3xl">
@@ -1305,7 +1330,7 @@ const ticks = [
         <!-- ===== ZONA B · NÚCLEO INTERACTIVO ===== -->
         <section class="mb-14" aria-labelledby="mapa">
           <p class="eyebrow mb-2 block">{{ L('Dónde · de qué tipo · cada foco', 'Where · what type · each focus') }}</p>
-          <h2 id="mapa" class="heading-display text-2xl text-berenjena mb-2">
+          <h2 id="mapa" class="heading-display text-2xl text-berenjena mb-2 scroll-mt-[7.5rem]">
             {{ L('El mapa, lesión a lesión', 'The map, lesion by lesion') }}
           </h2>
           <p class="text-sm text-tinta leading-relaxed mb-5 max-w-3xl">
@@ -1337,13 +1362,6 @@ const ticks = [
                 @input="setFrame(+($event.target as HTMLInputElement).value)"
                 class="flex-1 min-w-[140px] accent-berenjena"
                 :aria-label="L('Línea de tiempo', 'Timeline')" />
-              <button type="button" @click="onlyNew = !onlyNew"
-                class="shrink-0 inline-flex items-center gap-2 text-xs font-semibold px-3.5 py-1.5 rounded-full border transition-colors"
-                :class="onlyNew ? 'bg-berenjena text-cream border-berenjena' : 'bg-transparent text-tinta border-[rgba(45,27,61,0.25)] hover:border-[rgba(45,27,61,0.45)]'"
-                :aria-pressed="onlyNew">
-                <span class="w-2 h-2 rounded-full" :class="onlyNew ? '' : 'animate-pulse'" :style="{ background: onlyNew ? '#fff' : '#bb4128' }" />
-                {{ onlyNew ? L('Viendo solo focos nuevos', 'Showing new foci only') : L('Solo focos nuevos', 'New foci only') }} ({{ newCount }})
-              </button>
             </div>
             <div class="flex justify-between mt-3 px-1">
               <button v-for="(d, i) in FDATES" :key="i" type="button" @click="setFrame(i)"
@@ -1851,7 +1869,7 @@ const ticks = [
         <!-- ===== MAPA DE FENOTIPO (CUADRANTES) ===== -->
         <section class="mb-14" aria-labelledby="fenotipo">
           <p class="eyebrow mb-2 block">{{ L('La misma selección, por tipo', 'The same selection, by type') }}</p>
-          <h2 id="fenotipo" class="heading-display text-2xl text-berenjena mb-2">
+          <h2 id="fenotipo" class="heading-display text-2xl text-berenjena mb-2 scroll-mt-[7.5rem]">
             {{ L('Mapa de fenotipo — la tercera vista enlazada', 'Phenotype map — the third linked view') }}
           </h2>
           <p class="text-sm text-tinta leading-relaxed mb-5 max-w-3xl">
@@ -1922,7 +1940,7 @@ const ticks = [
         <!-- ===== ZONA C · IMAGEN REAL (pestañas) ===== -->
         <section class="mb-14" aria-labelledby="imagen">
           <p class="eyebrow mb-2 block">{{ L('La imagen real', 'The real imaging') }}</p>
-          <h2 id="imagen" class="heading-display text-2xl text-berenjena mb-2 scroll-mt-32 sm:scroll-mt-36">
+          <h2 id="imagen" class="heading-display text-2xl text-berenjena mb-2 scroll-mt-[7.5rem]">
             {{ L('La imagen real, reconstruida de los DICOM', 'The real imaging, reconstructed from the DICOM') }}
           </h2>
           <p class="text-sm text-tinta leading-relaxed mb-5 max-w-3xl">
@@ -2049,7 +2067,7 @@ const ticks = [
         <!-- ===== ZONA D · TRAYECTORIA ===== -->
         <section class="mb-14" aria-labelledby="trayectoria">
           <p class="eyebrow mb-2 block">{{ L('Qué ha cambiado', 'What has changed') }}</p>
-          <h2 id="trayectoria" class="heading-display text-2xl text-berenjena mb-2">
+          <h2 id="trayectoria" class="heading-display text-2xl text-berenjena mb-2 scroll-mt-[7.5rem]">
             {{ L('Trayectoria desde el estudio previo', 'Trajectory since the prior study') }}
           </h2>
           <p class="text-sm text-tinta leading-relaxed mb-5 max-w-3xl">
@@ -2093,7 +2111,7 @@ const ticks = [
         <!-- ===== LENTE · IDONEIDAD COMO DIANA (pieza central del panel) ===== -->
         <section class="mb-14" aria-labelledby="idoneidad">
           <p class="eyebrow mb-2 block">{{ L('La lente · elegir dónde rebiopsiar', 'The lens · choosing where to rebiopsy') }}</p>
-          <h2 id="idoneidad" class="heading-display text-2xl text-berenjena mb-2">
+          <h2 id="idoneidad" class="heading-display text-2xl text-berenjena mb-2 scroll-mt-[7.5rem]">
             {{ L('Idoneidad como diana de biopsia', 'Suitability as a biopsy target') }}
           </h2>
 
@@ -2318,7 +2336,7 @@ const ticks = [
         <!-- ===== ZONA E · APÉNDICE DE REFERENCIA (tabla) — abierta por defecto (vista clínica) ===== -->
         <section class="mb-14" aria-labelledby="tabla">
           <p class="eyebrow mb-2 block">{{ L('Para el equipo · referencia', 'For the team · reference') }}</p>
-          <h2 id="tabla" class="heading-display text-2xl text-berenjena mb-2">{{ L('Apéndice: los focos en una tabla', 'Appendix: the foci in a table') }}</h2>
+          <h2 id="tabla" class="heading-display text-2xl text-berenjena mb-2 scroll-mt-[7.5rem]">{{ L('Apéndice: los focos en una tabla', 'Appendix: the foci in a table') }}</h2>
           <p class="text-sm text-tinta leading-relaxed mb-4 max-w-3xl">{{ L('Tabla completa con la idoneidad orientativa como diana, SUVmáx por trazador, tendencia, extensión metabólica medida y patrón, más los focos extra detectados de forma automática. Pulsa una cabecera para ordenar; los focos detectados por IA van siempre al final, en su propio grupo, sin confirmar.', 'Full table with the indicative suitability as a target, SUVmax per tracer, trend, measured metabolic extent and pattern, plus the automatically detected extra foci. Click a header to sort; AI-detected foci always go last, in their own group, unconfirmed.') }}</p>
           <details class="notes-disclosure" open>
             <summary>{{ L('Abrir la tabla y los focos extra', 'Open the table and extra foci') }}</summary>
@@ -2438,6 +2456,8 @@ const ticks = [
             {{ L('El tejido y la biología molecular, en La ciencia', 'Tissue and molecular biology, in The science') }}
             <span aria-hidden="true">→</span>
           </NuxtLink>
+        </div>
+          </div>
         </div>
       </div>
     </section>
