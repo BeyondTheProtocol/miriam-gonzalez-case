@@ -409,15 +409,21 @@ const selViewCaption = computed(() => {
 /*    · sag    foco-{id}-sag.png → solo 01,02,04–12 (columna/sacro)      */
 /*    · cor    foco-16-cor.png   → solo el fémur (#16)                   */
 /*  Casos IA sin círculo fiable:                                         */
-/*    · #17 → axial con anillo PUNTEADO «aprox/por confirmar»            */
-/*    · #19 → panel con NOTA, sin círculo → mostramos la nota, no diana  */
+/*    · #17 → axial con ANILLO punteado «aprox/por confirmar» (foco puntual) */
+/*    · #19 → sagital cervicotorácico con ELIPSE punteada grande sobre la    */
+/*           zona candidata de la IA (región aprox. C7-D2; no localizable     */
+/*           con fiabilidad por z) «aprox/por confirmar». La paciente pidió    */
+/*           enseñar su imagen aunque no haya círculo fiable, no una nota.     */
 type KeyPlane = 'axial' | 'sag' | 'cor'
 /* ids con sagital y/o coronal disponibles (resto: solo axial) */
 const FOCO_KEY_SAG = new Set([1, 2, 4, 5, 6, 7, 8, 9, 10, 11, 12])
 const FOCO_KEY_COR = new Set([16])
-/* #17: anillo punteado (localización aproximada) · #19: panel-nota, sin círculo */
-const FOCO_KEY_DOTTED = new Set([17]) // anillo «aprox/por confirmar»
-const FOCO_KEY_NOTE_ONLY = new Set([19]) // panel con nota, sin círculo fiable
+/* #17 y #19: marca PUNTEADA (localización aproximada · por confirmar). La PNG
+   ya lleva la marca aproximada dibujada (anillo en #17, elipse en #19); aquí
+   solo se muestra su miniatura pulsable + el flag «IA · aprox.». Ningún foco
+   queda como celda-nota vacía. */
+const FOCO_KEY_DOTTED = new Set([17, 19]) // marca «aprox/por confirmar»
+const FOCO_KEY_NOTE_ONLY = new Set<number>() // (vacío) — todos los focos IA muestran imagen
 function fk(id: number, plane: KeyPlane): string {
   const n = String(id).padStart(2, '0')
   return plane === 'axial'
@@ -2028,7 +2034,8 @@ const ticks = [
                   </figcaption>
                 </template>
 
-                <!-- foco sin círculo fiable (#19) → NOTA en vez de diana falsa -->
+                <!-- fallback (sin imagen fiable) → NOTA. Hoy ningún foco lo usa:
+                     todos los focos IA (#17/#19) muestran su imagen con marca punteada. -->
                 <div v-else class="rounded-card border-l-4 px-3 py-3 text-[12.5px] leading-snug flex items-start gap-2"
                   style="border-left-color:#8a5a1a;background:#fbf6ec;color:#7a4a12">
                   <span class="status-badge shrink-0" style="background:#fde4cc;color:#8a4a1a">{{ L('por confirmar', 'to confirm') }}</span>
@@ -2376,7 +2383,8 @@ const ticks = [
                   </a>
                 </template>
 
-                <!-- foco SIN círculo fiable (#19) → celda-nota, sin lightbox -->
+                <!-- fallback celda-nota (sin lightbox). Hoy sin uso: todos los focos
+                     IA muestran su miniatura con marca punteada y abren el lightbox. -->
                 <div v-else class="foco-key-tile foco-key-tile--note is-ai">
                   <span class="foco-key-tile__noteframe">
                     <span class="status-badge" style="background:#fde4cc;color:#8a4a1a">{{ L('por confirmar', 'to confirm') }}</span>
