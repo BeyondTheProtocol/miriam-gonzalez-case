@@ -33,7 +33,14 @@ export default {
           // sobre cream. El violeta sigue siendo prácticamente el mismo.
           DEFAULT: '#9d44ab',
           soft: '#e8d4ed',        // var(--color-miriam-soft) — badge genómico bg
+          // Violeta claro para ÉNFASIS sobre fondos oscuros (berenjena): el miriam
+          // DEFAULT no contrasta sobre berenjena, este sí (5.46:1, pasa WCAG AA).
+          // Usado en el dossier /marcas (titulares e identidad sobre bandas oscuras).
+          claro: '#c77dd2',
         },
+        // Berenjena un punto más violácea para tarjetas elevadas SOBRE las bandas
+        // oscuras (cajas «Carlos Roca» / LinkedIn en /marcas). Texto crema: 12.8:1.
+        'berenjena-2': '#3a2350',
         coral: {
           DEFAULT: '#ff6b47',     // var(--color-cta) — ÚNICO color de acción (fondos / decoración)
           hover: '#e5573a',

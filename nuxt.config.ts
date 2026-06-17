@@ -123,6 +123,7 @@ export default defineNuxtConfig({
       'prensa': { en: '/press' },
       'contacto': { en: '/contact' },
       'colabora': { en: '/collaborate' },
+      'marcas': { en: '/brands' },
       'gastos': { en: '/expenses' },
       'gracias': { en: '/thank-you' },
       'aviso-legal': { en: '/legal-notice' },
@@ -136,6 +137,10 @@ export default defineNuxtConfig({
   nitro: {
     prerender: {
       crawlLinks: true,
+      // /marcas (y /en/brands) es una página B2B SIN enlace en la navegación, así
+      // que crawlLinks no la descubre: hay que listarla explícitamente para que
+      // se prerenderice como HTML estático.
+      routes: ['/marcas', '/en/brands'],
       // /design-system/ es un export estático en public/, no una ruta de Nuxt.
       // crawlLinks lo descubre desde /colabora, intenta prerenderizarlo, da 404
       // y aborta el build. Lo ignoramos: el archivo estático se copia igual.
