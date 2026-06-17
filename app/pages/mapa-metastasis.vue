@@ -390,6 +390,84 @@ const selViewCaption = computed(() => {
 })
 
 /* ------------------------------------------------------------------ */
+/*  KEY-IMAGES POR FOCO (decisión del comité)                          */
+/*  Corte CT+PET fusionado con un anillo marcando el SUVmáx y etiqueta. */
+/*  El MANIFEST se deriva de los ficheros REALES en                     */
+/*  public/metastasis/foco-key/ (no referenciar imágenes inexistentes): */
+/*    · axial  foco-{id}.png  → existe para los 19 focos                 */
+/*    · sag    foco-{id}-sag.png → solo 01,02,04–12 (columna/sacro)      */
+/*    · cor    foco-16-cor.png   → solo el fémur (#16)                   */
+/*  Casos IA sin círculo fiable:                                         */
+/*    · #17 → axial con anillo PUNTEADO «aprox/por confirmar»            */
+/*    · #19 → panel con NOTA, sin círculo → mostramos la nota, no diana  */
+type KeyPlane = 'axial' | 'sag' | 'cor'
+/* ids con sagital y/o coronal disponibles (resto: solo axial) */
+const FOCO_KEY_SAG = new Set([1, 2, 4, 5, 6, 7, 8, 9, 10, 11, 12])
+const FOCO_KEY_COR = new Set([16])
+/* #17: anillo punteado (localización aproximada) · #19: panel-nota, sin círculo */
+const FOCO_KEY_DOTTED = new Set([17]) // anillo «aprox/por confirmar»
+const FOCO_KEY_NOTE_ONLY = new Set([19]) // panel con nota, sin círculo fiable
+function fk(id: number, plane: KeyPlane): string {
+  const n = String(id).padStart(2, '0')
+  return plane === 'axial'
+    ? `/metastasis/foco-key/foco-${n}.png`
+    : `/metastasis/foco-key/foco-${n}-${plane}.png`
+}
+interface KeyImagePlane { plane: KeyPlane; src: string; label: { es: string; en: string } }
+interface FocoKeyImage {
+  hasReliable: boolean // false → solo nota (sin anillo fiable, #19)
+  dotted: boolean // anillo punteado «por confirmar» (#17)
+  ai: boolean // foco detectado por IA (#17/#19)
+  planes: KeyImagePlane[] // planos REALES disponibles para este foco
+}
+const PLANE_LABEL: Record<KeyPlane, { es: string; en: string }> = {
+  axial: { es: 'Axial', en: 'Axial' },
+  sag: { es: 'Sagital', en: 'Sagittal' },
+  cor: { es: 'Coronal', en: 'Coronal' },
+}
+function focoKey(le: Lesion): FocoKeyImage {
+  const id = le.id
+  const ai = sourceOf(le) === 'ia-david'
+  if (FOCO_KEY_NOTE_ONLY.has(id))
+    return { hasReliable: false, dotted: false, ai, planes: [] }
+  const planes: KeyImagePlane[] = [
+    { plane: 'axial', src: fk(id, 'axial'), label: PLANE_LABEL.axial },
+  ]
+  if (FOCO_KEY_SAG.has(id)) planes.push({ plane: 'sag', src: fk(id, 'sag'), label: PLANE_LABEL.sag })
+  if (FOCO_KEY_COR.has(id)) planes.push({ plane: 'cor', src: fk(id, 'cor'), label: PLANE_LABEL.cor })
+  return { hasReliable: true, dotted: FOCO_KEY_DOTTED.has(id), ai, planes }
+}
+const selKey = computed(() => focoKey(sel.value))
+/* caption HONESTO del comité (mismo texto para miniatura y lightbox) */
+function keyCaption(le: Lesion): string {
+  const k = focoKey(le)
+  const base = L(
+    'Imagen clave reconstruida del PET/CT: el anillo señala el SUVmáx (un vóxel); fusión aproximada por resolución y co-registro. No es una relectura formal — la firman los radiólogos.',
+    'Key image reconstructed from the PET/CT: the ring marks the SUVmax (a single voxel); fusion is approximate due to resolution and co-registration. Not a formal re-read — the radiologists sign it off.',
+  )
+  if (!k.hasReliable || k.dotted)
+    return L('Localización aproximada · por confirmar. ', 'Approximate location · to confirm. ') + base
+  return base
+}
+const selKeyCaption = computed(() => keyCaption(sel.value))
+
+/* ---- Lightbox de la imagen clave (modal con zoom/pan + toggle de plano) ---- */
+const keyLightboxOpen = ref(false)
+const keyPlane = ref<KeyPlane>('axial')
+const selKeyActive = computed(
+  () => selKey.value.planes.find((p) => p.plane === keyPlane.value) ?? selKey.value.planes[0],
+)
+function openKeyLightbox(plane: KeyPlane = 'axial') {
+  if (!selKey.value.hasReliable) return // #19: solo nota, sin lightbox
+  // si el plano pedido no existe para este foco, cae al axial (siempre presente)
+  keyPlane.value = selKey.value.planes.some((p) => p.plane === plane) ? plane : 'axial'
+  keyLightboxOpen.value = true
+}
+function closeKeyLightbox() { keyLightboxOpen.value = false }
+/* si cambia el foco seleccionado mientras está abierto, resetea el plano al axial */
+watch(selected, () => { keyPlane.value = 'axial' })
+
+/* ------------------------------------------------------------------ */
 /*  P1 · La lectura RMN (forma) por foco. La RMN disponible cubre        */
 /*  cervical y dorsal; en lumbar/sacro/pelvis/cadera no cubre el nivel.  */
 function mriCovers(le: Lesion): boolean {
@@ -473,6 +551,21 @@ function play() {
   timer = setInterval(() => { f++; if (f > 2) { stopPlay(); return } setFrame(f) }, 1000)
 }
 onBeforeUnmount(stopPlay)
+
+/* lightbox de la imagen clave: bloqueo de scroll del body + Escape para cerrar */
+function onKeyLightboxEsc(e: KeyboardEvent) { if (e.key === 'Escape') closeKeyLightbox() }
+watch(keyLightboxOpen, (open) => {
+  if (!import.meta.client) return
+  document.body.style.overflow = open ? 'hidden' : ''
+  if (open) document.addEventListener('keydown', onKeyLightboxEsc)
+  else document.removeEventListener('keydown', onKeyLightboxEsc)
+})
+onBeforeUnmount(() => {
+  if (import.meta.client) {
+    document.body.style.overflow = ''
+    document.removeEventListener('keydown', onKeyLightboxEsc)
+  }
+})
 
 const dateLabel = computed(() => FDATES[frame.value][lang.value])
 const isGalio = computed(() => frame.value === 2)
@@ -1693,6 +1786,44 @@ const ticks = [
                 </figcaption>
               </figure>
 
+              <!-- IMAGEN CLAVE DEL FOCO (corte CT+PET fusionado con anillo · comité) -->
+              <figure class="mb-4">
+                <div class="flex items-center justify-between mb-1.5 flex-wrap gap-1">
+                  <span class="text-[11px] font-semibold text-berenjena">{{ L('Imagen clave del foco', 'Focus key image') }}</span>
+                  <span v-if="selKey.dotted || !selKey.hasReliable" class="status-badge" style="background:#fde4cc;color:#8a4a1a">{{ L('localización aproximada · por confirmar', 'approximate location · to confirm') }}</span>
+                  <span v-else class="status-badge" style="background:rgba(157,68,171,0.12);color:#7a3d86">{{ L('PET/CT fusionado', 'fused PET/CT') }}</span>
+                </div>
+
+                <!-- foco con imagen fiable → miniatura pulsable que abre el lightbox -->
+                <template v-if="selKey.hasReliable">
+                  <button
+                    type="button"
+                    class="foco-key-thumb"
+                    :aria-label="L('Ampliar la imagen clave del foco #' + sel.id, 'Enlarge the key image of focus #' + sel.id)"
+                    @click="openKeyLightbox('axial')">
+                    <img
+                      :src="fk(sel.id, 'axial')"
+                      :alt="L('Imagen clave (axial) del foco #' + sel.id + ' · ' + sel.level.es, 'Key image (axial) of focus #' + sel.id + ' · ' + sel.level.en)"
+                      class="foco-key-thumb__img"
+                      loading="lazy" />
+                    <span class="foco-key-thumb__zoom" aria-hidden="true">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7" /><line x1="21" y1="21" x2="16.5" y2="16.5" /><line x1="11" y1="8" x2="11" y2="14" /><line x1="8" y1="11" x2="14" y2="11" /></svg>
+                    </span>
+                    <span v-if="selKey.planes.length > 1" class="foco-key-thumb__planes" aria-hidden="true">{{ selKey.planes.map((p) => p.label[lang]).join(' · ') }}</span>
+                  </button>
+                  <figcaption class="text-[10px] text-tinta text-center mt-1.5 leading-relaxed max-w-md mx-auto">
+                    {{ selKeyCaption }}
+                  </figcaption>
+                </template>
+
+                <!-- foco sin círculo fiable (#19) → NOTA en vez de diana falsa -->
+                <div v-else class="rounded-card border-l-4 px-3 py-3 text-[12.5px] leading-snug flex items-start gap-2"
+                  style="border-left-color:#8a5a1a;background:#fbf6ec;color:#7a4a12">
+                  <span class="status-badge shrink-0" style="background:#fde4cc;color:#8a4a1a">{{ L('por confirmar', 'to confirm') }}</span>
+                  <span>{{ L('Foco detectado por IA sobre los DICOM, de baja intensidad: la localización es aproximada y aún no hay un círculo fiable que marcarlo. No es una relectura formal — a correlacionar con Medicina Nuclear.', 'AI-detected focus on the DICOM, low intensity: the location is approximate and there is no reliable ring to mark it yet. Not a formal re-read — to correlate with Nuclear Medicine.') }}</span>
+                </div>
+              </figure>
+
               <!-- capa TÉCNICA -->
               <details class="notes-disclosure" :open="isClinical">
                 <summary>{{ L('Detalle técnico (para el equipo médico)', 'Technical detail (for the medical team)') }}</summary>
@@ -2212,6 +2343,56 @@ const ticks = [
         </div>
       </div>
     </section>
+
+    <!-- ===== LIGHTBOX · IMAGEN CLAVE DEL FOCO (zoom/pan + toggle de plano) ===== -->
+    <ClientOnly>
+      <Teleport to="body">
+        <div
+          v-if="keyLightboxOpen && selKeyActive"
+          class="foco-key-lb"
+          role="dialog"
+          aria-modal="true"
+          :aria-label="L('Imagen clave del foco #' + sel.id, 'Key image of focus #' + sel.id)"
+          @click.self="closeKeyLightbox">
+          <div class="foco-key-lb__panel">
+            <div class="foco-key-lb__bar">
+              <div class="min-w-0">
+                <p class="foco-key-lb__title">{{ L('Imagen clave · foco', 'Key image · focus') }} #{{ sel.id }}</p>
+                <p class="foco-key-lb__sub">{{ sel.level[lang] }} · {{ sel.region[lang] }}</p>
+              </div>
+              <div class="flex items-center gap-2">
+                <!-- toggle de plano: SOLO los planos que existen para este foco -->
+                <div v-if="selKey.planes.length > 1" class="foco-key-lb__planes" role="group" :aria-label="L('Plano de la imagen', 'Image plane')">
+                  <button
+                    v-for="p in selKey.planes"
+                    :key="p.plane"
+                    type="button"
+                    class="foco-key-lb__plane"
+                    :class="{ 'is-active': keyPlane === p.plane }"
+                    :aria-pressed="keyPlane === p.plane"
+                    @click="keyPlane = p.plane">{{ p.label[lang] }}</button>
+                </div>
+                <button
+                  type="button"
+                  class="foco-key-lb__close"
+                  :aria-label="L('Cerrar', 'Close')"
+                  @click="closeKeyLightbox">×</button>
+              </div>
+            </div>
+
+            <div class="foco-key-lb__stage">
+              <ImageZoomViewer
+                :key="selKeyActive.src"
+                :src="selKeyActive.src"
+                :alt="L('Imagen clave (' + selKeyActive.label.es.toLowerCase() + ') del foco #' + sel.id + ' · ' + sel.level.es, 'Key image (' + selKeyActive.label.en.toLowerCase() + ') of focus #' + sel.id + ' · ' + sel.level.en)"
+                max-width="100%" />
+            </div>
+
+            <p class="foco-key-lb__cap">{{ selKeyCaption }}</p>
+          </div>
+        </div>
+      </Teleport>
+    </ClientOnly>
   </div>
 </template>
 
@@ -2248,4 +2429,121 @@ const ticks = [
 .ai-row:hover { background: rgba(191, 125, 44, 0.1); }
 /* contorno punteado sutil del marcador de los focos de IA (conserva el matiz) */
 .ai-dot { outline: 1.5px dotted rgba(138, 74, 26, 0.7); outline-offset: 1px; }
+
+/* ---- Miniatura de la imagen clave del foco (pulsable → lightbox) ---- */
+.foco-key-thumb {
+  position: relative;
+  display: block;
+  width: 100%;
+  max-width: 260px;
+  margin: 0 auto;
+  padding: 0;
+  border: 1px solid rgba(45, 27, 61, 0.16);
+  border-radius: 0.6rem;
+  overflow: hidden;
+  background: #000;
+  cursor: zoom-in;
+  transition: box-shadow 0.18s, border-color 0.18s, transform 0.18s;
+}
+.foco-key-thumb:hover { border-color: rgba(157, 68, 171, 0.55); box-shadow: 0 4px 16px rgba(45, 27, 61, 0.18); }
+.foco-key-thumb:focus-visible { outline: 2px solid #9d44ab; outline-offset: 2px; }
+.foco-key-thumb__img { display: block; width: 100%; height: auto; }
+.foco-key-thumb__zoom {
+  position: absolute;
+  right: 7px;
+  bottom: 7px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 9999px;
+  background: rgba(20, 14, 22, 0.78);
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+}
+.foco-key-thumb__planes {
+  position: absolute;
+  left: 7px;
+  bottom: 7px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  line-height: 1;
+  padding: 3px 6px;
+  border-radius: 9999px;
+  background: rgba(20, 14, 22, 0.7);
+  color: #f1e7f5;
+}
+
+/* ---- Lightbox de la imagen clave ---- */
+.foco-key-lb {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: clamp(0.75rem, 3vw, 2rem);
+  background: rgba(20, 14, 22, 0.82);
+  backdrop-filter: blur(2px);
+}
+.foco-key-lb__panel {
+  width: min(860px, 100%);
+  max-height: 92vh;
+  display: flex;
+  flex-direction: column;
+  background: #fbf7f0;
+  border-radius: 0.9rem;
+  overflow: hidden;
+  box-shadow: 0 18px 60px rgba(0, 0, 0, 0.5);
+}
+.foco-key-lb__bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.7rem 0.9rem;
+  border-bottom: 1px solid rgba(45, 27, 61, 0.12);
+}
+.foco-key-lb__title { font-weight: 700; color: #2d1b3d; font-size: 0.95rem; line-height: 1.1; }
+.foco-key-lb__sub { color: #6b6470; font-size: 0.72rem; margin-top: 1px; }
+.foco-key-lb__planes { display: inline-flex; border: 1px solid rgba(45, 27, 61, 0.2); border-radius: 9999px; overflow: hidden; }
+.foco-key-lb__plane {
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 0.28rem 0.7rem;
+  color: #6b6470;
+  background: transparent;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+.foco-key-lb__plane + .foco-key-lb__plane { border-left: 1px solid rgba(45, 27, 61, 0.2); }
+.foco-key-lb__plane:hover { color: #2d1b3d; }
+.foco-key-lb__plane.is-active { background: #2d1b3d; color: #fdf6ef; }
+.foco-key-lb__plane:focus-visible { outline: 2px solid #9d44ab; outline-offset: -2px; }
+.foco-key-lb__close {
+  flex-shrink: 0;
+  width: 34px;
+  height: 34px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  border: 1px solid rgba(45, 27, 61, 0.2);
+  background: #fff;
+  color: #2d1b3d;
+  font-size: 22px;
+  line-height: 1;
+  cursor: pointer;
+}
+.foco-key-lb__close:hover { background: #f0e7f3; }
+.foco-key-lb__close:focus-visible { outline: 2px solid #9d44ab; outline-offset: 1px; }
+.foco-key-lb__stage { padding: 0.75rem; overflow: auto; flex: 1 1 auto; min-height: 0; }
+.foco-key-lb__cap {
+  padding: 0.5rem 0.9rem 0.85rem;
+  font-size: 0.72rem;
+  line-height: 1.45;
+  color: #6b6470;
+  border-top: 1px solid rgba(45, 27, 61, 0.08);
+}
 </style>
