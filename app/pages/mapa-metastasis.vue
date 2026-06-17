@@ -1158,11 +1158,18 @@ const ticks = [
 <template>
   <div>
     <section class="section-spacing" aria-label="Mapa de metástasis">
-      <div class="section-wide">
-        <!-- Layout panel: índice pegajoso (izq, lg+) + contenido en grid; la
-             cabecera va DENTRO de la columna de contenido para que el título
-             alinee con el cuerpo, no con el índice (mismo patrón que /ciencia). -->
-        <div class="lg:grid lg:grid-cols-[220px_minmax(0,1fr)] lg:gap-12 xl:gap-16 lg:items-start">
+      <!-- MODO WIKI · pantalla completa: el panel (radiología) aprovecha TODO el
+           ancho del viewport dentro del shell del sitio, no la columna centrada
+           estrecha (section-wide = 1200px). Sin max-width; padding lateral cómodo
+           (px-4 → lg:px-8 → 2xl:px-12). La cabecera/nav/footer del shell siguen
+           con su propio ancho canónico; aquí el cuerpo va full-bleed. -->
+      <div class="px-4 sm:px-6 lg:px-8 2xl:px-12">
+        <!-- Layout wiki: ÍNDICE como barra lateral izquierda pegajosa (lg+) +
+             contenido que ocupa el RESTO del ancho; la cabecera va DENTRO de la
+             columna de contenido para que el título alinee con el cuerpo, no con
+             el índice (mismo patrón que /ciencia). La columna de contenido es
+             minmax(0,1fr) → se expande a todo el espacio disponible a ≥1440. -->
+        <div class="lg:grid lg:grid-cols-[240px_minmax(0,1fr)] lg:gap-10 xl:gap-14 lg:items-start">
           <MapaSectionNav
             variant="rail"
             class="hidden lg:block lg:sticky lg:top-24 lg:self-start"
