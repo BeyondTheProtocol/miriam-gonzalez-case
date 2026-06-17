@@ -178,7 +178,7 @@ panelRows:
   - component: IHQ extendida + tipado HLA
     method: 'IHQ + RNAscope del bloque FFPE (Core 1); HLA derivado de la secuenciación'
     targets: 'ER, PR, HER2, FGFR1, SSTR2, TROP-2, B7-H3, DLL3, CgA, SYN, INSM1, Rb, Cyclin E1; HLA I/II'
-    implication: 'HER2-low→T-DXd · SSTR2→PRRT · DLL3→anti-DLL3 · Cyclin E1 / pérdida de Rb→resistencia a CDK4/6i'
+    implication: 'TROP-2→sacituzumab/Dato-DXd · SSTR2→PRRT · DLL3→anti-DLL3 · Cyclin E1 / pérdida de Rb→resistencia a CDK4/6i'
   - component: Inmunopeptidómica (HLA-peptidoma)
     method: 'Core FRESCO al laboratorio cuanto antes, isquemia ≤30 min (Core 3)'
     targets: 'Péptidos realmente presentados en HLA (de ~15 mg → miles de péptidos)'
