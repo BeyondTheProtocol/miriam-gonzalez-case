@@ -609,32 +609,16 @@ const GROUPS: LesGroup[] = (() => {
 })()
 function isNewFocus(l: Lesion): boolean { return isNewAt(l, 1) }   // foco que enciende por primera vez (FDG)
 const newCount = computed(() => LES.filter(isNewFocus).length)
-/* ------------------------------------------------------------------ */
-/*  Mayor avidez de azúcar (FDG) — PULSO SUTIL.                         */
-/*  Criterio descriptivo, por DATO del estudio (no biología): los focos */
-/*  con más captación de azúcar, FDG SUVmáx ≥ HOT_FDG. Marca avidez,    */
-/*  no malignidad. Es DISTINTO del anillo de «foco nuevo» (que pulsa por */
-/*  encender por primera vez en FDG): aquí pulsa el propio marcador, no  */
-/*  un anillo aparte, y se explica en la leyenda. Solo focos con valor   */
-/*  FDG del informe (los de IA son aproximados → no se destacan así).    */
-const HOT_FDG = 7
-function isHotFdg(l: Lesion): boolean {
-  return l.source !== 'ia-david' && l.fdg != null && l.fdg >= HOT_FDG
-}
-function gHotFdgAt(g: LesGroup, f: number): boolean {
-  return f === 1 && g.foci.some((l) => isHotFdg(l) && presentAt(l, f))
-}
 /* «foco nuevo» y «detectado por IA» son ahora chips de la fila de filtros
    (vía visible()); el grupo aparece si alguno de sus focos pasa el filtro. */
 function groupVisible(g: LesGroup): boolean {
   return g.foci.some(visible)
 }
 function gPresentAt(g: LesGroup, f: number): boolean { return g.foci.some((l) => presentAt(l, f)) }
-function gRadius(g: LesGroup, f: number): number {
-  const rs = g.foci.filter((l) => presentAt(l, f)).map((l) => frameRadius(l, f))
-  return (rs.length ? Math.max(...rs) : 5) + (g.multi ? 1.5 : 0)
-}
-function gNewAt(g: LesGroup, f: number): boolean { return g.foci.some((l) => isNewAt(l, f) && presentAt(l, f)) }
+/* TAMAÑO UNIFORME del marcador del esqueleto: un solo radio para todos los grupos.
+   El SUVmáx ya está en el scatter, en la tabla y en la ficha; aquí el marcador solo
+   localiza el foco (color = trazador, número = id). Sin tamaño ∝ SUVmáx. */
+const SK_R = 9
 function gSelected(g: LesGroup): boolean { return g.foci.some((l) => l.id === selected.value) }
 function pickGroup(g: LesGroup) { selected.value = g.primary.id }
 /* sub-localización del foco dentro del hueso (cuerpo, pedículo, espinosa…) — se usa
@@ -683,10 +667,6 @@ const isGalio = computed(() => frame.value === 2)
 /* ¿la lesión capta en la fecha / trazador actual? */
 function presentAt(le: Lesion, f: number): boolean {
   return f === 2 ? le.dota != null : valAt(le, f) != null
-}
-/* radio del marcador según la intensidad en la fecha actual */
-function frameRadius(le: Lesion, f: number): number {
-  return 6.5 + Math.min(valAt(le, f) ?? 0, 14) * 0.55
 }
 
 /* gráfica de evolución del SUVmáx para la lesión seleccionada */
@@ -830,10 +810,13 @@ function jitter(id: number, axis: 0 | 1): number {
    separación DETERMINISTA (orden estable por id) empuja los que se solapan hasta
    dejar un hueco mínimo entre centros → los números no se pisan. No altera el
    dato (los SUV siguen siendo los del informe): solo desencima los marcadores. */
+/* TAMAÑO UNIFORME del marcador del scatter: la POSICIÓN ya codifica los dos SUV
+   (eje X = FDG, eje Y = Galio); el tamaño NO añade dato → todos los puntos iguales.
+   El SUVmáx se lee en los ejes, en la tabla y en la ficha. */
+const DOT_R = 8.5
 const quadDots = computed(() => {
   const dots = LES.map((le) => {
-    const mx = Math.max(le.dota || 0, le.fdg || 0)
-    const r = 5.5 + Math.min(mx, 14) * 0.38
+    const r = DOT_R
     let px = qX(le.fdg == null ? 0 : le.fdg) + jitter(le.id, 0)
     let py = qY(le.dota == null ? 0 : le.dota) + jitter(le.id, 1)
     if (le.fdg == null) px += r * 0.8
@@ -1500,8 +1483,8 @@ const ticks = [
               <span class="font-semibold" :style="{ color: '#bb4128' }">{{ L('azúcar · ¹⁸F-FDG', 'sugar · ¹⁸F-FDG') }}</span>
             </div>
             <p class="text-[12px] text-tinta leading-relaxed mt-2">
-              {{ L('La verás en cada ficha y en cada fila: la parte violeta frente a la coral resume cuánto capta el receptor (Galio) frente al azúcar (FDG) en ese foco. En el mapa, el color va del violeta (solo receptor) al coral (solo azúcar) y el tamaño del marcador refleja el SUVmáx (la avidez).',
-                    'You’ll see it on every card and row: the violet versus coral share sums up how much that focus takes up the receptor (gallium) versus sugar (FDG). On the map, colour runs from violet (receptor only) to coral (sugar only) and marker size reflects SUVmax (avidity).') }}
+              {{ L('La verás en cada ficha y en cada fila: la parte violeta frente a la coral resume cuánto capta el receptor (Galio) frente al azúcar (FDG) en ese foco. En el mapa, el color va del violeta (solo receptor) al coral (solo azúcar); el SUVmáx se lee en los ejes del diagrama, en la tabla y en la ficha.',
+                    'You’ll see it on every card and row: the violet versus coral share sums up how much that focus takes up the receptor (gallium) versus sugar (FDG). On the map, colour runs from violet (receptor only) to coral (sugar only); the SUVmax is read off the scatter axes, the table and the card.') }}
             </p>
           </div>
 
@@ -1529,8 +1512,8 @@ const ticks = [
             {{ L('El mapa, lesión a lesión', 'The map, lesion by lesion') }}
           </h2>
           <p class="text-sm text-tinta leading-relaxed mb-5 max-w-3xl">
-            {{ L('Tres vistas enlazadas del MISMO foco: el esqueleto (dónde está), el mapa de tipo (de qué cara es) y la ficha (el detalle). Toca un punto en cualquiera de ellas —o una fila de la tabla— y las demás se sincronizan. El color va del violeta (solo receptor) al coral (solo azúcar); el tamaño refleja la avidez. Desliza la línea de tiempo para ver la evolución; el esqueleto es un esquema orientativo.',
-                  'Three linked views of the SAME focus: the skeleton (where it is), the type map (which face it is) and the card (the detail). Tap a point in any of them —or a table row— and the others sync. Colour runs from violet (receptor only) to coral (sugar only); size reflects avidity. Slide the timeline to see the evolution; the skeleton is a schematic guide.') }}
+            {{ L('Tres vistas enlazadas del MISMO foco: el esqueleto (dónde está), el mapa de tipo (de qué cara es) y la ficha (el detalle). Toca un punto en cualquiera de ellas —o una fila de la tabla— y las demás se sincronizan. El color va del violeta (solo receptor) al coral (solo azúcar); el número es el id del foco. Desliza la línea de tiempo para ver la evolución; el esqueleto es un esquema orientativo.',
+                  'Three linked views of the SAME focus: the skeleton (where it is), the type map (which face it is) and the card (the detail). Tap a point in any of them —or a table row— and the others sync. Colour runs from violet (receptor only) to coral (sugar only); the number is the focus id. Slide the timeline to see the evolution; the skeleton is a schematic guide.') }}
           </p>
 
           <!-- filtros -->
@@ -1601,9 +1584,6 @@ const ticks = [
                   <radialGradient id="skPanel" cx="50%" cy="38%" r="80%">
                     <stop offset="0%" stop-color="#f7f2ea" /><stop offset="100%" stop-color="#efe8dc" />
                   </radialGradient>
-                  <radialGradient v-for="(c, k) in PHENO" :key="'h' + k" :id="'skHalo-' + k" cx="50%" cy="50%" r="50%">
-                    <stop offset="0%" :stop-color="c.c" stop-opacity="0.42" /><stop offset="50%" :stop-color="c.c" stop-opacity="0.16" /><stop offset="100%" :stop-color="c.c" stop-opacity="0" />
-                  </radialGradient>
                 </defs>
                 <rect x="0" y="0" width="440" height="700" rx="18" fill="url(#skPanel)" />
                 <g filter="url(#skBoneShadow)">
@@ -1639,32 +1619,20 @@ const ticks = [
                   <text v-for="tk in ticks" :key="tk.t" x="358" :y="tk.y + 3" text-anchor="start">{{ tk.t }}</text>
                   <line v-for="tk in ticks" :key="'l' + tk.t" x1="346" :y1="tk.y" x2="354" :y2="tk.y" stroke="#9b8f7c" stroke-width="1" />
                 </g>
-                <!-- lesiones: un marcador por grupo (vértebra con 1+ focos, o hueso) -->
+                <!-- lesiones: un marcador por grupo (vértebra con 1+ focos, o hueso).
+                     ESQUEMA SIMPLE: círculo relleno del color del trazador, TAMAÑO
+                     UNIFORME, + número del foco (o recuento si la vértebra aloja varios)
+                     + contorno punteado (IA por confirmar) + borde oscuro si está
+                     seleccionado. Sin halo, sin parpadeo, sin anillo de «foco nuevo»,
+                     sin tamaño ∝ SUVmáx. Si no capta en la fecha actual → solo opacidad. -->
                 <g v-for="g in GROUPS" :key="g.key" v-show="groupVisible(g)">
-                  <!-- halo PET: brillo del foco en el color del fenotipo -->
-                  <circle v-if="gPresentAt(g, frame)" :cx="g.x" :cy="g.y"
-                    :r="gRadius(g, frame) + 8" :fill="`url(#skHalo-${g.primary.pheno})`"
-                    class="pointer-events-none" />
-                  <!-- anillo pulsante: algún foco aparece por primera vez -->
-                  <circle v-if="gNewAt(g, frame) && gPresentAt(g, frame)"
-                    :cx="g.x" :cy="g.y" :r="gRadius(g, frame) + 4"
-                    fill="none" :stroke="phenoColor(g.primary)" stroke-width="2"
-                    class="pulse-ring pointer-events-none" />
-                  <!-- parpadeo SUTIL = mayor avidez de azúcar (FDG alto). Distinto
-                       del anillo «foco nuevo»: aquí late el propio relleno del
-                       marcador (sin anillo extra). Solo en el frame FDG. -->
-                  <circle v-if="gHotFdgAt(g, frame) && !gSelected(g)"
-                    :cx="g.x" :cy="g.y" :r="gRadius(g, frame)"
-                    :fill="phenoColor(g.primary)"
-                    class="pulse-hot pointer-events-none" />
                   <circle
                     :cx="g.x" :cy="g.y"
-                    :r="(gPresentAt(g, frame) ? gRadius(g, frame) : 5) + (gSelected(g) ? 3 : 0)"
+                    :r="SK_R + (gSelected(g) ? 2.5 : 0)"
                     :fill="gPresentAt(g, frame) ? phenoColor(g.primary) : 'none'"
-                    :fill-opacity="gSelected(g) ? 1 : 0.82"
                     :stroke="gSelected(g) ? '#2d1b3d' : (gPresentAt(g, frame) ? '#ffffff' : phenoColor(g.primary))"
-                    :stroke-width="gSelected(g) ? 2 : 1.4"
-                    :stroke-dasharray="sourceOf(g.primary) === 'ia-david' ? '2 1.6' : (gPresentAt(g, frame) ? undefined : '3 2')"
+                    :stroke-width="gSelected(g) ? 2.5 : 1.4"
+                    :stroke-dasharray="sourceOf(g.primary) === 'ia-david' ? '2 1.6' : undefined"
                     :opacity="gPresentAt(g, frame) ? 1 : 0.4"
                     class="cursor-pointer transition-all"
                     tabindex="0" role="button"
@@ -1675,25 +1643,35 @@ const ticks = [
                     font-family="Source Sans 3, sans-serif" font-size="10" font-weight="700" fill="#fff"
                     class="pointer-events-none select-none">{{ g.primary.id }}</text>
                   <g v-if="g.multi && gPresentAt(g, frame)" class="pointer-events-none select-none">
-                    <circle :cx="g.x + gRadius(g, frame) + 1.5" :cy="g.y - gRadius(g, frame) - 1.5" r="6.5"
+                    <circle :cx="g.x + SK_R + 1.5" :cy="g.y - SK_R - 1.5" r="6.5"
                       fill="#2d1b3d" stroke="#fff" stroke-width="1.2" />
-                    <text :x="g.x + gRadius(g, frame) + 1.5" :y="g.y - gRadius(g, frame) + 1.3" text-anchor="middle"
+                    <text :x="g.x + SK_R + 1.5" :y="g.y - SK_R + 1.3" text-anchor="middle"
                       font-family="Source Sans 3, sans-serif" font-size="9" font-weight="700" fill="#fff">{{ g.foci.length }}</text>
                   </g>
                 </g>
               </svg>
-              <!-- leyenda gradiente -->
+              <!-- LEYENDA CORTA · color = trazador · número = id · punteado = IA por
+                   confirmar · borde oscuro = seleccionado. De un vistazo, sin más. -->
               <div class="mt-3 px-1">
                 <div class="h-2.5 rounded-full" :style="{ background: 'linear-gradient(90deg,#9d44ab,#8a5bb3,#c9921e,#df7a44,#bb4128)' }" />
                 <div class="flex justify-between text-[10px] text-tinta mt-1">
                   <span>{{ L('Solo receptor (Galio)', 'Receptor only (gallium)') }}</span>
                   <span>{{ L('Solo azúcar (FDG)', 'Sugar only (FDG)') }}</span>
                 </div>
-                <p class="text-[10px] text-tinta mt-1.5 leading-snug">{{ L('El contorno punteado marca los focos detectados por IA, por confirmar (no en el informe).', 'A dashed outline marks AI-detected foci, to confirm (not in the report).') }}</p>
-                <p class="text-[10px] text-tinta mt-1 leading-snug flex items-start gap-1.5">
-                  <span class="legend-pulse-dot shrink-0 mt-0.5" aria-hidden="true" />
-                  <span>{{ L('En la vista de azúcar (FDG), los focos que parpadean son los de mayor avidez de azúcar (FDG SUVmáx ≥ ' + HOT_FDG + '). Descriptivo, no es una conclusión.', 'In the sugar (FDG) view, the blinking foci are the most sugar-avid ones (FDG SUVmax ≥ ' + HOT_FDG + '). Descriptive, not a conclusion.') }}</span>
-                </p>
+                <ul class="mt-2 space-y-1 text-[10.5px] text-tinta leading-snug">
+                  <li class="flex items-center gap-2">
+                    <svg width="20" height="14" viewBox="0 0 20 14" class="shrink-0" aria-hidden="true"><circle cx="10" cy="7" r="5.5" :fill="PHENO.mixBal.c" /><text x="10" y="10" text-anchor="middle" font-family="Source Sans 3, sans-serif" font-size="7" font-weight="700" fill="#fff">7</text></svg>
+                    <span>{{ L('Color = trazador · número = foco', 'Colour = tracer · number = focus') }}</span>
+                  </li>
+                  <li class="flex items-center gap-2">
+                    <svg width="20" height="14" viewBox="0 0 20 14" class="shrink-0" aria-hidden="true"><circle cx="10" cy="7" r="5.5" :fill="PHENO.mixAgg.c" stroke="#fff" stroke-width="1" stroke-dasharray="2 1.6" /></svg>
+                    <span>{{ L('Contorno punteado = detectado por IA, por confirmar', 'Dashed outline = AI-detected, to confirm') }}</span>
+                  </li>
+                  <li class="flex items-center gap-2">
+                    <svg width="20" height="14" viewBox="0 0 20 14" class="shrink-0" aria-hidden="true"><circle cx="10" cy="7" r="5.5" :fill="PHENO.ne.c" stroke="#2d1b3d" stroke-width="2" /></svg>
+                    <span>{{ L('Borde oscuro = foco seleccionado', 'Dark border = selected focus') }}</span>
+                  </li>
+                </ul>
               </div>
             </div>
 
@@ -2118,15 +2096,15 @@ const ticks = [
                 <!-- títulos de eje -->
                 <text :x="(qX(0) + qX(Q.xmax)) / 2" :y="Q.H - 6" text-anchor="middle" font-family="Source Sans 3, sans-serif" font-size="10.5" font-weight="600" fill="#2d1b3d">{{ L('FDG SUVmáx · azúcar →', 'FDG SUVmax · sugar →') }}</text>
                 <text :transform="`translate(13,${(qY(Q.ymax) + qY(0)) / 2}) rotate(-90)`" text-anchor="middle" font-family="Source Sans 3, sans-serif" font-size="10.5" font-weight="600" fill="#2d1b3d">{{ L('⁶⁸Ga SUVmáx · receptor (↑)', '⁶⁸Ga SUVmax · receptor (↑)') }}</text>
-                <!-- puntos = lesiones -->
+                <!-- puntos = lesiones · ESQUEMA SIMPLE: círculo relleno del color del
+                     trazador + número + contorno punteado (IA por confirmar) + borde
+                     oscuro si está seleccionado. Tamaño UNIFORME (la posición ya codifica
+                     los dos SUV). Sin halo, sin parpadeo, sin tamaño ∝ SUVmáx. -->
                 <g v-for="d in quadDots" :key="'qd' + d.le.id" v-show="visible(d.le)">
-                  <!-- parpadeo sutil = mayor avidez de azúcar (FDG alto) -->
-                  <circle v-if="isHotFdg(d.le)" :cx="d.px" :cy="d.py" :r="d.r" :fill="phenoColor(d.le)" class="pulse-hot pointer-events-none" />
-                  <circle :cx="d.px" :cy="d.py" :r="d.r + 5" :fill="phenoColor(d.le)" opacity="0.16" class="pointer-events-none" />
-                  <circle :cx="d.px" :cy="d.py" :r="d.r + (selected === d.le.id ? 2.5 : 0)"
+                  <circle :cx="d.px" :cy="d.py" :r="DOT_R"
                     :fill="phenoColor(d.le)"
                     :stroke="selected === d.le.id ? '#2d1b3d' : '#ffffff'"
-                    :stroke-width="selected === d.le.id ? 2 : 1.2"
+                    :stroke-width="selected === d.le.id ? 2.5 : 1.2"
                     :stroke-dasharray="sourceOf(d.le) === 'ia-david' ? '2 1.6' : undefined"
                     class="cursor-pointer transition-all" tabindex="0" role="button"
                     :aria-label="`#${d.le.id} ${d.le.level[lang]} — Ga ${d.le.dota ?? '—'} / FDG ${d.le.fdg ?? '—'}`"
@@ -2135,55 +2113,42 @@ const ticks = [
                 </g>
               </svg>
             </div>
-            <!-- LEYENDA · qué significa cada cosa del marcador (petición de la
-                 paciente). Pensada para que un radiólogo y un lego lean cada
-                 símbolo: qué es el tamaño, el color/relleno, el halo, el
-                 contorno punteado, el anillo de selección, el parpadeo y los
-                 cuadrantes. Etiquetado por trazador/forma, nunca biología. -->
+            <!-- LEYENDA CORTA del marcador: SOLO cuatro cosas — color = trazador,
+                 número = id, punteado = IA por confirmar, borde oscuro = seleccionado.
+                 El tamaño es uniforme (la posición ya codifica los dos SUV). Etiquetado
+                 por trazador/forma, nunca biología. -->
             <aside class="text-sm" aria-labelledby="scatter-legend-title">
               <p id="scatter-legend-title" class="text-[11px] font-semibold text-berenjena uppercase tracking-wide mb-2">{{ L('Qué significa cada círculo', 'What each circle means') }}</p>
 
-              <!-- 1 · LOS SÍMBOLOS del marcador -->
+              <!-- 1 · LOS SÍMBOLOS del marcador (mínimo: 4 filas) -->
               <ul class="space-y-2.5 text-tinta leading-snug">
-                <!-- tamaño ∝ SUVmáx -->
-                <li class="flex items-start gap-2.5">
-                  <svg width="34" height="22" viewBox="0 0 34 22" class="shrink-0 mt-0.5" aria-hidden="true">
-                    <circle cx="8" cy="11" r="4" :fill="PHENO.mixAgg.c" /><circle cx="25" cy="11" r="9" :fill="PHENO.mixAgg.c" />
-                  </svg>
-                  <span><strong class="text-berenjena">{{ L('Tamaño', 'Size') }}</strong> {{ L('— a mayor círculo, mayor SUVmáx (más avidez del trazador dominante).', '— the larger the circle, the higher the SUVmax (more avidity of the dominant tracer).') }}</span>
-                </li>
-                <!-- color/relleno -->
+                <!-- color/relleno = trazador -->
                 <li class="flex items-start gap-2.5">
                   <svg width="34" height="22" viewBox="0 0 34 22" class="shrink-0 mt-0.5" aria-hidden="true">
                     <circle cx="8" cy="11" r="6" :fill="PHENO.ne.c" /><circle cx="25" cy="11" r="6" :fill="PHENO.agg.c" />
                   </svg>
-                  <span><strong class="text-berenjena">{{ L('Color / relleno', 'Colour / fill') }}</strong> {{ L('— el del trazador dominante: violeta = receptor (Galio); naranja-coral = azúcar (FDG). Los tonos intermedios = mixto.', '— that of the dominant tracer: violet = receptor (gallium); orange-coral = sugar (FDG). Intermediate tones = mixed.') }}</span>
+                  <span><strong class="text-berenjena">{{ L('Color', 'Colour') }}</strong> {{ L('= trazador: violeta = receptor (Galio); naranja-coral = azúcar (FDG); tono intermedio = mixto.', '= tracer: violet = receptor (gallium); orange-coral = sugar (FDG); intermediate tone = mixed.') }}</span>
                 </li>
-                <!-- halo / aura -->
+                <!-- número = id del foco -->
                 <li class="flex items-start gap-2.5">
                   <svg width="34" height="22" viewBox="0 0 34 22" class="shrink-0 mt-0.5" aria-hidden="true">
-                    <circle cx="17" cy="11" r="10" :fill="PHENO.mixNe.c" opacity="0.16" /><circle cx="17" cy="11" r="6" :fill="PHENO.mixNe.c" />
+                    <circle cx="17" cy="11" r="7" :fill="PHENO.mixBal.c" /><text x="17" y="14.5" text-anchor="middle" font-family="Source Sans 3, sans-serif" font-size="9" font-weight="700" fill="#fff">7</text>
                   </svg>
-                  <span><strong class="text-berenjena">{{ L('Halo (aura)', 'Halo (aura)') }}</strong> {{ L('— un brillo suave alrededor en el mismo color; ayuda a localizar el foco, no añade dato.', '— a soft glow around it in the same colour; it helps spot the focus, it adds no data.') }}</span>
+                  <span><strong class="text-berenjena">{{ L('Número', 'Number') }}</strong> {{ L('= el id del foco (el mismo en el esqueleto, la ficha y la tabla).', '= the focus id (the same in the skeleton, the card and the table).') }}</span>
                 </li>
                 <!-- contorno punteado = IA por confirmar -->
                 <li class="flex items-start gap-2.5">
                   <svg width="34" height="22" viewBox="0 0 34 22" class="shrink-0 mt-0.5" aria-hidden="true">
-                    <circle cx="17" cy="11" r="6.5" fill="#8a4a1a" fill-opacity="0.18" stroke="#8a4a1a" stroke-width="1.4" stroke-dasharray="2 1.6" />
+                    <circle cx="17" cy="11" r="6.5" :fill="PHENO.mixAgg.c" stroke="#fff" stroke-width="1.2" stroke-dasharray="2 1.6" />
                   </svg>
-                  <span><strong class="text-berenjena">{{ L('Contorno punteado', 'Dashed outline') }}</strong> {{ L('= foco detectado por IA, por confirmar (no consta en el informe). Focos #17, #18 y #19.', '= AI-detected focus, to confirm (not in the report). Foci #17, #18 and #19.') }}</span>
+                  <span><strong class="text-berenjena">{{ L('Contorno punteado', 'Dashed outline') }}</strong> {{ L('= detectado por IA, por confirmar (no consta en el informe). Focos #17, #18 y #19.', '= AI-detected, to confirm (not in the report). Foci #17, #18 and #19.') }}</span>
                 </li>
-                <!-- anillo grueso/oscuro = seleccionado -->
+                <!-- borde oscuro = seleccionado -->
                 <li class="flex items-start gap-2.5">
                   <svg width="34" height="22" viewBox="0 0 34 22" class="shrink-0 mt-0.5" aria-hidden="true">
-                    <circle cx="17" cy="11" r="7" :fill="PHENO.mixBal.c" stroke="#2d1b3d" stroke-width="2" />
+                    <circle cx="17" cy="11" r="7" :fill="PHENO.mixBal.c" stroke="#2d1b3d" stroke-width="2.5" />
                   </svg>
-                  <span><strong class="text-berenjena">{{ L('Anillo grueso oscuro', 'Thick dark ring') }}</strong> {{ L('= el foco seleccionado ahora (el de la ficha). Toca otro círculo para cambiarlo.', '= the focus selected now (the one in the card). Tap another circle to change it.') }}</span>
-                </li>
-                <!-- parpadeo = FDG alto -->
-                <li class="flex items-start gap-2.5">
-                  <span class="legend-pulse-dot shrink-0 mt-1 ml-3" aria-hidden="true" />
-                  <span><strong class="text-berenjena">{{ L('Parpadeo', 'Blink') }}</strong> {{ L('= mayor avidez de azúcar (FDG SUVmáx ≥ ' + HOT_FDG + '). Es descriptivo, no una conclusión.', '= most sugar-avid (FDG SUVmax ≥ ' + HOT_FDG + '). It is descriptive, not a conclusion.') }}</span>
+                  <span><strong class="text-berenjena">{{ L('Borde oscuro', 'Dark border') }}</strong> {{ L('= el foco seleccionado ahora (el de la ficha). Toca otro círculo para cambiarlo.', '= the focus selected now (the one in the card). Tap another circle to change it.') }}</span>
                 </li>
               </ul>
 
@@ -2949,47 +2914,6 @@ const ticks = [
 </template>
 
 <style scoped>
-@keyframes pulsering {
-  0% { opacity: 0.7; transform: scale(0.7); }
-  70% { opacity: 0; transform: scale(1.7); }
-  100% { opacity: 0; transform: scale(1.7); }
-}
-.pulse-ring {
-  transform-box: fill-box;
-  transform-origin: center;
-  animation: pulsering 1.6s ease-out infinite;
-}
-/* Parpadeo SUTIL = mayor avidez de azúcar (FDG alto). Reutiliza el patrón de
-   pulsering pero sobre el RELLENO del marcador (un halo que late suave), no un
-   anillo expansivo: así se distingue del anillo de «foco nuevo». */
-@keyframes pulsehot {
-  0%   { opacity: 0.55; transform: scale(1); }
-  50%  { opacity: 0;    transform: scale(1.45); }
-  100% { opacity: 0;    transform: scale(1.45); }
-}
-.pulse-hot {
-  transform-box: fill-box;
-  transform-origin: center;
-  animation: pulsehot 2.2s ease-in-out infinite;
-}
-/* punto de leyenda que late igual que los focos FDG altos (sin escala, solo
-   opacidad — un viñetado dentro del texto). */
-.legend-pulse-dot {
-  display: inline-block;
-  width: 9px; height: 9px;
-  border-radius: 9999px;
-  background: #bb4128;
-  animation: legendpulse 2.2s ease-in-out infinite;
-}
-@keyframes legendpulse {
-  0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(187, 65, 40, 0.5); }
-  50%      { opacity: 0.55; box-shadow: 0 0 0 3px rgba(187, 65, 40, 0); }
-}
-@media (prefers-reduced-motion: reduce) {
-  .pulse-ring { animation: none; opacity: 0.5; }
-  .pulse-hot { animation: none; opacity: 0; }
-  .legend-pulse-dot { animation: none; }
-}
 /* ── Tabla de focos · cabecera pegajosa ──────────────────────────────
    El contenedor scrollea (vertical + horizontal) y el <thead> se queda fijo
    en su borde superior mientras se escanea/ordena las ~19 filas. Stick DENTRO

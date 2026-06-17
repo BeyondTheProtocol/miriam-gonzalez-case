@@ -56,10 +56,13 @@
  * superficie y el hueso los ocluye al girar. Informa, no concluye: ni bordes ni tamaños tumorales
  * exactos; la captación es un gradiente, aproximado por la resolución (~4–5 mm).
  *
- * LENGUAJE VISUAL DE MARCADORES (A4, unificado): relleno/color = trazador (violeta receptor ·
- * coral azúcar · mixto); punteado = detectado por IA · por confirmar (un solo uso); parpadeo =
- * foco FDG más brillante (lo activa el bloque C; aquí queda el hook coherente); anillo grueso =
- * seleccionado. La mini-leyenda va en el caption del visor.
+ * LENGUAJE VISUAL DE MARCADORES (unificado y SIMPLE en las 3 vistas — esqueleto, scatter y 3D):
+ * relleno/color = trazador (violeta receptor · coral azúcar · mixto); número = id del foco;
+ * punteado = detectado por IA · por confirmar (un solo uso); seleccionado = borde oscuro un poco
+ * más grueso. SIN halo/aura, SIN tamaño ∝ SUVmáx (tamaño uniforme; el SUV va en los ejes/tabla/
+ * ficha), SIN parpadeo/animación. Aquí en el 3D la «diana» es la marca mínima del PICO (SUVmáx):
+ * un anillo fino + punto en GRIS neutro, anclado a la superficie, sin parpadeo. La mini-leyenda
+ * va en el caption del visor.
  *
  * HUESO MATE Y OPACO (no romper la opacidad ya arreglada): MeshStandardMaterial muy rugoso,
  * sin metal, casi sin entorno; DoubleSide + normales recalculadas del winding → nunca se ve
