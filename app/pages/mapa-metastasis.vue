@@ -1079,48 +1079,13 @@ const bonePriorBiopsy = computed<string | null>(() =>
 const hasAuto = computed(() => { const a = selAuto.value; return !!a && (a.fdgAuto != null || a.gaAuto != null) })
 
 /* ------------------------------------------------------------------ */
-/*  Selector de MODO del visor 3D (segmented control · tablist a11y).   */
-/*  UN SOLO visor WebGL (misma geometría, mismo PLY); cada modo deriva  */
-/*  su color del MISMO RGB por vértice (no recarga la malla):           */
-/*   · «Área» (por defecto) → huella de captación umbralizada del croma */
-/*     (región contigua en el color del trazador; el resto marfil mate).*/
-/*   · «Mapa de calor»      → intensidad continua → rampa térmica.       */
-/*   · «Morfología»         → densidad del CT → rampa SIN blanco arriba  */
-/*     (blástico = azul oscuro; resuelve el "todo blanco").             */
-/*  Fallback sin-WebGL (dentro del visor): fotogramas vertebra/ (área y  */
-/*  calor) y morfo/ realzado (morfología). #17/#19 (sin malla) no salen. */
+/*  Visor 3D «small multiples» (BoneTriView): el MISMO hueso mostrado    */
+/*  3 VECES en paralelo y sincronizadas, cada vista un mapa LIMPIO de UNA */
+/*  variable por vértice — Galio (teal) · FDG (ámbar) · Blástico (sepia). */
+/*  Una sola cámara → rotar/zoom mueve las 3 a la vez. Ya NO hay selector */
+/*  de modo: las 3 lecturas se ven a la vez (se sustituyen área/calor/    */
+/*  morfología + gradiente/contorno del visor anterior, ya retirados).    */
 /* ------------------------------------------------------------------ */
-type Bone3dView = 'area' | 'heat' | 'morpho'
-const BONE3D_VIEWS: { id: Bone3dView; es: string; en: string }[] = [
-  { id: 'area', es: 'Área', en: 'Area' },
-  { id: 'heat', es: 'Mapa de calor', en: 'Heat map' },
-  { id: 'morpho', es: 'Morfología', en: 'Morphology' },
-]
-/* Por defecto «Área»: la huella/extensión de la captación sobre el hueso (dónde y
-   cuánto), no un punto. Los tres modos comparten el MISMO visor y geometría; cambiar
-   de modo sólo reescribe el color por vértice. */
-const bone3dView = ref<Bone3dView>('area')
-const bone3dTablist = ref<HTMLElement | null>(null)
-const bone3dViewAnnounce = computed(() => {
-  const v = bone3dView.value
-  if (v === 'area') return L('Modo área: la huella de la captación sobre el hueso, como región de color del trazador; el resto del hueso en marfil mate.', 'Area mode: the uptake footprint on the bone, as a coloured tracer region; the rest of the bone in matte ivory.')
-  if (v === 'heat') return L('Modo mapa de calor: la intensidad de captación en una rampa térmica de frío a caliente, con el punto más caliente marcado.', 'Heat-map mode: uptake intensity on a cool-to-hot thermal ramp, with the hottest point marked.')
-  return L('Modo morfología: la densidad del CT realzada, con el hueso blástico (denso) en azul oscuro para que se distinga.', 'Morphology mode: enhanced CT density, with blastic (dense) bone in dark blue so it stands out.')
-})
-/* teclado del tablist: ←/→ (y ↑/↓, Inicio/Fin) mueven la selección y el foco */
-function bone3dTabKey(e: KeyboardEvent) {
-  const order = BONE3D_VIEWS.map((v) => v.id)
-  const i = order.indexOf(bone3dView.value)
-  let n = i
-  if (e.key === 'ArrowRight' || e.key === 'ArrowDown') n = (i + 1) % order.length
-  else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') n = (i - 1 + order.length) % order.length
-  else if (e.key === 'Home') n = 0
-  else if (e.key === 'End') n = order.length - 1
-  else return
-  e.preventDefault()
-  bone3dView.value = order[n]
-  nextTick(() => { bone3dTablist.value?.querySelectorAll<HTMLButtonElement>('[role="tab"]')[n]?.focus() })
-}
 
 /* Niveles afectados según el informe de RM de columna (11/06/2026). Texto del
    informe recogido en el documento de apoyo; no es una relectura de la imagen. */
@@ -1866,59 +1831,27 @@ const ticks = [
                   {{ L('Esta zona tiene ' + coFoci.length + ' focos co-localizados (receptor/azúcar); el realce señala la zona. Detalle de cada foco arriba y en la tabla.', 'This area has ' + coFoci.length + ' co-localized foci (receptor/sugar); the highlight marks the area. Each focus is detailed above and in the table.') }}
                 </p>
 
-                <!-- foco con reconstrucción: selector de vista + visor -->
+                <!-- foco con reconstrucción: «small multiples» — el MISMO hueso en 3 mapas
+                     limpios y sincronizados (Galio teal · FDG ámbar · Blástico sepia). Ya no
+                     hay selector de modo: las 3 lecturas se ven a la vez. -->
                 <template v-if="bone3dKeyOf(sel)">
-                  <!-- selector de vista (segmented control · tablist accesible) -->
-                  <div
-                    ref="bone3dTablist"
-                    class="inline-flex rounded-full border border-[rgba(45,27,61,0.18)] overflow-hidden mb-2.5"
-                    role="tablist"
-                    :aria-label="L('Forma de ver el hueso', 'How to view the bone')"
-                    @keydown="bone3dTabKey"
-                  >
-                    <button
-                      v-for="(v, i) in BONE3D_VIEWS" :key="v.id"
-                      type="button" role="tab"
-                      :id="'bone3dtab-' + v.id"
-                      :aria-selected="bone3dView === v.id"
-                      :aria-controls="'bone3dpanel'"
-                      :tabindex="bone3dView === v.id ? 0 : -1"
-                      class="px-3.5 py-1.5 text-[13px] font-semibold transition-colors"
-                      :class="[
-                        bone3dView === v.id ? 'bg-berenjena text-cream' : 'bg-transparent text-tinta hover:bg-[rgba(45,27,61,0.05)]',
-                        i > 0 ? 'border-l border-[rgba(45,27,61,0.18)]' : ''
-                      ]"
-                      @click="bone3dView = v.id"
-                    >{{ L(v.es, v.en) }}</button>
-                  </div>
-
-                  <div id="bone3dpanel" role="tabpanel" :aria-labelledby="'bone3dtab-' + bone3dView">
-                    <ClientOnly>
-                      <!-- UN SOLO visor WebGL para los 3 modos: cambiar de modo sólo
-                           reescribe el color por vértice (no recarga la malla). El caption
-                           honesto por modo lo pinta el propio visor. -->
-                      <BoneViewer3D
-                        :mesh-key="bone3dKeyOf(sel)" :mode="bone3dView"
-                        :dota="sel.dota" :fdg="sel.fdg" :pheno="sel.pheno" :focus-id="sel.id"
-                        :n-foci="coFoci.length"
-                        :biopsied="bonePriorBiopsy != null"
-                        :biopsy-label="bonePriorBiopsy ?? undefined"
-                      />
-
-                      <template #fallback>
-                        <div class="rounded-lg flex items-center justify-center text-[12px]" style="aspect-ratio:5/4;background:#0d1117;color:#aeb6c2">
-                          {{ L('cargando visor…', 'loading viewer…') }}
-                        </div>
-                      </template>
-                    </ClientOnly>
-                  </div>
-                  <!-- A11y: anuncia el cambio de vista (ningún cambio debe ser silencioso) -->
-                  <div aria-live="polite" class="sr-only">{{ bone3dViewAnnounce }}</div>
+                  <ClientOnly>
+                    <BoneTriView
+                      :mesh-key="bone3dKeyOf(sel)"
+                      :biopsied="bonePriorBiopsy != null"
+                      :biopsy-label="bonePriorBiopsy ?? undefined"
+                    />
+                    <template #fallback>
+                      <div class="rounded-lg flex items-center justify-center text-[12px]" style="aspect-ratio:15/4;background:#0d1117;color:#aeb6c2">
+                        {{ L('cargando visor…', 'loading viewer…') }}
+                      </div>
+                    </template>
+                  </ClientOnly>
                 </template>
 
                 <!-- foco SIN reconstrucción individual (#17 costilla, #19): estado honesto -->
                 <ClientOnly v-else>
-                  <BoneViewer3D :mesh-key="undefined" :dota="sel.dota" :fdg="sel.fdg" :pheno="sel.pheno" :focus-id="sel.id" />
+                  <BoneTriView :mesh-key="undefined" />
                   <template #fallback>
                     <div class="rounded-lg flex items-center justify-center text-[12px]" style="aspect-ratio:5/4;background:#0d1117;color:#aeb6c2">
                       {{ L('cargando visor 3D…', 'loading 3D viewer…') }}

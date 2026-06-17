@@ -1,0 +1,844 @@
+<script setup lang="ts">
+/**
+ * BoneTriView — visor 3D «small multiples» del hueso reconstruido del CT.
+ *
+ * CONCEPTO A (aprobado): el MISMO hueso mostrado TRES VECES en paralelo y
+ * SINCRONIZADAS, cada vista un mapa LIMPIO de UNA sola variable por vértice:
+ *   · GALIO (receptor)   — gris → TEAL/cian, de suv_ga   (0 → ~13)
+ *   · FDG   (azúcar)     — gris → ÁMBAR/naranja, de suv_fdg (0 → ~9)
+ *   · BLÁSTICO (densidad)— gris → SEPIA, de density_hu (denso/blástico = sepia
+ *                          oscuro saturado; trabecular = claro neutro)
+ * La INTENSIDAD = saturación/valor dentro de cada colormap (perceptual, suave).
+ * La captación es un GRADIENTE continuo: SIN contorno, SIN iso-líneas, SIN diana,
+ * SIN halos, SIN parche-borde. Mapa limpio sobre TODO el hueso; la luz da el volumen.
+ *
+ * ARQUITECTURA (eficiente y sincronizada):
+ *   · UN solo WebGLRenderer + UN canvas, dividido en 3 VIEWPORTS con setViewport +
+ *     setScissor (scissor test): cada viewport pinta su propia escena.
+ *   · La GEOMETRÍA se carga UNA vez (un PLY) y se COMPARTE entre los 3 meshes:
+ *     mismo BufferGeometry, distinto MATERIAL y distinto ATRIBUTO DE COLOR por
+ *     vértice (un colormap cada uno). Tres escenas, un mesh por escena.
+ *   · UNA sola cámara + UN OrbitControls → rotar/zoom mueve las 3 vistas A LA VEZ
+ *     (comparten orientación automáticamente). Arrastrar = girar, rueda = zoom.
+ *   · El hueso es MATE/OPACO (MeshStandardMaterial, DoubleSide, normales
+ *     recalculadas del winding) → nunca se ve «a través».
+ *
+ * DATOS reales por vértice en /metastasis/mesh/${KEY}.ply (PLYLoader custom mapping):
+ *   density_hu → density · suv_fdg → fdg · suv_ga → ga (Float32, itemSize 1).
+ *
+ * BIOPSIA (#13): toggle de la simulación ILUSTRATIVA de la biopsia previa (aguja),
+ * OFF por defecto; al activarse dibuja la aguja SOBRE el panel de densidad/blástico
+ * (no ensucia las vistas limpias por defecto). Lógica portada de BoneViewer3D.
+ *
+ * HONESTIDAD: captación = gradiente, sin borde tumoral neto; Galio = proxy calibrado
+ * por ahora; etiquetar por trazador/densidad, nunca por biología; informa, no concluye.
+ * Fallback sin-WebGL digno (BoneFrameViewer). Bilingüe L(es,en). Estilo limpio, AA.
+ */
+import * as THREE from 'three'
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
+import { PLYLoader } from 'three/examples/jsm/loaders/PLYLoader.js'
+import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js'
+
+const props = defineProps<{
+  meshKey?: string
+  /* Foco con biopsia previa (hecho del caso: #13 ilíaco derecho, 26B585). Cuando es
+     true se OFRECE el toggle «Ver la biopsia previa» que dibuja una aguja ILUSTRATIVA
+     sobre el panel de densidad/blástico. OFF por defecto. */
+  biopsied?: boolean
+  biopsyLabel?: string
+}>()
+const { locale } = useI18n()
+const L = (es: string, en: string) => (locale.value === 'en' ? en : es)
+
+/* ---- panel definitions (data channel → colormap) ---- */
+type Channel = 'ga' | 'fdg' | 'density'
+interface Panel {
+  id: Channel
+  title: { es: string; en: string }
+  sub: { es: string; en: string }
+  /* leyenda 0 → máx */
+  unit: { es: string; en: string }
+  max: number
+  /* dos paradas para el gradiente de la leyenda CSS (claro → saturado) */
+  legendFrom: string
+  legendTo: string
+}
+const PANELS: Panel[] = [
+  {
+    id: 'ga',
+    title: { es: 'Galio · receptor', en: 'Gallium · receptor' },
+    sub: { es: '⁶⁸Ga-DOTATOC (SSTR)', en: '⁶⁸Ga-DOTATOC (SSTR)' },
+    unit: { es: 'SUV', en: 'SUV' },
+    max: 13,
+    legendFrom: '#e7e2d6',
+    legendTo: '#0f8c93',
+  },
+  {
+    id: 'fdg',
+    title: { es: 'FDG · azúcar', en: 'FDG · sugar' },
+    sub: { es: '¹⁸F-FDG (glucólisis)', en: '¹⁸F-FDG (glycolysis)' },
+    unit: { es: 'SUV', en: 'SUV' },
+    max: 9,
+    legendFrom: '#e7e2d6',
+    legendTo: '#d2691a',
+  },
+  {
+    id: 'density',
+    title: { es: 'Blástico · densidad CT', en: 'Blastic · CT density' },
+    sub: { es: 'densidad (HU)', en: 'density (HU)' },
+    unit: { es: 'HU', en: 'HU' },
+    max: 1000,
+    legendFrom: '#e7e2d6',
+    legendTo: '#4a2f18',
+  },
+]
+
+const host = ref<HTMLDivElement | null>(null)
+const loading = ref(true)
+const failed = ref(false)
+/* foco sin malla PLY individual (#17 costilla, #19): estado honesto, sin init WebGL */
+const noMesh = computed(() => !props.meshKey)
+const biopsyAvailable = computed(() => !!props.biopsied && !noMesh.value && !failed.value)
+const showBiopsy = ref(false)
+
+/* ---- three.js state (1 renderer / 3 scenes / 1 camera / 1 controls) ---- */
+let renderer: THREE.WebGLRenderer
+let camera: THREE.PerspectiveCamera
+let controls: OrbitControls
+let pmrem: THREE.PMREMGenerator | null = null
+/* 3 escenas, una por viewport; cada una con un mesh que comparte la MISMA geometría */
+const scenes: THREE.Scene[] = []
+const meshes: (THREE.Mesh | null)[] = [null, null, null]
+let sharedGeo: THREE.BufferGeometry | null = null
+let needleGroup: THREE.Group | null = null     // aguja de biopsia ILUSTRATIVA (panel densidad)
+let raf = 0, ro: ResizeObserver | null = null
+let curKey = ''
+let boneRadius = 50
+
+/* ---- canales REALES por vértice (Float32, itemSize 1) leídos del PLY ---- */
+let vDensity: Float32Array | null = null
+let vFdg: Float32Array | null = null
+let vGa: Float32Array | null = null
+/* pico de captación combinada (max fdg/ga) → ancla de la aguja ilustrativa */
+let hotIndex = -1
+
+/* ---- material del hueso (MATE / OPACO) ---- */
+const BONE_MAT_BASE = {
+  color: new THREE.Color(0xffffff),
+  vertexColors: true,
+  roughness: 0.95,
+  metalness: 0.0,
+  envMapIntensity: 0.08,
+  transparent: false,
+  opacity: 1,
+  depthWrite: true,
+  depthTest: true,
+  flatShading: false,
+  side: THREE.DoubleSide,
+}
+
+/* ---- colormap helpers (sRGB → lineal: three multiplica el color por vértice en LINEAL) ---- */
+function lin255(r: number, g: number, b: number): [number, number, number] {
+  const c = new THREE.Color().setRGB(r / 255, g / 255, b / 255, THREE.SRGBColorSpace)
+  return [c.r, c.g, c.b]
+}
+/* rampa perceptual de paradas [pos 0..1, sRGB 0..255] → evaluador que interpola en LINEAL */
+function makeRamp(stops: [number, [number, number, number]][]) {
+  const S = stops.map(([p, c]) => { const [r, g, b] = lin255(c[0], c[1], c[2]); return [p, r, g, b] as const })
+  return (t: number): [number, number, number] => {
+    t = t < 0 ? 0 : t > 1 ? 1 : t
+    for (let i = 0; i < S.length - 1; i++) {
+      const a = S[i], b = S[i + 1]
+      if (t <= b[0]) { const f = b[0] > a[0] ? (t - a[0]) / (b[0] - a[0]) : 0; return [a[1] + (b[1] - a[1]) * f, a[2] + (b[2] - a[2]) * f, a[3] + (b[3] - a[3]) * f] }
+    }
+    const z = S[S.length - 1]; return [z[1], z[2], z[3]]
+  }
+}
+
+/* GALIO · gris neutro → TEAL/cian. Intensidad = valor+saturación: el fondo es un
+   marfil-gris neutro (sin captación) y sube a teal saturado y oscuro en el núcleo. */
+const gaRamp = makeRamp([
+  [0.00, [222, 221, 214]],  // sin captación · marfil-gris neutro
+  [0.18, [186, 200, 196]],  // muy bajo · gris verdoso apenas teñido
+  [0.42, [104, 184, 188]],  // medio · cian claro
+  [0.68, [28, 150, 158]],   // alto · teal
+  [1.00, [9, 92, 100]],     // máx · teal oscuro saturado
+])
+/* FDG · gris neutro → ÁMBAR/naranja. */
+const fdgRamp = makeRamp([
+  [0.00, [222, 221, 214]],  // sin captación · marfil-gris neutro
+  [0.18, [214, 198, 168]],  // muy bajo · arena
+  [0.42, [232, 168, 92]],   // medio · ámbar claro
+  [0.68, [214, 110, 28]],   // alto · naranja
+  [1.00, [150, 64, 10]],    // máx · ámbar oscuro saturado
+])
+/* BLÁSTICO · densidad CT. Trabecular/normal = claro neutro; denso/blástico = SEPIA
+   oscuro saturado. Tono cálido-marrón que sube en saturación y baja en valor con la HU. */
+const densityRamp = makeRamp([
+  [0.00, [226, 219, 204]],  // baja densidad / trabecular · marfil-arena claro neutro
+  [0.22, [206, 184, 148]],  // normal · arena cálida
+  [0.45, [183, 142, 92]],   // transición · sepia medio claro
+  [0.68, [138, 94, 50]],    // denso · sepia
+  [0.86, [96, 60, 30]],     // muy denso · sepia oscuro
+  [1.00, [58, 34, 16]],     // blástico · sepia oscuro saturado
+])
+
+/* normalización por canal → t ∈ [0,1] con gamma suave (perceptual) */
+const GA_MAX = 13, FDG_MAX = 9
+/* DENSIDAD: la SUPERFICIE del hueso reconstruido se mueve sobre todo en 50–700 HU
+   (la malla muestrea la corteza/borde, no el interior cortical de >1000 HU). Si
+   normalizamos a 150→1000, casi todo el hueso cae en la zona clara y el mapa se ve
+   «lavado» (casi blanco). Anclamos la rampa al rango REAL observado en la superficie
+   (≈50→700 HU) con gamma<1 para realzar el contraste: trabecular/normal en sepia
+   claro y el hueso DENSO/BLÁSTICO en sepia oscuro saturado, bien diferenciado. */
+const HU_LO = 50, HU_HI = 700
+function tGa(v: number): number { return Math.min(Math.max(v / GA_MAX, 0), 1) ** 0.80 }
+function tFdg(v: number): number { return Math.min(Math.max(v / FDG_MAX, 0), 1) ** 0.80 }
+function tDensity(v: number): number {
+  const t = (v - HU_LO) / (HU_HI - HU_LO)
+  return Math.min(Math.max(t, 0), 1) ** 0.85
+}
+
+/* construye un atributo de color por vértice para un canal dado → un mesh por colormap */
+function buildColorAttr(channel: Channel): THREE.BufferAttribute {
+  const n = vDensity!.length
+  const col = new Float32Array(n * 3)
+  const ramp = channel === 'ga' ? gaRamp : channel === 'fdg' ? fdgRamp : densityRamp
+  for (let i = 0; i < n; i++) {
+    let t: number
+    if (channel === 'ga') t = tGa(vGa![i])
+    else if (channel === 'fdg') t = tFdg(vFdg![i])
+    else t = tDensity(vDensity![i])
+    const [r, g, b] = ramp(t)
+    col[i * 3] = r; col[i * 3 + 1] = g; col[i * 3 + 2] = b
+  }
+  return new THREE.BufferAttribute(col, 3)
+}
+
+function resize() {
+  if (!host.value || !renderer) return
+  // El canvas cubre las 3 vistas: en escritorio 3 columnas (w/3 cada una),
+  // en móvil apilado 1 columna; lo gobierna `stacked` (recalculado aquí por ancho).
+  updateStacked()
+  const w = host.value.clientWidth
+  const h = host.value.clientHeight
+  renderer.setSize(w, h, false)
+  renderer.domElement.style.width = w + 'px'
+  renderer.domElement.style.height = h + 'px'
+  updateCameraAspect()
+}
+
+/* aspecto de la cámara = aspecto de UNA celda (no del canvas entero), para que el
+   hueso no se deforme. La celda mide cellW × cellH según el layout. */
+const stacked = ref(false)
+function cellSize(): { w: number; h: number } {
+  if (!host.value) return { w: 1, h: 1 }
+  const W = host.value.clientWidth, H = host.value.clientHeight
+  return stacked.value ? { w: W, h: H / 3 } : { w: W / 3, h: H }
+}
+function updateCameraAspect() {
+  if (!camera) return
+  const { w, h } = cellSize()
+  camera.aspect = w / h
+  camera.updateProjectionMatrix()
+}
+
+function init() {
+  const el = host.value!
+  // 3 escenas idénticas en iluminación; cada una recibe un mesh con su colormap.
+  for (let i = 0; i < 3; i++) {
+    const sc = new THREE.Scene()
+    sc.background = new THREE.Color(0x0d1117)
+    sc.add(new THREE.HemisphereLight(0xffffff, 0x1a1d26, 0.95))
+    const key = new THREE.DirectionalLight(0xfff4ea, 0.85); key.position.set(-0.6, 0.9, 1.0); sc.add(key)
+    const fill = new THREE.DirectionalLight(0xbcd0ff, 0.38); fill.position.set(0.7, -0.2, -0.7); sc.add(fill)
+    const rim = new THREE.DirectionalLight(0xffffff, 0.28); rim.position.set(0.2, 0.4, -1.0); sc.add(rim)
+    scenes.push(sc)
+  }
+  camera = new THREE.PerspectiveCamera(38, 1, 0.1, 8000)
+  renderer = new THREE.WebGLRenderer({ antialias: true })
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
+  renderer.outputColorSpace = THREE.SRGBColorSpace
+  renderer.toneMapping = THREE.ACESFilmicToneMapping
+  renderer.toneMappingExposure = 0.95
+  renderer.autoClear = false                 // limpiamos a mano por viewport (scissor)
+  el.appendChild(renderer.domElement)
+  renderer.domElement.style.display = 'block'
+  // ambiente difuso tenue (mismo para las 3 escenas)
+  pmrem = new THREE.PMREMGenerator(renderer)
+  const envTex = pmrem.fromScene(new RoomEnvironment(), 0.04).texture
+  for (const sc of scenes) sc.environment = envTex
+  // UNA sola cámara + UN OrbitControls (las 3 vistas comparten orientación)
+  controls = new OrbitControls(camera, renderer.domElement)
+  controls.enableDamping = true; controls.dampingFactor = 0.08; controls.enablePan = false
+  controls.rotateSpeed = 0.9; controls.minDistance = 1; controls.maxDistance = 100000
+  resize()
+  ro = new ResizeObserver(resize); ro.observe(el)
+  const tick = () => { raf = requestAnimationFrame(tick); controls.update(); renderScenes() }
+  tick()
+}
+
+/* render: UN canvas, 3 viewports (setViewport + setScissor). Cada celda dibuja su
+   escena con la MISMA cámara → orientación y zoom compartidos automáticamente. */
+function renderScenes() {
+  if (!renderer || !host.value) return
+  const W = host.value.clientWidth, H = host.value.clientHeight
+  const dpr = renderer.getPixelRatio()
+  renderer.setScissorTest(true)
+  for (let i = 0; i < 3; i++) {
+    let x: number, y: number, w: number, h: number
+    if (stacked.value) {
+      // apilado vertical: fila 0 arriba. El origen de WebGL es abajo-izquierda → invertimos.
+      w = W; h = H / 3
+      x = 0; y = H - (i + 1) * h
+    } else {
+      w = W / 3; h = H
+      x = i * w; y = 0
+    }
+    renderer.setViewport(x * dpr, y * dpr, w * dpr, h * dpr)
+    renderer.setScissor(x * dpr, y * dpr, w * dpr, h * dpr)
+    renderer.render(scenes[i], camera)
+  }
+  renderer.setScissorTest(false)
+}
+
+/* encuadre: el boundingSphere ENTERO llena cada celda con un margen pequeño */
+function frameObject(fill = 0.86) {
+  if (!sharedGeo || !camera || !controls) return
+  const r = boneRadius
+  const vFov = (camera.fov * Math.PI) / 180
+  const hFov = 2 * Math.atan(Math.tan(vFov / 2) * camera.aspect)
+  const fitH = r / Math.sin(vFov / 2)
+  const fitW = r / Math.sin(hFov / 2)
+  const dist = Math.max(fitH, fitW) / fill
+  const dir = new THREE.Vector3(0.32, 0.16, 1).normalize()
+  camera.position.copy(dir.multiplyScalar(dist))
+  camera.near = Math.max(0.01, dist - r * 2)
+  camera.far = dist + r * 4
+  camera.updateProjectionMatrix()
+  controls.target.set(0, 0, 0)
+  controls.minDistance = r * 0.75
+  controls.maxDistance = dist * 2.6
+  controls.update()
+}
+function reframe() { updateCameraAspect(); frameObject() }
+
+/* ---------- precálculo: lee los 3 canales reales por vértice ---------- */
+function precompute(geo: THREE.BufferGeometry) {
+  const pos = geo.getAttribute('position') as THREE.BufferAttribute
+  const n = pos.count
+  const dAttr = geo.getAttribute('density') as THREE.BufferAttribute | undefined
+  const fAttr = geo.getAttribute('fdg') as THREE.BufferAttribute | undefined
+  const gAttr = geo.getAttribute('ga') as THREE.BufferAttribute | undefined
+  const hasReal = !!(dAttr && fAttr && gAttr)
+  const col = geo.getAttribute('color') as THREE.BufferAttribute | undefined
+  vDensity = new Float32Array(n); vFdg = new Float32Array(n); vGa = new Float32Array(n)
+  hotIndex = -1
+  let hotSuv = 0
+  for (let i = 0; i < n; i++) {
+    let d: number, f: number, g: number
+    if (hasReal) { d = dAttr!.getX(i); f = fAttr!.getX(i); g = gAttr!.getX(i) }
+    else {
+      // FALLBACK: desempaquetar del RGB horneado (R=HU/1500, G=FDG/15, B=GA/15)
+      d = (col ? col.getX(i) : 0.5) * 1500
+      f = (col ? col.getY(i) : 0) * 15
+      g = (col ? col.getZ(i) : 0) * 15
+    }
+    vDensity[i] = d; vFdg[i] = f; vGa[i] = g
+    const s = f > g ? f : g
+    if (s > hotSuv) { hotSuv = s; hotIndex = i }
+  }
+}
+
+/* ---------- carga del PLY (UNA vez) + 3 meshes que comparten la geometría ---------- */
+function load(key: string) {
+  loading.value = true; failed.value = false; curKey = key
+  const loader = new PLYLoader()
+  loader.setCustomPropertyNameMapping({ density: ['density_hu'], fdg: ['suv_fdg'], ga: ['suv_ga'] })
+  loader.load(`/metastasis/mesh/${key}.ply`, (geo) => {
+    try {
+      if (curKey !== key) return
+      // normales recalculadas del winding (DoubleSide → hueso opaco, nunca translúcido)
+      geo.deleteAttribute('normal'); geo.computeVertexNormals()
+      // si el PLY trae RGBA, reducir a RGB (alfa<1 translucía el hueso) — sólo para el fallback
+      const colAttr = geo.getAttribute('color') as THREE.BufferAttribute | undefined
+      if (colAttr && colAttr.itemSize === 4) {
+        const n = colAttr.count, rgb = new Float32Array(n * 3)
+        for (let i = 0; i < n; i++) { rgb[i * 3] = colAttr.getX(i); rgb[i * 3 + 1] = colAttr.getY(i); rgb[i * 3 + 2] = colAttr.getZ(i) }
+        geo.setAttribute('color', new THREE.BufferAttribute(rgb, 3))
+      }
+      disposeMeshes()
+      disposeBiopsyNeedle()
+      // RECENTRAR al CENTRO DE LA CAJA (bounding box), no al centro de la esfera: en
+      // huesos irregulares (ilíaco, sacro) el centro de la esfera envolvente cae lejos
+      // del centro visual y el hueso aparece descentrado en cada celda. El centro de la
+      // caja queda en el medio del hueso → la cámara orbita el centro y se ve centrado.
+      geo.computeBoundingBox()
+      const bb = geo.boundingBox!
+      const cx = (bb.min.x + bb.max.x) / 2, cy = (bb.min.y + bb.max.y) / 2, cz = (bb.min.z + bb.max.z) / 2
+      geo.translate(-cx, -cy, -cz)
+      // radio de encuadre = radio de la esfera centrada en el ORIGEN que contiene la caja
+      // recentrada (máxima distancia de un vértice al nuevo centro) → encuadre completo.
+      geo.computeBoundingSphere()
+      const s = geo.boundingSphere
+      boneRadius = (s && s.radius) || 50
+      sharedGeo = geo
+      precompute(geo)
+      // 3 meshes: MISMA geometría compartida, distinto material + atributo de color por vértice.
+      for (let i = 0; i < 3; i++) {
+        const mat = new THREE.MeshStandardMaterial({ ...BONE_MAT_BASE, color: new THREE.Color(0xffffff) })
+        const m = new THREE.Mesh(geo, mat)
+        // cada mesh necesita SU propio atributo de color → usamos un mesh con geometría
+        // que comparte buffers de posición/normal/índice pero tiene su propio `color`.
+        const perChannelGeo = geo.clone()                      // clona referencias (buffers compartidos)
+        perChannelGeo.setAttribute('color', buildColorAttr(PANELS[i].id))
+        m.geometry = perChannelGeo
+        meshes[i] = m
+        scenes[i].add(m)
+      }
+      // aguja de biopsia ILUSTRATIVA cuelga del mesh de DENSIDAD (panel 2) → rota con él
+      needleGroup = new THREE.Group()
+      meshes[2]!.add(needleGroup)
+      updateCameraAspect()
+      frameObject()
+      buildBiopsyNeedle()
+      loading.value = false
+    } catch (e) { console.error('[BoneTriView] build', e); loading.value = false; failed.value = true }
+  }, undefined, (e) => { console.error('[BoneTriView] PLY load error', e); loading.value = false; failed.value = true })
+}
+
+function disposeMeshes() {
+  for (let i = 0; i < 3; i++) {
+    const m = meshes[i]
+    if (m) {
+      scenes[i].remove(m)
+      ;(m.material as THREE.Material).dispose()
+      // geometría per-canal: dispose; los buffers compartidos los libera sharedGeo
+      if (m.geometry !== sharedGeo) m.geometry.dispose()
+      meshes[i] = null
+    }
+  }
+  if (sharedGeo) { sharedGeo.dispose(); sharedGeo = null }
+}
+
+/* ====================================================================== */
+/*  AGUJA DE BIOPSIA ILUSTRATIVA (#13, 26B585) — portada de BoneViewer3D.  */
+/*  Sólo sobre el panel de DENSIDAD/BLÁSTICO; OFF por defecto. NO es la     */
+/*  trayectoria real: recreación didáctica del abordaje posterolateral.    */
+/* ====================================================================== */
+const C_NEEDLE = '#b9c0c9'     // cuerpo · gris metálico claro
+const C_NEEDLE_TIP = '#e6ebf0' // bisel de la punta · acero más claro
+const C_ENTRY = '#d98a2b'      // marcador de ENTRADA · ámbar
+const C_TIP_MK = '#c25a2b'     // marcador de la PUNTA (en hueso) · ámbar oscuro
+let needleMats: THREE.Material[] = []
+let needleGeos: THREE.BufferGeometry[] = []
+function disposeBiopsyNeedle() {
+  if (needleGroup) needleGroup.clear()
+  needleMats.forEach((m) => m.dispose()); needleMats = []
+  needleGeos.forEach((g) => g.dispose()); needleGeos = []
+}
+/* vértice de hueso MÁS DENSO dentro de un radio del punto p (coords de geometría) */
+function densestNear(geo: THREE.BufferGeometry, p: THREE.Vector3, radius: number): THREE.Vector3 | null {
+  if (!vDensity) return null
+  const pos = geo.getAttribute('position') as THREE.BufferAttribute
+  const n = pos.count, r2 = radius * radius
+  let best = -Infinity, bi = -1
+  for (let i = 0; i < n; i++) {
+    const dx = pos.getX(i) - p.x, dy = pos.getY(i) - p.y, dz = pos.getZ(i) - p.z
+    if (dx * dx + dy * dy + dz * dz > r2) continue
+    if (vDensity[i] > best) { best = vDensity[i]; bi = i }
+  }
+  if (bi < 0) return null
+  return new THREE.Vector3(pos.getX(bi), pos.getY(bi), pos.getZ(bi))
+}
+function smallSphere(color: string, r: number): THREE.Mesh {
+  const g = new THREE.SphereGeometry(r, 16, 12); needleGeos.push(g)
+  const m = new THREE.MeshStandardMaterial({ color: new THREE.Color(color), roughness: 0.5, metalness: 0.1, depthTest: true, depthWrite: true, toneMapped: true })
+  needleMats.push(m)
+  return new THREE.Mesh(g, m)
+}
+function buildBiopsyNeedle() {
+  disposeBiopsyNeedle()
+  if (!needleGroup || !sharedGeo) return
+  if (!props.biopsied || !showBiopsy.value) return
+  if (hotIndex < 0) return
+  const geo = meshes[2]!.geometry            // geometría del panel densidad (per-canal; mismos pos)
+  const pos = geo.getAttribute('position') as THREE.BufferAttribute
+  const nrm = geo.getAttribute('normal') as THREE.BufferAttribute | undefined
+  const peak = new THREE.Vector3(pos.getX(hotIndex), pos.getY(hotIndex), pos.getZ(hotIndex))
+  const peakNrm = nrm
+    ? new THREE.Vector3(nrm.getX(hotIndex), nrm.getY(hotIndex), nrm.getZ(hotIndex)).normalize()
+    : peak.clone().normalize()
+  // PUNTA en hueso denso cerca del foco pero DESPLAZADA del pico (la biopsia cayó en hueso)
+  const inward = peakNrm.clone().multiplyScalar(-1)
+  const offset = peak.clone().addScaledVector(inward, boneRadius * 0.18)
+  let tip = densestNear(geo, offset, boneRadius * 0.22) ?? offset
+  if (tip.distanceTo(peak) < boneRadius * 0.12) tip = peak.clone().addScaledVector(inward, boneRadius * 0.22)
+  // abordaje posterolateral hacia el ala ilíaca, mezclado con la normal de la superficie
+  const approach = new THREE.Vector3(0.78, 0.30, -0.54).normalize()
+  const dir = approach.clone().multiplyScalar(0.6).add(peakNrm.clone().multiplyScalar(0.4)).normalize()
+  const needleLen = boneRadius * 1.85
+  const entry = tip.clone().addScaledVector(dir, needleLen)
+  const axis = entry.clone().sub(tip)
+  const len = axis.length()
+  const up = axis.clone().normalize()
+  // cuerpo: cilindro fino metálico
+  const rad = Math.max(0.5, boneRadius * 0.018)
+  const bodyLen = len * 0.93
+  const bodyGeo = new THREE.CylinderGeometry(rad, rad, bodyLen, 20, 1, true); needleGeos.push(bodyGeo)
+  const bodyMat = new THREE.MeshStandardMaterial({
+    color: new THREE.Color(C_NEEDLE), roughness: 0.32, metalness: 0.85,
+    side: THREE.DoubleSide, depthTest: true, depthWrite: true, toneMapped: true,
+    polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -2,
+  })
+  needleMats.push(bodyMat)
+  const body = new THREE.Mesh(bodyGeo, bodyMat)
+  body.position.copy(tip.clone().addScaledVector(up, len - bodyLen / 2))
+  body.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), up)
+  // bisel de la punta: cono corto coaxial
+  const bevelLen = Math.min(rad * 6, len * 0.07)
+  const bevelGeo = new THREE.ConeGeometry(rad, bevelLen, 20); needleGeos.push(bevelGeo)
+  const bevelMat = new THREE.MeshStandardMaterial({ color: new THREE.Color(C_NEEDLE_TIP), roughness: 0.28, metalness: 0.9, depthTest: true, depthWrite: true, toneMapped: true })
+  needleMats.push(bevelMat)
+  const bevel = new THREE.Mesh(bevelGeo, bevelMat)
+  bevel.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), up.clone().multiplyScalar(-1))
+  bevel.position.copy(tip.clone().addScaledVector(up, bevelLen / 2))
+  // marcadores: entrada (ámbar) + punta (ámbar oscuro, en hueso)
+  const entryMk = smallSphere(C_ENTRY, Math.max(1.0, boneRadius * 0.035)); entryMk.position.copy(entry)
+  const tipMk = smallSphere(C_TIP_MK, Math.max(0.9, boneRadius * 0.03)); tipMk.position.copy(tip)
+  body.renderOrder = 7; bevel.renderOrder = 8; entryMk.renderOrder = 8; tipMk.renderOrder = 8
+  needleGroup.add(body); needleGroup.add(bevel); needleGroup.add(entryMk); needleGroup.add(tipMk)
+}
+function toggleBiopsy() { if (biopsyAvailable.value) showBiopsy.value = !showBiopsy.value }
+
+/* ---------- ciclo de vida ---------- */
+/* APILA vertical sólo cuando 3 columnas no caben con holgura (≈ < 150 px/columna).
+   El visor vive en una COLUMNA del wiki (no en el ancho total de la página): a 1440
+   esa columna mide ~600 px → 3 columnas de ~200 px caben bien (NO apilar). En móvil
+   real (~310–360 px de columna) sí se apila. Umbral por el ANCHO DEL COMPONENTE, no
+   por el breakpoint global, porque el componente puede ir en una columna estrecha. */
+const STACK_BELOW = 460
+function updateStacked() {
+  if (!host.value) return
+  const wasStacked = stacked.value
+  stacked.value = host.value.clientWidth < STACK_BELOW
+  if (wasStacked !== stacked.value) { updateCameraAspect(); frameObject() }
+}
+
+onMounted(() => {
+  if (noMesh.value) { loading.value = false; return }
+  let tries = 0
+  const start = () => {
+    if (!host.value) {
+      if (tries++ < 30) { requestAnimationFrame(start); return }
+      console.error('[BoneTriView] host nunca disponible'); failed.value = true; loading.value = false; return
+    }
+    try { updateStacked(); init(); if (props.meshKey) load(props.meshKey) }
+    catch (e) { console.error('[BoneTriView] init', e); failed.value = true; loading.value = false }
+  }
+  start()
+})
+watch(() => props.meshKey, (k) => {
+  showBiopsy.value = false
+  if (!k || !renderer) return
+  try { load(k) } catch (e) { console.error('[BoneTriView] load', e); failed.value = true; loading.value = false }
+})
+watch(() => props.biopsied, (b) => { if (!b) { showBiopsy.value = false; buildBiopsyNeedle() } })
+watch(showBiopsy, () => { buildBiopsyNeedle() })
+onBeforeUnmount(() => {
+  cancelAnimationFrame(raf); ro?.disconnect()
+  disposeBiopsyNeedle(); disposeMeshes()
+  pmrem?.dispose(); renderer?.dispose()
+})
+</script>
+
+<template>
+  <div class="w-full">
+    <!-- sin reconstrucción 3D individual para este foco (honesto, sin inventar) -->
+    <div
+      v-if="noMesh"
+      class="relative w-full flex items-center justify-center text-center text-[12px] px-5 leading-snug"
+      style="aspect-ratio:5/4;background:#0d1117;border-radius:0.5rem;color:#aeb6c2"
+    >
+      {{ L('Sin reconstrucción 3D individual para este foco.', 'No individual 3D reconstruction for this focus.') }}
+    </div>
+
+    <template v-else>
+      <!-- TÍTULOS + LEYENDA por panel (encima del canvas; en escritorio 3 columnas,
+           en móvil apilado las 3 filas). Cada panel: título + escala 0→máx. -->
+      <div
+        class="btv-titles"
+        :class="failed ? 'btv-titles--hidden' : ''"
+        aria-hidden="false"
+      >
+        <div v-for="p in PANELS" :key="p.id" class="btv-title-cell">
+          <p class="btv-title">{{ L(p.title.es, p.title.en) }}</p>
+          <p class="btv-sub">{{ L(p.sub.es, p.sub.en) }}</p>
+          <div class="btv-legend">
+            <span class="btv-legend-min">0</span>
+            <span class="btv-legend-bar" :style="{ background: `linear-gradient(to right, ${p.legendFrom}, ${p.legendTo})` }" />
+            <span class="btv-legend-max">{{ p.max }}<span class="btv-legend-unit"> {{ L(p.unit.es, p.unit.en) }}</span></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- CANVAS único · 3 viewports (setViewport+setScissor). Una cámara → giran juntos.
+           El aspecto cambia con el layout: fila ancha (3 celdas ~4:5) en escritorio,
+           columna alta (3 celdas apiladas) en móvil. -->
+      <div
+        class="relative w-full select-none"
+        :style="`aspect-ratio:${stacked ? '4/15' : '12/5'};background:#0d1117;border-radius:0.5rem;overflow:hidden`"
+      >
+        <div ref="host" class="absolute inset-0 cursor-grab active:cursor-grabbing" :style="failed ? 'opacity:0;pointer-events:none' : ''" />
+
+        <!-- separadores entre vistas (sólo decorativos; el canvas es único) -->
+        <template v-if="!failed && !stacked">
+          <span class="btv-divider" style="left:33.333%" aria-hidden="true" />
+          <span class="btv-divider" style="left:66.666%" aria-hidden="true" />
+        </template>
+        <template v-else-if="!failed">
+          <span class="btv-divider-h" style="top:33.333%" aria-hidden="true" />
+          <span class="btv-divider-h" style="top:66.666%" aria-hidden="true" />
+        </template>
+
+        <!-- botón de reencuadre ⟲ -->
+        <button
+          v-if="!failed"
+          type="button"
+          class="btv-reframe"
+          :aria-label="L('Reencuadrar la vista', 'Reset the view')"
+          :title="L('Reencuadrar', 'Reset view')"
+          @click="reframe"
+        >⟲</button>
+
+        <!-- TOGGLE de la aguja de biopsia ILUSTRATIVA (#13). OFF por defecto; dibuja
+             la aguja sobre el panel de densidad/blástico. -->
+        <button
+          v-if="biopsyAvailable"
+          type="button"
+          class="btv-biopsy-toggle"
+          :class="{ 'is-on': showBiopsy }"
+          :aria-pressed="showBiopsy"
+          @click="toggleBiopsy"
+        >
+          <span class="btv-biopsy-dot" aria-hidden="true" />
+          {{ showBiopsy
+            ? L('Ocultar la biopsia previa', 'Hide prior biopsy')
+            : L('Ver la biopsia previa (' + (biopsyLabel || '26B585') + ')', 'Show prior biopsy (' + (biopsyLabel || '26B585') + ')') }}
+        </button>
+
+        <!-- cargando -->
+        <div v-if="loading && !failed" class="absolute inset-0 flex flex-col items-center justify-center gap-2 pointer-events-none">
+          <span class="btv-spin" />
+          <span class="text-[11px]" style="color:#aeb6c2">{{ L('reconstruyendo 3D…', 'building 3D…') }}</span>
+        </div>
+
+        <!-- fallback digno sin-WebGL: fotograma del MISMO CT -->
+        <div v-if="failed" class="absolute inset-0">
+          <BoneFrameViewer :mesh-key="meshKey" kind="vertebra" />
+          <div
+            class="absolute bottom-0 inset-x-0 px-2 py-1 text-[10px] text-center"
+            style="color:#cdd5e0;background:linear-gradient(to top,rgba(8,11,16,0.88),rgba(8,11,16,0));pointer-events:none"
+          >
+            {{ L('Vista estática · este navegador no permite 3D interactivo', 'Static view · this browser does not support interactive 3D') }}
+          </div>
+        </div>
+      </div>
+
+      <!-- CAPTION HONESTO (voz neutral; informa, no concluye) -->
+      <p class="btv-cap">
+        {{ failed
+          ? L('Reconstrucción del CT · vista estática', 'Reconstruction from the CT · static view')
+          : L('El MISMO hueso reconstruido del CT, en 3 mapas · arrastra para girar · rueda para acercar (las 3 vistas a la vez)', 'The SAME bone reconstructed from the CT, in 3 maps · drag to rotate · scroll to zoom (all 3 views at once)') }}
+        <span class="btv-cap-dim">
+          · {{ L('Cada vista es un mapa LIMPIO de UNA variable por punto: la intensidad del color sigue al valor (más oscuro/saturado = más). La captación PET es un GRADIENTE continuo, sin un borde tumoral neto (resolución ~4–5 mm). «Blástico» = densidad del CT (forma), no biología. El Galio es un proxy aproximado por ahora. Informa, no concluye.', 'Each view is a CLEAN map of ONE variable per point: colour intensity follows the value (darker/more saturated = more). PET uptake is a continuous GRADIENT, with no sharp tumour border (~4–5 mm resolution). “Blastic” = CT density (shape), not biology. Gallium is an approximate proxy for now. It informs; it does not conclude.') }}
+        </span>
+      </p>
+
+      <!-- RÓTULO HONESTO de la aguja ILUSTRATIVA (sólo con el toggle activo) -->
+      <p v-if="biopsyAvailable && showBiopsy" class="btv-biopsy-cap">
+        <span class="btv-biopsy-cap-head">
+          <span class="btv-biopsy-swatch" :style="{ background: C_NEEDLE }" aria-hidden="true" />
+          {{ L('Simulación ILUSTRATIVA de la biopsia previa (' + (biopsyLabel || '26B585') + ') · sobre el mapa de densidad', 'ILLUSTRATIVE simulation of the prior biopsy (' + (biopsyLabel || '26B585') + ') · over the density map') }}
+        </span>
+        {{ L('Trayectoria APROXIMADA, no la real — recreación didáctica. La punta queda en hueso denso (blástico): la biopsia dio solo hueso/músculo, sin tumor evaluable — el hueso blástico denso rinde poco tejido tumoral.',
+             'APPROXIMATE trajectory, not the actual one — a teaching recreation. The tip lands in dense (blastic) bone: the biopsy yielded only bone/muscle, no evaluable tumour — dense blastic bone yields little tumour tissue.') }}
+        <span class="btv-biopsy-key">
+          <span class="btv-biopsy-mk" :style="{ background: C_ENTRY }" aria-hidden="true" /> {{ L('entrada', 'entry') }} ·
+          <span class="btv-biopsy-mk" :style="{ background: C_TIP_MK }" aria-hidden="true" /> {{ L('punta (en hueso)', 'tip (in bone)') }}
+        </span>
+      </p>
+    </template>
+  </div>
+</template>
+
+<style scoped>
+/* ---- títulos + leyenda por panel ---- */
+.btv-titles {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin-bottom: 8px;
+}
+.btv-titles--hidden { opacity: 0.45; }
+@media (max-width: 639px) {
+  .btv-titles { grid-template-columns: 1fr; gap: 4px; }
+}
+.btv-title-cell { min-width: 0; }
+.btv-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: #2d1b3d;
+  line-height: 1.2;
+}
+.btv-sub {
+  font-size: 10.5px;
+  color: #6b6275;
+  line-height: 1.2;
+  margin-top: 1px;
+}
+.btv-legend {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin-top: 4px;
+}
+.btv-legend-bar {
+  flex: 1 1 auto;
+  height: 7px;
+  border-radius: 4px;
+  border: 1px solid rgba(45, 27, 61, 0.14);
+  min-width: 28px;
+}
+.btv-legend-min, .btv-legend-max {
+  font-size: 10px;
+  color: #6b6275;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.btv-legend-unit { color: #948aa0; }
+
+/* ---- canvas / vistas ---- */
+.btv-divider {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: rgba(174, 182, 194, 0.22);
+  pointer-events: none;
+  z-index: 1;
+}
+.btv-divider-h {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: rgba(174, 182, 194, 0.22);
+  pointer-events: none;
+  z-index: 1;
+}
+
+.btv-spin {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  border: 2.5px solid rgba(174, 182, 194, 0.25);
+  border-top-color: #1c969e;
+  animation: btv-rot 0.8s linear infinite;
+}
+@keyframes btv-rot { to { transform: rotate(360deg); } }
+
+.btv-reframe {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  z-index: 2;
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  border: 1px solid rgba(174, 182, 194, 0.28);
+  background: rgba(13, 17, 23, 0.7);
+  color: #cdd5e0;
+  font-size: 16px;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s, border-color 0.15s;
+}
+.btv-reframe:hover { background: rgba(30, 37, 48, 0.92); border-color: rgba(174, 182, 194, 0.5); }
+.btv-reframe:focus-visible { outline: 2px solid #1c969e; outline-offset: 2px; }
+
+/* toggle de la aguja de biopsia ILUSTRATIVA — abajo-izquierda */
+.btv-biopsy-toggle {
+  position: absolute;
+  left: 8px;
+  bottom: 8px;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  border-radius: 8px;
+  border: 1px solid rgba(217, 138, 43, 0.55);
+  background: rgba(13, 17, 23, 0.72);
+  color: #e7c79a;
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+.btv-biopsy-toggle:hover { background: rgba(30, 37, 48, 0.92); border-color: rgba(217, 138, 43, 0.85); }
+.btv-biopsy-toggle:focus-visible { outline: 2px solid #d98a2b; outline-offset: 2px; }
+.btv-biopsy-toggle.is-on { background: rgba(217, 138, 43, 0.18); border-color: rgba(217, 138, 43, 0.95); color: #f3d8ad; }
+.btv-biopsy-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #d98a2b;
+  box-shadow: 0 0 0 2px rgba(217, 138, 43, 0.25);
+}
+
+/* rótulo honesto de la aguja */
+.btv-biopsy-cap {
+  font-size: 10px;
+  text-align: left;
+  margin-top: 6px;
+  padding: 7px 9px;
+  border-radius: 6px;
+  border: 1px solid rgba(217, 138, 43, 0.35);
+  background: rgba(217, 138, 43, 0.07);
+  font-family: ui-monospace, monospace;
+  line-height: 1.45;
+  color: #8a5a1a;
+}
+.btv-biopsy-cap-head {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+.btv-biopsy-swatch {
+  display: inline-block;
+  width: 14px;
+  height: 4px;
+  border-radius: 2px;
+  border: 1px solid rgba(125, 133, 143, 0.7);
+}
+.btv-biopsy-key { display: inline-flex; align-items: center; gap: 5px; margin-left: 2px; }
+.btv-biopsy-mk { display: inline-block; width: 8px; height: 8px; border-radius: 50%; }
+
+.btv-cap {
+  font-size: 10px;
+  text-align: center;
+  margin-top: 6px;
+  font-family: ui-monospace, monospace;
+  line-height: 1.4;
+  color: #aeb6c2;
+}
+.btv-cap-dim { color: #7c8694; }
+</style>
