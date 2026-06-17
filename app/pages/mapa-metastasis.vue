@@ -68,6 +68,11 @@ interface Lesion {
   rmn?: { es: string; en: string }
   /* biopsia previa de ESTE foco (hecho del caso). Honesto y neutral: informa, no concluye. */
   priorBiopsy?: { es: string; en: string }
+  /* componente de partes blandas / extensión extraósea descrito por la RMN (p.ej. epidural
+     de D11). Es un dato de FORMA/extensión del informe, no biología ni un trazador. Importa
+     para la FACTIBILIDAD: una diana de partes blandas suele rendir más tejido que el hueso
+     denso, PERO la proximidad a estructuras (canal, raíces) la valora intervencionista. */
+  softTissue?: { es: string; en: string }
 }
 
 /* ------------------------------------------------------------------ */
@@ -140,6 +145,7 @@ const LES: Lesion[] = [
     what: { es: 'Una de las lesiones más intensas. Es la que más capta el receptor (Galio) de todas, y también capta algo de azúcar, aunque el azúcar ha bajado respecto al PET previo. Hueso denso (blástico).', en: 'One of the most intense lesions. It is the one that takes up the most receptor (gallium) of all, and also takes up some sugar, though sugar dropped versus the prior PET. Dense (blastic) bone.' },
     tech: { es: 'DOTATOC SUVmáx 13.27 (captación de Galio muy intensa) / FDG 7.61 (previo 10.19, en descenso). Mixto: capta mucho más receptor (Galio) que azúcar (FDG). Lesión blástica.', en: 'DOTATOC SUVmax 13.27 (very intense gallium uptake) / FDG 7.61 (prior 10.19, decreasing). Mixed: takes up far more receptor (gallium) than sugar (FDG). Blastic lesion.' },
     rmn: { es: 'Nivel dorsal: la RMN de columna cubre esta zona. Forma: lesión blástica (hueso denso). El informe de RM describe en D11 extensión al espacio epidural anterior y afectación del canal lateral izquierdo. Es un dato de FORMA, no un tercer color.', en: 'Thoracic level: the spine MRI covers this area. Shape: blastic lesion (dense bone). The MRI report describes anterior epidural extension and left lateral canal compromise at D11. This is a SHAPE finding, not a third colour.' },
+    softTissue: { es: 'La RMN describe componente de partes blandas / extensión extraósea (espacio epidural anterior, canal lateral izquierdo). El tejido blando suele rentabilizar más que el hueso blástico denso, pero por su vecindad al canal y a las raíces la accesibilidad y la seguridad las valora radiología intervencionista.', en: 'The MRI describes a soft-tissue / extraosseous component (anterior epidural space, left lateral canal). Soft tissue usually yields more than dense blastic bone, but given its proximity to the canal and nerve roots, accessibility and safety are assessed by interventional radiology.' },
   },
   {
     id: 8, x: 237, y: 352, side: 'L', dota: 11.63, fdg: null, pheno: 'ne', size: '13 × 10',
@@ -631,21 +637,6 @@ const counts = computed(() => ({
 }))
 
 /* ------------------------------------------------------------------ */
-/*  Modo de densidad: «En claro» (por defecto) · «Clínico».            */
-/*  NO oculta datos: fija si el detalle técnico/cuantificación/         */
-/*  procedencia/apéndice van colapsados (claro) o abiertos (clínico).   */
-/*  Una sola página, en capas.                                          */
-/* ------------------------------------------------------------------ */
-const density = ref<'plain' | 'clinical'>('plain')
-const isClinical = computed(() => density.value === 'clinical')
-/* A11y: anuncia el cambio de modo a lectores de pantalla (igual que /ciencia
-   con su selector) — ningún cambio de contenido debe ser silencioso. */
-const densityAnnounce = computed(() =>
-  isClinical.value
-    ? L('Modo clínico: detalle técnico, cuantificación y tabla abiertos.', 'Clinical mode: technical detail, quantification and table open.')
-    : L('Modo en claro: detalle técnico, cuantificación y tabla plegados.', 'Plain mode: technical detail, quantification and table folded.'))
-
-/* ------------------------------------------------------------------ */
 /*  Panel-cockpit — KPIs SOLO descriptivos (sin verbos de acción).      */
 /*  Separa los focos del informe de los 3 «detectados por IA» (por      */
 /*  confirmar). Todo derivado del array LES; no añade interpretación.   */
@@ -1056,6 +1047,15 @@ const suitMax = computed(() => Math.max(1, ...LES.map(suitabilityScore)))
 /* ancho 0-100% de una barra de factor (para las mini-barras inline) */
 function pct01(x: number): string { return (clamp01(x) * 100).toFixed(0) + '%' }
 
+/* ¿este foco tiene un componente de partes blandas / extensión extraósea descrito
+   por la RMN? Es una señal de FACTIBILIDAD para el radiólogo: una diana de tejido
+   blando suele rentabilizar más que el hueso blástico denso. NO entra en el número
+   (la accesibilidad/seguridad las valora intervencionista); se MUESTRA como aviso. */
+function hasSoftTissue(le: Lesion): boolean { return !!le.softTissue }
+/* primeros 3 candidatos confirmados (resumen «de un vistazo» de la lente, para que el
+   radiólogo compare las mejores dianas sin desplegar toda la lista). Orientativo. */
+const topCandidates = computed(() => rankedFoci.value.slice(0, 3))
+
 /* ------------------------------------------------------------------ */
 /*  Orden de la tabla                                                  */
 /* ------------------------------------------------------------------ */
@@ -1162,28 +1162,6 @@ const ticks = [
             'This page gathers and visualises the patient’s studies (FDG-PET 24/03/2026, Ga-68 DOTATOC PET 26/05/2026 and the cervical and thoracic spine MRI). It is a tool to understand and to support the conversation with the medical team — it does not replace their judgement and is not medical advice. SUVs are those of the official PET reports; the images (PET and MRI) were reconstructed from the DICOM. The MRI is shown for viewing: its formal reading belongs to the radiologist.') }}
         </div>
 
-        <!-- ===== TOGGLE PEGAJOSO · densidad En claro / Clínico ===== -->
-        <div class="sticky top-16 sm:top-[4.5rem] z-30 -mx-6 sm:-mx-8 lg:-mx-12 px-6 sm:px-8 lg:px-12 py-2.5 mb-8 bg-cream border-b border-[rgba(45,27,61,0.08)]">
-          <div class="flex items-center gap-x-3 gap-y-1.5 flex-wrap">
-            <span class="text-[11px] font-semibold text-tinta uppercase tracking-wide">{{ L('Nivel de detalle', 'Detail level') }}</span>
-            <div class="inline-flex rounded-full border border-[rgba(45,27,61,0.18)] overflow-hidden" role="group" :aria-label="L('Nivel de detalle', 'Detail level')">
-              <button type="button" @click="density = 'plain'" :aria-pressed="!isClinical"
-                class="px-4 py-1.5 text-sm font-semibold transition-colors"
-                :class="!isClinical ? 'bg-berenjena text-cream' : 'bg-transparent text-tinta hover:bg-[rgba(45,27,61,0.05)]'">
-                {{ L('En claro', 'Plain') }}
-              </button>
-              <button type="button" @click="density = 'clinical'" :aria-pressed="isClinical"
-                class="px-4 py-1.5 text-sm font-semibold transition-colors border-l border-[rgba(45,27,61,0.18)]"
-                :class="isClinical ? 'bg-berenjena text-cream' : 'bg-transparent text-tinta hover:bg-[rgba(45,27,61,0.05)]'">
-                {{ L('Clínico', 'Clinical') }}
-              </button>
-            </div>
-            <span class="text-[11px] text-tinta leading-snug max-w-md">{{ L('No oculta nada: fija si el detalle técnico, la cuantificación y la tabla van plegados (en claro) o abiertos (clínico).', 'Hides nothing: it sets whether technical detail, quantification and the table are folded (plain) or open (clinical).') }}</span>
-          </div>
-          <!-- A11y: anuncia el cambio de modo a lectores de pantalla (como /ciencia). -->
-          <div aria-live="polite" class="sr-only">{{ densityAnnounce }}</div>
-        </div>
-
         <!-- ===== PANEL-COCKPIT · KPIs descriptivos ===== -->
         <section class="mb-12" aria-labelledby="cockpit">
           <p class="eyebrow mb-2 block">{{ L('Resumen de un vistazo', 'At a glance') }}</p>
@@ -1245,8 +1223,8 @@ const ticks = [
             </div>
           </div>
 
-          <!-- plegable: resumen para el equipo (abre en modo Clínico) -->
-          <details class="notes-disclosure mt-3" :open="isClinical">
+          <!-- resumen para el equipo · abierto por defecto (vista clínica) -->
+          <details class="notes-disclosure mt-3" open>
             <summary>{{ L('Resumen para el equipo médico', 'Summary for the medical team') }}</summary>
             <p class="mt-3 text-sm text-tinta leading-relaxed">
               {{ L(
@@ -1643,6 +1621,15 @@ const ticks = [
                 <p class="text-[13px] text-tinta leading-snug">{{ sel.priorBiopsy[lang] }}</p>
               </div>
 
+              <!-- ===== PARTES BLANDAS / EXTENSIÓN EXTRAÓSEA (RMN → factibilidad) ===== -->
+              <div v-if="sel.softTissue" class="mb-4 rounded-card border-l-4 px-3 py-3" :style="{ borderLeftColor: '#1f6b57', background: '#eef6f2' }">
+                <p class="text-[11px] font-semibold uppercase tracking-wide mb-1 flex items-center gap-2 flex-wrap" :style="{ color: '#1f6b57' }">
+                  {{ L('Partes blandas / extensión extraósea', 'Soft tissue / extraosseous extension') }}
+                  <span class="status-badge" :style="{ background: 'rgba(31,107,87,0.12)', color: '#1f6b57' }">{{ L('factibilidad · RMN', 'feasibility · MRI') }}</span>
+                </p>
+                <p class="text-[13px] text-tinta leading-snug">{{ sel.softTissue[lang] }}</p>
+              </div>
+
               <!-- capa CLARA -->
               <p class="text-[15px] text-berenjena leading-relaxed mb-4">{{ sel.what[lang] }}</p>
 
@@ -1729,8 +1716,8 @@ const ticks = [
                 </ClientOnly>
               </div>
 
-              <!-- CUANTIFICACIÓN AUTOMÁTICA medida sobre los DICOM (verificación) — abre en modo Clínico -->
-              <details v-if="hasAuto" class="notes-disclosure mb-4" :open="isClinical">
+              <!-- CUANTIFICACIÓN AUTOMÁTICA medida sobre los DICOM (verificación) — abierta por defecto (vista clínica) -->
+              <details v-if="hasAuto" class="notes-disclosure mb-4" open>
                 <summary>{{ L('Medido sobre los DICOM (verificación automática)', 'Measured from the DICOM (automatic verification)') }}</summary>
                 <p class="text-[11px] font-semibold text-berenjena uppercase tracking-wide mt-3 mb-2 flex items-center gap-2 flex-wrap">
                   <span class="inline-block w-2.5 h-2.5 rounded-full" :style="{ background: '#1f5a3a' }" />
@@ -1844,8 +1831,8 @@ const ticks = [
                 </div>
               </figure>
 
-              <!-- capa TÉCNICA -->
-              <details class="notes-disclosure" :open="isClinical">
+              <!-- capa TÉCNICA · abierta por defecto (vista clínica) -->
+              <details class="notes-disclosure" open>
                 <summary>{{ L('Detalle técnico (para el equipo médico)', 'Technical detail (for the medical team)') }}</summary>
                 <p class="mt-3 text-sm text-tinta leading-relaxed">{{ sel.tech[lang] }}</p>
                 <div class="grid grid-cols-2 gap-x-6 gap-y-2 mt-3 text-sm">
@@ -2040,6 +2027,15 @@ const ticks = [
                 <li class="flex gap-2"><span class="mt-1.5 shrink-0 w-1.5 h-1.5 rounded-full" :style="{ background: '#c9921e' }" /><span>{{ L('Fracturas patológicas crónicas (desde 2024) de L1 y L3.', 'Chronic pathological fractures (since 2024) of L1 and L3.') }}</span></li>
                 <li class="flex gap-2"><span class="mt-1.5 shrink-0 w-1.5 h-1.5 rounded-full" :style="{ background: '#1f5a3a' }" /><span>{{ L('Médula espinal de señal normal.', 'Spinal cord with normal signal.') }}</span></li>
               </ul>
+              <!-- la RMN, conectada a la FACTIBILIDAD de la biopsia (descriptivo, no concluye) -->
+              <div class="mt-3 rounded-card border-l-4 px-3 py-2.5" :style="{ borderLeftColor: '#1f6b57', background: '#eef6f2' }">
+                <p class="text-[12.5px] text-tinta leading-snug">
+                  <strong :style="{ color: '#1f6b57' }">{{ L('La RMN y la factibilidad de la biopsia:', 'MRI and biopsy feasibility:') }}</strong>
+                  {{ L('la forma (blástico denso = rinde poco; lítico / partes blandas = rinde más) y el componente de partes blandas que describe la RMN son señales de RENDIMIENTO tisular. El componente epidural de D11 es una diana de tejido blando accesible (su vecindad al canal y a las raíces la valora intervencionista). Es FORMA/extensión del informe; alimenta los avisos de factibilidad de la lente, no la biología.',
+                        'shape (dense blastic = low yield; lytic / soft tissue = higher yield) and the soft-tissue component the MRI describes are tissue-YIELD signals. The D11 epidural component is an accessible soft-tissue target (its proximity to the canal and roots is assessed by interventional radiology). It is SHAPE/extent from the report; it feeds the lens’s feasibility flags, not the biology.') }}
+                  <button type="button" @click="pick(7); $event.currentTarget.closest('section')?.scrollIntoView({ behavior: 'smooth', block: 'start' })" class="link-action text-miriam inline-flex items-center gap-1">{{ L('ver el foco D11 (#7)', 'see the D11 focus (#7)') }} <span aria-hidden="true">→</span></button>
+                </p>
+              </div>
             </div>
 
             <div class="rounded-card border border-[#efb27a] bg-[#fbf0df] text-[#7a4a12] px-4 py-3 text-sm leading-relaxed mt-4">
@@ -2114,10 +2110,42 @@ const ticks = [
             </p>
           </div>
 
+          <!-- DE UN VISTAZO · los 3 candidatos mejor situados por las señales de imagen.
+               Comparación rápida para el radiólogo (orden orientativo, no una orden). -->
+          <div class="mb-6">
+            <div class="flex items-baseline justify-between flex-wrap gap-2 mb-2">
+              <h3 class="heading-display text-lg text-berenjena">{{ L('De un vistazo · mejor situados por imagen', 'At a glance · best placed by imaging') }}</h3>
+              <span class="text-[11px] text-tinta">{{ L('orden orientativo · toca para abrir la ficha', 'indicative order · tap to open the card') }}</span>
+            </div>
+            <div class="grid sm:grid-cols-3 gap-3">
+              <button v-for="(le, i) in topCandidates" :key="le.id" type="button"
+                @click="pick(le.id); $event.currentTarget.scrollIntoView({ behavior: 'smooth', block: 'center' })"
+                class="text-left rounded-card border-2 px-3.5 py-3 transition-colors"
+                :class="selected === le.id ? 'border-[#9d44ab] bg-[rgba(157,68,171,0.07)]' : 'border-[rgba(45,27,61,0.14)] bg-cream-card hover:border-[#9d44ab]'">
+                <div class="flex items-center justify-between gap-2">
+                  <span class="inline-flex items-center gap-2 min-w-0">
+                    <span class="inline-flex w-6 h-6 shrink-0 rounded-full items-center justify-center text-white text-[11px] font-semibold" :style="{ background: phenoColor(le) }">{{ le.id }}</span>
+                    <span class="font-semibold text-berenjena text-[13px] leading-tight truncate">{{ le.level[lang] }}</span>
+                  </span>
+                  <span class="text-right shrink-0">
+                    <span class="font-display text-xl text-berenjena tabular-nums leading-none block">{{ suitabilityScore(le) }}</span>
+                    <span class="text-[8.5px] text-tinta uppercase tracking-wide">{{ L('idoneidad', 'suitability') }}</span>
+                  </span>
+                </div>
+                <p class="text-[10.5px] text-tinta leading-snug mt-1.5">{{ L('orden', 'rank') }} {{ i + 1 }} · FDG {{ le.fdg != null ? le.fdg.toFixed(1) : '—' }} · Ga {{ le.dota != null ? le.dota.toFixed(1) : '—' }} · {{ morphShort(le) }}</p>
+                <div v-if="hasSoftTissue(le) || le.priorBiopsy" class="mt-2 flex flex-wrap gap-1">
+                  <span v-if="hasSoftTissue(le)" class="pill-data !px-1.5 !py-0 !text-[9.5px]" :style="{ background: 'rgba(31,107,87,0.12)', color: '#1f6b57' }">{{ L('+ partes blandas (RMN)', '+ soft tissue (MRI)') }}</span>
+                  <span v-if="le.priorBiopsy" class="pill-data !px-1.5 !py-0 !text-[9.5px]" :style="{ background: '#f0e2c8', color: '#8a5a1a' }">{{ L('⚑ 26B585 falló', '⚑ 26B585 failed') }}</span>
+                </div>
+              </button>
+            </div>
+            <p class="text-[11px] text-tinta leading-snug mt-2 max-w-3xl">{{ L('Un resumen para comparar de un vistazo; el orden completo y los factores están abajo. No es una orden de qué biopsiar — equipa, no indica.', 'A summary to compare at a glance; the full order and the factors are below. Not an instruction on what to biopsy — it equips, it does not indicate.') }}</p>
+          </div>
+
           <!-- LOS FACTORES que componen la idoneidad (explícitos, etiquetados por trazador/forma) -->
           <p class="text-sm text-tinta leading-relaxed mb-3 max-w-3xl">
-            {{ L('La idoneidad no es una caja negra: es el producto de tres factores visibles, más dos avisos que el equipo pondera (no van en el número).',
-                  'Suitability is not a black box: it is the product of three visible factors, plus two flags the team weighs (they are not in the number).') }}
+            {{ L('La idoneidad no es una caja negra: es el producto de tres factores visibles, más tres avisos de FACTIBILIDAD que el equipo pondera (no van en el número).',
+                  'Suitability is not a black box: it is the product of three visible factors, plus three FEASIBILITY flags the team weighs (they are not in the number).') }}
           </p>
           <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-3 mb-6">
             <div class="card-base !p-3.5 border-t-4" :style="{ borderColor: '#bb4128' }">
@@ -2133,8 +2161,12 @@ const ticks = [
               <p class="text-[12.5px] text-tinta leading-snug">{{ L('Eje mayor de la lesión (más grande = más fácil y más tejido) y, donde se midió, el MTV (volumen tumoral metabólico).', 'Lesion major axis (larger = easier and more tissue) and, where measured, the MTV (metabolic tumour volume).') }}</p>
             </div>
             <div class="card-base !p-3.5 border-t-4" :style="{ borderColor: '#8a5a1a' }">
-              <p class="text-[12px] font-semibold mb-1" :style="{ color: '#8a5a1a' }">{{ L('Aviso · antecedente', 'Flag · prior history') }}</p>
-              <p class="text-[12.5px] text-tinta leading-snug">{{ L('La biopsia previa 26B585 (ilíaco derecho, #13) FALLÓ: solo dio hueso y músculo, sin tumor evaluable. Se muestra como aviso; no entra en el número.', 'The prior 26B585 biopsy (right iliac, #13) FAILED: only bone and muscle, no evaluable tumour. Shown as a flag; not part of the number.') }}</p>
+              <p class="text-[12px] font-semibold mb-1 flex items-center gap-1.5 flex-wrap" :style="{ color: '#8a5a1a' }">{{ L('Aviso · antecedente 26B585', 'Flag · prior history 26B585') }}<span class="status-badge" :style="{ background: '#f0e2c8', color: '#8a5a1a' }">{{ L('lección', 'lesson') }}</span></p>
+              <p class="text-[12.5px] text-tinta leading-snug">{{ L('La biopsia previa 26B585 (ilíaco derecho, #13) FALLÓ: solo dio hueso y músculo, sin tumor evaluable. La lección: ese foco era blástico denso, que rinde poco — por eso el rendimiento (forma) pesa en la lente y conviene priorizar focos con tejido lítico / partes blandas. Se muestra como aviso; no entra en el número.', 'The prior 26B585 biopsy (right iliac, #13) FAILED: only bone and muscle, no evaluable tumour. The lesson: that focus was dense blastic, which yields little — that is why yield (shape) weighs in the lens and lytic / soft-tissue targets are worth prioritising. Shown as a flag; not part of the number.') }}</p>
+            </div>
+            <div class="card-base !p-3.5 border-t-4" :style="{ borderColor: '#1f6b57' }">
+              <p class="text-[12px] font-semibold mb-1 flex items-center gap-1.5 flex-wrap" :style="{ color: '#1f6b57' }">{{ L('Aviso · partes blandas (RMN)', 'Flag · soft tissue (MRI)') }}<span class="status-badge" :style="{ background: 'rgba(31,107,87,0.12)', color: '#1f6b57' }">{{ L('factibilidad', 'feasibility') }}</span></p>
+              <p class="text-[12.5px] text-tinta leading-snug">{{ L('Donde la RMN describe componente de partes blandas / extensión extraósea (p.ej. epidural de D11, #7), hay una diana de tejido blando que suele rentabilizar más que el hueso blástico denso. La RMN conecta así con la FACTIBILIDAD. Es FORMA/extensión del informe, no biología; la cercanía al canal/raíces la valora intervencionista. No entra en el número.', 'Where the MRI describes a soft-tissue / extraosseous component (e.g. D11 epidural, #7), there is a soft-tissue target that usually yields more than dense blastic bone. This is how the MRI connects to FEASIBILITY. It is SHAPE/extent from the report, not biology; proximity to the canal/roots is assessed by interventional radiology. Not part of the number.') }}</p>
             </div>
             <div class="card-base !p-3.5 border-t-4" :style="{ borderColor: '#6b6470' }">
               <p class="text-[12px] font-semibold mb-1" :style="{ color: '#3a3340' }">{{ L('Aviso · accesibilidad', 'Flag · accessibility') }}</p>
@@ -2200,8 +2232,9 @@ const ticks = [
                     </div>
                   </div>
                 </div>
-                <!-- avisos (no van en el número): antecedente / hueso de carga -->
-                <div v-if="le.priorBiopsy || le.load" class="mt-2.5 flex flex-wrap gap-1.5">
+                <!-- avisos de factibilidad (no van en el número): partes blandas / antecedente / hueso de carga -->
+                <div v-if="hasSoftTissue(le) || le.priorBiopsy || le.load" class="mt-2.5 flex flex-wrap gap-1.5">
+                  <span v-if="hasSoftTissue(le)" class="pill-data" :style="{ background: 'rgba(31,107,87,0.12)', color: '#1f6b57' }">{{ L('+ partes blandas (RMN) · diana accesible', '+ soft tissue (MRI) · accessible target') }}</span>
                   <span v-if="le.priorBiopsy" class="pill-data" :style="{ background: '#f0e2c8', color: '#8a5a1a' }">{{ L('⚑ biopsia previa 26B585 FALLÓ aquí', '⚑ prior biopsy 26B585 FAILED here') }}</span>
                   <span v-if="le.load" class="pill-data" :style="{ background: 'rgba(45,27,61,0.06)', color: '#3a3340' }">{{ L('hueso de carga · revisado (Oncología RT)', 'weight-bearing · reviewed (Radiation Oncology)') }}</span>
                 </div>
@@ -2281,12 +2314,12 @@ const ticks = [
           </div>
         </section>
 
-        <!-- ===== ZONA E · APÉNDICE DE REFERENCIA (tabla) — abre en modo Clínico ===== -->
+        <!-- ===== ZONA E · APÉNDICE DE REFERENCIA (tabla) — abierta por defecto (vista clínica) ===== -->
         <section class="mb-14" aria-labelledby="tabla">
           <p class="eyebrow mb-2 block">{{ L('Para el equipo · referencia', 'For the team · reference') }}</p>
           <h2 id="tabla" class="heading-display text-2xl text-berenjena mb-2">{{ L('Apéndice: los focos en una tabla', 'Appendix: the foci in a table') }}</h2>
-          <p class="text-sm text-tinta leading-relaxed mb-4 max-w-3xl">{{ L('Tabla completa con la idoneidad orientativa como diana, SUVmáx por trazador, tendencia, extensión metabólica medida y patrón, más los focos extra detectados de forma automática. Pulsa una cabecera para ordenar; los focos detectados por IA van siempre al final, en su propio grupo, sin confirmar. Detalle clínico: se abre en el modo «Clínico».', 'Full table with the indicative suitability as a target, SUVmax per tracer, trend, measured metabolic extent and pattern, plus the automatically detected extra foci. Click a header to sort; AI-detected foci always go last, in their own group, unconfirmed. Clinical detail: it opens in “Clinical” mode.') }}</p>
-          <details class="notes-disclosure" :open="isClinical">
+          <p class="text-sm text-tinta leading-relaxed mb-4 max-w-3xl">{{ L('Tabla completa con la idoneidad orientativa como diana, SUVmáx por trazador, tendencia, extensión metabólica medida y patrón, más los focos extra detectados de forma automática. Pulsa una cabecera para ordenar; los focos detectados por IA van siempre al final, en su propio grupo, sin confirmar.', 'Full table with the indicative suitability as a target, SUVmax per tracer, trend, measured metabolic extent and pattern, plus the automatically detected extra foci. Click a header to sort; AI-detected foci always go last, in their own group, unconfirmed.') }}</p>
+          <details class="notes-disclosure" open>
             <summary>{{ L('Abrir la tabla y los focos extra', 'Open the table and extra foci') }}</summary>
           <p class="text-[12px] text-tinta mt-3 mb-4 leading-relaxed max-w-3xl">
             {{ L('Pulsa una cabecera para ordenar. Primero van los focos del informe oficial y, al final, en su propio grupo, los detectados por IA (medidas aproximadas sobre los DICOM, por confirmar con Medicina Nuclear). La extensión metabólica es lo que cada foco capta por encima del umbral (41% del SUVmáx local), confinado a hueso; no es el tamaño anatómico exacto y el volumen parcial subestima los focos < ~10 mm.',
@@ -2332,6 +2365,7 @@ const ticks = [
                       </span>
                     </div>
                     <div class="flex flex-wrap gap-1 mt-1">
+                      <span v-if="hasSoftTissue(row.le)" class="pill-data !px-1.5 !py-0 !text-[10px]" :style="{ background: 'rgba(31,107,87,0.12)', color: '#1f6b57' }">{{ L('+ partes blandas', '+ soft tissue') }}</span>
                       <span v-if="row.le.priorBiopsy" class="pill-data !px-1.5 !py-0 !text-[10px]" :style="{ background: '#f0e2c8', color: '#8a5a1a' }">{{ L('⚑ 26B585 falló', '⚑ 26B585 failed') }}</span>
                       <span v-if="isAiDavid(row.le)" class="pill-data !px-1.5 !py-0 !text-[10px]" :style="{ background: '#fde4cc', color: '#8a4a1a' }">{{ L('sin confirmar', 'unconfirmed') }}</span>
                     </div>
@@ -2476,8 +2510,8 @@ const ticks = [
 /* ── Tabla de focos · cabecera pegajosa ──────────────────────────────
    El contenedor scrollea (vertical + horizontal) y el <thead> se queda fijo
    en su borde superior mientras se escanea/ordena las ~19 filas. Stick DENTRO
-   del propio contenedor (no contra el viewport) → evita el conflicto con el
-   doble stack pegajoso del sitio (cabecera + toggle En claro/Clínico).
+   del propio contenedor (no contra el viewport) → evita el conflicto con la
+   cabecera pegajosa del sitio.
    Fondo OPACO (#f5efe6, ya en .data-table) para que las filas no se
    transparenten al pasar por debajo. */
 .tabla-focos {
