@@ -25,14 +25,26 @@
  *     (~0–13) que el FDG real (~0–8), se NORMALIZA cada canal por su referencia antes de
  *     comparar (gaN = suv_ga/13 vs fdgN = suv_fdg/8); gaN > fdgN → violeta receptor, si no
  *     naranja FDG, y donde ambos normalizados son altos y parecidos se mezclan (mixta). El
- *     resto del hueso en marfil mate. La lesión ES el área: NO hay diana-punto flotante.
+ *     resto del hueso en marfil mate.
  *  2) «Mapa de calor» — intensidad continua: t = clamp(max(suv_fdg, suv_ga)/8, 0, 1) →
  *     rampa térmica perceptual (azul→cian→amarillo→naranja→rojo). Referencia ABSOLUTA
- *     (comparable entre huesos). Marca discreta del vértice más caliente (SUVmáx).
+ *     (comparable entre huesos).
  *  3) «Morfología» — densidad REAL del CT (HU). t = clamp((density_hu−150)/(850−150), 0, 1)
  *     con gamma ~1.3 → rampa SIN BLANCO ARRIBA: trabecular/normal (t bajo) = tostado/marfil
  *     neutro; denso/blástico (t alto) = AZUL OSCURO SATURADO. El sombreado de las luces
  *     (Lambert/PBR mate) da el volumen encima. Es FORMA, no biología, no trazador.
+ *
+ * CONTORNO + DIANA (en LOS 3 MODOS, para saber SIEMPRE dónde está el área): se define la
+ * región de lesión por vértice = (suv_fdg≥THR || suv_ga≥THR), borde suave (campo memb 0..1),
+ * y se traza la ISO-LÍNEA memb=0.5 sobre la malla — las aristas de cada triángulo cuyos
+ * extremos quedan a distinto lado del umbral, con el cruce interpolado exacto → línea de
+ * contorno (THREE.LineSegments cian/teal, depthTest+polygonOffset: se asienta en la
+ * superficie y el hueso la ocluye al girar). En «Morfología» el contorno encierra la
+ * densidad/blástico → «cómo es por dentro». La DIANA (sprite anillo+punto fino, depthTest
+ * FALSE, renderOrder alto) marca el CENTROIDE de cada foco (clústeres conexos de la región)
+ * y queda SIEMPRE visible aunque el foco caiga en la cara trasera. Multi-foco: un contorno y
+ * una diana por foco. Informa, no concluye: la línea es la frontera de la captación PET,
+ * aproximada por la resolución (~4–5 mm).
  *
  * HUESO MATE Y OPACO (no romper la opacidad ya arreglada): MeshStandardMaterial muy rugoso,
  * sin metal, casi sin entorno; DoubleSide + normales recalculadas del winding → nunca se ve
@@ -66,7 +78,7 @@ const mode = computed<Mode>(() => props.mode ?? 'area')
 const C_REC = '#c061d6'    // receptor · Galio (violeta)
 const C_FDG = '#ff8a3a'    // azúcar · FDG (naranja)
 const C_IVORY = '#dcd3c2'  // hueso mate, uniforme (igual que el look ya aprobado)
-const C_HOT = '#fff1f1'    // núcleo de la marca del SUVmáx (punto más caliente)
+const C_OUTLINE = '#19e3d6' // contorno de la lesión · cian/teal brillante (lee sobre marfil, heat y azul)
 
 const host = ref<HTMLDivElement | null>(null)
 const loading = ref(true)
@@ -80,6 +92,7 @@ let renderer: THREE.WebGLRenderer, scene: THREE.Scene, camera: THREE.Perspective
 let pmrem: THREE.PMREMGenerator | null = null
 let mesh: THREE.Mesh | null = null
 let markerGroup: THREE.Group | null = null
+let outlineGroup: THREE.Group | null = null   // contorno (línea) de la(s) región(es) de lesión
 let raf = 0, ro: ResizeObserver | null = null
 let curKey = ''
 let boneCenter = new THREE.Vector3()
@@ -92,6 +105,15 @@ let vGa: Float32Array | null = null        // suv_ga · SUV de Galio (receptor) 
 let outColors: Float32Array | null = null  // buffer de salida reutilizado (count*3, LINEAL)
 let hotIndex = -1                           // vértice del punto más caliente (máx SUV)
 let hotSuv = 0                              // SUV del punto más caliente
+
+/* ---- contorno de la lesión: campo de pertenencia + segmentos de iso-línea ---- */
+// memb[i] = pertenencia 0..1 del vértice i (área de captación, mismo criterio que «Área»).
+let memb: Float32Array | null = null
+// vértices de los segmentos de contorno (cada arista borde aporta 2 puntos: A,B), en
+// coords de geometría (la malla se recentra al origen, así que coinciden con world).
+let outlinePos: Float32Array | null = null
+// centroides de cada FOCO de lesión (clústeres conexos de la región) → diana por foco.
+let lesionCentroids: THREE.Vector3[] = []
 
 /* umbrales / rangos del color-math (SUV absolutos y banda de HU del CT) */
 const THR_SUV = 2.5             // «Área»: pertenencia a la lesión, SUV absoluto (FDG o Ga)
@@ -226,7 +248,11 @@ function precompute(geo: THREE.BufferGeometry) {
   const col = geo.getAttribute('color') as THREE.BufferAttribute | undefined
   vDensity = new Float32Array(n); vFdg = new Float32Array(n); vGa = new Float32Array(n)
   outColors = new Float32Array(n * 3)
+  memb = new Float32Array(n)
   hotIndex = -1; hotSuv = 0
+  // pertenencia al área: mismo criterio que la huella de «Área» — un vértice está dentro si
+  // suv_fdg≥THR o suv_ga≥THR, con borde suave por smoothstep en [0.7·THR, THR] (memb 0..1).
+  const e0 = 0.7 * THR_SUV
   for (let i = 0; i < n; i++) {
     let d: number, f: number, g: number
     if (hasReal) {
@@ -239,8 +265,102 @@ function precompute(geo: THREE.BufferGeometry) {
       g = (col ? col.getZ(i) : 0) * 15
     }
     vDensity[i] = d; vFdg[i] = f; vGa[i] = g
+    memb[i] = Math.max(smoothstep(e0, THR_SUV, f), smoothstep(e0, THR_SUV, g))
     const s = f > g ? f : g
     if (s > hotSuv) { hotSuv = s; hotIndex = i }
+  }
+  computeOutline(geo)
+  computeCentroids(geo)
+}
+
+/* ---------- CONTORNO de la lesión sobre la malla (iso-línea memb = 0.5) ----------
+   La «línea/bordecito» que señala SIEMPRE dónde está el área. Recorremos los TRIÁNGULOS y,
+   en cada arista (a,b) cuyos extremos quedan en lados distintos del umbral (memb_a<0.5 y
+   memb_b≥0.5, o viceversa), interpolamos el PUNTO DE CRUCE exacto sobre la arista:
+       p = A + (0.5 − memb_a)/(memb_b − memb_a) · (B − A).
+   Uniendo los cruces de las dos aristas que cruza cada triángulo se obtiene un segmento que
+   yace SOBRE la superficie → el conjunto es la línea de contorno (THREE.LineSegments). El
+   campo memb tiene borde suave, pero el contorno se traza en el cruce duro 0.5 (la frontera
+   de la huella). Multi-foco: cada región conexa aporta su propio bucle de contorno, así que
+   se contornean automáticamente todos los focos. */
+const ISO = 0.5
+function computeOutline(geo: THREE.BufferGeometry) {
+  outlinePos = null
+  if (!memb) return
+  const pos = geo.getAttribute('position') as THREE.BufferAttribute
+  const idx = geo.getIndex()
+  const segs: number[] = []
+  const ax = (i: number) => pos.getX(i), ay = (i: number) => pos.getY(i), az = (i: number) => pos.getZ(i)
+  // punto de cruce iso sobre la arista (i,j), empujado un pelín a 'segs'
+  const pushCross = (i: number, j: number) => {
+    const mi = memb![i], mj = memb![j]
+    const t = (ISO - mi) / (mj - mi)   // ∈ (0,1) por construcción (lados distintos)
+    segs.push(ax(i) + (ax(j) - ax(i)) * t, ay(i) + (ay(j) - ay(i)) * t, az(i) + (az(j) - az(i)) * t)
+  }
+  const triCount = idx ? idx.count / 3 : pos.count / 3
+  const gi = (k: number) => (idx ? idx.getX(k) : k)
+  for (let t = 0; t < triCount; t++) {
+    const a = gi(t * 3), b = gi(t * 3 + 1), c = gi(t * 3 + 2)
+    const ia = memb![a] >= ISO, ib = memb![b] >= ISO, ic = memb![c] >= ISO
+    const inCount = (ia ? 1 : 0) + (ib ? 1 : 0) + (ic ? 1 : 0)
+    if (inCount === 0 || inCount === 3) continue   // triángulo enteramente dentro o fuera → sin frontera
+    // exactamente DOS de las tres aristas cruzan la iso; añadimos esos dos puntos como un segmento
+    const crosses: Array<[number, number]> = []
+    if (ia !== ib) crosses.push([a, b])
+    if (ib !== ic) crosses.push([b, c])
+    if (ic !== ia) crosses.push([c, a])
+    if (crosses.length === 2) { pushCross(crosses[0][0], crosses[0][1]); pushCross(crosses[1][0], crosses[1][1]) }
+  }
+  outlinePos = segs.length ? new Float32Array(segs) : null
+}
+
+/* ---------- centroide(s) de la lesión por FOCO (clústeres conexos) ----------
+   Para la diana «que no se pierde»: un marcador en el centro de cada región de captación.
+   Etiquetamos los vértices dentro (memb≥0.5) en componentes conexas vía las aristas de la
+   malla (union-find ligero por BFS sobre adyacencia de triángulos). Cada componente con
+   suficientes vértices aporta un centroide (promedio de posiciones). Multi-foco → varias
+   dianas, una por foco, sin clavar puntos donde no hay captación. */
+function computeCentroids(geo: THREE.BufferGeometry) {
+  lesionCentroids = []
+  if (!memb) return
+  const pos = geo.getAttribute('position') as THREE.BufferAttribute
+  const n = pos.count
+  const idx = geo.getIndex()
+  // adyacencia sólo entre vértices DENTRO (memb≥0.5)
+  const inside = new Uint8Array(n)
+  let insideCount = 0
+  for (let i = 0; i < n; i++) if (memb[i] >= ISO) { inside[i] = 1; insideCount++ }
+  if (insideCount === 0) return
+  const adj = new Map<number, number[]>()
+  const link = (a: number, b: number) => {
+    if (!inside[a] || !inside[b]) return
+    ;(adj.get(a) ?? adj.set(a, []).get(a)!).push(b)
+    ;(adj.get(b) ?? adj.set(b, []).get(b)!).push(a)
+  }
+  const triCount = idx ? idx.count / 3 : pos.count / 3
+  const gi = (k: number) => (idx ? idx.getX(k) : k)
+  for (let t = 0; t < triCount; t++) {
+    const a = gi(t * 3), b = gi(t * 3 + 1), c = gi(t * 3 + 2)
+    link(a, b); link(b, c); link(c, a)
+  }
+  const seen = new Uint8Array(n)
+  const minCluster = Math.max(4, Math.round(insideCount * 0.04)) // descarta motas (<4% del área)
+  for (let i = 0; i < n; i++) {
+    if (!inside[i] || seen[i]) continue
+    // BFS de la componente conexa
+    const queue = [i]; seen[i] = 1
+    let sx = 0, sy = 0, sz = 0, cnt = 0
+    while (queue.length) {
+      const v = queue.pop()!
+      sx += pos.getX(v); sy += pos.getY(v); sz += pos.getZ(v); cnt++
+      const nb = adj.get(v)
+      if (nb) for (const w of nb) if (!seen[w]) { seen[w] = 1; queue.push(w) }
+    }
+    if (cnt >= minCluster) lesionCentroids.push(new THREE.Vector3(sx / cnt, sy / cnt, sz / cnt))
+  }
+  // si nada superó el umbral de tamaño pero hay captación, cae al vértice más caliente
+  if (!lesionCentroids.length && hotIndex >= 0) {
+    lesionCentroids.push(new THREE.Vector3(pos.getX(hotIndex), pos.getY(hotIndex), pos.getZ(hotIndex)))
   }
 }
 
@@ -301,63 +421,101 @@ function applyMode() {
   const existing = geo.getAttribute('color') as THREE.BufferAttribute | undefined
   if (existing && existing.array === out) { existing.needsUpdate = true }
   else geo.setAttribute('color', new THREE.BufferAttribute(out, 3))
+  // CONTORNO + DIANA en LOS 3 MODOS (no dependen del modo: marcan SIEMPRE dónde está el área)
+  buildOutline()
   buildMarkers()
 }
 
-/* ---------- marca discreta del punto más caliente (SOLO en «Mapa de calor») ---------- */
+/* ===================== CONTORNO DE LA LESIÓN (línea sobre la superficie) =====================
+   La «línea/bordecito» que señala SIEMPRE dónde está el área, en LOS 3 MODOS. Se construye
+   una sola vez por malla (los segmentos no dependen del modo). Color cian/teal brillante que
+   lee sobre marfil, sobre la rampa térmica y sobre el azul del blástico. depthTest:true +
+   polygonOffset NEGATIVO → la línea se asienta sobre la superficie y el hueso la OCLUYE al
+   girar (queda integrada, no flotando): cuando la lesión cae detrás, su contorno desaparece
+   tras el hueso — para eso está la diana siempre-visible. */
+function disposeOutline() {
+  if (!outlineGroup) return
+  outlineGroup.children.forEach((o) => {
+    const ln = o as THREE.LineSegments
+    ;(ln.material as THREE.Material).dispose(); ln.geometry?.dispose()
+  })
+  outlineGroup.clear()
+}
+function buildOutline() {
+  if (!mesh || !outlineGroup) return
+  disposeOutline()
+  if (!outlinePos || outlinePos.length < 6) return
+  const g = new THREE.BufferGeometry()
+  g.setAttribute('position', new THREE.BufferAttribute(outlinePos, 3))
+  // doble pasada: un trazo ancho semitransparente (halo) + el trazo fino brillante encima,
+  // para que destaque sobre cualquiera de las tres rampas sin saturar.
+  const halo = new THREE.LineSegments(g, new THREE.LineBasicMaterial({
+    color: new THREE.Color(C_OUTLINE), transparent: true, opacity: 0.28, linewidth: 1,
+    depthTest: true, depthWrite: false, toneMapped: false,
+    polygonOffset: true, polygonOffsetFactor: -6, polygonOffsetUnits: -6,
+  }))
+  halo.renderOrder = 3
+  const core = new THREE.LineSegments(g, new THREE.LineBasicMaterial({
+    color: new THREE.Color(C_OUTLINE), transparent: true, opacity: 0.95, linewidth: 1,
+    depthTest: true, depthWrite: false, toneMapped: false,
+    polygonOffset: true, polygonOffsetFactor: -8, polygonOffsetUnits: -8,
+  }))
+  core.renderOrder = 4
+  outlineGroup.add(halo); outlineGroup.add(core)
+}
+
+/* ===================== DIANA SUTIL «que no se pierde» (los 3 modos) =====================
+   Marcador de centro pequeño en el centroide de cada foco de lesión, con depthTest:false y
+   renderOrder ALTO → SIEMPRE visible aunque el foco quede en la cara trasera al girar (así
+   «siempre sabes dónde está»). Estilo discreto: un anillo fino + punto central, neutro y
+   semitransparente — NO la pegatina blanca gruesa que se rechazó. Presente en los 3 modos.
+   Se complementa con el contorno: la diana marca el centro (no se pierde), el contorno marca
+   la frontera (cuando es visible). */
 function hexA(hex: string, a: number): string {
   const n = parseInt(hex.slice(1), 16)
   return `rgba(${(n >> 16) & 255},${(n >> 8) & 255},${n & 255},${a})`
 }
-function hotTexture(): THREE.CanvasTexture {
+function targetTexture(): THREE.CanvasTexture {
   const S = 256, cv = document.createElement('canvas'); cv.width = cv.height = S
   const ctx = cv.getContext('2d')!; const c = S / 2
   ctx.clearRect(0, 0, S, S)
-  // halo cálido tenue + anillo fino blanco + punto central → «punto más caliente»
-  const g = ctx.createRadialGradient(c, c, 0, c, c, c)
-  g.addColorStop(0, hexA('#ff3b3b', 0.35)); g.addColorStop(0.5, hexA('#ff3b3b', 0.10)); g.addColorStop(1, hexA('#ff3b3b', 0))
-  ctx.fillStyle = g; ctx.beginPath(); ctx.arc(c, c, c, 0, Math.PI * 2); ctx.fill()
-  ctx.strokeStyle = C_HOT; ctx.globalAlpha = 0.95; ctx.lineWidth = S * 0.03; ctx.lineCap = 'round'
+  // anillo fino + punto central, color del contorno (cian/teal), discreto y semitransparente.
+  // Pequeño halo oscuro detrás del trazo para que el cian lea también sobre marfil claro.
+  ctx.strokeStyle = hexA('#06222b', 0.45); ctx.lineWidth = S * 0.055; ctx.lineCap = 'round'
   ctx.beginPath(); ctx.arc(c, c, S * 0.30, 0, Math.PI * 2); ctx.stroke()
-  ctx.globalAlpha = 1; ctx.fillStyle = C_HOT
-  ctx.beginPath(); ctx.arc(c, c, S * 0.07, 0, Math.PI * 2); ctx.fill()
+  ctx.strokeStyle = C_OUTLINE; ctx.globalAlpha = 0.92; ctx.lineWidth = S * 0.028
+  ctx.beginPath(); ctx.arc(c, c, S * 0.30, 0, Math.PI * 2); ctx.stroke()
+  ctx.globalAlpha = 1; ctx.fillStyle = C_OUTLINE
+  ctx.beginPath(); ctx.arc(c, c, S * 0.055, 0, Math.PI * 2); ctx.fill()
   const t = new THREE.CanvasTexture(cv); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 4
   return t
 }
+let markerTex: THREE.CanvasTexture | null = null
 function disposeMarkers() {
-  if (!markerGroup) return
-  markerGroup.children.forEach((o) => {
-    const me = o as THREE.Mesh
-    const mt = me.material as THREE.MeshBasicMaterial
-    mt.map?.dispose(); mt.dispose(); me.geometry?.dispose()
-  })
-  markerGroup.clear()
+  if (markerGroup) {
+    markerGroup.children.forEach((o) => { ((o as THREE.Sprite).material as THREE.SpriteMaterial)?.dispose() })
+    markerGroup.clear()
+  }
+  markerTex?.dispose(); markerTex = null   // textura compartida → se libera UNA vez
 }
 function buildMarkers() {
   if (!mesh || !markerGroup) return
   disposeMarkers()
-  // SOLO el modo calor lleva marca (el punto más caliente, SUVmáx). «Área» NO usa
-  // diana-punto (el área ES la lesión); «Morfología» es forma. Sólo si hay captación real.
-  if (mode.value !== 'heat' || hotIndex < 0 || hotSuv < THR_SUV) return
-  const geo = mesh.geometry
-  const posA = geo.getAttribute('position') as THREE.BufferAttribute
-  const norA = geo.getAttribute('normal') as THREE.BufferAttribute | undefined
-  const point = new THREE.Vector3(posA.getX(hotIndex), posA.getY(hotIndex), posA.getZ(hotIndex)).add(mesh.position)
-  const normal = norA
-    ? new THREE.Vector3(norA.getX(hotIndex), norA.getY(hotIndex), norA.getZ(hotIndex))
-      .applyNormalMatrix(new THREE.Matrix3().getNormalMatrix(mesh.matrixWorld)).normalize()
-    : point.clone().sub(boneCenter).normalize()
-  if (normal.lengthSq() < 1e-6) normal.set(0, 0, 1)
-  const diameter = boneRadius * 0.16
-  const m = new THREE.Mesh(new THREE.CircleGeometry(diameter / 2, 48), new THREE.MeshBasicMaterial({
-    map: hotTexture(), transparent: true, opacity: 0.95,
-    depthTest: true, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -4, polygonOffsetUnits: -4,
-    side: THREE.DoubleSide, blending: THREE.NormalBlending, toneMapped: false,
-  }))
-  m.position.copy(point).add(normal.clone().multiplyScalar(boneRadius * 0.004))
-  m.quaternion.setFromUnitVectors(new THREE.Vector3(0, 0, 1), normal)
-  m.renderOrder = 5
-  markerGroup.add(m)
+  // diana en CADA foco, en los 3 modos. Sólo si hay captación real (centroides calculados).
+  if (!lesionCentroids.length) return
+  markerTex = targetTexture()            // una textura compartida por todas las dianas del foco
+  const size = boneRadius * 0.20         // diana pequeña y constante en el espacio del hueso
+  for (const ctr of lesionCentroids) {
+    const sp = new THREE.Sprite(new THREE.SpriteMaterial({
+      map: markerTex, transparent: true, opacity: 0.9,
+      depthTest: false, depthWrite: false, sizeAttenuation: true,
+      toneMapped: false, blending: THREE.NormalBlending,
+    }))
+    sp.position.copy(ctr).add(mesh.position)   // mesh.position recentra al origen
+    sp.scale.set(size, size, 1)
+    sp.renderOrder = 10                          // por encima de todo → nunca se pierde
+    markerGroup.add(sp)
+  }
 }
 
 function load(key: string) {
@@ -379,7 +537,7 @@ function load(key: string) {
         geo.setAttribute('color', new THREE.BufferAttribute(rgb, 3))
       }
       if (mesh) { scene.remove(mesh); mesh.geometry.dispose(); (mesh.material as THREE.Material).dispose() }
-      disposeMarkers()
+      disposeMarkers(); disposeOutline()
       // HUESO MACIZO MATE y OPACO. vertexColors:true + color blanco → el color por vértice
       // ES el albedo (lo escribe applyMode por modo); las luces lo sombrean encima (volumen).
       const mat = new THREE.MeshStandardMaterial({
@@ -404,7 +562,8 @@ function load(key: string) {
       mesh.updateMatrixWorld(true)
       precompute(geo)
       if (!markerGroup) { markerGroup = new THREE.Group(); scene.add(markerGroup) }
-      markerGroup.position.set(0, 0, 0)
+      if (!outlineGroup) { outlineGroup = new THREE.Group(); scene.add(outlineGroup) }
+      markerGroup.position.set(0, 0, 0); outlineGroup.position.set(0, 0, 0)
       frameObject()
       applyMode()
       loading.value = false
@@ -436,7 +595,7 @@ watch(mode, () => {
 })
 onBeforeUnmount(() => {
   cancelAnimationFrame(raf); ro?.disconnect()
-  disposeMarkers()
+  disposeMarkers(); disposeOutline()
   if (mesh) { mesh.geometry.dispose(); (mesh.material as THREE.Material).dispose() }
   pmrem?.dispose()
   renderer?.dispose()
@@ -491,8 +650,10 @@ onBeforeUnmount(() => {
         <template v-if="mode === 'area'">
           {{ failed ? L('Reconstrucción del CT · vista estática', 'Reconstruction from the CT · static view') : L('Reconstrucción del CT · arrastra para girar · rueda para acercar', 'Reconstruction from the CT · drag to rotate · scroll to zoom') }}<br>
           <span :style="{ color: C_REC }">●</span> {{ L('violeta · receptor (Galio)', 'violet · receptor (gallium)') }} ·
-          <span :style="{ color: C_FDG }">●</span> {{ L('naranja · azúcar (FDG)', 'orange · sugar (FDG)') }}
-          <span style="color:#7c8694"> · {{ L('Área de captación real (PET) sobre el hueso — SUV ≥ ~2.5; difusa por la resolución del PET (~4–5 mm). El Galio es un proxy aproximado por ahora.', 'Real PET uptake area on the bone — SUV ≥ ~2.5; diffuse due to PET resolution (~4–5 mm). Gallium is an approximate proxy for now.') }}</span>
+          <span :style="{ color: C_FDG }">●</span> {{ L('naranja · azúcar (FDG)', 'orange · sugar (FDG)') }} ·
+          <span :style="{ color: C_OUTLINE }">▭</span> {{ L('contorno del área', 'area outline') }} ·
+          <span :style="{ color: C_OUTLINE }">◎</span> {{ L('centro', 'center') }}
+          <span style="color:#7c8694"> · {{ L('Área de captación real (PET) sobre el hueso — SUV ≥ ~2.5; difusa por la resolución del PET (~4–5 mm). La línea marca el contorno del área de lesión (aproximado por la resolución) y la diana su centro; dentro se ve la captación. El Galio es un proxy aproximado por ahora.', 'Real PET uptake area on the bone — SUV ≥ ~2.5; diffuse due to PET resolution (~4–5 mm). The line marks the outline of the lesion area (approximate due to resolution) and the marker its center; uptake is shown inside. Gallium is an approximate proxy for now.') }}</span>
         </template>
 
         <template v-else-if="mode === 'heat'">
@@ -500,15 +661,18 @@ onBeforeUnmount(() => {
           <span style="color:#1f6ed6">●</span> {{ L('frío', 'cool') }} →
           <span style="color:#0db9c8">●</span> <span style="color:#e8e030">●</span>
           <span style="color:#f58a1a">●</span> <span style="color:#de1c1c">●</span> {{ L('caliente', 'hot') }} ·
-          <span style="color:#cdd5e0">○ {{ L('punto más caliente (SUVmáx)', 'hottest point (SUVmax)') }}</span>
-          <span style="color:#7c8694"> · {{ L('Intensidad de captación (SUV real); rampa fría→caliente. El Galio es un proxy aproximado por ahora.', 'Uptake intensity (real SUV); cool→hot ramp. Gallium is an approximate proxy for now.') }}</span>
+          <span :style="{ color: C_OUTLINE }">▭</span> {{ L('contorno del área', 'area outline') }} ·
+          <span :style="{ color: C_OUTLINE }">◎</span> {{ L('centro', 'center') }}
+          <span style="color:#7c8694"> · {{ L('Intensidad de captación (SUV real); rampa fría→caliente. La línea marca el contorno del área de lesión y la diana su centro; dentro se ve el calor. El Galio es un proxy aproximado por ahora.', 'Uptake intensity (real SUV); cool→hot ramp. The line marks the outline of the lesion area and the marker its center; heat is shown inside. Gallium is an approximate proxy for now.') }}</span>
         </template>
 
         <template v-else>
           {{ failed ? L('Reconstrucción del CT · vista estática', 'Reconstruction from the CT · static view') : L('Reconstrucción del CT · arrastra para girar · rueda para acercar', 'Reconstruction from the CT · drag to rotate · scroll to zoom') }}<br>
           <span style="color:#9c794a">●</span> {{ L('tostado · hueso normal', 'tan · normal bone') }} →
-          <span style="color:#2c5cb2">●</span> {{ L('azul oscuro · blástico (denso)', 'dark blue · blastic (dense)') }}
-          <span style="color:#7c8694"> · {{ L('Densidad real del CT (HU): el hueso denso/blástico resalta en azul oscuro. Orientativo para la factibilidad de biopsia (el blástico denso rinde menos tejido).', 'Real CT density (HU): dense/blastic bone stands out in dark blue. Indicative of biopsy feasibility (dense blastic bone yields less tissue).') }}</span>
+          <span style="color:#2c5cb2">●</span> {{ L('azul oscuro · blástico (denso)', 'dark blue · blastic (dense)') }} ·
+          <span :style="{ color: C_OUTLINE }">▭</span> {{ L('contorno del área', 'area outline') }} ·
+          <span :style="{ color: C_OUTLINE }">◎</span> {{ L('centro', 'center') }}
+          <span style="color:#7c8694"> · {{ L('Densidad real del CT (HU): el hueso denso/blástico resalta en azul oscuro. La línea marca el contorno del área de lesión (captación PET, aproximado por la resolución); dentro se ve la densidad — cómo es por dentro. Orientativo para la factibilidad de biopsia (el blástico denso rinde menos tejido).', 'Real CT density (HU): dense/blastic bone stands out in dark blue. The line marks the outline of the lesion area (PET uptake, approximate due to resolution); inside it the density is shown — how it looks inside. Indicative of biopsy feasibility (dense blastic bone yields less tissue).') }}</span>
         </template>
       </p>
     </template>
