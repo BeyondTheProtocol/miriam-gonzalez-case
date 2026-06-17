@@ -475,8 +475,43 @@ function openKeyLightbox(plane: KeyPlane = 'axial') {
   keyLightboxOpen.value = true
 }
 function closeKeyLightbox() { keyLightboxOpen.value = false }
-/* si cambia el foco seleccionado mientras está abierto, resetea el plano al axial */
-watch(selected, () => { keyPlane.value = 'axial' })
+/* Galería contact-sheet: abre el MISMO lightbox seleccionando ese foco.
+   Calcula el plano sobre el focoKey del foco destino (no sobre selKey, que
+   se recalcula de forma reactiva tras cambiar `selected`). */
+function openKeyLightboxFor(id: number, plane: KeyPlane = 'axial') {
+  const le = LES.find((l) => l.id === id)
+  if (!le) return
+  const k = focoKey(le)
+  if (!k.hasReliable) { selected.value = id; return } // #19: solo nota, sin lightbox
+  selected.value = id
+  keyPlane.value = k.planes.some((p) => p.plane === plane) ? plane : 'axial'
+  keyLightboxOpen.value = true
+}
+/* si cambia el foco seleccionado mientras está abierto, resetea el plano al axial.
+   Excepción: cuando la apertura viene de la galería ya fija el plano correcto. */
+watch(selected, () => { if (!keyLightboxOpen.value) keyPlane.value = 'axial' })
+
+/* ------------------------------------------------------------------ */
+/*  GALERÍA "contact-sheet" de TODAS las key-images (petición paciente) */
+/*  Confirmadas primero (por id), focos de IA al final con su marca.    */
+/*  Etiqueta por miniatura: #id · localización · trazador SUVmáx.       */
+/* ------------------------------------------------------------------ */
+const keyGallery = computed<Lesion[]>(() => [...confirmedFoci.value, ...aiFoci.value])
+/* trazador dominante + su SUVmáx, como etiqueta corta (FORMA/dato, no biología) */
+function keyTracerLabel(le: Lesion): string {
+  const tr = domTracer(le)
+  const v = tr === 'ga' ? le.dota : le.fdg
+  const name = tr === 'ga' ? L('Ga receptor', 'Ga receptor') : L('FDG azúcar', 'FDG sugar')
+  return v != null ? `${name} ${v.toFixed(1)}` : name
+}
+/* color de texto del trazador dominante (AA sobre cream) */
+function keyTracerColor(le: Lesion): string {
+  return domTracer(le) === 'ga' ? '#7a3d86' : '#bb4128'
+}
+/* planos extra disponibles ("+Sag", "+Cor"), sin el axial (siempre presente) */
+function keyExtraPlanes(le: Lesion): string[] {
+  return focoKey(le).planes.filter((p) => p.plane !== 'axial').map((p) => '+' + p.label[lang.value])
+}
 
 /* ------------------------------------------------------------------ */
 /*  P1 · La lectura RMN (forma) por foco. La RMN disponible cubre        */
@@ -2172,6 +2207,71 @@ const ticks = [
                     'The MRI images are shown for viewing; the findings above are transcribed from the MRI report (11 Jun 2026) and are not a re-reading of the image by this tool. Its formal reading belongs to the radiologist. The SUVs in the rest of the page come from the PET reports.') }}
             </div>
           </div>
+
+          <!-- ===== GALERÍA "contact-sheet" · TODAS las key-images por foco ===== -->
+          <!-- Petición de la paciente: las imágenes construidas con DICOM, todas en
+               fila/cuadrícula y poder abrirlas en grande. Reutiliza el MISMO lightbox
+               (openKeyLightboxFor → selecciona el foco + abre el modal con zoom/planos). -->
+          <div class="mt-10 pt-8 border-t border-[rgba(45,27,61,0.1)]">
+            <p class="eyebrow mb-2 block">{{ L('Una por foco · todas en fila', 'One per focus · all in a row') }}</p>
+            <h3 class="heading-display text-xl text-berenjena mb-2">
+              {{ L('Imágenes clave por foco · PET/CT', 'Key images per focus · PET/CT') }}
+            </h3>
+            <p class="text-sm text-tinta leading-relaxed mb-4 max-w-3xl">
+              {{ L('Cada foco confirmado, con su corte axial PET/CT y el anillo del SUVmáx. Pulsa cualquiera para abrirla en grande (zoom, arrastre y los planos que tenga: sagital o coronal). Los focos detectados por IA van al final, por confirmar.',
+                    'Each confirmed focus, with its axial PET/CT slice and the SUVmax ring. Tap any to open it large (zoom, drag and the planes it has: sagittal or coronal). AI-detected foci are at the end, to confirm.') }}
+            </p>
+
+            <ul class="foco-key-grid" role="list">
+              <li v-for="le in keyGallery" :key="'gal-' + le.id" class="foco-key-cell">
+                <!-- foco con imagen fiable → miniatura pulsable que abre el lightbox grande -->
+                <button
+                  v-if="focoKey(le).hasReliable"
+                  type="button"
+                  class="foco-key-tile"
+                  :class="{ 'is-ai': focoKey(le).ai }"
+                  :aria-label="L('Ampliar la imagen clave del foco #' + le.id + ' · ' + le.level.es, 'Enlarge the key image of focus #' + le.id + ' · ' + le.level.en)"
+                  @click="openKeyLightboxFor(le.id, 'axial')">
+                  <span class="foco-key-tile__frame">
+                    <img
+                      :src="fk(le.id, 'axial')"
+                      :alt="L('Imagen clave (axial) del foco #' + le.id + ' · ' + le.level.es, 'Key image (axial) of focus #' + le.id + ' · ' + le.level.en)"
+                      class="foco-key-tile__img"
+                      loading="lazy" />
+                    <span class="foco-key-tile__zoom" aria-hidden="true">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7" /><line x1="21" y1="21" x2="16.5" y2="16.5" /><line x1="11" y1="8" x2="11" y2="14" /><line x1="8" y1="11" x2="14" y2="11" /></svg>
+                    </span>
+                    <span v-if="keyExtraPlanes(le).length" class="foco-key-tile__planes" aria-hidden="true">{{ keyExtraPlanes(le).join(' ') }}</span>
+                    <span v-if="focoKey(le).dotted || focoKey(le).ai" class="foco-key-tile__flag">{{ L('IA · aprox.', 'AI · approx.') }}</span>
+                  </span>
+                  <span class="foco-key-tile__meta">
+                    <span class="foco-key-tile__id">#{{ le.id }}</span>
+                    <span class="foco-key-tile__loc">{{ le.level[lang] }}</span>
+                    <span class="foco-key-tile__suv" :style="{ color: keyTracerColor(le) }">{{ keyTracerLabel(le) }}</span>
+                    <span v-if="focoKey(le).ai" class="foco-key-tile__confirm">{{ L('detectado por IA · aproximado · por confirmar', 'AI-detected · approximate · to confirm') }}</span>
+                  </span>
+                </button>
+
+                <!-- foco SIN círculo fiable (#19) → celda-nota, sin lightbox -->
+                <div v-else class="foco-key-tile foco-key-tile--note is-ai">
+                  <span class="foco-key-tile__noteframe">
+                    <span class="status-badge" style="background:#fde4cc;color:#8a4a1a">{{ L('por confirmar', 'to confirm') }}</span>
+                  </span>
+                  <span class="foco-key-tile__meta">
+                    <span class="foco-key-tile__id">#{{ le.id }}</span>
+                    <span class="foco-key-tile__loc">{{ le.level[lang] }}</span>
+                    <span class="foco-key-tile__suv" :style="{ color: keyTracerColor(le) }">{{ keyTracerLabel(le) }}</span>
+                    <span class="foco-key-tile__confirm">{{ L('detectado por IA · sin círculo fiable · por confirmar', 'AI-detected · no reliable ring · to confirm') }}</span>
+                  </span>
+                </div>
+              </li>
+            </ul>
+
+            <p class="text-[11px] text-tinta mt-3 leading-relaxed max-w-3xl">
+              {{ L('Imágenes reconstruidas del PET/CT; el anillo marca el SUVmáx (un vóxel), aproximado por resolución/co-registro; no sustituye la lectura formal.',
+                    'Images reconstructed from the PET/CT; the ring marks the SUVmax (a single voxel), approximate due to resolution/co-registration; it does not replace the formal reading.') }}
+            </p>
+          </div>
         </section>
 
         <!-- ===== ZONA D · TRAYECTORIA ===== -->
@@ -2770,6 +2870,101 @@ const ticks = [
   background: rgba(20, 14, 22, 0.7);
   color: #f1e7f5;
 }
+
+/* ---- Galería contact-sheet de TODAS las key-images ---- */
+.foco-key-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 0.85rem;
+}
+/* móvil estrecho: 2 columnas como mínimo cómodas */
+@media (max-width: 420px) {
+  .foco-key-grid { grid-template-columns: repeat(2, 1fr); gap: 0.6rem; }
+}
+.foco-key-cell { margin: 0; }
+.foco-key-tile {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  text-align: left;
+  cursor: zoom-in;
+}
+.foco-key-tile--note { cursor: default; }
+.foco-key-tile__frame,
+.foco-key-tile__noteframe {
+  position: relative;
+  display: block;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  border: 1px solid rgba(45, 27, 61, 0.16);
+  border-radius: 0.55rem;
+  overflow: hidden;
+  background: #000;
+  transition: box-shadow 0.18s, border-color 0.18s;
+}
+.foco-key-tile__noteframe {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #2a1f30;
+  border-style: dashed;
+  border-color: rgba(138, 90, 26, 0.6);
+}
+.foco-key-tile.is-ai .foco-key-tile__frame { border-style: dashed; border-color: rgba(138, 90, 26, 0.6); }
+.foco-key-tile:hover .foco-key-tile__frame { border-color: rgba(157, 68, 171, 0.6); box-shadow: 0 4px 14px rgba(45, 27, 61, 0.18); }
+.foco-key-tile:focus-visible { outline: 2px solid #9d44ab; outline-offset: 3px; border-radius: 0.55rem; }
+.foco-key-tile__img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.foco-key-tile__zoom {
+  position: absolute;
+  right: 5px;
+  bottom: 5px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 9999px;
+  background: rgba(20, 14, 22, 0.78);
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+}
+.foco-key-tile__planes {
+  position: absolute;
+  left: 5px;
+  bottom: 5px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9.5px;
+  line-height: 1;
+  padding: 2.5px 5px;
+  border-radius: 9999px;
+  background: rgba(20, 14, 22, 0.72);
+  color: #f1e7f5;
+}
+.foco-key-tile__flag {
+  position: absolute;
+  left: 5px;
+  top: 5px;
+  font-size: 9.5px;
+  font-weight: 700;
+  line-height: 1;
+  padding: 2.5px 5px;
+  border-radius: 9999px;
+  background: #fde4cc;
+  color: #8a4a1a;
+}
+.foco-key-tile__meta {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  padding: 0.4rem 0.1rem 0;
+}
+.foco-key-tile__id { font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 700; color: #2d1b3d; }
+.foco-key-tile__loc { font-size: 11.5px; line-height: 1.25; color: #3a3340; }
+.foco-key-tile__suv { font-family: 'JetBrains Mono', monospace; font-size: 10.5px; font-weight: 600; }
+.foco-key-tile__confirm { font-size: 9.5px; line-height: 1.3; color: #8a4a1a; margin-top: 1px; }
 
 /* ---- Lightbox de la imagen clave ---- */
 .foco-key-lb {
