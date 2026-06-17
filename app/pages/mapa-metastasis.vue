@@ -1080,6 +1080,13 @@ const coFoci = computed<Lesion[]>(() => {
   return LES.filter((l) => bone3dKeyOf(l) === k)
 })
 const isMultiFocusBone = computed(() => coFoci.value.length > 1)
+/* ¿algún foco de ESTE hueso 3D fue biopsiado? (hecho del caso: #13 ilíaco derecho, 26B585). Si sí,
+   el visor 3D ofrece el toggle de la aguja ILUSTRATIVA. El código (26B585) alimenta el rótulo;
+   devuelve null si no hay biopsia previa en el hueso en pantalla. */
+const BIOPSY_CODE = '26B585'
+const bonePriorBiopsy = computed<string | null>(() =>
+  coFoci.value.some((l) => l.priorBiopsy) ? BIOPSY_CODE : null,
+)
 const hasAuto = computed(() => { const a = selAuto.value; return !!a && (a.fdgAuto != null || a.gaAuto != null) })
 
 /* ------------------------------------------------------------------ */
@@ -1910,6 +1917,8 @@ const ticks = [
                         :mesh-key="bone3dKeyOf(sel)" :mode="bone3dView"
                         :dota="sel.dota" :fdg="sel.fdg" :pheno="sel.pheno" :focus-id="sel.id"
                         :n-foci="coFoci.length"
+                        :biopsied="bonePriorBiopsy != null"
+                        :biopsy-label="bonePriorBiopsy ?? undefined"
                       />
 
                       <template #fallback>

@@ -85,6 +85,11 @@ const props = defineProps<{
   pheno?: string
   focusId?: number
   nFoci?: number                  // nº de focos REPORTADOS en este hueso (limita el nº de dianas)
+  /* Foco con biopsia previa (hecho del caso: #13 ilíaco derecho, 26B585). Cuando es true se
+     OFRECE el toggle «Ver la biopsia previa» que dibuja una aguja ILUSTRATIVA (no la real).
+     La etiqueta opcional permite pasar el código del caso (p.ej. «26B585») al rótulo. */
+  biopsied?: boolean
+  biopsyLabel?: string            // código de la biopsia (p.ej. «26B585») para el rótulo
 }>()
 const { locale } = useI18n()
 const L = (es: string, en: string) => (locale.value === 'en' ? en : es)
@@ -102,10 +107,23 @@ const C_IVORY = '#dcd3c2'  // hueso mate, uniforme (igual que el look ya aprobad
    que sólo marca un nivel de referencia de SUV (≥X) para orientar la lectura. */
 const C_REF = '#c2c6cc'    // nivel de referencia · gris claro neutro (lee sobre marfil, heat y azul, sin chillar)
 const C_REF_DK = '#5a5f66' // halo del nivel de referencia · gris oscuro neutro (contraste sutil)
+/* AGUJA DE BIOPSIA ILUSTRATIVA (26B585) — gris metálico frío. NO es la trayectoria real: es una
+   recreación didáctica del abordaje (posterolateral hacia el ala ilíaca). El cuerpo es metálico
+   y el bisel de la punta un pelín más claro; los marcadores de entrada/punta van en ámbar tenue
+   para distinguirse de la diana del SUVmáx (gris). */
+const C_NEEDLE = '#b9c0c9'     // cuerpo de la aguja · gris metálico claro (lee sobre el hueso marfil y el azul)
+const C_NEEDLE_DK = '#7d858f'  // sombra/halo de la aguja · gris metálico oscuro
+const C_NEEDLE_TIP = '#e6ebf0' // bisel de la punta · acero más claro
+const C_ENTRY = '#d98a2b'      // marcador del punto de ENTRADA (piel/hueso) · ámbar (≠ diana SUVmáx)
+const C_TIP_MK = '#c25a2b'     // marcador de la PUNTA (queda en hueso, no en el realce) · ámbar oscuro
 
 const host = ref<HTMLDivElement | null>(null)
 const loading = ref(true)
 const failed = ref(false)
+/* ¿se puede mostrar la aguja de biopsia ILUSTRATIVA? sólo en el foco biopsiado (#13) y con malla
+   3D interactiva (no en el fallback estático). Por defecto OCULTA: el toggle la activa. */
+const biopsyAvailable = computed(() => !!props.biopsied && !noMesh.value && !failed.value)
+const showBiopsy = ref(false)
 /* foco sin malla PLY individual (p. ej. #17 costilla, #19): estado honesto */
 const noMesh = computed(() => !props.meshKey)
 /* kind de fotograma para el fallback sin-WebGL, según el modo */
@@ -115,6 +133,7 @@ let renderer: THREE.WebGLRenderer, scene: THREE.Scene, camera: THREE.Perspective
 let pmrem: THREE.PMREMGenerator | null = null
 let mesh: THREE.Mesh | null = null
 let markerGroup: THREE.Group | null = null
+let needleGroup: THREE.Group | null = null    // aguja de biopsia ILUSTRATIVA (sólo foco biopsiado, toggle)
 let outlineGroup: THREE.Group | null = null   // contorno (línea) de la(s) región(es) de lesión
 let raf = 0, ro: ResizeObserver | null = null
 let curKey = ''
@@ -1138,6 +1157,130 @@ function buildMarkers() {
   }
 }
 
+/* ===================== AGUJA DE BIOPSIA · SIMULACIÓN ILUSTRATIVA (26B585) =====================
+   SÓLO en el foco biopsiado (#13 ilíaco derecho) y con el toggle activado. NO es la trayectoria
+   registrada: es una RECREACIÓN DIDÁCTICA del abordaje (posterolateral hacia el ala ilíaca),
+   APROXIMADA, para que se entienda la lección del panel: la biopsia 26B585 dio sólo hueso y
+   músculo, sin tumor evaluable (el hueso blástico denso rinde poco tejido).
+
+   Modelado (geometría/orientación/entrada):
+    · La PUNTA se ancla en hueso DENSO cercano al foco, pero DESPLAZADA del pico de captación (el
+      tumor viable): así la punta queda en hueso, NO en el realce → ilustra por qué falló. Se busca
+      el vértice de mayor densidad (vDensity) dentro de un radio del centroide del foco; si no hay
+      canal de densidad, se cae al propio anclaje del foco empujado hacia dentro del hueso.
+    · La DIRECCIÓN del abordaje es posterolateral: parte del lado +X (derecha del paciente) y algo
+      posterior (−Z) y craneal, apuntando al ala ilíaca. Se mezcla con la dirección centro→punta
+      para que la aguja entre «desde fuera» hacia la zona de la lesión de forma plausible.
+    · El punto de ENTRADA está fuera del hueso, a ~1.6·boneRadius del centro a lo largo de esa
+      dirección (la aguja cruza/roza el hueso denso para alcanzar la punta).
+    · CUERPO: cilindro fino metálico (CylinderGeometry, eje local +Y) reorientado al eje
+      entrada→punta. BISEL en la punta: un cono corto coaxial, acero más claro.
+    · MARCADORES: una esferita ámbar en la ENTRADA y otra (ámbar oscuro) en la PUNTA (en hueso).
+   Anclada al hueso: todo cuelga de needleGroup, hijo del mesh → ROTA con la pieza. depthTest:true
+   en los materiales → el hueso ocluye la parte de la aguja que queda detrás (no es un HUD). */
+let needleMats: THREE.Material[] = []
+let needleGeos: THREE.BufferGeometry[] = []
+function disposeBiopsyNeedle() {
+  if (needleGroup) needleGroup.clear()
+  needleMats.forEach((m) => m.dispose()); needleMats = []
+  needleGeos.forEach((g) => g.dispose()); needleGeos = []
+}
+/* vértice de hueso MÁS DENSO dentro de un radio del punto p (coords de geometría). Devuelve su
+   posición; si no hay canal de densidad o no hay candidatos, devuelve null. */
+function densestNear(geo: THREE.BufferGeometry, p: THREE.Vector3, radius: number): THREE.Vector3 | null {
+  if (!vDensity) return null
+  const pos = geo.getAttribute('position') as THREE.BufferAttribute
+  const n = pos.count
+  const r2 = radius * radius
+  let best = -Infinity, bi = -1
+  for (let i = 0; i < n; i++) {
+    const dx = pos.getX(i) - p.x, dy = pos.getY(i) - p.y, dz = pos.getZ(i) - p.z
+    if (dx * dx + dy * dy + dz * dz > r2) continue
+    if (vDensity[i] > best) { best = vDensity[i]; bi = i }
+  }
+  if (bi < 0) return null
+  return new THREE.Vector3(pos.getX(bi), pos.getY(bi), pos.getZ(bi))
+}
+function smallSphere(color: string, r: number): THREE.Mesh {
+  const g = new THREE.SphereGeometry(r, 16, 12); needleGeos.push(g)
+  const m = new THREE.MeshStandardMaterial({
+    color: new THREE.Color(color), roughness: 0.5, metalness: 0.1,
+    depthTest: true, depthWrite: true, toneMapped: true,
+  })
+  needleMats.push(m)
+  return new THREE.Mesh(g, m)
+}
+function buildBiopsyNeedle() {
+  if (!mesh || !needleGroup) return
+  disposeBiopsyNeedle()
+  // sólo dibujar si el foco es biopsiable Y el toggle está activo
+  if (!props.biopsied || !showBiopsy.value) return
+  // ancla del foco (pico de captación = tumor viable). Sin focos calculados, no dibujamos.
+  const focus = lesionFoci[0]
+  if (!focus) return
+  const geo = mesh.geometry
+  const peak = focus.pos.clone()          // pico de captación (el realce / tumor viable)
+  const peakNrm = focus.nrm.clone().normalize()
+  // PUNTA en HUESO DENSO cerca del foco pero DESPLAZADA del pico (≈0.28·r hacia dentro y a un lado):
+  // así la punta NO cae en el realce. Buscamos el vértice más denso en un radio pequeño alrededor de
+  // ese punto desplazado → la punta se posa en hueso blástico real (ilustra el fallo).
+  const inward = peakNrm.clone().multiplyScalar(-1)            // hacia dentro del hueso desde el pico
+  const offset = peak.clone().addScaledVector(inward, boneRadius * 0.18)
+  let tip = densestNear(geo, offset, boneRadius * 0.22) ?? offset
+  // ASEGURA separación visible del pico (que la punta NO coincida con el realce). Si quedó muy cerca
+  // del pico, la empujamos un poco más adentro por la normal.
+  if (tip.distanceTo(peak) < boneRadius * 0.12) tip = peak.clone().addScaledVector(inward, boneRadius * 0.22)
+  // DIRECCIÓN del abordaje posterolateral hacia el ala ilíaca: lado derecho del paciente (+X),
+  // algo posterior (−Z) y ligeramente craneal (+Y). Se mezcla con la normal de la superficie del
+  // foco (sale «desde fuera») para que la entrada sea plausible y entre hacia la lesión.
+  const approach = new THREE.Vector3(0.78, 0.30, -0.54).normalize()
+  const dir = approach.clone().multiplyScalar(0.6).add(peakNrm.clone().multiplyScalar(0.4)).normalize()
+  // ENTRADA fuera del hueso: desde la punta, retrocede por 'dir' una distancia que saque el extremo
+  // claramente fuera de la pieza (cruza/roza el hueso denso para llegar a la punta).
+  const needleLen = boneRadius * 1.85
+  const entry = tip.clone().addScaledVector(dir, needleLen)
+  const axis = entry.clone().sub(tip)               // de la punta a la entrada
+  const len = axis.length()
+  const up = axis.clone().normalize()
+  // CUERPO de la aguja: cilindro fino metálico (eje local +Y → reorientado a 'up'). Radio fino
+  // ∝ boneRadius para que sea proporcional al hueso.
+  const rad = Math.max(0.5, boneRadius * 0.018)
+  const bodyLen = len * 0.93                         // deja sitio al cono del bisel en la punta
+  const bodyGeo = new THREE.CylinderGeometry(rad, rad, bodyLen, 20, 1, true); needleGeos.push(bodyGeo)
+  const bodyMat = new THREE.MeshStandardMaterial({
+    color: new THREE.Color(C_NEEDLE), roughness: 0.32, metalness: 0.85,
+    side: THREE.DoubleSide, depthTest: true, depthWrite: true, toneMapped: true,
+    polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -2,
+  })
+  needleMats.push(bodyMat)
+  const body = new THREE.Mesh(bodyGeo, bodyMat)
+  // centro del cuerpo: a media longitud del cuerpo desde la punta, a lo largo de 'up'
+  const bodyCenter = tip.clone().addScaledVector(up, len - bodyLen / 2)
+  body.position.copy(bodyCenter)
+  body.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), up)
+  // BISEL de la punta: cono corto coaxial (radio en la base = rad, vértice en la punta), acero claro.
+  const bevelLen = Math.min(rad * 6, len * 0.07)
+  const bevelGeo = new THREE.ConeGeometry(rad, bevelLen, 20); needleGeos.push(bevelGeo)
+  const bevelMat = new THREE.MeshStandardMaterial({
+    color: new THREE.Color(C_NEEDLE_TIP), roughness: 0.28, metalness: 0.9,
+    depthTest: true, depthWrite: true, toneMapped: true,
+  })
+  needleMats.push(bevelMat)
+  const bevel = new THREE.Mesh(bevelGeo, bevelMat)
+  // el cono apunta -Y por defecto (vértice abajo): orientamos su +Y a 'up' y lo colocamos con el
+  // VÉRTICE en la punta (a bevelLen/2 desde la punta a lo largo de 'up').
+  bevel.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), up.clone().multiplyScalar(-1))
+  bevel.position.copy(tip.clone().addScaledVector(up, bevelLen / 2))
+  // MARCADORES: entrada (ámbar) y punta (ámbar oscuro, queda en hueso, no en el realce)
+  const entryMk = smallSphere(C_ENTRY, Math.max(1.0, boneRadius * 0.035))
+  entryMk.position.copy(entry)
+  const tipMk = smallSphere(C_TIP_MK, Math.max(0.9, boneRadius * 0.03))
+  tipMk.position.copy(tip)
+  // orden de pintado por encima del hueso pero respetando depthTest (el hueso ocluye lo de detrás)
+  body.renderOrder = 7; bevel.renderOrder = 8; entryMk.renderOrder = 8; tipMk.renderOrder = 8
+  needleGroup.add(body); needleGroup.add(bevel); needleGroup.add(entryMk); needleGroup.add(tipMk)
+}
+
 function load(key: string) {
   loading.value = true; failed.value = false; curKey = key
   const loader = new PLYLoader()
@@ -1157,7 +1300,7 @@ function load(key: string) {
         geo.setAttribute('color', new THREE.BufferAttribute(rgb, 3))
       }
       if (mesh) { scene.remove(mesh); mesh.geometry.dispose(); (mesh.material as THREE.Material).dispose() }
-      disposeMarkers(); disposeOutline(); disposePatch(); disposeBorder(); disposeIsoLines()
+      disposeMarkers(); disposeOutline(); disposePatch(); disposeBorder(); disposeIsoLines(); disposeBiopsyNeedle()
       // HUESO MACIZO MATE y OPACO. vertexColors:true + color blanco → el color por vértice
       // ES el albedo (lo escribe applyMode por modo); las luces lo sombrean encima (volumen).
       const mat = new THREE.MeshStandardMaterial({
@@ -1196,8 +1339,11 @@ function load(key: string) {
       mesh.add(outlineGroup); outlineGroup.position.set(0, 0, 0)
       if (!isoLineGroup) isoLineGroup = new THREE.Group()
       mesh.add(isoLineGroup); isoLineGroup.position.set(0, 0, 0)
+      if (!needleGroup) needleGroup = new THREE.Group()
+      mesh.add(needleGroup); needleGroup.position.set(0, 0, 0)
       frameObject()
       applyMode()
+      buildBiopsyNeedle()    // aguja ILUSTRATIVA (sólo foco biopsiado + toggle activo)
       loading.value = false
     } catch (e) { console.error('[BoneViewer3D] build', e); loading.value = false; failed.value = true }
   }, undefined, (e) => { console.error('[BoneViewer3D] PLY load error', e); loading.value = false; failed.value = true })
@@ -1216,18 +1362,29 @@ onMounted(() => {
   }
   start()
 })
-/* cambia el hueso → recarga la malla */
+/* cambia el hueso → recarga la malla. Reseteamos el toggle de biopsia (por defecto OCULTA: la
+   aguja no debe estorbar al cambiar de foco; el usuario la reactiva donde proceda). */
 watch(() => props.meshKey, (k) => {
+  showBiopsy.value = false
   if (!k || !renderer) return
   try { load(k) } catch (e) { console.error('[BoneViewer3D] load', e); failed.value = true; loading.value = false }
 })
-/* cambia el MODO → sólo se reescribe el color por vértice (sin recargar la malla) */
+/* foco no biopsiable o se desactiva el dato → apaga la aguja (no se queda colgada) */
+watch(() => props.biopsied, (b) => { if (!b) { showBiopsy.value = false; buildBiopsyNeedle() } })
+/* cambia el MODO → sólo se reescribe el color por vértice (sin recargar la malla). La aguja
+   ILUSTRATIVA no depende del modo: se reconstruye para re-anclarla tras el applyMode (que
+   reconstruye los grupos de marcadores). */
 watch(mode, () => {
-  if (mesh && !loading.value && !failed.value) applyMode()
+  if (mesh && !loading.value && !failed.value) { applyMode(); buildBiopsyNeedle() }
 })
+/* toggle de la aguja → construir/limpiar sin recargar la malla */
+watch(showBiopsy, () => {
+  if (mesh && !loading.value && !failed.value) buildBiopsyNeedle()
+})
+function toggleBiopsy() { if (biopsyAvailable.value) showBiopsy.value = !showBiopsy.value }
 onBeforeUnmount(() => {
   cancelAnimationFrame(raf); ro?.disconnect()
-  disposeMarkers(); disposeOutline(); disposePatch(); disposeBorder(); disposeIsoLines()
+  disposeMarkers(); disposeOutline(); disposePatch(); disposeBorder(); disposeIsoLines(); disposeBiopsyNeedle()
   if (mesh) { mesh.geometry.dispose(); (mesh.material as THREE.Material).dispose() }
   pmrem?.dispose()
   renderer?.dispose()
@@ -1258,6 +1415,22 @@ onBeforeUnmount(() => {
           :title="L('Reencuadrar', 'Reset view')"
           @click="reframe"
         >⟲</button>
+
+        <!-- TOGGLE de la aguja de biopsia ILUSTRATIVA (sólo foco biopsiado #13). Por defecto OCULTA;
+             el botón la activa/desactiva. Honesto en el propio rótulo del botón. -->
+        <button
+          v-if="biopsyAvailable"
+          type="button"
+          class="bv-biopsy-toggle"
+          :class="{ 'is-on': showBiopsy }"
+          :aria-pressed="showBiopsy"
+          @click="toggleBiopsy"
+        >
+          <span class="bv-biopsy-dot" aria-hidden="true" />
+          {{ showBiopsy
+            ? L('Ocultar la biopsia previa', 'Hide prior biopsy')
+            : L('Ver la biopsia previa (' + (biopsyLabel || '26B585') + ')', 'Show prior biopsy (' + (biopsyLabel || '26B585') + ')') }}
+        </button>
 
         <!-- cargando -->
         <div v-if="loading && !failed" class="absolute inset-0 flex flex-col items-center justify-center gap-2 pointer-events-none">
@@ -1307,6 +1480,21 @@ onBeforeUnmount(() => {
           <span style="color:#7c8694"> · {{ L('TODO el hueso muestra la densidad real del CT (HU): el hueso denso/blástico resalta en azul oscuro — un mapa sobre el hueso entero. La línea gris marca sólo un nivel de referencia de SUV (captación PET) dentro del mapa, no un borde tumoral neto —la captación es un gradiente—; SIN relleno, para ver la densidad por dentro. Orientativo para la factibilidad de biopsia (el blástico denso rinde menos tejido).', 'The WHOLE bone shows real CT density (HU): dense/blastic bone stands out in dark blue — a map over the entire bone. The grey line marks only a reference SUV level (PET uptake) within the map, not a sharp tumour border —uptake is a gradient—; WITHOUT fill, so the density inside is visible. Indicative of biopsy feasibility (dense blastic bone yields less tissue).') }}</span>
         </template>
       </p>
+
+      <!-- RÓTULO HONESTO de la aguja ILUSTRATIVA (sólo con el toggle activo). Inequívoco: es una
+           recreación didáctica, NO la trayectoria registrada. -->
+      <p v-if="biopsyAvailable && showBiopsy" class="bv-biopsy-cap">
+        <span class="bv-biopsy-cap-head">
+          <span class="bv-biopsy-swatch" :style="{ background: C_NEEDLE }" aria-hidden="true" />
+          {{ L('Simulación ILUSTRATIVA de la biopsia previa (' + (biopsyLabel || '26B585') + ')', 'ILLUSTRATIVE simulation of the prior biopsy (' + (biopsyLabel || '26B585') + ')') }}
+        </span>
+        {{ L('Trayectoria APROXIMADA, no la real — es una recreación didáctica, no la trayectoria registrada. La punta queda en hueso (no en el realce de captación, el tumor viable): dio solo hueso/músculo, sin tumor evaluable — el hueso blástico denso rinde poco tejido tumoral.',
+             'APPROXIMATE trajectory, not the actual one — a teaching recreation, not the recorded path. The tip lands in bone (not in the uptake highlight, the viable tumour): it yielded only bone/muscle, no evaluable tumour — dense blastic bone yields little tumour tissue.') }}
+        <span class="bv-biopsy-key">
+          <span class="bv-biopsy-mk" :style="{ background: C_ENTRY }" aria-hidden="true" /> {{ L('entrada', 'entry') }} ·
+          <span class="bv-biopsy-mk" :style="{ background: C_TIP_MK }" aria-hidden="true" /> {{ L('punta (en hueso)', 'tip (in bone)') }}
+        </span>
+      </p>
     </template>
   </div>
 </template>
@@ -1342,6 +1530,71 @@ onBeforeUnmount(() => {
 }
 .bv-reframe:hover { background: rgba(30, 37, 48, 0.92); border-color: rgba(174, 182, 194, 0.5); }
 .bv-reframe:focus-visible { outline: 2px solid #c061d6; outline-offset: 2px; }
+/* toggle de la aguja de biopsia ILUSTRATIVA — abajo-izquierda, fuera del camino del reframe */
+.bv-biopsy-toggle {
+  position: absolute;
+  left: 8px;
+  bottom: 8px;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  border-radius: 8px;
+  border: 1px solid rgba(217, 138, 43, 0.55);
+  background: rgba(13, 17, 23, 0.72);
+  color: #e7c79a;
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+.bv-biopsy-toggle:hover { background: rgba(30, 37, 48, 0.92); border-color: rgba(217, 138, 43, 0.85); }
+.bv-biopsy-toggle:focus-visible { outline: 2px solid #d98a2b; outline-offset: 2px; }
+.bv-biopsy-toggle.is-on { background: rgba(217, 138, 43, 0.18); border-color: rgba(217, 138, 43, 0.95); color: #f3d8ad; }
+.bv-biopsy-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #d98a2b;
+  box-shadow: 0 0 0 2px rgba(217, 138, 43, 0.25);
+}
+/* rótulo honesto de la aguja ILUSTRATIVA */
+.bv-biopsy-cap {
+  font-size: 10px;
+  text-align: left;
+  margin-top: 6px;
+  padding: 7px 9px;
+  border-radius: 6px;
+  border: 1px solid rgba(217, 138, 43, 0.35);
+  background: rgba(217, 138, 43, 0.07);
+  font-family: ui-monospace, monospace;
+  line-height: 1.45;
+  color: #8a5a1a;
+}
+.bv-biopsy-cap-head {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+.bv-biopsy-swatch {
+  display: inline-block;
+  width: 14px;
+  height: 4px;
+  border-radius: 2px;
+  border: 1px solid rgba(125, 133, 143, 0.7);
+}
+.bv-biopsy-key { display: inline-flex; align-items: center; gap: 5px; margin-left: 2px; }
+.bv-biopsy-mk {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
 .bv-cap {
   font-size: 10px;
   text-align: center;
