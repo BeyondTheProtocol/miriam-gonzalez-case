@@ -265,18 +265,14 @@ function deltaStyle(le: Lesion) {
   return {}
 }
 
-/* procedencia del dato de cada foco (la IA = tabla medida sobre los DICOM, por
-   confirmar). `c` = relleno/punto (tono vivo) · `tc` = color de TEXTO (AA sobre cream). */
-const SOURCE: Record<'informe' | 'ambos' | 'ia-david', { es: string; en: string; c: string; tc: string }> = {
-  informe: { es: 'Informe', en: 'Report', c: '#1f5a3a', tc: '#1f5a3a' },
-  ambos: { es: 'Ambos', en: 'Both', c: '#9d44ab', tc: '#9d44ab' },
-  'ia-david': { es: 'Detectado por IA · por confirmar', en: 'AI-detected · to confirm', c: '#bf7d2c', tc: '#8a4a1a' },
-}
-/* si no tiene fuente explícita: con tamaño = en ambos (casó con el PDF); sin tamaño = solo informe */
+/* procedencia del dato de cada foco. Ya NO se muestra como columna en la tabla
+   (la distinción informe↔IA es ahora por POSICIÓN: los focos de IA van al final,
+   en su propio grupo). `sourceOf` se conserva: distingue los focos de IA (para el
+   contorno punteado del esqueleto y el grupo de la tabla). Sin tamaño reportado y
+   sin marca explícita → informe; con tamaño → ambos; `ia-david` → detectado por IA. */
 function sourceOf(le: Lesion): 'informe' | 'ambos' | 'ia-david' {
   return le.source ?? (le.size ? 'ambos' : 'informe')
 }
-function sourceMeta(le: Lesion) { return SOURCE[sourceOf(le)] }
 
 /* tendencia FDG */
 function trend(le: Lesion): { dir: 'up' | 'down' | 'flat' | 'new'; txt: string } | null {
@@ -708,6 +704,51 @@ function autoOf(le: Lesion) { return AUTO[le.id] || null }
 const selAuto = computed(() => autoOf(sel.value))
 
 /* ------------------------------------------------------------------ */
+/*  EXTENSIÓN METABÓLICA medida sobre el DICOM nativo (P1 «mídelas      */
+/*  todas»). Por foco: eje mayor (mm) y MTV (ml) de la región que capta */
+/*  por ENCIMA del umbral (41% del SUVmáx local), confinada a hueso.    */
+/*  HONESTO: es lo que capta sobre el umbral, NO el tamaño anatómico    */
+/*  exacto; el efecto de volumen parcial subestima los focos <~10 mm.   */
+/*    · reliable  → medida fiable                                       */
+/*    · unreliable→ captación ≈ fondo óseo, no separable → «— · no fiable» */
+/*    · pending   → foco de IA no medible aquí → «— · por confirmar»    */
+/*  Es un factor de FACTIBILIDAD de la biopsia (mayor = más fácil de    */
+/*  acertar) → alimenta el factor de tamaño de la lente de idoneidad.   */
+/* ------------------------------------------------------------------ */
+type SizeState = 'reliable' | 'unreliable' | 'pending'
+interface MetExtent { mm: number | null; mtv: number | null; state: SizeState }
+const SIZE: Record<number, MetExtent> = {
+  1:  { mm: 15.1, mtv: 1.17, state: 'reliable' },
+  2:  { mm: null, mtv: null, state: 'unreliable' }, // C4 · captación ≈ fondo óseo
+  3:  { mm: 35.0, mtv: 2.62, state: 'reliable' },
+  4:  { mm: 10.5, mtv: 0.50, state: 'reliable' },
+  5:  { mm: 22.8, mtv: 3.59, state: 'reliable' },
+  6:  { mm: null, mtv: null, state: 'unreliable' }, // D9 · captación ≈ fondo óseo
+  7:  { mm: 26.9, mtv: 3.31, state: 'reliable' },
+  8:  { mm: 25.1, mtv: 2.73, state: 'reliable' },
+  9:  { mm: 22.1, mtv: 2.04, state: 'reliable' },
+  10: { mm: 21.3, mtv: 0.73, state: 'reliable' },
+  11: { mm: 28.0, mtv: 2.64, state: 'reliable' },
+  12: { mm: 18.1, mtv: 0.98, state: 'reliable' },
+  13: { mm: 21.3, mtv: 2.25, state: 'reliable' },
+  14: { mm: 10.1, mtv: 0.32, state: 'reliable' },
+  15: { mm: 13.7, mtv: 0.62, state: 'reliable' },
+  16: { mm: 32.6, mtv: 3.49, state: 'reliable' },
+  18: { mm: 16.2, mtv: 1.04, state: 'reliable' },
+  17: { mm: null, mtv: null, state: 'pending' }, // IA · costilla, no medible
+  19: { mm: null, mtv: null, state: 'pending' }, // IA · cervicotorácica, no medible
+}
+function metExtentOf(le: Lesion): MetExtent { return SIZE[le.id] ?? { mm: null, mtv: null, state: 'pending' } }
+/* texto «eje mayor mm · MTV ml», o el estado honesto cuando no es medible */
+function metExtentLabel(le: Lesion): string {
+  const s = metExtentOf(le)
+  if (s.state === 'unreliable') return L('— · no fiable', '— · not reliable')
+  if (s.mm == null) return L('— · por confirmar', '— · to confirm')
+  const ext = s.mm.toFixed(1) + ' mm'
+  return s.mtv != null ? ext + ' · ' + s.mtv.toFixed(2) + ' ml' : ext
+}
+
+/* ------------------------------------------------------------------ */
 /*  Morfología (FORMA del hueso) + MTV — dato de PRIMERA CLASE en la    */
 /*  ficha. La morfología (lítico/blástico/mixto) es el predictor clave  */
 /*  del RENDIMIENTO de la biopsia: el hueso blástico denso suele rendir */
@@ -848,8 +889,12 @@ const MRI_LEVELS = ['D1-D3', 'D4-D5', 'D8-D9', 'D11-D12', 'L1', 'L2-L3', 'L5', '
 /* ================================================================== */
 function clamp01(x: number): number { return Math.max(0, Math.min(1, x)) }
 
-/* eje mayor del tamaño (mm), si el informe lo da (p.ej. «18 × 13» → 18) */
+/* eje mayor del tamaño (mm) para el factor de tamaño: prioriza la EXTENSIÓN
+   METABÓLICA medida sobre el DICOM (umbral 41% del SUVmáx local). Si no es
+   medible/fiable, cae al tamaño reportado del informe (p.ej. «18 × 13» → 18). */
 function sizeMajorMm(le: Lesion): number | null {
+  const m = metExtentOf(le)
+  if (m.mm != null) return m.mm
   const nums = (le.size?.match(/\d+(?:[.,]\d+)?/g) || []).map((s) => Number(s.replace(',', '.')))
   return nums.length ? Math.max(...nums) : null
 }
@@ -939,28 +984,38 @@ function sortVal(le: Lesion, key: string): number | string {
     case 'fdg': return le.fdg ?? -1
     case 'prev': return le.prevFdg ?? -1
     case 'delta': return le.fdg != null && le.prevFdg != null ? le.fdg - le.prevFdg : -999
-    case 'size': { const m = le.size?.match(/\d+/g); return m ? Number(m[0]) * (m[1] ? Number(m[1]) : 1) : -1 }
+    case 'size': return sizeMajorMm(le) ?? -1
     case 'suit': return suitabilityScore(le)
     case 'pheno': return ['ne', 'mixNe', 'mixBal', 'mixAgg', 'agg'].indexOf(le.pheno)
-    case 'source': return ['informe', 'ambos', 'ia-david'].indexOf(sourceOf(le))
     default: return le.id
   }
 }
-const sortedLES = computed(() => {
+/* ordena un subconjunto por la cabecera activa (sin mezclar confirmados/IA) */
+function sortRows(rows: Lesion[]): Lesion[] {
   const k = sortKey.value, d = sortDir.value
-  return [...LES].sort((a, b) => {
-    // Idoneidad: los focos «detectados por IA» (sin confirmar) NO compiten en el
-    // orden → siempre al fondo, con independencia del sentido del orden.
-    if (k === 'suit') {
-      const aAi = isAiDavid(a), bAi = isAiDavid(b)
-      if (aAi !== bAi) return aAi ? 1 : -1
-    }
+  return [...rows].sort((a, b) => {
     const va = sortVal(a, k), vb = sortVal(b, k)
     if (va < vb) return -d
     if (va > vb) return d
     return a.id - b.id
   })
+}
+/* la DISTINCIÓN informe↔IA ahora es por POSICIÓN: los confirmados (del informe)
+   primero y los detectados por IA SIEMPRE al final, en su propio grupo rotulado
+   (ya no hay columna «Fuente»). El orden de cada grupo sigue la cabecera activa.
+   Una sola lista de filas con un divisor de subtítulo entre los dos grupos. */
+type TableRow = { kind: 'lesion'; le: Lesion } | { kind: 'aiHeader' }
+const tableRows = computed<TableRow[]>(() => {
+  const out: TableRow[] = sortRows(confirmedFoci.value).map((le) => ({ kind: 'lesion', le } as TableRow))
+  const ai = sortRows(aiFoci.value)
+  if (ai.length) {
+    out.push({ kind: 'aiHeader' })
+    ai.forEach((le) => out.push({ kind: 'lesion', le }))
+  }
+  return out
 })
+/* nº de columnas de la tabla (para el colspan del subtítulo de grupo) */
+const tableCols = 10
 
 /* esquema esqueleto: vértebras dibujadas */
 const vertebrae = computed(() => {
@@ -1440,24 +1495,30 @@ const ticks = [
                   {{ L('Forma del hueso y cantidad de tumor', 'Bone shape and tumour amount') }}
                   <span class="status-badge" :style="{ background: 'rgba(31,107,87,0.12)', color: '#1f6b57' }">{{ L('morfología · CT', 'morphology · CT') }}</span>
                 </p>
-                <div class="grid sm:grid-cols-2 gap-3">
+                <div class="grid sm:grid-cols-3 gap-3">
                   <!-- morfología (forma) -->
                   <div class="rounded-card bg-cream px-3 py-2 border-l-4" :style="{ borderColor: '#1f6b57' }">
                     <p class="text-[11px] text-tinta">{{ L('Morfología (forma)', 'Morphology (shape)') }}</p>
                     <p class="font-semibold text-berenjena leading-snug">{{ morphLabel(sel) }}</p>
                     <p class="text-[12px] text-tinta leading-snug mt-1">{{ morphYieldNote(sel) }}</p>
                   </div>
-                  <!-- MTV (cantidad de tumor metabólico) -->
+                  <!-- extensión metabólica medida (mm) · MTV (ml) -->
                   <div class="rounded-card bg-cream px-3 py-2 border-l-4" :style="{ borderColor: '#6b6470' }">
-                    <p class="text-[11px] text-tinta">{{ L('Tumor metabólico (MTV)', 'Metabolic tumour (MTV)') }}</p>
+                    <p class="text-[11px] text-tinta">{{ L('Extensión metabólica (mm) · MTV (ml)', 'Metabolic extent (mm) · MTV (ml)') }}</p>
+                    <p class="font-mono font-semibold text-berenjena leading-snug mt-0.5">{{ metExtentLabel(sel) }}</p>
+                    <p class="text-[12px] text-tinta leading-snug mt-1">{{ L('lo que capta por encima del umbral (41% del SUVmáx local), confinado a hueso — no el tamaño anatómico exacto.', 'what it takes up above the threshold (41% of local SUVmax), confined to bone — not the exact anatomical size.') }}</p>
+                  </div>
+                  <!-- MTV por trazador (verificación) -->
+                  <div class="rounded-card bg-cream px-3 py-2 border-l-4" :style="{ borderColor: '#6b6470' }">
+                    <p class="text-[11px] text-tinta">{{ L('MTV por trazador', 'MTV by tracer') }}</p>
                     <p v-if="hasMtv" class="leading-snug mt-0.5">
                       <span v-for="(m, i) in mtvList(sel)" :key="i" class="font-mono text-berenjena mr-2">{{ m.tr }} {{ m.v }} ml</span>
                     </p>
                     <p v-else class="font-semibold text-tinta mt-0.5">{{ L('— · no medido', '— · not measured') }}</p>
-                    <p class="text-[12px] text-tinta leading-snug mt-1">{{ L('cantidad de tumor metabólico (orientativo)', 'amount of metabolic tumour (indicative)') }}</p>
+                    <p class="text-[12px] text-tinta leading-snug mt-1">{{ L('volumen metabólico por trazador (verificación, orientativo)', 'metabolic volume per tracer (verification, indicative)') }}</p>
                   </div>
                 </div>
-                <p class="text-[10px] text-tinta mt-2 leading-relaxed">{{ L('Es la FORMA del hueso medida sobre el CT (densidad), no la biología ni un trazador. Orientativo para el rendimiento de tejido; describe, no concluye.', 'This is the SHAPE of the bone measured on the CT (density), not the biology or a tracer. Indicative of tissue yield; it describes, it does not conclude.') }}</p>
+                <p class="text-[10px] text-tinta mt-2 leading-relaxed">{{ L('La FORMA del hueso se mide sobre el CT (densidad) y la extensión metabólica sobre el PET (umbral 41% del SUVmáx local); no son la biología ni un trazador. La extensión metabólica es lo que capta sobre el umbral, no el tamaño anatómico exacto: el volumen parcial subestima los focos < ~10 mm. Orientativo; describe, no concluye.', 'Bone SHAPE is measured on the CT (density) and the metabolic extent on the PET (41% of the local SUVmax threshold); neither is the biology or a tracer. The metabolic extent is what is taken up above the threshold, not the exact anatomical size: partial volume underestimates foci < ~10 mm. Indicative; it describes, it does not conclude.') }}</p>
               </div>
 
               <!-- ===== BIOPSIA PREVIA del foco (hecho del caso · honesto, neutral) ===== -->
@@ -1928,7 +1989,8 @@ const ticks = [
             <div class="card-base !p-3.5 border-t-4" :style="{ borderColor: '#9d44ab' }">
               <p class="text-[12px] font-semibold mb-1" :style="{ color: '#7a2f86' }">{{ L('La fórmula', 'The formula') }}</p>
               <p class="text-[12px] text-tinta leading-snug font-mono">idoneidad = 100 · viable · rendimiento · tamaño</p>
-              <p class="text-[11px] text-tinta leading-snug mt-1">{{ L('viable = 0.78·(FDG/10) + 0.22·(Ga/14) · rendimiento = lítico 1 / mixto 0.6 / blástico 0.3 · tamaño = 0.6–1 por eje mayor. Orientativa.', 'viable = 0.78·(FDG/10) + 0.22·(Ga/14) · yield = lytic 1 / mixed 0.6 / blastic 0.3 · size = 0.6–1 by major axis. Indicative.') }}</p>
+              <p class="text-[11px] text-tinta leading-snug mt-1">{{ L('viable = 0.78·(FDG/10) + 0.22·(Ga/14) · rendimiento = lítico 1 / mixto 0.6 / blástico 0.3 · tamaño = 0.6–1 por el eje mayor de la extensión metabólica medida. Orientativa.', 'viable = 0.78·(FDG/10) + 0.22·(Ga/14) · yield = lytic 1 / mixed 0.6 / blastic 0.3 · size = 0.6–1 by the major axis of the measured metabolic extent. Indicative.') }}</p>
+              <p class="text-[10.5px] text-tinta leading-snug mt-1">{{ L('Extensión metabólica = lo que cada foco capta por encima del umbral (41% del SUVmáx local), confinada a hueso, medida sobre el DICOM. Es lo que se ve por imagen, no el tamaño anatómico exacto; el volumen parcial subestima los focos < ~10 mm.', 'Metabolic extent = what each focus takes up above the threshold (41% of the local SUVmax), confined to bone, measured on the DICOM. It is what imaging shows, not the exact anatomical size; partial-volume effect underestimates foci < ~10 mm.') }}</p>
             </div>
           </div>
 
@@ -1976,8 +2038,8 @@ const ticks = [
                   </div>
                   <div>
                     <div class="flex justify-between items-baseline text-[10.5px] mb-0.5">
-                      <span class="text-tinta">{{ L('Tamaño / cantidad', 'Size / amount') }}</span>
-                      <span class="font-mono text-tinta">{{ sizeMajorMm(le) != null ? sizeMajorMm(le) + ' mm' : L('s/d', 'n/a') }}<template v-if="mtvList(le).length"> · MTV {{ mtvList(le)[0].v }} ml</template></span>
+                      <span class="text-tinta">{{ L('Extensión metabólica', 'Metabolic extent') }}</span>
+                      <span class="font-mono text-tinta">{{ metExtentLabel(le) }}</span>
                     </div>
                     <div class="h-1.5 rounded-full overflow-hidden" :style="{ background: 'rgba(45,27,61,0.08)' }">
                       <div class="h-full rounded-full" :style="{ width: pct01(sizeFactor(le)), background: '#6b6470' }" />
@@ -2029,12 +2091,12 @@ const ticks = [
         <section class="mb-14" aria-labelledby="tabla">
           <p class="eyebrow mb-2 block">{{ L('Para el equipo · referencia', 'For the team · reference') }}</p>
           <h2 id="tabla" class="heading-display text-2xl text-berenjena mb-2">{{ L('Apéndice: los focos en una tabla', 'Appendix: the foci in a table') }}</h2>
-          <p class="text-sm text-tinta leading-relaxed mb-4 max-w-3xl">{{ L('Tabla completa con la idoneidad orientativa como diana, SUVmáx por trazador, tendencia, tamaño, patrón y procedencia, más los focos extra detectados de forma automática. Pulsa «Idoneidad» para ordenar los candidatos (los focos detectados por IA quedan al fondo, sin confirmar). Detalle clínico: se abre en el modo «Clínico».', 'Full table with the indicative suitability as a target, SUVmax per tracer, trend, size, pattern and provenance, plus the automatically detected extra foci. Click “Suitability” to order the candidates (AI-detected foci sink to the bottom, unconfirmed). Clinical detail: it opens in “Clinical” mode.') }}</p>
+          <p class="text-sm text-tinta leading-relaxed mb-4 max-w-3xl">{{ L('Tabla completa con la idoneidad orientativa como diana, SUVmáx por trazador, tendencia, extensión metabólica medida y patrón, más los focos extra detectados de forma automática. Pulsa una cabecera para ordenar; los focos detectados por IA van siempre al final, en su propio grupo, sin confirmar. Detalle clínico: se abre en el modo «Clínico».', 'Full table with the indicative suitability as a target, SUVmax per tracer, trend, measured metabolic extent and pattern, plus the automatically detected extra foci. Click a header to sort; AI-detected foci always go last, in their own group, unconfirmed. Clinical detail: it opens in “Clinical” mode.') }}</p>
           <details class="notes-disclosure" :open="isClinical">
-            <summary>{{ L('Abrir la tabla, la procedencia y los focos extra', 'Open the table, provenance and extra foci') }}</summary>
+            <summary>{{ L('Abrir la tabla y los focos extra', 'Open the table and extra foci') }}</summary>
           <p class="text-[12px] text-tinta mt-3 mb-4 leading-relaxed max-w-3xl">
-            {{ L('Pulsa una cabecera para ordenar. Fuente: «Informe» = informe oficial · «Ambos» = en el informe y en el análisis por IA · «Detectado por IA · por confirmar» = solo en el análisis por IA (medidas aproximadas sobre DICOM, a revisar).',
-                  'Click a header to sort. Source: “Report” = official report · “Both” = in the report and in the AI analysis · “AI-detected · to confirm” = only in the AI analysis (approximate DICOM measurements, to review).') }}
+            {{ L('Pulsa una cabecera para ordenar. Primero van los focos del informe oficial y, al final, en su propio grupo, los detectados por IA (medidas aproximadas sobre los DICOM, por confirmar con Medicina Nuclear). La extensión metabólica es lo que cada foco capta por encima del umbral (41% del SUVmáx local), confinado a hueso; no es el tamaño anatómico exacto y el volumen parcial subestima los focos < ~10 mm.',
+                  'Click a header to sort. Report foci come first and, at the end, in their own group, the AI-detected ones (approximate DICOM measurements, to confirm with Nuclear Medicine). The metabolic extent is what each focus takes up above the threshold (41% of the local SUVmax), confined to bone; it is not the exact anatomical size and partial volume underestimates foci < ~10 mm.') }}
           </p>
           <div class="data-card overflow-x-auto">
             <table class="data-table data-table--dense">
@@ -2048,44 +2110,55 @@ const ticks = [
                   <th scope="col" :aria-sort="ariaSort('fdg')"><button type="button" class="th-sort" @click="sortBy('fdg')">FDG SUVmáx <span class="th-arrow">{{ sortArrow('fdg') }}</span></button></th>
                   <th scope="col" :aria-sort="ariaSort('prev')"><button type="button" class="th-sort" @click="sortBy('prev')">{{ L('FDG previo', 'Prior FDG') }} <span class="th-arrow">{{ sortArrow('prev') }}</span></button></th>
                   <th scope="col" :aria-sort="ariaSort('delta')"><button type="button" class="th-sort" @click="sortBy('delta')">Δ FDG <span class="th-arrow">{{ sortArrow('delta') }}</span></button></th>
-                  <th scope="col" :aria-sort="ariaSort('size')"><button type="button" class="th-sort" @click="sortBy('size')">{{ L('Tamaño', 'Size') }} <span class="th-arrow">{{ sortArrow('size') }}</span></button></th>
+                  <th scope="col" :aria-sort="ariaSort('size')"><button type="button" class="th-sort" @click="sortBy('size')">{{ L('Extensión metab. (mm · ml)', 'Metabolic extent (mm · ml)') }} <span class="th-arrow">{{ sortArrow('size') }}</span></button></th>
                   <th scope="col" :aria-sort="ariaSort('pheno')"><button type="button" class="th-sort" @click="sortBy('pheno')">{{ L('Patrón', 'Pattern') }} <span class="th-arrow">{{ sortArrow('pheno') }}</span></button></th>
-                  <th scope="col" :aria-sort="ariaSort('source')"><button type="button" class="th-sort" @click="sortBy('source')">{{ L('Fuente', 'Source') }} <span class="th-arrow">{{ sortArrow('source') }}</span></button></th>
                 </tr>
               </thead>
               <tbody>
-                <tr v-for="le in sortedLES" :key="le.id" class="cursor-pointer" :class="selected === le.id ? 'bg-[rgba(157,68,171,0.08)]' : ''" @click="pick(le.id); $event.currentTarget.scrollIntoView({ behavior: 'smooth', block: 'center' })">
-                  <td><span class="inline-flex w-6 h-6 rounded-full items-center justify-center text-white text-xs font-semibold" :style="{ background: phenoColor(le) }">{{ le.id }}</span></td>
-                  <td class="font-semibold text-berenjena">{{ le.level[lang] }}</td>
-                  <td class="text-xs">{{ le.side === 'R' ? L('Dcha', 'R') : le.side === 'L' ? L('Izda', 'L') : L('Centro', 'Mid') }}</td>
+                <template v-for="row in tableRows" :key="row.kind === 'lesion' ? 'l' + row.le.id : 'aih'">
+                <!-- subtítulo de grupo: separa los focos detectados por IA (al final) -->
+                <tr v-if="row.kind === 'aiHeader'" class="ai-group-head">
+                  <td :colspan="tableCols" class="font-semibold" :style="{ background: '#fbf5ea', color: '#8a4a1a', borderTop: '2px solid #efb27a' }">
+                    <span class="inline-flex items-center gap-2 flex-wrap">
+                      <span class="inline-block w-2 h-2 rounded-full" :style="{ background: '#bf7d2c' }" aria-hidden="true" />
+                      {{ L('Detectados por IA · posibles focos nuevos · por confirmar', 'AI-detected · possible new foci · to confirm') }}
+                    </span>
+                  </td>
+                </tr>
+                <tr v-else class="cursor-pointer" :class="selected === row.le.id ? 'bg-[rgba(157,68,171,0.08)]' : (isAiDavid(row.le) ? 'ai-row' : '')" @click="pick(row.le.id); $event.currentTarget.scrollIntoView({ behavior: 'smooth', block: 'center' })">
+                  <template v-if="row.kind === 'lesion'">
+                  <td><span class="inline-flex w-6 h-6 rounded-full items-center justify-center text-white text-xs font-semibold" :class="isAiDavid(row.le) ? 'ai-dot' : ''" :style="{ background: phenoColor(row.le) }">{{ row.le.id }}</span></td>
+                  <td class="font-semibold text-berenjena">{{ row.le.level[lang] }}</td>
+                  <td class="text-xs">{{ row.le.side === 'R' ? L('Dcha', 'R') : row.le.side === 'L' ? L('Izda', 'L') : L('Centro', 'Mid') }}</td>
                   <td>
                     <div class="flex items-center gap-2">
-                      <span class="font-mono font-semibold text-berenjena tabular-nums w-6 shrink-0" :style="isAiDavid(le) ? { color: '#8a4a1a', opacity: 0.85 } : {}">{{ suitabilityScore(le) }}</span>
+                      <span class="font-mono font-semibold text-berenjena tabular-nums w-6 shrink-0" :style="isAiDavid(row.le) ? { color: '#8a4a1a', opacity: 0.85 } : {}">{{ suitabilityScore(row.le) }}</span>
                       <span class="inline-flex h-2 w-12 shrink-0 rounded-full overflow-hidden" :style="{ background: 'rgba(45,27,61,0.08)' }" aria-hidden="true">
-                        <span class="h-full rounded-full" :style="{ width: ((suitabilityScore(le) / suitMax) * 100).toFixed(0) + '%', background: isAiDavid(le) ? '#bf7d2c' : '#2d1b3d' }" />
+                        <span class="h-full rounded-full" :style="{ width: ((suitabilityScore(row.le) / suitMax) * 100).toFixed(0) + '%', background: isAiDavid(row.le) ? '#bf7d2c' : '#2d1b3d' }" />
                       </span>
                     </div>
                     <div class="flex flex-wrap gap-1 mt-1">
-                      <span v-if="le.priorBiopsy" class="pill-data !px-1.5 !py-0 !text-[10px]" :style="{ background: '#f0e2c8', color: '#8a5a1a' }">{{ L('⚑ 26B585 falló', '⚑ 26B585 failed') }}</span>
-                      <span v-if="isAiDavid(le)" class="pill-data !px-1.5 !py-0 !text-[10px]" :style="{ background: '#fde4cc', color: '#8a4a1a' }">{{ L('sin confirmar', 'unconfirmed') }}</span>
+                      <span v-if="row.le.priorBiopsy" class="pill-data !px-1.5 !py-0 !text-[10px]" :style="{ background: '#f0e2c8', color: '#8a5a1a' }">{{ L('⚑ 26B585 falló', '⚑ 26B585 failed') }}</span>
+                      <span v-if="isAiDavid(row.le)" class="pill-data !px-1.5 !py-0 !text-[10px]" :style="{ background: '#fde4cc', color: '#8a4a1a' }">{{ L('sin confirmar', 'unconfirmed') }}</span>
                     </div>
                   </td>
-                  <td class="font-mono">{{ le.dota != null ? le.dota.toFixed(1) : '—' }}</td>
-                  <td class="font-mono">{{ le.fdg != null ? le.fdg.toFixed(1) : '—' }}</td>
-                  <td class="font-mono text-tinta">{{ le.prevFdg != null ? le.prevFdg.toFixed(1) : '—' }}</td>
-                  <td class="font-mono" :style="deltaStyle(le)">{{ deltaFdg(le) }}</td>
-                  <td class="font-mono text-tinta">{{ le.size ?? '—' }}</td>
+                  <td class="font-mono">{{ row.le.dota != null ? row.le.dota.toFixed(1) : '—' }}</td>
+                  <td class="font-mono">{{ row.le.fdg != null ? row.le.fdg.toFixed(1) : '—' }}</td>
+                  <td class="font-mono text-tinta">{{ row.le.prevFdg != null ? row.le.prevFdg.toFixed(1) : '—' }}</td>
+                  <td class="font-mono" :style="deltaStyle(row.le)">{{ deltaFdg(row.le) }}</td>
+                  <td class="font-mono text-tinta whitespace-nowrap">{{ metExtentLabel(row.le) }}</td>
                   <td class="text-sm">
                     <span class="flex items-center gap-2">
                       <span class="inline-flex h-2.5 w-12 shrink-0 rounded-full overflow-hidden border border-[rgba(45,27,61,0.1)]" aria-hidden="true">
-                        <span :style="{ width: (neShare(le) * 100).toFixed(0) + '%', background: '#9d44ab' }" />
-                        <span :style="{ width: ((1 - neShare(le)) * 100).toFixed(0) + '%', background: '#bb4128' }" />
+                        <span :style="{ width: (neShare(row.le) * 100).toFixed(0) + '%', background: '#9d44ab' }" />
+                        <span :style="{ width: ((1 - neShare(row.le)) * 100).toFixed(0) + '%', background: '#bb4128' }" />
                       </span>
-                      <span>{{ phenoLabel(le) }}</span>
+                      <span>{{ phenoLabel(row.le) }}</span>
                     </span>
                   </td>
-                  <td><span class="pill-data whitespace-nowrap" :style="{ background: sourceMeta(le).c + '22', color: sourceMeta(le).tc }">{{ L(sourceMeta(le).es, sourceMeta(le).en) }}</span></td>
+                  </template>
                 </tr>
+                </template>
               </tbody>
             </table>
           </div>
@@ -2094,7 +2167,7 @@ const ticks = [
           <div class="rounded-card border border-[#efb27a] bg-[#fbf0df] text-[#7a4a12] px-4 py-3 text-sm leading-relaxed mt-4">
             <strong>{{ L('Por aclarar / pendiente de confirmar', 'To clarify / pending confirmation') }}</strong>
             <ul class="list-disc pl-5 mt-1.5 space-y-1">
-              <li>{{ L('Faltan los tamaños de 6 focos: #1 C3, #2 C4, #3 escápula, #6 T9, #10 pedículo L1 y #15 ilíaco izquierdo.', 'Sizes missing for 6 foci: #1 C3, #2 C4, #3 scapula, #6 T9, #10 L1 pedicle and #15 left iliac.') }}</li>
+              <li>{{ L('La extensión metabólica del #2 (C4) y del #6 (D9) no es fiable: su captación es ≈ el fondo óseo y no se separa del hueso normal. Los focos de IA #17 (costilla) y #19 (cervicotorácica) no son medibles aquí.', 'The metabolic extent of #2 (C4) and #6 (D9) is not reliable: their uptake is ≈ bone background and cannot be separated from normal bone. AI foci #17 (rib) and #19 (cervicothoracic) are not measurable here.') }}</li>
               <li>{{ L('Confirmar el #12: aquí figura como sacro derecho, pero la tabla del análisis por IA lo describe como vértebra lumbar.', 'Confirm #12: shown here as right sacrum, but the AI-analysis table describes it as a lumbar vertebra.') }}</li>
               <li>{{ L('Los 3 focos marcados «Detectado por IA» (#17–#19) son medidas aproximadas sobre los DICOM, no confirmadas en el informe oficial — a revisar con Medicina Nuclear.', 'The 3 “AI-detected” foci (#17–#19) are approximate DICOM measurements, not confirmed in the official report — to review with Nuclear Medicine.') }}</li>
             </ul>
@@ -2168,4 +2241,11 @@ const ticks = [
 .th-sort:hover { color: #2d1b3d; }
 .th-arrow { font-size: 9px; opacity: 0.55; }
 .reads-vh { background: rgba(157, 68, 171, 0.07); }
+/* grupo de focos detectados por IA (al final de la tabla) — fila de subtítulo
+   + tinte cálido sutil en las filas; el marcado fuerte es la POSICIÓN + rótulo. */
+.ai-group-head td { padding-top: 0.4rem; padding-bottom: 0.4rem; }
+.ai-row { background: rgba(191, 125, 44, 0.05); }
+.ai-row:hover { background: rgba(191, 125, 44, 0.1); }
+/* contorno punteado sutil del marcador de los focos de IA (conserva el matiz) */
+.ai-dot { outline: 1.5px dotted rgba(138, 74, 26, 0.7); outline-offset: 1px; }
 </style>
