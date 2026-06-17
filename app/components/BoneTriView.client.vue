@@ -222,24 +222,34 @@ function resize() {
   updateStacked()
   const w = host.value.clientWidth
   const h = host.value.clientHeight
+  if (w < 1 || h < 1) return        // aún sin layout (aspect-ratio sin resolver) → no encuadres con basura
   renderer.setSize(w, h, false)
   renderer.domElement.style.width = w + 'px'
   renderer.domElement.style.height = h + 'px'
   updateCameraAspect()
+  // CLAVE: el aspecto de CADA celda cambió → hay que RE-ENCUADRAR (distancia + target),
+  // no sólo la matriz de proyección. Si no, el hueso queda encuadrado para otro aspecto
+  // (p.ej. el aspecto 1 inicial, antes de que el `aspect-ratio` CSS resolviera la altura)
+  // y aparece descentrado / cortado / pegado arriba. Conservamos la orientación actual
+  // del orbit (keepDir) para no resetear la rotación del usuario al redimensionar.
+  if (sharedGeo) frameObject(FILL, true)
 }
 
 /* aspecto de la cámara = aspecto de UNA celda (no del canvas entero), para que el
-   hueso no se deforme. La celda mide cellW × cellH según el layout. */
+   hueso no se deforme. La celda mide cellW × cellH (en píxeles CSS) según el layout;
+   es EXACTAMENTE el aspecto del viewport que pinta esa celda en renderScenes(). */
 const stacked = ref(false)
 function cellSize(): { w: number; h: number } {
   if (!host.value) return { w: 1, h: 1 }
-  const W = host.value.clientWidth, H = host.value.clientHeight
+  const W = Math.max(1, host.value.clientWidth), H = Math.max(1, host.value.clientHeight)
   return stacked.value ? { w: W, h: H / 3 } : { w: W / 3, h: H }
 }
 function updateCameraAspect() {
   if (!camera) return
   const { w, h } = cellSize()
-  camera.aspect = w / h
+  const a = w / h
+  if (!Number.isFinite(a) || a <= 0) return
+  camera.aspect = a
   camera.updateProjectionMatrix()
 }
 
@@ -302,26 +312,87 @@ function renderScenes() {
   renderer.setScissorTest(false)
 }
 
-/* encuadre: el boundingSphere ENTERO llena cada celda con un margen pequeño */
-function frameObject(fill = 0.86) {
+/* encuadre: la boundingSphere ENTERA (radio r, centrada en el ORIGEN tras recentrar la
+   geometría al CENTRO DE LA CAJA) cabe en la celda por su lado LIMITANTE, con margen.
+
+   Aspecto: cada celda mide W/3 × H (escritorio) o W × H/3 (apilado) → es estrecha/alta,
+   con aspect < 1. El FOV horizontal es entonces MENOR que el vertical, así que el lado
+   que primero «toca» el borde es el HORIZONTAL. Encuadramos al FOV LIMITANTE = min(vFov,
+   hFov): así el hueso cabe entero por los dos lados y queda centrado, sin cortarse ni
+   dejar huecos negros. Es lo que hacía falta: si encuadras sólo al FOV vertical en una
+   celda alta-estrecha, el hueso queda demasiado grande/desbordado a los lados; si usas un
+   aspecto que no es el real del viewport, queda descentrado y pegado a un borde. */
+const FILL = 0.90                                  // margen ~10 %
+const DEFAULT_DIR = new THREE.Vector3(0.32, 0.16, 1).normalize()
+const _camRight = new THREE.Vector3()
+const _camUp = new THREE.Vector3()
+const _v = new THREE.Vector3()
+/* medio-extentos del hueso PROYECTADOS sobre los ejes derecha/arriba de la cámara para una
+   dirección de vista dada. Usar la esfera envolvente (radio r) para encuadrar deja huecos
+   negros enormes en huesos «planos» o estrechos (p.ej. la vértebra D11, más ancha que alta):
+   la esfera es el peor caso 3D, no lo que se VE. Midiendo el rectángulo real que ocupa el
+   hueso en pantalla, llena cada celda por igual tanto si es pequeño como grande. */
+function orientedHalfExtents(dir: THREE.Vector3): { halfW: number; halfH: number } | null {
+  if (!sharedGeo) return null
+  const pos = sharedGeo.getAttribute('position') as THREE.BufferAttribute | undefined
+  if (!pos) return null
+  // base ortonormal de la cámara: forward = -dir; right = forward × up0; up = right × forward
+  const forward = dir.clone().normalize().multiplyScalar(-1)
+  const up0 = Math.abs(forward.y) > 0.99 ? new THREE.Vector3(0, 0, 1) : new THREE.Vector3(0, 1, 0)
+  _camRight.copy(forward).cross(up0).normalize()
+  _camUp.copy(_camRight).cross(forward).normalize()
+  let maxW = 0, maxH = 0
+  const n = pos.count
+  for (let i = 0; i < n; i++) {
+    _v.set(pos.getX(i), pos.getY(i), pos.getZ(i))   // geo recentrada: origen = centro de la caja
+    const w = Math.abs(_v.dot(_camRight))
+    const h = Math.abs(_v.dot(_camUp))
+    if (w > maxW) maxW = w
+    if (h > maxH) maxH = h
+  }
+  return { halfW: maxW, halfH: maxH }
+}
+function frameObject(fill = FILL, keepDir = false) {
   if (!sharedGeo || !camera || !controls) return
+  updateCameraAspect()                             // aspecto REAL del viewport antes de medir el FOV
+  // dirección de la cámara: conservar la del orbit actual al redimensionar (no resetea la
+  // rotación del usuario); en carga / reencuadre manual, volver a la vista por defecto.
+  let dir: THREE.Vector3
+  if (keepDir) {
+    dir = camera.position.clone().sub(controls.target)
+    if (dir.lengthSq() < 1e-6) dir = DEFAULT_DIR.clone()
+    else dir.normalize()
+  } else {
+    dir = DEFAULT_DIR.clone()
+  }
   const r = boneRadius
   const vFov = (camera.fov * Math.PI) / 180
   const hFov = 2 * Math.atan(Math.tan(vFov / 2) * camera.aspect)
-  const fitH = r / Math.sin(vFov / 2)
-  const fitW = r / Math.sin(hFov / 2)
-  const dist = Math.max(fitH, fitW) / fill
-  const dir = new THREE.Vector3(0.32, 0.16, 1).normalize()
-  camera.position.copy(dir.multiplyScalar(dist))
+  // distancia para que el hueso quepa por su lado LIMITANTE: medimos los medio-extentos
+  // PROYECTADOS (halfW en X-pantalla, halfH en Y-pantalla) y exigimos que CADA uno entre en
+  // su FOV → dist = max(halfW/tan(hFov/2), halfH/tan(vFov/2)). Así llena bien tanto el ilíaco
+  // grande como la vértebra pequeña, y queda centrado (el centro de la caja está en el origen
+  // = controls.target). Reservamos la esfera (r) como cota mínima de seguridad por si algún
+  // vértice cae fuera (no se corta nunca).
+  const ext = orientedHalfExtents(dir)
+  let dist: number
+  if (ext) {
+    const distH = ext.halfH / Math.tan(vFov / 2)
+    const distW = ext.halfW / Math.tan(hFov / 2)
+    dist = Math.max(distH, distW) / fill
+  } else {
+    dist = r / Math.sin(Math.min(vFov, hFov) / 2) / fill
+  }
+  controls.target.set(0, 0, 0)                     // centro de la CAJA = origen (geo recentrada)
+  camera.position.copy(dir.multiplyScalar(dist))   // a `dist` mirando al centro
   camera.near = Math.max(0.01, dist - r * 2)
   camera.far = dist + r * 4
   camera.updateProjectionMatrix()
-  controls.target.set(0, 0, 0)
-  controls.minDistance = r * 0.75
+  controls.minDistance = r * 0.6
   controls.maxDistance = dist * 2.6
   controls.update()
 }
-function reframe() { updateCameraAspect(); frameObject() }
+function reframe() { frameObject(FILL, false) }
 
 /* ---------- precálculo: lee los 3 canales reales por vértice ---------- */
 function precompute(geo: THREE.BufferGeometry) {
