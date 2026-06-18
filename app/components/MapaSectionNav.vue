@@ -54,10 +54,8 @@ const L = (es: string, en: string) => (locale.value === 'en' ? en : es)
 // (Zona 2), ordenada de MÁS a MENOS importante para decidir. Las etiquetas casan
 // con el <h2> de destino (confirmación de «dónde estoy» tras saltar). Bilingüe, neutra.
 // El índice cubre SOLO la sección general (Zona 2 · de la visión general en adelante);
-// la herramienta (dianas + mapa) va sin menú. Se conserva una única entrada de RETORNO
-// arriba para no atrapar al lector en la wiki (wayfinding mínimo).
+// la herramienta (dianas + mapa) va sin menú. Sin entrada de «volver al mapa» (petición).
 const chapters = computed(() => [
-  { id: 'mapa', label: L('↑ Volver al mapa', '↑ Back to the map') },
   { id: 'idoneidad', label: L('Idoneidad como diana', 'Suitability as a target') },
   { id: 'fenotipo', label: L('Mapa de fenotipo', 'Phenotype map') },
   { id: 'imagen', label: L('La imagen real', 'The real imaging') },

@@ -1545,11 +1545,10 @@ const ticks = [
           <div class="grid lg:grid-cols-[minmax(300px,360px)_minmax(0,1fr)] gap-6 items-start">
 
             <!-- ===== COLUMNA IZQUIERDA · NAVEGAR (sticky) ===== -->
-            <!-- NAVEGADOR STICKY (esqueleto + controles): se FIJA al hacer scroll de la
-                 ficha. Cap de altura + scroll interno para que se pinne de verdad cuando
-                 el esqueleto+controles superan el viewport (si no, el sticky «existe» pero
-                 no ancla). Solo en lg+; en móvil apila normal. -->
-            <div class="lg:sticky lg:top-24 lg:max-h-[calc(100vh-7.5rem)] lg:overflow-y-auto lg:pr-1">
+            <!-- NAVEGADOR STICKY (esqueleto + controles): se fija al hacer scroll de la
+                 ficha. Solo en lg+; en móvil apila normal. (Sin scroll interno: la
+                 paciente prefería el sticky simple, sin barra de scroll en el navegador.) -->
+            <div class="lg:sticky lg:top-24">
 
             <!-- BARRA DE NAVEGACIÓN · horizontal y compacta (no gasta espacio): toggle
                  Esqueleto/Tabla a la izquierda y flechas prev/next (paso entre focos)
@@ -1971,20 +1970,21 @@ const ticks = [
                que la navegación de un vistazo no exija scroll, pero el detalle siga ahí. -->
           <!-- DETALLE PLEGADO por defecto (zona análisis limpia); se expande al pulsar
                el summary o el enlace «Ver el detalle completo» de la ficha. -->
+          <!-- Oculto hasta pulsar «Ver el detalle completo»; una vez abierto SE QUEDA
+               (no se colapsa solo — la paciente no quiere que «desaparezcan cosas»).
+               :open ligado a detalleOpen lo mantiene expandido; «Cerrar» lo oculta. -->
           <details id="detalle-foco" v-show="detalleOpen" :open="detalleOpen"
-            @toggle="detalleOpen = ($event.target as HTMLDetailsElement).open"
             class="foco-detalle card-base mt-10 scroll-mt-[7.5rem]">
-            <summary class="foco-detalle__sum flex items-start gap-3 cursor-pointer">
+            <summary class="foco-detalle__sum flex items-start gap-3" @click.prevent>
               <span class="shrink-0 w-2.5 h-2.5 mt-2 rounded-full" :style="{ background: phenoColor(sel) }" aria-hidden="true" />
               <div class="min-w-0">
                 <h3 class="heading-display text-xl text-berenjena leading-tight">{{ L('Detalle completo del foco', 'Full focus detail') }} #{{ sel.id }}</h3>
                 <p class="text-xs text-tinta">{{ L('Las 3 lecturas, la forma del hueso, la extensión y la cuantificación', 'The 3 readings, bone shape, extent and quantification') }}</p>
               </div>
-              <span class="ml-auto shrink-0 self-center inline-flex items-center gap-1 text-[12px] font-semibold text-miriam">
-                <span class="foco-detalle__open">{{ L('Ampliar', 'Expand') }}</span>
-                <span class="foco-detalle__close">{{ L('Contraer', 'Collapse') }}</span>
-                <svg class="foco-detalle__chev" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
-              </span>
+              <button type="button" @click.stop="detalleOpen = false" class="ml-auto shrink-0 self-start inline-flex items-center gap-1 text-[12px] font-semibold text-miriam hover:opacity-80">
+                {{ L('Cerrar', 'Close') }}
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg>
+              </button>
             </summary>
 
             <!-- ===== BANNER · foco DETECTADO POR IA, pendiente de validación =====
