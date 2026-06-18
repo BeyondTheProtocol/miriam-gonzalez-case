@@ -114,8 +114,10 @@
       </div>
     </section>
 
+    <StarDivider class="bg-cream" />
+
     <!-- ░░ 2b · EL MODELO ░░ lo que más importa a las marcas · crema -->
-    <section v-reveal class="section-spacing bg-cream" aria-labelledby="m-modelo">
+    <section v-reveal class="pt-6 pb-14 sm:pt-8 sm:pb-16 bg-cream" aria-labelledby="m-modelo">
       <div class="section-wide">
         <p id="m-modelo" class="eyebrow mb-4 block">{{ t('marcas.modelo_eyebrow') }}</p>
         <div class="rounded-2xl p-6 sm:p-8 bg-berenjena">
