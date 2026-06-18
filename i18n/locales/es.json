@@ -844,18 +844,18 @@
     "links_signature": "— Equipo Miriam González · Beyond the Protocol"
   },
   "marcas": {
-    "meta_title": "Una historia que la gente ya sigue. Tu marca, dentro. — helpmiriam.com",
-    "meta_description": "Soy ingeniera y divulgadora con un cáncer de mama ultra-raro: un caso del que se va a hablar, y mucho. No te pido un donativo; te propongo un partnership: subir tu marca a esta historia con rigor y sin postureo. Benéfico, sí, pero también profesional, y lo trabajamos como tal.",
-    "og_description": "Una historia que ya tiene miradas encima y va a tener muchas más. Te propongo meter tu marca dentro —no un logo de un día— con una divulgadora tech que investiga su propio cáncer ultra-raro. Partnership profesional a largo plazo, con transparencia total.",
+    "meta_title": "Un escaparate a punto de despegar. Sube tu marca. — helpmiriam.com",
+    "meta_description": "Soy ingeniera y divulgadora con un cáncer de mama ultra-raro: un perfil que no se repite y una historia con mucha atención por delante. No te pido un donativo; te propongo un partnership para convertir esa atención en ojos para tu marca. Benéfico, sí, pero también profesional, y lo trabajamos como tal.",
+    "og_description": "Un escaparate a punto de despegar. Te propongo subir tu marca a esta historia —no un logo de un día— con una divulgadora tech que investiga su propio cáncer ultra-raro. Partnership profesional a largo plazo, con transparencia total.",
     "print": "↓ Dossier (PDF)",
     "print_aria": "Descargar el dossier para marcas en PDF",
 
-    "_comment_hero": "Header — opción B (decidida con Adri, 18-jun): lidera con la atención/escaparate ya existente y la posición de la marca DENTRO de la historia. Encuadre debajo = partnership, no donativo. Alternativas A y C, en el comentario de marcas.vue.",
+    "_comment_hero": "Header — pase de copy de Adri (18-jun, PREVALECE): H1 lidera con su imagen del «escaparate a punto de despegar» + llamada directa a la marca («Sube tu marca»). El encuadre partnership-no-donativo baja al hero_context. Registro DOSIER (sobrio, de igual a igual). Alternativas A y C, en el comentario de marcas.vue.",
     "hero_eyebrow": "// para marcas",
-    "hero_title": "Una historia que la gente ya sigue. {em}.",
-    "hero_title_em": "Tu marca, dentro",
-    "hero_subtitle": "Soy ingeniera y divulgadora con un cáncer de mama ultra-raro —un caso descrito apenas un puñado de veces en la literatura—, y en los próximos meses va a tener muchas miradas encima. Te propongo subir tu marca a esa historia: no un logo de un día, sino una colaboración que se nota y dura. La montamos juntas.",
-    "hero_context": "Lo digo claro de entrada: no te pido un donativo; te propongo un partnership. Es un proyecto benéfico, sí, pero también una colaboración profesional, y la trabajamos como tal —con transparencia total en cada paso.",
+    "hero_title": "Un escaparate a punto de despegar. {em}.",
+    "hero_title_em": "Sube tu marca",
+    "hero_subtitle": "Soy ingeniera y divulgadora con un cáncer de mama ultra-raro: un perfil que no se repite. En los próximos meses esta historia va a tener muchas miradas encima, y te propongo subir tu marca a ella —no un logo de un día, sino una presencia que se nota y dura— para convertir esa atención en ojos para tu marca. Con transparencia total, de principio a fin.",
+    "hero_context": "Y lo digo claro de entrada: no te pido un donativo; te propongo un partnership. Es un proyecto benéfico, sí, pero también una colaboración profesional, y la trabajamos como tal.",
     "hero_cta": "Cuéntame qué hacéis",
     "hero_cta_dossier": "Ver el dossier (para tu equipo)",
     "hero_tagline": "// te respondo yo, en persona · busco pocas marcas, pero las adecuadas",
@@ -889,7 +889,6 @@
     ],
     "pilares_dossier_line": "¿Lo quieres por escrito para llevarlo a tu equipo?",
     "pilares_dossier_cta": "Descarga el dossier (PDF)",
-    "pilares_cta": "Cuéntame qué hacéis",
 
     "encajes_title": "Dónde encaja tu producto",
     "encajes_intro": "Donde tu producto se cruza con mi vida real, ahí la colaboración se nota auténtica. Y si ya hay una marca de tu sector, sigue habiendo sitio: para eso están las menciones.",
@@ -930,19 +929,18 @@
       { "label": "Notion", "url": "https://www.notion.com" },
       { "label": "Never Surrender", "url": "https://neversurrenderf.org/" }
     ],
-    "partners_more": "…y más por venir 🤫",
-    "audiencia_cta": "¿Encajamos? Cuéntame qué hacéis",
+    "partners_more": "…y más por venir",
+    "audiencia_cta": "¿Encajamos?",
 
     "cta_eyebrow": "// ponte en contacto",
     "cta_title": "Busco pocas marcas, {em}.",
     "cta_title_em": "pero las adecuadas",
     "cta_p": "Cuéntame qué hacéis y lo montamos juntas, a vuestra medida. Te respondo yo, en persona —no un formulario ni un equipo.",
     "cta_button": "Hablemos de tu marca",
-    "cta_dossier": "Ver el dossier (para tu equipo)",
-    "cta_podcast": "Y el momento ayuda: relanzo mi podcast «No me da la vida» para contar la IA y la tecnología que hay detrás de este proyecto. En los próximos meses esto va a tener mucha atención —buen momento para subirte. 🎙️",
+    "cta_podcast": "Y el momento ayuda: relanzo mi podcast «No me da la vida» para contar la IA y la tecnología que hay detrás de este proyecto. En los próximos meses esto va a tener mucha atención: un buen momento para subirte.",
     "cta_microcopy": "Una última cosa, porque importa: es un proyecto benéfico, sí, pero también una colaboración profesional entre tú y yo, y la trabajamos como tal.",
 
-    "popup_title": "¿Subimos tu marca a la historia?",
+    "popup_title": "¿Subes tu marca a este escaparate?",
     "popup_text": "Te leo yo, en persona. Cuéntame quién eres y vemos cómo encajar.",
     "popup_cta": "Cuéntame qué hacéis",
     "popup_dismiss": "Ahora no"
