@@ -1537,7 +1537,11 @@ const ticks = [
           <div class="grid lg:grid-cols-[minmax(300px,360px)_minmax(0,1fr)] gap-6 items-start">
 
             <!-- ===== COLUMNA IZQUIERDA · NAVEGAR (sticky) ===== -->
-            <div class="lg:sticky lg:top-24">
+            <!-- NAVEGADOR STICKY (esqueleto + controles): se FIJA al hacer scroll de la
+                 ficha. Cap de altura + scroll interno para que se pinne de verdad cuando
+                 el esqueleto+controles superan el viewport (si no, el sticky «existe» pero
+                 no ancla). Solo en lg+; en móvil apila normal. -->
+            <div class="lg:sticky lg:top-24 lg:max-h-[calc(100vh-7.5rem)] lg:overflow-y-auto lg:pr-1">
 
             <!-- BARRA DE NAVEGACIÓN · horizontal y compacta (no gasta espacio): toggle
                  Esqueleto/Tabla a la izquierda y flechas prev/next (paso entre focos)
@@ -1871,7 +1875,7 @@ const ticks = [
 
               <!-- ENLACE al detalle profundo (sin scroll para navegar; scroll opcional) -->
               <a href="#detalle-foco" @click="detalleOpen = true" class="link-action text-miriam text-[13px] inline-flex items-center gap-1 font-semibold">
-                {{ L('Ver el detalle completo del foco', 'See the full focus detail') }} <span aria-hidden="true">↓</span>
+                {{ L('Ver el detalle completo del foco (abajo, a ancho completo)', 'See the full focus detail (full-width, below)') }} <span aria-hidden="true">↓</span>
               </a>
             </div>
 
