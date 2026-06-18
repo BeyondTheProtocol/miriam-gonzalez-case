@@ -359,9 +359,15 @@
           </figure>
         </div>
 
-        <i18n-t keypath="marcas.partners_press" tag="p" class="text-tinta">
-          <template #b1><strong class="font-semibold text-berenjena">{{ t('marcas.partners_press_b1') }}</strong></template>
-        </i18n-t>
+        <!-- Caso en prensa · tira de medios (mismo componente y enlaces que la home) -->
+        <div class="flex flex-wrap items-baseline gap-x-7 gap-y-3">
+          <span class="font-mono uppercase text-[11px] tracking-[0.12em] text-tinta self-center">
+            {{ t('home.s9_strip_label') }}
+          </span>
+          <a :href="pressElPais" target="_blank" rel="noopener" class="link-logo text-2xl sm:text-3xl">El País<span class="sr-only"> {{ t('a11y.new_tab') }}</span></a>
+          <a :href="pressMurcia" target="_blank" rel="noopener" class="link-logo text-2xl sm:text-3xl">La Opinión de Murcia<span class="sr-only"> {{ t('a11y.new_tab') }}</span></a>
+          <a :href="pressLa7" target="_blank" rel="noopener" class="link-logo text-2xl sm:text-3xl">La 7<span class="sr-only"> {{ t('a11y.new_tab') }}</span></a>
+        </div>
       </div>
     </section>
 
@@ -436,6 +442,11 @@ const virals = computed(() => tm('marcas.prueba_virals') as Record<string, unkno
 const ganasCards = computed(() => tm('marcas.ganas_cards') as Record<string, unknown>[])
 const partners = computed(() => tm('marcas.partners') as Record<string, unknown>[])
 const quotes = computed(() => tm('marcas.partners_quotes') as Record<string, unknown>[])
+
+// Cobertura de prensa real — mismos enlaces que la tira de medios de la home (index.vue)
+const pressElPais = 'https://elpais.com/tecnologia/2026-04-23/asi-usa-una-paciente-con-cancer-metastasico-la-ia-para-entender-su-enfermedad-cual-es-el-mejor-metodo-para-hablar-de-salud-con-chatbots.html'
+const pressMurcia = 'https://www.laopiniondemurcia.es/comunidad/2026/05/30/paciente-murciana-aguarda-nuevo-tratamiento-130816775.html'
+const pressLa7 = 'https://www.instagram.com/p/DZDT2hIAMPU/?hl=es'
 
 function printPdf() {
   if (import.meta.client) window.print()
