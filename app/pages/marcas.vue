@@ -187,17 +187,16 @@
           </div>
         </div>
 
-        <!-- Dossier en primer plano + CTA de contacto. Filete fino superior en vez
-             de caja rellena: separa el cierre del bloque sin añadir otro recuadro
-             (mismo divisor editorial que la tira de prensa de la home). -->
-        <div class="dossier-row flex flex-col sm:flex-row sm:items-center gap-5 sm:gap-8">
-          <p class="text-base text-berenjena leading-relaxed flex-1 m-0">
+        <!-- Dossier en primer plano. Filete fino superior en vez de caja rellena:
+             separa el cierre del bloque sin añadir otro recuadro (mismo divisor
+             editorial que la tira de prensa de la home). Aquí solo el ENLACE al PDF:
+             el CTA de contacto duplicado se retiró para no apilar acciones (la
+             llamada a contactar vive en hero, audiencia y cierre). -->
+        <div class="dossier-row">
+          <p class="text-base text-berenjena leading-relaxed m-0">
             {{ t('marcas.pilares_dossier_line') }}
             <a href="/dossier-marcas-deck.pdf" download class="link-inline font-medium">{{ t('marcas.pilares_dossier_cta') }}</a>
           </p>
-          <NuxtLink :to="localePath('contacto')" class="btn-cta shrink-0" style="text-decoration: none">
-            {{ t('marcas.pilares_cta') }}
-          </NuxtLink>
         </div>
       </div>
     </section>
@@ -305,14 +304,13 @@
             <template #em><em class="italic text-coral">{{ t('marcas.cta_title_em') }}</em></template>
           </i18n-t>
           <p class="text-lg text-cream/85 leading-relaxed mb-8 max-w-xl mx-auto">{{ t('marcas.cta_p') }}</p>
-          <div class="flex flex-col sm:flex-row items-center justify-center gap-4 mb-6">
+          <!-- Cierre con UN solo CTA: contactar. El enlace de dossier se retiró
+               aquí (redundante con el del hero, el de la dossier-row y el botón
+               flotante) para que el cierre empuje una única acción. -->
+          <div class="flex justify-center mb-6">
             <NuxtLink :to="localePath('contacto')" class="btn-cta" style="text-decoration: none">
               {{ t('marcas.cta_button') }}
             </NuxtLink>
-            <a href="/dossier-marcas-deck.pdf" download class="link-action group font-mono text-sm text-cream">
-              {{ t('marcas.cta_dossier') }}
-              <Icon name="ph:download-simple" class="w-4 h-4 transition-transform group-hover:translate-y-0.5" aria-hidden="true" />
-            </a>
           </div>
           <p class="text-sm text-cream/85 leading-relaxed mb-6 max-w-xl mx-auto">{{ t('marcas.cta_podcast') }}</p>
           <p class="font-mono text-xs text-cream/65 max-w-md mx-auto leading-relaxed">{{ t('marcas.cta_microcopy') }}</p>
