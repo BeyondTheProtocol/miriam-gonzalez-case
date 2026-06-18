@@ -1404,7 +1404,8 @@ const ticks = [
              Reusa los computeds del cockpit/trayectoria (mismas cifras, sin recalcular);
              el desglose a fondo sigue abajo. Título limpio, sin eyebrow ni badge. -->
         <section class="mb-14" aria-labelledby="contexto-general">
-          <h2 id="contexto-general" class="heading-display text-3xl text-berenjena mb-1.5 scroll-mt-[7.5rem]">{{ L('Enfermedad ósea — el caso de un vistazo', 'Bone disease — the case at a glance') }}</h2>
+          <p class="eyebrow mb-2 block">{{ L('Contexto · el panorama', 'Context · the big picture') }}</p>
+          <h2 id="contexto-general" class="heading-display text-2xl text-berenjena mb-1.5 scroll-mt-[7.5rem]">{{ L('Enfermedad ósea — el caso de un vistazo', 'Bone disease — the case at a glance') }}</h2>
           <p class="text-sm text-tinta leading-relaxed mb-5 max-w-3xl">{{ L('Cuánta enfermedad hay y cómo evoluciona, antes de entrar foco a foco. Cifras descriptivas de los dos PET; describe, no concluye.', 'How much disease there is and how it is evolving, before going focus by focus. Descriptive figures from the two PET; it describes, it does not conclude.') }}</p>
           <!-- enfermedad · KPIs -->
           <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-5">
@@ -1962,10 +1963,9 @@ const ticks = [
             @toggle="detalleOpen = ($event.target as HTMLDetailsElement).open"
             class="foco-detalle card-base mt-10 scroll-mt-[7.5rem]">
             <summary class="foco-detalle__sum flex items-start gap-3 cursor-pointer">
-              <span class="shrink-0 w-9 h-9 rounded-full flex items-center justify-center font-display text-base text-white"
-                :style="{ background: phenoColor(sel), color: markerInk(sel) }">{{ sel.id }}</span>
+              <span class="shrink-0 w-2.5 h-2.5 mt-2 rounded-full" :style="{ background: phenoColor(sel) }" aria-hidden="true" />
               <div class="min-w-0">
-                <h3 class="heading-display text-xl text-berenjena leading-tight">{{ L('Detalle del foco', 'Focus detail') }} · {{ sel.level[lang] }}</h3>
+                <h3 class="heading-display text-xl text-berenjena leading-tight">{{ L('Detalle del foco', 'Focus detail') }} #{{ sel.id }} · {{ sel.level[lang] }}</h3>
                 <p class="text-xs text-tinta">{{ sel.region[lang] }} ·
                   {{ sel.side === 'R' ? L('lado derecho', 'right side') : sel.side === 'L' ? L('lado izquierdo', 'left side') : L('línea media', 'midline') }}</p>
               </div>
@@ -2893,35 +2893,15 @@ const ticks = [
              Va al final de la wiki como REFERENCIA — la respuesta (dianas idóneas) ya
              está arriba; esto es el «todo el tocho» ordenado, de menos a más detalle. -->
         <section class="mb-14" aria-labelledby="cockpit">
-          <p class="eyebrow mb-2 block">{{ L('El caso, de un vistazo', 'The case, at a glance') }}</p>
+          <p class="eyebrow mb-2 block">{{ L('Referencia · cómo se lee y desglose', 'Reference · how to read it and the breakdown') }}</p>
           <div class="flex items-baseline justify-between flex-wrap gap-x-3 gap-y-1 mb-3">
-            <h2 id="cockpit" class="heading-display text-2xl text-berenjena scroll-mt-[7.5rem]">{{ L('Enfermedad ósea de un vistazo', 'Bone disease at a glance') }}</h2>
-            <p class="text-[11px] text-tinta">{{ L('cifras descriptivas de los dos PET · sin interpretación', 'descriptive figures from the two PET · no interpretation') }}</p>
+            <h2 id="cockpit" class="heading-display text-2xl text-berenjena scroll-mt-[7.5rem]">{{ L('Cómo se lee · desglose del caso', 'How to read it · case breakdown') }}</h2>
+            <p class="text-[11px] text-tinta">{{ L('la leyenda de los dos trazadores y la concordancia · sin interpretación', 'the two-tracer legend and concordance · no interpretation') }}</p>
           </div>
-
-          <!-- KPIs (cintillo compacto) -->
-          <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
-            <div class="stat-readout">
-              <div class="stat-readout__label">{{ L('Carga ósea', 'Bone burden') }}</div>
-              <div class="stat-readout__value tabular-nums">{{ confirmedFoci.length }} <span class="font-body font-semibold text-[15px] text-tinta align-middle">+{{ aiFoci.length }}</span></div>
-              <div class="stat-readout__unit">{{ L('focos en el informe · +' + aiFoci.length + ' por confirmar (IA)', 'foci in the report · +' + aiFoci.length + ' to confirm (AI)') }}</div>
-            </div>
-            <div class="stat-readout">
-              <div class="stat-readout__label">{{ L('Reparto en el esqueleto', 'Skeletal distribution') }}</div>
-              <div class="stat-readout__value tabular-nums">{{ skeletonSplit.axial }} <span class="font-body text-[15px] text-tinta align-middle">·</span> {{ skeletonSplit.append }}</div>
-              <div class="stat-readout__unit">{{ L('axial (columna/sacro) · apendicular (pelvis/cadera)', 'axial (spine/sacrum) · appendicular (pelvis/hip)') }}</div>
-            </div>
-            <div class="stat-readout">
-              <div class="stat-readout__label" :style="{ color: '#9d44ab' }">{{ L('SUVmáx ⁶⁸Ga-DOTATOC', '⁶⁸Ga-DOTATOC SUVmax') }}</div>
-              <div class="stat-readout__value tabular-nums" :style="{ color: '#9d44ab' }">{{ dotaRangeLabel }}</div>
-              <div class="stat-readout__unit">{{ L('rango del receptor (informe)', 'receptor range (report)') }}</div>
-            </div>
-            <div class="stat-readout">
-              <div class="stat-readout__label" :style="{ color: '#bb4128' }">{{ L('SUVmáx ¹⁸F-FDG', '¹⁸F-FDG SUVmax') }}</div>
-              <div class="stat-readout__value tabular-nums" :style="{ color: '#bb4128' }">{{ fdgRangeLabel }}</div>
-              <div class="stat-readout__unit">{{ L('rango del azúcar (informe)', 'sugar range (report)') }}</div>
-            </div>
-          </div>
+          <!-- Las cifras del caso (carga, reparto, rangos SUV, evolución) viven ARRIBA en
+               la banda de contexto (#contexto-general); aquí NO se repiten. Esta sección
+               conserva lo único: concordancia receptor↔azúcar, resumen para el equipo y la
+               leyenda «cómo se lee» (#dos-caras), clave de color de toda la página. -->
 
           <!-- DESGLOSE secundario plegado: concordancia + trayectoria + resumen +
                «cómo se lee» (los dos trazadores). Es contexto, no debe apelotonar el

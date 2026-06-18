@@ -53,15 +53,17 @@ const L = (es: string, en: string) => (locale.value === 'en' ? en : es)
 // decisión desde cualquier punto (wayfinding), y sigue con la sección general
 // (Zona 2), ordenada de MÁS a MENOS importante para decidir. Las etiquetas casan
 // con el <h2> de destino (confirmación de «dónde estoy» tras saltar). Bilingüe, neutra.
+// El índice cubre SOLO la sección general (Zona 2 · de la visión general en adelante);
+// la herramienta (dianas + mapa) va sin menú. Se conserva una única entrada de RETORNO
+// arriba para no atrapar al lector en la wiki (wayfinding mínimo).
 const chapters = computed(() => [
-  { id: 'dianas-resumen', label: L('Dianas idóneas', 'Suitable targets') },
-  { id: 'mapa', label: L('El mapa, lesión a lesión', 'The map, lesion by lesion') },
+  { id: 'mapa', label: L('↑ Volver al mapa', '↑ Back to the map') },
   { id: 'idoneidad', label: L('Idoneidad como diana', 'Suitability as a target') },
   { id: 'fenotipo', label: L('Mapa de fenotipo', 'Phenotype map') },
   { id: 'imagen', label: L('La imagen real', 'The real imaging') },
   { id: 'trayectoria', label: L('Trayectoria', 'Trajectory') },
   { id: 'tabla', label: L('Apéndice (tabla)', 'Appendix (table)') },
-  { id: 'cockpit', label: L('Enfermedad ósea de un vistazo', 'Bone disease at a glance') },
+  { id: 'cockpit', label: L('Cómo se lee · desglose', 'How to read it · breakdown') },
 ])
 
 const activeId = ref('')
