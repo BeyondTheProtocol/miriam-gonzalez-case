@@ -322,11 +322,19 @@ function isNewAt(le: Lesion, f: number): boolean {
 /*  Estado interactivo                                                 */
 /* ------------------------------------------------------------------ */
 const selected = ref<number>(7)
-const filter = ref<'all' | Pheno | 'load' | 'new' | 'ia'>('all')
+const filter = ref<'all' | Pheno | 'new' | 'ia' | 'mix'>('all')
 const sel = computed(() => LES.find((l) => l.id === selected.value)!)
 
 /* pestañas de imagen real reconstruida de los DICOM (mip · pet · rmn) */
 const imgTab = ref<'mip' | 'pet' | 'rmn'>('mip')
+
+/* ------------------------------------------------------------------ */
+/*  NAVEGADOR · dos modos conmutables (segmented control)              */
+/*  'skeleton' → el esqueleto SVG compacto (+ tiempo + filtros)         */
+/*  'table'    → la lista/tabla de focos compacta y clicable            */
+/*  La SELECCIÓN (`selected`) es la misma en ambos modos → persiste al  */
+/*  cambiar de modo; los dos actualizan al instante el 3D + el resumen. */
+const navMode = ref<'skeleton' | 'table'>('skeleton')
 
 /* ------------------------------------------------------------------ */
 /*  P0 · Enlace foco ↔ imagen (la MEJOR imagen real de cada foco)      */
@@ -538,6 +546,23 @@ watch(petLightboxOpen, (open) => {
 })
 
 /* ------------------------------------------------------------------ */
+/*  OVERLAY «VER EN GRANDE» del visor 3D — petición paciente: el visor  */
+/*  en línea va contenido y un botón lo abre a pantalla completa con los */
+/*  3 mapas grandes. Reutiliza BoneTriView TAL CUAL (otra instancia con  */
+/*  el mismo `mesh-key`); rotación sincronizada DENTRO de cada instancia. */
+/*  Cierre Esc/botón/backdrop, bloqueo de scroll, role=dialog (a11y).    */
+const bone3dFullscreen = ref(false)
+function openBone3dFullscreen() { bone3dFullscreen.value = true }
+function closeBone3dFullscreen() { bone3dFullscreen.value = false }
+function onBone3dEsc(e: KeyboardEvent) { if (e.key === 'Escape') closeBone3dFullscreen() }
+watch(bone3dFullscreen, (open) => {
+  if (!import.meta.client) return
+  document.body.style.overflow = open ? 'hidden' : ''
+  if (open) document.addEventListener('keydown', onBone3dEsc)
+  else document.removeEventListener('keydown', onBone3dEsc)
+})
+
+/* ------------------------------------------------------------------ */
 /*  GALERÍA "contact-sheet" de TODAS las key-images (petición paciente) */
 /*  Confirmadas primero (por id), focos de IA al final con su marca.    */
 /*  Etiqueta por miniatura: #id · localización · trazador SUVmáx.       */
@@ -584,9 +609,9 @@ function goToMRI() {
 
 function visible(le: Lesion): boolean {
   if (filter.value === 'all') return true
-  if (filter.value === 'load') return !!le.load
   if (filter.value === 'new') return isNewFocus(le)          // foco que enciende por primera vez (FDG)
   if (filter.value === 'ia') return sourceOf(le) === 'ia-david' // detectado por IA (por confirmar)
+  if (filter.value === 'mix') return le.pheno === 'mixNe' || le.pheno === 'mixBal' || le.pheno === 'mixAgg' // mixtos fundidos
   return le.pheno === filter.value
 }
 function pick(id: number) { selected.value = id }
@@ -729,17 +754,17 @@ const evoChartSvg = computed(() => {
   return `<svg viewBox="0 0 ${W} ${H}" style="width:100%;height:auto" role="img" aria-label="${L('Evolución del FDG (SUVmáx) por fecha', 'FDG (SUVmax) evolution by date')}">${g}</svg>`
 })
 
+/* Filtros mínimos (de más a menos útil para elegir diana). Los tres fenotipos
+   (solo receptor · mixto · solo azúcar) mapean al degradado; «Mixto» funde los
+   dos mixtos. Más los dos FLAGS no obvios: nuevo y detectado por IA. Quitado
+   «Hueso de carga» (no decide diana; sigue en la ficha y en idoneidad). */
 const filters = computed(() => [
   { key: 'all', label: L('Todas', 'All') },
   { key: 'ne', label: L('Solo receptor', 'Receptor only'), c: PHENO.ne.c },
-  { key: 'mixNe', label: L('Mixto · receptor', 'Mixed · receptor'), c: PHENO.mixNe.c },
-  { key: 'mixAgg', label: L('Mixto · azúcar', 'Mixed · sugar'), c: PHENO.mixAgg.c },
+  { key: 'mix', label: L('Mixto', 'Mixed'), c: PHENO.mixBal.c },
   { key: 'agg', label: L('Solo azúcar', 'Sugar only'), c: PHENO.agg.c },
-  { key: 'load', label: L('Hueso de carga', 'Weight-bearing'), c: '#bb4128' },
-  // Foco nuevo (enciende por primera vez en FDG) y detectado por IA (por
-  // confirmar). Etiquetado por dato del estudio/procedencia, nunca biología.
-  { key: 'new', label: L('Foco nuevo', 'New focus') + ` (${newCount.value})`, c: '#bb4128' },
-  { key: 'ia', label: L('Detectado por IA', 'AI-detected') + ` (${aiFoci.value.length})`, c: '#6b6470' },
+  { key: 'new', label: L('Nuevo', 'New') + ` (${newCount.value})`, c: '#bb4128' },
+  { key: 'ia', label: L('IA · por confirmar', 'AI · to confirm') + ` (${aiFoci.value.length})`, c: '#6b6470' },
 ])
 
 /* resumen */
@@ -851,11 +876,17 @@ const quadDots = computed(() => {
     }
     if (!moved) break
   }
-  // mantén los puntos dentro del área de dibujo (no se salgan por los ejes)
+  // mantén los puntos dentro del área de dibujo (no se salgan por los ejes) y
+  // REDONDEA a 2 decimales: jitter() usa Math.sin y el desencimado Math.hypot,
+  // que NO están garantizados bit-a-bit idénticos entre el V8 del servidor y el
+  // del navegador (difieren en el último ULP) → cx/cy distintos por ~1e-13 →
+  // desajuste de hidratación. Redondear (sub-píxel, idéntico a la vista) hace
+  // que el string del atributo sea el mismo en SSR y cliente y elimina el error.
   const minX = qX(0) + 2, maxX = Q.W - 2, minY = Q.padT + 2, maxY = qY(0) - 2
+  const r2 = (n: number) => Math.round(n * 100) / 100
   dots.forEach((d) => {
-    d.px = Math.max(minX + d.r * 0.4, Math.min(maxX, d.px))
-    d.py = Math.max(minY, Math.min(maxY - d.r * 0.4, d.py))
+    d.px = r2(Math.max(minX + d.r * 0.4, Math.min(maxX, d.px)))
+    d.py = r2(Math.max(minY, Math.min(maxY - d.r * 0.4, d.py)))
   })
   return dots
 })
@@ -1179,6 +1210,19 @@ const rankedFoci = computed(() =>
 const aiCandidates = computed(() =>
   [...aiFoci.value].sort((a, b) => suitabilityScore(b) - suitabilityScore(a) || a.id - b.id),
 )
+/* lista plana para el MODO TABLA del navegador: confirmados por idoneidad,
+   luego los de IA (por confirmar) al final. Reutiliza rankedFoci/aiCandidates. */
+const focusListItems = computed<Lesion[]>(() => [...rankedFoci.value, ...aiCandidates.value])
+/* paso prev/next entre focos en el ORDEN de la lista (flechas de la barra de navegación).
+   Da la vuelta al llegar a los extremos. Posición actual = focoPos / focusListItems.length. */
+function pickStep(delta: number) {
+  const list = focusListItems.value
+  if (!list.length) return
+  const i = list.findIndex((l) => l.id === selected.value)
+  const ni = ((((i < 0 ? 0 : i) + delta) % list.length) + list.length) % list.length
+  pick(list[ni].id)
+}
+const focoPos = computed(() => focusListItems.value.findIndex((l) => l.id === selected.value) + 1)
 const suitMax = computed(() => Math.max(1, ...LES.map(suitabilityScore)))
 /* ancho 0-100% de una barra de factor (para las mini-barras inline) */
 function pct01(x: number): string { return (clamp01(x) * 100).toFixed(0) + '%' }
@@ -1282,23 +1326,17 @@ const ticks = [
 <template>
   <div>
     <section class="section-spacing" aria-label="Mapa de metástasis">
-      <!-- MODO WIKI · pantalla completa: el panel (radiología) aprovecha TODO el
-           ancho del viewport dentro del shell del sitio, no la columna centrada
-           estrecha (section-wide = 1200px). Sin max-width; padding lateral cómodo
-           (px-4 → lg:px-8 → 2xl:px-12). La cabecera/nav/footer del shell siguen
-           con su propio ancho canónico; aquí el cuerpo va full-bleed. -->
-      <div class="px-4 sm:px-6 lg:px-8 2xl:px-12">
-        <!-- Layout wiki: ÍNDICE como barra lateral izquierda pegajosa (lg+) +
-             contenido que ocupa el RESTO del ancho; la cabecera va DENTRO de la
-             columna de contenido para que el título alinee con el cuerpo, no con
-             el índice (mismo patrón que /ciencia). La columna de contenido es
-             minmax(0,1fr) → se expande a todo el espacio disponible a ≥1440. -->
-        <div class="lg:grid lg:grid-cols-[240px_minmax(0,1fr)] lg:gap-10 xl:gap-14 lg:items-start">
-          <MapaSectionNav
-            variant="rail"
-            class="hidden lg:block lg:sticky lg:top-24 lg:self-start"
-          />
-          <div class="min-w-0">
+      <!-- ANCHO CENTRADO (ya no full-bleed tipo wiki): el panel se centra en una
+           columna ancha pero ACOTADA (max-w 1280px + mx-auto). En monitores grandes
+           queda centrado y la lectura no se dispersa; de paso la columna del visor
+           3D se estrecha un poco. Padding lateral cómodo (px-4 → lg:px-8). -->
+      <div class="px-4 sm:px-6 lg:px-8 max-w-[1280px] mx-auto">
+        <!-- Layout wiki · SIN ÍNDICE (petición paciente: «quitamos el índice,
+             maquetamos bien»). El contenido (foci↔3D) usa TODO el ancho del
+             viewport; las anclas (id/scroll-mt) de las secciones se conservan
+             para los enlaces internos. La maqueta primaria pone NAVEGAR a la
+             izquierda y el VISOR DE LA LESIÓN siempre a la derecha. -->
+        <div class="min-w-0">
         <PageHeader
           :title="L('Mapa de metástasis', 'Metastasis map')"
           :subtitle="L(
@@ -1320,10 +1358,6 @@ const ticks = [
             'This page gathers and visualises the patient’s studies (FDG-PET 24/03/2026, Ga-68 DOTATOC PET 26/05/2026 and the cervical and thoracic spine MRI). It is a tool to understand and to support the conversation with the medical team — it does not replace their judgement and is not medical advice. SUVs are those of the official PET reports; the images (PET and MRI) were reconstructed from the DICOM. The MRI is shown for viewing: its formal reading belongs to the radiologist.') }}
           </p>
         </details>
-
-        <!-- Índice móvil: desplegable «Saltar a…» en el flujo, tras la cabecera
-             (solo <lg). El rail de escritorio va arriba, junto al título. -->
-        <MapaSectionNav variant="mobile" class="lg:hidden mb-10" />
 
         <!-- LO PRIMARIO PRIMERO · el héroe (navegar focos ↔ 3D) se renderiza ARRIBA,
              y el contexto condensado (cockpit) justo debajo. Se usa flex + order para
@@ -1509,62 +1543,58 @@ const ticks = [
           <h2 id="mapa" class="heading-display text-2xl text-berenjena mb-2 scroll-mt-[7.5rem]">
             {{ L('El mapa, lesión a lesión', 'The map, lesion by lesion') }}
           </h2>
-          <p class="text-sm text-tinta leading-relaxed mb-5 max-w-3xl">
-            {{ L('Toca un foco en el esqueleto —o en el mapa de tipo o la tabla— y, sin moverte, cambian al instante el resumen y el hueso en 3D. El color va del violeta (solo receptor) al coral (solo azúcar) y el número es el id del foco; desliza la línea de tiempo para ver la evolución. El esqueleto es un esquema orientativo.',
-                  'Tap a focus on the skeleton —or on the type map or the table— and, without moving, the summary and the 3D bone update instantly. Colour runs from violet (receptor only) to coral (sugar only) and the number is the focus id; slide the timeline to see the evolution. The skeleton is a schematic guide.') }}
+          <p class="text-sm text-tinta leading-relaxed mb-4 max-w-3xl">
+            {{ L('Elige un foco —en el esqueleto o en la tabla— y, sin moverte, cambian al instante el resumen y el hueso en 3D. El color va del violeta (solo receptor) al coral (solo azúcar) y el número es el id del foco. El esqueleto es un esquema orientativo; la tabla, una lista compacta y ordenable.',
+                  'Pick a focus —on the skeleton or in the table— and, without moving, the summary and the 3D bone update instantly. Colour runs from violet (receptor only) to coral (sugar only) and the number is the focus id. The skeleton is a schematic guide; the table, a compact, sortable list.') }}
           </p>
 
-          <div class="grid lg:grid-cols-[360px_1fr] gap-6 items-start">
-            <!-- ESQUELETO SVG + SUS CONTROLES (línea de tiempo + filtros) ·
+          <!-- ===== MAQUETA PRIMARIA · 2 columnas, alineadas y consistentes =====
+               IZQUIERDA = NAVEGAR (sticky): toggle Esqueleto/Tabla + el navegador
+               elegido (esqueleto SVG con sus controles, o la lista de focos).
+               DERECHA = VER LA LESIÓN (siempre a la derecha): el visor 3D del foco
+               a ancho completo de la columna + el resumen compacto debajo. Elegir
+               un foco a la izquierda cambia AL INSTANTE el visor + el resumen.
+               El sticky lo da el WRAPPER de cada columna (no las cards internas,
+               para no anidar dos sticky y descuadrar). items-start + gap-6 común. -->
+          <div class="grid lg:grid-cols-[minmax(300px,360px)_minmax(0,1fr)] gap-6 items-start">
+
+            <!-- ===== COLUMNA IZQUIERDA · NAVEGAR (sticky) ===== -->
+            <div class="lg:sticky lg:top-24">
+
+            <!-- BARRA DE NAVEGACIÓN · horizontal y compacta (no gasta espacio): toggle
+                 Esqueleto/Tabla a la izquierda y flechas prev/next (paso entre focos)
+                 a la derecha, alineadas. Sin rótulo «Navegar por». Ambos modos comparten
+                 `selected` → la selección persiste al cambiar de modo. -->
+            <div class="flex items-center justify-between gap-2 mb-3 flex-wrap">
+              <div class="seg" role="group" :aria-label="L('Modo del navegador de focos', 'Foci navigator mode')">
+                <button type="button" class="seg__btn" :class="{ 'is-active': navMode === 'skeleton' }"
+                  :aria-pressed="navMode === 'skeleton'" @click="navMode = 'skeleton'">
+                  <span aria-hidden="true">⏿</span> {{ L('Esqueleto', 'Skeleton') }}
+                </button>
+                <button type="button" class="seg__btn" :class="{ 'is-active': navMode === 'table' }"
+                  :aria-pressed="navMode === 'table'" @click="navMode = 'table'">
+                  <span aria-hidden="true">☰</span> {{ L('Tabla', 'Table') }}
+                </button>
+              </div>
+              <!-- flechas prev/next entre focos (sencillas; ayudan a ir pinchando de un vistazo) -->
+              <div class="flex items-center gap-1 text-tinta shrink-0">
+                <button type="button" @click="pickStep(-1)"
+                  class="w-7 h-7 rounded-full border border-[rgba(45,27,61,0.2)] flex items-center justify-center hover:border-[rgba(45,27,61,0.45)] hover:text-berenjena transition-colors"
+                  :aria-label="L('Foco anterior', 'Previous focus')">‹</button>
+                <span class="font-mono text-[11px] tabular-nums w-11 text-center select-none">{{ focoPos }}<span class="text-[10px] text-tinta">/{{ focusListItems.length }}</span></span>
+                <button type="button" @click="pickStep(1)"
+                  class="w-7 h-7 rounded-full border border-[rgba(45,27,61,0.2)] flex items-center justify-center hover:border-[rgba(45,27,61,0.45)] hover:text-berenjena transition-colors"
+                  :aria-label="L('Foco siguiente', 'Next focus')">›</button>
+              </div>
+            </div>
+
+            <!-- ===== MODO ESQUELETO · esqueleto SVG + sus controles (tiempo+filtros).
+                 v-show (no v-if): conserva el estado del slider/filtros al alternar.
+                 ESQUELETO SVG + SUS CONTROLES (línea de tiempo + filtros) ·
                  la barra de tiempo (frames PET) y los filtros son MODIFICADORES
                  del mapa del esqueleto, así que viven DENTRO de su misma card,
                  encima del esquema, rotulados como tales. -->
-            <div class="card-base !p-4 lg:sticky lg:top-24">
-              <!-- ===== CONTROLES DEL MAPA DEL ESQUELETO ===== -->
-              <p class="text-[10px] font-semibold text-berenjena uppercase tracking-wide mb-2 flex items-center gap-1.5">
-                <span aria-hidden="true">⌖</span>
-                {{ L('Controles del mapa', 'Map controls') }}
-                <span class="font-normal normal-case tracking-normal text-tinta">· {{ L('animan y filtran el esqueleto', 'animate and filter the skeleton') }}</span>
-              </p>
-
-              <!-- línea de tiempo (frames PET): anima qué focos encienden en el esqueleto -->
-              <div class="rounded-card border border-[rgba(45,27,61,0.12)] bg-cream-card !p-3 mb-2.5">
-                <div class="flex items-center gap-2.5 flex-wrap">
-                  <button type="button" @click="play()"
-                    class="shrink-0 w-8 h-8 rounded-full bg-berenjena text-cream flex items-center justify-center text-[12px] hover:opacity-90 transition-opacity"
-                    :aria-label="playing ? L('Pausar', 'Pause') : L('Reproducir la evolución', 'Play the evolution')">
-                    {{ playing ? '❚❚' : '▶' }}
-                  </button>
-                  <div class="font-display text-lg text-berenjena w-[4.5rem] tabular-nums leading-none">{{ dateLabel }}</div>
-                  <input type="range" min="0" max="2" step="1" :value="frame"
-                    @input="setFrame(+($event.target as HTMLInputElement).value)"
-                    class="flex-1 min-w-[110px] accent-berenjena"
-                    :aria-label="L('Línea de tiempo de los 3 PET', 'Timeline of the 3 PET studies')" />
-                </div>
-                <div class="flex justify-between mt-2 px-0.5">
-                  <button v-for="(d, i) in FDATES" :key="i" type="button" @click="setFrame(i)"
-                    class="text-[10px] font-mono transition-colors"
-                    :class="frame === i ? 'text-berenjena font-bold' : 'text-tinta hover:text-berenjena'">{{ d[lang].split(' ')[0] }}</button>
-                </div>
-                <p class="text-[10px] text-tinta mt-1.5 leading-snug">
-                  {{ L('Línea de tiempo de los 3 PET. Desliza o pulsa ▶: del azúcar previo (ene) al actual (mar) y el receptor (Galio, may). El esqueleto solo enciende los focos que captan en cada fecha.',
-                        'Timeline of the 3 PET studies. Slide or press ▶: from prior sugar (Jan) to current (Mar) and the receptor (gallium, May). The skeleton only lights up the foci that take up at each date.') }}
-                </p>
-              </div>
-
-              <!-- filtros: qué focos muestra el esqueleto (y las demás vistas) -->
-              <div class="rounded-card border border-[rgba(45,27,61,0.12)] bg-cream-card !p-3 mb-4">
-                <p class="text-[10px] font-semibold text-tinta mb-1.5">{{ L('Filtrar focos del mapa', 'Filter map foci') }}</p>
-                <div class="flex flex-wrap gap-1.5">
-                  <button v-for="f in filters" :key="f.key" type="button"
-                    @click="filter = f.key as any"
-                    class="inline-flex items-center gap-1.5 text-[12px] px-2.5 py-1 rounded-full border transition-colors"
-                    :class="filter === f.key ? 'bg-berenjena text-cream border-berenjena' : 'bg-transparent text-tinta border-[rgba(45,27,61,0.2)] hover:border-[rgba(45,27,61,0.4)]'">
-                    <span v-if="f.c" class="w-2 h-2 rounded-full" :style="{ background: f.c }" />
-                    {{ f.label }}
-                  </button>
-                </div>
-              </div>
+            <div v-show="navMode === 'skeleton'" class="card-base !p-4">
               <!-- ORIENTACIÓN · vista anterior (criterio radiológico/PET, el
                    mismo de las MIP): se mira a la persona DE FRENTE, así que la
                    DERECHA del cuerpo se dibuja a la IZQUIERDA de la imagen. La
@@ -1660,38 +1690,126 @@ const ticks = [
                   </g>
                 </g>
               </svg>
-              <!-- LEYENDA CORTA · color = trazador · número = id · punteado = IA por
-                   confirmar · borde oscuro = seleccionado. De un vistazo, sin más. -->
+              <!-- LEYENDA MÍNIMA · el degradado ya dice color = trazador; una sola
+                   línea para lo no obvio (número = foco · punteado = IA). Sin "borde
+                   oscuro = seleccionado" (obvio al clicar). De un vistazo, sin más. -->
               <div class="mt-3 px-1">
                 <div class="h-2.5 rounded-full" :style="{ background: 'linear-gradient(90deg,#9d44ab,#8a5bb3,#c9921e,#df7a44,#bb4128)' }" />
                 <div class="flex justify-between text-[10px] text-tinta mt-1">
                   <span>{{ L('Solo receptor (Galio)', 'Receptor only (gallium)') }}</span>
                   <span>{{ L('Solo azúcar (FDG)', 'Sugar only (FDG)') }}</span>
                 </div>
-                <ul class="mt-2 space-y-1 text-[10.5px] text-tinta leading-snug">
-                  <li class="flex items-center gap-2">
-                    <svg width="20" height="14" viewBox="0 0 20 14" class="shrink-0" aria-hidden="true"><circle cx="10" cy="7" r="5.5" :fill="PHENO.mixBal.c" /><text x="10" y="10" text-anchor="middle" font-family="Source Sans 3, sans-serif" font-size="7" font-weight="700" fill="#fff">7</text></svg>
-                    <span>{{ L('Color = trazador · número = foco', 'Colour = tracer · number = focus') }}</span>
-                  </li>
-                  <li class="flex items-center gap-2">
-                    <svg width="20" height="14" viewBox="0 0 20 14" class="shrink-0" aria-hidden="true"><circle cx="10" cy="7" r="5.5" :fill="PHENO.mixAgg.c" stroke="#fff" stroke-width="1" stroke-dasharray="2 1.6" /></svg>
-                    <span>{{ L('Contorno punteado = detectado por IA, por confirmar', 'Dashed outline = AI-detected, to confirm') }}</span>
-                  </li>
-                  <li class="flex items-center gap-2">
-                    <svg width="20" height="14" viewBox="0 0 20 14" class="shrink-0" aria-hidden="true"><circle cx="10" cy="7" r="5.5" :fill="PHENO.ne.c" stroke="#2d1b3d" stroke-width="2" /></svg>
-                    <span>{{ L('Borde oscuro = foco seleccionado', 'Dark border = selected focus') }}</span>
-                  </li>
-                </ul>
+                <p class="mt-1.5 text-[10.5px] text-tinta leading-snug">
+                  {{ L('Número = foco · contorno punteado = detectado por IA (por confirmar).', 'Number = focus · dashed outline = AI-detected (to confirm).') }}
+                </p>
+              </div>
+
+              <!-- ===== CONTROLES (abajo) · timeline + filtros, modificadores del
+                   esqueleto. Separador mínimo, sin cabecera verbosa: cada bloque ya
+                   se rotula solo. ===== -->
+              <p class="text-[10px] font-semibold text-tinta uppercase tracking-wide mb-2 mt-5 pt-4 border-t border-[rgba(45,27,61,0.1)]">
+                {{ L('Controles', 'Controls') }}
+              </p>
+
+              <!-- filtros: qué focos muestra el esqueleto (y las demás vistas) -->
+              <div class="rounded-card border border-[rgba(45,27,61,0.12)] bg-cream-card !p-3 mb-2.5">
+                <p class="text-[10px] font-semibold text-tinta mb-1.5">{{ L('Filtrar focos del mapa', 'Filter map foci') }}</p>
+                <div class="flex flex-wrap gap-1.5">
+                  <button v-for="f in filters" :key="f.key" type="button"
+                    @click="filter = f.key as any"
+                    class="inline-flex items-center gap-1.5 text-[12px] px-2.5 py-1 rounded-full border transition-colors"
+                    :class="filter === f.key ? 'bg-berenjena text-cream border-berenjena' : 'bg-transparent text-tinta border-[rgba(45,27,61,0.2)] hover:border-[rgba(45,27,61,0.4)]'">
+                    <span v-if="f.c" class="w-2 h-2 rounded-full" :style="{ background: f.c }" />
+                    {{ f.label }}
+                  </button>
+                </div>
+              </div>
+
+              <!-- línea de tiempo (frames PET): anima qué focos encienden en el
+                   esqueleto. Va DEBAJO de los filtros (lo menos crítico para elegir diana). -->
+              <div class="rounded-card border border-[rgba(45,27,61,0.12)] bg-cream-card !p-3">
+                <div class="flex items-center gap-2.5 flex-wrap">
+                  <button type="button" @click="play()"
+                    class="shrink-0 w-8 h-8 rounded-full bg-berenjena text-cream flex items-center justify-center text-[12px] hover:opacity-90 transition-opacity"
+                    :aria-label="playing ? L('Pausar', 'Pause') : L('Reproducir la evolución', 'Play the evolution')">
+                    {{ playing ? '❚❚' : '▶' }}
+                  </button>
+                  <div class="font-display text-lg text-berenjena w-[4.5rem] tabular-nums leading-none">{{ dateLabel }}</div>
+                  <input type="range" min="0" max="2" step="1" :value="frame"
+                    @input="setFrame(+($event.target as HTMLInputElement).value)"
+                    class="flex-1 min-w-[110px] accent-berenjena"
+                    :aria-label="L('Línea de tiempo de los 3 PET', 'Timeline of the 3 PET studies')" />
+                </div>
+                <div class="flex justify-between mt-2 px-0.5">
+                  <button v-for="(d, i) in FDATES" :key="i" type="button" @click="setFrame(i)"
+                    class="text-[10px] font-mono transition-colors"
+                    :class="frame === i ? 'text-berenjena font-bold' : 'text-tinta hover:text-berenjena'">{{ d[lang].split(' ')[0] }}</button>
+                </div>
+                <p class="text-[10px] text-tinta mt-1.5 leading-snug">
+                  {{ L('ene–mar: azúcar (FDG) · may: receptor (Galio).', 'Jan–Mar: sugar (FDG) · May: receptor (gallium).') }}
+                </p>
               </div>
             </div>
 
-            <!-- ===== RESUMEN COMPACTO DE LA LESIÓN (P2 · navegación sin scroll) =====
-                 Lo esencial del foco seleccionado, AL INSTANTE y SIN scroll: junto al
-                 esqueleto + sus controles, cabe en el viewport. Así se va clicando de
-                 lesión en lesión viendo cada una de un vistazo. El DETALLE PROFUNDO
-                 (3 lecturas, observaciones, cuantificación, técnico) va debajo, para
-                 quien quiera profundizar. Pegajoso para no perderlo al desplazar. -->
-            <div class="card-base lg:sticky lg:top-24">
+            <!-- ===== MODO TABLA · lista de focos compacta y clicable =====
+                 Cada item: #id · localización · chips de trazador (⁶⁸Ga/FDG) +
+                 mini-idoneidad. Ordenada: confirmados primero (por idoneidad), los
+                 de IA al final con su anillo punteado. Clicar → cambia AL INSTANTE
+                 el 3D + el resumen (mismo `selected` que el esqueleto → persiste).
+                 Reutiliza focusListItems, phenoColor, los SUV y suitabilityScore. -->
+            <div v-show="navMode === 'table'" class="card-base !p-2">
+              <p class="text-[10px] font-semibold text-berenjena uppercase tracking-wide px-1.5 pt-1 pb-1.5 flex items-center justify-between gap-2">
+                <span>{{ L('Focos · elige uno', 'Foci · pick one') }}</span>
+                <span class="font-normal normal-case tracking-normal text-tinta">{{ confirmedFoci.length }}<span v-if="aiFoci.length">+{{ aiFoci.length }}</span></span>
+              </p>
+              <ul data-foco-list class="space-y-1 overflow-y-auto pr-0.5" style="max-height:600px">
+                <li v-for="le in focusListItems" :key="le.id">
+                  <button type="button" @click="pick(le.id)"
+                    class="w-full text-left rounded-card border px-2 py-1.5 transition-colors flex items-center gap-2"
+                    :class="le.id === selected ? 'border-berenjena bg-[rgba(45,27,61,0.05)]' : 'border-transparent hover:bg-[rgba(45,27,61,0.035)]'"
+                    :aria-pressed="le.id === selected"
+                    :aria-label="`#${le.id} ${le.level[lang]} — ${phenoLabel(le)}`">
+                    <span class="shrink-0 w-6 h-6 rounded-full flex items-center justify-center font-display text-[12px] text-white"
+                      :style="{ background: phenoColor(le), boxShadow: sourceOf(le) === 'ia-david' ? '0 0 0 1.5px #fff, 0 0 0 3px ' + phenoColor(le) : 'none' }">{{ le.id }}</span>
+                    <span class="min-w-0 flex-1">
+                      <span class="block text-[12px] font-semibold text-berenjena leading-tight truncate">{{ le.level[lang] }}</span>
+                      <span class="flex flex-wrap items-center gap-1 mt-0.5">
+                        <span v-if="le.dota != null" class="inline-flex items-center text-[9.5px] font-semibold leading-none px-1 py-0.5 rounded-full" style="background:#9d44ab1a;color:#7a3d86">⁶⁸Ga {{ le.dota.toFixed(1) }}</span>
+                        <span v-if="le.fdg != null" class="inline-flex items-center text-[9.5px] font-semibold leading-none px-1 py-0.5 rounded-full" style="background:#bb41281a;color:#bb4128">FDG {{ le.fdg.toFixed(1) }}</span>
+                        <span v-if="sourceOf(le) === 'ia-david'" class="text-[9px] text-tinta">{{ L('IA·conf.', 'AI·conf.') }}</span>
+                      </span>
+                    </span>
+                    <span class="shrink-0 w-10 text-right" :aria-label="L('idoneidad ' + suitabilityScore(le) + ' sobre 100', 'suitability ' + suitabilityScore(le) + ' out of 100')">
+                      <span class="block font-mono text-[11px] text-berenjena leading-none">{{ suitabilityScore(le) }}</span>
+                      <span class="block h-1 rounded-full mt-0.5 bg-[rgba(45,27,61,0.08)] overflow-hidden">
+                        <span class="block h-full rounded-full" :style="{ width: suitabilityScore(le) + '%', background: 'linear-gradient(90deg,#9d44ab,#df7a44)' }" />
+                      </span>
+                    </span>
+                  </button>
+                </li>
+              </ul>
+              <p class="text-[9px] text-tinta leading-snug px-1.5 pt-1.5 mt-1 border-t border-[rgba(45,27,61,0.08)]">
+                {{ L('Confirmados primero (por idoneidad), IA al final (anillo punteado). Color = trazador · ⁶⁸Ga receptor / FDG azúcar · nº = idoneidad orientativa. Describe, no concluye.', 'Confirmed first (by suitability), AI last (dashed ring). Colour = tracer · ⁶⁸Ga receptor / FDG sugar · nº = indicative suitability. Describes, does not conclude.') }}
+              </p>
+            </div>
+
+            </div><!-- /COLUMNA IZQUIERDA · NAVEGAR -->
+
+            <!-- ===== COLUMNA DERECHA · VER LA LESIÓN (siempre a la derecha) =====
+                 Orden (a prueba): primero el RESUMEN/INFO del foco y JUSTO DEBAJO el
+                 VISOR 3D. Se reordena con flex+order (la fuente deja el visor primero,
+                 pero order-1/order-2 lo invierte en pantalla). Elegir un foco a la
+                 izquierda cambia AL INSTANTE info + visor, sin scroll. min-w-0 para
+                 que el visor no rompa el grid en pantallas estrechas. -->
+            <div class="flex flex-col gap-6 min-w-0">
+
+            <!-- VISOR 3D · A ANCHO COMPLETO DE LA COLUMNA DERECHA. Small multiples:
+                 el MISMO hueso en 3 mapas limpios y sincronizados. Al clicar un foco
+                 cambia al instante. NO se toca su interior (centrado retina intacto).
+                 order-2 → va DEBAJO del resumen (order-1). -->
+            <!-- ===== 1 · TÍTULO + DESCRIPCIÓN ===== qué es el foco, de un vistazo:
+                 nombre, zona, fenotipo y la frase de «qué es». Encima de las imágenes. -->
+            <div v-if="sel">
               <div class="flex items-start gap-3 mb-2">
                 <span class="shrink-0 w-9 h-9 rounded-full flex items-center justify-center font-display text-base text-white"
                   :style="{ background: phenoColor(sel) }">{{ sel.id }}</span>
@@ -1702,8 +1820,6 @@ const ticks = [
                 </div>
                 <span class="pill-data ml-auto shrink-0 self-start" :style="{ background: phenoColor(sel) + '22', color: phenoText(sel) }">{{ phenoLabel(sel) }}</span>
               </div>
-
-              <!-- IA, condensado (el banner completo va en el detalle de abajo) -->
               <p v-if="selIsAi" class="mb-2 text-[11px] font-semibold leading-snug flex items-center gap-1.5 flex-wrap" style="color:#8a4a1a">
                 <span class="inline-block w-2 h-2 rounded-full" style="background:#bf7d2c" aria-hidden="true" />
                 {{ L('Detectado por IA · por confirmar', 'AI-detected · to confirm') }}
@@ -1711,6 +1827,108 @@ const ticks = [
               <p v-if="isMultiFocusBone" class="mb-2 text-[11px] text-tinta leading-snug">
                 {{ L('Zona con ' + coFoci.length + ' focos · resumen del principal', 'Area with ' + coFoci.length + ' foci · summary of the main one') }}
               </p>
+              <p class="text-[13.5px] text-berenjena leading-snug">{{ sel.what[lang] }}</p>
+            </div>
+
+            <!-- ===== 2 · IMÁGENES (3D + imagen clave) ===== ver la lesión. -->
+            <div v-if="sel">
+              <div v-if="bone3dKeyOf(sel)" class="flex items-center justify-between gap-3 flex-wrap mb-2">
+                <p class="eyebrow block !mb-0">{{ L('Hueso reconstruido del CT · captación co-registrada', 'Bone reconstructed from the CT · co-registered uptake') }}</p>
+                <!-- VER EN GRANDE · abre el visor 3D a pantalla completa (los 3 mapas
+                     grandes, rotación sincronizada). El visor en línea va contenido. -->
+                <button v-if="bone3dKeyOf(sel)" type="button" class="btn-expand3d" @click="openBone3dFullscreen">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 3h6v6" /><path d="M9 21H3v-6" /><path d="M21 3l-7 7" /><path d="M3 21l7-7" /></svg>
+                  {{ L('Ver en grande', 'View larger') }}
+                </button>
+              </div>
+              <p v-if="isMultiFocusBone && bone3dKeyOf(sel)" class="text-[12px] text-tinta leading-snug mb-2 max-w-3xl">
+                {{ L('Esta zona tiene ' + coFoci.length + ' focos co-localizados (receptor/azúcar); el realce señala la zona. Detalle de cada foco abajo y en la tabla.', 'This area has ' + coFoci.length + ' co-localized foci (receptor/sugar); the highlight marks the area. Each focus is detailed below and in the table.') }}
+              </p>
+              <!-- visor en línea a ANCHO COMPLETO de la columna; el botón de arriba lo abre grande -->
+              <div class="min-w-0">
+              <template v-if="bone3dKeyOf(sel)">
+                <ClientOnly>
+                  <BoneTriView
+                    :mesh-key="bone3dKeyOf(sel)"
+                    :biopsied="bonePriorBiopsy != null"
+                    :biopsy-label="bonePriorBiopsy ?? undefined"
+                  />
+                  <template #fallback>
+                    <div class="rounded-lg flex items-center justify-center text-[12px]" style="aspect-ratio:15/4;background:#0d1117;color:#aeb6c2">
+                      {{ L('cargando visor…', 'loading viewer…') }}
+                    </div>
+                  </template>
+                </ClientOnly>
+              </template>
+              <!-- SIN MALLA 3D (#17 costilla, #19 cervicotorácica) · en vez de un hueco,
+                   PLANTAMOS LA IMAGEN del estudio (corte con la ubicación aproximada que
+                   propone la IA) para valorarla. Dejamos claro que es una PROPUESTA por
+                   confirmar; no hay reconstrucción 3D fiable de esta zona. -->
+              <div v-else>
+                <button v-if="selKey.hasReliable" type="button"
+                  class="block w-full rounded-lg overflow-hidden border border-[rgba(45,27,61,0.18)] bg-[#0d1117] relative"
+                  :aria-label="L('Ampliar la imagen del foco #' + sel.id, 'Enlarge the image of focus #' + sel.id)"
+                  @click="openKeyLightbox('axial')">
+                  <img :src="fk(sel.id, 'axial')"
+                    :alt="L('Imagen del estudio (axial) con la ubicación aproximada del foco #' + sel.id, 'Study image (axial) with the approximate location of focus #' + sel.id)"
+                    class="block w-full max-h-[380px] object-contain mx-auto" loading="lazy" />
+                  <span class="absolute top-2 right-2 w-7 h-7 rounded-full bg-[rgba(13,17,23,0.72)] text-white flex items-center justify-center" aria-hidden="true">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7" /><line x1="21" y1="21" x2="16.5" y2="16.5" /><line x1="11" y1="8" x2="11" y2="14" /><line x1="8" y1="11" x2="14" y2="11" /></svg>
+                  </span>
+                </button>
+                <div v-else class="rounded-lg border border-dashed border-[rgba(45,27,61,0.28)] bg-cream-card flex items-center justify-center text-center px-5 py-10 text-[12px] text-tinta">
+                  {{ L('Imagen por confirmar', 'Image to confirm') }}
+                </div>
+                <p class="text-[11px] text-tinta leading-snug mt-2">
+                  <span class="font-semibold" style="color:#8a4a1a">{{ L('Propuesta · por confirmar.', 'Proposal · to confirm.') }}</span>
+                  {{ L(' Foco detectado por IA y no localizable con fiabilidad en esta zona, así que no se reconstruye en 3D. Se muestra el corte del estudio con la ubicación aproximada (marca punteada) para que el equipo la valore.', ' AI-detected focus that cannot be reliably localized in this area, so it is not reconstructed in 3D. The study slice is shown with the approximate location (dashed marker) for the team to assess.') }}
+                </p>
+              </div>
+              </div>
+              <!-- IMAGEN CLAVE · corte del CT/PET con el foco señalado (pulsable → lightbox),
+                   junto al 3D («luego las imágenes»). Solo cuando HAY 3D; los focos sin malla
+                   (#17/#19) ya muestran su imagen plantada arriba, así que aquí no se repite. -->
+              <div v-if="bone3dKeyOf(sel)" class="mt-3 flex items-center gap-3">
+                <button v-if="selKey.hasReliable" type="button" class="foco-key-thumb !w-[104px] shrink-0"
+                  :aria-label="L('Ampliar la imagen clave del foco #' + sel.id, 'Enlarge the key image of focus #' + sel.id)"
+                  @click="openKeyLightbox('axial')">
+                  <img :src="fk(sel.id, 'axial')"
+                    :alt="L('Imagen clave (axial) del foco #' + sel.id, 'Key image (axial) of focus #' + sel.id)"
+                    class="foco-key-thumb__img" loading="lazy" />
+                  <span class="foco-key-thumb__zoom" aria-hidden="true">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7" /><line x1="21" y1="21" x2="16.5" y2="16.5" /><line x1="11" y1="8" x2="11" y2="14" /><line x1="8" y1="11" x2="14" y2="11" /></svg>
+                  </span>
+                </button>
+                <div v-else class="w-[104px] aspect-square rounded-card border border-dashed border-[rgba(45,27,61,0.25)] bg-cream-card flex items-center justify-center text-center text-[9px] text-tinta px-1 leading-tight shrink-0">
+                  {{ L('imagen por confirmar', 'image to confirm') }}
+                </div>
+                <div class="text-[11px] text-tinta leading-snug">
+                  <p class="font-semibold text-berenjena">{{ L('Imagen clave', 'Key image') }}</p>
+                  <p>{{ L('Corte del CT/PET con el foco señalado. Pulsa para ampliarla.', 'CT/PET slice with the focus marked. Tap to enlarge.') }}</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- ===== RESUMEN/INFO COMPACTO DE LA LESIÓN (ARRIBA · order-1) =====
+                 Lo esencial del foco seleccionado, AL INSTANTE y SIN scroll, ENCIMA
+                 del visor. El DETALLE PROFUNDO (3 lecturas, observaciones, cuantificación,
+                 técnico) va más abajo, para quien quiera profundizar. -->
+            <!-- ===== 3 · IDONEIDAD + MÉTRICAS ===== debajo de las imágenes: lo
+                 cuantitativo (idoneidad como diana, proporción de trazadores y las
+                 cifras clave). El detalle profundo (3 lecturas, técnico) va más abajo. -->
+            <div v-if="sel" class="card-base">
+              <!-- IDONEIDAD como diana (orientativa) · primero -->
+              <div class="rounded-card bg-cream-card px-3 py-2 mb-3 border border-[rgba(45,27,61,0.1)]">
+                <div class="flex items-center justify-between mb-1">
+                  <span class="text-[10px] font-semibold text-berenjena uppercase tracking-wide">{{ L('Idoneidad como diana', 'Suitability as a target') }}</span>
+                  <span class="font-mono text-sm font-semibold text-berenjena">{{ suitabilityScore(sel) }}<span class="text-[10px] text-tinta">/100</span></span>
+                </div>
+                <div class="h-2 rounded-full overflow-hidden bg-[rgba(45,27,61,0.08)]" role="img"
+                  :aria-label="L('Idoneidad ' + suitabilityScore(sel) + ' sobre 100', 'Suitability ' + suitabilityScore(sel) + ' out of 100')">
+                  <div class="h-full rounded-full" :style="{ width: suitabilityScore(sel) + '%', background: 'linear-gradient(90deg,#9d44ab,#df7a44)' }" />
+                </div>
+                <p class="text-[9.5px] text-tinta mt-1 leading-snug">{{ L('orientativa · viable × rendimiento × tamaño. Etiqueta por trazador/forma; describe, no concluye.', 'indicative · viable × yield × size. Labelled by tracer/shape; describes, does not conclude.') }}</p>
+              </div>
 
               <!-- barra «dos caras»: proporción receptor (violeta) ↔ azúcar (coral) -->
               <div class="mb-3">
@@ -1725,104 +1943,34 @@ const ticks = [
                 </div>
               </div>
 
-              <!-- NÚMEROS CLAVE de un vistazo + miniatura de la imagen clave -->
-              <div class="flex gap-3 mb-3">
-                <!-- columna de cifras -->
-                <div class="flex-1 min-w-0 grid grid-cols-2 gap-2">
-                  <div class="rounded-card bg-cream-card px-2.5 py-1.5 border-l-4" :style="{ borderColor: '#9d44ab' }">
-                    <p class="text-[10px] text-tinta leading-none">{{ L('Receptor ⁶⁸Ga', 'Receptor ⁶⁸Ga') }}</p>
-                    <p class="font-mono text-base leading-tight text-berenjena">{{ sel.dota != null ? sel.dota.toFixed(2) : '—' }}</p>
-                  </div>
-                  <div class="rounded-card bg-cream-card px-2.5 py-1.5 border-l-4" :style="{ borderColor: '#bb4128' }">
-                    <p class="text-[10px] text-tinta leading-none">{{ L('Azúcar FDG', 'Sugar FDG') }}</p>
-                    <p class="font-mono text-base leading-tight text-berenjena">{{ sel.fdg != null ? sel.fdg.toFixed(2) : '—' }}<span v-if="trend(sel)" class="text-[11px] ml-1" :style="deltaStyle(sel)">({{ deltaFdg(sel) }})</span></p>
-                  </div>
-                  <div class="rounded-card bg-cream-card px-2.5 py-1.5 border-l-4" :style="{ borderColor: '#1f6b57' }">
-                    <p class="text-[10px] text-tinta leading-none">{{ L('Forma (CT)', 'Shape (CT)') }}</p>
-                    <p class="text-[12px] font-semibold leading-tight text-berenjena">{{ morphLabel(sel) }}</p>
-                  </div>
-                  <div class="rounded-card bg-cream-card px-2.5 py-1.5 border-l-4" :style="{ borderColor: '#6b6470' }">
-                    <p class="text-[10px] text-tinta leading-none">{{ L('Extensión metab.', 'Metabolic extent') }}</p>
-                    <p class="font-mono text-[12px] font-semibold leading-tight text-berenjena">{{ metExtentLabel(sel) }}</p>
-                  </div>
+              <!-- NÚMEROS CLAVE · 4 cifras a ancho completo (la imagen clave subió a «Imágenes») -->
+              <div class="grid grid-cols-2 gap-2 mb-3">
+                <div class="rounded-card bg-cream-card px-2.5 py-1.5 border-l-4" :style="{ borderColor: '#9d44ab' }">
+                  <p class="text-[10px] text-tinta leading-none">{{ L('Receptor ⁶⁸Ga', 'Receptor ⁶⁸Ga') }}</p>
+                  <p class="font-mono text-base leading-tight text-berenjena">{{ sel.dota != null ? sel.dota.toFixed(2) : '—' }}</p>
                 </div>
-                <!-- miniatura de la imagen clave (pulsable → lightbox) -->
-                <div class="shrink-0 w-[88px]">
-                  <button v-if="selKey.hasReliable" type="button" class="foco-key-thumb !w-[88px]"
-                    :aria-label="L('Ampliar la imagen clave del foco #' + sel.id, 'Enlarge the key image of focus #' + sel.id)"
-                    @click="openKeyLightbox('axial')">
-                    <img :src="fk(sel.id, 'axial')"
-                      :alt="L('Imagen clave (axial) del foco #' + sel.id, 'Key image (axial) of focus #' + sel.id)"
-                      class="foco-key-thumb__img" loading="lazy" />
-                    <span class="foco-key-thumb__zoom" aria-hidden="true">
-                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7" /><line x1="21" y1="21" x2="16.5" y2="16.5" /><line x1="11" y1="8" x2="11" y2="14" /><line x1="8" y1="11" x2="14" y2="11" /></svg>
-                    </span>
-                  </button>
-                  <div v-else class="w-[88px] aspect-square rounded-card border border-dashed border-[rgba(45,27,61,0.25)] bg-cream-card flex items-center justify-center text-center text-[9px] text-tinta px-1 leading-tight">
-                    {{ L('imagen por confirmar', 'image to confirm') }}
-                  </div>
-                  <p class="text-[9px] text-tinta text-center mt-1 leading-tight">{{ L('Imagen clave', 'Key image') }}</p>
+                <div class="rounded-card bg-cream-card px-2.5 py-1.5 border-l-4" :style="{ borderColor: '#bb4128' }">
+                  <p class="text-[10px] text-tinta leading-none">{{ L('Azúcar FDG', 'Sugar FDG') }}</p>
+                  <p class="font-mono text-base leading-tight text-berenjena">{{ sel.fdg != null ? sel.fdg.toFixed(2) : '—' }}<span v-if="trend(sel)" class="text-[11px] ml-1" :style="deltaStyle(sel)">({{ deltaFdg(sel) }})</span></p>
+                </div>
+                <div class="rounded-card bg-cream-card px-2.5 py-1.5 border-l-4" :style="{ borderColor: '#1f6b57' }">
+                  <p class="text-[10px] text-tinta leading-none">{{ L('Forma (CT)', 'Shape (CT)') }}</p>
+                  <p class="text-[12px] font-semibold leading-tight text-berenjena">{{ morphLabel(sel) }}</p>
+                </div>
+                <div class="rounded-card bg-cream-card px-2.5 py-1.5 border-l-4" :style="{ borderColor: '#6b6470' }">
+                  <p class="text-[10px] text-tinta leading-none">{{ L('Extensión metab.', 'Metabolic extent') }}</p>
+                  <p class="font-mono text-[12px] font-semibold leading-tight text-berenjena">{{ metExtentLabel(sel) }}</p>
                 </div>
               </div>
-
-              <!-- IDONEIDAD como diana (orientativa) -->
-              <div class="rounded-card bg-cream-card px-3 py-2 mb-3 border border-[rgba(45,27,61,0.1)]">
-                <div class="flex items-center justify-between mb-1">
-                  <span class="text-[10px] font-semibold text-berenjena uppercase tracking-wide">{{ L('Idoneidad como diana', 'Suitability as a target') }}</span>
-                  <span class="font-mono text-sm font-semibold text-berenjena">{{ suitabilityScore(sel) }}<span class="text-[10px] text-tinta">/100</span></span>
-                </div>
-                <div class="h-2 rounded-full overflow-hidden bg-[rgba(45,27,61,0.08)]" role="img"
-                  :aria-label="L('Idoneidad ' + suitabilityScore(sel) + ' sobre 100', 'Suitability ' + suitabilityScore(sel) + ' out of 100')">
-                  <div class="h-full rounded-full" :style="{ width: suitabilityScore(sel) + '%', background: 'linear-gradient(90deg,#9d44ab,#df7a44)' }" />
-                </div>
-                <p class="text-[9.5px] text-tinta mt-1 leading-snug">{{ L('orientativa · viable × rendimiento × tamaño. Etiqueta por trazador/forma; describe, no concluye.', 'indicative · viable × yield × size. Labelled by tracer/shape; describes, does not conclude.') }}</p>
-              </div>
-
-              <!-- texto claro, breve (acotado a 3 líneas: el resumen no debe crecer
-                   tanto que empuje el enlace fuera del viewport; el texto completo va
-                   en la capa clara del detalle de abajo) -->
-              <p class="text-[13px] text-berenjena leading-snug mb-2.5 line-clamp-3">{{ sel.what[lang] }}</p>
 
               <!-- ENLACE al detalle profundo (sin scroll para navegar; scroll opcional) -->
               <a href="#detalle-foco" class="link-action text-miriam text-[13px] inline-flex items-center gap-1 font-semibold">
                 {{ L('Ver el detalle completo del foco', 'See the full focus detail') }} <span aria-hidden="true">↓</span>
               </a>
             </div>
-          </div>
 
-          <!-- VISOR 3D a ANCHO COMPLETO · EN EL PRIMER PLIEGUE (héroe), justo bajo
-               el núcleo [esqueleto navegador | resumen compacto]: al clicar un foco,
-               cambia AL INSTANTE el 3D + el resumen, sin scroll. La pieza clave —ver
-               la lesión en 3D— vive aquí, no enterrada al final. Small multiples: el
-               MISMO hueso en 3 mapas limpios y sincronizados. NO se toca su interior. -->
-          <div v-if="sel" class="mt-6">
-            <p class="eyebrow mb-2 block">{{ L('Hueso reconstruido del CT · captación co-registrada', 'Bone reconstructed from the CT · co-registered uptake') }}</p>
-            <p v-if="isMultiFocusBone" class="text-[12px] text-tinta leading-snug mb-2 max-w-3xl">
-              {{ L('Esta zona tiene ' + coFoci.length + ' focos co-localizados (receptor/azúcar); el realce señala la zona. Detalle de cada foco abajo y en la tabla.', 'This area has ' + coFoci.length + ' co-localized foci (receptor/sugar); the highlight marks the area. Each focus is detailed below and in the table.') }}
-            </p>
-            <template v-if="bone3dKeyOf(sel)">
-              <ClientOnly>
-                <BoneTriView
-                  :mesh-key="bone3dKeyOf(sel)"
-                  :biopsied="bonePriorBiopsy != null"
-                  :biopsy-label="bonePriorBiopsy ?? undefined"
-                />
-                <template #fallback>
-                  <div class="rounded-lg flex items-center justify-center text-[12px]" style="aspect-ratio:15/4;background:#0d1117;color:#aeb6c2">
-                    {{ L('cargando visor…', 'loading viewer…') }}
-                  </div>
-                </template>
-              </ClientOnly>
-            </template>
-            <ClientOnly v-else>
-              <BoneTriView :mesh-key="undefined" />
-              <template #fallback>
-                <div class="rounded-lg flex items-center justify-center text-[12px]" style="aspect-ratio:5/4;background:#0d1117;color:#aeb6c2">
-                  {{ L('cargando visor 3D…', 'loading 3D viewer…') }}
-                </div>
-              </template>
-            </ClientOnly>
-          </div>
+            </div><!-- /COLUMNA DERECHA · VER LA LESIÓN -->
+          </div><!-- /grid primario (navegar | visor) -->
 
           <!-- ===== DETALLE PROFUNDO DEL FOCO (secundario · para quien quiera profundizar) =====
                Las 3 lecturas extendidas, observaciones, cuantificación automática y
@@ -2023,14 +2171,17 @@ const ticks = [
                 <p class="text-[10px] text-tinta mt-2 leading-relaxed">{{ L('SUV recalculado del DICOM (corrección de decaimiento), volumen metabólico (MTV) y carga glucolítica (TLG) con máscara ósea del CT; morfología por densidad CT. El FDG (1,65 mm) es fino; el Galio (4 mm), más grueso. Verificación automática, no diagnóstico: manda la tabla y el criterio del equipo.', 'SUV recomputed from the DICOM (decay-corrected), metabolic volume (MTV) and glycolytic load (TLG) with a CT bone mask; morphology from CT density. FDG (1.65 mm) is fine; gallium (4 mm) coarser. Automatic verification, not a diagnosis: the table and the team’s judgement prevail.') }}</p>
               </details>
 
+              <!-- EVOLUCIÓN FDG + IMAGEN CLAVE · 2 columnas (la gráfica a ancho completo
+                   quedaba GIGANTE; al lado de la imagen ocupa la mitad y se equilibra). -->
+              <div class="grid md:grid-cols-2 gap-5 mb-4 items-start">
               <!-- evolución del FDG (solo si hay dos medidas; el Galio tiene una sola) -->
-              <div class="mb-4">
+              <div>
                 <div class="flex items-center justify-between mb-1">
                   <span class="text-[11px] font-semibold text-berenjena">{{ L('Evolución del FDG (azúcar)', 'FDG (sugar) evolution') }}</span>
                   <span v-if="hasFdgEvo" class="text-[10px] text-tinta">{{ L('ene → mar 2026', 'Jan → Mar 2026') }}</span>
                 </div>
                 <!-- eslint-disable-next-line vue/no-v-html -->
-                <div v-if="hasFdgEvo" v-html="evoChartSvg" />
+                <div v-if="hasFdgEvo" v-html="evoChartSvg" class="max-w-[460px]" />
                 <div v-else class="rounded-card border px-3 py-2 text-[12.5px] leading-snug flex items-start gap-2"
                   :style="sel.fdg != null
                     ? { borderColor: '#efb27a', background: '#fbf0df', color: '#7a4a12' }
@@ -2042,8 +2193,9 @@ const ticks = [
 
               <!-- IMAGEN CLAVE DEL FOCO (corte CT+PET fusionado con anillo · comité) ·
                    única imagen del foco: el círculo va SOBRE el hueso (no un marcador
-                   aproximado anterior que parecía víscera y restaba confianza) -->
-              <figure class="mb-4">
+                   aproximado anterior que parecía víscera y restaba confianza).
+                   Columna derecha del grid (al lado de la gráfica de evolución). -->
+              <figure class="!mb-0">
                 <div class="flex items-center justify-between mb-1.5 flex-wrap gap-1">
                   <span class="text-[11px] font-semibold text-berenjena">{{ L('Imagen clave del foco', 'Focus key image') }}</span>
                   <span v-if="selKey.dotted || !selKey.hasReliable" class="status-badge" style="background:#fde4cc;color:#8a4a1a">{{ L('localización aproximada · por confirmar', 'approximate location · to confirm') }}</span>
@@ -2080,6 +2232,7 @@ const ticks = [
                   <span>{{ L('Foco detectado por IA sobre los DICOM, de baja intensidad: la localización es aproximada y aún no hay un círculo fiable que marcarlo. No es una relectura formal — a correlacionar con Medicina Nuclear.', 'AI-detected focus on the DICOM, low intensity: the location is approximate and there is no reliable ring to mark it yet. Not a formal re-read — to correlate with Nuclear Medicine.') }}</span>
                 </div>
               </figure>
+              </div><!-- /grid · evolución FDG + imagen clave (2 columnas) -->
 
               <!-- capa TÉCNICA · abierta por defecto (vista clínica) -->
               <details class="notes-disclosure" open>
@@ -2846,7 +2999,6 @@ const ticks = [
           </NuxtLink>
         </div>
           </div>
-        </div>
       </div>
     </section>
 
@@ -2954,6 +3106,42 @@ const ticks = [
             </div>
 
             <p class="foco-key-lb__cap">{{ L('Imágenes reconstruidas de los DICOM (PET-FDG 24/03/2026 y PET ⁶⁸Ga-DOTATOC 26/05/2026). Lo intenso fuera del esqueleto es captación normal de cada trazador. Para verlas y compararlas; su lectura formal corresponde al radiólogo.', 'Images reconstructed from the DICOM (FDG-PET 24/03/2026 and ⁶⁸Ga-DOTATOC PET 26/05/2026). The intense areas outside the skeleton are normal uptake of each tracer. For viewing and comparing; their formal reading belongs to the radiologist.') }}</p>
+          </div>
+        </div>
+      </Teleport>
+    </ClientOnly>
+
+    <!-- ===== OVERLAY · VISOR 3D A PANTALLA COMPLETA («Ver en grande») =====
+         Petición de la paciente: el visor en línea va pequeño/contenido y un botón
+         lo abre a pantalla completa con los 3 mapas grandes. Reutiliza BoneTriView
+         TAL CUAL (otra instancia con el mismo `mesh-key` del foco seleccionado);
+         la rotación se sincroniza DENTRO de cada instancia (una cámara, 3 viewports).
+         Cierre Esc/botón/backdrop, bloqueo de scroll, role=dialog (a11y). -->
+    <ClientOnly>
+      <Teleport to="body">
+        <div
+          v-if="bone3dFullscreen && sel && bone3dKeyOf(sel)"
+          class="foco-key-lb"
+          role="dialog"
+          aria-modal="true"
+          :aria-label="L('Visor 3D del hueso a pantalla completa · foco #' + sel.id, 'Full-screen 3D bone viewer · focus #' + sel.id)"
+          @click.self="closeBone3dFullscreen">
+          <div class="foco-key-lb__panel foco-key-lb__panel--wide bone3d-lb__panel">
+            <div class="foco-key-lb__bar">
+              <div class="min-w-0">
+                <p class="foco-key-lb__title">{{ L('Hueso en 3D · foco', '3D bone · focus') }} #{{ sel.id }} · {{ sel.level[lang] }}</p>
+                <p class="foco-key-lb__sub">{{ L('reconstruido del CT · captación co-registrada · arrastra para girar (los 3 mapas giran a la vez), rueda/pinza para acercar', 'reconstructed from the CT · co-registered uptake · drag to rotate (all 3 maps rotate together), wheel/pinch to zoom') }}</p>
+              </div>
+              <button type="button" class="foco-key-lb__close" :aria-label="L('Cerrar', 'Close')" @click="closeBone3dFullscreen">×</button>
+            </div>
+            <div class="foco-key-lb__stage bone3d-lb__stage">
+              <BoneTriView
+                :mesh-key="bone3dKeyOf(sel)"
+                :biopsied="bonePriorBiopsy != null"
+                :biopsy-label="bonePriorBiopsy ?? undefined"
+              />
+            </div>
+            <p class="foco-key-lb__cap">{{ L('Hueso reconstruido a partir del CT con la captación PET co-registrada (los 3 mapas). Herramienta de visualización; su lectura formal corresponde al radiólogo. Describe, no concluye.', 'Bone reconstructed from the CT with co-registered PET uptake (all 3 maps). A visualisation tool; its formal reading belongs to the radiologist. Describes, does not conclude.') }}</p>
           </div>
         </div>
       </Teleport>
@@ -3325,5 +3513,63 @@ const ticks = [
   line-height: 1.45;
   color: #6b6470;
   border-top: 1px solid rgba(45, 27, 61, 0.08);
+}
+
+/* ── Segmented control · toggle Esqueleto ↔ Tabla del navegador ──────── */
+.seg {
+  display: inline-flex;
+  border: 1px solid rgba(45, 27, 61, 0.2);
+  border-radius: 9999px;
+  overflow: hidden;
+  background: #fbf7f0;
+}
+.seg__btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.78rem;
+  font-weight: 600;
+  padding: 0.32rem 0.85rem;
+  color: #6b6470;
+  background: transparent;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+.seg__btn + .seg__btn { border-left: 1px solid rgba(45, 27, 61, 0.2); }
+.seg__btn:hover { color: #2d1b3d; }
+.seg__btn.is-active { background: #2d1b3d; color: #fdf6ef; }
+.seg__btn:focus-visible { outline: 2px solid #9d44ab; outline-offset: -2px; }
+
+/* ── Botón «Ver en grande» del visor 3D ─────────────────────────────── */
+.btn-expand3d {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.78rem;
+  font-weight: 600;
+  padding: 0.3rem 0.75rem;
+  border-radius: 9999px;
+  border: 1px solid rgba(45, 27, 61, 0.2);
+  background: #fbf7f0;
+  color: #2d1b3d;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+.btn-expand3d:hover { background: #f0e7f3; border-color: rgba(157, 68, 171, 0.5); }
+.btn-expand3d:focus-visible { outline: 2px solid #9d44ab; outline-offset: 2px; }
+
+/* ── Overlay 3D a pantalla completa ─────────────────────────────────── */
+.bone3d-lb__panel { width: min(1280px, 100%); max-height: 94vh; }
+.bone3d-lb__stage {
+  padding: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.bone3d-lb__stage > :deep(*) { width: 100%; }
+
+@media (prefers-reduced-motion: reduce) {
+  .seg__btn,
+  .btn-expand3d { transition: none; }
 }
 </style>

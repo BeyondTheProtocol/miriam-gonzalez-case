@@ -4,7 +4,7 @@
  *
  * CONCEPTO A (aprobado): el MISMO hueso mostrado TRES VECES en paralelo y
  * SINCRONIZADAS, cada vista un mapa LIMPIO de UNA sola variable por vértice:
- *   · GALIO (receptor)   — gris → TEAL/cian, de suv_ga   (0 → ~13)
+ *   · GALIO (receptor)   — gris → TEAL/cian, de suv_ga   (0 → ~9; ≥9 satura)
  *   · FDG   (azúcar)     — gris → ÁMBAR/naranja, de suv_fdg (0 → ~9)
  *   · BLÁSTICO (densidad)— gris → SEPIA, de density_hu (denso/blástico = sepia
  *                          oscuro saturado; trabecular = claro neutro)
@@ -69,7 +69,7 @@ const PANELS: Panel[] = [
     title: { es: 'Galio · receptor', en: 'Gallium · receptor' },
     sub: { es: '⁶⁸Ga-DOTATOC (SSTR)', en: '⁶⁸Ga-DOTATOC (SSTR)' },
     unit: { es: 'SUV', en: 'SUV' },
-    max: 13,
+    max: 9, // = GA_MAX (la escala de color satura en 9; ≥9 = teal máx)
     legendFrom: '#e7e2d6',
     legendTo: '#0f8c93',
   },
@@ -110,7 +110,7 @@ let pmrem: THREE.PMREMGenerator | null = null
 const scenes: THREE.Scene[] = []
 const meshes: (THREE.Mesh | null)[] = [null, null, null]
 let sharedGeo: THREE.BufferGeometry | null = null
-let needleGroup: THREE.Group | null = null     // aguja de biopsia ILUSTRATIVA (panel densidad)
+let needleGroups: THREE.Group[] = []           // aguja de biopsia ILUSTRATIVA · una por panel (los 3)
 let raf = 0, ro: ResizeObserver | null = null
 let curKey = ''
 let boneRadius = 50
@@ -183,8 +183,13 @@ const densityRamp = makeRamp([
   [1.00, [58, 34, 16]],     // blástico · sepia oscuro saturado
 ])
 
-/* normalización por canal → t ∈ [0,1] con gamma suave (perceptual) */
-const GA_MAX = 13, FDG_MAX = 9
+/* normalización por canal → t ∈ [0,1] con gamma suave (perceptual).
+   GA_MAX=9 (no 13): la mayoría de focos de Galio están en 2.5–5 SUV; con el máximo
+   en el outlier (D11 13.27) toda la captación moderada caía a ~0.3 de la rampa y se
+   veía CASI BLANCA (p.ej. escápula #3, C3/C4, ilíaco-izq → «no se aprecia la lesión»).
+   Con 9, esos focos suben a ~0.5 (teal claro y visible) y los muy ávidos (D11/L5,
+   ≥9) saturan como los más calientes. El SUVmáx exacto se lee en la ficha y la tabla. */
+const GA_MAX = 9, FDG_MAX = 9
 /* DENSIDAD: la SUPERFICIE del hueso reconstruido se mueve sobre todo en 50–700 HU
    (la malla muestrea la corteza/borde, no el interior cortical de >1000 HU). Si
    normalizamos a 150→1000, casi todo el hueso cae en la zona clara y el mapa se ve
@@ -469,9 +474,10 @@ function load(key: string) {
         meshes[i] = m
         scenes[i].add(m)
       }
-      // aguja de biopsia ILUSTRATIVA cuelga del mesh de DENSIDAD (panel 2) → rota con él
-      needleGroup = new THREE.Group()
-      meshes[2]!.add(needleGroup)
+      // aguja de biopsia ILUSTRATIVA · UNA POR PANEL: cuelga de cada malla (los 3),
+      // así rota con cada hueso y se ve en Galio, FDG y densidad por igual.
+      needleGroups = []
+      for (let i = 0; i < 3; i++) { const ng = new THREE.Group(); meshes[i]!.add(ng); needleGroups.push(ng) }
       updateCameraAspect()
       frameObject()
       buildBiopsyNeedle()
@@ -511,7 +517,7 @@ const C_TIP_MK = '#c25a2b'     // marcador de la PUNTA (en hueso) · ámbar oscu
 let needleMats: THREE.Material[] = []
 let needleGeos: THREE.BufferGeometry[] = []
 function disposeBiopsyNeedle() {
-  if (needleGroup) needleGroup.clear()
+  needleGroups.forEach((g) => g.clear())
   needleMats.forEach((m) => m.dispose()); needleMats = []
   needleGeos.forEach((g) => g.dispose()); needleGeos = []
 }
@@ -537,7 +543,7 @@ function smallSphere(color: string, r: number): THREE.Mesh {
 }
 function buildBiopsyNeedle() {
   disposeBiopsyNeedle()
-  if (!needleGroup || !sharedGeo) return
+  if (!needleGroups.length || !sharedGeo) return
   if (!props.biopsied || !showBiopsy.value) return
   if (hotIndex < 0) return
   const geo = meshes[2]!.geometry            // geometría del panel densidad (per-canal; mismos pos)
@@ -585,7 +591,10 @@ function buildBiopsyNeedle() {
   const entryMk = smallSphere(C_ENTRY, Math.max(1.0, boneRadius * 0.035)); entryMk.position.copy(entry)
   const tipMk = smallSphere(C_TIP_MK, Math.max(0.9, boneRadius * 0.03)); tipMk.position.copy(tip)
   body.renderOrder = 7; bevel.renderOrder = 8; entryMk.renderOrder = 8; tipMk.renderOrder = 8
-  needleGroup.add(body); needleGroup.add(bevel); needleGroup.add(entryMk); needleGroup.add(tipMk)
+  // mete la aguja en LOS 3 paneles: original al panel 0, clones a 1 y 2 (clonan
+  // geometría+material → mismo dibujo en Galio, FDG y densidad).
+  const parts = [body, bevel, entryMk, tipMk]
+  needleGroups.forEach((g, gi) => { for (const part of parts) g.add(gi === 0 ? part : part.clone()) })
 }
 function toggleBiopsy() { if (biopsyAvailable.value) showBiopsy.value = !showBiopsy.value }
 
