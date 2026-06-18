@@ -293,7 +293,9 @@ function init() {
 function renderScenes() {
   if (!renderer || !host.value) return
   const W = host.value.clientWidth, H = host.value.clientHeight
-  const dpr = renderer.getPixelRatio()
+  // OJO: setViewport/setScissor reciben píxeles CSS — three.js los multiplica por el
+  // pixelRatio INTERNAMENTE. Multiplicar aquí por dpr provocaba un escalado ×dpr² (en
+  // pantallas retina dpr=2 → ×4): el viewport se salía y el hueso aparecía arriba/cortado.
   renderer.setScissorTest(true)
   for (let i = 0; i < 3; i++) {
     let x: number, y: number, w: number, h: number
@@ -305,8 +307,8 @@ function renderScenes() {
       w = W / 3; h = H
       x = i * w; y = 0
     }
-    renderer.setViewport(x * dpr, y * dpr, w * dpr, h * dpr)
-    renderer.setScissor(x * dpr, y * dpr, w * dpr, h * dpr)
+    renderer.setViewport(x, y, w, h)
+    renderer.setScissor(x, y, w, h)
     renderer.render(scenes[i], camera)
   }
   renderer.setScissorTest(false)
