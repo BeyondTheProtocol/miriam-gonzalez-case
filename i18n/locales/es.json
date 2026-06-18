@@ -844,55 +844,55 @@
     "links_signature": "— Equipo Miriam González · Beyond the Protocol"
   },
   "marcas": {
-    "meta_title": "Colabora con una historia que mucha gente va a seguir — helpmiriam.com",
-    "meta_description": "Soy ingeniera y divulgadora con un cáncer de mama ultra-raro: un caso del que se va a hablar. Te propongo acompañar tu marca dentro de esta historia, con rigor y sin postureo. Es un proyecto benéfico, sí, pero también una colaboración profesional, y la trabajamos como tal.",
-    "og_description": "Tu marca dentro del relato de una divulgadora tech que investiga su propio cáncer ultra-raro, contado con cuidado y transparencia. Una colaboración profesional a largo plazo, no un logo en un banner.",
+    "meta_title": "Una historia que la gente ya sigue. Tu marca, dentro. — helpmiriam.com",
+    "meta_description": "Soy ingeniera y divulgadora con un cáncer de mama ultra-raro: un caso del que se va a hablar, y mucho. No te pido un donativo; te propongo un partnership: subir tu marca a esta historia con rigor y sin postureo. Benéfico, sí, pero también profesional, y lo trabajamos como tal.",
+    "og_description": "Una historia que ya tiene miradas encima y va a tener muchas más. Te propongo meter tu marca dentro —no un logo de un día— con una divulgadora tech que investiga su propio cáncer ultra-raro. Partnership profesional a largo plazo, con transparencia total.",
     "print": "↓ Dossier (PDF)",
     "print_aria": "Descargar el dossier para marcas en PDF",
 
-    "_comment_hero": "Header — opción A (recomendada por el plan). Alternativas B y C como comentarios en marcas.vue.",
+    "_comment_hero": "Header — opción B (decidida con Adri, 18-jun): lidera con la atención/escaparate ya existente y la posición de la marca DENTRO de la historia. Encuadre debajo = partnership, no donativo. Alternativas A y C, en el comentario de marcas.vue.",
     "hero_eyebrow": "// para marcas",
-    "hero_title": "En los próximos meses, mucha gente {em}.",
-    "hero_title_em": "va a seguir esta historia",
-    "hero_subtitle": "Soy ingeniera y divulgadora con un cáncer de mama ultra-raro —Murcia, ingeniera de software, un caso descrito apenas un puñado de veces en la literatura—. Lo cuento con rigor y sin postureo, y te propongo acompañar tu marca dentro de esa historia: una colaboración de verdad, no un anuncio de un día. Lo hacemos juntas.",
-    "hero_context": "Lo digo claro de entrada: es un proyecto benéfico, sí, pero también es una colaboración profesional y la trabajamos como tal. No te pido un donativo; te propongo un partnership. Y todo el proceso lo cuento con transparencia total.",
-    "hero_cta": "Hablemos de colaborar",
-    "hero_cta_dossier": "Ver el dossier (PDF)",
-    "hero_tagline": "// busco pocas marcas, pero las adecuadas",
+    "hero_title": "Una historia que la gente ya sigue. {em}.",
+    "hero_title_em": "Tu marca, dentro",
+    "hero_subtitle": "Soy ingeniera y divulgadora con un cáncer de mama ultra-raro —un caso descrito apenas un puñado de veces en la literatura—, y en los próximos meses va a tener muchas miradas encima. Te propongo subir tu marca a esa historia: no un logo de un día, sino una colaboración que se nota y dura. La montamos juntas.",
+    "hero_context": "Lo digo claro de entrada: no te pido un donativo; te propongo un partnership. Es un proyecto benéfico, sí, pero también una colaboración profesional, y la trabajamos como tal —con transparencia total en cada paso.",
+    "hero_cta": "Cuéntame qué hacéis",
+    "hero_cta_dossier": "Ver el dossier (para tu equipo)",
+    "hero_tagline": "// te respondo yo, en persona · busco pocas marcas, pero las adecuadas",
     "hero_edition_label": "Edición preparada para:",
 
-    "pilares_eyebrow": "// cómo encaja tu marca",
-    "pilares_title": "Formas de colaborar {em}.",
-    "pilares_title_em": "con sentido",
-    "pilares_intro": "Cuatro maneras de sumar tu marca a este proyecto conmigo. Las he pensado para que se las enseñes a tu equipo tal cual y elijáis la que mejor os encaje.",
+    "pilares_eyebrow": "// formas de colaborar",
+    "pilares_title": "Cuatro formas de meter tu marca {em}.",
+    "pilares_title_em": "en la historia",
+    "pilares_intro": "Lo más rápido de pillar, primero. Cuatro maneras concretas de sumar tu marca, pensadas para que se las enseñes a tu equipo tal cual —si te toca defenderlo ante tu jefe, esto es lo que le pones delante— y elijáis la que mejor os encaje. Se combinan.",
     "pilares_cards": [
       {
         "title": "Cocreación de contenido",
         "what": "Creamos juntas piezas nativas —reels, carruseles, stories— que integran tu producto en una historia que la gente ya está siguiendo.",
-        "gain": "No es un anuncio insertado: es contenido que la audiencia quiere ver."
+        "gain": "No es un anuncio que la gente se salta: es contenido que la audiencia quiere ver, con tu marca dentro."
       },
       {
         "title": "Product placement",
         "what": "Tu producto, usado de verdad y en cámara, en mi día a día (tech, viajes/movilidad, bienestar).",
-        "gain": "Presencia natural y creíble, sin guion publicitario."
+        "gain": "Presencia natural y creíble, sin guion publicitario —se ve de verdad, no se lee como anuncio."
       },
       {
         "title": "Research cofinanciada",
         "what": "«Investigación junto a tu marca»: financias una pieza concreta del caso —una prueba, un panel, un viaje a Zúrich— y lo contamos con transparencia total.",
-        "gain": "Tu marca asociada a ciencia real y a impacto medible."
+        "gain": "Tu marca asociada a ciencia real y a un impacto que se ve y se cuenta, no a un eslogan."
       },
       {
         "title": "Menciones y branding",
         "what": "Tu logo en mi perfil y en la web (con tráfico real) y un «gracias a tu marca» al cierre de cada post, estilo shout-out de podcast.",
-        "gain": "Recuerdo de marca sostenido, no un impacto único."
+        "gain": "Presencia constante en cada publicación, no un impacto único que se olvida al día siguiente."
       }
     ],
-    "pilares_dossier_line": "¿Lo quieres por escrito para enseñárselo a tu equipo?",
+    "pilares_dossier_line": "¿Lo quieres por escrito para llevarlo a tu equipo?",
     "pilares_dossier_cta": "Descarga el dossier (PDF)",
-    "pilares_cta": "Contáctame",
+    "pilares_cta": "Cuéntame qué hacéis",
 
-    "encajes_title": "Encajes naturales",
-    "encajes_intro": "Donde tu producto se cruza con mi vida real — ahí la colaboración es auténtica. Y si ya hay una marca de tu sector, sigue habiendo sitio: ahí entran las menciones.",
+    "encajes_title": "Dónde encaja tu producto",
+    "encajes_intro": "Donde tu producto se cruza con mi vida real, ahí la colaboración se nota auténtica. Y si ya hay una marca de tu sector, sigue habiendo sitio: para eso están las menciones.",
     "encajes_groups": [
       {
         "label": "Tech y salud",
@@ -908,15 +908,15 @@
       }
     ],
 
-    "audiencia_eyebrow": "// mi tipo de audiencia",
-    "audiencia_title": "A quién llega {em}.",
-    "audiencia_title_em": "tu marca",
+    "audiencia_eyebrow": "// las miradas que vas a tener encima",
+    "audiencia_title": "El alcance al que {em}.",
+    "audiencia_title_em": "te subes",
     "audiencia_stats": [
       { "value": "~248K", "caption": "comunidad multiplataforma" },
       { "value": "+1M", "caption": "visualizaciones / mes (IG)" },
       { "value": "72,5%", "caption": "audiencia real verificada (Modash)" }
     ],
-    "audiencia_frame": "La gente a la que va a llegar tu marca: perfil tech + salud, España y Latinoamérica, profesional y comprometido. Si quieres el desglose fino —edades, geografía, canal a canal—, te lo paso en el dossier.",
+    "audiencia_frame": "Perfil tech y salud, en España y Latinoamérica, profesional y comprometido. No te voy a llenar esto de gráficas: las marcas que escriben lo hacen por la parte mediática y por sumarse a algo real, no por el tamaño exacto de la audiencia. Si quieres el desglose fino —edades, geografía, canal a canal—, lo tienes en el dossier.",
 
     "movilizan_title": "Y cuando hace falta, responden",
     "movilizan_p": "No es una audiencia que solo mira: cuando le pido algo concreto, responde. En una campaña reciente, ese «échame una mano» se tradujo en {b}.",
@@ -931,20 +931,20 @@
       { "label": "Never Surrender", "url": "https://neversurrenderf.org/" }
     ],
     "partners_more": "…y más por venir 🤫",
-    "audiencia_cta": "¿Encajamos? Escríbeme",
+    "audiencia_cta": "¿Encajamos? Cuéntame qué hacéis",
 
     "cta_eyebrow": "// ponte en contacto",
     "cta_title": "Busco pocas marcas, {em}.",
     "cta_title_em": "pero las adecuadas",
-    "cta_p": "Cuéntame qué hacéis y lo montamos juntas, a vuestra medida. Te respondo yo, en persona.",
-    "cta_button": "Escríbeme",
-    "cta_dossier": "Descargar dossier (PDF)",
-    "cta_podcast": "Y lo que viene: relanzo mi podcast «No me da la vida» para contar la IA y la tecnología que hay detrás de este proyecto. Buen momento para subirte. 🎙️",
+    "cta_p": "Cuéntame qué hacéis y lo montamos juntas, a vuestra medida. Te respondo yo, en persona —no un formulario ni un equipo.",
+    "cta_button": "Hablemos de tu marca",
+    "cta_dossier": "Ver el dossier (para tu equipo)",
+    "cta_podcast": "Y el momento ayuda: relanzo mi podcast «No me da la vida» para contar la IA y la tecnología que hay detrás de este proyecto. En los próximos meses esto va a tener mucha atención —buen momento para subirte. 🎙️",
     "cta_microcopy": "Una última cosa, porque importa: es un proyecto benéfico, sí, pero también una colaboración profesional entre tú y yo, y la trabajamos como tal.",
 
-    "popup_title": "¿Tu marca y yo, juntas?",
-    "popup_text": "Te leo personalmente. Cuéntame quién eres y vemos cómo encajar.",
-    "popup_cta": "Contáctame",
+    "popup_title": "¿Subimos tu marca a la historia?",
+    "popup_text": "Te leo yo, en persona. Cuéntame quién eres y vemos cómo encajar.",
+    "popup_cta": "Cuéntame qué hacéis",
     "popup_dismiss": "Ahora no"
   },
   "expenses": {

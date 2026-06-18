@@ -30,15 +30,22 @@
 
     <!-- ░░ 1 · POR QUÉ COLABORAR / LA ATENCIÓN ░░ banda oscura -->
     <!--
-      Header — opción A elegida (plan §3.1, "todas las miradas"). Lidera con
-      atención/escaparate + dignidad. Alternativas conservadas para que Miriam
+      Header — opción B ELEGIDA (decisión con Adri, 18-jun): lidera con la
+      atención/escaparate ya existente y la marca DENTRO de la historia; encuadre
+      partnership (no donativo) debajo. Alternativas conservadas para que Miriam
       pueda cambiarlas sin volver al plan:
 
-      · Alternativa B — "escaparate que va a volar" (idea directa de Adri):
+      · Alternativa A — "todas las miradas" (plan §3.1, atención + dignidad):
+          H1:  En los próximos meses, mucha gente va a seguir esta historia.
+          Sub: Perfil único (ingeniera + tumor ultra-raro), contado con rigor y
+               sin postureo. Te propongo acompañar tu marca dentro de esa historia.
+          CTA: Hablemos de colaborar →
+
+      · Alternativa B2 — "escaparate que va a volar" (idea directa de Adri):
           H1:  Un escaparate que va a volar. ¿Subes tu marca?
-          Sub: Relanzo mi podcast con Carlos Roca y mi historia va a tener mucha
-               atención. Convierte esa atención en ojos para tu marca —y ayúdame
-               a sostener mi tratamiento— con una colaboración que se nota.
+          Sub: Relanzo mi podcast y mi historia va a tener mucha atención.
+               Convierte esa atención en ojos para tu marca —y ayúdame a sostener
+               mi tratamiento— con una colaboración que se nota.
           CTA: Quiero colaborar →
 
       · Alternativa C — "trato honesto" (partnership-forward):

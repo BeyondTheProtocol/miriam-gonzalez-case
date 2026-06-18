@@ -844,55 +844,55 @@
     "links_signature": "— Miriam González's team · Beyond the Protocol"
   },
   "marcas": {
-    "meta_title": "Partner with a story a lot of people are going to follow — helpmiriam.com",
-    "meta_description": "I'm an engineer and creator with an ultra-rare breast cancer: a case people are going to talk about. I'd like to bring your brand alongside this story, with rigor and no posturing. It's a charitable project, yes, but also a professional collaboration, and we treat it as such.",
-    "og_description": "Your brand inside the story of a tech creator researching her own ultra-rare cancer, told with care and transparency. A professional, long-term collaboration, not a logo on a banner.",
+    "meta_title": "A story people already follow. Your brand, inside. — helpmiriam.com",
+    "meta_description": "I'm an engineer and creator with an ultra-rare breast cancer: a case people are going to talk about, a lot. I'm not asking you for a donation; I'm proposing a partnership: bringing your brand into this story, with rigor and no posturing. Charitable, yes, but also professional, and we treat it as such.",
+    "og_description": "A story that already has eyes on it and is about to have many more. I'd like to bring your brand inside —not a one-day logo— with a tech creator researching her own ultra-rare cancer. A professional, long-term partnership, with full transparency.",
     "print": "↓ Dossier (PDF)",
     "print_aria": "Download the brand dossier as PDF",
 
-    "_comment_hero": "Header — option A (recommended by the plan). Alternatives B and C as comments in marcas.vue.",
+    "_comment_hero": "Header — option B (decided with Adri, Jun 18): leads with the existing attention/showcase and the brand's position INSIDE the story. Framing below = partnership, not donation. Alternatives A and C live in the marcas.vue comment.",
     "hero_eyebrow": "// for brands",
-    "hero_title": "Over the coming months, a lot of people {em}.",
-    "hero_title_em": "are going to follow this story",
-    "hero_subtitle": "I'm an engineer and creator with an ultra-rare breast cancer —Murcia, software engineer, a case described only a handful of times in the literature—. I tell it with rigor and no posturing, and I'd like to bring your brand alongside that story: a real collaboration, not a one-day ad. We do it together.",
-    "hero_context": "Let me be clear from the start: it's a charitable project, yes, but it's also a professional collaboration and we treat it as such. I'm not asking you for a donation; I'm proposing a partnership. And I document the whole process with full transparency.",
-    "hero_cta": "Let's talk about partnering",
-    "hero_cta_dossier": "See the dossier (PDF)",
-    "hero_tagline": "// I'm looking for few brands, but the right ones",
+    "hero_title": "A story people already follow. {em}.",
+    "hero_title_em": "Your brand, inside",
+    "hero_subtitle": "I'm an engineer and creator with an ultra-rare breast cancer —a case described only a handful of times in the literature—, and over the coming months it's going to have a lot of eyes on it. I'd like to bring your brand into that story: not a one-day logo, but a collaboration that's felt and that lasts. We build it together.",
+    "hero_context": "Let me be clear from the start: I'm not asking you for a donation; I'm proposing a partnership. It's a charitable project, yes, but also a professional collaboration, and we treat it as such —with full transparency at every step.",
+    "hero_cta": "Tell me what you do",
+    "hero_cta_dossier": "See the dossier (for your team)",
+    "hero_tagline": "// I answer you personally · I'm looking for few brands, but the right ones",
     "hero_edition_label": "Edition prepared for:",
 
-    "pilares_eyebrow": "// how your brand fits",
-    "pilares_title": "Ways to collaborate {em}.",
-    "pilares_title_em": "that make sense",
-    "pilares_intro": "Four ways to bring your brand into this project with me. I designed them so you can show them to your team as they are and pick the one that fits you best.",
+    "pilares_eyebrow": "// ways to collaborate",
+    "pilares_title": "Four ways to put your brand {em}.",
+    "pilares_title_em": "inside the story",
+    "pilares_intro": "The quickest to grasp, first. Four concrete ways to bring your brand in, designed so you can show them to your team as they are —if you have to pitch it to your boss, this is what you put in front of them— and pick the one that fits you best. They combine.",
     "pilares_cards": [
       {
         "title": "Content co-creation",
         "what": "We create native pieces together —reels, carousels, stories— that weave your product into a story people are already following.",
-        "gain": "Not an inserted ad: content the audience actually wants to see."
+        "gain": "Not an ad people skip: content the audience actually wants to see, with your brand inside."
       },
       {
         "title": "Product placement",
         "what": "Your product, genuinely used and on camera, in my day to day (tech, travel/mobility, wellbeing).",
-        "gain": "Natural, credible presence, with no advertising script."
+        "gain": "Natural, credible presence, with no advertising script —genuinely seen, not read as an ad."
       },
       {
         "title": "Co-funded research",
         "what": "«Research together with your brand»: you fund a concrete piece of the case —a test, a panel, a trip to Zurich— and we tell it with full transparency.",
-        "gain": "Your brand associated with real science and measurable impact."
+        "gain": "Your brand tied to real science and to an impact you can see and tell, not to a slogan."
       },
       {
         "title": "Mentions and branding",
         "what": "Your logo on my profile and on the website (with real traffic) and a «thanks to your brand» at the end of every post, podcast shout-out style.",
-        "gain": "Sustained brand recall, not a one-off impression."
+        "gain": "A constant presence in every post, not a one-off impression forgotten the next day."
       }
     ],
-    "pilares_dossier_line": "Want it in writing to show your team?",
+    "pilares_dossier_line": "Want it in writing to take to your team?",
     "pilares_dossier_cta": "Download the dossier (PDF)",
-    "pilares_cta": "Contact me",
+    "pilares_cta": "Tell me what you do",
 
-    "encajes_title": "Natural fits",
-    "encajes_intro": "Where your product meets my real life — that's where the collaboration feels authentic. And if there's already a brand from your sector, there's still room: that's what mentions are for.",
+    "encajes_title": "Where your product fits",
+    "encajes_intro": "Where your product meets my real life, that's where the collaboration feels authentic. And if there's already a brand from your sector, there's still room: that's what mentions are for.",
     "encajes_groups": [
       {
         "label": "Tech and health",
@@ -908,15 +908,15 @@
       }
     ],
 
-    "audiencia_eyebrow": "// my kind of audience",
-    "audiencia_title": "Who {em} reaches.",
-    "audiencia_title_em": "your brand",
+    "audiencia_eyebrow": "// the eyes you'll have on you",
+    "audiencia_title": "The reach you {em}.",
+    "audiencia_title_em": "step into",
     "audiencia_stats": [
       { "value": "~248K", "caption": "multi-platform community" },
       { "value": "+1M", "caption": "views / month (IG)" },
       { "value": "72.5%", "caption": "verified real audience (Modash)" }
     ],
-    "audiencia_frame": "The people your brand will reach: a tech + health profile, Spain and Latin America, professional and engaged. If you want the fine breakdown —ages, geography, channel by channel—, I'll send it to you in the dossier.",
+    "audiencia_frame": "A tech and health profile, in Spain and Latin America, professional and engaged. I won't bury you in charts: the brands that reach out do it for the media angle and to join something real, not for the exact size of the audience. If you want the fine breakdown —ages, geography, channel by channel—, it's in the dossier.",
 
     "movilizan_title": "And when it counts, they show up",
     "movilizan_p": "This isn't an audience that just watches: when I ask for something concrete, it responds. In a recent campaign, that «give me a hand» turned into {b}.",
@@ -931,20 +931,20 @@
       { "label": "Never Surrender", "url": "https://neversurrenderf.org/" }
     ],
     "partners_more": "…and more to come 🤫",
-    "audiencia_cta": "A good fit? Write to me",
+    "audiencia_cta": "A good fit? Tell me what you do",
 
     "cta_eyebrow": "// get in touch",
     "cta_title": "I'm looking for few brands, {em}.",
     "cta_title_em": "but the right ones",
-    "cta_p": "Tell me what you do and we'll build it together, made for you. I answer you personally.",
-    "cta_button": "Write to me",
-    "cta_dossier": "Download dossier (PDF)",
-    "cta_podcast": "And what's coming: I'm relaunching my podcast «No me da la vida» to tell the AI and technology behind this project. A good moment to come aboard. 🎙️",
+    "cta_p": "Tell me what you do and we'll build it together, made for you. I answer you personally —not a form, not a team.",
+    "cta_button": "Let's talk about your brand",
+    "cta_dossier": "See the dossier (for your team)",
+    "cta_podcast": "And the timing helps: I'm relaunching my podcast «No me da la vida» to tell the AI and technology behind this project. Over the coming months this is going to draw a lot of attention —a good moment to come aboard. 🎙️",
     "cta_microcopy": "One last thing, because it matters: it's a charitable project, yes, but also a professional collaboration between you and me, and we treat it as such.",
 
-    "popup_title": "Your brand and me, together?",
+    "popup_title": "Shall we bring your brand into the story?",
     "popup_text": "I read every message personally. Tell me who you are and we'll see how we fit.",
-    "popup_cta": "Contact me",
+    "popup_cta": "Tell me what you do",
     "popup_dismiss": "Not now"
   },
   "expenses": {
