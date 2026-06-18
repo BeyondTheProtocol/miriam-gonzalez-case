@@ -2,23 +2,52 @@
   <div>
     <!--
       ════════════════════════════════════════════════════════════
-        Página /marcas (· /en/brands) — «dossier para marcas» B2B.
+        Página /marcas (· /en/brands) — landing B2B para marcas.
         UNLISTED: no vive en SiteNav, se reparte por enlace directo.
         · Compuesta solo con tokens del design-system (cream/berenjena/
           tinta/miriam/coral) + dos extensiones de marca (miriam-claro
           y berenjena-2) para el énfasis e/o las tarjetas SOBRE oscuro.
         · UN ACENTO POR BLOQUE: violeta = identidad (miriam / miriam-claro
-          en oscuro), coral = SOLO acción (botón «Hablemos» y la cifra
-          «38.897 €»). Crema, nunca blanco; texto berenjena, nunca negro.
-        · Tres bandas oscuras (hero · la prueba · cierre) llevan un cielo
-          decorativo (.band-fx): resplandor violeta centrado + estrellas
-          tenues hacia los bordes → no pisan el texto (zona tranquila).
+          en oscuro), coral = SOLO acción (botones CTA). Crema, nunca
+          blanco; texto berenjena, nunca negro.
+        · Dos bandas oscuras (hero · cierre) llevan un cielo decorativo
+          (.band-fx): resplandor violeta centrado + estrellas tenues hacia
+          los bordes → no pisan el texto (zona tranquila).
         · ?marca=Nombre personaliza el hero (cliente, sin romper SSR).
-        · Botón flotante → descarga el deck (public/dossier-marcas-deck.pdf); estilos @media print mínimos.
+        · Botón flotante → descarga el dossier (public/dossier-marcas-deck.pdf).
+        · Pop-up de contacto propio (MarcasContactPrompt): SOLO aquí, apunta a
+          /contacto, NO a donación (el aviso global de donación se mantiene en
+          el resto del sitio).
+
+        ── ESTRUCTURA (4 bloques, plan de marketing 18-jun-2026) ──
+          1 · Por qué colaborar / la atención que voy a tener  (hero, banda oscura)
+          2 · Formas de colaborar — 4 pilares (lo más rápido de pillar → ARRIBA)
+          3 · Mi tipo de audiencia (ligero: tira macro + prueba social + prensa)
+          4 · Ponte en contacto  (cierre, banda oscura)
       ════════════════════════════════════════════════════════════
     -->
 
-    <!-- ░░ 1 · HERO ░░ banda oscura -->
+    <!-- ░░ 1 · POR QUÉ COLABORAR / LA ATENCIÓN ░░ banda oscura -->
+    <!--
+      Header — opción A elegida (plan §3.1, "todas las miradas"). Lidera con
+      atención/escaparate + dignidad. Alternativas conservadas para que Miriam
+      pueda cambiarlas sin volver al plan:
+
+      · Alternativa B — "escaparate que va a volar" (idea directa de Adri):
+          H1:  Un escaparate que va a volar. ¿Subes tu marca?
+          Sub: Relanzo mi podcast con Carlos Roca y mi historia va a tener mucha
+               atención. Convierte esa atención en ojos para tu marca —y ayúdame
+               a sostener mi tratamiento— con una colaboración que se nota.
+          CTA: Quiero colaborar →
+
+      · Alternativa C — "trato honesto" (partnership-forward):
+          H1:  Te propongo un trato honesto: tú me acompañas, yo te doy una
+               plataforma que va a volar.
+          Sub: Perfil único (ingeniera + tumor ultra-raro), una narrativa que ya
+               está cogiendo altura y una comunidad que actúa. Busco partners a
+               largo plazo, no patrocinios de usar y tirar.
+          CTA: Contáctame →
+    -->
     <section
       v-reveal
       class="relative overflow-hidden section-spacing bg-berenjena"
@@ -39,7 +68,6 @@
               class="heading-display text-cream text-4xl sm:text-5xl"
               style="letter-spacing: -0.03em; line-height: 1.08"
             >
-              <template #br><br /></template>
               <template #em>
                 <em class="italic text-miriam-claro">{{ t('marcas.hero_title_em') }}</em>
               </template>
@@ -47,13 +75,26 @@
             <p class="mt-6 text-lg text-cream/85 leading-relaxed max-w-2xl">
               {{ t('marcas.hero_subtitle') }}
             </p>
-            <p class="mt-6 font-mono text-xs uppercase tracking-[0.16em] text-miriam-claro">
+            <p class="mt-5 text-sm text-cream/70 leading-relaxed max-w-2xl">
+              {{ t('marcas.hero_context') }}
+            </p>
+
+            <div class="mt-8 flex flex-col sm:flex-row sm:items-center gap-4">
+              <NuxtLink :to="localePath('contacto')" class="btn-cta" style="text-decoration: none">
+                {{ t('marcas.hero_cta') }}
+              </NuxtLink>
+              <a href="/dossier-marcas-deck.pdf" download class="link-inline link-inline--invert font-mono text-sm">
+                {{ t('marcas.hero_cta_dossier') }}
+              </a>
+            </div>
+
+            <p class="mt-7 font-mono text-xs uppercase tracking-[0.16em] text-miriam-claro">
               {{ t('marcas.hero_tagline') }}
             </p>
             <ClientOnly>
               <p
                 v-if="marca"
-                class="mt-6 font-mono text-xs uppercase tracking-[0.12em] text-cream/70"
+                class="mt-5 font-mono text-xs uppercase tracking-[0.12em] text-cream/70"
               >
                 {{ t('marcas.hero_edition_label') }}
                 <b class="ml-1 font-semibold text-cream marca-name">{{ marca }}</b>
@@ -76,80 +117,63 @@
       </div>
     </section>
 
-    <!-- ░░ 2 · LA HISTORIA ░░ crema -->
-    <section v-reveal class="section-spacing bg-cream" :aria-labelledby="'m-historia'">
+    <!-- ░░ 2 · FORMAS DE COLABORAR — 4 PILARES ░░ crema · el bloque clave, arriba -->
+    <section v-reveal class="section-spacing bg-cream" :aria-labelledby="'m-pilares'">
       <div class="section-wide">
-        <p class="eyebrow mb-3 block">{{ t('marcas.historia_eyebrow') }}</p>
+        <p class="eyebrow mb-3 block">{{ t('marcas.pilares_eyebrow') }}</p>
         <i18n-t
-          keypath="marcas.historia_title"
+          keypath="marcas.pilares_title"
           tag="h2"
-          id="m-historia"
-          class="heading-display text-3xl sm:text-4xl text-berenjena mb-6 max-w-3xl"
+          id="m-pilares"
+          class="heading-display text-3xl sm:text-4xl text-berenjena mb-4 max-w-3xl"
           style="letter-spacing: -0.02em"
         >
-          <template #em><em class="italic text-miriam">{{ t('marcas.historia_title_em') }}</em></template>
+          <template #em><em class="italic text-miriam">{{ t('marcas.pilares_title_em') }}</em></template>
         </i18n-t>
+        <p class="text-lg text-tinta leading-relaxed mb-9 max-w-3xl">{{ t('marcas.pilares_intro') }}</p>
 
-        <i18n-t keypath="marcas.historia_p1" tag="p" class="text-lg text-tinta leading-relaxed mb-4 max-w-3xl">
-          <template #age>{{ caseData.currentAge }}</template>
-          <template #b1><strong class="font-semibold text-berenjena">{{ t('marcas.historia_p1_b1') }}</strong></template>
-          <template #b2><strong class="font-semibold text-berenjena">{{ t('marcas.historia_p1_b2') }}</strong></template>
-        </i18n-t>
-
-        <i18n-t keypath="marcas.historia_p2" tag="p" class="text-tinta leading-relaxed mb-6 max-w-3xl">
-          <template #b1><strong class="font-semibold text-berenjena">{{ t('marcas.historia_p2_b1') }}</strong></template>
-          <template #b2><strong class="font-semibold text-berenjena">{{ t('marcas.historia_p2_b2') }}</strong></template>
-          <template #b3><strong class="font-semibold text-berenjena">{{ t('marcas.historia_p2_b3') }}</strong></template>
-        </i18n-t>
-
-        <div class="flex flex-wrap gap-2 mb-6">
-          <span v-for="(b, i) in badges" :key="i" class="badge-genomic">{{ rt(b) }}</span>
+        <div class="grid sm:grid-cols-2 gap-4 mb-10">
+          <article v-for="(card, ci) in pilaresCards" :key="ci" class="card-base bg-cream-card pillar-card">
+            <span class="pillar-num font-mono text-xs text-miriam" aria-hidden="true">0{{ ci + 1 }}</span>
+            <h3 class="heading-display text-xl text-berenjena mb-2">{{ rt(card.title) }}</h3>
+            <p class="text-sm text-tinta leading-relaxed mb-3">{{ rt(card.what) }}</p>
+            <p class="text-sm text-berenjena leading-relaxed font-medium pillar-gain">{{ rt(card.gain) }}</p>
+          </article>
         </div>
 
-        <i18n-t keypath="marcas.historia_foot" tag="p" class="text-sm text-tinta">
-          <template #link>
-            <NuxtLink :to="localePath({ name: 'ciencia' })" class="link-inline">{{ t('marcas.historia_foot_link') }}</NuxtLink>
-          </template>
-        </i18n-t>
-      </div>
-    </section>
-
-    <StarDivider class="bg-cream" />
-
-    <!-- ░░ 2b · EL MODELO ░░ lo que más importa a las marcas · crema -->
-    <section v-reveal class="pt-6 pb-14 sm:pt-8 sm:pb-16 bg-cream" aria-labelledby="m-modelo">
-      <div class="section-wide">
-        <p id="m-modelo" class="eyebrow mb-4 block">{{ t('marcas.modelo_eyebrow') }}</p>
-        <div class="rounded-2xl p-6 sm:p-8 bg-berenjena">
-          <i18n-t keypath="marcas.ganas_model" tag="p" class="text-cream/90 leading-relaxed max-w-3xl">
-            <template #b1><strong class="font-semibold text-miriam-claro">{{ t('marcas.ganas_model_b1') }}</strong></template>
-            <template #b2><strong class="font-semibold text-cream">{{ t('marcas.ganas_model_b2') }}</strong></template>
-            <template #em><em class="italic text-cream">{{ t('marcas.ganas_model_em') }}</em></template>
-          </i18n-t>
+        <!-- Dossier en primer plano + CTA de contacto -->
+        <div class="rounded-2xl p-6 sm:p-7 bg-cream-card flex flex-col sm:flex-row sm:items-center gap-5 sm:gap-8">
+          <p class="text-base text-berenjena leading-relaxed flex-1 m-0">
+            {{ t('marcas.pilares_dossier_line') }}
+            <a href="/dossier-marcas-deck.pdf" download class="link-inline font-medium">{{ t('marcas.pilares_dossier_cta') }}</a>
+          </p>
+          <NuxtLink :to="localePath('contacto')" class="btn-cta shrink-0" style="text-decoration: none">
+            {{ t('marcas.pilares_cta') }}
+          </NuxtLink>
         </div>
       </div>
     </section>
 
-    <!-- ░░ 3 · LOS NÚMEROS ░░ crema-card -->
-    <section v-reveal class="section-spacing bg-cream-card" :aria-labelledby="'m-numeros'">
+    <!-- ░░ 3 · MI TIPO DE AUDIENCIA (ligero) ░░ crema-card · tira macro + prueba + prensa -->
+    <section v-reveal class="section-spacing bg-cream-card" :aria-labelledby="'m-audiencia'">
       <div class="section-wide">
-        <p class="eyebrow mb-3 block">{{ t('marcas.numeros_eyebrow') }}</p>
+        <p class="eyebrow mb-3 block">{{ t('marcas.audiencia_eyebrow') }}</p>
         <i18n-t
-          keypath="marcas.numeros_title"
+          keypath="marcas.audiencia_title"
           tag="h2"
-          id="m-numeros"
+          id="m-audiencia"
           class="heading-display text-3xl sm:text-4xl text-berenjena mb-8 max-w-3xl"
           style="letter-spacing: -0.02em"
         >
-          <template #em><em class="italic text-miriam">{{ t('marcas.numeros_title_em') }}</em></template>
+          <template #em><em class="italic text-miriam">{{ t('marcas.audiencia_title_em') }}</em></template>
         </i18n-t>
 
-        <div class="grid grid-cols-2 sm:grid-cols-3 gap-x-6 gap-y-9 mb-10">
-          <div v-for="(s, i) in numerosStats" :key="i">
+        <!-- Tira macro: 3 cifras, sin tablas (el desglose fino vive en el dossier) -->
+        <div class="grid grid-cols-3 gap-x-6 gap-y-8 mb-8">
+          <div v-for="(s, i) in audienciaStats" :key="i">
             <p
-              class="font-display font-semibold tracking-tight nums"
-              :class="i === 1 ? 'text-miriam' : 'text-berenjena'"
-              style="font-size: clamp(2.5rem, 6vw, 3.75rem); line-height: 0.95"
+              class="font-display font-semibold tracking-tight nums text-berenjena"
+              style="font-size: clamp(2rem, 5.5vw, 3.25rem); line-height: 0.95"
             >
               {{ rt(s.value) }}
             </p>
@@ -159,193 +183,18 @@
           </div>
         </div>
 
-        <i18n-t keypath="marcas.numeros_growth" tag="p" class="text-tinta leading-relaxed mb-9 max-w-3xl">
-          <template #b1><strong class="font-semibold text-berenjena">{{ t('marcas.numeros_growth_b1') }}</strong></template>
-          <template #b2><strong class="font-semibold text-berenjena">{{ t('marcas.numeros_growth_b2') }}</strong></template>
+        <p class="text-tinta leading-relaxed mb-5 max-w-3xl">{{ t('marcas.audiencia_frame') }}</p>
+
+        <i18n-t keypath="marcas.audiencia_carlos" tag="p" class="text-tinta leading-relaxed mb-9 max-w-3xl">
+          <template #b1><strong class="font-semibold text-berenjena">{{ t('marcas.audiencia_carlos_b1') }}</strong></template>
+          <template #b2><strong class="font-semibold text-berenjena">{{ t('marcas.audiencia_carlos_b2') }}</strong></template>
         </i18n-t>
 
-        <div class="data-card">
-          <table class="data-table data-table--cards">
-            <thead>
-              <tr>
-                <th scope="col">{{ t('marcas.numeros_th_canal') }}</th>
-                <th scope="col">{{ t('marcas.numeros_th_audiencia') }}</th>
-                <th scope="col">{{ t('marcas.numeros_th_senal') }}</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-for="(c, i) in channels" :key="i">
-                <td class="cell-head col-marker" :data-label="t('marcas.numeros_th_canal')">{{ rt(c.canal) }}</td>
-                <td class="nums" :data-label="t('marcas.numeros_th_audiencia')">{{ rt(c.audiencia) }}</td>
-                <td class="col-note cell-block" :data-label="t('marcas.numeros_th_senal')">{{ rt(c.senal) }}</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-        <p class="mt-4 text-xs text-tinta leading-relaxed">{{ t('marcas.numeros_foot') }}</p>
-      </div>
-    </section>
-
-    <!-- ░░ 4 · QUIÉN TE ESCUCHA ░░ crema -->
-    <section v-reveal class="section-spacing bg-cream" :aria-labelledby="'m-demo'">
-      <div class="section-wide">
-        <p class="eyebrow mb-3 block">{{ t('marcas.demo_eyebrow') }}</p>
-        <i18n-t
-          keypath="marcas.demo_title"
-          tag="h2"
-          id="m-demo"
-          class="heading-display text-3xl sm:text-4xl text-berenjena mb-8 max-w-3xl"
-          style="letter-spacing: -0.02em"
-        >
-          <template #em><em class="italic text-miriam">{{ t('marcas.demo_title_em') }}</em></template>
-        </i18n-t>
-
-        <div class="grid md:grid-cols-3 gap-4 mb-8">
-          <article v-for="(card, ci) in demoCards" :key="ci" class="card-base bg-cream-card">
-            <h3 class="heading-display text-xl text-berenjena mb-4">{{ rt(card.title) }}</h3>
-            <ul class="space-y-2.5">
-              <li
-                v-for="(line, li) in card.lines"
-                :key="li"
-                class="flex gap-2.5 text-sm text-tinta leading-relaxed"
-              >
-                <span class="font-mono text-miriam text-xs mt-0.5 shrink-0" aria-hidden="true">·</span>
-                <span>{{ rt(line) }}</span>
-              </li>
-            </ul>
-          </article>
-        </div>
-
-        <i18n-t keypath="marcas.demo_eco" tag="p" class="text-tinta leading-relaxed max-w-3xl">
-          <template #b1><strong class="font-semibold text-berenjena">{{ t('marcas.demo_eco_b1') }}</strong></template>
-        </i18n-t>
-      </div>
-    </section>
-
-    <!-- ░░ 5 · LA PRUEBA DE QUE MI GENTE ACTÚA ░░ banda oscura -->
-    <section
-      v-reveal
-      class="relative overflow-hidden section-spacing bg-berenjena"
-      :aria-labelledby="'m-prueba'"
-    >
-      <div class="band-fx" aria-hidden="true">
-        <div class="band-fx__stars"></div>
-        <div class="band-fx__glow"></div>
-      </div>
-      <div class="section-wide relative z-10">
-        <p class="dark-eyebrow mb-3">{{ t('marcas.prueba_eyebrow') }}</p>
-        <i18n-t
-          keypath="marcas.prueba_title"
-          tag="h2"
-          id="m-prueba"
-          class="heading-display text-3xl sm:text-4xl text-cream mb-8 max-w-3xl"
-          style="letter-spacing: -0.02em"
-        >
-          <template #em><em class="italic text-coral">{{ t('marcas.prueba_title_em') }}</em></template>
-        </i18n-t>
-
-        <div class="grid sm:grid-cols-3 gap-7 mb-10">
-          <div v-for="(s, i) in pruebaStats" :key="i">
-            <p
-              class="font-display font-semibold tracking-tight nums"
-              :class="i === 0 ? 'text-coral' : 'text-cream'"
-              style="font-size: clamp(2.25rem, 5.5vw, 3.25rem); line-height: 0.95"
-            >
-              {{ rt(s.value) }}
-            </p>
-            <p class="mt-2 font-mono uppercase text-[11px] tracking-[0.06em] text-cream/70 leading-snug">
-              {{ rt(s.caption) }}
-            </p>
-          </div>
-        </div>
-
-        <div class="rounded-2xl p-6 sm:p-7 mb-8 bg-berenjena-2 dark-card">
-          <h3 class="font-display font-semibold text-cream text-lg mb-3">{{ t('marcas.prueba_carlos_title') }}</h3>
-          <i18n-t keypath="marcas.prueba_carlos_p" tag="p" class="text-cream/85 leading-relaxed">
-            <template #b1><strong class="font-semibold text-cream">{{ t('marcas.prueba_carlos_p_b1') }}</strong></template>
-            <template #b2><strong class="font-semibold text-cream">{{ t('marcas.prueba_carlos_p_b2') }}</strong></template>
-          </i18n-t>
-        </div>
-
-        <h3 class="font-display font-semibold text-cream text-lg mb-4">{{ t('marcas.prueba_virals_title') }}</h3>
-        <div class="data-card mb-8">
-          <table class="data-table data-table--cards">
-            <thead>
-              <tr>
-                <th scope="col">{{ t('marcas.prueba_th_post') }}</th>
-                <th scope="col" class="th-right">{{ t('marcas.prueba_th_plays') }}</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-for="(v, i) in virals" :key="i">
-                <td class="cell-head col-note" :data-label="t('marcas.prueba_th_post')">
-                  {{ rt(v.post) }}
-                  <span
-                    v-if="i === 0"
-                    class="ml-2 inline-block align-middle font-mono uppercase text-[9px] tracking-[0.06em] px-1.5 py-0.5 rounded bg-miriam-soft text-berenjena"
-                  >{{ t('marcas.prueba_origen_tag') }}</span>
-                </td>
-                <td class="nums td-right" :data-label="t('marcas.prueba_th_plays')">{{ rt(v.plays) }}</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-
-        <div class="rounded-2xl p-6 sm:p-7 bg-berenjena-2 dark-card">
-          <h3 class="font-display font-semibold text-cream text-lg mb-3">{{ t('marcas.prueba_linkedin_title') }}</h3>
-          <blockquote class="font-display italic text-cream/90 text-lg leading-relaxed mb-3">
-            {{ t('marcas.prueba_linkedin_quote') }}
-          </blockquote>
-          <p class="font-mono text-xs text-cream/70 tracking-wide nums">{{ t('marcas.prueba_linkedin_stats') }}</p>
-        </div>
-      </div>
-    </section>
-
-    <!-- ░░ 6 · QUÉ GANAS TÚ ░░ crema-card -->
-    <section v-reveal class="section-spacing bg-cream-card" :aria-labelledby="'m-ganas'">
-      <div class="section-wide">
-        <p class="eyebrow mb-3 block">{{ t('marcas.ganas_eyebrow') }}</p>
-        <i18n-t
-          keypath="marcas.ganas_title"
-          tag="h2"
-          id="m-ganas"
-          class="heading-display text-3xl sm:text-4xl text-berenjena mb-8 max-w-3xl"
-          style="letter-spacing: -0.02em"
-        >
-          <template #em><em class="italic text-miriam">{{ t('marcas.ganas_title_em') }}</em></template>
-        </i18n-t>
-
-        <div class="grid sm:grid-cols-2 gap-4 mb-8">
-          <article v-for="(card, ci) in ganasCards" :key="ci" class="card-base bg-cream">
-            <h3 class="heading-display text-xl text-berenjena mb-2">{{ rt(card.title) }}</h3>
-            <p class="text-sm text-tinta leading-relaxed">{{ rt(card.desc) }}</p>
-          </article>
-        </div>
-
-        <i18n-t keypath="marcas.ganas_fit" tag="p" class="text-tinta leading-relaxed mb-8 max-w-3xl">
-          <template #b1><strong class="font-semibold text-berenjena">{{ t('marcas.ganas_fit_b1') }}</strong></template>
-          <template #b2><strong class="font-semibold text-berenjena">{{ t('marcas.ganas_fit_b2') }}</strong></template>
-          <template #b3><strong class="font-semibold text-berenjena">{{ t('marcas.ganas_fit_b3') }}</strong></template>
-          <template #b4><strong class="font-semibold text-berenjena">{{ t('marcas.ganas_fit_b4') }}</strong></template>
-        </i18n-t>
-      </div>
-    </section>
-
-    <!-- ░░ 7 · MARCAS QUE YA SE ATREVIERON ░░ crema -->
-    <section v-reveal class="section-spacing bg-cream" :aria-labelledby="'m-partners'">
-      <div class="section-wide">
-        <p class="eyebrow mb-3 block">{{ t('marcas.partners_eyebrow') }}</p>
-        <i18n-t
-          keypath="marcas.partners_title"
-          tag="h2"
-          id="m-partners"
-          class="heading-display text-3xl sm:text-4xl text-berenjena mb-8 max-w-3xl"
-          style="letter-spacing: -0.02em"
-        >
-          <template #em><em class="italic text-miriam">{{ t('marcas.partners_title_em') }}</em></template>
-        </i18n-t>
-
-        <div class="flex flex-wrap gap-3 mb-8">
+        <!-- Prueba social ligera: marcas que ya se atrevieron + prensa -->
+        <div class="flex flex-wrap items-center gap-x-3 gap-y-3 mb-7">
+          <span class="font-mono uppercase text-[11px] tracking-[0.12em] text-tinta self-center mr-1">
+            {{ t('marcas.audiencia_partners_label') }}
+          </span>
           <a
             v-for="(p, i) in partners"
             :key="i"
@@ -356,19 +205,7 @@
           >{{ rt(p.label) }} →</a>
         </div>
 
-        <div class="grid sm:grid-cols-2 gap-4 mb-8">
-          <figure
-            v-for="(q, i) in quotes"
-            :key="i"
-            class="card-base bg-cream-card m-0 quote-card"
-          >
-            <blockquote class="font-display italic text-berenjena text-lg leading-relaxed mb-3">{{ rt(q.quote) }}</blockquote>
-            <figcaption class="font-mono text-xs text-tinta tracking-wide">{{ rt(q.author) }}</figcaption>
-          </figure>
-        </div>
-
-        <!-- Caso en prensa · tira de medios (mismo componente y enlaces que la home) -->
-        <div class="flex flex-wrap items-baseline gap-x-7 gap-y-3">
+        <div class="flex flex-wrap items-baseline gap-x-7 gap-y-3 mb-9">
           <span class="font-mono uppercase text-[11px] tracking-[0.12em] text-tinta self-center">
             {{ t('home.s9_strip_label') }}
           </span>
@@ -376,10 +213,14 @@
           <a :href="pressMurcia" target="_blank" rel="noopener" class="link-logo text-2xl sm:text-3xl">La Opinión de Murcia<span class="sr-only"> {{ t('a11y.new_tab') }}</span></a>
           <a :href="pressLa7" target="_blank" rel="noopener" class="link-logo text-2xl sm:text-3xl">La 7<span class="sr-only"> {{ t('a11y.new_tab') }}</span></a>
         </div>
+
+        <NuxtLink :to="localePath('contacto')" class="btn-cta" style="text-decoration: none">
+          {{ t('marcas.audiencia_cta') }}
+        </NuxtLink>
       </div>
     </section>
 
-    <!-- ░░ 8 · CIERRE / CTA ░░ banda oscura, centrada -->
+    <!-- ░░ 4 · PONTE EN CONTACTO ░░ banda oscura, centrada -->
     <section
       v-reveal
       class="cta-band relative overflow-hidden bg-berenjena"
@@ -402,27 +243,26 @@
             <template #em><em class="italic text-coral">{{ t('marcas.cta_title_em') }}</em></template>
           </i18n-t>
           <p class="text-lg text-cream/85 leading-relaxed mb-8 max-w-xl mx-auto">{{ t('marcas.cta_p') }}</p>
-          <div class="flex flex-col sm:flex-row items-center justify-center gap-4 mb-7">
+          <div class="flex flex-col sm:flex-row items-center justify-center gap-4 mb-6">
             <NuxtLink :to="localePath('contacto')" class="btn-cta" style="text-decoration: none">
               {{ t('marcas.cta_button') }}
             </NuxtLink>
-            <a
-              href="https://instagram.com/miriamgonp"
-              target="_blank"
-              rel="noopener"
-              translate="no"
-              class="font-mono text-sm text-cream/80 hover:text-cream underline underline-offset-4 decoration-cream/40 hover:decoration-cream transition-colors"
-            >{{ t('marcas.cta_secondary') }}</a>
+            <a href="/dossier-marcas-deck.pdf" download class="link-inline link-inline--invert font-mono text-sm">
+              {{ t('marcas.cta_dossier') }}
+            </a>
           </div>
-          <p class="font-display italic text-cream/80 text-lg">{{ t('marcas.cta_tagline') }}</p>
+          <p class="font-mono text-xs text-cream/65 max-w-md mx-auto leading-relaxed">{{ t('marcas.cta_microcopy') }}</p>
         </div>
       </div>
     </section>
 
-    <!-- Botón flotante · descarga el deck en PDF (oculto en impresión) -->
+    <!-- Botón flotante · descarga el dossier en PDF (oculto en impresión) -->
     <a href="/dossier-marcas-deck.pdf" download class="m-print-btn no-print" style="text-decoration: none" :aria-label="t('marcas.print_aria')">
       {{ t('marcas.print') }}
     </a>
+
+    <!-- Pop-up de contacto SOLO en /marcas (sustituye aquí al aviso de donación) -->
+    <MarcasContactPrompt />
   </div>
 </template>
 
@@ -441,15 +281,9 @@ const marca = computed(() => {
 })
 
 // Listas i18n (arrays en el JSON) — se resuelven hoja a hoja con rt() en el template.
-const badges = computed(() => tm('marcas.historia_badges') as unknown[])
-const numerosStats = computed(() => tm('marcas.numeros_stats') as Record<string, unknown>[])
-const channels = computed(() => tm('marcas.numeros_channels') as Record<string, unknown>[])
-const demoCards = computed(() => tm('marcas.demo_cards') as Record<string, unknown>[])
-const pruebaStats = computed(() => tm('marcas.prueba_stats') as Record<string, unknown>[])
-const virals = computed(() => tm('marcas.prueba_virals') as Record<string, unknown>[])
-const ganasCards = computed(() => tm('marcas.ganas_cards') as Record<string, unknown>[])
+const pilaresCards = computed(() => tm('marcas.pilares_cards') as Record<string, unknown>[])
+const audienciaStats = computed(() => tm('marcas.audiencia_stats') as Record<string, unknown>[])
 const partners = computed(() => tm('marcas.partners') as Record<string, unknown>[])
-const quotes = computed(() => tm('marcas.partners_quotes') as Record<string, unknown>[])
 
 // Cobertura de prensa real — mismos enlaces que la tira de medios de la home (index.vue)
 const pressElPais = 'https://elpais.com/tecnologia/2026-04-23/asi-usa-una-paciente-con-cancer-metastasico-la-ia-para-entender-su-enfermedad-cual-es-el-mejor-metodo-para-hablar-de-salud-con-chatbots.html'
@@ -471,8 +305,8 @@ defineOgImage('Default.takumi', {
   title: () => t('marcas.meta_title'),
   description: () =>
     locale.value === 'es'
-      ? 'Co-creación real para marcas. Una comunidad de ~248K que actúa.'
-      : 'Real co-creation for brands. A ~248K community that acts.',
+      ? 'Un escaparate único para tu marca, con dignidad. Cuatro formas reales de colaborar.'
+      : 'A unique showcase for your brand, with dignity. Four real ways to collaborate.',
 })
 </script>
 
@@ -494,18 +328,16 @@ export default { name: 'MarcasPage' }
 }
 
 /* Banda de cierre/CTA: ritmo equilibrado. El contenido es corto (eyebrow → h2 →
-   subtítulo → botones → tagline), así que en vez del py-28 simétrico del DS, que
-   dejaba un hueco muerto bajo la tagline, usamos un padding inferior algo menor
-   que el superior: la composición queda centrada y la banda "abraza" el muro de
-   logos del footer sin aire vacío.
+   subtítulo → botones → microcopy), así que en vez del py-28 simétrico del DS, que
+   dejaba un hueco muerto, usamos un padding inferior algo menor que el superior:
+   la composición queda centrada y la banda "abraza" el muro de logos del footer.
 
    Flush con el footer: la banda CTA y el muro de logos del footer son ambos
    berenjena y deben tocarse sin costura. El borde compartido cae en un píxel
    fraccionario (la altura de la página no es entera) y dejaba asomar 1px del
    fondo crema del <footer> → fina línea clara antiestética. Sangramos la banda
    2px hacia el footer (margin-bottom negativo) y extendemos su fondo berenjena
-   esos 2px (padding-bottom) para que la costura quede siempre cubierta, sin
-   alterar la composición ni el ritmo visible. */
+   esos 2px (padding-bottom) para que la costura quede siempre cubierta. */
 .cta-band {
   padding-top: 5rem;    /* 80px */
   padding-bottom: calc(4.25rem + 2px); /* 68px + 2px de sangrado */
@@ -532,9 +364,21 @@ export default { name: 'MarcasPage' }
   text-underline-offset: 4px;
 }
 
-/* Tarjetas elevadas sobre las bandas oscuras (cajas Carlos Roca / LinkedIn). */
-.dark-card {
-  border: 1px solid rgba(232, 212, 237, 0.14);
+/* Tarjetas de los 4 pilares — numeradas y con borde violeta de identidad a la
+   izquierda; el "qué te llevas" (.pillar-gain) se separa con una fina regla. */
+.pillar-card {
+  position: relative;
+  border-left: 4px solid #9d44ab;
+}
+.pillar-num {
+  position: absolute;
+  top: 1rem;
+  right: 1.1rem;
+  letter-spacing: 0.08em;
+}
+.pillar-gain {
+  padding-top: 0.65rem;
+  border-top: 1px solid rgba(45, 27, 61, 0.1);
 }
 
 /* Pills de marcas partner — identidad violeta; se «encienden» a violeta sólido
@@ -557,19 +401,6 @@ export default { name: 'MarcasPage' }
   background: #9d44ab;
   color: #faf6f0;
   transform: translateY(-1px);
-}
-
-.quote-card {
-  border-left: 4px solid #9d44ab;
-}
-
-/* Alineación a la derecha de la columna de reproducciones (solo ≥sm; en móvil
-   la tabla colapsa a tarjetas etiqueta/valor y manda el layout de cards). */
-@media (min-width: 640px) {
-  .th-right,
-  .td-right {
-    text-align: right;
-  }
 }
 
 /* ── Cielo decorativo de las bandas oscuras ──────────────────────────────────
@@ -607,7 +438,7 @@ export default { name: 'MarcasPage' }
     radial-gradient(1.1px 1.1px at 90% 12%, rgba(250, 246, 240, 0.4), transparent 60%);
 }
 
-/* Botón flotante de impresión — sobre la barra de apoyo móvil (<lg). */
+/* Botón flotante de descarga del dossier — sobre la barra de apoyo móvil (<lg). */
 .m-print-btn {
   position: fixed;
   right: 1rem;

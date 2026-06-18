@@ -844,158 +844,86 @@
     "links_signature": "— Equipo Miriam González · Beyond the Protocol"
   },
   "marcas": {
-    "meta_title": "Marcas que se atreven a co-crear — helpmiriam.com",
-    "meta_description": "Co-creación real para marcas: tu marca dentro del relato de una divulgadora tech que investiga su propio cáncer ultra-raro, ante una comunidad de ~248K que actúa.",
-    "og_description": "Co-creación real: tu marca dentro del relato, no un logo en un banner. Una comunidad de ~248K que mueve dinero y se moviliza.",
-    "print": "↓ PDF Edición Limitada",
-    "print_aria": "Descargar este dossier (deck) en PDF",
-    "hero_eyebrow": "// dossier para marcas",
-    "hero_title": "No te ofrezco seguidores.{br}Te ofrezco una {em}.",
-    "hero_title_em": "comunidad que actúa",
-    "hero_subtitle": "Co-creación real: tu marca dentro del relato de una divulgadora tech que investiga su propio cáncer ultra-raro, en abierto.",
-    "hero_tagline": "// marcas que se atreven a co-crear",
+    "meta_title": "Colabora con una historia que va a tener todas las miradas — helpmiriam.com",
+    "meta_description": "Soy ingeniera y divulgadora con un cáncer de mama ultra-raro: un caso del que se va a hablar. Te ofrezco ese escaparate para tu marca —con rigor y sin postureo— y una colaboración real, no un anuncio de un día.",
+    "og_description": "Un escaparate único, con dignidad: tu marca dentro del relato de una divulgadora tech que investiga su propio cáncer ultra-raro. Colaboración a largo plazo, no un logo en un banner.",
+    "print": "↓ Dossier (PDF)",
+    "print_aria": "Descargar el dossier para marcas en PDF",
+
+    "_comment_hero": "Header — opción A (recomendada por el plan). Alternativas B y C como comentarios en marcas.vue.",
+    "hero_eyebrow": "// para marcas",
+    "hero_title": "En los próximos meses, {em} van a estar aquí.",
+    "hero_title_em": "todas las miradas",
+    "hero_subtitle": "Soy ingeniera y divulgadora con un cáncer de mama ultra-raro: un caso del que se va a hablar. Te ofrezco ese escaparate para tu marca —con rigor y sin postureo— y una colaboración real, no un anuncio de un día.",
+    "hero_context": "Murcia · ingeniera de software · caso descrito apenas un puñado de veces en la literatura · divulgo el proceso con transparencia total.",
+    "hero_cta": "Hablemos de colaborar",
+    "hero_cta_dossier": "Ver el dossier (PDF)",
+    "hero_tagline": "// busco pocas marcas, pero de verdad",
     "hero_edition_label": "Edición preparada para:",
-    "hero_avatar_alt": "",
-    "historia_eyebrow": "// la historia en 20 segundos",
-    "modelo_eyebrow": "// el modelo",
-    "historia_title": "Una historia {em}.",
-    "historia_title_em": "imposible de ignorar",
-    "historia_p1": "Miriam González ({'@'}miriamgonp), {age} años, ingeniera de software y divulgadora tech. Tiene un cáncer de mama metastásico {b1} (BC-NED, <1% de los casos) y usa {b2} para investigar su propio tumor, documentándolo en abierto.",
-    "historia_p1_b1": "ultra-raro",
-    "historia_p1_b2": "IA + oncología de precisión",
-    "historia_p2": "Respaldo científico real: {b1} analiza sus muestras · {b2} ayuda con la biopsia · la jefa del {b3} se ha interesado por su caso.",
-    "historia_p2_b1": "Dana-Farber (Harvard)",
-    "historia_p2_b2": "Zúrich",
-    "historia_p2_b3": "comité de oncología de precisión más importante del mundo (WIN)",
-    "historia_badges": [
-      "Dana-Farber · Harvard",
-      "Hospital de Zúrich",
-      "Comité WIN"
-    ],
-    "historia_foot": "Detalle clínico completo en {link}. Datos a junio 2026.",
-    "historia_foot_link": "helpmiriam.com/ciencia",
-    "numeros_eyebrow": "// los números (verificables)",
-    "numeros_title": "Una audiencia que se mueve {em}.",
-    "numeros_title_em": "y convierte",
-    "numeros_stats": [
-      { "value": "~248K", "caption": "audiencia total multicanal" },
-      { "value": "8,8%", "caption": "engagement por alcance (IG)" },
-      { "value": "453K", "caption": "cuentas alcanzadas / mes · 3,6× seguidores" },
-      { "value": "+1M", "caption": "visualizaciones / mes (IG)" },
-      { "value": "63%", "caption": "de la interacción = audiencia NUEVA" },
-      { "value": "72,5%", "caption": "audiencia real (Modash · mejor que la media)" }
-    ],
-    "numeros_growth": "📈 {b1} · {b2} (constancia editorial). No es una cuenta estancada: sube.",
-    "numeros_growth_b1": "+4.734 seguidores nuevos en el último mes",
-    "numeros_growth_b2": "34 publicaciones/mes",
-    "numeros_th_canal": "Canal",
-    "numeros_th_audiencia": "Audiencia",
-    "numeros_th_senal": "Señal",
-    "numeros_channels": [
-      { "canal": "Instagram", "audiencia": "126,5K", "senal": "453K alcance/mes · 8,8% eng." },
-      { "canal": "X / Twitter (verificada)", "audiencia": "41,2K", "senal": "~140K impresiones/semana" },
-      { "canal": "LinkedIn", "audiencia": "40,6K", "senal": "🏆 LinkedIn Top Voices 2022" },
-      { "canal": "TikTok", "audiencia": "23,2K", "senal": "228,5K likes" },
-      { "canal": "YouTube", "audiencia": "17K", "senal": "canal de tecnología/programación" }
-    ],
-    "numeros_foot": "Fuentes: Instagram Insights · X Analytics · Modash · perfiles públicos. Junio 2026. Capturas disponibles bajo petición.",
-    "demo_eyebrow": "// quién te escucha",
-    "demo_title": "Audiencia adulta, profesional y {em}.",
-    "demo_title_em": "de consumo",
-    "demo_cards": [
+
+    "pilares_eyebrow": "// cómo encaja tu marca",
+    "pilares_title": "Formas de colaborar {em}.",
+    "pilares_title_em": "que se notan",
+    "pilares_intro": "Cuatro maneras de subir tu marca a esta plataforma. Pensadas para que las puedas enseñar a tu equipo tal cual.",
+    "pilares_cards": [
       {
-        "title": "Instagram",
-        "lines": [
-          "Edad: 25-44 = 73,5% (25-34: 44,7% · 35-44: 28,8%)",
-          "Género: 65,9% hombres · 34,1% mujeres",
-          "Geografía: España y Latinoamérica."
-        ]
+        "title": "Cocreación de contenido",
+        "what": "Creamos juntas piezas nativas —reels, carruseles, stories— que integran tu producto en una historia que la gente ya está siguiendo.",
+        "gain": "No es un anuncio insertado: es contenido que la audiencia quiere ver."
       },
       {
-        "title": "X / Twitter",
-        "lines": [
-          "Geografía: España 54% · México 11% · Argentina 8%",
-          "Género: 80,5% hombres (perfil tech/profesional)",
-          "Edad: 25-44 (66%)"
-        ]
+        "title": "Product placement",
+        "what": "Tu producto, usado de verdad y en cámara, en mi día a día (tech, viajes/movilidad, bienestar).",
+        "gain": "Presencia natural y creíble, sin guion publicitario."
       },
       {
-        "title": "LinkedIn",
-        "lines": [
-          "Perfil: profesional y B2B — devs, ingeniería y decisores",
-          "Reconocimiento: Top Voices 2022"
-        ]
+        "title": "Research cofinanciada",
+        "what": "«Investigación junto a tu marca»: financias una pieza concreta del caso —una prueba, un panel, un viaje a Zúrich— y lo contamos con transparencia total.",
+        "gain": "Tu marca asociada a ciencia real y a impacto medible."
+      },
+      {
+        "title": "Menciones y branding",
+        "what": "Tu logo en mi perfil y en la web (con tráfico real) y un «gracias a tu marca» al cierre de cada post, estilo shout-out de podcast.",
+        "gain": "Recuerdo de marca sostenido, no un impacto único."
       }
     ],
-    "demo_eco": "No es un público, es un {b1}: 5 plataformas (~248K) que se refuerzan — Instagram (masivo, hispano global), LinkedIn (B2B/decisores, Top Voices), X (tech), TikTok (descubrimiento) y YouTube (el documental largo del caso). Una colaboración, varios públicos y formatos.",
-    "demo_eco_b1": "ecosistema",
-    "prueba_eyebrow": "// la prueba de que mi gente actúa",
-    "prueba_title": "No son likes pasivos. {em}",
-    "prueba_title_em": "Mueven dinero y se movilizan.",
-    "prueba_stats": [
-      { "value": "38.897 €", "caption": "recaudados (meta 100K) · prueba de conversión" },
-      { "value": "~1.000", "caption": "donantes = audiencia propia/cálida" },
-      { "value": "3.845", "caption": "clics/mes al enlace de la bio" }
+    "pilares_dossier_line": "¿Lo quieres por escrito para enseñárselo a tu equipo?",
+    "pilares_dossier_cta": "Descarga el dossier (PDF)",
+    "pilares_cta": "Contáctame",
+
+    "audiencia_eyebrow": "// mi tipo de audiencia",
+    "audiencia_title": "A quién llega {em}.",
+    "audiencia_title_em": "tu marca",
+    "audiencia_stats": [
+      { "value": "~248K", "caption": "comunidad multiplataforma" },
+      { "value": "+1M", "caption": "visualizaciones / mes (IG)" },
+      { "value": "72,5%", "caption": "audiencia real verificada (Modash)" }
     ],
-    "prueba_carlos_title": "🎙️ Caso real — Campaña «Carlos Roca / Episodio 100»",
-    "prueba_carlos_p": "Movilizó a su comunidad hacia un objetivo concreto: los reels de campaña sumaron {b1} en pocos días. Prueba de {b2} — exactamente lo que una marca quiere activar.",
-    "prueba_carlos_p_b1": "≈335.000 reproducciones",
-    "prueba_carlos_p_b2": "movilización a la orden",
-    "prueba_virals_title": "Contenido viral (últimos 3 meses)",
-    "prueba_th_post": "Post",
-    "prueba_th_plays": "Reproducciones",
-    "prueba_origen_tag": "POST ORIGEN",
-    "prueba_virals": [
-      { "post": "X · «…Twitter haz tu magia»", "plays": "1.000.000" },
-      { "post": "IG · Coliseo «Busco ayuda para un caso ultra raro»", "plays": "753.487" },
-      { "post": "IG · «SPREAD KINDNESS / 35 años»", "plays": "430.022" },
-      { "post": "IG · «de tecnología y programación / es AHORA»", "plays": "249.321" },
-      { "post": "IG · colab «la comunidad tech me regala un Mac»", "plays": "189.110" },
-      { "post": "IG · carrusel «PET Galio-68 · mi cáncer tiene dos motores»", "plays": "56.474" }
-    ],
-    "prueba_linkedin_title": "🏆 LinkedIn — post viral (Top Voices 2022)",
-    "prueba_linkedin_quote": "«…cáncer de mama metastásico del 1% más raro. Me dieron 5 años, ya llevo 2. No me quedo quieta: investigo mi propio tumor con IA y busco tratamiento con un equipo…»",
-    "prueba_linkedin_stats": "176.484 impresiones · 2.291 reacciones · 194 compartidos",
-    "ganas_eyebrow": "// qué ganas tú",
-    "ganas_title": "Tu marca {em}, no un logo en un banner.",
-    "ganas_title_em": "dentro del relato",
-    "ganas_cards": [
-      { "title": "Co-creación de contenido", "desc": "reel / carrusel / stories pensados juntas, no publi pegada." },
-      { "title": "Tu marca en mi research abierto", "desc": "presencia en el caso que sigue toda una comunidad." },
-      { "title": "Producto probado sin filtros", "desc": "review honesta ante una audiencia que confía." },
-      { "title": "Retos a mi comunidad y eventos", "desc": "lanzo un reto con tu marca y mi gente se moviliza; o te llevo a tu evento (reel + stories)." }
-    ],
-    "ganas_fit": "{b1} donde tu producto se cruza con mi vida real — {b2} · {b3} (hospitales internacionales, vuelos, fintech/cambio de divisa, coche/recarga) · {b4}. Ahí la colaboración es auténtica.",
-    "ganas_fit_b1": "Encajes naturales:",
-    "ganas_fit_b2": "tech y salud",
-    "ganas_fit_b3": "viajes y movilidad",
-    "ganas_fit_b4": "autocuidado, moda y comida sana",
-    "ganas_model": "La comunidad dona, y lo agradezco infinito 💜. A las marcas les propongo algo distinto: {b1}. {b2} colaboración por donación — tu aporte financia la investigación de precisión y co-creamos algo memorable. {em} tu patrocinio ayuda a cerrar la meta de 100.000 € y financia el próximo análisis molecular.",
-    "ganas_model_b1": "co-crear",
-    "ganas_model_b2": "Modelo:",
-    "ganas_model_em": "Gancho:",
-    "partners_eyebrow": "// marcas que ya se atrevieron",
-    "partners_title": "No empiezas de cero. {em}",
-    "partners_title_em": "Ya hay marcas dentro.",
+    "audiencia_frame": "Perfil tech + salud, España y Latinoamérica, profesional y comprometido. Si quieres el desglose fino —edades, geografía, canal a canal—, está en el dossier.",
+    "audiencia_carlos": "Y mueve cosas: una sola colaboración (episodio con {b1}) movilizó {b2}.",
+    "audiencia_carlos_b1": "Carlos Roca",
+    "audiencia_carlos_b2": "≈335.000 visualizaciones",
+    "audiencia_partners_label": "Ya se atrevieron",
     "partners": [
       { "label": "Tahe", "url": "https://tahecosmetics.com" },
       { "label": "GitHub", "url": "https://github.com" },
       { "label": "Notion", "url": "https://www.notion.com" },
       { "label": "Never Surrender", "url": "https://neversurrenderf.org/" }
     ],
-    "partners_quotes": [
-      { "quote": "«¡Hola, Míriam! Revisa tus mensajes directos para ver una sorpresa. 🤍»", "author": "Notion ({'@'}NotionHQ), en público · 21,6K visualizaciones" },
-      { "quote": "«Fue un gustazo compartir contigo este día y ayudarte a lucir aún más diosa 💜🔥🔥»", "author": "Tahe ({'@'}taheoficial), marca partner verificada · comentario público" }
-    ],
-    "partners_press": "{b1} El País · La Opinión de Murcia · La 7.",
-    "partners_press_b1": "En prensa:",
-    "cta_eyebrow": "// hablemos",
-    "cta_title": "¿Tu marca {em}?",
-    "cta_title_em": "se atreve",
-    "cta_p": "Co-creación real. El mejor trato que te van a ofrecer este año.",
-    "cta_button": "Hablemos",
-    "cta_secondary": "{'@'}miriamgonp",
-    "cta_tagline": "Edición limitada. Sin reposición. Como yo. 💜"
+    "audiencia_cta": "¿Encajamos? Escríbeme",
+
+    "cta_eyebrow": "// ponte en contacto",
+    "cta_title": "Busco pocas marcas, {em}. ¿Eres una?",
+    "cta_title_em": "pero de verdad",
+    "cta_p": "Cuéntame qué hacéis y montamos algo a vuestra medida. Respondo yo.",
+    "cta_button": "Escríbeme",
+    "cta_dossier": "Descargar dossier (PDF)",
+    "cta_microcopy": "Proyecto benéfico, sí —pero esto es una colaboración profesional y se negocia como tal.",
+
+    "popup_title": "¿Tu marca y yo, juntas?",
+    "popup_text": "Te leo personalmente. Cuéntame quién eres y vemos cómo encajar.",
+    "popup_cta": "Contáctame",
+    "popup_dismiss": "Ahora no"
   },
   "expenses": {
     "title": "Destino del dinero",
