@@ -844,27 +844,27 @@
     "links_signature": "— Miriam González's team · Beyond the Protocol"
   },
   "marcas": {
-    "meta_title": "Partner with a story all eyes are about to be on — helpmiriam.com",
-    "meta_description": "I'm an engineer and creator with an ultra-rare breast cancer: a case people are going to talk about. I offer your brand that showcase —with rigor and no posturing—. A charitable project, yes, but this is a professional collaboration and we negotiate it as such.",
-    "og_description": "A unique showcase, with dignity: your brand inside the story of a tech creator researching her own ultra-rare cancer. A professional, long-term collaboration, not a logo on a banner.",
+    "meta_title": "Partner with a story a lot of people are going to follow — helpmiriam.com",
+    "meta_description": "I'm an engineer and creator with an ultra-rare breast cancer: a case people are going to talk about. I'd like to bring your brand alongside this story, with rigor and no posturing. It's a charitable project, yes, but also a professional collaboration, and we treat it as such.",
+    "og_description": "Your brand inside the story of a tech creator researching her own ultra-rare cancer, told with care and transparency. A professional, long-term collaboration, not a logo on a banner.",
     "print": "↓ Dossier (PDF)",
     "print_aria": "Download the brand dossier as PDF",
 
     "_comment_hero": "Header — option A (recommended by the plan). Alternatives B and C as comments in marcas.vue.",
     "hero_eyebrow": "// for brands",
-    "hero_title": "In the coming months, {em} are going to be right here.",
-    "hero_title_em": "all eyes",
-    "hero_subtitle": "I'm an engineer and creator with an ultra-rare breast cancer —Murcia, software engineer, a case described only a handful of times in the literature, and one people are going to talk about—. I offer your brand that showcase, with rigor and no posturing, and I'm proposing a real collaboration, not a one-day ad. We do it together.",
-    "hero_context": "Let me be clear from the start: it's a charitable project, yes, but this is a professional collaboration and we negotiate it as such. I'm not asking you for a donation; I'm proposing a partnership. I document the whole process with full transparency.",
+    "hero_title": "Over the coming months, a lot of people {em}.",
+    "hero_title_em": "are going to follow this story",
+    "hero_subtitle": "I'm an engineer and creator with an ultra-rare breast cancer —Murcia, software engineer, a case described only a handful of times in the literature—. I tell it with rigor and no posturing, and I'd like to bring your brand alongside that story: a real collaboration, not a one-day ad. We do it together.",
+    "hero_context": "Let me be clear from the start: it's a charitable project, yes, but it's also a professional collaboration and we treat it as such. I'm not asking you for a donation; I'm proposing a partnership. And I document the whole process with full transparency.",
     "hero_cta": "Let's talk about partnering",
     "hero_cta_dossier": "See the dossier (PDF)",
-    "hero_tagline": "// I'm looking for few brands, but real ones",
+    "hero_tagline": "// I'm looking for few brands, but the right ones",
     "hero_edition_label": "Edition prepared for:",
 
     "pilares_eyebrow": "// how your brand fits",
     "pilares_title": "Ways to collaborate {em}.",
-    "pilares_title_em": "that get noticed",
-    "pilares_intro": "Four ways to put your brand on this platform with me. I designed them so you can show them to your team as they are and pick the one that fits you best.",
+    "pilares_title_em": "that make sense",
+    "pilares_intro": "Four ways to bring your brand into this project with me. I designed them so you can show them to your team as they are and pick the one that fits you best.",
     "pilares_cards": [
       {
         "title": "Content co-creation",
@@ -918,12 +918,12 @@
     ],
     "audiencia_frame": "The people your brand will reach: a tech + health profile, Spain and Latin America, professional and engaged. If you want the fine breakdown —ages, geography, channel by channel—, I'll send it to you in the dossier.",
 
-    "movilizan_title": "They mobilize on cue",
-    "movilizan_p": "This isn't an audience that just watches: when I ask for something concrete, it pushes. In a recent campaign, the ask turned into {b}.",
+    "movilizan_title": "And when it counts, they show up",
+    "movilizan_p": "This isn't an audience that just watches: when I ask for something concrete, it responds. In a recent campaign, that «give me a hand» turned into {b}.",
     "movilizan_proof": "≈335,000 actions mobilized",
-    "movilizan_caption": "A community that goes from scrolling to acting when it matters.",
+    "movilizan_caption": "A community that goes from scrolling to acting when it truly matters.",
 
-    "audiencia_partners_label": "Already took the leap",
+    "audiencia_partners_label": "Already on board",
     "partners": [
       { "label": "Tahe Cosmetics", "url": "https://tahecosmetics.com" },
       { "label": "GitHub", "url": "https://github.com" },
@@ -934,13 +934,13 @@
     "audiencia_cta": "A good fit? Write to me",
 
     "cta_eyebrow": "// get in touch",
-    "cta_title": "I'm looking for few brands, {em}. Are you one?",
-    "cta_title_em": "but real ones",
+    "cta_title": "I'm looking for few brands, {em}.",
+    "cta_title_em": "but the right ones",
     "cta_p": "Tell me what you do and we'll build it together, made for you. I answer you personally.",
     "cta_button": "Write to me",
     "cta_dossier": "Download dossier (PDF)",
     "cta_podcast": "And what's coming: I'm relaunching my podcast «No me da la vida» to tell the AI and technology behind this project. A good moment to come aboard. 🎙️",
-    "cta_microcopy": "Saying it again because it matters: a charitable project, yes, but this is a professional collaboration between you and me, and we negotiate it as such.",
+    "cta_microcopy": "One last thing, because it matters: it's a charitable project, yes, but also a professional collaboration between you and me, and we treat it as such.",
 
     "popup_title": "Your brand and me, together?",
     "popup_text": "I read every message personally. Tell me who you are and we'll see how we fit.",
