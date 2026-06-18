@@ -2258,11 +2258,14 @@ const ticks = [
              herramienta (Zona 1) y abre la sección general en modo wiki (Zona 2).
              Se lee SIN DUDA «a partir de aquí, lo general». Tokens del DS
              (berenjena/cream), borde + regla gruesa + título display. -->
-        <div class="zone-divider" role="separator"
-          :aria-label="L('Fin de la herramienta · empieza la visión general del caso', 'End of the tool · the case overview begins')">
-          <span class="zone-divider__eyebrow">{{ L('Sección general', 'General section') }}</span>
-          <h2 class="zone-divider__title">{{ L('Visión general del caso', 'Case overview') }}</h2>
-          <p class="zone-divider__sub">{{ L(
+        <!-- Transición a la sección general: SIN caja (petición de la paciente — como el
+             resto de la web). Header de sección estándar (eyebrow + h2 text-2xl a la
+             izquierda, sin recuadro ni centrado) con una regla fina arriba que marca el
+             cambio de zona. El h2 queda como encabezado real en el outline (a11y). -->
+        <div class="border-t border-[rgba(45,27,61,0.12)] pt-10 mb-4">
+          <p class="eyebrow mb-2 block">{{ L('Sección general', 'General section') }}</p>
+          <h2 class="heading-display text-2xl text-berenjena mb-2 scroll-mt-[7.5rem]">{{ L('Visión general del caso', 'Case overview') }}</h2>
+          <p class="text-sm text-tinta leading-relaxed max-w-3xl">{{ L(
             'Lo general del caso, de más a menos relevante para decidir: idoneidad (cómo se calcula), fenotipo, imágenes, evolución, la tabla y la visión general. Usa el índice para navegarlo.',
             'The general view of the case, from most to least relevant for deciding: suitability (how it is computed), phenotype, imaging, evolution, the table and the case overview. Use the index to navigate it.') }}</p>
         </div>
@@ -3044,9 +3047,6 @@ const ticks = [
           </div>
           </details>
         </section>
-          </div><!-- /columna derecha (contenido wiki, 1fr) -->
-        </div><!-- /rejilla rail+contenido (solo Zona 2) -->
-        <!-- ╚══════════════ FIN ZONA 2 · «Visión general del caso» ══════════════╝ -->
 
         <!-- «Qué significa cada patrón» fundido en el héroe (Zona A) -->
 
@@ -3067,6 +3067,9 @@ const ticks = [
             <span aria-hidden="true">→</span>
           </NuxtLink>
         </div>
+          </div><!-- /columna derecha (contenido wiki, 1fr) -->
+        </div><!-- /rejilla rail+contenido (solo Zona 2) -->
+        <!-- ╚══════════════ FIN ZONA 2 · «Visión general del caso» ══════════════╝ -->
           </div>
       </div>
     </section>
