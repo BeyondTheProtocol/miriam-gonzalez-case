@@ -845,8 +845,8 @@
   },
   "marcas": {
     "meta_title": "Colabora con una historia que va a tener todas las miradas — helpmiriam.com",
-    "meta_description": "Soy ingeniera y divulgadora con un cáncer de mama ultra-raro: un caso del que se va a hablar. Te ofrezco ese escaparate para tu marca —con rigor y sin postureo— y una colaboración real, no un anuncio de un día.",
-    "og_description": "Un escaparate único, con dignidad: tu marca dentro del relato de una divulgadora tech que investiga su propio cáncer ultra-raro. Colaboración a largo plazo, no un logo en un banner.",
+    "meta_description": "Soy ingeniera y divulgadora con un cáncer de mama ultra-raro: un caso del que se va a hablar. Te ofrezco ese escaparate para tu marca —con rigor y sin postureo—. Proyecto benéfico, sí, pero esto es una colaboración profesional y la negociamos como tal.",
+    "og_description": "Un escaparate único, con dignidad: tu marca dentro del relato de una divulgadora tech que investiga su propio cáncer ultra-raro. Una colaboración profesional a largo plazo, no un logo en un banner.",
     "print": "↓ Dossier (PDF)",
     "print_aria": "Descargar el dossier para marcas en PDF",
 
@@ -854,8 +854,8 @@
     "hero_eyebrow": "// para marcas",
     "hero_title": "En los próximos meses, {em} van a estar aquí.",
     "hero_title_em": "todas las miradas",
-    "hero_subtitle": "Soy ingeniera y divulgadora con un cáncer de mama ultra-raro: un caso del que se va a hablar. Te ofrezco ese escaparate para tu marca —con rigor y sin postureo— y una colaboración real, no un anuncio de un día.",
-    "hero_context": "Murcia · ingeniera de software · caso descrito apenas un puñado de veces en la literatura · divulgo el proceso con transparencia total.",
+    "hero_subtitle": "Soy ingeniera y divulgadora con un cáncer de mama ultra-raro —Murcia, ingeniera de software, un caso descrito apenas un puñado de veces en la literatura del que se va a hablar—. Te ofrezco ese escaparate para tu marca, con rigor y sin postureo, y te propongo una colaboración real, no un anuncio de un día. Lo hacemos juntas.",
+    "hero_context": "Que quede claro de entrada: es un proyecto benéfico, sí, pero esto es una colaboración profesional y la negociamos como tal. No te pido un donativo; te propongo un partnership. Divulgo todo el proceso con transparencia total.",
     "hero_cta": "Hablemos de colaborar",
     "hero_cta_dossier": "Ver el dossier (PDF)",
     "hero_tagline": "// busco pocas marcas, pero de verdad",
@@ -864,7 +864,7 @@
     "pilares_eyebrow": "// cómo encaja tu marca",
     "pilares_title": "Formas de colaborar {em}.",
     "pilares_title_em": "que se notan",
-    "pilares_intro": "Cuatro maneras de subir tu marca a esta plataforma. Pensadas para que las puedas enseñar a tu equipo tal cual.",
+    "pilares_intro": "Cuatro maneras de subir tu marca a esta plataforma conmigo. Las he pensado para que las enseñes a tu equipo tal cual y elijáis la que mejor os encaje.",
     "pilares_cards": [
       {
         "title": "Cocreación de contenido",
@@ -916,7 +916,7 @@
       { "value": "+1M", "caption": "visualizaciones / mes (IG)" },
       { "value": "72,5%", "caption": "audiencia real verificada (Modash)" }
     ],
-    "audiencia_frame": "Perfil tech + salud, España y Latinoamérica, profesional y comprometido. Si quieres el desglose fino —edades, geografía, canal a canal—, está en el dossier.",
+    "audiencia_frame": "La gente a la que va a llegar tu marca: perfil tech + salud, España y Latinoamérica, profesional y comprometido. Si quieres el desglose fino —edades, geografía, canal a canal—, te lo paso en el dossier.",
 
     "movilizan_title": "Se movilizan a la orden",
     "movilizan_p": "No es una audiencia que solo mira: cuando le pido algo concreto, empuja. En una campaña reciente, pedirlo se tradujo en {b}.",
@@ -936,11 +936,11 @@
     "cta_eyebrow": "// ponte en contacto",
     "cta_title": "Busco pocas marcas, {em}. ¿Eres una?",
     "cta_title_em": "pero de verdad",
-    "cta_p": "Cuéntame qué hacéis y montamos algo a vuestra medida. Respondo yo.",
+    "cta_p": "Cuéntame qué hacéis y lo montamos juntas, a tu medida. Te respondo yo, en persona.",
     "cta_button": "Escríbeme",
     "cta_dossier": "Descargar dossier (PDF)",
     "cta_podcast": "Y lo que viene: relanzo mi podcast «No me da la vida» para contar la IA y la tecnología que hay detrás de este proyecto. Buen momento para subirte. 🎙️",
-    "cta_microcopy": "Proyecto benéfico, sí —pero esto es una colaboración profesional y se negocia como tal.",
+    "cta_microcopy": "Te lo repito porque importa: proyecto benéfico, sí, pero esto es una colaboración profesional entre tú y yo, y la negociamos como tal.",
 
     "popup_title": "¿Tu marca y yo, juntas?",
     "popup_text": "Te leo personalmente. Cuéntame quién eres y vemos cómo encajar.",
