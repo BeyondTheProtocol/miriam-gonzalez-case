@@ -114,6 +114,20 @@
       </div>
     </section>
 
+    <!-- ░░ 2b · EL MODELO ░░ lo que más importa a las marcas · crema -->
+    <section v-reveal class="section-spacing bg-cream" aria-labelledby="m-modelo">
+      <div class="section-wide">
+        <p id="m-modelo" class="eyebrow mb-4 block">{{ t('marcas.modelo_eyebrow') }}</p>
+        <div class="rounded-2xl p-6 sm:p-8 bg-berenjena">
+          <i18n-t keypath="marcas.ganas_model" tag="p" class="text-cream/90 leading-relaxed max-w-3xl">
+            <template #b1><strong class="font-semibold text-miriam-claro">{{ t('marcas.ganas_model_b1') }}</strong></template>
+            <template #b2><strong class="font-semibold text-cream">{{ t('marcas.ganas_model_b2') }}</strong></template>
+            <template #em><em class="italic text-cream">{{ t('marcas.ganas_model_em') }}</em></template>
+          </i18n-t>
+        </div>
+      </div>
+    </section>
+
     <!-- ░░ 3 · LOS NÚMEROS ░░ crema-card -->
     <section v-reveal class="section-spacing bg-cream-card" :aria-labelledby="'m-numeros'">
       <div class="section-wide">
@@ -312,14 +326,6 @@
           <template #b3><strong class="font-semibold text-berenjena">{{ t('marcas.ganas_fit_b3') }}</strong></template>
           <template #b4><strong class="font-semibold text-berenjena">{{ t('marcas.ganas_fit_b4') }}</strong></template>
         </i18n-t>
-
-        <div class="rounded-2xl p-6 sm:p-8 bg-berenjena">
-          <i18n-t keypath="marcas.ganas_model" tag="p" class="text-cream/90 leading-relaxed max-w-3xl">
-            <template #b1><strong class="font-semibold text-miriam-claro">{{ t('marcas.ganas_model_b1') }}</strong></template>
-            <template #b2><strong class="font-semibold text-cream">{{ t('marcas.ganas_model_b2') }}</strong></template>
-            <template #em><em class="italic text-cream">{{ t('marcas.ganas_model_em') }}</em></template>
-          </i18n-t>
-        </div>
       </div>
     </section>
 
