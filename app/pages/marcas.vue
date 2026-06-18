@@ -14,7 +14,7 @@
           decorativo (.band-fx): resplandor violeta centrado + estrellas
           tenues hacia los bordes → no pisan el texto (zona tranquila).
         · ?marca=Nombre personaliza el hero (cliente, sin romper SSR).
-        · Botón flotante → window.print(); estilos @media print mínimos.
+        · Botón flotante → descarga el deck (public/dossier-marcas-deck.pdf); estilos @media print mínimos.
       ════════════════════════════════════════════════════════════
     -->
 
@@ -411,10 +411,10 @@
       </div>
     </section>
 
-    <!-- Botón flotante · descargar como PDF (oculto en impresión) -->
-    <button type="button" class="m-print-btn no-print" :aria-label="t('marcas.print_aria')" @click="printPdf">
+    <!-- Botón flotante · descarga el deck en PDF (oculto en impresión) -->
+    <a href="/dossier-marcas-deck.pdf" download class="m-print-btn no-print" style="text-decoration: none" :aria-label="t('marcas.print_aria')">
       {{ t('marcas.print') }}
-    </button>
+    </a>
   </div>
 </template>
 
@@ -447,10 +447,6 @@ const quotes = computed(() => tm('marcas.partners_quotes') as Record<string, unk
 const pressElPais = 'https://elpais.com/tecnologia/2026-04-23/asi-usa-una-paciente-con-cancer-metastasico-la-ia-para-entender-su-enfermedad-cual-es-el-mejor-metodo-para-hablar-de-salud-con-chatbots.html'
 const pressMurcia = 'https://www.laopiniondemurcia.es/comunidad/2026/05/30/paciente-murciana-aguarda-nuevo-tratamiento-130816775.html'
 const pressLa7 = 'https://www.instagram.com/p/DZDT2hIAMPU/?hl=es'
-
-function printPdf() {
-  if (import.meta.client) window.print()
-}
 
 useSeoMeta({
   title: () => t('marcas.meta_title'),
