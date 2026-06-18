@@ -489,15 +489,24 @@ export default { name: 'MarcasPage' }
    subtítulo → botones → tagline), así que en vez del py-28 simétrico del DS, que
    dejaba un hueco muerto bajo la tagline, usamos un padding inferior algo menor
    que el superior: la composición queda centrada y la banda "abraza" el muro de
-   logos del footer sin aire vacío. */
+   logos del footer sin aire vacío.
+
+   Flush con el footer: la banda CTA y el muro de logos del footer son ambos
+   berenjena y deben tocarse sin costura. El borde compartido cae en un píxel
+   fraccionario (la altura de la página no es entera) y dejaba asomar 1px del
+   fondo crema del <footer> → fina línea clara antiestética. Sangramos la banda
+   2px hacia el footer (margin-bottom negativo) y extendemos su fondo berenjena
+   esos 2px (padding-bottom) para que la costura quede siempre cubierta, sin
+   alterar la composición ni el ritmo visible. */
 .cta-band {
   padding-top: 5rem;    /* 80px */
-  padding-bottom: 4.25rem; /* 68px — recorta el hueco muerto bajo la tagline */
+  padding-bottom: calc(4.25rem + 2px); /* 68px + 2px de sangrado */
+  margin-bottom: -2px;  /* tapa la costura sub-píxel con el muro de logos */
 }
 @media (min-width: 640px) {
   .cta-band {
     padding-top: 7rem;    /* 112px, = section-spacing sm */
-    padding-bottom: 5.5rem; /* 88px */
+    padding-bottom: calc(5.5rem + 2px); /* 88px + 2px de sangrado (ver .cta-band) */
   }
 }
 
