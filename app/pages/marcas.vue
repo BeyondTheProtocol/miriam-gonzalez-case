@@ -141,6 +141,22 @@
           </article>
         </div>
 
+        <!-- Encajes naturales — dónde el producto se cruza con la vida real,
+             en tags agrupados por categoría. Idea de Adri: aunque ya haya una
+             marca del sector, sigue habiendo sitio (menciones). -->
+        <div class="encajes mb-10">
+          <h3 class="heading-display text-xl text-berenjena mb-2">{{ t('marcas.encajes_title') }}</h3>
+          <p class="text-sm text-tinta leading-relaxed mb-6 max-w-3xl">{{ t('marcas.encajes_intro') }}</p>
+          <div class="encajes-grid">
+            <div v-for="(g, gi) in encajesGroups" :key="gi" class="encajes-group">
+              <p class="encajes-group__label">{{ rt(g.label) }}</p>
+              <ul class="encajes-tags">
+                <li v-for="(tag, ti) in (g.tags as string[])" :key="ti" class="encaje-tag">{{ tag }}</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
         <!-- Dossier en primer plano + CTA de contacto -->
         <div class="rounded-2xl p-6 sm:p-7 bg-cream-card flex flex-col sm:flex-row sm:items-center gap-5 sm:gap-8">
           <p class="text-base text-berenjena leading-relaxed flex-1 m-0">
@@ -183,14 +199,30 @@
           </div>
         </div>
 
-        <p class="text-tinta leading-relaxed mb-5 max-w-3xl">{{ t('marcas.audiencia_frame') }}</p>
+        <p class="text-tinta leading-relaxed mb-9 max-w-3xl">{{ t('marcas.audiencia_frame') }}</p>
 
-        <i18n-t keypath="marcas.audiencia_carlos" tag="p" class="text-tinta leading-relaxed mb-9 max-w-3xl">
-          <template #b1><strong class="font-semibold text-berenjena">{{ t('marcas.audiencia_carlos_b1') }}</strong></template>
-          <template #b2><strong class="font-semibold text-berenjena">{{ t('marcas.audiencia_carlos_b2') }}</strong></template>
-        </i18n-t>
+        <!-- Se movilizan a la orden — la comunidad empuja un objetivo concreto cuando
+             se lo pido. Prueba = magnitud de movilización (~335K acciones) de una
+             campaña reciente. NO se detalla el resultado del concurso (confidencial). -->
+        <div class="movilizan card-base bg-cream mb-9">
+          <h3 class="heading-display text-xl text-berenjena mb-3">{{ t('marcas.movilizan_title') }}</h3>
+          <p class="text-base text-tinta leading-relaxed mb-4 max-w-3xl">
+            <i18n-t keypath="marcas.movilizan_p" tag="span">
+              <template #b><strong class="font-semibold text-berenjena">{{ t('marcas.movilizan_proof') }}</strong></template>
+            </i18n-t>
+          </p>
+          <p
+            class="font-display font-semibold tracking-tight nums text-miriam"
+            style="font-size: clamp(2rem, 5.5vw, 3rem); line-height: 0.95"
+          >
+            {{ t('marcas.movilizan_proof') }}
+          </p>
+          <p class="mt-2 font-mono uppercase text-[11px] tracking-[0.06em] text-tinta leading-snug">
+            {{ t('marcas.movilizan_caption') }}
+          </p>
+        </div>
 
-        <!-- Prueba social ligera: marcas que ya se atrevieron + prensa -->
+        <!-- Prueba social ligera: marcas que ya se atrevieron (+ teaser) + prensa -->
         <div class="flex flex-wrap items-center gap-x-3 gap-y-3 mb-7">
           <span class="font-mono uppercase text-[11px] tracking-[0.12em] text-tinta self-center mr-1">
             {{ t('marcas.audiencia_partners_label') }}
@@ -203,6 +235,7 @@
             rel="noopener"
             class="partner-pill"
           >{{ rt(p.label) }} →</a>
+          <span class="partners-more font-mono text-[13px] text-tinta self-center">{{ t('marcas.partners_more') }}</span>
         </div>
 
         <div class="flex flex-wrap items-baseline gap-x-7 gap-y-3 mb-9">
@@ -251,6 +284,7 @@
               {{ t('marcas.cta_dossier') }}
             </a>
           </div>
+          <p class="text-sm text-cream/85 leading-relaxed mb-6 max-w-xl mx-auto">{{ t('marcas.cta_podcast') }}</p>
           <p class="font-mono text-xs text-cream/65 max-w-md mx-auto leading-relaxed">{{ t('marcas.cta_microcopy') }}</p>
         </div>
       </div>
@@ -282,6 +316,7 @@ const marca = computed(() => {
 
 // Listas i18n (arrays en el JSON) — se resuelven hoja a hoja con rt() en el template.
 const pilaresCards = computed(() => tm('marcas.pilares_cards') as Record<string, unknown>[])
+const encajesGroups = computed(() => tm('marcas.encajes_groups') as Record<string, unknown>[])
 const audienciaStats = computed(() => tm('marcas.audiencia_stats') as Record<string, unknown>[])
 const partners = computed(() => tm('marcas.partners') as Record<string, unknown>[])
 
@@ -401,6 +436,59 @@ export default { name: 'MarcasPage' }
   background: #9d44ab;
   color: #faf6f0;
   transform: translateY(-1px);
+}
+
+/* Teaser tras la tira de partners — "…y más por venir". Atenuado y en cursiva:
+   sugiere, no compite con las pills. */
+.partners-more {
+  font-style: italic;
+  opacity: 0.85;
+}
+
+/* ── Encajes naturales ───────────────────────────────────────────────────────
+   Tags estáticos (no enlaces) agrupados por categoría. Mismos tokens que las
+   pills de partner pero en versión "neutra" (sin acción): no se encienden a
+   violeta sólido para no leerse como enlace. El borde violeta del título de
+   grupo ata el bloque a la identidad de la página. */
+.encajes-grid {
+  display: grid;
+  gap: 1.5rem 2rem;
+}
+@media (min-width: 640px) {
+  .encajes-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+.encajes-group__label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #2d1b3d;
+  padding-left: 0.6rem;
+  border-left: 3px solid #9d44ab;
+  margin-bottom: 0.75rem;
+}
+.encajes-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.encaje-tag {
+  display: inline-flex;
+  align-items: center;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12.5px;
+  font-weight: 500;
+  padding: 0.35rem 0.75rem;
+  border-radius: 999px;
+  background: rgba(232, 212, 237, 0.55);
+  color: #2d1b3d;
+  border: 1px solid rgba(157, 68, 171, 0.18);
 }
 
 /* ── Cielo decorativo de las bandas oscuras ──────────────────────────────────

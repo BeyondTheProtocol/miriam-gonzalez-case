@@ -891,6 +891,23 @@
     "pilares_dossier_cta": "Download the dossier (PDF)",
     "pilares_cta": "Contact me",
 
+    "encajes_title": "Natural fits",
+    "encajes_intro": "Where your product meets my real life — that's where the collaboration feels authentic. And if there's already a brand from your sector, there's still room: that's what mentions are for.",
+    "encajes_groups": [
+      {
+        "label": "Tech and health",
+        "tags": ["software and tools", "AI and data", "digital health", "wearables", "cybersecurity"]
+      },
+      {
+        "label": "Travel and mobility",
+        "tags": ["international hospitals", "flights", "fintech / currency exchange", "car / charging"]
+      },
+      {
+        "label": "Self-care, fashion and healthy food",
+        "tags": ["cosmetics and care", "comfortable fashion", "nutrition and healthy food", "wellbeing and rest"]
+      }
+    ],
+
     "audiencia_eyebrow": "// my kind of audience",
     "audiencia_title": "Who {em} reaches.",
     "audiencia_title_em": "your brand",
@@ -900,16 +917,20 @@
       { "value": "72.5%", "caption": "verified real audience (Modash)" }
     ],
     "audiencia_frame": "Tech + health profile, Spain and Latin America, professional and engaged. If you want the fine breakdown —ages, geography, channel by channel—, it's in the dossier.",
-    "audiencia_carlos": "And it moves things: a single collaboration (episode with {b1}) mobilized {b2}.",
-    "audiencia_carlos_b1": "Carlos Roca",
-    "audiencia_carlos_b2": "≈335,000 views",
+
+    "movilizan_title": "They mobilize on cue",
+    "movilizan_p": "This isn't an audience that just watches: when I ask for something concrete, it pushes. In a recent campaign, the ask turned into {b}.",
+    "movilizan_proof": "≈335,000 actions mobilized",
+    "movilizan_caption": "A community that goes from scrolling to acting when it matters.",
+
     "audiencia_partners_label": "Already dared",
     "partners": [
-      { "label": "Tahe", "url": "https://tahecosmetics.com" },
+      { "label": "Tahe Cosmetics", "url": "https://tahecosmetics.com" },
       { "label": "GitHub", "url": "https://github.com" },
       { "label": "Notion", "url": "https://www.notion.com" },
       { "label": "Never Surrender", "url": "https://neversurrenderf.org/" }
     ],
+    "partners_more": "…and more to come 🤫",
     "audiencia_cta": "A good fit? Write to me",
 
     "cta_eyebrow": "// get in touch",
@@ -918,6 +939,7 @@
     "cta_p": "Tell me what you do and we'll build something made for you. I answer personally.",
     "cta_button": "Write to me",
     "cta_dossier": "Download dossier (PDF)",
+    "cta_podcast": "And what's coming: I'm relaunching my podcast «No me da la vida» to tell the AI and technology behind this project. A good moment to come aboard. 🎙️",
     "cta_microcopy": "A charitable project, yes —but this is a professional collaboration and it's negotiated as such.",
 
     "popup_title": "Your brand and me, together?",

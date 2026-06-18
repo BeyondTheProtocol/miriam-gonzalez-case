@@ -891,6 +891,23 @@
     "pilares_dossier_cta": "Descarga el dossier (PDF)",
     "pilares_cta": "Contáctame",
 
+    "encajes_title": "Encajes naturales",
+    "encajes_intro": "Donde tu producto se cruza con mi vida real — ahí la colaboración es auténtica. Y si ya hay una marca de tu sector, sigue habiendo sitio: ahí entran las menciones.",
+    "encajes_groups": [
+      {
+        "label": "Tech y salud",
+        "tags": ["software y herramientas", "IA y datos", "salud digital", "wearables", "ciberseguridad"]
+      },
+      {
+        "label": "Viajes y movilidad",
+        "tags": ["hospitales internacionales", "vuelos", "fintech / cambio de divisa", "coche / recarga"]
+      },
+      {
+        "label": "Autocuidado, moda y comida sana",
+        "tags": ["cosmética y cuidado", "moda cómoda", "nutrición y comida sana", "bienestar y descanso"]
+      }
+    ],
+
     "audiencia_eyebrow": "// mi tipo de audiencia",
     "audiencia_title": "A quién llega {em}.",
     "audiencia_title_em": "tu marca",
@@ -900,16 +917,20 @@
       { "value": "72,5%", "caption": "audiencia real verificada (Modash)" }
     ],
     "audiencia_frame": "Perfil tech + salud, España y Latinoamérica, profesional y comprometido. Si quieres el desglose fino —edades, geografía, canal a canal—, está en el dossier.",
-    "audiencia_carlos": "Y mueve cosas: una sola colaboración (episodio con {b1}) movilizó {b2}.",
-    "audiencia_carlos_b1": "Carlos Roca",
-    "audiencia_carlos_b2": "≈335.000 visualizaciones",
+
+    "movilizan_title": "Se movilizan a la orden",
+    "movilizan_p": "No es una audiencia que solo mira: cuando le pido algo concreto, empuja. En una campaña reciente, pedirlo se tradujo en {b}.",
+    "movilizan_proof": "≈335.000 acciones movilizadas",
+    "movilizan_caption": "Una comunidad que pasa del scroll a la acción cuando hace falta.",
+
     "audiencia_partners_label": "Ya se atrevieron",
     "partners": [
-      { "label": "Tahe", "url": "https://tahecosmetics.com" },
+      { "label": "Tahe Cosmetics", "url": "https://tahecosmetics.com" },
       { "label": "GitHub", "url": "https://github.com" },
       { "label": "Notion", "url": "https://www.notion.com" },
       { "label": "Never Surrender", "url": "https://neversurrenderf.org/" }
     ],
+    "partners_more": "…y más por venir 🤫",
     "audiencia_cta": "¿Encajamos? Escríbeme",
 
     "cta_eyebrow": "// ponte en contacto",
@@ -918,6 +939,7 @@
     "cta_p": "Cuéntame qué hacéis y montamos algo a vuestra medida. Respondo yo.",
     "cta_button": "Escríbeme",
     "cta_dossier": "Descargar dossier (PDF)",
+    "cta_podcast": "Y lo que viene: relanzo mi podcast «No me da la vida» para contar la IA y la tecnología que hay detrás de este proyecto. Buen momento para subirte. 🎙️",
     "cta_microcopy": "Proyecto benéfico, sí —pero esto es una colaboración profesional y se negocia como tal.",
 
     "popup_title": "¿Tu marca y yo, juntas?",
