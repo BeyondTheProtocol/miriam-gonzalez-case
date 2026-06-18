@@ -2258,11 +2258,14 @@ const ticks = [
              herramienta (Zona 1) y abre la sección general en modo wiki (Zona 2).
              Se lee SIN DUDA «a partir de aquí, lo general». Tokens del DS
              (berenjena/cream), borde + regla gruesa + título display. -->
-        <!-- Transición a la sección general: SIN caja (petición de la paciente — como el
-             resto de la web). Header de sección estándar (eyebrow + h2 text-2xl a la
-             izquierda, sin recuadro ni centrado) con una regla fina arriba que marca el
-             cambio de zona. El h2 queda como encabezado real en el outline (a11y). -->
-        <div class="border-t border-[rgba(45,27,61,0.12)] pt-10 mb-4">
+        <!-- ZONA WIKI · FONDO SUTIL (opción A): un tinte muy tenue detrás de TODA la
+             sección general la separa de la herramienta de arriba. Lee como «zona de
+             referencia», no como caja. -mx + px re-encajan el contenido al ancho de la
+             columna (banda a todo el ancho de 1280, no un recuadro inset). El tinte es
+             el divisor; el header va dentro, sin regla ni caja. -->
+        <div class="rounded-[2rem] bg-[rgba(45,27,61,0.035)] -mx-4 sm:-mx-6 lg:-mx-8 px-4 sm:px-6 lg:px-8 py-10 lg:py-12 mt-4">
+          <!-- Header de la sección general (eyebrow + h2 a la izquierda, sin caja). -->
+          <div class="mb-6">
           <p class="eyebrow mb-2 block">{{ L('Sección general', 'General section') }}</p>
           <h2 class="heading-display text-2xl text-berenjena mb-2 scroll-mt-[7.5rem]">{{ L('Visión general del caso', 'Case overview') }}</h2>
           <p class="text-sm text-tinta leading-relaxed max-w-3xl">{{ L(
@@ -3069,6 +3072,7 @@ const ticks = [
         </div>
           </div><!-- /columna derecha (contenido wiki, 1fr) -->
         </div><!-- /rejilla rail+contenido (solo Zona 2) -->
+        </div><!-- /zona wiki · fondo sutil (opción A) -->
         <!-- ╚══════════════ FIN ZONA 2 · «Visión general del caso» ══════════════╝ -->
           </div>
       </div>
