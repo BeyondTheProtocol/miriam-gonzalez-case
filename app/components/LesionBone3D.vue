@@ -29,6 +29,7 @@ const cross = (a: V3, b: V3): V3 => [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[
 const norm = (a: V3): V3 => { const l = Math.hypot(a[0], a[1], a[2]) || 1; return [a[0] / l, a[1] / l, a[2] / l] }
 const clamp = (x: number, a: number, b: number) => (x < a ? a : x > b ? b : x)
 function hex2rgb(h: string): number[] { const c = h.replace('#', ''); return [parseInt(c.substr(0, 2), 16), parseInt(c.substr(2, 2), 16), parseInt(c.substr(4, 2), 16)] }
+function mix(a: number[], b: number[], t: number): number[] { return [a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t, a[2] + (b[2] - a[2]) * t] }
 function mberry(seed: number) { let a = seed; return () => { a |= 0; a = (a + 0x6d2b79f5) | 0; let t = Math.imul(a ^ (a >>> 15), 1 | a); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296 } }
 
 /* ---------- rotation (yaw about Y, pitch about X) + perspective ---------- */
@@ -64,18 +65,37 @@ function tube(p0: V3, p1: V3, r0: number, r1: number, seg: number, key: string, 
   faces.push({ pts: B.slice(), key })
   return faces
 }
-function vertebraFaces(): { pts: V3[]; key: string }[] {
+/* regional profile — cervical / dorsal / lumbar bodies differ in size & spinous angle,
+   so a radiologist recognises the level and a lay reader sees "the same kind of bone". */
+type Prof = { w: number; d: number; h: number; sp: V3; spR: number; tp: number; ped: number }
+function vertProfile(le: any): Prof {
+  const r = (vertKey(le) || '').toUpperCase().charAt(0)
+  if (r === 'C') return { w: 10, d: 6.5, h: 6, sp: [0, -3, -15], spR: 2.2, tp: 13, ped: 7.5 }     // small, short spinous
+  if (r === 'L') return { w: 16.5, d: 10, h: 8.5, sp: [0, -4, -18], spR: 3.2, tp: 19, ped: 9.5 } // big kidney body, stout ~horizontal spinous
+  return { w: 13, d: 8.5, h: 8, sp: [0, -8, -21], spR: 2.8, tp: 21, ped: 8.5 }                    // dorsal: long down-angled spinous
+}
+function vertebraFaces(P: Prof): { pts: V3[]; key: string }[] {
   const F: { pts: V3[]; key: string }[] = []
-  F.push(...tube([0, -9, 9], [0, 9, 9], 1, 1, 32, 'body', [15.5, 8.5]))      // body — elliptical drum
-  F.push(...tube([9, 0, 4], [7, 0, -6], 4, 3, 14, 'pedR'))                    // pedicles
-  F.push(...tube([-9, 0, 4], [-7, 0, -6], 4, 3, 14, 'pedL'))
-  F.push(...tube([7, 1, -3], [22, 2, -5], 3.4, 1.8, 12, 'tpR'))               // transverse processes
-  F.push(...tube([-7, 1, -3], [-22, 2, -5], 3.4, 1.8, 12, 'tpL'))
-  F.push(...tube([7, 0, -6], [0, -1, -12], 3, 2.4, 12, 'lamR'))               // laminae / arch
-  F.push(...tube([-7, 0, -6], [0, -1, -12], 3, 2.4, 12, 'lamL'))
-  F.push(...tube([0, -1, -11], [0, -5, -23], 2.6, 1.4, 12, 'spin', [0.7, 1])) // spinous process
-  F.push(...tube([8, 5, -5], [9, 8, -6], 2.2, 1.6, 10, 'lamR'))               // articular facets
-  F.push(...tube([-8, 5, -5], [-9, 8, -6], 2.2, 1.6, 10, 'lamL'))
+  const zc = 9                                       // body sits anterior (+z)
+  // vertebral body — waisted drum (two tapered stacks), wider (X) than deep (Z)
+  F.push(...tube([0, -P.h, zc], [0, 0, zc], 1.0, 0.9, 26, 'body', [P.d, P.w]))
+  F.push(...tube([0, 0, zc], [0, P.h, zc], 0.9, 1.0, 26, 'body', [P.d, P.w]))
+  const pbz = zc - P.d * 0.8                          // posterior wall of the body
+  const px = P.w * 0.5
+  // pedicles bridge body → arch (the gap between them is the vertebral foramen / canal)
+  F.push(...tube([px, 0, pbz], [P.ped, 0, -3], 3.0, 2.5, 12, 'pedR'))
+  F.push(...tube([-px, 0, pbz], [-P.ped, 0, -3], 3.0, 2.5, 12, 'pedL'))
+  // transverse processes (length by region)
+  F.push(...tube([P.ped * 0.85, 1, -3], [P.tp, 1.5, -5], 2.6, 1.4, 10, 'tpR'))
+  F.push(...tube([-P.ped * 0.85, 1, -3], [-P.tp, 1.5, -5], 2.6, 1.4, 10, 'tpL'))
+  // laminae meeting at the midline → posterior arch
+  F.push(...tube([P.ped, 0, -3], [0, -1, -10], 2.7, 2.1, 12, 'lamR'))
+  F.push(...tube([-P.ped, 0, -3], [0, -1, -10], 2.7, 2.1, 12, 'lamL'))
+  // spinous process (the tip you can feel down the back)
+  F.push(...tube([0, -1, -9], P.sp, 2.5, P.spR * 0.55, 12, 'spin', [0.7, 1]))
+  // superior articular facets (small upward bumps)
+  F.push(...tube([P.ped * 0.92, 3, -4], [P.ped + 0.4, 6.5, -5], 1.9, 1.4, 9, 'lamR'))
+  F.push(...tube([-P.ped * 0.92, 3, -4], [-P.ped - 0.4, 6.5, -5], 1.9, 1.4, 9, 'lamL'))
   return F
 }
 function faceNormalModel(pts: V3[]): V3 {
@@ -88,18 +108,22 @@ function faceNormalModel(pts: V3[]): V3 {
 }
 function centroid(pts: V3[]): V3 { let c: V3 = [0, 0, 0]; pts.forEach((p) => { c = add(c, p) }); return mul(c, 1 / pts.length) }
 
-/* ---------- lighting (view space) ---------- */
-const LIGHT = norm([-0.45, 0.62, 0.62])
+/* ---------- lighting (view space): warm key + cool fill + ambient + rim, matte bone ---------- */
+const LIGHT = norm([-0.45, 0.62, 0.62])           // warm key (upper-left, toward viewer)
+const FILLD = norm([0.62, -0.12, 0.42])           // cool fill (lower-right)
 const HALF = norm(add(LIGHT, [0, 0, 1]))
-function shadeFace(nModel: V3, yaw: number, pit: number, baseRGB: number[], hl: boolean): string {
+function shadeFace(nModel: V3, yaw: number, pit: number, baseRGB: number[]): string {
   const n = norm(rot(nModel, yaw, pit))
-  const nv: V3 = n[2] < 0 ? [-n[0], -n[1], -n[2]] : n
-  const diff = clamp(dot(nv, LIGHT), 0, 1)
-  const shade = 0.40 + 0.78 * diff
-  const rim = Math.pow(1 - clamp(nv[2], 0, 1), 2.2) * (hl ? 0.5 : 0.42)
-  const spec = Math.pow(clamp(dot(nv, HALF), 0, 1), hl ? 18 : 26) * (hl ? 0.5 : 0.6)
-  const rgb = baseRGB.map((c) => clamp(Math.round(c * shade + 255 * rim * 0.55 + 255 * spec), 0, 255))
-  return `rgb(${rgb[0]},${rgb[1]},${rgb[2]})`
+  const nv: V3 = n[2] < 0 ? [-n[0], -n[1], -n[2]] : n   // two-sided
+  const key = clamp(dot(nv, LIGHT), 0, 1)
+  const fill = clamp(dot(nv, FILLD), 0, 1)
+  const lum = 0.36 + 0.70 * key + 0.16 * fill          // ambient + key + fill
+  const rim = Math.pow(1 - clamp(nv[2], 0, 1), 2.4) * 0.46
+  const spec = Math.pow(clamp(dot(nv, HALF), 0, 1), 22) * 0.42
+  const r = clamp(Math.round(baseRGB[0] * lum + 255 * rim * 0.50 + 255 * spec), 0, 255)
+  const g = clamp(Math.round(baseRGB[1] * lum + 250 * rim * 0.52 + 252 * spec), 0, 255)
+  const b = clamp(Math.round(baseRGB[2] * (lum * 0.99) + 255 * rim * 0.58 + 248 * spec), 0, 255) // cool shadow
+  return `rgb(${r},${g},${b})`
 }
 
 /* ---------- which bone / which vertebral part ---------- */
@@ -126,47 +150,52 @@ function fociOn(l: any, all?: any[]): any[] {
 }
 
 /* ---------- 3D vertebra ---------- */
-const vYaw = ref(0.85), vPitch = ref(0.34)
+const vYaw = ref(1.7), vPitch = ref(0.42)
 function vert3D(le: any, yaw: number, pit: number, all?: any[]): string {
   const id = 'v' + le.id
+  const P = vertProfile(le)
   const foci = fociOn(le, all)
-  const hi: Record<string, { c: string; self: boolean }> = {}
-  foci.forEach((f: any) => { hi[vertPart(f)] = { c: col(f), self: f.id === le.id } })
-  const boneRGB = [228, 221, 205]
+  /* one entry per affected part — self (the lesion you opened) wins ties */
+  const hi: Record<string, { c: string; self: boolean; lid: number }> = {}
+  foci.forEach((f: any) => { const k = vertPart(f); if (!hi[k] || f.id === le.id) hi[k] = { c: col(f), self: f.id === le.id, lid: f.id } })
+  const boneRGB = [231, 224, 208]
 
-  const F = vertebraFaces()
+  const F = vertebraFaces(P)
   const drawn = F.map((f) => {
     const nModel = faceNormalModel(f.pts)
     const sp = f.pts.map((p) => toScreen(rot(p, yaw, pit)))
     const z = sp.reduce((s, p) => s + p.z, 0) / sp.length
     const H = hi[f.key]
-    const base = H ? hex2rgb(H.c) : boneRGB
-    const fill = shadeFace(nModel, yaw, pit, base, !!H)
+    /* keep the bone material; only TINT the affected part toward its phenotype colour
+       (so it still reads as bone with shading, not a solid plastic block) */
+    const base = H ? mix(boneRGB, hex2rgb(H.c), H.self ? 0.5 : 0.34) : boneRGB
+    const fill = shadeFace(nModel, yaw, pit, base)
     const d = 'M' + sp.map((p) => p.x.toFixed(1) + ',' + p.y.toFixed(1)).join('L') + 'Z'
-    return { z, d, fill, hl: !!H }
+    return { z, d, fill }
   })
   drawn.sort((a, b) => a.z - b.z)
 
-  const shadow = `<ellipse cx="90" cy="138" rx="46" ry="8" fill="url(#sh${id})"/>`
-  const body = drawn.map((f) => `<path d="${f.d}" fill="${f.fill}" stroke="${f.fill}" stroke-width="0.5" stroke-linejoin="round"${f.hl ? ' opacity="0.99"' : ''}/>`).join('')
+  const shadow = `<ellipse cx="90" cy="140" rx="48" ry="8" fill="url(#sh${id})"/>`
+  const body = drawn.map((f) => `<path d="${f.d}" fill="${f.fill}" stroke="${f.fill}" stroke-width="0.5" stroke-linejoin="round"/>`).join('')
 
-  const hk = Object.keys(hi)[0]
-  let pins = ''
-  Object.keys(hi).forEach((k) => {
+  /* glowing focus + numbered marker on each affected part */
+  let glows = '', pins = '', grads = ''
+  Object.keys(hi).forEach((k, i) => {
     const pf = F.filter((f) => f.key === k); if (!pf.length) return
-    const c = centroid(pf.flatMap((f) => f.pts))
-    const sc = toScreen(rot(c, yaw, pit))
-    const self = hi[k].self
-    pins += `<circle cx="${sc.x.toFixed(1)}" cy="${sc.y.toFixed(1)}" r="${self ? 22 : 16}" fill="url(#hl${id})" opacity="0.5"/>`
-    pins += `<circle cx="${sc.x.toFixed(1)}" cy="${sc.y.toFixed(1)}" r="${self ? 4.4 : 3.2}" fill="${hi[k].c}" stroke="#fff" stroke-width="${self ? 1.4 : 1}"/>`
+    const sc = toScreen(rot(centroid(pf.flatMap((f) => f.pts)), yaw, pit))
+    const self = hi[k].self, gid = `hl${id}_${i}`
+    grads += `<radialGradient id="${gid}" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="${hi[k].c}" stop-opacity="${self ? 0.85 : 0.6}"/><stop offset="55%" stop-color="${hi[k].c}" stop-opacity="0.28"/><stop offset="100%" stop-color="${hi[k].c}" stop-opacity="0"/></radialGradient>`
+    glows += `<circle cx="${sc.x.toFixed(1)}" cy="${sc.y.toFixed(1)}" r="${self ? 26 : 16}" fill="url(#${gid})"/>`
+    pins += `<circle cx="${sc.x.toFixed(1)}" cy="${sc.y.toFixed(1)}" r="${self ? 7.2 : 5}" fill="${hi[k].c}" stroke="#fff" stroke-width="${self ? 1.7 : 1.1}"/>`
+    pins += `<text x="${sc.x.toFixed(1)}" y="${(sc.y + (self ? 3.4 : 2.6)).toFixed(1)}" text-anchor="middle" font-family="sans-serif" font-weight="700" font-size="${self ? 9 : 7}" fill="#fff">${hi[k].lid}</text>`
   })
 
   const defs = `<defs>
     <radialGradient id="bg${id}" cx="42%" cy="34%" r="78%"><stop offset="0%" stop-color="#1b2530"/><stop offset="60%" stop-color="#121922"/><stop offset="100%" stop-color="#0a0e14"/></radialGradient>
     <radialGradient id="sh${id}" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="rgba(0,0,0,0.55)"/><stop offset="100%" stop-color="rgba(0,0,0,0)"/></radialGradient>
-    <radialGradient id="hl${id}" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="${hk ? hi[hk].c : '#fff'}" stop-opacity="0.75"/><stop offset="100%" stop-color="${hk ? hi[hk].c : '#fff'}" stop-opacity="0"/></radialGradient>
+    ${grads}
   </defs>`
-  return `<svg viewBox="0 0 180 156" style="width:100%;height:auto;display:block">${defs}<rect x="0" y="0" width="180" height="156" rx="10" fill="url(#bg${id})"/>${shadow}${body}${pins}</svg>`
+  return `<svg viewBox="0 0 180 156" style="width:100%;height:auto;display:block">${defs}<rect x="0" y="0" width="180" height="156" rx="10" fill="url(#bg${id})"/>${shadow}${body}${glows}${pins}</svg>`
 }
 
 /* ---------- dual-tracer PET heatmap ---------- */
@@ -222,8 +251,14 @@ function boneSchema(l: any): string {
   const FILL = `fill="url(#bg${id})" stroke="#9a917f" stroke-width="2" stroke-linejoin="round"`
   let base = '', inner = ''
   if (bt === 'scapula') {
-    base = `<path d="M28,26 L152,44 L74,150 Z" ${FILL}/><path d="M28,26 L152,44 L74,150 Z" fill="url(#hi${id})"/><line x1="40" y1="64" x2="146" y2="54" stroke="#b3aa96" stroke-width="7" stroke-linecap="round"/>`
-    inner = petSpot(82, 84, col(l), av, id, true, 'a')
+    // triangular blade + scapular spine + acromion + glenoid socket + coracoid hook
+    base = `<path d="M40,30 L150,52 L92,166 Z" ${FILL}/>`                                                 // blade
+      + `<path d="M40,30 L150,52 L92,166 Z" fill="url(#hi${id})"/>`                                        // blade sheen
+      + `<path d="M52,62 L148,50" stroke="#b3aa96" stroke-width="8" stroke-linecap="round"/>`              // scapular spine ridge
+      + `<ellipse cx="157" cy="48" rx="12" ry="8" ${FILL}/>`                                               // acromion
+      + `<path d="M140,42 Q152,28 162,40" fill="none" stroke="url(#bg${id})" stroke-width="9" stroke-linecap="round"/>` // coracoid hook
+      + `<ellipse cx="150" cy="66" rx="8" ry="13" fill="#c4bca9" stroke="#9a917f" stroke-width="2"/>`      // glenoid socket
+    inner = petSpot(84, 98, col(l), av, id, true, 'a')
   } else if (bt === 'sacrum') {
     base = `<path d="M58,22 L142,22 L128,150 Q100,172 72,150 Z" ${FILL}/><path d="M58,22 L142,22 L128,150 Q100,172 72,150 Z" fill="url(#hi${id})"/>`
     ;[[86, 58], [114, 58], [86, 94], [114, 94], [90, 126], [110, 126]].forEach((p) => { base += `<ellipse cx="${p[0]}" cy="${p[1]}" rx="6" ry="5" fill="#c4bca9" stroke="#a99f8b" stroke-width="1.3"/>` })
@@ -233,8 +268,15 @@ function boneSchema(l: any): string {
     const supra = /supr/i.test(l.level?.es || '')
     inner = petSpot(supra ? 122 : 88, supra ? 108 : 56, col(l), av, id, true, 'a')
   } else if (bt === 'femur') {
-    base = `<rect x="92" y="58" width="34" height="156" rx="15" ${FILL}/><path d="M126,70 L160,42 L176,60 L150,90 Z" ${FILL}/><line x1="98" y1="78" x2="56" y2="50" stroke="url(#bg${id})" stroke-width="22" stroke-linecap="round"/><circle cx="46" cy="46" r="24" ${FILL}/><circle cx="46" cy="46" r="24" fill="url(#hi${id})"/><rect x="92" y="58" width="34" height="156" rx="15" fill="url(#hi${id})"/>`
-    inner = petSpot(70, 64, col(l), av, id, true, 'a')
+    // proximal femur: shaft + greater trochanter + neck + head (connected silhouette)
+    base = `<path d="M100,98 L100,206 Q100,220 115,220 Q130,220 130,206 L130,94 Z" ${FILL}/>`               // shaft
+      + `<path d="M118,100 Q124,60 148,64 Q160,70 153,90 Q146,102 130,102 Z" ${FILL}/>`                     // greater trochanter (lateral bump on shaft)
+      + `<path d="M120,100 L66,66" stroke="url(#bg${id})" stroke-width="27" stroke-linecap="round" fill="none"/>` // neck
+      + `<circle cx="56" cy="58" r="23" ${FILL}/>`                                                              // femoral head
+      + `<circle cx="56" cy="58" r="23" fill="url(#hi${id})"/>`                                                 // head sheen
+      + `<circle cx="61" cy="60" r="3.2" fill="#b3aa96" opacity="0.55"/>`                                       // fovea dimple
+      + `<path d="M100,98 L100,206 Q100,220 115,220 Q130,220 130,206 L130,94 Z" fill="url(#hi${id})"/>`         // shaft sheen
+    inner = petSpot(94, 92, col(l), av, id, true, 'a')
   } else {
     base = `<circle cx="100" cy="110" r="30" ${FILL}/><circle cx="100" cy="110" r="30" fill="url(#hi${id})"/>`
     inner = petSpot(100, 110, col(l), av, id, true, 'a')
@@ -327,9 +369,9 @@ function mup() { mdrag = false }
       </figure>
     </div>
 
-    <!-- PASO 2 · TU HUESO REAL EN 3D (morfología + captación unificadas · rotación libre 360°) -->
+    <!-- PASO 2 · EL HUESO REAL EN 3D (morfología + captación unificadas · rotación libre 360°) -->
     <div v-if="hasFrames">
-      <p class="bn-step">{{ L('2 · Tu hueso real en 3D · gira 360°', '2 · Your real bone in 3D · rotate 360°') }}</p>
+      <p class="bn-step">{{ L('2 · El hueso real en 3D · gira 360°', '2 · The real bone in 3D · rotate 360°') }}</p>
       <figure class="m-0">
         <NuxtErrorBoundary>
           <BoneViewer3D :mesh-key="meshKey" />
@@ -340,7 +382,7 @@ function mup() { mdrag = false }
           </template>
         </NuxtErrorBoundary>
         <figcaption class="bn-cap mt-1.5">
-          {{ L('Reconstruido de tu CT (IA) · arrastra para girar en cualquier dirección · rueda para acercar', 'Reconstructed from your CT (AI) · drag to rotate any direction · scroll to zoom') }}<br>
+          {{ L('Reconstruido del CT (IA) · arrastra para girar en cualquier dirección · rueda para acercar', 'Reconstructed from the CT (AI) · drag to rotate any direction · scroll to zoom') }}<br>
           <span style="color:#dbe4f7">●</span> {{ L('blanco denso = blástico (hueso duro)', 'dense white = blastic (hard bone)') }} · <span style="color:#c061d6">●</span> {{ L('receptor · Galio', 'receptor · gallium') }} · <span style="color:#f08a3a">●</span> {{ L('azúcar · FDG', 'sugar · FDG') }}
         </figcaption>
       </figure>
