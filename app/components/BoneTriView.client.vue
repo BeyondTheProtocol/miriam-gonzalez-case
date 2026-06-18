@@ -322,7 +322,7 @@ function renderScenes() {
    dejar huecos negros. Es lo que hacía falta: si encuadras sólo al FOV vertical en una
    celda alta-estrecha, el hueso queda demasiado grande/desbordado a los lados; si usas un
    aspecto que no es el real del viewport, queda descentrado y pegado a un borde. */
-const FILL = 0.90                                  // margen ~10 %
+const FILL = 0.84                                  // margen ~16 % (holgura para que NUNCA se corte)
 const DEFAULT_DIR = new THREE.Vector3(0.32, 0.16, 1).normalize()
 const _camRight = new THREE.Vector3()
 const _camUp = new THREE.Vector3()
@@ -474,6 +474,11 @@ function load(key: string) {
       frameObject()
       buildBiopsyNeedle()
       loading.value = false
+      // El contenedor usa aspect-ratio CSS: su ALTURA real puede asentarse DESPUÉS de este
+      // primer encuadre (sobre todo en ventanas anchas) → el hueso quedaría grande/cortado.
+      // Re-encuadramos con el tamaño REAL en los siguientes frames y de nuevo a los 300 ms.
+      requestAnimationFrame(() => requestAnimationFrame(() => { if (sharedGeo) resize() }))
+      setTimeout(() => { if (sharedGeo) resize() }, 300)
     } catch (e) { console.error('[BoneTriView] build', e); loading.value = false; failed.value = true }
   }, undefined, (e) => { console.error('[BoneTriView] PLY load error', e); loading.value = false; failed.value = true })
 }
