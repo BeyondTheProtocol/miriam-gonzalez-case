@@ -102,15 +102,23 @@
           </div>
 
           <figure class="justify-self-center lg:justify-self-end m-0">
-            <NuxtImg
-              src="/img/miriam-avatar.webp"
-              alt=""
-              width="336"
-              height="336"
-              format="webp"
-              decoding="async"
-              class="w-[168px] h-[168px] rounded-full object-cover avatar-ring"
-            />
+            <!-- El marco (no la imagen) posee la geometría: aspect-ratio 1 +
+                 overflow hidden → círculo perfecto e inmune al estiramiento del
+                 grid, igual que TeamPortrait y el retrato del hero de la home.
+                 sizes da a @nuxt/image un srcset con candidato 2x para que se
+                 vea nítido en pantallas Retina (MacBook Air), no pixelado. -->
+            <div class="avatar-frame avatar-ring">
+              <NuxtImg
+                src="/img/miriam-avatar.webp"
+                alt=""
+                width="512"
+                height="512"
+                sizes="168px"
+                format="webp"
+                decoding="async"
+                class="avatar-img"
+              />
+            </div>
           </figure>
         </div>
       </div>
@@ -400,6 +408,25 @@ export default { name: 'MarcasPage' }
     padding-top: 7rem;    /* 112px, = section-spacing sm */
     padding-bottom: calc(5.5rem + 2px); /* 88px + 2px de sangrado (ver .cta-band) */
   }
+}
+
+/* Avatar del hero — mismo patrón que TeamPortrait y el retrato del hero de la
+   home: el MARCO posee la geometría (tamaño + círculo + recorte) y la imagen
+   solo lo rellena. Así el círculo es perfecto e inmune a que el grid estire el
+   elemento reemplazado, y object-fit encuadra el 1024² original sin deformarlo. */
+.avatar-frame {
+  width: 168px;
+  height: 168px;
+  aspect-ratio: 1;
+  overflow: hidden;
+  border-radius: 9999px;
+}
+.avatar-img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
 }
 
 /* Anillo decorativo del avatar (violeta-soft translúcido). */
