@@ -312,6 +312,14 @@ const selected = ref<number>(7)
 /* «Detalle del foco» plegado por defecto (zona análisis más limpia); el enlace de la
    ficha lo expande. Se sincroniza con el toggle nativo del <details>. */
 const detalleOpen = ref(false)
+/* Abre el detalle profundo (OCULTO por defecto) y baja a él. Petición de la paciente:
+   que NO haya una barra «Detalle del foco» permanente abajo; aparece solo al pulsar el
+   enlace «Ver el detalle completo» de la ficha. El comité lo mantiene a ANCHO COMPLETO
+   (sus tablas de 3 columnas lo necesitan), pero ya no como barra plegada visible. */
+function openDetalle() {
+  detalleOpen.value = true
+  if (import.meta.client) nextTick(() => document.getElementById('detalle-foco')?.scrollIntoView({ behavior: smoothOrAuto(), block: 'start' }))
+}
 type FilterKey = 'all' | Pheno | 'new' | 'ia' | 'mix'
 const filter = ref<FilterKey>('all')
 const sel = computed(() => LES.find((l) => l.id === selected.value)!)
@@ -1874,7 +1882,7 @@ const ticks = [
               </div>
 
               <!-- ENLACE al detalle profundo (sin scroll para navegar; scroll opcional) -->
-              <a href="#detalle-foco" @click="detalleOpen = true" class="link-action text-miriam text-[13px] inline-flex items-center gap-1 font-semibold">
+              <a href="#detalle-foco" @click.prevent="openDetalle" class="link-action text-miriam text-[13px] inline-flex items-center gap-1 font-semibold">
                 {{ L('Ver el detalle completo del foco (abajo, a ancho completo)', 'See the full focus detail (full-width, below)') }} <span aria-hidden="true">↓</span>
               </a>
             </div>
@@ -1963,15 +1971,14 @@ const ticks = [
                que la navegación de un vistazo no exija scroll, pero el detalle siga ahí. -->
           <!-- DETALLE PLEGADO por defecto (zona análisis limpia); se expande al pulsar
                el summary o el enlace «Ver el detalle completo» de la ficha. -->
-          <details id="detalle-foco" :open="detalleOpen"
+          <details id="detalle-foco" v-show="detalleOpen" :open="detalleOpen"
             @toggle="detalleOpen = ($event.target as HTMLDetailsElement).open"
             class="foco-detalle card-base mt-10 scroll-mt-[7.5rem]">
             <summary class="foco-detalle__sum flex items-start gap-3 cursor-pointer">
               <span class="shrink-0 w-2.5 h-2.5 mt-2 rounded-full" :style="{ background: phenoColor(sel) }" aria-hidden="true" />
               <div class="min-w-0">
-                <h3 class="heading-display text-xl text-berenjena leading-tight">{{ L('Detalle del foco', 'Focus detail') }} #{{ sel.id }} · {{ sel.level[lang] }}</h3>
-                <p class="text-xs text-tinta">{{ sel.region[lang] }} ·
-                  {{ sel.side === 'R' ? L('lado derecho', 'right side') : sel.side === 'L' ? L('lado izquierdo', 'left side') : L('línea media', 'midline') }}</p>
+                <h3 class="heading-display text-xl text-berenjena leading-tight">{{ L('Detalle completo del foco', 'Full focus detail') }} #{{ sel.id }}</h3>
+                <p class="text-xs text-tinta">{{ L('Las 3 lecturas, la forma del hueso, la extensión y la cuantificación', 'The 3 readings, bone shape, extent and quantification') }}</p>
               </div>
               <span class="ml-auto shrink-0 self-center inline-flex items-center gap-1 text-[12px] font-semibold text-miriam">
                 <span class="foco-detalle__open">{{ L('Ampliar', 'Expand') }}</span>
