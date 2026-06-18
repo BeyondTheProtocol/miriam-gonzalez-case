@@ -1821,45 +1821,6 @@ const ticks = [
                 <p class="text-[10px] text-tinta mt-2 leading-relaxed">{{ L('Descripción de los hallazgos del foco a partir de los SUV, la tendencia y la morfología del propio foco. No es consejo médico ni una indicación de tratamiento.', 'A description of the focus’s findings from its own SUVs, trend and morphology. Not medical advice or a treatment indication.') }}</p>
               </div>
 
-              <!-- hueso reconstruido del CT (real) · 3 vistas conmutables -->
-              <div class="mb-4">
-                <p class="eyebrow mb-2 block">{{ L('Hueso reconstruido del CT · captación co-registrada', 'Bone reconstructed from the CT · co-registered uptake') }}</p>
-
-                <!-- zona con varios focos: rótulo junto al visor. El realce marca la
-                     ZONA (no cada foco: no hay posición 3D fiable por foco). -->
-                <p v-if="isMultiFocusBone" class="text-[11px] text-tinta leading-snug mb-2">
-                  {{ L('Esta zona tiene ' + coFoci.length + ' focos co-localizados (receptor/azúcar); el realce señala la zona. Detalle de cada foco arriba y en la tabla.', 'This area has ' + coFoci.length + ' co-localized foci (receptor/sugar); the highlight marks the area. Each focus is detailed above and in the table.') }}
-                </p>
-
-                <!-- foco con reconstrucción: «small multiples» — el MISMO hueso en 3 mapas
-                     limpios y sincronizados (Galio teal · FDG ámbar · Blástico sepia). Ya no
-                     hay selector de modo: las 3 lecturas se ven a la vez. -->
-                <template v-if="bone3dKeyOf(sel)">
-                  <ClientOnly>
-                    <BoneTriView
-                      :mesh-key="bone3dKeyOf(sel)"
-                      :biopsied="bonePriorBiopsy != null"
-                      :biopsy-label="bonePriorBiopsy ?? undefined"
-                    />
-                    <template #fallback>
-                      <div class="rounded-lg flex items-center justify-center text-[12px]" style="aspect-ratio:15/4;background:#0d1117;color:#aeb6c2">
-                        {{ L('cargando visor…', 'loading viewer…') }}
-                      </div>
-                    </template>
-                  </ClientOnly>
-                </template>
-
-                <!-- foco SIN reconstrucción individual (#17 costilla, #19): estado honesto -->
-                <ClientOnly v-else>
-                  <BoneTriView :mesh-key="undefined" />
-                  <template #fallback>
-                    <div class="rounded-lg flex items-center justify-center text-[12px]" style="aspect-ratio:5/4;background:#0d1117;color:#aeb6c2">
-                      {{ L('cargando visor 3D…', 'loading 3D viewer…') }}
-                    </div>
-                  </template>
-                </ClientOnly>
-              </div>
-
               <!-- CUANTIFICACIÓN AUTOMÁTICA medida sobre los DICOM (verificación) — abierta por defecto (vista clínica) -->
               <details v-if="hasAuto" class="notes-disclosure mb-4" open>
                 <summary>{{ L('Medido sobre los DICOM (verificación automática)', 'Measured from the DICOM (automatic verification)') }}</summary>
@@ -1967,6 +1928,38 @@ const ticks = [
                 </div>
               </details>
             </div>
+          </div>
+
+          <!-- VISOR 3D a ANCHO COMPLETO · la pieza clave merece todo el ancho (ya no
+               espachurrado en la columna estrecha de la ficha junto al esqueleto).
+               Small multiples: el MISMO hueso en 3 mapas limpios y sincronizados. -->
+          <div v-if="sel" class="mt-8">
+            <p class="eyebrow mb-2 block">{{ L('Hueso reconstruido del CT · captación co-registrada', 'Bone reconstructed from the CT · co-registered uptake') }}</p>
+            <p v-if="isMultiFocusBone" class="text-[12px] text-tinta leading-snug mb-2 max-w-3xl">
+              {{ L('Esta zona tiene ' + coFoci.length + ' focos co-localizados (receptor/azúcar); el realce señala la zona. Detalle de cada foco arriba y en la tabla.', 'This area has ' + coFoci.length + ' co-localized foci (receptor/sugar); the highlight marks the area. Each focus is detailed above and in the table.') }}
+            </p>
+            <template v-if="bone3dKeyOf(sel)">
+              <ClientOnly>
+                <BoneTriView
+                  :mesh-key="bone3dKeyOf(sel)"
+                  :biopsied="bonePriorBiopsy != null"
+                  :biopsy-label="bonePriorBiopsy ?? undefined"
+                />
+                <template #fallback>
+                  <div class="rounded-lg flex items-center justify-center text-[12px]" style="aspect-ratio:15/4;background:#0d1117;color:#aeb6c2">
+                    {{ L('cargando visor…', 'loading viewer…') }}
+                  </div>
+                </template>
+              </ClientOnly>
+            </template>
+            <ClientOnly v-else>
+              <BoneTriView :mesh-key="undefined" />
+              <template #fallback>
+                <div class="rounded-lg flex items-center justify-center text-[12px]" style="aspect-ratio:5/4;background:#0d1117;color:#aeb6c2">
+                  {{ L('cargando visor 3D…', 'loading 3D viewer…') }}
+                </div>
+              </template>
+            </ClientOnly>
           </div>
         </section>
 
