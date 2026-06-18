@@ -374,7 +374,7 @@
     <!-- ░░ 8 · CIERRE / CTA ░░ banda oscura, centrada -->
     <section
       v-reveal
-      class="relative overflow-hidden section-spacing bg-berenjena"
+      class="cta-band relative overflow-hidden bg-berenjena"
       :aria-labelledby="'m-cta'"
     >
       <div class="band-fx" aria-hidden="true">
@@ -383,18 +383,18 @@
       </div>
       <div class="section-wide relative z-10">
         <div class="max-w-2xl mx-auto text-center">
-          <p class="dark-eyebrow mb-3">{{ t('marcas.cta_eyebrow') }}</p>
+          <p class="dark-eyebrow mb-4">{{ t('marcas.cta_eyebrow') }}</p>
           <i18n-t
             keypath="marcas.cta_title"
             tag="h2"
             id="m-cta"
-            class="heading-display text-3xl sm:text-4xl text-cream mb-4"
+            class="heading-display text-3xl sm:text-4xl text-cream mb-5"
             style="letter-spacing: -0.02em"
           >
             <template #em><em class="italic text-coral">{{ t('marcas.cta_title_em') }}</em></template>
           </i18n-t>
-          <p class="text-lg text-cream/85 leading-relaxed mb-8">{{ t('marcas.cta_p') }}</p>
-          <div class="flex flex-col sm:flex-row items-center justify-center gap-4 mb-8">
+          <p class="text-lg text-cream/85 leading-relaxed mb-8 max-w-xl mx-auto">{{ t('marcas.cta_p') }}</p>
+          <div class="flex flex-col sm:flex-row items-center justify-center gap-4 mb-7">
             <NuxtLink :to="localePath('contacto')" class="btn-cta" style="text-decoration: none">
               {{ t('marcas.cta_button') }}
             </NuxtLink>
@@ -483,6 +483,22 @@ export default { name: 'MarcasPage' }
   text-transform: uppercase;
   color: rgba(250, 246, 240, 0.7);
   display: block;
+}
+
+/* Banda de cierre/CTA: ritmo equilibrado. El contenido es corto (eyebrow → h2 →
+   subtítulo → botones → tagline), así que en vez del py-28 simétrico del DS, que
+   dejaba un hueco muerto bajo la tagline, usamos un padding inferior algo menor
+   que el superior: la composición queda centrada y la banda "abraza" el muro de
+   logos del footer sin aire vacío. */
+.cta-band {
+  padding-top: 5rem;    /* 80px */
+  padding-bottom: 4.25rem; /* 68px — recorta el hueco muerto bajo la tagline */
+}
+@media (min-width: 640px) {
+  .cta-band {
+    padding-top: 7rem;    /* 112px, = section-spacing sm */
+    padding-bottom: 5.5rem; /* 88px */
+  }
 }
 
 /* Anillo decorativo del avatar (violeta-soft translúcido). */
