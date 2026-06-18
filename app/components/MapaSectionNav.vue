@@ -3,46 +3,11 @@
        CienciaSectionNav). Rail pegajoso en lg+ (variant="rail") con scroll-spy
        por IntersectionObserver; desplegable «Saltar a…» en móvil
        (variant="mobile"); activo en berenjena + punto violeta (NUNCA coral);
-       foco gestionado al saltar y respeto por prefers-reduced-motion. Las 8
+       foco gestionado al saltar y respeto por prefers-reduced-motion. Las
        secciones apuntan a los id de los <h2> ya presentes en la página. -->
   <nav :aria-label="locale === 'es' ? 'Índice de secciones' : 'Section index'">
-    <!-- Barra horizontal SUPERIOR (variant="bar"): el índice ya no ocupa rail
-         lateral. En ≥md es una tira de chips con scroll horizontal y scroll-spy
-         (el activo resalta); en <md colapsa a un desplegable «Saltar a sección».
-         Así el contenido usa toda la pantalla. Conserva foco a11y + anclas. -->
-    <template v-if="variant === 'bar'">
-      <!-- ≥md: tira de chips horizontal -->
-      <div class="mn-b">
-        <span class="mn-b__label">{{ locale === 'es' ? 'Saltar a' : 'Jump to' }}</span>
-        <ul class="mn-b__list">
-          <li v-for="c in chapters" :key="c.id">
-            <a
-              :href="`#${c.id}`"
-              class="mn-b__chip"
-              :class="{ 'is-active': activeId === c.id }"
-              :aria-current="activeId === c.id ? 'location' : undefined"
-              @click="jumpTo($event, c.id)"
-            >{{ c.label }}</a>
-          </li>
-        </ul>
-      </div>
-      <!-- <md: desplegable compacto «Saltar a sección ▾» -->
-      <details class="mn-m mn-b__details">
-        <summary class="mn-m__summary">
-          <Icon name="ph:list-bold" class="w-4 h-4 shrink-0" aria-hidden="true" />
-          {{ locale === 'es' ? 'Saltar a una sección' : 'Jump to a section' }}
-          <Icon name="ph:caret-down" class="mn-m__caret w-3.5 h-3.5 shrink-0" aria-hidden="true" />
-        </summary>
-        <ul class="mn-m__list">
-          <li v-for="c in chapters" :key="c.id">
-            <a :href="`#${c.id}`" @click="jumpTo($event, c.id)">{{ c.label }}</a>
-          </li>
-        </ul>
-      </details>
-    </template>
-
     <!-- Móvil: desplegable en el flujo (no pegajoso) -->
-    <details v-else-if="variant === 'mobile'" class="mn-m">
+    <details v-if="variant === 'mobile'" class="mn-m">
       <summary class="mn-m__summary">
         <Icon name="ph:list-bold" class="w-4 h-4 shrink-0" aria-hidden="true" />
         {{ locale === 'es' ? 'Saltar a una sección' : 'Jump to a section' }}
@@ -77,33 +42,34 @@
 </template>
 
 <script setup lang="ts">
-const props = withDefaults(defineProps<{ variant?: 'rail' | 'mobile' | 'bar' }>(), {
+const props = withDefaults(defineProps<{ variant?: 'rail' | 'mobile' }>(), {
   variant: 'rail',
 })
 const { locale } = useI18n()
 const L = (es: string, en: string) => (locale.value === 'en' ? en : es)
 
-// Secciones del mapa, mapeadas a los id de <h2> ya existentes en la página
-// (nuevo orden de lectura: lo PRIMARIO arriba —navegar focos ↔ ver en 3D— y el
-// contexto/detalle/apéndices debajo). Etiquetas bilingües, neutras.
+// ÍNDICE COMPLETO DE LA PÁGINA, mapeado a los id de <h2> ya existentes. Empieza por
+// la HERRAMIENTA (Zona 1: «Dianas idóneas» + el mapa/3D) para poder VOLVER a la
+// decisión desde cualquier punto (wayfinding), y sigue con la sección general
+// (Zona 2), ordenada de MÁS a MENOS importante para decidir. Las etiquetas casan
+// con el <h2> de destino (confirmación de «dónde estoy» tras saltar). Bilingüe, neutra.
 const chapters = computed(() => [
-  { id: 'mapa', label: L('El mapa · navega y ve en 3D', 'The map · navigate and see in 3D') },
-  { id: 'detalle-foco', label: L('Detalle del foco', 'Focus detail') },
-  { id: 'cockpit', label: L('Enfermedad ósea de un vistazo', 'Bone disease at a glance') },
-  { id: 'fenotipo', label: L('Mapa de fenotipo', 'Phenotype map') },
-  { id: 'imagen', label: L('Lo que muestra la RMN', 'What the MRI shows') },
-  { id: 'trayectoria', label: L('Trayectoria del FDG', 'FDG trajectory') },
+  { id: 'dianas-resumen', label: L('Dianas idóneas', 'Suitable targets') },
+  { id: 'mapa', label: L('El mapa, lesión a lesión', 'The map, lesion by lesion') },
   { id: 'idoneidad', label: L('Idoneidad como diana', 'Suitability as a target') },
-  { id: 'tabla', label: L('Apéndice: tabla de focos', 'Appendix: foci table') },
+  { id: 'fenotipo', label: L('Mapa de fenotipo', 'Phenotype map') },
+  { id: 'imagen', label: L('La imagen real', 'The real imaging') },
+  { id: 'trayectoria', label: L('Trayectoria', 'Trajectory') },
+  { id: 'tabla', label: L('Apéndice (tabla)', 'Appendix (table)') },
+  { id: 'cockpit', label: L('Enfermedad ósea de un vistazo', 'Bone disease at a glance') },
 ])
 
 const activeId = ref('')
 let observer: IntersectionObserver | null = null
 
 onMounted(() => {
-  // El scroll-spy resalta el activo en el rail de escritorio y en la barra
-  // superior de chips (no en el desplegable móvil simple).
-  if (props.variant !== 'rail' && props.variant !== 'bar') return
+  // El scroll-spy solo lo necesita el rail de escritorio (resalta el activo).
+  if (props.variant !== 'rail') return
   const els = chapters.value
     .map((c) => document.getElementById(c.id))
     .filter((el): el is HTMLElement => !!el)
@@ -157,7 +123,7 @@ function jumpTo(e: Event, id: string) {
   border-left: 2px solid transparent;
   font-size: 13.5px;
   line-height: 1.3;
-  color: rgba(45, 27, 61, 0.58);
+  color: rgba(45, 27, 61, 0.72);
   text-decoration: none;
   transition: color 0.18s ease, border-color 0.18s ease;
 }
@@ -181,7 +147,7 @@ function jumpTo(e: Event, id: string) {
   background: #9d44ab;
 }
 .mn-d__link:focus-visible {
-  outline: 2px solid #ff6b47;
+  outline: 2px solid #9d44ab;
   outline-offset: 2px;
   border-radius: 2px;
 }
@@ -231,78 +197,13 @@ function jumpTo(e: Event, id: string) {
 }
 .mn-m__summary:focus-visible,
 .mn-m__list a:focus-visible {
-  outline: 2px solid #ff6b47;
+  outline: 2px solid #9d44ab;
   outline-offset: 2px;
 }
-/* Barra horizontal superior (variant="bar") */
-.mn-b {
-  display: none; /* <md: usa el desplegable */
-  align-items: center;
-  gap: 0.6rem;
-  padding: 0.5rem 0;
-  background: rgba(247, 242, 234, 0.92);
-  backdrop-filter: blur(6px);
-  border-bottom: 1px solid rgba(45, 27, 61, 0.1);
-}
-.mn-b__details {
-  /* el desplegable de la barra hereda el estilo .mn-m; añade el fondo pegajoso */
-  background: rgba(247, 242, 234, 0.96);
-  backdrop-filter: blur(6px);
-}
-.mn-b__label {
-  flex-shrink: 0;
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 10px;
-  letter-spacing: 0.07em;
-  text-transform: uppercase;
-  color: #6b6470;
-}
-.mn-b__list {
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
-  overflow-x: auto;
-  scrollbar-width: thin;
-  -webkit-overflow-scrolling: touch;
-  padding-bottom: 1px;
-}
-.mn-b__chip {
-  display: inline-block;
-  white-space: nowrap;
-  padding: 4px 11px;
-  border-radius: 9999px;
-  border: 1px solid rgba(45, 27, 61, 0.16);
-  background: #fbf7f0;
-  font-size: 12.5px;
-  line-height: 1.2;
-  color: rgba(45, 27, 61, 0.62);
-  text-decoration: none;
-  transition: color 0.18s ease, border-color 0.18s ease, background 0.18s ease;
-}
-.mn-b__chip:hover {
-  color: #2d1b3d;
-  border-color: rgba(45, 27, 61, 0.32);
-}
-.mn-b__chip.is-active {
-  color: #fdf6ef;
-  background: #2d1b3d;
-  border-color: #2d1b3d;
-  font-weight: 600;
-}
-.mn-b__chip:focus-visible {
-  outline: 2px solid #ff6b47;
-  outline-offset: 2px;
-}
-@media (min-width: 768px) {
-  .mn-b { display: flex; }
-  .mn-b__details { display: none; }
-}
-
 @media (prefers-reduced-motion: reduce) {
   .mn-d__link,
   .mn-d__dot,
-  .mn-m__caret,
-  .mn-b__chip {
+  .mn-m__caret {
     transition: none;
   }
 }
