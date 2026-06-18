@@ -62,6 +62,11 @@
       :aria-labelledby="'m-hero'"
     >
       <div class="band-fx" aria-hidden="true"></div>
+      <!-- Vida sutil SOLO en el hero: constelación crema + motivo molecular muy
+           tenue (la identidad científica del sitio). Capa encima de la retícula
+           compartida, mismo crema (#faf6f0), baja opacidad, estática. Sin glow
+           lila ni color custom. -->
+      <div class="band-life" aria-hidden="true"></div>
       <div class="section-wide relative z-10">
         <div class="grid lg:grid-cols-[1fr_auto] gap-10 lg:gap-16 items-center">
           <div>
@@ -306,14 +311,16 @@
           <p class="text-lg text-cream/85 leading-relaxed mb-8 max-w-xl mx-auto">{{ t('marcas.cta_p') }}</p>
           <!-- Cierre con UN solo CTA: contactar. El enlace de dossier se retiró
                aquí (redundante con el del hero, el de la dossier-row y el botón
-               flotante) para que el cierre empuje una única acción. -->
+               flotante) para que el cierre empuje una única acción. El
+               cta_microcopy («benéfico/profesional») se retiró: ya vive en el
+               hero (hero_context) y repetirlo re-justificaba el cierre. -->
           <div class="flex justify-center mb-6">
             <NuxtLink :to="localePath('contacto')" class="btn-cta" style="text-decoration: none">
               {{ t('marcas.cta_button') }}
             </NuxtLink>
           </div>
-          <p class="text-sm text-cream/85 leading-relaxed mb-6 max-w-xl mx-auto">{{ t('marcas.cta_podcast') }}</p>
-          <p class="font-mono text-xs text-cream/65 max-w-md mx-auto leading-relaxed">{{ t('marcas.cta_microcopy') }}</p>
+          <!-- Teaser final (abre boca, sin desvelar): el detalle va al dossier. -->
+          <p class="text-sm text-cream/85 leading-relaxed max-w-xl mx-auto">{{ t('marcas.cta_podcast') }}</p>
         </div>
       </div>
     </section>
@@ -584,6 +591,61 @@ export default { name: 'MarcasPage' }
   background-size: 32px 32px;
 }
 
+/* ── Vida del hero (capa .band-life, SOLO en la banda superior) ───────────────
+   Da aire y vida ON-BRAND a la banda oscura sin reintroducir el resplandor lila
+   que Miriam pidió quitar: TODO en crema (#faf6f0), baja opacidad, estático.
+     · Constelación: puntos crema dispersos de tamaños distintos (estrellas),
+       irregulares —no la retícula regular de .band-fx— para que «respire».
+     · Motivo molecular/neuro: hexágono de nodos+enlaces (la identidad
+       científica del sitio y del avatar) en SVG inline crema, muy tenue,
+       desplazado a la derecha para no competir con el titular.
+   Capa por encima de .band-fx; ambas suman a la misma retícula del resto del
+   sitio. Sin glow lila, sin color custom, sin animación → sin coste de contraste. */
+.band-life {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+  /* Constelación crema: cada radial-gradient es una «estrella». Posiciones y
+     tamaños variados → cielo disperso, no malla. Opacidad por capa muy baja. */
+  background-image:
+    radial-gradient(1.5px 1.5px at 12% 22%, rgba(250, 246, 240, 0.5), transparent 60%),
+    radial-gradient(1px 1px at 26% 64%, rgba(250, 246, 240, 0.38), transparent 60%),
+    radial-gradient(1.5px 1.5px at 38% 14%, rgba(250, 246, 240, 0.45), transparent 60%),
+    radial-gradient(1px 1px at 54% 78%, rgba(250, 246, 240, 0.34), transparent 60%),
+    radial-gradient(2px 2px at 68% 30%, rgba(250, 246, 240, 0.42), transparent 60%),
+    radial-gradient(1px 1px at 82% 58%, rgba(250, 246, 240, 0.36), transparent 60%),
+    radial-gradient(1.5px 1.5px at 90% 18%, rgba(250, 246, 240, 0.4), transparent 60%),
+    radial-gradient(1px 1px at 46% 44%, rgba(250, 246, 240, 0.3), transparent 60%);
+  background-repeat: no-repeat;
+}
+/* Motivo molecular/neuro: hexágono de nodos+enlaces en crema, muy tenue. SVG
+   inline (sin pedir asset). A la derecha y recortado por el borde → sugiere, no
+   ilustra. Oculto en pantallas muy estrechas para no recargar el móvil. */
+.band-life::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  right: -3rem;
+  width: 360px;
+  height: 360px;
+  transform: translateY(-50%);
+  opacity: 0.07;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: contain;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200' fill='none' stroke='%23faf6f0' stroke-width='1.4'%3E%3Cpolygon points='100,40 152,70 152,130 100,160 48,130 48,70'/%3E%3Cline x1='100' y1='40' x2='100' y2='100'/%3E%3Cline x1='152' y1='70' x2='100' y2='100'/%3E%3Cline x1='152' y1='130' x2='100' y2='100'/%3E%3Cline x1='100' y1='160' x2='100' y2='100'/%3E%3Cline x1='48' y1='130' x2='100' y2='100'/%3E%3Cline x1='48' y1='70' x2='100' y2='100'/%3E%3Cline x1='100' y1='40' x2='30' y2='18'/%3E%3Cline x1='152' y1='130' x2='190' y2='168'/%3E%3Cline x1='48' y1='130' x2='14' y2='150'/%3E%3Ccircle cx='100' cy='100' r='4.5' fill='%23faf6f0' stroke='none'/%3E%3Ccircle cx='100' cy='40' r='3.5' fill='%23faf6f0' stroke='none'/%3E%3Ccircle cx='152' cy='70' r='3.5' fill='%23faf6f0' stroke='none'/%3E%3Ccircle cx='152' cy='130' r='3.5' fill='%23faf6f0' stroke='none'/%3E%3Ccircle cx='100' cy='160' r='3.5' fill='%23faf6f0' stroke='none'/%3E%3Ccircle cx='48' cy='130' r='3.5' fill='%23faf6f0' stroke='none'/%3E%3Ccircle cx='48' cy='70' r='3.5' fill='%23faf6f0' stroke='none'/%3E%3Ccircle cx='30' cy='18' r='2.5' fill='%23faf6f0' stroke='none'/%3E%3Ccircle cx='190' cy='168' r='2.5' fill='%23faf6f0' stroke='none'/%3E%3Ccircle cx='14' cy='150' r='2.5' fill='%23faf6f0' stroke='none'/%3E%3C/svg%3E");
+}
+@media (max-width: 640px) {
+  .band-life::after {
+    width: 220px;
+    height: 220px;
+    right: -4rem;
+    opacity: 0.05;
+  }
+}
+
 /* Botón flotante de descarga del dossier — sobre la barra de apoyo móvil (<lg).
    Color = tokens del DS (berenjena/crema, vía @apply); el hover reutiliza el
    mismo valor que .btn-dark:hover del DS (no hay utilidad Tailwind para ese
@@ -627,7 +689,8 @@ export default { name: 'MarcasPage' }
   .no-print {
     display: none !important;
   }
-  .band-fx {
+  .band-fx,
+  .band-life {
     display: none !important;
   }
   section {

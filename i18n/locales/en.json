@@ -847,7 +847,7 @@
     "meta_title": "A showcase about to take off. Bring your brand on. — helpmiriam.com",
     "meta_description": "I'm an engineer and creator with an ultra-rare breast cancer: a profile that doesn't come twice and a story with a lot of attention ahead. I'm not asking you for a donation; I'm proposing a partnership to turn that attention into eyes on your brand. Charitable, yes, but also professional, and we treat it as such.",
     "og_description": "A showcase about to take off. I'd like to bring your brand onto this story —not a one-day logo— with a tech creator researching her own ultra-rare cancer. A professional, long-term partnership, with full transparency.",
-    "print": "↓ Dossier (PDF)",
+    "print": "Dossier (PDF)",
     "print_aria": "Download the brand dossier as PDF",
 
     "_comment_hero": "Header — Adri's copy pass (Jun 18, AUTHORITATIVE): H1 leads with her «showcase about to take off» image + a direct call to the brand («Bring your brand on»). The partnership-not-donation framing moves down to hero_context. DOSSIER register (sober, peer-to-peer). Alternatives A and C live in the marcas.vue comment.",
@@ -915,7 +915,7 @@
       { "value": "+1M", "caption": "views / month (IG)" },
       { "value": "72.5%", "caption": "verified real audience (Modash)" }
     ],
-    "audiencia_frame": "A tech and health profile, in Spain and Latin America, professional and engaged. I won't bury you in charts: the brands that reach out do it for the media angle and to join something real, not for the exact size of the audience. If you want the fine breakdown —ages, geography, channel by channel—, it's in the dossier.",
+    "audiencia_frame": "I won't bury you in charts: the brands that reach out do it for the media angle and to join something real, not for the exact size of the audience. If you want the fine breakdown, it's in the dossier.",
 
     "movilizan_title": "And when it counts, they show up",
     "movilizan_p": "This isn't an audience that just watches: when I ask for something concrete, it responds. In a recent campaign, that «give me a hand» turned into {b}.",
@@ -937,8 +937,7 @@
     "cta_title_em": "not a one-day logo",
     "cta_p": "Tell me what you do and we'll build it together, made for you. This isn't a form that gets lost: there are people behind it and we reply for real.",
     "cta_button": "Let's talk about your brand",
-    "cta_podcast": "And the timing helps: I'm relaunching my podcast «No me da la vida» to tell the AI and technology behind this project. Over the coming months this is going to draw a lot of attention: a good moment to come aboard.",
-    "cta_microcopy": "One last thing, because it matters: it's a charitable project, yes, but also a professional collaboration between you and me, and we treat it as such.",
+    "cta_podcast": "And big initiatives are on the way to show everything behind this — the details are in the dossier.",
 
     "popup_title": "Bring your brand onto this showcase?",
     "popup_text": "This isn't an inbox that gets ignored: there are people behind it and we reply for real. Tell me who you are and we'll see how we fit.",

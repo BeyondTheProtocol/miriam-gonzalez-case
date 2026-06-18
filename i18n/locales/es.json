@@ -847,7 +847,7 @@
     "meta_title": "Un escaparate a punto de despegar. Sube tu marca. — helpmiriam.com",
     "meta_description": "Soy ingeniera y divulgadora con un cáncer de mama ultra-raro: un perfil que no se repite y una historia con mucha atención por delante. No te pido un donativo; te propongo un partnership para convertir esa atención en ojos para tu marca. Benéfico, sí, pero también profesional, y lo trabajamos como tal.",
     "og_description": "Un escaparate a punto de despegar. Te propongo subir tu marca a esta historia —no un logo de un día— con una divulgadora tech que investiga su propio cáncer ultra-raro. Partnership profesional a largo plazo, con transparencia total.",
-    "print": "↓ Dossier (PDF)",
+    "print": "Dossier (PDF)",
     "print_aria": "Descargar el dossier para marcas en PDF",
 
     "_comment_hero": "Header — pase de copy de Adri (18-jun, PREVALECE): H1 lidera con su imagen del «escaparate a punto de despegar» + llamada directa a la marca («Sube tu marca»). El encuadre partnership-no-donativo baja al hero_context. Registro DOSIER (sobrio, de igual a igual). Alternativas A y C, en el comentario de marcas.vue.",
@@ -915,7 +915,7 @@
       { "value": "+1M", "caption": "visualizaciones / mes (IG)" },
       { "value": "72,5%", "caption": "audiencia real verificada (Modash)" }
     ],
-    "audiencia_frame": "Perfil tech y salud, en España y Latinoamérica, profesional y comprometido. No te voy a llenar esto de gráficas: las marcas que escriben lo hacen por la parte mediática y por sumarse a algo real, no por el tamaño exacto de la audiencia. Si quieres el desglose fino —edades, geografía, canal a canal—, lo tienes en el dossier.",
+    "audiencia_frame": "No te voy a llenar esto de gráficas: las marcas que escriben lo hacen por la parte mediática y por sumarse a algo real, no por el tamaño exacto de la audiencia. Si quieres el desglose fino, lo tienes en el dossier.",
 
     "movilizan_title": "Y cuando hace falta, responden",
     "movilizan_p": "No es una audiencia que solo mira: cuando le pido algo concreto, responde. En una campaña reciente, ese «échame una mano» se tradujo en {b}.",
@@ -937,8 +937,7 @@
     "cta_title_em": "no un logo de un día",
     "cta_p": "Cuéntame qué hacéis y lo montamos juntas, a vuestra medida. No es un formulario que se pierde: detrás hay personas y te respondemos de verdad.",
     "cta_button": "Hablemos de tu marca",
-    "cta_podcast": "Y el momento ayuda: relanzo mi podcast «No me da la vida» para contar la IA y la tecnología que hay detrás de este proyecto. En los próximos meses esto va a tener mucha atención: un buen momento para subirte.",
-    "cta_microcopy": "Una última cosa, porque importa: es un proyecto benéfico, sí, pero también una colaboración profesional entre tú y yo, y la trabajamos como tal.",
+    "cta_podcast": "Y se vienen iniciativas potentes para contar todo lo que hay detrás — el detalle, en el dossier.",
 
     "popup_title": "¿Subes tu marca a este escaparate?",
     "popup_text": "No es un buzón que se ignora: detrás hay personas y te respondemos de verdad. Cuéntame quién eres y vemos cómo encajar.",
