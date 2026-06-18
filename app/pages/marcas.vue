@@ -132,33 +132,46 @@
         </i18n-t>
         <p class="text-lg text-tinta leading-relaxed mb-9 max-w-3xl">{{ t('marcas.pilares_intro') }}</p>
 
-        <div class="grid sm:grid-cols-2 gap-4 mb-10">
-          <article v-for="(card, ci) in pilaresCards" :key="ci" class="card-base bg-cream-card pillar-card">
-            <span class="pillar-num font-mono text-xs text-miriam" aria-hidden="true">0{{ ci + 1 }}</span>
-            <h3 class="heading-display text-xl text-berenjena mb-2">{{ rt(card.title) }}</h3>
-            <p class="text-sm text-tinta leading-relaxed mb-3">{{ rt(card.what) }}</p>
-            <p class="text-sm text-berenjena leading-relaxed font-medium pillar-gain">{{ rt(card.gain) }}</p>
+        <!-- 4 pilares — formato editorial: número-guía + titular + qué + qué te llevas.
+             Sin caja ni borde marcado: el peso lo da la tipografía y un filete fino
+             entre filas (mismo lenguaje que la home). El número violeta ata la
+             identidad; el "qué te llevas" se distingue por peso, no por recuadro. -->
+        <div class="pilares grid sm:grid-cols-2 gap-x-12 lg:gap-x-16 mb-12">
+          <article v-for="(card, ci) in pilaresCards" :key="ci" class="pilar">
+            <p class="pilar-head">
+              <span class="pilar-num font-mono text-xs text-miriam" aria-hidden="true">0{{ ci + 1 }}</span>
+              <span class="heading-display text-xl text-berenjena">{{ rt(card.title) }}</span>
+            </p>
+            <p class="text-sm text-tinta leading-relaxed mb-2.5">{{ rt(card.what) }}</p>
+            <p class="text-sm text-berenjena leading-relaxed font-medium pilar-gain">{{ rt(card.gain) }}</p>
           </article>
         </div>
 
         <!-- Encajes naturales — dónde el producto se cruza con la vida real,
-             en tags agrupados por categoría. Idea de Adri: aunque ya haya una
-             marca del sector, sigue habiendo sitio (menciones). -->
-        <div class="encajes mb-10">
+             agrupados por categoría. Aire editorial (sin chips ni recuadros): el
+             rótulo de grupo lleva la identidad violeta y cada encaje es una línea
+             con un guion-acento fino (mismo lenguaje que "Lo que no somos"). Idea
+             de Adri: aunque ya haya una marca del sector, sigue habiendo sitio. -->
+        <div class="encajes mb-12">
           <h3 class="heading-display text-xl text-berenjena mb-2">{{ t('marcas.encajes_title') }}</h3>
-          <p class="text-sm text-tinta leading-relaxed mb-6 max-w-3xl">{{ t('marcas.encajes_intro') }}</p>
+          <p class="text-sm text-tinta leading-relaxed mb-7 max-w-3xl">{{ t('marcas.encajes_intro') }}</p>
           <div class="encajes-grid">
             <div v-for="(g, gi) in encajesGroups" :key="gi" class="encajes-group">
               <p class="encajes-group__label">{{ rt(g.label) }}</p>
-              <ul class="encajes-tags">
-                <li v-for="(tag, ti) in (g.tags as string[])" :key="ti" class="encaje-tag">{{ tag }}</li>
+              <ul class="encajes-list">
+                <li v-for="(tag, ti) in (g.tags as unknown[])" :key="ti" class="encaje-item">
+                  <span class="encaje-dash" aria-hidden="true"></span>
+                  <span>{{ rt(tag) }}</span>
+                </li>
               </ul>
             </div>
           </div>
         </div>
 
-        <!-- Dossier en primer plano + CTA de contacto -->
-        <div class="rounded-2xl p-6 sm:p-7 bg-cream-card flex flex-col sm:flex-row sm:items-center gap-5 sm:gap-8">
+        <!-- Dossier en primer plano + CTA de contacto. Filete fino superior en vez
+             de caja rellena: separa el cierre del bloque sin añadir otro recuadro
+             (mismo divisor editorial que la tira de prensa de la home). -->
+        <div class="dossier-row flex flex-col sm:flex-row sm:items-center gap-5 sm:gap-8">
           <p class="text-base text-berenjena leading-relaxed flex-1 m-0">
             {{ t('marcas.pilares_dossier_line') }}
             <a href="/dossier-marcas-deck.pdf" download class="link-inline font-medium">{{ t('marcas.pilares_dossier_cta') }}</a>
@@ -399,21 +412,43 @@ export default { name: 'MarcasPage' }
   text-underline-offset: 4px;
 }
 
-/* Tarjetas de los 4 pilares — numeradas y con borde violeta de identidad a la
-   izquierda; el "qué te llevas" (.pillar-gain) se separa con una fina regla. */
-.pillar-card {
-  position: relative;
-  border-left: 4px solid #9d44ab;
-}
-.pillar-num {
-  position: absolute;
-  top: 1rem;
-  right: 1.1rem;
-  letter-spacing: 0.08em;
-}
-.pillar-gain {
-  padding-top: 0.65rem;
+/* 4 pilares — formato editorial, sin caja. Cada pilar es una columna de texto
+   separada de la anterior por un filete fino (no un recuadro). El número violeta
+   precede al titular como índice de lectura; el "qué te llevas" (.pilar-gain) se
+   separa con la misma regla fina, manteniendo la jerarquía por peso, no por borde. */
+.pilar {
+  padding-top: 1.6rem;
+  margin-top: 1.6rem;
   border-top: 1px solid rgba(45, 27, 61, 0.1);
+}
+/* Las dos primeras filas (1 col móvil → la 1.ª; 2 cols ≥sm → las dos de arriba)
+   no llevan filete ni espacio superior: el bloque arranca limpio. */
+.pilares > .pilar:first-child {
+  padding-top: 0;
+  margin-top: 0;
+  border-top: 0;
+}
+@media (min-width: 640px) {
+  .pilares > .pilar:nth-child(2) {
+    padding-top: 0;
+    margin-top: 0;
+    border-top: 0;
+  }
+}
+.pilar-head {
+  display: flex;
+  align-items: baseline;
+  gap: 0.6rem;
+  margin-bottom: 0.5rem;
+}
+.pilar-num {
+  letter-spacing: 0.08em;
+  flex-shrink: 0;
+}
+.pilar-gain {
+  margin-top: 0.6rem;
+  padding-top: 0.55rem;
+  border-top: 1px solid rgba(45, 27, 61, 0.08);
 }
 
 /* Pills de marcas partner — identidad violeta; se «encienden» a violeta sólido
@@ -446,17 +481,18 @@ export default { name: 'MarcasPage' }
 }
 
 /* ── Encajes naturales ───────────────────────────────────────────────────────
-   Tags estáticos (no enlaces) agrupados por categoría. Mismos tokens que las
-   pills de partner pero en versión "neutra" (sin acción): no se encienden a
-   violeta sólido para no leerse como enlace. El borde violeta del título de
-   grupo ata el bloque a la identidad de la página. */
+   Listas editoriales agrupadas por categoría — sin chips ni recuadros. El rótulo
+   de grupo lleva el filete violeta de identidad; cada encaje es una línea con un
+   guion-acento fino (mismo lenguaje que "Lo que no somos" del equipo). El aire y
+   la tipografía hacen el trabajo: limpio, no "cajón". */
 .encajes-grid {
   display: grid;
-  gap: 1.5rem 2rem;
+  gap: 2rem 2.5rem;
 }
 @media (min-width: 640px) {
   .encajes-grid {
     grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 2.25rem 3rem;
   }
 }
 .encajes-group__label {
@@ -468,27 +504,37 @@ export default { name: 'MarcasPage' }
   color: #2d1b3d;
   padding-left: 0.6rem;
   border-left: 3px solid #9d44ab;
-  margin-bottom: 0.75rem;
+  margin-bottom: 0.85rem;
 }
-.encajes-tags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
+.encajes-list {
   list-style: none;
   margin: 0;
   padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
 }
-.encaje-tag {
-  display: inline-flex;
-  align-items: center;
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 12.5px;
-  font-weight: 500;
-  padding: 0.35rem 0.75rem;
+.encaje-item {
+  display: flex;
+  align-items: baseline;
+  gap: 0.65rem;
+  font-size: 14.5px;
+  line-height: 1.5;
+  color: #3a3340;
+}
+.encaje-dash {
+  flex-shrink: 0;
+  width: 0.85rem;
+  height: 2px;
   border-radius: 999px;
-  background: rgba(232, 212, 237, 0.55);
-  color: #2d1b3d;
-  border: 1px solid rgba(157, 68, 171, 0.18);
+  background: rgba(157, 68, 171, 0.6);
+  transform: translateY(-0.32em);
+}
+
+/* Fila del dossier — cierre del bloque con filete fino superior (sin caja). */
+.dossier-row {
+  padding-top: 1.75rem;
+  border-top: 1px solid rgba(45, 27, 61, 0.1);
 }
 
 /* ── Cielo decorativo de las bandas oscuras ──────────────────────────────────
