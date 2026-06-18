@@ -10,9 +10,10 @@
         · UN ACENTO POR BLOQUE: violeta = identidad (miriam / miriam-claro
           en oscuro), coral = SOLO acción (botones CTA). Crema, nunca
           blanco; texto berenjena, nunca negro.
-        · Dos bandas oscuras (hero · cierre) llevan un cielo decorativo
-          (.band-fx): resplandor violeta centrado + estrellas tenues hacia
-          los bordes → no pisan el texto (zona tranquila).
+        · Dos bandas oscuras (hero · cierre) = berenjena plano (bg-berenjena) +
+          la MISMA retícula de puntos crema al 4 % que las bandas oscuras del
+          resto del sitio (index.vue / equipo.vue). Sin tinte violeta: el fondo
+          es exactamente el del resto de la web (.band-fx).
         · ?marca=Nombre personaliza el hero (cliente, sin romper SSR).
         · Botón flotante → descarga el dossier (public/dossier-marcas-deck.pdf).
         · Pop-up de contacto propio (MarcasContactPrompt): SOLO aquí, apunta a
@@ -53,10 +54,7 @@
       class="relative overflow-hidden section-spacing bg-berenjena"
       :aria-labelledby="'m-hero'"
     >
-      <div class="band-fx" aria-hidden="true">
-        <div class="band-fx__stars"></div>
-        <div class="band-fx__glow"></div>
-      </div>
+      <div class="band-fx" aria-hidden="true"></div>
       <div class="section-wide relative z-10">
         <div class="grid lg:grid-cols-[1fr_auto] gap-10 lg:gap-16 items-center">
           <div>
@@ -83,8 +81,9 @@
               <NuxtLink :to="localePath('contacto')" class="btn-cta" style="text-decoration: none">
                 {{ t('marcas.hero_cta') }}
               </NuxtLink>
-              <a href="/dossier-marcas-deck.pdf" download class="link-inline link-inline--invert font-mono text-sm">
+              <a href="/dossier-marcas-deck.pdf" download class="link-action group font-mono text-sm text-cream">
                 {{ t('marcas.hero_cta_dossier') }}
+                <Icon name="ph:download-simple" class="w-4 h-4 transition-transform group-hover:translate-y-0.5" aria-hidden="true" />
               </a>
             </div>
 
@@ -272,10 +271,7 @@
       class="cta-band relative overflow-hidden bg-berenjena"
       :aria-labelledby="'m-cta'"
     >
-      <div class="band-fx" aria-hidden="true">
-        <div class="band-fx__stars"></div>
-        <div class="band-fx__glow"></div>
-      </div>
+      <div class="band-fx" aria-hidden="true"></div>
       <div class="section-wide relative z-10">
         <div class="max-w-2xl mx-auto text-center">
           <p class="dark-eyebrow mb-4">{{ t('marcas.cta_eyebrow') }}</p>
@@ -293,8 +289,9 @@
             <NuxtLink :to="localePath('contacto')" class="btn-cta" style="text-decoration: none">
               {{ t('marcas.cta_button') }}
             </NuxtLink>
-            <a href="/dossier-marcas-deck.pdf" download class="link-inline link-inline--invert font-mono text-sm">
+            <a href="/dossier-marcas-deck.pdf" download class="link-action group font-mono text-sm text-cream">
               {{ t('marcas.cta_dossier') }}
+              <Icon name="ph:download-simple" class="w-4 h-4 transition-transform group-hover:translate-y-0.5" aria-hidden="true" />
             </a>
           </div>
           <p class="text-sm text-cream/85 leading-relaxed mb-6 max-w-xl mx-auto">{{ t('marcas.cta_podcast') }}</p>
@@ -303,8 +300,10 @@
       </div>
     </section>
 
-    <!-- Botón flotante · descarga el dossier en PDF (oculto en impresión) -->
+    <!-- Botón flotante · descarga el dossier en PDF (oculto en impresión).
+         Icono de descarga = misma señal que los enlaces de dossier del cuerpo. -->
     <a href="/dossier-marcas-deck.pdf" download class="m-print-btn no-print" style="text-decoration: none" :aria-label="t('marcas.print_aria')">
+      <Icon name="ph:download-simple" class="w-4 h-4 shrink-0" aria-hidden="true" />
       {{ t('marcas.print') }}
     </a>
 
@@ -451,9 +450,12 @@ export default { name: 'MarcasPage' }
   border-top: 1px solid rgba(45, 27, 61, 0.08);
 }
 
-/* Pills de marcas partner — identidad violeta; se «encienden» a violeta sólido
-   al pasar/enfocar (señal clara de enlace). */
+/* Pills de marcas partner — misma base que el badge genómico del DS
+   (bg-miriam-soft + text-berenjena, vía @apply: sin hex a mano); identidad
+   violeta que se «enciende» a violeta sólido (bg-miriam + crema) al pasar/
+   enfocar → señal clara de enlace. */
 .partner-pill {
+  @apply bg-miriam-soft text-berenjena;
   display: inline-flex;
   align-items: center;
   font-family: 'JetBrains Mono', monospace;
@@ -461,15 +463,12 @@ export default { name: 'MarcasPage' }
   font-weight: 500;
   padding: 0.4rem 0.85rem;
   border-radius: 999px;
-  background: #e8d4ed;
-  color: #2d1b3d;
   text-decoration: none;
   transition: background 0.2s ease, color 0.2s ease, transform 0.2s ease;
 }
 .partner-pill:hover,
 .partner-pill:focus-visible {
-  background: #9d44ab;
-  color: #faf6f0;
+  @apply bg-miriam text-cream;
   transform: translateY(-1px);
 }
 
@@ -496,14 +495,13 @@ export default { name: 'MarcasPage' }
   }
 }
 .encajes-group__label {
+  @apply text-berenjena border-l-[3px] border-miriam;
   font-family: 'JetBrains Mono', monospace;
   font-size: 12px;
   font-weight: 600;
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  color: #2d1b3d;
   padding-left: 0.6rem;
-  border-left: 3px solid #9d44ab;
   margin-bottom: 0.85rem;
 }
 .encajes-list {
@@ -515,12 +513,12 @@ export default { name: 'MarcasPage' }
   gap: 0.55rem;
 }
 .encaje-item {
+  @apply text-tinta;
   display: flex;
   align-items: baseline;
   gap: 0.65rem;
   font-size: 14.5px;
   line-height: 1.5;
-  color: #3a3340;
 }
 .encaje-dash {
   flex-shrink: 0;
@@ -537,43 +535,31 @@ export default { name: 'MarcasPage' }
   border-top: 1px solid rgba(45, 27, 61, 0.1);
 }
 
-/* ── Cielo decorativo de las bandas oscuras ──────────────────────────────────
-   Resplandor violeta centrado (zona tranquila tras el texto) + estrellas tenues
-   repartidas hacia los bordes. Estático (sin animación) → seguro siempre y sin
-   coste de contraste sobre el texto crema. */
+/* ── Textura de las bandas oscuras ───────────────────────────────────────────
+   MISMA que el resto del sitio: las bandas berenjena de la home (index.vue, banda
+   "la historia") y del equipo (equipo.vue, panel "lo que NO somos") llevan una
+   retícula de puntos crema tenue al 4 % sobre berenjena plano —sin tinte violeta—.
+   Antes esta página añadía un resplandor lila + estrellas que teñían la banda y
+   la hacían distinta al resto (feedback de Miriam: "el fondo/el lila no coincide").
+   Ahora el fondo es EXACTAMENTE el del resto del sitio: berenjena (bg-berenjena)
+   + esta retícula. Estático → seguro siempre y sin coste de contraste. */
 .band-fx {
   position: absolute;
   inset: 0;
   z-index: 0;
   pointer-events: none;
   overflow: hidden;
-}
-.band-fx__glow {
-  position: absolute;
-  inset: 0;
-  background: radial-gradient(58% 64% at 50% 42%, rgba(157, 68, 171, 0.22), transparent 72%);
-}
-.band-fx__stars {
-  position: absolute;
-  inset: 0;
-  background-repeat: no-repeat;
-  background-image:
-    radial-gradient(1.6px 1.6px at 8% 18%, rgba(232, 212, 237, 0.55), transparent 60%),
-    radial-gradient(1.2px 1.2px at 16% 72%, rgba(250, 246, 240, 0.4), transparent 60%),
-    radial-gradient(1.4px 1.4px at 24% 30%, rgba(232, 212, 237, 0.45), transparent 60%),
-    radial-gradient(1px 1px at 33% 86%, rgba(232, 212, 237, 0.4), transparent 60%),
-    radial-gradient(1.5px 1.5px at 45% 10%, rgba(250, 246, 240, 0.45), transparent 60%),
-    radial-gradient(1px 1px at 57% 90%, rgba(232, 212, 237, 0.4), transparent 60%),
-    radial-gradient(1.6px 1.6px at 68% 14%, rgba(232, 212, 237, 0.5), transparent 60%),
-    radial-gradient(1.2px 1.2px at 78% 78%, rgba(250, 246, 240, 0.4), transparent 60%),
-    radial-gradient(1.4px 1.4px at 86% 34%, rgba(232, 212, 237, 0.48), transparent 60%),
-    radial-gradient(1px 1px at 93% 64%, rgba(232, 212, 237, 0.42), transparent 60%),
-    radial-gradient(1.3px 1.3px at 11% 48%, rgba(232, 212, 237, 0.4), transparent 60%),
-    radial-gradient(1.1px 1.1px at 90% 12%, rgba(250, 246, 240, 0.4), transparent 60%);
+  opacity: 0.04;
+  background-image: radial-gradient(circle at 1px 1px, #faf6f0 1px, transparent 0);
+  background-size: 32px 32px;
 }
 
-/* Botón flotante de descarga del dossier — sobre la barra de apoyo móvil (<lg). */
+/* Botón flotante de descarga del dossier — sobre la barra de apoyo móvil (<lg).
+   Color = tokens del DS (berenjena/crema, vía @apply); el hover reutiliza el
+   mismo valor que .btn-dark:hover del DS (no hay utilidad Tailwind para ese
+   tono concreto). Layout fijo/pill: bespoke por necesidad (FAB). */
 .m-print-btn {
+  @apply bg-berenjena text-cream;
   position: fixed;
   right: 1rem;
   bottom: calc(5.25rem + env(safe-area-inset-bottom, 0px));
@@ -583,8 +569,6 @@ export default { name: 'MarcasPage' }
   gap: 0.4rem;
   padding: 0.6rem 0.95rem;
   border-radius: 999px;
-  background: #2d1b3d;
-  color: #faf6f0;
   font-family: 'JetBrains Mono', monospace;
   font-size: 12px;
   letter-spacing: 0.04em;
@@ -592,7 +576,7 @@ export default { name: 'MarcasPage' }
   transition: transform 0.15s ease, background 0.2s ease;
 }
 .m-print-btn:hover {
-  background: #3d2752;
+  background: #3d2752; /* = .btn-dark:hover (DS, main.css) */
   transform: translateY(-2px);
 }
 @media (min-width: 1024px) {
