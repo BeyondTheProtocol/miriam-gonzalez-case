@@ -1392,11 +1392,69 @@ const ticks = [
              héroe navegar-focos ↔ ver-en-3D (mapa, order-2). NADA de índice aquí: la
              herramienta queda despejada. Debajo, una DIVISIÓN CLARA abre la Zona 2. -->
 
-        <!-- LA RESPUESTA PRIMERO (BLUF) · el resumen «Dianas idóneas» (order-1) abre
-             la zona, y debajo el héroe navegar-focos ↔ 3D (order-2). El contexto
-             general (cockpit) ya NO vive aquí: bajó a la wiki. Se conserva flex+order
-             para fijar el orden visual resumen → navegador → detalle. -->
+        <!-- CONTEXTO PRIMERO · el panorama (enfermedad ósea + evolución) abre la
+             página; luego «Dianas idóneas» (order-1) y el héroe navegar-focos ↔ 3D
+             (order-2). Petición de la paciente: contexto general arriba, foco a foco
+             debajo, el desglose a fondo en la wiki. El cintillo va CONDENSADO y con
+             título de sección LIMPIO (sin caja); el desglose completo vive en #cockpit. -->
         <div class="flex flex-col">
+
+        <!-- ===== CONTEXTO GENERAL · el caso de un vistazo (order-0: abre la página) =====
+             Cuánta enfermedad hay y cómo evoluciona, antes de entrar foco a foco.
+             Reusa los computeds del cockpit/trayectoria (mismas cifras, sin recalcular);
+             el desglose a fondo sigue abajo. Título limpio, sin eyebrow ni badge. -->
+        <section class="mb-14" aria-labelledby="contexto-general">
+          <h2 id="contexto-general" class="heading-display text-3xl text-berenjena mb-1.5 scroll-mt-[7.5rem]">{{ L('Enfermedad ósea — el caso de un vistazo', 'Bone disease — the case at a glance') }}</h2>
+          <p class="text-sm text-tinta leading-relaxed mb-5 max-w-3xl">{{ L('Cuánta enfermedad hay y cómo evoluciona, antes de entrar foco a foco. Cifras descriptivas de los dos PET; describe, no concluye.', 'How much disease there is and how it is evolving, before going focus by focus. Descriptive figures from the two PET; it describes, it does not conclude.') }}</p>
+          <!-- enfermedad · KPIs -->
+          <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-5">
+            <div class="stat-readout">
+              <div class="stat-readout__label">{{ L('Carga ósea', 'Bone burden') }}</div>
+              <div class="stat-readout__value tabular-nums">{{ confirmedFoci.length }} <span class="font-body font-semibold text-[15px] text-tinta align-middle">+{{ aiFoci.length }}</span></div>
+              <div class="stat-readout__unit">{{ L('focos en el informe · +' + aiFoci.length + ' por confirmar (IA)', 'foci in the report · +' + aiFoci.length + ' to confirm (AI)') }}</div>
+            </div>
+            <div class="stat-readout">
+              <div class="stat-readout__label">{{ L('Reparto en el esqueleto', 'Skeletal distribution') }}</div>
+              <div class="stat-readout__value tabular-nums">{{ skeletonSplit.axial }} <span class="font-body text-[15px] text-tinta align-middle">·</span> {{ skeletonSplit.append }}</div>
+              <div class="stat-readout__unit">{{ L('axial (columna/sacro) · apendicular (pelvis/cadera)', 'axial (spine/sacrum) · appendicular (pelvis/hip)') }}</div>
+            </div>
+            <div class="stat-readout">
+              <div class="stat-readout__label" :style="{ color: '#9d44ab' }">{{ L('SUVmáx ⁶⁸Ga-DOTATOC', '⁶⁸Ga-DOTATOC SUVmax') }}</div>
+              <div class="stat-readout__value tabular-nums" :style="{ color: '#9d44ab' }">{{ dotaRangeLabel }}</div>
+              <div class="stat-readout__unit">{{ L('rango del receptor (informe)', 'receptor range (report)') }}</div>
+            </div>
+            <div class="stat-readout">
+              <div class="stat-readout__label" :style="{ color: '#bb4128' }">{{ L('SUVmáx ¹⁸F-FDG', '¹⁸F-FDG SUVmax') }}</div>
+              <div class="stat-readout__value tabular-nums" :style="{ color: '#bb4128' }">{{ fdgRangeLabel }}</div>
+              <div class="stat-readout__unit">{{ L('rango del azúcar (informe)', 'sugar range (report)') }}</div>
+            </div>
+          </div>
+          <!-- evolución · KPIs (azúcar FDG vs PET previo) -->
+          <p class="eyebrow mb-2 block">{{ L('Evolución · azúcar (FDG) vs PET previo', 'Evolution · sugar (FDG) vs prior PET') }}</p>
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            <div class="stat-readout">
+              <div class="stat-readout__label">{{ L('FDG en aumento', 'FDG rising') }}</div>
+              <div class="stat-readout__value" :style="{ color: '#bb4128' }">{{ trajectory.up + trajectory.neu }}</div>
+              <div class="stat-readout__unit">{{ L('incluye focos nuevos', 'includes new foci') }}</div>
+            </div>
+            <div class="stat-readout">
+              <div class="stat-readout__label">{{ L('FDG en descenso', 'FDG decreasing') }}</div>
+              <div class="stat-readout__value" :style="{ color: '#1f5a3a' }">{{ trajectory.down }}</div>
+              <div class="stat-readout__unit">{{ L('menos FDG que el previo', 'less FDG than prior') }}</div>
+            </div>
+            <div class="stat-readout">
+              <div class="stat-readout__label">{{ L('Estable', 'Stable') }}</div>
+              <div class="stat-readout__value">{{ trajectory.stable }}</div>
+              <div class="stat-readout__unit">{{ L('sin cambio relevante', 'no relevant change') }}</div>
+            </div>
+            <div class="stat-readout">
+              <div class="stat-readout__label">{{ L('Focos nuevos', 'New foci') }}</div>
+              <div class="stat-readout__value" :style="{ color: '#bb4128' }">{{ trajectory.neu }}</div>
+              <div class="stat-readout__unit">{{ L('nuevos vs PET previo', 'new vs prior PET') }}</div>
+            </div>
+          </div>
+          <p class="text-[11px] text-tinta mt-3 leading-relaxed max-w-3xl">{{ L('La evolución compara solo el azúcar (FDG) entre el PET previo (ene 2026) y el actual (mar 2026), sobre los ' + trajectory.withPrev + ' focos con valor previo. El receptor (Ga-68 DOTATOC) es del estudio único de mayo, sin previo con el que comparar. ', 'Evolution compares only sugar (FDG) between the prior PET (Jan 2026) and the current one (Mar 2026), over the ' + trajectory.withPrev + ' foci with a prior value. The receptor (Ga-68 DOTATOC) is from the single May study, with no prior to compare. ') }}<a href="#cockpit" class="link-action text-miriam font-semibold whitespace-nowrap">{{ L('Ver el desglose completo ↓', 'See the full breakdown ↓') }}</a></p>
+        </section>
 
         <!-- ===== DIANAS IDÓNEAS · RESUMEN (la respuesta primero · order-1) =====
              BLUF: al entrar, los focos mejor situados como diana de biopsia. Es el
