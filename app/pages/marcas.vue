@@ -131,36 +131,41 @@
         </i18n-t>
         <p class="text-lg text-tinta leading-relaxed mb-9 max-w-3xl">{{ t('marcas.pilares_intro') }}</p>
 
-        <!-- 4 pilares — formato editorial: número-guía + titular + qué + qué te llevas.
-             Sin caja ni borde marcado: el peso lo da la tipografía y un filete fino
-             entre filas (mismo lenguaje que la home). El número violeta ata la
-             identidad; el "qué te llevas" se distingue por peso, no por recuadro. -->
-        <div class="pilares grid sm:grid-cols-2 gap-x-12 lg:gap-x-16 mb-12">
-          <article v-for="(card, ci) in pilaresCards" :key="ci" class="pilar">
-            <p class="pilar-head">
-              <span class="pilar-num font-mono text-xs text-miriam" aria-hidden="true">0{{ ci + 1 }}</span>
-              <span class="heading-display text-xl text-berenjena">{{ rt(card.title) }}</span>
+        <!-- 4 pilares — tarjeta del sistema (mismo patrón que la "escalera de CTAs"
+             de la home: .card-base sobre crema, número mono de índice, titular
+             Fraunces, cuerpo en tinta). El "qué te llevas" cierra la tarjeta tras
+             un filete fino, precedido de una flecha violeta de acento, para que se
+             lea como el beneficio y no como otro párrafo. Cuerpo de tarjeta
+             on-brand, sin el borde grueso del round-2 que rompía el vibe. -->
+        <div class="pilares grid sm:grid-cols-2 gap-5 mb-12">
+          <article v-for="(card, ci) in pilaresCards" :key="ci" class="pilar card-base flex flex-col" style="background: #faf6f0">
+            <p class="pilar-num font-mono uppercase text-[11px] tracking-[0.12em] text-tinta mb-2" aria-hidden="true">0{{ ci + 1 }}</p>
+            <h3 class="heading-display text-xl text-berenjena mb-3">{{ rt(card.title) }}</h3>
+            <p class="text-sm text-tinta leading-relaxed mb-4 flex-1">{{ rt(card.what) }}</p>
+            <p class="pilar-gain text-sm text-berenjena leading-relaxed font-medium">
+              <Icon name="ph:arrow-right" class="pilar-gain__icon w-3.5 h-3.5 text-miriam shrink-0" aria-hidden="true" />
+              <span>{{ rt(card.gain) }}</span>
             </p>
-            <p class="text-sm text-tinta leading-relaxed mb-2.5">{{ rt(card.what) }}</p>
-            <p class="text-sm text-berenjena leading-relaxed font-medium pilar-gain">{{ rt(card.gain) }}</p>
           </article>
         </div>
 
         <!-- Encajes naturales — dónde el producto se cruza con la vida real,
-             agrupados por categoría. Aire editorial (sin chips ni recuadros): el
-             rótulo de grupo lleva la identidad violeta y cada encaje es una línea
-             con un guion-acento fino (mismo lenguaje que "Lo que no somos"). Idea
-             de Adri: aunque ya haya una marca del sector, sigue habiendo sitio. -->
+             agrupados por categoría. Cada grupo es una tarjeta del sistema
+             (.card-base sobre crema, rótulo mono con el filete violeta de
+             identidad), y cada encaje vuelve a ser un tag con el mismo lenguaje
+             que los badges genómicos de la home (mono, miriam-soft, píldora que
+             "respira" al pasar). Con cuerpo y personalidad, pero de esta web —ni
+             lista plana (round-4) ni chips genéricos con borde (round-2). Idea de
+             Adri: aunque ya haya una marca del sector, sigue habiendo sitio. -->
         <div class="encajes mb-12">
           <h3 class="heading-display text-xl text-berenjena mb-2">{{ t('marcas.encajes_title') }}</h3>
           <p class="text-sm text-tinta leading-relaxed mb-7 max-w-3xl">{{ t('marcas.encajes_intro') }}</p>
           <div class="encajes-grid">
-            <div v-for="(g, gi) in encajesGroups" :key="gi" class="encajes-group">
+            <div v-for="(g, gi) in encajesGroups" :key="gi" class="encajes-group card-base" style="background: #faf6f0">
               <p class="encajes-group__label">{{ rt(g.label) }}</p>
-              <ul class="encajes-list">
-                <li v-for="(tag, ti) in (g.tags as unknown[])" :key="ti" class="encaje-item">
-                  <span class="encaje-dash" aria-hidden="true"></span>
-                  <span>{{ rt(tag) }}</span>
+              <ul class="encajes-tags">
+                <li v-for="(tag, ti) in (g.tags as unknown[])" :key="ti">
+                  <span class="encaje-tag">{{ rt(tag) }}</span>
                 </li>
               </ul>
             </div>
@@ -411,43 +416,30 @@ export default { name: 'MarcasPage' }
   text-underline-offset: 4px;
 }
 
-/* 4 pilares — formato editorial, sin caja. Cada pilar es una columna de texto
-   separada de la anterior por un filete fino (no un recuadro). El número violeta
-   precede al titular como índice de lectura; el "qué te llevas" (.pilar-gain) se
-   separa con la misma regla fina, manteniendo la jerarquía por peso, no por borde. */
+/* 4 pilares — tarjeta del sistema (.card-base sobre crema), mismo patrón que la
+   "escalera de CTAs" de la home: número mono de índice arriba, titular Fraunces,
+   cuerpo en tinta, y un cierre con el beneficio. flex-col + flex-1 en el cuerpo
+   para que las cuatro tarjetas se alineen aunque el texto varíe de alto.
+   El acento es el número y la flecha violeta — sin el borde grueso del round-2. */
 .pilar {
-  padding-top: 1.6rem;
-  margin-top: 1.6rem;
-  border-top: 1px solid rgba(45, 27, 61, 0.1);
-}
-/* Las dos primeras filas (1 col móvil → la 1.ª; 2 cols ≥sm → las dos de arriba)
-   no llevan filete ni espacio superior: el bloque arranca limpio. */
-.pilares > .pilar:first-child {
-  padding-top: 0;
-  margin-top: 0;
-  border-top: 0;
-}
-@media (min-width: 640px) {
-  .pilares > .pilar:nth-child(2) {
-    padding-top: 0;
-    margin-top: 0;
-    border-top: 0;
-  }
-}
-.pilar-head {
-  display: flex;
-  align-items: baseline;
-  gap: 0.6rem;
-  margin-bottom: 0.5rem;
+  /* hereda .card-base (padding, radio, hairline, bg crema). */
 }
 .pilar-num {
-  letter-spacing: 0.08em;
   flex-shrink: 0;
 }
+/* "Qué te llevas" — cierre de la tarjeta tras un filete fino, con flecha violeta
+   de acento (la misma señal de avance que usan las pathway-cards de la home).
+   Se lee como el beneficio, no como otro párrafo. */
 .pilar-gain {
-  margin-top: 0.6rem;
-  padding-top: 0.55rem;
+  display: flex;
+  align-items: baseline;
+  gap: 0.55rem;
+  margin-top: 0.2rem;
+  padding-top: 0.85rem;
   border-top: 1px solid rgba(45, 27, 61, 0.08);
+}
+.pilar-gain__icon {
+  transform: translateY(0.18em);
 }
 
 /* Pills de marcas partner — misma base que el badge genómico del DS
@@ -480,19 +472,24 @@ export default { name: 'MarcasPage' }
 }
 
 /* ── Encajes naturales ───────────────────────────────────────────────────────
-   Listas editoriales agrupadas por categoría — sin chips ni recuadros. El rótulo
-   de grupo lleva el filete violeta de identidad; cada encaje es una línea con un
-   guion-acento fino (mismo lenguaje que "Lo que no somos" del equipo). El aire y
-   la tipografía hacen el trabajo: limpio, no "cajón". */
+   Tarjetas del sistema (.card-base sobre crema) agrupadas por categoría: el
+   rótulo de grupo conserva el filete violeta de identidad y dentro vuelven los
+   tags. Cada tag (.encaje-tag) es el MISMO badge que el perfil genómico de la
+   home (mono, fondo miriam-soft, sin borde) y "respira" igual al pasar/enfocar
+   (halo violeta, como .badge-genomic) — píldoras estáticas, no enlaces, pero con
+   el lenguaje real del sitio: ni lista plana (round-4) ni chip con borde (round-2). */
 .encajes-grid {
   display: grid;
-  gap: 2rem 2.5rem;
+  gap: 1rem;
 }
 @media (min-width: 640px) {
   .encajes-grid {
     grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 2.25rem 3rem;
+    gap: 1.25rem;
   }
+}
+.encajes-group {
+  /* hereda .card-base (padding, radio, hairline, bg crema). */
 }
 .encajes-group__label {
   @apply text-berenjena border-l-[3px] border-miriam;
@@ -502,31 +499,32 @@ export default { name: 'MarcasPage' }
   letter-spacing: 0.06em;
   text-transform: uppercase;
   padding-left: 0.6rem;
-  margin-bottom: 0.85rem;
+  margin-bottom: 1rem;
 }
-.encajes-list {
+.encajes-tags {
   list-style: none;
   margin: 0;
   padding: 0;
   display: flex;
-  flex-direction: column;
-  gap: 0.55rem;
+  flex-wrap: wrap;
+  gap: 0.5rem;
 }
-.encaje-item {
-  @apply text-tinta;
-  display: flex;
-  align-items: baseline;
-  gap: 0.65rem;
-  font-size: 14.5px;
-  line-height: 1.5;
+/* Tag = badge genómico del DS (bg-miriam-soft + text-berenjena, vía @apply, sin
+   hex a mano). Mismo halo sutil al pasar/enfocar que .badge-genomic — "hasta los
+   detalles respiran" — pero sin pasar a violeta sólido: no es un enlace. */
+.encaje-tag {
+  @apply inline-block bg-miriam-soft text-berenjena rounded-full;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0;
+  padding: 0.3rem 0.7rem;
+  transition: box-shadow 0.2s ease;
 }
-.encaje-dash {
-  flex-shrink: 0;
-  width: 0.85rem;
-  height: 2px;
-  border-radius: 999px;
-  background: rgba(157, 68, 171, 0.6);
-  transform: translateY(-0.32em);
+@media (hover: hover) {
+  .encaje-tag:hover {
+    box-shadow: 0 0 0 3px rgba(157, 68, 171, 0.18);
+  }
 }
 
 /* Fila del dossier — cierre del bloque con filete fino superior (sin caja). */
