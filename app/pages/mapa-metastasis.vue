@@ -1307,27 +1307,42 @@ const ticks = [
           :tag="L('PET doble trazador · ' + confirmedFoci.length + ' focos · +' + aiFoci.length + ' por confirmar', 'Dual-tracer PET · ' + confirmedFoci.length + ' foci · +' + aiFoci.length + ' to confirm')"
         />
 
-        <!-- Aviso -->
-        <div class="rounded-card border border-[#efb27a] bg-[#fbf0df] text-[#7a4a12] px-4 py-3 text-sm leading-relaxed mb-6">
+        <!-- Aviso · CONDENSADO a una línea + detalle plegable, para no empujar lo
+             primario (navegar focos ↔ 3D) hacia abajo en el primer pliegue. -->
+        <details class="rounded-card border border-[#efb27a] bg-[#fbf0df] text-[#7a4a12] px-4 py-2.5 text-sm leading-relaxed mb-6">
+          <summary class="cursor-pointer font-semibold list-none flex items-center gap-2">
+            <Icon name="ph:info" class="w-4 h-4 shrink-0" aria-hidden="true" />
+            {{ L('Herramienta de apoyo, no consejo médico · SUV de los informes PET, imágenes reconstruidas de los DICOM', 'Support tool, not medical advice · SUVs from the PET reports, images reconstructed from the DICOM') }}
+          </summary>
+          <p class="mt-2.5">
           {{ L(
             'Esta página reúne y visualiza los estudios de la paciente (PET-FDG 24/03/2026, PET Galio-68 DOTATOC 26/05/2026 y la RMN de columna cervical y dorsal). Es una herramienta para entender y para apoyar la conversación con el equipo médico — no sustituye su criterio ni es consejo médico. Los SUV son los de los informes oficiales del PET; las imágenes (PET y RMN) se reconstruyeron desde los DICOM. La RMN se muestra para verla: su lectura formal corresponde al radiólogo.',
             'This page gathers and visualises the patient’s studies (FDG-PET 24/03/2026, Ga-68 DOTATOC PET 26/05/2026 and the cervical and thoracic spine MRI). It is a tool to understand and to support the conversation with the medical team — it does not replace their judgement and is not medical advice. SUVs are those of the official PET reports; the images (PET and MRI) were reconstructed from the DICOM. The MRI is shown for viewing: its formal reading belongs to the radiologist.') }}
-        </div>
+          </p>
+        </details>
 
         <!-- Índice móvil: desplegable «Saltar a…» en el flujo, tras la cabecera
              (solo <lg). El rail de escritorio va arriba, junto al título. -->
         <MapaSectionNav variant="mobile" class="lg:hidden mb-10" />
 
-        <!-- ===== PANEL-COCKPIT · KPIs descriptivos ===== -->
-        <section class="mb-12" aria-labelledby="cockpit">
-          <p class="eyebrow mb-2 block">{{ L('Resumen de un vistazo', 'At a glance') }}</p>
-          <h2 id="cockpit" class="heading-display text-2xl text-berenjena mb-2 scroll-mt-[7.5rem]">{{ L('Panel de la enfermedad ósea', 'Bone-disease panel') }}</h2>
-          <p class="text-sm text-tinta leading-relaxed mb-5 max-w-3xl">
-            {{ L('Cifras descriptivas de los dos PET, sin interpretación. Los focos del informe oficial y los detectados por IA (por confirmar) van por separado.',
-                  'Descriptive figures from the two PET studies, with no interpretation. Foci from the official report and those detected by AI (to confirm) are kept separate.') }}
-          </p>
+        <!-- LO PRIMARIO PRIMERO · el héroe (navegar focos ↔ 3D) se renderiza ARRIBA,
+             y el contexto condensado (cockpit) justo debajo. Se usa flex + order para
+             que lo primario abra el primer pliegue SIN empujarse hacia abajo por el
+             contexto, conservando ambas piezas. El índice sigue el orden VISUAL. -->
+        <div class="flex flex-col">
 
-          <!-- KPIs -->
+        <!-- ===== CONTEXTO · enfermedad ósea de un vistazo (condensado · order-2) =====
+             DESCONGESTIONADO: el cockpit (KPIs) ya NO abre la página ni empuja lo
+             primario hacia abajo — va DEBAJO del héroe. Queda una tira COMPACTA de
+             KPIs como cintillo de contexto; el desglose (concordancia, trayectoria,
+             cómo se lee, resumen para el equipo) se pliega en un <details>. -->
+        <section class="order-2 mb-14 mt-2" aria-labelledby="cockpit">
+          <div class="flex items-baseline justify-between flex-wrap gap-x-3 gap-y-1 mb-2">
+            <h2 id="cockpit" class="eyebrow block scroll-mt-[7.5rem]">{{ L('Enfermedad ósea de un vistazo', 'Bone disease at a glance') }}</h2>
+            <p class="text-[11px] text-tinta">{{ L('cifras descriptivas de los dos PET · sin interpretación', 'descriptive figures from the two PET · no interpretation') }}</p>
+          </div>
+
+          <!-- KPIs (cintillo compacto) -->
           <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
             <div class="stat-readout">
               <div class="stat-readout__label">{{ L('Carga ósea', 'Bone burden') }}</div>
@@ -1351,8 +1366,14 @@ const ticks = [
             </div>
           </div>
 
+          <!-- DESGLOSE secundario plegado: concordancia + trayectoria + resumen +
+               «cómo se lee» (los dos trazadores). Es contexto, no debe apelotonar el
+               héroe → se abre a demanda. -->
+          <details class="notes-disclosure">
+            <summary>{{ L('Ver el desglose: concordancia, trayectoria, cómo se lee y resumen para el equipo', 'See the breakdown: concordance, trajectory, how to read it and summary for the team') }}</summary>
+
           <!-- concordancia (barra apilada) + trayectoria FDG -->
-          <div class="grid md:grid-cols-2 gap-4">
+          <div class="grid md:grid-cols-2 gap-4 mt-4">
             <div class="card-base !p-4">
               <p class="text-[11px] font-semibold text-berenjena uppercase tracking-wide mb-2">{{ L('Concordancia receptor ↔ azúcar', 'Receptor ↔ sugar concordance') }}</p>
               <!-- barra apilada. Las cifras de los segmentos ANCHOS van dentro;
@@ -1397,24 +1418,22 @@ const ticks = [
             </div>
           </div>
 
-          <!-- resumen para el equipo · abierto por defecto (vista clínica) -->
-          <details class="notes-disclosure mt-3" open>
-            <summary>{{ L('Resumen para el equipo médico', 'Summary for the medical team') }}</summary>
-            <p class="mt-3 text-sm text-tinta leading-relaxed">
+          <!-- resumen para el equipo médico -->
+          <div class="mt-4 rounded-card border border-[rgba(45,27,61,0.12)] bg-cream-card p-4">
+            <p class="text-[11px] font-semibold text-berenjena uppercase tracking-wide mb-2">{{ L('Resumen para el equipo médico', 'Summary for the medical team') }}</p>
+            <p class="text-sm text-tinta leading-relaxed">
               {{ L(
                 'Enfermedad ósea multinivel. ' + confirmedFoci.length + ' focos en el informe oficial (' + skeletonSplit.axial + ' axiales — columna y sacro — y ' + skeletonSplit.append + ' apendiculares — escápula, pelvis y cadera), más ' + aiFoci.length + ' focos por confirmar detectados por IA. Reparto receptor↔azúcar: ' + concordance.ne + ' captan solo receptor (Ga+/FDG−), ' + concordance.mix + ' son mixtos (ambos trazadores) y ' + concordance.agg + ' capta solo azúcar (Ga−/FDG+). Rango de SUVmáx: ⁶⁸Ga-DOTATOC ' + dotaRangeLabel + '; ¹⁸F-FDG ' + fdgRangeLabel + '. Frente al PET previo (sobre ' + trajectory.withPrev + ' focos con valor previo): ' + trajectory.neu + ' nuevos, ' + trajectory.up + ' con más FDG, ' + trajectory.down + ' con menos y ' + trajectory.stable + ' estables. Las cifras son las de los informes oficiales del PET; el detalle por foco está en la ficha y en la tabla. Descripción, no consejo médico.',
                 'Multilevel bone disease. ' + confirmedFoci.length + ' foci in the official report (' + skeletonSplit.axial + ' axial — spine and sacrum — and ' + skeletonSplit.append + ' appendicular — scapula, pelvis and hip), plus ' + aiFoci.length + ' foci to confirm detected by AI. Receptor↔sugar split: ' + concordance.ne + ' receptor-only (Ga+/FDG−), ' + concordance.mix + ' mixed (both tracers) and ' + concordance.agg + ' sugar-only (Ga−/FDG+). SUVmax range: ⁶⁸Ga-DOTATOC ' + dotaRangeLabel + '; ¹⁸F-FDG ' + fdgRangeLabel + '. Versus the prior PET (over ' + trajectory.withPrev + ' foci with a prior value): ' + trajectory.neu + ' new, ' + trajectory.up + ' with more FDG, ' + trajectory.down + ' with less and ' + trajectory.stable + ' stable. Figures are those of the official PET reports; the per-focus detail is in the card and the table. Description, not medical advice.') }}
             </p>
-          </details>
-        </section>
+          </div>
 
-        <!-- ===== EXPLICADOR · una lesión, dos trazadores ===== -->
-        <section class="mb-14" aria-labelledby="dos-caras">
-          <p class="eyebrow mb-2 block">{{ L('Cómo se lee', 'How to read it') }}</p>
-          <h2 id="dos-caras" class="heading-display text-2xl text-berenjena mb-2 scroll-mt-[7.5rem]">
-            {{ L('Una lesión, dos trazadores', 'One lesion, two tracers') }}
-          </h2>
-          <p class="text-sm text-tinta leading-relaxed mb-6 max-w-3xl">
+          <!-- ===== CÓMO SE LEE · una lesión, dos trazadores (referencia) =====
+               Antes era una sección propia que apelotonaba el intro; ahora vive
+               dentro de este desglose plegado, como material de referencia. -->
+          <div id="dos-caras" class="mt-6 pt-5 border-t border-[rgba(45,27,61,0.1)] scroll-mt-[7.5rem]">
+          <p class="eyebrow mb-2 block">{{ L('Cómo se lee · una lesión, dos trazadores', 'How to read it · one lesion, two tracers') }}</p>
+          <p class="text-sm text-tinta leading-relaxed mb-4 max-w-3xl">
             {{ L(
               'Cada foco óseo se mira con dos trazadores PET a la vez, y cada uno marca algo distinto del mismo punto: uno se pega al receptor y el otro al azúcar. Comparar las dos captaciones es lo que da las «dos caras» de cada lesión.',
               'Each bone focus is imaged with two PET tracers at once, and each one marks something different about the same spot: one binds the receptor and the other binds sugar. Comparing the two uptakes is what gives each lesion its “two faces”.') }}
@@ -1474,20 +1493,28 @@ const ticks = [
               <p class="text-[13px] text-tinta leading-snug">{{ L('Capta azúcar (FDG) pero no el receptor, así que el Galio no lo ve.', 'Takes up sugar (FDG) but not the receptor, so gallium does not see it.') }}</p>
             </div>
           </div>
+          </div>
+          </details>
         </section>
 
-        <!-- ===== ZONA B · NÚCLEO INTERACTIVO ===== -->
-        <section class="mb-14" aria-labelledby="mapa">
-          <p class="eyebrow mb-2 block">{{ L('Dónde · de qué tipo · cada foco', 'Where · what type · each focus') }}</p>
+        <!-- ===== HÉROE · NAVEGAR FOCOS ↔ VER LA LESIÓN EN 3D (lo PRIMARIO) =====
+             El flujo primario y de un vistazo: el esqueleto navegador (con sus
+             controles de tiempo+filtros) + el resumen compacto + el visor 3D small
+             multiples del foco seleccionado, todo en el primer pliegue. Clicar un
+             foco (esqueleto/scatter/tabla) cambia AL INSTANTE el 3D + el resumen,
+             sin scroll. El contexto (cockpit, cómo se lee) queda condensado arriba;
+             el detalle profundo y el resto, ordenados y aireados debajo. -->
+        <section class="order-1 mb-2" aria-labelledby="mapa">
+          <p class="eyebrow mb-2 block">{{ L('Navega los focos · míralos en 3D', 'Navigate the foci · see them in 3D') }}</p>
           <h2 id="mapa" class="heading-display text-2xl text-berenjena mb-2 scroll-mt-[7.5rem]">
             {{ L('El mapa, lesión a lesión', 'The map, lesion by lesion') }}
           </h2>
           <p class="text-sm text-tinta leading-relaxed mb-5 max-w-3xl">
-            {{ L('Tres vistas enlazadas del MISMO foco: el esqueleto (dónde está), el mapa de tipo (de qué cara es) y la ficha (el detalle). Toca un punto en cualquiera de ellas —o una fila de la tabla— y las demás se sincronizan. El color va del violeta (solo receptor) al coral (solo azúcar); el número es el id del foco. Desliza la línea de tiempo para ver la evolución; el esqueleto es un esquema orientativo.',
-                  'Three linked views of the SAME focus: the skeleton (where it is), the type map (which face it is) and the card (the detail). Tap a point in any of them —or a table row— and the others sync. Colour runs from violet (receptor only) to coral (sugar only); the number is the focus id. Slide the timeline to see the evolution; the skeleton is a schematic guide.') }}
+            {{ L('Toca un foco en el esqueleto —o en el mapa de tipo o la tabla— y, sin moverte, cambian al instante el resumen y el hueso en 3D. El color va del violeta (solo receptor) al coral (solo azúcar) y el número es el id del foco; desliza la línea de tiempo para ver la evolución. El esqueleto es un esquema orientativo.',
+                  'Tap a focus on the skeleton —or on the type map or the table— and, without moving, the summary and the 3D bone update instantly. Colour runs from violet (receptor only) to coral (sugar only) and the number is the focus id; slide the timeline to see the evolution. The skeleton is a schematic guide.') }}
           </p>
 
-          <div class="grid lg:grid-cols-[380px_1fr] gap-8 items-start">
+          <div class="grid lg:grid-cols-[360px_1fr] gap-6 items-start">
             <!-- ESQUELETO SVG + SUS CONTROLES (línea de tiempo + filtros) ·
                  la barra de tiempo (frames PET) y los filtros son MODIFICADORES
                  del mapa del esqueleto, así que viven DENTRO de su misma card,
@@ -1763,11 +1790,45 @@ const ticks = [
             </div>
           </div>
 
-          <!-- ===== DETALLE PROFUNDO DEL FOCO (P2 · para quien quiera profundizar) =====
+          <!-- VISOR 3D a ANCHO COMPLETO · EN EL PRIMER PLIEGUE (héroe), justo bajo
+               el núcleo [esqueleto navegador | resumen compacto]: al clicar un foco,
+               cambia AL INSTANTE el 3D + el resumen, sin scroll. La pieza clave —ver
+               la lesión en 3D— vive aquí, no enterrada al final. Small multiples: el
+               MISMO hueso en 3 mapas limpios y sincronizados. NO se toca su interior. -->
+          <div v-if="sel" class="mt-6">
+            <p class="eyebrow mb-2 block">{{ L('Hueso reconstruido del CT · captación co-registrada', 'Bone reconstructed from the CT · co-registered uptake') }}</p>
+            <p v-if="isMultiFocusBone" class="text-[12px] text-tinta leading-snug mb-2 max-w-3xl">
+              {{ L('Esta zona tiene ' + coFoci.length + ' focos co-localizados (receptor/azúcar); el realce señala la zona. Detalle de cada foco abajo y en la tabla.', 'This area has ' + coFoci.length + ' co-localized foci (receptor/sugar); the highlight marks the area. Each focus is detailed below and in the table.') }}
+            </p>
+            <template v-if="bone3dKeyOf(sel)">
+              <ClientOnly>
+                <BoneTriView
+                  :mesh-key="bone3dKeyOf(sel)"
+                  :biopsied="bonePriorBiopsy != null"
+                  :biopsy-label="bonePriorBiopsy ?? undefined"
+                />
+                <template #fallback>
+                  <div class="rounded-lg flex items-center justify-center text-[12px]" style="aspect-ratio:15/4;background:#0d1117;color:#aeb6c2">
+                    {{ L('cargando visor…', 'loading viewer…') }}
+                  </div>
+                </template>
+              </ClientOnly>
+            </template>
+            <ClientOnly v-else>
+              <BoneTriView :mesh-key="undefined" />
+              <template #fallback>
+                <div class="rounded-lg flex items-center justify-center text-[12px]" style="aspect-ratio:5/4;background:#0d1117;color:#aeb6c2">
+                  {{ L('cargando visor 3D…', 'loading 3D viewer…') }}
+                </div>
+              </template>
+            </ClientOnly>
+          </div>
+
+          <!-- ===== DETALLE PROFUNDO DEL FOCO (secundario · para quien quiera profundizar) =====
                Las 3 lecturas extendidas, observaciones, cuantificación automática y
-               detalle técnico. Va DEBAJO del núcleo (esqueleto + resumen), de modo que
-               la navegación de un vistazo no exija scroll, pero el detalle siga ahí. -->
-          <div id="detalle-foco" class="card-base mt-8 scroll-mt-[7.5rem]">
+               detalle técnico. Va DEBAJO del héroe (esqueleto + resumen + 3D), de modo
+               que la navegación de un vistazo no exija scroll, pero el detalle siga ahí. -->
+          <div id="detalle-foco" class="card-base mt-10 scroll-mt-[7.5rem]">
             <div class="flex items-start gap-3 mb-3">
               <span class="shrink-0 w-9 h-9 rounded-full flex items-center justify-center font-display text-base text-white"
                 :style="{ background: phenoColor(sel) }">{{ sel.id }}</span>
@@ -2033,39 +2094,9 @@ const ticks = [
                 </div>
               </details>
           </div>
-
-          <!-- VISOR 3D a ANCHO COMPLETO · la pieza clave merece todo el ancho (ya no
-               espachurrado en la columna estrecha de la ficha junto al esqueleto).
-               Small multiples: el MISMO hueso en 3 mapas limpios y sincronizados. -->
-          <div v-if="sel" class="mt-8">
-            <p class="eyebrow mb-2 block">{{ L('Hueso reconstruido del CT · captación co-registrada', 'Bone reconstructed from the CT · co-registered uptake') }}</p>
-            <p v-if="isMultiFocusBone" class="text-[12px] text-tinta leading-snug mb-2 max-w-3xl">
-              {{ L('Esta zona tiene ' + coFoci.length + ' focos co-localizados (receptor/azúcar); el realce señala la zona. Detalle de cada foco arriba y en la tabla.', 'This area has ' + coFoci.length + ' co-localized foci (receptor/sugar); the highlight marks the area. Each focus is detailed above and in the table.') }}
-            </p>
-            <template v-if="bone3dKeyOf(sel)">
-              <ClientOnly>
-                <BoneTriView
-                  :mesh-key="bone3dKeyOf(sel)"
-                  :biopsied="bonePriorBiopsy != null"
-                  :biopsy-label="bonePriorBiopsy ?? undefined"
-                />
-                <template #fallback>
-                  <div class="rounded-lg flex items-center justify-center text-[12px]" style="aspect-ratio:15/4;background:#0d1117;color:#aeb6c2">
-                    {{ L('cargando visor…', 'loading viewer…') }}
-                  </div>
-                </template>
-              </ClientOnly>
-            </template>
-            <ClientOnly v-else>
-              <BoneTriView :mesh-key="undefined" />
-              <template #fallback>
-                <div class="rounded-lg flex items-center justify-center text-[12px]" style="aspect-ratio:5/4;background:#0d1117;color:#aeb6c2">
-                  {{ L('cargando visor 3D…', 'loading 3D viewer…') }}
-                </div>
-              </template>
-            </ClientOnly>
-          </div>
         </section>
+        </div>
+        <!-- /flex flex-col (lo primario order-1, el contexto order-2) -->
 
         <!-- ===== MAPA DE FENOTIPO (CUADRANTES) ===== -->
         <section class="mb-14" aria-labelledby="fenotipo">

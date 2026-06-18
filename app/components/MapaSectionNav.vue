@@ -48,12 +48,13 @@ const props = withDefaults(defineProps<{ variant?: 'rail' | 'mobile' }>(), {
 const { locale } = useI18n()
 const L = (es: string, en: string) => (locale.value === 'en' ? en : es)
 
-// 8 secciones del mapa, mapeadas a los id de <h2> ya existentes en la página
-// (orden de lectura del panel). Etiquetas bilingües, neutras.
+// Secciones del mapa, mapeadas a los id de <h2> ya existentes en la página
+// (nuevo orden de lectura: lo PRIMARIO arriba —navegar focos ↔ ver en 3D— y el
+// contexto/detalle/apéndices debajo). Etiquetas bilingües, neutras.
 const chapters = computed(() => [
-  { id: 'cockpit', label: L('Panel de la enfermedad ósea', 'Bone-disease panel') },
-  { id: 'dos-caras', label: L('Una lesión, dos trazadores', 'One lesion, two tracers') },
-  { id: 'mapa', label: L('El mapa, lesión a lesión', 'The map, lesion by lesion') },
+  { id: 'mapa', label: L('El mapa · navega y ve en 3D', 'The map · navigate and see in 3D') },
+  { id: 'detalle-foco', label: L('Detalle del foco', 'Focus detail') },
+  { id: 'cockpit', label: L('Enfermedad ósea de un vistazo', 'Bone disease at a glance') },
   { id: 'fenotipo', label: L('Mapa de fenotipo', 'Phenotype map') },
   { id: 'imagen', label: L('Lo que muestra la RMN', 'What the MRI shows') },
   { id: 'trayectoria', label: L('Trayectoria del FDG', 'FDG trajectory') },
