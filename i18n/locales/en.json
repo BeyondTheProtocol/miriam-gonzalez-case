@@ -858,7 +858,7 @@
     "hero_context": "And let me be clear from the start: I'm not asking you for a donation; I'm proposing a partnership. It's a charitable project, yes, but also a professional collaboration, and we treat it as such.",
     "hero_cta": "Tell me what you do",
     "hero_cta_dossier": "See the dossier (for your team)",
-    "hero_tagline": "// I answer you personally · I'm looking for few brands, but the right ones",
+    "hero_tagline": "// open to the right brands · there are people behind this, not an inbox",
     "hero_edition_label": "Edition prepared for:",
 
     "pilares_eyebrow": "// ways to collaborate",
@@ -933,15 +933,15 @@
     "audiencia_cta": "A good fit?",
 
     "cta_eyebrow": "// get in touch",
-    "cta_title": "I'm looking for few brands, {em}.",
-    "cta_title_em": "but the right ones",
-    "cta_p": "Tell me what you do and we'll build it together, made for you. I answer you personally —not a form, not a team.",
+    "cta_title": "A real partnership, {em}.",
+    "cta_title_em": "not a one-day logo",
+    "cta_p": "Tell me what you do and we'll build it together, made for you. This isn't a form that gets lost: there are people behind it and we reply for real.",
     "cta_button": "Let's talk about your brand",
     "cta_podcast": "And the timing helps: I'm relaunching my podcast «No me da la vida» to tell the AI and technology behind this project. Over the coming months this is going to draw a lot of attention: a good moment to come aboard.",
     "cta_microcopy": "One last thing, because it matters: it's a charitable project, yes, but also a professional collaboration between you and me, and we treat it as such.",
 
     "popup_title": "Bring your brand onto this showcase?",
-    "popup_text": "I read every message personally. Tell me who you are and we'll see how we fit.",
+    "popup_text": "This isn't an inbox that gets ignored: there are people behind it and we reply for real. Tell me who you are and we'll see how we fit.",
     "popup_cta": "Tell me what you do",
     "popup_dismiss": "Not now"
   },
