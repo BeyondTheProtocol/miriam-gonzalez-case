@@ -1243,6 +1243,16 @@ const focusListItems = computed<Lesion[]>(() => [...rankedFoci.value, ...aiCandi
    para que el alcance del filtro sea COHERENTE en todo el navegador (no una acción
    fantasma al cambiar a «Tabla»). La galería/lightbox de imágenes NO se filtra. */
 const visibleFocusList = computed<Lesion[]>(() => focusListItems.value.filter(visible))
+/* (D · plan comité web) búsqueda por nombre/zona en la lista del navegador: hace
+   ENCONTRABLES los focos co-localizados (#8/#10) que en el esqueleto quedan bajo el
+   marcador de su vértebra. Filtra por level+region, sin acentos. Solo la lista Tabla. */
+const focoQuery = ref('')
+function normTxt(s: string): string { return s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '') }
+const filteredFocusList = computed<Lesion[]>(() => {
+  const q = normTxt(focoQuery.value.trim())
+  if (!q) return visibleFocusList.value
+  return visibleFocusList.value.filter((le) => normTxt(le.level[lang.value] + ' ' + le.region[lang.value]).includes(q))
+})
 /* si el filtro deja fuera al foco seleccionado, autoselecciona el primero visible
    (evita que el visor muestre un foco que ya no está en el navegador). */
 watch(filter, () => {
@@ -1753,8 +1763,18 @@ const ticks = [
                 <span>{{ L('Focos · elige uno', 'Foci · pick one') }}</span>
                 <span class="font-normal normal-case tracking-normal text-tinta">{{ confirmedFoci.length }}<span v-if="aiFoci.length">+{{ aiFoci.length }}</span></span>
               </p>
+              <!-- (D · plan comité web) búsqueda por nombre/zona: hace ENCONTRABLES los
+                   focos dobles (#8/#10) que en el esqueleto quedan bajo el marcador de su
+                   vértebra. Estilo de control de la casa; aria-label para lector. -->
+              <input
+                v-model="focoQuery"
+                type="search"
+                :placeholder="L('Buscar por nombre o zona…', 'Search by name or area…')"
+                :aria-label="L('Buscar foco por nombre o zona', 'Search focus by name or area')"
+                class="w-full mb-1.5 rounded-card border border-[rgba(45,27,61,0.14)] bg-cream-card px-2.5 py-1.5 text-[12px] text-berenjena placeholder:text-tinta focus:outline-none focus:border-[#9d44ab]" />
               <ul data-foco-list class="space-y-1 overflow-y-auto pr-0.5" style="max-height:600px">
-                <li v-for="le in visibleFocusList" :key="le.id">
+                <li v-if="!filteredFocusList.length" class="px-2 py-3 text-[11px] text-tinta text-center">{{ L('Sin focos que coincidan.', 'No matching foci.') }}</li>
+                <li v-for="le in filteredFocusList" :key="le.id">
                   <button type="button" @click="pick(le.id)"
                     class="w-full text-left rounded-card border px-2 py-1.5 transition-colors flex items-center gap-2"
                     :class="le.id === selected ? 'border-berenjena bg-[rgba(45,27,61,0.05)]' : 'border-transparent hover:bg-[rgba(45,27,61,0.035)]'"
