@@ -150,6 +150,35 @@ export default defineNuxtConfig({
 
   css: ['~/assets/css/main.css'],
 
+  // ── Enlaces cortos de marca (campañas) ───────────────────────────────────
+  // Links cortos en NUESTRO dominio (helpmiriam.com/3d…) que redirigen al
+  // destino real con UTM, para repartir en redes y medir el canal en Umami.
+  //
+  // POR QUÉ AQUÍ (routeRules) y NO en netlify.toml — root cause del 404 (#117–#119):
+  //   `nuxt generate` produce un `dist/_redirects` que termina con un catch-all
+  //   `/*  /404.html  404`. Netlify procesa el FICHERO `_redirects` ANTES que
+  //   `netlify.toml`, así que ese catch-all interceptaba /3d-x, /3d, … (que NO
+  //   tenían fichero propio) y devolvía 404 antes de llegar a los redirects de
+  //   netlify.toml. `force=true` en netlify.toml NO lo arreglaba: force solo gana
+  //   a un FICHERO del mismo nombre, no a una regla previa del propio _redirects.
+  //   Definidos como routeRules, nitro escribe estas reglas 302 en `dist/_redirects`
+  //   ANTES del catch-all, así que ganan. 302 = repunteable sin caché permanente.
+  //   Cómo añadir/leer en Umami y la tabla de activos: SHORT-LINKS.md.
+  //
+  // OJO «shadowing» de Netlify (por eso el `prerender.ignore` de abajo): una
+  //   routeRule redirect también prerenderiza un fichero `3d-x.html` (meta-refresh).
+  //   Si ese fichero existe y la regla de _redirects NO es `force`, Netlify sirve
+  //   el FICHERO (200 + meta-refresh), sombreando el 302. Para que gane el 302
+  //   limpio, se EXCLUYEN estas rutas del prerender (nitro.prerender.ignore), así
+  //   solo queda la regla 302 en _redirects, sin `.html` que la sombree.
+  routeRules: {
+    '/3d': { redirect: { to: '/mapa-metastasis?utm_source=short&utm_medium=link&utm_campaign=lanzamiento-herramienta', statusCode: 302 } },
+    '/3d-x': { redirect: { to: '/mapa-metastasis?utm_source=twitter&utm_medium=post&utm_campaign=lanzamiento-herramienta', statusCode: 302 } },
+    '/3d-in': { redirect: { to: '/mapa-metastasis?utm_source=linkedin&utm_medium=post&utm_campaign=lanzamiento-herramienta', statusCode: 302 } },
+    '/3d-ig': { redirect: { to: '/mapa-metastasis?utm_source=instagram&utm_medium=bio&utm_campaign=lanzamiento-herramienta', statusCode: 302 } },
+    '/donar': { redirect: { to: 'https://www.gofundme.com/f/biopsia-molecular-que-puede-cambiar-su-tratamiento', statusCode: 302 } },
+  },
+
   nitro: {
     prerender: {
       crawlLinks: true,
@@ -160,7 +189,13 @@ export default defineNuxtConfig({
       // /design-system/ es un export estático en public/, no una ruta de Nuxt.
       // crawlLinks lo descubre desde /colabora, intenta prerenderizarlo, da 404
       // y aborta el build. Lo ignoramos: el archivo estático se copia igual.
-      ignore: ['/design-system', '/mapa-metastasis.md', '/en/mapa-metastasis.md'],
+      // Los enlaces cortos (/3d…, /donar): se EXCLUYEN del prerender para que NO
+      // se genere su `.html` de meta-refresh, que sombrearía el 302 del _redirects
+      // (ver nota «shadowing» en `routeRules` arriba). Así queda solo el 302 limpio.
+      ignore: [
+        '/design-system', '/mapa-metastasis.md', '/en/mapa-metastasis.md',
+        '/3d', '/3d-x', '/3d-in', '/3d-ig', '/donar',
+      ],
       // URLs SIN barra final, coherentes con los links y el canonical del sitio
       // (que ya usan «/colabora», no «/colabora/»). Genera «colabora.html» en
       // vez de «colabora/index.html», así Netlify sirve «/colabora» directo sin
