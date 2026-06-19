@@ -2774,11 +2774,14 @@ const ticks = [
           <!-- Petición de la paciente: las imágenes construidas con DICOM, todas en
                fila/cuadrícula y poder abrirlas en grande. Reutiliza el MISMO lightbox
                (openKeyLightboxFor → selecciona el foco + abre el modal con zoom/planos). -->
-          <div class="mt-10 pt-8 border-t border-[rgba(45,27,61,0.1)]">
+        </section>
+
+        <!-- ===== SECCIÓN PROPIA · «Imágenes clave por foco» (petición: que sea sección).
+             Una imagen-corte PET-CT por foco con el anillo del SUVmáx → confirmar que el
+             foco es real y ver su anatomía. Reutiliza el MISMO lightbox. ===== -->
+        <section class="mb-14" aria-labelledby="imagenes-clave">
             <p class="eyebrow mb-2 block">{{ L('Una por foco · todas en fila', 'One per focus · all in a row') }}</p>
-            <h3 class="heading-display text-xl text-berenjena mb-2">
-              {{ L('Imágenes clave por foco · PET-CT', 'Key images per focus · PET-CT') }}
-            </h3>
+            <h2 id="imagenes-clave" class="heading-display text-2xl text-berenjena mb-2 scroll-mt-[7.5rem]">{{ L('Imágenes clave por foco · PET-CT', 'Key images per focus · PET-CT') }}</h2>
             <p class="text-sm text-tinta leading-relaxed mb-4 max-w-3xl">
               {{ L('Cada foco confirmado, con su corte axial PET-CT y el anillo del SUVmáx. Pulsa cualquiera para abrirla en grande (zoom, arrastre y los planos que tenga: sagital o coronal). Los focos detectados por IA van al final, por confirmar.',
                     'Each confirmed focus, with its axial PET-CT slice and the SUVmax ring. Tap any to open it large (zoom, drag and the planes it has: sagittal or coronal). AI-detected foci are at the end, to confirm.') }}
@@ -2845,7 +2848,6 @@ const ticks = [
               {{ L('Imágenes reconstruidas del PET-CT; el anillo marca el SUVmáx (un vóxel), aproximado por resolución/co-registro; no sustituye la lectura formal.',
                     'Images reconstructed from the PET-CT; the ring marks the SUVmax (a single voxel), approximate due to resolution/co-registration; it does not replace the formal reading.') }}
             </p>
-          </div>
         </section>
         <!-- ===== ZONA D · TRAYECTORIA (movida TRAS idoneidad: primero se decide la
              diana, y la evolución temporal queda como contexto antes del apéndice) ===== -->
