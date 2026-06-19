@@ -1749,9 +1749,9 @@ const ticks = [
                     @click="pickGroup(g)" @keydown.enter="pickGroup(g)" @keydown.space.prevent="pickGroup(g)"
                     @mouseenter="canHoverFine() && showTip($event, groupTipText(g))" @mouseleave="hideTip" @focus="showTip($event, groupTipText(g))" @blur="hideTip" @keydown.escape="hideTip" />
                   <!-- foco único: id dentro; varios focos: insignia de recuento -->
-                  <text v-if="!g.multi && gPresentAt(g, frame)" :x="g.x" :y="g.y + 3.5" text-anchor="middle"
-                    font-family="Source Sans 3, sans-serif" font-size="10" font-weight="700" :fill="markerInk(g.primary)"
-                    class="pointer-events-none select-none">{{ g.primary.id }}</text>
+                  <!-- (auditoría) el número arbitrario sale del esqueleto: el nombre lo da el
+                       tooltip y el color el fenotipo; el #N se queda en lista/tabla para cruzar.
+                       Foco único = bolita de color; vértebra con varios = insignia de recuento. -->
                   <g v-if="g.multi && gPresentAt(g, frame)" class="pointer-events-none select-none">
                     <circle :cx="g.x + SK_R + 1.5" :cy="g.y - SK_R - 1.5" r="6.5"
                       fill="#2d1b3d" stroke="#fff" stroke-width="1.2" />
@@ -1770,7 +1770,7 @@ const ticks = [
                   <span>{{ L('Solo azúcar (FDG)', 'Sugar only (FDG)') }}</span>
                 </div>
                 <p class="mt-1.5 text-[10.5px] text-tinta leading-snug">
-                  {{ L('Número = foco · contorno punteado = detectado por IA (por confirmar).', 'Number = focus · dashed outline = AI-detected (to confirm).') }}
+                  {{ L('Color = trazador · insignia = nº de focos en esa vértebra · contorno punteado = detectado por IA (por confirmar).', 'Color = tracer · badge = nº of foci in that vertebra · dashed outline = AI-detected (to confirm).') }}
                 </p>
               </div>
 
@@ -2364,6 +2364,8 @@ const ticks = [
              columna (banda a todo el ancho de 1280, no un recuadro inset). El tinte es
              el divisor; el header va dentro, sin regla ni caja. -->
         <div class="bg-[rgba(45,27,61,0.035)] -mx-4 sm:-mx-6 lg:-mx-8 px-4 sm:px-6 lg:px-8 py-10 lg:py-12 mt-4">
+          <!-- (homogeneidad) divisor del sitio en el corte herramienta→wiki, como home/ciencia. -->
+          <EcgDivider class="mb-10" />
           <!-- Header de la sección general (eyebrow + h2 a la izquierda, sin caja). -->
           <div class="mb-6">
           <p class="eyebrow mb-2 block">{{ L('Sección general', 'General section') }}</p>
@@ -2611,7 +2613,7 @@ const ticks = [
           </p>
           <!-- contenedor CONTENIDO: el scatter ya no ocupa todo el ancho (se veía
                «gigante»); leyenda mínima como banda fina DEBAJO, no muro lateral. -->
-          <div class="card-base !p-3 max-w-2xl">
+          <div class="card-base !p-3">
               <svg viewBox="0 0 440 340" class="w-full" role="group" :aria-label="L('Diagrama de fenotipo: receptor frente a FDG (toca un punto para abrir su ficha)', 'Phenotype scatter: receptor versus FDG (tap a point to open its card)')">
                 <!-- tintes de cuadrante -->
                 <rect :x="qX(0)" :y="qY(Q.ymax)" :width="qX(Q.divx) - qX(0)" :height="qY(Q.divy) - qY(Q.ymax)" fill="#9d44ab" opacity="0.07" />
@@ -2713,18 +2715,10 @@ const ticks = [
               </button>
             </li>
           </ul>
-          <div class="flex flex-wrap items-center gap-x-4 gap-y-2 mt-3">
-            <button type="button" class="pet-grid-cta" @click="openPetGrid()">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1" /><rect x="14" y="3" width="7" height="7" rx="1" /><rect x="3" y="14" width="7" height="7" rx="1" /><rect x="14" y="14" width="7" height="7" rx="1" /></svg>
-              {{ L('Ver las 4 a la vez', 'View all 4 at once') }}
-            </button>
-            <!-- escala de la MIP: gris (por defecto, más diagnóstica) ↔ calor (hot) -->
-            <div class="seg" role="group" :aria-label="L('Escala de color de la MIP', 'MIP color scale')">
-              <button type="button" class="seg__btn" :class="{ 'is-active': !mipHot }" :aria-pressed="!mipHot" @click="mipHot = false">{{ L('Gris', 'Gray') }}</button>
-              <button type="button" class="seg__btn" :class="{ 'is-active': mipHot }" :aria-pressed="mipHot" @click="mipHot = true">{{ L('Calor', 'Hot') }}</button>
-            </div>
-            <p class="text-[11px] text-tinta leading-snug max-w-xl">{{ L('MIP cualitativa (el SUVmáx está en la tabla y la ficha). Lo más intenso es biodistribución fisiológica: en ¹⁸F-FDG (24/03/2026), encéfalo, miocardio (variable), sistema excretor y vejiga; en ⁶⁸Ga-DOTATOC (26/05/2026), hipófisis, bazo, hígado, riñones, suprarrenales y vejiga. Las metástasis son los focos del esqueleto.', 'Qualitative MIP (SUVmax is in the table and card). The most intense areas are physiological biodistribution: on ¹⁸F-FDG (24/03/2026), brain, myocardium (variable), excretory system and bladder; on ⁶⁸Ga-DOTATOC (26/05/2026), pituitary, spleen, liver, kidneys, adrenals and bladder. The metastases are the skeletal foci.') }}</p>
-          </div>
+          <!-- (auditoría de propósito) fuera el botón «Ver las 4» (la cuadrícula vive dentro del
+               lightbox al ampliar una imagen) y el toggle Gris/Calor (el propio «calor» se lee
+               peor; gris por defecto, más diagnóstico). Queda el caption honesto. -->
+          <p class="text-[11px] text-tinta leading-snug max-w-3xl mt-3">{{ L('MIP cualitativa (el SUVmáx está en la tabla y la ficha). Lo más intenso es biodistribución fisiológica: en ¹⁸F-FDG (24/03/2026), encéfalo, miocardio (variable), sistema excretor y vejiga; en ⁶⁸Ga-DOTATOC (26/05/2026), hipófisis, bazo, hígado, riñones, suprarrenales y vejiga. Las metástasis son los focos del esqueleto.', 'Qualitative MIP (SUVmax is in the table and card). The most intense areas are physiological biodistribution: on ¹⁸F-FDG (24/03/2026), brain, myocardium (variable), excretory system and bladder; on ⁶⁸Ga-DOTATOC (26/05/2026), pituitary, spleen, liver, kidneys, adrenals and bladder. The metastases are the skeletal foci.') }}</p>
 
           <!-- columna en RMN · debajo (su propio visor de cortes; los hallazgos son cita del informe) -->
           <div class="mt-8 pt-6 border-t border-[rgba(45,27,61,0.1)]">
@@ -2898,6 +2892,8 @@ const ticks = [
           </div>
         </section>
         <!-- ===== ZONA E · APÉNDICE DE REFERENCIA (tabla) — abierta por defecto (vista clínica) ===== -->
+        <!-- (homogeneidad) regla de capítulo antes del apéndice, como /ciencia. -->
+        <hr class="chapter-rule" aria-hidden="true" />
         <section class="mb-14" aria-labelledby="tabla">
           <p class="eyebrow mb-2 block">{{ L('Para el equipo · referencia', 'For the team · reference') }}</p>
           <h2 id="tabla" class="heading-display text-2xl text-berenjena mb-2 scroll-mt-[7.5rem]">{{ L('Apéndice: los focos en una tabla', 'Appendix: the foci in a table') }}</h2>
