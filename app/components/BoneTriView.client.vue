@@ -111,6 +111,7 @@ const scenes: THREE.Scene[] = []
 const meshes: (THREE.Mesh | null)[] = [null, null, null]
 let sharedGeo: THREE.BufferGeometry | null = null
 let needleGroups: THREE.Group[] = []           // aguja de biopsia ILUSTRATIVA · una por panel (los 3)
+let targetGroups: THREE.Group[] = []           // diana ILUSTRATIVA (anillo zona ávida) · una por panel
 let raf = 0, ro: ResizeObserver | null = null
 let curKey = ''
 let boneRadius = 50
@@ -477,10 +478,15 @@ function load(key: string) {
       // aguja de biopsia ILUSTRATIVA · UNA POR PANEL: cuelga de cada malla (los 3),
       // así rota con cada hueso y se ve en Galio, FDG y densidad por igual.
       needleGroups = []
-      for (let i = 0; i < 3; i++) { const ng = new THREE.Group(); meshes[i]!.add(ng); needleGroups.push(ng) }
+      targetGroups = []
+      for (let i = 0; i < 3; i++) {
+        const ng = new THREE.Group(); meshes[i]!.add(ng); needleGroups.push(ng)
+        const tg = new THREE.Group(); meshes[i]!.add(tg); targetGroups.push(tg)
+      }
       updateCameraAspect()
       frameObject()
       buildBiopsyNeedle()
+      buildTargetMarker()
       loading.value = false
       // El contenedor usa aspect-ratio CSS: su ALTURA real puede asentarse DESPUÉS de este
       // primer encuadre (sobre todo en ventanas anchas) → el hueso quedaría grande/cortado.
@@ -516,6 +522,51 @@ const C_ENTRY = '#d98a2b'      // marcador de ENTRADA · ámbar
 const C_TIP_MK = '#c25a2b'     // marcador de la PUNTA (en hueso) · ámbar oscuro
 let needleMats: THREE.Material[] = []
 let needleGeos: THREE.BufferGeometry[] = []
+/* ====================================================================== */
+/*  DIANA DE BIOPSIA ILUSTRATIVA — anillo sobre la ZONA ÁVIDA (pico de      */
+/*  captación) del foco. Petición de la paciente: ver la diana DIBUJADA.    */
+/*  HONESTO: la captación es un GRADIENTE sin borde neto; el anillo marca    */
+/*  la zona ávida APROXIMADA, no un contorno tumoral. Siempre visible.       */
+/* ====================================================================== */
+const C_TARGET = '#39c0e0'     // anillo cian · contrasta sobre cualquier captación
+let targetMats: THREE.Material[] = []
+let targetGeos: THREE.BufferGeometry[] = []
+function disposeTargetMarker() {
+  targetGroups.forEach((g) => g.clear())
+  targetMats.forEach((m) => m.dispose()); targetMats = []
+  targetGeos.forEach((g) => g.dispose()); targetGeos = []
+}
+function buildTargetMarker() {
+  disposeTargetMarker()
+  if (!targetGroups.length || hotIndex < 0) return
+  for (let i = 0; i < 3; i++) {
+    const geo = meshes[i]!.geometry
+    const pos = geo.getAttribute('position') as THREE.BufferAttribute
+    const nrm = geo.getAttribute('normal') as THREE.BufferAttribute | undefined
+    const peak = new THREE.Vector3(pos.getX(hotIndex), pos.getY(hotIndex), pos.getZ(hotIndex))
+    const normal = nrm
+      ? new THREE.Vector3(nrm.getX(hotIndex), nrm.getY(hotIndex), nrm.getZ(hotIndex)).normalize()
+      : peak.clone().normalize()
+    const ringR = boneRadius * 0.22
+    const tubeR = Math.max(0.5, boneRadius * 0.026)
+    const lift = peak.clone().addScaledVector(normal, boneRadius * 0.03)
+    const ringGeo = new THREE.TorusGeometry(ringR, tubeR, 10, 40); targetGeos.push(ringGeo)
+    const mat = new THREE.MeshStandardMaterial({
+      color: new THREE.Color(C_TARGET), emissive: new THREE.Color(C_TARGET), emissiveIntensity: 0.6,
+      roughness: 0.4, metalness: 0.1, toneMapped: true, transparent: true, opacity: 0.95,
+      depthTest: true, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -4, polygonOffsetUnits: -4,
+    })
+    targetMats.push(mat)
+    const ring = new THREE.Mesh(ringGeo, mat)
+    ring.position.copy(lift)
+    ring.quaternion.setFromUnitVectors(new THREE.Vector3(0, 0, 1), normal)
+    targetGroups[i]!.add(ring)
+    const dotGeo = new THREE.SphereGeometry(tubeR * 1.5, 14, 12); targetGeos.push(dotGeo)
+    const dot = new THREE.Mesh(dotGeo, mat)
+    dot.position.copy(lift)
+    targetGroups[i]!.add(dot)
+  }
+}
 function disposeBiopsyNeedle() {
   needleGroups.forEach((g) => g.clear())
   needleMats.forEach((m) => m.dispose()); needleMats = []
@@ -634,7 +685,7 @@ watch(() => props.biopsied, (b) => { if (!b) { showBiopsy.value = false; buildBi
 watch(showBiopsy, () => { buildBiopsyNeedle() })
 onBeforeUnmount(() => {
   cancelAnimationFrame(raf); ro?.disconnect()
-  disposeBiopsyNeedle(); disposeMeshes()
+  disposeBiopsyNeedle(); disposeTargetMarker(); disposeMeshes()
   pmrem?.dispose(); renderer?.dispose()
 })
 </script>
