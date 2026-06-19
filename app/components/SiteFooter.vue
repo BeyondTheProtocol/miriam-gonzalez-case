@@ -1,42 +1,31 @@
 <template>
   <footer :aria-label="$t('footer.site_footer')" class="bg-cream-card" style="border-top: 1px solid rgba(45,27,61,0.08)">
-    <!-- Con el apoyo de — muro de logos uniforme: todos iguales, misma altura,
-         centrados en rejilla y sin etiqueta de texto (logo wall limpio). -->
+    <!-- Con el apoyo de — muro de logos uniforme: todos en blanco monocromo, misma
+         altura óptica, centrados en rejilla. Cada logo se aplana a silueta crema
+         (logo-wall__mark) para que GitHub/Notion/Tahe/Never Surrender se lean como
+         un solo conjunto sobre la banda berenjena, sin cajas ni colores dispares. -->
     <section class="bg-berenjena" :aria-label="$t('index.supported_by')">
       <div class="section-wide py-10 sm:py-12 text-center">
-        <p class="text-cream/70 text-xs font-mono font-medium uppercase tracking-[0.12em] mb-8">
+        <p class="text-cream/70 text-xs font-mono font-medium uppercase tracking-[0.12em] mb-9">
           {{ $t('index.supported_by') }}
         </p>
-        <ul class="grid grid-cols-2 sm:grid-cols-4 items-center justify-items-center gap-x-8 sm:gap-x-14 gap-y-9 max-w-2xl mx-auto">
+        <ul class="grid grid-cols-2 sm:grid-cols-4 items-center justify-items-center gap-x-10 sm:gap-x-12 gap-y-10 max-w-2xl mx-auto">
           <li v-for="s in supporters" :key="s.name" class="flex items-center justify-center">
-            <a
-              v-if="s.url"
-              :href="s.url"
-              target="_blank"
-              rel="sponsored noopener"
-              class="inline-flex items-center justify-center opacity-90 hover:opacity-100 transition-opacity"
-              :aria-label="s.name"
+            <component
+              :is="s.url ? 'a' : 'span'"
+              v-bind="s.url ? { href: s.url, target: '_blank', rel: 'sponsored noopener' } : {}"
+              class="logo-wall__item inline-flex items-center justify-center"
+              :aria-label="s.url ? s.name : undefined"
             >
               <img
                 :src="s.img"
                 :alt="s.name"
-                class="h-9 w-auto max-w-[130px] object-contain"
-                :class="{ 'rounded-lg': s.mono }"
-                :style="s.mono ? 'filter: grayscale(1)' : ''"
+                class="logo-wall__mark w-auto object-contain"
+                :class="s.raster ? 'logo-wall__mark--raster' : 'logo-wall__mark--vector'"
                 loading="lazy"
                 decoding="async"
               />
-            </a>
-            <img
-              v-else
-              :src="s.img"
-              :alt="s.name"
-              class="h-9 w-auto max-w-[130px] object-contain opacity-90"
-              :class="{ 'rounded-lg': s.mono }"
-              :style="s.mono ? 'filter: grayscale(1)' : ''"
-              loading="lazy"
-              decoding="async"
-            />
+            </component>
           </li>
         </ul>
       </div>
@@ -147,13 +136,16 @@
 const localePath = useLocalePath()
 const { trackSupport, trackShare } = useSupport()
 
-// "Con el apoyo de" — todos iguales (logos de empresas/colaboradores). `mono`
-// marca los que son foto/raster y necesitan grayscale para encajar en el muro.
-// (Para una uniformidad perfecta, Never Surrender pide un PNG blanco/transparente.)
+// "Con el apoyo de" — todos iguales (logos de empresas/colaboradores). Todos se
+// pintan en blanco monocromo (CSS) para leerse como un conjunto sobre berenjena.
+// `raster: true` marca el logo en mapa de bits CON fondo blanco horneado (el JPEG
+// de Never Surrender): se le quita la caja por CSS (invert + mix-blend screen).
+// NOTA: para nitidez perfecta, Never Surrender pediría un PNG blanco/transparente;
+// con CSS queda como silueta limpia sin recuadro, suficiente para el muro.
 const supporters = [
   { name: 'GitHub', img: '/svg/github.svg' },
   { name: 'Notion', img: '/svg/notion.svg' },
-  { name: 'Never Surrender', img: '/img/neversurrender.jpeg', mono: true },
+  { name: 'Never Surrender', img: '/img/neversurrender.jpeg', raster: true },
   { name: 'Tahe', img: '/img/thae.png', url: 'https://tahecosmetics.com' },
 ]
 
@@ -170,3 +162,48 @@ const navItems = [
   { key: 'contact', to: '/contacto' },
 ]
 </script>
+
+<style scoped>
+/* ── Muro "Con el apoyo de" ───────────────────────────────────────────────────
+   Todos los logos como silueta crema monocromo, misma altura óptica y opacidad,
+   para que se lean como un conjunto sobre la banda berenjena. Hover → opacidad
+   plena. (SiteFooter es global: este tratamiento afecta a todo el sitio.) */
+/* La opacidad va en la PROPIA imagen (no en el wrapper) para no aislar el grupo:
+   así mix-blend-mode sigue componiendo contra la banda berenjena, no contra un
+   contenedor transparente. */
+.logo-wall__mark {
+  height: 1.9rem; /* altura óptica común; SVG/PNG comparten escala */
+  max-width: 140px;
+  opacity: 0.8;
+  transition: opacity 0.2s ease;
+}
+a.logo-wall__item:hover .logo-wall__mark,
+a.logo-wall__item:focus-visible .logo-wall__mark {
+  opacity: 1;
+}
+
+/* Vectores y PNG transparentes (GitHub, Notion, Tahe): monocromo claro.
+   `grayscale` quita el color; `mix-blend-mode: lighten` deja en blanco las zonas
+   claras del arte y deja ver la banda en las zonas oscuras → conserva el detalle
+   interno (p.ej. la "N" calada de Notion) en lugar de aplanarlo a un bloque. */
+.logo-wall__mark--vector {
+  filter: grayscale(1) brightness(1.05);
+  mix-blend-mode: lighten;
+}
+
+/* Raster con fondo blanco horneado (JPEG Never Surrender): invertimos (fondo
+   blanco → negro, logo → claro) y con mix-blend screen el negro cae a la banda
+   → desaparece la caja; queda la silueta clara del logo, sin recuadro. */
+.logo-wall__mark--raster {
+  filter: invert(1) grayscale(1) brightness(2.1) contrast(1.1);
+  mix-blend-mode: screen;
+  height: 2.4rem; /* el JPEG trae mucho margen interno: compensa la altura óptica */
+  max-width: 150px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .logo-wall__mark {
+    transition: none;
+  }
+}
+</style>

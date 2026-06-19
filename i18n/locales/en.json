@@ -848,7 +848,7 @@
     "meta_description": "Real co-creation for brands: your brand inside the story of a tech creator researching her own ultra-rare cancer, before a ~248K community that acts.",
     "og_description": "Real co-creation: your brand inside the story, not a logo on a banner. A ~248K community that moves money and mobilizes.",
     "print": "↓ PDF Limited Edition",
-    "print_aria": "Download this dossier as PDF (opens the print dialog)",
+    "print_aria": "Download this dossier (deck) as PDF",
     "hero_eyebrow": "// brand dossier",
     "hero_title": "I don't offer you followers.{br}I offer you a {em}.",
     "hero_title_em": "community that acts",
@@ -857,6 +857,7 @@
     "hero_edition_label": "Edition prepared for:",
     "hero_avatar_alt": "",
     "historia_eyebrow": "// the story in 20 seconds",
+    "modelo_eyebrow": "// the model",
     "historia_title": "A story {em}.",
     "historia_title_em": "impossible to ignore",
     "historia_p1": "Miriam González ({'@'}miriamgonp), {age} years old, a software engineer and tech creator. She has an {b1} metastatic breast cancer (BC-NED, <1% of cases) and uses {b2} to research her own tumor, documenting it in the open.",
@@ -980,7 +981,7 @@
       { "label": "Tahe", "url": "https://tahecosmetics.com" },
       { "label": "GitHub", "url": "https://github.com" },
       { "label": "Notion", "url": "https://www.notion.com" },
-      { "label": "Never Surrender", "url": "https://neversurrender.com" }
+      { "label": "Never Surrender", "url": "https://neversurrenderf.org/" }
     ],
     "partners_quotes": [
       { "quote": "«Hi, Míriam! Check your DMs for a surprise. 🤍»", "author": "Notion ({'@'}NotionHQ), in public · 21.6K views" },

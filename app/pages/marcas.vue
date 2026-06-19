@@ -14,7 +14,7 @@
           decorativo (.band-fx): resplandor violeta centrado + estrellas
           tenues hacia los bordes → no pisan el texto (zona tranquila).
         · ?marca=Nombre personaliza el hero (cliente, sin romper SSR).
-        · Botón flotante → window.print(); estilos @media print mínimos.
+        · Botón flotante → descarga el deck (public/dossier-marcas-deck.pdf); estilos @media print mínimos.
       ════════════════════════════════════════════════════════════
     -->
 
@@ -111,6 +111,22 @@
             <NuxtLink :to="localePath({ name: 'ciencia' })" class="link-inline">{{ t('marcas.historia_foot_link') }}</NuxtLink>
           </template>
         </i18n-t>
+      </div>
+    </section>
+
+    <StarDivider class="bg-cream" />
+
+    <!-- ░░ 2b · EL MODELO ░░ lo que más importa a las marcas · crema -->
+    <section v-reveal class="pt-6 pb-14 sm:pt-8 sm:pb-16 bg-cream" aria-labelledby="m-modelo">
+      <div class="section-wide">
+        <p id="m-modelo" class="eyebrow mb-4 block">{{ t('marcas.modelo_eyebrow') }}</p>
+        <div class="rounded-2xl p-6 sm:p-8 bg-berenjena">
+          <i18n-t keypath="marcas.ganas_model" tag="p" class="text-cream/90 leading-relaxed max-w-3xl">
+            <template #b1><strong class="font-semibold text-miriam-claro">{{ t('marcas.ganas_model_b1') }}</strong></template>
+            <template #b2><strong class="font-semibold text-cream">{{ t('marcas.ganas_model_b2') }}</strong></template>
+            <template #em><em class="italic text-cream">{{ t('marcas.ganas_model_em') }}</em></template>
+          </i18n-t>
+        </div>
       </div>
     </section>
 
@@ -312,14 +328,6 @@
           <template #b3><strong class="font-semibold text-berenjena">{{ t('marcas.ganas_fit_b3') }}</strong></template>
           <template #b4><strong class="font-semibold text-berenjena">{{ t('marcas.ganas_fit_b4') }}</strong></template>
         </i18n-t>
-
-        <div class="rounded-2xl p-6 sm:p-8 bg-berenjena">
-          <i18n-t keypath="marcas.ganas_model" tag="p" class="text-cream/90 leading-relaxed max-w-3xl">
-            <template #b1><strong class="font-semibold text-miriam-claro">{{ t('marcas.ganas_model_b1') }}</strong></template>
-            <template #b2><strong class="font-semibold text-cream">{{ t('marcas.ganas_model_b2') }}</strong></template>
-            <template #em><em class="italic text-cream">{{ t('marcas.ganas_model_em') }}</em></template>
-          </i18n-t>
-        </div>
       </div>
     </section>
 
@@ -359,16 +367,22 @@
           </figure>
         </div>
 
-        <i18n-t keypath="marcas.partners_press" tag="p" class="text-tinta">
-          <template #b1><strong class="font-semibold text-berenjena">{{ t('marcas.partners_press_b1') }}</strong></template>
-        </i18n-t>
+        <!-- Caso en prensa · tira de medios (mismo componente y enlaces que la home) -->
+        <div class="flex flex-wrap items-baseline gap-x-7 gap-y-3">
+          <span class="font-mono uppercase text-[11px] tracking-[0.12em] text-tinta self-center">
+            {{ t('home.s9_strip_label') }}
+          </span>
+          <a :href="pressElPais" target="_blank" rel="noopener" class="link-logo text-2xl sm:text-3xl">El País<span class="sr-only"> {{ t('a11y.new_tab') }}</span></a>
+          <a :href="pressMurcia" target="_blank" rel="noopener" class="link-logo text-2xl sm:text-3xl">La Opinión de Murcia<span class="sr-only"> {{ t('a11y.new_tab') }}</span></a>
+          <a :href="pressLa7" target="_blank" rel="noopener" class="link-logo text-2xl sm:text-3xl">La 7<span class="sr-only"> {{ t('a11y.new_tab') }}</span></a>
+        </div>
       </div>
     </section>
 
     <!-- ░░ 8 · CIERRE / CTA ░░ banda oscura, centrada -->
     <section
       v-reveal
-      class="relative overflow-hidden section-spacing bg-berenjena"
+      class="cta-band relative overflow-hidden bg-berenjena"
       :aria-labelledby="'m-cta'"
     >
       <div class="band-fx" aria-hidden="true">
@@ -377,18 +391,18 @@
       </div>
       <div class="section-wide relative z-10">
         <div class="max-w-2xl mx-auto text-center">
-          <p class="dark-eyebrow mb-3">{{ t('marcas.cta_eyebrow') }}</p>
+          <p class="dark-eyebrow mb-4">{{ t('marcas.cta_eyebrow') }}</p>
           <i18n-t
             keypath="marcas.cta_title"
             tag="h2"
             id="m-cta"
-            class="heading-display text-3xl sm:text-4xl text-cream mb-4"
+            class="heading-display text-3xl sm:text-4xl text-cream mb-5"
             style="letter-spacing: -0.02em"
           >
             <template #em><em class="italic text-coral">{{ t('marcas.cta_title_em') }}</em></template>
           </i18n-t>
-          <p class="text-lg text-cream/85 leading-relaxed mb-8">{{ t('marcas.cta_p') }}</p>
-          <div class="flex flex-col sm:flex-row items-center justify-center gap-4 mb-8">
+          <p class="text-lg text-cream/85 leading-relaxed mb-8 max-w-xl mx-auto">{{ t('marcas.cta_p') }}</p>
+          <div class="flex flex-col sm:flex-row items-center justify-center gap-4 mb-7">
             <NuxtLink :to="localePath('contacto')" class="btn-cta" style="text-decoration: none">
               {{ t('marcas.cta_button') }}
             </NuxtLink>
@@ -405,10 +419,10 @@
       </div>
     </section>
 
-    <!-- Botón flotante · descargar como PDF (oculto en impresión) -->
-    <button type="button" class="m-print-btn no-print" :aria-label="t('marcas.print_aria')" @click="printPdf">
+    <!-- Botón flotante · descarga el deck en PDF (oculto en impresión) -->
+    <a href="/dossier-marcas-deck.pdf" download class="m-print-btn no-print" style="text-decoration: none" :aria-label="t('marcas.print_aria')">
       {{ t('marcas.print') }}
-    </button>
+    </a>
   </div>
 </template>
 
@@ -437,9 +451,10 @@ const ganasCards = computed(() => tm('marcas.ganas_cards') as Record<string, unk
 const partners = computed(() => tm('marcas.partners') as Record<string, unknown>[])
 const quotes = computed(() => tm('marcas.partners_quotes') as Record<string, unknown>[])
 
-function printPdf() {
-  if (import.meta.client) window.print()
-}
+// Cobertura de prensa real — mismos enlaces que la tira de medios de la home (index.vue)
+const pressElPais = 'https://elpais.com/tecnologia/2026-04-23/asi-usa-una-paciente-con-cancer-metastasico-la-ia-para-entender-su-enfermedad-cual-es-el-mejor-metodo-para-hablar-de-salud-con-chatbots.html'
+const pressMurcia = 'https://www.laopiniondemurcia.es/comunidad/2026/05/30/paciente-murciana-aguarda-nuevo-tratamiento-130816775.html'
+const pressLa7 = 'https://www.instagram.com/p/DZDT2hIAMPU/?hl=es'
 
 useSeoMeta({
   title: () => t('marcas.meta_title'),
@@ -476,6 +491,31 @@ export default { name: 'MarcasPage' }
   text-transform: uppercase;
   color: rgba(250, 246, 240, 0.7);
   display: block;
+}
+
+/* Banda de cierre/CTA: ritmo equilibrado. El contenido es corto (eyebrow → h2 →
+   subtítulo → botones → tagline), así que en vez del py-28 simétrico del DS, que
+   dejaba un hueco muerto bajo la tagline, usamos un padding inferior algo menor
+   que el superior: la composición queda centrada y la banda "abraza" el muro de
+   logos del footer sin aire vacío.
+
+   Flush con el footer: la banda CTA y el muro de logos del footer son ambos
+   berenjena y deben tocarse sin costura. El borde compartido cae en un píxel
+   fraccionario (la altura de la página no es entera) y dejaba asomar 1px del
+   fondo crema del <footer> → fina línea clara antiestética. Sangramos la banda
+   2px hacia el footer (margin-bottom negativo) y extendemos su fondo berenjena
+   esos 2px (padding-bottom) para que la costura quede siempre cubierta, sin
+   alterar la composición ni el ritmo visible. */
+.cta-band {
+  padding-top: 5rem;    /* 80px */
+  padding-bottom: calc(4.25rem + 2px); /* 68px + 2px de sangrado */
+  margin-bottom: -2px;  /* tapa la costura sub-píxel con el muro de logos */
+}
+@media (min-width: 640px) {
+  .cta-band {
+    padding-top: 7rem;    /* 112px, = section-spacing sm */
+    padding-bottom: calc(5.5rem + 2px); /* 88px + 2px de sangrado (ver .cta-band) */
+  }
 }
 
 /* Anillo decorativo del avatar (violeta-soft translúcido). */

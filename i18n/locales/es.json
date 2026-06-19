@@ -848,7 +848,7 @@
     "meta_description": "Co-creación real para marcas: tu marca dentro del relato de una divulgadora tech que investiga su propio cáncer ultra-raro, ante una comunidad de ~248K que actúa.",
     "og_description": "Co-creación real: tu marca dentro del relato, no un logo en un banner. Una comunidad de ~248K que mueve dinero y se moviliza.",
     "print": "↓ PDF Edición Limitada",
-    "print_aria": "Descargar este dossier en PDF (abre el diálogo de impresión)",
+    "print_aria": "Descargar este dossier (deck) en PDF",
     "hero_eyebrow": "// dossier para marcas",
     "hero_title": "No te ofrezco seguidores.{br}Te ofrezco una {em}.",
     "hero_title_em": "comunidad que actúa",
@@ -857,6 +857,7 @@
     "hero_edition_label": "Edición preparada para:",
     "hero_avatar_alt": "",
     "historia_eyebrow": "// la historia en 20 segundos",
+    "modelo_eyebrow": "// el modelo",
     "historia_title": "Una historia {em}.",
     "historia_title_em": "imposible de ignorar",
     "historia_p1": "Miriam González ({'@'}miriamgonp), {age} años, ingeniera de software y divulgadora tech. Tiene un cáncer de mama metastásico {b1} (BC-NED, <1% de los casos) y usa {b2} para investigar su propio tumor, documentándolo en abierto.",
@@ -980,7 +981,7 @@
       { "label": "Tahe", "url": "https://tahecosmetics.com" },
       { "label": "GitHub", "url": "https://github.com" },
       { "label": "Notion", "url": "https://www.notion.com" },
-      { "label": "Never Surrender", "url": "https://neversurrender.com" }
+      { "label": "Never Surrender", "url": "https://neversurrenderf.org/" }
     ],
     "partners_quotes": [
       { "quote": "«¡Hola, Míriam! Revisa tus mensajes directos para ver una sorpresa. 🤍»", "author": "Notion ({'@'}NotionHQ), en público · 21,6K visualizaciones" },
