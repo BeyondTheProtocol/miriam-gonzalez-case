@@ -434,6 +434,8 @@
   }
   .status-badge--paused    { background: #f0d4cc; color: #7a3018; }
   .status-badge--firma     { background: #e8d4ed; color: #5a2466; }
+  /* shape: tag teal de morfología/factibilidad (forma del hueso); recurre en /mapa. */
+  .status-badge--shape     { background: rgba(31,107,87,0.12); color: #1f6b57; }
 
   /* Stat readout card — small label / big mono value / unit-range caption.
      Flex column with a fixed min-height so cards in a grid stay aligned and do
