@@ -985,5 +985,24 @@
     "phase3_desc": "Segundas opiniones internacionales, ensayo N-of-1 y monitorización según lo que confirme la biología.",
     "help_cta": "Apoyar el caso",
     "transparency_link": "Otras formas de ayudar"
+  },
+  "links": {
+    "meta_title": "Miriam González · Enlaces",
+    "meta_description": "Todos los enlaces del caso de Miriam González en un solo sitio: la cobertura en prensa, el mapa de su cáncer, colaboración con marcas y cómo apoyar su tratamiento.",
+    "aria_page": "Enlaces de Miriam González",
+    "aria_nav": "Enlaces destacados",
+    "avatar_alt": "Retrato de Miriam González",
+    "tagline": "Ingeniera y paciente de cáncer de mama metastásico. Uso la IA para buscar el mejor tratamiento basado en evidencia.",
+    "footnote": "helpmiriam.com · material de apoyo, no consejo médico.",
+    "elespanol_title": "Mi caso en El Español",
+    "elespanol_sub": "«La ingeniera que usa la IA para luchar contra su cáncer»",
+    "mapa_title": "El mapa de mi cáncer",
+    "mapa_sub": "Dónde está la metástasis, explicado de forma visual",
+    "marcas_title": "Para marcas y empresas",
+    "marcas_sub": "Colaborar con sentido en el caso",
+    "apoyar_title": "Apoyar mi tratamiento",
+    "apoyar_sub": "Cómo ayudar, con transparencia total",
+    "caso_title": "Mi caso, desde el principio",
+    "caso_sub": "La historia completa en helpmiriam.com"
   }
 }
