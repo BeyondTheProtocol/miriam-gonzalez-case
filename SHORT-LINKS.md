@@ -38,6 +38,7 @@ control y tu analítica.
 | `/3d-x` | `/mapa-metastasis` | `lanzamiento-herramienta` (X) |
 | `/3d-in` | `/mapa-metastasis` | `lanzamiento-herramienta` (LinkedIn) |
 | `/3d-ig` | `/mapa-metastasis` | `lanzamiento-herramienta` (Instagram/bio) |
+| `/donar` | GoFundMe (externo) | — (sin UTM: salto externo, no medible en Umami) |
 
 ## Cómo añadir uno nuevo
 

@@ -55,6 +55,15 @@
   to = "/mapa-metastasis?utm_source=instagram&utm_medium=bio&utm_campaign=lanzamiento-herramienta"
   status = 302
 
+# Donación — link corto de marca para repartir rápido. Apunta a GoFundMe.
+# 302 (temporal) → repunteable si cambia la campaña/plataforma. Es un salto a un
+# dominio externo: NO se mide en Umami (no carga página nuestra); es solo el
+# enlace limpio y de marca para compartir.
+[[redirects]]
+  from = "/donar"
+  to = "https://www.gofundme.com/f/biopsia-molecular-que-puede-cambiar-su-tratamiento"
+  status = 302
+
 # ── Cabeceras de seguridad (auditoría 5.5) ───────────────────────────────────
 # Sitio de salud + donaciones = la confianza es crítica. Subconjunto SEGURO que
 # no rompe nada (Plausible, enlaces a GoFundMe, fuentes auto-alojadas, OG image).
