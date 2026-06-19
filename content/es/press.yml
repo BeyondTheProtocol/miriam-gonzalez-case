@@ -1,16 +1,24 @@
+# Apariciones en prensa — ORDEN CURADO (más importante primero), no cronológico.
+# Criterio (marketing/credibilidad, review de Adri prevalece): alcance + prestigio
+# + credibilidad. Sirve a la estrella polar: credibilidad → confianza → aliados/
+# financiación → vacuna. La home (tira de medios) sigue este mismo orden.
+#   1. El País — diario nacional nº1, sección tech, con edición en inglés.
+#   2. El Español — gran nacional digital, titular fuerte y en mensaje, reciente.
+#   3. La Opinión de Murcia — regional, ancla el ángulo local/humano.
+#   4. La 7 — TV regional (clip en Instagram), cierra la lista.
 articles:
   - outlet: El País
     url: https://elpais.com/tecnologia/2026-04-23/asi-usa-una-paciente-con-cancer-metastasico-la-ia-para-entender-su-enfermedad-cual-es-el-mejor-metodo-para-hablar-de-salud-con-chatbots.html
     title: Así usa una paciente con cáncer metastásico la IA para entender su enfermedad
     date: '2026-04-23'
-  - outlet: La Opinión de Murcia
-    url: https://www.laopiniondemurcia.es/comunidad/2026/05/30/paciente-murciana-aguarda-nuevo-tratamiento-130816775.html
-    title: Una paciente murciana, a la espera de un nuevo tratamiento de precisión
-    date: '2026-05-30'
   - outlet: El Español
     url: https://www.elespanol.com/alicante/vivir/salud/20260619/miren-ingeniera-anos-usa-ia-luchar-cancer-mama-unico-contactan-oncologos-mundo/1003744290903_0.html
     title: 'Miriam, ingeniera de 35 años, usa la IA para luchar contra su cáncer de mama único: «Me contactan oncólogos de todo el mundo»'
     date: '2026-06-19'
+  - outlet: La Opinión de Murcia
+    url: https://www.laopiniondemurcia.es/comunidad/2026/05/30/paciente-murciana-aguarda-nuevo-tratamiento-130816775.html
+    title: Una paciente murciana, a la espera de un nuevo tratamiento de precisión
+    date: '2026-05-30'
   - outlet: La 7
     url: https://www.instagram.com/p/DZDT2hIAMPU/?hl=es
     title: El caso de Miriam en la televisión regional de Murcia
