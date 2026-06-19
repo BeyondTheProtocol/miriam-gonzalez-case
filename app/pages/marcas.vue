@@ -407,6 +407,12 @@
               {{ t('marcas.cta_button') }}
             </NuxtLink>
             <a
+              href="/dossier-marcas-deck.pdf"
+              download
+              class="m-cta-download no-print"
+              :aria-label="t('marcas.print_aria')"
+            >{{ t('marcas.cta_download') }}</a>
+            <a
               href="https://instagram.com/miriamgonp"
               target="_blank"
               rel="noopener"
@@ -419,7 +425,9 @@
       </div>
     </section>
 
-    <!-- Botón flotante · descarga el deck en PDF (oculto en impresión) -->
+    <!-- Botón flotante · descarga el deck en PDF (oculto en impresión).
+         Solo escritorio (≥lg): en móvil la descarga vive inline en la banda de
+         cierre, para no amontonar flotantes sobre la barra de apoyo móvil. -->
     <a href="/dossier-marcas-deck.pdf" download class="m-print-btn no-print" style="text-decoration: none" :aria-label="t('marcas.print_aria')">
       {{ t('marcas.print') }}
     </a>
@@ -607,7 +615,48 @@ export default { name: 'MarcasPage' }
     radial-gradient(1.1px 1.1px at 90% 12%, rgba(250, 246, 240, 0.4), transparent 60%);
 }
 
-/* Botón flotante de impresión — sobre la barra de apoyo móvil (<lg). */
+/* Botón secundario de descarga del deck, inline en la banda de cierre (CTA).
+   Estilo "fantasma" en crema sobre la banda oscura: acción clara pero sin robar
+   el coral, reservado al botón primario «Hablemos» (un acento por bloque). */
+.m-cta-download {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.6rem 1.1rem;
+  border-radius: 999px;
+  border: 1px solid rgba(250, 246, 240, 0.4);
+  background: transparent;
+  color: #faf6f0;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  letter-spacing: 0.02em;
+  text-decoration: none;
+  transition: background 0.2s ease, border-color 0.2s ease, transform 0.15s ease;
+}
+.m-cta-download:hover,
+.m-cta-download:focus-visible {
+  background: rgba(250, 246, 240, 0.08);
+  border-color: #faf6f0;
+  transform: translateY(-1px);
+}
+.m-cta-download:focus-visible {
+  outline: 2px solid #ff6b47;
+  outline-offset: 2px;
+}
+@media (prefers-reduced-motion: reduce) {
+  .m-cta-download:hover {
+    transform: none;
+  }
+}
+
+/* Botón flotante de descarga — SOLO escritorio (≥1024px). En móvil la descarga
+   vive inline en la banda de cierre, para no amontonar flotantes sobre la barra
+   de apoyo móvil (era lo que quedaba feo en el móvil). */
+@media (max-width: 1023px) {
+  .m-print-btn {
+    display: none;
+  }
+}
 .m-print-btn {
   position: fixed;
   right: 1rem;
