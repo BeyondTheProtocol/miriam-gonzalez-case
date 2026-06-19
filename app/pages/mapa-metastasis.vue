@@ -485,11 +485,8 @@ function openPetLightbox(src: string) {
   keyLightboxOpen.value = false; bone3dFullscreen.value = false // exclusividad: un modal a la vez
   petLightboxOpen.value = true
 }
-function openPetGrid() {
-  petLightboxMode.value = 'grid'
-  keyLightboxOpen.value = false; bone3dFullscreen.value = false // exclusividad: un modal a la vez
-  petLightboxOpen.value = true
-}
+/* (auditoría) openPetGrid eliminado junto al botón «Ver las 4»: la cuadrícula se
+   alcanza DENTRO del lightbox (petLightboxShowGrid), al ampliar una imagen. */
 function closePetLightbox() { petLightboxOpen.value = false }
 /* dentro del popup: de la cuadrícula → ampliar una sola; de una sola → volver a las 4 */
 function petLightboxShowSingle(src: string) { petLightboxSrc.value = src; petLightboxMode.value = 'single' }
@@ -1516,31 +1513,12 @@ const ticks = [
               <div class="stat-readout__unit">{{ L('rango del azúcar (informe)', 'sugar range (report)') }}</div>
             </div>
           </div>
-          <!-- evolución · KPIs (azúcar FDG vs PET previo) -->
-          <p class="eyebrow mb-2 block">{{ L('Evolución · azúcar (FDG) vs PET previo', 'Evolution · sugar (FDG) vs prior PET') }}</p>
-          <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
-            <div class="stat-readout">
-              <div class="stat-readout__label">{{ L('FDG en aumento', 'FDG rising') }}</div>
-              <div class="stat-readout__value" :style="{ color: '#bb4128' }">{{ trajectory.up + trajectory.neu }}</div>
-              <div class="stat-readout__unit">{{ L('incluye focos nuevos', 'includes new foci') }}</div>
-            </div>
-            <div class="stat-readout">
-              <div class="stat-readout__label">{{ L('FDG en descenso', 'FDG decreasing') }}</div>
-              <div class="stat-readout__value" :style="{ color: '#1f5a3a' }">{{ trajectory.down }}</div>
-              <div class="stat-readout__unit">{{ L('menos FDG que el previo', 'less FDG than prior') }}</div>
-            </div>
-            <div class="stat-readout">
-              <div class="stat-readout__label">{{ L('Estable', 'Stable') }}</div>
-              <div class="stat-readout__value">{{ trajectory.stable }}</div>
-              <div class="stat-readout__unit">{{ L('sin cambio relevante', 'no relevant change') }}</div>
-            </div>
-            <div class="stat-readout">
-              <div class="stat-readout__label">{{ L('Focos nuevos', 'New foci') }}</div>
-              <div class="stat-readout__value" :style="{ color: '#bb4128' }">{{ trajectory.neu }}</div>
-              <div class="stat-readout__unit">{{ L('nuevos vs PET previo', 'new vs prior PET') }}</div>
-            </div>
-          </div>
-          <p class="text-[11px] text-tinta mt-3 leading-relaxed max-w-3xl">{{ L('La evolución compara solo el azúcar (FDG) entre el PET previo (ene 2026) y el actual (mar 2026), sobre los ' + trajectory.withPrev + ' focos con valor previo. El receptor (Ga-68 DOTATOC) es del estudio único de mayo, sin previo con el que comparar. ', 'Evolution compares only sugar (FDG) between the prior PET (Jan 2026) and the current one (Mar 2026), over the ' + trajectory.withPrev + ' foci with a prior value. The receptor (Ga-68 DOTATOC) is from the single May study, with no prior to compare. ') }}<a href="#cockpit" class="link-action text-miriam font-semibold whitespace-nowrap">{{ L('Ver el desglose completo ↓', 'See the full breakdown ↓') }}</a></p>
+          <!-- (auditoría) evolución condensada a UNA línea aquí (panorama); el detalle de los
+               4 KPIs + el matiz «solo FDG, sin previo de Galio» viven en la sección «trayectoria»
+               (antes se duplicaba el mismo grid en los dos sitios). -->
+          <p class="text-sm text-tinta mt-1 leading-relaxed max-w-3xl">
+            <span class="eyebrow--sm text-berenjena mr-1">{{ L('Evolución (FDG)', 'Evolution (FDG)') }}</span>{{ L((trajectory.up + trajectory.neu) + ' focos con azúcar al alza (incl. ' + trajectory.neu + ' nuevos), ' + trajectory.down + ' a la baja, ' + trajectory.stable + ' estables — solo FDG (ene→mar 2026). ', (trajectory.up + trajectory.neu) + ' foci with rising sugar (incl. ' + trajectory.neu + ' new), ' + trajectory.down + ' falling, ' + trajectory.stable + ' stable — FDG only (Jan→Mar 2026). ') }}<a href="#trayectoria" class="link-action text-miriam font-semibold whitespace-nowrap">{{ L('Ver la trayectoria ↓', 'See the trajectory ↓') }}</a>
+          </p>
         </section>
 
         <!-- ===== DIANAS IDÓNEAS · RESUMEN (la respuesta primero · order-1) =====
@@ -3664,23 +3642,7 @@ svg [role="button"]:focus-visible {
 .foco-key-tile__suv { font-family: 'JetBrains Mono', monospace; font-size: 10.5px; font-weight: 600; }
 .foco-key-tile__confirm { font-size: 9.5px; line-height: 1.3; color: #8a4a1a; margin-top: 1px; }
 
-/* ---- Imagen real PET: botón «ver las 4 a la vez» + botón «ampliar» por figura ---- */
-.pet-grid-cta {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-size: 0.8rem;
-  font-weight: 600;
-  padding: 0.45rem 0.9rem;
-  border-radius: 9999px;
-  border: 1px solid rgba(45, 27, 61, 0.2);
-  background: #fff;
-  color: #2d1b3d;
-  cursor: pointer;
-  transition: background 0.15s, border-color 0.15s, box-shadow 0.15s;
-}
-.pet-grid-cta:hover { border-color: rgba(157, 68, 171, 0.55); box-shadow: 0 2px 10px rgba(45, 27, 61, 0.12); }
-.pet-grid-cta:focus-visible { outline: 2px solid #9d44ab; outline-offset: 2px; }
+/* ---- Imagen real PET: botón «ampliar» por figura ---- */
 .pet-fig { position: relative; }
 /* botón «ampliar»: superpuesto en la esquina, NO envuelve el visor de zoom (así
    el zoom/pan del ImageZoomViewer sigue funcionando). */
