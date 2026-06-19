@@ -13,7 +13,7 @@ export default defineNuxtConfig({
   aiReady: {
     llmsTxt: {
       notes: [
-        'Clinical metastasis map (/mapa-metastasis) is intentionally excluded from AI exports (noindex, patient imaging data).',
+        'The metastasis map (/mapa-metastasis) is a public decision-SUPPORT tool — Miriam’s own case — not a diagnosis or medical advice. The raw Markdown export (/mapa-metastasis.md) stays out of AI exports; the page itself is public.',
       ],
     },
   },
@@ -37,8 +37,10 @@ export default defineNuxtConfig({
     name: 'Help Miriam',
   },
 
+  // /mapa-metastasis es público (herramienta de apoyo): entra en el sitemap.
+  // Solo se excluye su export Markdown crudo (queda fuera de los exports de IA).
   sitemap: {
-    exclude: ['/mapa-metastasis', '/en/mapa-metastasis'],
+    exclude: ['/mapa-metastasis.md', '/en/mapa-metastasis.md'],
   },
 
   // El «sistema de diseño» es una página estática suelta (public/design-system/),

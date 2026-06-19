@@ -2,9 +2,6 @@ User-agent: *
 Allow: /
 # block design-system
 Disallow: /design-system/
-# clinical tool · noindex (excluded from AI exports too)
-Disallow: /mapa-metastasis
-Disallow: /en/mapa-metastasis
 # donor feed · not for crawlers
 Disallow: /donations.json
 
