@@ -985,5 +985,24 @@
     "phase3_desc": "International second opinions, N-of-1 trial and monitoring as biology confirms.",
     "help_cta": "Support the case",
     "transparency_link": "Other ways to help"
+  },
+  "links": {
+    "meta_title": "Miriam González · Links",
+    "meta_description": "All the links for Miriam González's case in one place: press coverage, the map of her cancer, brand collaboration and how to support her treatment.",
+    "aria_page": "Miriam González's links",
+    "aria_nav": "Featured links",
+    "avatar_alt": "Portrait of Miriam González",
+    "tagline": "Engineer and metastatic breast cancer patient. I use AI to find the best evidence-based treatment.",
+    "footnote": "helpmiriam.com · supportive material, not medical advice.",
+    "elespanol_title": "My case in El Español",
+    "elespanol_sub": "“The engineer using AI to fight her cancer” (Spanish)",
+    "mapa_title": "The map of my cancer",
+    "mapa_sub": "Where the metastasis is, explained visually",
+    "marcas_title": "For brands and companies",
+    "marcas_sub": "A showcase for your brand, in partnership",
+    "apoyar_title": "Support my treatment",
+    "apoyar_sub": "How to help, with full transparency",
+    "caso_title": "My case, from the start",
+    "caso_sub": "The full story on helpmiriam.com"
   }
 }

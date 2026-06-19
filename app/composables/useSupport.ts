@@ -21,7 +21,12 @@ export function useSupport() {
     if (!import.meta.client) return
     // $plausible lo inyecta @nuxtjs/plausible (solo en cliente).
     const plausible = nuxtApp.$plausible as
-      | { trackEvent?: (name: string, opts?: { props?: Record<string, string> }) => void }
+      | {
+          trackEvent?: (
+            name: string,
+            opts?: { props?: Record<string, string> }
+          ) => void
+        }
       | undefined
     plausible?.trackEvent?.(name, { props: { location } })
     plausible?.trackEvent?.(`${name}: ${location}`)
@@ -61,7 +66,18 @@ export function useSupport() {
   }
 
   function trackShare(method: string, from?: string) {
-    trackUmami('Compartir', { metodo: method, ...(from ? { desde: from } : {}) })
+    trackUmami('Compartir', {
+      metodo: method,
+      ...(from ? { desde: from } : {}),
+    })
+  }
+
+  // Hub de enlaces (link-in-bio, /links): qué destino clica quien llega desde
+  // la bio de Instagram/redes. Un único evento «Bio-link» con el destino como
+  // propiedad (mismo patrón que «Clic-prensa»/«Contacto»: un goal, desglose por
+  // prop) → en Umami se ve cuál convierte sin crear un evento por enlace.
+  function trackBioLink(destination: string) {
+    trackUmami('Bio-link', { destino: destination })
   }
 
   return {
@@ -72,5 +88,6 @@ export function useSupport() {
     trackContact,
     trackPathway,
     trackShare,
+    trackBioLink,
   }
 }
