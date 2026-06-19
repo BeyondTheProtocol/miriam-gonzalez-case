@@ -676,7 +676,7 @@ onBeforeUnmount(() => {
         class="relative w-full select-none"
         :style="`aspect-ratio:${stacked ? '4/15' : '12/5'};background:#0d1117;border-radius:0.5rem;overflow:hidden`"
       >
-        <div ref="host" class="absolute inset-0 cursor-grab active:cursor-grabbing" :style="failed ? 'opacity:0;pointer-events:none' : ''" />
+        <div ref="host" role="img" :aria-label="L('Hueso en 3D · tres mapas del mismo hueso: captación del receptor (Galio), del azúcar (FDG) y forma (densidad del CT). Arrástralo para girar; la tabla y las imágenes clave son la alternativa textual.', '3D bone · three maps of the same bone: receptor (gallium) uptake, sugar (FDG) uptake and shape (CT density). Drag to rotate; the table and key images are the text alternative.')" class="absolute inset-0 cursor-grab active:cursor-grabbing" :style="failed ? 'opacity:0;pointer-events:none' : ''" />
 
         <!-- separadores entre vistas (sólo decorativos; el canvas es único) -->
         <template v-if="!failed && !stacked">
@@ -732,15 +732,31 @@ onBeforeUnmount(() => {
         </div>
       </div>
 
-      <!-- CAPTION HONESTO (voz neutral; informa, no concluye) -->
-      <p class="btv-cap">
-        {{ failed
-          ? L('Reconstrucción del CT · vista estática', 'Reconstruction from the CT · static view')
-          : L('El MISMO hueso reconstruido del CT, en 3 mapas · arrastra para girar · rueda para acercar (las 3 vistas a la vez)', 'The SAME bone reconstructed from the CT, in 3 maps · drag to rotate · scroll to zoom (all 3 views at once)') }}
-        <span class="btv-cap-dim">
-          · {{ L('Cada vista es un mapa LIMPIO de UNA variable por punto: la intensidad del color sigue al valor (más oscuro/saturado = más). La captación PET es un GRADIENTE continuo, sin un borde tumoral neto (resolución ~4–5 mm). «Blástico» = densidad del CT (forma), no biología. El Galio es un proxy aproximado por ahora. Informa, no concluye.', 'Each view is a CLEAN map of ONE variable per point: colour intensity follows the value (darker/more saturated = more). PET uptake is a continuous GRADIENT, with no sharp tumour border (~4–5 mm resolution). “Blastic” = CT density (shape), not biology. Gallium is an approximate proxy for now. It informs; it does not conclude.') }}
-        </span>
-      </p>
+      <!-- CAPTION · UNA línea corta de interacción (la honestidad va al desplegable) -->
+      <div class="btv-foot">
+        <p class="btv-cap">
+          {{ failed
+            ? L('Reconstrucción del CT · vista estática', 'Reconstruction from the CT · static view')
+            : L('Arrastra para girar · rueda para acercar · las 3 vistas a la vez', 'Drag to rotate · scroll to zoom · all 3 views at once') }}
+        </p>
+
+        <!-- HONESTIDAD REUBICADA · desplegable SUTIL, PLEGADO por defecto. La info
+             clínica sigue accesible (criterio del radiólogo) sin abrumar (criterio del
+             diseñador). Voz neutral: informa, no concluye. -->
+        <details v-if="!failed" class="btv-read">
+          <summary class="btv-read__summary">
+            <span class="btv-read__i" aria-hidden="true">i</span>
+            {{ L('Cómo se lee el mapa', 'How to read the map') }}
+          </summary>
+          <ul class="btv-read__list">
+            <li>{{ L('Cada vista mapea UNA variable: más oscuro/saturado = más valor.', 'Each view maps ONE variable: darker/more saturated = higher value.') }}</li>
+            <li>{{ L('La captación PET es un gradiente continuo, sin un borde tumoral neto (resolución ~4–5 mm).', 'PET uptake is a continuous gradient, with no sharp tumour border (~4–5 mm resolution).') }}</li>
+            <li>{{ L('«Blástico» = densidad del CT (forma), no biología.', '“Blastic” = CT density (shape), not biology.') }}</li>
+            <li>{{ L('El Galio es un proxy aproximado por ahora.', 'Gallium is an approximate proxy for now.') }}</li>
+            <li>{{ L('Informa, no concluye.', 'It informs; it does not conclude.') }}</li>
+          </ul>
+        </details>
+      </div>
 
       <!-- RÓTULO HONESTO de la aguja ILUSTRATIVA (sólo con el toggle activo) -->
       <p v-if="biopsyAvailable && showBiopsy" class="btv-biopsy-cap">
@@ -803,7 +819,7 @@ onBeforeUnmount(() => {
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
 }
-.btv-legend-unit { color: #948aa0; }
+.btv-legend-unit { color: #6b6275; }
 
 /* ---- canvas / vistas ---- */
 .btv-divider {
@@ -919,13 +935,67 @@ onBeforeUnmount(() => {
 .btv-biopsy-key { display: inline-flex; align-items: center; gap: 5px; margin-left: 2px; }
 .btv-biopsy-mk { display: inline-block; width: 8px; height: 8px; border-radius: 50%; }
 
-.btv-cap {
-  font-size: 10px;
-  text-align: center;
-  margin-top: 6px;
-  font-family: ui-monospace, monospace;
-  line-height: 1.4;
-  color: #aeb6c2;
+/* PIE del visor · una sola línea de interacción + el desplegable de honestidad, en una
+   fila que se reparte (la línea a la izquierda, el «Cómo se lee» a la derecha). En
+   estrecho se apila sin huecos muertos. */
+.btv-foot {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 4px 12px;
+  margin-top: 8px;
 }
-.btv-cap-dim { color: #7c8694; }
+/* CAPTION sobre fondo CREAM (no oscuro): fuente del cuerpo, color legible (AA),
+   alineado a la izquierda. UNA sola línea de interacción; lo demás va al desplegable. */
+.btv-cap {
+  font-size: 11.5px;
+  text-align: left;
+  font-family: inherit;
+  line-height: 1.4;
+  color: #6b6470;
+  margin: 0;
+}
+
+/* DESPLEGABLE «Cómo se lee el mapa» · sutil y plegado por defecto. El resumen es un
+   discreto ⓘ + etiqueta; al abrir, las advertencias clínicas en lista breve y legible. */
+.btv-read { font-size: 11px; line-height: 1.45; }
+.btv-read__summary {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  list-style: none;
+  cursor: pointer;
+  color: #6b4a78;
+  font-weight: 600;
+  user-select: none;
+  white-space: nowrap;
+  transition: color 0.15s;
+}
+.btv-read__summary::-webkit-details-marker { display: none; }
+.btv-read__summary:hover { color: #4a2f55; }
+.btv-read__summary:focus-visible { outline: 2px solid #9d44ab; outline-offset: 2px; border-radius: 4px; }
+.btv-read__i {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 15px;
+  height: 15px;
+  border-radius: 50%;
+  border: 1px solid currentColor;
+  font-size: 9.5px;
+  font-weight: 700;
+  font-style: italic;
+  font-family: Georgia, 'Times New Roman', serif;
+  line-height: 1;
+}
+.btv-read[open] .btv-read__summary { margin-bottom: 5px; }
+.btv-read__list {
+  margin: 0;
+  padding-left: 16px;
+  list-style: disc;
+  color: #4a4350;
+  max-width: 64ch;
+}
+.btv-read__list li { margin: 1px 0; }
 </style>
