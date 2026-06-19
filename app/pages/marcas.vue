@@ -13,7 +13,13 @@
         · Dos bandas oscuras (hero · cierre) = berenjena plano (bg-berenjena) +
           la MISMA retícula de puntos crema al 4 % que las bandas oscuras del
           resto del sitio (index.vue / equipo.vue). Sin tinte violeta: el fondo
-          es exactamente el del resto de la web (.band-fx).
+          es exactamente el del resto de la web (.band-fx). En el hero, además,
+          una constelación CELULAR (.cluster) ANCLADA junto al avatar —el racimo de
+          células del dibujo, hecho con el GLYPH CANÓNICO de estrella de 4 puntas de
+          la marca (BrandMark/Constellation, STAR_D), no bolitas de química—: 3-4
+          estrellas «núcleo» (una en miriam-claro, el resto crema) + satélites,
+          unidos por líneas finas curvas; VISIBLE sobre la berenjena, sin color
+          fuera de marca.
         · ?marca=Nombre personaliza el hero (cliente, sin romper SSR).
         · Botón flotante → descarga el dossier (public/dossier-marcas-deck.pdf).
         · Pop-up de contacto propio (MarcasContactPrompt): SOLO aquí, apunta a
@@ -62,11 +68,6 @@
       :aria-labelledby="'m-hero'"
     >
       <div class="band-fx" aria-hidden="true"></div>
-      <!-- Vida sutil SOLO en el hero: constelación crema + motivo molecular muy
-           tenue (la identidad científica del sitio). Capa encima de la retícula
-           compartida, mismo crema (#faf6f0), baja opacidad, estática. Sin glow
-           lila ni color custom. -->
-      <div class="band-life" aria-hidden="true"></div>
       <div class="section-wide relative z-10">
         <div class="grid lg:grid-cols-[1fr_auto] gap-10 lg:gap-16 items-center">
           <div>
@@ -113,7 +114,78 @@
             </ClientOnly>
           </div>
 
-          <figure class="justify-self-center lg:justify-self-end m-0">
+          <figure class="avatar-stage justify-self-center lg:justify-self-end m-0">
+            <!-- Constelación celular del hero (opción A, aprobada por Miriam) —
+                 la identidad científica del avatar (racimo de células neuroendo-
+                 crinas) dibujada con el GLYPH CANÓNICO de estrella de 4 puntas de
+                 la marca (el de BrandMark/Constellation, STAR_D), NO con bolitas de
+                 química. Racimo = 3-4 estrellas «núcleo» grandes/brillantes +
+                 satélites pequeños alrededor, unidos por líneas finas CURVAS (estilo
+                 penLine de Constellation.vue). Anclado junto al lado del avatar.
+                 VISIBILIDAD (lo que antes fallaba): estrellas op. 0.5–0.85 (núcleos
+                 casi opacos), enlaces op. 0.22–0.30; UN núcleo en miriam-claro
+                 (#c77dd2), el resto crema (#faf6f0) → se ve claro sobre la berenjena.
+                 Estático salvo un único parpadeo sutil al entrar (off con reduced-
+                 motion). aria-hidden: pura decoración. -->
+            <svg
+              class="cluster"
+              viewBox="0 0 360 360"
+              fill="none"
+              aria-hidden="true"
+              focusable="false"
+            >
+              <defs>
+                <!-- Glyph canónico de estrella de 4 puntas (= STAR_D de
+                     Constellation.vue / BrandMark.vue), en su caja 20×20. -->
+                <path
+                  id="m-star"
+                  d="M10 1.6 C10.8 5,11.4 6.2,12.6 7.4 C14 8.8,16.4 9.4,18.4 10 C16.2 10.8,14.2 11.4,12.8 12.7 C11.5 13.9,10.9 15.7,10 18.4 C9.3 15.9,8.5 14.2,7.2 12.9 C5.8 11.6,3.4 10.7,1.6 10 C3.8 9.1,5.8 8.4,7.2 7.1 C8.4 6,9.2 4.2,10 1.6 Z"
+                />
+              </defs>
+
+              <!-- Enlaces del racimo: líneas finas CURVAS (Q) entre núcleos y
+                   satélites, estilo penLine. Crema, op. 0.22–0.30 → visibles. -->
+              <g stroke="#faf6f0" stroke-width="1.1" stroke-linecap="round" fill="none" class="cluster-links">
+                <!-- lóbulo derecho (junto al avatar) -->
+                <path d="M300 84 Q322 108 318 150" opacity="0.30" />
+                <path d="M318 150 Q300 176 262 178" opacity="0.26" />
+                <path d="M300 84 Q282 60 248 70" opacity="0.24" />
+                <path d="M318 150 Q344 130 340 100" opacity="0.22" />
+                <path d="M262 178 Q258 218 286 250" opacity="0.26" />
+                <path d="M300 84 Q272 120 262 178" opacity="0.24" />
+                <!-- lóbulo izquierdo -->
+                <path d="M70 132 Q44 156 52 196" opacity="0.30" />
+                <path d="M70 132 Q104 120 122 92" opacity="0.26" />
+                <path d="M52 196 Q86 214 118 200" opacity="0.24" />
+                <path d="M70 132 Q98 168 118 200" opacity="0.22" />
+                <!-- puente sutil entre lóbulos -->
+                <path d="M262 178 Q190 158 118 200" opacity="0.22" />
+              </g>
+
+              <!-- Satélites: estrellas pequeñas alrededor de los núcleos
+                   (op. 0.5–0.65). Crema. scale ~0.18–0.26 sobre la caja de 20. -->
+              <g fill="#faf6f0" class="cluster-sats">
+                <use href="#m-star" opacity="0.58" transform="translate(340 100) scale(0.24) translate(-10 -10)" />
+                <use href="#m-star" opacity="0.5"  transform="translate(248 70)  scale(0.20) translate(-10 -10)" />
+                <use href="#m-star" opacity="0.6"  transform="translate(286 250) scale(0.24) translate(-10 -10)" />
+                <use href="#m-star" opacity="0.5"  transform="translate(332 196) scale(0.18) translate(-10 -10)" />
+                <use href="#m-star" opacity="0.55" transform="translate(122 92)  scale(0.22) translate(-10 -10)" />
+                <use href="#m-star" opacity="0.5"  transform="translate(36 168)  scale(0.18) translate(-10 -10)" />
+                <use href="#m-star" opacity="0.6"  transform="translate(118 200) scale(0.24) translate(-10 -10)" />
+                <use href="#m-star" opacity="0.5"  transform="translate(96 250)  scale(0.18) translate(-10 -10)" />
+              </g>
+
+              <!-- Núcleos: 3-4 estrellas grandes y casi opacas (op. 0.78–0.85),
+                   el racimo del avatar. UNO en miriam-claro (#c77dd2), el resto
+                   crema. El violeta es el núcleo guía (lóbulo derecho, junto al
+                   avatar). scale ~0.42–0.5. -->
+              <g class="cluster-cores">
+                <use href="#m-star" fill="#c77dd2" opacity="0.85" transform="translate(300 84)  scale(0.50) translate(-10 -10)" />
+                <use href="#m-star" fill="#faf6f0" opacity="0.82" transform="translate(318 150) scale(0.44) translate(-10 -10)" />
+                <use href="#m-star" fill="#faf6f0" opacity="0.8"  transform="translate(262 178) scale(0.42) translate(-10 -10)" />
+                <use href="#m-star" fill="#faf6f0" opacity="0.8"  transform="translate(70 132)  scale(0.44) translate(-10 -10)" />
+              </g>
+            </svg>
             <!-- El marco (no la imagen) posee la geometría: aspect-ratio 1 +
                  overflow hidden → círculo perfecto e inmune al estiramiento del
                  grid, igual que TeamPortrait y el retrato del hero de la home.
@@ -283,9 +355,17 @@
           <a :href="pressLa7" target="_blank" rel="noopener" class="link-logo text-2xl sm:text-3xl">La 7<span class="sr-only"> {{ t('a11y.new_tab') }}</span></a>
         </div>
 
-        <NuxtLink :to="localePath('contacto')" class="btn-cta" style="text-decoration: none">
-          {{ t('marcas.audiencia_cta') }}
-        </NuxtLink>
+        <!-- Cierre de la sección de audiencia: el CTA dejaba de flotar suelto tras
+             la tira de prensa. Ahora va ANCLADO en una fila con filete fino superior
+             (mismo patrón editorial que .dossier-row del bloque de pilares): una
+             línea de remate a la izquierda + el botón a la derecha, leídos como el
+             cierre natural de la sección, no como un CTA perdido. -->
+        <div class="audiencia-cta-row">
+          <p class="text-base text-berenjena leading-relaxed m-0 max-w-md">{{ t('marcas.audiencia_cta_line') }}</p>
+          <NuxtLink :to="localePath('contacto')" class="btn-cta shrink-0" style="text-decoration: none">
+            {{ t('marcas.audiencia_cta') }}
+          </NuxtLink>
+        </div>
       </div>
     </section>
 
@@ -572,6 +652,27 @@ export default { name: 'MarcasPage' }
   border-top: 1px solid rgba(45, 27, 61, 0.1);
 }
 
+/* Fila de cierre de la sección de audiencia — MISMO filete fino superior que
+   .dossier-row, para que el CTA "¿Encajamos?" quede anclado al bloque (no suelto):
+   línea de remate + botón en una fila. Apilado en móvil; en fila, con el botón a la
+   derecha, desde sm. */
+.audiencia-cta-row {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1.1rem;
+  padding-top: 1.75rem;
+  border-top: 1px solid rgba(45, 27, 61, 0.1);
+}
+@media (min-width: 640px) {
+  .audiencia-cta-row {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.5rem;
+  }
+}
+
 /* ── Textura de las bandas oscuras ───────────────────────────────────────────
    MISMA que el resto del sitio: las bandas berenjena de la home (index.vue, banda
    "la historia") y del equipo (equipo.vue, panel "lo que NO somos") llevan una
@@ -591,58 +692,68 @@ export default { name: 'MarcasPage' }
   background-size: 32px 32px;
 }
 
-/* ── Vida del hero (capa .band-life, SOLO en la banda superior) ───────────────
-   Da aire y vida ON-BRAND a la banda oscura sin reintroducir el resplandor lila
-   que Miriam pidió quitar: TODO en crema (#faf6f0), baja opacidad, estático.
-     · Constelación: puntos crema dispersos de tamaños distintos (estrellas),
-       irregulares —no la retícula regular de .band-fx— para que «respire».
-     · Motivo molecular/neuro: hexágono de nodos+enlaces (la identidad
-       científica del sitio y del avatar) en SVG inline crema, muy tenue,
-       desplazado a la derecha para no competir con el titular.
-   Capa por encima de .band-fx; ambas suman a la misma retícula del resto del
-   sitio. Sin glow lila, sin color custom, sin animación → sin coste de contraste. */
-.band-life {
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-  pointer-events: none;
-  overflow: hidden;
-  /* Constelación crema: cada radial-gradient es una «estrella». Posiciones y
-     tamaños variados → cielo disperso, no malla. Opacidad por capa muy baja. */
-  background-image:
-    radial-gradient(1.5px 1.5px at 12% 22%, rgba(250, 246, 240, 0.5), transparent 60%),
-    radial-gradient(1px 1px at 26% 64%, rgba(250, 246, 240, 0.38), transparent 60%),
-    radial-gradient(1.5px 1.5px at 38% 14%, rgba(250, 246, 240, 0.45), transparent 60%),
-    radial-gradient(1px 1px at 54% 78%, rgba(250, 246, 240, 0.34), transparent 60%),
-    radial-gradient(2px 2px at 68% 30%, rgba(250, 246, 240, 0.42), transparent 60%),
-    radial-gradient(1px 1px at 82% 58%, rgba(250, 246, 240, 0.36), transparent 60%),
-    radial-gradient(1.5px 1.5px at 90% 18%, rgba(250, 246, 240, 0.4), transparent 60%),
-    radial-gradient(1px 1px at 46% 44%, rgba(250, 246, 240, 0.3), transparent 60%);
-  background-repeat: no-repeat;
+/* ── Constelación celular del hero (.avatar-stage > .cluster) ─────────────────
+   Opción A, aprobada por Miriam. El racimo de células del avatar dibujado con el
+   GLYPH CANÓNICO de estrella de 4 puntas de la marca (#m-star = STAR_D de
+   Constellation.vue / BrandMark.vue), NO con bolitas de química. Anclada junto al
+   avatar (no detrás del H1) para no competir con el titular. Sustituye a la
+   antigua .band-life/.molecule (puntos invisibles + nodos químicos, feedback de
+   Miriam: «no se ve» / «no es química»).
+   Decisiones de marca + VISIBILIDAD (lo que antes fallaba):
+     · Estrellas VISIBLES: núcleos op. 0.78–0.85 (casi opacos), satélites
+       0.5–0.65; enlaces op. 0.22–0.30 (NO 0.16). Se ve claro sobre berenjena.
+     · UN núcleo en miriam-claro (#c77dd2, énfasis sobre oscuro, único color
+       fuera del crema y dentro de marca); el resto crema (#faf6f0).
+     · Líneas CURVAS finas (Q de Bézier, estilo penLine) → racimo, no malla rígida.
+     · Estático salvo un único parpadeo sutil al entrar (off con reduced-motion).
+   El <figure> es el lienzo: posición relativa para que el SVG se ancle al avatar. */
+.avatar-stage {
+  position: relative;
 }
-/* Motivo molecular/neuro: hexágono de nodos+enlaces en crema, muy tenue. SVG
-   inline (sin pedir asset). A la derecha y recortado por el borde → sugiere, no
-   ilustra. Oculto en pantallas muy estrechas para no recargar el móvil. */
-.band-life::after {
-  content: '';
+/* El SVG envuelve el avatar (más grande que el marco de 168px) y se centra en él.
+   Detrás del avatar (z-index 0) y sin capturar el ratón. */
+.cluster {
   position: absolute;
   top: 50%;
-  right: -3rem;
+  left: 50%;
   width: 360px;
   height: 360px;
-  transform: translateY(-50%);
-  opacity: 0.07;
-  background-repeat: no-repeat;
-  background-position: center;
-  background-size: contain;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200' fill='none' stroke='%23faf6f0' stroke-width='1.4'%3E%3Cpolygon points='100,40 152,70 152,130 100,160 48,130 48,70'/%3E%3Cline x1='100' y1='40' x2='100' y2='100'/%3E%3Cline x1='152' y1='70' x2='100' y2='100'/%3E%3Cline x1='152' y1='130' x2='100' y2='100'/%3E%3Cline x1='100' y1='160' x2='100' y2='100'/%3E%3Cline x1='48' y1='130' x2='100' y2='100'/%3E%3Cline x1='48' y1='70' x2='100' y2='100'/%3E%3Cline x1='100' y1='40' x2='30' y2='18'/%3E%3Cline x1='152' y1='130' x2='190' y2='168'/%3E%3Cline x1='48' y1='130' x2='14' y2='150'/%3E%3Ccircle cx='100' cy='100' r='4.5' fill='%23faf6f0' stroke='none'/%3E%3Ccircle cx='100' cy='40' r='3.5' fill='%23faf6f0' stroke='none'/%3E%3Ccircle cx='152' cy='70' r='3.5' fill='%23faf6f0' stroke='none'/%3E%3Ccircle cx='152' cy='130' r='3.5' fill='%23faf6f0' stroke='none'/%3E%3Ccircle cx='100' cy='160' r='3.5' fill='%23faf6f0' stroke='none'/%3E%3Ccircle cx='48' cy='130' r='3.5' fill='%23faf6f0' stroke='none'/%3E%3Ccircle cx='48' cy='70' r='3.5' fill='%23faf6f0' stroke='none'/%3E%3Ccircle cx='30' cy='18' r='2.5' fill='%23faf6f0' stroke='none'/%3E%3Ccircle cx='190' cy='168' r='2.5' fill='%23faf6f0' stroke='none'/%3E%3Ccircle cx='14' cy='150' r='2.5' fill='%23faf6f0' stroke='none'/%3E%3C/svg%3E");
+  transform: translate(-50%, -50%);
+  z-index: 0;
+  pointer-events: none;
+  overflow: visible;
 }
+/* El avatar va por encima del racimo. */
+.avatar-stage .avatar-frame {
+  position: relative;
+  z-index: 1;
+}
+/* Bienvenida: un único parpadeo sutil de las estrellas al entrar (como
+   BrandMark/Constellation), luego quietas. OFF con prefers-reduced-motion. */
+@media (prefers-reduced-motion: no-preference) {
+  .cluster-cores use,
+  .cluster-sats use {
+    animation: m-cluster-in 1.6s ease-out 1 both;
+  }
+  .cluster-sats use {
+    animation-delay: 0.25s;
+  }
+  @keyframes m-cluster-in {
+    0% {
+      opacity: 0;
+    }
+    60% {
+      opacity: 1;
+    }
+  }
+}
+/* Móvil: el racimo se atenúa (no compite con el contenido en pantalla estrecha)
+   y encoge un poco para no desbordar de más. */
 @media (max-width: 640px) {
-  .band-life::after {
-    width: 220px;
-    height: 220px;
-    right: -4rem;
-    opacity: 0.05;
+  .cluster {
+    width: 300px;
+    height: 300px;
+    opacity: 0.85;
   }
 }
 
@@ -683,14 +794,14 @@ export default { name: 'MarcasPage' }
   }
 }
 
-/* Impresión: fuera el cielo decorativo y el botón; secciones sin cortarse.
-   (El cromo global —nav/footer/barra— ya lo oculta app/assets/css/main.css.) */
+/* Impresión: fuera la textura y la constelación decorativa y el botón; secciones
+   sin cortarse. (El cromo global —nav/footer/barra— ya lo oculta main.css.) */
 @media print {
   .no-print {
     display: none !important;
   }
   .band-fx,
-  .band-life {
+  .cluster {
     display: none !important;
   }
   section {
