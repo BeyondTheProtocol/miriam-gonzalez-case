@@ -401,6 +401,12 @@
           </div>
           <!-- Teaser final (abre boca, sin desvelar): el detalle va al dossier. -->
           <p class="text-sm text-cream/85 leading-relaxed max-w-xl mx-auto">{{ t('marcas.cta_podcast') }}</p>
+          <!-- Remate personal y poético — cierra la página con la firma de Miriam.
+               Usa la .firma del DS (Fraunces italic, la rúbrica de la marca) en
+               miriam-claro para que contraste sobre la berenjena. NO es escasez:
+               es un guiño íntimo a que ella es única/irrepetible, en el mismo tono
+               win-win del resto. Hairline superior = el divisor editorial del sitio. -->
+          <p class="m-signoff firma heading-display text-lg text-miriam-claro">{{ t('marcas.cta_tagline') }}</p>
         </div>
       </div>
     </section>
@@ -500,6 +506,22 @@ export default { name: 'MarcasPage' }
     padding-top: 7rem;    /* 112px, = section-spacing sm */
     padding-bottom: calc(5.5rem + 2px); /* 88px + 2px de sangrado (ver .cta-band) */
   }
+}
+
+/* Remate personal del cierre — la firma íntima de Miriam ("Única. Como yo.").
+   Filete fino superior centrado (mismo divisor editorial que .dossier-row, pero
+   estrecho y centrado bajo el teaser) + margen que la separa del párrafo anterior
+   sin pegarse. Hereda .firma (Fraunces italic) del DS; el color miriam-claro se
+   fija con utilidad Tailwind en el template para contraste sobre berenjena
+   (gana al text-miriam de .firma por orden de capas). Puro remate, no CTA. */
+.m-signoff {
+  margin-top: 1.5rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid rgba(232, 212, 237, 0.22);
+  width: fit-content;
+  margin-left: auto;
+  margin-right: auto;
+  letter-spacing: -0.01em;
 }
 
 /* Avatar del hero — mismo patrón que TeamPortrait y el retrato del hero de la
