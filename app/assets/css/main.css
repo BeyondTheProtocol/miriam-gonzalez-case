@@ -202,6 +202,12 @@
   .eyebrow {
     @apply font-mono uppercase text-[12px] font-medium tracking-[0.12em] text-tinta;
   }
+  /* eyebrow pequeño: kicker de tarjeta/control (mono, 11px). Mismo lenguaje que .eyebrow.
+     El color por defecto es tinta; se sobreescribe con text-berenjena donde haga falta
+     (la utilidad gana a este @apply por orden de capas). */
+  .eyebrow--sm {
+    @apply font-mono uppercase text-[11px] font-semibold tracking-[0.1em] text-tinta;
+  }
 
   .tag {
     @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-2xs font-medium tracking-wide uppercase;
@@ -434,6 +440,8 @@
   }
   .status-badge--paused    { background: #f0d4cc; color: #7a3018; }
   .status-badge--firma     { background: #e8d4ed; color: #5a2466; }
+  /* shape: tag teal de morfología/factibilidad (forma del hueso); recurre en /mapa. */
+  .status-badge--shape     { background: rgba(31,107,87,0.12); color: #1f6b57; }
 
   /* Stat readout card — small label / big mono value / unit-range caption.
      Flex column with a fixed min-height so cards in a grid stay aligned and do

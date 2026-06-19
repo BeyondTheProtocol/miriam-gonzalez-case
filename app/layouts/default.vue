@@ -13,13 +13,25 @@
       <slot />
     </main>
     <SiteFooter />
-    <MobileSupportBar />
-    <DonationReturnPrompt />
+    <!-- /marcas (· /en/brands) negocia colaboración, NO donativo: ahí no se monta
+         ningún CTA de donación global (ni la barra "Donar" móvil ni el aviso de
+         retorno). En esa ruta la página monta su propio MarcasContactPrompt. -->
+    <MobileSupportBar v-if="!isBrandsRoute" />
+    <DonationReturnPrompt v-if="!isBrandsRoute" />
   </div>
 </template>
 
 <script setup lang="ts">
 const { locale } = useI18n()
+const route = useRoute()
+
+// ¿Estamos en la landing de marcas? (es: /marcas · en: /en/brands). Se normaliza
+// la barra final para que /marcas/ también cuente. Guarda por ruta: NO afecta al
+// resto del sitio, donde los CTA de donación se mantienen intactos.
+const isBrandsRoute = computed(() => {
+  const path = route.path.replace(/\/+$/, '') || '/'
+  return path === '/marcas' || path === '/en/brands'
+})
 
 function focusMain() {
   nextTick(() => {

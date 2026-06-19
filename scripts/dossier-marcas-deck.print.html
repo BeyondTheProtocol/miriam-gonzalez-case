@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dossier para marcas · Deck — helpmiriam.com</title>
+<!--
+  ════════════════════════════════════════════════════════════════════════
+   FUENTE IMPRIMIBLE del deck de marcas → public/dossier-marcas-deck.pdf
+   ------------------------------------------------------------------------
+   · Reproduce 1:1 «Deck Marcas.dc.html» (handoff de diseño) PERO autónomo:
+     sin el runtime propietario (support.js / deck-stage.js). Cada <section>
+     es una slide 1280×720; @page la fija → Chrome imprime 1 página/slide.
+   · Tokens del design system (berenjena/crema/violeta/coral), tipografía
+     Fraunces + JetBrains Mono, glyph ✦ de 4 puntas (el canónico de la marca).
+   · Copy alineado a /marcas (revisión de Adri · 18-jun-2026):
+       — VALOR MUTUO (win-win), no «lo que gana la marca».
+       — SIN escasez: fuera «Edición Nº», «edición limitada/sin reposición»,
+         «marcas que se atreven» como gancho de exclusividad.
+       — UNA SLIDE POR CAMPAÑA (no apretujadas en «la prueba»):
+         · Slide 06 «campaña activa · crowdfunding»: 38.897 € de ~1.000 personas,
+           ~39% de ~100.000 € objetivo, 3.845 clics/mes. Viva ahora mismo.
+         · Slide 05 «caso de movilización · concurso Carlos Roca»: comentario
+           más votado del concurso (10.673 likes; 2º = 886) = 1ª por su regla;
+           85.015 comentarios totales (79.398 IG + 5.617 TikTok); ~335.000
+           reproduc. de reels; 23.579 votos (15.163 IG + 8.416 TikTok).
+         La 04 «la prueba» queda como overview/alcance (virales + LinkedIn) y
+         hace de puente a esas dos campañas, sin duplicar las cifras.
+       — Honesto: 1ª por la REGLA (comentario más votado); por suma bruta de
+         menciones fue 2ª → NO afirmar liderazgo de volumen total.
+       — CONFIDENCIAL: se muestra que ganó el VOTO / quedó 1ª y la movilización.
+         NUNCA se menciona que grabó el episodio ni que saldrá en él (el premio
+         era grabar, eso NO se desvela). (Miriam autoriza el voto/movilización.)
+       — Header de «la prueba» más directo (Adri: costaba pillarlo).
+       — Números/demografía SE MANTIENEN (es B2B: el contacto se lo vende
+         a su jefe).
+   · Regenerar:  node scripts/render-dossier-deck.mjs
+  ════════════════════════════════════════════════════════════════════════
+-->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,500;1,9..144,600&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --crema:#FAF6F0; --crema-profunda:#F5EFE6;
+    --berenjena:#2D1B3D; --berenjena-2:#3A2350; --berenjena-deep:#1B0F26;
+    --tinta:#3A3340; --violeta:#A855B5; --violeta-soft:#E8D4ED;
+    --violeta-claro:#C77DD2; --coral:#FF6B47; --muted:#6E6472; --line:#E8DFD2;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0;background:var(--berenjena-deep)}
+  ::selection{background:var(--violeta-soft);color:var(--berenjena)}
+
+  /* Cada slide es una página exacta del deck (1280×720). */
+  .slide{
+    width:1280px; height:720px; position:relative; overflow:hidden;
+    display:flex; flex-direction:column; justify-content:center;
+    font-family:system-ui,-apple-system,'Segoe UI',Roboto,Arial,sans-serif;
+    box-sizing:border-box; padding:62px 84px 84px;
+  }
+  .slide--dark{background:var(--berenjena);color:var(--crema)}
+  .slide--light{background:var(--crema);color:var(--berenjena)}
+
+  /* Eyebrow con ✦ (glyph canónico de 4 puntas). */
+  .eyebrow{
+    display:flex; align-items:center; gap:9px;
+    font-family:'JetBrains Mono',monospace; text-transform:uppercase;
+    letter-spacing:.16em; font-weight:500; font-size:13px;
+  }
+  .eyebrow--light{color:var(--tinta)}
+  .eyebrow--dark{color:var(--violeta-soft)}
+
+  h1.title{font-family:'Fraunces',serif;font-weight:600;line-height:1.0;letter-spacing:-0.035em;margin:0}
+  h2.title{font-family:'Fraunces',serif;font-weight:600;line-height:1.04;letter-spacing:-0.03em;margin:0}
+  .em-violeta{font-style:italic;color:var(--violeta)}
+  .em-coral{font-style:italic;color:var(--coral)}
+
+  /* Pie de marca de cada slide. */
+  .footer{
+    position:absolute; left:84px; right:84px; bottom:28px;
+    display:flex; justify-content:space-between;
+    font-family:'JetBrains Mono',monospace; font-size:11px;
+    letter-spacing:.12em; text-transform:uppercase;
+  }
+  .footer--light{color:var(--muted)}
+  .footer--dark{color:#B6A9BE}
+  .footer .brand-light{color:var(--violeta)}
+  .footer .brand-dark{color:var(--violeta-claro)}
+
+  /* Listas con bullet (claras y oscuras). */
+  .bullets{display:flex;flex-direction:column;gap:15px}
+  .bullets .row{display:flex;gap:14px;align-items:flex-start}
+  .dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:10px}
+  .dot--violeta{background:var(--violeta)}
+  .dot--coral{background:var(--coral)}
+  .bullets p{margin:0;font-size:18px;line-height:1.5}
+  .bullets--light p{color:var(--tinta)}
+  .bullets--dark p{color:var(--violeta-soft)}
+  .bullets--light b{color:var(--berenjena)}
+  .bullets--dark b{color:#fff}
+
+  /* Tarjetas crema-profunda. */
+  .card{background:var(--crema-profunda);border-radius:16px;padding:22px 24px}
+  .card .ct{font-family:'Fraunces',serif;font-weight:600;display:block;letter-spacing:-0.01em}
+  .card .cb{color:var(--tinta);display:block}
+  .card .gana{margin-top:12px;line-height:1.4;color:var(--violeta)}
+  .card .gana .gl{font-family:'JetBrains Mono',monospace;letter-spacing:.06em;text-transform:uppercase}
+
+  /* Tarjeta «modelo» (berenjena sobre crema). */
+  .model{background:var(--berenjena);color:var(--crema);border-radius:16px;padding:24px 28px}
+  .model p{margin:0;font-size:18px;line-height:1.5;color:var(--violeta-soft)}
+  .model b{color:#fff}
+
+  /* ── Print: 1 página por slide, sin recortes ───────────────────────── */
+  @page{ size:1280px 720px; margin:0; }
+  @media print{
+    html,body{margin:0!important;padding:0!important;background:none!important}
+    *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+    .slide{page-break-after:always;break-after:page}
+    .slide:last-child{page-break-after:auto;break-after:auto}
+  }
+</style>
+</head>
+<body>
+
+<!-- 1 · PORTADA ───────────────────────────────────────────────────────── -->
+<section class="slide slide--dark" style="justify-content:space-between;padding:56px 84px">
+  <div style="display:flex;align-items:center;justify-content:space-between">
+    <div style="display:flex;align-items:center;gap:14px">
+      <svg width="46" height="46" viewBox="0 0 240 240" style="flex-shrink:0">
+        <path d="M192.94 24.47 L199.74 37.67 L212.94 44.47 L199.74 51.27 L192.94 64.47 L186.14 51.27 L172.94 44.47 L186.14 37.67 Z" fill="#A855B5"></path>
+        <path d="M48.33 173.84 L52.75 182.42 L61.33 186.84 L52.75 191.26 L48.33 199.84 L43.91 191.26 L35.33 186.84 L43.91 182.42 Z" fill="#A855B5"></path>
+        <path d="M55.05 44.24 L57.94 49.85 L63.55 52.74 L57.94 55.63 L55.05 61.24 L52.16 55.63 L46.55 52.74 L52.16 49.85 Z" fill="#A855B5" opacity="0.5"></path>
+        <circle cx="182.5" cy="184.7" r="3.4" fill="#A855B5"></circle>
+        <circle cx="212.8" cy="134.7" r="2.3" fill="#A855B5" opacity="0.5"></circle>
+        <circle cx="120" cy="120" r="76" fill="#FAF6F0"></circle>
+        <text x="120" y="147" text-anchor="middle" font-family="Fraunces, Georgia, serif" font-style="italic" font-weight="600" font-size="120" fill="#2D1B3D">m</text>
+      </svg>
+      <span style="display:flex;flex-direction:column;gap:3px;line-height:1">
+        <span style="font-family:'Fraunces',serif;font-weight:700;font-size:19px;letter-spacing:-0.01em;color:#FAF6F0">helpmiriam.com</span>
+        <span style="font-family:'JetBrains Mono',monospace;font-weight:500;font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:#C77DD2">Beyond the Protocol</span>
+      </span>
+    </div>
+    <span style="font-family:'JetBrains Mono',monospace;text-transform:uppercase;letter-spacing:.16em;font-size:12px;color:#E8D4ED">Dossier para marcas · Deck</span>
+  </div>
+  <div>
+    <h1 class="title" style="font-size:68px">Co-creación que tiene sentido <span class="em-violeta" style="color:#A855B5">para las dos</span>.</h1>
+    <p style="font-size:22px;color:#E8D4ED;margin:24px 0 0;max-width:46ch">Tu marca dentro de un relato que la gente sigue. Mi investigación, en marcha. Una colaboración real donde ganamos las dos.</p>
+  </div>
+  <div style="font-family:'JetBrains Mono',monospace;font-size:13px;letter-spacing:.12em;text-transform:uppercase;color:#E8D4ED">Preparado para&nbsp; <b style="border-bottom:1.5px dashed #A855B5;padding:0 18px;color:#FAF6F0">{{BRAND}}</b></div>
+</section>
+
+<!-- 2 · QUIÉN SOY ──────────────────────────────────────────────────────── -->
+<section class="slide slide--light">
+  <div class="eyebrow eyebrow--light" style="margin-bottom:16px"><svg width="11" height="11" viewBox="0 0 24 24"><path d="M12 0 L16.08 7.92 L24 12 L16.08 16.08 L12 24 L7.92 16.08 L0 12 L7.92 7.92 Z" fill="#A855B5"></path></svg>01 · Quién soy</div>
+  <h2 class="title" style="font-size:42px;margin-bottom:26px;max-width:20em">Quién soy <span class="em-violeta">(y por qué esta historia no se olvida)</span>.</h2>
+  <p style="font-size:21px;line-height:1.55;margin:0;max-width:74ch;color:#3A3340">Soy Miriam González: ingeniera de software reconvertida en divulgadora tech, con un cáncer de mama metastásico ultra-raro (menos del 1% de los casos). En lugar de esperar, investigo mi propio tumor con IA y oncología de precisión, y lo cuento todo en abierto. <b style="color:#2D1B3D">Dana-Farber (Harvard)</b> analiza mis muestras, <b style="color:#2D1B3D">Zúrich</b> me ayuda con la biopsia y el mayor comité de oncología de precisión del mundo <b style="color:#2D1B3D">(WIN)</b> se ha interesado por mi caso. No es una historia triste: es una historia que la gente sigue, comparte y apoya. Y tu marca puede formar parte de ella.</p>
+  <div class="footer footer--light"><span><span class="brand-light">helpmiriam.com</span> · Beyond the Protocol</span><span>01 · Quién soy</span></div>
+</section>
+
+<!-- 3 · LOS NÚMEROS ────────────────────────────────────────────────────── -->
+<section class="slide slide--light">
+  <div class="eyebrow eyebrow--light" style="margin-bottom:14px"><svg width="11" height="11" viewBox="0 0 24 24"><path d="M12 0 L16.08 7.92 L24 12 L16.08 16.08 L12 24 L7.92 16.08 L0 12 L7.92 7.92 Z" fill="#A855B5"></path></svg>02 · Los números</div>
+  <h2 class="title" style="font-size:42px;margin-bottom:26px">Los números, <span class="em-violeta">sin maquillar</span>.</h2>
+  <div class="bullets bullets--light" style="max-width:94ch">
+    <div class="row"><span class="dot dot--violeta"></span><p><b>Audiencia multicanal: ~248.000</b> (IG 126,5K · X 41,2K · LinkedIn 40,6K · TikTok 23,2K · YouTube 17K).</p></div>
+    <div class="row"><span class="dot dot--violeta"></span><p><b>Instagram (30 días):</b> 453.127 cuentas alcanzadas · +1.000.000 de visualizaciones · 64-66K interacciones · 8,8% engagement por alcance · 63% de la interacción viene de audiencia nueva.</p></div>
+    <div class="row"><span class="dot dot--violeta"></span><p><b>Crecimiento:</b> +4.734 seguidores en 30 días · 34 publicaciones/mes.</p></div>
+    <div class="row"><span class="dot dot--violeta"></span><p><b>Autenticidad:</b> 72,5% audiencia real (Modash) — por encima de la media del sector.</p></div>
+  </div>
+  <p style="font-style:italic;font-size:15px;color:#6E6472;margin:24px 0 0">Todo verificable y fechado (junio 2026). Capturas disponibles bajo petición.</p>
+  <div class="footer footer--light"><span><span class="brand-light">helpmiriam.com</span> · Beyond the Protocol</span><span>02 · Los números</span></div>
+</section>
+
+<!-- 4 · A QUIÉN LLEGAS ─────────────────────────────────────────────────── -->
+<section class="slide slide--light">
+  <div class="eyebrow eyebrow--light" style="margin-bottom:14px"><svg width="11" height="11" viewBox="0 0 24 24"><path d="M12 0 L16.08 7.92 L24 12 L16.08 16.08 L12 24 L7.92 16.08 L0 12 L7.92 7.92 Z" fill="#A855B5"></path></svg>03 · A quién llegas</div>
+  <h2 class="title" style="font-size:40px;margin-bottom:24px">No es un público, es un <span class="em-violeta">ecosistema</span>.</h2>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px 26px">
+    <div style="display:flex;gap:12px;align-items:flex-start"><span class="dot dot--violeta" style="width:7px;height:7px;margin-top:8px"></span><p style="margin:0;font-size:15px;line-height:1.45;color:#3A3340"><b style="color:#2D1B3D">Instagram (126,5K):</b> el escaparate masivo e hispano global (25-44 = 73,5%, 65,9% hombres); donde explota lo viral.</p></div>
+    <div style="display:flex;gap:12px;align-items:flex-start"><span class="dot dot--violeta" style="width:7px;height:7px;margin-top:8px"></span><p style="margin:0;font-size:15px;line-height:1.45;color:#3A3340"><b style="color:#2D1B3D">LinkedIn (40,6K · Top Voices 2022):</b> profesional y B2B — devs, ingeniería y decisores; credibilidad B2B.</p></div>
+    <div style="display:flex;gap:12px;align-items:flex-start"><span class="dot dot--violeta" style="width:7px;height:7px;margin-top:8px"></span><p style="margin:0;font-size:15px;line-height:1.45;color:#3A3340"><b style="color:#2D1B3D">X (41,2K):</b> tech y profesional (España 54%, 80,5% hombres); conversación y decisores.</p></div>
+    <div style="display:flex;gap:12px;align-items:flex-start"><span class="dot dot--violeta" style="width:7px;height:7px;margin-top:8px"></span><p style="margin:0;font-size:15px;line-height:1.45;color:#3A3340"><b style="color:#2D1B3D">TikTok (23,2K):</b> descubrimiento y alcance joven.</p></div>
+    <div style="display:flex;gap:12px;align-items:flex-start"><span class="dot dot--violeta" style="width:7px;height:7px;margin-top:8px"></span><p style="margin:0;font-size:15px;line-height:1.45;color:#3A3340"><b style="color:#2D1B3D">YouTube (17K):</b> el documental de largo recorrido — documento TODO el caso; integración profunda y duradera de marca.</p></div>
+  </div>
+  <p style="font-size:16px;color:#2D1B3D;margin:22px 0 0"><b>Una marca colabora una vez y llega a varios públicos y formatos a la vez.</b></p>
+  <div class="footer footer--light"><span><span class="brand-light">helpmiriam.com</span> · Beyond the Protocol</span><span>03 · A quién llegas</span></div>
+</section>
+
+<!-- 5 · LA PRUEBA (overview: alcance + virales) ────────────────────────── -->
+<section class="slide slide--dark">
+  <div class="eyebrow eyebrow--dark" style="margin-bottom:14px"><svg width="11" height="11" viewBox="0 0 24 24"><path d="M12 0 L16.08 7.92 L24 12 L16.08 16.08 L12 24 L7.92 16.08 L0 12 L7.92 7.92 Z" fill="#E8D4ED"></path></svg>04 · La prueba de que mi comunidad ACTÚA</div>
+  <h2 class="title" style="font-size:40px;margin-bottom:24px;color:#FAF6F0;max-width:24em">No son likes pasivos. <span class="em-coral">Mi comunidad llega lejos y actúa</span>.</h2>
+  <div class="bullets bullets--dark" style="max-width:96ch">
+    <div class="row"><span class="dot dot--coral"></span><p><b>Virales que rompen techo:</b> X «Twitter haz tu magia» <b>1.000.000</b>, IG Coliseo <b>753K</b>, «SPREAD KINDNESS» <b>430K</b>, «es AHORA» <b>249K</b>.</p></div>
+    <div class="row"><span class="dot dot--violeta"></span><p><b>También en B2B:</b> mi post en LinkedIn alcanzó <b>176.484 impresiones</b> — y soy <b>Top Voices 2022</b>: alcance que también pesa ante decisores y empresas.</p></div>
+    <div class="row"><span class="dot dot--violeta"></span><p><b>Y no se queda en alcance:</b> cuando lo pido, esta comunidad <b>convierte en dinero</b> y <b>se moviliza a la orden</b>. Las dos campañas que vienen lo demuestran con datos.</p></div>
+  </div>
+  <p style="font-style:italic;font-size:15px;color:#B6A9BE;margin:24px 0 0">Dos pruebas concretas, a continuación → la campaña activa (crowdfunding) y un caso de movilización real.</p>
+  <div class="footer footer--dark"><span><span class="brand-dark">helpmiriam.com</span> · Beyond the Protocol</span><span>04 · La prueba</span></div>
+</section>
+
+<!-- 6 · CAMPAÑA ACTIVA · CROWDFUNDING (Slide A) ────────────────────────── -->
+<section class="slide slide--dark">
+  <div class="eyebrow eyebrow--dark" style="margin-bottom:14px"><svg width="11" height="11" viewBox="0 0 24 24"><path d="M12 0 L16.08 7.92 L24 12 L16.08 16.08 L12 24 L7.92 16.08 L0 12 L7.92 7.92 Z" fill="#E8D4ED"></path></svg>05 · Caso de movilización · concurso Carlos Roca</div>
+  <h2 class="title" style="font-size:42px;margin-bottom:26px;color:#FAF6F0;max-width:22em">Se movilizan <span class="em-coral">a la orden</span>.</h2>
+  <div class="bullets bullets--dark" style="max-width:96ch">
+    <div class="row"><span class="dot dot--coral"></span><p><b>10.673 likes</b> en mi comentario — <b>el más votado de todo el concurso</b> (el 2º se quedó en 886). Quedé la <b>primera por su regla</b>: el comentario con más votos.</p></div>
+    <div class="row"><span class="dot dot--violeta"></span><p>El concurso movió <b>85.015 comentarios en total</b> (79.398 en Instagram + 5.617 en TikTok): una ola de participación enorme, y mi gente estuvo en cabeza.</p></div>
+    <div class="row"><span class="dot dot--violeta"></span><p><b>~335.000 reproducciones</b> de mis reels en pocos días, y <b>23.579 votos sumados</b> (15.163 en Instagram + 8.416 en TikTok).</p></div>
+  </div>
+  <div class="model" style="margin-top:24px">
+    <p>Empujé un <b>objetivo concreto</b> y mi gente respondió. Justo lo que una marca quiere <b>poder activar</b>.</p>
+  </div>
+  <div class="footer footer--dark"><span><span class="brand-dark">helpmiriam.com</span> · Beyond the Protocol</span><span>05 · Movilización</span></div>
+</section>
+
+<!-- 8 · IDEAS DE COLABORACIÓN (1/2) ────────────────────────────────────── -->
+<section class="slide slide--dark">
+  <div class="eyebrow eyebrow--dark" style="margin-bottom:14px"><svg width="11" height="11" viewBox="0 0 24 24"><path d="M12 0 L16.08 7.92 L24 12 L16.08 16.08 L12 24 L7.92 16.08 L0 12 L7.92 7.92 Z" fill="#E8D4ED"></path></svg>06 · La campaña activa · crowdfunding</div>
+  <h2 class="title" style="font-size:42px;margin-bottom:26px;color:#FAF6F0;max-width:22em">Mi comunidad <span class="em-coral">convierte en dinero</span>.</h2>
+  <div class="bullets bullets--dark" style="max-width:96ch">
+    <div class="row"><span class="dot dot--coral"></span><p><b>38.897 €</b> recaudados de <b>~1.000 personas</b> que han puesto dinero, no solo un like.</p></div>
+    <div class="row"><span class="dot dot--violeta"></span><p><b>~39% del objetivo</b> ya cubierto — la meta son <b>~100.000 €</b> para la biopsia y el tratamiento de precisión.</p></div>
+    <div class="row"><span class="dot dot--violeta"></span><p><b>3.845 clics al mes</b> a mi enlace: tráfico real y sostenido hacia la campaña.</p></div>
+  </div>
+  <div class="model" style="margin-top:26px">
+    <p>Está <b>viva ahora mismo</b>: una marca que entra se suma a una campaña con <b>tracción real y seguimiento público</b>.</p>
+  </div>
+  <div class="footer footer--dark"><span><span class="brand-dark">helpmiriam.com</span> · Beyond the Protocol</span><span>06 · Campaña activa</span></div>
+</section>
+
+<!-- 7 · CASO DE MOVILIZACIÓN · CARLOS ROCA (Slide B) ───────────────────── -->
+<section class="slide slide--light">
+  <div class="eyebrow eyebrow--light" style="margin-bottom:12px"><svg width="11" height="11" viewBox="0 0 24 24"><path d="M12 0 L16.08 7.92 L24 12 L16.08 16.08 L12 24 L7.92 16.08 L0 12 L7.92 7.92 Z" fill="#A855B5"></path></svg>07 · Ideas de colaboración</div>
+  <h2 class="title" style="font-size:38px;margin-bottom:24px">Esto es lo que podemos <span class="em-violeta">hacer juntas</span>.</h2>
+  <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:16px">
+    <div class="card"><b class="ct" style="font-size:20px;margin-bottom:8px">Tu producto, mi laboratorio</b><span class="cb" style="font-size:14.5px;line-height:1.45">Pruebo tu producto o herramienta en abierto y cuento el proceso real, con mi mirada de ingeniera. Sin filtros, con criterio.</span><div class="gana" style="font-size:14px"><b class="gl" style="font-size:10.5px">Qué ganamos</b><br>tú, una prueba honesta ante una audiencia que confía y compra; yo, contenido que aporta a mi gente.</div></div>
+    <div class="card"><b class="ct" style="font-size:20px;margin-bottom:8px">Tu marca en mi research abierto</b><span class="cb" style="font-size:14.5px;line-height:1.45">Patrocinas un hito de mi investigación (un análisis, una prueba) y lo documentamos juntas: «este avance es posible gracias a [tu marca]».</span><div class="gana" style="font-size:14px"><b class="gl" style="font-size:10.5px">Qué ganamos</b><br>tú, asociación a ciencia real y a una historia que la gente sigue de cerca; yo, financiar el siguiente paso del caso.</div></div>
+    <div class="card"><b class="ct" style="font-size:20px;margin-bottom:8px">Reto IA</b><span class="cb" style="font-size:14.5px;line-height:1.45">Uso tu herramienta o IA para resolver algo de mi caso y lo divulgo paso a paso.</span><div class="gana" style="font-size:14px"><b class="gl" style="font-size:10.5px">Qué ganamos</b><br>tú, una demostración de producto en un contexto memorable ante una comunidad tech; yo, una herramienta útil para investigar.</div></div>
+    <div class="card"><b class="ct" style="font-size:20px;margin-bottom:8px">Activa a mi comunidad (reto)</b><span class="cb" style="font-size:14.5px;line-height:1.45">Lanzo un reto con tu marca y mi comunidad se moviliza — mi superpoder: paso de ~1.000 a 15.000+ acciones cuando lo pido.</span><div class="gana" style="font-size:14px"><b class="gl" style="font-size:10.5px">Qué ganamos</b><br>tú, participación masiva y real, no impresiones pasivas; yo, una comunidad que actúa por una causa.</div></div>
+  </div>
+  <div class="footer footer--light"><span><span class="brand-light">helpmiriam.com</span> · Beyond the Protocol</span><span>07 · Colaboración</span></div>
+</section>
+
+<!-- 9 · IDEAS DE COLABORACIÓN (2/2) ────────────────────────────────────── -->
+<section class="slide slide--light">
+  <div class="eyebrow eyebrow--light" style="margin-bottom:12px"><svg width="11" height="11" viewBox="0 0 24 24"><path d="M12 0 L16.08 7.92 L24 12 L16.08 16.08 L12 24 L7.92 16.08 L0 12 L7.92 7.92 Z" fill="#A855B5"></path></svg>07 · Ideas de colaboración</div>
+  <h2 class="title" style="font-size:36px;margin-bottom:20px">…y unas cuantas <span class="em-violeta">más</span>.</h2>
+  <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:14px">
+    <div class="card" style="padding:18px 22px"><b class="ct" style="font-size:19px;margin-bottom:6px">Contenido B2B en LinkedIn</b><span class="cb" style="font-size:14px;line-height:1.4">Post o carrusel patrocinado en LinkedIn, donde soy Top Voices 2022.</span><div class="gana" style="font-size:13.5px;margin-top:9px"><b class="gl" style="font-size:10px">Qué ganamos</b><br>tú, visibilidad ante decisores y empresas en un canal profesional; yo, contenido con valor para mi red B2B.</div></div>
+    <div class="card" style="padding:18px 22px"><b class="ct" style="font-size:19px;margin-bottom:6px">Evento con cobertura</b><span class="cb" style="font-size:14px;line-height:1.4">Me llevas a tu evento y lo cuento en reel + stories (ya lo hice con Premios Brilla y Tahe).</span><div class="gana" style="font-size:13.5px;margin-top:9px"><b class="gl" style="font-size:10px">Qué ganamos</b><br>tú, cobertura auténtica y cálida ante ~248K; yo, contenido vivo que a mi gente le gusta ver.</div></div>
+    <div class="card" style="padding:18px 22px"><b class="ct" style="font-size:19px;margin-bottom:6px">Merch co-diseñado, con propósito</b><span class="cb" style="font-size:14px;line-height:1.4">Co-creamos una pieza con tu marca; una parte va a la causa.</span><div class="gana" style="font-size:13.5px;margin-top:9px"><b class="gl" style="font-size:10px">Qué ganamos</b><br>tú, un producto con historia y propósito; yo, apoyo a la investigación y algo memorable que compartir.</div></div>
+    <div class="card" style="padding:18px 22px"><b class="ct" style="font-size:19px;margin-bottom:6px">Serie documental en YouTube</b><span class="cb" style="font-size:14px;line-height:1.4">Documento el caso a fondo en mi canal y tu marca acompaña el recorrido (integración sostenida, no un post suelto).</span><div class="gana" style="font-size:13.5px;margin-top:9px"><b class="gl" style="font-size:10px">Qué ganamos</b><br>tú, presencia continua en contenido evergreen y asociación de largo plazo; yo, un partner que sostiene el documental.</div></div>
+  </div>
+  <p style="font-size:14px;color:#3A3340;margin:16px 0 0;opacity:.9">Formatos y precios, <b style="color:#2D1B3D">abiertos a propuesta</b>.</p>
+  <div class="footer footer--light"><span><span class="brand-light">helpmiriam.com</span> · Beyond the Protocol</span><span>08 · Colaboración</span></div>
+</section>
+
+<!-- 10 · DÓNDE ENCAJA TU MARCA ─────────────────────────────────────────── -->
+<section class="slide slide--light">
+  <div class="eyebrow eyebrow--light" style="margin-bottom:14px"><svg width="11" height="11" viewBox="0 0 24 24"><path d="M12 0 L16.08 7.92 L24 12 L16.08 16.08 L12 24 L7.92 16.08 L0 12 L7.92 7.92 Z" fill="#A855B5"></path></svg>08 · Dónde encaja tu marca</div>
+  <h2 class="title" style="font-size:40px;margin-bottom:14px">Dónde encaja tu marca <span class="em-violeta">(donde nuestra colaboración es real)</span>.</h2>
+  <p style="font-size:17px;line-height:1.5;margin:0 0 26px;max-width:92ch;color:#3A3340">No es una lista de deseos: son los puntos donde tu producto se cruza con mi vida real y mi tratamiento. Por eso, ahí, la colaboración es auténtica y creíble — y le suma a las dos.</p>
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:18px">
+    <div class="card" style="padding:24px 26px"><b class="ct" style="font-size:21px;margin-bottom:12px">Tech y salud</b><span class="cb" style="font-size:15.5px;line-height:1.6">gadgets y tech · wearables de salud · e-salud · biotech y genómica · telefonía y datos.</span></div>
+    <div class="card" style="padding:24px 26px"><b class="ct" style="font-size:21px;margin-bottom:12px">Tratamiento y movilidad</b><span class="cb" style="font-size:15.5px;line-height:1.6">vuelos y viajes · alojamiento (voy a hospitales internacionales) · fintech y cambio de divisa · coche / recarga eléctrica (ZBE) · trenes · maletas.</span></div>
+    <div class="card" style="padding:24px 26px"><b class="ct" style="font-size:21px;margin-bottom:12px">Vida y autocuidado</b><span class="cb" style="font-size:15.5px;line-height:1.6">skincare · autocuidado · comida sana · moda con carácter · ciencia y divulgación.</span></div>
+  </div>
+  <p style="font-size:16px;color:#2D1B3D;margin:24px 0 0"><b>Si tu marca está en alguna de estas categorías, el encaje es natural y la historia, real.</b></p>
+  <div class="footer footer--light"><span><span class="brand-light">helpmiriam.com</span> · Beyond the Protocol</span><span>09 · Dónde encajas</span></div>
+</section>
+
+<!-- 11 · CÓMO TRABAJAMOS ───────────────────────────────────────────────── -->
+<section class="slide slide--light">
+  <div class="eyebrow eyebrow--light" style="margin-bottom:14px"><svg width="11" height="11" viewBox="0 0 24 24"><path d="M12 0 L16.08 7.92 L24 12 L16.08 16.08 L12 24 L7.92 16.08 L0 12 L7.92 7.92 Z" fill="#A855B5"></path></svg>09 · Cómo trabajamos</div>
+  <h2 class="title" style="font-size:42px;margin-bottom:30px">Simple, transparente, <span class="em-violeta">co-creado</span>.</h2>
+  <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:18px;margin-bottom:28px">
+    <div class="card" style="border-radius:14px;padding:22px 24px"><div style="font-family:'Fraunces',serif;font-weight:600;font-size:30px;color:#A855B5;line-height:1">01</div><b class="ct" style="font-size:20px;margin:8px 0 5px">Hablamos</b><span class="cb" style="font-size:14.5px;line-height:1.45">Me cuentas tu objetivo y tu categoría.</span></div>
+    <div class="card" style="border-radius:14px;padding:22px 24px"><div style="font-family:'Fraunces',serif;font-weight:600;font-size:30px;color:#A855B5;line-height:1">02</div><b class="ct" style="font-size:20px;margin:8px 0 5px">Co-creamos</b><span class="cb" style="font-size:14.5px;line-height:1.45">Te propongo un concepto a tu medida y lo afinamos juntas.</span></div>
+    <div class="card" style="border-radius:14px;padding:22px 24px"><div style="font-family:'Fraunces',serif;font-weight:600;font-size:30px;color:#A855B5;line-height:1">03</div><b class="ct" style="font-size:20px;margin:8px 0 5px">Publicamos</b><span class="cb" style="font-size:14.5px;line-height:1.45">Lo ejecuto con mi voz en los canales que acordemos.</span></div>
+    <div class="card" style="border-radius:14px;padding:22px 24px"><div style="font-family:'Fraunces',serif;font-weight:600;font-size:30px;color:#A855B5;line-height:1">04</div><b class="ct" style="font-size:20px;margin:8px 0 5px">Te reporto</b><span class="cb" style="font-size:14.5px;line-height:1.45">Resultados reales (alcance, interacción, clics) en un resumen claro.</span></div>
+  </div>
+  <div class="model">
+    <p><b>Modelo:</b> colaboración por donación — tu aporte financia la investigación de precisión y juntas creamos algo memorable. No es publicidad pegada: es tu marca dentro del relato, con sentido para las dos.</p>
+  </div>
+  <div class="footer footer--light"><span><span class="brand-light">helpmiriam.com</span> · Beyond the Protocol</span><span>10 · Cómo trabajamos</span></div>
+</section>
+
+<!-- 12 · PREGUNTAS RÁPIDAS ─────────────────────────────────────────────── -->
+<section class="slide slide--light">
+  <div class="eyebrow eyebrow--light" style="margin-bottom:18px"><svg width="11" height="11" viewBox="0 0 24 24"><path d="M12 0 L16.08 7.92 L24 12 L16.08 16.08 L12 24 L7.92 16.08 L0 12 L7.92 7.92 Z" fill="#A855B5"></path></svg>10 · Preguntas rápidas</div>
+  <h2 class="title" style="font-size:42px;margin-bottom:28px">Lo que sueles <span class="em-violeta">preguntar</span>.</h2>
+  <div style="display:flex;flex-direction:column;gap:16px;max-width:96ch">
+    <div><b style="font-family:'Fraunces',serif;font-weight:600;font-size:19px">¿Exclusividad?</b> <span style="font-size:17px;color:#3A3340">Abierta a hablarlo según la categoría y el alcance de la colaboración.</span></div>
+    <div><b style="font-family:'Fraunces',serif;font-weight:600;font-size:19px">¿Plazos?</b> <span style="font-size:17px;color:#3A3340">Co-creación ágil, con el calendario que acordemos.</span></div>
+    <div><b style="font-family:'Fraunces',serif;font-weight:600;font-size:19px">¿Quién crea el contenido?</b> <span style="font-size:17px;color:#3A3340">Lo co-creamos: tú aportas marca y objetivo; yo aporto voz, comunidad y ejecución.</span></div>
+    <div><b style="font-family:'Fraunces',serif;font-weight:600;font-size:19px">¿Puedo usar el contenido en mis canales?</b> <span style="font-size:17px;color:#3A3340">Sí, acordamos los derechos de uso.</span></div>
+    <div><b style="font-family:'Fraunces',serif;font-weight:600;font-size:19px">¿Precios?</b> <span style="font-size:17px;color:#3A3340">Abierto a propuesta — cuéntame qué tienes en mente y lo diseñamos.</span></div>
+  </div>
+  <div class="footer footer--light"><span><span class="brand-light">helpmiriam.com</span> · Beyond the Protocol</span><span>11 · Preguntas</span></div>
+</section>
+
+<!-- 13 · CIERRE ────────────────────────────────────────────────────────── -->
+<section class="slide slide--dark">
+  <div class="eyebrow eyebrow--dark" style="margin-bottom:16px"><svg width="11" height="11" viewBox="0 0 24 24"><path d="M12 0 L16.08 7.92 L24 12 L16.08 16.08 L12 24 L7.92 16.08 L0 12 L7.92 7.92 Z" fill="#E8D4ED"></path></svg>10 · Hablemos</div>
+  <h2 class="title" style="font-size:60px;line-height:1.02">Hagámoslo <span class="em-coral">juntas</span>.</h2>
+  <p style="font-size:21px;color:#E8D4ED;margin:18px 0 0;max-width:44ch">Co-creación real: le suma a tu marca y empuja mi investigación. Cuéntame qué tienes en mente y lo diseñamos.</p>
+  <div style="font-family:'JetBrains Mono',monospace;font-size:15px;letter-spacing:.06em;color:#FAF6F0;margin-top:30px">helpmiriam.com · @miriamgonp · miriamgonp@gmail.com</div>
+  <div style="font-family:'Fraunces',serif;font-style:italic;color:#E8D4ED;margin-top:22px;font-size:20px">Tu marca dentro del relato. Mi investigación, en marcha. 💜</div>
+  <div class="footer footer--dark"><span><span class="brand-dark">helpmiriam.com</span> · Beyond the Protocol</span><span>12 · Hablemos</span></div>
+</section>
+
+</body>
+</html>

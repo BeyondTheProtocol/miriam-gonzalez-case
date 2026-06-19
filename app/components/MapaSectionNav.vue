@@ -59,6 +59,7 @@ const chapters = computed(() => [
   { id: 'idoneidad', label: L('Idoneidad como diana', 'Suitability as a target') },
   { id: 'fenotipo', label: L('Mapa de fenotipo', 'Phenotype map') },
   { id: 'imagen', label: L('La imagen real', 'The real imaging') },
+  { id: 'imagenes-clave', label: L('Imágenes clave por foco', 'Key images per focus') },
   { id: 'trayectoria', label: L('Trayectoria', 'Trajectory') },
   { id: 'tabla', label: L('Apéndice (tabla)', 'Appendix (table)') },
   { id: 'cockpit', label: L('Cómo se lee · desglose', 'How to read it · breakdown') },
