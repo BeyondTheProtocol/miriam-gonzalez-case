@@ -70,6 +70,36 @@ const chapters = computed(() =>
 
 const activeId = ref('')
 let observer: IntersectionObserver | null = null
+// Conjunto de secciones que tocan la banda activa AHORA MISMO. Es la fuente de
+// verdad del scroll-spy: el observer solo lo actualiza (entra/sale) y de ahí
+// derivamos UN único activo por geometría.
+//
+// Antes, el callback hacía «el último que entra gana» (recorría `entries` y se
+// quedaba con la última intersección). Como IntersectionObserver NO garantiza el
+// orden del lote, con dos secciones visibles a la vez el resaltado podía caer en
+// cualquiera y alternar al hacer scroll → se veían DOS activos parpadeando.
+const visibleIds = new Set<string>()
+
+// De las secciones que tocan la banda, la activa es la que está MÁS ABAJO en el
+// documento (la última que el lector ha alcanzado): comparamos posiciones reales
+// → resultado determinista y SIEMPRE uno solo, sea cual sea el orden del lote.
+function resolveActive() {
+  let winner = ''
+  let winnerTop = -Infinity
+  for (const c of chapters.value) {
+    if (!visibleIds.has(c.id)) continue
+    const el = document.getElementById(c.id)
+    if (!el) continue
+    const top = el.getBoundingClientRect().top
+    if (top >= winnerTop) {
+      winnerTop = top
+      winner = c.id
+    }
+  }
+  // En los huecos entre secciones (nada toca la banda) conservamos el último
+  // activo: el rail nunca se queda sin resaltar.
+  if (winner) activeId.value = winner
+}
 
 onMounted(() => {
   // El scroll-spy solo lo necesita el rail de escritorio (resalta el activo).
@@ -81,8 +111,11 @@ onMounted(() => {
   observer = new IntersectionObserver(
     (entries) => {
       for (const e of entries) {
-        if (e.isIntersecting) activeId.value = (e.target as HTMLElement).id
+        const id = (e.target as HTMLElement).id
+        if (e.isIntersecting) visibleIds.add(id)
+        else visibleIds.delete(id)
       }
+      resolveActive()
     },
     { rootMargin: '-80px 0px -72% 0px', threshold: 0 }
   )
