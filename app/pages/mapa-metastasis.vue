@@ -1606,7 +1606,7 @@ const ticks = [
              el desglose a fondo sigue abajo. Título limpio, sin eyebrow ni badge. -->
         <section class="mb-14" aria-labelledby="contexto-general">
           <p class="eyebrow mb-2 block">{{ L('Contexto · el panorama', 'Context · the big picture') }}</p>
-          <h2 id="contexto-general" class="heading-display text-2xl text-berenjena mb-1.5 scroll-mt-[7.5rem]">{{ L('Enfermedad ósea — el caso de un vistazo', 'Bone disease — the case at a glance') }}</h2>
+          <h2 id="contexto-general" class="heading-display text-2xl text-berenjena mb-1.5 scroll-mt-[5.5rem]">{{ L('Enfermedad ósea — el caso de un vistazo', 'Bone disease — the case at a glance') }}</h2>
           <p class="text-sm text-tinta leading-relaxed mb-5 max-w-3xl">{{ L('Cuánta enfermedad hay y cómo evoluciona, antes de entrar foco a foco. Cifras descriptivas de los dos PET; describe, no concluye.', 'How much disease there is and how it is evolving, before going focus by focus. Descriptive figures from the two PET; it describes, it does not conclude.') }}</p>
           <!-- enfermedad · KPIs -->
           <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-5">
@@ -1649,7 +1649,7 @@ const ticks = [
           <div class="flex items-baseline justify-between flex-wrap gap-x-3 gap-y-2 mb-2">
             <div>
               <p class="eyebrow mb-1 block">{{ L('La respuesta primero · dónde mirar', 'The answer first · where to look') }}</p>
-              <h2 id="dianas-resumen" class="heading-display text-2xl text-berenjena scroll-mt-[7.5rem]">{{ L('Dianas idóneas', 'Suitable targets') }}</h2>
+              <h2 id="dianas-resumen" class="heading-display text-2xl text-berenjena scroll-mt-[5.5rem]">{{ L('Dianas idóneas', 'Suitable targets') }}</h2>
             </div>
             <span class="status-badge status-badge--firma self-start mt-1">{{ L('equipa, no indica', 'equips, does not indicate') }}</span>
           </div>
@@ -1712,7 +1712,7 @@ const ticks = [
              (cockpit, cómo se lee) bajó a la wiki; el detalle profundo va debajo. -->
         <section class="order-2 mb-14" aria-labelledby="mapa">
           <p class="eyebrow mb-2 block">{{ L('Navega los focos · míralos en 3D', 'Navigate the foci · see them in 3D') }}</p>
-          <h2 id="mapa" class="heading-display text-2xl text-berenjena mb-2 scroll-mt-[7.5rem]">
+          <h2 id="mapa" class="heading-display text-2xl text-berenjena mb-2 scroll-mt-[5.5rem]">
             {{ L('El mapa, lesión a lesión', 'The map, lesion by lesion') }}
           </h2>
           <p class="text-sm text-tinta leading-relaxed mb-4 max-w-3xl">
@@ -2180,7 +2180,7 @@ const ticks = [
                summary; el contenido sigue siempre ahí, a un clic. -->
           <details id="detalle-foco" :open="detalleOpen"
             @toggle="detalleOpen = ($event.target as HTMLDetailsElement).open"
-            class="foco-detalle card-base mt-10 scroll-mt-[7.5rem]">
+            class="foco-detalle card-base mt-10 scroll-mt-[5.5rem]">
             <summary class="foco-detalle__sum flex items-start gap-3 cursor-pointer">
               <span class="shrink-0 w-2.5 h-2.5 mt-2 rounded-full" :style="{ background: phenoColor(sel) }" aria-hidden="true" />
               <div class="min-w-0">
@@ -2496,7 +2496,7 @@ const ticks = [
           <!-- Header de la sección general (eyebrow + h2 a la izquierda, sin caja). -->
           <div class="mb-6">
           <p class="eyebrow mb-2 block">{{ L('Sección general', 'General section') }}</p>
-          <h2 class="heading-display text-2xl text-berenjena mb-2 scroll-mt-[7.5rem]">{{ L('Visión general del caso', 'Case overview') }}</h2>
+          <h2 class="heading-display text-2xl text-berenjena mb-2 scroll-mt-[5.5rem]">{{ L('Visión general del caso', 'Case overview') }}</h2>
           <p class="text-sm text-tinta leading-relaxed max-w-3xl">{{ L(
             'Lo general del caso, de más a menos relevante para decidir: idoneidad (cómo se calcula), fenotipo, imágenes, evolución, la tabla y la visión general. Usa el índice para navegarlo.',
             'The general view of the case, from most to least relevant for deciding: suitability (how it is computed), phenotype, imaging, evolution, the table and the case overview. Use the index to navigate it.') }}</p>
@@ -2523,7 +2523,7 @@ const ticks = [
         <!-- ===== LENTE · IDONEIDAD COMO DIANA (pieza central del panel) ===== -->
         <section class="mb-14" aria-labelledby="idoneidad">
           <p class="eyebrow mb-2 block">{{ L('La lente · elegir dónde rebiopsiar', 'The lens · choosing where to rebiopsy') }}</p>
-          <h2 id="idoneidad" class="heading-display text-2xl text-berenjena mb-2 scroll-mt-[7.5rem]">
+          <h2 id="idoneidad" class="heading-display text-2xl text-berenjena mb-2 scroll-mt-[5.5rem]">
             {{ L('Idoneidad como diana de biopsia', 'Suitability as a biopsy target') }}
           </h2>
 
@@ -2730,7 +2730,7 @@ const ticks = [
         <!-- ===== MAPA DE FENOTIPO (CUADRANTES) ===== -->
         <section class="mb-14" aria-labelledby="fenotipo">
           <p class="eyebrow mb-2 block">{{ L('La misma selección, por tipo', 'The same selection, by type') }}</p>
-          <h2 id="fenotipo" class="heading-display text-2xl text-berenjena mb-2 scroll-mt-[7.5rem]">
+          <h2 id="fenotipo" class="heading-display text-2xl text-berenjena mb-2 scroll-mt-[5.5rem]">
             {{ L('Mapa de fenotipo — la tercera vista enlazada', 'Phenotype map — the third linked view') }}
           </h2>
           <p class="text-sm text-tinta leading-relaxed mb-5 max-w-3xl">
@@ -2811,7 +2811,7 @@ const ticks = [
         <!-- ===== ZONA C · IMAGEN REAL (pestañas) ===== -->
         <section class="mb-14" aria-labelledby="imagen">
           <p class="eyebrow mb-2 block">{{ L('La imagen real', 'The real imaging') }}</p>
-          <h2 id="imagen" class="heading-display text-2xl text-berenjena mb-2 scroll-mt-[7.5rem]">
+          <h2 id="imagen" class="heading-display text-2xl text-berenjena mb-2 scroll-mt-[5.5rem]">
             {{ L('La imagen real, reconstruida de los DICOM', 'The real imaging, reconstructed from the DICOM') }}
           </h2>
           <p class="text-sm text-tinta leading-relaxed mb-5 max-w-3xl">
@@ -2908,7 +2908,7 @@ const ticks = [
              foco es real y ver su anatomía. Reutiliza el MISMO lightbox. ===== -->
         <section class="mb-14" aria-labelledby="imagenes-clave">
             <p class="eyebrow mb-2 block">{{ L('Una por foco · todas en fila', 'One per focus · all in a row') }}</p>
-            <h2 id="imagenes-clave" class="heading-display text-2xl text-berenjena mb-2 scroll-mt-[7.5rem]">{{ L('Imágenes clave por foco · PET-CT', 'Key images per focus · PET-CT') }}</h2>
+            <h2 id="imagenes-clave" class="heading-display text-2xl text-berenjena mb-2 scroll-mt-[5.5rem]">{{ L('Imágenes clave por foco · PET-CT', 'Key images per focus · PET-CT') }}</h2>
             <p class="text-sm text-tinta leading-relaxed mb-4 max-w-3xl">
               {{ L('Cada foco confirmado, con su corte axial PET-CT y el anillo del SUVmáx. Pulsa cualquiera para abrirla en grande (zoom, arrastre y los planos que tenga: sagital o coronal). Los focos detectados por IA van al final, por confirmar.',
                     'Each confirmed focus, with its axial PET-CT slice and the SUVmax ring. Tap any to open it large (zoom, drag and the planes it has: sagittal or coronal). AI-detected foci are at the end, to confirm.') }}
@@ -2981,7 +2981,7 @@ const ticks = [
              diana, y la evolución temporal queda como contexto antes del apéndice) ===== -->
         <section class="mb-14" aria-labelledby="trayectoria">
           <p class="eyebrow mb-2 block">{{ L('Qué ha cambiado', 'What has changed') }}</p>
-          <h2 id="trayectoria" class="heading-display text-2xl text-berenjena mb-2 scroll-mt-[7.5rem]">
+          <h2 id="trayectoria" class="heading-display text-2xl text-berenjena mb-2 scroll-mt-[5.5rem]">
             {{ L('Trayectoria desde el estudio previo', 'Trajectory since the prior study') }}
           </h2>
           <p class="text-sm text-tinta leading-relaxed mb-5 max-w-3xl">
@@ -3026,7 +3026,7 @@ const ticks = [
         <hr class="chapter-rule" aria-hidden="true" />
         <section class="mb-14" aria-labelledby="tabla">
           <p class="eyebrow mb-2 block">{{ L('Para el equipo · referencia', 'For the team · reference') }}</p>
-          <h2 id="tabla" class="heading-display text-2xl text-berenjena mb-2 scroll-mt-[7.5rem]">{{ L('Apéndice: los focos en una tabla', 'Appendix: the foci in a table') }}</h2>
+          <h2 id="tabla" class="heading-display text-2xl text-berenjena mb-2 scroll-mt-[5.5rem]">{{ L('Apéndice: los focos en una tabla', 'Appendix: the foci in a table') }}</h2>
           <p class="text-sm text-tinta leading-relaxed mb-4 max-w-3xl">{{ L('Tabla completa con la idoneidad orientativa como diana, SUVmáx por trazador, tendencia, extensión metabólica medida y patrón, más los focos extra detectados de forma automática. Pulsa una cabecera para ordenar; los focos detectados por IA van siempre al final, en su propio grupo, sin confirmar.', 'Full table with the indicative suitability as a target, SUVmax per tracer, trend, measured metabolic extent and pattern, plus the automatically detected extra foci. Click a header to sort; AI-detected foci always go last, in their own group, unconfirmed.') }}</p>
           <details class="notes-disclosure" open>
             <summary>{{ L('Abrir la tabla y los focos extra', 'Open the table and extra foci') }}</summary>
@@ -3139,7 +3139,7 @@ const ticks = [
         <section class="mb-14" aria-labelledby="cockpit">
           <p class="eyebrow mb-2 block">{{ L('Referencia · cómo se lee y desglose', 'Reference · how to read it and the breakdown') }}</p>
           <div class="flex items-baseline justify-between flex-wrap gap-x-3 gap-y-1 mb-3">
-            <h2 id="cockpit" class="heading-display text-2xl text-berenjena scroll-mt-[7.5rem]">{{ L('Cómo se lee · desglose del caso', 'How to read it · case breakdown') }}</h2>
+            <h2 id="cockpit" class="heading-display text-2xl text-berenjena scroll-mt-[5.5rem]">{{ L('Cómo se lee · desglose del caso', 'How to read it · case breakdown') }}</h2>
             <p class="text-[11px] text-tinta">{{ L('la leyenda de los dos trazadores y la concordancia · sin interpretación', 'the two-tracer legend and concordance · no interpretation') }}</p>
           </div>
           <!-- Las cifras del caso (carga, reparto, rangos SUV, evolución) viven ARRIBA en
@@ -3212,7 +3212,7 @@ const ticks = [
           <!-- ===== CÓMO SE LEE · una lesión, dos trazadores (referencia) =====
                Antes era una sección propia que apelotonaba el intro; ahora vive
                dentro de este desglose plegado, como material de referencia. -->
-          <div id="dos-caras" class="mt-6 pt-5 border-t border-[rgba(45,27,61,0.1)] scroll-mt-[7.5rem]">
+          <div id="dos-caras" class="mt-6 pt-5 border-t border-[rgba(45,27,61,0.1)] scroll-mt-[5.5rem]">
           <p class="eyebrow mb-2 block">{{ L('Cómo se lee · una lesión, dos trazadores', 'How to read it · one lesion, two tracers') }}</p>
           <p class="text-sm text-tinta leading-relaxed mb-4 max-w-3xl">
             {{ L(
