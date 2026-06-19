@@ -218,3 +218,14 @@ entries:
       compression is real. Urgent SBRT radiotherapy is scheduled to shrink the lesion and protect
       the spinal cord.
     highlight: true
+
+  - date: 'Jun 19, 2026'
+    tag: Outreach
+    title: The metastasis map goes public
+    description: >
+      Miriam openly publishes the interactive map of her metastases: the tool that helps her team
+      understand the case and decide, for example, where to biopsy. That same day, El Español tells
+      her story. She shares it on X with great excitement.
+    highlight: true
+    link: https://x.com/miriamgonp/status/2068004136621109648
+    linkLabel: 'See the announcement on X →'
