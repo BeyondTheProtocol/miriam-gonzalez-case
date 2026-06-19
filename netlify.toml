@@ -57,3 +57,7 @@
   [headers.values]
     X-Robots-Tag = "noindex, nofollow"
     X-Content-Type-Options = "nosniff"
+
+# ── Enlaces cortos (vanity) ──────────────────────────────────────────────────
+# Viven en routeRules de Nuxt (ver SHORT-LINKS.md): el _redirects generado se
+# procesa ANTES que este toml, así que aquí solo quedan funciones y cabeceras.
