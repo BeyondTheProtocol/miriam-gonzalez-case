@@ -244,11 +244,11 @@ const GLOSSARY: Record<string, Entry> = {
   lectura_mapa3d: {
     es: {
       label: 'Cómo se lee el mapa',
-      def: 'Cada vista mapea UNA variable (más oscuro/saturado = más valor). La captación PET es un gradiente continuo, sin borde tumoral neto (~4–5 mm). «Blástico» = densidad del CT (forma), no biología. El Galio es un proxy aproximado por ahora. Informa, no concluye.',
+      def: 'Cada vista mapea UNA variable (más oscuro/saturado = más valor). La captación PET es un gradiente continuo, sin borde tumoral neto (~4–5 mm). «Blástico» = densidad del CT (forma), no biología. El Galio es un proxy aproximado por ahora. El anillo ◎ marca la zona más ávida (diana ILUSTRATIVA), no un borde tumoral. Informa, no concluye.',
     },
     en: {
       label: 'How to read the map',
-      def: 'Each view maps ONE variable (darker/more saturated = higher value). PET uptake is a continuous gradient, with no sharp tumor border (~4–5 mm). “Blastic” = CT density (shape), not biology. Gallium is an approximate proxy for now. It informs; it does not conclude.',
+      def: 'Each view maps ONE variable (darker/more saturated = higher value). PET uptake is a continuous gradient, with no sharp tumor border (~4–5 mm). “Blastic” = CT density (shape), not biology. Gallium is an approximate proxy for now. The ◎ ring marks the most avid zone (ILLUSTRATIVE target), not a tumor outline. It informs; it does not conclude.',
     },
   },
 }
