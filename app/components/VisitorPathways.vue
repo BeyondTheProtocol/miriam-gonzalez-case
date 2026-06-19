@@ -49,7 +49,7 @@
           </ol>
           <div class="pathway-card__cta">
             <component
-              :is="path.as ?? (path.external ? 'a' : 'NuxtLink')"
+              :is="path.external ? 'a' : NuxtLink"
               v-bind="path.linkProps"
               :class="path.primary ? 'btn-cta w-full justify-center' : 'btn-secondary w-full justify-center'"
               :style="path.external ? 'text-decoration: none' : undefined"
@@ -57,7 +57,7 @@
             >
               <Icon v-if="path.ctaIcon" :name="path.ctaIcon" class="w-4 h-4" aria-hidden="true" />
               {{ path.cta }}
-              <span v-if="path.external" class="sr-only"> {{ $t('a11y.new_tab') }}</span>
+              <span v-if="path.linkProps.target === '_blank'" class="sr-only"> {{ $t('a11y.new_tab') }}</span>
             </component>
             <p v-if="path.caption" class="pathway-card__caption">{{ path.caption }}</p>
           </div>
@@ -131,6 +131,14 @@ const { t, tm, rt } = useI18n()
 const localePath = useLocalePath()
 const { GOFUNDME_URL, trackSupport, trackScience, trackPathway } = useSupport()
 
+// Resolvemos el COMPONENTE real NuxtLink (no la cadena 'NuxtLink'). Pasar el
+// string a <component :is> obliga a Vue a resolverlo por nombre en runtime, algo
+// frágil: si falla (p. ej. un tropiezo de hidratación en iOS Chrome) el enlace se
+// renderiza sin `href` y el botón queda MUERTO. Con el componente real, NuxtLink
+// emite siempre un <a href> navegable, así que el enlace funciona aunque el JS
+// falle. Bug reportado: CTAs «escribir a Miriam/al equipo» no abrían en iOS Chrome.
+const NuxtLink = resolveComponent('NuxtLink')
+
 const titleId = computed(() => `pathways-title-${props.variant}`)
 
 function arr(key: string): string[] {
@@ -153,9 +161,11 @@ interface HomePath {
   ctaIcon?: string
   caption?: string
   primary?: boolean
+  // `external` ⇒ se renderiza como <a> nativo (destino externo con target=_blank,
+  // o ancla en-página). El resto usa el componente NuxtLink (navegación de router
+  // con <a href> real de respaldo). Nunca un <component :is="'NuxtLink'"> por cadena.
   external?: boolean
   linkProps: Record<string, string>
-  as?: 'a' | 'NuxtLink'
   onClick?: () => void
 }
 
@@ -187,7 +197,9 @@ const homePaths = computed<HomePath[]>(() => [
     cta: t('pathways.curious_cta'),
     ctaIcon: 'ph:book-open-text',
     caption: t('pathways.curious_caption'),
-    as: 'a',
+    // Ancla en-página: <a href="#…"> nativo. El href real navega aunque el JS no
+    // corra (el onClick solo añade el scroll suave y abre el <details>).
+    external: true,
     linkProps: { href: '#pathway-brief' },
     onClick: () => {
       const el = document.getElementById('pathway-brief')
