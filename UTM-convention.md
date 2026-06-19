@@ -21,7 +21,7 @@ https://helpmiriam.com/?utm_source=<dónde>&utm_medium=<tipo>&utm_campaign=<acci
 | `utm_medium` | el tipo de enlace | `bio` · `post` · `story` · `firma` · `perfil` · `dm` |
 | `utm_campaign` | la acción/ola | `lanzamiento` · (futuras: `actualizacion-jun`, `hito-50k`…) |
 
-Todo en **minúsculas, sin acentos ni espacios** (usa guiones). Sé consistente: Plausible
+Todo en **minúsculas, sin acentos ni espacios** (usa guiones). Sé consistente: Umami
 agrupa por coincidencia exacta, así que `Instagram` ≠ `instagram`.
 
 ## Plantillas listas para copiar
@@ -46,9 +46,9 @@ https://helpmiriam.com/?utm_source=whatsapp&utm_medium=dm&utm_campaign=lanzamien
 > Para enlazar a una página concreta, pon los UTM detrás de la ruta:
 > `https://helpmiriam.com/ciencia?utm_source=twitter&utm_medium=post&utm_campaign=lanzamiento`
 
-## Cómo leerlo en Plausible
+## Cómo leerlo en Umami
 
-Filtros → **Sources / UTM Source · UTM Medium · UTM Campaign**. Cruza con el goal
-`Apoyar` (intención de donar) para ver **qué canal convierte mejor**, no solo cuál trae
-más visitas. (El importe donado no es medible desde la web — la donación ocurre en
-GoFundMe; ver `plausible-donar-tracking.md`.)
+En el panel de Umami → filtra por **UTM Source · UTM Medium · UTM Campaign** (sección de
+campañas / parámetros de URL). Crúzalo con el evento `Apoyar` (intención de donar) para
+ver **qué canal convierte mejor**, no solo cuál trae más visitas. (El importe donado no
+es medible desde la web — la donación ocurre en GoFundMe.)
