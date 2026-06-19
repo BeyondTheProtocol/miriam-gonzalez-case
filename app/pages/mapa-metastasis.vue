@@ -15,24 +15,36 @@ const localePath = useLocalePath()
 const lang = computed<'es' | 'en'>(() => (locale.value === 'en' ? 'en' : 'es'))
 const L = (es: string, en: string) => (lang.value === 'en' ? en : es)
 
-useHead({
-  // Panel clínico para el equipo (radiología / medicina nuclear): apoya la
-  // conversación sobre qué foco rebiopsiar. Página privada (noindex): el título
-  // y la meta describen el contenido con honestidad, sin objetivo SEO.
-  title: () =>
+/* Pieza divulgativa PÚBLICA (decisión de la paciente, 19/06/2026): el caso de
+   Miriam, abierto como HERRAMIENTA DE APOYO a la decisión — no es diagnóstico ni
+   consejo médico. Título y meta honestos, dignos al compartir en redes, con el
+   encuadre de «apoyo» explícito. */
+const seoTitle = () =>
+  lang.value === 'en'
+    ? 'Metastasis map — Miriam’s case, a decision-support tool'
+    : 'Mapa de metástasis — el caso de Miriam, una herramienta de apoyo'
+const seoDescription = () =>
+  lang.value === 'en'
+    ? 'A support tool, not a diagnosis. Miriam’s bone lesions seen with dual-tracer PET (Gallium-68 DOTATOC and FDG) over her own reports, to help her decide the next steps with her medical team.'
+    : 'Una herramienta de apoyo, no un diagnóstico. Las lesiones óseas de Miriam vistas con PET doble trazador (Galio-68 DOTATOC y FDG) sobre sus propios informes, para ayudarle a decidir con su equipo médico.'
+
+useSeoMeta({
+  title: seoTitle,
+  description: seoDescription,
+  ogTitle: seoTitle,
+  ogDescription: seoDescription,
+  ogType: 'website',
+  twitterCard: 'summary_large_image',
+  twitterTitle: seoTitle,
+  twitterDescription: seoDescription,
+})
+
+defineOgImage('Default.takumi', {
+  title: seoTitle,
+  description: () =>
     lang.value === 'en'
-      ? 'Bone lesion map — dual-tracer PET (biopsy targeting)'
-      : 'Mapa de lesiones óseas — PET doble trazador (elección de diana)',
-  meta: [
-    { name: 'robots', content: 'noindex, nofollow' },
-    {
-      name: 'description',
-      content: () =>
-        lang.value === 'en'
-          ? 'Interactive panel of the bone lesions with dual-tracer PET (Gallium-68 DOTATOC and FDG) over the patient’s own reports, to support choosing a rebiopsy target. Describes the findings; it does not conclude.'
-          : 'Panel interactivo de las lesiones óseas con PET doble trazador (Galio-68 DOTATOC y FDG) sobre los informes propios de la paciente, para apoyar la elección de la diana de rebiopsia. Describe los hallazgos; no concluye.',
-    },
-  ],
+      ? 'A support tool, not a diagnosis. Miriam’s case, to decide better with her team.'
+      : 'Una herramienta de apoyo, no un diagnóstico. El caso de Miriam, para decidir mejor con su equipo.',
 })
 
 /* ------------------------------------------------------------------ */
@@ -1463,19 +1475,33 @@ const ticks = [
           :tag="L('PET doble trazador · ' + confirmedFoci.length + ' focos · +' + aiFoci.length + ' por confirmar', 'Dual-tracer PET · ' + confirmedFoci.length + ' foci · +' + aiFoci.length + ' to confirm')"
         />
 
-        <!-- Aviso · CONDENSADO a una línea + detalle plegable, para no empujar lo
-             primario (navegar focos ↔ 3D) hacia abajo en el primer pliegue. -->
-        <details class="alert-callout leading-relaxed mb-6">
-          <summary class="cursor-pointer font-semibold list-none flex items-center gap-2">
-            <Icon name="ph:info" class="w-4 h-4 shrink-0" aria-hidden="true" />
-            {{ L('Herramienta de apoyo, no consejo médico · SUV de los informes PET, imágenes reconstruidas de los DICOM', 'Support tool, not medical advice · SUVs from the PET reports, images reconstructed from the DICOM') }}
-          </summary>
-          <p class="mt-2.5">
-          {{ L(
-            'Esta página reúne y visualiza los estudios de la paciente (PET-FDG 24/03/2026, PET Galio-68 DOTATOC 26/05/2026 y la RMN de columna cervical y dorsal). Es una herramienta para entender y para apoyar la conversación con el equipo médico — no sustituye su criterio ni es consejo médico. Los SUV son los de los informes oficiales del PET; las imágenes (PET y RMN) se reconstruyeron desde los DICOM. La RMN se muestra para verla: su lectura formal corresponde al radiólogo.',
-            'This page gathers and visualizes the patient’s studies (FDG-PET 24/03/2026, Ga-68 DOTATOC PET 26/05/2026 and the cervical and thoracic spine MRI). It is a tool to understand and to support the conversation with the medical team — it does not replace their judgment and is not medical advice. SUVs are those of the official PET reports; the images (PET and MRI) were reconstructed from the DICOM. The MRI is shown for viewing: its formal reading belongs to the radiologist.') }}
+        <!-- Aviso PERSISTENTE · herramienta de APOYO (petición de la paciente:
+             que se diga «todo el rato»). El titular del disclaimer va SIEMPRE
+             visible con el callout canónico del DS (.alert-callout, migrado en
+             #111). El detalle de método (estudios, SUV, reconstrucción) queda
+             plegado debajo para no empujar lo primario, pero el encuadre
+             «apoyo, no diagnóstico» no se esconde nunca. role=note → el lector
+             de pantalla lo anuncia. -->
+        <div class="alert-callout mb-6" role="note" :aria-label="L('Aviso: herramienta de apoyo, no diagnóstico', 'Notice: support tool, not a diagnosis')">
+          <p class="alert-callout__title">
+            <Icon name="ph:info-fill" class="w-4 h-4 shrink-0" aria-hidden="true" />
+            {{ L('Herramienta de APOYO a la decisión. No es diagnóstico ni consejo médico.', 'A decision-SUPPORT tool. Not a diagnosis or medical advice.') }}
           </p>
-        </details>
+          {{ L(
+            'Es el caso de Miriam, abierto para entender su enfermedad y decidir mejor con su equipo médico — no sustituye su criterio. Deciden sus médicos.',
+            'This is Miriam’s case, opened to understand her disease and to decide better with her medical team — it does not replace their judgment. Her doctors decide.') }}
+          <details class="mt-2.5 group">
+            <summary class="cursor-pointer font-semibold list-none inline-flex items-center gap-1.5">
+              <Icon name="ph:caret-right" class="w-3.5 h-3.5 shrink-0 transition-transform group-open:rotate-90" aria-hidden="true" />
+              {{ L('De dónde salen los datos', 'Where the data comes from') }}
+            </summary>
+            <p class="mt-2">
+            {{ L(
+              'Esta página reúne y visualiza los estudios propios de Miriam (PET-FDG 24/03/2026, PET Galio-68 DOTATOC 26/05/2026 y la RMN de columna cervical y dorsal). Los SUV son los de los informes oficiales del PET; las imágenes (PET y RMN) se reconstruyeron desde los DICOM. La RMN se muestra para verla: su lectura formal corresponde al radiólogo.',
+              'This page gathers and visualizes Miriam’s own studies (FDG-PET 24/03/2026, Ga-68 DOTATOC PET 26/05/2026 and the cervical and thoracic spine MRI). SUVs are those of the official PET reports; the images (PET and MRI) were reconstructed from the DICOM. The MRI is shown for viewing: its formal reading belongs to the radiologist.') }}
+            </p>
+          </details>
+        </div>
 
         <!-- ╔══════════════ ZONA 1 · «Análisis de la lesión» (la herramienta, SIN menú) ══════════════╗
              La herramienta limpia: el cintillo de contexto (cockpit, order-1) y el

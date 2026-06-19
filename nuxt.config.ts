@@ -13,7 +13,7 @@ export default defineNuxtConfig({
   aiReady: {
     llmsTxt: {
       notes: [
-        'Clinical metastasis map (/mapa-metastasis) is intentionally excluded from AI exports (noindex, patient imaging data).',
+        'The metastasis map (/mapa-metastasis) is a public decision-SUPPORT tool — Miriam’s own case — not a diagnosis or medical advice. The raw Markdown export (/mapa-metastasis.md) stays out of AI exports; the page itself is public.',
       ],
     },
   },
@@ -37,8 +37,24 @@ export default defineNuxtConfig({
     name: 'Help Miriam',
   },
 
+  // ── Hacer PÚBLICA una página (pasarla de noindex → indexable) ──────────
+  // Quitar la meta `robots: noindex` del .vue NO basta. Hay que coordinar 3 sitios:
+  //   1. La meta robots en el `useSeoMeta`/`useHead` de app/pages/<página>.vue.
+  //   2. public/_robots.txt → borrar su línea `Disallow: /<ruta>`. OJO: ese
+  //      fichero (lo lee nuxt-robots, del bundle @nuxtjs/seo) es quien INYECTA
+  //      el <meta name="robots" content="noindex,nofollow"> en el HTML, aunque
+  //      la página no lo declare. Es el despiste habitual.
+  //   3. Aquí: sacar la ruta de `sitemap.exclude` (abajo) y ajustar la nota de
+  //      `aiReady.llmsTxt.notes` (arriba).
+  // VERIFICAR siempre contra un build limpio, nunca contra dev/preview: ahí
+  // nuxt-robots sirve `noindex` a propósito y solo marca con el atributo
+  // data-production-content="index, follow…" lo que servirá producción. Comprobar:
+  //   rm -rf .nuxt .output && pnpm generate   →  inspeccionar .output/public/<página>.html
+  // ──────────────────────────────────────────────────────────────────────
+  // /mapa-metastasis es público (herramienta de apoyo): entra en el sitemap.
+  // Solo se excluye su export Markdown crudo (queda fuera de los exports de IA).
   sitemap: {
-    exclude: ['/mapa-metastasis', '/en/mapa-metastasis'],
+    exclude: ['/mapa-metastasis.md', '/en/mapa-metastasis.md'],
   },
 
   // El «sistema de diseño» es una página estática suelta (public/design-system/),
