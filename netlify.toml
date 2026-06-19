@@ -39,21 +39,25 @@
   from = "/3d"
   to = "/mapa-metastasis?utm_source=short&utm_medium=link&utm_campaign=lanzamiento-herramienta"
   status = 302
+  force = true
 
 [[redirects]]
   from = "/3d-x"
   to = "/mapa-metastasis?utm_source=twitter&utm_medium=post&utm_campaign=lanzamiento-herramienta"
   status = 302
+  force = true
 
 [[redirects]]
   from = "/3d-in"
   to = "/mapa-metastasis?utm_source=linkedin&utm_medium=post&utm_campaign=lanzamiento-herramienta"
   status = 302
+  force = true
 
 [[redirects]]
   from = "/3d-ig"
   to = "/mapa-metastasis?utm_source=instagram&utm_medium=bio&utm_campaign=lanzamiento-herramienta"
   status = 302
+  force = true
 
 # Donación — link corto de marca para repartir rápido. Apunta a GoFundMe.
 # 302 (temporal) → repunteable si cambia la campaña/plataforma. Es un salto a un
@@ -63,6 +67,7 @@
   from = "/donar"
   to = "https://www.gofundme.com/f/biopsia-molecular-que-puede-cambiar-su-tratamiento"
   status = 302
+  force = true
 
 # ── Cabeceras de seguridad (auditoría 5.5) ───────────────────────────────────
 # Sitio de salud + donaciones = la confianza es crítica. Subconjunto SEGURO que
