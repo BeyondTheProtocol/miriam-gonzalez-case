@@ -323,6 +323,10 @@ function openDetalle() {
 type FilterKey = 'all' | Pheno | 'new' | 'ia' | 'mix'
 const filter = ref<FilterKey>('all')
 const sel = computed(() => LES.find((l) => l.id === selected.value)!)
+/* (#13) parte el nombre del foco en CÓDIGO de nivel (la coordenada mnemónica, p.ej.
+   «C3», «D11 (T11)») + resto descriptivo, para que el código lidere como tag escaneable. */
+const selLevelCode = computed(() => sel.value.level[lang.value].split(' · ')[0])
+const selLevelRest = computed(() => sel.value.level[lang.value].split(' · ').slice(1).join(' · '))
 
 /* ------------------------------------------------------------------ */
 /*  NAVEGADOR · dos modos conmutables (segmented control)              */
@@ -1878,7 +1882,8 @@ const ticks = [
                 <span class="shrink-0 w-3.5 h-3.5 mt-1.5 rounded-full" :style="{ background: phenoColor(sel), boxShadow: selIsAi ? '0 0 0 1.5px #fff, 0 0 0 3px ' + phenoColor(sel) : 'none' }" aria-hidden="true" />
                 <div class="min-w-0">
                   <div class="flex items-baseline gap-2 flex-wrap">
-                    <h3 class="heading-display text-xl text-berenjena leading-tight">{{ sel.level[lang] }}</h3>
+                    <span class="font-mono font-bold text-base leading-none text-berenjena bg-miriam-soft rounded px-2 py-1 tracking-tight">{{ selLevelCode }}</span>
+                    <h3 v-if="selLevelRest" class="heading-display text-lg text-berenjena leading-tight">{{ selLevelRest }}</h3>
                     <span class="font-mono text-[12px] text-tinta">#{{ sel.id }}</span>
                     <span v-if="coCount(sel) > 1" class="pill-data pill-data--berenjena text-[10px] !px-1.5 !py-0" role="img" :aria-label="coCount(sel) + ' ' + L('focos co-localizados en esta vértebra', 'co-located foci in this vertebra')">{{ coCount(sel) }} {{ L('focos', 'foci') }}</span>
                   </div>
@@ -1897,9 +1902,9 @@ const ticks = [
               <!-- LECTURA TÉCNICA primero (registro para el equipo médico); el texto
                    en palabras llanas queda a un clic, para paciente/familia. -->
               <p class="text-[13.5px] text-berenjena leading-snug">{{ sel.tech[lang] }}</p>
-              <details class="mt-1.5">
-                <summary class="text-[11px] text-miriam cursor-pointer font-semibold list-none inline-flex items-center gap-1">{{ L('En palabras llanas', 'In plain words') }}</summary>
-                <p class="text-[12.5px] text-tinta leading-snug mt-1">{{ sel.what[lang] }}</p>
+              <details class="notes-disclosure mt-1.5">
+                <summary>{{ L('En palabras llanas', 'In plain words') }}</summary>
+                <p class="text-[12.5px] text-tinta leading-snug">{{ sel.what[lang] }}</p>
               </details>
             </div>
 
@@ -2341,7 +2346,12 @@ const ticks = [
              referencia», no como caja. -mx + px re-encajan el contenido al ancho de la
              columna (banda a todo el ancho de 1280, no un recuadro inset). El tinte es
              el divisor; el header va dentro, sin regla ni caja. -->
-        <div class="bg-[rgba(45,27,61,0.035)] -mx-4 sm:-mx-6 lg:-mx-8 px-4 sm:px-6 lg:px-8 py-10 lg:py-12 mt-4">
+        <!-- (#15) Zona wiki a PANTALLA COMPLETA (full-bleed al viewport) con fondo del DS
+             (cream-card). El margen calc(50%-50vw) saca la banda al borde del viewport sin
+             scroll horizontal (en flujo, sin transform → la barra sticky del rail sigue ok);
+             el contenido se RE-ACOTA a 1280 con el contenedor interior. -->
+        <div class="ml-[calc(50%-50vw)] mr-[calc(50%-50vw)] bg-cream-card py-10 lg:py-12 mt-4">
+          <div class="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8">
           <!-- (homogeneidad) divisor del sitio en el corte herramienta→wiki, como home/ciencia. -->
           <EcgDivider class="mb-10" />
           <!-- Header de la sección general (eyebrow + h2 a la izquierda, sin caja). -->
@@ -3149,7 +3159,8 @@ const ticks = [
         </div>
           </div><!-- /columna derecha (contenido wiki, 1fr) -->
         </div><!-- /rejilla rail+contenido (solo Zona 2) -->
-        </div><!-- /zona wiki · fondo sutil (opción A) -->
+          </div><!-- /contenedor centrado · re-acota el contenido a 1280 -->
+        </div><!-- /zona wiki · full-bleed · fondo cream-card del DS -->
         <!-- ╚══════════════ FIN ZONA 2 · «Visión general del caso» ══════════════╝ -->
           </div>
       </div>
