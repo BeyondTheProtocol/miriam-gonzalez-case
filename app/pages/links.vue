@@ -138,10 +138,18 @@ type BioLink = {
   external?: boolean
 }
 
-// Destacados — los 3 más visibles (orden de prioridad pedido).
+// Destacados — orden: el MAPA primero (el gancho novedoso e INTERNO: lo que la gente viene
+// a buscar y lo que la retiene en el sitio), luego la prensa (credibilidad) y marcas.
 // `id` = la propiedad que viaja a Umami (Bio-link · destino) → debe ser estable
 // y en minúsculas-sin-acentos para agrupar bien en el panel.
 const featured = computed<BioLink[]>(() => [
+  {
+    id: 'mapa',
+    title: 'links.mapa_title',
+    sub: 'links.mapa_sub',
+    icon: 'ph:globe-hemisphere-west-fill',
+    to: localePath('mapa-metastasis'),
+  },
   {
     id: 'elespanol',
     title: 'links.elespanol_title',
@@ -149,13 +157,6 @@ const featured = computed<BioLink[]>(() => [
     icon: 'ph:newspaper-clipping-fill',
     to: EL_ESPANOL_URL,
     external: true,
-  },
-  {
-    id: 'mapa',
-    title: 'links.mapa_title',
-    sub: 'links.mapa_sub',
-    icon: 'ph:globe-hemisphere-west-fill',
-    to: localePath('mapa-metastasis'),
   },
   {
     id: 'marcas',
