@@ -335,6 +335,7 @@
 
           <!-- Acceso al mapa interactivo de metástasis (doble trazador, lesión a lesión) -->
           <NuxtLink
+            id="mapa-metastasis-link"
             :to="localePath('/mapa-metastasis')"
             class="group flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-3.5 rounded-2xl px-4 sm:px-5 py-4 mt-5 transition-all active:scale-[0.99] sm:hover:-translate-y-0.5"
             style="background:rgba(232,212,237,0.30);text-decoration:none"

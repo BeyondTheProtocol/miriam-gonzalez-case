@@ -55,6 +55,7 @@ const chapters = computed(() =>
         { id: 'tejido-3veces', label: 'Anatomía patológica' },
         { id: 'molecular-profile-title', label: 'Perfil molecular' },
         { id: 'imaging-tissue-title', label: 'Imagen funcional' },
+        { id: 'mapa-metastasis-link', label: 'Mapa de metástasis' },
         { id: 'panel-title', label: 'El siguiente paso' },
         { id: 'treatment-title', label: 'Historia clínica' },
       ]
@@ -63,6 +64,7 @@ const chapters = computed(() =>
         { id: 'tejido-3veces', label: 'Pathology' },
         { id: 'molecular-profile-title', label: 'Molecular profile' },
         { id: 'imaging-tissue-title', label: 'Functional imaging' },
+        { id: 'mapa-metastasis-link', label: 'Metastasis map' },
         { id: 'panel-title', label: 'The next step' },
         { id: 'treatment-title', label: 'Clinical history' },
       ]
@@ -97,7 +99,11 @@ function jumpTo(e: Event, id: string) {
   e.preventDefault()
   // A11y: el foco va al título destino; respeta prefers-reduced-motion.
   const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches
-  el.setAttribute('tabindex', '-1')
+  // A11y: solo forzar tabindex en destinos NO focusables (un heading). Si el destino
+  // ya es focusable (el <a> del CTA del mapa), preservar su tabulación nativa.
+  if (!/^(A|BUTTON|INPUT|SELECT|TEXTAREA)$/.test(el.tagName) && el.getAttribute('tabindex') === null) {
+    el.setAttribute('tabindex', '-1')
+  }
   el.focus({ preventScroll: true })
   el.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' })
   activeId.value = id
