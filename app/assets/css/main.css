@@ -406,6 +406,8 @@
   .pill-data--positive { background: #d8ede0; color: #1f5a3a; }
   .pill-data--neutral  { background: rgba(45,27,61,0.06); color: #3a3340; }
   .pill-data--violet   { background: #e8d4ed; color: #5a2466; }
+  /* berenjena: pill de recuento (rima con la insignia de «N focos» del esqueleto, #2d1b3d). Tokens del DS; contraste ~13:1. */
+  .pill-data--berenjena { background: #2d1b3d; color: #faf6f0; }
 
   /* Status badges (uppercase mono) — for clinical/trial status */
   .status-badge {
