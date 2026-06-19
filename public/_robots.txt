@@ -1,3 +1,8 @@
+# Lo lee nuxt-robots (bundle @nuxtjs/seo): cada `Disallow:` de aquí INYECTA el
+# <meta name="robots" content="noindex,nofollow"> en esa ruta, aunque el .vue no
+# lo declare. Para pasar una página de noindex → pública hay 3 sitios que tocar:
+# ver la nota «Hacer PÚBLICA una página» en nuxt.config.ts.
+
 User-agent: *
 Allow: /
 # block design-system
