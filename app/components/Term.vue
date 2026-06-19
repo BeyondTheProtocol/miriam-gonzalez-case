@@ -240,6 +240,17 @@ const GLOSSARY: Record<string, Entry> = {
       def: 'RB1 loss (3 variants in blood) is what signals the risk of neuroendocrine transformation. Treating it via the neuroendocrine route also opens access to radioligand therapy (PRRT) on the SSTR2+ lesions.',
     },
   },
+  /* §13 · ⓘ «Cómo se lee el mapa 3D» (visor de focos) → tooltip al pasar, no clic-para-ver. */
+  lectura_mapa3d: {
+    es: {
+      label: 'Cómo se lee el mapa',
+      def: 'Cada vista mapea UNA variable (más oscuro/saturado = más valor). La captación PET es un gradiente continuo, sin borde tumoral neto (~4–5 mm). «Blástico» = densidad del CT (forma), no biología. El Galio es un proxy aproximado por ahora. Informa, no concluye.',
+    },
+    en: {
+      label: 'How to read the map',
+      def: 'Each view maps ONE variable (darker/more saturated = higher value). PET uptake is a continuous gradient, with no sharp tumor border (~4–5 mm). “Blastic” = CT density (shape), not biology. Gallium is an approximate proxy for now. It informs; it does not conclude.',
+    },
+  },
 }
 
 const entry = computed(() => {

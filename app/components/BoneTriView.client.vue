@@ -743,19 +743,9 @@ onBeforeUnmount(() => {
         <!-- HONESTIDAD REUBICADA · desplegable SUTIL, PLEGADO por defecto. La info
              clínica sigue accesible (criterio del radiólogo) sin abrumar (criterio del
              diseñador). Voz neutral: informa, no concluye. -->
-        <details v-if="!failed" class="btv-read">
-          <summary class="btv-read__summary">
-            <span class="btv-read__i" aria-hidden="true">i</span>
-            {{ L('Cómo se lee el mapa', 'How to read the map') }}
-          </summary>
-          <ul class="btv-read__list">
-            <li>{{ L('Cada vista mapea UNA variable: más oscuro/saturado = más valor.', 'Each view maps ONE variable: darker/more saturated = higher value.') }}</li>
-            <li>{{ L('La captación PET es un gradiente continuo, sin un borde tumoral neto (resolución ~4–5 mm).', 'PET uptake is a continuous gradient, with no sharp tumour border (~4–5 mm resolution).') }}</li>
-            <li>{{ L('«Blástico» = densidad del CT (forma), no biología.', '“Blastic” = CT density (shape), not biology.') }}</li>
-            <li>{{ L('El Galio es un proxy aproximado por ahora.', 'Gallium is an approximate proxy for now.') }}</li>
-            <li>{{ L('Informa, no concluye.', 'It informs; it does not conclude.') }}</li>
-          </ul>
-        </details>
+        <!-- (homogeneidad · §13) ⓘ «Cómo se lee el mapa» → tooltip Term (al pasar/enfocar),
+             en vez de un <details> de clic-para-ver. La info queda en el aria-label de Term. -->
+        <Term v-if="!failed" id="lectura_mapa3d" :label="L('ⓘ Cómo se lee el mapa', 'ⓘ How to read the map')" class="btv-read-tip" />
       </div>
 
       <!-- RÓTULO HONESTO de la aguja ILUSTRATIVA (sólo con el toggle activo) -->
