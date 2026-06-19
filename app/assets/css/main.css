@@ -202,6 +202,12 @@
   .eyebrow {
     @apply font-mono uppercase text-[12px] font-medium tracking-[0.12em] text-tinta;
   }
+  /* eyebrow pequeño: kicker de tarjeta/control (mono, 11px). Mismo lenguaje que .eyebrow.
+     El color por defecto es tinta; se sobreescribe con text-berenjena donde haga falta
+     (la utilidad gana a este @apply por orden de capas). */
+  .eyebrow--sm {
+    @apply font-mono uppercase text-[11px] font-semibold tracking-[0.1em] text-tinta;
+  }
 
   .tag {
     @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-2xs font-medium tracking-wide uppercase;

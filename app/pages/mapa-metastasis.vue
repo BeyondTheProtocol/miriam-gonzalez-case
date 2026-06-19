@@ -1576,7 +1576,7 @@ const ticks = [
                 </span>
                 <span class="text-right shrink-0">
                   <span class="font-display text-xl text-berenjena tabular-nums leading-none block">{{ suitabilityScore(le) }}</span>
-                  <span class="text-[10px] text-tinta uppercase tracking-wide">{{ L('idoneidad', 'suitability') }}</span>
+                  <span class="eyebrow--sm">{{ L('idoneidad', 'suitability') }}</span>
                 </span>
               </div>
               <p class="text-[10.5px] text-tinta leading-snug mt-1.5">{{ L('orden', 'rank') }} {{ i + 1 }} · FDG {{ le.fdg != null ? le.fdg.toFixed(1) : '—' }} · Ga {{ le.dota != null ? le.dota.toFixed(1) : '—' }} · {{ morphShort(le) }}</p>
@@ -1777,7 +1777,7 @@ const ticks = [
               <!-- ===== CONTROLES (abajo) · timeline + filtros, modificadores del
                    esqueleto. Separador mínimo, sin cabecera verbosa: cada bloque ya
                    se rotula solo. ===== -->
-              <p class="text-[10px] font-semibold text-tinta uppercase tracking-wide mb-2 mt-5 pt-4 border-t border-[rgba(45,27,61,0.1)]">
+              <p class="eyebrow--sm mb-2 mt-5 pt-4 border-t border-[rgba(45,27,61,0.1)]">
                 {{ L('Controles', 'Controls') }}
               </p>
 
@@ -1833,7 +1833,7 @@ const ticks = [
                  el 3D + el resumen (mismo `selected` que el esqueleto → persiste).
                  Reutiliza focusListItems, phenoColor, los SUV y suitabilityScore. -->
             <div v-show="navMode === 'table'" class="card-base !p-2">
-              <p class="text-[10px] font-semibold text-berenjena uppercase tracking-wide px-1.5 pt-1 pb-1.5 flex items-center justify-between gap-2">
+              <p class="eyebrow--sm text-berenjena px-1.5 pt-1 pb-1.5 flex items-center justify-between gap-2">
                 <span>{{ L('Focos · elige uno', 'Foci · pick one') }}</span>
                 <span class="font-normal normal-case tracking-normal text-tinta">{{ confirmedFoci.length }}<span v-if="aiFoci.length">+{{ aiFoci.length }}</span></span>
               </p>
@@ -1934,7 +1934,7 @@ const ticks = [
               <!-- IDONEIDAD como diana (orientativa) · primero -->
               <div class="rounded-card bg-cream-card px-3 py-2 mb-3 border border-[rgba(45,27,61,0.1)]">
                 <div class="flex items-center justify-between mb-1">
-                  <span class="text-[10px] font-semibold text-berenjena uppercase tracking-wide">{{ L('Idoneidad como diana', 'Suitability as a target') }}</span>
+                  <span class="eyebrow--sm text-berenjena">{{ L('Idoneidad como diana', 'Suitability as a target') }}</span>
                   <span class="font-mono text-sm font-semibold text-berenjena">{{ suitabilityScore(sel) }}<span class="text-[10px] text-tinta">/100</span></span>
                 </div>
                 <div class="h-2 rounded-full overflow-hidden bg-[rgba(45,27,61,0.08)]" role="img"
@@ -2093,7 +2093,7 @@ const ticks = [
                  alarmismo) como pendiente de validación radiológica. Informa, no
                  concluye: no afirma que sea maligno. -->
             <div v-if="selIsAi" class="mb-4 rounded-card border-l-4 px-3.5 py-3" style="border-left-color:#bf7d2c;background:#fbf5ea">
-              <p class="text-[11px] font-semibold uppercase tracking-wide mb-1 flex items-center gap-2 flex-wrap" style="color:#8a4a1a">
+              <p class="eyebrow--sm mb-1 flex items-center gap-2 flex-wrap" style="color:#8a4a1a">
                 <span class="inline-block w-2.5 h-2.5 rounded-full" style="background:#bf7d2c" aria-hidden="true" />
                 {{ L('Detectado por IA · pendiente de validación por los radiólogos', 'AI-detected · pending validation by the radiologists') }}
               </p>
@@ -2127,7 +2127,7 @@ const ticks = [
               <!-- ===== LAS TRES LECTURAS · una por prueba (etiquetadas por prueba) ===== -->
               <div class="mb-4 rounded-card border border-[rgba(45,27,61,0.12)] overflow-hidden">
                 <div class="px-3 py-2 bg-[rgba(45,27,61,0.04)] border-b border-[rgba(45,27,61,0.08)]">
-                  <p class="text-[11px] font-semibold text-berenjena uppercase tracking-wide">{{ L('Las tres lecturas · una por prueba', 'The three readings · one per test') }}</p>
+                  <p class="eyebrow--sm text-berenjena">{{ L('Las tres lecturas · una por prueba', 'The three readings · one per test') }}</p>
                   <p class="text-[11px] text-tinta leading-snug mt-0.5">{{ L('Tres pruebas miran el mismo foco. Etiquetadas por la prueba, no por la biología.', 'Three tests look at the same focus. Labelled by the test, not the biology.') }}</p>
                 </div>
                 <div class="grid sm:grid-cols-3 divide-y sm:divide-y-0 sm:divide-x divide-[rgba(45,27,61,0.08)]">
@@ -2168,7 +2168,7 @@ const ticks = [
                    RENDIMIENTO de la biopsia; se promueve aquí desde la verificación.
                    Es FORMA del hueso (densidad CT), no biología ni trazador. -->
               <div class="mb-4 rounded-card border border-[rgba(45,27,61,0.12)] bg-cream-card p-3">
-                <p class="text-[11px] font-semibold text-berenjena uppercase tracking-wide mb-2 flex items-center gap-2 flex-wrap">
+                <p class="eyebrow--sm text-berenjena mb-2 flex items-center gap-2 flex-wrap">
                   <span class="inline-block w-2.5 h-2.5 rounded-full" :style="{ background: '#1f6b57' }" />
                   {{ L('Forma del hueso y cantidad de tumor', 'Bone shape and tumor amount') }}
                   <span class="status-badge status-badge--shape">{{ L('morfología · CT', 'morphology · CT') }}</span>
@@ -2201,7 +2201,7 @@ const ticks = [
 
               <!-- ===== BIOPSIA PREVIA del foco (hecho del caso · honesto, neutral) ===== -->
               <div v-if="sel.priorBiopsy" class="mb-4 rounded-card border-l-4 px-3 py-3" :style="{ borderLeftColor: '#8a5a1a', background: '#fbf6ec' }">
-                <p class="text-[11px] font-semibold uppercase tracking-wide mb-1 flex items-center gap-2 flex-wrap" :style="{ color: '#8a5a1a' }">
+                <p class="eyebrow--sm mb-1 flex items-center gap-2 flex-wrap" :style="{ color: '#8a5a1a' }">
                   {{ L('Biopsia previa de este foco', 'Prior biopsy of this focus') }}
                   <span class="status-badge status-badge--candidate">26B585</span>
                 </p>
@@ -2210,7 +2210,7 @@ const ticks = [
 
               <!-- ===== PARTES BLANDAS / EXTENSIÓN EXTRAÓSEA (RMN → factibilidad) ===== -->
               <div v-if="sel.softTissue" class="mb-4 rounded-card border-l-4 px-3 py-3" :style="{ borderLeftColor: '#1f6b57', background: '#eef6f2' }">
-                <p class="text-[11px] font-semibold uppercase tracking-wide mb-1 flex items-center gap-2 flex-wrap" :style="{ color: '#1f6b57' }">
+                <p class="eyebrow--sm mb-1 flex items-center gap-2 flex-wrap" :style="{ color: '#1f6b57' }">
                   {{ L('Partes blandas / extensión extraósea', 'Soft tissue / extraosseous extension') }}
                   <span class="status-badge status-badge--shape">{{ L('factibilidad · RMN', 'feasibility · MRI') }}</span>
                 </p>
@@ -2222,7 +2222,7 @@ const ticks = [
 
               <!-- HALLAZGOS: lo que muestra este foco (descripción, no triaje) -->
               <div class="mb-4 rounded-card border border-[rgba(45,27,61,0.1)] bg-cream-card p-3">
-                <p class="text-[11px] font-semibold text-berenjena uppercase tracking-wide mb-2 flex items-center gap-1.5">
+                <p class="eyebrow--sm text-berenjena mb-2 flex items-center gap-1.5">
                   <span class="inline-block w-2.5 h-2.5 rounded-full" :style="{ background: phenoColor(sel) }" />
                   {{ L('Lo que muestra este foco', 'What this focus shows') }}
                 </p>
@@ -2238,7 +2238,7 @@ const ticks = [
               <!-- CUANTIFICACIÓN AUTOMÁTICA medida sobre los DICOM (verificación) — abierta por defecto (vista clínica) -->
               <details v-if="hasAuto" class="notes-disclosure mb-4" open>
                 <summary>{{ L('Medido sobre los DICOM (verificación automática)', 'Measured from the DICOM (automatic verification)') }}</summary>
-                <p class="text-[11px] font-semibold text-berenjena uppercase tracking-wide mt-3 mb-2 flex items-center gap-2 flex-wrap">
+                <p class="eyebrow--sm text-berenjena mt-3 mb-2 flex items-center gap-2 flex-wrap">
                   <span class="inline-block w-2.5 h-2.5 rounded-full" :style="{ background: '#1f5a3a' }" />
                   {{ L('SUV automático frente a tabla', 'Automatic SUV versus table') }}
                   <span class="status-badge status-badge--active">{{ L('automático · verificación', 'automatic · verification') }}</span>
@@ -2400,7 +2400,7 @@ const ticks = [
 
           <!-- TARJETA-LENTE · marco ético (equipa, no indica) -->
           <div class="rounded-card border-l-4 px-4 py-4 mb-6" :style="{ borderLeftColor: '#9d44ab', background: '#f7eef9' }">
-            <p class="text-[11px] font-semibold uppercase tracking-wide mb-1.5 flex items-center gap-2 flex-wrap" :style="{ color: '#7a2f86' }">
+            <p class="eyebrow--sm mb-1.5 flex items-center gap-2 flex-wrap" :style="{ color: '#7a2f86' }">
               <span class="inline-block w-2.5 h-2.5 rounded-full" :style="{ background: '#9d44ab' }" />
               {{ L('Cómo leer esta lente', 'How to read this lens') }}
               <span class="status-badge status-badge--firma">{{ L('equipa, no indica', 'equips, does not indicate') }}</span>
@@ -2484,7 +2484,7 @@ const ticks = [
                   </div>
                   <div class="text-right shrink-0">
                     <div class="font-display text-2xl text-berenjena tabular-nums leading-none">{{ suitabilityScore(le) }}</div>
-                    <div class="text-[10px] text-tinta uppercase tracking-wide">{{ L('idoneidad', 'suitability') }}</div>
+                    <div class="eyebrow--sm">{{ L('idoneidad', 'suitability') }}</div>
                   </div>
                 </div>
                 <!-- los tres factores que componen el número (visibles, no solo el total) -->
@@ -2533,7 +2533,7 @@ const ticks = [
 
           <!-- FOCOS DETECTADOS POR IA · separados del orden (candidatos sí, peso real no) -->
           <div class="rounded-card border px-4 py-4" :style="{ borderColor: '#efb27a', background: '#fbf5ea' }">
-            <p class="text-[11px] font-semibold uppercase tracking-wide mb-1.5 flex items-center gap-2 flex-wrap" :style="{ color: '#8a4a1a' }">
+            <p class="eyebrow--sm mb-1.5 flex items-center gap-2 flex-wrap" :style="{ color: '#8a4a1a' }">
               <span class="inline-block w-2.5 h-2.5 rounded-full" :style="{ background: '#bf7d2c' }" />
               {{ L('Detectados por IA · fuera del orden', 'AI-detected · outside the order') }}
               <span class="status-badge status-badge--candidate">{{ L('sin confirmar', 'unconfirmed') }}</span>
@@ -2555,7 +2555,7 @@ const ticks = [
                     </div>
                     <div class="text-right shrink-0">
                       <div class="font-display text-2xl tabular-nums leading-none" :style="{ color: '#8a4a1a' }">{{ suitabilityScore(le) }}</div>
-                      <div class="text-[10px] uppercase tracking-wide" :style="{ color: '#8a4a1a' }">{{ L('idoneidad · s/c', 'suitability · n/c') }}</div>
+                      <div class="eyebrow--sm" :style="{ color: '#8a4a1a' }">{{ L('idoneidad · s/c', 'suitability · n/c') }}</div>
                     </div>
                   </div>
                   <!-- los MISMOS tres factores que un foco confirmado (visibles, no solo el total) -->
@@ -2987,7 +2987,7 @@ const ticks = [
           <!-- FOCOS EXTRA detectados automáticamente (no en la tabla) -->
           <div class="data-card mt-4">
             <div class="px-4 py-3">
-              <p class="text-[11px] font-semibold text-berenjena uppercase tracking-wide mb-1 flex items-center gap-2 flex-wrap">
+              <p class="eyebrow--sm text-berenjena mb-1 flex items-center gap-2 flex-wrap">
                 {{ L('Focos extra detectados (automático, no en la tabla)', 'Extra foci detected (automatic, not in the table)') }}
                 <span class="status-badge status-badge--active">{{ L('verificación', 'verification') }}</span>
               </p>
@@ -3030,7 +3030,7 @@ const ticks = [
           <!-- concordancia (barra apilada) + trayectoria FDG -->
           <div class="grid md:grid-cols-2 gap-4 mt-4">
             <div class="card-base !p-4">
-              <p class="text-[11px] font-semibold text-berenjena uppercase tracking-wide mb-2">{{ L('Concordancia receptor ↔ azúcar', 'Receptor ↔ sugar concordance') }}</p>
+              <p class="eyebrow--sm text-berenjena mb-2">{{ L('Concordancia receptor ↔ azúcar', 'Receptor ↔ sugar concordance') }}</p>
               <!-- barra apilada. Las cifras de los segmentos ANCHOS van dentro;
                    las de los segmentos ESTRECHOS (<8%) no caben → van fuera, en
                    una fila superior con una pequeña marca y el número. Toda cifra
@@ -3062,7 +3062,7 @@ const ticks = [
               </div>
             </div>
             <div class="card-base !p-4">
-              <p class="text-[11px] font-semibold text-berenjena uppercase tracking-wide mb-2">{{ L('Azúcar (FDG) vs estudio previo', 'Sugar (FDG) vs prior study') }}</p>
+              <p class="eyebrow--sm text-berenjena mb-2">{{ L('Azúcar (FDG) vs estudio previo', 'Sugar (FDG) vs prior study') }}</p>
               <div class="grid grid-cols-4 gap-2 text-center">
                 <div><div class="font-display text-2xl" :style="{ color: '#bb4128' }">{{ trajectory.neu }}</div><div class="text-[11px] text-tinta mt-0.5">{{ L('nuevos', 'new') }}</div></div>
                 <div><div class="font-display text-2xl" :style="{ color: '#bb4128' }">↑ {{ trajectory.up }}</div><div class="text-[11px] text-tinta mt-0.5">{{ L('más FDG', 'more FDG') }}</div></div>
@@ -3075,7 +3075,7 @@ const ticks = [
 
           <!-- resumen para el equipo médico -->
           <div class="mt-4 rounded-card border border-[rgba(45,27,61,0.12)] bg-cream-card p-4">
-            <p class="text-[11px] font-semibold text-berenjena uppercase tracking-wide mb-2">{{ L('Resumen para el equipo médico', 'Summary for the medical team') }}</p>
+            <p class="eyebrow--sm text-berenjena mb-2">{{ L('Resumen para el equipo médico', 'Summary for the medical team') }}</p>
             <p class="text-sm text-tinta leading-relaxed">
               {{ L(
                 'Enfermedad ósea multinivel. ' + confirmedFoci.length + ' focos en el informe oficial (' + skeletonSplit.axial + ' axiales — columna y sacro — y ' + skeletonSplit.append + ' apendiculares — escápula, pelvis y cadera), más ' + aiFoci.length + ' focos por confirmar detectados por IA. Reparto receptor↔azúcar: ' + concordance.ne + ' captan solo receptor (Ga+/FDG−), ' + concordance.mix + ' son mixtos (ambos trazadores) y ' + concordance.agg + ' capta solo azúcar (Ga−/FDG+). Rango de SUVmáx: ⁶⁸Ga-DOTATOC ' + dotaRangeLabel + '; ¹⁸F-FDG ' + fdgRangeLabel + '. Frente al PET previo (sobre ' + trajectory.withPrev + ' focos con valor previo): ' + trajectory.neu + ' nuevos, ' + trajectory.up + ' con más FDG, ' + trajectory.down + ' con menos y ' + trajectory.stable + ' estables. Las cifras son las de los informes oficiales del PET; el detalle por foco está en la ficha y en la tabla. Descripción, no consejo médico.',
@@ -3116,7 +3116,7 @@ const ticks = [
 
           <!-- leyenda de la barra dual receptor ↔ azúcar (codificación canónica) -->
           <div class="card-base !p-4 mt-4">
-            <p class="text-[11px] font-semibold text-berenjena uppercase tracking-wide mb-2">{{ L('La barra receptor ↔ azúcar', 'The receptor ↔ sugar bar') }}</p>
+            <p class="eyebrow--sm text-berenjena mb-2">{{ L('La barra receptor ↔ azúcar', 'The receptor ↔ sugar bar') }}</p>
             <div class="flex items-center gap-3">
               <div class="flex-1 flex h-3.5 rounded-full overflow-hidden border border-[rgba(45,27,61,0.1)]">
                 <div style="width: 58%; background: #9d44ab" />
