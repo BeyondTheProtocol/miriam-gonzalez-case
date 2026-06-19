@@ -1808,9 +1808,13 @@ const ticks = [
                     class="text-[10px] font-mono transition-colors"
                     :class="frame === i ? 'text-berenjena font-bold' : 'text-tinta hover:text-berenjena'">{{ d[lang].split(' ')[0] }}</button>
                 </div>
-                <p class="text-[10px] text-tinta mt-1.5 leading-snug">
-                  {{ L('Compara solo el FDG (ene→mar 2026). El paso de mayo es el ⁶⁸Ga-DOTATOC, estudio único (26/05): no comparable en el tiempo.', 'Compares FDG only (Jan→Mar 2026). The May step is the ⁶⁸Ga-DOTATOC, a single study (26 May): not comparable over time.') }}
-                </p>
+                <!-- (B · plan comité web) nota larga → PLEGABLE (notes-disclosure, patrón
+                     de /ciencia): se pliega para aligerar el navegador sticky, pero NO
+                     desaparece (accesible por teclado, sin JS). -->
+                <details class="notes-disclosure mt-2">
+                  <summary>{{ L('Cómo leer esta línea de tiempo', 'How to read this timeline') }}</summary>
+                  <p class="mt-2 text-[10px] text-tinta leading-snug">{{ L('Compara solo el FDG (ene→mar 2026). El paso de mayo es el ⁶⁸Ga-DOTATOC, estudio único (26/05): no comparable en el tiempo.', 'Compares FDG only (Jan→Mar 2026). The May step is the ⁶⁸Ga-DOTATOC, a single study (26 May): not comparable over time.') }}</p>
+                </details>
               </div>
             </div>
 
