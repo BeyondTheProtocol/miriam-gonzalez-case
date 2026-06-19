@@ -180,7 +180,6 @@ export default defineNuxtConfig({
     // (acceso para médicos) enlace corto SERIO para reenviar al equipo clínico (no de redes):
     // helpmiriam.com/caso → el panel del mapa. UTM «referral/medico» para distinguir el canal.
     '/caso': { redirect: { to: '/mapa-metastasis?utm_source=referral&utm_medium=medico&utm_campaign=equipo-clinico', statusCode: 302 } },
-    '/en/caso': { redirect: { to: '/en/mapa-metastasis?utm_source=referral&utm_medium=medico&utm_campaign=equipo-clinico', statusCode: 302 } },
   },
 
   nitro: {
@@ -198,7 +197,7 @@ export default defineNuxtConfig({
       // (ver nota «shadowing» en `routeRules` arriba). Así queda solo el 302 limpio.
       ignore: [
         '/design-system', '/mapa-metastasis.md', '/en/mapa-metastasis.md',
-        '/3d', '/3d-x', '/3d-in', '/3d-ig', '/donar', '/caso', '/en/caso',
+        '/3d', '/3d-x', '/3d-in', '/3d-ig', '/donar', '/caso',
       ],
       // URLs SIN barra final, coherentes con los links y el canonical del sitio
       // (que ya usan «/colabora», no «/colabora/»). Genera «colabora.html» en
