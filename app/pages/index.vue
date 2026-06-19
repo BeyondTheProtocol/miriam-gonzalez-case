@@ -398,6 +398,13 @@
             @click="trackPress('El País')"
           >El País<span class="sr-only"> {{ $t('a11y.new_tab') }}</span></a>
           <a
+            :href="elEspanolUrl"
+            target="_blank"
+            rel="noopener"
+            class="link-logo text-2xl sm:text-3xl"
+            @click="trackPress('El Español')"
+          >El Español<span class="sr-only"> {{ $t('a11y.new_tab') }}</span></a>
+          <a
             :href="murciaUrl"
             target="_blank"
             rel="noopener"
@@ -433,9 +440,13 @@ const { GOFUNDME_URL, trackSupport, trackScience, trackPress, trackShare } = use
 // (idéntico en ES y EN). Da tooltip a cada marcador sin perder el pill.
 const markerTerms = ['fgfr1', 'bcned', 'ki67', 'esr1', 'rb1', 'nec', 'ctdna', 'sstr']
 
-// Cobertura de prensa real (verificada)
+// Cobertura de prensa real (verificada). ORDEN CURADO (más importante primero),
+// el mismo que la Sala de prensa (content/<locale>/press.yml): nacionales de
+// mayor alcance/prestigio antes que regionales → credibilidad → confianza.
 const elPaisUrl =
   'https://elpais.com/tecnologia/2026-04-23/asi-usa-una-paciente-con-cancer-metastasico-la-ia-para-entender-su-enfermedad-cual-es-el-mejor-metodo-para-hablar-de-salud-con-chatbots.html'
+const elEspanolUrl =
+  'https://www.elespanol.com/alicante/vivir/salud/20260619/miren-ingeniera-anos-usa-ia-luchar-cancer-mama-unico-contactan-oncologos-mundo/1003744290903_0.html'
 const murciaUrl =
   'https://www.laopiniondemurcia.es/comunidad/2026/05/30/paciente-murciana-aguarda-nuevo-tratamiento-130816775.html'
 const la7Url = 'https://www.instagram.com/p/DZDT2hIAMPU/?hl=es'
