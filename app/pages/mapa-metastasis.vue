@@ -1287,16 +1287,18 @@ function sizeFactor(le: Lesion): number {
   if (mm == null) return 0.75
   return Math.max(0.6, Math.min(1, 0.6 + ((mm - 8) / 10) * 0.4))
 }
-/* idoneidad compuesta 0-100 (orientativa). Producto de los tres factores visibles ×
-   penalización si la lesión está en tratamiento con SBRT (tejido irradiado = menos
-   representativo para el muestreo molecular). */
+/* idoneidad compuesta 0-100 (orientativa). Producto de los tres factores de SEÑAL/forma ×
+   penalización por SBRT (tejido irradiado). La biopsia previa fallida (#13) NO penaliza el
+   score: falló por muestrear la zona densa equivocada (técnica/diana), no porque el foco sea
+   malo — su señal es real. El aviso «ya falló aquí → re-orientar a zona lítica» lo lleva la
+   tarjeta/ficha, no el número. */
 function suitabilityScore(le: Lesion): number {
   return Math.round(100 * viableFactor(le) * yieldFactor(le) * sizeFactor(le) * (le.sbrt ? 0.4 : 1))
 }
 /* (ficha resumen) «por qué» de UNA línea por foco — describe SEÑAL + FORMA, nunca
    «tumor/viable». Bloqueantes primero; si no, captación + rendimiento. Equipa, no indica. */
 function whyOneLiner(le: Lesion): string {
-  if (le.priorBiopsy) return L('Aquí ya falló una biopsia (26B585): se muestreó hueso denso.', 'A biopsy already failed here (26B585): dense bone was sampled.')
+  if (le.priorBiopsy) return L('Biopsia previa fallida (26B585) por muestrear hueso denso, no la lesión; re-orientable a una zona lítica distinta.', 'Prior biopsy failed (26B585) by sampling dense bone, not the lesion; re-targetable to a different lytic zone.')
   if (le.id === 7) return L('La zona que rinde es epidural/canal — la seguridad la valora intervencionista.', 'The yielding zone is epidural/canal — safety judged by interventional radiology.')
   if (le.id === 16) return L('Hueso de carga crítico: extraer cores conlleva riesgo de fractura.', 'Critical weight-bearing bone: taking cores carries fracture risk.')
   if (isAiDavid(le)) return L('Detectado por IA, no consta en el informe — a validar antes.', 'AI-detected, not in the report — to validate first.')
@@ -1661,6 +1663,7 @@ const ticks = [
               :aria-pressed="selected === le.id"
               class="text-left rounded-card border-2 px-3.5 py-3 transition-colors"
               :class="selected === le.id ? 'border-[#9d44ab] bg-[rgba(157,68,171,0.07)]' : 'border-[rgba(45,27,61,0.14)] bg-cream-card hover:border-[#9d44ab]'">
+              <span v-if="focoKey(le).hasReliable" class="block rounded-lg overflow-hidden mb-2 bg-[#0d1117]" style="aspect-ratio:16/10"><img :src="fk(le.id, 'axial')" :alt="L('Imagen clave del foco #' + le.id, 'Key image of focus #' + le.id)" class="w-full h-full object-cover" loading="lazy" /></span>
               <div class="flex items-center justify-between gap-2">
                 <span class="inline-flex items-center gap-2 min-w-0">
                   <span class="w-3 h-3 shrink-0 rounded-full" :style="{ background: phenoColor(le), boxShadow: sourceOf(le) === 'ia-david' ? '0 0 0 1.5px #fff, 0 0 0 3px ' + phenoColor(le) : 'none' }" aria-hidden="true" />
@@ -1674,6 +1677,8 @@ const ticks = [
                 </span>
               </div>
               <p class="text-[10.5px] text-tinta leading-snug mt-1.5">{{ L('orden', 'rank') }} {{ i + 1 }} · FDG {{ le.fdg != null ? le.fdg.toFixed(1) : '—' }} · Ga {{ le.dota != null ? le.dota.toFixed(1) : '—' }} · {{ morphShort(le) }}</p>
+              <p class="text-[11px] text-tinta leading-snug mt-1"><span class="font-bold" :style="{ color: dianaMk(le).color }">{{ dianaMk(le).mk }}</span> <span class="font-semibold text-berenjena">{{ L('Diana', 'Target') }}:</span> {{ BIOPSY[le.id]?.zone[lang] }}</p>
+              <p class="text-[11px] text-tinta leading-snug italic mt-0.5">«{{ whyOneLiner(le) }}»</p>
               <!-- aviso PROMINENTE si una biopsia ya falló aquí (no repetir el error de diana) -->
               <div v-if="le.priorBiopsy" class="mt-2 rounded-card px-2 py-1 text-[10px] font-semibold leading-snug flex items-start gap-1" :style="{ background: '#f6d9b8', color: '#8a4a1a' }">
                 <span aria-hidden="true">⚑</span><span>{{ L('Aquí ya falló una biopsia (26B585): solo dio hueso y músculo', 'A biopsy already failed here (26B585): only bone and muscle') }}</span>
@@ -2910,7 +2915,7 @@ const ticks = [
             </p>
 
             <ul class="foco-key-grid" role="list">
-              <li v-for="le in fichaGrid" :key="'gal-' + le.id" class="foco-key-cell">
+              <li v-for="le in keyGallery" :key="'gal-' + le.id" class="foco-key-cell">
                 <!-- foco con imagen fiable → miniatura pulsable que abre el lightbox grande -->
                 <template v-if="focoKey(le).hasReliable">
                   <button
@@ -2964,17 +2969,6 @@ const ticks = [
                   </span>
                 </div>
 
-                <!-- (ficha resumen · de un vistazo) idoneidad + diana + por qué + acción al detalle -->
-                <div class="mt-2 px-0.5">
-                  <div class="flex items-center gap-1.5 mb-1" :aria-label="L('idoneidad ' + suitabilityScore(le) + ' sobre 100', 'suitability ' + suitabilityScore(le) + ' out of 100')">
-                    <span class="eyebrow--sm shrink-0">{{ L('Idoneidad', 'Suitability') }}</span>
-                    <span class="flex-1 h-1.5 rounded-full bg-[rgba(45,27,61,0.08)] overflow-hidden"><span class="block h-full rounded-full" :style="{ width: suitabilityScore(le) + '%', background: 'linear-gradient(90deg,#9d44ab,#df7a44)' }" /></span>
-                    <span class="font-mono text-[11px] text-berenjena shrink-0">{{ suitabilityScore(le) }}</span>
-                  </div>
-                  <p class="text-[12px] text-tinta leading-snug"><span class="font-bold" :style="{ color: dianaMk(le).color }">{{ dianaMk(le).mk }}</span> <span class="font-semibold text-berenjena">{{ L('Diana', 'Target') }}:</span> {{ BIOPSY[le.id]?.zone[lang] }}</p>
-                  <p class="text-[12px] text-tinta leading-snug italic mt-0.5">«{{ whyOneLiner(le) }}»</p>
-                  <button type="button" class="link-action text-miriam font-semibold text-[12px] mt-1.5 inline-flex items-center gap-1" @click="pickAndShowDetalle(le.id)">{{ L('Ver en 3D · análisis del comité', 'See in 3D · committee analysis') }} <span aria-hidden="true">→</span></button>
-                </div>
               </li>
             </ul>
 
