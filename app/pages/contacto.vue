@@ -242,15 +242,15 @@
               <TurnstileWidget
                 ref="turnstileRef"
                 action="contact"
-                @token="turnstileToken = $event"
+                @token="onCaptchaToken"
                 @expired="turnstileToken = ''"
-                @error="turnstileToken = ''"
+                @error="onCaptchaError"
               />
 
               <button
                 type="submit"
                 class="btn-cta w-full"
-                :disabled="sending || (turnstileEnabled && !turnstileToken)"
+                :disabled="sending || (turnstileEnabled && !turnstileToken && !captchaUnavailable)"
               >
                 {{ sending ? $t('contact.sending') : $t('contact.submit') }}
               </button>
@@ -308,15 +308,30 @@ const sending = ref(false)
 const failed = ref(false)
 const captchaFailed = ref(false)
 const turnstileToken = ref('')
+// El widget no se pudo cargar/renderizar (script bloqueado, Cloudflare caído,
+// sitekey inválida). No dejamos que eso bloquee el contacto: se permite enviar y
+// Netlify (honeypot + antispam) hace de red de seguridad.
+const captchaUnavailable = ref(false)
 const turnstileRef = ref<{ reset: () => void } | null>(null)
 const { enabled: turnstileEnabled, verifyToken } = useTurnstile()
+
+function onCaptchaToken(token: string) {
+  turnstileToken.value = token
+  captchaUnavailable.value = false
+}
+function onCaptchaError() {
+  turnstileToken.value = ''
+  captchaUnavailable.value = true
+}
 
 async function onSubmit(e: Event) {
   const form = e.target as HTMLFormElement
   captchaFailed.value = false
   failed.value = false
 
-  if (turnstileEnabled.value) {
+  // Solo exigimos captcha si está habilitado Y el widget funciona. Si no cargó
+  // (captchaUnavailable), saltamos la verificación para no bloquear el envío.
+  if (turnstileEnabled.value && !captchaUnavailable.value) {
     if (!turnstileToken.value) {
       captchaFailed.value = true
       return

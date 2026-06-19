@@ -49,12 +49,28 @@ export default async (req: Request) => {
   const remoteIp = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim()
   if (remoteIp) form.append('remoteip', remoteIp)
 
-  const verifyRes = await fetch(VERIFY_URL, { method: 'POST', body: form })
-  const result = (await verifyRes.json()) as { success?: boolean }
+  // Si Cloudflare no responde (red/caída), devolvemos un error de infraestructura
+  // distinguible de un rechazo real, para que el cliente NO bloquee un contacto
+  // legítimo por un fallo ajeno al usuario (fail-open ante infra, no ante bot).
+  let result: { success?: boolean } = {}
+  try {
+    const verifyRes = await fetch(VERIFY_URL, { method: 'POST', body: form })
+    result = (await verifyRes.json()) as { success?: boolean }
+  } catch {
+    return Response.json(
+      { success: false, error: 'verify_error' },
+      { status: 502, headers: corsHeaders(req) }
+    )
+  }
 
+  // `error: 'failed'` = Cloudflare RECHAZA el token (bot/expirado): bloqueo real.
+  // Cualquier otro fallo (not_configured, verify_error) NO debe bloquear.
+  if (result.success) {
+    return Response.json({ success: true }, { status: 200, headers: corsHeaders(req) })
+  }
   return Response.json(
-    { success: Boolean(result.success) },
-    { status: result.success ? 200 : 403, headers: corsHeaders(req) }
+    { success: false, error: 'failed' },
+    { status: 403, headers: corsHeaders(req) }
   )
 }
 
