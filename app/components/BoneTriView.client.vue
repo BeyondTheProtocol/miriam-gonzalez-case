@@ -745,7 +745,7 @@ onBeforeUnmount(() => {
              diseñador). Voz neutral: informa, no concluye. -->
         <!-- (homogeneidad · §13) ⓘ «Cómo se lee el mapa» → tooltip Term (al pasar/enfocar),
              en vez de un <details> de clic-para-ver. La info queda en el aria-label de Term. -->
-        <Term v-if="!failed" id="lectura_mapa3d" :label="L('ⓘ Cómo se lee el mapa', 'ⓘ How to read the map')" class="btv-read-tip" />
+        <Term v-if="!failed" id="lectura_mapa3d" :label="L('ⓘ Cómo se lee el mapa', 'ⓘ How to read the map')" />
       </div>
 
       <!-- RÓTULO HONESTO de la aguja ILUSTRATIVA (sólo con el toggle activo) -->
@@ -947,45 +947,5 @@ onBeforeUnmount(() => {
   margin: 0;
 }
 
-/* DESPLEGABLE «Cómo se lee el mapa» · sutil y plegado por defecto. El resumen es un
-   discreto ⓘ + etiqueta; al abrir, las advertencias clínicas en lista breve y legible. */
-.btv-read { font-size: 11px; line-height: 1.45; }
-.btv-read__summary {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  list-style: none;
-  cursor: pointer;
-  color: #6b4a78;
-  font-weight: 600;
-  user-select: none;
-  white-space: nowrap;
-  transition: color 0.15s;
-}
-.btv-read__summary::-webkit-details-marker { display: none; }
-.btv-read__summary:hover { color: #4a2f55; }
-.btv-read__summary:focus-visible { outline: 2px solid #9d44ab; outline-offset: 2px; border-radius: 4px; }
-.btv-read__i {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 15px;
-  height: 15px;
-  border-radius: 50%;
-  border: 1px solid currentColor;
-  font-size: 9.5px;
-  font-weight: 700;
-  font-style: italic;
-  font-family: Georgia, 'Times New Roman', serif;
-  line-height: 1;
-}
-.btv-read[open] .btv-read__summary { margin-bottom: 5px; }
-.btv-read__list {
-  margin: 0;
-  padding-left: 16px;
-  list-style: disc;
-  color: #4a4350;
-  max-width: 64ch;
-}
-.btv-read__list li { margin: 1px 0; }
+/* (homogeneidad) CSS de .btv-read* eliminado: la ⓘ «Cómo se lee el mapa» pasó a tooltip Term. */
 </style>
