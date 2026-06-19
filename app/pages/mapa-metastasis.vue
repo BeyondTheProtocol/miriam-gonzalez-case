@@ -1461,7 +1461,7 @@ const ticks = [
 
         <!-- Aviso · CONDENSADO a una línea + detalle plegable, para no empujar lo
              primario (navegar focos ↔ 3D) hacia abajo en el primer pliegue. -->
-        <details class="rounded-card border border-[#efb27a] bg-[#fbf0df] text-[#7a4a12] px-4 py-2.5 text-sm leading-relaxed mb-6">
+        <details class="alert-callout leading-relaxed mb-6">
           <summary class="cursor-pointer font-semibold list-none flex items-center gap-2">
             <Icon name="ph:info" class="w-4 h-4 shrink-0" aria-hidden="true" />
             {{ L('Herramienta de apoyo, no consejo médico · SUV de los informes PET, imágenes reconstruidas de los DICOM', 'Support tool, not medical advice · SUVs from the PET reports, images reconstructed from the DICOM') }}
@@ -1576,16 +1576,16 @@ const ticks = [
                 </span>
                 <span class="text-right shrink-0">
                   <span class="font-display text-xl text-berenjena tabular-nums leading-none block">{{ suitabilityScore(le) }}</span>
-                  <span class="text-[8.5px] text-tinta uppercase tracking-wide">{{ L('idoneidad', 'suitability') }}</span>
+                  <span class="text-[10px] text-tinta uppercase tracking-wide">{{ L('idoneidad', 'suitability') }}</span>
                 </span>
               </div>
               <p class="text-[10.5px] text-tinta leading-snug mt-1.5">{{ L('orden', 'rank') }} {{ i + 1 }} · FDG {{ le.fdg != null ? le.fdg.toFixed(1) : '—' }} · Ga {{ le.dota != null ? le.dota.toFixed(1) : '—' }} · {{ morphShort(le) }}</p>
               <!-- aviso PROMINENTE si una biopsia ya falló aquí (no repetir el error de diana) -->
-              <div v-if="le.priorBiopsy" class="mt-2 rounded-card px-2 py-1 text-[9.5px] font-semibold leading-snug flex items-start gap-1" :style="{ background: '#f6d9b8', color: '#8a4a1a' }">
+              <div v-if="le.priorBiopsy" class="mt-2 rounded-card px-2 py-1 text-[10px] font-semibold leading-snug flex items-start gap-1" :style="{ background: '#f6d9b8', color: '#8a4a1a' }">
                 <span aria-hidden="true">⚑</span><span>{{ L('Aquí ya falló una biopsia (26B585): solo dio hueso y músculo', 'A biopsy already failed here (26B585): only bone and muscle') }}</span>
               </div>
               <div v-if="hasSoftTissue(le)" class="mt-1.5 flex flex-wrap gap-1">
-                <span class="pill-data !px-1.5 !py-0 !text-[9.5px]" :style="{ background: 'rgba(31,107,87,0.12)', color: '#1f6b57' }">{{ L('+ partes blandas (RMN)', '+ soft tissue (MRI)') }}</span>
+                <span class="pill-data !px-1.5 !py-0 !text-[10px]" :style="{ background: 'rgba(31,107,87,0.12)', color: '#1f6b57' }">{{ L('+ partes blandas (RMN)', '+ soft tissue (MRI)') }}</span>
               </div>
             </button>
           </div>
@@ -1856,11 +1856,11 @@ const ticks = [
                     :aria-label="`#${le.id} ${le.level[lang]} — ${phenoLabel(le)}`">
                     <span class="shrink-0 w-3 h-3 rounded-full" :style="{ background: phenoColor(le), boxShadow: sourceOf(le) === 'ia-david' ? '0 0 0 1.5px #fff, 0 0 0 3px ' + phenoColor(le) : 'none' }" aria-hidden="true" />
                     <span class="min-w-0 flex-1">
-                      <span class="flex items-center gap-1.5"><span class="text-[12px] font-semibold text-berenjena leading-tight truncate">{{ le.level[lang] }}</span><span class="font-mono text-[10px] text-tinta shrink-0">#{{ le.id }}</span><span v-if="coCount(le) > 1" class="pill-data pill-data--berenjena !text-[9.5px] !px-1.5 !py-0 shrink-0" role="img" :aria-label="coCount(le) + ' ' + L('focos co-localizados en esta vértebra', 'co-located foci in this vertebra')">{{ coCount(le) }}</span></span>
+                      <span class="flex items-center gap-1.5"><span class="text-[12px] font-semibold text-berenjena leading-tight truncate">{{ le.level[lang] }}</span><span class="font-mono text-[10px] text-tinta shrink-0">#{{ le.id }}</span><span v-if="coCount(le) > 1" class="pill-data pill-data--berenjena !text-[10px] !px-1.5 !py-0 shrink-0" role="img" :aria-label="coCount(le) + ' ' + L('focos co-localizados en esta vértebra', 'co-located foci in this vertebra')">{{ coCount(le) }}</span></span>
                       <span class="flex flex-wrap items-center gap-1 mt-0.5">
-                        <span v-if="le.dota != null" class="inline-flex items-center text-[9.5px] font-semibold leading-none px-1 py-0.5 rounded-full" style="background:#9d44ab1a;color:#7a3d86">⁶⁸Ga {{ le.dota.toFixed(1) }}</span>
-                        <span v-if="le.fdg != null" class="inline-flex items-center text-[9.5px] font-semibold leading-none px-1 py-0.5 rounded-full" style="background:#bb41281a;color:#bb4128">FDG {{ le.fdg.toFixed(1) }}</span>
-                        <span v-if="sourceOf(le) === 'ia-david'" class="text-[9px] text-tinta">{{ L('IA·conf.', 'AI·conf.') }}</span>
+                        <span v-if="le.dota != null" class="inline-flex items-center text-[10px] font-semibold leading-none px-1 py-0.5 rounded-full" style="background:#9d44ab1a;color:#7a3d86">⁶⁸Ga {{ le.dota.toFixed(1) }}</span>
+                        <span v-if="le.fdg != null" class="inline-flex items-center text-[10px] font-semibold leading-none px-1 py-0.5 rounded-full" style="background:#bb41281a;color:#bb4128">FDG {{ le.fdg.toFixed(1) }}</span>
+                        <span v-if="sourceOf(le) === 'ia-david'" class="text-[10px] text-tinta">{{ L('IA·conf.', 'AI·conf.') }}</span>
                       </span>
                     </span>
                     <span class="shrink-0 w-10 text-right" :aria-label="L('idoneidad ' + suitabilityScore(le) + ' sobre 100', 'suitability ' + suitabilityScore(le) + ' out of 100')">
@@ -1872,7 +1872,7 @@ const ticks = [
                   </button>
                 </li>
               </ul>
-              <p class="text-[9px] text-tinta leading-snug px-1.5 pt-1.5 mt-1 border-t border-[rgba(45,27,61,0.08)]">
+              <p class="text-[10px] text-tinta leading-snug px-1.5 pt-1.5 mt-1 border-t border-[rgba(45,27,61,0.08)]">
                 {{ L('Confirmados primero (por idoneidad), IA al final (anillo punteado). Color = trazador · ⁶⁸Ga receptor / FDG azúcar · nº = idoneidad orientativa. Describe, no concluye.', 'Confirmed first (by suitability), AI last (dashed ring). Colour = tracer · ⁶⁸Ga receptor / FDG sugar · nº = indicative suitability. Describes, does not conclude.') }}
               </p>
             </div>
@@ -1941,7 +1941,7 @@ const ticks = [
                   :aria-label="L('Idoneidad ' + suitabilityScore(sel) + ' sobre 100', 'Suitability ' + suitabilityScore(sel) + ' out of 100')">
                   <div class="h-full rounded-full" :style="{ width: suitabilityScore(sel) + '%', background: 'linear-gradient(90deg,#9d44ab,#df7a44)' }" />
                 </div>
-                <p class="text-[9.5px] text-tinta mt-1 leading-snug">{{ L('orientativa · viable × rendimiento × tamaño. Etiqueta por trazador/forma; describe, no concluye.', 'indicative · viable × yield × size. Labelled by tracer/shape; describes, does not conclude.') }}</p>
+                <p class="text-[10px] text-tinta mt-1 leading-snug">{{ L('orientativa · viable × rendimiento × tamaño. Etiqueta por trazador/forma; describe, no concluye.', 'indicative · viable × yield × size. Labelled by tracer/shape; describes, does not conclude.') }}</p>
               </div>
 
               <!-- barra «dos caras»: proporción receptor (violeta) ↔ azúcar (coral) -->
@@ -2484,7 +2484,7 @@ const ticks = [
                   </div>
                   <div class="text-right shrink-0">
                     <div class="font-display text-2xl text-berenjena tabular-nums leading-none">{{ suitabilityScore(le) }}</div>
-                    <div class="text-[9px] text-tinta uppercase tracking-wide">{{ L('idoneidad', 'suitability') }}</div>
+                    <div class="text-[10px] text-tinta uppercase tracking-wide">{{ L('idoneidad', 'suitability') }}</div>
                   </div>
                 </div>
                 <!-- los tres factores que componen el número (visibles, no solo el total) -->
@@ -2555,7 +2555,7 @@ const ticks = [
                     </div>
                     <div class="text-right shrink-0">
                       <div class="font-display text-2xl tabular-nums leading-none" :style="{ color: '#8a4a1a' }">{{ suitabilityScore(le) }}</div>
-                      <div class="text-[9px] uppercase tracking-wide" :style="{ color: '#8a4a1a' }">{{ L('idoneidad · s/c', 'suitability · n/c') }}</div>
+                      <div class="text-[10px] uppercase tracking-wide" :style="{ color: '#8a4a1a' }">{{ L('idoneidad · s/c', 'suitability · n/c') }}</div>
                     </div>
                   </div>
                   <!-- los MISMOS tres factores que un foco confirmado (visibles, no solo el total) -->
