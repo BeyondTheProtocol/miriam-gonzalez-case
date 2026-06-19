@@ -50,7 +50,7 @@
         />
         <button
           type="submit"
-          :disabled="sending || !consent || (turnstileEnabled && !turnstileToken)"
+          :disabled="sending || !consent || (turnstileEnabled && !turnstileToken && !captchaUnavailable)"
           class="btn-cta justify-center disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {{ sending ? $t('follow.sending') : $t('follow.cta') }}
@@ -61,9 +61,9 @@
         ref="turnstileRef"
         action="case-follow"
         class="mt-3"
-        @token="turnstileToken = $event"
+        @token="onCaptchaToken"
         @expired="turnstileToken = ''"
-        @error="turnstileToken = ''"
+        @error="onCaptchaError"
       />
 
       <label class="flex items-start gap-2.5 mt-3 text-xs text-tinta leading-relaxed cursor-pointer">
@@ -101,15 +101,27 @@ const sent = ref(false)
 const failed = ref(false)
 const captchaFailed = ref(false)
 const turnstileToken = ref('')
+// El widget no cargó/renderizó: no bloqueamos la suscripción por ello (honeypot
+// + antispam de Netlify hacen de red de seguridad).
+const captchaUnavailable = ref(false)
 const turnstileRef = ref<{ reset: () => void } | null>(null)
 const { enabled: turnstileEnabled, verifyToken } = useTurnstile()
+
+function onCaptchaToken(token: string) {
+  turnstileToken.value = token
+  captchaUnavailable.value = false
+}
+function onCaptchaError() {
+  turnstileToken.value = ''
+  captchaUnavailable.value = true
+}
 
 async function onSubmit(e: Event) {
   if (!consent.value) return // RGPD: sin consentimiento explícito, no se envía.
   captchaFailed.value = false
   failed.value = false
 
-  if (turnstileEnabled.value) {
+  if (turnstileEnabled.value && !captchaUnavailable.value) {
     if (!turnstileToken.value) {
       captchaFailed.value = true
       return
