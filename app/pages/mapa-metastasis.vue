@@ -653,6 +653,15 @@ function visible(le: Lesion): boolean {
   return le.pheno === filter.value
 }
 function pick(id: number) { selected.value = id }
+/* (ficha resumen) ir directo al DETALLE del comité de ese foco: selecciona + abre el
+   <details id="detalle-foco"> (que ya hace scroll). */
+function pickAndShowDetalle(id: number) { pick(id); openDetalle() }
+/* marca de diana en la ficha: ◆ cian (mismo color que el anillo del 3D) si es puncionable;
+   ⊘ gris si no procede como punto de punción (fémur de carga, epidural, IA o a validar). */
+function dianaMk(le: Lesion): { mk: string; color: string } {
+  const blocked = le.id === 16 || le.id === 7 || le.id === 15 || isAiDavid(le)
+  return blocked ? { mk: '⊘', color: '#6b6470' } : { mk: '◆', color: '#39c0e0' }
+}
 /* selección DESDE LA WIKI (Zona 2: idoneidad, fenotipo, tabla, enlaces): además de
    seleccionar, trae el visor/ficha (#mapa, Zona 1) a la vista — sin él, el único
    sitio donde el foco se ve en 3D queda fuera de pantalla y se rompe el bucle
@@ -1272,6 +1281,31 @@ function sizeFactor(le: Lesion): number {
 function suitabilityScore(le: Lesion): number {
   return Math.round(100 * viableFactor(le) * yieldFactor(le) * sizeFactor(le) * (le.sbrt ? 0.4 : 1))
 }
+/* (ficha resumen) «por qué» de UNA línea por foco — describe SEÑAL + FORMA, nunca
+   «tumor/viable». Bloqueantes primero; si no, captación + rendimiento. Equipa, no indica. */
+function whyOneLiner(le: Lesion): string {
+  if (le.priorBiopsy) return L('Aquí ya falló una biopsia (26B585): se muestreó hueso denso.', 'A biopsy already failed here (26B585): dense bone was sampled.')
+  if (le.id === 7) return L('La zona que rinde es epidural/canal — la seguridad la valora intervencionista.', 'The yielding zone is epidural/canal — safety judged by interventional radiology.')
+  if (le.id === 16) return L('Hueso de carga crítico: extraer cores conlleva riesgo de fractura.', 'Critical weight-bearing bone: taking cores carries fracture risk.')
+  if (isAiDavid(le)) return L('Detectado por IA, no consta en el informe — a validar antes.', 'AI-detected, not in the report — to validate first.')
+  if (le.id === 15) return L('Señal posiblemente contaminada (vejiga/intestino) — a correlacionar.', 'Signal possibly contaminated (bladder/bowel) — to correlate.')
+  if (le.sbrt) return L('En tratamiento con SBRT: tejido irradiado, menos representativo.', 'Under SBRT: irradiated tissue, less representative.')
+  const t = trend(le)?.dir
+  let cap: string
+  if (le.fdg != null && le.fdg >= 8) cap = L('Capta mucho azúcar (FDG)', 'Takes up a lot of sugar (FDG)')
+  else if (t === 'new') cap = L('Foco nuevo, capta azúcar', 'New focus, takes up sugar')
+  else if (t === 'up') cap = L('El azúcar va a más', 'Sugar is rising')
+  else if (le.dota != null && le.dota >= 10 && (le.fdg == null || le.fdg < le.dota)) cap = L('Máxima señal de receptor (Galio)', 'Top receptor signal (gallium)')
+  else if (le.fdg != null && le.dota == null) cap = L('Discordante: solo azúcar, sin receptor', 'Discordant: sugar only, no receptor')
+  else if (le.fdg != null && le.dota != null) cap = L('Señal mixta moderada', 'Moderate mixed signal')
+  else cap = L('Señal baja, solo receptor', 'Low signal, receptor only')
+  const m = morphCat(le)
+  const yld = m === 'lítica' ? L('hueso no denso, suele rendir tejido', 'non-dense bone, usually yields tissue')
+    : m === 'mixta' ? L('hueso mixto', 'mixed bone')
+    : m === 'blástica' ? L('hueso denso (blástico), suele rendir poco', 'dense (blastic) bone, usually low yield')
+    : L('forma por confirmar', 'shape to confirm')
+  return cap + ' · ' + yld + '.'
+}
 /* palabra corta de forma (para las mini-barras de rendimiento) */
 function morphShort(le: Lesion): string {
   const m = morphCat(le)
@@ -1289,6 +1323,9 @@ const rankedFoci = computed(() =>
 const aiCandidates = computed(() =>
   [...aiFoci.value].sort((a, b) => suitabilityScore(b) - suitabilityScore(a) || a.id - b.id),
 )
+/* (ficha resumen) los 19 ORDENADOS por idoneidad (confirmados primero, IA al final) para el
+   grid de fichas-resumen «de un vistazo». No se filtra (la galería nunca se filtra). */
+const fichaGrid = computed<Lesion[]>(() => [...rankedFoci.value, ...aiCandidates.value])
 /* lista plana para el MODO TABLA del navegador: confirmados por idoneidad,
    luego los de IA (por confirmar) al final. Reutiliza rankedFoci/aiCandidates. */
 const focusListItems = computed<Lesion[]>(() => [...rankedFoci.value, ...aiCandidates.value])
@@ -2861,7 +2898,7 @@ const ticks = [
             </p>
 
             <ul class="foco-key-grid" role="list">
-              <li v-for="le in keyGallery" :key="'gal-' + le.id" class="foco-key-cell">
+              <li v-for="le in fichaGrid" :key="'gal-' + le.id" class="foco-key-cell">
                 <!-- foco con imagen fiable → miniatura pulsable que abre el lightbox grande -->
                 <template v-if="focoKey(le).hasReliable">
                   <button
@@ -2913,6 +2950,18 @@ const ticks = [
                     <span class="foco-key-tile__suv" :style="{ color: keyTracerColor(le) }">{{ keyTracerLabel(le) }}</span>
                     <span class="foco-key-tile__confirm">{{ L('detectado por IA · sin círculo fiable · por confirmar', 'AI-detected · no reliable ring · to confirm') }}</span>
                   </span>
+                </div>
+
+                <!-- (ficha resumen · de un vistazo) idoneidad + diana + por qué + acción al detalle -->
+                <div class="mt-2 px-0.5">
+                  <div class="flex items-center gap-1.5 mb-1" :aria-label="L('idoneidad ' + suitabilityScore(le) + ' sobre 100', 'suitability ' + suitabilityScore(le) + ' out of 100')">
+                    <span class="eyebrow--sm shrink-0">{{ L('Idoneidad', 'Suitability') }}</span>
+                    <span class="flex-1 h-1.5 rounded-full bg-[rgba(45,27,61,0.08)] overflow-hidden"><span class="block h-full rounded-full" :style="{ width: suitabilityScore(le) + '%', background: 'linear-gradient(90deg,#9d44ab,#df7a44)' }" /></span>
+                    <span class="font-mono text-[11px] text-berenjena shrink-0">{{ suitabilityScore(le) }}</span>
+                  </div>
+                  <p class="text-[12px] text-tinta leading-snug"><span class="font-bold" :style="{ color: dianaMk(le).color }">{{ dianaMk(le).mk }}</span> <span class="font-semibold text-berenjena">{{ L('Diana', 'Target') }}:</span> {{ BIOPSY[le.id]?.zone[lang] }}</p>
+                  <p class="text-[12px] text-tinta leading-snug italic mt-0.5">«{{ whyOneLiner(le) }}»</p>
+                  <button type="button" class="link-action text-miriam font-semibold text-[12px] mt-1.5 inline-flex items-center gap-1" @click="pickAndShowDetalle(le.id)">{{ L('Ver en 3D · análisis del comité', 'See in 3D · committee analysis') }} <span aria-hidden="true">→</span></button>
                 </div>
               </li>
             </ul>
