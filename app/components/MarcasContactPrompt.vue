@@ -217,10 +217,10 @@ onBeforeUnmount(teardownTriggers)
   outline: none;
 }
 
-/* Móvil (<lg): en /marcas la barra de apoyo NO se monta (ahí no hay donación),
-   pero SÍ está el botón flotante del dossier (.m-print-btn, ~bottom 5.25rem).
-   Elevamos el pop-up por encima de él para que nunca se solapen. En desktop,
-   abajo a la derecha (bottom: 1rem del .mcp base). */
+/* Móvil (<lg): en /marcas la barra de apoyo de donación NO se monta (ahí no hay
+   donación), pero SÍ está MarcasActionBar —barra de acción del embudo de marca,
+   fija abajo a lo ancho (~6rem de alto)—. Elevamos el pop-up por encima de ella
+   para que nunca se solapen. En desktop, abajo a la derecha (bottom: 1rem base). */
 @media (max-width: 1023px) {
   .mcp {
     bottom: calc(8.75rem + env(safe-area-inset-bottom, 0px));

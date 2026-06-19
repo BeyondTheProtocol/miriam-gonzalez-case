@@ -847,8 +847,8 @@
     "meta_title": "Un escaparate a punto de despegar. Sube tu marca. — helpmiriam.com",
     "meta_description": "Soy ingeniera y divulgadora con un cáncer de mama ultra-raro: un perfil que no se repite y una historia con mucha atención por delante. No te pido un donativo; te propongo un partnership para convertir esa atención en ojos para tu marca. Benéfico, sí, pero también profesional, y lo trabajamos como tal.",
     "og_description": "Un escaparate a punto de despegar. Te propongo subir tu marca a esta historia —no un logo de un día— con una divulgadora tech que investiga su propio cáncer ultra-raro. Partnership profesional a largo plazo, con transparencia total.",
-    "print": "Dossier (PDF)",
-    "print_aria": "Descargar el dossier para marcas en PDF",
+    "bar_contact": "Hablemos de colaborar",
+    "bar_dossier": "Dossier (PDF)",
 
     "_comment_hero": "Header — pase de copy de Adri (18-jun, PREVALECE): H1 lidera con su imagen del «escaparate a punto de despegar» + llamada directa a la marca («Sube tu marca»). El encuadre partnership-no-donativo baja al hero_context. Registro DOSIER (sobrio, de igual a igual). Alternativas A y C, en el comentario de marcas.vue.",
     "hero_eyebrow": "// para marcas",

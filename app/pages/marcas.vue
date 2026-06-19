@@ -91,7 +91,7 @@
             </p>
 
             <div class="mt-8 flex flex-col sm:flex-row sm:items-center gap-4">
-              <NuxtLink :to="localePath('contacto')" class="btn-cta" style="text-decoration: none">
+              <NuxtLink :to="localePath('contacto')" class="btn-cta" style="text-decoration: none" data-marcas-contact>
                 {{ t('marcas.hero_cta') }}
               </NuxtLink>
               <a href="/dossier-marcas-deck.pdf" download class="link-action group font-mono text-sm text-cream">
@@ -362,7 +362,7 @@
              cierre natural de la sección, no como un CTA perdido. -->
         <div class="audiencia-cta-row">
           <p class="text-base text-berenjena leading-relaxed m-0 max-w-md">{{ t('marcas.audiencia_cta_line') }}</p>
-          <NuxtLink :to="localePath('contacto')" class="btn-cta shrink-0" style="text-decoration: none">
+          <NuxtLink :to="localePath('contacto')" class="btn-cta shrink-0" style="text-decoration: none" data-marcas-contact>
             {{ t('marcas.audiencia_cta') }}
           </NuxtLink>
         </div>
@@ -395,7 +395,7 @@
                cta_microcopy («benéfico/profesional») se retiró: ya vive en el
                hero (hero_context) y repetirlo re-justificaba el cierre. -->
           <div class="flex justify-center mb-6">
-            <NuxtLink :to="localePath('contacto')" class="btn-cta" style="text-decoration: none">
+            <NuxtLink :to="localePath('contacto')" class="btn-cta" style="text-decoration: none" data-marcas-contact>
               {{ t('marcas.cta_button') }}
             </NuxtLink>
           </div>
@@ -411,12 +411,13 @@
       </div>
     </section>
 
-    <!-- Botón flotante · descarga el dossier en PDF (oculto en impresión).
-         Icono de descarga = misma señal que los enlaces de dossier del cuerpo. -->
-    <a href="/dossier-marcas-deck.pdf" download class="m-print-btn no-print" style="text-decoration: none" :aria-label="t('marcas.print_aria')">
-      <Icon name="ph:download-simple" class="w-4 h-4 shrink-0" aria-hidden="true" />
-      {{ t('marcas.print') }}
-    </a>
+    <!-- Barra de acción móvil del embudo de marca (Comité Web · review de Adri):
+         sustituye al antiguo botón flotante de «solo dossier». Pone el CONTACTO a un
+         toque a cualquier altura (acción primaria coral) con el dossier de secundario
+         (enlace mono) — antes, entre el CTA del hero y el siguiente «contáctame» había
+         ~5 pantallas sin contacto a mano. Mismo chasis que MobileSupportBar; aparece al
+         entrar en «formas de colaborar» y se retira cerca del cierre. Solo <lg. -->
+    <MarcasActionBar />
 
     <!-- Pop-up de contacto SOLO en /marcas (sustituye aquí al aviso de donación) -->
     <MarcasContactPrompt />
@@ -779,51 +780,18 @@ export default { name: 'MarcasPage' }
   }
 }
 
-/* Botón flotante de descarga del dossier — sobre la barra de apoyo móvil (<lg).
-   Color = tokens del DS (berenjena/crema, vía @apply); el hover reutiliza el
-   mismo valor que .btn-dark:hover del DS (no hay utilidad Tailwind para ese
-   tono concreto). Layout fijo/pill: bespoke por necesidad (FAB). */
-.m-print-btn {
-  @apply bg-berenjena text-cream;
-  position: fixed;
-  right: 1rem;
-  bottom: calc(5.25rem + env(safe-area-inset-bottom, 0px));
-  z-index: 40;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
-  padding: 0.6rem 0.95rem;
-  border-radius: 999px;
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 12px;
-  letter-spacing: 0.04em;
-  box-shadow: 0 12px 28px -10px rgba(45, 27, 61, 0.6);
-  transition: transform 0.15s ease, background 0.2s ease;
-}
-.m-print-btn:hover {
-  background: #3d2752; /* = .btn-dark:hover (DS, main.css) */
-  transform: translateY(-2px);
-}
-@media (min-width: 1024px) {
-  .m-print-btn {
-    right: 1.5rem;
-    bottom: 1.5rem;
-  }
-}
-@media (prefers-reduced-motion: reduce) {
-  .m-print-btn:hover {
-    transform: none;
-  }
-}
+/* (El botón flotante de «solo dossier» .m-print-btn se retiró: lo sustituye
+   MarcasActionBar —barra de acción móvil del embudo de marca, Comité Web/Adri—,
+   con su propio chasis fijo y safe-area. La descarga del dossier sigue a un toque
+   ahí, como acción secundaria, además del hero y la dossier-row.) */
 
-/* Impresión: fuera la textura y la constelación decorativa y el botón; secciones
-   sin cortarse. (El cromo global —nav/footer/barra— ya lo oculta main.css.) */
+/* Impresión: fuera la textura, la constelación decorativa y la barra de acción;
+   secciones sin cortarse. (El cromo global —nav/footer/barra— ya lo oculta
+   main.css; .marcas-action-bar es de esta página, así que la ocultamos aquí.) */
 @media print {
-  .no-print {
-    display: none !important;
-  }
   .band-fx,
-  .cluster {
+  .cluster,
+  :deep(.marcas-action-bar) {
     display: none !important;
   }
   section {

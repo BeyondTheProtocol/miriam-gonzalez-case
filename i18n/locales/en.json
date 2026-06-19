@@ -847,8 +847,8 @@
     "meta_title": "A showcase about to take off. Bring your brand on. — helpmiriam.com",
     "meta_description": "I'm an engineer and creator with an ultra-rare breast cancer: a profile that doesn't come twice and a story with a lot of attention ahead. I'm not asking you for a donation; I'm proposing a partnership to turn that attention into eyes on your brand. Charitable, yes, but also professional, and we treat it as such.",
     "og_description": "A showcase about to take off. I'd like to bring your brand onto this story —not a one-day logo— with a tech creator researching her own ultra-rare cancer. A professional, long-term partnership, with full transparency.",
-    "print": "Dossier (PDF)",
-    "print_aria": "Download the brand dossier as PDF",
+    "bar_contact": "Let's talk partnership",
+    "bar_dossier": "Dossier (PDF)",
 
     "_comment_hero": "Header — Adri's copy pass (Jun 18, AUTHORITATIVE): H1 leads with her «showcase about to take off» image + a direct call to the brand («Bring your brand on»). The partnership-not-donation framing moves down to hero_context. DOSSIER register (sober, peer-to-peer). Alternatives A and C live in the marcas.vue comment.",
     "hero_eyebrow": "// for brands",
