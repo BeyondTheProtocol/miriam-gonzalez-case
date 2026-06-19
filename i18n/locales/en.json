@@ -844,158 +844,106 @@
     "links_signature": "— Miriam González's team · Beyond the Protocol"
   },
   "marcas": {
-    "meta_title": "Brands brave enough to co-create — helpmiriam.com",
-    "meta_description": "Real co-creation for brands: your brand inside the story of a tech creator researching her own ultra-rare cancer, before a ~248K community that acts.",
-    "og_description": "Real co-creation: your brand inside the story, not a logo on a banner. A ~248K community that moves money and mobilizes.",
-    "print": "↓ PDF Limited Edition",
-    "print_aria": "Download this dossier (deck) as PDF",
-    "hero_eyebrow": "// brand dossier",
-    "hero_title": "I don't offer you followers.{br}I offer you a {em}.",
-    "hero_title_em": "community that acts",
-    "hero_subtitle": "Real co-creation: your brand inside the story of a tech creator researching her own ultra-rare cancer, out in the open.",
-    "hero_tagline": "// brands brave enough to co-create",
+    "meta_title": "A showcase about to take off. Bring your brand on. — helpmiriam.com",
+    "meta_description": "I'm an engineer and creator with an ultra-rare breast cancer: a profile that doesn't come twice and a story with a lot of attention ahead. I'm not asking you for a donation; I'm proposing a partnership to turn that attention into eyes on your brand. Charitable, yes, but also professional, and we treat it as such.",
+    "og_description": "A showcase about to take off. I'd like to bring your brand onto this story —not a one-day logo— with a tech creator researching her own ultra-rare cancer. A professional, long-term partnership, with full transparency.",
+    "print": "Dossier (PDF)",
+    "print_aria": "Download the brand dossier as PDF",
+
+    "_comment_hero": "Header — Adri's copy pass (Jun 18, AUTHORITATIVE): H1 leads with her «showcase about to take off» image + a direct call to the brand («Bring your brand on»). The partnership-not-donation framing moves down to hero_context. DOSSIER register (sober, peer-to-peer). Alternatives A and C live in the marcas.vue comment.",
+    "hero_eyebrow": "// for brands",
+    "hero_title": "A showcase about to take off. {em}.",
+    "hero_title_em": "Bring your brand on",
+    "hero_subtitle": "I'm an engineer and creator with an ultra-rare breast cancer: a profile that doesn't come twice. Over the coming months this story is going to have a lot of eyes on it, and I'd like to bring your brand onto it —not a one-day logo, but a presence that's felt and that lasts— to turn that attention into eyes on your brand. With full transparency, start to finish.",
+    "hero_context": "And let me be clear from the start: I'm not asking you for a donation; I'm proposing a partnership. It's a charitable project, yes, but also a professional collaboration, and we treat it as such.",
+    "hero_cta": "Tell me what you do",
+    "hero_cta_dossier": "See the dossier (for your team)",
+    "hero_tagline": "// open to the right brands · there are people behind this, not an inbox",
     "hero_edition_label": "Edition prepared for:",
-    "hero_avatar_alt": "",
-    "historia_eyebrow": "// the story in 20 seconds",
-    "modelo_eyebrow": "// the model",
-    "historia_title": "A story {em}.",
-    "historia_title_em": "impossible to ignore",
-    "historia_p1": "Miriam González ({'@'}miriamgonp), {age} years old, a software engineer and tech creator. She has an {b1} metastatic breast cancer (BC-NED, <1% of cases) and uses {b2} to research her own tumor, documenting it in the open.",
-    "historia_p1_b1": "ultra-rare",
-    "historia_p1_b2": "AI + precision oncology",
-    "historia_p2": "Real scientific backing: {b1} analyzes her samples · {b2} assists with the biopsy · the chair of the {b3} has taken an interest in her case.",
-    "historia_p2_b1": "Dana-Farber (Harvard)",
-    "historia_p2_b2": "Zurich",
-    "historia_p2_b3": "world's most important precision-oncology committee (WIN)",
-    "historia_badges": [
-      "Dana-Farber · Harvard",
-      "Zurich Hospital",
-      "WIN Committee"
-    ],
-    "historia_foot": "Full clinical detail at {link}. Data as of June 2026.",
-    "historia_foot_link": "helpmiriam.com/science",
-    "numeros_eyebrow": "// the numbers (verifiable)",
-    "numeros_title": "An audience that moves {em}.",
-    "numeros_title_em": "and converts",
-    "numeros_stats": [
-      { "value": "~248K", "caption": "total multichannel audience" },
-      { "value": "8.8%", "caption": "engagement by reach (IG)" },
-      { "value": "453K", "caption": "accounts reached / month · 3.6× followers" },
-      { "value": "+1M", "caption": "views / month (IG)" },
-      { "value": "63%", "caption": "of interaction = NEW audience" },
-      { "value": "72.5%", "caption": "real audience (Modash · above average)" }
-    ],
-    "numeros_growth": "📈 {b1} · {b2} (editorial consistency). Not a stalled account: it's growing.",
-    "numeros_growth_b1": "+4,734 new followers in the last month",
-    "numeros_growth_b2": "34 posts/month",
-    "numeros_th_canal": "Channel",
-    "numeros_th_audiencia": "Audience",
-    "numeros_th_senal": "Signal",
-    "numeros_channels": [
-      { "canal": "Instagram", "audiencia": "126.5K", "senal": "453K reach/month · 8.8% eng." },
-      { "canal": "X / Twitter (verified)", "audiencia": "41.2K", "senal": "~140K impressions/week" },
-      { "canal": "LinkedIn", "audiencia": "40.6K", "senal": "🏆 LinkedIn Top Voices 2022" },
-      { "canal": "TikTok", "audiencia": "23.2K", "senal": "228.5K likes" },
-      { "canal": "YouTube", "audiencia": "17K", "senal": "technology/programming channel" }
-    ],
-    "numeros_foot": "Sources: Instagram Insights · X Analytics · Modash · public profiles. June 2026. Screenshots available on request.",
-    "demo_eyebrow": "// who's listening",
-    "demo_title": "An adult, professional and {em} audience.",
-    "demo_title_em": "consumer",
-    "demo_cards": [
+
+    "pilares_eyebrow": "// ways to collaborate",
+    "pilares_title": "Four ways to put your brand {em}.",
+    "pilares_title_em": "inside the story",
+    "pilares_intro": "The quickest to grasp, first. Four concrete ways to bring your brand in, designed so you can show them to your team as they are —if you have to pitch it to your boss, this is what you put in front of them— and pick the one that fits you best. They combine.",
+    "pilares_cards": [
       {
-        "title": "Instagram",
-        "lines": [
-          "Age: 25-44 = 73.5% (25-34: 44.7% · 35-44: 28.8%)",
-          "Gender: 65.9% men · 34.1% women",
-          "Geography: Spain and Latin America."
-        ]
+        "title": "Content co-creation",
+        "what": "We create native pieces together —reels, carousels, stories— that weave your product into a story people are already following.",
+        "gain": "Not an ad people skip: content the audience actually wants to see, with your brand inside."
       },
       {
-        "title": "X / Twitter",
-        "lines": [
-          "Geography: Spain 54% · Mexico 11% · Argentina 8%",
-          "Gender: 80.5% men (tech/professional profile)",
-          "Age: 25-44 (66%)"
-        ]
+        "title": "Product placement",
+        "what": "Your product, genuinely used and on camera, in my day to day (tech, travel/mobility, wellbeing).",
+        "gain": "Natural, credible presence, with no advertising script —genuinely seen, not read as an ad."
       },
       {
-        "title": "LinkedIn",
-        "lines": [
-          "Profile: professional and B2B — devs, engineering and decision-makers",
-          "Recognition: Top Voices 2022"
-        ]
+        "title": "Co-funded research",
+        "what": "«Research together with your brand»: you fund a concrete piece of the case —a test, a panel, a trip to Zurich— and we tell it with full transparency.",
+        "gain": "Your brand tied to real science and to an impact you can see and tell, not to a slogan."
+      },
+      {
+        "title": "Mentions and branding",
+        "what": "Your logo on my profile and on the website (with real traffic) and a «thanks to your brand» at the end of every post, podcast shout-out style.",
+        "gain": "A constant presence in every post, not a one-off impression forgotten the next day."
       }
     ],
-    "demo_eco": "It's not an audience, it's an {b1}: 5 platforms (~248K) that reinforce one another — Instagram (mass, global Hispanic), LinkedIn (B2B/decision-makers, Top Voices), X (tech), TikTok (discovery) and YouTube (the case's long-form documentary). One collaboration, several audiences and formats.",
-    "demo_eco_b1": "ecosystem",
-    "prueba_eyebrow": "// proof that my people act",
-    "prueba_title": "Not passive likes. {em}",
-    "prueba_title_em": "They move money and mobilize.",
-    "prueba_stats": [
-      { "value": "38.897 €", "caption": "raised (100K goal) · proof of conversion" },
-      { "value": "~1,000", "caption": "donors = own/warm audience" },
-      { "value": "3,845", "caption": "clicks/month to the bio link" }
+    "pilares_dossier_line": "Want it in writing to take to your team?",
+    "pilares_dossier_cta": "Download the dossier (PDF)",
+
+    "encajes_title": "Where your product fits",
+    "encajes_intro": "Where your product meets my real life, that's where the collaboration feels authentic. And if there's already a brand from your sector, there's still room: that's what mentions are for.",
+    "encajes_groups": [
+      {
+        "label": "Tech and health",
+        "tags": ["software and tools", "AI and data", "digital health", "wearables", "cybersecurity"]
+      },
+      {
+        "label": "Travel and mobility",
+        "tags": ["international hospitals", "flights", "fintech / currency exchange", "car / charging"]
+      },
+      {
+        "label": "Self-care, fashion and healthy food",
+        "tags": ["cosmetics and care", "comfortable fashion", "nutrition and healthy food", "wellbeing and rest"]
+      }
     ],
-    "prueba_carlos_title": "🎙️ Real case — «Carlos Roca / Episode 100» campaign",
-    "prueba_carlos_p": "She mobilized her community toward a concrete goal: the campaign reels added up to {b1} in a few days. Proof of {b2} — exactly what a brand wants to activate.",
-    "prueba_carlos_p_b1": "≈335,000 views",
-    "prueba_carlos_p_b2": "mobilization on demand",
-    "prueba_virals_title": "Viral content (last 3 months)",
-    "prueba_th_post": "Post",
-    "prueba_th_plays": "Views",
-    "prueba_origen_tag": "ORIGIN POST",
-    "prueba_virals": [
-      { "post": "X · «…Twitter, work your magic»", "plays": "1,000,000" },
-      { "post": "IG · Coliseo «Looking for help with an ultra-rare case»", "plays": "753,487" },
-      { "post": "IG · «SPREAD KINDNESS / age 35»", "plays": "430,022" },
-      { "post": "IG · «about technology and programming / it's NOW»", "plays": "249,321" },
-      { "post": "IG · collab «the tech community gifts me a Mac»", "plays": "189,110" },
-      { "post": "IG · carousel «Gallium-68 PET · my cancer has two engines»", "plays": "56,474" }
+
+    "audiencia_eyebrow": "// the eyes you'll have on you",
+    "audiencia_title": "The reach you {em}.",
+    "audiencia_title_em": "step into",
+    "audiencia_stats": [
+      { "value": "~248K", "caption": "multi-platform community" },
+      { "value": "+1M", "caption": "views / month (IG)" },
+      { "value": "72.5%", "caption": "verified real audience (Modash)" }
     ],
-    "prueba_linkedin_title": "🏆 LinkedIn — viral post (Top Voices 2022)",
-    "prueba_linkedin_quote": "«…metastatic breast cancer, the rarest 1%. They gave me 5 years, I'm already at 2. I don't sit still: I research my own tumor with AI and seek treatment with a team…»",
-    "prueba_linkedin_stats": "176,484 impressions · 2,291 reactions · 194 shares",
-    "ganas_eyebrow": "// what you gain",
-    "ganas_title": "Your brand {em}, not a logo on a banner.",
-    "ganas_title_em": "inside the story",
-    "ganas_cards": [
-      { "title": "Content co-creation", "desc": "reel / carousel / stories designed together, not ads slapped on." },
-      { "title": "Your brand in my open research", "desc": "presence in the case a whole community follows." },
-      { "title": "Product tested with no filters", "desc": "an honest review before an audience that trusts." },
-      { "title": "Challenges to my community and events", "desc": "I launch a challenge with your brand and my people mobilize; or I take you to your event (reel + stories)." }
-    ],
-    "ganas_fit": "{b1} where your product meets my real life — {b2} · {b3} (international hospitals, flights, fintech/currency exchange, car/charging) · {b4}. That's where the collaboration is authentic.",
-    "ganas_fit_b1": "Natural fits:",
-    "ganas_fit_b2": "tech and health",
-    "ganas_fit_b3": "travel and mobility",
-    "ganas_fit_b4": "self-care, fashion and healthy food",
-    "ganas_model": "The community donates, and I'm infinitely grateful 💜. To brands I propose something different: {b1}. {b2} collaboration by donation — your contribution funds the precision research and we co-create something memorable. {em} your sponsorship helps close the 100.000 € goal and funds the next molecular analysis.",
-    "ganas_model_b1": "co-create",
-    "ganas_model_b2": "Model:",
-    "ganas_model_em": "Hook:",
-    "partners_eyebrow": "// brands that already dared",
-    "partners_title": "You're not starting from scratch. {em}",
-    "partners_title_em": "There are already brands inside.",
+    "audiencia_frame": "I won't bury you in charts: the brands that reach out do it for the media angle and to join something real, not for the exact size of the audience. If you want the fine breakdown, it's in the dossier.",
+
+    "movilizan_title": "And when it counts, they show up",
+    "movilizan_p": "This isn't an audience that just watches: when I ask for something concrete, it responds. In a recent campaign, that «give me a hand» turned into {b}.",
+    "movilizan_proof": "≈335,000 actions mobilized",
+    "movilizan_caption": "A community that goes from scrolling to acting when it truly matters.",
+
+    "audiencia_partners_label": "Already on board",
     "partners": [
-      { "label": "Tahe", "url": "https://tahecosmetics.com" },
+      { "label": "Tahe Cosmetics", "url": "https://tahecosmetics.com" },
       { "label": "GitHub", "url": "https://github.com" },
       { "label": "Notion", "url": "https://www.notion.com" },
       { "label": "Never Surrender", "url": "https://neversurrenderf.org/" }
     ],
-    "partners_quotes": [
-      { "quote": "«Hi, Míriam! Check your DMs for a surprise. 🤍»", "author": "Notion ({'@'}NotionHQ), in public · 21.6K views" },
-      { "quote": "«It was a joy to spend this day with you and help you look even more like a goddess 💜🔥🔥»", "author": "Tahe ({'@'}taheoficial), verified partner brand · public comment" }
-    ],
-    "partners_press": "{b1} El País · La Opinión de Murcia · La 7.",
-    "partners_press_b1": "In the press:",
-    "cta_eyebrow": "// let's talk",
-    "cta_title": "Does your brand {em}?",
-    "cta_title_em": "dare",
-    "cta_p": "Real co-creation. The best deal you'll be offered this year.",
-    "cta_button": "Let's talk",
-    "cta_secondary": "{'@'}miriamgonp",
-    "cta_tagline": "Limited edition. No restock. Like me. 💜"
+    "partners_more": "…and more to come",
+    "audiencia_cta_line": "Can you see your brand in here? Write to me and we'll look at it together.",
+    "audiencia_cta": "A good fit?",
+
+    "cta_eyebrow": "// get in touch",
+    "cta_title": "A real partnership, {em}.",
+    "cta_title_em": "not a one-day logo",
+    "cta_p": "Tell me what you do and, if it makes sense for both of us, we'll build it together: a collaboration works when it adds up for your brand and for this project at once. This isn't a form that gets lost: there are people behind it and we reply for real.",
+    "cta_button": "Let's talk about your brand",
+    "cta_podcast": "And big initiatives are on the way to show everything behind this — the details are in the dossier.",
+
+    "popup_title": "Bring your brand onto this showcase?",
+    "popup_text": "This isn't an inbox that gets ignored: there are people behind it and we reply for real. Tell me who you are and we'll see how we fit.",
+    "popup_cta": "Tell me what you do",
+    "popup_dismiss": "Not now"
   },
   "expenses": {
     "title": "Where the money goes",
