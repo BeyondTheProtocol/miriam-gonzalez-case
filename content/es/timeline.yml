@@ -220,3 +220,14 @@ entries:
       de compresión medular es real. Se programa radioterapia SBRT de urgencia para reducir la
       lesión y proteger la médula.
     highlight: true
+
+  - date: '19 jun 2026'
+    tag: Divulgación
+    title: El mapa de metástasis se hace público
+    description: >
+      Miriam publica en abierto el mapa interactivo de sus metástasis: la herramienta que ayuda
+      a su equipo a entender el caso y a decidir, por ejemplo, dónde biopsiar. Ese mismo día
+      El Español cuenta su historia. Lo comparte en X con mucha ilusión.
+    highlight: true
+    link: https://x.com/miriamgonp/status/2068004136621109648
+    linkLabel: 'Ver el anuncio en X →'
