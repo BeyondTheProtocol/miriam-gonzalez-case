@@ -1269,6 +1269,67 @@ function pickStep(delta: number) {
   pick(list[ni].id)
 }
 const focoPos = computed(() => visibleFocusList.value.findIndex((l) => l.id === selected.value) + 1)
+
+/* ── (A · plan comité web) TOOLTIP de marcadores (esqueleto + scatter) ──────────────
+   UN solo popover compartido, clonado del mecanismo de Term.vue (Teleport a <body>,
+   posición fija con clamp al viewport + caret). El padre fija qué marcador está activo.
+   La info ya vive en el aria-label de cada marcador → el tooltip es solo ACELERADOR
+   visual (hover/focus); en táctil no se abre (gobierna el tap → selección + ficha). */
+const tipOpen = ref(false)
+const tipText = ref('')
+const tipPositioned = ref(false)
+const tipPlacement = ref<'top' | 'bottom'>('top')
+const tipCaretLeft = ref(16)
+const tipRef = ref<HTMLElement | null>(null)
+let tipAnchor: Element | null = null
+const tipStyle = reactive({ top: '0px', left: '0px', width: 'auto' })
+const canHoverFine = () => typeof window !== 'undefined' && window.matchMedia('(hover: hover)').matches
+function lesionTipText(le: Lesion): string {
+  const ga = le.dota != null ? `⁶⁸Ga ${le.dota.toFixed(1)}` : '⁶⁸Ga —'
+  const fdg = le.fdg != null ? `FDG ${le.fdg.toFixed(1)}` : 'FDG —'
+  const ai = sourceOf(le) === 'ia-david' ? ` · ${L('por confirmar', 'to confirm')}` : ''
+  return `${le.level[lang.value]} · ${ga} / ${fdg} · ${phenoLabel(le)}${ai}`
+}
+function groupTipText(g: LesGroup): string {
+  if (g.multi) return `${g.primary.level[lang.value]} · ${g.foci.length} ${L('focos', 'foci')}`
+  return lesionTipText(g.primary)
+}
+function positionTip() {
+  const pop = tipRef.value
+  if (!tipAnchor || !pop) return
+  const margin = 8
+  const r = tipAnchor.getBoundingClientRect()
+  const popW = Math.min(280, window.innerWidth - margin * 2)
+  tipStyle.width = `${popW}px`
+  const left = Math.max(margin, Math.min(r.left + r.width / 2 - popW / 2, window.innerWidth - popW - margin))
+  let top = r.top - pop.offsetHeight - 10
+  tipPlacement.value = 'top'
+  if (top < margin) { top = r.bottom + 10; tipPlacement.value = 'bottom' }
+  tipStyle.top = `${top}px`
+  tipStyle.left = `${left}px`
+  tipCaretLeft.value = Math.max(14, Math.min(r.left + r.width / 2 - left, popW - 14))
+  tipPositioned.value = true
+}
+async function showTip(e: Event, text: string) {
+  if (!text) return
+  tipAnchor = e.currentTarget as Element
+  tipText.value = text
+  tipOpen.value = true
+  tipPositioned.value = false
+  await nextTick()
+  positionTip()
+}
+function hideTip() { tipOpen.value = false; tipAnchor = null }
+watch(tipOpen, (o) => {
+  if (typeof window === 'undefined') return
+  if (o) { window.addEventListener('scroll', positionTip, true); window.addEventListener('resize', positionTip) }
+  else { window.removeEventListener('scroll', positionTip, true); window.removeEventListener('resize', positionTip) }
+})
+onBeforeUnmount(() => {
+  if (typeof window === 'undefined') return
+  window.removeEventListener('scroll', positionTip, true)
+  window.removeEventListener('resize', positionTip)
+})
 const suitMax = computed(() => Math.max(1, ...LES.map(suitabilityScore)))
 /* ancho 0-100% de una barra de factor (para las mini-barras inline) */
 function pct01(x: number): string { return (clamp01(x) * 100).toFixed(0) + '%' }
@@ -1677,7 +1738,8 @@ const ticks = [
                     class="cursor-pointer transition-all"
                     tabindex="0" role="button" :aria-pressed="gSelected(g)"
                     :aria-label="g.multi ? `${g.foci[0].level[lang]} — ${g.foci.length} ${L('focos', 'foci')}` : `${g.primary.level[lang]} — ${phenoLabel(g.primary)}`"
-                    @click="pickGroup(g)" @keydown.enter="pickGroup(g)" @keydown.space.prevent="pickGroup(g)" />
+                    @click="pickGroup(g)" @keydown.enter="pickGroup(g)" @keydown.space.prevent="pickGroup(g)"
+                    @mouseenter="canHoverFine() && showTip($event, groupTipText(g))" @mouseleave="hideTip" @focus="showTip($event, groupTipText(g))" @blur="hideTip" @keydown.escape="hideTip" />
                   <!-- foco único: id dentro; varios focos: insignia de recuento -->
                   <text v-if="!g.multi && gPresentAt(g, frame)" :x="g.x" :y="g.y + 3.5" text-anchor="middle"
                     font-family="Source Sans 3, sans-serif" font-size="10" font-weight="700" :fill="markerInk(g.primary)"
@@ -2583,7 +2645,8 @@ const ticks = [
                     :stroke-dasharray="sourceOf(d.le) === 'ia-david' ? '2 1.6' : undefined"
                     class="cursor-pointer transition-all" tabindex="0" role="button" :aria-pressed="selected === d.le.id"
                     :aria-label="`#${d.le.id} ${d.le.level[lang]} — Ga ${d.le.dota ?? '—'} / FDG ${d.le.fdg ?? '—'}`"
-                    @click="pickAndShow(d.le.id)" @keydown.enter="pickAndShow(d.le.id)" @keydown.space.prevent="pickAndShow(d.le.id)" />
+                    @click="pickAndShow(d.le.id)" @keydown.enter="pickAndShow(d.le.id)" @keydown.space.prevent="pickAndShow(d.le.id)"
+                    @mouseenter="canHoverFine() && showTip($event, lesionTipText(d.le))" @mouseleave="hideTip" @focus="showTip($event, lesionTipText(d.le))" @blur="hideTip" @keydown.escape="hideTip" />
                   <text :x="d.px" :y="d.py + 3" text-anchor="middle" font-family="Source Sans 3, sans-serif" :font-size="d.le.id > 9 ? 8.5 : 9.5" font-weight="700" :fill="markerInk(d.le)" class="pointer-events-none select-none">{{ d.le.id }}</text>
                 </g>
               </svg>
@@ -3102,6 +3165,19 @@ const ticks = [
           </div>
       </div>
     </section>
+
+    <!-- (A · plan comité web) TOOLTIP único de marcadores (esqueleto + scatter),
+         teletransportado a <body> para que NO lo recorte el overflow del navegador
+         sticky. La info ya está en el aria-label de cada marcador; esto solo la muestra
+         visualmente en hover/focus. -->
+    <Teleport to="body">
+      <div v-if="tipOpen && tipText" ref="tipRef" role="tooltip"
+        class="marker-tip" :class="['marker-tip--' + tipPlacement, { 'is-positioned': tipPositioned }]"
+        :style="tipStyle">
+        {{ tipText }}
+        <span class="marker-tip__caret" :style="{ left: tipCaretLeft + 'px' }" aria-hidden="true" />
+      </div>
+    </Teleport>
 
     <!-- ===== LIGHTBOX · IMAGEN CLAVE DEL FOCO (zoom/pan + toggle de plano) ===== -->
     <ClientOnly>
@@ -3925,5 +4001,40 @@ svg [role="button"]:focus-visible {
 @media (prefers-reduced-motion: reduce) {
   .seg__btn,
   .btn-expand3d { transition: none; }
+}
+/* (A · plan comité web) tooltip de marcadores (esqueleto + scatter), clon de Term.vue */
+.marker-tip {
+  position: fixed;
+  z-index: 60;
+  padding: 8px 11px;
+  border-radius: 10px;
+  background: #2d1b3d;
+  color: #faf6f0;
+  font-family: 'Source Sans 3', system-ui, sans-serif;
+  font-size: 12.5px;
+  line-height: 1.45;
+  white-space: normal;
+  pointer-events: none;
+  box-shadow: 0 14px 34px -12px rgba(45, 27, 61, 0.55);
+  opacity: 0;
+  transform: translateY(3px);
+  transition: opacity 0.16s ease, transform 0.16s ease;
+}
+.marker-tip.is-positioned { opacity: 1; transform: none; }
+.marker-tip__caret {
+  position: absolute;
+  width: 9px;
+  height: 9px;
+  margin-left: -4.5px;
+  background: #2d1b3d;
+  transform: rotate(45deg);
+}
+.marker-tip--top .marker-tip__caret { bottom: -4px; }
+.marker-tip--bottom .marker-tip__caret { top: -4px; }
+@media (prefers-reduced-motion: reduce) {
+  .marker-tip {
+    transition: none;
+    transform: none;
+  }
 }
 </style>
