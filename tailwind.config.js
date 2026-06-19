@@ -17,6 +17,7 @@ export default {
     'pill-data--positive',
     'pill-data--neutral',
     'pill-data--violet',
+    'pill-data--berenjena',
   ],
   theme: {
     extend: {

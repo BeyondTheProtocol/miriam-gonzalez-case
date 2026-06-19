@@ -629,6 +629,13 @@ function vertLevelKey(le: Lesion): string | null {
   return m ? m[1] : null
 }
 function groupKey(le: Lesion): string { return vertLevelKey(le) ?? 'solo-' + le.id }
+/* (multi-foco · plan web+DS) nº de focos que comparten VÉRTEBRA con `le` (D11 #7+#8,
+   L1 #9+#10). Solo vértebra (NO la malla 3D del ilíaco, que vive en el panel 3D).
+   Drive del chip «N focos» (pill-data--berenjena) para identificarlo en toda la herramienta. */
+function coCount(le: Lesion): number {
+  const k = groupKey(le)
+  return LES.filter((l) => groupKey(l) === k).length
+}
 const GROUPS: LesGroup[] = (() => {
   const m = new Map<string, Lesion[]>()
   LES.forEach((l) => { const k = groupKey(l); if (!m.has(k)) m.set(k, []); m.get(k)!.push(l) })
@@ -1565,6 +1572,7 @@ const ticks = [
                   <span class="w-3 h-3 shrink-0 rounded-full" :style="{ background: phenoColor(le), boxShadow: sourceOf(le) === 'ia-david' ? '0 0 0 1.5px #fff, 0 0 0 3px ' + phenoColor(le) : 'none' }" aria-hidden="true" />
                   <span class="font-semibold text-berenjena text-[13px] leading-tight truncate">{{ le.level[lang] }}</span>
                   <span class="font-mono text-[10px] text-tinta shrink-0">#{{ le.id }}</span>
+                  <span v-if="coCount(le) > 1" class="pill-data pill-data--berenjena text-[10px] !px-1.5 !py-0 shrink-0" role="img" :aria-label="coCount(le) + ' ' + L('focos co-localizados en esta vértebra', 'co-located foci in this vertebra')">{{ coCount(le) }} {{ L('focos', 'foci') }}</span>
                 </span>
                 <span class="text-right shrink-0">
                   <span class="font-display text-xl text-berenjena tabular-nums leading-none block">{{ suitabilityScore(le) }}</span>
@@ -1848,7 +1856,7 @@ const ticks = [
                     :aria-label="`#${le.id} ${le.level[lang]} — ${phenoLabel(le)}`">
                     <span class="shrink-0 w-3 h-3 rounded-full" :style="{ background: phenoColor(le), boxShadow: sourceOf(le) === 'ia-david' ? '0 0 0 1.5px #fff, 0 0 0 3px ' + phenoColor(le) : 'none' }" aria-hidden="true" />
                     <span class="min-w-0 flex-1">
-                      <span class="flex items-center gap-1.5"><span class="text-[12px] font-semibold text-berenjena leading-tight truncate">{{ le.level[lang] }}</span><span class="font-mono text-[10px] text-tinta shrink-0">#{{ le.id }}</span></span>
+                      <span class="flex items-center gap-1.5"><span class="text-[12px] font-semibold text-berenjena leading-tight truncate">{{ le.level[lang] }}</span><span class="font-mono text-[10px] text-tinta shrink-0">#{{ le.id }}</span><span v-if="coCount(le) > 1" class="pill-data pill-data--berenjena !text-[9.5px] !px-1.5 !py-0 shrink-0" role="img" :aria-label="coCount(le) + ' ' + L('focos co-localizados en esta vértebra', 'co-located foci in this vertebra')">{{ coCount(le) }}</span></span>
                       <span class="flex flex-wrap items-center gap-1 mt-0.5">
                         <span v-if="le.dota != null" class="inline-flex items-center text-[9.5px] font-semibold leading-none px-1 py-0.5 rounded-full" style="background:#9d44ab1a;color:#7a3d86">⁶⁸Ga {{ le.dota.toFixed(1) }}</span>
                         <span v-if="le.fdg != null" class="inline-flex items-center text-[9.5px] font-semibold leading-none px-1 py-0.5 rounded-full" style="background:#bb41281a;color:#bb4128">FDG {{ le.fdg.toFixed(1) }}</span>
@@ -1894,6 +1902,7 @@ const ticks = [
                   <div class="flex items-baseline gap-2 flex-wrap">
                     <h3 class="heading-display text-xl text-berenjena leading-tight">{{ sel.level[lang] }}</h3>
                     <span class="font-mono text-[12px] text-tinta">#{{ sel.id }}</span>
+                    <span v-if="coCount(sel) > 1" class="pill-data pill-data--berenjena text-[10px] !px-1.5 !py-0" role="img" :aria-label="coCount(sel) + ' ' + L('focos co-localizados en esta vértebra', 'co-located foci in this vertebra')">{{ coCount(sel) }} {{ L('focos', 'foci') }}</span>
                   </div>
                   <p class="text-xs text-tinta">{{ sel.region[lang] }} ·
                     {{ sel.side === 'R' ? L('lado derecho', 'right side') : sel.side === 'L' ? L('lado izquierdo', 'left side') : L('línea media', 'midline') }}</p>
