@@ -1439,7 +1439,10 @@ const ticks = [
 </script>
 
 <template>
-  <div>
+  <!-- overflow-x-clip: blinda el full-bleed de la zona wiki (calc(50%-50vw) puede asomar
+       ~½ barra de scroll en navegadores con scrollbar persistente). `clip` NO crea
+       contenedor de scroll → el sticky del rail sigue funcionando. -->
+  <div class="overflow-x-clip">
     <section class="section-spacing" aria-label="Mapa de metástasis">
       <!-- ANCHO CENTRADO (ya no full-bleed tipo wiki): el panel se centra en una
            columna ancha pero ACOTADA (max-w 1280px + mx-auto). En monitores grandes
