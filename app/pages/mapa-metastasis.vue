@@ -175,7 +175,7 @@ const LES: Lesion[] = [
     level: { es: 'L5 · cuerpo vertebral', en: 'L5 · vertebral body' },
     region: { es: 'Columna lumbar baja', en: 'Lower lumbar spine' },
     what: { es: 'Última vértebra lumbar, zona de mucha carga. Capta intensamente el receptor y algo de azúcar (estable). Predominio del receptor.', en: 'Last lumbar vertebra, a high-load zone. Intense receptor uptake plus some sugar (stable). Receptor-predominant.' },
-    tech: { es: 'DOTATOC SUVmáx 12.14 (SSTR intensa) / FDG 5.0 (previo 4.81, estable; re-medido sobre el DICOM ~+16%). Mixto, predominio SSTR (SSTR>FDG).', en: 'DOTATOC SUVmax 12.14 (intense SSTR) / FDG 5.0 (prior 4.81, stable; re-measured on the DICOM ~+16%). Mixed, SSTR-predominant (SSTR>FDG).' },
+    tech: { es: 'DOTATOC SUVmáx 12.14 (SSTR intensa) / FDG 5.0 (previo 4.81, estable; re-medido sobre el DICOM ~+16%). Mixto, predominio SSTR (SSTR>FDG). En tratamiento con SBRT (tejido tratado).', en: 'DOTATOC SUVmax 12.14 (intense SSTR) / FDG 5.0 (prior 4.81, stable; re-measured on the DICOM ~+16%). Mixed, SSTR-predominant (SSTR>FDG). Under SBRT treatment (treated tissue).' },
   },
   {
     id: 12, x: 205, y: 505, side: 'R', dota: 4.27, fdg: 4.34, prevFdg: 6.26, pheno: 'mixBal', size: '12 × 9',
@@ -200,7 +200,7 @@ const LES: Lesion[] = [
     level: { es: 'Ilíaco derecho supraacetabular', en: 'Right supra-acetabular iliac' },
     region: { es: 'Pelvis · techo de la cadera', en: 'Pelvis · hip roof' },
     what: { es: 'Justo encima de la cadera derecha (el “techo” donde encaja el fémur). El azúcar (FDG) se ha más que duplicado respecto al estudio previo. Es hueso de carga; Oncología Radioterápica ya lo revisó.', en: 'Just above the right hip (the “roof” where the femur sits). Sugar has more than doubled versus the prior study. It is weight-bearing bone; Radiation Oncology has already reviewed it.' },
-    tech: { es: 'DOTATOC 3.96 / FDG 9.33 (previo 4.0, claro ↑). Mixto, FDG>SSTR, hueso de carga. Revisado por Oncología Radioterápica.', en: 'DOTATOC 3.96 / FDG 9.33 (prior 4.0, clearly rising). Mixed, FDG>SSTR, weight-bearing bone. Reviewed by Radiation Oncology.' },
+    tech: { es: 'DOTATOC 3.96 / FDG 9.33 (previo 4.0, claro ↑). Mixto, FDG>SSTR, hueso de carga. en seguimiento por Oncología Radioterápica.', en: 'DOTATOC 3.96 / FDG 9.33 (prior 4.0, clearly rising). Mixed, FDG>SSTR, weight-bearing bone. under follow-up by Radiation Oncology.' },
   },
   {
     id: 15, x: 275, y: 585, side: 'L', dota: 2.54, fdg: 3.97, prevFdg: 1.93, pheno: 'mixAgg',
@@ -214,7 +214,7 @@ const LES: Lesion[] = [
     level: { es: 'Fémur proximal derecho', en: 'Right proximal femur' },
     region: { es: 'Cadera derecha', en: 'Right hip' },
     what: { es: 'Parte alta del fémur, en la cadera derecha. Es de las más ávidas de azúcar (FDG) y ha aumentado respecto al estudio previo. Está en un hueso que soporta el peso del cuerpo; Oncología Radioterápica ya lo revisó.', en: 'Upper femur, at the right hip. One of the most sugar-avid and has risen versus the prior study. It sits in a weight-bearing bone; Radiation Oncology has already reviewed it.' },
-    tech: { es: 'DOTATOC 5.09 / FDG 9.43 (previo 6.0, ↑). Mixto, FDG>SSTR, hueso de carga. Confirmada en corte axial PET-CT (foco intraóseo en cuello femoral). Revisado por Oncología Radioterápica.', en: 'DOTATOC 5.09 / FDG 9.43 (prior 6.0, ↑). Mixed, FDG>SSTR, weight-bearing bone. Confirmed on axial PET-CT (intra-osseous focus in the femoral neck). Reviewed by Radiation Oncology.' },
+    tech: { es: 'DOTATOC 5.09 / FDG 9.43 (previo 6.0, ↑). Mixto, FDG>SSTR, hueso de carga. Confirmada en corte axial PET-CT (foco intraóseo en cuello femoral). en seguimiento por Oncología Radioterápica.', en: 'DOTATOC 5.09 / FDG 9.43 (prior 6.0, ↑). Mixed, FDG>SSTR, weight-bearing bone. Confirmed on axial PET-CT (intra-osseous focus in the femoral neck). under follow-up by Radiation Oncology.' },
   },
   {
     id: 17, x: 182, y: 198, side: 'C', dota: 1.6, fdg: 4.8, pheno: 'mixAgg', size: '≤ 8', source: 'ia-david',
@@ -231,7 +231,7 @@ const LES: Lesion[] = [
     tech: { es: 'DOTATOC ~4.3 / FDG ~1.7 (aproximados, sobre los DICOM). SSTR+ / FDG bajo. No en informe oficial.', en: 'DOTATOC ~4.3 / FDG ~1.7 (approximate, on the DICOM). SSTR+ / low FDG. Not in the official report.' },
   },
   {
-    id: 19, x: 232, y: 150, side: 'C', dota: 4.8, fdg: 3.1, pheno: 'mixNe', size: '8–10', source: 'ia-david',
+    id: 19, x: 232, y: 150, side: 'C', dota: 4.2, fdg: 3.1, pheno: 'mixNe', size: '8–10', source: 'ia-david',
     level: { es: 'C7–D2 · transición cervicotorácica', en: 'C7–D2 · cervicothoracic junction' },
     region: { es: 'Transición cervicotorácica', en: 'Cervicothoracic junction' },
     what: { es: 'Foco óseo leve en la transición cervicotorácica (C7–D2), con captación débil de los dos trazadores. Baja intensidad, a correlacionar; el FDG en esta zona puede corresponder a captación cervical fisiológica. Detectado por IA, por confirmar; no está en el informe oficial.', en: 'Mild bone focus at the cervicothoracic junction (C7–D2), with weak uptake of both tracers. Low intensity, to be correlated; FDG here may reflect physiological cervical uptake. AI-detected, to confirm; not in the official report.' },
@@ -879,6 +879,13 @@ const counts = computed(() => ({
 /*  confirmar). Todo derivado del array LES; no añade interpretación.   */
 /* ------------------------------------------------------------------ */
 function isAiDavid(le: Lesion): boolean { return sourceOf(le) === 'ia-david' }
+/* (auditoría fidelidad) SUV honesto: los focos detectados por IA (#17/#18/#19) NO son
+   medibles con fiabilidad según la re-medición DICOM → se muestran como aproximación «~»
+   con 1 decimal, nunca con 2 (que sugieren una precisión cuantitativa que la fuente no da). */
+function fmtSuv(le: Lesion, v: number | null | undefined): string {
+  if (v == null) return '—'
+  return (isAiDavid(le) ? '~' : '') + v.toFixed(isAiDavid(le) ? 1 : 2)
+}
 const confirmedFoci = computed(() => LES.filter((l) => !isAiDavid(l)))
 const aiFoci = computed(() => LES.filter(isAiDavid))
 /* el foco seleccionado, ¿es uno detectado por IA (por confirmar)? — para el
@@ -1032,7 +1039,7 @@ function focusObservations(l: Lesion): { tone: string; es: string; en: string }[
   if (l.dota == null && l.fdg != null)
     out.push({ tone: 'warn', es: 'Discordante: capta azúcar (FDG) pero no receptor (Galio).', en: 'Discordant: sugar-avid (FDG) but no receptor (gallium).' })
   if (l.load)
-    out.push({ tone: 'neutral', es: 'Hueso de carga (soporta peso). Revisado por Oncología Radioterápica.', en: 'Weight-bearing bone. Reviewed by Radiation Oncology.' })
+    out.push({ tone: 'neutral', es: 'Hueso de carga (soporta peso). en seguimiento por Oncología Radioterápica.', en: 'Weight-bearing bone. under follow-up by Radiation Oncology.' })
   if (l.scler)
     out.push({ tone: 'neutral', es: 'Morfología blástica (hueso denso).', en: 'Blastic morphology (dense bone).' })
   if (sourceOf(l) === 'ia-david')
@@ -1061,7 +1068,7 @@ const AUTO: Record<number, { gaAuto: number | null; gaMtv: number | null; gaMorp
   8: { gaAuto: null, gaMtv: null, gaMorph: '', fdgAuto: null, fdgMtv: null, fdgTlg: null, fdgMorph: '' },
   9: { gaAuto: 3.64, gaMtv: 0.96, gaMorph: 'blástica', fdgAuto: null, fdgMtv: null, fdgTlg: null, fdgMorph: '' },
   10: { gaAuto: null, gaMtv: null, gaMorph: '', fdgAuto: 6.84, fdgMtv: 1.12, fdgTlg: 3.7, fdgMorph: 'blástica' },
-  11: { gaAuto: 12.06, gaMtv: 12.86, gaMorph: 'blástica', fdgAuto: 5.82, fdgMtv: 0.34, fdgTlg: 1.1, fdgMorph: 'blástica' },
+  11: { gaAuto: 12.07, gaMtv: 12.86, gaMorph: 'blástica', fdgAuto: 5.82, fdgMtv: 0.34, fdgTlg: 1.1, fdgMorph: 'blástica' },
   12: { gaAuto: 4.2, gaMtv: 0.83, gaMorph: 'blástica', fdgAuto: 4.66, fdgMtv: 0.4, fdgTlg: 1.3, fdgMorph: 'lítica/medular' },
   13: { gaAuto: 4.3, gaMtv: 0.7, gaMorph: 'mixta', fdgAuto: 7.71, fdgMtv: 3.0, fdgTlg: 12.5, fdgMorph: 'mixta' },
   14: { gaAuto: 3.93, gaMtv: 1.41, gaMorph: 'mixta', fdgAuto: 9.33, fdgMtv: 0.93, fdgTlg: 3.7, fdgMorph: 'blástica' },
@@ -1147,10 +1154,15 @@ function morphCat(le: Lesion): Morph | null {
   }
   const a = autoOf(le)
   push(a?.gaMorph); push(a?.fdgMorph)
+  // (auditoría fidelidad) si las DOS llamadas automáticas discrepan y NADA las confirma
+  // (sin scler ni informe/RMN), la "mixta" sería un artefacto de segmentación, no una
+  // forma establecida → se degrada a «s/c · por confirmar», no se afirma morfología.
+  const autoDiscordant = cats.size > 1
   if (le.scler) cats.add('blástica')
   if (cats.size === 0) return null
+  if (autoDiscordant && !le.scler) return null
   if (cats.size === 1) return [...cats][0]
-  return 'mixta'   // las dos pruebas ven forma distinta → mixta (honesto)
+  return 'mixta'   // confirmada (scler + otra forma) → mixta
 }
 function morphLabel(le: Lesion): string {
   const m = morphCat(le)
@@ -2051,11 +2063,11 @@ const ticks = [
               <div class="grid grid-cols-2 gap-2 mb-3">
                 <div class="rounded-card bg-cream-card px-2.5 py-1.5 border-l-4" :style="{ borderColor: '#9d44ab' }">
                   <p class="text-[10px] text-tinta leading-none">{{ L('Receptor ⁶⁸Ga', 'Receptor ⁶⁸Ga') }}</p>
-                  <p class="font-mono text-base leading-tight text-berenjena">{{ sel.dota != null ? sel.dota.toFixed(2) : '—' }}</p>
+                  <p class="font-mono text-base leading-tight text-berenjena">{{ fmtSuv(sel, sel.dota) }}</p>
                 </div>
                 <div class="rounded-card bg-cream-card px-2.5 py-1.5 border-l-4" :style="{ borderColor: '#bb4128' }">
                   <p class="text-[10px] text-tinta leading-none">{{ L('Azúcar FDG', 'Sugar FDG') }}</p>
-                  <p class="font-mono text-base leading-tight text-berenjena">{{ sel.fdg != null ? sel.fdg.toFixed(2) : '—' }}<span v-if="trend(sel)" class="text-[11px] ml-1" :style="deltaStyle(sel)">({{ deltaFdg(sel) }})</span></p>
+                  <p class="font-mono text-base leading-tight text-berenjena">{{ fmtSuv(sel, sel.fdg) }}<span v-if="trend(sel)" class="text-[11px] ml-1" :style="deltaStyle(sel)">({{ deltaFdg(sel) }})</span></p>
                 </div>
                 <div class="rounded-card bg-cream-card px-2.5 py-1.5 border-l-4" :style="{ borderColor: '#1f6b57' }">
                   <p class="text-[10px] text-tinta leading-none">{{ L('Forma (CT)', 'Shape (CT)') }}</p>
@@ -2097,7 +2109,7 @@ const ticks = [
                 <ClientOnly v-if="!bone3dFullscreen">
                   <BoneTriView
                     :mesh-key="bone3dKeyOf(sel)"
-                    :biopsied="bonePriorBiopsy != null"
+                    :biopsied="bonePriorBiopsy != null" :no-target="isAiDavid(sel)"
                     :biopsy-label="bonePriorBiopsy ?? undefined"
                   />
                   <template #fallback>
@@ -2207,8 +2219,8 @@ const ticks = [
                   <span class="font-mono text-berenjena">#{{ f.id }}</span>
                   <span class="text-tinta">{{ focusPart(f) }}</span>
                   <span class="text-tinta">·</span>
-                  <span :style="{ color: '#9d44ab' }">{{ L('receptor · ⁶⁸Ga', 'receptor · ⁶⁸Ga') }} <span class="font-mono">{{ f.dota != null ? f.dota.toFixed(2) : '—' }}</span></span>
-                  <span :style="{ color: '#bb4128' }">{{ L('azúcar · FDG', 'sugar · FDG') }} <span class="font-mono">{{ f.fdg != null ? f.fdg.toFixed(2) : '—' }}</span></span>
+                  <span :style="{ color: '#9d44ab' }">{{ L('receptor · ⁶⁸Ga', 'receptor · ⁶⁸Ga') }} <span class="font-mono">{{ fmtSuv(f, f.dota) }}</span></span>
+                  <span :style="{ color: '#bb4128' }">{{ L('azúcar · FDG', 'sugar · FDG') }} <span class="font-mono">{{ fmtSuv(f, f.fdg) }}</span></span>
                 </li>
               </ul>
               <p class="text-[10px] text-tinta mt-2 leading-relaxed">{{ L('El detalle ampliado de abajo corresponde al foco principal de la zona; el resto está en la tabla. Describe los hallazgos; no concluye.', 'The expanded detail below is for the area’s main focus; the rest is in the table. It describes the findings; it does not conclude.') }}</p>
@@ -2225,7 +2237,7 @@ const ticks = [
                   <div class="p-3 border-l-4" :style="{ borderColor: '#9d44ab' }">
                     <p class="text-[11px] font-semibold leading-tight" :style="{ color: '#9d44ab' }">{{ L('Receptor', 'Receptor') }} · ⁶⁸Ga-DOTATOC</p>
                     <p class="text-[10px] text-tinta mb-1.5">{{ L('el trazador del receptor (SSTR)', 'the receptor tracer (SSTR)') }}</p>
-                    <p class="font-mono text-lg leading-none text-berenjena">{{ sel.dota != null ? sel.dota.toFixed(2) : '—' }}</p>
+                    <p class="font-mono text-lg leading-none text-berenjena">{{ fmtSuv(sel, sel.dota) }}</p>
                     <p class="text-[11px] text-tinta mt-1">{{ sel.dota != null ? L('SUVmáx SSTR', 'SSTR SUVmax') : L('sin captación del receptor', 'no receptor uptake') }}</p>
                   </div>
                   <!-- 2 · Azúcar (FDG) -->
@@ -2233,7 +2245,7 @@ const ticks = [
                     <p class="text-[11px] font-semibold leading-tight" :style="{ color: '#bb4128' }">{{ L('Azúcar', 'Sugar') }} · ¹⁸F-FDG</p>
                     <p class="text-[10px] text-tinta mb-1.5">{{ L('el trazador del azúcar (glucosa)', 'the sugar tracer (glucose)') }}</p>
                     <p class="font-mono text-lg leading-none text-berenjena">
-                      {{ sel.fdg != null ? sel.fdg.toFixed(2) : '—' }}<span v-if="trend(sel)" class="text-[12px] ml-1" :style="deltaStyle(sel)">({{ deltaFdg(sel) }})</span>
+                      {{ fmtSuv(sel, sel.fdg) }}<span v-if="trend(sel)" class="text-[12px] ml-1" :style="deltaStyle(sel)">({{ deltaFdg(sel) }})</span>
                     </p>
                     <p class="text-[11px] text-tinta mt-1">{{ sel.fdg != null ? (trend(sel) ? L('SUVmáx · Δ vs previo', 'SUVmax · Δ vs prior') : L('SUVmáx', 'SUVmax')) : L('sin captación de azúcar', 'no sugar uptake') }}</p>
                   </div>
@@ -2352,7 +2364,7 @@ const ticks = [
                   <div class="rounded-card bg-cream px-3 py-2 border-l-4" :style="{ borderColor: '#bb4128' }">
                     <p class="text-[11px] font-semibold mb-1" :style="{ color: '#bb4128' }">¹⁸F-FDG · {{ L('azúcar', 'sugar') }}</p>
                     <div class="text-[12.5px] text-tinta leading-relaxed">
-                      <div>{{ L('Tabla', 'Table') }} <span class="font-mono text-berenjena font-semibold">{{ sel.fdg != null ? sel.fdg.toFixed(2) : '—' }}</span>
+                      <div>{{ L('Tabla', 'Table') }} <span class="font-mono text-berenjena font-semibold">{{ fmtSuv(sel, sel.fdg) }}</span>
                         <template v-if="selAuto?.fdgAuto != null"> · {{ L('auto', 'auto') }} <span class="font-mono">{{ selAuto?.fdgAuto?.toFixed(2) }}</span>
                           <span v-if="sel.fdg != null" class="font-semibold" :style="{ color: '#8a5a1a' }">{{ isAiDavid(sel) ? ' · IA' : (Math.abs((sel.fdg || 0) - (selAuto?.fdgAuto || 0)) < 0.6 ? ' ✓' : ' ≈') }}</span>
                         </template>
@@ -2363,7 +2375,7 @@ const ticks = [
                   <div class="rounded-card bg-cream px-3 py-2 border-l-4" :style="{ borderColor: '#9d44ab' }">
                     <p class="text-[11px] font-semibold mb-1" :style="{ color: '#9d44ab' }">⁶⁸Ga-DOTATOC · {{ L('receptor', 'receptor') }}</p>
                     <div class="text-[12.5px] text-tinta leading-relaxed">
-                      <div>{{ L('Tabla', 'Table') }} <span class="font-mono text-berenjena font-semibold">{{ sel.dota != null ? sel.dota.toFixed(2) : '—' }}</span>
+                      <div>{{ L('Tabla', 'Table') }} <span class="font-mono text-berenjena font-semibold">{{ fmtSuv(sel, sel.dota) }}</span>
                         <template v-if="selAuto?.gaAuto != null"> · {{ L('auto', 'auto') }} <span class="font-mono">{{ selAuto?.gaAuto?.toFixed(2) }}</span>
                           <span v-if="sel.dota != null" class="font-semibold" :style="{ color: isAiDavid(sel) ? '#8a5a1a' : (Math.abs((sel.dota || 0) - (selAuto?.gaAuto || 0)) < 1.2 ? '#1f5a3a' : '#8a5a1a') }">{{ isAiDavid(sel) ? ' · IA' : (Math.abs((sel.dota || 0) - (selAuto?.gaAuto || 0)) < 1.2 ? ' ✓' : ' ≈') }}</span>
                         </template>
@@ -3279,8 +3291,8 @@ const ticks = [
           <summary>{{ L('Fuentes y método', 'Sources and method') }}</summary>
           <p class="mt-3 text-xs text-tinta leading-relaxed font-mono">
             {{ L(
-              'SUV y localizaciones: informe PET-CT ¹⁸F-FDG 24/03/2026 e informe PET-CT ⁶⁸Ga-DOTATOC 26/05/2026 (Medicina Nuclear, H. Virgen de la Arrixaca). Imágenes PET: MIP, fusión sagital y cortes axiales reconstruidos a partir de los DICOM de ambos estudios (PET con corrección de atenuación + TC). Los SUV calculados desde los DICOM concuerdan con el informe dentro de ~10–12% (diferencia esperable entre voxel-máx y ROI). RMN: cortes sagitales de columna cervical y dorsal (secuencias STIR y T1) exportados de los DICOM de RM; se muestran solo para visualización y están pendientes de lectura radiológica formal.',
-              'SUV and locations: ¹⁸F-FDG PET-CT report 24/03/2026 and ⁶⁸Ga-DOTATOC PET-CT report 26/05/2026 (Nuclear Medicine, Virgen de la Arrixaca Hospital). PET images: MIP, sagittal fusion and axial slices reconstructed from the DICOM of both studies (attenuation-corrected PET + CT). SUVs computed from the DICOM agree with the report within ~10–12% (expected difference between voxel-max and ROI). MRI: sagittal slices of the cervical and thoracic spine (STIR and T1 sequences) exported from the MR DICOM; shown for visualization only and pending formal radiology reading.') }}
+              'SUV y localizaciones: informe PET-CT ¹⁸F-FDG 24/03/2026 e informe PET-CT ⁶⁸Ga-DOTATOC 26/05/2026 (Medicina Nuclear, H. Virgen de la Arrixaca). Imágenes PET: MIP, fusión sagital y cortes axiales reconstruidos a partir de los DICOM de ambos estudios (PET con corrección de atenuación + TC). Los SUV calculados desde los DICOM concuerdan con el informe dentro de ~10–12% (diferencia esperable entre voxel-máx y ROI). RMN: cortes sagitales de columna cervical y dorsal (secuencias STIR y T1) exportados de los DICOM de RM; se muestran solo para visualización y están pendientes de lectura radiológica formal. Ambos PET se administraron por reservorio (port-a-cath); si quedó actividad residual, todos los SUV podrían estar globalmente algo subestimados (no recalculable). No afecta a las comparaciones relativas entre focos.',
+              'SUV and locations: ¹⁸F-FDG PET-CT report 24/03/2026 and ⁶⁸Ga-DOTATOC PET-CT report 26/05/2026 (Nuclear Medicine, Virgen de la Arrixaca Hospital). PET images: MIP, sagittal fusion and axial slices reconstructed from the DICOM of both studies (attenuation-corrected PET + CT). SUVs computed from the DICOM agree with the report within ~10–12% (expected difference between voxel-max and ROI). MRI: sagittal slices of the cervical and thoracic spine (STIR and T1 sequences) exported from the MR DICOM; shown for visualization only and pending formal radiology reading. Both PET tracers were given via a port (port-a-cath); if residual activity remained, all SUVs could be slightly underestimated globally (not recalculable). This does not affect relative comparisons between foci.') }}
           </p>
         </details>
 
@@ -3464,7 +3476,7 @@ const ticks = [
             <div class="foco-key-lb__stage bone3d-lb__stage">
               <BoneTriView
                 :mesh-key="bone3dKeyOf(sel)"
-                :biopsied="bonePriorBiopsy != null"
+                :biopsied="bonePriorBiopsy != null" :no-target="isAiDavid(sel)"
                 :biopsy-label="bonePriorBiopsy ?? undefined"
               />
             </div>

@@ -46,6 +46,9 @@ const props = defineProps<{
      sobre el panel de densidad/blástico. OFF por defecto. */
   biopsied?: boolean
   biopsyLabel?: string
+  /* (auditoría fidelidad) foco IA montado sobre un hueso-PROXY (no es su hueso): NO dibujar
+     el anillo-diana, que marcaría la zona ávida de un hueso ajeno como si fuera su diana. */
+  noTarget?: boolean
 }>()
 const { locale } = useI18n()
 const L = (es: string, en: string) => (locale.value === 'en' ? en : es)
@@ -538,7 +541,7 @@ function disposeTargetMarker() {
 }
 function buildTargetMarker() {
   disposeTargetMarker()
-  if (!targetGroups.length || hotIndex < 0) return
+  if (props.noTarget || !targetGroups.length || hotIndex < 0) return
   for (let i = 0; i < 3; i++) {
     const geo = meshes[i]!.geometry
     const pos = geo.getAttribute('position') as THREE.BufferAttribute
@@ -683,6 +686,7 @@ watch(() => props.meshKey, (k) => {
 })
 watch(() => props.biopsied, (b) => { if (!b) { showBiopsy.value = false; buildBiopsyNeedle() } })
 watch(showBiopsy, () => { buildBiopsyNeedle() })
+watch(() => props.noTarget, () => buildTargetMarker())
 onBeforeUnmount(() => {
   cancelAnimationFrame(raf); ro?.disconnect()
   disposeBiopsyNeedle(); disposeTargetMarker(); disposeMeshes()
