@@ -526,48 +526,58 @@ const C_TIP_MK = '#c25a2b'     // marcador de la PUNTA (en hueso) · ámbar oscu
 let needleMats: THREE.Material[] = []
 let needleGeos: THREE.BufferGeometry[] = []
 /* ====================================================================== */
-/*  DIANA DE BIOPSIA ILUSTRATIVA — anillo sobre la ZONA ÁVIDA (pico de      */
-/*  captación) del foco. Petición de la paciente: ver la diana DIBUJADA.    */
-/*  HONESTO: la captación es un GRADIENTE sin borde neto; el anillo marca    */
-/*  la zona ávida APROXIMADA, no un contorno tumoral. Siempre visible.       */
+/*  SEÑAL DE LA ZONA DE MÁXIMA CAPTACIÓN (≈ dónde apuntaría la biopsia).    */
+/*  Petición: ver la diana DIBUJADA. HONESTO: la captación es un GRADIENTE  */
+/*  sin borde tumoral neto → NO es un contorno. Sprite «billboard» (siempre */
+/*  de frente a cámara → sin escorzo ni intersección con el hueso, el fallo */
+/*  del toro) con halo radial DIFUSO (el borde se desvanece = el gradiente) */
+/*  + retícula central fina que apunta al pico. Cian reservado a esta señal */
+/*  (la aguja de biopsia previa #13 va en ámbar: cada significado, su color).*/
 /* ====================================================================== */
-const C_TARGET = '#39c0e0'     // anillo cian · contrasta sobre cualquier captación
+const C_TARGET = '#39c0e0'
 let targetMats: THREE.Material[] = []
-let targetGeos: THREE.BufferGeometry[] = []
+let targetTex: THREE.Texture | null = null
+/* textura del marcador (1×, compartida por los 3 paneles): halo cian difuso + crosshair. */
+function makeTargetTexture(): THREE.Texture {
+  const s = 128, c = s / 2
+  const cv = document.createElement('canvas'); cv.width = s; cv.height = s
+  const ctx = cv.getContext('2d')!
+  // halo radial: centro translúcido → borde 100% transparente (sin perímetro = honesto)
+  const g = ctx.createRadialGradient(c, c, 0, c, c, c)
+  g.addColorStop(0, 'rgba(57,192,224,0.50)')
+  g.addColorStop(0.45, 'rgba(57,192,224,0.12)')
+  g.addColorStop(1, 'rgba(57,192,224,0)')
+  ctx.fillStyle = g; ctx.fillRect(0, 0, s, s)
+  // retícula: 4 trazos cortos con hueco central (apunta al pico, no encierra área)
+  ctx.strokeStyle = 'rgba(232,245,250,0.92)'; ctx.lineWidth = 3; ctx.lineCap = 'round'
+  const inner = s * 0.10, outer = s * 0.21
+  ;([[0, -1], [0, 1], [-1, 0], [1, 0]] as const).forEach(([dx, dy]) => {
+    ctx.beginPath(); ctx.moveTo(c + dx * inner, c + dy * inner); ctx.lineTo(c + dx * outer, c + dy * outer); ctx.stroke()
+  })
+  const tex = new THREE.CanvasTexture(cv); tex.needsUpdate = true; return tex
+}
 function disposeTargetMarker() {
   targetGroups.forEach((g) => g.clear())
   targetMats.forEach((m) => m.dispose()); targetMats = []
-  targetGeos.forEach((g) => g.dispose()); targetGeos = []
+  if (targetTex) { targetTex.dispose(); targetTex = null }
 }
 function buildTargetMarker() {
   disposeTargetMarker()
   if (props.noTarget || !targetGroups.length || hotIndex < 0) return
+  targetTex = makeTargetTexture()
   for (let i = 0; i < 3; i++) {
-    const geo = meshes[i]!.geometry
-    const pos = geo.getAttribute('position') as THREE.BufferAttribute
-    const nrm = geo.getAttribute('normal') as THREE.BufferAttribute | undefined
+    const pos = meshes[i]!.geometry.getAttribute('position') as THREE.BufferAttribute
     const peak = new THREE.Vector3(pos.getX(hotIndex), pos.getY(hotIndex), pos.getZ(hotIndex))
-    const normal = nrm
-      ? new THREE.Vector3(nrm.getX(hotIndex), nrm.getY(hotIndex), nrm.getZ(hotIndex)).normalize()
-      : peak.clone().normalize()
-    const ringR = boneRadius * 0.22
-    const tubeR = Math.max(0.5, boneRadius * 0.026)
-    const lift = peak.clone().addScaledVector(normal, boneRadius * 0.03)
-    const ringGeo = new THREE.TorusGeometry(ringR, tubeR, 10, 40); targetGeos.push(ringGeo)
-    const mat = new THREE.MeshStandardMaterial({
-      color: new THREE.Color(C_TARGET), emissive: new THREE.Color(C_TARGET), emissiveIntensity: 0.6,
-      roughness: 0.4, metalness: 0.1, toneMapped: true, transparent: true, opacity: 0.95,
-      depthTest: true, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -4, polygonOffsetUnits: -4,
+    const mat = new THREE.SpriteMaterial({
+      map: targetTex, color: 0xffffff, transparent: true,
+      depthTest: true, depthWrite: false, blending: THREE.NormalBlending, toneMapped: true,
     })
     targetMats.push(mat)
-    const ring = new THREE.Mesh(ringGeo, mat)
-    ring.position.copy(lift)
-    ring.quaternion.setFromUnitVectors(new THREE.Vector3(0, 0, 1), normal)
-    targetGroups[i]!.add(ring)
-    const dotGeo = new THREE.SphereGeometry(tubeR * 1.5, 14, 12); targetGeos.push(dotGeo)
-    const dot = new THREE.Mesh(dotGeo, mat)
-    dot.position.copy(lift)
-    targetGroups[i]!.add(dot)
+    const sprite = new THREE.Sprite(mat)
+    sprite.position.copy(peak)           // centrado en el pico; el billboard encara a cámara (sin escorzo)
+    sprite.scale.setScalar(boneRadius * 0.42)
+    sprite.renderOrder = 6               // tras el hueso (depthTest lo ocluye al rotar), bajo la aguja
+    targetGroups[i]!.add(sprite)
   }
 }
 function disposeBiopsyNeedle() {
