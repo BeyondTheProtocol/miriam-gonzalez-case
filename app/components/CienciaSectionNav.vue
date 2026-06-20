@@ -55,7 +55,7 @@ const chapters = computed(() =>
         { id: 'tejido-3veces', label: 'Anatomía patológica' },
         { id: 'molecular-profile-title', label: 'Perfil molecular' },
         { id: 'imaging-tissue-title', label: 'Imagen funcional' },
-        { id: 'mapa-metastasis-link', label: 'Mapa de metástasis' },
+        { id: 'mapa-acceso', label: 'Mapa de metástasis' },
         { id: 'panel-title', label: 'El siguiente paso' },
         { id: 'treatment-title', label: 'Historia clínica' },
       ]
@@ -64,7 +64,7 @@ const chapters = computed(() =>
         { id: 'tejido-3veces', label: 'Pathology' },
         { id: 'molecular-profile-title', label: 'Molecular profile' },
         { id: 'imaging-tissue-title', label: 'Functional imaging' },
-        { id: 'mapa-metastasis-link', label: 'Metastasis map' },
+        { id: 'mapa-acceso', label: 'Metastasis map' },
         { id: 'panel-title', label: 'The next step' },
         { id: 'treatment-title', label: 'Clinical history' },
       ]

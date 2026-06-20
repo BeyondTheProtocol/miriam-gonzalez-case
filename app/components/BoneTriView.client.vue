@@ -38,6 +38,7 @@ import * as THREE from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
 import { PLYLoader } from 'three/examples/jsm/loaders/PLYLoader.js'
 import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js'
+import { DecalGeometry } from 'three/examples/jsm/geometries/DecalGeometry.js'
 
 const props = defineProps<{
   meshKey?: string
@@ -46,6 +47,9 @@ const props = defineProps<{
      sobre el panel de densidad/blástico. OFF por defecto. */
   biopsied?: boolean
   biopsyLabel?: string
+  /* (auditoría fidelidad) foco IA montado sobre un hueso-PROXY (no es su hueso): NO dibujar
+     el anillo-diana, que marcaría la zona ávida de un hueso ajeno como si fuera su diana. */
+  noTarget?: boolean
 }>()
 const { locale } = useI18n()
 const L = (es: string, en: string) => (locale.value === 'en' ? en : es)
@@ -75,8 +79,8 @@ const PANELS: Panel[] = [
   },
   {
     id: 'fdg',
-    title: { es: 'FDG · azúcar', en: 'FDG · sugar' },
-    sub: { es: '¹⁸F-FDG (glucólisis)', en: '¹⁸F-FDG (glycolysis)' },
+    title: { es: 'FDG · glucólisis', en: 'FDG · glycolysis' },
+    sub: { es: '¹⁸F-FDG (SUVmáx)', en: '¹⁸F-FDG (SUVmax)' },
     unit: { es: 'SUV', en: 'SUV' },
     max: 9,
     legendFrom: '#e7e2d6',
@@ -100,6 +104,21 @@ const failed = ref(false)
 const noMesh = computed(() => !props.meshKey)
 const biopsyAvailable = computed(() => !!props.biopsied && !noMesh.value && !failed.value)
 const showBiopsy = ref(false)
+const showTarget = ref(true)   // ON por defecto: la diana es el VALOR del tool (los doctores la quieren ver al instante); sutil + etiquetada «orientativa, no indicación» + toggle para ocultarla → «equipa, no indica» sin esconder el valor. La aguja (#13, incidental) sigue OFF; defaults distintos por rol distinto.
+const targetAvailable = computed(() => !props.noTarget && !noMesh.value && !failed.value)
+
+/* MÓVIL · PESTAÑAS: en stacked (móvil estrecho) NO apilamos 3 huesos pequeños; mostramos
+   UN panel grande (el del trazador activo) a anchura completa + una fila de pestañas para
+   alternar trazador. La rotación/zoom es COMPARTIDA (misma cámara) → cambiar de pestaña
+   muestra el mismo encuadre con otro trazador (compara la discordancia alternando). */
+const activePanel = ref(0)
+function setActivePanel(i: number) {
+  if (i < 0 || i > 2 || i === activePanel.value) return
+  activePanel.value = i
+  // el panel único llena TODO el canvas → su aspecto = aspecto del canvas; re-encuadra
+  // conservando la orientación actual del orbit (no resetea la rotación del usuario).
+  if (sharedGeo) frameObject(FILL, true)
+}
 
 /* ---- three.js state (1 renderer / 3 scenes / 1 camera / 1 controls) ---- */
 let renderer: THREE.WebGLRenderer
@@ -111,6 +130,7 @@ const scenes: THREE.Scene[] = []
 const meshes: (THREE.Mesh | null)[] = [null, null, null]
 let sharedGeo: THREE.BufferGeometry | null = null
 let needleGroups: THREE.Group[] = []           // aguja de biopsia ILUSTRATIVA · una por panel (los 3)
+let targetGroups: THREE.Group[] = []           // diana ILUSTRATIVA (anillo zona ávida) · una por panel
 let raf = 0, ro: ResizeObserver | null = null
 let curKey = ''
 let boneRadius = 50
@@ -247,7 +267,9 @@ const stacked = ref(false)
 function cellSize(): { w: number; h: number } {
   if (!host.value) return { w: 1, h: 1 }
   const W = Math.max(1, host.value.clientWidth), H = Math.max(1, host.value.clientHeight)
-  return stacked.value ? { w: W, h: H / 3 } : { w: W / 3, h: H }
+  // móvil-pestañas (stacked): un solo panel grande llena TODO el canvas → la celda ES el
+  // canvas entero (no W×H/3). Escritorio: 3 celdas en fila → W/3 × H.
+  return stacked.value ? { w: W, h: H } : { w: W / 3, h: H }
 }
 function updateCameraAspect() {
   if (!camera) return
@@ -297,24 +319,39 @@ function init() {
    escena con la MISMA cámara → orientación y zoom compartidos automáticamente. */
 function renderScenes() {
   if (!renderer || !host.value) return
+  // PARPADEO de la diana CALCADA en la superficie (el bucle ya es continuo): la diana
+  // es un decal pegado al hueso (no se mueve), así que sólo «respira» en intensidad —
+  // opacidad + brillo emisivo sinusoidales → late de forma suave sin despegarse jamás.
+  if (targetDecals.length) {
+    const t = performance.now()
+    const breath = 0.5 + 0.5 * Math.sin(t * 0.0026)            // 0..1, ~2.4 s/ciclo
+    const op = 0.65 + 0.35 * breath                            // 0.65 → 1.0 (nunca tenue)
+    const emi = 0.85 + 0.45 * breath                           // 0.85 → 1.30 · coral VIVO
+    for (const m of targetMats) {
+      m.opacity = op
+      m.emissiveIntensity = emi
+    }
+  }
   const W = host.value.clientWidth, H = host.value.clientHeight
   // OJO: setViewport/setScissor reciben píxeles CSS — three.js los multiplica por el
   // pixelRatio INTERNAMENTE. Multiplicar aquí por dpr provocaba un escalado ×dpr² (en
   // pantallas retina dpr=2 → ×4): el viewport se salía y el hueso aparecía arriba/cortado.
   renderer.setScissorTest(true)
-  for (let i = 0; i < 3; i++) {
-    let x: number, y: number, w: number, h: number
-    if (stacked.value) {
-      // apilado vertical: fila 0 arriba. El origen de WebGL es abajo-izquierda → invertimos.
-      w = W; h = H / 3
-      x = 0; y = H - (i + 1) * h
-    } else {
-      w = W / 3; h = H
-      x = i * w; y = 0
+  if (stacked.value) {
+    // MÓVIL-PESTAÑAS: UN solo panel (el activo) ocupando TODO el canvas (viewport full-size).
+    // Cambiar de pestaña → mismo encuadre, otro trazador (las 3 escenas comparten cámara).
+    renderer.setViewport(0, 0, W, H)
+    renderer.setScissor(0, 0, W, H)
+    renderer.render(scenes[activePanel.value], camera)
+  } else {
+    // ESCRITORIO: 3 viewports en fila (intacto).
+    for (let i = 0; i < 3; i++) {
+      const w = W / 3, h = H
+      const x = i * w, y = 0
+      renderer.setViewport(x, y, w, h)
+      renderer.setScissor(x, y, w, h)
+      renderer.render(scenes[i], camera)
     }
-    renderer.setViewport(x, y, w, h)
-    renderer.setScissor(x, y, w, h)
-    renderer.render(scenes[i], camera)
   }
   renderer.setScissorTest(false)
 }
@@ -445,6 +482,7 @@ function load(key: string) {
         for (let i = 0; i < n; i++) { rgb[i * 3] = colAttr.getX(i); rgb[i * 3 + 1] = colAttr.getY(i); rgb[i * 3 + 2] = colAttr.getZ(i) }
         geo.setAttribute('color', new THREE.BufferAttribute(rgb, 3))
       }
+      disposeTargetMarker()   // libera el marcador anterior ANTES de descartar sus grupos/meshes
       disposeMeshes()
       disposeBiopsyNeedle()
       // RECENTRAR al CENTRO DE LA CAJA (bounding box), no al centro de la esfera: en
@@ -477,10 +515,15 @@ function load(key: string) {
       // aguja de biopsia ILUSTRATIVA · UNA POR PANEL: cuelga de cada malla (los 3),
       // así rota con cada hueso y se ve en Galio, FDG y densidad por igual.
       needleGroups = []
-      for (let i = 0; i < 3; i++) { const ng = new THREE.Group(); meshes[i]!.add(ng); needleGroups.push(ng) }
+      targetGroups = []
+      for (let i = 0; i < 3; i++) {
+        const ng = new THREE.Group(); meshes[i]!.add(ng); needleGroups.push(ng)
+        const tg = new THREE.Group(); meshes[i]!.add(tg); targetGroups.push(tg)
+      }
       updateCameraAspect()
       frameObject()
       buildBiopsyNeedle()
+      buildTargetMarker()
       loading.value = false
       // El contenedor usa aspect-ratio CSS: su ALTURA real puede asentarse DESPUÉS de este
       // primer encuadre (sobre todo en ventanas anchas) → el hueso quedaría grande/cortado.
@@ -516,6 +559,132 @@ const C_ENTRY = '#d98a2b'      // marcador de ENTRADA · ámbar
 const C_TIP_MK = '#c25a2b'     // marcador de la PUNTA (en hueso) · ámbar oscuro
 let needleMats: THREE.Material[] = []
 let needleGeos: THREE.BufferGeometry[] = []
+/* ====================================================================== */
+/*  SEÑAL DE LA ZONA DE MÁXIMA CAPTACIÓN (≈ dónde apuntaría la biopsia).    */
+/*  Petición LITERAL de la paciente: la diana DIBUJADA como TEXTURA, como   */
+/*  si el hueso tuviera una capa invisible por encima con la diana          */
+/*  «siguiendo» la superficie → al rotar NO se despega (los intentos v1–v4  */
+/*  con toro/sprite/baliza FLOTABAN: eran objetos SOBRE el hueso, no parte  */
+/*  de él). HONESTO: la captación es un GRADIENTE sin borde tumoral neto →  */
+/*  NO es un contorno; es un SÍMBOLO orientativo CALCADO en la superficie.  */
+/*                                                                          */
+/*  DISEÑO v5 «DIANA CALCADA» = THREE.DecalGeometry (solución A):           */
+/*   El decal se construye CLIPEANDO los TRIÁNGULOS REALES del hueso contra */
+/*   un proyector cúbico en el punto del pico, orientado por la normal. Sus */
+/*   vértices yacen SOBRE las caras del hueso → conforma la curvatura local */
+/*   y, al ser hijo de la malla en transform IDENTIDAD, gira CLAVADO con el */
+/*   hueso: imposible que se despegue, porque ES la superficie. La textura  */
+/*   (anillos de diana + cruceta) se pinta en canvas; depthTest:true → se   */
+/*   ocluye sola cuando el punto rota detrás (comportamiento de algo        */
+/*   pintado). polygonOffset evita z-fight con la cara que recubre. El      */
+/*   PARPADEO anima la opacidad/emisivo en el bucle continuo.               */
+/*  DS: aros coral #ff6b47 con borde malva #9d44ab de contraste, mate.      */
+/*  Se distingue de la aguja de biopsia (#13, ÁMBAR FIJA) por color y      */
+/*  parpadeo, y por SER superficie (la aguja es un objeto 3D montado).      */
+/* ====================================================================== */
+const C_TARGET_RING = '#9d44ab'   // miriam/malva · borde de contraste de la diana
+const C_TARGET_CORE = '#ff6b47'   // coral · aros de la diana (color de acción del DS)
+let targetMats: THREE.MeshStandardMaterial[] = [] // materiales del decal (uno por panel) — dispose
+let targetGeos: THREE.BufferGeometry[] = []       // geometrías de decal — dispose
+let targetDecalTex: THREE.Texture | null = null   // textura de la diana (anillos) compartida
+/* decales para el parpadeo (referencia a su material en renderScenes) */
+let targetDecals: THREE.Mesh[] = []
+
+/* textura de la DIANA (anillos concéntricos + cruceta) sobre fondo transparente, para
+   proyectarla como decal sobre la superficie. Aros CORAL con borde MALVA de contraste
+   (legible sobre hueso teal/ámbar/sepia). Honesto: símbolo orientativo, no contorno. */
+function makeTargetDecalTex(): THREE.Texture {
+  const s = 256, c = s / 2
+  const cv = document.createElement('canvas'); cv.width = s; cv.height = s
+  const ctx = cv.getContext('2d')!
+  ctx.clearRect(0, 0, s, s)
+  // PROFESIONAL (DS): foco luminoso coral MONOCROMO con VOLUMEN (gradiente interno tipo cuenta 3D)
+  // + halo suave alrededor. No dos colores planos (eso es lo «esquemático»). Relleno → fiable.
+  // 1) halo suave exterior (profundidad premium, borde difuso)
+  const halo = ctx.createRadialGradient(c, c, s * 0.20, c, c, s * 0.5)
+  halo.addColorStop(0, 'rgba(255,90,47,0.50)')
+  halo.addColorStop(1, 'rgba(255,90,47,0)')
+  ctx.fillStyle = halo; ctx.fillRect(0, 0, s, s)
+  // 2) núcleo coral sólido con gradiente interno desplazado (luz arriba-izq → cuenta con volumen)
+  const core = ctx.createRadialGradient(c - s * 0.05, c - s * 0.05, 0, c, c, s * 0.27)
+  core.addColorStop(0.00, 'rgba(255,152,120,1)')   // realce claro (volumen)
+  core.addColorStop(0.65, 'rgba(255,96,52,1)')
+  core.addColorStop(1.00, 'rgba(222,68,34,1)')      // borde más hondo (no plano)
+  ctx.fillStyle = core; ctx.beginPath(); ctx.arc(c, c, s * 0.27, 0, Math.PI * 2); ctx.fill()
+  const tex = new THREE.CanvasTexture(cv)
+  tex.colorSpace = THREE.SRGBColorSpace
+  tex.needsUpdate = true
+  return tex
+}
+function disposeTargetMarker() {
+  targetGroups.forEach((g) => g.clear())
+  targetMats.forEach((m) => m.dispose()); targetMats = []
+  targetGeos.forEach((g) => g.dispose()); targetGeos = []
+  if (targetDecalTex) { targetDecalTex.dispose(); targetDecalTex = null }
+  targetDecals = []
+}
+function buildTargetMarker() {
+  disposeTargetMarker()
+  if (props.noTarget || !showTarget.value || !targetGroups.length || hotIndex < 0) return
+  targetDecalTex = makeTargetDecalTex()
+  // tamaño del proyector del decal ~ 0.22·boneRadius (lado del cubo proyector); la
+  // profundidad (Z del proyector) algo mayor para que clipe bien la cara curva.
+  const half = boneRadius * 0.15   // SUTIL · marcador de punto discreto
+  const depth = boneRadius * 0.48  // suficiente para clipar la cara (el escorzo en cresta es correcto: redondo de frente)
+  const size = new THREE.Vector3(half * 2, half * 2, depth)
+  for (let i = 0; i < 3; i++) {
+    const mesh = meshes[i]
+    if (!mesh) continue
+    // DecalGeometry usa mesh.matrixWorld para la matriz de normales: asegúralo al día
+    // (el mesh está en transform IDENTIDAD → coords locales = mundo).
+    mesh.updateMatrixWorld(true)
+    const geo = mesh.geometry
+    const pos = geo.getAttribute('position') as THREE.BufferAttribute
+    const nrm = geo.getAttribute('normal') as THREE.BufferAttribute | undefined
+    const peak = new THREE.Vector3(pos.getX(hotIndex), pos.getY(hotIndex), pos.getZ(hotIndex))
+    const normal = (nrm
+      ? new THREE.Vector3(nrm.getX(hotIndex), nrm.getY(hotIndex), nrm.getZ(hotIndex))
+      : peak.clone()).normalize()
+
+    // orientación del proyector: su eje +Z mira HACIA AFUERA (a lo largo de la normal),
+    // así la cara texturizada del decal queda «de frente» sobre la superficie del hueso.
+    // El proyector se sitúa LIGERAMENTE por fuera del pico y proyecta hacia el hueso.
+    const m4 = new THREE.Matrix4()
+    const up = Math.abs(normal.y) > 0.95 ? new THREE.Vector3(1, 0, 0) : new THREE.Vector3(0, 1, 0)
+    // ojo a lo largo de la normal SOLO para orientar (−Z del decal mira al hueso)
+    m4.lookAt(peak.clone().addScaledVector(normal, depth), peak, up)
+    const orientation = new THREE.Euler().setFromRotationMatrix(m4)
+
+    // CAJA CENTRADA EN EL PICO (atraviesa la superficie ±depth/2) → captura el aro ENTERO.
+    // (antes se desplazaba hacia afuera y el centro/aro caían en su borde → «sonrisa» recortada).
+    const decalGeo = new DecalGeometry(mesh, peak, orientation, size)
+    targetGeos.push(decalGeo)
+
+    const mat = new THREE.MeshStandardMaterial({
+      map: targetDecalTex,                       // alpha del recorte (fondo transparente)
+      color: new THREE.Color(0x000000),          // sin difusa → el color lo da el emissive (vivo, no depende de luz)
+      emissive: new THREE.Color(0xffffff),
+      emissiveMap: targetDecalTex,               // emite los colores de la textura (coral/malva)
+      emissiveIntensity: 1.0,
+      transparent: true,
+      opacity: 1,
+      roughness: 1,
+      metalness: 0.0,
+      depthTest: true,        // se ocluye solo al rotar el punto detrás (es superficie)
+      depthWrite: false,      // capa pintada encima → no escribe profundidad (sin artefactos de orden)
+      polygonOffset: true,    // anti z-fight con la cara que recubre
+      polygonOffsetFactor: -4,
+      polygonOffsetUnits: -4,
+      toneMapped: false,      // SIN ACES → coral VIVO (no rosa/pálido)
+      side: THREE.FrontSide,
+    })
+    targetMats.push(mat)
+    const decal = new THREE.Mesh(decalGeo, mat)
+    decal.renderOrder = 6
+    targetGroups[i]!.add(decal)
+    targetDecals.push(decal)
+  }
+}
 function disposeBiopsyNeedle() {
   needleGroups.forEach((g) => g.clear())
   needleMats.forEach((m) => m.dispose()); needleMats = []
@@ -597,6 +766,7 @@ function buildBiopsyNeedle() {
   needleGroups.forEach((g, gi) => { for (const part of parts) g.add(gi === 0 ? part : part.clone()) })
 }
 function toggleBiopsy() { if (biopsyAvailable.value) showBiopsy.value = !showBiopsy.value }
+function toggleTarget() { if (targetAvailable.value) showTarget.value = !showTarget.value }
 
 /* ---------- ciclo de vida ---------- */
 /* APILA vertical sólo cuando 3 columnas no caben con holgura (≈ < 150 px/columna).
@@ -632,9 +802,11 @@ watch(() => props.meshKey, (k) => {
 })
 watch(() => props.biopsied, (b) => { if (!b) { showBiopsy.value = false; buildBiopsyNeedle() } })
 watch(showBiopsy, () => { buildBiopsyNeedle() })
+watch(showTarget, () => { buildTargetMarker() })
+watch(() => props.noTarget, () => buildTargetMarker())
 onBeforeUnmount(() => {
   cancelAnimationFrame(raf); ro?.disconnect()
-  disposeBiopsyNeedle(); disposeMeshes()
+  disposeBiopsyNeedle(); disposeTargetMarker(); disposeMeshes()
   pmrem?.dispose(); renderer?.dispose()
 })
 </script>
@@ -651,41 +823,70 @@ onBeforeUnmount(() => {
     </div>
 
     <template v-else>
-      <!-- TÍTULOS + LEYENDA por panel (encima del canvas; en escritorio 3 columnas,
-           en móvil apilado las 3 filas). Cada panel: título + escala 0→máx. -->
+      <!-- MÓVIL · PESTAÑAS de trazador (solo en stacked). UN panel grande + estas pestañas
+           para alternar Galio/FDG/Densidad sin scroll. Táctiles ≥44px, activa = berenjena
+           (DS miriam). aria tablist/tab/aria-selected. La rotación/zoom es compartida → al
+           cambiar de pestaña se ve el MISMO encuadre con el otro trazador. -->
       <div
-        class="btv-titles"
-        :class="failed ? 'btv-titles--hidden' : ''"
-        aria-hidden="false"
+        v-if="stacked"
+        class="btv-tabs"
+        role="tablist"
+        :aria-label="L('Trazador a mostrar', 'Tracer to show')"
       >
-        <div v-for="p in PANELS" :key="p.id" class="btv-title-cell">
-          <p class="btv-title">{{ L(p.title.es, p.title.en) }}</p>
-          <p class="btv-sub">{{ L(p.sub.es, p.sub.en) }}</p>
-          <div class="btv-legend">
-            <span class="btv-legend-min">0</span>
-            <span class="btv-legend-bar" :style="{ background: `linear-gradient(to right, ${p.legendFrom}, ${p.legendTo})` }" />
-            <span class="btv-legend-max">{{ p.max }}<span class="btv-legend-unit"> {{ L(p.unit.es, p.unit.en) }}</span></span>
-          </div>
-        </div>
+        <button
+          v-for="(p, i) in PANELS"
+          :key="p.id"
+          type="button"
+          class="btv-tab"
+          :class="{ 'is-active': activePanel === i }"
+          role="tab"
+          :aria-selected="activePanel === i"
+          @click="setActivePanel(i)"
+        >
+          <span class="btv-tab-title">{{ L(p.title.es, p.title.en) }}</span>
+          <span class="btv-tab-sub">{{ L(p.sub.es, p.sub.en) }}</span>
+        </button>
       </div>
 
-      <!-- CANVAS único · 3 viewports (setViewport+setScissor). Una cámara → giran juntos.
-           El aspecto cambia con el layout: fila ancha (3 celdas ~4:5) en escritorio,
-           columna alta (3 celdas apiladas) en móvil. -->
+      <!-- TÍTULOS + LEYENDA por panel (encima del canvas). ESCRITORIO: 3 columnas. MÓVIL
+           (pestañas): solo el panel ACTIVO (las pestañas ya dicen cuál es). Cada panel:
+           título + escala 0→máx. -->
+      <div
+        class="btv-titles"
+        :class="[failed ? 'btv-titles--hidden' : '', stacked ? 'btv-titles--single' : '']"
+        aria-hidden="false"
+      >
+        <template v-for="(p, i) in PANELS" :key="p.id">
+          <div v-if="!stacked || activePanel === i" class="btv-title-cell">
+            <p class="btv-title">{{ L(p.title.es, p.title.en) }}</p>
+            <p class="btv-sub">{{ L(p.sub.es, p.sub.en) }}</p>
+            <div class="btv-legend">
+              <span class="btv-legend-min">0</span>
+              <span class="btv-legend-bar" :style="{ background: `linear-gradient(to right, ${p.legendFrom}, ${p.legendTo})` }" />
+              <span class="btv-legend-max">{{ p.max }}<span class="btv-legend-unit"> {{ L(p.unit.es, p.unit.en) }}</span></span>
+            </div>
+          </div>
+        </template>
+      </div>
+
+      <!-- CANVAS único. ESCRITORIO: 3 viewports en fila (setViewport+setScissor), una cámara
+           → giran juntos. MÓVIL (pestañas): UN solo viewport full-size con el panel activo.
+           El aspecto del contenedor cambia con el layout. -->
+      <!-- ALTURA EN MÓVIL: antes 3 paneles apilados a aspect 5/12 (~860px: scroll excesivo,
+           3 huesos pequeños). Ahora UN panel grande cuadrado-ish (aspect 4/5): a ~358px de
+           ancho → ~448px de alto, un solo hueso grande y claro (~la mitad de antes). El
+           núcleo Three.js NO se toca: solo el dimensionado del contenedor responsive. -->
       <div
         class="relative w-full select-none"
-        :style="`aspect-ratio:${stacked ? '4/15' : '12/5'};background:#0d1117;border-radius:0.5rem;overflow:hidden`"
+        :style="`aspect-ratio:${stacked ? '4/5' : '12/5'};background:#0d1117;border-radius:0.5rem;overflow:hidden`"
       >
-        <div ref="host" role="img" :aria-label="L('Hueso en 3D · tres mapas del mismo hueso: captación del receptor (Galio), del azúcar (FDG) y forma (densidad del CT). Arrástralo para girar; la tabla y las imágenes clave son la alternativa textual.', '3D bone · three maps of the same bone: receptor (gallium) uptake, sugar (FDG) uptake and shape (CT density). Drag to rotate; the table and key images are the text alternative.')" class="absolute inset-0 cursor-grab active:cursor-grabbing" :style="failed ? 'opacity:0;pointer-events:none' : ''" />
+        <div ref="host" role="img" :aria-label="L('Hueso en 3D · tres mapas del mismo hueso: captación de receptores de somatostatina (⁶⁸Ga-DOTATOC), glucolítica (¹⁸F-FDG) y densidad (TC). Arrástralo para girar; la tabla y las imágenes clave son la alternativa textual.', '3D bone · three maps of the same bone: somatostatin-receptor (⁶⁸Ga-DOTATOC) uptake, glycolytic (¹⁸F-FDG) uptake and density (CT). Drag to rotate; the table and key images are the text alternative.')" class="absolute inset-0 cursor-grab active:cursor-grabbing" :style="failed ? 'opacity:0;pointer-events:none' : ''" />
 
-        <!-- separadores entre vistas (sólo decorativos; el canvas es único) -->
+        <!-- separadores entre vistas (sólo decorativos; el canvas es único). SOLO escritorio
+             (3 en fila); en móvil-pestañas hay UN solo panel → sin separadores. -->
         <template v-if="!failed && !stacked">
           <span class="btv-divider" style="left:33.333%" aria-hidden="true" />
           <span class="btv-divider" style="left:66.666%" aria-hidden="true" />
-        </template>
-        <template v-else-if="!failed">
-          <span class="btv-divider-h" style="top:33.333%" aria-hidden="true" />
-          <span class="btv-divider-h" style="top:66.666%" aria-hidden="true" />
         </template>
 
         <!-- botón de reencuadre ⟲ -->
@@ -698,21 +899,39 @@ onBeforeUnmount(() => {
           @click="reframe"
         >⟲</button>
 
-        <!-- TOGGLE de la aguja de biopsia ILUSTRATIVA (#13). OFF por defecto; dibuja
-             la aguja sobre el panel de densidad/blástico. -->
-        <button
-          v-if="biopsyAvailable"
-          type="button"
-          class="btv-biopsy-toggle"
-          :class="{ 'is-on': showBiopsy }"
-          :aria-pressed="showBiopsy"
-          @click="toggleBiopsy"
-        >
-          <span class="btv-biopsy-dot" aria-hidden="true" />
-          {{ showBiopsy
-            ? L('Ocultar la biopsia previa', 'Hide prior biopsy')
-            : L('Ver la biopsia previa (' + (biopsyLabel || '26B585') + ')', 'Show prior biopsy (' + (biopsyLabel || '26B585') + ')') }}
-        </button>
+        <!-- TOGGLES dentro del visor (abajo-izquierda, columna): la DIANA orientativa y la
+             AGUJA de biopsia. AMBOS OFF por defecto y mismo patrón aditivo (un botón para VER,
+             y al activarlo aparece su rótulo aditivo debajo del visor; nunca ocultan texto). -->
+        <div v-if="!failed && (targetAvailable || biopsyAvailable)" class="btv-toggles">
+          <!-- DIANA orientativa (punto coral) -->
+          <button
+            v-if="targetAvailable"
+            type="button"
+            class="btv-target-toggle"
+            :class="{ 'is-on': showTarget }"
+            :aria-pressed="showTarget"
+            @click="toggleTarget"
+          >
+            <span class="btv-target-dot" aria-hidden="true" />
+            {{ showTarget
+              ? L('Ocultar la diana orientativa', 'Hide orientative target')
+              : L('Ver la diana orientativa', 'Show orientative target') }}
+          </button>
+          <!-- AGUJA de biopsia ILUSTRATIVA (#13): dibuja la aguja sobre el panel de densidad. -->
+          <button
+            v-if="biopsyAvailable"
+            type="button"
+            class="btv-biopsy-toggle"
+            :class="{ 'is-on': showBiopsy }"
+            :aria-pressed="showBiopsy"
+            @click="toggleBiopsy"
+          >
+            <span class="btv-biopsy-dot" aria-hidden="true" />
+            {{ showBiopsy
+              ? L('Ocultar la biopsia previa', 'Hide prior biopsy')
+              : L('Ver la biopsia previa (' + (biopsyLabel || '26B585') + ')', 'Show prior biopsy (' + (biopsyLabel || '26B585') + ')') }}
+          </button>
+        </div>
 
         <!-- cargando -->
         <div v-if="loading && !failed" class="absolute inset-0 flex flex-col items-center justify-center gap-2 pointer-events-none">
@@ -737,7 +956,9 @@ onBeforeUnmount(() => {
         <p class="btv-cap">
           {{ failed
             ? L('Reconstrucción del CT · vista estática', 'Reconstruction from the CT · static view')
-            : L('Arrastra para girar · rueda para acercar · las 3 vistas a la vez', 'Drag to rotate · scroll to zoom · all 3 views at once') }}
+            : stacked
+              ? L('Arrastra para girar · rueda para acercar · cambia de trazador con las pestañas (mismo encuadre)', 'Drag to rotate · scroll to zoom · switch tracer with the tabs (same framing)')
+              : L('Arrastra para girar · rueda para acercar · las 3 vistas a la vez', 'Drag to rotate · scroll to zoom · all 3 views at once') }}
         </p>
 
         <!-- HONESTIDAD REUBICADA · desplegable SUTIL, PLEGADO por defecto. La info
@@ -747,6 +968,18 @@ onBeforeUnmount(() => {
              en vez de un <details> de clic-para-ver. La info queda en el aria-label de Term. -->
         <Term v-if="!failed" id="lectura_mapa3d" :label="L('ⓘ Cómo se lee el mapa', 'ⓘ How to read the map')" />
       </div>
+
+      <!-- RÓTULO HONESTO de la DIANA orientativa (ADITIVO · sólo con el toggle activo).
+           Clon del rótulo de la aguja: aparece, nunca oculta. Texto actualizado a la forma
+           real del marcador (FOCO coral con volumen calcado en la superficie, ya no un «aro»). -->
+      <p v-if="targetAvailable && showTarget" class="btv-target-cap">
+        <span class="btv-target-cap-head">
+          <span class="btv-target-cap-dot" aria-hidden="true" />
+          {{ L('Diana orientativa', 'Orientative target') }}
+        </span>
+        {{ L('Foco coral parpadeante calcado SOBRE el hueso (sigue su superficie) · zona de máxima captación (≈ dónde apuntaría la biopsia) — una opción, no una indicación.',
+             'Blinking coral focus printed ONTO the bone (following its surface) · peak-uptake zone (≈ where the biopsy would aim) — an option, not an instruction.') }}
+      </p>
 
       <!-- RÓTULO HONESTO de la aguja ILUSTRATIVA (sólo con el toggle activo) -->
       <p v-if="biopsyAvailable && showBiopsy" class="btv-biopsy-cap">
@@ -774,8 +1007,59 @@ onBeforeUnmount(() => {
   margin-bottom: 8px;
 }
 .btv-titles--hidden { opacity: 0.45; }
+/* MÓVIL-PESTAÑAS: un solo título/leyenda (el del panel activo) → una columna a ancho completo. */
+.btv-titles--single { grid-template-columns: 1fr; }
 @media (max-width: 639px) {
-  .btv-titles { grid-template-columns: 1fr; gap: 4px; }
+  .btv-titles:not(.btv-titles--single) { grid-template-columns: 1fr; gap: 4px; }
+}
+
+/* ---- PESTAÑAS de trazador (solo MÓVIL · stacked) ----
+   Fila de 3 pestañas táctiles (≥44px) para alternar Galio/FDG/Densidad sobre el panel único.
+   Activa = berenjena/miriam (DS): fondo malva, texto claro. Inactivas: chip neutro legible. */
+.btv-tabs {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+  margin-bottom: 8px;
+}
+.btv-tab {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 1px;
+  min-height: 44px;
+  padding: 6px 9px;
+  border-radius: 9px;
+  border: 1px solid rgba(45, 27, 61, 0.18);
+  background: #f3eef7;
+  color: #6b6275;
+  cursor: pointer;
+  text-align: left;
+  line-height: 1.15;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+.btv-tab:hover { background: #ece4f2; border-color: rgba(45, 27, 61, 0.32); }
+.btv-tab:focus-visible { outline: 2px solid #6d2b7d; outline-offset: 2px; }
+.btv-tab.is-active {
+  background: #6d2b7d;            /* berenjena · DS miriam */
+  border-color: #6d2b7d;
+  color: #fdf7ff;
+  box-shadow: 0 1px 5px rgba(45, 27, 61, 0.28);
+}
+.btv-tab-title {
+  font-size: 12px;
+  font-weight: 700;
+  color: inherit;
+}
+.btv-tab-sub {
+  font-size: 9.5px;
+  color: inherit;
+  opacity: 0.75;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
 }
 .btv-title-cell { min-width: 0; }
 .btv-title {
@@ -821,16 +1105,6 @@ onBeforeUnmount(() => {
   pointer-events: none;
   z-index: 1;
 }
-.btv-divider-h {
-  position: absolute;
-  left: 0;
-  right: 0;
-  height: 1px;
-  background: rgba(174, 182, 194, 0.22);
-  pointer-events: none;
-  z-index: 1;
-}
-
 .btv-spin {
   width: 26px;
   height: 26px;
@@ -863,12 +1137,53 @@ onBeforeUnmount(() => {
 .btv-reframe:hover { background: rgba(30, 37, 48, 0.92); border-color: rgba(174, 182, 194, 0.5); }
 .btv-reframe:focus-visible { outline: 2px solid #1c969e; outline-offset: 2px; }
 
-/* toggle de la aguja de biopsia ILUSTRATIVA — abajo-izquierda */
-.btv-biopsy-toggle {
+/* TOGGLES dentro del visor (abajo-izquierda, columna). Ambos botones (diana + aguja)
+   comparten zona y estilo de overlay: misma anchura de chip, sin solaparse, por encima
+   del canvas pero sin tapar el botón de reencuadre (arriba-derecha). */
+.btv-toggles {
   position: absolute;
   left: 8px;
   bottom: 8px;
   z-index: 2;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  align-items: flex-start;
+}
+
+/* Toggle de la DIANA orientativa — overlay (mismo patrón que la aguja), punto coral.
+   DS: borde malva/coral sobre placa oscura translúcida, legible sobre el canvas #0d1117. */
+.btv-target-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 107, 71, 0.55);
+  background: rgba(13, 17, 23, 0.72);
+  color: #f1b9a6;
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+.btv-target-toggle:hover { background: rgba(30, 37, 48, 0.92); border-color: rgba(255, 107, 71, 0.85); }
+.btv-target-toggle:focus-visible { outline: 2px solid #ff6b47; outline-offset: 2px; }
+.btv-target-toggle.is-on { background: rgba(255, 107, 71, 0.18); border-color: rgba(255, 107, 71, 0.95); color: #ffcabb; }
+.btv-target-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  border: 2px solid #ff6b47;
+  box-shadow: 0 0 0 1.5px rgba(157, 68, 171, 0.4);
+  background: transparent;
+}
+.btv-target-toggle.is-on .btv-target-dot { background: #ff6b47; }
+
+/* Toggle de la aguja de biopsia ILUSTRATIVA — mismo overlay (la posición la da .btv-toggles). */
+.btv-biopsy-toggle {
   display: inline-flex;
   align-items: center;
   gap: 6px;
@@ -925,6 +1240,37 @@ onBeforeUnmount(() => {
 .btv-biopsy-key { display: inline-flex; align-items: center; gap: 5px; margin-left: 2px; }
 .btv-biopsy-mk { display: inline-block; width: 8px; height: 8px; border-radius: 50%; }
 
+/* rótulo honesto de la DIANA orientativa (ADITIVO · clon del de la aguja, tono coral/malva) */
+.btv-target-cap {
+  font-size: 10px;
+  text-align: left;
+  margin-top: 6px;
+  padding: 7px 9px;
+  border-radius: 6px;
+  border: 1px solid rgba(255, 107, 71, 0.35);
+  background: rgba(255, 107, 71, 0.07);
+  font-family: ui-monospace, monospace;
+  line-height: 1.45;
+  color: #8a3a2a;
+}
+.btv-target-cap-head {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+.btv-target-cap-dot {
+  display: inline-block;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  border: 2px solid #ff6b47;
+  box-shadow: 0 0 0 1.5px rgba(157, 68, 171, 0.55);
+}
+
 /* PIE del visor · una sola línea de interacción + el desplegable de honestidad, en una
    fila que se reparte (la línea a la izquierda, el «Cómo se lee» a la derecha). En
    estrecho se apila sin huecos muertos. */
@@ -948,4 +1294,26 @@ onBeforeUnmount(() => {
 }
 
 /* (homogeneidad) CSS de .btv-read* eliminado: la ⓘ «Cómo se lee el mapa» pasó a tooltip Term. */
+
+/* ── MÓVIL / TÁCTIL · áreas de toque ≥44px en los controles del visor ──────────
+   En punteros gruesos (dedo) los overlays (reencuadre, toggles diana/aguja) y la
+   leyenda crecen para cumplir la diana táctil sin descuadrar el escritorio (ratón).
+   El marcador 3D y su parpadeo NO se tocan; esto es solo dimensionado de la UI HTML. */
+@media (pointer: coarse) {
+  .btv-reframe { width: 44px; height: 44px; font-size: 19px; }
+  .btv-target-toggle,
+  .btv-biopsy-toggle {
+    min-height: 44px;
+    padding: 9px 12px;
+    font-size: 12px;
+  }
+  .btv-toggles { gap: 8px; }
+  .btv-tab { min-height: 48px; }
+  .btv-tab-title { font-size: 12.5px; }
+}
+/* leyenda de cada panel un punto más legible en pantallas pequeñas (≥11px) */
+@media (max-width: 639px) {
+  .btv-legend-min, .btv-legend-max { font-size: 11px; }
+  .btv-sub { font-size: 11px; }
+}
 </style>

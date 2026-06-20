@@ -333,11 +333,12 @@
             </p>
           </div>
 
-          <!-- Acceso al mapa interactivo de metástasis (doble trazador, lesión a lesión) -->
+          <!-- (acceso médicos) mapa interactivo + encuadre «para tu equipo médico» + enlace compartible -->
+          <p id="mapa-acceso" class="eyebrow mt-6 mb-2 block scroll-mt-[5.5rem]">{{ locale === 'es' ? 'Para tu equipo médico' : 'For your medical team' }}</p>
           <NuxtLink
             id="mapa-metastasis-link"
             :to="localePath('/mapa-metastasis')"
-            class="group flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-3.5 rounded-2xl px-4 sm:px-5 py-4 mt-5 transition-all active:scale-[0.99] sm:hover:-translate-y-0.5"
+            class="group flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-3.5 rounded-2xl px-4 sm:px-5 py-4 transition-all active:scale-[0.99] sm:hover:-translate-y-0.5"
             style="background:rgba(232,212,237,0.30);text-decoration:none"
           >
             <div class="flex items-start gap-3.5 flex-1">
@@ -355,6 +356,7 @@
               <Icon name="ph:arrow-right" class="w-4 h-4 transition-transform group-hover:translate-x-0.5" aria-hidden="true" />
             </span>
           </NuxtLink>
+          <p class="text-[12px] text-tinta mt-2.5 leading-relaxed">{{ locale === 'es' ? 'Compártelo con tu médico o equipo de tumores:' : 'Share it with your doctor or tumor board:' }} <span class="font-mono font-semibold text-berenjena">helpmiriam.com/caso</span> {{ locale === 'es' ? '· apoyo a la decisión, no consejo médico.' : '· decision support, not medical advice.' }}</p>
         </section>
 
         <!-- Ejes terapéuticos → panel de rebiopsia, subidos por encima de la

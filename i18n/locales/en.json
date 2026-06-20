@@ -6,7 +6,6 @@
   "nav": {
     "home": "Home",
     "science": "The science",
-    "map": "Map",
     "team": "Team",
     "timeline": "Timeline",
     "story": "Story",
@@ -998,7 +997,7 @@
     "elespanol_title": "My case in El Español",
     "elespanol_sub": "“The engineer using AI to fight her cancer” (Spanish)",
     "mapa_title": "The map of my cancer",
-    "mapa_sub": "Where the metastasis is, explained visually",
+    "mapa_sub": "In 3D, lesion by lesion — see it yourself",
     "marcas_title": "For brands and companies",
     "marcas_sub": "A showcase for your brand, in partnership",
     "apoyar_title": "Support my treatment",
