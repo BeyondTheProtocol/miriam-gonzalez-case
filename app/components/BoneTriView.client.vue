@@ -1082,7 +1082,9 @@ onBeforeUnmount(() => {
           <span class="btv-divider" style="left:66.666%" aria-hidden="true" />
         </template>
 
-        <!-- botón de reencuadre ⟲ -->
+        <!-- botón de reencuadre · icono SVG de «recentrar» (dos flechas en círculo),
+             ópticamente centrado en su botón (el glifo Unicode ⟲ centraba distinto según
+             la fuente del SO). -->
         <button
           v-if="!failed"
           type="button"
@@ -1090,7 +1092,21 @@ onBeforeUnmount(() => {
           :aria-label="L('Reencuadrar la vista', 'Reset the view')"
           :title="L('Reencuadrar', 'Reset view')"
           @click="reframe"
-        >⟲</button>
+        >
+          <svg class="btv-reframe__svg" viewBox="0 0 24 24" focusable="false" aria-hidden="true">
+            <!-- dos flechas en arco (recentrar/reencuadrar): arcos abiertos + puntas -->
+            <path
+              d="M19 12a7 7 0 0 1-11.95 4.95M5 12a7 7 0 0 1 11.95-4.95"
+              fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round"
+            />
+            <path
+              d="M17 3.2V7.2H13M7 20.8V16.8H11"
+              fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round"
+            />
+          </svg>
+        </button>
 
         <!-- TOGGLES dentro del visor (abajo-izquierda, columna): la DIANA orientativa y la
              AGUJA de biopsia. AMBOS OFF por defecto y mismo patrón aditivo (un botón para VER,
@@ -1371,13 +1387,18 @@ onBeforeUnmount(() => {
   border: 1px solid rgba(174, 182, 194, 0.28);
   background: rgba(13, 17, 23, 0.7);
   color: #cdd5e0;
-  font-size: 16px;
   line-height: 1;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
+  padding: 0;
   transition: background 0.15s, border-color 0.15s;
+}
+.btv-reframe__svg {
+  display: block;
+  width: 17px;
+  height: 17px;
 }
 .btv-reframe:hover { background: rgba(30, 37, 48, 0.92); border-color: rgba(174, 182, 194, 0.5); }
 .btv-reframe:focus-visible { outline: 2px solid #1c969e; outline-offset: 2px; }
@@ -1630,7 +1651,8 @@ onBeforeUnmount(() => {
    leyenda crecen para cumplir la diana táctil sin descuadrar el escritorio (ratón).
    El marcador 3D y su parpadeo NO se tocan; esto es solo dimensionado de la UI HTML. */
 @media (pointer: coarse) {
-  .btv-reframe { width: 44px; height: 44px; font-size: 19px; }
+  .btv-reframe { width: 44px; height: 44px; }
+  .btv-reframe__svg { width: 22px; height: 22px; }
   .btv-target-toggle,
   .btv-biopsy-toggle {
     min-height: 44px;
