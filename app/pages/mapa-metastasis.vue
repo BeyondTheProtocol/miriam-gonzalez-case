@@ -845,6 +845,70 @@ function pickAndShow(id: number) {
 }
 
 /* ------------------------------------------------------------------ */
+/*  ESTADO-EN-URL · permalink por foco (sin backend · compatible       */
+/*  `nuxt generate`)                                                    */
+/*                                                                      */
+/*  ANTI-PHI (no opcional): el hash sólo transporta el id SINTÉTICO    */
+/*  del foco (#foco-1 … #foco-19). NUNCA viaja por la URL ningún        */
+/*  identificador DICOM, número de estudio, accession ni metadato del  */
+/*  paciente. Los ids 1-19 son etiquetas internas de esta herramienta, */
+/*  no claves clínicas. Si en el futuro se reflejasen más cosas en el   */
+/*  hash (trazador, plano de corte…), VERSIONAR el esquema y revisar    */
+/*  de nuevo esta garantía; por ahora basta el foco.                    */
+/* ------------------------------------------------------------------ */
+const FOCO_HASH_RE = /^#foco-(\d+)$/
+function isValidFocoId(id: number): boolean {
+  return Number.isInteger(id) && LES.some((l) => l.id === id)
+}
+/** URL canónica citable del foco seleccionado (dominio público fijo). */
+const focoPermalink = computed(() => 'https://helpmiriam.com' + localePath('/mapa-metastasis') + '#foco-' + selected.value)
+
+/* Selección → hash: replaceState (NO pushState) para no ensuciar el historial
+   en cada clic ni recargar. Guard cliente. */
+watch(selected, (id) => {
+  if (!import.meta.client) return
+  const hash = '#foco-' + id
+  if (window.location.hash === hash) return
+  const url = window.location.pathname + window.location.search + hash
+  window.history.replaceState(window.history.state, '', url)
+})
+
+/* feedback temporal del botón «Copiar enlace» (sin librerías) */
+const linkCopied = ref(false)
+let copyTimer: ReturnType<typeof setTimeout> | null = null
+async function copyFocoLink() {
+  if (!import.meta.client) return
+  const url = focoPermalink.value
+  try {
+    await navigator.clipboard.writeText(url)
+  } catch {
+    // degradación elegante si la Clipboard API no está disponible / sin permiso
+    const ta = document.createElement('textarea')
+    ta.value = url
+    ta.setAttribute('readonly', '')
+    ta.style.position = 'fixed'
+    ta.style.opacity = '0'
+    document.body.appendChild(ta)
+    ta.select()
+    try { document.execCommand('copy') } catch { /* sin clipboard: no rompemos nada */ }
+    document.body.removeChild(ta)
+  }
+  linkCopied.value = true
+  if (copyTimer) clearTimeout(copyTimer)
+  copyTimer = setTimeout(() => { linkCopied.value = false }, 1800)
+}
+
+/* Restaurar al cargar: si el hash es #foco-N válido, seleccionar ese foco y
+   bajar suave a la herramienta. Degrada con elegancia si es inválido/ausente. */
+onMounted(() => {
+  const m = window.location.hash.match(FOCO_HASH_RE)
+  if (!m) return
+  const id = Number(m[1])
+  if (!isValidFocoId(id)) return // hash inválido → se ignora, queda la vista por defecto
+  pickAndShow(id)
+})
+
+/* ------------------------------------------------------------------ */
 /*  Agrupar focos por vértebra → un marcador por vértebra afectada     */
 /*  en el esqueleto (D11: #7+#8 · L1: #9+#10). Los focos internos se    */
 /*  conmutan con chips en la ficha. Solo vértebras (token C/D/L); el    */
@@ -2336,7 +2400,18 @@ const manifestValidated = (() => {
                   <p class="text-xs text-tinta">{{ sel.region[lang] }} ·
                     {{ sel.side === 'R' ? L('lado derecho', 'right side') : sel.side === 'L' ? L('lado izquierdo', 'left side') : L('línea media', 'midline') }}</p>
                 </div>
-                <span class="pill-data ml-auto shrink-0 self-start" :style="{ background: phenoColor(sel) + '22', color: phenoText(sel) }">{{ phenoLabel(sel) }}</span>
+                <div class="ml-auto shrink-0 self-start flex items-center gap-2">
+                  <!-- COPIAR ENLACE · permalink citable del foco (#foco-N). El texto
+                       siempre visible (DS: nunca un botón que oculte texto); el feedback
+                       «copiado» es temporal y NO sustituye al rótulo, lo precede. -->
+                  <button type="button" class="btn-copylink" :class="{ 'btn-copylink--done': linkCopied }" @click="copyFocoLink"
+                    :aria-label="L('Copiar enlace a este foco', 'Copy link to this focus')">
+                    <svg v-if="!linkCopied" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 13a5 5 0 0 0 7.07 0l3-3a5 5 0 0 0-7.07-7.07L11.5 4.5" /><path d="M14 11a5 5 0 0 0-7.07 0l-3 3a5 5 0 0 0 7.07 7.07L12.5 19.5" /></svg>
+                    <svg v-else width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5" /></svg>
+                    {{ linkCopied ? L('Enlace copiado', 'Link copied') : L('Copiar enlace', 'Copy link') }}
+                  </button>
+                  <span class="pill-data" :style="{ background: phenoColor(sel) + '22', color: phenoText(sel) }">{{ phenoLabel(sel) }}</span>
+                </div>
               </div>
               <p v-if="selIsAi" class="mb-2 text-[11px] font-semibold leading-snug flex items-center gap-1.5 flex-wrap" style="color:#8a4a1a">
                 <span class="inline-block w-2 h-2 rounded-full" style="background:#bf7d2c" aria-hidden="true" />
@@ -4465,6 +4540,30 @@ svg [role="button"]:focus-visible {
 .btn-expand3d:hover { background: #f0e7f3; border-color: rgba(157, 68, 171, 0.5); }
 .btn-expand3d:focus-visible { outline: 2px solid #9d44ab; outline-offset: 2px; }
 
+/* ── Copiar enlace · permalink citable del foco ──────────────────────
+   Mismo lenguaje visual que .btn-expand3d (pill, tokens DS) pero más
+   compacto, para acompañar el título de la ficha sin pesar. El texto va
+   SIEMPRE visible; el estado «copiado» tiñe el borde en verde. */
+.btn-copylink {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 0.22rem 0.6rem;
+  border-radius: 9999px;
+  border: 1px solid rgba(45, 27, 61, 0.2);
+  background: #fbf7f0;
+  color: #2d1b3d;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+.btn-copylink:hover { background: #f0e7f3; border-color: rgba(157, 68, 171, 0.5); }
+.btn-copylink:focus-visible { outline: 2px solid #9d44ab; outline-offset: 2px; }
+.btn-copylink--done { border-color: rgba(31, 107, 87, 0.55); color: #1f6b57; }
+.btn-copylink--done:hover { background: #fbf7f0; border-color: rgba(31, 107, 87, 0.55); }
+
 /* ── Overlay 3D a pantalla completa ─────────────────────────────────── */
 .bone3d-lb__panel { width: min(1280px, 100%); max-height: 94vh; }
 .bone3d-lb__stage {
@@ -4477,6 +4576,7 @@ svg [role="button"]:focus-visible {
 
 @media (prefers-reduced-motion: reduce) {
   .seg__btn,
+  .btn-copylink,
   .btn-expand3d { transition: none; }
 }
 /* (A · plan comité web) tooltip de marcadores (esqueleto + scatter), clon de Term.vue */

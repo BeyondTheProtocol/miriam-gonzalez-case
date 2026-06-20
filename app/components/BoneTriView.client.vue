@@ -115,6 +115,7 @@ const activePanel = ref(0)
 function setActivePanel(i: number) {
   if (i < 0 || i > 2 || i === activePanel.value) return
   activePanel.value = i
+  probe.show = false
   // el panel único llena TODO el canvas → su aspecto = aspecto del canvas; re-encuadra
   // conservando la orientación actual del orbit (no resetea la rotación del usuario).
   if (sharedGeo) frameObject(FILL, true)
@@ -141,6 +142,67 @@ let vFdg: Float32Array | null = null
 let vGa: Float32Array | null = null
 /* pico de captación combinada (max fdg/ga) → ancla de la aguja ilustrativa */
 let hotIndex = -1
+
+/* ====================================================================== */
+/*  SONDA DE HOVER (P1 · doble caveat) — lee el valor CRUDO del vértice    */
+/*  bajo el cursor y lo muestra con magnitud CUALITATIVA (jamás 2 dec.) +  */
+/*  DOBLE CAVEAT honesto (valor proyectado · co-registro espacial).        */
+/*  Raycast contra el BufferGeometry del mesh del panel SOBRE el que está   */
+/*  el puntero (3 viewports en escritorio · 1 en móvil-pestañas). NO toca   */
+/*  el marcador/parpadeo/cámara/controls: solo lee la geometría existente.  */
+/* ====================================================================== */
+let raycaster: THREE.Raycaster | null = null
+const _ndc = new THREE.Vector2()
+/* estado del tooltip (overlay HTML posicionado dentro del contenedor del visor) */
+const probe = reactive({
+  show: false,
+  x: 0,            // px relativos al contenedor (cursor)
+  y: 0,
+  flipX: false,    // si está cerca del borde derecho, abre el tooltip a la izquierda
+  channel: 0 as 0 | 1 | 2,   // panel sondeado (0 ga · 1 fdg · 2 density)
+  ga: 0,
+  fdg: 0,
+  density: 0,
+})
+/* listeners para poder retirarlos al desmontar */
+let probeMove: ((e: PointerEvent) => void) | null = null
+let probeDown: ((e: PointerEvent) => void) | null = null
+let probeUp: ((e: PointerEvent) => void) | null = null
+let probeLeave: (() => void) | null = null
+/* detección tap-vs-drag en táctil: si el dedo se mueve poco entre down y up = TAP (sonda);
+   si se mueve = DRAG (rota el hueso, OrbitControls) → no sondeamos. */
+let touchStart: { x: number; y: number; t: number } | null = null
+let touchMoved = false
+
+/* magnitud CUALITATIVA por canal (honestidad: NUNCA 2 decimales) */
+function qualGa(v: number): { es: string; en: string } {
+  if (v < 1.5) return { es: 'muy baja', en: 'very low' }
+  if (v < 3) return { es: 'baja', en: 'low' }
+  if (v < 5) return { es: 'media', en: 'moderate' }
+  if (v < 9) return { es: 'alta', en: 'high' }
+  return { es: 'muy alta', en: 'very high' }
+}
+function qualFdg(v: number): { es: string; en: string } {
+  if (v < 1.5) return { es: 'muy baja', en: 'very low' }
+  if (v < 3) return { es: 'baja', en: 'low' }
+  if (v < 5) return { es: 'media', en: 'moderate' }
+  if (v < 9) return { es: 'alta', en: 'high' }
+  return { es: 'muy alta', en: 'very high' }
+}
+function qualDensity(v: number): { es: string; en: string } {
+  if (v < 150) return { es: 'trabecular', en: 'trabecular' }
+  if (v < 350) return { es: 'normal', en: 'normal' }
+  if (v < 600) return { es: 'densa', en: 'dense' }
+  return { es: 'muy densa (blástica)', en: 'very dense (blastic)' }
+}
+/* redondeo GROSERO a 1 cifra significativa-ish para acompañar a la magnitud cualitativa
+   (orientativo, nunca SUVmáx de informe). SUV → ~0.5; HU → centena. */
+function coarseSuv(v: number): string {
+  return (Math.round(v * 2) / 2).toLocaleString(locale.value === 'en' ? 'en' : 'es', { maximumFractionDigits: 1 })
+}
+function coarseHu(v: number): string {
+  return String(Math.round(v / 100) * 100)
+}
 
 /* ---- material del hueso (MATE / OPACO) ---- */
 const BONE_MAT_BASE = {
@@ -309,6 +371,48 @@ function init() {
   controls = new OrbitControls(camera, renderer.domElement)
   controls.enableDamping = true; controls.dampingFactor = 0.08; controls.enablePan = false
   controls.rotateSpeed = 0.9; controls.minDistance = 1; controls.maxDistance = 100000
+
+  // ---- SONDA DE HOVER · listeners (no interfieren con OrbitControls) ----
+  // RATÓN (puntero fino): pointermove sondea en vivo; al salir del canvas se oculta.
+  // TÁCTIL (puntero grueso): un TAP corto (sin arrastrar) sondea/conmuta; un DRAG rota
+  // el hueso (OrbitControls) → no sondeamos. Distinguimos por desplazamiento entre
+  // pointerdown y pointerup (umbral ~10 px) y por duración (<500 ms).
+  const TAP_MOVE = 10, TAP_MS = 500
+  probeMove = (e: PointerEvent) => {
+    if (e.pointerType === 'touch') {
+      // en táctil, mientras el dedo arrastra (rota), marcamos movimiento y NO sondeamos
+      if (touchStart) {
+        const dx = e.clientX - touchStart.x, dy = e.clientY - touchStart.y
+        if (dx * dx + dy * dy > TAP_MOVE * TAP_MOVE) { touchMoved = true; probe.show = false }
+      }
+      return
+    }
+    probeAt(e.clientX, e.clientY)
+  }
+  probeDown = (e: PointerEvent) => {
+    if (e.pointerType !== 'touch') { probe.show = false; return }   // ratón: empieza un drag → oculta
+    touchStart = { x: e.clientX, y: e.clientY, t: performance.now() }
+    touchMoved = false
+  }
+  probeUp = (e: PointerEvent) => {
+    if (e.pointerType !== 'touch' || !touchStart) return
+    const dt = performance.now() - touchStart.t
+    const wasTap = !touchMoved && dt < TAP_MS
+    touchStart = null
+    if (!wasTap) { return }                 // fue un drag (rotó el hueso) → no sondeamos
+    // TAP corto: si ya hay tooltip visible, lo ocultamos (toggle); si no, sondeamos ahí
+    if (probe.show) { probe.show = false; return }
+    probeAt(e.clientX, e.clientY)
+  }
+  probeLeave = () => { probe.show = false }
+  const dom = renderer.domElement
+  dom.addEventListener('pointermove', probeMove, { passive: true })
+  dom.addEventListener('pointerdown', probeDown, { passive: true })
+  dom.addEventListener('pointerup', probeUp, { passive: true })
+  dom.addEventListener('pointerleave', probeLeave, { passive: true })
+  // mientras se orbita/zooma (drag o rueda) el tooltip estorbaría y quedaría desfasado → ocultar
+  controls.addEventListener('start', () => { probe.show = false })
+
   resize()
   ro = new ResizeObserver(resize); ro.observe(el)
   const tick = () => { raf = requestAnimationFrame(tick); controls.update(); renderScenes() }
@@ -465,9 +569,67 @@ function precompute(geo: THREE.BufferGeometry) {
   }
 }
 
+/* ---------- SONDA: raycast contra el mesh bajo el cursor → vértice más cercano ---------- */
+/* Devuelve el índice de panel (0/1/2) cuya CELDA contiene el píxel (x,y) en coords del
+   canvas. Escritorio: 3 columnas (W/3 cada una). Móvil-pestañas: siempre el panel activo. */
+function panelAtPixel(px: number, w: number): 0 | 1 | 2 {
+  if (stacked.value) return activePanel.value as 0 | 1 | 2
+  const col = Math.floor((px / w) * 3)
+  return (col < 0 ? 0 : col > 2 ? 2 : col) as 0 | 1 | 2
+}
+/* Sonda en coords de CLIENTE (clientX/clientY del evento). Halla la celda, monta NDC
+   relativo a ESE viewport (no al canvas entero), raycast contra el mesh de esa escena,
+   y del punto de intersección busca el VÉRTICE más cercano de la cara → lee vGa/vFdg/vDensity.
+   Si no hay intersección o no hay datos, oculta el tooltip. */
+function probeAt(clientX: number, clientY: number) {
+  if (!renderer || !host.value || !camera || !sharedGeo || loading.value || failed.value) { probe.show = false; return }
+  if (!raycaster) raycaster = new THREE.Raycaster()
+  const canvas = renderer.domElement
+  const rect = canvas.getBoundingClientRect()
+  const px = clientX - rect.left          // px CSS dentro del canvas
+  const py = clientY - rect.top
+  const W = rect.width, H = rect.height
+  if (px < 0 || py < 0 || px > W || py > H) { probe.show = false; return }
+  const ch = panelAtPixel(px, W)
+  const mesh = meshes[ch]
+  if (!mesh) { probe.show = false; return }
+  // viewport de la celda en px CSS: escritorio → columna ch de ancho W/3; apilado → todo el canvas
+  const cellW = stacked.value ? W : W / 3
+  const cellX = stacked.value ? 0 : ch * cellW
+  // NDC dentro de la celda (la cámara proyecta sobre el viewport de la celda en renderScenes)
+  _ndc.x = ((px - cellX) / cellW) * 2 - 1
+  _ndc.y = -(py / H) * 2 + 1
+  raycaster.setFromCamera(_ndc, camera)
+  const hits = raycaster.intersectObject(mesh, false)
+  if (!hits.length) { probe.show = false; return }
+  const hit = hits[0]
+  // vértice de la cara más cercano al punto de impacto → su valor crudo por canal
+  let vi = -1
+  if (hit.face) {
+    const geo = mesh.geometry
+    const pos = geo.getAttribute('position') as THREE.BufferAttribute
+    const cand = [hit.face.a, hit.face.b, hit.face.c]
+    let best = Infinity
+    for (const c of cand) {
+      const dx = pos.getX(c) - hit.point.x, dy = pos.getY(c) - hit.point.y, dz = pos.getZ(c) - hit.point.z
+      const d2 = dx * dx + dy * dy + dz * dz
+      if (d2 < best) { best = d2; vi = c }
+    }
+  }
+  if (vi < 0 || !vGa || !vFdg || !vDensity || vi >= vGa.length) { probe.show = false; return }
+  probe.ga = vGa[vi]; probe.fdg = vFdg[vi]; probe.density = vDensity[vi]
+  probe.channel = ch
+  // posición del tooltip relativa al CONTENEDOR (host), no al canvas (coinciden, pero usamos host)
+  const hostRect = host.value.getBoundingClientRect()
+  probe.x = clientX - hostRect.left
+  probe.y = clientY - hostRect.top
+  probe.flipX = probe.x > hostRect.width - 170   // cerca del borde derecho → abrir a la izquierda
+  probe.show = true
+}
+
 /* ---------- carga del PLY (UNA vez) + 3 meshes que comparten la geometría ---------- */
 function load(key: string) {
-  loading.value = true; failed.value = false; curKey = key
+  loading.value = true; failed.value = false; curKey = key; probe.show = false
   const loader = new PLYLoader()
   loader.setCustomPropertyNameMapping({ density: ['density_hu'], fdg: ['suv_fdg'], ga: ['suv_ga'] })
   loader.load(`/metastasis/mesh/${key}.ply`, (geo) => {
@@ -806,6 +968,13 @@ watch(showTarget, () => { buildTargetMarker() })
 watch(() => props.noTarget, () => buildTargetMarker())
 onBeforeUnmount(() => {
   cancelAnimationFrame(raf); ro?.disconnect()
+  const dom = renderer?.domElement
+  if (dom) {
+    if (probeMove) dom.removeEventListener('pointermove', probeMove)
+    if (probeDown) dom.removeEventListener('pointerdown', probeDown)
+    if (probeUp) dom.removeEventListener('pointerup', probeUp)
+    if (probeLeave) dom.removeEventListener('pointerleave', probeLeave)
+  }
   disposeBiopsyNeedle(); disposeTargetMarker(); disposeMeshes()
   pmrem?.dispose(); renderer?.dispose()
 })
@@ -931,6 +1100,35 @@ onBeforeUnmount(() => {
               ? L('Ocultar la biopsia previa', 'Hide prior biopsy')
               : L('Ver la biopsia previa (' + (biopsyLabel || '26B585') + ')', 'Show prior biopsy (' + (biopsyLabel || '26B585') + ')') }}
           </button>
+        </div>
+
+        <!-- SONDA DE HOVER · tooltip neutro posicionado en el cursor (dentro del visor).
+             Lee el valor CRUDO del vértice y lo muestra con magnitud CUALITATIVA (jamás
+             2 decimales) + DOBLE CAVEAT honesto. pointer-events:none → nunca estorba el
+             giro ni el raycast. El panel sondeado se resalta (su trazador en negrita). -->
+        <div
+          v-if="probe.show && !failed && !loading"
+          class="btv-probe"
+          :class="{ 'btv-probe--flip': probe.flipX }"
+          :style="{ left: probe.x + 'px', top: probe.y + 'px' }"
+          aria-hidden="true"
+        >
+          <p class="btv-probe-row" :class="{ 'is-active': probe.channel === 0 }">
+            <span class="btv-probe-k">⁶⁸Ga-DOTATOC</span>
+            <span class="btv-probe-v">{{ L(qualGa(probe.ga).es, qualGa(probe.ga).en) }} <span class="btv-probe-num">≈{{ coarseSuv(probe.ga) }} SUV</span></span>
+          </p>
+          <p class="btv-probe-row" :class="{ 'is-active': probe.channel === 1 }">
+            <span class="btv-probe-k">¹⁸F-FDG</span>
+            <span class="btv-probe-v">{{ L(qualFdg(probe.fdg).es, qualFdg(probe.fdg).en) }} <span class="btv-probe-num">≈{{ coarseSuv(probe.fdg) }} SUV</span></span>
+          </p>
+          <p class="btv-probe-row" :class="{ 'is-active': probe.channel === 2 }">
+            <span class="btv-probe-k">{{ L('Densidad (TC)', 'Density (CT)') }}</span>
+            <span class="btv-probe-v">{{ L(qualDensity(probe.density).es, qualDensity(probe.density).en) }} <span class="btv-probe-num">≈{{ coarseHu(probe.density) }} HU</span></span>
+          </p>
+          <p class="btv-probe-caveat">
+            {{ L('Valor proyectado sobre la malla, no SUVmáx de informe · localización aproximada por co-registro (FDG 24/03 y DOTATOC 26/05 son estudios de fechas distintas).',
+                 'Value projected onto the mesh, not report SUVmax · location approximate by co-registration (FDG 24/03 and DOTATOC 26/05 are studies from different dates).') }}
+          </p>
         </div>
 
         <!-- cargando -->
@@ -1136,6 +1334,66 @@ onBeforeUnmount(() => {
 }
 .btv-reframe:hover { background: rgba(30, 37, 48, 0.92); border-color: rgba(174, 182, 194, 0.5); }
 .btv-reframe:focus-visible { outline: 2px solid #1c969e; outline-offset: 2px; }
+
+/* ---- SONDA DE HOVER · tooltip neutro (sobrio, DS) ----
+   Placa oscura translúcida sobre el canvas #0d1117, sin color de marca (neutro): el
+   valor lo dan magnitud cualitativa + redondeo grosero, y el doble caveat lo enmarca.
+   pointer-events:none → nunca captura el giro/raycast; se desplaza un poco del cursor. */
+.btv-probe {
+  position: absolute;
+  z-index: 3;
+  pointer-events: none;
+  transform: translate(12px, 14px);
+  max-width: 230px;
+  padding: 7px 9px;
+  border-radius: 7px;
+  border: 1px solid rgba(174, 182, 194, 0.3);
+  background: rgba(13, 17, 23, 0.92);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4);
+  color: #d7dde6;
+  font-size: 11px;
+  line-height: 1.3;
+}
+/* cerca del borde derecho → abrir hacia la IZQUIERDA del cursor (no se sale del visor) */
+.btv-probe--flip { transform: translate(calc(-100% - 12px), 14px); }
+.btv-probe-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+  margin: 0;
+  color: #9aa3b0;          /* filas no activas atenuadas */
+}
+.btv-probe-row.is-active { color: #eef2f7; }   /* el panel sondeado, resaltado */
+.btv-probe-k {
+  font-size: 10px;
+  white-space: nowrap;
+}
+.btv-probe-v {
+  font-weight: 600;
+  text-align: right;
+  white-space: nowrap;
+}
+.btv-probe-num {
+  font-weight: 400;
+  font-size: 10px;
+  color: #8b95a3;
+  font-variant-numeric: tabular-nums;
+}
+.btv-probe-caveat {
+  margin: 5px 0 0;
+  padding-top: 5px;
+  border-top: 1px solid rgba(174, 182, 194, 0.16);
+  font-size: 9.5px;
+  line-height: 1.35;
+  color: #9097a3;
+  font-style: italic;
+}
+/* en táctil el tooltip un punto mayor (se lee sin cursor fino) */
+@media (pointer: coarse) {
+  .btv-probe { font-size: 12px; max-width: 250px; }
+  .btv-probe-caveat { font-size: 10px; }
+}
 
 /* TOGGLES dentro del visor (abajo-izquierda, columna). Ambos botones (diana + aguja)
    comparten zona y estilo de overlay: misma anchura de chip, sin solaparse, por encima
