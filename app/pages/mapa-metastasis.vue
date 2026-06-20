@@ -1662,7 +1662,7 @@ const ticks = [
             <button v-for="(le, i) in topCandidates" :key="le.id" type="button"
               @click="pickAndShow(le.id)"
               :aria-pressed="selected === le.id"
-              class="text-left rounded-card border-2 px-3.5 py-3 transition-colors"
+              class="text-left rounded-card border-2 px-3.5 py-3 transition-colors flex flex-col items-stretch justify-start"
               :class="selected === le.id ? 'border-[#9d44ab] bg-[rgba(157,68,171,0.07)]' : 'border-[rgba(45,27,61,0.14)] bg-cream-card hover:border-[#9d44ab]'">
               <span v-if="focoKey(le).hasReliable" class="block rounded-lg overflow-hidden mb-2 bg-[#0d1117]" style="aspect-ratio:16/10"><img :src="fk(le.id, 'axial')" :alt="L('Imagen clave del foco #' + le.id, 'Key image of focus #' + le.id)" class="w-full h-full object-cover" loading="lazy" /></span>
               <div class="flex items-center justify-between gap-2">
