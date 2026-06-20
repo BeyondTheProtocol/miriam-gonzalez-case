@@ -7,17 +7,27 @@
     :style="variant === 'colabora' ? '' : 'border-bottom: 1px solid rgba(45,27,61,0.08)'"
   >
     <div :class="variant === 'home' ? 'section-wide' : ''">
-      <p class="eyebrow mb-3 block">{{ $t('pathways.eyebrow') }}</p>
-      <h2
-        :id="titleId"
-        class="heading-display text-2xl sm:text-3xl text-berenjena mb-2"
-        style="letter-spacing: -0.02em"
-      >
-        {{ variant === 'home' ? $t('pathways.home_title') : $t('pathways.colabora_title') }}
-      </h2>
-      <p class="text-sm sm:text-base text-tinta leading-relaxed max-w-2xl mb-3">
-        {{ variant === 'home' ? $t('pathways.home_sub') : $t('pathways.colabora_sub') }}
-      </p>
+      <!--
+        Cabecera (eyebrow + título + subtítulo) SOLO en home. En /colabora la
+        sección que envuelve este componente (collaborate.profiles_*) ya aporta
+        eyebrow + h2 + subtítulo, así que repetirlos aquí era redundante. Para no
+        romper el landmark, la variante colabora conserva un h2 `sr-only` con el
+        mismo id que referencia `aria-labelledby` de la <section>.
+      -->
+      <template v-if="variant === 'home'">
+        <p class="eyebrow mb-3 block">{{ $t('pathways.eyebrow') }}</p>
+        <h2
+          :id="titleId"
+          class="heading-display text-2xl sm:text-3xl text-berenjena mb-2"
+          style="letter-spacing: -0.02em"
+        >
+          {{ $t('pathways.home_title') }}
+        </h2>
+        <p class="text-sm sm:text-base text-tinta leading-relaxed max-w-2xl mb-3">
+          {{ $t('pathways.home_sub') }}
+        </p>
+      </template>
+      <h2 v-else :id="titleId" class="sr-only">{{ $t('pathways.colabora_title') }}</h2>
       <p class="pathway-comfort max-w-2xl" role="note">
         <Icon name="ph:leaf" class="pathway-comfort__icon" aria-hidden="true" />
         {{ $t('pathways.comfort') }}
