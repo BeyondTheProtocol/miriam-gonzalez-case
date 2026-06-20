@@ -827,9 +827,13 @@ onBeforeUnmount(() => {
       <!-- CANVAS único · 3 viewports (setViewport+setScissor). Una cámara → giran juntos.
            El aspecto cambia con el layout: fila ancha (3 celdas ~4:5) en escritorio,
            columna alta (3 celdas apiladas) en móvil. -->
+      <!-- ALTURA EN MÓVIL: apilado, 3 paneles a 5/4 cada uno → aspect 5/12 (antes 4/15,
+           que daba ~1343px a 358px: scroll oscuro excesivo). Con 5/12 baja a ~860px y el
+           hueso sigue encuadrado (la cámara se ajusta al aspecto de cada celda). El núcleo
+           Three.js NO se toca: solo el dimensionado del contenedor responsive. -->
       <div
         class="relative w-full select-none"
-        :style="`aspect-ratio:${stacked ? '4/15' : '12/5'};background:#0d1117;border-radius:0.5rem;overflow:hidden`"
+        :style="`aspect-ratio:${stacked ? '5/12' : '12/5'};background:#0d1117;border-radius:0.5rem;overflow:hidden`"
       >
         <div ref="host" role="img" :aria-label="L('Hueso en 3D · tres mapas del mismo hueso: captación del receptor (Galio), del azúcar (FDG) y forma (densidad del CT). Arrástralo para girar; la tabla y las imágenes clave son la alternativa textual.', '3D bone · three maps of the same bone: receptor (gallium) uptake, sugar (FDG) uptake and shape (CT density). Drag to rotate; the table and key images are the text alternative.')" class="absolute inset-0 cursor-grab active:cursor-grabbing" :style="failed ? 'opacity:0;pointer-events:none' : ''" />
 
@@ -1205,4 +1209,24 @@ onBeforeUnmount(() => {
 }
 
 /* (homogeneidad) CSS de .btv-read* eliminado: la ⓘ «Cómo se lee el mapa» pasó a tooltip Term. */
+
+/* ── MÓVIL / TÁCTIL · áreas de toque ≥44px en los controles del visor ──────────
+   En punteros gruesos (dedo) los overlays (reencuadre, toggles diana/aguja) y la
+   leyenda crecen para cumplir la diana táctil sin descuadrar el escritorio (ratón).
+   El marcador 3D y su parpadeo NO se tocan; esto es solo dimensionado de la UI HTML. */
+@media (pointer: coarse) {
+  .btv-reframe { width: 44px; height: 44px; font-size: 19px; }
+  .btv-target-toggle,
+  .btv-biopsy-toggle {
+    min-height: 44px;
+    padding: 9px 12px;
+    font-size: 12px;
+  }
+  .btv-toggles { gap: 8px; }
+}
+/* leyenda de cada panel un punto más legible en pantallas pequeñas (≥11px) */
+@media (max-width: 639px) {
+  .btv-legend-min, .btv-legend-max { font-size: 11px; }
+  .btv-sub { font-size: 11px; }
+}
 </style>

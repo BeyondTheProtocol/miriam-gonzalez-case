@@ -63,6 +63,16 @@ const isDeepScience = computed(() => {
   return /^\/(?:en\/)?(?:ciencia|science)\/.+/.test(path)
 })
 
+// El mapa de metástasis es una herramienta clínica de INMERSIÓN (esqueleto navegador,
+// línea de tiempo, ficha lesión a lesión, visor 3D). El mismo criterio que las lecturas
+// técnicas de Ciencia: un sticky coral persiguiendo por encima de la herramienta resta
+// credibilidad y tapa contenido en pantallas pequeñas. El header coral global ya cubre
+// la conversión. Por path, robusto entre locales (/mapa-metastasis y /en/mapa-metastasis).
+const isDeepTool = computed(() => {
+  const path = route.path.replace(/\/+$/, '') || '/'
+  return /^\/(?:en\/)?mapa-metastasis$/.test(path)
+})
+
 // ¿Hay un botón coral de apoyo (data-support-cta) dentro del viewport? Si lo hay,
 // ocultamos la barra para no mostrar dos CTA coral idénticos a la vez.
 function anyCtaVisible(): boolean {
@@ -89,6 +99,11 @@ function update() {
   }
   // Lectura técnica profunda de Ciencia: barra silenciada (el header cubre).
   if (isDeepScience.value) {
+    visible.value = false
+    return
+  }
+  // Herramienta clínica de inmersión (mapa de metástasis): barra silenciada.
+  if (isDeepTool.value) {
     visible.value = false
     return
   }

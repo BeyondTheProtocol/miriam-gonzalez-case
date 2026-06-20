@@ -713,6 +713,10 @@ function gPresentAt(g: LesGroup, f: number): boolean { return g.foci.some((l) =>
    El SUVmáx ya está en el scatter, en la tabla y en la ficha; aquí el marcador solo
    localiza el foco (color = trazador, número = id). Sin tamaño ∝ SUVmáx. */
 const SK_R = 9
+/* radio del ÁREA TÁCTIL invisible del marcador del esqueleto (móvil): mayor que el
+   marcador visible (≈22px en pantalla) para acertar con el dedo, pero MENOR que el
+   espacio entre vértebras con foco (≥19.6 u) para no robar el toque al vecino. */
+const SK_HIT = 14
 function gSelected(g: LesGroup): boolean { return g.foci.some((l) => l.id === selected.value) }
 function pickGroup(g: LesGroup) { selected.value = g.primary.id }
 /* sub-localización del foco dentro del hueso (cuerpo, pedículo, espinosa…) — se usa
@@ -951,6 +955,10 @@ function jitter(id: number, axis: 0 | 1): number {
    (eje X = FDG, eje Y = Galio); el tamaño NO añade dato → todos los puntos iguales.
    El SUVmáx se lee en los ejes, en la tabla y en la ficha. */
 const DOT_R = 8.5
+/* área táctil invisible del punto del scatter (móvil): mayor que el punto visible pero
+   menor que la separación mínima entre centros tras el desencimado ((r1+r2)·0.9 ≈ 15.3 u)
+   → no roba el toque al punto vecino. */
+const DOT_HIT = 12
 const quadDots = computed(() => {
   const dots = LES.map((le) => {
     const r = DOT_R
@@ -1755,11 +1763,11 @@ const ticks = [
               <!-- flechas prev/next entre focos (sencillas; ayudan a ir pinchando de un vistazo) -->
               <div class="flex items-center gap-1 text-tinta shrink-0">
                 <button type="button" @click="pickStep(-1)"
-                  class="w-7 h-7 rounded-full border border-[rgba(45,27,61,0.2)] flex items-center justify-center hover:border-[rgba(45,27,61,0.45)] hover:text-berenjena transition-colors"
+                  class="nav-step w-8 h-8 rounded-full border border-[rgba(45,27,61,0.2)] flex items-center justify-center hover:border-[rgba(45,27,61,0.45)] hover:text-berenjena transition-colors"
                   :aria-label="L('Foco anterior', 'Previous focus')">‹</button>
                 <span class="font-mono text-[11px] tabular-nums w-11 text-center select-none">{{ focoPos || '–' }}<span class="text-[10px] text-tinta">/{{ visibleFocusList.length }}</span></span>
                 <button type="button" @click="pickStep(1)"
-                  class="w-7 h-7 rounded-full border border-[rgba(45,27,61,0.2)] flex items-center justify-center hover:border-[rgba(45,27,61,0.45)] hover:text-berenjena transition-colors"
+                  class="nav-step w-8 h-8 rounded-full border border-[rgba(45,27,61,0.2)] flex items-center justify-center hover:border-[rgba(45,27,61,0.45)] hover:text-berenjena transition-colors"
                   :aria-label="L('Foco siguiente', 'Next focus')">›</button>
               </div>
             </div>
@@ -1842,6 +1850,15 @@ const ticks = [
                      seleccionado. Sin halo, sin parpadeo, sin anillo de «foco nuevo»,
                      sin tamaño ∝ SUVmáx. Si no capta en la fecha actual → solo opacidad. -->
                 <g v-for="g in GROUPS" :key="g.key" v-show="groupVisible(g)">
+                  <!-- ÁREA TÁCTIL invisible (≈ 24px en pantalla a móvil): el marcador visible
+                       se mantiene UNIFORME y pequeño (no se aprietan los focos), pero el dedo
+                       acierta gracias a este círculo transparente. aria-hidden: la
+                       accesibilidad (foco/teclado/aria) la lleva el círculo visible de abajo. -->
+                  <circle
+                    :cx="g.x" :cy="g.y" :r="SK_HIT"
+                    fill="transparent" class="cursor-pointer" aria-hidden="true"
+                    @click="pickGroup(g)"
+                    @mouseenter="canHoverFine() && showTip($event, groupTipText(g))" @mouseleave="hideTip" />
                   <circle
                     :cx="g.x" :cy="g.y"
                     :r="SK_R + (gSelected(g) ? 2.5 : 0)"
@@ -1895,7 +1912,7 @@ const ticks = [
                   <button v-for="f in filters" :key="f.key" type="button"
                     @click="filter = f.key"
                     :aria-pressed="filter === f.key"
-                    class="inline-flex items-center gap-1.5 text-[12px] px-2.5 py-1 rounded-full border transition-colors"
+                    class="filter-chip inline-flex items-center gap-1.5 text-[12px] px-2.5 py-1 rounded-full border transition-colors"
                     :class="filter === f.key ? 'bg-berenjena text-cream border-berenjena' : 'bg-transparent text-tinta border-[rgba(45,27,61,0.2)] hover:border-[rgba(45,27,61,0.4)]'">
                     <span v-if="f.c" class="w-2 h-2 rounded-full" :style="{ background: f.c }" aria-hidden="true" />
                     {{ f.label }}
@@ -1908,19 +1925,19 @@ const ticks = [
               <div class="rounded-card border border-[rgba(45,27,61,0.12)] bg-cream-card !p-3">
                 <div class="flex items-center gap-2.5 flex-wrap">
                   <button type="button" @click="play()"
-                    class="shrink-0 w-8 h-8 rounded-full bg-berenjena text-cream flex items-center justify-center text-[12px] hover:opacity-90 transition-opacity"
+                    class="tl-play shrink-0 w-9 h-9 rounded-full bg-berenjena text-cream flex items-center justify-center text-[12px] hover:opacity-90 transition-opacity"
                     :aria-label="playing ? L('Pausar', 'Pause') : L('Recorrer los estudios', 'Step through the studies')">
                     {{ playing ? '❚❚' : '▶' }}
                   </button>
                   <div class="font-display text-lg text-berenjena w-[4.5rem] tabular-nums leading-none">{{ dateLabel }}</div>
                   <input type="range" min="0" max="2" step="1" :value="frame"
                     @input="setFrame(+($event.target as HTMLInputElement).value)"
-                    class="flex-1 min-w-[110px] accent-berenjena"
+                    class="tl-range flex-1 min-w-[110px] accent-berenjena"
                     :aria-label="L('Recorrer los estudios PET (¹⁸F-FDG ene→mar · ⁶⁸Ga-DOTATOC may)', 'Step through the PET studies (¹⁸F-FDG Jan→Mar · ⁶⁸Ga-DOTATOC May)')" />
                 </div>
                 <div class="flex justify-between mt-2 px-0.5">
                   <button v-for="(d, i) in FDATES" :key="i" type="button" @click="setFrame(i)"
-                    class="text-[10px] font-mono transition-colors"
+                    class="tl-date text-[10px] font-mono transition-colors px-1.5 py-1 rounded"
                     :class="frame === i ? 'text-berenjena font-bold' : 'text-tinta hover:text-berenjena'">{{ d[lang].split(' ')[0] }}</button>
                 </div>
                 <!-- (B · plan comité web) nota larga → PLEGABLE (notes-disclosure, patrón
@@ -2766,6 +2783,11 @@ const ticks = [
                      oscuro si está seleccionado. Tamaño UNIFORME (la posición ya codifica
                      los dos SUV). Sin halo, sin parpadeo, sin tamaño ∝ SUVmáx. -->
                 <g v-for="d in quadDots" :key="'qd' + d.le.id" v-show="visible(d.le)">
+                  <!-- área táctil invisible (móvil): el dedo acierta sin agrandar el punto -->
+                  <circle :cx="d.px" :cy="d.py" :r="DOT_HIT"
+                    fill="transparent" class="cursor-pointer" aria-hidden="true"
+                    @click="pickAndShow(d.le.id)"
+                    @mouseenter="canHoverFine() && showTip($event, lesionTipText(d.le))" @mouseleave="hideTip" />
                   <circle :cx="d.px" :cy="d.py" :r="DOT_R"
                     :fill="phenoColor(d.le)"
                     :stroke="selected === d.le.id ? '#2d1b3d' : '#ffffff'"
@@ -4101,4 +4123,47 @@ svg [role="button"]:focus-visible {
     transform: none;
   }
 }
+
+/* ════════════════════════════════════════════════════════════════════════
+   MÓVIL / TÁCTIL · áreas de toque ≥44px en los CONTROLES DE NAVEGACIÓN.
+   Solo en punteros gruesos (dedo): el escritorio (ratón) conserva su tamaño
+   compacto. Aplica a las flechas prev/next, los chips de filtro, el play y
+   los pasos de la línea de tiempo. El marcador 3D y su parpadeo NO se tocan.
+   ════════════════════════════════════════════════════════════════════════ */
+@media (pointer: coarse) {
+  .nav-step { width: 44px; height: 44px; }
+  .tl-play { width: 44px; height: 44px; }
+  /* chips de filtro: alto cómodo sin reflujo del escritorio */
+  .filter-chip { min-height: 38px; padding-top: 7px; padding-bottom: 7px; }
+  /* pasos de fecha de la línea de tiempo: caja táctil con el padding ya puesto */
+  .tl-date { min-height: 38px; display: inline-flex; align-items: center; }
+  /* pulgar del slider de tiempo ≥24px (WebKit + Firefox) */
+  .tl-range { height: 28px; }
+  .tl-range::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 24px;
+    height: 24px;
+    border-radius: 9999px;
+    background: #2d1b3d;
+    border: 2px solid #fbf7f0;
+    box-shadow: 0 1px 3px rgba(45, 27, 61, 0.4);
+    cursor: pointer;
+  }
+  .tl-range::-moz-range-thumb {
+    width: 24px;
+    height: 24px;
+    border-radius: 9999px;
+    background: #2d1b3d;
+    border: 2px solid #fbf7f0;
+    cursor: pointer;
+  }
+  /* botones de orden de la tabla: ya tienen min-height 44px (arriba); reforzar tap */
+  .th-sort { min-width: 44px; }
+}
+
+/* OVERFLOW · las cadenas mono del detalle del foco (fórmulas, cifras concatenadas)
+   ajustan en vez de desbordar el ancho a 320–430px. Acotado al detalle para no tocar
+   las celdas tabulares de la tabla (que ya scrollean en su contenedor overflow-x-auto). */
+.foco-detalle :deep(.font-mono) { overflow-wrap: anywhere; }
 </style>
