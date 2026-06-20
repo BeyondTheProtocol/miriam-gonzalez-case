@@ -4225,6 +4225,158 @@ const manifestValidated = (() => {
           </p>
         </details>
 
+        <!-- ╔══════════════ MÉTODO · cómo se construye esto (y cómo clonarlo) ══════════════╗
+             Lo que vuelve este caso un PATRÓN: el MÉTODO y el ESQUEMA publicados como un
+             contrato clonable, no un efecto. Sobrio y honesto: marca lo reproducible con
+             herramientas open-source frente a lo que fue medición propia sobre los DICOM;
+             no inventa comandos que no se puedan verificar. Plegable para el lector casual,
+             COMPLETO para quien lo clona. -->
+        <section id="metodo" class="mt-12 pt-8 border-t border-[rgba(45,27,61,0.12)] scroll-mt-[5.5rem]" aria-labelledby="metodo-titulo">
+          <p class="eyebrow mb-2 block">{{ L('Método · reproducible', 'Method · reproducible') }}</p>
+          <div class="flex items-baseline justify-between flex-wrap gap-x-3 gap-y-1 mb-2">
+            <h2 id="metodo-titulo" class="heading-display text-2xl text-berenjena">{{ L('Cómo se construye esto (y cómo clonarlo)', 'How this is built (and how to clone it)') }}</h2>
+            <p class="text-[11px] text-tinta">{{ L('el pipeline + el esquema, publicados como contrato', 'the pipeline + the schema, published as a contract') }}</p>
+          </div>
+          <p class="text-sm text-tinta leading-relaxed mb-4 max-w-3xl">
+            {{ L(
+              'Lo que hace esta página reutilizable no es el visor 3D: es que el MÉTODO y el ESQUEMA del dato están publicados como un contrato que otro caso N-of-1 rellena con LOS SUYOS. Aquí abajo, el pipeline paso a paso, las herramientas open-source que intervienen, sus límites, y el esquema descargable.',
+              'What makes this page reusable is not the 3D viewer: it is that the data METHOD and SCHEMA are published as a contract that another N-of-1 case fills in with THEIRS. Below: the pipeline step by step, the open-source tools involved, their limits, and the downloadable schema.') }}
+          </p>
+
+          <details class="notes-disclosure">
+            <summary>{{ L('Abrir el método completo (pipeline · esquema-contrato · fork esto · principios)', 'Open the full method (pipeline · schema-contract · fork this · principles)') }}</summary>
+
+            <!-- 1 · EL PIPELINE PASO A PASO -->
+            <div class="mt-4">
+              <p class="eyebrow--sm text-berenjena mb-2">{{ L('1 · El pipeline, paso a paso', '1 · The pipeline, step by step') }}</p>
+              <p class="text-[13px] text-tinta leading-relaxed mb-3 max-w-3xl">
+                {{ L(
+                  'De dos estudios PET-CT con trazadores distintos a un instrumento navegable. Cada paso declara qué herramienta open-source interviene y dónde está su límite.',
+                  'From two PET-CT studies with different tracers to a navigable instrument. Each step declares which open-source tool is involved and where its limit lies.') }}
+              </p>
+              <ol class="method-steps">
+                <li>
+                  <span class="method-step__n">1</span>
+                  <div>
+                    <p class="method-step__h">{{ L('Entrada · doble trazador PET-CT', 'Input · dual-tracer PET-CT') }}</p>
+                    <p class="method-step__b">{{ L(
+                      'Dos PET-CT del mismo paciente: ⁶⁸Ga-DOTATOC (receptores de somatostatina, SSTR) y ¹⁸F-FDG (glucólisis), con sus informes de Medicina Nuclear. Lo que ENTRA: las series DICOM (PET con corrección de atenuación + TC) y el texto de los informes.',
+                      'Two PET-CT studies of the same patient: ⁶⁸Ga-DOTATOC (somatostatin receptors, SSTR) and ¹⁸F-FDG (glycolysis), with their Nuclear Medicine reports. What ENTERS: the DICOM series (attenuation-corrected PET + CT) and the report text.') }}</p>
+                  </div>
+                </li>
+                <li>
+                  <span class="method-step__n">2</span>
+                  <div>
+                    <p class="method-step__h">{{ L('Co-registro sobre la malla del TC', 'Co-registration onto the CT mesh') }}</p>
+                    <p class="method-step__b">{{ L(
+                      'Los dos estudios se llevan a un marco espacial común: la malla del TC. Caveat declarado: son de FECHAS DISTINTAS (¹⁸F-FDG 24/03/2026, ⁶⁸Ga-DOTATOC 26/05/2026), así que el solapamiento es una localización aproximada por co-registro, con error de varios milímetros, no una fusión exacta.',
+                      'The two studies are brought into a common spatial frame: the CT mesh. Declared caveat: they are from DIFFERENT dates (¹⁸F-FDG 24/03/2026, ⁶⁸Ga-DOTATOC 26/05/2026), so the overlay is an approximate localization by co-registration, with an error of several millimeters, not an exact fusion.') }}</p>
+                  </div>
+                </li>
+                <li>
+                  <span class="method-step__n">3</span>
+                  <div>
+                    <p class="method-step__h">{{ L('Eje de discordancia · SSTR ↔ glucólisis', 'Discordance axis · SSTR ↔ glycolysis') }}</p>
+                    <p class="method-step__b">{{ L(
+                      'Por foco se compara la captación de cada trazador (SUVmáx) y se sitúa la lesión en el eje SSTR-dominante (⁶⁸Ga⁺/FDG⁻) ↔ glucolítico-dominante (⁶⁸Ga⁻/FDG⁺). NO se restan SUV entre trazadores distintos: el eje es cualitativo, describe el patrón.',
+                      'Per focus, each tracer’s uptake (SUVmax) is compared and the lesion is placed on the SSTR-dominant (⁶⁸Ga⁺/FDG⁻) ↔ glycolytic-dominant (⁶⁸Ga⁻/FDG⁺) axis. SUVs are NOT subtracted across different tracers: the axis is qualitative, it describes the pattern.') }}</p>
+                  </div>
+                </li>
+                <li>
+                  <span class="method-step__n">4</span>
+                  <div>
+                    <p class="method-step__h">{{ L('Idoneidad · heurística declarada', 'Suitability · declared heuristic') }}</p>
+                    <p class="method-step__b">{{ L(
+                      'Un score 0–100 de idoneidad como diana de biopsia, con pesos puestos a mano y NO validado contra resultados de biopsia. Orienta, no es una probabilidad medida: se ofrece como lente opt-in, nunca como el orden por defecto ni un veredicto.',
+                      'A 0–100 score of suitability as a biopsy target, with hand-set weights and NOT validated against biopsy outcomes. It orients, it is not a measured probability: offered as an opt-in lens, never as the default order or a verdict.') }}</p>
+                  </div>
+                </li>
+                <li>
+                  <span class="method-step__n">5</span>
+                  <div>
+                    <p class="method-step__h">{{ L('Visor 3D · máscaras óseas + proyección del PET', '3D viewer · bone masks + PET projection') }}</p>
+                    <p class="method-step__b">{{ L(
+                      'La segmentación ósea del TC se obtiene con TotalSegmentator (open-source). Sobre esa malla se proyecta el PET por vértice para localizar cada foco. Caveat: el color por vértice es una PROYECCIÓN, indica dónde, no un SUVmáx cuantificado (≠ SUVmáx).',
+                      'Bone segmentation from the CT is obtained with TotalSegmentator (open-source). The PET is projected per-vertex onto that mesh to localize each focus. Caveat: the per-vertex colour is a PROJECTION — it shows where, not a quantified SUVmax (≠ SUVmax).') }}</p>
+                  </div>
+                </li>
+              </ol>
+              <div class="method-tools mt-3">
+                <p class="eyebrow--sm text-berenjena mb-1.5">{{ L('Herramientas open-source · y qué es medición propia', 'Open-source tools · and what is in-house measurement') }}</p>
+                <ul class="text-[12.5px] text-tinta leading-relaxed space-y-1">
+                  <li>{{ L(
+                    '· TotalSegmentator — segmentación ósea automática del TC (open-source, reproducible públicamente sobre cualquier TC).',
+                    '· TotalSegmentator — automatic bone segmentation from the CT (open-source, publicly reproducible on any CT).') }}</li>
+                  <li>{{ L(
+                    '· Reconstrucción / proyección PET → malla — el PET (corregido por atenuación) se proyecta sobre la malla del TC para situar los focos (pipeline propio sobre los DICOM).',
+                    '· PET → mesh reconstruction / projection — the (attenuation-corrected) PET is projected onto the CT mesh to place the foci (in-house pipeline over the DICOM).') }}</li>
+                  <li>{{ L(
+                    '· Re-cuantificación de SUVmáx sobre el DICOM nativo — MEDICIÓN PROPIA (David) que verifica el informe; concuerda dentro de ~10–12% (voxel-máx ↔ ROI). No es el pipeline público.',
+                    '· SUVmax re-quantification over the native DICOM — IN-HOUSE MEASUREMENT (David) that verifies the report; agrees within ~10–12% (voxel-max ↔ ROI). It is not the public pipeline.') }}</li>
+                </ul>
+              </div>
+              <div class="method-limits mt-3">
+                <p class="eyebrow--sm mb-1.5" style="color:#8a4a1a">{{ L('Los límites (honestos)', 'The limits (honest)') }}</p>
+                <p class="text-[12.5px] text-tinta leading-relaxed max-w-3xl">{{ L(
+                  'La proyección por vértice NO es un SUVmáx cuantificado (dónde, no cuánto). El score de idoneidad es heurístico, no validado. El co-registro es espacial y aproximado (fechas distintas, error de mm). El SUVmáx sufre volumen parcial (subestima focos < ~10 mm). Lo reproducible públicamente es la segmentación (TotalSegmentator) y el esquema del dato; la re-cuantificación sobre los DICOM fue medición propia, marcada como tal en cada cifra.',
+                  'The per-vertex projection is NOT a quantified SUVmax (where, not how much). The suitability score is heuristic, not validated. Co-registration is spatial and approximate (different dates, mm error). SUVmax suffers partial volume (underestimates foci < ~10 mm). What is publicly reproducible is the segmentation (TotalSegmentator) and the data schema; the DICOM re-quantification was an in-house measurement, flagged as such in every figure.') }}</p>
+                <p class="text-[12px] text-tinta mt-1.5"><a href="#metodo-caveats" class="link-action text-miriam font-semibold">{{ L('Las cuatro salvedades de método, en detalle ↑', 'The four method caveats, in detail ↑') }}</a></p>
+              </div>
+            </div>
+
+            <!-- 2 · EL ESQUEMA-MANIFIESTO COMO CONTRATO CLONABLE -->
+            <div class="mt-6 pt-5 border-t border-[rgba(45,27,61,0.1)]">
+              <p class="eyebrow--sm text-berenjena mb-2">{{ L('2 · El esquema-manifiesto · un contrato clonable', '2 · The schema-manifest · a clonable contract') }}</p>
+              <p class="text-[13px] text-tinta leading-relaxed mb-3 max-w-3xl">{{ L(
+                'El dato vive en un manifiesto con procedencia campo a campo. Cada cifra es una celda con su esquema; otro caso rellena la misma estructura con SUS datos. El esquema viaja DENTRO del JSON descargable (es el contrato, no una etiqueta pintada encima).',
+                'The data lives in a manifest with field-by-field provenance. Each figure is a cell with its schema; another case fills the same structure with THEIR data. The schema travels INSIDE the downloadable JSON (it is the contract, not a label painted on top).') }}</p>
+              <pre class="method-schema" aria-label="Cell schema"><code>Cell {
+  valor    : number | string | null   <span class="method-schema__c">// null = no aplica / no medido</span>
+  unidad   : 'SUVmáx' | 'mm' | 'ml' | 'HU' | '0-100' | ''
+  fecha    : ISO del estudio de origen ('' = sin fecha)
+  trazador : '18F-FDG' | '68Ga-DOTATOC' | ''
+  fuente   : 'informe' | 'dicom-medicion-david' | 'rmn-literal'
+           | 'derivado' | 'aproximado'
+  ref      : <span class="method-schema__c">// código de biopsia / nota (opcional)</span>
+  medido   : boolean   <span class="method-schema__c">// true = MEDIDO (cantidad física) · false = INTERPRETADO</span>
+}</code></pre>
+              <p class="text-[12.5px] text-tinta leading-relaxed mt-3 max-w-3xl">{{ L(
+                'El JSON incluye este esquema más los 19 focos. Anti-PHI: ids sintéticos #1–19, sin nombre ni nº de historia. Es la misma fuente que la tabla de arriba — lo que se ve es lo que se descarga.',
+                'The JSON includes this schema plus the 19 foci. Anti-PHI: synthetic ids #1–19, no name or record number. It is the same source as the table above — what you see is what you download.') }}</p>
+              <div class="flex flex-wrap items-center gap-2 mt-3">
+                <button type="button" class="manifest-dl" @click="downloadManifestJson">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12" /><path d="M7 11l5 5 5-5" /><path d="M5 21h14" /></svg>
+                  {{ L('Descargar el esquema + datos (JSON)', 'Download the schema + data (JSON)') }}
+                </button>
+                <button type="button" class="manifest-dl" @click="downloadManifestCsv">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12" /><path d="M7 11l5 5 5-5" /><path d="M5 21h14" /></svg>
+                  {{ L('Descargar el manifiesto (CSV)', 'Download the manifest (CSV)') }}
+                </button>
+              </div>
+            </div>
+
+            <!-- 3 · FORK ESTO -->
+            <div class="mt-6 pt-5 border-t border-[rgba(45,27,61,0.1)]">
+              <p class="eyebrow--sm text-berenjena mb-2">{{ L('3 · Fork esto · para otro caso N-of-1', '3 · Fork this · for another N-of-1 case') }}</p>
+              <p class="text-[13px] text-tinta leading-relaxed max-w-3xl">{{ L(
+                'Clona el esquema + el pipeline para tu caso: rellena la misma celda con TUS estudios (informes + DICOM), corre la segmentación con TotalSegmentator, proyecta tu PET sobre la malla, y conserva los principios. Lo que heredas no es un dato, es un MÉTODO: describe y equipa, no concluye; procedencia campo a campo; idoneidad opt-in heurística. Sin sobre-prometer: la segmentación y el esquema son reproducibles públicamente; la re-cuantificación sobre los DICOM dependerá de tu acceso a las imágenes nativas.',
+                'Clone the schema + the pipeline for your case: fill the same cell with YOUR studies (reports + DICOM), run the segmentation with TotalSegmentator, project your PET onto the mesh, and keep the principles. What you inherit is not a datum, it is a METHOD: describe and equip, do not conclude; field-by-field provenance; opt-in heuristic suitability. Without over-promising: the segmentation and the schema are publicly reproducible; the DICOM re-quantification will depend on your access to the native images.') }}</p>
+            </div>
+
+            <!-- 4 · PRINCIPIOS DE HONESTIDAD (parte del método, no decoración) -->
+            <div class="mt-6 pt-5 border-t border-[rgba(45,27,61,0.1)]">
+              <p class="eyebrow--sm text-berenjena mb-2">{{ L('4 · Principios de honestidad · son parte del método', '4 · Honesty principles · they are part of the method') }}</p>
+              <ul class="text-[12.5px] text-tinta leading-relaxed space-y-1.5 max-w-3xl">
+                <li><span class="method-principle">{{ L('Describe / equipa, no concluye.', 'Describe / equip, do not conclude.') }}</span> {{ L('La página reúne la evidencia para que el equipo elija su diana; la lectura formal y la decisión son humanas.', 'The page gathers the evidence so the team can choose its target; the formal reading and the decision are human.') }}</li>
+                <li><span class="method-principle">{{ L('Medido vs interpretado.', 'Measured vs interpreted.') }}</span> {{ L('Cada cifra declara si es una cantidad física medida (SUVmáx, mm, ml) o una lectura/regla (morfología, fenotipo, score). El manifiesto no inventa precisión.', 'Every figure declares whether it is a measured physical quantity (SUVmax, mm, ml) or a reading/rule (morphology, phenotype, score). The manifest does not invent precision.') }}</li>
+                <li><span class="method-principle">{{ L('Idoneidad orientativa, no validada.', 'Suitability is indicative, not validated.') }}</span> {{ L('El score es heurístico (pesos a mano); se ofrece como lente, nunca se impone como veredicto ni como orden por defecto.', 'The score is heuristic (hand-set weights); offered as a lens, never imposed as a verdict or as the default order.') }}</li>
+                <li><span class="method-principle">{{ L('Anti-PHI · ids sintéticos.', 'Anti-PHI · synthetic ids.') }}</span> {{ L('Solo focos #1–19; sin nombre, nº de historia ni metadatos de paciente, ni en la página, ni en la URL, ni en el export.', 'Only foci #1–19; no name, record number or patient metadata — not on the page, not in the URL, not in the export.') }}</li>
+              </ul>
+            </div>
+          </details>
+        </section>
+        <!-- ╚══════════════ FIN MÉTODO ══════════════╝ -->
+
         <!-- retorno a /ciencia (coherencia de sitio) -->
         <div class="mt-10 pt-6 border-t border-[rgba(45,27,61,0.1)]">
           <NuxtLink :to="localePath('ciencia')" class="link-action text-miriam">
@@ -5099,6 +5251,62 @@ svg [role="button"]:focus-visible {
 .manifest-dl:hover { background: #f0e7f3; border-color: rgba(157, 68, 171, 0.5); }
 .manifest-dl:focus-visible { outline: 2px solid #9d44ab; outline-offset: 1px; }
 .manifest-card { background: #fbf7f0; }
+/* ── Método · pasos del pipeline + esquema-contrato (sobrio, instrumento) ── */
+.method-steps {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+.method-steps > li {
+  display: flex;
+  gap: 0.7rem;
+  align-items: flex-start;
+}
+.method-step__n {
+  flex-shrink: 0;
+  width: 22px;
+  height: 22px;
+  margin-top: 1px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  background: #2d1b3d;
+  color: #fdf6ef;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+.method-step__h {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #2d1b3d;
+  line-height: 1.3;
+}
+.method-step__b {
+  font-size: 0.8rem;
+  line-height: 1.5;
+  color: #6b6470;
+  margin-top: 0.1rem;
+}
+.method-schema {
+  margin: 0;
+  padding: 0.85rem 1rem;
+  border-radius: 0.6rem;
+  border: 1px solid rgba(45, 27, 61, 0.12);
+  background: #fbf7f0;
+  overflow-x: auto;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.72rem;
+  line-height: 1.6;
+  color: #2d1b3d;
+}
+.method-schema code { font: inherit; color: inherit; }
+.method-schema__c { color: #8a7f93; }
+.method-principle { font-weight: 600; color: #2d1b3d; }
 .foco-key-lb__close {
   flex-shrink: 0;
   width: 34px;
