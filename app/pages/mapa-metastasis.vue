@@ -100,96 +100,96 @@ const LES: Lesion[] = [
     id: 1, x: 220, y: 90, side: 'C', dota: 2.89, fdg: null, pheno: 'ne',
     level: { es: 'C3 · apófisis espinosa', en: 'C3 · spinous process' },
     region: { es: 'Columna cervical', en: 'Cervical spine' },
-    what: { es: 'Apófisis espinosa de una vértebra cervical (la punta que se palpa en la nuca). Capta solo el trazador de receptores de somatostatina (⁶⁸Ga-DOTATOC); no muestra captación glucolítica (¹⁸F-FDG).', en: 'Spinous process of a cervical vertebra (the tip you can feel at the back of the neck). It takes up only the somatostatin-receptor tracer (⁶⁸Ga-DOTATOC); it shows no glycolytic (¹⁸F-FDG) uptake.' },
+    what: { es: 'Apófisis espinosa cervical. Capta solo ⁶⁸Ga-DOTATOC (SSTR); ¹⁸F-FDG negativo.', en: 'Cervical spinous process. ⁶⁸Ga-DOTATOC (SSTR) only; ¹⁸F-FDG negative.' },
     tech: { es: 'DOTATOC SUVmáx 2.89; FDG negativo. SSTR+ / FDG−.', en: 'DOTATOC SUVmax 2.89; FDG negative. SSTR+ / FDG−.' },
   },
   {
     id: 2, x: 206, y: 104, side: 'R', dota: 3.10, fdg: null, pheno: 'ne',
     level: { es: 'C4 · lámina / arco derecho', en: 'C4 · right lamina / arch' },
     region: { es: 'Columna cervical', en: 'Cervical spine' },
-    what: { es: 'Arco posterior de la vértebra C4 (la lámina, que protege la médula espinal), lado derecho. Captación aislada de receptores de somatostatina (⁶⁸Ga-DOTATOC), sin captación glucolítica (¹⁸F-FDG).', en: 'Posterior arch of the C4 vertebra (the lamina, which protects the spinal cord), right side. Isolated somatostatin-receptor uptake (⁶⁸Ga-DOTATOC), without glycolytic (¹⁸F-FDG) uptake.' },
+    what: { es: 'Lámina (arco posterior) de C4, lado derecho. Captación aislada de ⁶⁸Ga-DOTATOC (SSTR); ¹⁸F-FDG negativo.', en: 'C4 lamina (posterior arch), right side. Isolated ⁶⁸Ga-DOTATOC (SSTR) uptake; ¹⁸F-FDG negative.' },
     tech: { es: 'DOTATOC SUVmáx 3.10; FDG negativo. SSTR+ / FDG−.', en: 'DOTATOC SUVmax 3.10; FDG negative. SSTR+ / FDG−.' },
   },
   {
     id: 3, x: 120, y: 205, side: 'R', dota: 3.84, fdg: null, pheno: 'ne',
     level: { es: 'Escápula derecha', en: 'Right scapula' },
     region: { es: 'Cintura escapular', en: 'Shoulder girdle' },
-    what: { es: 'Escápula derecha (hueso plano de la cintura escapular), fuera del esqueleto axial. Captación aislada de receptores de somatostatina (⁶⁸Ga-DOTATOC), sin captación glucolítica (¹⁸F-FDG).', en: 'Right scapula (a flat bone of the shoulder girdle), off the axial skeleton. Isolated somatostatin-receptor uptake (⁶⁸Ga-DOTATOC), without glycolytic (¹⁸F-FDG) uptake.' },
+    what: { es: 'Escápula derecha, fuera del eje axial. Captación aislada de ⁶⁸Ga-DOTATOC (SSTR); ¹⁸F-FDG negativo.', en: 'Right scapula, off the axial skeleton. Isolated ⁶⁸Ga-DOTATOC (SSTR) uptake; ¹⁸F-FDG negative.' },
     tech: { es: 'DOTATOC SUVmáx 3.84; FDG negativo. SSTR+ / FDG−, fuera del eje axial.', en: 'DOTATOC SUVmax 3.84; FDG negative. SSTR+ / FDG−, off the axial skeleton.' },
   },
   {
     id: 4, x: 220, y: 156, side: 'C', dota: 4.23, fdg: 6.97, prevFdg: 2.8, pheno: 'mixAgg', size: '14 × 10',
     level: { es: 'D1 (T1) · cuerpo vertebral', en: 'T1 · vertebral body' },
     region: { es: 'Columna dorsal alta', en: 'Upper thoracic spine' },
-    what: { es: 'Primera vértebra dorsal (D1/T1), justo bajo la columna cervical. Foco nuevo: prácticamente no se identificaba en el PET previo y ahora muestra captación glucolítica (¹⁸F-FDG) intensa.', en: 'First thoracic vertebra (T1), just below the cervical spine. New focus: barely identifiable on the prior PET and now showing intense glycolytic (¹⁸F-FDG) uptake.' },
+    what: { es: 'Primera vértebra dorsal (D1/T1). Foco nuevo: apenas se veía en el PET previo y ahora muestra ¹⁸F-FDG intenso.', en: 'First thoracic vertebra (T1). New focus: barely identifiable on the prior PET, now with intense ¹⁸F-FDG.' },
     tech: { es: 'DOTATOC 4.23 / FDG 6.97 (previo 2.8, no significativo). Foco nuevo, FDG-dominante (FDG>SSTR).', en: 'DOTATOC 4.23 / FDG 6.97 (prior 2.8, non-significant). New focus, FDG-dominant (FDG>SSTR).' },
-    rmn: { es: 'Nivel dorsal: la RMN de columna cubre esta zona. Forma: componente blástico (hueso denso) en la verificación por TC. La forma y la médula ósea se ven mejor en la RMN — míralo en el visor.', en: 'Thoracic level: the spine MRI covers this area. Shape: blastic component (dense bone) on the CT check. Shape and bone marrow are better seen on MRI — view it in the viewer.' },
+    rmn: { es: 'Componente blástico (TC). La forma y la médula ósea se ven mejor en la RMN — míralo en el visor.', en: 'Blastic component (CT). Shape and bone marrow are clearer on MRI — view it in the viewer.' },
   },
   {
     id: 5, x: 220, y: 234, side: 'C', dota: 6.17, fdg: null, pheno: 'ne', size: '14 × 10',
     level: { es: 'D5 (T5) · cuerpo vertebral', en: 'T5 · vertebral body' },
     region: { es: 'Columna dorsal media', en: 'Mid-thoracic spine' },
-    what: { es: 'Cuerpo de una vértebra dorsal media (D5/T5). Captación moderada-alta de receptores de somatostatina (⁶⁸Ga-DOTATOC), sin captación glucolítica (¹⁸F-FDG).', en: 'Body of a mid-thoracic vertebra (T5). Moderate-to-high somatostatin-receptor uptake (⁶⁸Ga-DOTATOC), no glycolytic (¹⁸F-FDG) uptake.' },
+    what: { es: 'Cuerpo de D5/T5. Captación moderada-alta de ⁶⁸Ga-DOTATOC (SSTR); ¹⁸F-FDG negativo.', en: 'T5 vertebral body. Moderate-to-high ⁶⁸Ga-DOTATOC (SSTR) uptake; ¹⁸F-FDG negative.' },
     tech: { es: 'DOTATOC SUVmáx 6.17 (moderada); FDG negativo. SSTR+ / FDG−.', en: 'DOTATOC SUVmax 6.17 (moderate); FDG negative. SSTR+ / FDG−.' },
-    rmn: { es: 'Nivel dorsal: la RMN de columna cubre esta zona. Forma: lesión blástica (hueso denso). Es un dato de FORMA, no un tercer color.', en: 'Thoracic level: the spine MRI covers this area. Shape: blastic lesion (dense bone). This is a SHAPE finding, not a third color.' },
+    rmn: { es: 'Lesión blástica (hueso denso).', en: 'Blastic lesion (dense bone).' },
   },
   {
     id: 6, x: 212, y: 313, side: 'R', dota: 1.37, fdg: null, pheno: 'ne',
     level: { es: 'D9 (T9) · cuerpo derecho', en: 'T9 · right body' },
     region: { es: 'Columna dorsal baja', en: 'Lower thoracic spine' },
-    what: { es: 'Vértebra dorsal baja (D9/T9), lado derecho. Captación leve y aislada de receptores de somatostatina (⁶⁸Ga-DOTATOC); SUVmáx bajo.', en: 'Lower thoracic vertebra (T9), right side. Mild, isolated somatostatin-receptor uptake (⁶⁸Ga-DOTATOC); low SUVmax.' },
+    what: { es: 'D9/T9, lado derecho. Captación leve y aislada de ⁶⁸Ga-DOTATOC (SSTR), SUVmáx bajo; ¹⁸F-FDG negativo.', en: 'T9, right side. Mild, isolated ⁶⁸Ga-DOTATOC (SSTR) uptake, low SUVmax; ¹⁸F-FDG negative.' },
     tech: { es: 'DOTATOC SUVmáx 1.37 (baja); FDG negativo. SSTR+ / FDG−.', en: 'DOTATOC SUVmax 1.37 (low); FDG negative. SSTR+ / FDG−.' },
   },
   {
     id: 7, x: 220, y: 352, r: 14, side: 'C', dota: 13.27, fdg: 7.61, prevFdg: 10.19, scler: true, pheno: 'mixNe', size: '18 × 14',
     level: { es: 'D11 (T11) · cuerpo vertebral', en: 'T11 · vertebral body' },
     region: { es: 'Unión dorsolumbar', en: 'Thoracolumbar junction' },
-    what: { es: 'Una de las lesiones más intensas. Presenta la mayor captación de receptores de somatostatina (⁶⁸Ga-DOTATOC) de toda la serie y además capta ¹⁸F-FDG, aunque el componente glucolítico ha descendido respecto al PET previo. Atenuación esclerótica/blástica (hueso denso) en la TC.', en: 'One of the most intense lesions. It has the highest somatostatin-receptor uptake (⁶⁸Ga-DOTATOC) of the whole series and also takes up ¹⁸F-FDG, though the glycolytic component has dropped versus the prior PET. Sclerotic/blastic CT attenuation (dense bone).' },
+    what: { es: 'Una de las más intensas: la mayor captación ⁶⁸Ga-DOTATOC (SSTR) de la serie, dual con ¹⁸F-FDG que ha descendido vs el previo. Atenuación blástica en TC.', en: 'One of the most intense: the highest ⁶⁸Ga-DOTATOC (SSTR) uptake of the series, dual with ¹⁸F-FDG that has dropped vs prior. Blastic CT attenuation.' },
     tech: { es: 'DOTATOC SUVmáx 13.27 (SSTR muy intensa) / FDG 7.61 (previo 10.19, ↓). Mixto, predominio SSTR (SSTR>FDG). Blástica.', en: 'DOTATOC SUVmax 13.27 (very intense SSTR) / FDG 7.61 (prior 10.19, ↓). Mixed, SSTR-predominant (SSTR>FDG). Blastic.' },
-    rmn: { es: 'Nivel dorsal: la RMN de columna cubre esta zona. Forma: lesión blástica (hueso denso). El informe de RM describe en D11 extensión al espacio epidural anterior y afectación del canal lateral izquierdo. Es un dato de FORMA, no un tercer color.', en: 'Thoracic level: the spine MRI covers this area. Shape: blastic lesion (dense bone). The MRI report describes anterior epidural extension and left lateral canal compromise at D11. This is a SHAPE finding, not a third color.' },
+    rmn: { es: 'Lesión blástica. La RM describe en D11 extensión al espacio epidural anterior y afectación del canal lateral izquierdo.', en: 'Blastic lesion. The MRI describes anterior epidural extension and left lateral canal compromise at D11.' },
     softTissue: { es: 'La RMN describe componente de partes blandas / extensión extraósea (espacio epidural anterior, canal lateral izquierdo). El tejido blando suele rentabilizar más que el hueso blástico denso, pero por su vecindad al canal y a las raíces la accesibilidad y la seguridad las valora radiología intervencionista.', en: 'The MRI describes a soft-tissue / extraosseous component (anterior epidural space, left lateral canal). Soft tissue usually yields more than dense blastic bone, but given its proximity to the canal and nerve roots, accessibility and safety are assessed by interventional radiology.' },
   },
   {
     id: 8, x: 237, y: 352, side: 'L', dota: 11.63, fdg: null, pheno: 'ne', size: '13 × 10',
     level: { es: 'D11 (T11) · pedículo izquierdo', en: 'T11 · left pedicle' },
     region: { es: 'Unión dorsolumbar', en: 'Thoracolumbar junction' },
-    what: { es: 'En la MISMA vértebra que la #7 pero en el pedículo izquierdo (el puente óseo lateral): aquí la captación es solo de receptores de somatostatina (⁶⁸Ga-DOTATOC), sin componente glucolítico (¹⁸F-FDG). Misma vértebra, dos patrones de captación distintos (heterogeneidad intravertebral).', en: 'In the SAME vertebra as #7 but in the left pedicle (the lateral bony bridge): here uptake is somatostatin-receptor only (⁶⁸Ga-DOTATOC), with no glycolytic (¹⁸F-FDG) component. Same vertebra, two distinct uptake patterns (intra-vertebral heterogeneity).' },
+    what: { es: 'Misma vértebra que la #7, pedículo izquierdo: aquí la captación es solo ⁶⁸Ga-DOTATOC (SSTR), sin ¹⁸F-FDG. Dos patrones en la misma vértebra (heterogeneidad intravertebral).', en: 'Same vertebra as #7, left pedicle: here uptake is ⁶⁸Ga-DOTATOC (SSTR) only, no ¹⁸F-FDG. Two patterns in one vertebra (intra-vertebral heterogeneity).' },
     tech: { es: 'DOTATOC SUVmáx 11.63; FDG negativo. SSTR+ intenso / FDG−. Ilustra la heterogeneidad intra-vértebra junto a la #7.', en: 'DOTATOC SUVmax 11.63; FDG negative. Intense SSTR+ / FDG−. Illustrates intra-vertebral heterogeneity alongside #7.' },
-    rmn: { es: 'Misma vértebra D11 (la RMN de columna cubre este nivel). Forma: componente blástico; el detalle de la médula ósea se ve en el visor RMN.', en: 'Same D11 vertebra (the spine MRI covers this level). Shape: blastic component; bone-marrow detail is visible in the MRI viewer.' },
+    rmn: { es: 'Componente blástico; el detalle de la médula ósea se ve en el visor RMN.', en: 'Blastic component; bone-marrow detail is visible in the MRI viewer.' },
   },
   {
     id: 9, x: 220, y: 392, side: 'C', dota: 3.66, fdg: null, pheno: 'ne', size: '10 × 8',
     level: { es: 'L1 · apófisis espinosa', en: 'L1 · spinous process' },
     region: { es: 'Columna lumbar', en: 'Lumbar spine' },
-    what: { es: 'Apófisis espinosa de la primera vértebra lumbar (L1). Captación aislada de receptores de somatostatina (⁶⁸Ga-DOTATOC), sin captación glucolítica (¹⁸F-FDG).', en: 'Spinous process of the first lumbar vertebra (L1). Isolated somatostatin-receptor uptake (⁶⁸Ga-DOTATOC), without glycolytic (¹⁸F-FDG) uptake.' },
+    what: { es: 'Apófisis espinosa de L1. Captación aislada de ⁶⁸Ga-DOTATOC (SSTR); ¹⁸F-FDG negativo.', en: 'L1 spinous process. Isolated ⁶⁸Ga-DOTATOC (SSTR) uptake; ¹⁸F-FDG negative.' },
     tech: { es: 'DOTATOC SUVmáx 3.66; FDG negativo. SSTR+ / FDG−.', en: 'DOTATOC SUVmax 3.66; FDG negative. SSTR+ / FDG−.' },
   },
   {
     id: 10, x: 241, y: 399, side: 'L', dota: null, fdg: 6.84, prevFdg: 4.67, pheno: 'agg',
     level: { es: 'L1 · pedículo izquierdo', en: 'L1 · left pedicle' },
     region: { es: 'Columna lumbar', en: 'Lumbar spine' },
-    what: { es: 'La ÚNICA lesión con discordancia de trazadores ¹⁸F-FDG⁺ / ⁶⁸Ga-DOTATOC⁻: capta glucólisis pero no expresa receptores de somatostatina detectables, y el componente glucolítico está en aumento.', en: 'The ONLY lesion with ¹⁸F-FDG⁺ / ⁶⁸Ga-DOTATOC⁻ tracer discordance: glycolytic uptake without detectable somatostatin-receptor expression, and the glycolytic component is rising.' },
+    what: { es: 'La ÚNICA lesión discordante ¹⁸F-FDG⁺ / ⁶⁸Ga-DOTATOC⁻: glucólisis sin SSTR detectable, y el ¹⁸F-FDG en aumento.', en: 'The ONLY ¹⁸F-FDG⁺ / ⁶⁸Ga-DOTATOC⁻ discordant lesion: glycolysis without detectable SSTR, and ¹⁸F-FDG rising.' },
     tech: { es: 'FDG SUVmáx 6.84 (previo 4.67, ↑); DOTATOC negativo. FDG+ / SSTR−. Discordante con #9 (misma vértebra).', en: 'FDG SUVmax 6.84 (prior 4.67, ↑); DOTATOC negative. FDG+ / SSTR−. Discordant with #9 (same vertebra).' },
   },
   {
     id: 11, x: 220, y: 470, r: 13, side: 'C', dota: 12.14, fdg: 5.0, prevFdg: 4.81, pheno: 'mixNe', size: '18 × 13', sbrt: true,
     level: { es: 'L5 · cuerpo vertebral', en: 'L5 · vertebral body' },
     region: { es: 'Columna lumbar baja', en: 'Lower lumbar spine' },
-    what: { es: 'Última vértebra lumbar (L5), de alta carga mecánica. Captación intensa de receptores de somatostatina (⁶⁸Ga-DOTATOC) y captación glucolítica (¹⁸F-FDG) moderada y estable. Captación dual con predominio SSTR.', en: 'Last lumbar vertebra (L5), a high-load zone. Intense somatostatin-receptor uptake (⁶⁸Ga-DOTATOC) and moderate, stable glycolytic (¹⁸F-FDG) uptake. Dual uptake, SSTR-predominant.' },
-    tech: { es: 'DOTATOC SUVmáx 12.14 (SSTR intensa) / FDG 5.0 (previo 4.81, estable; re-medido sobre el DICOM ~+16%). Mixto, predominio SSTR (SSTR>FDG). En tratamiento con SBRT (tejido tratado).', en: 'DOTATOC SUVmax 12.14 (intense SSTR) / FDG 5.0 (prior 4.81, stable; re-measured on the DICOM ~+16%). Mixed, SSTR-predominant (SSTR>FDG). Under SBRT treatment (treated tissue).' },
+    what: { es: 'L5, hueso de alta carga. ⁶⁸Ga-DOTATOC (SSTR) intenso y ¹⁸F-FDG moderado y estable: dual, predominio SSTR. En SBRT (tejido tratado).', en: 'L5, high-load bone. Intense ⁶⁸Ga-DOTATOC (SSTR) and moderate, stable ¹⁸F-FDG: dual, SSTR-predominant. Under SBRT (treated tissue).' },
+    tech: { es: 'DOTATOC SUVmáx 12.14 (SSTR intensa) / FDG 5.0 (previo 4.81, estable). Mixto, predominio SSTR. En SBRT (tejido tratado).', en: 'DOTATOC SUVmax 12.14 (intense SSTR) / FDG 5.0 (prior 4.81, stable). Mixed, SSTR-predominant. Under SBRT (treated tissue).' },
   },
   {
     id: 12, x: 205, y: 505, side: 'R', dota: 4.27, fdg: 4.34, prevFdg: 6.26, pheno: 'mixBal', size: '12 × 9',
     level: { es: 'Ala sacra derecha', en: 'Right sacral ala' },
     region: { es: 'Sacro', en: 'Sacrum' },
-    what: { es: 'Ala sacra derecha (porción superolateral del sacro). Captación dual equilibrada de ambos trazadores (⁶⁸Ga-DOTATOC ≈ ¹⁸F-FDG); el componente glucolítico ha descendido respecto al estudio previo.', en: 'Right sacral ala (superolateral sacrum). Balanced dual uptake of both tracers (⁶⁸Ga-DOTATOC ≈ ¹⁸F-FDG); the glycolytic component dropped versus the prior study.' },
+    what: { es: 'Ala sacra derecha. Captación dual equilibrada (⁶⁸Ga-DOTATOC ≈ ¹⁸F-FDG); el ¹⁸F-FDG ha descendido vs el previo.', en: 'Right sacral ala. Balanced dual uptake (⁶⁸Ga-DOTATOC ≈ ¹⁸F-FDG); ¹⁸F-FDG dropped vs prior.' },
     tech: { es: 'DOTATOC 4.27 / FDG 4.34 (previo 6.26, ↓). Mixto equilibrado (SSTR≈FDG).', en: 'DOTATOC 4.27 / FDG 4.34 (prior 6.26, ↓). Balanced mixed (SSTR≈FDG).' },
   },
   {
     id: 13, x: 165, y: 545, side: 'R', dota: 4.32, fdg: 7.71, prevFdg: 7.0, pheno: 'mixAgg', size: '11 × 8',
     level: { es: 'Ilíaco derecho · ala ilíaca', en: 'Right iliac · iliac wing' },
     region: { es: 'Pelvis', en: 'Pelvis' },
-    what: { es: 'Ala ilíaca derecha (pelvis). Captación dual con predominio glucolítico (¹⁸F-FDG > ⁶⁸Ga-DOTATOC).', en: 'Right iliac wing (pelvis). Dual uptake, glycolytic-predominant (¹⁸F-FDG > ⁶⁸Ga-DOTATOC).' },
+    what: { es: 'Ala ilíaca derecha. Captación dual, predominio glucolítico (¹⁸F-FDG > ⁶⁸Ga-DOTATOC).', en: 'Right iliac wing. Dual uptake, glycolytic-predominant (¹⁸F-FDG > ⁶⁸Ga-DOTATOC).' },
     tech: { es: 'DOTATOC 4.32 / FDG 7.71 (previo 7.0, leve ↑). Mixto, FDG>SSTR.', en: 'DOTATOC 4.32 / FDG 7.71 (prior 7.0, slight ↑). Mixed, FDG>SSTR.' },
     priorBiopsy: {
       es: 'Biopsia previa de este foco (26B585): solo dio hueso y músculo, sin tumor evaluable. Es un foco mixto, pero la zona muestreada fue hueso denso (blástico); el hueso denso suele rentabilizar poco en la biopsia (poco tejido tumoral).',
@@ -200,42 +200,42 @@ const LES: Lesion[] = [
     id: 14, x: 172, y: 585, side: 'R', dota: 3.96, fdg: 9.33, prevFdg: 4.0, load: true, pheno: 'mixAgg', size: '14 × 11',
     level: { es: 'Ilíaco derecho supraacetabular', en: 'Right supra-acetabular iliac' },
     region: { es: 'Pelvis · techo de la cadera', en: 'Pelvis · hip roof' },
-    what: { es: 'Ilíaco supra-acetabular derecho (el techo acetabular, sobre la articulación de la cadera). La captación glucolítica (¹⁸F-FDG) se ha más que duplicado respecto al estudio previo. Hueso de carga; en seguimiento por Oncología Radioterápica.', en: 'Right supra-acetabular iliac (the acetabular roof, above the hip joint). Glycolytic (¹⁸F-FDG) uptake has more than doubled versus the prior study. Weight-bearing bone; under follow-up by Radiation Oncology.' },
-    tech: { es: 'DOTATOC 3.96 / FDG 9.33 (previo 4.0, claro ↑). Mixto, FDG>SSTR, hueso de carga. en seguimiento por Oncología Radioterápica.', en: 'DOTATOC 3.96 / FDG 9.33 (prior 4.0, clearly rising). Mixed, FDG>SSTR, weight-bearing bone. under follow-up by Radiation Oncology.' },
+    what: { es: 'Ilíaco supra-acetabular derecho (techo de la cadera). El ¹⁸F-FDG se ha más que duplicado vs el previo. Hueso de carga; en seguimiento por Oncología Radioterápica.', en: 'Right supra-acetabular iliac (hip roof). ¹⁸F-FDG has more than doubled vs prior. Weight-bearing bone; under Radiation Oncology follow-up.' },
+    tech: { es: 'DOTATOC 3.96 / FDG 9.33 (previo 4.0, claro ↑). Mixto, FDG>SSTR, hueso de carga.', en: 'DOTATOC 3.96 / FDG 9.33 (prior 4.0, clearly rising). Mixed, FDG>SSTR, weight-bearing bone.' },
   },
   {
     id: 15, x: 275, y: 585, side: 'L', dota: 2.54, fdg: 3.97, prevFdg: 1.93, pheno: 'mixAgg',
     level: { es: 'Ilíaco izquierdo supraacetabular', en: 'Left supra-acetabular iliac' },
     region: { es: 'Pelvis · techo de la cadera', en: 'Pelvis · hip roof' },
-    what: { es: 'Imagen en espejo del foco anterior en el lado izquierdo (ilíaco supra-acetabular). Foco nuevo, de baja intensidad pero en aumento; posible contaminación por captación fisiológica pélvica vecina, a correlacionar en el DICOM.', en: 'Mirror image of the previous focus on the left (supra-acetabular iliac). New focus, low intensity but increasing; possible contamination from neighboring physiologic pelvic uptake, to correlate on the DICOM.' },
-    tech: { es: 'FDG 3.97 (previo 1.93, nuevo) con DOTATOC 2.54. Foco mixto nuevo, de baja intensidad. (FDG re-medido sobre el DICOM bastante más alto, ~6,7 vs 3,97 del informe; posible contaminación pélvica vecina —intestino/vejiga—, a correlacionar en el DICOM; no se reescala con esta sola medición.)', en: 'FDG 3.97 (prior 1.93, new) with DOTATOC 2.54. New low-intensity mixed focus. (FDG re-measured on the DICOM is markedly higher, ~6.7 vs 3.97 in the report; possible neighboring pelvic contamination —bowel/bladder—, to correlate on the DICOM; not rescaled on this single measurement.)' },
+    what: { es: 'Espejo del #14 en el lado izquierdo (ilíaco supra-acetabular). Foco nuevo de baja intensidad pero en aumento; posible contaminación por captación pélvica fisiológica vecina, a correlacionar en el DICOM.', en: 'Mirror of #14 on the left (supra-acetabular iliac). New low-intensity focus, increasing; possible contamination from neighboring physiologic pelvic uptake, to correlate on the DICOM.' },
+    tech: { es: 'FDG 3.97 (previo 1.93, nuevo) con DOTATOC 2.54. Foco mixto nuevo de baja intensidad. Posible contaminación pélvica vecina (intestino/vejiga): a correlacionar en el DICOM.', en: 'FDG 3.97 (prior 1.93, new) with DOTATOC 2.54. New low-intensity mixed focus. Possible neighboring pelvic contamination (bowel/bladder): to correlate on the DICOM.' },
   },
   {
     id: 16, x: 158, y: 628, r: 13, side: 'R', dota: 5.09, fdg: 9.43, prevFdg: 6.0, load: true, pheno: 'mixAgg', size: '18 × 13',
     level: { es: 'Fémur proximal derecho', en: 'Right proximal femur' },
     region: { es: 'Cadera derecha', en: 'Right hip' },
-    what: { es: 'Fémur proximal derecho (cuello femoral). Es uno de los focos con mayor captación glucolítica (¹⁸F-FDG) y ha aumentado respecto al estudio previo. Asienta en hueso de carga; en seguimiento por Oncología Radioterápica.', en: 'Right proximal femur (femoral neck). One of the foci with the highest glycolytic (¹⁸F-FDG) uptake, risen versus the prior study. It sits in weight-bearing bone; under follow-up by Radiation Oncology.' },
-    tech: { es: 'DOTATOC 5.09 / FDG 9.43 (previo 6.0, ↑). Mixto, FDG>SSTR, hueso de carga. Confirmada en corte axial PET-CT (foco intraóseo en cuello femoral). en seguimiento por Oncología Radioterápica.', en: 'DOTATOC 5.09 / FDG 9.43 (prior 6.0, ↑). Mixed, FDG>SSTR, weight-bearing bone. Confirmed on axial PET-CT (intra-osseous focus in the femoral neck). under follow-up by Radiation Oncology.' },
+    what: { es: 'Cuello femoral derecho. Uno de los focos con mayor ¹⁸F-FDG, en aumento vs el previo. Hueso de carga; en seguimiento por Oncología Radioterápica.', en: 'Right femoral neck. One of the highest ¹⁸F-FDG foci, risen vs prior. Weight-bearing bone; under Radiation Oncology follow-up.' },
+    tech: { es: 'DOTATOC 5.09 / FDG 9.43 (previo 6.0, ↑). Mixto, FDG>SSTR, hueso de carga. Confirmada en corte axial PET-CT.', en: 'DOTATOC 5.09 / FDG 9.43 (prior 6.0, ↑). Mixed, FDG>SSTR, weight-bearing bone. Confirmed on axial PET-CT.' },
   },
   {
     id: 17, x: 182, y: 198, side: 'C', dota: 1.6, fdg: 4.8, pheno: 'mixAgg', size: '≤ 8', source: 'ia-david',
     level: { es: 'Tórax alto / costilla', en: 'Upper thorax / rib' },
     region: { es: 'Parrilla costal', en: 'Rib cage' },
-    what: { es: 'Foco en tórax alto / parrilla costal con captación predominantemente glucolítica (¹⁸F-FDG) de baja intensidad. Detectado por IA sobre los DICOM (por confirmar) y marcado como dudoso por el propio análisis; a revisar en el visor. No consta en el informe oficial.', en: 'Upper thorax / rib-cage focus with predominantly glycolytic (¹⁸F-FDG) low-intensity uptake. AI-detected on the DICOM (to confirm) and flagged as uncertain by the analysis itself; to review in a viewer. Not in the official report.' },
+    what: { es: 'Foco costal / tórax alto, ¹⁸F-FDG predominante de baja intensidad. Detección por IA marcada como dudosa por el propio análisis.', en: 'Upper-thorax / rib focus, predominantly ¹⁸F-FDG, low intensity. AI detection flagged as uncertain by the analysis itself.' },
     tech: { es: 'DOTATOC ~1.6 / FDG ~4.8 (aproximados, sobre los DICOM). FDG+ / SSTR bajo. No confirmado en informe oficial; revisar con Medicina Nuclear.', en: 'DOTATOC ~1.6 / FDG ~4.8 (approximate, on the DICOM). FDG+ / low SSTR. Not confirmed in the official report; review with Nuclear Medicine.' },
   },
   {
     id: 18, x: 178, y: 560, side: 'R', dota: 4.3, fdg: 1.7, pheno: 'mixNe', size: '8 × 6', source: 'ia-david',
     level: { es: 'Ilíaco derecho · unión ilíaco-femoral', en: 'Right iliac · iliac-femoral junction' },
     region: { es: 'Pelvis', en: 'Pelvis' },
-    what: { es: 'Foco pélvico leve (unión ilíaco-femoral) con captación predominante de receptores de somatostatina (⁶⁸Ga-DOTATOC) y componente glucolítico (¹⁸F-FDG) bajo. Detectado por IA, por confirmar; no consta en el informe oficial.', en: 'Mild pelvic focus (iliac-femoral junction) with predominant somatostatin-receptor uptake (⁶⁸Ga-DOTATOC) and a low glycolytic (¹⁸F-FDG) component. AI-detected, to confirm; not in the official report.' },
+    what: { es: 'Foco pélvico leve (unión ilíaco-femoral), ⁶⁸Ga-DOTATOC (SSTR) predominante y ¹⁸F-FDG bajo. Detección por IA.', en: 'Mild pelvic focus (iliac-femoral junction), predominant ⁶⁸Ga-DOTATOC (SSTR), low ¹⁸F-FDG. AI detection.' },
     tech: { es: 'DOTATOC ~4.3 / FDG ~1.7 (aproximados, sobre los DICOM). SSTR+ / FDG bajo. No en informe oficial.', en: 'DOTATOC ~4.3 / FDG ~1.7 (approximate, on the DICOM). SSTR+ / low FDG. Not in the official report.' },
   },
   {
     id: 19, x: 232, y: 150, side: 'C', dota: 4.2, fdg: 3.1, pheno: 'mixNe', size: '8–10', source: 'ia-david',
     level: { es: 'C7–D2 · transición cervicotorácica', en: 'C7–D2 · cervicothoracic junction' },
     region: { es: 'Transición cervicotorácica', en: 'Cervicothoracic junction' },
-    what: { es: 'Foco óseo leve en la transición cervicotorácica (C7–D2), con captación débil de ambos trazadores. Baja intensidad, a correlacionar; la captación glucolítica (¹⁸F-FDG) en esta zona puede corresponder a captación cervical fisiológica. Detectado por IA, por confirmar; no consta en el informe oficial.', en: 'Mild bone focus at the cervicothoracic junction (C7–D2), with weak uptake of both tracers. Low intensity, to be correlated; glycolytic (¹⁸F-FDG) uptake in this region may reflect physiologic cervical uptake. AI-detected, to confirm; not in the official report.' },
+    what: { es: 'Foco leve en la transición cervicotorácica (C7–D2), captación débil de ambos trazadores. El ¹⁸F-FDG aquí puede ser captación cervical fisiológica, a correlacionar. Detección por IA.', en: 'Mild focus at the cervicothoracic junction (C7–D2), weak uptake of both tracers. ¹⁸F-FDG here may be physiologic cervical uptake, to correlate. AI detection.' },
     tech: { es: 'DOTATOC ~4.8 / FDG ~3.1 (aproximados, sobre los DICOM). Baja intensidad; el FDG puede ser captación cervical fisiológica, a correlacionar. No en informe oficial.', en: 'DOTATOC ~4.8 / FDG ~3.1 (approximate, on the DICOM). Low intensity; FDG may be physiological cervical uptake, to correlate. Not in the official report.' },
   },
 ]
@@ -1038,9 +1038,9 @@ function focusObservations(l: Lesion): { tone: string; es: string; en: string }[
   else if (t && t.dir === 'down')
     out.push({ tone: 'neutral', es: `FDG menor que en el estudio previo (antes ${l.prevFdg}).`, en: `FDG lower than in the prior study (was ${l.prevFdg}).` })
   if (l.dota == null && l.fdg != null)
-    out.push({ tone: 'warn', es: 'Discordancia de trazadores: ¹⁸F-FDG⁺ / ⁶⁸Ga-DOTATOC⁻ (captación glucolítica sin receptores de somatostatina detectables).', en: 'Tracer discordance: ¹⁸F-FDG⁺ / ⁶⁸Ga-DOTATOC⁻ (glycolytic uptake without detectable somatostatin receptors).' })
+    out.push({ tone: 'warn', es: 'Discordancia de trazadores: ¹⁸F-FDG⁺ / ⁶⁸Ga-DOTATOC⁻.', en: 'Tracer discordance: ¹⁸F-FDG⁺ / ⁶⁸Ga-DOTATOC⁻.' })
   if (l.load)
-    out.push({ tone: 'neutral', es: 'Hueso de carga (soporta peso). en seguimiento por Oncología Radioterápica.', en: 'Weight-bearing bone. under follow-up by Radiation Oncology.' })
+    out.push({ tone: 'neutral', es: 'Hueso de carga, en seguimiento por Oncología Radioterápica.', en: 'Weight-bearing bone, under Radiation Oncology follow-up.' })
   if (l.scler)
     out.push({ tone: 'neutral', es: 'Morfología blástica (hueso denso).', en: 'Blastic morphology (dense bone).' })
   if (sourceOf(l) === 'ia-david')
@@ -1608,7 +1608,7 @@ const ticks = [
         <section class="mb-14" aria-labelledby="contexto-general">
           <p class="eyebrow mb-2 block">{{ L('Contexto · el panorama', 'Context · the big picture') }}</p>
           <h2 id="contexto-general" class="heading-display text-2xl text-berenjena mb-1.5 scroll-mt-[5.5rem]">{{ L('Enfermedad ósea — el caso de un vistazo', 'Bone disease — the case at a glance') }}</h2>
-          <p class="text-sm text-tinta leading-relaxed mb-5 max-w-3xl">{{ L('Cuánta enfermedad hay y cómo evoluciona, antes de entrar foco a foco. Cifras descriptivas de los dos PET; describe, no concluye.', 'How much disease there is and how it is evolving, before going focus by focus. Descriptive figures from the two PET; it describes, it does not conclude.') }}</p>
+          <p class="text-sm text-tinta leading-relaxed mb-5 max-w-3xl">{{ L('Cuánta enfermedad hay y cómo evoluciona, antes de entrar foco a foco.', 'How much disease there is and how it is evolving, before going focus by focus.') }}</p>
           <!-- enfermedad · KPIs -->
           <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-5">
             <div class="stat-readout">
@@ -1700,7 +1700,7 @@ const ticks = [
                (señal cruda → mejor tejido del clon adecuado, de forma segura), para que no parezca arbitrario. -->
           <details class="alert-callout mt-5 leading-relaxed">
             <summary class="cursor-pointer font-semibold">{{ L('Criterios de selección de dianas para caracterización molecular (y la salvedad del cuello femoral)', 'Target-selection criteria for molecular characterization (and the femoral-neck caveat)') }}</summary>
-            <p class="mt-2">{{ L('El criterio de selección no es el SUVmáx más alto, sino el subvolumen con mayor probabilidad de aportar celularidad tumoral viable representativa —con integridad de ARN suficiente (DV200) para WES + RNA-seq— mediante un abordaje percutáneo TC-guiado de riesgo aceptable. Bajo ese criterio destaca el ilíaco supra-acetabular (#14): hipermetabolismo glucolítico en aumento (¹⁸F-FDG SUVmáx ↑), atenuación TC no esclerótica y corredor posterolateral accesible. Según el clon a caracterizar, también el pedículo L1 (#10), foco con discordancia de trazadores ¹⁸F-FDG⁺ / ⁶⁸Ga-DOTATOC⁻ (captación glucolítica sin expresión de receptores de somatostatina detectable). El cuello femoral (#16) presenta el ¹⁸F-FDG SUVmáx más alto y es una diana de interés biológico, pero asienta en hueso de carga: la obtención de cores conlleva riesgo de fractura patológica, cuya indicación y abordaje valoran Oncología Radioterápica/Ortopedia; se documenta como consideración, no como exclusión. El L5 (#11) recibe SBRT concurrente: el tejido irradiado puede no ser representativo para el análisis molecular. Salvedades de cuantificación: el SUVmáx es un valor de vóxel único sujeto a efecto de volumen parcial; los estudios PET no son simultáneos; puede haber captación fisiológica o artefacto por port-a-cath. Esta nota describe hallazgos de imagen; la selección final de la diana corresponde al comité.', 'The selection criterion is not the highest SUVmax, but the subvolume most likely to provide representative viable tumor cellularity — with RNA integrity sufficient (DV200) for WES + RNA-seq — via a CT-guided percutaneous approach of acceptable risk. Under that criterion the supra-acetabular iliac (#14) stands out: rising glycolytic hypermetabolism (¹⁸F-FDG SUVmax ↑), non-sclerotic CT attenuation and an accessible posterolateral corridor. Depending on the clone to be characterized, also the L1 pedicle (#10), a focus with tracer discordance ¹⁸F-FDG⁺ / ⁶⁸Ga-DOTATOC⁻ (glycolytic uptake without detectable somatostatin-receptor expression). The femoral neck (#16) shows the highest ¹⁸F-FDG SUVmax and is a target of biological interest, but lies in weight-bearing bone: core sampling carries pathologic-fracture risk, whose indication and approach are assessed by Radiation Oncology/Orthopedics; it is documented as a consideration, not an exclusion. L5 (#11) is receiving concurrent SBRT: irradiated tissue may not be representative for molecular analysis. Quantification caveats: SUVmax is a single-voxel value subject to partial-volume effect; the PET studies are not simultaneous; physiologic uptake or port-a-cath artifact may occur. This note describes imaging findings; final target selection rests with the tumor board.') }}</p>
+            <p class="mt-2">{{ L('El criterio no es el SUVmáx más alto, sino el subvolumen con mayor probabilidad de aportar celularidad tumoral viable representativa —con integridad de ARN suficiente (DV200) para WES + RNA-seq— mediante un abordaje percutáneo TC-guiado de riesgo aceptable. Bajo ese criterio destaca el ilíaco supra-acetabular (#14): ¹⁸F-FDG en aumento, atenuación TC no esclerótica y corredor posterolateral accesible. Según el clon a caracterizar, también el pedículo L1 (#10), discordante ¹⁸F-FDG⁺ / ⁶⁸Ga-DOTATOC⁻. El cuello femoral (#16) tiene el ¹⁸F-FDG más alto y es de interés biológico, pero asienta en hueso de carga: los cores conllevan riesgo de fractura patológica, cuya indicación valoran Oncología Radioterápica/Ortopedia; se documenta como consideración, no exclusión. El L5 (#11) recibe SBRT concurrente: el tejido irradiado puede no ser representativo. La selección final de la diana corresponde al comité; salvedades de cuantificación en «Fuentes, método y salvedades».', 'The criterion is not the highest SUVmax, but the subvolume most likely to provide representative viable tumor cellularity — with RNA integrity sufficient (DV200) for WES + RNA-seq — via a CT-guided percutaneous approach of acceptable risk. Under that criterion the supra-acetabular iliac (#14) stands out: rising ¹⁸F-FDG, non-sclerotic CT attenuation and an accessible posterolateral corridor. Depending on the clone to be characterized, also the L1 pedicle (#10), discordant ¹⁸F-FDG⁺ / ⁶⁸Ga-DOTATOC⁻. The femoral neck (#16) has the highest ¹⁸F-FDG and is of biological interest, but lies in weight-bearing bone: core sampling carries pathologic-fracture risk, whose indication is assessed by Radiation Oncology/Orthopedics; documented as a consideration, not an exclusion. L5 (#11) is on concurrent SBRT: irradiated tissue may not be representative. Final target selection rests with the tumor board; quantification caveats in “Sources, method and caveats”.') }}</p>
           </details>
         </section>
 
@@ -1980,7 +1980,7 @@ const ticks = [
                 </li>
               </ul>
               <p class="text-[10px] text-tinta leading-snug px-1.5 pt-1.5 mt-1 border-t border-[rgba(45,27,61,0.08)]">
-                {{ L('Confirmados primero (por idoneidad), IA al final (anillo punteado). Color = trazador · ⁶⁸Ga-DOTATOC (SSTR) / ¹⁸F-FDG (glucólisis) · nº = idoneidad orientativa. Describe, no concluye.', 'Confirmed first (by suitability), AI last (dashed ring). Colour = tracer · ⁶⁸Ga-DOTATOC (SSTR) / ¹⁸F-FDG (glycolysis) · nº = indicative suitability. Describes, does not conclude.') }}
+                {{ L('Confirmados primero (por idoneidad), IA al final (anillo punteado). Color = trazador · ⁶⁸Ga-DOTATOC (SSTR) / ¹⁸F-FDG (glucólisis) · nº = idoneidad orientativa.', 'Confirmed first (by suitability), AI last (dashed ring). Colour = tracer · ⁶⁸Ga-DOTATOC (SSTR) / ¹⁸F-FDG (glycolysis) · nº = indicative suitability.') }}
               </p>
             </div>
 
@@ -2045,7 +2045,7 @@ const ticks = [
                   :aria-label="L('Idoneidad ' + suitabilityScore(sel) + ' sobre 100', 'Suitability ' + suitabilityScore(sel) + ' out of 100')">
                   <div class="h-full rounded-full" :style="{ width: suitabilityScore(sel) + '%', background: 'linear-gradient(90deg,#9d44ab,#df7a44)' }" />
                 </div>
-                <p class="text-[10px] text-tinta mt-1 leading-snug">{{ L('orientativa · viable × rendimiento × tamaño. Etiqueta por trazador/forma; describe, no concluye.', 'indicative · viable × yield × size. Labelled by tracer/shape; describes, does not conclude.') }}</p>
+                <p class="text-[10px] text-tinta mt-1 leading-snug">{{ L('orientativa · viable × rendimiento × tamaño.', 'indicative · viable × yield × size.') }}</p>
               </div>
 
               <!-- barra de discordancia: proporción SSTR (violeta) ↔ glucólisis (coral) -->
@@ -2202,8 +2202,8 @@ const ticks = [
                 {{ L('Detectado por IA · pendiente de validación por los radiólogos', 'AI-detected · pending validation by the radiologists') }}
               </p>
               <p class="text-[13px] leading-snug" style="color:#7a4a12">
-                {{ L('Este foco lo detectó una herramienta de IA sobre los DICOM y no consta en el informe oficial. Se muestra con la MISMA información que el resto de focos —las tres lecturas, la forma, la extensión y la idoneidad— para que el equipo pueda corroborarlo. Aún no está confirmado: los valores son aproximados (medidos sobre el DICOM) y, donde el dato no es fiable, se indica «— · por confirmar». No es una relectura formal ni afirma que sea una metástasis: a validar con Medicina Nuclear.',
-                      'This focus was detected by an AI tool on the DICOM and is not in the official report. It is shown with the SAME information as every other focus —the three readings, the shape, the extent and the suitability— so the team can corroborate it. It is not yet confirmed: the values are approximate (measured on the DICOM) and, where the datum is not reliable, it reads “— · to confirm”. It is not a formal re-read and does not claim it is a metastasis: to validate with Nuclear Medicine.') }}
+                {{ L('Detectado por IA sobre los DICOM, no consta en el informe oficial. Se muestra con la misma información que el resto para que el equipo lo corrobore; los valores son aproximados y, donde no son fiables, se indica «— · por confirmar». A validar con Medicina Nuclear.',
+                      'AI-detected on the DICOM, not in the official report. Shown with the same information as the rest so the team can corroborate it; values are approximate and, where unreliable, read “— · to confirm”. To validate with Nuclear Medicine.') }}
               </p>
             </div>
 
@@ -2225,7 +2225,7 @@ const ticks = [
                   <span :style="{ color: '#bb4128' }">{{ L('glucólisis · FDG', 'glycolysis · FDG') }} <span class="font-mono">{{ fmtSuv(f, f.fdg) }}</span></span>
                 </li>
               </ul>
-              <p class="text-[10px] text-tinta mt-2 leading-relaxed">{{ L('El detalle ampliado de abajo corresponde al foco principal de la zona; el resto está en la tabla. Describe los hallazgos; no concluye.', 'The expanded detail below is for the area’s main focus; the rest is in the table. It describes the findings; it does not conclude.') }}</p>
+              <p class="text-[10px] text-tinta mt-2 leading-relaxed">{{ L('El detalle ampliado de abajo corresponde al foco principal de la zona; el resto está en la tabla.', 'The expanded detail below is for the area’s main focus; the rest is in the table.') }}</p>
             </div>
 
               <!-- ===== LAS TRES LECTURAS · una por prueba (etiquetadas por prueba) ===== -->
@@ -2264,7 +2264,6 @@ const ticks = [
                     <p v-else class="text-[12px] text-tinta leading-snug">{{ L('La RMN de columna mostrada (cervical y dorsal) no cubre este nivel.', 'The spine MRI shown (cervical and thoracic) does not cover this level.') }}</p>
                   </div>
                 </div>
-                <p class="px-3 py-2 text-[10px] text-tinta leading-relaxed border-t border-[rgba(45,27,61,0.08)]">{{ L('«Blástico/escleroso» describe la FORMA del hueso (denso); no es un tercer trazador ni un tercer color. Describe los hallazgos; no concluye.', '“Blastic/sclerotic” describes the SHAPE of the bone (dense); it is not a third tracer or a third color. It describes the findings; it does not conclude.') }}</p>
               </div>
 
               <!-- ===== MORFOLOGÍA (forma del hueso) + MTV · dato de PRIMERA CLASE =====
@@ -2300,7 +2299,6 @@ const ticks = [
                     <p class="text-[12px] text-tinta leading-snug mt-1">{{ L('volumen metabólico por trazador (verificación, orientativo)', 'metabolic volume per tracer (verification, indicative)') }}</p>
                   </div>
                 </div>
-                <p class="text-[10px] text-tinta mt-2 leading-relaxed">{{ L('La FORMA del hueso se mide sobre el CT (densidad) y la extensión metabólica sobre el PET (umbral 41% del SUVmáx local); no son la biología ni un trazador. La extensión metabólica es lo que capta sobre el umbral, no el tamaño anatómico exacto: el volumen parcial subestima los focos < ~10 mm. Orientativo; describe, no concluye.', 'Bone SHAPE is measured on the CT (density) and the metabolic extent on the PET (41% of the local SUVmax threshold); neither is the biology or a tracer. The metabolic extent is what is taken up above the threshold, not the exact anatomical size: partial volume underestimates foci < ~10 mm. Indicative; it describes, it does not conclude.') }}</p>
               </div>
 
               <!-- ===== BIOPSIA PREVIA del foco (hecho del caso · honesto, neutral) ===== -->
@@ -2333,7 +2331,7 @@ const ticks = [
                   <div><dt class="inline font-semibold text-berenjena">{{ L('Seguridad', 'Safety') }}: </dt><dd class="inline">{{ selBiopsy.safety[lang] }}</dd></div>
                   <div><dt class="inline font-semibold text-berenjena">{{ L('Rendimiento esperado', 'Expected yield') }}: </dt><dd class="inline">{{ selBiopsy.rend[lang] }}</dd></div>
                 </dl>
-                <p class="text-[10px] text-tinta mt-2 leading-relaxed">{{ L('Acceso y anatomía del propio caso, para que el radiólogo intervencionista y el comité de tumores decidan sobre la imagen en vivo. Describe; no concluye.', 'Access and anatomy from the case itself, for the interventional radiologist and the tumor board to decide on live imaging. It describes; it does not conclude.') }}</p>
+                <p class="text-[10px] text-tinta mt-2 leading-relaxed">{{ L('Acceso y anatomía del propio caso, para que radiología intervencionista y el comité decidan sobre la imagen en vivo.', 'Access and anatomy from the case itself, for interventional radiology and the tumor board to decide on live imaging.') }}</p>
               </div>
 
               <!-- (Página estrictamente clínica: sin capa de lenguaje llano.) -->
@@ -2350,7 +2348,7 @@ const ticks = [
                     <span class="text-tinta">{{ lang === 'en' ? tg.en : tg.es }}</span>
                   </li>
                 </ul>
-                <p class="text-[10px] text-tinta mt-2 leading-relaxed">{{ L('Descripción de los hallazgos del foco a partir de los SUV, la tendencia y la morfología del propio foco. No es consejo médico ni una indicación de tratamiento.', 'A description of the focus’s findings from its own SUVs, trend and morphology. Not medical advice or a treatment indication.') }}</p>
+                <p class="text-[10px] text-tinta mt-2 leading-relaxed">{{ L('Derivado de los SUV, la tendencia y la morfología del propio foco.', 'Derived from the focus’s own SUVs, trend and morphology.') }}</p>
               </div>
 
               <!-- CUANTIFICACIÓN AUTOMÁTICA medida sobre los DICOM (verificación) — abierta por defecto (vista clínica) -->
@@ -2386,7 +2384,7 @@ const ticks = [
                     </div>
                   </div>
                 </div>
-                <p class="text-[10px] text-tinta mt-2 leading-relaxed">{{ L('SUV recalculado del DICOM (corrección de decaimiento), volumen metabólico (MTV) y carga glucolítica (TLG) con máscara ósea del CT; morfología por densidad CT. El ¹⁸F-FDG (1,65 mm) tiene mayor resolución espacial; el ⁶⁸Ga-DOTATOC (4 mm), menor. Verificación automática, no diagnóstico: manda la tabla y el criterio del equipo.', 'SUV recomputed from the DICOM (decay-corrected), metabolic volume (MTV) and glycolytic load (TLG) with a CT bone mask; morphology from CT density. ¹⁸F-FDG (1.65 mm) has higher spatial resolution; ⁶⁸Ga-DOTATOC (4 mm) lower. Automatic verification, not a diagnosis: the table and the team’s judgment prevail.') }}</p>
+                <p class="text-[10px] text-tinta mt-2 leading-relaxed">{{ L('SUV recalculado del DICOM (corrección de decaimiento), MTV y TLG con máscara ósea del CT; morfología por densidad CT. El ¹⁸F-FDG (1,65 mm) tiene mayor resolución espacial que el ⁶⁸Ga-DOTATOC (4 mm). Verificación: manda la tabla.', 'SUV recomputed from the DICOM (decay-corrected), MTV and TLG with a CT bone mask; morphology from CT density. ¹⁸F-FDG (1.65 mm) has higher spatial resolution than ⁶⁸Ga-DOTATOC (4 mm). Verification: the table prevails.') }}</p>
               </details>
 
               <!-- EVOLUCIÓN FDG + IMAGEN CLAVE · 2 columnas (la gráfica a ancho completo
@@ -2532,23 +2530,15 @@ const ticks = [
             </p>
             <p class="text-[14px] text-berenjena leading-relaxed">
               {{ L(
-                'Esta vista ordena los focos por las señales que importan para elegir dónde rebiopsiar — captación de trazador (¹⁸F-FDG / ⁶⁸Ga-DOTATOC) y rendimiento tisular esperado por morfología (atenuación lítica / partes blandas suele rendir más; esclerótica/blástica densa, poco). EQUIPA la decisión del equipo médico; NO indica dónde biopsiar ni concluye tratamiento o pronóstico. La accesibilidad y seguridad las valora radiología intervencionista.',
-                'This view orders the foci by the signals that matter for choosing where to rebiopsy — tracer uptake (¹⁸F-FDG / ⁶⁸Ga-DOTATOC) and expected tissue yield by morphology (lytic / soft-tissue attenuation usually yields more; dense sclerotic/blastic, little). It EQUIPS the medical team’s decision; it does NOT indicate where to biopsy nor conclude treatment or prognosis. Accessibility and safety are assessed by interventional radiology.') }}
+                'Ordena los focos por las señales que importan para elegir dónde rebiopsiar: captación de trazador (¹⁸F-FDG / ⁶⁸Ga-DOTATOC), rendimiento tisular por morfología (lítico / partes blandas rinde más; blástico denso, poco) y tamaño. La accesibilidad y la seguridad las valora radiología intervencionista.',
+                'Orders the foci by the signals that matter for choosing where to rebiopsy: tracer uptake (¹⁸F-FDG / ⁶⁸Ga-DOTATOC), tissue yield by morphology (lytic / soft tissue yields more; dense blastic, little) and size. Accessibility and safety are assessed by interventional radiology.') }}
             </p>
           </div>
 
-          <!-- NOTA · el «de un vistazo» (las 3 dianas mejor situadas) vive ARRIBA del
-               todo, como resumen (sección «Dianas idóneas»). Aquí NO se repite: esta
-               sección es el cómo-se-calcula completo — factores, fórmula y ranking. -->
-          <p class="text-sm text-tinta leading-relaxed mb-6 max-w-3xl">
-            {{ L('Aquí está el cálculo completo: qué factores componen la idoneidad, la fórmula y el orden de TODOS los focos. El resumen con las dianas mejor situadas está arriba del todo, en «Dianas idóneas».',
-                  'Here is the full calculation: which factors make up suitability, the formula and the order of ALL foci. The summary with the best-placed targets is at the very top, in “Suitable targets”.') }}
-          </p>
-
           <!-- LOS FACTORES que componen la idoneidad (explícitos, etiquetados por trazador/forma) -->
           <p class="text-sm text-tinta leading-relaxed mb-3 max-w-3xl">
-            {{ L('La idoneidad no es una caja negra: es el producto de tres factores visibles, más tres avisos de FACTIBILIDAD que el equipo pondera (no van en el número).',
-                  'Suitability is not a black box: it is the product of three visible factors, plus three FEASIBILITY flags the team weighs (they are not in the number).') }}
+            {{ L('El cálculo completo: la idoneidad es el producto de tres factores visibles, más tres avisos de FACTIBILIDAD que el equipo pondera (no van en el número). El resumen con las mejores dianas está arriba, en «Dianas idóneas».',
+                  'The full calculation: suitability is the product of three visible factors, plus three FEASIBILITY flags the team weighs (not part of the number). The summary with the best targets is at the top, in “Suitable targets”.') }}
           </p>
           <!-- GRUPO A · los 3 factores que MULTIPLICAN el número → grid de 3 col (llena exacto). -->
           <div class="grid sm:grid-cols-3 gap-3 mb-3">
@@ -2576,7 +2566,7 @@ const ticks = [
             </div>
             <div class="card-base !p-3.5 border-t-4" :style="{ borderColor: '#1f6b57' }">
               <p class="text-[12px] font-semibold mb-1 flex items-center gap-1.5 flex-wrap" :style="{ color: '#1f6b57' }">{{ L('Aviso · partes blandas (RMN)', 'Flag · soft tissue (MRI)') }}<span class="status-badge status-badge--shape">{{ L('factibilidad', 'feasibility') }}</span></p>
-              <p class="text-[12.5px] text-tinta leading-snug">{{ L('Donde la RMN describe componente de partes blandas / extensión extraósea (p.ej. epidural de D11, #7), hay una diana de tejido blando que suele rentabilizar más que el hueso blástico denso. La RMN conecta así con la FACTIBILIDAD. Es FORMA/extensión del informe, no biología; la cercanía al canal/raíces la valora intervencionista. No entra en el número.', 'Where the MRI describes a soft-tissue / extraosseous component (e.g. D11 epidural, #7), there is a soft-tissue target that usually yields more than dense blastic bone. This is how the MRI connects to FEASIBILITY. It is SHAPE/extent from the report, not biology; proximity to the canal/roots is assessed by interventional radiology. Not part of the number.') }}</p>
+              <p class="text-[12.5px] text-tinta leading-snug">{{ L('Donde la RMN describe partes blandas / extensión extraósea (p.ej. epidural de D11, #7), hay una diana de tejido blando que suele rentabilizar más que el hueso blástico denso; la cercanía al canal/raíces la valora intervencionista. No entra en el número.', 'Where the MRI describes soft tissue / extraosseous extension (e.g. D11 epidural, #7), there is a soft-tissue target that usually yields more than dense blastic bone; proximity to the canal/roots is assessed by interventional radiology. Not part of the number.') }}</p>
             </div>
             <div class="card-base !p-3.5 border-t-4" :style="{ borderColor: '#6b6470' }">
               <p class="text-[12px] font-semibold mb-1 text-tinta">{{ L('Aviso · accesibilidad', 'Flag · accessibility') }}</p>
@@ -2800,7 +2790,7 @@ const ticks = [
                   </svg>
                   <span><strong class="text-berenjena font-semibold">{{ L('contorno punteado', 'dashed outline') }}</strong> {{ L('= detectado por IA, por confirmar (#17/#18/#19)', '= AI-detected, to confirm (#17/#18/#19)') }}</span>
                 </p>
-                <p class="text-[10.5px] text-tinta leading-relaxed mt-2">{{ L('Etiquetado por trazador y forma, no por biología; describe, no concluye. SUVmáx de los informes.', 'Labelled by tracer and shape, not by biology; it describes, it does not conclude. SUVmax from the reports.') }}</p>
+                <p class="text-[10.5px] text-tinta leading-relaxed mt-2">{{ L('SUVmáx de los informes.', 'SUVmax from the reports.') }}</p>
               </div>
           </div>
         </section>
@@ -2880,16 +2870,16 @@ const ticks = [
               <div class="mt-3 rounded-card border-l-4 px-3 py-2.5" :style="{ borderLeftColor: '#1f6b57', background: '#eef6f2' }">
                 <p class="text-[12.5px] text-tinta leading-snug">
                   <strong :style="{ color: '#1f6b57' }">{{ L('La RMN y la factibilidad de la biopsia:', 'MRI and biopsy feasibility:') }}</strong>
-                  {{ L('la forma (blástico denso = rinde poco; lítico / partes blandas = rinde más) y el componente de partes blandas que describe la RMN son señales de RENDIMIENTO tisular. El componente epidural de D11 es una diana de tejido blando que suele rentabilizar más que el hueso denso (su vecindad al canal y a las raíces la valora radiología intervencionista). Es FORMA/extensión del informe; alimenta los avisos de factibilidad de la lente, no la biología.',
-                        'shape (dense blastic = low yield; lytic / soft tissue = higher yield) and the soft-tissue component the MRI describes are tissue-YIELD signals. The D11 epidural component is a soft-tissue target that usually yields more than dense bone (its proximity to the canal and roots is assessed by interventional radiology). It is SHAPE/extent from the report; it feeds the lens’s feasibility flags, not the biology.') }}
+                  {{ L('el componente epidural de D11 es una diana de tejido blando que suele rentabilizar más que el hueso denso; su vecindad al canal y a las raíces la valora radiología intervencionista. Alimenta los avisos de factibilidad de la lente.',
+                        'the D11 epidural component is a soft-tissue target that usually yields more than dense bone; its proximity to the canal and roots is assessed by interventional radiology. It feeds the lens’s feasibility flags.') }}
                   <button type="button" @click="pickAndShow(7)" class="link-action text-miriam inline-flex items-center gap-1">{{ L('ver el foco D11 (#7)', 'see the D11 focus (#7)') }} <span aria-hidden="true">→</span></button>
                 </p>
               </div>
             </div>
 
             <div class="alert-callout leading-relaxed mt-4">
-              {{ L('Las imágenes de la RMN se muestran para verlas; los hallazgos de arriba están transcritos del informe de RM (11/06/2026) y no son una relectura de la imagen por esta herramienta. Su lectura formal corresponde al radiólogo. Los SUV del resto de la página vienen de los informes del PET.',
-                    'The MRI images are shown for viewing; the findings above are transcribed from the MRI report (11 Jun 2026) and are not a re-reading of the image by this tool. Its formal reading belongs to the radiologist. The SUVs in the rest of the page come from the PET reports.') }}
+              {{ L('Su lectura formal corresponde al radiólogo. Los SUV del resto de la página vienen de los informes del PET, no de la RMN.',
+                    'Its formal reading belongs to the radiologist. The SUVs in the rest of the page come from the PET reports, not the MRI.') }}
             </div>
           </div>
 
@@ -3013,8 +3003,8 @@ const ticks = [
               {{ L('Focos en hueso de carga con FDG igual o mayor que el previo (descriptivo)', 'Weight-bearing foci with FDG equal to or above the prior study (descriptive)') }}
             </div>
             {{ L(
-              'Focos en hueso de carga cuyo FDG iguala o supera el del estudio previo: ' + loadBearingFdgFoci.map((l) => '#' + l.id + ' ' + l.level.es).join(' · ') + '. Oncología Radioterápica ya los revisó. Descripción de los datos, no consejo médico.',
-              'Foci in weight-bearing bone whose FDG matches or exceeds the prior study: ' + loadBearingFdgFoci.map((l) => '#' + l.id + ' ' + l.level.en).join(' · ') + '. Radiation Oncology has already reviewed them. Description of the data, not medical advice.') }}
+              'Focos en hueso de carga cuyo FDG iguala o supera el del estudio previo: ' + loadBearingFdgFoci.map((l) => '#' + l.id + ' ' + l.level.es).join(' · ') + '. Oncología Radioterápica ya los revisó.',
+              'Foci in weight-bearing bone whose FDG matches or exceeds the prior study: ' + loadBearingFdgFoci.map((l) => '#' + l.id + ' ' + l.level.en).join(' · ') + '. Radiation Oncology has already reviewed them.') }}
           </div>
         </section>
         <!-- ===== ZONA E · APÉNDICE DE REFERENCIA (tabla) — abierta por defecto (vista clínica) ===== -->
@@ -3200,8 +3190,8 @@ const ticks = [
             <p class="eyebrow--sm text-berenjena mb-2">{{ L('Resumen para el equipo médico', 'Summary for the medical team') }}</p>
             <p class="text-sm text-tinta leading-relaxed">
               {{ L(
-                'Enfermedad ósea multinivel. ' + confirmedFoci.length + ' focos en el informe oficial (' + skeletonSplit.axial + ' axiales — columna y sacro — y ' + skeletonSplit.append + ' apendiculares — escápula, pelvis y cadera), más ' + aiFoci.length + ' focos por confirmar detectados por IA. Reparto SSTR↔glucólisis: ' + concordance.ne + ' SSTR-dominantes (⁶⁸Ga⁺/FDG⁻), ' + concordance.mix + ' con captación dual (ambos trazadores) y ' + concordance.agg + ' glucolítico-dominante (⁶⁸Ga⁻/FDG⁺). Rango de SUVmáx: ⁶⁸Ga-DOTATOC ' + dotaRangeLabel + '; ¹⁸F-FDG ' + fdgRangeLabel + '. Frente al PET previo (sobre ' + trajectory.withPrev + ' focos con valor previo): ' + trajectory.neu + ' nuevos, ' + trajectory.up + ' con mayor ¹⁸F-FDG, ' + trajectory.down + ' con menor y ' + trajectory.stable + ' estables. Las cifras son las de los informes oficiales del PET; el detalle por foco está en la ficha y en la tabla. Descripción, no consejo médico.',
-                'Multilevel bone disease. ' + confirmedFoci.length + ' foci in the official report (' + skeletonSplit.axial + ' axial — spine and sacrum — and ' + skeletonSplit.append + ' appendicular — scapula, pelvis and hip), plus ' + aiFoci.length + ' foci to confirm detected by AI. SSTR↔glycolysis split: ' + concordance.ne + ' SSTR-dominant (⁶⁸Ga⁺/FDG⁻), ' + concordance.mix + ' with dual uptake (both tracers) and ' + concordance.agg + ' glycolytic-dominant (⁶⁸Ga⁻/FDG⁺). SUVmax range: ⁶⁸Ga-DOTATOC ' + dotaRangeLabel + '; ¹⁸F-FDG ' + fdgRangeLabel + '. Versus the prior PET (over ' + trajectory.withPrev + ' foci with a prior value): ' + trajectory.neu + ' new, ' + trajectory.up + ' with higher ¹⁸F-FDG, ' + trajectory.down + ' with lower and ' + trajectory.stable + ' stable. Figures are those of the official PET reports; the per-focus detail is in the card and the table. Description, not medical advice.') }}
+                'Enfermedad ósea multinivel. ' + confirmedFoci.length + ' focos en el informe oficial (' + skeletonSplit.axial + ' axiales — columna y sacro — y ' + skeletonSplit.append + ' apendiculares — escápula, pelvis y cadera), más ' + aiFoci.length + ' focos por confirmar detectados por IA. Reparto SSTR↔glucólisis: ' + concordance.ne + ' SSTR-dominantes (⁶⁸Ga⁺/FDG⁻), ' + concordance.mix + ' con captación dual (ambos trazadores) y ' + concordance.agg + ' glucolítico-dominante (⁶⁸Ga⁻/FDG⁺). Rango de SUVmáx: ⁶⁸Ga-DOTATOC ' + dotaRangeLabel + '; ¹⁸F-FDG ' + fdgRangeLabel + '. Frente al PET previo (sobre ' + trajectory.withPrev + ' focos con valor previo): ' + trajectory.neu + ' nuevos, ' + trajectory.up + ' con mayor ¹⁸F-FDG, ' + trajectory.down + ' con menor y ' + trajectory.stable + ' estables. Las cifras son las de los informes oficiales del PET; el detalle por foco está en la ficha y en la tabla.',
+                'Multilevel bone disease. ' + confirmedFoci.length + ' foci in the official report (' + skeletonSplit.axial + ' axial — spine and sacrum — and ' + skeletonSplit.append + ' appendicular — scapula, pelvis and hip), plus ' + aiFoci.length + ' foci to confirm detected by AI. SSTR↔glycolysis split: ' + concordance.ne + ' SSTR-dominant (⁶⁸Ga⁺/FDG⁻), ' + concordance.mix + ' with dual uptake (both tracers) and ' + concordance.agg + ' glycolytic-dominant (⁶⁸Ga⁻/FDG⁺). SUVmax range: ⁶⁸Ga-DOTATOC ' + dotaRangeLabel + '; ¹⁸F-FDG ' + fdgRangeLabel + '. Versus the prior PET (over ' + trajectory.withPrev + ' foci with a prior value): ' + trajectory.neu + ' new, ' + trajectory.up + ' with higher ¹⁸F-FDG, ' + trajectory.down + ' with lower and ' + trajectory.stable + ' stable. Figures are those of the official PET reports; the per-focus detail is in the card and the table.') }}
             </p>
           </div>
 
@@ -3216,28 +3206,8 @@ const ticks = [
               'Each bone focus is studied with two PET tracers, each sensitive to a different property of the same spot: ⁶⁸Ga-DOTATOC measures somatostatin-receptor (SSTR) density and ¹⁸F-FDG measures glycolytic metabolism. Comparing the two uptakes defines each lesion’s tracer-discordance pattern.') }}
           </p>
 
-          <!-- cada trazador, qué mide -->
-          <div class="grid md:grid-cols-2 gap-4">
-            <div class="card-base border-l-4" :style="{ borderColor: '#9d44ab' }">
-              <p class="font-semibold mb-1" :style="{ color: '#9d44ab' }">⁶⁸Ga-DOTATOC · {{ L('receptores de somatostatina', 'somatostatin receptors') }}</p>
-              <p class="text-sm text-tinta leading-relaxed">
-                {{ L(
-                  'El ⁶⁸Ga-DOTATOC se une a los receptores de somatostatina (SSTR). Su captación (SUVmáx) refleja la densidad de receptores del foco.',
-                  '⁶⁸Ga-DOTATOC binds the somatostatin receptors (SSTR). Its uptake (SUVmax) reflects the focus’s receptor density.') }}
-              </p>
-            </div>
-            <div class="card-base border-l-4" :style="{ borderColor: '#bb4128' }">
-              <p class="font-semibold mb-1" :style="{ color: '#bb4128' }">¹⁸F-FDG · {{ L('metabolismo glucolítico', 'glycolytic metabolism') }}</p>
-              <p class="text-sm text-tinta leading-relaxed">
-                {{ L(
-                  'El ¹⁸F-FDG es un análogo de glucosa que se acumula según el consumo metabólico. Su captación (SUVmáx) refleja la actividad glucolítica del foco.',
-                  '¹⁸F-FDG is a glucose analogue that accumulates with metabolic demand. Its uptake (SUVmax) reflects the focus’s glycolytic activity.') }}
-              </p>
-            </div>
-          </div>
-
           <!-- leyenda de la barra dual SSTR ↔ glucólisis (codificación canónica) -->
-          <div class="card-base !p-4 mt-4">
+          <div class="card-base !p-4">
             <p class="eyebrow--sm text-berenjena mb-2">{{ L('La barra SSTR ↔ glucólisis', 'The SSTR ↔ glycolysis bar') }}</p>
             <div class="flex items-center gap-3">
               <div class="flex-1 flex h-3.5 rounded-full overflow-hidden border border-[rgba(45,27,61,0.1)]">
@@ -3250,8 +3220,8 @@ const ticks = [
               <span class="font-semibold" :style="{ color: '#bb4128' }">{{ L('glucólisis · ¹⁸F-FDG', 'glycolysis · ¹⁸F-FDG') }}</span>
             </div>
             <p class="text-[12px] text-tinta leading-relaxed mt-2">
-              {{ L('La verás en cada ficha y en cada fila: la proporción violeta frente a coral resume la captación SSTR (⁶⁸Ga-DOTATOC) frente a la glucolítica (¹⁸F-FDG) de ese foco. En el mapa, el color recorre el eje de discordancia, del violeta (SSTR-dominante) al coral (glucolítico-dominante); el SUVmáx se lee en los ejes del diagrama, en la tabla y en la ficha.',
-                    'You’ll see it on every card and row: the violet versus coral share sums up the focus’s SSTR (⁶⁸Ga-DOTATOC) versus glycolytic (¹⁸F-FDG) uptake. On the map, color runs along the discordance axis, from violet (SSTR-dominant) to coral (glycolytic-dominant); the SUVmax is read off the scatter axes, the table and the card.') }}
+              {{ L('En cada ficha y cada fila, la proporción violeta↔coral resume la captación SSTR frente a la glucolítica del foco. El color recorre el eje de discordancia, del violeta (SSTR-dominante) al coral (glucolítico-dominante).',
+                    'On every card and row, the violet↔coral share sums up the focus’s SSTR versus glycolytic uptake. Color runs along the discordance axis, from violet (SSTR-dominant) to coral (glycolytic-dominant).') }}
             </p>
           </div>
 
@@ -3259,15 +3229,15 @@ const ticks = [
           <div class="grid sm:grid-cols-3 gap-3 mt-4">
             <div class="card-base !p-4 border-t-4" :style="{ borderColor: '#9d44ab' }">
               <p class="font-semibold text-sm mb-1" :style="{ color: '#9d44ab' }">{{ L('⁶⁸Ga⁺ / FDG⁻', '⁶⁸Ga⁺ / FDG⁻') }}</p>
-              <p class="text-[13px] text-tinta leading-snug">{{ L('Captación de receptores de somatostatina (⁶⁸Ga-DOTATOC) con captación glucolítica (¹⁸F-FDG) ausente o mínima.', 'Somatostatin-receptor uptake (⁶⁸Ga-DOTATOC) with absent or minimal glycolytic (¹⁸F-FDG) uptake.') }}</p>
+              <p class="text-[13px] text-tinta leading-snug">{{ L('Captación SSTR con glucólisis ausente o mínima.', 'SSTR uptake with absent or minimal glycolysis.') }}</p>
             </div>
             <div class="card-base !p-4 border-t-4" :style="{ borderColor: '#df7a44' }">
               <p class="font-semibold text-sm mb-1" :style="{ color: '#8a5a1a' }">{{ L('Captación dual (ambos)', 'Dual uptake (both)') }}</p>
-              <p class="text-[13px] text-tinta leading-snug">{{ L('Capta ambos trazadores: receptores de somatostatina y glucólisis a la vez.', 'Takes up both tracers: somatostatin receptors and glycolysis at once.') }}</p>
+              <p class="text-[13px] text-tinta leading-snug">{{ L('Capta ambos trazadores: SSTR y glucólisis a la vez.', 'Takes up both tracers: SSTR and glycolysis at once.') }}</p>
             </div>
             <div class="card-base !p-4 border-t-4" :style="{ borderColor: '#bb4128' }">
               <p class="font-semibold text-sm mb-1" :style="{ color: '#bb4128' }">{{ L('FDG⁺ / ⁶⁸Ga⁻', 'FDG⁺ / ⁶⁸Ga⁻') }}</p>
-              <p class="text-[13px] text-tinta leading-snug">{{ L('Captación glucolítica (¹⁸F-FDG) sin receptores de somatostatina detectables (⁶⁸Ga-DOTATOC⁻): discordancia de trazadores.', 'Glycolytic (¹⁸F-FDG) uptake without detectable somatostatin receptors (⁶⁸Ga-DOTATOC⁻): tracer discordance.') }}</p>
+              <p class="text-[13px] text-tinta leading-snug">{{ L('Glucólisis sin SSTR detectable: discordancia de trazadores.', 'Glycolysis without detectable SSTR: tracer discordance.') }}</p>
             </div>
           </div>
           </div>
@@ -3276,13 +3246,23 @@ const ticks = [
 
         <!-- «Qué significa cada patrón» fundido en el héroe (Zona A) -->
 
-        <!-- fuentes -->
-        <details class="notes-disclosure">
-          <summary>{{ L('Fuentes y método', 'Sources and method') }}</summary>
+        <!-- fuentes + SALVEDADES (bloque ÚNICO de caveats de cuantificación y encuadre) -->
+        <details id="metodo-caveats" class="notes-disclosure scroll-mt-[5.5rem]">
+          <summary>{{ L('Fuentes, método y salvedades', 'Sources, method and caveats') }}</summary>
           <p class="mt-3 text-xs text-tinta leading-relaxed font-mono">
             {{ L(
-              'SUV y localizaciones: informe PET-CT ¹⁸F-FDG 24/03/2026 e informe PET-CT ⁶⁸Ga-DOTATOC 26/05/2026 (Medicina Nuclear, H. Virgen de la Arrixaca). Imágenes PET: MIP, fusión sagital y cortes axiales reconstruidos a partir de los DICOM de ambos estudios (PET con corrección de atenuación + TC). Los SUV calculados desde los DICOM concuerdan con el informe dentro de ~10–12% (diferencia esperable entre voxel-máx y ROI). RMN: cortes sagitales de columna cervical y dorsal (secuencias STIR y T1) exportados de los DICOM de RM; se muestran solo para visualización y están pendientes de lectura radiológica formal. Ambos PET se administraron por reservorio (port-a-cath); si quedó actividad residual, todos los SUV podrían estar globalmente algo subestimados (no recalculable). No afecta a las comparaciones relativas entre focos.',
-              'SUV and locations: ¹⁸F-FDG PET-CT report 24/03/2026 and ⁶⁸Ga-DOTATOC PET-CT report 26/05/2026 (Nuclear Medicine, Virgen de la Arrixaca Hospital). PET images: MIP, sagittal fusion and axial slices reconstructed from the DICOM of both studies (attenuation-corrected PET + CT). SUVs computed from the DICOM agree with the report within ~10–12% (expected difference between voxel-max and ROI). MRI: sagittal slices of the cervical and thoracic spine (STIR and T1 sequences) exported from the MR DICOM; shown for visualization only and pending formal radiology reading. Both PET tracers were given via a port (port-a-cath); if residual activity remained, all SUVs could be slightly underestimated globally (not recalculable). This does not affect relative comparisons between foci.') }}
+              'Fuentes. SUV y localizaciones: informe PET-CT ¹⁸F-FDG 24/03/2026 e informe PET-CT ⁶⁸Ga-DOTATOC 26/05/2026 (Medicina Nuclear, H. Virgen de la Arrixaca). Imágenes PET: MIP, fusión sagital y cortes axiales reconstruidos de los DICOM (PET con corrección de atenuación + TC). RMN: cortes sagitales de columna cervical y dorsal (STIR y T1) exportados de los DICOM; solo para visualización, pendientes de lectura radiológica formal. Los SUV recalculados de los DICOM concuerdan con el informe dentro de ~10–12% (diferencia esperable voxel-máx ↔ ROI).',
+              'Sources. SUV and locations: ¹⁸F-FDG PET-CT report 24/03/2026 and ⁶⁸Ga-DOTATOC PET-CT report 26/05/2026 (Nuclear Medicine, Virgen de la Arrixaca Hospital). PET images: MIP, sagittal fusion and axial slices reconstructed from the DICOM (attenuation-corrected PET + CT). MRI: sagittal cervical and thoracic spine slices (STIR and T1) exported from the DICOM; visualization only, pending formal radiology reading. SUVs recomputed from the DICOM agree with the report within ~10–12% (expected voxel-max ↔ ROI difference).') }}
+          </p>
+          <p class="mt-2 text-xs text-tinta leading-relaxed font-mono">
+            {{ L(
+              'Qué mide cada lectura. ⁶⁸Ga-DOTATOC (SSTR) = densidad de receptores de somatostatina; ¹⁸F-FDG = metabolismo glucolítico; «blástico/lítico/mixto» = FORMA del hueso por densidad TC, no biología ni un tercer trazador. La extensión metabólica es lo que se capta por encima del umbral (41% del SUVmáx local), confinada a hueso, no el tamaño anatómico exacto.',
+              'What each reading measures. ⁶⁸Ga-DOTATOC (SSTR) = somatostatin-receptor density; ¹⁸F-FDG = glycolytic metabolism; “blastic/lytic/mixed” = bone SHAPE by CT density, not biology or a third tracer. The metabolic extent is what is taken up above the threshold (41% of the local SUVmax), confined to bone, not the exact anatomical size.') }}
+          </p>
+          <p class="mt-2 text-xs text-tinta leading-relaxed font-mono">
+            {{ L(
+              'Salvedades de cuantificación (válidas para TODA la página). El SUVmáx es un valor de vóxel único sujeto a efecto de volumen parcial (subestima focos < ~10 mm). Los dos PET no son simultáneos (FDG 24/03, ⁶⁸Ga 26/05). Ambos trazadores se administraron por reservorio (port-a-cath): una posible actividad residual subestimaría globalmente los SUV (no recalculable, no afecta a las comparaciones relativas). Puede haber captación fisiológica o artefacto. La página DESCRIBE hallazgos de imagen; no concluye ni es consejo médico — la lectura formal y la selección final de la diana corresponden al radiólogo y al comité de tumores.',
+              'Quantification caveats (apply to the WHOLE page). SUVmax is a single-voxel value subject to partial-volume effect (underestimates foci < ~10 mm). The two PET studies are not simultaneous (FDG 24/03, ⁶⁸Ga 26/05). Both tracers were given via a port (port-a-cath): possible residual activity would underestimate SUVs globally (not recalculable; does not affect relative comparisons). Physiologic uptake or artifact may occur. The page DESCRIBES imaging findings; it does not conclude and is not medical advice — formal reading and final target selection rest with the radiologist and the tumor board.') }}
           </p>
         </details>
 
@@ -3470,7 +3450,7 @@ const ticks = [
                 :biopsy-label="bonePriorBiopsy ?? undefined"
               />
             </div>
-            <p class="foco-key-lb__cap">{{ L('Hueso reconstruido a partir del CT con la captación PET co-registrada (los 3 mapas). Herramienta de visualización; su lectura formal corresponde al radiólogo. Describe, no concluye.', 'Bone reconstructed from the CT with co-registered PET uptake (all 3 maps). A visualization tool; its formal reading belongs to the radiologist. Describes, does not conclude.') }}</p>
+            <p class="foco-key-lb__cap">{{ L('Hueso reconstruido del CT con la captación PET co-registrada (los 3 mapas). Herramienta de visualización; su lectura formal corresponde al radiólogo.', 'Bone reconstructed from the CT with co-registered PET uptake (all 3 maps). A visualization tool; its formal reading belongs to the radiologist.') }}</p>
           </div>
         </div>
       </Teleport>
