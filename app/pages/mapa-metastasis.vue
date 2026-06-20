@@ -383,6 +383,139 @@ function provTitle(le: Lesion, field: string): string {
   return `${L('Fuente', 'Source')}: ${src} · ${mi}`
 }
 
+/* ── MARCADOR de procedencia VISIBLE (P2 · «procedencia visible») ──────────
+   Hasta hoy la procedencia vivía SOLO en el `title` (tooltip) de la tabla — un
+   radiólogo no la podía inspeccionar de un vistazo. Aquí se hace VISIBLE con un
+   sistema MUDO por celda (un glyph + un color por tipo de fuente) y una LEYENDA
+   una sola vez: carga cognitiva mínima, verificabilidad externa máxima.
+   La forma codifica también MEDIDO vs INTERPRETADO (la distinción que un nuclear
+   usa para juzgar): glyphs RELLENOS = MEDIDO (cantidad física), glyphs ABIERTOS
+   o el «~» = INTERPRETADO/aproximado. NO se duplica nada: deriva de manifestCells
+   (fuente única), así el marcador no puede desincronizarse del manifiesto ni del
+   export. Tonos en el safelist de Tailwind no aplica: van por estilo inline. */
+const PROV_MARK: Record<ProvSource, { glyph: string; tone: string }> = {
+  informe: { glyph: '●', tone: '#1f6b57' },                 // disco RELLENO · medido · informe oficial
+  'dicom-medicion-david': { glyph: '◆', tone: '#2d5f8a' },  // rombo RELLENO · medido · DICOM (David)
+  'rmn-literal': { glyph: '▫', tone: '#1f6b57' },           // cuadro ABIERTO · interpretado · RMN literal
+  derivado: { glyph: '▽', tone: '#7a5a8a' },                // triángulo ABIERTO · interpretado · derivado
+  aproximado: { glyph: '~', tone: '#bf7d2c' },              // tilde · aproximado · IA (por confirmar)
+}
+/* el marcador de UN campo, derivado del manifiesto (glyph + tono + medido). */
+function provMark(le: Lesion, field: string) {
+  const c = manifestCells(le)[field]
+  if (!c) return null
+  const m = PROV_MARK[c.fuente]
+  return { ...m, fuente: c.fuente, medido: c.medido, cell: c }
+}
+/* MEDIDO vs INTERPRETADO en una palabra (para chips/leyenda/panel) */
+function miLabel(medido: boolean) { return medido ? L('medido', 'measured') : L('interpretado', 'interpreted') }
+/* la LEYENDA (una sola vez): los 5 tipos de fuente con su glyph y qué significan.
+   Reactiva con `lang` porque L() lee lang.value; computed para no recomputar. */
+const PROV_LEGEND = computed(() => (Object.keys(PROV_MARK) as ProvSource[]).map((k) => ({
+  fuente: k,
+  glyph: PROV_MARK[k].glyph,
+  tone: PROV_MARK[k].tone,
+  label: L(PROV_LABEL[k].es, PROV_LABEL[k].en),
+  medido: k === 'informe' || k === 'dicom-medicion-david',
+})))
+/* fecha legible (sin PHI) del estudio de origen, para el panel «Procedencia». */
+function provDateLabel(iso?: string): string {
+  if (!iso) return ''
+  const M = lang.value === 'en'
+    ? ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+    : ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic']
+  const [y, m, d] = iso.split('-')
+  if (!m) return y
+  const mon = M[Number(m) - 1] || m
+  return d ? `${d} ${mon} ${y}` : `${mon} ${y}`
+}
+/* CAMPOS del panel «Procedencia» del foco, en orden de lectura, con su rótulo
+   humano. Solo los campos que aportan al equipo (no los auto-duplicados). */
+const PROV_PANEL_FIELDS: { field: string; es: string; en: string }[] = [
+  { field: 'dota', es: 'SUVmáx ⁶⁸Ga-DOTATOC', en: '⁶⁸Ga-DOTATOC SUVmax' },
+  { field: 'fdg', es: 'SUVmáx ¹⁸F-FDG', en: '¹⁸F-FDG SUVmax' },
+  { field: 'fdgPrev', es: 'SUVmáx ¹⁸F-FDG previo', en: 'Prior ¹⁸F-FDG SUVmax' },
+  { field: 'extentMm', es: 'Extensión metabólica (mm)', en: 'Metabolic extent (mm)' },
+  { field: 'mtvMl', es: 'MTV (ml)', en: 'MTV (ml)' },
+  { field: 'morfologia', es: 'Morfología (forma del hueso)', en: 'Morphology (bone shape)' },
+  { field: 'partesBlandas', es: 'Partes blandas / extensión extraósea', en: 'Soft tissue / extraosseous extension' },
+  { field: 'fenotipo', es: 'Fenotipo (eje SSTR ↔ glucólisis)', en: 'Phenotype (SSTR ↔ glycolysis axis)' },
+  { field: 'idoneidad', es: 'Idoneidad como diana (score)', en: 'Suitability as a target (score)' },
+  { field: 'biopsiaPrevia', es: 'Biopsia previa', en: 'Prior biopsy' },
+]
+/* referencia legible (sin PHI) de una celda: PMID/NCT/código DICOM/nota literal. */
+function provRefLabel(c: Cell): string {
+  if (!c.ref) return ''
+  if (c.ref === BIOPSY_CODE) return L('código de biopsia ' + c.ref, 'biopsy code ' + c.ref)
+  if (c.ref === 'heurístico-no-validado') return L('heurístico · no validado', 'heuristic · not validated')
+  return c.ref
+}
+/* ProvDot · el MARCADOR de procedencia MUDO por celda (glyph + tono, derivado
+   de manifestCells). Componente funcional para reutilizarlo en la ficha SIN
+   repetir markup ni desincronizar la fuente. Lleva un `title` (la procedencia
+   en texto, idéntica al tooltip de la tabla) + aria-label: accesible y
+   verificable, pero visualmente discreto (no recarga la cifra). */
+const ProvDot = (props: { le: Lesion; field: string }) => {
+  const m = provMark(props.le, props.field)
+  if (!m) return null
+  const t = provTitle(props.le, props.field)
+  return h('span', {
+    class: 'prov-dot',
+    style: { color: m.tone },
+    title: t,
+    'aria-label': t,
+    role: 'img',
+  }, m.glyph)
+}
+/* ProvLegend · la LEYENDA de los tipos de fuente, una sola vez. Los 5 glyphs con
+   su rótulo + si son MEDIDO o INTERPRETADO. Reutilizable (panel del foco + junto
+   al manifiesto). Deriva de PROV_MARK/PROV_LABEL: una fuente, sin desincronizar. */
+const ProvLegend = (props: { compact?: boolean }) =>
+  h('div', { class: ['prov-legend', props.compact ? 'prov-legend--compact' : ''] }, [
+    h('p', { class: 'prov-legend__title' }, L('Marcadores de procedencia', 'Provenance markers')),
+    h('ul', { class: 'prov-legend__list' }, PROV_LEGEND.value.map((it) =>
+      h('li', { key: it.fuente, class: 'prov-legend__item' }, [
+        h('span', { class: 'prov-dot prov-dot--lg', style: { color: it.tone }, 'aria-hidden': 'true' }, it.glyph),
+        h('span', { class: 'prov-legend__label' }, it.label),
+        h('span', {
+          class: ['prov-mi', it.medido ? 'prov-mi--measured' : 'prov-mi--interp'],
+        }, miLabel(it.medido)),
+      ]),
+    )),
+    h('p', { class: 'prov-legend__note' }, L(
+      'Relleno = MEDIDO (cantidad física: SUVmáx, mm, ml). Abierto o «~» = INTERPRETADO o aproximado (lectura/regla).',
+      'Filled = MEASURED (physical quantity: SUVmax, mm, ml). Open or “~” = INTERPRETED or approximate (reading/rule).',
+    )),
+  ])
+/* filas del panel «Procedencia» de UN foco: cada cifra → su origen completo
+   (valor, fuente, fecha, trazador, medido/interpretado, ref). Deriva del
+   manifiesto (no se reescribe a mano → no se desincroniza del export). */
+function provRows(le: Lesion) {
+  const cells = manifestCells(le)
+  return PROV_PANEL_FIELDS
+    .filter((f) => cells[f.field])
+    .map((f) => {
+      const c = cells[f.field]!
+      const m = PROV_MARK[c.fuente]
+      const val = c.valor == null
+        ? '—'
+        : (typeof c.valor === 'number' ? c.valor.toFixed(c.unidad === 'SUVmáx' ? 1 : (c.unidad === 'ml' ? 1 : 0)) : String(c.valor))
+      return {
+        field: f.field,
+        label: L(f.es, f.en),
+        glyph: m.glyph,
+        tone: m.tone,
+        valor: val,
+        unidad: c.unidad,
+        trazador: c.trazador || '',
+        fecha: provDateLabel(c.fecha),
+        fuente: L(PROV_LABEL[c.fuente].es, PROV_LABEL[c.fuente].en),
+        medido: c.medido,
+        ref: provRefLabel(c),
+      }
+    })
+}
+
 /* % del perfil que corresponde al receptor (orientativo) */
 function neShare(le: Lesion): number {
   if (le.fdg == null) return 0.9
@@ -2649,7 +2782,7 @@ const manifestValidated = (() => {
               <!-- IDONEIDAD como diana (orientativa) · primero -->
               <div class="rounded-card bg-cream-card px-3 py-2 mb-3 border border-[rgba(45,27,61,0.1)]">
                 <div class="flex items-center justify-between mb-1">
-                  <span class="eyebrow--sm text-berenjena">{{ L('Idoneidad como diana', 'Suitability as a target') }}</span>
+                  <span class="eyebrow--sm text-berenjena flex items-center gap-1">{{ L('Idoneidad como diana', 'Suitability as a target') }}<ProvDot :le="sel" field="idoneidad" /></span>
                   <span class="font-mono text-sm font-semibold text-berenjena"><span class="data-soft">{{ suitabilityScore(sel) }}</span><span class="unit">{{ L('/100 · derivado', '/100 · derived') }}</span></span>
                 </div>
                 <div class="h-2 rounded-full overflow-hidden bg-[rgba(45,27,61,0.08)]" role="img"
@@ -2675,19 +2808,19 @@ const manifestValidated = (() => {
               <!-- NÚMEROS CLAVE · 4 cifras a ancho completo (la imagen clave subió a «Imágenes») -->
               <div class="grid grid-cols-2 gap-2 mb-3">
                 <div class="rounded-card bg-cream-card px-2.5 py-1.5 border-l-4" :style="{ borderColor: GA_FILL }">
-                  <p class="text-[10px] text-tinta leading-none">{{ L('SSTR · ⁶⁸Ga', 'SSTR · ⁶⁸Ga') }}</p>
+                  <p class="text-[10px] text-tinta leading-none flex items-center gap-1">{{ L('SSTR · ⁶⁸Ga', 'SSTR · ⁶⁸Ga') }}<ProvDot :le="sel" field="dota" /></p>
                   <p class="font-mono text-base leading-tight text-berenjena"><span :class="{ 'data-soft': selIsAi }">{{ fmtSuv(sel, sel.dota) }}</span><span v-if="sel.dota != null" class="unit">{{ L('SUVmáx', 'SUVmax') }}</span></p>
                 </div>
                 <div class="rounded-card bg-cream-card px-2.5 py-1.5 border-l-4" :style="{ borderColor: FDG_FILL }">
-                  <p class="text-[10px] text-tinta leading-none">{{ L('Glucólisis · FDG', 'Glycolysis · FDG') }}</p>
+                  <p class="text-[10px] text-tinta leading-none flex items-center gap-1">{{ L('Glucólisis · FDG', 'Glycolysis · FDG') }}<ProvDot :le="sel" field="fdg" /></p>
                   <p class="font-mono text-base leading-tight text-berenjena"><span :class="{ 'data-soft': selIsAi }">{{ fmtSuv(sel, sel.fdg) }}</span><span v-if="sel.fdg != null" class="unit">{{ L('SUVmáx', 'SUVmax') }}</span><span v-if="trend(sel)" class="text-[11px] ml-1" :style="deltaStyle(sel)">({{ deltaFdg(sel) }})</span></p>
                 </div>
                 <div class="rounded-card bg-cream-card px-2.5 py-1.5 border-l-4" :style="{ borderColor: '#1f6b57' }">
-                  <p class="text-[10px] text-tinta leading-none">{{ L('Forma (CT)', 'Shape (CT)') }}</p>
+                  <p class="text-[10px] text-tinta leading-none flex items-center gap-1">{{ L('Forma (CT)', 'Shape (CT)') }}<ProvDot :le="sel" field="morfologia" /></p>
                   <p class="text-[12px] font-semibold leading-tight text-berenjena">{{ morphLabel(sel) }}</p>
                 </div>
                 <div class="rounded-card bg-cream-card px-2.5 py-1.5 border-l-4" :style="{ borderColor: '#6b6470' }">
-                  <p class="text-[10px] text-tinta leading-none">{{ L('Extensión metab.', 'Metabolic extent') }}</p>
+                  <p class="text-[10px] text-tinta leading-none flex items-center gap-1">{{ L('Extensión metab.', 'Metabolic extent') }}<ProvDot :le="sel" field="extentMm" /></p>
                   <p class="font-mono text-[12px] font-semibold leading-tight text-berenjena">{{ metExtentLabel(sel) }}</p>
                 </div>
               </div>
@@ -2891,6 +3024,47 @@ const manifestValidated = (() => {
                   </div>
                 </div>
               </div>
+
+              <!-- ===== PROCEDENCIA campo a campo (P2 · «procedencia visible») =====
+                   PLEGABLE, plegada por defecto (no estorba). Al abrirla, cada cifra
+                   del foco → su ORIGEN completo: fuente, fecha, trazador, MEDIDO vs
+                   INTERPRETADO y ref (código de biopsia / heurístico-no-validado).
+                   DERIVA del manifiesto (provRows ← manifestCells): lo que se ve aquí
+                   = lo que se descarga en el CSV/JSON. Verificabilidad externa
+                   (modelo cBioPortal/OncoKB): el equipo inspecciona el origen de cada
+                   número sin salir de la ficha. Anti-PHI: solo ids #1–19, sin
+                   metadatos de paciente; cualquier ref DICOM es índice/código. -->
+              <details class="notes-disclosure prov-panel mb-4">
+                <summary>
+                  <span class="inline-flex items-center gap-2 flex-wrap">
+                    {{ L('Procedencia · de dónde sale cada cifra', 'Provenance · where each figure comes from') }}
+                    <span class="status-badge status-badge--firma">{{ L('campo a campo', 'field by field') }}</span>
+                  </span>
+                </summary>
+                <p class="text-[11px] text-tinta mt-3 mb-3 leading-relaxed max-w-2xl">
+                  {{ L('Cada cifra de este foco con su origen: fuente, fecha del estudio, trazador, si es MEDIDA o INTERPRETADA y su referencia. Es la misma fuente que el manifiesto descargable (CSV/JSON) — lo que se ve aquí es lo que se descarga.', 'Each figure for this focus with its origin: source, study date, tracer, whether it is MEASURED or INTERPRETED, and its reference. It is the same source as the downloadable manifest (CSV/JSON) — what you see here is what you download.') }}
+                </p>
+                <ul class="prov-list">
+                  <li v-for="r in provRows(sel)" :key="r.field" class="prov-list__row">
+                    <span class="prov-dot prov-dot--lg shrink-0 mt-0.5" :style="{ color: r.tone }" role="img" :aria-label="r.fuente">{{ r.glyph }}</span>
+                    <div class="min-w-0">
+                      <p class="text-[12.5px] leading-snug">
+                        <span class="font-semibold text-berenjena">{{ r.label }}</span>
+                        <span class="font-mono text-berenjena ml-1.5">{{ r.valor }}<span v-if="r.unidad && r.valor !== '—'" class="text-tinta"> {{ r.unidad }}</span></span>
+                      </p>
+                      <p class="text-[11px] text-tinta leading-snug mt-0.5 flex flex-wrap gap-x-2 gap-y-0">
+                        <span>{{ r.fuente }}</span>
+                        <span class="prov-mi" :class="r.medido ? 'prov-mi--measured' : 'prov-mi--interp'">{{ miLabel(r.medido) }}</span>
+                        <span v-if="r.trazador">· {{ r.trazador }}</span>
+                        <span v-if="r.fecha">· {{ r.fecha }}</span>
+                        <span v-if="r.ref">· {{ r.ref }}</span>
+                      </p>
+                    </div>
+                  </li>
+                </ul>
+                <ProvLegend class="mt-3" />
+                <p class="text-[10px] text-tinta mt-2 leading-relaxed">{{ L('Anti-PHI: solo ids sintéticos #1–19; cualquier referencia a un corte DICOM es un índice/código, sin metadatos de paciente.', 'Anti-PHI: synthetic ids #1–19 only; any reference to a DICOM slice is an index/code, with no patient metadata.') }}</p>
+              </details>
 
               <!-- ===== MORFOLOGÍA (forma del hueso) + MTV · dato de PRIMERA CLASE =====
                    La morfología (lítico/blástico/mixto) es el predictor clave del
@@ -3777,6 +3951,11 @@ const manifestValidated = (() => {
                   ? L('Validación: el manifiesto deriva de los mismos valores que la tabla y reproduce, por construcción, cada SUVmáx y score que se muestran arriba (verificado en build). No recalcula precisión: separa lo medido de lo interpretado.', 'Validation: the manifest derives from the same values as the table and reproduces, by construction, every SUVmax and score shown above (verified at build). It does not recompute precision: it separates measured from interpreted.')
                   : L('Aviso: el manifiesto no cuadra con la tabla — revisar antes de publicar.', 'Notice: the manifest does not match the table — review before publishing.') }}
               </p>
+              <!-- LEYENDA de los marcadores de procedencia · UNA sola vez (aquí, junto
+                   al manifiesto). En la ficha y la tabla los marcadores van MUDOS;
+                   su significado se lee aquí. Deriva de PROV_MARK/PROV_LABEL → misma
+                   fuente que los marcadores y que el export (no se desincroniza). -->
+              <ProvLegend class="mt-3" />
             </div>
           </div>
 
@@ -4333,6 +4512,80 @@ const manifestValidated = (() => {
   opacity: 0.82;
 }
 .data-soft__approx { opacity: 0.7; font-weight: 400; margin-right: 0.05em; }
+
+/* ════════════════════════════════════════════════════════════════════════
+   PROCEDENCIA VISIBLE (P2) · marcador MUDO por celda + leyenda + panel.
+   El glyph (●◆▫▽~) y su color codifican la FUENTE; la forma rellena/abierta
+   codifica MEDIDO vs INTERPRETADO. Discreto por diseño: no compite con la
+   cifra, solo la acompaña. El significado se lee en la leyenda (una vez). */
+.prov-dot {
+  font-size: 0.74em;
+  line-height: 1;
+  font-weight: 700;
+  letter-spacing: 0;
+  /* el glyph hereda su color por estilo inline (el tono de la fuente). */
+  cursor: help;
+  user-select: none;
+  vertical-align: 0.06em;
+}
+.prov-dot--lg { font-size: 0.95em; }
+
+/* MEDIDO vs INTERPRETADO · micro-etiqueta (la distinción que un nuclear juzga).
+   MEDIDO = sólido y algo más oscuro; INTERPRETADO = más ligero, en cursiva. */
+.prov-mi { font-weight: 600; }
+.prov-mi--measured { color: #1f6b57; }
+.prov-mi--interp { color: #7a5a8a; font-style: italic; font-weight: 500; }
+
+/* PANEL «Procedencia» del foco · lista cifra → origen (plegable, plegado). */
+.prov-list { display: flex; flex-direction: column; gap: 0.5rem; }
+.prov-list__row {
+  display: flex;
+  gap: 0.55rem;
+  align-items: flex-start;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid rgba(45, 27, 61, 0.08);
+}
+.prov-list__row:last-child { border-bottom: 0; padding-bottom: 0; }
+
+/* LEYENDA de los marcadores · una sola vez (junto al manifiesto y en el panel). */
+.prov-legend {
+  border: 1px solid rgba(45, 27, 61, 0.12);
+  border-radius: 0.6rem;
+  background: rgba(45, 27, 61, 0.03);
+  padding: 0.65rem 0.8rem;
+}
+.prov-legend__title {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #2d1b3d;
+  margin-bottom: 0.45rem;
+}
+.prov-legend__list {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.3rem 1rem;
+}
+@media (min-width: 560px) {
+  .prov-legend__list { grid-template-columns: 1fr 1fr; }
+}
+.prov-legend--compact .prov-legend__list { grid-template-columns: 1fr; }
+.prov-legend__item {
+  display: flex;
+  align-items: baseline;
+  gap: 0.4rem;
+  font-size: 12px;
+  line-height: 1.3;
+  color: #3a3340;
+}
+.prov-legend__label { flex: 1 1 auto; }
+.prov-legend__note {
+  font-size: 10.5px;
+  line-height: 1.4;
+  color: #6b6470;
+  margin-top: 0.5rem;
+}
 
 /* Anillo de FOCO de teclado para los marcadores SVG navegables (esqueleto + scatter):
    en <circle> el outline no se pinta de forma fiable en WebKit y box-shadow/
