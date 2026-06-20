@@ -104,7 +104,7 @@ const failed = ref(false)
 const noMesh = computed(() => !props.meshKey)
 const biopsyAvailable = computed(() => !!props.biopsied && !noMesh.value && !failed.value)
 const showBiopsy = ref(false)
-const showTarget = ref(false)  // OFF por defecto (consistente con la aguja): el médico le da a un botón para VER la diana orientativa
+const showTarget = ref(true)   // ON por defecto: la diana es el VALOR del tool (los doctores la quieren ver al instante); sutil + etiquetada «orientativa, no indicación» + toggle para ocultarla → «equipa, no indica» sin esconder el valor. La aguja (#13, incidental) sigue OFF; defaults distintos por rol distinto.
 const targetAvailable = computed(() => !props.noTarget && !noMesh.value && !failed.value)
 
 /* MÓVIL · PESTAÑAS: en stacked (móvil estrecho) NO apilamos 3 huesos pequeños; mostramos
