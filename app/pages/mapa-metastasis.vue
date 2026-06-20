@@ -2452,11 +2452,11 @@ const manifestValidated = (() => {
               <!-- flechas prev/next entre focos (sencillas; ayudan a ir pinchando de un vistazo) -->
               <div class="flex items-center gap-1 text-tinta shrink-0">
                 <button type="button" @click="pickStep(-1)"
-                  class="nav-step w-8 h-8 rounded-full border border-[rgba(45,27,61,0.2)] flex items-center justify-center hover:border-[rgba(45,27,61,0.45)] hover:text-berenjena"
+                  class="nav-step nav-step--prev w-8 h-8 rounded-full border border-[rgba(45,27,61,0.2)] flex items-center justify-center hover:border-[rgba(45,27,61,0.45)] hover:text-berenjena"
                   :aria-label="L('Foco anterior', 'Previous focus')">‹</button>
                 <span class="font-mono text-[11px] tabular-nums w-11 text-center select-none">{{ focoPos || '–' }}<span class="text-[10px] text-tinta">/{{ visibleFocusList.length }}</span></span>
                 <button type="button" @click="pickStep(1)"
-                  class="nav-step w-8 h-8 rounded-full border border-[rgba(45,27,61,0.2)] flex items-center justify-center hover:border-[rgba(45,27,61,0.45)] hover:text-berenjena"
+                  class="nav-step nav-step--next w-8 h-8 rounded-full border border-[rgba(45,27,61,0.2)] flex items-center justify-center hover:border-[rgba(45,27,61,0.45)] hover:text-berenjena"
                   :aria-label="L('Foco siguiente', 'Next focus')">›</button>
               </div>
             </div>
@@ -4640,6 +4640,10 @@ const manifestValidated = (() => {
 .tl-date {
   transition: color var(--ease-salida), border-color var(--ease-salida), background-color var(--ease-salida);
 }
+/* CENTRADO ÓPTICO de los glifos ‹ › del navegador prev/next (mismo criterio que las
+   flechas del lightbox): el chevron abierto no centra solo en su círculo. */
+.nav-step--prev { text-indent: -1px; }
+.nav-step--next { text-indent: 1px; }
 .nav-step:hover,
 .filter-chip:hover,
 .tl-date:hover { transition: color var(--ease-entrada), border-color var(--ease-entrada), background-color var(--ease-entrada); }
@@ -4865,8 +4869,10 @@ svg [role="button"]:focus-visible {
 .foco-key-thumb__img { display: block; width: 100%; height: auto; }
 .foco-key-thumb__zoom {
   position: absolute;
-  right: 7px;
-  bottom: 7px;
+  /* inset > radio del frame (0.6rem ≈ 9.6px) para despejar la esquina redondeada
+     (overflow:hidden): a 7px el badge circular quedaba embutido en la curva. */
+  right: 10px;
+  bottom: 10px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -4879,8 +4885,9 @@ svg [role="button"]:focus-visible {
 }
 .foco-key-thumb__planes {
   position: absolute;
-  left: 7px;
-  bottom: 7px;
+  /* inset > radio del frame (0.6rem ≈ 9.6px) → la pill despeja la curva con aire */
+  left: 10px;
+  bottom: 10px;
   font-family: 'JetBrains Mono', monospace;
   font-size: 10px;
   line-height: 1;
@@ -4955,8 +4962,10 @@ svg [role="button"]:focus-visible {
    derecha del tile, fuera del botón que abre el lightbox. */
 .foco-key-dl {
   position: absolute;
-  right: 6px;
-  top: 6px;
+  /* el frame interior redondea a 0.55rem ≈ 8.8px (esquina sup-dcha); el inset del
+     badge circular debe SUPERARLO para no embutirse en esa curva. 9px → con aire. */
+  right: 9px;
+  top: 9px;
   z-index: 2;
   display: inline-flex;
   align-items: center;
@@ -5009,8 +5018,10 @@ svg [role="button"]:focus-visible {
 .foco-key-tile__img { display: block; width: 100%; height: 100%; object-fit: cover; }
 .foco-key-tile__zoom {
   position: absolute;
-  right: 5px;
-  bottom: 5px;
+  /* inset > radio del frame (0.55rem ≈ 8.8px): a 5px el badge se embutía en la
+     esquina redondeada (overflow:hidden). 9px despeja la curva con aire. */
+  right: 9px;
+  bottom: 9px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -5023,8 +5034,9 @@ svg [role="button"]:focus-visible {
 }
 .foco-key-tile__planes {
   position: absolute;
-  left: 5px;
-  bottom: 5px;
+  /* inset > radio del frame (0.55rem ≈ 8.8px) → despeja la esquina redondeada */
+  left: 9px;
+  bottom: 9px;
   font-family: 'JetBrains Mono', monospace;
   font-size: 9.5px;
   line-height: 1;
@@ -5035,8 +5047,9 @@ svg [role="button"]:focus-visible {
 }
 .foco-key-tile__flag {
   position: absolute;
-  left: 5px;
-  top: 5px;
+  /* inset > radio del frame (0.55rem ≈ 8.8px) → la pill despeja la esquina sup-izq */
+  left: 9px;
+  top: 9px;
   font-size: 9.5px;
   font-weight: 700;
   line-height: 1;
@@ -5121,8 +5134,9 @@ svg [role="button"]:focus-visible {
 .study-thumb__img { display: block; width: 100%; height: 100%; object-fit: contain; }
 .study-thumb__zoom {
   position: absolute;
-  right: 6px;
-  bottom: 6px;
+  /* inset > radio del frame (0.55rem ≈ 8.8px) → despeja la esquina redondeada */
+  right: 9px;
+  bottom: 9px;
   width: 26px;
   height: 26px;
   display: inline-flex;
@@ -5135,8 +5149,9 @@ svg [role="button"]:focus-visible {
 }
 .study-thumb__kind {
   position: absolute;
-  left: 6px;
-  top: 6px;
+  /* inset > radio del frame (0.55rem ≈ 8.8px) → la pill despeja la esquina sup-izq */
+  left: 9px;
+  top: 9px;
   font-size: 9.5px;
   font-weight: 600;
   line-height: 1;
@@ -5328,7 +5343,9 @@ svg [role="button"]:focus-visible {
   background: #fff;
   color: #2d1b3d;
   font-size: 22px;
-  line-height: 1;
+  /* CENTRADO ÓPTICO del × (U+00D7): se alinea al eje matemático → queda ~1px alto.
+     line-height 0 + flex-center lo cuadra; el nudge fino lo asienta en el centro visual. */
+  line-height: 0;
   cursor: pointer;
 }
 .foco-key-lb__close:hover { background: #f0e7f3; }
@@ -5367,6 +5384,11 @@ svg [role="button"]:focus-visible {
 .foco-key-lb__nav:focus-visible { outline: 2px solid #ffd166; outline-offset: 2px; }
 .foco-key-lb__nav--prev { left: 0.6rem; }
 .foco-key-lb__nav--next { right: 0.6rem; }
+/* CENTRADO ÓPTICO de los glifos ‹ › dentro del círculo (no matemático): el chevron
+   abierto deja side-bearing → ‹ tira a la derecha, › a la izquierda. 1px de nudge
+   inverso los deja visualmente centrados en su botón. */
+.foco-key-lb__nav--prev { text-indent: -1px; }
+.foco-key-lb__nav--next { text-indent: 1px; }
 .foco-key-lb__cap {
   padding: 0.5rem 0.9rem 0.85rem;
   font-size: 0.72rem;
