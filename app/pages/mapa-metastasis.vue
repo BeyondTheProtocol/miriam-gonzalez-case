@@ -393,12 +393,19 @@ function provTitle(le: Lesion, field: string): string {
    o el «~» = INTERPRETADO/aproximado. NO se duplica nada: deriva de manifestCells
    (fuente única), así el marcador no puede desincronizarse del manifiesto ni del
    export. Tonos en el safelist de Tailwind no aplica: van por estilo inline. */
-const PROV_MARK: Record<ProvSource, { glyph: string; tone: string }> = {
-  informe: { glyph: '●', tone: '#1f6b57' },                 // disco RELLENO · medido · informe oficial
-  'dicom-medicion-david': { glyph: '◆', tone: '#2d5f8a' },  // rombo RELLENO · medido · DICOM (David)
-  'rmn-literal': { glyph: '▫', tone: '#1f6b57' },           // cuadro ABIERTO · interpretado · RMN literal
-  derivado: { glyph: '▽', tone: '#7a5a8a' },                // triángulo ABIERTO · interpretado · derivado
-  aproximado: { glyph: '~', tone: '#bf7d2c' },              // tilde · aproximado · IA (por confirmar)
+/* MARCADORES DE PROCEDENCIA = FORMAS SVG (no glifos Unicode). Cada fuente/OS dibuja
+   los glifos ●◆▫▽~ con métricas verticales distintas → desalineo de ~1px imposible de
+   cuadrar con vertical-align. Aquí cada fuente tiene una FORMA dibujada en SVG (geometría
+   fija, idéntica en todo OS), ópticamente centrada con la línea de texto vía el componente
+   ProvShape (una sola fuente para ficha + leyenda + panel → nunca se desincronizan).
+   Significado conservado: relleno = MEDIDO, hueco = INTERPRETADO; tilde = aproximado-IA. */
+type ProvShape = 'circle' | 'diamond' | 'square-open' | 'tri-down-open' | 'tilde'
+const PROV_MARK: Record<ProvSource, { shape: ProvShape; tone: string }> = {
+  informe: { shape: 'circle', tone: '#1f6b57' },                 // círculo RELLENO · medido · informe oficial
+  'dicom-medicion-david': { shape: 'diamond', tone: '#2d5f8a' }, // rombo RELLENO · medido · DICOM (David)
+  'rmn-literal': { shape: 'square-open', tone: '#1f6b57' },      // cuadro HUECO · interpretado · RMN literal
+  derivado: { shape: 'tri-down-open', tone: '#7a5a8a' },         // triángulo HUECO (abajo) · interpretado · derivado
+  aproximado: { shape: 'tilde', tone: '#bf7d2c' },               // «≈» · aproximado · IA (por confirmar)
 }
 /* el marcador de UN campo, derivado del manifiesto (glyph + tono + medido). */
 function provMark(le: Lesion, field: string) {
@@ -413,7 +420,7 @@ function miLabel(medido: boolean) { return medido ? L('medido', 'measured') : L(
    Reactiva con `lang` porque L() lee lang.value; computed para no recomputar. */
 const PROV_LEGEND = computed(() => (Object.keys(PROV_MARK) as ProvSource[]).map((k) => ({
   fuente: k,
-  glyph: PROV_MARK[k].glyph,
+  shape: PROV_MARK[k].shape,
   tone: PROV_MARK[k].tone,
   label: L(PROV_LABEL[k].es, PROV_LABEL[k].en),
   medido: k === 'informe' || k === 'dicom-medicion-david',
@@ -455,17 +462,45 @@ function provRefLabel(c: Cell): string {
    repetir markup ni desincronizar la fuente. Lleva un `title` (la procedencia
    en texto, idéntica al tooltip de la tabla) + aria-label: accesible y
    verificable, pero visualmente discreto (no recarga la cifra). */
+/* ProvShape · la FORMA SVG de un marcador (geometría fija, idéntica en todo OS), pintada
+   con el tono de la fuente. Caja 10×10 (viewBox), forma centrada en (5,5). El <span.prov-dot>
+   contenedor (inline-flex, tamaño fijo, vertical-align medido) la centra ópticamente con la
+   x-height del texto, SIN depender de la fuente. UNA sola fuente para ficha + leyenda + panel.
+   Relleno = MEDIDO; trazo (hueco) = INTERPRETADO; «≈» (dos tildes) = aproximado-IA. */
+function provShapeSvg(shape: ProvShape, tone: string) {
+  const sw = 1.4   // grosor de trazo de las formas huecas
+  let inner
+  if (shape === 'circle') {
+    inner = h('circle', { cx: 5, cy: 5, r: 3.6, fill: tone })
+  } else if (shape === 'diamond') {
+    inner = h('path', { d: 'M5 1 L9 5 L5 9 L1 5 Z', fill: tone })
+  } else if (shape === 'square-open') {
+    inner = h('rect', { x: 1.7, y: 1.7, width: 6.6, height: 6.6, rx: 0.6, fill: 'none', stroke: tone, 'stroke-width': sw })
+  } else if (shape === 'tri-down-open') {
+    inner = h('path', { d: 'M1.4 2.4 L8.6 2.4 L5 8.6 Z', fill: 'none', stroke: tone, 'stroke-width': sw, 'stroke-linejoin': 'round' })
+  } else {
+    // «≈» aproximado: dos ondas finas (tilde doble), trazo, sin relleno
+    inner = h('path', {
+      d: 'M1.2 4 Q2.6 2.6 4 4 T6.8 4 M1.2 6.6 Q2.6 5.2 4 6.6 T6.8 6.6',
+      fill: 'none', stroke: tone, 'stroke-width': sw, 'stroke-linecap': 'round',
+    })
+  }
+  return h('svg', { class: 'prov-shape__svg', viewBox: '0 0 10 10', focusable: 'false', 'aria-hidden': 'true' }, [inner])
+}
+/* el span contenedor del marcador-forma: tamaño y alineación vertical fijos respecto a la
+   línea de texto (independientes de la fuente). Variante --lg para la leyenda/panel. */
+const ProvShapeMark = (props: { shape: ProvShape; tone: string; lg?: boolean; title?: string; decorative?: boolean }) =>
+  h('span', {
+    class: ['prov-dot', props.lg ? 'prov-dot--lg' : ''],
+    ...(props.decorative
+      ? { 'aria-hidden': 'true' }
+      : { role: 'img', title: props.title, 'aria-label': props.title }),
+  }, [provShapeSvg(props.shape, props.tone)])
 const ProvDot = (props: { le: Lesion; field: string }) => {
   const m = provMark(props.le, props.field)
   if (!m) return null
   const t = provTitle(props.le, props.field)
-  return h('span', {
-    class: 'prov-dot',
-    style: { color: m.tone },
-    title: t,
-    'aria-label': t,
-    role: 'img',
-  }, m.glyph)
+  return h(ProvShapeMark, { shape: m.shape, tone: m.tone, title: t })
 }
 /* ProvLegend · la LEYENDA de los tipos de fuente, una sola vez. Los 5 glyphs con
    su rótulo + si son MEDIDO o INTERPRETADO. Reutilizable (panel del foco + junto
@@ -475,7 +510,7 @@ const ProvLegend = (props: { compact?: boolean }) =>
     h('p', { class: 'prov-legend__title' }, L('Marcadores de procedencia', 'Provenance markers')),
     h('ul', { class: 'prov-legend__list' }, PROV_LEGEND.value.map((it) =>
       h('li', { key: it.fuente, class: 'prov-legend__item' }, [
-        h('span', { class: 'prov-dot prov-dot--lg', style: { color: it.tone }, 'aria-hidden': 'true' }, it.glyph),
+        h(ProvShapeMark, { shape: it.shape, tone: it.tone, lg: true, decorative: true }),
         h('span', { class: 'prov-legend__label' }, it.label),
         h('span', { class: 'prov-legend__sep', 'aria-hidden': 'true' }, '·'),
         h('span', {
@@ -504,7 +539,7 @@ function provRows(le: Lesion) {
       return {
         field: f.field,
         label: L(f.es, f.en),
-        glyph: m.glyph,
+        shape: m.shape,
         tone: m.tone,
         valor: val,
         unidad: c.unidad,
@@ -1009,11 +1044,12 @@ function pick(id: number) { selected.value = id }
 /* (ficha resumen) ir directo al DETALLE del comité de ese foco: selecciona + abre el
    <details id="detalle-foco"> (que ya hace scroll). */
 function pickAndShowDetalle(id: number) { pick(id); openDetalle() }
-/* marca de diana en la ficha: ◆ cian (mismo color que el anillo del 3D) si es puncionable;
-   ⊘ gris si no procede como punto de punción (fémur de carga, epidural, IA o a validar). */
-function dianaMk(le: Lesion): { mk: string; color: string } {
+/* marca de diana en la ficha (ICONO SVG, no glifo Unicode: ◆/⊘ derivan según fuente):
+   diamante cian (mismo color que el anillo del 3D) si es puncionable; prohibido gris si no
+   procede como punto de punción (fémur de carga, epidural, IA o a validar). */
+function dianaMk(le: Lesion): { icon: string; color: string } {
   const blocked = le.id === 16 || le.id === 7 || le.id === 15 || isAiDavid(le)
-  return blocked ? { mk: '⊘', color: '#6b6470' } : { mk: '◆', color: '#39c0e0' }
+  return blocked ? { icon: 'ph:prohibit', color: '#6b6470' } : { icon: 'ph:diamond-fill', color: '#39c0e0' }
 }
 /* selección DESDE LA WIKI (Zona 2: idoneidad, fenotipo, tabla, enlaces): además de
    seleccionar, trae el visor/ficha (#mapa, Zona 1) a la vista — sin él, el único
@@ -2366,11 +2402,11 @@ const manifestValidated = (() => {
                 </span>
               </div>
               <p class="text-[10.5px] text-tinta leading-snug mt-1.5"><span class="font-mono">¹⁸F-FDG {{ le.fdg != null ? le.fdg.toFixed(1) : '—' }} · ⁶⁸Ga {{ le.dota != null ? le.dota.toFixed(1) : '—' }}</span> · {{ morphShort(le) }}</p>
-              <p class="text-[11px] text-tinta leading-snug mt-1"><span class="font-bold" :style="{ color: dianaMk(le).color }">{{ dianaMk(le).mk }}</span> <span class="font-semibold text-berenjena">{{ L('Diana', 'Target') }}:</span> {{ BIOPSY[le.id]?.zone[lang] }}</p>
+              <p class="text-[11px] text-tinta leading-snug mt-1"><Icon :name="dianaMk(le).icon" class="inline-block w-2.5 h-2.5 align-[-0.12em] shrink-0" :style="{ color: dianaMk(le).color }" aria-hidden="true" /> <span class="font-semibold text-berenjena">{{ L('Diana', 'Target') }}:</span> {{ BIOPSY[le.id]?.zone[lang] }}</p>
               <p class="text-[11px] text-tinta leading-snug italic mt-0.5">«{{ whyOneLiner(le) }}»</p>
               <!-- aviso PROMINENTE si una biopsia ya falló aquí (no repetir el error de diana) -->
               <div v-if="le.priorBiopsy" class="mt-2 rounded-card px-2 py-1 text-[10px] font-semibold leading-snug flex items-start gap-1" :style="{ background: '#f6d9b8', color: '#8a4a1a' }">
-                <span aria-hidden="true">⚑</span><span>{{ L('Biopsia previa no diagnóstica en este foco (26B585): solo hueso y músculo, sin tejido tumoral', 'Prior non-diagnostic biopsy at this focus (26B585): bone and muscle only, no tumor tissue') }}</span>
+                <Icon name="ph:flag-fill" class="w-2.5 h-2.5 shrink-0 mt-px" aria-hidden="true" /><span>{{ L('Biopsia previa no diagnóstica en este foco (26B585): solo hueso y músculo, sin tejido tumoral', 'Prior non-diagnostic biopsy at this focus (26B585): bone and muscle only, no tumor tissue') }}</span>
               </div>
               <div v-if="hasSoftTissue(le)" class="mt-1.5 flex flex-wrap gap-1">
                 <span class="pill-data !px-1.5 !py-0 !text-[10px]" :style="{ background: 'rgba(31,107,87,0.12)', color: '#1f6b57' }">{{ L('+ partes blandas (RMN)', '+ soft tissue (MRI)') }}</span>
@@ -2442,11 +2478,15 @@ const manifestValidated = (() => {
               <div class="seg" role="group" :aria-label="L('Modo del navegador de focos', 'Foci navigator mode')">
                 <button type="button" class="seg__btn" :class="{ 'is-active': navMode === 'skeleton' }"
                   :aria-pressed="navMode === 'skeleton'" @click="navMode = 'skeleton'">
-                  <span aria-hidden="true">⏿</span> {{ L('Esqueleto', 'Skeleton') }}
+                  <!-- icono «cuerpo/esqueleto» SVG (el glifo ⏿ tenía cobertura nula en muchos SO → tofu) -->
+                  <svg class="seg__ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="4.5" r="2.2" /><path d="M12 6.7V15M6.5 9.5h11M12 15l-3 5M12 15l3 5" /></svg>
+                  {{ L('Esqueleto', 'Skeleton') }}
                 </button>
                 <button type="button" class="seg__btn" :class="{ 'is-active': navMode === 'table' }"
                   :aria-pressed="navMode === 'table'" @click="navMode = 'table'">
-                  <span aria-hidden="true">☰</span> {{ L('Lista', 'List') }}
+                  <!-- icono «lista» SVG (sustituye al glifo ☰, métricas dispares por fuente) -->
+                  <svg class="seg__ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M8 6h12M8 12h12M8 18h12" /><circle cx="4" cy="6" r="1.1" fill="currentColor" stroke="none" /><circle cx="4" cy="12" r="1.1" fill="currentColor" stroke="none" /><circle cx="4" cy="18" r="1.1" fill="currentColor" stroke="none" /></svg>
+                  {{ L('Lista', 'List') }}
                 </button>
               </div>
               <!-- flechas prev/next entre focos (sencillas; ayudan a ir pinchando de un vistazo) -->
@@ -2580,7 +2620,9 @@ const manifestValidated = (() => {
                   <g v-if="g.multi && gPresentAt(g, frame)" class="pointer-events-none select-none">
                     <circle :cx="g.x + SK_R + 1.5" :cy="g.y - SK_R - 1.5" r="6.5"
                       fill="#2d1b3d" stroke="#fff" stroke-width="1.2" />
-                    <text :x="g.x + SK_R + 1.5" :y="g.y - SK_R + 1.3" text-anchor="middle"
+                    <!-- recuento centrado en la bola por geometría (anclado al cy del círculo,
+                         dominant-baseline central) → sin el nudge «+1.3» dependiente de la fuente. -->
+                    <text :x="g.x + SK_R + 1.5" :y="g.y - SK_R - 1.5" text-anchor="middle" dominant-baseline="central"
                       font-family="Source Sans 3, sans-serif" font-size="9" font-weight="700" fill="#fff">{{ g.foci.length }}</text>
                   </g>
                 </g>
@@ -2626,9 +2668,13 @@ const manifestValidated = (() => {
               <div class="rounded-card border border-[rgba(45,27,61,0.12)] bg-cream-card !p-3">
                 <div class="flex items-center gap-2.5 flex-wrap">
                   <button type="button" @click="play()"
-                    class="tl-play shrink-0 w-9 h-9 rounded-full bg-berenjena text-cream flex items-center justify-center text-[12px] hover:opacity-90 transition-opacity"
+                    class="tl-play shrink-0 w-9 h-9 rounded-full bg-berenjena text-cream flex items-center justify-center hover:opacity-90 transition-opacity"
                     :aria-label="playing ? L('Pausar', 'Pause') : L('Recorrer los estudios', 'Step through the studies')">
-                    {{ playing ? '❚❚' : '▶' }}
+                    <!-- play/pause en SVG: el triángulo ▶ centra ópticamente a la izda de su caja
+                         (compensado con un pequeño desplazamiento a la dcha); los glifos ❚❚/▶ tenían
+                         métricas dispares por fuente. -->
+                    <svg v-if="playing" class="tl-play__ic" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" focusable="false"><rect x="6.5" y="5" width="3.6" height="14" rx="1" /><rect x="13.9" y="5" width="3.6" height="14" rx="1" /></svg>
+                    <svg v-else class="tl-play__ic tl-play__ic--play" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" focusable="false"><path d="M8 5.5v13a1 1 0 0 0 1.5.87l11-6.5a1 1 0 0 0 0-1.74l-11-6.5A1 1 0 0 0 8 5.5Z" /></svg>
                   </button>
                   <div class="font-display text-lg text-berenjena w-[4.5rem] tabular-nums leading-none">{{ dateLabel }}</div>
                   <input type="range" min="0" max="2" step="1" :value="frame"
@@ -3051,7 +3097,7 @@ const manifestValidated = (() => {
                 </p>
                 <ul class="prov-list">
                   <li v-for="r in provRows(sel)" :key="r.field" class="prov-list__row">
-                    <span class="prov-dot prov-dot--lg shrink-0 mt-0.5" :style="{ color: r.tone }" role="img" :aria-label="r.fuente">{{ r.glyph }}</span>
+                    <ProvShapeMark :shape="r.shape" :tone="r.tone" lg :title="r.fuente" class="shrink-0 mt-0.5" />
                     <div class="min-w-0">
                       <p class="text-[12.5px] leading-snug">
                         <span class="font-semibold text-berenjena">{{ r.label }}</span>
@@ -3475,7 +3521,7 @@ const manifestValidated = (() => {
                 class="foco-card w-full text-left rounded-card border px-3.5 py-3"
                 :class="selected === le.id ? 'border-[#9d44ab] bg-[rgba(157,68,171,0.07)]' : 'border-[rgba(45,27,61,0.12)] bg-cream-card hover:border-[rgba(45,27,61,0.3)]'">
                 <div class="flex items-center gap-3">
-                  <span class="inline-flex w-7 h-7 shrink-0 rounded-full items-center justify-center  text-xs font-semibold" :style="{ background: phenoColor(le), color: markerInk(le) }">{{ le.id }}</span>
+                  <span class="inline-flex w-7 h-7 shrink-0 rounded-full items-center justify-center text-xs font-semibold leading-none" :style="{ background: phenoColor(le), color: markerInk(le) }">{{ le.id }}</span>
                   <div class="flex-1 min-w-0">
                     <p class="font-semibold text-berenjena text-sm leading-tight">{{ le.level[lang] }}</p>
                     <p class="text-[11px] text-tinta leading-tight">{{ le.region[lang] }} · {{ le.side === 'R' ? L('dcha', 'R') : le.side === 'L' ? L('izda', 'L') : L('centro', 'mid') }}</p>
@@ -3546,7 +3592,7 @@ const manifestValidated = (() => {
                   class="foco-card w-full text-left rounded-card border px-3.5 py-3"
                   :class="selected === le.id ? 'border-[#bf7d2c] bg-[rgba(191,125,44,0.08)]' : 'border-[rgba(138,74,26,0.25)] bg-cream hover:border-[rgba(138,74,26,0.5)]'">
                   <div class="flex items-center gap-3">
-                    <span class="inline-flex w-7 h-7 shrink-0 rounded-full items-center justify-center  text-xs font-semibold ai-dot" :style="{ background: phenoColor(le), color: markerInk(le) }">{{ le.id }}</span>
+                    <span class="inline-flex w-7 h-7 shrink-0 rounded-full items-center justify-center text-xs font-semibold leading-none ai-dot" :style="{ background: phenoColor(le), color: markerInk(le) }">{{ le.id }}</span>
                     <div class="flex-1 min-w-0">
                       <p class="font-semibold text-berenjena text-sm leading-tight">{{ le.level[lang] }}</p>
                       <p class="text-[11px] text-tinta leading-tight">{{ le.region[lang] }} · {{ le.side === 'R' ? L('dcha', 'R') : le.side === 'L' ? L('izda', 'L') : L('centro', 'mid') }}</p>
@@ -3678,7 +3724,10 @@ const manifestValidated = (() => {
                     :aria-label="`#${d.le.id} ${d.le.level[lang]} — Ga ${d.le.dota ?? '—'} / FDG ${d.le.fdg ?? '—'}`"
                     @click="pickAndShow(d.le.id)" @keydown.enter="pickAndShow(d.le.id)" @keydown.space.prevent="pickAndShow(d.le.id)"
                     @mouseenter="canHoverFine() && (showTip($event, lesionTipText(d.le)), setHover(d.le.id))" @mouseleave="hideTip(); clearHover()" @focus="showTip($event, lesionTipText(d.le)); setHover(d.le.id)" @blur="hideTip(); clearHover()" @keydown.escape="hideTip" />
-                  <text :x="d.px" :y="d.py + 3" text-anchor="middle" font-family="Source Sans 3, sans-serif" :font-size="d.le.id > 9 ? 8.5 : 9.5" font-weight="700" :fill="markerInk(d.le)" class="pointer-events-none select-none" paint-order="stroke" stroke="#ffffff" stroke-width="2.2" stroke-linejoin="round">{{ d.le.id }}</text>
+                  <!-- número ÓPTICAMENTE centrado: x-anchor middle + dominant-baseline central
+                       (centra por la geometría de los dígitos, no por la línea base) → sin el
+                       nudge mágico «+3» que descuadraba al cambiar el font-size (8.5 vs 9.5). -->
+                  <text :x="d.px" :y="d.py" text-anchor="middle" dominant-baseline="central" font-family="Source Sans 3, sans-serif" :font-size="d.le.id > 9 ? 8.5 : 9.5" font-weight="700" :fill="markerInk(d.le)" class="pointer-events-none select-none" paint-order="stroke" stroke="#ffffff" stroke-width="2.2" stroke-linejoin="round">{{ d.le.id }}</text>
                 </g>
               </svg>
 
@@ -4006,7 +4055,7 @@ const manifestValidated = (() => {
                 </tr>
                 <tr v-else class="cursor-pointer" :aria-selected="selected === row.le.id" :class="selected === row.le.id ? 'bg-[rgba(157,68,171,0.08)]' : (isAiDavid(row.le) ? 'ai-row' : '')" @click="pickAndShow(row.le.id)">
                   <template v-if="row.kind === 'lesion'">
-                  <th scope="row" class="!font-normal !text-left"><span class="inline-flex w-6 h-6 rounded-full items-center justify-center  text-xs font-semibold" :class="isAiDavid(row.le) ? 'ai-dot' : ''" :style="{ background: phenoColor(row.le), color: markerInk(row.le) }">{{ row.le.id }}</span></th>
+                  <th scope="row" class="!font-normal !text-left"><span class="inline-flex w-6 h-6 rounded-full items-center justify-center text-xs font-semibold leading-none" :class="isAiDavid(row.le) ? 'ai-dot' : ''" :style="{ background: phenoColor(row.le), color: markerInk(row.le) }">{{ row.le.id }}</span></th>
                   <td class="font-semibold text-berenjena">{{ row.le.level[lang] }}</td>
                   <td class="text-xs">{{ row.le.side === 'R' ? L('Dcha', 'R') : row.le.side === 'L' ? L('Izda', 'L') : L('Centro', 'Mid') }}</td>
                   <td>
@@ -4647,6 +4696,14 @@ const manifestValidated = (() => {
 .nav-step:hover,
 .filter-chip:hover,
 .tl-date:hover { transition: color var(--ease-entrada), border-color var(--ease-entrada), background-color var(--ease-entrada); }
+/* icono SVG del botón play/pausa de la línea de tiempo · caja fija centrada por el flex del
+   botón (independiente de la fuente). El triángulo de play se empuja un pelín a la derecha
+   porque su centro óptico cae a la izquierda de su caja geométrica. */
+.tl-play__ic { display: block; width: 15px; height: 15px; }
+.tl-play__ic--play { transform: translateX(0.6px); }
+@media (pointer: coarse) {
+  .tl-play__ic { width: 18px; height: 18px; }
+}
 
 /* ════════════════════════════════════════════════════════════════════════
    TIPOGRAFÍA DE INSTRUMENTO · toda cifra mono cuadra al píxel.
@@ -4676,20 +4733,32 @@ const manifestValidated = (() => {
 
 /* ════════════════════════════════════════════════════════════════════════
    PROCEDENCIA VISIBLE (P2) · marcador MUDO por celda + leyenda + panel.
-   El glyph (●◆▫▽~) y su color codifican la FUENTE; la forma rellena/abierta
-   codifica MEDIDO vs INTERPRETADO. Discreto por diseño: no compite con la
-   cifra, solo la acompaña. El significado se lee en la leyenda (una vez). */
+   La FORMA SVG (círculo/rombo/cuadro-hueco/triángulo-hueco/«≈») y su color codifican
+   la FUENTE; relleno vs trazo codifica MEDIDO vs INTERPRETADO. Discreto por diseño.
+   CENTRADO VERTICAL FIJO (independiente de la fuente): el contenedor es una caja de
+   tamaño fijo (inline-flex) y se alinea con la línea de texto vía `vertical-align`
+   anclado a la x-height (-0.18em a ~0.9em de caja) → la forma queda ópticamente
+   centrada con las minúsculas, igual en todo OS (sin las métricas dispares de los
+   glifos Unicode ● vs ▫ vs ▽). UNA sola fuente (ProvShapeMark) → ficha = leyenda. */
 .prov-dot {
-  font-size: 0.74em;
-  line-height: 1;
-  font-weight: 700;
-  letter-spacing: 0;
-  /* el glyph hereda su color por estilo inline (el tono de la fuente). */
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 0.82em;
+  height: 0.82em;
+  /* ancla óptica a la x-height: centra la caja con el cuerpo de las minúsculas */
+  vertical-align: -0.16em;
   cursor: help;
   user-select: none;
-  vertical-align: 0.06em;
+  flex-shrink: 0;
 }
-.prov-dot--lg { font-size: 0.95em; }
+.prov-dot--lg { width: 0.98em; height: 0.98em; vertical-align: -0.2em; }
+.prov-shape__svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
 
 /* MEDIDO vs INTERPRETADO · micro-etiqueta (la distinción que un nuclear juzga).
    MEDIDO = sólido y algo más oscuro; INTERPRETADO = más ligero, en cursiva. */
@@ -5419,6 +5488,9 @@ svg [role="button"]:focus-visible {
 }
 .seg__btn:hover,
 .seg__btn.is-active { transition: background var(--ease-entrada), color var(--ease-entrada); }
+/* icono SVG del segmento: caja fija, centrado en la línea de texto vía el flex del botón
+   (independiente de la fuente; antes el glifo Unicode centraba distinto en cada SO). */
+.seg__ic { display: block; width: 0.95em; height: 0.95em; flex-shrink: 0; }
 .seg__btn + .seg__btn { border-left: 1px solid rgba(45, 27, 61, 0.2); }
 .seg__btn:hover { color: #2d1b3d; }
 .seg__btn.is-active { background: #2d1b3d; color: #fdf6ef; }
