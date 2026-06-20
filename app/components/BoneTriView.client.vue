@@ -581,10 +581,19 @@ function makeTargetDecalTex(): THREE.Texture {
   const cv = document.createElement('canvas'); cv.width = s; cv.height = s
   const ctx = cv.getContext('2d')!
   ctx.clearRect(0, 0, s, s)
-  // «PUNTITO» SÓLIDO con borde — área llena → renderiza fiable como decal (un aro FINO se parte
-  // entre los triángulos de la malla y sale en «sonrisa»). Disco coral + borde malva de contraste.
-  ctx.beginPath(); ctx.arc(c, c, s * 0.34, 0, Math.PI * 2); ctx.fillStyle = C_TARGET_RING; ctx.fill()  // borde malva
-  ctx.beginPath(); ctx.arc(c, c, s * 0.24, 0, Math.PI * 2); ctx.fillStyle = C_TARGET_CORE; ctx.fill()  // disco coral
+  // PROFESIONAL (DS): foco luminoso coral MONOCROMO con VOLUMEN (gradiente interno tipo cuenta 3D)
+  // + halo suave alrededor. No dos colores planos (eso es lo «esquemático»). Relleno → fiable.
+  // 1) halo suave exterior (profundidad premium, borde difuso)
+  const halo = ctx.createRadialGradient(c, c, s * 0.20, c, c, s * 0.5)
+  halo.addColorStop(0, 'rgba(255,90,47,0.50)')
+  halo.addColorStop(1, 'rgba(255,90,47,0)')
+  ctx.fillStyle = halo; ctx.fillRect(0, 0, s, s)
+  // 2) núcleo coral sólido con gradiente interno desplazado (luz arriba-izq → cuenta con volumen)
+  const core = ctx.createRadialGradient(c - s * 0.05, c - s * 0.05, 0, c, c, s * 0.27)
+  core.addColorStop(0.00, 'rgba(255,152,120,1)')   // realce claro (volumen)
+  core.addColorStop(0.65, 'rgba(255,96,52,1)')
+  core.addColorStop(1.00, 'rgba(222,68,34,1)')      // borde más hondo (no plano)
+  ctx.fillStyle = core; ctx.beginPath(); ctx.arc(c, c, s * 0.27, 0, Math.PI * 2); ctx.fill()
   const tex = new THREE.CanvasTexture(cv)
   tex.colorSpace = THREE.SRGBColorSpace
   tex.needsUpdate = true
@@ -603,8 +612,8 @@ function buildTargetMarker() {
   targetDecalTex = makeTargetDecalTex()
   // tamaño del proyector del decal ~ 0.22·boneRadius (lado del cubo proyector); la
   // profundidad (Z del proyector) algo mayor para que clipe bien la cara curva.
-  const half = boneRadius * 0.16   // SUTIL pero con footprint suficiente para clipar el aro completo
-  const depth = boneRadius * 0.55  // profundidad GENEROSA → la caja atraviesa la superficie curva
+  const half = boneRadius * 0.15   // SUTIL · marcador de punto discreto
+  const depth = boneRadius * 0.48  // suficiente para clipar la cara (el escorzo en cresta es correcto: redondo de frente)
   const size = new THREE.Vector3(half * 2, half * 2, depth)
   for (let i = 0; i < 3; i++) {
     const mesh = meshes[i]
