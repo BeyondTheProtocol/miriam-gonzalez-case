@@ -89,21 +89,29 @@ const innerStyle = computed(() => {
 </script>
 
 <style scoped>
-/* «Vivo»: 3 latidos al entrar y calma (nada late para siempre). */
+/* MOAT del color de página: el raíl se CORTA limpio al llegar al nodo (un hueco de
+   3px arriba y abajo) en vez de atravesarlo sucio. El disco de fondo del dot ya tapa
+   la línea hasta el aro; este anillo la tapa 3px MÁS ALLÁ del aro → hueco visible.
+   (Pedido de Miriam: «la línea la atraviesa sucia».) */
+.tl-dot {
+  box-shadow: 0 0 0 3px #faf6f0;
+}
+/* «Vivo»: 3 latidos al entrar y calma (nada late para siempre). El moat se conserva
+   como primera sombra para que el hueco del raíl no desaparezca durante el pulso. */
 .tl-dot-live {
   animation: tl-pulse 2s ease-in-out 3;
 }
 @keyframes tl-pulse {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(255, 107, 71, 0.35); }
-  50% { box-shadow: 0 0 0 6px rgba(255, 107, 71, 0); }
+  0%, 100% { box-shadow: 0 0 0 3px #faf6f0, 0 0 0 0 rgba(255, 107, 71, 0.35); }
+  50% { box-shadow: 0 0 0 3px #faf6f0, 0 0 0 6px rgba(255, 107, 71, 0); }
 }
 /* Eco de llegada: doble pulso más amplio, una sola vez, y vuelve a la calma. */
 .tl-dot-echo {
   animation: tl-echo 1.2s ease-in-out 2;
 }
 @keyframes tl-echo {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(255, 107, 71, 0.5); }
-  50% { box-shadow: 0 0 0 14px rgba(255, 107, 71, 0); }
+  0%, 100% { box-shadow: 0 0 0 3px #faf6f0, 0 0 0 0 rgba(255, 107, 71, 0.5); }
+  50% { box-shadow: 0 0 0 3px #faf6f0, 0 0 0 14px rgba(255, 107, 71, 0); }
 }
 /* Afordancia del enlace: leve realce de fondo al pasar/enfocar (toque cómodo). */
 .tl-link:hover,

@@ -5199,7 +5199,10 @@ svg [role="button"]:focus-visible {
   align-items: center;
   justify-content: space-between;
   gap: 0.75rem;
-  padding: 0.7rem 0.9rem;
+  /* El ✕ vive en este bar, pegado a la esquina redondeada del panel (radio 0.9rem).
+     El padding der/arr debe SUPERAR ese radio para que el botón despeje la curva y
+     respire — si no, queda embutido en la esquina (ver auditoría TOC). */
+  padding: 0.95rem 1.1rem;
   border-bottom: 1px solid rgba(45, 27, 61, 0.12);
 }
 .foco-key-lb__title { font-weight: 700; color: #2d1b3d; font-size: 0.95rem; line-height: 1.1; }
