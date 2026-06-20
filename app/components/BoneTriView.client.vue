@@ -38,6 +38,7 @@ import * as THREE from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
 import { PLYLoader } from 'three/examples/jsm/loaders/PLYLoader.js'
 import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js'
+import { DecalGeometry } from 'three/examples/jsm/geometries/DecalGeometry.js'
 
 const props = defineProps<{
   meshKey?: string
@@ -301,32 +302,17 @@ function init() {
    escena con la MISMA cámara → orientación y zoom compartidos automáticamente. */
 function renderScenes() {
   if (!renderer || !host.value) return
-  // DESTELLO del marcador orientativo (el bucle ya es continuo). Dos animaciones:
-  //  · el HALO/núcleo glow «respira» (opacidad + escala sinusoidal suave)
-  //  · una chispa especular RECORRE el anillo que conforma la superficie (twinkle)
-  if (targetCores.length || targetSparks.length) {
+  // PARPADEO de la diana CALCADA en la superficie (el bucle ya es continuo): la diana
+  // es un decal pegado al hueso (no se mueve), así que sólo «respira» en intensidad —
+  // opacidad + brillo emisivo sinusoidales → late de forma suave sin despegarse jamás.
+  if (targetDecals.length) {
     const t = performance.now()
-    // respiración del glow: 0.55 → 1.0, lenta y suave
-    const breath = 0.5 + 0.5 * Math.sin(t * 0.0022)            // 0..1
-    const coreOp = 0.62 + 0.38 * breath
-    const coreScale = 1 + 0.10 * breath                         // late ±5 %
-    for (const c of targetCores) {
-      ;(c.material as THREE.SpriteMaterial).opacity = coreOp
-      const s = c.userData.baseScale as number
-      c.scale.setScalar(s * coreScale)
-    }
-    // chispa que orbita el aro: avanza el ángulo y pulsa el brillo al pasar
-    const ang = (t * 0.0016) % (Math.PI * 2)
-    const twinkle = 0.45 + 0.55 * Math.pow(0.5 + 0.5 * Math.sin(t * 0.006), 2)
-    for (const sp of targetSparks) {
-      const r = sp.userData.orbitR as number
-      const right = sp.userData.right as THREE.Vector3
-      const upv = sp.userData.up as THREE.Vector3
-      const base = sp.userData.base as THREE.Vector3
-      sp.position.copy(base)
-        .addScaledVector(right, Math.cos(ang) * r)
-        .addScaledVector(upv, Math.sin(ang) * r)
-      ;(sp.material as THREE.SpriteMaterial).opacity = twinkle
+    const breath = 0.5 + 0.5 * Math.sin(t * 0.0026)            // 0..1, ~2.4 s/ciclo
+    const op = 0.50 + 0.50 * breath                            // 0.50 → 1.0
+    const emi = 0.25 + 0.55 * breath                           // brillo de los aros
+    for (const m of targetMats) {
+      m.opacity = op
+      m.emissiveIntensity = emi
     }
   }
   const W = host.value.clientWidth, H = host.value.clientHeight
@@ -556,142 +542,144 @@ let needleMats: THREE.Material[] = []
 let needleGeos: THREE.BufferGeometry[] = []
 /* ====================================================================== */
 /*  SEÑAL DE LA ZONA DE MÁXIMA CAPTACIÓN (≈ dónde apuntaría la biopsia).    */
-/*  Petición: ver la diana DIBUJADA. HONESTO: la captación es un GRADIENTE  */
-/*  sin borde tumoral neto → NO es un contorno. Es un SÍMBOLO orientativo.  */
+/*  Petición LITERAL de la paciente: la diana DIBUJADA como TEXTURA, como   */
+/*  si el hueso tuviera una capa invisible por encima con la diana          */
+/*  «siguiendo» la superficie → al rotar NO se despega (los intentos v1–v4  */
+/*  con toro/sprite/baliza FLOTABAN: eran objetos SOBRE el hueso, no parte  */
+/*  de él). HONESTO: la captación es un GRADIENTE sin borde tumoral neto →  */
+/*  NO es un contorno; es un SÍMBOLO orientativo CALCADO en la superficie.  */
 /*                                                                          */
-/*  DISEÑO «BALIZA HÍBRIDA» (montada en 3D, no plana):                      */
-/*   (1) ANILLO que CONFORMA la superficie — un toro FINO y PEQUEÑO         */
-/*       orientado por la normal del vértice, asentado justo sobre el       */
-/*       hueso → se lee PINTADO/MONTADO (su leve escorzo según el ángulo es */
-/*       una PISTA de profundidad correcta, no el «raro» del v1: aquel era  */
-/*       grande y flotante e intersecaba; éste es fino, pequeño y pegado).  */
-/*   (2) NÚCLEO glow billboard pequeño — esfera de luz que mira a cámara,   */
-/*       garantiza visibilidad cuando el aro se ve DE CANTO; lleva el glow. */
-/*   (3) CHISPA especular que ORBITA el aro (destello que recorre el aro) + */
-/*       el núcleo «respira» → acabado premium con brillo, animado en el    */
-/*       bucle continuo.                                                    */
-/*  DS: coral #ff6b47 (núcleo/chispa) + miriam #9d44ab (aro), mate, sobrio. */
-/*  Se distingue de la aguja de biopsia (#13, ÁMBAR FIJA) por color y glow. */
+/*  DISEÑO v5 «DIANA CALCADA» = THREE.DecalGeometry (solución A):           */
+/*   El decal se construye CLIPEANDO los TRIÁNGULOS REALES del hueso contra */
+/*   un proyector cúbico en el punto del pico, orientado por la normal. Sus */
+/*   vértices yacen SOBRE las caras del hueso → conforma la curvatura local */
+/*   y, al ser hijo de la malla en transform IDENTIDAD, gira CLAVADO con el */
+/*   hueso: imposible que se despegue, porque ES la superficie. La textura  */
+/*   (anillos de diana + cruceta) se pinta en canvas; depthTest:true → se   */
+/*   ocluye sola cuando el punto rota detrás (comportamiento de algo        */
+/*   pintado). polygonOffset evita z-fight con la cara que recubre. El      */
+/*   PARPADEO anima la opacidad/emisivo en el bucle continuo.               */
+/*  DS: aros coral #ff6b47 con borde malva #9d44ab de contraste, mate.      */
+/*  Se distingue de la aguja de biopsia (#13, ÁMBAR FIJA) por color y      */
+/*  parpadeo, y por SER superficie (la aguja es un objeto 3D montado).      */
 /* ====================================================================== */
-const C_TARGET_RING = '#9d44ab'   // miriam · el anillo que conforma la superficie
-const C_TARGET_CORE = '#ff6b47'   // coral · núcleo glow + chispa (color de acción del DS)
-let targetMats: THREE.Material[] = []       // materiales del aro (MeshStandard) — dispose
-let targetGeos: THREE.BufferGeometry[] = [] // geometrías del aro — dispose
-let targetSpriteMats: THREE.Material[] = [] // materiales de núcleo + chispa — dispose
-let targetGlowTex: THREE.Texture | null = null   // textura radial del núcleo glow
-let targetSparkTex: THREE.Texture | null = null  // textura de la chispa
-/* sprites animados (referencias para renderScenes) */
-let targetCores: THREE.Sprite[] = []   // núcleo glow que «respira»
-let targetSparks: THREE.Sprite[] = []  // chispa que orbita el aro
+const C_TARGET_RING = '#9d44ab'   // miriam/malva · borde de contraste de la diana
+const C_TARGET_CORE = '#ff6b47'   // coral · aros de la diana (color de acción del DS)
+let targetMats: THREE.MeshStandardMaterial[] = [] // materiales del decal (uno por panel) — dispose
+let targetGeos: THREE.BufferGeometry[] = []       // geometrías de decal — dispose
+let targetDecalTex: THREE.Texture | null = null   // textura de la diana (anillos) compartida
+/* decales para el parpadeo (referencia a su material en renderScenes) */
+let targetDecals: THREE.Mesh[] = []
 
-/* textura radial suave (glow) — blanco al centro que se desvanece a transparente.
-   Tintada por `color` del SpriteMaterial → el coral del DS la colorea. */
-function makeRadialGlow(): THREE.Texture {
-  const s = 128, c = s / 2
+/* textura de la DIANA (anillos concéntricos + cruceta) sobre fondo transparente, para
+   proyectarla como decal sobre la superficie. Aros CORAL con borde MALVA de contraste
+   (legible sobre hueso teal/ámbar/sepia). Honesto: símbolo orientativo, no contorno. */
+function makeTargetDecalTex(): THREE.Texture {
+  const s = 256, c = s / 2
   const cv = document.createElement('canvas'); cv.width = s; cv.height = s
   const ctx = cv.getContext('2d')!
-  const g = ctx.createRadialGradient(c, c, 0, c, c, c)
-  g.addColorStop(0.00, 'rgba(255,255,255,1)')
-  g.addColorStop(0.22, 'rgba(255,255,255,0.95)')
-  g.addColorStop(0.48, 'rgba(255,255,255,0.45)')
-  g.addColorStop(1.00, 'rgba(255,255,255,0)')
-  ctx.fillStyle = g; ctx.fillRect(0, 0, s, s)
-  const tex = new THREE.CanvasTexture(cv); tex.needsUpdate = true; return tex
-}
-/* chispa: punto especular compacto (más nítido que el glow) para el destello que orbita. */
-function makeSparkTex(): THREE.Texture {
-  const s = 64, c = s / 2
-  const cv = document.createElement('canvas'); cv.width = s; cv.height = s
-  const ctx = cv.getContext('2d')!
-  const g = ctx.createRadialGradient(c, c, 0, c, c, c)
-  g.addColorStop(0.00, 'rgba(255,255,255,1)')
-  g.addColorStop(0.35, 'rgba(255,255,255,0.7)')
-  g.addColorStop(1.00, 'rgba(255,255,255,0)')
-  ctx.fillStyle = g; ctx.fillRect(0, 0, s, s)
-  const tex = new THREE.CanvasTexture(cv); tex.needsUpdate = true; return tex
+  ctx.clearRect(0, 0, s, s)
+  ctx.lineCap = 'round'
+  // dos anillos concéntricos (radio externo ≈ 0.46·s para dejar margen del recorte del decal)
+  const rings = [0.30, 0.46]
+  for (const rr of rings) {
+    const r = rr * s
+    // halo malva de contraste por debajo
+    ctx.beginPath(); ctx.arc(c, c, r, 0, Math.PI * 2)
+    ctx.strokeStyle = C_TARGET_RING; ctx.lineWidth = s * 0.060; ctx.stroke()
+    // aro coral encima
+    ctx.beginPath(); ctx.arc(c, c, r, 0, Math.PI * 2)
+    ctx.strokeStyle = C_TARGET_CORE; ctx.lineWidth = s * 0.034; ctx.stroke()
+  }
+  // cruceta (4 trazos cortos que apuntan al centro) — refuerza el «punto»
+  const inner = 0.10 * s, outer = 0.24 * s
+  const ticks: [number, number, number, number][] = [
+    [c, c - inner, c, c - outer], [c, c + inner, c, c + outer],
+    [c - inner, c, c - outer, c], [c + inner, c, c + outer, c],
+  ]
+  for (const [x1, y1, x2, y2] of ticks) {
+    ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2)
+    ctx.strokeStyle = C_TARGET_RING; ctx.lineWidth = s * 0.050; ctx.stroke()
+    ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2)
+    ctx.strokeStyle = C_TARGET_CORE; ctx.lineWidth = s * 0.026; ctx.stroke()
+  }
+  // punto central coral con halo malva
+  ctx.beginPath(); ctx.arc(c, c, s * 0.052, 0, Math.PI * 2)
+  ctx.fillStyle = C_TARGET_RING; ctx.fill()
+  ctx.beginPath(); ctx.arc(c, c, s * 0.034, 0, Math.PI * 2)
+  ctx.fillStyle = C_TARGET_CORE; ctx.fill()
+  const tex = new THREE.CanvasTexture(cv)
+  tex.colorSpace = THREE.SRGBColorSpace
+  tex.needsUpdate = true
+  return tex
 }
 function disposeTargetMarker() {
   targetGroups.forEach((g) => g.clear())
   targetMats.forEach((m) => m.dispose()); targetMats = []
   targetGeos.forEach((g) => g.dispose()); targetGeos = []
-  targetSpriteMats.forEach((m) => m.dispose()); targetSpriteMats = []
-  if (targetGlowTex) { targetGlowTex.dispose(); targetGlowTex = null }
-  if (targetSparkTex) { targetSparkTex.dispose(); targetSparkTex = null }
-  targetCores = []; targetSparks = []
+  if (targetDecalTex) { targetDecalTex.dispose(); targetDecalTex = null }
+  targetDecals = []
 }
 function buildTargetMarker() {
   disposeTargetMarker()
   if (props.noTarget || !targetGroups.length || hotIndex < 0) return
-  targetGlowTex = makeRadialGlow()
-  targetSparkTex = makeSparkTex()
-  const ringR = boneRadius * 0.11           // radio del aro · pequeño → se lee «pegado», no flota
-  const tube = boneRadius * 0.022           // tubo FINO → discreto, sin intersecar de forma grosera
-  const lift = boneRadius * 0.012           // asentado JUSTO sobre la superficie (anti z-fight, sin flotar)
+  targetDecalTex = makeTargetDecalTex()
+  // tamaño del proyector del decal ~ 0.22·boneRadius (lado del cubo proyector); la
+  // profundidad (Z del proyector) algo mayor para que clipe bien la cara curva.
+  const half = boneRadius * 0.22
+  const depth = boneRadius * 0.40
+  const size = new THREE.Vector3(half * 2, half * 2, depth)
   for (let i = 0; i < 3; i++) {
-    const geo = meshes[i]!.geometry
+    const mesh = meshes[i]
+    if (!mesh) continue
+    // DecalGeometry usa mesh.matrixWorld para la matriz de normales: asegúralo al día
+    // (el mesh está en transform IDENTIDAD → coords locales = mundo).
+    mesh.updateMatrixWorld(true)
+    const geo = mesh.geometry
     const pos = geo.getAttribute('position') as THREE.BufferAttribute
     const nrm = geo.getAttribute('normal') as THREE.BufferAttribute | undefined
     const peak = new THREE.Vector3(pos.getX(hotIndex), pos.getY(hotIndex), pos.getZ(hotIndex))
     const normal = (nrm
       ? new THREE.Vector3(nrm.getX(hotIndex), nrm.getY(hotIndex), nrm.getZ(hotIndex))
       : peak.clone()).normalize()
-    const center = peak.clone().addScaledVector(normal, lift)
 
-    // base ortonormal del plano TANGENTE a la superficie (right, up ⟂ normal) → el aro
-    // conforma la curvatura local y la chispa orbita en ese plano.
-    const right = new THREE.Vector3()
-    const refUp = Math.abs(normal.y) > 0.95 ? new THREE.Vector3(1, 0, 0) : new THREE.Vector3(0, 1, 0)
-    right.copy(refUp).cross(normal).normalize()
-    const upv = new THREE.Vector3().copy(normal).cross(right).normalize()
+    // orientación del proyector: su eje +Z mira HACIA AFUERA (a lo largo de la normal),
+    // así la cara texturizada del decal queda «de frente» sobre la superficie del hueso.
+    // El proyector se sitúa LIGERAMENTE por fuera del pico y proyecta hacia el hueso.
+    const projPos = peak.clone().addScaledVector(normal, depth * 0.5)
+    const m4 = new THREE.Matrix4()
+    const up = Math.abs(normal.y) > 0.95 ? new THREE.Vector3(1, 0, 0) : new THREE.Vector3(0, 1, 0)
+    // mira desde projPos hacia el pico → -Z del proyector apunta al hueso (lookAt usa -Z)
+    m4.lookAt(projPos, peak, up)
+    const orientation = new THREE.Euler().setFromRotationMatrix(m4)
 
-    // (1) ANILLO que CONFORMA la superficie — toro fino orientado por la normal.
-    // polygonOffset lo asienta sobre el hueso sin z-fight; mate (alta rugosidad).
-    const ringGeo = new THREE.TorusGeometry(ringR, tube, 12, 48); targetGeos.push(ringGeo)
-    const ringMat = new THREE.MeshStandardMaterial({
-      color: new THREE.Color(C_TARGET_RING), roughness: 0.55, metalness: 0.0,
-      emissive: new THREE.Color(C_TARGET_RING), emissiveIntensity: 0.35,
-      depthTest: true, depthWrite: true, toneMapped: true,
-      polygonOffset: true, polygonOffsetFactor: -3, polygonOffsetUnits: -3,
+    // DecalGeometry clipea los triángulos REALES de la malla → vértices SOBRE la superficie.
+    const decalGeo = new DecalGeometry(mesh, projPos, orientation, size)
+    targetGeos.push(decalGeo)
+
+    const mat = new THREE.MeshStandardMaterial({
+      map: targetDecalTex,
+      color: new THREE.Color(0xffffff),
+      emissive: new THREE.Color(C_TARGET_CORE),
+      emissiveMap: targetDecalTex,
+      emissiveIntensity: 0.45,
+      transparent: true,
+      opacity: 1,
+      roughness: 0.6,
+      metalness: 0.0,
+      depthTest: true,        // se ocluye solo al rotar el punto detrás (es superficie)
+      depthWrite: false,      // capa pintada encima → no escribe profundidad (sin artefactos de orden)
+      polygonOffset: true,    // anti z-fight con la cara que recubre
+      polygonOffsetFactor: -4,
+      polygonOffsetUnits: -4,
+      toneMapped: true,
+      side: THREE.FrontSide,
     })
-    targetMats.push(ringMat)
-    const ring = new THREE.Mesh(ringGeo, ringMat)
-    ring.position.copy(center)
-    // TorusGeometry vive en el plano XY con eje +Z → alinear +Z con la normal
-    ring.quaternion.setFromUnitVectors(new THREE.Vector3(0, 0, 1), normal)
-    ring.renderOrder = 5
-    targetGroups[i]!.add(ring)
-
-    // (2) NÚCLEO glow billboard — visible desde cualquier ángulo (incl. aro de canto).
-    const coreMat = new THREE.SpriteMaterial({
-      map: targetGlowTex, color: new THREE.Color(C_TARGET_CORE), transparent: true,
-      depthTest: true, depthWrite: false, blending: THREE.AdditiveBlending, toneMapped: false,
-    })
-    targetSpriteMats.push(coreMat)
-    const core = new THREE.Sprite(coreMat)
-    core.position.copy(center)
-    const coreScale = boneRadius * 0.14
-    core.userData.baseScale = coreScale
-    core.scale.setScalar(coreScale)
-    core.renderOrder = 6                 // sobre el aro; depthTest lo ocluye al rotar detrás
-    targetGroups[i]!.add(core)
-    targetCores.push(core)
-
-    // (3) CHISPA especular que ORBITA el aro — el «destello» que recorre el anillo.
-    const sparkMat = new THREE.SpriteMaterial({
-      map: targetSparkTex, color: 0xffffff, transparent: true,
-      depthTest: true, depthWrite: false, blending: THREE.AdditiveBlending, toneMapped: false,
-    })
-    targetSpriteMats.push(sparkMat)
-    const spark = new THREE.Sprite(sparkMat)
-    spark.scale.setScalar(boneRadius * 0.05)
-    spark.userData.orbitR = ringR
-    spark.userData.right = right
-    spark.userData.up = upv
-    spark.userData.base = center
-    spark.position.copy(center).addScaledVector(right, ringR)
-    spark.renderOrder = 7
-    targetGroups[i]!.add(spark)
-    targetSparks.push(spark)
+    targetMats.push(mat)
+    const decal = new THREE.Mesh(decalGeo, mat)
+    decal.renderOrder = 6
+    targetGroups[i]!.add(decal)
+    targetDecals.push(decal)
   }
 }
 function disposeBiopsyNeedle() {
@@ -926,8 +914,8 @@ onBeforeUnmount(() => {
              en vez de un <details> de clic-para-ver. La info queda en el aria-label de Term. -->
         <Term v-if="!failed" id="lectura_mapa3d" :label="L('ⓘ Cómo se lee el mapa', 'ⓘ How to read the map')" />
         <p v-if="!failed && !noTarget" class="flex items-center gap-1.5 mt-1.5 text-[11px] leading-snug" style="color:#3a3340">
-          <span aria-hidden="true" style="width:0.6rem;height:0.6rem;border-radius:50%;background:#ff6b47;box-shadow:0 0 0 2px rgba(157,68,171,0.45);flex-shrink:0;display:inline-block" />
-          {{ L('La baliza (anillo malva sobre el hueso + núcleo coral con brillo) señala el punto orientativo sugerido (zona de máxima captación) — una opción, no una indicación.', 'The beacon (mauve ring on the bone + glowing coral core) marks the suggested orientative point (peak-uptake zone) — an option, not an instruction.') }}
+          <span aria-hidden="true" style="width:0.65rem;height:0.65rem;border-radius:50%;flex-shrink:0;display:inline-block;border:2px solid #ff6b47;box-shadow:0 0 0 1.5px rgba(157,68,171,0.55)" />
+          {{ L('La diana parpadeante (aros coral calcados SOBRE el hueso, siguiendo su superficie) señala el punto orientativo sugerido (zona de máxima captación) — una opción, no una indicación.', 'The blinking target (coral rings printed ONTO the bone, following its surface) marks the suggested orientative point (peak-uptake zone) — an option, not an instruction.') }}
         </p>
       </div>
 

@@ -244,11 +244,11 @@ const GLOSSARY: Record<string, Entry> = {
   lectura_mapa3d: {
     es: {
       label: 'Cómo se lee el mapa',
-      def: 'Cada vista mapea UNA variable (más oscuro/saturado = más valor). La captación PET es un gradiente continuo, sin borde tumoral neto (~4–5 mm). «Blástico» = densidad del CT (forma), no biología. El Galio es un proxy aproximado por ahora. La baliza con brillo (anillo malva asentado sobre el hueso + núcleo coral) señala la zona de máxima captación (≈ dónde apuntaría la biopsia): un punto orientativo, no un borde tumoral. Informa, no concluye.',
+      def: 'Cada vista mapea UNA variable (más oscuro/saturado = más valor). La captación PET es un gradiente continuo, sin borde tumoral neto (~4–5 mm). «Blástico» = densidad del CT (forma), no biología. El Galio es un proxy aproximado por ahora. La diana parpadeante (aros coral calcados SOBRE la superficie del hueso, conformando su curvatura) señala la zona de máxima captación (≈ dónde apuntaría la biopsia): un punto orientativo, no un borde tumoral. Informa, no concluye.',
     },
     en: {
       label: 'How to read the map',
-      def: 'Each view maps ONE variable (darker/more saturated = higher value). PET uptake is a continuous gradient, with no sharp tumor border (~4–5 mm). “Blastic” = CT density (shape), not biology. Gallium is an approximate proxy for now. The glowing beacon (mauve ring set on the bone + coral core) flags the peak-uptake zone (≈ where the biopsy would aim): an orientative point, not a tumor outline. It informs; it does not conclude.',
+      def: 'Each view maps ONE variable (darker/more saturated = higher value). PET uptake is a continuous gradient, with no sharp tumor border (~4–5 mm). “Blastic” = CT density (shape), not biology. Gallium is an approximate proxy for now. The blinking target (coral rings printed ONTO the bone surface, conforming to its curvature) flags the peak-uptake zone (≈ where the biopsy would aim): an orientative point, not a tumor outline. It informs; it does not conclude.',
     },
   },
 }
