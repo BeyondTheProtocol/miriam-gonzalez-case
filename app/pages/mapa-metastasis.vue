@@ -1607,7 +1607,7 @@ const ticks = [
              el desglose a fondo sigue abajo. Título limpio, sin eyebrow ni badge. -->
         <section class="mb-14" aria-labelledby="contexto-general">
           <p class="eyebrow mb-2 block">{{ L('Contexto · el panorama', 'Context · the big picture') }}</p>
-          <h2 id="contexto-general" class="heading-display text-2xl text-berenjena mb-1.5 scroll-mt-[5.5rem]">{{ L('Enfermedad ósea — el caso de un vistazo', 'Bone disease — the case at a glance') }}</h2>
+          <h2 id="contexto-general" class="heading-display text-2xl text-berenjena mb-2 scroll-mt-[5.5rem]">{{ L('Enfermedad ósea — el caso de un vistazo', 'Bone disease — the case at a glance') }}</h2>
           <p class="text-sm text-tinta leading-relaxed mb-5 max-w-3xl">{{ L('Cuánta enfermedad hay y cómo evoluciona, antes de entrar foco a foco.', 'How much disease there is and how it is evolving, before going focus by focus.') }}</p>
           <!-- enfermedad · KPIs -->
           <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-5">
@@ -1649,7 +1649,7 @@ const ticks = [
         <section class="order-1 mb-14" aria-labelledby="dianas-resumen">
           <div class="flex items-baseline justify-between flex-wrap gap-x-3 gap-y-2 mb-2">
             <div>
-              <p class="eyebrow mb-1 block">{{ L('La respuesta primero · dónde mirar', 'The answer first · where to look') }}</p>
+              <p class="eyebrow mb-2 block">{{ L('La respuesta primero · dónde mirar', 'The answer first · where to look') }}</p>
               <h2 id="dianas-resumen" class="heading-display text-2xl text-berenjena scroll-mt-[5.5rem]">{{ L('Dianas idóneas', 'Suitable targets') }}</h2>
             </div>
             <span class="status-badge status-badge--firma self-start mt-1">{{ L('equipa, no indica', 'equips, does not indicate') }}</span>
@@ -1670,7 +1670,7 @@ const ticks = [
                   <span class="w-3 h-3 shrink-0 rounded-full" :style="{ background: phenoColor(le), boxShadow: sourceOf(le) === 'ia-david' ? '0 0 0 1.5px #fff, 0 0 0 3px ' + phenoColor(le) : 'none' }" aria-hidden="true" />
                   <span class="font-semibold text-berenjena text-[13px] leading-tight truncate">{{ le.level[lang] }}</span>
                   <span class="font-mono text-[10px] text-tinta shrink-0">#{{ le.id }}</span>
-                  <span v-if="coCount(le) > 1" class="pill-data pill-data--berenjena text-[10px] !px-1.5 !py-0 shrink-0" role="img" :aria-label="coCount(le) + ' ' + L('focos co-localizados en esta vértebra', 'co-located foci in this vertebra')">{{ coCount(le) }} {{ L('focos', 'foci') }}</span>
+                  <span v-if="coCount(le) > 1" class="pill-data pill-data--berenjena !text-[10px] !px-1.5 !py-0 shrink-0" role="img" :aria-label="coCount(le) + ' ' + L('focos co-localizados en esta vértebra', 'co-located foci in this vertebra')">{{ coCount(le) }} {{ L('focos', 'foci') }}</span>
                 </span>
                 <span class="text-right shrink-0">
                   <span class="font-display text-xl text-berenjena tabular-nums leading-none block">{{ suitabilityScore(le) }}</span>
@@ -2010,7 +2010,7 @@ const ticks = [
                     <span class="font-mono font-bold text-base leading-none text-berenjena bg-miriam-soft rounded px-2 py-1 tracking-tight">{{ selLevelCode }}</span>
                     <h3 v-if="selLevelRest" class="heading-display text-lg text-berenjena leading-tight">{{ selLevelRest }}</h3>
                     <span class="font-mono text-[12px] text-tinta">#{{ sel.id }}</span>
-                    <span v-if="coCount(sel) > 1" class="pill-data pill-data--berenjena text-[10px] !px-1.5 !py-0" role="img" :aria-label="coCount(sel) + ' ' + L('focos co-localizados en esta vértebra', 'co-located foci in this vertebra')">{{ coCount(sel) }} {{ L('focos', 'foci') }}</span>
+                    <span v-if="coCount(sel) > 1" class="pill-data pill-data--berenjena !text-[10px] !px-1.5 !py-0" role="img" :aria-label="coCount(sel) + ' ' + L('focos co-localizados en esta vértebra', 'co-located foci in this vertebra')">{{ coCount(sel) }} {{ L('focos', 'foci') }}</span>
                   </div>
                   <p class="text-xs text-tinta">{{ sel.region[lang] }} ·
                     {{ sel.side === 'R' ? L('lado derecho', 'right side') : sel.side === 'L' ? L('lado izquierdo', 'left side') : L('línea media', 'midline') }}</p>
