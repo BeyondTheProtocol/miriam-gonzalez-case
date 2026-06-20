@@ -130,28 +130,28 @@ const LES: Lesion[] = [
     level: { es: 'C3 · apófisis espinosa', en: 'C3 · spinous process' },
     region: { es: 'Columna cervical', en: 'Cervical spine' },
     what: { es: 'Apófisis espinosa cervical. Capta solo ⁶⁸Ga-DOTATOC (SSTR); ¹⁸F-FDG negativo.', en: 'Cervical spinous process. ⁶⁸Ga-DOTATOC (SSTR) only; ¹⁸F-FDG negative.' },
-    tech: { es: 'DOTATOC SUVmáx 2.89; FDG negativo. SSTR+ / FDG−.', en: 'DOTATOC SUVmax 2.89; FDG negative. SSTR+ / FDG−.' },
+    tech: { es: '⁶⁸Ga-DOTATOC SUVmáx 2.89; ¹⁸F-FDG negativo. SSTR+ / FDG−.', en: '⁶⁸Ga-DOTATOC SUVmax 2.89; ¹⁸F-FDG negative. SSTR+ / FDG−.' },
   },
   {
     id: 2, x: 206, y: 104, side: 'R', dota: 3.10, fdg: null, pheno: 'ne',
     level: { es: 'C4 · lámina / arco derecho', en: 'C4 · right lamina / arch' },
     region: { es: 'Columna cervical', en: 'Cervical spine' },
     what: { es: 'Lámina (arco posterior) de C4, lado derecho. Captación aislada de ⁶⁸Ga-DOTATOC (SSTR); ¹⁸F-FDG negativo.', en: 'C4 lamina (posterior arch), right side. Isolated ⁶⁸Ga-DOTATOC (SSTR) uptake; ¹⁸F-FDG negative.' },
-    tech: { es: 'DOTATOC SUVmáx 3.10; FDG negativo. SSTR+ / FDG−.', en: 'DOTATOC SUVmax 3.10; FDG negative. SSTR+ / FDG−.' },
+    tech: { es: '⁶⁸Ga-DOTATOC SUVmáx 3.10; ¹⁸F-FDG negativo. SSTR+ / FDG−.', en: '⁶⁸Ga-DOTATOC SUVmax 3.10; ¹⁸F-FDG negative. SSTR+ / FDG−.' },
   },
   {
     id: 3, x: 120, y: 205, side: 'R', dota: 3.84, fdg: null, pheno: 'ne',
     level: { es: 'Escápula derecha', en: 'Right scapula' },
     region: { es: 'Cintura escapular', en: 'Shoulder girdle' },
     what: { es: 'Escápula derecha, fuera del eje axial. Captación aislada de ⁶⁸Ga-DOTATOC (SSTR); ¹⁸F-FDG negativo.', en: 'Right scapula, off the axial skeleton. Isolated ⁶⁸Ga-DOTATOC (SSTR) uptake; ¹⁸F-FDG negative.' },
-    tech: { es: 'DOTATOC SUVmáx 3.84; FDG negativo. SSTR+ / FDG−, fuera del eje axial.', en: 'DOTATOC SUVmax 3.84; FDG negative. SSTR+ / FDG−, off the axial skeleton.' },
+    tech: { es: '⁶⁸Ga-DOTATOC SUVmáx 3.84; ¹⁸F-FDG negativo. SSTR+ / FDG−, fuera del eje axial.', en: '⁶⁸Ga-DOTATOC SUVmax 3.84; ¹⁸F-FDG negative. SSTR+ / FDG−, off the axial skeleton.' },
   },
   {
     id: 4, x: 220, y: 156, side: 'C', dota: 4.23, fdg: 6.97, prevFdg: 2.8, pheno: 'mixAgg', size: '14 × 10',
     level: { es: 'D1 (T1) · cuerpo vertebral', en: 'T1 · vertebral body' },
     region: { es: 'Columna dorsal alta', en: 'Upper thoracic spine' },
     what: { es: 'Primera vértebra dorsal (D1/T1). Foco nuevo: apenas se veía en el PET previo y ahora muestra ¹⁸F-FDG intenso.', en: 'First thoracic vertebra (T1). New focus: barely identifiable on the prior PET, now with intense ¹⁸F-FDG.' },
-    tech: { es: 'DOTATOC 4.23 / FDG 6.97 (previo 2.8, no significativo). Foco nuevo, FDG-dominante (FDG>SSTR).', en: 'DOTATOC 4.23 / FDG 6.97 (prior 2.8, non-significant). New focus, FDG-dominant (FDG>SSTR).' },
+    tech: { es: '⁶⁸Ga-DOTATOC SUVmáx 4.23 / ¹⁸F-FDG 6.97 (previo 2.8, no significativo). Foco nuevo, FDG-dominante (FDG>SSTR).', en: '⁶⁸Ga-DOTATOC SUVmax 4.23 / ¹⁸F-FDG 6.97 (prior 2.8, non-significant). New focus, FDG-dominant (FDG>SSTR).' },
     rmn: { es: 'Componente blástico (TC). La forma y la médula ósea se ven mejor en la RMN — míralo en el visor.', en: 'Blastic component (CT). Shape and bone marrow are clearer on MRI — view it in the viewer.' },
   },
   {
@@ -159,7 +159,7 @@ const LES: Lesion[] = [
     level: { es: 'D5 (T5) · cuerpo vertebral', en: 'T5 · vertebral body' },
     region: { es: 'Columna dorsal media', en: 'Mid-thoracic spine' },
     what: { es: 'Cuerpo de D5/T5. Captación moderada-alta de ⁶⁸Ga-DOTATOC (SSTR); ¹⁸F-FDG negativo.', en: 'T5 vertebral body. Moderate-to-high ⁶⁸Ga-DOTATOC (SSTR) uptake; ¹⁸F-FDG negative.' },
-    tech: { es: 'DOTATOC SUVmáx 6.17 (moderada); FDG negativo. SSTR+ / FDG−.', en: 'DOTATOC SUVmax 6.17 (moderate); FDG negative. SSTR+ / FDG−.' },
+    tech: { es: '⁶⁸Ga-DOTATOC SUVmáx 6.17 (moderada); ¹⁸F-FDG negativo. SSTR+ / FDG−.', en: '⁶⁸Ga-DOTATOC SUVmax 6.17 (moderate); ¹⁸F-FDG negative. SSTR+ / FDG−.' },
     rmn: { es: 'Lesión blástica (hueso denso).', en: 'Blastic lesion (dense bone).' },
   },
   {
@@ -167,14 +167,14 @@ const LES: Lesion[] = [
     level: { es: 'D9 (T9) · cuerpo derecho', en: 'T9 · right body' },
     region: { es: 'Columna dorsal baja', en: 'Lower thoracic spine' },
     what: { es: 'D9/T9, lado derecho. Captación leve y aislada de ⁶⁸Ga-DOTATOC (SSTR), SUVmáx bajo; ¹⁸F-FDG negativo.', en: 'T9, right side. Mild, isolated ⁶⁸Ga-DOTATOC (SSTR) uptake, low SUVmax; ¹⁸F-FDG negative.' },
-    tech: { es: 'DOTATOC SUVmáx 1.37 (baja); FDG negativo. SSTR+ / FDG−.', en: 'DOTATOC SUVmax 1.37 (low); FDG negative. SSTR+ / FDG−.' },
+    tech: { es: '⁶⁸Ga-DOTATOC SUVmáx 1.37 (baja); ¹⁸F-FDG negativo. SSTR+ / FDG−.', en: '⁶⁸Ga-DOTATOC SUVmax 1.37 (low); ¹⁸F-FDG negative. SSTR+ / FDG−.' },
   },
   {
     id: 7, x: 220, y: 352, r: 14, side: 'C', dota: 13.27, fdg: 7.61, prevFdg: 10.19, scler: true, pheno: 'mixNe', size: '18 × 14',
     level: { es: 'D11 (T11) · cuerpo vertebral', en: 'T11 · vertebral body' },
     region: { es: 'Unión dorsolumbar', en: 'Thoracolumbar junction' },
     what: { es: 'Una de las más intensas: la mayor captación ⁶⁸Ga-DOTATOC (SSTR) de la serie, dual con ¹⁸F-FDG que ha descendido vs el previo. Atenuación blástica en TC.', en: 'One of the most intense: the highest ⁶⁸Ga-DOTATOC (SSTR) uptake of the series, dual with ¹⁸F-FDG that has dropped vs prior. Blastic CT attenuation.' },
-    tech: { es: 'DOTATOC SUVmáx 13.27 (SSTR muy intensa) / FDG 7.61 (previo 10.19, ↓). Mixto, predominio SSTR (SSTR>FDG). Blástica.', en: 'DOTATOC SUVmax 13.27 (very intense SSTR) / FDG 7.61 (prior 10.19, ↓). Mixed, SSTR-predominant (SSTR>FDG). Blastic.' },
+    tech: { es: '⁶⁸Ga-DOTATOC SUVmáx 13.27 (SSTR muy intensa) / ¹⁸F-FDG 7.61 (previo 10.19, ↓). Mixto, predominio SSTR (SSTR>FDG). Blástica.', en: '⁶⁸Ga-DOTATOC SUVmax 13.27 (very intense SSTR) / ¹⁸F-FDG 7.61 (prior 10.19, ↓). Mixed, SSTR-predominant (SSTR>FDG). Blastic.' },
     rmn: { es: 'Lesión blástica. La RM describe en D11 extensión al espacio epidural anterior y afectación del canal lateral izquierdo.', en: 'Blastic lesion. The MRI describes anterior epidural extension and left lateral canal compromise at D11.' },
     softTissue: { es: 'La RMN describe componente de partes blandas / extensión extraósea (espacio epidural anterior, canal lateral izquierdo). El tejido blando suele rentabilizar más que el hueso blástico denso, pero por su vecindad al canal y a las raíces la accesibilidad y la seguridad las valora radiología intervencionista.', en: 'The MRI describes a soft-tissue / extraosseous component (anterior epidural space, left lateral canal). Soft tissue usually yields more than dense blastic bone, but given its proximity to the canal and nerve roots, accessibility and safety are assessed by interventional radiology.' },
   },
@@ -183,7 +183,7 @@ const LES: Lesion[] = [
     level: { es: 'D11 (T11) · pedículo izquierdo', en: 'T11 · left pedicle' },
     region: { es: 'Unión dorsolumbar', en: 'Thoracolumbar junction' },
     what: { es: 'Misma vértebra que la #7, pedículo izquierdo: aquí la captación es solo ⁶⁸Ga-DOTATOC (SSTR), sin ¹⁸F-FDG. Dos patrones en la misma vértebra (heterogeneidad intravertebral).', en: 'Same vertebra as #7, left pedicle: here uptake is ⁶⁸Ga-DOTATOC (SSTR) only, no ¹⁸F-FDG. Two patterns in one vertebra (intra-vertebral heterogeneity).' },
-    tech: { es: 'DOTATOC SUVmáx 11.63; FDG negativo. SSTR+ intenso / FDG−. Ilustra la heterogeneidad intra-vértebra junto a la #7.', en: 'DOTATOC SUVmax 11.63; FDG negative. Intense SSTR+ / FDG−. Illustrates intra-vertebral heterogeneity alongside #7.' },
+    tech: { es: '⁶⁸Ga-DOTATOC SUVmáx 11.63; ¹⁸F-FDG negativo. SSTR+ intenso / FDG−. Ilustra la heterogeneidad intra-vértebra junto a la #7.', en: '⁶⁸Ga-DOTATOC SUVmax 11.63; ¹⁸F-FDG negative. Intense SSTR+ / FDG−. Illustrates intra-vertebral heterogeneity alongside #7.' },
     rmn: { es: 'Componente blástico; el detalle de la médula ósea se ve en el visor RMN.', en: 'Blastic component; bone-marrow detail is visible in the MRI viewer.' },
   },
   {
@@ -191,7 +191,7 @@ const LES: Lesion[] = [
     level: { es: 'L1 · apófisis espinosa', en: 'L1 · spinous process' },
     region: { es: 'Columna lumbar', en: 'Lumbar spine' },
     what: { es: 'Apófisis espinosa de L1. Captación aislada de ⁶⁸Ga-DOTATOC (SSTR); ¹⁸F-FDG negativo.', en: 'L1 spinous process. Isolated ⁶⁸Ga-DOTATOC (SSTR) uptake; ¹⁸F-FDG negative.' },
-    tech: { es: 'DOTATOC SUVmáx 3.66; FDG negativo. SSTR+ / FDG−.', en: 'DOTATOC SUVmax 3.66; FDG negative. SSTR+ / FDG−.' },
+    tech: { es: '⁶⁸Ga-DOTATOC SUVmáx 3.66; ¹⁸F-FDG negativo. SSTR+ / FDG−.', en: '⁶⁸Ga-DOTATOC SUVmax 3.66; ¹⁸F-FDG negative. SSTR+ / FDG−.' },
   },
   {
     id: 10, x: 241, y: 399, side: 'L', dota: null, fdg: 6.84, prevFdg: 4.67, pheno: 'agg',
@@ -205,21 +205,21 @@ const LES: Lesion[] = [
     level: { es: 'L5 · cuerpo vertebral', en: 'L5 · vertebral body' },
     region: { es: 'Columna lumbar baja', en: 'Lower lumbar spine' },
     what: { es: 'L5, hueso de alta carga. ⁶⁸Ga-DOTATOC (SSTR) intenso y ¹⁸F-FDG moderado y estable: dual, predominio SSTR. En SBRT (tejido tratado).', en: 'L5, high-load bone. Intense ⁶⁸Ga-DOTATOC (SSTR) and moderate, stable ¹⁸F-FDG: dual, SSTR-predominant. Under SBRT (treated tissue).' },
-    tech: { es: 'DOTATOC SUVmáx 12.14 (SSTR intensa) / FDG 5.0 (previo 4.81, estable). Mixto, predominio SSTR. En SBRT (tejido tratado).', en: 'DOTATOC SUVmax 12.14 (intense SSTR) / FDG 5.0 (prior 4.81, stable). Mixed, SSTR-predominant. Under SBRT (treated tissue).' },
+    tech: { es: '⁶⁸Ga-DOTATOC SUVmáx 12.14 (SSTR intensa) / ¹⁸F-FDG 5.0 (previo 4.81, estable). Mixto, predominio SSTR. En SBRT (tejido tratado).', en: '⁶⁸Ga-DOTATOC SUVmax 12.14 (intense SSTR) / ¹⁸F-FDG 5.0 (prior 4.81, stable). Mixed, SSTR-predominant. Under SBRT (treated tissue).' },
   },
   {
     id: 12, x: 205, y: 505, side: 'R', dota: 4.27, fdg: 4.34, prevFdg: 6.26, pheno: 'mixBal', size: '12 × 9',
     level: { es: 'Ala sacra derecha', en: 'Right sacral ala' },
     region: { es: 'Sacro', en: 'Sacrum' },
     what: { es: 'Ala sacra derecha. Captación dual equilibrada (⁶⁸Ga-DOTATOC ≈ ¹⁸F-FDG); el ¹⁸F-FDG ha descendido vs el previo.', en: 'Right sacral ala. Balanced dual uptake (⁶⁸Ga-DOTATOC ≈ ¹⁸F-FDG); ¹⁸F-FDG dropped vs prior.' },
-    tech: { es: 'DOTATOC 4.27 / FDG 4.34 (previo 6.26, ↓). Mixto equilibrado (SSTR≈FDG).', en: 'DOTATOC 4.27 / FDG 4.34 (prior 6.26, ↓). Balanced mixed (SSTR≈FDG).' },
+    tech: { es: '⁶⁸Ga-DOTATOC SUVmáx 4.27 / ¹⁸F-FDG 4.34 (previo 6.26, ↓). Mixto equilibrado (SSTR≈FDG).', en: '⁶⁸Ga-DOTATOC SUVmax 4.27 / ¹⁸F-FDG 4.34 (prior 6.26, ↓). Balanced mixed (SSTR≈FDG).' },
   },
   {
     id: 13, x: 165, y: 545, side: 'R', dota: 4.32, fdg: 7.71, prevFdg: 7.0, pheno: 'mixAgg', size: '11 × 8',
     level: { es: 'Ilíaco derecho · ala ilíaca', en: 'Right iliac · iliac wing' },
     region: { es: 'Pelvis', en: 'Pelvis' },
     what: { es: 'Ala ilíaca derecha. Captación dual, predominio glucolítico (¹⁸F-FDG > ⁶⁸Ga-DOTATOC).', en: 'Right iliac wing. Dual uptake, glycolytic-predominant (¹⁸F-FDG > ⁶⁸Ga-DOTATOC).' },
-    tech: { es: 'DOTATOC 4.32 / FDG 7.71 (previo 7.0, leve ↑). Mixto, FDG>SSTR.', en: 'DOTATOC 4.32 / FDG 7.71 (prior 7.0, slight ↑). Mixed, FDG>SSTR.' },
+    tech: { es: '⁶⁸Ga-DOTATOC SUVmáx 4.32 / ¹⁸F-FDG 7.71 (previo 7.0, leve ↑). Mixto, FDG>SSTR.', en: '⁶⁸Ga-DOTATOC SUVmax 4.32 / ¹⁸F-FDG 7.71 (prior 7.0, slight ↑). Mixed, FDG>SSTR.' },
     priorBiopsy: {
       es: 'Biopsia previa de este foco (26B585): solo dio hueso y músculo, sin tumor evaluable. Es un foco mixto, pero la zona muestreada fue hueso denso (blástico); el hueso denso suele rentabilizar poco en la biopsia (poco tejido tumoral).',
       en: 'Prior biopsy of this focus (26B585): yielded only bone and muscle, no evaluable tumor. It is a mixed focus, but the sampled zone was dense (blastic) bone; dense bone usually yields little on biopsy (little tumor tissue).',
@@ -230,21 +230,21 @@ const LES: Lesion[] = [
     level: { es: 'Ilíaco derecho supraacetabular', en: 'Right supra-acetabular iliac' },
     region: { es: 'Pelvis · techo de la cadera', en: 'Pelvis · hip roof' },
     what: { es: 'Ilíaco supra-acetabular derecho (techo de la cadera). El ¹⁸F-FDG se ha más que duplicado vs el previo. Hueso de carga; en seguimiento por Oncología Radioterápica.', en: 'Right supra-acetabular iliac (hip roof). ¹⁸F-FDG has more than doubled vs prior. Weight-bearing bone; under Radiation Oncology follow-up.' },
-    tech: { es: 'DOTATOC 3.96 / FDG 9.33 (previo 4.0, claro ↑). Mixto, FDG>SSTR, hueso de carga.', en: 'DOTATOC 3.96 / FDG 9.33 (prior 4.0, clearly rising). Mixed, FDG>SSTR, weight-bearing bone.' },
+    tech: { es: '⁶⁸Ga-DOTATOC SUVmáx 3.96 / ¹⁸F-FDG 9.33 (previo 4.0, claro ↑). Mixto, FDG>SSTR, hueso de carga.', en: '⁶⁸Ga-DOTATOC SUVmax 3.96 / ¹⁸F-FDG 9.33 (prior 4.0, clearly rising). Mixed, FDG>SSTR, weight-bearing bone.' },
   },
   {
     id: 15, x: 275, y: 585, side: 'L', dota: 2.54, fdg: 3.97, prevFdg: 1.93, pheno: 'mixAgg',
     level: { es: 'Ilíaco izquierdo supraacetabular', en: 'Left supra-acetabular iliac' },
     region: { es: 'Pelvis · techo de la cadera', en: 'Pelvis · hip roof' },
     what: { es: 'Espejo del #14 en el lado izquierdo (ilíaco supra-acetabular). Foco nuevo de baja intensidad pero en aumento; posible contaminación por captación pélvica fisiológica vecina, a correlacionar en el DICOM.', en: 'Mirror of #14 on the left (supra-acetabular iliac). New low-intensity focus, increasing; possible contamination from neighboring physiologic pelvic uptake, to correlate on the DICOM.' },
-    tech: { es: 'FDG 3.97 (previo 1.93, nuevo) con DOTATOC 2.54. Foco mixto nuevo de baja intensidad. Posible contaminación pélvica vecina (intestino/vejiga): a correlacionar en el DICOM.', en: 'FDG 3.97 (prior 1.93, new) with DOTATOC 2.54. New low-intensity mixed focus. Possible neighboring pelvic contamination (bowel/bladder): to correlate on the DICOM.' },
+    tech: { es: '¹⁸F-FDG SUVmáx 3.97 (previo 1.93, nuevo) con ⁶⁸Ga-DOTATOC 2.54. Foco mixto nuevo de baja intensidad. Posible contaminación pélvica vecina (intestino/vejiga): a correlacionar en el DICOM.', en: '¹⁸F-FDG SUVmax 3.97 (prior 1.93, new) with ⁶⁸Ga-DOTATOC 2.54. New low-intensity mixed focus. Possible neighboring pelvic contamination (bowel/bladder): to correlate on the DICOM.' },
   },
   {
     id: 16, x: 158, y: 628, r: 13, side: 'R', dota: 5.09, fdg: 9.43, prevFdg: 6.0, load: true, pheno: 'mixAgg', size: '18 × 13',
     level: { es: 'Fémur proximal derecho', en: 'Right proximal femur' },
     region: { es: 'Cadera derecha', en: 'Right hip' },
     what: { es: 'Cuello femoral derecho. Uno de los focos con mayor ¹⁸F-FDG, en aumento vs el previo. Hueso de carga; en seguimiento por Oncología Radioterápica.', en: 'Right femoral neck. One of the highest ¹⁸F-FDG foci, risen vs prior. Weight-bearing bone; under Radiation Oncology follow-up.' },
-    tech: { es: 'DOTATOC 5.09 / FDG 9.43 (previo 6.0, ↑). Mixto, FDG>SSTR, hueso de carga. Confirmada en corte axial PET-CT.', en: 'DOTATOC 5.09 / FDG 9.43 (prior 6.0, ↑). Mixed, FDG>SSTR, weight-bearing bone. Confirmed on axial PET-CT.' },
+    tech: { es: '⁶⁸Ga-DOTATOC SUVmáx 5.09 / ¹⁸F-FDG 9.43 (previo 6.0, ↑). Mixto, FDG>SSTR, hueso de carga. Confirmada en corte axial PET-CT.', en: '⁶⁸Ga-DOTATOC SUVmax 5.09 / ¹⁸F-FDG 9.43 (prior 6.0, ↑). Mixed, FDG>SSTR, weight-bearing bone. Confirmed on axial PET-CT.' },
   },
   {
     id: 17, x: 182, y: 198, side: 'C', dota: 1.6, fdg: 4.8, pheno: 'mixAgg', size: '≤ 8', source: 'ia-david',
@@ -258,14 +258,14 @@ const LES: Lesion[] = [
     level: { es: 'Ilíaco derecho · unión ilíaco-femoral', en: 'Right iliac · iliac-femoral junction' },
     region: { es: 'Pelvis', en: 'Pelvis' },
     what: { es: 'Foco pélvico leve (unión ilíaco-femoral), ⁶⁸Ga-DOTATOC (SSTR) predominante y ¹⁸F-FDG bajo. Detección por IA.', en: 'Mild pelvic focus (iliac-femoral junction), predominant ⁶⁸Ga-DOTATOC (SSTR), low ¹⁸F-FDG. AI detection.' },
-    tech: { es: 'DOTATOC ~4.3 / FDG ~1.7 (aproximados, sobre los DICOM). SSTR+ / FDG bajo. No en informe oficial.', en: 'DOTATOC ~4.3 / FDG ~1.7 (approximate, on the DICOM). SSTR+ / low FDG. Not in the official report.' },
+    tech: { es: '⁶⁸Ga-DOTATOC ~4.3 / ¹⁸F-FDG ~1.7 (aproximados, sobre los DICOM). SSTR+ / FDG bajo. No en informe oficial.', en: '⁶⁸Ga-DOTATOC ~4.3 / ¹⁸F-FDG ~1.7 (approximate, on the DICOM). SSTR+ / low FDG. Not in the official report.' },
   },
   {
     id: 19, x: 232, y: 150, side: 'C', dota: 4.2, fdg: 3.1, pheno: 'mixNe', size: '8–10', source: 'ia-david',
     level: { es: 'C7–D2 · transición cervicotorácica', en: 'C7–D2 · cervicothoracic junction' },
     region: { es: 'Transición cervicotorácica', en: 'Cervicothoracic junction' },
     what: { es: 'Foco leve en la transición cervicotorácica (C7–D2), captación débil de ambos trazadores. El ¹⁸F-FDG aquí puede ser captación cervical fisiológica, a correlacionar. Detección por IA.', en: 'Mild focus at the cervicothoracic junction (C7–D2), weak uptake of both tracers. ¹⁸F-FDG here may be physiologic cervical uptake, to correlate. AI detection.' },
-    tech: { es: 'DOTATOC ~4.8 / FDG ~3.1 (aproximados, sobre los DICOM). Baja intensidad; el FDG puede ser captación cervical fisiológica, a correlacionar. No en informe oficial.', en: 'DOTATOC ~4.8 / FDG ~3.1 (approximate, on the DICOM). Low intensity; FDG may be physiological cervical uptake, to correlate. Not in the official report.' },
+    tech: { es: '⁶⁸Ga-DOTATOC ~4.8 / ¹⁸F-FDG ~3.1 (aproximados, sobre los DICOM). Baja intensidad; el FDG puede ser captación cervical fisiológica, a correlacionar. No en informe oficial.', en: '⁶⁸Ga-DOTATOC ~4.8 / ¹⁸F-FDG ~3.1 (approximate, on the DICOM). Low intensity; FDG may be physiological cervical uptake, to correlate. Not in the official report.' },
   },
 ]
 
@@ -477,6 +477,7 @@ const ProvLegend = (props: { compact?: boolean }) =>
       h('li', { key: it.fuente, class: 'prov-legend__item' }, [
         h('span', { class: 'prov-dot prov-dot--lg', style: { color: it.tone }, 'aria-hidden': 'true' }, it.glyph),
         h('span', { class: 'prov-legend__label' }, it.label),
+        h('span', { class: 'prov-legend__sep', 'aria-hidden': 'true' }, '·'),
         h('span', {
           class: ['prov-mi', it.medido ? 'prov-mi--measured' : 'prov-mi--interp'],
         }, miLabel(it.medido)),
@@ -2736,9 +2737,13 @@ const manifestValidated = (() => {
             <!-- ===== 1 · TÍTULO + LECTURA ===== nombre, zona, fenotipo y la
                  lectura TÉCNICA primero; la lectura en lenguaje llano, a un clic. -->
             <div v-if="sel">
-              <div class="flex items-start gap-2.5 mb-2">
+              <!-- CABECERA de la ficha · reflow móvil: en estrecho el cluster de la
+                   derecha (copiar-enlace + pill de fenotipo) BAJA a su propia fila a
+                   ancho completo (flex-wrap + flex-1 en el bloque del título) → nunca
+                   se solapa con el título; en ancho vuelve a su sitio (ml-auto). -->
+              <div class="flex items-start gap-2.5 mb-2 flex-wrap">
                 <span class="shrink-0 w-3.5 h-3.5 mt-1.5 rounded-full" :style="{ background: phenoColor(sel), boxShadow: selIsAi ? '0 0 0 1.5px #fff, 0 0 0 3px ' + phenoColor(sel) : 'none' }" aria-hidden="true" />
-                <div class="min-w-0">
+                <div class="min-w-0 flex-1 basis-48">
                   <div class="flex items-baseline gap-2 flex-wrap">
                     <span class="font-mono font-bold text-base leading-none text-berenjena bg-miriam-soft rounded px-2 py-1 tracking-tight">{{ selLevelCode }}</span>
                     <h3 v-if="selLevelRest" class="heading-display text-lg text-berenjena leading-tight">{{ selLevelRest }}</h3>
@@ -2748,7 +2753,7 @@ const manifestValidated = (() => {
                   <p class="text-xs text-tinta">{{ sel.region[lang] }} ·
                     {{ sel.side === 'R' ? L('lado derecho', 'right side') : sel.side === 'L' ? L('lado izquierdo', 'left side') : L('línea media', 'midline') }}</p>
                 </div>
-                <div class="ml-auto shrink-0 self-start flex items-center gap-2">
+                <div class="ml-auto shrink-0 self-start flex items-center gap-2 flex-wrap justify-end">
                   <!-- COPIAR ENLACE · permalink citable del foco (#foco-N). El texto
                        siempre visible (DS: nunca un botón que oculte texto); el feedback
                        «copiado» es temporal y NO sustituye al rótulo, lo precede. -->
@@ -4717,7 +4722,7 @@ const manifestValidated = (() => {
 .prov-legend__list {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 0.3rem 1rem;
+  gap: 0.34rem 1.1rem;
 }
 @media (min-width: 560px) {
   .prov-legend__list { grid-template-columns: 1fr 1fr; }
@@ -4726,12 +4731,13 @@ const manifestValidated = (() => {
 .prov-legend__item {
   display: flex;
   align-items: baseline;
-  gap: 0.4rem;
+  gap: 0.38rem;
   font-size: 12px;
   line-height: 1.3;
   color: #3a3340;
 }
-.prov-legend__label { flex: 1 1 auto; }
+.prov-legend__label { flex: 0 1 auto; }
+.prov-legend__sep { color: rgba(45, 27, 61, 0.32); flex: 0 0 auto; }
 .prov-legend__note {
   font-size: 10.5px;
   line-height: 1.4;
@@ -5522,6 +5528,8 @@ svg [role="button"]:focus-visible {
   }
   /* botones de orden de la tabla: ya tienen min-height 44px (arriba); reforzar tap */
   .th-sort { min-width: 44px; }
+  /* copiar-enlace de la ficha: caja táctil cómoda sin engordar el escritorio */
+  .btn-copylink { min-height: 38px; padding-top: 6px; padding-bottom: 6px; }
 }
 
 /* OVERFLOW · las cadenas mono del detalle del foco (fórmulas, cifras concatenadas)
