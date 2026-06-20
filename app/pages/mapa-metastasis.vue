@@ -240,6 +240,120 @@ const LES: Lesion[] = [
   },
 ]
 
+/* ══════════════════════════════════════════════════════════════════ */
+/*  MANIFIESTO DE DATOS · esquema, procedencia campo a campo y export    */
+/*  ────────────────────────────────────────────────────────────────    */
+/*  CONTRATO CLONABLE (modelo cBioPortal/OncoKB): el dato Y su nivel de   */
+/*  evidencia SON la base, no una etiqueta pintada encima. Un equipo      */
+/*  externo clona esta estructura para SU caso y cada cifra queda          */
+/*  trazable a su fuente, su fecha y su trazador.                          */
+/*                                                                          */
+/*  Cada CIFRA del manifiesto es un `Cell`:                                */
+/*    { valor, unidad, fecha?, trazador?, fuente, ref?, medido }           */
+/*  · valor    — número | string | null (null = no aplica / no medido)     */
+/*  · unidad   — 'SUVmáx' | 'mm' | 'ml' | 'HU' | '0-100' | '' …            */
+/*  · fecha    — estudio de origen (ISO): FDG 2026-03-24 · Ga 2026-05-26 · */
+/*               FDG previo 2026-01 · RMN 2026-06-11 · '' = sin fecha       */
+/*  · trazador — '18F-FDG' | '68Ga-DOTATOC' | '' (no aplica)               */
+/*  · fuente   — PROCEDENCIA, una de:                                       */
+/*       'informe'              → consta en el informe oficial de Medicina  */
+/*                                Nuclear (H. Virgen de la Arrixaca).        */
+/*       'dicom-medicion-david' → re-cuantificación asistida sobre el DICOM */
+/*                                nativo (SUV con corrección de decaimiento, */
+/*                                máscara ósea del CT). Verificación, NO     */
+/*                                diagnóstico.                              */
+/*       'rmn-literal'          → texto literal del informe de RMN de       */
+/*                                columna (11/06/2026); no es relectura de   */
+/*                                imagen.                                    */
+/*       'derivado'             → calculado por esta página a partir de los  */
+/*                                anteriores (heurístico/regla; p.ej. score  */
+/*                                de idoneidad, fenotipo, Δ, % receptor).     */
+/*       'aproximado'           → estimación sobre el DICOM de un foco NO    */
+/*                                consignado en el informe oficial (los 3    */
+/*                                detectados por IA #17/#18/#19) — por        */
+/*                                confirmar con Medicina Nuclear.            */
+/*  · ref      — referencia opcional (código de biopsia, estudio, nota)     */
+/*  · medido   — boolean. true = MEDIDO (cantidad física tomada del PET/CT/ */
+/*               RMN: SUVmáx, mm, ml, HU). false = INTERPRETADO (lectura/    */
+/*               regla: morfología «lítica/blástica», fenotipo, anatomía de  */
+/*               corredor, score). El manifiesto NO inventa precisión:       */
+/*               separa la medición de su lectura.                          */
+/*                                                                          */
+/*  Anti-PHI: ids sintéticos #1–19; sin nombre, sin nº de historia, sin     */
+/*  metadatos de paciente. El export sale igual de limpio.                  */
+/* ══════════════════════════════════════════════════════════════════ */
+type ProvSource = 'informe' | 'dicom-medicion-david' | 'rmn-literal' | 'derivado' | 'aproximado'
+interface Cell {
+  valor: number | string | null
+  unidad: string
+  fecha?: string
+  trazador?: '18F-FDG' | '68Ga-DOTATOC' | ''
+  fuente: ProvSource
+  ref?: string
+  medido: boolean
+}
+/* fechas canónicas de los estudios de origen (ISO, sin PHI) */
+const STUDY_DATES = {
+  fdg: '2026-03-24',       // PET-CT ¹⁸F-FDG
+  ga: '2026-05-26',        // PET-CT ⁶⁸Ga-DOTATOC
+  fdgPrev: '2026-01',      // PET-CT ¹⁸F-FDG previo (mes)
+  rmn: '2026-06-11',       // RMN de columna cervical/dorsal
+} as const
+
+/* La PROCEDENCIA de un foco es DERIVADA de los datos existentes (LES, AUTO,
+   SIZE, scler/source) — NO se duplican los valores aquí, para que el manifiesto
+   tenga UNA sola fuente y no pueda mentir. Esta función construye los `Cell`
+   de un foco a partir de su Lesion + sus medidas automáticas + su tamaño.
+   `manifestCells(le)` devuelve el conjunto de cifras con su procedencia. */
+function provSuvSource(le: Lesion): ProvSource {
+  return isAiDavid(le) ? 'aproximado' : 'informe'
+}
+function manifestCells(le: Lesion): Record<string, Cell> {
+  const a = AUTO[le.id] || null
+  const s = SIZE[le.id] ?? { mm: null, mtv: null, state: 'pending' as SizeState }
+  const ai = isAiDavid(le)
+  const suvSrc = provSuvSource(le)
+  const cells: Record<string, Cell> = {
+    /* SUVmáx — MEDIDO. Del informe (focos del informe) o aproximado sobre el DICOM (IA). */
+    dota: { valor: le.dota, unidad: 'SUVmáx', fecha: STUDY_DATES.ga, trazador: '68Ga-DOTATOC', fuente: suvSrc, medido: true },
+    fdg: { valor: le.fdg, unidad: 'SUVmáx', fecha: STUDY_DATES.fdg, trazador: '18F-FDG', fuente: suvSrc, medido: true },
+    fdgPrev: { valor: le.prevFdg ?? null, unidad: 'SUVmáx', fecha: STUDY_DATES.fdgPrev, trazador: '18F-FDG', fuente: ai ? 'aproximado' : 'informe', medido: true },
+    /* SUVmáx re-cuantificado sobre el DICOM (verificación) — MEDIDO, fuente David. */
+    gaAuto: { valor: a?.gaAuto ?? null, unidad: 'SUVmáx', fecha: STUDY_DATES.ga, trazador: '68Ga-DOTATOC', fuente: 'dicom-medicion-david', medido: true },
+    fdgAuto: { valor: a?.fdgAuto ?? null, unidad: 'SUVmáx', fecha: STUDY_DATES.fdg, trazador: '18F-FDG', fuente: 'dicom-medicion-david', medido: true },
+    /* Extensión metabólica (eje mayor + MTV) medida sobre el DICOM — MEDIDO. */
+    extentMm: { valor: s.state === 'reliable' ? s.mm : null, unidad: 'mm', fecha: STUDY_DATES.fdg, trazador: '', fuente: ai ? 'aproximado' : 'dicom-medicion-david', medido: true },
+    mtvMl: { valor: s.state === 'reliable' ? s.mtv : null, unidad: 'ml', fecha: STUDY_DATES.fdg, trazador: '', fuente: ai ? 'aproximado' : 'dicom-medicion-david', medido: true },
+    /* Morfología (forma del hueso) — INTERPRETADO: lectura de densidad CT + scler/informe. */
+    morfologia: { valor: morphCat(le) ?? 'por confirmar', unidad: '', fecha: STUDY_DATES.fdg, trazador: '', fuente: le.scler ? 'informe' : 'derivado', medido: false },
+    /* Fenotipo de discordancia (eje SSTR↔glucólisis) — INTERPRETADO (regla sobre los SUV). */
+    fenotipo: { valor: PHENO[le.pheno].es, unidad: '', fuente: 'derivado', medido: false },
+    /* Partes blandas / extensión extraósea — INTERPRETADO, literal de la RMN. */
+    partesBlandas: { valor: le.softTissue ? 'sí' : 'no', unidad: '', fecha: STUDY_DATES.rmn, trazador: '', fuente: le.softTissue ? 'rmn-literal' : 'derivado', medido: false },
+    /* Score de idoneidad como diana — INTERPRETADO (heurístico, pesos a mano, NO validado). */
+    idoneidad: { valor: suitabilityScore(le), unidad: '0-100', fuente: 'derivado', ref: 'heurístico-no-validado', medido: false },
+  }
+  if (le.priorBiopsy) cells.biopsiaPrevia = { valor: 'no diagnóstica', unidad: '', fuente: 'informe', ref: BIOPSY_CODE, medido: false }
+  return cells
+}
+/* etiqueta humana de la PROCEDENCIA de un campo (la fuente del provenance-chip de P2).
+   Hoy se usa como `title` nativo en la tabla — empieza a DERIVAR la procedencia del
+   manifiesto sin tocar el render (sin chips aún, sin cambio de layout). */
+const PROV_LABEL: Record<ProvSource, { es: string; en: string }> = {
+  informe: { es: 'informe oficial', en: 'official report' },
+  'dicom-medicion-david': { es: 'medición sobre el DICOM', en: 'DICOM measurement' },
+  'rmn-literal': { es: 'RMN (literal)', en: 'MRI (verbatim)' },
+  derivado: { es: 'derivado (heurístico)', en: 'derived (heuristic)' },
+  aproximado: { es: 'aproximado (IA · por confirmar)', en: 'approximate (AI · to confirm)' },
+}
+function provTitle(le: Lesion, field: string): string {
+  const c = manifestCells(le)[field]
+  if (!c) return ''
+  const src = L(PROV_LABEL[c.fuente].es, PROV_LABEL[c.fuente].en)
+  const mi = c.medido ? L('medido', 'measured') : L('interpretado', 'interpreted')
+  return `${L('Fuente', 'Source')}: ${src} · ${mi}`
+}
+
 /* % del perfil que corresponde al receptor (orientativo) */
 function neShare(le: Lesion): number {
   if (le.fdg == null) return 0.9
@@ -1560,6 +1674,120 @@ const ticks = [
   { y: 156, t: 'T1' }, { y: 254, t: 'T6' }, { y: 372, t: 'T12' },
   { y: 392, t: 'L1' }, { y: 470, t: 'L5' }, { y: 505, t: 'S' },
 ]
+
+/* ══════════════════════════════════════════════════════════════════ */
+/*  EXPORT DEL MANIFIESTO · CSV + JSON, client-side (Blob + download).    */
+/*  Compatible con `nuxt generate` (no toca servidor). Sale el manifiesto */
+/*  completo: los 19 focos con sus valores Y su procedencia campo a campo */
+/*  (medido vs interpretado). Anti-PHI: solo ids #1–19, cero metadatos    */
+/*  de paciente. El JSON incluye el ESQUEMA (el contrato clonable).       */
+/* ══════════════════════════════════════════════════════════════════ */
+/* esquema legible que viaja DENTRO del JSON — el contrato que un equipo clona */
+const MANIFEST_SCHEMA = {
+  version: '1.0',
+  modelo: 'cBioPortal/OncoKB — el dato Y su nivel de evidencia son la base',
+  antiPhi: 'ids sintéticos #1–19; sin nombre, nº de historia ni metadatos de paciente',
+  celda: {
+    valor: 'number | string | null',
+    unidad: "'SUVmáx' | 'mm' | 'ml' | 'HU' | '0-100' | ''",
+    fecha: 'ISO del estudio de origen ("" si no aplica)',
+    trazador: "'18F-FDG' | '68Ga-DOTATOC' | ''",
+    fuente: "'informe' | 'dicom-medicion-david' | 'rmn-literal' | 'derivado' | 'aproximado'",
+    ref: 'referencia opcional (código de biopsia, nota)',
+    medido: 'true = MEDIDO (cantidad física) · false = INTERPRETADO (lectura/regla)',
+  },
+  fuentes: {
+    informe: 'informe oficial de Medicina Nuclear (H. Virgen de la Arrixaca)',
+    'dicom-medicion-david': 're-cuantificación asistida sobre el DICOM nativo (verificación, no diagnóstico)',
+    'rmn-literal': 'texto literal del informe de RMN de columna (11/06/2026)',
+    derivado: 'calculado por la página (heurístico/regla: score, fenotipo, Δ)',
+    aproximado: 'estimación sobre el DICOM de un foco NO consignado en el informe (IA #17/#18/#19), por confirmar',
+  },
+  estudios: STUDY_DATES,
+} as const
+
+/* construye las filas del manifiesto (una por foco) reuniendo Lesion + sus celdas
+   de procedencia. Es la fuente única: la tabla y el export beben de aquí. */
+function manifestRows() {
+  return LES.map((le) => ({
+    id: le.id,
+    localizacion: le.level.es,
+    region: le.region.es,
+    lado: le.side,
+    campos: manifestCells(le),
+  }))
+}
+
+const MANIFEST_FIELDS = ['dota', 'fdg', 'fdgPrev', 'gaAuto', 'fdgAuto', 'extentMm', 'mtvMl', 'morfologia', 'fenotipo', 'partesBlandas', 'idoneidad'] as const
+
+function csvEscape(v: string | number | null | undefined): string {
+  const s = v == null ? '' : String(v)
+  return /[",\n;]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s
+}
+
+/* CSV LARGO (tidy): una fila por (foco × campo), con valor + procedencia completa.
+   Es el formato que un analista carga sin ambigüedad (cada cifra trazable). */
+function buildManifestCsv(): string {
+  const header = ['foco_id', 'localizacion', 'region', 'lado', 'campo', 'valor', 'unidad', 'trazador', 'fecha', 'fuente', 'medido', 'ref']
+  const lines = [header.join(',')]
+  for (const row of manifestRows()) {
+    for (const f of MANIFEST_FIELDS) {
+      const c = row.campos[f]
+      if (!c) continue
+      lines.push([
+        row.id, csvEscape(row.localizacion), csvEscape(row.region), row.lado,
+        f, csvEscape(c.valor), csvEscape(c.unidad), csvEscape(c.trazador || ''),
+        csvEscape(c.fecha || ''), c.fuente, c.medido ? 'medido' : 'interpretado', csvEscape(c.ref || ''),
+      ].join(','))
+    }
+  }
+  return lines.join('\n')
+}
+
+function buildManifestJson(): string {
+  return JSON.stringify({
+    esquema: MANIFEST_SCHEMA,
+    focos: manifestRows(),
+  }, null, 2)
+}
+
+function downloadBlob(text: string, filename: string, mime: string) {
+  if (!import.meta.client) return
+  const blob = new Blob([text], { type: mime + ';charset=utf-8' })
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = url
+  a.download = filename
+  document.body.appendChild(a)
+  a.click()
+  a.remove()
+  URL.revokeObjectURL(url)
+}
+function downloadManifestCsv() { downloadBlob(buildManifestCsv(), 'mapa-metastasis-manifiesto.csv', 'text/csv') }
+function downloadManifestJson() { downloadBlob(buildManifestJson(), 'mapa-metastasis-manifiesto.json', 'application/json') }
+
+/* ── NOTA DE VALIDACIÓN (honesta, sin sobre-prometer) ─────────────────
+   El manifiesto NO recalcula los SUV: deriva de los MISMOS valores que
+   alimentan toda la página (LES/AUTO/SIZE). Por tanto reproduce, por
+   construcción, los números que se muestran arriba. Este check de build
+   verifica esa identidad (manifiesto ⇄ tabla) y que el conteo cuadre. */
+const manifestValidated = (() => {
+  const rows = manifestRows()
+  const okCount = rows.length === LES.length // 19 focos exactos
+  // cada SUVmáx del manifiesto = el SUVmáx de la tabla (misma fuente, sin deriva)
+  const okSuv = rows.every((r) => {
+    const le = LES.find((l) => l.id === r.id)!
+    return r.campos.dota.valor === le.dota && r.campos.fdg.valor === le.fdg && r.campos.idoneidad.valor === suitabilityScore(le)
+  })
+  // medido vs interpretado fiel: SUVmáx/mm/ml = medido; morfología/score/fenotipo = interpretado
+  const okMI = rows.every((r) =>
+    r.campos.dota.medido && r.campos.fdg.medido && r.campos.extentMm.medido &&
+    !r.campos.morfologia.medido && !r.campos.idoneidad.medido && !r.campos.fenotipo.medido,
+  )
+  const ok = okCount && okSuv && okMI
+  if (import.meta.dev && !ok) console.warn('[mapa-metastasis] manifiesto NO reproduce la tabla', { okCount, okSuv, okMI })
+  return ok
+})()
 </script>
 
 <template>
@@ -3070,6 +3298,35 @@ const ticks = [
           <p class="eyebrow mb-2 block">{{ L('Para el equipo · referencia', 'For the team · reference') }}</p>
           <h2 id="tabla" class="heading-display text-2xl text-berenjena mb-2 scroll-mt-[5.5rem]">{{ L('Apéndice: los focos en una tabla', 'Appendix: the foci in a table') }}</h2>
           <p class="text-sm text-tinta leading-relaxed mb-4 max-w-3xl">{{ L('Tabla completa con la idoneidad como diana (estimación heurística orientativa, no validada), SUVmáx por trazador, tendencia, extensión metabólica medida y patrón, más los focos extra detectados de forma automática. Por defecto ordena por id (nivel anatómico, hecho neutro); pulsa una cabecera para reordenar —incluida la de idoneidad. Los focos detectados por IA van siempre al final, en su propio grupo, sin confirmar.', 'Full table with suitability as a target (an indicative heuristic estimate, not validated), SUVmax per tracer, trend, measured metabolic extent and pattern, plus the automatically detected extra foci. It defaults to id order (anatomical level, a neutral fact); click a header to re-sort — including the suitability one. AI-detected foci always go last, in their own group, unconfirmed.') }}</p>
+          <!-- ── MANIFIESTO DE DATOS · descarga (CSV/JSON) + nota de validación ──
+               El dato vive en un manifiesto con procedencia campo a campo (medido
+               vs interpretado) y se descarga: el activo que un equipo externo clona
+               para SU caso. Anti-PHI: solo ids #1–19, sin datos de paciente. -->
+          <div class="data-card manifest-card mb-5">
+            <div class="px-4 py-3">
+              <p class="eyebrow--sm text-berenjena mb-1 flex items-center gap-2 flex-wrap">
+                {{ L('Manifiesto de datos · descargable', 'Data manifest · downloadable') }}
+                <span class="status-badge status-badge--active">{{ manifestValidated ? L('validado', 'validated') : L('revisar', 'review') }}</span>
+              </p>
+              <p class="text-[12px] text-tinta leading-relaxed mb-3 max-w-3xl">{{ L('Los 19 focos con sus valores y su PROCEDENCIA campo a campo: de dónde sale cada cifra (informe · medición sobre el DICOM · RMN literal · derivado · aproximado-IA) y si es MEDIDA (SUVmáx, mm, ml) o INTERPRETADA (morfología, fenotipo, score). El JSON incluye el esquema (el contrato clonable). Solo ids sintéticos #1–19, sin datos de paciente.', 'The 19 foci with their values and field-by-field PROVENANCE: where each figure comes from (report · DICOM measurement · MRI verbatim · derived · AI-approximate) and whether it is MEASURED (SUVmax, mm, ml) or INTERPRETED (morphology, phenotype, score). The JSON includes the schema (the clonable contract). Synthetic ids #1–19 only, no patient data.') }}</p>
+              <div class="flex flex-wrap items-center gap-2">
+                <button type="button" class="manifest-dl" @click="downloadManifestCsv">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12" /><path d="M7 11l5 5 5-5" /><path d="M5 21h14" /></svg>
+                  {{ L('Descargar CSV', 'Download CSV') }}
+                </button>
+                <button type="button" class="manifest-dl" @click="downloadManifestJson">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12" /><path d="M7 11l5 5 5-5" /><path d="M5 21h14" /></svg>
+                  {{ L('Descargar JSON (+ esquema)', 'Download JSON (+ schema)') }}
+                </button>
+              </div>
+              <p class="text-[11.5px] text-tinta leading-relaxed mt-2.5">
+                {{ manifestValidated
+                  ? L('Validación: el manifiesto deriva de los mismos valores que la tabla y reproduce, por construcción, cada SUVmáx y score que se muestran arriba (verificado en build). No recalcula precisión: separa lo medido de lo interpretado.', 'Validation: the manifest derives from the same values as the table and reproduces, by construction, every SUVmax and score shown above (verified at build). It does not recompute precision: it separates measured from interpreted.')
+                  : L('Aviso: el manifiesto no cuadra con la tabla — revisar antes de publicar.', 'Notice: the manifest does not match the table — review before publishing.') }}
+              </p>
+            </div>
+          </div>
+
           <details class="notes-disclosure" open>
             <summary>{{ L('Abrir la tabla y los focos extra', 'Open the table and extra foci') }}</summary>
           <p class="text-[12px] text-tinta mt-3 mb-4 leading-relaxed max-w-3xl">
@@ -3121,8 +3378,8 @@ const ticks = [
                       <span v-if="isAiDavid(row.le)" class="pill-data !px-1.5 !py-0 !text-[10px]" :style="{ background: '#fde4cc', color: '#8a4a1a' }">{{ L('sin confirmar', 'unconfirmed') }}</span>
                     </div>
                   </td>
-                  <td class="font-mono">{{ row.le.dota != null ? row.le.dota.toFixed(1) : '—' }}</td>
-                  <td class="font-mono">{{ row.le.fdg != null ? row.le.fdg.toFixed(1) : '—' }}</td>
+                  <td class="font-mono" :title="provTitle(row.le, 'dota')">{{ row.le.dota != null ? row.le.dota.toFixed(1) : '—' }}</td>
+                  <td class="font-mono" :title="provTitle(row.le, 'fdg')">{{ row.le.fdg != null ? row.le.fdg.toFixed(1) : '—' }}</td>
                   <td class="font-mono text-tinta">{{ row.le.prevFdg != null ? row.le.prevFdg.toFixed(1) : '—' }}</td>
                   <td class="font-mono" :style="deltaStyle(row.le)">{{ deltaFdg(row.le) }}</td>
                   <td class="font-mono text-tinta whitespace-nowrap">{{ metExtentLabel(row.le) }}</td>
@@ -4013,6 +4270,26 @@ svg [role="button"]:focus-visible {
 .foco-key-lb__dl:hover { background: #f0e7f3; border-color: rgba(157, 68, 171, 0.5); }
 .foco-key-lb__dl:focus-visible { outline: 2px solid #9d44ab; outline-offset: 1px; }
 @media (max-width: 420px) { .foco-key-lb__dl-txt { display: none; } }
+/* botón de descarga del manifiesto (CSV/JSON) — sobrio, misma familia que la
+   descarga de imágenes clave */
+.manifest-dl {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  height: 34px;
+  padding: 0 0.85rem;
+  border-radius: 9999px;
+  border: 1px solid rgba(45, 27, 61, 0.2);
+  background: #fff;
+  color: #2d1b3d;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+.manifest-dl:hover { background: #f0e7f3; border-color: rgba(157, 68, 171, 0.5); }
+.manifest-dl:focus-visible { outline: 2px solid #9d44ab; outline-offset: 1px; }
+.manifest-card { background: #fbf7f0; }
 .foco-key-lb__close {
   flex-shrink: 0;
   width: 34px;
