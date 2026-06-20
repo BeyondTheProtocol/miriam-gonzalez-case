@@ -310,8 +310,8 @@ function renderScenes() {
   if (targetDecals.length) {
     const t = performance.now()
     const breath = 0.5 + 0.5 * Math.sin(t * 0.0026)            // 0..1, ~2.4 s/ciclo
-    const op = 0.50 + 0.50 * breath                            // 0.50 → 1.0
-    const emi = 0.25 + 0.55 * breath                           // brillo de los aros
+    const op = 0.65 + 0.35 * breath                            // 0.65 → 1.0 (nunca tenue)
+    const emi = 0.85 + 0.45 * breath                           // 0.85 → 1.30 · coral VIVO
     for (const m of targetMats) {
       m.opacity = op
       m.emissiveIntensity = emi
@@ -581,16 +581,10 @@ function makeTargetDecalTex(): THREE.Texture {
   const cv = document.createElement('canvas'); cv.width = s; cv.height = s
   const ctx = cv.getContext('2d')!
   ctx.clearRect(0, 0, s, s)
-  ctx.lineCap = 'round'
-  // SUTIL: UN aro fino + punto central (antes: 2 aros gruesos + cruceta = «gorda/agresiva»).
-  const r = 0.40 * s
-  ctx.beginPath(); ctx.arc(c, c, r, 0, Math.PI * 2)
-  ctx.strokeStyle = C_TARGET_RING; ctx.lineWidth = s * 0.038; ctx.stroke()   // halo malva (contraste)
-  ctx.beginPath(); ctx.arc(c, c, r, 0, Math.PI * 2)
-  ctx.strokeStyle = C_TARGET_CORE; ctx.lineWidth = s * 0.020; ctx.stroke()   // aro coral FINO
-  // punto central (coral con halo malva)
-  ctx.beginPath(); ctx.arc(c, c, s * 0.072, 0, Math.PI * 2); ctx.fillStyle = C_TARGET_RING; ctx.fill()
-  ctx.beginPath(); ctx.arc(c, c, s * 0.048, 0, Math.PI * 2); ctx.fillStyle = C_TARGET_CORE; ctx.fill()
+  // «PUNTITO» SÓLIDO con borde — área llena → renderiza fiable como decal (un aro FINO se parte
+  // entre los triángulos de la malla y sale en «sonrisa»). Disco coral + borde malva de contraste.
+  ctx.beginPath(); ctx.arc(c, c, s * 0.34, 0, Math.PI * 2); ctx.fillStyle = C_TARGET_RING; ctx.fill()  // borde malva
+  ctx.beginPath(); ctx.arc(c, c, s * 0.24, 0, Math.PI * 2); ctx.fillStyle = C_TARGET_CORE; ctx.fill()  // disco coral
   const tex = new THREE.CanvasTexture(cv)
   tex.colorSpace = THREE.SRGBColorSpace
   tex.needsUpdate = true
@@ -609,8 +603,8 @@ function buildTargetMarker() {
   targetDecalTex = makeTargetDecalTex()
   // tamaño del proyector del decal ~ 0.22·boneRadius (lado del cubo proyector); la
   // profundidad (Z del proyector) algo mayor para que clipe bien la cara curva.
-  const half = boneRadius * 0.13   // SUTIL · marcador de punto discreto, no «gordo» (era 0.22)
-  const depth = boneRadius * 0.40
+  const half = boneRadius * 0.16   // SUTIL pero con footprint suficiente para clipar el aro completo
+  const depth = boneRadius * 0.55  // profundidad GENEROSA → la caja atraviesa la superficie curva
   const size = new THREE.Vector3(half * 2, half * 2, depth)
   for (let i = 0; i < 3; i++) {
     const mesh = meshes[i]
@@ -629,33 +623,33 @@ function buildTargetMarker() {
     // orientación del proyector: su eje +Z mira HACIA AFUERA (a lo largo de la normal),
     // así la cara texturizada del decal queda «de frente» sobre la superficie del hueso.
     // El proyector se sitúa LIGERAMENTE por fuera del pico y proyecta hacia el hueso.
-    const projPos = peak.clone().addScaledVector(normal, depth * 0.5)
     const m4 = new THREE.Matrix4()
     const up = Math.abs(normal.y) > 0.95 ? new THREE.Vector3(1, 0, 0) : new THREE.Vector3(0, 1, 0)
-    // mira desde projPos hacia el pico → -Z del proyector apunta al hueso (lookAt usa -Z)
-    m4.lookAt(projPos, peak, up)
+    // ojo a lo largo de la normal SOLO para orientar (−Z del decal mira al hueso)
+    m4.lookAt(peak.clone().addScaledVector(normal, depth), peak, up)
     const orientation = new THREE.Euler().setFromRotationMatrix(m4)
 
-    // DecalGeometry clipea los triángulos REALES de la malla → vértices SOBRE la superficie.
-    const decalGeo = new DecalGeometry(mesh, projPos, orientation, size)
+    // CAJA CENTRADA EN EL PICO (atraviesa la superficie ±depth/2) → captura el aro ENTERO.
+    // (antes se desplazaba hacia afuera y el centro/aro caían en su borde → «sonrisa» recortada).
+    const decalGeo = new DecalGeometry(mesh, peak, orientation, size)
     targetGeos.push(decalGeo)
 
     const mat = new THREE.MeshStandardMaterial({
-      map: targetDecalTex,
-      color: new THREE.Color(0xffffff),
-      emissive: new THREE.Color(C_TARGET_CORE),
-      emissiveMap: targetDecalTex,
-      emissiveIntensity: 0.45,
+      map: targetDecalTex,                       // alpha del recorte (fondo transparente)
+      color: new THREE.Color(0x000000),          // sin difusa → el color lo da el emissive (vivo, no depende de luz)
+      emissive: new THREE.Color(0xffffff),
+      emissiveMap: targetDecalTex,               // emite los colores de la textura (coral/malva)
+      emissiveIntensity: 1.0,
       transparent: true,
       opacity: 1,
-      roughness: 0.6,
+      roughness: 1,
       metalness: 0.0,
       depthTest: true,        // se ocluye solo al rotar el punto detrás (es superficie)
       depthWrite: false,      // capa pintada encima → no escribe profundidad (sin artefactos de orden)
       polygonOffset: true,    // anti z-fight con la cara que recubre
       polygonOffsetFactor: -4,
       polygonOffsetUnits: -4,
-      toneMapped: true,
+      toneMapped: false,      // SIN ACES → coral VIVO (no rosa/pálido)
       side: THREE.FrontSide,
     })
     targetMats.push(mat)
