@@ -135,6 +135,11 @@ let targetGroups: THREE.Group[] = []           // diana ILUSTRATIVA (anillo zona
 let raf = 0, ro: ResizeObserver | null = null
 let curKey = ''
 let boneRadius = 50
+/* prefers-reduced-motion: si el usuario lo pide, el pulso de la diana es CASI nulo
+   (un brillo fijo y discreto, sin latido). Se evalúa una vez y se escucha en vivo. */
+let reduceMotion = false
+let rmQuery: MediaQueryList | null = null
+let rmListener: ((e: MediaQueryListEvent) => void) | null = null
 
 /* ---- canales REALES por vértice (Float32, itemSize 1) leídos del PLY ---- */
 let vDensity: Float32Array | null = null
@@ -344,6 +349,14 @@ function updateCameraAspect() {
 
 function init() {
   const el = host.value!
+  // prefers-reduced-motion: evalúa y escucha en vivo (afecta SOLO al pulso de la diana,
+  // no al núcleo Three.js ni a OrbitControls).
+  if (typeof window !== 'undefined' && window.matchMedia) {
+    rmQuery = window.matchMedia('(prefers-reduced-motion: reduce)')
+    reduceMotion = rmQuery.matches
+    rmListener = (e: MediaQueryListEvent) => { reduceMotion = e.matches }
+    rmQuery.addEventListener('change', rmListener)
+  }
   // 3 escenas idénticas en iluminación; cada una recibe un mesh con su colormap.
   for (let i = 0; i < 3; i++) {
     const sc = new THREE.Scene()
@@ -423,14 +436,24 @@ function init() {
    escena con la MISMA cámara → orientación y zoom compartidos automáticamente. */
 function renderScenes() {
   if (!renderer || !host.value) return
-  // PARPADEO de la diana CALCADA en la superficie (el bucle ya es continuo): la diana
-  // es un decal pegado al hueso (no se mueve), así que sólo «respira» en intensidad —
-  // opacidad + brillo emisivo sinusoidales → late de forma suave sin despegarse jamás.
+  // PULSO de la diana CALCADA en la superficie (el bucle ya es continuo): la diana es un
+  // decal pegado al hueso (no se mueve), así que sólo «respira» en intensidad. Es un punto
+  // ORIENTATIVO, no una alarma → pulso LENTO y SUAVE, de rango contenido (nunca se apaga ni
+  // «chilla»). Período ~2.9 s/ciclo (ω≈0.00216). Curva: un coseno elevado (smoothstep sobre
+  // el seno) → mesetas suaves en los extremos, sin el «tic» duro del seno puro. Opacidad
+  // 0.78→1.0 (rango contenido, nunca tenue), emisivo 0.95→1.20 (coral vivo sin chillar).
+  // prefers-reduced-motion: casi sin pulso (brillo fijo discreto) → respeta la preferencia.
   if (targetDecals.length) {
-    const t = performance.now()
-    const breath = 0.5 + 0.5 * Math.sin(t * 0.0026)            // 0..1, ~2.4 s/ciclo
-    const op = 0.65 + 0.35 * breath                            // 0.65 → 1.0 (nunca tenue)
-    const emi = 0.85 + 0.45 * breath                           // 0.85 → 1.30 · coral VIVO
+    let op: number, emi: number
+    if (reduceMotion) {
+      op = 0.95; emi = 1.05                                    // estático y discreto (sin latido)
+    } else {
+      const t = performance.now()
+      const s = 0.5 + 0.5 * Math.sin(t * 0.00216)             // 0..1, ~2.9 s/ciclo
+      const breath = s * s * (3 - 2 * s)                       // smoothstep → mesetas suaves
+      op = 0.78 + 0.22 * breath                                // 0.78 → 1.0 (rango contenido)
+      emi = 0.95 + 0.25 * breath                               // 0.95 → 1.20 · coral VIVO, sin chillar
+    }
     for (const m of targetMats) {
       m.opacity = op
       m.emissiveIntensity = emi
@@ -968,6 +991,7 @@ watch(showTarget, () => { buildTargetMarker() })
 watch(() => props.noTarget, () => buildTargetMarker())
 onBeforeUnmount(() => {
   cancelAnimationFrame(raf); ro?.disconnect()
+  if (rmQuery && rmListener) rmQuery.removeEventListener('change', rmListener)
   const dom = renderer?.domElement
   if (dom) {
     if (probeMove) dom.removeEventListener('pointermove', probeMove)
@@ -1032,7 +1056,7 @@ onBeforeUnmount(() => {
             <div class="btv-legend">
               <span class="btv-legend-min">0</span>
               <span class="btv-legend-bar" :style="{ background: `linear-gradient(to right, ${p.legendFrom}, ${p.legendTo})` }" />
-              <span class="btv-legend-max">{{ p.max }}<span class="btv-legend-unit"> {{ L(p.unit.es, p.unit.en) }}</span></span>
+              <span class="btv-legend-max"><span class="btv-figure">{{ p.max }}</span><span class="btv-legend-unit">{{ L(p.unit.es, p.unit.en) }}</span></span>
             </div>
           </div>
         </template>
@@ -1113,17 +1137,20 @@ onBeforeUnmount(() => {
           :style="{ left: probe.x + 'px', top: probe.y + 'px' }"
           aria-hidden="true"
         >
+          <!-- número PROYECTADO (no SUVmáx de informe): se marca como aproximación (≈, peso
+               ligero, mono tabular-nums) y la unidad va pequeña/volada → se lee DISTINTO de
+               una cifra de informe. La magnitud cualitativa es el titular. -->
           <p class="btv-probe-row" :class="{ 'is-active': probe.channel === 0 }">
             <span class="btv-probe-k">⁶⁸Ga-DOTATOC</span>
-            <span class="btv-probe-v">{{ L(qualGa(probe.ga).es, qualGa(probe.ga).en) }} <span class="btv-probe-num">≈{{ coarseSuv(probe.ga) }} SUV</span></span>
+            <span class="btv-probe-v">{{ L(qualGa(probe.ga).es, qualGa(probe.ga).en) }} <span class="btv-probe-num"><span class="btv-approx">≈</span><span class="btv-figure">{{ coarseSuv(probe.ga) }}</span><span class="btv-unit">SUV</span></span></span>
           </p>
           <p class="btv-probe-row" :class="{ 'is-active': probe.channel === 1 }">
             <span class="btv-probe-k">¹⁸F-FDG</span>
-            <span class="btv-probe-v">{{ L(qualFdg(probe.fdg).es, qualFdg(probe.fdg).en) }} <span class="btv-probe-num">≈{{ coarseSuv(probe.fdg) }} SUV</span></span>
+            <span class="btv-probe-v">{{ L(qualFdg(probe.fdg).es, qualFdg(probe.fdg).en) }} <span class="btv-probe-num"><span class="btv-approx">≈</span><span class="btv-figure">{{ coarseSuv(probe.fdg) }}</span><span class="btv-unit">SUV</span></span></span>
           </p>
           <p class="btv-probe-row" :class="{ 'is-active': probe.channel === 2 }">
             <span class="btv-probe-k">{{ L('Densidad (TC)', 'Density (CT)') }}</span>
-            <span class="btv-probe-v">{{ L(qualDensity(probe.density).es, qualDensity(probe.density).en) }} <span class="btv-probe-num">≈{{ coarseHu(probe.density) }} HU</span></span>
+            <span class="btv-probe-v">{{ L(qualDensity(probe.density).es, qualDensity(probe.density).en) }} <span class="btv-probe-num"><span class="btv-approx">≈</span><span class="btv-figure">{{ coarseHu(probe.density) }}</span><span class="btv-unit">HU</span></span></span>
           </p>
           <p class="btv-probe-caveat">
             {{ L('Valor proyectado sobre la malla, no SUVmáx de informe · localización aproximada por co-registro (FDG 24/03 y DOTATOC 26/05 son estudios de fechas distintas).',
@@ -1258,6 +1285,9 @@ onBeforeUnmount(() => {
   overflow: hidden;
   text-overflow: ellipsis;
   max-width: 100%;
+  /* trazador isotópico → mono de instrumento (consistente con el subtítulo del panel) */
+  font-family: ui-monospace, "SFMono-Regular", Menlo, monospace;
+  letter-spacing: -0.01em;
 }
 .btv-title-cell { min-width: 0; }
 .btv-title {
@@ -1271,6 +1301,10 @@ onBeforeUnmount(() => {
   color: #6b6275;
   line-height: 1.2;
   margin-top: 1px;
+  /* el subtítulo lleva el trazador isotópico (⁶⁸Ga-DOTATOC / ¹⁸F-FDG) → mono de instrumento */
+  font-family: ui-monospace, "SFMono-Regular", Menlo, monospace;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.01em;
 }
 .btv-legend {
   display: flex;
@@ -1288,10 +1322,21 @@ onBeforeUnmount(() => {
 .btv-legend-min, .btv-legend-max {
   font-size: 10px;
   color: #6b6275;
-  font-variant-numeric: tabular-nums;
   white-space: nowrap;
+  display: inline-flex;
+  align-items: baseline;
+  gap: 2px;
 }
-.btv-legend-unit { color: #6b6275; }
+/* cifra de instrumento: mono + tabular-nums (los dígitos no «bailan» al cambiar de foco) */
+.btv-legend-min { font-family: ui-monospace, "SFMono-Regular", Menlo, monospace; font-variant-numeric: tabular-nums; }
+.btv-figure { font-family: ui-monospace, "SFMono-Regular", Menlo, monospace; font-variant-numeric: tabular-nums; }
+/* UNIDAD: jerarquía → pequeña y volada respecto a la cifra (la cifra manda) */
+.btv-legend-unit {
+  color: #8a8392;
+  font-size: 0.78em;
+  font-weight: 400;
+  transform: translateY(-0.12em);
+}
 
 /* ---- canvas / vistas ---- */
 .btv-divider {
@@ -1365,20 +1410,43 @@ onBeforeUnmount(() => {
   color: #9aa3b0;          /* filas no activas atenuadas */
 }
 .btv-probe-row.is-active { color: #eef2f7; }   /* el panel sondeado, resaltado */
+/* etiqueta del trazador: mono (instrumento), superíndices isotópicos ya en el texto */
 .btv-probe-k {
   font-size: 10px;
   white-space: nowrap;
+  font-family: ui-monospace, "SFMono-Regular", Menlo, monospace;
+  letter-spacing: -0.01em;
 }
 .btv-probe-v {
   font-weight: 600;
   text-align: right;
   white-space: nowrap;
 }
+/* valor PROYECTADO (sonda) — DISTINTO de un SUVmáx de informe: peso ligero, color
+   atenuado, cifra mono tabular-nums, marca de aproximación ≈ aún más ligera, unidad
+   pequeña y volada. La honestidad la codifica la tipografía: dato blando, no duro. */
 .btv-probe-num {
   font-weight: 400;
   font-size: 10px;
   color: #8b95a3;
-  font-variant-numeric: tabular-nums;
+  display: inline-flex;
+  align-items: baseline;
+  gap: 1px;
+}
+.btv-probe-num .btv-approx {
+  font-weight: 300;
+  opacity: 0.85;
+  margin-right: 0.5px;
+}
+.btv-probe-num .btv-figure {
+  color: #aab2bf;          /* la cifra un punto más clara que el resto del bloque proyectado */
+}
+.btv-probe-num .btv-unit {
+  font-size: 0.82em;
+  font-weight: 400;
+  color: #79828f;
+  transform: translateY(-0.1em);
+  margin-left: 1px;
 }
 .btv-probe-caveat {
   margin: 5px 0 0;
@@ -1573,5 +1641,26 @@ onBeforeUnmount(() => {
 @media (max-width: 639px) {
   .btv-legend-min, .btv-legend-max { font-size: 11px; }
   .btv-sub { font-size: 11px; }
+}
+
+/* ── MOTION · transiciones de estado del CHROME (pestañas, toggles, reencuadre) ──────
+   Curva suave y corta para los cambios de estado de la UI HTML del visor (no el canvas
+   3D). prefers-reduced-motion: sin transición y sin giro del spinner. El núcleo Three.js,
+   el marcador y su pulso se gestionan en JS (reduceMotion) — aquí solo la UI HTML. */
+.btv-tab,
+.btv-target-toggle,
+.btv-biopsy-toggle,
+.btv-reframe {
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);  /* suave y corta */
+  transition-duration: 0.16s;
+}
+@media (prefers-reduced-motion: reduce) {
+  .btv-tab,
+  .btv-target-toggle,
+  .btv-biopsy-toggle,
+  .btv-reframe {
+    transition-duration: 0.001s;
+  }
+  .btv-spin { animation: none; }
 }
 </style>

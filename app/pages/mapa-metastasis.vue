@@ -1532,13 +1532,47 @@ function sizeFactor(le: Lesion): number {
   if (mm == null) return 0.75
   return Math.max(0.6, Math.min(1, 0.6 + ((mm - 8) / 10) * 0.4))
 }
-/* idoneidad compuesta 0-100 (orientativa). Producto de los tres factores de SEÑAL/forma ×
-   penalización por SBRT (tejido irradiado). La biopsia previa fallida (#13) NO penaliza el
-   score: falló por muestrear la zona densa equivocada (técnica/diana), no porque el foco sea
-   malo — su señal es real. El aviso «ya falló aquí → re-orientar a zona lítica» lo lleva la
-   tarjeta/ficha, no el número. */
+/* ── STRESS-TEST DE PESOS (P1 «el score es una HEURÍSTICA, no una verdad») ──
+   Tres pesos editables —uno por factor— que el usuario mueve para VER cómo el
+   orden de los focos cambia ante sus ojos. La honestidad es el movimiento: si
+   mover los pesos reordena, el número es un CRITERIO, no una medida.
+   El peso entra como EXPONENTE del factor (modelo multiplicativo): peso 1 = el
+   factor cuenta como hoy; peso 0 = el factor se ignora (^0 = 1, neutro); peso 2
+   = el factor pesa el doble. CLAVE: con los tres pesos = 1 (por defecto) el
+   producto es idéntico al original (x^1 = x), así que el score y el orden NO
+   cambian hasta que el usuario toca. NO es «ajusta hasta que salga lo que
+   quieres»: el copy lo encuadra como demostración de arbitrariedad. */
+const W_DEFAULT = { viable: 1, yield: 1, size: 1 } as const
+const wViable = ref(W_DEFAULT.viable)
+const wYield = ref(W_DEFAULT.yield)
+const wSize = ref(W_DEFAULT.size)
+/* ¿el usuario ha tocado los pesos? (para la etiqueta «pesos modificados» y el reset) */
+const weightsDirty = computed(() =>
+  wViable.value !== W_DEFAULT.viable || wYield.value !== W_DEFAULT.yield || wSize.value !== W_DEFAULT.size,
+)
+function resetWeights() {
+  wViable.value = W_DEFAULT.viable
+  wYield.value = W_DEFAULT.yield
+  wSize.value = W_DEFAULT.size
+}
+/* factor^peso, clampado a [0,1] (x∈[0,1], peso≥0 ⇒ x^peso∈[0,1]; x=0,peso=0 ⇒ 1) */
+function weighted(factor: number, w: number): number {
+  return w === 1 ? factor : clamp01(Math.pow(clamp01(factor), w))
+}
+/* idoneidad compuesta 0-100 (orientativa). Producto de los tres factores de SEÑAL/forma,
+   cada uno elevado a su PESO del stress-test (default 1 → comportamiento idéntico al
+   original), × penalización por SBRT (tejido irradiado). La biopsia previa fallida (#13)
+   NO penaliza el score: falló por muestrear la zona densa equivocada (técnica/diana), no
+   porque el foco sea malo — su señal es real. El aviso «ya falló aquí → re-orientar a zona
+   lítica» lo lleva la tarjeta/ficha, no el número. */
 function suitabilityScore(le: Lesion): number {
-  return Math.round(100 * viableFactor(le) * yieldFactor(le) * sizeFactor(le) * (le.sbrt ? 0.4 : 1))
+  return Math.round(
+    100
+    * weighted(viableFactor(le), wViable.value)
+    * weighted(yieldFactor(le), wYield.value)
+    * weighted(sizeFactor(le), wSize.value)
+    * (le.sbrt ? 0.4 : 1),
+  )
 }
 /* (ficha resumen) «por qué» de UNA línea por foco — describe SEÑAL + FORMA, nunca
    «tumor/viable». Bloqueantes primero; si no, captación + rendimiento. Equipa, no indica. */
@@ -2976,6 +3010,7 @@ const manifestValidated = (() => {
               <p class="text-[12px] font-semibold mb-1" :style="{ color: GA_TEXT }">{{ L('La fórmula', 'The formula') }}</p>
               <p class="text-[12px] text-tinta leading-snug font-mono">idoneidad = 100 · viable · rendimiento · tamaño</p>
               <p class="text-[11px] text-tinta leading-snug mt-1">{{ L('viable = 0.78·(FDG/10) + 0.22·(Ga/14) · rendimiento = lítico 1 / mixto 0.6 / blástico 0.3 · tamaño = 0.6–1 por el eje mayor de la extensión metabólica medida. Orientativa.', 'viable = 0.78·(FDG/10) + 0.22·(Ga/14) · yield = lytic 1 / mixed 0.6 / blastic 0.3 · size = 0.6–1 by the major axis of the measured metabolic extent. Indicative.') }}</p>
+              <p class="text-[10.5px] text-tinta leading-snug mt-1">{{ L('Los pesos de los tres factores (por defecto 1) son un CRITERIO puesto a mano: muévelos en el stress-test de abajo y verás que el orden cambia → no es una verdad medida, es una orientación.', 'The weights of the three factors (default 1) are a hand-set CRITERION: move them in the stress-test below and you will see the order change → it is not a measured truth, it is an orientation.') }}</p>
               <p class="text-[10.5px] text-tinta leading-snug mt-1">{{ L('Extensión metabólica = lo que cada foco capta por encima del umbral (41% del SUVmáx local), confinada a hueso, medida sobre el DICOM. Es lo que se ve por imagen, no el tamaño anatómico exacto; el volumen parcial subestima los focos < ~10 mm.', 'Metabolic extent = what each focus takes up above the threshold (41% of the local SUVmax), confined to bone, measured on the DICOM. It is what imaging shows, not the exact anatomical size; partial-volume effect underestimates foci < ~10 mm.') }}</p>
             </div>
           </div>
@@ -2998,7 +3033,72 @@ const manifestValidated = (() => {
               <span class="text-[11px] text-tinta leading-snug block mt-0.5">{{ orderByIdoneidad ? L('Activada: la lista se reordena por el score. Es una orientación que el equipo sopesa; el orden de referencia es el nivel anatómico.', 'On: the list is reordered by the score. It is an orientation the team weighs; the reference order is the anatomical level.') : L('Por defecto, los focos van por nivel anatómico (hecho neutro). Actívala para verlos reordenados por la estimación de idoneidad.', 'By default, foci go by anatomical level (a neutral fact). Turn it on to see them reordered by the suitability estimate.') }}</span>
             </span>
           </label>
-          <ul class="space-y-2 mb-3">
+
+          <!-- ════════ STRESS-TEST DE PESOS · «esto no es ciencia, es un criterio» ════════
+               Tres deslizadores (uno por factor) que el usuario mueve y los focos se
+               REORDENAN ante sus ojos. La demostración es el movimiento. Pesos por
+               defecto = los actuales (no cambia nada hasta que toca). Etiqueta permanente
+               de NO-VALIDACIÓN + botón de reset. Sliders táctiles ≥44px (pointer:coarse). -->
+          <div class="rounded-card border px-4 py-4 mb-3" :style="{ borderColor: '#9d44ab', background: 'rgba(157,68,171,0.04)' }">
+            <div class="flex items-start justify-between gap-3 flex-wrap mb-2">
+              <p class="eyebrow--sm flex items-center gap-2 flex-wrap" :style="{ color: '#7a3486' }">
+                <span class="inline-block w-2.5 h-2.5 rounded-full" :style="{ background: '#9d44ab' }" />
+                {{ L('Stress-test: mueve los pesos', 'Stress-test: move the weights') }}
+                <span class="status-badge status-badge--firma">{{ L('heurística, no validada', 'heuristic, not validated') }}</span>
+                <span v-if="weightsDirty" class="status-badge status-badge--candidate">{{ L('pesos modificados', 'weights modified') }}</span>
+              </p>
+              <button v-if="weightsDirty" type="button" @click="resetWeights"
+                class="link-action text-miriam text-[12px] font-semibold inline-flex items-center gap-1 shrink-0 min-h-[44px] sm:min-h-0">
+                ↺ {{ L('restablecer pesos', 'reset weights') }}
+              </button>
+            </div>
+            <p class="text-[12.5px] text-berenjena leading-relaxed mb-3.5 max-w-3xl">
+              {{ L('Mueve los pesos de los tres factores: el orden de los focos cambia ante tus ojos. Eso es lo que demuestra: el score es una HEURÍSTICA orientativa con criterios puestos a mano, no una verdad medida. No es «ajústalo hasta que salga lo que quieres» — es ver que el orden depende de un criterio. El equipo decide.',
+                    'Move the weights of the three factors: the order of the foci changes before your eyes. That is what it demonstrates: the score is an indicative HEURISTIC with hand-set criteria, not a measured truth. It is not “tune it until it says what you want” — it is seeing that the order depends on a criterion. The team decides.') }}
+            </p>
+            <div class="space-y-3.5">
+              <!-- Slider 1 · Captación / viabilidad -->
+              <div>
+                <label :for="'w-viable'" class="flex items-baseline justify-between gap-2 mb-1 cursor-pointer">
+                  <span class="text-[12.5px] font-semibold" :style="{ color: FDG_TEXT }">{{ L('1 · Captación / viabilidad', '1 · Uptake / viability') }}</span>
+                  <span class="font-mono text-[11.5px]" :class="wViable !== 1 ? 'text-berenjena font-semibold' : 'text-tinta'">×{{ wViable.toFixed(1) }}<span class="text-[10px] text-tinta"> ({{ L('peso', 'weight') }})</span></span>
+                </label>
+                <input id="w-viable" type="range" min="0" max="2" step="0.1" v-model.number="wViable"
+                  class="stress-slider" :style="{ '--slider-accent': FDG_FILL }"
+                  :aria-label="L('Peso del factor captación / viabilidad', 'Weight of the uptake / viability factor')"
+                  :aria-valuetext="L('peso ' + wViable.toFixed(1) + ', por defecto 1', 'weight ' + wViable.toFixed(1) + ', default 1')" />
+              </div>
+              <!-- Slider 2 · Rendimiento -->
+              <div>
+                <label :for="'w-yield'" class="flex items-baseline justify-between gap-2 mb-1 cursor-pointer">
+                  <span class="text-[12.5px] font-semibold" :style="{ color: '#1f6b57' }">{{ L('2 · Rendimiento (forma)', '2 · Yield (shape)') }}</span>
+                  <span class="font-mono text-[11.5px]" :class="wYield !== 1 ? 'text-berenjena font-semibold' : 'text-tinta'">×{{ wYield.toFixed(1) }}<span class="text-[10px] text-tinta"> ({{ L('peso', 'weight') }})</span></span>
+                </label>
+                <input id="w-yield" type="range" min="0" max="2" step="0.1" v-model.number="wYield"
+                  class="stress-slider" :style="{ '--slider-accent': '#1f6b57' }"
+                  :aria-label="L('Peso del factor rendimiento', 'Weight of the yield factor')"
+                  :aria-valuetext="L('peso ' + wYield.toFixed(1) + ', por defecto 1', 'weight ' + wYield.toFixed(1) + ', default 1')" />
+              </div>
+              <!-- Slider 3 · Tamaño -->
+              <div>
+                <label :for="'w-size'" class="flex items-baseline justify-between gap-2 mb-1 cursor-pointer">
+                  <span class="text-[12.5px] font-semibold text-tinta">{{ L('3 · Tamaño / cantidad', '3 · Size / amount') }}</span>
+                  <span class="font-mono text-[11.5px]" :class="wSize !== 1 ? 'text-berenjena font-semibold' : 'text-tinta'">×{{ wSize.toFixed(1) }}<span class="text-[10px] text-tinta"> ({{ L('peso', 'weight') }})</span></span>
+                </label>
+                <input id="w-size" type="range" min="0" max="2" step="0.1" v-model.number="wSize"
+                  class="stress-slider" :style="{ '--slider-accent': '#6b6470' }"
+                  :aria-label="L('Peso del factor tamaño', 'Weight of the size factor')"
+                  :aria-valuetext="L('peso ' + wSize.toFixed(1) + ', por defecto 1', 'weight ' + wSize.toFixed(1) + ', default 1')" />
+              </div>
+            </div>
+            <p class="text-[11px] text-tinta leading-snug mt-3">
+              {{ orderByIdoneidad
+                  ? L('Con la lente de orden activada, la lista de abajo se reordena en vivo al mover un peso. Peso 0 = ese factor se ignora; peso 1 = como está hoy; peso 2 = pesa el doble.', 'With the order lens on, the list below reorders live as you move a weight. Weight 0 = that factor is ignored; weight 1 = as it is today; weight 2 = it weighs double.')
+                  : L('Activa arriba «Ordenar por idoneidad» para ver la lista reordenarse en vivo al mover un peso. Peso 0 = ese factor se ignora; peso 1 = como está hoy; peso 2 = pesa el doble.', 'Turn on “Sort by suitability” above to see the list reorder live as you move a weight. Weight 0 = that factor is ignored; weight 1 = as it is today; weight 2 = it weighs double.') }}
+            </p>
+          </div>
+
+          <TransitionGroup tag="ul" name="rank-flip" class="space-y-2 mb-3">
             <li v-for="le in rankedFoci" :key="le.id">
               <button type="button" :aria-pressed="selected === le.id" @click="pickAndShow(le.id)"
                 class="w-full text-left rounded-card border px-3.5 py-3 transition-colors"
@@ -3052,7 +3152,7 @@ const manifestValidated = (() => {
                 </div>
               </button>
             </li>
-          </ul>
+          </TransitionGroup>
           <p class="text-[12px] text-tinta leading-relaxed mb-8 max-w-3xl">
             {{ L('Recordatorio: es un ORDEN ORIENTATIVO por las señales de imagen, no una orden de qué biopsiar. La decisión —incluida la accesibilidad y la seguridad— es del equipo médico con radiología intervencionista.',
                   'Reminder: this is an INDICATIVE ORDER by imaging signals, not an instruction on what to biopsy. The decision — including accessibility and safety — belongs to the medical team with interventional radiology.') }}
@@ -4657,4 +4757,67 @@ svg [role="button"]:focus-visible {
    ajustan en vez de desbordar el ancho a 320–430px. Acotado al detalle para no tocar
    las celdas tabulares de la tabla (que ya scrollean en su contenedor overflow-x-auto). */
 .foco-detalle :deep(.font-mono) { overflow-wrap: anywhere; }
+
+/* ════════════════════════════════════════════════════════════════════════
+   STRESS-TEST · deslizadores de peso (uno por factor). Pista neutra + pulgar
+   del color del factor (var --slider-accent). Táctil ≥44px en pointer:coarse.
+   ════════════════════════════════════════════════════════════════════════ */
+.stress-slider {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 6px;
+  border-radius: 9999px;
+  background: rgba(45, 27, 61, 0.12);
+  outline: none;
+  cursor: pointer;
+}
+.stress-slider:focus-visible { box-shadow: 0 0 0 3px rgba(157, 68, 171, 0.35); }
+.stress-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  border-radius: 9999px;
+  background: var(--slider-accent, #9d44ab);
+  border: 2px solid #fbf7f0;
+  box-shadow: 0 1px 3px rgba(45, 27, 61, 0.4);
+  cursor: pointer;
+}
+.stress-slider::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  border-radius: 9999px;
+  background: var(--slider-accent, #9d44ab);
+  border: 2px solid #fbf7f0;
+  box-shadow: 0 1px 3px rgba(45, 27, 61, 0.4);
+  cursor: pointer;
+}
+@media (pointer: coarse) {
+  /* caja táctil ≥44px sin engordar la pista visible (padding transparente) */
+  .stress-slider {
+    height: 44px;
+    background: transparent;
+    background-image: linear-gradient(rgba(45, 27, 61, 0.12), rgba(45, 27, 61, 0.12));
+    background-size: 100% 6px;
+    background-position: 0 center;
+    background-repeat: no-repeat;
+  }
+  .stress-slider::-webkit-slider-thumb { width: 26px; height: 26px; }
+  .stress-slider::-moz-range-thumb { width: 26px; height: 26px; }
+}
+
+/* REORDENAMIENTO EN VIVO · la demostración del stress-test es el MOVIMIENTO:
+   al mover un peso, los focos se reubican con una transición suave (FLIP). */
+.rank-flip-move { transition: transform 0.42s cubic-bezier(0.22, 0.61, 0.36, 1); }
+.rank-flip-enter-active,
+.rank-flip-leave-active { transition: opacity 0.3s ease, transform 0.3s ease; }
+.rank-flip-enter-from,
+.rank-flip-leave-to { opacity: 0; }
+.rank-flip-leave-active { position: absolute; width: 100%; }
+@media (prefers-reduced-motion: reduce) {
+  .rank-flip-move,
+  .rank-flip-enter-active,
+  .rank-flip-leave-active { transition: none; }
+}
 </style>
