@@ -301,6 +301,11 @@ function init() {
    escena con la MISMA cámara → orientación y zoom compartidos automáticamente. */
 function renderScenes() {
   if (!renderer || !host.value) return
+  // parpadeo del marcador orientativo (opacidad sinusoidal suave; el bucle ya es continuo)
+  if (targetMats.length) {
+    const op = 0.55 + 0.45 * (0.5 + 0.5 * Math.sin(performance.now() * 0.005))
+    for (const m of targetMats) (m as THREE.SpriteMaterial).opacity = op
+  }
   const W = host.value.clientWidth, H = host.value.clientHeight
   // OJO: setViewport/setScissor reciben píxeles CSS — three.js los multiplica por el
   // pixelRatio INTERNAMENTE. Multiplicar aquí por dpr provocaba un escalado ×dpr² (en
@@ -531,10 +536,11 @@ let needleGeos: THREE.BufferGeometry[] = []
 /*  sin borde tumoral neto → NO es un contorno. Sprite «billboard» (siempre */
 /*  de frente a cámara → sin escorzo ni intersección con el hueso, el fallo */
 /*  del toro) con halo radial DIFUSO (el borde se desvanece = el gradiente) */
-/*  + retícula central fina que apunta al pico. Cian reservado a esta señal */
-/*  (la aguja de biopsia previa #13 va en ámbar: cada significado, su color).*/
+/*  + retícula central fina que apunta al pico. NARANJA/CORAL + PARPADEO para */
+/*  esta señal (la aguja de biopsia previa #13 es ÁMBAR FIJA: se distinguen   */
+/*  por el color y el parpadeo). El cian no contrastaba sobre el hueso teñido.*/
 /* ====================================================================== */
-const C_TARGET = '#39c0e0'
+const C_TARGET = '#ff6b47'
 let targetMats: THREE.Material[] = []
 let targetTex: THREE.Texture | null = null
 /* textura del marcador (1×, compartida por los 3 paneles): halo cian difuso + crosshair. */
@@ -544,12 +550,12 @@ function makeTargetTexture(): THREE.Texture {
   const ctx = cv.getContext('2d')!
   // halo radial: centro translúcido → borde 100% transparente (sin perímetro = honesto)
   const g = ctx.createRadialGradient(c, c, 0, c, c, c)
-  g.addColorStop(0, 'rgba(57,192,224,0.50)')
-  g.addColorStop(0.45, 'rgba(57,192,224,0.12)')
-  g.addColorStop(1, 'rgba(57,192,224,0)')
+  g.addColorStop(0, 'rgba(255,107,71,0.62)')
+  g.addColorStop(0.45, 'rgba(255,107,71,0.16)')
+  g.addColorStop(1, 'rgba(255,107,71,0)')
   ctx.fillStyle = g; ctx.fillRect(0, 0, s, s)
-  // retícula: 4 trazos cortos con hueco central (apunta al pico, no encierra área)
-  ctx.strokeStyle = 'rgba(232,245,250,0.92)'; ctx.lineWidth = 3; ctx.lineCap = 'round'
+  // retícula: 4 trazos cortos blancos con hueco central (apunta al pico, no encierra área)
+  ctx.strokeStyle = 'rgba(255,255,255,0.95)'; ctx.lineWidth = 3; ctx.lineCap = 'round'
   const inner = s * 0.10, outer = s * 0.21
   ;([[0, -1], [0, 1], [-1, 0], [1, 0]] as const).forEach(([dx, dy]) => {
     ctx.beginPath(); ctx.moveTo(c + dx * inner, c + dy * inner); ctx.lineTo(c + dx * outer, c + dy * outer); ctx.stroke()
@@ -811,6 +817,10 @@ onBeforeUnmount(() => {
         <!-- (homogeneidad · §13) ⓘ «Cómo se lee el mapa» → tooltip Term (al pasar/enfocar),
              en vez de un <details> de clic-para-ver. La info queda en el aria-label de Term. -->
         <Term v-if="!failed" id="lectura_mapa3d" :label="L('ⓘ Cómo se lee el mapa', 'ⓘ How to read the map')" />
+        <p v-if="!failed && !noTarget" class="flex items-center gap-1.5 mt-1.5 text-[11px] leading-snug" style="color:#3a3340">
+          <span aria-hidden="true" style="width:0.6rem;height:0.6rem;border-radius:50%;background:#ff6b47;box-shadow:0 0 0 2px rgba(255,107,71,0.25);flex-shrink:0;display:inline-block" />
+          {{ L('El círculo naranja señala el punto orientativo sugerido (zona de máxima captación) — una opción, no una indicación.', 'The orange circle marks the suggested orientative point (peak-uptake zone) — an option, not an instruction.') }}
+        </p>
       </div>
 
       <!-- RÓTULO HONESTO de la aguja ILUSTRATIVA (sólo con el toggle activo) -->
