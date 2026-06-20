@@ -80,7 +80,7 @@ const PANELS: Panel[] = [
   {
     id: 'fdg',
     title: { es: 'FDG · glucólisis', en: 'FDG · glycolysis' },
-    sub: { es: '¹⁸F-FDG (SUVmáx)', en: '¹⁸F-FDG (SUVmax)' },
+    sub: { es: '¹⁸F-FDG (glucólisis)', en: '¹⁸F-FDG (glycolysis)' },
     unit: { es: 'SUV', en: 'SUV' },
     max: 9,
     legendFrom: '#e7e2d6',
