@@ -2115,12 +2115,12 @@ const ticks = [
                     :biopsy-label="bonePriorBiopsy ?? undefined"
                   />
                   <template #fallback>
-                    <div class="rounded-lg flex items-center justify-center text-[12px]" style="aspect-ratio:15/4;background:#0d1117;color:#aeb6c2">
+                    <div class="rounded-lg flex items-center justify-center text-[12px]" style="aspect-ratio:12/5;background:#0d1117;color:#aeb6c2">
                       {{ L('cargando visor…', 'loading viewer…') }}
                     </div>
                   </template>
                 </ClientOnly>
-                <div v-else class="rounded-lg flex items-center justify-center text-center text-[12px] px-4" style="aspect-ratio:15/4;background:#0d1117;color:#aeb6c2">
+                <div v-else class="rounded-lg flex items-center justify-center text-center text-[12px] px-4" style="aspect-ratio:12/5;background:#0d1117;color:#aeb6c2">
                   {{ L('Visor abierto a pantalla completa', 'Viewer open in full screen') }}
                 </div>
               </template>

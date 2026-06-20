@@ -104,7 +104,7 @@ const failed = ref(false)
 const noMesh = computed(() => !props.meshKey)
 const biopsyAvailable = computed(() => !!props.biopsied && !noMesh.value && !failed.value)
 const showBiopsy = ref(false)
-const showTarget = ref(true)   // diana orientativa visible por defecto (sutil) · toggle para ocultarla
+const showTarget = ref(false)  // OFF por defecto (consistente con la aguja): el médico le da a un botón para VER la diana orientativa
 const targetAvailable = computed(() => !props.noTarget && !noMesh.value && !failed.value)
 
 /* ---- three.js state (1 renderer / 3 scenes / 1 camera / 1 controls) ---- */
@@ -853,21 +853,39 @@ onBeforeUnmount(() => {
           @click="reframe"
         >⟲</button>
 
-        <!-- TOGGLE de la aguja de biopsia ILUSTRATIVA (#13). OFF por defecto; dibuja
-             la aguja sobre el panel de densidad/blástico. -->
-        <button
-          v-if="biopsyAvailable"
-          type="button"
-          class="btv-biopsy-toggle"
-          :class="{ 'is-on': showBiopsy }"
-          :aria-pressed="showBiopsy"
-          @click="toggleBiopsy"
-        >
-          <span class="btv-biopsy-dot" aria-hidden="true" />
-          {{ showBiopsy
-            ? L('Ocultar la biopsia previa', 'Hide prior biopsy')
-            : L('Ver la biopsia previa (' + (biopsyLabel || '26B585') + ')', 'Show prior biopsy (' + (biopsyLabel || '26B585') + ')') }}
-        </button>
+        <!-- TOGGLES dentro del visor (abajo-izquierda, columna): la DIANA orientativa y la
+             AGUJA de biopsia. AMBOS OFF por defecto y mismo patrón aditivo (un botón para VER,
+             y al activarlo aparece su rótulo aditivo debajo del visor; nunca ocultan texto). -->
+        <div v-if="!failed && (targetAvailable || biopsyAvailable)" class="btv-toggles">
+          <!-- DIANA orientativa (punto coral) -->
+          <button
+            v-if="targetAvailable"
+            type="button"
+            class="btv-target-toggle"
+            :class="{ 'is-on': showTarget }"
+            :aria-pressed="showTarget"
+            @click="toggleTarget"
+          >
+            <span class="btv-target-dot" aria-hidden="true" />
+            {{ showTarget
+              ? L('Ocultar la diana orientativa', 'Hide orientative target')
+              : L('Ver la diana orientativa', 'Show orientative target') }}
+          </button>
+          <!-- AGUJA de biopsia ILUSTRATIVA (#13): dibuja la aguja sobre el panel de densidad. -->
+          <button
+            v-if="biopsyAvailable"
+            type="button"
+            class="btv-biopsy-toggle"
+            :class="{ 'is-on': showBiopsy }"
+            :aria-pressed="showBiopsy"
+            @click="toggleBiopsy"
+          >
+            <span class="btv-biopsy-dot" aria-hidden="true" />
+            {{ showBiopsy
+              ? L('Ocultar la biopsia previa', 'Hide prior biopsy')
+              : L('Ver la biopsia previa (' + (biopsyLabel || '26B585') + ')', 'Show prior biopsy (' + (biopsyLabel || '26B585') + ')') }}
+          </button>
+        </div>
 
         <!-- cargando -->
         <div v-if="loading && !failed" class="absolute inset-0 flex flex-col items-center justify-center gap-2 pointer-events-none">
@@ -901,19 +919,19 @@ onBeforeUnmount(() => {
         <!-- (homogeneidad · §13) ⓘ «Cómo se lee el mapa» → tooltip Term (al pasar/enfocar),
              en vez de un <details> de clic-para-ver. La info queda en el aria-label de Term. -->
         <Term v-if="!failed" id="lectura_mapa3d" :label="L('ⓘ Cómo se lee el mapa', 'ⓘ How to read the map')" />
-        <div v-if="targetAvailable" class="mt-1.5">
-          <!-- Toggle SIMPLE y familiar (botón etiquetado) para poner/quitar la diana → control del
-               médico, que no agobie. DS aplicado, pero prevalece sencillez/familiaridad del científico. -->
-          <button type="button" class="btv-target-toggle" :class="{ 'is-on': showTarget }" :aria-pressed="showTarget" @click="toggleTarget">
-            <span class="btv-target-dot" aria-hidden="true" />
-            {{ showTarget ? L('Ocultar el punto orientativo', 'Hide orientative point') : L('Mostrar el punto orientativo', 'Show orientative point') }}
-          </button>
-          <p v-if="showTarget" class="flex items-start gap-1.5 mt-1.5 text-[11px] leading-snug" style="color:#3a3340">
-            <span aria-hidden="true" style="width:0.65rem;height:0.65rem;border-radius:50%;flex-shrink:0;display:inline-block;margin-top:1px;border:2px solid #ff6b47;box-shadow:0 0 0 1.5px rgba(157,68,171,0.55)" />
-            {{ L('La diana parpadeante (aro coral fino calcado SOBRE el hueso, siguiendo su superficie) señala el punto orientativo sugerido (zona de máxima captación) — una opción, no una indicación.', 'The blinking target (a thin coral ring printed ONTO the bone, following its surface) marks the suggested orientative point (peak-uptake zone) — an option, not an instruction.') }}
-          </p>
-        </div>
       </div>
+
+      <!-- RÓTULO HONESTO de la DIANA orientativa (ADITIVO · sólo con el toggle activo).
+           Clon del rótulo de la aguja: aparece, nunca oculta. Texto actualizado a la forma
+           real del marcador (FOCO coral con volumen calcado en la superficie, ya no un «aro»). -->
+      <p v-if="targetAvailable && showTarget" class="btv-target-cap">
+        <span class="btv-target-cap-head">
+          <span class="btv-target-cap-dot" aria-hidden="true" />
+          {{ L('Diana orientativa', 'Orientative target') }}
+        </span>
+        {{ L('Foco coral parpadeante calcado SOBRE el hueso (sigue su superficie) · zona de máxima captación (≈ dónde apuntaría la biopsia) — una opción, no una indicación.',
+             'Blinking coral focus printed ONTO the bone (following its surface) · peak-uptake zone (≈ where the biopsy would aim) — an option, not an instruction.') }}
+      </p>
 
       <!-- RÓTULO HONESTO de la aguja ILUSTRATIVA (sólo con el toggle activo) -->
       <p v-if="biopsyAvailable && showBiopsy" class="btv-biopsy-cap">
@@ -1030,26 +1048,40 @@ onBeforeUnmount(() => {
 .btv-reframe:hover { background: rgba(30, 37, 48, 0.92); border-color: rgba(174, 182, 194, 0.5); }
 .btv-reframe:focus-visible { outline: 2px solid #1c969e; outline-offset: 2px; }
 
-/* toggle de la aguja de biopsia ILUSTRATIVA — abajo-izquierda */
-/* Toggle de la diana orientativa — botón inline SIMPLE bajo el visor (no overlay):
-   sencillo y familiar para el científico, con tokens DS (cream-card / berenjena / coral). */
+/* TOGGLES dentro del visor (abajo-izquierda, columna). Ambos botones (diana + aguja)
+   comparten zona y estilo de overlay: misma anchura de chip, sin solaparse, por encima
+   del canvas pero sin tapar el botón de reencuadre (arriba-derecha). */
+.btv-toggles {
+  position: absolute;
+  left: 8px;
+  bottom: 8px;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  align-items: flex-start;
+}
+
+/* Toggle de la DIANA orientativa — overlay (mismo patrón que la aguja), punto coral.
+   DS: borde malva/coral sobre placa oscura translúcida, legible sobre el canvas #0d1117. */
 .btv-target-toggle {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 5px 10px;
+  padding: 6px 10px;
   border-radius: 8px;
-  border: 1px solid rgba(157, 68, 171, 0.32);
-  background: #f5efe6;
-  color: #2d1b3d;
+  border: 1px solid rgba(255, 107, 71, 0.55);
+  background: rgba(13, 17, 23, 0.72);
+  color: #f1b9a6;
   font-size: 11px;
   font-weight: 600;
   line-height: 1;
   cursor: pointer;
-  transition: border-color 0.15s ease, background-color 0.15s ease;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
 }
-.btv-target-toggle:hover { border-color: rgba(157, 68, 171, 0.6); }
-.btv-target-toggle:focus-visible { outline: 2px solid #9d44ab; outline-offset: 2px; }
+.btv-target-toggle:hover { background: rgba(30, 37, 48, 0.92); border-color: rgba(255, 107, 71, 0.85); }
+.btv-target-toggle:focus-visible { outline: 2px solid #ff6b47; outline-offset: 2px; }
+.btv-target-toggle.is-on { background: rgba(255, 107, 71, 0.18); border-color: rgba(255, 107, 71, 0.95); color: #ffcabb; }
 .btv-target-dot {
   width: 8px;
   height: 8px;
@@ -1061,11 +1093,8 @@ onBeforeUnmount(() => {
 }
 .btv-target-toggle.is-on .btv-target-dot { background: #ff6b47; }
 
+/* Toggle de la aguja de biopsia ILUSTRATIVA — mismo overlay (la posición la da .btv-toggles). */
 .btv-biopsy-toggle {
-  position: absolute;
-  left: 8px;
-  bottom: 8px;
-  z-index: 2;
   display: inline-flex;
   align-items: center;
   gap: 6px;
@@ -1121,6 +1150,37 @@ onBeforeUnmount(() => {
 }
 .btv-biopsy-key { display: inline-flex; align-items: center; gap: 5px; margin-left: 2px; }
 .btv-biopsy-mk { display: inline-block; width: 8px; height: 8px; border-radius: 50%; }
+
+/* rótulo honesto de la DIANA orientativa (ADITIVO · clon del de la aguja, tono coral/malva) */
+.btv-target-cap {
+  font-size: 10px;
+  text-align: left;
+  margin-top: 6px;
+  padding: 7px 9px;
+  border-radius: 6px;
+  border: 1px solid rgba(255, 107, 71, 0.35);
+  background: rgba(255, 107, 71, 0.07);
+  font-family: ui-monospace, monospace;
+  line-height: 1.45;
+  color: #8a3a2a;
+}
+.btv-target-cap-head {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+.btv-target-cap-dot {
+  display: inline-block;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  border: 2px solid #ff6b47;
+  box-shadow: 0 0 0 1.5px rgba(157, 68, 171, 0.55);
+}
 
 /* PIE del visor · una sola línea de interacción + el desplegable de honestidad, en una
    fila que se reparte (la línea a la izquierda, el «Cómo se lee» a la derecha). En
