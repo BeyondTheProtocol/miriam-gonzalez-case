@@ -241,9 +241,9 @@
     "retry": "Reintentar"
   },
   "hero": {
-    "title": "Un cáncer raro, {op} real.",
-    "title_short": "Un cáncer raro, una oportunidad real.",
-    "title_emphasis": "una oportunidad",
+    "title": "Cáncer de mama metastásico. {op}.",
+    "title_short": "Cáncer de mama metastásico. Lo investigo en abierto.",
+    "title_emphasis": "Lo investigo en abierto",
     "subtitle": "{lead} tiene un tumor con {twofaces} que los protocolos españoles no contemplan. Las pruebas que necesita para tratarlo no las cubre la sanidad pública. Esta web existe para financiarlas.",
     "twofaces": "dos caras",
     "subtitle_lead": "Miriam, {age} años,",

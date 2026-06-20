@@ -241,9 +241,9 @@
     "retry": "Retry"
   },
   "hero": {
-    "title": "A rare cancer, {op}.",
-    "title_short": "A rare cancer, a real opportunity.",
-    "title_emphasis": "a real opportunity",
+    "title": "Metastatic breast cancer. {op}.",
+    "title_short": "Metastatic breast cancer. I investigate it in the open.",
+    "title_emphasis": "I investigate it in the open",
     "subtitle": "{lead} has a tumor with {twofaces} that Spanish protocols don't account for. The tests she needs to treat it aren't covered by public healthcare. This site exists to fund them.",
     "twofaces": "two sides",
     "subtitle_lead": "Miriam, {age},",
