@@ -244,11 +244,11 @@ const GLOSSARY: Record<string, Entry> = {
   lectura_mapa3d: {
     es: {
       label: 'Cómo se lee el mapa',
-      def: 'Cada vista mapea UNA variable (más oscuro/saturado = más valor). La captación PET es un gradiente continuo, sin borde tumoral neto (~4–5 mm). «Blástico» = densidad del CT (forma), no biología. El Galio es un proxy aproximado por ahora. El círculo naranja (parpadeante) señala la zona de máxima captación (≈ dónde apuntaría la biopsia): un punto orientativo, no un borde tumoral. Informa, no concluye.',
+      def: 'Cada vista mapea UNA variable (más oscuro/saturado = más valor). La captación PET es un gradiente continuo, sin borde tumoral neto (~4–5 mm). «Blástico» = densidad del CT (forma), no biología. El Galio es un proxy aproximado por ahora. La diana naranja parpadeante (dos círculos) señala la zona de máxima captación (≈ dónde apuntaría la biopsia): un punto orientativo, no un borde tumoral. Informa, no concluye.',
     },
     en: {
       label: 'How to read the map',
-      def: 'Each view maps ONE variable (darker/more saturated = higher value). PET uptake is a continuous gradient, with no sharp tumor border (~4–5 mm). “Blastic” = CT density (shape), not biology. Gallium is an approximate proxy for now. The pulsing orange circle flags the peak-uptake zone (≈ where the biopsy would aim): an orientative point, not a tumor outline. It informs; it does not conclude.',
+      def: 'Each view maps ONE variable (darker/more saturated = higher value). PET uptake is a continuous gradient, with no sharp tumor border (~4–5 mm). “Blastic” = CT density (shape), not biology. Gallium is an approximate proxy for now. The pulsing orange target (two rings) flags the peak-uptake zone (≈ where the biopsy would aim): an orientative point, not a tumor outline. It informs; it does not conclude.',
     },
   },
 }

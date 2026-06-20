@@ -303,7 +303,7 @@ function renderScenes() {
   if (!renderer || !host.value) return
   // parpadeo del marcador orientativo (opacidad sinusoidal suave; el bucle ya es continuo)
   if (targetMats.length) {
-    const op = 0.55 + 0.45 * (0.5 + 0.5 * Math.sin(performance.now() * 0.005))
+    const op = 0.7 + 0.3 * (0.5 + 0.5 * Math.sin(performance.now() * 0.005))
     for (const m of targetMats) (m as THREE.SpriteMaterial).opacity = op
   }
   const W = host.value.clientWidth, H = host.value.clientHeight
@@ -545,21 +545,19 @@ let targetMats: THREE.Material[] = []
 let targetTex: THREE.Texture | null = null
 /* textura del marcador (1×, compartida por los 3 paneles): halo cian difuso + crosshair. */
 function makeTargetTexture(): THREE.Texture {
-  const s = 128, c = s / 2
+  // DIANA dibujada: dos círculos concéntricos + punto central. Es un SÍMBOLO de
+  // marcador (glifo de diana), no un contorno tumoral → honesto y reconocible.
+  // Contorno oscuro bajo el naranja = contraste sobre hueso claro u oscuro.
+  const s = 256, c = s / 2
   const cv = document.createElement('canvas'); cv.width = s; cv.height = s
   const ctx = cv.getContext('2d')!
-  // halo radial: centro translúcido → borde 100% transparente (sin perímetro = honesto)
-  const g = ctx.createRadialGradient(c, c, 0, c, c, c)
-  g.addColorStop(0, 'rgba(255,107,71,0.62)')
-  g.addColorStop(0.45, 'rgba(255,107,71,0.16)')
-  g.addColorStop(1, 'rgba(255,107,71,0)')
-  ctx.fillStyle = g; ctx.fillRect(0, 0, s, s)
-  // retícula: 4 trazos cortos blancos con hueco central (apunta al pico, no encierra área)
-  ctx.strokeStyle = 'rgba(255,255,255,0.95)'; ctx.lineWidth = 3; ctx.lineCap = 'round'
-  const inner = s * 0.10, outer = s * 0.21
-  ;([[0, -1], [0, 1], [-1, 0], [1, 0]] as const).forEach(([dx, dy]) => {
-    ctx.beginPath(); ctx.moveTo(c + dx * inner, c + dy * inner); ctx.lineTo(c + dx * outer, c + dy * outer); ctx.stroke()
-  })
+  const ORANGE = '#ff6b47'
+  const ring = (r: number, lw: number) => { ctx.beginPath(); ctx.arc(c, c, r, 0, Math.PI * 2); ctx.lineWidth = lw; ctx.stroke() }
+  const rOut = s * 0.40, rIn = s * 0.21
+  ctx.strokeStyle = 'rgba(15,17,23,0.55)'; ring(rOut, 26); ring(rIn, 26)   // contorno oscuro (contraste)
+  ctx.strokeStyle = ORANGE; ring(rOut, 13); ring(rIn, 13)                  // los dos aros naranjas
+  ctx.fillStyle = 'rgba(15,17,23,0.55)'; ctx.beginPath(); ctx.arc(c, c, s * 0.085, 0, Math.PI * 2); ctx.fill()
+  ctx.fillStyle = ORANGE; ctx.beginPath(); ctx.arc(c, c, s * 0.06, 0, Math.PI * 2); ctx.fill()   // punto central
   const tex = new THREE.CanvasTexture(cv); tex.needsUpdate = true; return tex
 }
 function disposeTargetMarker() {
@@ -572,17 +570,24 @@ function buildTargetMarker() {
   if (props.noTarget || !targetGroups.length || hotIndex < 0) return
   targetTex = makeTargetTexture()
   for (let i = 0; i < 3; i++) {
-    const pos = meshes[i]!.geometry.getAttribute('position') as THREE.BufferAttribute
+    const geo = meshes[i]!.geometry
+    const pos = geo.getAttribute('position') as THREE.BufferAttribute
+    const nrm = geo.getAttribute('normal') as THREE.BufferAttribute | undefined
     const peak = new THREE.Vector3(pos.getX(hotIndex), pos.getY(hotIndex), pos.getZ(hotIndex))
+    const normal = nrm
+      ? new THREE.Vector3(nrm.getX(hotIndex), nrm.getY(hotIndex), nrm.getZ(hotIndex)).normalize()
+      : peak.clone().normalize()
     const mat = new THREE.SpriteMaterial({
       map: targetTex, color: 0xffffff, transparent: true,
       depthTest: true, depthWrite: false, blending: THREE.NormalBlending, toneMapped: true,
     })
     targetMats.push(mat)
     const sprite = new THREE.Sprite(mat)
-    sprite.position.copy(peak)           // centrado en el pico; el billboard encara a cámara (sin escorzo)
-    sprite.scale.setScalar(boneRadius * 0.42)
-    sprite.renderOrder = 6               // tras el hueso (depthTest lo ocluye al rotar), bajo la aguja
+    // despegado de la superficie a lo largo de la normal → NO z-fightea (era la causa
+    // de que «no se apreciara»); el billboard encara a cámara, sin escorzo.
+    sprite.position.copy(peak).addScaledVector(normal, boneRadius * 0.08)
+    sprite.scale.setScalar(boneRadius * 0.5)
+    sprite.renderOrder = 6               // tras el hueso (depthTest lo ocluye al rotar atrás), bajo la aguja
     targetGroups[i]!.add(sprite)
   }
 }
@@ -819,7 +824,7 @@ onBeforeUnmount(() => {
         <Term v-if="!failed" id="lectura_mapa3d" :label="L('ⓘ Cómo se lee el mapa', 'ⓘ How to read the map')" />
         <p v-if="!failed && !noTarget" class="flex items-center gap-1.5 mt-1.5 text-[11px] leading-snug" style="color:#3a3340">
           <span aria-hidden="true" style="width:0.6rem;height:0.6rem;border-radius:50%;background:#ff6b47;box-shadow:0 0 0 2px rgba(255,107,71,0.25);flex-shrink:0;display:inline-block" />
-          {{ L('El círculo naranja señala el punto orientativo sugerido (zona de máxima captación) — una opción, no una indicación.', 'The orange circle marks the suggested orientative point (peak-uptake zone) — an option, not an instruction.') }}
+          {{ L('La diana naranja (dos círculos) señala el punto orientativo sugerido (zona de máxima captación) — una opción, no una indicación.', 'The orange target (two rings) marks the suggested orientative point (peak-uptake zone) — an option, not an instruction.') }}
         </p>
       </div>
 
