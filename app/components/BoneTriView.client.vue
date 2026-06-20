@@ -104,6 +104,8 @@ const failed = ref(false)
 const noMesh = computed(() => !props.meshKey)
 const biopsyAvailable = computed(() => !!props.biopsied && !noMesh.value && !failed.value)
 const showBiopsy = ref(false)
+const showTarget = ref(true)   // diana orientativa visible por defecto (sutil) · toggle para ocultarla
+const targetAvailable = computed(() => !props.noTarget && !noMesh.value && !failed.value)
 
 /* ---- three.js state (1 renderer / 3 scenes / 1 camera / 1 controls) ---- */
 let renderer: THREE.WebGLRenderer
@@ -580,34 +582,15 @@ function makeTargetDecalTex(): THREE.Texture {
   const ctx = cv.getContext('2d')!
   ctx.clearRect(0, 0, s, s)
   ctx.lineCap = 'round'
-  // dos anillos concéntricos (radio externo ≈ 0.46·s para dejar margen del recorte del decal)
-  const rings = [0.30, 0.46]
-  for (const rr of rings) {
-    const r = rr * s
-    // halo malva de contraste por debajo
-    ctx.beginPath(); ctx.arc(c, c, r, 0, Math.PI * 2)
-    ctx.strokeStyle = C_TARGET_RING; ctx.lineWidth = s * 0.060; ctx.stroke()
-    // aro coral encima
-    ctx.beginPath(); ctx.arc(c, c, r, 0, Math.PI * 2)
-    ctx.strokeStyle = C_TARGET_CORE; ctx.lineWidth = s * 0.034; ctx.stroke()
-  }
-  // cruceta (4 trazos cortos que apuntan al centro) — refuerza el «punto»
-  const inner = 0.10 * s, outer = 0.24 * s
-  const ticks: [number, number, number, number][] = [
-    [c, c - inner, c, c - outer], [c, c + inner, c, c + outer],
-    [c - inner, c, c - outer, c], [c + inner, c, c + outer, c],
-  ]
-  for (const [x1, y1, x2, y2] of ticks) {
-    ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2)
-    ctx.strokeStyle = C_TARGET_RING; ctx.lineWidth = s * 0.050; ctx.stroke()
-    ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2)
-    ctx.strokeStyle = C_TARGET_CORE; ctx.lineWidth = s * 0.026; ctx.stroke()
-  }
-  // punto central coral con halo malva
-  ctx.beginPath(); ctx.arc(c, c, s * 0.052, 0, Math.PI * 2)
-  ctx.fillStyle = C_TARGET_RING; ctx.fill()
-  ctx.beginPath(); ctx.arc(c, c, s * 0.034, 0, Math.PI * 2)
-  ctx.fillStyle = C_TARGET_CORE; ctx.fill()
+  // SUTIL: UN aro fino + punto central (antes: 2 aros gruesos + cruceta = «gorda/agresiva»).
+  const r = 0.40 * s
+  ctx.beginPath(); ctx.arc(c, c, r, 0, Math.PI * 2)
+  ctx.strokeStyle = C_TARGET_RING; ctx.lineWidth = s * 0.038; ctx.stroke()   // halo malva (contraste)
+  ctx.beginPath(); ctx.arc(c, c, r, 0, Math.PI * 2)
+  ctx.strokeStyle = C_TARGET_CORE; ctx.lineWidth = s * 0.020; ctx.stroke()   // aro coral FINO
+  // punto central (coral con halo malva)
+  ctx.beginPath(); ctx.arc(c, c, s * 0.072, 0, Math.PI * 2); ctx.fillStyle = C_TARGET_RING; ctx.fill()
+  ctx.beginPath(); ctx.arc(c, c, s * 0.048, 0, Math.PI * 2); ctx.fillStyle = C_TARGET_CORE; ctx.fill()
   const tex = new THREE.CanvasTexture(cv)
   tex.colorSpace = THREE.SRGBColorSpace
   tex.needsUpdate = true
@@ -622,11 +605,11 @@ function disposeTargetMarker() {
 }
 function buildTargetMarker() {
   disposeTargetMarker()
-  if (props.noTarget || !targetGroups.length || hotIndex < 0) return
+  if (props.noTarget || !showTarget.value || !targetGroups.length || hotIndex < 0) return
   targetDecalTex = makeTargetDecalTex()
   // tamaño del proyector del decal ~ 0.22·boneRadius (lado del cubo proyector); la
   // profundidad (Z del proyector) algo mayor para que clipe bien la cara curva.
-  const half = boneRadius * 0.22
+  const half = boneRadius * 0.13   // SUTIL · marcador de punto discreto, no «gordo» (era 0.22)
   const depth = boneRadius * 0.40
   const size = new THREE.Vector3(half * 2, half * 2, depth)
   for (let i = 0; i < 3; i++) {
@@ -763,6 +746,7 @@ function buildBiopsyNeedle() {
   needleGroups.forEach((g, gi) => { for (const part of parts) g.add(gi === 0 ? part : part.clone()) })
 }
 function toggleBiopsy() { if (biopsyAvailable.value) showBiopsy.value = !showBiopsy.value }
+function toggleTarget() { if (targetAvailable.value) showTarget.value = !showTarget.value }
 
 /* ---------- ciclo de vida ---------- */
 /* APILA vertical sólo cuando 3 columnas no caben con holgura (≈ < 150 px/columna).
@@ -798,6 +782,7 @@ watch(() => props.meshKey, (k) => {
 })
 watch(() => props.biopsied, (b) => { if (!b) { showBiopsy.value = false; buildBiopsyNeedle() } })
 watch(showBiopsy, () => { buildBiopsyNeedle() })
+watch(showTarget, () => { buildTargetMarker() })
 watch(() => props.noTarget, () => buildTargetMarker())
 onBeforeUnmount(() => {
   cancelAnimationFrame(raf); ro?.disconnect()
@@ -913,10 +898,18 @@ onBeforeUnmount(() => {
         <!-- (homogeneidad · §13) ⓘ «Cómo se lee el mapa» → tooltip Term (al pasar/enfocar),
              en vez de un <details> de clic-para-ver. La info queda en el aria-label de Term. -->
         <Term v-if="!failed" id="lectura_mapa3d" :label="L('ⓘ Cómo se lee el mapa', 'ⓘ How to read the map')" />
-        <p v-if="!failed && !noTarget" class="flex items-center gap-1.5 mt-1.5 text-[11px] leading-snug" style="color:#3a3340">
-          <span aria-hidden="true" style="width:0.65rem;height:0.65rem;border-radius:50%;flex-shrink:0;display:inline-block;border:2px solid #ff6b47;box-shadow:0 0 0 1.5px rgba(157,68,171,0.55)" />
-          {{ L('La diana parpadeante (aros coral calcados SOBRE el hueso, siguiendo su superficie) señala el punto orientativo sugerido (zona de máxima captación) — una opción, no una indicación.', 'The blinking target (coral rings printed ONTO the bone, following its surface) marks the suggested orientative point (peak-uptake zone) — an option, not an instruction.') }}
-        </p>
+        <div v-if="targetAvailable" class="mt-1.5">
+          <!-- Toggle SIMPLE y familiar (botón etiquetado) para poner/quitar la diana → control del
+               médico, que no agobie. DS aplicado, pero prevalece sencillez/familiaridad del científico. -->
+          <button type="button" class="btv-target-toggle" :class="{ 'is-on': showTarget }" :aria-pressed="showTarget" @click="toggleTarget">
+            <span class="btv-target-dot" aria-hidden="true" />
+            {{ showTarget ? L('Ocultar el punto orientativo', 'Hide orientative point') : L('Mostrar el punto orientativo', 'Show orientative point') }}
+          </button>
+          <p v-if="showTarget" class="flex items-start gap-1.5 mt-1.5 text-[11px] leading-snug" style="color:#3a3340">
+            <span aria-hidden="true" style="width:0.65rem;height:0.65rem;border-radius:50%;flex-shrink:0;display:inline-block;margin-top:1px;border:2px solid #ff6b47;box-shadow:0 0 0 1.5px rgba(157,68,171,0.55)" />
+            {{ L('La diana parpadeante (aro coral fino calcado SOBRE el hueso, siguiendo su superficie) señala el punto orientativo sugerido (zona de máxima captación) — una opción, no una indicación.', 'The blinking target (a thin coral ring printed ONTO the bone, following its surface) marks the suggested orientative point (peak-uptake zone) — an option, not an instruction.') }}
+          </p>
+        </div>
       </div>
 
       <!-- RÓTULO HONESTO de la aguja ILUSTRATIVA (sólo con el toggle activo) -->
@@ -1035,6 +1028,36 @@ onBeforeUnmount(() => {
 .btv-reframe:focus-visible { outline: 2px solid #1c969e; outline-offset: 2px; }
 
 /* toggle de la aguja de biopsia ILUSTRATIVA — abajo-izquierda */
+/* Toggle de la diana orientativa — botón inline SIMPLE bajo el visor (no overlay):
+   sencillo y familiar para el científico, con tokens DS (cream-card / berenjena / coral). */
+.btv-target-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 10px;
+  border-radius: 8px;
+  border: 1px solid rgba(157, 68, 171, 0.32);
+  background: #f5efe6;
+  color: #2d1b3d;
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1;
+  cursor: pointer;
+  transition: border-color 0.15s ease, background-color 0.15s ease;
+}
+.btv-target-toggle:hover { border-color: rgba(157, 68, 171, 0.6); }
+.btv-target-toggle:focus-visible { outline: 2px solid #9d44ab; outline-offset: 2px; }
+.btv-target-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  border: 2px solid #ff6b47;
+  box-shadow: 0 0 0 1.5px rgba(157, 68, 171, 0.4);
+  background: transparent;
+}
+.btv-target-toggle.is-on .btv-target-dot { background: #ff6b47; }
+
 .btv-biopsy-toggle {
   position: absolute;
   left: 8px;
