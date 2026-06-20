@@ -192,6 +192,7 @@ const scrolled = computed(() => y.value > 20)
 const navItems = [
   { key: 'home', to: { name: 'index' } },
   { key: 'science', to: { name: 'ciencia' } },
+  { key: 'map', to: { name: 'mapa-metastasis' } },
   { key: 'timeline', to: { name: 'timeline' } },
   { key: 'team', to: { name: 'equipo' } },
 ]
