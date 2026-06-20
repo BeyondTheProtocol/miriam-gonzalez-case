@@ -52,6 +52,15 @@
                 {{ $t('press.photo_caption') }}
               </figcaption>
             </figure>
+            <a
+              href="/img/miriam-avatar.webp"
+              download
+              class="mt-3 inline-flex items-center gap-1.5 font-mono text-[11.5px] uppercase tracking-[0.08em] text-miriam hover:underline"
+              data-print-hide
+            >
+              <Icon name="ph:download-simple" class="size-4" aria-hidden="true" />
+              {{ $t('press.photo_download') }}
+            </a>
             <div class="mt-5 pt-5" style="border-top: 1px solid rgba(45,27,61,0.08)">
               <GoFundMeProgress />
             </div>
@@ -116,6 +125,38 @@
               <Icon name="ph:copy" class="w-4 h-4" aria-hidden="true" />
               {{ copyLabel }}
             </button>
+          </div>
+        </div>
+
+        <!-- Cómo contarlo · guía editorial exprés (SÍ / Evita) -->
+        <div class="mt-16">
+          <h2 id="press-guide" class="eyebrow mb-2 block">
+            {{ $t('press.guide_title') }}
+          </h2>
+          <p class="text-sm text-tinta mb-6 max-w-2xl">{{ $t('press.guide_note') }}</p>
+          <div aria-labelledby="press-guide" class="grid sm:grid-cols-2 gap-4">
+            <div class="card-base">
+              <h3 class="flex items-center gap-2 font-display font-semibold text-berenjena text-[15px] mb-3">
+                <Icon name="ph:check-circle" class="size-5 text-miriam" aria-hidden="true" />
+                {{ $t('press.guide_do_title') }}
+              </h3>
+              <ul class="list-none p-0 m-0 space-y-2 text-[14px] text-berenjena leading-relaxed">
+                <li v-for="item in guideDo" :key="item" class="flex gap-2">
+                  <span aria-hidden="true" class="text-miriam">·</span><span>{{ item }}</span>
+                </li>
+              </ul>
+            </div>
+            <div class="card-base">
+              <h3 class="flex items-center gap-2 font-display font-semibold text-berenjena text-[15px] mb-3">
+                <Icon name="ph:x-circle" class="size-5 text-tinta" aria-hidden="true" />
+                {{ $t('press.guide_avoid_title') }}
+              </h3>
+              <ul class="list-none p-0 m-0 space-y-2 text-[14px] text-berenjena leading-relaxed">
+                <li v-for="item in guideAvoid" :key="item" class="flex gap-2">
+                  <span aria-hidden="true" class="text-tinta">·</span><span>{{ item }}</span>
+                </li>
+              </ul>
+            </div>
           </div>
         </div>
 
@@ -240,6 +281,20 @@ const facts = computed(() => [
   { label: t('press.fact_lang_label'), value: t('press.fact_lang_value') },
 ])
 
+// Guía editorial exprés (SÍ / Evita) — el muro convertido en ayuda al periodista.
+const guideDo = computed(() => [
+  t('press.guide_do_1'),
+  t('press.guide_do_2'),
+  t('press.guide_do_3'),
+  t('press.guide_do_4'),
+])
+const guideAvoid = computed(() => [
+  t('press.guide_avoid_1'),
+  t('press.guide_avoid_2'),
+  t('press.guide_avoid_3'),
+  t('press.guide_avoid_4'),
+])
+
 // Apariciones en prensa (content/<locale>/press.yml).
 const { data: pressData } = await useAsyncData(
   `press-${locale.value}`,
@@ -267,13 +322,13 @@ useSeoMeta({
   title: () => (locale.value === 'es' ? 'Sala de prensa' : 'Press room'),
   description: () =>
     locale.value === 'es'
-      ? 'Kit de prensa del caso de Miriam González: hechos verificados, perfil molecular, cobertura en medios y contacto para periodistas.'
-      : "Press kit for Miriam González's case: verified facts, molecular profile, media coverage and a contact for journalists.",
+      ? 'Sala de prensa del caso de Miriam González: hechos verificados, boilerplate, guía editorial, foto y contacto para periodistas. Todo listo para publicar.'
+      : "Miriam González's press room: verified facts, boilerplate, an editorial guide, a photo and a press contact. Everything ready to publish.",
   ogTitle: () => (locale.value === 'es' ? 'Sala de prensa · Miriam González' : 'Press room · Miriam González'),
   ogDescription: () =>
     locale.value === 'es'
-      ? 'Hechos verificados, perfil molecular y contacto para medios.'
-      : 'Verified facts, molecular profile and a media contact.',
+      ? 'Hechos verificados, boilerplate, guía editorial y contacto para medios.'
+      : 'Verified facts, boilerplate, an editorial guide and a media contact.',
   ogType: 'website',
   twitterCard: 'summary_large_image',
 })
@@ -298,7 +353,7 @@ const pressJsonLd = computed(() =>
       '@type': 'Person',
       name: 'Miriam González',
       url: 'https://helpmiriam.com',
-      jobTitle: locale.value === 'es' ? 'Paciente e ingeniera de software' : 'Patient and software engineer',
+      jobTitle: locale.value === 'es' ? 'Ingeniera de software y divulgadora tech' : 'Software engineer and tech communicator',
     },
     audience: {
       '@type': 'Audience',

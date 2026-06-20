@@ -345,7 +345,19 @@
     "resource_expenses": "Where the money goes",
     "resource_expenses_desc": "Expense breakdown, funding phases and donor FAQ.",
     "resource_collaborate": "How to help",
-    "resource_collaborate_desc": "Five paths by profile: medicine, press, tech, patients and donation."
+    "resource_collaborate_desc": "Five paths by profile: medicine, press, tech, patients and donation.",
+    "guide_title": "How to tell it (quick guide)",
+    "guide_note": "To publish accurately without having to ask us. Copy or quote it.",
+    "guide_do_title": "Do",
+    "guide_do_1": "\"Software engineer\" and \"tech communicator\"",
+    "guide_do_2": "\"Investigates her own case with artificial intelligence, in the open\"",
+    "guide_do_3": "\"Metastatic breast cancer\" · \"personalized or precision treatment\"",
+    "guide_do_4": "\"An international team\" of specialists",
+    "guide_avoid_title": "Avoid",
+    "guide_avoid_1": "\"Scientist\" — she is an engineer",
+    "guide_avoid_2": "\"Patient\" as a label — she is active: she investigates her own case",
+    "guide_avoid_3": "Naming doctors or hospitals without permission",
+    "guide_avoid_4": "\"Fight\"/\"battle\" language, pink ribbon, or a pitying tone"
   },
   "science": {
     "title": "The science behind the case",

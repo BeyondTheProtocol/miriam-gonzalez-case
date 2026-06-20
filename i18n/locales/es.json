@@ -345,7 +345,20 @@
     "resource_expenses": "Destino del dinero",
     "resource_expenses_desc": "Desglose de gastos, fases de financiación y FAQ para donantes.",
     "resource_collaborate": "Cómo ayudar",
-    "resource_collaborate_desc": "Cinco vías según perfil: medicina, prensa, tech, pacientes y donación."
+    "resource_collaborate_desc": "Cinco vías según perfil: medicina, prensa, tech, pacientes y donación.",
+    "guide_title": "Cómo contarlo (guía exprés)",
+    "guide_note": "Para publicar con rigor sin pedirnos nada. Cópialo o cítalo.",
+    "guide_do_title": "Sí",
+    "guide_do_1": "«Ingeniera de software» y «divulgadora tech»",
+    "guide_do_2": "«Investiga su propio caso con inteligencia artificial, en abierto»",
+    "guide_do_3": "«Cáncer de mama metastásico» · «tratamiento personalizado o de precisión»",
+    "guide_do_4": "«Un equipo internacional» de especialistas",
+    "guide_avoid_title": "Evita",
+    "guide_avoid_1": "«Científica» — es ingeniera",
+    "guide_avoid_2": "«Paciente» como etiqueta — es activa: investiga su propio caso",
+    "guide_avoid_3": "Nombrar médicos u hospitales sin permiso",
+    "guide_avoid_4": "Lenguaje de «lucha» o «batalla», lazo rosa o tono lastimero",
+    "photo_download": "Descargar foto (uso editorial)"
   },
   "science": {
     "title": "La ciencia detrás del caso",
