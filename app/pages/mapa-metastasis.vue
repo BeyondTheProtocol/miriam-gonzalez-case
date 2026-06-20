@@ -48,18 +48,47 @@ defineOgImage('Default.takumi', {
 })
 
 /* ------------------------------------------------------------------ */
-/*  Codificación por trazador (eje de discordancia: SSTR-dominante →     */
-/*  captación dual → glucolítico-dominante / SSTR⁻)                       */
-/*  violeta = ⁶⁸Ga-DOTATOC / SSTR · coral = ¹⁸F-FDG / glucólisis          */
+/*  Codificación por TRAZADOR · alineada extremo-a-extremo con el visor   */
+/*  3D (BoneTriView): el color encoda el TRAZADOR, nunca biología ni      */
+/*  pronóstico. Constantes únicas — el resto de la página apunta aquí.    */
+/*                                                                        */
+/*    ⁶⁸Ga-DOTATOC (SSTR)  → TEAL   (visor: rgb 28,150,158 = #1c969e)     */
+/*    ¹⁸F-FDG    (glucólisis) → ÁMBAR (visor: rgb 214,110,28 = #d66e1c)   */
+/*                                                                        */
+/*  La marca berenjena/miriam vive en el CHROME/UI (focos, anillos), NO   */
+/*  en el dato (principio dataviz). `.fill` = relleno/punto/disco (pasa   */
+/*  el mínimo gráfico 3:1 en cream y en oscuro); `.text` = variante       */
+/*  oscura para TEXTO (≥4.5:1 AA en ambos fondos).                        */
+/* ------------------------------------------------------------------ */
+const TRACER = {
+  ga:  { fill: '#1c969e', text: '#0c5a61', tintBg: '#e7f3f3' }, // teal · ⁶⁸Ga-DOTATOC / SSTR
+  fdg: { fill: '#d66e1c', text: '#8a4a12', tintBg: '#f7ece0' }, // ámbar · ¹⁸F-FDG / glucólisis
+} as const
+const GA_FILL = TRACER.ga.fill, GA_TEXT = TRACER.ga.text
+const FDG_FILL = TRACER.fdg.fill, FDG_TEXT = TRACER.fdg.text
+
+/* ------------------------------------------------------------------ */
+/*  RAMPA DIVERGING (eje CONTINUO de discordancia · NO binaria):          */
+/*  SSTR-dominante ──► dual-SSTR ──► dual-EQUILIBRADO (neutro) ──►         */
+/*  dual-glucolítico ──► glucolítico-dominante.                           */
+/*  Extremos = teal-⁶⁸Ga ↔ ámbar-¹⁸F-FDG; punto medio NEUTRO (warm-gray   */
+/*  «ni uno ni otro»). Todos los rellenos pasan 3:1 gráfico en cream Y en */
+/*  oscuro #0d1117; el dígito del foco va en berenjena (ink) en los 5.    */
 /* ------------------------------------------------------------------ */
 type Pheno = 'ne' | 'mixNe' | 'mixBal' | 'mixAgg' | 'agg'
 const PHENO: Record<Pheno, { c: string; es: string; en: string }> = {
-  ne:     { c: '#9d44ab', es: 'SSTR-dominante (⁶⁸Ga⁺ / FDG⁻)', en: 'SSTR-dominant (⁶⁸Ga⁺ / FDG⁻)' },
-  mixNe:  { c: '#8a5bb3', es: 'Dual · predominio SSTR', en: 'Dual · SSTR-predominant' },
-  mixBal: { c: '#c9921e', es: 'Dual · equilibrado', en: 'Dual · balanced' },
-  mixAgg: { c: '#df7a44', es: 'Dual · predominio glucolítico', en: 'Dual · glycolytic-predominant' },
-  agg:    { c: '#bb4128', es: 'Glucolítico-dominante (FDG⁺ / SSTR⁻)', en: 'Glycolytic-dominant (FDG⁺ / SSTR⁻)' },
+  ne:     { c: GA_FILL,   es: 'SSTR-dominante (⁶⁸Ga⁺ / FDG⁻)', en: 'SSTR-dominant (⁶⁸Ga⁺ / FDG⁻)' },
+  mixNe:  { c: '#3f9aa0', es: 'Dual · predominio SSTR', en: 'Dual · SSTR-predominant' },
+  mixBal: { c: '#8c8678', es: 'Dual · equilibrado', en: 'Dual · balanced' },
+  mixAgg: { c: '#cf7826', es: 'Dual · predominio glucolítico', en: 'Dual · glycolytic-predominant' },
+  agg:    { c: FDG_FILL,  es: 'Glucolítico-dominante (FDG⁺ / SSTR⁻)', en: 'Glycolytic-dominant (FDG⁺ / SSTR⁻)' },
 }
+/* la rampa como CSS gradient (leyendas) — una sola fuente, sin copias divergentes */
+const PHENO_RAMP_CSS = `linear-gradient(90deg,${PHENO.ne.c},${PHENO.mixNe.c},${PHENO.mixBal.c},${PHENO.mixAgg.c},${PHENO.agg.c})`
+/* gradiente del SCORE de idoneidad: es MAGNITUD (chrome), NO un trazador → tono de
+   marca berenjena→oro, deliberadamente distinto de la rampa de trazador (que es
+   teal↔ámbar) para que nadie lo lea como captación. */
+const SCORE_RAMP_CSS = 'linear-gradient(90deg,#6b4a78,#c9921e)'
 
 /* ------------------------------------------------------------------ */
 /*  Las 19 lesiones (16 del informe PET + 3 detectadas por IA: #17/#18/#19)        */
@@ -362,21 +391,50 @@ function neShare(le: Lesion): number {
 }
 function phenoColor(le: Lesion) { return PHENO[le.pheno].c }
 function phenoLabel(le: Lesion) { return L(PHENO[le.pheno].es, PHENO[le.pheno].en) }
-/* TINTA del número de foco según la luminancia del relleno (WCAG AA): los rellenos
-   CLAROS (mixBal ámbar #c9921e, mixAgg naranja #df7a44) no dan contraste con el
-   blanco (2.8–3.0:1) → el dígito va en berenjena oscuro; en los rellenos oscuros
-   (violetas y coral) va en blanco. Mantiene los rellenos vivos del degradado. */
-function markerInk(le: Lesion): string {
-  return le.pheno === 'mixBal' || le.pheno === 'mixAgg' ? '#2d1b3d' : '#ffffff'
-}
-/* color del fenotipo SOLO para TEXTO: los naranjas/ámbar de relleno fallan AA
-   sobre el cream, así que el texto usa tonos oscuros que SÍ pasan AA (≥4.5:1):
-   8a5a1a (5.5:1) / 8a4a1a (5.8:1). Los rellenos/puntos/marcadores siguen usando
-   phenoColor (el tono vivo). NO usar b07d1e como texto: solo da 3.37:1 (falla AA). */
+/* TINTA del número de foco (WCAG AA): con la rampa diverging, los CINCO rellenos
+   (teal, teal-lean, warm-gray neutro, ámbar-lean, ámbar) tienen luminancia media
+   → el berenjena oscuro (#2d1b3d) pasa AA contra los 5 (4.34–4.77:1) y el blanco
+   NO (3.4–3.6:1). Dígito uniforme en berenjena = legible y coherente. */
+function markerInk(_le: Lesion): string { return '#2d1b3d' }
+/* color del fenotipo SOLO para TEXTO: el relleno de la rampa pasa el mínimo gráfico
+   (3:1) pero no el de texto (4.5:1) sobre cream. El texto usa la variante oscura del
+   trazador en los extremos (teal #0c5a61 7.4:1 · ámbar #8a4a12 6.4:1) y tonos
+   intermedios AA para los duales (≥4.5:1). Los rellenos/discos usan phenoColor. */
 const PHENO_TEXT: Record<Pheno, string> = {
-  ne: '#7a2f86', mixNe: '#7a4d9e', mixBal: '#8a5a1a', mixAgg: '#8a4a1a', agg: '#9e3620',
+  ne: GA_TEXT, mixNe: '#176069', mixBal: '#6b6457', mixAgg: '#8a4f15', agg: FDG_TEXT,
 }
 function phenoText(le: Lesion) { return PHENO_TEXT[le.pheno] }
+
+/* ------------------------------------------------------------------ */
+/*  GLYPH SPLIT-DISC bivariado · oro de exquisitez del doble trazador.    */
+/*  El marcador es un disco PARTIDO: semicírculo IZQUIERDO = ⁶⁸Ga-DOTATOC */
+/*  (teal), semicírculo DERECHO = ¹⁸F-FDG (ámbar). Cada mitad lleva su    */
+/*  intensidad/saturación según SU SUVmáx → la ASIMETRÍA ES la            */
+/*  discordancia (muestra los DOS valores sin inventar un eje).           */
+/*  Misma normalización que el visor (SUVmáx/9, gamma suave): un foco se  */
+/*  ve igual de «ávido» en el disco y en el hueso 3D. UNA fuente única.   */
+/* ------------------------------------------------------------------ */
+const GLYPH_GA_MAX = 9, GLYPH_FDG_MAX = 9        // = GA_MAX/FDG_MAX del visor
+const GLYPH_NEUTRAL = [222, 221, 214] as const   // marfil-gris «sin captación» del visor
+const GLYPH_GA_PEAK = [28, 150, 158] as const    // teal saturado (rgb del visor)
+const GLYPH_FDG_PEAK = [214, 110, 28] as const   // ámbar saturado (rgb del visor)
+/* relleno de media-luna: marfil-neutro (SUV bajo) → pico saturado del trazador (SUV
+   alto). gamma 0.80 igual que el visor para que coincida la percepción de avidez. */
+function halfFill(suv: number | null, peak: readonly number[]): string {
+  if (suv == null) return `rgb(${GLYPH_NEUTRAL.join(',')})`           // trazador NEGATIVO → neutro
+  const max = peak === GLYPH_GA_PEAK ? GLYPH_GA_MAX : GLYPH_FDG_MAX
+  const t = Math.min(Math.max(suv / max, 0), 1) ** 0.80
+  const mix = (a: number, b: number) => Math.round(a + (b - a) * t)
+  return `rgb(${GLYPH_NEUTRAL.map((n, i) => mix(n, peak[i])).join(',')})`
+}
+function gaHalf(le: Lesion): string { return halfFill(le.dota, GLYPH_GA_PEAK) }
+function fdgHalf(le: Lesion): string { return halfFill(le.fdg, GLYPH_FDG_PEAK) }
+/* path de un semicírculo de radio r centrado en (cx,cy). side 'L' = izquierda (Ga),
+   'R' = derecha (FDG). Disco partido por un diámetro VERTICAL. */
+function halfDiscPath(cx: number, cy: number, r: number, side: 'L' | 'R'): string {
+  const sweep = side === 'R' ? 1 : 0           // R: top→bottom horario · L: top→bottom antihorario
+  return `M ${cx} ${cy - r} A ${r} ${r} 0 0 ${sweep} ${cx} ${cy + r} Z`
+}
 
 /* Δ FDG frente al estudio previo (rojo = sube · verde = baja) */
 function deltaFdg(le: Lesion): string {
@@ -387,7 +445,7 @@ function deltaFdg(le: Lesion): string {
 function deltaStyle(le: Lesion) {
   if (le.fdg == null || le.prevFdg == null) return {}
   const x = le.fdg - le.prevFdg
-  if (x > 0.05) return { color: '#bb4128' }
+  if (x > 0.05) return { color: FDG_TEXT }
   if (x < -0.05) return { color: '#1f5a3a' }
   return {}
 }
@@ -629,7 +687,7 @@ const PET_IMGS: PetImg[] = [
   { src: '/metastasis/gal_spine.jpg', tracer: 'ga', kind: 'sag', es: 'Columna sagital · ⁶⁸Ga-DOTATOC (SSTR)', en: 'Sagittal spine · ⁶⁸Ga-DOTATOC (SSTR)' },
   { src: '/metastasis/fdg_spine.jpg', tracer: 'fdg', kind: 'sag', es: 'Columna sagital · ¹⁸F-FDG (glucólisis)', en: 'Sagittal spine · ¹⁸F-FDG (glycolysis)' },
 ]
-function petTracerColor(p: PetImg): string { return p.tracer === 'ga' ? '#9d44ab' : '#bb4128' }
+function petTracerColor(p: PetImg): string { return p.tracer === 'ga' ? GA_TEXT : FDG_TEXT }
 /* abierto + modo: 'single' (una ampliada) | 'grid' (las 4 PET a la vez 2×2) */
 const petLightboxOpen = ref(false)
 const petLightboxMode = ref<'single' | 'grid'>('single')
@@ -712,7 +770,7 @@ function keyTracerLabel(le: Lesion): string {
 }
 /* color de texto del trazador dominante (AA sobre cream) */
 function keyTracerColor(le: Lesion): string {
-  return domTracer(le) === 'ga' ? '#7a3d86' : '#bb4128'
+  return domTracer(le) === 'ga' ? GA_TEXT : FDG_TEXT
 }
 /* planos extra disponibles ("+Sag", "+Cor"), sin el axial (siempre presente) */
 function keyExtraPlanes(le: Lesion): string[] {
@@ -1170,7 +1228,7 @@ function focusObservations(l: Lesion): { tone: string; es: string; en: string }[
   return out
 }
 function observationTone(tone: string): string {
-  return tone === 'violet' ? '#9d44ab' : tone === 'warn' ? '#bb4128' : tone === 'positive' ? '#1f5a3a' : '#6b6470'
+  return tone === 'violet' ? GA_FILL : tone === 'warn' ? FDG_FILL : tone === 'positive' ? '#1f5a3a' : '#6b6470'
 }
 
 /* ------------------------------------------------------------------ */
@@ -1876,13 +1934,13 @@ const manifestValidated = (() => {
               <div class="stat-readout__unit">{{ L('axial (columna/sacro) · apendicular (pelvis/cadera)', 'axial (spine/sacrum) · appendicular (pelvis/hip)') }}</div>
             </div>
             <div class="stat-readout">
-              <div class="stat-readout__label" :style="{ color: '#9d44ab' }">{{ L('SUVmáx ⁶⁸Ga-DOTATOC', '⁶⁸Ga-DOTATOC SUVmax') }}</div>
-              <div class="stat-readout__value tabular-nums" :style="{ color: '#9d44ab' }">{{ dotaRangeLabel }}</div>
+              <div class="stat-readout__label" :style="{ color: GA_TEXT }">{{ L('SUVmáx ⁶⁸Ga-DOTATOC', '⁶⁸Ga-DOTATOC SUVmax') }}</div>
+              <div class="stat-readout__value tabular-nums" :style="{ color: GA_TEXT }">{{ dotaRangeLabel }}</div>
               <div class="stat-readout__unit">{{ L('rango SSTR (informe)', 'SSTR range (report)') }}</div>
             </div>
             <div class="stat-readout">
-              <div class="stat-readout__label" :style="{ color: '#bb4128' }">{{ L('SUVmáx ¹⁸F-FDG', '¹⁸F-FDG SUVmax') }}</div>
-              <div class="stat-readout__value tabular-nums" :style="{ color: '#bb4128' }">{{ fdgRangeLabel }}</div>
+              <div class="stat-readout__label" :style="{ color: FDG_TEXT }">{{ L('SUVmáx ¹⁸F-FDG', '¹⁸F-FDG SUVmax') }}</div>
+              <div class="stat-readout__value tabular-nums" :style="{ color: FDG_TEXT }">{{ fdgRangeLabel }}</div>
               <div class="stat-readout__unit">{{ L('rango glucolítico (informe)', 'glycolytic range (report)') }}</div>
             </div>
           </div>
@@ -2134,7 +2192,7 @@ const manifestValidated = (() => {
                    línea para lo no obvio (número = foco · punteado = IA). Sin "borde
                    oscuro = seleccionado" (obvio al clicar). De un vistazo, sin más. -->
               <div class="mt-3 px-1">
-                <div class="h-2.5 rounded-full" :style="{ background: 'linear-gradient(90deg,#9d44ab,#8a5bb3,#c9921e,#df7a44,#bb4128)' }" />
+                <div class="h-2.5 rounded-full" :style="{ background: PHENO_RAMP_CSS }" />
                 <div class="flex justify-between text-[10px] text-tinta mt-1">
                   <span>{{ L('SSTR-dominante (⁶⁸Ga⁺/FDG⁻)', 'SSTR-dominant (⁶⁸Ga⁺/FDG⁻)') }}</span>
                   <span>{{ L('Glucolítico-dom. (FDG⁺/SSTR⁻)', 'Glycolytic-dom. (FDG⁺/SSTR⁻)') }}</span>
@@ -2228,15 +2286,15 @@ const manifestValidated = (() => {
                     <span class="min-w-0 flex-1">
                       <span class="flex items-center gap-1.5"><span class="text-[12px] font-semibold text-berenjena leading-tight truncate">{{ le.level[lang] }}</span><span class="font-mono text-[10px] text-tinta shrink-0">#{{ le.id }}</span><span v-if="coCount(le) > 1" class="pill-data pill-data--berenjena !text-[10px] !px-1.5 !py-0 shrink-0" role="img" :aria-label="coCount(le) + ' ' + L('focos co-localizados en esta vértebra', 'co-located foci in this vertebra')">{{ coCount(le) }}</span></span>
                       <span class="flex flex-wrap items-center gap-1 mt-0.5">
-                        <span v-if="le.dota != null" class="inline-flex items-center text-[10px] font-semibold leading-none px-1 py-0.5 rounded-full" style="background:#9d44ab1a;color:#7a3d86">⁶⁸Ga {{ le.dota.toFixed(1) }}</span>
-                        <span v-if="le.fdg != null" class="inline-flex items-center text-[10px] font-semibold leading-none px-1 py-0.5 rounded-full" style="background:#bb41281a;color:#bb4128">FDG {{ le.fdg.toFixed(1) }}</span>
+                        <span v-if="le.dota != null" class="inline-flex items-center text-[10px] font-semibold leading-none px-1 py-0.5 rounded-full" style="background:#1c969e1a;color:#0c5a61">⁶⁸Ga {{ le.dota.toFixed(1) }}</span>
+                        <span v-if="le.fdg != null" class="inline-flex items-center text-[10px] font-semibold leading-none px-1 py-0.5 rounded-full" style="background:#d66e1c1a;color:#8a4a12">FDG {{ le.fdg.toFixed(1) }}</span>
                         <span v-if="sourceOf(le) === 'ia-david'" class="text-[10px] text-tinta">{{ L('IA·conf.', 'AI·conf.') }}</span>
                       </span>
                     </span>
                     <span class="shrink-0 w-10 text-right" :aria-label="L('idoneidad ' + suitabilityScore(le) + ' sobre 100', 'suitability ' + suitabilityScore(le) + ' out of 100')">
                       <span class="block font-mono text-[11px] text-berenjena leading-none">{{ suitabilityScore(le) }}</span>
                       <span class="block h-1 rounded-full mt-0.5 bg-[rgba(45,27,61,0.08)] overflow-hidden">
-                        <span class="block h-full rounded-full" :style="{ width: suitabilityScore(le) + '%', background: 'linear-gradient(90deg,#9d44ab,#df7a44)' }" />
+                        <span class="block h-full rounded-full" :style="{ width: suitabilityScore(le) + '%', background: SCORE_RAMP_CSS }" />
                       </span>
                     </span>
                   </button>
@@ -2306,7 +2364,7 @@ const manifestValidated = (() => {
                 </div>
                 <div class="h-2 rounded-full overflow-hidden bg-[rgba(45,27,61,0.08)]" role="img"
                   :aria-label="L('Idoneidad ' + suitabilityScore(sel) + ' sobre 100', 'Suitability ' + suitabilityScore(sel) + ' out of 100')">
-                  <div class="h-full rounded-full" :style="{ width: suitabilityScore(sel) + '%', background: 'linear-gradient(90deg,#9d44ab,#df7a44)' }" />
+                  <div class="h-full rounded-full" :style="{ width: suitabilityScore(sel) + '%', background: SCORE_RAMP_CSS }" />
                 </div>
                 <p class="text-[10px] text-tinta mt-1 leading-snug">{{ L('orientativa · viable × rendimiento × tamaño.', 'indicative · viable × yield × size.') }}</p>
               </div>
@@ -2315,22 +2373,22 @@ const manifestValidated = (() => {
               <div class="mb-3">
                 <div class="flex h-3 rounded-full overflow-hidden border border-[rgba(45,27,61,0.1)]" role="img"
                   :aria-label="L('Proporción SSTR frente a captación glucolítica', 'SSTR versus glycolytic uptake share')">
-                  <div :style="{ width: (neShare(sel) * 100).toFixed(0) + '%', background: '#9d44ab' }" />
-                  <div :style="{ width: ((1 - neShare(sel)) * 100).toFixed(0) + '%', background: '#bb4128' }" />
+                  <div :style="{ width: (neShare(sel) * 100).toFixed(0) + '%', background: GA_FILL }" />
+                  <div :style="{ width: ((1 - neShare(sel)) * 100).toFixed(0) + '%', background: FDG_FILL }" />
                 </div>
                 <div class="flex justify-between text-[10px] mt-1">
-                  <span :style="{ color: '#9d44ab' }">{{ L('SSTR · ⁶⁸Ga', 'SSTR · ⁶⁸Ga') }}{{ sel.dota != null ? ' ' + sel.dota.toFixed(1) : ' —' }}</span>
-                  <span :style="{ color: '#bb4128' }">{{ L('glucólisis · FDG', 'glycolysis · FDG') }}{{ sel.fdg != null ? ' ' + sel.fdg.toFixed(1) : ' —' }}</span>
+                  <span :style="{ color: GA_TEXT }">{{ L('SSTR · ⁶⁸Ga', 'SSTR · ⁶⁸Ga') }}{{ sel.dota != null ? ' ' + sel.dota.toFixed(1) : ' —' }}</span>
+                  <span :style="{ color: FDG_TEXT }">{{ L('glucólisis · FDG', 'glycolysis · FDG') }}{{ sel.fdg != null ? ' ' + sel.fdg.toFixed(1) : ' —' }}</span>
                 </div>
               </div>
 
               <!-- NÚMEROS CLAVE · 4 cifras a ancho completo (la imagen clave subió a «Imágenes») -->
               <div class="grid grid-cols-2 gap-2 mb-3">
-                <div class="rounded-card bg-cream-card px-2.5 py-1.5 border-l-4" :style="{ borderColor: '#9d44ab' }">
+                <div class="rounded-card bg-cream-card px-2.5 py-1.5 border-l-4" :style="{ borderColor: GA_FILL }">
                   <p class="text-[10px] text-tinta leading-none">{{ L('SSTR · ⁶⁸Ga', 'SSTR · ⁶⁸Ga') }}</p>
                   <p class="font-mono text-base leading-tight text-berenjena">{{ fmtSuv(sel, sel.dota) }}</p>
                 </div>
-                <div class="rounded-card bg-cream-card px-2.5 py-1.5 border-l-4" :style="{ borderColor: '#bb4128' }">
+                <div class="rounded-card bg-cream-card px-2.5 py-1.5 border-l-4" :style="{ borderColor: FDG_FILL }">
                   <p class="text-[10px] text-tinta leading-none">{{ L('Glucólisis · FDG', 'Glycolysis · FDG') }}</p>
                   <p class="font-mono text-base leading-tight text-berenjena">{{ fmtSuv(sel, sel.fdg) }}<span v-if="trend(sel)" class="text-[11px] ml-1" :style="deltaStyle(sel)">({{ deltaFdg(sel) }})</span></p>
                 </div>
@@ -2488,8 +2546,8 @@ const manifestValidated = (() => {
                   <span class="font-mono text-berenjena">#{{ f.id }}</span>
                   <span class="text-tinta">{{ focusPart(f) }}</span>
                   <span class="text-tinta">·</span>
-                  <span :style="{ color: '#9d44ab' }">{{ L('SSTR · ⁶⁸Ga', 'SSTR · ⁶⁸Ga') }} <span class="font-mono">{{ fmtSuv(f, f.dota) }}</span></span>
-                  <span :style="{ color: '#bb4128' }">{{ L('glucólisis · FDG', 'glycolysis · FDG') }} <span class="font-mono">{{ fmtSuv(f, f.fdg) }}</span></span>
+                  <span :style="{ color: GA_TEXT }">{{ L('SSTR · ⁶⁸Ga', 'SSTR · ⁶⁸Ga') }} <span class="font-mono">{{ fmtSuv(f, f.dota) }}</span></span>
+                  <span :style="{ color: FDG_TEXT }">{{ L('glucólisis · FDG', 'glycolysis · FDG') }} <span class="font-mono">{{ fmtSuv(f, f.fdg) }}</span></span>
                 </li>
               </ul>
               <p class="text-[10px] text-tinta mt-2 leading-relaxed">{{ L('El detalle ampliado de abajo corresponde al foco principal de la zona; el resto está en la tabla.', 'The expanded detail below is for the area’s main focus; the rest is in the table.') }}</p>
@@ -2503,15 +2561,15 @@ const manifestValidated = (() => {
                 </div>
                 <div class="grid sm:grid-cols-3 divide-y sm:divide-y-0 sm:divide-x divide-[rgba(45,27,61,0.08)]">
                   <!-- 1 · SSTR (⁶⁸Ga-DOTATOC) -->
-                  <div class="p-3 border-l-4" :style="{ borderColor: '#9d44ab' }">
-                    <p class="text-[11px] font-semibold leading-tight" :style="{ color: '#9d44ab' }">{{ L('SSTR', 'SSTR') }} · ⁶⁸Ga-DOTATOC</p>
+                  <div class="p-3 border-l-4" :style="{ borderColor: GA_FILL }">
+                    <p class="text-[11px] font-semibold leading-tight" :style="{ color: GA_TEXT }">{{ L('SSTR', 'SSTR') }} · ⁶⁸Ga-DOTATOC</p>
                     <p class="text-[10px] text-tinta mb-1.5">{{ L('densidad de receptores de somatostatina', 'somatostatin-receptor density') }}</p>
                     <p class="font-mono text-lg leading-none text-berenjena">{{ fmtSuv(sel, sel.dota) }}</p>
                     <p class="text-[11px] text-tinta mt-1">{{ sel.dota != null ? L('SUVmáx SSTR', 'SSTR SUVmax') : L('sin captación de receptores (SSTR⁻)', 'no receptor uptake (SSTR⁻)') }}</p>
                   </div>
                   <!-- 2 · Glucólisis (¹⁸F-FDG) -->
-                  <div class="p-3 border-l-4" :style="{ borderColor: '#bb4128' }">
-                    <p class="text-[11px] font-semibold leading-tight" :style="{ color: '#bb4128' }">{{ L('Glucólisis', 'Glycolysis') }} · ¹⁸F-FDG</p>
+                  <div class="p-3 border-l-4" :style="{ borderColor: FDG_FILL }">
+                    <p class="text-[11px] font-semibold leading-tight" :style="{ color: FDG_TEXT }">{{ L('Glucólisis', 'Glycolysis') }} · ¹⁸F-FDG</p>
                     <p class="text-[10px] text-tinta mb-1.5">{{ L('metabolismo glucolítico (glucosa marcada)', 'glycolytic metabolism (labelled glucose)') }}</p>
                     <p class="font-mono text-lg leading-none text-berenjena">
                       {{ fmtSuv(sel, sel.fdg) }}<span v-if="trend(sel)" class="text-[12px] ml-1" :style="deltaStyle(sel)">({{ deltaFdg(sel) }})</span>
@@ -2627,8 +2685,8 @@ const manifestValidated = (() => {
                   <span class="status-badge status-badge--active">{{ L('automático · verificación', 'automatic · verification') }}</span>
                 </p>
                 <div class="grid grid-cols-2 gap-3">
-                  <div class="rounded-card bg-cream px-3 py-2 border-l-4" :style="{ borderColor: '#bb4128' }">
-                    <p class="text-[11px] font-semibold mb-1" :style="{ color: '#bb4128' }">¹⁸F-FDG · {{ L('glucólisis', 'glycolysis') }}</p>
+                  <div class="rounded-card bg-cream px-3 py-2 border-l-4" :style="{ borderColor: FDG_FILL }">
+                    <p class="text-[11px] font-semibold mb-1" :style="{ color: FDG_TEXT }">¹⁸F-FDG · {{ L('glucólisis', 'glycolysis') }}</p>
                     <div class="text-[12.5px] text-tinta leading-relaxed">
                       <div>{{ L('Tabla', 'Table') }} <span class="font-mono text-berenjena font-semibold">{{ fmtSuv(sel, sel.fdg) }}</span>
                         <template v-if="selAuto?.fdgAuto != null"> · {{ L('auto', 'auto') }} <span class="font-mono">{{ selAuto?.fdgAuto?.toFixed(2) }}</span>
@@ -2638,8 +2696,8 @@ const manifestValidated = (() => {
                       <div v-if="selAuto?.fdgAuto != null">MTV <span class="font-mono text-berenjena">{{ selAuto?.fdgMtv }} ml</span> · TLG <span class="font-mono text-berenjena">{{ selAuto?.fdgTlg }}</span> · <span class="text-berenjena">{{ selAuto?.fdgMorph }}</span></div>
                     </div>
                   </div>
-                  <div class="rounded-card bg-cream px-3 py-2 border-l-4" :style="{ borderColor: '#9d44ab' }">
-                    <p class="text-[11px] font-semibold mb-1" :style="{ color: '#9d44ab' }">⁶⁸Ga-DOTATOC · {{ L('SSTR', 'SSTR') }}</p>
+                  <div class="rounded-card bg-cream px-3 py-2 border-l-4" :style="{ borderColor: GA_FILL }">
+                    <p class="text-[11px] font-semibold mb-1" :style="{ color: GA_TEXT }">⁶⁸Ga-DOTATOC · {{ L('SSTR', 'SSTR') }}</p>
                     <div class="text-[12.5px] text-tinta leading-relaxed">
                       <div>{{ L('Tabla', 'Table') }} <span class="font-mono text-berenjena font-semibold">{{ fmtSuv(sel, sel.dota) }}</span>
                         <template v-if="selAuto?.gaAuto != null"> · {{ L('auto', 'auto') }} <span class="font-mono">{{ selAuto?.gaAuto?.toFixed(2) }}</span>
@@ -2789,9 +2847,9 @@ const manifestValidated = (() => {
           </h2>
 
           <!-- TARJETA-LENTE · marco ético (equipa, no indica) -->
-          <div class="rounded-card border-l-4 px-4 py-4 mb-6" :style="{ borderLeftColor: '#9d44ab', background: '#f7eef9' }">
-            <p class="eyebrow--sm mb-1.5 flex items-center gap-2 flex-wrap" :style="{ color: '#7a2f86' }">
-              <span class="inline-block w-2.5 h-2.5 rounded-full" :style="{ background: '#9d44ab' }" />
+          <div class="rounded-card border-l-4 px-4 py-4 mb-6" :style="{ borderLeftColor: GA_FILL, background: TRACER.ga.tintBg }">
+            <p class="eyebrow--sm mb-1.5 flex items-center gap-2 flex-wrap" :style="{ color: GA_TEXT }">
+              <span class="inline-block w-2.5 h-2.5 rounded-full" :style="{ background: GA_FILL }" />
               {{ L('Cómo leer esta lente', 'How to read this lens') }}
               <span class="status-badge status-badge--firma">{{ L('equipa, no indica', 'equips, does not indicate') }}</span>
             </p>
@@ -2809,8 +2867,8 @@ const manifestValidated = (() => {
           </p>
           <!-- GRUPO A · los 3 factores que MULTIPLICAN el número → grid de 3 col (llena exacto). -->
           <div class="grid sm:grid-cols-3 gap-3 mb-3">
-            <div class="card-base !p-3.5 border-t-4" :style="{ borderColor: '#bb4128' }">
-              <p class="text-[12px] font-semibold mb-1" :style="{ color: '#bb4128' }">{{ L('1 · Captación (¹⁸F-FDG / ⁶⁸Ga)', '1 · Uptake (¹⁸F-FDG / ⁶⁸Ga)') }}</p>
+            <div class="card-base !p-3.5 border-t-4" :style="{ borderColor: FDG_FILL }">
+              <p class="text-[12px] font-semibold mb-1" :style="{ color: FDG_TEXT }">{{ L('1 · Captación (¹⁸F-FDG / ⁶⁸Ga)', '1 · Uptake (¹⁸F-FDG / ⁶⁸Ga)') }}</p>
               <p class="text-[12.5px] text-tinta leading-snug">{{ L('¹⁸F-FDG SUVmáx: a mayor captación glucolítica, más señal metabólica viable que muestrear; el ⁶⁸Ga-DOTATOC aporta la densidad de receptores de somatostatina (SSTR).', '¹⁸F-FDG SUVmax: the higher the glycolytic uptake, the more viable metabolic signal to sample; ⁶⁸Ga-DOTATOC adds the somatostatin-receptor (SSTR) density.') }}</p>
             </div>
             <div class="card-base !p-3.5 border-t-4" :style="{ borderColor: '#1f6b57' }">
@@ -2839,8 +2897,8 @@ const manifestValidated = (() => {
               <p class="text-[12px] font-semibold mb-1 text-tinta">{{ L('Aviso · accesibilidad', 'Flag · accessibility') }}</p>
               <p class="text-[12.5px] text-tinta leading-snug">{{ L('La accesibilidad y la seguridad no las tenemos como dato fiable: las valora radiología intervencionista. No se inventan ni se puntúan.', 'Accessibility and safety are not available to us as a reliable datum: interventional radiology assesses them. They are neither invented nor scored.') }}</p>
             </div>
-            <div class="card-base !p-3.5 border-t-4" :style="{ borderColor: '#9d44ab' }">
-              <p class="text-[12px] font-semibold mb-1" :style="{ color: '#7a2f86' }">{{ L('La fórmula', 'The formula') }}</p>
+            <div class="card-base !p-3.5 border-t-4" :style="{ borderColor: GA_FILL }">
+              <p class="text-[12px] font-semibold mb-1" :style="{ color: GA_TEXT }">{{ L('La fórmula', 'The formula') }}</p>
               <p class="text-[12px] text-tinta leading-snug font-mono">idoneidad = 100 · viable · rendimiento · tamaño</p>
               <p class="text-[11px] text-tinta leading-snug mt-1">{{ L('viable = 0.78·(FDG/10) + 0.22·(Ga/14) · rendimiento = lítico 1 / mixto 0.6 / blástico 0.3 · tamaño = 0.6–1 por el eje mayor de la extensión metabólica medida. Orientativa.', 'viable = 0.78·(FDG/10) + 0.22·(Ga/14) · yield = lytic 1 / mixed 0.6 / blastic 0.3 · size = 0.6–1 by the major axis of the measured metabolic extent. Indicative.') }}</p>
               <p class="text-[10.5px] text-tinta leading-snug mt-1">{{ L('Extensión metabólica = lo que cada foco capta por encima del umbral (41% del SUVmáx local), confinada a hueso, medida sobre el DICOM. Es lo que se ve por imagen, no el tamaño anatómico exacto; el volumen parcial subestima los focos < ~10 mm.', 'Metabolic extent = what each focus takes up above the threshold (41% of the local SUVmax), confined to bone, measured on the DICOM. It is what imaging shows, not the exact anatomical size; partial-volume effect underestimates foci < ~10 mm.') }}</p>
@@ -2871,7 +2929,7 @@ const manifestValidated = (() => {
                 class="w-full text-left rounded-card border px-3.5 py-3 transition-colors"
                 :class="selected === le.id ? 'border-[#9d44ab] bg-[rgba(157,68,171,0.07)]' : 'border-[rgba(45,27,61,0.12)] bg-cream-card hover:border-[rgba(45,27,61,0.3)]'">
                 <div class="flex items-center gap-3">
-                  <span class="inline-flex w-7 h-7 shrink-0 rounded-full items-center justify-center text-white text-xs font-semibold" :style="{ background: phenoColor(le), color: markerInk(le) }">{{ le.id }}</span>
+                  <span class="inline-flex w-7 h-7 shrink-0 rounded-full items-center justify-center  text-xs font-semibold" :style="{ background: phenoColor(le), color: markerInk(le) }">{{ le.id }}</span>
                   <div class="flex-1 min-w-0">
                     <p class="font-semibold text-berenjena text-sm leading-tight">{{ le.level[lang] }}</p>
                     <p class="text-[11px] text-tinta leading-tight">{{ le.region[lang] }} · {{ le.side === 'R' ? L('dcha', 'R') : le.side === 'L' ? L('izda', 'L') : L('centro', 'mid') }}</p>
@@ -2886,10 +2944,10 @@ const manifestValidated = (() => {
                   <div>
                     <div class="flex justify-between items-baseline text-[10.5px] mb-0.5">
                       <span class="text-tinta">{{ L('Captación (FDG/Ga)', 'Uptake (FDG/Ga)') }}</span>
-                      <span class="font-mono" :style="{ color: '#bb4128' }">FDG {{ le.fdg != null ? le.fdg.toFixed(1) : '—' }} · Ga {{ le.dota != null ? le.dota.toFixed(1) : '—' }}</span>
+                      <span class="font-mono" :style="{ color: FDG_TEXT }">FDG {{ le.fdg != null ? le.fdg.toFixed(1) : '—' }} · Ga {{ le.dota != null ? le.dota.toFixed(1) : '—' }}</span>
                     </div>
                     <div class="h-1.5 rounded-full overflow-hidden" :style="{ background: 'rgba(45,27,61,0.08)' }">
-                      <div class="h-full rounded-full" :style="{ width: pct01(viableFactor(le)), background: '#bb4128' }" />
+                      <div class="h-full rounded-full" :style="{ width: pct01(viableFactor(le)), background: FDG_FILL }" />
                     </div>
                   </div>
                   <div>
@@ -2942,7 +3000,7 @@ const manifestValidated = (() => {
                   class="w-full text-left rounded-card border px-3.5 py-3 transition-colors"
                   :class="selected === le.id ? 'border-[#bf7d2c] bg-[rgba(191,125,44,0.08)]' : 'border-[rgba(138,74,26,0.25)] bg-cream hover:border-[rgba(138,74,26,0.5)]'">
                   <div class="flex items-center gap-3">
-                    <span class="inline-flex w-7 h-7 shrink-0 rounded-full items-center justify-center text-white text-xs font-semibold ai-dot" :style="{ background: phenoColor(le), color: markerInk(le) }">{{ le.id }}</span>
+                    <span class="inline-flex w-7 h-7 shrink-0 rounded-full items-center justify-center  text-xs font-semibold ai-dot" :style="{ background: phenoColor(le), color: markerInk(le) }">{{ le.id }}</span>
                     <div class="flex-1 min-w-0">
                       <p class="font-semibold text-berenjena text-sm leading-tight">{{ le.level[lang] }}</p>
                       <p class="text-[11px] text-tinta leading-tight">{{ le.region[lang] }} · {{ le.side === 'R' ? L('dcha', 'R') : le.side === 'L' ? L('izda', 'L') : L('centro', 'mid') }}</p>
@@ -2957,10 +3015,10 @@ const manifestValidated = (() => {
                     <div>
                       <div class="flex justify-between items-baseline text-[10.5px] mb-0.5">
                         <span class="text-tinta">{{ L('Captación (FDG/Ga)', 'Uptake (FDG/Ga)') }}</span>
-                        <span class="font-mono" :style="{ color: '#bb4128' }">FDG ~{{ le.fdg != null ? le.fdg.toFixed(1) : '—' }} · Ga ~{{ le.dota != null ? le.dota.toFixed(1) : '—' }}</span>
+                        <span class="font-mono" :style="{ color: FDG_TEXT }">FDG ~{{ le.fdg != null ? le.fdg.toFixed(1) : '—' }} · Ga ~{{ le.dota != null ? le.dota.toFixed(1) : '—' }}</span>
                       </div>
                       <div class="h-1.5 rounded-full overflow-hidden" :style="{ background: 'rgba(45,27,61,0.08)' }">
-                        <div class="h-full rounded-full" :style="{ width: pct01(viableFactor(le)), background: '#bb4128' }" />
+                        <div class="h-full rounded-full" :style="{ width: pct01(viableFactor(le)), background: FDG_FILL }" />
                       </div>
                     </div>
                     <div>
@@ -3007,10 +3065,10 @@ const manifestValidated = (() => {
                «gigante»); leyenda mínima como banda fina DEBAJO, no muro lateral. -->
           <div class="card-base !p-3">
               <svg viewBox="0 0 440 340" class="w-full" role="group" :aria-label="L('Diagrama de fenotipo: SSTR (⁶⁸Ga-DOTATOC) frente a captación glucolítica (¹⁸F-FDG) — toca un punto para abrir su ficha', 'Phenotype scatter: SSTR (⁶⁸Ga-DOTATOC) versus glycolytic uptake (¹⁸F-FDG) — tap a point to open its card')">
-                <!-- tintes de cuadrante -->
-                <rect :x="qX(0)" :y="qY(Q.ymax)" :width="qX(Q.divx) - qX(0)" :height="qY(Q.divy) - qY(Q.ymax)" fill="#9d44ab" opacity="0.07" />
-                <rect :x="qX(Q.divx)" :y="qY(Q.ymax)" :width="qX(Q.xmax) - qX(Q.divx)" :height="qY(Q.divy) - qY(Q.ymax)" fill="#c9921e" opacity="0.07" />
-                <rect :x="qX(Q.divx)" :y="qY(Q.divy)" :width="qX(Q.xmax) - qX(Q.divx)" :height="qY(0) - qY(Q.divy)" fill="#bb4128" opacity="0.08" />
+                <!-- tintes de cuadrante · alineados al trazador del eje -->
+                <rect :x="qX(0)" :y="qY(Q.ymax)" :width="qX(Q.divx) - qX(0)" :height="qY(Q.divy) - qY(Q.ymax)" :fill="GA_FILL" opacity="0.09" />
+                <rect :x="qX(Q.divx)" :y="qY(Q.ymax)" :width="qX(Q.xmax) - qX(Q.divx)" :height="qY(Q.divy) - qY(Q.ymax)" fill="#8c8678" opacity="0.10" />
+                <rect :x="qX(Q.divx)" :y="qY(Q.divy)" :width="qX(Q.xmax) - qX(Q.divx)" :height="qY(0) - qY(Q.divy)" :fill="FDG_FILL" opacity="0.10" />
                 <rect :x="qX(0)" :y="qY(Q.divy)" :width="qX(Q.divx) - qX(0)" :height="qY(0) - qY(Q.divy)" fill="#6b6470" opacity="0.05" />
                 <!-- divisiones orientativas -->
                 <line :x1="qX(Q.divx)" :y1="qY(Q.ymax)" :x2="qX(Q.divx)" :y2="qY(0)" stroke="#b7ad9c" stroke-width="0.8" stroke-dasharray="4 3" />
@@ -3032,26 +3090,33 @@ const manifestValidated = (() => {
                 <!-- etiquetas de cuadrante · sutiles (uppercase, tracking, peso medio):
                      orientan sin gritar; el dato vivo son los puntos. -->
                 <g font-family="Source Sans 3, sans-serif" font-size="8.5" font-weight="600" letter-spacing="0.6">
-                  <text :x="qX(0) + 8" :y="qY(Q.ymax) + 14" fill="#7a2f86">{{ L('SSTR-DOMINANTE', 'SSTR-DOMINANT') }}</text>
-                  <text :x="qX(Q.xmax) - 6" :y="qY(Q.ymax) + 14" text-anchor="end" fill="#8a5a1a">{{ L('CAPTACIÓN DUAL', 'DUAL UPTAKE') }}</text>
-                  <text :x="qX(Q.xmax) - 6" :y="qY(0) - 9" text-anchor="end" fill="#9e3620">{{ L('GLUCOLÍTICO-DOM.', 'GLYCOLYTIC-DOM.') }}</text>
+                  <text :x="qX(0) + 8" :y="qY(Q.ymax) + 14" :fill="GA_TEXT">{{ L('SSTR-DOMINANTE', 'SSTR-DOMINANT') }}</text>
+                  <text :x="qX(Q.xmax) - 6" :y="qY(Q.ymax) + 14" text-anchor="end" fill="#6b6457">{{ L('CAPTACIÓN DUAL', 'DUAL UPTAKE') }}</text>
+                  <text :x="qX(Q.xmax) - 6" :y="qY(0) - 9" text-anchor="end" :fill="FDG_TEXT">{{ L('GLUCOLÍTICO-DOM.', 'GLYCOLYTIC-DOM.') }}</text>
                   <text :x="qX(0) + 8" :y="qY(0) - 9" fill="#57525c">{{ L('BAJA AVIDEZ', 'LOW AVIDITY') }}</text>
                 </g>
                 <!-- títulos de eje -->
-                <text :x="(qX(0) + qX(Q.xmax)) / 2" :y="Q.H - 6" text-anchor="middle" font-family="Source Sans 3, sans-serif" font-size="10.5" font-weight="600" fill="#2d1b3d">{{ L('¹⁸F-FDG SUVmáx · glucólisis →', '¹⁸F-FDG SUVmax · glycolysis →') }}</text>
-                <text :transform="`translate(13,${(qY(Q.ymax) + qY(0)) / 2}) rotate(-90)`" text-anchor="middle" font-family="Source Sans 3, sans-serif" font-size="10.5" font-weight="600" fill="#2d1b3d">{{ L('⁶⁸Ga SUVmáx · SSTR (↑)', '⁶⁸Ga SUVmax · SSTR (↑)') }}</text>
-                <!-- puntos = lesiones · ESQUEMA SIMPLE: círculo relleno del color del
-                     trazador + número + contorno punteado (IA por confirmar) + borde
-                     oscuro si está seleccionado. Tamaño UNIFORME (la posición ya codifica
-                     los dos SUV). Sin halo, sin parpadeo, sin tamaño ∝ SUVmáx. -->
+                <text :x="(qX(0) + qX(Q.xmax)) / 2" :y="Q.H - 6" text-anchor="middle" font-family="Source Sans 3, sans-serif" font-size="10.5" font-weight="600" :fill="FDG_TEXT">{{ L('¹⁸F-FDG SUVmáx · glucólisis →', '¹⁸F-FDG SUVmax · glycolysis →') }}</text>
+                <text :transform="`translate(13,${(qY(Q.ymax) + qY(0)) / 2}) rotate(-90)`" text-anchor="middle" font-family="Source Sans 3, sans-serif" font-size="10.5" font-weight="600" :fill="GA_TEXT">{{ L('⁶⁸Ga SUVmáx · SSTR (↑)', '⁶⁸Ga SUVmax · SSTR (↑)') }}</text>
+                <!-- puntos = lesiones · GLYPH SPLIT-DISC bivariado: media-luna IZQ
+                     teal (⁶⁸Ga-DOTATOC) + media-luna DCHA ámbar (¹⁸F-FDG), cada
+                     mitad con su intensidad según SU SUVmáx → la asimetría ES la
+                     discordancia. Borde punteado = IA (por confirmar); borde oscuro
+                     = seleccionado. Tamaño UNIFORME (la posición ya codifica los dos
+                     SUV; el disco los REPITE de forma bivariada). Sin halo/parpadeo. -->
                 <g v-for="d in quadDots" :key="'qd' + d.le.id" v-show="visible(d.le)">
                   <!-- área táctil invisible (móvil): el dedo acierta sin agrandar el punto -->
                   <circle :cx="d.px" :cy="d.py" :r="DOT_HIT"
                     fill="transparent" class="cursor-pointer" aria-hidden="true"
                     @click="pickAndShow(d.le.id)"
                     @mouseenter="canHoverFine() && showTip($event, lesionTipText(d.le))" @mouseleave="hideTip" />
+                  <!-- mitad ⁶⁸Ga (izquierda, teal) + mitad ¹⁸F-FDG (derecha, ámbar) -->
+                  <path :d="halfDiscPath(d.px, d.py, DOT_R, 'L')" :fill="gaHalf(d.le)" class="pointer-events-none" />
+                  <path :d="halfDiscPath(d.px, d.py, DOT_R, 'R')" :fill="fdgHalf(d.le)" class="pointer-events-none" />
+                  <!-- línea de partición + borde del disco (interacción/teclado en este círculo) -->
+                  <line :x1="d.px" :y1="d.py - DOT_R" :x2="d.px" :y2="d.py + DOT_R" stroke="#ffffff" stroke-width="0.9" class="pointer-events-none" />
                   <circle :cx="d.px" :cy="d.py" :r="DOT_R"
-                    :fill="phenoColor(d.le)"
+                    fill="none"
                     :stroke="selected === d.le.id ? '#2d1b3d' : '#ffffff'"
                     :stroke-width="selected === d.le.id ? 2.5 : 1.2"
                     :stroke-dasharray="sourceOf(d.le) === 'ia-david' ? '2 1.6' : undefined"
@@ -3059,22 +3124,30 @@ const manifestValidated = (() => {
                     :aria-label="`#${d.le.id} ${d.le.level[lang]} — Ga ${d.le.dota ?? '—'} / FDG ${d.le.fdg ?? '—'}`"
                     @click="pickAndShow(d.le.id)" @keydown.enter="pickAndShow(d.le.id)" @keydown.space.prevent="pickAndShow(d.le.id)"
                     @mouseenter="canHoverFine() && showTip($event, lesionTipText(d.le))" @mouseleave="hideTip" @focus="showTip($event, lesionTipText(d.le))" @blur="hideTip" @keydown.escape="hideTip" />
-                  <text :x="d.px" :y="d.py + 3" text-anchor="middle" font-family="Source Sans 3, sans-serif" :font-size="d.le.id > 9 ? 8.5 : 9.5" font-weight="700" :fill="markerInk(d.le)" class="pointer-events-none select-none">{{ d.le.id }}</text>
+                  <text :x="d.px" :y="d.py + 3" text-anchor="middle" font-family="Source Sans 3, sans-serif" :font-size="d.le.id > 9 ? 8.5 : 9.5" font-weight="700" :fill="markerInk(d.le)" class="pointer-events-none select-none" paint-order="stroke" stroke="#ffffff" stroke-width="2.2" stroke-linejoin="round">{{ d.le.id }}</text>
                 </g>
               </svg>
 
-              <!-- MICRO-NOTA DE HONESTIDAD · color=trazador y número=id ya se explican
-                   en el esqueleto y los cuadrantes están rotulados DENTRO del gráfico;
-                   aquí solo queda la distinción confirmado↔IA (la única no obvia) + el
-                   encuadre. La leyenda "qué significa cada círculo" se retiró (redundante). -->
-              <div class="mt-2.5 pt-2.5 border-t border-[rgba(45,27,61,0.08)]">
+              <!-- MICRO-NOTA · el GLYPH split-disc es bivariado: hay que leer las dos
+                   mitades. Leyenda mínima de UNA sola fuente (mismas fns gaHalf/fdgHalf
+                   que los puntos) + la distinción confirmado↔IA + el encuadre. -->
+              <div class="mt-2.5 pt-2.5 border-t border-[rgba(45,27,61,0.08)] space-y-2">
                 <p class="inline-flex items-center gap-1.5 text-[11.5px] text-tinta">
-                  <svg width="14" height="14" viewBox="0 0 14 14" class="shrink-0" aria-hidden="true">
-                    <circle cx="7" cy="7" r="6" :fill="PHENO.mixAgg.c" stroke="#fff" stroke-width="1.1" stroke-dasharray="2 1.6" />
+                  <svg width="16" height="16" viewBox="0 0 16 16" class="shrink-0" aria-hidden="true">
+                    <path d="M 8 1.5 A 6.5 6.5 0 0 0 8 14.5 Z" :fill="halfFill(7, GLYPH_GA_PEAK)" />
+                    <path d="M 8 1.5 A 6.5 6.5 0 0 1 8 14.5 Z" :fill="halfFill(7, GLYPH_FDG_PEAK)" />
+                    <line x1="8" y1="1.5" x2="8" y2="14.5" stroke="#fff" stroke-width="0.9" />
+                    <circle cx="8" cy="8" r="6.5" fill="none" stroke="#fff" stroke-width="1.1" />
+                  </svg>
+                  <span><strong class="text-berenjena font-semibold">{{ L('disco partido', 'split disc') }}</strong> {{ L('= mitad izq. ⁶⁸Ga-DOTATOC (teal) · mitad dcha. ¹⁸F-FDG (ámbar); más intenso = más SUVmáx. La asimetría es la discordancia.', '= left half ⁶⁸Ga-DOTATOC (teal) · right half ¹⁸F-FDG (amber); more intense = higher SUVmax. The asymmetry is the discordance.') }}</span>
+                </p>
+                <p class="inline-flex items-center gap-1.5 text-[11.5px] text-tinta">
+                  <svg width="16" height="16" viewBox="0 0 16 16" class="shrink-0" aria-hidden="true">
+                    <circle cx="8" cy="8" r="6.5" fill="none" stroke="#6b6470" stroke-width="1.3" stroke-dasharray="2 1.6" />
                   </svg>
                   <span><strong class="text-berenjena font-semibold">{{ L('contorno punteado', 'dashed outline') }}</strong> {{ L('= detectado por IA, por confirmar (#17/#18/#19)', '= AI-detected, to confirm (#17/#18/#19)') }}</span>
                 </p>
-                <p class="text-[10.5px] text-tinta leading-relaxed mt-2">{{ L('SUVmáx de los informes.', 'SUVmax from the reports.') }}</p>
+                <p class="text-[10.5px] text-tinta leading-relaxed">{{ L('SUVmáx de los informes. El color encoda el TRAZADOR, no biología ni pronóstico.', 'SUVmax from the reports. Colour encodes the TRACER, not biology or prognosis.') }}</p>
               </div>
           </div>
         </section>
@@ -3146,7 +3219,7 @@ const manifestValidated = (() => {
                 <span v-for="lv in MRI_LEVELS" :key="lv" class="pill-data pill-data--violet">{{ lv }}</span>
               </div>
               <ul class="space-y-1.5 text-[13px] text-tinta leading-snug">
-                <li class="flex gap-2"><span class="mt-1.5 shrink-0 w-1.5 h-1.5 rounded-full" :style="{ background: '#bb4128' }" /><span><strong class="text-berenjena">D11</strong> — {{ L('extensión al espacio epidural anterior y compromiso del canal lateral izquierdo.', 'anterior epidural extension and left lateral canal compromise.') }}</span></li>
+                <li class="flex gap-2"><span class="mt-1.5 shrink-0 w-1.5 h-1.5 rounded-full" :style="{ background: FDG_FILL }" /><span><strong class="text-berenjena">D11</strong> — {{ L('extensión al espacio epidural anterior y compromiso del canal lateral izquierdo.', 'anterior epidural extension and left lateral canal compromise.') }}</span></li>
                 <li class="flex gap-2"><span class="mt-1.5 shrink-0 w-1.5 h-1.5 rounded-full" :style="{ background: '#c9921e' }" /><span>{{ L('Fracturas patológicas crónicas (desde 2024) de L1 y L3.', 'Chronic pathological fractures (since 2024) of L1 and L3.') }}</span></li>
                 <li class="flex gap-2"><span class="mt-1.5 shrink-0 w-1.5 h-1.5 rounded-full" :style="{ background: '#1f5a3a' }" /><span>{{ L('Médula espinal de señal normal.', 'Spinal cord with normal signal.') }}</span></li>
               </ul>
@@ -3262,7 +3335,7 @@ const manifestValidated = (() => {
           <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-5">
             <div class="stat-readout">
               <div class="stat-readout__label">{{ L('FDG en aumento', 'FDG rising') }}</div>
-              <div class="stat-readout__value" :style="{ color: '#bb4128' }">{{ trajectory.up + trajectory.neu }}</div>
+              <div class="stat-readout__value" :style="{ color: FDG_TEXT }">{{ trajectory.up + trajectory.neu }}</div>
               <div class="stat-readout__unit">{{ L('incluye focos nuevos', 'includes new foci') }}</div>
             </div>
             <div class="stat-readout">
@@ -3277,7 +3350,7 @@ const manifestValidated = (() => {
             </div>
             <div class="stat-readout">
               <div class="stat-readout__label">{{ L('Focos nuevos', 'New foci') }}</div>
-              <div class="stat-readout__value" :style="{ color: '#bb4128' }">{{ trajectory.neu }}</div>
+              <div class="stat-readout__value" :style="{ color: FDG_TEXT }">{{ trajectory.neu }}</div>
               <div class="stat-readout__unit">{{ L('encienden ahora', 'lighting up now') }}</div>
             </div>
           </div>
@@ -3362,7 +3435,7 @@ const manifestValidated = (() => {
                 </tr>
                 <tr v-else class="cursor-pointer" :class="selected === row.le.id ? 'bg-[rgba(157,68,171,0.08)]' : (isAiDavid(row.le) ? 'ai-row' : '')" @click="pickAndShow(row.le.id)">
                   <template v-if="row.kind === 'lesion'">
-                  <td><span class="inline-flex w-6 h-6 rounded-full items-center justify-center text-white text-xs font-semibold" :class="isAiDavid(row.le) ? 'ai-dot' : ''" :style="{ background: phenoColor(row.le), color: markerInk(row.le) }">{{ row.le.id }}</span></td>
+                  <td><span class="inline-flex w-6 h-6 rounded-full items-center justify-center  text-xs font-semibold" :class="isAiDavid(row.le) ? 'ai-dot' : ''" :style="{ background: phenoColor(row.le), color: markerInk(row.le) }">{{ row.le.id }}</span></td>
                   <td class="font-semibold text-berenjena">{{ row.le.level[lang] }}</td>
                   <td class="text-xs">{{ row.le.side === 'R' ? L('Dcha', 'R') : row.le.side === 'L' ? L('Izda', 'L') : L('Centro', 'Mid') }}</td>
                   <td>
@@ -3386,8 +3459,8 @@ const manifestValidated = (() => {
                   <td class="text-sm">
                     <span class="flex items-center gap-2">
                       <span class="inline-flex h-2.5 w-12 shrink-0 rounded-full overflow-hidden border border-[rgba(45,27,61,0.1)]" aria-hidden="true">
-                        <span :style="{ width: (neShare(row.le) * 100).toFixed(0) + '%', background: '#9d44ab' }" />
-                        <span :style="{ width: ((1 - neShare(row.le)) * 100).toFixed(0) + '%', background: '#bb4128' }" />
+                        <span :style="{ width: (neShare(row.le) * 100).toFixed(0) + '%', background: GA_FILL }" />
+                        <span :style="{ width: ((1 - neShare(row.le)) * 100).toFixed(0) + '%', background: FDG_FILL }" />
                       </span>
                       <span>{{ phenoLabel(row.le) }}</span>
                     </span>
@@ -3470,27 +3543,27 @@ const manifestValidated = (() => {
                     <span v-if="concNarrow(concordance.mix)" :style="{ color: '#8a4a1a' }">{{ concordance.mix }}</span>
                   </div>
                   <div v-if="concordance.agg" :style="{ width: concPct(concordance.agg) }" class="flex items-end justify-center">
-                    <span v-if="concNarrow(concordance.agg)" :style="{ color: '#bb4128' }">{{ concordance.agg }}</span>
+                    <span v-if="concNarrow(concordance.agg)" :style="{ color: FDG_TEXT }">{{ concordance.agg }}</span>
                   </div>
                 </div>
                 <div class="flex h-7 rounded-full overflow-hidden border border-[rgba(45,27,61,0.1)]" role="img"
                   :aria-label="L(concordance.ne + ' SSTR-dominantes, ' + concordance.mix + ' con captación dual, ' + concordance.agg + ' glucolítico-dominante', concordance.ne + ' SSTR-dominant, ' + concordance.mix + ' dual uptake, ' + concordance.agg + ' glycolytic-dominant')">
-                  <div v-if="concordance.ne" :style="{ width: concPct(concordance.ne), background: '#9d44ab' }" class="flex items-center justify-center text-[12px] font-semibold text-white">{{ concNarrow(concordance.ne) ? '' : concordance.ne }}</div>
-                  <div v-if="concordance.mix" :style="{ width: concPct(concordance.mix), background: '#df7a44' }" class="flex items-center justify-center text-[12px] font-semibold text-berenjena">{{ concNarrow(concordance.mix) ? '' : concordance.mix }}</div>
-                  <div v-if="concordance.agg" :style="{ width: concPct(concordance.agg), background: '#bb4128' }" class="flex items-center justify-center text-[12px] font-semibold text-white">{{ concNarrow(concordance.agg) ? '' : concordance.agg }}</div>
+                  <div v-if="concordance.ne" :style="{ width: concPct(concordance.ne), background: GA_FILL }" class="flex items-center justify-center text-[12px] font-semibold text-berenjena">{{ concNarrow(concordance.ne) ? '' : concordance.ne }}</div>
+                  <div v-if="concordance.mix" :style="{ width: concPct(concordance.mix), background: PHENO.mixBal.c }" class="flex items-center justify-center text-[12px] font-semibold text-berenjena">{{ concNarrow(concordance.mix) ? '' : concordance.mix }}</div>
+                  <div v-if="concordance.agg" :style="{ width: concPct(concordance.agg), background: FDG_FILL }" class="flex items-center justify-center text-[12px] font-semibold text-berenjena">{{ concNarrow(concordance.agg) ? '' : concordance.agg }}</div>
                 </div>
               </div>
               <div class="flex flex-wrap gap-x-4 gap-y-1 mt-2 text-[12px] text-tinta">
-                <span class="inline-flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full" :style="{ background: '#9d44ab' }" /><span class="font-semibold tabular-nums text-berenjena">{{ concordance.ne }}</span> {{ L('SSTR-dominante (⁶⁸Ga⁺/FDG⁻)', 'SSTR-dominant (⁶⁸Ga⁺/FDG⁻)') }}</span>
+                <span class="inline-flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full" :style="{ background: GA_FILL }" /><span class="font-semibold tabular-nums text-berenjena">{{ concordance.ne }}</span> {{ L('SSTR-dominante (⁶⁸Ga⁺/FDG⁻)', 'SSTR-dominant (⁶⁸Ga⁺/FDG⁻)') }}</span>
                 <span class="inline-flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full" :style="{ background: '#df7a44' }" /><span class="font-semibold tabular-nums text-berenjena">{{ concordance.mix }}</span> {{ L('captación dual (ambos)', 'dual uptake (both)') }}</span>
-                <span class="inline-flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full" :style="{ background: '#bb4128' }" /><span class="font-semibold tabular-nums text-berenjena">{{ concordance.agg }}</span> {{ L('glucolítico-dominante (⁶⁸Ga⁻/FDG⁺)', 'glycolytic-dominant (⁶⁸Ga⁻/FDG⁺)') }}</span>
+                <span class="inline-flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full" :style="{ background: FDG_FILL }" /><span class="font-semibold tabular-nums text-berenjena">{{ concordance.agg }}</span> {{ L('glucolítico-dominante (⁶⁸Ga⁻/FDG⁺)', 'glycolytic-dominant (⁶⁸Ga⁻/FDG⁺)') }}</span>
               </div>
             </div>
             <div class="card-base !p-4">
               <p class="eyebrow--sm text-berenjena mb-2">{{ L('Captación glucolítica (¹⁸F-FDG) vs estudio previo', 'Glycolytic uptake (¹⁸F-FDG) vs prior study') }}</p>
               <div class="grid grid-cols-4 gap-2 text-center">
-                <div><div class="font-display text-2xl" :style="{ color: '#bb4128' }">{{ trajectory.neu }}</div><div class="text-[11px] text-tinta mt-0.5">{{ L('nuevos', 'new') }}</div></div>
-                <div><div class="font-display text-2xl" :style="{ color: '#bb4128' }">↑ {{ trajectory.up }}</div><div class="text-[11px] text-tinta mt-0.5">{{ L('más FDG', 'more FDG') }}</div></div>
+                <div><div class="font-display text-2xl" :style="{ color: FDG_TEXT }">{{ trajectory.neu }}</div><div class="text-[11px] text-tinta mt-0.5">{{ L('nuevos', 'new') }}</div></div>
+                <div><div class="font-display text-2xl" :style="{ color: FDG_TEXT }">↑ {{ trajectory.up }}</div><div class="text-[11px] text-tinta mt-0.5">{{ L('más FDG', 'more FDG') }}</div></div>
                 <div><div class="font-display text-2xl" :style="{ color: '#1f5a3a' }">↓ {{ trajectory.down }}</div><div class="text-[11px] text-tinta mt-0.5">{{ L('menos FDG', 'less FDG') }}</div></div>
                 <div><div class="font-display text-2xl text-berenjena">{{ trajectory.stable }}</div><div class="text-[11px] text-tinta mt-0.5">{{ L('estables', 'stable') }}</div></div>
               </div>
@@ -3524,13 +3597,13 @@ const manifestValidated = (() => {
             <p class="eyebrow--sm text-berenjena mb-2">{{ L('La barra SSTR ↔ glucólisis', 'The SSTR ↔ glycolysis bar') }}</p>
             <div class="flex items-center gap-3">
               <div class="flex-1 flex h-3.5 rounded-full overflow-hidden border border-[rgba(45,27,61,0.1)]">
-                <div style="width: 58%; background: #9d44ab" />
-                <div style="width: 42%; background: #bb4128" />
+                <div style="width: 58%; background: #1c969e" />
+                <div style="width: 42%; background: #d66e1c" />
               </div>
             </div>
             <div class="flex justify-between text-[11px] mt-1.5">
-              <span class="font-semibold" :style="{ color: '#9d44ab' }">{{ L('SSTR · ⁶⁸Ga', 'SSTR · ⁶⁸Ga') }}</span>
-              <span class="font-semibold" :style="{ color: '#bb4128' }">{{ L('glucólisis · ¹⁸F-FDG', 'glycolysis · ¹⁸F-FDG') }}</span>
+              <span class="font-semibold" :style="{ color: GA_TEXT }">{{ L('SSTR · ⁶⁸Ga', 'SSTR · ⁶⁸Ga') }}</span>
+              <span class="font-semibold" :style="{ color: FDG_TEXT }">{{ L('glucólisis · ¹⁸F-FDG', 'glycolysis · ¹⁸F-FDG') }}</span>
             </div>
             <p class="text-[12px] text-tinta leading-relaxed mt-2">
               {{ L('En cada ficha y cada fila, la proporción violeta↔coral resume la captación SSTR frente a la glucolítica del foco. El color recorre el eje de discordancia, del violeta (SSTR-dominante) al coral (glucolítico-dominante).',
@@ -3540,16 +3613,16 @@ const manifestValidated = (() => {
 
           <!-- los tres patrones (por trazador) -->
           <div class="grid sm:grid-cols-3 gap-3 mt-4">
-            <div class="card-base !p-4 border-t-4" :style="{ borderColor: '#9d44ab' }">
-              <p class="font-semibold text-sm mb-1" :style="{ color: '#9d44ab' }">{{ L('⁶⁸Ga⁺ / FDG⁻', '⁶⁸Ga⁺ / FDG⁻') }}</p>
+            <div class="card-base !p-4 border-t-4" :style="{ borderColor: GA_FILL }">
+              <p class="font-semibold text-sm mb-1" :style="{ color: GA_TEXT }">{{ L('⁶⁸Ga⁺ / FDG⁻', '⁶⁸Ga⁺ / FDG⁻') }}</p>
               <p class="text-[13px] text-tinta leading-snug">{{ L('Captación SSTR con glucólisis ausente o mínima.', 'SSTR uptake with absent or minimal glycolysis.') }}</p>
             </div>
             <div class="card-base !p-4 border-t-4" :style="{ borderColor: '#df7a44' }">
               <p class="font-semibold text-sm mb-1" :style="{ color: '#8a5a1a' }">{{ L('Captación dual (ambos)', 'Dual uptake (both)') }}</p>
               <p class="text-[13px] text-tinta leading-snug">{{ L('Capta ambos trazadores: SSTR y glucólisis a la vez.', 'Takes up both tracers: SSTR and glycolysis at once.') }}</p>
             </div>
-            <div class="card-base !p-4 border-t-4" :style="{ borderColor: '#bb4128' }">
-              <p class="font-semibold text-sm mb-1" :style="{ color: '#bb4128' }">{{ L('FDG⁺ / ⁶⁸Ga⁻', 'FDG⁺ / ⁶⁸Ga⁻') }}</p>
+            <div class="card-base !p-4 border-t-4" :style="{ borderColor: FDG_FILL }">
+              <p class="font-semibold text-sm mb-1" :style="{ color: FDG_TEXT }">{{ L('FDG⁺ / ⁶⁸Ga⁻', 'FDG⁺ / ⁶⁸Ga⁻') }}</p>
               <p class="text-[13px] text-tinta leading-snug">{{ L('Glucólisis sin SSTR detectable: discordancia de trazadores.', 'Glycolysis without detectable SSTR: tracer discordance.') }}</p>
             </div>
           </div>
