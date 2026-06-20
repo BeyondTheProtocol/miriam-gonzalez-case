@@ -825,6 +825,52 @@ function visible(le: Lesion): boolean {
   if (filter.value === 'mix') return le.pheno === 'mixNe' || le.pheno === 'mixBal' || le.pheno === 'mixAgg' // mixtos fundidos
   return le.pheno === filter.value
 }
+
+/* ════════════════════════════════════════════════════════════════════════
+   BRUSHING & LINKING DE ESTADO (principio Becker/Cleveland: de 4 gráficos a
+   UN instrumento). Un solo estado compartido de HOVER y un solo criterio de
+   FILTRO que las 3 vistas de navegación (esqueleto SVG · scatter de fenotipo ·
+   tabla/lista) leen para RESALTAR y ATENUAR la MISMA entidad — sin OCULTAR,
+   sin CONCLUIR (solo enlaza el mismo foco; no afirma mérito).
+
+   · hoveredFoco  → id bajo el ratón/foco-de-teclado en CUALQUIERA de las 3
+     vistas; resalta ese foco en las otras dos y atenúa ligeramente el resto.
+   · El FILTRO atenúa (no oculta): el no-coincidente baja de opacidad pero
+     se queda en su sitio → el comité conserva el contexto de dónde están los
+     demás focos. NO toca la SELECCIÓN (`selected`/`pick`/`pickAndShow`).
+   ════════════════════════════════════════════════════════════════════════ */
+const hoveredFoco = ref<number | null>(null)
+function setHover(id: number) { hoveredFoco.value = id }
+function clearHover() { hoveredFoco.value = null }
+
+/* OPACIDAD de linking de un foco, combinando hover compartido + filtro.
+   Reglas (la más restrictiva manda): si hay hover activo, el foco con hover y
+   el seleccionado van a plena presencia y el resto se atenúa; el filtro atenúa
+   los no coincidentes en todo momento. La SELECCIÓN nunca se atenúa (es el
+   foco que se está viendo en 3D). Devuelve 1 (pleno), valor medio o bajo. */
+const DIM_FILTER = 0.28   // no coincide con el filtro → contexto, no foco
+const DIM_HOVER = 0.45    // hay otro foco con hover → se cede el protagonismo
+function focoOpacity(le: Lesion): number {
+  const isSel = le.id === selected.value
+  const matches = visible(le)
+  const h = hoveredFoco.value
+  // el foco con hover y el seleccionado mandan: presencia plena aunque el filtro
+  // no los marque (el comité los está mirando AHORA).
+  if (h === le.id || isSel) return 1
+  if (h != null) return matches ? DIM_HOVER : Math.min(DIM_HOVER, DIM_FILTER)
+  return matches ? 1 : DIM_FILTER
+}
+/* ¿este foco es el que tiene el hover compartido? (énfasis sutil extra: anillo). */
+function focoHovered(le: Lesion): boolean { return hoveredFoco.value === le.id }
+/* versiones por GRUPO del esqueleto (un marcador agrupa 1+ focos por vértebra):
+   el grupo está "con hover"/atenuado si su foco primario lo está. */
+function gHovered(g: LesGroup): boolean { return g.foci.some((l) => l.id === hoveredFoco.value) }
+function gOpacity(g: LesGroup): number {
+  // el grupo toma la MAYOR presencia de sus focos (si alguno coincide/seleccionado/hover, no se atenúa)
+  return Math.max(...g.foci.map(focoOpacity))
+}
+function setHoverGroup(g: LesGroup) { setHover(g.primary.id) }
+
 function pick(id: number) { selected.value = id }
 /* (ficha resumen) ir directo al DETALLE del comité de ese foco: selecciona + abre el
    <details id="detalle-foco"> (que ya hace scroll). */
@@ -940,10 +986,8 @@ const GROUPS: LesGroup[] = (() => {
 function isNewFocus(l: Lesion): boolean { return isNewAt(l, 1) }   // foco que enciende por primera vez (FDG)
 const newCount = computed(() => LES.filter(isNewFocus).length)
 /* «foco nuevo» y «detectado por IA» son ahora chips de la fila de filtros
-   (vía visible()); el grupo aparece si alguno de sus focos pasa el filtro. */
-function groupVisible(g: LesGroup): boolean {
-  return g.foci.some(visible)
-}
+   (vía visible()); el grupo coincide con el filtro si alguno de sus focos lo hace.
+   Ya no OCULTA (el filtro atenúa, no esconde) → la presencia la modula gOpacity. */
 function gPresentAt(g: LesGroup, f: number): boolean { return g.foci.some((l) => presentAt(l, f)) }
 /* TAMAÑO UNIFORME del marcador del esqueleto: un solo radio para todos los grupos.
    El SUVmáx ya está en el scatter, en la tabla y en la ficha; aquí el marcador solo
@@ -1650,10 +1694,15 @@ const visibleFocusList = computed<Lesion[]>(() => focusListItems.value.filter(vi
    marcador de su vértebra. Filtra por level+region, sin acentos. Solo la lista Tabla. */
 const focoQuery = ref('')
 function normTxt(s: string): string { return s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '') }
-const filteredFocusList = computed<Lesion[]>(() => {
+/* LISTA DE LA TABLA con linking de estado: el filtro de fenotipo/tiempo NO oculta
+   — la fila no coincidente se queda en su sitio y se ATENÚA (focoOpacity), igual
+   que el marcador del esqueleto y el punto del scatter. La BÚSQUEDA por texto sí
+   oculta (es una consulta del usuario, no el filtro compartido). Así las 3 vistas
+   muestran el MISMO conjunto y el filtro las modula de forma coherente. */
+const tableFocusList = computed<Lesion[]>(() => {
   const q = normTxt(focoQuery.value.trim())
-  if (!q) return visibleFocusList.value
-  return visibleFocusList.value.filter((le) => normTxt(le.level[lang.value] + ' ' + le.region[lang.value]).includes(q))
+  if (!q) return focusListItems.value
+  return focusListItems.value.filter((le) => normTxt(le.level[lang.value] + ' ' + le.region[lang.value]).includes(q))
 })
 /* si el filtro deja fuera al foco seleccionado, autoselecciona el primero visible
    (evita que el visor muestre un foco que ya no está en el navegador). */
@@ -2363,7 +2412,10 @@ const manifestValidated = (() => {
                      + contorno punteado (IA por confirmar) + borde oscuro si está
                      seleccionado. Sin halo, sin parpadeo, sin anillo de «foco nuevo»,
                      sin tamaño ∝ SUVmáx. Si no capta en la fecha actual → solo opacidad. -->
-                <g v-for="g in GROUPS" :key="g.key" v-show="groupVisible(g)">
+                <!-- linking de estado: el FILTRO atenúa (no oculta) → el grupo no
+                     coincidente se queda en su sitio con baja opacidad (gOpacity);
+                     un foco con hover en CUALQUIER vista resalta aquí su grupo. -->
+                <g v-for="g in GROUPS" :key="g.key" class="sk-foco" :style="{ opacity: gOpacity(g) * (gPresentAt(g, frame) ? 1 : 0.4) }">
                   <!-- ÁREA TÁCTIL invisible (≈ 24px en pantalla a móvil): el marcador visible
                        se mantiene UNIFORME y pequeño (no se aprietan los focos), pero el dedo
                        acierta gracias a este círculo transparente. aria-hidden: la
@@ -2372,22 +2424,21 @@ const manifestValidated = (() => {
                     :cx="g.x" :cy="g.y" :r="SK_HIT"
                     fill="transparent" class="cursor-pointer" aria-hidden="true"
                     @click="pickGroup(g)"
-                    @mouseenter="canHoverFine() && showTip($event, groupTipText(g))" @mouseleave="hideTip" />
+                    @mouseenter="canHoverFine() && (showTip($event, groupTipText(g)), setHoverGroup(g))" @mouseleave="hideTip(); clearHover()" />
                   <circle
                     :id="'sk-opt-' + g.primary.id"
                     :ref="(el) => registerSkOpt(g.primary.id, el)"
                     :cx="g.x" :cy="g.y"
-                    :r="SK_R + (gSelected(g) ? 2.5 : 0)"
+                    :r="SK_R + (gSelected(g) ? 2.5 : (gHovered(g) ? 1.5 : 0))"
                     :fill="gPresentAt(g, frame) ? phenoColor(g.primary) : 'none'"
-                    :stroke="gSelected(g) ? '#2d1b3d' : (gPresentAt(g, frame) ? '#ffffff' : phenoColor(g.primary))"
-                    :stroke-width="gSelected(g) ? 2.5 : 1.4"
+                    :stroke="gSelected(g) ? '#2d1b3d' : (gHovered(g) ? '#9d44ab' : (gPresentAt(g, frame) ? '#ffffff' : phenoColor(g.primary)))"
+                    :stroke-width="gSelected(g) ? 2.5 : (gHovered(g) ? 2.2 : 1.4)"
                     :stroke-dasharray="sourceOf(g.primary) === 'ia-david' ? '2 1.6' : undefined"
-                    :opacity="gPresentAt(g, frame) ? 1 : 0.4"
-                    class="cursor-pointer transition-all"
+                    class="cursor-pointer sk-marker"
                     :tabindex="gSelected(g) ? 0 : -1" role="option" :aria-selected="gSelected(g)"
                     :aria-label="g.multi ? `${g.foci[0].level[lang]} — ${g.foci.length} ${L('focos', 'foci')}` : `${g.primary.level[lang]} — ${phenoLabel(g.primary)}`"
                     @click="pickGroup(g)"
-                    @mouseenter="canHoverFine() && showTip($event, groupTipText(g))" @mouseleave="hideTip" @focus="showTip($event, groupTipText(g))" @blur="hideTip" @keydown.escape="hideTip" />
+                    @mouseenter="canHoverFine() && (showTip($event, groupTipText(g)), setHoverGroup(g))" @mouseleave="hideTip(); clearHover()" @focus="showTip($event, groupTipText(g)); setHoverGroup(g)" @blur="hideTip(); clearHover()" @keydown.escape="hideTip" />
                   <!-- foco único: id dentro; varios focos: insignia de recuento -->
                   <!-- (auditoría) el número arbitrario sale del esqueleto: el nombre lo da el
                        tooltip y el color el fenotipo; el #N se queda en lista/tabla para cruzar.
@@ -2495,15 +2546,19 @@ const manifestValidated = (() => {
                 :aria-activedescendant="'list-opt-' + selected"
                 aria-describedby="tabla-focos-alt"
                 class="space-y-1 overflow-y-auto pr-0.5" style="max-height:600px">
-                <li v-if="!filteredFocusList.length" class="px-2 py-3 text-[11px] text-tinta text-center" role="presentation">{{ L('Sin focos que coincidan.', 'No matching foci.') }}</li>
-                <li v-for="le in filteredFocusList" :key="le.id" role="presentation">
+                <li v-if="!tableFocusList.length" class="px-2 py-3 text-[11px] text-tinta text-center" role="presentation">{{ L('Sin focos que coincidan.', 'No matching foci.') }}</li>
+                <!-- linking de estado: el FILTRO atenúa (no oculta) → la fila no
+                     coincidente se queda con baja opacidad (focoOpacity) en vez de
+                     desaparecer; un foco con hover en CUALQUIER vista resalta su fila. -->
+                <li v-for="le in tableFocusList" :key="le.id" role="presentation" class="list-foco" :style="{ opacity: focoOpacity(le) }">
                   <button type="button" @click="pick(le.id)"
                     :id="'list-opt-' + le.id"
                     :ref="(el) => registerListOpt(le.id, el)"
                     role="option"
                     :tabindex="le.id === selected ? 0 : -1"
+                    @mouseenter="setHover(le.id)" @mouseleave="clearHover()" @focus="setHover(le.id)" @blur="clearHover()"
                     class="foco-card w-full text-left rounded-card border px-2 py-1.5 flex items-center gap-2"
-                    :class="le.id === selected ? 'border-berenjena bg-[rgba(45,27,61,0.05)]' : 'border-transparent hover:bg-[rgba(45,27,61,0.035)]'"
+                    :class="le.id === selected ? 'border-berenjena bg-[rgba(45,27,61,0.05)]' : (focoHovered(le) ? 'border-[#9d44ab] bg-[rgba(157,68,171,0.05)]' : 'border-transparent hover:bg-[rgba(45,27,61,0.035)]')"
                     :aria-selected="le.id === selected"
                     :aria-label="`#${le.id} ${le.level[lang]} — ${phenoLabel(le)}`">
                     <span class="shrink-0 w-3 h-3 rounded-full" :style="{ background: phenoColor(le), boxShadow: sourceOf(le) === 'ia-david' ? '0 0 0 1.5px #fff, 0 0 0 3px ' + phenoColor(le) : 'none' }" aria-hidden="true" />
@@ -3421,26 +3476,29 @@ const manifestValidated = (() => {
                      discordancia. Borde punteado = IA (por confirmar); borde oscuro
                      = seleccionado. Tamaño UNIFORME (la posición ya codifica los dos
                      SUV; el disco los REPITE de forma bivariada). Sin halo/parpadeo. -->
-                <g v-for="d in quadDots" :key="'qd' + d.le.id" v-show="visible(d.le)">
+                <!-- linking de estado: el FILTRO atenúa (no oculta) → el punto no
+                     coincidente se queda en su posición con baja opacidad (focoOpacity);
+                     un foco con hover en CUALQUIER vista resalta aquí su punto. -->
+                <g v-for="d in quadDots" :key="'qd' + d.le.id" class="sc-foco" :style="{ opacity: focoOpacity(d.le) }">
                   <!-- área táctil invisible (móvil): el dedo acierta sin agrandar el punto -->
                   <circle :cx="d.px" :cy="d.py" :r="DOT_HIT"
                     fill="transparent" class="cursor-pointer" aria-hidden="true"
                     @click="pickAndShow(d.le.id)"
-                    @mouseenter="canHoverFine() && showTip($event, lesionTipText(d.le))" @mouseleave="hideTip" />
+                    @mouseenter="canHoverFine() && (showTip($event, lesionTipText(d.le)), setHover(d.le.id))" @mouseleave="hideTip(); clearHover()" />
                   <!-- mitad ⁶⁸Ga (izquierda, teal) + mitad ¹⁸F-FDG (derecha, ámbar) -->
                   <path :d="halfDiscPath(d.px, d.py, DOT_R, 'L')" :fill="gaHalf(d.le)" class="pointer-events-none" />
                   <path :d="halfDiscPath(d.px, d.py, DOT_R, 'R')" :fill="fdgHalf(d.le)" class="pointer-events-none" />
                   <!-- línea de partición + borde del disco (interacción/teclado en este círculo) -->
                   <line :x1="d.px" :y1="d.py - DOT_R" :x2="d.px" :y2="d.py + DOT_R" stroke="#ffffff" stroke-width="0.9" class="pointer-events-none" />
-                  <circle :cx="d.px" :cy="d.py" :r="DOT_R"
+                  <circle :cx="d.px" :cy="d.py" :r="DOT_R + (selected === d.le.id ? 0 : (focoHovered(d.le) ? 1.5 : 0))"
                     fill="none"
-                    :stroke="selected === d.le.id ? '#2d1b3d' : '#ffffff'"
-                    :stroke-width="selected === d.le.id ? 2.5 : 1.2"
+                    :stroke="selected === d.le.id ? '#2d1b3d' : (focoHovered(d.le) ? '#9d44ab' : '#ffffff')"
+                    :stroke-width="selected === d.le.id ? 2.5 : (focoHovered(d.le) ? 2.2 : 1.2)"
                     :stroke-dasharray="sourceOf(d.le) === 'ia-david' ? '2 1.6' : undefined"
-                    class="cursor-pointer transition-all" tabindex="0" role="button" :aria-pressed="selected === d.le.id"
+                    class="cursor-pointer sk-marker" tabindex="0" role="button" :aria-pressed="selected === d.le.id"
                     :aria-label="`#${d.le.id} ${d.le.level[lang]} — Ga ${d.le.dota ?? '—'} / FDG ${d.le.fdg ?? '—'}`"
                     @click="pickAndShow(d.le.id)" @keydown.enter="pickAndShow(d.le.id)" @keydown.space.prevent="pickAndShow(d.le.id)"
-                    @mouseenter="canHoverFine() && showTip($event, lesionTipText(d.le))" @mouseleave="hideTip" @focus="showTip($event, lesionTipText(d.le))" @blur="hideTip" @keydown.escape="hideTip" />
+                    @mouseenter="canHoverFine() && (showTip($event, lesionTipText(d.le)), setHover(d.le.id))" @mouseleave="hideTip(); clearHover()" @focus="showTip($event, lesionTipText(d.le)); setHover(d.le.id)" @blur="hideTip(); clearHover()" @keydown.escape="hideTip" />
                   <text :x="d.px" :y="d.py + 3" text-anchor="middle" font-family="Source Sans 3, sans-serif" :font-size="d.le.id > 9 ? 8.5 : 9.5" font-weight="700" :fill="markerInk(d.le)" class="pointer-events-none select-none" paint-order="stroke" stroke="#ffffff" stroke-width="2.2" stroke-linejoin="round">{{ d.le.id }}</text>
                 </g>
               </svg>
@@ -4217,6 +4275,27 @@ const manifestValidated = (() => {
     border-color var(--ease-spring),
     background-color var(--ease-spring),
     box-shadow var(--ease-spring);
+}
+/* ════════════════════════════════════════════════════════════════════════
+   BRUSHING & LINKING · transición de la ATENUACIÓN (filtro) y del RESALTADO
+   (hover compartido) en las 3 vistas de navegación. Una sola curva (los mismos
+   motion tokens) para que esqueleto, scatter y tabla se modulen al unísono —
+   un instrumento, no 3 gráficos. La opacidad va por estilo inline (focoOpacity/
+   gOpacity); aquí solo se anima. El RESALTADO (anillo/escala/borde) usa
+   --ease-entrada (se asienta) y la ATENUACIÓN --ease-salida (suelta el foco).
+   Bajo prefers-reduced-motion los tokens ya colapsan a 0ms (sin movimiento). */
+.sk-foco,
+.sc-foco,
+.list-foco {
+  transition: opacity var(--ease-salida);
+}
+/* el marcador SVG (anillo del esqueleto/scatter) anima radio/trazo del resaltado
+   de hover y de la selección con la curva de entrada (se engancha, sin saltos). */
+.sk-marker {
+  transition:
+    r var(--ease-entrada),
+    stroke var(--ease-entrada),
+    stroke-width var(--ease-entrada);
 }
 /* Controles del navegador (flechas prev/next, chips de filtro, pasos de fecha):
    color/borde/fondo con los tokens — entrada al hover, salida al soltar. */
