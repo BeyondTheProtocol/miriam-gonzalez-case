@@ -301,10 +301,33 @@ function init() {
    escena con la MISMA cámara → orientación y zoom compartidos automáticamente. */
 function renderScenes() {
   if (!renderer || !host.value) return
-  // parpadeo del marcador orientativo (opacidad sinusoidal suave; el bucle ya es continuo)
-  if (targetMats.length) {
-    const op = 0.85 + 0.15 * (0.5 + 0.5 * Math.sin(performance.now() * 0.005))
-    for (const m of targetMats) (m as THREE.SpriteMaterial).opacity = op
+  // DESTELLO del marcador orientativo (el bucle ya es continuo). Dos animaciones:
+  //  · el HALO/núcleo glow «respira» (opacidad + escala sinusoidal suave)
+  //  · una chispa especular RECORRE el anillo que conforma la superficie (twinkle)
+  if (targetCores.length || targetSparks.length) {
+    const t = performance.now()
+    // respiración del glow: 0.55 → 1.0, lenta y suave
+    const breath = 0.5 + 0.5 * Math.sin(t * 0.0022)            // 0..1
+    const coreOp = 0.62 + 0.38 * breath
+    const coreScale = 1 + 0.10 * breath                         // late ±5 %
+    for (const c of targetCores) {
+      ;(c.material as THREE.SpriteMaterial).opacity = coreOp
+      const s = c.userData.baseScale as number
+      c.scale.setScalar(s * coreScale)
+    }
+    // chispa que orbita el aro: avanza el ángulo y pulsa el brillo al pasar
+    const ang = (t * 0.0016) % (Math.PI * 2)
+    const twinkle = 0.45 + 0.55 * Math.pow(0.5 + 0.5 * Math.sin(t * 0.006), 2)
+    for (const sp of targetSparks) {
+      const r = sp.userData.orbitR as number
+      const right = sp.userData.right as THREE.Vector3
+      const upv = sp.userData.up as THREE.Vector3
+      const base = sp.userData.base as THREE.Vector3
+      sp.position.copy(base)
+        .addScaledVector(right, Math.cos(ang) * r)
+        .addScaledVector(upv, Math.sin(ang) * r)
+      ;(sp.material as THREE.SpriteMaterial).opacity = twinkle
+    }
   }
   const W = host.value.clientWidth, H = host.value.clientHeight
   // OJO: setViewport/setScissor reciben píxeles CSS — three.js los multiplica por el
@@ -454,6 +477,7 @@ function load(key: string) {
         for (let i = 0; i < n; i++) { rgb[i * 3] = colAttr.getX(i); rgb[i * 3 + 1] = colAttr.getY(i); rgb[i * 3 + 2] = colAttr.getZ(i) }
         geo.setAttribute('color', new THREE.BufferAttribute(rgb, 3))
       }
+      disposeTargetMarker()   // libera el marcador anterior ANTES de descartar sus grupos/meshes
       disposeMeshes()
       disposeBiopsyNeedle()
       // RECENTRAR al CENTRO DE LA CAJA (bounding box), no al centro de la esfera: en
@@ -533,66 +557,141 @@ let needleGeos: THREE.BufferGeometry[] = []
 /* ====================================================================== */
 /*  SEÑAL DE LA ZONA DE MÁXIMA CAPTACIÓN (≈ dónde apuntaría la biopsia).    */
 /*  Petición: ver la diana DIBUJADA. HONESTO: la captación es un GRADIENTE  */
-/*  sin borde tumoral neto → NO es un contorno. Sprite «billboard» (siempre */
-/*  de frente a cámara → sin escorzo ni intersección con el hueso, el fallo */
-/*  del toro) con halo radial DIFUSO (el borde se desvanece = el gradiente) */
-/*  + retícula central fina que apunta al pico. NARANJA/CORAL + PARPADEO para */
-/*  esta señal (la aguja de biopsia previa #13 es ÁMBAR FIJA: se distinguen   */
-/*  por el color y el parpadeo). El cian no contrastaba sobre el hueso teñido.*/
+/*  sin borde tumoral neto → NO es un contorno. Es un SÍMBOLO orientativo.  */
+/*                                                                          */
+/*  DISEÑO «BALIZA HÍBRIDA» (montada en 3D, no plana):                      */
+/*   (1) ANILLO que CONFORMA la superficie — un toro FINO y PEQUEÑO         */
+/*       orientado por la normal del vértice, asentado justo sobre el       */
+/*       hueso → se lee PINTADO/MONTADO (su leve escorzo según el ángulo es */
+/*       una PISTA de profundidad correcta, no el «raro» del v1: aquel era  */
+/*       grande y flotante e intersecaba; éste es fino, pequeño y pegado).  */
+/*   (2) NÚCLEO glow billboard pequeño — esfera de luz que mira a cámara,   */
+/*       garantiza visibilidad cuando el aro se ve DE CANTO; lleva el glow. */
+/*   (3) CHISPA especular que ORBITA el aro (destello que recorre el aro) + */
+/*       el núcleo «respira» → acabado premium con brillo, animado en el    */
+/*       bucle continuo.                                                    */
+/*  DS: coral #ff6b47 (núcleo/chispa) + miriam #9d44ab (aro), mate, sobrio. */
+/*  Se distingue de la aguja de biopsia (#13, ÁMBAR FIJA) por color y glow. */
 /* ====================================================================== */
-const C_TARGET = '#ff6b47'
-let targetMats: THREE.Material[] = []
-let targetTex: THREE.Texture | null = null
-/* textura del marcador (1×, compartida por los 3 paneles): halo cian difuso + crosshair. */
-function makeTargetTexture(): THREE.Texture {
-  // DIANA dibujada: dos círculos concéntricos + punto central. Es un SÍMBOLO de
-  // marcador (glifo de diana), no un contorno tumoral → honesto y reconocible.
-  // DOBLE FILO: halo claro (destaca sobre teal oscuro) + filo oscuro (destaca
-  // sobre hueso blanco/denso) y el naranja GRUESO encima, que domina el trazo.
-  const s = 256, c = s / 2
+const C_TARGET_RING = '#9d44ab'   // miriam · el anillo que conforma la superficie
+const C_TARGET_CORE = '#ff6b47'   // coral · núcleo glow + chispa (color de acción del DS)
+let targetMats: THREE.Material[] = []       // materiales del aro (MeshStandard) — dispose
+let targetGeos: THREE.BufferGeometry[] = [] // geometrías del aro — dispose
+let targetSpriteMats: THREE.Material[] = [] // materiales de núcleo + chispa — dispose
+let targetGlowTex: THREE.Texture | null = null   // textura radial del núcleo glow
+let targetSparkTex: THREE.Texture | null = null  // textura de la chispa
+/* sprites animados (referencias para renderScenes) */
+let targetCores: THREE.Sprite[] = []   // núcleo glow que «respira»
+let targetSparks: THREE.Sprite[] = []  // chispa que orbita el aro
+
+/* textura radial suave (glow) — blanco al centro que se desvanece a transparente.
+   Tintada por `color` del SpriteMaterial → el coral del DS la colorea. */
+function makeRadialGlow(): THREE.Texture {
+  const s = 128, c = s / 2
   const cv = document.createElement('canvas'); cv.width = s; cv.height = s
   const ctx = cv.getContext('2d')!
-  const ORANGE = '#ff5a1f'   // naranja encendido (más saturado que el coral)
-  ctx.lineCap = 'round'
-  const ring = (r: number, lw: number) => { ctx.beginPath(); ctx.arc(c, c, r, 0, Math.PI * 2); ctx.lineWidth = lw; ctx.stroke() }
-  const rOut = s * 0.38, rIn = s * 0.20
-  ctx.strokeStyle = 'rgba(255,255,255,0.55)'; ring(rOut, 30); ring(rIn, 30)   // halo claro externo
-  ctx.strokeStyle = 'rgba(12,14,20,0.85)';    ring(rOut, 22); ring(rIn, 22)   // filo oscuro
-  ctx.strokeStyle = ORANGE;                   ring(rOut, 15); ring(rIn, 15)   // los dos aros naranjas (dominan)
-  ctx.fillStyle = 'rgba(255,255,255,0.55)'; ctx.beginPath(); ctx.arc(c, c, s * 0.105, 0, Math.PI * 2); ctx.fill()
-  ctx.fillStyle = 'rgba(12,14,20,0.85)';    ctx.beginPath(); ctx.arc(c, c, s * 0.085, 0, Math.PI * 2); ctx.fill()
-  ctx.fillStyle = ORANGE;                    ctx.beginPath(); ctx.arc(c, c, s * 0.062, 0, Math.PI * 2); ctx.fill()   // punto central
+  const g = ctx.createRadialGradient(c, c, 0, c, c, c)
+  g.addColorStop(0.00, 'rgba(255,255,255,1)')
+  g.addColorStop(0.22, 'rgba(255,255,255,0.95)')
+  g.addColorStop(0.48, 'rgba(255,255,255,0.45)')
+  g.addColorStop(1.00, 'rgba(255,255,255,0)')
+  ctx.fillStyle = g; ctx.fillRect(0, 0, s, s)
+  const tex = new THREE.CanvasTexture(cv); tex.needsUpdate = true; return tex
+}
+/* chispa: punto especular compacto (más nítido que el glow) para el destello que orbita. */
+function makeSparkTex(): THREE.Texture {
+  const s = 64, c = s / 2
+  const cv = document.createElement('canvas'); cv.width = s; cv.height = s
+  const ctx = cv.getContext('2d')!
+  const g = ctx.createRadialGradient(c, c, 0, c, c, c)
+  g.addColorStop(0.00, 'rgba(255,255,255,1)')
+  g.addColorStop(0.35, 'rgba(255,255,255,0.7)')
+  g.addColorStop(1.00, 'rgba(255,255,255,0)')
+  ctx.fillStyle = g; ctx.fillRect(0, 0, s, s)
   const tex = new THREE.CanvasTexture(cv); tex.needsUpdate = true; return tex
 }
 function disposeTargetMarker() {
   targetGroups.forEach((g) => g.clear())
   targetMats.forEach((m) => m.dispose()); targetMats = []
-  if (targetTex) { targetTex.dispose(); targetTex = null }
+  targetGeos.forEach((g) => g.dispose()); targetGeos = []
+  targetSpriteMats.forEach((m) => m.dispose()); targetSpriteMats = []
+  if (targetGlowTex) { targetGlowTex.dispose(); targetGlowTex = null }
+  if (targetSparkTex) { targetSparkTex.dispose(); targetSparkTex = null }
+  targetCores = []; targetSparks = []
 }
 function buildTargetMarker() {
   disposeTargetMarker()
   if (props.noTarget || !targetGroups.length || hotIndex < 0) return
-  targetTex = makeTargetTexture()
+  targetGlowTex = makeRadialGlow()
+  targetSparkTex = makeSparkTex()
+  const ringR = boneRadius * 0.11           // radio del aro · pequeño → se lee «pegado», no flota
+  const tube = boneRadius * 0.022           // tubo FINO → discreto, sin intersecar de forma grosera
+  const lift = boneRadius * 0.012           // asentado JUSTO sobre la superficie (anti z-fight, sin flotar)
   for (let i = 0; i < 3; i++) {
     const geo = meshes[i]!.geometry
     const pos = geo.getAttribute('position') as THREE.BufferAttribute
     const nrm = geo.getAttribute('normal') as THREE.BufferAttribute | undefined
     const peak = new THREE.Vector3(pos.getX(hotIndex), pos.getY(hotIndex), pos.getZ(hotIndex))
-    const normal = nrm
-      ? new THREE.Vector3(nrm.getX(hotIndex), nrm.getY(hotIndex), nrm.getZ(hotIndex)).normalize()
-      : peak.clone().normalize()
-    const mat = new THREE.SpriteMaterial({
-      map: targetTex, color: 0xffffff, transparent: true,
-      depthTest: true, depthWrite: false, blending: THREE.NormalBlending, toneMapped: false,
+    const normal = (nrm
+      ? new THREE.Vector3(nrm.getX(hotIndex), nrm.getY(hotIndex), nrm.getZ(hotIndex))
+      : peak.clone()).normalize()
+    const center = peak.clone().addScaledVector(normal, lift)
+
+    // base ortonormal del plano TANGENTE a la superficie (right, up ⟂ normal) → el aro
+    // conforma la curvatura local y la chispa orbita en ese plano.
+    const right = new THREE.Vector3()
+    const refUp = Math.abs(normal.y) > 0.95 ? new THREE.Vector3(1, 0, 0) : new THREE.Vector3(0, 1, 0)
+    right.copy(refUp).cross(normal).normalize()
+    const upv = new THREE.Vector3().copy(normal).cross(right).normalize()
+
+    // (1) ANILLO que CONFORMA la superficie — toro fino orientado por la normal.
+    // polygonOffset lo asienta sobre el hueso sin z-fight; mate (alta rugosidad).
+    const ringGeo = new THREE.TorusGeometry(ringR, tube, 12, 48); targetGeos.push(ringGeo)
+    const ringMat = new THREE.MeshStandardMaterial({
+      color: new THREE.Color(C_TARGET_RING), roughness: 0.55, metalness: 0.0,
+      emissive: new THREE.Color(C_TARGET_RING), emissiveIntensity: 0.35,
+      depthTest: true, depthWrite: true, toneMapped: true,
+      polygonOffset: true, polygonOffsetFactor: -3, polygonOffsetUnits: -3,
     })
-    targetMats.push(mat)
-    const sprite = new THREE.Sprite(mat)
-    // despegado de la superficie a lo largo de la normal → NO z-fightea (era la causa
-    // de que «no se apreciara»); el billboard encara a cámara, sin escorzo.
-    sprite.position.copy(peak).addScaledVector(normal, boneRadius * 0.08)
-    sprite.scale.setScalar(boneRadius * 0.17)
-    sprite.renderOrder = 6               // tras el hueso (depthTest lo ocluye al rotar atrás), bajo la aguja
-    targetGroups[i]!.add(sprite)
+    targetMats.push(ringMat)
+    const ring = new THREE.Mesh(ringGeo, ringMat)
+    ring.position.copy(center)
+    // TorusGeometry vive en el plano XY con eje +Z → alinear +Z con la normal
+    ring.quaternion.setFromUnitVectors(new THREE.Vector3(0, 0, 1), normal)
+    ring.renderOrder = 5
+    targetGroups[i]!.add(ring)
+
+    // (2) NÚCLEO glow billboard — visible desde cualquier ángulo (incl. aro de canto).
+    const coreMat = new THREE.SpriteMaterial({
+      map: targetGlowTex, color: new THREE.Color(C_TARGET_CORE), transparent: true,
+      depthTest: true, depthWrite: false, blending: THREE.AdditiveBlending, toneMapped: false,
+    })
+    targetSpriteMats.push(coreMat)
+    const core = new THREE.Sprite(coreMat)
+    core.position.copy(center)
+    const coreScale = boneRadius * 0.14
+    core.userData.baseScale = coreScale
+    core.scale.setScalar(coreScale)
+    core.renderOrder = 6                 // sobre el aro; depthTest lo ocluye al rotar detrás
+    targetGroups[i]!.add(core)
+    targetCores.push(core)
+
+    // (3) CHISPA especular que ORBITA el aro — el «destello» que recorre el anillo.
+    const sparkMat = new THREE.SpriteMaterial({
+      map: targetSparkTex, color: 0xffffff, transparent: true,
+      depthTest: true, depthWrite: false, blending: THREE.AdditiveBlending, toneMapped: false,
+    })
+    targetSpriteMats.push(sparkMat)
+    const spark = new THREE.Sprite(sparkMat)
+    spark.scale.setScalar(boneRadius * 0.05)
+    spark.userData.orbitR = ringR
+    spark.userData.right = right
+    spark.userData.up = upv
+    spark.userData.base = center
+    spark.position.copy(center).addScaledVector(right, ringR)
+    spark.renderOrder = 7
+    targetGroups[i]!.add(spark)
+    targetSparks.push(spark)
   }
 }
 function disposeBiopsyNeedle() {
@@ -827,8 +926,8 @@ onBeforeUnmount(() => {
              en vez de un <details> de clic-para-ver. La info queda en el aria-label de Term. -->
         <Term v-if="!failed" id="lectura_mapa3d" :label="L('ⓘ Cómo se lee el mapa', 'ⓘ How to read the map')" />
         <p v-if="!failed && !noTarget" class="flex items-center gap-1.5 mt-1.5 text-[11px] leading-snug" style="color:#3a3340">
-          <span aria-hidden="true" style="width:0.6rem;height:0.6rem;border-radius:50%;background:#ff6b47;box-shadow:0 0 0 2px rgba(255,107,71,0.25);flex-shrink:0;display:inline-block" />
-          {{ L('La diana naranja (dos círculos) señala el punto orientativo sugerido (zona de máxima captación) — una opción, no una indicación.', 'The orange target (two rings) marks the suggested orientative point (peak-uptake zone) — an option, not an instruction.') }}
+          <span aria-hidden="true" style="width:0.6rem;height:0.6rem;border-radius:50%;background:#ff6b47;box-shadow:0 0 0 2px rgba(157,68,171,0.45);flex-shrink:0;display:inline-block" />
+          {{ L('La baliza (anillo malva sobre el hueso + núcleo coral con brillo) señala el punto orientativo sugerido (zona de máxima captación) — una opción, no una indicación.', 'The beacon (mauve ring on the bone + glowing coral core) marks the suggested orientative point (peak-uptake zone) — an option, not an instruction.') }}
         </p>
       </div>
 
