@@ -303,7 +303,7 @@ function renderScenes() {
   if (!renderer || !host.value) return
   // parpadeo del marcador orientativo (opacidad sinusoidal suave; el bucle ya es continuo)
   if (targetMats.length) {
-    const op = 0.7 + 0.3 * (0.5 + 0.5 * Math.sin(performance.now() * 0.005))
+    const op = 0.85 + 0.15 * (0.5 + 0.5 * Math.sin(performance.now() * 0.005))
     for (const m of targetMats) (m as THREE.SpriteMaterial).opacity = op
   }
   const W = host.value.clientWidth, H = host.value.clientHeight
@@ -547,17 +547,21 @@ let targetTex: THREE.Texture | null = null
 function makeTargetTexture(): THREE.Texture {
   // DIANA dibujada: dos círculos concéntricos + punto central. Es un SÍMBOLO de
   // marcador (glifo de diana), no un contorno tumoral → honesto y reconocible.
-  // Contorno oscuro bajo el naranja = contraste sobre hueso claro u oscuro.
+  // DOBLE FILO: halo claro (destaca sobre teal oscuro) + filo oscuro (destaca
+  // sobre hueso blanco/denso) y el naranja GRUESO encima, que domina el trazo.
   const s = 256, c = s / 2
   const cv = document.createElement('canvas'); cv.width = s; cv.height = s
   const ctx = cv.getContext('2d')!
-  const ORANGE = '#ff6b47'
+  const ORANGE = '#ff5a1f'   // naranja encendido (más saturado que el coral)
+  ctx.lineCap = 'round'
   const ring = (r: number, lw: number) => { ctx.beginPath(); ctx.arc(c, c, r, 0, Math.PI * 2); ctx.lineWidth = lw; ctx.stroke() }
-  const rOut = s * 0.40, rIn = s * 0.21
-  ctx.strokeStyle = 'rgba(15,17,23,0.55)'; ring(rOut, 26); ring(rIn, 26)   // contorno oscuro (contraste)
-  ctx.strokeStyle = ORANGE; ring(rOut, 13); ring(rIn, 13)                  // los dos aros naranjas
-  ctx.fillStyle = 'rgba(15,17,23,0.55)'; ctx.beginPath(); ctx.arc(c, c, s * 0.085, 0, Math.PI * 2); ctx.fill()
-  ctx.fillStyle = ORANGE; ctx.beginPath(); ctx.arc(c, c, s * 0.06, 0, Math.PI * 2); ctx.fill()   // punto central
+  const rOut = s * 0.38, rIn = s * 0.20
+  ctx.strokeStyle = 'rgba(255,255,255,0.55)'; ring(rOut, 30); ring(rIn, 30)   // halo claro externo
+  ctx.strokeStyle = 'rgba(12,14,20,0.85)';    ring(rOut, 22); ring(rIn, 22)   // filo oscuro
+  ctx.strokeStyle = ORANGE;                   ring(rOut, 15); ring(rIn, 15)   // los dos aros naranjas (dominan)
+  ctx.fillStyle = 'rgba(255,255,255,0.55)'; ctx.beginPath(); ctx.arc(c, c, s * 0.105, 0, Math.PI * 2); ctx.fill()
+  ctx.fillStyle = 'rgba(12,14,20,0.85)';    ctx.beginPath(); ctx.arc(c, c, s * 0.085, 0, Math.PI * 2); ctx.fill()
+  ctx.fillStyle = ORANGE;                    ctx.beginPath(); ctx.arc(c, c, s * 0.062, 0, Math.PI * 2); ctx.fill()   // punto central
   const tex = new THREE.CanvasTexture(cv); tex.needsUpdate = true; return tex
 }
 function disposeTargetMarker() {
@@ -579,14 +583,14 @@ function buildTargetMarker() {
       : peak.clone().normalize()
     const mat = new THREE.SpriteMaterial({
       map: targetTex, color: 0xffffff, transparent: true,
-      depthTest: true, depthWrite: false, blending: THREE.NormalBlending, toneMapped: true,
+      depthTest: true, depthWrite: false, blending: THREE.NormalBlending, toneMapped: false,
     })
     targetMats.push(mat)
     const sprite = new THREE.Sprite(mat)
     // despegado de la superficie a lo largo de la normal → NO z-fightea (era la causa
     // de que «no se apreciara»); el billboard encara a cámara, sin escorzo.
     sprite.position.copy(peak).addScaledVector(normal, boneRadius * 0.08)
-    sprite.scale.setScalar(boneRadius * 0.5)
+    sprite.scale.setScalar(boneRadius * 0.17)
     sprite.renderOrder = 6               // tras el hueso (depthTest lo ocluye al rotar atrás), bajo la aguja
     targetGroups[i]!.add(sprite)
   }
