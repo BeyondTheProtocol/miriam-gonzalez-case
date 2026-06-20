@@ -1360,8 +1360,10 @@ onBeforeUnmount(() => {
 
 .btv-reframe {
   position: absolute;
-  top: 8px;
-  right: 8px;
+  /* inset > radio del contenedor del visor (0.5rem = 8px, overflow:hidden) → el botón
+     despeja la esquina redondeada con aire (a 8px quedaba justo en la tangente). */
+  top: 10px;
+  right: 10px;
   z-index: 2;
   width: 30px;
   height: 30px;
@@ -1468,8 +1470,10 @@ onBeforeUnmount(() => {
    del canvas pero sin tapar el botón de reencuadre (arriba-derecha). */
 .btv-toggles {
   position: absolute;
-  left: 8px;
-  bottom: 8px;
+  /* inset > radio del contenedor del visor (0.5rem = 8px, overflow:hidden) → los chips
+     despejan la esquina inf-izq redondeada (a 8px quedaban en la tangente). */
+  left: 10px;
+  bottom: 10px;
   z-index: 2;
   display: flex;
   flex-direction: column;
