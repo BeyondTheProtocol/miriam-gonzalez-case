@@ -2024,14 +2024,9 @@ const ticks = [
               <p v-if="isMultiFocusBone" class="mb-2 text-[11px] text-tinta leading-snug">
                 {{ L('Zona con ' + coFoci.length + ' focos · resumen del principal', 'Area with ' + coFoci.length + ' foci · summary of the main one') }}
               </p>
-              <!-- LECTURA TÉCNICA primero (registro para el equipo médico); la lectura
-                   en lenguaje llano (terminológicamente correcta, sin coloquialismos)
-                   queda a un clic, cortesía para el visitante no-médico del linktree. -->
+              <!-- Lectura clínica (registro técnico para el equipo médico). Página
+                   ESTRICTAMENTE CLÍNICA: sin capa de lenguaje llano. -->
               <p class="text-[13.5px] text-berenjena leading-snug">{{ sel.tech[lang] }}</p>
-              <details class="notes-disclosure mt-1.5">
-                <summary>{{ L('Lectura en lenguaje llano', 'Plain-language reading') }}</summary>
-                <p class="text-[12.5px] text-tinta leading-snug">{{ sel.what[lang] }}</p>
-              </details>
             </div>
 
             <!-- ===== 2 · IDONEIDAD + MÉTRICAS ===== ENCIMA del visor (decisión primero):
@@ -2341,8 +2336,7 @@ const ticks = [
                 <p class="text-[10px] text-tinta mt-2 leading-relaxed">{{ L('Acceso y anatomía del propio caso, para que el radiólogo intervencionista y el comité de tumores decidan sobre la imagen en vivo. Describe; no concluye.', 'Access and anatomy from the case itself, for the interventional radiologist and the tumor board to decide on live imaging. It describes; it does not conclude.') }}</p>
               </div>
 
-              <!-- (La lectura en lenguaje llano (what) no se repite aquí: vive en el
-                   toggle «Lectura en lenguaje llano» de la ficha compacta de arriba.) -->
+              <!-- (Página estrictamente clínica: sin capa de lenguaje llano.) -->
 
               <!-- HALLAZGOS: lo que muestra este foco (descripción, no triaje) -->
               <div class="mb-4 rounded-card border border-[rgba(45,27,61,0.1)] bg-cream-card p-3">
