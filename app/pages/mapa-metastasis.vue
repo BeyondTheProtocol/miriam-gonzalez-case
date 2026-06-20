@@ -1672,6 +1672,101 @@ function pickStep(delta: number) {
 }
 const focoPos = computed(() => visibleFocusList.value.findIndex((l) => l.id === selected.value) + 1)
 
+/* ════════════════════════════════════════════════════════════════════════
+   (A · a11y · la casa exige a11y-prevails) NAVEGACIÓN POR TECLADO del
+   navegador de focos (esqueleto SVG · lista · scatter). Un solo modelo de
+   teclas para los tres, sobre la MISMA lista ordenada (visibleFocusList),
+   sin romper el clic/tap (pick/pickAndShow/selected siguen igual).
+     · ↑/← y ↓/→  → foco anterior / siguiente (envuelve por los extremos)
+     · Home/End   → primer / último foco
+     · Enter/Espacio → confirma (selecciona el foco con foco de teclado)
+     · escribir un número (1, 1→9, …) → salta a ese id de foco
+   Anuncio discreto a lector de pantalla (aria-live polite) al cambiar.
+   ════════════════════════════════════════════════════════════════════════ */
+/* anuncio vivo para lector de pantalla: «Foco N de M · localización · fenotipo». */
+const focoAnnounce = ref('')
+function announceFoco(le: Lesion) {
+  const pos = visibleFocusList.value.findIndex((l) => l.id === le.id) + 1
+  const total = visibleFocusList.value.length
+  const ai = sourceOf(le) === 'ia-david' ? ` · ${L('detectado por IA, por confirmar', 'AI-detected, to confirm')}` : ''
+  focoAnnounce.value = `${L('Foco', 'Focus')} ${pos} ${L('de', 'of')} ${total} · ${le.level[lang.value]} · ${phenoLabel(le)}${ai}`
+}
+watch(selected, () => { const le = LES.find((l) => l.id === selected.value); if (le) announceFoco(le) })
+
+/* buffer para «escribir un número y saltar» (p. ej. 1 → espera al 2 → #12). Se
+   limpia tras una pausa; si el id no existe aún, espera al siguiente dígito. */
+let typeBuf = ''
+let typeTimer: ReturnType<typeof setTimeout> | null = null
+function jumpToTypedDigit(digit: string) {
+  typeBuf += digit
+  if (typeTimer) clearTimeout(typeTimer)
+  // si el buffer ya es un id visible, salta; si un id más largo empieza por él, espera
+  const buf = parseInt(typeBuf, 10)
+  const inList = (id: number) => visibleFocusList.value.some((l) => l.id === id)
+  const couldExtend = visibleFocusList.value.some((l) => String(l.id).startsWith(typeBuf) && String(l.id) !== typeBuf)
+  if (inList(buf) && !couldExtend) { pick(buf); typeBuf = '' }
+  else if (inList(buf)) { pick(buf) } // salta ya; el siguiente dígito puede refinar
+  typeTimer = setTimeout(() => { typeBuf = '' }, 900)
+}
+/* manejador único de teclado del navegador de focos. preventDefault solo para
+   las teclas que gobernamos (no secuestra Tab ni el resto). */
+function onFocoNavKey(e: KeyboardEvent) {
+  if (e.altKey || e.ctrlKey || e.metaKey) return
+  // no secuestrar el teclado de los controles de formulario del propio navegador
+  // (buscador de focos, slider de tiempo): allí las flechas/dígitos son suyos.
+  const t = e.target as HTMLElement | null
+  if (t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.tagName === 'SELECT' || t.isContentEditable)) return
+  const k = e.key
+  let nav = true
+  if (k === 'ArrowDown' || k === 'ArrowRight') { e.preventDefault(); pickStep(1) }
+  else if (k === 'ArrowUp' || k === 'ArrowLeft') { e.preventDefault(); pickStep(-1) }
+  else if (k === 'Home') { e.preventDefault(); const l = visibleFocusList.value[0]; if (l) pick(l.id) }
+  else if (k === 'End') { e.preventDefault(); const l = visibleFocusList.value[visibleFocusList.value.length - 1]; if (l) pick(l.id) }
+  else if (/^[0-9]$/.test(k)) { e.preventDefault(); jumpToTypedDigit(k) }
+  // Enter/Espacio NO los gobierna el contenedor: los maneja cada option (en el
+  // esqueleto/lista = fijar; en el scatter = abrir su ficha), así cada modo
+  // conserva su acción de confirmación propia.
+  else nav = false
+  // el foco DOM sigue a la navegación (roving tabindex): el anillo de foco
+  // se ve sobre el marcador recién seleccionado, no en el de partida.
+  if (nav) focusActiveOption()
+}
+
+/* roving tabindex · registro de los <circle> option del esqueleto + de la lista,
+   para mover el FOCO DOM al marcador recién seleccionado (que el foco visible
+   siga a la navegación por teclado). Mapa por id del foco PRIMARIO del grupo. */
+const skOptEls = new Map<number, Element>()
+function registerSkOpt(id: number, el: unknown) {
+  if (el) skOptEls.set(id, el as Element)
+  else skOptEls.delete(id)
+}
+const listOptEls = new Map<number, HTMLElement>()
+function registerListOpt(id: number, el: unknown) {
+  if (el) listOptEls.set(id, el as HTMLElement)
+  else listOptEls.delete(id)
+}
+/* tras un cambio de selección POR TECLADO, lleva el foco DOM al option activo del
+   modo visible (esqueleto o lista). Solo si el foco estaba ya dentro del navegador
+   (no robamos el foco al hacer clic en otra parte ni al cargar). */
+function focusActiveOption() {
+  if (!import.meta.client) return
+  const active = document.activeElement
+  const insideNav = active && (skOptEls.has(idOfEl(active)) || listOptEls.has(idOfEl(active)) || (active instanceof HTMLElement && active.closest('[data-foco-nav]')))
+  if (!insideNav) return
+  nextTick(() => {
+    const grp = GROUPS.find((g) => g.foci.some((l) => l.id === selected.value))
+    const target = (navMode.value === 'table'
+      ? listOptEls.get(selected.value)
+      : (grp ? skOptEls.get(grp.primary.id) : undefined)) as (HTMLElement | SVGElement | undefined)
+    target?.focus?.()
+  })
+}
+function idOfEl(el: Element | null): number {
+  if (!el) return -1
+  const m = (el.id || '').match(/-(\d+)$/)
+  return m ? parseInt(m[1], 10) : -1
+}
+
 /* ── (A · plan comité web) TOOLTIP de marcadores (esqueleto + scatter) ──────────────
    UN solo popover compartido, clonado del mecanismo de Term.vue (Teleport a <body>,
    posición fija con clamp al viewport + caret). El padre fija qué marcador está activo.
@@ -2144,8 +2239,17 @@ const manifestValidated = (() => {
             <!-- ===== COLUMNA IZQUIERDA · NAVEGAR (sticky) ===== -->
             <!-- NAVEGADOR STICKY (esqueleto + controles): se fija al hacer scroll de la
                  ficha. Solo en lg+; en móvil apila normal. (Sin scroll interno: la
-                 paciente prefería el sticky simple, sin barra de scroll en el navegador.) -->
-            <div class="lg:sticky lg:top-24">
+                 paciente prefería el sticky simple, sin barra de scroll en el navegador.)
+                 (A · a11y) @keydown gobierna la navegación por teclado de los focos
+                 (↑/↓/←/→, Home/End, escribir un número) para los TRES modos a la vez,
+                 sin secuestrar Tab; las teclas se manejan cuando el foco está en un
+                 marcador/option del navegador. -->
+            <div class="lg:sticky lg:top-24" @keydown="onFocoNavKey">
+
+            <!-- (A · a11y) ANUNCIO VIVO para lector de pantalla: al cambiar de foco
+                 (teclado, clic o flechas) describe «Foco N de M · localización ·
+                 fenotipo». aria-live polite + sr-only: no se ve, no rompe el layout. -->
+            <p class="sr-only" aria-live="polite" role="status">{{ focoAnnounce }}</p>
 
             <!-- BARRA DE NAVEGACIÓN · horizontal y compacta (no gasta espacio): toggle
                  Esqueleto/Tabla a la izquierda y flechas prev/next (paso entre focos)
@@ -2193,7 +2297,15 @@ const manifestValidated = (() => {
                 <span>{{ L('Dcha. del cuerpo', 'Body’s right') }}</span>
                 <span>{{ L('Izq. del cuerpo', 'Body’s left') }}</span>
               </div>
-              <svg viewBox="0 0 440 700" class="w-full" role="group" :aria-label="L('Esquema del esqueleto con las lesiones (toca un foco para seleccionarlo)', 'Skeleton schematic with the lesions (tap a focus to select it)')">
+              <!-- (A · a11y) el conjunto de marcadores es un LISTBOX de focos:
+                   role=listbox + cada marcador role=option + roving tabindex (solo
+                   el seleccionado entra en el tab order; las flechas mueven la
+                   selección Y el foco DOM). aria-activedescendant apunta al option
+                   activo. La tabla de valores es su alternativa textual (describedby). -->
+              <svg viewBox="0 0 440 700" class="w-full" role="listbox"
+                :aria-label="L('Esquema del esqueleto con las lesiones (flechas para recorrer, Intro/Espacio para fijar, o escribe un número de foco)', 'Skeleton schematic with the lesions (arrows to step, Enter/Space to set, or type a focus number)')"
+                :aria-activedescendant="'sk-opt-' + selected"
+                aria-describedby="tabla-focos-alt">
                 <defs>
                   <linearGradient id="skBone" x1="0" y1="0" x2="0.5" y2="1">
                     <stop offset="0%" stop-color="#efe8da" /><stop offset="48%" stop-color="#e3dac8" /><stop offset="100%" stop-color="#d2c7b1" />
@@ -2262,6 +2374,8 @@ const manifestValidated = (() => {
                     @click="pickGroup(g)"
                     @mouseenter="canHoverFine() && showTip($event, groupTipText(g))" @mouseleave="hideTip" />
                   <circle
+                    :id="'sk-opt-' + g.primary.id"
+                    :ref="(el) => registerSkOpt(g.primary.id, el)"
                     :cx="g.x" :cy="g.y"
                     :r="SK_R + (gSelected(g) ? 2.5 : 0)"
                     :fill="gPresentAt(g, frame) ? phenoColor(g.primary) : 'none'"
@@ -2270,9 +2384,9 @@ const manifestValidated = (() => {
                     :stroke-dasharray="sourceOf(g.primary) === 'ia-david' ? '2 1.6' : undefined"
                     :opacity="gPresentAt(g, frame) ? 1 : 0.4"
                     class="cursor-pointer transition-all"
-                    tabindex="0" role="button" :aria-pressed="gSelected(g)"
+                    :tabindex="gSelected(g) ? 0 : -1" role="option" :aria-selected="gSelected(g)"
                     :aria-label="g.multi ? `${g.foci[0].level[lang]} — ${g.foci.length} ${L('focos', 'foci')}` : `${g.primary.level[lang]} — ${phenoLabel(g.primary)}`"
-                    @click="pickGroup(g)" @keydown.enter="pickGroup(g)" @keydown.space.prevent="pickGroup(g)"
+                    @click="pickGroup(g)"
                     @mouseenter="canHoverFine() && showTip($event, groupTipText(g))" @mouseleave="hideTip" @focus="showTip($event, groupTipText(g))" @blur="hideTip" @keydown.escape="hideTip" />
                   <!-- foco único: id dentro; varios focos: insignia de recuento -->
                   <!-- (auditoría) el número arbitrario sale del esqueleto: el nombre lo da el
@@ -2372,13 +2486,25 @@ const manifestValidated = (() => {
                 :placeholder="L('Buscar por nombre o zona…', 'Search by name or area…')"
                 :aria-label="L('Buscar foco por nombre o zona', 'Search focus by name or area')"
                 class="w-full mb-1.5 rounded-card border border-[rgba(45,27,61,0.14)] bg-cream-card px-2.5 py-1.5 text-[12px] text-berenjena placeholder:text-tinta focus:outline-none focus:border-[#9d44ab]" />
-              <ul data-foco-list class="space-y-1 overflow-y-auto pr-0.5" style="max-height:600px">
-                <li v-if="!filteredFocusList.length" class="px-2 py-3 text-[11px] text-tinta text-center">{{ L('Sin focos que coincidan.', 'No matching foci.') }}</li>
-                <li v-for="le in filteredFocusList" :key="le.id">
+              <!-- (A · a11y) la lista de focos es un LISTBOX: role=listbox + cada
+                   botón role=option con roving tabindex (solo el seleccionado es
+                   tabbable). Las flechas/Home/End/número los gobierna onFocoNavKey
+                   del navegador; aria-activedescendant + la tabla como alternativa. -->
+              <ul data-foco-list data-foco-nav role="listbox"
+                :aria-label="L('Focos — flechas para recorrer, Intro para fijar, o escribe un número', 'Foci — arrows to step, Enter to set, or type a number')"
+                :aria-activedescendant="'list-opt-' + selected"
+                aria-describedby="tabla-focos-alt"
+                class="space-y-1 overflow-y-auto pr-0.5" style="max-height:600px">
+                <li v-if="!filteredFocusList.length" class="px-2 py-3 text-[11px] text-tinta text-center" role="presentation">{{ L('Sin focos que coincidan.', 'No matching foci.') }}</li>
+                <li v-for="le in filteredFocusList" :key="le.id" role="presentation">
                   <button type="button" @click="pick(le.id)"
+                    :id="'list-opt-' + le.id"
+                    :ref="(el) => registerListOpt(le.id, el)"
+                    role="option"
+                    :tabindex="le.id === selected ? 0 : -1"
                     class="w-full text-left rounded-card border px-2 py-1.5 transition-colors flex items-center gap-2"
                     :class="le.id === selected ? 'border-berenjena bg-[rgba(45,27,61,0.05)]' : 'border-transparent hover:bg-[rgba(45,27,61,0.035)]'"
-                    :aria-pressed="le.id === selected"
+                    :aria-selected="le.id === selected"
                     :aria-label="`#${le.id} ${le.level[lang]} — ${phenoLabel(le)}`">
                     <span class="shrink-0 w-3 h-3 rounded-full" :style="{ background: phenoColor(le), boxShadow: sourceOf(le) === 'ia-david' ? '0 0 0 1.5px #fff, 0 0 0 3px ' + phenoColor(le) : 'none' }" aria-hidden="true" />
                     <span class="min-w-0 flex-1">
@@ -2532,8 +2658,13 @@ const manifestValidated = (() => {
               <p v-if="isMultiFocusBone && bone3dKeyOf(sel)" class="text-[12px] text-tinta leading-snug mb-2 max-w-3xl">
                 {{ L('Esta zona tiene ' + coFoci.length + ' focos co-localizados (captación SSTR/glucolítica); el realce señala la zona. Detalle de cada foco abajo y en la tabla.', 'This area has ' + coFoci.length + ' co-localized foci (SSTR/glycolytic uptake); the highlight marks the area. Each focus is detailed below and in the table.') }}
               </p>
-              <!-- visor en línea a ANCHO COMPLETO de la columna; el botón de arriba lo abre grande -->
-              <div class="min-w-0">
+              <!-- visor en línea a ANCHO COMPLETO de la columna; el botón de arriba lo abre grande.
+                   (A · a11y) aria-describedby apunta a la TABLA de valores: es la
+                   alternativa textual viva del visor 3D (todos los focos y sus cifras,
+                   navegable, reflejando la selección). role=group + aria-label. -->
+              <div class="min-w-0" role="group"
+                :aria-label="L('Visor 3D del foco seleccionado', '3D viewer of the selected focus')"
+                aria-describedby="tabla-focos-alt">
               <template v-if="bone3dKeyOf(sel)">
                 <!-- Cuando el visor está a PANTALLA COMPLETA, DESMONTAMOS el visor en
                      línea (v-if) para no mantener dos contextos WebGL + dos bucles de
@@ -2593,6 +2724,12 @@ const manifestValidated = (() => {
               <!-- caveat del 3D (proyección + co-registro): remite al BLOQUE CANÓNICO, sin duplicar -->
               <p v-if="bone3dKeyOf(sel)" class="text-[10.5px] text-tinta leading-snug mt-2">
                 {{ L('El color por vértice es una proyección del PET sobre la malla (indica dónde, no SUVmáx); el ¹⁸F-FDG y el ⁶⁸Ga-DOTATOC son de fechas distintas co-registrados sobre el TC (localización aproximada por co-registro). ', 'The per-vertex colour is a projection of the PET onto the mesh (it shows where, not SUVmax); ¹⁸F-FDG and ⁶⁸Ga-DOTATOC are from different dates co-registered onto the CT (approximate localization by co-registration). ') }}<a href="#metodo-caveats" class="link-action text-miriam font-semibold whitespace-nowrap">{{ L('Método y salvedades ↓', 'Method and caveats ↓') }}</a>
+              </p>
+              <!-- (A · a11y) alternativa textual explícita y visible: el visor 3D apunta
+                   a la TABLA de valores como su equivalente en texto (mismas cifras). -->
+              <p v-if="sel" class="text-[10.5px] text-tinta leading-snug mt-1">
+                <a href="#tabla" class="link-action text-miriam font-semibold whitespace-nowrap">{{ L('Ver estos valores en texto, en la tabla ↓', 'See these values in text, in the table ↓') }}</a>
+                {{ L(' — alternativa textual del visor (todos los focos y sus cifras).', ' — the viewer’s textual alternative (all foci and their figures).') }}
               </p>
             </div>
 
@@ -3238,8 +3375,13 @@ const manifestValidated = (() => {
           </p>
           <!-- contenedor CONTENIDO: el scatter ya no ocupa todo el ancho (se veía
                «gigante»); leyenda mínima como banda fina DEBAJO, no muro lateral. -->
-          <div class="card-base !p-3">
-              <svg viewBox="0 0 440 340" class="w-full" role="group" :aria-label="L('Diagrama de fenotipo: SSTR (⁶⁸Ga-DOTATOC) frente a captación glucolítica (¹⁸F-FDG) — toca un punto para abrir su ficha', 'Phenotype scatter: SSTR (⁶⁸Ga-DOTATOC) versus glycolytic uptake (¹⁸F-FDG) — tap a point to open its card')">
+          <!-- (A · a11y) @keydown gobierna la navegación por teclado del scatter con
+               las MISMAS teclas que el esqueleto/lista (flechas, Home/End, número). -->
+          <div class="card-base !p-3" @keydown="onFocoNavKey">
+              <svg viewBox="0 0 440 340" class="w-full" role="listbox"
+                :aria-label="L('Diagrama de fenotipo: SSTR (⁶⁸Ga-DOTATOC) frente a captación glucolítica (¹⁸F-FDG) — flechas para recorrer, Intro para abrir su ficha, o escribe un número de foco', 'Phenotype scatter: SSTR (⁶⁸Ga-DOTATOC) versus glycolytic uptake (¹⁸F-FDG) — arrows to step, Enter to open its card, or type a focus number')"
+                :aria-activedescendant="'sc-opt-' + selected"
+                aria-describedby="tabla-focos-alt">
                 <!-- tintes de cuadrante · alineados al trazador del eje -->
                 <rect :x="qX(0)" :y="qY(Q.ymax)" :width="qX(Q.divx) - qX(0)" :height="qY(Q.divy) - qY(Q.ymax)" :fill="GA_FILL" opacity="0.09" />
                 <rect :x="qX(Q.divx)" :y="qY(Q.ymax)" :width="qX(Q.xmax) - qX(Q.divx)" :height="qY(Q.divy) - qY(Q.ymax)" fill="#8c8678" opacity="0.10" />
@@ -3545,7 +3687,12 @@ const manifestValidated = (() => {
         <section class="mb-14" aria-labelledby="tabla">
           <p class="eyebrow mb-2 block">{{ L('Para el equipo · referencia', 'For the team · reference') }}</p>
           <h2 id="tabla" class="heading-display text-2xl text-berenjena mb-2 scroll-mt-[5.5rem]">{{ L('Apéndice: los focos en una tabla', 'Appendix: the foci in a table') }}</h2>
-          <p class="text-sm text-tinta leading-relaxed mb-4 max-w-3xl">{{ L('Tabla completa con la idoneidad como diana (estimación heurística orientativa, no validada), SUVmáx por trazador, tendencia, extensión metabólica medida y patrón, más los focos extra detectados de forma automática. Por defecto ordena por id (nivel anatómico, hecho neutro); pulsa una cabecera para reordenar —incluida la de idoneidad. Los focos detectados por IA van siempre al final, en su propio grupo, sin confirmar.', 'Full table with suitability as a target (an indicative heuristic estimate, not validated), SUVmax per tracer, trend, measured metabolic extent and pattern, plus the automatically detected extra foci. It defaults to id order (anatomical level, a neutral fact); click a header to re-sort — including the suitability one. AI-detected foci always go last, in their own group, unconfirmed.') }}</p>
+          <p class="text-sm text-tinta leading-relaxed mb-2 max-w-3xl">{{ L('Tabla completa con la idoneidad como diana (estimación heurística orientativa, no validada), SUVmáx por trazador, tendencia, extensión metabólica medida y patrón, más los focos extra detectados de forma automática. Por defecto ordena por id (nivel anatómico, hecho neutro); pulsa una cabecera para reordenar —incluida la de idoneidad. Los focos detectados por IA van siempre al final, en su propio grupo, sin confirmar.', 'Full table with suitability as a target (an indicative heuristic estimate, not validated), SUVmax per tracer, trend, measured metabolic extent and pattern, plus the automatically detected extra foci. It defaults to id order (anatomical level, a neutral fact); click a header to re-sort — including the suitability one. AI-detected foci always go last, in their own group, unconfirmed.') }}</p>
+          <!-- (A · a11y) declara la tabla como ALTERNATIVA TEXTUAL del visor 3D y del
+               esquema del esqueleto (la fuente-de-verdad accesible). id en su <caption>. -->
+          <p id="tabla-focos-alt-note" class="text-[12px] text-tinta leading-relaxed mb-4 max-w-3xl">
+            <Icon name="ph:table" class="inline w-3.5 h-3.5 -mt-0.5 mr-1" aria-hidden="true" />{{ L('Esta tabla es la alternativa textual del visor 3D y del esquema del esqueleto: las mismas cifras de cada foco, en texto y navegables. La fila del foco que tengas seleccionado arriba aparece resaltada aquí.', 'This table is the textual alternative to the 3D viewer and the skeleton schematic: the same per-focus figures, in text and navigable. The row of the focus you have selected above is highlighted here.') }}
+          </p>
           <!-- ── MANIFIESTO DE DATOS · descarga (CSV/JSON) + nota de validación ──
                El dato vive en un manifiesto con procedencia campo a campo (medido
                vs interpretado) y se descarga: el activo que un equipo externo clona
@@ -3583,6 +3730,13 @@ const manifestValidated = (() => {
           </p>
           <div class="data-card overflow-x-auto tabla-focos">
             <table class="data-table data-table--dense">
+              <!-- (A · a11y) CAPTION = nombre accesible de la tabla y ANCLA de la
+                   alternativa textual del visor 3D (id tabla-focos-alt, referenciada
+                   por aria-describedby desde el listbox del esqueleto/lista y el
+                   visor). La fila del foco seleccionado se marca aria-selected. -->
+              <caption id="tabla-focos-alt" class="sr-only">
+                {{ L('Tabla de valores por foco: la alternativa textual del visor 3D y del esquema del esqueleto. Cada fila es un foco con su localización, lado, idoneidad (estimación heurística orientativa), SUVmáx de ⁶⁸Ga-DOTATOC y ¹⁸F-FDG, ¹⁸F-FDG previo y su cambio, extensión metabólica medida y patrón. La fila del foco seleccionado aparece marcada como seleccionada. Pulsa una cabecera para ordenar.', 'Per-focus values table: the textual alternative to the 3D viewer and the skeleton schematic. Each row is a focus with its location, side, suitability (an indicative heuristic estimate), ⁶⁸Ga-DOTATOC and ¹⁸F-FDG SUVmax, prior ¹⁸F-FDG and its change, measured metabolic extent and pattern. The selected focus row is marked as selected. Click a header to sort.') }}
+              </caption>
               <thead>
                 <tr>
                   <th scope="col" :aria-sort="ariaSort('id')"><button type="button" class="th-sort" @click="sortBy('id')"># <span class="th-arrow">{{ sortArrow('id') }}</span></button></th>
@@ -3608,9 +3762,9 @@ const manifestValidated = (() => {
                     </span>
                   </td>
                 </tr>
-                <tr v-else class="cursor-pointer" :class="selected === row.le.id ? 'bg-[rgba(157,68,171,0.08)]' : (isAiDavid(row.le) ? 'ai-row' : '')" @click="pickAndShow(row.le.id)">
+                <tr v-else class="cursor-pointer" :aria-selected="selected === row.le.id" :class="selected === row.le.id ? 'bg-[rgba(157,68,171,0.08)]' : (isAiDavid(row.le) ? 'ai-row' : '')" @click="pickAndShow(row.le.id)">
                   <template v-if="row.kind === 'lesion'">
-                  <td><span class="inline-flex w-6 h-6 rounded-full items-center justify-center  text-xs font-semibold" :class="isAiDavid(row.le) ? 'ai-dot' : ''" :style="{ background: phenoColor(row.le), color: markerInk(row.le) }">{{ row.le.id }}</span></td>
+                  <th scope="row" class="!font-normal !text-left"><span class="inline-flex w-6 h-6 rounded-full items-center justify-center  text-xs font-semibold" :class="isAiDavid(row.le) ? 'ai-dot' : ''" :style="{ background: phenoColor(row.le), color: markerInk(row.le) }">{{ row.le.id }}</span></th>
                   <td class="font-semibold text-berenjena">{{ row.le.level[lang] }}</td>
                   <td class="text-xs">{{ row.le.side === 'R' ? L('Dcha', 'R') : row.le.side === 'L' ? L('Izda', 'L') : L('Centro', 'Mid') }}</td>
                   <td>
