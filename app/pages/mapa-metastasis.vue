@@ -169,7 +169,7 @@ const LES: Lesion[] = [
     level: { es: 'L1 · pedículo izquierdo', en: 'L1 · left pedicle' },
     region: { es: 'Columna lumbar', en: 'Lumbar spine' },
     what: { es: 'La ÚNICA lesión discordante ¹⁸F-FDG⁺ / ⁶⁸Ga-DOTATOC⁻: glucólisis sin SSTR detectable, y el ¹⁸F-FDG en aumento.', en: 'The ONLY ¹⁸F-FDG⁺ / ⁶⁸Ga-DOTATOC⁻ discordant lesion: glycolysis without detectable SSTR, and ¹⁸F-FDG rising.' },
-    tech: { es: 'FDG SUVmáx 6.84 (previo 4.67, ↑); DOTATOC negativo. FDG+ / SSTR−. Discordante con #9 (misma vértebra).', en: 'FDG SUVmax 6.84 (prior 4.67, ↑); DOTATOC negative. FDG+ / SSTR−. Discordant with #9 (same vertebra).' },
+    tech: { es: '¹⁸F-FDG SUVmáx 6.84 (previo 4.67, ↑); ⁶⁸Ga-DOTATOC negativo. ¹⁸F-FDG⁺ / SSTR⁻. Discordante con #9 (misma vértebra).', en: '¹⁸F-FDG SUVmax 6.84 (prior 4.67, ↑); ⁶⁸Ga-DOTATOC negative. ¹⁸F-FDG⁺ / SSTR⁻. Discordant with #9 (same vertebra).' },
   },
   {
     id: 11, x: 220, y: 470, r: 13, side: 'C', dota: 12.14, fdg: 5.0, prevFdg: 4.81, pheno: 'mixNe', size: '18 × 13', sbrt: true,
@@ -222,7 +222,7 @@ const LES: Lesion[] = [
     level: { es: 'Tórax alto / costilla', en: 'Upper thorax / rib' },
     region: { es: 'Parrilla costal', en: 'Rib cage' },
     what: { es: 'Foco costal / tórax alto, ¹⁸F-FDG predominante de baja intensidad. Detección por IA marcada como dudosa por el propio análisis.', en: 'Upper-thorax / rib focus, predominantly ¹⁸F-FDG, low intensity. AI detection flagged as uncertain by the analysis itself.' },
-    tech: { es: 'DOTATOC ~1.6 / FDG ~4.8 (aproximados, sobre los DICOM). FDG+ / SSTR bajo. No confirmado en informe oficial; revisar con Medicina Nuclear.', en: 'DOTATOC ~1.6 / FDG ~4.8 (approximate, on the DICOM). FDG+ / low SSTR. Not confirmed in the official report; review with Nuclear Medicine.' },
+    tech: { es: '⁶⁸Ga-DOTATOC ~1.6 / ¹⁸F-FDG ~4.8 (aproximados, sobre los DICOM). ¹⁸F-FDG⁺ / SSTR bajo. No confirmado en informe oficial; revisar con Medicina Nuclear.', en: '⁶⁸Ga-DOTATOC ~1.6 / ¹⁸F-FDG ~4.8 (approximate, on the DICOM). ¹⁸F-FDG⁺ / low SSTR. Not confirmed in the official report; review with Nuclear Medicine.' },
   },
   {
     id: 18, x: 178, y: 560, side: 'R', dota: 4.3, fdg: 1.7, pheno: 'mixNe', size: '8 × 6', source: 'ia-david',
@@ -351,8 +351,8 @@ const selLevelRest = computed(() => sel.value.level[lang.value].split(' · ').sl
    describe el porqué y remite a quien corresponde, sin verbo-orden. */
 type BiTxt = { es: string; en: string }
 const BIOPSY: Record<number, { zone: BiTxt; approach: BiTxt; safety: BiTxt; rend: BiTxt }> = {
-  1: { zone: { es: 'Apófisis espinosa de pequeño tamaño, captación SSTR aislada (⁶⁸Ga-DOTATOC) sin ¹⁸F-FDG; sin subvolumen idóneo.', en: 'Small spinous process, isolated SSTR uptake (⁶⁸Ga-DOTATOC) without ¹⁸F-FDG; no suitable subvolume.' }, approach: { es: 'Posterior a la apófisis espinosa C3 (decúbito prono).', en: 'Posterior to the C3 spinous process (prone).' }, safety: { es: 'Localización cervical y diana de pequeño calibre; el rendimiento diagnóstico esperado no compensa el riesgo del acceso.', en: 'Cervical location and small-caliber target; the expected diagnostic yield does not offset the access risk.' }, rend: { es: 'Bajo / riesgo de muestra no diagnóstica.', en: 'Low / non-diagnostic-sample risk.' } },
-  2: { zone: { es: 'Arco posterior, captación SSTR aislada (⁶⁸Ga-DOTATOC) sin ¹⁸F-FDG; sin subvolumen idóneo.', en: 'Posterior arch, isolated SSTR uptake (⁶⁸Ga-DOTATOC) without ¹⁸F-FDG; no suitable subvolume.' }, approach: { es: 'Posterolateral a la lámina de C4.', en: 'Posterolateral to the C4 lamina.' }, safety: { es: 'Contiguo a la médula espinal y a la arteria vertebral; rendimiento diagnóstico esperado bajo.', en: 'Contiguous to the spinal cord and vertebral artery; low expected diagnostic yield.' }, rend: { es: 'Bajo / riesgo de muestra no diagnóstica.', en: 'Low / non-diagnostic-sample risk.' } },
+  1: { zone: { es: 'Apófisis espinosa de pequeño tamaño, captación SSTR aislada (⁶⁸Ga-DOTATOC) sin ¹⁸F-FDG; sin subvolumen idóneo.', en: 'Small spinous process, isolated SSTR uptake (⁶⁸Ga-DOTATOC) without ¹⁸F-FDG; no suitable subvolume.' }, approach: { es: 'Posterior a la apófisis espinosa C3 (decúbito prono).', en: 'Posterior to the C3 spinous process (prone).' }, safety: { es: 'Localización cervical y diana de pequeño calibre; la estimación orientativa (heurística) de rendimiento no compensa el riesgo del acceso.', en: 'Cervical location and small-caliber target; the indicative (heuristic) yield estimate does not offset the access risk.' }, rend: { es: 'Estimación orientativa (heurística): bajo / riesgo de muestra no diagnóstica.', en: 'Indicative (heuristic) estimate: low / non-diagnostic-sample risk.' } },
+  2: { zone: { es: 'Arco posterior, captación SSTR aislada (⁶⁸Ga-DOTATOC) sin ¹⁸F-FDG; sin subvolumen idóneo.', en: 'Posterior arch, isolated SSTR uptake (⁶⁸Ga-DOTATOC) without ¹⁸F-FDG; no suitable subvolume.' }, approach: { es: 'Posterolateral a la lámina de C4.', en: 'Posterolateral to the C4 lamina.' }, safety: { es: 'Contiguo a la médula espinal y a la arteria vertebral; estimación orientativa (heurística) de rendimiento: bajo.', en: 'Contiguous to the spinal cord and vertebral artery; indicative (heuristic) yield estimate: low.' }, rend: { es: 'Estimación orientativa (heurística): bajo / riesgo de muestra no diagnóstica.', en: 'Indicative (heuristic) estimate: low / non-diagnostic-sample risk.' } },
   3: { zone: { es: 'Subvolumen medular de mayor captación del cuerpo escapular (no la cortical).', en: 'Marrow subvolume of highest uptake in the scapular body (not the cortex).' }, approach: { es: 'Posterior al cuerpo de la escápula (prono o decúbito lateral).', en: 'Posterior to the scapular body (prone or lateral decubitus).' }, safety: { es: 'Hueso plano accesible; vigilar el borde escapular medial (riesgo de neumotórax).', en: 'Accessible flat bone; watch the medial scapular border (pneumothorax risk).' }, rend: { es: 'Bajo-moderado (captación SSTR aislada, ¹⁸F-FDG⁻).', en: 'Low-moderate (isolated SSTR uptake, ¹⁸F-FDG⁻).' } },
   4: { zone: { es: 'Subvolumen ¹⁸F-FDG-ávido, evitando la matriz esclerótica.', en: '¹⁸F-FDG-avid subvolume, avoiding the sclerotic matrix.' }, approach: { es: 'Transpedicular torácico alto (prono); fusión TC+PET para centrar.', en: 'Upper-thoracic transpedicular (prone); CT+PET fusion to center it.' }, safety: { es: 'Entre la médula espinal y la pleura; matriz esclerótica; corredor técnicamente difícil.', en: 'Between the spinal cord and the pleura; sclerotic matrix; technically difficult corridor.' }, rend: { es: 'Moderado, con la salvedad de la matriz esclerótica.', en: 'Moderate, with the sclerotic-matrix caveat.' } },
   5: { zone: { es: 'Subóptimo: captación SSTR aislada (⁶⁸Ga-DOTATOC), atenuación esclerótica (¹⁸F-FDG⁻).', en: 'Suboptimal: isolated SSTR uptake (⁶⁸Ga-DOTATOC), sclerotic attenuation (¹⁸F-FDG⁻).' }, approach: { es: 'Transpedicular torácico (prono).', en: 'Thoracic transpedicular (prone).' }, safety: { es: 'Médula espinal y pleura; prioridad baja para este objetivo.', en: 'Spinal cord and pleura; low priority for this objective.' }, rend: { es: 'Bajo.', en: 'Low.' } },
@@ -364,7 +364,7 @@ const BIOPSY: Record<number, { zone: BiTxt; approach: BiTxt; safety: BiTxt; rend
   11: { zone: { es: 'Subvolumen de atenuación mixta y captación elevada del cuerpo vertebral (sin componente esclerótico marcado).', en: 'Mixed-attenuation, high-uptake subvolume of the vertebral body (no marked sclerotic component).' }, approach: { es: 'Transpedicular infraconal, si la trayectoria libra la cresta ilíaca.', en: 'Infraconal transpedicular, if the trajectory clears the iliac crest.' }, safety: { es: 'SBRT concurrente: el tejido irradiado puede no ser representativo para la caracterización molecular → prioridad baja pese a la captación. Acceso: hueso de carga, pero el cuerpo vertebral lo tolera mejor que el cuello femoral.', en: 'Concurrent SBRT: irradiated tissue may not be representative for molecular characterization → low priority despite the uptake. Access: weight-bearing bone, but the vertebral body tolerates it better than the femoral neck.' }, rend: { es: 'Reducido por la SBRT (tejido irradiado), pese al volumen del cuerpo vertebral.', en: 'Reduced by SBRT (irradiated tissue), despite the vertebral-body volume.' } },
   12: { zone: { es: 'Subvolumen de atenuación mixta y captación elevada del ala sacra esponjosa.', en: 'Mixed-attenuation, high-uptake subvolume of the cancellous sacral ala.' }, approach: { es: 'Corredor sacro posterior (prono).', en: 'Posterior sacral corridor (prone).' }, safety: { es: 'Vigilar los forámenes sacros y los vasos presacros; sin médula espinal en el corredor.', en: 'Watch the sacral foramina and presacral vessels; no spinal cord in the corridor.' }, rend: { es: 'Moderado (corredor accesible).', en: 'Moderate (accessible corridor).' } },
   13: { zone: { es: 'Únicamente un subvolumen LÍTICO DISTINTO verificado en TC; el subvolumen esclerótico muestreado previamente resultó no diagnóstico.', en: 'Only a DIFFERENT lytic subvolume verified on CT; the previously sampled sclerotic subvolume was non-diagnostic.' }, approach: { es: 'Posterolateral al ala ilíaca (corredor conocido del 26B585); fusión PET hacia el subvolumen de mayor captación y menor esclerosis.', en: 'Posterolateral to the iliac wing (the known 26B585 corridor); PET fusion toward the subvolume of highest uptake and least sclerosis.' }, safety: { es: 'Corredor accesible y conocido; el riesgo predominante es de muestra no diagnóstica, no de complicación.', en: 'Accessible, familiar corridor; the predominant risk is a non-diagnostic sample, not a complication.' }, rend: { es: 'Riesgo de no diagnóstico demostrado en el subvolumen previo (matriz esclerótica).', en: 'Demonstrated non-diagnostic risk at the prior subvolume (sclerotic matrix).' } },
-  14: { zone: { es: 'Subvolumen ¹⁸F-FDG-ávido, verificando en TC que NO corresponde a la placa esclerótica (matriz que resultó no diagnóstica en el 26B585).', en: '¹⁸F-FDG-avid subvolume, verifying on CT it does NOT correspond to the sclerotic plate (the matrix that proved non-diagnostic in 26B585).' }, approach: { es: 'Posterolateral supra-acetabular preservando el techo de carga acetabular; fusión PET para centrar el foco.', en: 'Posterolateral supra-acetabular sparing the load-bearing acetabular roof; PET fusion to center the focus.' }, safety: { es: 'Corredor accesible y conocido; confirmar la atenuación TC del punto diana antes de la punción.', en: 'Accessible, known corridor; confirm CT attenuation of the target point before puncture.' }, rend: { es: 'Rendimiento diagnóstico esperado alto (¹⁸F-FDG SUVmáx elevado y en aumento, tamaño favorable, sin componente esclerótico marcado).', en: 'High expected diagnostic yield (elevated and rising ¹⁸F-FDG SUVmax, favorable size, no marked sclerotic component).' } },
+  14: { zone: { es: 'Subvolumen ¹⁸F-FDG-ávido, verificando en TC que NO corresponde a la placa esclerótica (matriz que resultó no diagnóstica en el 26B585).', en: '¹⁸F-FDG-avid subvolume, verifying on CT it does NOT correspond to the sclerotic plate (the matrix that proved non-diagnostic in 26B585).' }, approach: { es: 'Posterolateral supra-acetabular preservando el techo de carga acetabular; fusión PET para centrar el foco.', en: 'Posterolateral supra-acetabular sparing the load-bearing acetabular roof; PET fusion to center the focus.' }, safety: { es: 'Corredor accesible y conocido; confirmar la atenuación TC del punto diana antes de la punción.', en: 'Accessible, known corridor; confirm CT attenuation of the target point before puncture.' }, rend: { es: 'Estimación orientativa (heurística): alto (¹⁸F-FDG SUVmáx elevado y en aumento, tamaño favorable, sin componente esclerótico marcado).', en: 'Indicative (heuristic) estimate: high (elevated and rising ¹⁸F-FDG SUVmax, favorable size, no marked sclerotic component).' } },
   15: { zone: { es: 'Pendiente de correlación; captación posiblemente contaminada por actividad fisiológica.', en: 'Pending correlation; uptake possibly contaminated by physiologic activity.' }, approach: { es: 'Espejo de #14, posterolateral supra-acetabular izquierdo.', en: 'Mirror of #14, left posterolateral supra-acetabular.' }, safety: { es: 'Posible contaminación por captación fisiológica intestinal/vesical → validar primero; el #14 (derecho) está mejor respaldado.', en: 'Possible contamination from physiologic bowel/bladder uptake → validate first; #14 (right) is better supported.' }, rend: { es: 'Bajo / incierto (captación no fiable).', en: 'Low / uncertain (unreliable uptake).' } },
   16: { zone: { es: 'Subvolumen intraóseo de captación elevada (sin componente extraóseo abordable).', en: 'High-uptake intra-osseous subvolume (no extraosseous component to target).' }, approach: { es: '—', en: '—' }, safety: { es: 'Cuello femoral, hueso de carga: la obtención de cores conlleva riesgo de fractura patológica. Indicación y abordaje los valoran Oncología Radioterápica/Ortopedia.', en: 'Femoral neck, weight-bearing bone: core sampling carries pathologic-fracture risk. Indication and approach are assessed by Radiation Oncology/Orthopedics.' }, rend: { es: 'Hipermetabolismo glucolítico elevado, condicionado por la seguridad estructural.', en: 'High glycolytic hypermetabolism, gated by structural safety.' } },
   17: { zone: { es: 'Sin subvolumen accionable (detección por IA, no localizable, ≤8 mm).', en: 'No actionable subvolume (AI detection, not localizable, ≤8 mm).' }, approach: { es: '—', en: '—' }, safety: { es: 'Detección por IA sin confirmar; localización costal con riesgo de neumotórax; validar primero (Medicina Nuclear).', en: 'Unconfirmed AI detection; costal location with pneumothorax risk; validate first (Nuclear Medicine).' }, rend: { es: 'No evaluable.', en: 'Not assessable.' } },
@@ -1323,31 +1323,49 @@ function whyOneLiner(le: Lesion): string {
   else if (le.fdg != null && le.dota != null) cap = L('Captación dual moderada (¹⁸F-FDG y ⁶⁸Ga-DOTATOC)', 'Moderate dual uptake (¹⁸F-FDG and ⁶⁸Ga-DOTATOC)')
   else cap = L('Captación baja, ⁶⁸Ga-DOTATOC predominante', 'Low uptake, ⁶⁸Ga-DOTATOC-predominant')
   const m = morphCat(le)
-  const yld = m === 'lítica' ? L('atenuación lítica en TC, rendimiento diagnóstico esperado favorable', 'lytic CT attenuation, favorable expected diagnostic yield')
+  const yld = m === 'lítica' ? L('atenuación lítica en TC, estimación orientativa (heurística) de rendimiento: favorable', 'lytic CT attenuation, indicative (heuristic) yield estimate: favorable')
     : m === 'mixta' ? L('atenuación TC mixta (lítica/esclerótica)', 'mixed CT attenuation (lytic/sclerotic)')
-    : m === 'blástica' ? L('atenuación esclerótica/blástica en TC, menor rendimiento diagnóstico esperado', 'sclerotic/blastic CT attenuation, lower expected diagnostic yield')
+    : m === 'blástica' ? L('atenuación esclerótica/blástica en TC, estimación orientativa (heurística) de rendimiento: bajo', 'sclerotic/blastic CT attenuation, indicative (heuristic) yield estimate: low')
     : L('morfología por confirmar en TC', 'CT morphology to be confirmed')
   return cap + ' · ' + yld + '.'
 }
 /* palabra corta de forma (para las mini-barras de rendimiento) */
 function morphShort(le: Lesion): string {
   const m = morphCat(le)
-  if (m === 'lítica') return L('lítico · rendimiento favorable', 'lytic · favorable yield')
+  if (m === 'lítica') return L('lítico · rendimiento estimado favorable (heurístico)', 'lytic · estimated favorable yield (heuristic)')
   if (m === 'mixta') return L('mixto', 'mixed')
-  if (m === 'blástica') return L('esclerótico/blástico · rendimiento bajo', 'sclerotic/blastic · low yield')
+  if (m === 'blástica') return L('esclerótico/blástico · rendimiento estimado bajo (heurístico)', 'sclerotic/blastic · estimated low yield (heuristic)')
   return L('morfología s/c', 'morphology n/c')
 }
-/* candidatos CONFIRMADOS ordenados por idoneidad (los focos del informe).
-   Los detectados por IA quedan fuera del orden → lista aparte, marcados. */
+/* OFRECER, NO CONDICIONAR (matiz de Miriam): el orden POR DEFECTO es un HECHO NEUTRO
+   — el nivel anatómico (id, de craneal a caudal) —, no un ranking-veredicto, para que
+   nadie (ni el lector lego/público) abra con un orden que se lea como conclusión. La
+   idoneidad es una LENTE OPT-IN: el usuario la ACTIVA y entonces reordena por score
+   (estimación heurística orientativa, no validada). La predicción NO se borra: cambia
+   cuándo gobierna el orden. */
+const orderByIdoneidad = ref(false)
+function neutralOrder(rows: Lesion[]): Lesion[] {
+  return [...rows].sort((a, b) => a.id - b.id)
+}
+function suitabilityOrder(rows: Lesion[]): Lesion[] {
+  return [...rows].sort((a, b) => suitabilityScore(b) - suitabilityScore(a) || a.id - b.id)
+}
+/* candidatos CONFIRMADOS (los focos del informe). Orden por defecto = nivel anatómico
+   (neutro); con la lente activada, por idoneidad heurística. Los detectados por IA quedan
+   fuera del orden → lista aparte, marcados. */
 const rankedFoci = computed(() =>
-  [...confirmedFoci.value].sort((a, b) => suitabilityScore(b) - suitabilityScore(a) || a.id - b.id),
+  orderByIdoneidad.value ? suitabilityOrder(confirmedFoci.value) : neutralOrder(confirmedFoci.value),
 )
 /* focos detectados por IA (por confirmar): candidatos sí, peso real no */
 const aiCandidates = computed(() =>
-  [...aiFoci.value].sort((a, b) => suitabilityScore(b) - suitabilityScore(a) || a.id - b.id),
+  orderByIdoneidad.value ? suitabilityOrder(aiFoci.value) : neutralOrder(aiFoci.value),
 )
-/* (ficha resumen) los 19 ORDENADOS por idoneidad (confirmados primero, IA al final) para el
-   grid de fichas-resumen «de un vistazo». No se filtra (la galería nunca se filtra). */
+/* las 3 dianas que la lente heurística sitúa mejor (SIEMPRE por idoneidad, es su función:
+   ofrecer la orientación; no depende de que el orden general esté activado). */
+const topByIdoneidad = computed(() => suitabilityOrder(confirmedFoci.value).slice(0, 3))
+/* (ficha resumen) los 19 en el ORDEN POR DEFECTO (nivel anatómico; idoneidad si la lente
+   está activada) — confirmados primero, IA al final — para el grid de fichas-resumen «de
+   un vistazo». No se filtra (la galería nunca se filtra). */
 const fichaGrid = computed<Lesion[]>(() => [...rankedFoci.value, ...aiCandidates.value])
 /* lista plana para el MODO TABLA del navegador: confirmados por idoneidad,
    luego los de IA (por confirmar) al final. Reutiliza rankedFoci/aiCandidates. */
@@ -1455,7 +1473,7 @@ function pct01(x: number): string { return (clamp01(x) * 100).toFixed(0) + '%' }
 function hasSoftTissue(le: Lesion): boolean { return !!le.softTissue }
 /* primeros 3 candidatos confirmados (resumen «de un vistazo» de la lente, para que el
    radiólogo compare las mejores dianas sin desplegar toda la lista). Orientativo. */
-const topCandidates = computed(() => rankedFoci.value.slice(0, 3))
+const topCandidates = computed(() => topByIdoneidad.value)
 
 /* ------------------------------------------------------------------ */
 /*  Orden de la tabla                                                  */
@@ -1657,17 +1675,17 @@ const ticks = [
         <section class="order-1 mb-14" aria-labelledby="dianas-resumen">
           <div class="flex items-baseline justify-between flex-wrap gap-x-3 gap-y-2 mb-2">
             <div>
-              <p class="eyebrow mb-2 block">{{ L('La respuesta primero · dónde mirar', 'The answer first · where to look') }}</p>
-              <h2 id="dianas-resumen" class="heading-display text-2xl text-berenjena scroll-mt-[5.5rem]">{{ L('Dianas idóneas', 'Suitable targets') }}</h2>
+              <p class="eyebrow mb-2 block">{{ L('Una orientación para empezar · dónde mirar', 'An orientation to start · where to look') }}</p>
+              <h2 id="dianas-resumen" class="heading-display text-2xl text-berenjena scroll-mt-[5.5rem]">{{ L('Dianas que la lente heurística sitúa mejor', 'Targets the heuristic lens places best') }}</h2>
             </div>
             <span class="status-badge status-badge--firma self-start mt-1">{{ L('equipa, no indica', 'equips, does not indicate') }}</span>
           </div>
           <p class="text-sm text-tinta leading-relaxed mb-4 max-w-3xl">
-            {{ L('Los focos mejor situados como diana de biopsia por las señales de imagen — captación (FDG/Ga), rendimiento del tejido y tamaño. Toca uno para verlo en el navegador y en 3D, justo abajo. Es un orden orientativo que EQUIPA al equipo médico; no es una orden de qué biopsiar.',
-                  'The foci best placed as a biopsy target by the imaging signals — tracer uptake (FDG/Ga), tissue yield and size. Tap one to see it in the navigator and in 3D, right below. It is an indicative order that EQUIPS the medical team; it is not an instruction on what to biopsy.') }}
+            {{ L('Una orientación heurística (estimación orientativa, no validada) que EQUIPA al equipo médico: los focos que la lente sitúa mejor como diana por las señales de imagen — captación (FDG/Ga), rendimiento del tejido y tamaño. Toca uno para verlo en el navegador y en 3D, justo abajo. Ayuda a sopesar; el equipo decide qué biopsiar.',
+                  'A heuristic orientation (an indicative estimate, not validated) that EQUIPS the medical team: the foci the lens places best as a target by the imaging signals — tracer uptake (FDG/Ga), tissue yield and size. Tap one to see it in the navigator and in 3D, right below. It helps to weigh; the team decides what to biopsy.') }}
           </p>
           <div class="grid sm:grid-cols-3 gap-3">
-            <button v-for="(le, i) in topCandidates" :key="le.id" type="button"
+            <button v-for="le in topCandidates" :key="le.id" type="button"
               @click="pickAndShow(le.id)"
               :aria-pressed="selected === le.id"
               class="text-left rounded-card border-2 px-3.5 py-3 transition-colors flex flex-col items-stretch justify-start"
@@ -1685,7 +1703,7 @@ const ticks = [
                   <span class="eyebrow--sm">{{ L('idoneidad', 'suitability') }}</span>
                 </span>
               </div>
-              <p class="text-[10.5px] text-tinta leading-snug mt-1.5">{{ L('orden', 'rank') }} {{ i + 1 }} · FDG {{ le.fdg != null ? le.fdg.toFixed(1) : '—' }} · Ga {{ le.dota != null ? le.dota.toFixed(1) : '—' }} · {{ morphShort(le) }}</p>
+              <p class="text-[10.5px] text-tinta leading-snug mt-1.5">FDG {{ le.fdg != null ? le.fdg.toFixed(1) : '—' }} · Ga {{ le.dota != null ? le.dota.toFixed(1) : '—' }} · {{ morphShort(le) }}</p>
               <p class="text-[11px] text-tinta leading-snug mt-1"><span class="font-bold" :style="{ color: dianaMk(le).color }">{{ dianaMk(le).mk }}</span> <span class="font-semibold text-berenjena">{{ L('Diana', 'Target') }}:</span> {{ BIOPSY[le.id]?.zone[lang] }}</p>
               <p class="text-[11px] text-tinta leading-snug italic mt-0.5">«{{ whyOneLiner(le) }}»</p>
               <!-- aviso PROMINENTE si una biopsia ya falló aquí (no repetir el error de diana) -->
@@ -1700,7 +1718,7 @@ const ticks = [
           <div class="mt-2.5 flex items-center justify-between flex-wrap gap-x-4 gap-y-1">
             <p class="text-[11px] text-tinta leading-snug max-w-xl">{{ L('Un resumen para empezar; toca una diana para abrirla en el navegador de abajo.', 'A summary to start; tap a target to open it in the navigator below.') }}</p>
             <a href="#idoneidad" @click="jumpToIdoneidad" class="link-action text-miriam text-[12.5px] inline-flex items-center gap-1 font-semibold shrink-0">
-              {{ L('Ver cómo se calcula · ranking completo', 'See how it is computed · full ranking') }} <span aria-hidden="true">↓</span>
+              {{ L('Ver cómo se calcula · lista completa', 'See how it is computed · full list') }} <span aria-hidden="true">↓</span>
             </a>
           </div>
 
@@ -1708,7 +1726,7 @@ const ticks = [
                (señal cruda → mejor tejido del clon adecuado, de forma segura), para que no parezca arbitrario. -->
           <details class="alert-callout mt-5 leading-relaxed">
             <summary class="cursor-pointer font-semibold">{{ L('Criterios de selección de dianas para caracterización molecular (y la salvedad del cuello femoral)', 'Target-selection criteria for molecular characterization (and the femoral-neck caveat)') }}</summary>
-            <p class="mt-2">{{ L('El criterio no es el SUVmáx más alto, sino el subvolumen con mayor probabilidad de aportar celularidad tumoral viable representativa —con integridad de ARN suficiente (DV200) para WES + RNA-seq— mediante un abordaje percutáneo TC-guiado de riesgo aceptable. Bajo ese criterio destaca el ilíaco supra-acetabular (#14): ¹⁸F-FDG en aumento, atenuación TC no esclerótica y corredor posterolateral accesible. Según el clon a caracterizar, también el pedículo L1 (#10), discordante ¹⁸F-FDG⁺ / ⁶⁸Ga-DOTATOC⁻. El cuello femoral (#16) tiene el ¹⁸F-FDG más alto y es de interés biológico, pero asienta en hueso de carga: los cores conllevan riesgo de fractura patológica, cuya indicación valoran Oncología Radioterápica/Ortopedia; se documenta como consideración, no exclusión. El L5 (#11) recibe SBRT concurrente: el tejido irradiado puede no ser representativo. La selección final de la diana corresponde al comité; salvedades de cuantificación en «Fuentes, método y salvedades».', 'The criterion is not the highest SUVmax, but the subvolume most likely to provide representative viable tumor cellularity — with RNA integrity sufficient (DV200) for WES + RNA-seq — via a CT-guided percutaneous approach of acceptable risk. Under that criterion the supra-acetabular iliac (#14) stands out: rising ¹⁸F-FDG, non-sclerotic CT attenuation and an accessible posterolateral corridor. Depending on the clone to be characterized, also the L1 pedicle (#10), discordant ¹⁸F-FDG⁺ / ⁶⁸Ga-DOTATOC⁻. The femoral neck (#16) has the highest ¹⁸F-FDG and is of biological interest, but lies in weight-bearing bone: core sampling carries pathologic-fracture risk, whose indication is assessed by Radiation Oncology/Orthopedics; documented as a consideration, not an exclusion. L5 (#11) is on concurrent SBRT: irradiated tissue may not be representative. Final target selection rests with the tumor board; quantification caveats in “Sources, method and caveats”.') }}</p>
+            <p class="mt-2">{{ L('El criterio orientativo no es el SUVmáx más alto, sino el subvolumen con mayor probabilidad de aportar celularidad tumoral viable representativa —con integridad de ARN suficiente (DV200) para WES + RNA-seq— mediante un abordaje percutáneo TC-guiado de riesgo aceptable. Bajo este criterio heurístico (estimación orientativa, no validada), el equipo podría sopesar el ilíaco supra-acetabular (#14): ¹⁸F-FDG en aumento, atenuación TC no esclerótica y corredor posterolateral accesible; y, según el clon a caracterizar, también el pedículo L1 (#10), discordante ¹⁸F-FDG⁺ / ⁶⁸Ga-DOTATOC⁻. El cuello femoral (#16) tiene el ¹⁸F-FDG más alto y podría tener interés biológico, pero asienta en hueso de carga: los cores conllevan riesgo de fractura patológica, cuya indicación valoran Oncología Radioterápica/Ortopedia; se documenta como consideración, no exclusión. El L5 (#11) recibe SBRT concurrente: el tejido irradiado puede no ser representativo. Esto orienta, no decide: la selección final de la diana corresponde al comité; salvedades de cuantificación en «Fuentes, método y salvedades».', 'The indicative criterion is not the highest SUVmax, but the subvolume most likely to provide representative viable tumor cellularity — with RNA integrity sufficient (DV200) for WES + RNA-seq — via a CT-guided percutaneous approach of acceptable risk. Under this heuristic criterion (an indicative estimate, not validated), the team could weigh the supra-acetabular iliac (#14): rising ¹⁸F-FDG, non-sclerotic CT attenuation and an accessible posterolateral corridor; and, depending on the clone to be characterized, also the L1 pedicle (#10), discordant ¹⁸F-FDG⁺ / ⁶⁸Ga-DOTATOC⁻. The femoral neck (#16) has the highest ¹⁸F-FDG and may be of biological interest, but lies in weight-bearing bone: core sampling carries pathologic-fracture risk, whose indication is assessed by Radiation Oncology/Orthopedics; documented as a consideration, not an exclusion. L5 (#11) is on concurrent SBRT: irradiated tissue may not be representative. This orients, it does not decide: final target selection rests with the tumor board; quantification caveats in “Sources, method and caveats”.') }}</p>
           </details>
         </section>
 
@@ -1997,7 +2015,7 @@ const ticks = [
                 </li>
               </ul>
               <p class="text-[10px] text-tinta leading-snug px-1.5 pt-1.5 mt-1 border-t border-[rgba(45,27,61,0.08)]">
-                {{ L('Confirmados primero (por idoneidad), IA al final (anillo punteado). Color = trazador · ⁶⁸Ga-DOTATOC (SSTR) / ¹⁸F-FDG (glucólisis) · nº = idoneidad orientativa.', 'Confirmed first (by suitability), AI last (dashed ring). Colour = tracer · ⁶⁸Ga-DOTATOC (SSTR) / ¹⁸F-FDG (glycolysis) · nº = indicative suitability.') }}
+                {{ L('Confirmados primero (por nivel anatómico), IA al final (anillo punteado). Color = trazador · ⁶⁸Ga-DOTATOC (SSTR) / ¹⁸F-FDG (glucólisis) · nº = id del foco.', 'Confirmed first (by anatomical level), AI last (dashed ring). Colour = tracer · ⁶⁸Ga-DOTATOC (SSTR) / ¹⁸F-FDG (glycolysis) · nº = focus id.') }}
               </p>
             </div>
 
@@ -2177,6 +2195,10 @@ const ticks = [
               <!-- (La miniatura «imagen clave» NO se repite aquí: el corte axial PET-CT
                    con el anillo del SUVmáx vive en el detalle profundo, en la galería
                    «una por foco» y en el lightbox. Aquí, el 3D es la imagen.) -->
+              <!-- caveat del 3D (proyección + co-registro): remite al BLOQUE CANÓNICO, sin duplicar -->
+              <p v-if="bone3dKeyOf(sel)" class="text-[10.5px] text-tinta leading-snug mt-2">
+                {{ L('El color por vértice es una proyección del PET sobre la malla (indica dónde, no SUVmáx); el ¹⁸F-FDG y el ⁶⁸Ga-DOTATOC son de fechas distintas co-registrados sobre el TC (localización aproximada por co-registro). ', 'The per-vertex colour is a projection of the PET onto the mesh (it shows where, not SUVmax); ¹⁸F-FDG and ⁶⁸Ga-DOTATOC are from different dates co-registered onto the CT (approximate localization by co-registration). ') }}<a href="#metodo-caveats" class="link-action text-miriam font-semibold whitespace-nowrap">{{ L('Método y salvedades ↓', 'Method and caveats ↓') }}</a>
+              </p>
             </div>
 
             </div><!-- /COLUMNA DERECHA · VER LA LESIÓN -->
@@ -2346,7 +2368,7 @@ const ticks = [
                   <div><dt class="inline font-semibold text-berenjena">{{ L('Zona', 'Zone') }}: </dt><dd class="inline">{{ selBiopsy.zone[lang] }}</dd></div>
                   <div><dt class="inline font-semibold text-berenjena">{{ L('Vía de acceso', 'Approach') }}: </dt><dd class="inline">{{ selBiopsy.approach[lang] }}</dd></div>
                   <div><dt class="inline font-semibold text-berenjena">{{ L('Seguridad', 'Safety') }}: </dt><dd class="inline">{{ selBiopsy.safety[lang] }}</dd></div>
-                  <div><dt class="inline font-semibold text-berenjena">{{ L('Rendimiento esperado', 'Expected yield') }}: </dt><dd class="inline">{{ selBiopsy.rend[lang] }}</dd></div>
+                  <div><dt class="inline font-semibold text-berenjena">{{ L('Rendimiento (estimación heurística orientativa, no validada)', 'Yield (indicative heuristic estimate, not validated)') }}: </dt><dd class="inline">{{ selBiopsy.rend[lang] }}</dd></div>
                 </dl>
                 <p class="text-[10px] text-tinta mt-2 leading-relaxed">{{ L('Acceso y anatomía del propio caso, para que radiología intervencionista y el comité decidan sobre la imagen en vivo.', 'Access and anatomy from the case itself, for interventional radiology and the tumor board to decide on live imaging.') }}</p>
               </div>
@@ -2473,9 +2495,9 @@ const ticks = [
                 <!-- (la lectura técnica en prosa ya es el texto principal de la ficha
                      compacta de arriba; aquí no se repite — solo el desglose de cifras.) -->
                 <div class="grid grid-cols-2 gap-x-6 gap-y-2 mt-3 text-sm">
-                  <div><span class="text-tinta">DOTATOC SUVmáx</span><br><span class="font-mono text-berenjena">{{ sel.dota != null ? sel.dota.toFixed(2) : L('sin captación', 'no uptake') }}</span></div>
-                  <div><span class="text-tinta">FDG SUVmáx</span><br><span class="font-mono text-berenjena">{{ sel.fdg != null ? sel.fdg.toFixed(2) : L('sin captación', 'no uptake') }}</span></div>
-                  <div v-if="trend(sel)"><span class="text-tinta">{{ L('Tendencia FDG', 'FDG trend') }}</span><br><span class="font-mono" :style="{ color: trend(sel)!.dir === 'up' || trend(sel)!.dir === 'new' ? '#bb4128' : trend(sel)!.dir === 'down' ? '#1f5a3a' : '#3a3340' }">{{ trend(sel)!.txt }}</span></div>
+                  <div><span class="text-tinta">{{ L('⁶⁸Ga-DOTATOC SUVmáx', '⁶⁸Ga-DOTATOC SUVmax') }}</span><br><span class="font-mono text-berenjena">{{ sel.dota != null ? sel.dota.toFixed(2) : L('sin captación', 'no uptake') }}</span></div>
+                  <div><span class="text-tinta">{{ L('¹⁸F-FDG SUVmáx', '¹⁸F-FDG SUVmax') }}</span><br><span class="font-mono text-berenjena">{{ sel.fdg != null ? sel.fdg.toFixed(2) : L('sin captación', 'no uptake') }}</span></div>
+                  <div v-if="trend(sel)"><span class="text-tinta">{{ L('Tendencia ¹⁸F-FDG', '¹⁸F-FDG trend') }}</span><br><span class="font-mono" :style="{ color: trend(sel)!.dir === 'up' || trend(sel)!.dir === 'new' ? '#bb4128' : trend(sel)!.dir === 'down' ? '#1f5a3a' : '#3a3340' }">{{ trend(sel)!.txt }}</span></div>
                   <div v-if="sel.scler"><span class="text-tinta">{{ L('Morfología', 'Morphology') }}</span><br><span class="font-mono text-berenjena">{{ L('blástica / esclerótica', 'blastic / sclerotic') }}</span></div>
                   <div v-if="sel.load"><span class="text-tinta">{{ L('Hueso de carga', 'Weight-bearing') }}</span><br><span class="font-mono text-berenjena">{{ L('sí · revisado por Oncología Radioterápica', 'yes · reviewed by Radiation Oncology') }}</span></div>
                 </div>
@@ -2547,15 +2569,15 @@ const ticks = [
             </p>
             <p class="text-[14px] text-berenjena leading-relaxed">
               {{ L(
-                'Ordena los focos por las señales que importan para elegir dónde rebiopsiar: captación de trazador (¹⁸F-FDG / ⁶⁸Ga-DOTATOC), rendimiento tisular por morfología (lítico / partes blandas rinde más; blástico denso, poco) y tamaño. La accesibilidad y la seguridad las valora radiología intervencionista.',
-                'Orders the foci by the signals that matter for choosing where to rebiopsy: tracer uptake (¹⁸F-FDG / ⁶⁸Ga-DOTATOC), tissue yield by morphology (lytic / soft tissue yields more; dense blastic, little) and size. Accessibility and safety are assessed by interventional radiology.') }}
+                'Una lente OPT-IN (estimación heurística orientativa, no validada): cuando la activas, ordena los focos por las señales que importan para sopesar dónde rebiopsiar —captación de trazador (¹⁸F-FDG / ⁶⁸Ga-DOTATOC), rendimiento tisular por morfología (lítico / partes blandas rinde más; blástico denso, poco) y tamaño. Por defecto, la lista va por nivel anatómico (hecho neutro). La accesibilidad y la seguridad las valora radiología intervencionista. Ofrece, no decide.',
+                'An OPT-IN lens (an indicative heuristic estimate, not validated): when you turn it on, it orders the foci by the signals that matter to weigh where to rebiopsy — tracer uptake (¹⁸F-FDG / ⁶⁸Ga-DOTATOC), tissue yield by morphology (lytic / soft tissue yields more; dense blastic, little) and size. By default, the list goes by anatomical level (a neutral fact). Accessibility and safety are assessed by interventional radiology. It offers, it does not decide.') }}
             </p>
           </div>
 
           <!-- LOS FACTORES que componen la idoneidad (explícitos, etiquetados por trazador/forma) -->
           <p class="text-sm text-tinta leading-relaxed mb-3 max-w-3xl">
-            {{ L('El cálculo completo: la idoneidad es el producto de tres factores visibles, más tres avisos de FACTIBILIDAD que el equipo pondera (no van en el número). El resumen con las mejores dianas está arriba, en «Dianas idóneas».',
-                  'The full calculation: suitability is the product of three visible factors, plus three FEASIBILITY flags the team weighs (not part of the number). The summary with the best targets is at the top, in “Suitable targets”.') }}
+            {{ L('El cálculo completo: la idoneidad es el producto de tres factores visibles, más tres avisos de FACTIBILIDAD que el equipo pondera (no van en el número). El resumen con las dianas que la lente sitúa mejor está arriba, en «Dianas que la lente heurística sitúa mejor».',
+                  'The full calculation: suitability is the product of three visible factors, plus three FEASIBILITY flags the team weighs (not part of the number). The summary with the targets the lens places best is at the top, in “Targets the heuristic lens places best”.') }}
           </p>
           <!-- GRUPO A · los 3 factores que MULTIPLICAN el número → grid de 3 col (llena exacto). -->
           <div class="grid sm:grid-cols-3 gap-3 mb-3">
@@ -2564,7 +2586,7 @@ const ticks = [
               <p class="text-[12.5px] text-tinta leading-snug">{{ L('¹⁸F-FDG SUVmáx: a mayor captación glucolítica, más señal metabólica viable que muestrear; el ⁶⁸Ga-DOTATOC aporta la densidad de receptores de somatostatina (SSTR).', '¹⁸F-FDG SUVmax: the higher the glycolytic uptake, the more viable metabolic signal to sample; ⁶⁸Ga-DOTATOC adds the somatostatin-receptor (SSTR) density.') }}</p>
             </div>
             <div class="card-base !p-3.5 border-t-4" :style="{ borderColor: '#1f6b57' }">
-              <p class="text-[12px] font-semibold mb-1" :style="{ color: '#1f6b57' }">{{ L('2 · Rendimiento esperado', '2 · Expected yield') }}</p>
+              <p class="text-[12px] font-semibold mb-1" :style="{ color: '#1f6b57' }">{{ L('2 · Rendimiento (estimación heurística)', '2 · Yield (heuristic estimate)') }}</p>
               <p class="text-[12.5px] text-tinta leading-snug">{{ L('Forma del hueso: lítico / partes blandas suele rendir más tejido; blástico denso rinde poco (como falló la biopsia ilíaca 26B585). Es FORMA, no biología.', 'Bone shape: lytic / soft tissue usually yields more tissue; dense blastic yields little (as the 26B585 iliac biopsy failed). It is SHAPE, not biology.') }}</p>
             </div>
             <div class="card-base !p-3.5 border-t-4" :style="{ borderColor: '#6b6470' }">
@@ -2597,18 +2619,30 @@ const ticks = [
             </div>
           </div>
 
-          <!-- ORDEN ORIENTATIVO · candidatos confirmados (los focos del informe) -->
-          <div class="flex items-baseline justify-between flex-wrap gap-2 mb-2">
-            <h3 class="heading-display text-lg text-berenjena">{{ L('Focos del informe, ordenados por idoneidad', 'Report foci, ordered by suitability') }}</h3>
-            <span class="text-[11px] text-tinta">{{ L('orden orientativo · toca un foco para abrir su ficha', 'indicative order · tap a focus to open its card') }}</span>
+          <!-- ORDEN POR DEFECTO = NIVEL ANATÓMICO (hecho neutro). La idoneidad es una LENTE
+               OPT-IN: el usuario la activa con el control y entonces reordena por score
+               (estimación heurística orientativa, no validada). Ofrece, no condiciona. -->
+          <div class="flex items-baseline justify-between flex-wrap gap-x-2 gap-y-1.5 mb-2">
+            <h3 class="heading-display text-lg text-berenjena">{{ orderByIdoneidad ? L('Focos del informe, ordenados por idoneidad', 'Report foci, ordered by suitability') : L('Focos del informe, por nivel anatómico', 'Report foci, by anatomical level') }}</h3>
+            <span class="text-[11px] text-tinta">{{ L('toca un foco para abrir su ficha', 'tap a focus to open its card') }}</span>
           </div>
+          <!-- CONTROL · activa la lente de idoneidad (no es el orden por defecto). Texto SIEMPRE
+               visible; nunca un botón que oculte contenido. -->
+          <label class="flex items-start gap-2.5 mb-3 cursor-pointer select-none rounded-card border px-3 py-2.5"
+            :class="orderByIdoneidad ? 'border-[#9d44ab] bg-[rgba(157,68,171,0.06)]' : 'border-[rgba(45,27,61,0.14)] bg-cream-card'">
+            <input type="checkbox" v-model="orderByIdoneidad" class="mt-0.5 accent-[#9d44ab] w-4 h-4 shrink-0"
+              :aria-label="L('Ordenar por idoneidad (heurística orientativa, no validada)', 'Sort by suitability (indicative heuristic, not validated)')" />
+            <span class="min-w-0">
+              <span class="text-[13px] font-semibold text-berenjena leading-snug block">{{ L('Ordenar por idoneidad (estimación heurística orientativa, no validada)', 'Sort by suitability (indicative heuristic estimate, not validated)') }}</span>
+              <span class="text-[11px] text-tinta leading-snug block mt-0.5">{{ orderByIdoneidad ? L('Activada: la lista se reordena por el score. Es una orientación que el equipo sopesa; el orden de referencia es el nivel anatómico.', 'On: the list is reordered by the score. It is an orientation the team weighs; the reference order is the anatomical level.') : L('Por defecto, los focos van por nivel anatómico (hecho neutro). Actívala para verlos reordenados por la estimación de idoneidad.', 'By default, foci go by anatomical level (a neutral fact). Turn it on to see them reordered by the suitability estimate.') }}</span>
+            </span>
+          </label>
           <ul class="space-y-2 mb-3">
-            <li v-for="(le, i) in rankedFoci" :key="le.id">
+            <li v-for="le in rankedFoci" :key="le.id">
               <button type="button" :aria-pressed="selected === le.id" @click="pickAndShow(le.id)"
                 class="w-full text-left rounded-card border px-3.5 py-3 transition-colors"
                 :class="selected === le.id ? 'border-[#9d44ab] bg-[rgba(157,68,171,0.07)]' : 'border-[rgba(45,27,61,0.12)] bg-cream-card hover:border-[rgba(45,27,61,0.3)]'">
                 <div class="flex items-center gap-3">
-                  <span class="w-5 shrink-0 text-right font-mono text-[13px] text-tinta tabular-nums">{{ i + 1 }}</span>
                   <span class="inline-flex w-7 h-7 shrink-0 rounded-full items-center justify-center text-white text-xs font-semibold" :style="{ background: phenoColor(le), color: markerInk(le) }">{{ le.id }}</span>
                   <div class="flex-1 min-w-0">
                     <p class="font-semibold text-berenjena text-sm leading-tight">{{ le.level[lang] }}</p>
@@ -3035,7 +3069,7 @@ const ticks = [
         <section class="mb-14" aria-labelledby="tabla">
           <p class="eyebrow mb-2 block">{{ L('Para el equipo · referencia', 'For the team · reference') }}</p>
           <h2 id="tabla" class="heading-display text-2xl text-berenjena mb-2 scroll-mt-[5.5rem]">{{ L('Apéndice: los focos en una tabla', 'Appendix: the foci in a table') }}</h2>
-          <p class="text-sm text-tinta leading-relaxed mb-4 max-w-3xl">{{ L('Tabla completa con la idoneidad orientativa como diana, SUVmáx por trazador, tendencia, extensión metabólica medida y patrón, más los focos extra detectados de forma automática. Pulsa una cabecera para ordenar; los focos detectados por IA van siempre al final, en su propio grupo, sin confirmar.', 'Full table with the indicative suitability as a target, SUVmax per tracer, trend, measured metabolic extent and pattern, plus the automatically detected extra foci. Click a header to sort; AI-detected foci always go last, in their own group, unconfirmed.') }}</p>
+          <p class="text-sm text-tinta leading-relaxed mb-4 max-w-3xl">{{ L('Tabla completa con la idoneidad como diana (estimación heurística orientativa, no validada), SUVmáx por trazador, tendencia, extensión metabólica medida y patrón, más los focos extra detectados de forma automática. Por defecto ordena por id (nivel anatómico, hecho neutro); pulsa una cabecera para reordenar —incluida la de idoneidad. Los focos detectados por IA van siempre al final, en su propio grupo, sin confirmar.', 'Full table with suitability as a target (an indicative heuristic estimate, not validated), SUVmax per tracer, trend, measured metabolic extent and pattern, plus the automatically detected extra foci. It defaults to id order (anatomical level, a neutral fact); click a header to re-sort — including the suitability one. AI-detected foci always go last, in their own group, unconfirmed.') }}</p>
           <details class="notes-disclosure" open>
             <summary>{{ L('Abrir la tabla y los focos extra', 'Open the table and extra foci') }}</summary>
           <p class="text-[12px] text-tinta mt-3 mb-4 leading-relaxed max-w-3xl">
@@ -3050,10 +3084,10 @@ const ticks = [
                   <th scope="col" :aria-sort="ariaSort('level')"><button type="button" class="th-sort" @click="sortBy('level')">{{ L('Localización', 'Location') }} <span class="th-arrow">{{ sortArrow('level') }}</span></button></th>
                   <th scope="col" :aria-sort="ariaSort('side')"><button type="button" class="th-sort" @click="sortBy('side')">{{ L('Lado', 'Side') }} <span class="th-arrow">{{ sortArrow('side') }}</span></button></th>
                   <th scope="col" :aria-sort="ariaSort('suit')"><button type="button" class="th-sort" @click="sortBy('suit')">{{ L('Idoneidad', 'Suitability') }} <span class="th-arrow">{{ sortArrow('suit') }}</span></button></th>
-                  <th scope="col" :aria-sort="ariaSort('dota')"><button type="button" class="th-sort" @click="sortBy('dota')">Ga SUVmáx <span class="th-arrow">{{ sortArrow('dota') }}</span></button></th>
-                  <th scope="col" :aria-sort="ariaSort('fdg')"><button type="button" class="th-sort" @click="sortBy('fdg')">FDG SUVmáx <span class="th-arrow">{{ sortArrow('fdg') }}</span></button></th>
-                  <th scope="col" :aria-sort="ariaSort('prev')"><button type="button" class="th-sort" @click="sortBy('prev')">{{ L('FDG previo', 'Prior FDG') }} <span class="th-arrow">{{ sortArrow('prev') }}</span></button></th>
-                  <th scope="col" :aria-sort="ariaSort('delta')"><button type="button" class="th-sort" @click="sortBy('delta')">Δ FDG <span class="th-arrow">{{ sortArrow('delta') }}</span></button></th>
+                  <th scope="col" :aria-sort="ariaSort('dota')"><button type="button" class="th-sort" @click="sortBy('dota')">{{ L('⁶⁸Ga SUVmáx', '⁶⁸Ga SUVmax') }} <span class="th-arrow">{{ sortArrow('dota') }}</span></button></th>
+                  <th scope="col" :aria-sort="ariaSort('fdg')"><button type="button" class="th-sort" @click="sortBy('fdg')">{{ L('¹⁸F-FDG SUVmáx', '¹⁸F-FDG SUVmax') }} <span class="th-arrow">{{ sortArrow('fdg') }}</span></button></th>
+                  <th scope="col" :aria-sort="ariaSort('prev')"><button type="button" class="th-sort" @click="sortBy('prev')">{{ L('¹⁸F-FDG previo', 'Prior ¹⁸F-FDG') }} <span class="th-arrow">{{ sortArrow('prev') }}</span></button></th>
+                  <th scope="col" :aria-sort="ariaSort('delta')"><button type="button" class="th-sort" @click="sortBy('delta')">Δ ¹⁸F-FDG <span class="th-arrow">{{ sortArrow('delta') }}</span></button></th>
                   <th scope="col" :aria-sort="ariaSort('size')"><button type="button" class="th-sort" @click="sortBy('size')">{{ L('Extensión metab. (mm · ml)', 'Metabolic extent (mm · ml)') }} <span class="th-arrow">{{ sortArrow('size') }}</span></button></th>
                   <th scope="col" :aria-sort="ariaSort('pheno')"><button type="button" class="th-sort" @click="sortBy('pheno')">{{ L('Patrón', 'Pattern') }} <span class="th-arrow">{{ sortArrow('pheno') }}</span></button></th>
                 </tr>
@@ -3285,6 +3319,13 @@ const ticks = [
             {{ L(
               'Salvedades de cuantificación (válidas para TODA la página). El SUVmáx es un valor de vóxel único sujeto a efecto de volumen parcial (subestima focos < ~10 mm). Los dos PET no son simultáneos (FDG 24/03, ⁶⁸Ga 26/05). Ambos trazadores se administraron por reservorio (port-a-cath): una posible actividad residual subestimaría globalmente los SUV (no recalculable, no afecta a las comparaciones relativas). Puede haber captación fisiológica o artefacto. La página DESCRIBE hallazgos de imagen; no concluye ni es consejo médico — la lectura formal y la selección final de la diana corresponden al radiólogo y al comité de tumores.',
               'Quantification caveats (apply to the WHOLE page). SUVmax is a single-voxel value subject to partial-volume effect (underestimates foci < ~10 mm). The two PET studies are not simultaneous (FDG 24/03, ⁶⁸Ga 26/05). Both tracers were given via a port (port-a-cath): possible residual activity would underestimate SUVs globally (not recalculable; does not affect relative comparisons). Physiologic uptake or artifact may occur. The page DESCRIBES imaging findings; it does not conclude and is not medical advice — formal reading and final target selection rest with the radiologist and the tumor board.') }}
+          </p>
+          <!-- BLOQUE CANÓNICO · los 4 caveats que un médico nuclear usa para juzgar la página
+               (consagrados aquí UNA sola vez; el resto de la página remite a este bloque). -->
+          <p class="mt-2 text-xs text-tinta leading-relaxed font-mono">
+            {{ L(
+              'Las cuatro salvedades de método (clave para leer la página). (1) El score de idoneidad es HEURÍSTICO, con pesos puestos a mano y NO validado contra resultados de biopsia: orienta, no es una probabilidad medida. (2) La comparación inter-estudio (p. ej. ¹⁸F-FDG actual vs. previo) solo es válida con el mismo trazador, equipo y reconstrucción; entre trazadores distintos (⁶⁸Ga vs. ¹⁸F-FDG) no se restan SUV. (3) Los valores por vértice del modelo 3D son una PROYECCIÓN del PET sobre la malla, no un SUVmáx cuantificado: indican dónde, no cuánto. (4) Co-registro espacial: el ¹⁸F-FDG (24/03/2026) y el ⁶⁸Ga-DOTATOC (26/05/2026) son estudios de FECHAS DISTINTAS co-registrados sobre la malla del TC; el solapamiento tiene un error de varios milímetros (localización aproximada por co-registro), no una fusión exacta.',
+              'The four method caveats (key to reading the page). (1) The suitability score is HEURISTIC, with hand-set weights and NOT validated against biopsy outcomes: it orients, it is not a measured probability. (2) Inter-study comparison (e.g. current vs. prior ¹⁸F-FDG) is only valid with the same tracer, scanner and reconstruction; SUVs are not subtracted across different tracers (⁶⁸Ga vs. ¹⁸F-FDG). (3) The per-vertex values of the 3D model are a PROJECTION of the PET onto the mesh, not a quantified SUVmax: they show where, not how much. (4) Spatial co-registration: ¹⁸F-FDG (24/03/2026) and ⁶⁸Ga-DOTATOC (26/05/2026) are studies from DIFFERENT dates co-registered onto the CT mesh; the overlay carries an error of several millimeters (approximate localization by co-registration), not an exact fusion.') }}
           </p>
         </details>
 
