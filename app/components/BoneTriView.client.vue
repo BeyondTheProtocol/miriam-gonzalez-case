@@ -79,8 +79,8 @@ const PANELS: Panel[] = [
   },
   {
     id: 'fdg',
-    title: { es: 'FDG · azúcar', en: 'FDG · sugar' },
-    sub: { es: '¹⁸F-FDG (glucólisis)', en: '¹⁸F-FDG (glycolysis)' },
+    title: { es: 'FDG · glucólisis', en: 'FDG · glycolysis' },
+    sub: { es: '¹⁸F-FDG (SUVmáx)', en: '¹⁸F-FDG (SUVmax)' },
     unit: { es: 'SUV', en: 'SUV' },
     max: 9,
     legendFrom: '#e7e2d6',
@@ -106,6 +106,19 @@ const biopsyAvailable = computed(() => !!props.biopsied && !noMesh.value && !fai
 const showBiopsy = ref(false)
 const showTarget = ref(false)  // OFF por defecto (consistente con la aguja): el médico le da a un botón para VER la diana orientativa
 const targetAvailable = computed(() => !props.noTarget && !noMesh.value && !failed.value)
+
+/* MÓVIL · PESTAÑAS: en stacked (móvil estrecho) NO apilamos 3 huesos pequeños; mostramos
+   UN panel grande (el del trazador activo) a anchura completa + una fila de pestañas para
+   alternar trazador. La rotación/zoom es COMPARTIDA (misma cámara) → cambiar de pestaña
+   muestra el mismo encuadre con otro trazador (compara la discordancia alternando). */
+const activePanel = ref(0)
+function setActivePanel(i: number) {
+  if (i < 0 || i > 2 || i === activePanel.value) return
+  activePanel.value = i
+  // el panel único llena TODO el canvas → su aspecto = aspecto del canvas; re-encuadra
+  // conservando la orientación actual del orbit (no resetea la rotación del usuario).
+  if (sharedGeo) frameObject(FILL, true)
+}
 
 /* ---- three.js state (1 renderer / 3 scenes / 1 camera / 1 controls) ---- */
 let renderer: THREE.WebGLRenderer
@@ -254,7 +267,9 @@ const stacked = ref(false)
 function cellSize(): { w: number; h: number } {
   if (!host.value) return { w: 1, h: 1 }
   const W = Math.max(1, host.value.clientWidth), H = Math.max(1, host.value.clientHeight)
-  return stacked.value ? { w: W, h: H / 3 } : { w: W / 3, h: H }
+  // móvil-pestañas (stacked): un solo panel grande llena TODO el canvas → la celda ES el
+  // canvas entero (no W×H/3). Escritorio: 3 celdas en fila → W/3 × H.
+  return stacked.value ? { w: W, h: H } : { w: W / 3, h: H }
 }
 function updateCameraAspect() {
   if (!camera) return
@@ -322,19 +337,21 @@ function renderScenes() {
   // pixelRatio INTERNAMENTE. Multiplicar aquí por dpr provocaba un escalado ×dpr² (en
   // pantallas retina dpr=2 → ×4): el viewport se salía y el hueso aparecía arriba/cortado.
   renderer.setScissorTest(true)
-  for (let i = 0; i < 3; i++) {
-    let x: number, y: number, w: number, h: number
-    if (stacked.value) {
-      // apilado vertical: fila 0 arriba. El origen de WebGL es abajo-izquierda → invertimos.
-      w = W; h = H / 3
-      x = 0; y = H - (i + 1) * h
-    } else {
-      w = W / 3; h = H
-      x = i * w; y = 0
+  if (stacked.value) {
+    // MÓVIL-PESTAÑAS: UN solo panel (el activo) ocupando TODO el canvas (viewport full-size).
+    // Cambiar de pestaña → mismo encuadre, otro trazador (las 3 escenas comparten cámara).
+    renderer.setViewport(0, 0, W, H)
+    renderer.setScissor(0, 0, W, H)
+    renderer.render(scenes[activePanel.value], camera)
+  } else {
+    // ESCRITORIO: 3 viewports en fila (intacto).
+    for (let i = 0; i < 3; i++) {
+      const w = W / 3, h = H
+      const x = i * w, y = 0
+      renderer.setViewport(x, y, w, h)
+      renderer.setScissor(x, y, w, h)
+      renderer.render(scenes[i], camera)
     }
-    renderer.setViewport(x, y, w, h)
-    renderer.setScissor(x, y, w, h)
-    renderer.render(scenes[i], camera)
   }
   renderer.setScissorTest(false)
 }
@@ -806,45 +823,70 @@ onBeforeUnmount(() => {
     </div>
 
     <template v-else>
-      <!-- TÍTULOS + LEYENDA por panel (encima del canvas; en escritorio 3 columnas,
-           en móvil apilado las 3 filas). Cada panel: título + escala 0→máx. -->
+      <!-- MÓVIL · PESTAÑAS de trazador (solo en stacked). UN panel grande + estas pestañas
+           para alternar Galio/FDG/Densidad sin scroll. Táctiles ≥44px, activa = berenjena
+           (DS miriam). aria tablist/tab/aria-selected. La rotación/zoom es compartida → al
+           cambiar de pestaña se ve el MISMO encuadre con el otro trazador. -->
       <div
-        class="btv-titles"
-        :class="failed ? 'btv-titles--hidden' : ''"
-        aria-hidden="false"
+        v-if="stacked"
+        class="btv-tabs"
+        role="tablist"
+        :aria-label="L('Trazador a mostrar', 'Tracer to show')"
       >
-        <div v-for="p in PANELS" :key="p.id" class="btv-title-cell">
-          <p class="btv-title">{{ L(p.title.es, p.title.en) }}</p>
-          <p class="btv-sub">{{ L(p.sub.es, p.sub.en) }}</p>
-          <div class="btv-legend">
-            <span class="btv-legend-min">0</span>
-            <span class="btv-legend-bar" :style="{ background: `linear-gradient(to right, ${p.legendFrom}, ${p.legendTo})` }" />
-            <span class="btv-legend-max">{{ p.max }}<span class="btv-legend-unit"> {{ L(p.unit.es, p.unit.en) }}</span></span>
-          </div>
-        </div>
+        <button
+          v-for="(p, i) in PANELS"
+          :key="p.id"
+          type="button"
+          class="btv-tab"
+          :class="{ 'is-active': activePanel === i }"
+          role="tab"
+          :aria-selected="activePanel === i"
+          @click="setActivePanel(i)"
+        >
+          <span class="btv-tab-title">{{ L(p.title.es, p.title.en) }}</span>
+          <span class="btv-tab-sub">{{ L(p.sub.es, p.sub.en) }}</span>
+        </button>
       </div>
 
-      <!-- CANVAS único · 3 viewports (setViewport+setScissor). Una cámara → giran juntos.
-           El aspecto cambia con el layout: fila ancha (3 celdas ~4:5) en escritorio,
-           columna alta (3 celdas apiladas) en móvil. -->
-      <!-- ALTURA EN MÓVIL: apilado, 3 paneles a 5/4 cada uno → aspect 5/12 (antes 4/15,
-           que daba ~1343px a 358px: scroll oscuro excesivo). Con 5/12 baja a ~860px y el
-           hueso sigue encuadrado (la cámara se ajusta al aspecto de cada celda). El núcleo
-           Three.js NO se toca: solo el dimensionado del contenedor responsive. -->
+      <!-- TÍTULOS + LEYENDA por panel (encima del canvas). ESCRITORIO: 3 columnas. MÓVIL
+           (pestañas): solo el panel ACTIVO (las pestañas ya dicen cuál es). Cada panel:
+           título + escala 0→máx. -->
+      <div
+        class="btv-titles"
+        :class="[failed ? 'btv-titles--hidden' : '', stacked ? 'btv-titles--single' : '']"
+        aria-hidden="false"
+      >
+        <template v-for="(p, i) in PANELS" :key="p.id">
+          <div v-if="!stacked || activePanel === i" class="btv-title-cell">
+            <p class="btv-title">{{ L(p.title.es, p.title.en) }}</p>
+            <p class="btv-sub">{{ L(p.sub.es, p.sub.en) }}</p>
+            <div class="btv-legend">
+              <span class="btv-legend-min">0</span>
+              <span class="btv-legend-bar" :style="{ background: `linear-gradient(to right, ${p.legendFrom}, ${p.legendTo})` }" />
+              <span class="btv-legend-max">{{ p.max }}<span class="btv-legend-unit"> {{ L(p.unit.es, p.unit.en) }}</span></span>
+            </div>
+          </div>
+        </template>
+      </div>
+
+      <!-- CANVAS único. ESCRITORIO: 3 viewports en fila (setViewport+setScissor), una cámara
+           → giran juntos. MÓVIL (pestañas): UN solo viewport full-size con el panel activo.
+           El aspecto del contenedor cambia con el layout. -->
+      <!-- ALTURA EN MÓVIL: antes 3 paneles apilados a aspect 5/12 (~860px: scroll excesivo,
+           3 huesos pequeños). Ahora UN panel grande cuadrado-ish (aspect 4/5): a ~358px de
+           ancho → ~448px de alto, un solo hueso grande y claro (~la mitad de antes). El
+           núcleo Three.js NO se toca: solo el dimensionado del contenedor responsive. -->
       <div
         class="relative w-full select-none"
-        :style="`aspect-ratio:${stacked ? '5/12' : '12/5'};background:#0d1117;border-radius:0.5rem;overflow:hidden`"
+        :style="`aspect-ratio:${stacked ? '4/5' : '12/5'};background:#0d1117;border-radius:0.5rem;overflow:hidden`"
       >
-        <div ref="host" role="img" :aria-label="L('Hueso en 3D · tres mapas del mismo hueso: captación del receptor (Galio), del azúcar (FDG) y forma (densidad del CT). Arrástralo para girar; la tabla y las imágenes clave son la alternativa textual.', '3D bone · three maps of the same bone: receptor (gallium) uptake, sugar (FDG) uptake and shape (CT density). Drag to rotate; the table and key images are the text alternative.')" class="absolute inset-0 cursor-grab active:cursor-grabbing" :style="failed ? 'opacity:0;pointer-events:none' : ''" />
+        <div ref="host" role="img" :aria-label="L('Hueso en 3D · tres mapas del mismo hueso: captación de receptores de somatostatina (⁶⁸Ga-DOTATOC), glucolítica (¹⁸F-FDG) y densidad (TC). Arrástralo para girar; la tabla y las imágenes clave son la alternativa textual.', '3D bone · three maps of the same bone: somatostatin-receptor (⁶⁸Ga-DOTATOC) uptake, glycolytic (¹⁸F-FDG) uptake and density (CT). Drag to rotate; the table and key images are the text alternative.')" class="absolute inset-0 cursor-grab active:cursor-grabbing" :style="failed ? 'opacity:0;pointer-events:none' : ''" />
 
-        <!-- separadores entre vistas (sólo decorativos; el canvas es único) -->
+        <!-- separadores entre vistas (sólo decorativos; el canvas es único). SOLO escritorio
+             (3 en fila); en móvil-pestañas hay UN solo panel → sin separadores. -->
         <template v-if="!failed && !stacked">
           <span class="btv-divider" style="left:33.333%" aria-hidden="true" />
           <span class="btv-divider" style="left:66.666%" aria-hidden="true" />
-        </template>
-        <template v-else-if="!failed">
-          <span class="btv-divider-h" style="top:33.333%" aria-hidden="true" />
-          <span class="btv-divider-h" style="top:66.666%" aria-hidden="true" />
         </template>
 
         <!-- botón de reencuadre ⟲ -->
@@ -914,7 +956,9 @@ onBeforeUnmount(() => {
         <p class="btv-cap">
           {{ failed
             ? L('Reconstrucción del CT · vista estática', 'Reconstruction from the CT · static view')
-            : L('Arrastra para girar · rueda para acercar · las 3 vistas a la vez', 'Drag to rotate · scroll to zoom · all 3 views at once') }}
+            : stacked
+              ? L('Arrastra para girar · rueda para acercar · cambia de trazador con las pestañas (mismo encuadre)', 'Drag to rotate · scroll to zoom · switch tracer with the tabs (same framing)')
+              : L('Arrastra para girar · rueda para acercar · las 3 vistas a la vez', 'Drag to rotate · scroll to zoom · all 3 views at once') }}
         </p>
 
         <!-- HONESTIDAD REUBICADA · desplegable SUTIL, PLEGADO por defecto. La info
@@ -963,8 +1007,59 @@ onBeforeUnmount(() => {
   margin-bottom: 8px;
 }
 .btv-titles--hidden { opacity: 0.45; }
+/* MÓVIL-PESTAÑAS: un solo título/leyenda (el del panel activo) → una columna a ancho completo. */
+.btv-titles--single { grid-template-columns: 1fr; }
 @media (max-width: 639px) {
-  .btv-titles { grid-template-columns: 1fr; gap: 4px; }
+  .btv-titles:not(.btv-titles--single) { grid-template-columns: 1fr; gap: 4px; }
+}
+
+/* ---- PESTAÑAS de trazador (solo MÓVIL · stacked) ----
+   Fila de 3 pestañas táctiles (≥44px) para alternar Galio/FDG/Densidad sobre el panel único.
+   Activa = berenjena/miriam (DS): fondo malva, texto claro. Inactivas: chip neutro legible. */
+.btv-tabs {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+  margin-bottom: 8px;
+}
+.btv-tab {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 1px;
+  min-height: 44px;
+  padding: 6px 9px;
+  border-radius: 9px;
+  border: 1px solid rgba(45, 27, 61, 0.18);
+  background: #f3eef7;
+  color: #6b6275;
+  cursor: pointer;
+  text-align: left;
+  line-height: 1.15;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+.btv-tab:hover { background: #ece4f2; border-color: rgba(45, 27, 61, 0.32); }
+.btv-tab:focus-visible { outline: 2px solid #6d2b7d; outline-offset: 2px; }
+.btv-tab.is-active {
+  background: #6d2b7d;            /* berenjena · DS miriam */
+  border-color: #6d2b7d;
+  color: #fdf7ff;
+  box-shadow: 0 1px 5px rgba(45, 27, 61, 0.28);
+}
+.btv-tab-title {
+  font-size: 12px;
+  font-weight: 700;
+  color: inherit;
+}
+.btv-tab-sub {
+  font-size: 9.5px;
+  color: inherit;
+  opacity: 0.75;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
 }
 .btv-title-cell { min-width: 0; }
 .btv-title {
@@ -1010,16 +1105,6 @@ onBeforeUnmount(() => {
   pointer-events: none;
   z-index: 1;
 }
-.btv-divider-h {
-  position: absolute;
-  left: 0;
-  right: 0;
-  height: 1px;
-  background: rgba(174, 182, 194, 0.22);
-  pointer-events: none;
-  z-index: 1;
-}
-
 .btv-spin {
   width: 26px;
   height: 26px;
@@ -1223,6 +1308,8 @@ onBeforeUnmount(() => {
     font-size: 12px;
   }
   .btv-toggles { gap: 8px; }
+  .btv-tab { min-height: 48px; }
+  .btv-tab-title { font-size: 12.5px; }
 }
 /* leyenda de cada panel un punto más legible en pantallas pequeñas (≥11px) */
 @media (max-width: 639px) {
