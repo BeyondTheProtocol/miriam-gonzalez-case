@@ -2167,7 +2167,7 @@ const manifestValidated = (() => {
             <button v-for="le in topCandidates" :key="le.id" type="button"
               @click="pickAndShow(le.id)"
               :aria-pressed="selected === le.id"
-              class="text-left rounded-card border-2 px-3.5 py-3 transition-colors flex flex-col items-stretch justify-start"
+              class="foco-card text-left rounded-card border-2 px-3.5 py-3 flex flex-col items-stretch justify-start"
               :class="selected === le.id ? 'border-[#9d44ab] bg-[rgba(157,68,171,0.07)]' : 'border-[rgba(45,27,61,0.14)] bg-cream-card hover:border-[#9d44ab]'">
               <span v-if="focoKey(le).hasReliable" class="block rounded-lg overflow-hidden mb-2 bg-[#0d1117]" style="aspect-ratio:16/10"><img :src="fk(le.id, 'axial')" :alt="L('Imagen clave del foco #' + le.id, 'Key image of focus #' + le.id)" class="w-full h-full object-cover" loading="lazy" /></span>
               <div class="flex items-center justify-between gap-2">
@@ -2182,7 +2182,7 @@ const manifestValidated = (() => {
                   <span class="eyebrow--sm">{{ L('idoneidad', 'suitability') }}</span>
                 </span>
               </div>
-              <p class="text-[10.5px] text-tinta leading-snug mt-1.5">FDG {{ le.fdg != null ? le.fdg.toFixed(1) : '—' }} · Ga {{ le.dota != null ? le.dota.toFixed(1) : '—' }} · {{ morphShort(le) }}</p>
+              <p class="text-[10.5px] text-tinta leading-snug mt-1.5"><span class="font-mono">¹⁸F-FDG {{ le.fdg != null ? le.fdg.toFixed(1) : '—' }} · ⁶⁸Ga {{ le.dota != null ? le.dota.toFixed(1) : '—' }}</span> · {{ morphShort(le) }}</p>
               <p class="text-[11px] text-tinta leading-snug mt-1"><span class="font-bold" :style="{ color: dianaMk(le).color }">{{ dianaMk(le).mk }}</span> <span class="font-semibold text-berenjena">{{ L('Diana', 'Target') }}:</span> {{ BIOPSY[le.id]?.zone[lang] }}</p>
               <p class="text-[11px] text-tinta leading-snug italic mt-0.5">«{{ whyOneLiner(le) }}»</p>
               <!-- aviso PROMINENTE si una biopsia ya falló aquí (no repetir el error de diana) -->
@@ -2269,11 +2269,11 @@ const manifestValidated = (() => {
               <!-- flechas prev/next entre focos (sencillas; ayudan a ir pinchando de un vistazo) -->
               <div class="flex items-center gap-1 text-tinta shrink-0">
                 <button type="button" @click="pickStep(-1)"
-                  class="nav-step w-8 h-8 rounded-full border border-[rgba(45,27,61,0.2)] flex items-center justify-center hover:border-[rgba(45,27,61,0.45)] hover:text-berenjena transition-colors"
+                  class="nav-step w-8 h-8 rounded-full border border-[rgba(45,27,61,0.2)] flex items-center justify-center hover:border-[rgba(45,27,61,0.45)] hover:text-berenjena"
                   :aria-label="L('Foco anterior', 'Previous focus')">‹</button>
                 <span class="font-mono text-[11px] tabular-nums w-11 text-center select-none">{{ focoPos || '–' }}<span class="text-[10px] text-tinta">/{{ visibleFocusList.length }}</span></span>
                 <button type="button" @click="pickStep(1)"
-                  class="nav-step w-8 h-8 rounded-full border border-[rgba(45,27,61,0.2)] flex items-center justify-center hover:border-[rgba(45,27,61,0.45)] hover:text-berenjena transition-colors"
+                  class="nav-step w-8 h-8 rounded-full border border-[rgba(45,27,61,0.2)] flex items-center justify-center hover:border-[rgba(45,27,61,0.45)] hover:text-berenjena"
                   :aria-label="L('Foco siguiente', 'Next focus')">›</button>
               </div>
             </div>
@@ -2428,7 +2428,7 @@ const manifestValidated = (() => {
                   <button v-for="f in filters" :key="f.key" type="button"
                     @click="filter = f.key"
                     :aria-pressed="filter === f.key"
-                    class="filter-chip inline-flex items-center gap-1.5 text-[12px] px-2.5 py-1 rounded-full border transition-colors"
+                    class="filter-chip inline-flex items-center gap-1.5 text-[12px] px-2.5 py-1 rounded-full border"
                     :class="filter === f.key ? 'bg-berenjena text-cream border-berenjena' : 'bg-transparent text-tinta border-[rgba(45,27,61,0.2)] hover:border-[rgba(45,27,61,0.4)]'">
                     <span v-if="f.c" class="w-2 h-2 rounded-full" :style="{ background: f.c }" aria-hidden="true" />
                     {{ f.label }}
@@ -2453,7 +2453,7 @@ const manifestValidated = (() => {
                 </div>
                 <div class="flex justify-between mt-2 px-0.5">
                   <button v-for="(d, i) in FDATES" :key="i" type="button" @click="setFrame(i)"
-                    class="tl-date text-[10px] font-mono transition-colors px-1.5 py-1 rounded"
+                    class="tl-date text-[10px] font-mono tabular-nums px-1.5 py-1 rounded"
                     :class="frame === i ? 'text-berenjena font-bold' : 'text-tinta hover:text-berenjena'">{{ d[lang].split(' ')[0] }}</button>
                 </div>
                 <!-- (B · plan comité web) nota larga → PLEGABLE (notes-disclosure, patrón
@@ -2502,7 +2502,7 @@ const manifestValidated = (() => {
                     :ref="(el) => registerListOpt(le.id, el)"
                     role="option"
                     :tabindex="le.id === selected ? 0 : -1"
-                    class="w-full text-left rounded-card border px-2 py-1.5 transition-colors flex items-center gap-2"
+                    class="foco-card w-full text-left rounded-card border px-2 py-1.5 flex items-center gap-2"
                     :class="le.id === selected ? 'border-berenjena bg-[rgba(45,27,61,0.05)]' : 'border-transparent hover:bg-[rgba(45,27,61,0.035)]'"
                     :aria-selected="le.id === selected"
                     :aria-label="`#${le.id} ${le.level[lang]} — ${phenoLabel(le)}`">
@@ -2516,7 +2516,7 @@ const manifestValidated = (() => {
                       </span>
                     </span>
                     <span class="shrink-0 w-10 text-right" :aria-label="L('idoneidad ' + suitabilityScore(le) + ' sobre 100', 'suitability ' + suitabilityScore(le) + ' out of 100')">
-                      <span class="block font-mono text-[11px] text-berenjena leading-none">{{ suitabilityScore(le) }}</span>
+                      <span class="block font-mono text-[11px] text-berenjena leading-none data-soft">{{ suitabilityScore(le) }}</span>
                       <span class="block h-1 rounded-full mt-0.5 bg-[rgba(45,27,61,0.08)] overflow-hidden">
                         <span class="block h-full rounded-full" :style="{ width: suitabilityScore(le) + '%', background: SCORE_RAMP_CSS }" />
                       </span>
@@ -2595,7 +2595,7 @@ const manifestValidated = (() => {
               <div class="rounded-card bg-cream-card px-3 py-2 mb-3 border border-[rgba(45,27,61,0.1)]">
                 <div class="flex items-center justify-between mb-1">
                   <span class="eyebrow--sm text-berenjena">{{ L('Idoneidad como diana', 'Suitability as a target') }}</span>
-                  <span class="font-mono text-sm font-semibold text-berenjena">{{ suitabilityScore(sel) }}<span class="text-[10px] text-tinta">/100</span></span>
+                  <span class="font-mono text-sm font-semibold text-berenjena"><span class="data-soft">{{ suitabilityScore(sel) }}</span><span class="unit">{{ L('/100 · derivado', '/100 · derived') }}</span></span>
                 </div>
                 <div class="h-2 rounded-full overflow-hidden bg-[rgba(45,27,61,0.08)]" role="img"
                   :aria-label="L('Idoneidad ' + suitabilityScore(sel) + ' sobre 100', 'Suitability ' + suitabilityScore(sel) + ' out of 100')">
@@ -2621,11 +2621,11 @@ const manifestValidated = (() => {
               <div class="grid grid-cols-2 gap-2 mb-3">
                 <div class="rounded-card bg-cream-card px-2.5 py-1.5 border-l-4" :style="{ borderColor: GA_FILL }">
                   <p class="text-[10px] text-tinta leading-none">{{ L('SSTR · ⁶⁸Ga', 'SSTR · ⁶⁸Ga') }}</p>
-                  <p class="font-mono text-base leading-tight text-berenjena">{{ fmtSuv(sel, sel.dota) }}</p>
+                  <p class="font-mono text-base leading-tight text-berenjena"><span :class="{ 'data-soft': selIsAi }">{{ fmtSuv(sel, sel.dota) }}</span><span v-if="sel.dota != null" class="unit">{{ L('SUVmáx', 'SUVmax') }}</span></p>
                 </div>
                 <div class="rounded-card bg-cream-card px-2.5 py-1.5 border-l-4" :style="{ borderColor: FDG_FILL }">
                   <p class="text-[10px] text-tinta leading-none">{{ L('Glucólisis · FDG', 'Glycolysis · FDG') }}</p>
-                  <p class="font-mono text-base leading-tight text-berenjena">{{ fmtSuv(sel, sel.fdg) }}<span v-if="trend(sel)" class="text-[11px] ml-1" :style="deltaStyle(sel)">({{ deltaFdg(sel) }})</span></p>
+                  <p class="font-mono text-base leading-tight text-berenjena"><span :class="{ 'data-soft': selIsAi }">{{ fmtSuv(sel, sel.fdg) }}</span><span v-if="sel.fdg != null" class="unit">{{ L('SUVmáx', 'SUVmax') }}</span><span v-if="trend(sel)" class="text-[11px] ml-1" :style="deltaStyle(sel)">({{ deltaFdg(sel) }})</span></p>
                 </div>
                 <div class="rounded-card bg-cream-card px-2.5 py-1.5 border-l-4" :style="{ borderColor: '#1f6b57' }">
                   <p class="text-[10px] text-tinta leading-none">{{ L('Forma (CT)', 'Shape (CT)') }}</p>
@@ -3027,8 +3027,8 @@ const manifestValidated = (() => {
                 <!-- (la lectura técnica en prosa ya es el texto principal de la ficha
                      compacta de arriba; aquí no se repite — solo el desglose de cifras.) -->
                 <div class="grid grid-cols-2 gap-x-6 gap-y-2 mt-3 text-sm">
-                  <div><span class="text-tinta">{{ L('⁶⁸Ga-DOTATOC SUVmáx', '⁶⁸Ga-DOTATOC SUVmax') }}</span><br><span class="font-mono text-berenjena">{{ sel.dota != null ? sel.dota.toFixed(2) : L('sin captación', 'no uptake') }}</span></div>
-                  <div><span class="text-tinta">{{ L('¹⁸F-FDG SUVmáx', '¹⁸F-FDG SUVmax') }}</span><br><span class="font-mono text-berenjena">{{ sel.fdg != null ? sel.fdg.toFixed(2) : L('sin captación', 'no uptake') }}</span></div>
+                  <div><span class="text-tinta">{{ L('⁶⁸Ga-DOTATOC SUVmáx', '⁶⁸Ga-DOTATOC SUVmax') }}</span><br><span class="font-mono text-berenjena" :class="{ 'data-soft': selIsAi }">{{ sel.dota != null ? fmtSuv(sel, sel.dota) : L('sin captación', 'no uptake') }}</span></div>
+                  <div><span class="text-tinta">{{ L('¹⁸F-FDG SUVmáx', '¹⁸F-FDG SUVmax') }}</span><br><span class="font-mono text-berenjena" :class="{ 'data-soft': selIsAi }">{{ sel.fdg != null ? fmtSuv(sel, sel.fdg) : L('sin captación', 'no uptake') }}</span></div>
                   <div v-if="trend(sel)"><span class="text-tinta">{{ L('Tendencia ¹⁸F-FDG', '¹⁸F-FDG trend') }}</span><br><span class="font-mono" :style="{ color: trend(sel)!.dir === 'up' || trend(sel)!.dir === 'new' ? '#bb4128' : trend(sel)!.dir === 'down' ? '#1f5a3a' : '#3a3340' }">{{ trend(sel)!.txt }}</span></div>
                   <div v-if="sel.scler"><span class="text-tinta">{{ L('Morfología', 'Morphology') }}</span><br><span class="font-mono text-berenjena">{{ L('blástica / esclerótica', 'blastic / sclerotic') }}</span></div>
                   <div v-if="sel.load"><span class="text-tinta">{{ L('Hueso de carga', 'Weight-bearing') }}</span><br><span class="font-mono text-berenjena">{{ L('sí · revisado por Oncología Radioterápica', 'yes · reviewed by Radiation Oncology') }}</span></div>
@@ -3238,7 +3238,7 @@ const manifestValidated = (() => {
           <TransitionGroup tag="ul" name="rank-flip" class="space-y-2 mb-3">
             <li v-for="le in rankedFoci" :key="le.id">
               <button type="button" :aria-pressed="selected === le.id" @click="pickAndShow(le.id)"
-                class="w-full text-left rounded-card border px-3.5 py-3 transition-colors"
+                class="foco-card w-full text-left rounded-card border px-3.5 py-3"
                 :class="selected === le.id ? 'border-[#9d44ab] bg-[rgba(157,68,171,0.07)]' : 'border-[rgba(45,27,61,0.12)] bg-cream-card hover:border-[rgba(45,27,61,0.3)]'">
                 <div class="flex items-center gap-3">
                   <span class="inline-flex w-7 h-7 shrink-0 rounded-full items-center justify-center  text-xs font-semibold" :style="{ background: phenoColor(le), color: markerInk(le) }">{{ le.id }}</span>
@@ -3255,8 +3255,8 @@ const manifestValidated = (() => {
                 <div class="mt-3 grid sm:grid-cols-3 gap-x-4 gap-y-2">
                   <div>
                     <div class="flex justify-between items-baseline text-[10.5px] mb-0.5">
-                      <span class="text-tinta">{{ L('Captación (FDG/Ga)', 'Uptake (FDG/Ga)') }}</span>
-                      <span class="font-mono" :style="{ color: FDG_TEXT }">FDG {{ le.fdg != null ? le.fdg.toFixed(1) : '—' }} · Ga {{ le.dota != null ? le.dota.toFixed(1) : '—' }}</span>
+                      <span class="text-tinta">{{ L('Captación (¹⁸F-FDG/⁶⁸Ga)', 'Uptake (¹⁸F-FDG/⁶⁸Ga)') }}</span>
+                      <span class="font-mono" :style="{ color: FDG_TEXT }">¹⁸F-FDG {{ le.fdg != null ? le.fdg.toFixed(1) : '—' }} · ⁶⁸Ga {{ le.dota != null ? le.dota.toFixed(1) : '—' }}</span>
                     </div>
                     <div class="h-1.5 rounded-full overflow-hidden" :style="{ background: 'rgba(45,27,61,0.08)' }">
                       <div class="h-full rounded-full" :style="{ width: pct01(viableFactor(le)), background: FDG_FILL }" />
@@ -3309,7 +3309,7 @@ const manifestValidated = (() => {
             <ul class="space-y-2">
               <li v-for="le in aiCandidates" :key="le.id">
                 <button type="button" :aria-pressed="selected === le.id" @click="pickAndShow(le.id)"
-                  class="w-full text-left rounded-card border px-3.5 py-3 transition-colors"
+                  class="foco-card w-full text-left rounded-card border px-3.5 py-3"
                   :class="selected === le.id ? 'border-[#bf7d2c] bg-[rgba(191,125,44,0.08)]' : 'border-[rgba(138,74,26,0.25)] bg-cream hover:border-[rgba(138,74,26,0.5)]'">
                   <div class="flex items-center gap-3">
                     <span class="inline-flex w-7 h-7 shrink-0 rounded-full items-center justify-center  text-xs font-semibold ai-dot" :style="{ background: phenoColor(le), color: markerInk(le) }">{{ le.id }}</span>
@@ -3326,8 +3326,8 @@ const manifestValidated = (() => {
                   <div class="mt-3 grid sm:grid-cols-3 gap-x-4 gap-y-2">
                     <div>
                       <div class="flex justify-between items-baseline text-[10.5px] mb-0.5">
-                        <span class="text-tinta">{{ L('Captación (FDG/Ga)', 'Uptake (FDG/Ga)') }}</span>
-                        <span class="font-mono" :style="{ color: FDG_TEXT }">FDG ~{{ le.fdg != null ? le.fdg.toFixed(1) : '—' }} · Ga ~{{ le.dota != null ? le.dota.toFixed(1) : '—' }}</span>
+                        <span class="text-tinta">{{ L('Captación (¹⁸F-FDG/⁶⁸Ga)', 'Uptake (¹⁸F-FDG/⁶⁸Ga)') }}</span>
+                        <span class="font-mono data-soft" :style="{ color: FDG_TEXT }">¹⁸F-FDG <span class="data-soft__approx">~</span>{{ le.fdg != null ? le.fdg.toFixed(1) : '—' }} · ⁶⁸Ga <span class="data-soft__approx">~</span>{{ le.dota != null ? le.dota.toFixed(1) : '—' }}</span>
                       </div>
                       <div class="h-1.5 rounded-full overflow-hidden" :style="{ background: 'rgba(45,27,61,0.08)' }">
                         <div class="h-full rounded-full" :style="{ width: pct01(viableFactor(le)), background: FDG_FILL }" />
@@ -3780,8 +3780,8 @@ const manifestValidated = (() => {
                       <span v-if="isAiDavid(row.le)" class="pill-data !px-1.5 !py-0 !text-[10px]" :style="{ background: '#fde4cc', color: '#8a4a1a' }">{{ L('sin confirmar', 'unconfirmed') }}</span>
                     </div>
                   </td>
-                  <td class="font-mono" :title="provTitle(row.le, 'dota')">{{ row.le.dota != null ? row.le.dota.toFixed(1) : '—' }}</td>
-                  <td class="font-mono" :title="provTitle(row.le, 'fdg')">{{ row.le.fdg != null ? row.le.fdg.toFixed(1) : '—' }}</td>
+                  <td class="font-mono" :title="provTitle(row.le, 'dota')"><span :class="{ 'data-soft': isAiDavid(row.le) }">{{ row.le.dota != null ? (isAiDavid(row.le) ? '~' : '') + row.le.dota.toFixed(1) : '—' }}</span></td>
+                  <td class="font-mono" :title="provTitle(row.le, 'fdg')"><span :class="{ 'data-soft': isAiDavid(row.le) }">{{ row.le.fdg != null ? (isAiDavid(row.le) ? '~' : '') + row.le.fdg.toFixed(1) : '—' }}</span></td>
                   <td class="font-mono text-tinta">{{ row.le.prevFdg != null ? row.le.prevFdg.toFixed(1) : '—' }}</td>
                   <td class="font-mono" :style="deltaStyle(row.le)">{{ deltaFdg(row.le) }}</td>
                   <td class="font-mono text-tinta whitespace-nowrap">{{ metExtentLabel(row.le) }}</td>
@@ -4181,6 +4181,80 @@ const manifestValidated = (() => {
 </template>
 
 <style scoped>
+/* ════════════════════════════════════════════════════════════════════════
+   MOTION TOKENS · el movimiento del instrumento, con reglas (no ad-hoc).
+   Tres curvas, una sola fuente; las transiciones de la página las citan en
+   vez de inventar duración/easing sueltos. Codifican INTENCIÓN:
+   · --ease-entrada  → algo APARECE / se asienta (expo-out, decidido, ~240ms)
+   · --ease-salida   → algo se ATENÚA / suelta el foco (rápido, ~160ms)
+   · --ease-spring   → SELECCIÓN (leve overshoot, «se engancha», ~320ms)
+   Bajo prefers-reduced-motion los tres COLAPSAN a 0ms/linear: el mismo
+   marcado anima o no anima sin tocar la plantilla. */
+.overflow-x-clip {
+  --ease-entrada: 240ms cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-salida: 160ms cubic-bezier(0.4, 0, 1, 1);
+  --ease-spring: 320ms cubic-bezier(0.34, 1.4, 0.64, 1);
+}
+@media (prefers-reduced-motion: reduce) {
+  .overflow-x-clip {
+    --ease-entrada: 0ms linear;
+    --ease-salida: 0ms linear;
+    --ease-spring: 0ms linear;
+  }
+}
+/* Tarjeta de FOCO seleccionable (candidatas, lista del navegador, ranking, IA):
+   el borde/fondo entran con el token de SELECCIÓN (spring, leve overshoot — «se
+   engancha» al elegirla); al soltar el hover, salen con el token de salida. */
+.foco-card {
+  transition:
+    border-color var(--ease-salida),
+    background-color var(--ease-salida),
+    box-shadow var(--ease-salida);
+}
+.foco-card:hover,
+.foco-card[aria-pressed='true'] {
+  transition:
+    border-color var(--ease-spring),
+    background-color var(--ease-spring),
+    box-shadow var(--ease-spring);
+}
+/* Controles del navegador (flechas prev/next, chips de filtro, pasos de fecha):
+   color/borde/fondo con los tokens — entrada al hover, salida al soltar. */
+.nav-step,
+.filter-chip,
+.tl-date {
+  transition: color var(--ease-salida), border-color var(--ease-salida), background-color var(--ease-salida);
+}
+.nav-step:hover,
+.filter-chip:hover,
+.tl-date:hover { transition: color var(--ease-entrada), border-color var(--ease-entrada), background-color var(--ease-entrada); }
+
+/* ════════════════════════════════════════════════════════════════════════
+   TIPOGRAFÍA DE INSTRUMENTO · toda cifra mono cuadra al píxel.
+   font-variant-numeric: tabular-nums da a cada dígito el MISMO avance, así las
+   columnas de SUVmáx/Δ/mm/ml/HU y los valores cuadran y no «bailan» al cambiar.
+   En esta página el mono (JetBrains) es SIEMPRE dato o id → tabular global.
+   (.data-table ya lo trae; aquí lo extendemos a las cifras fuera de la tabla.) */
+.font-mono { font-variant-numeric: tabular-nums; }
+/* Jerarquía de UNIDAD vs cifra: la unidad («SUVmáx», «HU», «/100») va volada,
+   pequeña y atenuada; manda la cifra. El sufijo «aprox.» (≈) de un dato BLANDO. */
+.unit {
+  font-size: 0.66em;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: #6b6470;
+  vertical-align: 0.18em;
+  margin-left: 0.15em;
+}
+/* DATO BLANDO · derivado/heurístico o aproximado (score de idoneidad, fenotipo,
+   SUVmáx de los focos de IA): se lee MÁS LIGERO y algo atenuado que un dato DURO
+   medido de informe. La tipografía codifica la dureza, sin falsa precisión. */
+.data-soft {
+  font-weight: 400;
+  opacity: 0.82;
+}
+.data-soft__approx { opacity: 0.7; font-weight: 400; margin-right: 0.05em; }
+
 /* Anillo de FOCO de teclado para los marcadores SVG navegables (esqueleto + scatter):
    en <circle> el outline no se pinta de forma fiable en WebKit y box-shadow/
    border-radius no aplican a SVG, así que la regla global de foco no se ve. Usamos
@@ -4199,7 +4273,7 @@ svg [role="button"]:focus-visible {
 .foco-detalle[open] .foco-detalle__open { display: none; }
 .foco-detalle[open] .foco-detalle__close { display: inline; }
 .foco-detalle[open] .foco-detalle__sum { margin-bottom: 0.85rem; }
-.foco-detalle__chev { transition: transform 0.2s ease; }
+.foco-detalle__chev { transition: transform var(--ease-entrada); }
 .foco-detalle[open] .foco-detalle__chev { transform: rotate(180deg); }
 
 /* ── DIVISIÓN CLARA entre Zona 1 (herramienta) y Zona 2 (wiki) ───────────
@@ -4294,9 +4368,9 @@ svg [role="button"]:focus-visible {
   overflow: hidden;
   background: #000;
   cursor: zoom-in;
-  transition: box-shadow 0.18s, border-color 0.18s, transform 0.18s;
+  transition: box-shadow var(--ease-salida), border-color var(--ease-salida), transform var(--ease-salida);
 }
-.foco-key-thumb:hover { border-color: rgba(157, 68, 171, 0.55); box-shadow: 0 4px 16px rgba(45, 27, 61, 0.18); }
+.foco-key-thumb:hover { border-color: rgba(157, 68, 171, 0.55); box-shadow: 0 4px 16px rgba(45, 27, 61, 0.18); transition: box-shadow var(--ease-entrada), border-color var(--ease-entrada), transform var(--ease-entrada); }
 .foco-key-thumb:focus-visible { outline: 2px solid #9d44ab; outline-offset: 2px; }
 .foco-key-thumb__img { display: block; width: 100%; height: auto; }
 .foco-key-thumb__zoom {
@@ -4340,9 +4414,9 @@ svg [role="button"]:focus-visible {
   background: #f5efe6;
   text-align: left;
   cursor: zoom-in;
-  transition: box-shadow 0.18s, border-color 0.18s;
+  transition: box-shadow var(--ease-salida), border-color var(--ease-salida);
 }
-.foco-key-strip:hover { border-color: rgba(157, 68, 171, 0.5); box-shadow: 0 3px 14px rgba(45, 27, 61, 0.14); }
+.foco-key-strip:hover { border-color: rgba(157, 68, 171, 0.5); box-shadow: 0 3px 14px rgba(45, 27, 61, 0.14); transition: box-shadow var(--ease-entrada), border-color var(--ease-entrada); }
 .foco-key-strip:focus-visible { outline: 2px solid #9d44ab; outline-offset: 2px; }
 .foco-key-strip__thumb {
   flex: 0 0 auto;
@@ -4428,8 +4502,9 @@ svg [role="button"]:focus-visible {
   border-radius: 0.55rem;
   overflow: hidden;
   background: #000;
-  transition: box-shadow 0.18s, border-color 0.18s;
+  transition: box-shadow var(--ease-salida), border-color var(--ease-salida);
 }
+.foco-key-tile:hover .foco-key-tile__frame { transition: box-shadow var(--ease-entrada), border-color var(--ease-entrada); }
 .foco-key-tile__noteframe {
   display: flex;
   align-items: center;
@@ -4769,8 +4844,10 @@ svg [role="button"]:focus-visible {
   color: #6b6470;
   background: transparent;
   cursor: pointer;
-  transition: background 0.15s, color 0.15s;
+  transition: background var(--ease-salida), color var(--ease-salida);
 }
+.seg__btn:hover,
+.seg__btn.is-active { transition: background var(--ease-entrada), color var(--ease-entrada); }
 .seg__btn + .seg__btn { border-left: 1px solid rgba(45, 27, 61, 0.2); }
 .seg__btn:hover { color: #2d1b3d; }
 .seg__btn.is-active { background: #2d1b3d; color: #fdf6ef; }
@@ -4789,9 +4866,9 @@ svg [role="button"]:focus-visible {
   background: #fbf7f0;
   color: #2d1b3d;
   cursor: pointer;
-  transition: background 0.15s, border-color 0.15s;
+  transition: background var(--ease-salida), border-color var(--ease-salida);
 }
-.btn-expand3d:hover { background: #f0e7f3; border-color: rgba(157, 68, 171, 0.5); }
+.btn-expand3d:hover { background: #f0e7f3; border-color: rgba(157, 68, 171, 0.5); transition: background var(--ease-entrada), border-color var(--ease-entrada); }
 .btn-expand3d:focus-visible { outline: 2px solid #9d44ab; outline-offset: 2px; }
 
 /* ── Copiar enlace · permalink citable del foco ──────────────────────
@@ -4811,9 +4888,9 @@ svg [role="button"]:focus-visible {
   color: #2d1b3d;
   cursor: pointer;
   white-space: nowrap;
-  transition: background 0.15s, border-color 0.15s, color 0.15s;
+  transition: background var(--ease-salida), border-color var(--ease-salida), color var(--ease-salida);
 }
-.btn-copylink:hover { background: #f0e7f3; border-color: rgba(157, 68, 171, 0.5); }
+.btn-copylink:hover { background: #f0e7f3; border-color: rgba(157, 68, 171, 0.5); transition: background var(--ease-entrada), border-color var(--ease-entrada), color var(--ease-entrada); }
 .btn-copylink:focus-visible { outline: 2px solid #9d44ab; outline-offset: 2px; }
 .btn-copylink--done { border-color: rgba(31, 107, 87, 0.55); color: #1f6b57; }
 .btn-copylink--done:hover { background: #fbf7f0; border-color: rgba(31, 107, 87, 0.55); }
@@ -4962,16 +5039,13 @@ svg [role="button"]:focus-visible {
 }
 
 /* REORDENAMIENTO EN VIVO · la demostración del stress-test es el MOVIMIENTO:
-   al mover un peso, los focos se reubican con una transición suave (FLIP). */
-.rank-flip-move { transition: transform 0.42s cubic-bezier(0.22, 0.61, 0.36, 1); }
-.rank-flip-enter-active,
-.rank-flip-leave-active { transition: opacity 0.3s ease, transform 0.3s ease; }
+   al mover un peso, los focos se reubican con el token de SELECCIÓN (spring, leve
+   overshoot → el reorden «se asienta»). Entrar/salir, con entrada/salida.
+   (El token ya colapsa a 0ms/linear bajo prefers-reduced-motion.) */
+.rank-flip-move { transition: transform var(--ease-spring); }
+.rank-flip-enter-active { transition: opacity var(--ease-entrada), transform var(--ease-entrada); }
+.rank-flip-leave-active { transition: opacity var(--ease-salida), transform var(--ease-salida); }
 .rank-flip-enter-from,
 .rank-flip-leave-to { opacity: 0; }
 .rank-flip-leave-active { position: absolute; width: 100%; }
-@media (prefers-reduced-motion: reduce) {
-  .rank-flip-move,
-  .rank-flip-enter-active,
-  .rank-flip-leave-active { transition: none; }
-}
 </style>
