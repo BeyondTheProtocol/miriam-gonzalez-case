@@ -24,6 +24,22 @@ const loadError = ref(false)
 let widgetId: string | undefined
 let scriptEl: HTMLScriptElement | null = null
 
+// Turnstile puede quedarse colgado sin emitir token NI error (sitekey con el
+// dominio mal configurado en Cloudflare, red rara, bloqueadores). En ese caso no
+// llama a ningún callback y el formulario se quedaría con el botón de envío muerto
+// para todo el mundo. Un temporizador de seguridad convierte ese "cuelgue mudo" en
+// el mismo camino de degradación que ya tratamos para un error explícito: avisamos
+// al padre para que NO bloquee el envío (Netlify mantiene honeypot + antispam).
+const RESOLVE_TIMEOUT_MS = 8000
+let resolveTimer: ReturnType<typeof setTimeout> | undefined
+let settled = false
+function clearResolveTimer() {
+  if (resolveTimer) {
+    clearTimeout(resolveTimer)
+    resolveTimer = undefined
+  }
+}
+
 declare global {
   interface Window {
     turnstile?: {
@@ -62,9 +78,15 @@ function renderWidget() {
     action: props.action ?? 'form',
     theme: 'light',
     language: 'auto',
-    callback: (token: string) => emit('token', token),
+    callback: (token: string) => {
+      settled = true
+      clearResolveTimer()
+      emit('token', token)
+    },
     'expired-callback': () => emit('expired'),
     'error-callback': () => {
+      settled = true
+      clearResolveTimer()
       loadError.value = true
       emit('error')
     },
@@ -73,16 +95,27 @@ function renderWidget() {
 
 onMounted(async () => {
   if (!enabled.value) return
+  // Si en RESOLVE_TIMEOUT_MS no ha llegado token ni error (cuelgue mudo), lo damos
+  // por no disponible y avisamos al padre para no dejar el botón bloqueado.
+  resolveTimer = setTimeout(() => {
+    if (!settled) {
+      settled = true
+      emit('error')
+    }
+  }, RESOLVE_TIMEOUT_MS)
   try {
     await loadScript()
     renderWidget()
   } catch {
+    settled = true
+    clearResolveTimer()
     loadError.value = true
     emit('error')
   }
 })
 
 onBeforeUnmount(() => {
+  clearResolveTimer()
   if (widgetId && window.turnstile) {
     window.turnstile.remove(widgetId)
   }
