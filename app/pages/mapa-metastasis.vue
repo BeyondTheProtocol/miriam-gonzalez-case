@@ -170,7 +170,7 @@ const LES: Lesion[] = [
     tech: { es: '⁶⁸Ga-DOTATOC SUVmáx 1.37 (baja); ¹⁸F-FDG negativo. SSTR+ / FDG−.', en: '⁶⁸Ga-DOTATOC SUVmax 1.37 (low); ¹⁸F-FDG negative. SSTR+ / FDG−.' },
   },
   {
-    id: 7, x: 220, y: 352, r: 14, side: 'C', dota: 13.27, fdg: 7.61, prevFdg: 10.19, scler: true, pheno: 'mixNe', size: '18 × 14',
+    id: 7, x: 220, y: 352, r: 14, side: 'C', dota: 13.27, fdg: 7.61, prevFdg: 10.19, scler: true, sbrt: true, pheno: 'mixNe', size: '18 × 14',
     level: { es: 'D11 (T11) · cuerpo vertebral', en: 'T11 · vertebral body' },
     region: { es: 'Unión dorsolumbar', en: 'Thoracolumbar junction' },
     what: { es: 'Una de las más intensas: la mayor captación ⁶⁸Ga-DOTATOC (SSTR) de la serie, dual con ¹⁸F-FDG que ha descendido vs el previo. Atenuación blástica en TC.', en: 'One of the most intense: the highest ⁶⁸Ga-DOTATOC (SSTR) uptake of the series, dual with ¹⁸F-FDG that has dropped vs prior. Blastic CT attenuation.' },
@@ -179,7 +179,7 @@ const LES: Lesion[] = [
     softTissue: { es: 'La RMN describe componente de partes blandas / extensión extraósea (espacio epidural anterior, canal lateral izquierdo). El tejido blando suele rentabilizar más que el hueso blástico denso, pero por su vecindad al canal y a las raíces la accesibilidad y la seguridad las valora radiología intervencionista.', en: 'The MRI describes a soft-tissue / extraosseous component (anterior epidural space, left lateral canal). Soft tissue usually yields more than dense blastic bone, but given its proximity to the canal and nerve roots, accessibility and safety are assessed by interventional radiology.' },
   },
   {
-    id: 8, x: 237, y: 352, side: 'L', dota: 11.63, fdg: null, pheno: 'ne', size: '13 × 10',
+    id: 8, x: 237, y: 352, side: 'L', dota: 11.63, fdg: null, sbrt: true, pheno: 'ne', size: '13 × 10',
     level: { es: 'D11 (T11) · pedículo izquierdo', en: 'T11 · left pedicle' },
     region: { es: 'Unión dorsolumbar', en: 'Thoracolumbar junction' },
     what: { es: 'Misma vértebra que la #7, pedículo izquierdo: aquí la captación es solo ⁶⁸Ga-DOTATOC (SSTR), sin ¹⁸F-FDG. Dos patrones en la misma vértebra (heterogeneidad intravertebral).', en: 'Same vertebra as #7, left pedicle: here uptake is ⁶⁸Ga-DOTATOC (SSTR) only, no ¹⁸F-FDG. Two patterns in one vertebra (intra-vertebral heterogeneity).' },
@@ -201,11 +201,11 @@ const LES: Lesion[] = [
     tech: { es: '¹⁸F-FDG SUVmáx 6.84 (previo 4.67, ↑); ⁶⁸Ga-DOTATOC negativo. ¹⁸F-FDG⁺ / SSTR⁻. Discordante con #9 (misma vértebra).', en: '¹⁸F-FDG SUVmax 6.84 (prior 4.67, ↑); ⁶⁸Ga-DOTATOC negative. ¹⁸F-FDG⁺ / SSTR⁻. Discordant with #9 (same vertebra).' },
   },
   {
-    id: 11, x: 220, y: 470, r: 13, side: 'C', dota: 12.14, fdg: 5.0, prevFdg: 4.81, pheno: 'mixNe', size: '18 × 13', sbrt: true,
+    id: 11, x: 220, y: 470, r: 13, side: 'C', dota: 12.14, fdg: 5.0, prevFdg: 4.81, pheno: 'mixNe', size: '18 × 13',
     level: { es: 'L5 · cuerpo vertebral', en: 'L5 · vertebral body' },
     region: { es: 'Columna lumbar baja', en: 'Lower lumbar spine' },
-    what: { es: 'L5, hueso de alta carga. ⁶⁸Ga-DOTATOC (SSTR) intenso y ¹⁸F-FDG moderado y estable: dual, predominio SSTR. En SBRT (tejido tratado).', en: 'L5, high-load bone. Intense ⁶⁸Ga-DOTATOC (SSTR) and moderate, stable ¹⁸F-FDG: dual, SSTR-predominant. Under SBRT (treated tissue).' },
-    tech: { es: '⁶⁸Ga-DOTATOC SUVmáx 12.14 (SSTR intensa) / ¹⁸F-FDG 5.0 (previo 4.81, estable). Mixto, predominio SSTR. En SBRT (tejido tratado).', en: '⁶⁸Ga-DOTATOC SUVmax 12.14 (intense SSTR) / ¹⁸F-FDG 5.0 (prior 4.81, stable). Mixed, SSTR-predominant. Under SBRT (treated tissue).' },
+    what: { es: 'L5, hueso de alta carga. ⁶⁸Ga-DOTATOC (SSTR) intenso y ¹⁸F-FDG moderado y estable: dual, predominio SSTR.', en: 'L5, high-load bone. Intense ⁶⁸Ga-DOTATOC (SSTR) and moderate, stable ¹⁸F-FDG: dual, SSTR-predominant.' },
+    tech: { es: '⁶⁸Ga-DOTATOC SUVmáx 12.14 (SSTR intensa) / ¹⁸F-FDG 5.0 (previo 4.81, estable). Mixto, predominio SSTR.', en: '⁶⁸Ga-DOTATOC SUVmax 12.14 (intense SSTR) / ¹⁸F-FDG 5.0 (prior 4.81, stable). Mixed, SSTR-predominant.' },
   },
   {
     id: 12, x: 205, y: 505, side: 'R', dota: 4.27, fdg: 4.34, prevFdg: 6.26, pheno: 'mixBal', size: '12 × 9',
