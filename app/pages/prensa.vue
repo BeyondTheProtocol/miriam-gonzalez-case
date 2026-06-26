@@ -100,10 +100,9 @@
 
         <!-- Citas citables -->
         <div class="mt-16">
-          <h2 id="press-quotes" class="eyebrow mb-2 block">
+          <h2 id="press-quotes" class="eyebrow mb-6 block">
             {{ $t('press.quotes_title') }}
           </h2>
-          <p class="text-sm text-tinta mb-6">{{ $t('press.quotes_source') }}</p>
           <ul aria-labelledby="press-quotes" class="space-y-4">
             <li
               v-for="(quote, i) in quotes"
@@ -113,8 +112,9 @@
             >
               <blockquote class="m-0">
                 <p class="font-display text-lg text-berenjena leading-snug" style="letter-spacing: -0.01em">
-                  {{ quote }}
+                  {{ quote.text }}
                 </p>
+                <footer class="mt-2 text-sm text-tinta">{{ quote.source }}</footer>
               </blockquote>
             </li>
           </ul>
@@ -336,10 +336,10 @@ async function copyBoilerplate() {
 // Hechos clave · las cifras que pueden desincronizarse (edad, nº de países)
 // vienen de la fuente única (caseData), no del texto i18n.
 const quotes = computed(() => [
-  t('press.quote_1'),
-  t('press.quote_2'),
-  t('press.quote_3'),
-  t('press.quote_4'),
+  { text: t('press.quote_1'), source: t('press.quote_1_source') },
+  { text: t('press.quote_2'), source: t('press.quote_2_source') },
+  { text: t('press.quote_3'), source: t('press.quote_3_source') },
+  { text: t('press.quote_4'), source: t('press.quote_4_source') },
 ])
 
 const facts = computed(() => [
