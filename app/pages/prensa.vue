@@ -75,7 +75,7 @@
                 style="aspect-ratio: 2 / 3; object-fit: cover"
                 loading="lazy"
               />
-              <figcaption class="mt-2 font-mono text-[11px] leading-relaxed text-tinta">
+              <figcaption class="mt-2 font-mono text-[12px] leading-relaxed text-tinta">
                 {{ $t('press.photo_retrato_caption') }}
               </figcaption>
             </figure>
@@ -90,7 +90,7 @@
                 style="aspect-ratio: 2 / 3; object-fit: cover"
                 loading="lazy"
               />
-              <figcaption class="mt-2 font-mono text-[11px] leading-relaxed text-tinta">
+              <figcaption class="mt-2 font-mono text-[12px] leading-relaxed text-tinta">
                 {{ $t('press.photo_ingeniera_caption') }}
               </figcaption>
             </figure>
@@ -256,7 +256,7 @@
                 {{ $t('press.resource_expenses_desc') }}
               </span>
             </NuxtLink>
-            <NuxtLink :to="localePath('colabora')" class="press-resource card-base group">
+            <NuxtLink :to="localePath('colabora')" class="press-resource card-base group sm:col-span-2">
               <Icon name="ph:hand-heart" class="size-5 text-miriam mb-3" aria-hidden="true" />
               <span class="block font-display font-semibold text-berenjena text-[15px]">
                 {{ $t('press.resource_collaborate') }}
@@ -290,7 +290,7 @@
             <p class="text-[15px] leading-relaxed" style="color: rgba(250,246,240,0.85)">
               {{ $t('press.contact_body') }}
             </p>
-            <NuxtLink :to="localePath('contacto') + '?role=journalist'" class="btn-cta mt-7">
+            <NuxtLink :to="localePath('contacto') + '?role=journalist'" class="btn-dark mt-7">
               <Icon name="ph:envelope-simple" class="w-4 h-4" aria-hidden="true" />
               {{ $t('press.contact_cta') }}
             </NuxtLink>
@@ -429,9 +429,11 @@ useHead({
   text-decoration: none;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
-.press-mention:hover,
-.press-resource:hover {
-  transform: translateY(-2px);
+@media (prefers-reduced-motion: no-preference) {
+  .press-mention:hover,
+  .press-resource:hover {
+    transform: translateY(-2px);
+  }
 }
 .press-resource {
   display: block;
