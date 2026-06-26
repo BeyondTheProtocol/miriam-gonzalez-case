@@ -35,3 +35,5 @@ public/donations.json
 
 # Documentos clínicos privados (informes, PET/biopsia) — NO subir a repo público
 docs/
+.claude/settings.local.json
+.claude/*.local.json

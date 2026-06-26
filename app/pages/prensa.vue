@@ -58,6 +58,95 @@
           </aside>
         </div>
 
+        <!-- Fotografías de prensa -->
+        <div class="mt-16">
+          <h2 id="press-photos" class="eyebrow mb-5 block">
+            {{ $t('press.photos_title') }}
+          </h2>
+          <div class="grid sm:grid-cols-2 gap-6" aria-labelledby="press-photos">
+            <figure class="m-0">
+              <NuxtImg
+                src="/img/miriam-prensa-retrato.jpg"
+                :alt="$t('press.photo_retrato_alt')"
+                width="800"
+                height="1200"
+                sizes="sm:100vw md:400px"
+                class="w-full h-auto rounded-card"
+                style="aspect-ratio: 2 / 3; object-fit: cover"
+                loading="lazy"
+              />
+              <figcaption class="mt-2 font-mono text-[12px] leading-relaxed text-tinta">
+                {{ $t('press.photo_retrato_caption') }}
+              </figcaption>
+            </figure>
+            <figure class="m-0">
+              <NuxtImg
+                src="/img/miriam-prensa-ingeniera.jpg"
+                :alt="$t('press.photo_ingeniera_alt')"
+                width="800"
+                height="1200"
+                sizes="sm:100vw md:400px"
+                class="w-full h-auto rounded-card"
+                style="aspect-ratio: 2 / 3; object-fit: cover"
+                loading="lazy"
+              />
+              <figcaption class="mt-2 font-mono text-[12px] leading-relaxed text-tinta">
+                {{ $t('press.photo_ingeniera_caption') }}
+              </figcaption>
+            </figure>
+          </div>
+          <p class="mt-4 text-sm text-tinta max-w-2xl">{{ $t('press.photo_download_note') }}</p>
+        </div>
+
+        <!-- Citas citables -->
+        <div class="mt-16">
+          <h2 id="press-quotes" class="eyebrow mb-6 block">
+            {{ $t('press.quotes_title') }}
+          </h2>
+          <ul aria-labelledby="press-quotes" class="space-y-4">
+            <li
+              v-for="(quote, i) in quotes"
+              :key="i"
+              class="card-base border-l-4"
+              style="border-left-color: #9d44ab"
+            >
+              <blockquote class="m-0">
+                <p class="font-display text-lg text-berenjena leading-snug" style="letter-spacing: -0.01em">
+                  {{ quote.text }}
+                </p>
+                <footer class="mt-2 text-sm text-tinta">{{ quote.source }}</footer>
+              </blockquote>
+            </li>
+          </ul>
+        </div>
+
+        <!-- Guía editorial SÍ/NO -->
+        <div class="mt-16">
+          <h2 id="press-guide" class="eyebrow mb-5 block">
+            {{ $t('press.guide_title') }}
+          </h2>
+          <div class="grid sm:grid-cols-2 gap-6" aria-labelledby="press-guide">
+            <div class="card-base">
+              <div class="flex items-center gap-2 mb-3">
+                <Icon name="ph:check-circle" class="size-5 text-green-600 shrink-0" aria-hidden="true" />
+                <span class="font-mono uppercase text-[11px] tracking-[0.1em] text-tinta font-semibold">
+                  {{ $t('press.guide_yes_label') }}
+                </span>
+              </div>
+              <p class="text-[14px] text-berenjena leading-relaxed">{{ $t('press.guide_yes') }}</p>
+            </div>
+            <div class="card-base">
+              <div class="flex items-center gap-2 mb-3">
+                <Icon name="ph:x-circle" class="size-5 text-red-600 shrink-0" aria-hidden="true" />
+                <span class="font-mono uppercase text-[11px] tracking-[0.1em] text-tinta font-semibold">
+                  {{ $t('press.guide_no_label') }}
+                </span>
+              </div>
+              <p class="text-[14px] text-berenjena leading-relaxed">{{ $t('press.guide_no') }}</p>
+            </div>
+          </div>
+        </div>
+
         <!-- El caso en los medios -->
         <div class="mt-16">
           <h2 id="press-mentions" class="eyebrow mb-2 block">
@@ -125,6 +214,21 @@
             {{ $t('press.resources_title') }}
           </h2>
           <div aria-labelledby="press-resources" class="grid sm:grid-cols-2 gap-4">
+            <a
+              href="/press-kit-miriam-gonzalez.pdf"
+              target="_blank"
+              rel="noopener"
+              class="press-resource card-base group"
+              download
+            >
+              <Icon name="ph:file-pdf" class="size-5 text-miriam mb-3" aria-hidden="true" />
+              <span class="block font-display font-semibold text-berenjena text-[15px]">
+                {{ $t('press.kit_download_label') }}<span class="sr-only"> {{ $t('a11y.new_tab') }}</span>
+              </span>
+              <span class="mt-1 block text-[13px] text-tinta leading-relaxed">
+                {{ $t('press.kit_download_note') }}
+              </span>
+            </a>
             <NuxtLink :to="localePath('ciencia')" class="press-resource card-base group">
               <Icon name="ph:flask" class="size-5 text-miriam mb-3" aria-hidden="true" />
               <span class="block font-display font-semibold text-berenjena text-[15px]">
@@ -152,7 +256,7 @@
                 {{ $t('press.resource_expenses_desc') }}
               </span>
             </NuxtLink>
-            <NuxtLink :to="localePath('colabora')" class="press-resource card-base group">
+            <NuxtLink :to="localePath('colabora')" class="press-resource card-base group sm:col-span-2">
               <Icon name="ph:hand-heart" class="size-5 text-miriam mb-3" aria-hidden="true" />
               <span class="block font-display font-semibold text-berenjena text-[15px]">
                 {{ $t('press.resource_collaborate') }}
@@ -186,7 +290,7 @@
             <p class="text-[15px] leading-relaxed" style="color: rgba(250,246,240,0.85)">
               {{ $t('press.contact_body') }}
             </p>
-            <NuxtLink :to="localePath('contacto') + '?role=journalist'" class="btn-cta mt-7">
+            <NuxtLink :to="localePath('contacto') + '?role=journalist'" class="btn-dark mt-7">
               <Icon name="ph:envelope-simple" class="w-4 h-4" aria-hidden="true" />
               {{ $t('press.contact_cta') }}
             </NuxtLink>
@@ -231,6 +335,13 @@ async function copyBoilerplate() {
 
 // Hechos clave · las cifras que pueden desincronizarse (edad, nº de países)
 // vienen de la fuente única (caseData), no del texto i18n.
+const quotes = computed(() => [
+  { text: t('press.quote_1'), source: t('press.quote_1_source') },
+  { text: t('press.quote_2'), source: t('press.quote_2_source') },
+  { text: t('press.quote_3'), source: t('press.quote_3_source') },
+  { text: t('press.quote_4'), source: t('press.quote_4_source') },
+])
+
 const facts = computed(() => [
   { label: t('press.fact_who_label'), value: t('press.fact_who_value', { age: caseData.currentAge }) },
   { label: t('press.fact_diagnosis_label'), value: t('press.fact_diagnosis_value') },
@@ -318,9 +429,11 @@ useHead({
   text-decoration: none;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
-.press-mention:hover,
-.press-resource:hover {
-  transform: translateY(-2px);
+@media (prefers-reduced-motion: no-preference) {
+  .press-mention:hover,
+  .press-resource:hover {
+    transform: translateY(-2px);
+  }
 }
 .press-resource {
   display: block;
