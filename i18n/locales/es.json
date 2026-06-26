@@ -173,24 +173,24 @@
     "page": "{c} de {t}",
     "empty": "Aún no hay donaciones que mostrar."
   },
-      "twofaces": {
-      "title": "Un tumor con dos caras",
-      "eyebrow": "El tumor, en esquema",
-      "intro": "No es un tumor: son dos biologías en el mismo cuerpo, y hay que tratarlas a la vez.",
-      "lum_head": "MAMA · luminal",
-      "lum_sub": "la conocemos",
+  "twofaces": {
+    "title": "Un tumor con dos caras",
+    "eyebrow": "El tumor, en esquema",
+    "intro": "No es un tumor: son dos biologías en el mismo cuerpo, y hay que tratarlas a la vez.",
+    "lum_head": "MAMA · luminal",
+    "lum_sub": "la conocemos",
     "lum_g1": "HR+ · HER2− · ESR1",
     "lum_g2": "FGFR1 · CCND1",
-      "lum_markers": [
-        "HER2−",
-        "HR+",
-        "ESR1",
-        "FGFR1",
-        "CCND1"
-      ],
-      "ne_head": "diferenciación neuroendocrina",
-      "ne_sub": "la que necesitamos conocer",
-      "pct": "80%",
+    "lum_markers": [
+      "HER2−",
+      "HR+",
+      "ESR1",
+      "FGFR1",
+      "CCND1"
+    ],
+    "ne_head": "diferenciación neuroendocrina",
+    "ne_sub": "la que necesitamos conocer",
+    "pct": "80%",
     "cgsyn": "Cg · Syn",
     "amplicon": "amplicón 11q13",
     "amplicon_g1": "FGFR1 ×13 · CCND1 ×20",
@@ -198,21 +198,21 @@
     "esr1": "ESR1 mut. (ctDNA)",
     "hr": "HR+",
     "her2": "HER2−",
-      "rb1": "RB1 · el freno",
-      "rb1_note": "se está perdiendo",
-      "sstr2": "SSTR2",
-      "sstr2_note": "receptores → PRRT",
+    "rb1": "RB1 · el freno",
+    "rb1_note": "se está perdiendo",
+    "sstr2": "SSTR2",
+    "sstr2_note": "receptores → PRRT",
     "hr_note": "receptores hormonales",
-      "close1": "Dos poblaciones, un mismo tumor.",
-      "close2": "Tratar una sola selecciona a la otra.",
-      "sr": "Esquema del tumor. Mama luminal, la parte conocida: receptores HR+ y HER2 negativo, amplicón 11q13 (FGFR1 ×13, CCND1 ×20, FGF3/4/19 ×18) y mutación de ESR1 en ctDNA. Diferenciación neuroendocrina (Cg/Syn en ~80% de las células), apenas conocida: pérdida de RB1 (un freno que se está perdiendo) y receptores SSTR2, diana de la PRRT. Si se bloquea un lado, escapa por el otro; hay que tratarlo entero.",
+    "close1": "Dos poblaciones, un mismo tumor.",
+    "close2": "Tratar una sola selecciona a la otra.",
+    "sr": "Esquema del tumor. Mama luminal, la parte conocida: receptores HR+ y HER2 negativo, amplicón 11q13 (FGFR1 ×13, CCND1 ×20, FGF3/4/19 ×18) y mutación de ESR1 en ctDNA. Diferenciación neuroendocrina (Cg/Syn en ~80% de las células), apenas conocida: pérdida de RB1 (un freno que se está perdiendo) y receptores SSTR2, diana de la PRRT. Si se bloquea un lado, escapa por el otro; hay que tratarlo entero.",
     "legend_rec": "Receptores: dianas para atacar (HR y SSTR2).",
     "legend_amp": "Amplificaciones: copias de más que empujan el tumor.",
     "legend_mut": "Mutaciones: resistencias que el tumor crea para crecer.",
     "legend_rb1": "RB1: un freno que se va perdiendo.",
     "legend_her2": "HER2: un receptor que no tiene (sin diana).",
     "legend_cgsyn": "Cg · Syn: gránulos neuroendocrinos (el 80% del tumor)."
-    },
+  },
   "thanks": {
     "eyebrow": "Donación recibida · Gracias",
     "title": "Acabas de acercar el siguiente {firma}.",
@@ -314,15 +314,15 @@
     "subtitle": "Datos verificados, hechos clave y contacto para medios. El caso de Miriam González, listo para contarse con rigor.",
     "facts_title": "Hechos clave",
     "fact_who_label": "Quién",
-    "fact_who_value": "Miriam González, {age} años, ingeniera de software y divulgadora (Región de Murcia, España).",
+    "fact_who_value": "Miriam González, ingeniera de software y divulgadora tech (Región de Murcia, España).",
     "fact_diagnosis_label": "Diagnóstico",
-    "fact_diagnosis_value": "Cáncer de mama metastásico HR+/HER2− con ~80% de diferenciación neuroendocrina (BC-NED), FGFR1 ×13 y CCND1 ×20; SSTR2+ en PET Ga-68. Metástasis exclusivamente óseas.",
+    "fact_diagnosis_value": "Cáncer de mama metastásico HR+/HER2−. Su biología tumoral se sale de las guías clínicas estándar.",
     "fact_why_label": "Por qué es relevante",
     "fact_why_value": "Su biología tumoral se sale de las guías clínicas estándar. Miriam usa inteligencia artificial y una red internacional de especialistas para impulsar una oncología de precisión que el protocolo aún no contempla.",
     "fact_need_label": "Qué necesita",
     "fact_need_value": "Financiar una rebiopsia ósea con panel molecular avanzado y la preservación del tejido para análisis de precisión, con revisión de un tumor board internacional (WIN Consortium).",
     "fact_network_label": "Equipo",
-    "fact_network_value": "Una paciente, un equipo internacional en {countries} países e inteligencia artificial. El proyecto se enmarca en «Beyond the Protocol».",
+    "fact_network_value": "Una ingeniera, un equipo internacional en {countries} países e inteligencia artificial. Proyecto «Beyond the Protocol».",
     "fact_lang_label": "Idiomas",
     "fact_lang_value": "Disponible para entrevistas en español e inglés.",
     "photo_caption": "Miriam González. Retrato disponible para uso editorial bajo petición.",
@@ -338,13 +338,32 @@
     "contact_cta": "Escribir al equipo",
     "boilerplate_title": "Texto listo para copiar",
     "boilerplate_note": "Boilerplate para notas de prensa, newsletters o fichas. Puedes citarlo tal cual.",
-    "boilerplate_text": "Miriam González ({age} años, Murcia, España) tiene un cáncer de mama metastásico HR+/HER2− con ~80% de diferenciación neuroendocrina (BC-NED), amplificación FGFR1 ×13 y SSTR2+ en PET Ga-68. Su biología tumoral se sale de los protocolos estándar; financia una rebiopsia ósea con panel molecular avanzado y revisión internacional (WIN Consortium). Proyecto «Beyond the Protocol»: una paciente, un equipo en {countries} países e IA. Web: helpmiriam.com · Donar: gofund.me/3e25cae99 · Contacto prensa: helpmiriam.com/contacto?role=journalist",
+    "boilerplate_text": "Miriam González es ingeniera de software y divulgadora tech. Investiga su propio cáncer de mama metastásico con inteligencia artificial y un equipo internacional, en abierto, para encontrar opciones de tratamiento que la oncología convencional no ofrece.",
     "boilerplate_copy": "Copiar texto",
     "boilerplate_copied": "Copiado",
     "resource_expenses": "Destino del dinero",
     "resource_expenses_desc": "Desglose de gastos, fases de financiación y FAQ para donantes.",
     "resource_collaborate": "Cómo ayudar",
-    "resource_collaborate_desc": "Cinco vías según perfil: medicina, prensa, tech, pacientes y donación."
+    "resource_collaborate_desc": "Cinco vías según perfil: medicina, prensa, tech, pacientes y donación.",
+    "photos_title": "Fotografías de prensa",
+    "photo_retrato_alt": "Miriam González, retrato editorial",
+    "photo_retrato_caption": "© Itziar Barros (itziarbarros.com) · Uso editorial bajo petición",
+    "photo_ingeniera_alt": "Miriam González trabajando con el portátil",
+    "photo_ingeniera_caption": "© Itziar Barros (itziarbarros.com) · Uso editorial bajo petición",
+    "photo_download_note": "Imágenes a máxima resolución disponibles bajo petición. Crédito obligatorio: © Itziar Barros (itziarbarros.com).",
+    "quotes_title": "Citas citables (verbatim)",
+    "quotes_source": "Fuente: El Español, 19 de junio de 2026",
+    "quote_1": "No pido garantías, pido oportunidades.",
+    "quote_2": "Uso la IA para amplificar mi conocimiento.",
+    "quote_3": "Me contactan oncólogos de todo el mundo.",
+    "quote_4": "He aprendido oncología molecular, radioterapia… todo lo necesario para entender mis opciones.",
+    "guide_title": "Guía editorial",
+    "guide_yes_label": "Sí",
+    "guide_no_label": "No",
+    "guide_yes": "«ingeniera de software» · «divulgadora tech» · «investiga su propio caso con IA» · «cáncer de mama metastásico» · «tratamiento personalizado / de precisión» · «equipo internacional» · «en abierto»",
+    "guide_no": "«científica» (usar ingeniera) · «paciente» como identidad (es activa) · «vacuna» · nombres de médicos u hospitales sin permiso · cifras moleculares · edad en titulares · lenguaje bélico / «lucha» / «lazo rosa» / morbo",
+    "kit_download_label": "Descargar kit de prensa (PDF)",
+    "kit_download_note": "Documento de referencia para periodistas. Incluye hechos clave, citas y material gráfico."
   },
   "science": {
     "title": "La ciencia detrás del caso",
@@ -848,7 +867,6 @@
     "og_description": "Un escaparate a punto de despegar. Te propongo subir tu marca a esta historia —no un logo de un día— con una divulgadora tech que investiga su propio cáncer ultra-raro. Partnership profesional a largo plazo, con transparencia total.",
     "print": "Dossier (PDF)",
     "print_aria": "Descargar el dossier para marcas en PDF",
-
     "_comment_hero": "Header — pase de copy de Adri (18-jun, PREVALECE): H1 lidera con su imagen del «escaparate a punto de despegar» + llamada directa a la marca («Sube tu marca»). El encuadre partnership-no-donativo baja al hero_context. Registro DOSIER (sobrio, de igual a igual). Alternativas A y C, en el comentario de marcas.vue.",
     "hero_eyebrow": "// para marcas",
     "hero_title": "Un escaparate a punto de despegar. {em}.",
@@ -859,7 +877,6 @@
     "hero_cta_dossier": "Ver el dossier (para tu equipo)",
     "hero_tagline": "// abierta a las marcas adecuadas · detrás hay personas, no un buzón",
     "hero_edition_label": "Edición preparada para:",
-
     "pilares_eyebrow": "// formas de colaborar",
     "pilares_title": "Cuatro formas de meter tu marca {em}.",
     "pilares_title_em": "en la historia",
@@ -888,50 +905,82 @@
     ],
     "pilares_dossier_line": "¿Lo quieres por escrito para llevarlo a tu equipo?",
     "pilares_dossier_cta": "Descarga el dossier (PDF)",
-
     "encajes_title": "Dónde encaja tu producto",
     "encajes_intro": "Donde tu producto se cruza con mi vida real, ahí la colaboración se nota auténtica. Y si ya hay una marca de tu sector, sigue habiendo sitio: para eso están las menciones.",
     "encajes_groups": [
       {
         "label": "Tech y salud",
-        "tags": ["software y herramientas", "IA y datos", "salud digital", "wearables", "ciberseguridad"]
+        "tags": [
+          "software y herramientas",
+          "IA y datos",
+          "salud digital",
+          "wearables",
+          "ciberseguridad"
+        ]
       },
       {
         "label": "Viajes y movilidad",
-        "tags": ["hospitales internacionales", "vuelos", "fintech / cambio de divisa", "coche / recarga"]
+        "tags": [
+          "hospitales internacionales",
+          "vuelos",
+          "fintech / cambio de divisa",
+          "coche / recarga"
+        ]
       },
       {
         "label": "Autocuidado, moda y comida sana",
-        "tags": ["cosmética y cuidado", "moda cómoda", "nutrición y comida sana", "bienestar y descanso"]
+        "tags": [
+          "cosmética y cuidado",
+          "moda cómoda",
+          "nutrición y comida sana",
+          "bienestar y descanso"
+        ]
       }
     ],
-
     "audiencia_eyebrow": "// las miradas que vas a tener encima",
     "audiencia_title": "El alcance al que {em}.",
     "audiencia_title_em": "te subes",
     "audiencia_stats": [
-      { "value": "~248K", "caption": "comunidad multiplataforma" },
-      { "value": "+1M", "caption": "visualizaciones / mes (IG)" },
-      { "value": "72,5%", "caption": "audiencia real verificada (Modash)" }
+      {
+        "value": "~248K",
+        "caption": "comunidad multiplataforma"
+      },
+      {
+        "value": "+1M",
+        "caption": "visualizaciones / mes (IG)"
+      },
+      {
+        "value": "72,5%",
+        "caption": "audiencia real verificada (Modash)"
+      }
     ],
     "audiencia_frame": "No te voy a llenar esto de gráficas: las marcas que escriben lo hacen por la parte mediática y por sumarse a algo real, no por el tamaño exacto de la audiencia. Si quieres el desglose fino, lo tienes en el dossier.",
-
     "movilizan_title": "Y cuando hace falta, responden",
     "movilizan_p": "No es una audiencia que solo mira: cuando le pido algo concreto, responde. En una campaña reciente, ese «échame una mano» se tradujo en {b}.",
     "movilizan_proof": "≈335.000 acciones movilizadas",
     "movilizan_caption": "Una comunidad que pasa del scroll a la acción cuando de verdad importa.",
-
     "audiencia_partners_label": "Ya confiaron",
     "partners": [
-      { "label": "Tahe Cosmetics", "url": "https://tahecosmetics.com" },
-      { "label": "GitHub", "url": "https://github.com" },
-      { "label": "Notion", "url": "https://www.notion.com" },
-      { "label": "Never Surrender", "url": "https://neversurrenderf.org/" }
+      {
+        "label": "Tahe Cosmetics",
+        "url": "https://tahecosmetics.com"
+      },
+      {
+        "label": "GitHub",
+        "url": "https://github.com"
+      },
+      {
+        "label": "Notion",
+        "url": "https://www.notion.com"
+      },
+      {
+        "label": "Never Surrender",
+        "url": "https://neversurrenderf.org/"
+      }
     ],
     "partners_more": "…y más por venir",
     "audiencia_cta_line": "¿Ves a tu marca aquí dentro? Escríbeme y lo vemos juntas.",
     "audiencia_cta": "¿Encajamos?",
-
     "cta_eyebrow": "// ponte en contacto",
     "cta_title": "Un partnership de verdad, {em}.",
     "cta_title_em": "no un logo de un día",
@@ -939,7 +988,6 @@
     "cta_button": "Hablemos de tu marca",
     "cta_podcast": "Y se vienen iniciativas potentes para contar todo lo que hay detrás — el detalle, en el dossier.",
     "cta_tagline": "Única. Como yo.",
-
     "popup_title": "¿Subes tu marca a este escaparate?",
     "popup_text": "No es un buzón que se ignora: detrás hay personas y te respondemos de verdad. Cuéntame quién eres y vemos cómo encajar.",
     "popup_cta": "Cuéntame qué hacéis",
