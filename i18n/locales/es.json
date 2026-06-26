@@ -375,7 +375,7 @@
   },
   "team": {
     "title": "El equipo",
-    "subtitle": "Una paciente, un equipo internacional e inteligencia artificial buscando la terapia que la oncología convencional aún no contempla.",
+    "subtitle": "Una ingeniera, un equipo internacional e inteligencia artificial buscando la terapia que la oncología convencional aún no contempla.",
     "miriam_team": "El equipo de Miriam",
     "medical_support_network": "Red médica de apoyo",
     "more": "Ver detalle",
@@ -463,7 +463,7 @@
     "privacy_notice": "Tus datos solo se usan para responder a tu mensaje. No se comparten con terceros."
   },
   "footer": {
-    "disclaimer": "Este sitio es un recurso informativo mantenido por el equipo de apoyo de la paciente. No sustituye asesoramiento médico profesional.",
+    "disclaimer": "Este sitio es un recurso informativo mantenido por el equipo de apoyo de Miriam. No sustituye asesoramiento médico profesional.",
     "updated": "Última actualización",
     "month_updated": "junio de",
     "nav_heading": "Navegación",

@@ -440,7 +440,7 @@
     "privacy_notice": "Your data is only used to respond to your message. It is not shared with third parties."
   },
   "footer": {
-    "disclaimer": "This site is an informational resource maintained by the patient's support team. It does not replace professional medical advice.",
+    "disclaimer": "This site is an informational resource maintained by Miriam's support team. It does not replace professional medical advice.",
     "updated": "Last updated",
     "month_updated": "June",
     "nav_heading": "Navigation",
@@ -713,7 +713,7 @@
   },
   "team": {
     "title": "The team",
-    "subtitle": "One patient, an international team and artificial intelligence, searching for the therapy that standard oncology doesn't yet consider.",
+    "subtitle": "An engineer, an international team and artificial intelligence, searching for the therapy that standard oncology doesn't yet consider.",
     "medical_support_network": "Medical support network",
     "more": "Details",
     "less": "Hide",
