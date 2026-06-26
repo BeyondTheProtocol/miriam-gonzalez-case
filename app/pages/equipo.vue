@@ -175,22 +175,22 @@ useSeoMeta({
   ogTitle: () => (locale.value === 'es' ? 'El equipo' : 'The team'),
   ogDescription: () =>
     locale.value === 'es'
-      ? 'Una paciente, un equipo internacional e inteligencia artificial.'
-      : 'One patient, an international team, and artificial intelligence.',
+      ? 'Una ingeniera, un equipo internacional e inteligencia artificial.'
+      : 'An engineer, an international team, and artificial intelligence.',
   ogType: 'website',
   twitterCard: 'summary_large_image',
   twitterTitle: () => (locale.value === 'es' ? 'El equipo' : 'The team'),
   twitterDescription: () =>
     locale.value === 'es'
-      ? 'Una paciente, un equipo internacional e inteligencia artificial.'
-      : 'One patient, an international team, and artificial intelligence.',
+      ? 'Una ingeniera, un equipo internacional e inteligencia artificial.'
+      : 'An engineer, an international team, and artificial intelligence.',
 })
 
 defineOgImage('Default.takumi', {
   title: () => t('team.title'),
   description: () =>
     locale.value === 'es'
-      ? 'Una paciente, un equipo internacional e IA.'
-      : 'One patient, an international team, and AI.',
+      ? 'Una ingeniera, un equipo internacional e IA.'
+      : 'An engineer, an international team, and AI.',
 })
 </script>
