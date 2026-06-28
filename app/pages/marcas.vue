@@ -98,6 +98,15 @@
                 {{ t('marcas.hero_cta_dossier') }}
                 <Icon name="ph:download-simple" class="w-4 h-4 transition-transform group-hover:translate-y-0.5" aria-hidden="true" />
               </a>
+              <a
+                href="https://pillar.io/miriamgonp/mediakit"
+                target="_blank"
+                rel="noopener"
+                class="link-action group font-mono text-sm text-cream"
+              >
+                {{ t('marcas.hero_cta_mediakit') }}
+                <Icon name="ph:arrow-square-out" class="w-4 h-4 transition-transform group-hover:translate-y-0.5" aria-hidden="true" />
+              </a>
             </div>
 
             <p class="mt-7 font-mono text-xs uppercase tracking-[0.16em] text-miriam-claro">
@@ -779,35 +788,35 @@ export default { name: 'MarcasPage' }
   }
 }
 
-/* Botón flotante de descarga del dossier — sobre la barra de apoyo móvil (<lg).
+/* Botón flotante de descarga del dossier — solo en desktop (≥ lg).
+   En móvil se oculta: el enlace de descarga ya existe en el hero y en la
+   dossier-row, y el pop-up de contacto ocupa el espacio flotante.
    Color = tokens del DS (berenjena/crema, vía @apply); el hover reutiliza el
-   mismo valor que .btn-dark:hover del DS (no hay utilidad Tailwind para ese
-   tono concreto). Layout fijo/pill: bespoke por necesidad (FAB). */
+   mismo valor que .btn-dark:hover del DS. Layout fijo/pill: bespoke (FAB). */
 .m-print-btn {
-  @apply bg-berenjena text-cream;
-  position: fixed;
-  right: 1rem;
-  bottom: calc(5.25rem + env(safe-area-inset-bottom, 0px));
-  z-index: 40;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
-  padding: 0.6rem 0.95rem;
-  border-radius: 999px;
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 12px;
-  letter-spacing: 0.04em;
-  box-shadow: 0 12px 28px -10px rgba(45, 27, 61, 0.6);
-  transition: transform 0.15s ease, background 0.2s ease;
-}
-.m-print-btn:hover {
-  background: #3d2752; /* = .btn-dark:hover (DS, main.css) */
-  transform: translateY(-2px);
+  display: none; /* oculto en móvil; se activa desde lg */
 }
 @media (min-width: 1024px) {
   .m-print-btn {
+    @apply bg-berenjena text-cream;
+    position: fixed;
     right: 1.5rem;
     bottom: 1.5rem;
+    z-index: 40;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.6rem 0.95rem;
+    border-radius: 999px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 0.04em;
+    box-shadow: 0 12px 28px -10px rgba(45, 27, 61, 0.6);
+    transition: transform 0.15s ease, background 0.2s ease;
+  }
+  .m-print-btn:hover {
+    background: #3d2752; /* = .btn-dark:hover (DS, main.css) */
+    transform: translateY(-2px);
   }
 }
 @media (prefers-reduced-motion: reduce) {
