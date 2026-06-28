@@ -217,15 +217,8 @@ onBeforeUnmount(teardownTriggers)
   outline: none;
 }
 
-/* Móvil (<lg): en /marcas la barra de apoyo NO se monta (ahí no hay donación),
-   pero SÍ está el botón flotante del dossier (.m-print-btn, ~bottom 5.25rem).
-   Elevamos el pop-up por encima de él para que nunca se solapen. En desktop,
-   abajo a la derecha (bottom: 1rem del .mcp base). */
-@media (max-width: 1023px) {
-  .mcp {
-    bottom: calc(8.75rem + env(safe-area-inset-bottom, 0px));
-  }
-}
+/* El .m-print-btn (FAB de descarga) solo se muestra en desktop (≥lg),
+   así que en móvil el pop-up no necesita elevarse: queda en bottom: 1rem. */
 .mcp__cta {
   display: inline-flex;
   align-items: center;
