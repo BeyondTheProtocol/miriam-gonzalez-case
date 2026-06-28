@@ -98,6 +98,15 @@
                 {{ t('marcas.hero_cta_dossier') }}
                 <Icon name="ph:download-simple" class="w-4 h-4 transition-transform group-hover:translate-y-0.5" aria-hidden="true" />
               </a>
+              <a
+                href="https://pillar.io/miriamgonp/mediakit"
+                target="_blank"
+                rel="noopener"
+                class="link-action group font-mono text-sm text-cream"
+              >
+                {{ t('marcas.hero_cta_mediakit') }}
+                <Icon name="ph:arrow-square-out" class="w-4 h-4 transition-transform group-hover:translate-y-0.5" aria-hidden="true" />
+              </a>
             </div>
 
             <p class="mt-7 font-mono text-xs uppercase tracking-[0.16em] text-miriam-claro">
