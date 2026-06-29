@@ -1,0 +1,53 @@
+<!doctype html>
+<!--
+  Detección de Netlify Forms para una app Nuxt.
+
+  POR QUÉ EXISTE ESTE FICHERO
+  Netlify registra un formulario solo si lo DETECTA en HTML estático durante el
+  build. Con Nuxt (páginas prerenderizadas/hidratadas) su parser no siempre
+  engancha el <form data-netlify> de la página real, así que los envíos POST a "/"
+  devolvían 404 y la web mostraba "error al enviar" (formularios `contact` y
+  `case-follow`). Este fichero estático en public/ se copia tal cual al deploy y
+  contiene un esqueleto de cada formulario con TODOS sus campos: el parser lo lee,
+  registra los formularios y el POST AJAX desde Vue (a "/") ya funciona.
+
+  REGLAS
+  - Los `name` de los campos deben COINCIDIR exactamente con los del form real
+    (app/pages/contacto.vue y app/components/CaseFollowSignup.vue). Si añades o
+    renombras un campo allí, actualízalo aquí también.
+  - No se enlaza desde ningún sitio y lleva noindex: es solo para el detector.
+-->
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>Netlify form detection</title>
+  </head>
+  <body>
+    <!-- Formulario de contacto · app/pages/contacto.vue -->
+    <form name="contact" netlify netlify-honeypot="bot-field" hidden>
+      <input type="hidden" name="form-name" value="contact" />
+      <input type="hidden" name="subject" />
+      <input name="bot-field" />
+      <input type="text" name="name" />
+      <input type="email" name="email" />
+      <select name="role">
+        <option value="oncologist"></option>
+        <option value="researcher"></option>
+        <option value="journalist"></option>
+        <option value="patient"></option>
+        <option value="tech"></option>
+        <option value="other"></option>
+      </select>
+      <textarea name="message"></textarea>
+    </form>
+
+    <!-- Suscripción al caso · app/components/CaseFollowSignup.vue -->
+    <form name="case-follow" netlify netlify-honeypot="bot-field" hidden>
+      <input type="hidden" name="form-name" value="case-follow" />
+      <input name="bot-field" />
+      <input type="email" name="email" />
+      <input type="checkbox" name="consent" />
+    </form>
+  </body>
+</html>
