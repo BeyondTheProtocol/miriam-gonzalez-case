@@ -409,7 +409,7 @@ const pressJsonLd = computed(() =>
       '@type': 'Person',
       name: 'Miriam González',
       url: 'https://helpmiriam.com',
-      jobTitle: locale.value === 'es' ? 'Paciente e ingeniera de software' : 'Patient and software engineer',
+      jobTitle: locale.value === 'es' ? 'Ingeniera de software y divulgadora tech' : 'Software engineer and tech communicator',
     },
     audience: {
       '@type': 'Audience',
