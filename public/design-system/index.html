@@ -508,6 +508,14 @@
     padding-block-end: .30em; }
   .trazo { animation: trazo-dibuja .9s var(--curva-salida) .35s backwards; }
   @keyframes trazo-dibuja { from { background-size: 0% .30em; } to { background-size: 100% .30em; } }
+  /* Subrayado del hero: forma "two-faces" de helpmiriam.com (SVG inline, geometría exacta) — color coral (nuestro trazo aprobado) */
+  .two-faces { position: relative; white-space: nowrap; }
+  .two-faces__stroke { position: absolute; left: -1.5%; bottom: -0.22em; width: 103%; height: 0.34em; overflow: visible; pointer-events: none; }
+  .tf-line { fill: none; stroke: var(--color-cta); stroke-width: 2.6; stroke-linecap: round; }
+  @media (prefers-reduced-motion: no-preference) {
+    .tf-line { stroke-dasharray: 1; stroke-dashoffset: 1; animation: tf-draw .55s var(--curva-salida, ease-out) .35s forwards; }
+    @keyframes tf-draw { to { stroke-dashoffset: 0; } }
+  }
   /* CON PRESIÓN: paths RELLENOS de anchura variable (el stroke de grosor constante era
      rotulador de máquina). Dos gestos distintos: el de portada carga al entrar y se afina
      al soltar; el de la cita nace fino, engorda en medio y muere fino. Escrito a mano.
@@ -634,7 +642,7 @@
 
   <main id="main">
   <div class="portada">
-    <h1>Un lenguaje, no una <span class="trazo">plantilla</span>.</h1>
+    <h1>Un lenguaje, no una <span class="two-faces">plantilla<svg class="two-faces__stroke" viewBox="0 0 100 8" preserveAspectRatio="none" aria-hidden="true"><path class="tf-line" pathLength="1" d="M2 5.4 C 16 3.4, 38 7, 58 4.8 C 74 3.2, 90 6, 98 4.6"/></svg></span>.</h1>
     <p class="sub">Cada componente pinta con tokens de rol y se remapea solo en claro, en noche y en banda oscura. Los colores los fija Ceci; aquí no se mueve ni un hex.</p>
   </div>
 
