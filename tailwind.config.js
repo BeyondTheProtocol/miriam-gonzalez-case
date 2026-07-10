@@ -24,33 +24,33 @@ export default {
       colors: {
         // Design system tokens — Caso Miriam
         // Base palette (5 colors): cream bg, berenjena text, miriam violet (accent), coral (CTA)
-        cream: '#faf6f0',         // var(--color-bg)
-        'cream-card': '#f5efe6',  // var(--color-bg-card)
-        berenjena: '#2d1b3d',     // var(--color-text)
-        tinta: '#3a3340',         // var(--color-text-soft)
+        cream: 'rgb(var(--color-bg-rgb) / <alpha-value>)',         // var(--color-bg)
+        'cream-card': 'rgb(var(--color-bg-card-rgb) / <alpha-value>)',  // var(--color-bg-card)
+        berenjena: 'rgb(var(--color-text-rgb) / <alpha-value>)',     // var(--color-text)
+        tinta: 'rgb(var(--color-text-soft-rgb) / <alpha-value>)',         // var(--color-text-soft)
         miriam: {
           // Firma / emphasis / links. Oscurecido de #a44db2 a #9d44ab para que el
           // texto pase WCAG AA (4.5:1) también sobre cream-card (4.77:1), no solo
           // sobre cream. El violeta sigue siendo prácticamente el mismo.
-          DEFAULT: '#9d44ab',
-          soft: '#e8d4ed',        // var(--color-miriam-soft) — badge genómico bg
+          DEFAULT: 'rgb(var(--color-miriam-rgb) / <alpha-value>)',
+          soft: 'rgb(var(--color-miriam-soft-rgb) / <alpha-value>)',        // var(--color-miriam-soft) — badge genómico bg
           // Violeta claro para ÉNFASIS sobre fondos oscuros (berenjena): el miriam
           // DEFAULT no contrasta sobre berenjena, este sí (5.46:1, pasa WCAG AA).
           // Usado en el dossier /marcas (titulares e identidad sobre bandas oscuras).
-          claro: '#c77dd2',
+          claro: 'rgb(var(--color-miriam-claro-rgb) / <alpha-value>)',
         },
         // Berenjena un punto más violácea para tarjetas elevadas SOBRE las bandas
         // oscuras (cajas «Carlos Roca» / LinkedIn en /marcas). Texto crema: 12.8:1.
-        'berenjena-2': '#3a2350',
+        'berenjena-2': 'rgb(var(--berenjena-2-rgb) / <alpha-value>)',
         coral: {
-          DEFAULT: '#ff6b47',     // var(--color-cta) — ÚNICO color de acción (fondos / decoración)
-          hover: '#e5573a',
+          DEFAULT: 'rgb(var(--color-cta-rgb) / <alpha-value>)',     // var(--color-cta) — ÚNICO color de acción (fondos / decoración)
+          hover: 'rgb(var(--color-cta-hover-rgb) / <alpha-value>)',
           // Coral accesible para TEXTO sobre fondos claros: pasa WCAG AA
           // (4.7:1 sobre cream-card, 5.0:1 sobre cream). El coral DEFAULT
           // solo cumple contraste como fondo o como texto sobre berenjena.
           deep: '#bb4128',
-          500: '#ff6b47',
-          600: '#e5573a',
+          500: 'rgb(var(--color-cta-rgb) / <alpha-value>)',
+          600: 'rgb(var(--color-cta-hover-rgb) / <alpha-value>)',
         },
 
         // Legacy palette aliases — remapped to DS tokens so existing classNames

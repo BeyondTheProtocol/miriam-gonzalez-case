@@ -24,6 +24,7 @@ export default defineNuxtConfig({
   fonts: {
     families: [
       { name: 'Fraunces', provider: 'google', weights: [400, 500, 600, 700], styles: ['normal', 'italic'] },
+      { name: 'Hanken Grotesk', provider: 'google', weights: [400, 500, 600, 700], styles: ['normal', 'italic'] },
       { name: 'Source Sans 3', provider: 'google', weights: [400, 500, 600, 700], styles: ['normal', 'italic'] },
       { name: 'JetBrains Mono', provider: 'google', weights: [400, 500] },
       // Manuscrita para las anotaciones «de cuaderno de laboratorio»
@@ -148,7 +149,7 @@ export default defineNuxtConfig({
     },
   },
 
-  css: ['~/assets/css/main.css'],
+  css: ['~/assets/css/design-system-v2/btp-tokens.css', '~/assets/css/main.css'],
 
   // ── Enlaces cortos de marca (campañas) ───────────────────────────────────
   // Links cortos en NUESTRO dominio (helpmiriam.com/3d…) que redirigen al
