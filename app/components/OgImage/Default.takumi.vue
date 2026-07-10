@@ -30,7 +30,7 @@ defineProps({
     <!-- Text column -->
     <div class="flex flex-col justify-center h-full" style="padding: 60px; gap: 24px; flex: 1;">
       <div class="flex items-center" style="gap: 12px;">
-        <div style="width: 32px; height: 4px; background-color: #a44db2;" />
+        <div style="width: 32px; height: 4px; background-color: #9d44ab;" />
         <span
           style="font-family: 'JetBrains Mono', monospace; font-size: 18px; letter-spacing: 0.16em; text-transform: uppercase; color: #6b5a78;"
         >
@@ -58,7 +58,7 @@ defineProps({
         <span style="font-family: 'JetBrains Mono', monospace; font-size: 16px; color: #2d1b3d;">
           Miriam González · 35
         </span>
-        <span style="color: #a44db2;">·</span>
+        <span style="color: #9d44ab;">·</span>
         <span style="font-family: 'JetBrains Mono', monospace; font-size: 16px; color: #5a4a68;">
           BC-NED · FGFR1 ×13 · SSTR2+
         </span>
