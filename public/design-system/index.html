@@ -423,9 +423,9 @@
 .hito-nodo { position: absolute; inset-inline-start: calc(-1 * var(--sp-32) - 6px);
   inline-size: 14px; block-size: 14px; border-radius: var(--radius-pill);
   background: var(--superficie); border: 2px solid var(--identidad); }
-.hito.presente .hito-nodo { background: var(--identidad); border-color: var(--identidad); }
+.hito.presente .hito-nodo { background: var(--color-cta); border-color: var(--color-cta); }
 .hito.presente .hito-nodo::after { content: ""; position: absolute; inset: -6px;
-  border-radius: var(--radius-pill); border: 2px solid var(--identidad); opacity: .5;
+  border-radius: var(--radius-pill); border: 2px solid var(--color-cta); opacity: .5;
   animation: btp-respira var(--dur-ambiente) var(--curva-salida) infinite; }
 @keyframes btp-respira { 0%,100% { opacity: .5; transform: scale(1); } 50% { opacity: 0; transform: scale(1.6); } }
 
