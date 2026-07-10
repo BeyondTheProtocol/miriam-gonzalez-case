@@ -280,7 +280,7 @@
     font-variant-numeric: tabular-nums;
   }
   .data-table tbody tr:last-child td { border-bottom: 0; }
-  .data-table tbody tr:hover td { background: rgba(164, 77, 178, 0.04); }
+  .data-table tbody tr:hover td { background: rgba(157, 68, 171, 0.04); }
   .data-table .col-marker {
     @apply font-mono;
     font-size: 13px;
@@ -515,8 +515,8 @@
   .form-input::placeholder { color: rgba(58, 51, 64, 0.55); }
   .form-input:focus {
     outline: none;
-    border-color: #a44db2;
-    box-shadow: 0 0 0 3px rgba(164, 77, 178, 0.18);
+    border-color: #9d44ab;
+    box-shadow: 0 0 0 3px rgba(157, 68, 171, 0.18);
   }
   .form-label {
     @apply block text-sm font-medium text-berenjena mb-1.5;
@@ -653,11 +653,11 @@
   }
   .notes-disclosure > summary:hover,
   .notes-disclosure > summary:focus-visible {
-    color: #a44db2;
+    color: #9d44ab;
     outline: none;
   }
   .notes-disclosure[open] > summary {
-    color: #a44db2;
+    color: #9d44ab;
     margin-bottom: 4px;
   }
   @media (prefers-reduced-motion: reduce) {
@@ -1015,7 +1015,7 @@
     width: 2.25rem;
     height: 2.25rem;
     border-radius: 10px;
-    background: rgba(164, 77, 178, 0.12);
+    background: rgba(157, 68, 171, 0.12);
     color: #2d1b3d;
   }
   .pathway-card__time {
@@ -1095,7 +1095,7 @@
     transition: background 0.15s ease, border-color 0.15s ease;
   }
   .pathway-chip:hover {
-    background: rgba(164, 77, 178, 0.1);
+    background: rgba(157, 68, 171, 0.1);
     border-color: rgba(157, 68, 171, 0.28);
   }
   .pathway-chip__label {
@@ -1140,7 +1140,7 @@
     text-transform: uppercase;
     padding: 0.2rem 0.55rem;
     border-radius: 999px;
-    background: rgba(164, 77, 178, 0.12);
+    background: rgba(157, 68, 171, 0.12);
     color: #2d1b3d;
   }
   .pathway-brief__list {
@@ -1166,7 +1166,7 @@
     width: 1.5rem;
     height: 1.5rem;
     border-radius: 6px;
-    background: rgba(164, 77, 178, 0.14);
+    background: rgba(157, 68, 171, 0.14);
     font-family: 'JetBrains Mono', monospace;
     font-size: 11px;
     font-weight: 700;
