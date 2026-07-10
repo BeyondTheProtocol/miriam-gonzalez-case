@@ -105,8 +105,8 @@
   --dur-micro:      150ms;  /* hovers, focos */
   --dur-transicion: 300ms;  /* entradas, toasts, dialog */
   --dur-ambiente:   5s;     /* parpadeo/respiración de estrellas */
-  --curva-salida:   cubic-bezier(0.4, 0, 0.2, 1);
-  --curva-entrada:  cubic-bezier(0, 0, 0.2, 1);
+  --curva-salida:   cubic-bezier(0.22, 1, 0.36, 1);
+  --curva-entrada:  cubic-bezier(0.16, 1, 0.3, 1);
 
   /* ── Lectura ─────────────────────────────────────────────────── */
   --measure: 65ch;
@@ -286,9 +286,11 @@
   cursor: pointer; text-decoration: none; white-space: nowrap;
   transition: background var(--dur-micro) var(--curva-salida),
               border-color var(--dur-micro) var(--curva-salida),
-              color var(--dur-micro) var(--curva-salida);
+              color var(--dur-micro) var(--curva-salida),
+              transform var(--dur-micro) var(--curva-salida);
 }
 .btn:disabled, .btn[aria-disabled="true"] { opacity: .5; cursor: not-allowed; }
+.btn:active:not(:disabled) { transform: scale(0.98); }  /* regla 7: press tangible */
 
 /* Primario = acción (coral). Único por vista.
    TEXTO BERENJENA sobre coral (Consolidado D3: crema sobre coral = 2.62:1, FALLA AA).
@@ -398,7 +400,11 @@
 .toast { position: fixed; inset-block-end: var(--sp-24); inset-inline-end: var(--sp-24);
   max-inline-size: 380px; box-shadow: var(--sombra-flotante);
   animation: btp-toast-in var(--dur-transicion) var(--curva-entrada); }
-@keyframes btp-toast-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+@keyframes btp-toast-in { from { opacity: 0; transform: translateY(6px); filter: blur(2px); } to { opacity: 1; transform: none; filter: blur(0); } }  /* regla 5: entrada = fade + subida + blur que aclara */
+/* Regla 10: carga = barrido de luz sobre la etiqueta, no spinner. */
+.cargando { background: linear-gradient(90deg, var(--texto-2) 40%, var(--identidad) 50%, var(--texto-2) 60%); background-size: 200% 100%; -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; color: transparent; animation: btp-barrido 2s linear infinite; }
+@keyframes btp-barrido { from { background-position: 200% 0; } to { background-position: -200% 0; } }
+@media (prefers-reduced-motion: reduce) { .cargando { animation: none; background: none; -webkit-text-fill-color: var(--texto-2); color: var(--texto-2); } }
 
 /* ══ TABLA ACCESIBLE (scroll con foco; candidato Fable) ═══════════════════════ */
 .tabla-scroll { overflow-x: auto; border: 1px solid var(--trazo-sutil); border-radius: var(--radius-card); }
@@ -417,9 +423,9 @@
 .hito-nodo { position: absolute; inset-inline-start: calc(-1 * var(--sp-32) - 6px);
   inline-size: 14px; block-size: 14px; border-radius: var(--radius-pill);
   background: var(--superficie); border: 2px solid var(--identidad); }
-.hito.presente .hito-nodo { background: var(--color-cta); border-color: var(--color-cta); }
+.hito.presente .hito-nodo { background: var(--identidad); border-color: var(--identidad); }
 .hito.presente .hito-nodo::after { content: ""; position: absolute; inset: -6px;
-  border-radius: var(--radius-pill); border: 2px solid var(--color-cta); opacity: .5;
+  border-radius: var(--radius-pill); border: 2px solid var(--identidad); opacity: .5;
   animation: btp-respira var(--dur-ambiente) var(--curva-salida) infinite; }
 @keyframes btp-respira { 0%,100% { opacity: .5; transform: scale(1); } 50% { opacity: 0; transform: scale(1.6); } }
 
@@ -511,7 +517,7 @@
   /* Subrayado del hero: forma "two-faces" de helpmiriam.com (SVG inline, geometría exacta) — color coral (nuestro trazo aprobado) */
   .two-faces { position: relative; white-space: nowrap; }
   .two-faces__stroke { position: absolute; left: -1.5%; bottom: -0.22em; width: 103%; height: 0.34em; overflow: visible; pointer-events: none; }
-  .tf-line { fill: none; stroke: var(--color-cta); stroke-width: 2.6; stroke-linecap: round; }
+  .tf-line { fill: none; stroke: var(--identidad); stroke-width: 2.6; stroke-linecap: round; }
   @media (prefers-reduced-motion: no-preference) {
     .tf-line { stroke-dasharray: 1; stroke-dashoffset: 1; animation: tf-draw .55s var(--curva-salida, ease-out) .35s forwards; }
     @keyframes tf-draw { to { stroke-dashoffset: 0; } }
@@ -545,6 +551,12 @@
     #cap-2 .rail { grid-column: 1 / -1; text-align: left; margin-block-end: var(--sp-8); }
     #cap-2 .cuerpo-cap { grid-column: 1 / -1; max-inline-size: none; }
     #cap-2 .titulo-1 { font-size: clamp(44px, 7vw, 92px); }
+    /* Cada capítulo con su propio ritmo (no solo el 02) — sin cambiar el orden de lectura (ND-safe) */
+    #cap-1 { margin-block-start: 140px; }
+    #cap-1 .folio .num { font: 600 clamp(56px, 8vw, 100px)/.85 var(--font-display); color: var(--identidad); opacity: .13; letter-spacing: -.03em; }
+    #cap-3 { margin-block-start: var(--sp-64); }
+    #cap-4 { margin-block-start: var(--sp-96); column-gap: var(--sp-32); }
+    #cap-4 .rail { border-block-start: 1.5px solid var(--identidad); padding-block-start: var(--sp-16); }
   }
 
   /* Color como PROPORCIÓN trabajando (sin rótulo "60/30/10") */
@@ -679,12 +691,12 @@
   <section class="cap" id="cap-2" aria-labelledby="t-2">
     <div class="rail">
       <h2 class="folio" id="t-2"><span class="num" aria-hidden="true">02</span><span class="tit">Tipografía</span></h2>
-      <p class="marg">Fraunces display, system-ui cuerpo, mono SOLO para datos y metadatos. Saltos de línea a mano.</p>
+      <p class="marg">Fraunces display, Hanken cuerpo, mono SOLO para datos y metadatos. Saltos de línea a mano.</p>
     </div>
     <div class="cuerpo-cap">
       <p class="eyebrow">Beyond the Protocol · especimen</p>
       <p class="titulo-1">Fraunces, la voz</p>
-      <p class="cuerpo">El cuerpo va en system-ui: honesto, rápido, sin pose. La medida se limita a 65ch para que el ojo no se pierda. La tipografía trabaja; no posa.</p>
+      <p class="cuerpo">El cuerpo va en Hanken Grotesk: cálida, legible, sin pose. La medida se limita a 65ch para que el ojo no se pierda. La tipografía trabaja; no posa.</p>
       <p class="cifra" style="margin-block-start:var(--sp-24)">1.247 <span class="cuerpo-sm">personas alcanzadas · ejemplo sintético</span></p>
     </div>
   </section>
@@ -749,9 +761,9 @@
         </table>
       </div>
       <div class="timeline" style="margin-block-start:var(--sp-32)">
-        <div class="hito"><span class="hito-nodo"></span><p class="titulo-3">Punto de partida</p><p class="cuerpo-sm">El mapa arranca aquí.</p></div>
+        <div class="hito"><span class="hito-nodo"></span><p class="titulo-3">Antes del protocolo</p><p class="cuerpo-sm">El mapa arranca aquí.</p></div>
         <div class="hito presente"><span class="hito-nodo"></span><p class="titulo-3">Presente</p><p class="cuerpo-sm">Solo el presente respira (detenible; respeta reduced-motion).</p></div>
-        <div class="hito"><span class="hito-nodo"></span><p class="titulo-3">Destino</p><p class="cuerpo-sm">A donde va todo esto.</p></div>
+        <div class="hito"><span class="hito-nodo"></span><p class="titulo-3">Más allá del protocolo</p><p class="cuerpo-sm">A donde va todo esto.</p></div>
       </div>
     </div>
   </section>
@@ -773,7 +785,7 @@
       <text class="anota" x="250" y="90" transform="rotate(-3 250 90)">Cas · ε — Segin · 3.37 mag</text>
     </svg>
     <div class="texto">
-      <p class="eyebrow">Lámina I</p>
+      <p class="eyebrow">Bitácora · Lámina I</p>
       <h2 class="titulo-1" style="max-inline-size:16ch">El cosmos, contenido</h2>
       <p class="cuerpo" style="margin-block-start:var(--sp-16)">Los mismos componentes, remapeados por el modificador <code style="font-family:var(--font-mono)">.oscuro</code>. La noche no es un filtro: es un lugar diseñado, y el cielo solo vive aquí.</p>
       <div class="grupo-btn" style="margin-block-start:var(--sp-24)">
