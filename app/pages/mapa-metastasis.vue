@@ -4,8 +4,8 @@
  *
  * Reúne y visualiza fuentes propias de la paciente, sin interpretación añadida
  * más allá de lo que dicen los informes:
- *  - PET-CT ¹⁸F-FDG (Virgen de la Arrixaca, 24/03/2026)
- *  - PET-CT ⁶⁸Ga-DOTATOC (Virgen de la Arrixaca, 26/05/2026)
+ *  - PET-CT ¹⁸F-FDG (centro hospitalario, 24/03/2026)
+ *  - PET-CT ⁶⁸Ga-DOTATOC (centro hospitalario, 26/05/2026)
  *  - RMN de columna cervical y dorsal (11/06/2026)
  * Las imágenes se reconstruyen a partir de los DICOM de esos mismos estudios.
  * Herramienta de comprensión y apoyo a la conversación clínica — no es consejo médico.
@@ -286,7 +286,7 @@ const LES: Lesion[] = [
 /*  · trazador — '18F-FDG' | '68Ga-DOTATOC' | '' (no aplica)               */
 /*  · fuente   — PROCEDENCIA, una de:                                       */
 /*       'informe'              → consta en el informe oficial de Medicina  */
-/*                                Nuclear (H. Virgen de la Arrixaca).        */
+/*                                Nuclear (centro hospitalario).        */
 /*       'dicom-medicion-david' → re-cuantificación asistida sobre el DICOM */
 /*                                nativo (SUV con corrección de decaimiento, */
 /*                                máscara ósea del CT). Verificación, NO     */
@@ -2167,7 +2167,7 @@ const MANIFEST_SCHEMA = {
     medido: 'true = MEDIDO (cantidad física) · false = INTERPRETADO (lectura/regla)',
   },
   fuentes: {
-    informe: 'informe oficial de Medicina Nuclear (H. Virgen de la Arrixaca)',
+    informe: 'informe oficial de Medicina Nuclear (centro hospitalario)',
     'dicom-medicion-david': 're-cuantificación asistida sobre el DICOM nativo (verificación, no diagnóstico)',
     'rmn-literal': 'texto literal del informe de RMN de columna (11/06/2026)',
     derivado: 'calculado por la página (heurístico/regla: score, fenotipo, Δ)',
@@ -4257,8 +4257,8 @@ const manifestValidated = (() => {
           <summary>{{ L('Fuentes, método y salvedades', 'Sources, method and caveats') }}</summary>
           <p class="mt-3 text-xs text-tinta leading-relaxed font-mono">
             {{ L(
-              'Fuentes. SUV y localizaciones: informe PET-CT ¹⁸F-FDG 24/03/2026 e informe PET-CT ⁶⁸Ga-DOTATOC 26/05/2026 (Medicina Nuclear, H. Virgen de la Arrixaca). Imágenes PET: MIP, fusión sagital y cortes axiales reconstruidos de los DICOM (PET con corrección de atenuación + TC). RMN: cortes sagitales de columna cervical y dorsal (STIR y T1) exportados de los DICOM; solo para visualización, pendientes de lectura radiológica formal. Los SUV recalculados de los DICOM concuerdan con el informe dentro de ~10–12% (diferencia esperable voxel-máx ↔ ROI).',
-              'Sources. SUV and locations: ¹⁸F-FDG PET-CT report 24/03/2026 and ⁶⁸Ga-DOTATOC PET-CT report 26/05/2026 (Nuclear Medicine, Virgen de la Arrixaca Hospital). PET images: MIP, sagittal fusion and axial slices reconstructed from the DICOM (attenuation-corrected PET + CT). MRI: sagittal cervical and thoracic spine slices (STIR and T1) exported from the DICOM; visualization only, pending formal radiology reading. SUVs recomputed from the DICOM agree with the report within ~10–12% (expected voxel-max ↔ ROI difference).') }}
+              'Fuentes. SUV y localizaciones: informe PET-CT ¹⁸F-FDG 24/03/2026 e informe PET-CT ⁶⁸Ga-DOTATOC 26/05/2026 (Medicina Nuclear, centro hospitalario). Imágenes PET: MIP, fusión sagital y cortes axiales reconstruidos de los DICOM (PET con corrección de atenuación + TC). RMN: cortes sagitales de columna cervical y dorsal (STIR y T1) exportados de los DICOM; solo para visualización, pendientes de lectura radiológica formal. Los SUV recalculados de los DICOM concuerdan con el informe dentro de ~10–12% (diferencia esperable voxel-máx ↔ ROI).',
+              'Sources. SUV and locations: ¹⁸F-FDG PET-CT report 24/03/2026 and ⁶⁸Ga-DOTATOC PET-CT report 26/05/2026 (Nuclear Medicine, hospital centre). PET images: MIP, sagittal fusion and axial slices reconstructed from the DICOM (attenuation-corrected PET + CT). MRI: sagittal cervical and thoracic spine slices (STIR and T1) exported from the DICOM; visualization only, pending formal radiology reading. SUVs recomputed from the DICOM agree with the report within ~10–12% (expected voxel-max ↔ ROI difference).') }}
           </p>
           <p class="mt-2 text-xs text-tinta leading-relaxed font-mono">
             {{ L(
