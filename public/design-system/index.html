@@ -472,17 +472,52 @@
     display: inline-flex; align-items: center;
     font: 600 var(--texto-sm)/1 var(--font-mono); color: var(--identidad); letter-spacing: .04em; }
   .modo .estrella { display: inline-block; transition: transform var(--dur-transicion) var(--curva-salida); }
-  /* Constelación-navegación REAL: 4 estrellas = 4 capítulos, enlaces enfocables (≥44px). */
-  .constelacion-nav { display: inline-flex; align-items: center; gap: var(--sp-16);
-    position: relative; margin-block: var(--sp-16) 0; }
-  .constelacion-nav::before { content: ""; position: absolute; inset-inline: 22px; inset-block-start: 50%;
-    block-size: 1px; background: var(--trazo-medio); z-index: 0; }
-  .cnav { position: relative; z-index: 1; inline-size: 44px; block-size: 44px;
-    display: grid; place-items: center; border-radius: var(--radius-pill); }
-  .cnav::after { content: ""; inline-size: 12px; block-size: 12px; background: var(--trazo-fuerte);
-    -webkit-mask: var(--estrella-svg) center/contain no-repeat; mask: var(--estrella-svg) center/contain no-repeat;
-    transition: background var(--dur-micro) var(--curva-salida), transform var(--dur-micro) var(--curva-salida); }
-  .cnav:hover::after, .cnav:focus-visible::after { background: var(--identidad); transform: scale(1.15); }
+  /* Navegación lateral fija (sidebar sticky, patrón docs 2026: Stripe/Vercel/Linear) — sustituye
+     la constelación de 8 estrellas (muda sin hover) por texto legible SIEMPRE visible en desktop.
+     Doctrina: SIN scroll-spy (Ceci lo vetó, dio bugs en PR #129); el estado activo se calcula
+     por hash de la URL, no por posición de scroll — determinista, sin timing, sin observer. */
+  .doc-layout { display: grid; grid-template-columns: 1fr; gap: var(--sp-32); align-items: start;
+    margin-block-start: var(--sp-24); }
+  @media (min-width: 901px) {
+    .doc-layout { grid-template-columns: 248px minmax(0, 1fr); gap: var(--sp-48); }
+  }
+  .doc-nav-btn { display: inline-flex; align-items: center; gap: var(--sp-8); min-height: 44px;
+    padding: 0 var(--sp-16); background: var(--superficie); color: var(--texto-1);
+    border: 1px solid var(--trazo-medio); border-radius: var(--radius-md); cursor: pointer;
+    font: 600 var(--texto-sm)/1 var(--font-body); }
+  .doc-nav-btn:focus-visible { outline: 2px solid var(--anillo-foco); outline-offset: 2px; }
+  .doc-nav-btn .chevron { transition: transform var(--dur-micro) var(--curva-salida); }
+  .doc-nav-wrap.abierto .doc-nav-btn .chevron { transform: rotate(180deg); }
+  @media (min-width: 901px) { .doc-nav-btn { display: none; } }
+
+  .doc-nav-wrap { position: relative; }
+  @media (min-width: 901px) {
+    .doc-nav-wrap { position: sticky; inset-block-start: var(--sp-24);
+      max-block-size: calc(100vh - var(--sp-48)); overflow-y: auto; }
+  }
+  #doc-nav { display: none; margin-block-start: var(--sp-8); }
+  .doc-nav-wrap.abierto #doc-nav { display: block; }
+  @media (min-width: 901px) { #doc-nav { display: block; margin-block-start: 0; } }
+
+  .doc-nav-list, .doc-nav-sub { list-style: none; margin: 0; padding: 0; }
+  .doc-nav-list > li { margin-block-start: var(--sp-4); }
+  .doc-nav-link { display: flex; align-items: center; min-height: 44px;
+    padding: var(--sp-8) var(--sp-12); border-radius: var(--radius-sm);
+    border-inline-start: 3px solid transparent;
+    font: 600 var(--texto-sm)/1.3 var(--font-mono); letter-spacing: .01em;
+    color: var(--texto-2); text-decoration: none; }
+  .doc-nav-link:hover { color: var(--texto-1); }
+  .doc-nav-link:focus-visible { outline: 2px solid var(--anillo-foco); outline-offset: -2px; }
+  .doc-nav-link[aria-current="location"] { color: var(--identidad); border-inline-start-color: var(--identidad); }
+  .doc-nav-sub { padding-inline-start: var(--sp-16); border-inline-start: 1px solid var(--trazo-medio);
+    margin-inline-start: var(--sp-12); }
+  .doc-nav-sub li { margin-block-start: var(--sp-4); }
+  .doc-nav-sublink { display: flex; align-items: center; min-height: 40px;
+    padding: var(--sp-4) var(--sp-12); border-radius: var(--radius-sm);
+    font: var(--tipo-body-sm); color: var(--texto-3); text-decoration: none; }
+  .doc-nav-sublink:hover { color: var(--texto-1); }
+  .doc-nav-sublink:focus-visible { outline: 2px solid var(--anillo-foco); outline-offset: -2px; }
+  .doc-nav-sublink[aria-current="location"] { color: var(--identidad); font-weight: 600; }
 
   /* Portada: aire generoso arriba (sin capitular) */
   .portada { padding-block: var(--sp-64) var(--sp-48); max-inline-size: 22ch; }
@@ -643,18 +678,125 @@
       Beyond the Protocol · <span class="masthead__meta">Design System v2</span></span>
     <button class="modo" id="toggle" aria-pressed="false">DÍA <svg class="estrella" width="11" height="11" viewBox="0 0 20 20" aria-hidden="true"><path d="M10 1.6C10.8 5 11.4 6.2 12.6 7.4 14 8.8 16.4 9.4 18.4 10 16.2 10.8 14.2 11.4 12.8 12.7 11.5 13.9 10.9 15.7 10 18.4 9.3 15.9 8.5 14.2 7.2 12.9 5.8 11.6 3.4 10.7 1.6 10 3.8 9.1 5.8 8.4 7.2 7.1 8.4 6 9.2 4.2 10 1.6Z" fill="currentColor"/></svg> NOCHE</button>
   </header>
-  <!-- Constelación-navegación REAL: los 4 capítulos son 4 estrellas enlazadas -->
-  <nav class="constelacion-nav" aria-label="Capítulos">
-    <a class="cnav" href="#cap-1" aria-label="01 · Color"></a>
-    <a class="cnav" href="#cap-2" aria-label="02 · Tipografía"></a>
-    <a class="cnav" href="#cap-3" aria-label="03 · Componentes"></a>
-    <a class="cnav" href="#cap-4" aria-label="04 · Datos"></a>
-  </nav>
+  <div class="doc-layout">
+    <aside class="doc-nav-wrap" id="doc-nav-wrap">
+      <button class="doc-nav-btn" id="doc-nav-btn" type="button" aria-expanded="false" aria-controls="doc-nav">
+        Índice
+        <svg class="chevron" width="11" height="11" viewBox="0 0 12 12" aria-hidden="true"><path d="M2.4 4.2 6 8l3.6-3.8" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+      <nav id="doc-nav" aria-label="Índice del manual">
+        <ul class="doc-nav-list">
+          <li><a class="doc-nav-link" href="#b-empezar">00 · Empezar aquí</a></li>
+          <li>
+            <a class="doc-nav-link" href="#b-fund">01 · Fundamentos</a>
+            <ul class="doc-nav-sub">
+              <li><a class="doc-nav-sublink" href="#cap-1">Color</a></li>
+              <li><a class="doc-nav-sublink" href="#cap-2">Tipografía</a></li>
+            </ul>
+          </li>
+          <li>
+            <a class="doc-nav-link" href="#b-ident">02 · Identidad</a>
+            <ul class="doc-nav-sub">
+              <li><a class="doc-nav-sublink" href="#ident-avatar">Avatar</a></li>
+              <li><a class="doc-nav-sublink" href="#ident-logo">Logo oficial</a></li>
+              <li><a class="doc-nav-sublink" href="#ident-favicon">Favicon</a></li>
+            </ul>
+          </li>
+          <li><a class="doc-nav-link" href="#cap-3">03 · Componentes</a></li>
+          <li><a class="doc-nav-link" href="#cap-4">04 · Datos</a></li>
+          <li>
+            <a class="doc-nav-link" href="#b-leng">05 · Lenguaje</a>
+            <ul class="doc-nav-sub">
+              <li><a class="doc-nav-sublink" href="#leng-voz">Voz por superficie</a></li>
+              <li><a class="doc-nav-sublink" href="#leng-do">Lo que sí, lo que no</a></li>
+              <li><a class="doc-nav-sublink" href="#leng-ia">Hablar con IAs</a></li>
+            </ul>
+          </li>
+          <li>
+            <a class="doc-nav-link" href="#b-incl">06 · Inclusión</a>
+            <ul class="doc-nav-sub">
+              <li><a class="doc-nav-sublink" href="#incl-principios">Principios ND</a></li>
+              <li><a class="doc-nav-sublink" href="#incl-wcag">WCAG 2.2 AA</a></li>
+              <li><a class="doc-nav-sublink" href="#incl-lectura">Dislexia y baja visión</a></li>
+              <li><a class="doc-nav-sublink" href="#incl-motion">Reduced motion</a></li>
+            </ul>
+          </li>
+          <li>
+            <a class="doc-nav-link" href="#b-prod">07 · Producción</a>
+            <ul class="doc-nav-sub">
+              <li><a class="doc-nav-sublink" href="#prod-repo">Repositorio</a></li>
+              <li><a class="doc-nav-sublink" href="#prod-marca">Marca &amp; dominio</a></li>
+              <li><a class="doc-nav-sublink" href="#prod-foto">Fotografía</a></li>
+              <li><a class="doc-nav-sublink" href="#prod-press">Press kit</a></li>
+              <li><a class="doc-nav-sublink" href="#prod-plantillas">Plantillas de mensaje</a></li>
+              <li><a class="doc-nav-sublink" href="#prod-instagram">Instagram</a></li>
+            </ul>
+          </li>
+        </ul>
+      </nav>
+    </aside>
 
   <main id="main">
   <div class="portada">
     <h1>Un lenguaje, no una <span class="two-faces">plantilla<svg class="two-faces__stroke" viewBox="0 0 100 8" preserveAspectRatio="none" aria-hidden="true"><path class="tf-line" pathLength="1" d="M2 5.4 C 16 3.4, 38 7, 58 4.8 C 74 3.2, 90 6, 98 4.6"/></svg></span>.</h1>
     <p class="sub">Cada componente pinta con tokens de rol y se remapea solo en claro, en noche y en banda oscura. Los colores los fija Ceci; aquí no se mueve ni un hex.</p>
+  </div>
+
+  <style>
+  /* El índice de bloques vive ahora en la sidebar (.doc-nav-wrap) — se retiró la tarjeta
+     inline para no duplicarlo (decisión Comité de Marca+Diseño, sustitución de la constelación). */
+  .bloque-div { margin-block: var(--sp-64) var(--sp-24); padding-block-end: var(--sp-8);
+    border-block-end: 1px solid var(--trazo-medio); }
+  .bloque-div .kicker { font: 500 var(--texto-xs)/1 var(--font-mono); letter-spacing: .12em;
+    text-transform: uppercase; color: var(--texto-2); }
+  .bloque-div h2 { font: var(--tipo-h2); color: var(--texto-1); margin: var(--sp-8) 0 0; }
+  .lista { margin: var(--sp-8) 0 0; padding-inline-start: var(--sp-24); }
+  .lista li { font: var(--tipo-body); color: var(--texto-1); margin-block: var(--sp-4);
+    max-inline-size: var(--measure); }
+  .prep { font: var(--tipo-body-sm); color: var(--texto-2); font-style: italic; }
+
+  /* Añadidas al portar contenido real (Identidad/Lenguaje/Inclusión/Producción):
+     reutilizan tokens de rol existentes, cero hex nuevo. */
+  .subtit { margin-block-start: var(--sp-32); }
+  .cuerpo-cap h3.subtit + p.cuerpo,
+  .cuerpo-cap h3.subtit + p.cuerpo-sm { margin-block-start: var(--sp-8); }
+  .codigo { margin-block-start: var(--sp-12); padding: var(--sp-16);
+    background: var(--superficie); border: 1px solid var(--trazo-medio);
+    border-radius: var(--radius-md); overflow-x: auto; }
+  .codigo pre { margin: 0; font: var(--texto-sm)/1.6 var(--font-mono); color: var(--texto-1);
+    white-space: pre-wrap; word-break: break-word; }
+  .dos-col { display: grid; gap: var(--sp-24); margin-block-start: var(--sp-16); }
+  @media (min-width: 640px) { .dos-col { grid-template-columns: 1fr 1fr; } }
+  .marcadores-etq { display: inline-flex; align-items: center; justify-content: center;
+    inline-size: 22px; block-size: 22px; border-radius: var(--radius-pill); flex: none;
+    font: 700 12px/1 var(--font-mono); color: var(--identidad);
+    border: 1.5px solid var(--identidad); }
+  </style>
+
+  <!-- 00 · EMPEZAR AQUÍ -->
+  <section class="cap" id="b-empezar" aria-labelledby="t-0" tabindex="-1">
+    <div class="rail">
+      <h2 class="folio" id="t-0"><span class="num" aria-hidden="true">00</span><span class="tit">Empezar aquí</span></h2>
+      <p class="marg">Un manual, no una galería. Se lee para no reinventar un patrón cada semana.</p>
+    </div>
+    <div class="cuerpo-cap">
+      <p class="cuerpo">Este es el lenguaje visual de Beyond the Protocol: cómo se ve, cómo suena y cómo se construye cada superficie —web, cuadernillo, PDF, redes— para que la marca hable con una sola voz.</p>
+      <p class="titulo-3" style="margin-block-start:var(--sp-24)">Reglas no negociables</p>
+      <ul class="lista">
+        <li>Los colores los fija Ceci (accesibilidad). Aquí no se mueve ni un hex.</li>
+        <li>Coral es <strong>solo acción</strong>: nunca porta significado sobre crema.</li>
+        <li>Contraste WCAG 2.2 AA como suelo, en día y en noche.</li>
+        <li>El movimiento respeta <code>prefers-reduced-motion</code> siempre.</li>
+      </ul>
+      <p class="titulo-3" style="margin-block-start:var(--sp-24)">Cuándo NO aplica</p>
+      <p class="cuerpo">En documentos clínicos privados y datos crudos manda el muro, no la estética.</p>
+    </div>
+  </section>
+
+  <!-- 01 · FUNDAMENTOS -->
+  <div class="bloque-div" id="b-fund" tabindex="-1">
+    <span class="kicker">Bloque 01</span>
+    <h2>Fundamentos</h2>
   </div>
 
   <!-- 01 · COLOR -->
@@ -697,6 +839,107 @@
       <p class="titulo-1">Fraunces, la voz</p>
       <p class="cuerpo">El cuerpo va en Hanken Grotesk: cálida, legible, sin pose. La medida se limita a 65ch para que el ojo no se pierda. La tipografía trabaja; no posa.</p>
       <p class="cifra" style="margin-block-start:var(--sp-24)">1.247 <span class="cuerpo-sm">personas alcanzadas · ejemplo sintético</span></p>
+    </div>
+  </section>
+
+  <!-- 02 · IDENTIDAD -->
+  <section class="cap" id="b-ident" aria-labelledby="t-ident" tabindex="-1">
+    <div class="rail">
+      <h2 class="folio" id="t-ident"><span class="num" aria-hidden="true">02</span><span class="tit">Identidad</span></h2>
+      <p class="marg">Avatar, logo y favicon: la firma «m» minúscula y la constelación.</p>
+    </div>
+    <div class="cuerpo-cap">
+      <h3 class="titulo-3 subtit" id="ident-avatar">Avatar</h3>
+      <p class="cuerpo">El avatar a tinta —pelo violeta rizado, gafas redondas, anotaciones a mano— es el activo emocional del caso. Vive en redes, campaña y las secciones narrativas de la web. Es la pieza de referencia canónica: cualquier variante nueva se compara con ella.</p>
+      <div class="card" style="margin-block-start:var(--sp-24);max-inline-size:240px;padding:0;overflow:hidden">
+        <img src="assets/miriam-avatar.png" alt="Avatar de Miriam — ilustración a tinta, pelo violeta rizado, gafas redondas" style="display:block;width:100%;height:auto">
+      </div>
+      <p class="titulo-3" style="margin-block-start:var(--sp-24)">Reglas para generar nuevas piezas</p>
+      <ul class="lista">
+        <li>Pelo violeta rizado abundante + gafas redondas + sonrisa suave + pecas + camiseta negra sólida — siempre.</li>
+        <li>Solo el pelo lleva color (violeta firma). Todo lo demás es tinta negra sobre crema.</li>
+        <li>Trazo a pluma, suelto, ligeramente imperfecto. Editorial, no cómic, no anime, no realista.</li>
+        <li>Anotaciones manuscritas en mayúsculas, tinta negra, con flechas curvas finas — nunca términos clínicos reales o específicos (ver el muro de léxico en «Lenguaje»).</li>
+        <li>Fondo crema con grano sutil — nunca blanco puro, nunca degradados.</li>
+      </ul>
+      <div class="alerta" style="margin-block-start:var(--sp-24);max-inline-size:62ch">
+        <span class="alerta__label">Referencia canónica</span>
+        Para piezas nuevas, mantén tinta + pelo violeta + anotaciones manuscritas con flechas curvas. Se genera manteniendo el lenguaje visual exacto — nunca anatomía clínica precisa (eso se pide a un ilustrador o se referencia un atlas médico, nunca a una IA).
+      </div>
+
+      <h3 class="titulo-3 subtit" id="ident-logo">Logo oficial</h3>
+      <p class="cuerpo">Monograma circular + constelación + wordmark, con <em>miriam</em> en violeta como firma. El coral se reserva para el CTA y nunca aparece en el logo.</p>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:var(--sp-16);margin-block-start:var(--sp-24);max-inline-size:620px">
+        <div style="border:1px solid var(--trazo-medio);border-radius:var(--radius-card);padding:var(--sp-24);display:grid;place-items:center;background:var(--fondo)">
+          <svg width="120" height="126" viewBox="0 0 360 380" role="img" aria-label="helpmiriam.com, versión vertical">
+            <g transform="translate(60,0)">
+              <path d="M192.94 24.47 L199.74 37.67 L212.94 44.47 L199.74 51.27 L192.94 64.47 L186.14 51.27 L172.94 44.47 L186.14 37.67 Z" style="fill:var(--color-miriam)"/>
+              <path d="M48.33 173.84 L52.75 182.42 L61.33 186.84 L52.75 191.26 L48.33 199.84 L43.91 191.26 L35.33 186.84 L43.91 182.42 Z" style="fill:var(--color-miriam)"/>
+              <circle cx="182.5" cy="184.7" r="3.4" style="fill:var(--color-miriam)"/>
+              <circle cx="120" cy="120" r="76" style="fill:var(--color-text)"/>
+              <text x="120" y="147" text-anchor="middle" font-family="Fraunces, Georgia, serif" font-style="italic" font-weight="600" font-size="120" style="fill:var(--color-bg)">m</text>
+            </g>
+            <text x="180" y="356" text-anchor="middle" font-family="Fraunces, Georgia, serif" font-weight="500" font-size="44" letter-spacing="-1"><tspan style="fill:var(--color-text)">help</tspan><tspan style="fill:var(--color-miriam)">miriam</tspan><tspan style="fill:var(--color-text-soft)">.com</tspan></text>
+          </svg>
+        </div>
+        <div style="border-radius:var(--radius-card);padding:var(--sp-24);display:grid;place-items:center;background:var(--color-text)">
+          <svg width="120" height="126" viewBox="0 0 360 380" role="img" aria-label="helpmiriam.com, versión inversa sobre berenjena">
+            <g transform="translate(60,0)">
+              <path d="M192.94 24.47 L199.74 37.67 L212.94 44.47 L199.74 51.27 L192.94 64.47 L186.14 51.27 L172.94 44.47 L186.14 37.67 Z" style="fill:var(--color-miriam)"/>
+              <circle cx="120" cy="120" r="76" style="fill:var(--color-bg)"/>
+              <text x="120" y="147" text-anchor="middle" font-family="Fraunces, Georgia, serif" font-style="italic" font-weight="600" font-size="120" style="fill:var(--color-text)">m</text>
+            </g>
+            <text x="180" y="356" text-anchor="middle" font-family="Fraunces, Georgia, serif" font-weight="500" font-size="44" letter-spacing="-1"><tspan style="fill:var(--color-bg)">help</tspan><tspan style="fill:var(--color-miriam-claro)">miriam</tspan><tspan style="fill:var(--color-bg)" opacity=".6">.com</tspan></text>
+          </svg>
+        </div>
+        <div style="border:1px solid var(--trazo-medio);border-radius:var(--radius-card);padding:var(--sp-24);display:grid;place-items:center;background:var(--fondo)">
+          <svg width="160" height="32" viewBox="0 0 520 80" role="img" aria-label="Wordmark helpmiriam.com">
+            <text x="260" y="58" text-anchor="middle" font-family="Fraunces, Georgia, serif" font-weight="500" font-size="62" letter-spacing="-1.4"><tspan style="fill:var(--color-text)">help</tspan><tspan style="fill:var(--color-miriam)">miriam</tspan><tspan style="fill:var(--color-text-soft)">.com</tspan></text>
+          </svg>
+        </div>
+      </div>
+      <p class="cuerpo-sm" style="margin-block-start:var(--sp-12)">Vertical (principal) · inverso (fondo berenjena) · wordmark (cuando el monograma ya está presente). En la cabecera de la web: monograma + nombre + dominio.</p>
+
+      <p class="titulo-3" style="margin-block-start:var(--sp-32)">Por qué «m» minúscula</p>
+      <p class="cuerpo">La marca verbal usa exclusivamente minúsculas: <em>helpmiriam.com</em>, <em>@miriamgonp</em>, los titulares. Mayúscula sería logo corporativo; minúscula es firma personal. La cursiva refuerza la idea de «escrito a mano».</p>
+
+      <p class="titulo-3" style="margin-block-start:var(--sp-32)">Por qué constelación</p>
+      <p class="cuerpo">El caso entero descansa entre dos polos — la ciencia (secuenciación, biopsias, informes) y la persona (sus rizos, sus gatos, su humor). El monograma necesitaba el guiño personal sin caer en la literalidad. Una constelación mínima resuelve ambas: cosmos como esperanza sin ser cursi, y los destellos violeta cuentan que esto va de <em>su</em> universo, no del logo de una ONG.</p>
+
+      <h3 class="titulo-3 subtit" id="ident-favicon">Favicon</h3>
+      <p class="cuerpo">La marca a 16 px. Una <em>m</em> minúscula en cursiva Fraunces sobre violeta firma, rodeada de una constelación mínima de destellos. Es la única superficie del sistema donde la inicial sustituye al retrato — a ese tamaño, la ilustración se pierde.</p>
+      <p class="titulo-3" style="margin-block-start:var(--sp-24)">Construcción</p>
+      <ul class="lista">
+        <li>Lienzo 64 × 64 con radio 14/64 ≈ 22% (rounded square que no se recorta en Android).</li>
+        <li>Fondo berenjena. Nunca crema — a 16 px se pierde el contorno.</li>
+        <li>Letra «m» minúscula itálica Fraunces 600, color crema, centrada.</li>
+        <li>Decoración: 3 estrellas + 2 puntos. Dos estrellas violeta firma, una crema, dos puntos crema en opacidad 0,5–0,7.</li>
+        <li>Las estrellas no tocan el contorno de la «m» — se distribuyen en las esquinas y el aire libre lateral.</li>
+      </ul>
+      <p class="titulo-3" style="margin-block-start:var(--sp-24)">Set de archivos</p>
+      <div class="tabla-scroll" tabindex="0" role="region" aria-label="Tabla: archivos de favicon y su uso">
+        <table class="tabla">
+          <caption class="sr-cap">Archivos de favicon y dónde se usa cada uno</caption>
+          <thead><tr><th scope="col">Archivo</th><th scope="col">Tamaño</th><th scope="col">Uso</th></tr></thead>
+          <tbody>
+            <tr><td><code>favicon.svg</code></td><td>vectorial</td><td>Pestaña en navegadores modernos; escala sin pérdida.</td></tr>
+            <tr><td><code>favicon-32.png</code></td><td>32 × 32</td><td>Pestaña Safari/Firefox legacy · bookmark bar.</td></tr>
+            <tr><td><code>favicon-16.png</code></td><td>16 × 16</td><td>Bookmark drawer · pestañas muy comprimidas.</td></tr>
+            <tr><td><code>favicon-180.png</code></td><td>180 × 180</td><td>Apple Touch Icon — pantalla de inicio en iOS.</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="titulo-3" style="margin-block-start:var(--sp-24)">Snippet HTML</p>
+      <div class="codigo" tabindex="0" role="region" aria-label="Código: enlaces de favicon en el head"><pre>&lt;!-- En el &lt;head&gt; de cada página --&gt;
+&lt;link rel="icon" type="image/svg+xml" href="/favicon.svg"&gt;
+&lt;link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png"&gt;
+&lt;link rel="icon" type="image/png" sizes="16x16" href="/favicon-16.png"&gt;
+&lt;link rel="apple-touch-icon" href="/favicon-180.png"&gt;
+&lt;meta name="theme-color" content="#9d44ab"&gt;</pre></div>
+      <div class="alerta" style="margin-block-start:var(--sp-24);max-inline-size:62ch">
+        <span class="alerta__label">Cuándo regenerar</span>
+        Si cambias la «m», el peso de Fraunces o la disposición de las estrellas en el SVG, regenera los tres PNG desde el SVG actualizado. PNG y SVG desincronizados es el bug más visible del sistema — el favicon parece cambiar de color al cambiar de tamaño.
+      </div>
     </div>
   </section>
 
@@ -766,7 +1009,707 @@
       </div>
     </div>
   </section>
+
+  <!-- 05 · LENGUAJE -->
+  <section class="cap" id="b-leng" aria-labelledby="t-leng" tabindex="-1">
+    <div class="rail">
+      <h2 class="folio" id="t-leng"><span class="num" aria-hidden="true">05</span><span class="tit">Lenguaje</span></h2>
+      <p class="marg">Cómo suena la marca por superficie, y las reglas duras para hablar con IAs.</p>
+    </div>
+    <div class="cuerpo-cap">
+      <h3 class="titulo-3 subtit" id="leng-voz">Voz por superficie</h3>
+      <p class="cuerpo">Miriam usa <strong>dos voces distintas según el canal</strong>. Es un punto clave del sistema: la web es periodística (3.ª persona), las redes son de Miriam (1.ª persona).</p>
+
+      <div class="dos-col" style="grid-template-columns:1fr;margin-block-start:var(--sp-24)">
+        <div class="card">
+          <p class="cuerpo-sm" style="font:600 var(--texto-xs)/1 var(--font-mono);letter-spacing:.06em;text-transform:uppercase">helpmiriam.com · tercera persona</p>
+          <p class="cuerpo" style="margin-block-start:var(--sp-8);font-style:italic">«Miriam tiene cáncer de mama metastásico.»</p>
+          <p class="cuerpo" style="font-style:italic">«Su tumor no responde a los tratamientos estándar.»</p>
+          <p class="cuerpo-sm" style="margin-block-start:var(--sp-8)">Voz periodística / editorial. Cuenta el caso desde fuera, mantenida por el equipo de apoyo.</p>
+        </div>
+        <div class="card" style="margin-block-start:var(--sp-16)">
+          <p class="cuerpo-sm" style="font:600 var(--texto-xs)/1 var(--font-mono);letter-spacing:.06em;text-transform:uppercase">@miriamgonp · primera persona — yo / nosotros</p>
+          <p class="cuerpo" style="margin-block-start:var(--sp-8);font-style:italic">«Soy Miriam. Vivo en Murcia.»</p>
+          <p class="cuerpo" style="font-style:italic">«Mañana me hacen la biopsia. Estoy un poco nerviosa.»</p>
+          <p class="cuerpo" style="font-style:italic;color:var(--identidad)">«<strong>Hemos conseguido</strong> el primer hito. Gracias a quienes han donado.» <span class="cuerpo-sm">(cifras — ejemplo)</span></p>
+          <p class="cuerpo" style="font-style:italic;color:var(--identidad)">«<strong>Necesitamos</strong> más para la siguiente prueba.» <span class="cuerpo-sm">(ejemplo)</span></p>
+          <p class="cuerpo-sm" style="margin-block-start:var(--sp-8)"><strong>Yo</strong> para lo personal — pruebas, sentimientos, día a día, agradecimientos íntimos. <strong>Nosotros</strong> para hitos colectivos — recaudación, necesidades, decisiones de equipo. Regla: si el sujeto del verbo es el equipo (donantes, especialistas, gente que difunde), va en plural. Si es ella entrando al hospital, va en singular.</p>
+        </div>
+        <div class="card" style="margin-block-start:var(--sp-16)">
+          <p class="cuerpo-sm" style="font:600 var(--texto-xs)/1 var(--font-mono);letter-spacing:.06em;text-transform:uppercase">Documentos clínicos · tercera persona técnica</p>
+          <p class="cuerpo" style="margin-block-start:var(--sp-8);font-style:italic">«Se registra respuesta parcial en el estudio de seguimiento.»</p>
+          <p class="cuerpo" style="font-style:italic">«Se registra el resultado del estudio correspondiente a la fecha.»</p>
+          <p class="cuerpo-sm" style="margin-block-start:var(--sp-8)">Voz médica neutra y precisa. Sin adjetivos, sin narrativa. Los datos clínicos reales viven en el muro — esto ilustra solo el registro.</p>
+        </div>
+      </div>
+
+      <h3 class="titulo-3 subtit" id="leng-do">Lo que sí, lo que no</h3>
+      <p class="cuerpo">Honestidad sin paternalismos. Rigor real. Calidez sin victimismo. Comunidad sin individualismo. Transparencia sobre lo que no ha funcionado.</p>
+
+      <div class="dos-col">
+        <div>
+          <p class="titulo-3" style="color:var(--identidad)">Lo que SÍ es</p>
+          <ul class="lista">
+            <li>Honestidad sin paternalismos.</li>
+            <li>Rigor real: fechas y cifras verificables, sin inflar ni simplificar de más — los marcadores y dianas moleculares reales quedan fuera de lo público (el equipo los maneja en privado).</li>
+            <li>Calidez sin victimismo: hay urgencia y esperanza, sin lastimero.</li>
+            <li>Comunidad: «el equipo», «los especialistas que se han unido».</li>
+            <li>Transparencia: presupuestos públicos, gastos documentados, lo que no ha salido bien, contado sin maquillar.</li>
+          </ul>
+        </div>
+        <div>
+          <p class="titulo-3">Lo que NO es</p>
+          <ul class="lista">
+            <li>Lazos rosas, corazones rosas, estética de «lucha guerrera».</li>
+            <li>Lenguaje victimista, lastimero o de «ángel en la tierra».</li>
+            <li>Lenguaje médico inaccesible.</li>
+            <li>Estética hospitalaria (azules clínicos, blancos sanitarios, batas).</li>
+            <li>Stock photos genéricas. Alarmismo o titulares clickbait.</li>
+            <li>El muro de marca en público: «científica» (es «ingeniera que construye»), edad, perfil molecular/dianas reales, «vacuna» (es «tratamiento personalizado»), médicos/instituciones nombrados sin permiso, «Olune».</li>
+          </ul>
+        </div>
+      </div>
+
+      <p class="titulo-3" style="margin-block-start:var(--sp-48)">Marcadores de lista — cuándo usar cada uno</p>
+      <p class="cuerpo-sm">Cuatro marcadores, cuatro significados distintos. El símbolo —no solo el color— comunica la intención. Se elige por significado, nunca por estética.</p>
+      <div class="tabla-scroll" tabindex="0" role="region" aria-label="Tabla: marcadores de lista y su significado">
+        <table class="tabla">
+          <caption class="sr-cap">Marcadores de lista, su significado y cuándo usarlos</caption>
+          <thead><tr><th scope="col">Marcador</th><th scope="col">Significado</th><th scope="col">Uso</th></tr></thead>
+          <tbody>
+            <tr><td>✓ círculo relleno</td><td>Logrado / incluido</td><td>Afirmaciones cumplidas o cosas que entran — gastos cubiertos, ventajas de un ensayo.</td></tr>
+            <tr><td>○ círculo hueco</td><td>Pendiente / falta</td><td>Algo deseado que todavía no está. Dice «aún no», no «rechazado».</td></tr>
+            <tr><td>✕ aspa</td><td>Rechazo / posicionamiento</td><td>Lo que conscientemente NO se es o NO se hace — como esta misma tabla de «lo que no es».</td></tr>
+            <tr><td>▣ cuadrito ✓/✗</td><td>Directriz sí/no</td><td>Guías de buenas-vs-malas prácticas emparejadas (do/don't). No para afirmaciones simples ni pendientes.</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3 class="titulo-3 subtit" id="leng-ia">Hablar con IAs</h3>
+      <p class="cuerpo">Buena parte de los textos, mocks y código del caso pasan por una IA. Si le hablas mal, devuelve <em>slop</em>: gradientes, emojis, copys vacíos, «empoderamiento», iconos genéricos. Esta sección es el manual para que cualquier IA —Claude, GPT, asistente de diseño— escriba y diseñe <strong>como Miriam</strong>, no como un blog corporativo.</p>
+
+      <p class="titulo-3" style="margin-block-start:var(--sp-32)">El prompt base — pega esto siempre primero</p>
+      <p class="cuerpo-sm">Toda interacción empieza estableciendo el contexto. Sin esto, la IA defaultea a tono motivacional genérico de ONG.</p>
+      <div class="codigo" tabindex="0" role="region" aria-label="Código: prompt base para IAs"><pre>Contexto: caso Miriam González — persona real con cáncer de mama
+metastásico. Web personal, no es ONG ni campaña corporativa. Pide
+ayuda concreta para acceder a un tratamiento personalizado. Audiencia:
+lectores adultos, posiblemente pacientes oncológicos o familiares.
+
+Voz: directa, primera persona singular cuando habla Miriam. Plural
+     ("nosotros") solo cuando habla el equipo. Nunca corporativo.
+Registro: ES neutro peninsular. Tuteo. Sin diminutivos. Sin exclamaciones.
+Tono: lúcido, sin autocompasión, sin victimismo. La urgencia se nota,
+     no se grita.
+Prohibido: "luchadora", "guerrera", "valiente", "inspiración", "viaje",
+     "empoderamiento", "juntos podemos", emojis, exclamaciones — y el
+     muro de marca: "científica", edad, perfil molecular o dianas
+     reales, "vacuna" (es "tratamiento personalizado"), nombres de
+     médicos/instituciones sin permiso, "Olune".
+Permitido: cifras (marca "ejemplo" si no son las del día), fechas
+     concretas, "Miriam" y "el equipo".</pre></div>
+
+      <p class="titulo-3" style="margin-block-start:var(--sp-40)">Reglas duras de léxico</p>
+      <div class="dos-col">
+        <div>
+          <p class="titulo-3" style="font:var(--tipo-body);font-weight:700;color:var(--identidad)">Sí — palabras del caso</p>
+          <ul class="lista">
+            <li>amplificación · expresión · refractario (registro, sin cifras ni códigos reales)</li>
+            <li>biopsia · informe · tratamiento personalizado</li>
+            <li>cifras: «×N», «42 %», «5 meses» — siempre marcadas «ejemplo» si no son las del día</li>
+            <li>«Miriam», «el equipo» — nunca médicos u hospital sin su permiso</li>
+            <li>«acceso a tratamiento», «ensayo clínico»</li>
+          </ul>
+        </div>
+        <div>
+          <p class="titulo-3" style="font:var(--tipo-body);font-weight:700">No — slop y muro</p>
+          <ul class="lista">
+            <li>«luchadora» / «guerrera» / «valiente»</li>
+            <li>«viaje» / «camino» / «travesía»</li>
+            <li>«juntos podemos» / «unidos venceremos» / «empoderar» / «inspirar»</li>
+            <li>signos de exclamación, emojis, hashtags</li>
+            <li>«científica», edad, perfil molecular/dianas reales, «vacuna», «Olune»</li>
+          </ul>
+        </div>
+      </div>
+
+      <p class="titulo-3" style="margin-block-start:var(--sp-40)">Reglas duras de visual</p>
+      <p class="cuerpo-sm">Cuando le pidas a la IA que genere mocks, HTML/CSS o variantes de diseño, añade explícitamente estas restricciones — evitan los reflejos de «diseño bonito» tipo SaaS.</p>
+      <div class="codigo" tabindex="0" role="region" aria-label="Código: reglas duras de visual"><pre>Paleta: crema (fondo), berenjena (texto), violeta firma (solo
+        para "Miriam"), coral (CTA — solo botones de donar),
+        violeta-soft (badges). Los hex exactos los fija el
+        design-system, nunca se inventan.
+        // No degradados. No glassmorphism.
+
+Tipografía: Fraunces (display, itálica para énfasis), Hanken
+            Grotesk (cuerpo), mono (datos, eyebrows).
+            // Nunca Roboto, nunca system-ui en titulares.
+
+Layout: editorial, no SaaS. Márgenes amplios. Una idea por sección.
+        Cifras clínicas como cifras grandes, no como tarjetas de
+        dashboard. Nada de "stats grid 4 columnas con icono".
+
+Iconografía: ilustración a tinta tipo "Beyond the Protocol".
+             Nunca iconos lineales genéricos. Si no hay icono
+             real disponible, mejor vacío que stock.</pre></div>
+
+      <p class="titulo-3" style="margin-block-start:var(--sp-40)">Antipatrones — qué hace una IA cuando no le hablas bien</p>
+      <div class="dos-col" style="grid-template-columns:1fr">
+        <div class="alerta" style="margin-block-start:var(--sp-8)"><span class="alerta__label">Slop de ONG</span>«Miriam es una luchadora incansable que cada día demuestra…» — cero información. Se reescribe con cifras: qué pasó, cuándo, qué se necesita.</div>
+        <div class="alerta" style="margin-block-start:var(--sp-12)"><span class="alerta__label">Reflejo SaaS</span>Stats grid de 4 columnas con iconos lineales — la cifra clínica es la noticia, debe ser tipográfica y grande, sin icono que la decore.</div>
+        <div class="alerta" style="margin-block-start:var(--sp-12)"><span class="alerta__label">Slop visual</span>Hero con degradado violeta → coral y glassmorphism — la paleta es plana sobre crema; la emoción la lleva la tipografía y el retrato, no el degradado.</div>
+        <div class="alerta" style="margin-block-start:var(--sp-12)"><span class="alerta__label">Slop emocional</span>Emojis y corazones violeta nunca. CTA literal: «Donar» o «Ayudar a financiar el tratamiento».</div>
+      </div>
+
+      <p class="titulo-3" style="margin-block-start:var(--sp-40)">Test de los 3 segundos</p>
+      <p class="cuerpo">Antes de aceptar lo que devuelva la IA, pásalo por estos tres filtros:</p>
+      <ol class="lista" style="padding-inline-start:var(--sp-24)">
+        <li><strong>¿Podría aparecer en cualquier web de cualquier paciente?</strong> Si la respuesta es sí, no es del caso — pide especificidad: un dato, un nombre, una fecha.</li>
+        <li><strong>¿Qué dato concreto se llevaría el lector?</strong> Si no sabes responderlo en una frase, sobra texto.</li>
+        <li><strong>¿Lo firmaría Miriam?</strong> Si no lo diría ella en persona, se elimina o se reescribe en su voz.</li>
+      </ol>
+      <div class="alerta" style="margin-block-start:var(--sp-24);max-inline-size:62ch"><span class="alerta__label">Regla de oro</span>Una IA es buena reescribiendo dentro de un sistema, mala inventándolo. El trabajo no es delegar la decisión — es darle el sistema completo y validar que no se desvíe.</div>
+
+      <p class="titulo-3" style="margin-block-start:var(--sp-48)">Generar imágenes — el lenguaje BTP</p>
+      <p class="cuerpo">Toda la iconografía e ilustración del caso vive en un único lenguaje visual, <strong>«Beyond the Protocol»</strong>: tinta negra a mano alzada sobre crema, con un único acento de color (violeta o coral) por pieza. Si encargas a una IA generativa una imagen, este es el ADN que hay que describir. Sin esto, defaultea a ilustración plana tipo SaaS — limpia, vacía, intercambiable.</p>
+      <div class="alerta" style="margin-block-start:var(--sp-12);max-inline-size:62ch"><span class="alerta__label">Idioma del prompt</span>Plantillas A, B, C (texto y mocks de UI) → en español; el modelo se queda en «modo español» y la voz sale natural. Plantillas D, E, F (generación de imagen) → en inglés; el vocabulario plástico («cross-hatching», «fine-tip ink», «warm cream paper grain») tiene mejor fidelidad — en español la calidad cae.</div>
+
+      <p class="titulo-3" style="margin-block-start:var(--sp-32);font-size:18px">ADN visual — pegar en cada prompt de imagen</p>
+      <div class="codigo" tabindex="0" role="region" aria-label="Código: ADN visual para generación de imágenes"><pre>// Identidad gráfica común a TODA la iconografía e ilustración
+style: hand-drawn ink illustration, fine-tip pen on cream paper.
+line: black ink, varied weight (0.5-2pt), confident strokes,
+      visible imperfection. Not vector-clean. Not symmetrical.
+shading: cross-hatching for shadows, never gradients.
+         Dot stippling for soft volume.
+paper: warm cream background, slightly off-white. Subtle paper
+       grain visible. No drop shadows.
+color: monochrome black ink + ONE accent per piece — signature
+       violet (concept of Miriam, identity) OR coral (action,
+       donate, click) — never both in the same piece.
+composition: a single object/scene centered with breathing room.
+             Handwritten annotation labels allowed, connected by
+             thin arrow lines — never real clinical codes or
+             marker names.
+no: gradients, glassmorphism, neon, isometric perspective,
+    flat 2D "corporate Memphis" people, emoji, 3D render,
+    photorealism, stock-illustration style.</pre></div>
+
+      <p class="titulo-3" style="margin-block-start:var(--sp-40)">Plantilla D · Icono individual</p>
+      <p class="cuerpo-sm">Para iconos puntuales — dato, sección de la web, badge. Salida: PNG transparente o SVG monocromo. <em>Prompt en inglés.</em></p>
+      <div class="codigo" tabindex="0" role="region" aria-label="Código: plantilla D, icono individual"><pre>[visual DNA block above]
+
+Generate ONE icon depicting: [concrete concept, e.g. "a lab vial
+next to a folded report"].
+Framing: square, object centered, 30% inner padding.
+Output: 512x512px on cream background.
+
+Constraints:
+- Black ink only. No color accent (accent added in CSS).
+- Recognizable at 32x32px. Detail reduced to the minimum needed.
+- Optional small handwritten label naming the concept.
+- If the concept is abstract (e.g. "hope"), reject and ask for
+  a concrete one.
+
+Return 4 variants with distinct compositions.</pre></div>
+
+      <p class="titulo-3" style="margin-block-start:var(--sp-40)">Plantilla E · Ilustración de sección</p>
+      <p class="cuerpo-sm">Para piezas grandes que acompañan un titular — hero, separadores, openers de página. <em>Prompt en inglés.</em></p>
+      <div class="codigo" tabindex="0" role="region" aria-label="Código: plantilla E, ilustración de sección"><pre>[visual DNA block above]
+
+Generate an illustration for: [describe the scene — e.g. "a
+microscope with a tissue sample, handwritten annotations with
+thin arrows pointing to it"].
+Framing: 3:2 horizontal or 4:5 vertical depending on use.
+Output: 2000px long edge, cream background.
+
+Allowed: handwritten annotations with thin arrows · ONE subtle
+color accent (violet OR coral) · small diluted watercolor
+patches for texture · max 2-3 elements, do not crowd.
+
+NOT allowed: stylized "vector flat people" (a human figure
+must follow the team-portraits style) · any decorative element
+without narrative function · real clinical codes or marker
+names anywhere in the scene.</pre></div>
+
+      <p class="titulo-3" style="margin-block-start:var(--sp-40)">Plantilla F · Retrato de persona</p>
+      <p class="cuerpo-sm">Para añadir un nuevo miembro al equipo o representar un colaborador externo, siempre con su permiso. Coherencia con el set existente es <strong>crítica</strong>. <em>Prompt en inglés.</em></p>
+      <div class="codigo" tabindex="0" role="region" aria-label="Código: plantilla F, retrato de persona"><pre>[visual DNA block above]
+
+Editorial portrait of [name, role, 2-3 key physical traits —
+only with their explicit permission to be depicted].
+
+Framing: 1:1 square, bust shot, looking at camera or slightly off.
+Background: flat cream. No context, no objects behind.
+
+Style: black ink, parallel-hatching shading. Identifiable,
+specific face — not "a type of person", THIS person. One subtle
+color patch (hair streak, accessory, collar) — violet if
+patient/family, coral if medical/operations team. Optional small
+handwritten role label below the portrait.
+
+Mandatory reference: existing portraits of Miriam and the team.
+Same level of detail. Same line work.</pre></div>
+
+      <p class="titulo-3" style="margin-block-start:var(--sp-40)">Cuándo NO generar — pedir o dibujar a mano</p>
+      <div class="dos-col" style="grid-template-columns:1fr">
+        <div class="alerta" style="margin-block-start:var(--sp-8)"><span class="alerta__label">Anatomía clínica precisa</span>Mama, células, cromosomas. La IA inventa estructuras. Se pide a un ilustrador científico o se referencia un atlas médico — el riesgo de comunicar mal el caso no es asumible.</div>
+        <div class="alerta" style="margin-block-start:var(--sp-12)"><span class="alerta__label">Logos institucionales</span>Hospitales, universidades. Se pide el oficial, nunca se recrea con IA — problemas legales y de identidad.</div>
+        <div class="alerta" style="margin-block-start:var(--sp-12)"><span class="alerta__label">Fotos de personas reales que no han posado</span>Solo retratos en estilo BTP, claramente ilustrados. Nunca una foto sintética que pueda confundirse con real.</div>
+      </div>
+      <div class="alerta" style="margin-block-start:var(--sp-24);max-inline-size:62ch"><span class="alerta__label">Test de coherencia</span>Pon la imagen nueva al lado de un icono BTP existente o un retrato del equipo. Si parece de otro proyecto, se descarta — el sistema solo funciona si todas las piezas se reconocen como hermanas.</div>
+    </div>
+  </section>
+
+  <!-- 06 · INCLUSIÓN -->
+  <section class="cap" id="b-incl" aria-labelledby="t-incl" tabindex="-1">
+    <div class="rail">
+      <h2 class="folio" id="t-incl"><span class="num" aria-hidden="true">06</span><span class="tit">Inclusión</span></h2>
+      <p class="marg">Accesibilidad y neurodivergencia como suelo, no como añadido.</p>
+    </div>
+    <div class="cuerpo-cap">
+      <p class="cuerpo">Una persona con cáncer leyendo su web bajo el efecto de la quimioterapia. Alguien con TDAH decidiendo si dona en dos minutos entre tareas. Un revisor con baja visión. Un lector con dislexia. <strong>Todos son la audiencia real.</strong> Estas reglas son obligatorias, no opcionales — y la mayoría hacen mejor el diseño para todo el mundo.</p>
+
+      <h3 class="titulo-3 subtit" id="incl-principios">Principios — neurodivergencia friendly</h3>
+      <div class="dos-col">
+        <div><p class="titulo-3" style="font:var(--tipo-body);font-weight:700">Información escaneable</p><p class="cuerpo-sm">Eyebrow, h2 corto, resumen de 1–2 frases, párrafos de menos de 4 líneas. Cifras destacadas como ancla visual. La página se entiende leyendo solo titulares.</p></div>
+        <div><p class="titulo-3" style="font:var(--tipo-body);font-weight:700">Una idea por bloque</p><p class="cuerpo-sm">Ningún bloque combina dos asuntos. Si hace falta, se parte en dos. Reduce la carga cognitiva y permite saltar lo que no aplica.</p></div>
+        <div><p class="titulo-3" style="font:var(--tipo-body);font-weight:700">Lenguaje literal y concreto</p><p class="cuerpo-sm">Cifras antes que adjetivos. Fechas reales antes que «recientemente». Sin metáforas bélicas, sin ironía, sin dobles sentidos.</p></div>
+        <div><p class="titulo-3" style="font:var(--tipo-body);font-weight:700">Movimiento opcional</p><p class="cuerpo-sm">Animaciones suaves, menos de 300 ms, ningún parallax. <code>prefers-reduced-motion</code> respetado siempre: cero animación si el usuario lo pide.</p></div>
+        <div><p class="titulo-3" style="font:var(--tipo-body);font-weight:700">Predictibilidad</p><p class="cuerpo-sm">Misma sección = misma estructura. Eyebrow + h2 + resumen + contenido. El patrón se aprende una vez y se reutiliza.</p></div>
+        <div><p class="titulo-3" style="font:var(--tipo-body);font-weight:700">Sin trampas atencionales</p><p class="cuerpo-sm">Cero pop-ups, cero auto-play, cero modales que interrumpan, cero scroll hijacking. La donación no persigue al usuario; está donde el usuario la busca.</p></div>
+      </div>
+
+      <h3 class="titulo-3 subtit" id="incl-wcag">WCAG 2.2 AA — obligatorias</h3>
+      <ul class="lista">
+        <li><strong>Contraste ≥ 4,5:1</strong> para texto, ≥ 3:1 para texto grande (≥24 px) y elementos de interfaz. Berenjena sobre crema = 14,6:1 ✓ (ver «Color» en Fundamentos).</li>
+        <li><strong>Tamaño base 16 px mínimo</strong>; 17 px en cuerpo de la landing. Nunca por debajo de 14 px (badges, captions). Zoom hasta 200 % sin perder contenido.</li>
+        <li><strong>Foco visible siempre</strong>: contorno de 2 px con offset, en cualquier elemento interactivo. Nunca <code>outline: none</code> sin reemplazo.</li>
+        <li><strong>Áreas táctiles ≥ 44×44 px</strong>. Botones, links, inputs. Móvil incluido.</li>
+        <li><strong>El color nunca es la única señal.</strong> Si una cifra es positiva, además del violeta lleva un símbolo o etiqueta.</li>
+        <li><strong>Skip link</strong> al inicio de cada página: «Saltar al contenido», visible al hacer Tab.</li>
+        <li><strong>HTML semántico</strong>: <code>&lt;main&gt;</code>, <code>&lt;nav&gt;</code>, <code>&lt;section aria-labelledby&gt;</code>. Los lectores de pantalla son ciudadanos de primera.</li>
+        <li><strong>Imágenes con alt descriptivo.</strong> Un gráfico de barras no es «imagen 3», es «evolución de la recaudación por trimestre, ascendente de enero a junio».</li>
+        <li><strong>Cifras con contexto leíble</strong>: «118×» se lee como «118 aumentos de profundidad de secuenciación». Añadir <code>aria-label</code> donde una cifra técnica no se entienda hablada.</li>
+      </ul>
+
+      <h3 class="titulo-3 subtit" id="incl-lectura">Lectura — dislexia &amp; baja visión</h3>
+      <ul class="lista">
+        <li>Línea de 65–75 caracteres. Nada de medidas anchas.</li>
+        <li>Interlineado 1,55–1,65 en cuerpo. Espaciado entre letras +0,005em.</li>
+        <li>Sin justificar. Solo alineación a la izquierda.</li>
+        <li>Listas con viñetas, no comas concatenadas. Cada idea es su propia línea.</li>
+        <li>Negrita selectiva — 1–2 conceptos por párrafo. Nunca subrayar lo que no es un enlace.</li>
+      </ul>
+
+      <p class="titulo-3" style="margin-block-start:var(--sp-32)">Para pacientes oncológicos — niebla mental por tratamiento</p>
+      <p class="cuerpo-sm">Quimioterapia, radioterapia y ansiedad reducen la capacidad atencional y la memoria de trabajo. Esta web la lee Miriam y otras personas en su misma situación. Diseñar para ese estado no es opcional.</p>
+      <ul class="lista">
+        <li>Información crítica nunca depende de recordar lo leído antes. Cada sección es autosuficiente.</li>
+        <li>Acción principal repetida en el hero, en la sección de donar y en el pie. Tres oportunidades, mismo botón.</li>
+        <li>Resumen al inicio, antes de los detalles técnicos.</li>
+        <li>Glosario de términos al alcance — hover/tap revela la definición sin sacar al usuario de la página.</li>
+        <li>Idioma simple para datos clínicos. La complejidad va en notas a pie, no en titulares.</li>
+      </ul>
+
+      <h3 class="titulo-3 subtit" id="incl-motion">Reduced motion — snippet obligatorio</h3>
+      <div class="codigo" tabindex="0" role="region" aria-label="Código: bloque global de prefers-reduced-motion"><pre>@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}</pre></div>
+
+      <p class="titulo-3" style="margin-block-start:var(--sp-40)">Checklist de revisión — antes de publicar</p>
+      <div class="dos-col">
+        <div><p class="titulo-3" style="font:var(--tipo-body);font-weight:700">Navegación por teclado completa</p><p class="cuerpo-sm">Todo el contenido alcanzable solo con teclado. Sin trampas de foco.</p></div>
+        <div><p class="titulo-3" style="font:var(--tipo-body);font-weight:700">Lighthouse / axe</p><p class="cuerpo-sm">Accesibilidad ≥ 95. Cero violaciones críticas.</p></div>
+        <div><p class="titulo-3" style="font:var(--tipo-body);font-weight:700">Lectura con lector de pantalla</p><p class="cuerpo-sm">El orden lógico de lectura tiene sentido. Sin secciones huérfanas.</p></div>
+        <div><p class="titulo-3" style="font:var(--tipo-body);font-weight:700">Zoom 200 %</p><p class="cuerpo-sm">Sin scroll horizontal. Sin contenido cortado.</p></div>
+        <div><p class="titulo-3" style="font:var(--tipo-body);font-weight:700">Modo alto contraste</p><p class="cuerpo-sm">El modo de colores forzados del sistema no rompe la jerarquía.</p></div>
+        <div><p class="titulo-3" style="font:var(--tipo-body);font-weight:700">Reduced motion</p><p class="cuerpo-sm">Activar el flag del sistema operativo. Cero animaciones residuales.</p></div>
+      </div>
+
+      <div class="alerta" style="margin-block-start:var(--sp-32);max-inline-size:62ch"><span class="alerta__label">Regla de oro</span>Si una decisión de diseño solo se sostiene cuando el usuario está al 100 %, no sirve. Se diseña para el peor día — no para el mejor.</div>
+    </div>
+  </section>
+
+  <!-- 07 · PRODUCCIÓN -->
+  <section class="cap" id="b-prod" aria-labelledby="t-prod" tabindex="-1">
+    <div class="rail">
+      <h2 class="folio" id="t-prod"><span class="num" aria-hidden="true">07</span><span class="tit">Producción</span></h2>
+      <p class="marg">Cómo se trabaja, se cita y se publica la marca hacia fuera.</p>
+    </div>
+    <div class="cuerpo-cap">
+      <h3 class="titulo-3 subtit" id="prod-repo">Repositorio</h3>
+      <p class="cuerpo">Todo el caso vive en un único repositorio público: la web, este manual, los mocks, los retratos del equipo. Si trabajas en el caso —diseño, copy, código, traducción— empiezas clonando esto. Si quieres entender cómo está hecho, lees esto. Si quieres aportar, abres un issue o un PR aquí.</p>
+
+      <div style="margin-block-start:var(--sp-24)">
+        <a href="https://github.com/BeyondTheProtocol/miriam-gonzalez-case" target="_blank" rel="noopener" class="btn btn--secondary" style="display:inline-flex;align-items:center;gap:var(--sp-12);text-decoration:none">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.4 3-.405 1.02.005 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></svg>
+          BeyondTheProtocol/miriam-gonzalez-case
+        </a>
+      </div>
+
+      <p class="titulo-3" style="margin-block-start:var(--sp-40)">Qué hay dentro</p>
+      <div class="tabla-scroll" tabindex="0" role="region" aria-label="Tabla: estructura del repositorio">
+        <table class="tabla">
+          <caption class="sr-cap">Carpetas principales del repositorio y qué contienen</caption>
+          <thead><tr><th scope="col">Ruta</th><th scope="col">Contenido</th></tr></thead>
+          <tbody>
+            <tr><td><code>app/</code></td><td>La web pública (Nuxt). Donde llega el lector.</td></tr>
+            <tr><td><code>content/es</code>, <code>content/en</code></td><td>Textos de la web por idioma.</td></tr>
+            <tr><td><code>public/design-system</code></td><td>Este documento. Fuente única de verdad para voz, color, tipografía y reglas.</td></tr>
+            <tr><td><code>public/</code></td><td>Assets estáticos: press kit, favicons, imágenes, mapa de metástasis.</td></tr>
+            <tr><td><code>i18n/locales</code></td><td>Traducciones de la interfaz.</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p class="titulo-3" style="margin-block-start:var(--sp-40)">Cómo trabajamos</p>
+      <ol class="lista" style="padding-inline-start:var(--sp-24)">
+        <li><strong>main</strong> es siempre la versión publicada. Nada se mergea sin revisión.</li>
+        <li>Cualquier cambio —texto, mock, ilustración— entra por <strong>pull request</strong>. Aunque sea una coma. Da trazabilidad.</li>
+        <li>Si dudas si un cambio se sale del sistema, abre un <strong>issue</strong> antes de empezar. Mejor discutir 5 minutos que rehacer 3 horas.</li>
+        <li>Los <strong>textos clínicos</strong> los revisa siempre alguien del equipo antes de publicarse. Sin excepción.</li>
+        <li>Los textos en primera persona los firma siempre <strong>Miriam</strong>. Si no puede revisarlos ese día, esperan.</li>
+      </ol>
+
+      <p class="titulo-3" style="margin-block-start:var(--sp-40)">Para colaboradores nuevos</p>
+      <p class="cuerpo-sm">Tres pasos antes de tocar nada:</p>
+      <ol class="lista" style="padding-inline-start:var(--sp-24)">
+        <li>Lee los bloques <strong>00 → 05</strong> de este manual, en orden.</li>
+        <li>Lee el bloque <strong>05 (Lenguaje) → Hablar con IAs</strong> aunque no vayas a usar IA — describe los antipatrones que también aparecen escribiendo a mano.</li>
+        <li>Mira el set BTP (Fundamentos → Iconografía) hasta reconocer el estilo a primera vista. Si propones una imagen nueva y no encaja, alguien lo notará — mejor que lo notes tú primero.</li>
+      </ol>
+      <div class="alerta" style="margin-block-start:var(--sp-24);max-inline-size:62ch"><span class="alerta__label">Una nota sobre el repo público</span>El historial clínico privado no entra aquí — solo lo que ya es público en la web. Datos médicos identificables e informes sin redactar viven en almacenamiento privado, aparte. Si dudas si algo puede subirse, no lo subas y pregunta.</div>
+
+      <h3 class="titulo-3 subtit" id="prod-marca">Marca &amp; dominio</h3>
+      <p class="cuerpo">Tres capas, tres usos. <strong>Miriam</strong> es el nombre del proyecto y del sistema. <strong>helpmiriam.com</strong> es el dominio funcional — el destino de cualquier CTA. <strong>Beyond the Protocol</strong> es la marca paraguas que firma todo. Si se separan bien, no se pisan.</p>
+
+      <div class="dos-col" style="grid-template-columns:repeat(auto-fit,minmax(180px,1fr))">
+        <div class="card">
+          <p class="cuerpo-sm" style="font:600 var(--texto-xs)/1 var(--font-mono);letter-spacing:.06em;text-transform:uppercase">Marca / proyecto</p>
+          <p class="titulo-1" style="margin-block-start:var(--sp-8);font-size:32px">Miriam<span style="color:var(--identidad)">.</span></p>
+          <p class="cuerpo-sm">Cómo se firma, se cita, se nombra en español. Cabeceras, pies de email, prensa, créditos.</p>
+        </div>
+        <div class="card">
+          <p class="cuerpo-sm" style="font:600 var(--texto-xs)/1 var(--font-mono);letter-spacing:.06em;text-transform:uppercase">Dominio / CTA</p>
+          <p style="margin-block-start:var(--sp-8);font:600 22px/1 var(--font-mono);color:var(--texto-1)">helpmiriam.com</p>
+          <p class="cuerpo-sm">URL utilitaria. Destino de botones («Donar →»), pie de redes, QR de prensa. <strong>Nunca</strong> como nombre del proyecto.</p>
+        </div>
+        <div class="card card--flotante" style="background:var(--color-text);color:var(--color-bg)">
+          <p style="font:600 var(--texto-xs)/1 var(--font-mono);letter-spacing:.06em;text-transform:uppercase;opacity:.6">Marca paraguas</p>
+          <p style="margin-block-start:var(--sp-8);font:500 22px var(--font-display);color:var(--color-bg)">Beyond the Protocol</p>
+          <p style="font:var(--tipo-body-sm);color:var(--color-bg);opacity:.85">Aparece en el pie como «Sub-marca de Beyond the Protocol» + el linaje del set BTP en iconografía. No en la cabecera de la web.</p>
+        </div>
+      </div>
+
+      <p class="titulo-3" style="margin-block-start:var(--sp-40)">Wordmark — cómo se escribe Miriam</p>
+      <p class="cuerpo-sm">Una sola forma canónica. No hay logo gráfico aparte — la firma es tipográfica.</p>
+      <div style="margin-block-start:var(--sp-16);padding:var(--sp-32);background:var(--fondo);border:1px solid var(--trazo-medio);border-radius:var(--radius-card)">
+        <p style="font:500 64px var(--font-display);color:var(--texto-1);margin:0">Miriam<span style="color:var(--identidad)">.</span></p>
+      </div>
+      <ul class="lista">
+        <li><strong>Tipografía</strong>: Fraunces 500 (display medium). Nunca otra fuente.</li>
+        <li><strong>Punto final violeta</strong>: es el único elemento gráfico permitido junto al nombre.</li>
+        <li><strong>Tamaño mínimo</strong>: 24 px. Por debajo, el punto se pierde.</li>
+        <li><strong>Variante en oscuro</strong>: texto crema + punto violeta-claro (no firma — pierde contraste).</li>
+        <li><strong>No</strong>: contorno, mayúsculas, expansión de letterspacing, cursiva, color en la palabra.</li>
+      </ul>
+
+      <p class="titulo-3" style="margin-block-start:var(--sp-40)">Cómo se cita en cada superficie</p>
+      <div class="tabla-scroll" tabindex="0" role="region" aria-label="Tabla: cómo citar la marca en cada superficie">
+        <table class="tabla">
+          <caption class="sr-cap">Forma de la marca según la superficie</caption>
+          <thead><tr><th scope="col">Superficie</th><th scope="col">Forma</th><th scope="col">Ejemplo</th></tr></thead>
+          <tbody>
+            <tr><td>Cabecera web</td><td>Wordmark</td><td>Miriam.</td></tr>
+            <tr><td>Pie / footer</td><td>Texto + URL</td><td>Miriam · helpmiriam.com</td></tr>
+            <tr><td>Prensa / cita</td><td>Nombre completo</td><td><em>«Miriam González, paciente con cáncer de mama, ha lanzado…»</em></td></tr>
+            <tr><td>Redes, handle</td><td>Personal</td><td>@miriamgonp</td></tr>
+            <tr><td>Firma de email</td><td>Texto + URL</td><td>Miriam · helpmiriam.com — sub-marca de Beyond the Protocol</td></tr>
+            <tr><td>CTA / botón</td><td>Acción + URL</td><td>«Donar →» → helpmiriam.com</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="alerta" style="margin-block-start:var(--sp-24);max-inline-size:62ch"><span class="alerta__label">Regla</span>Si dudas si algo es marca o dominio, pregúntate: ¿se hace clic aquí? Si sí, es <code>helpmiriam.com</code>. Si no, es <strong>Miriam</strong>.</div>
+
+      <h3 class="titulo-3 subtit" id="prod-foto">Fotografía</h3>
+      <p class="cuerpo">La ilustración BTP construye el tono editorial. La foto construye la realidad. Conviven sin pisarse si se siguen estas reglas — y se rompe rápido si se olvidan. Nunca foto sintética o generada por IA: el caso vive de su veracidad.</p>
+
+      <div class="dos-col">
+        <div>
+          <p class="titulo-3" style="font:var(--tipo-body);font-weight:700;color:var(--identidad)">Sí — qué buscamos</p>
+          <ul class="lista">
+            <li>Luz natural diurna, ventana lateral. Sombras suaves.</li>
+            <li>Retratos honestos: mirada directa, media sonrisa o expresión neutra. Sin pose forzada.</li>
+            <li>Escenas reales, con consentimiento explícito de quien aparece.</li>
+            <li>Tonos cálidos: cremas, beige, madera, verdes desaturados — encaja con la paleta del sistema.</li>
+            <li>Imperfecciones: una camiseta arrugada, papeles encima de la mesa. La realidad es el activo.</li>
+          </ul>
+        </div>
+        <div>
+          <p class="titulo-3" style="font:var(--tipo-body);font-weight:700">No — qué descartamos</p>
+          <ul class="lista">
+            <li>Foto de stock — gente sonriendo a cámara con bata blanca de catálogo.</li>
+            <li>Filtros de Instagram, presets cinematográficos saturados, viñeteados marcados.</li>
+            <li>Blanco y negro de duelo — hace que el caso parezca un obituario.</li>
+            <li>Foto sintética / IA generativa. Cero excepciones.</li>
+            <li>Logos de hospital identificables sin permiso firmado por la institución.</li>
+            <li>Caras de menores sin consentimiento expreso de tutores.</li>
+            <li>Manos con lazos rosa, manos formando corazón, «poses de guerrera». Slop oncológico fotográfico.</li>
+          </ul>
+        </div>
+      </div>
+
+      <p class="titulo-3" style="margin-block-start:var(--sp-40)">Tratamiento</p>
+      <ul class="lista">
+        <li><strong>Color</strong>: corregido para temperatura cálida (~5200K). Saturación normal, nunca subida. Negros no aplastados.</li>
+        <li><strong>Recorte</strong>: 4:5 vertical para retratos individuales, 3:2 horizontal para escena, 1:1 para grids de redes. Consistente dentro de una misma página.</li>
+        <li><strong>Borde</strong>: mismo radio que las cards en web. En prensa / impreso, sin radio.</li>
+        <li><strong>Sin texto encima</strong>: los retratos respiran solos. Si hace falta un titular junto a la foto, va en columna adyacente, no superpuesto.</li>
+        <li><strong>Crédito</strong>: pie pequeño (mono, opacidad reducida) con el fotógrafo y la fecha.</li>
+      </ul>
+
+      <p class="titulo-3" style="margin-block-start:var(--sp-40)">Foto + ilustración, convivencia</p>
+      <p class="cuerpo">Foto y BTP nunca se mezclan en la <em>misma pieza</em>. La foto manda en el hero, los retratos del equipo y los eventos. La ilustración manda en iconos, openers de sección y badges. La regla: si en una sección aparece foto, los iconos de esa sección son tipográficos o invisibles — no compiten.</p>
+      <div class="alerta" style="margin-block-start:var(--sp-16);max-inline-size:62ch"><span class="alerta__label">Test rápido</span>Pon la foto en blanco y negro mentalmente: ¿sigue funcionando la composición? Si solo se sostiene gracias al color saturado o al filtro, no es del sistema.</div>
+
+      <p class="titulo-3" style="margin-block-start:var(--sp-40)">Tratamientos del sistema (CSS)</p>
+      <p class="cuerpo-sm">En código, cada foto lleva la clase <code>.pic</code> más un modificador. Un solo tratamiento por pieza — el filtro son unas líneas de CSS, no archivos duplicados.</p>
+      <div class="tabla-scroll" tabindex="0" role="region" aria-label="Tabla: clases de tratamiento fotográfico">
+        <table class="tabla">
+          <caption class="sr-cap">Clases de filtro fotográfico y su uso</caption>
+          <thead><tr><th scope="col">Clase</th><th scope="col">Efecto</th><th scope="col">Uso</th></tr></thead>
+          <tbody>
+            <tr><td><code>.pic</code></td><td>Corrección cálida sutil (default)</td><td>Firma — uso general</td></tr>
+            <tr><td><code>.pic.subtle</code></td><td>Corrección mínima</td><td>Press</td></tr>
+            <tr><td><code>.pic.cool</code></td><td>Desaturado, tono frío ligero</td><td>Clínico</td></tr>
+            <tr><td><code>.pic.bw</code></td><td>Blanco y negro cálido</td><td>Editorial</td></tr>
+            <tr><td><code>.pic.duotone</code></td><td>Duotono berenjena</td><td>Editorial, piezas destacadas</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3 class="titulo-3 subtit" id="prod-press">Press kit</h3>
+      <p class="cuerpo">Lo que se entrega a un periodista, una marca colaboradora o un profesional que pide materiales. Una sola página, descargable, siempre con las cifras actualizadas. Si hay que improvisar lo que se manda, ya se ha perdido al periodista.</p>
+
+      <p class="titulo-3" style="margin-block-start:var(--sp-32)">Bio — tres longitudes (plantilla)</p>
+      <p class="cuerpo-sm">Estructura fija, datos a rellenar en cada envío — nunca hardcodeados aquí. Los detalles clínicos específicos (diagnóstico exacto, cifras) los aporta el equipo en el momento, respetando siempre el muro de léxico.</p>
+      <div class="dos-col" style="grid-template-columns:1fr">
+        <div class="card">
+          <p class="cuerpo-sm" style="font:600 var(--texto-xs)/1 var(--font-mono);letter-spacing:.06em;text-transform:uppercase">Corta · 50 palabras · pie de foto, redes</p>
+          <p class="cuerpo" style="margin-block-start:var(--sp-8)">[Nombre] ([ciudad]) tiene [diagnóstico, en lenguaje llano] y busca financiar el acceso a un tratamiento personalizado fuera del sistema público.</p>
+        </div>
+        <div class="card" style="margin-block-start:var(--sp-16)">
+          <p class="cuerpo-sm" style="font:600 var(--texto-xs)/1 var(--font-mono);letter-spacing:.06em;text-transform:uppercase">Media · 100 palabras · entradilla de noticia</p>
+          <p class="cuerpo" style="margin-block-start:var(--sp-8)">[Nombre], [ciudad], tiene [diagnóstico en lenguaje llano]. Junto con un equipo de especialistas y bajo el paraguas de Beyond the Protocol, ha lanzado una iniciativa para financiar el acceso a un tratamiento personalizado no cubierto por el sistema público. Su web, helpmiriam.com, documenta el caso con rigor y transparencia financiera total.</p>
+        </div>
+        <div class="card" style="margin-block-start:var(--sp-16)">
+          <p class="cuerpo-sm" style="font:600 var(--texto-xs)/1 var(--font-mono);letter-spacing:.06em;text-transform:uppercase">Larga · 200 palabras · reportaje</p>
+          <p class="cuerpo" style="margin-block-start:var(--sp-8)">[Nombre] vive en [ciudad]. En [fecha] le diagnostican [diagnóstico en lenguaje llano]. Tras varias líneas de tratamiento estándar, decide no esperar a que un ensayo llegue a España y lanza una iniciativa pública —helpmiriam.com— para financiar el acceso a un tratamiento personalizado. La web documenta cada paso con rigor, transparencia financiera total y voz directa, sin retórica de «lucha» ni victimismo. [Cerrar con la meta vigente de la fase en curso.]</p>
+        </div>
+      </div>
+
+      <p class="titulo-3" style="margin-block-start:var(--sp-40)">Cifras clave — formato</p>
+      <p class="cuerpo-sm">Mantener siempre actualizadas y verificadas por el equipo antes de publicarse. Cualquier cifra que aparezca en prensa pero no esté aquí no se ha cruzado.</p>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:var(--sp-12);margin-block-start:var(--sp-16);max-inline-size:520px">
+        <div class="card"><p class="cifra" style="font-size:32px">[N]</p><p class="cuerpo-sm" style="font:var(--texto-xs)/1 var(--font-mono);color:var(--texto-3)">especialistas en el equipo · ejemplo</p></div>
+        <div class="card"><p class="cifra" style="font-size:32px">[N]</p><p class="cuerpo-sm" style="font:var(--texto-xs)/1 var(--font-mono);color:var(--texto-3)">fases del plan de acceso · ejemplo</p></div>
+        <div class="card card--flotante" style="background:var(--color-text)"><p class="cifra" style="font-size:32px;color:var(--color-cta)">[N] k€</p><p class="cuerpo-sm" style="font:var(--texto-xs)/1 var(--font-mono);color:var(--color-bg);opacity:.6">meta de la fase actual · ejemplo</p></div>
+      </div>
+
+      <p class="titulo-3" style="margin-block-start:var(--sp-40)">Assets descargables</p>
+      <ul class="lista">
+        <li><strong>Headshot oficial</strong> de Miriam — 4:5, color y B/N.</li>
+        <li><strong>Wordmark</strong> — SVG y PNG, fondo crema y berenjena.</li>
+        <li><strong>Logos del equipo</strong> — Beyond the Protocol, hospitales colaboradores (siempre con permiso firmado).</li>
+        <li><strong>Hoja informativa del caso</strong> — PDF de 2 páginas con el resumen clínico en lenguaje llano, sin tecnicismos.</li>
+        <li><strong>Cifras en SVG/PNG</strong> — versiones listas para incrustar en piezas de prensa.</li>
+      </ul>
+
+      <p class="titulo-3" style="margin-block-start:var(--sp-40)">Contacto de prensa</p>
+      <div class="card" style="max-inline-size:60ch">
+        <p class="cuerpo-sm" style="font:600 var(--texto-xs)/1 var(--font-mono);letter-spacing:.06em;text-transform:uppercase">Punto único de contacto</p>
+        <p class="titulo-3" style="margin-block-start:var(--sp-4)">[Nombre] · prensa</p>
+        <p class="cuerpo" style="margin-block-start:var(--sp-4)"><a href="mailto:prensa@helpmiriam.com">prensa@helpmiriam.com</a> · respuesta en &lt; 24 h</p>
+        <p class="cuerpo-sm" style="margin-block-start:var(--sp-12)">Cualquier petición de entrevista, dossier ampliado o uso de imágenes pasa por aquí. <strong>No</strong> escribir directamente a Miriam — ella no gestiona prensa.</p>
+      </div>
+
+      <h3 class="titulo-3 subtit" id="prod-plantillas">Plantillas de mensaje</h3>
+      <p class="cuerpo">Las que se copian y pegan durante meses. Cubren las situaciones más frecuentes: agradecer una donación, anunciar un hito, contactar a un especialista nuevo, postear un avance. La voz ya está fijada — aquí solo cambian los datos concretos.</p>
+
+      <p class="titulo-3" style="margin-block-start:var(--sp-32)">A · Agradecimiento tras donación</p>
+      <p class="cuerpo-sm">Email automático tras la pasarela. Voz: Miriam, primera persona singular. Sin urgencia, sin pedir más.</p>
+      <div class="codigo" tabindex="0" role="region" aria-label="Código: plantilla A, agradecimiento tras donación"><pre>Asunto: Gracias, [nombre].
+
+[Nombre]:
+
+Acabo de ver tu donación de [cantidad] €. Te lo digo en serio:
+no es una respuesta automática, lo escribo yo desde casa.
+
+Cada euro entra en una cuenta auditada que verás reflejada en
+helpmiriam.com -> Transparencia. Cuando alcancemos el siguiente
+hito ([meta] €) te avisaré por aquí con lo que hayamos podido
+hacer con él.
+
+Si quieres saber algo concreto del caso, responde a este email
+sin más. Lo leo yo.
+
+Gracias.
+Miriam.</pre></div>
+
+      <p class="titulo-3" style="margin-block-start:var(--sp-40)">B · Anuncio de hito alcanzado · redes + GoFundMe</p>
+      <p class="cuerpo-sm">Voz: nosotros, plural (es un logro colectivo). Sin emoji. Sin «milagro».</p>
+      <div class="codigo" tabindex="0" role="region" aria-label="Código: plantilla B, anuncio de hito"><pre>Post / update:
+
+Hemos llegado a los [meta] €.
+
+[N] personas han donado. Es la cifra más concreta que puedo
+darte hoy. Con ese dinero pagamos:
+
+- [partida 1] ([importe] €)
+- [partida 2] ([importe] €)
+- [partida 3] ([importe] €)
+
+La siguiente meta es [meta] € - desglose detallado en
+helpmiriam.com.
+
+Gracias por estar aquí.</pre></div>
+
+      <p class="titulo-3" style="margin-block-start:var(--sp-40)">C · Contacto a especialista nuevo</p>
+      <p class="cuerpo-sm">Email frío a un profesional. Voz: equipo en plural, registro clínico, sin súplica. Los detalles del perfil molecular NUNCA van en texto plano en un envío — se adjuntan en el informe, cifrados si hace falta, y solo con el permiso de Miriam.</p>
+      <div class="codigo" tabindex="0" role="region" aria-label="Código: plantilla C, contacto a especialista"><pre>Asunto: Consulta sobre un caso — posible interés para su equipo
+
+Dr./Dra. [apellido]:
+
+Le escribimos desde el equipo que sigue a Miriam González,
+persona con cáncer de mama metastásico. Su perfil clínico
+presenta características poco frecuentes en la literatura
+(detalle completo en el informe adjunto, uso confidencial).
+
+Hemos visto su trabajo en [paper / línea de investigación] y
+nos gustaría someter el caso a su criterio. Adjuntamos:
+
+- Informe clínico completo (uso confidencial)
+- Resumen del recorrido hasta la fecha (2 páginas)
+
+Si dispone de 30 minutos para una llamada en las próximas dos
+semanas, se lo agradeceríamos. Si no es viable, una opinión por
+escrito es igualmente valiosa.
+
+Atentamente,
+[Nombre] · equipo de Miriam
+prensa@helpmiriam.com / +34 [tel]</pre></div>
+
+      <p class="titulo-3" style="margin-block-start:var(--sp-40)">D · Post en redes tipo · día normal</p>
+      <p class="cuerpo-sm">Voz: Miriam, primera persona. Sin storytelling forzado. Una imagen real (foto, no ilustración).</p>
+      <div class="codigo" tabindex="0" role="region" aria-label="Código: plantilla D, post de redes"><pre>Imagen: foto cotidiana, luz natural.
+
+Caption:
+
+Mañana me hacen [la siguiente cita/analítica]. Es de control,
+no de decisión, así que no espero noticias grandes.
+
+Me da tiempo a contaros que hemos pasado los [importe] €
+(faltan [N] para el siguiente hito), y que la consulta con
+[especialista] ya está pedida.
+
+Gracias por seguir aquí.
+
+helpmiriam.com</pre></div>
+
+      <p class="titulo-3" style="margin-block-start:var(--sp-40)">E · WhatsApp — respuesta a quien pregunta cómo ayudar</p>
+      <p class="cuerpo-sm">Mensaje breve, sin enlaces sospechosos. Voz: Miriam o equipo. Para reenviar tal cual.</p>
+      <div class="codigo" tabindex="0" role="region" aria-label="Código: plantilla E, respuesta WhatsApp"><pre>Hola [nombre], gracias por preguntar.
+
+La forma más útil ahora mismo es donar en helpmiriam.com (a
+partir de 5 €) o compartir la web con alguien que pueda llegar
+a profesionales de oncología o medios de prensa.
+
+Si tienes un contacto concreto, escríbeme y te paso el press
+kit con los materiales para que lo reenvíes directamente.
+
+Cualquier cantidad ayuda - la transparencia y el desglose están
+todos en la web.
+
+Un abrazo,
+Miriam</pre></div>
+
+      <p class="titulo-3" style="margin-block-start:var(--sp-40)">F · Email a colaborador profesional · diseño / dev / traducción</p>
+      <p class="cuerpo-sm">Para gente que ofrece su trabajo gratis. Voz: equipo plural, sin sobreagradecer.</p>
+      <div class="codigo" tabindex="0" role="region" aria-label="Código: plantilla F, bienvenida a colaborador"><pre>Asunto: Bienvenido al equipo Miriam — siguiente paso
+
+Hola [nombre]:
+
+Gracias por ofrecer tu tiempo. Te explico cómo trabajamos para
+que entres limpio:
+
+1. Lee el sistema de diseño completo:
+   helpmiriam.com/design-system
+
+2. Acceso al repositorio:
+   github.com/BeyondTheProtocol/miriam-gonzalez-case
+   (te añadimos en cuanto nos pases tu usuario)
+
+3. Tu primera tarea está aquí: [issue link]
+   Cualquier cambio entra por pull request, aunque sea una coma.
+
+4. Si dudas si algo encaja con el sistema, abre un issue antes
+   de empezar.
+
+Cualquier cosa, respondes a este email.
+
+Equipo Miriam.</pre></div>
+
+      <div class="alerta" style="margin-block-start:var(--sp-32);max-inline-size:62ch"><span class="alerta__label">Mantenimiento</span>Estas plantillas están vivas. Cuando uses una y notes que te falta algo o sobra, edítala aquí mismo. La fuente única de verdad es esta sección — no la copia que tú tengas en tu mail.</div>
+
+      <h3 class="titulo-3 subtit" id="prod-instagram">Publicaciones de Instagram</h3>
+      <p class="cuerpo">Cómo se construye un carrusel o un reel de @miriamgonp con el sistema: mismo color, misma Fraunces, la voz de Miriam y el lenguaje de anotaciones a mano. <strong>Una historia por publicación.</strong></p>
+
+      <p class="titulo-3" style="margin-block-start:var(--sp-32)">Formatos y arco</p>
+      <p class="cuerpo"><strong>Post-carrusel, subida en 4:5</strong> (1080×1350) para contar · <strong>Reel/story en 9:16</strong> (1080×1920) para pedir acción. El carrusel es un relato: <em>gancho → contexto → tensión → dato → detalle → síntesis → oportunidad → compartir + firma</em>. El reel comprime el arco a 4 beats.</p>
+
+      <div class="alerta" style="margin-block-start:var(--sp-16);max-inline-size:66ch"><span class="alerta__label">Vigente desde jun-2026 — no dar por fijos los formatos</span>
+        El grid de perfil ahora previsualiza cada publicación en <strong>3:4</strong>, recortando un poco arriba/abajo una subida en 4:5. Se sigue subiendo en <strong>4:5 (1080×1350)</strong> —no en 3:4—, pero cara, texto y firma deben caber dentro de una <strong>zona segura 3:4 centrada</strong> (el 70 % central del lienzo), para que sobrevivan al recorte del grid.<br>
+        Instagram permite ahora <strong>una descripción distinta por diapositiva</strong> («varias descripciones») en vez de una sola caption para todo el carrusel. Se puede usar: gancho corto en la diapositiva 1, contexto en las intermedias, y CTA + helpmiriam.com repetido en la última — en vez de un único caption largo colgado del post entero.
+      </div>
+
+      <p class="titulo-3" style="margin-block-start:var(--sp-32)">Ejemplo · slide de gancho (4:5, zona segura 3:4)</p>
+      <div style="display:grid;grid-template-columns:minmax(180px,240px) 1fr;gap:var(--sp-24);align-items:start;margin-block-start:var(--sp-16)">
+        <div style="aspect-ratio:4/5;background:var(--color-text);border-radius:var(--radius-card);padding:var(--sp-24);display:flex;flex-direction:column;overflow:hidden;position:relative">
+          <div aria-hidden="true" style="position:absolute;inset:7.5% 0;border-block:1px dashed color-mix(in srgb, var(--color-bg) 30%, transparent)"></div>
+          <div style="display:flex;justify-content:space-between;font:var(--texto-xs)/1 var(--font-mono);letter-spacing:.04em;color:var(--color-miriam-soft)">
+            <span>// caso</span><span style="opacity:.6">01 / 08</span>
+          </div>
+          <div style="flex:1"></div>
+          <p style="font:600 24px/1.1 var(--font-display);letter-spacing:-.02em;color:var(--color-bg);margin:0 0 var(--sp-12)">esto no lo esperaba nadie del equipo.</p>
+          <p style="font:var(--tipo-body-sm);color:var(--color-bg);opacity:.84;margin:0 0 var(--sp-12)">una prueba nueva cambia el plan — os cuento qué significa.</p>
+          <span style="font-style:italic;color:var(--color-miriam-soft)">desliza para saber más →</span>
+        </div>
+        <ul class="lista">
+          <li><strong>Eyebrow mono</strong> arriba (<code>// sección</code>) + índice <code>01/08</code>.</li>
+          <li><strong>Gancho en Fraunces minúscula</strong>, voz en primera persona — sin cifras ni términos clínicos reales, eso queda fuera del muro.</li>
+          <li>Se prueban <strong>4 ganchos</strong> (afirmación / prueba / metáfora / pregunta) y se elige el más fuerte.</li>
+          <li>Cara, gancho y firma dentro de la <strong>zona segura</strong> (línea discontinua en el ejemplo) para sobrevivir al recorte 3:4 del grid.</li>
+          <li>Pista de <strong>deslizar</strong> abajo.</li>
+        </ul>
+      </div>
+
+      <p class="titulo-3" style="margin-block-start:var(--sp-32)">Reglas</p>
+      <ul class="lista">
+        <li><strong>Alterna los fondos</strong> entre diapositivas (berenjena → crema → violeta) para dar ritmo.</li>
+        <li><strong>Violeta = dato y firma</strong>; <strong style="color:var(--color-cta)">coral = solo el CTA</strong>, nunca decorativo.</li>
+        <li><strong>Una idea por diapositiva</strong>, una sola acción al final.</li>
+        <li><strong>Anotaciones a mano</strong> como acento — una o dos por diapositiva, desactivables.</li>
+        <li><strong>Caption por diapositiva</strong> (desde jun-2026): la última siempre cierra con helpmiriam.com; si se usa un solo caption para todo el post, que cierre igual con helpmiriam.com.</li>
+        <li>Texto en la imagen → repetir lo esencial en el caption. Animaciones con <code>prefers-reduced-motion</code>.</li>
+      </ul>
+    </div>
+  </section>
   </main>
+  </div>
 </div>
 
 <!-- LÁMINA I — NOCHE · constelación real anotada (placa de observatorio) -->
@@ -814,6 +1757,39 @@
     if (document.startViewTransition && !rm) document.startViewTransition(apply);  // día↔noche = LA transformación de la marca
     else apply();
   });
+
+  /* Sidebar del manual: SIN scroll-spy (Ceci lo vetó, PR #129 dio bugs de fiabilidad).
+     El estado activo se calcula por el hash de la URL — determinista, sin listener de scroll. */
+  const docNav = document.getElementById('doc-nav');
+  if (docNav) {
+    const enlaces = Array.from(docNav.querySelectorAll('a[href^="#"]'));
+    const marcarActivo = () => {
+      const hash = window.location.hash || '#b-empezar';
+      enlaces.forEach((a) => {
+        if (a.getAttribute('href') === hash) a.setAttribute('aria-current', 'location');
+        else a.removeAttribute('aria-current');
+      });
+    };
+    marcarActivo();
+    window.addEventListener('hashchange', marcarActivo);
+  }
+
+  /* Disclosure móvil (botón hamburguesa) — en desktop la sidebar es siempre visible por CSS
+     y el botón queda oculto (display:none), así que este toggle solo actúa en pantallas estrechas. */
+  const navBtn = document.getElementById('doc-nav-btn');
+  const navWrap = document.getElementById('doc-nav-wrap');
+  if (navBtn && navWrap) {
+    navBtn.addEventListener('click', () => {
+      const abierto = navWrap.classList.toggle('abierto');
+      navBtn.setAttribute('aria-expanded', String(abierto));
+    });
+    docNav.addEventListener('click', (e) => {
+      if (e.target.closest('a') && navWrap.classList.contains('abierto')) {
+        navWrap.classList.remove('abierto');
+        navBtn.setAttribute('aria-expanded', 'false');
+      }
+    });
+  }
 </script>
 </body>
 </html>
