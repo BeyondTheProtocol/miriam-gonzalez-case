@@ -8,7 +8,7 @@
         ? 'bg-cream/95 backdrop-blur-lg shadow-sm'
         : 'bg-cream'
     "
-    style="border-bottom: 1px solid rgba(45,27,61,0.08)"
+    style="border-bottom: 1px solid rgb(var(--color-text-rgb) / 0.08)"
   >
     <div class="section-wide flex items-center justify-between h-16 sm:h-18">
       <!-- Logo -->
@@ -49,7 +49,7 @@
           role="group"
           :aria-label="$t('nav.language')"
           class="hidden sm:flex items-center rounded-md overflow-hidden font-mono text-[11px] font-semibold tracking-widest uppercase"
-          style="border: 1px solid rgba(45,27,61,0.10)"
+          style="border: 1px solid rgb(var(--color-text-rgb) / 0.1)"
         >
           <button
             type="button"
@@ -112,7 +112,7 @@
         v-if="mobileOpen"
         id="mobile-nav"
         class="lg:hidden bg-cream/95 backdrop-blur-lg"
-        style="border-top: 1px solid rgba(45,27,61,0.08)"
+        style="border-top: 1px solid rgb(var(--color-text-rgb) / 0.08)"
       >
         <nav
           :aria-label="$t('nav.mobile_label')"
@@ -143,7 +143,7 @@
           <!-- Language switch — vive aquí en móvil para descongestionar la cabecera -->
           <div
             class="mt-3 pt-3 flex items-center justify-between"
-            style="border-top: 1px solid rgba(45,27,61,0.08)"
+            style="border-top: 1px solid rgb(var(--color-text-rgb) / 0.08)"
           >
             <span class="font-mono text-[11px] uppercase tracking-widest text-tinta">
               {{ $t('nav.language') }}
@@ -152,7 +152,7 @@
               role="group"
               :aria-label="$t('nav.language')"
               class="flex items-center rounded-md overflow-hidden font-mono text-[11px] font-semibold tracking-widest uppercase"
-              style="border: 1px solid rgba(45,27,61,0.10)"
+              style="border: 1px solid rgb(var(--color-text-rgb) / 0.1)"
             >
               <button
                 type="button"
