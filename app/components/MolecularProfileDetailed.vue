@@ -74,8 +74,8 @@
       <p class="mt-3 text-xs text-tinta leading-relaxed font-mono">
         {{
           locale === 'es'
-            ? 'Fuentes: TSO500 sobre tejido FFPE primario (DIPCAN, MD Anderson Madrid, 2024) · IHQ sobre tejido primario · ctDNA Guardant360 / VHIO360 (abril–mayo 2026) · PET-CT Galio-68 DOTATOC (Virgen de la Arrixaca, mayo 2026).'
-            : 'Sources: TSO500 on primary FFPE tissue (DIPCAN, MD Anderson Madrid, 2024) · IHC on primary tissue · Guardant360 / VHIO360 ctDNA (April–May 2026) · Ga-68 DOTATOC PET-CT (Virgen de la Arrixaca, May 2026).'
+            ? 'Fuentes: TSO500 sobre tejido FFPE primario (DIPCAN, MD Anderson Madrid, 2024) · IHQ sobre tejido primario · ctDNA Guardant360 / VHIO360 (abril–mayo 2026) · PET-CT Galio-68 DOTATOC (centro hospitalario, mayo 2026).'
+            : 'Sources: TSO500 on primary FFPE tissue (DIPCAN, MD Anderson Madrid, 2024) · IHC on primary tissue · Guardant360 / VHIO360 ctDNA (April–May 2026) · Ga-68 DOTATOC PET-CT (hospital centre, May 2026).'
         }}
       </p>
       <p class="mt-2 text-xs text-tinta leading-relaxed">
