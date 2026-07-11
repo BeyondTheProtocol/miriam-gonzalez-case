@@ -440,7 +440,7 @@ onClickOutside(triggerRef, () => hide(), { ignore: [popRef] })
   border-radius: 11px;
   background: #2d1b3d;
   color: #faf6f0;
-  font-family: 'Source Sans 3', system-ui, sans-serif;
+  font-family: 'Hanken Grotesk', system-ui, sans-serif;
   font-size: 13.5px;
   line-height: 1.5;
   white-space: normal;

@@ -267,7 +267,7 @@ const groups = computed(() => {
   border-radius: 9999px;
   border: 1px solid rgba(45, 27, 61, 0.16);
   background: #faf6f0;
-  font-family: 'Source Sans 3', system-ui, sans-serif;
+  font-family: 'Hanken Grotesk', system-ui, sans-serif;
   font-size: 13.5px;
   font-weight: 600;
   color: #3a3340;
