@@ -485,13 +485,19 @@ function provShapeSvg(shape: ProvShape, tone: string) {
       fill: 'none', stroke: tone, 'stroke-width': sw, 'stroke-linecap': 'round',
     })
   }
-  return h('svg', { class: 'prov-shape__svg', viewBox: '0 0 10 10', focusable: 'false', 'aria-hidden': 'true' }, [inner])
+  // width/height como ATRIBUTOS (no solo CSS scoped): estos SVG se crean con h() y no
+  // siempre reciben el data-v del <style scoped> → sin tamaño explícito reventaban a
+  // ancho completo (la leyenda salía gigante). Con el atributo llenan su wrapper (em).
+  return h('svg', { class: 'prov-shape__svg', viewBox: '0 0 10 10', width: '100%', height: '100%', focusable: 'false', 'aria-hidden': 'true' }, [inner])
 }
 /* el span contenedor del marcador-forma: tamaño y alineación vertical fijos respecto a la
    línea de texto (independientes de la fuente). Variante --lg para la leyenda/panel. */
 const ProvShapeMark = (props: { shape: ProvShape; tone: string; lg?: boolean; title?: string; decorative?: boolean }) =>
   h('span', {
     class: ['prov-dot', props.lg ? 'prov-dot--lg' : ''],
+    // tamaño INLINE (no depender del CSS scoped, que no engancha a estos h()): fija la
+    // caja del marcador respecto a la x-height, igual que .prov-dot/.prov-dot--lg.
+    style: `display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;width:${props.lg ? '0.98em' : '0.82em'};height:${props.lg ? '0.98em' : '0.82em'};vertical-align:${props.lg ? '-0.2em' : '-0.16em'}`,
     ...(props.decorative
       ? { 'aria-hidden': 'true' }
       : { role: 'img', title: props.title, 'aria-label': props.title }),
@@ -2279,6 +2285,14 @@ const manifestValidated = (() => {
              para los enlaces internos. La maqueta primaria pone NAVEGAR a la
              izquierda y el VISOR DE LA LESIÓN siempre a la derecha. -->
         <div class="min-w-0">
+        <!-- (B2 · sigilo de autor) El split-disc bivariado — la marca "dos trazadores, una
+             lesión" del propio instrumento, izquierda teal (⁶⁸Ga/SSTR) · derecha ámbar (¹⁸F-FDG).
+             Decorativo (aria-hidden), UNA sola vez como emblema del héroe. -->
+        <svg viewBox="0 0 24 24" width="26" height="26" aria-hidden="true" class="block mb-3 split-disc-sigil">
+          <path d="M12 2 A10 10 0 0 0 12 22 Z" fill="rgb(28,150,158)" />
+          <path d="M12 2 A10 10 0 0 1 12 22 Z" fill="rgb(214,110,28)" />
+          <line x1="12" y1="2" x2="12" y2="22" stroke="#faf6f0" stroke-width="1.4" />
+        </svg>
         <PageHeader
           :title="L('Mapa de metástasis', 'Metastasis map')"
           :subtitle="L(
@@ -3342,7 +3356,15 @@ const manifestValidated = (() => {
           <EcgDivider class="mb-10" />
           <!-- Header de la sección general (eyebrow + h2 a la izquierda, sin caja). -->
           <div class="mb-6">
-          <p class="eyebrow mb-2 block">{{ L('Sección general', 'General section') }}</p>
+          <!-- (B2) el split-disc como ÚNICO motivo conector de la costura Zona 1 → Zona 2. -->
+          <p class="eyebrow mb-2 flex items-center gap-2">
+            <svg viewBox="0 0 24 24" width="15" height="15" aria-hidden="true" class="shrink-0 split-disc-sigil">
+              <path d="M12 2 A10 10 0 0 0 12 22 Z" fill="rgb(28,150,158)" />
+              <path d="M12 2 A10 10 0 0 1 12 22 Z" fill="rgb(214,110,28)" />
+              <line x1="12" y1="2" x2="12" y2="22" stroke="#faf6f0" stroke-width="1.4" />
+            </svg>
+            {{ L('Sección general', 'General section') }}
+          </p>
           <h2 class="heading-display text-2xl text-berenjena mb-2 scroll-mt-[5.5rem]">{{ L('Visión general del caso', 'Case overview') }}</h2>
           <p class="text-sm text-tinta leading-relaxed max-w-3xl">{{ L(
             'Lo general del caso, de más a menos relevante para decidir: idoneidad (cómo se calcula), fenotipo, imágenes, evolución, la tabla y la visión general. Usa el índice para navegarlo.',
@@ -3609,7 +3631,7 @@ const manifestValidated = (() => {
                     <div>
                       <div class="flex justify-between items-baseline text-[10.5px] mb-0.5">
                         <span class="text-tinta">{{ L('Captación (¹⁸F-FDG/⁶⁸Ga)', 'Uptake (¹⁸F-FDG/⁶⁸Ga)') }}</span>
-                        <span class="font-mono data-soft" :style="{ color: FDG_TEXT }">¹⁸F-FDG <span class="data-soft__approx">~</span>{{ le.fdg != null ? le.fdg.toFixed(1) : '—' }} · ⁶⁸Ga <span class="data-soft__approx">~</span>{{ le.dota != null ? le.dota.toFixed(1) : '—' }}</span>
+                        <span class="font-mono italic" :style="{ color: FDG_TEXT }">¹⁸F-FDG <span class="data-soft__approx">~</span>{{ le.fdg != null ? le.fdg.toFixed(1) : '—' }} · ⁶⁸Ga <span class="data-soft__approx">~</span>{{ le.dota != null ? le.dota.toFixed(1) : '—' }}</span>
                       </div>
                       <div class="h-1.5 rounded-full overflow-hidden" :style="{ background: 'rgba(45,27,61,0.08)' }">
                         <div class="h-full rounded-full" :style="{ width: pct01(viableFactor(le)), background: FDG_FILL }" />
@@ -4433,6 +4455,16 @@ const manifestValidated = (() => {
         </section>
         <!-- ╚══════════════ FIN MÉTODO ══════════════╝ -->
 
+        <!-- ── Firma de autoría · el aterrizaje humano tras dar el método al mundo ──
+             (B4) Voz de autoría en 1ª persona, FUERA de cualquier callout. NO es
+             consuelo ni validación clínica: es la mano que construyó el instrumento. -->
+        <div class="mt-10 pt-7 border-t border-[rgba(45,27,61,0.1)] max-w-2xl">
+          <p class="text-[13.5px] text-tinta leading-relaxed">
+            {{ L('Este es mi caso, hecho instrumento. Lo construí para entender mi enfermedad y decidir mejor con mi equipo — y lo dejé abierto por si a alguien le sirve el método.', 'This is my case, made into an instrument. I built it to understand my disease and decide better with my team — and left it open in case the method helps someone else.') }}
+          </p>
+          <p class="firma text-xl mt-2">{{ L('— Miriam', '— Miriam') }}</p>
+        </div>
+
         <!-- retorno a /ciencia (coherencia de sitio) -->
         <div class="mt-10 pt-6 border-t border-[rgba(45,27,61,0.1)]">
           <NuxtLink :to="localePath('ciencia')" class="link-action text-miriam">
@@ -4626,6 +4658,20 @@ const manifestValidated = (() => {
 </template>
 
 <style scoped>
+/* (B5 · power-on) El instrumento «se enciende» una vez al primer paint: el sigilo
+   split-disc del héroe se asienta con un beat sobrio (fade + escala, ~460ms, expo-out).
+   Sin glow, lejos de cualquier marcador de dato. Colapsa a 0 con reduced-motion. */
+@media (prefers-reduced-motion: no-preference) {
+  .split-disc-sigil {
+    animation: sigil-poweron 460ms cubic-bezier(0.16, 1, 0.3, 1) both;
+    transform-origin: center;
+  }
+  @keyframes sigil-poweron {
+    from { opacity: 0; transform: scale(0.82) translateY(4px); }
+    to   { opacity: 1; transform: scale(1) translateY(0); }
+  }
+}
+
 /* ════════════════════════════════════════════════════════════════════════
    MOTION TOKENS · el movimiento del instrumento, con reglas (no ad-hoc).
    Tres curvas, una sola fuente; las transiciones de la página las citan en
