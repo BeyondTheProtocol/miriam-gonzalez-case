@@ -7,6 +7,22 @@ body {
   max-width: 100%;
 }
 
+/* Skip link (a11y) */
+.skip-link {
+  position: absolute;
+  left: -9999px;
+  top: 0;
+  z-index: 100;
+}
+.skip-link:focus {
+  left: 8px;
+  top: 8px;
+  background: var(--color-bg);
+  color: var(--color-text);
+  padding: 8px 12px;
+  outline: 2px solid var(--color-text);
+}
+
 /* Layout shell */
 .ds-shell {
   display: grid;
@@ -65,7 +81,9 @@ body {
   letter-spacing: 0.05em;
 }
 .ds-side a {
-  display: block;
+  display: flex;
+  align-items: center;
+  min-height: 44px;
   padding: 6px 0;
   color: var(--color-text);
   font-size: 14px;
@@ -165,20 +183,22 @@ body {
   text-transform: uppercase;
   margin-bottom: 16px;
 }
-.journey h4 {
+.journey h3 {
   font-family: var(--font-display);
   font-size: 28px;
   font-weight: 600;
   letter-spacing: -0.02em;
-  margin-bottom: 12px;
+  margin: 0 0 12px;
+  padding-bottom: 0;
+  border-bottom: 0;
 }
-.journey .step-1 h4 {
+.journey .step-1 h3 {
   color: var(--color-text);
 }
-.journey .step-2 h4 {
+.journey .step-2 h3 {
   color: var(--color-text);
 }
-.journey .step-3 h4 {
+.journey .step-3 h3 {
   color: var(--color-text);
 }
 .journey p {
@@ -778,4 +798,22 @@ ul.checklist.dont li::before {
 
 @keyframes ds-spin {
   to { transform: rotate(360deg); }
+}
+
+/* Foco visible global (a11y) */
+:where(a, button, input, [tabindex]):focus-visible {
+  outline: 2px solid var(--color-text);
+  outline-offset: 3px;
+}
+
+/* Respeta prefers-reduced-motion */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
 }

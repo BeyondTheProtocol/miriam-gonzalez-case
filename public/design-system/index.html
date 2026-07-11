@@ -4,6 +4,24 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Sistema de diseño · Miriam</title>
+    <meta
+      name="description"
+      content="El sistema visual y verbal del caso de Miriam González: color, tipografía, componentes, voz e iconografía en una sola fuente de verdad — construido junto a Claude."
+    />
+    <link rel="canonical" href="https://helpmiriam.com/design-system/" />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://helpmiriam.com/design-system/" />
+    <meta property="og:title" content="Sistema de diseño — Caso Miriam" />
+    <meta
+      property="og:description"
+      content="Color, tipografía, componentes y voz: la fuente de verdad detrás de helpmiriam.com, construida junto a Claude."
+    />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Sistema de diseño — Caso Miriam" />
+    <meta
+      name="twitter:description"
+      content="Color, tipografía, componentes y voz: la fuente de verdad detrás de helpmiriam.com, construida junto a Claude."
+    />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -17,11 +35,12 @@
     <link rel="stylesheet" href="design-system.css" />
   </head>
   <body>
+    <a href="#main" class="skip-link">Saltar al contenido</a>
     <header class="ds-hero">
       <div class="eyebrow">
         v1.1 · Mayo 2026 · Sub-marca de Beyond the Protocol
       </div>
-      <h1>Sistema de diseño Caso Miriam .</h1>
+      <h1>Sistema de diseño Caso <span class="firma">Miriam</span>.</h1>
       <p
         style="
           max-width: 60ch;
@@ -90,11 +109,13 @@
         <a href="#voice">10 · Voz por superficie</a>
         <a href="#do">11 · Lo que sí / lo que no</a>
 
+        <h2>Producción</h2>
+        <a href="#ai">12 · Hablar con IAs</a>
+
         <h2>Inclusión</h2>
         <a href="#a11y">13 · Accesibilidad &amp; neurodivergencia</a>
 
         <h2>Producción</h2>
-        <a href="#ai">12 · Hablar con IAs</a>
         <a href="#repo">14 · Repositorio</a>
 
         <h2>Recursos</h2>
@@ -106,7 +127,7 @@
         <a href="#instagram">20 · Publicaciones de Instagram</a>
       </nav>
 
-      <main class="ds-main">
+      <main class="ds-main" id="main">
         <!-- 00 CÓMO USAR -->
         <section class="ds-section" id="start">
           <div class="eyebrow">00 · Empezar</div>
@@ -399,7 +420,7 @@
           <div class="journey">
             <div class="card step-1">
               <div class="num">01 — Base</div>
-              <h4>Datos</h4>
+              <h3>Datos</h3>
               <p>
                 BC-SCC, XLR2 ×9, escamoso ~35%, PLX9 42%. La ciencia se
                 cuenta sin diluir.
@@ -408,7 +429,7 @@
             </div>
             <div class="card step-2">
               <div class="num">02 — Capa</div>
-              <h4>Humanidad</h4>
+              <h3>Humanidad</h3>
               <p>
                 Sobre los datos, una capa narrativa: incertidumbre, comunidad,
                 decisiones contadas con honestidad.
@@ -417,7 +438,7 @@
             </div>
             <div class="card step-3">
               <div class="num">03 — Cierre</div>
-              <h4>Acción</h4>
+              <h3>Acción</h3>
               <p>
                 El recorrido cierra con un único color de acción: coral. Donar,
                 compartir, contactar.
@@ -840,7 +861,7 @@
                   color: var(--color-text-soft);
                 "
               >
-                Violeta s/ crema · AA cualquier tamaño · no sobre crema-card
+                Violeta s/ crema · AA solo en titulares ≥24px · no sobre crema-card
               </div>
             </div>
             <div
@@ -1257,7 +1278,7 @@
                   background: #ff6b47;
                   color: #2d1b3d;
                   border: none;
-                  padding: 12px 20px;
+                  padding: 14px 24px;
                   border-radius: 8px;
                   font-family: var(--font-body);
                   font-size: 14px;
@@ -1428,7 +1449,7 @@
                   letter-spacing: 0.06em;
                   padding: 4px 8px;
                   background: #ff6b47;
-                  color: #faf6f0;
+                  color: #2d1b3d;
                   border-radius: 4px;
                   text-transform: uppercase;
                 "
@@ -1505,7 +1526,7 @@
                   letter-spacing: 0.06em;
                   padding: 4px 8px;
                   background: #ff6b47;
-                  color: #faf6f0;
+                  color: #2d1b3d;
                   border-radius: 4px;
                   text-transform: uppercase;
                 "
@@ -1517,7 +1538,7 @@
                   font-family: var(--font-mono);
                   font-size: 11px;
                   letter-spacing: 0.08em;
-                  color: rgba(45, 27, 61, 0.55);
+                  color: var(--color-text-soft);
                   text-transform: uppercase;
                 "
               >
@@ -1554,7 +1575,7 @@
                   border-top: 1px solid rgba(45, 27, 61, 0.1);
                   font-family: var(--font-mono);
                   font-size: 10px;
-                  color: rgba(45, 27, 61, 0.6);
+                  color: var(--color-text-soft);
                 "
               >
                 coral en cuerpo <strong style="color: #ff6b47">2.62:1</strong> ·
@@ -1582,7 +1603,7 @@
                   letter-spacing: 0.06em;
                   padding: 4px 8px;
                   background: #ff6b47;
-                  color: #faf6f0;
+                  color: #2d1b3d;
                   border-radius: 4px;
                   text-transform: uppercase;
                 "
@@ -1632,7 +1653,7 @@
                   border-top: 1px solid rgba(45, 27, 61, 0.1);
                   font-family: var(--font-mono);
                   font-size: 10px;
-                  color: rgba(45, 27, 61, 0.6);
+                  color: var(--color-text-soft);
                 "
               >
                 contraste OK · ✗ jerarquía rota
@@ -1658,7 +1679,7 @@
                   letter-spacing: 0.06em;
                   padding: 4px 8px;
                   background: #ff6b47;
-                  color: #faf6f0;
+                  color: #2d1b3d;
                   border-radius: 4px;
                   text-transform: uppercase;
                 "
@@ -1670,7 +1691,7 @@
                   font-family: var(--font-mono);
                   font-size: 11px;
                   letter-spacing: 0.08em;
-                  color: rgba(45, 27, 61, 0.55);
+                  color: var(--color-text-soft);
                   text-transform: uppercase;
                 "
               >
@@ -1707,7 +1728,7 @@
                   border-top: 1px solid rgba(45, 27, 61, 0.15);
                   font-family: var(--font-mono);
                   font-size: 10px;
-                  color: rgba(45, 27, 61, 0.55);
+                  color: var(--color-text-soft);
                 "
               >
                 violeta-soft + coral
@@ -2210,6 +2231,9 @@
             <div class="icon-tile" style="background: transparent">
               <img
                 src="assets/icons-web/caso.svg"
+                loading="lazy"
+                width="64"
+                height="64"
                 alt="caso"
                 style="width: 100%; display: block"
               /><span class="name">caso</span>
@@ -2217,6 +2241,9 @@
             <div class="icon-tile" style="background: transparent">
               <img
                 src="assets/icons-web/equipo.svg"
+                loading="lazy"
+                width="64"
+                height="64"
                 alt="equipo"
                 style="width: 100%; display: block"
               /><span class="name">equipo</span>
@@ -2224,6 +2251,9 @@
             <div class="icon-tile" style="background: transparent">
               <img
                 src="assets/icons-web/historia.svg"
+                loading="lazy"
+                width="64"
+                height="64"
                 alt="historia"
                 style="width: 100%; display: block"
               /><span class="name">historia</span>
@@ -2231,6 +2261,9 @@
             <div class="icon-tile" style="background: transparent">
               <img
                 src="assets/icons-web/ia.svg"
+                loading="lazy"
+                width="64"
+                height="64"
                 alt="ia"
                 style="width: 100%; display: block"
               /><span class="name">ia</span>
@@ -2238,6 +2271,9 @@
             <div class="icon-tile" style="background: transparent">
               <img
                 src="assets/icons-web/datos.svg"
+                loading="lazy"
+                width="64"
+                height="64"
                 alt="datos"
                 style="width: 100%; display: block"
               /><span class="name">datos</span>
@@ -2245,6 +2281,9 @@
             <div class="icon-tile" style="background: transparent">
               <img
                 src="assets/icons-web/ayudar.svg"
+                loading="lazy"
+                width="64"
+                height="64"
                 alt="ayudar"
                 style="width: 100%; display: block"
               /><span class="name">ayudar</span>
@@ -2252,6 +2291,9 @@
             <div class="icon-tile" style="background: transparent">
               <img
                 src="assets/icons-web/donar.svg"
+                loading="lazy"
+                width="64"
+                height="64"
                 alt="donar"
                 style="width: 100%; display: block"
               /><span class="name">donar</span>
@@ -2259,6 +2301,9 @@
             <div class="icon-tile" style="background: transparent">
               <img
                 src="assets/icons-web/compartir.svg"
+                loading="lazy"
+                width="64"
+                height="64"
                 alt="compartir"
                 style="width: 100%; display: block"
               /><span class="name">compartir</span>
@@ -2266,6 +2311,9 @@
             <div class="icon-tile" style="background: transparent">
               <img
                 src="assets/icons-web/prensa.svg"
+                loading="lazy"
+                width="64"
+                height="64"
                 alt="prensa"
                 style="width: 100%; display: block"
               /><span class="name">prensa</span>
@@ -2273,6 +2321,9 @@
             <div class="icon-tile" style="background: transparent">
               <img
                 src="assets/icons-web/contacto.svg"
+                loading="lazy"
+                width="64"
+                height="64"
                 alt="contacto"
                 style="width: 100%; display: block"
               /><span class="name">contacto</span>
@@ -2319,6 +2370,9 @@
             <div class="icon-tile" style="padding: 0; overflow: hidden">
               <img
                 src="assets/icons/01_comunidad.png"
+                loading="lazy"
+                width="1024"
+                height="1024"
                 alt="comunidad"
                 style="width: 100%; display: block"
               /><span class="name" style="padding: 8px 12px">comunidad</span>
@@ -2326,6 +2380,9 @@
             <div class="icon-tile" style="padding: 0; overflow: hidden">
               <img
                 src="assets/icons/02_anuncios.png"
+                loading="lazy"
+                width="1024"
+                height="1024"
                 alt="anuncios"
                 style="width: 100%; display: block"
               /><span class="name" style="padding: 8px 12px">anuncios</span>
@@ -2333,6 +2390,9 @@
             <div class="icon-tile" style="padding: 0; overflow: hidden">
               <img
                 src="assets/icons/03_general.png"
+                loading="lazy"
+                width="1024"
+                height="1024"
                 alt="general"
                 style="width: 100%; display: block; background: #2d1b3d"
               /><span class="name" style="padding: 8px 12px"
@@ -2342,6 +2402,9 @@
             <div class="icon-tile" style="padding: 0; overflow: hidden">
               <img
                 src="assets/icons/04_tratamiento.png"
+                loading="lazy"
+                width="1024"
+                height="1024"
                 alt="tratamiento"
                 style="width: 100%; display: block"
               /><span class="name" style="padding: 8px 12px">tratamiento</span>
@@ -2349,6 +2412,9 @@
             <div class="icon-tile" style="padding: 0; overflow: hidden">
               <img
                 src="assets/icons/05_ia.png"
+                loading="lazy"
+                width="1024"
+                height="1024"
                 alt="ia"
                 style="width: 100%; display: block"
               /><span class="name" style="padding: 8px 12px">ia</span>
@@ -2356,6 +2422,9 @@
             <div class="icon-tile" style="padding: 0; overflow: hidden">
               <img
                 src="assets/icons/06_web.png"
+                loading="lazy"
+                width="1024"
+                height="1024"
                 alt="web"
                 style="width: 100%; display: block"
               /><span class="name" style="padding: 8px 12px">web</span>
@@ -2363,6 +2432,9 @@
             <div class="icon-tile" style="padding: 0; overflow: hidden">
               <img
                 src="assets/icons/07_onco360.png"
+                loading="lazy"
+                width="1024"
+                height="1024"
                 alt="onco360"
                 style="width: 100%; display: block"
               /><span class="name" style="padding: 8px 12px">onco360</span>
@@ -2370,6 +2442,9 @@
             <div class="icon-tile" style="padding: 0; overflow: hidden">
               <img
                 src="assets/icons/08_fundadoras.png"
+                loading="lazy"
+                width="1024"
+                height="1024"
                 alt="fundadoras"
                 style="width: 100%; display: block"
               /><span class="name" style="padding: 8px 12px">fundadoras</span>
@@ -2622,152 +2697,12 @@
             >
               <img
                 src="assets/miriam-avatar.png"
+                loading="lazy"
+                width="1024"
+                height="1024"
                 alt="Avatar Miriam — ilustración a tinta con pelo violeta, gafas redondas, anotaciones científicas XLR2×9 y squamous cell cluster"
                 style="display: block; width: 100%; height: auto"
               />
-            </div>
-            <div style="display: none">
-              <svg viewBox="0 0 320 380" xmlns="http://www.w3.org/2000/svg">
-                <!-- Hair (violet) -->
-                <path
-                  d="M 60 130 C 60 80, 100 50, 160 50 C 220 50, 260 80, 260 130 C 268 145, 270 165, 262 185 C 274 195, 274 215, 262 230 C 270 240, 264 256, 252 260 C 252 280, 240 290, 232 290 L 88 290 C 80 290, 68 280, 68 260 C 56 256, 50 240, 58 230 C 46 215, 46 195, 58 185 C 50 165, 52 145, 60 130 Z"
-                  fill="#A44DB2"
-                />
-                <!-- Curl details on hair -->
-                <path
-                  d="M 95 110 C 100 100, 110 100, 115 110"
-                  fill="none"
-                  stroke="#2D1B3D"
-                  stroke-width="2"
-                  stroke-linecap="round"
-                  opacity="0.4"
-                />
-                <path
-                  d="M 200 95 C 205 85, 220 85, 225 100"
-                  fill="none"
-                  stroke="#2D1B3D"
-                  stroke-width="2"
-                  stroke-linecap="round"
-                  opacity="0.4"
-                />
-                <path
-                  d="M 240 145 C 250 140, 260 150, 255 165"
-                  fill="none"
-                  stroke="#2D1B3D"
-                  stroke-width="2"
-                  stroke-linecap="round"
-                  opacity="0.4"
-                />
-                <!-- Face -->
-                <ellipse cx="160" cy="200" rx="72" ry="84" fill="#FAF6F0" />
-                <!-- Glasses -->
-                <circle
-                  cx="135"
-                  cy="195"
-                  r="20"
-                  fill="none"
-                  stroke="#2D1B3D"
-                  stroke-width="3"
-                />
-                <circle
-                  cx="185"
-                  cy="195"
-                  r="20"
-                  fill="none"
-                  stroke="#2D1B3D"
-                  stroke-width="3"
-                />
-                <line
-                  x1="155"
-                  y1="195"
-                  x2="165"
-                  y2="195"
-                  stroke="#2D1B3D"
-                  stroke-width="3"
-                />
-                <!-- Freckles -->
-                <circle
-                  cx="125"
-                  cy="225"
-                  r="1.5"
-                  fill="#2D1B3D"
-                  opacity="0.7"
-                />
-                <circle
-                  cx="135"
-                  cy="232"
-                  r="1.5"
-                  fill="#2D1B3D"
-                  opacity="0.7"
-                />
-                <circle
-                  cx="185"
-                  cy="232"
-                  r="1.5"
-                  fill="#2D1B3D"
-                  opacity="0.7"
-                />
-                <circle
-                  cx="195"
-                  cy="225"
-                  r="1.5"
-                  fill="#2D1B3D"
-                  opacity="0.7"
-                />
-                <!-- Smile -->
-                <path
-                  d="M 140 252 C 150 262, 170 262, 180 252"
-                  fill="none"
-                  stroke="#2D1B3D"
-                  stroke-width="3"
-                  stroke-linecap="round"
-                />
-                <!-- Body -->
-                <path
-                  d="M 75 380 C 75 330, 110 295, 160 295 C 210 295, 245 330, 245 380"
-                  fill="none"
-                  stroke="#2D1B3D"
-                  stroke-width="3"
-                />
-                <!-- Annotations -->
-                <g
-                  font-family="Caveat, 'Comic Sans MS', cursive"
-                  fill="#2D1B3D"
-                  font-size="14"
-                >
-                  <text x="20" y="155" transform="rotate(-8 20 155)">
-                    XLR2 ×9
-                  </text>
-                  <path
-                    d="M 65 155 Q 50 175, 60 195"
-                    fill="none"
-                    stroke="#2D1B3D"
-                    stroke-width="1.5"
-                    marker-end="url(#a)"
-                  />
-                  <text x="240" y="180" transform="rotate(6 240 180)">
-                    BC-SCC
-                  </text>
-                  <path
-                    d="M 240 185 Q 230 200, 220 195"
-                    fill="none"
-                    stroke="#2D1B3D"
-                    stroke-width="1.5"
-                  />
-                </g>
-                <defs>
-                  <marker
-                    id="a"
-                    markerWidth="6"
-                    markerHeight="6"
-                    refX="5"
-                    refY="3"
-                    orient="auto"
-                  >
-                    <path d="M 0 0 L 6 3 L 0 6 Z" fill="#2D1B3D" />
-                  </marker>
-                </defs>
-              </svg>
             </div>
             <div>
               <h3 style="margin-top: 0">Reglas para generar nuevas piezas</h3>
@@ -3737,6 +3672,7 @@
             <strong style="color: var(--color-text)">como Miriam</strong>, no
             como un blog corporativo.
           </p>
+          <p style="font-size: 14px; color: var(--color-text-soft); max-width: 64ch; margin-top: 16px">Este sistema se construyó colaborando con Claude — no como generador de contenido final, sino como copiloto guiado por las reglas de esta página. Los prompts que siguen son los reales, no ejemplos ilustrativos.</p>
 
           <h3 style="margin-top: 40px">
             El prompt base — pega esto siempre primero
@@ -4328,8 +4264,9 @@ Mandatory reference: see existing portraits of Miriam and her team. Same level o
               debe poder hacer zoom hasta 200% sin perder contenido.
             </li>
             <li>
-              <strong>Foco visible siempre</strong>: outline 2 px coral con
-              offset 3 px en cualquier elemento interactivo. Nunca
+              <strong>Foco visible siempre</strong>: outline 2 px berenjena con
+              offset 3 px en cualquier elemento interactivo (el coral no llega al
+              3:1 de contraste, por eso el foco va en berenjena). Nunca
               <code style="font-family: var(--font-mono); font-size: 12px"
                 >outline:none</code
               >
@@ -4534,7 +4471,7 @@ Mandatory reference: see existing portraits of Miriam and her team. Same level o
             "
           >
             <a
-              href="https://github.com/ceciCoding/miriam-gonzalez-case"
+              href="https://github.com/BeyondTheProtocol/miriam-gonzalez-case"
               target="_blank"
               rel="noopener"
               style="
@@ -4583,7 +4520,7 @@ Mandatory reference: see existing portraits of Miriam and her team. Same level o
                     margin-top: 2px;
                   "
                 >
-                  ceciCoding/miriam-gonzalez-case
+                  BeyondTheProtocol/miriam-gonzalez-case
                 </div>
               </div>
               <div style="font-size: 13px; opacity: 0.7">Abrir →</div>
@@ -5378,8 +5315,8 @@ Mandatory reference: see existing portraits of Miriam and her team. Same level o
                   value="50"
                   style="
                     flex: 1;
+                    min-height: 44px;
                     border: none;
-                    outline: none;
                     background: transparent;
                     font-size: 16px;
                     color: #2d1b3d;
@@ -5455,8 +5392,8 @@ Mandatory reference: see existing portraits of Miriam and her team. Same level o
                   value="50"
                   style="
                     flex: 1;
+                    min-height: 44px;
                     border: none;
-                    outline: none;
                     background: transparent;
                     font-size: 16px;
                     color: #2d1b3d;
@@ -5530,8 +5467,8 @@ Mandatory reference: see existing portraits of Miriam and her team. Same level o
                   value="2"
                   style="
                     flex: 1;
+                    min-height: 44px;
                     border: none;
-                    outline: none;
                     background: transparent;
                     font-size: 16px;
                     color: #2d1b3d;
@@ -5612,8 +5549,8 @@ Mandatory reference: see existing portraits of Miriam and her team. Same level o
                   value="50"
                   style="
                     flex: 1;
+                    min-height: 44px;
                     border: none;
-                    outline: none;
                     background: transparent;
                     font-size: 16px;
                     color: #2d1b3d;
@@ -6526,7 +6463,7 @@ que entres limpio:
    helpmiriam.com/design-system
 
 2. Acceso al repositorio:
-   github.com/ceciCoding/miriam-gonzalez-case
+   github.com/BeyondTheProtocol/miriam-gonzalez-case
    (te añadimos en cuanto nos pases tu usuario)
 
 3. Tu primera tarea está aquí: [<span class="c-val">issue link</span>]

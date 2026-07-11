@@ -6,7 +6,7 @@
   --color-bg-card: #f5efe6; /* Crema profunda — cards */
   --color-text: #2d1b3d; /* Berenjena — texto principal, trazos */
   --color-text-soft: #3a3340; /* Tinta — texto secundario */
-  --color-miriam: #a44db2; /* Violeta — FIRMA. AA s/ crema (#faf6f0) toda talla. Solo titulares s/ crema-card y berenjena */
+  --color-miriam: #a44db2; /* Violeta — FIRMA. AA solo en titulares ≥24px s/ crema (#faf6f0). Solo titulares s/ crema-card y berenjena */
   --color-miriam-soft: #e8d4ed; /* Violeta soft — badges genómicos */
   --color-cta: #ff6b47; /* Coral — ACCIÓN (CTA único) */
   --color-cta-hover: #e5573a;
