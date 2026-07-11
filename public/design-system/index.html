@@ -420,7 +420,7 @@
 .timeline { position: relative; padding-inline-start: var(--sp-32);
   border-inline-start: 2px dotted var(--trazo-medio); }  /* «polvo de estrellas» */
 .hito { position: relative; padding-block: var(--sp-16); }
-.hito-nodo { position: absolute; inset-inline-start: calc(-1 * var(--sp-32) - 6px);
+.hito-nodo { position: absolute; inset-inline-start: calc(-1 * var(--sp-32) - 10px);
   inline-size: 14px; block-size: 14px; border-radius: var(--radius-pill);
   background: var(--superficie); border: 2px solid var(--identidad); }
 .hito.presente .hito-nodo { background: var(--color-cta); border-color: var(--color-cta); }
@@ -552,11 +552,10 @@
     #cap-2 .cuerpo-cap { grid-column: 1 / -1; max-inline-size: none; }
     #cap-2 .titulo-1 { font-size: clamp(44px, 7vw, 92px); }
     /* Cada capítulo con su propio ritmo (no solo el 02) — sin cambiar el orden de lectura (ND-safe) */
-    #cap-1 { margin-block-start: 140px; }
+    #cap-1 { margin-block-start: calc(var(--sp-96) + var(--sp-32) + var(--sp-12)); }
     #cap-1 .folio .num { font: 600 clamp(56px, 8vw, 100px)/.85 var(--font-display); color: var(--identidad); opacity: .13; letter-spacing: -.03em; }
     #cap-3 { margin-block-start: var(--sp-64); }
-    #cap-4 { margin-block-start: var(--sp-96); column-gap: var(--sp-32); }
-    #cap-4 .rail { border-block-start: 1.5px solid var(--identidad); padding-block-start: var(--sp-16); }
+    #cap-4 { margin-block-start: var(--sp-96); column-gap: var(--sp-32); border-block-start: 1.5px solid var(--identidad); padding-block-start: var(--sp-32); }
   }
 
   /* Color como PROPORCIÓN trabajando (sin rótulo "60/30/10") */
@@ -714,7 +713,7 @@
         <button class="btn btn--ghost">Descartar</button>
       </div>
 
-      <div class="card card--flotante" style="margin-block-start:var(--sp-32);max-inline-size:460px;border-radius:var(--radius-md)">
+      <div class="card card--flotante" style="margin-block-start:var(--sp-32);max-inline-size:460px">
         <div class="campo-grupo">
           <label class="etiqueta" for="e">Tu correo</label>
           <input class="campo" id="e" placeholder="nombre@dominio.com">
@@ -781,7 +780,7 @@
       <circle cx="300" cy="104" r="2.8" style="fill:color-mix(in srgb, var(--astro) 55%, transparent)"/>
       <circle cx="380" cy="54"  r="2.1" style="fill:color-mix(in srgb, var(--astro) 55%, transparent)"/>
       <path class="lapiz" d="M386.5 47.4c4.6 2.4 5.6 8.4 2.2 12.2-3.6 4-10.6 4.2-14.6.4-3.8-3.6-3-9.8 1.2-12.6 2.4-1.6 5.4-1.8 8-.8"/>
-      <path class="indicador" d="M336 82 C356 76 366 66 377 57"/>
+      <path class="indicador" d="M362 71C368 66,372 62,377 57"/>
       <text class="anota" x="250" y="90" transform="rotate(-3 250 90)">Cas · ε — Segin · 3.37 mag</text>
     </svg>
     <div class="texto">
