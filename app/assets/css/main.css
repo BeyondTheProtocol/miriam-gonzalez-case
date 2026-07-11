@@ -21,8 +21,8 @@
     left: 0;
     z-index: 9999;
     padding: 8px 16px;
-    background: #2d1b3d; /* berenjena */
-    color: #faf6f0;
+    background: var(--color-text); /* berenjena */
+    color: var(--color-bg);
     font-size: 0.875rem;
     font-weight: 600;
     text-decoration: none;
@@ -44,7 +44,7 @@
      crema lo hace visible también sobre las secciones oscuras (berenjena).
      Solo :focus-visible → no molesta al click de ratón, sí guía al teclado. */
   :where(a, button, summary, [role="button"], [tabindex]):focus-visible {
-    outline: 2px solid #9d44ab;
+    outline: 2px solid var(--color-miriam);
     outline-offset: 2px;
     border-radius: 4px;
     box-shadow: 0 0 0 4px rgba(250, 246, 240, 0.55);
@@ -136,7 +136,7 @@
   /* DS card — cream-card sobre cream */
   .card-base {
     @apply bg-cream-card rounded-card p-6 sm:p-8;
-    border: 1px solid rgba(45, 27, 61, 0.08);
+    border: 1px solid rgb(var(--color-text-rgb) / 0.08);
   }
 
   /* D8 · pulido desktop: lift sutil al pasar el cursor SOLO en tarjetas
@@ -151,7 +151,7 @@
     a.card-base:hover,
     button.card-base:hover {
       transform: translateY(-2px);
-      box-shadow: 0 14px 34px rgba(45, 27, 61, 0.1);
+      box-shadow: 0 14px 34px rgb(var(--color-text-rgb) / 0.1);
     }
   }
   @media (prefers-reduced-motion: reduce) {
@@ -167,7 +167,7 @@
     box-shadow: 0 0 0 0 transparent;
   }
   .btn-cta:hover {
-    box-shadow: 0 10px 22px -8px rgba(255, 107, 71, 0.55);
+    box-shadow: 0 10px 22px -8px rgb(var(--color-cta-rgb) / 0.55);
     transform: translateY(-2px);
   }
   @media (prefers-reduced-motion: reduce) {
@@ -177,7 +177,7 @@
   }
   .btn-secondary {
     @apply inline-flex items-center justify-center gap-2 px-5 py-3 rounded-btn font-semibold text-berenjena bg-transparent transition-colors;
-    border: 2px solid #2d1b3d;
+    border: 2px solid var(--color-text);
   }
   .btn-secondary:hover {
     @apply bg-berenjena text-cream;
@@ -223,15 +223,15 @@
      Sin movimiento (solo box-shadow), seguro siempre. */
   .badge-genomic:hover, .badge-genomic:focus-visible,
   .tag-gold:hover, .tag-gold:focus-visible {
-    box-shadow: 0 0 0 3px rgba(157, 68, 171, 0.18);
+    box-shadow: 0 0 0 3px rgb(var(--color-miriam-rgb) / 0.18);
   }
 
   /* Ocean tag (legacy) → outlined berenjena */
   .tag-ocean {
     @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-2xs font-medium tracking-wide uppercase;
-    background: rgba(45, 27, 61, 0.06);
-    color: #2d1b3d;
-    border: 1px solid rgba(45, 27, 61, 0.12);
+    background: rgb(var(--color-text-rgb) / 0.06);
+    color: var(--color-text);
+    border: 1px solid rgb(var(--color-text-rgb) / 0.12);
   }
 
   /* Stat number — Fraunces display */
@@ -267,20 +267,20 @@
     font-size: 12px;
     letter-spacing: 0.02em;
     padding: 14px 16px;
-    background: #f5efe6; /* cream-card */
-    border-bottom: 1px solid rgba(45, 27, 61, 0.08);
+    background: var(--color-bg-card); /* cream-card */
+    border-bottom: 1px solid rgb(var(--color-text-rgb) / 0.08);
   }
   .data-table thead th:first-child { border-top-left-radius: 12px; }
   .data-table thead th:last-child  { border-top-right-radius: 12px; }
   .data-table tbody td {
     padding: 14px 16px;
-    border-bottom: 1px solid rgba(45, 27, 61, 0.06);
+    border-bottom: 1px solid rgb(var(--color-text-rgb) / 0.06);
     vertical-align: middle;
-    color: #2d1b3d;
+    color: var(--color-text);
     font-variant-numeric: tabular-nums;
   }
   .data-table tbody tr:last-child td { border-bottom: 0; }
-  .data-table tbody tr:hover td { background: rgba(157, 68, 171, 0.04); }
+  .data-table tbody tr:hover td { background: rgb(var(--color-miriam-rgb) / 0.04); }
   .data-table .col-marker {
     @apply font-mono;
     font-size: 13px;
@@ -289,7 +289,7 @@
     word-break: normal;
   }
   .data-table .col-note {
-    color: #3a3340;
+    color: var(--color-text-soft);
     font-size: 13px;
     line-height: 1.5;
   }
@@ -311,7 +311,7 @@
   /* Card wrapper around a data table — keeps the rounded look from the mockups */
   .data-card {
     @apply bg-cream rounded-card overflow-hidden;
-    border: 1px solid rgba(45, 27, 61, 0.08);
+    border: 1px solid rgb(var(--color-text-rgb) / 0.08);
   }
 
   /* ────────────────────────────────────────────────────────────
@@ -333,7 +333,7 @@
     }
     .data-table--cards tr {
       padding: 14px 16px;
-      border-bottom: 1px solid rgba(45, 27, 61, 0.10);
+      border-bottom: 1px solid rgb(var(--color-text-rgb) / 0.10);
     }
     .data-table--cards tbody tr:last-child {
       border-bottom: 0;
@@ -361,7 +361,7 @@
       font-size: 10.5px;
       letter-spacing: 0.04em;
       text-transform: uppercase;
-      color: #3a3340;
+      color: var(--color-text-soft);
       font-weight: 500;
       line-height: 1.4;
     }
@@ -371,12 +371,12 @@
       text-align: left;
       padding: 2px 0 9px !important;
       margin-bottom: 4px;
-      border-bottom: 1px solid rgba(45, 27, 61, 0.06) !important;
+      border-bottom: 1px solid rgb(var(--color-text-rgb) / 0.06) !important;
       font-family: 'Fraunces', Georgia, serif;
       font-weight: 600;
       font-size: 16px;
       letter-spacing: -0.01em;
-      color: #2d1b3d;
+      color: var(--color-text);
     }
     .data-table--cards td.cell-head::before {
       display: none;
@@ -410,10 +410,10 @@
   .pill-data--info     { background: #e0ecf8; color: #1e4a6f; }
   .pill-data--warn     { background: #fde4cc; color: #8a4a1a; }
   .pill-data--positive { background: #d8ede0; color: #1f5a3a; }
-  .pill-data--neutral  { background: rgba(45,27,61,0.06); color: #3a3340; }
-  .pill-data--violet   { background: #e8d4ed; color: #5a2466; }
-  /* berenjena: pill de recuento (rima con la insignia de «N focos» del esqueleto, #2d1b3d). Tokens del DS; contraste ~13:1. */
-  .pill-data--berenjena { background: #2d1b3d; color: #faf6f0; }
+  .pill-data--neutral  { background: rgb(var(--color-text-rgb) / 0.06); color: var(--color-text-soft); }
+  .pill-data--violet   { background: var(--color-miriam-soft); color: #5a2466; }
+  /* berenjena: pill de recuento (rima con la insignia de «N focos» del esqueleto, var(--color-text)). Tokens del DS; contraste ~13:1. */
+  .pill-data--berenjena { background: var(--color-text); color: var(--color-bg); }
 
   /* Status badges (uppercase mono) — for clinical/trial status */
   .status-badge {
@@ -426,7 +426,7 @@
     white-space: nowrap;
   }
   .status-badge--active    { background: #d8ede0; color: #1f5a3a; }
-  .status-badge--complete  { background: rgba(45,27,61,0.06); color: #3a3340; }
+  .status-badge--complete  { background: rgb(var(--color-text-rgb) / 0.06); color: var(--color-text-soft); }
   .status-badge--candidate { background: #fde4cc; color: #8a4a1a; }
   .status-badge--reference {
     background: #e0ecf8;
@@ -439,7 +439,7 @@
     overflow-wrap: anywhere;
   }
   .status-badge--paused    { background: #f0d4cc; color: #7a3018; }
-  .status-badge--firma     { background: #e8d4ed; color: #5a2466; }
+  .status-badge--firma     { background: var(--color-miriam-soft); color: #5a2466; }
   /* shape: tag teal de morfología/factibilidad (forma del hueso); recurre en /mapa. */
   .status-badge--shape     { background: rgba(31,107,87,0.12); color: #1f6b57; }
 
@@ -449,7 +449,7 @@
      sits at the top, the value is pinned to the bottom (margin-top:auto). */
   .stat-readout {
     @apply bg-cream rounded-card flex flex-col;
-    border: 1px solid rgba(45, 27, 61, 0.08);
+    border: 1px solid rgb(var(--color-text-rgb) / 0.08);
     padding: 14px 16px;
     min-height: 108px;
   }
@@ -510,13 +510,13 @@
   /* Form controls — cream background, miriam focus ring */
   .form-input {
     @apply w-full px-4 py-2.5 bg-cream rounded-btn text-sm text-berenjena transition-all;
-    border: 1px solid rgba(45, 27, 61, 0.12);
+    border: 1px solid rgb(var(--color-text-rgb) / 0.12);
   }
-  .form-input::placeholder { color: rgba(58, 51, 64, 0.55); }
+  .form-input::placeholder { color: rgb(var(--color-text-soft-rgb) / 0.55); }
   .form-input:focus {
     outline: none;
-    border-color: #9d44ab;
-    box-shadow: 0 0 0 3px rgba(157, 68, 171, 0.18);
+    border-color: var(--color-miriam);
+    box-shadow: 0 0 0 3px rgb(var(--color-miriam-rgb) / 0.18);
   }
   .form-label {
     @apply block text-sm font-medium text-berenjena mb-1.5;
@@ -538,10 +538,10 @@
   .link-underline {
     @apply text-miriam font-medium;
     text-decoration: underline;
-    text-decoration-color: rgba(157, 68, 171, 0.45);
+    text-decoration-color: rgb(var(--color-miriam-rgb) / 0.45);
     text-decoration-thickness: 1px;
     text-underline-offset: 3px;
-    background-image: linear-gradient(#e8d4ed, #e8d4ed);
+    background-image: linear-gradient(var(--color-miriam-soft), var(--color-miriam-soft));
     background-size: 0% 60%;
     background-position: 0 90%;
     background-repeat: no-repeat;
@@ -553,8 +553,8 @@
   .link-inline:focus-visible,
   .link-underline:hover,
   .link-underline:focus-visible {
-    color: #2d1b3d;
-    text-decoration-color: #9d44ab;
+    color: var(--color-text);
+    text-decoration-color: var(--color-miriam);
     background-size: 100% 60%;
   }
 
@@ -589,16 +589,16 @@
   }
   .link-logo:hover,
   .link-logo:focus-visible {
-    color: #9d44ab; /* miriam */
+    color: var(--color-miriam); /* miriam */
     transform: translateY(-1px);
   }
 
   /* Enlaces dentro de contenido (markdown/prose): el plugin typography ya
      los subraya; aquí solo les añadimos el mismo resaltado de marca. */
   .prose a {
-    text-decoration-color: rgba(157, 68, 171, 0.45);
+    text-decoration-color: rgb(var(--color-miriam-rgb) / 0.45);
     text-underline-offset: 3px;
-    background-image: linear-gradient(#e8d4ed, #e8d4ed);
+    background-image: linear-gradient(var(--color-miriam-soft), var(--color-miriam-soft));
     background-size: 0% 60%;
     background-position: 0 90%;
     background-repeat: no-repeat;
@@ -608,8 +608,8 @@
   }
   .prose a:hover,
   .prose a:focus-visible {
-    color: #2d1b3d;
-    text-decoration-color: #9d44ab;
+    color: var(--color-text);
+    text-decoration-color: var(--color-miriam);
     background-size: 100% 60%;
   }
 
@@ -621,7 +621,7 @@
      violeta de firma al pasar/enfocar, como el resto de pistas
      interactivas del sistema. */
   .notes-disclosure {
-    border-top: 1px solid rgba(45, 27, 61, 0.08);
+    border-top: 1px solid rgb(var(--color-text-rgb) / 0.08);
   }
   .notes-disclosure > summary {
     @apply font-mono uppercase tracking-[0.12em] text-tinta;
@@ -653,11 +653,11 @@
   }
   .notes-disclosure > summary:hover,
   .notes-disclosure > summary:focus-visible {
-    color: #9d44ab;
+    color: var(--color-miriam);
     outline: none;
   }
   .notes-disclosure[open] > summary {
-    color: #9d44ab;
+    color: var(--color-miriam);
     margin-bottom: 4px;
   }
   @media (prefers-reduced-motion: reduce) {
@@ -673,7 +673,7 @@
      competir con las bandas de color con significado (anomalía/objetivo). */
   .chapter-rule {
     border: 0;
-    border-top: 1px solid rgba(45, 27, 61, 0.08);
+    border-top: 1px solid rgb(var(--color-text-rgb) / 0.08);
     margin: 0 0 2.75rem;
   }
 }
@@ -728,8 +728,8 @@
    · soft-pulse → punto coral en el borde de avance de la barra (latido).
    · draw-in    → trazado de líneas SVG (ECG / sparkline ctDNA). */
 @keyframes soft-pulse {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(255, 107, 71, 0.45); }
-  50% { box-shadow: 0 0 0 7px rgba(255, 107, 71, 0); }
+  0%, 100% { box-shadow: 0 0 0 0 rgb(var(--color-cta-rgb) / 0.45); }
+  50% { box-shadow: 0 0 0 7px rgb(var(--color-cta-rgb) / 0); }
 }
 @keyframes draw-in {
   from { stroke-dashoffset: var(--len, 400); }
@@ -777,7 +777,7 @@
   height: 8px;
   margin: -4px -4px 0 0;
   border-radius: 9999px;
-  background: #ff6b47;
+  background: var(--color-cta);
 }
 
 /* ────────────────────────────────────────────────────────────
@@ -790,12 +790,12 @@
 .link-inline:active,
 .link-underline:active,
 .prose a:active {
-  color: #2d1b3d;
-  text-decoration-color: #9d44ab;
+  color: var(--color-text);
+  text-decoration-color: var(--color-miriam);
   background-size: 100% 60%;
 }
 .link-logo:active {
-  color: #9d44ab;
+  color: var(--color-miriam);
 }
 .link-action:active {
   text-decoration: underline;
@@ -958,13 +958,13 @@
     font-family: 'JetBrains Mono', monospace;
     font-size: 12px;
     line-height: 1.55;
-    color: rgba(58, 51, 64, 0.82);
+    color: rgb(var(--color-text-soft-rgb) / 0.82);
     margin-top: 0.25rem;
   }
   .pathway-comfort__icon {
     width: 14px;
     height: 14px;
-    color: #9d44ab;
+    color: var(--color-miriam);
     flex-shrink: 0;
     align-self: center;
   }
@@ -993,13 +993,13 @@
     height: 100%;
     padding: 1.25rem 1.35rem;
     border-radius: 16px;
-    background: #faf6f0;
-    border: 1px solid rgba(45, 27, 61, 0.08);
+    background: var(--color-bg);
+    border: 1px solid rgb(var(--color-text-rgb) / 0.08);
     transition: box-shadow 0.18s ease;
   }
   @media (hover: hover) {
     .pathway-card:hover {
-      box-shadow: 0 10px 28px rgba(45, 27, 61, 0.08);
+      box-shadow: 0 10px 28px rgb(var(--color-text-rgb) / 0.08);
     }
   }
   .pathway-card__head {
@@ -1015,15 +1015,15 @@
     width: 2.25rem;
     height: 2.25rem;
     border-radius: 10px;
-    background: rgba(157, 68, 171, 0.12);
-    color: #2d1b3d;
+    background: rgb(var(--color-miriam-rgb) / 0.12);
+    color: var(--color-text);
   }
   .pathway-card__time {
     font-family: 'JetBrains Mono', monospace;
     font-size: 10.5px;
     letter-spacing: 0.06em;
     text-transform: uppercase;
-    color: rgba(58, 51, 64, 0.72);
+    color: rgb(var(--color-text-soft-rgb) / 0.72);
     white-space: nowrap;
   }
   .pathway-card__title {
@@ -1031,13 +1031,13 @@
     font-weight: 600;
     font-size: 1.05rem;
     line-height: 1.25;
-    color: #2d1b3d;
+    color: var(--color-text);
     text-wrap: balance;
   }
   .pathway-card__desc {
     font-size: 0.875rem;
     line-height: 1.55;
-    color: #3a3340;
+    color: var(--color-text-soft);
     flex: 1;
   }
   .pathway-card__steps {
@@ -1049,7 +1049,7 @@
     gap: 0.35rem;
     font-size: 0.78rem;
     line-height: 1.45;
-    color: rgba(58, 51, 64, 0.88);
+    color: rgb(var(--color-text-soft-rgb) / 0.88);
   }
   .pathway-card__steps li {
     display: flex;
@@ -1060,7 +1060,7 @@
     content: '→';
     font-family: 'JetBrains Mono', monospace;
     font-size: 10px;
-    color: #9d44ab;
+    color: var(--color-miriam);
     flex-shrink: 0;
   }
   .pathway-card__cta {
@@ -1071,7 +1071,7 @@
     margin-top: 0.45rem;
     font-size: 0.72rem;
     line-height: 1.45;
-    color: rgba(58, 51, 64, 0.78);
+    color: rgb(var(--color-text-soft-rgb) / 0.78);
     min-height: 2rem;
   }
 
@@ -1086,17 +1086,17 @@
     gap: 0.45rem;
     padding: 0.55rem 0.85rem;
     border-radius: 999px;
-    border: 1px solid rgba(45, 27, 61, 0.12);
-    background: #faf6f0;
-    color: #2d1b3d;
+    border: 1px solid rgb(var(--color-text-rgb) / 0.12);
+    background: var(--color-bg);
+    color: var(--color-text);
     font-size: 0.82rem;
     font-weight: 600;
     text-decoration: none;
     transition: background 0.15s ease, border-color 0.15s ease;
   }
   .pathway-chip:hover {
-    background: rgba(157, 68, 171, 0.1);
-    border-color: rgba(157, 68, 171, 0.28);
+    background: rgb(var(--color-miriam-rgb) / 0.1);
+    border-color: rgb(var(--color-miriam-rgb) / 0.28);
   }
   .pathway-chip__label {
     white-space: nowrap;
@@ -1106,7 +1106,7 @@
     font-size: 10px;
     letter-spacing: 0.04em;
     text-transform: uppercase;
-    color: rgba(58, 51, 64, 0.65);
+    color: rgb(var(--color-text-soft-rgb) / 0.65);
     margin-left: 0.1rem;
   }
 
@@ -1119,7 +1119,7 @@
     font-family: 'JetBrains Mono', monospace;
     font-size: 0.82rem;
     font-weight: 600;
-    color: #2d1b3d;
+    color: var(--color-text);
     list-style: none;
     padding: 0.65rem 0;
   }
@@ -1128,7 +1128,7 @@
   }
   .pathway-brief__summary::before {
     content: '▸';
-    color: #9d44ab;
+    color: var(--color-miriam);
     transition: transform 0.15s ease;
   }
   .pathway-brief[open] .pathway-brief__summary::before {
@@ -1140,8 +1140,8 @@
     text-transform: uppercase;
     padding: 0.2rem 0.55rem;
     border-radius: 999px;
-    background: rgba(157, 68, 171, 0.12);
-    color: #2d1b3d;
+    background: rgb(var(--color-miriam-rgb) / 0.12);
+    color: var(--color-text);
   }
   .pathway-brief__list {
     margin: 0;
@@ -1157,7 +1157,7 @@
     align-items: flex-start;
     font-size: 0.9rem;
     line-height: 1.55;
-    color: #3a3340;
+    color: var(--color-text-soft);
   }
   .pathway-brief__num {
     display: inline-flex;
@@ -1166,11 +1166,11 @@
     width: 1.5rem;
     height: 1.5rem;
     border-radius: 6px;
-    background: rgba(157, 68, 171, 0.14);
+    background: rgb(var(--color-miriam-rgb) / 0.14);
     font-family: 'JetBrains Mono', monospace;
     font-size: 11px;
     font-weight: 700;
-    color: #2d1b3d;
+    color: var(--color-text);
     flex-shrink: 0;
   }
 
@@ -1179,12 +1179,12 @@
     .pathway-card,
     .pathway-chip,
     .card-base {
-      border-color: rgba(45, 27, 61, 0.22);
+      border-color: rgb(var(--color-text-rgb) / 0.22);
     }
     .pathway-card__desc,
     .pathway-comfort,
     .nota {
-      color: #2d1b3d;
+      color: var(--color-text);
     }
     .btn-secondary {
       border-width: 2.5px;
