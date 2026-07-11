@@ -319,12 +319,12 @@ const ariaLabel = computed(() => t('twofaces.sr'))
   font-family: 'Caveat', 'Bradley Hand', cursive;
   font-size: 18px;
   font-weight: 700;
-  fill: #2d1b3d;
+  fill: var(--color-text);
 }
 .tf2__sub {
   font-family: 'Caveat', 'Bradley Hand', cursive;
   font-size: 13px;
-  fill: #3a3340;
+  fill: var(--color-text-soft);
 }
 .tf2__genes {
   font-family: 'Caveat', 'Bradley Hand', cursive;
@@ -358,20 +358,20 @@ const ariaLabel = computed(() => t('twofaces.sr'))
 .tf2__known-n {
   font-family: 'Caveat', 'Bradley Hand', cursive;
   font-size: 12px;
-  fill: #3a3340;
+  fill: var(--color-text-soft);
 }
 .tf2__pct {
   font-family: 'Caveat', 'Bradley Hand', cursive;
   font-size: 34px;
   font-weight: 700;
-  fill: #2d1b3d;
+  fill: var(--color-text);
   opacity: 0.3;
 }
 .tf2__cgsyn {
   font-family: 'Caveat', 'Bradley Hand', cursive;
   font-size: 13px;
   font-weight: 700;
-  fill: #2d1b3d;
+  fill: var(--color-text);
   opacity: 0.4;
 }
 /* Leyenda en lenguaje llano bajo el esquema (sustituye al cierre). */
@@ -394,7 +394,7 @@ const ariaLabel = computed(() => t('twofaces.sr'))
   gap: 7px;
   font-size: 13px;
   line-height: 1.35;
-  color: #3a3340;
+  color: var(--color-text-soft);
 }
 .tf2-legend__g {
   width: 18px;

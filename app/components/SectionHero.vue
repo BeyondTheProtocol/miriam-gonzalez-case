@@ -375,7 +375,7 @@ const stats = computed(() => [
 .hero__portrait-frame {
   overflow: hidden;
   border-radius: 20px;
-  box-shadow: 0 18px 44px -22px rgba(45, 27, 61, 0.45);
+  box-shadow: 0 18px 44px -22px rgb(var(--color-text-rgb) / 0.45);
   aspect-ratio: 1;
 }
 
@@ -391,12 +391,12 @@ const stats = computed(() => [
   z-index: 2;
   padding: 0.35rem 0.7rem;
   border-radius: 999px;
-  background: #9d44ab;
-  color: #faf6f0;
+  background: var(--color-miriam);
+  color: var(--color-bg);
   font-family: 'JetBrains Mono', monospace;
   font-size: 10px;
   letter-spacing: 0.04em;
-  box-shadow: 0 8px 20px -8px rgba(45, 27, 61, 0.45);
+  box-shadow: 0 8px 20px -8px rgb(var(--color-text-rgb) / 0.45);
   transform: rotate(2deg);
 }
 @media (min-width: 640px) {
@@ -426,14 +426,14 @@ const stats = computed(() => [
 .hero__portrait-tag span {
   display: inline-block;
   border-radius: 999px;
-  background: #2d1b3d;
-  color: #faf6f0;
+  background: var(--color-text);
+  color: var(--color-bg);
   font-family: 'JetBrains Mono', monospace;
   font-size: 10px;
   letter-spacing: 0.12em;
   text-transform: uppercase;
   padding: 0.4rem 0.9rem;
-  box-shadow: 0 10px 24px -12px rgba(45, 27, 61, 0.55);
+  box-shadow: 0 10px 24px -12px rgb(var(--color-text-rgb) / 0.55);
 }
 @media (min-width: 640px) {
   .hero__portrait-tag span {
@@ -491,7 +491,7 @@ const stats = computed(() => [
   margin: 0;
   font-size: 0.75rem;
   line-height: 1.45;
-  color: #3a3340;
+  color: var(--color-text-soft);
   min-height: 2.25rem;
 }
 /* En móvil los CTAs se apilan (1 col), no hay que igualar captions → sin hueco muerto. */
@@ -507,7 +507,7 @@ const stats = computed(() => [
 .hero__proof {
   margin-top: 2.5rem;
   padding-top: 1.75rem;
-  border-top: 1px solid rgba(45, 27, 61, 0.1);
+  border-top: 1px solid rgb(var(--color-text-rgb) / 0.1);
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
@@ -568,14 +568,14 @@ const stats = computed(() => [
   font-family: 'JetBrains Mono', monospace;
   font-size: 0.875rem;
   line-height: 1.45;
-  color: #9d44ab;
+  color: var(--color-miriam);
   text-decoration: underline;
-  text-decoration-color: rgba(157, 68, 171, 0.5);
+  text-decoration-color: rgb(var(--color-miriam-rgb) / 0.5);
   text-underline-offset: 3px;
   transition: text-decoration-color 0.15s ease;
 }
 .hero__latest:hover .hero__latest-title {
-  text-decoration-color: #9d44ab;
+  text-decoration-color: var(--color-miriam);
 }
 
 /* Stats · rejilla cerrada, alturas iguales. Sin divisor propio: cuelga de hero__proof. */
@@ -600,7 +600,7 @@ const stats = computed(() => [
 @media (min-width: 640px) {
   .hero__stat {
     padding-inline: 1.75rem;
-    border-left: 1px solid rgba(45, 27, 61, 0.14);
+    border-left: 1px solid rgb(var(--color-text-rgb) / 0.14);
     min-height: 5rem;
   }
   .hero__stat:first-child {
@@ -625,7 +625,7 @@ const stats = computed(() => [
   line-height: 1.35;
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  color: #3a3340;
+  color: var(--color-text-soft);
   word-break: break-word;
 }
 @media (min-width: 1024px) {
@@ -658,7 +658,7 @@ const stats = computed(() => [
 }
 .tf-line {
   fill: none;
-  stroke: #9d44ab;
+  stroke: var(--color-miriam);
   stroke-width: 2.6;
   stroke-linecap: round;
 }
@@ -677,8 +677,8 @@ const stats = computed(() => [
   animation: hero-pulse 2s ease-in-out 3;
 }
 @keyframes hero-pulse {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(255, 107, 71, 0.4); }
-  50% { box-shadow: 0 0 0 7px rgba(255, 107, 71, 0); }
+  0%, 100% { box-shadow: 0 0 0 0 rgb(var(--color-cta-rgb) / 0.4); }
+  50% { box-shadow: 0 0 0 7px rgb(var(--color-cta-rgb) / 0); }
 }
 @media (prefers-reduced-motion: reduce) {
   .hero-live-dot { animation: none; }

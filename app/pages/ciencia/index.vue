@@ -956,7 +956,7 @@ const snapshotRows = computed(() =>
   scroll-margin-top: 7.5rem;
 }
 /* Columna de referencia (VHIO) resaltada en la tabla de patología "3 lecturas". */
-.reads-vh { background: rgba(157, 68, 171, 0.07); }
+.reads-vh { background: rgb(var(--color-miriam-rgb) / 0.07); }
 
 /* Conmutador de nivel de lectura (ciencia en 3 capas). Sigue la paleta del
    sistema: berenjena para el activo, mono para las etiquetas. Tap target ≥40px. */
@@ -971,7 +971,7 @@ const snapshotRows = computed(() =>
   font-size: 11px;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: rgba(45, 27, 61, 0.55);
+  color: rgb(var(--color-text-rgb) / 0.55);
 }
 .reading-level__seg {
   /* Móvil: ocupa el ancho y las pastillas se reparten la fila (etiquetas largas
@@ -981,8 +981,8 @@ const snapshotRows = computed(() =>
   max-width: 440px;
   padding: 3px;
   border-radius: 999px;
-  background: rgba(45, 27, 61, 0.05);
-  border: 1px solid rgba(45, 27, 61, 0.1);
+  background: rgb(var(--color-text-rgb) / 0.05);
+  border: 1px solid rgb(var(--color-text-rgb) / 0.1);
 }
 .reading-level__btn {
   appearance: none;
@@ -996,7 +996,7 @@ const snapshotRows = computed(() =>
   font-size: 12px;
   letter-spacing: 0.02em;
   line-height: 1.15;
-  color: rgba(45, 27, 61, 0.62);
+  color: rgb(var(--color-text-rgb) / 0.62);
   padding: 8px 12px;
   min-height: 40px;
   border-radius: 999px;
@@ -1014,15 +1014,15 @@ const snapshotRows = computed(() =>
   }
 }
 .reading-level__btn:hover {
-  color: #2d1b3d;
+  color: var(--color-text);
 }
 .reading-level__btn.is-active {
-  background: #2d1b3d;
-  color: #faf6f0;
+  background: var(--color-text);
+  color: var(--color-bg);
   font-weight: 600;
 }
 .reading-level__btn:focus-visible {
-  outline: 2px solid #ff6b47;
+  outline: 2px solid var(--color-cta);
   outline-offset: 2px;
 }
 @media (prefers-reduced-motion: reduce) {

@@ -526,7 +526,7 @@ export default { name: 'MarcasPage' }
 .m-signoff {
   margin-top: 1.5rem;
   padding-top: 1.25rem;
-  border-top: 1px solid rgba(232, 212, 237, 0.22);
+  border-top: 1px solid rgb(var(--color-miriam-soft-rgb) / 0.22);
   width: fit-content;
   margin-left: auto;
   margin-right: auto;
@@ -554,7 +554,7 @@ export default { name: 'MarcasPage' }
 
 /* Anillo decorativo del avatar (violeta-soft translúcido). */
 .avatar-ring {
-  border: 3px solid rgba(232, 212, 237, 0.5);
+  border: 3px solid rgb(var(--color-miriam-soft-rgb) / 0.5);
   box-shadow: 0 16px 40px -16px rgba(0, 0, 0, 0.6);
 }
 
@@ -562,7 +562,7 @@ export default { name: 'MarcasPage' }
 .marca-name {
   text-decoration: underline;
   text-decoration-style: dashed;
-  text-decoration-color: rgba(199, 125, 210, 0.8);
+  text-decoration-color: rgb(var(--color-miriam-claro-rgb) / 0.8);
   text-underline-offset: 4px;
 }
 
@@ -586,7 +586,7 @@ export default { name: 'MarcasPage' }
   gap: 0.55rem;
   margin-top: 0.2rem;
   padding-top: 0.85rem;
-  border-top: 1px solid rgba(45, 27, 61, 0.08);
+  border-top: 1px solid rgb(var(--color-text-rgb) / 0.08);
 }
 .pilar-gain__icon {
   transform: translateY(0.18em);
@@ -673,14 +673,14 @@ export default { name: 'MarcasPage' }
 }
 @media (hover: hover) {
   .encaje-tag:hover {
-    box-shadow: 0 0 0 3px rgba(157, 68, 171, 0.18);
+    box-shadow: 0 0 0 3px rgb(var(--color-miriam-rgb) / 0.18);
   }
 }
 
 /* Fila del dossier — cierre del bloque con filete fino superior (sin caja). */
 .dossier-row {
   padding-top: 1.75rem;
-  border-top: 1px solid rgba(45, 27, 61, 0.1);
+  border-top: 1px solid rgb(var(--color-text-rgb) / 0.1);
 }
 
 /* Fila de cierre de la sección de audiencia — MISMO filete fino superior que
@@ -693,7 +693,7 @@ export default { name: 'MarcasPage' }
   align-items: flex-start;
   gap: 1.1rem;
   padding-top: 1.75rem;
-  border-top: 1px solid rgba(45, 27, 61, 0.1);
+  border-top: 1px solid rgb(var(--color-text-rgb) / 0.1);
 }
 @media (min-width: 640px) {
   .audiencia-cta-row {
@@ -719,7 +719,7 @@ export default { name: 'MarcasPage' }
   pointer-events: none;
   overflow: hidden;
   opacity: 0.04;
-  background-image: radial-gradient(circle at 1px 1px, #faf6f0 1px, transparent 0);
+  background-image: radial-gradient(circle at 1px 1px, var(--color-bg) 1px, transparent 0);
   background-size: 32px 32px;
 }
 
@@ -733,8 +733,8 @@ export default { name: 'MarcasPage' }
    Decisiones de marca + VISIBILIDAD (lo que antes fallaba):
      · Estrellas VISIBLES: núcleos op. 0.78–0.85 (casi opacos), satélites
        0.5–0.65; enlaces op. 0.22–0.30 (NO 0.16). Se ve claro sobre berenjena.
-     · UN núcleo en miriam-claro (#c77dd2, énfasis sobre oscuro, único color
-       fuera del crema y dentro de marca); el resto crema (#faf6f0).
+     · UN núcleo en miriam-claro (var(--color-miriam-claro), énfasis sobre oscuro, único color
+       fuera del crema y dentro de marca); el resto crema (var(--color-bg)).
      · Líneas CURVAS finas (Q de Bézier, estilo penLine) → racimo, no malla rígida.
      · Estático salvo un único parpadeo sutil al entrar (off con reduced-motion).
    El <figure> es el lienzo: posición relativa para que el SVG se ancle al avatar. */
@@ -811,7 +811,7 @@ export default { name: 'MarcasPage' }
     font-family: 'JetBrains Mono', monospace;
     font-size: 12px;
     letter-spacing: 0.04em;
-    box-shadow: 0 12px 28px -10px rgba(45, 27, 61, 0.6);
+    box-shadow: 0 12px 28px -10px rgb(var(--color-text-rgb) / 0.6);
     transition: transform 0.15s ease, background 0.2s ease;
   }
   .m-print-btn:hover {

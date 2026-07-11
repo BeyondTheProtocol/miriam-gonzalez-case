@@ -247,8 +247,8 @@ const groups = computed(() => {
   display: inline-flex;
   align-items: center;
   position: relative;
-  background: #2d1b3d;
-  color: #faf6f0;
+  background: var(--color-text);
+  color: var(--color-bg);
   font-family: 'Fraunces', Georgia, serif;
   font-weight: 600;
   font-size: 15px;
@@ -265,32 +265,32 @@ const groups = computed(() => {
   min-height: 44px;
   padding: 8px 14px;
   border-radius: 9999px;
-  border: 1px solid rgba(45, 27, 61, 0.16);
-  background: #faf6f0;
+  border: 1px solid rgb(var(--color-text-rgb) / 0.16);
+  background: var(--color-bg);
   font-family: 'Hanken Grotesk', system-ui, sans-serif;
   font-size: 13.5px;
   font-weight: 600;
-  color: #3a3340;
+  color: var(--color-text-soft);
   cursor: pointer;
   transition: border-color 0.2s ease, color 0.2s ease, background 0.2s ease, transform 0.15s ease;
   -webkit-tap-highlight-color: transparent;
   touch-action: manipulation;
 }
 .tl-chip:hover {
-  border-color: rgba(45, 27, 61, 0.32);
-  background: #f5efe6;
+  border-color: rgb(var(--color-text-rgb) / 0.32);
+  background: var(--color-bg-card);
 }
 .tl-chip:active {
   transform: scale(0.97);
 }
 .tl-chip:focus-visible {
-  outline: 2px solid #ff6b47;
+  outline: 2px solid var(--color-cta);
   outline-offset: 2px;
 }
 .tl-chip--active {
-  background: #f5efe6;
-  border-color: #2d1b3d;
-  color: #2d1b3d;
+  background: var(--color-bg-card);
+  border-color: var(--color-text);
+  color: var(--color-text);
 }
 .tl-chip__dot {
   width: 8px;

@@ -218,8 +218,8 @@ defineOgImage('Default.takumi', {
   padding: 0.85rem 1rem;
   border-radius: 16px; /* rounded-card */
   text-decoration: none;
-  border: 1px solid rgba(45, 27, 61, 0.1);
-  background: #faf6f0; /* cream */
+  border: 1px solid rgb(var(--color-text-rgb) / 0.1);
+  background: var(--color-bg); /* cream */
   transition:
     transform 0.18s ease,
     box-shadow 0.18s ease,
@@ -230,8 +230,8 @@ defineOgImage('Default.takumi', {
 /* Destacados — los 3 prioritarios: superficie cream-card + acento violeta en el
    icono, un punto más de presencia. El borde se tiñe de miriam al pasar/enfocar. */
 .bio-link--featured {
-  background: #f5efe6; /* cream-card */
-  border-color: rgba(157, 68, 171, 0.22);
+  background: var(--color-bg-card); /* cream-card */
+  border-color: rgb(var(--color-miriam-rgb) / 0.22);
 }
 
 .bio-link__icon {
@@ -242,12 +242,12 @@ defineOgImage('Default.takumi', {
   height: 2.6rem;
   flex-shrink: 0;
   border-radius: 12px;
-  background: rgba(157, 68, 171, 0.12); /* miriam soft tint */
-  color: #9d44ab; /* miriam */
+  background: rgb(var(--color-miriam-rgb) / 0.12); /* miriam soft tint */
+  color: var(--color-miriam); /* miriam */
 }
 .bio-link__icon--soft {
-  background: rgba(45, 27, 61, 0.06);
-  color: #2d1b3d; /* berenjena */
+  background: rgb(var(--color-text-rgb) / 0.06);
+  color: var(--color-text); /* berenjena */
 }
 
 .bio-link__body {
@@ -263,13 +263,13 @@ defineOgImage('Default.takumi', {
   font-size: 1rem;
   line-height: 1.25;
   letter-spacing: -0.01em;
-  color: #2d1b3d; /* berenjena */
+  color: var(--color-text); /* berenjena */
   text-wrap: balance;
 }
 .bio-link__sub {
   font-size: 0.8rem;
   line-height: 1.4;
-  color: #3a3340; /* tinta — AA sobre cream/cream-card */
+  color: var(--color-text-soft); /* tinta — AA sobre cream/cream-card */
 }
 .bio-link__arrow {
   width: 1.1rem;
@@ -286,19 +286,19 @@ defineOgImage('Default.takumi', {
 @media (hover: hover) {
   .bio-link:hover {
     transform: translateY(-2px);
-    box-shadow: 0 14px 34px rgba(45, 27, 61, 0.1);
+    box-shadow: 0 14px 34px rgb(var(--color-text-rgb) / 0.1);
   }
   .bio-link--featured:hover {
-    border-color: rgba(157, 68, 171, 0.4);
+    border-color: rgb(var(--color-miriam-rgb) / 0.4);
   }
   .bio-link--soft:hover {
-    border-color: rgba(45, 27, 61, 0.18);
+    border-color: rgb(var(--color-text-rgb) / 0.18);
   }
 }
 .bio-link:hover .bio-link__arrow,
 .bio-link:focus-visible .bio-link__arrow,
 .bio-link:active .bio-link__arrow {
-  color: #9d44ab; /* miriam */
+  color: var(--color-miriam); /* miriam */
   transform: translateX(2px);
 }
 /* Enlaces externos: la flecha apunta arriba-derecha → al pasar «se va» en diagonal. */
@@ -315,7 +315,7 @@ defineOgImage('Default.takumi', {
 
 .bio-rule {
   border: 0;
-  border-top: 1px solid rgba(45, 27, 61, 0.08);
+  border-top: 1px solid rgb(var(--color-text-rgb) / 0.08);
   margin: 0.4rem 0;
 }
 
@@ -342,10 +342,10 @@ defineOgImage('Default.takumi', {
 /* Alto contraste: refuerza los bordes sin romper la marca. */
 @media (prefers-contrast: more) {
   .bio-link {
-    border-color: rgba(45, 27, 61, 0.28);
+    border-color: rgb(var(--color-text-rgb) / 0.28);
   }
   .bio-link__sub {
-    color: #2d1b3d;
+    color: var(--color-text);
   }
 }
 </style>

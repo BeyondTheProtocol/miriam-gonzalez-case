@@ -28,16 +28,16 @@ defineProps<{ icon?: 'tap' }>()
   font-family: 'JetBrains Mono', monospace;
   font-size: 12px;
   line-height: 1.55;
-  color: rgba(58, 51, 64, 0.78);
+  color: rgb(var(--color-text-soft-rgb) / 0.78);
 }
 .nota-mark {
-  color: #9d44ab;
+  color: var(--color-miriam);
   flex-shrink: 0;
 }
 .nota-icon {
   width: 14px;
   height: 14px;
-  color: #9d44ab;
+  color: var(--color-miriam);
   flex-shrink: 0;
   align-self: center;
 }

@@ -19,7 +19,7 @@ const { days } = useDaysWaiting()
 
 <style scoped>
 .counter-tag {
-  background: rgba(255, 107, 71, 0.1);
-  border: 1px solid rgba(255, 107, 71, 0.3);
+  background: rgb(var(--color-cta-rgb) / 0.1);
+  border: 1px solid rgb(var(--color-cta-rgb) / 0.3);
 }
 </style>

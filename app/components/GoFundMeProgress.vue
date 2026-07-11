@@ -373,7 +373,7 @@ function rowBg(i: number) {
   transform: translateX(2px);
 }
 .dw-donors-link:focus-visible {
-  outline: 2px solid #ff6b47;
+  outline: 2px solid var(--color-cta);
   outline-offset: 2px;
   border-radius: 4px;
 }
@@ -401,7 +401,7 @@ function rowBg(i: number) {
 }
 .ms-tick--dark {
   height: 8px;
-  background: rgba(45, 27, 61, 0.45);
+  background: rgb(var(--color-text-rgb) / 0.45);
 }
 .ms-amt {
   margin-top: 7px;
@@ -414,7 +414,7 @@ function rowBg(i: number) {
 /* Proyección «cuánto faltaría» al pinchar un hito del listado. Translúcida →
    se distingue del recaudado real (coral sólido) y no falsea la cifra. */
 .ms-ghost {
-  background: rgba(255, 107, 71, 0.32);
+  background: rgb(var(--color-cta-rgb) / 0.32);
   transition: width 0.35s ease, left 0.35s ease;
 }
 /* Filas del listado clicables (vista previa). */
@@ -425,10 +425,10 @@ function rowBg(i: number) {
   -webkit-tap-highlight-color: transparent;
 }
 .ms-row:hover {
-  background: rgba(255, 107, 71, 0.14) !important;
+  background: rgb(var(--color-cta-rgb) / 0.14) !important;
 }
 .ms-row:focus-visible {
-  outline: 2px solid #ff6b47;
+  outline: 2px solid var(--color-cta);
   outline-offset: -2px;
 }
 @media (prefers-reduced-motion: reduce) {
