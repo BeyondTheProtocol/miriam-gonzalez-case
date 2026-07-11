@@ -99,7 +99,9 @@ export default {
       },
       fontFamily: {
         display: ['Fraunces', 'Georgia', 'serif'],
-        body: ['Source Sans 3', 'system-ui', 'sans-serif'],
+        // Cuerpo/UI: Hanken Grotesk (elección del tipógrafo, 9-jul) — cálida, x-height
+        // generosa, quita el «tell» de Source Sans. Ya cargada por @nuxt/fonts.
+        body: ['Hanken Grotesk', 'system-ui', 'sans-serif'],
         mono: ['JetBrains Mono', 'monospace'],
       },
       fontSize: {
