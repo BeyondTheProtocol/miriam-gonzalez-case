@@ -58,14 +58,14 @@ const initial = computed(
   aspect-ratio: 1 / 1;
   overflow: hidden;
   border-radius: 16px;
-  background: #f5efe6; /* cream-card: el papel del retrato se funde con este tono */
-  border: 1px solid rgba(45, 27, 61, 0.08);
+  background: var(--color-bg-card); /* cream-card: el papel del retrato se funde con este tono */
+  border: 1px solid rgb(var(--color-text-rgb) / 0.08);
   transition: transform 0.25s ease, box-shadow 0.25s ease;
 }
 
 .team-portrait:hover .team-portrait__frame {
   transform: translateY(-4px);
-  box-shadow: 0 16px 30px -18px rgba(45, 27, 61, 0.45);
+  box-shadow: 0 16px 30px -18px rgb(var(--color-text-rgb) / 0.45);
 }
 
 .team-portrait__img {
@@ -88,11 +88,11 @@ const initial = computed(
   font-weight: 500;
   font-size: 3.5rem;
   letter-spacing: -0.04em;
-  color: #9d44ab; /* miriam */
+  color: var(--color-miriam); /* miriam */
   background: linear-gradient(
     180deg,
-    rgba(157, 68, 171, 0.08),
-    rgba(157, 68, 171, 0.02)
+    rgb(var(--color-miriam-rgb) / 0.08),
+    rgb(var(--color-miriam-rgb) / 0.02)
   );
 }
 
@@ -120,14 +120,14 @@ const initial = computed(
   font-weight: 600;
   font-size: 20px;
   letter-spacing: -0.02em;
-  color: #2d1b3d; /* berenjena */
+  color: var(--color-text); /* berenjena */
   margin-top: 4px;
 }
 
 .team-portrait__desc {
   font-size: 13px;
   line-height: 1.55;
-  color: #3a3340; /* tinta */
+  color: var(--color-text-soft); /* tinta */
   margin-top: 8px;
 }
 

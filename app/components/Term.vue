@@ -382,7 +382,7 @@ onClickOutside(triggerRef, () => hide(), { ignore: [popRef] })
   text-decoration-style: dotted;
   text-decoration-thickness: 1.5px;
   text-underline-offset: 3px;
-  text-decoration-color: rgba(157, 68, 171, 0.6);
+  text-decoration-color: rgb(var(--color-miriam-rgb) / 0.6);
   transition: text-decoration-color 0.2s ease;
   white-space: normal;
   -webkit-tap-highlight-color: transparent;
@@ -392,10 +392,10 @@ onClickOutside(triggerRef, () => hide(), { ignore: [popRef] })
 .term:focus-visible,
 .term[aria-expanded='true'] {
   text-decoration-style: solid;
-  text-decoration-color: #9d44ab;
+  text-decoration-color: var(--color-miriam);
 }
 .term:focus-visible {
-  outline: 2px solid #ff6b47;
+  outline: 2px solid var(--color-cta);
   outline-offset: 2px;
   border-radius: 2px;
 }
@@ -403,8 +403,8 @@ onClickOutside(triggerRef, () => hide(), { ignore: [popRef] })
    de tooltip. Anula los resets de .term (sin subrayado, con fondo y padding). */
 .term--badge {
   display: inline-block;
-  background: #e8d4ed; /* miriam-soft */
-  color: #2d1b3d; /* berenjena */
+  background: var(--color-miriam-soft); /* miriam-soft */
+  color: var(--color-text); /* berenjena */
   border-radius: 9999px;
   padding: 4px 12px;
   font-family: 'JetBrains Mono', monospace;
@@ -422,8 +422,8 @@ onClickOutside(triggerRef, () => hide(), { ignore: [popRef] })
 .term--badge:focus-visible,
 .term--badge[aria-expanded='true'] {
   text-decoration: none;
-  border-color: #9d44ab; /* miriam */
-  box-shadow: 0 0 0 3px rgba(157, 68, 171, 0.18);
+  border-color: var(--color-miriam); /* miriam */
+  box-shadow: 0 0 0 3px rgb(var(--color-miriam-rgb) / 0.18);
 }
 .term--badge:focus-visible {
   border-radius: 9999px;
@@ -438,13 +438,13 @@ onClickOutside(triggerRef, () => hide(), { ignore: [popRef] })
   z-index: 60;
   padding: 11px 13px;
   border-radius: 11px;
-  background: #2d1b3d;
-  color: #faf6f0;
+  background: var(--color-text);
+  color: var(--color-bg);
   font-family: 'Hanken Grotesk', system-ui, sans-serif;
   font-size: 13.5px;
   line-height: 1.5;
   white-space: normal;
-  box-shadow: 0 14px 34px -12px rgba(45, 27, 61, 0.55);
+  box-shadow: 0 14px 34px -12px rgb(var(--color-text-rgb) / 0.55);
   opacity: 0;
   transform: translateY(3px);
   transition: opacity 0.16s ease, transform 0.16s ease;
@@ -458,7 +458,7 @@ onClickOutside(triggerRef, () => hide(), { ignore: [popRef] })
   width: 10px;
   height: 10px;
   margin-left: -5px;
-  background: #2d1b3d;
+  background: var(--color-text);
   transform: rotate(45deg);
 }
 .term-pop--top .term-caret {

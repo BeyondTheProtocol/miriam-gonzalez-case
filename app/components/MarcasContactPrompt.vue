@@ -207,8 +207,8 @@ onBeforeUnmount(teardownTriggers)
   margin-left: auto;
   padding: 0.85rem 1rem;
   border-radius: 14px;
-  background: #2d1b3d;
-  box-shadow: 0 16px 40px -12px rgba(45, 27, 61, 0.5);
+  background: var(--color-text);
+  box-shadow: 0 16px 40px -12px rgb(var(--color-text-rgb) / 0.5);
 }
 /* Foco programático del contenedor al abrir: sin anillo (el aro accesible vive en
    los controles internos vía :focus-visible). El trap necesita un tabindex=-1
@@ -227,7 +227,7 @@ onBeforeUnmount(teardownTriggers)
   font-family: 'JetBrains Mono', monospace;
   font-size: 0.78rem;
   font-weight: 600;
-  color: #c77dd2; /* miriam-claro — identidad sobre oscuro */
+  color: var(--color-miriam-claro); /* miriam-claro — identidad sobre oscuro */
   text-decoration: none;
 }
 .mcp__cta:hover {
@@ -241,11 +241,11 @@ onBeforeUnmount(teardownTriggers)
   padding: 2px;
 }
 .mcp__close:hover {
-  color: #faf6f0;
+  color: var(--color-bg);
 }
 .mcp__cta:focus-visible,
 .mcp__close:focus-visible {
-  outline: 2px solid #c77dd2;
+  outline: 2px solid var(--color-miriam-claro);
   outline-offset: 2px;
   border-radius: 4px;
 }

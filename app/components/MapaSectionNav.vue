@@ -144,7 +144,7 @@ function jumpTo(e: Event, id: string) {
   display: flex;
   flex-direction: column;
   gap: 1px;
-  border-left: 1px solid rgba(45, 27, 61, 0.12);
+  border-left: 1px solid rgb(var(--color-text-rgb) / 0.12);
 }
 .mn-d__link {
   display: flex;
@@ -155,7 +155,7 @@ function jumpTo(e: Event, id: string) {
   border-left: 2px solid transparent;
   font-size: 13.5px;
   line-height: 1.3;
-  color: rgba(45, 27, 61, 0.72);
+  color: rgb(var(--color-text-rgb) / 0.72);
   text-decoration: none;
   transition: color 0.18s ease, border-color 0.18s ease;
 }
@@ -168,27 +168,27 @@ function jumpTo(e: Event, id: string) {
   transition: background 0.18s ease;
 }
 .mn-d__link:hover {
-  color: #2d1b3d;
+  color: var(--color-text);
 }
 .mn-d__link.is-active {
-  color: #2d1b3d;
+  color: var(--color-text);
   font-weight: 600;
-  border-left-color: #9d44ab;
+  border-left-color: var(--color-miriam);
 }
 .mn-d__link.is-active .mn-d__dot {
-  background: #9d44ab;
+  background: var(--color-miriam);
 }
 .mn-d__link:focus-visible {
-  outline: 2px solid #9d44ab;
+  outline: 2px solid var(--color-miriam);
   outline-offset: 2px;
   border-radius: 2px;
 }
 
 /* Móvil */
 .mn-m {
-  border: 1px solid rgba(45, 27, 61, 0.12);
+  border: 1px solid rgb(var(--color-text-rgb) / 0.12);
   border-radius: 12px;
-  background: #f5efe6;
+  background: var(--color-bg-card);
 }
 .mn-m__summary {
   display: flex;
@@ -200,7 +200,7 @@ function jumpTo(e: Event, id: string) {
   font-size: 12px;
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  color: #2d1b3d;
+  color: var(--color-text);
   cursor: pointer;
   list-style: none;
 }
@@ -223,13 +223,13 @@ function jumpTo(e: Event, id: string) {
   display: block;
   padding: 9px 0;
   font-size: 14px;
-  color: #2d1b3d;
+  color: var(--color-text);
   text-decoration: none;
-  border-top: 1px solid rgba(45, 27, 61, 0.07);
+  border-top: 1px solid rgb(var(--color-text-rgb) / 0.07);
 }
 .mn-m__summary:focus-visible,
 .mn-m__list a:focus-visible {
-  outline: 2px solid #9d44ab;
+  outline: 2px solid var(--color-miriam);
   outline-offset: 2px;
 }
 @media (prefers-reduced-motion: reduce) {

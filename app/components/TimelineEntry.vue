@@ -94,7 +94,7 @@ const innerStyle = computed(() => {
    la línea hasta el aro; este anillo la tapa 3px MÁS ALLÁ del aro → hueco visible.
    (Pedido de Miriam: «la línea la atraviesa sucia».) */
 .tl-dot {
-  box-shadow: 0 0 0 3px #faf6f0;
+  box-shadow: 0 0 0 3px var(--color-bg);
 }
 /* «Vivo»: 3 latidos al entrar y calma (nada late para siempre). El moat se conserva
    como primera sombra para que el hueco del raíl no desaparezca durante el pulso. */
@@ -102,26 +102,26 @@ const innerStyle = computed(() => {
   animation: tl-pulse 2s ease-in-out 3;
 }
 @keyframes tl-pulse {
-  0%, 100% { box-shadow: 0 0 0 3px #faf6f0, 0 0 0 0 rgba(255, 107, 71, 0.35); }
-  50% { box-shadow: 0 0 0 3px #faf6f0, 0 0 0 6px rgba(255, 107, 71, 0); }
+  0%, 100% { box-shadow: 0 0 0 3px var(--color-bg), 0 0 0 0 rgb(var(--color-cta-rgb) / 0.35); }
+  50% { box-shadow: 0 0 0 3px var(--color-bg), 0 0 0 6px rgb(var(--color-cta-rgb) / 0); }
 }
 /* Eco de llegada: doble pulso más amplio, una sola vez, y vuelve a la calma. */
 .tl-dot-echo {
   animation: tl-echo 1.2s ease-in-out 2;
 }
 @keyframes tl-echo {
-  0%, 100% { box-shadow: 0 0 0 3px #faf6f0, 0 0 0 0 rgba(255, 107, 71, 0.5); }
-  50% { box-shadow: 0 0 0 3px #faf6f0, 0 0 0 14px rgba(255, 107, 71, 0); }
+  0%, 100% { box-shadow: 0 0 0 3px var(--color-bg), 0 0 0 0 rgb(var(--color-cta-rgb) / 0.5); }
+  50% { box-shadow: 0 0 0 3px var(--color-bg), 0 0 0 14px rgb(var(--color-cta-rgb) / 0); }
 }
 /* Afordancia del enlace: leve realce de fondo al pasar/enfocar (toque cómodo). */
 .tl-link:hover,
 .tl-link:focus-visible {
-  color: #2d1b3d;
-  background: rgba(157, 68, 171, 0.08);
+  color: var(--color-text);
+  background: rgb(var(--color-miriam-rgb) / 0.08);
   outline: none;
 }
 .tl-link:focus-visible {
-  outline: 2px solid #ff6b47;
+  outline: 2px solid var(--color-cta);
   outline-offset: 2px;
 }
 @media (prefers-reduced-motion: reduce) {

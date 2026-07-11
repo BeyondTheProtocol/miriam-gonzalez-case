@@ -92,8 +92,8 @@ onBeforeUnmount(() => document.removeEventListener('visibilitychange', maybeShow
   margin-left: auto;
   padding: 0.85rem 1rem;
   border-radius: 14px;
-  background: #2d1b3d;
-  box-shadow: 0 16px 40px -12px rgba(45, 27, 61, 0.5);
+  background: var(--color-text);
+  box-shadow: 0 16px 40px -12px rgb(var(--color-text-rgb) / 0.5);
 }
 /* Sobre la barra de apoyo persistente (<lg). En desktop queda abajo a la derecha. */
 @media (max-width: 1023px) {
@@ -109,7 +109,7 @@ onBeforeUnmount(() => document.removeEventListener('visibilitychange', maybeShow
   font-family: 'JetBrains Mono', monospace;
   font-size: 0.78rem;
   font-weight: 600;
-  color: #ff6b47;
+  color: var(--color-cta);
   text-decoration: none;
 }
 .drp__cta:hover {
@@ -123,11 +123,11 @@ onBeforeUnmount(() => document.removeEventListener('visibilitychange', maybeShow
   padding: 2px;
 }
 .drp__close:hover {
-  color: #faf6f0;
+  color: var(--color-bg);
 }
 .drp__cta:focus-visible,
 .drp__close:focus-visible {
-  outline: 2px solid #ff6b47;
+  outline: 2px solid var(--color-cta);
   outline-offset: 2px;
   border-radius: 4px;
 }

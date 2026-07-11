@@ -137,7 +137,7 @@ onBeforeUnmount(() => {
   right: 0;
   bottom: 0;
   z-index: 40;
-  background: #2d1b3d; /* berenjena */
+  background: var(--color-text); /* berenjena */
   padding: 10px 16px 8px;
   padding-bottom: calc(8px + env(safe-area-inset-bottom, 0px));
   border-top: 1px solid rgba(250, 246, 240, 0.12);
@@ -158,7 +158,7 @@ onBeforeUnmount(() => {
   padding-bottom: 2px;
 }
 .mobile-support-bar__more:hover {
-  color: #faf6f0;
+  color: var(--color-bg);
   text-decoration: underline;
   text-underline-offset: 3px;
 }

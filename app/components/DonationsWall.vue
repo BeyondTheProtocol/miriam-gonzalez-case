@@ -306,7 +306,7 @@ function timeAgo(iso?: string): string {
   font-family: 'Fraunces', serif;
   font-size: 1.05rem;
   font-weight: 600;
-  color: #2d1b3d;
+  color: var(--color-text);
 }
 .dw-panel__search-row {
   display: flex;
@@ -330,7 +330,7 @@ function timeAgo(iso?: string): string {
   transform: translateY(-50%);
   width: 1.125rem;
   height: 1.125rem;
-  color: rgba(58, 51, 64, 0.45);
+  color: rgb(var(--color-text-soft-rgb) / 0.45);
   pointer-events: none;
 }
 .dw-search-field__input {
@@ -338,16 +338,16 @@ function timeAgo(iso?: string): string {
   min-height: 44px;
   padding: 10px 14px 10px 42px;
   border-radius: 12px;
-  border: 1px solid rgba(45, 27, 61, 0.14);
-  background: #faf6f0;
+  border: 1px solid rgb(var(--color-text-rgb) / 0.14);
+  background: var(--color-bg);
   font-size: 15px;
-  color: #2d1b3d;
+  color: var(--color-text);
   transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
 .dw-search-field__input:focus-visible {
   outline: none;
-  border-color: rgba(157, 68, 171, 0.45);
-  box-shadow: 0 0 0 3px rgba(157, 68, 171, 0.14);
+  border-color: rgb(var(--color-miriam-rgb) / 0.45);
+  box-shadow: 0 0 0 3px rgb(var(--color-miriam-rgb) / 0.14);
 }
 .dw-panel__submit {
   min-height: 44px;
@@ -372,13 +372,13 @@ function timeAgo(iso?: string): string {
   gap: 0.75rem;
   margin-top: 1.125rem;
   padding-top: 1rem;
-  border-top: 1px solid rgba(45, 27, 61, 0.08);
+  border-top: 1px solid rgb(var(--color-text-rgb) / 0.08);
 }
 .dw-segment {
   display: inline-flex;
   padding: 3px;
   border-radius: 9999px;
-  border: 1px solid rgba(45, 27, 61, 0.12);
+  border: 1px solid rgb(var(--color-text-rgb) / 0.12);
   background: rgba(250, 246, 240, 0.8);
   font-family: 'JetBrains Mono', monospace;
   font-size: 12px;
@@ -390,16 +390,16 @@ function timeAgo(iso?: string): string {
   border: none;
   border-radius: 9999px;
   background: transparent;
-  color: #3a3340;
+  color: var(--color-text-soft);
   cursor: pointer;
   transition: background 0.15s ease, color 0.15s ease;
 }
 .dw-segment__btn--on {
-  background: #2d1b3d;
-  color: #faf6f0;
+  background: var(--color-text);
+  color: var(--color-bg);
 }
 .dw-segment__btn:hover:not(.dw-segment__btn--on) {
-  color: #2d1b3d;
+  color: var(--color-text);
 }
 .dw-pager {
   display: inline-flex;
@@ -413,15 +413,15 @@ function timeAgo(iso?: string): string {
   width: 36px;
   height: 36px;
   border-radius: 9999px;
-  border: 1px solid rgba(45, 27, 61, 0.14);
-  background: #faf6f0;
-  color: #2d1b3d;
+  border: 1px solid rgb(var(--color-text-rgb) / 0.14);
+  background: var(--color-bg);
+  color: var(--color-text);
   cursor: pointer;
   transition: border-color 0.15s ease, background 0.15s ease;
 }
 .dw-pager__btn:hover:not(:disabled) {
-  border-color: rgba(45, 27, 61, 0.28);
-  background: #f5efe6;
+  border-color: rgb(var(--color-text-rgb) / 0.28);
+  background: var(--color-bg-card);
 }
 .dw-pager__btn:disabled {
   opacity: 0.35;
@@ -431,13 +431,13 @@ function timeAgo(iso?: string): string {
   min-width: 4.5rem;
   text-align: center;
   font-size: 12px;
-  color: #3a3340;
+  color: var(--color-text-soft);
 }
 .dw-segment__btn:focus-visible,
 .dw-pager__btn:focus-visible,
 .dw-row:focus-visible,
 button:focus-visible {
-  outline: 2px solid #ff6b47;
+  outline: 2px solid var(--color-cta);
   outline-offset: 2px;
 }
 .dw-row {
@@ -446,14 +446,14 @@ button:focus-visible {
 }
 .dw-row:hover,
 .dw-row:focus-visible {
-  background: rgba(157, 68, 171, 0.06);
+  background: rgb(var(--color-miriam-rgb) / 0.06);
   outline: none;
 }
 .dw-row--active {
-  background: rgba(255, 107, 71, 0.08);
+  background: rgb(var(--color-cta-rgb) / 0.08);
 }
 .dw-row:focus-visible {
-  outline: 2px solid #ff6b47;
+  outline: 2px solid var(--color-cta);
   outline-offset: -2px;
 }
 </style>
