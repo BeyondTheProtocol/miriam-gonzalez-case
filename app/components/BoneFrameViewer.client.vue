@@ -41,7 +41,7 @@ const STOPS: [number, number[]][] = [
   [0.82, [238, 242, 250]],  // denso · marfil frío
   [1.00, [185, 210, 248]],  // blástico · realce claro y frío
 ]
-const BG = [13, 17, 23]
+const BG = [28, 17, 38]   // berenjena profundo #1c1126 (token berenjena-950) — negativoscopio de marca
 function ramp(t: number): number[] {
   for (let s = 0; s < STOPS.length - 1; s++) {
     const [t0, a] = STOPS[s], [t1, b] = STOPS[s + 1]
@@ -125,7 +125,7 @@ const dragHint = computed(() => L('arrastra o usa ←/→ para girar', 'drag or 
     <div
       v-if="meshKey && !imgFailed"
       class="relative w-full select-none cursor-grab active:cursor-grabbing outline-none"
-      style="aspect-ratio:5/4;background:#0d1117;border-radius:0.5rem;overflow:hidden"
+      style="aspect-ratio:5/4;background:#1c1126;border-radius:0.5rem;overflow:hidden"
       tabindex="0"
       role="img"
       :aria-label="kind === 'morfo'
@@ -139,7 +139,7 @@ const dragHint = computed(() => L('arrastra o usa ←/→ para girar', 'drag or 
         :src="display"
         alt=""
         class="absolute inset-0 w-full h-full pointer-events-none"
-        style="object-fit:contain;background:#0d1117"
+        style="object-fit:contain;background:#1c1126"
         @error="imgFailed = true"
       >
       <div v-else class="absolute inset-0 flex items-center justify-center pointer-events-none">
@@ -152,7 +152,7 @@ const dragHint = computed(() => L('arrastra o usa ←/→ para girar', 'drag or 
     <div
       v-else
       class="relative w-full flex items-center justify-center text-center text-[12px] px-5 leading-snug"
-      style="aspect-ratio:5/4;background:#0d1117;border-radius:0.5rem;color:#aeb6c2"
+      style="aspect-ratio:5/4;background:#1c1126;border-radius:0.5rem;color:#aeb6c2"
     >
       {{ L('Sin reconstrucción 3D individual para este foco.', 'No individual 3D reconstruction for this focus.') }}
     </div>

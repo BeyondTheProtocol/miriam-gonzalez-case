@@ -56,7 +56,7 @@ const seqs = [
     </div>
 
     <!-- visor -->
-    <div class="relative rounded-xl overflow-hidden bg-black mx-auto" style="max-width:520px">
+    <div class="relative rounded-xl overflow-hidden bg-[#1c1126] mx-auto" style="max-width:520px">
       <img :src="src" :alt="L('RMN sagital de columna ' + regionLabel + ' — ' + seq.toUpperCase(), 'Sagittal spine MRI ' + regionLabel + ' — ' + seq.toUpperCase())"
         class="w-full block select-none" draggable="false" />
       <!-- overlay tipo PACS -->

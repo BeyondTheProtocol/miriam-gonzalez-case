@@ -3609,7 +3609,7 @@ const manifestValidated = (() => {
                     <div>
                       <div class="flex justify-between items-baseline text-[10.5px] mb-0.5">
                         <span class="text-tinta">{{ L('Captación (¹⁸F-FDG/⁶⁸Ga)', 'Uptake (¹⁸F-FDG/⁶⁸Ga)') }}</span>
-                        <span class="font-mono data-soft" :style="{ color: FDG_TEXT }">¹⁸F-FDG <span class="data-soft__approx">~</span>{{ le.fdg != null ? le.fdg.toFixed(1) : '—' }} · ⁶⁸Ga <span class="data-soft__approx">~</span>{{ le.dota != null ? le.dota.toFixed(1) : '—' }}</span>
+                        <span class="font-mono italic" :style="{ color: FDG_TEXT }">¹⁸F-FDG <span class="data-soft__approx">~</span>{{ le.fdg != null ? le.fdg.toFixed(1) : '—' }} · ⁶⁸Ga <span class="data-soft__approx">~</span>{{ le.dota != null ? le.dota.toFixed(1) : '—' }}</span>
                       </div>
                       <div class="h-1.5 rounded-full overflow-hidden" :style="{ background: 'rgba(45,27,61,0.08)' }">
                         <div class="h-full rounded-full" :style="{ width: pct01(viableFactor(le)), background: FDG_FILL }" />
@@ -4432,6 +4432,16 @@ const manifestValidated = (() => {
           </details>
         </section>
         <!-- ╚══════════════ FIN MÉTODO ══════════════╝ -->
+
+        <!-- ── Firma de autoría · el aterrizaje humano tras dar el método al mundo ──
+             (B4) Voz de autoría en 1ª persona, FUERA de cualquier callout. NO es
+             consuelo ni validación clínica: es la mano que construyó el instrumento. -->
+        <div class="mt-10 pt-7 border-t border-[rgba(45,27,61,0.1)] max-w-2xl">
+          <p class="text-[13.5px] text-tinta leading-relaxed">
+            {{ L('Este es mi caso, hecho instrumento. Lo construí para entender mi enfermedad y decidir mejor con mi equipo — y lo dejé abierto por si a alguien le sirve el método.', 'This is my case, made into an instrument. I built it to understand my disease and decide better with my team — and left it open in case the method helps someone else.') }}
+          </p>
+          <p class="firma text-xl mt-2">{{ L('— Miriam', '— Miriam') }}</p>
+        </div>
 
         <!-- retorno a /ciencia (coherencia de sitio) -->
         <div class="mt-10 pt-6 border-t border-[rgba(45,27,61,0.1)]">

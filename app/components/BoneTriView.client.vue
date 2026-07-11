@@ -360,7 +360,7 @@ function init() {
   // 3 escenas idénticas en iluminación; cada una recibe un mesh con su colormap.
   for (let i = 0; i < 3; i++) {
     const sc = new THREE.Scene()
-    sc.background = new THREE.Color(0x0d1117)
+    sc.background = new THREE.Color(0x1c1126)   // berenjena profundo (token berenjena-950) — negativoscopio de marca, ver B1
     sc.add(new THREE.HemisphereLight(0xffffff, 0x1a1d26, 0.95))
     const key = new THREE.DirectionalLight(0xfff4ea, 0.85); key.position.set(-0.6, 0.9, 1.0); sc.add(key)
     const fill = new THREE.DirectionalLight(0xbcd0ff, 0.38); fill.position.set(0.7, -0.2, -0.7); sc.add(fill)
@@ -1010,7 +1010,7 @@ onBeforeUnmount(() => {
     <div
       v-if="noMesh"
       class="relative w-full flex items-center justify-center text-center text-[12px] px-5 leading-snug"
-      style="aspect-ratio:5/4;background:#0d1117;border-radius:0.5rem;color:#aeb6c2"
+      style="aspect-ratio:5/4;background:#1c1126;border-radius:0.5rem;color:#aeb6c2"
     >
       {{ L('Sin reconstrucción 3D individual para este foco.', 'No individual 3D reconstruction for this focus.') }}
     </div>
@@ -1071,7 +1071,7 @@ onBeforeUnmount(() => {
            núcleo Three.js NO se toca: solo el dimensionado del contenedor responsive. -->
       <div
         class="relative w-full select-none"
-        :style="`aspect-ratio:${stacked ? '4/5' : '12/5'};background:#0d1117;border-radius:0.5rem;overflow:hidden`"
+        :style="`aspect-ratio:${stacked ? '4/5' : '12/5'};background:#1c1126;border-radius:0.5rem;overflow:hidden`"
       >
         <div ref="host" role="img" :aria-label="L('Hueso en 3D · tres mapas del mismo hueso: captación de receptores de somatostatina (⁶⁸Ga-DOTATOC), glucolítica (¹⁸F-FDG) y densidad (TC). Arrástralo para girar; la tabla y las imágenes clave son la alternativa textual.', '3D bone · three maps of the same bone: somatostatin-receptor (⁶⁸Ga-DOTATOC) uptake, glycolytic (¹⁸F-FDG) uptake and density (CT). Drag to rotate; the table and key images are the text alternative.')" class="absolute inset-0 cursor-grab active:cursor-grabbing" :style="failed ? 'opacity:0;pointer-events:none' : ''" />
 
@@ -1404,7 +1404,7 @@ onBeforeUnmount(() => {
 .btv-reframe:focus-visible { outline: 2px solid #1c969e; outline-offset: 2px; }
 
 /* ---- SONDA DE HOVER · tooltip neutro (sobrio, DS) ----
-   Placa oscura translúcida sobre el canvas #0d1117, sin color de marca (neutro): el
+   Placa oscura translúcida sobre el canvas #1c1126, sin color de marca (neutro): el
    valor lo dan magnitud cualitativa + redondeo grosero, y el doble caveat lo enmarca.
    pointer-events:none → nunca captura el giro/raycast; se desplaza un poco del cursor. */
 .btv-probe {
@@ -1503,7 +1503,7 @@ onBeforeUnmount(() => {
 }
 
 /* Toggle de la DIANA orientativa — overlay (mismo patrón que la aguja), punto coral.
-   DS: borde malva/coral sobre placa oscura translúcida, legible sobre el canvas #0d1117. */
+   DS: borde malva/coral sobre placa oscura translúcida, legible sobre el canvas #1c1126. */
 .btv-target-toggle {
   display: inline-flex;
   align-items: center;
