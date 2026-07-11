@@ -560,10 +560,12 @@ function neShare(le: Lesion): number {
 }
 function phenoColor(le: Lesion) { return PHENO[le.pheno].c }
 function phenoLabel(le: Lesion) { return L(PHENO[le.pheno].es, PHENO[le.pheno].en) }
-/* TINTA del número de foco (WCAG AA): con la rampa diverging, los CINCO rellenos
-   (teal, teal-lean, warm-gray neutro, ámbar-lean, ámbar) tienen luminancia media
-   → el berenjena oscuro (#2d1b3d) pasa AA contra los 5 (4.34–4.77:1) y el blanco
-   NO (3.4–3.6:1). Dígito uniforme en berenjena = legible y coherente. */
+/* TINTA del número de foco: el berenjena (#2d1b3d) NO alcanza AA texto sobre los
+   rellenos teal/neutro de la rampa (4.34–4.42:1 < 4.5; el blanco pleno tampoco,
+   3.4–3.6:1). Se hace legible con un CASING blanco opaco (stroke DETRÁS del glifo,
+   clase .foco-id-casing): el dígito da 15.7:1 contra su casing y el casing ≥3:1
+   contra el relleno → separación visible. El disco SVG ya lo lleva vía
+   paint-order:stroke. La tinta se mantiene uniforme en berenjena. */
 function markerInk(_le: Lesion): string { return '#2d1b3d' }
 /* color del fenotipo SOLO para TEXTO: el relleno de la rampa pasa el mínimo gráfico
    (3:1) pero no el de texto (4.5:1) sobre cream. El texto usa la variante oscura del
@@ -1280,10 +1282,10 @@ const evoChartSvg = computed(() => {
   const step = Math.ceil(mx / 4)
   let g = ''
   for (let yy = 0; yy <= mx; yy += step) {
-    g += `<line x1="${padL}" y1="${Y(yy).toFixed(1)}" x2="${W - padR}" y2="${Y(yy).toFixed(1)}" stroke="#eee6da"/><text x="${padL - 4}" y="${(Y(yy) + 3).toFixed(1)}" text-anchor="end" font-family="monospace" font-size="8" fill="#6b6470">${yy}</text>`
+    g += `<line x1="${padL}" y1="${Y(yy).toFixed(1)}" x2="${W - padR}" y2="${Y(yy).toFixed(1)}" stroke="#eee6da"/><text x="${padL - 4}" y="${(Y(yy) + 3).toFixed(1)}" text-anchor="end" font-family="JetBrains Mono, monospace" font-size="8" fill="#6b6470">${yy}</text>`
   }
   for (let f = 0; f < 2; f++) {
-    g += `<text x="${X(f).toFixed(1)}" y="${H - 9}" text-anchor="middle" font-family="monospace" font-size="8" fill="#6b6470">${FDATES[f][lang.value].split(' ')[0]}</text>`
+    g += `<text x="${X(f).toFixed(1)}" y="${H - 9}" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="8" fill="#6b6470">${FDATES[f][lang.value].split(' ')[0]}</text>`
   }
   g += `<line x1="${X(0).toFixed(1)}" y1="${Y(prev).toFixed(1)}" x2="${X(1).toFixed(1)}" y2="${Y(cur).toFixed(1)}" stroke="#e8633a" stroke-width="1.4"/>`
   const pts: [number, number][] = [[0, prev], [1, cur]]
@@ -1302,7 +1304,7 @@ const evoChartSvg = computed(() => {
     // derecha para que no se salga. Así ninguna cifra pisa el eje Y ni las fechas.
     const anchor = f === 0 ? 'start' : 'end'
     const lx = f === 0 ? x + 4 : x - 4
-    g += `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${f === 1 ? 3.2 : 2.6}" fill="#e8633a" stroke="#fff" stroke-width="0.8"/><text x="${lx.toFixed(1)}" y="${ly.toFixed(1)}" text-anchor="${anchor}" font-family="monospace" font-size="8.5" font-weight="600" fill="#5a4a52">${vv.toFixed(1)}</text>`
+    g += `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${f === 1 ? 3.2 : 2.6}" fill="#e8633a" stroke="#fff" stroke-width="0.8"/><text x="${lx.toFixed(1)}" y="${ly.toFixed(1)}" text-anchor="${anchor}" font-family="JetBrains Mono, monospace" font-size="8.5" font-weight="600" fill="#5a4a52">${vv.toFixed(1)}</text>`
   })
   return `<svg viewBox="0 0 ${W} ${H}" style="width:100%;height:auto" role="img" aria-label="${L('Evolución del FDG (SUVmáx) por fecha', 'FDG (SUVmax) evolution by date')}">${g}</svg>`
 })
@@ -3521,7 +3523,7 @@ const manifestValidated = (() => {
                 class="foco-card w-full text-left rounded-card border px-3.5 py-3"
                 :class="selected === le.id ? 'border-[#9d44ab] bg-[rgba(157,68,171,0.07)]' : 'border-[rgba(45,27,61,0.12)] bg-cream-card hover:border-[rgba(45,27,61,0.3)]'">
                 <div class="flex items-center gap-3">
-                  <span class="inline-flex w-7 h-7 shrink-0 rounded-full items-center justify-center text-xs font-semibold leading-none" :style="{ background: phenoColor(le), color: markerInk(le) }">{{ le.id }}</span>
+                  <span class="foco-id-casing inline-flex w-7 h-7 shrink-0 rounded-full items-center justify-center text-xs font-semibold leading-none" :style="{ background: phenoColor(le), color: markerInk(le) }">{{ le.id }}</span>
                   <div class="flex-1 min-w-0">
                     <p class="font-semibold text-berenjena text-sm leading-tight">{{ le.level[lang] }}</p>
                     <p class="text-[11px] text-tinta leading-tight">{{ le.region[lang] }} · {{ le.side === 'R' ? L('dcha', 'R') : le.side === 'L' ? L('izda', 'L') : L('centro', 'mid') }}</p>
@@ -3592,7 +3594,7 @@ const manifestValidated = (() => {
                   class="foco-card w-full text-left rounded-card border px-3.5 py-3"
                   :class="selected === le.id ? 'border-[#bf7d2c] bg-[rgba(191,125,44,0.08)]' : 'border-[rgba(138,74,26,0.25)] bg-cream hover:border-[rgba(138,74,26,0.5)]'">
                   <div class="flex items-center gap-3">
-                    <span class="inline-flex w-7 h-7 shrink-0 rounded-full items-center justify-center text-xs font-semibold leading-none ai-dot" :style="{ background: phenoColor(le), color: markerInk(le) }">{{ le.id }}</span>
+                    <span class="foco-id-casing inline-flex w-7 h-7 shrink-0 rounded-full items-center justify-center text-xs font-semibold leading-none ai-dot" :style="{ background: phenoColor(le), color: markerInk(le) }">{{ le.id }}</span>
                     <div class="flex-1 min-w-0">
                       <p class="font-semibold text-berenjena text-sm leading-tight">{{ le.level[lang] }}</p>
                       <p class="text-[11px] text-tinta leading-tight">{{ le.region[lang] }} · {{ le.side === 'R' ? L('dcha', 'R') : le.side === 'L' ? L('izda', 'L') : L('centro', 'mid') }}</p>
@@ -4055,7 +4057,7 @@ const manifestValidated = (() => {
                 </tr>
                 <tr v-else class="cursor-pointer" :aria-selected="selected === row.le.id" :class="selected === row.le.id ? 'bg-[rgba(157,68,171,0.08)]' : (isAiDavid(row.le) ? 'ai-row' : '')" @click="pickAndShow(row.le.id)">
                   <template v-if="row.kind === 'lesion'">
-                  <th scope="row" class="!font-normal !text-left"><span class="inline-flex w-6 h-6 rounded-full items-center justify-center text-xs font-semibold leading-none" :class="isAiDavid(row.le) ? 'ai-dot' : ''" :style="{ background: phenoColor(row.le), color: markerInk(row.le) }">{{ row.le.id }}</span></th>
+                  <th scope="row" class="!font-normal !text-left"><span class="foco-id-casing inline-flex w-6 h-6 rounded-full items-center justify-center text-xs font-semibold leading-none" :class="isAiDavid(row.le) ? 'ai-dot' : ''" :style="{ background: phenoColor(row.le), color: markerInk(row.le) }">{{ row.le.id }}</span></th>
                   <td class="font-semibold text-berenjena">{{ row.le.level[lang] }}</td>
                   <td class="text-xs">{{ row.le.side === 'R' ? L('Dcha', 'R') : row.le.side === 'L' ? L('Izda', 'L') : L('Centro', 'Mid') }}</td>
                   <td>
@@ -4822,10 +4824,20 @@ const manifestValidated = (() => {
    en <circle> el outline no se pinta de forma fiable en WebKit y box-shadow/
    border-radius no aplican a SVG, así que la regla global de foco no se ve. Usamos
    un stroke de foco (propiedad SÍ soportada en SVG). */
-svg [role="button"]:focus-visible {
+svg [role="button"]:focus-visible,
+svg [role="option"]:focus-visible {
   outline: none;
   stroke: #9d44ab;
   stroke-width: 3;
+}
+/* Casing blanco opaco del nº de foco en los <span> HTML (el disco SVG ya lo lleva
+   vía paint-order:stroke): el dígito berenjena no alcanza AA texto sobre los
+   rellenos teal/neutro (4.34–4.42:1); el stroke blanco DETRÁS del glifo da
+   separación (dígito 15.7:1 vs casing; casing ≥3:1 vs relleno). paint-order pinta
+   el contorno primero → no adelgaza el núcleo del glifo a 12px. */
+.foco-id-casing {
+  -webkit-text-stroke: 1.1px #ffffff;
+  paint-order: stroke fill;
 }
 /* ── «Detalle del foco» PLEGABLE (reducido por defecto, se expande) ───────── */
 .foco-detalle > summary { list-style: none; }
