@@ -1,0 +1,188 @@
+/* VENDORIZADO del canon btp-tokens.css (Fase 0 migracion web). Recortado @media reduced-motion global; anadido puente RGB. Fuente de verdad = canon. Re-vendorizar si cambia. */
+/* BTP DS v2.0 — 2026-07 · FUENTE ÚNICA DE TOKENS
+   «Beyond the Protocol» — editorial nocturno.
+   Decisiones de dirección de arte: Fable (auditoría 7-jul-2026).
+
+   REGLA DE ORO: no se añade NI UN HEX nuevo. Los 5 colores + 2 derivados
+   oficiales son los únicos átomos; todo estado/velo/trazo se deriva con
+   color-mix(). Si "hace falta" un color, la respuesta es no. */
+
+:root {
+  /* ── Paleta: 5 colores (disciplina máxima) ───────────────────── */
+  --color-bg:        #faf6f0; /* Crema — fondo claro siempre (nunca blanco) */
+  --color-bg-card:   #f5efe6; /* Crema profunda — superficies elevadas */
+  --color-text:      #2d1b3d; /* Berenjena — texto/trazo/fondo oscuro (nunca negro) */
+  --color-text-soft: #3a3340; /* Tinta — texto secundario */
+  --color-miriam:    #9d44ab; /* Violeta FIRMA — validado por Ceci/MCP: 5.07:1 sobre crema y 4.77:1 sobre tarjeta elevada = AA-normal en AMBAS. Gana a #a44db2 (4.55/4.29 = solo AA-large). Producción sirve aún #a44db2 → alinear vía PR. */
+  --color-miriam-soft:#e8d4ed;/* Violeta soft — fondo de badges */
+  --color-cta:       #ff6b47; /* Coral — SOLO acción (nunca porta significado sobre crema) */
+  --color-cta-hover: #e5573a;
+
+  /* ── Derivados oficiales (los 2 únicos "extra" permitidos) ───── */
+  --color-miriam-claro: #c77dd2; /* Violeta sobre fondo oscuro (berenjena); NUNCA sobre crema */
+  --cielo-resplandor:   #3a2450; /* SOLO fondos de "cielo" (universo constelación) */
+
+  /* ── Aliases semánticos de identidad/acción (usa estos) ──────── */
+  --color-link:     var(--color-miriam);
+  --color-emphasis: var(--color-miriam);
+  --color-action:   var(--color-cta);
+
+  /* ── Estados derivados (color-mix, sin hexes nuevos) — COL-5 ─── */
+  --cta-active:        color-mix(in srgb, var(--color-cta) 85%, var(--color-text));
+  --miriam-hover:      color-mix(in srgb, var(--color-miriam) 88%, var(--color-text));
+  --miriam-active:     color-mix(in srgb, var(--color-miriam) 78%, var(--color-text));
+  --secundario-hover:  color-mix(in srgb, var(--color-text) 6%, transparent);
+  --seleccionado-bg:   var(--color-miriam-soft);
+  --seleccionado-text: var(--color-text);
+
+  /* ── Velos (backdrops / cielos) ──────────────────────────────── */
+  --velo-berenjena-60: color-mix(in srgb, var(--color-text) 60%, transparent); /* backdrop de dialog */
+  --velo-berenjena-12: color-mix(in srgb, var(--color-text) 12%, transparent);
+
+  /* ── Sombra: sistema plano. Solo capas flotantes (LAY-3). En CAPAS a baja
+     opacidad (hairline ring + contacto + ambiente) para huir del "sticker"
+     de una sola sombra plana = tell nº1 de IA. Nada de glassmorphism/blur. */
+  --sombra-flotante:
+    0 0 0 1px color-mix(in srgb, var(--color-text) 6%, transparent),
+    0 1px 2px color-mix(in srgb, var(--color-text) 8%, transparent),
+    0 8px 24px color-mix(in srgb, var(--color-text) 6%, transparent);
+
+  /* ── Tipografía ──────────────────────────────────────────────── */
+  --font-display: 'Fraunces', Georgia, serif;      /* italic = gesto de firma (eyebrow) */
+  --font-body:    'Hanken Grotesk', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;  /* cuerpo/UI: elección del tipógrafo (9-jul) — auto-hospedada, no system-ui */
+  --font-mono:    'JetBrains Mono', ui-monospace, monospace; /* SOLO datos tabulares */
+
+  /* Escala modular (base 17, ratio ~1.25) — TYP-2 */
+  --texto-xs:   13px;
+  --texto-sm:   15px;
+  --texto-base: 17px;
+  --texto-lg:   clamp(19px, 1.6vw, 21px);
+  --texto-xl:   clamp(22px, 2.2vw, 26px);
+  --texto-2xl:  clamp(26px, 3vw, 34px);   /* h2 canónico */
+  --texto-3xl:  clamp(32px, 4.2vw, 44px); /* h1 / hero */
+
+  /* ── Espaciado: escala base-4 con el 12 legitimado — LAY-2 ───── */
+  --sp-4:  4px;
+  --sp-8:  8px;
+  --sp-12: 12px;
+  --sp-16: 16px;
+  --sp-24: 24px;
+  --sp-32: 32px;
+  --sp-48: 48px;
+  --sp-64: 64px;
+  --sp-96: 96px;
+
+  /* ── Radios ──────────────────────────────────────────────────── */
+  --radius-sm:   6px;
+  --radius-md:   8px;
+  --radius-btn:  12px;
+  --radius-card: 16px;
+  --radius-pill: 9999px;
+
+  /* ── Breakpoints canónicos (doc; en @media van en literal) — LAY-1 */
+  --bp-sm: 480px;
+  --bp-md: 768px;
+  --bp-lg: 1024px;
+  --bp-xl: 1280px;
+
+  /* ── Movimiento — CRAFT-4 ────────────────────────────────────── */
+  --dur-micro:      150ms;  /* hovers, focos */
+  --dur-transicion: 300ms;  /* entradas, toasts, dialog */
+  --dur-ambiente:   5s;     /* parpadeo/respiración de estrellas */
+  --curva-salida:   cubic-bezier(0.22, 1, 0.36, 1);
+  --curva-entrada:  cubic-bezier(0.16, 1, 0.3, 1);
+
+  /* ── Lectura ─────────────────────────────────────────────────── */
+  --measure: 65ch;
+
+  /* ── Tipografía compuesta (los componentes usan ESTOS) — TYP-3 ──
+     Atajo `font:` (familia+peso+tamaño+interlineado) por rol, para que
+     ninguna superficie declare fuentes a mano. El tracking va aparte
+     (no cabe en el shorthand `font`). */
+  --tipo-eyebrow: italic 600 var(--texto-sm)/1.3 var(--font-display);
+  --tipo-h1:      600 var(--texto-3xl)/1.08 var(--font-display);
+  --tipo-h2:      700 var(--texto-2xl)/1.15 var(--font-display);
+  --tipo-h3:      600 var(--texto-xl)/1.2  var(--font-display);
+  --tipo-body:    400 var(--texto-base)/1.6 var(--font-body);
+  --tipo-body-sm: 400 var(--texto-sm)/1.5  var(--font-body);
+  --tipo-dato:    500 var(--texto-base)/1.4 var(--font-mono);   /* SOLO tabular */
+  --tipo-cifra:   700 var(--texto-3xl)/1    var(--font-display); /* «Cifra Fraunces» */
+  --track-eyebrow: 0.08em;  /* versalitas espaciadas: único recurso «de sistema» */
+  --track-cifra:  -0.02em;  /* display grande: tracking negativo */
+
+  /* ── Data-viz clínica («pata 2») — DERIVADA, cero hex nuevos — VIZ ─────────
+     El color NUNCA es la única señal: icono + etiqueta + forma también. En
+     público, SOLO datos sintéticos (muro). CVD-safe: la rampa diverging va de
+     berenjena (frío) → crema (neutro) → coral (cálido), sin rojo/verde. */
+  --viz-eje:     var(--trazo-fuerte);
+  --viz-rejilla: var(--trazo-sutil);
+  --viz-tooltip-bg:   var(--color-text);
+  --viz-tooltip-text: var(--color-bg);
+  /* Diverging PuOr (7 pasos, berenjena ↔ neutro ↔ coral) */
+  --viz-div-1:   var(--color-text);
+  --viz-div-2:   color-mix(in srgb, var(--color-text) 55%, var(--color-bg));
+  --viz-div-3:   color-mix(in srgb, var(--color-text) 22%, var(--color-bg));
+  --viz-div-mid: var(--color-bg-card);
+  --viz-div-5:   color-mix(in srgb, var(--color-cta) 32%, var(--color-bg));
+  --viz-div-6:   color-mix(in srgb, var(--color-cta) 62%, var(--color-bg));
+  --viz-div-7:   var(--color-cta);
+  /* Severidad (secuencial, mono-hue sobre identidad) */
+  --viz-sev-1: color-mix(in srgb, var(--color-miriam) 16%, var(--color-bg));
+  --viz-sev-2: color-mix(in srgb, var(--color-miriam) 38%, var(--color-bg));
+  --viz-sev-3: color-mix(in srgb, var(--color-miriam) 60%, var(--color-bg));
+  --viz-sev-4: color-mix(in srgb, var(--color-miriam) 82%, var(--color-bg));
+  --viz-sev-5: var(--color-miriam);
+
+  /* ══ ROLES SEMÁNTICOS POR TEMA (los componentes usan ESTOS) ════
+     El componente no sabe en qué fondo vive: pinta con roles y el tema
+     los remapea. Modo oscuro = editorial y MANUAL (data-tema), nunca
+     prefers-color-scheme. — CMP-4 / A11Y-2 */
+  --fondo:        var(--color-bg);
+  --superficie:   var(--color-bg-card);
+  --texto-1:      var(--color-text);       /* texto principal */
+  --texto-2:      var(--color-text-soft);  /* texto secundario */
+  --texto-3:      color-mix(in srgb, var(--color-text-soft) 72%, var(--color-bg)); /* terciario / mute — 72% = 4.9:1 AA verificado (62% daba 3.7, fallaba) */
+  --identidad:    var(--color-miriam);     /* violeta que porta identidad sobre este fondo */
+  --anillo-foco:  var(--color-miriam);
+  /* Color con el que se ESCRIBE la acción en esta superficie.
+     Sobre crema NO puede ser coral (Consolidado D6: «coral nunca sobre crema»;
+     2.62:1 no llega ni al 3:1 de elemento gráfico) → berenjena.
+     Sobre berenjena sí es coral (ver bloque [data-tema="oscuro"]).
+     Retirado el coral-oscurecido derivado: inventaba un patrón que el canon prohíbe. */
+  --cta-texto:    var(--color-text);
+  --trazo-sutil:  color-mix(in srgb, var(--color-text) 8%,  transparent);
+  --trazo-medio:  color-mix(in srgb, var(--color-text) 12%, transparent);
+  --trazo-fuerte: color-mix(in srgb, var(--color-text) 20%, transparent);
+  --trazo-interactivo: color-mix(in srgb, var(--color-text) 55%, transparent);  /* borde de controles ≥3:1 sobre crema (3.59) — MCP/Ceci */
+}
+
+/* ── Tema oscuro: sección editorial sobre berenjena ─────────────── */
+[data-tema="oscuro"] {
+  --fondo:        var(--color-text);       /* berenjena */
+  --superficie:   color-mix(in srgb, var(--color-text) 88%, var(--color-bg));
+  --texto-1:      var(--color-bg);         /* crema */
+  --texto-2:      color-mix(in srgb, var(--color-bg) 78%, transparent);
+  --texto-3:      color-mix(in srgb, var(--color-bg) 58%, transparent);
+  --identidad:    var(--color-miriam-claro);
+  --anillo-foco:  var(--color-miriam-claro);
+  --cta-texto:    var(--color-cta);        /* coral pleno ≈5.6:1 sobre berenjena — AA */
+  --trazo-sutil:  color-mix(in srgb, var(--color-bg) 10%, transparent);
+  --trazo-medio:  color-mix(in srgb, var(--color-bg) 16%, transparent);
+  --trazo-fuerte: color-mix(in srgb, var(--color-bg) 26%, transparent);
+  --trazo-interactivo: color-mix(in srgb, var(--color-bg) 40%, transparent);  /* borde de controles ≥3:1 sobre berenjena (3.51) — MCP/Ceci */
+}
+
+/* Puente Tailwind: canales RGB para rgb(var(--x-rgb) / <alpha-value>) (Fase 0) */
+:root {
+  --color-bg-rgb: 250 246 240;
+  --color-bg-card-rgb: 245 239 230;
+  --color-text-rgb: 45 27 61;
+  --color-text-soft-rgb: 58 51 64;
+  --color-miriam-rgb: 157 68 171;
+  --color-miriam-soft-rgb: 232 212 237;
+  --color-miriam-claro-rgb: 199 125 210;
+  --color-cta-rgb: 255 107 71;
+  --color-cta-hover-rgb: 229 87 58;
+  --cielo-resplandor-rgb: 58 36 80;
+  --berenjena-2-rgb: 58 35 80;
+}
