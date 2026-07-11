@@ -4660,15 +4660,20 @@ const manifestValidated = (() => {
 <style scoped>
 /* (B5 · power-on) El instrumento «se enciende» una vez al primer paint: el sigilo
    split-disc del héroe se asienta con un beat sobrio (fade + escala, ~460ms, expo-out).
-   Sin glow, lejos de cualquier marcador de dato. Colapsa a 0 con reduced-motion. */
+   Sin glow, lejos de cualquier marcador de dato.
+   A PRUEBA DE FALLOS (fix del bug de producción, 11-jul): el `@keyframes` va a NIVEL
+   SUPERIOR — anidado dentro de `@media` el scoped-CSS de Vue + la minificación lo
+   perdían y el sigilo quedaba en `opacity:0` (INVISIBLE) en vivo. La base es
+   `opacity:1`, así que si la animación no corre (keyframe ausente o reduced-motion),
+   el emblema SIEMPRE se ve. Sin `fill-mode` para que nunca se congele en el 0 %. */
+.split-disc-sigil { opacity: 1; transform-origin: center; }
+@keyframes sigil-poweron {
+  from { opacity: 0; transform: scale(0.82) translateY(4px); }
+  to   { opacity: 1; transform: scale(1) translateY(0); }
+}
 @media (prefers-reduced-motion: no-preference) {
   .split-disc-sigil {
-    animation: sigil-poweron 460ms cubic-bezier(0.16, 1, 0.3, 1) both;
-    transform-origin: center;
-  }
-  @keyframes sigil-poweron {
-    from { opacity: 0; transform: scale(0.82) translateY(4px); }
-    to   { opacity: 1; transform: scale(1) translateY(0); }
+    animation: sigil-poweron 460ms cubic-bezier(0.16, 1, 0.3, 1);
   }
 }
 
