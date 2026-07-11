@@ -485,13 +485,19 @@ function provShapeSvg(shape: ProvShape, tone: string) {
       fill: 'none', stroke: tone, 'stroke-width': sw, 'stroke-linecap': 'round',
     })
   }
-  return h('svg', { class: 'prov-shape__svg', viewBox: '0 0 10 10', focusable: 'false', 'aria-hidden': 'true' }, [inner])
+  // width/height como ATRIBUTOS (no solo CSS scoped): estos SVG se crean con h() y no
+  // siempre reciben el data-v del <style scoped> → sin tamaño explícito reventaban a
+  // ancho completo (la leyenda salía gigante). Con el atributo llenan su wrapper (em).
+  return h('svg', { class: 'prov-shape__svg', viewBox: '0 0 10 10', width: '100%', height: '100%', focusable: 'false', 'aria-hidden': 'true' }, [inner])
 }
 /* el span contenedor del marcador-forma: tamaño y alineación vertical fijos respecto a la
    línea de texto (independientes de la fuente). Variante --lg para la leyenda/panel. */
 const ProvShapeMark = (props: { shape: ProvShape; tone: string; lg?: boolean; title?: string; decorative?: boolean }) =>
   h('span', {
     class: ['prov-dot', props.lg ? 'prov-dot--lg' : ''],
+    // tamaño INLINE (no depender del CSS scoped, que no engancha a estos h()): fija la
+    // caja del marcador respecto a la x-height, igual que .prov-dot/.prov-dot--lg.
+    style: `display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;width:${props.lg ? '0.98em' : '0.82em'};height:${props.lg ? '0.98em' : '0.82em'};vertical-align:${props.lg ? '-0.2em' : '-0.16em'}`,
     ...(props.decorative
       ? { 'aria-hidden': 'true' }
       : { role: 'img', title: props.title, 'aria-label': props.title }),
