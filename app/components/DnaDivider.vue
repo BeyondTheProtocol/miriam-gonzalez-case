@@ -5,7 +5,7 @@
       <path
         class="dna-rungs"
         d="M30 8 V16 M60 8 V16 M90 8 V16 M120 8 V16 M150 8 V16 M180 8 V16 M210 8 V16"
-        stroke="#2d1b3d"
+        stroke="var(--color-text)"
         stroke-width="1.5"
         stroke-linecap="round"
       />
@@ -13,14 +13,14 @@
       <path
         class="dna-strand"
         d="M0 5 C13 5, 17 19, 30 19 S 47 5, 60 5 S 77 19, 90 19 S 107 5, 120 5 S 137 19, 150 19 S 167 5, 180 5 S 197 19, 210 19 S 227 5, 240 5"
-        stroke="#9d44ab"
+        stroke="var(--color-miriam)"
         stroke-width="2"
         stroke-linecap="round"
       />
       <path
         class="dna-strand dna-strand--b"
         d="M0 19 C13 19, 17 5, 30 5 S 47 19, 60 19 S 77 5, 90 5 S 107 19, 120 19 S 137 5, 150 5 S 167 19, 180 19 S 197 5, 210 5 S 227 19, 240 19"
-        stroke="#ff6b47"
+        stroke="var(--color-cta)"
         stroke-width="2"
         stroke-linecap="round"
       />

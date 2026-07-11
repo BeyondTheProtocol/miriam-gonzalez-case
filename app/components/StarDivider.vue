@@ -1,6 +1,6 @@
 <template>
   <div ref="root" class="star-divider" :class="{ 'star-in': inView }" aria-hidden="true">
-    <svg class="star-svg" viewBox="0 0 240 24" width="240" height="24" fill="#9d44ab">
+    <svg class="star-svg" viewBox="0 0 240 24" width="240" height="24" fill="var(--color-miriam)">
       <!-- Mini-constelación de destellos de 4 puntas (mismo motivo que la marca y
            que el muro de donantes-estrellas). Centrada, con caída de tamaño hacia
            los lados. Decorativa: aria-hidden. -->

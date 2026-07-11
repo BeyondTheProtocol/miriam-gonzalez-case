@@ -4,7 +4,7 @@
       <path
         class="ecg-path"
         d="M0 12 H88 l5 -8 l5 16 l5 -8 H240"
-        stroke="#ff6b47"
+        stroke="var(--color-cta)"
         stroke-width="2"
         stroke-linecap="round"
         stroke-linejoin="round"
