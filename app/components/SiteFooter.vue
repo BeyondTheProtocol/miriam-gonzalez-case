@@ -1,5 +1,5 @@
 <template>
-  <footer :aria-label="$t('footer.site_footer')" class="bg-cream-card" style="border-top: 1px solid rgba(45,27,61,0.08)">
+  <footer :aria-label="$t('footer.site_footer')" class="bg-cream-card" style="border-top: 1px solid rgb(var(--color-text-rgb) / 0.08)">
     <!-- Con el apoyo de — muro de logos uniforme: todos en blanco monocromo, misma
          altura óptica, centrados en rejilla. Cada logo se aplana a silueta crema
          (logo-wall__mark) para que GitHub/Notion/Tahe/Never Surrender se lean como
@@ -107,7 +107,7 @@
       <nav
         :aria-label="$t('footer.legal_heading')"
         class="mt-8 pt-6 flex flex-wrap items-center gap-x-5 gap-y-2"
-        style="border-top: 1px solid rgba(45,27,61,0.08)"
+        style="border-top: 1px solid rgb(var(--color-text-rgb) / 0.08)"
       >
         <NuxtLink :to="localePath('aviso-legal')" class="text-[11px] font-mono text-tinta hover:text-miriam hover:underline underline-offset-2 transition-colors">
           {{ $t('footer.legal_notice') }}
