@@ -2285,6 +2285,14 @@ const manifestValidated = (() => {
              para los enlaces internos. La maqueta primaria pone NAVEGAR a la
              izquierda y el VISOR DE LA LESIÓN siempre a la derecha. -->
         <div class="min-w-0">
+        <!-- (B2 · sigilo de autor) El split-disc bivariado — la marca "dos trazadores, una
+             lesión" del propio instrumento, izquierda teal (⁶⁸Ga/SSTR) · derecha ámbar (¹⁸F-FDG).
+             Decorativo (aria-hidden), UNA sola vez como emblema del héroe. -->
+        <svg viewBox="0 0 24 24" width="26" height="26" aria-hidden="true" class="block mb-3 split-disc-sigil">
+          <path d="M12 2 A10 10 0 0 0 12 22 Z" fill="rgb(28,150,158)" />
+          <path d="M12 2 A10 10 0 0 1 12 22 Z" fill="rgb(214,110,28)" />
+          <line x1="12" y1="2" x2="12" y2="22" stroke="#faf6f0" stroke-width="1.4" />
+        </svg>
         <PageHeader
           :title="L('Mapa de metástasis', 'Metastasis map')"
           :subtitle="L(
@@ -3348,7 +3356,15 @@ const manifestValidated = (() => {
           <EcgDivider class="mb-10" />
           <!-- Header de la sección general (eyebrow + h2 a la izquierda, sin caja). -->
           <div class="mb-6">
-          <p class="eyebrow mb-2 block">{{ L('Sección general', 'General section') }}</p>
+          <!-- (B2) el split-disc como ÚNICO motivo conector de la costura Zona 1 → Zona 2. -->
+          <p class="eyebrow mb-2 flex items-center gap-2">
+            <svg viewBox="0 0 24 24" width="15" height="15" aria-hidden="true" class="shrink-0 split-disc-sigil">
+              <path d="M12 2 A10 10 0 0 0 12 22 Z" fill="rgb(28,150,158)" />
+              <path d="M12 2 A10 10 0 0 1 12 22 Z" fill="rgb(214,110,28)" />
+              <line x1="12" y1="2" x2="12" y2="22" stroke="#faf6f0" stroke-width="1.4" />
+            </svg>
+            {{ L('Sección general', 'General section') }}
+          </p>
           <h2 class="heading-display text-2xl text-berenjena mb-2 scroll-mt-[5.5rem]">{{ L('Visión general del caso', 'Case overview') }}</h2>
           <p class="text-sm text-tinta leading-relaxed max-w-3xl">{{ L(
             'Lo general del caso, de más a menos relevante para decidir: idoneidad (cómo se calcula), fenotipo, imágenes, evolución, la tabla y la visión general. Usa el índice para navegarlo.',
@@ -4642,6 +4658,20 @@ const manifestValidated = (() => {
 </template>
 
 <style scoped>
+/* (B5 · power-on) El instrumento «se enciende» una vez al primer paint: el sigilo
+   split-disc del héroe se asienta con un beat sobrio (fade + escala, ~460ms, expo-out).
+   Sin glow, lejos de cualquier marcador de dato. Colapsa a 0 con reduced-motion. */
+@media (prefers-reduced-motion: no-preference) {
+  .split-disc-sigil {
+    animation: sigil-poweron 460ms cubic-bezier(0.16, 1, 0.3, 1) both;
+    transform-origin: center;
+  }
+  @keyframes sigil-poweron {
+    from { opacity: 0; transform: scale(0.82) translateY(4px); }
+    to   { opacity: 1; transform: scale(1) translateY(0); }
+  }
+}
+
 /* ════════════════════════════════════════════════════════════════════════
    MOTION TOKENS · el movimiento del instrumento, con reglas (no ad-hoc).
    Tres curvas, una sola fuente; las transiciones de la página las citan en
