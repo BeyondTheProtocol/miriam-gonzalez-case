@@ -95,11 +95,15 @@
   --radius-card: 16px;
   --radius-pill: 9999px;
 
-  /* ── Breakpoints canónicos (doc; en @media van en literal) — LAY-1 */
-  --bp-sm: 480px;
-  --bp-md: 768px;
-  --bp-lg: 1024px;
-  --bp-xl: 1280px;
+  /* ── Breakpoints (doc; en @media van en literal, CSS no permite var() en la condición)
+     — LAY-1. Corregido 12-jul: estos 4 valores no coincidían con NINGÚN @media real del
+     documento (usaba 640/760/761/901 sueltos) — un token-doc que documentaba un sistema
+     ficticio no ayuda a nadie. Ahora reflejan los umbrales REALES en uso; --bp-xl queda
+     reservado (sin ningún @media que lo use todavía). */
+  --bp-sm: 640px;   /* .dos-col pasa a 2 columnas */
+  --bp-md: 761px;   /* .cap recupera el rail de 2 columnas (min-width: 761px) */
+  --bp-lg: 901px;   /* sidebar de navegación fija + se oculta el botón "Índice" móvil */
+  --bp-xl: 1280px;  /* reservado — sin @media que lo consuma hoy */
 
   /* ── Movimiento — CRAFT-4 ────────────────────────────────────── */
   --dur-micro:      150ms;  /* hovers, focos */
@@ -109,15 +113,19 @@
   --curva-entrada:  cubic-bezier(0.16, 1, 0.3, 1);
 
   /* ── Lectura ─────────────────────────────────────────────────── */
-  --measure: 65ch;
+  --measure: 62ch;  /* 65→62, 12-jul: a 17px/1.6 Hanken, 65ch renderizaba ~70-72 caracteres reales — largo para lectura editorial en pantalla (rango sano 60-66ch) */
 
   /* ── Tipografía compuesta (los componentes usan ESTOS) — TYP-3 ──
      Atajo `font:` (familia+peso+tamaño+interlineado) por rol, para que
      ninguna superficie declare fuentes a mano. El tracking va aparte
      (no cabe en el shorthand `font`). */
   --tipo-eyebrow: italic 600 var(--texto-sm)/1.3 var(--font-display);
-  --tipo-h1:      600 var(--texto-3xl)/1.08 var(--font-display);
-  --tipo-h2:      700 var(--texto-2xl)/1.15 var(--font-display);
+  /* h1 650 / h2 600 (antes 600/700), corregido 12-jul — tipografía: en el suelo del clamp
+     (h1≈32px, h2≈26px) h2 pesaba MÁS que h1 y la jerarquía se aplanaba (h2 "gritaba" tanto
+     como h1). Ninguno llega a 700 (mantiene el registro "menos libro" del sistema); el
+     salto de tamaño entre --texto-3xl/--texto-2xl ya basta, ahora el peso no lo contradice. */
+  --tipo-h1:      650 var(--texto-3xl)/1.08 var(--font-display);
+  --tipo-h2:      600 var(--texto-2xl)/1.15 var(--font-display);
   --tipo-h3:      600 var(--texto-xl)/1.2  var(--font-display);
   --tipo-body:    400 var(--texto-base)/1.6 var(--font-body);
   --tipo-body-sm: 400 var(--texto-sm)/1.5  var(--font-body);
@@ -248,6 +256,12 @@
 }
 
 /* ── Foco visible (dual por token: violeta / violeta-claro on-dark) — A11Y ──── */
+/* INVARIANTE (Ceci, 12-jul): el anillo NUNCA se dibuja directamente SOBRE coral — el
+   outline-offset:2px de 2px empuja el aro fuera del propio botón, así que en
+   .btn--primary siempre cae sobre crema/berenjena (donde violeta SÍ pasa AA), nunca
+   sobre el relleno coral (donde violeta contra coral no está verificado y podría no
+   pasar). Si algún día se quita el offset o se usa un anillo interior, hay que volver
+   a pedir el contraste a Ceci antes de tocar esto — no asumir. */
 :where(a, button, input, select, textarea, [tabindex]):focus-visible {
   outline: 2px solid var(--anillo-foco);
   outline-offset: 2px;
@@ -258,8 +272,8 @@
 /* Eyebrow — CANÓNICO (Consolidado §3): JetBrains Mono, uppercase, tracking .12em, tinta.
    (Lo tenía en Fraunces itálica: cruzado con el `lede`.) */
 .eyebrow {
-  font: 500 12px/1.4 var(--font-mono);
-  letter-spacing: .12em;
+  font: 600 12px/1.4 var(--font-body);   /* B2: Hanken caja alta real — unifica con .doc-nav-label (elección de Miriam 12-jul); mono solo para datos */
+  letter-spacing: .1em;
   text-transform: uppercase;
   color: var(--texto-2);
 }
@@ -481,8 +495,13 @@
   .modo .estrella { display: inline-block; transition: transform var(--dur-transicion) var(--curva-salida); }
   /* Navegación lateral fija (sidebar sticky, patrón docs 2026: Stripe/Vercel/Linear) — sustituye
      la constelación de 8 estrellas (muda sin hover) por texto legible SIEMPRE visible en desktop.
-     Doctrina: SIN scroll-spy (Ceci lo vetó, dio bugs en PR #129); el estado activo se calcula
-     por hash de la URL, no por posición de scroll — determinista, sin timing, sin observer. */
+     Doctrina ACTUALIZADA (Comité Diseño, 11-jul — ver el <script> al final del documento):
+     el hash de la URL manda al cargar/compartir (determinista), pero el scroll-spy con
+     IntersectionObserver SÍ está activo para el scroll manual — sustituye al veto de Ceci
+     al PR #129 (aquel bug era doble-activo por listener de scroll crudo sin reductor; el
+     mecanismo actual tiene un único camino de escritura, ver `pintarActivo`). No queda
+     doctrina "sin scroll-spy" — corregido aquí el 12-jul porque este comentario seguía
+     contradiciendo la implementación real de más abajo. */
   .doc-layout { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--sp-32); align-items: start;
     margin-block-start: var(--sp-24); }
   /* minmax(0, 1fr), no 1fr a secas: si no, un descendiente sin overflow propio (p.ej. un
@@ -571,7 +590,8 @@
   .doc-nav-sublink[aria-current="location"] { color: var(--identidad); font-weight: 600; }
 
   /* Portada: aire generoso arriba (sin capitular) */
-  .portada { padding-block: var(--sp-64) var(--sp-48); max-inline-size: 22ch; }
+  .portada { padding-block: var(--sp-64) var(--sp-48); }
+  .portada-texto { max-inline-size: 22ch; }
   .portada h1 { font: var(--tipo-h1); letter-spacing: var(--track-cifra); margin: 0; text-wrap: balance;
     font-variation-settings: "opsz" 40, "SOFT" 0, "WONK" 0; }   /* coherente con .titulo-1 (afinado) */
   .cuerpo { text-wrap: pretty; }                                 /* sin viudas ni huérfanas */
@@ -579,6 +599,25 @@
   .spinner--muestra::after { animation-play-state: paused; }     /* espécimen: no late (doctrina «solo el presente respira») */   /* Fraunces variable (si carga) */
   .portada .sub { font: var(--tipo-body); color: var(--texto-2); max-inline-size: 46ch; margin-block-start: var(--sp-16); }
   /* (capitular retirada 9-jul, decisión de Miriam) */
+
+  /* Constelación de portada (Comité de Diseño, 12-jul): el hero dejaba ~la mitad del ancho
+     en blanco y el único momento realmente distintivo del sistema — la placa de
+     observatorio de la Lámina Noche, al final del documento — no se anticipaba en ningún
+     sitio. Este es un ANTICIPO pequeño, no el show completo: 4 astros + un trazo «via» +
+     un círculo a lápiz, mismo vocabulario que `.placa` de la Lámina, en violeta identidad
+     (nunca coral — coral es solo acción). Puramente decorativo (aria-hidden), oculto por
+     debajo de 901px (no hay hueco que llenar en una sola columna) y SIN animación en
+     ningún breakpoint — cumple «reduced motion» por diseño, no por media query. */
+  .portada-constelacion { display: none; }
+  @media (min-width: 901px) {
+    .portada { display: grid; grid-template-columns: minmax(0, 22ch) 1fr; align-items: center; gap: var(--sp-48); }
+    .portada-constelacion { display: block; justify-self: end; align-self: center;
+      inline-size: clamp(150px, 15vw, 210px); block-size: auto; opacity: .85; }
+    .portada-constelacion .pc-via { stroke: color-mix(in srgb, var(--identidad) 38%, transparent); stroke-width: 1.4; fill: none; }
+    .portada-constelacion .pc-estrella { fill: var(--identidad); }
+    .portada-constelacion .pc-lapiz { stroke: color-mix(in srgb, var(--identidad) 55%, transparent); stroke-width: 1.1;
+      fill: none; stroke-linecap: round; }
+  }
 
   /* Selección de texto: tinta propia (invierte roles; en noche se invierte sola) */
   ::selection { background: var(--texto-1); color: var(--fondo); }
@@ -621,6 +660,13 @@
   .rail { grid-column: 1; text-align: right; }
   .cuerpo-cap { grid-column: 2; max-inline-size: 68ch; }
   h2.folio { margin: 0; }
+  /* Numeración: los folios de CAPÍTULO usan el número de grupo de la nav (00→07, uno por
+     entrada de primer nivel). Fundamentos es el único grupo con más de un .cap propio
+     (Color, Tipografía) — sus folios llevan «01.1»/«01.2» (subordinados a Bloque 01), NO
+     «01»/«02» sueltos, para no colisionar visualmente con el siguiente capítulo real (02
+     Identidad). Comité de Diseño, 12-jul — evita el "dos 02 seguidos" que confundía nivel
+     de capítulo con nivel de subcapítulo. font-variant-numeric ya soporta el punto sin
+     desalinear la tabla de cifras (no es tabular real, es rótulo). */
   .folio .num { display: block; font: 600 var(--texto-sm)/1.2 var(--font-mono); color: var(--texto-3);
     font-variant-numeric: lining-nums tabular-nums; }
   .folio .tit { display: block; margin-block-start: var(--sp-4);
@@ -727,7 +773,7 @@
         <circle cx="56" cy="32" r="1" style="fill:var(--fondo)" opacity=".5"/>
       </svg>
       Beyond the Protocol · <span class="masthead__meta">Design System v2</span></span>
-    <button class="modo" id="toggle" aria-pressed="false">DÍA <svg class="estrella" width="11" height="11" viewBox="0 0 20 20" aria-hidden="true"><path d="M10 1.6C10.8 5 11.4 6.2 12.6 7.4 14 8.8 16.4 9.4 18.4 10 16.2 10.8 14.2 11.4 12.8 12.7 11.5 13.9 10.9 15.7 10 18.4 9.3 15.9 8.5 14.2 7.2 12.9 5.8 11.6 3.4 10.7 1.6 10 3.8 9.1 5.8 8.4 7.2 7.1 8.4 6 9.2 4.2 10 1.6Z" fill="currentColor"/></svg> NOCHE</button>
+    <button class="modo" id="toggle" aria-pressed="false" aria-label="Modo noche">DÍA <svg class="estrella" width="11" height="11" viewBox="0 0 20 20" aria-hidden="true"><path d="M10 1.6C10.8 5 11.4 6.2 12.6 7.4 14 8.8 16.4 9.4 18.4 10 16.2 10.8 14.2 11.4 12.8 12.7 11.5 13.9 10.9 15.7 10 18.4 9.3 15.9 8.5 14.2 7.2 12.9 5.8 11.6 3.4 10.7 1.6 10 3.8 9.1 5.8 8.4 7.2 7.1 8.4 6 9.2 4.2 10 1.6Z" fill="currentColor"/></svg> NOCHE</button>
   </header>
   <div class="doc-layout">
     <aside class="doc-nav-wrap" id="doc-nav-wrap">
@@ -836,17 +882,29 @@
 
   <main id="main">
   <div class="portada">
-    <h1>Un lenguaje, no una <span class="two-faces">plantilla<svg class="two-faces__stroke" viewBox="0 0 100 8" preserveAspectRatio="none" aria-hidden="true"><path class="tf-line" pathLength="1" d="M2 5.4 C 16 3.4, 38 7, 58 4.8 C 74 3.2, 90 6, 98 4.6"/></svg></span>.</h1>
-    <p class="sub">Cada componente pinta con tokens de rol y se remapea solo en claro, en noche y en banda oscura. Los colores los fija Ceci; aquí no se mueve ni un hex.</p>
+    <div class="portada-texto">
+      <h1>Un lenguaje, no una <span class="two-faces">plantilla<svg class="two-faces__stroke" viewBox="0 0 100 8" preserveAspectRatio="none" aria-hidden="true"><path class="tf-line" pathLength="1" d="M2 5.4 C 16 3.4, 38 7, 58 4.8 C 74 3.2, 90 6, 98 4.6"/></svg></span>.</h1>
+      <p class="sub">Cada componente pinta con tokens de rol y se remapea solo en claro, en noche y en banda oscura. Los colores los fija Ceci; aquí no se mueve ni un hex.</p>
+    </div>
+    <svg class="portada-constelacion" viewBox="0 0 240 200" aria-hidden="true">
+      <path class="pc-via" d="M26 156 L98 64 L170 98 L208 32"/>
+      <path class="pc-estrella" transform="translate(26,156) scale(.7)" d="M10 1.6C10.8 5 11.4 6.2 12.6 7.4 14 8.8 16.4 9.4 18.4 10 16.2 10.8 14.2 11.4 12.8 12.7 11.5 13.9 10.9 15.7 10 18.4 9.3 15.9 8.5 14.2 7.2 12.9 5.8 11.6 3.4 10.7 1.6 10 3.8 9.1 5.8 8.4 7.2 7.1 8.4 6 9.2 4.2 10 1.6Z"/>
+      <path class="pc-estrella" transform="translate(98,64) scale(1.15)" d="M10 1.6C10.8 5 11.4 6.2 12.6 7.4 14 8.8 16.4 9.4 18.4 10 16.2 10.8 14.2 11.4 12.8 12.7 11.5 13.9 10.9 15.7 10 18.4 9.3 15.9 8.5 14.2 7.2 12.9 5.8 11.6 3.4 10.7 1.6 10 3.8 9.1 5.8 8.4 7.2 7.1 8.4 6 9.2 4.2 10 1.6Z"/>
+      <path class="pc-estrella" transform="translate(170,98) scale(.85)" d="M10 1.6C10.8 5 11.4 6.2 12.6 7.4 14 8.8 16.4 9.4 18.4 10 16.2 10.8 14.2 11.4 12.8 12.7 11.5 13.9 10.9 15.7 10 18.4 9.3 15.9 8.5 14.2 7.2 12.9 5.8 11.6 3.4 10.7 1.6 10 3.8 9.1 5.8 8.4 7.2 7.1 8.4 6 9.2 4.2 10 1.6Z"/>
+      <path class="pc-estrella" transform="translate(208,32) scale(.55)" d="M10 1.6C10.8 5 11.4 6.2 12.6 7.4 14 8.8 16.4 9.4 18.4 10 16.2 10.8 14.2 11.4 12.8 12.7 11.5 13.9 10.9 15.7 10 18.4 9.3 15.9 8.5 14.2 7.2 12.9 5.8 11.6 3.4 10.7 1.6 10 3.8 9.1 5.8 8.4 7.2 7.1 8.4 6 9.2 4.2 10 1.6Z"/>
+      <path class="pc-lapiz" d="M214 24c7 2,12 9,9 17-3 9-15 12-23 6-7-5-7-15 0-20 4-3 9-4 14-2"/>
+    </svg>
   </div>
 
   <style>
   /* El índice de bloques vive ahora en la sidebar (.doc-nav-wrap) — se retiró la tarjeta
-     inline para no duplicarlo (decisión Comité de Marca+Diseño, sustitución de la constelación). */
+     inline para no duplicarlo (decisión Comité de Marca+Diseño). La constelación que sí
+     vive en el hero desde el 12-jul es OTRA cosa: no es índice, es el anticipo decorativo
+     de la Lámina Noche (ver `.portada-constelacion` más arriba) — no reabre esa decisión. */
   .bloque-div { margin-block: var(--sp-64) var(--sp-24); padding-block-end: var(--sp-8);
     border-block-end: 1px solid var(--trazo-medio); }
-  .bloque-div .kicker { font: 500 var(--texto-xs)/1 var(--font-mono); letter-spacing: .12em;
-    text-transform: uppercase; color: var(--texto-2); }
+  .bloque-div .kicker { font: 600 var(--texto-xs)/1 var(--font-body); letter-spacing: .1em;
+    text-transform: uppercase; color: var(--texto-2); }  /* B2: Hanken caja alta real (elección de Miriam 12-jul) */
   .bloque-div h2 { font: var(--tipo-h2); color: var(--texto-1); margin: var(--sp-8) 0 0; }
   .lista { margin: var(--sp-8) 0 0; padding-inline-start: var(--sp-24); }
   .lista li { font: var(--tipo-body); color: var(--texto-1); margin-block: var(--sp-4);
@@ -900,7 +958,7 @@
   <!-- 01 · COLOR -->
   <section class="cap" id="cap-1" aria-labelledby="t-1">
     <div class="rail">
-      <h2 class="folio" id="t-1"><span class="num" aria-hidden="true">01</span><span class="tit">Color</span></h2>
+      <h2 class="folio" id="t-1"><span class="num" aria-hidden="true">01.1</span><span class="tit">Color</span></h2>
       <p class="marg">La paleta no es democrática: crema en masa, berenjena en estructura, coral en gotas.</p>
     </div>
     <div class="cuerpo-cap">
@@ -929,7 +987,7 @@
   <!-- 02 · TIPOGRAFÍA -->
   <section class="cap" id="cap-2" aria-labelledby="t-2">
     <div class="rail">
-      <h2 class="folio" id="t-2"><span class="num" aria-hidden="true">02</span><span class="tit">Tipografía</span></h2>
+      <h2 class="folio" id="t-2"><span class="num" aria-hidden="true">01.2</span><span class="tit">Tipografía</span></h2>
       <p class="marg">Fraunces display, Hanken cuerpo, mono SOLO para datos y metadatos. Saltos de línea a mano.</p>
     </div>
     <div class="cuerpo-cap">
@@ -1048,10 +1106,17 @@
       <p class="marg">En contexto, no en matriz. Primario coral: 1 por vista. Foco visible al tabular. ≥44px.</p>
     </div>
     <div class="cuerpo-cap">
-      <div class="grupo-btn">
-        <button class="btn btn--primary">Enviar</button>
-        <button class="btn btn--secondary">Guardar borrador</button>
-        <button class="btn btn--ghost">Descartar</button>
+      <!-- Encapsulado en .card (12-jul): antes flotaba suelto en el flujo — con el form y
+           el nav-mini de más abajo también coral, un mismo scroll podía juntar 2-3
+           primarios coral a la vista, contra la propia regla de arriba ("1 por vista").
+           Encerrarlo en su propia tarjeta lo lee como una pantalla aislada, no como parte
+           del mismo lienzo continuo. -->
+      <div class="card" style="max-inline-size:460px">
+        <div class="grupo-btn">
+          <button class="btn btn--primary">Enviar</button>
+          <button class="btn btn--secondary">Guardar borrador</button>
+          <button class="btn btn--ghost">Descartar</button>
+        </div>
       </div>
 
       <div class="card card--flotante" style="margin-block-start:var(--sp-32);max-inline-size:460px">
@@ -1070,13 +1135,15 @@
         </div>
       </div>
 
-      <div style="margin-block-start:var(--sp-32);display:flex;gap:var(--sp-16);flex-wrap:wrap;align-items:center">
-        <span class="badge badge--genomic">marcador · ejemplo</span>
-        <span class="badge">etiqueta</span>
-      </div>
-      <div style="margin-block-start:var(--sp-24);max-inline-size:520px">
-        <div class="alerta"><span class="alerta__label">Nota</span>El significado va por palabra, no por color de alarma.</div>
-        <div class="alerta alerta--accion" style="margin-block-start:var(--sp-16)"><span class="alerta__label">Acción</span>Filete coral, calmado. Ningún icono-estrella (la estrella es marca, no estado).</div>
+      <div class="card" style="margin-block-start:var(--sp-32);max-inline-size:520px">
+        <div style="display:flex;gap:var(--sp-16);flex-wrap:wrap;align-items:center">
+          <span class="badge badge--genomic">marcador · ejemplo</span>
+          <span class="badge">etiqueta</span>
+        </div>
+        <div style="margin-block-start:var(--sp-24)">
+          <div class="alerta"><span class="alerta__label">Nota</span>El significado va por palabra, no por color de alarma.</div>
+          <div class="alerta alerta--accion" style="margin-block-start:var(--sp-16)"><span class="alerta__label">Acción</span>Filete coral, calmado. Ningún icono-estrella (la estrella es marca, no estado).</div>
+        </div>
       </div>
 
       <style>
@@ -2111,7 +2178,7 @@ Equipo Miriam.</pre></div>
       <p class="titulo-3" style="margin-block-start:var(--sp-32)">Reglas</p>
       <ul class="lista">
         <li><strong>Alterna los fondos</strong> entre diapositivas (berenjena → crema → violeta) para dar ritmo.</li>
-        <li><strong>Violeta = dato y firma</strong>; <strong style="color:var(--color-cta)">coral = solo el CTA</strong>, nunca decorativo.</li>
+        <li><strong>Violeta = dato y firma</strong>; <strong style="color:var(--color-miriam)">coral = solo el CTA</strong>, nunca decorativo. <!-- Fallo AA corregido 12-jul (Ceci): coral de texto sobre crema = 2.62:1, falla. Violeta firma = 5.07:1, AA. El coral real vive en el botón de abajo (fondo, no texto). --></li>
         <li><strong>Una idea por diapositiva</strong>, una sola acción al final.</li>
         <li><strong>Anotaciones a mano</strong> como acento — una o dos por diapositiva, desactivables.</li>
         <li><strong>Caption por diapositiva</strong> (desde jun-2026): la última siempre cierra con helpmiriam.com; si se usa un solo caption para todo el post, que cierre igual con helpmiriam.com.</li>
@@ -2224,6 +2291,25 @@ Equipo Miriam.</pre></div>
     };
     marcarPorHash();
     window.addEventListener('hashchange', marcarPorHash);
+
+    // Deep-link real (Comité de Diseño, 12-jul): el salto nativo del navegador al hash de
+    // carga no siempre llega en este documento — el peso (Fraunces variable embebida en
+    // base64, documento largo) puede desplazar el layout después del scroll-to-anchor que
+    // hace el navegador solo, y el lector queda en el hero aunque comparta «…#cap-3».
+    // Se fuerza UNA vez, tras confirmar que las fuentes ya decidieron métricas (o de
+    // inmediato si el navegador no expone document.fonts) — con el MISMO objetivo que ya
+    // calculó marcarPorHash arriba, así nav y scroll nunca discrepan.
+    if (window.location.hash && window.location.hash !== '#b-empezar' && enlacePorHref.has(window.location.hash)) {
+      const objetivoInicial = document.getElementById(window.location.hash.slice(1));
+      if (objetivoInicial) {
+        const saltarAlHash = () => {
+          const rmInicial = matchMedia('(prefers-reduced-motion: reduce)').matches;
+          objetivoInicial.scrollIntoView({ block: 'start', behavior: rmInicial ? 'auto' : 'smooth' });
+        };
+        if (document.fonts && document.fonts.ready) document.fonts.ready.then(saltarAlHash);
+        else requestAnimationFrame(saltarAlHash);
+      }
+    }
 
     // Scroll-spy real, solo si el navegador lo soporta (si no, el hash de arriba basta).
     if ('IntersectionObserver' in window) {
