@@ -971,14 +971,33 @@
   /* Panel comparativa + lista con icono — TRATAMIENTO REUTILIZABLE #2. Nace en
      05·Lenguaje («Lo que sí/no», «Reglas duras de léxico») para cualquier bloque
      sí/no, do/don't del manual (candidata próxima: 07·Producción → Fotografía).
-     Se combina con .dos-col (grid) y con .lista (medida de línea, color de texto). */
-  .panel-comparativa__col { background: var(--superficie); border: 1px solid var(--trazo-sutil);
-    border-radius: var(--radius-card); padding: var(--sp-24);
-    /* texto-3, no trazo-fuerte: el filete es un objeto gráfico con significado (agrupa
-       la columna sí/no) y necesita 3:1 — verificado con check_contrast (4.61 día / 4.65
-       noche); trazo-fuerte se quedaba en 1.48/2.11, por debajo del suelo. */
-    border-block-start: 3px solid var(--texto-3); }
-  .panel-comparativa__col--si { border-block-start-color: var(--identidad); }
+     Se combina con .dos-col (grid) y con .lista (medida de línea, color de texto).
+
+     REVISADO 12-jul (Miriam, feedback directo): la v1 llevaba una barra de acento
+     de color en el borde superior de la tarjeta — «el borde de las tablas con la
+     línea de color es muy cantoso IA», el cliché de card de doc-site/SaaS. Fuera.
+     Ahora la columna es una nota al margen: SIN caja, SIN relleno, SIN esquinas
+     redondeadas — un filete fino a un lado, el mismo vocabulario que ya usa el
+     `.rail` del propio cuadernillo para marginalia. Sí/no se lee por el icono
+     (forma, no color — 1.4.1 ya cubierto por check≠cruz) + un trazo a lápiz bajo
+     el encabezado (`.encabezado-mano`, mismo lenguaje que el pencil-draw del
+     índice), nunca por una línea recta de color. */
+  .panel-comparativa__col { padding-inline-start: var(--sp-24);
+    border-inline-start: 1px solid var(--trazo-sutil); }
+
+  /* Encabezado a mano: el trazo bajo el texto es un SVG ondulado (currentColor,
+     así hereda el violeta del "sí" o la tinta del "no" sin tokens nuevos ni
+     comprobación de contraste aparte — es el MISMO color ya verificado del
+     propio texto). display:inline-flex + column hace que el ancho del trazo
+     se ajuste al ancho real del texto, no al de toda la columna — un rasgo corto
+     bajo una palabra, no una regla que cruza la tarjeta. Estático: no se anima
+     ni al cargar ni al hacer scroll (a diferencia de `.trazo` del hero, que SÍ
+     tiene su momento orquestado único — este es un motivo repetido y por eso
+     se queda quieto). */
+  .encabezado-mano { display: inline-flex; flex-direction: column; align-items: flex-start;
+    gap: 3px; margin: 0; }
+  .encabezado-mano__trazo { display: block; inline-size: 100%; block-size: 8px;
+    overflow: visible; opacity: .8; }
 
   .lista-check { list-style: none; margin: var(--sp-16) 0 0; padding: 0;
     display: flex; flex-direction: column; gap: var(--sp-12); }
@@ -998,6 +1017,14 @@
   .voces-grid { display: grid; gap: var(--sp-24); margin-block-start: var(--sp-24);
     grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); align-items: start; }
   .tarjeta-voz { display: flex; flex-direction: column; gap: var(--sp-12); }
+  /* De paso (12-jul, mismo feedback anti-IA): la esquina uniforme de 16px de
+     `.card` en las 3 a la vez lee a componente clonado. Reutiliza el MISMO
+     recurso ya aprobado de «gouache de taller» (§Fundamentos·Color, `.taller
+     .muestra .mancha`) — contorno asimétrico, distinto por tarjeta, sin rotar
+     (aquí hay texto que leer, no una mancha de color). */
+  .tarjeta-voz:nth-child(1) { border-radius: 14px 19px 12px 20px / 18px 11px 21px 13px; }
+  .tarjeta-voz:nth-child(2) { border-radius: 20px 12px 18px 11px / 11px 20px 13px 19px; }
+  .tarjeta-voz:nth-child(3) { border-radius: 12px 20px 11px 18px / 19px 13px 20px 12px; }
   .tarjeta-voz__canal { margin: 0; font: 600 var(--texto-xs)/1.3 var(--font-mono);
     letter-spacing: .06em; text-transform: uppercase; color: var(--texto-2);
     padding-block-end: var(--sp-8); border-block-end: 1px solid var(--trazo-sutil); }
@@ -1610,7 +1637,7 @@
 
       <div class="dos-col panel-comparativa">
         <div class="panel-comparativa__col panel-comparativa__col--si">
-          <p class="titulo-3" style="color:var(--identidad)">Lo que SÍ es</p>
+          <p class="titulo-3 encabezado-mano" style="color:var(--identidad)">Lo que SÍ es<svg class="encabezado-mano__trazo" viewBox="0 0 140 10" preserveAspectRatio="none" aria-hidden="true"><path d="M2 5.6C22 3,46 8,70 5.2C94 2.6,116 7.4,138 5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg></p>
           <ul class="lista lista-check lista-check--si">
             <li>Honestidad sin paternalismos.</li>
             <li>Rigor real: fechas y cifras verificables, sin inflar ni simplificar de más — los marcadores y dianas moleculares reales quedan fuera de lo público (el equipo los maneja en privado).</li>
@@ -1620,7 +1647,7 @@
           </ul>
         </div>
         <div class="panel-comparativa__col">
-          <p class="titulo-3">Lo que NO es</p>
+          <p class="titulo-3 encabezado-mano">Lo que NO es<svg class="encabezado-mano__trazo" viewBox="0 0 140 10" preserveAspectRatio="none" aria-hidden="true"><path d="M2 6.2C24 8.4,46 2.4,70 5.6C92 8.6,114 3,138 5.8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></p>
           <ul class="lista lista-check lista-check--no">
             <li>Lazos rosas, corazones rosas, estética de «lucha guerrera».</li>
             <li>Lenguaje victimista, lastimero o de «ángel en la tierra».</li>
@@ -1673,7 +1700,7 @@ Permitido: cifras (marca "ejemplo" si no son las del día), fechas
       <p class="titulo-3 subtit-2">Reglas duras de léxico</p>
       <div class="dos-col panel-comparativa">
         <div class="panel-comparativa__col panel-comparativa__col--si">
-          <p class="titulo-3" style="font:var(--tipo-body);font-weight:700;color:var(--identidad)">Sí — palabras del caso</p>
+          <p class="titulo-3 encabezado-mano" style="font:var(--tipo-body);font-weight:700;color:var(--identidad)">Sí — palabras del caso<svg class="encabezado-mano__trazo" viewBox="0 0 140 10" preserveAspectRatio="none" aria-hidden="true"><path d="M2 5.6C22 3,46 8,70 5.2C94 2.6,116 7.4,138 5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg></p>
           <ul class="lista lista-check lista-check--si">
             <li>amplificación · expresión · refractario (registro, sin cifras ni códigos reales)</li>
             <li>biopsia · informe · tratamiento personalizado</li>
@@ -1683,7 +1710,7 @@ Permitido: cifras (marca "ejemplo" si no son las del día), fechas
           </ul>
         </div>
         <div class="panel-comparativa__col">
-          <p class="titulo-3" style="font:var(--tipo-body);font-weight:700">No — slop y muro</p>
+          <p class="titulo-3 encabezado-mano" style="font:var(--tipo-body);font-weight:700">No — slop y muro<svg class="encabezado-mano__trazo" viewBox="0 0 140 10" preserveAspectRatio="none" aria-hidden="true"><path d="M2 6.2C24 8.4,46 2.4,70 5.6C92 8.6,114 3,138 5.8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></p>
           <ul class="lista lista-check lista-check--no">
             <li>«luchadora» / «guerrera» / «valiente»</li>
             <li>«viaje» / «camino» / «travesía»</li>
