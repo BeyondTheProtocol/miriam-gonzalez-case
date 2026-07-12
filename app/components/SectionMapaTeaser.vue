@@ -72,11 +72,11 @@ const titleId = useId()
 /* Lift sutil en desktop (mismo patrón que a.card-base del DS; el hover global ya
    lo aplica, aquí solo fijamos el ancho de la miniatura y la leyenda). */
 .mapa-teaser__preview {
-  width: 88px;
+  width: 104px;
 }
 @media (min-width: 640px) {
   .mapa-teaser__preview {
-    width: 104px;
+    width: 124px;
   }
 }
 
