@@ -1,4 +1,9 @@
 <script setup>
+// Edad desde la fuente única (app/utils/caseData) en vez de a mano, para que la
+// share-card no se desincronice del resto del sitio. Import explícito: el runtime
+// aislado del og:image (takumi) no garantiza el auto-import de utils.
+import { caseData } from '~/utils/caseData'
+
 defineProps({
   colorMode: { type: String, required: false, default: 'light' },
   title: { type: String, required: false, default: 'title' },
@@ -56,7 +61,7 @@ defineProps({
         style="gap: 14px; margin-top: 12px; padding-top: 20px; border-top: 1px solid rgba(45,27,61,0.12);"
       >
         <span style="font-family: 'JetBrains Mono', monospace; font-size: 16px; color: #2d1b3d;">
-          Miriam González · 35
+          Miriam González · {{ caseData.currentAge }}
         </span>
         <span style="color: #9d44ab;">·</span>
         <span style="font-family: 'JetBrains Mono', monospace; font-size: 16px; color: #5a4a68;">
