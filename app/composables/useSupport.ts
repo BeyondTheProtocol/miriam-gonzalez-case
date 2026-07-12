@@ -65,6 +65,14 @@ export function useSupport() {
     trackUmami('Pathway', { ruta: route })
   }
 
+  // Mide quién abre el mapa de metástasis y desde dónde (teaser de la home,
+  // /ciencia, /links…). Mismo patrón que trackScience: un evento, el origen como
+  // propiedad → se ve si el acceso «al primer vistazo» en la home convierte.
+  function trackMapa(location: string) {
+    fire('VerMapa', location)
+    trackUmami('VerMapa', { location })
+  }
+
   function trackShare(method: string, from?: string) {
     trackUmami('Compartir', {
       metodo: method,
@@ -89,5 +97,6 @@ export function useSupport() {
     trackPathway,
     trackShare,
     trackBioLink,
+    trackMapa,
   }
 }

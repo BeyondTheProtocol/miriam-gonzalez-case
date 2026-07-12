@@ -131,6 +131,16 @@
     "brief_cta_help": "Ver todas las formas de ayudar",
     "hero_sr_summary": "Miriam González tiene un cáncer de mama metastásico ultra-raro con dos biologías. Esta web financia las pruebas de precisión que la sanidad pública no cubre. Puedes apoyar económicamente, leer la ciencia del caso, colaborar según tu perfil o compartir la campaña."
   },
+  "mapaTeaser": {
+    "eyebrow": "Herramienta abierta",
+    "title": "Mira exactamente dónde está cada lesión",
+    "lede": "Mapa interactivo en 3D de las metástasis óseas con doble trazador (Galio-68 y FDG): cada punto, con los datos reales — pensado para compartir con tu equipo médico.",
+    "legend_aria": "Trazadores del mapa",
+    "tracer_ga": "Galio-68",
+    "tracer_fdg": "FDG",
+    "cta": "Abrir el mapa",
+    "disclaimer": "Apoyo a la decisión, no diagnóstico."
+  },
   "glossary": {
     "hint": "Toca o pasa el cursor por las palabras y marcadores resaltados para ver qué significan."
   },

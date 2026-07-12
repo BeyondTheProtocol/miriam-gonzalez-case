@@ -131,6 +131,16 @@
     "brief_cta_help": "See all ways to help",
     "hero_sr_summary": "Miriam González has an ultra-rare metastatic breast cancer with two biologies. This site funds precision tests that public healthcare does not cover. You can donate, read the science, collaborate by profile, or share the campaign."
   },
+  "mapaTeaser": {
+    "eyebrow": "Open tool",
+    "title": "See exactly where each lesion is",
+    "lede": "Interactive 3D bone-metastasis map with dual tracers (Gallium-68 and FDG): every point, with the real data — built to share with your medical team.",
+    "legend_aria": "Map tracers",
+    "tracer_ga": "Gallium-68",
+    "tracer_fdg": "FDG",
+    "cta": "Open the map",
+    "disclaimer": "Decision support, not diagnosis."
+  },
   "glossary": {
     "hint": "Tap or hover the highlighted words and markers to see what they mean."
   },
