@@ -9,7 +9,7 @@
         stroke-width="1.5"
         stroke-linecap="round"
       />
-      <!-- Hebra A (magenta, luminal) y hebra B (coral): las dos caras, trenzadas -->
+      <!-- Hebra A (magenta, luminal) y hebra B (coral), trenzadas -->
       <path
         class="dna-strand"
         d="M0 5 C13 5, 17 19, 30 19 S 47 5, 60 5 S 77 19, 90 19 S 107 5, 120 5 S 137 19, 150 19 S 167 5, 180 5 S 197 19, 210 19 S 227 5, 240 5"
@@ -32,7 +32,7 @@
 /**
  * Separador "doble hélice" — hermano del latido (EcgDivider) para el lenguaje
  * científico del sitio: estrellas (gratitud), ECG (vida), ADN (la ciencia).
- * Dos hebras —magenta y coral, las dos caras del tumor— se trazan al entrar
+ * Dos hebras —magenta y coral— se trazan al entrar
  * en viewport y los peldaños aparecen después. Decorativo (aria-hidden);
  * con reduced-motion se ve completo. Alto fijo → sin CLS.
  */
