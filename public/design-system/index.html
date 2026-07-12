@@ -235,6 +235,16 @@
   --estrella-poli-svg: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath d='M10 1.6 12.1 7.9 18.4 10 12.1 12.1 10 18.4 7.9 12.1 1.6 10 7.9 7.9Z' fill='%23000'/%3E%3C/svg%3E");
 }
 
+/* ── Iconos de lista sí/no (SVG a mano, no glifo Unicode — canon §muro a11y).
+   Trazo grueso y redondeado, mismo lenguaje que el check del componente .check
+   más abajo (líneas confiadas, no clip-art). Usados con mask: el color real lo
+   pone el token de rol que los consuma (--identidad / --texto-2), nunca el
+   fill de aquí (relleno #000 es solo el canal alfa de la máscara). */
+:root {
+  --icono-check-svg: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath d='M4.2 10.6 8.3 14.6 16 5.6' fill='none' stroke='%23000' stroke-width='2.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  --icono-cruz-svg: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath d='M5.2 5.2 14.8 14.8M14.8 5.2 5.2 14.8' fill='none' stroke='%23000' stroke-width='2.4' stroke-linecap='round'/%3E%3C/svg%3E");
+}
+
 /* ── Modificador de contexto oscuro (banda a sangre; utilidad oficial EPK) ────
    Remapea los roles al tema oscuro SOLO dentro de este contenedor. No es un
    toggle de conveniencia: es «noche editorial» con intención. */
@@ -915,19 +925,86 @@
   /* Añadidas al portar contenido real (Identidad/Lenguaje/Inclusión/Producción):
      reutilizan tokens de rol existentes, cero hex nuevo. */
   .subtit { margin-block-start: var(--sp-32); }
+  /* Ritmo de subcapítulo (Comité de Diseño, 12-jul — feedback «apelotonado»): el
+     PRIMER h3.subtit de un capítulo va pegado al folio (misma fila que el rail,
+     no le hace falta más aire ni filete). Cualquier h3.subtit SIGUIENTE marca un
+     cambio real de tema dentro del capítulo — se separa con aire generoso +
+     filete, para que el ojo entienda «aquí empieza otra cosa» sin leer el texto. */
+  .cuerpo-cap > h3.subtit:not(:first-child) {
+    margin-block-start: var(--sp-64);
+    padding-block-start: var(--sp-32);
+    border-block-start: 1px solid var(--trazo-sutil);
+  }
   .cuerpo-cap h3.subtit + p.cuerpo,
   .cuerpo-cap h3.subtit + p.cuerpo-sm { margin-block-start: var(--sp-8); }
+  /* Sub-subtítulo (un nivel bajo .subtit — p.ej. "El prompt base", "Plantilla D…"):
+     antes cada uno llevaba su propio style="margin-block-start:…" inline y suelto.
+     Una sola clase, un solo ritmo — más fácil de mantener y de replicar. */
+  .subtit-2 { margin-block-start: var(--sp-48); }
+
   .codigo { margin-block-start: var(--sp-16); padding: var(--sp-16);
     background: var(--superficie); border: 1px solid var(--trazo-medio);
     border-radius: var(--radius-md); overflow-x: auto; }
   .codigo pre { margin: 0; font: var(--texto-sm)/1.6 var(--font-mono); color: var(--texto-1);
     white-space: pre-wrap; word-break: break-word; }
+  /* Chrome de terminal — TRATAMIENTO REUTILIZABLE #1 (nace en 05·Lenguaje, para
+     cualquier bloque .codigo del manual). Puramente decorativo: el aria-label ya
+     vive en el .codigo padre (role="region"), así que la barra se oculta entera a
+     lectores de pantalla (aria-hidden) para no duplicar el anuncio — el chrome es
+     solo para el ojo. Tres puntos + nombre de archivo, no glifos de terminal. */
+  .codigo__bar { display: flex; align-items: center; gap: var(--sp-8);
+    margin-block-end: var(--sp-12); padding-block-end: var(--sp-8);
+    border-block-end: 1px solid var(--trazo-medio); }
+  .codigo__dots { display: flex; gap: 5px; flex: none; }
+  .codigo__dots span { inline-size: 9px; block-size: 9px; border-radius: var(--radius-pill);
+    background: var(--trazo-interactivo); }
+  .codigo__label { font: 600 11px/1 var(--font-mono); letter-spacing: .06em;   /* tracking unificado con .tarjeta-voz__canal (tipografía) */
+    text-transform: uppercase; color: var(--texto-3); }   /* texto-3 sobre --superficie = 4.61:1 AA verificado (MCP) día; noche 5.80:1 */
+
   .dos-col { display: grid; gap: var(--sp-24); margin-block-start: var(--sp-16); }
   @media (min-width: 640px) { .dos-col { grid-template-columns: 1fr 1fr; } }
   .marcadores-etq { display: inline-flex; align-items: center; justify-content: center;
     inline-size: 22px; block-size: 22px; border-radius: var(--radius-pill); flex: none;
     font: 700 12px/1 var(--font-mono); color: var(--identidad);
     border: 1.5px solid var(--identidad); }
+
+  /* Panel comparativa + lista con icono — TRATAMIENTO REUTILIZABLE #2. Nace en
+     05·Lenguaje («Lo que sí/no», «Reglas duras de léxico») para cualquier bloque
+     sí/no, do/don't del manual (candidata próxima: 07·Producción → Fotografía).
+     Se combina con .dos-col (grid) y con .lista (medida de línea, color de texto). */
+  .panel-comparativa__col { background: var(--superficie); border: 1px solid var(--trazo-sutil);
+    border-radius: var(--radius-card); padding: var(--sp-24);
+    /* texto-3, no trazo-fuerte: el filete es un objeto gráfico con significado (agrupa
+       la columna sí/no) y necesita 3:1 — verificado con check_contrast (4.61 día / 4.65
+       noche); trazo-fuerte se quedaba en 1.48/2.11, por debajo del suelo. */
+    border-block-start: 3px solid var(--texto-3); }
+  .panel-comparativa__col--si { border-block-start-color: var(--identidad); }
+
+  .lista-check { list-style: none; margin: var(--sp-16) 0 0; padding: 0;
+    display: flex; flex-direction: column; gap: var(--sp-12); }
+  .lista-check li { display: flex; align-items: flex-start; gap: var(--sp-12); margin: 0; }
+  .lista-check li + li { padding-block-start: var(--sp-12); border-block-start: 1px solid var(--trazo-sutil); }
+  .lista-check li::before { content: ""; flex: none; inline-size: 18px; block-size: 18px;
+    margin-block-start: .2em; }
+  .lista-check--si li::before { background: var(--identidad);
+    -webkit-mask: var(--icono-check-svg) center/contain no-repeat; mask: var(--icono-check-svg) center/contain no-repeat; }
+  .lista-check--no li::before { background: var(--texto-2);
+    -webkit-mask: var(--icono-cruz-svg) center/contain no-repeat; mask: var(--icono-cruz-svg) center/contain no-repeat; }
+
+  /* Tarjetas de voz por canal (03 ejemplos de "Voz por superficie") — antes tres
+     .card con estilos inline repetidos a mano; ahora un patrón con nombre, y en
+     grid con aire real (auto-fit: 1, 2 o 3 columnas según hueco disponible, sin
+     forzar una sola columna apelotonada en escritorio). */
+  .voces-grid { display: grid; gap: var(--sp-24); margin-block-start: var(--sp-24);
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); align-items: start; }
+  .tarjeta-voz { display: flex; flex-direction: column; gap: var(--sp-12); }
+  .tarjeta-voz__canal { margin: 0; font: 600 var(--texto-xs)/1.3 var(--font-mono);
+    letter-spacing: .06em; text-transform: uppercase; color: var(--texto-2);
+    padding-block-end: var(--sp-8); border-block-end: 1px solid var(--trazo-sutil); }
+  .tarjeta-voz__ejemplos { display: flex; flex-direction: column; gap: var(--sp-8); }
+  .tarjeta-voz__cita { margin: 0; font: var(--tipo-body); font-style: italic; color: var(--texto-1); }
+  .tarjeta-voz__cita--identidad { color: var(--identidad); }
+  .tarjeta-voz__nota { margin: 0; }
   </style>
 
   <!-- 00 · EMPEZAR AQUÍ -->
@@ -1499,36 +1576,42 @@
       <h3 class="titulo-3 subtit" id="leng-voz">Voz por superficie</h3>
       <p class="cuerpo">Miriam usa <strong>dos voces distintas según el canal</strong>. Es un punto clave del sistema: la web es periodística (3.ª persona), las redes son de Miriam (1.ª persona).</p>
 
-      <div class="dos-col" style="grid-template-columns:1fr;margin-block-start:var(--sp-24)">
-        <div class="card">
-          <p class="cuerpo-sm" style="font:600 var(--texto-xs)/1 var(--font-mono);letter-spacing:.06em;text-transform:uppercase">helpmiriam.com · tercera persona</p>
-          <p class="cuerpo" style="margin-block-start:var(--sp-8);font-style:italic">«Miriam tiene cáncer de mama metastásico.»</p>
-          <p class="cuerpo" style="font-style:italic">«Su tumor no responde a los tratamientos estándar.»</p>
-          <p class="cuerpo-sm" style="margin-block-start:var(--sp-8)">Voz periodística / editorial. Cuenta el caso desde fuera, mantenida por el equipo de apoyo.</p>
+      <div class="voces-grid">
+        <div class="card tarjeta-voz">
+          <p class="tarjeta-voz__canal">helpmiriam.com · tercera persona</p>
+          <div class="tarjeta-voz__ejemplos">
+            <p class="tarjeta-voz__cita">«Miriam tiene cáncer de mama metastásico.»</p>
+            <p class="tarjeta-voz__cita">«Su tumor no responde a los tratamientos estándar.»</p>
+          </div>
+          <p class="cuerpo-sm tarjeta-voz__nota">Voz periodística / editorial. Cuenta el caso desde fuera, mantenida por el equipo de apoyo.</p>
         </div>
-        <div class="card" style="margin-block-start:var(--sp-16)">
-          <p class="cuerpo-sm" style="font:600 var(--texto-xs)/1 var(--font-mono);letter-spacing:.06em;text-transform:uppercase">@miriamgonp · primera persona — yo / nosotros</p>
-          <p class="cuerpo" style="margin-block-start:var(--sp-8);font-style:italic">«Soy Miriam. Vivo en Murcia.»</p>
-          <p class="cuerpo" style="font-style:italic">«Mañana me hacen la biopsia. Estoy un poco nerviosa.»</p>
-          <p class="cuerpo" style="font-style:italic;color:var(--identidad)">«<strong>Hemos conseguido</strong> el primer hito. Gracias a quienes han donado.» <span class="cuerpo-sm">(cifras — ejemplo)</span></p>
-          <p class="cuerpo" style="font-style:italic;color:var(--identidad)">«<strong>Necesitamos</strong> más para la siguiente prueba.» <span class="cuerpo-sm">(ejemplo)</span></p>
-          <p class="cuerpo-sm" style="margin-block-start:var(--sp-8)"><strong>Yo</strong> para lo personal — pruebas, sentimientos, día a día, agradecimientos íntimos. <strong>Nosotros</strong> para hitos colectivos — recaudación, necesidades, decisiones de equipo. Regla: si el sujeto del verbo es el equipo (donantes, especialistas, gente que difunde), va en plural. Si es ella entrando al hospital, va en singular.</p>
+        <div class="card tarjeta-voz">
+          <p class="tarjeta-voz__canal">@miriamgonp · primera persona — yo / nosotros</p>
+          <div class="tarjeta-voz__ejemplos">
+            <p class="tarjeta-voz__cita">«Soy Miriam. Vivo en Murcia.»</p>
+            <p class="tarjeta-voz__cita">«Mañana me hacen la biopsia. Estoy un poco nerviosa.»</p>
+            <p class="tarjeta-voz__cita tarjeta-voz__cita--identidad">«<strong>Hemos conseguido</strong> el primer hito. Gracias a quienes han donado.» <span class="cuerpo-sm">(cifras — ejemplo)</span></p>
+            <p class="tarjeta-voz__cita tarjeta-voz__cita--identidad">«<strong>Necesitamos</strong> más para la siguiente prueba.» <span class="cuerpo-sm">(ejemplo)</span></p>
+          </div>
+          <p class="cuerpo-sm tarjeta-voz__nota"><strong>Yo</strong> para lo personal — pruebas, sentimientos, día a día, agradecimientos íntimos. <strong>Nosotros</strong> para hitos colectivos — recaudación, necesidades, decisiones de equipo. Regla: si el sujeto del verbo es el equipo (donantes, especialistas, gente que difunde), va en plural. Si es ella entrando al hospital, va en singular.</p>
         </div>
-        <div class="card" style="margin-block-start:var(--sp-16)">
-          <p class="cuerpo-sm" style="font:600 var(--texto-xs)/1 var(--font-mono);letter-spacing:.06em;text-transform:uppercase">Documentos clínicos · tercera persona técnica</p>
-          <p class="cuerpo" style="margin-block-start:var(--sp-8);font-style:italic">«Se registra respuesta parcial en el estudio de seguimiento.»</p>
-          <p class="cuerpo" style="font-style:italic">«Se registra el resultado del estudio correspondiente a la fecha.»</p>
-          <p class="cuerpo-sm" style="margin-block-start:var(--sp-8)">Voz médica neutra y precisa. Sin adjetivos, sin narrativa. Los datos clínicos reales viven en el muro — esto ilustra solo el registro.</p>
+        <div class="card tarjeta-voz">
+          <p class="tarjeta-voz__canal">Documentos clínicos · tercera persona técnica</p>
+          <div class="tarjeta-voz__ejemplos">
+            <p class="tarjeta-voz__cita">«Se registra respuesta parcial en el estudio de seguimiento.»</p>
+            <p class="tarjeta-voz__cita">«Se registra el resultado del estudio correspondiente a la fecha.»</p>
+          </div>
+          <p class="cuerpo-sm tarjeta-voz__nota">Voz médica neutra y precisa. Sin adjetivos, sin narrativa. Los datos clínicos reales viven en el muro — esto ilustra solo el registro.</p>
         </div>
       </div>
 
       <h3 class="titulo-3 subtit" id="leng-do">Lo que sí, lo que no</h3>
       <p class="cuerpo">Honestidad sin paternalismos. Rigor real. Calidez sin victimismo. Comunidad sin individualismo. Transparencia sobre lo que no ha funcionado.</p>
 
-      <div class="dos-col">
-        <div>
+      <div class="dos-col panel-comparativa">
+        <div class="panel-comparativa__col panel-comparativa__col--si">
           <p class="titulo-3" style="color:var(--identidad)">Lo que SÍ es</p>
-          <ul class="lista">
+          <ul class="lista lista-check lista-check--si">
             <li>Honestidad sin paternalismos.</li>
             <li>Rigor real: fechas y cifras verificables, sin inflar ni simplificar de más — los marcadores y dianas moleculares reales quedan fuera de lo público (el equipo los maneja en privado).</li>
             <li>Calidez sin victimismo: hay urgencia y esperanza, sin lastimero.</li>
@@ -1536,9 +1619,9 @@
             <li>Transparencia: presupuestos públicos, gastos documentados, lo que no ha salido bien, contado sin maquillar.</li>
           </ul>
         </div>
-        <div>
+        <div class="panel-comparativa__col">
           <p class="titulo-3">Lo que NO es</p>
-          <ul class="lista">
+          <ul class="lista lista-check lista-check--no">
             <li>Lazos rosas, corazones rosas, estética de «lucha guerrera».</li>
             <li>Lenguaje victimista, lastimero o de «ángel en la tierra».</li>
             <li>Lenguaje médico inaccesible.</li>
@@ -1549,7 +1632,7 @@
         </div>
       </div>
 
-      <p class="titulo-3" style="margin-block-start:var(--sp-48)">Marcadores de lista — cuándo usar cada uno</p>
+      <p class="titulo-3 subtit-2">Marcadores de lista — cuándo usar cada uno</p>
       <p class="cuerpo-sm">Cuatro marcadores, cuatro significados distintos. El símbolo —no solo el color— comunica la intención. Se elige por significado, nunca por estética.</p>
       <div class="tabla-scroll" tabindex="0" role="region" aria-label="Tabla: marcadores de lista y su significado">
         <table class="tabla">
@@ -1567,9 +1650,9 @@
       <h3 class="titulo-3 subtit" id="leng-ia">Hablar con IAs</h3>
       <p class="cuerpo">Buena parte de los textos, mocks y código del caso pasan por una IA. Si le hablas mal, devuelve <em>slop</em>: gradientes, emojis, copys vacíos, «empoderamiento», iconos genéricos. Esta sección es el manual para que cualquier IA —Claude, GPT, asistente de diseño— escriba y diseñe <strong>como Miriam</strong>, no como un blog corporativo.</p>
 
-      <p class="titulo-3" style="margin-block-start:var(--sp-32)">El prompt base — pega esto siempre primero</p>
+      <p class="titulo-3 subtit-2">El prompt base — pega esto siempre primero</p>
       <p class="cuerpo-sm">Toda interacción empieza estableciendo el contexto. Sin esto, la IA defaultea a tono motivacional genérico de ONG.</p>
-      <div class="codigo" tabindex="0" role="region" aria-label="Código: prompt base para IAs"><pre>Contexto: caso Miriam González — persona real con cáncer de mama
+      <div class="codigo" tabindex="0" role="region" aria-label="Código: prompt base para IAs"><div class="codigo__bar" aria-hidden="true"><span class="codigo__dots"><span></span><span></span><span></span></span><span class="codigo__label">prompt-base.txt</span></div><pre>Contexto: caso Miriam González — persona real con cáncer de mama
 metastásico. Web personal, no es ONG ni campaña corporativa. Pide
 ayuda concreta para acceder a un tratamiento personalizado. Audiencia:
 lectores adultos, posiblemente pacientes oncológicos o familiares.
@@ -1587,11 +1670,11 @@ Prohibido: "luchadora", "guerrera", "valiente", "inspiración", "viaje",
 Permitido: cifras (marca "ejemplo" si no son las del día), fechas
      concretas, "Miriam" y "el equipo".</pre></div>
 
-      <p class="titulo-3" style="margin-block-start:var(--sp-40)">Reglas duras de léxico</p>
-      <div class="dos-col">
-        <div>
+      <p class="titulo-3 subtit-2">Reglas duras de léxico</p>
+      <div class="dos-col panel-comparativa">
+        <div class="panel-comparativa__col panel-comparativa__col--si">
           <p class="titulo-3" style="font:var(--tipo-body);font-weight:700;color:var(--identidad)">Sí — palabras del caso</p>
-          <ul class="lista">
+          <ul class="lista lista-check lista-check--si">
             <li>amplificación · expresión · refractario (registro, sin cifras ni códigos reales)</li>
             <li>biopsia · informe · tratamiento personalizado</li>
             <li>cifras: «×N», «42 %», «5 meses» — siempre marcadas «ejemplo» si no son las del día</li>
@@ -1599,9 +1682,9 @@ Permitido: cifras (marca "ejemplo" si no son las del día), fechas
             <li>«acceso a tratamiento», «ensayo clínico»</li>
           </ul>
         </div>
-        <div>
+        <div class="panel-comparativa__col">
           <p class="titulo-3" style="font:var(--tipo-body);font-weight:700">No — slop y muro</p>
-          <ul class="lista">
+          <ul class="lista lista-check lista-check--no">
             <li>«luchadora» / «guerrera» / «valiente»</li>
             <li>«viaje» / «camino» / «travesía»</li>
             <li>«juntos podemos» / «unidos venceremos» / «empoderar» / «inspirar»</li>
@@ -1611,9 +1694,9 @@ Permitido: cifras (marca "ejemplo" si no son las del día), fechas
         </div>
       </div>
 
-      <p class="titulo-3" style="margin-block-start:var(--sp-40)">Reglas duras de visual</p>
+      <p class="titulo-3 subtit-2">Reglas duras de visual</p>
       <p class="cuerpo-sm">Cuando le pidas a la IA que genere mocks, HTML/CSS o variantes de diseño, añade explícitamente estas restricciones — evitan los reflejos de «diseño bonito» tipo SaaS.</p>
-      <div class="codigo" tabindex="0" role="region" aria-label="Código: reglas duras de visual"><pre>Paleta: crema (fondo), berenjena (texto), violeta firma (solo
+      <div class="codigo" tabindex="0" role="region" aria-label="Código: reglas duras de visual"><div class="codigo__bar" aria-hidden="true"><span class="codigo__dots"><span></span><span></span><span></span></span><span class="codigo__label">reglas-visual.txt</span></div><pre>Paleta: crema (fondo), berenjena (texto), violeta firma (solo
         para "Miriam"), coral (CTA — solo botones de donar),
         violeta-soft (badges). Los hex exactos los fija el
         design-system, nunca se inventan.
@@ -1631,7 +1714,7 @@ Iconografía: ilustración a tinta tipo "Beyond the Protocol".
              Nunca iconos lineales genéricos. Si no hay icono
              real disponible, mejor vacío que stock.</pre></div>
 
-      <p class="titulo-3" style="margin-block-start:var(--sp-40)">Antipatrones — qué hace una IA cuando no le hablas bien</p>
+      <p class="titulo-3 subtit-2">Antipatrones — qué hace una IA cuando no le hablas bien</p>
       <div class="dos-col" style="grid-template-columns:1fr">
         <div class="alerta" style="margin-block-start:var(--sp-8)"><span class="alerta__label">Slop de ONG</span>«Miriam es una luchadora incansable que cada día demuestra…» — cero información. Se reescribe con cifras: qué pasó, cuándo, qué se necesita.</div>
         <div class="alerta" style="margin-block-start:var(--sp-12)"><span class="alerta__label">Reflejo SaaS</span>Stats grid de 4 columnas con iconos lineales — la cifra clínica es la noticia, debe ser tipográfica y grande, sin icono que la decore.</div>
@@ -1639,7 +1722,7 @@ Iconografía: ilustración a tinta tipo "Beyond the Protocol".
         <div class="alerta" style="margin-block-start:var(--sp-12)"><span class="alerta__label">Slop emocional</span>Emojis y corazones violeta nunca. CTA literal: «Donar» o «Ayudar a financiar el tratamiento».</div>
       </div>
 
-      <p class="titulo-3" style="margin-block-start:var(--sp-40)">Test de los 3 segundos</p>
+      <p class="titulo-3 subtit-2">Test de los 3 segundos</p>
       <p class="cuerpo">Antes de aceptar lo que devuelva la IA, pásalo por estos tres filtros:</p>
       <ol class="lista" style="padding-inline-start:var(--sp-24)">
         <li><strong>¿Podría aparecer en cualquier web de cualquier paciente?</strong> Si la respuesta es sí, no es del caso — pide especificidad: un dato, un nombre, una fecha.</li>
@@ -1648,12 +1731,12 @@ Iconografía: ilustración a tinta tipo "Beyond the Protocol".
       </ol>
       <div class="alerta" style="margin-block-start:var(--sp-24);max-inline-size:62ch"><span class="alerta__label">Regla de oro</span>Una IA es buena reescribiendo dentro de un sistema, mala inventándolo. El trabajo no es delegar la decisión — es darle el sistema completo y validar que no se desvíe.</div>
 
-      <p class="titulo-3" style="margin-block-start:var(--sp-48)">Generar imágenes — el lenguaje BTP</p>
+      <p class="titulo-3 subtit-2">Generar imágenes — el lenguaje BTP</p>
       <p class="cuerpo">Toda la iconografía e ilustración del caso vive en un único lenguaje visual, <strong>«Beyond the Protocol»</strong>: tinta negra a mano alzada sobre crema, con un único acento de color (violeta o coral) por pieza. Si encargas a una IA generativa una imagen, este es el ADN que hay que describir. Sin esto, defaultea a ilustración plana tipo SaaS — limpia, vacía, intercambiable.</p>
       <div class="alerta" style="margin-block-start:var(--sp-12);max-inline-size:62ch"><span class="alerta__label">Idioma del prompt</span>Plantillas A, B, C (texto y mocks de UI) → en español; el modelo se queda en «modo español» y la voz sale natural. Plantillas D, E, F (generación de imagen) → en inglés; el vocabulario plástico («cross-hatching», «fine-tip ink», «warm cream paper grain») tiene mejor fidelidad — en español la calidad cae.</div>
 
-      <p class="titulo-3" style="margin-block-start:var(--sp-32);font-size:18px">ADN visual — pegar en cada prompt de imagen</p>
-      <div class="codigo" tabindex="0" role="region" aria-label="Código: ADN visual para generación de imágenes"><pre>// Identidad gráfica común a TODA la iconografía e ilustración
+      <p class="titulo-3 subtit-2" style="font-size:18px">ADN visual — pegar en cada prompt de imagen</p>
+      <div class="codigo" tabindex="0" role="region" aria-label="Código: ADN visual para generación de imágenes"><div class="codigo__bar" aria-hidden="true"><span class="codigo__dots"><span></span><span></span><span></span></span><span class="codigo__label">adn-visual.txt</span></div><pre>// Identidad gráfica común a TODA la iconografía e ilustración
 style: hand-drawn ink illustration, fine-tip pen on cream paper.
 line: black ink, varied weight (0.5-2pt), confident strokes,
       visible imperfection. Not vector-clean. Not symmetrical.
@@ -1672,9 +1755,9 @@ no: gradients, glassmorphism, neon, isometric perspective,
     flat 2D "corporate Memphis" people, emoji, 3D render,
     photorealism, stock-illustration style.</pre></div>
 
-      <p class="titulo-3" style="margin-block-start:var(--sp-40)">Plantilla D · Icono individual</p>
+      <p class="titulo-3 subtit-2">Plantilla D · Icono individual</p>
       <p class="cuerpo-sm">Para iconos puntuales — dato, sección de la web, badge. Salida: PNG transparente o SVG monocromo. <em>Prompt en inglés.</em></p>
-      <div class="codigo" tabindex="0" role="region" aria-label="Código: plantilla D, icono individual"><pre>[visual DNA block above]
+      <div class="codigo" tabindex="0" role="region" aria-label="Código: plantilla D, icono individual"><div class="codigo__bar" aria-hidden="true"><span class="codigo__dots"><span></span><span></span><span></span></span><span class="codigo__label">plantilla-d.txt</span></div><pre>[visual DNA block above]
 
 Generate ONE icon depicting: [concrete concept, e.g. "a lab vial
 next to a folded report"].
@@ -1690,9 +1773,9 @@ Constraints:
 
 Return 4 variants with distinct compositions.</pre></div>
 
-      <p class="titulo-3" style="margin-block-start:var(--sp-40)">Plantilla E · Ilustración de sección</p>
+      <p class="titulo-3 subtit-2">Plantilla E · Ilustración de sección</p>
       <p class="cuerpo-sm">Para piezas grandes que acompañan un titular — hero, separadores, openers de página. <em>Prompt en inglés.</em></p>
-      <div class="codigo" tabindex="0" role="region" aria-label="Código: plantilla E, ilustración de sección"><pre>[visual DNA block above]
+      <div class="codigo" tabindex="0" role="region" aria-label="Código: plantilla E, ilustración de sección"><div class="codigo__bar" aria-hidden="true"><span class="codigo__dots"><span></span><span></span><span></span></span><span class="codigo__label">plantilla-e.txt</span></div><pre>[visual DNA block above]
 
 Generate an illustration for: [describe the scene — e.g. "a
 microscope with a tissue sample, handwritten annotations with
@@ -1709,9 +1792,9 @@ must follow the team-portraits style) · any decorative element
 without narrative function · real clinical codes or marker
 names anywhere in the scene.</pre></div>
 
-      <p class="titulo-3" style="margin-block-start:var(--sp-40)">Plantilla F · Retrato de persona</p>
+      <p class="titulo-3 subtit-2">Plantilla F · Retrato de persona</p>
       <p class="cuerpo-sm">Para añadir un nuevo miembro al equipo o representar un colaborador externo, siempre con su permiso. Coherencia con el set existente es <strong>crítica</strong>. <em>Prompt en inglés.</em></p>
-      <div class="codigo" tabindex="0" role="region" aria-label="Código: plantilla F, retrato de persona"><pre>[visual DNA block above]
+      <div class="codigo" tabindex="0" role="region" aria-label="Código: plantilla F, retrato de persona"><div class="codigo__bar" aria-hidden="true"><span class="codigo__dots"><span></span><span></span><span></span></span><span class="codigo__label">plantilla-f.txt</span></div><pre>[visual DNA block above]
 
 Editorial portrait of [name, role, 2-3 key physical traits —
 only with their explicit permission to be depicted].
@@ -1728,7 +1811,7 @@ handwritten role label below the portrait.
 Mandatory reference: existing portraits of Miriam and the team.
 Same level of detail. Same line work.</pre></div>
 
-      <p class="titulo-3" style="margin-block-start:var(--sp-40)">Cuándo NO generar — pedir o dibujar a mano</p>
+      <p class="titulo-3 subtit-2">Cuándo NO generar — pedir o dibujar a mano</p>
       <div class="dos-col" style="grid-template-columns:1fr">
         <div class="alerta" style="margin-block-start:var(--sp-8)"><span class="alerta__label">Anatomía clínica precisa</span>Mama, células, cromosomas. La IA inventa estructuras. Se pide a un ilustrador científico o se referencia un atlas médico — el riesgo de comunicar mal el caso no es asumible.</div>
         <div class="alerta" style="margin-block-start:var(--sp-12)"><span class="alerta__label">Logos institucionales</span>Hospitales, universidades. Se pide el oficial, nunca se recrea con IA — problemas legales y de identidad.</div>
