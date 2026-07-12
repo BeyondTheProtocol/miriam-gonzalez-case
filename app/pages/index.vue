@@ -2,6 +2,10 @@
   <div>
     <SectionHero />
 
+    <!-- Mapa de metástasis «al primer vistazo»: banda-teaser en el flujo crema,
+         justo bajo el hero (no un tercer botón en el hero, que leería a SaaS). -->
+    <SectionMapaTeaser />
+
     <VisitorPathways variant="home" />
 
     <!-- La historia + en sus propias palabras (beat humano: persona antes que problema) -->
