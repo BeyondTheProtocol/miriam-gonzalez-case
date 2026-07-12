@@ -448,6 +448,13 @@
     border-radius: var(--radius-md); text-decoration: none; }
   .saltar:focus { inset-block-start: var(--sp-8); outline: 2px solid var(--anillo-foco); outline-offset: 2px; }
   .sr-cap { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+  /* Scroll al navegar por el índice — GATED: el reset global de reduced-motion (arriba,
+     `* { scroll-behavior: auto !important }`) ya lo anula si el usuario pide menos movimiento;
+     se declara aquí también, explícito, para que se lea sin cruzar de bloque. Masthead hoy
+     NO es sticky (scrolla con la página), pero el padding da aire igualmente y blinda si
+     algún día se fija. */
+  @media (prefers-reduced-motion: no-preference) { html { scroll-behavior: smooth; } }
+  html { scroll-padding-block-start: var(--sp-32); }
   body { margin: 0; position: relative; background: var(--fondo); color: var(--texto-1); font: var(--tipo-body);
     font-variant-numeric: oldstyle-nums; }        /* cifras elzevirianas en texto corrido */
   /* Grano de papel: DETRÁS del texto y a la altura del documento (acompaña el scroll,
@@ -539,6 +546,12 @@
       stroke-dasharray: 1; stroke-dashoffset: 1; animation: btp-pencil-draw .45s var(--curva-salida) forwards; }
   }
   @keyframes btp-pencil-draw { to { stroke-dashoffset: 0; } }
+  /* El scroll-spy (JS, más abajo) marca activo constantemente al leer — NUNCA redibuja el
+     trazo en esos cambios (se pondría nervioso); solo lo dibuja la navegación deliberada
+     (clic/teclado/deep-link). El JS marca `data-sin-dibujo` en el activo cuando el cambio
+     viene del scroll; esta regla, más específica, gana sobre la de arriba. */
+  .doc-nav-link[aria-current="location"][data-sin-dibujo] .doc-nav-pencil path {
+    animation: none; stroke-dasharray: none; stroke-dashoffset: 0; }
 
   /* «00 · Empezar aquí»: rompe el grid (asimetría intencional — un cuadernillo real
      no repite el mismo ritmo cuatro veces). Itálica Fraunces, sin numeral mono. */
@@ -1828,20 +1841,70 @@ Equipo Miriam.</pre></div>
     else apply();
   });
 
-  /* Sidebar del manual: SIN scroll-spy (Ceci lo vetó, PR #129 dio bugs de fiabilidad).
-     El estado activo se calcula por el hash de la URL — determinista, sin listener de scroll. */
+  /* Sidebar del manual — scroll-spy con IntersectionObserver (Comité Diseño, 11-jul,
+     reemplaza el veto de Ceci al PR #129: aquel bug era doble-activo por listener de scroll
+     crudo sin reductor; aquí el activo se decide con UN solo camino de escritura — ver
+     `pintarActivo` — que SIEMPRE limpia aria-current de todos antes de ponerlo en uno).
+     Reglas duras: VISUAL-ONLY (nunca toca foco ni dispara scroll ni anuncios — el foco solo
+     se mueve por navegación nativa de teclado/clic en el <a>, eso lo hace el navegador solo
+     porque las secciones ya llevan tabindex="-1"); el trazo a lápiz NO se redibuja en cambios
+     por scroll (solo en clic/deep-link — ver `data-sin-dibujo` en el CSS de arriba). */
   const docNav = document.getElementById('doc-nav');
   if (docNav) {
     const enlaces = Array.from(docNav.querySelectorAll('a[href^="#"]'));
-    const marcarActivo = () => {
-      const hash = window.location.hash || '#b-empezar';
+    const enlacePorHref = new Map(enlaces.map((a) => [a.getAttribute('href'), a]));
+    const objetivos = enlaces
+      .map((a) => document.getElementById(a.getAttribute('href').slice(1)))
+      .filter(Boolean);
+    // orden de documento — así "el último cuya banda ya se cruzó" es siempre determinista,
+    // sin depender del orden en que el observer entregue el batch de entradas.
+    objetivos.sort((a, b) => (a.compareDocumentPosition(b) & Node.DOCUMENT_POSITION_FOLLOWING) ? -1 : 1);
+
+    let activoHref = null;
+
+    const pintarActivo = (href, { dibujar }) => {
+      if (href === activoHref) return;   // ya es este — no tocar el DOM sin necesidad
+      activoHref = href;
       enlaces.forEach((a) => {
-        if (a.getAttribute('href') === hash) a.setAttribute('aria-current', 'location');
-        else a.removeAttribute('aria-current');
+        if (a.getAttribute('href') === href) {
+          a.setAttribute('aria-current', 'location');
+          if (dibujar) a.removeAttribute('data-sin-dibujo'); else a.setAttribute('data-sin-dibujo', '');
+        } else {
+          a.removeAttribute('aria-current');
+          a.removeAttribute('data-sin-dibujo');
+        }
       });
     };
-    marcarActivo();
-    window.addEventListener('hashchange', marcarActivo);
+
+    // Deep-link / carga inicial: correcto YA, sin esperar al primer callback del observer.
+    const marcarPorHash = () => {
+      const href = enlacePorHref.has(window.location.hash) ? window.location.hash : '#b-empezar';
+      pintarActivo(href, { dibujar: true });
+    };
+    marcarPorHash();
+    window.addEventListener('hashchange', marcarPorHash);
+
+    // Scroll-spy real, solo si el navegador lo soporta (si no, el hash de arriba basta).
+    if ('IntersectionObserver' in window) {
+      const enBanda = new Set();   // objetivos cuyo folio está ahora mismo cruzando la franja de activación
+      const io = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) enBanda.add(entry.target); else enBanda.delete(entry.target);
+        });
+        // el ganador es el último en orden de documento que sigue en la banda; si la banda
+        // está vacía (scrolleando dentro de un capítulo largo, entre dos folios) el activo
+        // se queda pegado al último que cruzó — así nunca hay parpadeo ni "ninguno activo".
+        let ganador = null;
+        for (const el of objetivos) { if (enBanda.has(el)) ganador = el; }
+        if (ganador) pintarActivo('#' + ganador.id, { dibujar: false });
+      }, {
+        // franja fina cerca de arriba (deja aire bajo la masthead/scroll-padding) — no toda
+        // la ventana, para que solo un folio esté "pasando la línea" a la vez.
+        rootMargin: '-32px 0px -66% 0px',
+        threshold: 0,
+      });
+      objetivos.forEach((el) => io.observe(el));
+    }
   }
 
   /* Disclosure móvil (botón hamburguesa) — en desktop la sidebar es siempre visible por CSS
