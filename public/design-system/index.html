@@ -177,7 +177,7 @@
   --trazo-sutil:  color-mix(in srgb, var(--color-text) 8%,  transparent);
   --trazo-medio:  color-mix(in srgb, var(--color-text) 12%, transparent);
   --trazo-fuerte: color-mix(in srgb, var(--color-text) 20%, transparent);
-  --trazo-interactivo: color-mix(in srgb, var(--color-text) 55%, transparent);  /* borde de controles ≥3:1 sobre crema (3.59) — MCP/Ceci */
+  --trazo-interactivo: color-mix(in srgb, var(--color-text) 55%, transparent);  /* borde de controles ≥3:1 sobre crema (3.59) — MCP a11y */
 }
 
 /* ── Tema oscuro: sección editorial sobre berenjena ─────────────── */
@@ -193,7 +193,7 @@
   --trazo-sutil:  color-mix(in srgb, var(--color-bg) 10%, transparent);
   --trazo-medio:  color-mix(in srgb, var(--color-bg) 16%, transparent);
   --trazo-fuerte: color-mix(in srgb, var(--color-bg) 26%, transparent);
-  --trazo-interactivo: color-mix(in srgb, var(--color-bg) 40%, transparent);  /* borde de controles ≥3:1 sobre berenjena (3.51) — MCP/Ceci */
+  --trazo-interactivo: color-mix(in srgb, var(--color-bg) 40%, transparent);  /* borde de controles ≥3:1 sobre berenjena (3.51) — MCP a11y */
 }
 
 /* ── Reduced motion: a11y, no opción — CRAFT-4 / A11Y ──────────── */
@@ -226,7 +226,7 @@
 
    Muro a11y: WCAG AA como SUELO, foco visible siempre, objetivos ≥44px,
    iconos SVG (nunca glifos Unicode), ningún botón tapa texto. Reduced-motion
-   ya lo fuerza el token layer. Colores = dominio de Ceci; aquí no se inventan. */
+   ya lo fuerza el token layer. Colores = dominio del equipo de accesibilidad; aquí no se inventan. */
 
 /* ── Motivo firma: estrella contenida (SVG, no glifo). Reconciliar el path con
    el BrandMark.vue canónico del repo vivo; este es el 4-puntas por defecto. */
@@ -250,18 +250,18 @@
   --trazo-sutil:  color-mix(in srgb, var(--color-bg) 10%, transparent);
   --trazo-medio:  color-mix(in srgb, var(--color-bg) 16%, transparent);
   --trazo-fuerte: color-mix(in srgb, var(--color-bg) 26%, transparent);
-  --trazo-interactivo: color-mix(in srgb, var(--color-bg) 40%, transparent);  /* borde de controles ≥3:1 sobre berenjena (3.51) — MCP/Ceci */
+  --trazo-interactivo: color-mix(in srgb, var(--color-bg) 40%, transparent);  /* borde de controles ≥3:1 sobre berenjena (3.51) — MCP a11y */
   background: var(--fondo);
   color: var(--texto-1);
 }
 
 /* ── Foco visible (dual por token: violeta / violeta-claro on-dark) — A11Y ──── */
-/* INVARIANTE (Ceci, 12-jul): el anillo NUNCA se dibuja directamente SOBRE coral — el
+/* INVARIANTE (a11y, 12-jul): el anillo NUNCA se dibuja directamente SOBRE coral — el
    outline-offset:2px de 2px empuja el aro fuera del propio botón, así que en
    .btn--primary siempre cae sobre crema/berenjena (donde violeta SÍ pasa AA), nunca
    sobre el relleno coral (donde violeta contra coral no está verificado y podría no
    pasar). Si algún día se quita el offset o se usa un anillo interior, hay que volver
-   a pedir el contraste a Ceci antes de tocar esto — no asumir. */
+   a pedir el contraste al equipo de accesibilidad antes de tocar esto — no asumir. */
 :where(a, button, input, select, textarea, [tabindex]):focus-visible {
   outline: 2px solid var(--anillo-foco);
   outline-offset: 2px;
@@ -314,7 +314,7 @@
 .btn--primary:active:not(:disabled){ background: var(--cta-active); }
 
 /* Secundario = identidad (violeta contorno). */
-.btn--secondary { background: transparent; color: var(--texto-1); border-color: var(--identidad); }  /* texto TINTA (10.64:1), identidad en el borde — Ceci valida (check_contrast); violeta como texto solo era AA-large */
+.btn--secondary { background: transparent; color: var(--texto-1); border-color: var(--identidad); }  /* texto TINTA (10.64:1), identidad en el borde — el equipo de accesibilidad valida (check_contrast); violeta como texto solo era AA-large */
 .btn--secondary:hover:not(:disabled) { background: var(--secundario-hover); }
 .btn--secondary:active:not(:disabled){ background: color-mix(in srgb, var(--identidad) 14%, transparent); }
 
@@ -497,7 +497,7 @@
      la constelación de 8 estrellas (muda sin hover) por texto legible SIEMPRE visible en desktop.
      Doctrina ACTUALIZADA (Comité Diseño, 11-jul — ver el <script> al final del documento):
      el hash de la URL manda al cargar/compartir (determinista), pero el scroll-spy con
-     IntersectionObserver SÍ está activo para el scroll manual — sustituye al veto de Ceci
+     IntersectionObserver SÍ está activo para el scroll manual — sustituye al veto de a11y
      al PR #129 (aquel bug era doble-activo por listener de scroll crudo sin reductor; el
      mecanismo actual tiene un único camino de escritura, ver `pintarActivo`). No queda
      doctrina "sin scroll-spy" — corregido aquí el 12-jul porque este comentario seguía
@@ -735,7 +735,7 @@
     --trazo-sutil:  color-mix(in srgb, var(--color-text) 8%,  transparent);
     --trazo-medio:  color-mix(in srgb, var(--color-text) 12%, transparent);
     --trazo-fuerte: color-mix(in srgb, var(--color-text) 20%, transparent);
-    --trazo-interactivo: color-mix(in srgb, var(--color-text) 55%, transparent);  /* borde de controles ≥3:1 sobre crema (3.59) — MCP/Ceci */
+    --trazo-interactivo: color-mix(in srgb, var(--color-text) 55%, transparent);  /* borde de controles ≥3:1 sobre crema (3.59) — MCP a11y */
     --astro: var(--color-text);
   }
   .lamina-in { max-inline-size: 1180px; margin-inline: auto; position: relative; }
@@ -884,7 +884,7 @@
   <div class="portada">
     <div class="portada-texto">
       <h1>Un lenguaje, no una <span class="two-faces">plantilla<svg class="two-faces__stroke" viewBox="0 0 100 8" preserveAspectRatio="none" aria-hidden="true"><path class="tf-line" pathLength="1" d="M2 5.4 C 16 3.4, 38 7, 58 4.8 C 74 3.2, 90 6, 98 4.6"/></svg></span>.</h1>
-      <p class="sub">Cada componente pinta con tokens de rol y se remapea solo en claro, en noche y en banda oscura. Los colores los fija Ceci; aquí no se mueve ni un hex.</p>
+      <p class="sub">Cada componente pinta con tokens de rol y se remapea solo en claro, en noche y en banda oscura. Los colores los fija el equipo de accesibilidad; aquí no se mueve ni un hex.</p>
     </div>
     <svg class="portada-constelacion" viewBox="0 0 240 200" aria-hidden="true">
       <path class="pc-via" d="M26 156 L98 64 L170 98 L208 32"/>
@@ -939,7 +939,7 @@
       <p class="cuerpo">Este es el lenguaje visual de Beyond the Protocol: cómo se ve, cómo suena y cómo se construye cada superficie —web, cuadernillo, PDF, redes— para que la marca hable con una sola voz.</p>
       <p class="titulo-3" style="margin-block-start:var(--sp-24)">Reglas no negociables</p>
       <ul class="lista">
-        <li>Los colores los fija Ceci (accesibilidad). Aquí no se mueve ni un hex.</li>
+        <li>Los colores los fija el equipo de accesibilidad. Aquí no se mueve ni un hex.</li>
         <li>Coral es <strong>solo acción</strong>: nunca porta significado sobre crema.</li>
         <li>Contraste WCAG 2.2 AA como suelo, en día y en noche.</li>
         <li>El movimiento respeta <code>prefers-reduced-motion</code> siempre.</li>
@@ -1248,7 +1248,7 @@
 
       <div class="alerta" style="margin-block-start:var(--sp-32);max-inline-size:62ch">
         <span class="alerta__label">Nota de coherencia</span>
-        En producción, <code>EcgDivider</code> y <code>DnaDivider</code> usan coral de forma decorativa (una hebra/el latido entero), y <code>DaysWaitingCounter</code> lo usa como color de estado — los tres tensionan con la doctrina de este cuadernillo («coral SOLO acción, nunca porta significado sobre crema»). Se documentan aquí TAL CUAL están en la web viva — no se corrigen desde este documento —, marcados para revisión de Ceci/diseño.
+        En producción, <code>EcgDivider</code> y <code>DnaDivider</code> usan coral de forma decorativa (una hebra/el latido entero), y <code>DaysWaitingCounter</code> lo usa como color de estado — los tres tensionan con la doctrina de este cuadernillo («coral SOLO acción, nunca porta significado sobre crema»). Se documentan aquí TAL CUAL están en la web viva — no se corrigen desde este documento —, marcados para revisión del equipo de accesibilidad/diseño.
       </div>
 
       <!-- 03·A — Divisores -->
@@ -2178,7 +2178,7 @@ Equipo Miriam.</pre></div>
       <p class="titulo-3" style="margin-block-start:var(--sp-32)">Reglas</p>
       <ul class="lista">
         <li><strong>Alterna los fondos</strong> entre diapositivas (berenjena → crema → violeta) para dar ritmo.</li>
-        <li><strong>Violeta = dato y firma</strong>; <strong style="color:var(--color-miriam)">coral = solo el CTA</strong>, nunca decorativo. <!-- Fallo AA corregido 12-jul (Ceci): coral de texto sobre crema = 2.62:1, falla. Violeta firma = 5.07:1, AA. El coral real vive en el botón de abajo (fondo, no texto). --></li>
+        <li><strong>Violeta = dato y firma</strong>; <strong style="color:var(--color-miriam)">coral = solo el CTA</strong>, nunca decorativo. <!-- Fallo AA corregido 12-jul (a11y): coral de texto sobre crema = 2.62:1, falla. Violeta firma = 5.07:1, AA. El coral real vive en el botón de abajo (fondo, no texto). --></li>
         <li><strong>Una idea por diapositiva</strong>, una sola acción al final.</li>
         <li><strong>Anotaciones a mano</strong> como acento — una o dos por diapositiva, desactivables.</li>
         <li><strong>Caption por diapositiva</strong> (desde jun-2026): la última siempre cierra con helpmiriam.com; si se usa un solo caption para todo el post, que cierre igual con helpmiriam.com.</li>
@@ -2237,7 +2237,7 @@ Equipo Miriam.</pre></div>
   });
 
   /* Sidebar del manual — scroll-spy con IntersectionObserver (Comité Diseño, 11-jul,
-     reemplaza el veto de Ceci al PR #129: aquel bug era doble-activo por listener de scroll
+     reemplaza el veto de a11y al PR #129: aquel bug era doble-activo por listener de scroll
      crudo sin reductor; aquí el activo se decide con UN solo camino de escritura — ver
      `pintarActivo` — que SIEMPRE limpia aria-current de todos antes de ponerlo en uno).
      Reglas duras: VISUAL-ONLY (nunca toca foco ni dispara scroll ni anuncios — el foco solo
