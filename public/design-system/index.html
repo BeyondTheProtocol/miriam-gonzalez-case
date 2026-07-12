@@ -963,6 +963,18 @@
 
   .dos-col { display: grid; gap: var(--sp-24); margin-block-start: var(--sp-16); }
   @media (min-width: 640px) { .dos-col { grid-template-columns: 1fr 1fr; } }
+
+  /* Mockup + lista (07·Producción, «Ejemplo · slide de gancho») — FIX 12-jul (QA
+     de Miriam, descuadre en móvil): vivía como grid inline suelto y sin breakpoint,
+     `grid-template-columns:minmax(180px,240px) 1fr`. A 375/390px el `.libro` no
+     tiene sitio para 180px + una segunda columna con contenido legible — medido:
+     el grid se veía forzado a 180px + 111px, desbordando su propio contenedor
+     (.libro scrollWidth 347 vs 311px reales, ~36px de overflow horizontal real,
+     no solo visual). En móvil apila (mockup arriba, lista debajo); la columna fija
+     solo entra desde 640px, que es donde ya sobra sitio de sobra. */
+  .mock-slide-grid { display: grid; grid-template-columns: 1fr; gap: var(--sp-24);
+    align-items: start; margin-block-start: var(--sp-16); }
+  @media (min-width: 640px) { .mock-slide-grid { grid-template-columns: minmax(180px, 240px) 1fr; } }
   .marcadores-etq { display: inline-flex; align-items: center; justify-content: center;
     inline-size: 22px; block-size: 22px; border-radius: var(--radius-pill); flex: none;
     font: 700 12px/1 var(--font-mono); color: var(--identidad);
@@ -1011,11 +1023,20 @@
     -webkit-mask: var(--icono-cruz-svg) center/contain no-repeat; mask: var(--icono-cruz-svg) center/contain no-repeat; }
 
   /* Tarjetas de voz por canal (03 ejemplos de "Voz por superficie") — antes tres
-     .card con estilos inline repetidos a mano; ahora un patrón con nombre, y en
-     grid con aire real (auto-fit: 1, 2 o 3 columnas según hueco disponible, sin
-     forzar una sola columna apelotonada en escritorio). */
+     .card con estilos inline repetidos a mano; ahora un patrón con nombre.
+     FIX 12-jul (QA de Miriam, «cajas descolgadas» en Air/1280-1440): auto-fit con
+     minmax(240px,1fr) sonaba bien en teoría, pero `.cuerpo-cap` está topado a 68ch
+     (~647-680px) SIEMPRE en escritorio — nunca llega a los ~768px que hacen falta
+     para 3 columnas de 240px. El resultado real, medido con getBoundingClientRect:
+     2 columnas fijas y la 3ª tarjeta huérfana sola en la fila, con ~336px de hueco
+     en blanco a su derecha. Con solo 3 tarjetas, auto-fit nunca puede acertar (2
+     columnas siempre deja un sobrante). Se fija el número de columnas por
+     breakpoint — 1 en móvil, 3 en escritorio, NUNCA 2 — así una fila siempre cierra
+     entera. El breakpoint de 761px es el mismo que ya usa `.cap` para su rail, no
+     uno nuevo inventado. */
   .voces-grid { display: grid; gap: var(--sp-24); margin-block-start: var(--sp-24);
-    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); align-items: start; }
+    grid-template-columns: 1fr; align-items: start; }
+  @media (min-width: 761px) { .voces-grid { grid-template-columns: repeat(3, 1fr); } }
   .tarjeta-voz { display: flex; flex-direction: column; gap: var(--sp-12); }
   /* De paso (12-jul, mismo feedback anti-IA): la esquina uniforme de 16px de
      `.card` en las 3 a la vez lee a componente clonado. Reutiliza el MISMO
@@ -2266,7 +2287,7 @@ Equipo Miriam.</pre></div>
       </div>
 
       <p class="titulo-3" style="margin-block-start:var(--sp-32)">Ejemplo · slide de gancho (4:5, zona segura 3:4)</p>
-      <div style="display:grid;grid-template-columns:minmax(180px,240px) 1fr;gap:var(--sp-24);align-items:start;margin-block-start:var(--sp-16)">
+      <div class="mock-slide-grid">
         <div style="aspect-ratio:4/5;background:var(--color-text);border-radius:var(--radius-card);padding:var(--sp-24);display:flex;flex-direction:column;overflow:hidden;position:relative">
           <div aria-hidden="true" style="position:absolute;inset:7.5% 0;border-block:1px dashed color-mix(in srgb, var(--color-bg) 30%, transparent)"></div>
           <div style="display:flex;justify-content:space-between;font:var(--texto-xs)/1 var(--font-mono);letter-spacing:.04em;color:var(--color-miriam-soft)">
