@@ -18,8 +18,10 @@ const { days } = useDaysWaiting()
 </script>
 
 <style scoped>
+/* Sin velo de fondo coral: el texto coral-deep (#bb4128) se lee sobre crema
+   limpia → 5.0:1, pasa WCAG AA (el velo al 10% lo hundía a 4.53:1). El coral
+   se conserva como firma: borde + punto + texto. Auditado por Ceci (jul-2026). */
 .counter-tag {
-  background: rgb(var(--color-cta-rgb) / 0.1);
-  border: 1px solid rgb(var(--color-cta-rgb) / 0.3);
+  border: 1px solid rgb(var(--color-cta-rgb) / 0.35);
 }
 </style>

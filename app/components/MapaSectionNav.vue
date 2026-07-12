@@ -179,7 +179,7 @@ function jumpTo(e: Event, id: string) {
   background: var(--color-miriam);
 }
 .mn-d__link:focus-visible {
-  outline: 2px solid var(--color-miriam);
+  outline: 2px solid var(--anillo-foco);
   outline-offset: 2px;
   border-radius: 2px;
 }
@@ -229,7 +229,7 @@ function jumpTo(e: Event, id: string) {
 }
 .mn-m__summary:focus-visible,
 .mn-m__list a:focus-visible {
-  outline: 2px solid var(--color-miriam);
+  outline: 2px solid var(--anillo-foco);
   outline-offset: 2px;
 }
 @media (prefers-reduced-motion: reduce) {
