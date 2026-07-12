@@ -43,7 +43,7 @@ export default {
         // oscuras (cajas «Carlos Roca» / LinkedIn en /marcas). Texto crema: 12.8:1.
         'berenjena-2': 'rgb(var(--berenjena-2-rgb) / <alpha-value>)',
         coral: {
-          DEFAULT: 'rgb(var(--color-cta-rgb) / <alpha-value>)',     // var(--color-cta) — ÚNICO color de acción (fondos / decoración)
+          DEFAULT: 'rgb(var(--color-cta-rgb) / <alpha-value>)',     // var(--color-cta) — color de ACCIÓN + acento de marca (fondo de botón, punto/borde). Como TEXTO sobre claro usa coral.deep; NUNCA en anillos de foco (usa --anillo-foco) ni como texto/velo coral puro sobre crema (falla AA)
           hover: 'rgb(var(--color-cta-hover-rgb) / <alpha-value>)',
           // Coral accesible para TEXTO sobre fondos claros: pasa WCAG AA
           // (4.7:1 sobre cream-card, 5.0:1 sobre cream). El coral DEFAULT
