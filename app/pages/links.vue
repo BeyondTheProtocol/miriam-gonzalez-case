@@ -138,8 +138,10 @@ type BioLink = {
   external?: boolean
 }
 
-// Destacados — orden: el MAPA primero (el gancho novedoso e INTERNO: lo que la gente viene
-// a buscar y lo que la retiene en el sitio), luego la prensa (credibilidad) y marcas.
+// Destacados — orden por AUDIENCIA-NED: arriba lo que acerca a un oncólogo/investigador
+// (la mayor palanca hacia el mejor tratamiento). MAPA primero (gancho científico interno
+// que retiene), luego la PRENSA (credibilidad) y el CONTACTO PROFESIONAL (vía directa para
+// oncólogos e investigadores → /contacto con el rol preseleccionado).
 // `id` = la propiedad que viaja a Umami (Bio-link · destino) → debe ser estable
 // y en minúsculas-sin-acentos para agrupar bien en el panel.
 const featured = computed<BioLink[]>(() => [
@@ -159,29 +161,38 @@ const featured = computed<BioLink[]>(() => [
     external: true,
   },
   {
-    id: 'marcas',
-    title: 'links.marcas_title',
-    sub: 'links.marcas_sub',
-    icon: 'ph:handshake-fill',
-    to: localePath('marcas'),
+    id: 'contactopro',
+    title: 'links.contactopro_title',
+    sub: 'links.contactopro_sub',
+    icon: 'ph:flask-fill',
+    to: localePath('contacto') + '?role=oncologist',
   },
 ])
 
-// Secundarios — completan el hub sin robar protagonismo a los 3 de arriba.
+// Secundarios — abajo la colaboración económica: el caso completo, las marcas y, en último
+// lugar, donar. El reorden prioriza el valor-NED (un profesional > una donación), sin esconder
+// el apoyo económico: queda visible al cierre (posición de recencia).
 const secondary = computed<BioLink[]>(() => [
-  {
-    id: 'apoyar',
-    title: 'links.apoyar_title',
-    sub: 'links.apoyar_sub',
-    icon: 'ph:heart-fill',
-    to: localePath('colabora'),
-  },
   {
     id: 'caso',
     title: 'links.caso_title',
     sub: 'links.caso_sub',
     icon: 'ph:house-fill',
     to: localePath('/'),
+  },
+  {
+    id: 'marcas',
+    title: 'links.marcas_title',
+    sub: 'links.marcas_sub',
+    icon: 'ph:handshake-fill',
+    to: localePath('marcas'),
+  },
+  {
+    id: 'apoyar',
+    title: 'links.apoyar_title',
+    sub: 'links.apoyar_sub',
+    icon: 'ph:heart-fill',
+    to: localePath('colabora'),
   },
 ])
 
