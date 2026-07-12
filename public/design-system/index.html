@@ -294,8 +294,8 @@
    Base: ≥44px de alto, un solo acento coral por vista, ningún botón tapa texto. */
 .btn {
   display: inline-flex; align-items: center; justify-content: center; gap: var(--sp-8);
-  min-height: 44px; padding: var(--sp-12) var(--sp-24);
-  font: 600 var(--texto-base)/1 var(--font-body);
+  min-height: 44px; padding: var(--sp-8) var(--sp-20);   /* peso afinado (Miriam 12-jul): más fino en texto y padding, 44px de alto intactos (a11y) */
+  font: 600 var(--texto-sm)/1 var(--font-body);
   border: 1px solid transparent; border-radius: var(--radius-btn);
   cursor: pointer; text-decoration: none; white-space: nowrap;
   transition: background var(--dur-micro) var(--curva-salida),
