@@ -765,11 +765,26 @@
               <li><a class="doc-nav-sublink" href="#ident-favicon">Favicon</a></li>
             </ul>
           </li>
-          <li><a class="doc-nav-link" href="#cap-3">
+          <li>
+            <a class="doc-nav-link" href="#cap-3">
               <svg class="doc-nav-star" viewBox="0 0 20 20" aria-hidden="true"><path d="M10 1.6 12.1 7.9 18.4 10 12.1 12.1 10 18.4 7.9 12.1 1.6 10 7.9 7.9Z" fill="currentColor"/></svg>
               <span class="doc-nav-num">03</span>
               <span class="doc-nav-labelwrap"><span class="doc-nav-label">Componentes</span><svg class="doc-nav-pencil" viewBox="0 0 100 8" preserveAspectRatio="none" aria-hidden="true"><path d="M2 4.8C14 6.4,22 2.8,34 4.6C46 6.3,54 3.1,66 4.9C78 6.5,86 3.3,98 5" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg></span>
-            </a></li>
+            </a>
+            <ul class="doc-nav-sub">
+              <li><a class="doc-nav-sublink" href="#comp-divisores">Divisores</a></li>
+              <li><a class="doc-nav-sublink" href="#comp-term">Term (glosario)</a></li>
+              <li><a class="doc-nav-sublink" href="#comp-nota">Nota</a></li>
+              <li><a class="doc-nav-sublink" href="#comp-contador">Contador de días</a></li>
+              <li><a class="doc-nav-sublink" href="#comp-perfil">Perfil molecular</a></li>
+              <li><a class="doc-nav-sublink" href="#comp-equipo">Tarjeta de equipo</a></li>
+              <li><a class="doc-nav-sublink" href="#comp-recaudacion">Recaudación</a></li>
+              <li><a class="doc-nav-sublink" href="#comp-secciones">Patrones de sección</a></li>
+              <li><a class="doc-nav-sublink" href="#comp-chrome">Chrome del sitio</a></li>
+              <li><a class="doc-nav-sublink" href="#comp-twofaces">Firma TwoFaces</a></li>
+              <li><a class="doc-nav-sublink" href="#comp-subnav">Sub-nav de sección</a></li>
+            </ul>
+          </li>
           <li><a class="doc-nav-link" href="#cap-4">
               <svg class="doc-nav-star" viewBox="0 0 20 20" aria-hidden="true"><path d="M10 1.6 12.1 7.9 18.4 10 12.1 12.1 10 18.4 7.9 12.1 1.6 10 7.9 7.9Z" fill="currentColor"/></svg>
               <span class="doc-nav-num">04</span>
@@ -1062,6 +1077,319 @@
       <div style="margin-block-start:var(--sp-24);max-inline-size:520px">
         <div class="alerta"><span class="alerta__label">Nota</span>El significado va por palabra, no por color de alarma.</div>
         <div class="alerta alerta--accion" style="margin-block-start:var(--sp-16)"><span class="alerta__label">Acción</span>Filete coral, calmado. Ningún icono-estrella (la estrella es marca, no estado).</div>
+      </div>
+
+      <style>
+      /* Especímenes de componentes REALES del sitio (helpmiriam-site, app/components/*.vue)
+         — Comité Diseño, 12-jul. Estático (doctrina «espécimen: no late» — como el spinner
+         de arriba: un documento de referencia no necesita latir para explicarse). Datos
+         SIEMPRE sintéticos en lo clínico, económico o de identidad de terceros — el muro
+         cubre también este documento, no solo la web pública. */
+      .espec-bloque { margin-block-start: var(--sp-48); padding-block-start: var(--sp-32);
+        border-block-start: 1px solid var(--trazo-sutil); }
+      .espec-bloque .fuente { font: 500 11px/1.4 var(--font-mono); color: var(--texto-3);
+        text-transform: uppercase; letter-spacing: .06em; margin: var(--sp-4) 0 0; }
+
+      /* Divisores */
+      .espec-divisores { display: flex; flex-direction: column; gap: var(--sp-16); margin-block-start: var(--sp-16); max-inline-size: 340px; }
+      .espec-divisor-fila { display: flex; align-items: center; gap: var(--sp-16); }
+      .espec-divisor-fila svg { flex: none; }
+      .espec-divisor-fila span { font: var(--tipo-body-sm); color: var(--texto-3); }
+
+      /* Term */
+      .espec-term-demo { display: flex; gap: var(--sp-24); flex-wrap: wrap; align-items: flex-start; margin-block-start: var(--sp-16); position: relative; }
+      .term { background: none; border: 0; padding: 0; cursor: pointer; font: inherit; color: var(--texto-1); position: relative;
+        border-block-end: 1.5px dotted color-mix(in srgb, var(--identidad) 55%, transparent); }
+      .term:hover, .term:focus-visible, .term[aria-expanded="true"] { border-block-end-color: var(--identidad); color: var(--identidad); }
+      .term--badge { border-block-end: 0; display: inline-flex; padding: var(--sp-4) var(--sp-12); border-radius: var(--radius-pill);
+        background: var(--color-miriam-soft); color: var(--color-text); font: 600 var(--texto-xs)/1.4 var(--font-mono); }
+      .term--badge:hover, .term--badge:focus-visible, .term--badge[aria-expanded="true"] { box-shadow: 0 0 0 3px color-mix(in srgb, var(--identidad) 18%, transparent); }
+      .term-pop { display: none; position: absolute; z-index: 5; inset-block-start: 100%; inset-inline-start: 0; inline-size: max-content;
+        max-inline-size: 220px; margin-block-start: var(--sp-8); padding: var(--sp-12) var(--sp-16);
+        background: var(--color-text); color: var(--color-bg); border-radius: var(--radius-md);
+        font: var(--tipo-body-sm); box-shadow: var(--sombra-flotante); }
+      .term-pop[data-abierto] { display: block; }
+
+      /* Nota */
+      .espec-nota-demo { display: flex; flex-direction: column; gap: var(--sp-8); margin-block-start: var(--sp-16); max-inline-size: 54ch; }
+      .nota { display: flex; align-items: baseline; gap: var(--sp-8); font: 500 12px/1.5 var(--font-mono); color: var(--texto-2); margin: 0; }
+      .nota-mark { color: var(--identidad); flex: none; }
+      .nota svg { flex: none; color: var(--identidad); align-self: center; }
+
+      /* Contador de días */
+      .espec-counter { display: inline-flex; align-items: center; gap: var(--sp-8); padding: var(--sp-4) var(--sp-12);
+        border-radius: var(--radius-pill); font: 600 11px/1 var(--font-mono); text-transform: uppercase; letter-spacing: .06em;
+        color: var(--cta-texto); background: color-mix(in srgb, var(--color-cta) 12%, var(--fondo));
+        border: 1px solid color-mix(in srgb, var(--color-cta) 30%, transparent); }
+      .espec-counter .punto { inline-size: 6px; block-size: 6px; border-radius: 50%; background: var(--color-cta); flex: none; }
+
+      /* Equipo */
+      .espec-team-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(220px,100%),1fr)); gap: var(--sp-16); margin-block-start: var(--sp-16); }
+      .espec-team-card { display: flex; align-items: flex-start; gap: var(--sp-12); }
+      .espec-team-card .icono { inline-size: 44px; block-size: 44px; border-radius: var(--radius-md); flex: none;
+        display: grid; place-items: center; background: var(--color-miriam-soft); color: var(--color-text); }
+      .espec-team-card .icono--ink { background: var(--superficie); color: var(--texto-1); }
+      .espec-team-card h4 { font: var(--tipo-h3); font-size: var(--texto-base); margin: 0 0 var(--sp-4); color: var(--texto-1); }
+      .espec-team-card p { font: var(--tipo-body-sm); color: var(--texto-2); margin: 0; }
+
+      .espec-portrait { display: inline-flex; flex-direction: column; gap: var(--sp-8); max-inline-size: 180px; margin-block-start: var(--sp-16); }
+      .espec-portrait .marco { aspect-ratio: 1; border-radius: var(--radius-card); background: color-mix(in srgb, var(--identidad) 8%, var(--fondo));
+        display: grid; place-items: center; font: italic 700 56px var(--font-display); color: var(--identidad); }
+      .espec-portrait .rol { font: 600 11px/1.3 var(--font-mono); text-transform: uppercase; letter-spacing: .06em; color: var(--texto-3); }
+      .espec-portrait .nombre { font: var(--tipo-h3); font-size: var(--texto-lg); color: var(--texto-1); margin: var(--sp-4) 0; }
+      .espec-portrait .desc { font: var(--tipo-body-sm); color: var(--texto-2); margin: 0; }
+
+      /* Recaudación */
+      .espec-progreso { background: var(--color-text); color: var(--color-bg); border-radius: var(--radius-card); padding: var(--sp-24);
+        max-inline-size: 420px; margin-block-start: var(--sp-16); }
+      .espec-progreso .cifra-lg { font: 700 clamp(32px,5vw,44px)/1 var(--font-display); color: var(--color-cta); margin: 0; }
+      .espec-progreso .meta { font: 600 12px/1.4 var(--font-mono); color: color-mix(in srgb, var(--color-bg) 70%, transparent); margin: var(--sp-4) 0 var(--sp-16); }
+      .espec-progreso .barra { block-size: 8px; border-radius: var(--radius-pill); background: color-mix(in srgb, var(--color-bg) 16%, transparent); overflow: hidden; }
+      .espec-progreso .relleno { block-size: 100%; background: var(--color-cta); border-radius: var(--radius-pill); }
+      .espec-progreso .hitos { display: flex; justify-content: space-between; margin-block-start: var(--sp-8);
+        font: 600 10px/1 var(--font-mono); color: color-mix(in srgb, var(--color-bg) 60%, transparent); }
+      .espec-donantes td.num { color: var(--identidad); }
+
+      /* Patrones de sección */
+      .espec-hero-mini { border: 1px solid var(--trazo-sutil); border-radius: var(--radius-card); padding: var(--sp-24);
+        margin-block-start: var(--sp-16); display: grid; gap: var(--sp-16); max-inline-size: 560px; }
+      .espec-hero-mini .handle { display: inline-block; font: 600 11px/1 var(--font-mono); background: var(--identidad); color: var(--fondo);
+        padding: var(--sp-4) var(--sp-8); border-radius: var(--radius-sm); transform: rotate(-2deg); inline-size: fit-content; }
+      .espec-page-header { border-inline-start: 2px solid var(--identidad); padding-inline-start: var(--sp-16); margin-block-start: var(--sp-16); }
+
+      /* Chrome del sitio */
+      .espec-nav-mini { display: flex; align-items: center; justify-content: space-between; gap: var(--sp-16);
+        padding: var(--sp-12) var(--sp-16); border: 1px solid var(--trazo-sutil); border-radius: var(--radius-md);
+        margin-block-start: var(--sp-16); flex-wrap: wrap; }
+      .espec-nav-mini .enlaces { display: flex; gap: var(--sp-16); font: 600 var(--texto-sm)/1 var(--font-body); flex-wrap: wrap; }
+      .espec-nav-mini .enlaces a { color: var(--texto-2); text-decoration: none; }
+      .espec-nav-mini .enlaces a[aria-current] { color: var(--identidad); text-decoration: underline; text-decoration-thickness: 2px; text-underline-offset: 6px; }
+      .espec-footer-mini { background: var(--color-text); color: var(--color-bg); border-radius: var(--radius-card);
+        padding: var(--sp-16) var(--sp-24); margin-block-start: var(--sp-16); }
+      .espec-footer-mini .marcas { display: flex; gap: var(--sp-12); flex-wrap: wrap; margin-block-start: var(--sp-8); }
+      .espec-footer-mini .marca { padding: var(--sp-4) var(--sp-12); border: 1px solid color-mix(in srgb, var(--color-bg) 24%, transparent);
+        border-radius: var(--radius-sm); font: 600 11px/1 var(--font-mono); color: color-mix(in srgb, var(--color-bg) 70%, transparent); }
+
+      /* Sub-nav de sección (JUICIO) */
+      .espec-subnav { display: flex; flex-direction: column; gap: var(--sp-4); max-inline-size: 220px; margin-block-start: var(--sp-16);
+        border-inline-start: 1px solid var(--trazo-medio); padding-inline-start: var(--sp-12); }
+      .espec-subnav a { display: flex; align-items: center; gap: var(--sp-8); padding: var(--sp-4) 0; font: var(--tipo-body-sm); color: var(--texto-3); text-decoration: none; }
+      .espec-subnav a .punto { inline-size: 6px; block-size: 6px; border-radius: 50%; background: var(--trazo-fuerte); flex: none; }
+      .espec-subnav a[aria-current] { color: var(--texto-1); border-inline-start: 2px solid var(--identidad); margin-inline-start: -13px; padding-inline-start: 11px; }
+      .espec-subnav a[aria-current] .punto { background: var(--identidad); }
+      </style>
+
+      <div class="alerta" style="margin-block-start:var(--sp-32);max-inline-size:62ch">
+        <span class="alerta__label">Nota de coherencia</span>
+        En producción, <code>EcgDivider</code> y <code>DnaDivider</code> usan coral de forma decorativa (una hebra/el latido entero), y <code>DaysWaitingCounter</code> lo usa como color de estado — los tres tensionan con la doctrina de este cuadernillo («coral SOLO acción, nunca porta significado sobre crema»). Se documentan aquí TAL CUAL están en la web viva — no se corrigen desde este documento —, marcados para revisión de Ceci/diseño.
+      </div>
+
+      <!-- 03·A — Divisores -->
+      <div class="espec-bloque">
+        <h3 class="titulo-3 subtit" id="comp-divisores">Divisores</h3>
+        <p class="cuerpo">Tres separadores decorativos entre secciones — el mismo esqueleto (SVG 240×24, <code>aria-hidden</code>, se traza una vez al entrar en viewport y queda quieto; estático de fábrica en <code>prefers-reduced-motion</code>). Puramente decorativos: nunca sustituyen a un encabezado.</p>
+        <div class="espec-divisores">
+          <div class="espec-divisor-fila">
+            <svg width="120" height="14" viewBox="0 0 240 24" aria-hidden="true">
+              <g stroke="var(--color-text)" stroke-width="1.5" opacity=".25">
+                <path d="M20 8v8M55 8v8M90 8v8M125 8v8M160 8v8M195 8v8M220 8v8"/>
+              </g>
+              <path d="M0 12 C40 2,80 22,120 12 C160 2,200 22,240 12" fill="none" stroke="var(--identidad)" stroke-width="2"/>
+              <path d="M0 12 C40 22,80 2,120 12 C160 22,200 2,240 12" fill="none" stroke="var(--color-cta)" stroke-width="2"/>
+            </svg>
+            <span><code>DnaDivider</code> — doble hélice, hebras violeta + coral</span>
+          </div>
+          <div class="espec-divisor-fila">
+            <svg width="120" height="14" viewBox="0 0 240 24" aria-hidden="true">
+              <path d="M0 12 H88 l5 -8 l5 16 l5 -8 H240" fill="none" stroke="var(--color-cta)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <span><code>EcgDivider</code> — línea de latido, un blip</span>
+          </div>
+          <div class="espec-divisor-fila">
+            <svg width="120" height="14" viewBox="0 0 240 24" fill="var(--identidad)" aria-hidden="true">
+              <circle cx="14" cy="12" r="1.1" opacity=".55"/>
+              <path transform="translate(48,12) scale(.5)" d="M10 1.6 12.1 7.9 18.4 10 12.1 12.1 10 18.4 7.9 12.1 1.6 10 7.9 7.9Z"/>
+              <path transform="translate(92,12) scale(.75)" d="M10 1.6 12.1 7.9 18.4 10 12.1 12.1 10 18.4 7.9 12.1 1.6 10 7.9 7.9Z"/>
+              <path transform="translate(120,12) scale(1)" d="M10 1.6 12.1 7.9 18.4 10 12.1 12.1 10 18.4 7.9 12.1 1.6 10 7.9 7.9Z"/>
+              <path transform="translate(148,12) scale(.75)" d="M10 1.6 12.1 7.9 18.4 10 12.1 12.1 10 18.4 7.9 12.1 1.6 10 7.9 7.9Z"/>
+              <path transform="translate(192,12) scale(.5)" d="M10 1.6 12.1 7.9 18.4 10 12.1 12.1 10 18.4 7.9 12.1 1.6 10 7.9 7.9Z"/>
+              <circle cx="226" cy="12" r="1.1" opacity=".55"/>
+            </svg>
+            <span><code>StarDivider</code> — constelación, 5 astros + 2 puntos, violeta</span>
+          </div>
+        </div>
+        <p class="fuente">Fuente: DnaDivider.vue · EcgDivider.vue · StarDivider.vue</p>
+      </div>
+
+      <!-- 03·B — Term -->
+      <div class="espec-bloque">
+        <h3 class="titulo-3 subtit" id="comp-term">Term (glosario en línea)</h3>
+        <p class="cuerpo">Palabra con definición emergente, sin salir de página — así se explican los términos técnicos del caso sin interrumpir la lectura. Dos variantes: subrayado punteado en línea, o píldora mono cuando el término va suelto (badge/etiqueta).</p>
+        <div class="espec-term-demo">
+          <span style="position:relative">
+            <button class="term" type="button" aria-expanded="false" aria-describedby="term-demo-1" onclick="this.setAttribute('aria-expanded', this.getAttribute('aria-expanded')!=='true'); document.getElementById('term-demo-1').toggleAttribute('data-abierto')">lorem</button>
+            <span class="term-pop" role="tooltip" id="term-demo-1">Definición de ejemplo — texto ficticio para mostrar el patrón, sin dato real detrás.</span>
+          </span>
+          <span style="position:relative">
+            <button class="term term--badge" type="button" aria-expanded="false" aria-describedby="term-demo-2" onclick="this.setAttribute('aria-expanded', this.getAttribute('aria-expanded')!=='true'); document.getElementById('term-demo-2').toggleAttribute('data-abierto')">ipsum ⓘ</button>
+            <span class="term-pop" role="tooltip" id="term-demo-2">Otra definición de ejemplo — variante en píldora, mismo mecanismo.</span>
+          </span>
+        </div>
+        <p class="fuente">Fuente: Term.vue — el glosario real vive hardcodeado en el propio componente con ~20 términos clínicos; aquí se sustituye por dos entradas ficticias.</p>
+      </div>
+
+      <!-- 03·C — Nota -->
+      <div class="espec-bloque">
+        <h3 class="titulo-3 subtit" id="comp-nota">Nota</h3>
+        <p class="cuerpo">Anotación pequeña de "cómo usar algo de la página" — voz de sistema (mono), no contenido. Dos variantes: con icono de gesto, o con el asterisco por defecto.</p>
+        <div class="espec-nota-demo">
+          <p class="nota"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M9 11.5V6a2 2 0 1 1 4 0v4M13 10V4.5a2 2 0 1 1 4 0V11M17 10.5V7a2 2 0 1 1 4 0v7c0 3.3-2.7 6-6 6h-2c-2 0-3-.6-4.3-2.1L5 13.8c-.7-.9-.5-1.9.3-2.5.7-.5 1.6-.4 2.3.2L9 13"/></svg><span>Toca cualquier término subrayado para ver su definición.</span></p>
+          <p class="nota"><span class="nota-mark" aria-hidden="true">✱</span><span>Desliza en horizontal para ver el resto de la tabla.</span></p>
+        </div>
+        <p class="fuente">Fuente: Nota.vue</p>
+      </div>
+
+      <!-- 03·D — Contador de días -->
+      <div class="espec-bloque">
+        <h3 class="titulo-3 subtit" id="comp-contador">Contador «días esperando»</h3>
+        <p class="cuerpo">Píldora que cuenta los días desde un hito del caso — el único metadato que "vive" en la cabecera. El componente no trae ninguna cifra fija: la calcula un composable externo.</p>
+        <span class="espec-counter" role="status"><span class="punto" aria-hidden="true"></span>128 días · ejemplo</span>
+        <p class="fuente">Fuente: DaysWaitingCounter.vue — cifra sintética; el real usa <code>role="status" aria-live="polite"</code> (se preserva aquí como referencia de patrón, aunque en este espécimen estático nunca cambia).</p>
+      </div>
+
+      <!-- 03·E — Perfil molecular -->
+      <div class="espec-bloque">
+        <h3 class="titulo-3 subtit" id="comp-perfil">Perfil molecular</h3>
+        <div class="alerta alerta--accion" style="max-inline-size:62ch;margin-block-end:var(--sp-16)">
+          <span class="alerta__label">Ejemplo ficticio</span>
+          Marcadores y valores INVENTADOS solo para mostrar la anatomía visual. Nunca los reales de Miriam — eso vive en la web pública (con permiso, por decisión suya) y en su ficha clínica privada, no en un documento de patrones.
+        </div>
+        <p class="cuerpo">Tabla de marcadores con resultado (píldora mono) + nota clínica corta. En producción es un componente monolítico: los datos van incrustados en el propio componente, no llegan por props.</p>
+        <div class="tabla-scroll" tabindex="0" role="region" aria-label="Tabla de ejemplo: perfil molecular ficticio" style="margin-block-start:var(--sp-16);max-inline-size:640px">
+          <table class="tabla">
+            <caption class="sr-cap">Marcadores de ejemplo — valores ficticios, patrón de tabla del componente MolecularProfile</caption>
+            <thead><tr><th scope="col">Marcador</th><th scope="col">Resultado</th><th scope="col">Nota</th></tr></thead>
+            <tbody>
+              <tr><td>GEN-A</td><td><span class="badge badge--genomic">Amplificado ×N</span></td><td>Nota de ejemplo, sin dato real.</td></tr>
+              <tr><td>GEN-B</td><td><span class="badge badge--genomic">Variante detectada</span></td><td>Nota de ejemplo, sin dato real.</td></tr>
+              <tr><td>GEN-C</td><td><span class="badge badge--genomic">No detectado</span></td><td>Nota de ejemplo, sin dato real.</td></tr>
+              <tr><td>Marcador-D</td><td><span class="badge badge--genomic">Positivo</span></td><td>Nota de ejemplo, sin dato real.</td></tr>
+              <tr><td>Marcador-E</td><td><span class="badge badge--genomic">Negativo</span></td><td>Nota de ejemplo, sin dato real.</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="fuente">Fuente: MolecularProfile.vue</p>
+      </div>
+
+      <!-- 03·F — Tarjeta de equipo -->
+      <div class="espec-bloque">
+        <h3 class="titulo-3 subtit" id="comp-equipo">Tarjeta de equipo</h3>
+        <p class="cuerpo">Dos formatos para presentar a alguien del equipo/comité: la tarjeta compacta (icono + rol + descripción, sin nombre) y el retrato grande (marco + nombre + rol + descripción). Nombres siempre de ejemplo — nunca una persona real sin su permiso.</p>
+        <div class="espec-team-grid">
+          <div class="card espec-team-card">
+            <span class="icono" aria-hidden="true">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="8" r="3.4"/><path d="M5 20c0-3.9 3.1-7 7-7s7 3.1 7 7"/></svg>
+            </span>
+            <div><h4>Asesor, ejemplo</h4><p>Descripción breve del rol y cómo ayuda — texto de relleno.</p></div>
+          </div>
+          <div class="card espec-team-card">
+            <span class="icono icono--ink" aria-hidden="true">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 12h16M4 6h16M4 18h10"/></svg>
+            </span>
+            <div><h4>Asesora, ejemplo</h4><p>Descripción breve del rol y cómo ayuda — texto de relleno.</p></div>
+          </div>
+        </div>
+        <div class="espec-portrait">
+          <div class="marco" aria-hidden="true">J</div>
+          <span class="rol">Asesora · ejemplo</span>
+          <p class="nombre">Jane Doe</p>
+          <p class="desc">Descripción breve — texto de relleno, persona ficticia.</p>
+        </div>
+        <p class="fuente">Fuente: TeamCard.vue · TeamPortrait.vue</p>
+      </div>
+
+      <!-- 03·G — Recaudación -->
+      <div class="espec-bloque">
+        <h3 class="titulo-3 subtit" id="comp-recaudacion">Recaudación</h3>
+        <p class="cuerpo">Barra de progreso con hitos intermedios (variante card oscura) + muro de donantes buscable. Cifras y nombres de esta sección son sintéticos.</p>
+        <div class="espec-progreso">
+          <p class="cifra-lg">18.400 €</p>
+          <p class="meta">de 50.000 € · ejemplo</p>
+          <div class="barra"><div class="relleno" style="inline-size:37%"></div></div>
+          <div class="hitos"><span>10k ✓</span><span>25k</span><span>50k</span></div>
+        </div>
+        <div class="tabla-scroll espec-donantes" tabindex="0" role="region" aria-label="Tabla de ejemplo: muro de donantes ficticio" style="margin-block-start:var(--sp-16);max-inline-size:420px">
+          <table class="tabla">
+            <caption class="sr-cap">Donantes de ejemplo — nombres e importes ficticios, patrón del componente DonationsWall</caption>
+            <thead><tr><th scope="col">Donante</th><th scope="col">Importe</th></tr></thead>
+            <tbody>
+              <tr><td>Ana R. · hace 3 días</td><td class="num">50 €</td></tr>
+              <tr><td>Donante anónimo · hace 5 días</td><td class="num">20 €</td></tr>
+              <tr><td>J. M. · hace 1 semana</td><td class="num">100 €</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="fuente">Fuente: GoFundMeProgress.vue · DonationsWall.vue</p>
+      </div>
+
+      <!-- 03·H — Patrones de sección -->
+      <div class="espec-bloque">
+        <h3 class="titulo-3 subtit" id="comp-secciones">Patrones de sección</h3>
+        <p class="cuerpo">El hero de portada (foto + titular + CTAs + banda de cifras) y la cabecera simple de página interior (badge + título + subtítulo).</p>
+        <div class="espec-hero-mini">
+          <span class="handle">@usuario</span>
+          <h4 class="titulo-2" style="margin:0;font-size:var(--texto-xl)">Un titular con <em style="color:var(--identidad);font-style:italic">una palabra</em> en énfasis.</h4>
+          <div style="display:flex;gap:var(--sp-12)"><button class="btn btn--primary">Donar</button><button class="btn btn--secondary">Ver la ciencia</button></div>
+          <div style="display:flex;gap:var(--sp-16);flex-wrap:wrap">
+            <div class="card" style="padding:var(--sp-12) var(--sp-16)"><p class="cifra" style="font-size:22px">[N]</p><p class="cuerpo-sm" style="font:var(--texto-xs)/1 var(--font-mono);color:var(--texto-3)">cifra · ejemplo</p></div>
+            <div class="card" style="padding:var(--sp-12) var(--sp-16)"><p class="cifra" style="font-size:22px">[N]</p><p class="cuerpo-sm" style="font:var(--texto-xs)/1 var(--font-mono);color:var(--texto-3)">cifra · ejemplo</p></div>
+          </div>
+        </div>
+        <div class="espec-page-header">
+          <span class="badge badge--genomic">sección · ejemplo</span>
+          <h4 class="titulo-2" style="margin:var(--sp-8) 0 0;font-size:var(--texto-xl)">Título de página interior</h4>
+          <p class="cuerpo-sm" style="color:var(--texto-2);margin-block-start:var(--sp-4)">Subtítulo opcional, una línea de contexto.</p>
+        </div>
+        <p class="fuente">Fuente: SectionHero.vue · PageHeader.vue</p>
+      </div>
+
+      <!-- 03·I — Chrome del sitio -->
+      <div class="espec-bloque">
+        <h3 class="titulo-3 subtit" id="comp-chrome">Chrome del sitio</h3>
+        <p class="cuerpo">La nav global sticky y el pie de página — el marco que envuelve cada página pública.</p>
+        <div class="espec-nav-mini">
+          <strong style="font:var(--tipo-h3);font-size:var(--texto-base)">helpmiriam.com</strong>
+          <nav class="enlaces" aria-label="Ejemplo de nav del sitio"><a href="#" aria-current="page">Inicio</a><a href="#">Ciencia</a><a href="#">Cronología</a></nav>
+          <button class="btn btn--primary" style="padding:var(--sp-8) var(--sp-16);min-height:36px">Donar</button>
+        </div>
+        <div class="espec-footer-mini">
+          <span class="fuente" style="color:color-mix(in srgb, var(--color-bg) 70%, transparent)">Con el apoyo de · ejemplo</span>
+          <div class="marcas"><span class="marca">Empresa A</span><span class="marca">Empresa B</span><span class="marca">Empresa C</span></div>
+        </div>
+        <p class="fuente">Fuente: SiteNav.vue · SiteFooter.vue — el muro de "con el apoyo de" real lleva logos y nombres de patrocinadores reales; aquí van sustituidos por bloques de ejemplo.</p>
+      </div>
+
+      <!-- 03·J — Firma TwoFaces -->
+      <div class="espec-bloque">
+        <h3 class="titulo-3 subtit" id="comp-twofaces">Firma TwoFaces</h3>
+        <p class="cuerpo">El trazo bajo palabra clave del titular — ya en uso arriba, en la portada de este mismo cuadernillo (<em>«no una <span class="two-faces">plantilla<svg class="two-faces__stroke" viewBox="0 0 100 8" preserveAspectRatio="none" aria-hidden="true"><path class="tf-line" pathLength="1" d="M2 5.4 C 16 3.4, 38 7, 58 4.8 C 74 3.2, 90 6, 98 4.6"/></svg></span>»</em>). Un trazo a mano, no una línea recta: geometría propia, se dibuja una vez al cargar.</p>
+        <div class="alerta" style="max-inline-size:62ch;margin-block-start:var(--sp-16)">
+          <span class="alerta__label">Alcance</span>
+          El componente real (<code>TwoFaces.vue</code>) cubre además una ilustración clínica sensible que NO se reproduce aquí; este espécimen documenta solo el gesto de trazo, que es la parte reutilizable como recurso tipográfico.
+        </div>
+        <p class="fuente">Fuente: TwoFaces.vue (facción "trazo"; ya implementada en este documento como <code>.two-faces</code>/<code>.tf-line</code>)</p>
+      </div>
+
+      <!-- 03·K — JUICIO: sub-nav de sección -->
+      <div class="espec-bloque">
+        <h3 class="titulo-3 subtit" id="comp-subnav">Sub-nav de sección</h3>
+        <p class="cuerpo">Patrón AUSENTE hasta ahora: el índice de anclas de una página larga (rail sticky en escritorio + desplegable en móvil, con scroll-spy). <code>CienciaSectionNav</code> y <code>MapaSectionNav</code> son la misma variante casi literal — un solo patrón, dos instancias. Curiosamente, es el mismo problema que resolvió el índice de ESTE cuadernillo (arriba a la izquierda) — pero con un tratamiento de activo distinto (punto + borde, no astro + trazo): candidato a alinear.</p>
+        <nav class="espec-subnav" aria-label="Ejemplo de sub-nav de sección">
+          <a href="#"><span class="punto" aria-hidden="true"></span>Resumen</a>
+          <a href="#" aria-current="location"><span class="punto" aria-hidden="true"></span>Sección activa · ejemplo</a>
+          <a href="#"><span class="punto" aria-hidden="true"></span>Siguiente paso</a>
+        </nav>
+        <p class="fuente">Fuente: CienciaSectionNav.vue · MapaSectionNav.vue — juicio del Comité de Diseño, no pedido explícitamente pero claramente reutilizable y sin documentar.</p>
       </div>
     </div>
   </section>
@@ -1877,9 +2205,22 @@ Equipo Miriam.</pre></div>
     };
 
     // Deep-link / carga inicial: correcto YA, sin esperar al primer callback del observer.
+    // Con smooth-scroll, el observer puede disparar VARIAS veces mientras el salto por clic
+    // todavía está animando (folios muy próximos, p.ej. un bloque y su primer sub-ítem a
+    // 32px) y "robar" el activo a mitad de camino. `scrollend` (soporte amplio: mismo nivel
+    // de navegador moderno que ya exige `startViewTransition`, arriba) reafirma el destino
+    // del clic UNA vez que el scroll de verdad se detiene; después, el scroll manual del
+    // usuario vuelve a mandar con normalidad — no pelea con el scroll-spy, solo gana el
+    // desempate al aterrizar.
+    let reafirmarEnParada = null;
     const marcarPorHash = () => {
       const href = enlacePorHref.has(window.location.hash) ? window.location.hash : '#b-empezar';
       pintarActivo(href, { dibujar: true });
+      if ('onscrollend' in window) {
+        if (reafirmarEnParada) window.removeEventListener('scrollend', reafirmarEnParada);
+        reafirmarEnParada = () => { pintarActivo(href, { dibujar: false }); reafirmarEnParada = null; };
+        window.addEventListener('scrollend', reafirmarEnParada, { once: true });
+      }
     };
     marcarPorHash();
     window.addEventListener('hashchange', marcarPorHash);
