@@ -499,10 +499,20 @@
   .monograma { inline-size: 34px; block-size: 34px; flex: none; border-radius: 8px; }
   .masthead__meta { font: 600 var(--texto-sm)/1 var(--font-mono); color: var(--texto-3);
     font-variant-numeric: tabular-nums; }
-  .modo { background: none; border: 0; cursor: pointer; min-height: 44px; padding: 0 var(--sp-8);
-    display: inline-flex; align-items: center;
+  .modo { background: none; border: 0; cursor: pointer; min-height: 44px; min-inline-size: 44px;
+    padding: 0 var(--sp-8); display: inline-flex; align-items: center; justify-content: center;
     font: 600 var(--texto-sm)/1 var(--font-mono); color: var(--identidad); letter-spacing: .04em; }
-  .modo .estrella { display: inline-block; transition: transform var(--dur-transicion) var(--curva-salida); }
+  /* Sol ↔ luna dibujados a mano (no la estrella de marca — esa es firma, no estado,
+     ver comentario junto a --icono-check-svg). Crossfade + giro leve por atributo
+     [data-tema], sin JS por fotograma. */
+  .modo__cielo { position: relative; display: inline-grid; inline-size: 19px; block-size: 19px; }
+  .modo__cielo svg { grid-area: 1/1; transition: opacity var(--dur-transicion) var(--curva-salida),
+    transform var(--dur-transicion) var(--curva-salida); transform-origin: 50% 50%; }
+  .modo__sol  { opacity: 1; transform: rotate(0deg)   scale(1); }
+  .modo__luna { opacity: 0; transform: rotate(-25deg) scale(.55); }
+  [data-tema="oscuro"] .modo__sol  { opacity: 0; transform: rotate(25deg) scale(.55); }
+  [data-tema="oscuro"] .modo__luna { opacity: 1; transform: rotate(0deg)  scale(1); }
+  @media (prefers-reduced-motion: reduce) { .modo__cielo svg { transition: none; } }
   /* Navegación lateral fija (sidebar sticky, patrón docs 2026: Stripe/Vercel/Linear) — sustituye
      la constelación de 8 estrellas (muda sin hover) por texto legible SIEMPRE visible en desktop.
      Doctrina ACTUALIZADA (Comité Diseño, 11-jul — ver el <script> al final del documento):
@@ -784,7 +794,12 @@
         <circle cx="56" cy="32" r="1" style="fill:var(--fondo)" opacity=".5"/>
       </svg>
       Beyond the Protocol · <span class="masthead__meta">Design System v2</span></span>
-    <button class="modo" id="toggle" aria-pressed="false" aria-label="Modo noche">DÍA <svg class="estrella" width="11" height="11" viewBox="0 0 20 20" aria-hidden="true"><path d="M10 1.6C10.8 5 11.4 6.2 12.6 7.4 14 8.8 16.4 9.4 18.4 10 16.2 10.8 14.2 11.4 12.8 12.7 11.5 13.9 10.9 15.7 10 18.4 9.3 15.9 8.5 14.2 7.2 12.9 5.8 11.6 3.4 10.7 1.6 10 3.8 9.1 5.8 8.4 7.2 7.1 8.4 6 9.2 4.2 10 1.6Z" fill="currentColor"/></svg> NOCHE</button>
+    <button class="modo" id="toggle" type="button" aria-pressed="false" aria-label="Modo noche">
+      <span class="modo__cielo" aria-hidden="true">
+        <svg class="modo__sol" width="19" height="19" viewBox="0 0 20 20"><circle cx="10" cy="10" r="3.3" fill="currentColor"/><path d="M10 2.3v2.2M10 15.6v2.1M17.7 10.2h-2.1M4.4 9.8h-2.2M15.6 4.6 14 6.1M6 13.9l-1.7 1.6M15.9 15.7l-1.7-1.5M5.7 5.8 4.1 4.3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+        <svg class="modo__luna" width="19" height="19" viewBox="0 0 20 20"><path d="M13.3 3.7a6.5 6.5 0 1 0 2.7 12.1A7.7 7.7 0 0 1 13.3 3.7Z" fill="currentColor"/><circle cx="16.7" cy="3.3" r=".9" fill="currentColor"/><circle cx="18.4" cy="6.5" r=".55" fill="currentColor"/></svg>
+      </span>
+    </button>
   </header>
   <div class="doc-layout">
     <aside class="doc-nav-wrap" id="doc-nav-wrap">
@@ -963,6 +978,45 @@
 
   .dos-col { display: grid; gap: var(--sp-24); margin-block-start: var(--sp-16); }
   @media (min-width: 640px) { .dos-col { grid-template-columns: 1fr 1fr; } }
+  /* Variante de 3 cards (07·Producción → Marca & dominio) — reemplaza un
+     auto-fit/minmax(180px,1fr) que a ~500-620px dejaba la 3ª card (Beyond
+     the Protocol, la de fondo berenjena) huérfana y a media anchura en su
+     propia fila. 1 → 3 columnas directo (nunca 2): con 3 ítems, un paso
+     intermedio a 2 columnas siempre deja uno huérfano igual, solo que a
+     otro ancho — mismo criterio que .cifras-mini. */
+  @media (min-width: 640px) { .dos-col.tres-col { grid-template-columns: 1fr; } }
+  @media (min-width: 761px) { .dos-col.tres-col { grid-template-columns: repeat(3, 1fr); } }
+
+  /* Lockups del logo (02·Identidad → Logo oficial), mismo problema: un
+     auto-fit/minmax(min(140px,100%),1fr) deja la 3ª tarjeta (wordmark solo)
+     huérfana a ~380-460px de contenedor. 1 → 3, sin paso de 2. */
+  .logo-lockups { display: grid; grid-template-columns: 1fr; gap: var(--sp-16);
+    margin-block-start: var(--sp-24); max-inline-size: 620px; }
+  @media (min-width: 480px) { .logo-lockups { grid-template-columns: repeat(3, 1fr); } }
+
+  /* Galería «Ejemplos reales» (07·Producción → Fotografía). Columnas fijas
+     (1 → 2), nunca auto-fit/minmax — con 2 piezas un auto-fit deja huérfano
+     el último si el contenedor se estrecha. Marco = hairline + radius-card,
+     igual que el resto del sistema; CERO barra de color en el borde. */
+  .foto-ejemplos { display: grid; grid-template-columns: 1fr; gap: var(--sp-16);
+    margin-block-start: var(--sp-16); max-inline-size: 520px; }
+  @media (min-width: 640px) { .foto-ejemplos { grid-template-columns: 1fr 1fr; } }
+
+  /* Cifras clave (07·Producción → Press kit). Columnas fijas (1 → 3), no
+     auto-fit/minmax: con 3 cards, auto-fit deja la 3ª (el coral, la más
+     importante) huérfana y estirada a ancho completo en su propia fila
+     desde ~480px de contenedor — bug real, encontrado al medir a 375px. */
+  .cifras-mini { display: grid; grid-template-columns: 1fr; gap: var(--sp-12);
+    margin-block-start: var(--sp-16); max-inline-size: 520px; }
+  @media (min-width: 640px) { .cifras-mini { grid-template-columns: repeat(3, 1fr); } }
+  .foto-ejemplos__item { margin: 0; border: 1px solid var(--trazo-sutil);
+    border-radius: var(--radius-card); overflow: hidden; background: var(--fondo); }
+  .foto-ejemplos__item picture, .foto-ejemplos__item img { display: block; }
+  .foto-ejemplos__item img { inline-size: 100%; block-size: auto;
+    aspect-ratio: 4/5; object-fit: cover; object-position: 50% 18%; }
+  .foto-ejemplos__item figcaption { padding: var(--sp-8) var(--sp-12);
+    font: 600 var(--texto-xs)/1.3 var(--font-mono); color: var(--texto-3);
+    border-block-start: 1px solid var(--trazo-sutil); }
 
   /* Mockup + lista (07·Producción, «Ejemplo · slide de gancho») — FIX 12-jul (QA
      de Miriam, descuadre en móvil): vivía como grid inline suelto y sin breakpoint,
@@ -1108,7 +1162,7 @@
   </section>
 
   <!-- Cita fuera de escala -->
-  <blockquote class="cita">El sistema no es la misión: es lo que deja que <span class="trazo-2">llegue entera</span>.</blockquote>
+  <blockquote class="cita">Un design system no cura nada. Solo evita que el caos le robe la energía que hace falta para <span class="trazo-2">lo que sí cura</span>.</blockquote>
 
   <!-- 02 · TIPOGRAFÍA -->
   <section class="cap" id="cap-2" aria-labelledby="t-2">
@@ -1151,7 +1205,7 @@
 
       <h3 class="titulo-3 subtit" id="ident-logo">Logo oficial</h3>
       <p class="cuerpo">Monograma circular + constelación + wordmark, con <em>miriam</em> en violeta como firma. El coral se reserva para el CTA y nunca aparece en el logo.</p>
-      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(140px,100%),1fr));gap:var(--sp-16);margin-block-start:var(--sp-24);max-inline-size:620px">
+      <div class="logo-lockups">
         <div style="border:1px solid var(--trazo-medio);border-radius:var(--radius-card);padding:var(--sp-24);display:grid;place-items:center;background:var(--fondo)">
           <svg width="120" height="126" viewBox="0 0 360 380" role="img" aria-label="helpmiriam.com, versión vertical" style="inline-size:100%;max-inline-size:120px;block-size:auto">
             <g transform="translate(60,0)">
@@ -1186,7 +1240,7 @@
       <p class="cuerpo">La marca verbal usa exclusivamente minúsculas: <em>helpmiriam.com</em>, <em>@miriamgonp</em>, los titulares. Mayúscula sería logo corporativo; minúscula es firma personal. La cursiva refuerza la idea de «escrito a mano».</p>
 
       <p class="titulo-3" style="margin-block-start:var(--sp-32)">Por qué constelación</p>
-      <p class="cuerpo">El caso entero descansa entre dos polos — la ciencia (secuenciación, biopsias, informes) y la persona (sus rizos, sus gatos, su humor). El monograma necesitaba el guiño personal sin caer en la literalidad. Una constelación mínima resuelve ambas: cosmos como esperanza sin ser cursi, y los destellos violeta cuentan que esto va de <em>su</em> universo, no del logo de una ONG.</p>
+      <p class="cuerpo">La constelación viene de ella, no de un manual de branding. Le gusta la ciencia y lleva años viendo cine de ciencia ficción (<em>Coherence</em>, <em>Contact</em>, <em>Interstellar</em>, <em>Sunshine</em>): esa estética cósmica estaba en su vida mucho antes del caso. El monograma no inventó el símbolo, lo heredó.</p>
 
       <h3 class="titulo-3 subtit" id="ident-favicon">Favicon</h3>
       <p class="cuerpo">La marca a 16 px. Una <em>m</em> minúscula en cursiva Fraunces sobre violeta firma, rodeada de una constelación mínima de destellos. Es la única superficie del sistema donde la inicial sustituye al retrato — a ese tamaño, la ilustración se pierde.</p>
@@ -1534,8 +1588,8 @@
           <h4 class="titulo-2" style="margin:0;font-size:var(--texto-xl)">Un titular con <em style="color:var(--identidad);font-style:italic">una palabra</em> en énfasis.</h4>
           <div style="display:flex;gap:var(--sp-12)"><button class="btn btn--primary">Donar</button><button class="btn btn--secondary">Ver la ciencia</button></div>
           <div style="display:flex;gap:var(--sp-16);flex-wrap:wrap">
-            <div class="card" style="padding:var(--sp-12) var(--sp-16)"><p class="cifra" style="font-size:22px">[N]</p><p class="cuerpo-sm" style="font:var(--texto-xs)/1 var(--font-mono);color:var(--texto-3)">cifra · ejemplo</p></div>
-            <div class="card" style="padding:var(--sp-12) var(--sp-16)"><p class="cifra" style="font-size:22px">[N]</p><p class="cuerpo-sm" style="font:var(--texto-xs)/1 var(--font-mono);color:var(--texto-3)">cifra · ejemplo</p></div>
+            <div class="card" style="padding:var(--sp-12) var(--sp-16)"><p class="cifra" style="font-size:22px">128</p><p class="cuerpo-sm" style="font:var(--texto-xs)/1 var(--font-mono);color:var(--texto-3)">cifra · ejemplo</p></div>
+            <div class="card" style="padding:var(--sp-12) var(--sp-16)"><p class="cifra" style="font-size:22px">4</p><p class="cuerpo-sm" style="font:var(--texto-xs)/1 var(--font-mono);color:var(--texto-3)">cifra · ejemplo</p></div>
           </div>
         </div>
         <div class="espec-page-header">
@@ -1997,7 +2051,7 @@ Same level of detail. Same line work.</pre></div>
       <h3 class="titulo-3 subtit" id="prod-marca">Marca &amp; dominio</h3>
       <p class="cuerpo">Tres capas, tres usos. <strong>Miriam</strong> es el nombre del proyecto y del sistema. <strong>helpmiriam.com</strong> es el dominio funcional — el destino de cualquier CTA. <strong>Beyond the Protocol</strong> es la marca paraguas que firma todo. Si se separan bien, no se pisan.</p>
 
-      <div class="dos-col" style="grid-template-columns:repeat(auto-fit,minmax(180px,1fr))">
+      <div class="dos-col tres-col">
         <div class="card">
           <p class="cuerpo-sm" style="font:600 var(--texto-xs)/1 var(--font-mono);letter-spacing:.06em;text-transform:uppercase">Marca / proyecto</p>
           <p class="titulo-1" style="margin-block-start:var(--sp-8);font-size:32px">Miriam<span style="color:var(--identidad)">.</span></p>
@@ -2050,7 +2104,7 @@ Same level of detail. Same line work.</pre></div>
 
       <div class="dos-col">
         <div>
-          <p class="titulo-3" style="font:var(--tipo-body);font-weight:700;color:var(--identidad)">Sí — qué buscamos</p>
+          <p class="titulo-3 encabezado-mano" style="font:var(--tipo-body);font-weight:700;color:var(--identidad)">Sí — qué buscamos<svg class="encabezado-mano__trazo" viewBox="0 0 140 10" preserveAspectRatio="none" aria-hidden="true"><path d="M2 5.6C22 3,46 8,70 5.2C94 2.6,116 7.4,138 5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg></p>
           <ul class="lista">
             <li>Luz natural diurna, ventana lateral. Sombras suaves.</li>
             <li>Retratos honestos: mirada directa, media sonrisa o expresión neutra. Sin pose forzada.</li>
@@ -2058,9 +2112,26 @@ Same level of detail. Same line work.</pre></div>
             <li>Tonos cálidos: cremas, beige, madera, verdes desaturados — encaja con la paleta del sistema.</li>
             <li>Imperfecciones: una camiseta arrugada, papeles encima de la mesa. La realidad es el activo.</li>
           </ul>
+          <p class="cuerpo-sm" style="margin-block-start:var(--sp-16);color:var(--texto-3)">Dos fotos de prensa reales de Miriam — no un mock:</p>
+          <div class="foto-ejemplos">
+            <figure class="foto-ejemplos__item">
+              <picture>
+                <source srcset="assets/prensa/miriam-prensa-retrato.webp" type="image/webp">
+                <img src="assets/prensa/miriam-prensa-retrato.jpg" alt="Miriam González, retrato de prensa con luz natural y mirada directa a cámara" loading="lazy" decoding="async">
+              </picture>
+              <figcaption>Retrato · luz natural, sin pose forzada</figcaption>
+            </figure>
+            <figure class="foto-ejemplos__item">
+              <picture>
+                <source srcset="assets/prensa/miriam-prensa-ingeniera.webp" type="image/webp">
+                <img src="assets/prensa/miriam-prensa-ingeniera.jpg" alt="Miriam González con su portátil, retrato de prensa" loading="lazy" decoding="async">
+              </picture>
+              <figcaption>Contexto · expresión neutra, entorno real</figcaption>
+            </figure>
+          </div>
         </div>
         <div>
-          <p class="titulo-3" style="font:var(--tipo-body);font-weight:700">No — qué descartamos</p>
+          <p class="titulo-3 encabezado-mano" style="font:var(--tipo-body);font-weight:700">No — qué descartamos<svg class="encabezado-mano__trazo" viewBox="0 0 140 10" preserveAspectRatio="none" aria-hidden="true"><path d="M2 6.2C24 8.4,46 2.4,70 5.6C92 8.6,114 3,138 5.8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></p>
           <ul class="lista">
             <li>Foto de stock — gente sonriendo a cámara con bata blanca de catálogo.</li>
             <li>Filtros de Instagram, presets cinematográficos saturados, viñeteados marcados.</li>
@@ -2124,10 +2195,10 @@ Same level of detail. Same line work.</pre></div>
 
       <p class="titulo-3" style="margin-block-start:var(--sp-40)">Cifras clave — formato</p>
       <p class="cuerpo-sm">Mantener siempre actualizadas y verificadas por el equipo antes de publicarse. Cualquier cifra que aparezca en prensa pero no esté aquí no se ha cruzado.</p>
-      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:var(--sp-12);margin-block-start:var(--sp-16);max-inline-size:520px">
-        <div class="card"><p class="cifra" style="font-size:32px">[N]</p><p class="cuerpo-sm" style="font:var(--texto-xs)/1 var(--font-mono);color:var(--texto-3)">especialistas en el equipo · ejemplo</p></div>
-        <div class="card"><p class="cifra" style="font-size:32px">[N]</p><p class="cuerpo-sm" style="font:var(--texto-xs)/1 var(--font-mono);color:var(--texto-3)">fases del plan de acceso · ejemplo</p></div>
-        <div class="card card--flotante" style="background:var(--color-text)"><p class="cifra" style="font-size:32px;color:var(--color-cta)">[N] k€</p><p class="cuerpo-sm" style="font:var(--texto-xs)/1 var(--font-mono);color:var(--color-bg);opacity:.6">meta de la fase actual · ejemplo</p></div>
+      <div class="cifras-mini">
+        <div class="card"><p class="cifra" style="font-size:32px">8</p><p class="cuerpo-sm" style="font:var(--texto-xs)/1 var(--font-mono);color:var(--texto-3)">especialistas en el equipo · ejemplo</p></div>
+        <div class="card"><p class="cifra" style="font-size:32px">5</p><p class="cuerpo-sm" style="font:var(--texto-xs)/1 var(--font-mono);color:var(--texto-3)">fases del plan de acceso · ejemplo</p></div>
+        <div class="card card--flotante" style="background:var(--color-text)"><p class="cifra" style="font-size:32px;color:var(--color-cta)">80 k€</p><p class="cuerpo-sm" style="font:var(--texto-xs)/1 var(--font-mono);color:var(--color-bg);opacity:.6">meta de la fase actual · ejemplo</p></div>
       </div>
 
       <p class="titulo-3" style="margin-block-start:var(--sp-40)">Assets descargables</p>
@@ -2339,14 +2410,7 @@ Equipo Miriam.</pre></div>
     <div class="texto">
       <p class="eyebrow">Bitácora · Lámina I</p>
       <h2 class="titulo-1" style="max-inline-size:16ch">El cosmos, contenido</h2>
-      <p class="cuerpo" style="margin-block-start:var(--sp-16)">Los mismos componentes, remapeados por el modificador <code style="font-family:var(--font-mono)">.oscuro</code>. La noche no es un filtro: es un lugar diseñado, y el cielo solo vive aquí.</p>
-      <div class="grupo-btn" style="margin-block-start:var(--sp-24)">
-        <button class="btn btn--primary">Acción</button>
-        <button class="btn btn--secondary-inverse">Secundario inverso</button>
-        <span class="badge badge--genomic">marcador · ejemplo</span>
-        <span class="spinner spinner--muestra" aria-hidden="true"></span>
-        <span style="font:600 11px/1 var(--font-mono);color:var(--texto-2)">(late solo al cargar)</span>
-      </div>
+      <p class="cuerpo" style="margin-block-start:var(--sp-16)">Cas · ε lleva siglos con su nombre y nadie la ha visto de cerca. Este caso se anota igual: con paciencia, una estrella cada vez.</p>
       <p class="pie-lamina"><svg class="registro" width="11" height="11" viewBox="0 0 12 12" aria-hidden="true"><circle cx="6" cy="6" r="4.2" fill="none" stroke="currentColor" stroke-width=".7"/><path d="M6 .8v10.4M.8 6h10.4" stroke="currentColor" stroke-width=".7"/></svg> Lámina I — Noche · la estrella orienta, no decora · #9d44ab → #c77dd2 on-dark</p>
     </div>
   </div>
@@ -2359,8 +2423,7 @@ Equipo Miriam.</pre></div>
     const dark = root.getAttribute('data-tema') === 'oscuro';
     if (dark) root.removeAttribute('data-tema'); else root.setAttribute('data-tema', 'oscuro');
     t.setAttribute('aria-pressed', String(!dark));
-    const e = t.querySelector('.estrella');
-    if (e) e.style.transform = dark ? '' : 'rotate(45deg)';
+    // el crossfade sol↔luna lo hace el CSS por [data-tema], ver .modo__cielo
   };
   t.addEventListener('click', () => {
     const rm = matchMedia('(prefers-reduced-motion: reduce)').matches;
