@@ -301,8 +301,14 @@ const roleLabel = computed(() => {
   return role.value ? map[role.value] ?? '' : ''
 })
 
-// Envío AJAX a Netlify Forms: mismo endpoint (POST a "/" con urlencode), pero
-// mostramos el agradecimiento en la propia página en vez de redirigir.
+// Envío AJAX a Netlify Forms (urlencode), mostrando el agradecimiento en la
+// propia página en vez de redirigir. Posteamos a la ruta ACTUAL, no a "/":
+// `nuxt generate` termina el `dist/_redirects` con un catch-all
+// `/* → /404.html 404` que intercepta el POST a "/" ANTES de que Netlify Forms
+// lo procese (devolvía 404 → el remitente veía "error" aunque el envío sí se
+// registraba, y algunos reescribían por duplicado). La página localizada
+// (/contacto, /en/contact) es un fichero prerenderizado real (200), intocada
+// por el catch-all.
 const sent = ref(false)
 const sending = ref(false)
 const failed = ref(false)
@@ -348,7 +354,7 @@ async function onSubmit(e: Event) {
   const body = new URLSearchParams(new FormData(form) as unknown as Record<string, string>).toString()
   sending.value = true
   try {
-    await $fetch('/', {
+    await $fetch(window.location.pathname, {
       method: 'POST',
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
       body,

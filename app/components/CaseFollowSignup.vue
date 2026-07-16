@@ -141,7 +141,10 @@ async function onSubmit(e: Event) {
   ).toString()
   sending.value = true
   try {
-    await $fetch('/', {
+    // POST a la ruta actual, no a "/": el catch-all `/* → /404.html 404` del
+    // `_redirects` de `nuxt generate` intercepta el POST a "/" antes de que
+    // Netlify Forms lo procese. La página actual es un fichero real (200).
+    await $fetch(window.location.pathname, {
       method: 'POST',
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
       body,
