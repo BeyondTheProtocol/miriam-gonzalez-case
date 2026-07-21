@@ -181,6 +181,15 @@ export default defineNuxtConfig({
     // (acceso para médicos) enlace corto SERIO para reenviar al equipo clínico (no de redes):
     // helpmiriam.com/caso → el panel del mapa. UTM «referral/medico» para distinguir el canal.
     '/caso': { redirect: { to: '/mapa-metastasis?utm_source=referral&utm_medium=medico&utm_campaign=equipo-clinico', statusCode: 302 } },
+    // Datos EN VIVO de GoFundMe: /fundraiser.json (total) y /donations.json (muro)
+    // se enrutan a las funciones de Netlify. Van AQUÍ y NO en netlify.toml por el
+    // MISMO motivo que los enlaces cortos de arriba: el catch-all de dist/_redirects
+    // se procesa ANTES que netlify.toml, así que un redirect allí (aun con force=true)
+    // nunca gana. Como routeRule, nitro escribe la regla ANTES del catch-all. Además
+    // la semilla de fallback se guarda en seed/ (no en public/, ver utils/fundraiser.ts)
+    // para que NO exista dist/fundraiser.json que sombree esta regla (nota «shadowing»).
+    '/fundraiser.json': { redirect: { to: '/.netlify/functions/fundraiser', statusCode: 302 } },
+    '/donations.json': { redirect: { to: '/.netlify/functions/donations', statusCode: 302 } },
   },
 
   nitro: {
@@ -199,6 +208,8 @@ export default defineNuxtConfig({
       ignore: [
         '/design-system', '/mapa-metastasis.md', '/en/mapa-metastasis.md',
         '/3d', '/3d-x', '/3d-in', '/3d-ig', '/donar', '/caso',
+        // datos en vivo: que nitro NO prerenderice un fichero que sombree el 302
+        '/fundraiser.json', '/donations.json',
       ],
       // URLs SIN barra final, coherentes con los links y el canonical del sitio
       // (que ya usan «/colabora», no «/colabora/»). Genera «colabora.html» en

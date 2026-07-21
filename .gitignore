@@ -27,8 +27,8 @@ Thumbs.db
 .netlify
 
 # data
-public/fundraiser.json
-public/donations.json
+seed/fundraiser.json
+seed/donations.json
 
 # Config local de agentes (sesiones de Claude)
 .claude/

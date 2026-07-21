@@ -163,7 +163,7 @@ const { data: gofundme, refresh: refreshFundraiser } = await useAsyncData<GoFund
     if (import.meta.server) {
       try {
         const { readFile } = await import('node:fs/promises')
-        return JSON.parse(await readFile('public/fundraiser.json', 'utf-8'))
+        return JSON.parse(await readFile('seed/fundraiser.json', 'utf-8'))
       } catch {
         return null
       }

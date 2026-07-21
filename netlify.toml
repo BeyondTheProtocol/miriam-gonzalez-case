@@ -9,24 +9,18 @@
 # ── Datos en vivo ────────────────────────────────────────────────────────────
 # El total y la lista de donantes (estrellas + tabla) se sirven desde funciones
 # que consultan GoFundMe al vuelo y se cachean en la CDN (no hace falta redeploy).
-# La semilla generada en build (public/*.json) se incluye en el bundle de las
-# funciones como fallback por si GoFundMe no responde.
+# La semilla generada en build (seed/*.json, FUERA de public/) se incluye en el
+# bundle de las funciones como fallback por si GoFundMe no responde.
 [functions]
-  included_files = ["public/fundraiser.json", "public/donations.json"]
+  included_files = ["seed/fundraiser.json", "seed/donations.json"]
 
-# /fundraiser.json y /donations.json apuntan a las funciones (force gana al
-# fichero estático del mismo nombre). El cliente sigue pidiendo las mismas URLs.
-[[redirects]]
-  from = "/fundraiser.json"
-  to = "/.netlify/functions/fundraiser"
-  status = 200
-  force = true
-
-[[redirects]]
-  from = "/donations.json"
-  to = "/.netlify/functions/donations"
-  status = 200
-  force = true
+# OJO: el enrutado de /fundraiser.json y /donations.json a las funciones NO vive
+# aquí. Igual que los enlaces cortos, un redirect en netlify.toml (aunque sea
+# `force=true`) PIERDE contra el catch-all `/* /404.html 404` del `dist/_redirects`
+# que Netlify procesa ANTES que este fichero. Por eso se definen como `routeRules`
+# en nuxt.config.ts (nitro los escribe en _redirects ANTES del catch-all) y la
+# semilla se guarda en seed/ (no en public/) para que no haya un fichero estático
+# del mismo nombre que las sombree. Detalle: nota en nuxt.config.ts.
 
 # ── Enlaces cortos de marca (campañas) ───────────────────────────────────────
 # Los links cortos (helpmiriam.com/3d…, /donar) NO viven aquí: se definen como

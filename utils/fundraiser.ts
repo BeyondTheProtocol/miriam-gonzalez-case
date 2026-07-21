@@ -18,7 +18,10 @@ export interface GoFundMeResponse {
   }
 }
 
-const path = 'public/fundraiser.json'
+// Semilla FUERA de public/: si viviera en public/ se publicaría como
+// dist/fundraiser.json y SOMBREARÍA el routeRule que enruta /fundraiser.json a
+// la función viva (misma trampa que los enlaces cortos, ver nuxt.config.ts).
+const path = 'seed/fundraiser.json'
 const request = 'https://graphql.gofundme.com/graphql'
 const operationName = 'GetFundraiser'
 const query = `query GetFundraiser($slug: ID!) {
@@ -81,6 +84,7 @@ export async function saveFundraiser(overwrite = false) {
   }
   try {
     const fundraiser = await getFundraiser()
+    await fs.mkdir('seed', { recursive: true })
     await fs.writeFile(path, JSON.stringify(fundraiser))
     console.log(`✔ Fundraiser saved to: ${path}`)
   } catch (error) {
@@ -99,7 +103,7 @@ export async function saveFundraiser(overwrite = false) {
 // El feed público de GoFundMe ya muestra nombre + importe + anónimo + fecha.
 // Re-publicamos lo mismo. OPT_OUT: nombres (no anónimos) a excluir si alguien
 // pide quitarse (red de seguridad RGPD). Los anónimos salen como "Anónimo".
-const donationsPath = 'public/donations.json'
+const donationsPath = 'seed/donations.json'
 const donationsFeed = `https://gateway.gofundme.com/web-gateway/v1/feed/${variables.slug}/donations`
 const OPT_OUT: string[] = []
 
@@ -222,6 +226,7 @@ export async function saveDonations() {
       console.log('No donations fetched; keeping existing file.')
       return
     }
+    await fs.mkdir('seed', { recursive: true })
     await fs.writeFile(donationsPath, JSON.stringify(donations))
     console.log(`✔ Donations saved (${donations.length}) to: ${donationsPath}`)
   } catch (error) {
