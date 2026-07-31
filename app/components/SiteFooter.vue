@@ -1,16 +1,20 @@
 <template>
   <footer :aria-label="$t('footer.site_footer')" class="bg-cream-card" style="border-top: 1px solid rgb(var(--color-text-rgb) / 0.08)">
     <!-- Con el apoyo de — muro de logos uniforme: todos en blanco monocromo, misma
-         altura óptica, centrados en rejilla. Cada logo se aplana a silueta crema
-         (logo-wall__mark) para que GitHub/Notion/Tahe/Never Surrender se lean como
-         un solo conjunto sobre la banda berenjena, sin cajas ni colores dispares. -->
+         altura óptica, centrados. Cada logo se aplana a silueta crema
+         (logo-wall__mark) para que GitHub/Notion/Tahe/Never Surrender/UCAM se lean
+         como un solo conjunto sobre la banda berenjena, sin cajas ni colores dispares.
+         Flex-wrap en vez de rejilla fija: con 5 logos (o los que vengan) la última
+         fila queda centrada en vez de dejar un huérfano pegado a la izquierda. -->
     <section class="bg-berenjena" :aria-label="$t('index.supported_by')">
       <div class="section-wide py-10 sm:py-12 text-center">
         <p class="text-cream/70 text-xs font-mono font-medium uppercase tracking-[0.12em] mb-9">
           {{ $t('index.supported_by') }}
         </p>
-        <ul class="grid grid-cols-2 sm:grid-cols-4 items-center justify-items-center gap-x-10 sm:gap-x-12 gap-y-10 max-w-2xl mx-auto">
-          <li v-for="s in supporters" :key="s.name" class="flex items-center justify-center">
+        <ul class="flex flex-wrap items-center justify-center gap-x-10 sm:gap-x-12 gap-y-10 max-w-3xl mx-auto">
+          <!-- shrink-0: sin él los <li> se encogen antes de que el flex-wrap salte
+               de línea, y en móvil los logos se desbordan de la banda. -->
+          <li v-for="s in supporters" :key="s.name" class="flex shrink-0 items-center justify-center">
             <component
               :is="s.url ? 'a' : 'span'"
               v-bind="s.url ? { href: s.url, target: '_blank', rel: 'sponsored noopener' } : {}"
@@ -147,6 +151,11 @@ const supporters = [
   { name: 'Notion', img: '/svg/notion.svg' },
   { name: 'Never Surrender', img: '/img/neversurrender.jpeg', raster: true },
   { name: 'Tahe', img: '/img/thae.png', url: 'https://tahecosmetics.com' },
+  // UCAM: SVG oficial "horizontal / blanco / sin fondo" de su página de identidad
+  // visual (ucam.edu/universidad/identidad), el enlace que pasó Marta Rodríguez
+  // (marketing UCAM) autorizando el uso del logo. Blanco puro → entra directo en
+  // el tratamiento --vector, sin caja que quitar.
+  { name: 'UCAM', img: '/svg/ucam.svg', url: 'https://www.ucam.edu' },
 ]
 
 // Mismo orden que el menú superior + "Cómo ayudar" y "Contacto" al final.
