@@ -229,3 +229,52 @@ entries:
     highlight: true
     link: https://x.com/miriamgonp/status/2068004136621109648
     linkLabel: 'See the announcement on X →'
+
+  - date: 'Jun 26–30, 2026'
+    tag: Clinical trials
+    title: The vaccine route closes
+    description: >
+      Both personalized vaccines under exploration fall through in the same week. Fred Hutch
+      (Seattle) replies that its neoantigen vaccine requires measurable disease —over 1 cm in the
+      breast or a lymph node over 1.5 cm in short axis—: with bone-only metastases, Miriam does
+      not meet the criterion, though they leave the door open should the situation change. Days
+      later, Moffitt (Tampa) answers that its ESR1-directed dendritic cell vaccine trial has just
+      filled its last slot.
+    highlight: true
+    link: https://clinicaltrials.gov/study/NCT05098210
+    linkLabel: 'See the Fred Hutch neoantigen vaccine →'
+
+  - date: 'Jul 10–13, 2026'
+    tag: Progression
+    title: 'The cancer leaves the bone: liver lesions appear'
+    description: >
+      The trial screening imaging —a PET-CT on 10 July and a chest, abdomen and pelvis CT on the
+      13th— shows lesions in the liver. Until now the disease had been bone-only, so the picture
+      changes. Liver function and bilirubin remain within normal range, but the tumour is no
+      longer confined to bone.
+    highlight: true
+
+  - date: 'Jul 15, 2026'
+    tag: Outreach
+    title: The case reaches episode 100 of Roca Project
+    description: >
+      Miriam's interview on Roca Project, Carlos Roca's podcast, is released as its special
+      100th episode, with her among the guests most voted for by the community. An hour and a
+      half on the road to diagnosis, what metastatic breast cancer with neuroendocrine
+      differentiation means, and why protocols don't cover all the genetics. Over the following
+      days the website's contact form fills up: engineers, researchers, patients, and people who
+      simply want to help.
+    highlight: true
+    link: https://www.youtube.com/watch?v=zVUECrux6zA
+    linkLabel: 'Watch the full interview →'
+
+  - date: 'Jul 22, 2026'
+    tag: Clinical trials
+    title: First treatment day on a phase 1 trial
+    description: >
+      Miriam starts the phase 1 trial of BG-75202 at Vall d'Hebron's Early Drug Development Unit
+      (UITM) in Barcelona, in cohort 1B: BG-75202 combined with fulvestrant. It comes after
+      months of closed doors and a long screening, with trips to Barcelona every few days.
+    highlight: true
+    link: https://clinicaltrials.gov/study/NCT07222267
+    linkLabel: 'See the BG-75202 trial →'

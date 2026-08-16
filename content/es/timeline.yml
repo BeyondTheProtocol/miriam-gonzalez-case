@@ -231,3 +231,53 @@ entries:
     highlight: true
     link: https://x.com/miriamgonp/status/2068004136621109648
     linkLabel: 'Ver el anuncio en X →'
+
+  - date: '26-30 jun 2026'
+    tag: Ensayos clínicos
+    title: Se cierra la vía de la vacuna
+    description: >
+      Las dos vacunas personalizadas que se estaban explorando se caen la misma semana. Desde el
+      Fred Hutch (Seattle) responden que su vacuna de neoantígenos exige enfermedad medible —más
+      de 1 cm en mama o un ganglio de más de 1,5 cm de eje corto—: con metástasis exclusivamente
+      óseas, Miriam no cumple el criterio, aunque dejan la puerta abierta por si la situación
+      cambia. Días después, el Moffitt (Tampa) contesta que su ensayo de vacuna de células
+      dendríticas dirigida a ESR1 acaba de cubrir la última plaza.
+    highlight: true
+    link: https://clinicaltrials.gov/study/NCT05098210
+    linkLabel: 'Ver la vacuna de neoantígenos del Fred Hutch →'
+
+  - date: '10-13 jul 2026'
+    tag: Progresión
+    title: 'El cáncer sale del hueso: aparecen lesiones en el hígado'
+    description: >
+      Las pruebas de imagen del screening del ensayo —PET-TC el 10 de julio y TC de tórax, abdomen
+      y pelvis el 13— muestran lesiones en el hígado. Hasta ahora la enfermedad había sido
+      exclusivamente ósea, así que cambia el escenario. La función hepática y la bilirrubina
+      siguen dentro de la normalidad, pero el tumor ya no está solo en el hueso.
+    highlight: true
+
+  - date: '15 jul 2026'
+    tag: Divulgación
+    title: El caso, en el programa 100 de Roca Project
+    description: >
+      Se publica la entrevista de Miriam en Roca Project, el podcast de Carlos Roca, como programa
+      especial número 100 y con ella entre las invitadas más votadas por la comunidad. Hora y
+      media contando el camino hasta el diagnóstico, qué significa un cáncer de mama metastásico
+      con diferenciación neuroendocrina y por qué los protocolos no cubren toda la genética. Los
+      días siguientes, el formulario de contacto de la web se llena: ingenieros, investigadoras,
+      pacientes y gente que solo quiere ayudar.
+    highlight: true
+    link: https://www.youtube.com/watch?v=zVUECrux6zA
+    linkLabel: 'Ver la entrevista completa →'
+
+  - date: '22 jul 2026'
+    tag: Ensayos clínicos
+    title: Primer día de tratamiento en un ensayo en fase 1
+    description: >
+      Miriam empieza el ensayo fase 1 de BG-75202 en la Unidad de Investigación de Terapia
+      Molecular del Cáncer (UITM) del Vall d'Hebron, en Barcelona, dentro de la cohorte 1B:
+      BG-75202 combinado con fulvestrant. Llega después de meses de puertas cerradas y de un
+      screening largo, con desplazamientos a Barcelona cada pocos días.
+    highlight: true
+    link: https://clinicaltrials.gov/study/NCT07222267
+    linkLabel: 'Ver el ensayo BG-75202 →'
