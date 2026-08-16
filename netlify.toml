@@ -1,12 +1,5 @@
 [build]
-  # `rm -rf node_modules/.cache/nuxt` no es opcional: ahí vive la caché de
-  # @nuxt/fonts con las URLs de fonts.gstatic.com resueltas en el build anterior.
-  # Google rota esos hashes sin cambiar la versión de la familia (el 16-ago-2026
-  # cambió Fraunces manteniendo v38), así que una caché de semanas apunta a
-  # ficheros que ya devuelven 404 y el build entero cae con FetchError. Netlify
-  # restaura node_modules entre builds, de modo que la caché sobrevive a todo
-  # menos a un «Clear cache and deploy» manual: por eso se borra aquí.
-  command = "npm_config_build_from_source=true pnpm rebuild better-sqlite3 && rm -rf node_modules/.cache/nuxt && pnpm generate"
+  command = "npm_config_build_from_source=true pnpm rebuild better-sqlite3 && pnpm generate"
   publish = "dist"
 
 [build.environment]
