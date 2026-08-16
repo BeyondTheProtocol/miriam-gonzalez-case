@@ -23,7 +23,12 @@ export default defineNuxtConfig({
   // de IP), con subsetting y font-display: swap. Sin <link> a Google Fonts.
   fonts: {
     families: [
-      { name: 'Fraunces', provider: 'google', weights: [400, 500, 600, 700], styles: ['normal', 'italic'] },
+      // Fraunces va sin cursiva a propósito: desde el 16-ago-2026 Google Fonts
+      // devuelve 404 en el woff2 de la Fraunces itálica variable, y @nuxt/fonts
+      // aborta el build entero al descargarla. Reproducido en local con caché
+      // limpia y en los tres deploys de ese día. Las demás familias no están
+      // afectadas. Cuando Google lo arregle, devolver 'italic' aquí.
+      { name: 'Fraunces', provider: 'google', weights: [400, 500, 600, 700], styles: ['normal'] },
       { name: 'Hanken Grotesk', provider: 'google', weights: [400, 500, 600, 700], styles: ['normal', 'italic'] },
       { name: 'Source Sans 3', provider: 'google', weights: [400, 500, 600, 700], styles: ['normal', 'italic'] },
       { name: 'JetBrains Mono', provider: 'google', weights: [400, 500] },
