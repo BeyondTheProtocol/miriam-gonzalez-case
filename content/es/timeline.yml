@@ -95,11 +95,9 @@ entries:
     tag: Molecular
     title: Leer el tumor sin tocarlo
     description: >
-      Primer ctDNA en plasma dentro del ensayo HOPE-FOCUS SOLTI-2401. Perfil basal del tumor
+      Primer ctDNA en plasma, dentro de un ensayo de biopsia líquida. Perfil basal del tumor
       sin necesidad de tejido. Resultados: ESR1 D538G detectada y estado MSI bajo.
     highlight: false
-    link: https://clinicaltrials.gov/study/NCT06991946
-    linkLabel: 'Ver cómo funciona el ensayo HOPE-Focus →'
 
   - date: '8–9 abr 2026'
     tag: IA
@@ -193,12 +191,10 @@ entries:
     tag: Molecular
     title: La biopsia de mama no da tumor suficiente
     description: >
-      Se realiza una biopsia de la mama para optar al ensayo en fase 3 KATSIS-1, que requiere
-      tejido tumoral. La muestra analizable es mínima (0,3 mm), insuficiente para cumplir los
-      criterios, así que por esta vía no es posible entrar en ese ensayo.
+      Se realiza una biopsia de la mama para optar a un ensayo que requiere tejido tumoral. La
+      muestra analizable es mínima (0,3 mm), insuficiente para cumplir los criterios, así que
+      por esa vía no es posible entrar.
     highlight: false
-    link: https://clinicaltrials.gov/study/NCT07062965
-    linkLabel: 'Ver el ensayo KATSIS-1 →'
 
   - date: '9 jun 2026'
     tag: Divulgación
@@ -236,24 +232,20 @@ entries:
     tag: Ensayos clínicos
     title: Se cierra la vía de la vacuna
     description: >
-      Las dos vacunas personalizadas que se estaban explorando se caen la misma semana. Desde el
-      Fred Hutch (Seattle) responden que su vacuna de neoantígenos exige enfermedad medible —más
-      de 1 cm en mama o un ganglio de más de 1,5 cm de eje corto—: con metástasis exclusivamente
-      óseas, Miriam no cumple el criterio, aunque dejan la puerta abierta por si la situación
-      cambia. Días después, el Moffitt (Tampa) contesta que su ensayo de vacuna de células
-      dendríticas dirigida a ESR1 acaba de cubrir la última plaza.
+      Las dos vacunas personalizadas que se estaban explorando se caen la misma semana. Una,
+      porque exige enfermedad medible y las metástasis de Miriam son solo óseas: un criterio de
+      entrada que deja fuera a muchas pacientes como ella. La otra, porque acababa de cubrirse
+      la última plaza. Una de las dos queda abierta por si la situación cambia.
     highlight: true
-    link: https://clinicaltrials.gov/study/NCT05098210
-    linkLabel: 'Ver la vacuna de neoantígenos del Fred Hutch →'
 
-  - date: '10-13 jul 2026'
+  - date: '13 jul 2026'
     tag: Progresión
     title: 'El cáncer sale del hueso: aparecen lesiones en el hígado'
     description: >
-      Las pruebas de imagen del screening del ensayo —PET-TC el 10 de julio y TC de tórax, abdomen
-      y pelvis el 13— muestran lesiones en el hígado. Hasta ahora la enfermedad había sido
-      exclusivamente ósea, así que cambia el escenario. La función hepática y la bilirrubina
-      siguen dentro de la normalidad, pero el tumor ya no está solo en el hueso.
+      Las pruebas del screening muestran lesiones en el hígado. Hasta ahora la enfermedad había
+      sido exclusivamente ósea. La función hepática sigue dentro de la normalidad, pero el tumor
+      ya no está solo en el hueso: se está extendiendo, y cada mes que pasa estrecha el margen
+      para encontrar algo que funcione.
     highlight: true
 
   - date: '15 jul 2026'
@@ -270,14 +262,11 @@ entries:
     link: https://www.youtube.com/watch?v=zVUECrux6zA
     linkLabel: 'Ver la entrevista completa →'
 
-  - date: '22 jul 2026'
+  - date: '15 jul 2026'
     tag: Ensayos clínicos
     title: Primer día de tratamiento en un ensayo en fase 1
     description: >
-      Miriam empieza el ensayo fase 1 de BG-75202 en la Unidad de Investigación de Terapia
-      Molecular del Cáncer (UITM) del Vall d'Hebron, en Barcelona, dentro de la cohorte 1B:
-      BG-75202 combinado con fulvestrant. Llega después de meses de puertas cerradas y de un
-      screening largo, con desplazamientos a Barcelona cada pocos días.
+      Miriam empieza un ensayo en fase 1 con BG-75202, en la unidad de terapia molecular del
+      Vall d'Hebron, en Barcelona. Llega después de meses de puertas cerradas y de un screening
+      largo, con desplazamientos a Barcelona cada pocos días.
     highlight: true
-    link: https://clinicaltrials.gov/study/NCT07222267
-    linkLabel: 'Ver el ensayo BG-75202 →'

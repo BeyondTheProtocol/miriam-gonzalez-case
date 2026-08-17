@@ -34,9 +34,9 @@ treatments:
     outcome: >-
       As a standard 3rd line, elacestrant has been offered (ESR1 route, with
       public funding approved), pending start. In parallel, she is in screening
-      for two phase 3 trials in HR+/HER2− breast cancer after CDK4/6i: ADELA
-      (elacestrant + everolimus, for her ESR1 mutation) and KATSIS-1 (KAT6
-      inhibitor + fulvestrant). The first bone rebiopsy (April 2026) did not
+      for two phase 3 trials in HR+/HER2− breast cancer after CDK4/6i: one via
+      the ESR1 route (elacestrant + everolimus) and another with a KAT6
+      inhibitor + fulvestrant. The first bone rebiopsy (April 2026) did not
       yield viable tumor, so an extended PET-guided bone rebiopsy is planned —
       the central test the campaign funds. Functional status: ECOG 1.
     active: true
@@ -197,13 +197,13 @@ panelRows:
     targets: 'Ex vivo sensitivity: FGFRi, CDK4/6i, T-DXd, capivasertib, everolimus and combinations'
     implication: 'PDOs predict response and improve PFS when guiding treatment'
   - component: Serial liquid biopsy (ctDNA)
-    method: 'Plasma (Guardant, HOPE/SOLTI) every 6–8 weeks · complement, no core'
+    method: 'Plasma (Guardant) every 6–8 weeks · complement, no core'
     targets: 'FGFR1 amp, ESR1 (Y537S/D538G), PIK3CA, FGFR kinase mutations'
     implication: 'Closes the loop: detects resistance before imaging, without re-biopsying'
 liquidBiopsies:
   - id: ctdna-1
     date: Apr 7, 2026
-    source: VHIO360 — HOPE-FOCUS SOLTI-2401 trial
+    source: VHIO360 — liquid biopsy trial
     findings: Plasma ctDNA panel — baseline profile
   - id: ctdna-2
     date: April 2026
@@ -265,7 +265,7 @@ liquidBiopsyPivot:
         vhio360: { value: 'MSI-LOW', plain: true }
         guardant1: { plain: true }
         guardantcdx: { plain: true }
-  sources: 'Sources: 2026-04-07 VHIO360 (HOPE-FOCUS SOLTI-2401) · 2026-04-13 Guardant360 · 2026-05-13 Guardant360 CDx (report 2026-05-26)'
+  sources: 'Sources: 2026-04-07 VHIO360 · 2026-04-13 Guardant360 · 2026-05-13 Guardant360 CDx (report 2026-05-26)'
 imaging:
   title: Gallium-68 DOTATOC PET-CT
   date: May 26, 2026
