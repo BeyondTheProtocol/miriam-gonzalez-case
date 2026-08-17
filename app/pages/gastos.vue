@@ -13,6 +13,71 @@
           <GoFundMeProgress />
         </div>
 
+        <!-- Informe de gastos: cifras reales reconstruidas desde los extractos bancarios -->
+        <div class="card-base mb-8">
+          <p class="eyebrow mb-3 block">{{ $t('expenses.report_eyebrow') }}</p>
+          <h2 class="font-display font-semibold text-berenjena text-lg mb-2">
+            {{ $t('expenses.report_title') }}
+          </h2>
+          <p class="text-sm text-tinta leading-relaxed mb-5 max-w-2xl">
+            {{ $t('expenses.report_intro') }}
+          </p>
+
+          <div class="grid sm:grid-cols-3 gap-4 mb-6">
+            <div
+              v-for="k in (['raised', 'committed', 'available'] as const)"
+              :key="k"
+              class="rounded-card bg-cream p-4"
+              style="border: 1px solid rgba(45,27,61,0.08)"
+            >
+              <p
+                class="font-mono uppercase text-[11px] tracking-[0.12em] font-medium text-tinta mb-1"
+              >
+                {{ $t(`expenses.report_${k}_label`) }}
+              </p>
+              <p
+                class="font-display font-semibold text-berenjena text-xl"
+                style="font-variant-numeric: tabular-nums"
+              >
+                {{ money(REPORT[k]) }}
+              </p>
+            </div>
+          </div>
+
+          <ul class="mb-5">
+            <li
+              v-for="item in REPORT.items"
+              :key="item.key"
+              class="flex items-baseline justify-between gap-4 py-2.5 border-t border-berenjena/[0.07]"
+            >
+              <span class="text-sm text-tinta leading-relaxed">
+                {{ $t(`expenses.report_item_${item.key}`) }}
+              </span>
+              <span
+                class="text-sm font-mono text-berenjena shrink-0"
+                style="font-variant-numeric: tabular-nums"
+              >
+                {{ money(item.amount) }}
+              </span>
+            </li>
+            <li
+              class="flex items-baseline justify-between gap-4 py-2.5 border-t border-berenjena/20"
+            >
+              <span class="text-sm font-semibold text-berenjena">
+                {{ $t('expenses.report_total') }}
+              </span>
+              <span
+                class="text-sm font-mono font-semibold text-berenjena shrink-0"
+                style="font-variant-numeric: tabular-nums"
+              >
+                {{ money(REPORT.committed) }}
+              </span>
+            </li>
+          </ul>
+
+          <p class="text-xs text-tinta italic">{{ $t('expenses.report_note') }}</p>
+        </div>
+
         <div class="card-base mb-8">
           <h2 class="font-display font-semibold text-berenjena text-lg mb-2">
             {{ $t('expenses.phases_title') }}
@@ -192,6 +257,33 @@
 const { locale, t } = useI18n()
 const localePath = useLocalePath()
 const { GOFUNDME_URL, trackSupport } = useSupport()
+
+// Informe de gastos. Cifras a 17/08/2026, reconstruidas movimiento a movimiento
+// desde los extractos de Bankinter, Revolut y PayPal. Las partidas suman `committed`.
+const REPORT = {
+  raised: 73285.25,
+  committed: 39395.82,
+  available: 23590.49,
+  items: [
+    { key: 'travel', amount: 12282.27 },
+    { key: 'ai', amount: 8651.1 },
+    { key: 'tax', amount: 6385.48 },
+    { key: 'diagnostics', amount: 4476.28 },
+    { key: 'equipment', amount: 2523.53 },
+    { key: 'ops', amount: 2198.94 },
+    { key: 'legal', amount: 1573.0 },
+    { key: 'outreach', amount: 1305.22 },
+  ],
+} as const
+
+// useGrouping 'always': en es-ES el separador de millares se omite en números de
+// cuatro dígitos, lo que descuadra visualmente una columna de importes.
+const money = (n: number) =>
+  new Intl.NumberFormat(locale.value === 'es' ? 'es-ES' : 'en-IE', {
+    style: 'currency',
+    currency: 'EUR',
+    useGrouping: 'always',
+  }).format(n)
 
 useSeoMeta({
   title: () => t('expenses.title'),
