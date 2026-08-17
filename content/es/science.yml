@@ -32,13 +32,13 @@ treatments:
   - line: →
     regimen: Estado actual (2026)
     outcome: >-
-      Como 3ª línea estándar se ha ofrecido elacestrant (vía ESR1, con
-      financiación pública aprobada), pendiente de inicio. En paralelo, está en
-      cribado para dos ensayos de fase 3 en mama HR+/HER2− tras CDK4/6i: uno por
-      la vía ESR1 (elacestrant + everolimus) y otro con un inhibidor de KAT6 +
-      fulvestrant. La primera rebiopsia ósea (abril 2026) no obtuvo tumor
-      viable, así que se plantea una rebiopsia ósea extendida guiada por PET — la
-      prueba central que financia la campaña. Estado funcional: ECOG 1.
+      Desde julio de 2026 está en tratamiento dentro de un ensayo en fase 1 con
+      BG-75202, en el Vall d'Hebron. Las pruebas de imagen del cribado (julio
+      2026) mostraron lesiones hepáticas: la enfermedad, hasta entonces
+      exclusivamente ósea, dejó de estar confinada al hueso. La primera
+      rebiopsia ósea (abril 2026) no obtuvo tumor viable, así que se plantea una
+      rebiopsia ósea extendida guiada por PET — la prueba central que financia la
+      campaña. Estado funcional: ECOG 1.
     active: true
 paperSections:
   - title: Transformación Neuroendocrina y Pérdida de RB1

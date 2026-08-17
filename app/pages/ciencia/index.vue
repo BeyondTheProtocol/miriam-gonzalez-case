@@ -802,8 +802,8 @@ useSeoMeta({
       : 'Molecular profile BC-NED + FGFR1 ×13 + SSTR2+',
   ogDescription: () =>
     locale.value === 'es'
-      ? 'Análisis científico del caso: BC-NED, FGFR1 ×13, CCND1 ×20, SSTR2+ (PET Ga-68). Metástasis óseas, ECOG 1, sin crisis visceral. Rebiopsia molecular avanzada como siguiente paso.'
-      : 'Scientific case analysis: BC-NED, FGFR1 ×13, CCND1 ×20, SSTR2+ (Ga-68 PET). Bone metastases, ECOG 1, no visceral crisis. Advanced molecular rebiopsy as the next step.',
+      ? 'Análisis científico del caso: BC-NED, FGFR1 ×13, CCND1 ×20, SSTR2+ (PET Ga-68). Metástasis óseas y hepáticas, ECOG 1, sin crisis visceral. Rebiopsia molecular avanzada como siguiente paso.'
+      : 'Scientific case analysis: BC-NED, FGFR1 ×13, CCND1 ×20, SSTR2+ (Ga-68 PET). Bone and liver metastases, ECOG 1, no visceral crisis. Advanced molecular rebiopsy as the next step.',
   ogType: 'article',
   twitterCard: 'summary_large_image',
   twitterTitle: () =>

@@ -266,7 +266,10 @@ entries:
     tag: Ensayos clínicos
     title: Primer día de tratamiento en un ensayo en fase 1
     description: >
-      Miriam empieza un ensayo en fase 1 con BG-75202, en la unidad de terapia molecular del
-      Vall d'Hebron, en Barcelona. Llega después de meses de puertas cerradas y de un screening
-      largo, con desplazamientos a Barcelona cada pocos días.
+      Miriam empieza un ensayo en fase 1 con BG-75202 combinado con fulvestrant, en la Unidad de
+      Investigación de Terapia Molecular del Cáncer del Vall d'Hebron, en Barcelona. Llega después
+      de meses de puertas cerradas y de un screening largo, con desplazamientos a Barcelona cada
+      pocos días.
     highlight: true
+    link: https://clinicaltrials.gov/study/NCT07222267
+    linkLabel: 'Ver el ensayo BG-75202 →'

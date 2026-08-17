@@ -698,7 +698,7 @@
     "snapshot_target_label": "Functional target",
     "snapshot_target": "SSTR2+ on Ga-68 PET — target for radioligand therapy (PRRT)",
     "snapshot_status_label": "2026 status",
-    "snapshot_status": "ECOG 1 · no visceral involvement · ADELA and KATSIS-1 in screening · elacestrant in reserve (plan B) · PET-guided bone rebiopsy pending",
+    "snapshot_status": "ECOG 1 · bone and liver involvement · on a phase 1 trial with BG-75202 · PET-guided bone rebiopsy pending",
     "snapshot_grade_label": "Receptors & grade",
     "snapshot_grade": "ER 95% · PR 5% · HER2 0 · Ki67 60% · G2 (Nottingham) · low TMB and MSI",
     "snapshot_diagnosis_tag": "Stage IV",
