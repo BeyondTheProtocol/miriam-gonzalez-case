@@ -94,11 +94,9 @@ entries:
     tag: Molecular
     title: Reading the tumor without touching it
     description: >
-      First plasma ctDNA within the HOPE-FOCUS SOLTI-2401 trial. Baseline profile of the
-      tumor without needing tissue. Results: ESR1 D538G detected and low MSI status.
+      First plasma ctDNA, within a liquid biopsy trial. Baseline profile of the tumor
+      without needing tissue. Results: ESR1 D538G detected and low MSI status.
     highlight: false
-    link: https://clinicaltrials.gov/study/NCT06991946
-    linkLabel: 'See how the HOPE-Focus trial works →'
 
   - date: 'Apr 8–9, 2026'
     tag: AI
@@ -191,12 +189,10 @@ entries:
     tag: Molecular
     title: The breast biopsy doesn't yield enough tumor
     description: >
-      A breast biopsy is done to try to qualify for the phase 3 KATSIS-1 trial, which requires
-      tumor tissue. The analyzable sample is tiny (0.3 mm), not enough to meet the criteria, so
-      this route doesn't allow entry into that trial.
+      A breast biopsy is done to try to qualify for a trial that requires tumor tissue. The
+      analyzable sample is tiny (0.3 mm), not enough to meet the criteria, so this route
+      doesn't allow entry.
     highlight: false
-    link: https://clinicaltrials.gov/study/NCT07062965
-    linkLabel: 'See the KATSIS-1 trial →'
 
   - date: 'Jun 9, 2026'
     tag: Outreach
@@ -234,24 +230,20 @@ entries:
     tag: Clinical trials
     title: The vaccine route closes
     description: >
-      Both personalized vaccines under exploration fall through in the same week. Fred Hutch
-      (Seattle) replies that its neoantigen vaccine requires measurable disease —over 1 cm in the
-      breast or a lymph node over 1.5 cm in short axis—: with bone-only metastases, Miriam does
-      not meet the criterion, though they leave the door open should the situation change. Days
-      later, Moffitt (Tampa) answers that its ESR1-directed dendritic cell vaccine trial has just
-      filled its last slot.
+      Both personalized vaccines under exploration fall through in the same week. One, because it
+      requires measurable disease and Miriam's metastases are bone-only: an entry criterion that
+      leaves out many patients like her. The other, because its last slot had just been filled.
+      One of the two stays open should the situation change.
     highlight: true
-    link: https://clinicaltrials.gov/study/NCT05098210
-    linkLabel: 'See the Fred Hutch neoantigen vaccine →'
 
-  - date: 'Jul 10–13, 2026'
+  - date: 'Jul 13, 2026'
     tag: Progression
     title: 'The cancer leaves the bone: liver lesions appear'
     description: >
-      The trial screening imaging —a PET-CT on 10 July and a chest, abdomen and pelvis CT on the
-      13th— shows lesions in the liver. Until now the disease had been bone-only, so the picture
-      changes. Liver function and bilirubin remain within normal range, but the tumour is no
-      longer confined to bone.
+      The trial screening imaging shows lesions in the liver. Until now the disease had been
+      bone-only. Liver function remains within normal range, but the tumour is no longer
+      confined to bone: it is spreading, and every month that passes narrows the window to
+      find something that works.
     highlight: true
 
   - date: 'Jul 15, 2026'
@@ -268,13 +260,11 @@ entries:
     link: https://www.youtube.com/watch?v=zVUECrux6zA
     linkLabel: 'Watch the full interview →'
 
-  - date: 'Jul 22, 2026'
+  - date: 'Jul 15, 2026'
     tag: Clinical trials
     title: First treatment day on a phase 1 trial
     description: >
-      Miriam starts the phase 1 trial of BG-75202 at Vall d'Hebron's Early Drug Development Unit
-      (UITM) in Barcelona, in cohort 1B: BG-75202 combined with fulvestrant. It comes after
-      months of closed doors and a long screening, with trips to Barcelona every few days.
+      Miriam starts a phase 1 trial with BG-75202, at Vall d'Hebron's molecular therapy unit in
+      Barcelona. It comes after months of closed doors and a long screening, with trips to
+      Barcelona every few days.
     highlight: true
-    link: https://clinicaltrials.gov/study/NCT07222267
-    linkLabel: 'See the BG-75202 trial →'
