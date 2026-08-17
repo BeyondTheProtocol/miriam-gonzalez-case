@@ -105,11 +105,10 @@
       </div>
 
       <!-- Zona de evidencia · una sola banda a ancho del shell con un único
-           divisor: señales vivas (urgencia + recencia) arriba, cifras debajo.
+           divisor: la señal viva (recencia) arriba, cifras debajo.
            El nº de donantes vive SOLO en las cifras (sin duplicar el 997). -->
       <div class="hero__proof animate-fade-up" style="animation-delay: 0.4s">
         <div class="hero__pulse">
-          <DaysWaitingCounter class="hero__pulse-counter" />
           <NuxtLink
             v-if="latest"
             :to="localePath({ name: 'timeline' }) + '#lo-ultimo'"
@@ -524,28 +523,14 @@ const stats = computed(() => [
   flex-direction: column;
   gap: 0.875rem;
 }
-/* La píldora del contador no debe estirarse a todo el ancho de la banda. */
-.hero__pulse-counter {
-  align-self: flex-start;
-}
-/* En desktop la fila viva usa todo el ancho (como las cifras): contador a la
-   izquierda, «lo último» a la derecha — para que no se agolpe a la izquierda. */
+/* Al retirarse el contador de días (ago-2026) esta fila se quedó con un solo
+   elemento, «lo último». El reparto a dos columnas que había aquí —contador a
+   la izquierda, novedad alineada a la derecha— dejaba el texto colgando del
+   margen derecho sin nada que lo equilibrase, así que se alinea a la izquierda
+   como el resto del hero. */
 @media (min-width: 768px) {
-  .hero__pulse {
-    flex-direction: row;
-    align-items: flex-start;
-    justify-content: space-between;
-    gap: 1.5rem 2.5rem;
-  }
-  .hero__pulse-counter {
-    margin-top: 0.15rem;
-  }
   .hero__pulse .hero__latest {
-    text-align: right;
     max-width: 34rem;
-  }
-  .hero__pulse .hero__latest-meta {
-    justify-content: flex-end;
   }
 }
 
