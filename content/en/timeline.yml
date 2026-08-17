@@ -153,8 +153,8 @@ entries:
     title: The third line is offered
     description: >
       With the ESR1 resistance mutation (D538G) confirmed in blood, elacestrant is offered
-      as a standard 3rd line (public funding approved), pending start. In parallel, clinical
-      trials and the radioligand route (PRRT) are evaluated.
+      as a standard 3rd line (public funding approved), though it is never started. In
+      parallel, clinical trials and the radioligand route (PRRT) are evaluated.
     highlight: false
   - date: 'May 17, 2026'
     tag: Outreach
