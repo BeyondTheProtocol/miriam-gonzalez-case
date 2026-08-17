@@ -23,27 +23,6 @@
             {{ $t('expenses.report_intro') }}
           </p>
 
-          <div class="grid sm:grid-cols-3 gap-4 mb-6">
-            <div
-              v-for="k in (['raised', 'committed', 'available'] as const)"
-              :key="k"
-              class="rounded-card bg-cream p-4"
-              style="border: 1px solid rgba(45,27,61,0.08)"
-            >
-              <p
-                class="font-mono uppercase text-[11px] tracking-[0.12em] font-medium text-tinta mb-1"
-              >
-                {{ $t(`expenses.report_${k}_label`) }}
-              </p>
-              <p
-                class="font-display font-semibold text-berenjena text-xl"
-                style="font-variant-numeric: tabular-nums"
-              >
-                {{ money(REPORT[k]) }}
-              </p>
-            </div>
-          </div>
-
           <ul class="mb-5">
             <li
               v-for="item in REPORT.items"
@@ -74,6 +53,28 @@
               </span>
             </li>
           </ul>
+
+          <div
+            class="rounded-card bg-cream p-4 mb-5 flex items-baseline justify-between gap-4 flex-wrap"
+            style="border: 1px solid rgba(45,27,61,0.08)"
+          >
+            <div>
+              <p
+                class="font-mono uppercase text-[11px] tracking-[0.12em] font-medium text-tinta mb-1"
+              >
+                {{ $t('expenses.report_available_label') }}
+              </p>
+              <p class="text-sm text-tinta leading-relaxed">
+                {{ $t('expenses.report_available_desc') }}
+              </p>
+            </div>
+            <p
+              class="font-display font-semibold text-berenjena text-xl shrink-0"
+              style="font-variant-numeric: tabular-nums"
+            >
+              {{ money(REPORT.available) }}
+            </p>
+          </div>
 
           <p class="text-xs text-tinta italic">{{ $t('expenses.report_note') }}</p>
         </div>
@@ -261,7 +262,8 @@ const { GOFUNDME_URL, trackSupport } = useSupport()
 // Informe de gastos. Cifras a 17/08/2026, reconstruidas movimiento a movimiento
 // desde los extractos de Bankinter, Revolut y PayPal. Las partidas suman `committed`.
 const REPORT = {
-  raised: 73285.25,
+  // `committed` es la suma exacta de `items`; `available` es el saldo en cuenta
+  // (29.975,97 €) menos el impuesto aplazado (6.385,48 €).
   committed: 39395.82,
   available: 23590.49,
   items: [
