@@ -11,11 +11,10 @@
           :title="$t('timeline.title')"
           :subtitle="$t('timeline.subtitle')"
         >
-          <!-- El dato importante es LA ÚNICA píldora de esta fila (coral, punto
-               vivo): así destaca y no se confunde con los filtros de abajo. El
-               resto de la escala (hitos · años · red) va en texto plano. -->
+          <!-- La escala de la cronología (hitos · años · red) en texto plano.
+               Aquí vivía el contador de días sin tratamiento; se retiró al
+               empezar el ensayo (ago-2026), ver SectionHero. -->
           <div class="mt-5 flex flex-wrap items-center gap-x-2.5 gap-y-2 font-mono text-[11px] uppercase tracking-[0.12em] text-tinta">
-            <DaysWaitingCounter class="mr-1" />
             <span>{{ $t('timeline.meta_milestones', { count: counts.all }) }}</span>
             <span class="text-tinta/35" aria-hidden="true">·</span>
             <span>{{ $t('timeline.meta_span') }}</span>
