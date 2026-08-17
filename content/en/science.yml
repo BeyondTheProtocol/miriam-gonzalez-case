@@ -32,13 +32,12 @@ treatments:
   - line: →
     regimen: Current status (2026)
     outcome: >-
-      As a standard 3rd line, elacestrant has been offered (ESR1 route, with
-      public funding approved), pending start. In parallel, she is in screening
-      for two phase 3 trials in HR+/HER2− breast cancer after CDK4/6i: one via
-      the ESR1 route (elacestrant + everolimus) and another with a KAT6
-      inhibitor + fulvestrant. The first bone rebiopsy (April 2026) did not
-      yield viable tumor, so an extended PET-guided bone rebiopsy is planned —
-      the central test the campaign funds. Functional status: ECOG 1.
+      Since July 2026 she has been on treatment within a phase 1 trial with
+      BG-75202, at Vall d'Hebron. Screening imaging (July 2026) showed liver
+      lesions: the disease, until then bone-only, was no longer confined to
+      bone. The first bone rebiopsy (April 2026) did not yield viable tumor, so
+      an extended PET-guided bone rebiopsy is planned — the central test the
+      campaign funds. Functional status: ECOG 1.
     active: true
 paperSections:
   - title: Neuroendocrine Transformation and RB1 Loss

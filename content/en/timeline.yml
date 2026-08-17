@@ -264,7 +264,9 @@ entries:
     tag: Clinical trials
     title: First treatment day on a phase 1 trial
     description: >
-      Miriam starts a phase 1 trial with BG-75202, at Vall d'Hebron's molecular therapy unit in
-      Barcelona. It comes after months of closed doors and a long screening, with trips to
-      Barcelona every few days.
+      Miriam starts a phase 1 trial with BG-75202 combined with fulvestrant, at Vall d'Hebron's
+      Early Drug Development Unit in Barcelona. It comes after months of closed doors and a long
+      screening, with trips to Barcelona every few days.
     highlight: true
+    link: https://clinicaltrials.gov/study/NCT07222267
+    linkLabel: 'See the BG-75202 trial →'
