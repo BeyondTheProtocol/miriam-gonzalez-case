@@ -416,29 +416,35 @@ onBeforeUnmount(() => window.removeEventListener('resize', ajusta))
           </div>
         </div>
 
-        <section class="hist__limites">
-          <h2>{{ L('Hasta dónde llega esta imagen', 'How far this image goes') }}</h2>
-          <p class="hist__hint">{{ L(
-            'Cosas que se han querido leer en una imagen como esta y que aquí no se sostienen. Tres de ellas estuvieron mal en versiones anteriores de esta misma página; abajo está el número corregido y de dónde venía el error. Cuentan tanto como los números del panel.',
-            'Things people have tried to read in an image like this one that do not hold up here. Three of them were wrong in earlier versions of this very page; below is the corrected figure and where the error came from. They count as much as the numbers in the panel.') }}</p>
-          <ul>
-            <li><strong>{{ L('Si el tumor es neuroendocrino.', 'Whether the tumour is neuroendocrine.') }}</strong>
-              {{ L(`La textura de cromatina necesita más resolución de la que hay aquí: la señal clara llega a ${D.resolucion.senal_clara_um} µm y el suelo de ruido está en ${D.resolucion.suelo_um} µm. Lo decide la inmunohistoquímica.`,
-                   `Chromatin texture needs more resolution than there is here: clear signal reaches ${D.resolucion.senal_clara_um} µm and the noise floor sits at ${D.resolucion.suelo_um} µm. Immunohistochemistry decides it.`) }}</li>
-            <li><strong>{{ L('Cuánto tumor queda en el bloque.', 'How much tumour is left in the block.') }}</strong>
-              {{ L('Esto es un corte y el bloque tiene profundidad. Solo el laboratorio que lo guarda puede decir cuántas micras restan.',
-                   'This is one slide and the block has depth. Only the lab holding it can say how many microns remain.') }}</li>
-            <li><strong>{{ L('Si la metástasis destruye o forma hueso.', 'Whether the metastasis destroys or forms bone.') }}</strong>
-              {{ L('Es una trabécula en un campo de 831 µm de ancho. Con eso no se concluye.',
-                   'It is one trabecula in a field 831 µm wide. That settles nothing.') }}</li>
-            <li><strong>{{ L('El grado y el índice proliferativo.', 'Grade and proliferation index.') }}</strong>
-              {{ L('El grado lo asigna un patólogo sobre el porta completo, no sobre un campo suelto; el índice proliferativo necesita su propia tinción.',
-                   'Grade is assigned by a pathologist on the whole slide, not on a single field; the proliferation index needs its own stain.') }}</li>
-            <li><strong>{{ L('Cuántos osteocitos hay.', 'How many osteocytes there are.') }}</strong>
-              {{ D.osteocitos.veredicto }}</li>
-            <li><strong>{{ L('Cuánto miden los fragmentos.', 'How large the fragments are.') }}</strong>
-              {{ D.fragmentos_nota.fuente_buena }}</li>
-          </ul>
+        <section class="hist__qa">
+          <h2>{{ L('Hallazgos', 'Findings') }}</h2>
+          <table class="hist__tabla">
+            <tbody>
+              <tr><td>{{ L('Campo', 'Field') }}</td><td>{{ D.campo_um[0] }} × {{ D.campo_um[1] }} µm · {{ D.calibracion.um_px }} µm/px ± {{ D.calibracion.incertidumbre_pct }}%</td></tr>
+              <tr><td>{{ L('Tejido', 'Tissue') }}</td><td>{{ D.composicion.tejido_mm2_ref }} mm² ({{ D.composicion.tejido_mm2_min }}–{{ D.composicion.tejido_mm2_max }})</td></tr>
+              <tr><td>{{ L('Hueso trabecular', 'Trabecular bone') }}</td><td>{{ D.trabecula.pct_tejido_min }}–{{ D.trabecula.pct_tejido_max }} % {{ L('del tejido', 'of tissue') }} · {{ D.trabecula.area_mm2_min }}–{{ D.trabecula.area_mm2_max }} mm²</td></tr>
+              <tr><td>{{ L('Núcleos', 'Nuclei') }}</td><td>{{ D.nucleos.n }} · {{ L('mediana', 'median') }} {{ D.nucleos.diam_mediano_um }} µm (p10–p90 {{ D.nucleos.diam_p10 }}–{{ D.nucleos.diam_p90 }})</td></tr>
+              <tr><td>{{ L('Densidad nuclear', 'Nuclear density') }}</td><td>{{ D.nucleos.densidad_masa_celular }}/mm² {{ L('de masa celular', 'of cellular mass') }}</td></tr>
+              <tr><td>{{ L('Resolución efectiva', 'Effective resolution') }}</td><td>{{ D.resolucion.senal_clara_um }} µm · {{ L('suelo', 'floor') }} {{ D.resolucion.suelo_um }} µm</td></tr>
+              <tr><td>{{ L('Interfaz hueso-tumor', 'Bone-tumour interface') }}</td><td>{{ L('retracción de procesado', 'processing retraction') }}</td></tr>
+            </tbody>
+          </table>
+
+          <h2 class="hist__qa-tit2">{{ L('No evaluable en este campo', 'Not assessable in this field') }}</h2>
+          <table class="hist__tabla hist__tabla--no">
+            <tbody>
+              <tr><td>{{ L('Fenotipo neuroendocrino', 'Neuroendocrine phenotype') }}</td><td>{{ L(`textura de cromatina bajo el límite (${D.resolucion.senal_clara_um} µm)`, `chromatin texture below the limit (${D.resolucion.senal_clara_um} µm)`) }}</td></tr>
+              <tr><td>{{ L('Extensión tumoral en el bloque', 'Tumour extent in the block') }}</td><td>{{ L('corte único', 'single section') }}</td></tr>
+              <tr><td>{{ L('Patrón lítico o blástico', 'Lytic or blastic pattern') }}</td><td>{{ L('una trabécula', 'one trabecula') }}</td></tr>
+              <tr><td>{{ L('Grado e índice proliferativo', 'Grade and proliferation index') }}</td><td>{{ L('porta completo y tinción propia', 'whole slide and its own stain') }}</td></tr>
+              <tr><td>{{ L('Densidad osteocitaria', 'Osteocyte density') }}</td><td>{{ L(`≤${D.osteocitos.en_trabecula} lagunas identificables (ref. ${D.osteocitos.publicado_min}–${D.osteocitos.publicado_max}/mm²)`, `≤${D.osteocitos.en_trabecula} identifiable lacunae (ref. ${D.osteocitos.publicado_min}–${D.osteocitos.publicado_max}/mm²)`) }}</td></tr>
+              <tr><td>{{ L('Longitud de los cilindros', 'Core length') }}</td><td>{{ L('sin escala en la panorámica · informe: 6 de 4–11 mm', 'no scale bar on the overview · report: 6 cores, 4–11 mm') }}</td></tr>
+            </tbody>
+          </table>
+
+          <p class="hist__qa-pie">{{ L(
+            'Deconvolución de tinción Ruifrok-Johnston, fondo por Macenko, núcleos con InstanSeg. Los números se han corregido dos veces desde la publicación; el historial es público en el repositorio.',
+            'Ruifrok-Johnston stain deconvolution, Macenko background, nuclei with InstanSeg. The figures have been corrected twice since publication; the history is public in the repository.') }}</p>
         </section>
       </div>
 
@@ -562,7 +568,7 @@ onBeforeUnmount(() => window.removeEventListener('resize', ajusta))
 .hist__lede { color: var(--color-text-soft); max-width: var(--measure, 66ch); }
 .hist__grid { display: grid; grid-template-columns: minmax(0, 1fr) 310px; gap: 1.1rem; align-items: start; }
 @media (max-width: 900px) { .hist__grid { grid-template-columns: 1fr; } }
-.hist__card, .hist__limites, .hist__panel { background: var(--color-bg-card); border: 1px solid color-mix(in srgb, var(--color-text) 12%, transparent); border-radius: var(--radius-card, 10px); }
+.hist__card, .hist__qa, .hist__panel { background: var(--color-bg-card); border: 1px solid color-mix(in srgb, var(--color-text) 12%, transparent); border-radius: var(--radius-card, 10px); }
 .hist__visor { position: relative; overflow: hidden; border-radius: var(--radius-card, 10px) var(--radius-card, 10px) 0 0; background: #000; cursor: crosshair; touch-action: none; }
 .hist__visor:focus-visible { outline: 3px solid var(--color-miriam); outline-offset: -3px; }
 .hist__visor canvas { display: block; width: 100%; height: auto; }
@@ -578,9 +584,16 @@ onBeforeUnmount(() => window.removeEventListener('resize', ajusta))
 .hist__leyenda-nota { flex-basis: 100%; font-size: .78rem; }
 .hist__inset { padding: .75rem .9rem; border-top: 1px solid color-mix(in srgb, var(--color-text) 12%, transparent); }
 .hist__inset img { width: 100%; display: block; border-radius: var(--radius-md, 6px); border: 1px solid color-mix(in srgb, var(--color-text) 12%, transparent); }
-.hist__limites { margin-top: 1.1rem; padding: 1.1rem 1.25rem; border-left: 4px solid var(--color-miriam); }
-.hist__limites h2 { font-family: var(--font-display); font-size: 1.05rem; margin: 0 0 .2rem; }
-.hist__limites li { margin-bottom: .5rem; }
+.hist__qa { margin-top: 1.1rem; padding: 1.1rem 1.25rem; border-left: 4px solid var(--color-miriam); }
+.hist__qa h2 { font-family: var(--font-display); font-size: 1.05rem; margin: 0 0 .2rem; }
+.hist__qa-tit2 { margin-top: 1.35rem; }
+.hist__tabla { width: 100%; border-collapse: collapse; font-size: .84rem; margin-top: .55rem; }
+.hist__tabla td { padding: .3rem 0; border-bottom: 1px solid color-mix(in srgb, var(--color-text) 8%, transparent); vertical-align: top; }
+.hist__tabla tr:last-child td { border-bottom: 0; }
+.hist__tabla td:first-child { width: 42%; padding-right: .8rem; }
+.hist__tabla td:last-child { font-family: var(--font-mono); font-size: .8rem; color: var(--color-text-soft); }
+.hist__tabla--no td:last-child { font-family: inherit; font-size: .84rem; }
+.hist__qa-pie { margin: 1.2rem 0 0; padding-top: .8rem; border-top: 1px solid color-mix(in srgb, var(--color-text) 10%, transparent); font-size: .78rem; color: var(--color-text-soft); }
 .hist__panel section { padding: .9rem 1rem; }
 .hist__panel section + section { border-top: 1px solid color-mix(in srgb, var(--color-text) 12%, transparent); }
 .hist__panel h2 { font-size: .7rem; letter-spacing: .07em; text-transform: uppercase; color: var(--color-text-soft); margin: 0 0 .5rem; }
