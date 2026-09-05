@@ -416,29 +416,71 @@ onBeforeUnmount(() => window.removeEventListener('resize', ajusta))
           </div>
         </div>
 
-        <section class="hist__limites">
-          <h2>{{ L('Hasta dónde llega esta imagen', 'How far this image goes') }}</h2>
+        <section class="hist__qa">
+          <h2>{{ L('Qué contesta esta imagen y qué no', 'What this image answers, and what it does not') }}</h2>
           <p class="hist__hint">{{ L(
-            'Cosas que se han querido leer en una imagen como esta y que aquí no se sostienen. Tres de ellas estuvieron mal en versiones anteriores de esta misma página; abajo está el número corregido y de dónde venía el error. Cuentan tanto como los números del panel.',
-            'Things people have tried to read in an image like this one that do not hold up here. Three of them were wrong in earlier versions of this very page; below is the corrected figure and where the error came from. They count as much as the numbers in the panel.') }}</p>
-          <ul>
-            <li><strong>{{ L('Si el tumor es neuroendocrino.', 'Whether the tumour is neuroendocrine.') }}</strong>
-              {{ L(`La textura de cromatina necesita más resolución de la que hay aquí: la señal clara llega a ${D.resolucion.senal_clara_um} µm y el suelo de ruido está en ${D.resolucion.suelo_um} µm. Lo decide la inmunohistoquímica.`,
-                   `Chromatin texture needs more resolution than there is here: clear signal reaches ${D.resolucion.senal_clara_um} µm and the noise floor sits at ${D.resolucion.suelo_um} µm. Immunohistochemistry decides it.`) }}</li>
-            <li><strong>{{ L('Cuánto tumor queda en el bloque.', 'How much tumour is left in the block.') }}</strong>
-              {{ L('Esto es un corte y el bloque tiene profundidad. Solo el laboratorio que lo guarda puede decir cuántas micras restan.',
-                   'This is one slide and the block has depth. Only the lab holding it can say how many microns remain.') }}</li>
-            <li><strong>{{ L('Si la metástasis destruye o forma hueso.', 'Whether the metastasis destroys or forms bone.') }}</strong>
-              {{ L('Es una trabécula en un campo de 831 µm de ancho. Con eso no se concluye.',
-                   'It is one trabecula in a field 831 µm wide. That settles nothing.') }}</li>
-            <li><strong>{{ L('El grado y el índice proliferativo.', 'Grade and proliferation index.') }}</strong>
-              {{ L('El grado lo asigna un patólogo sobre el porta completo, no sobre un campo suelto; el índice proliferativo necesita su propia tinción.',
-                   'Grade is assigned by a pathologist on the whole slide, not on a single field; the proliferation index needs its own stain.') }}</li>
-            <li><strong>{{ L('Cuántos osteocitos hay.', 'How many osteocytes there are.') }}</strong>
-              {{ D.osteocitos.veredicto }}</li>
-            <li><strong>{{ L('Cuánto miden los fragmentos.', 'How large the fragments are.') }}</strong>
-              {{ D.fragmentos_nota.fuente_buena }}</li>
-          </ul>
+            'Las preguntas que se le pueden hacer a un corte como este, con la respuesta que da. Las que no tienen respuesta pesan tanto como las que sí.',
+            'The questions you can put to a slide like this one, with the answer it gives. The ones without an answer weigh as much as the ones with.') }}</p>
+
+          <h3 class="hist__qa-tit">{{ L('Contesta', 'It answers') }}</h3>
+          <dl class="hist__qa-lista">
+            <dt>{{ L('¿Cuánto mide lo que se ve?', 'How large is the field?') }}</dt>
+            <dd>{{ D.campo_um[0] }} × {{ D.campo_um[1] }} µm.
+              {{ L(`Calibrado con la barra de 100 µm del propio corte: ${D.calibracion.um_px} µm por píxel, con un ${D.calibracion.incertidumbre_pct}% de incertidumbre.`,
+                   `Calibrated against the slide's own 100 µm bar: ${D.calibracion.um_px} µm per pixel, with ${D.calibracion.incertidumbre_pct}% uncertainty.`) }}</dd>
+
+            <dt>{{ L('¿Cuánto tejido hay?', 'How much tissue is there?') }}</dt>
+            <dd>{{ D.composicion.tejido_mm2_ref }} mm².
+              {{ L(`Entre ${D.composicion.tejido_mm2_min} y ${D.composicion.tejido_mm2_max} según dónde se ponga el umbral que separa tejido de fondo.`,
+                   `Between ${D.composicion.tejido_mm2_min} and ${D.composicion.tejido_mm2_max} depending on where the tissue-background threshold sits.`) }}</dd>
+
+            <dt>{{ L('¿Hay hueso, y cuánto?', 'Is there bone, and how much?') }}</dt>
+            <dd>{{ L(`Sí. Una trabécula cruza el campo en diagonal y ocupa entre el ${D.trabecula.pct_tejido_min} y el ${D.trabecula.pct_tejido_max}% del tejido, unos ${D.trabecula.area_mm2_min} a ${D.trabecula.area_mm2_max} mm².`,
+                     `Yes. A trabecula crosses the field diagonally and takes up ${D.trabecula.pct_tejido_min} to ${D.trabecula.pct_tejido_max}% of the tissue, some ${D.trabecula.area_mm2_min} to ${D.trabecula.area_mm2_max} mm².`) }}</dd>
+
+            <dt>{{ L('¿Cuántas células, y de qué tamaño?', 'How many cells, and how large?') }}</dt>
+            <dd>{{ L(`${D.nucleos.n} núcleos segmentados, de ${D.nucleos.diam_mediano_um} µm de diámetro mediano (el 80% entre ${D.nucleos.diam_p10} y ${D.nucleos.diam_p90}).`,
+                     `${D.nucleos.n} segmented nuclei, median diameter ${D.nucleos.diam_mediano_um} µm (80% between ${D.nucleos.diam_p10} and ${D.nucleos.diam_p90}).`) }}</dd>
+
+            <dt>{{ L('¿Hasta qué detalle se distingue algo?', 'Down to what detail can anything be told apart?') }}</dt>
+            <dd>{{ L(`Señal clara hasta ${D.resolucion.senal_clara_um} µm. Por debajo de ${D.resolucion.suelo_um} µm es ruido.`,
+                     `Clear signal down to ${D.resolucion.senal_clara_um} µm. Below ${D.resolucion.suelo_um} µm it is noise.`) }}</dd>
+
+            <dt>{{ L('¿Qué es la franja clara entre el hueso y las células?', 'What is the clear gap between bone and cells?') }}</dt>
+            <dd>{{ L('Retracción del procesado. No es un espacio que exista en el hueso.',
+                     'Retraction from processing. It is not a space that exists in the bone.') }}</dd>
+          </dl>
+
+          <h3 class="hist__qa-tit">{{ L('No contesta', 'It does not answer') }}</h3>
+          <dl class="hist__qa-lista hist__qa-lista--no">
+            <dt>{{ L('¿Es un tumor neuroendocrino?', 'Is this a neuroendocrine tumour?') }}</dt>
+            <dd>{{ L(`Esa lectura se apoya en la textura de la cromatina, que queda por debajo del límite de esta imagen (${D.resolucion.senal_clara_um} µm). La decide la inmunohistoquímica.`,
+                     `That reading rests on chromatin texture, which falls below this image's limit (${D.resolucion.senal_clara_um} µm). Immunohistochemistry decides it.`) }}</dd>
+
+            <dt>{{ L('¿Cuánto tumor queda en el bloque?', 'How much tumour is left in the block?') }}</dt>
+            <dd>{{ L('Esto es un corte y el bloque tiene profundidad. Solo lo sabe el laboratorio que lo guarda.',
+                     'This is one slide and the block has depth. Only the lab holding it knows.') }}</dd>
+
+            <dt>{{ L('¿La metástasis destruye hueso o lo forma?', 'Does the metastasis destroy bone or form it?') }}</dt>
+            <dd>{{ L(`Se ve una trabécula en un campo de ${D.campo_um[0]} µm. Para eso hace falta el porta completo.`,
+                     `One trabecula in a ${D.campo_um[0]} µm field. That needs the whole slide.`) }}</dd>
+
+            <dt>{{ L('¿Qué grado tiene, y cuánto prolifera?', 'What grade is it, and how fast does it proliferate?') }}</dt>
+            <dd>{{ L('El grado se asigna sobre el porta completo, no sobre un campo suelto. El índice proliferativo necesita su propia tinción.',
+                     'Grade is assigned on the whole slide, not on a single field. The proliferation index needs its own stain.') }}</dd>
+
+            <dt>{{ L('¿Cuántos osteocitos hay?', 'How many osteocytes are there?') }}</dt>
+            <dd>{{ L(`Dentro de la trabécula se distinguen como mucho ${D.osteocitos.en_trabecula}. Con eso no sale una densidad: la referencia publicada está entre ${D.osteocitos.publicado_min} y ${D.osteocitos.publicado_max} por mm² de hueso.`,
+                     `At most ${D.osteocitos.en_trabecula} can be told apart inside the trabecula. That yields no density: the published reference is ${D.osteocitos.publicado_min} to ${D.osteocitos.publicado_max} per mm² of bone.`) }}</dd>
+
+            <dt>{{ L('¿Cuánto miden los cilindros de la biopsia?', 'How long are the biopsy cores?') }}</dt>
+            <dd>{{ L('La panorámica no lleva escala y su recuadro es un trazo de un píxel: de ahí no sale una medida fiable. El dato está en el informe de patología, que describe seis cilindros de 4 a 11 mm.',
+                     'The overview carries no scale bar and its box is a one-pixel line: no reliable measurement comes from there. The figure is in the pathology report, which describes six cores of 4 to 11 mm.') }}</dd>
+          </dl>
+
+          <p class="hist__qa-pie">{{ L(
+            'Los números de esta página se han corregido dos veces desde que se publicó. El historial de cambios es público en el repositorio del sitio.',
+            'The numbers on this page have been corrected twice since it was published. The change history is public in the site repository.') }}</p>
         </section>
       </div>
 
@@ -562,7 +604,7 @@ onBeforeUnmount(() => window.removeEventListener('resize', ajusta))
 .hist__lede { color: var(--color-text-soft); max-width: var(--measure, 66ch); }
 .hist__grid { display: grid; grid-template-columns: minmax(0, 1fr) 310px; gap: 1.1rem; align-items: start; }
 @media (max-width: 900px) { .hist__grid { grid-template-columns: 1fr; } }
-.hist__card, .hist__limites, .hist__panel { background: var(--color-bg-card); border: 1px solid color-mix(in srgb, var(--color-text) 12%, transparent); border-radius: var(--radius-card, 10px); }
+.hist__card, .hist__qa, .hist__panel { background: var(--color-bg-card); border: 1px solid color-mix(in srgb, var(--color-text) 12%, transparent); border-radius: var(--radius-card, 10px); }
 .hist__visor { position: relative; overflow: hidden; border-radius: var(--radius-card, 10px) var(--radius-card, 10px) 0 0; background: #000; cursor: crosshair; touch-action: none; }
 .hist__visor:focus-visible { outline: 3px solid var(--color-miriam); outline-offset: -3px; }
 .hist__visor canvas { display: block; width: 100%; height: auto; }
@@ -578,9 +620,15 @@ onBeforeUnmount(() => window.removeEventListener('resize', ajusta))
 .hist__leyenda-nota { flex-basis: 100%; font-size: .78rem; }
 .hist__inset { padding: .75rem .9rem; border-top: 1px solid color-mix(in srgb, var(--color-text) 12%, transparent); }
 .hist__inset img { width: 100%; display: block; border-radius: var(--radius-md, 6px); border: 1px solid color-mix(in srgb, var(--color-text) 12%, transparent); }
-.hist__limites { margin-top: 1.1rem; padding: 1.1rem 1.25rem; border-left: 4px solid var(--color-miriam); }
-.hist__limites h2 { font-family: var(--font-display); font-size: 1.05rem; margin: 0 0 .2rem; }
-.hist__limites li { margin-bottom: .5rem; }
+.hist__qa { margin-top: 1.1rem; padding: 1.1rem 1.25rem; border-left: 4px solid var(--color-miriam); }
+.hist__qa h2 { font-family: var(--font-display); font-size: 1.05rem; margin: 0 0 .2rem; }
+.hist__qa-tit { font-size: .7rem; letter-spacing: .07em; text-transform: uppercase; color: var(--color-text-soft); margin: 1.15rem 0 .5rem; }
+.hist__qa-lista { margin: 0; }
+.hist__qa-lista dt { font-weight: 600; margin-top: .7rem; }
+.hist__qa-lista dt:first-child { margin-top: 0; }
+.hist__qa-lista dd { margin: .15rem 0 0; color: var(--color-text-soft); }
+.hist__qa-lista--no dt { color: var(--color-text); }
+.hist__qa-pie { margin: 1.2rem 0 0; padding-top: .8rem; border-top: 1px solid color-mix(in srgb, var(--color-text) 10%, transparent); font-size: .78rem; color: var(--color-text-soft); }
 .hist__panel section { padding: .9rem 1rem; }
 .hist__panel section + section { border-top: 1px solid color-mix(in srgb, var(--color-text) 12%, transparent); }
 .hist__panel h2 { font-size: .7rem; letter-spacing: .07em; text-transform: uppercase; color: var(--color-text-soft); margin: 0 0 .5rem; }
