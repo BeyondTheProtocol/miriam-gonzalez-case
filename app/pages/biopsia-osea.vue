@@ -50,6 +50,7 @@ type Datos = {
   nucleos: { n: number; modelo: string; diam_mediano_um: number; diam_p10: number; diam_p90: number; densidad_masa_celular: number; puntos: Punto[] }
   osteocitos: { en_trabecula: number; publicado_min: number; publicado_max: number; veredicto: string }
   resolucion: { senal_clara_um: number; suelo_um: number; nota: string }
+  contornos: { osea: number[][][]; celular: number[][][] }
   panel: {
     titulo_es: string; titulo_en: string; intro_es: string; intro_en: string
     calidad: { es: string; en: string; v: string }[]
@@ -79,7 +80,7 @@ const aumento = computed(() => {
 const vistaEsc = ref(1)
 
 let ctx: CanvasRenderingContext2D | null = null
-let img: HTMLImageElement, ovl: HTMLImageElement
+let img: HTMLImageElement
 const vista = { x: 0, y: 0, esc: 1 }
 let regla: { x0: number; y0: number; x1: number; y1: number } | null = null
 let cursor: { x: number; y: number } | null = null
@@ -110,9 +111,20 @@ function pinta() {
   ctx.imageSmoothingEnabled = vista.esc < 3
   ctx.setTransform(k, 0, 0, k, vista.x, vista.y)
   if (img?.complete && !soloMascara.value) ctx.drawImage(img, 0, 0)
-  if (capas.regiones && ovl?.complete) {
+  if (capas.regiones) {
     ctx.globalAlpha = opacidad.value / 100
-    ctx.drawImage(ovl, 0, 0)
+    ctx.lineJoin = 'round'
+    for (const [grupo, color] of [[D.value.contornos.celular, '#a06eff'], [D.value.contornos.osea, '#ff2e86']] as const) {
+      for (const poli of grupo) {
+        ctx.beginPath()
+        ctx.moveTo(poli[0][0], poli[0][1])
+        for (let i = 1; i < poli.length; i++) ctx.lineTo(poli[i][0], poli[i][1])
+        ctx.closePath()
+        // halo oscuro debajo, para que la línea se lea sobre rosa y sobre morado
+        ctx.strokeStyle = 'rgba(12,8,16,.75)'; ctx.lineWidth = 5 / k; ctx.stroke()
+        ctx.strokeStyle = color; ctx.lineWidth = 2.4 / k; ctx.stroke()
+      }
+    }
     ctx.globalAlpha = 1
   }
   if (capas.reticula) {
@@ -292,7 +304,6 @@ function reset() { vista.x = 0; vista.y = 0; vista.esc = 1; vistaEsc.value = 1; 
 
 onMounted(() => {
   ctx = cv.value?.getContext('2d') ?? null
-  ovl = new Image(); ovl.onload = () => pinta(); ovl.src = '/histologia/overlay.png'
   img = new Image(); img.onload = () => ajusta(); img.src = '/histologia/campo.jpg'
   window.addEventListener('resize', ajusta)
 })
