@@ -90,16 +90,38 @@ const PX = computed(() => D.value?.px_por_um ?? 2.205)
 const ANCHO = computed(() => D.value?.campo_px[0] ?? 1832)
 const ALTO = computed(() => D.value?.campo_px[1] ?? 653)
 
+// La imagen es panorámica (3:1). En un móvil vertical, encajarla por el ancho la deja en una
+// franja de 120 px: más pequeña que sus propios botones. En estrecho se le da alto y se muestra
+// cubriendo, con paneo, que es como se mira un porta de verdad.
+const estrecho = ref(false)
 function ajusta() {
   const c = cv.value
   if (!c || !c.parentElement) return
   const ancho = c.parentElement.clientWidth
+  estrecho.value = window.innerWidth < 700
+  const alto = estrecho.value
+    ? Math.min(Math.max(window.innerHeight * 0.42, 260), 420)
+    : ancho * (ALTO.value / ANCHO.value)
   c.width = ancho * devicePixelRatio
-  c.height = ancho * (ALTO.value / ANCHO.value) * devicePixelRatio
-  c.style.height = `${c.height / devicePixelRatio}px`
+  c.height = alto * devicePixelRatio
+  c.style.height = `${alto}px`
+  centra()
   pinta()
 }
-const base = () => (cv.value ? cv.value.width / ANCHO.value : 1)
+const base = () => {
+  const c = cv.value
+  if (!c) return 1
+  const porAncho = c.width / ANCHO.value
+  const porAlto = c.height / ALTO.value
+  return estrecho.value ? Math.max(porAncho, porAlto) : porAncho
+}
+function centra() {
+  const c = cv.value
+  if (!c) return
+  const k = base() * vista.esc
+  vista.x = (c.width - ANCHO.value * k) / 2
+  vista.y = (c.height - ALTO.value * k) / 2
+}
 
 function pinta() {
   const c = cv.value
@@ -260,7 +282,7 @@ function onKey(e: KeyboardEvent) {
     case 'ArrowDown': if (esperandoPunto) mueve(0, 1); else vista.y -= paso; break
     case '+': case '=': zoomA(vista.esc * 1.25, cx, cy, aImagen(cx, cy)); break
     case '-': case '_': zoomA(vista.esc / 1.25, cx, cy, aImagen(cx, cy)); break
-    case '0': vista.x = 0; vista.y = 0; vista.esc = 1; vistaEsc.value = 1; regla = null; cursor = null; esperandoPunto = 0; break
+    case '0': vista.esc = 1; vistaEsc.value = 1; centra(); regla = null; cursor = null; esperandoPunto = 0; break
     case 'm': case 'M':
       esperandoPunto = 1; cursor = { x: ANCHO.value / 2, y: ALTO.value / 2 }; regla = null
       medida.value = L('Marca el primer punto con Intro', 'Mark the first point with Enter'); break
@@ -300,7 +322,7 @@ function exportaPng() {
   descarga('biopsia-osea-vista.png', cv.value.toDataURL('image/png'))
 }
 
-function reset() { vista.x = 0; vista.y = 0; vista.esc = 1; vistaEsc.value = 1; regla = null; cursor = null; esperandoPunto = 0; pinta() }
+function reset() { vista.esc = 1; vistaEsc.value = 1; centra(); regla = null; cursor = null; esperandoPunto = 0; pinta() }
 
 onMounted(() => {
   ctx = cv.value?.getContext('2d') ?? null
@@ -532,7 +554,7 @@ onBeforeUnmount(() => window.removeEventListener('resize', ajusta))
 .hist__visor { position: relative; overflow: hidden; border-radius: var(--radius-card, 10px) var(--radius-card, 10px) 0 0; background: #000; cursor: crosshair; touch-action: none; }
 .hist__visor:focus-visible { outline: 3px solid var(--color-miriam); outline-offset: -3px; }
 .hist__visor canvas { display: block; width: 100%; height: auto; }
-.hist__barra { display: flex; flex-wrap: wrap; gap: .4rem; padding: .65rem; border-top: 1px solid color-mix(in srgb, var(--color-text) 12%, transparent); }
+.hist__barra { display: flex; flex-wrap: wrap; gap: .35rem; padding: .55rem; border-top: 1px solid color-mix(in srgb, var(--color-text) 12%, transparent); }
 .hist__barra button { font: inherit; font-size: .82rem; min-height: 44px; padding: 0 .85rem; background: transparent; color: var(--color-text); border: 1px solid color-mix(in srgb, var(--color-text) 20%, transparent); border-radius: var(--radius-btn, 6px); cursor: pointer; }
 .hist__barra button:hover { border-color: var(--color-miriam); color: var(--color-miriam); }
 .hist__barra button[aria-pressed="true"] { background: var(--color-miriam); border-color: var(--color-miriam); color: #fff; }
@@ -577,4 +599,12 @@ onBeforeUnmount(() => window.removeEventListener('resize', ajusta))
 .hist__desc { display: flex; flex-wrap: wrap; gap: .4rem; }
 .hist__desc button { font: inherit; font-size: .78rem; min-height: 44px; padding: 0 .8rem; background: transparent; color: var(--color-text); border: 1px solid color-mix(in srgb, var(--color-text) 20%, transparent); border-radius: var(--radius-btn, 6px); cursor: pointer; }
 .hist__desc button:hover { border-color: var(--color-miriam); color: var(--color-miriam); }
+@media (max-width: 700px) {
+  .hist__barra { gap: .3rem; padding: .45rem; }
+  .hist__barra button { font-size: .74rem; padding: 0 .55rem; }
+  .hist__leyenda { gap: .5rem .8rem; padding: .6rem .7rem; font-size: .74rem; }
+  .hist__leyenda-nota { font-size: .72rem; }
+  .hist__op { padding: 0 .2rem; }
+  .hist__op input { width: 74px; }
+}
 </style>
