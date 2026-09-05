@@ -259,9 +259,9 @@ function onMove(e: PointerEvent) {
 }
 function onUp(e: PointerEvent) { vivos.delete(e.pointerId); if (vivos.size < 2) pellizco = null; arrastra = null; modoRegla = false }
 function onWheel(e: WheelEvent) {
-  // La rueda a secas tiene que seguir haciendo scroll de la página: si el visor se la queda,
-  // el lector se atasca al pasar el ratón por encima. El zoom pide intención explícita.
-  if (!e.ctrlKey && !e.metaKey && document.activeElement !== caja.value) return
+  // Sobre el visor la rueda amplía, que es lo que espera cualquiera que haya usado un
+  // microscopio digital. Fuera de él la página se desplaza con normalidad, y el visor no
+  // ocupa la pantalla entera en ningún tamaño, así que siempre queda sitio por donde bajar.
   e.preventDefault()
   zoomA(vista.esc * (e.deltaY < 0 ? 1.14 : 1 / 1.14), e.clientX, e.clientY, aImagen(e.clientX, e.clientY))
 }
@@ -320,6 +320,14 @@ function exportaCsv() {
 function exportaPng() {
   if (!cv.value) return
   descarga('biopsia-osea-vista.png', cv.value.toDataURL('image/png'))
+}
+
+function zoomCentro(factor: number) {
+  const c = cv.value
+  if (!c) return
+  const r = c.getBoundingClientRect()
+  const cx = r.left + r.width / 2, cy = r.top + r.height / 2
+  zoomA(vista.esc * factor, cx, cy, aImagen(cx, cy))
 }
 
 function reset() { vista.esc = 1; vistaEsc.value = 1; centra(); regla = null; cursor = null; esperandoPunto = 0; pinta() }
@@ -384,7 +392,11 @@ onBeforeUnmount(() => window.removeEventListener('resize', ajusta))
               <input v-model.number="opacidad" type="range" min="15" max="100" step="5" @input="pinta()">
               <output>{{ opacidad }}%</output>
             </label>
-            <span class="hist__aumento" :title="L('Aumento equivalente', 'Equivalent magnification')">{{ aumento }}</span>
+            <span class="hist__zoom">
+              <button :aria-label="L('Alejar', 'Zoom out')" @click="zoomCentro(1 / 1.4)">−</button>
+              <span class="hist__aumento" :title="L('Aumento equivalente', 'Equivalent magnification')">{{ aumento }}</span>
+              <button :aria-label="L('Acercar', 'Zoom in')" @click="zoomCentro(1.4)">+</button>
+            </span>
           </div>
 
           <div class="hist__leyenda">
@@ -607,4 +619,6 @@ onBeforeUnmount(() => window.removeEventListener('resize', ajusta))
   .hist__op { padding: 0 .2rem; }
   .hist__op input { width: 74px; }
 }
+.hist__zoom { display: inline-flex; align-items: center; gap: .25rem; }
+.hist__zoom button { min-width: 44px; padding: 0; font-size: 1.05rem; line-height: 1; }
 </style>
