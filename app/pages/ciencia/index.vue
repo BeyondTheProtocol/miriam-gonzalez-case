@@ -750,7 +750,17 @@ const route = useRoute()
 const level = ref<ReadingLevel>(route.query.nivel === 'pro' ? 'pro' : 'simple')
 onMounted(() => {
   // La URL manda sobre lo recordado; sin ?nivel, recupera la última elección.
-  if (route.query.nivel === 'pro' || route.query.nivel === 'simple') return
+  // Hay que APLICARLA aquí, no solo al inicializar el ref: la página se sirve
+  // prerenderizada y al hidratar Vue restaura el estado del payload (siempre
+  // 'simple'), que pisaba el valor leído de la query. Por eso `?nivel=pro` no
+  // abría el modo clínico, y con él estaban rotos el botón «Medicina /
+  // investigación» del home y el enlace corto /caso. Verificado en producción
+  // el 5-sep-2026: con el parámetro puesto, el bloque clínico seguía oculto.
+  const q = route.query.nivel
+  if (q === 'pro' || q === 'simple') {
+    level.value = q
+    return
+  }
   try {
     const saved = localStorage.getItem('hm_ciencia_nivel')
     if (saved === 'pro' || saved === 'simple') level.value = saved as ReadingLevel
