@@ -186,7 +186,10 @@ export default defineNuxtConfig({
     '/donar': { redirect: { to: 'https://www.gofundme.com/f/biopsia-molecular-que-puede-cambiar-su-tratamiento', statusCode: 302 } },
     // (acceso para médicos) enlace corto SERIO para reenviar al equipo clínico (no de redes):
     // helpmiriam.com/caso → el panel del mapa. UTM «referral/medico» para distinguir el canal.
-    '/caso': { redirect: { to: '/mapa-metastasis?utm_source=referral&utm_medium=medico&utm_campaign=equipo-clinico', statusCode: 302 } },
+    '/caso': { redirect: { to: '/ciencia?nivel=pro&utm_source=referral&utm_medium=medico&utm_campaign=equipo-clinico#mapa-acceso', statusCode: 302 } },
+    // Llevaba solo al mapa de metástasis. Desde que existe el visor de la biopsia son DOS
+    // herramientas en el mismo bloque, y este es el enlace que la propia página imprime para
+    // que un médico lo comparta con su equipo: tiene que abrirlas las dos.
     // Datos EN VIVO de GoFundMe: /fundraiser.json (total) y /donations.json (muro)
     // se enrutan a las funciones de Netlify. Van AQUÍ y NO en netlify.toml por el
     // MISMO motivo que los enlaces cortos de arriba: el catch-all de dist/_redirects
