@@ -68,6 +68,14 @@ const cv = ref<HTMLCanvasElement | null>(null)
 const caja = ref<HTMLDivElement | null>(null)
 const medida = ref('—')
 const capas = reactive({ nucleos: false, regiones: true, reticula: false })
+const opacidad = ref(85)
+// Un patólogo no piensa en «×3,4»: piensa en el objetivo que tendría puesto.
+// 0,454 µm/px equivale a un 20x de escáner; el resto se deriva del zoom.
+const aumento = computed(() => {
+  const equiv = 20 * vistaEsc.value
+  return equiv >= 40 ? '40x' : equiv >= 20 ? '20x' : equiv >= 10 ? '10x' : '4x'
+})
+const vistaEsc = ref(1)
 
 let ctx: CanvasRenderingContext2D | null = null
 let img: HTMLImageElement, ovl: HTMLImageElement
@@ -102,7 +110,7 @@ function pinta() {
   ctx.setTransform(k, 0, 0, k, vista.x, vista.y)
   if (img?.complete) ctx.drawImage(img, 0, 0)
   if (capas.regiones && ovl?.complete) {
-    ctx.globalAlpha = 0.9
+    ctx.globalAlpha = opacidad.value / 100
     ctx.drawImage(ovl, 0, 0)
     ctx.globalAlpha = 1
   }
@@ -117,8 +125,8 @@ function pinta() {
   }
   if (capas.nucleos) {
     ctx.strokeStyle = '#28d1b8'
-    ctx.lineWidth = 1 / k
-    ctx.globalAlpha = 0.85
+    ctx.lineWidth = 1.2 / k
+    ctx.globalAlpha = opacidad.value / 100
     for (const n of D.value.nucleos.puntos) {
       ctx.beginPath()
       ctx.arc(n.x, n.y, Math.sqrt((n.a * PX.value * PX.value) / Math.PI), 0, 6.284)
@@ -176,6 +184,7 @@ let pellizco: { d: number; esc: number; cx: number; cy: number; p: { x: number; 
 
 function zoomA(nueva: number, cx: number, cy: number, p: { x: number; y: number }) {
   vista.esc = Math.min(14, Math.max(1, nueva))
+  vistaEsc.value = vista.esc
   const k1 = base() * vista.esc
   const r = cv.value!.getBoundingClientRect()
   vista.x = (cx - r.left) * devicePixelRatio - p.x * k1
@@ -238,7 +247,7 @@ function onKey(e: KeyboardEvent) {
     case 'ArrowDown': if (esperandoPunto) mueve(0, 1); else vista.y -= paso; break
     case '+': case '=': zoomA(vista.esc * 1.25, cx, cy, aImagen(cx, cy)); break
     case '-': case '_': zoomA(vista.esc / 1.25, cx, cy, aImagen(cx, cy)); break
-    case '0': vista.x = 0; vista.y = 0; vista.esc = 1; regla = null; cursor = null; esperandoPunto = 0; break
+    case '0': vista.x = 0; vista.y = 0; vista.esc = 1; vistaEsc.value = 1; regla = null; cursor = null; esperandoPunto = 0; break
     case 'm': case 'M':
       esperandoPunto = 1; cursor = { x: ANCHO.value / 2, y: ALTO.value / 2 }; regla = null
       medida.value = L('Marca el primer punto con Intro', 'Mark the first point with Enter'); break
@@ -253,7 +262,7 @@ function onKey(e: KeyboardEvent) {
   e.preventDefault(); pinta()
 }
 
-function reset() { vista.x = 0; vista.y = 0; vista.esc = 1; regla = null; cursor = null; esperandoPunto = 0; pinta() }
+function reset() { vista.x = 0; vista.y = 0; vista.esc = 1; vistaEsc.value = 1; regla = null; cursor = null; esperandoPunto = 0; pinta() }
 
 onMounted(() => {
   ctx = cv.value?.getContext('2d') ?? null
@@ -308,15 +317,21 @@ onBeforeUnmount(() => window.removeEventListener('resize', ajusta))
               {{ L('Retícula 100 µm', '100 µm grid') }}
             </button>
             <button @click="reset()">{{ L('Encuadre completo', 'Reset view') }}</button>
+            <label class="hist__op">
+              <span>{{ L('Opacidad', 'Opacity') }}</span>
+              <input v-model.number="opacidad" type="range" min="15" max="100" step="5" @input="pinta()">
+              <output>{{ opacidad }}%</output>
+            </label>
+            <span class="hist__aumento" :title="L('Aumento equivalente', 'Equivalent magnification')">{{ aumento }}</span>
           </div>
 
           <div class="hist__leyenda">
-            <span><i class="is-hueso" />{{ L('Matriz ósea, rayado diagonal', 'Bone matrix, diagonal hatch') }}</span>
-            <span><i class="is-celula" />{{ L('Masa celular, punteado', 'Cellular mass, dotted') }}</span>
+            <span><i class="is-hueso" />{{ L('Contorno de la matriz ósea', 'Bone matrix outline') }}</span>
+            <span><i class="is-celula" />{{ L('Contorno de la masa celular', 'Cellular mass outline') }}</span>
             <span><i class="is-nucleo" />{{ L('Núcleos segmentados', 'Segmented nuclei') }}</span>
             <span class="hist__leyenda-nota">{{ L(
-              'Cada capa lleva su propia trama además del color, para que se distingan sin depender del tono. Las regiones salen de deconvolver la tinción de la propia imagen (Ruifrok-Johnston, fondo por Macenko), no de un trazado a mano.',
-              'Each layer carries its own pattern as well as colour, so they can be told apart without relying on hue. The regions come from deconvolving the stain of the image itself (Ruifrok-Johnston, background by Macenko), not from hand tracing.') }}</span>
+              'Contornos, no manchas, para no tapar el tejido. Las regiones salen de deconvolver la tinción de la propia imagen (Ruifrok-Johnston, fondo por Macenko) y de quedarse solo con las estructuras mayores de 3.000 µm²; no hay trazado a mano.',
+              'Outlines rather than fills, so the tissue stays visible. The regions come from deconvolving the stain of the image itself (Ruifrok-Johnston, background by Macenko), keeping only structures above 3,000 µm²; nothing is hand traced.') }}</span>
           </div>
 
           <div class="hist__inset">
@@ -461,8 +476,8 @@ onBeforeUnmount(() => window.removeEventListener('resize', ajusta))
 .hist__barra button[aria-pressed="true"] { background: var(--color-miriam); border-color: var(--color-miriam); color: #fff; }
 .hist__leyenda { display: flex; flex-wrap: wrap; gap: .9rem; padding: .75rem .9rem; border-top: 1px solid color-mix(in srgb, var(--color-text) 12%, transparent); font-size: .82rem; color: var(--color-text-soft); }
 .hist__leyenda i { display: inline-block; width: 16px; height: 12px; border-radius: 2px; margin-right: .35rem; vertical-align: -2px; border: 1px solid currentColor; }
-.hist__leyenda i.is-hueso { background: #c0175c; color: #c0175c; }
-.hist__leyenda i.is-celula { background: #6a2f92; color: #6a2f92; }
+.hist__leyenda i.is-hueso { background: #ff3a8c; color: #ff3a8c; }
+.hist__leyenda i.is-celula { background: #a06eff; color: #a06eff; }
 .hist__leyenda i.is-nucleo { background: #0a6459; color: #0a6459; }
 .hist__leyenda-nota { flex-basis: 100%; font-size: .78rem; }
 .hist__inset { padding: .75rem .9rem; border-top: 1px solid color-mix(in srgb, var(--color-text) 12%, transparent); }
@@ -493,4 +508,8 @@ onBeforeUnmount(() => window.removeEventListener('resize', ajusta))
 .hist__genes { font-family: var(--font-mono); font-size: .8rem; flex: 1; }
 .hist__copias { font-family: var(--font-mono); font-size: .8rem; color: var(--color-text-soft); }
 .hist__genes-limpios { font-family: var(--font-mono); font-size: .8rem; margin: 0; color: var(--color-text-soft); }
+.hist__op { display: inline-flex; align-items: center; gap: .45rem; font-size: .78rem; color: var(--color-text-soft); padding: 0 .4rem; min-height: 44px; }
+.hist__op input { width: 92px; accent-color: var(--color-miriam); }
+.hist__op output { font-family: var(--font-mono); min-width: 3ch; }
+.hist__aumento { display: inline-flex; align-items: center; min-height: 44px; padding: 0 .7rem; font-family: var(--font-mono); font-size: .82rem; font-weight: 600; color: var(--color-miriam); background: color-mix(in srgb, var(--color-miriam) 10%, transparent); border-radius: var(--radius-btn, 6px); }
 </style>
