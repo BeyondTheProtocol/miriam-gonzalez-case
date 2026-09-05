@@ -69,6 +69,7 @@ const caja = ref<HTMLDivElement | null>(null)
 const medida = ref('—')
 const capas = reactive({ nucleos: false, regiones: true, reticula: false })
 const opacidad = ref(85)
+const soloMascara = ref(false)
 // Un patólogo no piensa en «×3,4»: piensa en el objetivo que tendría puesto.
 // 0,454 µm/px equivale a un 20x de escáner; el resto se deriva del zoom.
 const aumento = computed(() => {
@@ -104,11 +105,11 @@ function pinta() {
   if (!c || !ctx || !D.value) return
   const k = base() * vista.esc
   ctx.setTransform(1, 0, 0, 1, 0, 0)
-  ctx.fillStyle = '#000'
+  ctx.fillStyle = soloMascara.value ? '#0e0c12' : '#000'
   ctx.fillRect(0, 0, c.width, c.height)
   ctx.imageSmoothingEnabled = vista.esc < 3
   ctx.setTransform(k, 0, 0, k, vista.x, vista.y)
-  if (img?.complete) ctx.drawImage(img, 0, 0)
+  if (img?.complete && !soloMascara.value) ctx.drawImage(img, 0, 0)
   if (capas.regiones && ovl?.complete) {
     ctx.globalAlpha = opacidad.value / 100
     ctx.drawImage(ovl, 0, 0)
@@ -262,6 +263,31 @@ function onKey(e: KeyboardEvent) {
   e.preventDefault(); pinta()
 }
 
+function descarga(nombre: string, url: string) {
+  const a = document.createElement('a')
+  a.href = url; a.download = nombre
+  document.body.appendChild(a); a.click(); a.remove()
+}
+function exportaCsv() {
+  const d = D.value
+  const cab = 'id,x_px,y_px,x_um,y_um,area_um2,diametro_equivalente_um'
+  const filas = d.nucleos.puntos.map((n, i) =>
+    [i + 1, n.x, n.y, (n.x / d.px_por_um).toFixed(2), (n.y / d.px_por_um).toFixed(2),
+     n.a, (2 * Math.sqrt(n.a / Math.PI)).toFixed(2)].join(','))
+  const meta = [
+    `# nucleos segmentados con ${d.nucleos.modelo}`,
+    `# calibracion ${d.calibracion.um_px} um/px (+-${d.calibracion.incertidumbre_pct}%)`,
+    `# campo ${d.campo_um[0]}x${d.campo_um[1]} um  ·  origen: esquina superior izquierda`,
+    '# apoyo a la decision, no diagnostico',
+  ]
+  const csv = [...meta, cab, ...filas].join('\n')
+  descarga('nucleos-biopsia-osea.csv', URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' })))
+}
+function exportaPng() {
+  if (!cv.value) return
+  descarga('biopsia-osea-vista.png', cv.value.toDataURL('image/png'))
+}
+
 function reset() { vista.x = 0; vista.y = 0; vista.esc = 1; vistaEsc.value = 1; regla = null; cursor = null; esperandoPunto = 0; pinta() }
 
 onMounted(() => {
@@ -315,6 +341,9 @@ onBeforeUnmount(() => window.removeEventListener('resize', ajusta))
             </button>
             <button :aria-pressed="capas.reticula" @click="capas.reticula = !capas.reticula; pinta()">
               {{ L('Retícula 100 µm', '100 µm grid') }}
+            </button>
+            <button :aria-pressed="soloMascara" @click="soloMascara = !soloMascara; pinta()">
+              {{ L('Solo la máscara', 'Mask only') }}
             </button>
             <button @click="reset()">{{ L('Encuadre completo', 'Reset view') }}</button>
             <label class="hist__op">
@@ -410,6 +439,28 @@ onBeforeUnmount(() => window.removeEventListener('resize', ajusta))
           <p class="hist__hint">{{ L('Con ratón: mantén Mayús y arrastra. Con teclado: pulsa M, mueve con las flechas y marca cada extremo con Intro. Para acercar con la rueda, pulsa Ctrl o haz clic antes en la imagen.',
                                      'With a mouse: hold Shift and drag. With a keyboard: press M, move with the arrows and mark each end with Enter. To zoom with the wheel, hold Ctrl or click the image first.') }}</p>
           <p class="hist__dato" role="status" aria-live="polite">{{ medida }}</p>
+        </section>
+        <section>
+          <h2>{{ L('Llevarte los datos', 'Take the data') }}</h2>
+          <div class="hist__desc">
+            <button @click="exportaCsv()">{{ L('Núcleos en CSV', 'Nuclei as CSV') }}</button>
+            <button @click="exportaPng()">{{ L('Vista actual en PNG', 'Current view as PNG') }}</button>
+          </div>
+          <p class="hist__hint">{{ L('El CSV lleva coordenadas en píxeles y en micras, área y diámetro equivalente de cada núcleo, con la calibración en la cabecera. El PNG sale con la barra de escala quemada.',
+                                     'The CSV carries pixel and micron coordinates, area and equivalent diameter for each nucleus, with the calibration in the header. The PNG comes with the scale bar burnt in.') }}</p>
+        </section>
+        <section>
+          <h2>{{ L('Método y versión', 'Method and version') }}</h2>
+          <table>
+            <tbody>
+              <tr><td>{{ L('Separación de tinción', 'Stain separation') }}</td><td>Ruifrok-Johnston</td></tr>
+              <tr><td>{{ L('Fondo', 'Background') }}</td><td>Macenko β=0,15</td></tr>
+              <tr><td>{{ L('Núcleos', 'Nuclei') }}</td><td>InstanSeg</td></tr>
+              <tr><td>{{ L('Análisis', 'Analysis') }}</td><td>5-09-2026</td></tr>
+            </tbody>
+          </table>
+          <p class="hist__hint">{{ L('Todo el procesado se hizo en local, sin subir la imagen a ningún servicio.',
+                                     'All processing was done locally, without uploading the image to any service.') }}</p>
         </section>
       </aside>
     </div>
@@ -512,4 +563,7 @@ onBeforeUnmount(() => window.removeEventListener('resize', ajusta))
 .hist__op input { width: 92px; accent-color: var(--color-miriam); }
 .hist__op output { font-family: var(--font-mono); min-width: 3ch; }
 .hist__aumento { display: inline-flex; align-items: center; min-height: 44px; padding: 0 .7rem; font-family: var(--font-mono); font-size: .82rem; font-weight: 600; color: var(--color-miriam); background: color-mix(in srgb, var(--color-miriam) 10%, transparent); border-radius: var(--radius-btn, 6px); }
+.hist__desc { display: flex; flex-wrap: wrap; gap: .4rem; }
+.hist__desc button { font: inherit; font-size: .78rem; min-height: 44px; padding: 0 .8rem; background: transparent; color: var(--color-text); border: 1px solid color-mix(in srgb, var(--color-text) 20%, transparent); border-radius: var(--radius-btn, 6px); cursor: pointer; }
+.hist__desc button:hover { border-color: var(--color-miriam); color: var(--color-miriam); }
 </style>
