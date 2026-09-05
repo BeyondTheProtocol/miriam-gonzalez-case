@@ -151,6 +151,13 @@ const featured = computed<BioLink[]>(() => [
     to: localePath('mapa-metastasis'),
   },
   {
+    id: 'biopsia',
+    title: 'links.biopsia_title',
+    sub: 'links.biopsia_sub',
+    icon: 'ph:microscope-fill',
+    to: localePath('biopsia-osea'),
+  },
+  {
     id: 'elespanol',
     title: 'links.elespanol_title',
     sub: 'links.elespanol_sub',

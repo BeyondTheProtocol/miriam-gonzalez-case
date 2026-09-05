@@ -232,10 +232,10 @@ function onKey(e: KeyboardEvent) {
     if (esperandoPunto === 2 && regla) { regla.x1 = cursor.x; regla.y1 = cursor.y; muestra(dist(regla)) }
   }
   switch (e.key) {
-    case 'ArrowLeft': esperandoPunto ? mueve(-1, 0) : (vista.x += paso); break
-    case 'ArrowRight': esperandoPunto ? mueve(1, 0) : (vista.x -= paso); break
-    case 'ArrowUp': esperandoPunto ? mueve(0, -1) : (vista.y += paso); break
-    case 'ArrowDown': esperandoPunto ? mueve(0, 1) : (vista.y -= paso); break
+    case 'ArrowLeft': if (esperandoPunto) mueve(-1, 0); else vista.x += paso; break
+    case 'ArrowRight': if (esperandoPunto) mueve(1, 0); else vista.x -= paso; break
+    case 'ArrowUp': if (esperandoPunto) mueve(0, -1); else vista.y += paso; break
+    case 'ArrowDown': if (esperandoPunto) mueve(0, 1); else vista.y -= paso; break
     case '+': case '=': zoomA(vista.esc * 1.25, cx, cy, aImagen(cx, cy)); break
     case '-': case '_': zoomA(vista.esc / 1.25, cx, cy, aImagen(cx, cy)); break
     case '0': vista.x = 0; vista.y = 0; vista.esc = 1; regla = null; cursor = null; esperandoPunto = 0; break
