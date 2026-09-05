@@ -136,6 +136,7 @@ export default defineNuxtConfig({
     },
     customRoutes: 'config',
     pages: {
+      'biopsia-osea': { en: '/bone-biopsy' },
       'ciencia/index': { en: '/science' },
       'ciencia/evidencia': { en: '/science/evidence' },
       'ciencia/[slug]': { en: '/science/[slug]' },

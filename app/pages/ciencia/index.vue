@@ -357,6 +357,29 @@
             </span>
           </NuxtLink>
           <p class="text-[12px] text-tinta mt-2.5 leading-relaxed">{{ locale === 'es' ? 'Compártelo con tu médico o equipo de tumores:' : 'Share it with your doctor or tumor board:' }} <span class="font-mono font-semibold text-berenjena">helpmiriam.com/caso</span> {{ locale === 'es' ? '· apoyo a la decisión, no consejo médico.' : '· decision support, not medical advice.' }}</p>
+
+          <!-- (acceso médicos) visor de la microfotografía: el corte al microscopio, medido -->
+          <NuxtLink
+            id="biopsia-osea-link"
+            :to="localePath('/biopsia-osea')"
+            class="group mt-3 flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-3.5 rounded-2xl px-4 sm:px-5 py-4 transition-all active:scale-[0.99] sm:hover:-translate-y-0.5"
+            style="background:rgba(232,212,237,0.30);text-decoration:none"
+          >
+            <div class="flex items-start gap-3.5 flex-1">
+              <span class="shrink-0 w-9 h-9 rounded-xl bg-miriam-soft flex items-center justify-center">
+                <Icon name="ph:microscope-fill" class="w-5 h-5 text-berenjena" aria-hidden="true" />
+              </span>
+              <p class="flex-1 text-sm text-tinta leading-relaxed">
+                {{ locale === 'es'
+                  ? 'El corte de la biopsia ósea al microscopio, con zoom y una regla que mide en micras: lo que se puede medir en la imagen y, con el mismo detalle, lo que no se puede afirmar mirándola.'
+                  : 'The bone biopsy slide under the microscope, with zoom and a ruler that measures in microns: what can be measured in the image and, in the same detail, what cannot be claimed by looking at it.' }}
+              </p>
+            </div>
+            <span class="inline-flex w-full sm:w-auto shrink-0 items-center justify-center sm:justify-start gap-2 text-sm font-semibold text-berenjena group-hover:text-miriam transition-colors rounded-xl bg-miriam-soft sm:bg-transparent px-4 sm:px-0 py-2.5 sm:py-0">
+              {{ locale === 'es' ? 'Abrir el visor de la biopsia' : 'Open the biopsy viewer' }}
+              <Icon name="ph:arrow-right" class="w-4 h-4 transition-transform group-hover:translate-x-0.5" aria-hidden="true" />
+            </span>
+          </NuxtLink>
         </section>
 
         <!-- Ejes terapéuticos → panel de rebiopsia, subidos por encima de la
