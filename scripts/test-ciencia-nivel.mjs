@@ -11,7 +11,7 @@
 // (WebSocket nativo de Node ≥ 22). Chrome: $CHROME_PATH, o la ruta de macOS,
 // o `google-chrome` en Linux.
 //
-// Uso:  pnpm generate && pnpm test:ciencia-nivel
+// Uso:  pnpm exec nuxt generate && pnpm test:ciencia-nivel   (CI: .github/workflows/e2e.yml)
 import { spawn } from 'node:child_process'
 import {
   existsSync,
@@ -91,15 +91,23 @@ const chrome = spawn(
     '--no-first-run',
     '--no-default-browser-check',
     '--disable-gpu',
+    // En los runners de Ubuntu 24.04 AppArmor corta el sandbox de Chrome.
+    ...(process.env.CI ? ['--no-sandbox'] : []),
     'about:blank',
   ],
   { stdio: 'ignore' }
 )
 let port
-for (let i = 0; i < 100 && !port; i++) {
+for (let i = 0; i < 150 && !port; i++) {
   await sleep(100)
   const f = join(profile, 'DevToolsActivePort')
   if (existsSync(f)) port = readFileSync(f, 'utf8').split('\n')[0]
+}
+if (!port) {
+  console.error('Chrome no arrancó (sin DevToolsActivePort en 15 s).')
+  chrome.kill()
+  server.close()
+  process.exit(2)
 }
 const targets = await (await fetch(`http://127.0.0.1:${port}/json/list`)).json()
 const ws = new WebSocket(
@@ -151,16 +159,24 @@ const HYDRATED = `(() => {
   return !!n && !n.isHydrating && n.$router.currentRoute.value.fullPath === location.pathname + location.search + location.hash
 })()`
 
-async function load(path) {
-  await cdp('Storage.clearDataForOrigin', {
-    origin: ORIGIN,
-    storageTypes: 'all',
-  })
-  await cdp('Page.navigate', { url: ORIGIN + path })
-  for (let i = 0; i < 100; i++) {
-    await sleep(100)
-    if (await evaluate(HYDRATED).catch(() => false)) break
+async function load(path, { keepStorage = false } = {}) {
+  if (!keepStorage) {
+    await cdp('Storage.clearDataForOrigin', {
+      origin: ORIGIN,
+      storageTypes: 'all',
+    })
   }
+  // Marca en la página actual: mientras siga, estamos leyendo la ANTERIOR.
+  await evaluate('window.__paginaVieja = true').catch(() => {})
+  await cdp('Page.navigate', { url: ORIGIN + path })
+  let hydrated = false
+  for (let i = 0; i < 200 && !hydrated; i++) {
+    await sleep(100)
+    hydrated = await evaluate(`!window.__paginaVieja && ${HYDRATED}`).catch(
+      () => false
+    )
+  }
+  if (!hydrated) return { error: `sin hidratar en 20 s: ${path}` }
   await sleep(600) // margen para watchers y el repintado tras la hidratación
   return evaluate(STATE)
 }
@@ -214,9 +230,7 @@ try {
     await (async () => {
       await load('/ciencia')
       await evaluate(`localStorage.setItem('hm_ciencia_nivel', 'pro')`)
-      await cdp('Page.navigate', { url: `${ORIGIN}/ciencia?nivel=simple` })
-      await sleep(2500)
-      return evaluate(STATE)
+      return load('/ciencia?nivel=simple', { keepStorage: true })
     })(),
     { level: 'simple', mapaVisible: false }
   )
