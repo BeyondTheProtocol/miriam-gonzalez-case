@@ -1,0 +1,34 @@
+name: E2E
+
+# Tests de navegador contra el build ESTÁTICO, que es lo que sirve Netlify.
+# Existen porque hay fallos que solo se ven con la página prerenderizada y no
+# con `nuxt dev` (#186 se dio por arreglado así y seguía roto; lo cerró #188).
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions: {}
+
+jobs:
+  ciencia-nivel:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22 # la de Netlify (netlify.toml)
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      # `nuxt generate` a secas y no `pnpm generate`: este último antes pide los
+      # datos a GoFundMe, y el test no los necesita (evita llamarles en cada PR).
+      - run: pnpm exec nuxt generate
+
+      - run: pnpm test:ciencia-nivel
