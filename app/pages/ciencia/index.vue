@@ -748,19 +748,27 @@ const axisTerms = ['axis_fgfr', 'axis_sstr', 'axis_esr1', 'axis_ne']
 type ReadingLevel = 'simple' | 'pro'
 const route = useRoute()
 const level = ref<ReadingLevel>(route.query.nivel === 'pro' ? 'pro' : 'simple')
-onMounted(() => {
-  // La URL manda sobre lo recordado; sin ?nivel, recupera la última elección.
-  // Hay que APLICARLA aquí, no solo al inicializar el ref: la página se sirve
-  // prerenderizada y al hidratar Vue restaura el estado del payload (siempre
-  // 'simple'), que pisaba el valor leído de la query. Por eso `?nivel=pro` no
-  // abría el modo clínico, y con él estaban rotos el botón «Medicina /
-  // investigación» del home y el enlace corto /caso. Verificado en producción
-  // el 5-sep-2026: con el parámetro puesto, el bloque clínico seguía oculto.
+// La URL manda sobre lo recordado. Hay que VIGILAR la query, no leerla una vez:
+// en una carga directa de la página prerenderizada, Nuxt hidrata en la ruta del
+// payload (`/ciencia`, sin query) y solo cuando termina la hidratación reemplaza
+// por la URL real (`hasDeferredRoute` en el plugin de router de Nuxt). Así que en
+// setup y en onMounted `route.query` llega VACÍA, y `?nivel=pro` aparece después.
+// Leerla solo al montar (el arreglo del 5-sep) no bastaba: el botón «Medicina /
+// investigación» del home y el enlace corto /caso seguían abriendo el modo llano.
+// Verificado en producción el 11-sep-2026, con ese arreglo ya desplegado.
+let levelFromUrl = false
+function applyUrlLevel(): boolean {
   const q = route.query.nivel
-  if (q === 'pro' || q === 'simple') {
+  if (q !== 'pro' && q !== 'simple') return false
+  if (level.value !== q) {
+    levelFromUrl = true
     level.value = q
-    return
   }
+  return true
+}
+onMounted(() => {
+  if (applyUrlLevel()) return
+  // Sin ?nivel, recupera la última elección.
   try {
     const saved = localStorage.getItem('hm_ciencia_nivel')
     if (saved === 'pro' || saved === 'simple') level.value = saved as ReadingLevel
@@ -768,13 +776,18 @@ onMounted(() => {
     /* sin localStorage */
   }
 })
+watch(() => route.query.nivel, applyUrlLevel)
 watch(level, (v, prev) => {
   try {
     localStorage.setItem('hm_ciencia_nivel', v)
   } catch {
     /* noop */
   }
-  if (prev && v === 'pro' && prev !== 'pro') trackScience('ciencia_nivel_pro')
+  // El goal mide quien ABRE el modo clínico con el conmutador; la llegada por
+  // enlace ya se ve en Umami por la URL con ?nivel=pro.
+  const fromUrl = levelFromUrl
+  levelFromUrl = false
+  if (!fromUrl && prev && v === 'pro' && prev !== 'pro') trackScience('ciencia_nivel_pro')
 })
 // A11y: texto que un lector de pantalla anuncia al cambiar de modo (región
 // aria-live) — para que el cambio de contenido nunca sea silencioso.
