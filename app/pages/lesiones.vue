@@ -22,8 +22,8 @@ const seoTitle = () =>
     : 'Todas las lesiones, de un vistazo — el caso de Miriam, una herramienta de apoyo'
 const seoDescription = () =>
   lang.value === 'en'
-    ? 'A support tool, not a diagnosis. Miriam’s bone lesions from the metastasis map, together with her liver and breast, on a single page.'
-    : 'Una herramienta de apoyo, no un diagnóstico. Las lesiones óseas del mapa de metástasis de Miriam, junto con el hígado y la mama, en una sola página.'
+    ? 'A support tool, not a diagnosis. Miriam’s breast, liver and the bone lesions from the metastasis map, on a single page.'
+    : 'Una herramienta de apoyo, no un diagnóstico. La mama, el hígado y las lesiones óseas del mapa de metástasis de Miriam, en una sola página.'
 useSeoMeta({
   title: seoTitle, description: seoDescription, ogTitle: seoTitle, ogDescription: seoDescription,
   ogType: 'website', twitterCard: 'summary_large_image', twitterTitle: seoTitle, twitterDescription: seoDescription,
@@ -50,7 +50,7 @@ const biopsia = computed(() =>
       <div class="mx-auto w-full max-w-[1280px] px-4 sm:px-6 lg:px-8">
         <PageHeader
           :title="L('Todas las lesiones, de un vistazo', 'All lesions, at a glance')"
-          :subtitle="L('Las lesiones óseas del mapa de metástasis, junto con el hígado y la mama.', 'The bone lesions from the metastasis map, together with the liver and the breast.')"
+          :subtitle="L('La mama, el hígado y las lesiones óseas del mapa de metástasis.', 'The breast, the liver and the bone lesions from the metastasis map.')"
         />
 
         <div class="alert-callout mb-6" role="note" :aria-label="L('Aviso: herramienta de apoyo, no diagnóstico', 'Notice: support tool, not a diagnosis')">
@@ -61,6 +61,33 @@ const biopsia = computed(() =>
           {{ L(
             'Es el caso de Miriam, abierto para entender su enfermedad y decidir mejor con su equipo médico — no sustituye su criterio. Deciden sus médicos.',
             'This is Miriam’s case, opened to understand her disease and to decide better with her medical team — it does not replace their judgment. Her doctors decide.') }}
+        </div>
+
+        <!-- ===== MAMA E HÍGADO · medidas del informe; en el hígado, además, la detección automática ===== -->
+        <div class="grid gap-6 md:grid-cols-2 items-start mb-10">
+          <section class="card-base" aria-labelledby="mama-titulo">
+            <h2 id="mama-titulo" class="heading-display text-2xl text-berenjena mb-3" style="letter-spacing: -0.02em">{{ L('Mama derecha', 'Right breast') }}</h2>
+            <p class="text-[14px] text-tinta leading-relaxed">
+              {{ L('Tumor primario, medido en RM (13-jul → 8-sep-2026): 14 → 15 mm.', 'Primary tumor, measured on MRI (13 Jul → 8 Sep 2026): 14 → 15 mm.') }}
+            </p>
+          </section>
+          <section class="card-base" aria-labelledby="higado-titulo">
+            <h2 id="higado-titulo" class="heading-display text-2xl text-berenjena mb-3" style="letter-spacing: -0.02em">{{ L('Hígado', 'Liver') }}</h2>
+            <div class="mb-3">
+              <ClientOnly>
+                <LiverView base="/lesiones/higado/" fallback="/lesiones/higado-2026-09-08.webp"
+                  :fallback-alt="L('Reconstrucción 3D del hígado de Miriam desde su TC del 8 de septiembre de 2026, con los vasos y todas las lesiones', '3D reconstruction of Miriam’s liver from her 8 September 2026 CT, with the vessels and all the lesions')" />
+                <template #fallback>
+                  <div class="rounded-xl flex items-center justify-center text-[12px]" style="aspect-ratio:1/1;background:#1c1126;color:#aeb6c2">
+                    {{ L('cargando visor…', 'loading viewer…') }}
+                  </div>
+                </template>
+              </ClientOnly>
+            </div>
+            <p class="text-[14px] text-tinta leading-relaxed">
+              {{ L('Lesiones diana del informe de TC (13-jul → 8-sep-2026): segmento II 18 → 20 mm · segmento IVb 15 → 19 mm.', 'Target lesions in the CT report (13 Jul → 8 Sep 2026): segment II 18 → 20 mm · segment IVb 15 → 19 mm.') }}
+            </p>
+          </section>
         </div>
 
         <!-- ===== HUESO · el visor del mapa de metástasis, trasladado ===== -->
@@ -93,33 +120,6 @@ const biopsia = computed(() =>
             </div>
           </div>
         </section>
-
-        <!-- ===== HÍGADO Y MAMA · medidas del informe; en el hígado, además, la detección automática ===== -->
-        <div class="grid gap-6 md:grid-cols-2 items-start mb-10">
-          <section class="card-base" aria-labelledby="higado-titulo">
-            <h2 id="higado-titulo" class="heading-display text-2xl text-berenjena mb-3" style="letter-spacing: -0.02em">{{ L('Hígado', 'Liver') }}</h2>
-            <div class="mb-3">
-              <ClientOnly>
-                <LiverView base="/lesiones/higado/" fallback="/lesiones/higado-2026-09-08.webp"
-                  :fallback-alt="L('Reconstrucción 3D del hígado de Miriam desde su TC del 8 de septiembre de 2026, con los vasos y todas las lesiones', '3D reconstruction of Miriam’s liver from her 8 September 2026 CT, with the vessels and all the lesions')" />
-                <template #fallback>
-                  <div class="rounded-xl flex items-center justify-center text-[12px]" style="aspect-ratio:1/1;background:#1c1126;color:#aeb6c2">
-                    {{ L('cargando visor…', 'loading viewer…') }}
-                  </div>
-                </template>
-              </ClientOnly>
-            </div>
-            <p class="text-[14px] text-tinta leading-relaxed">
-              {{ L('Lesiones diana del informe de TC (13-jul → 8-sep-2026): segmento II 18 → 20 mm · segmento IVb 15 → 19 mm.', 'Target lesions in the CT report (13 Jul → 8 Sep 2026): segment II 18 → 20 mm · segment IVb 15 → 19 mm.') }}
-            </p>
-          </section>
-          <section class="card-base" aria-labelledby="mama-titulo">
-            <h2 id="mama-titulo" class="heading-display text-2xl text-berenjena mb-3" style="letter-spacing: -0.02em">{{ L('Mama derecha', 'Right breast') }}</h2>
-            <p class="text-[14px] text-tinta leading-relaxed">
-              {{ L('Tumor primario, medido en RM (13-jul → 8-sep-2026): 14 → 15 mm.', 'Primary tumor, measured on MRI (13 Jul → 8 Sep 2026): 14 → 15 mm.') }}
-            </p>
-          </section>
-        </div>
       </div>
     </section>
   </div>
