@@ -1,6 +1,6 @@
 <script setup lang="ts">
 /**
- * Panorama — todas las lesiones de un vistazo.
+ * Lesiones — todas las lesiones de un vistazo.
  *
  * Traslada el visor del mapa de metástasis (mismo esquema del esqueleto, mismos focos,
  * mismo visor 3D BoneTriView; datos leídos del propio mapa en cada build vía #mapa-focos) y le suma el
@@ -97,7 +97,7 @@ const biopsia = computed(() =>
         <div class="grid gap-6 md:grid-cols-2 items-start mb-10">
           <section class="card-base" aria-labelledby="higado-titulo">
             <h2 id="higado-titulo" class="heading-display text-2xl text-berenjena mb-3" style="letter-spacing: -0.02em">{{ L('Hígado', 'Liver') }}</h2>
-            <img src="/panorama/higado-dianas-2026-09-08.webp" width="1000" height="1000" loading="lazy" class="w-full h-auto rounded-xl mb-3"
+            <img src="/lesiones/higado-dianas-2026-09-08.webp" width="1000" height="1000" loading="lazy" class="w-full h-auto rounded-xl mb-3"
               :alt="L('Reconstrucción 3D del hígado de Miriam desde su TC del 8 de septiembre de 2026, con los vasos y las dos lesiones diana del informe', '3D reconstruction of Miriam’s liver from her 8 September 2026 CT, with the vessels and the two target lesions in the report')" />
             <p class="text-[14px] text-tinta leading-relaxed">
               {{ L('Lesiones diana del informe de TC (13-jul → 8-sep-2026): segmento II 18 → 20 mm · segmento IVb 15 → 19 mm.', 'Target lesions in the CT report (13 Jul → 8 Sep 2026): segment II 18 → 20 mm · segment IVb 15 → 19 mm.') }}

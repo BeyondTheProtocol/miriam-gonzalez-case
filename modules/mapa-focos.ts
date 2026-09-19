@@ -2,12 +2,12 @@
  * #mapa-focos — los datos del mapa de metástasis, leídos del PROPIO mapa en cada build.
  *
  * Fuente única: app/pages/mapa-metastasis.vue (la página publicada, que no se toca).
- * /panorama importa de '#mapa-focos' y este módulo saca del <script setup> del mapa las
+ * /lesiones importa de '#mapa-focos' y este módulo saca del <script setup> del mapa las
  * declaraciones que necesita, tal cual, y las exporta. No hay copia guardada: si cambia un
- * foco en el mapa, el panorama lo recoge en el siguiente build (y en dev, al guardar).
+ * foco en el mapa, /lesiones lo recoge en el siguiente build (y en dev, al guardar).
  *
  * Fail-closed: si el mapa deja de declarar alguno de estos nombres, el build se para con
- * un error que dice cuál. Mejor un build roto que un panorama con datos viejos.
+ * un error que dice cuál. Mejor un build roto que /lesiones con datos viejos.
  */
 import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
@@ -15,7 +15,7 @@ import { defineNuxtModule, addTemplate, updateTemplates } from 'nuxt/kit'
 import { parse, babelParse } from 'vue/compiler-sfc'
 
 /* nombre en el mapa → cómo se exporta. 'tal-cual' copia la declaración con `export`;
-   las de computed() del dibujo del esqueleto se evalúan una vez (en el panorama no cambian). */
+   las de computed() del dibujo del esqueleto se evalúan una vez (en /lesiones no cambian). */
 const COPIAR = ['TRACER', 'GA_FILL', 'FDG_FILL', 'Pheno', 'PHENO', 'PHENO_RAMP_CSS', 'PHENO_TEXT', 'Lesion', 'LES',
   'LesGroup', 'vertLevelKey', 'groupKey', 'GROUPS', 'SK_R', 'SK_HIT', 'BONE3D_KEY'] as const
 const COMPUTED = { vertebrae: 'SK_VERTEBRAS', ribs: 'SK_COSTILLAS' } as const
