@@ -1,0 +1,132 @@
+{
+ "mallas": {
+  "higado": "higado.ply",
+  "porta": "porta.ply",
+  "vasos": "vasos.ply",
+  "vci": "vci.ply",
+  "vesicula": "vesicula.ply"
+ },
+ "lesiones": [
+  {
+   "malla": "lesion01.ply",
+   "diametro_auto_mm": 18.0,
+   "diana": "diana s.II",
+   "mm_informe": 20
+  },
+  {
+   "malla": "lesion02.ply",
+   "diametro_auto_mm": 16.7,
+   "diana": null,
+   "mm_informe": null
+  },
+  {
+   "malla": "lesion03.ply",
+   "diametro_auto_mm": 13.8,
+   "diana": "diana s.IVb",
+   "mm_informe": 19
+  },
+  {
+   "malla": "lesion04.ply",
+   "diametro_auto_mm": 13.6,
+   "diana": null,
+   "mm_informe": null
+  },
+  {
+   "malla": "lesion05.ply",
+   "diametro_auto_mm": 12.8,
+   "diana": null,
+   "mm_informe": null
+  },
+  {
+   "malla": "lesion06.ply",
+   "diametro_auto_mm": 11.9,
+   "diana": null,
+   "mm_informe": null
+  },
+  {
+   "malla": "lesion07.ply",
+   "diametro_auto_mm": 11.4,
+   "diana": null,
+   "mm_informe": null
+  },
+  {
+   "malla": "lesion08.ply",
+   "diametro_auto_mm": 11.4,
+   "diana": null,
+   "mm_informe": null
+  },
+  {
+   "malla": "lesion09.ply",
+   "diametro_auto_mm": 11.1,
+   "diana": null,
+   "mm_informe": null
+  },
+  {
+   "malla": "lesion10.ply",
+   "diametro_auto_mm": 10.6,
+   "diana": null,
+   "mm_informe": null
+  },
+  {
+   "malla": "lesion11.ply",
+   "diametro_auto_mm": 10.4,
+   "diana": null,
+   "mm_informe": null
+  },
+  {
+   "malla": "lesion12.ply",
+   "diametro_auto_mm": 8.4,
+   "diana": null,
+   "mm_informe": null
+  },
+  {
+   "malla": "lesion13.ply",
+   "diametro_auto_mm": 7.9,
+   "diana": null,
+   "mm_informe": null
+  },
+  {
+   "malla": "lesion14.ply",
+   "diametro_auto_mm": 6.6,
+   "diana": null,
+   "mm_informe": null
+  },
+  {
+   "malla": "lesion15.ply",
+   "diametro_auto_mm": 6.3,
+   "diana": null,
+   "mm_informe": null
+  },
+  {
+   "malla": "lesion16.ply",
+   "diametro_auto_mm": 5.7,
+   "diana": null,
+   "mm_informe": null
+  },
+  {
+   "malla": "lesion17.ply",
+   "diametro_auto_mm": 5.3,
+   "diana": null,
+   "mm_informe": null
+  },
+  {
+   "malla": "lesion18.ply",
+   "diametro_auto_mm": 5.3,
+   "diana": null,
+   "mm_informe": null
+  },
+  {
+   "malla": "lesion19.ply",
+   "diametro_auto_mm": 4.1,
+   "diana": null,
+   "mm_informe": null
+  },
+  {
+   "malla": "lesion20.ply",
+   "diametro_auto_mm": 2.2,
+   "diana": null,
+   "mm_informe": null
+  }
+ ],
+ "fuente": "dianas: informe radiológico (RECIST); resto: segmentación automática local, sin validación radiológica"
+}
