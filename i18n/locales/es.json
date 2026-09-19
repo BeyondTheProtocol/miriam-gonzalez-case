@@ -133,12 +133,10 @@
   },
   "mapaTeaser": {
     "eyebrow": "Herramienta abierta",
-    "title": "Mira exactamente dónde está cada lesión",
-    "lede": "Mapa interactivo en 3D de las metástasis óseas con doble trazador (Galio-68 y FDG): cada punto, con los datos reales — pensado para compartir con tu equipo médico.",
-    "legend_aria": "Trazadores del mapa",
-    "tracer_ga": "Galio-68",
-    "tracer_fdg": "FDG",
-    "cta": "Abrir el mapa",
+    "title": "Mama, hígado y hueso, de un vistazo",
+    "lede": "Las medidas de sus informes, el hígado en 3D para girarlo y las lesiones óseas del mapa de metástasis, en una sola página. Pensado para compartir con tu equipo médico.",
+    "scope": "Mama · Hígado · Hueso",
+    "cta": "Ver las lesiones",
     "disclaimer": "Apoyo a la decisión, no diagnóstico."
   },
   "glossary": {

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 /**
- * Lesiones — todas las lesiones de un vistazo.
+ * Lesiones — mama, hígado y hueso de un vistazo.
  *
  * Traslada el visor del mapa de metástasis (mismo esquema del esqueleto, mismos focos,
  * mismo visor 3D BoneTriView; datos leídos del propio mapa en cada build vía #mapa-focos) y le suma el
@@ -18,8 +18,8 @@ const L = (es: string, en: string) => (lang.value === 'en' ? en : es)
 
 const seoTitle = () =>
   lang.value === 'en'
-    ? 'All lesions at a glance — Miriam’s case, a support tool'
-    : 'Todas las lesiones, de un vistazo — el caso de Miriam, una herramienta de apoyo'
+    ? 'Breast, liver and bone at a glance — Miriam’s case, a support tool'
+    : 'Mama, hígado y hueso, de un vistazo — el caso de Miriam, una herramienta de apoyo'
 const seoDescription = () =>
   lang.value === 'en'
     ? 'A support tool, not a diagnosis. Miriam’s breast, liver and the bone lesions from the metastasis map, on a single page.'
@@ -46,10 +46,10 @@ const biopsia = computed(() =>
 
 <template>
   <div class="overflow-x-clip">
-    <section class="section-spacing" :aria-label="L('Todas las lesiones', 'All lesions')">
+    <section class="section-spacing" :aria-label="L('Mama, hígado y hueso', 'Breast, liver and bone')">
       <div class="mx-auto w-full max-w-[1280px] px-4 sm:px-6 lg:px-8">
         <PageHeader
-          :title="L('Todas las lesiones, de un vistazo', 'All lesions, at a glance')"
+          :title="L('Mama, hígado y hueso, de un vistazo', 'Breast, liver and bone, at a glance')"
           :subtitle="L('La mama, el hígado y las lesiones óseas del mapa de metástasis.', 'The breast, the liver and the bone lesions from the metastasis map.')"
         />
 
@@ -92,9 +92,14 @@ const biopsia = computed(() =>
 
         <!-- ===== HUESO · el visor del mapa de metástasis, trasladado ===== -->
         <section class="mb-10" aria-labelledby="hueso-titulo">
-          <h2 id="hueso-titulo" class="heading-display text-2xl sm:text-3xl text-berenjena mb-4" style="letter-spacing: -0.02em">
+          <h2 id="hueso-titulo" class="heading-display text-2xl sm:text-3xl text-berenjena mb-2" style="letter-spacing: -0.02em">
             {{ L('Hueso', 'Bone') }}
           </h2>
+          <!-- Fechas de los estudios del mapa (su propia cabecera): sin esto, «de un vistazo»
+               se leía como «al día», y el PET del 8-sep aún no está en el mapa (verificacion, 19-sep). -->
+          <p class="text-[13px] text-tinta leading-relaxed mb-4">
+            {{ L('Del mapa de metástasis: PET de marzo y mayo y RM de junio de 2026. El PET del 8 de septiembre aún no está incorporado.', 'From the metastasis map: PET scans from March and May and MRI from June 2026. The 8 September PET is not included yet.') }}
+          </p>
           <div class="grid gap-6 lg:grid-cols-[minmax(0,360px)_minmax(0,1fr)] items-start">
             <div class="card-base !p-4">
               <EsqueletoFocos :selected="selected" @pick="selected = $event" />

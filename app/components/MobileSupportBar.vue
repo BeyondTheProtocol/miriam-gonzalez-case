@@ -68,9 +68,10 @@ const isDeepScience = computed(() => {
 // técnicas de Ciencia: un sticky coral persiguiendo por encima de la herramienta resta
 // credibilidad y tapa contenido en pantallas pequeñas. El header coral global ya cubre
 // la conversión. Por path, robusto entre locales (/mapa-metastasis y /en/mapa-metastasis).
+// /lesiones igual (19-sep): con dos visores 3D, la barra tapaba el pie de ambos en móvil.
 const isDeepTool = computed(() => {
   const path = route.path.replace(/\/+$/, '') || '/'
-  return /^\/(?:en\/)?mapa-metastasis$/.test(path)
+  return /^\/(?:en\/)?(?:mapa-metastasis|lesiones)$/.test(path)
 })
 
 // ¿Hay un botón coral de apoyo (data-support-cta) dentro del viewport? Si lo hay,

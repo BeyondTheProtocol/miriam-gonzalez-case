@@ -1,5 +1,6 @@
 <template>
-  <!-- Teaser del mapa de metástasis «al primer vistazo»: vive justo bajo el hero,
+  <!-- Teaser de /lesiones (mama, hígado y hueso de un vistazo; antes llevaba al mapa de
+       metástasis, que sigue enlazado desde /lesiones). Vive justo bajo el hero,
        en el flujo crema, separado por el mismo filete fino que ya usa el hero.
        No compite con los CTA del hero (Donar > entender): es un módulo propio,
        más discreto que Donar y más protagonista que un enlace de pie. La
@@ -12,10 +13,10 @@
   >
     <div class="section-wide">
       <NuxtLink
-        :to="localePath('mapa-metastasis')"
+        :to="localePath('lesiones')"
         class="card-base mapa-teaser flex flex-col sm:flex-row sm:items-center gap-6 sm:gap-8"
         style="text-decoration: none"
-        @click="trackMapa('home_teaser')"
+        @click="trackLesiones('home_teaser')"
       >
         <!-- Miniatura · columna estrecha, centrada en móvil -->
         <div class="mapa-teaser__preview shrink-0 self-center sm:self-start">
@@ -36,20 +37,12 @@
             {{ $t('mapaTeaser.lede') }}
           </p>
 
-          <!-- Leyenda de trazadores · el color no es el único canal (texto al lado) -->
-          <ul class="mapa-teaser__legend" :aria-label="$t('mapaTeaser.legend_aria')">
-            <li>
-              <span class="mapa-teaser__dot" style="background: #1c969e" aria-hidden="true" />
-              {{ $t('mapaTeaser.tracer_ga') }}
-            </li>
-            <li>
-              <span class="mapa-teaser__dot" style="background: #d66e1c" aria-hidden="true" />
-              {{ $t('mapaTeaser.tracer_fdg') }}
-            </li>
-          </ul>
+          <!-- Alcance en texto, sin muestras de color: el hígado (tamaño) y el hueso
+               (trazador) usan códigos de color distintos y no hay uno común (diseno, 19-sep). -->
+          <p class="mapa-teaser__scope">{{ $t('mapaTeaser.scope') }}</p>
 
           <span class="btn-dark mapa-teaser__cta mt-5">
-            <Icon name="ph:map-pin-fill" class="w-4 h-4" aria-hidden="true" />
+            <Icon name="ph:eye-fill" class="w-4 h-4" aria-hidden="true" />
             {{ $t('mapaTeaser.cta') }}
           </span>
           <p class="mt-3 font-mono text-[11px] text-tinta">{{ $t('mapaTeaser.disclaimer') }}</p>
@@ -61,7 +54,7 @@
 
 <script setup lang="ts">
 const localePath = useLocalePath()
-const { trackMapa } = useSupport()
+const { trackLesiones } = useSupport()
 
 // id único (no hardcodeado) por si el componente se montara más de una vez:
 // evita colisión de id entre el aria-labelledby de la sección y el h2.
@@ -80,27 +73,12 @@ const titleId = useId()
   }
 }
 
-.mapa-teaser__legend {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem 1.25rem;
+.mapa-teaser__scope {
   margin: 0;
-  padding: 0;
-  list-style: none;
-}
-.mapa-teaser__legend li {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
   font-family: 'JetBrains Mono', monospace;
   font-size: 11px;
+  letter-spacing: 0.04em;
   color: var(--color-text-soft);
-}
-.mapa-teaser__dot {
-  width: 10px;
-  height: 10px;
-  border-radius: 999px;
-  flex-shrink: 0;
 }
 
 /* El CTA es visual (todo el card es el enlace real); en móvil ocupa el ancho. */

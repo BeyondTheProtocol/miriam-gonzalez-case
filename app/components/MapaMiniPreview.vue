@@ -1,5 +1,5 @@
 <template>
-  <!-- Miniatura del mapa de metástasis para el teaser de la home. NO carga el
+  <!-- Miniatura del teaser de la home (lleva a /lesiones). NO carga el
        visor 3D: es un dibujo a mano (mismo lenguaje que TwoFaces — cuadrícula de
        cuaderno, trazo que se dibuja solo). El esqueleto queda TENUE de fondo (el
        cuerpo = el cielo) y las metástasis se dibujan como una CONSTELACIÓN:
@@ -39,6 +39,16 @@
         <path class="mmp-dw" style="--d: 1.1" pathLength="1" opacity="0.44" stroke-width="1.6" d="M55 124 C50 134 50 142 54 152 L76 152 C80 142 80 134 75 124 Z" />
         <path class="mmp-dw" style="--d: 1.35" pathLength="1" opacity="0.36" stroke-width="1.5" d="M56 152 C48 174 44 202 42 238 M74 152 C82 174 86 202 88 238" />
         <path class="mmp-dw" style="--d: 0.95" pathLength="1" opacity="0.34" stroke-width="1.3" d="M30 76 C22 98 20 122 22 144 M100 76 C108 98 110 122 108 144" />
+      </g>
+
+      <!-- Hígado (19-sep, teaser de /lesiones): silueta simple bajo las costillas, a la
+           izquierda de quien mira y sin cruzar la columna (que sus focos no parezcan del hígado) (vista de frente, como el esqueleto de /lesiones), con los
+           colores del visor 3D del hígado: fondo #1c1126, lesión crema #ead3a0 (≥ 10 mm) y
+           lila #b8accb (< 10 mm). La mama no se dibuja: en /lesiones es solo una medida. -->
+      <g class="mmp-liver">
+        <path d="M33 103 C35 96 47 93 57 95 C60 96 61 98 59 101 C55 107 49 115 43 120 C37 122 32 114 33 103 Z" fill="#1c1126" opacity="0.82" />
+        <circle cx="41" cy="104" r="2.6" fill="#ead3a0" />
+        <circle cx="48" cy="110" r="1.7" fill="#b8accb" />
       </g>
 
       <!-- Constelación: línea fina que une las lesiones (se traza), luego las
@@ -111,8 +121,13 @@ onMounted(() => {
     stroke-dasharray: 1;
     stroke-dashoffset: 1;
   }
-  .mmp--ready .mmp-conline {
+  .mmp--ready .mmp-conline,
+  .mmp--ready .mmp-liver {
     opacity: 0;
+  }
+  .mmp--ready.is-in .mmp-liver {
+    animation: mmp-fade 0.6s ease forwards;
+    animation-delay: 1.4s;
   }
   .mmp--ready .mmp-st {
     opacity: 0;
