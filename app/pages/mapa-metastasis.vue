@@ -261,7 +261,7 @@ const LES: Lesion[] = [
     tech: { es: '⁶⁸Ga-DOTATOC ~4.3 / ¹⁸F-FDG ~1.7 (aproximados, sobre los DICOM). SSTR+ / FDG bajo. No en informe oficial.', en: '⁶⁸Ga-DOTATOC ~4.3 / ¹⁸F-FDG ~1.7 (approximate, on the DICOM). SSTR+ / low FDG. Not in the official report.' },
   },
   {
-    id: 19, x: 232, y: 150, side: 'C', dota: 4.2, fdg: 3.1, pheno: 'mixNe', size: '8–10', source: 'ia-david',
+    id: 19, x: 232, y: 150, side: 'C', dota: 4.8, fdg: 3.1, pheno: 'mixNe', size: '8–10', source: 'ia-david',
     level: { es: 'C7–D2 · transición cervicotorácica', en: 'C7–D2 · cervicothoracic junction' },
     region: { es: 'Transición cervicotorácica', en: 'Cervicothoracic junction' },
     what: { es: 'Foco leve en la transición cervicotorácica (C7–D2), captación débil de ambos trazadores. El ¹⁸F-FDG aquí puede ser captación cervical fisiológica, a correlacionar. Detección por IA.', en: 'Mild focus at the cervicothoracic junction (C7–D2), weak uptake of both tracers. ¹⁸F-FDG here may be physiologic cervical uptake, to correlate. AI detection.' },
