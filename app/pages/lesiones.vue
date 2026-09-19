@@ -4,8 +4,9 @@
  *
  * Traslada el visor del mapa de metástasis (mismo esquema del esqueleto, mismos focos,
  * mismo visor 3D BoneTriView; datos leídos del propio mapa en cada build vía #mapa-focos) y le suma el
- * hígado y la mama con SOLO las medidas del informe de radiología (dianas RECIST).
- * Nada nuevo inventado: sin interpretación añadida, sin detección automática.
+ * hígado (visor 3D girable con todas sus lesiones: las dianas con la medida del radiólogo y el
+ * resto como detección automática sin validar, igual que el vídeo) y la mama (medida del informe).
+ * Sin interpretación añadida.
  * Herramienta de apoyo a la decisión — no es diagnóstico ni consejo médico.
  */
 import { LES, PHENO, PHENO_TEXT, BONE3D_KEY } from '#mapa-focos'
@@ -93,12 +94,21 @@ const biopsia = computed(() =>
           </div>
         </section>
 
-        <!-- ===== HÍGADO Y MAMA · solo las medidas del informe de radiología ===== -->
+        <!-- ===== HÍGADO Y MAMA · medidas del informe; en el hígado, además, la detección automática ===== -->
         <div class="grid gap-6 md:grid-cols-2 items-start mb-10">
           <section class="card-base" aria-labelledby="higado-titulo">
             <h2 id="higado-titulo" class="heading-display text-2xl text-berenjena mb-3" style="letter-spacing: -0.02em">{{ L('Hígado', 'Liver') }}</h2>
-            <img src="/lesiones/higado-dianas-2026-09-08.webp" width="1000" height="1000" loading="lazy" class="w-full h-auto rounded-xl mb-3"
-              :alt="L('Reconstrucción 3D del hígado de Miriam desde su TC del 8 de septiembre de 2026, con los vasos y las dos lesiones diana del informe', '3D reconstruction of Miriam’s liver from her 8 September 2026 CT, with the vessels and the two target lesions in the report')" />
+            <div class="mb-3">
+              <ClientOnly>
+                <LiverView base="/lesiones/higado/" fallback="/lesiones/higado-2026-09-08.webp"
+                  :fallback-alt="L('Reconstrucción 3D del hígado de Miriam desde su TC del 8 de septiembre de 2026, con los vasos y todas las lesiones', '3D reconstruction of Miriam’s liver from her 8 September 2026 CT, with the vessels and all the lesions')" />
+                <template #fallback>
+                  <div class="rounded-xl flex items-center justify-center text-[12px]" style="aspect-ratio:1/1;background:#1c1126;color:#aeb6c2">
+                    {{ L('cargando visor…', 'loading viewer…') }}
+                  </div>
+                </template>
+              </ClientOnly>
+            </div>
             <p class="text-[14px] text-tinta leading-relaxed">
               {{ L('Lesiones diana del informe de TC (13-jul → 8-sep-2026): segmento II 18 → 20 mm · segmento IVb 15 → 19 mm.', 'Target lesions in the CT report (13 Jul → 8 Sep 2026): segment II 18 → 20 mm · segment IVb 15 → 19 mm.') }}
             </p>
