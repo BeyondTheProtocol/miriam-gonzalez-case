@@ -16,7 +16,7 @@ import { parse, babelParse } from 'vue/compiler-sfc'
 
 /* nombre en el mapa → cómo se exporta. 'tal-cual' copia la declaración con `export`;
    las de computed() del dibujo del esqueleto se evalúan una vez (en el panorama no cambian). */
-const COPIAR = ['TRACER', 'GA_FILL', 'FDG_FILL', 'Pheno', 'PHENO', 'PHENO_RAMP_CSS', 'Lesion', 'LES',
+const COPIAR = ['TRACER', 'GA_FILL', 'FDG_FILL', 'Pheno', 'PHENO', 'PHENO_RAMP_CSS', 'PHENO_TEXT', 'Lesion', 'LES',
   'LesGroup', 'vertLevelKey', 'groupKey', 'GROUPS', 'SK_R', 'SK_HIT', 'BONE3D_KEY'] as const
 const COMPUTED = { vertebrae: 'SK_VERTEBRAS', ribs: 'SK_COSTILLAS' } as const
 const RENOMBRAR = { ticks: 'SK_TICKS' } as const

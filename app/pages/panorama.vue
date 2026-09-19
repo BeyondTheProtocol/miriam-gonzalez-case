@@ -8,7 +8,7 @@
  * Nada nuevo inventado: sin interpretación añadida, sin detección automática.
  * Herramienta de apoyo a la decisión — no es diagnóstico ni consejo médico.
  */
-import { LES, PHENO, BONE3D_KEY } from '#mapa-focos'
+import { LES, PHENO, PHENO_TEXT, BONE3D_KEY } from '#mapa-focos'
 
 const { locale } = useI18n()
 const localePath = useLocalePath()
@@ -46,13 +46,13 @@ const biopsia = computed(() =>
 <template>
   <div class="overflow-x-clip">
     <section class="section-spacing" :aria-label="L('Todas las lesiones', 'All lesions')">
-      <div class="mx-auto w-full max-w-[1180px] px-4 sm:px-6">
+      <div class="mx-auto w-full max-w-[1280px] px-4 sm:px-6 lg:px-8">
         <PageHeader
           :title="L('Todas las lesiones, de un vistazo', 'All lesions, at a glance')"
           :subtitle="L('Las lesiones óseas del mapa de metástasis, junto con el hígado y la mama.', 'The bone lesions from the metastasis map, together with the liver and the breast.')"
         />
 
-        <div class="alert-callout mb-8" role="note" :aria-label="L('Aviso: herramienta de apoyo, no diagnóstico', 'Notice: support tool, not a diagnosis')">
+        <div class="alert-callout mb-6" role="note" :aria-label="L('Aviso: herramienta de apoyo, no diagnóstico', 'Notice: support tool, not a diagnosis')">
           <p class="alert-callout__title">
             <Icon name="ph:info-fill" class="w-4 h-4 shrink-0" aria-hidden="true" />
             {{ L('Herramienta de APOYO a la decisión. No es diagnóstico ni consejo médico.', 'A decision-SUPPORT tool. Not a diagnosis or medical advice.') }}
@@ -74,7 +74,7 @@ const biopsia = computed(() =>
             <div class="min-w-0">
               <p class="eyebrow mb-1">#{{ sel.id }} · {{ sel.region[lang] }}</p>
               <p class="heading-display text-xl text-berenjena mb-1">{{ sel.level[lang] }}</p>
-              <p class="text-[13px] font-semibold mb-2" :style="{ color: PHENO[sel.pheno].c }">{{ L(PHENO[sel.pheno].es, PHENO[sel.pheno].en) }}</p>
+              <p class="text-[13px] font-semibold mb-2" :style="{ color: PHENO_TEXT[sel.pheno] }">{{ L(PHENO[sel.pheno].es, PHENO[sel.pheno].en) }}</p>
               <p class="text-[14px] text-tinta leading-relaxed mb-4">{{ sel.what[lang] }}</p>
               <div role="group" :aria-label="L('Visor 3D del foco seleccionado', '3D viewer of the selected focus')">
                 <ClientOnly v-if="meshKey">
@@ -94,7 +94,7 @@ const biopsia = computed(() =>
         </section>
 
         <!-- ===== HÍGADO Y MAMA · solo las medidas del informe de radiología ===== -->
-        <div class="grid gap-6 md:grid-cols-2 mb-10">
+        <div class="grid gap-6 md:grid-cols-2 items-start mb-10">
           <section class="card-base" aria-labelledby="higado-titulo">
             <h2 id="higado-titulo" class="heading-display text-2xl text-berenjena mb-3" style="letter-spacing: -0.02em">{{ L('Hígado', 'Liver') }}</h2>
             <img src="/panorama/higado-dianas-2026-09-08.webp" width="1000" height="1000" loading="lazy" class="w-full h-auto rounded-xl mb-3"
