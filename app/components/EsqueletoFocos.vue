@@ -1,6 +1,6 @@
 <template>
   <!-- Esquema del esqueleto con los focos del mapa de metástasis: el MISMO dibujo y los
-       MISMOS marcadores que /mapa-metastasis (datos en utils/mapaFocos.ts), sin filtros ni
+       MISMOS marcadores que /mapa-metastasis (copia de sus datos en utils/mapaFocos.ts), sin filtros ni
        línea de tiempo. Vista anterior: la derecha del cuerpo queda a la izquierda. -->
   <div>
     <p class="text-[10px] text-tinta leading-snug px-1 mb-1.5">

@@ -1,8 +1,8 @@
 /**
- * Datos del mapa de metástasis óseas COMPARTIDOS entre /mapa-metastasis y /panorama.
- * Movidos TAL CUAL desde app/pages/mapa-metastasis.vue (19-sep-2026): una sola fuente
- * para los 19 focos, su color por trazador y la geometría del esquema del esqueleto.
- * Cambiar un dato aquí lo cambia en las dos páginas.
+ * COPIA de los datos del mapa de metástasis óseas para /panorama (19-sep-2026).
+ * Copiados TAL CUAL de app/pages/mapa-metastasis.vue, que NO se toca y sigue con los suyos:
+ * los 19 focos, su color por trazador y la geometría del esquema del esqueleto.
+ * Si cambia un dato en el mapa, hay que copiarlo aquí también.
  */
 export const TRACER = {
   ga:  { fill: '#1c969e', text: '#0c5a61', tintBg: '#e7f3f3' }, // teal · ⁶⁸Ga-DOTATOC / SSTR

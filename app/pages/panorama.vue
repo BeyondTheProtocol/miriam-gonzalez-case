@@ -3,7 +3,7 @@
  * Panorama — todas las lesiones de un vistazo.
  *
  * Traslada el visor del mapa de metástasis (mismo esquema del esqueleto, mismos focos,
- * mismo visor 3D BoneTriView; datos compartidos en utils/mapaFocos.ts) y le suma el
+ * mismo visor 3D BoneTriView; copia de sus datos en utils/mapaFocos.ts, el mapa no se toca) y le suma el
  * hígado y la mama con SOLO las medidas del informe de radiología (dianas RECIST).
  * Nada nuevo inventado: sin interpretación añadida, sin detección automática.
  * Herramienta de apoyo a la decisión — no es diagnóstico ni consejo médico.
