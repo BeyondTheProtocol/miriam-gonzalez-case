@@ -73,6 +73,13 @@ export function useSupport() {
     trackUmami('VerMapa', { location })
   }
 
+  // /lesiones tiene su propio evento: si el teaser siguiera mandando VerMapa, esa métrica
+  // mezclaría clics al mapa con clics a otra página (consejero-marketing, 19-sep).
+  function trackLesiones(location: string) {
+    fire('VerLesiones', location)
+    trackUmami('VerLesiones', { location })
+  }
+
   function trackShare(method: string, from?: string) {
     trackUmami('Compartir', {
       metodo: method,
@@ -98,5 +105,6 @@ export function useSupport() {
     trackShare,
     trackBioLink,
     trackMapa,
+    trackLesiones,
   }
 }

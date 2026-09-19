@@ -133,12 +133,10 @@
   },
   "mapaTeaser": {
     "eyebrow": "Open tool",
-    "title": "See exactly where each lesion is",
-    "lede": "Interactive 3D bone-metastasis map with dual tracers (Gallium-68 and FDG): every point, with the real data — built to share with your medical team.",
-    "legend_aria": "Map tracers",
-    "tracer_ga": "Gallium-68",
-    "tracer_fdg": "FDG",
-    "cta": "Open the map",
+    "title": "Breast, liver and bone, at a glance",
+    "lede": "The measurements from her reports, the liver in 3D to rotate, and the bone lesions from the metastasis map, on a single page. Built to share with your medical team.",
+    "scope": "Breast · Liver · Bone",
+    "cta": "See the lesions",
     "disclaimer": "Decision support, not diagnosis."
   },
   "glossary": {
