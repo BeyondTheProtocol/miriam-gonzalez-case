@@ -1,6 +1,6 @@
 <template>
   <!-- Esquema del esqueleto con los focos del mapa de metástasis: el MISMO dibujo y los
-       MISMOS marcadores que /mapa-metastasis (copia de sus datos en utils/mapaFocos.ts), sin filtros ni
+       MISMOS marcadores que /mapa-metastasis (datos leídos del propio mapa vía #mapa-focos), sin filtros ni
        línea de tiempo. Vista anterior: la derecha del cuerpo queda a la izquierda. -->
   <div>
     <p class="text-[10px] text-tinta leading-snug px-1 mb-1.5">
@@ -91,8 +91,8 @@
 </template>
 
 <script setup lang="ts">
-import { PHENO, PHENO_RAMP_CSS, GROUPS, SK_R, SK_HIT, SK_VERTEBRAS, SK_COSTILLAS, SK_TICKS } from '~/utils/mapaFocos'
-import type { LesGroup } from '~/utils/mapaFocos'
+import { PHENO, PHENO_RAMP_CSS, GROUPS, SK_R, SK_HIT, SK_VERTEBRAS, SK_COSTILLAS, SK_TICKS } from '#mapa-focos'
+import type { LesGroup } from '#mapa-focos'
 
 const props = defineProps<{ selected: number }>()
 const emit = defineEmits<{ pick: [id: number] }>()
