@@ -194,10 +194,10 @@ export default defineNuxtConfig({
     '/lesiones-ig': { redirect: { to: '/lesiones?utm_source=instagram&utm_medium=bio&utm_campaign=lanzamiento-lesiones', statusCode: 302 } },
     '/lesiones-tt': { redirect: { to: '/lesiones?utm_source=tiktok&utm_medium=bio&utm_campaign=lanzamiento-lesiones', statusCode: 302 } },
     '/lesiones-yt': { redirect: { to: '/lesiones?utm_source=youtube&utm_medium=bio&utm_campaign=lanzamiento-lesiones', statusCode: 302 } },
-    // /biopsia-osea (visor de la microfotografía HE). Aquí SÍ hay genérico: el slug corto
-    // «/biopsia» no choca con ninguna página, y acorta una URL que se reparte a mano
-    // (correo a médicos, WhatsApp) mucho más que /biopsia-osea.
-    '/biopsia': { redirect: { to: '/biopsia-osea?utm_source=short&utm_medium=link&utm_campaign=lanzamiento-biopsia', statusCode: 302 } },
+    // /biopsia-osea (visor de la microfotografía HE). Sin genérico, a propósito:
+    // NO hay genérico «/biopsia»: `prerender.ignore` hace match por PREFIJO, así que
+    // ignorar '/biopsia' deja sin prerenderizar /biopsia-osea y la página entera da 404
+    // (pasó en producción el 20-sep-2026). Un corto no puede ser prefijo de su destino.
     '/biopsia-x': { redirect: { to: '/biopsia-osea?utm_source=twitter&utm_medium=post&utm_campaign=lanzamiento-biopsia', statusCode: 302 } },
     '/biopsia-in': { redirect: { to: '/biopsia-osea?utm_source=linkedin&utm_medium=post&utm_campaign=lanzamiento-biopsia', statusCode: 302 } },
     '/biopsia-ig': { redirect: { to: '/biopsia-osea?utm_source=instagram&utm_medium=bio&utm_campaign=lanzamiento-biopsia', statusCode: 302 } },
@@ -238,7 +238,7 @@ export default defineNuxtConfig({
         '/design-system', '/mapa-metastasis.md', '/en/mapa-metastasis.md',
         '/3d', '/3d-x', '/3d-in', '/3d-ig', '/3d-tt', '/3d-yt', '/donar', '/caso',
         '/lesiones-x', '/lesiones-in', '/lesiones-ig', '/lesiones-tt', '/lesiones-yt',
-        '/biopsia', '/biopsia-x', '/biopsia-in', '/biopsia-ig', '/biopsia-tt', '/biopsia-yt',
+        '/biopsia-x', '/biopsia-in', '/biopsia-ig', '/biopsia-tt', '/biopsia-yt',
         // datos en vivo: que nitro NO prerenderice un fichero que sombree el 302
         '/fundraiser.json', '/donations.json',
       ],
