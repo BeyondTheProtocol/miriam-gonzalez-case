@@ -37,6 +37,10 @@ const cuenta = ref({ dianas: 0, medibles: 0, pequenas: 0 })
    de 4 mm el volumen parcial hunde en el fondo a las pequeñas, así que poca captación no
    descarta nada. Los recuentos salen de escena.json, no están escritos a mano. */
 const pet = ref<Pet | null>(null)
+const lente = ref<'tamano' | 'pet'>('tamano')
+/* cada lesión con sus DOS materiales ya construidos: cambiar de lente es cambiar el puntero,
+   no rehacer geometría. */
+const cuerpos: { malla: THREE.Mesh; tamano: THREE.Material; pet: THREE.Material | null }[] = []
 const petCuenta = ref({ sobre_umbral: 0, sobre_fondo: 0, en_fondo: 0, no_evaluable: 0 })
 
 let renderer: THREE.WebGLRenderer | null = null
@@ -67,6 +71,21 @@ const higadoMat = (lado: THREE.Side) => fresnel(new THREE.MeshPhysicalMaterial({
   sheen: 0.5, sheenRoughness: 0.5, sheenColor: new THREE.Color(0xe39a86),
   transparent: true, depthWrite: false, side: lado }), 0.10, 0.92, 2.4)
 const vaso = (c: number) => new THREE.MeshPhysicalMaterial({ color: c, roughness: 0.28, clearcoat: 0.9, clearcoatRoughness: 0.15 })
+/* LENTE DEL PET — los mismos cuerpos, pintados por lo que dice el PET de cada uno.
+   Además del tono, cambia la TEXTURA (mismo criterio que la lente de tamaño, por el
+   daltonismo azul-amarillo): lo que capta va brillante y emisivo; lo que se confunde con el
+   fondo, mate; lo que no se puede evaluar, casi transparente, porque no hay dato, no es que
+   sea negativo. Ninguna lesión se pinta como «PET negativa»: ese estado no existe. */
+const MAT_PET: Record<string, () => THREE.Material> = {
+  sobre_umbral: () => new THREE.MeshPhysicalMaterial({ color: 0xff6b47, roughness: 0.25,
+    clearcoat: 0.9, clearcoatRoughness: 0.1, emissive: 0xb02d10, emissiveIntensity: 0.8 }),
+  sobre_fondo: () => new THREE.MeshPhysicalMaterial({ color: 0xf2b23c, roughness: 0.35,
+    clearcoat: 0.6, emissive: 0x7a4a08, emissiveIntensity: 0.3 }),
+  en_fondo: () => new THREE.MeshPhysicalMaterial({ color: 0x9aa4b2, roughness: 0.85,
+    clearcoat: 0.05, emissive: 0x2a3340, emissiveIntensity: 0.15 }),
+  no_evaluable: () => new THREE.MeshPhysicalMaterial({ color: 0xcfd6df, roughness: 0.9,
+    transparent: true, opacity: 0.35, depthWrite: false }),
+}
 const MAT: Record<string, () => THREE.Material> = {
   // RECIST 1.1: ≥ 10 mm = medible; < 10 mm = no medible. Además del color, textura distinta
   // (daltonismo azul-amarillo): medibles brillantes, pequeñas mates.
@@ -113,6 +132,14 @@ function reencuadra() {
   camera.position.set(0, Math.sin(incl) * d, Math.cos(incl) * d)
   controls.target.set(0, 0, 0); controls.update()
 }
+
+/* Cambiar de lente no rehace nada: solo apunta cada malla a su otro material. */
+watch(lente, (cual) => {
+  for (const c of cuerpos) {
+    const m = cual === 'pet' ? (c.pet ?? c.tamano) : c.tamano
+    if (c.malla.material !== m) c.malla.material = m
+  }
+})
 
 const p3 = new THREE.Vector3()
 function actualizaRotulos() {
@@ -173,7 +200,9 @@ async function init() {
   for (const les of esc.lesiones) {
     const medible = (les.mm_informe ?? les.diametro_auto_mm) >= 10
     tareas.push(geo(props.base + les.malla).then((g) => {
-      const m = malla(g, (medible ? MAT.lesion : MAT.lesionPequena)!(), 1)
+      const matTam = (medible ? MAT.lesion : MAT.lesionPequena)!()
+      const m = malla(g, matTam, 1)
+      cuerpos.push({ malla: m, tamano: matTam, pet: les.pet ? MAT_PET[les.pet]!() : null })
       if (les.diana) {
         const et = lang.value === 'en' ? les.diana.replace('diana', 'Target') : les.diana.replace('diana', 'Diana')
         // El SUV va en el rótulo de CUALQUIER diana que lo tenga, capte o no. Enseñarlo solo
@@ -275,8 +304,22 @@ onBeforeUnmount(() => {
     <p v-if="!failed" class="text-[11px] text-tinta mt-1.5">
       {{ L('Arrastra para girar · rueda para acercar', 'Drag to rotate · scroll to zoom') }}
     </p>
-    <!-- leyenda: los colores del vídeo; los recuentos salen de escena.json -->
-    <ul v-if="!loading && !failed" class="mt-2 space-y-1 text-[11px] text-tinta">
+    <!-- DOS LENTES sobre los mismos cuerpos. Por defecto la de tamaño, que es la gramática
+         de color que ya tenía la página (dorado ≥10 mm, violeta <10 mm). La del PET pinta lo
+         que dice el PET de cada lesión, que es información visual y no tiene por qué leerse
+         en un párrafo (Miriam, 20-sep). -->
+    <div v-if="pet && !loading && !failed" class="mt-2.5 flex items-center gap-1" role="group" :aria-label="L('Cómo se pintan las lesiones', 'How the lesions are coloured')">
+      <button v-for="op in ([['tamano', L('Por tamaño', 'By size')], ['pet', L('Por el PET', 'By PET')]] as const)" :key="op[0]"
+        type="button"
+        class="lv-lente border transition-colors"
+        :class="lente === op[0]
+          ? 'bg-berenjena/10 border-berenjena/40 text-berenjena font-semibold'
+          : 'bg-transparent border-berenjena/20 text-tinta hover:border-berenjena/40'"
+        :aria-pressed="lente === op[0]" @click="lente = op[0]">{{ op[1] }}</button>
+    </div>
+
+    <!-- leyenda de la lente de TAMAÑO; los recuentos salen de escena.json -->
+    <ul v-if="!loading && !failed && lente === 'tamano'" class="mt-2 space-y-1 text-[11px] text-tinta">
       <li class="flex items-start gap-1.5">
         <span class="inline-block w-2.5 h-2.5 mt-[3px] shrink-0 rounded-full border border-berenjena" style="background:#f2b23c" aria-hidden="true" />
         {{ L(`${cuenta.dianas} lesiones diana, con anillo: medida del radiólogo`, `${cuenta.dianas} target lesions, ringed: radiologist's measurement`) }}
@@ -290,27 +333,33 @@ onBeforeUnmount(() => {
         {{ L(`${cuenta.pequenas} lesiones de menos de 10 mm (detección automática)`, `${cuenta.pequenas} lesions under 10 mm (automatic detection)`) }}
       </li>
     </ul>
-    <!-- PET del mismo día, cruzado lesión a lesión. Va DESPUÉS de la leyenda de colores
-         porque no es otra categoría de lesión: es otra prueba sobre las mismas. -->
-    <div v-if="pet && !loading && !failed" class="mt-3 pt-3 border-t border-berenjena/10">
-      <p class="text-[11px] font-semibold text-berenjena mb-1">
-        {{ L('Lo que dice el PET del mismo día', 'What the same-day PET says') }}
-      </p>
-      <ul class="space-y-1 text-[11px] text-tinta">
-        <!-- De la masa que NO respalda a la única que sí: el mensaje que importa es que el PET
-             no confirma las automáticas, y ese va primero. -->
-        <li>{{ L(`${petCuenta.en_fondo} indistinguibles del fondo del hígado`, `${petCuenta.en_fondo} indistinguishable from liver background`) }}</li>
-        <li>{{ L(`${petCuenta.no_evaluable} no evaluables: más pequeñas que el vóxel del PET`, `${petCuenta.no_evaluable} not assessable: smaller than the PET voxel`) }}</li>
-        <li>{{ L(`${petCuenta.sobre_fondo} por encima del fondo del hígado, sin llegar al umbral`, `${petCuenta.sobre_fondo} above liver background, below the threshold`) }}</li>
-        <li>{{ L(`${petCuenta.sobre_umbral} capta por encima del umbral`, `${petCuenta.sobre_umbral} takes up above the threshold`) }}</li>
-      </ul>
-      <p class="mt-1.5 text-[11px] text-tinta leading-snug">
-        {{ L('Poca captación NO descarta lesión: con vóxel de 4 mm, el volumen parcial hunde en el fondo a las lesiones pequeñas. Por eso ninguna sale como «PET negativa».', 'Low uptake does NOT rule out a lesion: with a 4 mm voxel, partial volume sinks small lesions into the background. That is why none is labelled “PET negative”.') }}
-      </p>
-      <p class="mt-1 text-[11px] text-tinta leading-snug">
-        {{ L(`Fondo del hígado SUV ${pet.fondo_suvmean} ± ${pet.fondo_suvsd} · umbral PERCIST ${pet.umbral_percist} · registro del hígado TC↔PET, Dice ${pet.dice_registro}.`, `Liver background SUV ${pet.fondo_suvmean} ± ${pet.fondo_suvsd} · PERCIST threshold ${pet.umbral_percist} · CT↔PET liver registration, Dice ${pet.dice_registro}.`) }}
-      </p>
-    </div>
+
+    <!-- leyenda de la lente del PET: los mismos cuatro estados que se están pintando, en el
+         mismo orden de la masa que NO respalda hacia la única que sí. -->
+    <ul v-if="pet && !loading && !failed && lente === 'pet'" class="mt-2 space-y-1 text-[11px] text-tinta">
+      <li class="flex items-start gap-1.5">
+        <span class="inline-block w-2.5 h-2.5 mt-[3px] shrink-0 rounded-full" style="background:#9aa4b2" aria-hidden="true" />
+        {{ L(`${petCuenta.en_fondo} indistinguibles del fondo del hígado`, `${petCuenta.en_fondo} indistinguishable from liver background`) }}
+      </li>
+      <li class="flex items-start gap-1.5">
+        <span class="inline-block w-2.5 h-2.5 mt-[3px] shrink-0 rounded-full opacity-40" style="background:#cfd6df" aria-hidden="true" />
+        {{ L(`${petCuenta.no_evaluable} no evaluables: más pequeñas que el vóxel del PET`, `${petCuenta.no_evaluable} not assessable: smaller than the PET voxel`) }}
+      </li>
+      <li class="flex items-start gap-1.5">
+        <span class="inline-block w-2.5 h-2.5 mt-[3px] shrink-0 rounded-full" style="background:#f2b23c" aria-hidden="true" />
+        {{ L(`${petCuenta.sobre_fondo} por encima del fondo, sin llegar al umbral`, `${petCuenta.sobre_fondo} above background, below the threshold`) }}
+      </li>
+      <li class="flex items-start gap-1.5">
+        <span class="inline-block w-2.5 h-2.5 mt-[3px] shrink-0 rounded-full" style="background:#ff6b47" aria-hidden="true" />
+        {{ L(`${petCuenta.sobre_umbral} capta por encima del umbral`, `${petCuenta.sobre_umbral} takes up above the threshold`) }}
+      </li>
+    </ul>
+    <p v-if="pet && !loading && !failed && lente === 'pet'" class="mt-1.5 text-[11px] text-tinta leading-snug">
+      {{ L('Poca captación NO descarta lesión: con vóxel de 4 mm, el volumen parcial hunde en el fondo a las lesiones pequeñas. Por eso ninguna se pinta como «PET negativa».', 'Low uptake does NOT rule out a lesion: with a 4 mm voxel, partial volume sinks small lesions into the background. That is why none is coloured as “PET negative”.') }}
+    </p>
+    <p v-if="pet && !loading && !failed && lente === 'pet'" class="mt-1 text-[11px] text-tinta leading-snug">
+      {{ L(`PET-TC FDG del mismo día · fondo del hígado SUV ${pet.fondo_suvmean} ± ${pet.fondo_suvsd} · umbral PERCIST ${pet.umbral_percist} · registro del hígado TC↔PET, Dice ${pet.dice_registro}.`, `Same-day FDG PET-CT · liver background SUV ${pet.fondo_suvmean} ± ${pet.fondo_suvsd} · PERCIST threshold ${pet.umbral_percist} · CT↔PET liver registration, Dice ${pet.dice_registro}.`) }}
+    </p>
     <ul class="flex flex-wrap gap-x-4 gap-y-1 mt-1.5 text-[11px] text-tinta">
       <li v-for="[c, es, en] in [['#5236b0', 'Vena porta', 'Portal vein'], ['#2d63d6', 'Vasos hepáticos', 'Hepatic vessels'], ['#1f45a8', 'Vena cava inferior', 'Inferior vena cava'], ['#6f9a3a', 'Vesícula', 'Gallbladder']]" :key="c" class="inline-flex items-center gap-1.5">
         <span class="inline-block w-2.5 h-2.5 rounded-full" :style="{ background: c }" aria-hidden="true" />{{ L(es!, en!) }}
@@ -324,6 +373,15 @@ onBeforeUnmount(() => {
 
 <style scoped>
 .lv-caja { aspect-ratio: 1 / 1; background: #1c1126; border-radius: 0.75rem; overflow: hidden; }
+.lv-lente {
+  font-size: 11px;
+  line-height: 1;
+  padding: 7px 11px;
+  min-height: 32px;
+  border-radius: 999px;
+}
+@media (pointer: coarse) { .lv-lente { min-height: 44px; padding: 0 14px; } }
+
 .lv-anillo {
   position: absolute; transform: translate(-50%, -50%); border-radius: 9999px;
   border: 2px solid rgba(245, 239, 230, 0.92);
