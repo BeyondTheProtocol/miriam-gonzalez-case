@@ -285,3 +285,13 @@ entries:
     link: https://x.com/miriamgonp/status/2097729668380037166
     linkLabel: 'Leerlo en X →'
 
+  - date: '8 jul 2026'
+    tag: Molecular
+    title: Primera biopsia ósea con tumor viable
+    description: >
+      El hueso da por fin tejido suficiente para analizar. El perfil confirma el eje que ya se
+      sospechaba: CCND1 y FGF3/4/19 amplificados junto a FGFR1, NSD3 y ZNF703. Carga mutacional
+      baja y microsatélites estables. Lo que NO aparece en este hueso es tan importante como lo
+      que sí: ni ESR1 ni alteraciones de RB1, que hasta ahora solo se habían visto en sangre.
+    highlight: false
+
