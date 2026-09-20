@@ -1,4 +1,5 @@
 entries:
+
   - date: '2021'
     tag: Antecedentes
     title: Un primer aviso que quedó sin respuesta
@@ -156,6 +157,7 @@ entries:
       línea estándar elacestrant (financiación pública aprobada), que finalmente no llega a
       iniciarse. En paralelo se valoran ensayos clínicos y la vía de radioligandos (PRRT).
     highlight: false
+
   - date: '17 may 2026'
     tag: Divulgación
     title: El problema de los protocolos españoles
@@ -238,6 +240,16 @@ entries:
       la última plaza. Una de las dos queda abierta por si la situación cambia.
     highlight: true
 
+  - date: '8 jul 2026'
+    tag: Molecular
+    title: Primera biopsia ósea con tumor viable
+    description: >
+      El hueso da por fin tejido suficiente para analizar. El perfil confirma el eje que ya se
+      sospechaba: CCND1 y FGF3/4/19 amplificados junto a FGFR1, NSD3 y ZNF703. Carga mutacional
+      baja y microsatélites estables. Lo que no aparece en este hueso importa tanto como lo que
+      sí: ni ESR1 ni alteraciones de RB1, que hasta ahora solo se habían visto en sangre.
+    highlight: false
+
   - date: '13 jul 2026'
     tag: Progresión
     title: 'El cáncer sale del hueso: aparecen lesiones en el hígado'
@@ -292,14 +304,3 @@ entries:
       Ya está firmado el consentimiento. Si todo va bien, a partir de octubre el tratamiento pasa
       a ser en Barcelona una vez al mes: un ADC dirigido contra TROP2.
     highlight: false
-
-  - date: '8 jul 2026'
-    tag: Molecular
-    title: Primera biopsia ósea con tumor viable
-    description: >
-      El hueso da por fin tejido suficiente para analizar. El perfil confirma el eje que ya se
-      sospechaba: CCND1 y FGF3/4/19 amplificados junto a FGFR1, NSD3 y ZNF703. Carga mutacional
-      baja y microsatélites estables. Lo que no aparece en este hueso importa tanto como lo que
-      sí: ni ESR1 ni alteraciones de RB1, que hasta ahora solo se habían visto en sangre.
-    highlight: false
-
