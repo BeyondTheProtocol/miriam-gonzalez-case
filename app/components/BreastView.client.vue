@@ -279,8 +279,8 @@ onBeforeUnmount(() => {
     </ul>
     <p v-if="!loading && !failed" class="mt-1.5 text-[11px] text-tinta leading-snug">
       {{ L(
-        `La forma sale de una segmentación automática (IA, 100 % local) de su resonancia de mama, sin validación radiológica${autoMm ? `: el contorno automático da ${autoMm} mm` : ''}. La cifra buena es la del informe. La piel no está en el modelo: se quita del dato antes de reconstruir.`,
-        `The shape comes from an automatic segmentation (AI, 100% local) of her breast MRI, not validated by a radiologist${autoMm ? `: the automatic outline gives ${autoMm} mm` : ''}. The figure that counts is the one in the report. The skin is not in the model: it is removed from the data before reconstruction.`) }}
+        `La forma sale de una segmentación automática (IA, 100 % local) de su resonancia de mama, sin validación radiológica${autoMm ? `: el contorno automático da ${autoMm} mm` : ''}. La cifra buena es la del informe. El contorno es la superficie real de su mama; del tejido de dentro se quitan los 4 mm más externos, y el pezón se suaviza.`,
+        `The shape comes from an automatic segmentation (AI, 100% local) of her breast MRI, not validated by a radiologist${autoMm ? `: the automatic outline gives ${autoMm} mm` : ''}. The figure that counts is the one in the report. The outline is the real surface of her breast; the outermost 4 mm are removed from the tissue inside, and the nipple is smoothed out.`) }}
     </p>
   </div>
 </template>
