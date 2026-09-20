@@ -285,3 +285,11 @@ entries:
     link: https://x.com/miriamgonp/status/2097729668380037166
     linkLabel: 'Leerlo en X →'
 
+  - date: '20 sep 2026'
+    tag: Ensayos clínicos
+    title: En cribado para TROPION-Breast06
+    description: >
+      El siguiente paso es un ADC dirigido contra TROP2. Si todo va bien, a partir de octubre el
+      tratamiento pasa a ser en Barcelona una vez al mes.
+    highlight: false
+
