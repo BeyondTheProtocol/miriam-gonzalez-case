@@ -1175,8 +1175,6 @@ const SK_R = 9
    marcador visible (≈22px en pantalla) para acertar con el dedo, pero MENOR que el
    espacio entre vértebras con foco (≥19.6 u) para no robar el toque al vecino. */
 const SK_HIT = 14
-function gSelected(g: LesGroup): boolean { return g.foci.some((l) => l.id === selected.value) }
-function pickGroup(g: LesGroup) { selected.value = g.primary.id }
 /* sub-localización del foco dentro del hueso (cuerpo, pedículo, espinosa…) — se usa
    en la lista de focos co-localizados de la zona (ya no en chips conmutables). */
 function focusPart(le: Lesion): string {
@@ -2529,133 +2527,22 @@ const manifestValidated = (() => {
                    DERECHA del cuerpo se dibuja a la IZQUIERDA de la imagen. La
                    banda lo dice explícito para que un médico lo lea como
                    convención estándar y un lego no lo malinterprete. -->
-              <p class="text-[10px] text-tinta leading-snug px-1 mb-1.5">
-                {{ L('Vista de frente · la derecha del cuerpo queda a tu izquierda', 'Front view · the body’s right is on your left') }}
-              </p>
-              <div class="flex justify-between text-[11px] font-semibold text-berenjena px-1 mb-1">
-                <span>{{ L('Dcha. del cuerpo', 'Body’s right') }}</span>
-                <span>{{ L('Izq. del cuerpo', 'Body’s left') }}</span>
-              </div>
-              <!-- (A · a11y) el conjunto de marcadores es un LISTBOX de focos:
-                   role=listbox + cada marcador role=option + roving tabindex (solo
-                   el seleccionado entra en el tab order; las flechas mueven la
-                   selección Y el foco DOM). aria-activedescendant apunta al option
-                   activo. La tabla de valores es su alternativa textual (describedby). -->
-              <svg viewBox="0 0 440 700" class="w-full" role="listbox"
+              <!-- El esqueleto es el MISMO componente que usa /lesiones. Estuvo duplicado aquí
+                   (copia literal del SVG) y las copias divergieron; ahora lo que cambia entre las
+                   dos páginas va por props: la opacidad por grupo lleva los filtros y la línea de
+                   tiempo, el teclado lo sigue gobernando esta sección, y el tooltip lo pone la
+                   página, porque es suyo. -->
+              <EsqueletoFocos
+                :selected="selected"
+                id-prefix="sk-opt-"
                 :aria-label="L('Esquema del esqueleto con las lesiones (flechas para recorrer, Intro/Espacio para fijar, o escribe un número de foco)', 'Skeleton schematic with the lesions (arrows to step, Enter/Space to set, or type a focus number)')"
-                :aria-activedescendant="'sk-opt-' + selected"
-                aria-describedby="tabla-focos-alt">
-                <defs>
-                  <linearGradient id="skBone" x1="0" y1="0" x2="0.5" y2="1">
-                    <stop offset="0%" stop-color="#efe8da" /><stop offset="48%" stop-color="#e3dac8" /><stop offset="100%" stop-color="#d2c7b1" />
-                  </linearGradient>
-                  <linearGradient id="skBoneV" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stop-color="#f1ebde" /><stop offset="50%" stop-color="#e6ddcc" /><stop offset="100%" stop-color="#d6ccb7" />
-                  </linearGradient>
-                  <radialGradient id="skBoneHi" cx="36%" cy="20%" r="75%">
-                    <stop offset="0%" stop-color="#fffdf8" stop-opacity="0.7" /><stop offset="55%" stop-color="#fffdf8" stop-opacity="0" />
-                  </radialGradient>
-                  <filter id="skBoneShadow" x="-30%" y="-30%" width="160%" height="160%">
-                    <feDropShadow dx="0" dy="1.2" stdDeviation="3.2" flood-color="#2d1b3d" flood-opacity="0.10" />
-                  </filter>
-                  <radialGradient id="skPanel" cx="50%" cy="38%" r="80%">
-                    <stop offset="0%" stop-color="#f7f2ea" /><stop offset="100%" stop-color="#efe8dc" />
-                  </radialGradient>
-                </defs>
-                <rect x="0" y="0" width="440" height="700" rx="18" fill="url(#skPanel)" />
-                <g filter="url(#skBoneShadow)">
-                <!-- cráneo -->
-                <path d="M192,44 Q192,10 220,10 Q248,10 248,44 Q248,66 233,72 Q220,77 207,72 Q192,66 192,44 Z" fill="url(#skBone)" stroke="#c8bda6" stroke-width="0.6" stroke-opacity="0.7" />
-                <path d="M192,44 Q192,10 220,10 Q248,10 248,44 Q248,66 233,72 Q220,77 207,72 Q192,66 192,44 Z" fill="url(#skBoneHi)" />
-                <!-- maxilar/cuello -->
-                <path d="M210,66 Q220,75 230,66 L228,76 Q220,82 212,76 Z" fill="url(#skBone)" stroke="#c8bda6" stroke-width="0.6" stroke-opacity="0.7" />
-                <!-- caja torácica sutil (contexto dorsal / costal) -->
-                <path v-for="(rb, i) in ribs" :key="'rib' + i" :d="rb.d" fill="none" stroke="#d9d0bd" stroke-width="2.2" opacity="0.5" stroke-linecap="round" />
-                <!-- vértebras (discos refinados) -->
-                <g v-for="(v, i) in vertebrae" :key="'v' + i">
-                  <rect :x="v.x" :y="v.y" :width="v.w" :height="v.h" :rx="Math.min(v.h / 2, 7)" fill="url(#skBoneV)" stroke="#c8bda6" stroke-width="0.6" stroke-opacity="0.7" />
-                  <rect :x="v.x + 1.5" :y="v.y + 1" :width="v.w - 3" :height="v.h * 0.4" :rx="Math.min(v.h / 2, 7) * 0.7" fill="#fffdf8" opacity="0.35" />
-                </g>
-                <!-- sacro -->
-                <path d="M202,485 Q220,483 238,485 L231,538 Q220,547 209,538 Z" fill="url(#skBoneV)" stroke="#c8bda6" stroke-width="0.6" stroke-opacity="0.7" />
-                <!-- pelvis -->
-                <path d="M201,487 C152,485 122,520 130,560 C135,588 168,596 187,574 C200,558 203,520 201,487 Z" fill="url(#skBone)" stroke="#c8bda6" stroke-width="0.6" stroke-opacity="0.7" />
-                <path d="M239,487 C288,485 318,520 310,560 C305,588 272,596 253,574 C240,558 237,520 239,487 Z" fill="url(#skBone)" stroke="#c8bda6" stroke-width="0.6" stroke-opacity="0.7" />
-                <path d="M201,487 C152,485 122,520 130,560 C135,588 168,596 187,574 C200,558 203,520 201,487 Z" fill="url(#skBoneHi)" />
-                <!-- fémures -->
-                <circle cx="151" cy="600" r="12.5" fill="url(#skBone)" stroke="#c8bda6" stroke-width="0.6" stroke-opacity="0.7" />
-                <rect x="150" y="606" width="13" height="92" rx="6.5" fill="url(#skBoneV)" stroke="#c8bda6" stroke-width="0.6" stroke-opacity="0.7" />
-                <circle cx="289" cy="600" r="12.5" fill="url(#skBone)" stroke="#c8bda6" stroke-width="0.6" stroke-opacity="0.7" />
-                <rect x="277" y="606" width="13" height="92" rx="6.5" fill="url(#skBoneV)" stroke="#c8bda6" stroke-width="0.6" stroke-opacity="0.7" />
-                <!-- escápulas -->
-                <path d="M114,182 Q146,188 146,192 L141,242 Q138,246 134,240 Z" fill="url(#skBone)" stroke="#c8bda6" stroke-width="0.6" stroke-opacity="0.7" />
-                <path d="M326,182 Q294,188 294,192 L299,242 Q302,246 306,240 Z" fill="url(#skBone)" stroke="#c8bda6" stroke-width="0.6" stroke-opacity="0.7" />
-                </g>
-                <!-- ticks de nivel (contraste AA para orientación rápida) -->
-                <g font-family="JetBrains Mono, monospace" font-size="9" fill="#5a5550" font-weight="600">
-                  <text v-for="tk in ticks" :key="tk.t" x="358" :y="tk.y + 3" text-anchor="start">{{ tk.t }}</text>
-                  <line v-for="tk in ticks" :key="'l' + tk.t" x1="346" :y1="tk.y" x2="354" :y2="tk.y" stroke="#9b8f7c" stroke-width="1" />
-                </g>
-                <!-- lesiones: un marcador por grupo (vértebra con 1+ focos, o hueso).
-                     ESQUEMA SIMPLE: círculo relleno del color del trazador, TAMAÑO
-                     UNIFORME, + número del foco (o recuento si la vértebra aloja varios)
-                     + contorno punteado (IA por confirmar) + borde oscuro si está
-                     seleccionado. Sin halo, sin parpadeo, sin anillo de «foco nuevo»,
-                     sin tamaño ∝ SUVmáx. Si no capta en la fecha actual → solo opacidad. -->
-                <!-- linking de estado: el FILTRO atenúa (no oculta) → el grupo no
-                     coincidente se queda en su sitio con baja opacidad (gOpacity);
-                     un foco con hover en CUALQUIER vista resalta aquí su grupo. -->
-                <g v-for="g in GROUPS" :key="g.key" class="sk-foco" :style="{ opacity: gOpacity(g) * (gPresentAt(g, frame) ? 1 : 0.4) }">
-                  <!-- ÁREA TÁCTIL invisible (≈ 24px en pantalla a móvil): el marcador visible
-                       se mantiene UNIFORME y pequeño (no se aprietan los focos), pero el dedo
-                       acierta gracias a este círculo transparente. aria-hidden: la
-                       accesibilidad (foco/teclado/aria) la lleva el círculo visible de abajo. -->
-                  <circle
-                    :cx="g.x" :cy="g.y" :r="SK_HIT"
-                    fill="transparent" class="cursor-pointer" aria-hidden="true"
-                    @click="pickGroup(g)"
-                    @mouseenter="canHoverFine() && (showTip($event, groupTipText(g)), setHoverGroup(g))" @mouseleave="hideTip(); clearHover()" />
-                  <circle
-                    :id="'sk-opt-' + g.primary.id"
-                    :ref="(el) => registerSkOpt(g.primary.id, el)"
-                    :cx="g.x" :cy="g.y"
-                    :r="SK_R + (gSelected(g) ? 2.5 : (gHovered(g) ? 1.5 : 0))"
-                    :fill="gPresentAt(g, frame) ? phenoColor(g.primary) : 'none'"
-                    :stroke="gSelected(g) ? '#2d1b3d' : (gHovered(g) ? '#9d44ab' : (gPresentAt(g, frame) ? '#ffffff' : phenoColor(g.primary)))"
-                    :stroke-width="gSelected(g) ? 2.5 : (gHovered(g) ? 2.2 : 1.4)"
-                    :stroke-dasharray="sourceOf(g.primary) === 'ia-david' ? '2 1.6' : undefined"
-                    class="cursor-pointer sk-marker"
-                    :tabindex="gSelected(g) ? 0 : -1" role="option" :aria-selected="gSelected(g)"
-                    :aria-label="g.multi ? `${g.foci[0].level[lang]} — ${g.foci.length} ${L('focos', 'foci')}` : `${g.primary.level[lang]} — ${phenoLabel(g.primary)}`"
-                    @click="pickGroup(g)"
-                    @mouseenter="canHoverFine() && (showTip($event, groupTipText(g)), setHoverGroup(g))" @mouseleave="hideTip(); clearHover()" @focus="showTip($event, groupTipText(g)); setHoverGroup(g)" @blur="hideTip(); clearHover()" @keydown.escape="hideTip" />
-                  <!-- foco único: id dentro; varios focos: insignia de recuento -->
-                  <!-- (auditoría) el número arbitrario sale del esqueleto: el nombre lo da el
-                       tooltip y el color el fenotipo; el #N se queda en lista/tabla para cruzar.
-                       Foco único = bolita de color; vértebra con varios = insignia de recuento. -->
-                  <g v-if="g.multi && gPresentAt(g, frame)" class="pointer-events-none select-none">
-                    <circle :cx="g.x + SK_R + 1.5" :cy="g.y - SK_R - 1.5" r="6.5"
-                      fill="#2d1b3d" stroke="#fff" stroke-width="1.2" />
-                    <!-- recuento centrado en la bola por geometría (anclado al cy del círculo,
-                         dominant-baseline central) → sin el nudge «+1.3» dependiente de la fuente. -->
-                    <text :x="g.x + SK_R + 1.5" :y="g.y - SK_R - 1.5" text-anchor="middle" dominant-baseline="central"
-                      font-family="Source Sans 3, sans-serif" font-size="9" font-weight="700" fill="#fff">{{ g.foci.length }}</text>
-                  </g>
-                </g>
-              </svg>
-              <!-- LEYENDA MÍNIMA · el degradado ya dice color = trazador; una sola
-                   línea para lo no obvio (número = foco · punteado = IA). Sin "borde
-                   oscuro = seleccionado" (obvio al clicar). De un vistazo, sin más. -->
-              <div class="mt-3 px-1">
-                <div class="h-2.5 rounded-full" :style="{ background: PHENO_RAMP_CSS }" />
-                <div class="flex justify-between text-[10px] text-tinta mt-1">
-                  <span>{{ L('SSTR-dominante (⁶⁸Ga⁺/FDG⁻)', 'SSTR-dominant (⁶⁸Ga⁺/FDG⁻)') }}</span>
-                  <span>{{ L('Glucolítico-dom. (FDG⁺/SSTR⁻)', 'Glycolytic-dom. (FDG⁺/SSTR⁻)') }}</span>
-                </div>
-                <p class="mt-1.5 text-[10.5px] text-tinta leading-snug">
-                  {{ L('Color = trazador · insignia = nº de focos en esa vértebra · contorno punteado = detectado por IA (por confirmar).', 'Color = tracer · badge = nº of foci in that vertebra · dashed outline = AI-detected (to confirm).') }}
-                </p>
-              </div>
+                describedby="tabla-focos-alt"
+                :teclado="false"
+                :ticks="ticks"
+                :opacidad="(g) => gOpacity(g) * (gPresentAt(g, frame) ? 1 : 0.4)"
+                @pick="selected = $event"
+                @hover="(e, g) => { if (e.type !== 'mouseenter' || canHoverFine()) { showTip(e, groupTipText(g)); setHoverGroup(g) } }"
+                @leave="hideTip(); clearHover()" />
 
               <!-- ===== CONTROLES (abajo) · timeline + filtros, modificadores del
                    esqueleto. Separador mínimo, sin cabecera verbosa: cada bloque ya
