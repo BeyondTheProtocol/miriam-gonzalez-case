@@ -15,6 +15,7 @@
     "lint:github": "oxlint --format=github",
     "test:ciencia-nivel": "node scripts/test-ciencia-nivel.mjs",
     "test:mapa-focos": "tsx scripts/test-mapa-focos.ts",
+    "test:short-links": "tsx scripts/test-short-links.ts",
     "icons": "nuxt-seo-utils icons --source favicon.svg",
     "update-fundraiser": "tsx update-fundraiser.ts"
   },

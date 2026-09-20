@@ -191,6 +191,15 @@ export default defineNuxtConfig({
     '/lesiones-ig': { redirect: { to: '/lesiones?utm_source=instagram&utm_medium=bio&utm_campaign=lanzamiento-lesiones', statusCode: 302 } },
     '/lesiones-tt': { redirect: { to: '/lesiones?utm_source=tiktok&utm_medium=bio&utm_campaign=lanzamiento-lesiones', statusCode: 302 } },
     '/lesiones-yt': { redirect: { to: '/lesiones?utm_source=youtube&utm_medium=bio&utm_campaign=lanzamiento-lesiones', statusCode: 302 } },
+    // /biopsia-osea (visor de la microfotografía HE). Aquí SÍ hay genérico: el slug corto
+    // «/biopsia» no choca con ninguna página, y acorta una URL que se reparte a mano
+    // (correo a médicos, WhatsApp) mucho más que /biopsia-osea.
+    '/biopsia': { redirect: { to: '/biopsia-osea?utm_source=short&utm_medium=link&utm_campaign=lanzamiento-biopsia', statusCode: 302 } },
+    '/biopsia-x': { redirect: { to: '/biopsia-osea?utm_source=twitter&utm_medium=post&utm_campaign=lanzamiento-biopsia', statusCode: 302 } },
+    '/biopsia-in': { redirect: { to: '/biopsia-osea?utm_source=linkedin&utm_medium=post&utm_campaign=lanzamiento-biopsia', statusCode: 302 } },
+    '/biopsia-ig': { redirect: { to: '/biopsia-osea?utm_source=instagram&utm_medium=bio&utm_campaign=lanzamiento-biopsia', statusCode: 302 } },
+    '/biopsia-tt': { redirect: { to: '/biopsia-osea?utm_source=tiktok&utm_medium=bio&utm_campaign=lanzamiento-biopsia', statusCode: 302 } },
+    '/biopsia-yt': { redirect: { to: '/biopsia-osea?utm_source=youtube&utm_medium=bio&utm_campaign=lanzamiento-biopsia', statusCode: 302 } },
     '/donar': { redirect: { to: 'https://www.gofundme.com/f/biopsia-molecular-que-puede-cambiar-su-tratamiento', statusCode: 302 } },
     // (acceso para médicos) enlace corto SERIO para reenviar al equipo clínico (no de redes):
     // helpmiriam.com/caso → el panel del mapa. UTM «referral/medico» para distinguir el canal.
@@ -226,6 +235,7 @@ export default defineNuxtConfig({
         '/design-system', '/mapa-metastasis.md', '/en/mapa-metastasis.md',
         '/3d', '/3d-x', '/3d-in', '/3d-ig', '/donar', '/caso',
         '/lesiones-x', '/lesiones-in', '/lesiones-ig', '/lesiones-tt', '/lesiones-yt',
+        '/biopsia', '/biopsia-x', '/biopsia-in', '/biopsia-ig', '/biopsia-tt', '/biopsia-yt',
         // datos en vivo: que nitro NO prerenderice un fichero que sombree el 302
         '/fundraiser.json', '/donations.json',
       ],
