@@ -1,0 +1,22 @@
+{
+ "mallas": {
+  "mama": "mama.ply",
+  "fgt": "fgt.ply"
+ },
+ "referencias": {
+  "pezon": [
+   0.65,
+   44.39,
+   7.77
+  ]
+ },
+ "lesiones": [
+  {
+   "malla": "tumor.ply",
+   "diametro_auto_mm": 17.6,
+   "diana": "tumor primario",
+   "mm_informe": 15
+  }
+ ],
+ "fuente": "tejido fibroglandular: fracción agua/grasa de la RM Dixon, con la piel erosionada 4 mm; tumor: modelo:MAMA-MIA, sin validación radiológica. La medida es la del informe."
+}
