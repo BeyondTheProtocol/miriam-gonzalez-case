@@ -22,8 +22,8 @@ const seoTitle = () =>
     : 'Mama, hígado y hueso, de un vistazo — el caso de Miriam, una herramienta de apoyo'
 const seoDescription = () =>
   lang.value === 'en'
-    ? 'A support tool, not a diagnosis. Miriam’s breast, liver and the bone lesions from the metastasis map, on a single page.'
-    : 'Una herramienta de apoyo, no un diagnóstico. La mama, el hígado y las lesiones óseas del mapa de metástasis de Miriam, en una sola página.'
+    ? 'A support tool, not a diagnosis. Miriam’s breast, liver and bone lesions, on a single page.'
+    : 'Una herramienta de apoyo, no un diagnóstico. La mama, el hígado y las lesiones óseas de Miriam, en una sola página.'
 useSeoMeta({
   title: seoTitle, description: seoDescription, ogTitle: seoTitle, ogDescription: seoDescription,
   ogType: 'website', twitterCard: 'summary_large_image', twitterTitle: seoTitle, twitterDescription: seoDescription,
@@ -50,7 +50,7 @@ const biopsia = computed(() =>
       <div class="mx-auto w-full max-w-[1280px] px-4 sm:px-6 lg:px-8">
         <PageHeader
           :title="L('Mama, hígado y hueso, de un vistazo', 'Breast, liver and bone, at a glance')"
-          :subtitle="L('La mama, el hígado y las lesiones óseas del mapa de metástasis.', 'The breast, the liver and the bone lesions from the metastasis map.')"
+          :subtitle="L('La mama, el hígado y las lesiones óseas.', 'The breast, the liver and the bone lesions.')"
         />
 
         <div class="alert-callout mb-6" role="note" :aria-label="L('Aviso: herramienta de apoyo, no diagnóstico', 'Notice: support tool, not a diagnosis')">
@@ -98,7 +98,7 @@ const biopsia = computed(() =>
           <!-- Fechas de los estudios del mapa (su propia cabecera): sin esto, «de un vistazo»
                se leía como «al día», y el PET del 8-sep aún no está en el mapa (verificacion, 19-sep). -->
           <p class="text-[13px] text-tinta leading-relaxed mb-4">
-            {{ L('Del mapa de metástasis: PET de marzo y mayo y RM de junio de 2026. El PET del 8 de septiembre aún no está incorporado.', 'From the metastasis map: PET scans from March and May and MRI from June 2026. The 8 September PET is not included yet.') }}
+            {{ L('PET de marzo y mayo y RM de junio de 2026. El PET del 8 de septiembre aún no está incorporado.', 'PET scans from March and May and MRI from June 2026. The 8 September PET is not included yet.') }}
           </p>
           <div class="grid gap-6 lg:grid-cols-[minmax(0,360px)_minmax(0,1fr)] items-start">
             <div class="card-base !p-4">
