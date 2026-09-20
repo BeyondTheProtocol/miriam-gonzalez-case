@@ -36,7 +36,6 @@ const host = ref<HTMLDivElement | null>(null)
 const loading = ref(true)
 const failed = ref(false)
 const rotulos = ref<{ texto: string; x: number; y: number; r: number; tx: number; ty: number; visible: boolean }[]>([])
-const pezon = ref<{ x: number; y: number; visible: boolean } | null>(null)
 let pezon3: THREE.Vector3 | null = null
 const autoMm = ref<number | null>(null)
 
@@ -116,23 +115,12 @@ function reencuadra() {
   // de perfil aparece la forma. Se mira desde el lado de la lesión (el signo lo da su propia
   // posición), así que además queda delante y no escondida detrás del tejido.
   const lat = Math.sign(haciaLesion?.x ?? -1) || -1
-  const dir = new THREE.Vector3(lat * 0.92, 0.14, 0.42).normalize()
+  const dir = new THREE.Vector3(lat * 0.74, 0.14, 0.66).normalize()
   camera.position.copy(dir.multiplyScalar(d))
   controls.target.set(0, 0, 0); controls.update()
 }
 
 const p3 = new THREE.Vector3()
-const pz = new THREE.Vector3()
-function actualizaPezon() {
-  // El pezón se señala, no se dibuja. Es la referencia con la que cualquiera se orienta en una
-  // mama (sin ella, la pieza podría estar en cualquier posición), pero va como marca de mapa:
-  // una cruz fina y su palabra, del mismo lenguaje que el rótulo de la lesión. Su relieve no
-  // está en la malla; lo que hay aquí es una coordenada.
-  if (!pezon3) { pezon.value = null; return }
-  const { w, h } = tamano()
-  pz.copy(pezon3).project(camera)
-  pezon.value = { x: (pz.x + 1) / 2 * w, y: (1 - pz.y) / 2 * h, visible: pz.z < 1 }
-}
 function actualizaRotulos() {
   const { w, h } = tamano()
   rotulos.value = dianas.map((D) => {
@@ -195,6 +183,23 @@ async function init() {
     pezon3 = new THREE.Vector3(rp[0]!, rp[1]!, rp[2]!).applyMatrix4(RAS_A_THREE)
   }
   const gt = await geo(props.base + esc.mallas.fgt!)
+  const marcaPezon = () => {
+    // La areola, marcada SOBRE la superficie: un aro fino pegado al contorno, orientado por la
+    // normal de la mama en ese punto. Gira con la pieza, así que se lee como parte de la
+    // anatomía y no como una chincheta encima de la pantalla. Es un marcador de atlas: dice
+    // dónde está el pezón sin dibujar relieve ninguno.
+    if (!pezon3) return
+    const fuera = pezon3.clone().multiplyScalar(2)
+    // Un disco SIN contorno, no un aro: el aro competía con el anillo de la lesión, que está a
+    // 22 mm, y salían dos círculos peleándose. Así se lee como una zona sombreada sobre la piel,
+    // que es lo que hace que la pieza se reconozca como una mama.
+    const areola = new THREE.Mesh(
+      new THREE.CircleGeometry(12, 64),
+      new THREE.MeshBasicMaterial({ color: 0xcdb9a4, transparent: true, opacity: 0.42,
+        side: THREE.DoubleSide, depthWrite: false }))
+    areola.position.copy(pezon3); areola.lookAt(fuera); areola.renderOrder = 7
+    scene.add(areola)
+  }
   malla(gt, tejidoMat(THREE.BackSide), 3)   // caras de detrás primero…
   malla(gt, tejidoMat(THREE.FrontSide), 4)  // …y las de delante encima
   let ge: THREE.BufferGeometry | null = null
@@ -203,6 +208,7 @@ async function init() {
     malla(ge, envolturaMat(THREE.BackSide), 5)
     malla(ge, envolturaMat(THREE.FrontSide), 6)
   }
+  marcaPezon()
   await Promise.all(tareas)
   // Se encuadra con la pieza MÁS GRANDE que haya: con envoltura se ve la mama entera y la
   // lesión situada dentro; sin ella, el árbol glandular llena el cuadro.
@@ -216,7 +222,7 @@ async function init() {
   const tick = () => {
     raf = requestAnimationFrame(tick)
     if (!enVista) return   // fuera de pantalla no se pinta (batería)
-    controls.update(); renderer!.render(scene, camera); actualizaRotulos(); actualizaPezon()
+    controls.update(); renderer!.render(scene, camera); actualizaRotulos()
   }
   tick()
 }
@@ -260,11 +266,6 @@ onBeforeUnmount(() => {
           <span v-if="r.visible" class="bv-rotulo" :style="{ left: r.tx + 'px', top: r.ty + 'px' }">{{ r.texto }}</span>
         </template>
       </div>
-      <div v-if="!loading && !failed && pezon?.visible" class="absolute inset-0 pointer-events-none" aria-hidden="true">
-        <!-- Miriam, 20-sep: la palabra escrita encima del render, mejor no. La cruz sola orienta
-             igual, y lo que es queda dicho en la leyenda de debajo, fuera de la imagen. -->
-        <span class="bv-pezon" :style="{ left: pezon.x + 'px', top: pezon.y + 'px' }" />
-      </div>
       <div v-if="loading" class="absolute inset-0 flex items-center justify-center text-[12px]" style="color:#aeb6c2">
         {{ L('reconstruyendo 3D…', 'rebuilding 3D…') }}
       </div>
@@ -299,8 +300,8 @@ onBeforeUnmount(() => {
         {{ L('Contorno de la mama, para situar el tumor dentro de ella', 'Outline of the breast, to place the tumour inside it') }}
       </li>
       <li class="flex items-start gap-1.5">
-        <span class="inline-block w-2.5 h-2.5 mt-[3px] shrink-0 text-[10px] leading-none text-center" aria-hidden="true">+</span>
-        {{ L('La cruz marca el pezón, que es la referencia para orientarse; su relieve no está en el modelo', 'The cross marks the nipple, the reference point for orientation; its relief is not in the model') }}
+        <span class="inline-block w-2.5 h-2.5 mt-[3px] shrink-0 rounded-full" style="background:#cdb9a4" aria-hidden="true" />
+        {{ L('La zona sombreada marca la areola, que es la referencia para orientarse en una mama; su relieve no está en el modelo', 'The shaded patch marks the areola, the reference point for orienting yourself on a breast; its relief is not in the model') }}
       </li>
     </ul>
     <p v-if="!loading && !failed" class="mt-1.5 text-[11px] text-tinta leading-snug">
@@ -321,12 +322,6 @@ onBeforeUnmount(() => {
   position: absolute; transform: translate(-50%, -100%); white-space: nowrap;
   font: 600 12px/1.2 'JetBrains Mono', ui-monospace, monospace; color: #F5EFE6;
   background: rgba(28, 17, 38, 0.72); padding: 2px 6px; border-radius: 4px;
-}
-.bv-pezon {
-  position: absolute; transform: translate(-50%, -50%); width: 13px; height: 13px;
-  background:
-    linear-gradient(to right, transparent 5.5px, rgba(245, 239, 230, 0.95) 5.5px 7.5px, transparent 7.5px),
-    linear-gradient(to bottom, transparent 5.5px, rgba(245, 239, 230, 0.95) 5.5px 7.5px, transparent 7.5px);
 }
 .bv-reencuadre {
   position: absolute; bottom: 10px; right: 10px; width: 44px; height: 44px;
