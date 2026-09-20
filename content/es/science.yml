@@ -47,7 +47,7 @@ paperSections:
   - title: Transformación Neuroendocrina y Pérdida de RB1
     tag: Transformación NE
     tone: warn
-    subtitle: '3 variantes de RB1 (p.V622Yfs*33, p.R661W, p.F226*) en ctDNA Guardant360 (abril 2026). ⚠️ No se confirman en la biopsia ósea de julio de 2026: el FoundationOne del tejido no encuentra alteración de RB1 ni de TP53'
+    subtitle: '3 variantes de RB1 (p.V622Yfs*33, p.R661W, p.F226*) en ctDNA Guardant360 (abril 2026). No se confirman en la biopsia ósea de julio de 2026: el FoundationOne del tejido no encuentra alteración de RB1 ni de TP53'
     papers:
       - ref: 'Park et al., 2018 — Science (DOI: 10.1126/science.aat5749)'
         finding: 'Pérdida de RB1 + TP53: reprogramación hacia fenotipo neuroendocrino'
@@ -293,23 +293,26 @@ imaging:
     receptores de somatostatina. Captación focal en cola de mama derecha a
     valorar en estudio dirigido.
 boneBiopsy:
-  title: Biopsia ósea (cresta ilíaca)
+  title: Biopsia ósea (cresta ilíaca derecha)
   date: 1er intento 30/04/2026 (sin tumor) · 2º intento 08/07/2026 (con tumor) · informes 17/07 y 19/08/2026
-  site: Cresta ilíaca
+  site: Cresta ilíaca derecha
   result: >-
     El primer intento (abril 2026) no obtuvo tumor: solo «trabéculas óseas
-    mineralizadas y fibras músculo esqueléticas». El segundo (julio 2026) SÍ
+    mineralizadas y fibras músculo esqueléticas». El segundo (julio 2026) sí
     obtuvo tejido tumoral viable, y es la primera caracterización molecular
-    hecha sobre tejido y no sobre ctDNA. Histología: metástasis de tumor con
-    diferenciación neuroendocrina, sinaptofisina positiva, Ki67 ≈15% (el informe
-    advierte que la gradación no es fiable en una biopsia pequeña). Receptores
+    hecha sobre tejido y no sobre ctDNA. La anatomía patológica concluye metástasis
+    ósea del tumor neuroendocrino de mama, con sinaptofisina positiva y Ki67 de
+    alrededor del 15%. El patólogo deja dos reservas explícitas: la muestra
+    contiene poco tejido tumoral, y la gradación de los tumores neuroendocrinos
+    no está establecida en biopsias pequeñas —con esta morfología y ese Ki67
+    asume un tumor moderadamente diferenciado—. Receptores
     hormonales y HER2 no se determinaron en esta muestra: el HER2 IHQ 0 que
-    exige TROPION-Breast06 procede del primario de 2024 revisado. — PERFIL
-    MOLECULAR EN TEJIDO (FoundationOne CDx, julio 2026): amplificación 11q13
+    exige TROPION-Breast06 procede del primario de 2024 revisado. El perfil molecular del tejido
+    (FoundationOne CDx, julio 2026) muestra amplificación de 11q13
     (CCND1, FGF3, FGF4, FGF19; ≈37 copias) y amplificación 8p11 (FGFR1, NSD3,
     ZNF703; ≈33 copias); TMB 4 Muts/Mb (baja), MS-Stable, HRDsig negativo y sin
     firmas mutacionales activas; sin alteración reportable en ESR1, RB1, TP53,
-    PIK3CA, PTEN, AKT1, BRCA1/2 ni ERBB2. Lo que NO aparece importa tanto como
+    PIK3CA, PTEN, AKT1, BRCA1/2 ni ERBB2. Lo que no aparece importa tanto como
     lo que aparece: las variantes de RB1 y la ESR1 D538G se detectaron en ctDNA
     (abril 2026) y no se confirman en este hueso — puede ser heterogeneidad
     entre lesiones o clones subclonales en sangre; no se ha repetido el ctDNA

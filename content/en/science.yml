@@ -32,18 +32,22 @@ treatments:
   - line: →
     regimen: Current status (2026)
     outcome: >-
-      Since July 2026 she has been on treatment within a phase 1 trial with
-      BG-75202, at Vall d'Hebron. Screening imaging (July 2026) showed liver
-      lesions: the disease, until then bone-only, was no longer confined to
-      bone. The first bone rebiopsy (April 2026) did not yield viable tumor, so
-      an extended PET-guided bone rebiopsy is planned — the central test the
-      campaign funds. Functional status: ECOG 1.
+      Between July and September 2026 she took part in the phase 1 trial
+      BG-75202 (KAT6 inhibitor + fulvestrant). She came off it on 9 September
+      after liver progression, which exhausts the endocrine therapy options.
+      Screening imaging (July 2026) had already shown liver lesions: the
+      disease, until then bone-only, was no longer confined to bone. The July
+      2026 bone rebiopsy did yield viable tumour and produced the first tissue
+      molecular profile (details below). From October 2026 she starts
+      TROPION-Breast06 (NCT07205822), a single-arm phase IIIb trial with
+      datopotamab deruxtecan, an ADC directed against TROP-2; entry requires
+      HER2 IHC 0. Functional status: ECOG 1.
     active: true
 paperSections:
   - title: Neuroendocrine Transformation and RB1 Loss
     tag: NE transformation
     tone: warn
-    subtitle: 'Most critical finding: 3 RB1 variants (p.V622Yfs*33, p.R661W, p.F226*) in Guardant360 ctDNA, April 2026'
+    subtitle: '3 RB1 variants (p.V622Yfs*33, p.R661W, p.F226*) in Guardant360 ctDNA (April 2026). Not confirmed in the July 2026 bone biopsy: the tissue FoundationOne finds no RB1 or TP53 alteration'
     papers:
       - ref: 'Park et al., 2018 — Science (DOI: 10.1126/science.aat5749)'
         finding: 'RB1 + TP53 loss: reprogramming toward a neuroendocrine phenotype'
@@ -281,10 +285,27 @@ imaging:
     overexpression. Focal uptake in the right breast tail to be evaluated in a
     dedicated study.
 boneBiopsy:
-  title: Bone biopsy (right iliac lesion)
-  date: Received 2026-04-30 · report 2026-05-08
-  site: Right iliac lesion
+  title: Bone biopsy (right iliac crest)
+  date: 1st attempt 2026-04-30 (no tumor) · 2nd attempt 2026-07-08 (tumor) · reports 2026-07-17 and 2026-08-19
+  site: Right iliac crest
   result: >-
-    No tumor present — “mineralized bone trabeculae and skeletal muscle
-    fibers, no neoplasm observed”. Molecular information is obtained from
-    plasma ctDNA instead.
+    The first attempt (April 2026) yielded no tumor: only “mineralized bone
+    trabeculae and skeletal muscle fibers”. The second one (July 2026) did yield
+    viable tumour tissue, and it is the first molecular characterisation
+    done on tissue rather than ctDNA. Pathology concludes bone metastasis of the
+    breast neuroendocrine tumour, with positive synaptophysin and Ki67 around
+    15%. The pathologist states two explicit caveats: the sample contains little
+    tumour tissue, and grading of neuroendocrine tumours is not established on
+    small biopsies —with this morphology and that Ki67 a moderately
+    differentiated tumour is assumed—. Hormone
+    receptors and HER2 were not assessed on this sample: the HER2 IHC 0 that
+    TROPION-Breast06 requires comes from the reviewed 2024 primary. The tissue molecular profile
+    (FoundationOne CDx, July 2026) shows 11q13 amplification
+    (CCND1, FGF3, FGF4, FGF19; ≈37 copies) and 8p11 amplification (FGFR1,
+    NSD3, ZNF703; ≈33 copies); TMB 4 Muts/Mb (low), MS-Stable, HRDsig negative
+    and no active mutational signatures; no reportable alteration in ESR1,
+    RB1, TP53, PIK3CA, PTEN, AKT1, BRCA1/2 or ERBB2. What is absent matters as
+    much as what is present: the RB1 variants and the ESR1 D538G mutation were
+    detected in ctDNA (April 2026) and are not confirmed in this bone — it may
+    be heterogeneity between lesions or subclonal populations in blood; ctDNA
+    has not been repeated on this same lesion.

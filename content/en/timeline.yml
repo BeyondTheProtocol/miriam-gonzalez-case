@@ -1,4 +1,5 @@
 entries:
+
   - date: '2021'
     tag: Background
     title: A first warning that went unanswered
@@ -156,6 +157,7 @@ entries:
       as a standard 3rd line (public funding approved), though it is never started. In
       parallel, clinical trials and the radioligand route (PRRT) are evaluated.
     highlight: false
+
   - date: 'May 17, 2026'
     tag: Outreach
     title: The problem with the Spanish protocols
@@ -236,6 +238,20 @@ entries:
       One of the two stays open should the situation change.
     highlight: true
 
+  - date: 'Jul 8, 2026'
+    tag: Molecular
+    title: First bone biopsy with viable tumour
+    description: >
+      The bone finally yields enough tissue to analyse, and for the first time the profile comes
+      from the tumour itself rather than from blood. Pathology confirms a bone metastasis of the
+      breast neuroendocrine tumour, with positive synaptophysin and a Ki67 of around 15%; the
+      pathologist warns that there is little tumour tissue and that grading is not established on
+      small biopsies. The molecular profile confirms the axis already suspected: CCND1 and
+      FGF3/4/19 amplified alongside FGFR1, NSD3 and ZNF703, with low mutational burden and stable
+      microsatellites. What is absent matters as much as what is present: neither ESR1 nor RB1
+      alterations show up in this bone, having only been seen in blood until now.
+    highlight: false
+
   - date: 'Jul 13, 2026'
     tag: Progression
     title: 'The cancer leaves the bone: liver lesions appear'
@@ -270,3 +286,23 @@ entries:
     highlight: true
     link: https://clinicaltrials.gov/study/NCT07222267
     linkLabel: 'See the BG-75202 trial →'
+
+  - date: 'Sep 9, 2026'
+    tag: Progression
+    title: The KAT6 trial comes to an end (BG-75202)
+    description: >
+      «We tried to stop the disease by blocking a protein called KAT6, one of the most advanced
+      things there is in epigenetics. That it doesn't work confirms that the tumour knows how to
+      move forward without hormones, and it's time to change strategy.» Eight weeks after the
+      first dose the liver lesions progress and she comes off the trial.
+    highlight: false
+    link: https://x.com/miriamgonp/status/2097729668380037166
+    linkLabel: 'Read it on X →'
+
+  - date: 'Sep 20, 2026'
+    tag: Clinical trials
+    title: Joining TROPION-Breast06
+    description: >
+      The consent form is signed. If all goes well, from October the treatment moves to Barcelona
+      once a month: an ADC directed against TROP-2.
+    highlight: false

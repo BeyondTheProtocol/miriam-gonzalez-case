@@ -244,10 +244,14 @@ entries:
     tag: Molecular
     title: Primera biopsia ósea con tumor viable
     description: >
-      El hueso da por fin tejido suficiente para analizar. El perfil confirma el eje que ya se
-      sospechaba: CCND1 y FGF3/4/19 amplificados junto a FGFR1, NSD3 y ZNF703. Carga mutacional
-      baja y microsatélites estables. Lo que no aparece en este hueso importa tanto como lo que
-      sí: ni ESR1 ni alteraciones de RB1, que hasta ahora solo se habían visto en sangre.
+      El hueso da por fin tejido suficiente para analizar, y por primera vez el perfil sale del
+      tumor y no de la sangre. La anatomía patológica confirma metástasis del tumor neuroendocrino
+      de mama, con sinaptofisina positiva y un Ki67 de alrededor del 15%; el patólogo avisa de que
+      hay poco tejido y de que la gradación no está establecida en biopsias pequeñas. El perfil
+      molecular confirma el eje que ya se sospechaba: CCND1 y FGF3/4/19 amplificados junto a
+      FGFR1, NSD3 y ZNF703, con carga mutacional baja y microsatélites estables. Lo que no aparece
+      en este hueso importa tanto como lo que sí: ni ESR1 ni alteraciones de RB1, que hasta ahora
+      solo se habían visto en sangre.
     highlight: false
 
   - date: '13 jul 2026'
