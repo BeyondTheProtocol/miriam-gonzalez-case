@@ -57,6 +57,7 @@ control y tu analítica.
 | `/lesiones-in` | `/lesiones` | `lanzamiento-lesiones` (LinkedIn) |
 | `/lesiones-ig` | `/lesiones` | `lanzamiento-lesiones` (Instagram/bio) |
 | `/lesiones-tt` | `/lesiones` | `lanzamiento-lesiones` (TikTok/bio) |
+| `/lesiones-yt` | `/lesiones` | `lanzamiento-lesiones` (YouTube/bio) |
 | `/donar` | GoFundMe (externo) | — (sin UTM: salto externo, no medible en Umami) |
 
 ## Cómo añadir uno nuevo
