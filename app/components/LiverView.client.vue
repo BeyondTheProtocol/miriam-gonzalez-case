@@ -72,11 +72,15 @@ const higadoMat = (lado: THREE.Side) => fresnel(new THREE.MeshPhysicalMaterial({
   sheen: 0.5, sheenRoughness: 0.5, sheenColor: new THREE.Color(0xe39a86),
   transparent: true, depthWrite: false, side: lado }), 0.10, 0.92, 2.4)
 const vaso = (c: number) => new THREE.MeshPhysicalMaterial({ color: c, roughness: 0.28, clearcoat: 0.9, clearcoatRoughness: 0.15 })
-/* Los focos del PET que NO tienen lesión segmentada debajo. Se pintan como un anillo hueco,
-   NUNCA como una lesión: no lo son. Es actividad metabólica donde el modelo del TC no puso
-   nada, y esa diferencia es justo lo que el visor tiene que enseñar sin sugerir un bulto. */
-const focoMat = () => new THREE.MeshBasicMaterial({ color: 0xff6b47, transparent: true,
-  opacity: 0.85, side: THREE.DoubleSide, depthWrite: false })
+/* Los focos del PET que NO tienen lesión segmentada debajo. Un punto de TAMAÑO FIJO —medio
+   vóxel del PET— y nada más. No lleva la forma de una lesión porque no hay contorno que
+   dibujar, y no lleva su volumen porque el volumen es el dato menos fiable que hay aquí: con
+   3 a 6 vóxeles, uno arriba o abajo lo mueve un tercio, y el diámetro equivalente (7-9 mm)
+   coincidiría con el de las lesiones pequeñas reales. Un punto fijo dice «aquí hay señal»;
+   una esfera del tamaño del volumen diría «esto mide esto», que es afirmar de más.
+   (Comité de verificación, 20-sep: la esfera por volumen queda vetada.) */
+const focoMat = () => new THREE.MeshPhysicalMaterial({ color: 0xff6b47, roughness: 0.8,
+  transparent: true, opacity: 0.55, depthWrite: false })
 const focos: THREE.Object3D[] = []
 
 /* LENTE DEL PET — los mismos cuerpos, pintados por lo que dice el PET de cada uno.
@@ -231,12 +235,12 @@ async function init() {
      metabólica donde la segmentación no puso lesión. No es una malla de lesión y no se pinta
      como tal — si lo pareciera, estaríamos dibujando un bulto que nadie ha visto. */
   for (const f of esc.focos ?? []) {
-    const anillo = new THREE.Mesh(new THREE.TorusGeometry(7, 1.1, 8, 40), focoMat())
-    anillo.position.set(f.centro[0], f.centro[1], f.centro[2])
-    anillo.renderOrder = 5
-    anillo.visible = false
-    scene.add(anillo)
-    focos.push(anillo)
+    const punto = new THREE.Mesh(new THREE.SphereGeometry(2, 20, 14), focoMat())
+    punto.position.set(f.centro[0], f.centro[1], f.centro[2])
+    punto.renderOrder = 5
+    punto.visible = false
+    scene.add(punto)
+    focos.push(punto)
   }
   if (esc.pet) {
     const n = (e: string) => esc.lesiones.filter((x) => x.pet === e).length
@@ -258,7 +262,7 @@ async function init() {
     raf = requestAnimationFrame(tick)
     if (!enVista) return   // fuera de pantalla no se pinta (batería)
     controls.update()
-    for (const f of focos) { f.visible = lente.value === 'pet'; if (f.visible) f.quaternion.copy(camera.quaternion) }
+    for (const f of focos) f.visible = lente.value === 'pet'
     renderer!.render(scene, camera); actualizaRotulos()
   }
   tick()
@@ -381,10 +385,13 @@ onBeforeUnmount(() => {
         {{ L(`${petCuenta.sobre_umbral} coincide con un foco por encima del umbral`, `${petCuenta.sobre_umbral} matches a focus above the threshold`) }}
       </li>
       <li v-if="pet?.focos_sin_lesion" class="flex items-start gap-1.5">
-        <span class="inline-block w-2.5 h-2.5 mt-[3px] shrink-0 rounded-full border-2" style="border-color:#ff6b47" aria-hidden="true" />
-        {{ L(`${pet.focos_sin_lesion} anillos huecos: focos activos donde la segmentación no puso lesión`, `${pet.focos_sin_lesion} hollow rings: active foci where the segmentation placed no lesion`) }}
+        <span class="inline-block w-2.5 h-2.5 mt-[3px] shrink-0 rounded-full opacity-60" style="background:#ff6b47" aria-hidden="true" />
+        {{ L(`${pet.focos_sin_lesion} puntos: señal del PET por encima del umbral sin lesión en el TC`, `${pet.focos_sin_lesion} dots: PET signal above the threshold with no lesion on the CT`) }}
       </li>
     </ul>
+    <p v-if="pet?.focos_sin_lesion && !loading && !failed && lente === 'pet'" class="mt-1.5 text-[11px] text-tinta leading-snug">
+      {{ L('Los puntos marcan DÓNDE hay señal, no cuánta ni de qué tamaño: su tamaño es fijo, medio vóxel del PET, y no mide nada. Uno de ellos, en el segmento VIII, es el que el informe del PET nombra; los otros dos no aparecen en el informe.', 'The dots mark WHERE there is signal, not how much or how large: their size is fixed, half a PET voxel, and measures nothing. One of them, in segment VIII, is the one named in the PET report; the other two do not appear in it.') }}
+    </p>
     <p v-if="pet && !loading && !failed && lente === 'pet'" class="mt-1.5 text-[11px] text-tinta leading-snug">
       {{ L('Poca captación NO descarta lesión: con vóxel de 4 mm, el volumen parcial hunde en el fondo a las lesiones pequeñas. Por eso ninguna se pinta como «PET negativa».', 'Low uptake does NOT rule out a lesion: with a 4 mm voxel, partial volume sinks small lesions into the background. That is why none is coloured as “PET negative”.') }}
     </p>
