@@ -69,12 +69,14 @@ const tejidoMat = (lado: THREE.Side) => fresnel(new THREE.MeshPhysicalMaterial({
   color: 0xe8dcc8, roughness: 0.45, clearcoat: 0.5, clearcoatRoughness: 0.3,
   sheen: 0.25, sheenRoughness: 0.7, sheenColor: new THREE.Color(0xfff6e4),
   transparent: true, depthWrite: false, side: lado }), 0.05, 0.38, 2.4)
-// La ENVOLTURA de la mama: la superficie del pecho, casi un susurro. Va muy transparente y sin
-// brillo especular fuerte para que se lea como el contorno de una pieza anatómica y no como piel
-// fotográfica; lo que tiene que mirarse sigue siendo lo de dentro.
+// La ENVOLTURA de la mama: la superficie del pecho. Miriam, 20-sep: «a mí no me importa que se
+// vea la mama». Así que se ve — es la pieza, y una pieza que no se distingue no informa de nada.
+// Lo que se cuida no es taparla, es que se lea como una reconstrucción médica y no como una
+// fotografía: mate, sin brillo especular de piel, y traslúcida para que el tumor de dentro no
+// quede escondido detrás de ella.
 const envolturaMat = (lado: THREE.Side) => fresnel(new THREE.MeshPhysicalMaterial({
-  color: 0xd8cfc4, roughness: 0.7, clearcoat: 0.15, clearcoatRoughness: 0.6,
-  transparent: true, depthWrite: false, side: lado }), 0.015, 0.16, 3.0)
+  color: 0xdccfc0, roughness: 0.78, clearcoat: 0.1, clearcoatRoughness: 0.7,
+  transparent: true, depthWrite: false, side: lado }), 0.11, 0.62, 2.0)
 // El mismo dorado brillante de las lesiones del hígado: una sola gramática de color en la página.
 const lesionMat = () => new THREE.MeshPhysicalMaterial({
   color: 0xf2b23c, roughness: 0.3, clearcoat: 0.85, clearcoatRoughness: 0.1,
