@@ -204,12 +204,23 @@ async function init() {
     // cualquier cosa redonda aquí se confunde con ella (Miriam lo vio antes que yo). La cruz es
     // una marca distinta a simple vista, y va SOBRE la superficie, orientada por la normal de la
     // mama en ese punto, de modo que gira con la pieza en vez de flotar pegada a la pantalla.
+    // El color NO es el blanco del anillo de la lesión, y eso importa: el comité lo giró en vivo
+    // y con el tumor cerca del pezón (que es el caso) la cruz y el anillo acababan leyéndose
+    // como una sola cosa, que es justo el problema que hizo descartar el círculo. Va en el
+    // turquesa del sistema, que en esta página solo se usa para señalar, nunca para anatomía, y
+    // con un reborde oscuro para que se despegue también del contorno claro de la mama.
     const grupo = new THREE.Group()
-    const tinta = new THREE.MeshBasicMaterial({ color: 0xf5efe6, transparent: true,
-      opacity: 0.85, side: THREE.DoubleSide, depthWrite: false })
+    const borde = new THREE.MeshBasicMaterial({ color: 0x1c1126, transparent: true,
+      opacity: 0.55, side: THREE.DoubleSide, depthWrite: false })
+    const tinta = new THREE.MeshBasicMaterial({ color: 0x1c969e, transparent: true,
+      opacity: 0.95, side: THREE.DoubleSide, depthWrite: false })
     for (const giro of [0, Math.PI / 2]) {
+      const sombra = new THREE.Mesh(new THREE.PlaneGeometry(18.6, 3.2), borde)
+      sombra.rotation.z = giro
+      grupo.add(sombra)
       const barra = new THREE.Mesh(new THREE.PlaneGeometry(17, 1.6), tinta)
       barra.rotation.z = giro
+      barra.position.z = 0.01
       grupo.add(barra)
     }
     grupo.position.copy(pezon3); grupo.lookAt(fuera); grupo.renderOrder = 7
@@ -320,7 +331,7 @@ onBeforeUnmount(() => {
         {{ L('Vasos de la mama, los que le llevan la sangre (y el contraste) al tumor', 'Vessels of the breast, the ones carrying blood (and contrast) to the tumour') }}
       </li>
       <li class="flex items-start gap-1.5">
-        <span class="inline-block w-2.5 h-2.5 mt-[2px] shrink-0 text-[13px] leading-none text-center text-berenjena" aria-hidden="true">+</span>
+        <span class="inline-block w-2.5 h-2.5 mt-[2px] shrink-0 text-[13px] leading-none text-center" style="color:#1c969e" aria-hidden="true">+</span>
         {{ L('La cruz marca el pezón, que es la referencia para orientarse en una mama; su relieve no está en el modelo', 'The cross marks the nipple, the reference point for orienting yourself on a breast; its relief is not in the model') }}
       </li>
     </ul>
