@@ -67,6 +67,17 @@ const biopsia = computed(() =>
         <div class="grid gap-6 md:grid-cols-2 items-start mb-10">
           <section class="card-base" aria-labelledby="mama-titulo">
             <h2 id="mama-titulo" class="heading-display text-2xl text-berenjena mb-3" style="letter-spacing: -0.02em">{{ L('Mama derecha', 'Right breast') }}</h2>
+            <div class="mb-3">
+              <ClientOnly>
+                <BreastView base="/lesiones/mama/" fallback="/lesiones/mama-2026-09-08.webp"
+                  :fallback-alt="L('Reconstrucción 3D del tumor primario de mama de Miriam desde su resonancia del 8 de septiembre de 2026, dentro del tejido fibroglandular de la mama derecha', '3D reconstruction of Miriam’s primary breast tumour from her 8 September 2026 MRI, inside the fibroglandular tissue of the right breast')" />
+                <template #fallback>
+                  <div class="rounded-xl flex items-center justify-center text-[12px]" style="aspect-ratio:1/1;background:#1c1126;color:#aeb6c2">
+                    {{ L('cargando visor…', 'loading viewer…') }}
+                  </div>
+                </template>
+              </ClientOnly>
+            </div>
             <p class="text-[14px] text-tinta leading-relaxed">
               {{ L('Tumor primario, medido en RM (13-jul → 8-sep-2026): 14 → 15 mm.', 'Primary tumor, measured on MRI (13 Jul → 8 Sep 2026): 14 → 15 mm.') }}
             </p>
