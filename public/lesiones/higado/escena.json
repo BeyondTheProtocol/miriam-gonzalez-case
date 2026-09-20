@@ -180,5 +180,37 @@
   "focos_higado": 4,
   "focos_sobre_lesion": 1,
   "focos_sin_lesion": 3
- }
+ },
+ "focos": [
+  {
+   "suvmax": 3.77,
+   "segmento": 7,
+   "distancia_mm": 16.5,
+   "centro": [
+    -90.36,
+    12.65,
+    -28.82
+   ]
+  },
+  {
+   "suvmax": 3.6,
+   "segmento": 8,
+   "distancia_mm": 18.3,
+   "centro": [
+    -61.86,
+    24.25,
+    19.78
+   ]
+  },
+  {
+   "suvmax": 3.41,
+   "segmento": 4,
+   "distancia_mm": 32.2,
+   "centro": [
+    -9.86,
+    51.15,
+    5.28
+   ]
+  }
+ ]
 }

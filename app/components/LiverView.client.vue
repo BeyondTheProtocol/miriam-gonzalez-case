@@ -26,7 +26,8 @@ const L = (es: string, en: string) => (lang.value === 'en' ? en : es)
 
 interface Lesion { malla: string; diametro_auto_mm: number; diana: string | null; mm_informe: number | null; suvmax?: number | null; pet?: string }
 interface Pet { fecha: string; fondo_suvmean: number; fondo_suvsd: number; umbral_percist: number; dice_registro: number; focos_higado?: number; focos_sobre_lesion?: number; focos_sin_lesion?: number }
-interface Escena { mallas: Record<string, string>; lesiones: Lesion[]; pet?: Pet }
+interface Foco { suvmax: number; segmento: number | null; centro: [number, number, number]; distancia_mm: number }
+interface Escena { mallas: Record<string, string>; lesiones: Lesion[]; pet?: Pet; focos?: Foco[] }
 
 const host = ref<HTMLDivElement | null>(null)
 const loading = ref(true)
@@ -71,6 +72,13 @@ const higadoMat = (lado: THREE.Side) => fresnel(new THREE.MeshPhysicalMaterial({
   sheen: 0.5, sheenRoughness: 0.5, sheenColor: new THREE.Color(0xe39a86),
   transparent: true, depthWrite: false, side: lado }), 0.10, 0.92, 2.4)
 const vaso = (c: number) => new THREE.MeshPhysicalMaterial({ color: c, roughness: 0.28, clearcoat: 0.9, clearcoatRoughness: 0.15 })
+/* Los focos del PET que NO tienen lesión segmentada debajo. Se pintan como un anillo hueco,
+   NUNCA como una lesión: no lo son. Es actividad metabólica donde el modelo del TC no puso
+   nada, y esa diferencia es justo lo que el visor tiene que enseñar sin sugerir un bulto. */
+const focoMat = () => new THREE.MeshBasicMaterial({ color: 0xff6b47, transparent: true,
+  opacity: 0.85, side: THREE.DoubleSide, depthWrite: false })
+const focos: THREE.Object3D[] = []
+
 /* LENTE DEL PET — los mismos cuerpos, pintados por lo que dice el PET de cada uno.
    Además del tono, cambia la TEXTURA (mismo criterio que la lente de tamaño, por el
    daltonismo azul-amarillo): lo que capta va brillante y emisivo; lo que se confunde con el
@@ -219,6 +227,17 @@ async function init() {
     pequenas: esc.lesiones.filter((x) => !x.diana && x.diametro_auto_mm < 10).length,
   }
   pet.value = esc.pet ?? null
+  /* Un anillo hueco por foco, del tamaño de un vóxel del PET (4 mm de radio): actividad
+     metabólica donde la segmentación no puso lesión. No es una malla de lesión y no se pinta
+     como tal — si lo pareciera, estaríamos dibujando un bulto que nadie ha visto. */
+  for (const f of esc.focos ?? []) {
+    const anillo = new THREE.Mesh(new THREE.TorusGeometry(7, 1.1, 8, 40), focoMat())
+    anillo.position.set(f.centro[0], f.centro[1], f.centro[2])
+    anillo.renderOrder = 5
+    anillo.visible = false
+    scene.add(anillo)
+    focos.push(anillo)
+  }
   if (esc.pet) {
     const n = (e: string) => esc.lesiones.filter((x) => x.pet === e).length
     petCuenta.value = { sobre_umbral: n('sobre_umbral'), sobre_fondo: n('sobre_fondo'),
@@ -238,7 +257,9 @@ async function init() {
   const tick = () => {
     raf = requestAnimationFrame(tick)
     if (!enVista) return   // fuera de pantalla no se pinta (batería)
-    controls.update(); renderer!.render(scene, camera); actualizaRotulos()
+    controls.update()
+    for (const f of focos) { f.visible = lente.value === 'pet'; if (f.visible) f.quaternion.copy(camera.quaternion) }
+    renderer!.render(scene, camera); actualizaRotulos()
   }
   tick()
 }
@@ -358,6 +379,10 @@ onBeforeUnmount(() => {
       <li class="flex items-start gap-1.5">
         <span class="inline-block w-2.5 h-2.5 mt-[3px] shrink-0 rounded-full" style="background:#ff6b47" aria-hidden="true" />
         {{ L(`${petCuenta.sobre_umbral} coincide con un foco por encima del umbral`, `${petCuenta.sobre_umbral} matches a focus above the threshold`) }}
+      </li>
+      <li v-if="pet?.focos_sin_lesion" class="flex items-start gap-1.5">
+        <span class="inline-block w-2.5 h-2.5 mt-[3px] shrink-0 rounded-full border-2" style="border-color:#ff6b47" aria-hidden="true" />
+        {{ L(`${pet.focos_sin_lesion} anillos huecos: focos activos donde la segmentación no puso lesión`, `${pet.focos_sin_lesion} hollow rings: active foci where the segmentation placed no lesion`) }}
       </li>
     </ul>
     <p v-if="pet && !loading && !failed && lente === 'pet'" class="mt-1.5 text-[11px] text-tinta leading-snug">
