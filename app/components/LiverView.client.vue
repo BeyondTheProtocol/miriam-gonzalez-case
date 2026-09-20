@@ -69,9 +69,10 @@ const MAT: Record<string, () => THREE.Material> = {
   // Miriam, 20-sep: «no distingo las pequeñas de las grandes». Las dos clases eran crema pálido
   // y lila casi blanco, y a través del hígado translúcido acababan igual de pálidas: medido,
   // aclarar el lila subía el contraste real de 2,28:1 a 2,42:1, o sea nada. Lo que las separa es
-  // el TONO: ≥ 10 mm en dorado, < 10 mm en violeta, y encima brillante contra mate.
-  lesionPequena: () => new THREE.MeshPhysicalMaterial({ color: 0x9d8cf0, roughness: 0.55, clearcoat: 0.2,
-    emissive: 0x4a3aa0, emissiveIntensity: 0.5 }),
+  // el TONO: ≥ 10 mm en dorado, < 10 mm en violeta, y encima brillante contra mate. El violeta va
+  // SATURADO: a tamaño real de móvil, uno pálido llegaba descolorido y se leía como un punto blanco.
+  lesionPequena: () => new THREE.MeshPhysicalMaterial({ color: 0x7c5cf0, roughness: 0.5, clearcoat: 0.25,
+    emissive: 0x5b3ce0, emissiveIntensity: 0.85 }),
   porta: () => vaso(0x5236b0), vasos: () => vaso(0x2d63d6), vci: () => vaso(0x1f45a8),
   vesicula: () => fresnel(new THREE.MeshPhysicalMaterial({ color: 0x6f9a3a, roughness: 0.25, clearcoat: 1,
     transparent: true, depthWrite: false }), 0.35, 0.95, 2.0),
@@ -269,7 +270,7 @@ onBeforeUnmount(() => {
         {{ L(`Otras ${cuenta.medibles} lesiones de 10 mm o más (detección automática)`, `${cuenta.medibles} other lesions of 10 mm or more (automatic detection)`) }}
       </li>
       <li class="flex items-start gap-1.5">
-        <span class="inline-block w-2.5 h-2.5 mt-[3px] shrink-0 rounded-full" style="background:#9d8cf0" aria-hidden="true" />
+        <span class="inline-block w-2.5 h-2.5 mt-[3px] shrink-0 rounded-full" style="background:#7c5cf0" aria-hidden="true" />
         {{ L(`${cuenta.pequenas} lesiones de menos de 10 mm (detección automática)`, `${cuenta.pequenas} lesions under 10 mm (automatic detection)`) }}
       </li>
     </ul>
