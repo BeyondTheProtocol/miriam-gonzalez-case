@@ -107,9 +107,13 @@ const biopsia = computed(() =>
             {{ L('Hueso', 'Bone') }}
           </h2>
           <!-- Fechas de los estudios del mapa (su propia cabecera): sin esto, «de un vistazo»
-               se leía como «al día», y el PET del 8-sep aún no está en el mapa (verificacion, 19-sep). -->
+               se leía como «al día», y el PET del 8-sep aún no está en el mapa (verificacion, 19-sep).
+               20-sep: decir «aún no incorporado» se quedaba corto. Ese PET no solo falta, CAMBIA el
+               cuadro: concluye «progresión ósea por aparición de nuevas lesiones activas», con más
+               lesiones activas en columna, escápula derecha, costillas, pelvis y ambos fémures. Con
+               tráfico de campaña, un aviso neutro se lee como el estado de hoy. -->
           <p class="text-[13px] text-tinta leading-relaxed mb-4">
-            {{ L('PET de marzo y mayo y RM de junio de 2026. El PET del 8 de septiembre aún no está incorporado.', 'PET scans from March and May and MRI from June 2026. The 8 September PET is not included yet.') }}
+            {{ L('PET de marzo y mayo y RM de junio de 2026. El PET del 8 de septiembre, aún no incorporado, describe más lesiones óseas activas que las que se ven aquí.', 'PET scans from March and May and MRI from June 2026. The 8 September PET, not yet included, describes more active bone lesions than the ones shown here.') }}
           </p>
           <div class="grid gap-6 lg:grid-cols-[minmax(0,360px)_minmax(0,1fr)] items-start">
             <div class="card-base !p-4">
