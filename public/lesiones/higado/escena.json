@@ -11,122 +11,171 @@
    "malla": "lesion01.ply",
    "diametro_auto_mm": 18.0,
    "diana": "diana s.II",
-   "mm_informe": 20
+   "mm_informe": 20,
+   "suvmax": 1.29,
+   "pet": "en_fondo"
   },
   {
    "malla": "lesion02.ply",
    "diametro_auto_mm": 16.7,
    "diana": null,
-   "mm_informe": null
+   "mm_informe": null,
+   "suvmax": 2.16,
+   "pet": "en_fondo"
   },
   {
    "malla": "lesion03.ply",
    "diametro_auto_mm": 13.8,
    "diana": "diana s.IVb",
-   "mm_informe": 19
+   "mm_informe": 19,
+   "suvmax": 4.22,
+   "pet": "sobre_umbral"
   },
   {
    "malla": "lesion04.ply",
    "diametro_auto_mm": 13.6,
    "diana": null,
-   "mm_informe": null
+   "mm_informe": null,
+   "suvmax": 1.17,
+   "pet": "en_fondo"
   },
   {
    "malla": "lesion05.ply",
    "diametro_auto_mm": 12.8,
    "diana": null,
-   "mm_informe": null
+   "mm_informe": null,
+   "suvmax": 1.99,
+   "pet": "en_fondo"
   },
   {
    "malla": "lesion06.ply",
    "diametro_auto_mm": 11.9,
    "diana": null,
-   "mm_informe": null
+   "mm_informe": null,
+   "suvmax": 1.89,
+   "pet": "en_fondo"
   },
   {
    "malla": "lesion07.ply",
    "diametro_auto_mm": 11.4,
    "diana": null,
-   "mm_informe": null
+   "mm_informe": null,
+   "suvmax": 2.1,
+   "pet": "en_fondo"
   },
   {
    "malla": "lesion08.ply",
    "diametro_auto_mm": 11.4,
    "diana": null,
-   "mm_informe": null
+   "mm_informe": null,
+   "suvmax": 2.12,
+   "pet": "en_fondo"
   },
   {
    "malla": "lesion09.ply",
    "diametro_auto_mm": 11.1,
    "diana": null,
-   "mm_informe": null
+   "mm_informe": null,
+   "suvmax": 2.38,
+   "pet": "en_fondo"
   },
   {
    "malla": "lesion10.ply",
    "diametro_auto_mm": 10.6,
    "diana": null,
-   "mm_informe": null
+   "mm_informe": null,
+   "suvmax": 1.93,
+   "pet": "en_fondo"
   },
   {
    "malla": "lesion11.ply",
    "diametro_auto_mm": 10.4,
    "diana": null,
-   "mm_informe": null
+   "mm_informe": null,
+   "suvmax": 3.07,
+   "pet": "sobre_fondo"
   },
   {
    "malla": "lesion12.ply",
    "diametro_auto_mm": 8.4,
    "diana": null,
-   "mm_informe": null
+   "mm_informe": null,
+   "suvmax": 1.66,
+   "pet": "en_fondo"
   },
   {
    "malla": "lesion13.ply",
    "diametro_auto_mm": 7.9,
    "diana": null,
-   "mm_informe": null
+   "mm_informe": null,
+   "suvmax": 2.09,
+   "pet": "en_fondo"
   },
   {
    "malla": "lesion14.ply",
    "diametro_auto_mm": 6.6,
    "diana": null,
-   "mm_informe": null
+   "mm_informe": null,
+   "suvmax": 2.01,
+   "pet": "en_fondo"
   },
   {
    "malla": "lesion15.ply",
    "diametro_auto_mm": 6.3,
    "diana": null,
-   "mm_informe": null
+   "mm_informe": null,
+   "suvmax": 2.43,
+   "pet": "sobre_fondo"
   },
   {
    "malla": "lesion16.ply",
    "diametro_auto_mm": 5.7,
    "diana": null,
-   "mm_informe": null
+   "mm_informe": null,
+   "suvmax": 1.91,
+   "pet": "en_fondo"
   },
   {
    "malla": "lesion17.ply",
    "diametro_auto_mm": 5.3,
    "diana": null,
-   "mm_informe": null
+   "mm_informe": null,
+   "suvmax": 2.03,
+   "pet": "en_fondo"
   },
   {
    "malla": "lesion18.ply",
    "diametro_auto_mm": 5.3,
    "diana": null,
-   "mm_informe": null
+   "mm_informe": null,
+   "suvmax": null,
+   "pet": "no_evaluable"
   },
   {
    "malla": "lesion19.ply",
    "diametro_auto_mm": 4.1,
    "diana": null,
-   "mm_informe": null
+   "mm_informe": null,
+   "suvmax": null,
+   "pet": "no_evaluable"
   },
   {
    "malla": "lesion20.ply",
    "diametro_auto_mm": 2.2,
    "diana": null,
-   "mm_informe": null
+   "mm_informe": null,
+   "suvmax": null,
+   "pet": "no_evaluable"
   }
  ],
- "fuente": "dianas: informe radiológico (RECIST); resto: segmentación automática local, sin validación radiológica"
+ "fuente": "dianas: informe radiológico (RECIST); resto: segmentación automática local, sin validación radiológica",
+ "pet": {
+  "fecha": "20260908",
+  "fondo_suvmean": 1.72,
+  "fondo_suvsd": 0.35,
+  "umbral_percist": 3.28,
+  "dice_registro": 0.964,
+  "ratio_vs_fabricante": 1.0003,
+  "fuente": "SUVmax por lesión del PET-TC FDG del mismo día (8-sep-2026), cruzado con el TC por registro deformable del hígado. Poca captación NO descarta lesión: con vóxel de 4 mm el volumen parcial hunde en el fondo a las lesiones pequeñas."
+ }
 }

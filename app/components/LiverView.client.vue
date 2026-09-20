@@ -24,14 +24,20 @@ const { locale } = useI18n()
 const lang = computed<'es' | 'en'>(() => (locale.value === 'en' ? 'en' : 'es'))
 const L = (es: string, en: string) => (lang.value === 'en' ? en : es)
 
-interface Lesion { malla: string; diametro_auto_mm: number; diana: string | null; mm_informe: number | null }
-interface Escena { mallas: Record<string, string>; lesiones: Lesion[] }
+interface Lesion { malla: string; diametro_auto_mm: number; diana: string | null; mm_informe: number | null; suvmax?: number | null; pet?: string }
+interface Pet { fecha: string; fondo_suvmean: number; fondo_suvsd: number; umbral_percist: number; dice_registro: number }
+interface Escena { mallas: Record<string, string>; lesiones: Lesion[]; pet?: Pet }
 
 const host = ref<HTMLDivElement | null>(null)
 const loading = ref(true)
 const failed = ref(false)
 const rotulos = ref<{ texto: string; x: number; y: number; r: number; tx: number; ty: number; visible: boolean }[]>([])
 const cuenta = ref({ dianas: 0, medibles: 0, pequenas: 0 })
+/* PET: cuántas lesiones caen en cada estado. NUNCA existe el estado «PET negativo» — con vóxel
+   de 4 mm el volumen parcial hunde en el fondo a las pequeñas, así que poca captación no
+   descarta nada. Los recuentos salen de escena.json, no están escritos a mano. */
+const pet = ref<Pet | null>(null)
+const petCuenta = ref({ sobre_umbral: 0, sobre_fondo: 0, en_fondo: 0, no_evaluable: 0 })
 
 let renderer: THREE.WebGLRenderer | null = null
 let camera: THREE.PerspectiveCamera
@@ -170,7 +176,10 @@ async function init() {
       const m = malla(g, (medible ? MAT.lesion : MAT.lesionPequena)!(), 1)
       if (les.diana) {
         const et = lang.value === 'en' ? les.diana.replace('diana', 'Target') : les.diana.replace('diana', 'Diana')
-        dianas.push({ malla: m, texto: et + ' · ' + les.mm_informe + ' mm' })
+        // Si esa diana capta por encima del umbral, su SUVmax va en el propio rótulo: es
+        // la única lesión de las 20 que el PET respalda, y decirlo donde se mira es el sitio.
+        const suv = les.pet === 'sobre_umbral' && les.suvmax ? ' · SUV ' + les.suvmax.toFixed(1) : ''
+        dianas.push({ malla: m, texto: et + ' · ' + les.mm_informe + ' mm' + suv })
       }
     }))
   }
@@ -178,6 +187,12 @@ async function init() {
     dianas: esc.lesiones.filter((x) => x.diana).length,
     medibles: esc.lesiones.filter((x) => !x.diana && x.diametro_auto_mm >= 10).length,
     pequenas: esc.lesiones.filter((x) => !x.diana && x.diametro_auto_mm < 10).length,
+  }
+  pet.value = esc.pet ?? null
+  if (esc.pet) {
+    const n = (e: string) => esc.lesiones.filter((x) => x.pet === e).length
+    petCuenta.value = { sobre_umbral: n('sobre_umbral'), sobre_fondo: n('sobre_fondo'),
+                        en_fondo: n('en_fondo'), no_evaluable: n('no_evaluable') }
   }
   const gh = await geo(props.base + esc.mallas.higado)
   malla(gh, higadoMat(THREE.BackSide), 3)   // caras de detrás primero…
@@ -274,6 +289,25 @@ onBeforeUnmount(() => {
         {{ L(`${cuenta.pequenas} lesiones de menos de 10 mm (detección automática)`, `${cuenta.pequenas} lesions under 10 mm (automatic detection)`) }}
       </li>
     </ul>
+    <!-- PET del mismo día, cruzado lesión a lesión. Va DESPUÉS de la leyenda de colores
+         porque no es otra categoría de lesión: es otra prueba sobre las mismas. -->
+    <div v-if="pet && !loading && !failed" class="mt-3 pt-3 border-t border-berenjena/10">
+      <p class="text-[11px] font-semibold text-berenjena mb-1">
+        {{ L('Lo que dice el PET del mismo día', 'What the same-day PET says') }}
+      </p>
+      <ul class="space-y-1 text-[11px] text-tinta">
+        <li>{{ L(`${petCuenta.sobre_umbral} capta por encima del umbral`, `${petCuenta.sobre_umbral} takes up above the threshold`) }}</li>
+        <li>{{ L(`${petCuenta.sobre_fondo} por encima del fondo del hígado, sin llegar al umbral`, `${petCuenta.sobre_fondo} above liver background, below the threshold`) }}</li>
+        <li>{{ L(`${petCuenta.en_fondo} indistinguibles del fondo del hígado`, `${petCuenta.en_fondo} indistinguishable from liver background`) }}</li>
+        <li>{{ L(`${petCuenta.no_evaluable} no evaluables: más pequeñas que el vóxel del PET`, `${petCuenta.no_evaluable} not assessable: smaller than the PET voxel`) }}</li>
+      </ul>
+      <p class="mt-1.5 text-[11px] text-tinta leading-snug">
+        {{ L('Poca captación NO descarta lesión: con vóxel de 4 mm, el volumen parcial hunde en el fondo a las lesiones pequeñas. Por eso ninguna sale como «PET negativa».', 'Low uptake does NOT rule out a lesion: with a 4 mm voxel, partial volume sinks small lesions into the background. That is why none is labelled “PET negative”.') }}
+      </p>
+      <p class="mt-1 text-[11px] text-tinta leading-snug">
+        {{ L(`Fondo del hígado SUV ${pet.fondo_suvmean} ± ${pet.fondo_suvsd} · umbral PERCIST ${pet.umbral_percist} · registro del hígado TC↔PET, Dice ${pet.dice_registro}.`, `Liver background SUV ${pet.fondo_suvmean} ± ${pet.fondo_suvsd} · PERCIST threshold ${pet.umbral_percist} · CT↔PET liver registration, Dice ${pet.dice_registro}.`) }}
+      </p>
+    </div>
     <ul class="flex flex-wrap gap-x-4 gap-y-1 mt-1.5 text-[11px] text-tinta">
       <li v-for="[c, es, en] in [['#5236b0', 'Vena porta', 'Portal vein'], ['#2d63d6', 'Vasos hepáticos', 'Hepatic vessels'], ['#1f45a8', 'Vena cava inferior', 'Inferior vena cava'], ['#6f9a3a', 'Vesícula', 'Gallbladder']]" :key="c" class="inline-flex items-center gap-1.5">
         <span class="inline-block w-2.5 h-2.5 rounded-full" :style="{ background: c }" aria-hidden="true" />{{ L(es!, en!) }}
