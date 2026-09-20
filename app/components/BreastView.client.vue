@@ -261,8 +261,9 @@ onBeforeUnmount(() => {
         </template>
       </div>
       <div v-if="!loading && !failed && pezon?.visible" class="absolute inset-0 pointer-events-none" aria-hidden="true">
+        <!-- Miriam, 20-sep: la palabra escrita encima del render, mejor no. La cruz sola orienta
+             igual, y lo que es queda dicho en la leyenda de debajo, fuera de la imagen. -->
         <span class="bv-pezon" :style="{ left: pezon.x + 'px', top: pezon.y + 'px' }" />
-        <span class="bv-pezon-txt" :style="{ left: pezon.x + 'px', top: (pezon.y + 12) + 'px' }">{{ L('pezón', 'nipple') }}</span>
       </div>
       <div v-if="loading" class="absolute inset-0 flex items-center justify-center text-[12px]" style="color:#aeb6c2">
         {{ L('reconstruyendo 3D…', 'rebuilding 3D…') }}
@@ -326,11 +327,6 @@ onBeforeUnmount(() => {
   background:
     linear-gradient(to right, transparent 5.5px, rgba(245, 239, 230, 0.95) 5.5px 7.5px, transparent 7.5px),
     linear-gradient(to bottom, transparent 5.5px, rgba(245, 239, 230, 0.95) 5.5px 7.5px, transparent 7.5px);
-}
-.bv-pezon-txt {
-  position: absolute; transform: translate(-50%, 0); white-space: nowrap;
-  font: 500 10px/1.2 'JetBrains Mono', ui-monospace, monospace; color: #F5EFE6;
-  background: rgba(28, 17, 38, 0.6); padding: 1px 4px; border-radius: 3px;
 }
 .bv-reencuadre {
   position: absolute; bottom: 10px; right: 10px; width: 44px; height: 44px;
