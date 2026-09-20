@@ -79,8 +79,11 @@ const vaso = (c: number) => new THREE.MeshPhysicalMaterial({ color: c, roughness
    coincidiría con el de las lesiones pequeñas reales. Un punto fijo dice «aquí hay señal»;
    una esfera del tamaño del volumen diría «esto mide esto», que es afirmar de más.
    (Comité de verificación, 20-sep: la esfera por volumen queda vetada.) */
-const focoMat = () => new THREE.MeshPhysicalMaterial({ color: 0xff6b47, roughness: 0.8,
-  transparent: true, opacity: 0.55, depthWrite: false })
+const focoMat = () => new THREE.MeshPhysicalMaterial({ color: 0xff6b47, roughness: 0.35,
+  clearcoat: 0.6, emissive: 0xb02d10, emissiveIntensity: 0.9 })
+// El tamaño NO se toca: es lo que sostiene que el punto no mida nada. Lo que se sube es el
+// contraste. Translúcidos y mates se perdían entre las lesiones pálidas del fondo a través
+// del hígado (20-sep): un marcador que no se ve no informa, y agrandarlo sería afirmar.
 const focos: THREE.Object3D[] = []
 
 /* LENTE DEL PET — los mismos cuerpos, pintados por lo que dice el PET de cada uno.
