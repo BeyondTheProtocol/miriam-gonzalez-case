@@ -124,7 +124,7 @@ const biopsia = computed(() =>
                 <ClientOnly v-if="meshKey">
                   <BoneTriView :mesh-key="meshKey" :biopsied="biopsia != null" :no-target="sel.source === 'ia-david'" :biopsy-label="biopsia ?? undefined" />
                   <template #fallback>
-                    <div class="rounded-lg flex items-center justify-center text-[12px]" style="aspect-ratio:12/5;background:#0d1117;color:#aeb6c2">
+                    <div class="rounded-lg flex items-center justify-center text-[12px]" style="aspect-ratio:12/5;background:#1c1126;color:#aeb6c2">
                       {{ L('cargando visor…', 'loading viewer…') }}
                     </div>
                   </template>
