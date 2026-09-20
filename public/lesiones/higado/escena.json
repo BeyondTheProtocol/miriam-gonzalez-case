@@ -176,6 +176,9 @@
   "umbral_percist": 3.28,
   "dice_registro": 0.964,
   "ratio_vs_fabricante": 1.0003,
-  "fuente": "SUVmax por lesión del PET-TC FDG del mismo día (8-sep-2026), cruzado con el TC por registro deformable del hígado. Poca captación NO descarta lesión: con vóxel de 4 mm el volumen parcial hunde en el fondo a las lesiones pequeñas."
+  "fuente": "SUVmax por lesión del PET-TC FDG del mismo día (8-sep-2026), cruzado con el TC por registro deformable del hígado. Poca captación NO descarta lesión: con vóxel de 4 mm el volumen parcial hunde en el fondo a las lesiones pequeñas.",
+  "focos_higado": 4,
+  "focos_sobre_lesion": 1,
+  "focos_sin_lesion": 3
  }
 }

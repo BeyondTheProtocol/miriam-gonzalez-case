@@ -25,7 +25,7 @@ const lang = computed<'es' | 'en'>(() => (locale.value === 'en' ? 'en' : 'es'))
 const L = (es: string, en: string) => (lang.value === 'en' ? en : es)
 
 interface Lesion { malla: string; diametro_auto_mm: number; diana: string | null; mm_informe: number | null; suvmax?: number | null; pet?: string }
-interface Pet { fecha: string; fondo_suvmean: number; fondo_suvsd: number; umbral_percist: number; dice_registro: number }
+interface Pet { fecha: string; fondo_suvmean: number; fondo_suvsd: number; umbral_percist: number; dice_registro: number; focos_higado?: number; focos_sobre_lesion?: number; focos_sin_lesion?: number }
 interface Escena { mallas: Record<string, string>; lesiones: Lesion[]; pet?: Pet }
 
 const host = ref<HTMLDivElement | null>(null)
@@ -336,6 +336,12 @@ onBeforeUnmount(() => {
 
     <!-- leyenda de la lente del PET: los mismos cuatro estados que se están pintando, en el
          mismo orden de la masa que NO respalda hacia la única que sí. -->
+    <!-- PRIMERO cuántos focos activos hay, y solo después cuántas lesiones coinciden. Sin esta
+         frase, «1 capta por encima del umbral» se lee como «el hígado tiene un solo punto
+         activo», que es justo lo contrario de lo que dice el informe. -->
+    <p v-if="pet?.focos_higado && !loading && !failed && lente === 'pet'" class="mt-2 text-[11px] text-tinta leading-snug">
+      {{ L(`En el hígado hay ${pet.focos_higado} focos activos por encima del umbral. ${pet.focos_sobre_lesion} coincide con una lesión de las que marca el TC; ${pet.focos_sin_lesion} caen donde la segmentación no puso ninguna.`, `There are ${pet.focos_higado} active foci above the threshold in the liver. ${pet.focos_sobre_lesion} matches a lesion marked on the CT; ${pet.focos_sin_lesion} fall where the segmentation placed none.`) }}
+    </p>
     <ul v-if="pet && !loading && !failed && lente === 'pet'" class="mt-2 space-y-1 text-[11px] text-tinta">
       <li class="flex items-start gap-1.5">
         <span class="inline-block w-2.5 h-2.5 mt-[3px] shrink-0 rounded-full" style="background:#9aa4b2" aria-hidden="true" />
@@ -351,7 +357,7 @@ onBeforeUnmount(() => {
       </li>
       <li class="flex items-start gap-1.5">
         <span class="inline-block w-2.5 h-2.5 mt-[3px] shrink-0 rounded-full" style="background:#ff6b47" aria-hidden="true" />
-        {{ L(`${petCuenta.sobre_umbral} capta por encima del umbral`, `${petCuenta.sobre_umbral} takes up above the threshold`) }}
+        {{ L(`${petCuenta.sobre_umbral} coincide con un foco por encima del umbral`, `${petCuenta.sobre_umbral} matches a focus above the threshold`) }}
       </li>
     </ul>
     <p v-if="pet && !loading && !failed && lente === 'pet'" class="mt-1.5 text-[11px] text-tinta leading-snug">
