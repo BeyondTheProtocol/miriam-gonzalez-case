@@ -183,6 +183,13 @@ export default defineNuxtConfig({
     '/3d-x': { redirect: { to: '/mapa-metastasis?utm_source=twitter&utm_medium=post&utm_campaign=lanzamiento-herramienta', statusCode: 302 } },
     '/3d-in': { redirect: { to: '/mapa-metastasis?utm_source=linkedin&utm_medium=post&utm_campaign=lanzamiento-herramienta', statusCode: 302 } },
     '/3d-ig': { redirect: { to: '/mapa-metastasis?utm_source=instagram&utm_medium=bio&utm_campaign=lanzamiento-herramienta', statusCode: 302 } },
+    // /lesiones (mama, hígado y hueso). Mismo patrón que /3d*, más TikTok: el vídeo de
+    // esta página es vertical y ahí sí hay enlace propio que medir.
+    '/vistazo': { redirect: { to: '/lesiones?utm_source=short&utm_medium=link&utm_campaign=lanzamiento-lesiones', statusCode: 302 } },
+    '/vistazo-x': { redirect: { to: '/lesiones?utm_source=twitter&utm_medium=post&utm_campaign=lanzamiento-lesiones', statusCode: 302 } },
+    '/vistazo-in': { redirect: { to: '/lesiones?utm_source=linkedin&utm_medium=post&utm_campaign=lanzamiento-lesiones', statusCode: 302 } },
+    '/vistazo-ig': { redirect: { to: '/lesiones?utm_source=instagram&utm_medium=bio&utm_campaign=lanzamiento-lesiones', statusCode: 302 } },
+    '/vistazo-tt': { redirect: { to: '/lesiones?utm_source=tiktok&utm_medium=bio&utm_campaign=lanzamiento-lesiones', statusCode: 302 } },
     '/donar': { redirect: { to: 'https://www.gofundme.com/f/biopsia-molecular-que-puede-cambiar-su-tratamiento', statusCode: 302 } },
     // (acceso para médicos) enlace corto SERIO para reenviar al equipo clínico (no de redes):
     // helpmiriam.com/caso → el panel del mapa. UTM «referral/medico» para distinguir el canal.
@@ -217,6 +224,7 @@ export default defineNuxtConfig({
       ignore: [
         '/design-system', '/mapa-metastasis.md', '/en/mapa-metastasis.md',
         '/3d', '/3d-x', '/3d-in', '/3d-ig', '/donar', '/caso',
+        '/vistazo', '/vistazo-x', '/vistazo-in', '/vistazo-ig', '/vistazo-tt',
         // datos en vivo: que nitro NO prerenderice un fichero que sombree el 302
         '/fundraiser.json', '/donations.json',
       ],
