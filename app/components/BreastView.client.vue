@@ -273,7 +273,7 @@ onBeforeUnmount(() => {
         v-else
         ref="host"
         role="img"
-        :aria-label="L('Tumor primario de mama en 3D, en dorado, dentro del tejido fibroglandular de la mama derecha, en color pergamino translúcido. El tumor mide 15 milímetros según el informe de radiología y está en el cuadrante superoexterno. Arrástralo para girar; las cifras están escritas debajo.', 'Primary breast tumour in 3D, in gold, inside the fibroglandular tissue of the right breast, shown in translucent parchment. The tumour measures 15 millimetres according to the radiology report and sits in the upper outer quadrant. Drag to rotate; the figures are written below.')"
+        :aria-label="L('Reconstrucción en 3D de la mama derecha de Miriam, girable. Se ve el contorno de la mama en translúcido; dentro, el tejido fibroglandular como un árbol; y el tumor primario en dorado, rodeado por un anillo con la medida del informe, 15 milímetros, en el cuadrante superoexterno. Una cruz sobre la superficie marca dónde está el pezón. Arrástralo para girar; todas las cifras están escritas debajo.', 'Rotatable 3D reconstruction of Miriam’s right breast. You can see the outline of the breast in translucent form; inside it, the fibroglandular tissue like a tree; and the primary tumour in gold, ringed and labelled with the figure from the report, 15 millimetres, in the upper outer quadrant. A cross on the surface marks where the nipple is. Drag to rotate; all the figures are written below.')"
         class="absolute inset-0 cursor-grab active:cursor-grabbing"
       />
       <div v-if="!loading && !failed" class="absolute inset-0 pointer-events-none" aria-hidden="true">
