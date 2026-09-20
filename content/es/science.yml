@@ -32,29 +32,35 @@ treatments:
   - line: →
     regimen: Estado actual (2026)
     outcome: >-
-      Desde julio de 2026 está en tratamiento dentro de un ensayo en fase 1 con
-      BG-75202, en el Vall d'Hebron. Las pruebas de imagen del cribado (julio
-      2026) mostraron lesiones hepáticas: la enfermedad, hasta entonces
-      exclusivamente ósea, dejó de estar confinada al hueso. La primera
-      rebiopsia ósea (abril 2026) no obtuvo tumor viable, así que se plantea una
-      rebiopsia ósea extendida guiada por PET — la prueba central que financia la
-      campaña. Estado funcional: ECOG 1.
+      Entre julio y septiembre de 2026 participó en el ensayo de fase 1
+      BG-75202 (inhibidor de KAT6 + fulvestrant). Salió el 9 de septiembre al
+      progresar en hígado: con ello se agotan las opciones de terapia endocrina.
+      Las pruebas de imagen del cribado (julio 2026) ya habían mostrado lesiones
+      hepáticas: la enfermedad, hasta entonces exclusivamente ósea, dejó de estar
+      confinada al hueso. La rebiopsia ósea de julio de 2026 sí obtuvo tumor
+      viable y dio el primer perfil molecular en tejido (detalle más abajo).
+      Desde octubre de 2026 inicia TROPION-Breast06 (NCT07205822), fase IIIb de
+      un solo brazo con datopotamab deruxtecan, un ADC dirigido contra TROP-2;
+      requisito de entrada HER2 IHQ 0. Estado funcional: ECOG 1.
     active: true
 paperSections:
   - title: Transformación Neuroendocrina y Pérdida de RB1
     tag: Transformación NE
     tone: warn
-    subtitle: 'El hallazgo más crítico: 3 variantes de RB1 (p.V622Yfs*33, p.R661W, p.F226*) en ctDNA Guardant360, abril 2026'
+    subtitle: '3 variantes de RB1 (p.V622Yfs*33, p.R661W, p.F226*) en ctDNA Guardant360 (abril 2026). No se confirman en la biopsia ósea de julio de 2026: el FoundationOne del tejido no encuentra alteración de RB1 ni de TP53'
     papers:
       - ref: 'Park et al., 2018 — Science (DOI: 10.1126/science.aat5749)'
         finding: 'Pérdida de RB1 + TP53: reprogramación hacia fenotipo neuroendocrino'
         relevance: >-
           Estudio experimental fundacional que demuestra que la pérdida
           combinada de RB1 y TP53 reprograma tejidos epiteliales
-          hormono-dependientes hacia un fenotipo neuroendocrino agresivo. Es la
-          base biológica directa del riesgo de transformación neuroendocrina en este
-          caso, donde se detectaron 3 mutaciones distintas en RB1 en la biopsia
-          líquida Guardant360 (abril 2026).
+          hormono-dependientes hacia un fenotipo neuroendocrino agresivo. Sostiene
+          la hipótesis de transformación neuroendocrina en este caso, donde se
+          detectaron 3 mutaciones distintas en RB1 en la biopsia líquida
+          Guardant360 (abril 2026). Matiz importante: el FoundationOne del tejido
+          óseo (julio 2026) no encuentra alteraciones de RB1 ni de TP53, así que
+          la hipótesis se apoya hoy en el ctDNA y en la histología (sinaptofisina
+          positiva), no en el genoma del tejido biopsiado.
         link: 'https://doi.org/10.1126/science.aat5749'
       - ref: 'Aggarwal et al., 2018 — Journal of Clinical Oncology (DOI: 10.1200/JCO.2017.77.6880)'
         finding: 'Transformación neuroendocrina bajo presión hormonal: 17% de los tumores hormono-dependientes'
@@ -287,10 +293,27 @@ imaging:
     receptores de somatostatina. Captación focal en cola de mama derecha a
     valorar en estudio dirigido.
 boneBiopsy:
-  title: Biopsia ósea (lesión ilíaca derecha)
-  date: Recibida 30/04/2026 · informe 08/05/2026
-  site: Lesión ilíaca derecha
+  title: Biopsia ósea (cresta ilíaca derecha)
+  date: 1er intento 30/04/2026 (sin tumor) · 2º intento 08/07/2026 (con tumor) · informes 17/07 y 19/08/2026
+  site: Cresta ilíaca derecha
   result: >-
-    No contenía tumor — «trabéculas óseas mineralizadas y fibras músculo
-    esqueléticas, no se observa neoplasia». La información molecular se
-    obtiene del ctDNA en sangre.
+    El primer intento (abril 2026) no obtuvo tumor: solo «trabéculas óseas
+    mineralizadas y fibras músculo esqueléticas». El segundo (julio 2026) sí
+    obtuvo tejido tumoral viable, y es la primera caracterización molecular
+    hecha sobre tejido y no sobre ctDNA. La anatomía patológica concluye metástasis
+    ósea del tumor neuroendocrino de mama, con sinaptofisina positiva y Ki67 de
+    alrededor del 15%. El patólogo deja dos reservas explícitas: la muestra
+    contiene poco tejido tumoral, y la gradación de los tumores neuroendocrinos
+    no está establecida en biopsias pequeñas —con esta morfología y ese Ki67
+    asume un tumor moderadamente diferenciado—. Receptores
+    hormonales y HER2 no se determinaron en esta muestra: el HER2 IHQ 0 que
+    exige TROPION-Breast06 procede del primario de 2024 revisado. El perfil molecular del tejido
+    (FoundationOne CDx, julio 2026) muestra amplificación de 11q13
+    (CCND1, FGF3, FGF4, FGF19; ≈37 copias) y amplificación 8p11 (FGFR1, NSD3,
+    ZNF703; ≈33 copias); TMB 4 Muts/Mb (baja), MS-Stable, HRDsig negativo y sin
+    firmas mutacionales activas; sin alteración reportable en ESR1, RB1, TP53,
+    PIK3CA, PTEN, AKT1, BRCA1/2 ni ERBB2. Lo que no aparece importa tanto como
+    lo que aparece: las variantes de RB1 y la ESR1 D538G se detectaron en ctDNA
+    (abril 2026) y no se confirman en este hueso — puede ser heterogeneidad
+    entre lesiones o clones subclonales en sangre; no se ha repetido el ctDNA
+    sobre esta misma lesión.
