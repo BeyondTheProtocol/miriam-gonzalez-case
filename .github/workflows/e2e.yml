@@ -32,3 +32,7 @@ jobs:
       - run: pnpm exec nuxt generate
 
       - run: pnpm test:ciencia-nivel
+
+      # Estos dos no necesitan el build; van detrás porque el checkout ya está listo.
+      - run: pnpm test:short-links
+      - run: pnpm test:mapa-focos
