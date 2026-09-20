@@ -69,6 +69,12 @@ const tejidoMat = (lado: THREE.Side) => fresnel(new THREE.MeshPhysicalMaterial({
   color: 0xe8dcc8, roughness: 0.45, clearcoat: 0.5, clearcoatRoughness: 0.3,
   sheen: 0.25, sheenRoughness: 0.7, sheenColor: new THREE.Color(0xfff6e4),
   transparent: true, depthWrite: false, side: lado }), 0.05, 0.38, 2.4)
+// La ENVOLTURA de la mama: la superficie del pecho, casi un susurro. Va muy transparente y sin
+// brillo especular fuerte para que se lea como el contorno de una pieza anatómica y no como piel
+// fotográfica; lo que tiene que mirarse sigue siendo lo de dentro.
+const envolturaMat = (lado: THREE.Side) => fresnel(new THREE.MeshPhysicalMaterial({
+  color: 0xd8cfc4, roughness: 0.7, clearcoat: 0.15, clearcoatRoughness: 0.6,
+  transparent: true, depthWrite: false, side: lado }), 0.015, 0.16, 3.0)
 // El mismo dorado brillante de las lesiones del hígado: una sola gramática de color en la página.
 const lesionMat = () => new THREE.MeshPhysicalMaterial({
   color: 0xf2b23c, roughness: 0.3, clearcoat: 0.85, clearcoatRoughness: 0.1,
@@ -102,9 +108,12 @@ function reencuadra() {
   const d = (radio * 1.08) / Math.sin(fov) / ajuste
   // Mirando hacia la lesión, no desde una posición fija: con 15 mm dentro de un bloque de
   // tejido, empezar por el lado contrario sería empezar sin nada que ver.
-  const dir = haciaLesion?.lengthSq() ? haciaLesion.clone().normalize() : new THREE.Vector3(0, 0, 1)
-  dir.y = THREE.MathUtils.clamp(dir.y, -0.35, 0.35)   // nunca cenital: se pierde la referencia
-  camera.position.copy(dir.normalize().multiplyScalar(d))
+  // Vista LATERAL con algo de frente: mirando de cara, una mama es un óvalo y no se reconoce;
+  // de perfil aparece la forma. Se mira desde el lado de la lesión (el signo lo da su propia
+  // posición), así que además queda delante y no escondida detrás del tejido.
+  const lat = Math.sign(haciaLesion?.x ?? -1) || -1
+  const dir = new THREE.Vector3(lat * 0.92, 0.14, 0.42).normalize()
+  camera.position.copy(dir.multiplyScalar(d))
   controls.target.set(0, 0, 0); controls.update()
 }
 
@@ -169,8 +178,16 @@ async function init() {
   const gt = await geo(props.base + esc.mallas.fgt!)
   malla(gt, tejidoMat(THREE.BackSide), 3)   // caras de detrás primero…
   malla(gt, tejidoMat(THREE.FrontSide), 4)  // …y las de delante encima
+  let ge: THREE.BufferGeometry | null = null
+  if (esc.mallas.mama) {
+    ge = await geo(props.base + esc.mallas.mama)
+    malla(ge, envolturaMat(THREE.BackSide), 5)
+    malla(ge, envolturaMat(THREE.FrontSide), 6)
+  }
   await Promise.all(tareas)
-  radio = gt.boundingSphere!.radius
+  // Se encuadra con la pieza MÁS GRANDE que haya: con envoltura se ve la mama entera y la
+  // lesión situada dentro; sin ella, el árbol glandular llena el cuadro.
+  radio = (ge ?? gt).boundingSphere!.radius
   controls.minDistance = radio * 1.2; controls.maxDistance = radio * 12
 
   resize(); reencuadra()
@@ -252,6 +269,10 @@ onBeforeUnmount(() => {
       <li class="flex items-start gap-1.5">
         <span class="inline-block w-2.5 h-2.5 mt-[3px] shrink-0 rounded-full" style="background:#e8dcc8" aria-hidden="true" />
         {{ L('Tejido fibroglandular de la mama derecha (lo que en radiología se llama densidad mamaria)', 'Fibroglandular tissue of the right breast (what radiology calls breast density)') }}
+      </li>
+      <li class="flex items-start gap-1.5">
+        <span class="inline-block w-2.5 h-2.5 mt-[3px] shrink-0 rounded-full" style="background:#d8cfc4;opacity:0.55" aria-hidden="true" />
+        {{ L('Contorno de la mama, para situar el tumor dentro de ella', 'Outline of the breast, to place the tumour inside it') }}
       </li>
     </ul>
     <p v-if="!loading && !failed" class="mt-1.5 text-[11px] text-tinta leading-snug">
