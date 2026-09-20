@@ -66,8 +66,12 @@ const MAT: Record<string, () => THREE.Material> = {
   // (daltonismo azul-amarillo): medibles brillantes, pequeñas mates.
   lesion: () => new THREE.MeshPhysicalMaterial({ color: 0xead3a0, roughness: 0.32, clearcoat: 0.8,
     clearcoatRoughness: 0.1, emissive: 0x6b4516, emissiveIntensity: 0.22 }),
-  lesionPequena: () => new THREE.MeshPhysicalMaterial({ color: 0xb8accb, roughness: 0.85, clearcoat: 0,
-    emissive: 0x2a2238, emissiveIntensity: 0.12 }),
+  // < 10 mm en lila CLARO (Miriam, 20-sep: «las más pequeñas no se distinguen»; las dianas ya
+  // se reconocen por su anillo). Sube el contraste contra el parénquima de 3,14:1 a 4,72:1 y
+  // deja margen con el blanco de los rótulos; el crema de las ≥ 10 mm no se toca, para no
+  // comerse la separación de color que sostiene el umbral de 10 mm (diseno, 20-sep).
+  lesionPequena: () => new THREE.MeshPhysicalMaterial({ color: 0xdcd4f0, roughness: 0.6, clearcoat: 0.25,
+    emissive: 0x6a5f8c, emissiveIntensity: 0.3 }),
   porta: () => vaso(0x5236b0), vasos: () => vaso(0x2d63d6), vci: () => vaso(0x1f45a8),
   vesicula: () => fresnel(new THREE.MeshPhysicalMaterial({ color: 0x6f9a3a, roughness: 0.25, clearcoat: 1,
     transparent: true, depthWrite: false }), 0.35, 0.95, 2.0),
@@ -265,7 +269,7 @@ onBeforeUnmount(() => {
         {{ L(`Otras ${cuenta.medibles} lesiones de 10 mm o más (detección automática)`, `${cuenta.medibles} other lesions of 10 mm or more (automatic detection)`) }}
       </li>
       <li class="flex items-start gap-1.5">
-        <span class="inline-block w-2.5 h-2.5 mt-[3px] shrink-0 rounded-full" style="background:#b8accb" aria-hidden="true" />
+        <span class="inline-block w-2.5 h-2.5 mt-[3px] shrink-0 rounded-full" style="background:#dcd4f0" aria-hidden="true" />
         {{ L(`${cuenta.pequenas} lesiones de menos de 10 mm (detección automática)`, `${cuenta.pequenas} lesions under 10 mm (automatic detection)`) }}
       </li>
     </ul>
