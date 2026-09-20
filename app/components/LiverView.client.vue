@@ -64,10 +64,15 @@ const vaso = (c: number) => new THREE.MeshPhysicalMaterial({ color: c, roughness
 const MAT: Record<string, () => THREE.Material> = {
   // RECIST 1.1: ≥ 10 mm = medible; < 10 mm = no medible. Además del color, textura distinta
   // (daltonismo azul-amarillo): medibles brillantes, pequeñas mates.
-  lesion: () => new THREE.MeshPhysicalMaterial({ color: 0xead3a0, roughness: 0.32, clearcoat: 0.8,
-    clearcoatRoughness: 0.1, emissive: 0x6b4516, emissiveIntensity: 0.22 }),
-  lesionPequena: () => new THREE.MeshPhysicalMaterial({ color: 0xb8accb, roughness: 0.85, clearcoat: 0,
-    emissive: 0x2a2238, emissiveIntensity: 0.12 }),
+  lesion: () => new THREE.MeshPhysicalMaterial({ color: 0xf2b23c, roughness: 0.3, clearcoat: 0.85,
+    clearcoatRoughness: 0.1, emissive: 0x7a4a08, emissiveIntensity: 0.35 }),
+  // Miriam, 20-sep: «no distingo las pequeñas de las grandes». Las dos clases eran crema pálido
+  // y lila casi blanco, y a través del hígado translúcido acababan igual de pálidas: medido,
+  // aclarar el lila subía el contraste real de 2,28:1 a 2,42:1, o sea nada. Lo que las separa es
+  // el TONO: ≥ 10 mm en dorado, < 10 mm en violeta, y encima brillante contra mate. El violeta va
+  // SATURADO: a tamaño real de móvil, uno pálido llegaba descolorido y se leía como un punto blanco.
+  lesionPequena: () => new THREE.MeshPhysicalMaterial({ color: 0x7c5cf0, roughness: 0.5, clearcoat: 0.25,
+    emissive: 0x5b3ce0, emissiveIntensity: 0.85 }),
   porta: () => vaso(0x5236b0), vasos: () => vaso(0x2d63d6), vci: () => vaso(0x1f45a8),
   vesicula: () => fresnel(new THREE.MeshPhysicalMaterial({ color: 0x6f9a3a, roughness: 0.25, clearcoat: 1,
     transparent: true, depthWrite: false }), 0.35, 0.95, 2.0),
@@ -257,15 +262,15 @@ onBeforeUnmount(() => {
     <!-- leyenda: los colores del vídeo; los recuentos salen de escena.json -->
     <ul v-if="!loading && !failed" class="mt-2 space-y-1 text-[11px] text-tinta">
       <li class="flex items-start gap-1.5">
-        <span class="inline-block w-2.5 h-2.5 mt-[3px] shrink-0 rounded-full border border-berenjena" style="background:#ead3a0" aria-hidden="true" />
+        <span class="inline-block w-2.5 h-2.5 mt-[3px] shrink-0 rounded-full border border-berenjena" style="background:#f2b23c" aria-hidden="true" />
         {{ L(`${cuenta.dianas} lesiones diana, con anillo: medida del radiólogo`, `${cuenta.dianas} target lesions, ringed: radiologist's measurement`) }}
       </li>
       <li class="flex items-start gap-1.5">
-        <span class="inline-block w-2.5 h-2.5 mt-[3px] shrink-0 rounded-full" style="background:#ead3a0" aria-hidden="true" />
+        <span class="inline-block w-2.5 h-2.5 mt-[3px] shrink-0 rounded-full" style="background:#f2b23c" aria-hidden="true" />
         {{ L(`Otras ${cuenta.medibles} lesiones de 10 mm o más (detección automática)`, `${cuenta.medibles} other lesions of 10 mm or more (automatic detection)`) }}
       </li>
       <li class="flex items-start gap-1.5">
-        <span class="inline-block w-2.5 h-2.5 mt-[3px] shrink-0 rounded-full" style="background:#b8accb" aria-hidden="true" />
+        <span class="inline-block w-2.5 h-2.5 mt-[3px] shrink-0 rounded-full" style="background:#7c5cf0" aria-hidden="true" />
         {{ L(`${cuenta.pequenas} lesiones de menos de 10 mm (detección automática)`, `${cuenta.pequenas} lesions under 10 mm (automatic detection)`) }}
       </li>
     </ul>
