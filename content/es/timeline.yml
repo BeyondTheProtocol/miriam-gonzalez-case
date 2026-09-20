@@ -293,3 +293,13 @@ entries:
       a ser en Barcelona una vez al mes: un ADC dirigido contra TROP2.
     highlight: false
 
+  - date: '8 jul 2026'
+    tag: Molecular
+    title: Primera biopsia ósea con tumor viable
+    description: >
+      El hueso da por fin tejido suficiente para analizar. El perfil confirma el eje que ya se
+      sospechaba: CCND1 y FGF3/4/19 amplificados junto a FGFR1, NSD3 y ZNF703. Carga mutacional
+      baja y microsatélites estables. Lo que no aparece en este hueso importa tanto como lo que
+      sí: ni ESR1 ni alteraciones de RB1, que hasta ahora solo se habían visto en sangre.
+    highlight: false
+
