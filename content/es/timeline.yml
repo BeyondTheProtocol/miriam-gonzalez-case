@@ -290,6 +290,16 @@ entries:
     link: https://clinicaltrials.gov/study/NCT07222267
     linkLabel: 'Ver el ensayo BG-75202 →'
 
+  - date: '18 ago 2026'
+    tag: Molecular
+    title: Segunda biopsia, esta vez del hígado
+    description: >
+      Dentro del ensayo se toma una biopsia de una de las lesiones del hígado: dos cilindros,
+      guiada por ecografía. Es la primera vez que se analiza tejido hepático y no solo óseo, y
+      el material servirá además para los estudios que se están montando fuera del hospital. El
+      informe de anatomía patológica todavía no ha llegado.
+    highlight: false
+
   - date: '9 sep 2026'
     tag: Progresión
     title: Se acaba el ensayo de KAT6 (BG-75202)

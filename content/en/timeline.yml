@@ -287,6 +287,15 @@ entries:
     link: https://clinicaltrials.gov/study/NCT07222267
     linkLabel: 'See the BG-75202 trial →'
 
+  - date: 'Aug 18, 2026'
+    tag: Molecular
+    title: A second biopsy, this time of the liver
+    description: >
+      Within the trial, one of the liver lesions is biopsied: two cores, ultrasound-guided. It is
+      the first time liver tissue is analysed rather than bone only, and the material will also
+      feed the studies being set up outside the hospital. The pathology report has not arrived yet.
+    highlight: false
+
   - date: 'Sep 9, 2026'
     tag: Progression
     title: The KAT6 trial comes to an end (BG-75202)
