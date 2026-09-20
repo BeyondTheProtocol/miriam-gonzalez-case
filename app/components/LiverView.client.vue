@@ -176,9 +176,10 @@ async function init() {
       const m = malla(g, (medible ? MAT.lesion : MAT.lesionPequena)!(), 1)
       if (les.diana) {
         const et = lang.value === 'en' ? les.diana.replace('diana', 'Target') : les.diana.replace('diana', 'Diana')
-        // Si esa diana capta por encima del umbral, su SUVmax va en el propio rótulo: es
-        // la única lesión de las 20 que el PET respalda, y decirlo donde se mira es el sitio.
-        const suv = les.pet === 'sobre_umbral' && les.suvmax ? ' · SUV ' + les.suvmax.toFixed(1) : ''
+        // El SUV va en el rótulo de CUALQUIER diana que lo tenga, capte o no. Enseñarlo solo
+        // en la que capta dejaba a la otra sin cifra, y eso se lee como «no evaluada» justo
+        // donde la leyenda dice que ninguna es «PET negativa» (comité de diseño, 20-sep).
+        const suv = les.suvmax != null ? ' · SUV ' + les.suvmax.toFixed(1) : ''
         dianas.push({ malla: m, texto: et + ' · ' + les.mm_informe + ' mm' + suv })
       }
     }))
@@ -244,7 +245,7 @@ onBeforeUnmount(() => {
         v-else
         ref="host"
         role="img"
-        :aria-label="L('Hígado en 3D con los vasos, la vesícula y todas las lesiones: las dos diana del informe de radiología rotuladas y el resto detectadas automáticamente. Arrástralo para girar; las cifras están escritas debajo.', 'Liver in 3D with the vessels, the gallbladder and all the lesions: the two targets from the radiology report labelled and the rest detected automatically. Drag to rotate; the figures are written below.')"
+        :aria-label="L('Hígado en 3D con los vasos, la vesícula y todas las lesiones: las dos diana del informe de radiología rotuladas con su medida y su SUV, y el resto detectadas automáticamente. Debajo, lo que dice de cada una el PET del mismo día. Arrástralo para girar; todas las cifras están escritas debajo.', 'Liver in 3D with the vessels, the gallbladder and all the lesions: the two targets from the radiology report labelled with their size and SUV, and the rest detected automatically. Below, what the same-day PET says about each one. Drag to rotate; all the figures are written below.')"
         class="absolute inset-0 cursor-grab active:cursor-grabbing"
       />
       <!-- anillo + rótulo de cada diana, como en el vídeo -->
@@ -296,10 +297,12 @@ onBeforeUnmount(() => {
         {{ L('Lo que dice el PET del mismo día', 'What the same-day PET says') }}
       </p>
       <ul class="space-y-1 text-[11px] text-tinta">
-        <li>{{ L(`${petCuenta.sobre_umbral} capta por encima del umbral`, `${petCuenta.sobre_umbral} takes up above the threshold`) }}</li>
-        <li>{{ L(`${petCuenta.sobre_fondo} por encima del fondo del hígado, sin llegar al umbral`, `${petCuenta.sobre_fondo} above liver background, below the threshold`) }}</li>
+        <!-- De la masa que NO respalda a la única que sí: el mensaje que importa es que el PET
+             no confirma las automáticas, y ese va primero. -->
         <li>{{ L(`${petCuenta.en_fondo} indistinguibles del fondo del hígado`, `${petCuenta.en_fondo} indistinguishable from liver background`) }}</li>
         <li>{{ L(`${petCuenta.no_evaluable} no evaluables: más pequeñas que el vóxel del PET`, `${petCuenta.no_evaluable} not assessable: smaller than the PET voxel`) }}</li>
+        <li>{{ L(`${petCuenta.sobre_fondo} por encima del fondo del hígado, sin llegar al umbral`, `${petCuenta.sobre_fondo} above liver background, below the threshold`) }}</li>
+        <li>{{ L(`${petCuenta.sobre_umbral} capta por encima del umbral`, `${petCuenta.sobre_umbral} takes up above the threshold`) }}</li>
       </ul>
       <p class="mt-1.5 text-[11px] text-tinta leading-snug">
         {{ L('Poca captación NO descarta lesión: con vóxel de 4 mm, el volumen parcial hunde en el fondo a las lesiones pequeñas. Por eso ninguna sale como «PET negativa».', 'Low uptake does NOT rule out a lesion: with a 4 mm voxel, partial volume sinks small lesions into the background. That is why none is labelled “PET negative”.') }}
