@@ -16,7 +16,7 @@
     <!-- (a11y) el conjunto de marcadores es un LISTBOX de focos: role=listbox + cada marcador
          role=option + roving tabindex (solo el seleccionado entra en el orden de tabulación; las
          flechas mueven la selección Y el foco del DOM). aria-activedescendant apunta al activo. -->
-    <svg viewBox="0 0 440 700" class="w-full" role="listbox"
+    <svg :viewBox="`0 0 ${VB_W} ${VB_H}`" class="w-full" role="listbox"
       :aria-label="ariaLabel ?? L('Esquema del esqueleto con las lesiones (flechas para recorrer)', 'Skeleton schematic with the lesions (arrows to step)')"
       :aria-activedescendant="idPrefix + selected"
       :aria-describedby="describedby"
@@ -41,40 +41,29 @@
           <stop offset="0%" stop-color="#241733" /><stop offset="100%" stop-color="#160e20" />
         </radialGradient>
       </defs>
-      <rect x="0" y="0" width="440" height="700" rx="18" :fill="`url(#${pfx}Panel)`" />
-      <g :filter="`url(#${pfx}BoneShadow)`">
-        <path d="M192,44 Q192,10 220,10 Q248,10 248,44 Q248,66 233,72 Q220,77 207,72 Q192,66 192,44 Z" :fill="`url(#${pfx}Bone)`" stroke="#7d8593" stroke-width="0.6" stroke-opacity="0.7" />
-        <path d="M192,44 Q192,10 220,10 Q248,10 248,44 Q248,66 233,72 Q220,77 207,72 Q192,66 192,44 Z" :fill="`url(#${pfx}BoneHi)`" />
-        <path d="M210,66 Q220,75 230,66 L228,76 Q220,82 212,76 Z" :fill="`url(#${pfx}Bone)`" stroke="#7d8593" stroke-width="0.6" stroke-opacity="0.7" />
-        <path v-for="(rb, i) in SK_COSTILLAS" :key="'rib' + i" :d="rb.d" fill="none" stroke="#7d8593" stroke-width="2.2" opacity="0.5" stroke-linecap="round" />
-        <g v-for="(v, i) in SK_VERTEBRAS" :key="'v' + i">
-          <rect :x="v.x" :y="v.y" :width="v.w" :height="v.h" :rx="Math.min(v.h / 2, 7)" :fill="`url(#${pfx}BoneV)`" stroke="#7d8593" stroke-width="0.6" stroke-opacity="0.7" />
-          <rect :x="v.x + 1.5" :y="v.y + 1" :width="v.w - 3" :height="v.h * 0.4" :rx="Math.min(v.h / 2, 7) * 0.7" fill="#ffffff" opacity="0.22" />
-        </g>
-        <path d="M202,485 Q220,483 238,485 L231,538 Q220,547 209,538 Z" :fill="`url(#${pfx}BoneV)`" stroke="#7d8593" stroke-width="0.6" stroke-opacity="0.7" />
-        <path d="M201,487 C152,485 122,520 130,560 C135,588 168,596 187,574 C200,558 203,520 201,487 Z" :fill="`url(#${pfx}Bone)`" stroke="#7d8593" stroke-width="0.6" stroke-opacity="0.7" />
-        <path d="M239,487 C288,485 318,520 310,560 C305,588 272,596 253,574 C240,558 237,520 239,487 Z" :fill="`url(#${pfx}Bone)`" stroke="#7d8593" stroke-width="0.6" stroke-opacity="0.7" />
-        <path d="M201,487 C152,485 122,520 130,560 C135,588 168,596 187,574 C200,558 203,520 201,487 Z" :fill="`url(#${pfx}BoneHi)`" />
-        <circle cx="151" cy="600" r="12.5" :fill="`url(#${pfx}Bone)`" stroke="#7d8593" stroke-width="0.6" stroke-opacity="0.7" />
-        <rect x="150" y="606" width="13" height="92" rx="6.5" :fill="`url(#${pfx}BoneV)`" stroke="#7d8593" stroke-width="0.6" stroke-opacity="0.7" />
-        <circle cx="289" cy="600" r="12.5" :fill="`url(#${pfx}Bone)`" stroke="#7d8593" stroke-width="0.6" stroke-opacity="0.7" />
-        <rect x="277" y="606" width="13" height="92" rx="6.5" :fill="`url(#${pfx}BoneV)`" stroke="#7d8593" stroke-width="0.6" stroke-opacity="0.7" />
-        <path d="M114,182 Q146,188 146,192 L141,242 Q138,246 134,240 Z" :fill="`url(#${pfx}Bone)`" stroke="#7d8593" stroke-width="0.6" stroke-opacity="0.7" />
-        <path d="M326,182 Q294,188 294,192 L299,242 Q302,246 306,240 Z" :fill="`url(#${pfx}Bone)`" stroke="#7d8593" stroke-width="0.6" stroke-opacity="0.7" />
-      </g>
+      <rect x="0" y="0" :width="VB_W" :height="VB_H" rx="18" :fill="`url(#${pfx}Panel)`" />
+      <!-- SU esqueleto, de su TC de hueso del 26-may-2026 (tools/visor3d.py esqueleto).
+           Sustituye a los trazados que había aquí dibujados a mano. Lo que se ve es hueso suyo
+           salvo lo que el pie declara reconstruido: los tramos que el modelo no segmentó, las
+           costillas copiadas de su pareja y los agujeros interiores. -->
+      <image href="/esqueleto/esqueleto-anterior.png" x="0" y="0" :width="VB_W" :height="VB_H"
+        preserveAspectRatio="xMidYMid meet" :aria-hidden="true" />
       <g font-family="JetBrains Mono, monospace" font-size="9" fill="#aeb6c2" font-weight="600">
-        <text v-for="tk in ticksUsados" :key="tk.t" x="358" :y="tk.y + 3" text-anchor="start">{{ tk.t }}</text>
-        <line v-for="tk in ticksUsados" :key="'l' + tk.t" x1="346" :y1="tk.y" x2="354" :y2="tk.y" stroke="#7d8593" stroke-width="1" />
+        <text v-for="tk in ticksUsados" :key="tk.t" x="362" :y="(tk.ty ?? tk.y) + 3" text-anchor="start">{{ tk.t }}</text>
+        <!-- la marca va en la altura REAL y el texto donde se lea; el codo une las dos -->
+        <path v-for="tk in ticksUsados" :key="'l' + tk.t"
+          :d="`M344,${tk.y} L352,${tk.y} L358,${tk.ty ?? tk.y}`"
+          fill="none" stroke="#7d8593" stroke-width="1" />
       </g>
-      <g v-for="g in GROUPS" :key="g.key" class="sk-foco"
+      <g v-for="{ g, p } in CONPOS" :key="g.key" class="sk-foco"
         :style="opacidad ? { opacity: opacidad(g) } : undefined">
         <!-- diana táctil: SK_HIT son ~21 px de diámetro en el contenedor real, por debajo del
              mínimo de 44. No se sube en `#mapa-focos` porque ese valor lo usan otras vistas del
              mapa; se sube aquí, que es donde se toca con el dedo. -->
-        <circle :cx="g.x" :cy="g.y" :r="hit" fill="transparent" class="cursor-pointer" aria-hidden="true" @click="emit('pick', g.primary.id)" />
+        <circle :cx="p.x" :cy="p.y" :r="hit" fill="transparent" class="cursor-pointer" aria-hidden="true" @click="emit('pick', g.primary.id)" />
         <circle
           :id="idPrefix + g.primary.id"
-          :cx="g.x" :cy="g.y"
+          :cx="p.x" :cy="p.y"
           :r="SK_R + (esSel(g) ? 2.5 : 0)"
           :fill="PHENO[g.primary.pheno].c"
           :stroke="esSel(g) ? '#F5EFE6' : '#1c1126'"
@@ -87,8 +76,8 @@
           @mouseenter="emit('hover', $event, g)" @mouseleave="emit('leave')"
           @focus="emit('hover', $event, g)" @blur="emit('leave')" />
         <g v-if="g.multi" class="pointer-events-none select-none">
-          <circle :cx="g.x + SK_R + 1.5" :cy="g.y - SK_R - 1.5" r="6.5" fill="#F5EFE6" stroke="#1c1126" stroke-width="1.2" />
-          <text :x="g.x + SK_R + 1.5" :y="g.y - SK_R - 1.5" text-anchor="middle" dominant-baseline="central"
+          <circle :cx="p.x + SK_R + 1.5" :cy="p.y - SK_R - 1.5" r="6.5" fill="#F5EFE6" stroke="#1c1126" stroke-width="1.2" />
+          <text :x="p.x + SK_R + 1.5" :y="p.y - SK_R - 1.5" text-anchor="middle" dominant-baseline="central"
             font-family="Source Sans 3, sans-serif" font-size="9" font-weight="700" fill="#1c1126">{{ g.foci.length }}</text>
         </g>
       </g>
@@ -102,12 +91,17 @@
       <p class="mt-1.5 text-[10.5px] text-tinta leading-snug">
         {{ L('Color = trazador · insignia = nº de focos en esa vértebra · contorno punteado = detectado por IA (por confirmar).', 'Color = tracer · badge = nº of foci in that vertebra · dashed outline = AI-detected (to confirm).') }}
       </p>
+      <p class="mt-1 text-[10.5px] text-tinta leading-snug">
+        {{ L('El esqueleto es el suyo, segmentado de su TC de hueso. Donde el TC no llegó está reconstruido: algún tramo de columna, cuatro costillas copiadas de su pareja y los huecos interiores. El nivel vertebral de cada foco es el del informe; su altura en el dibujo, estimada.', 'The skeleton is her own, segmented from her bone CT. Where the CT fell short it is reconstructed: a stretch of spine, four ribs copied from their pair, and interior gaps. Each focus’s vertebral level is the one in the report; its height in the drawing is estimated.') }}
+      </p>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { PHENO, PHENO_RAMP_CSS, GROUPS, SK_R, SK_VERTEBRAS, SK_COSTILLAS, SK_TICKS } from '#mapa-focos'
+import { PHENO, PHENO_RAMP_CSS, GROUPS, SK_R } from '#mapa-focos'
+import ESQ from '~/data/esqueleto.json'
+import { HUESO_DE_FOCO, DESPLAZA } from '~/data/focos-huesos'
 import type { LesGroup } from '#mapa-focos'
 
 const props = withDefaults(defineProps<{
@@ -133,7 +127,41 @@ const L = (es: string, en: string) => (lang.value === 'en' ? en : es)
    coincidieran en una página, un `url(#skBone)` duplicado haría que una se pintara con los
    degradados de la otra. */
 const pfx = computed(() => props.idPrefix.replace(/[^a-zA-Z0-9]/g, ''))
-const ticksUsados = computed(() => props.ticks ?? SK_TICKS)
+/* El lienzo toma la proporción de la imagen real, para que el esqueleto no salga estirado. */
+const VB_W = 440
+const VB_H = Math.round(VB_W * ESQ.tamano[1] / ESQ.tamano[0])
+
+type UV = { u: number; v: number }
+const HUESOS = ESQ.huesos as Record<string, UV>
+
+/* Dónde cae cada foco: el centroide de SU hueso, más el desplazamiento que separa a los que
+   comparten uno. Si un hueso faltara, el foco no se dibuja en vez de aparecer en otro sitio. */
+function posDe(id: number): { x: number; y: number } | null {
+  const c = HUESOS[HUESO_DE_FOCO[id]]
+  if (!c) return null
+  const [dx, dy] = DESPLAZA[id] ?? [0, 0]
+  return { x: (c.u + dx) * VB_W, y: (c.v + dy) * VB_H }
+}
+const CONPOS = GROUPS.map((g) => ({ g, p: posDe(g.primary.id) })).filter((r) => r.p) as
+  { g: LesGroup; p: { x: number; y: number } }[]
+
+/* Los ticks de nivel dejan de estar puestos a ojo: salen de la vértebra que nombran. */
+const NIVELES = [['C1', 'vertebrae_C1'], ['C7', 'vertebrae_C7'], ['T1', 'vertebrae_T1'],
+  ['T6', 'vertebrae_T6'], ['T12', 'vertebrae_T12'], ['L1', 'vertebrae_L1'],
+  ['L5', 'vertebrae_L5'], ['S', 'sacrum']] as const
+/* Separados si se pisan: C7 y T1 son vecinos de verdad, y L5 y el sacro casi se tocan, así que
+   con la altura real las etiquetas caen una encima de otra. Se empujan lo justo para leerlas;
+   la marca sigue en su sitio, solo se mueve el texto. */
+const ticksUsados = computed(() => {
+  if (props.ticks) return props.ticks
+  const t = NIVELES.filter(([, h]) => HUESOS[h])
+    .map(([t, h]) => ({ t, y: HUESOS[h].v * VB_H, ty: HUESOS[h].v * VB_H }))
+  const MIN = 11
+  for (let i = 1; i < t.length; i++) {
+    if (t[i].ty - t[i - 1].ty < MIN) t[i].ty = t[i - 1].ty + MIN
+  }
+  return t
+})
 
 function esSel(g: LesGroup) { return g.foci.some((l) => l.id === props.selected) }
 /* flechas: recorre los grupos en orden del esqueleto (arriba → abajo) */
@@ -141,9 +169,9 @@ function onKey(e: KeyboardEvent) {
   if (!props.teclado) return
   if (!['ArrowDown', 'ArrowRight', 'ArrowUp', 'ArrowLeft'].includes(e.key)) return
   e.preventDefault()
-  const i = GROUPS.findIndex(esSel)
+  const i = CONPOS.findIndex((r) => esSel(r.g))
   const d = e.key === 'ArrowDown' || e.key === 'ArrowRight' ? 1 : -1
-  const g = GROUPS[(i + d + GROUPS.length) % GROUPS.length]
+  const g = CONPOS[(i + d + CONPOS.length) % CONPOS.length].g
   emit('pick', g.primary.id)
   nextTick(() => (document.getElementById(props.idPrefix + g.primary.id) as unknown as SVGElement | null)?.focus())
 }
