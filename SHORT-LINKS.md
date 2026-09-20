@@ -35,6 +35,7 @@ control y tu analítica.
 /<slug>-x      → X / Twitter   (utm_source=twitter&utm_medium=post)
 /<slug>-in     → LinkedIn      (utm_source=linkedin&utm_medium=post)
 /<slug>-ig     → Instagram     (utm_source=instagram&utm_medium=bio)
+/<slug>-tt     → TikTok         (utm_source=tiktok&utm_medium=bio)
 ```
 
 - `slug` = corto y memorable (`3d`, `caso`, `marcas`…).
@@ -50,6 +51,11 @@ control y tu analítica.
 | `/3d-x` | `/mapa-metastasis` | `lanzamiento-herramienta` (X) |
 | `/3d-in` | `/mapa-metastasis` | `lanzamiento-herramienta` (LinkedIn) |
 | `/3d-ig` | `/mapa-metastasis` | `lanzamiento-herramienta` (Instagram/bio) |
+| `/vistazo` | `/lesiones` | `lanzamiento-lesiones` (genérico) |
+| `/vistazo-x` | `/lesiones` | `lanzamiento-lesiones` (X) |
+| `/vistazo-in` | `/lesiones` | `lanzamiento-lesiones` (LinkedIn) |
+| `/vistazo-ig` | `/lesiones` | `lanzamiento-lesiones` (Instagram/bio) |
+| `/vistazo-tt` | `/lesiones` | `lanzamiento-lesiones` (TikTok/bio) |
 | `/donar` | GoFundMe (externo) | — (sin UTM: salto externo, no medible en Umami) |
 
 ## Cómo añadir uno nuevo
