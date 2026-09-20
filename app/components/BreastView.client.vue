@@ -30,12 +30,14 @@ const lang = computed<'es' | 'en'>(() => (locale.value === 'en' ? 'en' : 'es'))
 const L = (es: string, en: string) => (lang.value === 'en' ? en : es)
 
 interface Lesion { malla: string; diametro_auto_mm: number | null; diana: string | null; mm_informe: number | null }
-interface Escena { mallas: Record<string, string>; lesiones: Lesion[] }
+interface Escena { mallas: Record<string, string>; lesiones: Lesion[]; referencias?: Record<string, number[]> }
 
 const host = ref<HTMLDivElement | null>(null)
 const loading = ref(true)
 const failed = ref(false)
 const rotulos = ref<{ texto: string; x: number; y: number; r: number; tx: number; ty: number; visible: boolean }[]>([])
+const pezon = ref<{ x: number; y: number; visible: boolean } | null>(null)
+let pezon3: THREE.Vector3 | null = null
 const autoMm = ref<number | null>(null)
 
 let renderer: THREE.WebGLRenderer | null = null
@@ -120,6 +122,17 @@ function reencuadra() {
 }
 
 const p3 = new THREE.Vector3()
+const pz = new THREE.Vector3()
+function actualizaPezon() {
+  // El pezón se señala, no se dibuja. Es la referencia con la que cualquiera se orienta en una
+  // mama (sin ella, la pieza podría estar en cualquier posición), pero va como marca de mapa:
+  // una cruz fina y su palabra, del mismo lenguaje que el rótulo de la lesión. Su relieve no
+  // está en la malla; lo que hay aquí es una coordenada.
+  if (!pezon3) { pezon.value = null; return }
+  const { w, h } = tamano()
+  pz.copy(pezon3).project(camera)
+  pezon.value = { x: (pz.x + 1) / 2 * w, y: (1 - pz.y) / 2 * h, visible: pz.z < 1 }
+}
 function actualizaRotulos() {
   const { w, h } = tamano()
   rotulos.value = dianas.map((D) => {
@@ -177,6 +190,10 @@ async function init() {
       if (les.diametro_auto_mm) autoMm.value = les.diametro_auto_mm
     }))
   }
+  const rp = esc.referencias?.pezon
+  if (rp && rp.length === 3) {
+    pezon3 = new THREE.Vector3(rp[0]!, rp[1]!, rp[2]!).applyMatrix4(RAS_A_THREE)
+  }
   const gt = await geo(props.base + esc.mallas.fgt!)
   malla(gt, tejidoMat(THREE.BackSide), 3)   // caras de detrás primero…
   malla(gt, tejidoMat(THREE.FrontSide), 4)  // …y las de delante encima
@@ -199,7 +216,7 @@ async function init() {
   const tick = () => {
     raf = requestAnimationFrame(tick)
     if (!enVista) return   // fuera de pantalla no se pinta (batería)
-    controls.update(); renderer!.render(scene, camera); actualizaRotulos()
+    controls.update(); renderer!.render(scene, camera); actualizaRotulos(); actualizaPezon()
   }
   tick()
 }
@@ -243,6 +260,10 @@ onBeforeUnmount(() => {
           <span v-if="r.visible" class="bv-rotulo" :style="{ left: r.tx + 'px', top: r.ty + 'px' }">{{ r.texto }}</span>
         </template>
       </div>
+      <div v-if="!loading && !failed && pezon?.visible" class="absolute inset-0 pointer-events-none" aria-hidden="true">
+        <span class="bv-pezon" :style="{ left: pezon.x + 'px', top: pezon.y + 'px' }" />
+        <span class="bv-pezon-txt" :style="{ left: pezon.x + 'px', top: (pezon.y + 12) + 'px' }">{{ L('pezón', 'nipple') }}</span>
+      </div>
       <div v-if="loading" class="absolute inset-0 flex items-center justify-center text-[12px]" style="color:#aeb6c2">
         {{ L('reconstruyendo 3D…', 'rebuilding 3D…') }}
       </div>
@@ -276,6 +297,10 @@ onBeforeUnmount(() => {
         <span class="inline-block w-2.5 h-2.5 mt-[3px] shrink-0 rounded-full" style="background:#d8cfc4;opacity:0.55" aria-hidden="true" />
         {{ L('Contorno de la mama, para situar el tumor dentro de ella', 'Outline of the breast, to place the tumour inside it') }}
       </li>
+      <li class="flex items-start gap-1.5">
+        <span class="inline-block w-2.5 h-2.5 mt-[3px] shrink-0 text-[10px] leading-none text-center" aria-hidden="true">+</span>
+        {{ L('La cruz marca el pezón, que es la referencia para orientarse; su relieve no está en el modelo', 'The cross marks the nipple, the reference point for orientation; its relief is not in the model') }}
+      </li>
     </ul>
     <p v-if="!loading && !failed" class="mt-1.5 text-[11px] text-tinta leading-snug">
       {{ L(
@@ -295,6 +320,17 @@ onBeforeUnmount(() => {
   position: absolute; transform: translate(-50%, -100%); white-space: nowrap;
   font: 600 12px/1.2 'JetBrains Mono', ui-monospace, monospace; color: #F5EFE6;
   background: rgba(28, 17, 38, 0.72); padding: 2px 6px; border-radius: 4px;
+}
+.bv-pezon {
+  position: absolute; transform: translate(-50%, -50%); width: 13px; height: 13px;
+  background:
+    linear-gradient(to right, transparent 5.5px, rgba(245, 239, 230, 0.95) 5.5px 7.5px, transparent 7.5px),
+    linear-gradient(to bottom, transparent 5.5px, rgba(245, 239, 230, 0.95) 5.5px 7.5px, transparent 7.5px);
+}
+.bv-pezon-txt {
+  position: absolute; transform: translate(-50%, 0); white-space: nowrap;
+  font: 500 10px/1.2 'JetBrains Mono', ui-monospace, monospace; color: #F5EFE6;
+  background: rgba(28, 17, 38, 0.6); padding: 1px 4px; border-radius: 3px;
 }
 .bv-reencuadre {
   position: absolute; bottom: 10px; right: 10px; width: 44px; height: 44px;
