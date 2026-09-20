@@ -273,3 +273,15 @@ entries:
     highlight: true
     link: https://clinicaltrials.gov/study/NCT07222267
     linkLabel: 'Ver el ensayo BG-75202 →'
+
+  - date: '9 sep 2026'
+    tag: Progresión
+    title: Se acaba el ensayo de KAT6 (BG-75202)
+    description: >
+      Hemos intentado frenar la enfermedad bloqueando una proteína que se llama KAT6, de lo más
+      avanzado que hay en epigenética. Que no funcione confirma que el tumor sabe avanzar sin
+      hormonas y es el momento de cambiar de estrategia.
+    highlight: false
+    link: https://x.com/miriamgonp/status/2097729668380037166
+    linkLabel: 'Leerlo en X →'
+
