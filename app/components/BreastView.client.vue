@@ -12,6 +12,8 @@
  * rótulo, misma interacción (arrastrar = girar, rueda = acercar, botón de reencuadre, gira solo
  * hasta que se toca y nunca con prefers-reduced-motion). Si WebGL falla, queda la imagen fija.
  *
+ * El pezón no se marca: Miriam lo probó en la preview y estorbaba más de lo que orientaba.
+ *
  * Diferencia de encuadre: un tumor de 15 mm es un punto al lado de un hígado, así que la cámara
  * arranca MIRANDO HACIA ÉL (azimut calculado desde el centro del tejido hacia la lesión), no en
  * una posición fija. Así se ve desde el primer fotograma, sin esperar a que gire.
@@ -30,13 +32,12 @@ const lang = computed<'es' | 'en'>(() => (locale.value === 'en' ? 'en' : 'es'))
 const L = (es: string, en: string) => (lang.value === 'en' ? en : es)
 
 interface Lesion { malla: string; diametro_auto_mm: number | null; diana: string | null; mm_informe: number | null }
-interface Escena { mallas: Record<string, string>; lesiones: Lesion[]; referencias?: Record<string, number[]> }
+interface Escena { mallas: Record<string, string>; lesiones: Lesion[] }
 
 const host = ref<HTMLDivElement | null>(null)
 const loading = ref(true)
 const failed = ref(false)
 const rotulos = ref<{ texto: string; x: number; y: number; r: number; tx: number; ty: number; visible: boolean }[]>([])
-let pezon3: THREE.Vector3 | null = null
 const autoMm = ref<number | null>(null)
 const hayVasos = ref(false)
 
@@ -184,49 +185,11 @@ async function init() {
       if (les.diametro_auto_mm) autoMm.value = les.diametro_auto_mm
     }))
   }
-  const rp = esc.referencias?.pezon
-  if (rp && rp.length === 3) {
-    pezon3 = new THREE.Vector3(rp[0]!, rp[1]!, rp[2]!).applyMatrix4(RAS_A_THREE)
-  }
   hayVasos.value = !!esc.mallas.vasos
   if (esc.mallas.vasos) {
     tareas.push(geo(props.base + esc.mallas.vasos).then((g) => malla(g, vasoMat(), 2)))
   }
   const gt = await geo(props.base + esc.mallas.fgt!)
-  const marcaPezon = () => {
-    // La areola, marcada SOBRE la superficie: un aro fino pegado al contorno, orientado por la
-    // normal de la mama en ese punto. Gira con la pieza, así que se lee como parte de la
-    // anatomía y no como una chincheta encima de la pantalla. Es un marcador de atlas: dice
-    // dónde está el pezón sin dibujar relieve ninguno.
-    if (!pezon3) return
-    const fuera = pezon3.clone().multiplyScalar(2)
-    // Una CRUZ, no un círculo ni un aro: la lesión está a 22 mm y ya lleva su anillo, así que
-    // cualquier cosa redonda aquí se confunde con ella (Miriam lo vio antes que yo). La cruz es
-    // una marca distinta a simple vista, y va SOBRE la superficie, orientada por la normal de la
-    // mama en ese punto, de modo que gira con la pieza en vez de flotar pegada a la pantalla.
-    // El color NO es el blanco del anillo de la lesión, y eso importa: el comité lo giró en vivo
-    // y con el tumor cerca del pezón (que es el caso) la cruz y el anillo acababan leyéndose
-    // como una sola cosa, que es justo el problema que hizo descartar el círculo. Va en el
-    // turquesa del sistema, que en esta página solo se usa para señalar, nunca para anatomía, y
-    // con un reborde oscuro para que se despegue también del contorno claro de la mama.
-    const grupo = new THREE.Group()
-    const borde = new THREE.MeshBasicMaterial({ color: 0x1c1126, transparent: true,
-      opacity: 0.55, side: THREE.DoubleSide, depthWrite: false })
-    const tinta = new THREE.MeshBasicMaterial({ color: 0x1c969e, transparent: true,
-      opacity: 0.95, side: THREE.DoubleSide, depthWrite: false })
-    for (const giro of [0, Math.PI / 2]) {
-      const sombra = new THREE.Mesh(new THREE.PlaneGeometry(18.6, 3.2), borde)
-      sombra.rotation.z = giro
-      grupo.add(sombra)
-      const barra = new THREE.Mesh(new THREE.PlaneGeometry(17, 1.6), tinta)
-      barra.rotation.z = giro
-      barra.position.z = 0.01
-      grupo.add(barra)
-    }
-    grupo.position.copy(pezon3); grupo.lookAt(fuera); grupo.renderOrder = 7
-    grupo.traverse((o) => { (o as THREE.Mesh).renderOrder = 7 })
-    scene.add(grupo)
-  }
   malla(gt, tejidoMat(THREE.BackSide), 3)   // caras de detrás primero…
   malla(gt, tejidoMat(THREE.FrontSide), 4)  // …y las de delante encima
   let ge: THREE.BufferGeometry | null = null
@@ -235,7 +198,6 @@ async function init() {
     malla(ge, envolturaMat(THREE.BackSide), 5)
     malla(ge, envolturaMat(THREE.FrontSide), 6)
   }
-  marcaPezon()
   await Promise.all(tareas)
   // Se encuadra con la pieza MÁS GRANDE que haya: con envoltura se ve la mama entera y la
   // lesión situada dentro; sin ella, el árbol glandular llena el cuadro.
@@ -284,7 +246,7 @@ onBeforeUnmount(() => {
         v-else
         ref="host"
         role="img"
-        :aria-label="L('Reconstrucción en 3D de la mama derecha de Miriam, girable. Se ve el contorno de la mama en translúcido; dentro, el tejido fibroglandular como un árbol; y el tumor primario en dorado, rodeado por un anillo con la medida del informe, 15 milímetros, en el cuadrante superoexterno. Una cruz sobre la superficie marca dónde está el pezón. Arrástralo para girar; todas las cifras están escritas debajo.', 'Rotatable 3D reconstruction of Miriam’s right breast. You can see the outline of the breast in translucent form; inside it, the fibroglandular tissue like a tree; and the primary tumour in gold, ringed and labelled with the figure from the report, 15 millimetres, in the upper outer quadrant. A cross on the surface marks where the nipple is. Drag to rotate; all the figures are written below.')"
+        :aria-label="L('Reconstrucción en 3D de la mama derecha de Miriam, girable. Se ve el contorno de la mama en translúcido; dentro, el tejido fibroglandular como un árbol; y el tumor primario en dorado, rodeado por un anillo con la medida del informe, 15 milímetros, en el cuadrante superoexterno. Arrástralo para girar; todas las cifras están escritas debajo.', 'Rotatable 3D reconstruction of Miriam’s right breast. You can see the outline of the breast in translucent form; inside it, the fibroglandular tissue like a tree; and the primary tumour in gold, ringed and labelled with the figure from the report, 15 millimetres, in the upper outer quadrant. Drag to rotate; all the figures are written below.')"
         class="absolute inset-0 cursor-grab active:cursor-grabbing"
       />
       <div v-if="!loading && !failed" class="absolute inset-0 pointer-events-none" aria-hidden="true">
@@ -329,10 +291,6 @@ onBeforeUnmount(() => {
       <li v-if="hayVasos" class="flex items-start gap-1.5">
         <span class="inline-block w-2.5 h-2.5 mt-[3px] shrink-0 rounded-full" style="background:#2d63d6" aria-hidden="true" />
         {{ L('Vasos de la mama, los que le llevan la sangre (y el contraste) al tumor', 'Vessels of the breast, the ones carrying blood (and contrast) to the tumour') }}
-      </li>
-      <li class="flex items-start gap-1.5">
-        <span class="inline-block w-2.5 h-2.5 mt-[2px] shrink-0 text-[13px] leading-none text-center" style="color:#1c969e" aria-hidden="true">+</span>
-        {{ L('La cruz marca el pezón, que es la referencia para orientarse en una mama; su relieve no está en el modelo', 'The cross marks the nipple, the reference point for orienting yourself on a breast; its relief is not in the model') }}
       </li>
     </ul>
     <p v-if="!loading && !failed" class="mt-1.5 text-[11px] text-tinta leading-snug">
