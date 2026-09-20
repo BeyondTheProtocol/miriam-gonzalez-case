@@ -183,6 +183,9 @@ export default defineNuxtConfig({
     '/3d-x': { redirect: { to: '/mapa-metastasis?utm_source=twitter&utm_medium=post&utm_campaign=lanzamiento-herramienta', statusCode: 302 } },
     '/3d-in': { redirect: { to: '/mapa-metastasis?utm_source=linkedin&utm_medium=post&utm_campaign=lanzamiento-herramienta', statusCode: 302 } },
     '/3d-ig': { redirect: { to: '/mapa-metastasis?utm_source=instagram&utm_medium=bio&utm_campaign=lanzamiento-herramienta', statusCode: 302 } },
+    // Faltaban desde junio: TikTok y YouTube caían en el genérico /3d y no se distinguían.
+    '/3d-tt': { redirect: { to: '/mapa-metastasis?utm_source=tiktok&utm_medium=bio&utm_campaign=lanzamiento-herramienta', statusCode: 302 } },
+    '/3d-yt': { redirect: { to: '/mapa-metastasis?utm_source=youtube&utm_medium=bio&utm_campaign=lanzamiento-herramienta', statusCode: 302 } },
     // /lesiones (mama, hígado y hueso). Mismo patrón que /3d*, más TikTok: el vídeo de
     // esta página es vertical y ahí sí hay enlace propio que medir. No hay genérico:
     // /lesiones ya es la página, y para WhatsApp o correo se reparte su URL tal cual.
@@ -233,7 +236,7 @@ export default defineNuxtConfig({
       // (ver nota «shadowing» en `routeRules` arriba). Así queda solo el 302 limpio.
       ignore: [
         '/design-system', '/mapa-metastasis.md', '/en/mapa-metastasis.md',
-        '/3d', '/3d-x', '/3d-in', '/3d-ig', '/donar', '/caso',
+        '/3d', '/3d-x', '/3d-in', '/3d-ig', '/3d-tt', '/3d-yt', '/donar', '/caso',
         '/lesiones-x', '/lesiones-in', '/lesiones-ig', '/lesiones-tt', '/lesiones-yt',
         '/biopsia', '/biopsia-x', '/biopsia-in', '/biopsia-ig', '/biopsia-tt', '/biopsia-yt',
         // datos en vivo: que nitro NO prerenderice un fichero que sombree el 302
