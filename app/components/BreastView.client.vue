@@ -38,7 +38,6 @@ const host = ref<HTMLDivElement | null>(null)
 const loading = ref(true)
 const failed = ref(false)
 const rotulos = ref<{ texto: string; x: number; y: number; r: number; tx: number; ty: number; visible: boolean }[]>([])
-const autoMm = ref<number | null>(null)
 const hayVasos = ref(false)
 
 let renderer: THREE.WebGLRenderer | null = null
@@ -52,6 +51,9 @@ let raf = 0
 let enVista = true
 let radio = 100
 let haciaLesion: THREE.Vector3 | null = null
+// Solo de MALLA. Probé a marcar aquí la cola de mama (donde el PET de galio describe captación)
+// desde un punto suelto y el marcador caía FUERA de la mama: el extremo superoexterno de la
+// envoltura es una esquina de la envoltura, no la cola. Esa información va en texto, abajo.
 const dianas: { malla: THREE.Mesh; texto: string }[] = []
 
 /* ── materiales ───────────────────────────────────────────────────────────────────── */
@@ -131,11 +133,12 @@ const p3 = new THREE.Vector3()
 function actualizaRotulos() {
   const { w, h } = tamano()
   rotulos.value = dianas.map((D) => {
-    const bs = D.malla.geometry.boundingSphere!
-    p3.copy(bs.center).project(camera)
+    const centro = D.malla.geometry.boundingSphere!.center
+    const radio = D.malla.geometry.boundingSphere!.radius
+    p3.copy(centro).project(camera)
     const x = (p3.x + 1) / 2 * w, y = (1 - p3.y) / 2 * h
-    const dist = camera.position.distanceTo(bs.center)
-    const r = Math.max(14, (bs.radius / (dist * Math.tan(THREE.MathUtils.degToRad(camera.fov / 2)))) * h / 2 * 1.25)
+    const dist = camera.position.distanceTo(centro)
+    const r = Math.max(14, (radio / (dist * Math.tan(THREE.MathUtils.degToRad(camera.fov / 2)))) * h / 2 * 1.25)
     const medio = (D.texto.length * 7.3 + 12) / 2 + 6
     const tx = Math.min(Math.max(x, medio), w - medio)
     const ty = Math.max(y - r - 6, 26)
@@ -182,7 +185,6 @@ async function init() {
       if (les.mm_informe) {
         dianas.push({ malla: m, texto: L('Informe', 'Report') + ' · ' + les.mm_informe + ' mm' })
       }
-      if (les.diametro_auto_mm) autoMm.value = les.diametro_auto_mm
     }))
   }
   hayVasos.value = !!esc.mallas.vasos
@@ -295,8 +297,8 @@ onBeforeUnmount(() => {
     </ul>
     <p v-if="!loading && !failed" class="mt-1.5 text-[11px] text-tinta leading-snug">
       {{ L(
-        `La forma sale de una segmentación automática (IA, 100 % local) de su resonancia de mama, sin validación radiológica${autoMm ? `: el contorno automático da ${autoMm} mm` : ''}. La cifra buena es la del informe. El contorno es la superficie real de su mama; del tejido de dentro se quitan los 4 mm más externos, y el pezón se suaviza.`,
-        `The shape comes from an automatic segmentation (AI, 100% local) of her breast MRI, not validated by a radiologist${autoMm ? `: the automatic outline gives ${autoMm} mm` : ''}. The figure that counts is the one in the report. The outline is the real surface of her breast; the outermost 4 mm are removed from the tissue inside, and the nipple is smoothed out.`) }}
+        'El contorno es el de su mama, sacado de su resonancia por IA en local y sin revisar por un radiólogo. La medida que vale es la del informe. El galio del 26-may capta además en la cola de mama derecha (SUVmáx 2,64); no se dibuja porque es otro estudio y otra postura.',
+        'The outline is her own breast, taken from her MRI by AI running locally and not reviewed by a radiologist. The measurement that counts is the one in the report. The 26 May gallium scan also shows uptake in the right axillary tail (SUVmax 2.64); it is not drawn because it is a different study in a different position.') }}
     </p>
   </div>
 </template>
