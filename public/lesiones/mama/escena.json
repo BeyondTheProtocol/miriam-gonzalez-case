@@ -1,5 +1,6 @@
 {
  "mallas": {
+  "vasos": "vasos.ply",
   "mama": "mama.ply",
   "fgt": "fgt.ply"
  },

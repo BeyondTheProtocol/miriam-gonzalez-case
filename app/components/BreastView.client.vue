@@ -38,6 +38,7 @@ const failed = ref(false)
 const rotulos = ref<{ texto: string; x: number; y: number; r: number; tx: number; ty: number; visible: boolean }[]>([])
 let pezon3: THREE.Vector3 | null = null
 const autoMm = ref<number | null>(null)
+const hayVasos = ref(false)
 
 let renderer: THREE.WebGLRenderer | null = null
 let camera: THREE.PerspectiveCamera
@@ -78,6 +79,11 @@ const tejidoMat = (lado: THREE.Side) => fresnel(new THREE.MeshPhysicalMaterial({
 const envolturaMat = (lado: THREE.Side) => fresnel(new THREE.MeshPhysicalMaterial({
   color: 0xdccfc0, roughness: 0.78, clearcoat: 0.1, clearcoatRoughness: 0.7,
   transparent: true, depthWrite: false, side: lado }), 0.11, 0.62, 2.0)
+// Los vasos de la mama, en el mismo azul que los del hígado: una sola gramática de color en
+// toda la página. Salen del mismo realce que el tumor y son justo lo que estorbaba al buscarlo
+// (finos y brillantísimos); aquí dejan de ser ruido y pasan a ser anatomía.
+const vasoMat = () => new THREE.MeshPhysicalMaterial({
+  color: 0x2d63d6, roughness: 0.28, clearcoat: 0.9, clearcoatRoughness: 0.15 })
 // El mismo dorado brillante de las lesiones del hígado: una sola gramática de color en la página.
 const lesionMat = () => new THREE.MeshPhysicalMaterial({
   color: 0xf2b23c, roughness: 0.3, clearcoat: 0.85, clearcoatRoughness: 0.1,
@@ -181,6 +187,10 @@ async function init() {
   const rp = esc.referencias?.pezon
   if (rp && rp.length === 3) {
     pezon3 = new THREE.Vector3(rp[0]!, rp[1]!, rp[2]!).applyMatrix4(RAS_A_THREE)
+  }
+  hayVasos.value = !!esc.mallas.vasos
+  if (esc.mallas.vasos) {
+    tareas.push(geo(props.base + esc.mallas.vasos).then((g) => malla(g, vasoMat(), 2)))
   }
   const gt = await geo(props.base + esc.mallas.fgt!)
   const marcaPezon = () => {
@@ -304,6 +314,10 @@ onBeforeUnmount(() => {
       <li class="flex items-start gap-1.5">
         <span class="inline-block w-2.5 h-2.5 mt-[3px] shrink-0 rounded-full" style="background:#d8cfc4;opacity:0.55" aria-hidden="true" />
         {{ L('Contorno de la mama, para situar el tumor dentro de ella', 'Outline of the breast, to place the tumour inside it') }}
+      </li>
+      <li v-if="hayVasos" class="flex items-start gap-1.5">
+        <span class="inline-block w-2.5 h-2.5 mt-[3px] shrink-0 rounded-full" style="background:#2d63d6" aria-hidden="true" />
+        {{ L('Vasos de la mama, los que le llevan la sangre (y el contraste) al tumor', 'Vessels of the breast, the ones carrying blood (and contrast) to the tumour') }}
       </li>
       <li class="flex items-start gap-1.5">
         <span class="inline-block w-2.5 h-2.5 mt-[2px] shrink-0 text-[13px] leading-none text-center text-berenjena" aria-hidden="true">+</span>
