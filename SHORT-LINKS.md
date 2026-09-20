@@ -36,11 +36,14 @@ control y tu analítica.
 /<slug>-in     → LinkedIn      (utm_source=linkedin&utm_medium=post)
 /<slug>-ig     → Instagram     (utm_source=instagram&utm_medium=bio)
 /<slug>-tt     → TikTok         (utm_source=tiktok&utm_medium=bio)
+/<slug>-yt     → YouTube       (utm_source=youtube&utm_medium=bio)
 ```
 
 - `slug` = corto y memorable (`3d`, `caso`, `marcas`…). Si el slug coincide con una
   página existente (`/lesiones`), NO se crea el genérico: la propia URL hace de enlace
-  genérico y solo se crean los `-x`, `-in`, `-ig`, `-tt`.
+  genérico y solo se crean los `-x`, `-in`, `-ig`, `-tt`, `-yt`.
+- `-yt` usa `utm_medium=bio` por coherencia con `-ig` y `-tt` (el enlace de YouTube que
+  hoy trae tráfico vive en la bio del canal). `utm_source=youtube` ya separa la red.
 - `utm_campaign` = la ola/acción (p. ej. `lanzamiento-herramienta`).
 - Todo en **minúsculas, sin acentos ni espacios** (igual que `UTM-convention.md`;
   Umami agrupa por coincidencia exacta).
@@ -53,11 +56,20 @@ control y tu analítica.
 | `/3d-x` | `/mapa-metastasis` | `lanzamiento-herramienta` (X) |
 | `/3d-in` | `/mapa-metastasis` | `lanzamiento-herramienta` (LinkedIn) |
 | `/3d-ig` | `/mapa-metastasis` | `lanzamiento-herramienta` (Instagram/bio) |
+| `/3d-tt` | `/mapa-metastasis` | `lanzamiento-herramienta` (TikTok/bio) |
+| `/3d-yt` | `/mapa-metastasis` | `lanzamiento-herramienta` (YouTube/bio) |
 | `/lesiones-x` | `/lesiones` | `lanzamiento-lesiones` (X) |
 | `/lesiones-in` | `/lesiones` | `lanzamiento-lesiones` (LinkedIn) |
 | `/lesiones-ig` | `/lesiones` | `lanzamiento-lesiones` (Instagram/bio) |
 | `/lesiones-tt` | `/lesiones` | `lanzamiento-lesiones` (TikTok/bio) |
 | `/lesiones-yt` | `/lesiones` | `lanzamiento-lesiones` (YouTube/bio) |
+| `/biopsia` | `/biopsia-osea` | `lanzamiento-biopsia` (genérico) |
+| `/biopsia-x` | `/biopsia-osea` | `lanzamiento-biopsia` (X) |
+| `/biopsia-in` | `/biopsia-osea` | `lanzamiento-biopsia` (LinkedIn) |
+| `/biopsia-ig` | `/biopsia-osea` | `lanzamiento-biopsia` (Instagram/bio) |
+| `/biopsia-tt` | `/biopsia-osea` | `lanzamiento-biopsia` (TikTok/bio) |
+| `/biopsia-yt` | `/biopsia-osea` | `lanzamiento-biopsia` (YouTube/bio) |
+| `/caso` | `/ciencia?nivel=pro#mapa-acceso` | `equipo-clinico` (reenvío a médicos, no redes) |
 | `/donar` | GoFundMe (externo) | — (sin UTM: salto externo, no medible en Umami) |
 
 ## Cómo añadir uno nuevo
