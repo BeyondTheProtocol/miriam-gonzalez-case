@@ -57,17 +57,25 @@
       </g>
       <g v-for="{ g, p } in CONPOS" :key="g.key" class="sk-foco"
         :style="opacidad ? { opacity: opacidad(g) } : undefined">
-        <!-- diana táctil: SK_HIT son ~21 px de diámetro en el contenedor real, por debajo del
-             mínimo de 44. No se sube en `#mapa-focos` porque ese valor lo usan otras vistas del
-             mapa; se sube aquí, que es donde se toca con el dedo. -->
+        <!-- Diana táctil. Ojo al error que hubo aquí: el radio va en unidades de VIEWBOX (440
+             de ancho) pero el contenedor real mide ~309-326 px, así que todo se encoge un 30 %.
+             Con `hit: 22` la diana medía 30,9 px en móvil, no los 44 que decía el comentario
+             anterior. A 32 salen 42,6 px en móvil y 44,8 en escritorio. -->
         <circle :cx="p.x" :cy="p.y" :r="hit" fill="transparent" class="cursor-pointer" aria-hidden="true" @click="emit('pick', g.primary.id)" />
+        <!-- Anillo de selección de DOBLE trazo. El claro solo no vale: sobre hueso plano daba
+             1,9-3,0 : 1 de contraste (medido sobre los píxeles del PNG en las 19 posiciones) y
+             el foco seleccionado se perdía justo en L1, L5, sacro, ilíacos y fémur. Un trazo
+             oscuro por fuera y uno claro por dentro se ven sobre CUALQUIER fondo, como la
+             línea de un mapa. Solo aparece al seleccionar, así que no ensucia el resto. -->
+        <circle v-if="esSel(g)" :cx="p.x" :cy="p.y" :r="SK_R + 4.6"
+          fill="none" stroke="#120b1a" stroke-width="3" aria-hidden="true" />
         <circle
           :id="idPrefix + g.primary.id"
           :cx="p.x" :cy="p.y"
           :r="SK_R + (esSel(g) ? 2.5 : 0)"
           :fill="PHENO[g.primary.pheno].c"
           :stroke="esSel(g) ? '#F5EFE6' : '#1c1126'"
-          :stroke-width="esSel(g) ? 2.5 : 1.4"
+          :stroke-width="esSel(g) ? 4 : 1.4"
           :stroke-dasharray="(g.primary.source ?? 'informe') === 'ia-david' ? '2 1.6' : undefined"
           class="cursor-pointer sk-marker"
           :tabindex="esSel(g) ? 0 : -1" role="option" :aria-selected="esSel(g)"
@@ -116,7 +124,7 @@ const props = withDefaults(defineProps<{
   opacidad?: (g: LesGroup) => number
   ticks?: { y: number; t: string }[]
   hit?: number
-}>(), { idPrefix: 'pk-opt-', teclado: true, hit: 22 })
+}>(), { idPrefix: 'pk-opt-', teclado: true, hit: 32 })
 
 const emit = defineEmits<{ pick: [id: number]; hover: [e: Event, g: LesGroup]; leave: [] }>()
 const { locale } = useI18n()
