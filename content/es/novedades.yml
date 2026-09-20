@@ -1,0 +1,7 @@
+# Novedades del proyecto.
+# Lo ESCRIBE el sistema (tools/web_novedad.py) cuando Miriam suelta algo por
+# Telegram, y solo si pasa tools/web_lint.py. Las entradas nuevas van ARRIBA.
+# Aquí NO entra nada clínico: eso vive en science.yml y lo toca una persona.
+items:
+  - date: "2026-09-20"
+    text: "El Ki67 ha bajado al 60% en la ultima revision del informe"
