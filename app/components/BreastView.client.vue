@@ -67,8 +67,8 @@ function fresnel(mat: THREE.Material, min: number, max: number, pot: number) {
 // contexto de densidad, la lesión es la protagonista y se mira a través de él casi siempre.
 const tejidoMat = (lado: THREE.Side) => fresnel(new THREE.MeshPhysicalMaterial({
   color: 0xe8dcc8, roughness: 0.45, clearcoat: 0.5, clearcoatRoughness: 0.3,
-  sheen: 0.4, sheenRoughness: 0.6, sheenColor: new THREE.Color(0xfff6e4),
-  transparent: true, depthWrite: false, side: lado }), 0.08, 0.55, 2.2)
+  sheen: 0.25, sheenRoughness: 0.7, sheenColor: new THREE.Color(0xfff6e4),
+  transparent: true, depthWrite: false, side: lado }), 0.05, 0.38, 2.4)
 // El mismo dorado brillante de las lesiones del hígado: una sola gramática de color en la página.
 const lesionMat = () => new THREE.MeshPhysicalMaterial({
   color: 0xf2b23c, roughness: 0.3, clearcoat: 0.85, clearcoatRoughness: 0.1,
@@ -116,7 +116,7 @@ function actualizaRotulos() {
     p3.copy(bs.center).project(camera)
     const x = (p3.x + 1) / 2 * w, y = (1 - p3.y) / 2 * h
     const dist = camera.position.distanceTo(bs.center)
-    const r = Math.max(14, (bs.radius / (dist * Math.tan(THREE.MathUtils.degToRad(camera.fov / 2)))) * h / 2 * 1.6)
+    const r = Math.max(14, (bs.radius / (dist * Math.tan(THREE.MathUtils.degToRad(camera.fov / 2)))) * h / 2 * 1.25)
     const medio = (D.texto.length * 7.3 + 12) / 2 + 6
     const tx = Math.min(Math.max(x, medio), w - medio)
     const ty = Math.max(y - r - 6, 26)
