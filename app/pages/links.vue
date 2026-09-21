@@ -138,24 +138,31 @@ type BioLink = {
   external?: boolean
 }
 
-// Destacados — orden: el MAPA primero (el gancho novedoso e INTERNO: lo que la gente viene
-// a buscar y lo que la retiene en el sitio), luego la prensa (credibilidad) y marcas.
+// Destacados — orden: LOS VISORES primero (el gancho novedoso e INTERNO: lo que la gente viene
+// a buscar y lo que la retiene en el sitio), luego el podcast, la prensa (credibilidad) y marcas.
 // `id` = la propiedad que viaja a Umami (Bio-link · destino) → debe ser estable
 // y en minúsculas-sin-acentos para agrupar bien en el panel.
+//
+// 20-sep-2026: fuera el mapa de metástasis y el corte de la biopsia (decisión de Miriam). El mapa
+// enseña hueso de marzo a junio y /lesiones es lo que se está lanzando; el corte era el enlace más
+// técnico de los cuatro y competía con él.
+const PODCAST_URL = 'https://www.youtube.com/watch?v=zVUECrux6zA'
+
 const featured = computed<BioLink[]>(() => [
   {
-    id: 'mapa',
-    title: 'links.mapa_title',
-    sub: 'links.mapa_sub',
-    icon: 'ph:globe-hemisphere-west-fill',
-    to: localePath('mapa-metastasis'),
+    id: 'lesiones',
+    title: 'links.lesiones_title',
+    sub: 'links.lesiones_sub',
+    icon: 'ph:cube-fill',
+    to: localePath('lesiones'),
   },
   {
-    id: 'biopsia',
-    title: 'links.biopsia_title',
-    sub: 'links.biopsia_sub',
-    icon: 'ph:microscope-fill',
-    to: localePath('biopsia-osea'),
+    id: 'podcast',
+    title: 'links.podcast_title',
+    sub: 'links.podcast_sub',
+    icon: 'ph:youtube-logo-fill',
+    to: PODCAST_URL,
+    external: true,
   },
   {
     id: 'elespanol',

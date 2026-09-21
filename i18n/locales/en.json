@@ -1044,7 +1044,7 @@
   },
   "links": {
     "meta_title": "Miriam González · Links",
-    "meta_description": "All the links for Miriam González's case in one place: press coverage, the map of her metastases, brand collaboration and how to support her treatment.",
+    "meta_description": "Every link to Miriam González's case in one place: her lesions in 3D, the podcast with Carlos Roca, press coverage, brand collaborations and how to support her treatment.",
     "aria_page": "Miriam González's links",
     "aria_nav": "Featured links",
     "avatar_alt": "Portrait of Miriam González",
@@ -1052,15 +1052,15 @@
     "footnote": "helpmiriam.com · decision support, not medical advice.",
     "elespanol_title": "My case in El Español",
     "elespanol_sub": "“The engineer using AI to fight her cancer” (Spanish)",
-    "mapa_title": "The map of my metastases",
-    "mapa_sub": "In 3D, lesion by lesion: see exactly where each one is.",
     "marcas_title": "For brands and companies",
     "marcas_sub": "A showcase for your brand, in partnership",
     "apoyar_title": "Support my treatment",
     "apoyar_sub": "How to help, with full transparency",
     "caso_title": "My case, from the start",
     "caso_sub": "The full story on helpmiriam.com",
-    "biopsia_title": "The biopsy slide, measured",
-    "biopsia_sub": "Zoom, layers and a ruler in microns over the micrograph"
+    "lesiones_title": "My lesions in 3D",
+    "lesiones_sub": "Liver and breast, rotatable: what the report measures and what the AI detects",
+    "podcast_title": "My case on Roca Project",
+    "podcast_sub": "Episode 100, with Carlos Roca: the diagnosis, family and fear"
   }
 }
