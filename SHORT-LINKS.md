@@ -73,6 +73,7 @@ control y tu analítica.
 | `/biopsia-yt` | `/biopsia-osea` | `lanzamiento-biopsia` (YouTube/bio) |
 | `/caso` | `/ciencia?nivel=pro#mapa-acceso` | `equipo-clinico` (reenvío a médicos, no redes) |
 | `/donar` | GoFundMe (externo) | — (sin UTM: salto externo, no medible en Umami) |
+| `/polaris` | repo público de Polaris en GitHub (externo) | medido vía Link de Umami `cloud.umami.is/q/polaris-repo` («General → Repo Polaris», en Umami → Links) |
 
 ## Cómo añadir uno nuevo
 
