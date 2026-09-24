@@ -24,8 +24,8 @@ const seoTitle = () =>
     : 'El catéter no se ha movido — el caso de Miriam, una herramienta de apoyo'
 const seoDescription = () =>
   lang.value === 'en'
-    ? 'Her port stopped giving blood return. Before acting on it, its path was rebuilt on three CT scans, months apart — the tip lands in the same place every time.'
-    : 'Su puerto de acceso venoso dejó de dar retorno. Antes de intervenir, se reconstruyó su trayecto en tres TC separados por meses: la punta sale en el mismo sitio las tres veces.'
+    ? 'Her reservoir stopped giving blood return. Before assuming the catheter had moved, its path was rebuilt on three CT scans, months apart: the tip lands in the same place every time.'
+    : 'Su reservorio dejó de dar retorno. Antes de dar por hecho que el catéter se había movido, se reconstruyó su trayecto en tres TC separados por meses: la punta sale en el mismo sitio las tres veces.'
 useSeoMeta({
   title: seoTitle, description: seoDescription, ogTitle: seoTitle, ogDescription: seoDescription,
   ogType: 'website', twitterCard: 'summary_large_image', twitterTitle: seoTitle, twitterDescription: seoDescription,
@@ -46,8 +46,8 @@ defineOgImage('Default.takumi', {
           :tag="L('Infraestructura del tratamiento', 'Treatment infrastructure')"
           :title="L('El catéter no se ha movido.', 'The catheter has not moved.')"
           :subtitle="L(
-            'Su puerto de acceso venoso dejó de dar retorno. Antes de intervenir, se reconstruyó el trayecto del catéter en tres TC separados por meses: la punta aparece en el mismo sitio las tres veces, y eso descarta el desplazamiento como causa.',
-            'Her venous access port stopped giving blood return. Before acting on it, the catheter’s path was rebuilt on three CT scans, months apart: the tip lands in the same place all three times, which rules out displacement as the cause.')"
+            'Su reservorio (el puerto de acceso venoso) dejó de dar retorno. Lo primero que se piensa es que el catéter se ha movido, así que antes de darlo por hecho se reconstruyó su trayecto en tres TC separados por meses. La punta sale en el mismo sitio las tres veces, y eso no cuadra con un catéter desplazado.',
+            'Her reservoir (the venous access port) stopped giving blood return. The first thing to suspect is that the catheter has moved, so before assuming that, its path was rebuilt on three CT scans, months apart. The tip lands in the same place all three times, which does not fit a displaced catheter.')"
         />
 
         <div class="alert-callout mb-6" role="note" :aria-label="L('Aviso: herramienta de apoyo, no diagnóstico', 'Notice: support tool, not a diagnosis')">
@@ -72,8 +72,8 @@ defineOgImage('Default.takumi', {
           <div class="min-w-0">
             <p class="text-[15px] text-tinta leading-relaxed mb-4">
               {{ L(
-                'El modelo sale de sus propios TC. El trayecto está medido en los dos extremos —el portal y la punta, leídos directamente en el corte— y el tramo intermedio es la ruta más probable entre ambos, interpolada y marcada como tal: por eso se dibuja discontinua. El gris de fondo es hueso y tráquea, solo para orientarse; no es el protagonista.',
-                'The model comes from her own CT scans. The path is measured at both ends —the port and the tip, read directly on the slice— and the middle stretch is the most likely route between them, interpolated and marked as such: that is why it is drawn discontinuous. The grey in the background is bone and trachea, there to orient, not to take the lead.') }}
+                'El modelo sale de sus propios TC. El portal y la punta están medidos directamente en el corte; el tramo de en medio es la ruta más probable entre los dos, interpolada.',
+                'The model comes from her own CT scans. The port and the tip are measured directly on the slice; the stretch between them is the most likely route, interpolated.') }}
             </p>
             <p class="text-[15px] text-tinta leading-relaxed mb-4">
               {{ L(
@@ -82,8 +82,8 @@ defineOgImage('Default.takumi', {
             </p>
             <p class="text-[13px] text-tinta leading-relaxed">
               {{ L(
-                'RECIST no aplica aquí: esto no es una lesión, es un catéter. La reconstrucción es semiautomática y no ha sido validada por radiología.',
-                'RECIST does not apply here: this is not a lesion, it is a catheter. The reconstruction is semi-automatic and has not been validated by radiology.') }}
+                'RECIST no aplica aquí, porque mide lesiones y esto es un catéter. La reconstrucción es semiautomática y radiología no la ha validado.',
+                'RECIST does not apply here, since it measures lesions and this is a catheter. The reconstruction is semi-automatic and radiology has not validated it.') }}
             </p>
             <NuxtLink :to="localePath('lesiones')" class="inline-flex items-center min-h-[44px] mt-6 font-semibold text-berenjena underline underline-offset-4">
               ← {{ L('Volver a mama, hígado y hueso', 'Back to breast, liver and bone') }}

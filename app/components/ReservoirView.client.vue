@@ -229,7 +229,7 @@ function fechaLegible(f: string) {
         ref="host"
         role="img"
         tabindex="0"
-        :aria-label="L('Catéter del reservorio en 3D: trayecto continuo en los dos extremos leídos en el TC (el portal y la punta) y discontinuo en el tramo intermedio, reconstruido entre ambos. Hueso y tráquea, en gris, solo de contexto. Arrastra, usa la rueda o las flechas del teclado para girar.', 'Reservoir catheter in 3D: continuous path at the two ends read on the CT scan (the port and the tip) and discontinuous in the middle stretch, reconstructed between them. Bone and trachea, in grey, for context only. Drag, scroll, or use the arrow keys to rotate.')"
+        :aria-label="L('Catéter del reservorio en 3D: trayecto continuo en los dos extremos leídos en el TC (el portal y la punta) y discontinuo en el tramo intermedio, interpolado entre ambos. Hueso y tráquea, en gris, solo de contexto. Arrastra o usa las flechas del teclado para girar, y la rueda para acercar.', 'Reservoir catheter in 3D: continuous path at the two ends read on the CT scan (the port and the tip) and discontinuous in the middle stretch, interpolated between them. Bone and trachea, in grey, for context only. Drag or use the arrow keys to rotate, and scroll to zoom.')"
         class="absolute inset-0 cursor-grab active:cursor-grabbing rv-host"
       />
       <div v-if="loading" class="absolute inset-0 flex items-center justify-center text-[12px]" style="color:#aeb6c2">
@@ -270,7 +270,7 @@ function fechaLegible(f: string) {
       <span class="badge-genomic" style="color:#ff6b47;background:rgba(255,107,71,0.14)">╌ {{ L('interpolado', 'interpolated') }}</span>
     </div>
     <p v-if="!loading && !failed" class="mt-2 text-[11px] text-tinta leading-snug">
-      {{ L('Medido: los dos puntos leídos directamente en el corte del TC — el portal y la punta. Interpolado: la ruta más probable entre ambos sobre el propio TC, no una medida punto a punto; por eso se dibuja discontinua. Hueso y tráquea, en gris, son solo referencia anatómica.', 'Measured: the two points read directly on the CT slice — the port and the tip. Interpolated: the most likely route between them on the CT itself, not a point-by-point measurement; that is why it is drawn discontinuous. Bone and trachea, in grey, are anatomical reference only.') }}
+      {{ L('Medido: los dos puntos leídos directamente en el corte del TC: el portal y la punta. Interpolado: la ruta más probable entre ambos sobre el propio TC, no una medida punto a punto; por eso se dibuja discontinua. Hueso y tráquea, en gris, son solo referencia anatómica.', 'Measured: the two points read directly on the CT slice: the port and the tip. Interpolated: the most likely route between them on the CT itself, not a point-by-point measurement; that is why it is drawn discontinuous. Bone and trachea, in grey, are anatomical reference only.') }}
     </p>
     <p v-if="!loading && !failed && escena" class="mt-1.5 text-[11px] text-tinta leading-snug">
       {{ L(`Longitud del catéter, portal→punta: ${mm(escena.fechas[fechaActual]?.longitud_mm)} mm (± ${escena.error_medida_mm} mm; ± ${escena.error_diferencia_mm} mm en la diferencia entre fechas).`,
