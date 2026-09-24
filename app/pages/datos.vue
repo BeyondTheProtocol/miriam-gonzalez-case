@@ -121,6 +121,20 @@ const aplicarPestana = () => {
   if (ruta.query.ver3d === '1') ver3d.value = true // enlace directo al catéter en 3D
 }
 onMounted(aplicarPestana)
+/* cambiar de pestaña con una View Transition: la pastilla activa se desliza hasta la nueva y los
+   gráficos entran desde el lado de la pestaña elegida. Sin API o con movimiento reducido, cambio seco. */
+function irPestana(k: string) {
+  if (k === pestana.value) return
+  const doc = document as Document & { startViewTransition?: (cb: () => Promise<void>) => { ready: Promise<void>; finished: Promise<void> } }
+  // pestaña oculta: el navegador aborta la transición (InvalidStateError); ahí, cambio seco
+  if (!doc.startViewTransition || document.visibilityState === 'hidden' || window.matchMedia('(prefers-reduced-motion: reduce)').matches) { pestana.value = k; return }
+  const i0 = PESTANAS.findIndex((p) => p.k === pestana.value), i1 = PESTANAS.findIndex((p) => p.k === k)
+  const html = document.documentElement
+  html.dataset.vtDatos = i1 > i0 ? 'dcha' : 'izda'
+  const t = doc.startViewTransition(async () => { pestana.value = k; await nextTick() })
+  t.ready.catch(() => {}) // si se aborta, el estado ya cambió dentro del callback: no hay nada que rescatar
+  t.finished.catch(() => {}).finally(() => { delete html.dataset.vtDatos })
+}
 watch(() => ruta.query.pestana, aplicarPestana)
 const minis = computed(() => (PESTANAS.find((p) => p.k === pestana.value)?.minis ?? [])
   .map(([k, modo, es, en]) => ({ a: an(k), modo, nombre: L(es, en) })).filter((m) => m.a))
@@ -300,8 +314,9 @@ const n = (v: number) => numCaso(v, lang.value)
           <p class="dt-nota">{{ L('Mismo eje que la línea de arriba. ▲▼ fuera de rango; ◆ marcado en el informe sin salirse del rango; 1× es el límite normal. Toca un gráfico y verás esa fecha en todos.',
                                   'Same axis as the timeline above. ▲▼ out of range; ◆ flagged on the report without leaving the range; 1× is the upper limit of normal. Tap a chart to see that date on all of them.') }}</p>
           <div class="dt-pestanas" role="group" :aria-label="L('Grupo de pruebas', 'Test group')">
-            <button v-for="p in PESTANAS" :key="p.k" type="button" class="dt-pestana" :aria-pressed="pestana === p.k" aria-controls="dt-minis" @click="pestana = p.k">{{ L(p.es, p.en) }}</button>
+            <button v-for="p in PESTANAS" :key="p.k" type="button" class="dt-pestana" :aria-pressed="pestana === p.k" aria-controls="dt-minis" @click="irPestana(p.k)"><span v-if="pestana === p.k" class="dt-pastilla" aria-hidden="true" /><span class="dt-pestana__txt">{{ L(p.es, p.en) }}</span></button>
           </div>
+          <div class="dt-vista-analiticas">
           <!-- hígado: cinta de calor (forma nueva); los cinco gráficos, a un toque -->
           <template v-if="pestana === 'higado'">
             <DatosCintaHigado :filas="minis.map((m) => ({ a: m.a!, nombre: m.nombre.split(' (')[0].replace('Fosfatasa alcalina', 'FA').replace('Alkaline phosphatase', 'ALP').replace('Bilirrubina total', 'Bili').replace('Total bilirubin', 'Bili') }))"
@@ -320,6 +335,7 @@ const n = (v: number) => numCaso(v, lang.value)
             <DatosMiniSerie v-for="m in minis" :key="m.a!.key" :a="m.a!" :nombre="m.nombre" :modo="m.modo"
                             :desde="rango[0]" :hasta="rango[1]" :contexto="contexto" :cursor="cursor" :cabezal="cabezal" :lang="lang"
                             @cursor="parar(); cursor = $event" />
+          </div>
           </div>
           <p class="dt-pie"><DatosSello :s="c.analiticas.sello" :lang="lang" /> {{ L('Cómo se leen y fechan: en «Fuentes y método».', 'How they are read and dated: under “Sources and method”.') }}</p>
         </section>
@@ -493,7 +509,10 @@ const n = (v: number) => numCaso(v, lang.value)
 .dt-pestanas { display: flex; gap: 6px; overflow-x: auto; margin: 4px 0 6px; padding-bottom: 2px; }
 .dt-pestana { font: 600 14px/1 var(--font-body); padding: 0 14px; min-height: 44px; border-radius: 999px; white-space: nowrap;
   border: 1px solid rgb(var(--color-text-rgb) / 0.15); color: var(--color-text); }
-.dt-pestana[aria-pressed='true'] { background: var(--color-miriam-soft); border-color: var(--color-miriam); }
+.dt-pestana { position: relative; isolation: isolate; }
+.dt-pestana[aria-pressed='true'] { border-color: transparent; }
+/* el fondo de la activa es un elemento propio: es lo único que se desliza al cambiar de pestaña */
+.dt-pastilla { position: absolute; inset: -1px; z-index: -1; border-radius: inherit; background: var(--color-miriam-soft); border: 1px solid var(--color-miriam); }
 .dt-vista:focus-visible, .dt-pestana:focus-visible { outline: 2px solid var(--color-miriam); outline-offset: 2px; }
 .dt-minis { display: grid; grid-template-columns: minmax(0, 1fr); column-gap: 28px; }
 @media (min-width: 900px) { .dt-minis { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
@@ -534,4 +553,27 @@ const n = (v: number) => numCaso(v, lang.value)
 .dt-ficha__fila dd { font: 400 14px/1.5 var(--font-body); color: var(--color-text); margin: 0; }
 .dt-molecular { font: 400 14px/1.5 var(--font-body); color: var(--color-text); margin: 18px 0 0; }
 .dt-ayuda { margin: 28px 0 8px; }
+</style>
+
+<style>
+/* View Transition de las pestañas de /datos: solo animan la pastilla y la vista; el resto, quieto */
+.dt-pastilla { view-transition-name: dt-pastilla; }
+.dt-vista-analiticas { view-transition-name: dt-vista; }
+html[data-vt-datos]::view-transition-old(root), html[data-vt-datos]::view-transition-new(root) { animation: none; }
+html[data-vt-datos]::view-transition-group(dt-pastilla) { animation-duration: 380ms; animation-timing-function: var(--curva-salida, cubic-bezier(.2,.8,.2,1)); }
+html[data-vt-datos]::view-transition-old(dt-pastilla), html[data-vt-datos]::view-transition-new(dt-pastilla) { animation: none; mix-blend-mode: normal; height: 100%; width: 100%; }
+html[data-vt-datos]::view-transition-old(dt-pastilla) { display: none; }
+/* la pastilla va por encima del texto mientras se desliza: translúcida para que el texto se lea */
+html[data-vt-datos]::view-transition-new(dt-pastilla) { animation: 380ms ease-out both dt-vt-pastilla; }
+@keyframes dt-vt-pastilla { from { opacity: 0.45; } to { opacity: 1; } }
+html[data-vt-datos]::view-transition-group(dt-vista) { animation-duration: 470ms; }
+/* en serie, no a la vez: si se solapan, dos gráficos distintos se leen como uno roto */
+html[data-vt-datos]::view-transition-old(dt-vista) { animation: 150ms ease-in both dt-vt-sale; }
+html[data-vt-datos]::view-transition-new(dt-vista) { animation: 340ms var(--curva-salida, cubic-bezier(.2,.8,.2,1)) 130ms both dt-vt-entra; }
+html[data-vt-datos='izda']::view-transition-old(dt-vista) { animation-name: dt-vt-sale-izda; }
+html[data-vt-datos='izda']::view-transition-new(dt-vista) { animation-name: dt-vt-entra-izda; }
+@keyframes dt-vt-sale { to { opacity: 0; transform: translateX(-24px); } }
+@keyframes dt-vt-entra { from { opacity: 0; transform: translateX(32px); } }
+@keyframes dt-vt-sale-izda { to { opacity: 0; transform: translateX(24px); } }
+@keyframes dt-vt-entra-izda { from { opacity: 0; transform: translateX(-32px); } }
 </style>
