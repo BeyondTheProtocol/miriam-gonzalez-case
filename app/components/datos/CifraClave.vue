@@ -19,6 +19,21 @@ const L = (es: string, en: string) => (props.lang === 'en' ? en : es)
 
 const W = 120
 const H = 30
+
+/* animación: la cifra cuenta desde 0 y la mini línea se dibuja al entrar en pantalla */
+const raiz = ref<HTMLElement | null>(null)
+const { armado, visto } = useAlVer(raiz)
+const numerico = computed(() => /^[\d.,]+/.test(props.valor))
+const mostrado = ref(props.valor)
+watch(visto, (v) => {
+  if (!v || !numerico.value) return
+  const m = props.valor.match(/^([\d.,]+)(.*)$/)!
+  const txt = m[1]
+  const dec = (txt.split(/[.,]/)[1] ?? '').length
+  const obj = Number(txt.replace(',', '.'))
+  const sep = txt.includes(',') ? ',' : '.'
+  tween(1100, (f) => { mostrado.value = (obj * f).toFixed(dec).replace('.', sep) + m[2] })
+})
 const spark = computed(() => {
   const s = props.serie ?? []
   if (s.length < 2) return null
@@ -31,10 +46,10 @@ const spark = computed(() => {
 </script>
 
 <template>
-  <div class="ck">
+  <div ref="raiz" class="ck" :class="{ 'ck--armado': armado, 'ck--visto': visto }">
     <p class="ck__etq">{{ etiqueta }}</p>
     <p class="ck__valor" :class="{ 'ck__valor--texto': valor.length > 8 }">
-      <span class="nums">{{ valor }}</span>
+      <span class="nums">{{ mostrado }}</span>
       <span v-if="unidad" class="ck__unidad">{{ unidad }}</span>
     </p>
     <p v-if="fuera" class="ck__fuera">
@@ -43,7 +58,7 @@ const spark = computed(() => {
     </p>
     <p v-if="detalle" class="ck__det">{{ detalle }}</p>
     <svg v-if="spark" :viewBox="`0 0 ${W} ${H}`" class="ck__spark" aria-hidden="true">
-      <path :d="spark.d" class="ck__linea" />
+      <path :d="spark.d" class="ck__linea" pathLength="1" />
       <circle :cx="spark.x" :cy="spark.y" r="3.5" class="ck__ultimo" />
     </svg>
     <p class="ck__pie">
@@ -66,6 +81,13 @@ const spark = computed(() => {
 .ck__det { font: 400 12.5px/1.35 var(--font-body); color: var(--color-text); margin: 2px 0 0; }
 .ck__spark { width: 100%; max-width: 160px; height: auto; margin-top: 6px; }
 .ck__linea { fill: none; stroke: var(--viz-div-2); stroke-width: 1.6; }
-.ck__ultimo { fill: var(--color-miriam); }
+.ck__ultimo { fill: var(--color-miriam); transform-box: fill-box; transform-origin: center; }
+.ck--armado:not(.ck--visto) .ck__linea { stroke-dasharray: 1; stroke-dashoffset: 1; }
+.ck--armado:not(.ck--visto) .ck__ultimo { transform: scale(0); }
+.ck--visto .ck__linea { stroke-dasharray: 1; animation: ck-trazo 1.1s var(--curva-salida) both; }
+.ck--visto .ck__ultimo { animation: ck-pop 500ms 1s var(--curva-salida) both; }
+@keyframes ck-trazo { from { stroke-dashoffset: 1; } to { stroke-dashoffset: 0; } }
+@keyframes ck-pop { 0% { transform: scale(0); } 60% { transform: scale(1.8); } 100% { transform: scale(1); } }
+@media (prefers-reduced-motion: reduce) { .ck--visto .ck__linea, .ck--visto .ck__ultimo { animation: none; } }
 .ck__pie { display: flex; flex-wrap: wrap; gap: 4px 8px; align-items: center; margin: 6px 0 0; font: 500 11px var(--font-mono); color: var(--color-text-soft); }
 </style>

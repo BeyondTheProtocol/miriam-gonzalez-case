@@ -14,6 +14,7 @@ const L = (es: string, en: string) => (props.lang === 'en' ? en : es)
 
 const caja = ref<HTMLElement | null>(null)
 const W = useAncho(caja)
+const { armado, visto } = useAlVer(caja)
 const X = (t: number) => linEscala(props.desde, props.hasta, EJE_IZQ, W.value - EJE_DER)(t)
 const hoyMs = computed(() => msFecha(props.hoy))
 
@@ -83,7 +84,7 @@ const elegido = computed(() => (props.cabezal != null ? eventos.value[eventos.va
 </script>
 
 <template>
-  <figure ref="caja" class="lt">
+  <figure ref="caja" class="lt" :class="{ 'lt--armado': armado, 'lt--visto': visto }">
     <svg :viewBox="`0 0 ${W} ${H}`" :width="W" :height="H" class="lt__svg" role="group"
          :aria-label="L('Línea de tiempo: tratamientos y eventos clave', 'Timeline: treatments and key events')">
       <g v-for="tk in ticks" :key="tk.x">
@@ -93,12 +94,13 @@ const elegido = computed(() => (props.cabezal != null ? eventos.value[eventos.va
       <g v-for="l in lineas" :key="l.id">
         <title>{{ l.id }} · {{ txtCaso(l.tratamiento, lang) }}{{ l.motivo_fin ? ` → ${txtCaso(l.motivo_fin, lang)}` : '' }}</title>
         <rect :x="l.x" :y="l.rt ? Y_RT : Y_LIN" :width="l.w" :height="l.rt ? 8 : 20" rx="3"
-              :class="['lt__linea', { 'lt__linea--rt': l.rt, 'lt__linea--futura': l.futura }]" />
+              :class="['lt__linea', 'lt__crece', { 'lt__linea--rt': l.rt, 'lt__linea--futura': l.futura }]"
+              :style="{ animationDelay: `${Math.round((l.x / W) * 900)}ms` }" />
         <text v-if="!l.rt && l.w > 22" :x="l.x + 5" :y="Y_LIN + 14" class="lt__linea-txt">{{ l.id }}</text>
       </g>
       <line :x1="X(hoyMs)" :x2="X(hoyMs)" :y1="Y_EJE + 3" :y2="H" class="lt__hoy" />
       <line v-if="cabezal != null" :x1="X(cabezal)" :x2="X(cabezal)" :y1="0" :y2="H" class="lt__cabezal" />
-      <g v-for="e in eventos" :key="e.id" class="lt__ev" tabindex="0" role="button"
+      <g v-for="e in eventos" :key="e.id" class="lt__ev" tabindex="0" role="button" :style="{ animationDelay: `${300 + Math.round((e.x / W) * 1100)}ms` }"
          :aria-label="`${e.fecha_texto}: ${txtCaso(e.titulo, lang)}`" :aria-pressed="sel === e.id"
          @click="sel = sel === e.id ? null : e.id" @keydown.enter.prevent="sel = e.id" @keydown.space.prevent="sel = e.id">
         <rect v-if="!e.puntual" :x="e.xa" :y="e.y - 2" :width="Math.max(2, e.xb - e.xa)" height="4" class="lt__franja" />
@@ -146,9 +148,17 @@ const elegido = computed(() => (props.cabezal != null ? eventos.value[eventos.va
 .lt__glifo { fill: var(--color-bg); stroke: var(--color-text); stroke-width: 1.4; }
 .lt__glifo--fuerte { fill: var(--color-text); }
 .lt__glifo--sel { fill: var(--color-miriam); stroke: var(--color-miriam); }
-.lt__ev { animation: lt-pop 320ms var(--curva-salida) both; transform-box: fill-box; transform-origin: center; }
-@keyframes lt-pop { from { opacity: 0; transform: scale(0.3); } to { opacity: 1; transform: scale(1); } }
-@media (prefers-reduced-motion: reduce) { .lt__ev { animation: none; } }
+/* entrada: las barras crecen de izquierda a derecha y los eventos saltan en orden de fecha */
+.lt__crece, .lt__ev { transform-box: fill-box; }
+.lt__crece { transform-origin: left center; }
+.lt__ev { transform-origin: center; }
+.lt--armado:not(.lt--visto) .lt__crece { transform: scaleX(0); }
+.lt--armado:not(.lt--visto) .lt__ev { opacity: 0; }
+.lt--visto .lt__crece { animation: lt-crece 700ms var(--curva-salida) both; }
+.lt--visto .lt__ev { animation: lt-pop 420ms var(--curva-salida) both; }
+@keyframes lt-crece { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+@keyframes lt-pop { 0% { opacity: 0; transform: scale(0.2); } 70% { opacity: 1; transform: scale(1.35); } 100% { opacity: 1; transform: scale(1); } }
+@media (prefers-reduced-motion: reduce) { .lt--visto .lt__ev, .lt--visto .lt__crece { animation: none; } }
 .lt__nav { display: flex; align-items: center; gap: 6px; margin-top: 6px; }
 .lt__paso { flex: none; width: 44px; height: 44px; border-radius: 999px; border: 1px solid rgb(var(--color-text-rgb) / 0.2); font: 700 22px/1 var(--font-body); color: var(--color-text); }
 .lt__paso:disabled { opacity: 0.35; }

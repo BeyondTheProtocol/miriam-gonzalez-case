@@ -30,6 +30,7 @@ const L = (es: string, en: string) => (props.lang === 'en' ? en : es)
 
 const caja = ref<HTMLElement | null>(null)
 const W = useAncho(caja)
+const { armado, visto } = useAlVer(caja)
 const H = 92
 const X0 = EJE_IZQ
 const Y0 = 8
@@ -100,7 +101,7 @@ const valorTxt = (p: Punto) => {
 </script>
 
 <template>
-  <article class="ms">
+  <article class="ms" :class="{ 'ms--armado': armado, 'ms--visto': visto }">
     <header class="ms__cab">
       <h4 class="ms__nombre">{{ nombre ?? a.nombre }}</h4>
       <p v-if="mostrado" class="ms__valor nums" :class="{ 'ms__valor--cursor': enCursor }">
@@ -124,10 +125,10 @@ const valorTxt = (p: Punto) => {
           <line :x1="X0" :x2="W - 6" :y1="tk.y" :y2="tk.y" :class="tk.v === 1 && modo === 'lsn' ? 'ms__uno' : 'ms__rej'" />
           <text :x="X0 - 4" :y="tk.y + 3.5" text-anchor="end" class="ms__tick">{{ tk.txt }}</text>
         </template>
-        <path :d="geo.d" class="ms__linea" />
+        <path :key="`${desde}-${hasta}`" :d="geo.d" class="ms__linea" pathLength="1" />
         <template v-for="q in geo.pts" :key="q.p.f">
-          <path v-if="q.p.fuera === 'bajo'" :d="`M${rc(q.x - 4.5)},${rc(q.y - 3.5)}h9l-4.5,8Z`" class="ms__fuera" />
-          <path v-else-if="q.p.fuera" :d="`M${rc(q.x - 4.5)},${rc(q.y + 3.5)}h9l-4.5,-8Z`" class="ms__fuera" />
+          <path v-if="q.p.fuera === 'bajo'" :d="`M${rc(q.x - 4.5)},${rc(q.y - 3.5)}h9l-4.5,8Z`" class="ms__fuera" :style="{ animationDelay: `${Math.round((q.x / W) * 1200)}ms` }" />
+          <path v-else-if="q.p.fuera" :d="`M${rc(q.x - 4.5)},${rc(q.y + 3.5)}h9l-4.5,-8Z`" class="ms__fuera" :style="{ animationDelay: `${Math.round((q.x / W) * 1200)}ms` }" />
           <circle v-else-if="pocos" :cx="q.x" :cy="q.y" r="2.5" class="ms__dentro" />
         </template>
         <line v-if="cursorX != null" :x1="cursorX" :x2="cursorX" :y1="Y0 - 4" :y2="Y1" class="ms__cursor" />
@@ -170,6 +171,15 @@ const valorTxt = (p: Punto) => {
 .ms__dentro { fill: var(--color-bg); stroke: var(--color-text); stroke-width: 1.2; }
 .ms__fuera { fill: var(--color-miriam); stroke: var(--color-text); stroke-width: 0.7; }
 .ms__cursor { stroke: var(--color-miriam); stroke-width: 1.5; }
+/* entrada: la línea se dibuja de izquierda a derecha y los ▲▼ saltan cuando la línea pasa */
+.ms__fuera { transform-box: fill-box; transform-origin: center; }
+.ms--armado:not(.ms--visto) .ms__linea { stroke-dasharray: 1; stroke-dashoffset: 1; }
+.ms--armado:not(.ms--visto) .ms__fuera { opacity: 0; }
+.ms--visto .ms__linea { stroke-dasharray: 1; animation: ms-trazo 1.3s var(--curva-salida) both; }
+.ms--visto .ms__fuera { animation: ms-pop 380ms var(--curva-salida) both; }
+@keyframes ms-trazo { from { stroke-dashoffset: 1; } to { stroke-dashoffset: 0; } }
+@keyframes ms-pop { 0% { opacity: 0; transform: scale(0.2); } 70% { opacity: 1; transform: scale(1.5); } 100% { opacity: 1; transform: scale(1); } }
+@media (prefers-reduced-motion: reduce) { .ms--visto .ms__linea, .ms--visto .ms__fuera { animation: none; } }
 .ms__det summary { font: 600 12.5px var(--font-body); color: var(--color-miriam); cursor: pointer; margin-top: 2px; min-height: 32px; display: flex; align-items: center; }
 .ms__tabla { width: 100%; font: 400 12px var(--font-mono); border-collapse: collapse; margin-top: 4px; }
 .ms__tabla th { text-align: left; font: 600 11px var(--font-body); color: var(--color-text-soft); padding: 4px; }

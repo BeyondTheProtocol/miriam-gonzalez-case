@@ -130,7 +130,7 @@ function encender() {
   const t0 = performance.now()
   const dur = 3200
   const paso = (t: number) => {
-    barrido = Math.min(1, (t - t0) / dur)
+    barrido = Math.min(1, Math.max(0, (t - t0) / dur))
     barrido = 1 - Math.pow(1 - barrido, 2) // frena al llegar a hoy
     pintar()
     if (barrido < 1) raf = requestAnimationFrame(paso)
@@ -139,13 +139,18 @@ function encender() {
 }
 
 let io: IntersectionObserver | null = null
+let reserva: ReturnType<typeof setTimeout> | undefined
+let encendido = false
+function arrancar() { if (encendido) return; encendido = true; io?.disconnect(); clearTimeout(reserva); encender() }
 onMounted(() => {
   pintar()
-  io = new IntersectionObserver((e) => { if (e[0]?.isIntersecting) { io?.disconnect(); encender() } }, { threshold: 0.35 })
+  io = new IntersectionObserver((e) => { if (e[0]?.isIntersecting) arrancar() }, { threshold: 0.35 })
   if (caja.value) io.observe(caja.value)
+  // si el observador no dispara (pestaña oculta), el cielo no se queda vacío: se pinta entero
+  reserva = setTimeout(() => { if (!encendido) { encendido = true; io?.disconnect(); barrido = 1; pintar() } }, 10000)
 })
 watch([W, () => props.lang], () => pintar())
-onBeforeUnmount(() => { io?.disconnect(); cancelAnimationFrame(raf) })
+onBeforeUnmount(() => { io?.disconnect(); clearTimeout(reserva); cancelAnimationFrame(raf) })
 function repetir() { cancelAnimationFrame(raf); barrido = 0; encender() }
 </script>
 

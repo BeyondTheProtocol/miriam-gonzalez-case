@@ -24,7 +24,6 @@ const hoy = String(c.generado).slice(0, 10)
 const hoyMs = msFecha(hoy)
 const fuentes: Record<string, { publico: Texto }> = c.fuentes
 const fuenteTxt = (id: string) => T(fuentes[id]?.publico) || id
-const ficha = c.ficha ?? {}
 const lineas: any[] = c.lineas ?? []
 const em = c.enfermedad_medible ?? {}
 const material: any[] = c.material ?? []
@@ -90,6 +89,9 @@ const PESTANAS: { k: string; es: string; en: string; minis: Mini[] }[] = [
     ['magnesio', 'real', 'Magnesio', 'Magnesium'], ['pcr', 'real', 'Proteína C reactiva', 'C-reactive protein'], ['glucosa', 'real', 'Glucosa', 'Glucose']] },
 ]
 const pestana = ref('marcadores')
+// enlace directo a una pestaña (/datos?pestana=higado): para compartir justo esa vista
+const ruta = useRoute()
+onMounted(() => { const q = String(ruta.query.pestana ?? ''); if (PESTANAS.some((p) => p.k === q)) pestana.value = q })
 const minis = computed(() => (PESTANAS.find((p) => p.k === pestana.value)?.minis ?? [])
   .map(([k, modo, es, en]) => ({ a: an(k), modo, nombre: L(es, en) })).filter((m) => m.a))
 const VENTANAS: [Ventana, string, string][] = [['anio', 'Último año', 'Last year'], ['dx', 'Desde el diagnóstico', 'Since diagnosis'], ['todo', 'Todo', 'All']]
@@ -103,7 +105,7 @@ let t0 = 0
 let acumulado = 0 // ms de reproducción ya consumidos antes de la última pausa
 function paso(ahora: number) {
   if (pausado.value) return
-  const frac = Math.min(1, (acumulado + ahora - t0) / DURACION)
+  const frac = Math.min(1, Math.max(0, (acumulado + ahora - t0) / DURACION))
   cabezal.value = rango.value[0] + (hoyMs - rango.value[0]) * frac
   if (frac < 1) raf = requestAnimationFrame(paso)
   else setTimeout(() => { if (!pausado.value) cabezal.value = null }, 2500)
@@ -187,7 +189,21 @@ const n = (v: number) => numCaso(v, lang.value)
           <div class="dt-pestanas" role="group" :aria-label="L('Grupo de pruebas', 'Test group')">
             <button v-for="p in PESTANAS" :key="p.k" type="button" class="dt-pestana" :aria-pressed="pestana === p.k" aria-controls="dt-minis" @click="pestana = p.k">{{ L(p.es, p.en) }}</button>
           </div>
-          <div id="dt-minis" class="dt-minis" aria-live="polite">
+          <!-- hígado: cinta de calor (forma nueva); los cinco gráficos, a un toque -->
+          <template v-if="pestana === 'higado'">
+            <DatosCintaHigado :filas="minis.map((m) => ({ a: m.a!, nombre: m.nombre.split(' (')[0].replace('Fosfatasa alcalina', 'FA').replace('Alkaline phosphatase', 'ALP').replace('Bilirrubina total', 'Bili').replace('Total bilirubin', 'Bili') }))"
+                              :desde="rango[0]" :hasta="rango[1]" :contexto="contexto" :cursor="cursor" :cabezal="cabezal" :lang="lang"
+                              @cursor="parar(); cursor = $event" />
+            <details class="dt-det">
+              <summary>{{ L('Cada prueba en su gráfico', 'Each test on its own chart') }}</summary>
+              <div class="dt-minis">
+                <DatosMiniSerie v-for="m in minis" :key="m.a!.key" :a="m.a!" :nombre="m.nombre" :modo="m.modo"
+                                :desde="rango[0]" :hasta="rango[1]" :contexto="contexto" :cursor="cursor" :cabezal="cabezal" :lang="lang"
+                                @cursor="parar(); cursor = $event" />
+              </div>
+            </details>
+          </template>
+          <div v-else id="dt-minis" class="dt-minis" aria-live="polite">
             <DatosMiniSerie v-for="m in minis" :key="m.a!.key" :a="m.a!" :nombre="m.nombre" :modo="m.modo"
                             :desde="rango[0]" :hasta="rango[1]" :contexto="contexto" :cursor="cursor" :cabezal="cabezal" :lang="lang"
                             @cursor="parar(); cursor = $event" />
@@ -259,29 +275,8 @@ const n = (v: number) => numCaso(v, lang.value)
 
         <!-- 6-9 · lo demás, plegado -->
         <section class="dt-sec dt-plegados" :aria-label="L('Más detalle', 'More detail')">
-          <details class="dt-det">
-            <summary>{{ L('Historia de tratamientos', 'Treatment history') }}</summary>
-            <ol class="dt-lista-trat">
-              <li v-for="l in lineas" :key="l.id">
-                <p><strong class="nums">{{ l.id }}</strong> · {{ T(l.tratamiento) }}</p>
-                <p class="dt-nota nums">{{ l.inicio }} → {{ l.fin ?? L('en curso o prevista', 'ongoing or planned') }}<template v-if="l.motivo_fin"> · {{ T(l.motivo_fin) }}</template> <DatosSello :s="l.sello" :lang="lang" /></p>
-                <p v-if="l.nota" class="dt-nota">{{ T(l.nota) }}</p>
-              </li>
-            </ol>
-          </details>
-          <details class="dt-det">
-            <summary>{{ L('Resumen clínico completo', 'Full clinical summary') }}</summary>
-            <dl class="dt-ficha">
-              <template v-for="[k, es, en] in [['diagnostico','Diagnóstico','Diagnosis'],['fecha_diagnostico','Fecha del diagnóstico','Date of diagnosis'],['edad_diagnostico','Edad al diagnóstico','Age at diagnosis'],['estadio','Estadio','Stage'],['histologia','Histología','Histology'],['ecog','ECOG','ECOG'],['estado_actual','Estado actual','Current status']]" :key="k">
-                <div v-if="ficha[k]" class="dt-ficha__fila"><dt>{{ L(es, en) }}</dt><dd>{{ T(ficha[k].valor) }} <DatosSello :s="ficha[k].sello" :lang="lang" /></dd></div>
-              </template>
-              <div v-for="(r, i) in ficha.receptores ?? []" :key="`r${i}`" class="dt-ficha__fila"><dt>{{ T(r.marcador) }}</dt><dd>{{ T(r.valor) }}<span v-if="r.detalle" class="dt-nota block">{{ T(r.detalle) }}</span></dd></div>
-              <div class="dt-ficha__fila"><dt>{{ L('Dónde está la enfermedad', 'Where the disease is') }}</dt><dd><ul class="dt-lista"><li v-for="(s, i) in ficha.sitios ?? []" :key="i">{{ T(s.valor) }}</li></ul></dd></div>
-              <div v-if="c.nunca_recibido" class="dt-ficha__fila"><dt>{{ L('Nunca ha recibido', 'Never received') }}</dt><dd>{{ (c.nunca_recibido.valor as Texto[]).map(T).join(' · ') }}</dd></div>
-            </dl>
-          </details>
           <p class="dt-molecular">
-            {{ L('El perfil molecular (genes, biopsias líquidas y expresión) lo tienes en', 'You’ll find the molecular profile (genes, liquid biopsies and expression) on') }}
+            {{ L('El diagnóstico completo, los receptores, la historia de tratamientos y el perfil molecular los tienes en', 'You’ll find the full diagnosis, receptors, treatment history and molecular profile on') }}
             <NuxtLink :to="localePath('/ciencia')" class="dt-link">{{ L('La ciencia', 'The science page') }}</NuxtLink>.
           </p>
           <details class="dt-det">
