@@ -87,7 +87,7 @@ const biopsia = computed(() =>
             <div class="mb-3">
               <ClientOnly>
                 <LiverView base="/lesiones/higado/" fallback="/lesiones/higado-2026-09-08.webp"
-                  :fallback-alt="L('Reconstrucción 3D del hígado de Miriam desde su TC del 8 de septiembre de 2026, con los vasos y las lesiones: dos lesiones diana con anillo y la medida del radiólogo (segmento II, 20 mm; segmento IVb, 19 mm) y el resto por detección automática sin validar', '3D reconstruction of Miriam’s liver from her 8 September 2026 CT, with the vessels and the lesions: two ringed target lesions with the radiologist’s measurement (segment II, 20 mm; segment IVb, 19 mm) and the rest from automatic detection, not validated')" />
+                  :fallback-alt="L('Reconstrucción 3D del hígado de Miriam desde su TC del 8 de septiembre de 2026, con los vasos y las lesiones: dos lesiones diana con anillo y la medida del radiólogo (segmento II, 20 mm; segmento IVb, 19 mm) y el resto, lesiones candidatas por detección automática, sin validar', '3D reconstruction of Miriam’s liver from her 8 September 2026 CT, with the vessels and the lesions: two ringed target lesions with the radiologist’s measurement (segment II, 20 mm; segment IVb, 19 mm) and the rest, candidate lesions from automatic detection, not validated')" />
                 <template #fallback>
                   <div class="rounded-xl flex items-center justify-center text-[12px]" style="aspect-ratio:1/1;background:#1c1126;color:#aeb6c2">
                     {{ L('cargando visor…', 'loading viewer…') }}
