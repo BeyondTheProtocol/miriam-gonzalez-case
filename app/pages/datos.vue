@@ -152,6 +152,7 @@ const n = (v: number) => numCaso(v, lang.value)
 
 <template>
   <div class="overflow-x-clip">
+    <div class="dt-progreso" aria-hidden="true" />
     <section class="section-spacing !pt-8 sm:!pt-12" :aria-label="L('El caso en datos', 'The case in data')">
       <div class="mx-auto w-full max-w-[1120px] px-4 sm:px-6 lg:px-8">
         <PageHeader
@@ -331,7 +332,22 @@ const n = (v: number) => numCaso(v, lang.value)
 <style scoped>
 .dt-aviso { display: flex; gap: 8px; align-items: flex-start; font: 500 13.5px/1.45 var(--font-body); color: var(--color-text);
   background: var(--color-bg-card); border-radius: 12px; padding: 10px 12px; margin: 0 0 8px; }
+.dt-progreso { display: none; }
+/* barra de progreso de lectura (animation-timeline: scroll()); sin soporte, no aparece */
+@supports (animation-timeline: scroll()) {
+  .dt-progreso { display: block; position: fixed; left: 0; right: 0; top: 0; height: 3px; z-index: 60;
+    background: var(--color-miriam); transform-origin: 0 50%; animation: dt-avanza linear both; animation-timeline: scroll(root); }
+  @keyframes dt-avanza { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+}
 .dt-sec { padding-top: 32px; }
+/* Entrada al hacer scroll con CSS nativo (animation-timeline: view(); WebKit, jun-2025). Mejora
+   progresiva: sin soporte o con «movimiento reducido», la sección simplemente está. */
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .dt-sec { animation: dt-entra linear both; animation-timeline: view(); animation-range: entry 0% cover 22%; }
+    @keyframes dt-entra { from { opacity: 0.001; transform: translateY(28px) scale(0.985); } to { opacity: 1; transform: none; } }
+  }
+}
 .dt-h2 { font: var(--tipo-h2); color: var(--color-text); margin: 0 0 12px; }
 .dt-h3 { font: 700 17px/1.3 var(--font-body); color: var(--color-text); margin: 26px 0 6px; }
 .dt-nota { font: 400 13px/1.5 var(--font-body); color: var(--color-text-soft); margin: 0 0 10px; max-width: 70ch; }
