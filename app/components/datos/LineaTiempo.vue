@@ -122,7 +122,6 @@ const elegido = computed(() => (props.cabezal != null ? eventos.value[eventos.va
       <span><svg width="14" height="12" aria-hidden="true"><path :d="pathForma('triangulo', 7, 6, 4.5)" class="lt__glifo lt__glifo--fuerte" /></svg>{{ L('progresión', 'progression') }}</span>
       <span><svg width="14" height="12" aria-hidden="true"><path :d="pathForma('rombo', 7, 6, 4.5)" class="lt__glifo" /></svg>{{ L('biopsia', 'biopsy') }}</span>
       <span><svg width="14" height="12" aria-hidden="true"><path :d="pathForma('aspa', 7, 6, 4)" class="lt__glifo" /></svg>{{ L('ingreso', 'hospitalization') }}</span>
-      <span><svg width="18" height="12" aria-hidden="true"><rect x="0" y="2" width="18" height="8" rx="2" class="lt__linea" /></svg>{{ L('línea de tratamiento', 'treatment line') }}</span>
       <span><svg width="18" height="12" aria-hidden="true"><rect x="0" y="4" width="18" height="5" rx="2" class="lt__linea lt__linea--rt" /></svg>{{ L('radioterapia', 'radiotherapy') }}</span>
     </p>
   </figure>

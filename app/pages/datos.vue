@@ -131,6 +131,10 @@ function parar() { cancelAnimationFrame(raf); pausado.value = false; acumulado =
 onBeforeUnmount(() => cancelAnimationFrame(raf))
 const reproduciendo = computed(() => cabezal.value != null && !pausado.value)
 
+/* tarjeta de muestra: título corto («Hígado, segmento IVa») y el resto del texto, entero, debajo */
+const tituloMuestra = (m: any) => T(m.muestra).split(/\s*[(:.]/)[0]
+const detalleMuestra = (m: any) => T(m.muestra).slice(tituloMuestra(m).length).replace(/^[\s:.]+/, '').replace(/^\((.*)\)$/, '$1')
+
 const hayReservorio = computed(() => useRouter().getRoutes().some((r) => r.path === '/reservorio'))
 const n = (v: number) => numCaso(v, lang.value)
 </script>
@@ -189,8 +193,8 @@ const n = (v: number) => numCaso(v, lang.value)
           <DatosLineaTiempo :eventos="eventos" :lineas="lineas" :desde="rango[0]" :hasta="rango[1]" :hoy="hoy" :lang="lang" :cabezal="cabezal" />
 
           <h3 class="dt-h3">{{ L('Analíticas', 'Labs') }}</h3>
-          <p class="dt-nota">{{ L('Mismo eje de tiempo que la línea de arriba. Rayas: progresiones. Fondo violeta: líneas de tratamiento. ▲▼: fuera del rango de su informe. Hígado y marcadores van en veces el límite normal (1× es el límite). Toca un gráfico y verás esa fecha en todos.',
-                                  'Same time axis as the timeline above. Dashed lines: progressions. Violet background: treatment lines. ▲▼: outside that report’s reference range. Liver and markers are in multiples of the upper limit of normal (1× is the limit). Tap a chart to see that date on all of them.') }}</p>
+          <p class="dt-nota">{{ L('Mismo eje que la línea de arriba. ▲▼ fuera de rango; 1× es el límite normal. Toca un gráfico y verás esa fecha en todos.',
+                                  'Same axis as the timeline above. ▲▼ out of range; 1× is the upper limit of normal. Tap a chart to see that date on all of them.') }}</p>
           <div class="dt-pestanas" role="group" :aria-label="L('Grupo de pruebas', 'Test group')">
             <button v-for="p in PESTANAS" :key="p.k" type="button" class="dt-pestana" :aria-pressed="pestana === p.k" aria-controls="dt-minis" @click="pestana = p.k">{{ L(p.es, p.en) }}</button>
           </div>
@@ -213,16 +217,14 @@ const n = (v: number) => numCaso(v, lang.value)
                             :desde="rango[0]" :hasta="rango[1]" :contexto="contexto" :cursor="cursor" :cabezal="cabezal" :lang="lang"
                             @cursor="parar(); cursor = $event" />
           </div>
-          <p class="dt-pie">{{ T(c.analiticas.fuente) }} <DatosSello :s="c.analiticas.sello" :lang="lang" /></p>
+          <p class="dt-pie"><DatosSello :s="c.analiticas.sello" :lang="lang" /> {{ L('Cómo se leen y fechan: en «Fuentes y método».', 'How they are read and dated: under “Sources and method”.') }}</p>
         </section>
 
         <!-- 4 · Carga tumoral -->
         <section v-if="(em.recist ?? []).length" class="dt-sec" aria-labelledby="h-carga">
           <h2 id="h-carga" class="dt-h2">{{ L('Enfermedad en el hígado', 'Disease in the liver') }}</h2>
-          <p class="dt-nota">{{ L('Del 13 de julio al 8 de septiembre de 2026, medida de dos formas: la suma RECIST del radiólogo y el volumen tumoral que calcula un modelo sobre los mismos TC.',
-                                  'From July 13 to September 8, 2026, measured two ways: the radiologist’s RECIST sum and the tumor volume a model computes on the same CT scans.') }}</p>
           <DatosCargaTumoral :recist="em.recist" :volumen="em.volumen ?? []" :lang="lang" />
-          <p class="dt-pie">{{ fuenteTxt(em.recist[0].fuente) }} <DatosSello :s="em.recist[0].sello" :lang="lang" /> · {{ fuenteTxt((em.volumen ?? [])[0]?.fuente) }}</p>
+          <p class="dt-pie">{{ L('RECIST: informe del radiólogo', 'RECIST: radiologist’s report') }} <DatosSello :s="em.recist[0].sello" :lang="lang" /> · {{ L('Volumen: modelo de segmentación sobre los mismos TC, sin validar por radiología.', 'Volume: segmentation model on the same CT scans, not validated by radiology.') }}</p>
           <details class="dt-det">
             <summary>{{ L('Lesión a lesión', 'Lesion by lesion') }}</summary>
             <div class="dt-tabla-wrap">
@@ -250,7 +252,8 @@ const n = (v: number) => numCaso(v, lang.value)
           <h2 id="h-tejido" class="dt-h2">{{ L('Tejido, muestras y reservorio', 'Tissue, samples and port') }}</h2>
           <div class="dt-tarjetas">
             <article v-for="(m, i) in material.slice(0, 3)" :key="i" class="dt-tarjeta">
-              <p class="dt-tarjeta__t">{{ T(m.muestra).split('. ')[0] }}</p>
+              <p class="dt-tarjeta__t">{{ tituloMuestra(m) }}</p>
+              <p v-if="detalleMuestra(m)" class="dt-tarjeta__det">{{ detalleMuestra(m) }}</p>
               <p v-if="m.codigo" class="dt-tarjeta__cod">{{ m.codigo }}</p>
               <p class="dt-tarjeta__l"><span>{{ L('Dónde', 'Where') }}</span> {{ T(m.donde) }}</p>
               <p class="dt-tarjeta__l"><span>{{ L('Estado', 'Status') }}</span> {{ T(m.estado) }}</p>
@@ -260,7 +263,8 @@ const n = (v: number) => numCaso(v, lang.value)
               <summary>{{ L(`Otras ${material.length - 3} muestras`, `${material.length - 3} more samples`) }}</summary>
               <div class="dt-tarjetas">
                 <article v-for="(m, i) in material.slice(3)" :key="i" class="dt-tarjeta">
-                  <p class="dt-tarjeta__t">{{ T(m.muestra).split('. ')[0] }}</p>
+                  <p class="dt-tarjeta__t">{{ tituloMuestra(m) }}</p>
+              <p v-if="detalleMuestra(m)" class="dt-tarjeta__det">{{ detalleMuestra(m) }}</p>
                   <p v-if="m.codigo" class="dt-tarjeta__cod">{{ m.codigo }}</p>
                   <p class="dt-tarjeta__l"><span>{{ L('Dónde', 'Where') }}</span> {{ T(m.donde) }}</p>
                   <p class="dt-tarjeta__l"><span>{{ L('Estado', 'Status') }}</span> {{ T(m.estado) }}</p>
@@ -272,7 +276,7 @@ const n = (v: number) => numCaso(v, lang.value)
               <p class="dt-tarjeta__t">{{ L('Reservorio venoso: el catéter mide lo mismo en los tres TC', 'Venous port: the catheter measures the same length on all three CT scans') }}</p>
               <p class="dt-tarjeta__l">{{ L('El reservorio dejó de dar retorno de sangre. Longitud del catéter, del portal a la punta, en tres TC:', 'The port stopped giving blood return. Catheter length, port to tip, on three CT scans:') }}</p>
               <DatosReservorio :medidas="reservorio" :lang="lang" />
-              <p class="dt-pie">{{ fuenteTxt(reservorio[0].fuente) }} <DatosSello :s="reservorio[0].sello" :lang="lang" /></p>
+              <p class="dt-pie">{{ L('Medida semiautomática sobre sus TC, sin validar por radiología.', 'Semi-automatic measurement on her CT scans, not validated by radiology.') }} <DatosSello :s="reservorio[0].sello" :lang="lang" /></p>
               <NuxtLink v-if="hayReservorio" :to="localePath('/reservorio')" class="dt-boton">{{ L('Verlo en 3D', 'See it in 3D') }} →</NuxtLink>
             </article>
           </div>
@@ -293,6 +297,7 @@ const n = (v: number) => numCaso(v, lang.value)
             <summary>{{ L('Fuentes y método', 'Sources and method') }}</summary>
             <p class="dt-nota">{{ L('Generamos esta página a partir de un perfil que revisamos a mano sobre los informes de Miriam, de las analíticas leídas de sus informes de laboratorio y de la cronología de esta web. Si un dato no tiene fuente, no lo publicamos. Sellos: verificado (cotejado con el informe original), extraído del informe (lectura automática), inferido, lo dice Miriam (sin documento detrás) o sin verificar.',
                                    'We build this page from a profile we review by hand against Miriam’s reports, from lab values read off her lab reports and from this site’s timeline. If something has no source, we don’t publish it. Labels: verified (checked against the original report), extracted from report (read automatically), inferred, per Miriam (no document behind it) or unverified.') }}</p>
+            <p class="dt-nota">{{ T(c.analiticas.fuente) }}</p>
             <ul class="dt-lista dt-nota"><li v-for="(f, k) in fuentes" :key="k">{{ T(f.publico) }}</li></ul>
           </details>
         </section>
@@ -337,6 +342,7 @@ const n = (v: number) => numCaso(v, lang.value)
 .dt-tarjeta { background: var(--color-bg-card); border: 1px solid rgb(var(--color-text-rgb) / 0.08); border-radius: 14px; padding: 12px 14px; min-width: 0; }
 .dt-tarjeta--ancha { grid-column: 1 / -1; }
 .dt-tarjeta__t { font: 700 14.5px/1.35 var(--font-body); color: var(--color-text); margin: 0 0 4px; }
+.dt-tarjeta__det { font: 400 12.5px/1.4 var(--font-body); color: var(--color-text-soft); margin: 0 0 6px; }
 .dt-tarjeta__cod { font: 600 12.5px var(--font-mono); color: var(--color-text); margin: 0 0 6px; overflow-wrap: anywhere; }
 .dt-tarjeta__l { font: 400 13px/1.45 var(--font-body); color: var(--color-text); margin: 0 0 4px; }
 .dt-tarjeta__l span { font-weight: 600; color: var(--color-text-soft); margin-right: 4px; }

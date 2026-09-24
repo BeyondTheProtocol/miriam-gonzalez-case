@@ -63,7 +63,7 @@ const spark = computed(() => {
     </svg>
     <p class="ck__pie">
       <span v-if="fecha" class="nums">{{ fecha }}</span>
-      <DatosSello v-if="sello" :s="sello" :lang="lang" />
+      <DatosSello v-if="sello && sello !== 'extraido'" :s="sello" :lang="lang" />
     </p>
   </div>
 </template>
