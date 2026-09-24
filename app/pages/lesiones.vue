@@ -98,6 +98,11 @@ const biopsia = computed(() =>
             <p class="text-[14px] text-tinta leading-relaxed">
               {{ L('Lesiones diana del informe de TC (13-jul → 8-sep-2026): segmento II 18 → 20 mm · segmento IVb 15 → 19 mm.', 'Target lesions in the CT report (13 Jul → 8 Sep 2026): segment II 18 → 20 mm · segment IVb 15 → 19 mm.') }}
             </p>
+            <!-- Frase sellada (24-sep-26): revisión informal del TC del 8-sep por un radiólogo. No
+                 decir «55 metástasis» ni que «todas han aparecido o crecido». -->
+            <p class="text-[14px] text-tinta leading-relaxed mt-2">
+              {{ L('Un radiólogo, en una lectura informal y sin informe firmado, marcó 55 medidas en este TC y las considera 55 lesiones distintas, muy sugestivas de metástasis. Las 20 que ves aquí están entre ellas. El informe oficial describe «múltiples imágenes nodulares hepáticas compatibles con M1» (M1: metástasis a distancia).', 'A radiologist, in an informal read without a signed report, marked 55 measurements on this CT and considers them 55 distinct lesions, highly suggestive of metastases. The 20 you see here are among them. The official report describes multiple nodular images in the liver compatible with M1 (M1: distant metastasis).') }}
+            </p>
           </section>
         </div>
 
