@@ -14,8 +14,7 @@ const L = (es: string, en: string) => (props.lang === 'en' ? en : es)
 
 const caja = ref<HTMLElement | null>(null)
 const W = useAncho(caja)
-const PAD = 6
-const X = (t: number) => linEscala(props.desde, props.hasta, PAD, W.value - PAD)(t)
+const X = (t: number) => linEscala(props.desde, props.hasta, EJE_IZQ, W.value - EJE_DER)(t)
 const hoyMs = computed(() => msFecha(props.hoy))
 
 const Y_EJE = 12
@@ -70,6 +69,14 @@ const eventos = computed(() => {
     })
 })
 const sel = ref<string | null>(null)
+// Con el dedo, símbolos a 14-16 px no se aciertan (lo midió `diseno`): anterior/siguiente de 44 px.
+function mover(d: 1 | -1) {
+  const lista = eventos.value
+  if (!lista.length) return
+  const i = lista.findIndex((e) => e.id === sel.value)
+  const j = i === -1 ? (d === 1 ? 0 : lista.length - 1) : Math.min(lista.length - 1, Math.max(0, i + d))
+  sel.value = lista[j].id
+}
 // en reproducción, el pie cuenta el último evento por el que ha pasado el cabezal
 const elegido = computed(() => (props.cabezal != null ? eventos.value[eventos.value.length - 1] ?? null
   : eventos.value.find((e) => e.id === sel.value) ?? null))
@@ -100,10 +107,14 @@ const elegido = computed(() => (props.cabezal != null ? eventos.value[eventos.va
               :class="['lt__glifo', { 'lt__glifo--fuerte': e.clase === 'progresion' || e.clase === 'diagnostico', 'lt__glifo--sel': sel === e.id }]" />
       </g>
     </svg>
-    <figcaption class="lt__pie" aria-live="polite">
-      <template v-if="elegido"><strong class="nums">{{ elegido.fecha_texto }}</strong> · {{ txtCaso(elegido.titulo, lang) }}</template>
-      <template v-else>{{ L('Toca un símbolo para ver qué pasó.', 'Tap a symbol to see what happened.') }}</template>
-    </figcaption>
+    <div class="lt__nav">
+      <button type="button" class="lt__paso" :aria-label="L('Evento anterior', 'Previous event')" :disabled="cabezal != null" @click="mover(-1)">‹</button>
+      <figcaption class="lt__pie" aria-live="polite">
+        <template v-if="elegido"><strong class="nums">{{ elegido.fecha_texto }}</strong> · {{ txtCaso(elegido.titulo, lang) }}</template>
+        <template v-else>{{ L('Toca un símbolo o usa las flechas para ver qué pasó.', 'Tap a symbol or use the arrows to see what happened.') }}</template>
+      </figcaption>
+      <button type="button" class="lt__paso" :aria-label="L('Evento siguiente', 'Next event')" :disabled="cabezal != null" @click="mover(1)">›</button>
+    </div>
     <p class="lt__ley">
       <span><svg width="14" height="12" aria-hidden="true"><path :d="pathForma('estrella', 7, 6, 4.5)" class="lt__glifo lt__glifo--fuerte" /></svg>{{ L('diagnóstico', 'diagnosis') }}</span>
       <span><svg width="14" height="12" aria-hidden="true"><path :d="pathForma('triangulo', 7, 6, 4.5)" class="lt__glifo lt__glifo--fuerte" /></svg>{{ L('progresión', 'progression') }}</span>
@@ -122,7 +133,8 @@ const elegido = computed(() => (props.cabezal != null ? eventos.value[eventos.va
 .lt__rej-anio { stroke: var(--viz-eje); }
 .lt__tick { font: 500 10px var(--font-mono); fill: var(--color-text-soft); }
 .lt__tick--anio { font-weight: 700; fill: var(--color-text); }
-.lt__linea { fill: var(--viz-sev-2); stroke: var(--color-text); stroke-opacity: 0.3; }
+/* el trazo lleva el contraste ≥3:1 del objeto (WCAG 1.4.11); el relleno claro deja leer «1L» */
+.lt__linea { fill: var(--viz-sev-2); stroke: var(--color-text); stroke-opacity: 0.8; }
 .lt__linea--rt { fill: var(--viz-sev-4); stroke: none; }
 .lt__linea--futura { fill: none; stroke-dasharray: 4 3; stroke-opacity: 0.8; }
 .lt__linea-txt { font: 700 11px var(--font-mono); fill: var(--color-text); pointer-events: none; }
@@ -137,7 +149,11 @@ const elegido = computed(() => (props.cabezal != null ? eventos.value[eventos.va
 .lt__ev { animation: lt-pop 320ms var(--curva-salida) both; transform-box: fill-box; transform-origin: center; }
 @keyframes lt-pop { from { opacity: 0; transform: scale(0.3); } to { opacity: 1; transform: scale(1); } }
 @media (prefers-reduced-motion: reduce) { .lt__ev { animation: none; } }
-.lt__pie { font: 400 14px/1.4 var(--font-body); color: var(--color-text); margin: 6px 0 0; min-height: 2.8em; }
+.lt__nav { display: flex; align-items: center; gap: 6px; margin-top: 6px; }
+.lt__paso { flex: none; width: 44px; height: 44px; border-radius: 999px; border: 1px solid rgb(var(--color-text-rgb) / 0.2); font: 700 22px/1 var(--font-body); color: var(--color-text); }
+.lt__paso:disabled { opacity: 0.35; }
+.lt__paso:focus-visible { outline: 2px solid var(--color-miriam); outline-offset: 2px; }
+.lt__pie { flex: 1; font: 400 14px/1.4 var(--font-body); color: var(--color-text); margin: 0; min-height: 2.8em; display: flex; align-items: center; }
 .lt__ley { display: flex; flex-wrap: wrap; gap: 4px 12px; font: 400 12px var(--font-body); color: var(--color-text-soft); margin: 4px 0 0; }
 .lt__ley span { display: inline-flex; align-items: center; gap: 4px; }
 </style>

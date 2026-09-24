@@ -40,7 +40,7 @@ const geo = computed(() => {
   const max = Math.max(40, ...series.value.map((s) => s.pct)) * 1.08
   const Y = linEscala(0, max, Y1, Y0)
   const xa = 40
-  const xb = Math.max(150, Math.round(W.value * 0.42))
+  const xb = Math.max(150, Math.min(W.value - 230, Math.round(W.value * 0.6)))
   const ticks = [0, 20, 100, 200, 300, 400].filter((t) => t <= max).map((t) => ({ t, y: Y(t) }))
   return { Y, xa, xb, ticks, umbral: Y(20) }
 })

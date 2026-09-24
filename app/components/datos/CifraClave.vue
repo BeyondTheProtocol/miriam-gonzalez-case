@@ -55,7 +55,7 @@ const spark = computed(() => {
 
 <style scoped>
 .ck { background: var(--color-bg-card); border: 1px solid rgb(var(--color-text-rgb) / 0.08); border-radius: 14px;
-  padding: 12px 12px 10px; display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+  padding: 16px; display: flex; flex-direction: column; gap: 2px; min-width: 0; }
 .ck__etq { font: 600 12.5px/1.3 var(--font-body); color: var(--color-text-soft); margin: 0; }
 .ck__valor { margin: 2px 0 0; display: flex; align-items: baseline; gap: 5px; flex-wrap: wrap; }
 .ck__valor .nums { font: var(--tipo-cifra); font-size: clamp(26px, 7vw, 36px); letter-spacing: var(--track-cifra); color: var(--color-text); }

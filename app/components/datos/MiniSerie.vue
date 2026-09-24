@@ -31,7 +31,7 @@ const L = (es: string, en: string) => (props.lang === 'en' ? en : es)
 const caja = ref<HTMLElement | null>(null)
 const W = useAncho(caja)
 const H = 92
-const X0 = 34
+const X0 = EJE_IZQ
 const Y0 = 8
 const Y1 = H - 16
 
@@ -40,7 +40,7 @@ const vis = computed(() => props.a.puntos.filter((p) => { const t = msFecha(p.f)
 const val = (p: Punto) => (props.modo === 'lsn' ? xlsn(p) : p.v)
 
 const geo = computed(() => {
-  const X = linEscala(props.desde, props.hasta, X0, W.value - 6)
+  const X = linEscala(props.desde, props.hasta, X0, W.value - EJE_DER)
   // la escala se fija con toda la ventana (no con lo ya reproducido): así el eje no baila
   const vs = props.a.puntos.filter((p) => { const t = msFecha(p.f); return t >= props.desde && t <= props.hasta })
     .map(val).filter((v): v is number => v != null)

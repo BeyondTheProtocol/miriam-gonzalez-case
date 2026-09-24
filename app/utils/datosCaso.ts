@@ -140,4 +140,8 @@ export const rangoVentana = (v: Ventana, hoyMs: number): [number, number] => {
 }
 
 /** Marcas de contexto que se repiten en cada mini: progresiones (líneas) y líneas sistémicas (bandas). */
+/** Márgenes horizontales COMPARTIDOS por LineaTiempo y MiniSerie: misma fecha, misma x. */
+export const EJE_IZQ = 34
+export const EJE_DER = 6
+
 export interface Contexto { progresiones: number[]; bandas: { ini: number; fin: number; id: string }[] }

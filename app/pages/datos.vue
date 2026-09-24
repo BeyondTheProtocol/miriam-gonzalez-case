@@ -181,10 +181,10 @@ const n = (v: number) => numCaso(v, lang.value)
           <h3 class="dt-h3">{{ L('Analíticas', 'Labs') }}</h3>
           <p class="dt-nota">{{ L('Mismo eje de tiempo que la línea de arriba. Rayas: progresiones. Fondo violeta: líneas de tratamiento. ▲▼: fuera del rango de su informe. Hígado y marcadores van en veces el límite normal (1× es el límite). Toca un gráfico y verás esa fecha en todos.',
                                   'Same time axis as the timeline above. Dashed lines: progressions. Violet background: treatment lines. ▲▼: outside that report’s reference range. Liver and markers are in multiples of the upper limit of normal (1× is the limit). Tap a chart to see that date on all of them.') }}</p>
-          <div class="dt-pestanas" role="tablist" :aria-label="L('Grupo de pruebas', 'Test group')">
-            <button v-for="p in PESTANAS" :key="p.k" type="button" role="tab" class="dt-pestana" :aria-selected="pestana === p.k" @click="pestana = p.k">{{ L(p.es, p.en) }}</button>
+          <div class="dt-pestanas" role="group" :aria-label="L('Grupo de pruebas', 'Test group')">
+            <button v-for="p in PESTANAS" :key="p.k" type="button" class="dt-pestana" :aria-pressed="pestana === p.k" aria-controls="dt-minis" @click="pestana = p.k">{{ L(p.es, p.en) }}</button>
           </div>
-          <div class="dt-minis" role="tabpanel">
+          <div id="dt-minis" class="dt-minis" aria-live="polite">
             <DatosMiniSerie v-for="m in minis" :key="m.a!.key" :a="m.a!" :nombre="m.nombre" :modo="m.modo"
                             :desde="rango[0]" :hasta="rango[1]" :contexto="contexto" :cursor="cursor" :cabezal="cabezal" :lang="lang"
                             @cursor="parar(); cursor = $event" />
@@ -225,13 +225,25 @@ const n = (v: number) => numCaso(v, lang.value)
         <section class="dt-sec" aria-labelledby="h-tejido">
           <h2 id="h-tejido" class="dt-h2">{{ L('Tejido, muestras y reservorio', 'Tissue, samples and port') }}</h2>
           <div class="dt-tarjetas">
-            <article v-for="(m, i) in material" :key="i" class="dt-tarjeta">
+            <article v-for="(m, i) in material.slice(0, 3)" :key="i" class="dt-tarjeta">
               <p class="dt-tarjeta__t">{{ T(m.muestra).split('. ')[0] }}</p>
               <p v-if="m.codigo" class="dt-tarjeta__cod">{{ m.codigo }}</p>
               <p class="dt-tarjeta__l"><span>{{ L('Dónde', 'Where') }}</span> {{ T(m.donde) }}</p>
               <p class="dt-tarjeta__l"><span>{{ L('Estado', 'Status') }}</span> {{ T(m.estado) }}</p>
               <p class="dt-tarjeta__pie"><span class="nums">{{ m.fecha }}</span> <DatosSello :s="m.sello" :lang="lang" /></p>
             </article>
+            <details v-if="material.length > 3" class="dt-det dt-tarjeta--ancha">
+              <summary>{{ L(`Otras ${material.length - 3} muestras`, `${material.length - 3} more samples`) }}</summary>
+              <div class="dt-tarjetas">
+                <article v-for="(m, i) in material.slice(3)" :key="i" class="dt-tarjeta">
+                  <p class="dt-tarjeta__t">{{ T(m.muestra).split('. ')[0] }}</p>
+                  <p v-if="m.codigo" class="dt-tarjeta__cod">{{ m.codigo }}</p>
+                  <p class="dt-tarjeta__l"><span>{{ L('Dónde', 'Where') }}</span> {{ T(m.donde) }}</p>
+                  <p class="dt-tarjeta__l"><span>{{ L('Estado', 'Status') }}</span> {{ T(m.estado) }}</p>
+                  <p class="dt-tarjeta__pie"><span class="nums">{{ m.fecha }}</span> <DatosSello :s="m.sello" :lang="lang" /></p>
+                </article>
+              </div>
+            </details>
             <article v-if="reservorio.length" class="dt-tarjeta dt-tarjeta--ancha">
               <p class="dt-tarjeta__t">{{ L('Reservorio venoso: el catéter mide lo mismo en los tres TC', 'Venous port: the catheter measures the same length on all three CT scans') }}</p>
               <p class="dt-tarjeta__l">{{ L('El reservorio dejó de dar retorno de sangre. Longitud del catéter, del portal a la punta, en tres TC:', 'The port stopped giving blood return. Catheter length, port to tip, on three CT scans:') }}</p>
@@ -303,22 +315,22 @@ const n = (v: number) => numCaso(v, lang.value)
   background: var(--color-miriam); color: #fff; font: 700 14px var(--font-body); }
 .dt-play:focus-visible { outline: 2px solid var(--color-text); outline-offset: 2px; }
 .dt-reloj { font: var(--tipo-cifra); font-size: clamp(28px, 8vw, 44px); letter-spacing: var(--track-cifra); color: var(--color-miriam); margin: 0 0 4px; }
-.dt-vista { font: 600 13px/1 var(--font-body); padding: 0 12px; min-height: 40px; border-radius: 999px; color: var(--color-text-soft); }
+.dt-vista { font: 600 13px/1 var(--font-body); padding: 0 12px; min-height: 44px; border-radius: 999px; color: var(--color-text-soft); }
 .dt-vista[aria-pressed='true'] { background: var(--color-text); color: var(--color-bg); }
 .dt-pestanas { display: flex; gap: 6px; overflow-x: auto; margin: 4px 0 6px; padding-bottom: 2px; }
 .dt-pestana { font: 600 14px/1 var(--font-body); padding: 0 14px; min-height: 44px; border-radius: 999px; white-space: nowrap;
   border: 1px solid rgb(var(--color-text-rgb) / 0.15); color: var(--color-text); }
-.dt-pestana[aria-selected='true'] { background: var(--color-miriam-soft); border-color: var(--color-miriam); }
+.dt-pestana[aria-pressed='true'] { background: var(--color-miriam-soft); border-color: var(--color-miriam); }
 .dt-vista:focus-visible, .dt-pestana:focus-visible { outline: 2px solid var(--color-miriam); outline-offset: 2px; }
-.dt-minis { display: grid; grid-template-columns: 1fr; column-gap: 28px; }
-@media (min-width: 900px) { .dt-minis { grid-template-columns: 1fr 1fr; } }
+.dt-minis { display: grid; grid-template-columns: minmax(0, 1fr); column-gap: 28px; }
+@media (min-width: 900px) { .dt-minis { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 .dt-det { margin-top: 12px; border-top: 1px solid rgb(var(--color-text-rgb) / 0.1); padding-top: 4px; }
 .dt-det > summary { font: 700 16px/1.3 var(--font-body); color: var(--color-text); cursor: pointer; min-height: 44px; display: flex; align-items: center; }
 .dt-tabla-wrap { overflow-x: auto; border: 1px solid rgb(var(--color-text-rgb) / 0.08); border-radius: 12px; }
 .dt-compacta :deep(td), .dt-compacta :deep(th) { padding: 6px 10px !important; }
-.dt-tarjetas { display: grid; grid-template-columns: 1fr; gap: 10px; }
-@media (min-width: 700px) { .dt-tarjetas { grid-template-columns: 1fr 1fr; } }
-@media (min-width: 1000px) { .dt-tarjetas { grid-template-columns: 1fr 1fr 1fr; } }
+.dt-tarjetas { display: grid; grid-template-columns: minmax(0, 1fr); gap: 10px; }
+@media (min-width: 700px) { .dt-tarjetas { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (min-width: 1000px) { .dt-tarjetas { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
 .dt-tarjeta { background: var(--color-bg-card); border: 1px solid rgb(var(--color-text-rgb) / 0.08); border-radius: 14px; padding: 12px 14px; min-width: 0; }
 .dt-tarjeta--ancha { grid-column: 1 / -1; }
 .dt-tarjeta__t { font: 700 14.5px/1.35 var(--font-body); color: var(--color-text); margin: 0 0 4px; }
