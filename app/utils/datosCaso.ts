@@ -128,3 +128,16 @@ const _pathForma = (forma: Forma, x: number, y: number, r: number): string => {
       return `M${x - r},${y}a${r},${r} 0 1,0 ${2 * r},0a${r},${r} 0 1,0 ${-2 * r},0`
   }
 }
+
+/** Ventana de tiempo compartida por la línea de tiempo y todos los minis de /datos. */
+export type Ventana = 'anio' | 'dx' | 'todo'
+export const DIA_MS = 86400000
+export const rangoVentana = (v: Ventana, hoyMs: number): [number, number] => {
+  const fin = hoyMs + 20 * DIA_MS
+  if (v === 'anio') return [hoyMs - 365 * DIA_MS, fin]
+  if (v === 'dx') return [Date.UTC(2023, 9, 1), fin]
+  return [Date.UTC(2021, 5, 1), fin]
+}
+
+/** Marcas de contexto que se repiten en cada mini: progresiones (líneas) y líneas sistémicas (bandas). */
+export interface Contexto { progresiones: number[]; bandas: { ini: number; fin: number; id: string }[] }
