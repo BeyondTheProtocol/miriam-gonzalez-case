@@ -181,7 +181,7 @@ const valorTxt = (p: Punto) => {
 @keyframes ms-trazo { from { stroke-dashoffset: 1; } to { stroke-dashoffset: 0; } }
 @keyframes ms-pop { 0% { opacity: 0; transform: scale(0.2); } 70% { opacity: 1; transform: scale(1.5); } 100% { opacity: 1; transform: scale(1); } }
 @media (prefers-reduced-motion: reduce) { .ms--visto .ms__linea, .ms--visto .ms__fuera { animation: none; } }
-.ms__det summary { font: 600 12.5px var(--font-body); color: var(--color-miriam); cursor: pointer; margin-top: 2px; min-height: 32px; display: flex; align-items: center; gap: 8px; list-style: none; }
+.ms__det summary { font: 600 12.5px var(--font-body); color: var(--color-miriam); cursor: pointer; margin-top: 2px; min-height: 44px; display: flex; align-items: center; gap: 8px; list-style: none; }
 .ms__det summary::-webkit-details-marker { display: none; }
 .ms__det summary::after { content: ''; width: 6px; height: 6px; border-right: 1.5px solid currentColor; border-bottom: 1.5px solid currentColor; transform: rotate(45deg) translateY(-2px); transition: transform var(--dur-micro) var(--curva-salida); }
 .ms__det[open] summary::after { transform: rotate(-135deg) translateY(-2px); }
