@@ -6,22 +6,11 @@ coreTeam:
     description: "Ingeniera de software y divulgadora. Investiga su propio caso y coordina la iniciativa."
     icon: ph:user-circle-fill
     color: gold
-  - role: "Genómica y proteómica"
-    name: Paola
-    photo: /img/team/paola.webp
-    description: "Bioingeniera. Interpreta el perfil molecular y la vía de proteómica funcional del tumor."
-    icon: ph:pulse-fill
-    color: gold
   - role: "Investigación y ensayos"
     name: Alejandro
     photo: /img/team/alejandro.webp
     description: "Doctor en investigación. Asesora en ensayos clínicos y en la traducción al abordaje N-of-1."
     icon: ph:clipboard-text-fill
-    color: gold
-  - role: "Biomedicina · traslacional"
-    name: Mariú
-    description: "Biomedicina y máster en investigación clínica (oncología traslacional, PRBB-Barcelona). Desarrolla una herramienta de apoyo a la toma de decisiones con IA para el caso."
-    icon: ph:dna-fill
     color: gold
   - role: "Asesoría técnica · mama"
     name: Víctor
@@ -29,53 +18,11 @@ coreTeam:
     description: "Perfil técnico. Años de estudio autodidacta en oncología de mama; aporta criterio y contexto al caso."
     icon: ph:books-fill
     color: ocean
-  - role: "Asesoría técnica · neuroendocrino"
-    name: David
-    photo: /img/team/david.webp
-    description: "Perfil técnico. Formación en técnicas avanzadas de imagen; aporta criterio sobre el componente neuroendocrino del caso."
-    icon: ph:books-fill
-    color: ocean
   - role: "Epigenómica · Dana-Farber"
     name: Paloma
     photo: /img/team/paloma.webp
     description: "PhD. Directora científica asociada en Dana-Farber (Harvard). Investiga la diferenciación neuroendocrina del tumor, con epigenética y biomarcadores."
     icon: ph:flask-fill
-    color: gold
-  - role: "Inteligencia artificial y difusión"
-    name: Javi
-    photo: /img/team/javi.webp
-    description: "Con IA, genera informes de síntesis para la propuesta terapéutica y apoya la difusión del caso."
-    icon: ph:megaphone-fill
-    color: ocean
-  - role: "Ingeniería de IA"
-    name: Alby
-    photo: /img/team/alby.webp
-    description: "Diseña agentes y pipelines de IA para el caso: ordenan la información y aligeran el trabajo manual."
-    icon: ph:robot-fill
-    color: ocean
-  - role: "Desarrollo web · producto"
-    name: Dani
-    photo: /img/team/dani.webp
-    description: "GDE en tecnologías web. Construye y mantiene las herramientas digitales del equipo."
-    icon: ph:device-mobile-fill
-    color: ink
-  - role: "Web y accesibilidad"
-    name: Ceci
-    photo: /img/team/ceci.webp
-    description: "Desarrolladora front-end. Construye helpmiriam.com con rigor de accesibilidad y claridad."
-    icon: ph:code-fill
-    color: ocean
-  - role: "Coordinación de comunidad"
-    name: Afor
-    photo: /img/team/afor.webp
-    description: "Conecta y organiza a las personas de la comunidad que colaboran en los proyectos de helpmiriam."
-    icon: ph:users-three-fill
-    color: ink
-  - role: "Narrativa y textos"
-    name: Alba
-    photo: /img/team/alba.webp
-    description: "Cuida la historia, el tono y las palabras del proyecto en todo lo que se publica."
-    icon: ph:pen-nib-fill
     color: gold
 medicalNetwork:
   - role: "Vall d'Hebron · VHIO (Barcelona)"
