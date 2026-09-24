@@ -53,18 +53,23 @@ const lectura = (c: Cambio) => `${nombre(c.a)}: ${L('de', 'from')} ${n(c.antes.v
 const caja = ref<HTMLElement | null>(null)
 const W = useAncho(caja, 320)
 const X0 = 8
-const eje = computed(() => {
+// UN eje para todas las filas (no zoom por fila): así el largo del trazo es el tamaño del cambio y
+// coincide con el orden; con zoom por fila, CA 15-3 (+1 %) se vería como ALT (−60 %). Lo discutió `diseno`.
+const dominio = computed(() => {
   const vs = cambios.value.flatMap((c) => c.lsn ?? [])
-  const min = Math.min(0.25, ...vs) * 0.85
-  const max = Math.max(2, ...vs) * 1.15
-  const X = logEscala(min, max, X0, W.value - 8)
-  return { X, min, ticks: [0.25, 0.5, 1, 2, 5, 10, 20].filter((v) => v >= min && v <= max).map((v) => ({ v, x: X(v), txt: `${numCaso(v, props.lang)}×` })) }
+  return { min: Math.min(0.25, ...vs) * 0.85, max: Math.max(2, ...vs) * 1.15 }
 })
+const hazEje = (ancho: number, x0 = X0) => {
+  const { min, max } = dominio.value
+  const X = logEscala(min, max, x0, ancho - 8)
+  return { X, min, ticks: [0.25, 0.5, 1, 2, 5, 10, 20].filter((v) => v >= min && v <= max).map((v) => ({ v, x: X(v), txt: `${numCaso(v, props.lang)}×` })) }
+}
+const eje = computed(() => hazEje(W.value))
 const HF = 26 // alto de la pista de cada fila
 const Y = 13
-const geo = (c: Cambio) => {
+const geo = (c: Cambio, e = eje.value) => {
   if (!c.lsn) return null
-  const { X, min } = eje.value
+  const { X, min } = e
   const x0 = X(c.lsn[0]), x1 = X(c.lsn[1])
   // banda normal del informe MÁS reciente: de su límite inferior (en ×LSN) a 1×
   const lo = c.ahora.lo != null && c.ahora.hi ? c.ahora.lo / c.ahora.hi : 0
@@ -79,8 +84,12 @@ const marca = (p: Punto, x: number, r = 5) =>
     : p.fuera === 'bajo' ? `M${rc(x - r)},${rc(Y - r * 0.8)}h${2 * r}l${-r},${rc(r * 1.7)}Z`
       : p.fuera ? pathForma('rombo', x, Y, r * 0.85) : pathForma('circulo', x, Y, r * 0.8)
 
-/* resumen en «Hoy»: las tres primeras */
+/* resumen en «Hoy»: las tres primeras, cada una con su mini-pista en el MISMO eje (se anima al verse) */
 const top = computed(() => cambios.value.slice(0, 3))
+const resCaja = ref<HTMLElement | null>(null)
+const WR = useAncho(resCaja, 300)
+const ejeRes = computed(() => hazEje(WR.value, 4))
+const { armado: resArmado, visto: resVisto } = useAlVer(resCaja)
 
 /* hoja: <dialog> nativo (foco atrapado, Esc, fondo inerte) con forma de hoja inferior */
 const hoja = ref<HTMLDialogElement | null>(null)
@@ -131,11 +140,18 @@ defineExpose({ abrir })
         <span class="qc-res__t">{{ L('Qué cambió', 'What changed') }}</span>
         <span class="qc-res__f nums">{{ fc(par[0]) }} → {{ fc(par[1]) }}</span>
       </span>
-      <span class="qc-res__filas">
-        <span v-for="c in top" :key="c.a.key" class="qc-res__fila">
+      <span ref="resCaja" class="qc-res__filas" :class="{ 'qc-res--armado': resArmado, 'qc-res--visto': resVisto }">
+        <span v-for="(c, i) in top" :key="c.a.key" class="qc-res__fila" :style="{ '--i': i }">
           <span class="qc-res__n">{{ nombre(c.a) }}</span>
           <span class="qc-res__v nums"><span class="qc-fila__forma">{{ forma(c.antes) }}</span>{{ n(c.antes.v) }} → <span class="qc-fila__forma">{{ forma(c.ahora) }}</span><strong>{{ n(c.ahora.v) }}</strong> <span class="qc-res__u">{{ c.a.unidad }}</span></span>
           <span class="qc-res__p nums"><span aria-hidden="true">{{ DIR[dir(c)]![0] }}</span> {{ pct(c) }}</span>
+          <svg v-if="geo(c, ejeRes)" :viewBox="`0 0 ${WR} ${HF}`" :width="WR" :height="HF" class="qc-res__pista" aria-hidden="true">
+            <rect :x="geo(c, ejeRes)!.b0" :y="Y - 6" :width="Math.max(2, geo(c, ejeRes)!.b1 - geo(c, ejeRes)!.b0)" height="12" rx="3" class="qc-banda" />
+            <line :x1="ejeRes.X(1)" :x2="ejeRes.X(1)" :y1="Y - 9" :y2="Y + 9" class="qc-uno" />
+            <path v-if="geo(c, ejeRes)!.larga" :d="geo(c, ejeRes)!.d" class="qc-flecha" pathLength="1" />
+            <path :d="marca(c.antes, geo(c, ejeRes)!.x0)" class="qc-m qc-m--antes" />
+            <path :d="marca(c.ahora, geo(c, ejeRes)!.x1)" class="qc-m qc-m--ahora" :style="{ '--dx': `${rc(geo(c, ejeRes)!.x0 - geo(c, ejeRes)!.x1)}px` }" />
+          </svg>
         </span>
       </span>
       <span class="qc-res__mas">{{ L(`Las ${cambios.length} pruebas de las dos analíticas`, `All ${cambios.length} tests from both reports`) }} <span aria-hidden="true">↑</span></span>
@@ -222,12 +238,13 @@ defineExpose({ abrir })
 .qc-res__t { font: 600 12.5px/1.3 var(--font-body); color: var(--color-text-soft); }
 .qc-res__f { font: 500 11px var(--font-mono); color: var(--color-text-soft); }
 .qc-res__filas { display: grid; gap: 6px; }
-.qc-res__fila { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; gap: 10px; align-items: baseline; }
+.qc-res__fila { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; gap: 0 10px; align-items: baseline; }
 .qc-res__n { font: 700 14px/1.25 var(--font-body); color: var(--color-text); min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .qc-res__v { font: 500 12.5px var(--font-mono); color: var(--color-text-soft); white-space: nowrap; }
 .qc-res__v strong { color: var(--color-text); }
 .qc-res__u { font-size: 10.5px; }
 .qc-res__p { font: 700 12.5px var(--font-mono); color: var(--color-text); min-width: 52px; text-align: right; }
+.qc-res__pista { grid-column: 1 / -1; display: block; margin-top: -2px; overflow: visible; }
 .qc-res__mas { font: 700 13px var(--font-body); color: var(--color-miriam); min-height: 28px; display: flex; align-items: center; gap: 4px; }
 
 /* hoja inferior: en el móvil pegada abajo y a todo el ancho; en escritorio, centrada */
@@ -298,6 +315,13 @@ button.qc-fila__caja:hover .qc-fila__ir { text-decoration: underline; }
 .qc-fila__ir { margin-left: auto; font: 700 12px var(--font-body); color: var(--color-miriam); }
 .qc-fila__nota { font: 400 12px/1.4 var(--font-body); color: var(--color-text); margin: -2px 0 8px; }
 .qc-pie { font: 400 11.5px/1.5 var(--font-body); color: var(--color-text-soft); margin: 12px 0 0; }
+/* resumen: la primera vez que se ve, cada trazo va de la anterior a la última */
+@media (prefers-reduced-motion: no-preference) {
+  .qc-res--armado:not(.qc-res--visto) .qc-flecha { stroke-dasharray: 1; stroke-dashoffset: 1; }
+  .qc-res--armado:not(.qc-res--visto) .qc-m--ahora { transform: translateX(var(--dx)); }
+  .qc-res--visto .qc-flecha { stroke-dasharray: 1; animation: qc-traza 700ms var(--curva-salida) calc(200ms + var(--i) * 120ms) both; }
+  .qc-res--visto .qc-m--ahora { animation: qc-viaja 700ms var(--curva-salida) calc(200ms + var(--i) * 120ms) both; }
+}
 /* al abrir: cada flecha se traza de la anterior a la última y el marcador viaja con ella, en cascada */
 @media (prefers-reduced-motion: no-preference) {
   .qc-lista--viva .qc-flecha { stroke-dasharray: 1; animation: qc-traza 620ms var(--curva-salida) calc(260ms + var(--i) * 45ms) both; }
