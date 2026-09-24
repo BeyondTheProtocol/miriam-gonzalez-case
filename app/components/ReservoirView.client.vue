@@ -82,17 +82,23 @@ async function cargaFecha(fecha: string) {
   if (!escena.value) return
   limpiaGrupo()
   const mallas = escena.value.fechas[fecha].mallas
-  let radioNuevo = radio
+  // radio de encuadre: SOLO del cateter (medido+interpolado+portal), no del hueso/traquea de
+  // contexto — si se deja que el hueso decida el radio, la camara se aleja tanto que el
+  // cateter (unos pocos mm de grosor) se ve como un punto perdido en medio del torax.
+  const CATETER = new Set(['medido', 'interpolado', 'portal'])
+  const caja = new THREE.Box3()
   await Promise.all(Object.entries(mallas).map(async ([nombre, fichero]) => {
     const g = await geo(props.base + fecha + '/' + fichero)
     const mat = MAT[nombre as keyof typeof MAT]?.() ?? MAT.medido()
     const mesh = new THREE.Mesh(g, mat)
     mesh.renderOrder = nombre === 'hueso' || nombre === 'traquea' ? 1 : 2
     grupo.add(mesh)
-    if (nombre === 'medido' && g.boundingSphere) radioNuevo = Math.max(radioNuevo, g.boundingSphere.radius * 3)
+    if (CATETER.has(nombre)) caja.union(new THREE.Box3().setFromBufferAttribute(g.attributes.position as THREE.BufferAttribute))
   }))
-  radio = radioNuevo
-  controls.minDistance = radio * 0.6; controls.maxDistance = radio * 10
+  const esfera = new THREE.Sphere()
+  caja.getBoundingSphere(esfera)
+  radio = Math.max(15, esfera.radius * 1.6)
+  controls.minDistance = radio * 0.5; controls.maxDistance = radio * 25
   fechaActual.value = fecha
 }
 
@@ -199,6 +205,12 @@ onBeforeUnmount(() => {
   controls?.dispose(); pmrem?.dispose(); renderer?.dispose()
 })
 
+// coma decimal en es, punto en en — el resto del texto de la página usa coma y el
+// template literal de abajo sacaba el punto de JS por defecto (150.8 en vez de 150,8).
+function mm(n: number | undefined) {
+  if (n == null) return ''
+  return lang.value === 'en' ? String(n) : String(n).replace('.', ',')
+}
 function fechaLegible(f: string) {
   const [y, m] = f.split('-')
   const meses = L('ene,feb,mar,abr,may,jun,jul,ago,sep,oct,nov,dic', 'Jan,Feb,Mar,Apr,May,Jun,Jul,Aug,Sep,Oct,Nov,Dec').split(',')
@@ -261,7 +273,7 @@ function fechaLegible(f: string) {
       {{ L('Medido: los dos puntos leídos directamente en el corte del TC — el portal y la punta. Interpolado: la ruta más probable entre ambos sobre el propio TC, no una medida punto a punto; por eso se dibuja discontinua. Hueso y tráquea, en gris, son solo referencia anatómica.', 'Measured: the two points read directly on the CT slice — the port and the tip. Interpolated: the most likely route between them on the CT itself, not a point-by-point measurement; that is why it is drawn discontinuous. Bone and trachea, in grey, are anatomical reference only.') }}
     </p>
     <p v-if="!loading && !failed && escena" class="mt-1.5 text-[11px] text-tinta leading-snug">
-      {{ L(`Longitud del catéter, portal→punta: ${escena.fechas[fechaActual]?.longitud_mm} mm (± ${escena.error_medida_mm} mm; ± ${escena.error_diferencia_mm} mm en la diferencia entre fechas).`,
+      {{ L(`Longitud del catéter, portal→punta: ${mm(escena.fechas[fechaActual]?.longitud_mm)} mm (± ${escena.error_medida_mm} mm; ± ${escena.error_diferencia_mm} mm en la diferencia entre fechas).`,
            `Catheter length, port→tip: ${escena.fechas[fechaActual]?.longitud_mm} mm (± ${escena.error_medida_mm} mm; ± ${escena.error_diferencia_mm} mm on the difference between dates).`) }}
     </p>
   </div>
