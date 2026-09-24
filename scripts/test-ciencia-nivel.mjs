@@ -89,9 +89,10 @@ if (!CHROME) {
 const DEVTOOLS_MS = Number(process.env.CHROME_ESPERA_MS || 60000)
 let chrome
 let port
+let profile // fuera del bucle: la limpieza del final borra el perfil del intento que arrancó
 let ultimoRuido = ''
 for (let intento = 1; intento <= 2 && !port; intento++) {
-  const profile = mkdtempSync(join(tmpdir(), 'ciencia-nivel-'))
+  profile = mkdtempSync(join(tmpdir(), 'ciencia-nivel-'))
   chrome = spawn(
     CHROME,
     [
@@ -132,6 +133,7 @@ for (let intento = 1; intento <= 2 && !port; intento++) {
       `Chrome no arrancó en el intento ${intento} (sin DevToolsActivePort en ${DEVTOOLS_MS / 1000} s).`
     )
     chrome.kill()
+    rmSync(profile, { recursive: true, force: true })
   }
 }
 if (!port) {
