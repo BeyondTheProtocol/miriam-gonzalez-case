@@ -95,12 +95,16 @@ const PESTANAS: { k: string; es: string; en: string; minis: Mini[] }[] = [
     ['magnesio', 'real', 'Magnesio', 'Magnesium'], ['pcr', 'real', 'Proteína C reactiva', 'C-reactive protein'], ['glucosa', 'real', 'Glucosa', 'Glucose']] },
 ]
 const pestana = ref('marcadores')
+const ver3d = ref(false)
 // enlace directo a una pestaña (/datos?pestana=higado): para compartir justo esa vista
 // OJO (mismo fallo que /ciencia con ?nivel=pro): en la página prerenderizada Nuxt hidrata con la
 // ruta del payload, SIN query; en setup y onMounted `route.query` llega vacía y la query aparece
 // después. Por eso se vigila, no se lee una vez.
 const ruta = useRoute()
-const aplicarPestana = () => { const q = String(ruta.query.pestana ?? ''); if (PESTANAS.some((p) => p.k === q)) pestana.value = q }
+const aplicarPestana = () => {
+  const q = String(ruta.query.pestana ?? ''); if (PESTANAS.some((p) => p.k === q)) pestana.value = q
+  if (ruta.query.ver3d === '1') ver3d.value = true // enlace directo al catéter en 3D
+}
 onMounted(aplicarPestana)
 watch(() => ruta.query.pestana, aplicarPestana)
 const minis = computed(() => (PESTANAS.find((p) => p.k === pestana.value)?.minis ?? [])
@@ -309,8 +313,21 @@ const n = (v: number) => numCaso(v, lang.value)
               <p class="dt-tarjeta__t">{{ L('Reservorio venoso: el catéter mide lo mismo en los tres TC', 'Venous port: the catheter measures the same length on all three CT scans') }}</p>
               <p class="dt-tarjeta__l">{{ L('El reservorio dejó de dar retorno de sangre. Longitud del catéter, del portal a la punta, en tres TC:', 'The port stopped giving blood return. Catheter length, port to tip, on three CT scans:') }}</p>
               <DatosReservorio :medidas="reservorio" :lang="lang" />
+              <!-- el 3D (mallas de ~4 MB) solo se descarga si se pide: el móvil no lo paga por defecto -->
+              <button v-if="!ver3d" type="button" class="dt-3d" @click="ver3d = true">
+                <Icon name="ph:cube-duotone" class="w-5 h-5" aria-hidden="true" />
+                {{ L('Girar el catéter en 3D', 'Rotate the catheter in 3D') }}
+              </button>
+              <div v-else class="dt-visor3d">
+                <ClientOnly>
+                  <ReservoirView base="/reservorio/" />
+                  <template #fallback>
+                    <div class="dt-visor3d__carga">{{ L('cargando el 3D…', 'loading 3D…') }}</div>
+                  </template>
+                </ClientOnly>
+              </div>
               <p class="dt-pie">{{ L('Medida semiautomática sobre sus TC, sin validar por radiología.', 'Semi-automatic measurement on her CT scans, not validated by radiology.') }} <DatosSello :s="reservorio[0].sello" :lang="lang" /></p>
-              <NuxtLink v-if="hayReservorio" :to="localePath('/reservorio')" class="dt-boton">{{ L('Verlo en 3D', 'See it in 3D') }} →</NuxtLink>
+              <NuxtLink v-if="hayReservorio" :to="localePath('/reservorio')" class="dt-boton">{{ L('La historia completa del reservorio', 'The full port story') }} →</NuxtLink>
             </article>
           </div>
         </section>
@@ -404,6 +421,12 @@ const n = (v: number) => numCaso(v, lang.value)
 .dt-tarjeta__l { font: 400 13px/1.45 var(--font-body); color: var(--color-text); margin: 0 0 4px; }
 .dt-tarjeta__l span { font-weight: 600; color: var(--color-text-soft); margin-right: 4px; }
 .dt-tarjeta__pie { display: flex; gap: 8px; align-items: center; font: 500 11.5px var(--font-mono); color: var(--color-text-soft); margin: 8px 0 0; }
+.dt-3d { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; margin-top: 10px; padding: 0 16px; border-radius: 999px;
+  background: var(--color-text); color: var(--color-bg); font: 700 14px var(--font-body); }
+.dt-3d:focus-visible { outline: 2px solid var(--color-miriam); outline-offset: 2px; }
+.dt-visor3d { margin-top: 12px; max-width: 520px; }
+.dt-visor3d__carga { aspect-ratio: 1 / 1; border-radius: 12px; display: flex; align-items: center; justify-content: center;
+  background: var(--color-text); color: rgb(var(--color-bg-rgb) / 0.7); font: 500 12px var(--font-mono); }
 .dt-boton { display: inline-flex; align-items: center; min-height: 44px; margin-top: 6px; font: 700 14px var(--font-body); color: var(--color-miriam); text-decoration: underline; text-underline-offset: 3px; }
 .dt-lista { margin: 0; padding-left: 18px; display: grid; gap: 6px; font: 400 14.5px/1.5 var(--font-body); color: var(--color-text); }
 .dt-lista-trat { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; font: 400 14px/1.45 var(--font-body); color: var(--color-text); }
