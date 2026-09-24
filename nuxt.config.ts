@@ -147,6 +147,7 @@ export default defineNuxtConfig({
       'contacto': { en: '/contact' },
       'colabora': { en: '/collaborate' },
       'marcas': { en: '/brands' },
+      'reservorio': { en: '/reservorio' },
       'gastos': { en: '/expenses' },
       'gracias': { en: '/thank-you' },
       'aviso-legal': { en: '/legal-notice' },
