@@ -66,8 +66,8 @@ const redondo = (v: number) => (Math.abs(v) >= 100 ? Math.round(v) : Math.round(
       </template>
     </svg>
     <p class="ms__pie">
-      <span v-if="a.ref">{{ L('Rango habitual', 'Usual range') }} {{ numCaso(a.ref.low, lang) }}–{{ numCaso(a.ref.high, lang) }}</span>
-      <span>· {{ nFuera }}/{{ vis.length }} {{ L('fuera', 'out') }}</span>
+      <span v-if="a.ref">{{ L('Rango de referencia', 'Reference range') }} {{ numCaso(a.ref.low, lang) }}–{{ numCaso(a.ref.high, lang) }}</span>
+      <span>· {{ nFuera }}/{{ vis.length }} {{ L('fuera de rango', 'out of range') }}</span>
     </p>
     <details class="ms__det">
       <summary>{{ L('Ver los valores', 'See the values') }}</summary>

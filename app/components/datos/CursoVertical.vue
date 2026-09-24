@@ -33,7 +33,8 @@ const Y = (t: number) => rc(TOP + (t - dominio.value[0]) / DIA * PX_DIA.value)
 const YF = (iso: string) => Y(msFecha(iso))
 const dentro = (t: number) => t >= dominio.value[0] && t <= dominio.value[1]
 
-const COL = { ev: [44, 104], mk: [110, 178], hp: [186, 254], hb: [262, 352] } as const
+// `ev` ancho para que «Tratamiento» no pise la cabecera de CA 15-3 (lo midió `diseno`, 24-sep)
+const COL = { ev: [44, 110], mk: [116, 182], hp: [190, 258], hb: [266, 352] } as const
 
 const meses = computed(() => {
   const out: { y: number; txt: string; anio: boolean }[] = []
@@ -109,15 +110,16 @@ const r1 = (v: number) => v.toFixed(1)
               type="button" class="cv__vista" :aria-pressed="vista === k" @click="vista = k as Vista">{{ L(es, en) }}</button>
     </div>
     <svg :viewBox="`0 0 ${W} ${H}`" class="cv__svg" role="img"
-         :aria-label="L('Curso clínico en vertical: el tiempo baja. Columnas: tratamientos y eventos, CA 15-3 y transaminasas en veces el límite superior normal, y hemoglobina. Los mismos datos están en las tablas de la página.',
-                        'Clinical course, vertical: time runs down. Columns: treatments and events, CA 15-3 and transaminases in multiples of the upper limit of normal, and haemoglobin. The same data are in the tables on this page.')">
+         :aria-label="L('Curso clínico en vertical: el tiempo baja. Columnas: tratamientos y eventos, CA 15-3 y transaminasas en múltiplos del límite superior de la normalidad (× LSN), y hemoglobina. Los mismos datos están en las tablas de la página.',
+                        'Clinical course, vertical: time runs down. Columns: treatments and events, CA 15-3 and transaminases in multiples of the upper limit of normal, and hemoglobin. The same data are in the tables on this page.')">
       <!-- cabeceras -->
-      <text :x="COL.ev[0]" y="14" class="cv__cab">{{ L('Trat. · eventos', 'Tx · events') }}</text>
+      <text :x="COL.ev[0]" y="14" class="cv__cab">{{ L('Tratamiento', 'Treatment') }}</text>
+      <text :x="COL.ev[0]" y="26" class="cv__sub">{{ L('y eventos', 'and events') }}</text>
       <text :x="COL.mk[0]" y="14" class="cv__cab">CA 15-3</text>
-      <text :x="COL.mk[0]" y="26" class="cv__sub">× LSN · log</text>
+      <text :x="COL.mk[0]" y="26" class="cv__sub">{{ L('× LSN · log', '× ULN · log') }}</text>
       <text :x="COL.hp[0]" y="14" class="cv__cab">AST · ALT</text>
-      <text :x="COL.hp[0]" y="26" class="cv__sub">× LSN · log</text>
-      <text :x="COL.hb[0]" y="14" class="cv__cab">{{ L('Hemoglobina', 'Haemoglobin') }}</text>
+      <text :x="COL.hp[0]" y="26" class="cv__sub">{{ L('× LSN · log', '× ULN · log') }}</text>
+      <text :x="COL.hb[0]" y="14" class="cv__cab">{{ L('Hemoglobina', 'Hemoglobin') }}</text>
       <text :x="COL.hb[0]" y="26" class="cv__sub">g/dL · 6–17</text>
       <g :transform="`translate(${COL.hp[0] + 2}, 36)`">
         <path :d="pathForma('circulo', 3, 0, 2.5)" class="cv__p cv__p--ast" /><text x="9" y="3" class="cv__sub">AST</text>
@@ -184,7 +186,7 @@ const r1 = (v: number) => v.toFixed(1)
     </svg>
     <figcaption class="cv__pie">
       {{ L('Relleno = fuera de rango. ◀ = hemoglobina bajo el rango. Líneas discontinuas = progresiones. Los números son los eventos de la lista de abajo; el resto de pruebas, en «Analíticas».',
-           'Filled = out of range. ◀ = haemoglobin below range. Dashed lines = progressions. Numbers are the events listed below; every other test is under “Labs”.') }}
+           'Filled = out of range. ◀ = hemoglobin below range. Dashed lines = progressions. Numbers are the events listed below; every other test is under “Labs”.') }}
     </figcaption>
   </figure>
 </template>

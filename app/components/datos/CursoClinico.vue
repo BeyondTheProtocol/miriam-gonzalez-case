@@ -110,6 +110,9 @@ const numerados = computed(() =>
     .slice().sort((a, b) => a.desde.localeCompare(b.desde))
     .map((e, i) => ({ ...e, n: i + 1 })))
 const eventosVista = computed(() => {
+  // Los glifos (no solo los números) se reparten en hasta 5 filas: en abr-sep 2026 hay eventos a
+  // días de distancia y en una sola fila se fundían en una mancha (lo midió `diseno`, 24-sep).
+  // Cada fila exige 26 unidades entre glifos: glifo + su número a la derecha.
   const filas: number[] = []
   return numerados.value
     .filter((e) => msFecha(e.hasta) >= dominio.value[0] && msFecha(e.desde) <= dominio.value[1])
@@ -118,14 +121,13 @@ const eventosVista = computed(() => {
       const xa = XF(e.desde)
       const xb = XF(e.hasta) + (puntual ? 0 : X(DIA) - X(0))
       const xc = puntual ? xa : (xa + xb) / 2
-      // números escalonados en hasta 4 filas; si ni así caben, se apilan en la última
-      // (el glifo sigue en su fecha y el título completo sale al pasar el cursor)
-      let fila = filas.findIndex((ult) => xc - ult > 15)
+      let fila = filas.findIndex((ult) => xc - ult > 26)
       if (fila === -1) {
-        if (filas.length < 4) { fila = filas.length; filas.push(-1e9) } else fila = 3
+        if (filas.length < 5) { fila = filas.length; filas.push(-1e9) }
+        else fila = filas.indexOf(Math.min(...filas)) // la fila con más aire
       }
       filas[fila] = xc
-      return { ...e, puntual, xa, xb, xc, fila }
+      return { ...e, puntual, xa, xb, xc, fila, yg: EV.y + 60 - fila * 11.5 }
     })
 })
 /** Guías verticales en los carriles de datos: diagnóstico y progresiones (lo que un clínico cruza). */
@@ -178,7 +180,7 @@ const higado = computed(() => serie([
   ['got', 'AST (GOT)', 'AST'], ['gpt', 'ALT (GPT)', 'ALT'], ['fosfatasa_alcalina', 'Fosfatasa alc.', 'Alk. phos.'],
   ['ggt', 'GGT', 'GGT'], ['bilirrubina_total', 'Bilirrubina', 'Bilirubin']]))
 const hemograma = computed(() => serie([
-  ['hemoglobina', 'Hemoglobina', 'Haemoglobin'], ['neutrofilos_abs', 'Neutrófilos', 'Neutrophils'],
+  ['hemoglobina', 'Hemoglobina', 'Hemoglobin'], ['neutrofilos_abs', 'Neutrófilos', 'Neutrophils'],
   ['linfocitos_abs', 'Linfocitos', 'Lymphocytes'], ['plaquetas', 'Plaquetas', 'Platelets']]))
 
 const LSN_TICKS = [0.1, 0.25, 0.5, 1, 2, 5, 10, 20]
@@ -280,15 +282,15 @@ const r = (v: number) => v.toFixed(1)
       </div>
       <p class="cc__nota">
         {{ L('Pasa el cursor por la figura para leer los valores de cada fecha. Todas las cifras están en las tablas de abajo.',
-             'Hover over the figure to read each date’s values. Every figure is also in the tables below.') }}
+             'Hover over the figure to read each date’s values. All values are also in the tables below.') }}
       </p>
     </div>
 
     <div class="cc__lienzo" @pointerleave="lectura = null">
       <svg
         ref="svgRef" :viewBox="`0 0 ${W} ${H}`" class="cc__svg" role="img"
-        :aria-label="L('Curso clínico del caso sobre un eje de tiempo compartido: eventos, líneas de tratamiento, marcadores tumorales y función hepática en veces el límite superior normal, hemograma y carga tumoral. Los mismos datos están en las tablas de la página.',
-                       'Clinical course on a shared time axis: events, treatment lines, tumour markers and liver function in multiples of the upper limit of normal, blood counts and tumour burden. The same data are in the tables on this page.')"
+        :aria-label="L('Curso clínico del caso sobre un eje de tiempo compartido: eventos, líneas de tratamiento, marcadores tumorales y función hepática en múltiplos del límite superior de la normalidad (× LSN), hemograma y carga tumoral. Los mismos datos están en las tablas de la página.',
+                       'Clinical course on a shared time axis: events, treatment lines, tumor markers and liver function in multiples of the upper limit of normal, blood counts and tumor burden. The same data are in the tables on this page.')"
         @pointermove="mover"
       >
         <defs>
@@ -324,15 +326,14 @@ const r = (v: number) => v.toFixed(1)
         <g clip-path="url(#cc-plot)">
           <g v-for="e in eventosVista" :key="e.id" class="cc__evento">
             <title>{{ e.n }}. {{ e.fecha_texto }} · {{ tituloEvento(e) }}</title>
-            <rect v-if="!e.puntual" :x="e.xa" :y="EV.y + 52" :width="Math.max(2, e.xb - e.xa)" height="10" class="cc__franja" />
-            <path :d="pathForma(FORMA_EVENTO[e.clase ?? 'sintomas'] ?? 'circulo', e.xc, EV.y + 57, 5)"
+            <rect v-if="!e.puntual" :x="e.xa" :y="EV.y + 67" :width="Math.max(2, e.xb - e.xa)" height="4" class="cc__franja" />
+            <path :d="pathForma(FORMA_EVENTO[e.clase ?? 'sintomas'] ?? 'circulo', e.xc, e.yg, 4.5)"
                   :class="['cc__glifo', { 'cc__glifo--aspa': e.clase === 'ingreso', 'cc__glifo--fuerte': e.clase === 'progresion' || e.clase === 'diagnostico' }]" />
-            <line v-if="e.fila" :x1="e.xc" :x2="e.xc" :y1="EV.y + 42 - e.fila * 11" :y2="EV.y + 39" class="cc__num-guia" />
-            <text :x="e.xc" :y="EV.y + 42 - e.fila * 11 - 2" text-anchor="middle" class="cc__num">{{ e.n }}</text>
+            <text :x="e.xc + 6.5" :y="e.yg + 3.5" class="cc__num">{{ e.n }}</text>
           </g>
         </g>
 
-        <!-- ── líneas de tratamiento ── -->
+                <!-- ── líneas de tratamiento ── -->
         <text :x="10" :y="LN.y + 16" class="cc__carril">{{ L('Tratamiento', 'Treatment') }}</text>
         <text :x="10" :y="LN.y + 29" class="cc__carril-sub">{{ L('líneas, radioterapia', 'lines, radiotherapy') }}</text>
         <text :x="10" :y="LN.y + 41" class="cc__carril-sub">{{ L('y de fondo', 'and background') }}</text>
@@ -352,7 +353,7 @@ const r = (v: number) => v.toFixed(1)
 
         <!-- ── marcadores ×LSN ── -->
         <text :x="10" :y="MK.y + 12" class="cc__carril">{{ L('Marcadores', 'Markers') }}</text>
-        <text :x="10" :y="MK.y + 26" class="cc__carril-sub">{{ L('× límite sup. normal', '× upper limit normal') }}</text>
+        <text :x="10" :y="MK.y + 26" class="cc__carril-sub">{{ L('× LSN', '× ULN') }}</text>
         <text :x="10" :y="MK.y + 38" class="cc__carril-sub">{{ L('escala log', 'log scale') }}</text>
         <g>
           <g v-for="tk in pMK.ticks" :key="`mk${tk.v}`">
@@ -375,7 +376,7 @@ const r = (v: number) => v.toFixed(1)
 
         <!-- ── hígado ×LSN ── -->
         <text :x="10" :y="HP.y + 12" class="cc__carril">{{ L('Hígado', 'Liver') }}</text>
-        <text :x="10" :y="HP.y + 26" class="cc__carril-sub">{{ L('× límite sup. normal', '× upper limit normal') }}</text>
+        <text :x="10" :y="HP.y + 26" class="cc__carril-sub">{{ L('× LSN', '× ULN') }}</text>
         <text :x="10" :y="HP.y + 38" class="cc__carril-sub">{{ L('escala log', 'log scale') }}</text>
         <g>
           <g v-for="tk in pHP.ticks" :key="`hp${tk.v}`">
@@ -412,9 +413,9 @@ const r = (v: number) => v.toFixed(1)
         </g>
 
         <!-- ── carga tumoral ── -->
-        <text :x="10" :y="CT.y + 14" class="cc__carril">{{ L('Carga tumoral', 'Tumour burden') }}</text>
+        <text :x="10" :y="CT.y + 14" class="cc__carril">{{ L('Carga tumoral', 'Tumor burden') }}</text>
         <text :x="10" :y="CT.y + 27" class="cc__carril-sub">{{ L('suma RECIST (mm)', 'RECIST sum (mm)') }}</text>
-        <text :x="10" :y="CT.y + 61" class="cc__carril-sub">{{ L('volumen hígado (ml)', 'liver volume (ml)') }}</text>
+        <text :x="10" :y="CT.y + 61" class="cc__carril-sub">{{ L('vol. tumoral hígado (ml)', 'liver tumor vol. (ml)') }}</text>
         <line :x1="X0" :x2="X1" :y1="CT.y + 38" :y2="CT.y + 38" class="cc__hlinea" />
         <g clip-path="url(#cc-plot)">
           <path v-if="pCT.r.length > 1" :d="pCT.r.map((q, i) => `${i ? 'L' : 'M'}${q.x},${q.y}`).join('')" class="cc__ct-linea" />
@@ -478,7 +479,6 @@ const r = (v: number) => v.toFixed(1)
 .cc__uno { stroke: var(--color-text); stroke-opacity: 0.55; stroke-width: 1.2; }
 .cc__banda-linea { fill: var(--color-miriam); fill-opacity: 0.06; }
 .cc__banda-linea--par { fill-opacity: 0.025; }
-.cc__num-guia { stroke: var(--color-text); stroke-opacity: 0.25; }
 .cc__guia { stroke: var(--color-text); stroke-opacity: 0.45; stroke-dasharray: 3 3; }
 .cc__guia-franja { fill: var(--color-text); fill-opacity: 0.05; }
 .cc__franja { fill: var(--color-text); fill-opacity: 0.1; }

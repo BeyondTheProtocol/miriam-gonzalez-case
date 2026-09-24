@@ -35,8 +35,8 @@ const avisos: { tipo: string; detalle: string }[] = c.avisos ?? []
 
 const seoTitle = () => L('El caso en datos: curso clínico, analíticas, perfil molecular y tejido disponible', 'The case in data: clinical course, labs, molecular profile and available tissue')
 const seoDescription = () => L(
-  'El caso de Miriam para quien pueda ayudar: su evolución desde 2021 en una figura, las analíticas, el perfil molecular por muestra y qué tejido existe y dónde. Cada cifra con su fuente.',
-  'Miriam’s case for anyone who can help: her course since 2021 in one figure, labs, the molecular profile by sample and what tissue exists and where. Every figure with its source.')
+  'El caso de Miriam para quien pueda moverlo: su evolución desde 2021 en una figura, las analíticas, el perfil molecular por muestra y qué tejido existe y dónde. Cada cifra con su fuente.',
+  'Miriam’s case for whoever can move it forward: her course since 2021 in one figure, labs, the molecular profile by sample and what tissue exists and where. Every number with its source.')
 useSeoMeta({
   title: seoTitle, description: seoDescription, ogTitle: seoTitle, ogDescription: seoDescription,
   ogType: 'website', twitterCard: 'summary_large_image', twitterTitle: seoTitle, twitterDescription: seoDescription,
@@ -58,7 +58,7 @@ const vent = computed<[number, number]>(() => {
   return [Date.UTC(2021, 0, 1), hoyMs + 20 * DIA]
 })
 const NOMBRE_GRUPO: Record<string, [string, string]> = {
-  marcadores: ['Marcadores tumorales', 'Tumour markers'], hematologia: ['Hemograma', 'Blood count'],
+  marcadores: ['Marcadores tumorales', 'Tumor markers'], hematologia: ['Hemograma', 'Blood count'],
   renal_hepatico: ['Hígado, riñón y metabolismo', 'Liver, kidney and metabolism'], electrolitos: ['Electrolitos y calcio', 'Electrolytes and calcium'],
 }
 
@@ -68,10 +68,10 @@ const celda = (v: string | undefined) => (v == null || v === '' ? '' : v)
 
 const hayReservorio = computed(() => useRouter().getRoutes().some((r) => r.path === '/reservorio'))
 const secciones = computed(() => [
-  ['vistazo', L('De un vistazo', 'At a glance')], ['ficha', L('Ficha', 'Summary')],
-  ['tratamientos', L('Tratamientos', 'Treatments')], ['enfermedad', L('Enfermedad medible', 'Measurable disease')],
-  ['molecular', L('Molecular', 'Molecular')], ['analiticas', L('Analíticas', 'Labs')],
-  ['material', L('Tejido disponible', 'Available tissue')], ['falta', L('Qué falta', 'What’s missing')],
+  ['vistazo', L('De un vistazo', 'At a glance')], ['ficha', L('Resumen clínico', 'Clinical summary')],
+  ['tratamientos', L('Historia de tratamientos', 'Treatment history')], ['enfermedad', L('Enfermedad medible', 'Measurable disease')],
+  ['molecular', L('Perfil molecular', 'Molecular profile')], ['analiticas', L('Analíticas', 'Labs')],
+  ['material', L('Tejido y muestras', 'Tissue and samples')], ['falta', L('Qué falta', 'What’s missing')],
   ['fuentes', L('Fuentes', 'Sources')],
 ])
 const nAnaliticas = c.analiticas.n_analiticas
@@ -84,8 +84,8 @@ const n = (v: number) => numCaso(v, lang.value)
       <div class="mx-auto w-full max-w-[1280px] px-4 sm:px-6 lg:px-8">
         <PageHeader
           :title="L('El caso en datos', 'The case in data')"
-          :subtitle="L('Lo que un oncólogo o un laboratorio necesita para evaluar mi caso, con la fuente de cada cifra.',
-                       'What an oncologist or a lab needs to assess my case, with the source of every figure.')"
+          :subtitle="L('Lo que un equipo de oncología o un laboratorio necesita para evaluar el caso de Miriam, con la fuente de cada cifra.',
+                       'What an oncology team or a lab needs to assess Miriam’s case, and where every number comes from.')"
         >
           <div class="mt-5 flex flex-wrap items-center gap-x-2.5 gap-y-2 font-mono text-[11px] uppercase tracking-[0.12em] text-tinta">
             <span>{{ L('Actualizado', 'Updated') }} {{ fechaCorta(hoy, lang) }}</span>
@@ -99,10 +99,10 @@ const n = (v: number) => numCaso(v, lang.value)
         <div class="alert-callout mb-6" role="note">
           <p class="alert-callout__title">
             <Icon name="ph:info-fill" class="w-4 h-4 shrink-0" aria-hidden="true" />
-            {{ L('Un resumen de mis informes. No es un diagnóstico ni consejo médico.', 'A summary of my reports. Not a diagnosis or medical advice.') }}
+            {{ L('Un resumen de los informes de Miriam, como apoyo a la decisión. No es diagnóstico ni consejo médico.', 'A summary of Miriam’s reports, as decision support. Not a diagnosis or medical advice.') }}
           </p>
-          {{ L('Cada dato lleva un sello: verificado (cotejado contra el informe original), inferido, lo dice Miriam (sin documento detrás) o sin verificar. Las analíticas se extraen de los informes de laboratorio de forma automática.',
-               'Every item carries a label: verified (checked against the original report), inferred, per Miriam (no document behind it) or unverified. Lab values are extracted automatically from the lab reports.') }}
+          {{ L('Cada dato lleva un sello: verificado (cotejado con el informe original), extraído del informe (lectura automática), inferido, lo dice Miriam (lo cuenta ella, sin documento detrás) o sin verificar.',
+               'Every item is tagged: verified (checked against the original report), extracted from report (read automatically), inferred, per Miriam (her own account, no document behind it) or unverified.') }}
         </div>
 
         <nav class="dt-indice" :aria-label="L('Secciones', 'Sections')">
@@ -112,8 +112,8 @@ const n = (v: number) => numCaso(v, lang.value)
         <!-- ── De un vistazo ── -->
         <section id="vistazo" class="dt-sec">
           <h2 class="dt-h2">{{ L('De un vistazo', 'At a glance') }}</h2>
-          <p class="dt-intro">{{ L('Todo el curso clínico sobre el mismo eje de tiempo: eventos, tratamientos, marcadores, hígado, hemograma y carga tumoral. Los marcadores y el hígado van en veces el límite superior normal del informe de cada día, para poder comparar pruebas con unidades distintas.',
-                                  'The whole clinical course on one time axis: events, treatments, markers, liver, blood count and tumour burden. Markers and liver are shown as multiples of the upper limit of normal from each day’s report, so tests in different units can be compared.') }}</p>
+          <p class="dt-intro">{{ L('Todo el curso clínico sobre el mismo eje de tiempo: eventos, tratamientos, marcadores, hígado, hemograma y carga tumoral. Los marcadores y la función hepática van en múltiplos del límite superior de la normalidad (× LSN) de cada informe, para poder comparar pruebas con unidades distintas.',
+                                  'The whole clinical course on one time axis: events, treatments, markers, liver, blood count and tumor burden. Markers and liver enzymes are shown as multiples of the upper limit of normal (× ULN) from each report, so tests in different units can be compared.') }}</p>
           <!-- escritorio: eje horizontal · móvil: el tiempo baja (la horizontal en un teléfono no se lee) -->
           <div class="hidden md:block">
             <DatosCursoClinico
@@ -140,9 +140,9 @@ const n = (v: number) => numCaso(v, lang.value)
 
         <!-- ── Ficha ── -->
         <section id="ficha" class="dt-sec">
-          <h2 class="dt-h2">{{ L('Ficha', 'Summary') }}</h2>
+          <h2 class="dt-h2">{{ L('Resumen clínico', 'Clinical summary') }}</h2>
           <dl class="dt-ficha">
-            <template v-for="[k, es, en] in [['diagnostico','Diagnóstico','Diagnosis'],['fecha_diagnostico','Fecha del diagnóstico','Date of diagnosis'],['edad_diagnostico','Edad al diagnóstico','Age at diagnosis'],['estadio','Estadio','Stage'],['histologia','Histología','Histology'],['ecog','ECOG','ECOG'],['estado_actual','Hoy','Today']]" :key="k">
+            <template v-for="[k, es, en] in [['diagnostico','Diagnóstico','Diagnosis'],['fecha_diagnostico','Fecha del diagnóstico','Date of diagnosis'],['edad_diagnostico','Edad al diagnóstico','Age at diagnosis'],['estadio','Estadio','Stage'],['histologia','Histología','Histology'],['ecog','ECOG','ECOG'],['estado_actual','Estado actual','Current status']]" :key="k">
               <div v-if="ficha[k]" class="dt-ficha__fila">
                 <dt>{{ L(es, en) }}</dt>
                 <dd>{{ T(ficha[k].valor) }}<span v-if="ficha[k].fecha" class="dt-fecha"> · {{ ficha[k].fecha }}</span> <DatosSello :s="ficha[k].sello" :lang="lang" /></dd>
@@ -153,7 +153,7 @@ const n = (v: number) => numCaso(v, lang.value)
           <h3 class="dt-h3">{{ L('Receptores e inmunohistoquímica', 'Receptors and immunohistochemistry') }}</h3>
           <div class="dt-tabla-wrap">
             <table class="data-table">
-              <thead><tr><th>{{ L('Marcador', 'Marker') }}</th><th>{{ L('Resultado', 'Result') }}</th><th>{{ L('Detalle', 'Detail') }}</th><th>{{ L('Sello', 'Label') }}</th></tr></thead>
+              <thead><tr><th>{{ L('Marcador', 'Marker') }}</th><th>{{ L('Resultado', 'Result') }}</th><th>{{ L('Detalle', 'Detail') }}</th><th>{{ L('Sello', 'Verification') }}</th></tr></thead>
               <tbody>
                 <tr v-for="(r, i) in ficha.receptores ?? []" :key="i">
                   <td class="col-marker">{{ T(r.marcador) }}</td><td class="nums">{{ T(r.valor) }}</td>
@@ -179,10 +179,10 @@ const n = (v: number) => numCaso(v, lang.value)
 
         <!-- ── Tratamientos ── -->
         <section id="tratamientos" class="dt-sec">
-          <h2 class="dt-h2">{{ L('Tratamientos', 'Treatments') }}</h2>
+          <h2 class="dt-h2">{{ L('Historia de tratamientos', 'Treatment history') }}</h2>
           <div class="dt-tabla-wrap">
             <table class="data-table">
-              <thead><tr><th></th><th>{{ L('Tratamiento', 'Treatment') }}</th><th>{{ L('Desde', 'From') }}</th><th>{{ L('Hasta', 'To') }}</th><th>{{ L('Por qué terminó', 'Why it ended') }}</th><th>{{ L('Sello', 'Label') }}</th></tr></thead>
+              <thead><tr><th></th><th>{{ L('Tratamiento', 'Treatment') }}</th><th>{{ L('Desde', 'From') }}</th><th>{{ L('Hasta', 'To') }}</th><th>{{ L('Por qué terminó', 'Why it ended') }}</th><th>{{ L('Sello', 'Verification') }}</th></tr></thead>
               <tbody>
                 <tr v-for="l in lineas" :key="l.id">
                   <td class="col-marker">{{ l.id }}</td>
@@ -209,7 +209,7 @@ const n = (v: number) => numCaso(v, lang.value)
               </div>
             </div>
             <div>
-              <h3 class="dt-h3">{{ L('Volumen tumoral hepático (modelo)', 'Liver tumour volume (model)') }}</h3>
+              <h3 class="dt-h3">{{ L('Volumen tumoral hepático (estimación por modelo)', 'Liver tumor volume (model-based estimate)') }}</h3>
               <p v-for="m in em.volumen ?? []" :key="m.fecha" class="dt-recist__cab">
                 <span class="nums">{{ m.fecha }}</span> · <strong class="nums">{{ n(m.ml) }} ml</strong> · {{ m.n_lesiones }} {{ L('lesiones', 'lesions') }} <DatosSello :s="m.sello" :lang="lang" />
               </p>
@@ -274,8 +274,8 @@ const n = (v: number) => numCaso(v, lang.value)
               </tbody>
             </table>
           </div>
-          <p class="dt-pie">{{ L('«—» = buscado y no detectado. Casilla vacía = ese panel no cubre el gen. Las copias en tejido y la señal en plasma no se comparan entre sí.',
-                                 '“—” = tested, not detected. Empty cell = that panel does not cover the gene. Tissue copy numbers and plasma signal are not comparable.') }}</p>
+          <p class="dt-pie">{{ L('«—» = buscado y no detectado. Casilla vacía = ese panel no cubre el gen. Las copias en tejido y la señal en biopsia líquida (ctDNA) no son comparables entre sí.',
+                                 '“—” = tested, not detected. Empty cell = that panel does not cover the gene. Tissue copy numbers and liquid biopsy (ctDNA) signal are not comparable.') }}</p>
           <h3 class="dt-h3">{{ L('Firmas y expresión', 'Signatures and expression') }}</h3>
           <dl class="dt-ficha">
             <div v-for="(f, i) in mol.firmas ?? []" :key="i" class="dt-ficha__fila"><dt>{{ T(f.nombre) }}</dt><dd>{{ T(f.valor) }} <DatosSello :s="f.sello" :lang="lang" /></dd></div>
@@ -285,8 +285,8 @@ const n = (v: number) => numCaso(v, lang.value)
         <!-- ── Analíticas ── -->
         <section id="analiticas" class="dt-sec">
           <h2 class="dt-h2">{{ L('Analíticas', 'Labs') }}</h2>
-          <p class="dt-intro">{{ L('Cada prueba en sus unidades, con su rango habitual sombreado. ▲ o ▼ relleno = fuera del rango de su informe. Un asterisco en la tabla indica que ese informe no traía rango y se usa el habitual.',
-                                  'Each test in its own units, with the usual range shaded. Filled ▲ or ▼ = outside the range printed on that report. An asterisk in the table means that report had no range and the usual one is used.') }}</p>
+          <p class="dt-intro">{{ L('Cada prueba en sus unidades. La franja sombreada es el rango de referencia más frecuente en sus informes. ▲ o ▼ relleno = fuera del rango de ese informe. Un asterisco en la tabla = ese informe no traía rango y se usa el más frecuente.',
+                                  'Each test in its own units. The shaded band is the most common reference range across her reports. Filled ▲ or ▼ = outside the range printed on that report. An asterisk in the table means that report had no range, so the most common one is used.') }}</p>
           <div class="dt-controles">
             <div class="cc-vistas" role="group" :aria-label="L('Grupo de pruebas', 'Test group')">
               <button v-for="(g, k) in grupos" :key="k" type="button" class="cc-vista" :aria-pressed="grupoSel === k" @click="grupoSel = String(k)">
@@ -298,6 +298,7 @@ const n = (v: number) => numCaso(v, lang.value)
                       type="button" class="cc-vista" :aria-pressed="ventana === k" @click="ventana = k as any">{{ L(es, en) }}</button>
             </div>
           </div>
+          <p class="dt-pie mb-3">{{ T(c.analiticas.fuente) }} <DatosSello :s="c.analiticas.sello" :lang="lang" /></p>
           <div class="dt-minis">
             <DatosMiniSerie v-for="a in grupos[grupoSel]?.analitos ?? []" :key="a.key" :a="a" :desde="vent[0]" :hasta="vent[1]" :lang="lang" />
           </div>
@@ -308,7 +309,7 @@ const n = (v: number) => numCaso(v, lang.value)
           <h2 class="dt-h2">{{ L('Tejido y muestras: qué hay y dónde', 'Tissue and samples: what exists and where') }}</h2>
           <div class="dt-tabla-wrap">
             <table class="data-table">
-              <thead><tr><th>{{ L('Muestra', 'Sample') }}</th><th>{{ L('Código', 'Code') }}</th><th>{{ L('Fecha', 'Date') }}</th><th>{{ L('Dónde está', 'Where it is') }}</th><th>{{ L('Estado', 'Status') }}</th><th>{{ L('Sello', 'Label') }}</th></tr></thead>
+              <thead><tr><th>{{ L('Muestra', 'Sample') }}</th><th>{{ L('Código', 'Code') }}</th><th>{{ L('Fecha', 'Date') }}</th><th>{{ L('Dónde está', 'Where it is') }}</th><th>{{ L('Estado', 'Status') }}</th><th>{{ L('Sello', 'Verification') }}</th></tr></thead>
               <tbody>
                 <tr v-for="(m, i) in material" :key="i">
                   <td>{{ T(m.muestra) }}</td><td class="col-marker">{{ m.codigo || '—' }}</td><td class="nums whitespace-nowrap">{{ m.fecha }}</td>
@@ -328,7 +329,7 @@ const n = (v: number) => numCaso(v, lang.value)
               <ul class="dt-lista"><li v-for="(f, i) in mol.falta ?? []" :key="i">{{ T(f.valor) }}</li></ul>
             </div>
             <div>
-              <h3 class="dt-h3">{{ L('Dónde nos puedes ayudar', 'Where you can help') }}</h3>
+              <h3 class="dt-h3">{{ L('Cómo puedes ayudar', 'How you can help') }}</h3>
               <ul class="dt-lista"><li v-for="(b, i) in seBusca" :key="i">{{ T(b.valor) }}</li></ul>
               <NuxtLink :to="localePath('/contacto')" class="btn-primary mt-3 inline-flex">{{ L('Escríbenos', 'Write to us') }}</NuxtLink>
             </div>
@@ -338,10 +339,10 @@ const n = (v: number) => numCaso(v, lang.value)
         <!-- ── Fuentes ── -->
         <section id="fuentes" class="dt-sec">
           <h2 class="dt-h2">{{ L('Fuentes y método', 'Sources and method') }}</h2>
-          <p class="dt-intro">{{ L('La página se genera a partir de un perfil curado a mano sobre mis informes, de las analíticas extraídas de los informes de laboratorio y de la cronología de esta web. Si un dato no tiene fuente, no se publica. Las cifras clínicas se revisan contra el informe original antes de marcarse como verificadas.',
-                                  'This page is generated from a hand-curated profile built on my reports, from lab values extracted from the lab reports and from this site’s timeline. An item without a source is not published. Clinical figures are checked against the original report before being labelled verified.') }}</p>
+          <p class="dt-intro">{{ L('La página se genera a partir de un perfil revisado a mano sobre los informes de Miriam, de las analíticas extraídas de los informes de laboratorio y de la cronología de esta web. Si un dato no tiene fuente, no se publica. Las cifras clínicas se cotejan con el informe original antes de marcarse como verificadas.',
+                                  'This page is generated from a hand-curated profile built on Miriam’s reports, from lab values extracted from the lab reports and from this site’s timeline. If something has no source, it isn’t published. Clinical figures are checked against the original report before being labelled verified.') }}</p>
           <ul class="dt-lista dt-lista--compacta"><li v-for="(f, k) in fuentes" :key="k">{{ T(f.publico) }}</li></ul>
-          <p v-if="avisos.length" class="dt-pie">{{ L('Avisos del último build:', 'Notes from the last build:') }} {{ avisos.map((a) => a.detalle).join(' · ') }}</p>
+          <p v-if="avisos.length" class="dt-pie">{{ L('Avisos de la última actualización:', 'Notes from the last update:') }} {{ avisos.map((a) => a.detalle).join(' · ') }}</p>
         </section>
       </div>
     </section>
