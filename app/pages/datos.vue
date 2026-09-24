@@ -202,26 +202,40 @@ function irAFecha(iso: string) {
   const t = msFecha(iso)
   if (t < rangoVentana('anio', hoyMs)[0]) ventana.value = t < rangoVentana('dx', hoyMs)[0] ? 'todo' : 'dx'
   cursor.value = iso
-  nextTick(() => document.getElementById('s-evo')?.scrollIntoView({ behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'start' }))
+  nextTick(() => saltar('s-evo'))
 }
 
 /* barra de secciones: la activa es la última cuyo inicio ya pasó bajo la cabecera */
 const SECCIONES: [string, string, string][] = [['s-hoy', 'Hoy', 'Today'], ['s-dias', 'Días', 'Days'], ['s-evo', 'Evolución', 'Course'],
-  ['s-higado', 'Hígado', 'Liver'], ['s-tejido', 'Tejido y reservorio', 'Tissue & port']]
+  // «Lesiones» y no «Hígado»: la pestaña de analíticas ya se llama «Hígado» y son cosas distintas (diseno)
+  ['s-higado', 'Lesiones', 'Lesions'], ['s-tejido', 'Tejido y reservorio', 'Tissue & port']]
 const activa = ref('s-hoy')
+/* saltar a una sección SIN el router: su scrollBehavior (toda la web) fija top: 80 e ignora el
+   scroll-margin-top de .dt-sec, y el título quedaba bajo la barra fija (medido por CDP a 390 px) */
+/** posición en la página sin transformaciones: la entrada animada de .dt-sec (translateY) engañaba a
+ *  scrollIntoView y las secciones lejanas aterrizaban ~33 px más arriba */
+const yPagina = (el: HTMLElement) => { let y = 0; for (let n: HTMLElement | null = el; n; n = n.offsetParent as HTMLElement | null) y += n.offsetTop; return y }
+const MARGEN = 124 // = scroll-margin-top de .dt-sec: cabecera + barra de secciones
+function saltar(id: string) {
+  const el = document.getElementById(id); if (!el) return
+  window.scrollTo({ top: Math.max(0, yPagina(el) - MARGEN), behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' })
+  history.replaceState(history.state, '', `#${id}`)
+}
 let chipActivo: HTMLElement | null = null
-let ioSec: IntersectionObserver | null = null
-onMounted(() => {
-  const vistos = new Map<string, boolean>()
-  ioSec = new IntersectionObserver((es) => {
-    for (const e of es) vistos.set(e.target.id, e.isIntersecting)
-    const primera = SECCIONES.find(([id]) => vistos.get(id))
-    if (primera) activa.value = primera[0]
-  }, { rootMargin: '-120px 0px -55% 0px' })
-  for (const [id] of SECCIONES) { const el = document.getElementById(id); if (el) ioSec.observe(el) }
-})
+// activa = la ÚLTIMA sección cuyo inicio ya cruzó la barra (con «la primera que corta la franja»,
+// al saltar a una sección se marcaba la anterior, que aún asomaba)
+let rafSpy = 0
+function espiar() {
+  cancelAnimationFrame(rafSpy)
+  rafSpy = requestAnimationFrame(() => {
+    let a = SECCIONES[0]![0]
+    for (const [id] of SECCIONES) { const el = document.getElementById(id); if (el && yPagina(el) - window.scrollY <= MARGEN + 40) a = id }
+    activa.value = a
+  })
+}
+onMounted(() => { window.addEventListener('scroll', espiar, { passive: true }); espiar() })
 watch(activa, () => nextTick(() => chipActivo?.scrollIntoView({ block: 'nearest', inline: 'center', behavior: 'smooth' })))
-onBeforeUnmount(() => ioSec?.disconnect())
+onBeforeUnmount(() => { window.removeEventListener('scroll', espiar); cancelAnimationFrame(rafSpy) })
 
 /* «qué cambió» entre las dos últimas analíticas: nombres cortos, lo que pasó entre medias y el salto al gráfico */
 const parUltimas = dosUltimas(grupos)
@@ -241,7 +255,7 @@ const conGrafico = PESTANAS.flatMap((p) => p.minis.map((m) => m[0]))
 function irAPrueba(key: string, fecha: string) {
   const p = PESTANAS.find((x) => x.minis.some((m) => m[0] === key)); if (!p) return
   parar(); pestana.value = p.k; cursor.value = fecha
-  nextTick(() => document.getElementById('s-evo')?.scrollIntoView({ behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'start' }))
+  nextTick(() => saltar('s-evo'))
 }
 
 const hayReservorio = computed(() => useRouter().getRoutes().some((r) => r.path === '/reservorio'))
@@ -272,7 +286,7 @@ const n = (v: number) => numCaso(v, lang.value)
 
         <!-- barra de secciones fija con la sección activa (scroll-spy): en el móvil, saltar sin perderse -->
         <nav class="dt-barra" :aria-label="L('Secciones', 'Sections')">
-          <a v-for="[id, es, en] in SECCIONES" :key="id" :href="`#${id}`" class="dt-chip" :aria-current="activa === id ? 'true' : undefined"
+          <a v-for="[id, es, en] in SECCIONES" :key="id" :href="`#${id}`" class="dt-chip" @click.prevent="saltar(id)" :aria-current="activa === id ? 'true' : undefined"
              :ref="(el) => { if (el && activa === id) chipActivo = el as HTMLElement }">{{ L(es, en) }}</a>
         </nav>
 
@@ -286,23 +300,23 @@ const n = (v: number) => numCaso(v, lang.value)
             <li v-if="snc" class="dt-eleg--ancha"><span class="dt-eleg__k">{{ L('Sistema nervioso central', 'Central nervous system') }}</span><span class="dt-eleg__lista">{{ L('no estudiado (no es un negativo)', 'not studied (not a negative)') }}</span><DatosSello :s="snc.sello" :lang="lang" /></li>
           </ul>
           <div class="dt-cifras">
-            <a href="#s-evo" class="dt-cifra-link" :aria-label="L('Ver la línea de tiempo de tratamientos', 'See the treatment timeline')">
+            <a href="#s-evo" class="dt-cifra-link" @click.prevent="saltar('s-evo')" :aria-label="L('Ver la línea de tiempo de tratamientos', 'See the treatment timeline')">
             <DatosCifraClave :etiqueta="L('Tratamiento', 'Treatment')" :valor="cifraTrat.valor" :detalle="cifraTrat.detalle"
                              :fecha="cifraTrat.fecha" :sello="cifraTrat.sello" :franja="franja90"
                              :nota="cribado ? L('En cribado de TROPION-Breast06.', 'In screening for TROPION-Breast06.') : ''" :nota-sello="cifraTrat.notaSello" :lang="lang" />
             </a>
-            <a v-if="pCa" href="#s-evo" class="dt-cifra-link" @click="pestana = 'marcadores'">
+            <a v-if="pCa" href="#s-evo" class="dt-cifra-link" @click.prevent="pestana = 'marcadores'; saltar('s-evo')">
             <DatosCifraClave etiqueta="CA 15-3" :valor="n(pCa.v)" :unidad="ca!.unidad" :fuera="pCa.fuera"
                              :detalle="xlsn(pCa) ? L(`${r1(xlsn(pCa)!)} veces el límite normal`, `${r1(xlsn(pCa)!)} times the upper limit`) : ''"
                              :fecha="fechaCorta(pCa.f, lang)" sello="extraido" :serie="serie12(ca)" :previo="previoTxt(ca)" :lang="lang" />
             </a>
-            <a v-if="pHb" href="#s-evo" class="dt-cifra-link" @click="pestana = 'sangre'">
+            <a v-if="pHb" href="#s-evo" class="dt-cifra-link" @click.prevent="pestana = 'sangre'; saltar('s-evo')">
             <DatosCifraClave :etiqueta="L('Hemoglobina', 'Hemoglobin')" :valor="n(pHb.v)" :unidad="hb!.unidad" :fuera="pHb.fuera"
                              :fecha="fechaCorta(pHb.f, lang)" sello="extraido" :serie="serie12(hb)" :previo="previoTxt(hb)"
                              :nota="transfusionEntre ? L('Entre las dos, una transfusión en urgencias el 9 sep.', 'In between, a transfusion in the emergency room on Sep 9.') : ''"
                              :nota-sello="c.ficha?.estado_actual?.sello" :lang="lang" />
             </a>
-            <a v-if="pAst" href="#s-evo" class="dt-cifra-link" @click="pestana = 'higado'">
+            <a v-if="pAst" href="#s-evo" class="dt-cifra-link" @click.prevent="pestana = 'higado'; saltar('s-evo')">
             <DatosCifraClave :etiqueta="L('Hígado (AST)', 'Liver (AST)')" :valor="`${r1(xlsn(pAst) ?? 0)}×`" :unidad="L('límite normal', 'upper limit')"
                              :fuera="pAst.fuera" :detalle="`AST ${n(pAst.v)} · ALT ${pAlt ? n(pAlt.v) : '—'} ${ast!.unidad}`"
                              :fecha="fechaCorta(pAst.f, lang)" sello="extraido" :serie="serie12(ast, true)" :previo="previoTxt(ast, true)"
