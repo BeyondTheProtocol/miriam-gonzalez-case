@@ -58,12 +58,6 @@ const fechaTxt = computed(() => (f.value < 0.5 ? fechaCorta(r0.value.fecha, prop
     <svg :viewBox="`0 0 ${W} ${geo.H}`" :width="W" :height="geo.H" class="ct__svg" role="img"
          :aria-label="L(`Del ${fechaCorta(r0.fecha, 'es')} al ${fechaCorta(r1.fecha, 'es')}: suma RECIST ${r0.suma_mm} a ${r1.suma_mm} mm; volumen del modelo ${numCaso(v0.ml ?? 0, 'es')} a ${numCaso(v1.ml ?? 0, 'es')} ml; lesiones ${v0.n_lesiones} a ${v1.n_lesiones}.`,
                         `From ${fechaCorta(r0.fecha, 'en')} to ${fechaCorta(r1.fecha, 'en')}: RECIST sum ${r0.suma_mm} to ${r1.suma_mm} mm; model volume ${v0.ml} to ${v1.ml} ml; lesions ${v0.n_lesiones} to ${v1.n_lesiones}.`)">
-      <defs>
-        <radialGradient id="ct-globo" cx="40%" cy="35%" r="70%">
-          <stop offset="0%" stop-color="var(--color-miriam-claro)" stop-opacity="0.55" />
-          <stop offset="100%" stop-color="var(--color-miriam)" stop-opacity="0.9" />
-        </radialGradient>
-      </defs>
       <!-- la regla -->
       <text x="12" y="16" class="ct__etq">{{ L('Suma RECIST (radiólogo)', 'RECIST sum (radiologist)') }}</text>
       <line :x1="geo.XR(0)" :x2="geo.XR(mm)" y1="34" y2="34" class="ct__regla" />
@@ -75,7 +69,7 @@ const fechaTxt = computed(() => (f.value < 0.5 ? fechaCorta(r0.value.fecha, prop
       <!-- el globo -->
       <text x="12" y="84" class="ct__etq">{{ L('Volumen tumoral en el hígado (modelo)', 'Tumor volume in the liver (model)') }}</text>
       <circle :cx="geo.cx" :cy="geo.cy" :r="geo.R(v0.ml ?? 0)" class="ct__sombra" />
-      <circle :cx="geo.cx" :cy="geo.cy" :r="geo.R(ml)" fill="url(#ct-globo)" class="ct__globo" />
+      <circle :cx="geo.cx" :cy="geo.cy" :r="geo.R(ml)" class="ct__globo" />
       <circle v-for="(p, i) in puntos" :key="i" :cx="p.x" :cy="p.y" :r="p.nuevo ? 3.2 : 2.6" :class="p.nuevo ? 'ct__les ct__les--nueva' : 'ct__les'" />
       <text :x="geo.cx" :y="geo.cy + 5" text-anchor="middle" class="ct__ml nums">{{ numCaso(Math.round(ml * 10) / 10, lang) }} ml</text>
       <text :x="geo.cx" :y="geo.H - 4" text-anchor="middle" class="ct__fecha nums">{{ fechaTxt }} · {{ nLes }} {{ L('lesiones', 'lesions') }}</text>
@@ -98,7 +92,7 @@ const fechaTxt = computed(() => (f.value < 0.5 ? fechaCorta(r0.value.fecha, prop
 .ct__umbral-txt { font: 700 10px var(--font-mono); fill: var(--color-miriam); }
 .ct__cifra { font: 700 13px var(--font-mono); fill: var(--color-text); }
 .ct__sombra { fill: none; stroke: var(--color-text); stroke-opacity: 0.35; stroke-dasharray: 4 3; }
-.ct__globo { filter: drop-shadow(0 6px 18px rgb(var(--color-miriam-rgb) / 0.35)); }
+.ct__globo { fill: var(--color-miriam); }
 .ct__les { fill: var(--color-bg); fill-opacity: 0.75; }
 .ct__les--nueva { fill: var(--color-bg); fill-opacity: 1; }
 .ct__ml { font: 700 20px var(--font-display); fill: var(--color-bg); paint-order: stroke; stroke: rgb(var(--color-text-rgb) / 0.35); stroke-width: 2px; }

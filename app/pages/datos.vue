@@ -57,6 +57,11 @@ const cifraTrat = computed(() => {
     fecha: ultimaTerminada ? L(`desde ${fechaCorta(ultimaTerminada.fin, 'es')}`, `since ${fechaCorta(ultimaTerminada.fin, 'en')}`) : '',
     sello: proxima?.sello ?? ultimaTerminada?.sello }
 })
+/** últimos 90 días: ¿había una línea sistémica en curso? (solo días seguros; un mes aproximado cuenta como no) */
+const franja90 = Array.from({ length: 90 }, (_, i) => {
+  const t = hoyMs - (89 - i) * 86400000
+  return sistemicas.some((l) => { const a = rangoParcial(l.inicio); const z = l.fin ? rangoParcial(l.fin) : null; return a && t >= a[1] && (!z || t <= z[0]) })
+})
 const ultimo = (a: Analito | null) => (a ? a.puntos[a.puntos.length - 1] : null)
 const serie12 = (a: Analito | null, lsn = false) => (a ? a.puntos.slice(-12).map((p) => (lsn ? (xlsn(p) ?? p.v) : p.v)) : [])
 const r1 = (v: number) => numCaso(Math.round(v * 10) / 10, lang.value)
@@ -144,7 +149,12 @@ const reproduciendo = computed(() => cabezal.value != null && !pausado.value)
 
 /* tarjeta de muestra: título corto («Hígado, segmento IVa») y el resto del texto, entero, debajo */
 const tituloMuestra = (m: any) => T(m.muestra).split(/\s*[(:.]/)[0]
-const detalleMuestra = (m: any) => T(m.muestra).slice(tituloMuestra(m).length).replace(/^[\s:.]+/, '').replace(/^\((.*)\)$/, '$1')
+const detalleMuestra = (m: any) => {
+  let r = T(m.muestra).slice(tituloMuestra(m).length).replace(/^[\s:.]+/, '')
+  // «(biopsia 8-jul-2026, Zúrich): 6 cilindros…» → «biopsia 8-jul-2026, Zúrich. 6 cilindros…»
+  if (r.startsWith('(')) { const i = r.indexOf(')'); if (i > 0) r = `${r.slice(1, i)}${r.slice(i + 1).replace(/^[\s:.]*/, '. ')}` }
+  return r.replace(/\.\s*$/, '').replace(/^\.\s*/, '')
+}
 
 const hayReservorio = computed(() => useRouter().getRoutes().some((r) => r.path === '/reservorio'))
 const n = (v: number) => numCaso(v, lang.value)
@@ -177,7 +187,7 @@ const n = (v: number) => numCaso(v, lang.value)
           <h2 id="h-hoy" class="dt-h2">{{ L('Hoy', 'Today') }}</h2>
           <div class="dt-cifras">
             <DatosCifraClave :etiqueta="L('Tratamiento', 'Treatment')" :valor="cifraTrat.valor" :detalle="cifraTrat.detalle"
-                             :fecha="cifraTrat.fecha" :sello="cifraTrat.sello" :lang="lang" />
+                             :fecha="cifraTrat.fecha" :sello="cifraTrat.sello" :franja="franja90" :lang="lang" />
             <DatosCifraClave v-if="pCa" etiqueta="CA 15-3" :valor="n(pCa.v)" :unidad="ca!.unidad" :fuera="pCa.fuera"
                              :detalle="xlsn(pCa) ? L(`${r1(xlsn(pCa)!)} veces el límite normal`, `${r1(xlsn(pCa)!)} times the upper limit`) : ''"
                              :fecha="fechaCorta(pCa.f, lang)" sello="extraido" :serie="serie12(ca)" :lang="lang" />
@@ -375,7 +385,12 @@ const n = (v: number) => numCaso(v, lang.value)
 .dt-minis { display: grid; grid-template-columns: minmax(0, 1fr); column-gap: 28px; }
 @media (min-width: 900px) { .dt-minis { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 .dt-det { margin-top: 12px; border-top: 1px solid rgb(var(--color-text-rgb) / 0.1); padding-top: 4px; }
-.dt-det > summary { font: 700 16px/1.3 var(--font-body); color: var(--color-text); cursor: pointer; min-height: 44px; display: flex; align-items: center; }
+.dt-det > summary { font: 700 16px/1.3 var(--font-body); color: var(--color-text); cursor: pointer; min-height: 44px; display: flex; align-items: center; justify-content: space-between; gap: 12px; list-style: none; }
+/* flex quita el marcador nativo: sin esto un desplegable parece un título (lo vio `diseno`) */
+.dt-det > summary::-webkit-details-marker { display: none; }
+.dt-det > summary::after { content: ''; flex: none; width: 9px; height: 9px; margin-right: 6px; border-right: 2px solid var(--color-miriam);
+  border-bottom: 2px solid var(--color-miriam); transform: rotate(45deg) translateY(-3px); transition: transform var(--dur-micro) var(--curva-salida); }
+.dt-det[open] > summary::after { transform: rotate(-135deg) translateY(-3px); }
 .dt-tabla-wrap { overflow-x: auto; border: 1px solid rgb(var(--color-text-rgb) / 0.08); border-radius: 12px; }
 .dt-compacta :deep(td), .dt-compacta :deep(th) { padding: 6px 10px !important; }
 .dt-tarjetas { display: grid; grid-template-columns: minmax(0, 1fr); gap: 10px; }

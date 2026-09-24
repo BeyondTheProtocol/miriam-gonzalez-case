@@ -89,8 +89,13 @@ function tocar(ev: PointerEvent) {
       <span v-for="l in lectura" :key="l.nombre" class="nums" :class="{ 'cinta__alto': l.fuera }">{{ l.nombre }} {{ l.txt }}</span>
     </figcaption>
     <p class="cinta__ley">
-      <span class="cinta__rampa" aria-hidden="true"><i style="background: rgb(var(--color-bg-rgb) / 0.3)" /><i style="background: rgb(var(--color-miriam-claro-rgb) / 0.45)" /><i style="background: rgb(var(--color-miriam-claro-rgb) / 0.75)" /><i style="background: rgb(var(--color-miriam-claro-rgb) / 1); box-shadow: 0 0 6px rgb(var(--color-miriam-claro-rgb))" /></span>
-      {{ L('por debajo del límite · 1× · 2× · 4× o más (brilla)', 'below the limit · 1× · 2× · 4× or more (glows)') }}
+      <span v-for="(m, i) in [
+        [L('bajo el límite', 'below limit'), 'background: rgb(var(--color-bg-rgb) / 0.3)'],
+        ['1×', 'background: rgb(var(--color-miriam-claro-rgb) / 0.45)'],
+        ['2×', 'background: rgb(var(--color-miriam-claro-rgb) / 0.75); box-shadow: 0 0 5px rgb(var(--color-miriam-claro-rgb))'],
+        [L('4× o más', '4× or more'), 'background: rgb(var(--color-miriam-claro-rgb)); box-shadow: 0 0 7px rgb(var(--color-miriam-claro-rgb))']]" :key="i" class="cinta__paso">
+        <i :style="m[1]" />{{ m[0] }}
+      </span>
     </p>
   </figure>
 </template>
@@ -113,6 +118,7 @@ function tocar(ev: PointerEvent) {
 .cinta__fecha { color: var(--color-miriam-claro); }
 .cinta__alto { color: var(--color-bg); }
 .cinta__ley { display: flex; align-items: center; gap: 8px; margin: 6px 0 0; font: 400 11.5px var(--font-body); color: rgb(var(--color-bg-rgb) / 0.7); }
-.cinta__rampa { display: inline-flex; gap: 2px; }
-.cinta__rampa i { width: 12px; height: 10px; border-radius: 2px; display: inline-block; }
+.cinta__ley { flex-wrap: wrap; gap: 4px 14px; }
+.cinta__paso { display: inline-flex; align-items: center; gap: 6px; }
+.cinta__paso i { width: 12px; height: 12px; border-radius: 2px; display: inline-block; }
 </style>

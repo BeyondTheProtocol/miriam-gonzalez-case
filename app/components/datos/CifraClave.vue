@@ -13,6 +13,8 @@ const props = defineProps<{
   sello?: string
   fuera?: 'alto' | 'bajo' | 'fuera' | null
   serie?: number[]
+  /** tira de días (true = en una línea de tratamiento), mismo lenguaje que «Cada día» */
+  franja?: boolean[]
   lang: 'es' | 'en'
 }>()
 const L = (es: string, en: string) => (props.lang === 'en' ? en : es)
@@ -57,6 +59,10 @@ const spark = computed(() => {
       {{ fuera === 'bajo' ? L('por debajo del rango', 'below range') : L('por encima del rango', 'above range') }}
     </p>
     <p v-if="detalle" class="ck__det">{{ detalle }}</p>
+    <svg v-if="franja?.length" :viewBox="`0 0 ${franja.length * 3} 14`" class="ck__franja" preserveAspectRatio="none" aria-hidden="true">
+      <rect v-for="(d, i) in franja" :key="i" :x="i * 3" :y="d ? 0 : 5" width="2" :height="d ? 14 : 4" :class="d ? 'ck__on' : 'ck__off'" />
+    </svg>
+    <p v-if="franja?.length" class="ck__franja-txt">{{ L('últimos 90 días · alto = con tratamiento', 'last 90 days · tall = on treatment') }}</p>
     <svg v-if="spark" :viewBox="`0 0 ${W} ${H}`" class="ck__spark" aria-hidden="true">
       <path :d="spark.d" class="ck__linea" pathLength="1" />
       <circle :cx="spark.x" :cy="spark.y" r="3.5" class="ck__ultimo" />
@@ -80,6 +86,10 @@ const spark = computed(() => {
 .ck__fuera { font: 700 12px/1.3 var(--font-body); color: var(--color-miriam); margin: 0; }
 .ck__det { font: 400 12.5px/1.35 var(--font-body); color: var(--color-text); margin: 2px 0 0; }
 .ck__spark { width: 100%; max-width: 160px; height: auto; margin-top: 6px; }
+.ck__franja { width: 100%; max-width: 160px; height: 22px; margin-top: 8px; }
+.ck__on { fill: var(--color-miriam); }
+.ck__franja-txt { font: 400 10.5px var(--font-body); color: var(--color-text-soft); margin: 2px 0 0; }
+.ck__off { fill: rgb(var(--color-text-rgb) / 0.25); }
 .ck__linea { fill: none; stroke: var(--viz-div-2); stroke-width: 1.6; }
 .ck__ultimo { fill: var(--color-miriam); transform-box: fill-box; transform-origin: center; }
 .ck--armado:not(.ck--visto) .ck__linea { stroke-dasharray: 1; stroke-dashoffset: 1; }
