@@ -60,6 +60,18 @@ let arrastrando = false
 function empezar(ev: PointerEvent) { arrastrando = true; (ev.currentTarget as Element).setPointerCapture?.(ev.pointerId); tocar(ev) }
 function arrastrar(ev: PointerEvent) { if (arrastrando) tocar(ev) }
 function soltar() { arrastrando = false }
+function tecla(ev: KeyboardEvent) {
+  const fs = [...new Set(geo.value.celdas.map((c) => c.p.f))].sort()
+  if (!fs.length) return
+  let i = props.cursor ? fs.indexOf(props.cursor) : -1
+  if (ev.key === 'ArrowLeft') i = Math.max(0, (i < 0 ? fs.length : i) - 1)
+  else if (ev.key === 'ArrowRight') i = Math.min(fs.length - 1, i + 1)
+  else if (ev.key === 'Home') i = 0
+  else if (ev.key === 'End') i = fs.length - 1
+  else if (ev.key === 'Escape') { emit('cursor', null); return }
+  else return
+  ev.preventDefault(); emit('cursor', fs[i]!)
+}
 function tocar(ev: PointerEvent) {
   const svg = ev.currentTarget as SVGSVGElement
   const x = ((ev.clientX - svg.getBoundingClientRect().left) / svg.getBoundingClientRect().width) * W.value
@@ -73,8 +85,11 @@ function tocar(ev: PointerEvent) {
 <template>
   <figure class="cinta" :class="{ 'cinta--armado': armado, 'cinta--visto': visto }">
     <div ref="caja">
-      <svg :viewBox="`0 0 ${W} ${H}`" :width="W" :height="H" class="cinta__svg" role="img" @pointerdown="empezar" @pointermove="arrastrar" @pointerup="soltar" @pointercancel="soltar"
-           :aria-label="L('Pruebas hepáticas en veces el límite normal, una celda por analítica.', 'Liver tests in multiples of the upper limit of normal, one cell per lab report.')">
+      <svg :viewBox="`0 0 ${W} ${H}`" :width="W" :height="H" class="cinta__svg" role="slider" tabindex="0"
+           :aria-valuemin="0" :aria-valuemax="Math.max(0, geo.celdas.length - 1)" :aria-valuenow="0"
+           :aria-valuetext="fechaSel ? `${fechaCorta(fechaSel, lang)}: ${lectura.map((l) => `${l.nombre} ${l.txt}`).join(', ')}` : ''"
+           @keydown="tecla" @pointerdown="empezar" @pointermove="arrastrar" @pointerup="soltar" @pointercancel="soltar"
+           :aria-label="L('Pruebas hepáticas en veces el límite normal, una celda por analítica. Flechas para recorrer las fechas.', 'Liver tests in multiples of the upper limit of normal, one cell per lab report. Arrow keys move through dates.')">
         <defs>
           <filter id="cinta-brillo" x="-60%" y="-60%" width="220%" height="220%">
             <feGaussianBlur stdDeviation="2.2" result="b" /><feMerge><feMergeNode in="b" /><feMergeNode in="SourceGraphic" /></feMerge>
@@ -109,6 +124,7 @@ function tocar(ev: PointerEvent) {
 .cinta { margin: 0; background: radial-gradient(120% 120% at 80% 0%, var(--cielo-resplandor) 0%, var(--color-text) 75%); border-radius: 16px; padding: 14px 0 12px; color: var(--color-bg); }
 /* sin relleno lateral en el gráfico: así su eje X cae en la misma x que la línea de tiempo */
 .cinta__lectura, .cinta__ley { padding: 0 12px; }
+.cinta__svg:focus-visible { outline: 2px solid var(--color-miriam-claro); outline-offset: 2px; }
 .cinta__svg { display: block; overflow: visible; touch-action: pan-y; cursor: crosshair; }
 .cinta__fila { font: 700 10.5px var(--font-mono); fill: rgb(var(--color-bg-rgb) / 0.85); }
 .cinta__anio { font: 600 10px var(--font-mono); fill: rgb(var(--color-bg-rgb) / 0.6); }

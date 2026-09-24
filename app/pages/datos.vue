@@ -72,10 +72,13 @@ const nunca = c.nunca_recibido
 const snc = (c.ficha?.sitios ?? []).find((x: any) => /^SNC|^CNS/.test(T(x.valor)))
 const cribado = proxima
 /* anterior de cada analítica, para decir cuánto cambió */
-const previoTxt = (a: Analito | null) => {
+// en la misma unidad que la cifra grande de su tarjeta: con «veces el límite», el anterior también en veces
+const previoTxt = (a: Analito | null, enLsn = false) => {
   if (!a || a.puntos.length < 2) return ''
-  const p = a.puntos[a.puntos.length - 2]
-  return L(`antes: ${numCaso(p.v, 'es')} · ${fechaCorta(p.f, 'es')}`, `before: ${numCaso(p.v, 'en')} · ${fechaCorta(p.f, 'en')}`)
+  const p = a.puntos[a.puntos.length - 2]!
+  const r = enLsn ? xlsn(p) : null
+  const v = (lg: 'es' | 'en') => (r != null ? `${numCaso(Math.round(r * 10) / 10, lg)}× (${numCaso(p.v, lg)} U/L)` : numCaso(p.v, lg))
+  return L(`antes: ${v('es')} · ${fechaCorta(p.f, 'es')}`, `before: ${v('en')} · ${fechaCorta(p.f, 'en')}`)
 }
 const ultimo = (a: Analito | null) => (a ? a.puntos[a.puntos.length - 1] : null)
 const serie12 = (a: Analito | null, lsn = false) => (a ? a.puntos.slice(-12).map((p) => (lsn ? (xlsn(p) ?? p.v) : p.v)) : [])
@@ -278,7 +281,7 @@ const n = (v: number) => numCaso(v, lang.value)
             <a v-if="pAst" href="#s-evo" class="dt-cifra-link" @click="pestana = 'higado'">
             <DatosCifraClave :etiqueta="L('Hígado (AST)', 'Liver (AST)')" :valor="`${r1(xlsn(pAst) ?? 0)}×`" :unidad="L('límite normal', 'upper limit')"
                              :fuera="pAst.fuera" :detalle="`AST ${n(pAst.v)} · ALT ${pAlt ? n(pAlt.v) : '—'} U/L`"
-                             :fecha="fechaCorta(pAst.f, lang)" sello="extraido" :serie="serie12(ast, true)" :previo="previoTxt(ast)"
+                             :fecha="fechaCorta(pAst.f, lang)" sello="extraido" :serie="serie12(ast, true)" :previo="previoTxt(ast, true)"
                              :nota="pAst.ref_de === 'banda' ? L('Límite: el habitual del laboratorio; este informe no lo trae.', 'Limit: the lab’s usual one; this report does not print it.') : ''" :lang="lang" />
             </a>
           </div>

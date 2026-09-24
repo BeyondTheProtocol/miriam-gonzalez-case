@@ -80,7 +80,8 @@ const geo = computed(() => {
 const pocos = computed(() => geo.value.pts.length <= 24)
 const ultimo = computed(() => vis.value[vis.value.length - 1])
 const enCursor = computed(() => (props.cursor ? vis.value.find((p) => p.f === props.cursor) ?? null : null))
-const mostrado = computed(() => enCursor.value ?? ultimo.value)
+// con cursor, solo el dato de ESE día (o «sin dato ese día»): caer al último enseñaría dos fechas a la vez
+const mostrado = computed(() => (props.cursor ? enCursor.value : ultimo.value))
 const cursorX = computed(() => (props.cabezal != null ? geo.value.X(props.cabezal) : props.cursor ? geo.value.X(msFecha(props.cursor)) : null))
 const nFuera = computed(() => vis.value.filter((p) => p.fuera === 'alto' || p.fuera === 'bajo').length)
 
@@ -89,6 +90,19 @@ let arrastrando = false
 function empezar(ev: PointerEvent) { arrastrando = true; (ev.currentTarget as Element).setPointerCapture?.(ev.pointerId); tocar(ev) }
 function arrastrar(ev: PointerEvent) { if (arrastrando) tocar(ev) }
 function soltar() { arrastrando = false }
+// teclado: ← → recorren las analíticas, Inicio/Fin van a los extremos, Esc suelta el cursor
+function tecla(ev: KeyboardEvent) {
+  const fs = geo.value.pts.map((q) => q.p.f)
+  if (!fs.length) return
+  let i = props.cursor ? fs.indexOf(props.cursor) : -1
+  if (ev.key === 'ArrowLeft') i = Math.max(0, (i < 0 ? fs.length : i) - 1)
+  else if (ev.key === 'ArrowRight') i = Math.min(fs.length - 1, i + 1)
+  else if (ev.key === 'Home') i = 0
+  else if (ev.key === 'End') i = fs.length - 1
+  else if (ev.key === 'Escape') { emit('cursor', null); return }
+  else return
+  ev.preventDefault(); emit('cursor', fs[i]!)
+}
 function tocar(ev: PointerEvent) {
   const svg = ev.currentTarget as SVGSVGElement
   const r = svg.getBoundingClientRect()
@@ -118,9 +132,11 @@ const valorTxt = (p: Punto) => {
       <DatosRangoBarra v-if="mostrado" :p="mostrado" :lang="lang" />
     </header>
     <div ref="caja">
-      <svg :viewBox="`0 0 ${W} ${H}`" :width="W" :height="H" class="ms__svg" role="img"
-           :aria-label="`${nombre ?? a.nombre}: ${vis.length} ${L('valores', 'values')}, ${nFuera} ${L('fuera de rango', 'out of range')}`"
-           @pointerdown="empezar" @pointermove="arrastrar" @pointerup="soltar" @pointercancel="soltar">
+      <svg :viewBox="`0 0 ${W} ${H}`" :width="W" :height="H" class="ms__svg" role="slider" tabindex="0"
+           :aria-label="`${nombre ?? a.nombre}: ${vis.length} ${L('valores', 'values')}, ${nFuera} ${L('fuera de rango', 'out of range')}. ${L('Flechas para recorrer las fechas', 'Arrow keys move through dates')}`"
+           :aria-valuemin="0" :aria-valuemax="Math.max(0, geo.pts.length - 1)" :aria-valuenow="Math.max(0, geo.pts.findIndex((q) => q.p.f === (mostrado?.f ?? '')))"
+           :aria-valuetext="mostrado ? `${fechaCorta(mostrado.f, lang)}: ${valorTxt(mostrado)}` : L('sin dato ese día', 'no value that day')"
+           @keydown="tecla" @pointerdown="empezar" @pointermove="arrastrar" @pointerup="soltar" @pointercancel="soltar">
         <rect v-for="b in geo.bandas" :key="b.id" :x="b.x" :y="Y0" :width="b.w" :height="Y1 - Y0" class="ms__banda-linea" />
         <rect v-if="geo.banda" :x="X0" :y="geo.banda.y0" :width="W - 6 - X0" :height="Math.max(1, geo.banda.y1 - geo.banda.y0)" class="ms__rango" />
         <line v-for="(x, i) in geo.progs" :key="`p${i}`" :x1="x" :x2="x" :y1="Y0" :y2="Y1" class="ms__prog" />
@@ -159,6 +175,7 @@ const valorTxt = (p: Punto) => {
 </template>
 
 <style scoped>
+.ms__svg:focus-visible { outline: 2px solid var(--color-miriam); outline-offset: 2px; border-radius: 4px; }
 .ms { padding: 10px 0 8px; border-top: 1px solid rgb(var(--color-text-rgb) / 0.08); }
 .ms__cab { display: flex; flex-direction: column; gap: 1px; }
 @media (min-width: 520px) { .ms__cab { flex-direction: row; justify-content: space-between; align-items: baseline; gap: 8px; } }
