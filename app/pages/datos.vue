@@ -32,6 +32,7 @@ const seBusca: any[] = c.se_busca ?? []
 const eventos: Evento[] = c.eventos ?? []
 const grupos: Record<string, { analitos: Analito[] }> = c.analiticas.grupos
 const an = (k: string) => buscarAnalito(grupos, k)
+const fechaDx: string | null = (() => { const v = c.ficha?.fecha_diagnostico?.valor; const s = typeof v === 'string' ? v : v?.es; return /^\d{4}-\d{2}-\d{2}$/.test(s ?? '') ? s : null })()
 
 const seoTitle = () => L('El caso en datos: evolución clínica, analíticas y tejido disponible', 'The case in data: clinical course, labs and available tissue')
 const seoDescription = () => L(
@@ -175,6 +176,12 @@ const n = (v: number) => numCaso(v, lang.value)
                              :fuera="pAst.fuera" :detalle="`AST ${n(pAst.v)} · ALT ${pAlt ? n(pAlt.v) : '—'} U/L`"
                              :fecha="fechaCorta(pAst.f, lang)" sello="extraido" :serie="serie12(ast, true)" :lang="lang" />
           </div>
+        </section>
+
+        <!-- 1b · un cuadrado por día desde el diagnóstico -->
+        <section v-if="fechaDx" class="dt-sec" aria-labelledby="h-dias">
+          <h2 id="h-dias" class="dt-h2">{{ L('Cada día desde el diagnóstico', 'Every day since diagnosis') }}</h2>
+          <DatosDias :lineas="lineas" :eventos="eventos" :diagnostico="fechaDx" :hoy="hoy" :lang="lang" />
         </section>
 
         <!-- 2-3 · Evolución: línea de tiempo + analíticas con la misma ventana -->
