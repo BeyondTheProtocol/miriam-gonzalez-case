@@ -55,8 +55,8 @@ const spark = computed(() => {
       <span v-if="unidad" class="ck__unidad">{{ unidad }}</span>
     </p>
     <p v-if="fuera" class="ck__fuera">
-      <span aria-hidden="true">{{ fuera === 'bajo' ? '▼' : '▲' }}</span>
-      {{ fuera === 'bajo' ? L('por debajo del rango', 'below range') : L('por encima del rango', 'above range') }}
+      <span aria-hidden="true">{{ fuera === 'bajo' ? '▼' : fuera === 'alto' ? '▲' : '◆' }}</span>
+      {{ fuera === 'bajo' ? L('por debajo del rango', 'below range') : fuera === 'alto' ? L('por encima del rango', 'above range') : L('marcado en el informe', 'flagged on report') }}
     </p>
     <p v-if="detalle" class="ck__det">{{ detalle }}</p>
     <svg v-if="franja?.length" :viewBox="`0 0 ${franja.length * 3} 14`" class="ck__franja" preserveAspectRatio="none" aria-hidden="true">

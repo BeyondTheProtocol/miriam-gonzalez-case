@@ -82,7 +82,7 @@ const ultimo = computed(() => vis.value[vis.value.length - 1])
 const enCursor = computed(() => (props.cursor ? vis.value.find((p) => p.f === props.cursor) ?? null : null))
 const mostrado = computed(() => enCursor.value ?? ultimo.value)
 const cursorX = computed(() => (props.cabezal != null ? geo.value.X(props.cabezal) : props.cursor ? geo.value.X(msFecha(props.cursor)) : null))
-const nFuera = computed(() => vis.value.filter((p) => p.fuera).length)
+const nFuera = computed(() => vis.value.filter((p) => p.fuera === 'alto' || p.fuera === 'bajo').length)
 
 function tocar(ev: PointerEvent) {
   const svg = ev.currentTarget as SVGSVGElement
@@ -105,7 +105,7 @@ const valorTxt = (p: Punto) => {
     <header class="ms__cab">
       <h4 class="ms__nombre">{{ nombre ?? a.nombre }}</h4>
       <p v-if="mostrado" class="ms__valor nums" :class="{ 'ms__valor--cursor': enCursor }">
-        <span v-if="mostrado.fuera" class="ms__marca" aria-hidden="true">{{ mostrado.fuera === 'bajo' ? '▼' : '▲' }}</span>
+        <span v-if="mostrado.fuera" class="ms__marca" aria-hidden="true">{{ mostrado.fuera === 'bajo' ? '▼' : mostrado.fuera === 'alto' ? '▲' : '◆' }}</span>
         {{ valorTxt(mostrado) }}
         <span class="ms__fecha">{{ fechaCorta(mostrado.f, lang) }}</span>
       </p>
@@ -129,7 +129,9 @@ const valorTxt = (p: Punto) => {
         <path :key="`${desde}-${hasta}`" :d="geo.d" class="ms__linea" pathLength="1" />
         <template v-for="q in geo.pts" :key="q.p.f">
           <path v-if="q.p.fuera === 'bajo'" :d="`M${rc(q.x - 4.5)},${rc(q.y - 3.5)}h9l-4.5,8Z`" class="ms__fuera" :style="{ animationDelay: `${Math.round((q.x / W) * 1200)}ms` }" />
-          <path v-else-if="q.p.fuera" :d="`M${rc(q.x - 4.5)},${rc(q.y + 3.5)}h9l-4.5,-8Z`" class="ms__fuera" :style="{ animationDelay: `${Math.round((q.x / W) * 1200)}ms` }" />
+          <path v-else-if="q.p.fuera === 'alto'" :d="`M${rc(q.x - 4.5)},${rc(q.y + 3.5)}h9l-4.5,-8Z`" class="ms__fuera" :style="{ animationDelay: `${Math.round((q.x / W) * 1200)}ms` }" />
+          <!-- ◆ el informe lo marcó pero no se sale del rango extraído (p. ej. justo en el límite) -->
+          <path v-else-if="q.p.fuera" :d="pathForma('rombo', q.x, q.y, 3.5)" class="ms__marcado" />
           <circle v-else-if="pocos" :cx="q.x" :cy="q.y" r="2.5" class="ms__dentro" />
         </template>
         <line v-if="cursorX != null" :x1="cursorX" :x2="cursorX" :y1="Y0 - 4" :y2="Y1" class="ms__cursor" />
@@ -142,7 +144,7 @@ const valorTxt = (p: Punto) => {
         <tbody>
           <tr v-for="p in [...vis].reverse()" :key="p.f">
             <td>{{ p.f }}</td>
-            <td :class="{ 'ms__td-fuera': p.fuera }">{{ numCaso(p.v, lang) }}{{ p.fuera === 'bajo' ? ' ▼' : p.fuera ? ' ▲' : '' }}</td>
+            <td :class="{ 'ms__td-fuera': p.fuera }">{{ numCaso(p.v, lang) }}{{ p.fuera === 'bajo' ? ' ▼' : p.fuera === 'alto' ? ' ▲' : p.fuera ? ' ◆' : '' }}</td>
             <td>{{ p.hi != null ? `${numCaso(p.lo ?? 0, lang)}–${numCaso(p.hi, lang)}` : '—' }}{{ p.ref_de === 'banda' ? ' *' : '' }}</td>
           </tr>
         </tbody>
@@ -174,6 +176,7 @@ const valorTxt = (p: Punto) => {
 .ms__cursor { stroke: var(--color-miriam); stroke-width: 1.5; }
 /* entrada: la línea se dibuja de izquierda a derecha y los ▲▼ saltan cuando la línea pasa */
 .ms__fuera { transform-box: fill-box; transform-origin: center; }
+.ms__marcado { fill: var(--color-bg); stroke: var(--color-miriam); stroke-width: 1.5; }
 .ms--armado:not(.ms--visto) .ms__linea { stroke-dasharray: 1; stroke-dashoffset: 1; }
 .ms--armado:not(.ms--visto) .ms__fuera { opacity: 0; }
 .ms--visto .ms__linea { stroke-dasharray: 1; animation: ms-trazo 1.3s var(--curva-salida) both; }

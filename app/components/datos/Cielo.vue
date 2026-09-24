@@ -21,6 +21,8 @@ const props = defineProps<{
   lang: Lang
 }>()
 const L = (es: string, en: string) => (props.lang === 'en' ? en : es)
+/** tocar el cielo lleva a esa fecha: la página fija el cursor y baja a Evolución */
+const emit = defineEmits<{ fecha: [iso: string] }>()
 
 const ORDEN: [string, string, string][] = [
   ['marcadores', 'Marcadores', 'Markers'], ['hematologia', 'Sangre', 'Blood'],
@@ -36,7 +38,8 @@ const filas = computed(() => {
   return out
 })
 const puntos = computed(() => filas.value.flatMap((f, i) => f.a.puntos
-  .map((p) => ({ t: msFecha(p.f), fila: i, fuera: !!p.fuera }))
+  // violeta = se sale DE VERDAD (alto/bajo); lo que el informe marcó sin salirse del rango, tenue
+  .map((p) => ({ t: msFecha(p.f), fila: i, fuera: p.fuera === 'alto' || p.fuera === 'bajo' }))
   .filter((q) => q.t >= desde && q.t <= hasta)))
 const nPuntos = computed(() => puntos.value.length)
 const nFuera = computed(() => puntos.value.filter((p) => p.fuera).length)
@@ -151,7 +154,17 @@ onMounted(() => {
 })
 watch([W, () => props.lang], () => pintar())
 onBeforeUnmount(() => { io?.disconnect(); clearTimeout(reserva); cancelAnimationFrame(raf) })
-function repetir() { cancelAnimationFrame(raf); barrido = 0; encender() }
+function tocar(ev: PointerEvent) {
+  const r = (ev.currentTarget as HTMLElement).getBoundingClientRect()
+  const x = ev.clientX - r.left
+  if (x < IZQ) return
+  const t = desde + ((x - IZQ) / (W.value - IZQ - 8)) * (hasta - desde)
+  // la analítica más cercana a ese punto (así el cursor cae en una fecha con dato)
+  let mejor = ''
+  let dmin = Infinity
+  for (const f of filas.value) for (const p of f.a.puntos) { const d = Math.abs(msFecha(p.f) - t); if (d < dmin) { dmin = d; mejor = p.f } }
+  if (mejor) emit('fecha', mejor)
+}
 </script>
 
 <template>
@@ -161,9 +174,10 @@ function repetir() { cancelAnimationFrame(raf); barrido = 0; encender() }
       <p class="cielo__sub">
         {{ L(`Cada punto es uno. Los ${miles(nFuera)} violetas se salieron de rango.`, `Each dot is one. The ${miles(nFuera)} violet ones fell outside the range.`) }}
       </p>
-      <div ref="caja" class="cielo__lienzo" @click="repetir">
+      <div ref="caja" class="cielo__lienzo" @pointerup="tocar">
         <canvas ref="lienzo" role="img" :aria-label="L(`${nPuntos} valores de laboratorio desde diciembre de 2023, ${nFuera} fuera de rango, ordenados por fecha y por prueba.`, `${nPuntos} lab values since December 2023, ${nFuera} out of range, by date and by test.`)" />
       </div>
+      <p class="cielo__pista">{{ L('Toca el cielo para ir a esa fecha.', 'Tap the sky to jump to that date.') }}</p>
       <p class="cielo__ley">
         <span><i class="cielo__px" />{{ L('dentro de rango', 'in range') }}</span>
         <span><i class="cielo__px cielo__px--fuera" />{{ L('fuera de rango', 'out of range') }}</span>
@@ -183,7 +197,8 @@ function repetir() { cancelAnimationFrame(raf); barrido = 0; encender() }
 .cielo__cifra span { color: var(--color-miriam-claro); }
 .cielo__cifra .nums { font-size: clamp(40px, 11vw, 72px); display: block; }
 .cielo__sub { font: 400 14.5px/1.45 var(--font-body); color: rgb(var(--color-bg-rgb) / 0.8); margin: 8px 0 14px; max-width: 46ch; }
-.cielo__lienzo { cursor: pointer; }
+.cielo__lienzo { cursor: crosshair; touch-action: pan-y; }
+.cielo__pista { font: 600 12px var(--font-body); color: var(--color-miriam-claro); margin: 8px 0 0; }
 .cielo__lienzo canvas { display: block; }
 .cielo__ley { display: flex; flex-wrap: wrap; gap: 4px 14px; margin: 10px 0 0; font: 400 12px var(--font-body); color: rgb(var(--color-bg-rgb) / 0.75); }
 .cielo__ley span { display: inline-flex; align-items: center; gap: 6px; }

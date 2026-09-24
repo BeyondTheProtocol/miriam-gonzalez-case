@@ -53,7 +53,7 @@ const fechaSel = computed(() => props.cursor ?? (geo.value.celdas.length ? geo.v
 const lectura = computed(() => props.filas.map((f) => {
   const p = f.a.puntos.find((q) => q.f === fechaSel.value) as Punto | undefined
   const r = p ? xlsn(p) : null
-  return { nombre: f.nombre, txt: r != null ? `${numCaso(Math.round(r * 10) / 10, props.lang)}×` : '—', fuera: !!p?.fuera }
+  return { nombre: f.nombre, txt: r != null ? `${numCaso(Math.round(r * 10) / 10, props.lang)}×` : '—', fuera: p?.fuera === 'alto' || p?.fuera === 'bajo' }
 }))
 function tocar(ev: PointerEvent) {
   const svg = ev.currentTarget as SVGSVGElement

@@ -120,7 +120,7 @@ let t0 = 0
 let acumulado = 0 // ms de reproducción ya consumidos antes de la última pausa
 /* sonido (opcional): cada valor de CA 15-3 y cada progresión por los que pasa el cabezal */
 const sonido = useSonido()
-const puntosCa = computed(() => (ca?.puntos ?? []).map((p) => ({ t: msFecha(p.f), r: xlsn(p), fuera: !!p.fuera })))
+const puntosCa = computed(() => (ca?.puntos ?? []).map((p) => ({ t: msFecha(p.f), r: xlsn(p), fuera: p.fuera === 'alto' || p.fuera === 'bajo' })))
 function sonar(de: number, a: number) {
   if (!sonido.activo.value || a <= de) return
   for (const p of puntosCa.value) if (p.t > de && p.t <= a && p.r != null) sonido.valor(p.r, p.fuera)
@@ -160,6 +160,15 @@ const detalleMuestra = (m: any) => {
   return r.replace(/\.\s*$/, '').replace(/^\.\s*/, '')
 }
 
+/** desde el cielo: esa fecha en toda la página (ventana que la contenga, cursor, y bajar a Evolución) */
+function irAFecha(iso: string) {
+  parar()
+  const t = msFecha(iso)
+  if (t < rangoVentana('anio', hoyMs)[0]) ventana.value = t < rangoVentana('dx', hoyMs)[0] ? 'todo' : 'dx'
+  cursor.value = iso
+  nextTick(() => document.getElementById('h-evo')?.scrollIntoView({ behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'start' }))
+}
+
 const hayReservorio = computed(() => useRouter().getRoutes().some((r) => r.path === '/reservorio'))
 const n = (v: number) => numCaso(v, lang.value)
 </script>
@@ -184,7 +193,7 @@ const n = (v: number) => numCaso(v, lang.value)
         </p>
 
         <!-- 0 · el caso en píxeles: impresión visual primero (Miriam, 24-sep) -->
-        <DatosCielo :grupos="grupos" :contexto="contexto" :hoy="hoy" :lang="lang" />
+        <DatosCielo :grupos="grupos" :contexto="contexto" :hoy="hoy" :lang="lang" @fecha="irAFecha" />
 
         <!-- 1 · Hoy -->
         <section class="dt-sec" aria-labelledby="h-hoy">
@@ -230,8 +239,8 @@ const n = (v: number) => numCaso(v, lang.value)
           <DatosLineaTiempo :eventos="eventos" :lineas="lineas" :desde="rango[0]" :hasta="rango[1]" :hoy="hoy" :lang="lang" :cabezal="cabezal" />
 
           <h3 class="dt-h3">{{ L('Analíticas', 'Labs') }}</h3>
-          <p class="dt-nota">{{ L('Mismo eje que la línea de arriba. ▲▼ fuera de rango; 1× es el límite normal. Toca un gráfico y verás esa fecha en todos.',
-                                  'Same axis as the timeline above. ▲▼ out of range; 1× is the upper limit of normal. Tap a chart to see that date on all of them.') }}</p>
+          <p class="dt-nota">{{ L('Mismo eje que la línea de arriba. ▲▼ fuera de rango; ◆ marcado en el informe sin salirse del rango; 1× es el límite normal. Toca un gráfico y verás esa fecha en todos.',
+                                  'Same axis as the timeline above. ▲▼ out of range; ◆ flagged on the report without leaving the range; 1× is the upper limit of normal. Tap a chart to see that date on all of them.') }}</p>
           <div class="dt-pestanas" role="group" :aria-label="L('Grupo de pruebas', 'Test group')">
             <button v-for="p in PESTANAS" :key="p.k" type="button" class="dt-pestana" :aria-pressed="pestana === p.k" aria-controls="dt-minis" @click="pestana = p.k">{{ L(p.es, p.en) }}</button>
           </div>

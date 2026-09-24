@@ -20,7 +20,7 @@ const g = computed(() => {
   const X = (v: number) => rc(4 + ((v - d0) / (d1 - d0)) * (W - 8))
   return { a: X(lo), b: X(hi), x: X(props.p.v) }
 })
-const palabra = computed(() => (props.p.fuera === 'alto' ? L('por encima', 'above') : props.p.fuera === 'bajo' ? L('por debajo', 'below') : props.p.fuera ? L('fuera', 'outside') : L('dentro', 'within')))
+const palabra = computed(() => (props.p.fuera === 'alto' ? L('por encima', 'above') : props.p.fuera === 'bajo' ? L('por debajo', 'below') : props.p.fuera ? L('marcado en el informe', 'flagged on report') : L('dentro', 'within')))
 </script>
 
 <template>
@@ -28,9 +28,9 @@ const palabra = computed(() => (props.p.fuera === 'alto' ? L('por encima', 'abov
     <svg :viewBox="`0 0 ${W} 14`" :width="W" height="14" aria-hidden="true">
       <rect x="4" y="5" :width="W - 8" height="4" rx="2" class="rb__pista" />
       <rect :x="g.a" y="3" :width="Math.max(2, g.b - g.a)" height="8" rx="2" class="rb__rango" />
-      <path :d="`M${g.x},1 l4,6 l-4,6 l-4,-6 Z`" :class="p.fuera ? 'rb__v rb__v--fuera' : 'rb__v'" />
+      <path :d="`M${g.x},1 l4,6 l-4,6 l-4,-6 Z`" :class="p.fuera === 'alto' || p.fuera === 'bajo' ? 'rb__v rb__v--fuera' : 'rb__v'" />
     </svg>
-    <span class="rb__txt" :class="{ 'rb__txt--fuera': p.fuera }">{{ palabra }}</span>
+    <span class="rb__txt" :class="{ 'rb__txt--fuera': p.fuera === 'alto' || p.fuera === 'bajo' }">{{ palabra }}</span>
   </span>
 </template>
 
