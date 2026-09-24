@@ -109,10 +109,20 @@ const pausado = ref(false)
 let raf = 0
 let t0 = 0
 let acumulado = 0 // ms de reproducción ya consumidos antes de la última pausa
+/* sonido (opcional): cada valor de CA 15-3 y cada progresión por los que pasa el cabezal */
+const sonido = useSonido()
+const puntosCa = computed(() => (ca?.puntos ?? []).map((p) => ({ t: msFecha(p.f), r: xlsn(p), fuera: !!p.fuera })))
+function sonar(de: number, a: number) {
+  if (!sonido.activo.value || a <= de) return
+  for (const p of puntosCa.value) if (p.t > de && p.t <= a && p.r != null) sonido.valor(p.r, p.fuera)
+  for (const t of contexto.progresiones) if (t > de && t <= a) sonido.progresion()
+}
 function paso(ahora: number) {
   if (pausado.value) return
   const frac = Math.min(1, Math.max(0, (acumulado + ahora - t0) / DURACION))
+  const antes = cabezal.value ?? rango.value[0]
   cabezal.value = rango.value[0] + (hoyMs - rango.value[0]) * frac
+  sonar(antes, cabezal.value)
   if (frac < 1) raf = requestAnimationFrame(paso)
   else setTimeout(() => { if (!pausado.value) cabezal.value = null }, 2500)
 }
@@ -195,7 +205,12 @@ const n = (v: number) => numCaso(v, lang.value)
               <Icon :name="reproduciendo ? 'ph:pause-fill' : 'ph:play-fill'" class="w-4 h-4" aria-hidden="true" />
               {{ reproduciendo ? L('Pausa', 'Pause') : cabezal != null ? L('Seguir', 'Resume') : L('Reproducir la evolución', 'Play the course') }}
             </button>
+            <button type="button" class="dt-sonido" :aria-pressed="sonido.activo.value" @click="sonido.alternar()">
+              <Icon :name="sonido.activo.value ? 'ph:speaker-high-fill' : 'ph:speaker-slash'" class="w-4 h-4" aria-hidden="true" />
+              {{ sonido.activo.value ? L('Con sonido', 'Sound on') : L('Escuchar el CA 15-3', 'Hear CA 15-3') }}
+            </button>
           </div>
+          <p v-if="sonido.activo.value" class="dt-nota">{{ L('Al reproducir, cada valor de CA 15-3 suena: más agudo cuantas más veces supera el límite normal; timbre más brillante si está fuera de rango; golpe grave en cada progresión.', 'While playing, each CA 15-3 value sounds: higher the more times it exceeds the upper limit; brighter timbre when out of range; a low thud at each progression.') }}</p>
           <p v-if="cabezal != null" class="dt-reloj nums" aria-live="off">{{ fechaCorta(new Date(cabezal).toISOString().slice(0, 10), lang) }}</p>
           <DatosLineaTiempo :eventos="eventos" :lineas="lineas" :desde="rango[0]" :hasta="rango[1]" :hoy="hoy" :lang="lang" :cabezal="cabezal" />
 
@@ -328,6 +343,10 @@ const n = (v: number) => numCaso(v, lang.value)
 .dt-vistas { display: inline-flex; gap: 4px; padding: 3px; border-radius: 999px; background: rgb(var(--color-text-rgb) / 0.05); }
 .dt-play { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 16px; border-radius: 999px;
   background: var(--color-miriam); color: #fff; font: 700 14px var(--font-body); }
+.dt-sonido { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 14px; border-radius: 999px;
+  border: 1px solid rgb(var(--color-text-rgb) / 0.2); color: var(--color-text); font: 600 13.5px var(--font-body); }
+.dt-sonido[aria-pressed='true'] { background: var(--color-miriam-soft); border-color: var(--color-miriam); }
+.dt-sonido:focus-visible { outline: 2px solid var(--color-miriam); outline-offset: 2px; }
 .dt-play:focus-visible { outline: 2px solid var(--color-text); outline-offset: 2px; }
 .dt-reloj { font: var(--tipo-cifra); font-size: clamp(28px, 8vw, 44px); letter-spacing: var(--track-cifra); color: var(--color-miriam); margin: 0 0 4px; }
 .dt-vista { font: 600 13px/1 var(--font-body); padding: 0 12px; min-height: 44px; border-radius: 999px; color: var(--color-text-soft); }

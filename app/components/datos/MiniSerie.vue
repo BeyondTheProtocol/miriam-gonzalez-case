@@ -110,6 +110,7 @@ const valorTxt = (p: Punto) => {
         <span class="ms__fecha">{{ fechaCorta(mostrado.f, lang) }}</span>
       </p>
       <p v-else-if="cursor" class="ms__valor ms__fecha">{{ L('sin dato ese día', 'no value that day') }}</p>
+      <DatosRangoBarra v-if="mostrado" :p="mostrado" :lang="lang" />
     </header>
     <div ref="caja">
       <svg :viewBox="`0 0 ${W} ${H}`" :width="W" :height="H" class="ms__svg" role="img"
