@@ -166,8 +166,26 @@ function irAFecha(iso: string) {
   const t = msFecha(iso)
   if (t < rangoVentana('anio', hoyMs)[0]) ventana.value = t < rangoVentana('dx', hoyMs)[0] ? 'todo' : 'dx'
   cursor.value = iso
-  nextTick(() => document.getElementById('h-evo')?.scrollIntoView({ behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'start' }))
+  nextTick(() => document.getElementById('s-evo')?.scrollIntoView({ behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'start' }))
 }
+
+/* barra de secciones: la activa es la última cuyo inicio ya pasó bajo la cabecera */
+const SECCIONES: [string, string, string][] = [['s-hoy', 'Hoy', 'Today'], ['s-dias', 'Días', 'Days'], ['s-evo', 'Evolución', 'Course'],
+  ['s-higado', 'Hígado', 'Liver'], ['s-tejido', 'Tejido y reservorio', 'Tissue & port']]
+const activa = ref('s-hoy')
+let chipActivo: HTMLElement | null = null
+let ioSec: IntersectionObserver | null = null
+onMounted(() => {
+  const vistos = new Map<string, boolean>()
+  ioSec = new IntersectionObserver((es) => {
+    for (const e of es) vistos.set(e.target.id, e.isIntersecting)
+    const primera = SECCIONES.find(([id]) => vistos.get(id))
+    if (primera) activa.value = primera[0]
+  }, { rootMargin: '-120px 0px -55% 0px' })
+  for (const [id] of SECCIONES) { const el = document.getElementById(id); if (el) ioSec.observe(el) }
+})
+watch(activa, () => nextTick(() => chipActivo?.scrollIntoView({ block: 'nearest', inline: 'center', behavior: 'smooth' })))
+onBeforeUnmount(() => ioSec?.disconnect())
 
 const hayReservorio = computed(() => useRouter().getRoutes().some((r) => r.path === '/reservorio'))
 const n = (v: number) => numCaso(v, lang.value)
@@ -195,31 +213,45 @@ const n = (v: number) => numCaso(v, lang.value)
         <!-- 0 · el caso en píxeles: impresión visual primero (Miriam, 24-sep) -->
         <DatosCielo :grupos="grupos" :contexto="contexto" :hoy="hoy" :lang="lang" @fecha="irAFecha" />
 
+        <!-- barra de secciones fija con la sección activa (scroll-spy): en el móvil, saltar sin perderse -->
+        <nav class="dt-barra" :aria-label="L('Secciones', 'Sections')">
+          <a v-for="[id, es, en] in SECCIONES" :key="id" :href="`#${id}`" class="dt-chip" :aria-current="activa === id ? 'true' : undefined"
+             :ref="(el) => { if (el && activa === id) chipActivo = el as HTMLElement }">{{ L(es, en) }}</a>
+        </nav>
+
         <!-- 1 · Hoy -->
-        <section class="dt-sec" aria-labelledby="h-hoy">
+        <section id="s-hoy" class="dt-sec" aria-labelledby="h-hoy">
           <h2 id="h-hoy" class="dt-h2">{{ L('Hoy', 'Today') }}</h2>
           <div class="dt-cifras">
+            <a href="#s-evo" class="dt-cifra-link" :aria-label="L('Ver la línea de tiempo de tratamientos', 'See the treatment timeline')">
             <DatosCifraClave :etiqueta="L('Tratamiento', 'Treatment')" :valor="cifraTrat.valor" :detalle="cifraTrat.detalle"
                              :fecha="cifraTrat.fecha" :sello="cifraTrat.sello" :franja="franja90" :lang="lang" />
-            <DatosCifraClave v-if="pCa" etiqueta="CA 15-3" :valor="n(pCa.v)" :unidad="ca!.unidad" :fuera="pCa.fuera"
+            </a>
+            <a v-if="pCa" href="#s-evo" class="dt-cifra-link" @click="pestana = 'marcadores'">
+            <DatosCifraClave etiqueta="CA 15-3" :valor="n(pCa.v)" :unidad="ca!.unidad" :fuera="pCa.fuera"
                              :detalle="xlsn(pCa) ? L(`${r1(xlsn(pCa)!)} veces el límite normal`, `${r1(xlsn(pCa)!)} times the upper limit`) : ''"
                              :fecha="fechaCorta(pCa.f, lang)" sello="extraido" :serie="serie12(ca)" :lang="lang" />
-            <DatosCifraClave v-if="pHb" :etiqueta="L('Hemoglobina', 'Hemoglobin')" :valor="n(pHb.v)" :unidad="hb!.unidad" :fuera="pHb.fuera"
+            </a>
+            <a v-if="pHb" href="#s-evo" class="dt-cifra-link" @click="pestana = 'sangre'">
+            <DatosCifraClave :etiqueta="L('Hemoglobina', 'Hemoglobin')" :valor="n(pHb.v)" :unidad="hb!.unidad" :fuera="pHb.fuera"
                              :fecha="fechaCorta(pHb.f, lang)" sello="extraido" :serie="serie12(hb)" :lang="lang" />
-            <DatosCifraClave v-if="pAst" :etiqueta="L('Hígado (AST)', 'Liver (AST)')" :valor="`${r1(xlsn(pAst) ?? 0)}×`" :unidad="L('límite normal', 'upper limit')"
+            </a>
+            <a v-if="pAst" href="#s-evo" class="dt-cifra-link" @click="pestana = 'higado'">
+            <DatosCifraClave :etiqueta="L('Hígado (AST)', 'Liver (AST)')" :valor="`${r1(xlsn(pAst) ?? 0)}×`" :unidad="L('límite normal', 'upper limit')"
                              :fuera="pAst.fuera" :detalle="`AST ${n(pAst.v)} · ALT ${pAlt ? n(pAlt.v) : '—'} U/L`"
                              :fecha="fechaCorta(pAst.f, lang)" sello="extraido" :serie="serie12(ast, true)" :lang="lang" />
+            </a>
           </div>
         </section>
 
         <!-- 1b · un cuadrado por día desde el diagnóstico -->
-        <section v-if="fechaDx" class="dt-sec" aria-labelledby="h-dias">
+        <section v-if="fechaDx" id="s-dias" class="dt-sec" aria-labelledby="h-dias">
           <h2 id="h-dias" class="dt-h2">{{ L('Cada día desde el diagnóstico', 'Every day since diagnosis') }}</h2>
           <DatosDias :lineas="lineas" :eventos="eventos" :diagnostico="fechaDx" :hoy="hoy" :lang="lang" />
         </section>
 
         <!-- 2-3 · Evolución: línea de tiempo + analíticas con la misma ventana -->
-        <section class="dt-sec" aria-labelledby="h-evo">
+        <section id="s-evo" class="dt-sec" aria-labelledby="h-evo">
           <h2 id="h-evo" class="dt-h2">{{ L('Evolución', 'Clinical course') }}</h2>
           <div class="dt-controles">
             <div class="dt-vistas" role="group" :aria-label="L('Ventana de tiempo', 'Time window')">
@@ -267,7 +299,7 @@ const n = (v: number) => numCaso(v, lang.value)
         </section>
 
         <!-- 4 · Carga tumoral -->
-        <section v-if="(em.recist ?? []).length" class="dt-sec" aria-labelledby="h-carga">
+        <section v-if="(em.recist ?? []).length" id="s-higado" class="dt-sec" aria-labelledby="h-carga">
           <h2 id="h-carga" class="dt-h2">{{ L('Enfermedad en el hígado', 'Disease in the liver') }}</h2>
           <DatosCargaTumoral :recist="em.recist" :volumen="em.volumen ?? []" :lang="lang" />
           <p class="dt-pie">{{ L('RECIST: informe del radiólogo', 'RECIST: radiologist’s report') }} <DatosSello :s="em.recist[0].sello" :lang="lang" /> · {{ L('Volumen: modelo de segmentación sobre los mismos TC, sin validar por radiología.', 'Volume: segmentation model on the same CT scans, not validated by radiology.') }}</p>
@@ -294,7 +326,7 @@ const n = (v: number) => numCaso(v, lang.value)
         </section>
 
         <!-- 5 · Tejido y reservorio -->
-        <section class="dt-sec" aria-labelledby="h-tejido">
+        <section id="s-tejido" class="dt-sec" aria-labelledby="h-tejido">
           <h2 id="h-tejido" class="dt-h2">{{ L('Tejido, muestras y reservorio', 'Tissue, samples and port') }}</h2>
           <div class="dt-tarjetas">
             <article v-for="(m, i) in material.slice(0, 3)" :key="i" class="dt-tarjeta">
@@ -375,7 +407,21 @@ const n = (v: number) => numCaso(v, lang.value)
     background: var(--color-miriam); transform-origin: 0 50%; animation: dt-avanza linear both; animation-timeline: scroll(root); }
   @keyframes dt-avanza { from { transform: scaleX(0); } to { transform: scaleX(1); } }
 }
-.dt-sec { padding-top: 32px; }
+.dt-barra { position: sticky; top: 64px; z-index: 40; display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none;
+  margin: 16px -16px 0; padding: 8px 16px; background: rgb(var(--color-bg-rgb) / 0.92); backdrop-filter: saturate(1.4) blur(8px);
+  border-bottom: 1px solid rgb(var(--color-text-rgb) / 0.08); }
+.dt-barra::-webkit-scrollbar { display: none; }
+@media (min-width: 640px) { .dt-barra { top: 72px; margin: 16px 0 0; padding: 8px 0; } }
+.dt-chip { flex: none; display: inline-flex; align-items: center; min-height: 36px; padding: 0 14px; border-radius: 999px; white-space: nowrap;
+  font: 600 13px var(--font-body); color: var(--color-text-soft); border: 1px solid rgb(var(--color-text-rgb) / 0.12);
+  transition: background var(--dur-micro), color var(--dur-micro), border-color var(--dur-micro); }
+.dt-chip[aria-current='true'] { background: var(--color-text); color: var(--color-bg); border-color: var(--color-text); }
+.dt-chip:focus-visible { outline: 2px solid var(--color-miriam); outline-offset: 2px; }
+.dt-cifra-link { display: block; border-radius: 14px; color: inherit; text-decoration: none; transition: transform var(--dur-micro) var(--curva-salida); }
+.dt-cifra-link:active { transform: scale(0.98); }
+.dt-cifra-link:focus-visible { outline: 2px solid var(--color-miriam); outline-offset: 3px; }
+.dt-cifra-link > * { height: 100%; }
+.dt-sec { padding-top: 32px; scroll-margin-top: 124px; }
 /* Entrada al hacer scroll con CSS nativo (animation-timeline: view(); WebKit, jun-2025). Mejora
    progresiva: sin soporte o con «movimiento reducido», la sección simplemente está. */
 @supports (animation-timeline: view()) {
