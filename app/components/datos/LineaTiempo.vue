@@ -9,7 +9,7 @@
 import type { Evento, Forma, Lang, Texto } from '~/utils/datosCaso'
 
 interface Linea { id: string; tratamiento: Texto; inicio: string; fin: string | null; motivo_fin?: Texto | null }
-const props = defineProps<{ eventos: Evento[]; lineas: Linea[]; desde: number; hasta: number; hoy: string; lang: Lang }>()
+const props = defineProps<{ eventos: Evento[]; lineas: Linea[]; desde: number; hasta: number; hoy: string; lang: Lang; cabezal?: number | null }>()
 const L = (es: string, en: string) => (props.lang === 'en' ? en : es)
 
 const caja = ref<HTMLElement | null>(null)
@@ -45,8 +45,8 @@ const lineas = computed(() => props.lineas.map((l) => {
   if (!ini) return null
   const fin = l.fin ? rangoParcial(l.fin) : null
   const a = Math.max(ini[0], props.desde)
-  const b = Math.min(fin ? fin[1] + DIA_MS : props.hasta, props.hasta)
-  if (b <= props.desde || a >= props.hasta) return null
+  const b = Math.min(fin ? fin[1] + DIA_MS : props.hasta, props.hasta, props.cabezal ?? Infinity)
+  if (b <= props.desde || a >= props.hasta || b <= a) return null
   return { ...l, rt, x: X(a), w: Math.max(3, X(b) - X(a)), futura: ini[0] > hoyMs.value, abierta: !fin }
 }).filter((l): l is NonNullable<typeof l> => !!l))
 
@@ -56,7 +56,7 @@ const clave = (e: Evento) => e.dibujar && (e.clase === 'diagnostico' || e.clase 
 const eventos = computed(() => {
   const filas: number[] = []
   return props.eventos.filter(clave)
-    .filter((e) => msFecha(e.hasta) >= props.desde && msFecha(e.desde) <= props.hasta)
+    .filter((e) => msFecha(e.hasta) >= props.desde && msFecha(e.desde) <= Math.min(props.hasta, props.cabezal ?? Infinity))
     .sort((a, b) => a.desde.localeCompare(b.desde))
     .map((e) => {
       const puntual = e.precision === 'dia' && e.desde === e.hasta
@@ -70,7 +70,9 @@ const eventos = computed(() => {
     })
 })
 const sel = ref<string | null>(null)
-const elegido = computed(() => eventos.value.find((e) => e.id === sel.value) ?? null)
+// en reproducción, el pie cuenta el último evento por el que ha pasado el cabezal
+const elegido = computed(() => (props.cabezal != null ? eventos.value[eventos.value.length - 1] ?? null
+  : eventos.value.find((e) => e.id === sel.value) ?? null))
 </script>
 
 <template>
@@ -88,6 +90,7 @@ const elegido = computed(() => eventos.value.find((e) => e.id === sel.value) ?? 
         <text v-if="!l.rt && l.w > 22" :x="l.x + 5" :y="Y_LIN + 14" class="lt__linea-txt">{{ l.id }}</text>
       </g>
       <line :x1="X(hoyMs)" :x2="X(hoyMs)" :y1="Y_EJE + 3" :y2="H" class="lt__hoy" />
+      <line v-if="cabezal != null" :x1="X(cabezal)" :x2="X(cabezal)" :y1="0" :y2="H" class="lt__cabezal" />
       <g v-for="e in eventos" :key="e.id" class="lt__ev" tabindex="0" role="button"
          :aria-label="`${e.fecha_texto}: ${txtCaso(e.titulo, lang)}`" :aria-pressed="sel === e.id"
          @click="sel = sel === e.id ? null : e.id" @keydown.enter.prevent="sel = e.id" @keydown.space.prevent="sel = e.id">
@@ -105,7 +108,7 @@ const elegido = computed(() => eventos.value.find((e) => e.id === sel.value) ?? 
       <span><svg width="14" height="12" aria-hidden="true"><path :d="pathForma('estrella', 7, 6, 4.5)" class="lt__glifo lt__glifo--fuerte" /></svg>{{ L('diagnóstico', 'diagnosis') }}</span>
       <span><svg width="14" height="12" aria-hidden="true"><path :d="pathForma('triangulo', 7, 6, 4.5)" class="lt__glifo lt__glifo--fuerte" /></svg>{{ L('progresión', 'progression') }}</span>
       <span><svg width="14" height="12" aria-hidden="true"><path :d="pathForma('rombo', 7, 6, 4.5)" class="lt__glifo" /></svg>{{ L('biopsia', 'biopsy') }}</span>
-      <span><svg width="14" height="12" aria-hidden="true"><path :d="pathForma('aspa', 7, 6, 4)" class="lt__glifo" /></svg>{{ L('ingreso', 'admission') }}</span>
+      <span><svg width="14" height="12" aria-hidden="true"><path :d="pathForma('aspa', 7, 6, 4)" class="lt__glifo" /></svg>{{ L('ingreso', 'hospitalization') }}</span>
       <span><svg width="18" height="12" aria-hidden="true"><rect x="0" y="2" width="18" height="8" rx="2" class="lt__linea" /></svg>{{ L('línea de tratamiento', 'treatment line') }}</span>
       <span><svg width="18" height="12" aria-hidden="true"><rect x="0" y="4" width="18" height="5" rx="2" class="lt__linea lt__linea--rt" /></svg>{{ L('radioterapia', 'radiotherapy') }}</span>
     </p>
@@ -124,12 +127,16 @@ const elegido = computed(() => eventos.value.find((e) => e.id === sel.value) ?? 
 .lt__linea--futura { fill: none; stroke-dasharray: 4 3; stroke-opacity: 0.8; }
 .lt__linea-txt { font: 700 11px var(--font-mono); fill: var(--color-text); pointer-events: none; }
 .lt__hoy { stroke: var(--color-miriam); stroke-width: 1.5; }
+.lt__cabezal { stroke: var(--color-miriam); stroke-width: 2.5; }
 .lt__ev { cursor: pointer; outline: none; }
 .lt__ev:focus-visible .lt__glifo { stroke: var(--color-miriam); stroke-width: 2.5; }
 .lt__franja { fill: var(--color-text); fill-opacity: 0.18; }
 .lt__glifo { fill: var(--color-bg); stroke: var(--color-text); stroke-width: 1.4; }
 .lt__glifo--fuerte { fill: var(--color-text); }
 .lt__glifo--sel { fill: var(--color-miriam); stroke: var(--color-miriam); }
+.lt__ev { animation: lt-pop 320ms var(--curva-salida) both; transform-box: fill-box; transform-origin: center; }
+@keyframes lt-pop { from { opacity: 0; transform: scale(0.3); } to { opacity: 1; transform: scale(1); } }
+@media (prefers-reduced-motion: reduce) { .lt__ev { animation: none; } }
 .lt__pie { font: 400 14px/1.4 var(--font-body); color: var(--color-text); margin: 6px 0 0; min-height: 2.8em; }
 .lt__ley { display: flex; flex-wrap: wrap; gap: 4px 12px; font: 400 12px var(--font-body); color: var(--color-text-soft); margin: 4px 0 0; }
 .lt__ley span { display: inline-flex; align-items: center; gap: 4px; }

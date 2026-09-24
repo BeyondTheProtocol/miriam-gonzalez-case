@@ -21,6 +21,8 @@ const props = defineProps<{
   hasta: number
   contexto: Contexto
   cursor: string | null
+  /** Reproducción: solo se dibuja lo ocurrido hasta este instante (ms), y se marca con una raya. */
+  cabezal?: number | null
   lang: Lang
 }>()
 const emit = defineEmits<{ cursor: [f: string | null] }>()
@@ -33,12 +35,15 @@ const X0 = 34
 const Y0 = 8
 const Y1 = H - 16
 
-const vis = computed(() => props.a.puntos.filter((p) => { const t = msFecha(p.f); return t >= props.desde && t <= props.hasta }))
+const tope = computed(() => props.cabezal ?? props.hasta)
+const vis = computed(() => props.a.puntos.filter((p) => { const t = msFecha(p.f); return t >= props.desde && t <= Math.min(props.hasta, tope.value) }))
 const val = (p: Punto) => (props.modo === 'lsn' ? xlsn(p) : p.v)
 
 const geo = computed(() => {
   const X = linEscala(props.desde, props.hasta, X0, W.value - 6)
-  const vs = vis.value.map(val).filter((v): v is number => v != null)
+  // la escala se fija con toda la ventana (no con lo ya reproducido): así el eje no baila
+  const vs = props.a.puntos.filter((p) => { const t = msFecha(p.f); return t >= props.desde && t <= props.hasta })
+    .map(val).filter((v): v is number => v != null)
   let Y: (v: number) => number
   let ticks: { v: number; y: number; txt: string }[]
   let banda: { y0: number; y1: number } | null = null
@@ -75,7 +80,7 @@ const pocos = computed(() => geo.value.pts.length <= 24)
 const ultimo = computed(() => vis.value[vis.value.length - 1])
 const enCursor = computed(() => (props.cursor ? vis.value.find((p) => p.f === props.cursor) ?? null : null))
 const mostrado = computed(() => enCursor.value ?? ultimo.value)
-const cursorX = computed(() => (props.cursor ? geo.value.X(msFecha(props.cursor)) : null))
+const cursorX = computed(() => (props.cabezal != null ? geo.value.X(props.cabezal) : props.cursor ? geo.value.X(msFecha(props.cursor)) : null))
 const nFuera = computed(() => vis.value.filter((p) => p.fuera).length)
 
 function tocar(ev: PointerEvent) {
@@ -131,7 +136,7 @@ const valorTxt = (p: Punto) => {
     <details class="ms__det">
       <summary>{{ L(`Los ${vis.length} valores`, `All ${vis.length} values`) }}<span v-if="nFuera"> · {{ nFuera }} {{ L('fuera de rango', 'out of range') }}</span></summary>
       <table class="ms__tabla nums">
-        <thead><tr><th>{{ L('Fecha', 'Date') }}</th><th>{{ L('Valor', 'Value') }}</th><th>{{ L('Rango del informe', 'Report range') }}</th></tr></thead>
+        <thead><tr><th>{{ L('Fecha', 'Date') }}</th><th>{{ L('Valor', 'Value') }}</th><th>{{ L('Rango del informe', 'Reference range') }}</th></tr></thead>
         <tbody>
           <tr v-for="p in [...vis].reverse()" :key="p.f">
             <td>{{ p.f }}</td>

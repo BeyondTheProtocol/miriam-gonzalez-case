@@ -53,7 +53,7 @@ const corto = (v: Texto) => T(v).split(' (')[0]
 const cifraTrat = computed(() => {
   if (actual) return { valor: actual.id, detalle: corto(actual.tratamiento), fecha: L(`desde ${fechaCorta(actual.inicio, 'es')}`, `since ${fechaCorta(actual.inicio, 'en')}`), sello: actual.sello }
   const detalle = proxima ? L(`Próximo: ${corto(proxima.tratamiento)}, previsto el ${fechaCorta(proxima.inicio, 'es')}`, `Next: ${corto(proxima.tratamiento)}, planned for ${fechaCorta(proxima.inicio, 'en')}`) : ''
-  return { valor: L('Sin tratamiento', 'No treatment'), detalle,
+  return { valor: L('Sin tratamiento', 'Off treatment'), detalle,
     fecha: ultimaTerminada ? L(`desde ${fechaCorta(ultimaTerminada.fin, 'es')}`, `since ${fechaCorta(ultimaTerminada.fin, 'en')}`) : '',
     sello: proxima?.sello ?? ultimaTerminada?.sello }
 })
@@ -93,6 +93,36 @@ const pestana = ref('marcadores')
 const minis = computed(() => (PESTANAS.find((p) => p.k === pestana.value)?.minis ?? [])
   .map(([k, modo, es, en]) => ({ a: an(k), modo, nombre: L(es, en) })).filter((m) => m.a))
 const VENTANAS: [Ventana, string, string][] = [['anio', 'Último año', 'Last year'], ['dx', 'Desde el diagnóstico', 'Since diagnosis'], ['todo', 'Todo', 'All']]
+
+/* ── reproducir la evolución: un cabezal recorre del diagnóstico a hoy y todo se dibuja a su paso ── */
+const DURACION = 16000 // ms para ~2 años y medio: lo bastante lento para leer cada evento
+const cabezal = ref<number | null>(null)
+const pausado = ref(false)
+let raf = 0
+let t0 = 0
+let acumulado = 0 // ms de reproducción ya consumidos antes de la última pausa
+function paso(ahora: number) {
+  if (pausado.value) return
+  const frac = Math.min(1, (acumulado + ahora - t0) / DURACION)
+  cabezal.value = rango.value[0] + (hoyMs - rango.value[0]) * frac
+  if (frac < 1) raf = requestAnimationFrame(paso)
+  else setTimeout(() => { if (!pausado.value) cabezal.value = null }, 2500)
+}
+function reproducir() {
+  if (cabezal.value != null && !pausado.value) { // pausa
+    pausado.value = true
+    acumulado += performance.now() - t0
+    cancelAnimationFrame(raf)
+    return
+  }
+  if (cabezal.value == null) { ventana.value = 'dx'; cursor.value = null; acumulado = 0 } // desde el principio
+  pausado.value = false
+  t0 = performance.now()
+  raf = requestAnimationFrame(paso)
+}
+function parar() { cancelAnimationFrame(raf); pausado.value = false; acumulado = 0; cabezal.value = null }
+onBeforeUnmount(() => cancelAnimationFrame(raf))
+const reproduciendo = computed(() => cabezal.value != null && !pausado.value)
 
 const hayReservorio = computed(() => useRouter().getRoutes().some((r) => r.path === '/reservorio'))
 const n = (v: number) => numCaso(v, lang.value)
@@ -135,22 +165,29 @@ const n = (v: number) => numCaso(v, lang.value)
 
         <!-- 2-3 · Evolución: línea de tiempo + analíticas con la misma ventana -->
         <section class="dt-sec" aria-labelledby="h-evo">
-          <h2 id="h-evo" class="dt-h2">{{ L('Evolución', 'Course') }}</h2>
-          <div class="dt-vistas" role="group" :aria-label="L('Ventana de tiempo', 'Time window')">
-            <button v-for="[k, es, en] in VENTANAS" :key="k" type="button" class="dt-vista" :aria-pressed="ventana === k" @click="ventana = k">{{ L(es, en) }}</button>
+          <h2 id="h-evo" class="dt-h2">{{ L('Evolución', 'Clinical course') }}</h2>
+          <div class="dt-controles">
+            <div class="dt-vistas" role="group" :aria-label="L('Ventana de tiempo', 'Time window')">
+              <button v-for="[k, es, en] in VENTANAS" :key="k" type="button" class="dt-vista" :aria-pressed="ventana === k" @click="parar(); ventana = k">{{ L(es, en) }}</button>
+            </div>
+            <button type="button" class="dt-play" :aria-pressed="reproduciendo" @click="reproducir">
+              <Icon :name="reproduciendo ? 'ph:pause-fill' : 'ph:play-fill'" class="w-4 h-4" aria-hidden="true" />
+              {{ reproduciendo ? L('Pausa', 'Pause') : cabezal != null ? L('Seguir', 'Resume') : L('Reproducir la evolución', 'Play the course') }}
+            </button>
           </div>
-          <DatosLineaTiempo :eventos="eventos" :lineas="lineas" :desde="rango[0]" :hasta="rango[1]" :hoy="hoy" :lang="lang" />
+          <p v-if="cabezal != null" class="dt-reloj nums" aria-live="off">{{ fechaCorta(new Date(cabezal).toISOString().slice(0, 10), lang) }}</p>
+          <DatosLineaTiempo :eventos="eventos" :lineas="lineas" :desde="rango[0]" :hasta="rango[1]" :hoy="hoy" :lang="lang" :cabezal="cabezal" />
 
           <h3 class="dt-h3">{{ L('Analíticas', 'Labs') }}</h3>
-          <p class="dt-nota">{{ L('Mismo eje de tiempo que la línea de arriba. Las rayas son progresiones y el fondo violeta, las líneas de tratamiento. ▲▼ = fuera del rango de su informe. En el hígado y los marcadores, en veces el límite superior normal (1× es el límite). Toca un gráfico para leer esa fecha en todos.',
-                                  'Same time axis as the timeline above. Dashed lines are progressions and the violet background, treatment lines. ▲▼ = outside the range on that report. Liver and markers are in multiples of the upper limit of normal (1× is the limit). Tap a chart to read that date across all of them.') }}</p>
+          <p class="dt-nota">{{ L('Mismo eje de tiempo que la línea de arriba. Rayas: progresiones. Fondo violeta: líneas de tratamiento. ▲▼: fuera del rango de su informe. Hígado y marcadores van en veces el límite normal (1× es el límite). Toca un gráfico y verás esa fecha en todos.',
+                                  'Same time axis as the timeline above. Dashed lines: progressions. Violet background: treatment lines. ▲▼: outside that report’s reference range. Liver and markers are in multiples of the upper limit of normal (1× is the limit). Tap a chart to see that date on all of them.') }}</p>
           <div class="dt-pestanas" role="tablist" :aria-label="L('Grupo de pruebas', 'Test group')">
             <button v-for="p in PESTANAS" :key="p.k" type="button" role="tab" class="dt-pestana" :aria-selected="pestana === p.k" @click="pestana = p.k">{{ L(p.es, p.en) }}</button>
           </div>
           <div class="dt-minis" role="tabpanel">
             <DatosMiniSerie v-for="m in minis" :key="m.a!.key" :a="m.a!" :nombre="m.nombre" :modo="m.modo"
-                            :desde="rango[0]" :hasta="rango[1]" :contexto="contexto" :cursor="cursor" :lang="lang"
-                            @cursor="cursor = $event" />
+                            :desde="rango[0]" :hasta="rango[1]" :contexto="contexto" :cursor="cursor" :cabezal="cabezal" :lang="lang"
+                            @cursor="parar(); cursor = $event" />
           </div>
           <p class="dt-pie">{{ T(c.analiticas.fuente) }} <DatosSello :s="c.analiticas.sello" :lang="lang" /></p>
         </section>
@@ -196,8 +233,8 @@ const n = (v: number) => numCaso(v, lang.value)
               <p class="dt-tarjeta__pie"><span class="nums">{{ m.fecha }}</span> <DatosSello :s="m.sello" :lang="lang" /></p>
             </article>
             <article v-if="reservorio.length" class="dt-tarjeta dt-tarjeta--ancha">
-              <p class="dt-tarjeta__t">{{ L('Reservorio venoso: el catéter mide lo mismo en los tres TC', 'Venous port: the catheter measures the same on all three CT scans') }}</p>
-              <p class="dt-tarjeta__l">{{ L('Dejó de dar retorno de sangre. Longitud del catéter, del portal a la punta, medida en tres TC:', 'It stopped giving blood return. Catheter length, from port to tip, measured on three CT scans:') }}</p>
+              <p class="dt-tarjeta__t">{{ L('Reservorio venoso: el catéter mide lo mismo en los tres TC', 'Venous port: the catheter measures the same length on all three CT scans') }}</p>
+              <p class="dt-tarjeta__l">{{ L('El reservorio dejó de dar retorno de sangre. Longitud del catéter, del portal a la punta, en tres TC:', 'The port stopped giving blood return. Catheter length, port to tip, on three CT scans:') }}</p>
               <DatosReservorio :medidas="reservorio" :lang="lang" />
               <p class="dt-pie">{{ fuenteTxt(reservorio[0].fuente) }} <DatosSello :s="reservorio[0].sello" :lang="lang" /></p>
               <NuxtLink v-if="hayReservorio" :to="localePath('/reservorio')" class="dt-boton">{{ L('Verlo en 3D', 'See it in 3D') }} →</NuxtLink>
@@ -229,18 +266,18 @@ const n = (v: number) => numCaso(v, lang.value)
             </dl>
           </details>
           <p class="dt-molecular">
-            {{ L('El perfil molecular (genes, biopsias líquidas y expresión) está en', 'The molecular profile (genes, liquid biopsies and expression) is in') }}
-            <NuxtLink :to="localePath('/ciencia')" class="dt-link">{{ L('La ciencia', 'The science') }}</NuxtLink>.
+            {{ L('El perfil molecular (genes, biopsias líquidas y expresión) lo tienes en', 'You’ll find the molecular profile (genes, liquid biopsies and expression) on') }}
+            <NuxtLink :to="localePath('/ciencia')" class="dt-link">{{ L('La ciencia', 'The science page') }}</NuxtLink>.
           </p>
           <div class="dt-ayuda">
-            <h2 class="dt-h2">{{ L('Cómo puedes ayudar', 'How you can help') }}</h2>
+            <h2 class="dt-h2">{{ L('Cómo ayudar', 'How to help') }}</h2>
             <ul class="dt-lista"><li v-for="(b, i) in seBusca.slice(0, 5)" :key="i">{{ T(b.valor) }}</li></ul>
             <NuxtLink :to="localePath('/contacto')" class="btn-primary mt-4 inline-flex">{{ L('Escríbenos', 'Write to us') }}</NuxtLink>
           </div>
           <details class="dt-det">
             <summary>{{ L('Fuentes y método', 'Sources and method') }}</summary>
-            <p class="dt-nota">{{ L('La página se genera a partir de un perfil revisado a mano sobre los informes de Miriam, de las analíticas leídas de los informes de laboratorio y de la cronología de esta web. Si un dato no tiene fuente, no se publica. Sellos: verificado (cotejado con el informe original), extraído del informe (lectura automática), inferido, lo dice Miriam (sin documento detrás) o sin verificar.',
-                                   'This page is generated from a hand-curated profile built on Miriam’s reports, from lab values read from the lab reports and from this site’s timeline. If something has no source, it isn’t published. Labels: verified (checked against the original report), extracted from report (read automatically), inferred, per Miriam (no document behind it) or unverified.') }}</p>
+            <p class="dt-nota">{{ L('Generamos esta página a partir de un perfil que revisamos a mano sobre los informes de Miriam, de las analíticas leídas de sus informes de laboratorio y de la cronología de esta web. Si un dato no tiene fuente, no lo publicamos. Sellos: verificado (cotejado con el informe original), extraído del informe (lectura automática), inferido, lo dice Miriam (sin documento detrás) o sin verificar.',
+                                   'We build this page from a profile we review by hand against Miriam’s reports, from lab values read off her lab reports and from this site’s timeline. If something has no source, we don’t publish it. Labels: verified (checked against the original report), extracted from report (read automatically), inferred, per Miriam (no document behind it) or unverified.') }}</p>
             <ul class="dt-lista dt-nota"><li v-for="(f, k) in fuentes" :key="k">{{ T(f.publico) }}</li></ul>
           </details>
         </section>
@@ -260,7 +297,12 @@ const n = (v: number) => numCaso(v, lang.value)
 .dt-link { color: var(--color-miriam); text-decoration: underline; text-underline-offset: 2px; }
 .dt-cifras { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
 @media (min-width: 900px) { .dt-cifras { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; } }
-.dt-vistas { display: inline-flex; gap: 4px; padding: 3px; border-radius: 999px; background: rgb(var(--color-text-rgb) / 0.05); margin-bottom: 12px; }
+.dt-controles { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-bottom: 12px; }
+.dt-vistas { display: inline-flex; gap: 4px; padding: 3px; border-radius: 999px; background: rgb(var(--color-text-rgb) / 0.05); }
+.dt-play { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 16px; border-radius: 999px;
+  background: var(--color-miriam); color: #fff; font: 700 14px var(--font-body); }
+.dt-play:focus-visible { outline: 2px solid var(--color-text); outline-offset: 2px; }
+.dt-reloj { font: var(--tipo-cifra); font-size: clamp(28px, 8vw, 44px); letter-spacing: var(--track-cifra); color: var(--color-miriam); margin: 0 0 4px; }
 .dt-vista { font: 600 13px/1 var(--font-body); padding: 0 12px; min-height: 40px; border-radius: 999px; color: var(--color-text-soft); }
 .dt-vista[aria-pressed='true'] { background: var(--color-text); color: var(--color-bg); }
 .dt-pestanas { display: flex; gap: 6px; overflow-x: auto; margin: 4px 0 6px; padding-bottom: 2px; }
