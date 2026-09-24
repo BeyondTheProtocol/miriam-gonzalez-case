@@ -15,6 +15,11 @@ const props = defineProps<{
   serie?: number[]
   /** tira de días (true = en una línea de tratamiento), mismo lenguaje que «Cada día» */
   franja?: boolean[]
+  /** valor anterior para comparar: «antes: 215,4 · 19 ago» */
+  previo?: string
+  /** nota corta con su propio sello (p. ej. la Hb tras la transfusión) */
+  nota?: string
+  notaSello?: string
   lang: 'es' | 'en'
 }>()
 const L = (es: string, en: string) => (props.lang === 'en' ? en : es)
@@ -25,17 +30,9 @@ const H = 30
 /* animación: la cifra cuenta desde 0 y la mini línea se dibuja al entrar en pantalla */
 const raiz = ref<HTMLElement | null>(null)
 const { armado, visto } = useAlVer(raiz)
-const numerico = computed(() => /^[\d.,]+/.test(props.valor))
-const mostrado = ref(props.valor)
-watch(visto, (v) => {
-  if (!v || !numerico.value) return
-  const m = props.valor.match(/^([\d.,]+)(.*)$/)!
-  const txt = m[1]
-  const dec = (txt.split(/[.,]/)[1] ?? '').length
-  const obj = Number(txt.replace(',', '.'))
-  const sep = txt.includes(',') ? ',' : '.'
-  tween(1100, (f) => { mostrado.value = (obj * f).toFixed(dec).replace('.', sep) + m[2] })
-})
+// Sin contador desde 0: pasaría por cifras que nunca existieron (lo avisó la investigación de
+// dashboards). La cifra entra ya con su valor real; lo que se anima es la minilínea.
+const mostrado = computed(() => props.valor)
 const spark = computed(() => {
   const s = props.serie ?? []
   if (s.length < 2) return null
@@ -59,6 +56,8 @@ const spark = computed(() => {
       {{ fuera === 'bajo' ? L('por debajo del rango', 'below range') : fuera === 'alto' ? L('por encima del rango', 'above range') : L('marcado en el informe', 'flagged on report') }}
     </p>
     <p v-if="detalle" class="ck__det">{{ detalle }}</p>
+    <p v-if="previo" class="ck__previo nums">{{ previo }}</p>
+    <p v-if="nota" class="ck__nota">{{ nota }} <DatosSello v-if="notaSello" :s="notaSello" :lang="lang" /></p>
     <svg v-if="franja?.length" :viewBox="`0 0 ${franja.length * 3} 14`" class="ck__franja" preserveAspectRatio="none" aria-hidden="true">
       <rect v-for="(d, i) in franja" :key="i" :x="i * 3" :y="d ? 0 : 5" width="2" :height="d ? 14 : 4" :class="d ? 'ck__on' : 'ck__off'" />
     </svg>
@@ -84,6 +83,8 @@ const spark = computed(() => {
 .ck__pie :deep(.sello) { white-space: normal; }
 .ck__unidad { font: 500 12px var(--font-mono); color: var(--color-text-soft); }
 .ck__fuera { font: 700 12px/1.3 var(--font-body); color: var(--color-miriam); margin: 0; }
+.ck__previo { font: 500 11.5px var(--font-mono); color: var(--color-text-soft); margin: 2px 0 0; }
+.ck__nota { font: 400 11.5px/1.35 var(--font-body); color: var(--color-text); margin: 4px 0 0; }
 .ck__det { font: 400 12.5px/1.35 var(--font-body); color: var(--color-text); margin: 2px 0 0; }
 .ck__spark { width: 100%; max-width: 160px; height: auto; margin-top: 6px; }
 .ck__franja { width: 100%; max-width: 160px; height: 22px; margin-top: 8px; }
@@ -96,6 +97,8 @@ const spark = computed(() => {
 .ck--armado:not(.ck--visto) .ck__ultimo { transform: scale(0); }
 .ck--visto .ck__linea { stroke-dasharray: 1; animation: ck-trazo 1.1s var(--curva-salida) both; }
 .ck--visto .ck__ultimo { animation: ck-pop 500ms 1s var(--curva-salida) both; }
+.ck--armado:not(.ck--visto) .ck__valor { opacity: 0; transform: translateY(6px); }
+.ck--visto .ck__valor { transition: opacity 500ms var(--curva-salida), transform 500ms var(--curva-salida); }
 @keyframes ck-trazo { from { stroke-dashoffset: 1; } to { stroke-dashoffset: 0; } }
 @keyframes ck-pop { 0% { transform: scale(0); } 60% { transform: scale(1.8); } 100% { transform: scale(1); } }
 @media (prefers-reduced-motion: reduce) { .ck--visto .ck__linea, .ck--visto .ck__ultimo { animation: none; } }

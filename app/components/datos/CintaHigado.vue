@@ -55,6 +55,11 @@ const lectura = computed(() => props.filas.map((f) => {
   const r = p ? xlsn(p) : null
   return { nombre: f.nombre, txt: r != null ? `${numCaso(Math.round(r * 10) / 10, props.lang)}×` : '—', fuera: p?.fuera === 'alto' || p?.fuera === 'bajo' }
 }))
+// tocar fija una fecha; arrastrar con el dedo o el ratón la recorre (scrubbing)
+let arrastrando = false
+function empezar(ev: PointerEvent) { arrastrando = true; (ev.currentTarget as Element).setPointerCapture?.(ev.pointerId); tocar(ev) }
+function arrastrar(ev: PointerEvent) { if (arrastrando) tocar(ev) }
+function soltar() { arrastrando = false }
 function tocar(ev: PointerEvent) {
   const svg = ev.currentTarget as SVGSVGElement
   const x = ((ev.clientX - svg.getBoundingClientRect().left) / svg.getBoundingClientRect().width) * W.value
@@ -68,7 +73,7 @@ function tocar(ev: PointerEvent) {
 <template>
   <figure class="cinta" :class="{ 'cinta--armado': armado, 'cinta--visto': visto }">
     <div ref="caja">
-      <svg :viewBox="`0 0 ${W} ${H}`" :width="W" :height="H" class="cinta__svg" role="img" @pointerdown="tocar"
+      <svg :viewBox="`0 0 ${W} ${H}`" :width="W" :height="H" class="cinta__svg" role="img" @pointerdown="empezar" @pointermove="arrastrar" @pointerup="soltar" @pointercancel="soltar"
            :aria-label="L('Pruebas hepáticas en veces el límite normal, una celda por analítica.', 'Liver tests in multiples of the upper limit of normal, one cell per lab report.')">
         <defs>
           <filter id="cinta-brillo" x="-60%" y="-60%" width="220%" height="220%">

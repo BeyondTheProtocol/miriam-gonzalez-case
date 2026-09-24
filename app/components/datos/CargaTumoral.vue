@@ -77,6 +77,7 @@ const fechaTxt = computed(() => (f.value < 0.5 ? fechaCorta(r0.value.fecha, prop
     <div class="ct__resumen">
       <p><strong class="nums">{{ pct(r0.suma_mm ?? 1, r1.suma_mm ?? 1) }}</strong> {{ L(`la suma RECIST (${r0.suma_mm} → ${r1.suma_mm} mm). RECIST llama progresión a partir de +20 %.`, `RECIST sum (${r0.suma_mm} → ${r1.suma_mm} mm). RECIST calls progression from +20%.`) }}</p>
       <p><strong class="nums">×{{ numCaso(Math.round(((v1.ml ?? 1) / (v0.ml ?? 1)) * 10) / 10, lang) }}</strong> {{ L(`el volumen del modelo (${numCaso(v0.ml ?? 0, lang)} → ${numCaso(v1.ml ?? 0, lang)} ml) y de ${v0.n_lesiones} a ${v1.n_lesiones} lesiones.`, `model volume (${v0.ml} → ${v1.ml} ml) and ${v0.n_lesiones} to ${v1.n_lesiones} lesions.`) }}</p>
+      <p class="ct__concilia">{{ L('Las dos medidas no coinciden y nadie las ha conciliado todavía: el radiólogo no informó lesiones nuevas; el modelo segmenta 20, varias de menos de 10 mm, sin validación radiológica.', 'The two measurements disagree and have not been reconciled yet: the radiologist reported no new lesions; the model segments 20, several under 10 mm, without radiological validation.') }}</p>
       <button type="button" class="ct__otra" @click="otra">↻ {{ L('Verlo otra vez', 'Play again') }}</button>
     </div>
   </figure>
@@ -100,5 +101,6 @@ const fechaTxt = computed(() => (f.value < 0.5 ? fechaCorta(r0.value.fecha, prop
 .ct__resumen { display: grid; gap: 4px; font: 400 13.5px/1.45 var(--font-body); color: var(--color-text); margin-top: 6px; }
 .ct__resumen p { margin: 0; }
 .ct__resumen strong { font-family: var(--font-mono); }
+.ct__concilia { font: 400 12.5px/1.45 var(--font-body); color: var(--color-text-soft); margin: 2px 0 0; padding-left: 10px; border-left: 2px solid rgb(var(--color-miriam-rgb) / 0.5); }
 .ct__otra { justify-self: start; min-height: 44px; font: 700 13px var(--font-body); color: var(--color-miriam); text-decoration: underline; text-underline-offset: 3px; }
 </style>

@@ -84,6 +84,11 @@ const mostrado = computed(() => enCursor.value ?? ultimo.value)
 const cursorX = computed(() => (props.cabezal != null ? geo.value.X(props.cabezal) : props.cursor ? geo.value.X(msFecha(props.cursor)) : null))
 const nFuera = computed(() => vis.value.filter((p) => p.fuera === 'alto' || p.fuera === 'bajo').length)
 
+// tocar fija una fecha; arrastrar con el dedo o el ratón la recorre (scrubbing)
+let arrastrando = false
+function empezar(ev: PointerEvent) { arrastrando = true; (ev.currentTarget as Element).setPointerCapture?.(ev.pointerId); tocar(ev) }
+function arrastrar(ev: PointerEvent) { if (arrastrando) tocar(ev) }
+function soltar() { arrastrando = false }
 function tocar(ev: PointerEvent) {
   const svg = ev.currentTarget as SVGSVGElement
   const r = svg.getBoundingClientRect()
@@ -115,7 +120,7 @@ const valorTxt = (p: Punto) => {
     <div ref="caja">
       <svg :viewBox="`0 0 ${W} ${H}`" :width="W" :height="H" class="ms__svg" role="img"
            :aria-label="`${nombre ?? a.nombre}: ${vis.length} ${L('valores', 'values')}, ${nFuera} ${L('fuera de rango', 'out of range')}`"
-           @pointerdown="tocar">
+           @pointerdown="empezar" @pointermove="arrastrar" @pointerup="soltar" @pointercancel="soltar">
         <rect v-for="b in geo.bandas" :key="b.id" :x="b.x" :y="Y0" :width="b.w" :height="Y1 - Y0" class="ms__banda-linea" />
         <rect v-if="geo.banda" :x="X0" :y="geo.banda.y0" :width="W - 6 - X0" :height="Math.max(1, geo.banda.y1 - geo.banda.y0)" class="ms__rango" />
         <line v-for="(x, i) in geo.progs" :key="`p${i}`" :x1="x" :x2="x" :y1="Y0" :y2="Y1" class="ms__prog" />

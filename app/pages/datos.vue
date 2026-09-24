@@ -52,16 +52,31 @@ const ultimaTerminada = [...sistemicas].filter((l) => l.fin && rangoParcial(l.fi
 const corto = (v: Texto) => T(v).split(' (')[0]
 const cifraTrat = computed(() => {
   if (actual) return { valor: actual.id, detalle: corto(actual.tratamiento), fecha: L(`desde ${fechaCorta(actual.inicio, 'es')}`, `since ${fechaCorta(actual.inicio, 'en')}`), sello: actual.sello }
-  const detalle = proxima ? L(`Próximo: ${corto(proxima.tratamiento)}, previsto el ${fechaCorta(proxima.inicio, 'es')}`, `Next: ${corto(proxima.tratamiento)}, planned for ${fechaCorta(proxima.inicio, 'en')}`) : ''
-  return { valor: L('Sin tratamiento', 'Off treatment'), detalle,
-    fecha: ultimaTerminada ? L(`desde ${fechaCorta(ultimaTerminada.fin, 'es')}`, `since ${fechaCorta(ultimaTerminada.fin, 'en')}`) : '',
-    sello: proxima?.sello ?? ultimaTerminada?.sello }
+  // «sin línea sistémica», no «sin tratamiento»: la supresión ovárica sigue (lo vio comite-medico)
+  const fondo = lineas.some((l) => l.id === 'LHRHa' && !l.fin) ? L('Goserelina en curso. ', 'Goserelin ongoing. ') : ''
+  const prox = proxima ? L(`Próximo: ${corto(proxima.tratamiento)}, previsto el ${fechaCorta(proxima.inicio, 'es')}.`, `Next: ${corto(proxima.tratamiento)}, planned for ${fechaCorta(proxima.inicio, 'en')}.`) : ''
+  return { valor: L('Sin línea sistémica', 'No systemic line'), detalle: fondo + prox,
+    fecha: ultimaTerminada ? L(`desde ${fechaCorta(ultimaTerminada.fin, 'es')} (fin de la ${ultimaTerminada.id})`, `since ${fechaCorta(ultimaTerminada.fin, 'en')} (end of ${ultimaTerminada.id})`) : '',
+    // el hecho (fin de la línea) lleva su sello; el plan futuro va aparte, marcado como «lo dice Miriam»
+    sello: ultimaTerminada?.sello, notaSello: proxima?.sello }
 })
 /** últimos 90 días: ¿había una línea sistémica en curso? (solo días seguros; un mes aproximado cuenta como no) */
 const franja90 = Array.from({ length: 90 }, (_, i) => {
   const t = hoyMs - (89 - i) * 86400000
   return sistemicas.some((l) => { const a = rangoParcial(l.inicio); const z = l.fin ? rangoParcial(l.fin) : null; return a && t >= a[1] && (!z || t <= z[0]) })
 })
+/* fila de elegibilidad: lo que un oncólogo mira primero, todo ya en caso.json con su sello */
+const ecog = c.ficha?.ecog
+const nLineas = sistemicas.filter((l) => { const i = rangoParcial(l.inicio); return i && i[0] <= hoyMs }).length
+const nunca = c.nunca_recibido
+const snc = (c.ficha?.sitios ?? []).find((x: any) => /^SNC|^CNS/.test(T(x.valor)))
+const cribado = proxima
+/* anterior de cada analítica, para decir cuánto cambió */
+const previoTxt = (a: Analito | null) => {
+  if (!a || a.puntos.length < 2) return ''
+  const p = a.puntos[a.puntos.length - 2]
+  return L(`antes: ${numCaso(p.v, 'es')} · ${fechaCorta(p.f, 'es')}`, `before: ${numCaso(p.v, 'en')} · ${fechaCorta(p.f, 'en')}`)
+}
 const ultimo = (a: Analito | null) => (a ? a.puntos[a.puntos.length - 1] : null)
 const serie12 = (a: Analito | null, lsn = false) => (a ? a.puntos.slice(-12).map((p) => (lsn ? (xlsn(p) ?? p.v) : p.v)) : [])
 const r1 = (v: number) => numCaso(Math.round(v * 10) / 10, lang.value)
@@ -151,6 +166,7 @@ function parar() { cancelAnimationFrame(raf); pausado.value = false; acumulado =
 onBeforeUnmount(() => cancelAnimationFrame(raf))
 const reproduciendo = computed(() => cabezal.value != null && !pausado.value)
 
+const sinFresco = material.find((m) => /fresco|fresh/i.test(T(m.muestra)) && /ningun|none|no existe/i.test(`${T(m.donde)} ${T(m.estado)}`))
 /* tarjeta de muestra: título corto («Hígado, segmento IVa») y el resto del texto, entero, debajo */
 const tituloMuestra = (m: any) => T(m.muestra).split(/\s*[(:.]/)[0]
 const detalleMuestra = (m: any) => {
@@ -222,24 +238,34 @@ const n = (v: number) => numCaso(v, lang.value)
         <!-- 1 · Hoy -->
         <section id="s-hoy" class="dt-sec" aria-labelledby="h-hoy">
           <h2 id="h-hoy" class="dt-h2">{{ L('Hoy', 'Today') }}</h2>
+          <ul class="dt-eleg" :aria-label="L('Datos que suelen decidir un ensayo', 'Data that usually decide a trial')">
+            <li v-if="ecog"><span class="dt-eleg__k">ECOG</span><span class="dt-eleg__v nums">{{ T(ecog.valor) }}</span><span class="dt-eleg__f">{{ fechaCorta(ecog.fecha, lang) }}</span><DatosSello :s="ecog.sello" :lang="lang" /></li>
+            <li><span class="dt-eleg__k">{{ L('Líneas sistémicas', 'Systemic lines') }}</span><span class="dt-eleg__v nums">{{ nLineas }}</span><span class="dt-eleg__f">{{ sistemicas.filter((l) => rangoParcial(l.inicio)![0] <= hoyMs).map((l) => l.id).join(' · ') }}</span></li>
+            <li v-if="nunca" class="dt-eleg--ancha"><span class="dt-eleg__k">{{ L('Nunca ha recibido', 'Never received') }}</span><span class="dt-eleg__lista">{{ (nunca.valor as Texto[]).map((x) => T(x).split(' (')[0]).join(' · ') }}</span><DatosSello :s="nunca.sello" :lang="lang" /></li>
+            <li v-if="snc" class="dt-eleg--ancha"><span class="dt-eleg__k">{{ L('Sistema nervioso central', 'Central nervous system') }}</span><span class="dt-eleg__lista">{{ L('no estudiado (no es un negativo)', 'not studied (not a negative)') }}</span><DatosSello :s="snc.sello" :lang="lang" /></li>
+          </ul>
           <div class="dt-cifras">
             <a href="#s-evo" class="dt-cifra-link" :aria-label="L('Ver la línea de tiempo de tratamientos', 'See the treatment timeline')">
             <DatosCifraClave :etiqueta="L('Tratamiento', 'Treatment')" :valor="cifraTrat.valor" :detalle="cifraTrat.detalle"
-                             :fecha="cifraTrat.fecha" :sello="cifraTrat.sello" :franja="franja90" :lang="lang" />
+                             :fecha="cifraTrat.fecha" :sello="cifraTrat.sello" :franja="franja90"
+                             :nota="cribado ? L('En cribado de TROPION-Breast06.', 'In screening for TROPION-Breast06.') : ''" :nota-sello="cifraTrat.notaSello" :lang="lang" />
             </a>
             <a v-if="pCa" href="#s-evo" class="dt-cifra-link" @click="pestana = 'marcadores'">
             <DatosCifraClave etiqueta="CA 15-3" :valor="n(pCa.v)" :unidad="ca!.unidad" :fuera="pCa.fuera"
                              :detalle="xlsn(pCa) ? L(`${r1(xlsn(pCa)!)} veces el límite normal`, `${r1(xlsn(pCa)!)} times the upper limit`) : ''"
-                             :fecha="fechaCorta(pCa.f, lang)" sello="extraido" :serie="serie12(ca)" :lang="lang" />
+                             :fecha="fechaCorta(pCa.f, lang)" sello="extraido" :serie="serie12(ca)" :previo="previoTxt(ca)" :lang="lang" />
             </a>
             <a v-if="pHb" href="#s-evo" class="dt-cifra-link" @click="pestana = 'sangre'">
             <DatosCifraClave :etiqueta="L('Hemoglobina', 'Hemoglobin')" :valor="n(pHb.v)" :unidad="hb!.unidad" :fuera="pHb.fuera"
-                             :fecha="fechaCorta(pHb.f, lang)" sello="extraido" :serie="serie12(hb)" :lang="lang" />
+                             :fecha="fechaCorta(pHb.f, lang)" sello="extraido" :serie="serie12(hb)" :previo="previoTxt(hb)"
+                             :nota="L('Entre las dos, una transfusión en urgencias el 9-sep.', 'In between, a transfusion in the emergency room on 9 Sep.')"
+                             :nota-sello="c.ficha?.estado_actual?.sello" :lang="lang" />
             </a>
             <a v-if="pAst" href="#s-evo" class="dt-cifra-link" @click="pestana = 'higado'">
             <DatosCifraClave :etiqueta="L('Hígado (AST)', 'Liver (AST)')" :valor="`${r1(xlsn(pAst) ?? 0)}×`" :unidad="L('límite normal', 'upper limit')"
                              :fuera="pAst.fuera" :detalle="`AST ${n(pAst.v)} · ALT ${pAlt ? n(pAlt.v) : '—'} U/L`"
-                             :fecha="fechaCorta(pAst.f, lang)" sello="extraido" :serie="serie12(ast, true)" :lang="lang" />
+                             :fecha="fechaCorta(pAst.f, lang)" sello="extraido" :serie="serie12(ast, true)" :previo="previoTxt(ast)"
+                             :nota="pAst.ref_de === 'banda' ? L('Límite: el habitual del laboratorio; este informe no lo trae.', 'Limit: the lab’s usual one; this report does not print it.') : ''" :lang="lang" />
             </a>
           </div>
         </section>
@@ -328,6 +354,11 @@ const n = (v: number) => numCaso(v, lang.value)
         <!-- 5 · Tejido y reservorio -->
         <section id="s-tejido" class="dt-sec" aria-labelledby="h-tejido">
           <h2 id="h-tejido" class="dt-h2">{{ L('Tejido, muestras y reservorio', 'Tissue, samples and port') }}</h2>
+          <p v-if="sinFresco" class="dt-resumen-tejido">
+            <strong>{{ L('Todo el material disponible está en parafina.', 'All available material is in paraffin.') }}</strong>
+            {{ L('No hay tejido fresco, congelado ni PBMC.', 'There is no fresh or frozen tissue and no PBMC.') }}
+            <DatosSello :s="sinFresco.sello" :lang="lang" />
+          </p>
           <div class="dt-tarjetas">
             <article v-for="(m, i) in material.slice(0, 3)" :key="i" class="dt-tarjeta">
               <p class="dt-tarjeta__t">{{ tituloMuestra(m) }}</p>
@@ -435,6 +466,16 @@ const n = (v: number) => numCaso(v, lang.value)
 .dt-nota { font: 400 13px/1.5 var(--font-body); color: var(--color-text-soft); margin: 0 0 10px; max-width: 70ch; }
 .dt-pie { font: 400 12px/1.5 var(--font-body); color: var(--color-text-soft); margin: 10px 0 0; }
 .dt-link { color: var(--color-miriam); text-decoration: underline; text-underline-offset: 2px; }
+.dt-eleg { list-style: none; margin: 0 0 12px; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+@media (min-width: 900px) { .dt-eleg { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+.dt-eleg li { display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 8px; padding: 10px 12px; border-radius: 12px; border: 1px solid rgb(var(--color-text-rgb) / 0.1); background: var(--color-bg); min-width: 0; }
+.dt-eleg--ancha { grid-column: span 2; }
+@media (min-width: 900px) { .dt-eleg--ancha { grid-column: span 1; } }
+.dt-eleg__k { width: 100%; font: 600 11.5px var(--font-body); color: var(--color-text-soft); }
+.dt-eleg__v { font: 700 22px/1.1 var(--font-display); color: var(--color-text); }
+.dt-eleg__f { font: 500 11px var(--font-mono); color: var(--color-text-soft); }
+.dt-eleg__lista { font: 500 13px/1.35 var(--font-body); color: var(--color-text); }
+.dt-resumen-tejido { font: 400 14px/1.45 var(--font-body); color: var(--color-text); margin: 0 0 12px; padding: 10px 12px; border-radius: 12px; background: var(--color-miriam-soft); }
 .dt-cifras { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
 @media (min-width: 900px) { .dt-cifras { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; } }
 .dt-controles { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-bottom: 12px; }
