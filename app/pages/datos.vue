@@ -90,8 +90,13 @@ const PESTANAS: { k: string; es: string; en: string; minis: Mini[] }[] = [
 ]
 const pestana = ref('marcadores')
 // enlace directo a una pestaña (/datos?pestana=higado): para compartir justo esa vista
+// OJO (mismo fallo que /ciencia con ?nivel=pro): en la página prerenderizada Nuxt hidrata con la
+// ruta del payload, SIN query; en setup y onMounted `route.query` llega vacía y la query aparece
+// después. Por eso se vigila, no se lee una vez.
 const ruta = useRoute()
-onMounted(() => { const q = String(ruta.query.pestana ?? ''); if (PESTANAS.some((p) => p.k === q)) pestana.value = q })
+const aplicarPestana = () => { const q = String(ruta.query.pestana ?? ''); if (PESTANAS.some((p) => p.k === q)) pestana.value = q }
+onMounted(aplicarPestana)
+watch(() => ruta.query.pestana, aplicarPestana)
 const minis = computed(() => (PESTANAS.find((p) => p.k === pestana.value)?.minis ?? [])
   .map(([k, modo, es, en]) => ({ a: an(k), modo, nombre: L(es, en) })).filter((m) => m.a))
 const VENTANAS: [Ventana, string, string][] = [['anio', 'Último año', 'Last year'], ['dx', 'Desde el diagnóstico', 'Since diagnosis'], ['todo', 'Todo', 'All']]
