@@ -49,6 +49,10 @@ const estilo = (r: number | null) => {
   const k = Math.min(1, 0.45 + Math.log2(r) / 2.5)
   return { fill: `rgb(var(--color-miriam-claro-rgb) / ${k.toFixed(2)})`, filter: r >= 2 ? 'url(#cinta-brillo)' : undefined }
 }
+/** las fechas con analítica en la ventana, una vez cada una: son los pasos del teclado y del slider ARIA */
+const fechasOrd = computed(() => [...new Set(geo.value.celdas.map((c) => c.p.f))].sort())
+// si la fecha fijada no tiene analítica hepática, no hay posición que anunciar: sin aria-valuenow (el texto lo dice)
+const idxSel = computed(() => { const i = fechaSel.value ? fechasOrd.value.indexOf(fechaSel.value) : -1; return i >= 0 ? i : undefined })
 const fechaSel = computed(() => props.cursor ?? (geo.value.celdas.length ? geo.value.celdas.reduce((m, c) => (c.p.f > m ? c.p.f : m), '') : null))
 const lectura = computed(() => props.filas.map((f) => {
   const p = f.a.puntos.find((q) => q.f === fechaSel.value) as Punto | undefined
@@ -61,7 +65,7 @@ function empezar(ev: PointerEvent) { arrastrando = true; (ev.currentTarget as El
 function arrastrar(ev: PointerEvent) { if (arrastrando) tocar(ev) }
 function soltar() { arrastrando = false }
 function tecla(ev: KeyboardEvent) {
-  const fs = [...new Set(geo.value.celdas.map((c) => c.p.f))].sort()
+  const fs = fechasOrd.value
   if (!fs.length) return
   let i = props.cursor ? fs.indexOf(props.cursor) : -1
   if (ev.key === 'ArrowLeft') i = Math.max(0, (i < 0 ? fs.length : i) - 1)
@@ -86,7 +90,7 @@ function tocar(ev: PointerEvent) {
   <figure class="cinta" :class="{ 'cinta--armado': armado, 'cinta--visto': visto }">
     <div ref="caja">
       <svg :viewBox="`0 0 ${W} ${H}`" :width="W" :height="H" class="cinta__svg" role="slider" tabindex="0"
-           :aria-valuemin="0" :aria-valuemax="Math.max(0, geo.celdas.length - 1)" :aria-valuenow="0"
+           :aria-valuemin="0" :aria-valuemax="Math.max(0, fechasOrd.length - 1)" :aria-valuenow="idxSel"
            :aria-valuetext="fechaSel ? `${fechaCorta(fechaSel, lang)}: ${lectura.map((l) => `${l.nombre} ${l.txt}`).join(', ')}` : ''"
            @keydown="tecla" @pointerdown="empezar" @pointermove="arrastrar" @pointerup="soltar" @pointercancel="soltar"
            :aria-label="L('Pruebas hepáticas en veces el límite normal, una celda por analítica. Flechas para recorrer las fechas.', 'Liver tests in multiples of the upper limit of normal, one cell per lab report. Arrow keys move through dates.')">

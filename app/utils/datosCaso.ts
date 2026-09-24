@@ -145,3 +145,36 @@ export const EJE_IZQ = 34
 export const EJE_DER = 6
 
 export interface Contexto { progresiones: number[]; bandas: { ini: number; fin: number; id: string }[] }
+
+/** Qué cambió entre dos analíticas: solo las pruebas que tienen valor en las DOS fechas. */
+export interface Cambio {
+  a: Analito
+  antes: Punto
+  ahora: Punto
+  /** ahora / antes, en la unidad del informe (null si el anterior es 0: no hay proporción) */
+  razon: number | null
+  /** veces el límite superior de SU propio informe, antes y ahora (null si alguno no trae límite) */
+  lsn: [number, number] | null
+}
+/** Las dos fechas más recientes con analítica (la anterior y la última), o null si no hay dos. */
+export const dosUltimas = (grupos: Record<string, { analitos: Analito[] }>): [string, string] | null => {
+  const fs = new Set<string>()
+  for (const g of Object.values(grupos)) for (const a of g.analitos) for (const p of a.puntos) fs.add(p.f)
+  const o = [...fs].sort()
+  return o.length >= 2 ? [o[o.length - 2]!, o[o.length - 1]!] : null
+}
+/** Ordenadas por el tamaño del cambio en proporción (|log ahora/antes|), de mayor a menor. Un
+ *  valor no positivo no tiene proporción: va al final, sin inventar un porcentaje. */
+export const cambiosEntre = (grupos: Record<string, { analitos: Analito[] }>, fA: string, fB: string): Cambio[] => {
+  const r: Cambio[] = []
+  for (const g of Object.values(grupos)) for (const a of g.analitos) {
+    const antes = a.puntos.find((p) => p.f === fA)
+    const ahora = a.puntos.find((p) => p.f === fB)
+    if (!antes || !ahora || !Number.isFinite(antes.v) || !Number.isFinite(ahora.v)) continue
+    const razon = antes.v > 0 && ahora.v > 0 ? ahora.v / antes.v : null
+    const l0 = xlsn(antes), l1 = xlsn(ahora)
+    r.push({ a, antes, ahora, razon, lsn: l0 != null && l1 != null ? [l0, l1] : null })
+  }
+  const peso = (c: Cambio) => (c.razon == null ? -1 : Math.abs(Math.log(c.razon)))
+  return r.sort((x, y) => peso(y) - peso(x))
+}

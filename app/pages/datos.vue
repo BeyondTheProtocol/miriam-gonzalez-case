@@ -77,7 +77,8 @@ const previoTxt = (a: Analito | null, enLsn = false) => {
   if (!a || a.puntos.length < 2) return ''
   const p = a.puntos[a.puntos.length - 2]!
   const r = enLsn ? xlsn(p) : null
-  const v = (lg: 'es' | 'en') => (r != null ? `${numCaso(Math.round(r * 10) / 10, lg)}× (${numCaso(p.v, lg)} U/L)` : numCaso(p.v, lg))
+  // la unidad, del dato (no escrita a mano): si la tarjeta se reutiliza con otra prueba, no miente
+  const v = (lg: 'es' | 'en') => (r != null ? `${numCaso(Math.round(r * 10) / 10, lg)}× (${numCaso(p.v, lg)} ${a.unidad})` : numCaso(p.v, lg))
   return L(`antes: ${v('es')} · ${fechaCorta(p.f, 'es')}`, `before: ${v('en')} · ${fechaCorta(p.f, 'en')}`)
 }
 const ultimo = (a: Analito | null) => (a ? a.puntos[a.puntos.length - 1] : null)
@@ -114,6 +115,7 @@ const PESTANAS: { k: string; es: string; en: string; minis: Mini[] }[] = [
 ]
 const pestana = ref('marcadores')
 const ver3d = ref(false)
+const queCambio = ref<{ abrir: () => void } | null>(null)
 // enlace directo a una pestaña (/datos?pestana=higado): para compartir justo esa vista
 // OJO (mismo fallo que /ciencia con ?nivel=pro): en la página prerenderizada Nuxt hidrata con la
 // ruta del payload, SIN query; en setup y onMounted `route.query` llega vacía y la query aparece
@@ -122,6 +124,7 @@ const ruta = useRoute()
 const aplicarPestana = () => {
   const q = String(ruta.query.pestana ?? ''); if (PESTANAS.some((p) => p.k === q)) pestana.value = q
   if (ruta.query.ver3d === '1') ver3d.value = true // enlace directo al catéter en 3D
+  if (ruta.query.cambio === '1') nextTick(() => queCambio.value?.abrir()) // enlace directo a «qué cambió»
 }
 onMounted(aplicarPestana)
 /* cambiar de pestaña con una View Transition: la pastilla activa se desliza hasta la nueva y los
@@ -138,7 +141,7 @@ function irPestana(k: string) {
   t.ready.catch(() => {}) // si se aborta, el estado ya cambió dentro del callback: no hay nada que rescatar
   t.finished.catch(() => {}).finally(() => { delete html.dataset.vtDatos })
 }
-watch(() => ruta.query.pestana, aplicarPestana)
+watch(() => [ruta.query.pestana, ruta.query.cambio], aplicarPestana)
 const minis = computed(() => (PESTANAS.find((p) => p.k === pestana.value)?.minis ?? [])
   .map(([k, modo, es, en]) => ({ a: an(k), modo, nombre: L(es, en) })).filter((m) => m.a))
 const VENTANAS: [Ventana, string, string][] = [['anio', 'Último año', 'Last year'], ['dx', 'Desde el diagnóstico', 'Since diagnosis'], ['todo', 'Todo', 'All']]
@@ -220,6 +223,27 @@ onMounted(() => {
 watch(activa, () => nextTick(() => chipActivo?.scrollIntoView({ block: 'nearest', inline: 'center', behavior: 'smooth' })))
 onBeforeUnmount(() => ioSec?.disconnect())
 
+/* «qué cambió» entre las dos últimas analíticas: nombres cortos, lo que pasó entre medias y el salto al gráfico */
+const parUltimas = dosUltimas(grupos)
+const sinAnio = (iso: string, lg: Lang) => fechaCorta(iso, lg).replace(/,? \d{4}$/, '')
+const entreDos = (iso: string) => !!parUltimas && iso > parUltimas[0] && iso <= parUltimas[1]
+// la transfusión del 9-sep solo se cuenta si cae entre las dos analíticas comparadas: con una nueva, deja de salir
+const transfusionEntre = entreDos('2026-09-09')
+const nombresCortos = computed(() => {
+  const m: Record<string, string> = { leucocitos: L('Leucocitos', 'White cells') }
+  for (const p of PESTANAS) for (const [k, , es, en] of p.minis) m[k] = L(es, en)
+  return m
+})
+const entreAnaliticas = computed(() => sistemicas.filter((l) => l.fin && /^\d{4}-\d{2}-\d{2}$/.test(l.fin) && entreDos(l.fin))
+  .map((l) => ({ txt: L(`fin de la ${l.id} el ${sinAnio(l.fin, 'es')}`, `end of ${l.id} on ${sinAnio(l.fin, 'en')}`), sello: l.sello })))
+const notasCambio = computed(() => (transfusionEntre ? { hemoglobina: { txt: L('Entre las dos, una transfusión en urgencias el 9 sep.', 'In between, a transfusion in the emergency room on Sep 9.'), sello: c.ficha?.estado_actual?.sello } } : {}) as Record<string, { txt: string; sello?: string }>)
+const conGrafico = PESTANAS.flatMap((p) => p.minis.map((m) => m[0]))
+function irAPrueba(key: string, fecha: string) {
+  const p = PESTANAS.find((x) => x.minis.some((m) => m[0] === key)); if (!p) return
+  parar(); pestana.value = p.k; cursor.value = fecha
+  nextTick(() => document.getElementById('s-evo')?.scrollIntoView({ behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'start' }))
+}
+
 const hayReservorio = computed(() => useRouter().getRoutes().some((r) => r.path === '/reservorio'))
 const n = (v: number) => numCaso(v, lang.value)
 </script>
@@ -275,15 +299,18 @@ const n = (v: number) => numCaso(v, lang.value)
             <a v-if="pHb" href="#s-evo" class="dt-cifra-link" @click="pestana = 'sangre'">
             <DatosCifraClave :etiqueta="L('Hemoglobina', 'Hemoglobin')" :valor="n(pHb.v)" :unidad="hb!.unidad" :fuera="pHb.fuera"
                              :fecha="fechaCorta(pHb.f, lang)" sello="extraido" :serie="serie12(hb)" :previo="previoTxt(hb)"
-                             :nota="L('Entre las dos, una transfusión en urgencias el 9-sep.', 'In between, a transfusion in the emergency room on 9 Sep.')"
+                             :nota="transfusionEntre ? L('Entre las dos, una transfusión en urgencias el 9 sep.', 'In between, a transfusion in the emergency room on Sep 9.') : ''"
                              :nota-sello="c.ficha?.estado_actual?.sello" :lang="lang" />
             </a>
             <a v-if="pAst" href="#s-evo" class="dt-cifra-link" @click="pestana = 'higado'">
             <DatosCifraClave :etiqueta="L('Hígado (AST)', 'Liver (AST)')" :valor="`${r1(xlsn(pAst) ?? 0)}×`" :unidad="L('límite normal', 'upper limit')"
-                             :fuera="pAst.fuera" :detalle="`AST ${n(pAst.v)} · ALT ${pAlt ? n(pAlt.v) : '—'} U/L`"
+                             :fuera="pAst.fuera" :detalle="`AST ${n(pAst.v)} · ALT ${pAlt ? n(pAlt.v) : '—'} ${ast!.unidad}`"
                              :fecha="fechaCorta(pAst.f, lang)" sello="extraido" :serie="serie12(ast, true)" :previo="previoTxt(ast, true)"
                              :nota="pAst.ref_de === 'banda' ? L('Límite: el habitual del laboratorio; este informe no lo trae.', 'Limit: the lab’s usual one; this report does not print it.') : ''" :lang="lang" />
             </a>
+            <!-- lo que más cambió entre las dos últimas analíticas; al tocarlo, la hoja con todas -->
+            <DatosQueCambio ref="queCambio" :grupos="grupos" :nombres="nombresCortos" :entre="entreAnaliticas" :notas="notasCambio"
+                            :con-grafico="conGrafico" :lang="lang" @ir="irAPrueba" />
           </div>
         </section>
 

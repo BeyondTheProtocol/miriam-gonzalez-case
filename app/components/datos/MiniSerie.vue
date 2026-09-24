@@ -82,6 +82,8 @@ const ultimo = computed(() => vis.value[vis.value.length - 1])
 const enCursor = computed(() => (props.cursor ? vis.value.find((p) => p.f === props.cursor) ?? null : null))
 // con cursor, solo el dato de ESE día (o «sin dato ese día»): caer al último enseñaría dos fechas a la vez
 const mostrado = computed(() => (props.cursor ? enCursor.value : ultimo.value))
+// sin dato ese día no hay posición: se omite aria-valuenow en vez de decir «el primero» (lo vio `diseno`)
+const idxMostrado = computed(() => { const i = mostrado.value ? geo.value.pts.findIndex((q) => q.p.f === mostrado.value!.f) : -1; return i >= 0 ? i : undefined })
 const cursorX = computed(() => (props.cabezal != null ? geo.value.X(props.cabezal) : props.cursor ? geo.value.X(msFecha(props.cursor)) : null))
 const nFuera = computed(() => vis.value.filter((p) => p.fuera === 'alto' || p.fuera === 'bajo').length)
 
@@ -134,7 +136,7 @@ const valorTxt = (p: Punto) => {
     <div ref="caja">
       <svg :viewBox="`0 0 ${W} ${H}`" :width="W" :height="H" class="ms__svg" role="slider" tabindex="0"
            :aria-label="`${nombre ?? a.nombre}: ${vis.length} ${L('valores', 'values')}, ${nFuera} ${L('fuera de rango', 'out of range')}. ${L('Flechas para recorrer las fechas', 'Arrow keys move through dates')}`"
-           :aria-valuemin="0" :aria-valuemax="Math.max(0, geo.pts.length - 1)" :aria-valuenow="Math.max(0, geo.pts.findIndex((q) => q.p.f === (mostrado?.f ?? '')))"
+           :aria-valuemin="0" :aria-valuemax="Math.max(0, geo.pts.length - 1)" :aria-valuenow="idxMostrado"
            :aria-valuetext="mostrado ? `${fechaCorta(mostrado.f, lang)}: ${valorTxt(mostrado)}` : L('sin dato ese día', 'no value that day')"
            @keydown="tecla" @pointerdown="empezar" @pointermove="arrastrar" @pointerup="soltar" @pointercancel="soltar">
         <rect v-for="b in geo.bandas" :key="b.id" :x="b.x" :y="Y0" :width="b.w" :height="Y1 - Y0" class="ms__banda-linea" />
