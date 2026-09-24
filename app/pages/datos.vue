@@ -146,6 +146,9 @@ const n = (v: number) => numCaso(v, lang.value)
           {{ L('Resumen de sus informes, como apoyo a la decisión. No es diagnóstico ni consejo médico.', 'A summary of her reports, as decision support. Not a diagnosis or medical advice.') }}
         </p>
 
+        <!-- 0 · el caso en píxeles: impresión visual primero (Miriam, 24-sep) -->
+        <DatosCielo :grupos="grupos" :contexto="contexto" :hoy="hoy" :lang="lang" />
+
         <!-- 1 · Hoy -->
         <section class="dt-sec" aria-labelledby="h-hoy">
           <h2 id="h-hoy" class="dt-h2">{{ L('Hoy', 'Today') }}</h2>
@@ -281,11 +284,11 @@ const n = (v: number) => numCaso(v, lang.value)
             {{ L('El perfil molecular (genes, biopsias líquidas y expresión) lo tienes en', 'You’ll find the molecular profile (genes, liquid biopsies and expression) on') }}
             <NuxtLink :to="localePath('/ciencia')" class="dt-link">{{ L('La ciencia', 'The science page') }}</NuxtLink>.
           </p>
-          <div class="dt-ayuda">
-            <h2 class="dt-h2">{{ L('Cómo ayudar', 'How to help') }}</h2>
+          <details class="dt-det">
+            <summary>{{ L('Cómo ayudar', 'How to help') }}</summary>
             <ul class="dt-lista"><li v-for="(b, i) in seBusca.slice(0, 5)" :key="i">{{ T(b.valor) }}</li></ul>
-            <NuxtLink :to="localePath('/contacto')" class="btn-primary mt-4 inline-flex">{{ L('Escríbenos', 'Write to us') }}</NuxtLink>
-          </div>
+            <NuxtLink :to="localePath('/contacto')" class="dt-link mt-3 inline-flex min-h-[44px] items-center">{{ L('Escríbenos', 'Write to us') }} →</NuxtLink>
+          </details>
           <details class="dt-det">
             <summary>{{ L('Fuentes y método', 'Sources and method') }}</summary>
             <p class="dt-nota">{{ L('Generamos esta página a partir de un perfil que revisamos a mano sobre los informes de Miriam, de las analíticas leídas de sus informes de laboratorio y de la cronología de esta web. Si un dato no tiene fuente, no lo publicamos. Sellos: verificado (cotejado con el informe original), extraído del informe (lectura automática), inferido, lo dice Miriam (sin documento detrás) o sin verificar.',
