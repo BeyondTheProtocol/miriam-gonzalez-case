@@ -81,31 +81,62 @@ if (!CHROME) {
   console.error('No encuentro Chrome. Define CHROME_PATH.')
   process.exit(2)
 }
-const profile = mkdtempSync(join(tmpdir(), 'ciencia-nivel-'))
-const chrome = spawn(
-  CHROME,
-  [
-    '--headless=new',
-    '--remote-debugging-port=0',
-    `--user-data-dir=${profile}`,
-    '--no-first-run',
-    '--no-default-browser-check',
-    '--disable-gpu',
-    // En los runners de Ubuntu 24.04 AppArmor corta el sandbox de Chrome.
-    ...(process.env.CI ? ['--no-sandbox'] : []),
-    'about:blank',
-  ],
-  { stdio: 'ignore' }
-)
+// Arrancar Chrome falla a veces en el runner, y siempre por lo mismo: tarda más de la cuenta en
+// escribir DevToolsActivePort (24-sep-2026: dos E2E rojos el mismo día, uno en main y otro en
+// rama, con el mismo commit pasando en el intento siguiente). Se le da más margen, se intenta dos
+// veces y, si aun así no arranca, se cuenta POR QUÉ: con stdio a 'ignore' el error de Chrome se
+// perdía y el log solo decía «no arrancó».
+const DEVTOOLS_MS = Number(process.env.CHROME_ESPERA_MS || 60000)
+let chrome
 let port
-for (let i = 0; i < 150 && !port; i++) {
-  await sleep(100)
+let ultimoRuido = ''
+for (let intento = 1; intento <= 2 && !port; intento++) {
+  const profile = mkdtempSync(join(tmpdir(), 'ciencia-nivel-'))
+  chrome = spawn(
+    CHROME,
+    [
+      '--headless=new',
+      '--remote-debugging-port=0',
+      `--user-data-dir=${profile}`,
+      '--no-first-run',
+      '--no-default-browser-check',
+      '--disable-gpu',
+      // En los runners de Ubuntu 24.04 AppArmor corta el sandbox de Chrome.
+      ...(process.env.CI ? ['--no-sandbox'] : []),
+      ...(process.env.CI ? ['--disable-dev-shm-usage'] : []),
+      'about:blank',
+    ],
+    { stdio: ['ignore', 'ignore', 'pipe'] }
+  )
+  chrome.stderr?.on('data', (b) => {
+    ultimoRuido = (ultimoRuido + b.toString()).slice(-800)
+  })
+  let muerto = false
+  chrome.on('error', (e) => {
+    // Sin esto, un binario que no se puede ejecutar tira un 'error' sin manejar y la traza de
+    // Node tapa el motivo real.
+    muerto = true
+    ultimoRuido += `\n[no pude ejecutar ${CHROME}: ${e.message}]`
+  })
+  chrome.on('exit', (code) => {
+    muerto = true
+    ultimoRuido += `\n[chrome salió con código ${code}]`
+  })
   const f = join(profile, 'DevToolsActivePort')
-  if (existsSync(f)) port = readFileSync(f, 'utf8').split('\n')[0]
+  for (let i = 0; i < DEVTOOLS_MS / 100 && !port && !muerto; i++) {
+    await sleep(100)
+    if (existsSync(f)) port = readFileSync(f, 'utf8').split('\n')[0]
+  }
+  if (!port) {
+    console.error(
+      `Chrome no arrancó en el intento ${intento} (sin DevToolsActivePort en ${DEVTOOLS_MS / 1000} s).`
+    )
+    chrome.kill()
+  }
 }
 if (!port) {
-  console.error('Chrome no arrancó (sin DevToolsActivePort en 15 s).')
-  chrome.kill()
+  console.error('Chrome no arrancó tras 2 intentos. Lo que dijo Chrome:')
+  console.error(ultimoRuido.trim() || '(nada por stderr)')
   server.close()
   process.exit(2)
 }
