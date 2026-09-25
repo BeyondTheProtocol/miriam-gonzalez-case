@@ -81,7 +81,7 @@ const pasos: { key: string; estado: Estado; icono: string }[] = [
 const badge: Record<Estado, string> = {
   hecho: 'status-badge--active',
   curso: 'status-badge--firma',
-  pendiente: 'status-badge--complete',
+  pendiente: 'status-badge--pending',
   abierto: 'status-badge--candidate',
 }
 
@@ -164,8 +164,12 @@ onBeforeUnmount(() => io?.disconnect())
 .ruta-paso--curso .ruta-punto { fill: var(--color-miriam); }
 .ruta-paso--curso .ruta-halo { fill: color-mix(in srgb, var(--color-miriam) 18%, transparent); }
 .ruta-paso--abierto .ruta-aro { stroke: var(--color-miriam); stroke-dasharray: 4 4; }
+/* Pendiente y abierto: nodo claro → icono oscuro (el par de máximo contraste del sistema).
+   Con el icono en crema salía ~2:1, por debajo del 3:1 de WCAG 1.4.11 (comité diseño, 26-sep). */
+.ruta-paso--pendiente .ruta-punto,
+.ruta-paso--abierto .ruta-punto { fill: color-mix(in srgb, var(--color-text) 12%, var(--color-bg)); }
 .ruta-paso--pendiente .ruta-icono,
-.ruta-paso--abierto .ruta-icono { color: var(--color-bg); opacity: 0.9; }
+.ruta-paso--abierto .ruta-icono { color: var(--color-text); }
 .ruta-paso--hecho .ruta-tramo line { stroke: var(--color-text); }
 
 @media (prefers-reduced-motion: no-preference) {
