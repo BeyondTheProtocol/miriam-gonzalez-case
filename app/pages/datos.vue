@@ -368,7 +368,7 @@ const n = (v: number) => numCaso(v, lang.value)
         <!-- 1b · un cuadrado por día desde el diagnóstico -->
         <section v-if="fechaDx" id="s-dias" class="dt-sec" aria-labelledby="h-dias">
           <h2 id="h-dias" class="dt-h2">{{ L('Cada día desde el diagnóstico', 'Every day since diagnosis') }}</h2>
-          <DatosDias :lineas="lineas" :eventos="eventos" :diagnostico="fechaDx" :hoy="hoy" :lang="lang" />
+          <DatosDias :lineas="lineas" :eventos="eventos" :grupos="grupos" :tacs="(em.recist ?? []).map((r: any) => r.fecha)" :diagnostico="fechaDx" :hoy="hoy" :lang="lang" @fecha="irAFecha" />
         </section>
 
         <!-- 2-3 · Evolución: línea de tiempo + analíticas con la misma ventana -->
