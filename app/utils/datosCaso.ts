@@ -182,3 +182,16 @@ export const cambiosEntre = (grupos: Record<string, { analitos: Analito[] }>, fA
   const peso = (c: Cambio) => (c.razon == null ? -1 : Math.abs(Math.log(c.razon)))
   return r.sort((x, y) => peso(y) - peso(x))
 }
+
+/** Valor de cambio de referencia (RCV): cuánto puede variar un marcador entre dos análisis solo por
+ *  el método del laboratorio y la variación biológica (95 %). Consenso SEQC/SEOM 2021, cotejado en el
+ *  texto completo (PMC8192375) el 25-sep-2026: CA 15-3 19–34 %, CEA 30–40 %. Es un LÍMITE estadístico al
+ *  95 % (no clínico); el consenso avisa de que con el marcador alto la variación puede ser mayor. NO es el
+ *  criterio de progresión bioquímica del consenso, que no se pinta. */
+export interface Rcv { min: number; max: number }
+export const RCV: Record<string, Rcv> = { ca153: { min: 19, max: 34 }, cea: { min: 30, max: 40 } }
+export const RCV_FUENTE = { es: 'consenso SEQC/SEOM 2021', en: 'SEQC/SEOM 2021 consensus', doi: '10.1007/s12094-020-02529-x' }
+/** El RCV solo compara resultados del mismo método: se exige que los dos informes traigan el MISMO
+ *  rango impreso (aproximación de «mismo laboratorio y método»; fail-closed si no). */
+export const rcvComparable = (a: Punto, b: Punto) =>
+  a.ref_de === 'informe' && b.ref_de === 'informe' && a.hi != null && a.hi === b.hi && (a.lo ?? 0) === (b.lo ?? 0)

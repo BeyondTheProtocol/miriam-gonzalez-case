@@ -11,6 +11,8 @@
  * Sin contadores ni tono de celebración: sube o baja, cuánto, y su fuente.
  */
 import type { Analito, Cambio, Lang, Punto } from '~/utils/datosCaso'
+// importación explícita: las constantes nuevas de datosCaso no llegaban por auto-import (500 en el prerender)
+import { RCV, RCV_FUENTE, rcvComparable } from '~/utils/datosCaso'
 
 const props = defineProps<{
   grupos: Record<string, { analitos: Analito[] }>
@@ -83,6 +85,18 @@ const marca = (p: Punto, x: number, r = 5) =>
   p.fuera === 'alto' ? `M${rc(x - r)},${rc(Y + r * 0.8)}h${2 * r}l${-r},${rc(-r * 1.7)}Z`
     : p.fuera === 'bajo' ? `M${rc(x - r)},${rc(Y - r * 0.8)}h${2 * r}l${-r},${rc(r * 1.7)}Z`
       : p.fuera ? pathForma('rombo', x, Y, r * 0.85) : pathForma('circulo', x, Y, r * 0.8)
+
+/* RCV: banda de «variación esperable» alrededor del valor ANTERIOR (solo marcadores con RCV publicado y
+   solo si los dos informes son comparables); si no lo son, se dice por qué y no se pinta nada */
+// la fuente, en el script: una constante usada SOLO en la plantilla llegaba undefined (auto-import) y rompía la hoja
+const fuenteRcv = RCV_FUENTE
+const rcvDe = (c: Cambio) => RCV[c.a.key] ?? null
+const rcvGeo = (c: Cambio) => {
+  const r = rcvDe(c); if (!r || !c.lsn || !rcvComparable(c.antes, c.ahora)) return null
+  const X = eje.value.X, v = c.lsn[0]
+  return { o0: X(v * (1 - r.max / 100)), o1: X(v * (1 + r.max / 100)), i0: X(v * (1 - r.min / 100)), i1: X(v * (1 + r.min / 100)) }
+}
+const pct1 = (c: Cambio) => { if (c.razon == null) return ''; const p = Math.round((c.razon - 1) * 1000) / 10; return `${p > 0 ? '+' : p < 0 ? '−' : '±'}${numCaso(Math.abs(p), props.lang)}${props.lang === 'en' ? '%' : ' %'}` }
 
 /* resumen en «Hoy»: las tres primeras, cada una con su mini-pista en el MISMO eje (se anima al verse) */
 const top = computed(() => cambios.value.slice(0, 3))
@@ -203,6 +217,10 @@ defineExpose({ abrir })
               </span>
               <svg v-if="geo(c)" :viewBox="`0 0 ${W} ${HF}`" :width="W" :height="HF" class="qc-pista" aria-hidden="true">
                 <rect :x="geo(c)!.b0" :y="Y - 6" :width="Math.max(2, geo(c)!.b1 - geo(c)!.b0)" height="12" rx="3" class="qc-banda" />
+                <template v-if="rcvGeo(c)">
+                  <rect :x="rcvGeo(c)!.o0" :y="Y - 10" :width="rcvGeo(c)!.o1 - rcvGeo(c)!.o0" height="20" rx="4" class="qc-rcv" />
+                  <rect :x="rcvGeo(c)!.i0" :y="Y - 10" :width="rcvGeo(c)!.i1 - rcvGeo(c)!.i0" height="20" rx="4" class="qc-rcv qc-rcv--in" />
+                </template>
                 <line :x1="eje.X(1)" :x2="eje.X(1)" :y1="Y - 9" :y2="Y + 9" class="qc-uno" />
                 <path v-if="geo(c)!.larga" :d="geo(c)!.d" class="qc-flecha" pathLength="1" />
                 <path :d="marca(c.antes, geo(c)!.x0)" class="qc-m qc-m--antes" />
@@ -215,6 +233,15 @@ defineExpose({ abrir })
                 <span v-if="conGrafico.includes(c.a.key)" class="qc-fila__ir">{{ L('su gráfico', 'its chart') }} →</span>
               </span>
             </component>
+            <!-- «¿cambio real o ruido?»: hasta cuánto puede variar solo por laboratorio y biología (RCV: límite estadístico,
+                 no clínico; verificacion 25-sep: «personas sanas» no lo dice la fuente y no va; el aviso de marcador alto, sí) -->
+            <p v-if="rcvDe(c) && rcvGeo(c)" class="qc-fila__rcv">
+              <i class="qc-fila__rcv-m" aria-hidden="true" />{{ L(`Hasta un ${rcvDe(c)!.min}-${rcvDe(c)!.max} % de cambio puede deberse solo al laboratorio y a la biología (límite estadístico al 95 %, no clínico; con el marcador ya alto puede ser mayor; ${fuenteRcv.es}). Este cambio: ${pct1(c)}.`, `Up to ${rcvDe(c)!.min}-${rcvDe(c)!.max}% change can come from the lab and biology alone (a 95% statistical limit, not a clinical one; it can be larger when the marker is already high; ${fuenteRcv.en}). This change: ${pct1(c)}.`) }}
+              <DatosSello s="verificado" :lang="lang" />
+            </p>
+            <p v-else-if="rcvDe(c)" class="qc-fila__rcv">{{ c.antes.ref_de === 'banda' || c.ahora.ref_de === 'banda'
+              ? L(`Sin comparar con su límite de ${rcvDe(c)!.min}-${rcvDe(c)!.max} %: uno de los dos informes no imprime rango, así que no sabemos si es el mismo laboratorio o método.`, `Not compared with its ${rcvDe(c)!.min}-${rcvDe(c)!.max}% limit: one of the two reports prints no range, so we don’t know if it is the same lab or method.`)
+              : L(`Sin comparar con su límite de ${rcvDe(c)!.min}-${rcvDe(c)!.max} %: los dos informes traen rangos distintos, puede ser otro laboratorio o método.`, `Not compared with its ${rcvDe(c)!.min}-${rcvDe(c)!.max}% limit: the two reports print different ranges, possibly another lab or method.`) }}</p>
             <p v-if="notas[c.a.key]" class="qc-fila__nota">{{ notas[c.a.key]!.txt }} <DatosSello v-if="notas[c.a.key]!.sello" :s="notas[c.a.key]!.sello!" :lang="lang" /></p>
           </li>
         </ol>
@@ -313,6 +340,10 @@ button.qc-fila__caja:hover .qc-fila__ir { text-decoration: underline; }
 .qc-fila__pie { display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 12px; font: 400 11.5px/1.4 var(--font-body); color: var(--color-text-soft); margin-top: 2px; }
 .qc-fila__pie .nums { font: 500 11px var(--font-mono); }
 .qc-fila__ir { margin-left: auto; font: 700 12px var(--font-body); color: var(--color-miriam); }
+.qc-rcv { fill: var(--color-miriam); fill-opacity: 0.12; stroke: var(--color-miriam); stroke-opacity: 0.35; stroke-dasharray: 2 2; }
+.qc-rcv--in { fill-opacity: 0.22; stroke: none; }
+.qc-fila__rcv { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 6px; font: 400 12px/1.45 var(--font-body); color: var(--color-text); margin: -2px 0 8px; }
+.qc-fila__rcv-m { width: 18px; height: 10px; border-radius: 3px; background: rgb(var(--color-miriam-rgb) / 0.2); border: 1px dashed rgb(var(--color-miriam-rgb) / 0.5); display: inline-block; }
 .qc-fila__nota { font: 400 12px/1.4 var(--font-body); color: var(--color-text); margin: -2px 0 8px; }
 .qc-pie { font: 400 11.5px/1.5 var(--font-body); color: var(--color-text-soft); margin: 12px 0 0; }
 /* resumen: la primera vez que se ve, cada trazo va de la anterior a la última */
