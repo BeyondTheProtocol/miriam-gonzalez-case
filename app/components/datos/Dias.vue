@@ -7,7 +7,7 @@
  *   · la banda de la línea de tratamiento (1L sólida, 2L clara, 3L rayada; sin línea, una raya
  *     fina; rayado de contorno = solo se sabe el mes, no se inventa el día);
  *   · trazos hacia ABAJO: cuántos salieron por debajo (▼);
- *   · encima de todo: progresión = raya fina con octágono (▲▼ son «fuera de rango») · TAC con RECIST = ■ (◆ ya es «marcado en el informe») ·
+ *   · encima de todo: progresión = raya fina con banderín (▲▼ son «fuera de rango») · TAC con RECIST = ■ (◆ ya es «marcado en el informe») ·
  *     radioterapia = ●; lo sabido solo por mes, hueco (△ ○) junto a la etiqueta del mes.
  * Lo que enseña de un golpe: cuánto duró cada línea, los huecos entre líneas y cuándo las
  * analíticas se cargan de valores fuera de rango. Tocar un día lo lee; si hubo analítica, lleva a ella.
@@ -156,7 +156,7 @@ function pintar() {
     return cx.createPattern(p, 'repeat')!
   })()
   const vis = dias.value.slice(0, hasta)
-  // progresión, DEBAJO de todo: raya fina que atraviesa la fila; su octágono va al final, encima y con halo.
+  // progresión, DEBAJO de todo: raya fina que atraviesa la fila; su banderín va al final, encima y con halo.
   // Antes era una barra oscura encima y destrozaba el ◆ del TAC del mismo día (13-jul-2026, diseno)
   for (const d of vis) if (d.prog) { cx.fillStyle = tinta; cx.globalAlpha = 0.7; cx.fillRect(xDe(d.t) + c / 2 - 0.6, filaDe(d.t) * FILA + 2, 1.2, FILA - 3); cx.globalAlpha = 1 }
   // pista central por TRAMOS (días seguidos del mismo estado y línea en la misma fila): banda redondeada
@@ -194,8 +194,8 @@ function pintar() {
       cx.beginPath(); cx.rect(mx - 3.8, my - 3.8, 7.6, 7.6)
       cx.fillStyle = tinta; cx.fill(); cx.lineWidth = 1.2; cx.strokeStyle = fondo; cx.stroke()
     }
-    if (d.prog) { // octágono de la progresión arriba del todo, con halo (la raya ya está debajo)
-      octogono(cx, x + c / 2, y + 4.5, 4.4); cx.lineWidth = 2; cx.strokeStyle = fondo; cx.stroke(); cx.fillStyle = tinta; cx.fill()
+    if (d.prog) { // banderín en lo alto de la raya de la progresión, con halo (la raya ya está debajo)
+      banderin(cx, x + c / 2, y + 1, 7); cx.lineWidth = 2; cx.strokeStyle = fondo; cx.stroke(); cx.fillStyle = tinta; cx.fill()
     }
   }
   // etiqueta de cada línea donde empieza, DESPUÉS de los trazos y con halo: antes un trazo tapaba «2L»
@@ -205,13 +205,13 @@ function pintar() {
     const x = xDe(t) + 1, y = filaDe(t) * FILA + ARR - 2
     cx.lineWidth = 3; cx.strokeStyle = fondo; cx.strokeText(id, x, y); cx.fillStyle = violeta; cx.fillText(id, x, y)
   }
-  // lo sabido solo por mes: hueco junto a la etiqueta del mes (octágono hueco = progresión, círculo discontinuo = RT)
+  // lo sabido solo por mes: hueco junto a la etiqueta del mes (banderín hueco = progresión, círculo discontinuo = RT)
   meses.value.forEach(({ a, m }, fila) => {
     const clave = `${a}-${String(m + 1).padStart(2, '0')}`
     if (!vis.length || Date.UTC(a, m, 1) > vis[vis.length - 1]!.t) return
     const y = fila * FILA + BAN + 3
-    cx.strokeStyle = tinta; cx.lineWidth = 1.3
-    if (progresionesMes.has(clave)) { octogono(cx, 31, y, 4.2); cx.stroke() }
+    cx.strokeStyle = tinta; cx.fillStyle = tinta; cx.lineWidth = 1.3
+    if (progresionesMes.has(clave)) { cx.fillRect(28.4, y - 6, 1.3, 12); banderin(cx, 29, y - 6, 7); cx.stroke() }
     // RT sabida por mes: círculo DISCONTINUO (el anillo liso ya es «analítica sin nada fuera»)
     if (rtMes.has(clave)) { cx.setLineDash([1.6, 1.4]); cx.beginPath(); cx.arc(progresionesMes.has(clave) ? 22 : 31, y, 3, 0, 7); cx.stroke(); cx.setLineDash([]) }
   })
@@ -220,11 +220,10 @@ function pintar() {
     cx.strokeStyle = violeta; cx.lineWidth = 1.5; cx.strokeRect(x - 1, y + 0.5, c + 2, FILA - 1.5)
   }
 }
-/** octágono (la progresión, en todo el panel: ▲▼ quedan para «fuera de rango») */
-function octogono(cx: CanvasRenderingContext2D, x: number, y: number, r: number) {
-  cx.beginPath()
-  for (let i = 0; i < 8; i++) { const a = (Math.PI / 4) * i + Math.PI / 8; cx[i ? 'lineTo' : 'moveTo'](x + r * Math.cos(a), y + r * Math.sin(a)) }
-  cx.closePath()
+/** banderín de la progresión (en todo el panel: ▲▼ quedan para «fuera de rango»): triángulo que
+    sale a la derecha desde lo alto de la raya; el octágono se probó y a este tamaño parecía un círculo */
+function banderin(cx: CanvasRenderingContext2D, x: number, yTop: number, alto: number) {
+  cx.beginPath(); cx.moveTo(x + 0.6, yTop); cx.lineTo(x + alto * 0.9, yTop + alto / 2); cx.lineTo(x + 0.6, yTop + alto); cx.closePath()
 }
 function llenar() {
   if (window.matchMedia('(prefers-reduced-motion: reduce)').matches || document.visibilityState === 'hidden') { progreso = 1; pintar(); return }
@@ -329,9 +328,9 @@ const miles = (n: number) => String(n).replace(/\B(?=(\d{3})+(?!\d))/g, props.la
       <span><i class="dias__t" />{{ L('analítica: trazo hacia arriba, valores por encima del rango; hacia abajo, por debajo. Más largo, más valores', 'lab report: stroke up, values above range; down, below range. Longer means more values') }}</span>
       <span><i class="dias__o" />{{ L('analítica sin nada fuera de rango', 'lab report, all in range') }}</span>
       <span>■ {{ L('TAC con RECIST', 'CT with RECIST') }}</span>
-      <span><svg width="11" height="11" viewBox="0 0 12 12" aria-hidden="true"><path :d="pathForma('octogono', 6, 6, 4.6)" class="dias__svg-lleno" /></svg>{{ L('progresión', 'progression') }}</span>
+      <span><svg width="11" height="11" viewBox="0 0 12 12" aria-hidden="true"><path :d="pathForma('banderin', 4, 6, 4)" class="dias__svg-lleno" /></svg>{{ L('progresión', 'progression') }}</span>
       <span>● {{ L('radioterapia', 'radiotherapy') }}</span>
-      <span v-if="progresionesMes.size || rtMes.size"><svg width="11" height="11" viewBox="0 0 12 12" aria-hidden="true"><path :d="pathForma('octogono', 6, 6, 4.6)" class="dias__svg-hueco" /></svg> <i class="dias__rtmes" /> {{ L('junto al mes: progresión o radioterapia de la que solo se sabe el mes', 'next to the month: progression or radiotherapy known only by month') }}</span>
+      <span v-if="progresionesMes.size || rtMes.size"><svg width="11" height="11" viewBox="0 0 12 12" aria-hidden="true"><path :d="pathForma('banderin', 4, 6, 4)" class="dias__svg-hueco" /></svg> <i class="dias__rtmes" /> {{ L('junto al mes: progresión o radioterapia de la que solo se sabe el mes', 'next to the month: progression or radiotherapy known only by month') }}</span>
     </p>
   </figure>
 </template>

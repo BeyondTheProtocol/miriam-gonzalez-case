@@ -50,7 +50,7 @@ const lineas = computed(() => props.lineas.map((l) => {
   return { ...l, rt, x: X(a), w: Math.max(3, X(b) - X(a)), futura: ini[0] > hoyMs.value, abierta: !fin }
 }).filter((l): l is NonNullable<typeof l> => !!l))
 
-const FORMA: Record<string, Forma> = { diagnostico: 'estrella', progresion: 'octogono', ingreso: 'aspa', molecular: 'rombo' }
+const FORMA: Record<string, Forma> = { diagnostico: 'estrella', progresion: 'banderin', ingreso: 'aspa', molecular: 'rombo' }
 const clave = (e: Evento) => e.dibujar && (e.clase === 'diagnostico' || e.clase === 'progresion' || e.clase === 'ingreso'
   || (e.clase === 'molecular' && /biops/i.test(e.titulo.es)))
 const eventos = computed(() => {
@@ -119,7 +119,7 @@ const elegido = computed(() => (props.cabezal != null ? eventos.value[eventos.va
     </div>
     <p class="lt__ley">
       <span><svg width="14" height="12" aria-hidden="true"><path :d="pathForma('estrella', 7, 6, 4.5)" class="lt__glifo lt__glifo--fuerte" /></svg>{{ L('diagnóstico', 'diagnosis') }}</span>
-      <span><svg width="14" height="12" aria-hidden="true"><path :d="pathForma('octogono', 7, 6, 4.5)" class="lt__glifo lt__glifo--fuerte" /></svg>{{ L('progresión', 'progression') }}</span>
+      <span><svg width="14" height="12" aria-hidden="true"><path :d="pathForma('banderin', 5, 6, 4)" class="lt__glifo lt__glifo--fuerte" /></svg>{{ L('progresión', 'progression') }}</span>
       <span><svg width="14" height="12" aria-hidden="true"><path :d="pathForma('rombo', 7, 6, 4.5)" class="lt__glifo" /></svg>{{ L('biopsia', 'biopsy') }}</span>
       <span><svg width="14" height="12" aria-hidden="true"><path :d="pathForma('aspa', 7, 6, 4)" class="lt__glifo" /></svg>{{ L('ingreso', 'hospitalization') }}</span>
       <span><svg width="18" height="12" aria-hidden="true"><rect x="0" y="4" width="18" height="5" rx="2" class="lt__linea lt__linea--rt" /></svg>{{ L('radioterapia', 'radiotherapy') }}</span>
