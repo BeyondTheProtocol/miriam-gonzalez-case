@@ -82,13 +82,14 @@ const previoTxt = (a: Analito | null, enLsn = false) => {
   return L(`antes: ${v('es')} · ${fechaCorta(p.f, 'es')}`, `before: ${v('en')} · ${fechaCorta(p.f, 'en')}`)
 }
 const ultimo = (a: Analito | null) => (a ? a.puntos[a.puntos.length - 1] : null)
-/* minilínea de «Hoy»: últimos 12 valores con su marca de fuera de rango y la banda normal del último
-   informe, en la MISMA unidad que la línea. En ×LSN, un punto sin límite se cae (no se mezclan unidades). */
+/* minilínea de «Hoy»: últimos 12 valores con su marca de fuera de rango y, detrás, el rango normal de
+   CADA informe (en escalones), en la MISMA unidad que la línea. Con la banda del último informe para
+   todos, una Hb de 11,7 normal en su informe (11,7-16,1) caía bajo la banda de 12-15 sin ▼ (diseno, r4).
+   En ×LSN, un punto sin límite se cae (no se mezclan unidades). */
 const mini12 = (a: Analito | null, lsn = false) => {
   const ps = (a?.puntos ?? []).slice(-12).filter((p) => !lsn || xlsn(p) != null)
-  const ult = ps[ps.length - 1]
-  const banda: [number, number] | null = !ult || ult.hi == null ? null : lsn ? [(ult.lo ?? 0) / ult.hi, 1] : [ult.lo ?? 0, ult.hi]
-  return { serie: ps.map((p) => (lsn ? xlsn(p)! : p.v)), formas: ps.map((p) => p.fuera), banda }
+  const bandas = ps.map((p): [number, number] | null => (p.hi == null ? null : lsn ? [(p.lo ?? 0) / p.hi, 1] : [p.lo ?? 0, p.hi]))
+  return { serie: ps.map((p) => (lsn ? xlsn(p)! : p.v)), formas: ps.map((p) => p.fuera), bandas }
 }
 const r1 = (v: number) => numCaso(Math.round(v * 10) / 10, lang.value)
 const ca = an('ca153'); const hb = an('hemoglobina'); const ast = an('got'); const alt = an('gpt')
@@ -315,25 +316,25 @@ const n = (v: number) => numCaso(v, lang.value)
             <a v-if="pCa" href="#s-evo" class="dt-cifra-link" @click.prevent="pestana = 'marcadores'; saltar('s-evo')">
             <DatosCifraClave etiqueta="CA 15-3" :valor="n(pCa.v)" :unidad="ca!.unidad" :fuera="pCa.fuera"
                              :detalle="xlsn(pCa) ? L(`${r1(xlsn(pCa)!)} veces el límite normal`, `${r1(xlsn(pCa)!)} times the upper limit`) : ''"
-                             :fecha="fechaCorta(pCa.f, lang)" sello="extraido" :serie="mini12(ca).serie" :formas="mini12(ca).formas" :banda="mini12(ca).banda" :previo="previoTxt(ca)" :lang="lang" />
+                             :fecha="fechaCorta(pCa.f, lang)" sello="extraido" :serie="mini12(ca).serie" :formas="mini12(ca).formas" :bandas="mini12(ca).bandas" :previo="previoTxt(ca)" :lang="lang" />
             </a>
             <a v-if="pHb" href="#s-evo" class="dt-cifra-link" @click.prevent="pestana = 'sangre'; saltar('s-evo')">
             <DatosCifraClave :etiqueta="L('Hemoglobina', 'Hemoglobin')" :valor="n(pHb.v)" :unidad="hb!.unidad" :fuera="pHb.fuera"
-                             :fecha="fechaCorta(pHb.f, lang)" sello="extraido" :serie="mini12(hb).serie" :formas="mini12(hb).formas" :banda="mini12(hb).banda" :previo="previoTxt(hb)"
+                             :fecha="fechaCorta(pHb.f, lang)" sello="extraido" :serie="mini12(hb).serie" :formas="mini12(hb).formas" :bandas="mini12(hb).bandas" :previo="previoTxt(hb)"
                              :nota="transfusionEntre ? L('Entre las dos, una transfusión en urgencias el 9 sep.', 'In between, a transfusion in the emergency room on Sep 9.') : ''"
                              :nota-sello="c.ficha?.estado_actual?.sello" :lang="lang" />
             </a>
             <a v-if="pAst" href="#s-evo" class="dt-cifra-link" @click.prevent="pestana = 'higado'; saltar('s-evo')">
             <DatosCifraClave :etiqueta="L('Hígado (AST)', 'Liver (AST)')" :valor="`${r1(xlsn(pAst) ?? 0)}×`" :unidad="L('límite normal', 'upper limit')"
                              :fuera="pAst.fuera" :detalle="`AST ${n(pAst.v)} · ALT ${pAlt ? n(pAlt.v) : '—'} ${ast!.unidad}`"
-                             :fecha="fechaCorta(pAst.f, lang)" sello="extraido" :serie="mini12(ast, true).serie" :formas="mini12(ast, true).formas" :banda="mini12(ast, true).banda" :previo="previoTxt(ast, true)"
+                             :fecha="fechaCorta(pAst.f, lang)" sello="extraido" :serie="mini12(ast, true).serie" :formas="mini12(ast, true).formas" :bandas="mini12(ast, true).bandas" :previo="previoTxt(ast, true)"
                              :nota="pAst.ref_de === 'banda' ? L('Límite: el habitual del laboratorio; este informe no lo trae.', 'Limit: the lab’s usual one; this report does not print it.') : ''" :lang="lang" />
             </a>
             <!-- lo que más cambió entre las dos últimas analíticas; al tocarlo, la hoja con todas -->
             <DatosQueCambio ref="queCambio" :grupos="grupos" :nombres="nombresCortos" :entre="entreAnaliticas" :notas="notasCambio"
                             :con-grafico="conGrafico" :lang="lang" @ir="irAPrueba" />
           </div>
-          <p class="dt-pie">{{ L('Minilíneas: los últimos 12 valores. En gris, el rango normal del último informe; ▲▼ fuera de rango.', 'Sparklines: the last 12 values. In gray, the latest report’s normal range; ▲▼ out of range.') }}</p>
+          <p class="dt-pie">{{ L('Minilíneas: los últimos 12 valores. En gris, el rango normal de cada informe; ▲▼ fuera de rango.', 'Sparklines: the last 12 values. In gray, each report’s normal range; ▲▼ out of range.') }}</p>
         </section>
 
         <!-- 1b · un cuadrado por día desde el diagnóstico -->
@@ -511,7 +512,7 @@ const n = (v: number) => numCaso(v, lang.value)
   border-bottom: 1px solid rgb(var(--color-text-rgb) / 0.08); }
 .dt-barra::-webkit-scrollbar { display: none; }
 @media (min-width: 640px) { .dt-barra { top: 72px; margin: 16px 0 0; padding: 8px 0; } }
-.dt-chip { flex: none; display: inline-flex; align-items: center; min-height: 36px; padding: 0 14px; border-radius: 999px; white-space: nowrap;
+.dt-chip { flex: none; display: inline-flex; align-items: center; min-height: 44px; padding: 0 14px; border-radius: 999px; white-space: nowrap;
   font: 600 13px var(--font-body); color: var(--color-text-soft); border: 1px solid rgb(var(--color-text-rgb) / 0.12);
   transition: background var(--dur-micro), color var(--dur-micro), border-color var(--dur-micro); }
 .dt-chip[aria-current='true'] { background: var(--color-text); color: var(--color-bg); border-color: var(--color-text); }

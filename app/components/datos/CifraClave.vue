@@ -15,8 +15,8 @@ const props = defineProps<{
   serie?: number[]
   /** fuera de rango de cada valor de la serie (▲▼◆ en la minilínea, no solo color) */
   formas?: ('alto' | 'bajo' | 'fuera' | null)[]
-  /** rango normal del último informe, en la unidad de la serie: banda gris detrás de la línea */
-  banda?: [number, number] | null
+  /** rango normal del informe de CADA valor, en la unidad de la serie: banda gris en escalones */
+  bandas?: ([number, number] | null)[]
   /** tira de días (true = en una línea de tratamiento), mismo lenguaje que «Cada día» */
   franja?: boolean[]
   /** valor anterior para comparar: «antes: 215,4 · 19 ago» */
@@ -49,15 +49,22 @@ const spark = computed(() => {
   const s = props.serie ?? []
   if (s.length < 2) return null
   // la banda entra en la escala: así se ve si la línea está dentro, encima o debajo del rango
-  const b = props.banda
-  const lo = Math.min(...s, ...(b ? [b[0]] : []))
-  const hi = Math.max(...s, ...(b ? [b[1]] : []))
+  const bs = (props.bandas ?? []).slice(0, s.length)
+  const lim = bs.flatMap((b) => b ?? [])
+  const lo = Math.min(...s, ...lim)
+  const hi = Math.max(...s, ...lim)
   const X = (i: number) => rc(5 + (i / (s.length - 1)) * (W - 10))
   const Y = (v: number) => rc(H - 5 - ((v - lo) / (hi - lo || 1)) * (H - 10))
   const f = props.formas ?? []
   const marcas = s.map((v, i) => ({ x: X(i), y: Y(v), fuera: f[i] ?? null, ultimo: i === s.length - 1 }))
-  return { d: s.map((v, i) => `${i ? 'L' : 'M'}${X(i)},${Y(v)}`).join(''), marcas,
-    banda: b ? { y: Y(b[1]), h: Math.max(1.5, Y(b[0]) - Y(b[1])) } : null }
+  // cada informe manda en su tramo: de la mitad con el anterior a la mitad con el siguiente
+  const banda = bs.map((b, i) => {
+    if (!b) return ''
+    const x0 = i === 0 ? 0 : (X(i - 1) + X(i)) / 2, x1 = i === s.length - 1 ? W : (X(i) + X(i + 1)) / 2
+    const y0 = Y(b[1]), h = Math.max(1.5, Y(b[0]) - Y(b[1]))
+    return `M${rc(x0)},${rc(y0)}h${rc(x1 - x0)}v${rc(h)}h${rc(x0 - x1)}Z`
+  }).join('')
+  return { d: s.map((v, i) => `${i ? 'L' : 'M'}${X(i)},${Y(v)}`).join(''), marcas, banda }
 })
 </script>
 
@@ -80,7 +87,7 @@ const spark = computed(() => {
     </svg>
     <p v-if="franja?.length" class="ck__franja-txt">{{ L('últimos 90 días · alto = con tratamiento', 'last 90 days · tall = on treatment') }}</p>
     <svg v-if="spark" :viewBox="`0 0 ${W} ${H}`" class="ck__spark" aria-hidden="true">
-      <rect v-if="spark.banda" x="0" :y="spark.banda.y" :width="W" :height="spark.banda.h" rx="2" class="ck__banda" />
+      <path v-if="spark.banda" :d="spark.banda" class="ck__banda" />
       <path :d="spark.d" class="ck__linea" pathLength="1" />
       <template v-for="(m, i) in spark.marcas" :key="i">
         <path v-if="marca(m)" :d="marca(m)" :class="m.ultimo ? 'ck__ultimo' : 'ck__marca'" :style="{ '--i': i }" />
