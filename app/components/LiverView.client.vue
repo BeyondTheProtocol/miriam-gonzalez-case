@@ -354,11 +354,11 @@ onBeforeUnmount(() => {
       </li>
       <li class="flex items-start gap-1.5">
         <span class="inline-block w-2.5 h-2.5 mt-[3px] shrink-0 rounded-full" style="background:#f2b23c" aria-hidden="true" />
-        {{ L(`Otras ${cuenta.medibles} lesiones de 10 mm o más (detección automática)`, `${cuenta.medibles} other lesions of 10 mm or more (automatic detection)`) }}
+        {{ L(`Otras ${cuenta.medibles} lesiones candidatas de 10 mm o más (detección automática)`, `${cuenta.medibles} other candidate lesions of 10 mm or more (automatic detection)`) }}
       </li>
       <li class="flex items-start gap-1.5">
         <span class="inline-block w-2.5 h-2.5 mt-[3px] shrink-0 rounded-full" style="background:#7c5cf0" aria-hidden="true" />
-        {{ L(`${cuenta.pequenas} lesiones de menos de 10 mm (detección automática)`, `${cuenta.pequenas} lesions under 10 mm (automatic detection)`) }}
+        {{ L(`${cuenta.pequenas} lesiones candidatas de menos de 10 mm (detección automática)`, `${cuenta.pequenas} candidate lesions under 10 mm (automatic detection)`) }}
       </li>
     </ul>
 
@@ -407,7 +407,7 @@ onBeforeUnmount(() => {
       </li>
     </ul>
     <p v-if="!loading && !failed" class="mt-1.5 text-[11px] text-tinta leading-snug">
-      {{ L('RECIST 1.1 solo mide lesiones de 10 mm o más. Segmentación automática (IA, 100 % local), sin validación radiológica: puede haber de más o de menos, y mide 2-6 mm por debajo del radiólogo en las dianas. Las venas más finas pueden salir incompletas.', 'RECIST 1.1 only measures lesions of 10 mm or more. Automatic segmentation (AI, 100% local), not validated by a radiologist: there may be more or fewer, and it measures 2-6 mm below the radiologist on the targets. The thinnest veins may come out incomplete.') }}
+      {{ L('RECIST 1.1 solo mide lesiones de 10 mm o más. Las lesiones candidatas vienen de segmentación automática (IA, 100 % local): el modelo las detecta y ningún radiólogo las ha confirmado. Puede haber de más o de menos, y en las dianas el modelo mide 2-6 mm por debajo del radiólogo. Las venas más finas pueden salir incompletas.', 'RECIST 1.1 only measures lesions of 10 mm or more. Candidate lesions come from automatic segmentation (AI, 100% local): the model detects them and no radiologist has confirmed them. It may miss some or flag extra ones, and on the targets it measures 2-6 mm below the radiologist. The thinnest veins may appear incomplete.') }}
     </p>
   </div>
 </template>

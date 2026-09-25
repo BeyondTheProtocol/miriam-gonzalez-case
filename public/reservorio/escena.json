@@ -1,0 +1,36 @@
+{
+ "fechas": {
+  "2026-07-10": {
+   "mallas": {
+    "medido": "medido.ply",
+    "interpolado": "interpolado.ply",
+    "portal": "portal.ply",
+    "hueso": "hueso.ply",
+    "traquea": "traquea.ply"
+   },
+   "longitud_mm": 152.2
+  },
+  "2026-09-08": {
+   "mallas": {
+    "medido": "medido.ply",
+    "interpolado": "interpolado.ply",
+    "portal": "portal.ply",
+    "hueso": "hueso.ply",
+    "traquea": "traquea.ply"
+   },
+   "longitud_mm": 151.7
+  },
+  "2026-03-24": {
+   "mallas": {
+    "medido": "medido.ply",
+    "interpolado": "interpolado.ply",
+    "portal": "portal.ply",
+    "hueso": "hueso.ply"
+   },
+   "longitud_mm": 150.8
+  }
+ },
+ "error_medida_mm": 5,
+ "error_diferencia_mm": 10,
+ "fuente": "el trayecto sale del TC de cada fecha: los dos extremos (portal y punta) están leídos directamente en el corte; el tramo intermedio es la ruta de coste de brillo más probable entre ambos, no una medida punto a punto, y se dibuja discontinua por eso. Hueso y tráquea son solo referencia anatómica."
+}

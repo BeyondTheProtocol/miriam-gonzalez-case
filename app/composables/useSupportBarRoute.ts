@@ -33,9 +33,13 @@ export function useSupportBarRoute() {
   // timeline, ficha lesión a lesión, visor 3D) y /lesiones (19-sep: con dos
   // visores 3D, la barra tapaba el pie de ambos en móvil). Un sticky coral
   // persiguiendo por encima resta credibilidad y tapa contenido; el header coral
-  // global ya cubre la conversión.
-  const isDeepTool = computed(() =>
-    /^\/(?:en\/)?(?:mapa-metastasis|lesiones)$/.test(path.value)
+  // global ya cubre la conversión. /datos igual (25-sep): bajo sus pestañas
+  // sticky, los 99px de la barra tapaban al hacer scroll el final de las
+  // analíticas y de las tarjetas de tejido. En EN es /en/data.
+  const isDeepTool = computed(
+    () =>
+      /^\/(?:en\/)?(?:mapa-metastasis|lesiones)$/.test(path.value) ||
+      /^\/(?:datos|en\/data)$/.test(path.value)
   )
 
   const isThanks = computed(() => route.path.includes('gracias'))

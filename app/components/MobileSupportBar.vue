@@ -54,7 +54,7 @@ const { GOFUNDME_URL, trackSupport } = useSupport()
 const visible = ref(false)
 
 // Rutas silenciadas (/gracias, sub-páginas de Ciencia, mapa de metástasis,
-// /lesiones): fuente única en useSupportBarRoute, compartida con el layout,
+// /lesiones, /datos): fuente única en useSupportBarRoute, compartida con el layout,
 // que reserva el hueco de la barra en <main> solo donde puede aparecer.
 const { hasSupportBar } = useSupportBarRoute()
 
