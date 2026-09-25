@@ -73,7 +73,6 @@ const snc = (c.ficha?.sitios ?? []).find((x: any) => /^SNC|^CNS/.test(T(x.valor)
 /* diagnóstico en una línea (arriba del todo) y sitios de enfermedad en corto: «Hueso: metástasis
    incontables…» hasta el primer «;». El texto entero sigue en caso.json y en /ciencia. */
 const dx = c.ficha?.diagnostico ?? null
-const estadio = c.ficha?.estadio ?? null
 const sitiosCortos = computed(() => (c.ficha?.sitios ?? []).filter((x: any) => !/^SNC|^CNS/.test(T(x.valor))).map((x: any) => {
   const t = T(x.valor); const i = t.indexOf(':')
   const k = i > 0 && i < 30 ? t.slice(0, i) : ''
@@ -256,7 +255,8 @@ function clicSalto(ev: MouseEvent, id: string, antes?: () => void) {
 let hashHecho = false
 function alHash(h: string) {
   const id = h.slice(1)
-  if (hashHecho || !SECCIONES.some(([s]) => s === id)) return
+  // también las secciones sin chip de la vitrina (calendario y reservorio), que se pueden enlazar
+  if (hashHecho || !(SECCIONES.some(([s]) => s === id) || id === 's-dias' || id === 's-reservorio')) return
   hashHecho = true
   const recolocar = () => { const el = document.getElementById(id); if (el) window.scrollTo({ top: Math.max(0, yPagina(el) - MARGEN), behavior: 'instant' }) }
   let quieto: ReturnType<typeof setTimeout> | undefined
@@ -351,9 +351,10 @@ const n = (v: number) => numCaso(v, lang.value)
 
         <!-- 0 · el diagnóstico en una línea: sin esto, «Hoy» no tiene sujeto (oncologo-virtual) -->
         <section v-if="dx" class="dt-dx" :aria-label="L('Diagnóstico', 'Diagnosis')">
-          <p class="dt-dx__k">{{ L('Diagnóstico', 'Diagnosis') }}<template v-if="fechaDx"> · <span class="nums">{{ fechaCorta(fechaDx, lang) }}</span></template></p>
+          <!-- fechaDx es la de la biopsia (muestra recibida el 16-ene); el informe de anatomía patológica es del 24-ene
+               (cotejado en el informe, 25-sep): se dice cuál es cuál, sin llamar «diagnóstico» a una sola fecha -->
+          <p class="dt-dx__k">{{ L('Diagnóstico', 'Diagnosis') }}<template v-if="fechaDx"> · {{ L('biopsia del', 'biopsy of') }} <span class="nums">{{ fechaCorta(fechaDx, lang) }}</span><template v-if="fechaDx === '2024-01-16'">{{ L(' (informe del 24 ene)', ' (report of Jan 24)') }}</template></template></p>
           <p class="dt-dx__v">{{ T(dx.valor) }} <DatosSello :s="dx.sello" :lang="lang" /></p>
-          <p v-if="estadio" class="dt-dx__e">{{ T(estadio.valor) }}</p>
         </section>
 
         <!-- barra de secciones fija con la sección activa (scroll-spy): en el móvil, saltar sin perderse -->
