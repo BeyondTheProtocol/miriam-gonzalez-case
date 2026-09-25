@@ -12,13 +12,15 @@
  * Canvas 2D (1.700 píxeles con brillo van mejor que 1.700 nodos SVG en un móvil). En el HTML
  * estático queda el texto; los píxeles los pinta el cliente.
  */
-import type { Analito, Contexto, Lang } from '~/utils/datosCaso'
+import type { Analito, Contexto, Lang, Punto } from '~/utils/datosCaso'
 
 const props = defineProps<{
   grupos: Record<string, { analitos: Analito[] }>
   contexto: Contexto
   hoy: string
   lang: Lang
+  /** nombres cortos del panel («CA 15-3», no el «CA 15.3» del informe) */
+  nombres?: Record<string, string>
 }>()
 const L = (es: string, en: string) => (props.lang === 'en' ? en : es)
 /** tocar el cielo lleva a esa fecha: la página fija el cursor y baja a Evolución */
@@ -39,8 +41,11 @@ const filas = computed(() => {
 })
 const puntos = computed(() => filas.value.flatMap((f, i) => f.a.puntos
   // violeta = se sale DE VERDAD (alto/bajo); lo que el informe marcó sin salirse del rango, tenue
-  .map((p) => ({ t: msFecha(p.f), fila: i, fuera: p.fuera === 'alto' || p.fuera === 'bajo' }))
+  .map((p) => ({ t: msFecha(p.f), fila: i, fuera: p.fuera === 'alto' || p.fuera === 'bajo', p, a: f.a }))
   .filter((q) => q.t >= desde && q.t <= hasta)))
+type PuntoCielo = (typeof puntos.value)[number]
+/** el punto elegido (tocar o teclado); se declara aquí porque pintar() y el watch lo leen */
+const sel = ref<PuntoCielo | null>(null)
 const nPuntos = computed(() => puntos.value.length)
 const nFuera = computed(() => puntos.value.filter((p) => p.fuera).length)
 // miles con separador siempre (es-ES no agrupa 4 cifras: «1696» se lee peor que «1.696»)
@@ -110,6 +115,14 @@ function pintar() {
   for (const p of puntos.value) if (p.fuera && p.t <= tope) cx.fillRect(Math.round(X(p.t)), 8 + p.fila * fila, px, px - 1)
   cx.shadowBlur = 0
 
+  // el punto elegido (tocar o teclado): anillo y cruz fina, para ver qué se está leyendo
+  if (sel.value) {
+    const sx = Math.round(X(sel.value.t)) + px / 2, sy = 8 + sel.value.fila * fila + (px - 1) / 2
+    cx.strokeStyle = crema; cx.lineWidth = 1; cx.globalAlpha = 0.35
+    cx.beginPath(); cx.moveTo(sx, 4); cx.lineTo(sx, 8 + filas.value.length * fila); cx.moveTo(IZQ, sy); cx.lineTo(w - 8, sy); cx.stroke()
+    cx.globalAlpha = 1; cx.lineWidth = 1.6; cx.beginPath(); cx.arc(sx, sy, 6, 0, 7); cx.stroke()
+  }
+
   // cabeza del barrido
   if (barrido < 1) {
     const xh = X(tope)
@@ -152,19 +165,54 @@ onMounted(() => {
   // si el observador no dispara (pestaña oculta), el cielo no se queda vacío: se pinta entero
   reserva = setTimeout(() => { if (!encendido) { encendido = true; io?.disconnect(); barrido = 1; pintar() } }, 10000)
 })
-watch([W, () => props.lang], () => pintar())
+watch([W, () => props.lang, sel], () => pintar())
 onBeforeUnmount(() => { io?.disconnect(); clearTimeout(reserva); cancelAnimationFrame(raf) })
+/* tocar (o clic) ELIGE el punto más cercano y dice qué es; saltar a Evolución es un segundo paso
+   (antes saltaba sin decir qué se había tocado). Con teclado: ← → fechas de esa prueba, ↑ ↓ otra
+   prueba, Inicio/Fin extremos, Intro salta, Esc suelta. */
+const tiempoX = (x: number) => desde + ((x - IZQ) / (W.value - IZQ - 8)) * (hasta - desde)
 function tocar(ev: PointerEvent) {
   const r = (ev.currentTarget as HTMLElement).getBoundingClientRect()
-  const x = ev.clientX - r.left
+  const x = ev.clientX - r.left, y = ev.clientY - r.top
   if (x < IZQ) return
-  const t = desde + ((x - IZQ) / (W.value - IZQ - 8)) * (hasta - desde)
-  // la analítica más cercana a ese punto (así el cursor cae en una fecha con dato)
-  let mejor = ''
-  let dmin = Infinity
-  for (const f of filas.value) for (const p of f.a.puntos) { const d = Math.abs(msFecha(p.f) - t); if (d < dmin) { dmin = d; mejor = p.f } }
-  if (mejor) emit('fecha', mejor)
+  const t = tiempoX(x), fila = Math.floor((y - 8) / ALTO_FILA.value)
+  // en esa fila, el punto más cercano en el tiempo; si la fila no tiene, el más cercano de todos
+  const enFila = puntos.value.filter((p) => p.fila === fila)
+  const pool = enFila.length ? enFila : puntos.value
+  let mejor: PuntoCielo | null = null, dmin = Infinity
+  for (const p of pool) { const d = Math.abs(p.t - t); if (d < dmin) { dmin = d; mejor = p } }
+  sel.value = mejor
 }
+const deFila = (f: number) => puntos.value.filter((p) => p.fila === f).sort((a, b) => a.t - b.t)
+function tecla(ev: KeyboardEvent) {
+  if (!puntos.value.length) return
+  const s = sel.value
+  if (ev.key === 'Escape') { sel.value = null; return }
+  if (ev.key === 'Enter' && s) { ev.preventDefault(); emit('fecha', s.p.f); return }
+  let n: PuntoCielo | null | undefined = null
+  if (!s) n = puntos.value.reduce((m, p) => (p.t > m.t ? p : m), puntos.value[0]!) // sin selección: lo último
+  else if (ev.key === 'ArrowRight' || ev.key === 'ArrowLeft') {
+    const fs = deFila(s.fila), i = fs.findIndex((p) => p.t === s.t)
+    n = fs[Math.max(0, Math.min(fs.length - 1, i + (ev.key === 'ArrowRight' ? 1 : -1)))]
+  } else if (ev.key === 'ArrowDown' || ev.key === 'ArrowUp') {
+    const paso = ev.key === 'ArrowDown' ? 1 : -1
+    for (let f = s.fila + paso; f >= 0 && f < filas.value.length; f += paso) {
+      const fs = deFila(f); if (!fs.length) continue
+      n = fs.reduce((m, p) => (Math.abs(p.t - s.t) < Math.abs(m.t - s.t) ? p : m), fs[0]!); break
+    }
+    n = n ?? s
+  } else if (ev.key === 'Home' || ev.key === 'End') { const fs = deFila(s.fila); n = ev.key === 'Home' ? fs[0] : fs[fs.length - 1] }
+  else return
+  ev.preventDefault(); if (n) sel.value = n
+}
+const lectura = computed(() => {
+  const s = sel.value; if (!s) return ''
+  const p: Punto = s.p
+  const forma = p.fuera === 'alto' ? '▲ ' : p.fuera === 'bajo' ? '▼ ' : p.fuera ? '◆ ' : ''
+  const rango = p.hi != null ? ` · ${L('rango', 'range')} ${numCaso(p.lo ?? 0, props.lang)}–${numCaso(p.hi, props.lang)}${p.ref_de === 'banda' ? '*' : ''}` : ''
+  const estado = p.fuera === 'alto' ? L('por encima del rango', 'above range') : p.fuera === 'bajo' ? L('por debajo del rango', 'below range') : p.fuera ? L('marcado en el informe', 'flagged on report') : L('dentro del rango', 'within range')
+  return `${props.nombres?.[s.a.key] ?? s.a.nombre} · ${forma}${numCaso(p.v, props.lang)} ${s.a.unidad} · ${fechaCorta(p.f, props.lang)}${rango} · ${estado}`
+})
 </script>
 
 <template>
@@ -175,9 +223,16 @@ function tocar(ev: PointerEvent) {
         {{ L(`Cada punto es uno. Los ${miles(nFuera)} violetas se salieron de rango.`, `Each dot is one. The ${miles(nFuera)} violet ones fell outside the range.`) }}
       </p>
       <div ref="caja" class="cielo__lienzo" @pointerup="tocar">
-        <canvas ref="lienzo" role="img" :aria-label="L(`${nPuntos} valores de laboratorio desde diciembre de 2023, ${nFuera} fuera de rango, ordenados por fecha y por prueba.`, `${nPuntos} lab values since December 2023, ${nFuera} out of range, by date and by test.`)" />
+        <canvas ref="lienzo" class="cielo__canvas" role="slider" tabindex="0"
+                :aria-label="L(`${nPuntos} valores de laboratorio desde diciembre de 2023, ${nFuera} fuera de rango, ordenados por fecha y por prueba. Flechas izquierda y derecha: fechas; arriba y abajo: pruebas; Intro: ir a esa fecha.`, `${nPuntos} lab values since December 2023, ${nFuera} out of range, by date and by test. Left and right arrows: dates; up and down: tests; Enter: go to that date.`)"
+                :aria-valuemin="0" :aria-valuemax="Math.max(0, nPuntos - 1)" :aria-valuenow="sel ? puntos.indexOf(sel) : undefined"
+                :aria-valuetext="lectura || undefined" @keydown="tecla" />
       </div>
-      <p class="cielo__pista">{{ L('Toca el cielo para ir a esa fecha.', 'Tap the sky to jump to that date.') }}</p>
+      <p class="cielo__lee nums" aria-live="polite">
+        <template v-if="sel">{{ lectura }} <span class="cielo__sello">↧ {{ L('extraído del informe', 'extracted from report') }}</span>
+          <button type="button" class="cielo__ir" @click="emit('fecha', sel.p.f)">{{ L('Ver esa fecha en Evolución', 'See that date in Clinical course') }} →</button></template>
+        <template v-else>{{ L('Toca un punto para leerlo.', 'Tap a dot to read it.') }}</template>
+      </p>
       <p class="cielo__ley">
         <span><i class="cielo__px" />{{ L('dentro de rango', 'in range') }}</span>
         <span><i class="cielo__px cielo__px--fuera" />{{ L('fuera de rango', 'out of range') }}</span>
@@ -198,6 +253,11 @@ function tocar(ev: PointerEvent) {
 .cielo__cifra .nums { font-size: clamp(40px, 11vw, 72px); display: block; }
 .cielo__sub { font: 400 14.5px/1.45 var(--font-body); color: rgb(var(--color-bg-rgb) / 0.8); margin: 8px 0 14px; max-width: 46ch; }
 .cielo__lienzo { cursor: crosshair; touch-action: pan-y; }
+.cielo__canvas:focus-visible { outline: 2px solid var(--color-miriam-claro); outline-offset: 3px; border-radius: 4px; }
+.cielo__lee { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; min-height: 44px; font: 500 12.5px/1.45 var(--font-mono); color: var(--color-bg); margin: 8px 0 0; }
+.cielo__sello { font: 600 11px var(--font-mono); color: rgb(var(--color-bg-rgb) / 0.7); }
+.cielo__ir { min-height: 44px; font: 700 13px var(--font-body); color: var(--color-miriam-claro); text-decoration: underline; text-underline-offset: 3px; }
+.cielo__ir:focus-visible { outline: 2px solid var(--color-miriam-claro); outline-offset: 2px; }
 .cielo__pista { font: 600 12px var(--font-body); color: var(--color-miriam-claro); margin: 8px 0 0; }
 .cielo__lienzo canvas { display: block; }
 .cielo__ley { display: flex; flex-wrap: wrap; gap: 4px 14px; margin: 10px 0 0; font: 400 12px var(--font-body); color: rgb(var(--color-bg-rgb) / 0.75); }

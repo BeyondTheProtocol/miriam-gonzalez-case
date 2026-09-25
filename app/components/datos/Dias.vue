@@ -256,7 +256,16 @@ function diaEn(ev: PointerEvent) {
 let arrastrando = false
 function tocar(ev: PointerEvent) { const d = diaEn(ev); if (d) sel.value = d }
 function empezar(ev: PointerEvent) { arrastrando = true; (ev.currentTarget as Element).setPointerCapture?.(ev.pointerId); tocar(ev) }
-function mover(ev: PointerEvent) { if (arrastrando) tocar(ev) }
+function mover(ev: PointerEvent) {
+  if (arrastrando) { tocar(ev); return }
+  if (ev.pointerType === 'mouse') hover.value = diaEn(ev) // ratón sin botón: tooltip; el dedo sigue fijando
+}
+const hover = ref<Dia | null>(null)
+const enfocado = ref(false)
+const tip = computed(() => {
+  const d = hover.value ?? (enfocado.value ? sel.value : null)
+  return d ? { d, x: xDe(d.t) + celda.value / 2, y: filaDe(d.t) * FILA, txt: lecturaDe(d) } : null
+})
 function soltar() { arrastrando = false }
 const hitos = computed(() => dias.value.filter((d) => d.lab || d.tac || d.prog))
 function tecla(ev: KeyboardEvent) {
@@ -273,8 +282,8 @@ function tecla(ev: KeyboardEvent) {
   else return
   ev.preventDefault(); sel.value = hs[i]!
 }
-const lectura = computed(() => {
-  const d = sel.value; if (!d) return ''
+const lecturaDe = (d: Dia | null) => {
+  if (!d) return ''
   const partes = [fechaCorta(d.iso, props.lang)]
   partes.push(d.estado === 'trat' ? L(`en la ${d.linea}`, `on ${d.linea}`) : d.estado === 'incierto' ? L(`${d.linea}, fecha aproximada`, `${d.linea}, approximate date`) : L('sin línea en curso', 'no line running'))
   if (d.lab) { const pl = (n: number, uno: string, varios: string) => `${n} ${n === 1 ? uno : varios}`
@@ -283,7 +292,8 @@ const lectura = computed(() => {
   if (d.prog) partes.push(L('progresión', 'progression'))
   if (d.rt) partes.push(L('radioterapia', 'radiotherapy'))
   return partes.join(' · ')
-})
+}
+const lectura = computed(() => lecturaDe(sel.value))
 /* para el lector de pantalla: los días SUMAN el total (los aproximados, solo si los hay); las analíticas, aparte;
    y lo sabido solo por mes, que no es un día y por eso el teclado no llega a ello */
 // mes entero (el lector de pantalla leería «mar» como palabra)
@@ -310,12 +320,16 @@ const miles = (n: number) => String(n).replace(/\B(?=(\d{3})+(?!\d))/g, props.la
     <p class="dias__sub nums">
       {{ L(`${miles(cuenta.trat)} en una línea de tratamiento · ${miles(cuenta.sin)} sin línea en curso`, `${miles(cuenta.trat)} on a treatment line · ${miles(cuenta.sin)} with no line running`) }}<template v-if="cuenta.incierto"> · {{ L(`${cuenta.incierto} con fecha aproximada`, `${cuenta.incierto} with an approximate date`) }}</template> · {{ L(`${cuenta.labs} analíticas`, `${cuenta.labs} lab reports`) }}
     </p>
-    <div ref="caja">
+    <div ref="caja" class="dias__caja">
+      <DatosTip v-if="tip" :x="tip.x" :y="tip.y" :ancho="W" :alto="H">
+        <span class="tip__v">{{ fechaCorta(tip.d.iso, lang) }}</span>
+        <span class="tip__l">{{ tip.txt.split(' · ').slice(1).join(' · ') }}</span>
+      </DatosTip>
       <canvas ref="lienzo" class="dias__lienzo" role="slider" tabindex="0"
               :aria-label="etiquetaLector"
               :aria-valuemin="0" :aria-valuemax="Math.max(0, hitos.length - 1)"
               :aria-valuenow="sel ? Math.max(0, hitos.findIndex((d) => d.t === sel!.t)) : undefined" :aria-valuetext="lectura || undefined"
-              @pointerdown="empezar" @pointermove="mover" @pointerup="soltar" @pointercancel="soltar" @keydown="tecla" />
+              @pointerdown="empezar" @pointermove="mover" @pointerup="soltar" @pointercancel="soltar" @pointerleave="hover = null" @focus="enfocado = true" @blur="enfocado = false" @keydown="tecla" />
     </div>
     <p class="dias__lee nums" aria-live="polite">
       <template v-if="sel">{{ lectura }}<button v-if="sel.lab" type="button" class="dias__ir" @click="emit('fecha', sel.iso)">{{ L('ver esa analítica', 'see that lab report') }} →</button></template>
@@ -340,6 +354,7 @@ const miles = (n: number) => String(n).replace(/\B(?=(\d{3})+(?!\d))/g, props.la
 .dias__cifra { font: var(--tipo-cifra); font-size: clamp(22px, 6vw, 32px); letter-spacing: var(--track-cifra); margin: 0; color: var(--color-text); }
 .dias__cifra .nums { color: var(--color-miriam); }
 .dias__sub { font: 500 13px/1.4 var(--font-body); color: var(--color-text-soft); margin: 4px 0 12px; }
+.dias__caja { position: relative; }
 .dias__lienzo { display: block; touch-action: pan-y; cursor: crosshair; }
 .dias__lienzo:focus-visible { outline: 2px solid var(--color-miriam); outline-offset: 2px; border-radius: 4px; }
 .dias__lee { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; min-height: 44px; margin: 6px 0 0; font: 500 12.5px/1.4 var(--font-mono); color: var(--color-text); }

@@ -550,8 +550,8 @@ const n = (v: number) => numCaso(v, lang.value)
         <div class="dt-vitrina">
         <section id="s-vitrina" class="dt-sec" aria-labelledby="h-vitrina">
           <h2 id="h-vitrina" class="dt-h2">{{ L('El caso, visto de otra forma', 'The case, seen another way') }}</h2>
-          <p class="dt-nota">{{ L('Los mismos datos de arriba, dibujados para verlos de un golpe. Pulsa un punto o un día para ir a esa fecha.', 'The same data as above, drawn to be seen at a glance. Click or tap a dot or a day to jump to that date.') }}</p>
-          <DatosCielo :grupos="grupos" :contexto="contexto" :hoy="hoy" :lang="lang" @fecha="irAFecha" />
+          <p class="dt-nota">{{ L('Los mismos datos de arriba, dibujados para verlos de un golpe. Pulsa un punto o un día para leerlo; desde ahí puedes ir a esa fecha.', 'The same data as above, drawn to be seen at a glance. Click or tap a dot or a day to read it; from there you can jump to that date.') }}</p>
+          <DatosCielo :grupos="grupos" :contexto="contexto" :hoy="hoy" :lang="lang" :nombres="nombresCortos" @fecha="irAFecha" />
 
         </section>
         <section v-if="fechaDx" id="s-dias" class="dt-sec" aria-labelledby="h-dias">

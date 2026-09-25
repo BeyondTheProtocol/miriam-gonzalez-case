@@ -90,7 +90,29 @@ const nFuera = computed(() => vis.value.filter((p) => p.fuera === 'alto' || p.fu
 // tocar fija una fecha; arrastrar con el dedo o el ratón la recorre (scrubbing)
 let arrastrando = false
 function empezar(ev: PointerEvent) { arrastrando = true; (ev.currentTarget as Element).setPointerCapture?.(ev.pointerId); tocar(ev) }
-function arrastrar(ev: PointerEvent) { if (arrastrando) tocar(ev) }
+function arrastrar(ev: PointerEvent) {
+  if (arrastrando) { tocar(ev); return }
+  // ratón sin botón: el punto más cercano en X se lee en un tooltip (antes había que arrastrar); el dedo sigue fijando
+  if (ev.pointerType === 'mouse') hover.value = cercano(ev)?.p ?? null
+}
+const hover = ref<Punto | null>(null)
+const enfocado = ref(false)
+/** punto más cercano en X al puntero, con un área de 24 px (mayor que la marca) */
+function cercano(ev: PointerEvent) {
+  const svg = ev.currentTarget as SVGSVGElement
+  const r = svg.getBoundingClientRect()
+  const x = ((ev.clientX - r.left) / r.width) * W.value
+  let mejor: (typeof geo.value.pts)[number] | null = null
+  let dmin = 24
+  for (const q of geo.value.pts) { const d = Math.abs(q.x - x); if (d < dmin) { dmin = d; mejor = q } }
+  return mejor
+}
+/* el tooltip: el punto bajo el ratón o, con foco de teclado, el de la fecha fijada */
+const tip = computed(() => {
+  const p = hover.value ?? (enfocado.value ? mostrado.value : null)
+  const q = p ? geo.value.pts.find((z) => z.p.f === p.f) : null
+  return q ? { p: q.p, x: q.x, y: q.y, r: xlsn(q.p) } : null
+})
 function soltar() { arrastrando = false }
 // teclado: ← → recorren las analíticas, Inicio/Fin van a los extremos, Esc suelta el cursor
 function tecla(ev: KeyboardEvent) {
@@ -133,12 +155,20 @@ const valorTxt = (p: Punto) => {
       <p v-else-if="cursor" class="ms__valor ms__fecha">{{ L('sin dato ese día', 'no value that day') }}</p>
       <DatosRangoBarra v-if="mostrado" :p="mostrado" :lang="lang" />
     </header>
-    <div ref="caja">
+    <div ref="caja" class="ms__caja">
+      <DatosTip v-if="tip" :x="tip.x" :y="tip.y" :ancho="W" :alto="H">
+        <span class="tip__n">{{ nombre ?? a.nombre }}</span>
+        <span class="tip__v"><span v-if="tip.p.fuera">{{ tip.p.fuera === 'bajo' ? '▼' : tip.p.fuera === 'alto' ? '▲' : '◆' }} </span>{{ numCaso(tip.p.v, lang) }} {{ a.unidad }}</span>
+        <span class="tip__l">{{ fechaCorta(tip.p.f, lang) }}</span>
+        <span v-if="tip.p.hi != null" class="tip__l">{{ L('rango', 'range') }} {{ numCaso(tip.p.lo ?? 0, lang) }}–{{ numCaso(tip.p.hi, lang) }}{{ tip.p.ref_de === 'banda' ? '*' : '' }}<template v-if="tip.r != null"> · {{ numCaso(Math.round(tip.r * 10) / 10, lang) }}×</template></span>
+        <span class="tip__l">↧ {{ L('extraído del informe', 'extracted from report') }}</span>
+      </DatosTip>
       <svg :viewBox="`0 0 ${W} ${H}`" :width="W" :height="H" class="ms__svg" role="slider" tabindex="0"
            :aria-label="`${nombre ?? a.nombre}: ${vis.length} ${L('valores', 'values')}, ${nFuera} ${L('fuera de rango', 'out of range')}. ${L('Flechas para recorrer las fechas', 'Arrow keys move through dates')}`"
            :aria-valuemin="0" :aria-valuemax="Math.max(0, geo.pts.length - 1)" :aria-valuenow="idxMostrado"
            :aria-valuetext="mostrado ? `${fechaCorta(mostrado.f, lang)}: ${valorTxt(mostrado)}` : L('sin dato ese día', 'no value that day')"
-           @keydown="tecla" @pointerdown="empezar" @pointermove="arrastrar" @pointerup="soltar" @pointercancel="soltar">
+           @keydown="tecla" @pointerdown="empezar" @pointermove="arrastrar" @pointerup="soltar" @pointercancel="soltar"
+           @pointerleave="hover = null" @focus="enfocado = true" @blur="enfocado = false">
         <rect v-for="b in geo.bandas" :key="b.id" :x="b.x" :y="Y0" :width="b.w" :height="Y1 - Y0" class="ms__banda-linea" />
         <rect v-if="geo.banda" :x="X0" :y="geo.banda.y0" :width="W - 6 - X0" :height="Math.max(1, geo.banda.y1 - geo.banda.y0)" class="ms__rango" />
         <line v-for="(x, i) in geo.progs" :key="`p${i}`" :x1="x" :x2="x" :y1="Y0" :y2="Y1" class="ms__prog" />
@@ -177,6 +207,7 @@ const valorTxt = (p: Punto) => {
 </template>
 
 <style scoped>
+.ms__caja { position: relative; }
 .ms__svg:focus-visible { outline: 2px solid var(--color-miriam); outline-offset: 2px; border-radius: 4px; }
 .ms { padding: 10px 0 8px; border-top: 1px solid rgb(var(--color-text-rgb) / 0.08); }
 .ms__cab { display: flex; flex-direction: column; gap: 1px; }
