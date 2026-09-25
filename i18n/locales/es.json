@@ -368,7 +368,7 @@
     "guide_yes_label": "Sí",
     "guide_no_label": "No",
     "guide_yes": "«ingeniera de software» · «divulgadora tech» · «investiga su propio caso con IA» · «cáncer de mama metastásico» · «tratamiento personalizado / de precisión» · «equipo internacional» · «en abierto»",
-    "guide_no": "«científica» (usar ingeniera) · «paciente» como identidad (es activa) · «vacuna» · nombres de médicos u hospitales sin permiso · cifras moleculares · edad en titulares · lenguaje bélico / «lucha» / «lazo rosa» / morbo",
+    "guide_no": "«científica» (usar ingeniera) · «paciente» como identidad (es activa) · nombres de médicos u hospitales sin permiso · cifras moleculares · edad en titulares · lenguaje bélico / «lucha» / «lazo rosa» / morbo",
     "kit_download_label": "Descargar kit de prensa (PDF)",
     "kit_download_note": "Documento de referencia para periodistas. Incluye hechos clave, citas y material gráfico."
   },
@@ -620,6 +620,40 @@
     "s4_p1_blind": "a ciegas"
   },
   "ciencia": {
+    "ruta": {
+      "eyebrow": "La ruta",
+      "title": "Del tejido a una terapia hecha para su tumor",
+      "intro": "Cinco pasos, y cada uno depende del anterior. Hoy el caso está en el segundo.",
+      "estados": {
+        "hecho": "Hecho",
+        "curso": "En curso",
+        "pendiente": "Pendiente",
+        "abierto": "Abierto"
+      },
+      "pasos": {
+        "tejido": {
+          "titulo": "Guardar el tumor",
+          "texto": "Hay tejido del tumor de las biopsias de 2026, guardado para poder analizarlo a fondo."
+        },
+        "leer": {
+          "titulo": "Leer el tumor",
+          "texto": "Secuenciar su ADN y ver qué genes expresa, y compararlo con su sangre sana para quedarse solo con lo que es del tumor. Las muestras ya están en el laboratorio."
+        },
+        "dianas": {
+          "titulo": "Encontrar las dianas",
+          "texto": "Buscar las mutaciones que solo tiene el tumor y que su sistema inmune podría reconocer. Para eso también hace falta conocer su HLA, el tipo de tejido que decide qué puede ver su sistema inmune."
+        },
+        "disenar": {
+          "titulo": "Diseñar la terapia",
+          "texto": "Con esas dianas se puede hacer una vacuna personalizada, preparar células T (CAR-T, TCR-T o TIL) o combinar varias. No hay una sola vía: se busca la que tenga más evidencia para su caso, y la decisión es de su equipo médico."
+        },
+        "llegar": {
+          "titulo": "Llegar a ella",
+          "texto": "Un ensayo clínico o un fabricante que pueda hacerla. Se buscan puertas en cualquier país."
+        }
+      },
+      "nota": "Material divulgativo: describe el camino, no promete resultados. Las decisiones las toma su equipo médico."
+    },
     "level_hint": "Versión",
     "level_aria": "Elegir la versión de la página: para mentes curiosas o para profesionales",
     "level_simple": "Para mentes curiosas",
