@@ -139,7 +139,7 @@ function tocar(ev: PointerEvent) {
 <template>
   <figure class="cinta" :class="{ 'cinta--armado': armado, 'cinta--visto': visto }">
     <div ref="caja" class="cinta__caja">
-      <DatosTip v-if="tip" :x="tip.x" :y="TOP + 4" :ancho="W" :alto="H">
+      <DatosTip v-if="tip" :x="tip.x" :y="TOP + 4" :ancho="W" :alto="TOP + filas.length * FILA">
         <!-- compacto (3 líneas): con 7 tapaba el 85 % de la cinta (diseno) -->
         <span class="tip__v">{{ fechaCorta(tip.f, lang) }} <span class="tip__l" style="display:inline">· ×{{ L('límite', 'limit') }} · ↧</span></span>
         <span class="tip__l">{{ tip.filas.slice(0, 3).map((l) => `${l.nombre} ${l.forma}${l.txt}`).join(' · ') }}</span>
