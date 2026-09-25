@@ -148,6 +148,7 @@ export default defineNuxtConfig({
       'colabora': { en: '/collaborate' },
       'marcas': { en: '/brands' },
       'gastos': { en: '/expenses' },
+      'datos': { en: '/data' },
       'gracias': { en: '/thank-you' },
       'aviso-legal': { en: '/legal-notice' },
       'privacidad': { en: '/privacy' },
