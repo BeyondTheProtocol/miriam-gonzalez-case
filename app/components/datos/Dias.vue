@@ -214,7 +214,8 @@ function pintar() {
     const y = fila * FILA + BAN + 3
     cx.strokeStyle = tinta; cx.lineWidth = 1.3
     if (progresionesMes.has(clave)) { cx.beginPath(); cx.moveTo(31, y - 5); cx.lineTo(35.5, y + 3); cx.lineTo(26.5, y + 3); cx.closePath(); cx.stroke() }
-    if (rtMes.has(clave)) { cx.beginPath(); cx.arc(progresionesMes.has(clave) ? 22 : 31, y, 2.6, 0, 7); cx.stroke() }
+    // RT sabida por mes: círculo DISCONTINUO (el anillo liso ya es «analítica sin nada fuera»)
+    if (rtMes.has(clave)) { cx.setLineDash([1.6, 1.4]); cx.beginPath(); cx.arc(progresionesMes.has(clave) ? 22 : 31, y, 3, 0, 7); cx.stroke(); cx.setLineDash([]) }
   })
   if (sel.value) { // día elegido: marco
     const x = xDe(sel.value.t), y = filaDe(sel.value.t) * FILA
@@ -280,11 +281,22 @@ const lectura = computed(() => {
   if (d.rt) partes.push(L('radioterapia', 'radiotherapy'))
   return partes.join(' · ')
 })
-/* para el lector de pantalla: los días SUMAN el total (los aproximados, solo si los hay); las analíticas, aparte */
+/* para el lector de pantalla: los días SUMAN el total (los aproximados, solo si los hay); las analíticas, aparte;
+   y lo sabido solo por mes, que no es un día y por eso el teclado no llega a ello */
+// mes entero (el lector de pantalla leería «mar» como palabra)
+const MESES_ES = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre']
+const MESES_EN = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
+const mesLargo = (clave: string) => { const [a, m] = clave.split('-').map(Number); return props.lang === 'en' ? `${MESES_EN[m! - 1]} ${a}` : `${MESES_ES[m! - 1]} de ${a}` }
+const soloMes = computed(() => {
+  const ps = [...progresionesMes].filter((k) => Date.UTC(+k.slice(0, 4), +k.slice(5) - 1, 1) <= fin).map((k) => L(`una progresión en ${mesLargo(k)}`, `a progression in ${mesLargo(k)}`))
+  const rs = [...rtMes].filter((k) => Date.UTC(+k.slice(0, 4), +k.slice(5) - 1, 1) <= fin).map((k) => L(`radioterapia en ${mesLargo(k)}`, `radiotherapy in ${mesLargo(k)}`))
+  const t = [...ps, ...rs]
+  return t.length ? L(` Además, ${t.join(' y ')}, sin día exacto.`, ` Also ${t.join(' and ')}, with no exact day.`) : ''
+})
 const etiquetaLector = computed(() => {
   const k = cuenta.value, inc = k.incierto ? L(`, ${k.incierto} con fecha aproximada`, `, ${k.incierto} with an approximate date`) : ''
-  return L(`${k.total} días desde el diagnóstico: ${k.trat} en una línea de tratamiento, ${k.sin} sin línea en curso${inc}. ${k.labs} analíticas. Usa las flechas para recorrer analíticas, TAC y progresiones.`,
-    `${k.total} days since diagnosis: ${k.trat} on a treatment line, ${k.sin} with no line running${inc}. ${k.labs} lab reports. Arrow keys move through lab reports, CT scans and progressions.`)
+  return L(`${k.total} días desde el diagnóstico: ${k.trat} en una línea de tratamiento, ${k.sin} sin línea en curso${inc}. ${k.labs} analíticas.${soloMes.value} Usa las flechas para recorrer analíticas, TAC y progresiones.`,
+    `${k.total} days since diagnosis: ${k.trat} on a treatment line, ${k.sin} with no line running${inc}. ${k.labs} lab reports.${soloMes.value} Arrow keys move through lab reports, CT scans and progressions.`)
 })
 const miles = (n: number) => String(n).replace(/\B(?=(\d{3})+(?!\d))/g, props.lang === 'en' ? ',' : '.')
 </script>
@@ -315,7 +327,7 @@ const miles = (n: number) => String(n).replace(/\B(?=(\d{3})+(?!\d))/g, props.la
       <span>■ {{ L('TAC con RECIST', 'CT with RECIST') }}</span>
       <span>▲ {{ L('progresión', 'progression') }}</span>
       <span>● {{ L('radioterapia', 'radiotherapy') }}</span>
-      <span v-if="progresionesMes.size || rtMes.size">△ ○ {{ L('junto al mes: solo se sabe el mes', 'next to the month: only the month is known') }}</span>
+      <span v-if="progresionesMes.size || rtMes.size">△ <i class="dias__rtmes" /> {{ L('junto al mes: progresión o radioterapia de la que solo se sabe el mes', 'next to the month: progression or radiotherapy known only by month') }}</span>
     </p>
   </figure>
 </template>
@@ -339,6 +351,7 @@ const miles = (n: number) => String(n).replace(/\B(?=(\d{3})+(?!\d))/g, props.la
 .dias__c--rayada { background: repeating-linear-gradient(-45deg, var(--color-miriam) 0 1.3px, transparent 1.3px 3px); box-shadow: inset 0 0 0 1px var(--color-miriam); }
 .dias__c--sin { height: 1px; background: rgb(var(--color-text-rgb) / 0.35); }
 .dias__c--inc { border: 1px dashed rgb(var(--color-miriam-rgb) / 0.65); }
+.dias__rtmes { width: 8px; height: 8px; border: 1.2px dashed var(--color-text); border-radius: 50%; display: inline-block; }
 .dias__o { width: 6px; height: 6px; border: 1.2px solid var(--color-text); border-radius: 50%; display: inline-block; }
 .dias__t { width: 3px; height: 10px; border-radius: 2px; background: var(--color-text); display: inline-block; }
 </style>
