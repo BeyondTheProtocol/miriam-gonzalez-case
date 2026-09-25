@@ -102,7 +102,7 @@ export const linEscala = (d0: number, d1: number, r0: number, r1: number) => (v:
   rc(r0 + ((v - d0) / (d1 - d0 || 1)) * (r1 - r0))
 
 /** Marcadores por forma (la regla del sitio: el color nunca es la única señal). */
-export type Forma = 'circulo' | 'cuadrado' | 'triangulo' | 'rombo' | 'aspa' | 'estrella'
+export type Forma = 'circulo' | 'cuadrado' | 'triangulo' | 'rombo' | 'aspa' | 'estrella' | 'octogono'
 export const pathForma = (forma: Forma, x0: number, y0: number, r0: number): string =>
   _pathForma(forma, rc(x0), rc(y0), rc(r0)).replace(/-?\d+\.\d{3,}/g, (m) => String(rc(Number(m))))
 const _pathForma = (forma: Forma, x: number, y: number, r: number): string => {
@@ -115,6 +115,14 @@ const _pathForma = (forma: Forma, x: number, y: number, r: number): string => {
       return `M${x},${y - r * 1.3}L${x + r * 1.1},${y}L${x},${y + r * 1.3}L${x - r * 1.1},${y}Z`
     case 'aspa':
       return `M${x - r},${y - r}L${x + r},${y + r}M${x + r},${y - r}L${x - r},${y + r}`
+    case 'octogono': { // progresión: ▲▼ quedan solo para «fuera de rango» (diseno, 25-sep)
+      let d = ''
+      for (let i = 0; i < 8; i++) {
+        const a = (Math.PI / 4) * i + Math.PI / 8
+        d += `${i ? 'L' : 'M'}${rc(x + r * 1.1 * Math.cos(a))},${rc(y + r * 1.1 * Math.sin(a))}`
+      }
+      return d + 'Z'
+    }
     case 'estrella': {
       let d = ''
       for (let i = 0; i < 10; i++) {

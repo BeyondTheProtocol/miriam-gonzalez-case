@@ -30,14 +30,16 @@ const lerp = (a: number, b: number) => a + (b - a) * f.value
 const geo = computed(() => {
   const w = W.value
   // regla: 0 mm a la izquierda; escala para que +20 % quepa
-  const maxMm = (r0.value.suma_mm ?? 1) * 1.28
+  // techo: el +20 % Y la última medida (antes solo r0 × 1,28: si crecía más, la barra se salía sin avisar)
+  const maxMm = Math.max((r0.value.suma_mm ?? 1) * 1.28, (r1.value.suma_mm ?? 0) * 1.08)
   const XR = (mm: number) => 12 + (mm / maxMm) * (w - 24)
   // globo: radio ∝ √ml, el de septiembre ocupa ~ 38 % del alto útil
   const rMax = Math.min(88, w * 0.26)
   const R = (ml: number) => rMax * Math.sqrt(ml / (v1.value.ml ?? 1))
   // el globo va DEBAJO de su título: centro = título + margen + radio máximo (no pisa el texto)
   const cy = 98 + rMax
-  return { XR, R, cx: w / 2, cy, H: cy + rMax + 26, umbral: XR((r0.value.suma_mm ?? 0) * 1.2) }
+  const marcas = [0, 20, 40, 60, 80, 100, 120].filter((t) => t <= maxMm * 0.97)
+  return { XR, R, cx: w / 2, cy, H: cy + rMax + 26, umbral: XR((r0.value.suma_mm ?? 0) * 1.2), marcas }
 })
 const mm = computed(() => lerp(r0.value.suma_mm ?? 0, r1.value.suma_mm ?? 0))
 const ml = computed(() => lerp(v0.value.ml ?? 0, v1.value.ml ?? 0))
@@ -61,9 +63,11 @@ const fechaTxt = computed(() => (f.value < 0.5 ? fechaCorta(r0.value.fecha, prop
       <!-- la regla -->
       <text x="12" y="16" class="ct__etq">{{ L('Suma RECIST (radiólogo)', 'RECIST sum (radiologist)') }}</text>
       <line :x1="geo.XR(0)" :x2="geo.XR(mm)" y1="34" y2="34" class="ct__regla" />
-      <line v-for="t in [0, 20, 40, 60, 80]" :key="t" :x1="geo.XR(t)" :x2="geo.XR(t)" y1="28" y2="40" class="ct__marca" />
-      <line :x1="geo.umbral" :x2="geo.umbral" y1="24" y2="46" class="ct__umbral" />
-      <text :x="geo.umbral" y="58" text-anchor="middle" class="ct__umbral-txt">+20 %</text>
+      <line v-for="t in geo.marcas" :key="t" :x1="geo.XR(t)" :x2="geo.XR(t)" y1="28" y2="40" class="ct__marca" />
+      <!-- eje rotulado (0 mm y cada 20): el +20 % se lee contra una escala, no flota (diseno) -->
+      <text v-for="t in geo.marcas" :key="`t${t}`" :x="geo.XR(t)" y="52" :text-anchor="t === 0 ? 'start' : 'middle'" class="ct__eje nums">{{ t === 0 ? '0 mm' : t }}</text>
+      <line :x1="geo.umbral" :x2="geo.umbral" y1="24" y2="44" class="ct__umbral" />
+      <text :x="geo.umbral" y="64" text-anchor="middle" class="ct__umbral-txt">+20 %</text>
       <!-- la cifra, encima del final de la regla; la marca de +20 % queda libre debajo -->
       <text :x="geo.XR(mm)" y="22" text-anchor="end" class="ct__cifra nums">{{ Math.round(mm) }} mm</text>
       <!-- el globo -->
@@ -90,6 +94,7 @@ const fechaTxt = computed(() => (f.value < 0.5 ? fechaCorta(r0.value.fecha, prop
 .ct__regla { stroke: var(--color-text); stroke-width: 8; stroke-linecap: round; }
 .ct__marca { stroke: var(--color-text); stroke-opacity: 0.35; }
 .ct__umbral { stroke: var(--color-miriam); stroke-width: 2; stroke-dasharray: 3 2; }
+.ct__eje { font: 500 10px var(--font-mono); fill: var(--color-text-soft); }
 .ct__umbral-txt { font: 700 10px var(--font-mono); fill: var(--color-miriam); }
 .ct__cifra { font: 700 13px var(--font-mono); fill: var(--color-text); }
 .ct__sombra { fill: none; stroke: var(--color-text); stroke-opacity: 0.35; stroke-dasharray: 4 3; }
