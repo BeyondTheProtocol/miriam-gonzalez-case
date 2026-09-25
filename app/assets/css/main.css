@@ -92,10 +92,14 @@
     @apply py-20 sm:py-28;
   }
 
-  /* Espacio bajo el contenido cuando la barra de apoyo fija está activa (<lg). */
+  /* Hueco bajo el contenido para la barra de apoyo fija (<lg), SOLO en rutas
+     donde puede aparecer (clase puesta por el layout vía useSupportBarRoute).
+     6.25rem = 100px ≥ alto real de la barra (99px + safe-area, medido a 375px);
+     con 4.5rem (72px) la barra tapaba 27px del final de main. En las rutas
+     silenciadas no hay reserva: no queda hueco vacío. */
   @media (max-width: 1023px) {
-    main {
-      padding-bottom: calc(4.5rem + env(safe-area-inset-bottom, 0px));
+    main.has-support-bar {
+      padding-bottom: calc(6.25rem + env(safe-area-inset-bottom, 0px));
     }
   }
 
