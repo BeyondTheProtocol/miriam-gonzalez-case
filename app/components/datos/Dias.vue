@@ -7,7 +7,8 @@
  *   · la banda de la línea de tratamiento (1L sólida, 2L clara, 3L rayada; sin línea, una raya
  *     fina; rayado de contorno = solo se sabe el mes, no se inventa el día);
  *   · trazos hacia ABAJO: cuántos salieron por debajo (▼);
- *   · encima de todo: progresión = corte vertical oscuro con ▲ · TAC con RECIST = ◆ · radioterapia = ●.
+ *   · encima de todo: progresión = raya fina con ▲ · TAC con RECIST = ■ (◆ ya es «marcado en el informe») ·
+ *     radioterapia = ●; lo sabido solo por mes, hueco (△ ○) junto a la etiqueta del mes.
  * Lo que enseña de un golpe: cuánto duró cada línea, los huecos entre líneas y cuándo las
  * analíticas se cargan de valores fuera de rango. Tocar un día lo lee; si hubo analítica, lleva a ella.
  * Solo cuenta ▲ y ▼ (lo que el informe pone fuera de rango); no pondera pruebas ni interpreta.
@@ -41,6 +42,11 @@ const tramos = props.lineas.map((l) => {
   return a && (sistemica || rt) ? { id: l.id, sistemica, rt, a, z } : null
 }).filter((t): t is NonNullable<typeof t> => !!t)
 const progresiones = new Set(props.eventos.filter((e) => e.clase === 'progresion' && e.precision === 'dia').map((e) => e.desde))
+/* lo que solo se sabe por MES (progresión de mar-2026, RT de jun-2026): no se inventa el día; se marca
+   hueco (△ ○) junto a la etiqueta del mes. Antes no salía y la leyenda daba a entender que estaban todas. */
+const mesDe = (iso: string) => iso.slice(0, 7)
+const progresionesMes = new Set(props.eventos.filter((e) => e.clase === 'progresion' && e.precision === 'mes').map((e) => mesDe(e.desde)))
+const rtMes = new Set(props.lineas.filter((l) => l.id.toUpperCase().startsWith('RT') && /^\d{4}-\d{2}$/.test(l.inicio)).map((l) => l.inicio))
 const tacs = new Set(props.tacs)
 /* por fecha: cuántos valores ▲ y ▼ trae la analítica de ese día (solo lo que el informe marca) */
 const labs = (() => {
@@ -88,7 +94,10 @@ const cuenta = computed(() => ({
 const ordenLineas = tramos.filter((s) => s.sistemica).map((s) => s.id)
 /** primer día seguro de cada línea sistémica que cae desde el diagnóstico: ahí va su etiqueta */
 const inicioLinea = tramos.filter((s) => s.sistemica).map((s) => [s.id, Math.max(ini, s.a[1])] as [string, number]).filter(([, t]) => t <= fin)
-const estiloLinea = (id: string | null) => { const i = id ? ordenLineas.indexOf(id) : -1; return i < 0 ? 0 : i % 3 }
+// un estilo por línea (sin módulo: con i % 3 la 4L se pintaría igual que la 1L)
+const ESTILOS = ['solida', 'clara', 'rayada', 'contrarrayada'] as const
+const estiloLinea = (id: string | null) => { const i = id ? ordenLineas.indexOf(id) : -1; return ESTILOS[Math.max(0, Math.min(ESTILOS.length - 1, i))]! }
+const lineasLeyenda = computed(() => ordenLineas.filter((id) => { const s = tramos.find((x) => x.id === id); return s && s.a[1] <= fin }).map((id) => ({ id, e: estiloLinea(id) })))
 
 const caja = ref<HTMLElement | null>(null)
 const lienzo = ref<HTMLCanvasElement | null>(null)
@@ -125,7 +134,7 @@ function pintar() {
   cx.setTransform(dpr, 0, 0, dpr, 0, 0); cx.clearRect(0, 0, w, h)
   const tinta = css('--color-text'), violeta = css('--color-miriam'), suave = css('--color-text-soft'), fondo = css('--color-bg')
   const hasta = Math.floor(dias.value.length * progreso)
-  cx.font = '600 9px "JetBrains Mono", ui-monospace, monospace'; cx.textBaseline = 'middle'
+  cx.font = '600 10px "JetBrains Mono", ui-monospace, monospace'; cx.textBaseline = 'middle'
   meses.value.forEach(({ a, m }, fila) => {
     const y = fila * FILA + BAN + 3
     if (m === 0 || fila === 0) { cx.fillStyle = tinta; cx.fillText(String(a), 0, y) }
@@ -139,6 +148,13 @@ function pintar() {
     return cx.createPattern(p, 'repeat')!
   }
   const patRayas = rayas(violeta)
+  // contrarrayada (4L): diagonales en la otra dirección
+  const patContra = (() => {
+    const p = document.createElement('canvas'); p.width = 4; p.height = 4
+    const pc = p.getContext('2d')!; pc.strokeStyle = violeta; pc.lineWidth = 1.3
+    pc.beginPath(); pc.moveTo(0, 0); pc.lineTo(4, 4); pc.moveTo(3, -1); pc.lineTo(5, 1); pc.moveTo(-1, 3); pc.lineTo(1, 5); pc.stroke()
+    return cx.createPattern(p, 'repeat')!
+  })()
   const vis = dias.value.slice(0, hasta)
   // progresión, DEBAJO de todo: raya fina que atraviesa la fila; su ▲ va al final, encima y con halo.
   // Antes era una barra oscura encima y destrozaba el ◆ del TAC del mismo día (13-jul-2026, diseno)
@@ -151,21 +167,14 @@ function pintar() {
     const x0 = xDe(d.t), x1 = xDe(vis[j]!.t) + c, y = fila * FILA
     if (d.estado === 'trat') {
       const e = estiloLinea(d.linea)
-      cx.globalAlpha = e === 1 ? 0.42 : 0.92; cx.fillStyle = e === 2 ? patRayas : violeta
+      cx.globalAlpha = e === 'clara' ? 0.42 : 0.92; cx.fillStyle = e === 'rayada' ? patRayas : e === 'contrarrayada' ? patContra : violeta
       cx.beginPath(); cx.roundRect(x0 + 0.5, y + BAN, x1 - x0 - 1, 6, 3); cx.fill(); cx.globalAlpha = 1
-      if (e === 2) { cx.strokeStyle = violeta; cx.lineWidth = 1; cx.beginPath(); cx.roundRect(x0 + 1, y + BAN + 0.5, x1 - x0 - 2, 5, 2.5); cx.stroke() }
+      if (e === 'rayada' || e === 'contrarrayada') { cx.strokeStyle = violeta; cx.lineWidth = 1; cx.beginPath(); cx.roundRect(x0 + 1, y + BAN + 0.5, x1 - x0 - 2, 5, 2.5); cx.stroke() }
     } else if (d.estado === 'incierto') {
       cx.strokeStyle = violeta; cx.globalAlpha = 0.65; cx.lineWidth = 1; cx.setLineDash([2, 2])
       cx.beginPath(); cx.roundRect(x0 + 1, y + BAN + 0.5, x1 - x0 - 2, 5, 2.5); cx.stroke(); cx.setLineDash([]); cx.globalAlpha = 1
     } else { cx.fillStyle = tinta; cx.globalAlpha = 0.22; cx.fillRect(x0, y + BAN + 2.5, x1 - x0, 1); cx.globalAlpha = 1 }
     i = j + 1
-  }
-  // etiqueta de cada línea donde empieza (con halo de fondo para leerse sobre los trazos)
-  cx.font = '700 9px "JetBrains Mono", ui-monospace, monospace'; cx.textBaseline = 'alphabetic'
-  for (const [id, t] of inicioLinea) {
-    if (t > (vis[vis.length - 1]?.t ?? -1)) continue
-    const x = xDe(t) + 1, y = filaDe(t) * FILA + ARR - 2
-    cx.lineWidth = 3; cx.strokeStyle = fondo; cx.strokeText(id, x, y); cx.fillStyle = violeta; cx.fillText(id, x, y)
   }
   const tw = Math.max(2.4, c * 0.38)
   for (const d of vis) {
@@ -180,9 +189,9 @@ function pintar() {
       if (!d.lab.alto && !d.lab.bajo) { cx.strokeStyle = tinta; cx.lineWidth = 1.1; cx.beginPath(); cx.arc(cxm, y + ARR - 3, 1.9, 0, 7); cx.stroke() }
     }
     if (d.rt) { cx.fillStyle = tinta; cx.beginPath(); cx.arc(x + c / 2, y + BAN + 3, 2.4, 0, 7); cx.fill() }
-    if (d.tac) { // ◆ con halo de fondo para que se lea sobre la banda
+    if (d.tac) { // ■ con halo de fondo (no ◆: en el resto de la página ◆ es «marcado en el informe»)
       const mx = x + c / 2, my = y + BAN + 3
-      cx.beginPath(); cx.moveTo(mx, my - 5); cx.lineTo(mx + 4, my); cx.lineTo(mx, my + 5); cx.lineTo(mx - 4, my); cx.closePath()
+      cx.beginPath(); cx.rect(mx - 3.8, my - 3.8, 7.6, 7.6)
       cx.fillStyle = tinta; cx.fill(); cx.lineWidth = 1.2; cx.strokeStyle = fondo; cx.stroke()
     }
     if (d.prog) { // ▲ de la progresión arriba del todo, con halo (la raya ya está debajo)
@@ -191,6 +200,22 @@ function pintar() {
       cx.lineWidth = 2; cx.strokeStyle = fondo; cx.stroke(); cx.fillStyle = tinta; cx.fill()
     }
   }
+  // etiqueta de cada línea donde empieza, DESPUÉS de los trazos y con halo: antes un trazo tapaba «2L»
+  cx.font = '700 9px "JetBrains Mono", ui-monospace, monospace'; cx.textBaseline = 'alphabetic'
+  for (const [id, t] of inicioLinea) {
+    if (t > (vis[vis.length - 1]?.t ?? -1)) continue
+    const x = xDe(t) + 1, y = filaDe(t) * FILA + ARR - 2
+    cx.lineWidth = 3; cx.strokeStyle = fondo; cx.strokeText(id, x, y); cx.fillStyle = violeta; cx.fillText(id, x, y)
+  }
+  // lo sabido solo por mes: hueco junto a la etiqueta del mes (△ progresión, ○ radioterapia)
+  meses.value.forEach(({ a, m }, fila) => {
+    const clave = `${a}-${String(m + 1).padStart(2, '0')}`
+    if (!vis.length || Date.UTC(a, m, 1) > vis[vis.length - 1]!.t) return
+    const y = fila * FILA + BAN + 3
+    cx.strokeStyle = tinta; cx.lineWidth = 1.3
+    if (progresionesMes.has(clave)) { cx.beginPath(); cx.moveTo(31, y - 5); cx.lineTo(35.5, y + 3); cx.lineTo(26.5, y + 3); cx.closePath(); cx.stroke() }
+    if (rtMes.has(clave)) { cx.beginPath(); cx.arc(progresionesMes.has(clave) ? 22 : 31, y, 2.6, 0, 7); cx.stroke() }
+  })
   if (sel.value) { // día elegido: marco
     const x = xDe(sel.value.t), y = filaDe(sel.value.t) * FILA
     cx.strokeStyle = violeta; cx.lineWidth = 1.5; cx.strokeRect(x - 1, y + 0.5, c + 2, FILA - 1.5)
@@ -248,8 +273,9 @@ const lectura = computed(() => {
   const d = sel.value; if (!d) return ''
   const partes = [fechaCorta(d.iso, props.lang)]
   partes.push(d.estado === 'trat' ? L(`en la ${d.linea}`, `on ${d.linea}`) : d.estado === 'incierto' ? L(`${d.linea}, fecha aproximada`, `${d.linea}, approximate date`) : L('sin línea en curso', 'no line running'))
-  if (d.lab) partes.push(L(`analítica: ${d.lab.alto} altos · ${d.lab.bajo} bajos de ${d.lab.n} valores`, `lab report: ${d.lab.alto} high · ${d.lab.bajo} low of ${d.lab.n} values`))
-  if (d.tac) partes.push(L('TAC con RECIST ◆', 'CT with RECIST ◆'))
+  if (d.lab) { const pl = (n: number, uno: string, varios: string) => `${n} ${n === 1 ? uno : varios}`
+    partes.push(L(`analítica: ${pl(d.lab.alto, 'alto', 'altos')} · ${pl(d.lab.bajo, 'bajo', 'bajos')} de ${pl(d.lab.n, 'valor', 'valores')}`, `lab report: ${d.lab.alto} high · ${d.lab.bajo} low of ${pl(d.lab.n, 'value', 'values')}`)) }
+  if (d.tac) partes.push(L('TAC con RECIST ■', 'CT with RECIST ■'))
   if (d.prog) partes.push(L('progresión', 'progression'))
   if (d.rt) partes.push(L('radioterapia', 'radiotherapy'))
   return partes.join(' · ')
@@ -281,16 +307,15 @@ const miles = (n: number) => String(n).replace(/\B(?=(\d{3})+(?!\d))/g, props.la
       <template v-else>{{ L('Elige un día para leerlo.', 'Pick a day to read it.') }}</template>
     </p>
     <p class="dias__ley">
-      <span><i class="dias__c dias__c--l1" />1L</span>
-      <span><i class="dias__c dias__c--l2" />2L</span>
-      <span><i class="dias__c dias__c--l3" />3L</span>
+      <span v-for="x in lineasLeyenda" :key="x.id"><i class="dias__c" :class="`dias__c--${x.e}`" />{{ x.id }}</span>
       <span><i class="dias__c dias__c--sin" />{{ L('sin línea', 'no line') }}</span>
       <span><i class="dias__c dias__c--inc" />{{ L('fecha aproximada', 'approximate date') }}</span>
       <span><i class="dias__t" />{{ L('analítica: trazo hacia arriba, valores por encima del rango; hacia abajo, por debajo. Más largo, más valores', 'lab report: stroke up, values above range; down, below range. Longer means more values') }}</span>
       <span><i class="dias__o" />{{ L('analítica sin nada fuera de rango', 'lab report, all in range') }}</span>
-      <span>◆ {{ L('TAC con RECIST', 'CT with RECIST') }}</span>
+      <span>■ {{ L('TAC con RECIST', 'CT with RECIST') }}</span>
       <span>▲ {{ L('progresión', 'progression') }}</span>
       <span>● {{ L('radioterapia', 'radiotherapy') }}</span>
+      <span v-if="progresionesMes.size || rtMes.size">△ ○ {{ L('junto al mes: solo se sabe el mes', 'next to the month: only the month is known') }}</span>
     </p>
   </figure>
 </template>
@@ -308,9 +333,10 @@ const miles = (n: number) => String(n).replace(/\B(?=(\d{3})+(?!\d))/g, props.la
 .dias__ley { display: flex; flex-wrap: wrap; gap: 4px 12px; margin: 6px 0 0; font: 400 12px var(--font-body); color: var(--color-text-soft); }
 .dias__ley span { display: inline-flex; align-items: center; gap: 5px; }
 .dias__c { width: 16px; height: 6px; border-radius: 3px; display: inline-block; }
-.dias__c--l1 { background: rgb(var(--color-miriam-rgb) / 0.9); }
-.dias__c--l2 { background: rgb(var(--color-miriam-rgb) / 0.45); }
-.dias__c--l3 { background: repeating-linear-gradient(-45deg, var(--color-miriam) 0 1.3px, transparent 1.3px 3px); box-shadow: inset 0 0 0 1px var(--color-miriam); }
+.dias__c--solida { background: rgb(var(--color-miriam-rgb) / 0.9); }
+.dias__c--clara { background: rgb(var(--color-miriam-rgb) / 0.45); }
+.dias__c--contrarrayada { background: repeating-linear-gradient(45deg, var(--color-miriam) 0 1.3px, transparent 1.3px 3px); box-shadow: inset 0 0 0 1px var(--color-miriam); }
+.dias__c--rayada { background: repeating-linear-gradient(-45deg, var(--color-miriam) 0 1.3px, transparent 1.3px 3px); box-shadow: inset 0 0 0 1px var(--color-miriam); }
 .dias__c--sin { height: 1px; background: rgb(var(--color-text-rgb) / 0.35); }
 .dias__c--inc { border: 1px dashed rgb(var(--color-miriam-rgb) / 0.65); }
 .dias__o { width: 6px; height: 6px; border: 1.2px solid var(--color-text); border-radius: 50%; display: inline-block; }
