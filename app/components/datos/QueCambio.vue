@@ -234,9 +234,10 @@ defineExpose({ abrir })
               </span>
             </component>
             <!-- «¿cambio real o ruido?»: hasta cuánto puede variar solo por laboratorio y biología (RCV: límite estadístico,
-                 no clínico; verificacion 25-sep: «personas sanas» no lo dice la fuente y no va; el aviso de marcador alto, sí) -->
+                 no clínico; verificacion 25-sep: «personas sanas» no lo dice la fuente y no va; el aviso es por «otra enfermedad de base»,
+                 literal de la fuente; y se acota qué compara para que no se lea «no ha pasado nada», diseno) -->
             <p v-if="rcvDe(c) && rcvGeo(c)" class="qc-fila__rcv">
-              <i class="qc-fila__rcv-m" aria-hidden="true" />{{ L(`Hasta un ${rcvDe(c)!.min}-${rcvDe(c)!.max} % de cambio puede deberse solo al laboratorio y a la biología (límite estadístico al 95 %, no clínico; con el marcador ya alto puede ser mayor; ${fuenteRcv.es}). Este cambio: ${pct1(c)}.`, `Up to ${rcvDe(c)!.min}-${rcvDe(c)!.max}% change can come from the lab and biology alone (a 95% statistical limit, not a clinical one; it can be larger when the marker is already high; ${fuenteRcv.en}). This change: ${pct1(c)}.`) }}
+              <i class="qc-fila__rcv-m" aria-hidden="true" />{{ L(`Hasta un ${rcvDe(c)!.min}-${rcvDe(c)!.max} % de cambio puede deberse solo al laboratorio y a la biología (límite estadístico al 95 %, no clínico; si otra enfermedad de base eleva el marcador, puede ser mayor; ${fuenteRcv.es}). Este cambio: ${pct1(c)}. Esta franja compara solo este análisis con el anterior; no valora la enfermedad en conjunto.`, `Up to ${rcvDe(c)!.min}-${rcvDe(c)!.max}% change can come from the lab and biology alone (a 95% statistical limit, not a clinical one; it can be larger if another underlying disease raises the marker; ${fuenteRcv.en}). This change: ${pct1(c)}. This range compares only this test against the last one; it doesn’t assess the disease overall.`) }}
               <DatosSello s="verificado" :lang="lang" />
             </p>
             <p v-else-if="rcvDe(c)" class="qc-fila__rcv">{{ c.antes.ref_de === 'banda' || c.ahora.ref_de === 'banda'

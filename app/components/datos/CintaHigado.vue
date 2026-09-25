@@ -61,6 +61,30 @@ const lecturaDe = (fecha: string | null) => props.filas.map((f) => {
     forma: p?.fuera === 'alto' ? '▲' : p?.fuera === 'bajo' ? '▼' : p?.fuera ? '◆' : '' }
 })
 const lectura = computed(() => lecturaDe(fechaSel.value))
+/* celdas de fechas muy juntas se solapan (a 375 px, 18 pares de 53, medido por diseno): una forma por
+   GRUPO de celdas solapadas de la misma fila, en su centro; ▲ si alguna está por encima, si no ▼, si no ◆.
+   Así las formas no se funden en un borrón y ninguna celda fuera de rango se queda sin marca. */
+const formasAgrupadas = computed(() => {
+  const out: { i: number; x: number; p: Punto }[] = []
+  const porFila = new Map<number, typeof geo.value.celdas>()
+  for (const c of geo.value.celdas) { const l = porFila.get(c.i) ?? []; l.push(c); porFila.set(c.i, l) }
+  for (const [i, cs] of porFila) {
+    const orden = [...cs].sort((a, b) => a.x - b.x)
+    let grupo: typeof orden = []
+    const cerrar = () => {
+      const fuera = grupo.filter((c) => c.p.fuera)
+      if (fuera.length) {
+        const f = fuera.some((c) => c.p.fuera === 'alto') ? 'alto' : fuera.some((c) => c.p.fuera === 'bajo') ? 'bajo' : 'fuera'
+        const x = (grupo[0]!.x + grupo[grupo.length - 1]!.x) / 2
+        out.push({ i, x, p: { ...fuera[fuera.length - 1]!.p, fuera: f } as Punto })
+      }
+      grupo = []
+    }
+    for (const c of orden) { if (grupo.length && c.x - grupo[grupo.length - 1]!.x >= geo.value.ancho) cerrar(); grupo.push(c) }
+    cerrar()
+  }
+  return out
+})
 /** forma de una celda fuera de rango, centrada arriba en la celda (ancho = el de la celda, tope 8 px) */
 const formaCelda = (c: { i: number; x: number; p: Punto }) => {
   const w = Math.min(8, geo.value.ancho), y = TOP + c.i * FILA + 5, x = c.x
@@ -116,9 +140,10 @@ function tocar(ev: PointerEvent) {
   <figure class="cinta" :class="{ 'cinta--armado': armado, 'cinta--visto': visto }">
     <div ref="caja" class="cinta__caja">
       <DatosTip v-if="tip" :x="tip.x" :y="TOP + 4" :ancho="W" :alto="H">
-        <span class="tip__v">{{ fechaCorta(tip.f, lang) }}</span>
-        <span v-for="l in tip.filas" :key="l.nombre" class="tip__l">{{ l.nombre }} {{ l.forma }}{{ l.txt }}</span>
-        <span class="tip__l">{{ L('veces el límite de cada informe', 'times each report’s limit') }} · ↧ {{ L('extraído', 'extracted') }}</span>
+        <!-- compacto (3 líneas): con 7 tapaba el 85 % de la cinta (diseno) -->
+        <span class="tip__v">{{ fechaCorta(tip.f, lang) }} <span class="tip__l" style="display:inline">· ×{{ L('límite', 'limit') }} · ↧</span></span>
+        <span class="tip__l">{{ tip.filas.slice(0, 3).map((l) => `${l.nombre} ${l.forma}${l.txt}`).join(' · ') }}</span>
+        <span class="tip__l">{{ tip.filas.slice(3).map((l) => `${l.nombre} ${l.forma}${l.txt}`).join(' · ') }}</span>
       </DatosTip>
       <svg :viewBox="`0 0 ${W} ${H}`" :width="W" :height="H" class="cinta__svg" role="slider" tabindex="0"
            :aria-valuemin="0" :aria-valuemax="Math.max(0, fechasOrd.length - 1)" :aria-valuenow="idxSel"
@@ -136,7 +161,7 @@ function tocar(ev: PointerEvent) {
               :width="rc(geo.ancho)" :height="FILA - 6" rx="1.5" class="cinta__celda" :style="{ ...estilo(c.r), animationDelay: `${Math.round((c.x / W) * 1400)}ms` }" />
         <!-- fuera de rango también por FORMA, no solo por brillo (▲ alto, ▼ bajo, ◆ marcado), según el informe de esa celda -->
         <template v-if="geo.ancho >= 4">
-          <path v-for="c in geo.celdas.filter((q) => q.p.fuera)" :key="`f${c.i}-${c.p.f}`" :d="formaCelda(c)" class="cinta__forma" />
+          <path v-for="c in formasAgrupadas" :key="`f${c.i}-${c.p.f}`" :d="formaCelda(c)" class="cinta__forma" />
         </template>
         <line v-if="cursor" :x1="geo.X(msFecha(cursor))" :x2="geo.X(msFecha(cursor))" y1="0" :y2="TOP + filas.length * FILA" class="cinta__cursor" />
         <line v-if="cabezal != null" :x1="geo.X(cabezal)" :x2="geo.X(cabezal)" y1="0" :y2="TOP + filas.length * FILA" class="cinta__cursor" />

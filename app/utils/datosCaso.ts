@@ -186,7 +186,8 @@ export const cambiosEntre = (grupos: Record<string, { analitos: Analito[] }>, fA
 /** Valor de cambio de referencia (RCV): cuánto puede variar un marcador entre dos análisis solo por
  *  el método del laboratorio y la variación biológica (95 %). Consenso SEQC/SEOM 2021, cotejado en el
  *  texto completo (PMC8192375) el 25-sep-2026: CA 15-3 19–34 %, CEA 30–40 %. Es un LÍMITE estadístico al
- *  95 % (no clínico); el consenso avisa de que con el marcador alto la variación puede ser mayor. NO es el
+ *  95 % (no clínico); el consenso avisa de que si otra enfermedad de base eleva el marcador, la variación
+ *  puede ser mayor («Some patients may have a base disease associated with a higher concentration and CVi»). NO es el
  *  criterio de progresión bioquímica del consenso, que no se pinta. */
 export interface Rcv { min: number; max: number }
 export const RCV: Record<string, Rcv> = { ca153: { min: 19, max: 34 }, cea: { min: 30, max: 40 } }

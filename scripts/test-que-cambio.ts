@@ -48,7 +48,8 @@ ok(!rcvComparable(Q(35), Q(23.5)), 'rangos distintos (otro laboratorio o método
 ok(!rcvComparable(Q(null), Q(null)), 'sin rango: no comparable')
 const ca = cs.find((c) => c.a.key === 'ca153'), cea = cs.find((c) => c.a.key === 'cea')
 ok(!!ca && rcvComparable(ca.antes, ca.ahora), 'con el caso real, el CA 15-3 del 8 al 16-sep es comparable (mismo rango 0-35)')
-ok(!!cea && !rcvComparable(cea.antes, cea.ahora), 'con el caso real, el CEA no (5 frente a 3,5): no se pinta la banda')
+// el 8-sep el PDF sí trae el rango del CEA (0,0-3,5): antes la transcripción no lo copiaba (corregido el 25-sep)
+ok(!!cea && rcvComparable(cea.antes, cea.ahora), 'con el caso real, el CEA 8→16 sep también es comparable (0-3,5 en los dos informes)')
 
 // 5 · unidad mostrada con «×», no con la letra x
 ok(unidadTxt('x10³/µL') === '×10³/µL' && unidadTxt('mg/dL') === 'mg/dL' && unidadTxt('xyz') === 'xyz', 'unidadTxt: «x10³» → «×10³» y nada más')

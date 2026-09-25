@@ -158,11 +158,9 @@ const valorTxt = (p: Punto) => {
     </header>
     <div ref="caja" class="ms__caja">
       <DatosTip v-if="tip" :x="tip.x" :y="tip.y" :ancho="W" :alto="H">
-        <span class="tip__n">{{ nombre ?? a.nombre }}</span>
-        <span class="tip__v"><span v-if="tip.p.fuera">{{ tip.p.fuera === 'bajo' ? '▼' : tip.p.fuera === 'alto' ? '▲' : '◆' }} </span>{{ numCaso(tip.p.v, lang) }} {{ unidadTxt(a.unidad) }}</span>
-        <span class="tip__l">{{ fechaCorta(tip.p.f, lang) }}</span>
-        <span v-if="tip.p.hi != null" class="tip__l">{{ L('rango', 'range') }} {{ numCaso(tip.p.lo ?? 0, lang) }}–{{ numCaso(tip.p.hi, lang) }}{{ tip.p.ref_de === 'banda' ? '*' : '' }}<template v-if="tip.r != null"> · {{ numCaso(Math.round(tip.r * 10) / 10, lang) }}×</template></span>
-        <span class="tip__l">↧ {{ L('extraído del informe', 'extracted from report') }}</span>
+        <!-- dos líneas: la mini mide 92 px y un tooltip más alto tapaba el eje (el nombre ya va en su cabecera) -->
+        <span class="tip__v"><span v-if="tip.p.fuera">{{ tip.p.fuera === 'bajo' ? '▼' : tip.p.fuera === 'alto' ? '▲' : '◆' }} </span>{{ numCaso(tip.p.v, lang) }} {{ unidadTxt(a.unidad) }} <span class="tip__l" style="display:inline">· {{ fechaCorta(tip.p.f, lang) }}</span></span>
+        <span class="tip__l"><template v-if="tip.p.hi != null">{{ L('rango', 'range') }} {{ numCaso(tip.p.lo ?? 0, lang) }}–{{ numCaso(tip.p.hi, lang) }}{{ tip.p.ref_de === 'banda' ? '*' : '' }}<template v-if="tip.r != null"> · {{ numCaso(Math.round(tip.r * 10) / 10, lang) }}×</template> · </template>↧ {{ L('extraído', 'extracted') }}</span>
       </DatosTip>
       <svg :viewBox="`0 0 ${W} ${H}`" :width="W" :height="H" class="ms__svg" role="slider" tabindex="0"
            :aria-label="`${nombre ?? a.nombre}: ${vis.length} ${L('valores', 'values')}, ${nFuera} ${L('fuera de rango', 'out of range')}. ${L('Flechas para recorrer las fechas', 'Arrow keys move through dates')}`"
