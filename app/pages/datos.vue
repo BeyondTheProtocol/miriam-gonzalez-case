@@ -89,7 +89,8 @@ const ultimo = (a: Analito | null) => (a ? a.puntos[a.puntos.length - 1] : null)
 const mini12 = (a: Analito | null, lsn = false) => {
   const ps = (a?.puntos ?? []).slice(-12).filter((p) => !lsn || xlsn(p) != null)
   const bandas = ps.map((p): [number, number] | null => (p.hi == null ? null : lsn ? [(p.lo ?? 0) / p.hi, 1] : [p.lo ?? 0, p.hi]))
-  return { serie: ps.map((p) => (lsn ? xlsn(p)! : p.v)), formas: ps.map((p) => p.fuera), bandas }
+  // rango que el informe NO trae (el habitual del laboratorio): su tramo va rayado, no liso
+  return { serie: ps.map((p) => (lsn ? xlsn(p)! : p.v)), formas: ps.map((p) => p.fuera), bandas, supuestas: ps.map((p) => p.ref_de === 'banda') }
 }
 const r1 = (v: number) => numCaso(Math.round(v * 10) / 10, lang.value)
 const ca = an('ca153'); const hb = an('hemoglobina'); const ast = an('got'); const alt = an('gpt')
@@ -215,8 +216,8 @@ function irAFecha(iso: string) {
 
 /* barra de secciones: la activa es la última cuyo inicio ya pasó bajo la cabecera */
 const SECCIONES: [string, string, string][] = [['s-hoy', 'Hoy', 'Today'], ['s-dias', 'Días', 'Days'], ['s-evo', 'Evolución', 'Course'],
-  // «Lesiones» y no «Hígado»: la pestaña de analíticas ya se llama «Hígado» y son cosas distintas (diseno)
-  ['s-higado', 'Lesiones', 'Lesions'], ['s-tejido', 'Tejido y reservorio', 'Tissue & port']]
+  // «Carga tumoral» y no «Hígado»: la pestaña de analíticas ya se llama «Hígado» (diseno); y el h2 de la sección lo dice igual
+  ['s-higado', 'Carga tumoral', 'Tumor burden'], ['s-tejido', 'Tejido y reservorio', 'Tissue & port']]
 const activa = ref('s-hoy')
 /* saltar a una sección SIN el router: su scrollBehavior (toda la web) fija top: 80 e ignora el
    scroll-margin-top de .dt-sec, y el título quedaba bajo la barra fija (medido por CDP a 390 px) */
@@ -224,6 +225,33 @@ const activa = ref('s-hoy')
  *  scrollIntoView y las secciones lejanas aterrizaban ~33 px más arriba */
 const yPagina = (el: HTMLElement) => { let y = 0; for (let n: HTMLElement | null = el; n; n = n.offsetParent as HTMLElement | null) y += n.offsetTop; return y }
 const MARGEN = 124 // = scroll-margin-top de .dt-sec: cabecera + barra de secciones
+/** clic normal: salto propio; con Cmd/Ctrl/Mayús o botón central, lo de siempre (abrir en pestaña nueva) */
+function clicSalto(ev: MouseEvent, id: string, antes?: () => void) {
+  if (ev.metaKey || ev.ctrlKey || ev.shiftKey || ev.altKey || ev.button !== 0) return
+  ev.preventDefault(); antes?.(); saltar(id)
+}
+/* al abrir /datos#s-… (o recargar tras un salto), el router vuelve a aplicar su top: 80 y el título
+   quedaba bajo la barra (73-79 px frente a 125, medido a 375 px). Mismo fallo de hidratación que
+   ?pestana=: en onMounted location.hash aún llega VACÍO (medido por CDP: scrollTo(0) con hash «»,
+   y 50 ms después el scroll suave del router, ~1,3 s). Por eso se vigila ruta.hash, se espera a que
+   el scroll se quede quieto 200 ms y se recoloca en seco ('instant': 'auto' heredaría el smooth). */
+let hashHecho = false
+function alHash(h: string) {
+  const id = h.slice(1)
+  if (hashHecho || !SECCIONES.some(([s]) => s === id)) return
+  hashHecho = true
+  const recolocar = () => { const el = document.getElementById(id); if (el) window.scrollTo({ top: Math.max(0, yPagina(el) - MARGEN), behavior: 'instant' }) }
+  let quieto: ReturnType<typeof setTimeout> | undefined
+  const t0 = performance.now()
+  const alMover = () => {
+    clearTimeout(quieto)
+    quieto = setTimeout(() => { window.removeEventListener('scroll', alMover); recolocar() }, performance.now() - t0 > 3000 ? 0 : 200)
+  }
+  window.addEventListener('scroll', alMover, { passive: true })
+  alMover() // si el router no llega a mover nada, igual se recoloca
+}
+onMounted(() => alHash(location.hash))
+watch(() => ruta.hash, (h) => alHash(h))
 function saltar(id: string) {
   const el = document.getElementById(id); if (!el) return
   window.scrollTo({ top: Math.max(0, yPagina(el) - MARGEN), behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' })
@@ -294,7 +322,7 @@ const n = (v: number) => numCaso(v, lang.value)
 
         <!-- barra de secciones fija con la sección activa (scroll-spy): en el móvil, saltar sin perderse -->
         <nav class="dt-barra" :aria-label="L('Secciones', 'Sections')">
-          <a v-for="[id, es, en] in SECCIONES" :key="id" :href="`#${id}`" class="dt-chip" @click.prevent="saltar(id)" :aria-current="activa === id ? 'true' : undefined"
+          <a v-for="[id, es, en] in SECCIONES" :key="id" :href="`#${id}`" class="dt-chip" @click="clicSalto($event, id)" :aria-current="activa === id ? 'true' : undefined"
              :ref="(el) => { if (el && activa === id) chipActivo = el as HTMLElement }">{{ L(es, en) }}</a>
         </nav>
 
@@ -308,33 +336,33 @@ const n = (v: number) => numCaso(v, lang.value)
             <li v-if="snc" class="dt-eleg--ancha"><span class="dt-eleg__k">{{ L('Sistema nervioso central', 'Central nervous system') }}</span><span class="dt-eleg__lista">{{ L('no estudiado (no es un negativo)', 'not studied (not a negative)') }}</span><DatosSello :s="snc.sello" :lang="lang" /></li>
           </ul>
           <div class="dt-cifras">
-            <a href="#s-evo" class="dt-cifra-link" @click.prevent="saltar('s-evo')" :aria-label="L('Ver la línea de tiempo de tratamientos', 'See the treatment timeline')">
+            <a href="#s-evo" class="dt-cifra-link" @click="clicSalto($event, 's-evo')" :aria-label="L('Ver la línea de tiempo de tratamientos', 'See the treatment timeline')">
             <DatosCifraClave :etiqueta="L('Tratamiento', 'Treatment')" :valor="cifraTrat.valor" :detalle="cifraTrat.detalle"
                              :fecha="cifraTrat.fecha" :sello="cifraTrat.sello" :franja="franja90"
                              :nota="cribado ? L('En cribado de TROPION-Breast06.', 'In screening for TROPION-Breast06.') : ''" :nota-sello="cifraTrat.notaSello" :lang="lang" />
             </a>
-            <a v-if="pCa" href="#s-evo" class="dt-cifra-link" @click.prevent="pestana = 'marcadores'; saltar('s-evo')">
+            <a v-if="pCa" href="#s-evo" class="dt-cifra-link" @click="clicSalto($event, 's-evo', () => { pestana = 'marcadores' })">
             <DatosCifraClave etiqueta="CA 15-3" :valor="n(pCa.v)" :unidad="ca!.unidad" :fuera="pCa.fuera"
                              :detalle="xlsn(pCa) ? L(`${r1(xlsn(pCa)!)} veces el límite normal`, `${r1(xlsn(pCa)!)} times the upper limit`) : ''"
-                             :fecha="fechaCorta(pCa.f, lang)" sello="extraido" :serie="mini12(ca).serie" :formas="mini12(ca).formas" :bandas="mini12(ca).bandas" :previo="previoTxt(ca)" :lang="lang" />
+                             :fecha="fechaCorta(pCa.f, lang)" sello="extraido" :serie="mini12(ca).serie" :formas="mini12(ca).formas" :bandas="mini12(ca).bandas" :supuestas="mini12(ca).supuestas" :previo="previoTxt(ca)" :lang="lang" />
             </a>
-            <a v-if="pHb" href="#s-evo" class="dt-cifra-link" @click.prevent="pestana = 'sangre'; saltar('s-evo')">
+            <a v-if="pHb" href="#s-evo" class="dt-cifra-link" @click="clicSalto($event, 's-evo', () => { pestana = 'sangre' })">
             <DatosCifraClave :etiqueta="L('Hemoglobina', 'Hemoglobin')" :valor="n(pHb.v)" :unidad="hb!.unidad" :fuera="pHb.fuera"
-                             :fecha="fechaCorta(pHb.f, lang)" sello="extraido" :serie="mini12(hb).serie" :formas="mini12(hb).formas" :bandas="mini12(hb).bandas" :previo="previoTxt(hb)"
+                             :fecha="fechaCorta(pHb.f, lang)" sello="extraido" :serie="mini12(hb).serie" :formas="mini12(hb).formas" :bandas="mini12(hb).bandas" :supuestas="mini12(hb).supuestas" :previo="previoTxt(hb)"
                              :nota="transfusionEntre ? L('Entre las dos, una transfusión en urgencias el 9 sep.', 'In between, a transfusion in the emergency room on Sep 9.') : ''"
                              :nota-sello="c.ficha?.estado_actual?.sello" :lang="lang" />
             </a>
-            <a v-if="pAst" href="#s-evo" class="dt-cifra-link" @click.prevent="pestana = 'higado'; saltar('s-evo')">
+            <a v-if="pAst" href="#s-evo" class="dt-cifra-link" @click="clicSalto($event, 's-evo', () => { pestana = 'higado' })">
             <DatosCifraClave :etiqueta="L('Hígado (AST)', 'Liver (AST)')" :valor="`${r1(xlsn(pAst) ?? 0)}×`" :unidad="L('límite normal', 'upper limit')"
                              :fuera="pAst.fuera" :detalle="`AST ${n(pAst.v)} · ALT ${pAlt ? n(pAlt.v) : '—'} ${ast!.unidad}`"
-                             :fecha="fechaCorta(pAst.f, lang)" sello="extraido" :serie="mini12(ast, true).serie" :formas="mini12(ast, true).formas" :bandas="mini12(ast, true).bandas" :previo="previoTxt(ast, true)"
+                             :fecha="fechaCorta(pAst.f, lang)" sello="extraido" :serie="mini12(ast, true).serie" :formas="mini12(ast, true).formas" :bandas="mini12(ast, true).bandas" :supuestas="mini12(ast, true).supuestas" :previo="previoTxt(ast, true)"
                              :nota="pAst.ref_de === 'banda' ? L('Límite: el habitual del laboratorio; este informe no lo trae.', 'Limit: the lab’s usual one; this report does not print it.') : ''" :lang="lang" />
             </a>
             <!-- lo que más cambió entre las dos últimas analíticas; al tocarlo, la hoja con todas -->
             <DatosQueCambio ref="queCambio" :grupos="grupos" :nombres="nombresCortos" :entre="entreAnaliticas" :notas="notasCambio"
                             :con-grafico="conGrafico" :lang="lang" @ir="irAPrueba" />
           </div>
-          <p class="dt-pie">{{ L('Minilíneas: los últimos 12 valores. En gris, el rango normal de cada informe; ▲▼ fuera de rango.', 'Sparklines: the last 12 values. In gray, each report’s normal range; ▲▼ out of range.') }}</p>
+          <p class="dt-pie">{{ L('Minilíneas: hasta los últimos 12 valores. En gris, el rango normal de cada informe; rayado, el habitual del laboratorio si el informe no lo trae. ▲▼ fuera de rango; ◆ marcado en el informe.', 'Sparklines: up to the last 12 values. In gray, each report’s normal range; hatched, the lab’s usual one when the report prints none. ▲▼ out of range; ◆ flagged on report.') }}</p>
         </section>
 
         <!-- 1b · un cuadrado por día desde el diagnóstico -->
@@ -395,7 +423,7 @@ const n = (v: number) => numCaso(v, lang.value)
 
         <!-- 4 · Carga tumoral -->
         <section v-if="(em.recist ?? []).length" id="s-higado" class="dt-sec" aria-labelledby="h-carga">
-          <h2 id="h-carga" class="dt-h2">{{ L('Enfermedad en el hígado', 'Disease in the liver') }}</h2>
+          <h2 id="h-carga" class="dt-h2">{{ L('Carga tumoral en el hígado', 'Tumor burden in the liver') }}</h2>
           <DatosCargaTumoral :recist="em.recist" :volumen="em.volumen ?? []" :lang="lang" />
           <p class="dt-pie">{{ L('RECIST: informe del radiólogo', 'RECIST: radiologist’s report') }} <DatosSello :s="em.recist[0].sello" :lang="lang" /> · {{ L('Volumen: modelo de segmentación sobre los mismos TC, sin validar por radiología.', 'Volume: segmentation model on the same CT scans, not validated by radiology.') }}</p>
           <details class="dt-det">

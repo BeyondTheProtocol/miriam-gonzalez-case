@@ -17,6 +17,8 @@ const props = defineProps<{
   formas?: ('alto' | 'bajo' | 'fuera' | null)[]
   /** rango normal del informe de CADA valor, en la unidad de la serie: banda gris en escalones */
   bandas?: ([number, number] | null)[]
+  /** tramos cuyo rango no trae el informe (el habitual del laboratorio): van rayados */
+  supuestas?: boolean[]
   /** tira de días (true = en una línea de tratamiento), mismo lenguaje que «Cada día» */
   franja?: boolean[]
   /** valor anterior para comparar: «antes: 215,4 · 19 ago» */
@@ -28,6 +30,7 @@ const props = defineProps<{
 }>()
 const L = (es: string, en: string) => (props.lang === 'en' ? en : es)
 
+const uid = useId()
 const W = 120
 const H = 34
 /* marca de cada valor: ▲ alto, ▼ bajo, ◆ marcado; el último, más grande y relleno */
@@ -58,13 +61,16 @@ const spark = computed(() => {
   const f = props.formas ?? []
   const marcas = s.map((v, i) => ({ x: X(i), y: Y(v), fuera: f[i] ?? null, ultimo: i === s.length - 1 }))
   // cada informe manda en su tramo: de la mitad con el anterior a la mitad con el siguiente
-  const banda = bs.map((b, i) => {
-    if (!b) return ''
+  const tramo = (i: number) => {
+    const b = bs[i]; if (!b) return ''
     const x0 = i === 0 ? 0 : (X(i - 1) + X(i)) / 2, x1 = i === s.length - 1 ? W : (X(i) + X(i + 1)) / 2
     const y0 = Y(b[1]), h = Math.max(1.5, Y(b[0]) - Y(b[1]))
     return `M${rc(x0)},${rc(y0)}h${rc(x1 - x0)}v${rc(h)}h${rc(x0 - x1)}Z`
-  }).join('')
-  return { d: s.map((v, i) => `${i ? 'L' : 'M'}${X(i)},${Y(v)}`).join(''), marcas, banda }
+  }
+  const sup = props.supuestas ?? []
+  const idx = bs.map((_, i) => i)
+  return { d: s.map((v, i) => `${i ? 'L' : 'M'}${X(i)},${Y(v)}`).join(''), marcas,
+    banda: idx.filter((i) => !sup[i]).map(tramo).join(''), bandaSup: idx.filter((i) => sup[i]).map(tramo).join('') }
 })
 </script>
 
@@ -87,7 +93,9 @@ const spark = computed(() => {
     </svg>
     <p v-if="franja?.length" class="ck__franja-txt">{{ L('últimos 90 días · alto = con tratamiento', 'last 90 days · tall = on treatment') }}</p>
     <svg v-if="spark" :viewBox="`0 0 ${W} ${H}`" class="ck__spark" aria-hidden="true">
+      <defs v-if="spark.bandaSup"><pattern :id="`ck-raya-${uid}`" width="4" height="4" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="1.4" height="4" class="ck__raya" /></pattern></defs>
       <path v-if="spark.banda" :d="spark.banda" class="ck__banda" />
+      <path v-if="spark.bandaSup" :d="spark.bandaSup" class="ck__banda-sup" :fill="`url(#ck-raya-${uid})`" />
       <path :d="spark.d" class="ck__linea" pathLength="1" />
       <template v-for="(m, i) in spark.marcas" :key="i">
         <path v-if="marca(m)" :d="marca(m)" :class="m.ultimo ? 'ck__ultimo' : 'ck__marca'" :style="{ '--i': i }" />
@@ -122,6 +130,9 @@ const spark = computed(() => {
 .ck__ultimo { fill: var(--color-miriam); stroke: var(--color-text); stroke-width: 0.6; transform-box: fill-box; transform-origin: center; }
 .ck__marca { fill: var(--color-miriam); fill-opacity: 0.75; transform-box: fill-box; transform-origin: center; }
 .ck__banda { fill: rgb(var(--color-text-rgb) / 0.1); }
+.ck__raya { fill: rgb(var(--color-text-rgb) / 0.22); }
+.ck--armado:not(.ck--visto) .ck__banda-sup { opacity: 0; }
+.ck--visto .ck__banda-sup { transition: opacity 600ms var(--curva-salida); }
 .ck--armado:not(.ck--visto) .ck__banda { opacity: 0; }
 .ck--visto .ck__banda { transition: opacity 600ms var(--curva-salida); }
 .ck--armado:not(.ck--visto) .ck__marca { transform: scale(0); }
