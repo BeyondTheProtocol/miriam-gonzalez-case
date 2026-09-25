@@ -55,7 +55,9 @@ const cifraTrat = computed(() => {
   if (actual) return { valor: actual.id, detalle: corto(actual.tratamiento), fecha: L(`desde ${fechaCorta(actual.inicio, 'es')}`, `since ${fechaCorta(actual.inicio, 'en')}`), sello: actual.sello }
   // «sin línea sistémica», no «sin tratamiento»: la supresión ovárica sigue (lo vio comite-medico)
   const fondo = lineas.some((l) => l.id === 'LHRHa' && !l.fin) ? L('Goserelina en curso. ', 'Goserelin ongoing. ') : ''
-  const prox = proxima ? L(`Próximo: ${corto(proxima.tratamiento)}, previsto el ${fechaCorta(proxima.inicio, 'es')}.`, `Next: ${corto(proxima.tratamiento)}, planned for ${fechaCorta(proxima.inicio, 'en')}.`) : ''
+  // solo el mes de una cita futura (seguridad): «previsto en oct 2026», no «el»
+  const prep = proxima && /^\d{4}-\d{2}$/.test(proxima.inicio) ? 'en' : 'el'
+  const prox = proxima ? L(`Próximo: ${corto(proxima.tratamiento)}, previsto ${prep} ${fechaCorta(proxima.inicio, 'es')}.`, `Next: ${corto(proxima.tratamiento)}, planned for ${fechaCorta(proxima.inicio, 'en')}.`) : ''
   return { valor: L('Sin línea sistémica', 'No systemic line'), detalle: fondo + prox,
     fecha: ultimaTerminada ? L(`desde ${fechaCorta(ultimaTerminada.fin, 'es')} (fin de la ${ultimaTerminada.id})`, `since ${fechaCorta(ultimaTerminada.fin, 'en')} (end of ${ultimaTerminada.id})`) : '',
     // el hecho (fin de la línea) lleva su sello; el plan futuro va aparte, marcado como «lo dice Miriam»
@@ -401,7 +403,7 @@ const n = (v: number) => numCaso(v, lang.value)
             <a href="#s-evo" class="dt-cifra-link" @click="clicSalto($event, 's-evo')" :aria-label="L('Ver la línea de tiempo de tratamientos', 'See the treatment timeline')">
             <DatosCifraClave :etiqueta="L('Tratamiento', 'Treatment')" :valor="cifraTrat.valor" :detalle="cifraTrat.detalle"
                              :fecha="cifraTrat.fecha" :sello="cifraTrat.sello" :franja="franja90"
-                             :nota="proxima ? L('En TROPION-Breast06 (VHIO).', 'In TROPION-Breast06 (VHIO).') : ''" :nota-sello="cifraTrat.notaSello" :lang="lang" />
+                             :nota="proxima ? L('En TROPION-Breast06 (VHIO): pruebas previas a la primera dosis.', 'In TROPION-Breast06 (VHIO): tests before the first dose.') : ''" :nota-sello="cifraTrat.notaSello" :lang="lang" />
             </a>
             <a v-if="pCa" href="#s-evo" class="dt-cifra-link" @click="clicSalto($event, 's-evo', () => { pestana = 'marcadores' })">
             <DatosCifraClave etiqueta="CA 15-3" :valor="n(pCa.v)" :unidad="unidadTxt(ca!.unidad)" :fuera="pCa.fuera"
