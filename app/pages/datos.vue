@@ -82,7 +82,14 @@ const previoTxt = (a: Analito | null, enLsn = false) => {
   return L(`antes: ${v('es')} · ${fechaCorta(p.f, 'es')}`, `before: ${v('en')} · ${fechaCorta(p.f, 'en')}`)
 }
 const ultimo = (a: Analito | null) => (a ? a.puntos[a.puntos.length - 1] : null)
-const serie12 = (a: Analito | null, lsn = false) => (a ? a.puntos.slice(-12).map((p) => (lsn ? (xlsn(p) ?? p.v) : p.v)) : [])
+/* minilínea de «Hoy»: últimos 12 valores con su marca de fuera de rango y la banda normal del último
+   informe, en la MISMA unidad que la línea. En ×LSN, un punto sin límite se cae (no se mezclan unidades). */
+const mini12 = (a: Analito | null, lsn = false) => {
+  const ps = (a?.puntos ?? []).slice(-12).filter((p) => !lsn || xlsn(p) != null)
+  const ult = ps[ps.length - 1]
+  const banda: [number, number] | null = !ult || ult.hi == null ? null : lsn ? [(ult.lo ?? 0) / ult.hi, 1] : [ult.lo ?? 0, ult.hi]
+  return { serie: ps.map((p) => (lsn ? xlsn(p)! : p.v)), formas: ps.map((p) => p.fuera), banda }
+}
 const r1 = (v: number) => numCaso(Math.round(v * 10) / 10, lang.value)
 const ca = an('ca153'); const hb = an('hemoglobina'); const ast = an('got'); const alt = an('gpt')
 const pCa = ultimo(ca); const pHb = ultimo(hb); const pAst = ultimo(ast); const pAlt = ultimo(alt)
@@ -308,24 +315,25 @@ const n = (v: number) => numCaso(v, lang.value)
             <a v-if="pCa" href="#s-evo" class="dt-cifra-link" @click.prevent="pestana = 'marcadores'; saltar('s-evo')">
             <DatosCifraClave etiqueta="CA 15-3" :valor="n(pCa.v)" :unidad="ca!.unidad" :fuera="pCa.fuera"
                              :detalle="xlsn(pCa) ? L(`${r1(xlsn(pCa)!)} veces el límite normal`, `${r1(xlsn(pCa)!)} times the upper limit`) : ''"
-                             :fecha="fechaCorta(pCa.f, lang)" sello="extraido" :serie="serie12(ca)" :previo="previoTxt(ca)" :lang="lang" />
+                             :fecha="fechaCorta(pCa.f, lang)" sello="extraido" :serie="mini12(ca).serie" :formas="mini12(ca).formas" :banda="mini12(ca).banda" :previo="previoTxt(ca)" :lang="lang" />
             </a>
             <a v-if="pHb" href="#s-evo" class="dt-cifra-link" @click.prevent="pestana = 'sangre'; saltar('s-evo')">
             <DatosCifraClave :etiqueta="L('Hemoglobina', 'Hemoglobin')" :valor="n(pHb.v)" :unidad="hb!.unidad" :fuera="pHb.fuera"
-                             :fecha="fechaCorta(pHb.f, lang)" sello="extraido" :serie="serie12(hb)" :previo="previoTxt(hb)"
+                             :fecha="fechaCorta(pHb.f, lang)" sello="extraido" :serie="mini12(hb).serie" :formas="mini12(hb).formas" :banda="mini12(hb).banda" :previo="previoTxt(hb)"
                              :nota="transfusionEntre ? L('Entre las dos, una transfusión en urgencias el 9 sep.', 'In between, a transfusion in the emergency room on Sep 9.') : ''"
                              :nota-sello="c.ficha?.estado_actual?.sello" :lang="lang" />
             </a>
             <a v-if="pAst" href="#s-evo" class="dt-cifra-link" @click.prevent="pestana = 'higado'; saltar('s-evo')">
             <DatosCifraClave :etiqueta="L('Hígado (AST)', 'Liver (AST)')" :valor="`${r1(xlsn(pAst) ?? 0)}×`" :unidad="L('límite normal', 'upper limit')"
                              :fuera="pAst.fuera" :detalle="`AST ${n(pAst.v)} · ALT ${pAlt ? n(pAlt.v) : '—'} ${ast!.unidad}`"
-                             :fecha="fechaCorta(pAst.f, lang)" sello="extraido" :serie="serie12(ast, true)" :previo="previoTxt(ast, true)"
+                             :fecha="fechaCorta(pAst.f, lang)" sello="extraido" :serie="mini12(ast, true).serie" :formas="mini12(ast, true).formas" :banda="mini12(ast, true).banda" :previo="previoTxt(ast, true)"
                              :nota="pAst.ref_de === 'banda' ? L('Límite: el habitual del laboratorio; este informe no lo trae.', 'Limit: the lab’s usual one; this report does not print it.') : ''" :lang="lang" />
             </a>
             <!-- lo que más cambió entre las dos últimas analíticas; al tocarlo, la hoja con todas -->
             <DatosQueCambio ref="queCambio" :grupos="grupos" :nombres="nombresCortos" :entre="entreAnaliticas" :notas="notasCambio"
                             :con-grafico="conGrafico" :lang="lang" @ir="irAPrueba" />
           </div>
+          <p class="dt-pie">{{ L('Minilíneas: los últimos 12 valores. En gris, el rango normal del último informe; ▲▼ fuera de rango.', 'Sparklines: the last 12 values. In gray, the latest report’s normal range; ▲▼ out of range.') }}</p>
         </section>
 
         <!-- 1b · un cuadrado por día desde el diagnóstico -->
