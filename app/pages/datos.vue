@@ -81,7 +81,6 @@ const sitiosCortos = computed(() => (c.ficha?.sitios ?? []).filter((x: any) => !
 }))
 /* PET: el más reciente a la vista, los anteriores plegados (en caso.json, sin pintar hasta ahora) */
 const pets = computed(() => [...(em.pet ?? [])].sort((a: any, b: any) => String(b.fecha).localeCompare(String(a.fecha))))
-const cribado = proxima
 /* anterior de cada analítica, para decir cuánto cambió */
 // en la misma unidad que la cifra grande de su tarjeta: con «veces el límite», el anterior también en veces
 const previoTxt = (a: Analito | null, enLsn = false) => {
@@ -381,7 +380,7 @@ const n = (v: number) => numCaso(v, lang.value)
             <a href="#s-evo" class="dt-cifra-link" @click="clicSalto($event, 's-evo')" :aria-label="L('Ver la línea de tiempo de tratamientos', 'See the treatment timeline')">
             <DatosCifraClave :etiqueta="L('Tratamiento', 'Treatment')" :valor="cifraTrat.valor" :detalle="cifraTrat.detalle"
                              :fecha="cifraTrat.fecha" :sello="cifraTrat.sello" :franja="franja90"
-                             :nota="cribado ? L('En cribado de TROPION-Breast06.', 'In screening for TROPION-Breast06.') : ''" :nota-sello="cifraTrat.notaSello" :lang="lang" />
+                             :nota="proxima ? L('En TROPION-Breast06 (VHIO).', 'In TROPION-Breast06 (VHIO).') : ''" :nota-sello="cifraTrat.notaSello" :lang="lang" />
             </a>
             <a v-if="pCa" href="#s-evo" class="dt-cifra-link" @click="clicSalto($event, 's-evo', () => { pestana = 'marcadores' })">
             <DatosCifraClave etiqueta="CA 15-3" :valor="n(pCa.v)" :unidad="unidadTxt(ca!.unidad)" :fuera="pCa.fuera"
