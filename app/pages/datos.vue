@@ -74,6 +74,18 @@ const snc = (c.ficha?.sitios ?? []).find((x: any) => /^SNC|^CNS/.test(T(x.valor)
 /* diagnóstico en una línea (arriba del todo) y sitios de enfermedad en corto: «Hueso: metástasis
    incontables…» hasta el primer «;». El texto entero sigue en caso.json y en /ciencia. */
 const dx = c.ficha?.diagnostico ?? null
+/* lo poco común del caso (Miriam, 25-sep): la diferenciación neuroendocrina y los receptores de
+   somatostatina, leídos de caso.json con su sello. La contradicción de 2026 (sinaptofisina «heterogénea»
+   y «negativa» en el mismo informe) va en el propio valor; SSTR2 por inmunohistoquímica no consta en
+   ningún informe (lo pide «Qué buscamos»): lo que hay es el PET con 68Ga-DOTATOC. */
+const MARCADORES_NE = ['Cromogranina', 'Sinaptofisina', 'INSM1']
+const neuro = ((c.ficha?.receptores ?? []) as any[]).filter((r) => MARCADORES_NE.includes(txtCaso(r.marcador, 'es')))
+const dotatoc = computed(() => {
+  const p = ((em.pet ?? []) as any[]).find((x) => /DOTATOC/.test(txtCaso(x.resumen, 'es')))
+  if (!p) return null
+  const t = T(p.resumen); const i = t.indexOf('. ')
+  return { fecha: p.fecha as string, txt: i > 0 ? t.slice(0, i + 1) : t, sello: p.sello as string }
+})
 const sitiosCortos = computed(() => (c.ficha?.sitios ?? []).filter((x: any) => !/^SNC|^CNS/.test(T(x.valor))).map((x: any) => {
   const t = T(x.valor); const i = t.indexOf(':')
   const k = i > 0 && i < 30 ? t.slice(0, i) : ''
@@ -355,6 +367,15 @@ const n = (v: number) => numCaso(v, lang.value)
                (cotejado en el informe, 25-sep): se dice cuál es cuál, sin llamar «diagnóstico» a una sola fecha -->
           <p class="dt-dx__k">{{ L('Diagnóstico', 'Diagnosis') }}<template v-if="fechaDx"> · {{ L('biopsia del', 'biopsy of') }} <span class="nums">{{ fechaCorta(fechaDx, lang) }}</span><template v-if="fechaDx === '2024-01-16'">{{ L(' (informe del 24 ene)', ' (report of Jan 24)') }}</template></template></p>
           <p class="dt-dx__v">{{ T(dx.valor) }} <DatosSello :s="dx.sello" :lang="lang" /></p>
+          <div v-if="neuro.length || dotatoc" class="dt-dx__ne">
+            <p class="dt-dx__k">{{ L('Diferenciación neuroendocrina', 'Neuroendocrine differentiation') }}</p>
+            <ul class="dt-dx__lista">
+              <li v-for="(r, i) in neuro" :key="i"><strong>{{ T(r.marcador) }}</strong> {{ T(r.valor) }} <DatosSello :s="r.sello" :lang="lang" /></li>
+            </ul>
+            <p class="dt-dx__k">{{ L('Receptores de somatostatina', 'Somatostatin receptors') }}</p>
+            <p v-if="dotatoc" class="dt-dx__e"><span class="nums">{{ fechaCorta(dotatoc.fecha, lang) }}</span> · {{ dotatoc.txt }} <DatosSello :s="dotatoc.sello" :lang="lang" /></p>
+            <p class="dt-dx__e">{{ L('SSTR2 por inmunohistoquímica: no consta en ningún informe.', 'SSTR2 by immunohistochemistry: not in any report.') }}</p>
+          </div>
         </section>
 
         <!-- barra de secciones fija con la sección activa (scroll-spy): en el móvil, saltar sin perderse -->
@@ -682,6 +703,9 @@ const n = (v: number) => numCaso(v, lang.value)
 .dt-dx { margin: 4px 0 0; padding: 12px 14px; border-radius: 14px; border: 1px solid rgb(var(--color-text-rgb) / 0.1); background: var(--color-bg); }
 .dt-dx__k { font: 600 11.5px var(--font-body); color: var(--color-text-soft); margin: 0 0 2px; }
 .dt-dx__v { font: 600 15px/1.4 var(--font-body); color: var(--color-text); margin: 0; }
+.dt-dx__ne { margin-top: 10px; padding-top: 8px; border-top: 1px solid rgb(var(--color-text-rgb) / 0.08); }
+.dt-dx__ne .dt-dx__k { margin-top: 6px; }
+.dt-dx__lista { list-style: none; margin: 0; padding: 0; display: grid; gap: 3px; font: 400 13.5px/1.45 var(--font-body); color: var(--color-text); }
 .dt-dx__e { font: 400 13px/1.4 var(--font-body); color: var(--color-text-soft); margin: 4px 0 0; }
 .dt-sitios { list-style: none; margin: 0 0 12px; padding: 0; display: grid; gap: 4px; font: 400 13.5px/1.45 var(--font-body); color: var(--color-text); }
 .dt-sitios li { padding-left: 12px; position: relative; }
