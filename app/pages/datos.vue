@@ -70,6 +70,17 @@ const ecog = c.ficha?.ecog
 const nLineas = sistemicas.filter((l) => { const i = rangoParcial(l.inicio); return i && i[0] <= hoyMs }).length
 const nunca = c.nunca_recibido
 const snc = (c.ficha?.sitios ?? []).find((x: any) => /^SNC|^CNS/.test(T(x.valor)))
+/* diagnóstico en una línea (arriba del todo) y sitios de enfermedad en corto: «Hueso: metástasis
+   incontables…» hasta el primer «;». El texto entero sigue en caso.json y en /ciencia. */
+const dx = c.ficha?.diagnostico ?? null
+const estadio = c.ficha?.estadio ?? null
+const sitiosCortos = computed(() => (c.ficha?.sitios ?? []).filter((x: any) => !/^SNC|^CNS/.test(T(x.valor))).map((x: any) => {
+  const t = T(x.valor); const i = t.indexOf(':')
+  const k = i > 0 && i < 30 ? t.slice(0, i) : ''
+  return { k, v: (k ? t.slice(i + 1) : t).split(';')[0]!.trim(), sello: x.sello }
+}))
+/* PET: el más reciente a la vista, los anteriores plegados (en caso.json, sin pintar hasta ahora) */
+const pets = computed(() => [...(em.pet ?? [])].sort((a: any, b: any) => String(b.fecha).localeCompare(String(a.fecha))))
 const cribado = proxima
 /* anterior de cada analítica, para decir cuánto cambió */
 // en la misma unidad que la cifra grande de su tarjeta: con «veces el límite», el anterior también en veces
@@ -191,6 +202,11 @@ function reproducir() {
   t0 = performance.now()
   raf = requestAnimationFrame(paso)
 }
+/** desde la vitrina: sube a «Evolución» (donde están los gráficos que se dibujan) y arranca */
+function reproducirDesdeVitrina() {
+  if (cabezal.value == null) saltar('s-evo')
+  reproducir()
+}
 function parar() { cancelAnimationFrame(raf); pausado.value = false; acumulado = 0; cabezal.value = null }
 onBeforeUnmount(() => cancelAnimationFrame(raf))
 const reproduciendo = computed(() => cabezal.value != null && !pausado.value)
@@ -215,9 +231,11 @@ function irAFecha(iso: string) {
 }
 
 /* barra de secciones: la activa es la última cuyo inicio ya pasó bajo la cabecera */
-const SECCIONES: [string, string, string][] = [['s-hoy', 'Hoy', 'Today'], ['s-dias', 'Días', 'Days'], ['s-evo', 'Evolución', 'Course'],
-  // «Carga tumoral» y no «Hígado»: la pestaña de analíticas ya se llama «Hígado» (diseno); y el h2 de la sección lo dice igual
-  ['s-higado', 'Carga tumoral', 'Tumor burden'], ['s-tejido', 'Tejido y reservorio', 'Tissue & port']]
+// en el orden de lectura de un clínico o un investigador (Miriam, 25-sep; oncologo-virtual + diseno):
+// estado y elegibilidad → enfermedad medible → material → evolución → vitrina. Mismo orden que el DOM (scroll-spy).
+// «Carga tumoral» y no «Hígado»: la pestaña de analíticas ya se llama «Hígado» (diseno); el h2 lo dice igual
+const SECCIONES: [string, string, string][] = [['s-hoy', 'Hoy', 'Today'], ['s-higado', 'Carga tumoral', 'Tumor burden'],
+  ['s-tejido', 'Tejido', 'Tissue'], ['s-evo', 'Evolución', 'Clinical course'], ['s-vitrina', 'Otra vista', 'Another view']]
 const activa = ref('s-hoy')
 /* saltar a una sección SIN el router: su scrollBehavior (toda la web) fija top: 80 e ignora el
    scroll-margin-top de .dt-sec, y el título quedaba bajo la barra fija (medido por CDP a 390 px) */
@@ -317,8 +335,12 @@ const n = (v: number) => numCaso(v, lang.value)
           {{ L('Resumen de sus informes, como apoyo a la decisión. No es diagnóstico ni consejo médico.', 'A summary of her reports, as decision support. Not a diagnosis or medical advice.') }}
         </p>
 
-        <!-- 0 · el caso en píxeles: impresión visual primero (Miriam, 24-sep) -->
-        <DatosCielo :grupos="grupos" :contexto="contexto" :hoy="hoy" :lang="lang" @fecha="irAFecha" />
+        <!-- 0 · el diagnóstico en una línea: sin esto, «Hoy» no tiene sujeto (oncologo-virtual) -->
+        <section v-if="dx" class="dt-dx" :aria-label="L('Diagnóstico', 'Diagnosis')">
+          <p class="dt-dx__k">{{ L('Diagnóstico', 'Diagnosis') }}<template v-if="fechaDx"> · <span class="nums">{{ fechaCorta(fechaDx, lang) }}</span></template></p>
+          <p class="dt-dx__v">{{ T(dx.valor) }} <DatosSello :s="dx.sello" :lang="lang" /></p>
+          <p v-if="estadio" class="dt-dx__e">{{ T(estadio.valor) }}</p>
+        </section>
 
         <!-- barra de secciones fija con la sección activa (scroll-spy): en el móvil, saltar sin perderse -->
         <nav class="dt-barra" :aria-label="L('Secciones', 'Sections')">
@@ -334,6 +356,10 @@ const n = (v: number) => numCaso(v, lang.value)
             <li><span class="dt-eleg__k">{{ L('Líneas sistémicas', 'Systemic lines') }}</span><span class="dt-eleg__v nums">{{ nLineas }}</span><span class="dt-eleg__f">{{ sistemicas.filter((l) => rangoParcial(l.inicio)![0] <= hoyMs).map((l) => l.id).join(' · ') }}</span></li>
             <li v-if="nunca" class="dt-eleg--ancha"><span class="dt-eleg__k">{{ L('Nunca ha recibido', 'Never received') }}</span><span class="dt-eleg__lista">{{ (nunca.valor as Texto[]).map((x) => T(x).split(' (')[0]).join(' · ') }}</span><DatosSello :s="nunca.sello" :lang="lang" /></li>
             <li v-if="snc" class="dt-eleg--ancha"><span class="dt-eleg__k">{{ L('Sistema nervioso central', 'Central nervous system') }}</span><span class="dt-eleg__lista">{{ L('no estudiado (no es un negativo)', 'not studied (not a negative)') }}</span><DatosSello :s="snc.sello" :lang="lang" /></li>
+          </ul>
+          <!-- dónde hay enfermedad: el sujeto de «Hoy» (oncologo-virtual); SNC ya va en la fila de arriba -->
+          <ul v-if="sitiosCortos.length" class="dt-sitios" :aria-label="L('Dónde hay enfermedad', 'Disease sites')">
+            <li v-for="(x, i) in sitiosCortos" :key="i"><strong v-if="x.k">{{ x.k }}</strong>{{ x.k ? ': ' : '' }}{{ x.v }} <DatosSello :s="x.sello" :lang="lang" /></li>
           </ul>
           <div class="dt-cifras">
             <a href="#s-evo" class="dt-cifra-link" @click="clicSalto($event, 's-evo')" :aria-label="L('Ver la línea de tiempo de tratamientos', 'See the treatment timeline')">
@@ -365,30 +391,99 @@ const n = (v: number) => numCaso(v, lang.value)
           <p class="dt-pie">{{ L('Minilíneas: hasta los últimos 12 valores. En gris, el rango normal de cada informe; rayado, el habitual del laboratorio si el informe no lo trae. ▲▼ fuera de rango; ◆ marcado en el informe.', 'Sparklines: up to the last 12 values. In gray, each report’s normal range; hatched, the lab’s usual one when the report prints none. ▲▼ out of range; ◆ flagged on report.') }}</p>
         </section>
 
-        <!-- 1b · un cuadrado por día desde el diagnóstico -->
-        <section v-if="fechaDx" id="s-dias" class="dt-sec" aria-labelledby="h-dias">
-          <h2 id="h-dias" class="dt-h2">{{ L('Cada día desde el diagnóstico', 'Every day since diagnosis') }}</h2>
-          <DatosDias :lineas="lineas" :eventos="eventos" :grupos="grupos" :tacs="(em.recist ?? []).map((r: any) => r.fecha)" :diagnostico="fechaDx" :hoy="hoy" :lang="lang" @fecha="irAFecha" />
+        <!-- 2 · Carga tumoral: lo segundo que busca un clínico (RECIST y PET de cuerpo entero, por eso no «en el hígado»); antes en el 5.º pantallazo -->
+        <section v-if="(em.recist ?? []).length" id="s-higado" class="dt-sec" aria-labelledby="h-carga">
+          <h2 id="h-carga" class="dt-h2">{{ L('Carga tumoral', 'Tumor burden') }}</h2>
+          <DatosCargaTumoral :recist="em.recist" :volumen="em.volumen ?? []" :lang="lang" />
+          <p class="dt-pie">{{ L('RECIST: informe del radiólogo', 'RECIST: radiologist’s report') }} <DatosSello :s="em.recist[0].sello" :lang="lang" /> · {{ L('Volumen: modelo de segmentación sobre los mismos TC, sin validar por radiología.', 'Volume: segmentation model on the same CT scans, not validated by radiology.') }}</p>
+          <div v-if="pets.length" class="dt-pet">
+            <p class="dt-pet__k">{{ L('PET más reciente', 'Latest PET') }} · <span class="nums">{{ fechaCorta(pets[0].fecha, lang) }}</span> <DatosSello :s="pets[0].sello" :lang="lang" /></p>
+            <p class="dt-pet__v">{{ T(pets[0].resumen) }}</p>
+            <details v-if="pets.length > 1" class="dt-det">
+              <summary>{{ pets.length === 2 ? L('1 PET anterior', '1 earlier PET scan') : L(`${pets.length - 1} PET anteriores`, `${pets.length - 1} earlier PET scans`) }}</summary>
+              <ul class="dt-busca"><li v-for="p in pets.slice(1)" :key="p.fecha"><span class="nums">{{ fechaCorta(p.fecha, lang) }}</span> · {{ T(p.resumen) }} <DatosSello :s="p.sello" :lang="lang" /></li></ul>
+            </details>
+          </div>
+          <details class="dt-det">
+            <summary>{{ L('Lesión a lesión', 'Lesion by lesion') }}</summary>
+            <div class="dt-tabla-wrap">
+              <table class="data-table dt-compacta">
+                <thead><tr><th>{{ L('Lesión', 'Lesion') }}</th><th>{{ L('Fecha', 'Date') }}</th><th>{{ L('Diám. mm', 'Diam. mm') }}</th><th>{{ L('Vol. ml', 'Vol. ml') }}</th><th>SUVmax</th></tr></thead>
+                <tbody>
+                  <template v-for="les in em.lesiones ?? []" :key="T(les.id)">
+                    <tr v-for="(e, j) in les.estudios" :key="j">
+                      <td v-if="j === 0" :rowspan="les.estudios.length" class="col-marker">{{ T(les.id) }}</td>
+                      <td class="nums whitespace-nowrap">{{ e.fecha }}</td>
+                      <td class="nums">{{ e.diametro_mm != null ? n(e.diametro_mm) : '—' }}</td>
+                      <td class="nums">{{ e.volumen_ml != null ? n(e.volumen_ml) : '—' }}</td>
+                      <td class="nums">{{ e.suvmax != null ? n(e.suvmax) : '—' }}</td>
+                    </tr>
+                  </template>
+                </tbody>
+              </table>
+            </div>
+            <p class="dt-pie">{{ L('En 3D, con las medidas del radiólogo:', 'In 3D, with the radiologist’s measurements:') }} <NuxtLink :to="localePath('/lesiones')" class="dt-link">{{ L('mama, hígado y hueso', 'breast, liver and bone') }}</NuxtLink></p>
+          </details>
         </section>
 
-        <!-- 2-3 · Evolución: línea de tiempo + analíticas con la misma ventana -->
+        <!-- 3 · Tejido: decide el acceso a la vacuna (ruta a NED), por eso antes que Evolución -->
+        <section id="s-tejido" class="dt-sec" aria-labelledby="h-tejido">
+          <h2 id="h-tejido" class="dt-h2">{{ L('Tejido y muestras', 'Tissue and samples') }}</h2>
+          <p v-if="sinFresco" class="dt-resumen-tejido">
+            <strong>{{ L('Todo el material disponible está en parafina.', 'All available material is in paraffin.') }}</strong>
+            {{ L('No hay tejido fresco, congelado ni PBMC.', 'There is no fresh or frozen tissue and no PBMC.') }}
+            <DatosSello :s="sinFresco.sello" :lang="lang" />
+          </p>
+          <div class="dt-tarjetas">
+            <article v-for="(m, i) in material.slice(0, 3)" :key="i" class="dt-tarjeta">
+              <p class="dt-tarjeta__t">{{ tituloMuestra(m) }}</p>
+              <p v-if="detalleMuestra(m)" class="dt-tarjeta__det">{{ detalleMuestra(m) }}</p>
+              <p v-if="m.codigo" class="dt-tarjeta__cod">{{ m.codigo }}</p>
+              <p class="dt-tarjeta__l"><span>{{ L('Dónde', 'Where') }}</span> {{ T(m.donde) }} · <span>{{ L('Estado', 'Status') }}</span> {{ T(m.estado) }}</p>
+              <p class="dt-tarjeta__pie"><span class="nums">{{ m.fecha }}</span> <DatosSello :s="m.sello" :lang="lang" /></p>
+            </article>
+            <details v-if="material.length > 3" class="dt-det dt-tarjeta--ancha">
+              <summary>{{ material.length === 4 ? L('1 muestra más', '1 more sample') : L(`Otras ${material.length - 3} muestras`, `${material.length - 3} more samples`) }}</summary>
+              <div class="dt-tarjetas">
+                <article v-for="(m, i) in material.slice(3)" :key="i" class="dt-tarjeta">
+                  <p class="dt-tarjeta__t">{{ tituloMuestra(m) }}</p>
+              <p v-if="detalleMuestra(m)" class="dt-tarjeta__det">{{ detalleMuestra(m) }}</p>
+                  <p v-if="m.codigo" class="dt-tarjeta__cod">{{ m.codigo }}</p>
+                  <p class="dt-tarjeta__l"><span>{{ L('Dónde', 'Where') }}</span> {{ T(m.donde) }} · <span>{{ L('Estado', 'Status') }}</span> {{ T(m.estado) }}</p>
+                  <p class="dt-tarjeta__pie"><span class="nums">{{ m.fecha }}</span> <DatosSello :s="m.sello" :lang="lang" /></p>
+                </article>
+              </div>
+            </details>
+          </div>
+          <!-- lo que se pide a quien lee: antes plegado al final como «Cómo ayudar» (oncologo-virtual) -->
+          <h3 class="dt-h3">{{ L('Qué buscamos', 'What we’re looking for') }}</h3>
+          <ul class="dt-busca">
+            <li v-for="(b, i) in seBusca.slice(0, 3)" :key="i">{{ T(b.valor) }} <DatosSello :s="b.sello" :lang="lang" /></li>
+          </ul>
+          <details v-if="seBusca.slice(3, 5).length" class="dt-det">
+            <summary>{{ L(`${seBusca.slice(3, 5).length} más`, `${seBusca.slice(3, 5).length} more`) }}</summary>
+            <ul class="dt-busca"><li v-for="(b, i) in seBusca.slice(3, 5)" :key="i">{{ T(b.valor) }} <DatosSello :s="b.sello" :lang="lang" /></li></ul>
+          </details>
+          <NuxtLink :to="localePath('/contacto')" class="dt-boton">{{ L('Escríbenos', 'Write to us') }} →</NuxtLink>
+        </section>
+
+        <!-- 4 · Evolución: línea de tiempo + analíticas con la misma ventana (la profundidad, no la entrada) -->
         <section id="s-evo" class="dt-sec" aria-labelledby="h-evo">
           <h2 id="h-evo" class="dt-h2">{{ L('Evolución', 'Clinical course') }}</h2>
           <div class="dt-controles">
             <div class="dt-vistas" role="group" :aria-label="L('Ventana de tiempo', 'Time window')">
               <button v-for="[k, es, en] in VENTANAS" :key="k" type="button" class="dt-vista" :aria-pressed="ventana === k" @click="parar(); ventana = k">{{ L(es, en) }}</button>
             </div>
+          </div>
+          <!-- durante la reproducción (se lanza desde la vitrina), el reloj y su pausa, aquí junto a los gráficos -->
+          <div v-if="cabezal != null" class="dt-reloj-fila">
+            <p class="dt-reloj nums" aria-live="off">{{ fechaCorta(new Date(cabezal).toISOString().slice(0, 10), lang) }}</p>
             <button type="button" class="dt-play" :aria-pressed="reproduciendo" @click="reproducir">
               <Icon :name="reproduciendo ? 'ph:pause-fill' : 'ph:play-fill'" class="w-4 h-4" aria-hidden="true" />
-              {{ reproduciendo ? L('Pausa', 'Pause') : cabezal != null ? L('Seguir', 'Resume') : L('Reproducir la evolución', 'Play the course') }}
+              {{ reproduciendo ? L('Pausa', 'Pause') : L('Seguir', 'Resume') }}
             </button>
-            <button type="button" class="dt-sonido" :aria-pressed="sonido.activo.value" @click="sonido.alternar()">
-              <Icon :name="sonido.activo.value ? 'ph:speaker-high-fill' : 'ph:speaker-slash'" class="w-4 h-4" aria-hidden="true" />
-              {{ sonido.activo.value ? L('Con sonido', 'Sound on') : L('Escuchar el CA 15-3', 'Hear CA 15-3') }}
-            </button>
+            <button type="button" class="dt-sonido" @click="parar()">{{ L('Parar', 'Stop') }}</button>
           </div>
-          <p v-if="sonido.activo.value" class="dt-nota">{{ L('Al reproducir, cada valor de CA 15-3 suena: más agudo cuantas más veces supera el límite normal; timbre más brillante si está fuera de rango; golpe grave en cada progresión.', 'While playing, each CA 15-3 value sounds: higher the more times it exceeds the upper limit; brighter timbre when out of range; a low thud at each progression.') }}</p>
-          <p v-if="cabezal != null" class="dt-reloj nums" aria-live="off">{{ fechaCorta(new Date(cabezal).toISOString().slice(0, 10), lang) }}</p>
           <DatosLineaTiempo :eventos="eventos" :lineas="lineas" :desde="rango[0]" :hasta="rango[1]" :hoy="hoy" :lang="lang" :cabezal="cabezal" />
 
           <h3 class="dt-h3">{{ L('Analíticas', 'Labs') }}</h3>
@@ -421,64 +516,23 @@ const n = (v: number) => numCaso(v, lang.value)
           <p class="dt-pie"><DatosSello :s="c.analiticas.sello" :lang="lang" /> {{ L('Cómo se leen y fechan: en «Fuentes y método».', 'How they are read and dated: under “Sources and method”.') }}</p>
         </section>
 
-        <!-- 4 · Carga tumoral -->
-        <section v-if="(em.recist ?? []).length" id="s-higado" class="dt-sec" aria-labelledby="h-carga">
-          <h2 id="h-carga" class="dt-h2">{{ L('Carga tumoral en el hígado', 'Tumor burden in the liver') }}</h2>
-          <DatosCargaTumoral :recist="em.recist" :volumen="em.volumen ?? []" :lang="lang" />
-          <p class="dt-pie">{{ L('RECIST: informe del radiólogo', 'RECIST: radiologist’s report') }} <DatosSello :s="em.recist[0].sello" :lang="lang" /> · {{ L('Volumen: modelo de segmentación sobre los mismos TC, sin validar por radiología.', 'Volume: segmentation model on the same CT scans, not validated by radiology.') }}</p>
-          <details class="dt-det">
-            <summary>{{ L('Lesión a lesión', 'Lesion by lesion') }}</summary>
-            <div class="dt-tabla-wrap">
-              <table class="data-table dt-compacta">
-                <thead><tr><th>{{ L('Lesión', 'Lesion') }}</th><th>{{ L('Fecha', 'Date') }}</th><th>{{ L('Diám. mm', 'Diam. mm') }}</th><th>{{ L('Vol. ml', 'Vol. ml') }}</th><th>SUVmax</th></tr></thead>
-                <tbody>
-                  <template v-for="les in em.lesiones ?? []" :key="T(les.id)">
-                    <tr v-for="(e, j) in les.estudios" :key="j">
-                      <td v-if="j === 0" :rowspan="les.estudios.length" class="col-marker">{{ T(les.id) }}</td>
-                      <td class="nums whitespace-nowrap">{{ e.fecha }}</td>
-                      <td class="nums">{{ e.diametro_mm != null ? n(e.diametro_mm) : '—' }}</td>
-                      <td class="nums">{{ e.volumen_ml != null ? n(e.volumen_ml) : '—' }}</td>
-                      <td class="nums">{{ e.suvmax != null ? n(e.suvmax) : '—' }}</td>
-                    </tr>
-                  </template>
-                </tbody>
-              </table>
-            </div>
-            <p class="dt-pie">{{ L('En 3D, con las medidas del radiólogo:', 'In 3D, with the radiologist’s measurements:') }} <NuxtLink :to="localePath('/lesiones')" class="dt-link">{{ L('mama, hígado y hueso', 'breast, liver and bone') }}</NuxtLink></p>
-          </details>
+        <!-- 5 · vitrina: lo más visual y menos accionable de un vistazo, al final (Miriam, 25-sep); un solo
+             bloque con fondo propio, para que se lea como escaparate y no como piezas sueltas (diseno) -->
+        <div class="dt-vitrina">
+        <section id="s-vitrina" class="dt-sec" aria-labelledby="h-vitrina">
+          <h2 id="h-vitrina" class="dt-h2">{{ L('El caso, visto de otra forma', 'The case, seen another way') }}</h2>
+          <p class="dt-nota">{{ L('Los mismos datos de arriba, dibujados para verlos de un golpe. Pulsa un punto o un día para ir a esa fecha.', 'The same data as above, drawn to be seen at a glance. Click or tap a dot or a day to jump to that date.') }}</p>
+          <DatosCielo :grupos="grupos" :contexto="contexto" :hoy="hoy" :lang="lang" @fecha="irAFecha" />
+
+        </section>
+        <section v-if="fechaDx" id="s-dias" class="dt-sec" aria-labelledby="h-dias">
+          <h2 id="h-dias" class="dt-h2">{{ L('Cada día desde el diagnóstico', 'Every day since diagnosis') }}</h2>
+          <DatosDias :lineas="lineas" :eventos="eventos" :grupos="grupos" :tacs="(em.recist ?? []).map((r: any) => r.fecha)" :diagnostico="fechaDx" :hoy="hoy" :lang="lang" @fecha="irAFecha" />
         </section>
 
-        <!-- 5 · Tejido y reservorio -->
-        <section id="s-tejido" class="dt-sec" aria-labelledby="h-tejido">
-          <h2 id="h-tejido" class="dt-h2">{{ L('Tejido, muestras y reservorio', 'Tissue, samples and port') }}</h2>
-          <p v-if="sinFresco" class="dt-resumen-tejido">
-            <strong>{{ L('Todo el material disponible está en parafina.', 'All available material is in paraffin.') }}</strong>
-            {{ L('No hay tejido fresco, congelado ni PBMC.', 'There is no fresh or frozen tissue and no PBMC.') }}
-            <DatosSello :s="sinFresco.sello" :lang="lang" />
-          </p>
-          <div class="dt-tarjetas">
-            <article v-for="(m, i) in material.slice(0, 3)" :key="i" class="dt-tarjeta">
-              <p class="dt-tarjeta__t">{{ tituloMuestra(m) }}</p>
-              <p v-if="detalleMuestra(m)" class="dt-tarjeta__det">{{ detalleMuestra(m) }}</p>
-              <p v-if="m.codigo" class="dt-tarjeta__cod">{{ m.codigo }}</p>
-              <p class="dt-tarjeta__l"><span>{{ L('Dónde', 'Where') }}</span> {{ T(m.donde) }}</p>
-              <p class="dt-tarjeta__l"><span>{{ L('Estado', 'Status') }}</span> {{ T(m.estado) }}</p>
-              <p class="dt-tarjeta__pie"><span class="nums">{{ m.fecha }}</span> <DatosSello :s="m.sello" :lang="lang" /></p>
-            </article>
-            <details v-if="material.length > 3" class="dt-det dt-tarjeta--ancha">
-              <summary>{{ L(`Otras ${material.length - 3} muestras`, `${material.length - 3} more samples`) }}</summary>
-              <div class="dt-tarjetas">
-                <article v-for="(m, i) in material.slice(3)" :key="i" class="dt-tarjeta">
-                  <p class="dt-tarjeta__t">{{ tituloMuestra(m) }}</p>
-              <p v-if="detalleMuestra(m)" class="dt-tarjeta__det">{{ detalleMuestra(m) }}</p>
-                  <p v-if="m.codigo" class="dt-tarjeta__cod">{{ m.codigo }}</p>
-                  <p class="dt-tarjeta__l"><span>{{ L('Dónde', 'Where') }}</span> {{ T(m.donde) }}</p>
-                  <p class="dt-tarjeta__l"><span>{{ L('Estado', 'Status') }}</span> {{ T(m.estado) }}</p>
-                  <p class="dt-tarjeta__pie"><span class="nums">{{ m.fecha }}</span> <DatosSello :s="m.sello" :lang="lang" /></p>
-                </article>
-              </div>
-            </details>
-            <article v-if="reservorio.length" class="dt-tarjeta dt-tarjeta--ancha">
+        <!-- el reservorio: su estado importa (ADC iv), pero su historia y el 3D son para explorar (oncologo-virtual) -->
+        <section v-if="reservorio.length" id="s-reservorio" class="dt-sec" :aria-label="L('Reservorio venoso', 'Venous port')">
+          <article class="dt-tarjeta">
               <p class="dt-tarjeta__t">{{ L('Reservorio venoso: el catéter mide lo mismo en los tres TC', 'Venous port: the catheter measures the same length on all three CT scans') }}</p>
               <p class="dt-tarjeta__l">{{ L('El reservorio dejó de dar retorno de sangre. Longitud del catéter, del portal a la punta, en tres TC:', 'The port stopped giving blood return. Catheter length, port to tip, on three CT scans:') }}</p>
               <DatosReservorio :medidas="reservorio" :lang="lang" />
@@ -497,21 +551,31 @@ const n = (v: number) => numCaso(v, lang.value)
               </div>
               <p class="dt-pie">{{ L('Medida semiautomática sobre sus TC, sin validar por radiología.', 'Semi-automatic measurement on her CT scans, not validated by radiology.') }} <DatosSello :s="reservorio[0].sello" :lang="lang" /></p>
               <NuxtLink v-if="hayReservorio" :to="localePath('/reservorio')" class="dt-boton">{{ L('La historia completa del reservorio', 'The full port story') }} →</NuxtLink>
-            </article>
-          </div>
+          </article>
         </section>
+        <section class="dt-sec" :aria-label="L('La evolución, en movimiento', 'The course, in motion')">
+          <h3 class="dt-h3">{{ L('La evolución, en movimiento', 'The course, in motion') }}</h3>
+          <p class="dt-nota">{{ L('Un cabezal recorre del diagnóstico a hoy y los gráficos de «Evolución» se dibujan a su paso.', 'A playhead runs from diagnosis to today and the charts in “Clinical course” draw as it passes.') }}</p>
+          <div class="dt-controles">
+            <button type="button" class="dt-play" :aria-pressed="reproduciendo" @click="reproducirDesdeVitrina">
+              <Icon :name="reproduciendo ? 'ph:pause-fill' : 'ph:play-fill'" class="w-4 h-4" aria-hidden="true" />
+              {{ reproduciendo ? L('Pausa', 'Pause') : cabezal != null ? L('Seguir', 'Resume') : L('Reproducir la evolución', 'Play the course') }}
+            </button>
+            <button type="button" class="dt-sonido" :aria-pressed="sonido.activo.value" @click="sonido.alternar()">
+              <Icon :name="sonido.activo.value ? 'ph:speaker-high-fill' : 'ph:speaker-slash'" class="w-4 h-4" aria-hidden="true" />
+              {{ sonido.activo.value ? L('Con sonido', 'Sound on') : L('Escuchar el CA 15-3', 'Hear CA 15-3') }}
+            </button>
+          </div>
+          <p v-if="sonido.activo.value" class="dt-nota">{{ L('Al reproducir, cada valor de CA 15-3 suena: más agudo cuantas más veces supera el límite normal; timbre más brillante si está fuera de rango; golpe grave en cada progresión.', 'While playing, each CA 15-3 value sounds: higher the more times it exceeds the upper limit; brighter timbre when out of range; a low thud at each progression.') }}</p>
+        </section>
+        </div>
 
-        <!-- 6-9 · lo demás, plegado -->
+        <!-- 6 · lo demás, plegado -->
         <section class="dt-sec dt-plegados" :aria-label="L('Más detalle', 'More detail')">
           <p class="dt-molecular">
             {{ L('El diagnóstico completo, los receptores, la historia de tratamientos y el perfil molecular los tienes en', 'You’ll find the full diagnosis, receptors, treatment history and molecular profile on') }}
             <NuxtLink :to="localePath('/ciencia')" class="dt-link">{{ L('La ciencia', 'The science page') }}</NuxtLink>.
           </p>
-          <details class="dt-det">
-            <summary>{{ L('Cómo ayudar', 'How to help') }}</summary>
-            <ul class="dt-lista"><li v-for="(b, i) in seBusca.slice(0, 5)" :key="i">{{ T(b.valor) }}</li></ul>
-            <NuxtLink :to="localePath('/contacto')" class="dt-link mt-3 inline-flex min-h-[44px] items-center">{{ L('Escríbenos', 'Write to us') }} →</NuxtLink>
-          </details>
           <details class="dt-det">
             <summary>{{ L('Fuentes y método', 'Sources and method') }}</summary>
             <p class="dt-nota">{{ L('Generamos esta página a partir de un perfil que revisamos a mano sobre los informes de Miriam, de las analíticas leídas de sus informes de laboratorio y de la cronología de esta web. Si un dato no tiene fuente, no lo publicamos. Sellos: verificado (cotejado con el informe original), extraído del informe (lectura automática), inferido, lo dice Miriam (sin documento detrás) o sin verificar.',
@@ -572,6 +636,18 @@ const n = (v: number) => numCaso(v, lang.value)
 .dt-eleg__v { font: 700 22px/1.1 var(--font-display); color: var(--color-text); }
 .dt-eleg__f { font: 500 11px var(--font-mono); color: var(--color-text-soft); }
 .dt-eleg__lista { font: 500 13px/1.35 var(--font-body); color: var(--color-text); }
+.dt-dx { margin: 4px 0 0; padding: 12px 14px; border-radius: 14px; border: 1px solid rgb(var(--color-text-rgb) / 0.1); background: var(--color-bg); }
+.dt-dx__k { font: 600 11.5px var(--font-body); color: var(--color-text-soft); margin: 0 0 2px; }
+.dt-dx__v { font: 600 15px/1.4 var(--font-body); color: var(--color-text); margin: 0; }
+.dt-dx__e { font: 400 13px/1.4 var(--font-body); color: var(--color-text-soft); margin: 4px 0 0; }
+.dt-sitios { list-style: none; margin: 0 0 12px; padding: 0; display: grid; gap: 4px; font: 400 13.5px/1.45 var(--font-body); color: var(--color-text); }
+.dt-sitios li { padding-left: 12px; position: relative; }
+.dt-sitios li::before { content: ''; position: absolute; left: 0; top: 0.6em; width: 5px; height: 5px; border-radius: 50%; background: var(--color-miriam); }
+.dt-busca { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; font: 400 14px/1.5 var(--font-body); color: var(--color-text); }
+.dt-busca li { padding: 8px 12px; border-radius: 10px; background: var(--color-bg-card); }
+.dt-pet { margin-top: 14px; padding: 12px 14px; border-radius: 14px; background: var(--color-bg-card); }
+.dt-pet__k { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; font: 600 12px var(--font-body); color: var(--color-text-soft); margin: 0 0 4px; }
+.dt-pet__v { font: 400 14px/1.5 var(--font-body); color: var(--color-text); margin: 0; }
 .dt-resumen-tejido { font: 400 14px/1.45 var(--font-body); color: var(--color-text); margin: 0 0 12px; padding: 10px 12px; border-radius: 12px; background: var(--color-miriam-soft); }
 .dt-cifras { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
 @media (min-width: 900px) { .dt-cifras { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; } }
@@ -584,6 +660,11 @@ const n = (v: number) => numCaso(v, lang.value)
 .dt-sonido[aria-pressed='true'] { background: var(--color-miriam-soft); border-color: var(--color-miriam); }
 .dt-sonido:focus-visible { outline: 2px solid var(--color-miriam); outline-offset: 2px; }
 .dt-play:focus-visible { outline: 2px solid var(--color-text); outline-offset: 2px; }
+.dt-reloj-fila { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin: 0 0 4px; }
+.dt-reloj-fila .dt-reloj { margin: 0; }
+.dt-vitrina { margin: 40px -16px 0; padding: 4px 16px 20px; background: var(--color-bg-card); border-top: 1px solid rgb(var(--color-text-rgb) / 0.08); border-bottom: 1px solid rgb(var(--color-text-rgb) / 0.08); }
+@media (min-width: 640px) { .dt-vitrina { margin: 40px 0 0; padding: 8px 24px 28px; border: 1px solid rgb(var(--color-text-rgb) / 0.08); border-radius: 24px; } }
+.dt-vitrina .dt-tarjeta { background: var(--color-bg); }
 .dt-reloj { font: var(--tipo-cifra); font-size: clamp(28px, 8vw, 44px); letter-spacing: var(--track-cifra); color: var(--color-miriam); margin: 0 0 4px; }
 .dt-vista { font: 600 13px/1 var(--font-body); padding: 0 12px; min-height: 44px; border-radius: 999px; color: var(--color-text-soft); }
 .dt-vista[aria-pressed='true'] { background: var(--color-text); color: var(--color-bg); }
