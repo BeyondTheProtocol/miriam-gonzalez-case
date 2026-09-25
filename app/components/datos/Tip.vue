@@ -6,7 +6,8 @@
  * No recibe el puntero (no roba el hover) y va oculto al lector de pantalla: lo que dice ya está en
  * el aria-valuetext del gráfico, que es lo que se anuncia.
  */
-const props = defineProps<{ x: number; y: number; ancho: number; alto: number }>()
+// izq: franja prohibida a la izquierda (las etiquetas del eje Y o de los meses): el tooltip no entra ahí
+const props = defineProps<{ x: number; y: number; ancho: number; alto: number; izq?: number }>()
 const caja = ref<HTMLElement | null>(null)
 const tam = ref({ w: 0, h: 0 })
 // solo se reasigna si cambia: un objeto nuevo en cada onUpdated re-renderizaba en bucle (stack overflow)
@@ -19,7 +20,8 @@ onMounted(medir)
 onUpdated(medir)
 const pos = computed(() => {
   const { w, h } = tam.value
-  const cabeX = (l: number) => Math.max(4, Math.min(props.ancho - w - 4, l))
+  const min = (props.izq ?? 0) + 4
+  const cabeX = (l: number) => Math.max(min, Math.min(props.ancho - w - 4, l))
   let left = cabeX(props.x - w / 2), top = props.y - h - 10
   if (top < 0) {
     if (props.y + 14 + h <= props.alto) top = props.y + 14 // debajo, sin salir del gráfico

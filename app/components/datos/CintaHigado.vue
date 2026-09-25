@@ -27,6 +27,8 @@ const { armado, visto } = useAlVer(caja)
 const FILA = 26
 const TOP = 6
 const H = computed(() => TOP + props.filas.length * FILA + 22)
+// constante autoimportada, pasada por el script: usada solo en la plantilla llegaba undefined (visto con RCV_FUENTE)
+const izqEje = EJE_IZQ
 const tope = computed(() => Math.min(props.hasta, props.cabezal ?? Infinity))
 
 const geo = computed(() => {
@@ -139,7 +141,7 @@ function tocar(ev: PointerEvent) {
 <template>
   <figure class="cinta" :class="{ 'cinta--armado': armado, 'cinta--visto': visto }">
     <div ref="caja" class="cinta__caja">
-      <DatosTip v-if="tip" :x="tip.x" :y="TOP + 4" :ancho="W" :alto="TOP + filas.length * FILA">
+      <DatosTip v-if="tip" :x="tip.x" :y="TOP + 4" :ancho="W" :alto="TOP + filas.length * FILA" :izq="izqEje">
         <!-- compacto (3 líneas): con 7 tapaba el 85 % de la cinta (diseno) -->
         <span class="tip__v">{{ fechaCorta(tip.f, lang) }} <span class="tip__l" style="display:inline">· ×{{ L('límite', 'limit') }} · ↧</span></span>
         <span class="tip__l">{{ tip.filas.slice(0, 3).map((l) => `${l.nombre} ${l.forma}${l.txt}`).join(' · ') }}</span>

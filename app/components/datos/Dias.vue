@@ -321,7 +321,7 @@ const miles = (n: number) => String(n).replace(/\B(?=(\d{3})+(?!\d))/g, props.la
       {{ L(`${miles(cuenta.trat)} en una línea de tratamiento · ${miles(cuenta.sin)} sin línea en curso`, `${miles(cuenta.trat)} on a treatment line · ${miles(cuenta.sin)} with no line running`) }}<template v-if="cuenta.incierto"> · {{ L(`${cuenta.incierto} con fecha aproximada`, `${cuenta.incierto} with an approximate date`) }}</template> · {{ L(`${cuenta.labs} analíticas`, `${cuenta.labs} lab reports`) }}
     </p>
     <div ref="caja" class="dias__caja">
-      <DatosTip v-if="tip" :x="tip.x" :y="tip.y" :ancho="W" :alto="H">
+      <DatosTip v-if="tip" :x="tip.x" :y="tip.y" :ancho="W" :alto="H" :izq="IZQ">
         <span class="tip__v">{{ fechaCorta(tip.d.iso, lang) }}</span>
         <span class="tip__l">{{ tip.txt.split(' · ').slice(1).join(' · ') }}</span>
       </DatosTip>

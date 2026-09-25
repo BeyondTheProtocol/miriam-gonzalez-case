@@ -158,7 +158,7 @@ const valorTxt = (p: Punto) => {
     </header>
     <div ref="caja" class="ms__caja">
       <!-- alto = el área de datos (Y1), no el SVG entero: así el tooltip no pisa las etiquetas del eje («2026») -->
-      <DatosTip v-if="tip" :x="tip.x" :y="tip.y" :ancho="W" :alto="Y1">
+      <DatosTip v-if="tip" :x="tip.x" :y="tip.y" :ancho="W" :alto="Y1" :izq="X0">
         <!-- dos líneas: la mini mide 92 px y un tooltip más alto tapaba el eje (el nombre ya va en su cabecera) -->
         <span class="tip__v"><span v-if="tip.p.fuera">{{ tip.p.fuera === 'bajo' ? '▼' : tip.p.fuera === 'alto' ? '▲' : '◆' }} </span>{{ numCaso(tip.p.v, lang) }} {{ unidadTxt(a.unidad) }} <span class="tip__l" style="display:inline">· {{ fechaCorta(tip.p.f, lang) }}</span></span>
         <span class="tip__l"><template v-if="tip.p.hi != null">{{ L('rango', 'range') }} {{ numCaso(tip.p.lo ?? 0, lang) }}–{{ numCaso(tip.p.hi, lang) }}{{ tip.p.ref_de === 'banda' ? '*' : '' }}<template v-if="tip.r != null"> · {{ numCaso(Math.round(tip.r * 10) / 10, lang) }}×</template> · </template>↧ {{ L('extraído', 'extracted') }}</span>
