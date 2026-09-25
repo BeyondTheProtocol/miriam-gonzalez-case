@@ -12,7 +12,7 @@
  */
 import type { Analito, Cambio, Lang, Punto } from '~/utils/datosCaso'
 // importación explícita: las constantes nuevas de datosCaso no llegaban por auto-import (500 en el prerender)
-import { RCV, RCV_FUENTE, rcvComparable } from '~/utils/datosCaso'
+import { RCV, RCV_FUENTE, rcvComparable, unidadTxt } from '~/utils/datosCaso'
 
 const props = defineProps<{
   grupos: Record<string, { analitos: Analito[] }>
@@ -49,7 +49,7 @@ const estado = (p: Punto) => (p.fuera === 'alto' ? L('por encima del rango', 'ab
 const forma = (p: Punto) => (p.fuera === 'alto' ? '▲' : p.fuera === 'bajo' ? '▼' : p.fuera ? '◆' : '')
 // «baja un 60 %», no «baja −60 %»: el lector de pantalla diría la dirección dos veces (voz-miriam)
 const cuanto = (c: Cambio) => (c.razon == null ? '' : dir(c) === 'igual' ? L('sin cambio', 'no change') : `${L(DIR[dir(c)]![1], DIR[dir(c)]![2])} ${L('un ', '')}${pct(c).replace(/^[+−]/, '')}`)
-const lectura = (c: Cambio) => `${nombre(c.a)}: ${L('de', 'from')} ${n(c.antes.v)} ${L('a', 'to')} ${n(c.ahora.v)} ${c.a.unidad}, ${cuanto(c)}. ${fc(c.antes.f)}: ${estado(c.antes)}; ${fc(c.ahora.f)}: ${estado(c.ahora)}.`
+const lectura = (c: Cambio) => `${nombre(c.a)}: ${L('de', 'from')} ${n(c.antes.v)} ${L('a', 'to')} ${n(c.ahora.v)} ${unidadTxt(c.a.unidad)}, ${cuanto(c)}. ${fc(c.antes.f)}: ${estado(c.antes)}; ${fc(c.ahora.f)}: ${estado(c.ahora)}.`
 
 /* eje común en ×LSN (log): mismo sitio = misma distancia al límite, sea cual sea la prueba */
 const caja = ref<HTMLElement | null>(null)
@@ -157,7 +157,7 @@ defineExpose({ abrir })
       <span ref="resCaja" class="qc-res__filas" :class="{ 'qc-res--armado': resArmado, 'qc-res--visto': resVisto }">
         <span v-for="(c, i) in top" :key="c.a.key" class="qc-res__fila" :style="{ '--i': i }">
           <span class="qc-res__n">{{ nombre(c.a) }}</span>
-          <span class="qc-res__v nums"><span class="qc-fila__forma">{{ forma(c.antes) }}</span>{{ n(c.antes.v) }} → <span class="qc-fila__forma">{{ forma(c.ahora) }}</span><strong>{{ n(c.ahora.v) }}</strong> <span class="qc-res__u">{{ c.a.unidad }}</span></span>
+          <span class="qc-res__v nums"><span class="qc-fila__forma">{{ forma(c.antes) }}</span>{{ n(c.antes.v) }} → <span class="qc-fila__forma">{{ forma(c.ahora) }}</span><strong>{{ n(c.ahora.v) }}</strong> <span class="qc-res__u">{{ unidadTxt(c.a.unidad) }}</span></span>
           <span class="qc-res__p nums"><span aria-hidden="true">{{ DIR[dir(c)]![0] }}</span> {{ pct(c) }}</span>
           <svg v-if="geo(c, ejeRes)" :viewBox="`0 0 ${WR} ${HF}`" :width="WR" :height="HF" class="qc-res__pista" aria-hidden="true">
             <rect :x="geo(c, ejeRes)!.b0" :y="Y - 6" :width="Math.max(2, geo(c, ejeRes)!.b1 - geo(c, ejeRes)!.b0)" height="12" rx="3" class="qc-banda" />
@@ -211,7 +211,7 @@ defineExpose({ abrir })
                 <span class="qc-fila__n">{{ nombre(c.a) }}</span>
                 <span class="qc-fila__v nums">
                   <span class="qc-fila__forma">{{ forma(c.antes) }}</span>{{ n(c.antes.v) }}{{ c.antes.ref_de === 'banda' ? '*' : '' }} → <span class="qc-fila__forma">{{ forma(c.ahora) }}</span><strong>{{ n(c.ahora.v) }}</strong>{{ c.ahora.ref_de === 'banda' ? '*' : '' }}
-                  <span class="qc-fila__u">{{ c.a.unidad }}</span>
+                  <span class="qc-fila__u">{{ unidadTxt(c.a.unidad) }}</span>
                 </span>
                 <span class="qc-fila__p nums" :class="`qc-fila__p--${dir(c)}`">{{ DIR[dir(c)]![0] }} {{ pct(c) }}</span>
               </span>

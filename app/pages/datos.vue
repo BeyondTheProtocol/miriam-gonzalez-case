@@ -11,6 +11,7 @@
  */
 import caso from '~/data/caso.json'
 import type { Analito, Contexto, Evento, Lang, Texto, Ventana } from '~/utils/datosCaso'
+import { unidadTxt } from '~/utils/datosCaso'
 
 const { locale } = useI18n()
 const localePath = useLocalePath()
@@ -88,7 +89,7 @@ const previoTxt = (a: Analito | null, enLsn = false) => {
   const p = a.puntos[a.puntos.length - 2]!
   const r = enLsn ? xlsn(p) : null
   // la unidad, del dato (no escrita a mano): si la tarjeta se reutiliza con otra prueba, no miente
-  const v = (lg: 'es' | 'en') => (r != null ? `${numCaso(Math.round(r * 10) / 10, lg)}× (${numCaso(p.v, lg)} ${a.unidad})` : numCaso(p.v, lg))
+  const v = (lg: 'es' | 'en') => (r != null ? `${numCaso(Math.round(r * 10) / 10, lg)}× (${numCaso(p.v, lg)} ${unidadTxt(a.unidad)})` : numCaso(p.v, lg))
   return L(`antes: ${v('es')} · ${fechaCorta(p.f, 'es')}`, `before: ${v('en')} · ${fechaCorta(p.f, 'en')}`)
 }
 const ultimo = (a: Analito | null) => (a ? a.puntos[a.puntos.length - 1] : null)
@@ -317,7 +318,7 @@ const funcion = computed(() => FUNCION.map(([k, es, en]) => { const a = an(k); c
 // lector de pantalla: «×» (se lee «por», no «equis») y el estado, que en pantalla va en la barra (voz-miriam)
 const lecturaFuncion = (x: { nombre: string; a: Analito; p: { v: number; fuera: string | null } }) => {
   const est = x.p.fuera === 'alto' ? L('por encima del rango', 'above range') : x.p.fuera === 'bajo' ? L('por debajo del rango', 'below range') : x.p.fuera ? L('marcado en el informe', 'flagged on report') : L('dentro del rango', 'within range')
-  return `${x.nombre}: ${n(x.p.v)} ${x.a.unidad.replace(/^x(?=\d)/, '×')}, ${est}. ${L('Ver su gráfico.', 'View chart.')}`
+  return `${x.nombre}: ${n(x.p.v)} ${unidadTxt(x.a.unidad)}, ${est}. ${L('Ver su gráfico.', 'View chart.')}`
 }
 const fechaFuncion = computed(() => { const fs = new Set(funcion.value.map((x) => x.p.f)); return fs.size === 1 ? [...fs][0]! : null })
 function irAPrueba(key: string, fecha: string) {
@@ -383,19 +384,19 @@ const n = (v: number) => numCaso(v, lang.value)
                              :nota="cribado ? L('En cribado de TROPION-Breast06.', 'In screening for TROPION-Breast06.') : ''" :nota-sello="cifraTrat.notaSello" :lang="lang" />
             </a>
             <a v-if="pCa" href="#s-evo" class="dt-cifra-link" @click="clicSalto($event, 's-evo', () => { pestana = 'marcadores' })">
-            <DatosCifraClave etiqueta="CA 15-3" :valor="n(pCa.v)" :unidad="ca!.unidad" :fuera="pCa.fuera"
+            <DatosCifraClave etiqueta="CA 15-3" :valor="n(pCa.v)" :unidad="unidadTxt(ca!.unidad)" :fuera="pCa.fuera"
                              :detalle="xlsn(pCa) ? L(`${r1(xlsn(pCa)!)} veces el límite normal`, `${r1(xlsn(pCa)!)} times the upper limit`) : ''"
                              :fecha="fechaCorta(pCa.f, lang)" sello="extraido" :serie="mini12(ca).serie" :formas="mini12(ca).formas" :bandas="mini12(ca).bandas" :supuestas="mini12(ca).supuestas" :previo="previoTxt(ca)" :lang="lang" />
             </a>
             <a v-if="pHb" href="#s-evo" class="dt-cifra-link" @click="clicSalto($event, 's-evo', () => { pestana = 'sangre' })">
-            <DatosCifraClave :etiqueta="L('Hemoglobina', 'Hemoglobin')" :valor="n(pHb.v)" :unidad="hb!.unidad" :fuera="pHb.fuera"
+            <DatosCifraClave :etiqueta="L('Hemoglobina', 'Hemoglobin')" :valor="n(pHb.v)" :unidad="unidadTxt(hb!.unidad)" :fuera="pHb.fuera"
                              :fecha="fechaCorta(pHb.f, lang)" sello="extraido" :serie="mini12(hb).serie" :formas="mini12(hb).formas" :bandas="mini12(hb).bandas" :supuestas="mini12(hb).supuestas" :previo="previoTxt(hb)"
                              :nota="transfusionEntre ? L('Entre las dos, una transfusión en urgencias el 9 sep.', 'In between, a transfusion in the emergency room on Sep 9.') : ''"
                              :nota-sello="c.ficha?.estado_actual?.sello" :lang="lang" />
             </a>
             <a v-if="pAst" href="#s-evo" class="dt-cifra-link" @click="clicSalto($event, 's-evo', () => { pestana = 'higado' })">
             <DatosCifraClave :etiqueta="L('Hígado (AST)', 'Liver (AST)')" :valor="`${r1(xlsn(pAst) ?? 0)}×`" :unidad="L('límite normal', 'upper limit')"
-                             :fuera="pAst.fuera" :detalle="`AST ${n(pAst.v)} · ALT ${pAlt ? n(pAlt.v) : '—'} ${ast!.unidad}`"
+                             :fuera="pAst.fuera" :detalle="`AST ${n(pAst.v)} · ALT ${pAlt ? n(pAlt.v) : '—'} ${unidadTxt(ast!.unidad)}`"
                              :fecha="fechaCorta(pAst.f, lang)" sello="extraido" :serie="mini12(ast, true).serie" :formas="mini12(ast, true).formas" :bandas="mini12(ast, true).bandas" :supuestas="mini12(ast, true).supuestas" :previo="previoTxt(ast, true)"
                              :nota="pAst.ref_de === 'banda' ? L('Límite: el habitual del laboratorio; este informe no lo trae.', 'Limit: the lab’s usual one; this report does not print it.') : ''" :lang="lang" />
             </a>
@@ -411,7 +412,7 @@ const n = (v: number) => numCaso(v, lang.value)
                 <button type="button" class="dt-funcion__item" @click="irAPrueba(x.k, x.p.f)"
                         :aria-label="lecturaFuncion(x)">
                   <span class="dt-funcion__n">{{ x.nombre }}</span>
-                  <span class="dt-funcion__v nums"><span v-if="x.p.fuera" class="dt-funcion__f" aria-hidden="true">{{ x.p.fuera === 'bajo' ? '▼' : x.p.fuera === 'alto' ? '▲' : '◆' }}</span>{{ n(x.p.v) }} <span class="dt-funcion__u">{{ x.a.unidad }}</span></span>
+                  <span class="dt-funcion__v nums"><span v-if="x.p.fuera" class="dt-funcion__f" aria-hidden="true">{{ x.p.fuera === 'bajo' ? '▼' : x.p.fuera === 'alto' ? '▲' : '◆' }}</span>{{ n(x.p.v) }} <span class="dt-funcion__u">{{ unidadTxt(x.a.unidad) }}</span></span>
                   <DatosRangoBarra :p="x.p" :lang="lang" />
                   <span v-if="!fechaFuncion" class="dt-funcion__d nums">{{ fechaCorta(x.p.f, lang) }}</span>
                 </button>

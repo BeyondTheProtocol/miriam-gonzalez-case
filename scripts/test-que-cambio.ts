@@ -6,7 +6,7 @@
 //
 // Uso:  pnpm test:que-cambio
 import { readFileSync } from 'node:fs'
-import { cambiosEntre, dosUltimas, rcvComparable, RCV, type Analito } from '../app/utils/datosCaso.ts'
+import { cambiosEntre, dosUltimas, rcvComparable, RCV, unidadTxt, type Analito } from '../app/utils/datosCaso.ts'
 
 let fallos = 0
 const ok = (cond: boolean, msg: string) => { console.log(`  ${cond ? '✅' : '❌'} ${msg}`); if (!cond) fallos++ }
@@ -49,6 +49,9 @@ ok(!rcvComparable(Q(null), Q(null)), 'sin rango: no comparable')
 const ca = cs.find((c) => c.a.key === 'ca153'), cea = cs.find((c) => c.a.key === 'cea')
 ok(!!ca && rcvComparable(ca.antes, ca.ahora), 'con el caso real, el CA 15-3 del 8 al 16-sep es comparable (mismo rango 0-35)')
 ok(!!cea && !rcvComparable(cea.antes, cea.ahora), 'con el caso real, el CEA no (5 frente a 3,5): no se pinta la banda')
+
+// 5 · unidad mostrada con «×», no con la letra x
+ok(unidadTxt('x10³/µL') === '×10³/µL' && unidadTxt('mg/dL') === 'mg/dL' && unidadTxt('xyz') === 'xyz', 'unidadTxt: «x10³» → «×10³» y nada más')
 
 console.log(fallos ? `\n❌ ${fallos} fallo(s)` : '\n✅ todo bien')
 process.exit(fallos ? 1 : 0)

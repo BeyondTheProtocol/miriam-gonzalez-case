@@ -195,3 +195,7 @@ export const RCV_FUENTE = { es: 'consenso SEQC/SEOM 2021', en: 'SEQC/SEOM 2021 c
  *  rango impreso (aproximación de «mismo laboratorio y método»; fail-closed si no). */
 export const rcvComparable = (a: Punto, b: Punto) =>
   a.ref_de === 'informe' && b.ref_de === 'informe' && a.hi != null && a.hi === b.hi && (a.lo ?? 0) === (b.lo ?? 0)
+
+/** Unidad para MOSTRAR: el informe escribe «x10³/µL» con la letra x; se muestra el signo «×» (y el lector
+ *  de pantalla dice «por», no «equis»). Un solo sitio para toda la página. */
+export const unidadTxt = (u: string) => u.replace(/^x(?=\d)/, '×')

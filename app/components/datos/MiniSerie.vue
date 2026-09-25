@@ -12,6 +12,7 @@
  * rayas en cada progresión. Tocar el gráfico fija una fecha, que se marca en TODOS los minis.
  */
 import type { Analito, Contexto, Lang, Punto } from '~/utils/datosCaso'
+import { unidadTxt } from '~/utils/datosCaso'
 
 const props = defineProps<{
   a: Analito
@@ -137,7 +138,7 @@ function tocar(ev: PointerEvent) {
   emit('cursor', mejor)
 }
 const valorTxt = (p: Punto) => {
-  const base = `${numCaso(p.v, props.lang)} ${props.a.unidad}`
+  const base = `${numCaso(p.v, props.lang)} ${unidadTxt(props.a.unidad)}`
   const r = xlsn(p)
   return props.modo === 'lsn' && r != null ? `${base} · ${numCaso(Math.round(r * 10) / 10, props.lang)}×` : base
 }
@@ -158,7 +159,7 @@ const valorTxt = (p: Punto) => {
     <div ref="caja" class="ms__caja">
       <DatosTip v-if="tip" :x="tip.x" :y="tip.y" :ancho="W" :alto="H">
         <span class="tip__n">{{ nombre ?? a.nombre }}</span>
-        <span class="tip__v"><span v-if="tip.p.fuera">{{ tip.p.fuera === 'bajo' ? '▼' : tip.p.fuera === 'alto' ? '▲' : '◆' }} </span>{{ numCaso(tip.p.v, lang) }} {{ a.unidad }}</span>
+        <span class="tip__v"><span v-if="tip.p.fuera">{{ tip.p.fuera === 'bajo' ? '▼' : tip.p.fuera === 'alto' ? '▲' : '◆' }} </span>{{ numCaso(tip.p.v, lang) }} {{ unidadTxt(a.unidad) }}</span>
         <span class="tip__l">{{ fechaCorta(tip.p.f, lang) }}</span>
         <span v-if="tip.p.hi != null" class="tip__l">{{ L('rango', 'range') }} {{ numCaso(tip.p.lo ?? 0, lang) }}–{{ numCaso(tip.p.hi, lang) }}{{ tip.p.ref_de === 'banda' ? '*' : '' }}<template v-if="tip.r != null"> · {{ numCaso(Math.round(tip.r * 10) / 10, lang) }}×</template></span>
         <span class="tip__l">↧ {{ L('extraído del informe', 'extracted from report') }}</span>
