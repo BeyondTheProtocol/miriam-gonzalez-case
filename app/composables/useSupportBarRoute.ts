@@ -42,7 +42,11 @@ export function useSupportBarRoute() {
       /^\/(?:datos|en\/data)$/.test(path.value)
   )
 
-  const isThanks = computed(() => route.path.includes('gracias'))
+  // /gracias (· /en/thank-you): la ruta EN no contiene «gracias», así que se
+  // comprueban las dos, como /marcas y /en/brands.
+  const isThanks = computed(
+    () => path.value === '/gracias' || path.value === '/en/thank-you'
+  )
 
   const hasSupportBar = computed(
     () =>

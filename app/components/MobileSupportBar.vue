@@ -37,7 +37,7 @@
  * tráfico en móvil hace falta un CTA siempre a mano, donde vive el pulgar.
  * · Solo en móvil y tablet estrecha (`lg:hidden`; desktop ≥1024px sin barra).
  * · Aparece tras pasar el hero.
- * · Se oculta cerca del footer/cierre (para no duplicar el CTA) y en /gracias.
+ * · Se oculta cerca del footer/cierre (para no duplicar el CTA) y en /gracias (/en/thank-you).
  * · Se silencia en lecturas técnicas profundas de Ciencia (ver useSupportBarRoute):
  *   ahí el público lee y entiende; un sticky coral que persigue por encima de
  *   tablas de patología resta credibilidad y carga la atención (a11y/neuroD).
