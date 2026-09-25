@@ -306,6 +306,20 @@ const entreAnaliticas = computed(() => sistemicas.filter((l) => l.fin && /^\d{4}
   .map((l) => ({ txt: L(`fin de la ${l.id} el ${sinAnio(l.fin, 'es')}`, `end of ${l.id} on ${sinAnio(l.fin, 'en')}`), sello: l.sello })))
 const notasCambio = computed(() => (transfusionEntre ? { hemoglobina: { txt: L('Entre las dos, una transfusión en urgencias el 9 sep.', 'In between, a transfusion in the emergency room on Sep 9.'), sello: c.ficha?.estado_actual?.sello } } : {}) as Record<string, { txt: string; sello?: string }>)
 const conGrafico = PESTANAS.flatMap((p) => p.minis.map((m) => m[0]))
+/* función de órganos y médula ósea: lo que mira un equipo de ensayo en el cribado, de la última analítica
+   que trae cada prueba (oncologo-virtual). Solo el dato y su rango; el panel no dice si «pasa criterios».
+   Hb y AST ya tienen tarjeta propia arriba. */
+const FUNCION: [string, string, string][] = [['neutrofilos_abs', 'Neutrófilos', 'Neutrophils'], ['linfocitos_abs', 'Linfocitos', 'Lymphocytes'],
+  ['plaquetas', 'Plaquetas', 'Platelets'], ['bilirrubina_total', 'Bilirrubina total', 'Total bilirubin'],
+  ['creatinina', 'Creatinina', 'Creatinine'], ['albumina', 'Albúmina', 'Albumin']]
+const funcion = computed(() => FUNCION.map(([k, es, en]) => { const a = an(k); const p = a?.puntos[a.puntos.length - 1]; return a && p ? { k, nombre: L(es, en), a, p } : null })
+  .filter((x): x is NonNullable<typeof x> => !!x))
+// lector de pantalla: «×» (se lee «por», no «equis») y el estado, que en pantalla va en la barra (voz-miriam)
+const lecturaFuncion = (x: { nombre: string; a: Analito; p: { v: number; fuera: string | null } }) => {
+  const est = x.p.fuera === 'alto' ? L('por encima del rango', 'above range') : x.p.fuera === 'bajo' ? L('por debajo del rango', 'below range') : x.p.fuera ? L('marcado en el informe', 'flagged on report') : L('dentro del rango', 'within range')
+  return `${x.nombre}: ${n(x.p.v)} ${x.a.unidad.replace(/^x(?=\d)/, '×')}, ${est}. ${L('Ver su gráfico.', 'View chart.')}`
+}
+const fechaFuncion = computed(() => { const fs = new Set(funcion.value.map((x) => x.p.f)); return fs.size === 1 ? [...fs][0]! : null })
 function irAPrueba(key: string, fecha: string) {
   const p = PESTANAS.find((x) => x.minis.some((m) => m[0] === key)); if (!p) return
   parar(); pestana.value = p.k; cursor.value = fecha
@@ -389,6 +403,20 @@ const n = (v: number) => numCaso(v, lang.value)
                             :con-grafico="conGrafico" :lang="lang" @ir="irAPrueba" />
           </div>
           <p class="dt-pie">{{ L('Minilíneas: hasta los últimos 12 valores. En gris, el rango normal de cada informe; rayado, el habitual del laboratorio si el informe no lo trae. ▲▼ fuera de rango; ◆ marcado en el informe.', 'Sparklines: up to the last 12 values. In gray, each report’s normal range; hatched, the lab’s usual one when the report prints none. ▲▼ out of range; ◆ flagged on report.') }}</p>
+          <section v-if="funcion.length" class="dt-funcion" aria-labelledby="h-funcion">
+            <h3 id="h-funcion" class="dt-funcion__t">{{ L('Función de órganos y médula ósea', 'Organ and bone marrow function') }}<template v-if="fechaFuncion"> · <span class="nums">{{ fechaCorta(fechaFuncion, lang) }}</span></template> <DatosSello s="extraido" :lang="lang" /></h3>
+            <ul class="dt-funcion__lista">
+              <li v-for="x in funcion" :key="x.k">
+                <button type="button" class="dt-funcion__item" @click="irAPrueba(x.k, x.p.f)"
+                        :aria-label="lecturaFuncion(x)">
+                  <span class="dt-funcion__n">{{ x.nombre }}</span>
+                  <span class="dt-funcion__v nums"><span v-if="x.p.fuera" class="dt-funcion__f" aria-hidden="true">{{ x.p.fuera === 'bajo' ? '▼' : x.p.fuera === 'alto' ? '▲' : '◆' }}</span>{{ n(x.p.v) }} <span class="dt-funcion__u">{{ x.a.unidad }}</span></span>
+                  <DatosRangoBarra :p="x.p" :lang="lang" />
+                  <span v-if="!fechaFuncion" class="dt-funcion__d nums">{{ fechaCorta(x.p.f, lang) }}</span>
+                </button>
+              </li>
+            </ul>
+          </section>
         </section>
 
         <!-- 2 · Carga tumoral: lo segundo que busca un clínico (RECIST y PET de cuerpo entero, por eso no «en el hígado»); antes en el 5.º pantallazo -->
@@ -636,6 +664,20 @@ const n = (v: number) => numCaso(v, lang.value)
 .dt-eleg__v { font: 700 22px/1.1 var(--font-display); color: var(--color-text); }
 .dt-eleg__f { font: 500 11px var(--font-mono); color: var(--color-text-soft); }
 .dt-eleg__lista { font: 500 13px/1.35 var(--font-body); color: var(--color-text); }
+.dt-funcion { margin-top: 14px; }
+.dt-funcion__t { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 6px; font: 700 14px/1.3 var(--font-body); color: var(--color-text); margin: 0 0 8px; }
+.dt-funcion__t .nums { font: 500 12px var(--font-mono); color: var(--color-text-soft); }
+.dt-funcion__lista { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+@media (min-width: 900px) { .dt-funcion__lista { grid-template-columns: repeat(6, minmax(0, 1fr)); } }
+.dt-funcion__item { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; width: 100%; min-height: 44px; text-align: left; padding: 10px 12px; border-radius: 12px;
+  border: 1px solid rgb(var(--color-text-rgb) / 0.1); background: var(--color-bg); color: inherit; transition: border-color var(--dur-micro); }
+.dt-funcion__item:hover { border-color: rgb(var(--color-text-rgb) / 0.25); }
+.dt-funcion__item:focus-visible { outline: 2px solid var(--color-miriam); outline-offset: 2px; }
+.dt-funcion__n { font: 600 12px var(--font-body); color: var(--color-text-soft); }
+.dt-funcion__v { font: 700 18px/1.2 var(--font-mono); color: var(--color-text); }
+.dt-funcion__u { font: 500 11px var(--font-mono); color: var(--color-text-soft); }
+.dt-funcion__f { color: var(--color-miriam); margin-right: 2px; }
+.dt-funcion__d { font: 500 11px var(--font-mono); color: var(--color-text-soft); }
 .dt-dx { margin: 4px 0 0; padding: 12px 14px; border-radius: 14px; border: 1px solid rgb(var(--color-text-rgb) / 0.1); background: var(--color-bg); }
 .dt-dx__k { font: 600 11.5px var(--font-body); color: var(--color-text-soft); margin: 0 0 2px; }
 .dt-dx__v { font: 600 15px/1.4 var(--font-body); color: var(--color-text); margin: 0; }
