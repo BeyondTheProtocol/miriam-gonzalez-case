@@ -7,6 +7,7 @@
     <main
       id="main-content"
       class="flex-1"
+      :class="{ 'has-support-bar': hasSupportBar }"
       tabindex="-1"
       :aria-label="$t('nav.main_content_label')"
     >
@@ -23,15 +24,12 @@
 
 <script setup lang="ts">
 const { locale } = useI18n()
-const route = useRoute()
 
-// ¿Estamos en la landing de marcas? (es: /marcas · en: /en/brands). Se normaliza
-// la barra final para que /marcas/ también cuente. Guarda por ruta: NO afecta al
-// resto del sitio, donde los CTA de donación se mantienen intactos.
-const isBrandsRoute = computed(() => {
-  const path = route.path.replace(/\/+$/, '') || '/'
-  return path === '/marcas' || path === '/en/brands'
-})
+// ¿Estamos en la landing de marcas? (es: /marcas · en: /en/brands). Guarda por
+// ruta: NO afecta al resto del sitio, donde los CTA de donación se mantienen.
+// hasSupportBar: ¿puede aparecer la barra en esta ruta? Decide si <main> reserva
+// su hueco (por ruta, no por visibilidad: sin saltos de layout al hacer scroll).
+const { isBrandsRoute, hasSupportBar } = useSupportBarRoute()
 
 function focusMain() {
   nextTick(() => {
