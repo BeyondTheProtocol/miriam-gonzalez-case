@@ -600,7 +600,7 @@
     "ruta": {
       "eyebrow": "The route",
       "title": "From tissue to a therapy made for her tumour",
-      "intro": "The vaccine trials explored in June closed; this is the route to build one from her own tumour. Five steps, each depending on the one before. Today the case is between the first and the second, and treatment to control the disease runs in parallel.",
+      "intro": "The vaccine trials explored in June have closed. This is the route to building a therapy from her own tumour: five steps, each depending on the one before. Right now the case sits between the first and the second, with treatment to control the disease running alongside.",
       "estados": {
         "hecho": "Done",
         "curso": "In progress",
@@ -614,19 +614,19 @@
         },
         "leer": {
           "titulo": "Read the tumour",
-          "texto": "Sequence its DNA and see which genes it expresses, then compare it with her healthy blood to keep only what belongs to the tumour. The tumour tissue has already left for the lab; the healthy blood sample is being prepared."
+          "texto": "Sequence the tumour's DNA, see which genes it expresses and compare it with her healthy blood, so only what belongs to the tumour is kept. The tissue has already gone to the lab, and the healthy blood sample is being prepared."
         },
         "dianas": {
           "titulo": "Find the targets",
-          "texto": "Look for the mutations that only the tumour carries and that her immune system could recognise. This also needs her HLA: the molecules that show pieces of the tumour to her T cells and decide which ones can be recognised."
+          "texto": "Look for the mutations that only the tumour carries and that her immune system could recognise. This also requires knowing her HLA: the molecules that show pieces of the tumour to her T cells and decide which ones can be recognised."
         },
         "disenar": {
           "titulo": "Design the therapy",
-          "texto": "With those targets you can make a personalised vaccine or prepare T cells that recognise them (TCR-T, TIL). Another path, CAR-T, targets proteins on the tumour surface and is chosen from other data. More than one can be combined. There is no single path: the aim is the one with the most evidence for her case, and the decision belongs to her medical team."
+          "texto": "Those targets can be used to make a personalised vaccine or to prepare T cells that recognise them (TCR-T, TIL). Another path, CAR-T, targets proteins on the tumour surface and is chosen from other data. More than one can be combined, and the aim is the one with the most evidence for her case. The decision belongs to her medical team."
         },
         "llegar": {
           "titulo": "Reach it",
-          "texto": "A clinical trial or a manufacturer able to make it. Doors are being sought in any country."
+          "texto": "A clinical trial or a manufacturer able to make it. The search is open to any country."
         }
       },
       "nota": "Explanatory material: it describes the path, it does not promise results. Decisions are made by her medical team."

@@ -623,7 +623,7 @@
     "ruta": {
       "eyebrow": "La ruta",
       "title": "Del tejido a una terapia hecha para su tumor",
-      "intro": "Los ensayos de vacuna que se exploraron en junio se cerraron; esta es la ruta para construirla con su propio tumor. Cinco pasos, y cada uno depende del anterior. Hoy el caso está entre el primero y el segundo, y el tratamiento para controlar la enfermedad va en paralelo.",
+      "intro": "Los ensayos de vacuna que se exploraron en junio se cerraron. Esta es la ruta para construir una terapia a partir de su propio tumor. Son cinco pasos y cada uno depende del anterior. Hoy el caso está entre el primero y el segundo, y en paralelo sigue el tratamiento para controlar la enfermedad.",
       "estados": {
         "hecho": "Hecho",
         "curso": "En curso",
@@ -637,7 +637,7 @@
         },
         "leer": {
           "titulo": "Leer el tumor",
-          "texto": "Secuenciar su ADN y ver qué genes expresa, y compararlo con su sangre sana para quedarse solo con lo que es del tumor. El tejido del tumor ya ha salido hacia el laboratorio; la muestra de sangre sana se está preparando."
+          "texto": "Secuenciar el ADN del tumor, ver qué genes expresa y compararlo con su sangre sana, para quedarse solo con lo que es del tumor. El tejido ya ha salido hacia el laboratorio y la muestra de sangre sana se está preparando."
         },
         "dianas": {
           "titulo": "Encontrar las dianas",
@@ -645,7 +645,7 @@
         },
         "disenar": {
           "titulo": "Diseñar la terapia",
-          "texto": "Con esas dianas se puede hacer una vacuna personalizada o preparar células T que las reconozcan (TCR-T, TIL). Otra vía, la CAR-T, apunta a proteínas de la superficie del tumor y se elige con otros datos. Se puede combinar más de una. No hay una sola vía: se busca la que tenga más evidencia para su caso, y la decisión es de su equipo médico."
+          "texto": "Con esas dianas se puede hacer una vacuna personalizada o preparar células T que las reconozcan (TCR-T, TIL). Otra vía, la CAR-T, apunta a proteínas de la superficie del tumor y se elige con otros datos. Se puede combinar más de una, y se busca la que tenga más evidencia para su caso. La decisión es de su equipo médico."
         },
         "llegar": {
           "titulo": "Llegar a ella",
