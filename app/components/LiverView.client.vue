@@ -142,6 +142,9 @@ const filasTabla = computed(() =>
     .sort((a, b) => ORDEN_TIPO[a.e.tipo] - ORDEN_TIPO[b.e.tipo]))
 const origenSel = ref<'hover' | 'tap' | 'focus' | null>(null)
 const tooltipPos = ref({ x: 0, y: 0, visible: false })
+/* En pantallas estrechas (<480 px) el tooltip no flota sobre el 3D: sale como panel debajo
+   del visor. Flotando tapaba las etiquetas de las dianas en móvil (26-sep-26, 375 px). */
+const panelMovil = ref(false)
 const tooltipEl = ref<HTMLDivElement | null>(null)
 const raycastables: THREE.Object3D[] = []
 const raycaster = new THREE.Raycaster()
@@ -319,6 +322,7 @@ function actualizaTooltip() {
   const e = entradas.value[seleccion.value]
   if (!e) { tooltipPos.value = { x: 0, y: 0, visible: false }; return }
   const { w, h } = tamano()
+  panelMovil.value = w < 480
   const c = centroEntrada(e.obj)
   p3.copy(c).project(camera)
   const x = (p3.x + 1) / 2 * w, y = (1 - p3.y) / 2 * h
@@ -559,7 +563,7 @@ onBeforeUnmount(() => {
            siempre en la tabla de abajo (2.5), que es lo que anuncia un lector de pantalla.
            Hoverable de verdad: entra al propio tooltip cancela el cierre programado. -->
       <div
-        v-if="seleccion != null && tooltipEntry && tooltipPos.visible"
+        v-if="seleccion != null && tooltipEntry && tooltipPos.visible && !panelMovil"
         ref="tooltipEl"
         class="lv-tooltip"
         aria-hidden="true"
@@ -586,6 +590,15 @@ onBeforeUnmount(() => {
           <path d="M17 3.2V7.2H13M7 20.8V16.8H11" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
         </svg>
       </button>
+    </div>
+    <!-- móvil: el mismo contenido, en panel bajo el visor (no tapa las etiquetas del 3D) -->
+    <div
+      v-if="panelMovil && seleccion != null && tooltipEntry"
+      class="lv-tooltip lv-tooltip--panel"
+      aria-hidden="true"
+    >
+      <p class="lv-tooltip__titulo">{{ tooltipEntry.titulo[langIdx] }}</p>
+      <p v-for="(ln, i) in tooltipEntry.lineas" :key="i" class="lv-tooltip__linea">{{ ln[langIdx] }}</p>
     </div>
     <p v-if="!failed" class="text-[11px] text-tinta mt-1.5">
       {{ L('Arrastra para girar · rueda para acercar', 'Drag to rotate · scroll to zoom') }}
@@ -763,6 +776,7 @@ onBeforeUnmount(() => {
   border-radius: var(--radius-md); box-shadow: var(--sombra-flotante);
   padding: 8px 10px; z-index: 5;
 }
+.lv-tooltip--panel { position: static; transform: none; max-width: 100%; width: auto; margin-top: 6px; }
 .lv-tooltip__titulo { font: var(--tipo-body-sm); font-weight: 600; margin: 0 0 2px; }
 .lv-tooltip__linea { font: var(--tipo-body-sm); margin: 0; opacity: 0.92; }
 
