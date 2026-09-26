@@ -521,8 +521,10 @@ const stats = computed(() => [
   text-underline-offset: 3px;
   transition: text-decoration-color 0.15s ease;
 }
-.hero__latest:hover .hero__latest-title {
-  text-decoration-color: var(--color-miriam);
+@media (hover: hover) and (pointer: fine) {
+  .hero__latest:hover .hero__latest-title {
+    text-decoration-color: var(--color-miriam);
+  }
 }
 
 /* Stats · rejilla cerrada, alturas iguales. Sin divisor propio: cuelga de hero__proof. */

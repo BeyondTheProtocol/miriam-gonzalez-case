@@ -286,8 +286,8 @@ defineExpose({ abrir })
 @media (prefers-reduced-motion: no-preference) {
   .qc-hoja[open] { animation: qc-sube 380ms var(--curva-salida) both; }
   .qc-hoja[open]::backdrop { animation: qc-fondo 300ms ease-out both; }
-  .qc-hoja--cerrando[open] { animation: qc-baja 230ms ease-in both; }
-  .qc-hoja--cerrando[open]::backdrop { animation: qc-fondo 230ms ease-in reverse both; }
+  .qc-hoja--cerrando[open] { animation: qc-baja 230ms var(--curva-salida) both; }
+  .qc-hoja--cerrando[open]::backdrop { animation: qc-fondo 230ms var(--curva-salida) reverse both; }
   .qc-hoja--tirando[open] { animation: none; transition: none; }
   @media (min-width: 700px) {
     .qc-hoja[open] { animation-name: qc-aparece; }

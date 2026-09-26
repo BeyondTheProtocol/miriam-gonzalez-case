@@ -835,7 +835,7 @@ html[data-vt-datos]::view-transition-new(dt-pastilla) { animation: 380ms ease-ou
 @keyframes dt-vt-pastilla { from { opacity: 0.45; } to { opacity: 1; } }
 html[data-vt-datos]::view-transition-group(dt-vista) { animation-duration: 470ms; }
 /* en serie, no a la vez: si se solapan, dos gráficos distintos se leen como uno roto */
-html[data-vt-datos]::view-transition-old(dt-vista) { animation: 150ms ease-in both dt-vt-sale; }
+html[data-vt-datos]::view-transition-old(dt-vista) { animation: 150ms var(--curva-salida) both dt-vt-sale; }
 html[data-vt-datos]::view-transition-new(dt-vista) { animation: 340ms var(--curva-salida, cubic-bezier(.2,.8,.2,1)) 130ms both dt-vt-entra; }
 html[data-vt-datos='izda']::view-transition-old(dt-vista) { animation-name: dt-vt-sale-izda; }
 html[data-vt-datos='izda']::view-transition-new(dt-vista) { animation-name: dt-vt-entra-izda; }

@@ -1,5 +1,8 @@
 /** @type {import('tailwindcss').Config} */
 export default {
+  // En el móvil el primer toque deja el `hover:` pegado. Así los `hover:` solo se aplican donde
+  // hay hover de verdad (@media (hover: hover)). Skill `movimiento-movil`, auditoría del 26-sep-26.
+  future: { hoverOnlyWhenSupported: true },
   content: [
     './components/**/*.{vue,js,ts}',
     './layouts/**/*.vue',
