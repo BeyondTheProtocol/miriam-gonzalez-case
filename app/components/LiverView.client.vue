@@ -23,6 +23,7 @@ const props = defineProps<{ base: string; fallback: string; fallbackAlt: string 
 const { locale } = useI18n()
 const lang = computed<'es' | 'en'>(() => (locale.value === 'en' ? 'en' : 'es'))
 const L = (es: string, en: string) => (lang.value === 'en' ? en : es)
+const langIdx = computed(() => (lang.value === 'en' ? 1 : 0))
 
 interface Lesion { malla: string; diametro_auto_mm: number; diana: string | null; mm_informe: number | null; suvmax?: number | null; pet?: string }
 interface Pet { fecha: string; fondo_suvmean: number; fondo_suvsd: number; umbral_percist: number; dice_registro: number; focos_higado?: number; focos_sobre_lesion?: number; focos_sin_lesion?: number }
@@ -34,6 +35,118 @@ interface Foco { suvmax: number; segmento: number | null; centro: [number, numbe
    resto — no cambia el color, solo documenta el porqué si algún día hace falta filtrar. */
 interface MarcaRadiologo { centro: [number, number, number]; radio_mm: number; categoria: 'confluente' | 'subcapsular' | 'estandar' }
 interface Escena { mallas: Record<string, string>; lesiones: Lesion[]; pet?: Pet; focos?: Foco[]; marcas_radiologo?: MarcaRadiologo[] }
+
+/* ── tooltip por lesión (comité de diseño, 26-sep) ──────────────────────────────────────
+   Tres tipos: A (Polaris+radiólogo), B (diana del informe), C (solo radiólogo). Cada
+   `Entrada` lleva su propio objeto 3D (para el rayo y para proyectar su posición) y el
+   contenido YA resuelto en los dos idiomas — nada se recalcula en el hover, solo se elige
+   el idioma. `obj` es el mesh/esfera; su centro en mundo es `geometry.boundingSphere.center`
+   para las lesiones (mismo dato que ya usa `actualizaRotulos`) o `mesh.position` para las
+   esferas de marca (creadas ya centradas, sin geometría trasladada). */
+interface Entrada {
+  tipo: 'A' | 'B' | 'C'
+  obj: THREE.Object3D
+  titulo: [string, string]
+  lineas: [string, string][]
+  medida: [string, string]
+  procedencia: [string, string]
+}
+/* PET por lesión, singular: deriva de las MISMAS cuatro palabras que ya usa la leyenda de
+   la lente PET (líneas 416-432), no un quinto vocabulario. La spec de diseño asumía una
+   frase «sin captación relevante» verificada en el código — no está (verificado al leer el
+   componente en esta sesión): la leyenda es de RECUENTO («12 indistinguibles…»), no por
+   lesión. Se deriva la forma singular del mismo adjetivo en vez de inventar una redacción
+   nueva; decisión de implementación, no de diseño. */
+const PET_LABEL: Record<string, [string, string]> = {
+  sobre_umbral: ['por encima del umbral tipo PERCIST', 'above the PERCIST-type threshold'],
+  sobre_fondo: ['por encima del fondo, sin llegar al umbral', 'above background, below the threshold'],
+  en_fondo: ['indistinguible del fondo del hígado', 'indistinguishable from liver background'],
+  no_evaluable: ['no evaluable: más pequeña que el vóxel del PET', 'not assessable: smaller than the PET voxel'],
+}
+const CATEGORIA_LINEA: Record<'confluente' | 'subcapsular', [string, string]> = {
+  confluente: [
+    'Puede ser una de tres lesiones que se tocan entre sí (el radiólogo las cuenta por separado).',
+    'May be one of three lesions touching each other (the radiologist counts them separately).',
+  ],
+  subcapsular: [
+    'Está pegada a la cápsula del hígado, lo que limita su crecimiento y dificulta valorarla.',
+    'It sits right against the liver capsule, which limits its growth and makes it harder to assess.',
+  ],
+}
+/* Construyen el contenido bilingüe de cada tipo, UNA vez al cargar — el tooltip solo elige
+   el idioma en el momento de pintar, no recalcula nada (mismo criterio que el resto de la
+   página: los textos ES/EN viven emparejados, no se traducen al vuelo). */
+function tipoA(les: Lesion): Pick<Entrada, 'titulo' | 'lineas' | 'medida' | 'procedencia'> {
+  const lineas: [string, string][] = [[
+    `Diámetro: ${les.diametro_auto_mm} mm (medida automática)`,
+    `Size: ${les.diametro_auto_mm} mm (automatic measurement)`,
+  ]]
+  if (les.pet && PET_LABEL[les.pet]) {
+    const [es, en] = PET_LABEL[les.pet]!
+    lineas.push([`PET: ${es}`, `PET: ${en}`])
+  }
+  lineas.push(['La vio Polaris y la confirmó un radiólogo.', 'Flagged by Polaris and confirmed by a radiologist.'])
+  return {
+    titulo: ['Lesión candidata', 'Candidate lesion'],
+    lineas,
+    medida: [`${les.diametro_auto_mm} mm`, `${les.diametro_auto_mm} mm`],
+    procedencia: ['Polaris + radiólogo', 'Polaris + radiologist'],
+  }
+}
+function tipoB(les: Lesion): Pick<Entrada, 'titulo' | 'lineas' | 'medida' | 'procedencia'> {
+  // «diana s.II» -> «II» (mismo rótulo que ya escribe `_cmd_web`, ninguna fuente nueva)
+  const seg = (les.diana || '').replace(/^diana\s+s\.?/i, '').trim()
+  const lineas: [string, string][] = [[
+    `Medida del radiólogo: ${les.mm_informe} mm`, `Radiologist's measurement: ${les.mm_informe} mm`,
+  ]]
+  // La evolución «18 → 20 mm en el TC previo» de la spec no tiene campo en escena.json (solo
+  // hay `diametro_auto_mm` y `mm_informe`, ninguno es la medida del TC anterior): se omite en
+  // vez de inventar o hardcodear una cifra clínica en el componente — decisión de
+  // implementación ante un hueco de la spec, no un cambio de diseño.
+  if (les.suvmax != null) lineas.push([`SUV ${les.suvmax.toFixed(1)}`, `SUV ${les.suvmax.toFixed(1)}`])
+  lineas.push(['Diana del informe oficial de TC.', 'Target from the official CT report.'])
+  return {
+    titulo: [`Diana del informe · segmento ${seg}`, `Report target · segment ${seg}`],
+    lineas,
+    medida: [`${les.mm_informe} mm`, `${les.mm_informe} mm`],
+    procedencia: ['Diana del informe oficial', 'Official report target'],
+  }
+}
+function tipoC(m: MarcaRadiologo): Pick<Entrada, 'titulo' | 'lineas' | 'medida' | 'procedencia'> {
+  const mm = Math.round(m.radio_mm * 2)
+  const lineas: [string, string][] = [
+    [`Medida: ${mm} mm`, `Size: ${mm} mm`],
+    ['Solo la marcó el radiólogo; la IA no la vio.', "Only the radiologist marked it; the AI didn't see it."],
+  ]
+  if (m.categoria !== 'estandar') lineas.push(CATEGORIA_LINEA[m.categoria])
+  return {
+    titulo: ['Marca del radiólogo', "Radiologist's mark"],
+    lineas,
+    medida: [`${mm} mm`, `${mm} mm`],
+    procedencia: ['Solo radiólogo', 'Radiologist only'],
+  }
+}
+const entradas = ref<Entrada[]>([])
+/* índice en `entradas`, o null; `origenSel` distingue cómo se abrió para saber cómo se
+   cierra (WCAG 2.2 1.4.13: hoverable/dismissible/persistent, uno por dispositivo). */
+const seleccion = ref<number | null>(null)
+const tooltipEntry = computed(() => (seleccion.value != null ? entradas.value[seleccion.value] ?? null : null))
+// dianas primero, luego Polaris+radiólogo, luego solo radiólogo — el mismo orden de lectura
+// que ya usa la leyenda de la lente de tamaño (spec de diseño, 2.5.1).
+const ORDEN_TIPO = { B: 0, A: 1, C: 2 } as const
+const filasTabla = computed(() =>
+  entradas.value
+    .map((e, i) => ({ e, i }))
+    .sort((a, b) => ORDEN_TIPO[a.e.tipo] - ORDEN_TIPO[b.e.tipo]))
+const origenSel = ref<'hover' | 'tap' | 'focus' | null>(null)
+const tooltipPos = ref({ x: 0, y: 0, visible: false })
+const tooltipEl = ref<HTMLDivElement | null>(null)
+const raycastables: THREE.Object3D[] = []
+const raycaster = new THREE.Raycaster()
+const ndc = new THREE.Vector2()
+let cierreTimer: ReturnType<typeof setTimeout> | undefined
+let gestoInicio = { x: 0, y: 0, t: 0 }
+let esTactil = false
 
 const host = ref<HTMLDivElement | null>(null)
 const loading = ref(true)
@@ -192,6 +305,86 @@ function actualizaRotulos() {
   })
 }
 
+/* centro en mundo de una entrada: las lesiones usan el centro de su esfera envolvente (igual
+   que `actualizaRotulos`), las 35 esferas de marca ya nacen centradas en su posición. */
+function centroEntrada(o: THREE.Object3D): THREE.Vector3 {
+  const m = o as THREE.Mesh
+  const bs = m.geometry?.boundingSphere
+  return bs ? bs.center : m.position
+}
+function actualizaTooltip() {
+  if (seleccion.value == null) { tooltipPos.value = { x: 0, y: 0, visible: false }; return }
+  const e = entradas.value[seleccion.value]
+  if (!e) { tooltipPos.value = { x: 0, y: 0, visible: false }; return }
+  const { w, h } = tamano()
+  const c = centroEntrada(e.obj)
+  p3.copy(c).project(camera)
+  const x = (p3.x + 1) / 2 * w, y = (1 - p3.y) / 2 * h
+  const anchoTip = tooltipEl.value?.offsetWidth || 220
+  const medio = anchoTip / 2 + 8
+  const tx = Math.min(Math.max(x, medio), w - medio)
+  // encima del punto (nunca centrado sobre él, como `.lv-rotulo`); en táctil, 12 px más
+  // arriba para que el dedo no tape lo que acaba de abrir (yema ~10-14 px).
+  const arriba = esTactil && origenSel.value === 'tap' ? 30 : 18
+  const ty = Math.max(y - arriba, 8)
+  tooltipPos.value = { x: tx, y: ty, visible: p3.z < 1 }
+}
+
+/* ── interacción del tooltip: hover (ratón), tap (táctil), focus (fila de la tabla) ──────
+   WCAG 2.2 1.4.13: hoverable (mover el puntero al tooltip no lo cierra — `cancelaCierre`
+   en su propio pointerenter), dismissible (Escape, en cualquier origen) y persistent (el
+   táctil NUNCA se autocierra por tiempo — solo por tap fuera, tap en la misma lesión o
+   Escape). */
+function mostrar(i: number, origen: 'hover' | 'tap' | 'focus') {
+  cancelaCierre()
+  if (origen === 'tap' && seleccion.value === i && origenSel.value === 'tap') { ocultar(); return }
+  seleccion.value = i; origenSel.value = origen
+}
+function ocultar() { seleccion.value = null; origenSel.value = null }
+function programaCierre() {
+  cancelaCierre()
+  cierreTimer = setTimeout(() => { if (origenSel.value === 'hover') ocultar() }, 150)
+}
+function cancelaCierre() { if (cierreTimer) { clearTimeout(cierreTimer); cierreTimer = undefined } }
+
+function ndcDesde(clientX: number, clientY: number) {
+  const rect = host.value!.getBoundingClientRect()
+  ndc.x = ((clientX - rect.left) / rect.width) * 2 - 1
+  ndc.y = -((clientY - rect.top) / rect.height) * 2 + 1
+}
+function raycast(): number | null {
+  raycaster.setFromCamera(ndc, camera)
+  const hits = raycaster.intersectObjects(raycastables, false)
+  return hits.length ? ((hits[0].object.userData.entradaIdx as number) ?? null) : null
+}
+function onPointerMove(e: PointerEvent) {
+  if (e.pointerType !== 'mouse') return   // hover es solo de ratón; táctil usa tap
+  ndcDesde(e.clientX, e.clientY)
+  const idx = raycast()
+  if (idx != null) mostrar(idx, 'hover')
+  else if (origenSel.value === 'hover') programaCierre()
+}
+function onPointerLeave(e: PointerEvent) {
+  if (e.pointerType === 'mouse') programaCierre()
+}
+function onPointerDown(e: PointerEvent) {
+  esTactil = e.pointerType !== 'mouse'
+  gestoInicio = { x: e.clientX, y: e.clientY, t: performance.now() }
+}
+function onPointerUp(e: PointerEvent) {
+  if (e.pointerType === 'mouse') return   // el clic de ratón no abre/cierra: eso es el hover
+  const dx = e.clientX - gestoInicio.x, dy = e.clientY - gestoInicio.y
+  const dist = Math.hypot(dx, dy), dt = performance.now() - gestoInicio.t
+  if (dist > 6 || dt > 150) return   // arrastre de cámara, no un tap (mismo umbral que OrbitControls)
+  ndcDesde(e.clientX, e.clientY)
+  const idx = raycast()
+  if (idx != null) mostrar(idx, 'tap')
+  else ocultar()
+}
+function onFilaFocus(i: number) { mostrar(i, 'focus') }
+function onFilaBlur(i: number) { if (origenSel.value === 'focus') ocultar() }
+function onEscape() { if (seleccion.value != null) ocultar() }
+
 async function init() {
   const el = host.value!
   const reduce = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
@@ -221,7 +414,7 @@ async function init() {
   controls.enableDamping = true; controls.dampingFactor = 0.08; controls.enablePan = false
   controls.rotateSpeed = 0.9
   controls.autoRotate = !reduce; controls.autoRotateSpeed = 1.6
-  controls.addEventListener('start', () => { controls.autoRotate = false })
+  controls.addEventListener('start', () => { controls.autoRotate = false; ocultar() })
 
   const esc: Escena = await (await fetch(props.base + 'escena.json')).json()
   const tareas: Promise<unknown>[] = []
@@ -243,6 +436,9 @@ async function init() {
         const suv = les.suvmax != null ? ' · SUV ' + les.suvmax.toFixed(1) : ''
         dianas.push({ malla: m, texto: et + ' · ' + les.mm_informe + ' mm' + suv })
       }
+      m.userData.entradaIdx = entradas.value.length
+      entradas.value.push({ tipo: les.diana ? 'B' : 'A', obj: m, ...(les.diana ? tipoB(les) : tipoA(les)) })
+      raycastables.push(m)
     }))
   }
   cuenta.value = {
@@ -276,6 +472,9 @@ async function init() {
     esf.position.set(m.centro[0], m.centro[1], m.centro[2])
     esf.renderOrder = 2
     scene.add(esf)
+    esf.userData.entradaIdx = entradas.value.length
+    entradas.value.push({ tipo: 'C', obj: esf, ...tipoC(m) })
+    raycastables.push(esf)
   }
   cuentaMarcas.value = (esc.marcas_radiologo ?? []).length
   const gh = await geo(props.base + esc.mallas.higado)
@@ -294,10 +493,17 @@ async function init() {
     if (!enVista) return   // fuera de pantalla no se pinta (batería)
     controls.update()
     for (const f of focos) f.visible = lente.value === 'pet'
-    renderer!.render(scene, camera); actualizaRotulos()
+    renderer!.render(scene, camera); actualizaRotulos(); actualizaTooltip()
   }
   tick()
 }
+
+// el reencuadre y el cambio de lente cierran cualquier tooltip abierto: apuntaría a una
+// posición 3D que ya cambió de encuadre (spec de diseño, 2.4).
+watch(lente, () => ocultar())
+const reencuadraYCierra = () => { ocultar(); reencuadra() }
+
+function onWindowKeydown(e: KeyboardEvent) { if (e.key === 'Escape') onEscape() }
 
 onMounted(() => {
   // Igual que BoneTriView: dentro de <ClientOnly> el contenedor puede no estar aún en el DOM
@@ -311,9 +517,12 @@ onMounted(() => {
     init().catch((e) => { console.error('[LiverView]', e); failed.value = true; loading.value = false })
   }
   arranca()
+  window.addEventListener('keydown', onWindowKeydown)
 })
 onBeforeUnmount(() => {
   cancelAnimationFrame(raf); ro?.disconnect(); io?.disconnect()
+  cancelaCierre()
+  window.removeEventListener('keydown', onWindowKeydown)
   scene?.traverse((o) => {
     const m = o as THREE.Mesh
     if (m.isMesh) { m.geometry.dispose(); (m.material as THREE.Material).dispose() }
@@ -332,6 +541,10 @@ onBeforeUnmount(() => {
         role="img"
         :aria-label="L('Hígado en 3D con los vasos, la vesícula y todas las lesiones: las dos diana del informe de radiología rotuladas con su medida y su SUV, y el resto detectadas automáticamente. Debajo, lo que dice de cada una el PET del mismo día. Y, en verde agua, las 35 marcas que solo señaló el radiólogo, como puntos del tamaño que él midió. Arrástralo para girar; todas las cifras están escritas debajo.', 'Liver in 3D with the vessels, the gallbladder and all the lesions: the two targets from the radiology report labelled with their size and SUV, and the rest detected automatically. Below, what the same-day PET says about each one. And, in teal, the 35 marks flagged only by the radiologist, as points the size he measured. Drag to rotate; all the figures are written below.')"
         class="absolute inset-0 cursor-grab active:cursor-grabbing"
+        @pointermove="onPointerMove"
+        @pointerleave="onPointerLeave"
+        @pointerdown="onPointerDown"
+        @pointerup="onPointerUp"
       />
       <!-- anillo + rótulo de cada diana, como en el vídeo -->
       <div v-if="!loading && !failed" class="absolute inset-0 pointer-events-none" aria-hidden="true">
@@ -339,6 +552,21 @@ onBeforeUnmount(() => {
           <span v-if="r.visible" class="lv-anillo" :style="{ left: r.x + 'px', top: r.y + 'px', width: 2 * r.r + 'px', height: 2 * r.r + 'px' }" />
           <span v-if="r.visible" class="lv-rotulo" :style="{ left: r.tx + 'px', top: r.ty + 'px' }">{{ r.texto }}</span>
         </template>
+      </div>
+      <!-- tooltip por lesión: puramente visual (aria-hidden) — el mismo contenido vive
+           siempre en la tabla de abajo (2.5), que es lo que anuncia un lector de pantalla.
+           Hoverable de verdad: entra al propio tooltip cancela el cierre programado. -->
+      <div
+        v-if="seleccion != null && tooltipEntry && tooltipPos.visible"
+        ref="tooltipEl"
+        class="lv-tooltip"
+        aria-hidden="true"
+        :style="{ left: tooltipPos.x + 'px', top: tooltipPos.y + 'px' }"
+        @pointerenter="cancelaCierre"
+        @pointerleave="programaCierre"
+      >
+        <p class="lv-tooltip__titulo">{{ tooltipEntry.titulo[langIdx] }}</p>
+        <p v-for="(ln, i) in tooltipEntry.lineas" :key="i" class="lv-tooltip__linea">{{ ln[langIdx] }}</p>
       </div>
       <div v-if="loading" class="absolute inset-0 flex items-center justify-center text-[12px]" style="color:#aeb6c2">
         {{ L('reconstruyendo 3D…', 'rebuilding 3D…') }}
@@ -349,7 +577,7 @@ onBeforeUnmount(() => {
         class="lv-reencuadre"
         :aria-label="L('Reencuadrar la vista', 'Reset the view')"
         :title="L('Reencuadrar', 'Reset view')"
-        @click="reencuadra"
+        @click="reencuadraYCierra"
       >
         <svg viewBox="0 0 24 24" width="18" height="18" focusable="false" aria-hidden="true">
           <path d="M19 12a7 7 0 0 1-11.95 4.95M5 12a7 7 0 0 1 11.95-4.95" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
@@ -449,6 +677,49 @@ onBeforeUnmount(() => {
     <p v-if="!loading && !failed" class="mt-1.5 text-[11px] text-tinta leading-snug">
       {{ L('RECIST 1.1 solo mide lesiones de 10 mm o más. Las lesiones candidatas vienen de segmentación automática (IA, 100 % local): el modelo las detecta y ningún radiólogo las ha confirmado. Puede haber de más o de menos, y en las dianas el modelo mide 2-6 mm por debajo del radiólogo. Las venas más finas pueden salir incompletas.', 'RECIST 1.1 only measures lesions of 10 mm or more. Candidate lesions come from automatic segmentation (AI, 100% local): the model detects them and no radiologist has confirmed them. It may miss some or flag extra ones, and on the targets it measures 2-6 mm below the radiologist. The thinnest veins may appear incomplete.') }}
     </p>
+
+    <!-- Alternativa accesible al 3D (spec de diseño, 2.5): un <canvas> con 55 puntos no es
+         navegable por teclado ni por lector de pantalla más allá del aria-label de arriba.
+         Esta tabla lleva el MISMO contenido del tooltip, en texto plano, siempre en el DOM
+         (colapsada con <details> nativo, que el lector de pantalla anuncia como expandible;
+         nunca display:none). Enfocar una fila resalta y proyecta el tooltip sobre su punto
+         en el 3D (sincronía bidireccional); el 3D en sí no añade tabstops nuevos — 55 Tabs
+         sobre un lienzo de 343 px sería peor experiencia de teclado que esta tabla nativa. -->
+    <details v-if="!loading && !failed" class="lv-detalle mt-3">
+      <summary class="lv-detalle__resumen">
+        {{ L(`Las 55 marcas en una tabla (${entradas.length})`, `All 55 marks as a table (${entradas.length})`) }}
+      </summary>
+      <div class="lv-tabla-envoltorio">
+        <table class="lv-tabla">
+          <caption class="sr-only">
+            {{ L('Cada lesión o marca del hígado: tipo, medida y quién la vio.', 'Every liver lesion or mark: type, size and who saw it.') }}
+          </caption>
+          <thead>
+            <tr>
+              <th scope="col">{{ L('Lesión', 'Lesion') }}</th>
+              <th scope="col">{{ L('Medida', 'Size') }}</th>
+              <th scope="col">{{ L('Procedencia', 'Source') }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr
+              v-for="fila in filasTabla" :key="fila.i"
+              tabindex="0"
+              :aria-current="seleccion === fila.i ? 'true' : undefined"
+              :class="{ 'lv-fila--activa': seleccion === fila.i }"
+              @focus="onFilaFocus(fila.i)"
+              @blur="onFilaBlur(fila.i)"
+              @keydown.enter.prevent="onFilaFocus(fila.i)"
+              @keydown.space.prevent="onFilaFocus(fila.i)"
+            >
+              <td>{{ fila.e.titulo[langIdx] }}</td>
+              <td>{{ fila.e.medida[langIdx] }}</td>
+              <td>{{ fila.e.procedencia[langIdx] }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </details>
   </div>
 </template>
 
@@ -479,4 +750,36 @@ onBeforeUnmount(() => {
 }
 .lv-reencuadre:hover { background: rgba(30, 37, 48, 0.92); border-color: rgba(174, 182, 194, 0.5); }
 .lv-reencuadre:focus-visible { outline: 2px solid #1c969e; outline-offset: 2px; }
+
+/* Tooltip por lesión: tokens del sistema (sección 3 de la spec), cero hex nuevo. Nunca más
+   ancho que el visor menos 16 px de margen; envuelve, no desborda (2.3). Puramente visual
+   (aria-hidden): el contenido accesible vive en la tabla de abajo. */
+.lv-tooltip {
+  position: absolute; transform: translate(-50%, -100%); pointer-events: auto;
+  max-width: calc(100% - 16px); width: max-content;
+  background: var(--viz-tooltip-bg); color: var(--viz-tooltip-text);
+  border-radius: var(--radius-md); box-shadow: var(--sombra-flotante);
+  padding: 8px 10px; z-index: 5;
+}
+.lv-tooltip__titulo { font: var(--tipo-body-sm); font-weight: 600; margin: 0 0 2px; }
+.lv-tooltip__linea { font: var(--tipo-body-sm); margin: 0; opacity: 0.92; }
+
+/* Tabla sincronizada (2.5): siempre en el DOM, colapsada con <details> nativo. */
+.lv-detalle__resumen {
+  cursor: pointer; font-size: 12px; font-weight: 600; color: var(--color-text, #2d1b3d);
+  padding: 6px 0; min-height: 32px; display: inline-flex; align-items: center;
+}
+.lv-detalle__resumen:focus-visible { outline: 2px solid #1c969e; outline-offset: 2px; }
+.lv-tabla-envoltorio { overflow-x: auto; margin-top: 6px; }
+.lv-tabla { width: 100%; border-collapse: collapse; font-size: 11px; }
+.lv-tabla th, .lv-tabla td {
+  text-align: left; padding: 6px 8px; border-bottom: 1px solid rgba(45, 27, 61, 0.12);
+  white-space: nowrap;
+}
+.lv-tabla th { font-weight: 600; color: var(--color-text, #2d1b3d); }
+.lv-tabla tbody tr { cursor: pointer; }
+.lv-tabla tbody tr:hover, .lv-fila--activa { background: rgba(28, 150, 158, 0.08); }
+.lv-tabla tbody tr:focus-visible, .lv-tabla tbody tr:focus {
+  outline: 2px solid #1c969e; outline-offset: -2px;
+}
 </style>
