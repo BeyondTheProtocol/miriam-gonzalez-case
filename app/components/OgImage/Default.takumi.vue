@@ -65,7 +65,7 @@ defineProps({
         </span>
         <span style="color: #9d44ab;">·</span>
         <span style="font-family: 'JetBrains Mono', monospace; font-size: 16px; color: #5a4a68;">
-          BC-NED · FGFR1 ×13 · SSTR2+
+          BC-NED · FGFR1 ×13 · SSTR+ (PET Ga-DOTATOC)
         </span>
       </div>
     </div>

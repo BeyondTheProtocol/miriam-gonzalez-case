@@ -25,7 +25,7 @@
         <!-- Cita verificable de la rareza: que nadie pueda decir que es inventada. -->
         <p class="mt-2.5 font-mono text-xs" style="color: rgba(250,246,240,0.5)">
           <a
-            href="https://doi.org/10.21037/tcr-23-368"
+            href="https://doi.org/10.3389/fendo.2020.610230"
             target="_blank"
             rel="noopener"
             class="underline underline-offset-2 decoration-cream/25 transition-colors hover:text-cream/85"
