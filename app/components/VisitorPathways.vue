@@ -41,18 +41,20 @@
         :aria-label="$t('pathways.grid_aria')"
       >
         <article
-          v-for="path in homePaths"
+          v-for="(path, i) in homePaths"
           :key="path.id"
           class="pathway-card"
+          :class="`pathway-card--${path.id}`"
           role="listitem"
         >
           <div class="pathway-card__head">
-            <span class="pathway-card__icon" aria-hidden="true">
-              <Icon :name="path.icon" class="w-5 h-5" />
-            </span>
+            <span class="pathway-card__num" aria-hidden="true">{{ String(i + 1).padStart(2, '0') }}</span>
             <span class="pathway-card__time">{{ path.time }}</span>
           </div>
-          <h3 class="pathway-card__title">{{ path.title }}</h3>
+          <h3 class="pathway-card__title">
+            <Icon :name="path.icon" class="pathway-card__title-icon" aria-hidden="true" />
+            {{ path.title }}
+          </h3>
           <p class="pathway-card__desc">{{ path.desc }}</p>
           <ol class="pathway-card__steps" :aria-label="path.stepsAria">
             <li v-for="(step, i) in path.steps" :key="i">{{ step }}</li>
@@ -74,24 +76,9 @@
         </article>
       </div>
 
-      <!-- Colabora: chips de salto a cada perfil -->
-      <nav
-        v-else
-        class="pathway-chips mt-6"
-        :aria-label="$t('pathways.chips_aria')"
-      >
-        <a
-          v-for="chip in colaboraChips"
-          :key="chip.id"
-          :href="chip.hash"
-          class="pathway-chip"
-          @click="scrollTo(chip.hash); trackPathway(chip.id)"
-        >
-          <Icon :name="chip.icon" class="w-4 h-4 shrink-0" aria-hidden="true" />
-          <span class="pathway-chip__label">{{ chip.label }}</span>
-          <span class="pathway-chip__time">{{ chip.time }}</span>
-        </a>
-      </nav>
+      <!-- Colabora: chips de salto a cada perfil (componente compartido con
+           el footer global, ver ProfileChips.vue) -->
+      <ProfileChips v-else class="mt-6" />
 
       <!-- Resumen de 2 minutos (home): progressive disclosure, sin presión -->
       <details v-if="variant === 'home'" id="pathway-brief" class="pathway-brief mt-10 max-w-3xl">
@@ -277,26 +264,4 @@ const homePaths = computed<HomePath[]>(() => [
     onClick: () => trackPathway('peer'),
   },
 ])
-
-interface ColaboraChip {
-  id: string
-  hash: string
-  icon: string
-  label: string
-  time: string
-}
-
-const colaboraChips = computed<ColaboraChip[]>(() => [
-  { id: 'clinical', hash: '#revision-clinica', icon: 'ph:stethoscope', label: t('pathways.chip_clinical'), time: t('pathways.time_5') },
-  { id: 'press', hash: '#alcance', icon: 'ph:megaphone-simple-fill', label: t('pathways.chip_press'), time: t('pathways.time_3') },
-  { id: 'tech', hash: '#tech-ia', icon: 'ph:code', label: t('pathways.chip_tech'), time: t('pathways.time_4') },
-  { id: 'peer', hash: '#apoyo-mutuo', icon: 'ph:hands-praying-fill', label: t('pathways.chip_peer'), time: t('pathways.time_2') },
-  { id: 'donate', hash: '#financiar', icon: 'ph:hand-heart-fill', label: t('pathways.chip_donate'), time: t('pathways.time_1') },
-])
-
-function scrollTo(hash: string) {
-  const id = hash.replace('#', '')
-  const el = document.getElementById(id)
-  if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' })
-}
 </script>

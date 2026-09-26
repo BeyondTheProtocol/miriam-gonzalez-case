@@ -11,122 +11,523 @@
    "malla": "lesion01.ply",
    "diametro_auto_mm": 18.0,
    "diana": "diana s.II",
-   "mm_informe": 20
+   "mm_informe": 20,
+   "suvmax": 1.29,
+   "pet": "en_fondo"
   },
   {
    "malla": "lesion02.ply",
    "diametro_auto_mm": 16.7,
    "diana": null,
-   "mm_informe": null
+   "mm_informe": null,
+   "suvmax": 2.16,
+   "pet": "en_fondo"
   },
   {
    "malla": "lesion03.ply",
    "diametro_auto_mm": 13.8,
    "diana": "diana s.IVb",
-   "mm_informe": 19
+   "mm_informe": 19,
+   "suvmax": 4.22,
+   "pet": "sobre_umbral"
   },
   {
    "malla": "lesion04.ply",
    "diametro_auto_mm": 13.6,
    "diana": null,
-   "mm_informe": null
+   "mm_informe": null,
+   "suvmax": 1.17,
+   "pet": "en_fondo"
   },
   {
    "malla": "lesion05.ply",
    "diametro_auto_mm": 12.8,
    "diana": null,
-   "mm_informe": null
+   "mm_informe": null,
+   "suvmax": 1.99,
+   "pet": "en_fondo"
   },
   {
    "malla": "lesion06.ply",
    "diametro_auto_mm": 11.9,
    "diana": null,
-   "mm_informe": null
+   "mm_informe": null,
+   "suvmax": 1.89,
+   "pet": "en_fondo"
   },
   {
    "malla": "lesion07.ply",
    "diametro_auto_mm": 11.4,
    "diana": null,
-   "mm_informe": null
+   "mm_informe": null,
+   "suvmax": 2.1,
+   "pet": "en_fondo"
   },
   {
    "malla": "lesion08.ply",
    "diametro_auto_mm": 11.4,
    "diana": null,
-   "mm_informe": null
+   "mm_informe": null,
+   "suvmax": 2.12,
+   "pet": "en_fondo"
   },
   {
    "malla": "lesion09.ply",
    "diametro_auto_mm": 11.1,
    "diana": null,
-   "mm_informe": null
+   "mm_informe": null,
+   "suvmax": 2.38,
+   "pet": "en_fondo"
   },
   {
    "malla": "lesion10.ply",
    "diametro_auto_mm": 10.6,
    "diana": null,
-   "mm_informe": null
+   "mm_informe": null,
+   "suvmax": 1.93,
+   "pet": "en_fondo"
   },
   {
    "malla": "lesion11.ply",
    "diametro_auto_mm": 10.4,
    "diana": null,
-   "mm_informe": null
+   "mm_informe": null,
+   "suvmax": 3.07,
+   "pet": "sobre_fondo"
   },
   {
    "malla": "lesion12.ply",
    "diametro_auto_mm": 8.4,
    "diana": null,
-   "mm_informe": null
+   "mm_informe": null,
+   "suvmax": 1.66,
+   "pet": "en_fondo"
   },
   {
    "malla": "lesion13.ply",
    "diametro_auto_mm": 7.9,
    "diana": null,
-   "mm_informe": null
+   "mm_informe": null,
+   "suvmax": 2.09,
+   "pet": "en_fondo"
   },
   {
    "malla": "lesion14.ply",
    "diametro_auto_mm": 6.6,
    "diana": null,
-   "mm_informe": null
+   "mm_informe": null,
+   "suvmax": 2.01,
+   "pet": "en_fondo"
   },
   {
    "malla": "lesion15.ply",
    "diametro_auto_mm": 6.3,
    "diana": null,
-   "mm_informe": null
+   "mm_informe": null,
+   "suvmax": 2.43,
+   "pet": "sobre_fondo"
   },
   {
    "malla": "lesion16.ply",
    "diametro_auto_mm": 5.7,
    "diana": null,
-   "mm_informe": null
+   "mm_informe": null,
+   "suvmax": 1.91,
+   "pet": "en_fondo"
   },
   {
    "malla": "lesion17.ply",
    "diametro_auto_mm": 5.3,
    "diana": null,
-   "mm_informe": null
+   "mm_informe": null,
+   "suvmax": 2.03,
+   "pet": "en_fondo"
   },
   {
    "malla": "lesion18.ply",
    "diametro_auto_mm": 5.3,
    "diana": null,
-   "mm_informe": null
+   "mm_informe": null,
+   "suvmax": null,
+   "pet": "no_evaluable"
   },
   {
    "malla": "lesion19.ply",
    "diametro_auto_mm": 4.1,
    "diana": null,
-   "mm_informe": null
+   "mm_informe": null,
+   "suvmax": null,
+   "pet": "no_evaluable"
   },
   {
    "malla": "lesion20.ply",
    "diametro_auto_mm": 2.2,
    "diana": null,
-   "mm_informe": null
+   "mm_informe": null,
+   "suvmax": null,
+   "pet": "no_evaluable"
   }
  ],
- "fuente": "dianas: informe radiológico (RECIST); resto: segmentación automática local, sin validación radiológica"
+ "fuente": "dianas: informe radiológico (RECIST); resto: segmentación automática local, sin validación radiológica",
+ "pet": {
+  "fecha": "20260908",
+  "fondo_suvmean": 1.72,
+  "fondo_suvsd": 0.35,
+  "umbral_percist": 3.28,
+  "dice_registro": 0.964,
+  "ratio_vs_fabricante": 1.0003,
+  "fuente": "SUVmax por lesión del PET-TC FDG del mismo día (8-sep-2026), cruzado con el TC por registro deformable del hígado. Poca captación NO descarta lesión: con vóxel de 4 mm el volumen parcial hunde en el fondo a las lesiones pequeñas.",
+  "focos_higado": 4,
+  "focos_sobre_lesion": 1,
+  "focos_sin_lesion": 3
+ },
+ "focos": [
+  {
+   "suvmax": 3.77,
+   "segmento": 7,
+   "distancia_mm": 16.5,
+   "centro": [
+    -90.36,
+    12.65,
+    -28.82
+   ]
+  },
+  {
+   "suvmax": 3.6,
+   "segmento": 8,
+   "distancia_mm": 18.3,
+   "centro": [
+    -61.86,
+    24.25,
+    19.78
+   ]
+  },
+  {
+   "suvmax": 3.41,
+   "segmento": 4,
+   "distancia_mm": 32.2,
+   "centro": [
+    -9.86,
+    51.15,
+    5.28
+   ]
+  }
+ ],
+ "marcas_radiologo": [
+  {
+   "centro": [
+    -15.98,
+    -13.81,
+    50.31
+   ],
+   "radio_mm": 7.64,
+   "categoria": "confluente"
+  },
+  {
+   "centro": [
+    -11.88,
+    23.69,
+    4.71
+   ],
+   "radio_mm": 6.53,
+   "categoria": "estandar"
+  },
+  {
+   "centro": [
+    -8.08,
+    33.69,
+    11.11
+   ],
+   "radio_mm": 6.51,
+   "categoria": "estandar"
+  },
+  {
+   "centro": [
+    -12.48,
+    -23.81,
+    53.61
+   ],
+   "radio_mm": 5.21,
+   "categoria": "subcapsular"
+  },
+  {
+   "centro": [
+    108.92,
+    46.19,
+    -8.39
+   ],
+   "radio_mm": 5.04,
+   "categoria": "estandar"
+  },
+  {
+   "centro": [
+    -30.78,
+    8.69,
+    50.41
+   ],
+   "radio_mm": 4.53,
+   "categoria": "estandar"
+  },
+  {
+   "centro": [
+    -44.98,
+    -13.81,
+    -20.69
+   ],
+   "radio_mm": 4.14,
+   "categoria": "confluente"
+  },
+  {
+   "centro": [
+    -21.88,
+    18.69,
+    -3.59
+   ],
+   "radio_mm": 4.0,
+   "categoria": "estandar"
+  },
+  {
+   "centro": [
+    8.42,
+    8.69,
+    48.61
+   ],
+   "radio_mm": 3.67,
+   "categoria": "estandar"
+  },
+  {
+   "centro": [
+    -67.88,
+    -11.31,
+    7.91
+   ],
+   "radio_mm": 3.58,
+   "categoria": "estandar"
+  },
+  {
+   "centro": [
+    28.92,
+    6.19,
+    41.01
+   ],
+   "radio_mm": 3.2,
+   "categoria": "estandar"
+  },
+  {
+   "centro": [
+    41.62,
+    51.19,
+    56.61
+   ],
+   "radio_mm": 3.08,
+   "categoria": "estandar"
+  },
+  {
+   "centro": [
+    -70.98,
+    -46.31,
+    -16.69
+   ],
+   "radio_mm": 2.92,
+   "categoria": "estandar"
+  },
+  {
+   "centro": [
+    -46.48,
+    -46.31,
+    12.91
+   ],
+   "radio_mm": 2.83,
+   "categoria": "estandar"
+  },
+  {
+   "centro": [
+    -8.38,
+    -18.81,
+    46.21
+   ],
+   "radio_mm": 2.77,
+   "categoria": "estandar"
+  },
+  {
+   "centro": [
+    -5.78,
+    6.19,
+    54.51
+   ],
+   "radio_mm": 2.74,
+   "categoria": "estandar"
+  },
+  {
+   "centro": [
+    -36.58,
+    1.19,
+    -11.69
+   ],
+   "radio_mm": 2.65,
+   "categoria": "estandar"
+  },
+  {
+   "centro": [
+    -36.68,
+    -31.31,
+    48.31
+   ],
+   "radio_mm": 2.6,
+   "categoria": "estandar"
+  },
+  {
+   "centro": [
+    20.82,
+    76.19,
+    39.11
+   ],
+   "radio_mm": 2.33,
+   "categoria": "estandar"
+  },
+  {
+   "centro": [
+    -46.58,
+    -46.31,
+    34.11
+   ],
+   "radio_mm": 2.23,
+   "categoria": "estandar"
+  },
+  {
+   "centro": [
+    -39.98,
+    31.19,
+    56.61
+   ],
+   "radio_mm": 2.18,
+   "categoria": "estandar"
+  },
+  {
+   "centro": [
+    -40.98,
+    -36.31,
+    33.21
+   ],
+   "radio_mm": 2.12,
+   "categoria": "estandar"
+  },
+  {
+   "centro": [
+    -53.38,
+    63.69,
+    21.01
+   ],
+   "radio_mm": 2.12,
+   "categoria": "estandar"
+  },
+  {
+   "centro": [
+    -25.08,
+    -6.31,
+    -2.09
+   ],
+   "radio_mm": 2.07,
+   "categoria": "estandar"
+  },
+  {
+   "centro": [
+    61.52,
+    51.19,
+    39.11
+   ],
+   "radio_mm": 2.06,
+   "categoria": "estandar"
+  },
+  {
+   "centro": [
+    95.92,
+    46.19,
+    24.81
+   ],
+   "radio_mm": 2.06,
+   "categoria": "estandar"
+  },
+  {
+   "centro": [
+    -55.58,
+    -46.31,
+    30.31
+   ],
+   "radio_mm": 2.06,
+   "categoria": "estandar"
+  },
+  {
+   "centro": [
+    -84.58,
+    11.19,
+    -53.89
+   ],
+   "radio_mm": 1.92,
+   "categoria": "estandar"
+  },
+  {
+   "centro": [
+    -76.48,
+    -41.31,
+    13.71
+   ],
+   "radio_mm": 1.84,
+   "categoria": "estandar"
+  },
+  {
+   "centro": [
+    -49.78,
+    63.69,
+    36.11
+   ],
+   "radio_mm": 1.68,
+   "categoria": "estandar"
+  },
+  {
+   "centro": [
+    89.42,
+    43.69,
+    30.61
+   ],
+   "radio_mm": 1.65,
+   "categoria": "estandar"
+  },
+  {
+   "centro": [
+    3.12,
+    -11.31,
+    47.71
+   ],
+   "radio_mm": 1.62,
+   "categoria": "estandar"
+  },
+  {
+   "centro": [
+    -70.58,
+    6.19,
+    -43.09
+   ],
+   "radio_mm": 1.58,
+   "categoria": "estandar"
+  },
+  {
+   "centro": [
+    -51.48,
+    -21.31,
+    6.71
+   ],
+   "radio_mm": 1.58,
+   "categoria": "estandar"
+  },
+  {
+   "centro": [
+    -70.48,
+    66.19,
+    13.71
+   ],
+   "radio_mm": 1.55,
+   "categoria": "estandar"
+  }
+ ]
 }

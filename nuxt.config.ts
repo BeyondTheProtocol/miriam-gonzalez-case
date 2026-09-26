@@ -107,7 +107,26 @@ export default defineNuxtConfig({
     },
   },
 
+  // En desarrollo, el servidor HTTP escucha solo en 127.0.0.1. Sin host, `nuxt dev` resuelve
+  // 'localhost' a [::1] y 127.0.0.1:<puerto> no responde. No toca el build ni lo publicado.
+  devServer: { host: '127.0.0.1' },
+
   vite: {
+    plugins: [
+      {
+        // En desarrollo, el websocket HMR del servidor escucha solo en este Mac. Nuxt 4.4 le
+        // fija el puerto (24678) y no el host, y Vite sin host lo abre a toda la red (visible
+        // desde la wifi). Ni `--host 127.0.0.1`, ni `vite.server.hmr.host`, ni el hook
+        // `vite:extendConfig` llegan a esa instancia; este plugin 'post' sí (medido con lsof,
+        // 26-sep-2026). No toca el build ni lo publicado.
+        name: 'hmr-solo-en-este-mac',
+        enforce: 'post',
+        config(config) {
+          const hmr = config.server?.hmr
+          if (hmr && typeof hmr === 'object' && !hmr.server) hmr.host ??= '127.0.0.1'
+        },
+      },
+    ],
     optimizeDeps: {
       // pre-empaquetar three (visor 3D del hueso) evita que Vite lo descubra en
       // caliente y recargue a media página (causaba un 500 transitorio en dev)
@@ -148,6 +167,7 @@ export default defineNuxtConfig({
       'colabora': { en: '/collaborate' },
       'marcas': { en: '/brands' },
       'gastos': { en: '/expenses' },
+      'datos': { en: '/data' },
       'gracias': { en: '/thank-you' },
       'aviso-legal': { en: '/legal-notice' },
       'privacidad': { en: '/privacy' },
@@ -204,6 +224,11 @@ export default defineNuxtConfig({
     '/biopsia-tt': { redirect: { to: '/biopsia-osea?utm_source=tiktok&utm_medium=bio&utm_campaign=lanzamiento-biopsia', statusCode: 302 } },
     '/biopsia-yt': { redirect: { to: '/biopsia-osea?utm_source=youtube&utm_medium=bio&utm_campaign=lanzamiento-biopsia', statusCode: 302 } },
     '/donar': { redirect: { to: 'https://www.gofundme.com/f/biopsia-molecular-que-puede-cambiar-su-tratamiento', statusCode: 302 } },
+    // El repo público de Polaris. Destino EXTERNO: un 302 directo a GitHub no lo vería Umami (el
+    // navegador nunca carga una página con su script, por eso /donar sale «no medible»). Así que
+    // salta por un Link de Umami, que sí cuenta el clic y reenvía al repo. Se mide en Umami → Links,
+    // «General → Repo Polaris», no en las visitas de la web.
+    '/polaris': { redirect: { to: 'https://cloud.umami.is/q/polaris-repo', statusCode: 302 } },
     // (acceso para médicos) enlace corto SERIO para reenviar al equipo clínico (no de redes):
     // helpmiriam.com/caso → el panel del mapa. UTM «referral/medico» para distinguir el canal.
     '/caso': { redirect: { to: '/ciencia?nivel=pro&utm_source=referral&utm_medium=medico&utm_campaign=equipo-clinico#mapa-acceso', statusCode: 302 } },
@@ -236,7 +261,7 @@ export default defineNuxtConfig({
       // (ver nota «shadowing» en `routeRules` arriba). Así queda solo el 302 limpio.
       ignore: [
         '/design-system', '/mapa-metastasis.md', '/en/mapa-metastasis.md',
-        '/3d', '/3d-x', '/3d-in', '/3d-ig', '/3d-tt', '/3d-yt', '/donar', '/caso',
+        '/3d', '/3d-x', '/3d-in', '/3d-ig', '/3d-tt', '/3d-yt', '/donar', '/caso', '/polaris',
         '/lesiones-x', '/lesiones-in', '/lesiones-ig', '/lesiones-tt', '/lesiones-yt',
         '/biopsia-x', '/biopsia-in', '/biopsia-ig', '/biopsia-tt', '/biopsia-yt',
         // datos en vivo: que nitro NO prerenderice un fichero que sombree el 302

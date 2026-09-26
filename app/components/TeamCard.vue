@@ -1,5 +1,8 @@
 <template>
-  <div class="card-base flex items-start gap-4 hover:shadow-md transition-shadow w-full h-full">
+  <div
+    class="card-base flex items-start gap-4 transition-shadow w-full h-full"
+    :class="marked ? 'card-marked' : 'hover:shadow-md'"
+  >
     <div class="shrink-0 w-11 h-11 rounded-xl flex items-center justify-center" :class="colorClasses">
       <Icon :name="member.icon" class="w-5 h-5" />
     </div>
@@ -20,6 +23,9 @@ const props = defineProps<{
     icon: string
     color?: 'gold' | 'ocean' | 'ink'
   }
+  // Alterna con la tarjeta "papel" (por defecto) para no repetir la misma
+  // receta de tarjeta en toda la rejilla (hallazgo #2, auditoría 26-sep-26).
+  marked?: boolean
 }>()
 
 const colorClasses = computed(() => {

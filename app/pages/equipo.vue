@@ -13,7 +13,7 @@
         </p>
         <ul
           aria-labelledby="team-miriam"
-          class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-x-6 gap-y-9 mb-16 stagger-children"
+          class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-6 gap-y-9 mb-16 stagger-children"
         >
           <li v-for="member in coreTeam" :key="member.name">
             <TeamPortrait :member="member" />
@@ -28,8 +28,8 @@
           aria-labelledby="team-medical"
           class="grid sm:grid-cols-2 gap-4 mb-16 stagger-children"
         >
-          <li v-for="member in medicalNetwork" :key="member.role">
-            <TeamCard :member="member" />
+          <li v-for="(member, i) in medicalNetwork" :key="member.role">
+            <TeamCard :member="member" :marked="i % 2 === 0" />
           </li>
         </ul>
 
@@ -41,8 +41,8 @@
           aria-labelledby="team-integrative"
           class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 stagger-children"
         >
-          <li v-for="member in integrativeSupport" :key="member.role">
-            <TeamCard :member="member" />
+          <li v-for="(member, i) in integrativeSupport" :key="member.role">
+            <TeamCard :member="member" :marked="i % 2 === 0" />
           </li>
         </ul>
 

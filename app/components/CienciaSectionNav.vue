@@ -58,6 +58,7 @@ const chapters = computed(() =>
         { id: 'mapa-acceso', label: 'Mapa y biopsia' },
         { id: 'panel-title', label: 'El siguiente paso' },
         { id: 'treatment-title', label: 'Historia clínica' },
+        { id: 'ruta-title', label: 'La ruta' },
       ]
     : [
         { id: 'snapshot-title', label: 'Clinical summary' },
@@ -67,6 +68,7 @@ const chapters = computed(() =>
         { id: 'mapa-acceso', label: 'Map & biopsy' },
         { id: 'panel-title', label: 'The next step' },
         { id: 'treatment-title', label: 'Clinical history' },
+        { id: 'ruta-title', label: 'The route' },
       ]
 )
 

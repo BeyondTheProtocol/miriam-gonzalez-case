@@ -37,8 +37,8 @@
  * tráfico en móvil hace falta un CTA siempre a mano, donde vive el pulgar.
  * · Solo en móvil y tablet estrecha (`lg:hidden`; desktop ≥1024px sin barra).
  * · Aparece tras pasar el hero.
- * · Se oculta cerca del footer/cierre (para no duplicar el CTA) y en /gracias.
- * · Se silencia en lecturas técnicas profundas de Ciencia (ver isDeepScience):
+ * · Se oculta cerca del footer/cierre (para no duplicar el CTA) y en /gracias (/en/thank-you).
+ * · Se silencia en lecturas técnicas profundas de Ciencia (ver useSupportBarRoute):
  *   ahí el público lee y entiende; un sticky coral que persigue por encima de
  *   tablas de patología resta credibilidad y carga la atención (a11y/neuroD).
  *   El header coral global sigue cubriendo la conversión (review de Adri,
@@ -53,26 +53,10 @@ const { GOFUNDME_URL, trackSupport } = useSupport()
 
 const visible = ref(false)
 
-// ¿Es una SUB-página de Ciencia (lectura técnica de inmersión)? Captura
-// /ciencia/evidencia y /ciencia/[slug] en ES, y /science/evidence + /science/[slug]
-// en EN (prefijo /en). El índice (/ciencia · /en/science) queda FUERA a propósito:
-// solo se silencia donde hay un segmento DESPUÉS de la sección. Por path (robusto
-// entre locales, como ya se hace con /gracias y /marcas en el resto del sitio).
-const isDeepScience = computed(() => {
-  const path = route.path.replace(/\/+$/, '') || '/'
-  return /^\/(?:en\/)?(?:ciencia|science)\/.+/.test(path)
-})
-
-// El mapa de metástasis es una herramienta clínica de INMERSIÓN (esqueleto navegador,
-// línea de tiempo, ficha lesión a lesión, visor 3D). El mismo criterio que las lecturas
-// técnicas de Ciencia: un sticky coral persiguiendo por encima de la herramienta resta
-// credibilidad y tapa contenido en pantallas pequeñas. El header coral global ya cubre
-// la conversión. Por path, robusto entre locales (/mapa-metastasis y /en/mapa-metastasis).
-// /lesiones igual (19-sep): con dos visores 3D, la barra tapaba el pie de ambos en móvil.
-const isDeepTool = computed(() => {
-  const path = route.path.replace(/\/+$/, '') || '/'
-  return /^\/(?:en\/)?(?:mapa-metastasis|lesiones)$/.test(path)
-})
+// Rutas silenciadas (/gracias, sub-páginas de Ciencia, mapa de metástasis,
+// /lesiones, /datos): fuente única en useSupportBarRoute, compartida con el layout,
+// que reserva el hueco de la barra en <main> solo donde puede aparecer.
+const { hasSupportBar } = useSupportBarRoute()
 
 // ¿Hay un botón coral de apoyo (data-support-cta) dentro del viewport? Si lo hay,
 // ocultamos la barra para no mostrar dos CTA coral idénticos a la vez.
@@ -94,17 +78,7 @@ function update() {
     visible.value = false
     return
   }
-  if (route.path.includes('gracias')) {
-    visible.value = false
-    return
-  }
-  // Lectura técnica profunda de Ciencia: barra silenciada (el header cubre).
-  if (isDeepScience.value) {
-    visible.value = false
-    return
-  }
-  // Herramienta clínica de inmersión (mapa de metástasis): barra silenciada.
-  if (isDeepTool.value) {
+  if (!hasSupportBar.value) {
     visible.value = false
     return
   }
@@ -132,6 +106,8 @@ onBeforeUnmount(() => {
   }
 }
 
+/* Alto real ≈ 99px + safe-area (medido a 375px). Si cambia, ajustar la reserva
+   de `main.has-support-bar` en main.css o la barra tapará el final de main. */
 .mobile-support-bar {
   position: fixed;
   left: 0;
