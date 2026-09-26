@@ -103,7 +103,7 @@ const top = computed(() => cambios.value.slice(0, 3))
 const resCaja = ref<HTMLElement | null>(null)
 const WR = useAncho(resCaja, 300)
 const ejeRes = computed(() => hazEje(WR.value, 4))
-const { armado: resArmado, visto: resVisto } = useAlVer(resCaja)
+const { armado: resArmado, visto: resVisto } = useQuieto(resCaja)
 
 /* hoja: <dialog> nativo (foco atrapado, Esc, fondo inerte) con forma de hoja inferior */
 const hoja = ref<HTMLDialogElement | null>(null)

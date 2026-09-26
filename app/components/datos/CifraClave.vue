@@ -44,7 +44,7 @@ const marca = (m: { x: number; y: number; fuera: string | null; ultimo: boolean 
 
 /* animación: la cifra cuenta desde 0 y la mini línea se dibuja al entrar en pantalla */
 const raiz = ref<HTMLElement | null>(null)
-const { armado, visto } = useAlVer(raiz)
+const { armado, visto } = useQuieto(raiz)
 // Sin contador desde 0: pasaría por cifras que nunca existieron (lo avisó la investigación de
 // dashboards). La cifra entra ya con su valor real; lo que se anima es la minilínea.
 const mostrado = computed(() => props.valor)

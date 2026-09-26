@@ -18,7 +18,7 @@ const L = (es: string, en: string) => (props.lang === 'en' ? en : es)
 
 const caja = ref<HTMLElement | null>(null)
 const W = useAncho(caja)
-const { armado, visto } = useAlVer(caja, 0.4)
+const { armado, visto } = useQuieto(caja, 0.4)
 const f = ref(1) // 0 = julio, 1 = septiembre (estado final si no hay animación)
 watch(armado, (a) => { if (a && !visto.value) f.value = 0 })
 watch(visto, (v) => { if (!v) return; f.value = 0; setTimeout(() => tween(1800, (x) => { f.value = x }), 350) })

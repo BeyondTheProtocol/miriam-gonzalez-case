@@ -14,7 +14,7 @@ const L = (es: string, en: string) => (props.lang === 'en' ? en : es)
 
 const caja = ref<HTMLElement | null>(null)
 const W = useAncho(caja)
-const { armado, visto } = useAlVer(caja, 0.4)
+const { armado, visto } = useQuieto(caja, 0.4)
 const FILA = 30
 const H = computed(() => props.medidas.length * FILA + 34)
 const geo = computed(() => {
