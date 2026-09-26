@@ -65,8 +65,8 @@ const PET_LABEL: Record<string, [string, string]> = {
 }
 const CATEGORIA_LINEA: Record<'confluente' | 'subcapsular', [string, string]> = {
   confluente: [
-    'Puede ser una de tres lesiones que se tocan entre sí (el radiólogo las cuenta por separado).',
-    'May be one of three lesions touching each other (the radiologist counts them separately).',
+    'Es una de tres lesiones que se tocan entre sí; el radiólogo las cuenta por separado.',
+    'One of three lesions touching each other; the radiologist counts them separately.',
   ],
   subcapsular: [
     'Está pegada a la cápsula del hígado, lo que limita su crecimiento y dificulta valorarla.',
@@ -76,9 +76,11 @@ const CATEGORIA_LINEA: Record<'confluente' | 'subcapsular', [string, string]> = 
 /* Construyen el contenido bilingüe de cada tipo, UNA vez al cargar — el tooltip solo elige
    el idioma en el momento de pintar, no recalcula nada (mismo criterio que el resto de la
    página: los textos ES/EN viven emparejados, no se traducen al vuelo). */
+/* Decimales con coma en español («10,4 mm»), con punto en inglés. */
+const dec = (n: number | string) => String(n).replace('.', ',')
 function tipoA(les: Lesion): Pick<Entrada, 'titulo' | 'lineas' | 'medida' | 'procedencia'> {
   const lineas: [string, string][] = [[
-    `Diámetro: ${les.diametro_auto_mm} mm (medida automática)`,
+    `Diámetro: ${dec(les.diametro_auto_mm)} mm (medida automática)`,
     `Size: ${les.diametro_auto_mm} mm (automatic measurement)`,
   ]]
   if (les.pet && PET_LABEL[les.pet]) {
@@ -89,7 +91,7 @@ function tipoA(les: Lesion): Pick<Entrada, 'titulo' | 'lineas' | 'medida' | 'pro
   return {
     titulo: ['Lesión candidata', 'Candidate lesion'],
     lineas,
-    medida: [`${les.diametro_auto_mm} mm`, `${les.diametro_auto_mm} mm`],
+    medida: [`${dec(les.diametro_auto_mm)} mm`, `${les.diametro_auto_mm} mm`],
     procedencia: ['Polaris + radiólogo', 'Polaris + radiologist'],
   }
 }
@@ -103,7 +105,7 @@ function tipoB(les: Lesion): Pick<Entrada, 'titulo' | 'lineas' | 'medida' | 'pro
   // hay `diametro_auto_mm` y `mm_informe`, ninguno es la medida del TC anterior): se omite en
   // vez de inventar o hardcodear una cifra clínica en el componente — decisión de
   // implementación ante un hueco de la spec, no un cambio de diseño.
-  if (les.suvmax != null) lineas.push([`SUV ${les.suvmax.toFixed(1)}`, `SUV ${les.suvmax.toFixed(1)}`])
+  if (les.suvmax != null) lineas.push([`SUV ${dec(les.suvmax.toFixed(1))}`, `SUV ${les.suvmax.toFixed(1)}`])
   lineas.push(['Diana del informe oficial de TC.', 'Target from the official CT report.'])
   return {
     titulo: [`Diana del informe · segmento ${seg}`, `Report target · segment ${seg}`],
