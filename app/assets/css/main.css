@@ -836,8 +836,9 @@
 }
 
 /* Fade-in animation for sections — only when user hasn't requested reduced motion.
-   Sigue en uso por SiteNav, /links y /equipo — el hero y la cronología pasan al
-   revelado ligado al scroll (.scroll-reveal, más abajo) y ya no la usan. */
+   Sigue en uso por el hero, SiteNav, /links y /equipo: lo que está en pantalla
+   al cargar entra con esto. La cronología pasa al revelado ligado al scroll
+   (.scroll-reveal, más abajo). */
 @media (prefers-reduced-motion: no-preference) {
   @keyframes fade-up {
     from {
@@ -880,9 +881,10 @@
 
 /* ────────────────────────────────────────────────────────────
    Revelado ligado al scroll (hallazgo #4, auditoría 26-sep-26).
-   Sustituye, SOLO en el hero (SectionHero.vue) y la cronología
-   (timeline.vue, .tl-group), el fade-up de carga / el v-reveal por
-   IntersectionObserver por CSS nativo atado a la posición de scroll:
+   Sustituye, SOLO en la cronología (timeline.vue, .tl-group), el v-reveal
+   por IntersectionObserver por CSS nativo atado a la posición de scroll.
+   El hero NO lo usa: lo que ya está en pantalla al cargar no debe esperar
+   al scroll para verse (la foto del hero salía vacía en la preview):
    `animation-timeline: view()` + `animation-range`. El resto del sitio
    sigue con .animate-fade-up / v-reveal — no se toca aquí.
 
@@ -904,10 +906,10 @@
     }
 
     .scroll-reveal {
-      opacity: 0;
       animation: scroll-reveal-in linear both;
       animation-timeline: view();
-      animation-range: entry 0% cover 25%;
+      /* Un solo rango con nombre (mezclar entry y cover daba estados raros). */
+      animation-range: entry 0% entry 60%;
     }
   }
 }

@@ -9,20 +9,21 @@
     <div class="hero__shell section-wide">
       <div class="hero__grid">
         <div class="hero__head">
-          <div class="hero__meta scroll-reveal">
+          <div class="hero__meta animate-fade-up">
             <span class="hero__eyebrow eyebrow">{{ $t('home.hero_eyebrow') }}</span>
           </div>
 
           <i18n-t
             keypath="hero.title"
             tag="h1"
-            class="hero__title heading-display text-berenjena scroll-reveal"
+            class="hero__title heading-display text-berenjena animate-fade-up"
+            style="animation-delay: 0.1s"
           >
             <template #op><span class="italic text-miriam">{{ $t('hero.title_emphasis') }}</span></template>
           </i18n-t>
         </div>
 
-        <figure class="hero__portrait scroll-reveal">
+        <figure class="hero__portrait animate-fade-up" style="animation-delay: 0.15s">
           <div class="hero__portrait-frame">
             <NuxtImg
               src="/img/miriam-avatar.webp"
@@ -54,7 +55,8 @@
           <i18n-t
             keypath="hero.subtitle"
             tag="p"
-            class="hero__lede text-tinta scroll-reveal"
+            class="hero__lede text-tinta animate-fade-up"
+            style="animation-delay: 0.2s"
           >
             <template #lead>
               <strong class="font-semibold text-berenjena">{{ $t('hero.subtitle_lead', { age: caseData.currentAge }) }}</strong>
@@ -71,7 +73,7 @@
             </template>
           </i18n-t>
 
-          <div class="hero__cta scroll-reveal">
+          <div class="hero__cta animate-fade-up" style="animation-delay: 0.3s">
             <div class="hero__cta-cell">
               <a
                 href="https://gofund.me/3e25cae99"
@@ -105,7 +107,7 @@
       <!-- Zona de evidencia · una sola banda a ancho del shell con un único
            divisor: la señal viva (recencia) arriba, cifras debajo.
            El nº de donantes vive SOLO en las cifras (sin duplicar el 997). -->
-      <div class="hero__proof scroll-reveal">
+      <div class="hero__proof animate-fade-up" style="animation-delay: 0.4s">
         <div class="hero__pulse">
           <NuxtLink
             v-if="latest"
