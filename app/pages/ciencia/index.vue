@@ -933,11 +933,12 @@ const conditionJsonLd = computed(() =>
     alternateName: ['BC-NED', 'Breast carcinoma with neuroendocrine differentiation'],
     description:
       locale.value === 'es'
-        ? 'Carcinoma de mama luminal (HR+/HER2−) con ~80% de diferenciación neuroendocrina y amplificación FGFR1 ×13, CCND1 ×20 (clúster 11q13); expresión de SSTR en PET Ga-68. Metástasis exclusivamente óseas.'
-        : 'Luminal breast carcinoma (HR+/HER2−) with ~80% neuroendocrine differentiation and FGFR1 ×13, CCND1 ×20 amplification (11q13 cluster); SSTR expression on Ga-68 PET. Bone-only metastases.',
+        ? 'Carcinoma de mama luminal (HR+/HER2−) con ~80% de diferenciación neuroendocrina y amplificación FGFR1 ×13, CCND1 ×20 (clúster 11q13); expresión de SSTR en PET Ga-68. Metástasis óseas (desde el diagnóstico) y hepáticas (desde julio de 2026).'
+        : 'Luminal breast carcinoma (HR+/HER2−) with ~80% neuroendocrine differentiation and FGFR1 ×13, CCND1 ×20 amplification (11q13 cluster); SSTR expression on Ga-68 PET. Bone metastases (since diagnosis) and liver metastases (since July 2026).',
     associatedAnatomy: [
       { '@type': 'AnatomicalStructure', name: locale.value === 'es' ? 'Mama' : 'Breast' },
       { '@type': 'AnatomicalStructure', name: locale.value === 'es' ? 'Hueso (metástasis)' : 'Bone (metastases)' },
+      { '@type': 'AnatomicalStructure', name: locale.value === 'es' ? 'Hígado (metástasis)' : 'Liver (metastases)' },
     ],
   })
 )
