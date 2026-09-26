@@ -3,7 +3,10 @@
     <a href="#main-content" class="skip-link" @click="focusMain">{{
       $t('nav.skip_to_content')
     }}</a>
-    <SiteNav />
+    <div class="sticky top-0 z-50">
+      <LatestUpdateBar />
+      <SiteNav />
+    </div>
     <main
       id="main-content"
       class="flex-1"
