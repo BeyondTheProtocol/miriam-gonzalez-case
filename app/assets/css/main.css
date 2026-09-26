@@ -37,6 +37,19 @@
     @apply font-body bg-cream text-berenjena;
     font-size: 16px;
     line-height: 1.55;
+    /* Grano de papel (hallazgo #6, auditoría 26-sep-26): el cream plano no
+       tenía textura. SVG feTurbulence inline como data URI, no una imagen:
+       cero petición de red, cero coste de decodificación de bitmap. Va como
+       background-image (nunca un elemento aparte): pinta detrás del
+       contenido por construcción, así que no hace falta aria-hidden ni
+       pointer-events — nunca puede quedar por delante del texto ni recibir
+       foco/clic, y no toca el árbol de accesibilidad. Alpha de salida 0.035
+       (vía feColorMatrix): moteado apenas perceptible que no baja el
+       contraste AA ya anotado del texto sobre crema — el ruido es disperso y
+       la luminancia media del fondo apenas cambia. Estático (sin animación):
+       nada que desactivar con prefers-reduced-motion. */
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch' result='t'/%3E%3CfeColorMatrix in='t' type='matrix' values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.035 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    background-repeat: repeat;
   }
 
   /* Foco de teclado visible y consistente en toda la interfaz (WCAG 2.4.7).
@@ -161,6 +174,34 @@
   @media (prefers-reduced-motion: reduce) {
     a.card-base:hover,
     button.card-base:hover {
+      transform: none;
+    }
+  }
+
+  /* DS card marcada — modificador de .card-base (hallazgo #2, auditoría
+     26-sep-26): la receta única "radius 16 + sombra suave" se repetía sin
+     variar en tarjeta de equipo, de campaña y de herramienta/evidencia.
+     Mismo lenguaje ya introducido en la rejilla bento de la home
+     (VisitorPathways, PR #230): papel de fondo (.card-base) vs. borde
+     marcado + sombra dura en offset, para la tarjeta que protagoniza cada
+     grupo. Se aplica como clase adicional sobre .card-base, nunca sola. */
+  .card-marked {
+    border-radius: 6px;
+    border: 1.5px solid var(--color-text);
+    box-shadow: 6px 6px 0 rgb(var(--color-text-rgb) / 0.9);
+  }
+  @media (hover: hover) {
+    a.card-marked:hover,
+    button.card-marked:hover,
+    .card-marked:hover {
+      box-shadow: 8px 8px 0 rgb(var(--color-text-rgb) / 0.9);
+      transform: translate(-2px, -2px);
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    a.card-marked:hover,
+    button.card-marked:hover,
+    .card-marked:hover {
       transform: none;
     }
   }
