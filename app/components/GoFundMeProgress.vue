@@ -109,7 +109,7 @@ function rowBg(i: number) {
       {{ formatCurrency(data.goalAmount.amount, data.goalAmount.currencyCode, locale) }} · {{ $t('gofundme.goal_total') }}
     </p>
 
-    <div class="mt-6 relative pb-7">
+    <div class="ms-track mt-6 relative pb-7">
       <div
         class="relative h-2.5 w-full overflow-hidden rounded-full"
         style="background: rgba(250,246,240,0.12)"
@@ -133,8 +133,13 @@ function rowBg(i: number) {
       <!-- Marcas de hito por enmedio con el IMPORTE siempre visible bajo cada
            tick: de un vistazo se ve qué objetivo hay en cada punto y cuál es
            cuál, sin tener que pasar el cursor. Alcanzado → coral con ✓. -->
-      <template v-for="m in milestones" :key="m.key">
-        <span v-if="m.pct < 100" class="ms-marker" :style="{ left: `${m.pct}%` }">
+      <template v-for="(m, i) in milestones" :key="m.key">
+        <span
+          v-if="m.pct < 100"
+          class="ms-marker"
+          :class="{ 'ms-marker--alt': i % 2 === 1 }"
+          :style="{ left: `${m.pct}%` }"
+        >
           <span class="ms-tick ms-tick--light" aria-hidden="true" />
           <span
             class="ms-amt font-mono nums"
@@ -144,6 +149,7 @@ function rowBg(i: number) {
           </span>
         </span>
       </template>
+      <span class="ms-spacer" aria-hidden="true" />
     </div>
 
     <div
@@ -296,7 +302,7 @@ function rowBg(i: number) {
     v-else-if="data"
     class="mt-5 space-y-2 text-sm text-berenjena"
   >
-    <div class="relative pb-6">
+    <div class="ms-track relative pb-6">
       <div
         class="h-2 w-full rounded-full"
         style="background: rgba(45,27,61,0.10)"
@@ -316,8 +322,13 @@ function rowBg(i: number) {
       </div>
       <!-- Importe del hito siempre visible bajo cada tick (mismo patrón que la
            tarjeta; tono berenjena sobre fondo claro). -->
-      <template v-for="m in milestones" :key="m.key">
-        <span v-if="m.pct < 100" class="ms-marker" :style="{ left: `${m.pct}%` }">
+      <template v-for="(m, i) in milestones" :key="m.key">
+        <span
+          v-if="m.pct < 100"
+          class="ms-marker"
+          :class="{ 'ms-marker--alt': i % 2 === 1 }"
+          :style="{ left: `${m.pct}%` }"
+        >
           <span class="ms-tick ms-tick--dark" aria-hidden="true" />
           <span
             class="ms-amt font-mono nums"
@@ -327,6 +338,7 @@ function rowBg(i: number) {
           </span>
         </span>
       </template>
+      <span class="ms-spacer" aria-hidden="true" />
     </div>
     <div class="flex flex-wrap items-center justify-between gap-x-4 gap-y-1">
       <p class="nums">
@@ -409,6 +421,42 @@ function rowBg(i: number) {
   line-height: 1;
   white-space: nowrap;
   font-variant-numeric: tabular-nums;
+}
+
+/* Barra estrecha (móvil): los hitos de 40k y 60k quedan a un 20 % de
+   distancia, unos 50 px a 375, y cada importe mide ~66 px → se pisaban.
+   Por debajo de 560 px de barra, los hitos pares bajan a una segunda línea
+   y el espaciador reserva ese alto (los marcadores son absolutos y no lo
+   empujan solos). El umbral va holgado a propósito: si la meta sube en
+   GoFundMe, los hitos se juntan más y el solape empezaría más ancho. */
+.ms-track {
+  container-type: inline-size;
+}
+.ms-spacer {
+  display: block;
+  height: 0;
+}
+@container (max-width: 560px) {
+  .ms-marker--alt .ms-amt {
+    position: relative;
+    margin-top: 21px;
+  }
+  /* Trazo guía tick → importe: sin él no se ve a qué tick pertenece el
+     importe que ha bajado de línea (comité de diseño, PR #234). */
+  .ms-marker--alt .ms-amt::before {
+    content: '';
+    position: absolute;
+    left: 50%;
+    bottom: 100%;
+    width: 1px;
+    height: 16px;
+    margin-bottom: 3px;
+    background: currentColor;
+    opacity: 0.35;
+  }
+  .ms-spacer {
+    height: 14px;
+  }
 }
 
 /* Proyección «cuánto faltaría» al pinchar un hito del listado. Translúcida →
