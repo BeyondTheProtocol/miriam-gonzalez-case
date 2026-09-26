@@ -13,7 +13,7 @@
  * estático queda el texto; los píxeles los pinta el cliente.
  */
 import type { Analito, Contexto, Lang, Punto } from '~/utils/datosCaso'
-import { unidadTxt } from '~/utils/datosCaso'
+import { unidadTxt, valCaso } from '~/utils/datosCaso'
 
 const props = defineProps<{
   grupos: Record<string, { analitos: Analito[] }>
@@ -212,7 +212,7 @@ const lectura = computed(() => {
   const forma = p.fuera === 'alto' ? '▲ ' : p.fuera === 'bajo' ? '▼ ' : p.fuera ? '◆ ' : ''
   const rango = p.hi != null ? ` · ${L('rango', 'range')} ${numCaso(p.lo ?? 0, props.lang)}–${numCaso(p.hi, props.lang)}${p.ref_de === 'banda' ? '*' : ''}` : ''
   const estado = p.fuera === 'alto' ? L('por encima del rango', 'above range') : p.fuera === 'bajo' ? L('por debajo del rango', 'below range') : p.fuera ? L('marcado en el informe', 'flagged on report') : L('dentro del rango', 'within range')
-  return `${props.nombres?.[s.a.key] ?? s.a.nombre} · ${forma}${numCaso(p.v, props.lang)} ${unidadTxt(s.a.unidad)} · ${fechaCorta(p.f, props.lang)}${rango} · ${estado}`
+  return `${props.nombres?.[s.a.key] ?? s.a.nombre} · ${forma}${valCaso(p, props.lang)} ${unidadTxt(s.a.unidad)} · ${fechaCorta(p.f, props.lang)}${rango} · ${estado}`
 })
 </script>
 

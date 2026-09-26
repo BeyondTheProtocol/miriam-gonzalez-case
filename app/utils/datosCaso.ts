@@ -16,6 +16,10 @@ export interface Punto {
   hi: number | null
   ref_de: 'informe' | 'banda'
   fuera: 'alto' | 'bajo' | 'fuera' | null
+  /** «<15»: el laboratorio solo dice que está por debajo (o encima) de ese límite; `v` es el límite */
+  cmp?: '<' | '>'
+  /** el informe imprime un rango por fase del ciclo; este es el de esa fase (MD Anderson: folicular) */
+  ref_fase?: Texto
 }
 export interface Analito {
   key: string
@@ -76,6 +80,9 @@ export const numCaso = (v: number, lang: Lang, dec?: number): string => {
   const s = dec == null ? String(v) : v.toFixed(dec)
   return lang === 'es' ? s.replace('.', ',') : s
 }
+
+/** El valor como lo escribe el informe: con su «<» si el laboratorio solo da un límite. */
+export const valCaso = (p: Pick<Punto, 'v' | 'cmp'>, lang: Lang): string => `${p.cmp ?? ''}${numCaso(p.v, lang)}`
 
 /** Veces el límite superior normal del informe de ESE punto (null si no hay LSN). */
 export const xlsn = (p: Punto): number | null => (p.hi && p.hi > 0 ? p.v / p.hi : null)
@@ -175,6 +182,7 @@ export const cambiosEntre = (grupos: Record<string, { analitos: Analito[] }>, fA
     const antes = a.puntos.find((p) => p.f === fA)
     const ahora = a.puntos.find((p) => p.f === fB)
     if (!antes || !ahora || !Number.isFinite(antes.v) || !Number.isFinite(ahora.v)) continue
+    if (antes.cmp || ahora.cmp) continue // «<15» no es un número: no hay proporción que calcular
     const razon = antes.v > 0 && ahora.v > 0 ? ahora.v / antes.v : null
     const l0 = xlsn(antes), l1 = xlsn(ahora)
     r.push({ a, antes, ahora, razon, lsn: l0 != null && l1 != null ? [l0, l1] : null })
