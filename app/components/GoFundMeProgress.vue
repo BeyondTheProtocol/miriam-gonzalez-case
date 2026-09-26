@@ -377,12 +377,15 @@ function rowBg(i: number) {
   transition: opacity 0.2s ease;
   cursor: pointer;
 }
-.dw-donors-link:hover {
-  text-decoration: underline;
-  text-underline-offset: 3px;
-}
-.dw-donors-link:hover svg:last-child {
-  transform: translateX(2px);
+/* hover solo donde hay hover: en el móvil el primer toque lo dejaría pegado */
+@media (hover: hover) and (pointer: fine) {
+  .dw-donors-link:hover {
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+  .dw-donors-link:hover svg:last-child {
+    transform: translateX(2px);
+  }
 }
 .dw-donors-link:focus-visible {
   outline: 2px solid var(--color-cta);
@@ -472,7 +475,13 @@ function rowBg(i: number) {
   transition: background 0.15s ease;
   -webkit-tap-highlight-color: transparent;
 }
-.ms-row:hover {
+@media (hover: hover) and (pointer: fine) {
+  .ms-row:hover {
+    background: rgb(var(--color-cta-rgb) / 0.14) !important;
+  }
+}
+/* sin destello nativo (tap-highlight transparente), la respuesta al tocar la da :active */
+.ms-row:active {
   background: rgb(var(--color-cta-rgb) / 0.14) !important;
 }
 .ms-row:focus-visible {

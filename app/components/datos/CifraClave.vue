@@ -135,17 +135,18 @@ const spark = computed(() => {
 .ck--visto .ck__banda-sup { transition: opacity 600ms var(--curva-salida); }
 .ck--armado:not(.ck--visto) .ck__banda { opacity: 0; }
 .ck--visto .ck__banda { transition: opacity 600ms var(--curva-salida); }
-.ck--armado:not(.ck--visto) .ck__marca { transform: scale(0); }
+.ck--armado:not(.ck--visto) .ck__marca { transform: scale(0.95); opacity: 0; }
 /* cada ▲▼ salta cuando la línea pasa por él (la línea tarda 1,1 s en cruzar) */
 .ck--visto .ck__marca { animation: ck-pop 380ms calc(var(--i) * 85ms) var(--curva-salida) both; }
 .ck--armado:not(.ck--visto) .ck__linea { stroke-dasharray: 1; stroke-dashoffset: 1; }
-.ck--armado:not(.ck--visto) .ck__ultimo { transform: scale(0); }
+.ck--armado:not(.ck--visto) .ck__ultimo { transform: scale(0.95); opacity: 0; }
 .ck--visto .ck__linea { stroke-dasharray: 1; animation: ck-trazo 1.1s var(--curva-salida) both; }
 .ck--visto .ck__ultimo { animation: ck-pop 500ms 1s var(--curva-salida) both; }
 .ck--armado:not(.ck--visto) .ck__valor { opacity: 0; transform: translateY(6px); }
 .ck--visto .ck__valor { transition: opacity 500ms var(--curva-salida), transform 500ms var(--curva-salida); }
 @keyframes ck-trazo { from { stroke-dashoffset: 1; } to { stroke-dashoffset: 0; } }
-@keyframes ck-pop { 0% { transform: scale(0); } 60% { transform: scale(1.8); } 100% { transform: scale(1); } }
+/* nunca desde scale(0): nada aparece de la nada (skill movimiento-movil) */
+@keyframes ck-pop { 0% { transform: scale(0.95); opacity: 0; } 60% { transform: scale(1.8); opacity: 1; } 100% { transform: scale(1); opacity: 1; } }
 @media (prefers-reduced-motion: reduce) { .ck--visto .ck__linea, .ck--visto .ck__ultimo, .ck--visto .ck__marca { animation: none; } }
 .ck__pie { display: flex; flex-wrap: wrap; gap: 4px 8px; align-items: center; margin: 6px 0 0; font: 500 11px var(--font-mono); color: var(--color-text-soft); }
 </style>
