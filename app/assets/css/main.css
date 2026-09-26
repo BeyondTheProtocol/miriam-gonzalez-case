@@ -837,7 +837,10 @@
   }
 }
 
-/* Fade-in animation for sections — only when user hasn't requested reduced motion */
+/* Fade-in animation for sections — only when user hasn't requested reduced motion.
+   Sigue en uso por el hero, SiteNav, /links y /equipo: lo que está en pantalla
+   al cargar entra con esto. La cronología pasa al revelado ligado al scroll
+   (.scroll-reveal, más abajo). */
 @media (prefers-reduced-motion: no-preference) {
   @keyframes fade-up {
     from {
@@ -878,44 +881,38 @@
   }
 }
 
-/* Fade-in animation for sections — only when user hasn't requested reduced motion */
-@media (prefers-reduced-motion: no-preference) {
-  @keyframes fade-up {
-    from {
-      opacity: 0;
-      transform: translateY(20px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
+/* ────────────────────────────────────────────────────────────
+   Revelado ligado al scroll (hallazgo #4, auditoría 26-sep-26).
+   Sustituye, SOLO en la cronología (timeline.vue, .tl-group), el v-reveal
+   por IntersectionObserver por CSS nativo atado a la posición de scroll.
+   El hero NO lo usa: lo que ya está en pantalla al cargar no debe esperar
+   al scroll para verse (la foto del hero salía vacía en la preview):
+   `animation-timeline: view()` + `animation-range`. El resto del sitio
+   sigue con .animate-fade-up / v-reveal — no se toca aquí.
 
-  .animate-fade-up {
-    animation: fade-up 0.6s ease-out both;
-  }
+   Sin soporte de animation-timeline (Firefox, Safari <26): la regla entera
+   queda fuera del @supports, así que el elemento se queda en su estado
+   final (visible, sin transform) — nunca a medio animar. Iguales bajo
+   prefers-reduced-motion: reduce (mismo patrón que .reveal-init arriba). */
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    @keyframes scroll-reveal-in {
+      from {
+        opacity: 0;
+        transform: translateY(24px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
 
-  /* Staggered children */
-  .stagger-children > * {
-    animation: fade-up 0.5s ease-out both;
-  }
-  .stagger-children > *:nth-child(1) {
-    animation-delay: 0.05s;
-  }
-  .stagger-children > *:nth-child(2) {
-    animation-delay: 0.1s;
-  }
-  .stagger-children > *:nth-child(3) {
-    animation-delay: 0.15s;
-  }
-  .stagger-children > *:nth-child(4) {
-    animation-delay: 0.2s;
-  }
-  .stagger-children > *:nth-child(5) {
-    animation-delay: 0.25s;
-  }
-  .stagger-children > *:nth-child(6) {
-    animation-delay: 0.3s;
+    .scroll-reveal {
+      animation: scroll-reveal-in linear both;
+      animation-timeline: view();
+      /* Un solo rango con nombre (mezclar entry y cover daba estados raros). */
+      animation-range: entry 0% entry 60%;
+    }
   }
 }
 
@@ -975,6 +972,11 @@
     align-self: center;
   }
 
+  /* Bento asimétrico (hallazgo #1 auditoría 26-sep-26): en vez de 6 tarjetas
+     idénticas, la de "supporter" (donar, CTA primario) protagoniza en un
+     bloque 2x2; el resto se reparte en bloques desiguales. Mobile-first:
+     bajo 640px todo colapsa a una columna — la asimetría es cosa de
+     tablet/desktop, donde hay sitio para respirar. */
   .pathway-grid {
     display: grid;
     gap: 1rem;
@@ -985,11 +987,26 @@
     .pathway-grid {
       grid-template-columns: repeat(2, minmax(0, 1fr));
     }
+    /* La tarjeta protagonista (donar) ocupa las dos columnas en tablet;
+       el resto sigue en pares — asimetría ligera sin forzar el espacio. */
+    .pathway-card--supporter {
+      grid-column: 1 / -1;
+    }
   }
   @media (min-width: 1024px) {
     .pathway-grid {
-      grid-template-columns: repeat(3, minmax(0, 1fr));
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      grid-template-areas:
+        'supporter supporter curious curious'
+        'supporter supporter clinician press'
+        'tech tech peer peer';
     }
+    .pathway-card--supporter { grid-area: supporter; }
+    .pathway-card--curious   { grid-area: curious; }
+    .pathway-card--clinician { grid-area: clinician; }
+    .pathway-card--press     { grid-area: press; }
+    .pathway-card--tech      { grid-area: tech; }
+    .pathway-card--peer      { grid-area: peer; }
   }
 
   .pathway-card {
@@ -1001,12 +1018,41 @@
     border-radius: 16px;
     background: var(--color-bg);
     border: 1px solid rgb(var(--color-text-rgb) / 0.08);
-    transition: box-shadow 0.18s ease;
+    transition: box-shadow 0.18s ease, transform 0.18s ease;
   }
   @media (hover: hover) {
     .pathway-card:hover {
       box-shadow: 0 10px 28px rgb(var(--color-text-rgb) / 0.08);
     }
+  }
+  /* Alternancia de superficie (hallazgo #2): no todas las tarjetas llevan
+     la misma receta de "radius 16 + sombra suave". Las de índice par pasan
+     a papel con borde marcado y sombra dura en offset — la protagonista
+     (supporter) también, para que el CTA de donar tire del ojo primero. */
+  .pathway-card--supporter,
+  .pathway-card--clinician,
+  .pathway-card--tech {
+    border-radius: 6px;
+    border: 1.5px solid var(--color-text);
+    box-shadow: 6px 6px 0 rgb(var(--color-text-rgb) / 0.9);
+  }
+  @media (hover: hover) {
+    .pathway-card--supporter:hover,
+    .pathway-card--clinician:hover,
+    .pathway-card--tech:hover {
+      box-shadow: 8px 8px 0 rgb(var(--color-text-rgb) / 0.9);
+      transform: translate(-2px, -2px);
+    }
+  }
+  .pathway-card--supporter {
+    padding: 1.75rem 1.85rem;
+    background: var(--color-bg-card);
+  }
+  .pathway-card--supporter .pathway-card__title {
+    font-size: 1.4rem;
+  }
+  .pathway-card--supporter .pathway-card__num {
+    font-size: 2.75rem;
   }
   .pathway-card__head {
     display: flex;
@@ -1014,15 +1060,17 @@
     justify-content: space-between;
     gap: 0.5rem;
   }
-  .pathway-card__icon {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 2.25rem;
-    height: 2.25rem;
-    border-radius: 10px;
-    background: rgb(var(--color-miriam-rgb) / 0.12);
-    color: var(--color-text);
+  /* Numeración tipográfica grande en vez del badge-icono circular violeta:
+     el sitio no tiene un set propio de iconos ilustrados (solo Phosphor
+     genérico), así que el número en Fraunces hace de ancla visual editorial
+     sin inventar una ilustración de baja calidad. */
+  .pathway-card__num {
+    font-family: 'Fraunces', serif;
+    font-weight: 600;
+    font-size: 2rem;
+    line-height: 1;
+    color: rgb(var(--color-text-rgb) / 0.22);
+    font-variant-numeric: tabular-nums;
   }
   .pathway-card__time {
     font-family: 'JetBrains Mono', monospace;
@@ -1033,12 +1081,22 @@
     white-space: nowrap;
   }
   .pathway-card__title {
+    display: flex;
+    align-items: baseline;
+    gap: 0.4rem;
     font-family: 'Fraunces', serif;
     font-weight: 600;
     font-size: 1.05rem;
     line-height: 1.25;
     color: var(--color-text);
     text-wrap: balance;
+  }
+  .pathway-card__title-icon {
+    width: 0.95em;
+    height: 0.95em;
+    color: var(--color-miriam);
+    flex-shrink: 0;
+    transform: translateY(0.1em);
   }
   .pathway-card__desc {
     font-size: 0.875rem;

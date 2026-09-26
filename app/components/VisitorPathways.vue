@@ -41,18 +41,20 @@
         :aria-label="$t('pathways.grid_aria')"
       >
         <article
-          v-for="path in homePaths"
+          v-for="(path, i) in homePaths"
           :key="path.id"
           class="pathway-card"
+          :class="`pathway-card--${path.id}`"
           role="listitem"
         >
           <div class="pathway-card__head">
-            <span class="pathway-card__icon" aria-hidden="true">
-              <Icon :name="path.icon" class="w-5 h-5" />
-            </span>
+            <span class="pathway-card__num" aria-hidden="true">{{ String(i + 1).padStart(2, '0') }}</span>
             <span class="pathway-card__time">{{ path.time }}</span>
           </div>
-          <h3 class="pathway-card__title">{{ path.title }}</h3>
+          <h3 class="pathway-card__title">
+            <Icon :name="path.icon" class="pathway-card__title-icon" aria-hidden="true" />
+            {{ path.title }}
+          </h3>
           <p class="pathway-card__desc">{{ path.desc }}</p>
           <ol class="pathway-card__steps" :aria-label="path.stepsAria">
             <li v-for="(step, i) in path.steps" :key="i">{{ step }}</li>

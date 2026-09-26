@@ -71,14 +71,15 @@
             style="background: linear-gradient(180deg, #9d44ab 0%, rgba(157, 68, 171,0.15) 100%)"
           />
           <!-- key=selected → al filtrar, el bloque se remonta y reproduce un fundido
-               CSS limpio (evita el estado atascado de <Transition mode="out-in">
-               cuando convive con la directiva v-reveal). -->
+               CSS limpio (evita el estado atascado de <Transition mode="out-in">).
+               El revelado por año (.scroll-reveal) es CSS nativo ligado al scroll
+               (animation-timeline: view(), ver main.css) — ya no usa la directiva
+               v-reveal ni JS. -->
           <div :key="selected" class="tl-list">
             <div
               v-for="group in groups"
               :key="group.year"
-              v-reveal
-              class="tl-group pt-10 first:pt-0"
+              class="tl-group scroll-reveal pt-10 first:pt-0"
             >
               <!-- Año = cabecera de capítulo: chip sólido que interrumpe el raíl.
                    No se confunde con los puntos redondos de los hitos. -->
