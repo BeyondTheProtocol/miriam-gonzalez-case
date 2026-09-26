@@ -169,6 +169,7 @@ onMounted(aplicarPestana)
    gráficos entran desde el lado de la pestaña elegida. Sin API o con movimiento reducido, cambio seco. */
 function irPestana(k: string) {
   if (k === pestana.value) return
+  plegadosAbiertos.value = false
   const doc = document as Document & { startViewTransition?: (cb: () => Promise<void>) => { ready: Promise<void>; finished: Promise<void> } }
   // pestaña oculta: el navegador aborta la transición (InvalidStateError); ahí, cambio seco
   if (!doc.startViewTransition || document.visibilityState === 'hidden' || window.matchMedia('(prefers-reduced-motion: reduce)').matches) { pestana.value = k; return }
@@ -183,6 +184,11 @@ watch(() => [ruta.query.pestana, ruta.query.cambio], aplicarPestana)
 const todasPestana = computed(() => (PESTANAS.find((p) => p.k === pestana.value)?.minis ?? [])
   .map(([k, modo, es, en, sinBanda]) => ({ a: an(k), modo, nombre: L(es, en), sinBanda: !!sinBanda })).filter((m) => m.a))
 const minis = computed(() => todasPestana.value.filter((m) => m.a!.puntos.length >= MIN_GRAFICO))
+/* más de 6 gráficos en una pestaña: 5 a la vista y el resto plegado (Riñón y más medía 2.343 px a 375; diseno, 26-sep) */
+const A_LA_VISTA = 5
+const minisVista = computed(() => (minis.value.length > A_LA_VISTA + 1 ? minis.value.slice(0, A_LA_VISTA) : minis.value))
+const minisPlegados = computed(() => minis.value.slice(minisVista.value.length))
+const plegadosAbiertos = ref(false)
 const pocasVeces = computed(() => todasPestana.value.filter((m) => m.a!.puntos.length < MIN_GRAFICO))
 const VENTANAS: [Ventana, string, string][] = [['anio', 'Último año', 'Last year'], ['dx', 'Desde el diagnóstico', 'Since diagnosis'], ['todo', 'Todo', 'All']]
 
@@ -344,7 +350,8 @@ const fechaFuncion = computed(() => { const fs = new Set(funcion.value.map((x) =
 function irAPrueba(key: string, fecha: string) {
   const p = PESTANAS.find((x) => x.minis.some((m) => m[0] === key)); if (!p) return
   parar(); pestana.value = p.k; cursor.value = fecha
-  nextTick(() => saltar('s-evo'))
+  // si la prueba cae en los plegados, se despliegan: saltar a un gráfico oculto no sirve
+  nextTick(() => { plegadosAbiertos.value = minisPlegados.value.some((m) => m.a!.key === key); saltar('s-evo') })
 }
 
 const hayReservorio = computed(() => useRouter().getRoutes().some((r) => r.path === '/reservorio'))
@@ -374,7 +381,7 @@ const n = (v: number) => numCaso(v, lang.value)
              patológica entera (marcadores neuroendocrinos, receptores, somatostatina) está en /ciencia (Miriam, 26-sep) -->
         <section v-if="dx" class="dt-dx" :aria-label="L('Diagnóstico', 'Diagnosis')">
           <p class="dt-dx__v">{{ dxCorto }}<template v-if="fechaDx">, {{ L('biopsia de', 'biopsy of') }} <span class="nums">{{ mesAnio(fechaDx, lang) }}</span></template> <DatosSello :s="dx.sello" :lang="lang" /></p>
-          <NuxtLink :to="localePath('/ciencia')" class="dt-dx__link">{{ L('Perfil anatomopatológico y molecular en La ciencia', 'Pathology and molecular profile on The science page') }} →</NuxtLink>
+          <NuxtLink :to="localePath('/ciencia')" class="dt-dx__link">{{ L('Perfil anatomopatológico y molecular en La\u00a0ciencia\u00a0→', 'Pathology and molecular profile on The science\u00a0page\u00a0→') }}</NuxtLink>
         </section>
 
         <!-- barra de secciones fija con la sección activa (scroll-spy): en el móvil, saltar sin perderse -->
@@ -556,11 +563,21 @@ const n = (v: number) => numCaso(v, lang.value)
               </div>
             </details>
           </template>
-          <div v-else id="dt-minis" class="dt-minis" aria-live="polite">
-            <DatosMiniSerie v-for="m in minis" :key="m.a!.key" :a="m.a!" :nombre="m.nombre" :modo="m.modo" :sin-banda="m.sinBanda"
+          <template v-else>
+          <div id="dt-minis" class="dt-minis" aria-live="polite">
+            <DatosMiniSerie v-for="m in minisVista" :key="m.a!.key" :a="m.a!" :nombre="m.nombre" :modo="m.modo" :sin-banda="m.sinBanda"
                             :desde="rango[0]" :hasta="rango[1]" :contexto="contexto" :cursor="cursor" :cabezal="cabezal" :lang="lang"
                             @cursor="parar(); cursor = $event" />
           </div>
+          <details v-if="minisPlegados.length" :key="pestana" class="dt-det" :open="plegadosAbiertos" @toggle="plegadosAbiertos = ($event.target as HTMLDetailsElement).open">
+            <summary>{{ L(`${minisPlegados.length} pruebas más: ${minisPlegados.map((m) => m.nombre).join(', ')}`, `${minisPlegados.length} more tests: ${minisPlegados.map((m) => m.nombre).join(', ')}`) }}</summary>
+            <div class="dt-minis">
+              <DatosMiniSerie v-for="m in minisPlegados" :key="m.a!.key" :a="m.a!" :nombre="m.nombre" :modo="m.modo" :sin-banda="m.sinBanda"
+                              :desde="rango[0]" :hasta="rango[1]" :contexto="contexto" :cursor="cursor" :cabezal="cabezal" :lang="lang"
+                              @cursor="parar(); cursor = $event" />
+            </div>
+          </details>
+          </template>
           <!-- lo medido una o dos veces: tabla, no línea (con un año de ventana saldría vacío) -->
           <div v-if="pocasVeces.length" class="dt-pocas">
             <p class="dt-pocas__t">{{ L('Medidas una o dos veces', 'Measured once or twice') }}</p>
@@ -582,7 +599,7 @@ const n = (v: number) => numCaso(v, lang.value)
             <p v-if="pocasVeces.some((m) => m.a!.key === 'cga')" class="dt-pie">{{ L('El informe de MD Anderson advierte que la cromogranina A no es un marcador tumoral específico: la elevan también otras enfermedades y algunos fármacos.', 'The MD Anderson report notes that chromogranin A is not a specific tumor marker: other conditions and some drugs also raise it.') }}</p>
             <p v-if="pocasVeces.some((m) => m.a!.puntos.some((p) => p.ref_de === 'banda' && p.hi != null))" class="dt-pie">{{ L('* El informe no trae rango: el habitual del laboratorio.', '* The report prints no range: the lab’s usual one.') }}</p>
           </div>
-          <p v-if="pestana === 'hormonas'" class="dt-pie">{{ L('TSH y T4 libre, en veces el límite de su informe (el laboratorio cambió de rango en junio de 2024). FSH y estradiol, sin banda: desde junio de 2024 el informe de Murcia no imprime rango, y el de MD Anderson imprime uno por fase; aquí va el de fase folicular, el primero que lista. «<» es un valor por debajo del límite que mide el laboratorio.', 'TSH and free T4, in times the upper limit of each report (the lab changed its range in June 2024). FSH and estradiol, without a band: since June 2024 the Murcia report prints no range, and the MD Anderson report prints one per phase; shown here is the follicular one, the first it lists. “<” is a value below the limit the lab can measure.') }}</p>
+          <p v-if="pestana === 'hormonas'" class="dt-pie">{{ L('TSH y T4 libre, en veces el límite de su informe (el laboratorio cambió de rango en junio de 2024). FSH y estradiol, sin banda: desde junio de 2024 el informe de Murcia no imprime rango, y el de MD Anderson imprime uno por fase; aquí va el de fase folicular, el primero que lista. El signo < marca un valor por debajo del límite que mide el laboratorio.', 'TSH and free T4, in times the upper limit of each report (the lab changed its range in June 2024). FSH and estradiol, without a band: since June 2024 the Murcia report prints no range, and the MD Anderson report prints one per phase; shown here is the follicular one, the first it lists. The < sign marks a value below the limit the lab can measure.') }}</p>
           </div>
           <p class="dt-pie"><DatosSello :s="c.analiticas.sello" :lang="lang" /> {{ L('Cómo se leen y fechan: en «Fuentes y método».', 'How they are read and dated: under “Sources and method”.') }}</p>
         </section>
