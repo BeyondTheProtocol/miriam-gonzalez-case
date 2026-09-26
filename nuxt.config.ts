@@ -108,6 +108,21 @@ export default defineNuxtConfig({
   },
 
   vite: {
+    plugins: [
+      {
+        // En desarrollo, el websocket HMR del servidor escucha solo en este Mac. Nuxt 4.4 le
+        // fija el puerto (24678) y no el host, y Vite sin host lo abre a toda la red (visible
+        // desde la wifi). Ni `--host 127.0.0.1`, ni `vite.server.hmr.host`, ni el hook
+        // `vite:extendConfig` llegan a esa instancia; este plugin 'post' sí (medido con lsof,
+        // 26-sep-2026). No toca el build ni lo publicado.
+        name: 'hmr-solo-en-este-mac',
+        enforce: 'post',
+        config(config) {
+          const hmr = config.server?.hmr
+          if (hmr && typeof hmr === 'object' && !hmr.server) hmr.host ??= '127.0.0.1'
+        },
+      },
+    ],
     optimizeDeps: {
       // pre-empaquetar three (visor 3D del hueso) evita que Vite lo descubra en
       // caliente y recargue a media página (causaba un 500 transitorio en dev)
