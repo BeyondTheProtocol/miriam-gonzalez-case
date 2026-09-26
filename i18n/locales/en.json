@@ -368,7 +368,7 @@
     "guide_yes_label": "Yes",
     "guide_no_label": "No",
     "guide_yes": "\"software engineer\" · \"tech communicator\" · \"investigates her own case with AI\" · \"metastatic breast cancer\" · \"personalised / precision treatment\" · \"international team\" · \"in the open\"",
-    "guide_no": "\"scientist\" (use engineer) · \"patient\" as an identity (she is active) · \"vaccine\" · doctor or hospital names without permission · molecular figures · age in headlines · war language / \"battle\" / pink ribbon / sensationalism",
+    "guide_no": "\"scientist\" (use engineer) · \"patient\" as an identity (she is active) · doctor or hospital names without permission · molecular figures · age in headlines · war language / \"battle\" / pink ribbon / sensationalism",
     "kit_download_label": "Download press kit (PDF)",
     "kit_download_note": "Reference document for journalists. Includes key facts, quotes and visual assets."
   },
@@ -597,6 +597,40 @@
     "s4_p1_blind": "blind"
   },
   "ciencia": {
+    "ruta": {
+      "eyebrow": "The route",
+      "title": "From tissue to a therapy made for her tumour",
+      "intro": "The vaccine trials explored in June have closed. This is the route to building a therapy from her own tumour: five steps, each depending on the one before. Right now the case sits between the first and the second, with treatment to control the disease running alongside.",
+      "estados": {
+        "hecho": "Done",
+        "curso": "In progress",
+        "pendiente": "Pending",
+        "abierto": "Open"
+      },
+      "pasos": {
+        "tejido": {
+          "titulo": "Keep the tumour",
+          "texto": "There is tumour tissue from several biopsies (the latest from this summer), stored so it can be analysed in depth."
+        },
+        "leer": {
+          "titulo": "Read the tumour",
+          "texto": "Sequence the tumour's DNA, see which genes it expresses and compare it with her healthy blood, so only what belongs to the tumour is kept. The tissue has already gone to the lab, and the healthy blood sample is being prepared."
+        },
+        "dianas": {
+          "titulo": "Find the targets",
+          "texto": "Look for the mutations that only the tumour carries and that her immune system could recognise. This also requires knowing her HLA: the molecules that show pieces of the tumour to her T cells and decide which ones can be recognised."
+        },
+        "disenar": {
+          "titulo": "Design the therapy",
+          "texto": "Those targets can be used to make a personalised vaccine or to prepare T cells that recognise them (TCR-T, TIL). Another path, CAR-T, targets proteins on the tumour surface and is chosen from other data. More than one can be combined, and the aim is the one with the most evidence for her case. The decision belongs to her medical team."
+        },
+        "llegar": {
+          "titulo": "Reach it",
+          "texto": "A clinical trial or a manufacturer able to make it. The search is open to any country."
+        }
+      },
+      "nota": "Explanatory material: it describes the path, it does not promise results. Decisions are made by her medical team."
+    },
     "level_hint": "Version",
     "level_aria": "Choose the page version: for the curious or for professionals",
     "level_simple": "For the curious",

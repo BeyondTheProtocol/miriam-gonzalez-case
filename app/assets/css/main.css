@@ -431,6 +431,8 @@
   }
   .status-badge--active    { background: #d8ede0; color: #1f5a3a; }
   .status-badge--complete  { background: rgb(var(--color-text-rgb) / 0.06); color: var(--color-text-soft); }
+  /* «Pendiente»: mismos tokens que --complete, nombre que dice lo que representa. */
+  .status-badge--pending   { background: rgb(var(--color-text-rgb) / 0.06); color: var(--color-text-soft); }
   .status-badge--candidate { background: #fde4cc; color: #8a4a1a; }
   .status-badge--reference {
     background: #e0ecf8;

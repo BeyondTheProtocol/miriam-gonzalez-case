@@ -580,6 +580,12 @@
           </p>
         </div>
 
+        <!-- Capa narrativa: la ruta a una terapia personalizada, animada y con el estado real
+             de cada paso (26-sep-2026). -->
+        <div v-show="showNarrative" class="mb-16">
+          <RutaPersonalizada />
+        </div>
+
         <!-- Solo «Para médicos»: dossier de evidencia + análisis detallados. -->
         <div style="display: contents" v-show="showMedicoOnly">
         <!-- Deeper dive: full evidence dossier (its own page) -->
