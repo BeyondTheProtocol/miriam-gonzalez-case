@@ -2532,13 +2532,15 @@ const manifestValidated = (() => {
                    dos páginas va por props: la opacidad por grupo lleva los filtros y la línea de
                    tiempo, el teclado lo sigue gobernando esta sección, y el tooltip lo pone la
                    página, porque es suyo. -->
+              <!-- ya no se le pasan `:ticks`: los calcula él desde la vértebra real que nombra
+                   cada uno. Los de esta página estaban medidos sobre el esqueleto DIBUJADO y
+                   sobre el real caerían a ojo otra vez. -->
               <EsqueletoFocos
                 :selected="selected"
                 id-prefix="sk-opt-"
                 :aria-label="L('Esquema del esqueleto con las lesiones (flechas para recorrer, Intro/Espacio para fijar, o escribe un número de foco)', 'Skeleton schematic with the lesions (arrows to step, Enter/Space to set, or type a focus number)')"
                 describedby="tabla-focos-alt"
                 :teclado="false"
-                :ticks="ticks"
                 :opacidad="(g) => gOpacity(g) * (gPresentAt(g, frame) ? 1 : 0.4)"
                 @pick="selected = $event"
                 @hover="(e, g) => { if (e.type !== 'mouseenter' || canHoverFine()) { showTip(e, groupTipText(g)); setHoverGroup(g) } }"
