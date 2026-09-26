@@ -438,7 +438,21 @@ function rowBg(i: number) {
 }
 @container (max-width: 560px) {
   .ms-marker--alt .ms-amt {
+    position: relative;
     margin-top: 21px;
+  }
+  /* Trazo guía tick → importe: sin él no se ve a qué tick pertenece el
+     importe que ha bajado de línea (comité de diseño, PR #234). */
+  .ms-marker--alt .ms-amt::before {
+    content: '';
+    position: absolute;
+    left: 50%;
+    bottom: 100%;
+    width: 1px;
+    height: 16px;
+    margin-bottom: 3px;
+    background: currentColor;
+    opacity: 0.35;
   }
   .ms-spacer {
     height: 14px;
