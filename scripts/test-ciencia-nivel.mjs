@@ -133,7 +133,7 @@ for (let intento = 1; intento <= 2 && !port; intento++) {
       `Chrome no arrancó en el intento ${intento} (sin DevToolsActivePort en ${DEVTOOLS_MS / 1000} s).`
     )
     chrome.kill()
-    rmSync(profile, { recursive: true, force: true })
+    limpiarPerfil()
   }
 }
 if (!port) {
@@ -295,7 +295,18 @@ try {
   chrome.kill()
   server.close()
   await sleep(200)
-  rmSync(profile, { recursive: true, force: true })
+  limpiarPerfil()
+}
+
+// Chrome puede seguir escribiendo en el perfil unos ms tras kill(): en CI el
+// borrado fallaba con ENOTEMPTY y ponía el check en rojo con los tests en verde.
+// La limpieza reintenta y, si aun así no puede, avisa sin tumbar el resultado.
+function limpiarPerfil() {
+  try {
+    rmSync(profile, { recursive: true, force: true, maxRetries: 5, retryDelay: 200 })
+  } catch (e) {
+    console.warn(`aviso: no se pudo borrar el perfil temporal ${profile}: ${e.code || e.message}`)
+  }
 }
 
 const failed = results.filter((r) => !r).length
