@@ -10,8 +10,8 @@
  * su sello, fail-closed. Esta página ordena y dibuja; no interpreta.
  */
 import caso from '~/data/caso.json'
-import type { Analito, Contexto, Evento, Lang, Texto, Ventana } from '~/utils/datosCaso'
-import { unidadTxt } from '~/utils/datosCaso'
+import type { Analito, Contexto, Evento, Lang, Punto, Texto, Ventana } from '~/utils/datosCaso'
+import { unidadTxt, valCaso } from '~/utils/datosCaso'
 
 const { locale } = useI18n()
 const localePath = useLocalePath()
@@ -73,21 +73,12 @@ const ecog = c.ficha?.ecog
 const nLineas = sistemicas.filter((l) => { const i = rangoParcial(l.inicio); return i && i[0] <= hoyMs }).length
 const nunca = c.nunca_recibido
 const snc = (c.ficha?.sitios ?? []).find((x: any) => /^SNC|^CNS/.test(T(x.valor)))
-/* diagnóstico en una línea (arriba del todo) y sitios de enfermedad en corto: «Hueso: metástasis
-   incontables…» hasta el primer «;». El texto entero sigue en caso.json y en /ciencia. */
+/* diagnóstico en UNA línea (Miriam, 26-sep): el perfil anatomopatológico y molecular vive en /ciencia.
+   El tipo, del diagnóstico de caso.json (verificado); la fecha, la de la biopsia. Sitios de enfermedad
+   en corto: «Hueso: metástasis incontables…» hasta el primer «;». */
 const dx = c.ficha?.diagnostico ?? null
-/* lo poco común del caso (Miriam, 25-sep): la diferenciación neuroendocrina y los receptores de
-   somatostatina, leídos de caso.json con su sello. La contradicción de 2026 (sinaptofisina «heterogénea»
-   y «negativa» en el mismo informe) va en el propio valor; SSTR2 por inmunohistoquímica no consta en
-   ningún informe (lo pide «Qué buscamos»): lo que hay es el PET con 68Ga-DOTATOC. */
-const MARCADORES_NE = ['Cromogranina', 'Sinaptofisina', 'INSM1']
-const neuro = ((c.ficha?.receptores ?? []) as any[]).filter((r) => MARCADORES_NE.includes(txtCaso(r.marcador, 'es')))
-const dotatoc = computed(() => {
-  const p = ((em.pet ?? []) as any[]).find((x) => /DOTATOC/.test(txtCaso(x.resumen, 'es')))
-  if (!p) return null
-  const t = T(p.resumen); const i = t.indexOf('. ')
-  return { fecha: p.fecha as string, txt: i > 0 ? t.slice(0, i + 1) : t, sello: p.sello as string }
-})
+const dxCorto = computed(() => L('Cáncer de mama con diferenciación neuroendocrina (BC-NED), HR+/HER2− (IHC 0)', 'Breast cancer with neuroendocrine differentiation (BC-NED), HR+/HER2− (IHC 0)'))
+const mesAnio = (iso: string, lg: Lang) => `${mesCorto(Number(iso.slice(5, 7)) - 1, lg)} ${iso.slice(0, 4)}`
 const sitiosCortos = computed(() => (c.ficha?.sitios ?? []).filter((x: any) => !/^SNC|^CNS/.test(T(x.valor))).map((x: any) => {
   const t = T(x.valor); const i = t.indexOf(':')
   const k = i > 0 && i < 30 ? t.slice(0, i) : ''
@@ -102,7 +93,7 @@ const previoTxt = (a: Analito | null, enLsn = false) => {
   const p = a.puntos[a.puntos.length - 2]!
   const r = enLsn ? xlsn(p) : null
   // la unidad, del dato (no escrita a mano): si la tarjeta se reutiliza con otra prueba, no miente
-  const v = (lg: 'es' | 'en') => (r != null ? `${numCaso(Math.round(r * 10) / 10, lg)}× (${numCaso(p.v, lg)} ${unidadTxt(a.unidad)})` : numCaso(p.v, lg))
+  const v = (lg: 'es' | 'en') => (r != null ? `${numCaso(Math.round(r * 10) / 10, lg)}× (${valCaso(p, lg)} ${unidadTxt(a.unidad)})` : valCaso(p, lg))
   return L(`antes: ${v('es')} · ${fechaCorta(p.f, 'es')}`, `before: ${v('en')} · ${fechaCorta(p.f, 'en')}`)
 }
 const ultimo = (a: Analito | null) => (a ? a.puntos[a.puntos.length - 1] : null)
@@ -131,21 +122,35 @@ const contexto: Contexto = {
     return i && i[0] <= hoyMs ? { id: l.id, ini: i[0], fin: f ? f[1] : hoyMs } : null
   }).filter((b): b is { id: string; ini: number; fin: number } => !!b),
 }
-type Mini = [string, 'real' | 'lsn', string, string]
+/** [clave, modo, nombre ES, nombre EN, sin banda]. Sin banda: el rango impreso depende de la fase del
+ *  ciclo (FSH, estradiol) y muchos informes no lo traen; una banda única mentiría. */
+type Mini = [string, 'real' | 'lsn', string, string, boolean?]
 const PESTANAS: { k: string; es: string; en: string; minis: Mini[] }[] = [
   { k: 'marcadores', es: 'Marcadores', en: 'Markers', minis: [
-    ['ca153', 'lsn', 'CA 15-3', 'CA 15-3'], ['cea', 'lsn', 'CEA', 'CEA'], ['ldh', 'lsn', 'LDH', 'LDH']] },
+    ['ca153', 'lsn', 'CA 15-3', 'CA 15-3'], ['cea', 'lsn', 'CEA', 'CEA'], ['ldh', 'lsn', 'LDH', 'LDH'],
+    ['ca125', 'lsn', 'CA 125', 'CA 125'], ['ca199', 'lsn', 'CA 19-9', 'CA 19-9'], ['ca2729', 'lsn', 'CA 27.29', 'CA 27.29'],
+    ['b2m', 'lsn', 'Beta-2-microglobulina', 'Beta-2 microglobulin'], ['cga', 'lsn', 'Cromogranina A', 'Chromogranin A'],
+    ['nse', 'lsn', 'Enolasa neuronal específica (NSE)', 'Neuron-specific enolase (NSE)']] },
   { k: 'higado', es: 'Hígado', en: 'Liver', minis: [
     ['got', 'lsn', 'AST (GOT)', 'AST'], ['gpt', 'lsn', 'ALT (GPT)', 'ALT'], ['fosfatasa_alcalina', 'lsn', 'Fosfatasa alcalina', 'Alkaline phosphatase'],
-    ['ggt', 'lsn', 'GGT', 'GGT'], ['bilirrubina_total', 'lsn', 'Bilirrubina total', 'Total bilirubin']] },
+    ['ggt', 'lsn', 'GGT', 'GGT'], ['bilirrubina_total', 'lsn', 'Bilirrubina total', 'Total bilirubin'],
+    ['bilirrubina_directa', 'lsn', 'Bilirrubina directa', 'Direct bilirubin']] },
   { k: 'sangre', es: 'Sangre', en: 'Blood count', minis: [
-    ['hemoglobina', 'real', 'Hemoglobina', 'Hemoglobin'], ['neutrofilos_abs', 'real', 'Neutrófilos', 'Neutrophils'],
-    ['linfocitos_abs', 'real', 'Linfocitos', 'Lymphocytes'], ['plaquetas', 'real', 'Plaquetas', 'Platelets']] },
+    ['hemoglobina', 'real', 'Hemoglobina', 'Hemoglobin'], ['leucocitos', 'real', 'Leucocitos', 'White cells'],
+    ['neutrofilos_abs', 'real', 'Neutrófilos', 'Neutrophils'], ['linfocitos_abs', 'real', 'Linfocitos', 'Lymphocytes'],
+    ['nlr', 'real', 'Cociente neutrófilos/linfocitos', 'Neutrophil-to-lymphocyte ratio'], ['plaquetas', 'real', 'Plaquetas', 'Platelets']] },
   { k: 'otros', es: 'Riñón y más', en: 'Kidney and more', minis: [
     ['creatinina', 'real', 'Creatinina', 'Creatinine'], ['urea', 'real', 'Urea', 'Urea'], ['albumina', 'real', 'Albúmina', 'Albumin'],
-    ['calcio', 'real', 'Calcio', 'Calcium'], ['sodio', 'real', 'Sodio', 'Sodium'], ['potasio', 'real', 'Potasio', 'Potassium'],
+    ['proteinas_totales', 'real', 'Proteínas totales', 'Total protein'],
+    ['calcio', 'real', 'Calcio', 'Calcium'], ['fosforo', 'real', 'Fósforo', 'Phosphorus'], ['sodio', 'real', 'Sodio', 'Sodium'], ['potasio', 'real', 'Potasio', 'Potassium'],
     ['magnesio', 'real', 'Magnesio', 'Magnesium'], ['pcr', 'real', 'Proteína C reactiva', 'C-reactive protein'], ['glucosa', 'real', 'Glucosa', 'Glucose']] },
+  // TSH y T4 libre en veces el límite: el laboratorio cambió de rango en 2024 (0,89-1,76 → 0,54-1,24 ng/dL)
+  { k: 'hormonas', es: 'Hormonas', en: 'Hormones', minis: [
+    ['tsh', 'lsn', 'TSH', 'TSH'], ['t4l', 'lsn', 'T4 libre', 'Free T4'],
+    ['estradiol', 'real', 'Estradiol', 'Estradiol', true], ['fsh', 'real', 'FSH', 'FSH', true], ['lh', 'real', 'LH', 'LH', true]] },
 ]
+/** Una prueba con 1-2 valores no hace línea (y en la ventana de un año saldría vacía): va a una tabla. */
+const MIN_GRAFICO = 3
 const pestana = ref('marcadores')
 const ver3d = ref(false)
 const queCambio = ref<{ abrir: () => void } | null>(null)
@@ -164,6 +169,7 @@ onMounted(aplicarPestana)
    gráficos entran desde el lado de la pestaña elegida. Sin API o con movimiento reducido, cambio seco. */
 function irPestana(k: string) {
   if (k === pestana.value) return
+  plegadosAbiertos.value = false
   const doc = document as Document & { startViewTransition?: (cb: () => Promise<void>) => { ready: Promise<void>; finished: Promise<void> } }
   // pestaña oculta: el navegador aborta la transición (InvalidStateError); ahí, cambio seco
   if (!doc.startViewTransition || document.visibilityState === 'hidden' || window.matchMedia('(prefers-reduced-motion: reduce)').matches) { pestana.value = k; return }
@@ -175,8 +181,15 @@ function irPestana(k: string) {
   t.finished.catch(() => {}).finally(() => { delete html.dataset.vtDatos })
 }
 watch(() => [ruta.query.pestana, ruta.query.cambio], aplicarPestana)
-const minis = computed(() => (PESTANAS.find((p) => p.k === pestana.value)?.minis ?? [])
-  .map(([k, modo, es, en]) => ({ a: an(k), modo, nombre: L(es, en) })).filter((m) => m.a))
+const todasPestana = computed(() => (PESTANAS.find((p) => p.k === pestana.value)?.minis ?? [])
+  .map(([k, modo, es, en, sinBanda]) => ({ a: an(k), modo, nombre: L(es, en), sinBanda: !!sinBanda })).filter((m) => m.a))
+const minis = computed(() => todasPestana.value.filter((m) => m.a!.puntos.length >= MIN_GRAFICO))
+/* más de 6 gráficos en una pestaña: 5 a la vista y el resto plegado (Riñón y más medía 2.343 px a 375; diseno, 26-sep) */
+const A_LA_VISTA = 5
+const minisVista = computed(() => (minis.value.length > A_LA_VISTA + 1 ? minis.value.slice(0, A_LA_VISTA) : minis.value))
+const minisPlegados = computed(() => minis.value.slice(minisVista.value.length))
+const plegadosAbiertos = ref(false)
+const pocasVeces = computed(() => todasPestana.value.filter((m) => m.a!.puntos.length < MIN_GRAFICO))
 const VENTANAS: [Ventana, string, string][] = [['anio', 'Último año', 'Last year'], ['dx', 'Desde el diagnóstico', 'Since diagnosis'], ['todo', 'Todo', 'All']]
 
 /* ── reproducir la evolución: un cabezal recorre del diagnóstico a hoy y todo se dibuja a su paso ── */
@@ -329,15 +342,16 @@ const FUNCION: [string, string, string][] = [['neutrofilos_abs', 'Neutrófilos',
 const funcion = computed(() => FUNCION.map(([k, es, en]) => { const a = an(k); const p = a?.puntos[a.puntos.length - 1]; return a && p ? { k, nombre: L(es, en), a, p } : null })
   .filter((x): x is NonNullable<typeof x> => !!x))
 // lector de pantalla: «×» (se lee «por», no «equis») y el estado, que en pantalla va en la barra (voz-miriam)
-const lecturaFuncion = (x: { nombre: string; a: Analito; p: { v: number; fuera: string | null } }) => {
+const lecturaFuncion = (x: { nombre: string; a: Analito; p: Punto }) => {
   const est = x.p.fuera === 'alto' ? L('por encima del rango', 'above range') : x.p.fuera === 'bajo' ? L('por debajo del rango', 'below range') : x.p.fuera ? L('marcado en el informe', 'flagged on report') : L('dentro del rango', 'within range')
-  return `${x.nombre}: ${n(x.p.v)} ${unidadTxt(x.a.unidad)}, ${est}. ${L('Ver su gráfico.', 'View chart.')}`
+  return `${x.nombre}: ${valCaso(x.p, lang.value)} ${unidadTxt(x.a.unidad)}, ${est}. ${L('Ver su gráfico.', 'View chart.')}`
 }
 const fechaFuncion = computed(() => { const fs = new Set(funcion.value.map((x) => x.p.f)); return fs.size === 1 ? [...fs][0]! : null })
 function irAPrueba(key: string, fecha: string) {
   const p = PESTANAS.find((x) => x.minis.some((m) => m[0] === key)); if (!p) return
   parar(); pestana.value = p.k; cursor.value = fecha
-  nextTick(() => saltar('s-evo'))
+  // si la prueba cae en los plegados, se despliegan: saltar a un gráfico oculto no sirve
+  nextTick(() => { plegadosAbiertos.value = minisPlegados.value.some((m) => m.a!.key === key); saltar('s-evo') })
 }
 
 const hayReservorio = computed(() => useRouter().getRoutes().some((r) => r.path === '/reservorio'))
@@ -363,21 +377,11 @@ const n = (v: number) => numCaso(v, lang.value)
           {{ L('Resumen de sus informes, como apoyo a la decisión. No es diagnóstico ni consejo médico.', 'A summary of her reports, as decision support. Not a diagnosis or medical advice.') }}
         </p>
 
-        <!-- 0 · el diagnóstico en una línea: sin esto, «Hoy» no tiene sujeto (oncologo-virtual) -->
+        <!-- 0 · el diagnóstico en una línea: sin esto, «Hoy» no tiene sujeto (oncologo-virtual). La anatomía
+             patológica entera (marcadores neuroendocrinos, receptores, somatostatina) está en /ciencia (Miriam, 26-sep) -->
         <section v-if="dx" class="dt-dx" :aria-label="L('Diagnóstico', 'Diagnosis')">
-          <!-- fechaDx es la de la biopsia (muestra recibida el 16-ene); el informe de anatomía patológica es del 24-ene
-               (cotejado en el informe, 25-sep): se dice cuál es cuál, sin llamar «diagnóstico» a una sola fecha -->
-          <p class="dt-dx__k">{{ L('Diagnóstico', 'Diagnosis') }}<template v-if="fechaDx"> · {{ L('biopsia del', 'biopsy of') }} <span class="nums">{{ fechaCorta(fechaDx, lang) }}</span><template v-if="fechaDx === '2024-01-16'">{{ L(' (informe del 24 ene)', ' (report of Jan 24)') }}</template></template></p>
-          <p class="dt-dx__v">{{ T(dx.valor) }} <DatosSello :s="dx.sello" :lang="lang" /></p>
-          <div v-if="neuro.length || dotatoc" class="dt-dx__ne">
-            <p class="dt-dx__k">{{ L('Diferenciación neuroendocrina', 'Neuroendocrine differentiation') }}</p>
-            <ul class="dt-dx__lista">
-              <li v-for="(r, i) in neuro" :key="i"><strong>{{ T(r.marcador) }}</strong> {{ T(r.valor) }} <DatosSello :s="r.sello" :lang="lang" /></li>
-            </ul>
-            <p class="dt-dx__k">{{ L('Receptores de somatostatina', 'Somatostatin receptors') }}</p>
-            <p v-if="dotatoc" class="dt-dx__e"><span class="nums">{{ fechaCorta(dotatoc.fecha, lang) }}</span> · {{ dotatoc.txt }} <DatosSello :s="dotatoc.sello" :lang="lang" /></p>
-            <p class="dt-dx__e">{{ L('SSTR2 por inmunohistoquímica: no consta en ningún informe.', 'SSTR2 by immunohistochemistry: not in any report.') }}</p>
-          </div>
+          <p class="dt-dx__v">{{ dxCorto }}<template v-if="fechaDx">, {{ L('biopsia de', 'biopsy of') }} <span class="nums">{{ mesAnio(fechaDx, lang) }}</span></template> <DatosSello :s="dx.sello" :lang="lang" /></p>
+          <NuxtLink :to="localePath('/ciencia')" class="dt-dx__link">{{ L('Perfil anatomopatológico y molecular en La\u00a0ciencia\u00a0→', 'Pathology and molecular profile on The science\u00a0page\u00a0→') }}</NuxtLink>
         </section>
 
         <!-- barra de secciones fija con la sección activa (scroll-spy): en el móvil, saltar sin perderse -->
@@ -406,7 +410,7 @@ const n = (v: number) => numCaso(v, lang.value)
                              :nota="proxima ? L('En TROPION-Breast06 (VHIO): pruebas previas a la primera dosis.', 'In TROPION-Breast06 (VHIO): tests before the first dose.') : ''" :nota-sello="cifraTrat.notaSello" :lang="lang" />
             </a>
             <a v-if="pCa" href="#s-evo" class="dt-cifra-link" @click="clicSalto($event, 's-evo', () => { pestana = 'marcadores' })">
-            <DatosCifraClave etiqueta="CA 15-3" :valor="n(pCa.v)" :unidad="unidadTxt(ca!.unidad)" :fuera="pCa.fuera"
+            <DatosCifraClave etiqueta="CA 15-3" :valor="valCaso(pCa, lang)" :unidad="unidadTxt(ca!.unidad)" :fuera="pCa.fuera"
                              :detalle="xlsn(pCa) ? L(`${r1(xlsn(pCa)!)} veces el límite normal`, `${r1(xlsn(pCa)!)} times the upper limit`) : ''"
                              :fecha="fechaCorta(pCa.f, lang)" sello="extraido" :serie="mini12(ca).serie" :formas="mini12(ca).formas" :bandas="mini12(ca).bandas" :supuestas="mini12(ca).supuestas" :previo="previoTxt(ca)" :lang="lang" />
             </a>
@@ -434,7 +438,7 @@ const n = (v: number) => numCaso(v, lang.value)
                 <button type="button" class="dt-funcion__item" @click="irAPrueba(x.k, x.p.f)"
                         :aria-label="lecturaFuncion(x)">
                   <span class="dt-funcion__n">{{ x.nombre }}</span>
-                  <span class="dt-funcion__v nums"><span v-if="x.p.fuera" class="dt-funcion__f" aria-hidden="true">{{ x.p.fuera === 'bajo' ? '▼' : x.p.fuera === 'alto' ? '▲' : '◆' }}</span>{{ n(x.p.v) }} <span class="dt-funcion__u">{{ unidadTxt(x.a.unidad) }}</span></span>
+                  <span class="dt-funcion__v nums"><span v-if="x.p.fuera" class="dt-funcion__f" aria-hidden="true">{{ x.p.fuera === 'bajo' ? '▼' : x.p.fuera === 'alto' ? '▲' : '◆' }}</span>{{ valCaso(x.p, lang) }} <span class="dt-funcion__u">{{ unidadTxt(x.a.unidad) }}</span></span>
                   <DatosRangoBarra :p="x.p" :lang="lang" />
                   <span v-if="!fechaFuncion" class="dt-funcion__d nums">{{ fechaCorta(x.p.f, lang) }}</span>
                 </button>
@@ -547,23 +551,55 @@ const n = (v: number) => numCaso(v, lang.value)
           <div class="dt-vista-analiticas">
           <!-- hígado: cinta de calor (forma nueva); los cinco gráficos, a un toque -->
           <template v-if="pestana === 'higado'">
-            <DatosCintaHigado :filas="minis.map((m) => ({ a: m.a!, nombre: m.nombre.split(' (')[0].replace('Fosfatasa alcalina', 'FA').replace('Alkaline phosphatase', 'ALP').replace('Bilirrubina total', 'Bili').replace('Total bilirubin', 'Bili') }))"
+            <DatosCintaHigado :filas="minis.map((m) => ({ a: m.a!, nombre: m.nombre.split(' (')[0].replace('Fosfatasa alcalina', 'FA').replace('Alkaline phosphatase', 'ALP').replace('Bilirrubina total', 'Bili').replace('Total bilirubin', 'Bili').replace('Bilirrubina directa', 'Bili D').replace('Direct bilirubin', 'D-bili') }))"
                               :desde="rango[0]" :hasta="rango[1]" :contexto="contexto" :cursor="cursor" :cabezal="cabezal" :lang="lang"
                               @cursor="parar(); cursor = $event" />
             <details class="dt-det">
               <summary>{{ L('Cada prueba en su gráfico', 'Each test on its own chart') }}</summary>
               <div class="dt-minis">
-                <DatosMiniSerie v-for="m in minis" :key="m.a!.key" :a="m.a!" :nombre="m.nombre" :modo="m.modo"
+                <DatosMiniSerie v-for="m in minis" :key="m.a!.key" :a="m.a!" :nombre="m.nombre" :modo="m.modo" :sin-banda="m.sinBanda"
                                 :desde="rango[0]" :hasta="rango[1]" :contexto="contexto" :cursor="cursor" :cabezal="cabezal" :lang="lang"
                                 @cursor="parar(); cursor = $event" />
               </div>
             </details>
           </template>
-          <div v-else id="dt-minis" class="dt-minis" aria-live="polite">
-            <DatosMiniSerie v-for="m in minis" :key="m.a!.key" :a="m.a!" :nombre="m.nombre" :modo="m.modo"
+          <template v-else>
+          <div id="dt-minis" class="dt-minis" aria-live="polite">
+            <DatosMiniSerie v-for="m in minisVista" :key="m.a!.key" :a="m.a!" :nombre="m.nombre" :modo="m.modo" :sin-banda="m.sinBanda"
                             :desde="rango[0]" :hasta="rango[1]" :contexto="contexto" :cursor="cursor" :cabezal="cabezal" :lang="lang"
                             @cursor="parar(); cursor = $event" />
           </div>
+          <details v-if="minisPlegados.length" :key="pestana" class="dt-det" :open="plegadosAbiertos" @toggle="plegadosAbiertos = ($event.target as HTMLDetailsElement).open">
+            <summary>{{ L(`${minisPlegados.length} pruebas más: ${minisPlegados.map((m) => m.nombre).join(', ')}`, `${minisPlegados.length} more tests: ${minisPlegados.map((m) => m.nombre).join(', ')}`) }}</summary>
+            <div class="dt-minis">
+              <DatosMiniSerie v-for="m in minisPlegados" :key="m.a!.key" :a="m.a!" :nombre="m.nombre" :modo="m.modo" :sin-banda="m.sinBanda"
+                              :desde="rango[0]" :hasta="rango[1]" :contexto="contexto" :cursor="cursor" :cabezal="cabezal" :lang="lang"
+                              @cursor="parar(); cursor = $event" />
+            </div>
+          </details>
+          </template>
+          <!-- lo medido una o dos veces: tabla, no línea (con un año de ventana saldría vacío) -->
+          <div v-if="pocasVeces.length" class="dt-pocas">
+            <p class="dt-pocas__t">{{ L('Medidas una o dos veces', 'Measured once or twice') }}</p>
+            <div class="dt-tabla-wrap">
+              <table class="data-table dt-compacta">
+                <thead><tr><th>{{ L('Prueba', 'Test') }}</th><th>{{ L('Fecha', 'Date') }}</th><th>{{ L('Valor', 'Value') }}</th><th>{{ L('Rango del informe', 'Report range') }}</th></tr></thead>
+                <tbody>
+                  <template v-for="m in pocasVeces" :key="m.a!.key">
+                    <tr v-for="(p, j) in m.a!.puntos" :key="p.f">
+                      <td v-if="j === 0" :rowspan="m.a!.puntos.length">{{ m.nombre }}</td>
+                      <td class="nums whitespace-nowrap">{{ fechaCorta(p.f, lang) }}</td>
+                      <td class="nums whitespace-nowrap" :class="{ 'dt-pocas__fuera': p.fuera }">{{ valCaso(p, lang) }} {{ unidadTxt(m.a!.unidad) }}{{ p.fuera === 'bajo' ? ' ▼' : p.fuera === 'alto' ? ' ▲' : p.fuera ? ' ◆' : '' }}</td>
+                      <td class="nums whitespace-nowrap">{{ p.hi != null ? (p.lo ? `${n(p.lo)}–${n(p.hi)}` : `< ${n(p.hi)}`) : '—' }}{{ p.ref_de === 'banda' && p.hi != null ? ' *' : '' }}<template v-if="p.ref_fase"> ({{ T(p.ref_fase) }})</template></td>
+                    </tr>
+                  </template>
+                </tbody>
+              </table>
+            </div>
+            <p v-if="pocasVeces.some((m) => m.a!.key === 'cga')" class="dt-pie">{{ L('El informe de MD Anderson advierte que la cromogranina A no es un marcador tumoral específico: la elevan también otras enfermedades y algunos fármacos.', 'The MD Anderson report notes that chromogranin A is not a specific tumor marker: other conditions and some drugs also raise it.') }}</p>
+            <p v-if="pocasVeces.some((m) => m.a!.puntos.some((p) => p.ref_de === 'banda' && p.hi != null))" class="dt-pie">{{ L('* El informe no trae rango: el habitual del laboratorio.', '* The report prints no range: the lab’s usual one.') }}</p>
+          </div>
+          <p v-if="pestana === 'hormonas'" class="dt-pie">{{ L('TSH y T4 libre, en veces el límite de su informe (el laboratorio cambió de rango en junio de 2024). FSH y estradiol, sin banda: desde junio de 2024 el informe de Murcia no imprime rango, y el de MD Anderson imprime uno por fase; aquí va el de fase folicular, el primero que lista. El signo < marca un valor por debajo del límite que mide el laboratorio.', 'TSH and free T4, in times the upper limit of each report (the lab changed its range in June 2024). FSH and estradiol, without a band: since June 2024 the Murcia report prints no range, and the MD Anderson report prints one per phase; shown here is the follicular one, the first it lists. The < sign marks a value below the limit the lab can measure.') }}</p>
           </div>
           <p class="dt-pie"><DatosSello :s="c.analiticas.sello" :lang="lang" /> {{ L('Cómo se leen y fechan: en «Fuentes y método».', 'How they are read and dated: under “Sources and method”.') }}</p>
         </section>
@@ -705,10 +741,10 @@ const n = (v: number) => numCaso(v, lang.value)
 .dt-dx { margin: 4px 0 0; padding: 12px 14px; border-radius: 14px; border: 1px solid rgb(var(--color-text-rgb) / 0.1); background: var(--color-bg); }
 .dt-dx__k { font: 600 11.5px var(--font-body); color: var(--color-text-soft); margin: 0 0 2px; }
 .dt-dx__v { font: 600 15px/1.4 var(--font-body); color: var(--color-text); margin: 0; }
-.dt-dx__ne { margin-top: 10px; padding-top: 8px; border-top: 1px solid rgb(var(--color-text-rgb) / 0.08); }
-.dt-dx__ne .dt-dx__k { margin-top: 6px; }
-.dt-dx__lista { list-style: none; margin: 0; padding: 0; display: grid; gap: 3px; font: 400 13.5px/1.45 var(--font-body); color: var(--color-text); }
-.dt-dx__e { font: 400 13px/1.4 var(--font-body); color: var(--color-text-soft); margin: 4px 0 0; }
+.dt-pocas { margin-top: 14px; }
+.dt-pocas__t { font: 600 12.5px var(--font-body); color: var(--color-text-soft); margin: 0 0 6px; }
+.dt-pocas__fuera { font-weight: 600; }
+.dt-dx__link { display: inline-block; margin-top: 6px; padding: 4px 0; font: 600 13px/1.4 var(--font-body); color: var(--color-miriam); text-decoration: underline; text-underline-offset: 2px; }
 .dt-sitios { list-style: none; margin: 0 0 12px; padding: 0; display: grid; gap: 4px; font: 400 13.5px/1.45 var(--font-body); color: var(--color-text); }
 .dt-sitios li { padding-left: 12px; position: relative; }
 .dt-sitios li::before { content: ''; position: absolute; left: 0; top: 0.6em; width: 5px; height: 5px; border-radius: 50%; background: var(--color-miriam); }

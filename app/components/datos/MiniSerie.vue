@@ -12,12 +12,14 @@
  * rayas en cada progresión. Tocar el gráfico fija una fecha, que se marca en TODOS los minis.
  */
 import type { Analito, Contexto, Lang, Punto } from '~/utils/datosCaso'
-import { unidadTxt } from '~/utils/datosCaso'
+import { unidadTxt, valCaso } from '~/utils/datosCaso'
 
 const props = defineProps<{
   a: Analito
   nombre?: string
   modo: 'real' | 'lsn'
+  /** sin banda de referencia: el rango impreso no aplica a toda la serie (FSH, estradiol) */
+  sinBanda?: boolean
   desde: number
   hasta: number
   contexto: Contexto
@@ -55,7 +57,7 @@ const geo = computed(() => {
     Y = logEscala(min, max, Y1, Y0)
     ticks = [0.25, 0.5, 1, 2, 5, 10, 20].filter((v) => v >= min && v <= max).map((v) => ({ v, y: Y(v), txt: `${numCaso(v, props.lang)}×` }))
   } else {
-    const ref0 = props.a.ref
+    const ref0 = props.sinBanda ? null : props.a.ref
     const todos = vs.concat(ref0 ? [ref0.low, ref0.high] : [])
     const lo = Math.min(...todos)
     const hi = Math.max(...todos)
@@ -138,7 +140,7 @@ function tocar(ev: PointerEvent) {
   emit('cursor', mejor)
 }
 const valorTxt = (p: Punto) => {
-  const base = `${numCaso(p.v, props.lang)} ${unidadTxt(props.a.unidad)}`
+  const base = `${valCaso(p, props.lang)} ${unidadTxt(props.a.unidad)}`
   const r = xlsn(p)
   return props.modo === 'lsn' && r != null ? `${base} · ${numCaso(Math.round(r * 10) / 10, props.lang)}×` : base
 }
@@ -160,8 +162,8 @@ const valorTxt = (p: Punto) => {
       <!-- alto = el área de datos (Y1), no el SVG entero: así el tooltip no pisa las etiquetas del eje («2026») -->
       <DatosTip v-if="tip" :x="tip.x" :y="tip.y" :ancho="W" :alto="Y1" :izq="X0">
         <!-- dos líneas: la mini mide 92 px y un tooltip más alto tapaba el eje (el nombre ya va en su cabecera) -->
-        <span class="tip__v"><span v-if="tip.p.fuera">{{ tip.p.fuera === 'bajo' ? '▼' : tip.p.fuera === 'alto' ? '▲' : '◆' }} </span>{{ numCaso(tip.p.v, lang) }} {{ unidadTxt(a.unidad) }} <span class="tip__l" style="display:inline">· {{ fechaCorta(tip.p.f, lang) }}</span></span>
-        <span class="tip__l"><template v-if="tip.p.hi != null">{{ L('rango', 'range') }} {{ numCaso(tip.p.lo ?? 0, lang) }}–{{ numCaso(tip.p.hi, lang) }}{{ tip.p.ref_de === 'banda' ? '*' : '' }}<template v-if="tip.r != null"> · {{ numCaso(Math.round(tip.r * 10) / 10, lang) }}×</template> · </template>↧ {{ L('extraído', 'extracted') }}</span>
+        <span class="tip__v"><span v-if="tip.p.fuera">{{ tip.p.fuera === 'bajo' ? '▼' : tip.p.fuera === 'alto' ? '▲' : '◆' }} </span>{{ valCaso(tip.p, lang) }} {{ unidadTxt(a.unidad) }} <span class="tip__l" style="display:inline">· {{ fechaCorta(tip.p.f, lang) }}</span></span>
+        <span class="tip__l"><template v-if="tip.p.hi != null">{{ L('rango', 'range') }} {{ numCaso(tip.p.lo ?? 0, lang) }}–{{ numCaso(tip.p.hi, lang) }}{{ tip.p.ref_de === 'banda' ? '*' : '' }}<template v-if="tip.p.ref_fase"> ({{ txtCaso(tip.p.ref_fase, lang) }})</template><template v-if="tip.r != null"> · {{ numCaso(Math.round(tip.r * 10) / 10, lang) }}×</template> · </template>↧ {{ L('extraído', 'extracted') }}</span>
       </DatosTip>
       <svg :viewBox="`0 0 ${W} ${H}`" :width="W" :height="H" class="ms__svg" role="slider" tabindex="0"
            :aria-label="`${nombre ?? a.nombre}: ${vis.length} ${L('valores', 'values')}, ${nFuera} ${L('fuera de rango', 'out of range')}. ${L('Flechas para recorrer las fechas', 'Arrow keys move through dates')}`"
@@ -197,8 +199,8 @@ const valorTxt = (p: Punto) => {
         <tbody>
           <tr v-for="p in [...vis].reverse()" :key="p.f">
             <td>{{ p.f }}</td>
-            <td :class="{ 'ms__td-fuera': p.fuera }">{{ numCaso(p.v, lang) }}{{ p.fuera === 'bajo' ? ' ▼' : p.fuera === 'alto' ? ' ▲' : p.fuera ? ' ◆' : '' }}</td>
-            <td>{{ p.hi != null ? `${numCaso(p.lo ?? 0, lang)}–${numCaso(p.hi, lang)}` : '—' }}{{ p.ref_de === 'banda' ? ' *' : '' }}</td>
+            <td :class="{ 'ms__td-fuera': p.fuera }">{{ valCaso(p, lang) }}{{ p.fuera === 'bajo' ? ' ▼' : p.fuera === 'alto' ? ' ▲' : p.fuera ? ' ◆' : '' }}</td>
+            <td>{{ p.hi != null ? `${numCaso(p.lo ?? 0, lang)}–${numCaso(p.hi, lang)}` : '—' }}{{ p.ref_de === 'banda' ? ' *' : '' }}{{ p.ref_fase ? ` (${txtCaso(p.ref_fase, lang)})` : '' }}</td>
           </tr>
         </tbody>
       </table>
