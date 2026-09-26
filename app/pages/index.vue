@@ -332,7 +332,7 @@
             </NuxtLink>
             <p class="mt-2 text-xs text-tinta sm:min-h-[2.25rem]">{{ $t('home.s10_l2_caption') }}</p>
           </article>
-          <article class="card-base flex flex-col" style="background: #faf6f0">
+          <article class="card-base card-marked flex flex-col" style="background: #faf6f0">
             <p class="font-mono uppercase text-[11px] tracking-[0.12em] text-tinta mb-2">03</p>
             <h3 class="font-display font-semibold text-berenjena text-xl mb-3">{{ $t('home.s10_l3_title') }}</h3>
             <p class="text-sm text-tinta leading-relaxed mb-5 flex-1">{{ $t('home.s10_l3_text') }}</p>

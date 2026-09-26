@@ -593,7 +593,7 @@
           <!-- Teaser: full evidence dossier (moved to its own page) -->
           <NuxtLink
             :to="localePath('/ciencia/evidencia')"
-            class="card-base flex flex-col h-full transition-all group hover:-translate-y-0.5"
+            class="card-base card-marked flex flex-col h-full transition-all group hover:-translate-y-0.5"
             style="text-decoration:none"
           >
             <span
@@ -629,10 +629,11 @@
           </p>
           <div class="space-y-4">
             <NuxtLink
-              v-for="article in articles"
+              v-for="(article, i) in articles"
               :key="article.path"
               :to="localePath(`/ciencia/${article.stem?.split('/').pop()}`)"
               class="card-base flex items-start justify-between gap-4 transition-all group hover:-translate-y-0.5"
+              :class="{ 'card-marked': i % 2 === 0 }"
               style="text-decoration:none"
             >
               <div class="flex-1 min-w-0">
