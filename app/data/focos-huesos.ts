@@ -3,8 +3,15 @@
  *
  * Antes cada foco llevaba una x/y escrita a mano sobre un esqueleto dibujado. Ahora la
  * posición sale del centroide de su propio hueso, segmentado de su TC. Esta tabla es el único
- * sitio donde se dice qué hueso nombra cada foco, y sale literalmente del campo `level` del
- * mapa de metástasis: no se interpreta nada aquí.
+ * sitio donde se dice qué hueso nombra cada foco, y sale del campo `level` del mapa de
+ * metástasis. Literal en 17 de 19. Los otros dos son los de la IA de David, fuera del informe
+ * oficial, y aquí SÍ hay interpretación:
+ *   · 17 «Tórax alto / costilla» no dice qué costilla ni qué lado. `rib_right_3` es una
+ *     aproximación: conserva el lado y la zona donde ya estaba publicado el dibujo, no un dato.
+ *     Y las costillas del mapa salen desordenadas en altura (ver `niveles_por_reparto` en
+ *     tools/visor3d.py), así que su altura tampoco es medida.
+ *   · 19 «C7–D2» va a D1 por ser el punto medio del tramo, y su desplazamiento es solo para no
+ *     tapar al foco 4, no un lado.
  *
  * Los nombres son los de TotalSegmentator, que es lo que produce `tools/visor3d.py esqueleto`.
  */
@@ -47,5 +54,5 @@ export const DESPLAZA: Record<number, [number, number]> = {
   13: [-0.03, -0.022], // ilíaco derecho · ala (arriba)
   14: [-0.012, 0.022], // ilíaco derecho · supraacetabular (abajo)
   18: [-0.034, 0.004], // ilíaco derecho · unión ilíaco-femoral
-  19: [0.022, -0.012], // C7-D2 · transición, por encima de D1
+  19: [0.022, -0.012], // C7-D2 · transición, por encima de D1 (separación, no lado: side 'C')
 }
