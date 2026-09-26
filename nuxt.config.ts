@@ -166,6 +166,7 @@ export default defineNuxtConfig({
       'contacto': { en: '/contact' },
       'colabora': { en: '/collaborate' },
       'marcas': { en: '/brands' },
+      'reservorio': { en: '/reservorio' },
       'gastos': { en: '/expenses' },
       'datos': { en: '/data' },
       'gracias': { en: '/thank-you' },
