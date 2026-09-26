@@ -109,7 +109,7 @@ paperSections:
   - title: Vía SSTR2 y Terapia con Radioligandos (PRRT)
     tag: SSTR2 · PRRT
     tone: positive
-    subtitle: El PET-68Ga-DOTATOC (26/05/2026) confirmó sobreexpresión de SSTR2 en las metástasis óseas → abre la vía PRRT (177Lu-DOTATATE); IHQ de SSTR2 en tejido pendiente de la rebiopsia
+    subtitle: El PET-68Ga-DOTATOC (26/05/2026) confirmó sobreexpresión de receptores de somatostatina (SSTR) en las metástasis óseas → abre la vía PRRT (177Lu-DOTATATE); IHQ de SSTR2 en tejido pendiente de la rebiopsia
     papers:
       - ref: 'Terlević et al., 2019 — Annals of Diagnostic Pathology (DOI: 10.1016/j.anndiagpath.2018.11.002)'
         finding: 'Expresión de SSTR2 en carcinoma de mama neuroendocrino: 71% positivos (≈36% moderada-fuerte)'
@@ -280,7 +280,7 @@ imaging:
   date: 26 de mayo de 2026
   summary: >-
     Múltiples metástasis óseas blásticas con sobreexpresión de receptores de
-    somatostatina (subtipo 2, SSTR2). Captación focal en cola de mama derecha pendiente
+    somatostatina (SSTR). Captación focal en cola de mama derecha pendiente
     de estudio dirigido.
   meaning: >-
     El tumor expresa receptores de somatostatina — diana de la terapia con

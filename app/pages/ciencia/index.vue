@@ -17,7 +17,7 @@
         <PageHeader
           :title="$t('science.title')"
           :subtitle="headerSubtitle"
-          :tag="level === 'simple' ? '' : 'BC-NED + FGFR1 ×13 + SSTR2+'"
+          :tag="level === 'simple' ? '' : 'BC-NED + FGFR1 ×13 + SSTR+'"
         />
 
         <!-- Ciencia en 3 capas (auditoría 3.4): la página es densa; cada lector
@@ -843,30 +843,30 @@ const simplePoints = computed(() =>
 useSeoMeta({
   title: () =>
     locale.value === 'es'
-      ? 'Perfil molecular del tumor: BC-NED, FGFR1 ×13 y SSTR2+'
-      : 'Tumor molecular profile: BC-NED, FGFR1 ×13, SSTR2+',
+      ? 'Perfil molecular del tumor: BC-NED, FGFR1 ×13 y SSTR+'
+      : 'Tumor molecular profile: BC-NED, FGFR1 ×13, SSTR+',
   description: () =>
     locale.value === 'es'
-      ? 'El perfil molecular del tumor de Miriam: cáncer de mama con diferenciación neuroendocrina, FGFR1 ×13 y SSTR2+. Documentación clínica abierta.'
-      : "Miriam's tumor molecular profile: breast cancer with neuroendocrine differentiation, FGFR1 ×13 and SSTR2+. Open clinical documentation.",
+      ? 'El perfil molecular del tumor de Miriam: cáncer de mama con diferenciación neuroendocrina, FGFR1 ×13 y SSTR+. Documentación clínica abierta.'
+      : "Miriam's tumor molecular profile: breast cancer with neuroendocrine differentiation, FGFR1 ×13 and SSTR+. Open clinical documentation.",
   ogTitle: () =>
     locale.value === 'es'
-      ? 'Perfil molecular BC-NED + FGFR1 ×13 + SSTR2+'
-      : 'Molecular profile BC-NED + FGFR1 ×13 + SSTR2+',
+      ? 'Perfil molecular BC-NED + FGFR1 ×13 + SSTR+'
+      : 'Molecular profile BC-NED + FGFR1 ×13 + SSTR+',
   ogDescription: () =>
     locale.value === 'es'
-      ? 'Análisis científico del caso: BC-NED, FGFR1 ×13, CCND1 ×20, SSTR2+ (PET Ga-68). Metástasis óseas y hepáticas, ECOG 1, sin crisis visceral. Rebiopsia molecular avanzada como siguiente paso.'
-      : 'Scientific case analysis: BC-NED, FGFR1 ×13, CCND1 ×20, SSTR2+ (Ga-68 PET). Bone and liver metastases, ECOG 1, no visceral crisis. Advanced molecular rebiopsy as the next step.',
+      ? 'Análisis científico del caso: BC-NED, FGFR1 ×13, CCND1 ×20, SSTR+ (PET Ga-68). Metástasis óseas y hepáticas, ECOG 1, sin crisis visceral. Rebiopsia molecular avanzada como siguiente paso.'
+      : 'Scientific case analysis: BC-NED, FGFR1 ×13, CCND1 ×20, SSTR+ (Ga-68 PET). Bone and liver metastases, ECOG 1, no visceral crisis. Advanced molecular rebiopsy as the next step.',
   ogType: 'article',
   twitterCard: 'summary_large_image',
   twitterTitle: () =>
     locale.value === 'es'
-      ? 'Perfil molecular BC-NED + FGFR1 ×13 + SSTR2+'
-      : 'Molecular profile BC-NED + FGFR1 ×13 + SSTR2+',
+      ? 'Perfil molecular BC-NED + FGFR1 ×13 + SSTR+'
+      : 'Molecular profile BC-NED + FGFR1 ×13 + SSTR+',
   twitterDescription: () =>
     locale.value === 'es'
-      ? 'BC-NED, FGFR1 ×13, CCND1 ×20, SSTR2+ (PET Ga-68). El perfil molecular completo del tumor de Miriam.'
-      : "BC-NED, FGFR1 ×13, CCND1 ×20, SSTR2+ (Ga-68 PET). Miriam's full tumor molecular profile.",
+      ? 'BC-NED, FGFR1 ×13, CCND1 ×20, SSTR+ (PET Ga-68). El perfil molecular completo del tumor de Miriam.'
+      : "BC-NED, FGFR1 ×13, CCND1 ×20, SSTR+ (Ga-68 PET). Miriam's full tumor molecular profile.",
 })
 
 defineOgImage('Default.takumi', {
@@ -886,7 +886,7 @@ const faq =
         },
         {
           q: '¿Qué dianas accionables tiene el tumor?',
-          a: 'El PET con Galio-68 demuestra expresión de receptores de somatostatina de subtipo 2 (SSTR2), diana de la terapia con radioligandos (PRRT). El perfil molecular añade la amplificación FGFR1 ×13 como diana candidata frente a inhibidores de FGFR.',
+          a: 'El PET con Galio-68 demuestra expresión de receptores de somatostatina (SSTR), diana de la terapia con radioligandos (PRRT). El perfil molecular añade la amplificación FGFR1 ×13 como diana candidata frente a inhibidores de FGFR.',
         },
         {
           q: '¿Cuál es el siguiente paso del caso?',
@@ -900,7 +900,7 @@ const faq =
         },
         {
           q: 'What actionable targets does the tumor have?',
-          a: 'The Gallium-68 PET shows somatostatin-receptor subtype 2 (SSTR2) expression, the target of radioligand therapy (PRRT). The molecular profile adds FGFR1 ×13 amplification as a candidate target for FGFR inhibitors.',
+          a: 'The Gallium-68 PET shows somatostatin-receptor (SSTR) expression, the target of radioligand therapy (PRRT). The molecular profile adds FGFR1 ×13 amplification as a candidate target for FGFR inhibitors.',
         },
         {
           q: 'What is the next step in the case?',
@@ -933,11 +933,12 @@ const conditionJsonLd = computed(() =>
     alternateName: ['BC-NED', 'Breast carcinoma with neuroendocrine differentiation'],
     description:
       locale.value === 'es'
-        ? 'Carcinoma de mama luminal (HR+/HER2−) con ~80% de diferenciación neuroendocrina y amplificación FGFR1 ×13, CCND1 ×20 (clúster 11q13); expresión de SSTR2 en PET Ga-68. Metástasis exclusivamente óseas.'
-        : 'Luminal breast carcinoma (HR+/HER2−) with ~80% neuroendocrine differentiation and FGFR1 ×13, CCND1 ×20 amplification (11q13 cluster); SSTR2 expression on Ga-68 PET. Bone-only metastases.',
+        ? 'Carcinoma de mama luminal (HR+/HER2−) con ~80% de diferenciación neuroendocrina y amplificación FGFR1 ×13, CCND1 ×20 (clúster 11q13); expresión de SSTR en PET Ga-68. Metástasis óseas (desde el diagnóstico) y hepáticas (desde julio de 2026).'
+        : 'Luminal breast carcinoma (HR+/HER2−) with ~80% neuroendocrine differentiation and FGFR1 ×13, CCND1 ×20 amplification (11q13 cluster); SSTR expression on Ga-68 PET. Bone metastases (since diagnosis) and liver metastases (since July 2026).',
     associatedAnatomy: [
       { '@type': 'AnatomicalStructure', name: locale.value === 'es' ? 'Mama' : 'Breast' },
       { '@type': 'AnatomicalStructure', name: locale.value === 'es' ? 'Hueso (metástasis)' : 'Bone (metastases)' },
+      { '@type': 'AnatomicalStructure', name: locale.value === 'es' ? 'Hígado (metástasis)' : 'Liver (metastases)' },
     ],
   })
 )

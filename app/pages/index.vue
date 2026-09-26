@@ -492,8 +492,8 @@ defineOgImage('Default.takumi', {
       : 'Precision Oncology for an Ultra-Rare Tumor',
   description:
     locale.value === 'es'
-      ? 'BC-NED con FGFR1 ×13 y SSTR2+. Apoya la rebiopsia molecular avanzada que puede cambiar su tratamiento.'
-      : 'BC-NED with FGFR1 ×13 and SSTR2+. Support the advanced molecular rebiopsy that could change her treatment.',
+      ? 'BC-NED con FGFR1 ×13 y SSTR+. Apoya la rebiopsia molecular avanzada que puede cambiar su tratamiento.'
+      : 'BC-NED with FGFR1 ×13 and SSTR+. Support the advanced molecular rebiopsy that could change her treatment.',
   colorMode: 'light',
 })
 
@@ -512,8 +512,8 @@ useSeoMeta({
       : 'Miriam González — Precision Oncology for an Ultra-Rare Tumor',
   ogDescription: () =>
     locale.value === 'es'
-      ? 'BC-NED con FGFR1 ×13 y SSTR2+. Apoya la rebiopsia molecular avanzada que puede cambiar su tratamiento.'
-      : 'BC-NED with FGFR1 ×13 and SSTR2+. Support the advanced molecular rebiopsy that could change her treatment.',
+      ? 'BC-NED con FGFR1 ×13 y SSTR+. Apoya la rebiopsia molecular avanzada que puede cambiar su tratamiento.'
+      : 'BC-NED with FGFR1 ×13 and SSTR+. Support the advanced molecular rebiopsy that could change her treatment.',
   ogType: 'website',
   ogUrl: () =>
     locale.value === 'es'
@@ -526,8 +526,8 @@ useSeoMeta({
       : 'Miriam González — Precision Oncology for an Ultra-Rare Tumor',
   twitterDescription: () =>
     locale.value === 'es'
-      ? 'BC-NED con FGFR1 ×13 y SSTR2+. Apoya la rebiopsia molecular avanzada.'
-      : 'BC-NED with FGFR1 ×13 and SSTR2+. Support the advanced molecular rebiopsy.',
+      ? 'BC-NED con FGFR1 ×13 y SSTR+. Apoya la rebiopsia molecular avanzada.'
+      : 'BC-NED with FGFR1 ×13 and SSTR+. Support the advanced molecular rebiopsy.',
 })
 
 // DonateAction JSON-LD: declara la vía canónica de donación (GoFundMe) para
