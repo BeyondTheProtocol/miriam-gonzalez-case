@@ -27,13 +27,20 @@ const L = (es: string, en: string) => (lang.value === 'en' ? en : es)
 interface Lesion { malla: string; diametro_auto_mm: number; diana: string | null; mm_informe: number | null; suvmax?: number | null; pet?: string }
 interface Pet { fecha: string; fondo_suvmean: number; fondo_suvsd: number; umbral_percist: number; dice_registro: number; focos_higado?: number; focos_sobre_lesion?: number; focos_sin_lesion?: number }
 interface Foco { suvmax: number; segmento: number | null; centro: [number, number, number]; distancia_mm: number }
-interface Escena { mallas: Record<string, string>; lesiones: Lesion[]; pet?: Pet; focos?: Foco[] }
+/* Marca del radiólogo SIN lesión automática debajo (35 de las 55): un punto, no una forma —
+   ya no hay contorno segmentado que dibujar. `radio_mm` es lo que él midió, no el volumen de
+   nada. `categoria` distingue sus dos salvedades (imagen 127: tres lesiones que se tocan entre
+   sí, él las cuenta como tres; imagen 123: pegada a la cápsula, más difícil de valorar) del
+   resto — no cambia el color, solo documenta el porqué si algún día hace falta filtrar. */
+interface MarcaRadiologo { centro: [number, number, number]; radio_mm: number; categoria: 'confluente' | 'subcapsular' | 'estandar' }
+interface Escena { mallas: Record<string, string>; lesiones: Lesion[]; pet?: Pet; focos?: Foco[]; marcas_radiologo?: MarcaRadiologo[] }
 
 const host = ref<HTMLDivElement | null>(null)
 const loading = ref(true)
 const failed = ref(false)
 const rotulos = ref<{ texto: string; x: number; y: number; r: number; tx: number; ty: number; visible: boolean }[]>([])
 const cuenta = ref({ dianas: 0, medibles: 0, pequenas: 0 })
+const cuentaMarcas = ref(0)   // 35 marcas «solo radiólogo» — sale de escena.json, no escrito a mano
 /* PET: cuántas lesiones caen en cada estado. NUNCA existe el estado «PET negativo» — con vóxel
    de 4 mm el volumen parcial hunde en el fondo a las pequeñas, así que poca captación no
    descarta nada. Los recuentos salen de escena.json, no están escritos a mano. */
@@ -85,6 +92,16 @@ const focoMat = () => new THREE.MeshPhysicalMaterial({ color: 0xff6b47, roughnes
 // contraste. Translúcidos y mates se perdían entre las lesiones pálidas del fondo a través
 // del hígado (20-sep): un marcador que no se ve no informa, y agrandarlo sería afirmar.
 const focos: THREE.Object3D[] = []
+/* Las 35 marcas «solo radiólogo»: esfera LISA (sin caras del hígado alrededor — la forma ya
+   dice «no es una segmentación») en verde-agua #1c969e, el mismo color que ya usa el botón de
+   reencuadre de este visor como foco (línea del CSS `.lv-reencuadre:focus-visible`) — reuso,
+   no un color nuevo con un tercer significado (comité de diseño, 26-sep: el coral pedido queda
+   DEVUELTO porque ya significa CTA y «PET sobre umbral» en este mismo visor). Translúcida y
+   mate (sin clearcoat, roughness alta): mismo recurso que `MAT_PET.no_evaluable` para decir
+   «esto es menos sólido que un hallazgo firme» — una esfera sólida y brillante leería como un
+   hallazgo tan firme como la malla de al lado. */
+const marcaRadiologoMat = () => new THREE.MeshPhysicalMaterial({ color: 0x1c969e, roughness: 0.75,
+  clearcoat: 0, transparent: true, opacity: 0.55, depthWrite: false })
 
 /* LENTE DEL PET — los mismos cuerpos, pintados por lo que dice el PET de cada uno.
    Además del tono, cambia la TEXTURA (mismo criterio que la lente de tamaño, por el
@@ -250,6 +267,17 @@ async function init() {
     petCuenta.value = { sobre_umbral: n('sobre_umbral'), sobre_fondo: n('sobre_fondo'),
                         en_fondo: n('en_fondo'), no_evaluable: n('no_evaluable') }
   }
+  /* Las 35 marcas del radiólogo sin lesión automática debajo: esferas verde-agua, tamaño real
+     de su medida (no fijo, al revés que los focos del PET — aquí SÍ hay un número suyo que
+     mostrar). Se ven en las dos lentes: son de lo que marcó el radiólogo, no de lo que dice
+     el PET. */
+  for (const m of esc.marcas_radiologo ?? []) {
+    const esf = new THREE.Mesh(new THREE.SphereGeometry(m.radio_mm, 20, 14), marcaRadiologoMat())
+    esf.position.set(m.centro[0], m.centro[1], m.centro[2])
+    esf.renderOrder = 2
+    scene.add(esf)
+  }
+  cuentaMarcas.value = (esc.marcas_radiologo ?? []).length
   const gh = await geo(props.base + esc.mallas.higado)
   malla(gh, higadoMat(THREE.BackSide), 3)   // caras de detrás primero…
   malla(gh, higadoMat(THREE.FrontSide), 4)  // …y las de delante encima
@@ -302,7 +330,7 @@ onBeforeUnmount(() => {
         v-else
         ref="host"
         role="img"
-        :aria-label="L('Hígado en 3D con los vasos, la vesícula y todas las lesiones: las dos diana del informe de radiología rotuladas con su medida y su SUV, y el resto detectadas automáticamente. Debajo, lo que dice de cada una el PET del mismo día. Arrástralo para girar; todas las cifras están escritas debajo.', 'Liver in 3D with the vessels, the gallbladder and all the lesions: the two targets from the radiology report labelled with their size and SUV, and the rest detected automatically. Below, what the same-day PET says about each one. Drag to rotate; all the figures are written below.')"
+        :aria-label="L('Hígado en 3D con los vasos, la vesícula y todas las lesiones: las dos diana del informe de radiología rotuladas con su medida y su SUV, y el resto detectadas automáticamente. Debajo, lo que dice de cada una el PET del mismo día. Y, en verde agua, las 35 marcas que solo señaló el radiólogo, como puntos del tamaño que él midió. Arrástralo para girar; todas las cifras están escritas debajo.', 'Liver in 3D with the vessels, the gallbladder and all the lesions: the two targets from the radiology report labelled with their size and SUV, and the rest detected automatically. Below, what the same-day PET says about each one. And, in teal, the 35 marks flagged only by the radiologist, as points the size he measured. Drag to rotate; all the figures are written below.')"
         class="absolute inset-0 cursor-grab active:cursor-grabbing"
       />
       <!-- anillo + rótulo de cada diana, como en el vídeo -->
@@ -346,19 +374,31 @@ onBeforeUnmount(() => {
         :aria-pressed="lente === op[0]" @click="lente = op[0]">{{ op[1] }}</button>
     </div>
 
-    <!-- leyenda de la lente de TAMAÑO; los recuentos salen de escena.json -->
-    <ul v-if="!loading && !failed && lente === 'tamano'" class="mt-2 space-y-1 text-[11px] text-tinta">
+    <!-- subtítulo ancla, antes del detalle (comité de diseño, 26-sep) -->
+    <p v-if="!loading && !failed && lente === 'tamano'" class="mt-2 text-[11px] font-semibold text-berenjena">
+      {{ L('Sus 55 marcas, no solo las 20 que mide la IA', 'All 55 of his marks, not just the 20 the AI measures') }}
+    </p>
+    <!-- leyenda de la lente de TAMAÑO; los recuentos salen de escena.json. Los CUATRO puntos
+         llevan borde berenjena (no solo el de diana): sin él, el dorado y el violeta no llegan
+         al 3:1 de contraste no-textual de WCAG 2.2 1.4.11 sobre el fondo crema de esta lista
+         (comité de diseño, 26-sep — medido: dorado ≈1,7:1, violeta similar; con el borde, los
+         cuatro pasan de sobra). -->
+    <ul v-if="!loading && !failed && lente === 'tamano'" class="mt-1 space-y-1 text-[11px] text-tinta">
       <li class="flex items-start gap-1.5">
-        <span class="inline-block w-2.5 h-2.5 mt-[3px] shrink-0 rounded-full border border-berenjena" style="background:#f2b23c" aria-hidden="true" />
+        <span class="inline-block w-2.5 h-2.5 mt-[3px] shrink-0 rounded-full border border-berenjena/70" style="background:#f2b23c" aria-hidden="true" />
         {{ L(`${cuenta.dianas} lesiones diana, con anillo: medida del radiólogo`, `${cuenta.dianas} target lesions, ringed: radiologist's measurement`) }}
       </li>
       <li class="flex items-start gap-1.5">
-        <span class="inline-block w-2.5 h-2.5 mt-[3px] shrink-0 rounded-full" style="background:#f2b23c" aria-hidden="true" />
+        <span class="inline-block w-2.5 h-2.5 mt-[3px] shrink-0 rounded-full border border-berenjena/70" style="background:#f2b23c" aria-hidden="true" />
         {{ L(`Otras ${cuenta.medibles} lesiones candidatas de 10 mm o más (detección automática)`, `${cuenta.medibles} other candidate lesions of 10 mm or more (automatic detection)`) }}
       </li>
       <li class="flex items-start gap-1.5">
-        <span class="inline-block w-2.5 h-2.5 mt-[3px] shrink-0 rounded-full" style="background:#7c5cf0" aria-hidden="true" />
+        <span class="inline-block w-2.5 h-2.5 mt-[3px] shrink-0 rounded-full border border-berenjena/70" style="background:#7c5cf0" aria-hidden="true" />
         {{ L(`${cuenta.pequenas} lesiones candidatas de menos de 10 mm (detección automática)`, `${cuenta.pequenas} candidate lesions under 10 mm (automatic detection)`) }}
+      </li>
+      <li class="flex items-start gap-1.5">
+        <span class="inline-block w-2.5 h-2.5 mt-[3px] shrink-0 rounded-full border border-berenjena/70" style="background:#1c969e" aria-hidden="true" />
+        {{ L(`${cuentaMarcas} puntos marcados solo por el radiólogo: el tamaño de su punto es el que él midió, no el contorno real de la lesión — ahí la IA no vio nada que dibujar`, `${cuentaMarcas} points marked only by the radiologist: the size of the dot is what he measured, not the lesion's real outline — the AI didn't see anything to draw there`) }}
       </li>
     </ul>
 
