@@ -38,7 +38,6 @@ const host = ref<HTMLDivElement | null>(null)
 const loading = ref(true)
 const failed = ref(false)
 const rotulos = ref<{ texto: string; x: number; y: number; r: number; tx: number; ty: number; visible: boolean }[]>([])
-const autoMm = ref<number | null>(null)
 const hayVasos = ref(false)
 
 let renderer: THREE.WebGLRenderer | null = null
@@ -182,7 +181,6 @@ async function init() {
       if (les.mm_informe) {
         dianas.push({ malla: m, texto: L('Informe', 'Report') + ' · ' + les.mm_informe + ' mm' })
       }
-      if (les.diametro_auto_mm) autoMm.value = les.diametro_auto_mm
     }))
   }
   hayVasos.value = !!esc.mallas.vasos
@@ -295,8 +293,8 @@ onBeforeUnmount(() => {
     </ul>
     <p v-if="!loading && !failed" class="mt-1.5 text-[11px] text-tinta leading-snug">
       {{ L(
-        `La forma sale de una segmentación automática (IA, 100 % local) de su resonancia de mama, sin validación radiológica${autoMm ? `: el contorno automático da ${autoMm} mm` : ''}. La cifra buena es la del informe. El contorno es la superficie real de su mama; del tejido de dentro se quitan los 4 mm más externos, y el pezón se suaviza.`,
-        `The shape comes from an automatic segmentation (AI, 100% local) of her breast MRI, not validated by a radiologist${autoMm ? `: the automatic outline gives ${autoMm} mm` : ''}. The figure that counts is the one in the report. The outline is the real surface of her breast; the outermost 4 mm are removed from the tissue inside, and the nipple is smoothed out.`) }}
+        'El contorno es el de su mama, sacado de su resonancia por IA en local y sin revisar por un radiólogo. La medida que vale es la del informe. El PET de galio del 26-may describe además una captación en la cola de mama derecha (SUVmáx 2,64), a valorar en estudio dirigido; no se dibuja porque sale de otro estudio.',
+        'The outline is her own breast, taken from her MRI by AI running locally and not reviewed by a radiologist. The measurement that counts is the one in the report. The 26 May gallium PET also describes uptake in the right axillary tail of the breast (SUVmax 2.64), to be assessed in a dedicated study; it is not drawn because it comes from a different study.') }}
     </p>
   </div>
 </template>
