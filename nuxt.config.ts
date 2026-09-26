@@ -107,6 +107,10 @@ export default defineNuxtConfig({
     },
   },
 
+  // En desarrollo, el servidor HTTP escucha solo en 127.0.0.1. Sin host, `nuxt dev` resuelve
+  // 'localhost' a [::1] y 127.0.0.1:<puerto> no responde. No toca el build ni lo publicado.
+  devServer: { host: '127.0.0.1' },
+
   vite: {
     plugins: [
       {
