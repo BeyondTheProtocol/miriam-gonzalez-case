@@ -33,6 +33,10 @@ jobs:
 
       - run: pnpm test:ciencia-nivel
 
+      # Privacidad: ninguna cita FUTURA con día junto a un lugar (acoso activo). Va detrás
+      # del build para revisar también lo generado (.output/public), que es lo que se sirve.
+      - run: pnpm test:citas-futuras
+
       # Estos dos no necesitan el build; van detrás porque el checkout ya está listo.
       - run: pnpm test:short-links
       - run: pnpm test:mapa-focos

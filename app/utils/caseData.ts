@@ -9,9 +9,15 @@
 // sin import. Para inyectarlo en textos i18n usar interpolación con nombre, p. ej.:
 //   $t('hero.subtitle_lead', { age: caseData.currentAge })
 //   $t('hero.stat_specialists_label', { countries: caseData.countries })
+// Edad: sube sola cada 1 de enero, sin que nadie edite nada. Se calcula por AÑO a propósito:
+// con la fecha exacta, el código (repo público) publicaría su cumpleaños, que no es público.
+// Coste asumido: unos días al año, entre su cumpleaños y el 1 de enero, dice un año menos.
+// En el HTML prerenderizado vale el año del build; en el navegador se recalcula al cargar.
+const ANIO_NACIMIENTO_MAS_UNO = 1991
+
 export const caseData = {
-  /** Edad de Miriam (años). */
-  currentAge: 35,
+  /** Edad de Miriam (años), por año natural. */
+  currentAge: new Date().getFullYear() - ANIO_NACIMIENTO_MAS_UNO,
   /** Nº de especialistas implicados (etiqueta «5+»). */
   specialists: '5+',
   /** Nº de países de la red de especialistas. */

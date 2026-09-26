@@ -10,11 +10,13 @@
 
         · v-reveal en cada sección (despliegue al scroll, respeta
           prefers-reduced-motion) — igual que home/timeline.
-        · Cabecera de card con cuadradito de icono sólido + icono crema,
-          el mismo patrón que las tarjetas de /contacto.
+        · Parrilla de perfiles en bento asimétrico (auditoría 26-sep-26):
+          numeración tipográfica en Fraunces + icono pequeño en el eyebrow
+          en vez del cuadradito de icono repetido; superficie alterna
+          (borde marcado con sombra dura / papel). Ver <style scoped>.
         · Financiación es una card más de la parrilla (una opción entre
-          iguales), pero conserva el único coral de la página: cuadradito
-          y CTA primario marcan el camino principal sin gritar.
+          iguales), pero conserva el único coral de la página: el CTA
+          primario marca el camino principal sin gritar.
       ════════════════════════════════════════════════════════════
     -->
 
@@ -114,14 +116,19 @@
           </div>
         </aside>
 
-        <div class="grid md:grid-cols-2 gap-4">
+        <!-- Bento asimétrico (hallazgo #1, auditoría de diseño 26-sep-26): en vez de
+             5 tarjetas con la misma receta, anchos desiguales en zigzag y
+             superficie alterna (borde marcado + sombra dura / papel). Estilos
+             abajo, en <style scoped>. -->
+        <div class="collab-grid">
           <!-- ─ Card 1 — revisión clínica ─ -->
-          <article id="revision-clinica" class="card-base bg-cream flex flex-col scroll-mt-24">
-            <div class="flex items-center gap-4 mb-4">
-              <span class="w-10 h-10 rounded-xl bg-berenjena flex items-center justify-center shrink-0" aria-hidden="true">
-                <Icon name="ph:stethoscope" class="w-5 h-5 text-cream" />
-              </span>
-              <p class="eyebrow">{{ $t('collaborate.profile1_tag') }}</p>
+          <article id="revision-clinica" class="collab-card collab-card--clinica collab-card--hard collab-card--lead card-base bg-cream flex flex-col scroll-mt-24">
+            <div class="collab-card__head">
+              <span class="collab-card__num" aria-hidden="true">01</span>
+              <p class="eyebrow collab-card__tag">
+                <Icon name="ph:stethoscope" class="collab-card__tag-icon" aria-hidden="true" />
+                {{ $t('collaborate.profile1_tag') }}
+              </p>
             </div>
             <h3 class="heading-display text-xl text-berenjena mb-3">
               {{ $t('collaborate.profile1_title') }}
@@ -143,12 +150,13 @@
           </article>
 
           <!-- ─ Card 3 — difusión ─ -->
-          <article id="alcance" class="card-base bg-cream flex flex-col scroll-mt-24">
-            <div class="flex items-center gap-4 mb-4">
-              <span class="w-10 h-10 rounded-xl bg-berenjena flex items-center justify-center shrink-0" aria-hidden="true">
-                <Icon name="ph:megaphone-simple-fill" class="w-5 h-5 text-cream" />
-              </span>
-              <p class="eyebrow">{{ $t('collaborate.profile3_tag') }}</p>
+          <article id="alcance" class="collab-card collab-card--alcance card-base bg-cream flex flex-col scroll-mt-24">
+            <div class="collab-card__head">
+              <span class="collab-card__num" aria-hidden="true">02</span>
+              <p class="eyebrow collab-card__tag">
+                <Icon name="ph:megaphone-simple-fill" class="collab-card__tag-icon" aria-hidden="true" />
+                {{ $t('collaborate.profile3_tag') }}
+              </p>
             </div>
             <h3 class="heading-display text-xl text-berenjena mb-3">
               {{ $t('collaborate.profile3_title') }}
@@ -168,12 +176,13 @@
           </article>
 
           <!-- ─ Card 4 — tech & IA ─ -->
-          <article id="tech-ia" class="card-base bg-cream flex flex-col scroll-mt-24">
-            <div class="flex items-center gap-4 mb-4">
-              <span class="w-10 h-10 rounded-xl bg-berenjena flex items-center justify-center shrink-0" aria-hidden="true">
-                <Icon name="ph:flask-fill" class="w-5 h-5 text-cream" />
-              </span>
-              <p class="eyebrow">{{ $t('collaborate.profile4_tag') }}</p>
+          <article id="tech-ia" class="collab-card collab-card--tech collab-card--hard card-base bg-cream flex flex-col scroll-mt-24">
+            <div class="collab-card__head">
+              <span class="collab-card__num" aria-hidden="true">03</span>
+              <p class="eyebrow collab-card__tag">
+                <Icon name="ph:flask-fill" class="collab-card__tag-icon" aria-hidden="true" />
+                {{ $t('collaborate.profile4_tag') }}
+              </p>
             </div>
             <h3 class="heading-display text-xl text-berenjena mb-3">
               {{ $t('collaborate.profile4_title') }}
@@ -205,12 +214,13 @@
           </article>
 
           <!-- ─ Card 5 — apoyo mutuo ─ -->
-          <article id="apoyo-mutuo" class="card-base bg-cream flex flex-col scroll-mt-24">
-            <div class="flex items-center gap-4 mb-4">
-              <span class="w-10 h-10 rounded-xl bg-berenjena flex items-center justify-center shrink-0" aria-hidden="true">
-                <Icon name="ph:hands-praying-fill" class="w-5 h-5 text-cream" />
-              </span>
-              <p class="eyebrow">{{ $t('collaborate.profile5_tag') }}</p>
+          <article id="apoyo-mutuo" class="collab-card collab-card--apoyo card-base bg-cream flex flex-col scroll-mt-24">
+            <div class="collab-card__head">
+              <span class="collab-card__num" aria-hidden="true">04</span>
+              <p class="eyebrow collab-card__tag">
+                <Icon name="ph:hands-praying-fill" class="collab-card__tag-icon" aria-hidden="true" />
+                {{ $t('collaborate.profile5_tag') }}
+              </p>
             </div>
             <h3 class="heading-display text-xl text-berenjena mb-3">
               {{ $t('collaborate.profile5_title') }}
@@ -231,12 +241,13 @@
 
           <!-- ─ Card final — financiar (la que más mueve la aguja cierra la lista;
                único coral de la página, posición de remate) ─ -->
-          <article id="financiar" class="card-base bg-cream flex flex-col scroll-mt-24 md:col-span-2">
-            <div class="flex items-center gap-4 mb-4">
-              <span class="w-10 h-10 rounded-xl bg-coral flex items-center justify-center shrink-0" aria-hidden="true">
-                <Icon name="ph:hand-heart-fill" class="w-5 h-5 text-berenjena" />
-              </span>
-              <p class="eyebrow">{{ $t('collaborate.profile2_tag') }}</p>
+          <article id="financiar" class="collab-card collab-card--financiar collab-card--hard card-base bg-cream flex flex-col scroll-mt-24">
+            <div class="collab-card__head">
+              <span class="collab-card__num" aria-hidden="true">05</span>
+              <p class="eyebrow collab-card__tag">
+                <Icon name="ph:hand-heart-fill" class="collab-card__tag-icon" aria-hidden="true" />
+                {{ $t('collaborate.profile2_tag') }}
+              </p>
             </div>
             <h3 class="heading-display text-xl text-berenjena mb-3">
               {{ $t('collaborate.profile2_title') }}
@@ -437,3 +448,99 @@ useHead({
 <script lang="ts">
 export default { name: 'CollaboratePage' }
 </script>
+
+<style scoped>
+/* ────────────────────────────────────────────────────────────
+   Parrilla de perfiles · bento asimétrico (hallazgo #1, auditoría de
+   diseño 26-sep-26). Mismo tratamiento que .pathway-card-- en la home
+   (PR #230), con clases propias porque estas tarjetas no comparten
+   componente con VisitorPathways.
+
+   · Móvil (<768px): una columna, orden del DOM. La asimetría vive en
+     la superficie, no en el ancho.
+   · Tablet (768-1023px): 2 columnas; clínica y apoyo a lo ancho.
+   · Desktop (≥1024px): 12 columnas, 8+4 / 7+5 (cada fila con su
+     proporción; tech lleva el ancho porque tiene más contenido que
+     apoyo y así no queda hueco), financiar a lo ancho como remate. Las áreas siguen el orden del DOM, así que
+     el orden de lectura y de tabulación no cambia.
+   ──────────────────────────────────────────────────────────── */
+.collab-grid {
+  display: grid;
+  gap: 1.25rem;
+  grid-template-columns: minmax(0, 1fr);
+}
+@media (min-width: 768px) {
+  .collab-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .collab-card--clinica,
+  .collab-card--apoyo,
+  .collab-card--financiar {
+    grid-column: 1 / -1;
+  }
+}
+@media (min-width: 1024px) {
+  .collab-grid {
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    grid-template-areas:
+      'clinica clinica clinica clinica clinica clinica clinica clinica alcance alcance alcance alcance'
+      'tech tech tech tech tech tech tech apoyo apoyo apoyo apoyo apoyo'
+      'financiar financiar financiar financiar financiar financiar financiar financiar financiar financiar financiar financiar';
+  }
+  .collab-card--clinica   { grid-area: clinica; }
+  .collab-card--alcance   { grid-area: alcance; }
+  .collab-card--tech      { grid-area: tech; }
+  .collab-card--apoyo     { grid-area: apoyo; }
+  .collab-card--financiar { grid-area: financiar; }
+}
+
+/* Superficie alterna en orden de lectura: dura (01, 03, 05) / papel
+   (02, 04). La dura cambia radius suave + borde 8 % por borde de trazo
+   entero y sombra dura en offset, sin desenfoque. Las de papel se quedan
+   con la receta de .card-base. Sin hover: son <article> estáticos, y la
+   regla D8 de main.css reserva el lift para tarjetas que son enlace. */
+.collab-card--hard {
+  border-radius: 6px;
+  border: 1.5px solid var(--color-text);
+  box-shadow: 6px 6px 0 rgb(var(--color-text-rgb) / 0.9);
+}
+
+.collab-card__head {
+  display: flex;
+  align-items: baseline;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+/* Número en Fraunces como ancla editorial: sustituye al cuadradito de
+   icono berenjena/coral, que se repetía idéntico en las cinco. */
+.collab-card__num {
+  font-family: 'Fraunces', serif;
+  font-weight: 600;
+  font-size: 2.25rem;
+  line-height: 1;
+  color: rgb(var(--color-text-rgb) / 0.22);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+}
+.collab-card--lead .collab-card__num {
+  font-size: 3rem;
+}
+/* El icono baja a acento: pequeño, violeta firma, pegado al eyebrow. */
+.collab-card__tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+.collab-card__tag-icon {
+  width: 0.95rem;
+  height: 0.95rem;
+  color: var(--color-miriam);
+  flex-shrink: 0;
+}
+
+@media (prefers-contrast: more) {
+  .collab-card__num {
+    color: rgb(var(--color-text-rgb) / 0.55);
+  }
+}
+</style>

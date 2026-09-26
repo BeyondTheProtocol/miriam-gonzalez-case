@@ -2,7 +2,7 @@
   <header
     ref="headerRef"
     :aria-label="$t('footer.site_header')"
-    class="sticky top-0 z-50 transition-all duration-300"
+    class="transition-all duration-300"
     :class="
       scrolled
         ? 'bg-cream/95 backdrop-blur-lg shadow-sm'

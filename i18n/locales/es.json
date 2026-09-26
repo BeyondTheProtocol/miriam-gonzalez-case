@@ -318,7 +318,7 @@
     "subtitle": "Datos verificados, hechos clave y contacto para medios. El caso de Miriam González, listo para contarse con rigor.",
     "facts_title": "Hechos clave",
     "fact_who_label": "Quién",
-    "fact_who_value": "Miriam González, ingeniera de software y divulgadora tech (Región de Murcia, España).",
+    "fact_who_value": "Miriam González, {age} años, ingeniera de software y divulgadora tech (Región de Murcia, España).",
     "fact_diagnosis_label": "Diagnóstico",
     "fact_diagnosis_value": "Cáncer de mama metastásico HR+/HER2−, con biología tumoral fuera de las guías estándar.",
     "fact_why_label": "Por qué es relevante",
@@ -342,7 +342,7 @@
     "contact_cta": "Escribir al equipo",
     "boilerplate_title": "Texto listo para copiar",
     "boilerplate_note": "Boilerplate para notas de prensa, newsletters o fichas. Puedes citarlo tal cual.",
-    "boilerplate_text": "Miriam González es ingeniera de software y divulgadora tech. Investiga su propio cáncer de mama metastásico con inteligencia artificial y un equipo internacional, en abierto, para encontrar opciones de tratamiento que la oncología convencional no ofrece.",
+    "boilerplate_text": "Miriam González, {age} años, es ingeniera de software y divulgadora tech. Investiga su propio cáncer de mama metastásico con inteligencia artificial y un equipo internacional, en abierto, para encontrar opciones de tratamiento que la oncología convencional no ofrece.",
     "boilerplate_copy": "Copiar texto",
     "boilerplate_copied": "Copiado",
     "resource_expenses": "Destino del dinero",
@@ -368,7 +368,7 @@
     "guide_yes_label": "Sí",
     "guide_no_label": "No",
     "guide_yes": "«ingeniera de software» · «divulgadora tech» · «investiga su propio caso con IA» · «cáncer de mama metastásico» · «tratamiento personalizado / de precisión» · «equipo internacional» · «en abierto»",
-    "guide_no": "«científica» (usar ingeniera) · «paciente» como identidad (es activa) · «vacuna» · nombres de médicos u hospitales sin permiso · cifras moleculares · edad en titulares · lenguaje bélico / «lucha» / «lazo rosa» / morbo",
+    "guide_no": "«científica» (usar ingeniera) · «paciente» como identidad (es activa) · nombres de médicos u hospitales sin permiso · cifras moleculares · edad en titulares · lenguaje bélico / «lucha» / «lazo rosa» / morbo",
     "kit_download_label": "Descargar kit de prensa (PDF)",
     "kit_download_note": "Documento de referencia para periodistas. Incluye hechos clave, citas y material gráfico."
   },
@@ -620,6 +620,40 @@
     "s4_p1_blind": "a ciegas"
   },
   "ciencia": {
+    "ruta": {
+      "eyebrow": "La ruta",
+      "title": "Del tejido a una terapia hecha para su tumor",
+      "intro": "Los ensayos de vacuna que se exploraron en junio se cerraron. Esta es la ruta para construir una terapia a partir de su propio tumor. Son cinco pasos y cada uno depende del anterior. Hoy el caso está entre el primero y el segundo, y en paralelo sigue el tratamiento para controlar la enfermedad.",
+      "estados": {
+        "hecho": "Hecho",
+        "curso": "En curso",
+        "pendiente": "Pendiente",
+        "abierto": "Abierto"
+      },
+      "pasos": {
+        "tejido": {
+          "titulo": "Guardar el tumor",
+          "texto": "Hay tejido del tumor de varias biopsias (la última, de este verano), guardado para poder analizarlo a fondo."
+        },
+        "leer": {
+          "titulo": "Leer el tumor",
+          "texto": "Secuenciar el ADN del tumor, ver qué genes expresa y compararlo con su sangre sana, para quedarse solo con lo que es del tumor. El tejido ya ha salido hacia el laboratorio y la muestra de sangre sana se está preparando."
+        },
+        "dianas": {
+          "titulo": "Encontrar las dianas",
+          "texto": "Buscar las mutaciones que solo tiene el tumor y que su sistema inmune podría reconocer. Para eso también hace falta conocer su HLA: las moléculas que enseñan trozos del tumor a sus células T y deciden cuáles pueden ser reconocidos."
+        },
+        "disenar": {
+          "titulo": "Diseñar la terapia",
+          "texto": "Con esas dianas se puede hacer una vacuna personalizada o preparar células T que las reconozcan (TCR-T, TIL). Otra vía, la CAR-T, apunta a proteínas de la superficie del tumor y se elige con otros datos. Se puede combinar más de una, y se busca la que tenga más evidencia para su caso. La decisión es de su equipo médico."
+        },
+        "llegar": {
+          "titulo": "Llegar a ella",
+          "texto": "Un ensayo clínico o un fabricante que pueda hacerla. Se buscan puertas en cualquier país."
+        }
+      },
+      "nota": "Material divulgativo: describe el camino, no promete resultados. Las decisiones las toma su equipo médico."
+    },
     "level_hint": "Versión",
     "level_aria": "Elegir la versión de la página: para mentes curiosas o para profesionales",
     "level_simple": "Para mentes curiosas",

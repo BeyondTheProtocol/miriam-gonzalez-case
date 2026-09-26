@@ -174,45 +174,7 @@ onMounted(() => {
   refreshFundraiser()
 })
 
-const { data: latest } = await useAsyncData(
-  `hero-latest-${locale.value}`,
-  async () => {
-    if (locale.value === 'en') {
-      const en = await queryCollection('timeline_en').first()
-      if (en?.entries?.length) return en.entries[en.entries.length - 1]
-    }
-    const es = await queryCollection('timeline_es').first()
-    const entries = es?.entries ?? []
-    return entries.length ? entries[entries.length - 1] : null
-  },
-  { watch: [locale] }
-)
-
-const ES_MONTHS: Record<string, number> = {
-  ene: 0, feb: 1, mar: 2, abr: 3, may: 4, jun: 5,
-  jul: 6, ago: 7, sep: 8, oct: 9, nov: 10, dic: 11,
-}
-function parseTimelineDate(s?: string): Date | null {
-  if (!s) return null
-  const m = s.toLowerCase().match(/(\d{1,2})?\s*([a-zñ]{3,})\.?\s*(\d{4})/)
-  if (m) {
-    const mon = ES_MONTHS[(m[2] ?? '').slice(0, 3)]
-    if (mon !== undefined) return new Date(Number(m[3]), mon, m[1] ? Number(m[1]) : 1)
-  }
-  const y = s.match(/^\s*(\d{4})\s*$/)
-  if (y) return new Date(Number(y[1]), 0, 1)
-  const d = new Date(s)
-  return isNaN(+d) ? null : d
-}
-const latestAgo = computed(() => {
-  const d = parseTimelineDate((latest.value as { date?: string } | null)?.date)
-  if (!d) return null
-  const days = Math.floor((Date.now() - d.getTime()) / 86400000)
-  if (days < 0) return null
-  if (days === 0) return t('hero.updated_today')
-  if (days === 1) return t('hero.updated_ago_one')
-  return t('hero.updated_ago', { n: days })
-})
+const { latest, latestAgo } = useLatestUpdate()
 
 const raisedFormatted = computed(() => {
   if (!gofundme.value) return '—'
@@ -559,8 +521,10 @@ const stats = computed(() => [
   text-underline-offset: 3px;
   transition: text-decoration-color 0.15s ease;
 }
-.hero__latest:hover .hero__latest-title {
-  text-decoration-color: var(--color-miriam);
+@media (hover: hover) and (pointer: fine) {
+  .hero__latest:hover .hero__latest-title {
+    text-decoration-color: var(--color-miriam);
+  }
 }
 
 /* Stats · rejilla cerrada, alturas iguales. Sin divisor propio: cuelga de hero__proof. */

@@ -107,6 +107,15 @@
         </div>
       </div>
 
+      <!-- Chips "por perfil" (propuesta 4 del comité, 26-sep-2026): mismo
+           componente y misma copy que /colabora (ProfileChips.vue), para que
+           quien llegue por un enlace directo a cualquier página encuentre su
+           vía sin tener que pasar antes por /colabora. -->
+      <div class="mt-10 pt-8" style="border-top: 1px solid rgb(var(--color-text-rgb) / 0.08)">
+        <h3 class="eyebrow mb-3 block">{{ $t('collaborate.profiles_eyebrow') }}</h3>
+        <ProfileChips />
+      </div>
+
       <!-- Legal -->
       <nav
         :aria-label="$t('footer.legal_heading')"
