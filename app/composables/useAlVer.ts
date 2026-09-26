@@ -24,6 +24,16 @@ export function useAlVer(el: Ref<HTMLElement | null>, umbral = 0.3) {
   return { armado, visto }
 }
 
+/**
+ * useQuieto — misma forma que useAlVer, pero el bloque se ve directamente en su estado final:
+ * ni se esconde (`armado`) ni se anima al entrar (`visto`). Para los datos que se LEEN en /datos
+ * (Miriam + diseno, 26-sep-2026, skill `movimiento-movil`): un gráfico se anima si lo pide quien
+ * mira (reproducir), no porque entra en pantalla. La vitrina («otra vista») sigue con useAlVer.
+ */
+export function useQuieto(_el?: Ref<HTMLElement | null>, _umbral?: number) {
+  return { armado: ref(false), visto: ref(false) }
+}
+
 /** Interpola 0→1 con frenada, durante `ms`, llamando a `cb` en cada fotograma. */
 export function tween(ms: number, cb: (f: number) => void) {
   // En una pestaña oculta requestAnimationFrame no corre: sin esto el gráfico se quedaría en su

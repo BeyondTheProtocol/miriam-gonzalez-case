@@ -702,14 +702,8 @@ const n = (v: number) => numCaso(v, lang.value)
 .dt-cifra-link:focus-visible { outline: 2px solid var(--color-miriam); outline-offset: 3px; }
 .dt-cifra-link > * { height: 100%; }
 .dt-sec { padding-top: 32px; scroll-margin-top: 124px; }
-/* Entrada al hacer scroll con CSS nativo (animation-timeline: view(); WebKit, jun-2025). Mejora
-   progresiva: sin soporte o con «movimiento reducido», la sección simplemente está. */
-@supports (animation-timeline: view()) {
-  @media (prefers-reduced-motion: no-preference) {
-    .dt-sec { animation: dt-entra linear both; animation-timeline: view(); animation-range: entry 0% cover 22%; }
-    @keyframes dt-entra { from { opacity: 0.001; transform: translateY(28px) scale(0.985); } to { opacity: 1; transform: none; } }
-  }
-}
+/* Sin entrada al hacer scroll (26-sep-2026): las secciones se leen, no se animan al pasar (skill
+   `movimiento-movil`). Antes había un `animation-timeline: view()` que deslizaba cada sección. */
 .dt-h2 { font: var(--tipo-h2); color: var(--color-text); margin: 0 0 12px; }
 .dt-h3 { font: 700 17px/1.3 var(--font-body); color: var(--color-text); margin: 26px 0 6px; }
 .dt-nota { font: 400 13px/1.5 var(--font-body); color: var(--color-text-soft); margin: 0 0 10px; max-width: 70ch; }

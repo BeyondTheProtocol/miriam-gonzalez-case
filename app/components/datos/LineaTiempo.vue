@@ -14,7 +14,7 @@ const L = (es: string, en: string) => (props.lang === 'en' ? en : es)
 
 const caja = ref<HTMLElement | null>(null)
 const W = useAncho(caja)
-const { armado, visto } = useAlVer(caja)
+const { armado, visto } = useQuieto(caja)
 const X = (t: number) => linEscala(props.desde, props.hasta, EJE_IZQ, W.value - EJE_DER)(t)
 const hoyMs = computed(() => msFecha(props.hoy))
 

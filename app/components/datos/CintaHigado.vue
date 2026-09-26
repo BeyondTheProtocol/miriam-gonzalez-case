@@ -23,7 +23,7 @@ const L = (es: string, en: string) => (props.lang === 'en' ? en : es)
 
 const caja = ref<HTMLElement | null>(null)
 const W = useAncho(caja)
-const { armado, visto } = useAlVer(caja)
+const { armado, visto } = useQuieto(caja)
 const FILA = 26
 const TOP = 6
 const H = computed(() => TOP + props.filas.length * FILA + 22)
