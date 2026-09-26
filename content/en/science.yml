@@ -105,7 +105,7 @@ paperSections:
   - title: SSTR2 Pathway and Radioligand Therapy (PRRT)
     tag: SSTR2 · PRRT
     tone: positive
-    subtitle: The 68Ga-DOTATOC PET (26 May 2026) confirmed SSTR2 overexpression in the bone metastases → opens the PRRT route (177Lu-DOTATATE); SSTR2 IHC on tissue pending the rebiopsy
+    subtitle: The 68Ga-DOTATOC PET (26 May 2026) confirmed somatostatin receptor (SSTR) overexpression in the bone metastases → opens the PRRT route (177Lu-DOTATATE); SSTR2 IHC on tissue pending the rebiopsy
     papers:
       - ref: 'Terlević et al., 2019 — Annals of Diagnostic Pathology (DOI: 10.1016/j.anndiagpath.2018.11.002)'
         finding: 'SSTR2 expression in neuroendocrine breast carcinoma: 71% positive (≈36% moderate-strong)'
@@ -274,7 +274,7 @@ imaging:
   date: May 26, 2026
   summary: >-
     Multiple blastic bone metastases with somatostatin receptor overexpression
-    (subtype 2, SSTR2). Focal uptake in the right breast tail pending a dedicated study.
+    (SSTR). Focal uptake in the right breast tail pending a dedicated study.
   meaning: >-
     The tumor expresses somatostatin receptors — the target of radioligand
     therapy (PRRT). It confirms on imaging

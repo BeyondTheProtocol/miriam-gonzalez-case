@@ -204,13 +204,13 @@
     "her2": "HER2−",
     "rb1": "RB1 · the brake",
     "rb1_note": "being lost",
-    "sstr2": "SSTR2",
+    "sstr2": "SSTR",
     "sstr2_note": "receptors → PRRT",
     "hr_note": "hormone receptors",
     "close1": "Two populations, one tumor.",
     "close2": "Treating only one selects for the other.",
-    "sr": "Tumor schematic. Luminal breast, the known part: HR+ receptors, HER2 negative, an 11q13 amplicon (FGFR1 ×13, CCND1 ×20, FGF3/4/19 ×18) and an ESR1 mutation in ctDNA. Neuroendocrine differentiation (Cg/Syn in ~80% of cells), barely known: loss of RB1 (a brake that is being lost) and SSTR2 receptors, the PRRT target. Block one side and it escapes through the other; it must be treated as a whole.",
-    "legend_rec": "Receptors: targets to attack (HR and SSTR2).",
+    "sr": "Tumor schematic. Luminal breast, the known part: HR+ receptors, HER2 negative, an 11q13 amplicon (FGFR1 ×13, CCND1 ×20, FGF3/4/19 ×18) and an ESR1 mutation in ctDNA. Neuroendocrine differentiation (Cg/Syn in ~80% of cells), barely known: loss of RB1 (a brake that is being lost) and somatostatin receptors (SSTR), the PRRT target. Block one side and it escapes through the other; it must be treated as a whole.",
+    "legend_rec": "Receptors: targets to attack (HR and SSTR).",
     "legend_amp": "Amplifications: extra copies that push the tumor.",
     "legend_mut": "Mutations: resistances the tumor builds to keep growing.",
     "legend_rb1": "RB1: a brake that is being lost.",
@@ -374,7 +374,7 @@
   },
   "science": {
     "title": "The science behind the case",
-    "subtitle": "Luminal breast carcinoma (HR+/HER2−) with ~80% neuroendocrine differentiation (BC-NED), FGFR1 ×13 and CCND1 ×20. Most recent finding: somatostatin receptor subtype 2 (SSTR2) overexpression confirmed by Gallium PET.",
+    "subtitle": "Luminal breast carcinoma (HR+/HER2−) with ~80% neuroendocrine differentiation (BC-NED), FGFR1 ×13 and CCND1 ×20. Most recent finding: somatostatin receptor (SSTR) overexpression confirmed by Gallium PET.",
     "subtitle_simple": "An uncommon breast cancer that behaves like two diseases at once. Here, explained without jargon."
   },
   "timeline": {
@@ -460,7 +460,7 @@
   "entry_disclaimer": {
     "badge": "May 2026 update",
     "title": "New molecular and imaging findings",
-    "body": "Liquid biopsies (April–May 2026) have revealed new alterations: ESR1 D538G (endocrine resistance) and RB1 mutations (a predictor of neuroendocrine transformation). The Ga-68 DOTATOC PET-CT confirms multiple bone metastases with somatostatin receptor subtype 2 (SSTR2) overexpression — a new therapeutic target via radioligand therapy (PRRT). The molecular profile has become more complex and reinforces the need to explore the neuroendocrine pathway in parallel with the breast (luminal) one.",
+    "body": "Liquid biopsies (April–May 2026) have revealed new alterations: ESR1 D538G (endocrine resistance) and RB1 mutations (a predictor of neuroendocrine transformation). The Ga-68 DOTATOC PET-CT confirms multiple bone metastases with somatostatin receptor (SSTR) overexpression — a new therapeutic target via radioligand therapy (PRRT). The molecular profile has become more complex and reinforces the need to explore the neuroendocrine pathway in parallel with the breast (luminal) one.",
     "cta": "Got it"
   },
   "index": {
@@ -479,7 +479,7 @@
     "s3_p2": "Practical result: hormonal treatment covers the breast (luminal) component. The neuroendocrine component, with its own dynamics and targets, is left unaddressed.",
     "s3_p3": "The oncology team cannot prescribe off-protocol without solid evidence. Generating that evidence requires molecular rebiopsy, advanced panels and international review boards. None of this is funded by public healthcare for a low-frequency case.",
     "s3_pet_label": "Latest imaging finding",
-    "s3_pet_paragraph": "Gallium PET: multiple bone metastases with somatostatin receptor overexpression (subtype 2, SSTR2) and focal uptake in the right breast tail. The tumor expresses a target that breast protocols do not contemplate as standard, opening the radioligand path (PRRT).",
+    "s3_pet_paragraph": "Gallium PET: multiple bone metastases with somatostatin receptor overexpression (SSTR) and focal uptake in the right breast tail. The tumor expresses a target that breast protocols do not contemplate as standard, opening the radioligand path (PRRT).",
     "s3_table_title": "What exists vs. what is missing",
     "s3_col_has": "What the protocols cover",
     "s3_col_missing": "What is missing and not covered",
@@ -504,7 +504,7 @@
     "s3_outro": "Full technical analysis in The science. The essential point: a measurable gap exists between the treatment she receives and the one her biology requires.",
     "s4_eyebrow": "Where the money goes · Radical transparency",
     "s4_heading": "The tumor evolves. The strategy has to evolve with it.",
-    "s4_p1": "The tumor evolves under treatment pressure. New resistance mutations appear (ESR1 D538G, RB1) and new targets emerge (SSTR2+). Without periodic molecular rebiopsy, clinical decisions are made ",
+    "s4_p1": "The tumor evolves under treatment pressure. New resistance mutations appear (ESR1 D538G, RB1) and new targets emerge (SSTR+). Without periodic molecular rebiopsy, clinical decisions are made ",
     "s4_p2": "Every euro is assigned to a concrete line item and documented on the Expenses page.",
     "s4_list_intro": "The money raised covers, in whatever order is needed:",
     "s4_list": [
@@ -553,7 +553,7 @@
       "RB1 ×3",
       "NEC G3?",
       "ctDNA+",
-      "SSTR2+"
+      "SSTR+"
     ],
     "s8_markers_note": "Those with “?” are hypotheses with partial evidence, pending confirmation. Full analysis in The science.",
     "s8_science_button": "See the full molecular profile",
@@ -667,7 +667,7 @@
     "print_btn": "Print clinical summary",
     "ai_summary_aria": "One-sentence case summary",
     "ai_summary_eyebrow": "In one sentence",
-    "ai_summary_text": "Miriam González ({age}) has metastatic BC-NED breast cancer (HR+/HER2− with ~80% neuroendocrine differentiation), FGFR1 ×13 amplification and SSTR2+ on Ga-68 PET. The next step is an advanced molecular rebiopsy. Donate: gofund.me/3e25cae99",
+    "ai_summary_text": "Miriam González ({age}) has metastatic BC-NED breast cancer (HR+/HER2− with ~80% neuroendocrine differentiation), FGFR1 ×13 amplification and SSTR+ on Ga-68 PET. The next step is an advanced molecular rebiopsy. Donate: gofund.me/3e25cae99",
     "treatment_history": "Treatment history",
     "key_evidence": "Key scientific evidence",
     "evidence_page_intro": "Every hypothesis in this case is grounded in peer-reviewed literature and clinical trials. Here is the evidence behind the therapeutic axes, grouped by theme.",
@@ -682,7 +682,7 @@
     "proposed_panel_caption": "Proposed bone rebiopsy protocol: component, method and core/format, targets and clinical implication",
     "axes": [
       "FGFR1 ×13 → FGFRi",
-      "SSTR2+ → PRRT",
+      "SSTR+ → PRRT",
       "ESR1 D538G → oral SERD",
       "RB1 loss → neuroendocrine axis"
     ],
@@ -728,7 +728,7 @@
     "snapshot_resistance_label": "Resistance & progression",
     "snapshot_resistance": "ESR1 D538G · RB1 loss (3 variants in ctDNA) · markers associated with CDK4/6i resistance",
     "snapshot_target_label": "Functional target",
-    "snapshot_target": "SSTR2+ on Ga-68 PET — target for radioligand therapy (PRRT)",
+    "snapshot_target": "SSTR+ on Ga-68 PET — target for radioligand therapy (PRRT)",
     "snapshot_status_label": "2026 status",
     "snapshot_status": "ECOG 1 · bone and liver involvement · on a phase 1 trial with BG-75202 · PET-guided bone rebiopsy pending",
     "snapshot_grade_label": "Receptors & grade",
@@ -746,7 +746,7 @@
     "app_inline_cta": "Get the reports",
     "app_hook_eyebrow": "Coming soon · for oncology and research",
     "app_hook_title": "The full case, in a queryable format",
-    "app_hook_body": "Access Miriam's case as a structured clinical dataset: timeline, reports, molecular profile (FGFR1, SSTR2, ESR1, ctDNA) and the response to each treatment line. Queryable and exportable for second opinions and tumor boards (MTB).",
+    "app_hook_body": "Access Miriam's case as a structured clinical dataset: timeline, reports, molecular profile (FGFR1, SSTR, ESR1, ctDNA) and the response to each treatment line. Queryable and exportable for second opinions and tumor boards (MTB).",
     "app_hook_cta": "Request early access"
   },
   "team": {

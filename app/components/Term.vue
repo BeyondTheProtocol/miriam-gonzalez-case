@@ -62,11 +62,11 @@ const GLOSSARY: Record<string, Entry> = {
   },
   sstr: {
     es: {
-      label: 'SSTR2+',
+      label: 'SSTR+',
       def: 'Sobreexpresión de receptores de somatostatina confirmada por PET-68Ga-DOTATOC (26/05/2026). Es un hallazgo funcional (por imagen); la confirmación en tejido (IHQ SSTR2) está pendiente de la rebiopsia. Abre la vía de terapia con radioligandos (PRRT).',
     },
     en: {
-      label: 'SSTR2+',
+      label: 'SSTR+',
       def: 'Somatostatin-receptor overexpression confirmed by 68Ga-DOTATOC PET (26 May 2026). This is a functional (imaging) finding; tissue confirmation (SSTR2 IHC) is pending the rebiopsy. It opens the radioligand therapy (PRRT) route.',
     },
   },
@@ -212,12 +212,12 @@ const GLOSSARY: Record<string, Entry> = {
   },
   axis_sstr: {
     es: {
-      label: 'SSTR2+ → PRRT',
-      def: 'PRRT: terapia con radioligandos. Un fármaco radiactivo se une a los receptores de somatostatina (SSTR2) del tumor y lo irradia desde dentro.',
+      label: 'SSTR+ → PRRT',
+      def: 'PRRT: terapia con radioligandos. Un fármaco radiactivo se une a los receptores de somatostatina (SSTR) del tumor y lo irradia desde dentro.',
     },
     en: {
-      label: 'SSTR2+ → PRRT',
-      def: 'PRRT: radioligand therapy. A radioactive drug binds the tumor’s somatostatin receptors (SSTR2) and irradiates it from within.',
+      label: 'SSTR+ → PRRT',
+      def: 'PRRT: radioligand therapy. A radioactive drug binds the tumor’s somatostatin receptors (SSTR) and irradiates it from within.',
     },
   },
   axis_esr1: {
@@ -233,11 +233,11 @@ const GLOSSARY: Record<string, Entry> = {
   axis_ne: {
     es: {
       label: 'Pérdida de RB1 → eje neuroendocrino',
-      def: 'La pérdida de RB1 (3 variantes en sangre) es la que señala el riesgo de transformación neuroendocrina. Tratarla por la vía neuroendocrina abre además el acceso a la terapia con radioligandos (PRRT) sobre las lesiones SSTR2+.',
+      def: 'La pérdida de RB1 (3 variantes en sangre) es la que señala el riesgo de transformación neuroendocrina. Tratarla por la vía neuroendocrina abre además el acceso a la terapia con radioligandos (PRRT) sobre las lesiones SSTR+.',
     },
     en: {
       label: 'RB1 loss → neuroendocrine axis',
-      def: 'RB1 loss (3 variants in blood) is what signals the risk of neuroendocrine transformation. Treating it via the neuroendocrine route also opens access to radioligand therapy (PRRT) on the SSTR2+ lesions.',
+      def: 'RB1 loss (3 variants in blood) is what signals the risk of neuroendocrine transformation. Treating it via the neuroendocrine route also opens access to radioligand therapy (PRRT) on the SSTR+ lesions.',
     },
   },
   /* §13 · ⓘ «Cómo se lee el mapa 3D» (visor de focos) → tooltip al pasar, no clic-para-ver. */
