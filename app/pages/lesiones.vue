@@ -98,10 +98,13 @@ const biopsia = computed(() =>
             <p class="text-[14px] text-tinta leading-relaxed">
               {{ L('Lesiones diana del informe de TC (13-jul → 8-sep-2026): segmento II 18 → 20 mm · segmento IVb 15 → 19 mm.', 'Target lesions in the CT report (13 Jul → 8 Sep 2026): segment II 18 → 20 mm · segment IVb 15 → 19 mm.') }}
             </p>
-            <!-- Frase sellada (24-sep-26): revisión informal del TC del 8-sep por un radiólogo. No
-                 decir «55 metástasis» ni que «todas han aparecido o crecido». -->
+            <!-- Frase sellada (26-sep-26): revisión informal del TC del 8-sep por un radiólogo,
+                 con sus dos salvedades (imagen 127: tres lesiones que se tocan, las cuenta como
+                 tres; imagen 123: subcapsular, más difícil de valorar). No decir «55 metástasis»
+                 ni que «todas han aparecido o crecido». Copy ya publicado — cambia con el gate de
+                 salida (Miriam entiende y mergea el PR). -->
             <p class="text-[14px] text-tinta leading-relaxed mt-2">
-              {{ L('Un radiólogo, en una lectura informal y sin informe firmado, marcó 55 medidas en este TC y las considera 55 lesiones distintas, muy sugestivas de metástasis. Las 20 que ves aquí están entre ellas. El informe oficial describe «múltiples imágenes nodulares hepáticas compatibles con M1» (M1: metástasis a distancia).', 'A radiologist, in an informal read without a signed report, marked 55 measurements on this CT and considers them 55 distinct lesions, highly suggestive of metastases. The 20 you see here are among them. The official report describes multiple nodular images in the liver compatible with M1 (M1: distant metastasis).') }}
+              {{ L('Un radiólogo, en lectura informal por DM y sin informe firmado, marcó 55 medidas en el hígado de este TC y las considera 55 lesiones distintas, muy sugestivas de metástasis, con dos salvedades suyas: en la imagen 127 hay tres lesiones que se tocan entre sí y él las cuenta como tres, y en la imagen 123 hay una pegada a la cápsula del hígado, que limita su crecimiento y la hace más difícil de valorar. Las 20 lesiones automáticas de Polaris están entre sus marcas; las otras 35 se ven abajo como puntos. El informe oficial dice M1 múltiples.', 'A radiologist, in an informal DM read and without a signed report, marked 55 measurements on the liver in this CT and considers them 55 distinct lesions, highly suggestive of metastases, with two caveats of his own: in image 127 there are three lesions touching each other, which he counts as three, and in image 123 there is one right against the liver capsule, which limits its growth and makes it harder to assess. Polaris’s 20 automatic lesions are among his marks; the other 35 are shown below as points. The official report says multiple M1.') }}
             </p>
           </section>
         </div>
