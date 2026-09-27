@@ -193,11 +193,38 @@ function fresnel(mat: THREE.Material, min: number, max: number, pot: number) {
   }
   return mat
 }
-const higadoMat = (lado: THREE.Side) => fresnel(new THREE.MeshPhysicalMaterial({
-  color: 0x9a3f2c, roughness: 0.38, clearcoat: 0.8, clearcoatRoughness: 0.22,
-  sheen: 0.5, sheenRoughness: 0.5, sheenColor: new THREE.Color(0xe39a86),
-  transparent: true, depthWrite: false, side: lado }), 0.10, 0.92, 2.4)
-const vaso = (c: number) => new THREE.MeshPhysicalMaterial({ color: c, roughness: 0.28, clearcoat: 0.9, clearcoatRoughness: 0.15 })
+/* CÁPSULA DEL HÍGADO: translucidez por grosor + borde «rayos X» (investigación de render,
+   27-sep-26). higado.ply trae en el color de vértice su DELGADEZ (scripts/hornea-ao.py): 1 en
+   los bordes finos, 0 donde el tejido supera 55 mm. Ahí donde es fino la luz «atraviesa» y brilla
+   cálido, como un órgano a contraluz (translucidez barata de Barré-Brisebois, GDC 2011); lo
+   grueso queda más apagado. El borde se enciende con el fresnel (efecto X-Ray de Codrops) y el
+   centro deja ver vasos y lesiones. El color de vértice NO tiñe la cápsula: solo se lee. */
+const higadoMat = (lado: THREE.Side) => {
+  const mat = new THREE.MeshPhysicalMaterial({
+    color: 0x9a3f2c, roughness: 0.38, clearcoat: 0.8, clearcoatRoughness: 0.22,
+    sheen: 0.5, sheenRoughness: 0.5, sheenColor: new THREE.Color(0xe39a86),
+    vertexColors: true, transparent: true, depthWrite: false, side: lado })
+  mat.onBeforeCompile = (sh) => {
+    sh.fragmentShader = sh.fragmentShader
+      .replace('#include <color_fragment>', '')   // la delgadez no es un color: no multiplica
+      .replace('#include <opaque_fragment>',
+        'float fr = pow(1.0 - abs(dot(normal, normalize(vViewPosition))), 2.4);\n'
+        + 'float delg = vColor.r;\n'
+        // translucidez: luz cálida que sale por lo fino, algo más en el borde
+        + 'outgoingLight += vec3(1.0, 0.52, 0.40) * delg * (0.50 + 0.60 * fr);\n'
+        // borde rayos X: un halo claro, fino, que dibuja la silueta del órgano
+        + 'outgoingLight += vec3(1.0, 0.80, 0.72) * pow(fr, 3.0) * 0.60;\n'
+        + 'diffuseColor.a = mix(0.08, 0.92, fr) + 0.18 * delg;\n'
+        + '#include <opaque_fragment>')
+  }
+  return mat
+}
+/* AO: vasos, vesícula y lesiones traen la oclusión ambiental horneada como color gris de vértice
+   (scripts/hornea-ao.py). `vertexColors` la multiplica por el color: los cruces de vasos y lo que
+   queda detrás se oscurecen y se lee qué va delante de qué. Solo en las mallas que la llevan: a una
+   sin color de vértice la pintaría de negro. */
+const AO = { vertexColors: true }
+const vaso = (c: number) => new THREE.MeshPhysicalMaterial({ ...AO, color: c, roughness: 0.28, clearcoat: 0.9, clearcoatRoughness: 0.15 })
 /* Los focos del PET que NO tienen lesión segmentada debajo. Un punto de TAMAÑO FIJO —medio
    vóxel del PET— y nada más. No lleva la forma de una lesión porque no hay contorno que
    dibujar, y no lleva su volumen porque el volumen es el dato menos fiable que hay aquí: con
@@ -228,29 +255,29 @@ const marcaRadiologoMat = () => new THREE.MeshPhysicalMaterial({ color: 0x1c969e
    fondo, mate; lo que no se puede evaluar, casi transparente, porque no hay dato, no es que
    sea negativo. Ninguna lesión se pinta como «PET negativa»: ese estado no existe. */
 const MAT_PET: Record<string, () => THREE.Material> = {
-  sobre_umbral: () => new THREE.MeshPhysicalMaterial({ color: 0xff6b47, roughness: 0.25,
+  sobre_umbral: () => new THREE.MeshPhysicalMaterial({ ...AO, color: 0xff6b47, roughness: 0.25,
     clearcoat: 0.9, clearcoatRoughness: 0.1, emissive: 0xb02d10, emissiveIntensity: 0.8 }),
-  sobre_fondo: () => new THREE.MeshPhysicalMaterial({ color: 0xf2b23c, roughness: 0.35,
+  sobre_fondo: () => new THREE.MeshPhysicalMaterial({ ...AO, color: 0xf2b23c, roughness: 0.35,
     clearcoat: 0.6, emissive: 0x7a4a08, emissiveIntensity: 0.3 }),
-  en_fondo: () => new THREE.MeshPhysicalMaterial({ color: 0x9aa4b2, roughness: 0.85,
+  en_fondo: () => new THREE.MeshPhysicalMaterial({ ...AO, color: 0x9aa4b2, roughness: 0.85,
     clearcoat: 0.05, emissive: 0x2a3340, emissiveIntensity: 0.15 }),
-  no_evaluable: () => new THREE.MeshPhysicalMaterial({ color: 0xcfd6df, roughness: 0.9,
+  no_evaluable: () => new THREE.MeshPhysicalMaterial({ ...AO, color: 0xcfd6df, roughness: 0.9,
     transparent: true, opacity: 0.35, depthWrite: false }),
 }
 const MAT: Record<string, () => THREE.Material> = {
   // RECIST 1.1: ≥ 10 mm = medible; < 10 mm = no medible. Además del color, textura distinta
   // (daltonismo azul-amarillo): medibles brillantes, pequeñas mates.
-  lesion: () => new THREE.MeshPhysicalMaterial({ color: 0xf2b23c, roughness: 0.3, clearcoat: 0.85,
+  lesion: () => new THREE.MeshPhysicalMaterial({ ...AO, color: 0xf2b23c, roughness: 0.3, clearcoat: 0.85,
     clearcoatRoughness: 0.1, emissive: 0x7a4a08, emissiveIntensity: 0.35 }),
   // Miriam, 20-sep: «no distingo las pequeñas de las grandes». Las dos clases eran crema pálido
   // y lila casi blanco, y a través del hígado translúcido acababan igual de pálidas: medido,
   // aclarar el lila subía el contraste real de 2,28:1 a 2,42:1, o sea nada. Lo que las separa es
   // el TONO: ≥ 10 mm en dorado, < 10 mm en violeta, y encima brillante contra mate. El violeta va
   // SATURADO: a tamaño real de móvil, uno pálido llegaba descolorido y se leía como un punto blanco.
-  lesionPequena: () => new THREE.MeshPhysicalMaterial({ color: 0x7c5cf0, roughness: 0.5, clearcoat: 0.25,
+  lesionPequena: () => new THREE.MeshPhysicalMaterial({ ...AO, color: 0x7c5cf0, roughness: 0.5, clearcoat: 0.25,
     emissive: 0x5b3ce0, emissiveIntensity: 0.85 }),
   porta: () => vaso(0x5236b0), vasos: () => vaso(0x2d63d6), vci: () => vaso(0x1f45a8),
-  vesicula: () => fresnel(new THREE.MeshPhysicalMaterial({ color: 0x6f9a3a, roughness: 0.25, clearcoat: 1,
+  vesicula: () => fresnel(new THREE.MeshPhysicalMaterial({ ...AO, color: 0x6f9a3a, roughness: 0.25, clearcoat: 1,
     transparent: true, depthWrite: false }), 0.35, 0.95, 2.0),
 }
 /* RAS (mm) → ejes de three: x = izquierda del paciente a la derecha de la pantalla (vista
@@ -375,6 +402,7 @@ function raycast(): number | null {
   return hits.length ? ((hits[0].object.userData.entradaIdx as number) ?? null) : null
 }
 function onPointerMove(e: PointerEvent) {
+  if (modoLuz.value) { mueveLuz(e); return }   // con la luz activa, arrastrar mueve la luz
   if (e.pointerType !== 'mouse') return   // hover es solo de ratón; táctil usa tap
   ndcDesde(e.clientX, e.clientY)
   const idx = raycast()
@@ -421,17 +449,18 @@ async function init() {
   scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture
   scene.environmentIntensity = 0.9
   const luz = (c: number, i: number, x: number, y: number, z: number) => {
-    const l = new THREE.DirectionalLight(c, i); l.position.set(x, y, z); camera.add(l)
+    const l = new THREE.DirectionalLight(c, i); l.position.set(x, y, z); camera.add(l); return l
   }
   // luces pegadas a la cámara: el hígado se ve igual de bien lo gires como lo gires
-  luz(0xfff0dc, 1.7, 2.5, 3, 4); luz(0xb8c8ff, 0.6, -4, 0.5, 2); luz(0xffd9f0, 2.2, -1, 2, -5)
+  luzClave = luz(0xfff0dc, 1.7, 2.5, 3, 4); luz(0xb8c8ff, 0.6, -4, 0.5, 2); luz(0xffd9f0, 2.2, -1, 2, -5)
   scene.add(camera)
 
   controls = new OrbitControls(camera, renderer.domElement)
   controls.enableDamping = true; controls.dampingFactor = 0.08; controls.enablePan = false
   controls.rotateSpeed = 0.9
   controls.autoRotate = !reduce; controls.autoRotateSpeed = 1.6
-  controls.addEventListener('start', () => { controls.autoRotate = false; ocultar() })
+  orbitando.value = !reduce
+  controls.addEventListener('start', () => { controls.autoRotate = false; orbitando.value = false; ocultar() })
 
   const esc: Escena = await (await fetch(props.base + 'escena.json')).json()
   const tareas: Promise<unknown>[] = []
@@ -520,6 +549,30 @@ async function init() {
 watch(lente, () => ocultar())
 const reencuadraYCierra = () => { ocultar(); reencuadra() }
 
+/* ÓRBITA y LUZ (investigación de render, 27-sep-26). Órbita: el giro lento del vídeo que Miriam
+   trajo, que se para al tocar el modelo y se reanuda con el botón. Luz: el patrón de Philips
+   TrueVue, mover la luz principal con el dedo; lee el relieve de vasos y lesiones mejor que
+   cualquier efecto de pantalla. Con la luz activa, arrastrar mueve la luz y no gira el modelo. */
+const orbitando = ref(false)
+const modoLuz = ref(false)
+let luzClave: THREE.DirectionalLight | null = null
+function alternaOrbita() {
+  orbitando.value = !orbitando.value
+  if (orbitando.value) modoLuz.value = false
+  if (controls) { controls.autoRotate = orbitando.value; controls.enableRotate = !modoLuz.value }
+}
+function alternaLuz() {
+  modoLuz.value = !modoLuz.value
+  if (modoLuz.value) orbitando.value = false
+  if (controls) { controls.autoRotate = orbitando.value; controls.enableRotate = !modoLuz.value }
+}
+function mueveLuz(e: PointerEvent) {
+  if (!modoLuz.value || !luzClave || !(e.buttons & 1)) return
+  const r = (e.currentTarget as HTMLElement).getBoundingClientRect()
+  const x = ((e.clientX - r.left) / r.width) * 2 - 1, y = 1 - ((e.clientY - r.top) / r.height) * 2
+  luzClave.position.set(x * 6, y * 6, 3)   // en el espacio de la cámara: la luz sale de donde está el dedo
+}
+
 function onWindowKeydown(e: KeyboardEvent) { if (e.key === 'Escape') onEscape() }
 
 onMounted(() => {
@@ -591,6 +644,34 @@ onBeforeUnmount(() => {
       <div v-if="loading" class="absolute inset-0 flex items-center justify-center text-[12px]" style="color:#aeb6c2">
         {{ L('reconstruyendo 3D…', 'rebuilding 3D…') }}
       </div>
+      <button
+        v-if="!loading && !failed"
+        type="button"
+        class="lv-reencuadre lv-boton-2"
+        :aria-pressed="modoLuz"
+        :aria-label="L('Mover la luz con el dedo', 'Move the light with your finger')"
+        :title="L('Luz', 'Light')"
+        @click="alternaLuz"
+      >
+        <svg viewBox="0 0 24 24" width="18" height="18" focusable="false" aria-hidden="true">
+          <circle cx="12" cy="12" r="4" fill="none" stroke="currentColor" stroke-width="2" />
+          <path d="M12 2v2.5M12 19.5V22M2 12h2.5M19.5 12H22M4.9 4.9l1.8 1.8M17.3 17.3l1.8 1.8M4.9 19.1l1.8-1.8M17.3 6.7l1.8-1.8" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+        </svg>
+      </button>
+      <button
+        v-if="!loading && !failed"
+        type="button"
+        class="lv-reencuadre lv-boton-3"
+        :aria-pressed="orbitando"
+        :aria-label="L('Girar solo', 'Auto-rotate')"
+        :title="L('Órbita', 'Orbit')"
+        @click="alternaOrbita"
+      >
+        <svg viewBox="0 0 24 24" width="18" height="18" focusable="false" aria-hidden="true">
+          <path v-if="!orbitando" d="M8 5.5v13l10-6.5z" fill="currentColor" />
+          <path v-else d="M8 5h3v14H8zM13 5h3v14h-3z" fill="currentColor" />
+        </svg>
+      </button>
       <button
         v-if="!loading && !failed"
         type="button"
@@ -779,6 +860,9 @@ onBeforeUnmount(() => {
 }
 .lv-reencuadre:hover { background: rgba(30, 37, 48, 0.92); border-color: rgba(174, 182, 194, 0.5); }
 .lv-reencuadre:focus-visible { outline: 2px solid #1c969e; outline-offset: 2px; }
+.lv-boton-2 { right: 62px; }
+.lv-boton-3 { right: 114px; }
+.lv-reencuadre[aria-pressed='true'] { color: #1c1126; background: rgba(217, 222, 230, 0.92); border-color: #d9dee6; }
 
 /* Tooltip por lesión: tokens del sistema (sección 3 de la spec), cero hex nuevo. Nunca más
    ancho que el visor menos 16 px de margen; envuelve, no desborda (2.3). Puramente visual

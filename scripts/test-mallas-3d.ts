@@ -23,10 +23,12 @@ function caja(ruta: string): Caja {
   const cab = b.subarray(0, fin).toString('latin1')
   if (!cab.includes('binary_little_endian')) throw new Error(`${ruta}: formato PLY no esperado`)
   const nv = Number(/element vertex (\d+)/.exec(cab)![1])
-  const nprop = cab.split('element face')[0]!.match(/property float \w+/g)!.length
+  // tamaño de cada vértice desde sus propiedades: con AO horneado llevan color (uchar) detrás
+  const TAM: Record<string, number> = { float: 4, float32: 4, uchar: 1, uint8: 1 }
+  const paso = [...cab.split('element face')[0]!.matchAll(/property (\w+) \w+/g)].reduce((s, m) => s + TAM[m[1]!]!, 0)
   const min = [Infinity, Infinity, Infinity], max = [-Infinity, -Infinity, -Infinity]
   for (let i = 0; i < nv; i++) for (let k = 0; k < 3; k++) {
-    const v = b.readFloatLE(fin + (i * nprop + k) * 4)
+    const v = b.readFloatLE(fin + i * paso + k * 4)
     if (v < min[k]!) min[k] = v
     if (v > max[k]!) max[k] = v
   }
