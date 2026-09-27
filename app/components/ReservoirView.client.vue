@@ -56,14 +56,27 @@ let enVista = true
 let radio = 60
 let grupo = new THREE.Group()
 
+/* Contexto en «rayos X» (render, 27-sep-26, el mismo recurso que la cápsula del hígado): el hueso
+   y la tráquea eran un gris plano al 28 %, y las costillas se confundían entre sí. Con fresnel,
+   lo que se ve de canto se enciende y lo que mira a cámara casi desaparece: se dibuja la silueta
+   de cada costilla y el catéter, opaco y coral, queda claro delante. */
+function rayosX(mat: THREE.Material, min: number, max: number, halo: number) {
+  mat.onBeforeCompile = (sh) => {
+    sh.fragmentShader = sh.fragmentShader.replace('#include <opaque_fragment>',
+      'float fr = pow(1.0 - abs(dot(normal, normalize(vViewPosition))), 2.2);\n'
+      + 'outgoingLight += vec3(0.86, 0.90, 0.96) * pow(fr, 2.5) * ' + halo.toFixed(2) + ';\n'
+      + 'diffuseColor.a = mix(' + min.toFixed(2) + ', ' + max.toFixed(2) + ', fr);\n#include <opaque_fragment>')
+  }
+  return mat
+}
 const MAT = {
   // medido e interpolado: la MISMA familia de color (coral, acción/énfasis del sitio) — lo que
   // los distingue es la FORMA del trazo (continuo/discontinuo), no el tono.
   medido: () => new THREE.MeshPhysicalMaterial({ color: 0xff6b47, roughness: 0.3, clearcoat: 0.85, clearcoatRoughness: 0.12 }),
   interpolado: () => new THREE.MeshPhysicalMaterial({ color: 0xff6b47, roughness: 0.3, clearcoat: 0.85, clearcoatRoughness: 0.12 }),
   portal: () => new THREE.MeshPhysicalMaterial({ color: 0xff6b47, roughness: 0.25, clearcoat: 0.9, clearcoatRoughness: 0.1 }),
-  hueso: () => new THREE.MeshPhysicalMaterial({ color: 0x9aa4b2, roughness: 0.9, transparent: true, opacity: 0.28, depthWrite: false }),
-  traquea: () => new THREE.MeshPhysicalMaterial({ color: 0x9aa4b2, roughness: 0.9, transparent: true, opacity: 0.22, depthWrite: false }),
+  hueso: () => rayosX(new THREE.MeshPhysicalMaterial({ color: 0x9aa4b2, roughness: 0.9, transparent: true, depthWrite: false }), 0.05, 0.55, 0.40),
+  traquea: () => rayosX(new THREE.MeshPhysicalMaterial({ color: 0x9aa4b2, roughness: 0.9, transparent: true, depthWrite: false }), 0.04, 0.42, 0.25),
 }
 
 async function geo(url: string) {

@@ -37,14 +37,13 @@
         <filter :id="pfx + 'BoneShadow'" x="-30%" y="-30%" width="160%" height="160%">
           <feDropShadow dx="0" dy="1.2" stdDeviation="3.2" flood-color="#000000" flood-opacity="0.45" />
         </filter>
-        <radialGradient :id="pfx + 'Panel'" cx="50%" cy="38%" r="80%">
-          <stop offset="0%" stop-color="#241733" /><stop offset="100%" stop-color="#160e20" />
-        </radialGradient>
         <linearGradient :id="pfx + 'Fundido'" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stop-color="#160e20" stop-opacity="0" /><stop offset="100%" stop-color="#160e20" stop-opacity="0.95" />
+          <stop offset="0%" stop-color="#1c1126" stop-opacity="0" /><stop offset="100%" stop-color="#1c1126" stop-opacity="0.95" />
         </linearGradient>
       </defs>
-      <rect x="0" y="0" :width="VB_W" :height="VB_VIS" rx="18" :fill="`url(#${pfx}Panel)`" />
+      <!-- fondo plano #1c1126, el mismo que los visores 3D (auditoría diseño, 27-sep-26: el
+           degradado radial era el único fondo distinto de los seis visores) -->
+      <rect x="0" y="0" :width="VB_W" :height="VB_VIS" rx="18" fill="#1c1126" />
       <!-- Esqueleto de REFERENCIA, de cuerpo entero, del atlas BodyParts3D (CC BY 4.0), hecho con
            tools/esqueleto_referencia.py en claudecode. Sustituye al de su TC (27-sep-2026): su TC
            va de la cabeza al muslo con los brazos en alto y no daba una figura completa. Lo que
