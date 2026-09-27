@@ -37,6 +37,7 @@ jobs:
       # del build para revisar también lo generado (.output/public), que es lo que se sirve.
       - run: pnpm test:citas-futuras
 
-      # Estos dos no necesitan el build; van detrás porque el checkout ya está listo.
+      # Estos no necesitan el build; van detrás porque el checkout ya está listo.
       - run: pnpm test:short-links
       - run: pnpm test:mapa-focos
+      - run: pnpm test:esqueleto-huesos

@@ -42,10 +42,10 @@
         </radialGradient>
       </defs>
       <rect x="0" y="0" :width="VB_W" :height="VB_H" rx="18" :fill="`url(#${pfx}Panel)`" />
-      <!-- SU esqueleto, de su TC de hueso del 26-may-2026 (tools/visor3d.py esqueleto).
-           Sustituye a los trazados que había aquí dibujados a mano. Lo que se ve es hueso suyo
-           salvo lo que el pie declara reconstruido: los tramos que el modelo no segmentó, las
-           costillas copiadas de su pareja y los agujeros interiores. -->
+      <!-- Esqueleto de REFERENCIA, de cuerpo entero, del atlas BodyParts3D (CC BY 4.0), hecho con
+           tools/esqueleto_referencia.py en claudecode. Sustituye al de su TC (27-sep-2026): su TC
+           va de la cabeza al muslo con los brazos en alto y no daba una figura completa. Lo que
+           es suyo son los focos, colocados en el centroide del hueso que nombra el informe. -->
       <image href="/esqueleto/esqueleto-anterior.png" x="0" y="0" :width="VB_W" :height="VB_H"
         preserveAspectRatio="xMidYMid meet" :aria-hidden="true" />
       <g font-family="JetBrains Mono, monospace" font-size="9" fill="#aeb6c2" font-weight="600">
@@ -100,7 +100,10 @@
         {{ L('Color = trazador · insignia = nº de focos en esa vértebra · contorno punteado = detectado por IA (por confirmar).', 'Color = tracer · badge = nº of foci in that vertebra · dashed outline = AI-detected (to confirm).') }}
       </p>
       <p class="mt-1 text-[10.5px] text-tinta leading-snug">
-        {{ L('El esqueleto es el suyo, segmentado de su TC de hueso. Donde el TC no llegó está reconstruido: algún tramo de columna, cuatro costillas copiadas de su pareja y los huecos interiores. El nivel vertebral de cada foco es el del informe; su altura en el dibujo, estimada.', 'The skeleton is her own, segmented from her bone CT. Where the CT fell short it is reconstructed: a stretch of spine, four ribs copied from their pair, and interior gaps. Each focus’s vertebral level is the one in the report; its height in the drawing is estimated.') }}
+        {{ L('El dibujo es un esqueleto de referencia de cuerpo entero: su TC llega de la cabeza al muslo y se hace con los brazos en alto, así que de él no sale una figura completa. Lo suyo son los focos. Cada uno va en el hueso que nombra el informe; su altura dentro del hueso es estimada.', 'The drawing is a full-body reference skeleton: her CT runs from head to thigh with the arms raised, so it cannot give a complete figure. The foci are hers. Each sits on the bone named in the report; its height within the bone is estimated.') }}
+      </p>
+      <p class="mt-1 text-[9.5px] text-tinta/80 leading-snug">
+        {{ ESQ.fuente }}
       </p>
     </div>
   </div>

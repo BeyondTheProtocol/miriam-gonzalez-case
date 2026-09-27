@@ -1,8 +1,10 @@
 /**
- * De qué hueso habla cada foco del informe, para colocarlo sobre el esqueleto REAL.
+ * De qué hueso habla cada foco del informe, para colocarlo sobre el esqueleto.
  *
  * Antes cada foco llevaba una x/y escrita a mano sobre un esqueleto dibujado. Ahora la
- * posición sale del centroide de su propio hueso, segmentado de su TC. Esta tabla es el único
+ * posición sale del centroide de su hueso en el esqueleto de referencia (BodyParts3D, con
+ * tools/esqueleto_referencia.py en claudecode; hasta el 27-sep-2026, de su TC, que no llegaba
+ * a los pies). El hueso es el del informe; el dibujo no es suyo. Esta tabla es el único
  * sitio donde se dice qué hueso nombra cada foco, y sale del campo `level` del mapa de
  * metástasis. Literal en 17 de 19. Los otros dos son los de la IA de David, fuera del informe
  * oficial, y aquí SÍ hay interpretación:
@@ -13,7 +15,8 @@
  *   · 19 «C7–D2» va a D1 por ser el punto medio del tramo, y su desplazamiento es solo para no
  *     tapar al foco 4, no un lado.
  *
- * Los nombres son los de TotalSegmentator, que es lo que produce `tools/visor3d.py esqueleto`.
+ * Los nombres son los de TotalSegmentator: el mismo contrato que `tools/visor3d.py esqueleto`
+ * y `tools/esqueleto_referencia.py`.
  */
 export const HUESO_DE_FOCO: Record<number, string> = {
   1: 'vertebrae_C3',    // C3 · apófisis espinosa
