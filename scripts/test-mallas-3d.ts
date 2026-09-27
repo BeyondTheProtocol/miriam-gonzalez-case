@@ -7,9 +7,8 @@
 // malla exportada en otro marco (sin centrar, sin rotar a los ejes de three) falla.
 //
 //   hígado      → las lesiones de escena.json, dentro de higado.ply
-//   mama        → tumor y vasos, dentro de mama.ply. El tejido fibroglandular NO: la envoltura
-//                 está cortada en plano por la pared torácica y el tejido sigue 22 mm más allá
-//                 (medido el 27-sep; no es un marco distinto). Pendiente en la pasada visual.
+//   mama        → tumor, tejido fibroglandular y vasos, dentro de mama.ply. El tejido se
+//                 recortó al plano de la pared torácica de la envoltura el 27-sep (sobresalía 22 mm).
 //   reservorio  → portal, catéter medido e interpolado y tráquea, dentro del hueso de su fecha
 //
 // Uso:  pnpm test:mallas-3d
@@ -50,7 +49,7 @@ for (const les of JSON.parse(readFileSync(H + 'escena.json', 'utf-8')).lesiones 
   dentro(H + les.malla, H + 'higado.ply')
 
 const M = 'public/lesiones/mama/'
-for (const f of ['tumor.ply', 'vasos.ply']) if (existsSync(M + f)) dentro(M + f, M + 'mama.ply')
+for (const f of ['tumor.ply', 'fgt.ply', 'vasos.ply']) if (existsSync(M + f)) dentro(M + f, M + 'mama.ply')
 
 const R = 'public/reservorio/'
 for (const fecha of readdirSync(R).filter((d) => existsSync(R + d + '/hueso.ply')))
