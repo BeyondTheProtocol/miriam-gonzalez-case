@@ -16,7 +16,7 @@
     <!-- (a11y) el conjunto de marcadores es un LISTBOX de focos: role=listbox + cada marcador
          role=option + roving tabindex (solo el seleccionado entra en el orden de tabulación; las
          flechas mueven la selección Y el foco del DOM). aria-activedescendant apunta al activo. -->
-    <svg :viewBox="`0 0 ${VB_W} ${VB_H}`" class="w-full" role="listbox"
+    <svg :viewBox="`0 0 ${VB_W} ${VB_VIS}`" class="w-full" role="listbox"
       :aria-label="ariaLabel ?? L('Esquema del esqueleto con las lesiones (flechas para recorrer)', 'Skeleton schematic with the lesions (arrows to step)')"
       :aria-activedescendant="idPrefix + selected"
       :aria-describedby="describedby"
@@ -40,15 +40,20 @@
         <radialGradient :id="pfx + 'Panel'" cx="50%" cy="38%" r="80%">
           <stop offset="0%" stop-color="#241733" /><stop offset="100%" stop-color="#160e20" />
         </radialGradient>
+        <linearGradient :id="pfx + 'Fundido'" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#160e20" stop-opacity="0" /><stop offset="100%" stop-color="#160e20" stop-opacity="0.95" />
+        </linearGradient>
       </defs>
-      <rect x="0" y="0" :width="VB_W" :height="VB_H" rx="18" :fill="`url(#${pfx}Panel)`" />
+      <rect x="0" y="0" :width="VB_W" :height="VB_VIS" rx="18" :fill="`url(#${pfx}Panel)`" />
       <!-- Esqueleto de REFERENCIA, de cuerpo entero, del atlas BodyParts3D (CC BY 4.0), hecho con
            tools/esqueleto_referencia.py en claudecode. Sustituye al de su TC (27-sep-2026): su TC
            va de la cabeza al muslo con los brazos en alto y no daba una figura completa. Lo que
            es suyo son los focos, colocados en el centroide del hueso que nombra el informe. -->
       <image href="/esqueleto/esqueleto-anterior.png" x="0" y="0" :width="VB_W" :height="VB_H"
         preserveAspectRatio="xMidYMid meet" :aria-hidden="true" />
-      <g font-family="JetBrains Mono, monospace" font-size="9" fill="#aeb6c2" font-weight="600">
+      <!-- contorno oscuro: con el esqueleto entero las etiquetas T12, L1, L5 y S caen sobre el brazo
+           izquierdo y sin él no se leían -->
+      <g font-family="JetBrains Mono, monospace" font-size="9" fill="#aeb6c2" font-weight="600" stroke="#1c1126" stroke-width="3" paint-order="stroke" stroke-linejoin="round">
         <text v-for="tk in ticksUsados" :key="tk.t" x="362" :y="(tk.ty ?? tk.y) + 3" text-anchor="start">{{ tk.t }}</text>
         <!-- la marca va en la altura REAL y el texto donde se lea; el codo une las dos -->
         <path v-for="tk in ticksUsados" :key="'l' + tk.t"
@@ -89,7 +94,13 @@
             font-family="Source Sans 3, sans-serif" font-size="9" font-weight="700" fill="#1c1126">{{ g.foci.length }}</text>
         </g>
       </g>
+      <!-- recortado en las rodillas: un degradado al fondo del panel dice «sigue», no «se acaba» -->
+      <rect v-if="!entero" x="0" :y="VB_VIS - 70" :width="VB_W" height="70" :fill="`url(#${pfx}Fundido)`" pointer-events="none" />
     </svg>
+    <button type="button" class="mt-1.5 w-full text-[12px] font-semibold text-berenjena underline underline-offset-2 min-h-[44px]"
+      :aria-expanded="entero" @click="entero = !entero">
+      {{ entero ? L('Ver hasta las rodillas', 'Show down to the knees') : L('Ver el cuerpo entero', 'Show the whole body') }}
+    </button>
     <div class="mt-3 px-1">
       <div class="h-2.5 rounded-full" :style="{ background: PHENO_RAMP_CSS }" />
       <div class="flex justify-between text-[10px] text-tinta mt-1">
@@ -146,6 +157,13 @@ const VB_W = 440
    6 deja ver el hueso alrededor. La diana táctil va aparte (`hit`), y no baja de 44 px. */
 const R = 6
 const VB_H = Math.round(VB_W * ESQ.tamano[1] / ESQ.tamano[0])
+/* Por defecto, de la cabeza a las rodillas (Miriam, 27-sep-26, elegido entre tres opciones): la
+   figura entera medía 777 px en un móvil de 812 y tapaba la lectura de la página. Las rótulas
+   caen al 74 % de la altura de la imagen (medido con la misma proyección que la genera) y todos
+   los focos, por encima del fémur proximal. El botón despliega el cuerpo entero. */
+const CORTE_RODILLAS = 0.76
+const entero = ref(false)
+const VB_VIS = computed(() => (entero.value ? VB_H : Math.round(VB_H * CORTE_RODILLAS)))
 
 type UV = { u: number; v: number }
 const HUESOS = ESQ.huesos as Record<string, UV>
