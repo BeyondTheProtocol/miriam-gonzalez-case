@@ -127,6 +127,29 @@ def ao(V, n, occ, lo, rng):
     return PISO + (1 - PISO) * libre.mean(1) ** 2
 
 
+GROSOR_MAX = 55.0  # mm: a partir de aquí el tejido ya no deja pasar luz (translucidez = 0)
+
+
+def delgadez(V, F, lo_h, occ_h):
+    """Grosor del hígado bajo cada vértice de la cápsula, medido hacia dentro por su normal, y
+    devuelto como «delgadez» 0-1 (1 = borde fino, por donde pasa la luz). Es el mapa de grosor
+    de la translucidez barata (Barré-Brisebois, GDC 2011): el visor lo usa para que los bordes
+    finos del hígado brillen cálidos y lo grueso quede más opaco."""
+    n = hacia_fuera(V, normales(V, F), occ_h, lo_h)
+    d = np.full(len(V), GROSOR_MAX)
+    fuera_ya = np.zeros(len(V), bool)
+    for s in np.arange(1.0, GROSOR_MAX, VOX * 0.9):
+        p = V - n * s
+        idx = np.floor((p - lo_h) / VOX).astype(int)
+        dentro = np.all((idx >= 0) & (idx < occ_h.shape), axis=1)
+        idx = np.where(dentro[:, None], idx, 0)
+        solido = dentro & occ_h[idx[:, 0], idx[:, 1], idx[:, 2]]
+        sale = ~solido & ~fuera_ya & (s > 2.0)
+        d[sale] = s
+        fuera_ya |= sale
+    return np.clip(1 - d / GROSOR_MAX, 0, 1)
+
+
 def main(carpeta):
     esc = json.load(open(os.path.join(carpeta, "escena.json"), encoding="utf-8"))
     nombres = [esc["mallas"][k] for k in ("porta", "vasos", "vci", "vesicula") if esc["mallas"].get(k)]
@@ -141,6 +164,15 @@ def main(carpeta):
         g = ao(V, normales(V, F), occ, lo, rng)
         escribe(os.path.join(carpeta, f), V, F, g)
         print("%-14s %6d vértices · AO media %.2f · mín %.2f" % (f, len(V), g.mean(), g.min()))
+    # la cápsula: su propio sólido, y en el color va la delgadez (no AO)
+    fh = esc["mallas"]["higado"]
+    Vh, Fh = lee(os.path.join(carpeta, fh))
+    lo_h = Vh.min(0) - 4 * VOX
+    forma_h = tuple(np.ceil((Vh.max(0) + 4 * VOX - lo_h) / VOX).astype(int))
+    occ_h = voxeliza([(Vh, Fh)], lo_h, forma_h)
+    t = delgadez(Vh, Fh, lo_h, occ_h)
+    escribe(os.path.join(carpeta, fh), Vh, Fh, t)
+    print("%-14s %6d vértices · delgadez media %.2f · máx %.2f" % (fh, len(Vh), t.mean(), t.max()))
 
 
 if __name__ == "__main__":

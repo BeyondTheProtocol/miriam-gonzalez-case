@@ -193,10 +193,32 @@ function fresnel(mat: THREE.Material, min: number, max: number, pot: number) {
   }
   return mat
 }
-const higadoMat = (lado: THREE.Side) => fresnel(new THREE.MeshPhysicalMaterial({
-  color: 0x9a3f2c, roughness: 0.38, clearcoat: 0.8, clearcoatRoughness: 0.22,
-  sheen: 0.5, sheenRoughness: 0.5, sheenColor: new THREE.Color(0xe39a86),
-  transparent: true, depthWrite: false, side: lado }), 0.10, 0.92, 2.4)
+/* CÁPSULA DEL HÍGADO: translucidez por grosor + borde «rayos X» (investigación de render,
+   27-sep-26). higado.ply trae en el color de vértice su DELGADEZ (scripts/hornea-ao.py): 1 en
+   los bordes finos, 0 donde el tejido supera 55 mm. Ahí donde es fino la luz «atraviesa» y brilla
+   cálido, como un órgano a contraluz (translucidez barata de Barré-Brisebois, GDC 2011); lo
+   grueso queda más apagado. El borde se enciende con el fresnel (efecto X-Ray de Codrops) y el
+   centro deja ver vasos y lesiones. El color de vértice NO tiñe la cápsula: solo se lee. */
+const higadoMat = (lado: THREE.Side) => {
+  const mat = new THREE.MeshPhysicalMaterial({
+    color: 0x9a3f2c, roughness: 0.38, clearcoat: 0.8, clearcoatRoughness: 0.22,
+    sheen: 0.5, sheenRoughness: 0.5, sheenColor: new THREE.Color(0xe39a86),
+    vertexColors: true, transparent: true, depthWrite: false, side: lado })
+  mat.onBeforeCompile = (sh) => {
+    sh.fragmentShader = sh.fragmentShader
+      .replace('#include <color_fragment>', '')   // la delgadez no es un color: no multiplica
+      .replace('#include <opaque_fragment>',
+        'float fr = pow(1.0 - abs(dot(normal, normalize(vViewPosition))), 2.4);\n'
+        + 'float delg = vColor.r;\n'
+        // translucidez: luz cálida que sale por lo fino, algo más en el borde
+        + 'outgoingLight += vec3(1.0, 0.52, 0.40) * delg * (0.50 + 0.60 * fr);\n'
+        // borde rayos X: un halo claro, fino, que dibuja la silueta del órgano
+        + 'outgoingLight += vec3(1.0, 0.80, 0.72) * pow(fr, 3.0) * 0.60;\n'
+        + 'diffuseColor.a = mix(0.08, 0.92, fr) + 0.18 * delg;\n'
+        + '#include <opaque_fragment>')
+  }
+  return mat
+}
 /* AO: vasos, vesícula y lesiones traen la oclusión ambiental horneada como color gris de vértice
    (scripts/hornea-ao.py). `vertexColors` la multiplica por el color: los cruces de vasos y lo que
    queda detrás se oscurecen y se lee qué va delante de qué. Solo en las mallas que la llevan: a una
