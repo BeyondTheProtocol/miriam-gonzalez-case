@@ -40,5 +40,5 @@ jobs:
       # Estos no necesitan el build; van detrás porque el checkout ya está listo.
       - run: pnpm test:short-links
       - run: pnpm test:mapa-focos
-      - run: pnpm test:higado-mallas
+      - run: pnpm test:mallas-3d
       - run: pnpm test:esqueleto-huesos
