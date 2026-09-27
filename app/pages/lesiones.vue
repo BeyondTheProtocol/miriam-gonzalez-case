@@ -152,6 +152,9 @@ const biopsia = computed(() =>
         <!-- ===== CIERRE · el reservorio no es enfermedad, es infraestructura del tratamiento:
              eje propio, página propia. Solo el enlace, aquí. ===== -->
         <section class="mt-2 pt-6" style="border-top:1px solid rgba(45,27,61,0.1)">
+          <NuxtLink :to="localePath('datos')" class="flex items-center min-h-[44px] font-semibold text-berenjena underline underline-offset-4">
+            {{ L('El caso en datos: analíticas desde 2021, tratamientos y tejido disponible', 'The case in data: labs since 2021, treatments and available tissue') }} →
+          </NuxtLink>
           <NuxtLink :to="localePath('reservorio')" class="inline-flex items-center min-h-[44px] font-semibold text-berenjena underline underline-offset-4">
             {{ L('El catéter del reservorio, en 3D: medido en tres TC separados por meses', 'The reservoir catheter, in 3D: measured across three CT scans, months apart') }} →
           </NuxtLink>

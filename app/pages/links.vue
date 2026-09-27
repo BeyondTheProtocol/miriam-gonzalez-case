@@ -157,6 +157,13 @@ const featured = computed<BioLink[]>(() => [
     to: localePath('lesiones'),
   },
   {
+    id: 'datos',
+    title: 'links.datos_title',
+    sub: 'links.datos_sub',
+    icon: 'ph:chart-line-fill',
+    to: localePath('datos'),
+  },
+  {
     id: 'podcast',
     title: 'links.podcast_title',
     sub: 'links.podcast_sub',

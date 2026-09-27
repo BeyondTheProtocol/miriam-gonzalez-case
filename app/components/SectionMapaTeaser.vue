@@ -48,6 +48,14 @@
           <p class="mt-3 font-mono text-[11px] text-tinta">{{ $t('mapaTeaser.disclaimer') }}</p>
         </div>
       </NuxtLink>
+      <!-- Acceso a /datos (27-sep-2026): era una página sin ningún enlace de entrada. Fuera de la
+           tarjeta porque la tarjeta entera ya es un enlace y no se anidan. -->
+      <NuxtLink
+        :to="localePath('datos')"
+        class="inline-flex items-center min-h-[44px] mt-4 font-semibold text-berenjena underline underline-offset-4"
+      >
+        {{ $t('mapaTeaser.datos') }} →
+      </NuxtLink>
     </div>
   </section>
 </template>
