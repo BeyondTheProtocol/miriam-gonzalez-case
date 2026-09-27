@@ -137,7 +137,8 @@
     "lede": "The measurements from her reports, the liver in 3D to rotate, and the bone lesions, on a single page. Built to share with your medical team.",
     "scope": "Breast · Liver · Bone",
     "cta": "See the lesions",
-    "disclaimer": "Decision support, not diagnosis."
+    "disclaimer": "Decision support, not diagnosis.",
+    "datos": "The case in data: labs since 2021, treatments and available tissue"
   },
   "glossary": {
     "hint": "Tap or hover the highlighted words and markers to see what they mean."
@@ -1109,6 +1110,8 @@
     "caso_sub": "The full story on helpmiriam.com",
     "lesiones_title": "My lesions in 3D",
     "lesiones_sub": "Liver and breast, rotatable: what the report measures and what the AI detects",
+    "datos_title": "The case in data",
+    "datos_sub": "Labs since 2021, treatments and tissue, every number with its source",
     "podcast_title": "My case on Roca Project",
     "podcast_sub": "Episode 100, with Carlos Roca: the diagnosis, family and fear"
   }
