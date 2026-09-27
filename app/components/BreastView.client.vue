@@ -40,6 +40,7 @@ const failed = ref(false)
 const rotulos = ref<{ texto: string; x: number; y: number; r: number; tx: number; ty: number; visible: boolean }[]>([])
 const hayVasos = ref(false)
 
+let sueltaRueda: () => void = () => {}
 let renderer: THREE.WebGLRenderer | null = null
 let camera: THREE.PerspectiveCamera
 let controls: OrbitControls
@@ -187,6 +188,8 @@ async function init() {
   scene.add(camera)
 
   controls = new OrbitControls(camera, renderer.domElement)
+  // la rueda sola hace scroll de la página; Ctrl/⌘ + rueda (o pellizco) acerca (ver useAlVer.ts)
+  sueltaRueda = ruedaConModificador(renderer.domElement.parentElement!, () => L('Ctrl o ⌘ + rueda para acercar', 'Ctrl or ⌘ + scroll to zoom'))
   controls.enableDamping = true; controls.dampingFactor = 0.08; controls.enablePan = false
   controls.rotateSpeed = 0.9
   controls.autoRotate = !reduce; controls.autoRotateSpeed = 1.6
@@ -250,6 +253,7 @@ onMounted(() => {
   arranca()
 })
 onBeforeUnmount(() => {
+  sueltaRueda()
   sueltaCarga(); cancelAnimationFrame(raf); ro?.disconnect(); io?.disconnect()
   scene?.traverse((o) => {
     const m = o as THREE.Mesh
@@ -294,7 +298,7 @@ onBeforeUnmount(() => {
       </button>
     </div>
     <p v-if="!failed" class="text-[11px] text-tinta mt-1.5">
-      {{ L('Arrastra para girar · rueda para acercar', 'Drag to rotate · scroll to zoom') }}
+      {{ L('Arrastra para girar · Ctrl o ⌘ + rueda para acercar', 'Drag to rotate · Ctrl or ⌘ + scroll to zoom') }}
     </p>
     <ul v-if="!loading && !failed" class="mt-2 space-y-1 text-[11px] text-tinta">
       <li class="flex items-start gap-1.5">

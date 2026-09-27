@@ -42,6 +42,7 @@ const fechaActual = ref('')
 // RAS (mm) → ejes de three, igual que LiverView/BreastView.
 const RAS_A_THREE = new THREE.Matrix4().set(-1, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 1)
 
+let sueltaRueda: () => void = () => {}
 let renderer: THREE.WebGLRenderer | null = null
 let camera: THREE.PerspectiveCamera
 let controls: OrbitControls
@@ -167,6 +168,8 @@ async function init() {
   luz(0xfff0dc, 1.6, 2.5, 3, 4); luz(0xb8c8ff, 0.5, -4, 0.5, 2)
   scene.add(camera)
   controls = new OrbitControls(camera, renderer.domElement)
+  // la rueda sola hace scroll de la página; Ctrl/⌘ + rueda (o pellizco) acerca (ver useAlVer.ts)
+  sueltaRueda = ruedaConModificador(renderer.domElement.parentElement!, () => L('Ctrl o ⌘ + rueda para acercar', 'Ctrl or ⌘ + scroll to zoom'))
   controls.enableDamping = true; controls.dampingFactor = 0.12
   controls.minPolarAngle = 0.15; controls.maxPolarAngle = Math.PI - 0.15
 
@@ -203,6 +206,7 @@ onMounted(() => {
   arranca()
 })
 onBeforeUnmount(() => {
+  sueltaRueda()
   sueltaCarga(); cancelAnimationFrame(raf); ro?.disconnect(); io?.disconnect()
   host.value?.removeEventListener('keydown', onKeydown)
   limpiaGrupo()
@@ -254,7 +258,7 @@ function fechaLegible(f: string) {
       </button>
     </div>
     <p v-if="!failed" class="text-[11px] text-tinta mt-1.5">
-      {{ L('Arrastra o usa las flechas del teclado para girar · rueda para acercar', 'Drag or use the arrow keys to rotate · scroll to zoom') }}
+      {{ L('Arrastra o usa las flechas del teclado para girar · Ctrl o ⌘ + rueda para acercar', 'Drag or use the arrow keys to rotate · Ctrl or ⌘ + scroll to zoom') }}
     </p>
 
     <!-- selector de fecha: 3 TC separados por meses, la misma reconstrucción cada vez -->
