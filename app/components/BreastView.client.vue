@@ -77,17 +77,36 @@ const tejidoMat = (lado: THREE.Side) => fresnel(new THREE.MeshPhysicalMaterial({
 // Lo que se cuida no es taparla, es que se lea como una reconstrucción médica y no como una
 // fotografía: mate, sin brillo especular de piel, y traslúcida para que el tumor de dentro no
 // quede escondido detrás de ella.
-const envolturaMat = (lado: THREE.Side) => fresnel(new THREE.MeshPhysicalMaterial({
-  color: 0xdccfc0, roughness: 0.78, clearcoat: 0.1, clearcoatRoughness: 0.7,
-  transparent: true, depthWrite: false, side: lado }), 0.11, 0.62, 2.0)
+// Translucidez por grosor + halo (render, 27-sep-26, igual que la cápsula del hígado): mama.ply
+// trae su DELGADEZ en el color de vértice (scripts/hornea-ao.py). Donde el tejido es fino, un
+// brillo pergamino suave, nunca tono piel; la silueta, con un halo fino. El color de vértice solo
+// se lee, no tiñe.
+const envolturaMat = (lado: THREE.Side) => {
+  const mat = new THREE.MeshPhysicalMaterial({
+    color: 0xdccfc0, roughness: 0.78, clearcoat: 0.1, clearcoatRoughness: 0.7,
+    vertexColors: true, transparent: true, depthWrite: false, side: lado })
+  mat.onBeforeCompile = (sh) => {
+    sh.fragmentShader = sh.fragmentShader
+      .replace('#include <color_fragment>', '')
+      .replace('#include <opaque_fragment>',
+        'float fr = pow(1.0 - abs(dot(normal, normalize(vViewPosition))), 2.0);\n'
+        + 'float delg = vColor.r;\n'
+        + 'outgoingLight += vec3(1.0, 0.93, 0.82) * delg * (0.30 + 0.40 * fr);\n'
+        + 'outgoingLight += vec3(1.0, 0.96, 0.90) * pow(fr, 3.0) * 0.45;\n'
+        + 'diffuseColor.a = mix(0.11, 0.62, fr) + 0.10 * delg;\n'
+        + '#include <opaque_fragment>')
+  }
+  return mat
+}
 // Los vasos de la mama, en el mismo azul que los del hígado: una sola gramática de color en
 // toda la página. Salen del mismo realce que el tumor y son justo lo que estorbaba al buscarlo
 // (finos y brillantísimos); aquí dejan de ser ruido y pasan a ser anatomía.
 const vasoMat = () => new THREE.MeshPhysicalMaterial({
   color: 0x2d63d6, roughness: 0.28, clearcoat: 0.9, clearcoatRoughness: 0.15 })
 // El mismo dorado brillante de las lesiones del hígado: una sola gramática de color en la página.
+// vertexColors: el tumor trae su oclusión ambiental horneada (scripts/hornea-ao.py)
 const lesionMat = () => new THREE.MeshPhysicalMaterial({
-  color: 0xf2b23c, roughness: 0.3, clearcoat: 0.85, clearcoatRoughness: 0.1,
+  vertexColors: true, color: 0xf2b23c, roughness: 0.3, clearcoat: 0.85, clearcoatRoughness: 0.1,
   emissive: 0x7a4a08, emissiveIntensity: 0.35 })
 
 /* RAS (mm) → ejes de three, igual que en el hígado: x = izquierda del paciente a la derecha de
