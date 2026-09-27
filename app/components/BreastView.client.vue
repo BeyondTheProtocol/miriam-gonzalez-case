@@ -47,6 +47,7 @@ let scene: THREE.Scene
 let pmrem: THREE.PMREMGenerator | null = null
 let ro: ResizeObserver | null = null
 let io: IntersectionObserver | null = null
+let sueltaCarga: () => void = () => {}
 let raf = 0
 let enVista = true
 let radio = 100
@@ -222,12 +223,15 @@ onMounted(() => {
       if (intentos++ < 30) { requestAnimationFrame(arranca); return }
       console.error('[BreastView] host nunca disponible'); failed.value = true; loading.value = false; return
     }
-    init().catch((e) => { console.error('[BreastView]', e); failed.value = true; loading.value = false })
+    // las mallas se piden al acercarse a la pantalla, no al montar (ver cargaCercana en useAlVer.ts)
+    sueltaCarga = cargaCercana(host.value, () => {
+      init().catch((e) => { console.error('[BreastView]', e); failed.value = true; loading.value = false })
+    })
   }
   arranca()
 })
 onBeforeUnmount(() => {
-  cancelAnimationFrame(raf); ro?.disconnect(); io?.disconnect()
+  sueltaCarga(); cancelAnimationFrame(raf); ro?.disconnect(); io?.disconnect()
   scene?.traverse((o) => {
     const m = o as THREE.Mesh
     if (m.isMesh) { m.geometry.dispose(); (m.material as THREE.Material).dispose() }

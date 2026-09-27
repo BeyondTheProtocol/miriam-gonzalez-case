@@ -48,3 +48,26 @@ export function tween(ms: number, cb: (f: number) => void) {
   }
   requestAnimationFrame(paso)
 }
+
+/**
+ * Arranca algo UNA vez, cuando el elemento se acerca a la pantalla.
+ *
+ * Los visores 3D pausaban el render fuera de pantalla, pero descargaban sus mallas al montarse:
+ * abrir /lesiones en el móvil bajaba ~6,4 MB de PLY (mama + hígado) aunque solo se viera la
+ * cabecera (auditoría del comité de diseño, 27-sep-2026). Con esto cada visor pide sus mallas
+ * cuando le faltan `margen` px (150) para entrar en pantalla. Con 600 el hígado ya contaba como «cerca»
+ * al abrir la página en un móvil de 812 px (medido en Chrome headless) y no se ahorraba nada.
+ * Sin IntersectionObserver (navegador viejo), arranca en el acto: nunca se queda sin cargar.
+ */
+export function cargaCercana(el: Element, arranca: () => void, margen = '150px'): () => void {
+  if (typeof IntersectionObserver === 'undefined') { arranca(); return () => {} }
+  let hecho = false
+  const io = new IntersectionObserver((entradas) => {
+    if (hecho || !entradas.some((e) => e.isIntersecting)) return
+    hecho = true
+    io.disconnect()
+    arranca()
+  }, { rootMargin: `${margen} 0px` })
+  io.observe(el)
+  return () => io.disconnect()
+}
