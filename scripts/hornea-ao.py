@@ -13,7 +13,7 @@ posiciones no se tocan**: las lesiones siguen donde estaban y test:mallas-3d lo 
 La cápsula del hígado no se hornea (es la carcasa translúcida; si ocluyera, todo lo de dentro
 saldría negro) ni ocluye.
 
-Uso (numpy + scipy):  python3 scripts/hornea-ao.py public/lesiones/higado
+Uso (numpy + scipy):  python3 scripts/hornea-ao.py public/lesiones/higado   (o .../mama)
 Idempotente: si el PLY ya lleva color, se recalcula desde la geometría y se reescribe.
 """
 import json
@@ -152,6 +152,8 @@ def delgadez(V, F, lo_h, occ_h):
 
 def main(carpeta):
     esc = json.load(open(os.path.join(carpeta, "escena.json"), encoding="utf-8"))
+    # opacas: todo lo que va dentro de la cápsula y no es tejido difuso (el fibroglandular de la
+    # mama es una nube translúcida: ni se hornea ni ocluye)
     nombres = [esc["mallas"][k] for k in ("porta", "vasos", "vci", "vesicula") if esc["mallas"].get(k)]
     nombres += [L["malla"] for L in esc["lesiones"]]
     piezas = {f: lee(os.path.join(carpeta, f)) for f in nombres}
@@ -165,7 +167,7 @@ def main(carpeta):
         escribe(os.path.join(carpeta, f), V, F, g)
         print("%-14s %6d vértices · AO media %.2f · mín %.2f" % (f, len(V), g.mean(), g.min()))
     # la cápsula: su propio sólido, y en el color va la delgadez (no AO)
-    fh = esc["mallas"]["higado"]
+    fh = esc["mallas"].get("higado") or esc["mallas"].get("mama")   # la cápsula de cada órgano
     Vh, Fh = lee(os.path.join(carpeta, fh))
     lo_h = Vh.min(0) - 4 * VOX
     forma_h = tuple(np.ceil((Vh.max(0) + 4 * VOX - lo_h) / VOX).astype(int))
