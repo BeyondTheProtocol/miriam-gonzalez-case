@@ -41,7 +41,7 @@ const sel = computed(() => LES.find((l) => l.id === selected.value) ?? LES[0])
 const meshKey = computed(() => BONE3D_KEY[sel.value.id])
 /* biopsia previa en el hueso en pantalla (hecho del caso, igual que en el mapa) */
 const biopsia = computed(() =>
-  LES.some((l) => BONE3D_KEY[l.id] === meshKey.value && l.priorBiopsy) ? '26B585' : null)
+  LES.some((l) => BONE3D_KEY[l.id] === meshKey.value && l.priorBiopsy) ? 'biopsia-previa' : null)
 </script>
 
 <template>
