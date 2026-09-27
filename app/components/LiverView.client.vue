@@ -156,7 +156,7 @@ let esTactil = false
 const host = ref<HTMLDivElement | null>(null)
 const loading = ref(true)
 const failed = ref(false)
-const rotulos = ref<{ texto: string; x: number; y: number; r: number; tx: number; ty: number; visible: boolean }[]>([])
+const rotulos = ref<{ texto: string; x: number; y: number; r: number; tx: number; ty: number; medio: number; visible: boolean }[]>([])
 const cuenta = ref({ dianas: 0, medibles: 0, pequenas: 0 })
 const cuentaMarcas = ref(0)   // 35 marcas «solo radiólogo» — sale de escena.json, no escrito a mano
 /* PET: cuántas lesiones caen en cada estado. NUNCA existe el estado «PET negativo» — con vóxel
@@ -305,9 +305,19 @@ function actualizaRotulos() {
     // ≈ 7,3 px por carácter + 12 px de relleno)
     const medio = (D.texto.length * 7.3 + 12) / 2 + 6
     const tx = Math.min(Math.max(x, medio), w - medio)
-    const ty = Math.max(y - r - 6, 26)
-    return { texto: D.texto, x, y, r, tx, ty, visible: p3.z < 1 }
+    // encima del anillo; si arriba no cabe, debajo. Antes se clavaba al borde superior y, con
+    // la diana fuera de cuadro, los dos rótulos quedaban arriba pisándose (Miriam, móvil, 27-sep-26)
+    const ty = y - r - 6 >= 26 ? y - r - 6 : Math.min(y + r + 22, h - 8)
+    // solo se rotula lo que se ve: con la diana fuera del visor, su rótulo no apunta a nada
+    const enCuadro = p3.z < 1 && x >= 0 && x <= w && y >= 0 && y <= h
+    return { texto: D.texto, x, y, r, tx, ty, medio, visible: enCuadro }
   })
+  // dos rótulos que se pisan: el de abajo baja lo justo para leerse (22 px ≈ una línea)
+  const vis = rotulos.value.filter((R) => R.visible).sort((a, b) => a.ty - b.ty)
+  for (let i = 1; i < vis.length; i++) {
+    const a = vis[i - 1]!, b = vis[i]!
+    if (Math.abs(a.tx - b.tx) < a.medio + b.medio && b.ty - a.ty < 22) b.ty = a.ty + 22
+  }
 }
 
 /* centro en mundo de una entrada: las lesiones usan el centro de su esfera envolvente (igual

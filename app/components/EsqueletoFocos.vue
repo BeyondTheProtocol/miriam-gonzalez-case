@@ -67,12 +67,12 @@
              el foco seleccionado se perdía justo en L1, L5, sacro, ilíacos y fémur. Un trazo
              oscuro por fuera y uno claro por dentro se ven sobre CUALQUIER fondo, como la
              línea de un mapa. Solo aparece al seleccionar, así que no ensucia el resto. -->
-        <circle v-if="esSel(g)" :cx="p.x" :cy="p.y" :r="SK_R + 4.6"
+        <circle v-if="esSel(g)" :cx="p.x" :cy="p.y" :r="R + 4.6"
           fill="none" stroke="#120b1a" stroke-width="3" aria-hidden="true" />
         <circle
           :id="idPrefix + g.primary.id"
           :cx="p.x" :cy="p.y"
-          :r="SK_R + (esSel(g) ? 2.5 : 0)"
+          :r="R + (esSel(g) ? 2.5 : 0)"
           :fill="PHENO[g.primary.pheno].c"
           :stroke="esSel(g) ? '#F5EFE6' : '#1c1126'"
           :stroke-width="esSel(g) ? 4 : 1.4"
@@ -84,8 +84,8 @@
           @mouseenter="emit('hover', $event, g)" @mouseleave="emit('leave')"
           @focus="emit('hover', $event, g)" @blur="emit('leave')" />
         <g v-if="g.multi" class="pointer-events-none select-none">
-          <circle :cx="p.x + SK_R + 1.5" :cy="p.y - SK_R - 1.5" r="6.5" fill="#F5EFE6" stroke="#1c1126" stroke-width="1.2" />
-          <text :x="p.x + SK_R + 1.5" :y="p.y - SK_R - 1.5" text-anchor="middle" dominant-baseline="central"
+          <circle :cx="p.x + R + 1.5" :cy="p.y - R - 1.5" r="6.5" fill="#F5EFE6" stroke="#1c1126" stroke-width="1.2" />
+          <text :x="p.x + R + 1.5" :y="p.y - R - 1.5" text-anchor="middle" dominant-baseline="central"
             font-family="Source Sans 3, sans-serif" font-size="9" font-weight="700" fill="#1c1126">{{ g.foci.length }}</text>
         </g>
       </g>
@@ -110,7 +110,7 @@
 </template>
 
 <script setup lang="ts">
-import { PHENO, PHENO_RAMP_CSS, GROUPS, SK_R } from '#mapa-focos'
+import { PHENO, PHENO_RAMP_CSS, GROUPS } from '#mapa-focos'
 import ESQ from '~/data/esqueleto.json'
 import { HUESO_DE_FOCO, DESPLAZA } from '~/data/focos-huesos'
 import type { LesGroup } from '#mapa-focos'
@@ -140,6 +140,11 @@ const L = (es: string, en: string) => (lang.value === 'en' ? en : es)
 const pfx = computed(() => props.idPrefix.replace(/[^a-zA-Z0-9]/g, ''))
 /* El lienzo toma la proporción de la imagen real, para que el esqueleto no salga estirado. */
 const VB_W = 440
+/* Radio del punto de cada foco, en unidades del viewBox. El del mapa (SK_R = 9) se pensó para
+   el esqueleto anterior, que llenaba el ancho con el tronco; en el de cuerpo entero cada hueso
+   sale ~0,6 veces más estrecho y un punto de 9 tapaba la vértebra entera (Miriam, 27-sep-26).
+   6 deja ver el hueso alrededor. La diana táctil va aparte (`hit`), y no baja de 44 px. */
+const R = 6
 const VB_H = Math.round(VB_W * ESQ.tamano[1] / ESQ.tamano[0])
 
 type UV = { u: number; v: number }
