@@ -71,3 +71,36 @@ export function cargaCercana(el: Element, arranca: () => void, margen = '150px')
   io.observe(el)
   return () => io.disconnect()
 }
+
+/**
+ * La rueda del ratón hace scroll de la PÁGINA, no zoom del visor; para acercar, Ctrl o ⌘ + rueda
+ * (el pellizco del trackpad ya llega con Ctrl). Es el patrón de los mapas embebidos.
+ *
+ * Por qué: OrbitControls se quedaba con toda rueda que pasara por encima del visor, y quien bajaba
+ * por /lesiones con el trackpad se quedaba «pegado» en cada visor (auditoría del comité de diseño,
+ * 27-sep-2026, verificado en vivo). El listener va en CAPTURA sobre el contenedor: la rueda sin
+ * modificador no llega al canvas (OrbitControls no la ve y la página baja) y se enseña un aviso
+ * breve de cómo acercar. El táctil no pasa por aquí: el pellizco son eventos de puntero.
+ */
+export function ruedaConModificador(host: HTMLElement, aviso: () => string): () => void {
+  let tapa: HTMLDivElement | null = null
+  let t: ReturnType<typeof setTimeout> | undefined
+  const onWheel = (e: WheelEvent) => {
+    if (e.ctrlKey || e.metaKey) return
+    e.stopPropagation()
+    if (!tapa) {
+      tapa = document.createElement('div')
+      tapa.setAttribute('aria-hidden', 'true')
+      tapa.style.cssText = 'position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);'
+        + 'pointer-events:none;padding:6px 12px;border-radius:9999px;font:600 12px/1.3 system-ui,sans-serif;'
+        + 'color:#f5efe6;background:rgba(18,11,26,0.82);transition:opacity .25s;opacity:0;white-space:nowrap;z-index:5'
+      host.appendChild(tapa)
+    }
+    tapa.textContent = aviso()
+    tapa.style.opacity = '1'
+    clearTimeout(t)
+    t = setTimeout(() => { if (tapa) tapa.style.opacity = '0' }, 1200)
+  }
+  host.addEventListener('wheel', onWheel, { capture: true, passive: true })
+  return () => { host.removeEventListener('wheel', onWheel, { capture: true }); clearTimeout(t); tapa?.remove() }
+}

@@ -4527,7 +4527,7 @@ const manifestValidated = (() => {
             <div class="foco-key-lb__bar">
               <div class="min-w-0">
                 <p class="foco-key-lb__title">{{ L('Hueso en 3D · foco', '3D bone · focus') }} #{{ sel.id }} · {{ sel.level[lang] }}</p>
-                <p class="foco-key-lb__sub">{{ L('reconstruido del CT · captación co-registrada · arrastra para girar (los 3 mapas giran a la vez), rueda/pinza para acercar', 'reconstructed from the CT · co-registered uptake · drag to rotate (all 3 maps rotate together), wheel/pinch to zoom') }}</p>
+                <p class="foco-key-lb__sub">{{ L('reconstruido del CT · captación co-registrada · arrastra para girar (los 3 mapas giran a la vez), Ctrl + rueda o pinza para acercar', 'reconstructed from the CT · co-registered uptake · drag to rotate (all 3 maps rotate together), Ctrl + wheel or pinch to zoom') }}</p>
               </div>
               <button type="button" class="foco-key-lb__close" :aria-label="L('Cerrar', 'Close')" @click="closeBone3dFullscreen">×</button>
             </div>

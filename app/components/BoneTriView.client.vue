@@ -122,6 +122,7 @@ function setActivePanel(i: number) {
 }
 
 /* ---- three.js state (1 renderer / 3 scenes / 1 camera / 1 controls) ---- */
+let sueltaRueda: () => void = () => {}
 let renderer: THREE.WebGLRenderer
 let camera: THREE.PerspectiveCamera
 let controls: OrbitControls
@@ -382,6 +383,8 @@ function init() {
   for (const sc of scenes) sc.environment = envTex
   // UNA sola cámara + UN OrbitControls (las 3 vistas comparten orientación)
   controls = new OrbitControls(camera, renderer.domElement)
+  // la rueda sola hace scroll de la página; Ctrl/⌘ + rueda (o pellizco) acerca (ver useAlVer.ts)
+  sueltaRueda = ruedaConModificador(renderer.domElement.parentElement!, () => L('Ctrl o ⌘ + rueda para acercar', 'Ctrl or ⌘ + scroll to zoom'))
   controls.enableDamping = true; controls.dampingFactor = 0.08; controls.enablePan = false
   controls.rotateSpeed = 0.9; controls.minDistance = 1; controls.maxDistance = 100000
 
@@ -990,6 +993,7 @@ watch(showBiopsy, () => { buildBiopsyNeedle() })
 watch(showTarget, () => { buildTargetMarker() })
 watch(() => props.noTarget, () => buildTargetMarker())
 onBeforeUnmount(() => {
+  sueltaRueda()
   cancelAnimationFrame(raf); ro?.disconnect()
   if (rmQuery && rmListener) rmQuery.removeEventListener('change', rmListener)
   const dom = renderer?.domElement
@@ -1198,8 +1202,8 @@ onBeforeUnmount(() => {
           {{ failed
             ? L('Reconstrucción del CT · vista estática', 'Reconstruction from the CT · static view')
             : stacked
-              ? L('Arrastra para girar · rueda para acercar · cambia de trazador con las pestañas (mismo encuadre)', 'Drag to rotate · scroll to zoom · switch tracer with the tabs (same framing)')
-              : L('Arrastra para girar · rueda para acercar · las 3 vistas a la vez', 'Drag to rotate · scroll to zoom · all 3 views at once') }}
+              ? L('Arrastra para girar · Ctrl o ⌘ + rueda para acercar · cambia de trazador con las pestañas (mismo encuadre)', 'Drag to rotate · Ctrl or ⌘ + scroll to zoom · switch tracer with the tabs (same framing)')
+              : L('Arrastra para girar · Ctrl o ⌘ + rueda para acercar · las 3 vistas a la vez', 'Drag to rotate · Ctrl or ⌘ + scroll to zoom · all 3 views at once') }}
         </p>
 
         <!-- HONESTIDAD REUBICADA · desplegable SUTIL, PLEGADO por defecto. La info

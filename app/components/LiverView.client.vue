@@ -149,6 +149,7 @@ const tooltipEl = ref<HTMLDivElement | null>(null)
 const raycastables: THREE.Object3D[] = []
 const raycaster = new THREE.Raycaster()
 const ndc = new THREE.Vector2()
+let sueltaRueda: () => void = () => {}
 let cierreTimer: ReturnType<typeof setTimeout> | undefined
 let gestoInicio = { x: 0, y: 0, t: 0 }
 let esTactil = false
@@ -456,6 +457,8 @@ async function init() {
   scene.add(camera)
 
   controls = new OrbitControls(camera, renderer.domElement)
+  // la rueda sola hace scroll de la página; Ctrl/⌘ + rueda (o pellizco) acerca (ver useAlVer.ts)
+  sueltaRueda = ruedaConModificador(renderer.domElement.parentElement!, () => L('Ctrl o ⌘ + rueda para acercar', 'Ctrl or ⌘ + scroll to zoom'))
   controls.enableDamping = true; controls.dampingFactor = 0.08; controls.enablePan = false
   controls.rotateSpeed = 0.9
   controls.autoRotate = !reduce; controls.autoRotateSpeed = 1.6
@@ -593,6 +596,7 @@ onMounted(() => {
   window.addEventListener('keydown', onWindowKeydown)
 })
 onBeforeUnmount(() => {
+  sueltaRueda()
   sueltaCarga(); cancelAnimationFrame(raf); ro?.disconnect(); io?.disconnect()
   cancelaCierre()
   window.removeEventListener('keydown', onWindowKeydown)
@@ -696,7 +700,7 @@ onBeforeUnmount(() => {
       <p v-for="(ln, i) in tooltipEntry.lineas" :key="i" class="lv-tooltip__linea">{{ ln[langIdx] }}</p>
     </div>
     <p v-if="!failed" class="text-[11px] text-tinta mt-1.5">
-      {{ L('Arrastra para girar · rueda para acercar', 'Drag to rotate · scroll to zoom') }}
+      {{ L('Arrastra para girar · Ctrl o ⌘ + rueda para acercar', 'Drag to rotate · Ctrl or ⌘ + scroll to zoom') }}
     </p>
     <!-- DOS LENTES sobre los mismos cuerpos. Por defecto la de tamaño, que es la gramática
          de color que ya tenía la página (dorado ≥10 mm, violeta <10 mm). La del PET pinta lo
