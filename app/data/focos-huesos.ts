@@ -56,6 +56,8 @@ export const DESPLAZA: Record<number, [number, number]> = {
   12: [-0.018, 0.008], // ala sacra DERECHA
   13: [-0.03, -0.022], // ilíaco derecho · ala (arriba)
   14: [-0.012, 0.022], // ilíaco derecho · supraacetabular (abajo)
+  15: [0.012, 0.022],  // ilíaco izquierdo · supraacetabular: el espejo del 14. Sin él caía en el centro
+                       // del ala, más arriba que su pareja (27-sep-26, esqueleto de cuerpo entero)
   18: [-0.034, 0.004], // ilíaco derecho · unión ilíaco-femoral
   19: [0.022, -0.012], // C7-D2 · transición, por encima de D1 (separación, no lado: side 'C')
 }
