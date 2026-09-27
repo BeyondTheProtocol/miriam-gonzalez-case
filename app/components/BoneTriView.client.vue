@@ -42,7 +42,7 @@ import { DecalGeometry } from 'three/examples/jsm/geometries/DecalGeometry.js'
 
 const props = defineProps<{
   meshKey?: string
-  /* Foco con biopsia previa (hecho del caso: #13 ilíaco derecho, 26B585). Cuando es
+  /* Foco con biopsia previa (hecho del caso: #13 ilíaco derecho). Cuando es
      true se OFRECE el toggle «Ver la biopsia previa» que dibuja una aguja ILUSTRATIVA
      sobre el panel de densidad/blástico. OFF por defecto. */
   biopsied?: boolean
@@ -737,7 +737,7 @@ function disposeMeshes() {
 }
 
 /* ====================================================================== */
-/*  AGUJA DE BIOPSIA ILUSTRATIVA (#13, 26B585) — portada de BoneViewer3D.  */
+/*  AGUJA DE BIOPSIA ILUSTRATIVA (#13) — portada de BoneViewer3D.  */
 /*  Sólo sobre el panel de DENSIDAD/BLÁSTICO; OFF por defecto. NO es la     */
 /*  trayectoria real: recreación didáctica del abordaje posterolateral.    */
 /* ====================================================================== */
@@ -1142,7 +1142,7 @@ onBeforeUnmount(() => {
             <span class="btv-biopsy-dot" aria-hidden="true" />
             {{ showBiopsy
               ? L('Ocultar la biopsia previa', 'Hide prior biopsy')
-              : L('Ver la biopsia previa (' + (biopsyLabel || '26B585') + ')', 'Show prior biopsy (' + (biopsyLabel || '26B585') + ')') }}
+              : L('Ver la biopsia previa', 'Show prior biopsy') }}
           </button>
         </div>
 
@@ -1230,7 +1230,7 @@ onBeforeUnmount(() => {
       <p v-if="biopsyAvailable && showBiopsy" class="btv-biopsy-cap">
         <span class="btv-biopsy-cap-head">
           <span class="btv-biopsy-swatch" :style="{ background: C_NEEDLE }" aria-hidden="true" />
-          {{ L('Simulación ILUSTRATIVA de la biopsia previa (' + (biopsyLabel || '26B585') + ') · sobre el mapa de densidad', 'ILLUSTRATIVE simulation of the prior biopsy (' + (biopsyLabel || '26B585') + ') · over the density map') }}
+          {{ L('Simulación ILUSTRATIVA de la biopsia previa · sobre el mapa de densidad', 'ILLUSTRATIVE simulation of the prior biopsy · over the density map') }}
         </span>
         {{ L('Trayectoria APROXIMADA, no la real — recreación didáctica. La punta queda en hueso denso (blástico): la biopsia dio solo hueso/músculo, sin tumor evaluable — el hueso blástico denso rinde poco tejido tumoral.',
              'APPROXIMATE trajectory, not the actual one — a teaching recreation. The tip lands in dense (blastic) bone: the biopsy yielded only bone/muscle, no evaluable tumour — dense blastic bone yields little tumour tissue.') }}
