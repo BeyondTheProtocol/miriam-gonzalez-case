@@ -1,4 +1,4 @@
-import type { RouterConfig } from '@nuxt/schema'
+import type { RouterConfig } from 'nuxt/schema'
 
 /**
  * Reset de scroll fiable en cada cambio de ruta.

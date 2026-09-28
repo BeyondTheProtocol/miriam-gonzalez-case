@@ -107,6 +107,13 @@ If you have a good idea, feature request, or notice something that could be impr
 - Make your changes
 - Submit a pull request
 
+### Dependency checks
+
+Run `pnpm knip` after installing dependencies. CI runs the same check alongside lint.
+It reports unused and undeclared dependencies; unused files and exports are outside
+this initial scope. `knip.ts` documents framework-loaded packages and Netlify function
+entry points. This check complements the security audit; it does not scan for vulnerabilities.
+
 ### Code Standards
 - Mobile-first CSS (use Tailwind utilities)
 - BEM naming convention for custom CSS
