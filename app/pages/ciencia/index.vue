@@ -168,8 +168,8 @@
             </table>
           </div>
           <p class="text-xs text-tinta mt-2 font-mono leading-relaxed">
-            {{ L('Murcia 2024 (biopsia local) · MD Anderson · DIPCAN 2024 (perfil ampliado) · Vall d\'Hebron · Anatomía Patológica VH-26-B-17664 · VHIO · 19/05/2026.',
-                  'Murcia 2024 (local biopsy) · MD Anderson · DIPCAN 2024 (extended profile) · Vall d\'Hebron · Pathology VH-26-B-17664 · VHIO · 19/05/2026.') }}
+            {{ L('Murcia 2024 (biopsia local) · MD Anderson · DIPCAN 2024 (perfil ampliado) · Vall d\'Hebron · Anatomía Patológica · VHIO · 19/05/2026.',
+                  'Murcia 2024 (local biopsy) · MD Anderson · DIPCAN 2024 (extended profile) · Vall d\'Hebron · Pathology · VHIO · 19/05/2026.') }}
           </p>
           <Nota class="mt-3">
             {{ L('Estas lecturas describen el tejido; no son un diagnóstico de consenso. Armonizar las discordancias está pendiente de valoración por el comité de tumores —y es, en buena parte, lo que la rebiopsia molecular y esa revisión vienen a aclarar.',

@@ -37,6 +37,9 @@ jobs:
       # del build para revisar también lo generado (.output/public), que es lo que se sirve.
       - run: pnpm test:citas-futuras
 
+      # Privacidad: ninguna sigla de muestra (biopsia, bloque, revisión) en lo publicado.
+      - run: pnpm test:siglas-muestra
+
       # Estos no necesitan el build; van detrás porque el checkout ya está listo.
       - run: pnpm test:short-links
       - run: pnpm test:mapa-focos

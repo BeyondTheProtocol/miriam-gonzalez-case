@@ -494,7 +494,6 @@ const n = (v: number) => numCaso(v, lang.value)
             <article v-for="(m, i) in material.slice(0, 3)" :key="i" class="dt-tarjeta">
               <p class="dt-tarjeta__t">{{ tituloMuestra(m) }}</p>
               <p v-if="detalleMuestra(m)" class="dt-tarjeta__det">{{ detalleMuestra(m) }}</p>
-              <p v-if="m.codigo" class="dt-tarjeta__cod">{{ m.codigo }}</p>
               <p class="dt-tarjeta__l"><span>{{ L('Dónde', 'Where') }}</span> {{ T(m.donde) }} · <span>{{ L('Estado', 'Status') }}</span> {{ T(m.estado) }}</p>
               <p class="dt-tarjeta__pie"><span class="nums">{{ m.fecha }}</span> <DatosSello :s="m.sello" :lang="lang" /></p>
             </article>
@@ -504,7 +503,6 @@ const n = (v: number) => numCaso(v, lang.value)
                 <article v-for="(m, i) in material.slice(3)" :key="i" class="dt-tarjeta">
                   <p class="dt-tarjeta__t">{{ tituloMuestra(m) }}</p>
               <p v-if="detalleMuestra(m)" class="dt-tarjeta__det">{{ detalleMuestra(m) }}</p>
-                  <p v-if="m.codigo" class="dt-tarjeta__cod">{{ m.codigo }}</p>
                   <p class="dt-tarjeta__l"><span>{{ L('Dónde', 'Where') }}</span> {{ T(m.donde) }} · <span>{{ L('Estado', 'Status') }}</span> {{ T(m.estado) }}</p>
                   <p class="dt-tarjeta__pie"><span class="nums">{{ m.fecha }}</span> <DatosSello :s="m.sello" :lang="lang" /></p>
                 </article>
@@ -793,7 +791,6 @@ const n = (v: number) => numCaso(v, lang.value)
 .dt-tarjeta--ancha { grid-column: 1 / -1; }
 .dt-tarjeta__t { font: 700 14.5px/1.35 var(--font-body); color: var(--color-text); margin: 0 0 4px; }
 .dt-tarjeta__det { font: 400 12.5px/1.4 var(--font-body); color: var(--color-text-soft); margin: 0 0 6px; }
-.dt-tarjeta__cod { font: 600 12.5px var(--font-mono); color: var(--color-text); margin: 0 0 6px; overflow-wrap: anywhere; }
 .dt-tarjeta__l { font: 400 13px/1.45 var(--font-body); color: var(--color-text); margin: 0 0 4px; }
 .dt-tarjeta__l span { font-weight: 600; color: var(--color-text-soft); margin-right: 4px; }
 .dt-tarjeta__pie { display: flex; gap: 8px; align-items: center; font: 500 11.5px var(--font-mono); color: var(--color-text-soft); margin: 8px 0 0; }

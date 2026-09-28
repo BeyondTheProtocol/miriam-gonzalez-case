@@ -221,8 +221,8 @@ const LES: Lesion[] = [
     what: { es: 'Ala ilíaca derecha. Captación dual, predominio glucolítico (¹⁸F-FDG > ⁶⁸Ga-DOTATOC).', en: 'Right iliac wing. Dual uptake, glycolytic-predominant (¹⁸F-FDG > ⁶⁸Ga-DOTATOC).' },
     tech: { es: '⁶⁸Ga-DOTATOC SUVmáx 4.32 / ¹⁸F-FDG 7.71 (previo 7.0, leve ↑). Mixto, FDG>SSTR.', en: '⁶⁸Ga-DOTATOC SUVmax 4.32 / ¹⁸F-FDG 7.71 (prior 7.0, slight ↑). Mixed, FDG>SSTR.' },
     priorBiopsy: {
-      es: 'Biopsia previa de este foco (26B585): solo dio hueso y músculo, sin tumor evaluable. Es un foco mixto, pero la zona muestreada fue hueso denso (blástico); el hueso denso suele rentabilizar poco en la biopsia (poco tejido tumoral).',
-      en: 'Prior biopsy of this focus (26B585): yielded only bone and muscle, no evaluable tumor. It is a mixed focus, but the sampled zone was dense (blastic) bone; dense bone usually yields little on biopsy (little tumor tissue).',
+      es: 'Biopsia previa de este foco: solo dio hueso y músculo, sin tumor evaluable. Es un foco mixto, pero la zona muestreada fue hueso denso (blástico); el hueso denso suele rentabilizar poco en la biopsia (poco tejido tumoral).',
+      en: 'Prior biopsy of this focus: yielded only bone and muscle, no evaluable tumor. It is a mixed focus, but the sampled zone was dense (blastic) bone; dense bone usually yields little on biopsy (little tumor tissue).',
     },
   },
   {
@@ -453,7 +453,7 @@ const PROV_PANEL_FIELDS: { field: string; es: string; en: string }[] = [
 /* referencia legible (sin PHI) de una celda: PMID/NCT/código DICOM/nota literal. */
 function provRefLabel(c: Cell): string {
   if (!c.ref) return ''
-  if (c.ref === BIOPSY_CODE) return L('código de biopsia ' + c.ref, 'biopsy code ' + c.ref)
+  if (c.ref === BIOPSY_CODE) return L('informe de la biopsia previa', 'prior biopsy report')
   if (c.ref === 'heurístico-no-validado') return L('heurístico · no validado', 'heuristic · not validated')
   return c.ref
 }
@@ -712,8 +712,8 @@ const BIOPSY: Record<number, { zone: BiTxt; approach: BiTxt; safety: BiTxt; rend
   10: { zone: { es: 'El propio subvolumen ¹⁸F-FDG-ávido (foco con discordancia ¹⁸F-FDG⁺ / ⁶⁸Ga-DOTATOC⁻).', en: 'The ¹⁸F-FDG-avid subvolume itself (focus with ¹⁸F-FDG⁺ / ⁶⁸Ga-DOTATOC⁻ discordance).' }, approach: { es: 'Transpedicular izquierdo de L1; fusión TC+PET para centrar (captación solo en ¹⁸F-FDG).', en: 'Left L1 transpedicular; CT+PET fusion to center it (uptake on ¹⁸F-FDG only).' }, safety: { es: 'Lumbar, infraconal (corredor más seguro); pedículo de pequeño calibre → diana técnicamente exigente.', en: 'Lumbar, infraconal (safer corridor); small-caliber pedicle → technically demanding target.' }, rend: { es: 'Moderado; perfil molecular complementario de alto valor por la discordancia de trazadores.', en: 'Moderate; high-value complementary molecular profile given the tracer discordance.' } },
   11: { zone: { es: 'Subvolumen de atenuación mixta y captación elevada del cuerpo vertebral (sin componente esclerótico marcado).', en: 'Mixed-attenuation, high-uptake subvolume of the vertebral body (no marked sclerotic component).' }, approach: { es: 'Transpedicular infraconal, si la trayectoria libra la cresta ilíaca.', en: 'Infraconal transpedicular, if the trajectory clears the iliac crest.' }, safety: { es: 'SBRT concurrente: el tejido irradiado puede no ser representativo para la caracterización molecular → prioridad baja pese a la captación. Acceso: hueso de carga, pero el cuerpo vertebral lo tolera mejor que el cuello femoral.', en: 'Concurrent SBRT: irradiated tissue may not be representative for molecular characterization → low priority despite the uptake. Access: weight-bearing bone, but the vertebral body tolerates it better than the femoral neck.' }, rend: { es: 'Reducido por la SBRT (tejido irradiado), pese al volumen del cuerpo vertebral.', en: 'Reduced by SBRT (irradiated tissue), despite the vertebral-body volume.' } },
   12: { zone: { es: 'Subvolumen de atenuación mixta y captación elevada del ala sacra esponjosa.', en: 'Mixed-attenuation, high-uptake subvolume of the cancellous sacral ala.' }, approach: { es: 'Corredor sacro posterior (prono).', en: 'Posterior sacral corridor (prone).' }, safety: { es: 'Vigilar los forámenes sacros y los vasos presacros; sin médula espinal en el corredor.', en: 'Watch the sacral foramina and presacral vessels; no spinal cord in the corridor.' }, rend: { es: 'Moderado (corredor accesible).', en: 'Moderate (accessible corridor).' } },
-  13: { zone: { es: 'Únicamente un subvolumen LÍTICO DISTINTO verificado en TC; el subvolumen esclerótico muestreado previamente resultó no diagnóstico.', en: 'Only a DIFFERENT lytic subvolume verified on CT; the previously sampled sclerotic subvolume was non-diagnostic.' }, approach: { es: 'Posterolateral al ala ilíaca (corredor conocido del 26B585); fusión PET hacia el subvolumen de mayor captación y menor esclerosis.', en: 'Posterolateral to the iliac wing (the known 26B585 corridor); PET fusion toward the subvolume of highest uptake and least sclerosis.' }, safety: { es: 'Corredor accesible y conocido; el riesgo predominante es de muestra no diagnóstica, no de complicación.', en: 'Accessible, familiar corridor; the predominant risk is a non-diagnostic sample, not a complication.' }, rend: { es: 'Riesgo de no diagnóstico demostrado en el subvolumen previo (matriz esclerótica).', en: 'Demonstrated non-diagnostic risk at the prior subvolume (sclerotic matrix).' } },
-  14: { zone: { es: 'Subvolumen ¹⁸F-FDG-ávido, verificando en TC que NO corresponde a la placa esclerótica (matriz que resultó no diagnóstica en el 26B585).', en: '¹⁸F-FDG-avid subvolume, verifying on CT it does NOT correspond to the sclerotic plate (the matrix that proved non-diagnostic in 26B585).' }, approach: { es: 'Posterolateral supra-acetabular preservando el techo de carga acetabular; fusión PET para centrar el foco.', en: 'Posterolateral supra-acetabular sparing the load-bearing acetabular roof; PET fusion to center the focus.' }, safety: { es: 'Corredor accesible y conocido; confirmar la atenuación TC del punto diana antes de la punción.', en: 'Accessible, known corridor; confirm CT attenuation of the target point before puncture.' }, rend: { es: 'Estimación orientativa (heurística): alto (¹⁸F-FDG SUVmáx elevado y en aumento, tamaño favorable, sin componente esclerótico marcado).', en: 'Indicative (heuristic) estimate: high (elevated and rising ¹⁸F-FDG SUVmax, favorable size, no marked sclerotic component).' } },
+  13: { zone: { es: 'Únicamente un subvolumen LÍTICO DISTINTO verificado en TC; el subvolumen esclerótico muestreado previamente resultó no diagnóstico.', en: 'Only a DIFFERENT lytic subvolume verified on CT; the previously sampled sclerotic subvolume was non-diagnostic.' }, approach: { es: 'Posterolateral al ala ilíaca (corredor conocido de la biopsia previa); fusión PET hacia el subvolumen de mayor captación y menor esclerosis.', en: 'Posterolateral to the iliac wing (the known prior-biopsy corridor); PET fusion toward the subvolume of highest uptake and least sclerosis.' }, safety: { es: 'Corredor accesible y conocido; el riesgo predominante es de muestra no diagnóstica, no de complicación.', en: 'Accessible, familiar corridor; the predominant risk is a non-diagnostic sample, not a complication.' }, rend: { es: 'Riesgo de no diagnóstico demostrado en el subvolumen previo (matriz esclerótica).', en: 'Demonstrated non-diagnostic risk at the prior subvolume (sclerotic matrix).' } },
+  14: { zone: { es: 'Subvolumen ¹⁸F-FDG-ávido, verificando en TC que NO corresponde a la placa esclerótica (matriz que resultó no diagnóstica en la biopsia previa).', en: '¹⁸F-FDG-avid subvolume, verifying on CT it does NOT correspond to the sclerotic plate (the matrix that proved non-diagnostic in the prior biopsy).' }, approach: { es: 'Posterolateral supra-acetabular preservando el techo de carga acetabular; fusión PET para centrar el foco.', en: 'Posterolateral supra-acetabular sparing the load-bearing acetabular roof; PET fusion to center the focus.' }, safety: { es: 'Corredor accesible y conocido; confirmar la atenuación TC del punto diana antes de la punción.', en: 'Accessible, known corridor; confirm CT attenuation of the target point before puncture.' }, rend: { es: 'Estimación orientativa (heurística): alto (¹⁸F-FDG SUVmáx elevado y en aumento, tamaño favorable, sin componente esclerótico marcado).', en: 'Indicative (heuristic) estimate: high (elevated and rising ¹⁸F-FDG SUVmax, favorable size, no marked sclerotic component).' } },
   15: { zone: { es: 'Pendiente de correlación; captación posiblemente contaminada por actividad fisiológica.', en: 'Pending correlation; uptake possibly contaminated by physiologic activity.' }, approach: { es: 'Espejo de #14, posterolateral supra-acetabular izquierdo.', en: 'Mirror of #14, left posterolateral supra-acetabular.' }, safety: { es: 'Posible contaminación por captación fisiológica intestinal/vesical → validar primero; el #14 (derecho) está mejor respaldado.', en: 'Possible contamination from physiologic bowel/bladder uptake → validate first; #14 (right) is better supported.' }, rend: { es: 'Bajo / incierto (captación no fiable).', en: 'Low / uncertain (unreliable uptake).' } },
   16: { zone: { es: 'Subvolumen intraóseo de captación elevada (sin componente extraóseo abordable).', en: 'High-uptake intra-osseous subvolume (no extraosseous component to target).' }, approach: { es: '—', en: '—' }, safety: { es: 'Cuello femoral, hueso de carga: la obtención de cores conlleva riesgo de fractura patológica. Indicación y abordaje los valoran Oncología Radioterápica/Ortopedia.', en: 'Femoral neck, weight-bearing bone: core sampling carries pathologic-fracture risk. Indication and approach are assessed by Radiation Oncology/Orthopedics.' }, rend: { es: 'Hipermetabolismo glucolítico elevado, condicionado por la seguridad estructural.', en: 'High glycolytic hypermetabolism, gated by structural safety.' } },
   17: { zone: { es: 'Sin subvolumen accionable (detección por IA, no localizable, ≤8 mm).', en: 'No actionable subvolume (AI detection, not localizable, ≤8 mm).' }, approach: { es: '—', en: '—' }, safety: { es: 'Detección por IA sin confirmar; localización costal con riesgo de neumotórax; validar primero (Medicina Nuclear).', en: 'Unconfirmed AI detection; costal location with pneumothorax risk; validate first (Nuclear Medicine).' }, rend: { es: 'No evaluable.', en: 'Not assessable.' } },
@@ -1680,10 +1680,10 @@ const coFoci = computed<Lesion[]>(() => {
   return LES.filter((l) => bone3dKeyOf(l) === k)
 })
 const isMultiFocusBone = computed(() => coFoci.value.length > 1)
-/* ¿algún foco de ESTE hueso 3D fue biopsiado? (hecho del caso: #13 ilíaco derecho, 26B585). Si sí,
-   el visor 3D ofrece el toggle de la aguja ILUSTRATIVA. El código (26B585) alimenta el rótulo;
+/* ¿algún foco de ESTE hueso 3D fue biopsiado? (hecho del caso: #13 ilíaco derecho). Si sí,
+   el visor 3D ofrece el toggle de la aguja ILUSTRATIVA. BIOPSY_CODE es solo una marca: el código real de la biopsia no se publica (27-sep-2026);
    devuelve null si no hay biopsia previa en el hueso en pantalla. */
-const BIOPSY_CODE = '26B585'
+const BIOPSY_CODE = 'biopsia-previa'
 const bonePriorBiopsy = computed<string | null>(() =>
   coFoci.value.some((l) => l.priorBiopsy) ? BIOPSY_CODE : null,
 )
@@ -1717,7 +1717,7 @@ const MRI_LEVELS = ['D1-D3', 'D4-D5', 'D8-D9', 'D11-D12', 'L1', 'L2-L3', 'L5', '
 /*    · rendimiento(0-1)= forma (morfología): lítico 1 · mixto 0.6 ·    */
 /*                        blástico denso 0.3 · sin dato 0.5.            */
 /*    · tamaño  (0.6-1) = eje mayor (≥18 mm → 1; ~8 mm → 0.6); s/d 0.75.*/
-/*  Antecedente (biopsia 26B585 fallida en #13) y accesibilidad NO se   */
+/*  Antecedente (biopsia previa fallida en #13) y accesibilidad NO se   */
 /*  meten en el número: se MUESTRAN como avisos que el equipo pondera.  */
 /*  Accesibilidad/seguridad no la tenemos → «a valorar por radiología   */
 /*  intervencionista»; no se inventa.                                   */
@@ -1738,7 +1738,7 @@ function viableFactor(le: Lesion): number {
   return clamp01(0.78 * ((le.fdg ?? 0) / 10) + 0.22 * ((le.dota ?? 0) / 14))
 }
 /* factor de rendimiento tisular esperado (0-1) por FORMA del hueso (morfología CT).
-   Ancla al fallo 26B585: el blástico denso suele rendir poco tejido tumoral. */
+   Ancla al fallo de la biopsia previa: el blástico denso suele rendir poco tejido tumoral. */
 function yieldFactor(le: Lesion): number {
   const m = morphCat(le)
   if (m === 'lítica') return 1
@@ -1797,7 +1797,7 @@ function suitabilityScore(le: Lesion): number {
 /* (ficha resumen) «por qué» de UNA línea por foco — describe SEÑAL + FORMA, nunca
    «tumor/viable». Bloqueantes primero; si no, captación + rendimiento. Equipa, no indica. */
 function whyOneLiner(le: Lesion): string {
-  if (le.priorBiopsy) return L('Biopsia percutánea previa no diagnóstica (26B585) por muestreo de matriz esclerótica, no de la lesión; re-orientable a un subvolumen lítico distinto verificado en TC.', 'Prior percutaneous biopsy non-diagnostic (26B585) due to sampling of the sclerotic matrix, not the lesion; re-targetable to a different lytic subvolume verified on CT.')
+  if (le.priorBiopsy) return L('Biopsia percutánea previa no diagnóstica por muestreo de matriz esclerótica, no de la lesión; re-orientable a un subvolumen lítico distinto verificado en TC.', 'Prior percutaneous biopsy non-diagnostic due to sampling of the sclerotic matrix, not the lesion; re-targetable to a different lytic subvolume verified on CT.')
   if (le.id === 7) return L('El tejido con mayor rendimiento es el componente de partes blandas epidural/intracanal — la viabilidad del acceso la valora radiología intervencionista.', 'The highest-yield tissue is the epidural/intracanal soft-tissue component — access feasibility is assessed by interventional radiology.')
   if (le.id === 16) return L('Hueso de carga (cuello femoral): la obtención de cores conlleva riesgo de fractura patológica.', 'Weight-bearing bone (femoral neck): core sampling carries pathologic-fracture risk.')
   if (isAiDavid(le)) return L('Detección por IA, no consignada en el informe radiológico — requiere validación previa.', 'AI-detected, not recorded in the radiology report — requires prior validation.')
@@ -2420,7 +2420,7 @@ const manifestValidated = (() => {
               <p class="text-[11px] text-tinta leading-snug italic mt-0.5">«{{ whyOneLiner(le) }}»</p>
               <!-- aviso PROMINENTE si una biopsia ya falló aquí (no repetir el error de diana) -->
               <div v-if="le.priorBiopsy" class="mt-2 rounded-card px-2 py-1 text-[10px] font-semibold leading-snug flex items-start gap-1" :style="{ background: '#f6d9b8', color: '#8a4a1a' }">
-                <Icon name="ph:flag-fill" class="w-2.5 h-2.5 shrink-0 mt-px" aria-hidden="true" /><span>{{ L('Biopsia previa no diagnóstica en este foco (26B585): solo hueso y músculo, sin tejido tumoral', 'Prior non-diagnostic biopsy at this focus (26B585): bone and muscle only, no tumor tissue') }}</span>
+                <Icon name="ph:flag-fill" class="w-2.5 h-2.5 shrink-0 mt-px" aria-hidden="true" /><span>{{ L('Biopsia previa no diagnóstica en este foco: solo hueso y músculo, sin tejido tumoral', 'Prior non-diagnostic biopsy at this focus: bone and muscle only, no tumor tissue') }}</span>
               </div>
               <div v-if="hasSoftTissue(le)" class="mt-1.5 flex flex-wrap gap-1">
                 <span class="pill-data !px-1.5 !py-0 !text-[10px]" :style="{ background: 'rgba(31,107,87,0.12)', color: '#1f6b57' }">{{ L('+ partes blandas (RMN)', '+ soft tissue (MRI)') }}</span>
@@ -3061,7 +3061,6 @@ const manifestValidated = (() => {
               <div v-if="sel.priorBiopsy" class="mb-4 rounded-card border-l-4 px-3 py-3" :style="{ borderLeftColor: '#8a5a1a', background: '#fbf6ec' }">
                 <p class="eyebrow--sm mb-1 flex items-center gap-2 flex-wrap" :style="{ color: '#8a5a1a' }">
                   {{ L('Biopsia previa de este foco', 'Prior biopsy of this focus') }}
-                  <span class="status-badge status-badge--candidate">26B585</span>
                 </p>
                 <p class="text-[13px] text-tinta leading-snug">{{ sel.priorBiopsy[lang] }}</p>
               </div>
@@ -3312,7 +3311,7 @@ const manifestValidated = (() => {
             </div>
             <div class="card-base !p-3.5 border-t-4" :style="{ borderColor: '#1f6b57' }">
               <p class="text-[12px] font-semibold mb-1" :style="{ color: '#1f6b57' }">{{ L('2 · Rendimiento (estimación heurística)', '2 · Yield (heuristic estimate)') }}</p>
-              <p class="text-[12.5px] text-tinta leading-snug">{{ L('Forma del hueso: lítico / partes blandas suele rendir más tejido; blástico denso rinde poco (como falló la biopsia ilíaca 26B585). Es FORMA, no biología.', 'Bone shape: lytic / soft tissue usually yields more tissue; dense blastic yields little (as the 26B585 iliac biopsy failed). It is SHAPE, not biology.') }}</p>
+              <p class="text-[12.5px] text-tinta leading-snug">{{ L('Forma del hueso: lítico / partes blandas suele rendir más tejido; blástico denso rinde poco (como falló la biopsia ilíaca previa). Es FORMA, no biología.', 'Bone shape: lytic / soft tissue usually yields more tissue; dense blastic yields little (as the prior iliac biopsy failed). It is SHAPE, not biology.') }}</p>
             </div>
             <div class="card-base !p-3.5 border-t-4" :style="{ borderColor: '#6b6470' }">
               <p class="text-[12px] font-semibold mb-1 text-tinta">{{ L('3 · Tamaño / cantidad', '3 · Size / amount') }}</p>
@@ -3325,8 +3324,8 @@ const manifestValidated = (() => {
                modo wiki. En móvil apila en 1 col. -->
           <div class="grid sm:grid-cols-2 xl:grid-cols-4 gap-3 mb-6">
             <div class="card-base !p-3.5 border-t-4" :style="{ borderColor: '#8a5a1a' }">
-              <p class="text-[12px] font-semibold mb-1 flex items-center gap-1.5 flex-wrap" :style="{ color: '#8a5a1a' }">{{ L('Aviso · antecedente 26B585', 'Flag · prior history 26B585') }}<span class="status-badge status-badge--candidate">{{ L('lección', 'lesson') }}</span></p>
-              <p class="text-[12.5px] text-tinta leading-snug">{{ L('La biopsia previa 26B585 (ilíaco derecho, #13) FALLÓ: solo dio hueso y músculo, sin tumor evaluable. La lección: la zona biopsiada era hueso denso (blástico), que rinde poco — por eso el rendimiento (forma) pesa en la lente: el tejido lítico / partes blandas suele rendir más tumor evaluable que el hueso denso. Se muestra como aviso; no entra en el número.', 'The prior 26B585 biopsy (right iliac, #13) FAILED: only bone and muscle, no evaluable tumor. The lesson: the sampled zone was dense (blastic) bone, which yields little — that is why yield (shape) weighs in the lens: lytic / soft-tissue tissue usually yields more evaluable tumor than dense bone. Shown as a flag; not part of the number.') }}</p>
+              <p class="text-[12px] font-semibold mb-1 flex items-center gap-1.5 flex-wrap" :style="{ color: '#8a5a1a' }">{{ L('Aviso · biopsia previa', 'Flag · prior biopsy') }}<span class="status-badge status-badge--candidate">{{ L('lección', 'lesson') }}</span></p>
+              <p class="text-[12.5px] text-tinta leading-snug">{{ L('La biopsia previa (ilíaco derecho, #13) FALLÓ: solo dio hueso y músculo, sin tumor evaluable. La lección: la zona biopsiada era hueso denso (blástico), que rinde poco — por eso el rendimiento (forma) pesa en la lente: el tejido lítico / partes blandas suele rendir más tumor evaluable que el hueso denso. Se muestra como aviso; no entra en el número.', 'The prior biopsy (right iliac, #13) FAILED: only bone and muscle, no evaluable tumor. The lesson: the sampled zone was dense (blastic) bone, which yields little — that is why yield (shape) weighs in the lens: lytic / soft-tissue tissue usually yields more evaluable tumor than dense bone. Shown as a flag; not part of the number.') }}</p>
             </div>
             <div class="card-base !p-3.5 border-t-4" :style="{ borderColor: '#1f6b57' }">
               <p class="text-[12px] font-semibold mb-1 flex items-center gap-1.5 flex-wrap" :style="{ color: '#1f6b57' }">{{ L('Aviso · partes blandas (RMN)', 'Flag · soft tissue (MRI)') }}<span class="status-badge status-badge--shape">{{ L('factibilidad', 'feasibility') }}</span></p>
@@ -3477,7 +3476,7 @@ const manifestValidated = (() => {
                 <!-- avisos de factibilidad (no van en el número): partes blandas / antecedente / hueso de carga -->
                 <div v-if="hasSoftTissue(le) || le.priorBiopsy || le.load" class="mt-2.5 flex flex-wrap gap-1.5">
                   <span v-if="hasSoftTissue(le)" class="pill-data" :style="{ background: 'rgba(31,107,87,0.12)', color: '#1f6b57' }">{{ L('+ partes blandas (RMN) · suele rendir más tejido', '+ soft tissue (MRI) · usually yields more tissue') }}</span>
-                  <span v-if="le.priorBiopsy" class="pill-data" :style="{ background: '#f0e2c8', color: '#8a5a1a' }">{{ L('⚑ biopsia previa 26B585 FALLÓ aquí', '⚑ prior biopsy 26B585 FAILED here') }}</span>
+                  <span v-if="le.priorBiopsy" class="pill-data" :style="{ background: '#f0e2c8', color: '#8a5a1a' }">{{ L('⚑ biopsia previa FALLÓ aquí', '⚑ prior biopsy FAILED here') }}</span>
                   <span v-if="le.load" class="pill-data" :style="{ background: 'rgba(45,27,61,0.06)', color: '#3a3340' }">{{ L('hueso de carga · revisado (Oncología RT)', 'weight-bearing · reviewed (Radiation Oncology)') }}</span>
                 </div>
               </button>
@@ -3980,7 +3979,7 @@ const manifestValidated = (() => {
                     </div>
                     <div class="flex flex-wrap gap-1 mt-1">
                       <span v-if="hasSoftTissue(row.le)" class="pill-data !px-1.5 !py-0 !text-[10px]" :style="{ background: 'rgba(31,107,87,0.12)', color: '#1f6b57' }">{{ L('+ partes blandas', '+ soft tissue') }}</span>
-                      <span v-if="row.le.priorBiopsy" class="pill-data !px-1.5 !py-0 !text-[10px]" :style="{ background: '#f0e2c8', color: '#8a5a1a' }">{{ L('⚑ 26B585 falló', '⚑ 26B585 failed') }}</span>
+                      <span v-if="row.le.priorBiopsy" class="pill-data !px-1.5 !py-0 !text-[10px]" :style="{ background: '#f0e2c8', color: '#8a5a1a' }">{{ L('⚑ biopsia previa falló', '⚑ prior biopsy failed') }}</span>
                       <span v-if="isAiDavid(row.le)" class="pill-data !px-1.5 !py-0 !text-[10px]" :style="{ background: '#fde4cc', color: '#8a4a1a' }">{{ L('sin confirmar', 'unconfirmed') }}</span>
                     </div>
                   </td>
