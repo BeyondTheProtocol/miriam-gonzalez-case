@@ -12,6 +12,17 @@
 // - «Metástasis exclusivamente óseas» en presente: hay afectación hepática desde
 //   julio de 2026. Las entradas fechadas de la cronología cuentan el pasado y no
 //   se revisan aquí.
+// - Estado del caso que caducó (29-sep-2026, visita de Dana-Farber a /ciencia): la
+//   rebiopsia ya se hizo (Zúrich, 8-jul-2026), salió del BG-75202 el 9-sep y el
+//   ECOG documentado es 0. FGFR1 está en 8p11, no en 11q13. Las variantes de RB1
+//   solo están en ctDNA: no se afirma que «se está perdiendo». El PIK3CA ya se
+//   reanalizó en tejido (FoundationOne CDx, jul-2026).
+// - Citas que no dicen lo que se les atribuía (cotejadas en Crossref y PubMed el
+//   29-sep-2026): el DOI 10.1158/2159-8290.CD-24-0837 es «Drugging p53» (Song
+//   2024), no una revisión de transformación NE; 10.1007/s00259-020-05054-9 es un
+//   estudio preclínico con 177Lu-DOTA-folato, no una serie de PRRT en mama NE;
+//   10.1136/jclinpath-2020-207002 es un paper de páncreas (Pareja es ...-207052).
+//   Las guías NCCN NET 2025 y ENETS 2023 no recogen un algoritmo para mama NE.
 //
 // Uso: pnpm test:afirmaciones-clinicas   (CI: .github/workflows/lint.yml)
 import { readdirSync, readFileSync, statSync } from 'node:fs'
@@ -34,6 +45,14 @@ const PROHIBIDO = [
   { re: /\(SSTR2\) del tumor|tumor’s somatostatin receptors \(SSTR2\)|lesiones SSTR2|SSTR2\+? lesions/, por: 'SSTR2 afirmado del tumor' },
   { re: /menos de 1 de cada 1\.000|fewer than 1 in 1,000/, por: 'cifra de rareza que no sostiene su fuente' },
   { re: /Metástasis exclusivamente óseas|Bone-only metastases\./, por: 'hay afectación hepática desde jul-2026', saltar: SALTAR_OSEAS },
+  { re: /rebiopsia ósea PET pendiente|siguiente paso es una rebiopsia|rebiopsia molecular avanzada como siguiente|Próximo paso \(junio 2026\)|next step is an advanced|Advanced molecular rebiopsy as the next step|Next step \(June 2026\)/, por: 'la rebiopsia se hizo el 8-jul-2026', saltar: SALTAR_OSEAS },
+  { re: /en ensayo en fase 1 con BG-75202|on a phase 1 trial with BG-75202/, por: 'salió del BG-75202 el 9-sep-2026', saltar: SALTAR_OSEAS },
+  { re: /FGFR1 en 11q13|FGFR1 at 11q13|amplicón 11q13 \(FGFR1|11q13 amplicon \(FGFR1/, por: 'FGFR1 está en 8p11, no en 11q13' },
+  { re: /un freno que se (está|va) perdiendo|a brake that is being lost|"se está perdiendo"/, por: 'RB1 solo en ctDNA, no confirmado en tejido' },
+  { re: /Pendiente reanálisis sobre tejido actualizado|Pending re-analysis on updated tissue/, por: 'PIK3CA ya reanalizado en tejido (F1CDx jul-2026)' },
+  { re: /ECOG 1, sin crisis visceral|ECOG 1, no visceral crisis/, por: 'ECOG documentado 0 (9-sep-2026)' },
+  { re: /2159-8290\.CD-24-0837|s00259-020-05054-9|jclinpath-2020-207002/, por: 'DOI que resuelve a otro paper' },
+  { re: /NCCN Guidelines — Neuroendocrine and Adrenal Tumors|ENETS Consensus Guidelines, 2023/, por: 'guía que no recoge un algoritmo para mama NE' },
 ]
 
 function* ficheros(dir) {

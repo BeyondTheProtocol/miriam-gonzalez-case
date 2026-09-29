@@ -69,6 +69,7 @@ const scienceSchema = z.object({
       regimen: z.string(),
       outcome: z.string(),
       active: z.boolean(),
+      badge: z.string().optional(),
     })
   ),
   papers: z
@@ -105,6 +106,8 @@ const scienceSchema = z.object({
       method: z.string(),
       targets: z.string(),
       implication: z.string(),
+      status: z.string().optional(),
+      statusTone: z.enum(['hecho', 'curso', 'pendiente', 'no']).optional(),
     })
   ),
   liquidBiopsies: z
@@ -155,6 +158,7 @@ const scienceSchema = z.object({
       summary: z.string(),
       meaning: z.string(),
       quote: z.string().optional(),
+      caveat: z.string().optional(),
     })
     .optional(),
   boneBiopsy: z
