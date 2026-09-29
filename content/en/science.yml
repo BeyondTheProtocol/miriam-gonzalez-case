@@ -1,51 +1,54 @@
 treatments:
   - line: dx
-    regimen: Diagnosis and palliative radiotherapy (January–February 2024)
+    regimen: Diagnosis and palliative radiotherapy (January 2024)
     outcome: >-
       Diagnosed in January 2024 after presenting to the ER with low-back pain:
-      vertebral metastases were found. Premenopausal. Palliative systemic
-      treatment started in February 2024 with the goal of prolonging survival.
-      Received radiotherapy to the spine with a good response: progressive
-      improvement, spinal stability and no fractures.
+      de novo stage IV, with multiple bone metastases and spinal cord
+      compression at L3. Premenopausal. Radiotherapy to L3 (30 Gy in 10
+      fractions, completed 29 January 2024) with progressive improvement.
+      Palliative systemic treatment from February 2024.
     active: false
   - line: 1L
-    regimen: Letrozole + Ribociclib + Zoladex (goserelin) + zoledronic acid
+    regimen: Letrozole + Ribociclib + Zoladex (goserelin) + zoledronic acid (from February 2024)
     outcome: >-
-      Ribociclib discontinued after the 1st cycle due to toxicity. Zoladex
-      continued.
+      Ribociclib stopped after 15 days (within cycle 1) for neutropenic
+      necrotising pneumonia, with a two-month admission, ten days in ICU.
+      Goserelin + letrozole continued alone for 12 months.
     active: false
   - line: 2L
-    regimen: Fulvestrant + Abemaciclib + Zoladex (goserelin) + zoledronic acid
+    regimen: Fulvestrant + Abemaciclib 100 mg BID + Zoladex (goserelin) + zoledronic acid (from January 2025)
     outcome: >-
-      On confirmed progression, letrozole is replaced by fulvestrant and
-      ribociclib by abemaciclib. Zoladex and zoledronic acid are maintained.
+      Bone progression in January 2025, after 12 months of goserelin +
+      letrozole. Letrozole is replaced by fulvestrant and abemaciclib is added,
+      at 100 mg BID from the start because of the earlier infection.
     active: false
   - line: →
     regimen: Bone progression (March 2026)
     outcome: >-
       The PET-CT (24 Mar 2026) confirms bone progression (increased uptake in
-      pelvis and right femur; new foci in D1 and left iliac). Abemaciclib (always
-      at 100 mg) is stopped on 30 Mar 2026 due to progression and mild
-      hepatotoxicity that normalized once it was withdrawn. Zoladex and zoledronic
-      acid continue. No visceral crisis.
+      pelvis and right femur; new foci in T1 and left iliac), with no visceral
+      disease. Abemaciclib is stopped on 30 Mar 2026 for progression,
+      coinciding with possible liver toxicity. Fulvestrant and Zoladex continue
+      until 28 May 2026.
     active: false
   - line: RT
-    regimen: SBRT to D11 (June 2026)
+    regimen: SBRT to T11 (15–19 June 2026)
     outcome: >-
-      Stereotactic radiotherapy in 5 fractions, given urgently for risk of
-      spinal cord compression after the MRI of 11 June 2026.
+      Stereotactic radiotherapy to T11, the vertebra with anterior epidural
+      extension on the spine MRI of 11 June 2026.
     active: false
   - line: 3L
-    regimen: Fulvestrant + BG-75202 (KAT6 inhibitor), phase 1a/1b trial (July–September 2026)
+    regimen: Fulvestrant + BG-75202 (KAT6 inhibitor), phase 1 trial (July–September 2026)
     outcome: >-
       From 15 July to 9 September 2026, at Vall d'Hebron. Screening imaging
-      (July) already showed liver lesions: the disease, until then bone-only,
-      was no longer confined to bone. She came off the trial on 9 September
-      for clinical liver progression at 8 weeks: RECIST read stable disease
-      (+8.8%), but the liver lesions were growing, liver function was
-      worsening and CA15.3 was rising. The FDG-PET of 8 September describes
-      liver and bone progression with new lesions. This exhausts the endocrine
-      therapy options.
+      (July) already showed liver lesions: the metastases, until then bone-only
+      (the breast primary is still present), were no longer confined to bone.
+      She came off the trial on 9 September for clinical liver progression at 8
+      weeks: RECIST read stable disease (+8.8%; liver target lesions from 18 to
+      20 mm and from 15 to 19 mm), but liver function was worsening and CA15.3
+      went from 145 to 510 U/mL. The FDG-PET of 8 September describes liver and
+      bone progression with new lesions. This exhausts the endocrine therapy
+      options.
     active: false
   - line: 4L
     regimen: Datopotamab deruxtecan (Dato-DXd), anti-TROP-2 ADC · TROPION-Breast06 trial (NCT07205822)
@@ -377,9 +380,9 @@ panelRows:
     statusTone: pendiente
     implication: 'Helps classify the tumour and understand how it changes identity'
   - component: Liquid biopsy (ctDNA)
-    method: 'Plasma · Guardant360 and VHIO360'
+    method: 'Plasma · VHIO360 (×2), Guardant360 and Guardant360 CDx'
     targets: 'ESR1, RB1, amplifications, variant allele fraction (VAF)'
-    status: 'Done (3 draws, Apr–May 2026)'
+    status: 'Done (3 draws, 4 reports, Apr–May 2026)'
     statusTone: hecho
     implication: 'Saw ESR1 D538G and RB1, which bone tissue does not confirm. The TROPION-Breast06 trial plans serial liquid biopsies'
   - component: Immunopeptidomics (HLA peptidome)
@@ -404,16 +407,21 @@ liquidBiopsies:
   - id: ctdna-1
     date: Apr 7, 2026
     source: VHIO360 — liquid biopsy trial
-    findings: Plasma ctDNA panel — baseline profile
+    findings: 'ESR1 D538G (0.24%) · CCND1 ×6 · FGFR1 ×5 · MET p.E59* (VUS, 0.77%) · MSI-low · no fusions'
   - id: ctdna-2
-    date: April 2026
+    date: Drawn 2026-04-13 · report 2026-04-23
     source: Guardant360
-    findings: 'ESR1 D538G · RB1 ×3 (p.V622Yfs*33 1.58% · p.R661W 1.48% · p.F226* subclonal) · FGFR1 amplified · CCND1 amplified'
+    findings: 'RB1 ×3 (p.V622Yfs*33 1.58% · p.R661W 1.48% · p.F226* 0.28%) · CCND1 amp (7.63) · FGFR1 amp (6.95) · ESR1 D538G not detected in this sample'
     highlight: true
   - id: ctdna-3
     date: Drawn 2026-05-13 · report 2026-05-26
     source: Guardant360 CDx
     findings: 'ESR1 D538G (0.84%) · CCND1 amp (6.83) · FGFR1 amp (5.86) · RB1 V622Yfs*33 (0.19%) · SMO V319D (0.26%) — new'
+    highlight: true
+  - id: ctdna-4
+    date: Drawn 2026-05-13 · report 2026-06-01
+    source: VHIO360
+    findings: 'ESR1 D538G (1.38%) · RB1 p.V622fs (0.68%) · ARID1A p.L2238fs (0.11%) — new · SMO V319D (0.56%, VUS) · CCND1 7.62 · FGFR1 6 · MSI-low'
     highlight: true
 liquidBiopsyPivot:
   samples:
@@ -433,8 +441,8 @@ liquidBiopsyPivot:
     - alteration: ESR1
       subscript: p.D538G
       values:
-        vhio360: { value: 'detected', tone: warn }
-        guardant1: { value: 'detected', tone: warn }
+        vhio360: { value: '0.24%', tone: warn }
+        guardant1: { value: 'not detected', plain: true }
         guardantcdx: { value: '0.84%', tone: warn }
     - alteration: RB1
       subscript: p.V622Yfs*33
@@ -445,14 +453,14 @@ liquidBiopsyPivot:
     - alteration: CCND1
       subscript: amplification
       values:
-        vhio360: { plain: true }
-        guardant1: { value: 'amplified', tone: violet }
+        vhio360: { value: '6', tone: violet }
+        guardant1: { value: '7.63', tone: violet }
         guardantcdx: { value: '6.83', tone: violet }
     - alteration: FGFR1
       subscript: amplification
       values:
-        vhio360: { plain: true }
-        guardant1: { value: 'amplified', tone: violet }
+        vhio360: { value: '5', tone: violet }
+        guardant1: { value: '6.95', tone: violet }
         guardantcdx: { value: '5.86', tone: violet }
     - alteration: SMO
       subscript: 'p.V319D · VUS'
@@ -474,27 +482,30 @@ imaging:
     (SSTR). Focal uptake in the right breast tail pending a dedicated study.
   meaning: >-
     The bone metastases express somatostatin receptors, the target of
-    radioligand therapy (PRRT). It supports on imaging the tumor's
-    neuroendocrine face and opens a route that breast-cancer protocols do not
+    radioligand therapy (PRRT). It is consistent with the neuroendocrine
+    component seen on biopsy (the report only states somatostatin-receptor
+    overexpression) and opens a route that breast-cancer protocols do not
     contemplate as standard.
   caveat: >-
     Limits: the PET dates from May 2026, before the liver lesions appeared, so
     their SSTR status is unknown. Bone uptake was heterogeneous, with lesions
     showing no gallium. The FDG-PET of 8 September 2026 describes liver and
-    bone progression, with new lesions.
+    bone progression, with new lesions; the same day, the CT and spine MRI
+    report bone stability, so the bone progression is metabolic rather than
+    morphological.
   quote: >-
     Study showing multiple blastic bone metastases with somatostatin receptor
     overexpression. Focal uptake in the right breast tail to be evaluated in a
     dedicated study.
 boneBiopsy:
-  title: Bone biopsy (right iliac crest)
+  title: Bone biopsy (right ilium)
   date: 1st attempt 2026-04-30 (no tumor) · 2nd attempt 2026-07-08 (tumor) · reports 2026-07-17 and 2026-08-19
-  site: Right iliac crest
+  site: Right ilium
   result: >-
     The first attempt (April 2026) yielded no tumor: only “mineralized bone
     trabeculae and skeletal muscle fibers”. The second one (July 2026) did yield
     viable tumour tissue, and it is the first molecular characterisation
-    done on tissue rather than ctDNA. Pathology concludes bone metastasis of the
+    on metastatic tissue (the 2024 primary already had tissue NGS). Pathology concludes bone metastasis of the
     breast neuroendocrine tumour, with positive synaptophysin and Ki67 around
     15%. The pathologist states two explicit caveats: the sample contains little
     tumour tissue, and grading of neuroendocrine tumours is not established on

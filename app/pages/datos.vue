@@ -73,11 +73,14 @@ const ecog = c.ficha?.ecog
 const nLineas = sistemicas.filter((l) => { const i = rangoParcial(l.inicio); return i && i[0] <= hoyMs }).length
 const nunca = c.nunca_recibido
 const snc = (c.ficha?.sitios ?? []).find((x: any) => /^SNC|^CNS/.test(T(x.valor)))
+/* SNC: el texto sale del dato (fuente.json), no de la plantilla. Hasta el 29-sep aquí ponía «no estudiado»
+   y había una RM craneal negativa del 13-jul-2026. */
+const sncTxt = computed(() => (snc ? T(snc.valor).replace(/^(SNC|CNS):\s*/, '') : ''))
 /* diagnóstico en UNA línea (Miriam, 26-sep): el perfil anatomopatológico y molecular vive en /ciencia.
    El tipo, del diagnóstico de caso.json (verificado); la fecha, la de la biopsia. Sitios de enfermedad
    en corto: «Hueso: metástasis incontables…» hasta el primer «;». */
 const dx = c.ficha?.diagnostico ?? null
-const dxCorto = computed(() => L('Cáncer de mama con diferenciación neuroendocrina (BC-NED), HR+/HER2− (IHC 0)', 'Breast cancer with neuroendocrine differentiation (BC-NED), HR+/HER2− (IHC 0)'))
+const dxCorto = computed(() => L('Cáncer de mama con diferenciación neuroendocrina (BC-NED); primario HR+/HER2 0; metástasis hepática (2026) RE 0 %, RP 5 %, HER2 0', 'Breast cancer with neuroendocrine differentiation (BC-NED); primary HR+/HER2 0; liver metastasis (2026) ER 0%, PR 5%, HER2 0'))
 const mesAnio = (iso: string, lg: Lang) => `${mesCorto(Number(iso.slice(5, 7)) - 1, lg)} ${iso.slice(0, 4)}`
 const sitiosCortos = computed(() => (c.ficha?.sitios ?? []).filter((x: any) => !/^SNC|^CNS/.test(T(x.valor))).map((x: any) => {
   const t = T(x.valor); const i = t.indexOf(':')
@@ -397,7 +400,7 @@ const n = (v: number) => numCaso(v, lang.value)
             <li v-if="ecog"><span class="dt-eleg__k">ECOG</span><span class="dt-eleg__v nums">{{ T(ecog.valor) }}</span><span class="dt-eleg__f">{{ fechaCorta(ecog.fecha, lang) }}</span><DatosSello :s="ecog.sello" :lang="lang" /></li>
             <li><span class="dt-eleg__k">{{ L('Líneas sistémicas', 'Systemic lines') }}</span><span class="dt-eleg__v nums">{{ nLineas }}</span><span class="dt-eleg__f">{{ sistemicas.filter((l) => rangoParcial(l.inicio)![0] <= hoyMs).map((l) => l.id).join(' · ') }}</span></li>
             <li v-if="nunca" class="dt-eleg--ancha"><span class="dt-eleg__k">{{ L('Nunca ha recibido', 'Never received') }}</span><span class="dt-eleg__lista">{{ (nunca.valor as Texto[]).map((x) => T(x).split(' (')[0]).join(' · ') }}</span><DatosSello :s="nunca.sello" :lang="lang" /></li>
-            <li v-if="snc" class="dt-eleg--ancha"><span class="dt-eleg__k">{{ L('Sistema nervioso central', 'Central nervous system') }}</span><span class="dt-eleg__lista">{{ L('no estudiado (no es un negativo)', 'not studied (not a negative)') }}</span><DatosSello :s="snc.sello" :lang="lang" /></li>
+            <li v-if="snc" class="dt-eleg--ancha"><span class="dt-eleg__k">{{ L('Sistema nervioso central', 'Central nervous system') }}</span><span class="dt-eleg__lista">{{ sncTxt }}</span><DatosSello :s="snc.sello" :lang="lang" /></li>
           </ul>
           <!-- dónde hay enfermedad: el sujeto de «Hoy» (oncologo-virtual); SNC ya va en la fila de arriba -->
           <ul v-if="sitiosCortos.length" class="dt-sitios" :aria-label="L('Dónde hay enfermedad', 'Disease sites')">

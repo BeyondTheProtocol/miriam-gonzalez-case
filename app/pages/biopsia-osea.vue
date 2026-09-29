@@ -1,6 +1,6 @@
 <script setup lang="ts">
 /**
- * Visor de la microfotografía HE de la biopsia ósea (cresta ilíaca).
+ * Visor de la microfotografía HE de la biopsia ósea (ilion derecho; el informe de Zúrich dice «rechtes Os Ileum»).
  *
  * Pieza hermana de `mapa-metastasis.vue`: fuentes propias de la paciente, sin
  * interpretación añadida más allá de lo que se puede medir sobre el píxel.
@@ -57,7 +57,6 @@ type Datos = {
     firmas: { es: string; en: string; v: string }[]
     amplicones: { locus: string; genes: string; copias: number }[]
     amplicones_nota_es: string; amplicones_nota_en: string
-    variante: { gen: string; cambio: string; vaf: string; es: string; en: string }
     limpios: string; limpios_nota_es: string; limpios_nota_en: string
   }
 }
@@ -343,12 +342,12 @@ onBeforeUnmount(() => window.removeEventListener('resize', ajusta))
 <template>
   <main v-if="D" class="hist">
     <header class="hist__head">
-      <span class="hist__tag">{{ L('Biopsia ósea · cresta ilíaca · tinción HE', 'Bone biopsy · iliac crest · H&E stain') }}</span>
+      <span class="hist__tag">{{ L('Biopsia ósea · ilion derecho · tinción HE', 'Bone biopsy · right ilium · H&E stain') }}</span>
       <h1>{{ L('Lo que se puede medir en mi biopsia ósea', 'What can be measured in my bone biopsy') }}</h1>
       <p class="hist__lede">
         {{ L(
-          'Este es el corte de mi biopsia de cresta ilíaca, teñido con hematoxilina-eosina: el mismo tejido del que salió el panel molecular. Cada número de esta página sale de la propia imagen, calibrada con su barra de escala. Abajo está lo que se puede contar y medir en ella, y con el mismo detalle dónde se acaba lo que puede afirmarse mirándola.',
-          'This is the slide from my iliac crest biopsy, stained with haematoxylin and eosin: the same tissue the molecular panel came from. Every number on this page is measured on the image itself, calibrated against its own scale bar. Below is what can be counted and measured in it and, in the same detail, where what you can claim by looking at it runs out.') }}
+          'Este es el corte de mi biopsia del ilion derecho, teñido con hematoxilina-eosina: el mismo tejido del que salió el panel molecular. Cada número de esta página sale de la propia imagen, calibrada con su barra de escala. Abajo está lo que se puede contar y medir en ella, y con el mismo detalle dónde se acaba lo que puede afirmarse mirándola.',
+          'This is the slide from my right-ilium biopsy, stained with haematoxylin and eosin: the same tissue the molecular panel came from. Every number on this page is measured on the image itself, calibrated against its own scale bar. Below is what can be counted and measured in it and, in the same detail, where what you can claim by looking at it runs out.') }}
         <strong>{{ L('Ningún dato de aquí es un diagnóstico.', 'Nothing here is a diagnosis.') }}</strong>
       </p>
     </header>
@@ -547,11 +546,7 @@ onBeforeUnmount(() => window.removeEventListener('resize', ajusta))
         </div>
 
         <div class="hist__mol-card">
-          <h3>{{ L('Una variante puntual', 'One point variant') }}</h3>
-          <p class="hist__dato">{{ D.panel.variante.gen }} {{ D.panel.variante.cambio }}</p>
-          <p class="hist__hint">{{ L('Frecuencia alélica', 'Allele frequency') }} {{ D.panel.variante.vaf }}.
-            {{ L(D.panel.variante.es, D.panel.variante.en) }}</p>
-          <h3 class="hist__h3b">{{ L('Sin alteración reportable', 'No reportable alteration') }}</h3>
+          <h3>{{ L('Sin alteración reportable', 'No reportable alteration') }}</h3>
           <p class="hist__genes-limpios">{{ D.panel.limpios }}</p>
           <p class="hist__hint">{{ L(D.panel.limpios_nota_es, D.panel.limpios_nota_en) }}</p>
         </div>

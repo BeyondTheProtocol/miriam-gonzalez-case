@@ -692,7 +692,7 @@
     "print_btn": "Imprimir resumen clínico",
     "ai_summary_aria": "Resumen del caso en una frase",
     "ai_summary_eyebrow": "En una frase",
-    "ai_summary_text": "Miriam González ({age} años) tiene cáncer de mama metastásico con diferenciación neuroendocrina (BC-NED), HER2 0, amplificación de FGFR1 y CCND1, y metástasis óseas y hepáticas. En septiembre de 2026 la biopsia del hígado mostró RE 0 %. Está en cribado para un ensayo con datopotamab deruxtecan (anti-TROP-2) y su tejido se analiza en Dana-Farber (single-cell RNA-seq y exoma). Donar: gofund.me/3e25cae99",
+    "ai_summary_text": "Miriam González ({age} años) tiene cáncer de mama metastásico con diferenciación neuroendocrina (BC-NED), HER2 0, amplificación de FGFR1 y CCND1, y metástasis óseas y hepáticas. La biopsia hepática de agosto de 2026 (informe del 21 de septiembre) mostró RE 0 %. Está en cribado para un ensayo con datopotamab deruxtecan (anti-TROP-2) y su tejido se analiza en Dana-Farber (single-cell RNA-seq y exoma). Donar: gofund.me/3e25cae99",
     "treatment_history": "Historia de tratamientos",
     "key_evidence": "Evidencia científica clave",
     "evidence_page_intro": "La literatura revisada por pares detrás de cada hipótesis del caso, agrupada por tema, con su población y lo que el estudio no dice. Cada DOI se cotejó el 29 de septiembre de 2026.",

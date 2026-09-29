@@ -23,6 +23,12 @@
 //   estudio preclínico con 177Lu-DOTA-folato, no una serie de PRRT en mama NE;
 //   10.1136/jclinpath-2020-207002 es un paper de páncreas (Pareja es ...-207052).
 //   Las guías NCCN NET 2025 y ENETS 2023 no recogen un algoritmo para mama NE.
+// - Repaso contra informes originales (29-sep-2026): la biopsia de Zúrich es del ilion
+//   derecho («rechtes Os Ileum»), no de la cresta; el Guardant360 de abril NO detectó
+//   ESR1; Vall d'Hebron anota ECOG 0 en 2026; la RM craneal del 13-jul-2026 fue
+//   negativa (el SNC sí está estudiado); el informe de la RM de columna del 11-jun
+//   describe dorsal y lumbar; ningún documento dice que Oncología Radioterápica
+//   revisara los focos de carga.
 //
 // Uso: pnpm test:afirmaciones-clinicas   (CI: .github/workflows/lint.yml)
 import { readdirSync, readFileSync, statSync } from 'node:fs'
@@ -53,6 +59,12 @@ const PROHIBIDO = [
   { re: /ECOG 1, sin crisis visceral|ECOG 1, no visceral crisis/, por: 'ECOG documentado 0 (9-sep-2026)' },
   { re: /2159-8290\.CD-24-0837|s00259-020-05054-9|jclinpath-2020-207002/, por: 'DOI que resuelve a otro paper' },
   { re: /NCCN Guidelines — Neuroendocrine and Adrenal Tumors|ENETS Consensus Guidelines, 2023/, por: 'guía que no recoge un algoritmo para mama NE' },
+  { re: /biopsia (ósea )?(de |\()?cresta ilíaca|Biopsia ósea · cresta ilíaca|iliac crest biopsy|Bone biopsy \(right iliac crest\)|Hueso, cresta ilíaca/, por: 'la biopsia de Zúrich es del ilion derecho' },
+  { re: /guardant1: \{ value: '(detectada|detected)'/, por: 'el Guardant360 de abril no detectó ESR1' },
+  { re: /label: 'ECOG 1'/, por: 'ECOG 0 documentado en 2026' },
+  { re: /sin imagen cerebral en el archivo y sin clínica|no brain imaging on file and no recorded|no estudiado \(no es un negativo\)|not studied \(not a negative\)/, por: 'RM craneal 13-jul-2026 negativa' },
+  { re: /RMN de columna cervical y dorsal \(11\/06\/2026\)/, por: 'el informe de la RM describe dorsal y lumbar' },
+  { re: /revisado por Oncología Radioterápica|Oncología Radioterápica ya los revisó|en seguimiento por Oncología Radioterápica|reviewed by Radiation Oncology|under Radiation Oncology follow/, por: 'sin documento de revisión por Oncología Radioterápica' },
 ]
 
 function* ficheros(dir) {

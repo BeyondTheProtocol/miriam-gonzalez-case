@@ -6,7 +6,7 @@
  * más allá de lo que dicen los informes:
  *  - PET-CT ¹⁸F-FDG (centro hospitalario, 24/03/2026)
  *  - PET-CT ⁶⁸Ga-DOTATOC (centro hospitalario, 26/05/2026)
- *  - RMN de columna cervical y dorsal (11/06/2026)
+ *  - RMN de columna (11/06/2026): imágenes DICOM de las series cervical y dorsal; el informe describe dorsal y lumbar hasta S2
  * Las imágenes se reconstruyen a partir de los DICOM de esos mismos estudios.
  * Herramienta de comprensión y apoyo a la conversación clínica — no es consejo médico.
  */
@@ -221,29 +221,29 @@ const LES: Lesion[] = [
     what: { es: 'Ala ilíaca derecha. Captación dual, predominio glucolítico (¹⁸F-FDG > ⁶⁸Ga-DOTATOC).', en: 'Right iliac wing. Dual uptake, glycolytic-predominant (¹⁸F-FDG > ⁶⁸Ga-DOTATOC).' },
     tech: { es: '⁶⁸Ga-DOTATOC SUVmáx 4.32 / ¹⁸F-FDG 7.71 (previo 7.0, leve ↑). Mixto, FDG>SSTR.', en: '⁶⁸Ga-DOTATOC SUVmax 4.32 / ¹⁸F-FDG 7.71 (prior 7.0, slight ↑). Mixed, FDG>SSTR.' },
     priorBiopsy: {
-      es: 'Biopsia previa de este foco: solo dio hueso y músculo, sin tumor evaluable. Es un foco mixto, pero la zona muestreada fue hueso denso (blástico); el hueso denso suele rentabilizar poco en la biopsia (poco tejido tumoral).',
-      en: 'Prior biopsy of this focus: yielded only bone and muscle, no evaluable tumor. It is a mixed focus, but the sampled zone was dense (blastic) bone; dense bone usually yields little on biopsy (little tumor tissue).',
+      es: 'Biopsia previa (30/04/2026, aguja 12 G guiada por TC) de «una de las lesiones escleróticas del hueso ilíaco derecho»: solo dio hueso y músculo, sin tumor evaluable. El informe no precisa si fue el ala (#13) o la zona supraacetabular (#14). El hueso denso suele rendir poco tejido tumoral.',
+      en: 'Prior biopsy (30 Apr 2026, CT-guided 12 G needle) of “one of the sclerotic lesions of the right iliac bone”: it yielded only bone and muscle, no evaluable tumour. The report does not specify whether it was the wing (#13) or the supra-acetabular area (#14). Dense bone usually yields little tumour tissue.',
     },
   },
   {
     id: 14, x: 172, y: 585, side: 'R', dota: 3.96, fdg: 9.33, prevFdg: 4.0, load: true, pheno: 'mixAgg', size: '14 × 11',
     level: { es: 'Ilíaco derecho supraacetabular', en: 'Right supra-acetabular iliac' },
     region: { es: 'Pelvis · techo de la cadera', en: 'Pelvis · hip roof' },
-    what: { es: 'Ilíaco supra-acetabular derecho (techo de la cadera). El ¹⁸F-FDG se ha más que duplicado vs el previo. Hueso de carga; en seguimiento por Oncología Radioterápica.', en: 'Right supra-acetabular iliac (hip roof). ¹⁸F-FDG has more than doubled vs prior. Weight-bearing bone; under Radiation Oncology follow-up.' },
+    what: { es: 'Ilíaco supra-acetabular derecho (techo de la cadera). El ¹⁸F-FDG se ha más que duplicado vs el previo. Hueso de carga: el riesgo de fractura lo valoran Oncología Radioterápica y Traumatología.', en: 'Right supra-acetabular iliac (hip roof). ¹⁸F-FDG has more than doubled vs prior. Weight-bearing bone: fracture risk is for Radiation Oncology and Orthopaedics to assess.' },
     tech: { es: '⁶⁸Ga-DOTATOC SUVmáx 3.96 / ¹⁸F-FDG 9.33 (previo 4.0, claro ↑). Mixto, FDG>SSTR, hueso de carga.', en: '⁶⁸Ga-DOTATOC SUVmax 3.96 / ¹⁸F-FDG 9.33 (prior 4.0, clearly rising). Mixed, FDG>SSTR, weight-bearing bone.' },
   },
   {
     id: 15, x: 275, y: 585, side: 'L', dota: 2.54, fdg: 3.97, prevFdg: 1.93, pheno: 'mixAgg',
     level: { es: 'Ilíaco izquierdo supraacetabular', en: 'Left supra-acetabular iliac' },
     region: { es: 'Pelvis · techo de la cadera', en: 'Pelvis · hip roof' },
-    what: { es: 'Espejo del #14 en el lado izquierdo (ilíaco supra-acetabular). Foco nuevo de baja intensidad pero en aumento; posible contaminación por captación pélvica fisiológica vecina, a correlacionar en el DICOM.', en: 'Mirror of #14 on the left (supra-acetabular iliac). New low-intensity focus, increasing; possible contamination from neighboring physiologic pelvic uptake, to correlate on the DICOM.' },
-    tech: { es: '¹⁸F-FDG SUVmáx 3.97 (previo 1.93, nuevo) con ⁶⁸Ga-DOTATOC 2.54. Foco mixto nuevo de baja intensidad. Posible contaminación pélvica vecina (intestino/vejiga): a correlacionar en el DICOM.', en: '¹⁸F-FDG SUVmax 3.97 (prior 1.93, new) with ⁶⁸Ga-DOTATOC 2.54. New low-intensity mixed focus. Possible neighboring pelvic contamination (bowel/bladder): to correlate on the DICOM.' },
+    what: { es: 'Espejo del #14 en el lado izquierdo (ilíaco supraacetabular). El informe de FDG del 24/03 lo da como foco nuevo (3,97; previo 1,93), pero el de Galio del 26/05 lo lista como «no FDG»: los dos informes no coinciden en este foco. Que la señal esté contaminada por captación pélvica vecina es una hipótesis de esta herramienta, no del informe.', en: 'Mirror of #14 on the left (supra-acetabular iliac). The 24/03 FDG report gives it as a new focus (3.97; prior 1.93), but the 26/05 gallium report lists it as “no FDG”: the two reports disagree on this focus. That the signal is contaminated by neighbouring pelvic uptake is a hypothesis of this tool, not of the report.' },
+    tech: { es: '¹⁸F-FDG SUVmáx 3.97 el 24/03 (previo 1.93) y ⁶⁸Ga-DOTATOC 2.54 el 26/05. El informe de Galio lo clasifica «no FDG», en desacuerdo con el de FDG. Hipótesis de la herramienta, sin respaldo en informe: contaminación pélvica vecina (intestino/vejiga), a correlacionar en el DICOM.', en: '¹⁸F-FDG SUVmax 3.97 on 24/03 (prior 1.93) and ⁶⁸Ga-DOTATOC 2.54 on 26/05. The gallium report classes it as “no FDG”, disagreeing with the FDG report. Tool hypothesis, not backed by a report: neighbouring pelvic contamination (bowel/bladder), to correlate on the DICOM.' },
   },
   {
     id: 16, x: 158, y: 628, r: 13, side: 'R', dota: 5.09, fdg: 9.43, prevFdg: 6.0, load: true, pheno: 'mixAgg', size: '18 × 13',
     level: { es: 'Fémur proximal derecho', en: 'Right proximal femur' },
     region: { es: 'Cadera derecha', en: 'Right hip' },
-    what: { es: 'Cuello femoral derecho. Uno de los focos con mayor ¹⁸F-FDG, en aumento vs el previo. Hueso de carga; en seguimiento por Oncología Radioterápica.', en: 'Right femoral neck. One of the highest ¹⁸F-FDG foci, risen vs prior. Weight-bearing bone; under Radiation Oncology follow-up.' },
+    what: { es: 'Fémur proximal derecho (el informe dice «femoral derecha»; situarlo en el cuello femoral es lectura de la imagen). Uno de los focos con mayor ¹⁸F-FDG, en aumento vs el previo. Hueso de carga: el riesgo de fractura lo valoran Oncología Radioterápica y Traumatología.', en: 'Right proximal femur (the report says “right femoral”; placing it in the femoral neck is an image read). One of the highest ¹⁸F-FDG foci, risen vs prior. Weight-bearing bone: fracture risk is for Radiation Oncology and Orthopaedics to assess.' },
     tech: { es: '⁶⁸Ga-DOTATOC SUVmáx 5.09 / ¹⁸F-FDG 9.43 (previo 6.0, ↑). Mixto, FDG>SSTR, hueso de carga. Confirmada en corte axial PET-CT.', en: '⁶⁸Ga-DOTATOC SUVmax 5.09 / ¹⁸F-FDG 9.43 (prior 6.0, ↑). Mixed, FDG>SSTR, weight-bearing bone. Confirmed on axial PET-CT.' },
   },
   {
@@ -325,8 +325,8 @@ interface Cell {
 const STUDY_DATES = {
   fdg: '2026-03-24',       // PET-CT ¹⁸F-FDG
   ga: '2026-05-26',        // PET-CT ⁶⁸Ga-DOTATOC
-  fdgPrev: '2026-01',      // PET-CT ¹⁸F-FDG previo (mes)
-  rmn: '2026-06-11',       // RMN de columna cervical/dorsal
+  fdgPrev: '2026-01',      // PET-CT ¹⁸F-FDG previo (mes): cifras tal como las cita el informe del 24/03/2026, no las del informe de enero
+  rmn: '2026-06-11',       // RMN de columna: DICOM cervical/dorsal; informe dorsal y lumbar
 } as const
 
 /* La PROCEDENCIA de un foco es DERIVADA de los datos existentes (LES, AUTO,
@@ -710,7 +710,7 @@ const BIOPSY: Record<number, { zone: BiTxt; approach: BiTxt; safety: BiTxt; rend
   8: { zone: { es: 'Pedículo de atenuación esclerótica y calibre estrecho; sin subvolumen idóneo.', en: 'Sclerotic, narrow-caliber pedicle; no suitable subvolume.' }, approach: { es: 'Transpedicular al pedículo izquierdo de T11.', en: 'Transpedicular to the left T11 pedicle.' }, safety: { es: 'Contiguo a la extensión epidural de #7.', en: 'Contiguous to the epidural extension of #7.' }, rend: { es: 'Bajo.', en: 'Low.' } },
   9: { zone: { es: 'Apófisis espinosa de pequeño tamaño; sin subvolumen útil.', en: 'Small spinous process; no usable subvolume.' }, approach: { es: 'Posterior a la apófisis espinosa de L1.', en: 'Posterior to the L1 spinous process.' }, safety: { es: 'Localización lumbar (corredor más seguro) pero diana pequeña y posterior.', en: 'Lumbar location (safer corridor) but a small, posterior target.' }, rend: { es: 'Bajo / riesgo de muestra no diagnóstica.', en: 'Low / non-diagnostic-sample risk.' } },
   10: { zone: { es: 'El propio subvolumen ¹⁸F-FDG-ávido (foco con discordancia ¹⁸F-FDG⁺ / ⁶⁸Ga-DOTATOC⁻).', en: 'The ¹⁸F-FDG-avid subvolume itself (focus with ¹⁸F-FDG⁺ / ⁶⁸Ga-DOTATOC⁻ discordance).' }, approach: { es: 'Transpedicular izquierdo de L1; fusión TC+PET para centrar (captación solo en ¹⁸F-FDG).', en: 'Left L1 transpedicular; CT+PET fusion to center it (uptake on ¹⁸F-FDG only).' }, safety: { es: 'Lumbar, infraconal (corredor más seguro); pedículo de pequeño calibre → diana técnicamente exigente.', en: 'Lumbar, infraconal (safer corridor); small-caliber pedicle → technically demanding target.' }, rend: { es: 'Moderado; perfil molecular complementario de alto valor por la discordancia de trazadores.', en: 'Moderate; high-value complementary molecular profile given the tracer discordance.' } },
-  11: { zone: { es: 'Subvolumen de atenuación mixta y captación elevada del cuerpo vertebral (sin componente esclerótico marcado).', en: 'Mixed-attenuation, high-uptake subvolume of the vertebral body (no marked sclerotic component).' }, approach: { es: 'Transpedicular infraconal, si la trayectoria libra la cresta ilíaca.', en: 'Infraconal transpedicular, if the trajectory clears the iliac crest.' }, safety: { es: 'SBRT concurrente: el tejido irradiado puede no ser representativo para la caracterización molecular → prioridad baja pese a la captación. Acceso: hueso de carga, pero el cuerpo vertebral lo tolera mejor que el cuello femoral.', en: 'Concurrent SBRT: irradiated tissue may not be representative for molecular characterization → low priority despite the uptake. Access: weight-bearing bone, but the vertebral body tolerates it better than the femoral neck.' }, rend: { es: 'Reducido por la SBRT (tejido irradiado), pese al volumen del cuerpo vertebral.', en: 'Reduced by SBRT (irradiated tissue), despite the vertebral-body volume.' } },
+  11: { zone: { es: 'Subvolumen de captación elevada del cuerpo vertebral. La RM lo describe muy hipointenso, «sugestivo de infiltración más blástica», y la medición sobre el TC también lo clasifica como blástico.', en: 'High-uptake subvolume of the vertebral body. The MRI describes it as markedly hypointense, “suggestive of more blastic infiltration”, and the CT measurement also classes it as blastic.' }, approach: { es: 'Transpedicular infraconal, si la trayectoria libra la cresta ilíaca.', en: 'Infraconal transpedicular, if the trajectory clears the iliac crest.' }, safety: { es: 'Hueso de carga, aunque el cuerpo vertebral lo tolera mejor que el cuello femoral.', en: 'Weight-bearing bone, although the vertebral body tolerates it better than the femoral neck.' }, rend: { es: 'Volumen del cuerpo vertebral favorable; la RM lo describe muy hipointenso, «sugestivo de infiltración más blástica», lo que puede reducir el rendimiento.', en: 'Favourable vertebral-body volume; the MRI describes it as markedly hypointense, “suggestive of more blastic infiltration”, which may reduce yield.' } },
   12: { zone: { es: 'Subvolumen de atenuación mixta y captación elevada del ala sacra esponjosa.', en: 'Mixed-attenuation, high-uptake subvolume of the cancellous sacral ala.' }, approach: { es: 'Corredor sacro posterior (prono).', en: 'Posterior sacral corridor (prone).' }, safety: { es: 'Vigilar los forámenes sacros y los vasos presacros; sin médula espinal en el corredor.', en: 'Watch the sacral foramina and presacral vessels; no spinal cord in the corridor.' }, rend: { es: 'Moderado (corredor accesible).', en: 'Moderate (accessible corridor).' } },
   13: { zone: { es: 'Únicamente un subvolumen LÍTICO DISTINTO verificado en TC; el subvolumen esclerótico muestreado previamente resultó no diagnóstico.', en: 'Only a DIFFERENT lytic subvolume verified on CT; the previously sampled sclerotic subvolume was non-diagnostic.' }, approach: { es: 'Posterolateral al ala ilíaca (corredor conocido de la biopsia previa); fusión PET hacia el subvolumen de mayor captación y menor esclerosis.', en: 'Posterolateral to the iliac wing (the known prior-biopsy corridor); PET fusion toward the subvolume of highest uptake and least sclerosis.' }, safety: { es: 'Corredor accesible y conocido; el riesgo predominante es de muestra no diagnóstica, no de complicación.', en: 'Accessible, familiar corridor; the predominant risk is a non-diagnostic sample, not a complication.' }, rend: { es: 'Riesgo de no diagnóstico demostrado en el subvolumen previo (matriz esclerótica).', en: 'Demonstrated non-diagnostic risk at the prior subvolume (sclerotic matrix).' } },
   14: { zone: { es: 'Subvolumen ¹⁸F-FDG-ávido, verificando en TC que NO corresponde a la placa esclerótica (matriz que resultó no diagnóstica en la biopsia previa).', en: '¹⁸F-FDG-avid subvolume, verifying on CT it does NOT correspond to the sclerotic plate (the matrix that proved non-diagnostic in the prior biopsy).' }, approach: { es: 'Posterolateral supra-acetabular preservando el techo de carga acetabular; fusión PET para centrar el foco.', en: 'Posterolateral supra-acetabular sparing the load-bearing acetabular roof; PET fusion to center the focus.' }, safety: { es: 'Corredor accesible y conocido; confirmar la atenuación TC del punto diana antes de la punción.', en: 'Accessible, known corridor; confirm CT attenuation of the target point before puncture.' }, rend: { es: 'Estimación orientativa (heurística): alto (¹⁸F-FDG SUVmáx elevado y en aumento, tamaño favorable, sin componente esclerótico marcado).', en: 'Indicative (heuristic) estimate: high (elevated and rising ¹⁸F-FDG SUVmax, favorable size, no marked sclerotic component).' } },
@@ -969,8 +969,8 @@ function mriCovers(le: Lesion): boolean {
 }
 function rmnNote(le: Lesion): string {
   if (le.rmn) return le.rmn[lang.value]
-  return L('La RMN de columna cubre este nivel (cervical/dorsal). El detalle de la forma y la médula ósea se ve en el visor.',
-           'The spine MRI covers this level (cervical/thoracic). Shape and bone-marrow detail are visible in the viewer.')
+  return L('Las imágenes de RMN disponibles (series cervical y dorsal) cubren este nivel. El detalle de la forma y la médula ósea se ve en el visor.',
+           'The available MRI images (cervical and thoracic series) cover this level. Shape and bone-marrow detail are visible in the viewer.')
 }
 /* desplazamiento que respeta prefers-reduced-motion (a11y): 'auto' si el usuario
    pide menos movimiento, 'smooth' si no. Se usa en todos los scrollIntoView de JS. */
@@ -1504,7 +1504,7 @@ function focusObservations(l: Lesion): { tone: string; es: string; en: string }[
   if (l.dota == null && l.fdg != null)
     out.push({ tone: 'warn', es: 'Discordancia de trazadores: ¹⁸F-FDG⁺ / ⁶⁸Ga-DOTATOC⁻.', en: 'Tracer discordance: ¹⁸F-FDG⁺ / ⁶⁸Ga-DOTATOC⁻.' })
   if (l.load)
-    out.push({ tone: 'neutral', es: 'Hueso de carga, en seguimiento por Oncología Radioterápica.', en: 'Weight-bearing bone, under Radiation Oncology follow-up.' })
+    out.push({ tone: 'neutral', es: 'Hueso de carga: riesgo de fractura a valorar por Oncología Radioterápica y Traumatología.', en: 'Weight-bearing bone: fracture risk to be assessed by Radiation Oncology and Orthopaedics.' })
   if (l.scler)
     out.push({ tone: 'neutral', es: 'Morfología blástica (hueso denso).', en: 'Blastic morphology (dense bone).' })
   if (sourceOf(l) === 'ia-david')
@@ -1726,7 +1726,8 @@ function clamp01(x: number): number { return Math.max(0, Math.min(1, x)) }
 
 /* eje mayor del tamaño (mm) para el factor de tamaño: prioriza la EXTENSIÓN
    METABÓLICA medida sobre el DICOM (umbral 41% del SUVmáx local). Si no es
-   medible/fiable, cae al tamaño reportado del informe (p.ej. «18 × 13» → 18). */
+   medible/fiable, cae al tamaño medido sobre el DICOM del documento de apoyo (p.ej. «18 × 13» → 18);
+   los informes de PET no dan tamaños por foco. */
 function sizeMajorMm(le: Lesion): number | null {
   const m = metExtentOf(le)
   if (m.mm != null) return m.mm
@@ -2299,6 +2300,18 @@ const manifestValidated = (() => {
           :tag="L('PET doble trazador · ' + confirmedFoci.length + ' focos · +' + aiFoci.length + ' por confirmar', 'Dual-tracer PET · ' + confirmedFoci.length + ' foci · +' + aiFoci.length + ' to confirm')"
         />
 
+        <!-- Fecha de la foto (29-sep-2026): el mapa se construyó en junio para decidir dónde
+             biopsiar. Lo que pasó después se dice aquí arriba, no en cada foco. -->
+        <div class="alert-callout mb-6" role="note" :aria-label="L('Aviso: foto de marzo a junio de 2026', 'Notice: snapshot from March to June 2026')">
+          <p class="alert-callout__title">
+            <Icon name="ph:calendar-blank-fill" class="w-4 h-4 shrink-0" aria-hidden="true" />
+            {{ L('Foto de marzo a junio de 2026', 'Snapshot from March to June 2026') }}
+          </p>
+          {{ L(
+            'Este mapa se hizo en junio de 2026 para decidir dónde biopsiar. Después: biopsia ósea con tumor el 8/07/2026 en el ilion derecho (Zúrich); metástasis hepáticas desde el PET del 10/07/2026, con un TC que describe lesiones óseas incontables; y el 8/09/2026 el PET-FDG informa nuevas lesiones óseas activas (costillas, escápula, pelvis, fémures) mientras el TC y la RM de ese mismo día informan estabilidad ósea. Los 19 focos de abajo son los que captaban trazador en marzo–mayo.',
+            'This map was built in June 2026 to decide where to biopsy. Since then: tumour-positive bone biopsy on 8/07/2026 in the right ilium (Zurich); liver metastases from the 10/07/2026 PET, with a CT describing innumerable bone lesions; and on 8/09/2026 the FDG-PET reports new active bone lesions (ribs, scapula, pelvis, femurs) while the same-day CT and MRI report bone stability. The 19 foci below are those with tracer uptake in March–May.') }}
+        </div>
+
         <!-- Aviso PERSISTENTE · herramienta de APOYO (petición de la paciente:
              que se diga «todo el rato»). El titular del disclaimer va SIEMPRE
              visible con el callout canónico del DS (.alert-callout, migrado en
@@ -2321,8 +2334,8 @@ const manifestValidated = (() => {
             </summary>
             <p class="mt-2">
             {{ L(
-              'Esta página reúne y visualiza los estudios propios de Miriam (PET-CT ¹⁸F-FDG 24/03/2026, PET-CT ⁶⁸Ga-DOTATOC 26/05/2026 y la RMN de columna cervical y dorsal). Los SUV son los de los informes oficiales del PET; las imágenes (PET y RMN) se reconstruyeron desde los DICOM. La RMN se muestra para verla: su lectura formal corresponde al radiólogo.',
-              'This page gathers and visualizes Miriam’s own studies (¹⁸F-FDG PET-CT 24/03/2026, ⁶⁸Ga-DOTATOC PET-CT 26/05/2026 and the cervical and thoracic spine MRI). SUVs are those of the official PET reports; the images (PET and MRI) were reconstructed from the DICOM. The MRI is shown for viewing: its formal reading belongs to the radiologist.') }}
+              'Esta página reúne y visualiza los estudios propios de Miriam (PET-CT ¹⁸F-FDG 24/03/2026, PET-CT ⁶⁸Ga-DOTATOC 26/05/2026 y la RMN de columna del 11/06/2026: imágenes de las series cervical y dorsal; el informe escrito describe la columna dorsal y lumbar hasta S2). Los SUV son los de los informes oficiales del PET; las imágenes (PET y RMN) se reconstruyeron desde los DICOM. La RMN se muestra para verla: su lectura formal corresponde al radiólogo. El «previo» de FDG es el valor que el informe del 24/03/2026 atribuye al estudio de enero; el informe de enero (13/01/2026, otro equipo) da cifras distintas (D11 6,6; fémur derecho 3,6; L5 2,3): los SUV no son comparables entre equipos. Los tamaños por foco se midieron sobre el DICOM; los informes no los dan. La vértebra con extensión epidural figura como D11 en Murcia y en la hoja RECIST, y como D12 en la RM de Barcelona: misma lesión, numeración distinta entre centros.',
+              'This page gathers and visualizes Miriam’s own studies (¹⁸F-FDG PET-CT 24/03/2026, ⁶⁸Ga-DOTATOC PET-CT 26/05/2026 and the 11 Jun 2026 spine MRI: images from the cervical and thoracic series; the written report covers the thoracic and lumbar spine down to S2). SUVs are those of the official PET reports; the images (PET and MRI) were reconstructed from the DICOM. The MRI is shown for viewing: its formal reading belongs to the radiologist. The FDG “prior” is the value the 24/03/2026 report assigns to the January study; the January report itself (13/01/2026, a different scanner) gives other figures (T11 6.6; right femur 3.6; L5 2.3): SUVs are not comparable across scanners. Per-focus sizes were measured on the DICOM; the reports do not give them. The vertebra with epidural extension is labelled T11 in Murcia and on the RECIST sheet, and T12 on the Barcelona MRI: same lesion, different numbering across centres.') }}
             </p>
           </details>
         </div>
@@ -2438,7 +2451,7 @@ const manifestValidated = (() => {
                (señal cruda → mejor tejido del clon adecuado, de forma segura), para que no parezca arbitrario. -->
           <details class="alert-callout mt-5 leading-relaxed">
             <summary class="cursor-pointer font-semibold">{{ L('Criterios de selección de dianas para caracterización molecular (y la salvedad del cuello femoral)', 'Target-selection criteria for molecular characterization (and the femoral-neck caveat)') }}</summary>
-            <p class="mt-2">{{ L('El criterio orientativo no es el SUVmáx más alto, sino el subvolumen con mayor probabilidad de aportar celularidad tumoral viable representativa —con integridad de ARN suficiente (DV200) para WES + RNA-seq— mediante un abordaje percutáneo TC-guiado de riesgo aceptable. Bajo este criterio heurístico (estimación orientativa, no validada), el equipo podría sopesar el ilíaco supra-acetabular (#14): ¹⁸F-FDG en aumento, atenuación TC no esclerótica y corredor posterolateral accesible; y, según el clon a caracterizar, también el pedículo L1 (#10), discordante ¹⁸F-FDG⁺ / ⁶⁸Ga-DOTATOC⁻. El cuello femoral (#16) tiene el ¹⁸F-FDG más alto y podría tener interés biológico, pero asienta en hueso de carga: los cores conllevan riesgo de fractura patológica, cuya indicación valoran Oncología Radioterápica/Ortopedia; se documenta como consideración, no exclusión. El L5 (#11) recibe SBRT concurrente: el tejido irradiado puede no ser representativo. Esto orienta, no decide: la selección final de la diana corresponde al comité; salvedades de cuantificación en «Fuentes, método y salvedades».', 'The indicative criterion is not the highest SUVmax, but the subvolume most likely to provide representative viable tumor cellularity — with RNA integrity sufficient (DV200) for WES + RNA-seq — via a CT-guided percutaneous approach of acceptable risk. Under this heuristic criterion (an indicative estimate, not validated), the team could weigh the supra-acetabular iliac (#14): rising ¹⁸F-FDG, non-sclerotic CT attenuation and an accessible posterolateral corridor; and, depending on the clone to be characterized, also the L1 pedicle (#10), discordant ¹⁸F-FDG⁺ / ⁶⁸Ga-DOTATOC⁻. The femoral neck (#16) has the highest ¹⁸F-FDG and may be of biological interest, but lies in weight-bearing bone: core sampling carries pathologic-fracture risk, whose indication is assessed by Radiation Oncology/Orthopedics; documented as a consideration, not an exclusion. L5 (#11) is on concurrent SBRT: irradiated tissue may not be representative. This orients, it does not decide: final target selection rests with the tumor board; quantification caveats in “Sources, method and caveats”.') }}</p>
+            <p class="mt-2">{{ L('El criterio orientativo no es el SUVmáx más alto, sino el subvolumen con mayor probabilidad de aportar celularidad tumoral viable representativa —con integridad de ARN suficiente (DV200) para WES + RNA-seq— mediante un abordaje percutáneo TC-guiado de riesgo aceptable. Bajo este criterio heurístico (estimación orientativa, no validada), el equipo podría sopesar el ilíaco supra-acetabular (#14): ¹⁸F-FDG en aumento, atenuación TC no esclerótica y corredor posterolateral accesible; y, según el clon a caracterizar, también el pedículo L1 (#10), discordante ¹⁸F-FDG⁺ / ⁶⁸Ga-DOTATOC⁻. El cuello femoral (#16) tiene el ¹⁸F-FDG más alto y podría tener interés biológico, pero asienta en hueso de carga: los cores conllevan riesgo de fractura patológica, cuya indicación valoran Oncología Radioterápica/Ortopedia; se documenta como consideración, no exclusión. Esto orienta, no decide: la selección final de la diana corresponde al comité; salvedades de cuantificación en «Fuentes, método y salvedades».', 'The indicative criterion is not the highest SUVmax, but the subvolume most likely to provide representative viable tumor cellularity — with RNA integrity sufficient (DV200) for WES + RNA-seq — via a CT-guided percutaneous approach of acceptable risk. Under this heuristic criterion (an indicative estimate, not validated), the team could weigh the supra-acetabular iliac (#14): rising ¹⁸F-FDG, non-sclerotic CT attenuation and an accessible posterolateral corridor; and, depending on the clone to be characterized, also the L1 pedicle (#10), discordant ¹⁸F-FDG⁺ / ⁶⁸Ga-DOTATOC⁻. The femoral neck (#16) has the highest ¹⁸F-FDG and may be of biological interest, but lies in weight-bearing bone: core sampling carries pathologic-fracture risk, whose indication is assessed by Radiation Oncology/Orthopedics; documented as a consideration, not an exclusion. This orients, it does not decide: final target selection rests with the tumor board; quantification caveats in “Sources, method and caveats”.') }}</p>
           </details>
         </section>
 
@@ -2976,7 +2989,7 @@ const manifestValidated = (() => {
                         {{ L('Ver en el visor RMN', 'Open the MRI viewer') }} <span aria-hidden="true">→</span>
                       </button>
                     </template>
-                    <p v-else class="text-[12px] text-tinta leading-snug">{{ L('La RMN de columna mostrada (cervical y dorsal) no cubre este nivel.', 'The spine MRI shown (cervical and thoracic) does not cover this level.') }}</p>
+                    <p v-else class="text-[12px] text-tinta leading-snug">{{ L('Las imágenes de RMN disponibles (series cervical y dorsal) no cubren este nivel; el informe de la RM describe la columna dorsal y lumbar hasta S2, pero no la pelvis, la escápula ni el fémur.', 'The available MRI images (cervical and thoracic series) do not cover this level; the MRI report covers the thoracic and lumbar spine down to S2, but not the pelvis, scapula or femur.') }}</p>
                   </div>
                 </div>
               </div>
@@ -3215,7 +3228,7 @@ const manifestValidated = (() => {
                   <div><span class="text-tinta">{{ L('¹⁸F-FDG SUVmáx', '¹⁸F-FDG SUVmax') }}</span><br><span class="font-mono text-berenjena" :class="{ 'data-soft': selIsAi }">{{ sel.fdg != null ? fmtSuv(sel, sel.fdg) : L('sin captación', 'no uptake') }}</span></div>
                   <div v-if="trend(sel)"><span class="text-tinta">{{ L('Tendencia ¹⁸F-FDG', '¹⁸F-FDG trend') }}</span><br><span class="font-mono" :style="{ color: trend(sel)!.dir === 'up' || trend(sel)!.dir === 'new' ? '#bb4128' : trend(sel)!.dir === 'down' ? '#1f5a3a' : '#3a3340' }">{{ trend(sel)!.txt }}</span></div>
                   <div v-if="sel.scler"><span class="text-tinta">{{ L('Morfología', 'Morphology') }}</span><br><span class="font-mono text-berenjena">{{ L('blástica / esclerótica', 'blastic / sclerotic') }}</span></div>
-                  <div v-if="sel.load"><span class="text-tinta">{{ L('Hueso de carga', 'Weight-bearing') }}</span><br><span class="font-mono text-berenjena">{{ L('sí · revisado por Oncología Radioterápica', 'yes · reviewed by Radiation Oncology') }}</span></div>
+                  <div v-if="sel.load"><span class="text-tinta">{{ L('Hueso de carga', 'Weight-bearing') }}</span><br><span class="font-mono text-berenjena">{{ L('sí · riesgo de fractura a valorar', 'yes · fracture risk to be assessed') }}</span></div>
                 </div>
               </details>
           </details>
@@ -3477,7 +3490,7 @@ const manifestValidated = (() => {
                 <div v-if="hasSoftTissue(le) || le.priorBiopsy || le.load" class="mt-2.5 flex flex-wrap gap-1.5">
                   <span v-if="hasSoftTissue(le)" class="pill-data" :style="{ background: 'rgba(31,107,87,0.12)', color: '#1f6b57' }">{{ L('+ partes blandas (RMN) · suele rendir más tejido', '+ soft tissue (MRI) · usually yields more tissue') }}</span>
                   <span v-if="le.priorBiopsy" class="pill-data" :style="{ background: '#f0e2c8', color: '#8a5a1a' }">{{ L('⚑ biopsia previa FALLÓ aquí', '⚑ prior biopsy FAILED here') }}</span>
-                  <span v-if="le.load" class="pill-data" :style="{ background: 'rgba(45,27,61,0.06)', color: '#3a3340' }">{{ L('hueso de carga · revisado (Oncología RT)', 'weight-bearing · reviewed (Radiation Oncology)') }}</span>
+                  <span v-if="le.load" class="pill-data" :style="{ background: 'rgba(45,27,61,0.06)', color: '#3a3340' }">{{ L('hueso de carga', 'weight-bearing') }}</span>
                 </div>
               </button>
             </li>
@@ -3729,13 +3742,13 @@ const manifestValidated = (() => {
                 {{ L('Texto transcrito del informe de RM, recogido en el documento de apoyo (12/06/2026). Es el texto del informe, no una relectura de la imagen por esta herramienta.',
                       'Text transcribed from the MRI report, captured in the supportive document (12 Jun 2026). It is the report’s text, not a re-reading of the image by this tool.') }}
               </p>
-              <p class="text-[12px] font-semibold text-berenjena mb-1.5">{{ L('Niveles con metástasis (multinivel):', 'Levels with metastasis (multilevel):') }}</p>
+              <p class="text-[12px] font-semibold text-berenjena mb-1.5">{{ L('Niveles afectados (multinivel). S1-S2: el informe describe una alteración de predominio graso, «a valorar cambios postratamiento», y no la llama metástasis:', 'Affected levels (multilevel). S1-S2: the report describes a fat-predominant change, “to be assessed as post-treatment change”, and does not call it metastasis:') }}</p>
               <div class="flex flex-wrap gap-1.5 mb-4">
                 <span v-for="lv in MRI_LEVELS" :key="lv" class="pill-data pill-data--violet">{{ lv }}</span>
               </div>
               <ul class="space-y-1.5 text-[13px] text-tinta leading-snug">
                 <li class="flex gap-2"><span class="mt-1.5 shrink-0 w-1.5 h-1.5 rounded-full" :style="{ background: FDG_FILL }" /><span><strong class="text-berenjena">D11</strong> — {{ L('extensión al espacio epidural anterior y compromiso del canal lateral izquierdo.', 'anterior epidural extension and left lateral canal compromise.') }}</span></li>
-                <li class="flex gap-2"><span class="mt-1.5 shrink-0 w-1.5 h-1.5 rounded-full" :style="{ background: '#c9921e' }" /><span>{{ L('Fracturas patológicas crónicas (desde 2024) de L1 y L3.', 'Chronic pathological fractures (since 2024) of L1 and L3.') }}</span></li>
+                <li class="flex gap-2"><span class="mt-1.5 shrink-0 w-1.5 h-1.5 rounded-full" :style="{ background: '#c9921e' }" /><span>{{ L('Fracturas patológicas de L1 (vertiente izquierda) y L3 (pérdida de altura severa); las RM de julio y septiembre de 2026 las describen «de aspecto cronificado».', 'Pathological fractures of L1 (left side) and L3 (severe height loss); the July and September 2026 MRIs describe them as “chronic-appearing”.') }}</span></li>
                 <li class="flex gap-2"><span class="mt-1.5 shrink-0 w-1.5 h-1.5 rounded-full" :style="{ background: '#1f5a3a' }" /><span>{{ L('Médula espinal de señal normal.', 'Spinal cord with normal signal.') }}</span></li>
               </ul>
               <!-- la RMN, conectada a la FACTIBILIDAD de la biopsia (descriptivo, no concluye) -->
@@ -3844,8 +3857,8 @@ const manifestValidated = (() => {
           </h2>
           <p class="text-sm text-tinta leading-relaxed mb-5 max-w-3xl">
             {{ L(
-              'Comparación de la captación glucolítica (¹⁸F-FDG) entre el estudio previo (ene 2026) y el actual (mar 2026), sobre los ' + trajectory.withPrev + ' focos con valor previo. El ⁶⁸Ga-DOTATOC (SSTR) procede del estudio de mayo 2026, sin previo con el que comparar.',
-              'Glycolytic-uptake (¹⁸F-FDG) comparison between the prior study (Jan 2026) and the current one (Mar 2026), over the ' + trajectory.withPrev + ' foci with a prior value. The ⁶⁸Ga-DOTATOC (SSTR) is from the May 2026 study, with no prior to compare.') }}
+              'Comparación de la captación glucolítica (¹⁸F-FDG) entre el estudio previo (ene 2026, con las cifras que cita el informe de marzo) y el actual (mar 2026), sobre los ' + trajectory.withPrev + ' focos con valor previo. El ⁶⁸Ga-DOTATOC (SSTR) procede del estudio de mayo 2026, sin previo con el que comparar.',
+              'Glycolytic-uptake (¹⁸F-FDG) comparison between the prior study (Jan 2026, using the figures the March report quotes) and the current one (Mar 2026), over the ' + trajectory.withPrev + ' foci with a prior value. The ⁶⁸Ga-DOTATOC (SSTR) is from the May 2026 study, with no prior to compare.') }}
           </p>
           <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-5">
             <div class="stat-readout">
@@ -3875,8 +3888,8 @@ const manifestValidated = (() => {
               {{ L('Focos en hueso de carga con FDG igual o mayor que el previo (descriptivo)', 'Weight-bearing foci with FDG equal to or above the prior study (descriptive)') }}
             </div>
             {{ L(
-              'Focos en hueso de carga cuyo FDG iguala o supera el del estudio previo: ' + loadBearingFdgFoci.map((l) => '#' + l.id + ' ' + l.level.es).join(' · ') + '. Oncología Radioterápica ya los revisó.',
-              'Foci in weight-bearing bone whose FDG matches or exceeds the prior study: ' + loadBearingFdgFoci.map((l) => '#' + l.id + ' ' + l.level.en).join(' · ') + '. Radiation Oncology has already reviewed them.') }}
+              'Focos en hueso de carga cuyo FDG iguala o supera el del estudio previo: ' + loadBearingFdgFoci.map((l) => '#' + l.id + ' ' + l.level.es).join(' · ') + '. El riesgo de fractura lo valoran Oncología Radioterápica y Traumatología.',
+              'Foci in weight-bearing bone whose FDG matches or exceeds the prior study: ' + loadBearingFdgFoci.map((l) => '#' + l.id + ' ' + l.level.en).join(' · ') + '. Fracture risk is for Radiation Oncology and Orthopaedics to assess.') }}
           </div>
         </section>
         <!-- ===== ZONA E · APÉNDICE DE REFERENCIA (tabla) — abierta por defecto (vista clínica) ===== -->
