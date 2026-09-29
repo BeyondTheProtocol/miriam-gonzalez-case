@@ -4,7 +4,7 @@
 
 [build.environment]
   NODE_VERSION = "22"
-  PNPM_VERSION = "10"
+  PNPM_VERSION = "11.5.1"
 
 # ── Datos en vivo ────────────────────────────────────────────────────────────
 # El total y la lista de donantes (estrellas + tabla) se sirven desde funciones
