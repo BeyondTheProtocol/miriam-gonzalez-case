@@ -57,7 +57,6 @@ type Datos = {
     firmas: { es: string; en: string; v: string }[]
     amplicones: { locus: string; genes: string; copias: number }[]
     amplicones_nota_es: string; amplicones_nota_en: string
-    variante: { gen: string; cambio: string; vaf: string; es: string; en: string }
     limpios: string; limpios_nota_es: string; limpios_nota_en: string
   }
 }
@@ -547,11 +546,7 @@ onBeforeUnmount(() => window.removeEventListener('resize', ajusta))
         </div>
 
         <div class="hist__mol-card">
-          <h3>{{ L('Una variante puntual', 'One point variant') }}</h3>
-          <p class="hist__dato">{{ D.panel.variante.gen }} {{ D.panel.variante.cambio }}</p>
-          <p class="hist__hint">{{ L('Frecuencia alélica', 'Allele frequency') }} {{ D.panel.variante.vaf }}.
-            {{ L(D.panel.variante.es, D.panel.variante.en) }}</p>
-          <h3 class="hist__h3b">{{ L('Sin alteración reportable', 'No reportable alteration') }}</h3>
+          <h3>{{ L('Sin alteración reportable', 'No reportable alteration') }}</h3>
           <p class="hist__genes-limpios">{{ D.panel.limpios }}</p>
           <p class="hist__hint">{{ L(D.panel.limpios_nota_es, D.panel.limpios_nota_en) }}</p>
         </div>
