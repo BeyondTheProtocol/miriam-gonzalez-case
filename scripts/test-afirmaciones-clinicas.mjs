@@ -62,7 +62,7 @@ const PROHIBIDO = [
   { re: /biopsia (ósea )?(de |\()?cresta ilíaca|Biopsia ósea · cresta ilíaca|iliac crest biopsy|Bone biopsy \(right iliac crest\)|Hueso, cresta ilíaca/, por: 'la biopsia de Zúrich es del ilion derecho' },
   { re: /guardant1: \{ value: '(detectada|detected)'/, por: 'el Guardant360 de abril no detectó ESR1' },
   { re: /label: 'ECOG 1'/, por: 'ECOG 0 documentado en 2026' },
-  { re: /sin imagen cerebral en el archivo y sin clínica|no brain imaging on file and no recorded/, por: 'RM craneal 13-jul-2026 negativa' },
+  { re: /sin imagen cerebral en el archivo y sin clínica|no brain imaging on file and no recorded|no estudiado \(no es un negativo\)|not studied \(not a negative\)/, por: 'RM craneal 13-jul-2026 negativa' },
   { re: /RMN de columna cervical y dorsal \(11\/06\/2026\)/, por: 'el informe de la RM describe dorsal y lumbar' },
   { re: /revisado por Oncología Radioterápica|Oncología Radioterápica ya los revisó|en seguimiento por Oncología Radioterápica|reviewed by Radiation Oncology|under Radiation Oncology follow/, por: 'sin documento de revisión por Oncología Radioterápica' },
 ]
