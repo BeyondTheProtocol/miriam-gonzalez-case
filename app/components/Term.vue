@@ -43,11 +43,11 @@ const GLOSSARY: Record<string, Entry> = {
   fgfr1: {
     es: {
       label: 'FGFR1 ×13',
-      def: 'FGFR1 amplificado 13 veces: un gen que impulsa el crecimiento del tumor y abre posibles dianas de tratamiento.',
+      def: 'FGFR1 (cromosoma 8p11) amplificado: ×13 en el primario de 2024 y unas 33 copias en el hueso de 2026, con otra plataforma. Un gen que impulsa el crecimiento del tumor y una diana de tratamiento posible.',
     },
     en: {
       label: 'FGFR1 ×13',
-      def: 'FGFR1 amplified 13 times: a gene driving tumor growth and a potential treatment target.',
+      def: 'FGFR1 (chromosome 8p11) amplified: ×13 in the 2024 primary and about 33 copies in the 2026 bone sample, on another platform. A gene driving tumor growth and a possible treatment target.',
     },
   },
   bcned: {
@@ -63,41 +63,41 @@ const GLOSSARY: Record<string, Entry> = {
   sstr: {
     es: {
       label: 'SSTR+',
-      def: 'Sobreexpresión de receptores de somatostatina confirmada por PET-68Ga-DOTATOC (26/05/2026). Es un hallazgo funcional (por imagen); la confirmación en tejido (IHQ SSTR2) está pendiente de la rebiopsia. Abre la vía de terapia con radioligandos (PRRT).',
+      def: 'Sobreexpresión de receptores de somatostatina en metástasis óseas por PET-68Ga-DOTATOC (26/05/2026), con captación heterogénea. Es un hallazgo por imagen: en tejido (IHQ SSTR2) no se ha medido, y el hígado, que en mayo no tenía lesiones, no se ha estudiado. Abre la vía de terapia con radioligandos (PRRT).',
     },
     en: {
       label: 'SSTR+',
-      def: 'Somatostatin-receptor overexpression confirmed by 68Ga-DOTATOC PET (26 May 2026). This is a functional (imaging) finding; tissue confirmation (SSTR2 IHC) is pending the rebiopsy. It opens the radioligand therapy (PRRT) route.',
+      def: 'Somatostatin-receptor overexpression in bone metastases on 68Ga-DOTATOC PET (26 May 2026), with heterogeneous uptake. It is an imaging finding: it has not been measured in tissue (SSTR2 IHC), and the liver, which had no lesions in May, has not been studied. It opens the radioligand therapy (PRRT) route.',
     },
   },
   ccnd1: {
     es: {
       label: 'CCND1 ×20',
-      def: 'Gen de la ciclina D1 amplificado 20 veces. Acelera la división celular y se asocia a resistencia a ciertas terapias hormonales.',
+      def: 'Gen de la ciclina D1 (clúster 11q13, con FGF3/4/19) amplificado: ×20 en el primario de 2024 y unas 37 copias en el hueso de 2026. Acelera la división celular y se asocia a resistencia a ciertas terapias hormonales.',
     },
     en: {
       label: 'CCND1 ×20',
-      def: 'Cyclin D1 gene amplified 20 times. It speeds up cell division and is linked to resistance to some hormone therapies.',
+      def: 'Cyclin D1 gene (11q13 cluster, with FGF3/4/19) amplified: ×20 in the 2024 primary and about 37 copies in the 2026 bone sample. It speeds up cell division and is linked to resistance to some hormone therapies.',
     },
   },
   esr1: {
     es: {
       label: 'ESR1 D538G',
-      def: 'Mutación en el receptor de estrógeno que aparece tras el tratamiento hormonal y vuelve al tumor resistente a él.',
+      def: 'Mutación en el receptor de estrógeno que aparece tras el tratamiento hormonal y vuelve al tumor resistente a él. En este caso se vio en sangre (ctDNA, 2026) y no en el tejido óseo de julio.',
     },
     en: {
       label: 'ESR1 D538G',
-      def: 'Estrogen-receptor mutation that emerges after hormone therapy and makes the tumor resistant to it.',
+      def: 'Estrogen-receptor mutation that emerges after hormone therapy and makes the tumor resistant to it. In this case it was seen in blood (ctDNA, 2026) and not in the July bone tissue.',
     },
   },
   rb1: {
     es: {
       label: 'pérdida de RB1',
-      def: 'Pérdida de un gen «freno» del ciclo celular. Suele indicar un tumor más agresivo y resistencia a los inhibidores de CDK4/6.',
+      def: 'Pérdida de un gen «freno» del ciclo celular. Suele indicar un tumor más agresivo y resistencia a los inhibidores de CDK4/6. En este caso hay 3 variantes en sangre (ctDNA, 2026) que el tejido óseo de julio no confirma.',
     },
     en: {
       label: 'RB1 loss',
-      def: 'Loss of a cell-cycle “brake” gene. It usually signals a more aggressive tumor and resistance to CDK4/6 inhibitors.',
+      def: 'Loss of a cell-cycle “brake” gene. It usually signals a more aggressive tumor and resistance to CDK4/6 inhibitors. In this case there are 3 variants in blood (ctDNA, 2026) that the July bone tissue does not confirm.',
     },
   },
   cdk46i: {
@@ -200,44 +200,54 @@ const GLOSSARY: Record<string, Entry> = {
       def: 'A therapy that delivers a radioactive particle straight to cells expressing the SSTR2 target.',
     },
   },
-  axis_fgfr: {
+  axis_trop2: {
     es: {
-      label: 'FGFR1 ×13 → FGFRi',
-      def: 'FGFRi: inhibidores de FGFR (erdafitinib, futibatinib, ponatinib) que bloquean la señal del gen FGFR1, amplificado ×13, uno de los motores del tumor.',
+      label: 'TROP-2 → Dato-DXd (ensayo, oct 2026)',
+      def: 'Datopotamab deruxtecan: un anticuerpo contra TROP-2 que lleva un fármaco citotóxico (inhibidor de topoisomerasa I) al interior de la célula. Es el tratamiento del ensayo TROPION-Breast06, fase IIIb de un brazo para HR+/HER2 IHQ 0 sin quimioterapia previa; su primera dosis está prevista en octubre de 2026. El ensayo no exige medir TROP-2 y en su tejido no se ha medido.',
     },
     en: {
-      label: 'FGFR1 ×13 → FGFRi',
-      def: 'FGFRi: FGFR inhibitors (erdafitinib, futibatinib, ponatinib) that block signaling from FGFR1, amplified ×13 — one of the tumor’s drivers.',
+      label: 'TROP-2 → Dato-DXd (trial, Oct 2026)',
+      def: 'Datopotamab deruxtecan: an anti-TROP-2 antibody that carries a cytotoxic drug (a topoisomerase I inhibitor) into the cell. It is the treatment in TROPION-Breast06, a single-arm phase IIIb trial for HR+/HER2 IHC 0 without prior chemotherapy; the first dose is expected in October 2026. The trial does not require TROP-2 testing and it has not been measured in her tissue.',
+    },
+  },
+  axis_fgfr: {
+    es: {
+      label: 'FGFR1 amplificado → FGFRi',
+      def: 'FGFRi: inhibidores de FGFR (erdafitinib, futibatinib, ponatinib) que bloquean la señal de FGFR1, amplificado en todo el tejido estudiado y uno de los motores del tumor. Es una hipótesis: la amplificación sola no garantiza respuesta.',
+    },
+    en: {
+      label: 'Amplified FGFR1 → FGFRi',
+      def: 'FGFRi: FGFR inhibitors (erdafitinib, futibatinib, ponatinib) that block signaling from FGFR1, amplified in all tissue studied and one of the tumor’s drivers. A hypothesis: amplification alone does not guarantee response.',
     },
   },
   axis_sstr: {
     es: {
-      label: 'SSTR+ → PRRT',
-      def: 'PRRT: terapia con radioligandos. Un fármaco radiactivo se une a los receptores de somatostatina (SSTR) del tumor y lo irradia desde dentro.',
+      label: 'SSTR+ en hueso → PRRT',
+      def: 'PRRT: terapia con radioligandos. Un fármaco radiactivo se une a los receptores de somatostatina (SSTR) del tumor y lo irradia desde dentro. La captación se vio en hueso en mayo de 2026; las lesiones del hígado no se han estudiado con este trazador.',
     },
     en: {
-      label: 'SSTR+ → PRRT',
-      def: 'PRRT: radioligand therapy. A radioactive drug binds the tumor’s somatostatin receptors (SSTR) and irradiates it from within.',
+      label: 'SSTR+ in bone → PRRT',
+      def: 'PRRT: radioligand therapy. A radioactive drug binds the tumor’s somatostatin receptors (SSTR) and irradiates it from within. Uptake was seen in bone in May 2026; the liver lesions have not been studied with this tracer.',
     },
   },
   axis_esr1: {
     es: {
-      label: 'ESR1 D538G → SERD oral',
-      def: 'SERD oral (p. ej. elacestrant): degrada el receptor de estrógeno mutado (ESR1 D538G) que volvió resistente la terapia hormonal previa.',
+      label: 'RE 0 % en hígado → eje endocrino',
+      def: 'El eje hormonal pierde peso. Hubo tres líneas hormonales con progresión; la ESR1 D538G se vio en sangre y no en el tejido óseo; y la metástasis del hígado, la lesión que crece, ya no tiene receptor de estrógeno (RE 0 %, RP 5 %).',
     },
     en: {
-      label: 'ESR1 D538G → oral SERD',
-      def: 'Oral SERD (e.g. elacestrant): degrades the mutated estrogen receptor (ESR1 D538G) that made the previous hormone therapy resistant.',
+      label: 'ER 0% in liver → endocrine axis',
+      def: 'The hormonal axis loses weight. Three hormonal lines ended in progression; ESR1 D538G was seen in blood and not in bone tissue; and the liver metastasis, the lesion that is growing, no longer has the estrogen receptor (ER 0%, PR 5%).',
     },
   },
   axis_ne: {
     es: {
-      label: 'Pérdida de RB1 → eje neuroendocrino',
-      def: 'La pérdida de RB1 (3 variantes en sangre) es la que señala el riesgo de transformación neuroendocrina. Tratarla por la vía neuroendocrina abre además el acceso a la terapia con radioligandos (PRRT) sobre las lesiones SSTR+.',
+      label: 'CgA/Syn+ en hígado → eje neuroendocrino',
+      def: 'La metástasis del hígado conserva la diferenciación neuroendocrina (cromogranina A y sinaptofisina positivas) mientras pierde el receptor de estrógeno. Las 3 variantes de RB1 que apuntaban a una transformación neuroendocrina se vieron solo en sangre. El eje abre dianas propias (SSTR2, DLL3) que en el hígado no se han medido.',
     },
     en: {
-      label: 'RB1 loss → neuroendocrine axis',
-      def: 'RB1 loss (3 variants in blood) is what signals the risk of neuroendocrine transformation. Treating it via the neuroendocrine route also opens access to radioligand therapy (PRRT) on the SSTR+ lesions.',
+      label: 'CgA/Syn+ in liver → neuroendocrine axis',
+      def: 'The liver metastasis keeps its neuroendocrine differentiation (chromogranin A and synaptophysin positive) while losing the estrogen receptor. The 3 RB1 variants that pointed to neuroendocrine transformation were seen only in blood. The axis opens its own targets (SSTR2, DLL3), not yet measured in the liver.',
     },
   },
   /* §13 · ⓘ «Cómo se lee el mapa 3D» (visor de focos) → tooltip al pasar, no clic-para-ver. */

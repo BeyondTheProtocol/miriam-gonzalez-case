@@ -29,20 +29,36 @@ treatments:
       hepatotoxicity that normalized once it was withdrawn. Zoladex and zoledronic
       acid continue. No visceral crisis.
     active: false
-  - line: →
-    regimen: Current status (2026)
+  - line: RT
+    regimen: SBRT to D11 (June 2026)
     outcome: >-
-      Between July and September 2026 she took part in the phase 1 trial
-      BG-75202 (KAT6 inhibitor + fulvestrant). She came off it on 9 September
-      after liver progression, which exhausts the endocrine therapy options.
-      Screening imaging (July 2026) had already shown liver lesions: the
-      disease, until then bone-only, was no longer confined to bone. The July
-      2026 bone rebiopsy did yield viable tumour and produced the first tissue
-      molecular profile (details below). From October 2026 she starts
-      TROPION-Breast06 (NCT07205822), a single-arm phase IIIb trial with
-      datopotamab deruxtecan, an ADC directed against TROP-2; entry requires
-      HER2 IHC 0. Functional status: ECOG 1.
+      Stereotactic radiotherapy in 5 fractions, given urgently for risk of
+      spinal cord compression after the MRI of 11 June 2026.
+    active: false
+  - line: 3L
+    regimen: Fulvestrant + BG-75202 (KAT6 inhibitor), phase 1a/1b trial (July–September 2026)
+    outcome: >-
+      From 15 July to 9 September 2026, at Vall d'Hebron. Screening imaging
+      (July) already showed liver lesions: the disease, until then bone-only,
+      was no longer confined to bone. She came off the trial on 9 September
+      for clinical liver progression at 8 weeks: RECIST read stable disease
+      (+8.8%), but the liver lesions were growing, liver function was
+      worsening and CA15.3 was rising. The FDG-PET of 8 September describes
+      liver and bone progression with new lesions. This exhausts the endocrine
+      therapy options.
+    active: false
+  - line: 4L
+    regimen: Datopotamab deruxtecan (Dato-DXd), anti-TROP-2 ADC · TROPION-Breast06 trial (NCT07205822)
+    outcome: >-
+      Single-arm phase IIIb trial for HR+/HER2 IHC 0 breast cancer refractory
+      to endocrine therapy and with no prior chemotherapy in the metastatic
+      setting; Dato-DXd 6 mg/kg every 3 weeks. The liver biopsy confirms HER2 0
+      (report of 21 September 2026). Screening tests in early October; the
+      first dose is expected on 7 October 2026. She has never received
+      chemotherapy, ADCs, immunotherapy or radioligands. Performance status:
+      ECOG 0 (September 2026).
     active: true
+    badge: In screening
 paperSections:
   - title: Neuroendocrine Transformation and RB1 Loss
     tag: NE transformation
@@ -50,159 +66,340 @@ paperSections:
     subtitle: '3 RB1 variants (p.V622Yfs*33, p.R661W, p.F226*) in Guardant360 ctDNA (April 2026). Not confirmed in the July 2026 bone biopsy: the tissue FoundationOne finds no RB1 or TP53 alteration'
     papers:
       - ref: 'Park et al., 2018 — Science (DOI: 10.1126/science.aat5749)'
-        finding: 'RB1 + TP53 loss: reprogramming toward a neuroendocrine phenotype'
+        finding: 'A five-factor cocktail, including RB1 and p53 inactivation, reprograms prostate and lung epithelium into small-cell neuroendocrine carcinoma'
         relevance: >-
-          Foundational experimental study showing that combined RB1 and TP53
-          loss reprograms hormone-dependent epithelial tissues toward an
-          aggressive neuroendocrine phenotype. It is the direct biological basis
-          of neuroendocrine transformation risk in this case, where 3 distinct RB1
-          mutations were detected in Guardant360 liquid biopsy (April 2026).
+          An experimental study that starts from normal human prostate and lung
+          epithelial cells, not breast: external validity to a breast tumour is
+          indirect. The authors need all five factors together (dominant-negative
+          p53, myristoylated Akt1, RB1 shRNA, c-Myc and Bcl2, which they call
+          PARCB); without c-Myc or without Akt1 no tumour grows, and dropping the
+          RB1 shRNA or the dominant-negative p53 yields a poorly differentiated
+          adenocarcinoma rather than a neuroendocrine tumour. So RB1 and p53 are
+          indispensable but not sufficient. Here 3 RB1 mutations were found in
+          the Guardant360 liquid biopsy (April 2026), while the bone
+          FoundationOne (July 2026) finds no RB1 or TP53 alteration: today the
+          hypothesis rests on the ctDNA and on histology (positive
+          synaptophysin and chromogranin A), not on the tissue genome.
         link: 'https://doi.org/10.1126/science.aat5749'
       - ref: 'Aggarwal et al., 2018 — Journal of Clinical Oncology (DOI: 10.1200/JCO.2017.77.6880)'
-        finding: 'Neuroendocrine transformation under hormonal pressure: 17% of hormone-dependent tumors'
+        finding: 'Castration-resistant prostate cancer: 17% treatment-emergent small-cell neuroendocrine carcinoma'
         relevance: >-
-          Prospective multi-institutional study documenting that 17% of patients
-          with hormone-dependent tumors under targeted therapy develop transition
-          to small-cell neuroendocrine phenotype through RB1 loss. This
-          molecular paradigm is transferable to HR+ breast cancer under
-          prolonged endocrine pressure, as in this case after 25 months of
-          endocrine therapy + CDK4/6i.
+          A prospective multi-institutional study with metastatic biopsies in 202
+          patients, all with castration-resistant PROSTATE cancer (73% had
+          already progressed on abiraterone or enzalutamide): the 17% belongs to
+          that population, not to hormone-dependent tumours in general, and
+          nothing in the study is breast. The paper reports incidence, a
+          transcriptional signature and shorter survival; it does not attribute
+          the transition to RB1 loss. It is cited because it documents the
+          phenomenon (lineage switch to neuroendocrine under prolonged hormonal
+          pressure) in the tumour where it has been best measured; carrying it
+          over to breast is an analogy, not a datum.
         link: 'https://doi.org/10.1200/JCO.2017.77.6880'
-      - ref: 'Cancer Discovery, 2025 — Integrative review (DOI: 10.1158/2159-8290.CD-24-0837)'
-        finding: 'Neuroendocrine transformation as an acquired resistance mechanism'
+      - ref: 'Schwartz et al., 2024 — Modern Pathology (DOI: 10.1016/j.modpat.2024.100541)'
+        finding: 'RB1 alterations in ER-positive breast carcinoma: under 1% of cases, associated with neuroendocrine differentiation'
         relevance: >-
-          Integrative review confirming combined RB1 + TP53 loss as the
-          molecular hallmark of neuroendocrine transformation in
-          hormone-dependent epithelial tumors (prostate, breast, lung). It
-          synthesizes recent evidence and reinforces the biological rationale
-          for exploring the neuroendocrine axis when RB1 alterations emerge
-          under prolonged hormonal therapy.
-        link: 'https://doi.org/10.1158/2159-8290.CD-24-0837'
+          This one is breast, and oestrogen-receptor positive, which is where
+          this case starts. Across 6,026 sequenced breast carcinomas, pathogenic
+          RB1 alterations appear in fewer than 1% (55 cases): 23 primaries and 32
+          recurrent or metastatic. In almost every evaluable case the
+          inactivation is biallelic, and every case expressing neuroendocrine
+          markers has biallelic RB1 inactivation and loss of Rb protein. TP53
+          was co-mutated in 53% and PIK3CA in 45%. It gives the real frequency of
+          what is suspected here, and the yardstick for reading an RB1 that shows
+          up in blood but not in bone.
+        link: 'https://doi.org/10.1016/j.modpat.2024.100541'
   - title: Biology of Breast Carcinoma with Neuroendocrine Differentiation
     tag: BC-NED biology
     tone: info
-    subtitle: Subtype characterization, BC-NED with 80% Cg/Syn
+    subtitle: What is known about the subtype, and where it does and does not match this tumour's profile
     papers:
-      - ref: 'Marchiò et al., 2017 — Journal of Pathology (DOI: 10.1002/path.4837)'
-        finding: 'Genomic landscape of breast carcinoma with neuroendocrine differentiation'
+      - ref: 'Marchiò et al., 2017 — The Journal of Pathology (DOI: 10.1002/path.4837)'
+        finding: 'The mutational repertoire of breast carcinoma with neuroendocrine differentiation: GATA3, FOXA1, TBX3, ARID1A, and less PIK3CA than common luminal tumours'
         relevance: >-
-          Genomic characterization of breast carcinomas with extensive
-          neuroendocrine differentiation (>50% Cg/Syn) identifying a molecular
-          landscape distinct from classic NST, enriched for CCND1, FGFR1, and
-          PI3K pathway alterations. The described profile matches this case
-          (CCND1 ×20, FGFR1 ×13, amplified 11q13 cluster).
+          Genetic characterisation of 18 ER+/HER2− breast carcinomas with
+          extensive neuroendocrine differentiation (over 50% of cells positive
+          for chromogranin A or synaptophysin). What comes out enriched are
+          transcription-factor genes (FOXA1 and TBX3 at 17% versus 2%, ARID1A 17%
+          versus 2%), with LESS PIK3CA than in common luminal cancers and no TP53
+          mutations at all. Worth stating plainly, because it runs against the
+          usual reading: of this case's amplifications, the 8p11 one (FGFR1,
+          ZNF703) appears in 2 of the series' 18 tumours; CCND1 and 11q13 are not
+          among their findings. Eighteen cases, with sequencing targeted at 254
+          genes.
         link: 'https://doi.org/10.1002/path.4837'
-      - ref: 'Pareja et al., 2022 — Journal of Clinical Pathology (DOI: 10.1136/jclinpath-2020-207002)'
-        finding: 'Breast neuroendocrine tumors: WHO 5th edition classification and comparative biology'
+      - ref: 'Pareja et al., 2022 — Journal of Clinical Pathology (DOI: 10.1136/jclinpath-2020-207052)'
+        finding: 'Breast neuroendocrine tumours are genomically close to mucinous carcinomas, and some acquire the neuroendocrine phenotype late'
         relevance: >-
-          Application of WHO 5th edition (2019) diagnostic criteria to breast
-          neuroendocrine tumors, with genomic comparison against
-          gastroenteropancreatic NETs and mucinous breast carcinomas. It
-          documents that some tumors acquire late neuroendocrine
-          differentiation under therapeutic pressure, relevant to this clinical
-          trajectory.
-        link: 'https://doi.org/10.1136/jclinpath-2020-207002'
+          Applying the WHO 5th edition criteria (2019), only 10 of 18 breast
+          tumours with neuroendocrine differentiation remained classified as
+          breast NETs. Compared with mucinous carcinomas and with pancreatic and
+          pulmonary NETs, the breast ones are genetically heterogeneous and
+          enriched for transcription-factor mutations. The sentence that matters
+          here is theirs: 3 of the 10 carried the hallmarks of common ER-positive
+          disease, suggesting that some breast cancers acquire neuroendocrine
+          differentiation later in tumour evolution. Ten cases: it describes a
+          possibility, not a frequency.
+        link: 'https://doi.org/10.1136/jclinpath-2020-207052'
+  - title: Receptor Conversion Between Primary and Metastasis
+    tag: ER conversion
+    tone: warn
+    subtitle: 'The 2024 primary was ER 85-100%; the liver metastasis biopsied in August 2026 reads ER 0%, PR 5%, HER2 0, with positive chromogranin A and synaptophysin'
+    papers:
+      - ref: 'Schrijver et al., 2018 — Journal of the National Cancer Institute (DOI: 10.1093/jnci/djx273)'
+        finding: 'Meta-analysis of 39 studies: 22.5% of distant metastases lose the oestrogen receptor, and 49.4% the progesterone receptor'
+        relevance: >-
+          This is the reference figure, from primary-metastasis pairs across 39
+          studies. Positive-to-negative conversion: 22.5% for ER (95% CI
+          16.4-30.0), 49.4% for PR and 21.3% for HER2; the reverse also happens
+          (21.5% for ER). In liver, ER discordance is the lowest of the sites
+          studied (14.3%, against 20.8% in the central nervous system and 29.3%
+          in bone), while PR discordance there is among the highest (47.0%). The
+          authors conclude that receptors should be reassessed in the
+          metastasis. Here that has been done, and going from ER 85-100% to ER 0%
+          is more than a threshold conversion. The meta-analysis measures
+          receptor conversion, not lineage switch to neuroendocrine, which is a
+          different question.
+        link: 'https://doi.org/10.1093/jnci/djx273'
+      - ref: 'Yan et al., 2025 — Discover Oncology (DOI: 10.1007/s12672-025-03342-0)'
+        finding: '542 patients with breast cancer liver metastases: 21.0% ER discordance between primary and liver'
+        relevance: >-
+          A single-centre series in Beijing, 2008-2024: the population is not
+          this case's (a Chinese cohort, with no breakdown by neuroendocrine
+          differentiation). It is useful for one specific thing, liver-specific
+          discordance. Of 453 cases with complete receptor records, overall
+          discordance was 23.6%, and by receptor ER 21.0%, PR 38.6%, HER2 10.8%.
+          It confirms with liver data what the meta-analysis gives in aggregate.
+        link: 'https://doi.org/10.1007/s12672-025-03342-0'
   - title: SSTR2 Pathway and Radioligand Therapy (PRRT)
     tag: SSTR2 · PRRT
     tone: positive
-    subtitle: The 68Ga-DOTATOC PET (26 May 2026) confirmed somatostatin receptor (SSTR) overexpression in the bone metastases → opens the PRRT route (177Lu-DOTATATE); SSTR2 IHC on tissue pending the rebiopsy
+    subtitle: 'The 68Ga-DOTATOC PET (26 May 2026) showed somatostatin receptor overexpression in the bone metastases; the liver has not been studied, and SSTR2 IHC on tissue has not been done'
     papers:
       - ref: 'Terlević et al., 2019 — Annals of Diagnostic Pathology (DOI: 10.1016/j.anndiagpath.2018.11.002)'
-        finding: 'SSTR2 expression in neuroendocrine breast carcinoma: 71% positive (≈36% moderate-strong)'
+        finding: 'SSTR2A across 31 primary neuroendocrine breast carcinomas: 71% positive, 35.5% with moderate or strong intensity'
         relevance: >-
-          Immunohistochemical study: 71% of neuroendocrine breast carcinomas
-          express SSTR2A (any intensity); ~36% with moderate-strong intensity,
-          the range most relevant for PRRT with 177Lu-DOTATATE. Supports
-          functional 68Ga-DOTATOC PET imaging and requesting SSTR2 IHC at the
-          rebiopsy.
+          An immunohistochemical study of 31 cases, all PRIMARY: the authors
+          themselves ask for validation in series that include metastatic
+          disease, which is this case's situation. Of the 31, 9 were
+          SSTR2A-negative (29%), 11 weak, 6 moderate and 5 strong; the
+          moderate-to-strong band, 35.5%, is the one considered relevant for
+          PRRT. It is the argument for measuring SSTR2 by IHC on tissue, because
+          functional imaging alone says nothing about membrane intensity.
         link: 'https://doi.org/10.1016/j.anndiagpath.2018.11.002'
-      - ref: 'Sharma et al., 2021 — European Journal of Nuclear Medicine and Molecular Imaging (DOI: 10.1007/s00259-020-05054-9)'
-        finding: '177Lu-DOTATATE in metastatic neuroendocrine breast cancer: clinical evidence'
+      - ref: 'Batty et al., 2022 — Internal Medicine Journal (DOI: 10.1111/imj.15961)'
+        finding: 'Seven patients with metastatic neuroendocrine breast carcinoma over ten years: all 6 studied with Ga-68-DOTATATE PET were avid, and first-line PFS was 5.8 months'
         relevance: >-
-          Clinical series of metastatic neuroendocrine breast cancer patients
-          treated with PRRT (177Lu-DOTATATE), showing response rates and
-          progression-free survival comparable to gastroenteropancreatic NETs.
-          Provides the strongest available clinical evidence that PRRT can work
-          in this breast tumor subtype.
-        link: 'https://doi.org/10.1007/s00259-020-05054-9'
+          Seven cases from a single Australian centre between 2011 and 2021:
+          this is what exists in print, and it is a series of seven. Six of seven
+          expressed synaptophysin and chromogranin and were also ER and PR
+          positive, with a median Ki67 of 50%; the 6 who underwent
+          Ga-68-DOTATATE PET showed significant uptake. Median overall survival
+          was 31.8 months, first-line PFS 5.8 months, and every patient received
+          chemotherapy at some point. It puts the May 2026 PET in context:
+          avidity is often seen; what does not exist is a series measuring what
+          PRRT does in this subtype.
+        link: 'https://doi.org/10.1111/imj.15961'
+      - ref: 'Küper et al., 2026 — Journal of Nuclear Medicine (DOI: 10.2967/jnumed.126.272521)'
+        finding: 'Of 30 breast cancer patients imaged with somatostatin-receptor PET, one reached a Krenning score of 3, the technical threshold for PRRT eligibility'
+        relevance: >-
+          A retrospective single-centre German series, 2023-2025, with 37 breast
+          cancer patients (26 ER-positive, 11 triple negative) and final analysis
+          on 30. SSTR-positive tumour, with at least one lesion, in 80% of the
+          ER-positive patients: expression is common. But uptake was mostly
+          moderate, FDG outperformed SSTR PET, and only ONE patient reached
+          Krenning 3. It is the counterweight to an enthusiastic reading of a
+          positive DOTATOC PET: avid does not mean candidate. The population is
+          breast cancer in general, not selected for neuroendocrine
+          differentiation.
+        link: 'https://doi.org/10.2967/jnumed.126.272521'
+      - ref: 'Liu et al., 2020 — Clinical Nuclear Medicine (DOI: 10.1097/RLU.0000000000003005)'
+        finding: 'One case of neuroendocrine breast carcinoma treated with 177Lu-DOTATOC, with partial remission'
+        relevance: >-
+          A single patient with invasive ductal carcinoma and large-cell
+          neuroendocrine breast carcinoma, bone and nodal metastases, very high
+          uptake on Ga-68-DOTATOC PET and partial remission after PRRT with
+          177Lu-DOTATOC. It is the lowest tier of evidence there is (one
+          published case, no control) and it is here to mark where the evidence
+          on this route ends: as far as could be verified, there is no PRRT
+          series in neuroendocrine breast cancer that would support talking
+          about response rates.
+        link: 'https://doi.org/10.1097/RLU.0000000000003005'
   - title: FGFR1/CCND1 Axis and CDK4/6i Resistance
     tag: FGFR1 / CCND1
     tone: violet
-    subtitle: Molecular mechanism behind the observed clinical resistance in the first two lines
+    subtitle: '8p11 amplification (FGFR1, NSD3, ZNF703, ≈33 copies) and 11q13 amplification (CCND1, FGF3, FGF4, FGF19, ≈37 copies) in the July 2026 bone tissue'
     papers:
       - ref: 'Formisano et al., 2019 — Nature Communications (DOI: 10.1038/s41467-019-09068-2)'
-        finding: 'FGFR1 as a resistance driver to endocrine therapy and CDK4/6i in HR+/HER2- breast cancer'
+        finding: 'Aberrant FGFR signalling mediates resistance to CDK4/6 inhibitors in ER-positive breast cancer'
         relevance: >-
-          Molecular study showing that FGFR1 amplification functionally
-          activates PI3K/AKT/mTOR signaling even without PIK3CA mutation and
-          represents a known acquired resistance mechanism to endocrine therapy
-          and CDK4/6 inhibitors in HR+/HER2- breast cancer. It explains the
-          clinical resistance observed in the first two treatment lines.
+          It proposes the mechanism; it does not prove it in patients. It starts
+          from a kinase screen in MCF-7 cells treated with ribociclib plus
+          fulvestrant, which pulls out FGFR1; cells with amplified or transduced
+          FGFR1 become resistant to fulvestrant with or without ribociclib or
+          palbociclib, and adding an FGFR inhibitor reverses that resistance,
+          with complete responses in xenografts. The axis they describe is
+          RAS/RAF/MEK/ERK with CCND1 and E2F downstream. The clinical part is
+          supporting evidence: among 34 patients with ctDNA after progressing on
+          a CDK4/6i, 14 carried FGFR1/2 amplification or activating mutations,
+          and in MONALEESA-2 FGFR1 amplification was associated with shorter
+          PFS. The authors close by proposing combination trials, not a
+          treatment.
         link: 'https://doi.org/10.1038/s41467-019-09068-2'
-  - title: International Consensus Guidelines
-    tag: Guidelines
-    tone: neutral
-    subtitle: Formal support for the clinical requests presented to the treating team
+      - ref: 'Chae et al., 2020 — Journal of Clinical Oncology (DOI: 10.1200/JCO.19.02630)'
+        finding: 'NCI-MATCH subprotocol W: with a selective FGFR1-3 inhibitor, responses occurred only with point mutations or fusions, and in none of the 20 patients whose alteration was an amplification'
+        relevance: >-
+          The nuance that decides whether this tumour's FGFR1 axis is a target
+          or just a finding. A histology-agnostic, multi-tumour basket trial, not
+          an HR+ breast cohort with neuroendocrine differentiation, though breast
+          was the commonest tumour (33.3%). There were 48 evaluable patients:
+          FGFR1 or FGFR2 amplification (20), FGFR2 or FGFR3 single-nucleotide
+          variants (19) and FGFR1 or FGFR3 fusions (9). Confirmed partial
+          responses came to 8% and were observed only in tumours with point
+          mutations or fusions: none among the 20 with amplification. With
+          fusions, 22%. Here the alteration is an 8p11 amplification, the
+          subgroup that did not respond.
+        link: 'https://doi.org/10.1200/JCO.19.02630'
+  - title: 'Anti-TROP-2 ADC: Datopotamab Deruxtecan'
+    tag: TROP-2 · ADC
+    tone: info
+    subtitle: 'She is expected to enter TROPION-Breast06 (NCT07205822) in October 2026, a single-arm phase IIIb trial, with no prior chemotherapy; the trial the drug rests on required 1-2 prior chemotherapy lines'
     papers:
-      - ref: 'NCCN Guidelines — Neuroendocrine and Adrenal Tumors, Version 1.2025'
-        finding: 'International algorithm for neuroendocrine tumors of breast origin'
+      - ref: 'Bardia et al., 2025 — Journal of Clinical Oncology (DOI: 10.1200/JCO.24.00920)'
+        finding: 'TROPION-Breast01: lower risk of progression or death than investigator''s choice of chemotherapy (HR 0.63)'
         relevance: >-
-          NCCN 2025 guidelines include a therapeutic algorithm for
-          neuroendocrine tumors of breast origin with SSTR2 expression, where
-          PRRT (177Lu-DOTATATE) is listed as an option after failure of standard
-          hormonal therapy. Spanish SEOM guidelines do not yet include this
-          algorithm for neuroendocrine breast disease, explaining the
-          discrepancy between national and international recommendations.
-        link: null
-      - ref: 'ENETS Consensus Guidelines, 2023 — European Neuroendocrine Tumor Society'
-        finding: 'European recommendation: evaluate SSTR2 in advanced neuroendocrine breast carcinomas'
+          The trial the drug rests on, and the difference in population from
+          this case belongs in the same sentence: its 732 patients with
+          inoperable or metastatic HR+/HER2− breast cancer had received ONE OR
+          TWO prior lines of chemotherapy; here there are none. Dato-DXd cut the
+          risk of progression or death by 37% (HR 0.63; 95% CI 0.52-0.76) by
+          blinded independent central review. Grade 3 or higher
+          treatment-related adverse events were less frequent than with
+          chemotherapy (20.8% versus 44.7%), but nausea and stomatitis affected
+          around half the patients.
+        link: 'https://doi.org/10.1200/JCO.24.00920'
+      - ref: 'Pistilli et al., 2026 — Annals of Oncology (DOI: 10.1016/j.annonc.2025.12.017)'
+        finding: 'Final overall survival analysis of TROPION-Breast01: no difference (HR 1.01; 95% CI 0.83-1.22)'
         relevance: >-
-          ENETS 2023 consensus recommends assessing SSTR2 expression and
-          considering functional DOTATATE imaging in advanced neuroendocrine
-          carcinomas to stratify eligibility for somatostatin receptor-targeted
-          therapies, including PRRT when appropriate.
-        link: null
+          The other half of the result, the one not to leave out. At 22.8 months
+          of median follow-up, overall survival did not reach statistical
+          significance: HR 1.01 (95% CI 0.83-1.22; p = 0.9445). The authors point
+          to an imbalance in subsequent treatment (rescue ADCs in 12.3% of the
+          Dato-DXd arm versus 24.0% of the chemotherapy arm) as a possible
+          explanation, and the remaining secondary endpoints continued to favour
+          Dato-DXd. Same population caveat: 1-2 prior chemotherapy lines.
+        link: 'https://doi.org/10.1016/j.annonc.2025.12.017'
+      - ref: 'Royce et al., 2025 — Clinical Cancer Research (DOI: 10.1158/1078-0432.CCR-25-1388)'
+        finding: 'FDA approval summary: approved on 17 January 2025 without an overall survival benefit'
+        relevance: >-
+          It puts the tension in the file on the record, from the regulator:
+          approval rested on the PFS improvement, with median overall survival
+          of 18.6 versus 18.3 months (HR 1.01). The FDA reasons that, absent a
+          survival benefit, no clear trend toward detriment was seen either. The
+          approved indication follows prior endocrine therapy AND chemotherapy
+          for metastatic disease, which is not this case's entry situation.
+        link: 'https://doi.org/10.1158/1078-0432.CCR-25-1388'
+  - title: Liver Metastases and Systemic Immunity
+    tag: Liver · immunity
+    tone: warn
+    subtitle: 'The disease stopped being bone-confined in July 2026, and that bears on any personalised immunotherapy route, not just on the next line'
+    papers:
+      - ref: 'Yu et al., 2021 — Nature Medicine (DOI: 10.1038/s41591-020-1131-x)'
+        finding: 'Liver metastases siphon activated CD8 T cells into the liver, where they die on meeting monocyte-derived macrophages'
+        relevance: >-
+          A mechanism described in melanoma, non-small-cell lung cancer and
+          mouse models, NOT in HR+ breast cancer: that is the first thing to say
+          when reading it against this case. Liver metastases pull activated CD8
+          T cells out of circulation; inside the liver, antigen-specific
+          Fas-positive CD8 cells undergo apoptosis after interacting with
+          FasL-expressing monocyte-derived macrophages, and in the models the
+          result is a systemic immune desert. In patients, those with liver
+          metastases derive less benefit from immunotherapy, independently of
+          other biomarkers, and have fewer peripheral T cells. It matters here
+          because it bears on the whole personalised immunotherapy route
+          (vaccine, TIL, TCR-T), not on a single modality; and it is a mechanism
+          in models plus a correlation in other tumours, not a result in breast
+          cancer.
+        link: 'https://doi.org/10.1038/s41591-020-1131-x'
+      - ref: 'Lee et al., 2020 — Science Immunology (DOI: 10.1126/sciimmunol.aba0759)'
+        finding: 'Same phenomenon by another route: tumour antigen in the liver activates regulatory T cells and suppresses antitumour immunity in an antigen-specific way'
+        relevance: >-
+          A dual-tumour mouse model: the population is neither human nor
+          breast. The suppression they describe is antigen-specific and comes
+          with regulatory T cell activation. The detail that makes it useful
+          alongside the previous paper: the dysfunctional state was not reversed
+          by anti-PD-1 monotherapy, only by depleting regulatory T cells with
+          anti-CTLA-4 or destabilising them with an EZH2 inhibitor. Two
+          independent groups, two different mechanisms, the same direction: the
+          liver is not just one more metastatic site when immunotherapy is what
+          is being planned.
+        link: 'https://doi.org/10.1126/sciimmunol.aba0759'
 panelRows:
   - component: Germline reference (tumour-normal)
-    method: 'One tube of blood or saliva · any day, spends no core'
-    targets: 'Paired germline to separate inherited from tumour variants'
-    implication: 'The highest-impact, near-zero-cost change: makes the WES/WGS somatic calls reliable'
-  - component: WES + WGS (genomics)
-    method: '≥500-gene panel from the FFPE block (Core 1) + quality WES/WGS from snap-frozen (Core 2), with paired germline'
-    targets: 'FGFR1-4, CCND1, CDK4, FGF3/4/19, ESR1, PIK3CA, PTEN, RB1, TP53, MET; CNV, SV, fusions'
-    implication: 'Dominant drivers and co-alterations. PTEN and CDK4 reliable only in tissue; CDK4 co-amplified at 11q13 implies CDK4/6i resistance'
-  - component: Deep RNA-seq (expression + antigens)
-    method: 'Snap-frozen (Core 2) · prioritise RNA quality'
-    targets: 'FGFR1/FGF3-4-19/MYC expression, NE signature, PAM50; non-SNV antigens (fusions, splicing) and cancer-testis'
-    implication: 'With low TMB, the main antigen source; better predictor of FGFRi response than amplification alone'
-  - component: Extended IHC + HLA typing
-    method: 'IHC + RNAscope from the FFPE block (Core 1); HLA derived from sequencing'
-    targets: 'ER, PR, HER2, FGFR1, SSTR2, TROP-2, B7-H3, DLL3, CgA, SYN, INSM1, Rb, Cyclin E1; HLA I/II'
-    implication: 'TROP-2→sacituzumab/Dato-DXd · SSTR2→PRRT · DLL3→anti-DLL3 · Cyclin E1 / Rb loss→CDK4/6i resistance'
+    method: 'DNA from blood, drawn at the hospital · uses no tissue'
+    targets: 'Matched germline to separate inherited from tumour variants'
+    status: 'Pending: not yet shipped'
+    statusTone: pendiente
+    implication: 'Without it there is no telling which variant belongs to the tumour and which is inherited. FoundationOne has none'
+  - component: Tissue genomic profile (panel)
+    method: 'FoundationOne CDx on the Zurich bone biopsy · 324 genes'
+    targets: 'Copy number, mutations, TMB, MSI, HRDsig'
+    status: 'Done (July 2026)'
+    statusTone: hecho
+    implication: 'Confirms amplified FGFR1 (8p11) and 11q13; finds no ESR1, RB1, TP53 or PIK3CA. TMB 4, MSS'
+  - component: Exome (WES)
+    method: 'DNA from paraffin tissue, with matched germline · Paloma Cejas’s lab (Dana-Farber)'
+    targets: 'Somatic mutations across the exome, copy number, true mutational burden'
+    status: 'Material at the lab'
+    statusTone: curso
+    implication: 'The basis for neoantigen prediction; reliable only with the germline'
+  - component: Single-cell RNA-seq (10x Genomics Flex)
+    method: 'On paraffin tissue, no fresh material needed · Paloma Cejas’s lab (Dana-Farber)'
+    targets: 'What each cell expresses: neuroendocrine and luminal states, resistant clones, immune microenvironment, target genes and antigens'
+    status: 'Material at the lab'
+    statusTone: curso
+    implication: 'Tells whether the tumour is a mix of populations or one that has changed identity, and which targets each one really expresses'
+  - component: Extended IHC
+    method: 'Paraffin sections'
+    targets: 'Done on liver: ER, PR, HER2, chromogranin A, synaptophysin. Not done: TROP-2, SSTR2, DLL3, B7-H3, Nectin-4, Rb'
+    status: 'Partial'
+    statusTone: curso
+    implication: 'TROP-2 → Dato-DXd · SSTR2 → PRRT · DLL3 → anti-DLL3 · Rb loss → CDK4/6i resistance'
+  - component: High-resolution HLA typing
+    method: 'Blood (or from the germline exome)'
+    targets: 'HLA class I and II'
+    status: 'Pending'
+    statusTone: pendiente
+    implication: 'Decides which tumour peptides can be shown to her T cells: opens or closes the personalised vaccine and TCR-T'
+  - component: Epigenetics
+    method: 'DNA from paraffin tissue · proposed by the Dana-Farber lab'
+    targets: 'Methylation and chromatin state: neuroendocrine versus luminal identity'
+    status: 'Proposed, material permitting'
+    statusTone: pendiente
+    implication: 'Helps classify the tumour and understand how it changes identity'
+  - component: Liquid biopsy (ctDNA)
+    method: 'Plasma · Guardant360 and VHIO360'
+    targets: 'ESR1, RB1, amplifications, variant allele fraction (VAF)'
+    status: 'Done (3 draws, Apr–May 2026)'
+    statusTone: hecho
+    implication: 'Saw ESR1 D538G and RB1, which bone tissue does not confirm. The TROPION-Breast06 trial plans serial liquid biopsies'
   - component: Immunopeptidomics (HLA peptidome)
-    method: 'FRESH core to the lab as soon as possible, ischaemia ≤30 min (Core 3)'
-    targets: 'Peptides actually presented on HLA (from ~15 mg → thousands of peptides)'
-    implication: 'Confirms which antigens really reach the cell surface; basis for an N-of-1 strategy'
-  - component: Phosphoproteomics (RPPA / MS)
-    method: 'Ultra-fast snap-freeze — the phosphoproteome changes in minutes (Core 4)'
-    targets: 'p-FRS2α, p-AKT, p-ERK, p-Rb, p-S6, Cyclin E1, p-ER'
-    implication: 'REAL pathway activation (FGFR, PI3K, MAPK, cell cycle); guides combinations'
-  - component: Epigenetics (methylation)
-    method: 'EPIC + EM-seq from leftover DNA or the FFPE block · no extra core'
-    targets: 'Methylome and methylation classifier; NE vs luminal'
-    implication: 'Modulates antigen expression and immune evasion; helps classify the tumour'
-  - component: Single-cell + spatial transcriptomics
-    method: 'Viable or snap-frozen tissue (Core 5); spatial from FFPE (Visium) or dedicated OCT (Xenium)'
-    targets: 'NE vs luminal states, resistant clones, immune microenvironment; tumour–stroma–bone architecture'
-    implication: 'Determines whether to target only the NE phenotype or also the residual luminal component (cold vs hot tumour)'
+    method: 'Needs fresh tissue, ischaemia ≤30 min'
+    targets: 'Peptides actually presented on HLA'
+    status: 'Not possible today'
+    statusTone: 'no'
+    implication: 'Would confirm which antigens actually reach the cell surface. There is no fresh tissue'
+  - component: Phosphoproteomics
+    method: 'Needs ultra-fast freezing'
+    targets: 'p-FRS2α, p-AKT, p-ERK, p-Rb, p-S6'
+    status: 'Not possible today'
+    statusTone: 'no'
+    implication: 'Would measure the real activation of the pathways (FGFR, PI3K, MAPK, cell cycle). There is no frozen tissue'
   - component: Organoids + drug screening
-    method: 'Fresh or live-cryopreserved tissue (DMSO) to grow them later (Core 5)'
-    targets: 'Ex vivo sensitivity: FGFRi, CDK4/6i, T-DXd, capivasertib, everolimus and combinations'
-    implication: 'PDOs predict response and improve PFS when guiding treatment'
-  - component: Serial liquid biopsy (ctDNA)
-    method: 'Plasma (Guardant) every 6–8 weeks · complement, no core'
-    targets: 'FGFR1 amp, ESR1 (Y537S/D538G), PIK3CA, FGFR kinase mutations'
-    implication: 'Closes the loop: detects resistance before imaging, without re-biopsying'
+    method: 'Needs live tissue'
+    targets: 'Ex vivo sensitivity to drugs and combinations'
+    status: 'Not possible today'
+    statusTone: 'no'
+    implication: 'Would test drugs on the tumour outside the body. There is no live tissue'
 liquidBiopsies:
   - id: ctdna-1
     date: Apr 7, 2026
@@ -276,10 +473,15 @@ imaging:
     Multiple blastic bone metastases with somatostatin receptor overexpression
     (SSTR). Focal uptake in the right breast tail pending a dedicated study.
   meaning: >-
-    The tumor expresses somatostatin receptors — the target of radioligand
-    therapy (PRRT). It confirms on imaging
-    both tumor drivers (luminal FGFR1/CCND1 + neuroendocrine RB1 + SSTR) and
-    opens a route that breast-cancer protocols do not contemplate as standard.
+    The bone metastases express somatostatin receptors, the target of
+    radioligand therapy (PRRT). It supports on imaging the tumor's
+    neuroendocrine face and opens a route that breast-cancer protocols do not
+    contemplate as standard.
+  caveat: >-
+    Limits: the PET dates from May 2026, before the liver lesions appeared, so
+    their SSTR status is unknown. Bone uptake was heterogeneous, with lesions
+    showing no gallium. The FDG-PET of 8 September 2026 describes liver and
+    bone progression, with new lesions.
   quote: >-
     Study showing multiple blastic bone metastases with somatostatin receptor
     overexpression. Focal uptake in the right breast tail to be evaluated in a
@@ -298,8 +500,8 @@ boneBiopsy:
     tumour tissue, and grading of neuroendocrine tumours is not established on
     small biopsies —with this morphology and that Ki67 a moderately
     differentiated tumour is assumed—. Hormone
-    receptors and HER2 were not assessed on this sample: the HER2 IHC 0 that
-    TROPION-Breast06 requires comes from the reviewed 2024 primary. The tissue molecular profile
+    receptors and HER2 were not assessed on this sample: the most recent HER2
+    IHC 0 comes from the liver biopsy (report of 21-09-2026). The tissue molecular profile
     (FoundationOne CDx, July 2026) shows 11q13 amplification
     (CCND1, FGF3, FGF4, FGF19; ≈37 copies) and 8p11 amplification (FGFR1,
     NSD3, ZNF703; ≈33 copies); TMB 4 Muts/Mb (low), MS-Stable, HRDsig negative

@@ -98,12 +98,12 @@ const localePath = useLocalePath()
 useSeoMeta({
   title: () =>
     locale.value === 'es'
-      ? 'Evidencia científica: FGFR1, PRRT/SSTR y BC-NED'
-      : 'Scientific evidence: FGFR1, PRRT/SSTR and BC-NED',
+      ? 'Evidencia científica: BC-NED, receptores, TROP-2, FGFR1 y PRRT'
+      : 'Scientific evidence: BC-NED, receptors, TROP-2, FGFR1 and PRRT',
   description: () =>
     locale.value === 'es'
-      ? 'Literatura revisada por pares y ensayos clínicos que respaldan cada hipótesis del caso: amplificación FGFR1, radioligandos PRRT/SSTR, diferenciación neuroendocrina (BC-NED) y oncología de precisión N-of-1.'
-      : 'Peer-reviewed literature and clinical trials backing each hypothesis in the case: FGFR1 amplification, PRRT/SSTR radioligands, neuroendocrine differentiation (BC-NED) and N-of-1 precision oncology.',
+      ? 'Literatura revisada por pares detrás de cada hipótesis del caso, con su población y sus límites: diferenciación neuroendocrina y RB1, conversión de receptores, ADC anti-TROP-2, amplificación de FGFR1, radioligandos y metástasis hepáticas.'
+      : 'Peer-reviewed literature behind each hypothesis in the case, with its population and limits: neuroendocrine differentiation and RB1, receptor conversion, anti-TROP-2 ADC, FGFR1 amplification, radioligands and liver metastases.',
   ogType: 'article',
   twitterCard: 'summary_large_image',
 })

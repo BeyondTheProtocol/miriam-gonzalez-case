@@ -17,7 +17,7 @@
         <PageHeader
           :title="$t('science.title')"
           :subtitle="headerSubtitle"
-          :tag="level === 'simple' ? '' : 'BC-NED + FGFR1 ×13 + SSTR+'"
+          :tag="level === 'simple' ? '' : L('BC-NED · FGFR1/CCND1 amp · RE− en hígado', 'BC-NED · FGFR1/CCND1 amp · ER− in liver')"
         />
 
         <!-- Ciencia en 3 capas (auditoría 3.4): la página es densa; cada lector
@@ -172,8 +172,51 @@
                   'Murcia 2024 (local biopsy) · MD Anderson · DIPCAN 2024 (extended profile) · Vall d\'Hebron · Pathology · VHIO · 19/05/2026.') }}
           </p>
           <Nota class="mt-3">
-            {{ L('Estas lecturas describen el tejido; no son un diagnóstico de consenso. Armonizar las discordancias está pendiente de valoración por el comité de tumores —y es, en buena parte, lo que la rebiopsia molecular y esa revisión vienen a aclarar.',
-                  'These reads describe the tissue; they are not a consensus diagnosis. Reconciling the discordances is pending tumour-board review —and is, in good part, what the molecular rebiopsy and that review are there to clarify.') }}
+            {{ L('Estas lecturas describen el tejido; no son un diagnóstico de consenso. Armonizar las discordancias está pendiente de valoración por el comité de tumores.',
+                  'These reads describe the tissue; they are not a consensus diagnosis. Reconciling the discordances is pending tumour-board review.') }}
+          </Nota>
+        </section>
+
+        <!-- El tumor en tres sitios (29-sep-2026): primario, hueso y la metástasis hepática que
+             progresa. Cifras cotejadas contra los informes: primario (3 lecturas, ver arriba),
+             hueso (Zúrich, 8-jul-2026 + FoundationOne CDx) e hígado (AP firmada el 21-sep-2026). -->
+        <section v-show="showData" class="mb-12" aria-labelledby="tres-sitios">
+          <p class="eyebrow mb-2 block">{{ L('Lo más reciente · septiembre 2026', 'Latest · September 2026') }}</p>
+          <h2 id="tres-sitios" class="heading-display text-2xl text-berenjena mb-2" style="letter-spacing: -0.02em">
+            {{ L('El tumor en tres sitios', 'The tumour at three sites') }}
+          </h2>
+          <p class="text-sm text-tinta leading-relaxed mb-3 max-w-2xl">
+            {{ L('Hay tejido de tres localizaciones y momentos. El componente neuroendocrino aparece en las tres. El receptor de estrógeno, que en el primario era alto, es negativo en la metástasis del hígado, la lesión que creció durante el último tratamiento hormonal.',
+                  'There is tissue from three sites and time points. The neuroendocrine component appears in all three. The estrogen receptor, high in the primary, is negative in the liver metastasis, the lesion that grew during the last hormonal treatment.') }}
+          </p>
+          <div class="data-card overflow-x-auto">
+            <table class="data-table data-table--dense data-table--cards">
+              <caption class="sr-only">{{ L('El tumor en tres sitios: mama 2024, hueso 2026 e hígado 2026', 'The tumour at three sites: breast 2024, bone 2026 and liver 2026') }}</caption>
+              <thead>
+                <tr>
+                  <th scope="col"></th>
+                  <th scope="col">{{ L('Mama · primario · 2024', 'Breast · primary · 2024') }}</th>
+                  <th scope="col">{{ L('Hueso · ilíaco · jul 2026', 'Bone · iliac · Jul 2026') }}</th>
+                  <th scope="col" class="reads-vh">{{ L('Hígado · ago 2026', 'Liver · Aug 2026') }}</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr><td class="font-semibold text-berenjena cell-head">{{ L('RE (estrógeno)', 'ER (estrogen)') }}</td><td class="font-mono" :data-label="L('Mama 2024', 'Breast 2024')">85–100%</td><td class="text-sm" :data-label="L('Hueso 2026', 'Bone 2026')">{{ L('no determinado', 'not tested') }}</td><td class="font-mono reads-vh" :data-label="L('Hígado 2026', 'Liver 2026')">0%</td></tr>
+                <tr><td class="font-semibold text-berenjena cell-head">{{ L('RP (progesterona)', 'PR (progesterone)') }}</td><td class="font-mono" :data-label="L('Mama 2024', 'Breast 2024')">5–100%</td><td class="text-sm" :data-label="L('Hueso 2026', 'Bone 2026')">{{ L('no determinado', 'not tested') }}</td><td class="font-mono reads-vh" :data-label="L('Hígado 2026', 'Liver 2026')">5% (2+)</td></tr>
+                <tr><td class="font-semibold text-berenjena cell-head">HER2</td><td class="font-mono" :data-label="L('Mama 2024', 'Breast 2024')">{{ L('0 (×3 lecturas)', '0 (×3 reads)') }}</td><td class="text-sm" :data-label="L('Hueso 2026', 'Bone 2026')">{{ L('IHQ no determinada · ERBB2 sin alteración', 'IHC not tested · ERBB2 unaltered') }}</td><td class="font-mono reads-vh" :data-label="L('Hígado 2026', 'Liver 2026')">0</td></tr>
+                <tr><td class="font-semibold text-berenjena cell-head">{{ L('Neuroendocrino', 'Neuroendocrine') }}</td><td class="text-sm" :data-label="L('Mama 2024', 'Breast 2024')">{{ L('CgA y Syn ~80%', 'CgA and Syn ~80%') }}</td><td class="text-sm" :data-label="L('Hueso 2026', 'Bone 2026')">{{ L('Sinaptofisina +', 'Synaptophysin +') }}</td><td class="text-sm reads-vh" :data-label="L('Hígado 2026', 'Liver 2026')">{{ L('Cromogranina A + · Sinaptofisina +', 'Chromogranin A + · Synaptophysin +') }}</td></tr>
+                <tr><td class="font-semibold text-berenjena cell-head">Ki-67</td><td class="font-mono" :data-label="L('Mama 2024', 'Breast 2024')">60% · 40%</td><td class="font-mono" :data-label="L('Hueso 2026', 'Bone 2026')">~15%</td><td class="text-sm reads-vh" :data-label="L('Hígado 2026', 'Liver 2026')">{{ L('no informado', 'not reported') }}</td></tr>
+                <tr><td class="font-semibold text-berenjena cell-head">{{ L('Genómica', 'Genomics') }}</td><td class="text-sm" :data-label="L('Mama 2024', 'Breast 2024')">{{ L('TSO500: FGFR1 ×13 · CCND1 ×20 · FGF3/4/19 ×18', 'TSO500: FGFR1 ×13 · CCND1 ×20 · FGF3/4/19 ×18') }}</td><td class="text-sm" :data-label="L('Hueso 2026', 'Bone 2026')">{{ L('FoundationOne CDx: FGFR1 33 copias · CCND1/FGF3/4/19 37 copias · TMB 4 · MSS · sin ESR1, RB1, TP53 ni PIK3CA', 'FoundationOne CDx: FGFR1 33 copies · CCND1/FGF3/4/19 37 copies · TMB 4 · MSS · no ESR1, RB1, TP53 or PIK3CA') }}</td><td class="text-sm reads-vh" :data-label="L('Hígado 2026', 'Liver 2026')">{{ L('pendiente (Dana-Farber)', 'pending (Dana-Farber)') }}</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="text-xs text-tinta mt-2 font-mono leading-relaxed">
+            {{ L('Mama: 3 lecturas del primario (tabla de arriba). Hueso: biopsia de Zúrich, 8/07/2026, y FoundationOne CDx sobre ella. Hígado: biopsia con aguja gruesa del 18/08/2026, revisada en Anatomía Patológica de Vall d\'Hebron (informe firmado el 21/09/2026).',
+                  'Breast: 3 reads of the primary (table above). Bone: Zurich biopsy, 8/07/2026, and FoundationOne CDx on it. Liver: core needle biopsy of 18/08/2026, reviewed by Vall d\'Hebron Pathology (report signed 21/09/2026).') }}
+          </p>
+          <Nota class="mt-3">
+            {{ L('Dos plataformas distintas dan 13 y 33 copias de FGFR1, con purezas tumorales distintas: la dirección es firme, la cifra exacta no. Las variantes de RB1 y la ESR1 D538G se vieron en sangre y no en el hueso; el hígado aún no tiene perfil genómico. El patólogo del hueso advierte de que la gradación neuroendocrina no está establecida en biopsias pequeñas. Que la pérdida del receptor de estrógeno explique la progresión es una hipótesis, no un hallazgo.',
+                  'Two different platforms give 13 and 33 copies of FGFR1, at different tumour purities: the direction is solid, the exact number is not. The RB1 variants and ESR1 D538G were seen in blood and not in bone; the liver has no genomic profile yet. The bone pathologist notes that neuroendocrine grading is not established on small biopsies. That the loss of the estrogen receptor explains the progression is a hypothesis, not a finding.') }}
           </Nota>
         </section>
 
@@ -270,8 +313,8 @@
         </h2>
         <p class="text-sm text-tinta leading-relaxed mb-6 max-w-2xl">
           {{ locale === 'es'
-            ? 'El perfil combina el tejido primario (NGS, 2024) con la biopsia líquida de ctDNA en plasma (2026). Sobre un fondo luminal HR+/HER2− destacan la amplificación focal de FGFR1 en 11q13, CCND1 y el clúster FGF3/FGF4/FGF19; cada fila indica con qué prueba se midió.'
-            : 'The profile combines primary tissue (NGS, 2024) with plasma ctDNA liquid biopsy (2026). Against a luminal HR+/HER2− background, the standouts are focal amplification of FGFR1 at 11q13, CCND1 and the FGF3/FGF4/FGF19 cluster; each row notes how it was measured.' }}
+            ? 'El perfil cruza cuatro fuentes: el tejido primario (NGS, 2024), la biopsia ósea de julio de 2026 (FoundationOne CDx), la inmunohistoquímica de la metástasis hepática (agosto de 2026) y la biopsia líquida (ctDNA, 2026). En todo el tejido se repite el mismo motor: amplificación de FGFR1 (8p11) y del clúster 11q13 (CCND1, FGF3/FGF4/FGF19). Lo que cambia es el receptor de estrógeno, que desaparece en el hígado. Cada fila indica con qué prueba se midió.'
+            : 'The profile crosses four sources: the primary tissue (NGS, 2024), the July 2026 bone biopsy (FoundationOne CDx), immunohistochemistry of the liver metastasis (August 2026) and the liquid biopsy (ctDNA, 2026). The same engine recurs across all tissue: amplification of FGFR1 (8p11) and of the 11q13 cluster (CCND1, FGF3/FGF4/FGF19). What changes is the estrogen receptor, which is gone in the liver. Each row notes how it was measured.' }}
         </p>
         <MolecularProfileDetailed class="mb-12" />
 
@@ -330,6 +373,9 @@
             <p class="text-sm text-berenjena leading-relaxed">
               <span class="font-semibold">{{ $t('ciencia.meaning_label') }}:</span>
               {{ imaging.meaning }}
+            </p>
+            <p v-if="imaging.caveat" class="text-xs text-tinta leading-relaxed mt-3">
+              {{ imaging.caveat }}
             </p>
           </div>
 
@@ -423,7 +469,7 @@
         </section>
 
         <section v-if="panelRows.length">
-          <p class="eyebrow mb-2 block">{{ locale === 'es' ? 'El siguiente paso' : 'The next step' }}</p>
+          <p class="eyebrow mb-2 block">{{ locale === 'es' ? 'En curso' : 'Under way' }}</p>
           <h2
             id="panel-title"
             class="heading-display text-2xl text-berenjena mb-2"
@@ -433,13 +479,13 @@
           </h2>
           <p class="text-sm text-tinta leading-relaxed mb-6 max-w-2xl">
             {{ locale === 'es'
-              ? 'Una sola biopsia de la que sacar la caracterización del tumor más completa que la ciencia permite hoy —genómica, inmunogenómica y epigenética—, para no tener que repetirla. Es lo que financia la campaña.'
-              : 'A single biopsy from which to obtain the most complete tumour characterisation that science currently allows —genomic, immunogenomic and epigenetic—, so it doesn’t have to be repeated. This is what the campaign funds.' }}
+              ? 'En junio se planteó sacar de una sola biopsia la caracterización más completa posible. La biopsia se hizo en Zúrich el 8 de julio de 2026 y obtuvo tumor; el 18 de agosto se biopsió además el hígado. Todo el tejido que existe está en parafina: no hay fresco ni congelado. Eso decide qué se puede hacer hoy y qué no, y la tabla lo dice prueba a prueba.'
+              : 'In June the plan was to get the most complete characterisation possible out of a single biopsy. The biopsy was done in Zurich on 8 July 2026 and yielded tumour; the liver was also biopsied on 18 August. All existing tissue is in paraffin: there is no fresh or frozen material. That decides what can and cannot be done today, and the table says so test by test.' }}
           </p>
           <p class="text-sm text-berenjena leading-relaxed font-medium mb-6 max-w-2xl">
             {{ locale === 'es'
-              ? 'Próximo paso (junio 2026): una rebiopsia ósea extendida, guiada por PET. La primera (abril 2026) no obtuvo tumor viable; esta busca asegurarlo para completar el perfil molecular y ver cómo evoluciona.'
-              : 'Next step (June 2026): an extended, PET-guided bone rebiopsy. The first one (April 2026) did not yield viable tumour; this one aims to secure it, to complete the molecular profile and track how it evolves.' }}
+              ? 'Ahora: el laboratorio de Paloma Cejas en Dana-Farber tiene el material de mama, hueso e hígado (el último envío llegó el 23 de septiembre de 2026). Falta el ADN sano de sangre para el par tumor-normal y el tipado de HLA.'
+              : 'Now: Paloma Cejas’s lab at Dana-Farber holds the breast, bone and liver material (the last shipment arrived on 23 September 2026). Still missing: normal DNA from blood for the tumour-normal pair, and HLA typing.' }}
           </p>
           <div class="data-card mb-14">
             <div class="overflow-x-auto">
@@ -455,6 +501,7 @@
                     <th scope="col">{{ $t('ciencia.component') }}</th>
                     <th scope="col" class="col-marker">{{ $t('ciencia.method') }}</th>
                     <th scope="col">{{ $t('ciencia.targets') }}</th>
+                    <th scope="col">{{ $t('ciencia.status') }}</th>
                     <th scope="col" class="col-note">{{ $t('ciencia.implication') }}</th>
                   </tr>
                 </thead>
@@ -463,6 +510,9 @@
                     <td class="cell-head font-semibold text-berenjena">{{ row.component }}</td>
                     <td class="col-marker" :data-label="$t('ciencia.method')">{{ row.method }}</td>
                     <td :data-label="$t('ciencia.targets')">{{ row.targets }}</td>
+                    <td :data-label="$t('ciencia.status')">
+                      <span v-if="row.status" :class="['status-badge', panelBadge[row.statusTone] || 'status-badge--pending']">{{ row.status }}</span>
+                    </td>
                     <td class="col-note cell-block" :data-label="$t('ciencia.implication')">{{ row.implication }}</td>
                   </tr>
                 </tbody>
@@ -470,19 +520,19 @@
             </div>
             <details class="notes-disclosure px-4 sm:px-5 pb-4">
               <summary>
-                {{ locale === 'es' ? 'Especificaciones técnicas de la biopsia' : 'Biopsy technical specifications' }}
+                {{ locale === 'es' ? 'Si hubiera una biopsia nueva' : 'If there were a new biopsy' }}
               </summary>
               <p class="text-xs text-tinta leading-relaxed">
                 {{ locale === 'es'
-                  ? 'Aguja coaxial 14G sobre partes blandas perilesionales, sin descalcificar (el ácido degrada el ADN ~10×; si hay que descalcificar hueso, solo EDTA, nunca ácido). Touch-prep/ROSE para confirmar ≥30 % de celularidad tumoral antes de repartir nada. La referencia germinal (sangre/saliva) va aparte, cualquier día. No se comprometen WES+WGS+RNA-seq a un único core: se reservan 1–2 cores congelados para genómica y transcriptómica. Las biopsias líquidas seriadas cierran el bucle con las decisiones en tiempo real.'
-                  : '14G coaxial needle into peri-lesional soft tissue, without decalcification (acid degrades DNA ~10×; if bone must be decalcified, EDTA only, never acid). Touch-prep/ROSE to confirm ≥30% tumour cellularity before allocating anything. The germline reference (blood/saliva) goes separately, any day. WES+WGS+RNA-seq are not committed to a single core: 1–2 frozen cores are reserved for genomics and transcriptomics. Serial liquid biopsies close the loop with real-time decisions.' }}
+                  ? 'Las pruebas marcadas «no posible hoy» necesitan tejido vivo o congelado. Solo existirían con una biopsia nueva que guarde cilindros frescos o congelados sin descalcificar, además de los de parafina, y con sangre extraída a la vez (ADN germinal, HLA y células mononucleares). El método de descalcificación del bloque óseo de Zúrich no consta; el propio single-cell mostrará si el tejido rinde.'
+                  : 'The tests marked “not possible today” need live or frozen tissue. They would only exist with a new biopsy that keeps fresh or frozen, non-decalcified cores in addition to the paraffin ones, with blood drawn at the same time (germline DNA, HLA and mononuclear cells). The decalcification method of the Zurich bone block is not documented; the single-cell run itself will show whether the tissue performs.' }}
               </p>
             </details>
           </div>
           <Nota class="mt-4">
             {{ locale === 'es'
-              ? 'Material de apoyo a la consulta: describe lo que una sola biopsia podría extraer; no es una indicación de tratamiento. Las decisiones —dónde pinchar, cuántos cores son seguros, qué ensayos son viables— las toma el equipo médico tratante.'
-              : 'Consultation support material: it describes what a single biopsy could extract; it is not a treatment indication. The decisions —where to sample, how many cores are safe, which assays are feasible— are made by the treating medical team.' }}
+              ? 'Material de apoyo a la consulta: describe qué análisis existen y en qué estado están; no es una indicación de tratamiento. Qué se analiza y cómo lo decide el laboratorio que lo hace, y las decisiones clínicas, el equipo médico tratante.'
+              : 'Consultation support material: it describes which analyses exist and where they stand; it is not a treatment indication. What is analysed and how is decided by the lab doing it, and clinical decisions by the treating medical team.' }}
           </Nota>
         </section>
 
@@ -497,8 +547,8 @@
         </h2>
         <p class="text-sm text-tinta leading-relaxed mb-6 max-w-2xl">
           {{ locale === 'es'
-            ? 'Cada línea de tratamiento ha controlado la enfermedad durante un tiempo antes de que el tumor escape: el patrón esperable cuando se ataca solo el eje hormonal y se deja fuera el componente neuroendocrino.'
-            : 'Each treatment line has held the disease for a while before the tumour escapes again: the pattern to expect when only the hormonal axis is targeted and the neuroendocrine component is left out.' }}
+            ? 'Cada línea de tratamiento ha controlado la enfermedad durante un tiempo antes de que el tumor escape. Es un patrón compatible con atacar solo el eje hormonal y dejar fuera el componente neuroendocrino; la metástasis hepática de 2026, con RE 0 % y marcadores neuroendocrinos positivos, encaja con esa lectura, pero no la demuestra.'
+            : 'Each treatment line has held the disease for a while before the tumour escaped. The pattern is compatible with targeting only the hormonal axis and leaving out the neuroendocrine component; the 2026 liver metastasis, ER 0% with positive neuroendocrine markers, fits that reading but does not prove it.' }}
         </p>
         <ul class="space-y-3 mb-14" aria-labelledby="treatment-title">
           <li v-for="tx in treatments" :key="tx.line" class="card-base flex items-start gap-4">
@@ -513,7 +563,7 @@
               <div class="flex items-center justify-between gap-3 flex-wrap">
                 <h4 class="font-semibold text-berenjena text-sm">{{ tx.regimen }}</h4>
                 <span :class="['status-badge', tx.active ? 'status-badge--active' : 'status-badge--complete']">
-                  {{ tx.active ? (locale === 'es' ? 'Activo' : 'Active') : (locale === 'es' ? 'Completado' : 'Completed') }}
+                  {{ tx.badge || (tx.active ? (locale === 'es' ? 'Activo' : 'Active') : (locale === 'es' ? 'Completado' : 'Completed')) }}
                 </span>
               </div>
               <p class="text-xs text-tinta mt-1 leading-relaxed">{{ tx.outcome }}</p>
@@ -573,10 +623,10 @@
             {{ $t('ciencia.goal_n_of_1_desc') }}
           </p>
           <p class="text-sm leading-relaxed mb-3" style="color:rgba(250,246,240,0.70)">
-            {{ $t('ciencia.win_consortium_desc') }}
+            {{ $t('ciencia.goal_lab_desc') }}
           </p>
           <p class="text-sm font-medium" style="color:#e8d4ed">
-            {{ $t('ciencia.win_consortium_precedent') }}
+            {{ $t('ciencia.goal_lab_note') }}
           </p>
         </div>
 
@@ -715,7 +765,7 @@
         <CaseFollowSignup class="mt-4" />
 
         <Nota class="mt-12 pt-6" style="border-top: 1px solid rgba(45,27,61,0.08)">
-          {{ locale === 'es' ? 'Última actualización: 14 de junio de 2026' : 'Last updated: 14 June 2026' }}
+          {{ locale === 'es' ? 'Última actualización: 29 de septiembre de 2026' : 'Last updated: 29 September 2026' }}
         </Nota>
           </div>
           <!-- /columna de contenido del dossier -->
@@ -740,7 +790,7 @@ function printPage() {
 }
 
 // Mapa eje terapéutico → id de glosario (Term), mismo orden que ciencia.axes.
-const axisTerms = ['axis_fgfr', 'axis_sstr', 'axis_esr1', 'axis_ne']
+const axisTerms = ['axis_trop2', 'axis_fgfr', 'axis_sstr', 'axis_esr1', 'axis_ne']
 
 // Ciencia en 2 versiones por audiencia (auditoría 3.4). 'pro' por defecto =
 // página clínica completa. Las versiones controlan visibilidad con v-show (no
@@ -843,30 +893,30 @@ const simplePoints = computed(() =>
 useSeoMeta({
   title: () =>
     locale.value === 'es'
-      ? 'Perfil molecular del tumor: BC-NED, FGFR1 ×13 y SSTR+'
-      : 'Tumor molecular profile: BC-NED, FGFR1 ×13, SSTR+',
+      ? 'Perfil molecular del tumor: BC-NED, FGFR1/CCND1 y RE− en hígado'
+      : 'Tumor molecular profile: BC-NED, FGFR1/CCND1, ER− in the liver',
   description: () =>
     locale.value === 'es'
-      ? 'El perfil molecular del tumor de Miriam: cáncer de mama con diferenciación neuroendocrina, FGFR1 ×13 y SSTR+. Documentación clínica abierta.'
-      : "Miriam's tumor molecular profile: breast cancer with neuroendocrine differentiation, FGFR1 ×13 and SSTR+. Open clinical documentation.",
+      ? 'El perfil molecular del tumor de Miriam: cáncer de mama con diferenciación neuroendocrina, amplificación de FGFR1 y CCND1, y una metástasis hepática RE−. Documentación clínica abierta, al día de septiembre de 2026.'
+      : "Miriam's tumor molecular profile: breast cancer with neuroendocrine differentiation, FGFR1 and CCND1 amplification, and an ER− liver metastasis. Open clinical documentation, current as of September 2026.",
   ogTitle: () =>
     locale.value === 'es'
-      ? 'Perfil molecular BC-NED + FGFR1 ×13 + SSTR+'
-      : 'Molecular profile BC-NED + FGFR1 ×13 + SSTR+',
+      ? 'Perfil molecular BC-NED · FGFR1/CCND1 · RE− en hígado'
+      : 'Molecular profile BC-NED · FGFR1/CCND1 · ER− in the liver',
   ogDescription: () =>
     locale.value === 'es'
-      ? 'Análisis científico del caso: BC-NED, FGFR1 ×13, CCND1 ×20, SSTR+ (PET Ga-68). Metástasis óseas y hepáticas, ECOG 1, sin crisis visceral. Rebiopsia molecular avanzada como siguiente paso.'
-      : 'Scientific case analysis: BC-NED, FGFR1 ×13, CCND1 ×20, SSTR+ (Ga-68 PET). Bone and liver metastases, ECOG 1, no visceral crisis. Advanced molecular rebiopsy as the next step.',
+      ? 'Análisis científico del caso: BC-NED, HER2 0, amplificación de FGFR1 y CCND1, SSTR+ en hueso (PET Ga-68). Metástasis óseas y hepáticas; el hígado es RE 0 %. Tejido en análisis en Dana-Farber y ensayo con Dato-DXd previsto en octubre de 2026.'
+      : 'Scientific case analysis: BC-NED, HER2 0, FGFR1 and CCND1 amplification, SSTR+ in bone (Ga-68 PET). Bone and liver metastases; the liver is ER 0%. Tissue under analysis at Dana-Farber and a Dato-DXd trial expected in October 2026.',
   ogType: 'article',
   twitterCard: 'summary_large_image',
   twitterTitle: () =>
     locale.value === 'es'
-      ? 'Perfil molecular BC-NED + FGFR1 ×13 + SSTR+'
-      : 'Molecular profile BC-NED + FGFR1 ×13 + SSTR+',
+      ? 'Perfil molecular BC-NED · FGFR1/CCND1 · RE− en hígado'
+      : 'Molecular profile BC-NED · FGFR1/CCND1 · ER− in the liver',
   twitterDescription: () =>
     locale.value === 'es'
-      ? 'BC-NED, FGFR1 ×13, CCND1 ×20, SSTR+ (PET Ga-68). El perfil molecular completo del tumor de Miriam.'
-      : "BC-NED, FGFR1 ×13, CCND1 ×20, SSTR+ (Ga-68 PET). Miriam's full tumor molecular profile.",
+      ? 'BC-NED, FGFR1 y CCND1 amplificados, metástasis hepática RE−. El perfil molecular del tumor de Miriam, al día.'
+      : "BC-NED, amplified FGFR1 and CCND1, ER− liver metastasis. Miriam's tumor molecular profile, up to date.",
 })
 
 defineOgImage('Default.takumi', {
@@ -885,12 +935,12 @@ const faq =
           a: 'Sobre el papel es un tumor luminal (HR+/HER2−), pero ~80% muestra diferenciación neuroendocrina, con amplificación FGFR1 ×13 y CCND1 ×20. Este subtipo híbrido (BC-NED) tiene peor pronóstico y suele necesitar estrategias distintas a las del cáncer de mama luminal estándar.',
         },
         {
-          q: '¿Qué dianas accionables tiene el tumor?',
-          a: 'El PET con Galio-68 demuestra expresión de receptores de somatostatina (SSTR), diana de la terapia con radioligandos (PRRT). El perfil molecular añade la amplificación FGFR1 ×13 como diana candidata frente a inhibidores de FGFR.',
+          q: '¿Qué dianas tiene el tumor?',
+          a: 'El que se va a usar es TROP-2, diana del datopotamab deruxtecan de un ensayo que empieza en octubre de 2026 (su expresión en tejido no se ha medido). Como hipótesis, el PET con Galio-68 mostró receptores de somatostatina (SSTR) en hueso, diana de la terapia con radioligandos, y la amplificación de FGFR1 es una diana candidata para inhibidores de FGFR.',
         },
         {
           q: '¿Cuál es el siguiente paso del caso?',
-          a: 'Una rebiopsia ósea con panel molecular avanzado, revisada por un tumor board internacional (WIN Consortium), para diseñar un tratamiento N-of-1 dirigido a la biología real del tumor.',
+          a: 'Dos pasos en paralelo: el ensayo TROPION-Breast06 con datopotamab deruxtecan para controlar la enfermedad, y el análisis del tejido de mama, hueso e hígado en el laboratorio de Paloma Cejas en Dana-Farber (single-cell RNA-seq y exoma), del que saldrían las dianas de una terapia personalizada.',
         },
       ]
     : [
@@ -899,12 +949,12 @@ const faq =
           a: 'On paper it is a luminal tumor (HR+/HER2−), but ~80% shows neuroendocrine differentiation, with FGFR1 ×13 and CCND1 ×20 amplification. This hybrid subtype (BC-NED) has a worse prognosis and usually needs strategies different from standard luminal breast cancer.',
         },
         {
-          q: 'What actionable targets does the tumor have?',
-          a: 'The Gallium-68 PET shows somatostatin-receptor (SSTR) expression, the target of radioligand therapy (PRRT). The molecular profile adds FGFR1 ×13 amplification as a candidate target for FGFR inhibitors.',
+          q: 'What targets does the tumor have?',
+          a: 'The one about to be used is TROP-2, the target of datopotamab deruxtecan in a trial starting in October 2026 (its expression in tissue has not been measured). As hypotheses, the Gallium-68 PET showed somatostatin receptors (SSTR) in bone, the target of radioligand therapy, and FGFR1 amplification is a candidate target for FGFR inhibitors.',
         },
         {
           q: 'What is the next step in the case?',
-          a: 'A bone rebiopsy with an advanced molecular panel, reviewed by an international tumor board (WIN Consortium), to design an N-of-1 treatment directed at the tumor’s actual biology.',
+          a: 'Two steps in parallel: the TROPION-Breast06 trial with datopotamab deruxtecan to control the disease, and analysis of the breast, bone and liver tissue in Paloma Cejas’s lab at Dana-Farber (single-cell RNA-seq and exome), which is where the targets of a personalised therapy would come from.',
         },
       ]
 
@@ -933,8 +983,8 @@ const conditionJsonLd = computed(() =>
     alternateName: ['BC-NED', 'Breast carcinoma with neuroendocrine differentiation'],
     description:
       locale.value === 'es'
-        ? 'Carcinoma de mama luminal (HR+/HER2−) con ~80% de diferenciación neuroendocrina y amplificación FGFR1 ×13, CCND1 ×20 (clúster 11q13); expresión de SSTR en PET Ga-68. Metástasis óseas (desde el diagnóstico) y hepáticas (desde julio de 2026).'
-        : 'Luminal breast carcinoma (HR+/HER2−) with ~80% neuroendocrine differentiation and FGFR1 ×13, CCND1 ×20 amplification (11q13 cluster); SSTR expression on Ga-68 PET. Bone metastases (since diagnosis) and liver metastases (since July 2026).',
+        ? 'Carcinoma de mama HR+/HER2 0 con ~80% de diferenciación neuroendocrina y amplificación de FGFR1 (8p11) y CCND1 (clúster 11q13); expresión de SSTR en PET Ga-68 (hueso). Metástasis óseas (desde el diagnóstico) y hepáticas (desde julio de 2026); la metástasis hepática es RE 0 %, RP 5 %, HER2 0, con cromogranina A y sinaptofisina positivas.'
+        : 'HR+/HER2 0 breast carcinoma with ~80% neuroendocrine differentiation and amplification of FGFR1 (8p11) and CCND1 (11q13 cluster); SSTR expression on Ga-68 PET (bone). Bone metastases (since diagnosis) and liver metastases (since July 2026); the liver metastasis is ER 0%, PR 5%, HER2 0, with chromogranin A and synaptophysin positive.',
     associatedAnatomy: [
       { '@type': 'AnatomicalStructure', name: locale.value === 'es' ? 'Mama' : 'Breast' },
       { '@type': 'AnatomicalStructure', name: locale.value === 'es' ? 'Hueso (metástasis)' : 'Bone (metastases)' },
@@ -976,6 +1026,13 @@ const { data: scienceData } = await useAsyncData(
 
 const treatments = computed(() => scienceData.value?.treatments ?? [])
 const panelRows = computed(() => scienceData.value?.panelRows ?? [])
+// Estado de cada análisis (a 29-sep-2026): hecho · en curso · pendiente · no posible hoy.
+const panelBadge: Record<string, string> = {
+  hecho: 'status-badge--complete',
+  curso: 'status-badge--firma',
+  pendiente: 'status-badge--pending',
+  no: 'status-badge--paused',
+}
 const imaging = computed(() => scienceData.value?.imaging ?? null)
 
 const snapshotRows = computed(() =>

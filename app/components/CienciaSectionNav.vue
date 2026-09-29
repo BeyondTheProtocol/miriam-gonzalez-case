@@ -53,20 +53,22 @@ const chapters = computed(() =>
     ? [
         { id: 'snapshot-title', label: 'Resumen clínico' },
         { id: 'tejido-3veces', label: 'Anatomía patológica' },
+        { id: 'tres-sitios', label: 'Tres sitios · 2026' },
         { id: 'molecular-profile-title', label: 'Perfil molecular' },
         { id: 'imaging-tissue-title', label: 'Imagen funcional' },
         { id: 'mapa-acceso', label: 'Mapa y biopsia' },
-        { id: 'panel-title', label: 'El siguiente paso' },
+        { id: 'panel-title', label: 'Análisis en curso' },
         { id: 'treatment-title', label: 'Historia clínica' },
         { id: 'ruta-title', label: 'La ruta' },
       ]
     : [
         { id: 'snapshot-title', label: 'Clinical summary' },
         { id: 'tejido-3veces', label: 'Pathology' },
+        { id: 'tres-sitios', label: 'Three sites · 2026' },
         { id: 'molecular-profile-title', label: 'Molecular profile' },
         { id: 'imaging-tissue-title', label: 'Functional imaging' },
         { id: 'mapa-acceso', label: 'Map & biopsy' },
-        { id: 'panel-title', label: 'The next step' },
+        { id: 'panel-title', label: 'Analysis under way' },
         { id: 'treatment-title', label: 'Clinical history' },
         { id: 'ruta-title', label: 'The route' },
       ]
