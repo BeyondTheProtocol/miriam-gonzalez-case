@@ -169,8 +169,8 @@
             </table>
           </div>
           <p class="text-xs text-tinta mt-2 font-mono leading-relaxed">
-            {{ L('Murcia 2024 (biopsia local) · MD Anderson · DIPCAN 2024 (perfil ampliado) · Vall d\'Hebron · Anatomía Patológica · informe firmado el 10/06/2026 (firma previa 19/05/2026). Ese informe recoge la sinaptofisina dos veces, con resultados distintos: heterogénea y negativa.',
-                  'Murcia 2024 (local biopsy) · MD Anderson · DIPCAN 2024 (extended profile) · Vall d\'Hebron · Pathology · report signed 10/06/2026 (earlier signature 19/05/2026). That report lists synaptophysin twice, with different results: heterogeneous and negative.') }}
+            {{ L('Murcia 2024 (biopsia local) · MD Anderson · DIPCAN 2024 (perfil ampliado) · Vall d\'Hebron · Anatomía Patológica · informe firmado el 10/06/2026 (firma previa 19/05/2026). Ese informe recoge la sinaptofisina dos veces («heterogénea» y «negativa»); la laminilla se revisó después y confirma la expresión, así que la entrada «negativa» es un error del informe.',
+                  'Murcia 2024 (local biopsy) · MD Anderson · DIPCAN 2024 (extended profile) · Vall d\'Hebron · Pathology · report signed 10/06/2026 (earlier signature 19/05/2026). That report lists synaptophysin twice (“heterogeneous” and “negative”); the slide was reviewed afterwards and confirms expression, so the “negative” entry is an error in the report.') }}
           </p>
           <Nota class="mt-3">
             {{ L('Estas lecturas describen el tejido; no son un diagnóstico de consenso. Armonizar las discordancias está pendiente de valoración por el comité de tumores.',
