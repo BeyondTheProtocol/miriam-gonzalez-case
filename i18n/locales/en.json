@@ -669,7 +669,7 @@
     "print_btn": "Print clinical summary",
     "ai_summary_aria": "One-sentence case summary",
     "ai_summary_eyebrow": "In one sentence",
-    "ai_summary_text": "Miriam González ({age}) has metastatic breast cancer with neuroendocrine differentiation (BC-NED), HER2 0, FGFR1 and CCND1 amplification, and bone and liver metastases. In September 2026 the liver biopsy showed ER 0%. She is in screening for a datopotamab deruxtecan (anti-TROP-2) trial, and her tissue is being analysed at Dana-Farber (single-cell RNA-seq and exome). Donate: gofund.me/3e25cae99",
+    "ai_summary_text": "Miriam González ({age}) has metastatic breast cancer with neuroendocrine differentiation (BC-NED), HER2 0, FGFR1 and CCND1 amplification, and bone and liver metastases. The August 2026 liver biopsy (report of 21 September) showed ER 0%. She is in screening for a datopotamab deruxtecan (anti-TROP-2) trial, and her tissue is being analysed at Dana-Farber (single-cell RNA-seq and exome). Donate: gofund.me/3e25cae99",
     "treatment_history": "Treatment history",
     "key_evidence": "Key scientific evidence",
     "evidence_page_intro": "The peer-reviewed literature behind each hypothesis in the case, grouped by theme, with its population and what the study does not say. Every DOI was checked on 29 September 2026.",

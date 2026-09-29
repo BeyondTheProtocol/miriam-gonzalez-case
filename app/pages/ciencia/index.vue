@@ -142,8 +142,8 @@
             {{ L('El mismo tejido, leído tres veces', 'The same tissue, read three times') }}
           </h2>
           <p class="text-sm text-tinta leading-relaxed mb-3 max-w-2xl">
-            {{ L('El mismo tumor se ha analizado tres veces, en tres centros y momentos distintos. Las diferencias entre lecturas son parte de la información, no un error: la columna más reciente (VHIO, 2026) es la más completa, no necesariamente la «correcta».',
-                  'The same tumour has been analysed three times, at three centres and time points. The differences between reads are themselves information, not an error: the most recent column (VHIO, 2026) is the most complete, not necessarily the “correct” one.') }}
+            {{ L('El mismo tumor se ha analizado tres veces, en tres centros y momentos distintos. Las diferencias entre lecturas son parte de la información, no un error: la columna más reciente (Vall d’Hebron, 2026) es la más completa, no necesariamente la «correcta».',
+                  'The same tumour has been analysed three times, at three centres and time points. The differences between reads are themselves information, not an error: the most recent column (Vall d’Hebron, 2026) is the most complete, not necessarily the “correct” one.') }}
           </p>
           <div class="data-card overflow-x-auto">
             <table class="data-table data-table--dense data-table--cards">
@@ -153,23 +153,24 @@
                   <th scope="col"></th>
                   <th scope="col">{{ L('Local · Murcia · 2024', 'Local · Murcia · 2024') }}</th>
                   <th scope="col">MD Anderson · DIPCAN · 2024</th>
-                  <th scope="col" class="reads-vh">VHIO · Vall d’Hebron · 2026</th>
+                  <th scope="col" class="reads-vh">Vall d’Hebron · 2026</th>
                 </tr>
               </thead>
               <tbody>
-                <tr><td class="font-semibold text-berenjena cell-head">{{ L('RE (estrógeno)', 'ER (estrogen)') }}</td><td class="font-mono" data-label="Local · Murcia · 2024">95%</td><td class="font-mono" data-label="MD Anderson · DIPCAN · 2024">100%</td><td class="font-mono reads-vh" data-label="VHIO · Vall d’Hebron · 2026">{{ L('85% · alta · H 225', '85% · high · H 225') }}</td></tr>
-                <tr><td class="font-semibold text-berenjena cell-head">{{ L('RP (progesterona)', 'PR (progesterone)') }}</td><td class="font-mono" data-label="Local · Murcia · 2024">5%</td><td class="font-mono" data-label="MD Anderson · DIPCAN · 2024">100%</td><td class="font-mono reads-vh" data-label="VHIO · Vall d’Hebron · 2026">{{ L('20% · baja · H 25', '20% · low · H 25') }}</td></tr>
-                <tr><td class="font-semibold text-berenjena cell-head">HER2</td><td class="font-mono" data-label="Local · Murcia · 2024">0</td><td class="font-mono" data-label="MD Anderson · DIPCAN · 2024">0</td><td class="text-sm reads-vh" data-label="VHIO · Vall d’Hebron · 2026">{{ L('0 (sin tinción de membrana)', '0 (no membrane staining)') }}</td></tr>
-                <tr><td class="font-semibold text-berenjena cell-head">Ki-67</td><td class="font-mono" data-label="Local · Murcia · 2024">60%</td><td class="font-mono" data-label="MD Anderson · DIPCAN · 2024">—</td><td class="font-mono reads-vh" data-label="VHIO · Vall d’Hebron · 2026">40%</td></tr>
-                <tr><td class="font-semibold text-berenjena cell-head">{{ L('Grado (Nottingham)', 'Grade (Nottingham)') }}</td><td class="font-mono" data-label="Local · Murcia · 2024">II (3+2+2)</td><td class="font-mono" data-label="MD Anderson · DIPCAN · 2024">—</td><td class="font-mono reads-vh" data-label="VHIO · Vall d’Hebron · 2026">2 (3+2+1)</td></tr>
-                <tr><td class="font-semibold text-berenjena cell-head">{{ L('Subtipo (IHQ)', 'Subtype (IHC)') }}</td><td data-label="Local · Murcia · 2024">—</td><td data-label="MD Anderson · DIPCAN · 2024">—</td><td class="reads-vh" data-label="VHIO · Vall d’Hebron · 2026"><span class="pill-data pill-data--violet">Luminal B · HER2−</span></td></tr>
-                <tr><td class="font-semibold text-berenjena cell-head">{{ L('Diferenciación neuroendocrina', 'Neuroendocrine differentiation') }}</td><td data-label="Local · Murcia · 2024">{{ L('confirmada', 'confirmed') }}</td><td data-label="MD Anderson · DIPCAN · 2024">—</td><td class="text-sm reads-vh" data-label="VHIO · Vall d’Hebron · 2026">{{ L('Sinaptofisina heterogénea · Cromogranina focal+ · INSM1 en mosaico', 'Heterogeneous synaptophysin · focal+ chromogranin · mosaic INSM1') }}</td></tr>
+                <tr><td class="font-semibold text-berenjena cell-head">{{ L('RE (estrógeno)', 'ER (estrogen)') }}</td><td class="font-mono" data-label="Local · Murcia · 2024">95%</td><td class="font-mono" data-label="MD Anderson · DIPCAN · 2024">100%</td><td class="font-mono reads-vh" data-label="Vall d’Hebron · 2026">{{ L('85% · alta · H 225', '85% · high · H 225') }}</td></tr>
+                <tr><td class="font-semibold text-berenjena cell-head">{{ L('RP (progesterona)', 'PR (progesterone)') }}</td><td class="font-mono" data-label="Local · Murcia · 2024">5%</td><td class="font-mono" data-label="MD Anderson · DIPCAN · 2024">100%</td><td class="font-mono reads-vh" data-label="Vall d’Hebron · 2026">{{ L('20% · baja · H 25', '20% · low · H 25') }}</td></tr>
+                <tr><td class="font-semibold text-berenjena cell-head">HER2</td><td class="font-mono" data-label="Local · Murcia · 2024">0</td><td class="text-sm" data-label="MD Anderson · DIPCAN · 2024">{{ L('0 · tinción de membrana incompleta y casi imperceptible en menos del 10 % de las células', '0 · incomplete, barely perceptible membrane staining in fewer than 10% of cells') }}</td><td class="text-sm reads-vh" data-label="Vall d’Hebron · 2026">{{ L('0 (sin tinción de membrana)', '0 (no membrane staining)') }}</td></tr>
+                <tr><td class="font-semibold text-berenjena cell-head">Ki-67</td><td class="font-mono" data-label="Local · Murcia · 2024">60%</td><td class="font-mono" data-label="MD Anderson · DIPCAN · 2024">—</td><td class="font-mono reads-vh" data-label="Vall d’Hebron · 2026">40%</td></tr>
+                <tr><td class="font-semibold text-berenjena cell-head">{{ L('Grado (Nottingham)', 'Grade (Nottingham)') }}</td><td class="font-mono" data-label="Local · Murcia · 2024">II (3+2+2)</td><td class="font-mono" data-label="MD Anderson · DIPCAN · 2024">2 (2+2+2)</td><td class="font-mono reads-vh" data-label="Vall d’Hebron · 2026">2 (3+2+1)</td></tr>
+                <tr><td class="font-semibold text-berenjena cell-head">{{ L('Subtipo (IHQ)', 'Subtype (IHC)') }}</td><td data-label="Local · Murcia · 2024">—</td><td data-label="MD Anderson · DIPCAN · 2024">—</td><td class="reads-vh" data-label="Vall d’Hebron · 2026"><span class="pill-data pill-data--violet">Luminal B · HER2−</span></td></tr>
+                <tr><td class="font-semibold text-berenjena cell-head">{{ L('Diferenciación neuroendocrina', 'Neuroendocrine differentiation') }}</td><td class="text-sm" data-label="Local · Murcia · 2024">{{ L('Cromogranina 80 % · Sinaptofisina 80 % · CD56 −', 'Chromogranin 80% · Synaptophysin 80% · CD56 −') }}</td><td data-label="MD Anderson · DIPCAN · 2024">—</td><td class="text-sm reads-vh" data-label="Vall d’Hebron · 2026">{{ L('Sinaptofisina heterogénea · Cromogranina focal+ · INSM1 en mosaico', 'Heterogeneous synaptophysin · focal+ chromogranin · mosaic INSM1') }}</td></tr>
+                <tr><td class="font-semibold text-berenjena cell-head">{{ L('Otros marcadores', 'Other markers') }}</td><td class="text-sm" data-label="Local · Murcia · 2024">{{ L('CK19 + · GATA-3 + · carcinoma in situ 20 %', 'CK19 + · GATA-3 + · in situ carcinoma 20%') }}</td><td class="text-sm" data-label="MD Anderson · DIPCAN · 2024">{{ L('PD-L1 CPS 0 %', 'PD-L1 CPS 0%') }}</td><td class="text-sm reads-vh" data-label="Vall d’Hebron · 2026">{{ L('TILs menos del 5 % · E-cadherina + · CK19 en mosaico · sin invasión vascular', 'TILs under 5% · E-cadherin + · mosaic CK19 · no vascular invasion') }}</td></tr>
               </tbody>
             </table>
           </div>
           <p class="text-xs text-tinta mt-2 font-mono leading-relaxed">
-            {{ L('Murcia 2024 (biopsia local) · MD Anderson · DIPCAN 2024 (perfil ampliado) · Vall d\'Hebron · Anatomía Patológica · VHIO · 19/05/2026.',
-                  'Murcia 2024 (local biopsy) · MD Anderson · DIPCAN 2024 (extended profile) · Vall d\'Hebron · Pathology · VHIO · 19/05/2026.') }}
+            {{ L('Murcia 2024 (biopsia local) · MD Anderson · DIPCAN 2024 (perfil ampliado) · Vall d\'Hebron · Anatomía Patológica · informe firmado el 10/06/2026 (firma previa 19/05/2026). Ese informe recoge la sinaptofisina dos veces, con resultados distintos: heterogénea y negativa.',
+                  'Murcia 2024 (local biopsy) · MD Anderson · DIPCAN 2024 (extended profile) · Vall d\'Hebron · Pathology · report signed 10/06/2026 (earlier signature 19/05/2026). That report lists synaptophysin twice, with different results: heterogeneous and negative.') }}
           </p>
           <Nota class="mt-3">
             {{ L('Estas lecturas describen el tejido; no son un diagnóstico de consenso. Armonizar las discordancias está pendiente de valoración por el comité de tumores.',
@@ -196,7 +197,7 @@
                 <tr>
                   <th scope="col"></th>
                   <th scope="col">{{ L('Mama · primario · 2024', 'Breast · primary · 2024') }}</th>
-                  <th scope="col">{{ L('Hueso · ilíaco · jul 2026', 'Bone · iliac · Jul 2026') }}</th>
+                  <th scope="col">{{ L('Hueso · ilion derecho · jul 2026', 'Bone · right ilium · Jul 2026') }}</th>
                   <th scope="col" class="reads-vh">{{ L('Hígado · ago 2026', 'Liver · Aug 2026') }}</th>
                 </tr>
               </thead>
@@ -211,8 +212,8 @@
             </table>
           </div>
           <p class="text-xs text-tinta mt-2 font-mono leading-relaxed">
-            {{ L('Mama: 3 lecturas del primario (tabla de arriba). Hueso: biopsia de Zúrich, 8/07/2026, y FoundationOne CDx sobre ella. Hígado: biopsia con aguja gruesa del 18/08/2026, revisada en Anatomía Patológica de Vall d\'Hebron (informe firmado el 21/09/2026).',
-                  'Breast: 3 reads of the primary (table above). Bone: Zurich biopsy, 8/07/2026, and FoundationOne CDx on it. Liver: core needle biopsy of 18/08/2026, reviewed by Vall d\'Hebron Pathology (report signed 21/09/2026).') }}
+            {{ L('Mama: 3 lecturas del primario (tabla de arriba). Hueso: biopsia del ilion derecho en Zúrich, 8/07/2026, y FoundationOne CDx sobre ella. Hígado: biopsia con aguja gruesa del 18/08/2026 de una lesión de unos 2,2 cm del segmento IVa (no es una de las lesiones diana del RECIST); el informe de Vall d\'Hebron, firmado el 21/09/2026, es una revisión con inmunohistoquímica y no incluye Ki-67 ni SSTR2.',
+                  'Breast: 3 reads of the primary (table above). Bone: right-ilium biopsy in Zurich, 8/07/2026, and FoundationOne CDx on it. Liver: core needle biopsy of 18/08/2026 of a ~2.2 cm lesion in segment IVa (not one of the RECIST target lesions); the Vall d\'Hebron report, signed 21/09/2026, is an immunohistochemistry review and includes neither Ki-67 nor SSTR2.') }}
           </p>
           <Nota class="mt-3">
             {{ L('Dos plataformas distintas dan 13 y 33 copias de FGFR1, con purezas tumorales distintas: la dirección es firme, la cifra exacta no. Las variantes de RB1 y la ESR1 D538G se vieron en sangre y no en el hueso; el hígado aún no tiene perfil genómico. El patólogo del hueso advierte de que la gradación neuroendocrina no está establecida en biopsias pequeñas. Que la pérdida del receptor de estrógeno explique la progresión es una hipótesis, no un hallazgo.',
@@ -479,8 +480,8 @@
           </h2>
           <p class="text-sm text-tinta leading-relaxed mb-6 max-w-2xl">
             {{ locale === 'es'
-              ? 'En junio se planteó sacar de una sola biopsia la caracterización más completa posible. La biopsia se hizo en Zúrich el 8 de julio de 2026 y obtuvo tumor; el 18 de agosto se biopsió además el hígado. Todo el tejido que existe está en parafina: no hay fresco ni congelado. Eso decide qué se puede hacer hoy y qué no, y la tabla lo dice prueba a prueba.'
-              : 'In June the plan was to get the most complete characterisation possible out of a single biopsy. The biopsy was done in Zurich on 8 July 2026 and yielded tumour; the liver was also biopsied on 18 August. All existing tissue is in paraffin: there is no fresh or frozen material. That decides what can and cannot be done today, and the table says so test by test.' }}
+              ? 'En junio se planteó sacar de una sola biopsia la caracterización más completa posible. La biopsia se hizo en Zúrich el 8 de julio de 2026 (ilion derecho) y obtuvo tumor; el 18 de agosto se biopsió además el hígado. Todo el tejido del que hay informe está en parafina; no consta material fresco ni congelado. Eso decide qué se puede hacer hoy y qué no, y la tabla lo dice prueba a prueba.'
+              : 'In June the plan was to get the most complete characterisation possible out of a single biopsy. The biopsy was done in Zurich on 8 July 2026 (right ilium) and yielded tumour; the liver was also biopsied on 18 August. All tissue with a report is in paraffin; there is no record of fresh or frozen material. That decides what can and cannot be done today, and the table says so test by test.' }}
           </p>
           <p class="text-sm text-berenjena leading-relaxed font-medium mb-6 max-w-2xl">
             {{ locale === 'es'

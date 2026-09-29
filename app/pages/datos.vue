@@ -77,7 +77,7 @@ const snc = (c.ficha?.sitios ?? []).find((x: any) => /^SNC|^CNS/.test(T(x.valor)
    El tipo, del diagnóstico de caso.json (verificado); la fecha, la de la biopsia. Sitios de enfermedad
    en corto: «Hueso: metástasis incontables…» hasta el primer «;». */
 const dx = c.ficha?.diagnostico ?? null
-const dxCorto = computed(() => L('Cáncer de mama con diferenciación neuroendocrina (BC-NED), HR+/HER2− (IHC 0)', 'Breast cancer with neuroendocrine differentiation (BC-NED), HR+/HER2− (IHC 0)'))
+const dxCorto = computed(() => L('Cáncer de mama con diferenciación neuroendocrina (BC-NED); primario HR+/HER2 0; metástasis hepática (2026) RE 0 %, RP 5 %, HER2 0', 'Breast cancer with neuroendocrine differentiation (BC-NED); primary HR+/HER2 0; liver metastasis (2026) ER 0%, PR 5%, HER2 0'))
 const mesAnio = (iso: string, lg: Lang) => `${mesCorto(Number(iso.slice(5, 7)) - 1, lg)} ${iso.slice(0, 4)}`
 const sitiosCortos = computed(() => (c.ficha?.sitios ?? []).filter((x: any) => !/^SNC|^CNS/.test(T(x.valor))).map((x: any) => {
   const t = T(x.valor); const i = t.indexOf(':')

@@ -132,12 +132,12 @@ const GLOSSARY: Record<string, Entry> = {
   },
   ecog: {
     es: {
-      label: 'ECOG 1',
-      def: 'Escala ECOG: 0 desde el diagnóstico (enero 2024) hasta abril de 2026; 1 desde entonces (aumento del dolor óseo en cadera, capacidad funcional conservada).',
+      label: 'ECOG 0',
+      def: 'Escala de estado funcional (0 = actividad normal, sin limitación). Vall d\'Hebron anota ECOG 0 en todas las visitas documentadas de 2026; la última, el 9 de septiembre.',
     },
     en: {
-      label: 'ECOG 1',
-      def: 'ECOG scale: 0 from diagnosis (January 2024) until April 2026; 1 since then (increased hip bone pain, preserved functional capacity).',
+      label: 'ECOG 0',
+      def: 'Performance-status scale (0 = fully active, no restriction). Vall d\'Hebron records ECOG 0 at every documented 2026 visit; the latest on 9 September.',
     },
   },
   ki67: {
@@ -183,11 +183,11 @@ const GLOSSARY: Record<string, Entry> = {
   metastasico: {
     es: {
       label: 'metastásico',
-      def: 'El cáncer se ha extendido más allá de la mama; en su caso, al hueso.',
+      def: 'El cáncer se ha extendido más allá de la mama; en su caso, al hueso desde el diagnóstico y al hígado desde julio de 2026.',
     },
     en: {
       label: 'metastatic',
-      def: 'The cancer has spread beyond the breast; in her case, to the bone.',
+      def: 'The cancer has spread beyond the breast; in her case, to bone since diagnosis and to the liver since July 2026.',
     },
   },
   radioligandos: {
