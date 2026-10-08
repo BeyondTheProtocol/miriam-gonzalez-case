@@ -59,8 +59,8 @@ defineOgImage('Default.takumi', {
           </p>
         </div>
 
-        <div class="grid gap-8 lg:grid-cols-[minmax(0,420px)_minmax(0,1fr)] items-start">
-          <div class="max-w-[420px] mx-auto lg:mx-0 w-full">
+        <div class="grid gap-8 lg:grid-cols-[minmax(0,560px)_minmax(0,1fr)] items-start">
+          <div class="max-w-[560px] mx-auto lg:mx-0 w-full">
             <ClientOnly>
               <ReservoirView base="/reservorio/" />
               <template #fallback>
