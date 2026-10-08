@@ -12,6 +12,11 @@
  *   - interpolado: el tramo intermedio, reconstruido por coste de brillo entre esos dos puntos
  *     (no medido punto a punto) — trazo DISCONTINUO DE VERDAD: son huecos reales en la malla
  *     (arco geodésico sobre la propia superficie), no un efecto de línea.
+ * Capa opcional «dispositivo» (8-oct-2026, la pidió Miriam): un modelo de catálogo del port,
+ * translúcido, colocado sobre el portal medido. Es una ILUSTRACIÓN (dibujada a partir de fotos,
+ * escala 1:1, sin ajustar a su TC), apagada al abrir, y es la única pieza de esta página que
+ * nombra el dispositivo: su licencia (CC BY) obliga a citar la obra. No entra en el encuadre ni
+ * en ninguna cifra.
  * Hueso y tráquea van de contexto anatómico, en gris apagado, sin protagonismo.
  *
  * Interacción: arrastrar o rueda para girar/acercar (OrbitControls), Y flechas de teclado
@@ -29,8 +34,9 @@ const { locale } = useI18n()
 const lang = computed<'es' | 'en'>(() => (locale.value === 'en' ? 'en' : 'es'))
 const L = (es: string, en: string) => (lang.value === 'en' ? en : es)
 
-interface Fecha { mallas: Record<string, string>; longitud_mm: number }
-interface Escena { fechas: Record<string, Fecha>; error_medida_mm: number; error_diferencia_mm: number }
+interface Fecha { mallas: Record<string, string>; longitud_mm: number; modelo?: string; modelo_ajuste_mm?: number }
+interface Credito { obra: string; autor: string; fuente: string; licencia: string; licencia_url: string }
+interface Escena { fechas: Record<string, Fecha>; error_medida_mm: number; error_diferencia_mm: number; modelo?: Credito }
 
 const host = ref<HTMLDivElement | null>(null)
 const loading = ref(true)
@@ -38,6 +44,10 @@ const failed = ref(false)
 const escena = ref<Escena | null>(null)
 const fechas = computed(() => (escena.value ? Object.keys(escena.value.fechas).sort() : []))
 const fechaActual = ref('')
+// capa ilustrativa del dispositivo: apagada al abrir, se carga solo si se pide
+const verModelo = ref(false)
+const hayModelo = computed(() => !!escena.value?.modelo && !!escena.value.fechas[fechaActual.value]?.modelo)
+let mallaModelo: THREE.Mesh | null = null
 
 // RAS (mm) → ejes de three, igual que LiverView/BreastView.
 const RAS_A_THREE = new THREE.Matrix4().set(-1, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 1)
@@ -76,6 +86,8 @@ const MAT = {
   interpolado: () => new THREE.MeshPhysicalMaterial({ color: 0xff6b47, roughness: 0.3, clearcoat: 0.85, clearcoatRoughness: 0.12 }),
   portal: () => new THREE.MeshPhysicalMaterial({ color: 0xff6b47, roughness: 0.25, clearcoat: 0.9, clearcoatRoughness: 0.1 }),
   hueso: () => rayosX(new THREE.MeshPhysicalMaterial({ color: 0x9aa4b2, roughness: 0.9, transparent: true, depthWrite: false }), 0.05, 0.55, 0.40),
+  // ilustración: gris claro translúcido, nunca coral (coral = lo que sale de su TC)
+  modelo: () => new THREE.MeshPhysicalMaterial({ color: 0xd9dee6, roughness: 0.55, transparent: true, opacity: 0.34, depthWrite: false, side: THREE.DoubleSide }),
   traquea: () => rayosX(new THREE.MeshPhysicalMaterial({ color: 0x9aa4b2, roughness: 0.9, transparent: true, depthWrite: false }), 0.04, 0.42, 0.25),
 }
 
@@ -114,7 +126,30 @@ async function cargaFecha(fecha: string) {
   caja.getBoundingSphere(esfera)
   radio = Math.max(15, esfera.radius * 1.6)
   controls.minDistance = radio * 0.5; controls.maxDistance = radio * 25
+  mallaModelo = null   // limpiaGrupo() ya lo ha soltado con el resto
   fechaActual.value = fecha
+  if (verModelo.value) await ponModelo()
+}
+
+async function ponModelo() {
+  const f = escena.value?.fechas[fechaActual.value]
+  if (!f?.modelo || mallaModelo) return
+  const fecha = fechaActual.value
+  const g = await geo(props.base + fecha + '/' + f.modelo)
+  if (fecha !== fechaActual.value || !verModelo.value) { g.dispose(); return }
+  mallaModelo = new THREE.Mesh(g, MAT.modelo())
+  mallaModelo.renderOrder = 3
+  grupo.add(mallaModelo)
+}
+function quitaModelo() {
+  if (!mallaModelo) return
+  mallaModelo.geometry.dispose(); (mallaModelo.material as THREE.Material).dispose()
+  grupo.remove(mallaModelo); mallaModelo = null
+}
+async function alternaModelo() {
+  verModelo.value = !verModelo.value
+  if (verModelo.value) await ponModelo().catch((e) => { console.error('[ReservoirView] modelo', e); verModelo.value = false })
+  else quitaModelo()
 }
 
 function tamano() {
@@ -285,13 +320,33 @@ function fechaLegible(f: string) {
         :aria-pressed="fechaActual === f" @click="cargaFecha(f)">{{ fechaLegible(f) }}</button>
     </div>
 
-    <!-- leyenda: DOS píldoras, forma + color, reusando .badge-genomic -->
+    <!-- capa ilustrativa: un botón con estado, igual que los de fecha -->
+    <div v-if="!loading && !failed && hayModelo" class="mt-2.5">
+      <button
+        type="button"
+        class="rv-fecha border transition-colors"
+        :class="verModelo
+          ? 'bg-berenjena/10 border-berenjena/40 text-berenjena font-semibold'
+          : 'bg-transparent border-berenjena/20 text-tinta hover:border-berenjena/40'"
+        :aria-pressed="verModelo" @click="alternaModelo">{{ L('Ver el dispositivo (ilustración)', 'Show the device (illustration)') }}</button>
+    </div>
+
+    <!-- leyenda: píldoras, forma + color, reusando .badge-genomic -->
     <div v-if="!loading && !failed" class="mt-2.5 flex flex-wrap items-center gap-2">
       <span class="badge-genomic" style="color:#ff6b47;background:rgba(255,107,71,0.14)">● {{ L('medido', 'measured') }}</span>
       <span class="badge-genomic" style="color:#ff6b47;background:rgba(255,107,71,0.14)">╌ {{ L('interpolado', 'interpolated') }}</span>
+      <span v-if="verModelo" class="badge-genomic" style="color:#5b6472;background:rgba(154,164,178,0.2)">◌ {{ L('ilustración', 'illustration') }}</span>
     </div>
     <p v-if="!loading && !failed" class="mt-2 text-[11px] text-tinta leading-snug">
       {{ L('Medido: los dos puntos leídos directamente en el corte del TC: el portal y la punta. Interpolado: la ruta más probable entre ambos sobre el propio TC, no una medida punto a punto; por eso se dibuja discontinua. Hueso y tráquea, en gris, son solo referencia anatómica.', 'Measured: the two points read directly on the CT slice: the port and the tip. Interpolated: the most likely route between them on the CT itself, not a point-by-point measurement; that is why it is drawn discontinuous. Bone and trachea, in grey, are anatomical reference only.') }}
+    </p>
+    <p v-if="!loading && !failed && verModelo && escena?.modelo" class="mt-2 text-[11px] text-tinta leading-snug">
+      {{ L(`Ilustración, no medida: un modelo de catálogo del dispositivo, dibujado a partir de fotos y colocado a escala 1:1 sobre el portal medido. Coincide con él con un error medio de ${mm(escena.fechas[fechaActual]?.modelo_ajuste_mm)} mm.`,
+           `Illustration, not a measurement: a catalogue model of the device, drawn from photos and placed at 1:1 scale over the measured port. It matches it with a mean error of ${escena.fechas[fechaActual]?.modelo_ajuste_mm} mm.`) }}
+      {{ L('Modelo:', 'Model:') }}
+      <a :href="escena.modelo.fuente" target="_blank" rel="noopener noreferrer" class="underline underline-offset-2">«{{ escena.modelo.obra }}»</a>,
+      {{ escena.modelo.autor }},
+      <a :href="escena.modelo.licencia_url" target="_blank" rel="noopener noreferrer" class="underline underline-offset-2">{{ escena.modelo.licencia }}</a>.
     </p>
     <p v-if="!loading && !failed && escena" class="mt-1.5 text-[11px] text-tinta leading-snug">
       {{ L(`Longitud del catéter, portal→punta: ${mm(escena.fechas[fechaActual]?.longitud_mm)} mm (± ${escena.error_medida_mm} mm; ± ${escena.error_diferencia_mm} mm en la diferencia entre fechas).`,
