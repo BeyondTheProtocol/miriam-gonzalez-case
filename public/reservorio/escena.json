@@ -4,6 +4,7 @@
    "mallas": {
     "medido": "medido.ply",
     "interpolado": "interpolado.ply",
+    "interpolado_b": "interpolado_b.ply",
     "portal": "portal.ply",
     "hueso": "hueso.ply",
     "traquea": "traquea.ply"
@@ -16,6 +17,7 @@
    "mallas": {
     "medido": "medido.ply",
     "interpolado": "interpolado.ply",
+    "interpolado_b": "interpolado_b.ply",
     "portal": "portal.ply",
     "hueso": "hueso.ply",
     "traquea": "traquea.ply"
@@ -28,6 +30,7 @@
    "mallas": {
     "medido": "medido.ply",
     "interpolado": "interpolado.ply",
+    "interpolado_b": "interpolado_b.ply",
     "portal": "portal.ply",
     "hueso": "hueso.ply"
    },
@@ -38,7 +41,7 @@
  },
  "error_medida_mm": 5,
  "error_diferencia_mm": 10,
- "fuente": "el trayecto sale del TC de cada fecha: los dos extremos (portal y punta) están leídos directamente en el corte; el tramo intermedio es la ruta de coste de brillo más probable entre ambos, no una medida punto a punto, y se dibuja discontinua por eso. Hueso y tráquea son solo referencia anatómica.",
+ "fuente": "el trayecto sale del TC de cada fecha: los dos extremos (portal y punta) están leídos directamente en el corte; el tramo intermedio es la ruta de coste de brillo más probable entre ambos, no una medida punto a punto, y se dibuja a rayas por eso. Hueso y tráquea son solo referencia anatómica.",
  "modelo": {
   "obra": "PowerPort (EDUCATION)",
   "autor": "Lurie Children's Hospital of Chicago",

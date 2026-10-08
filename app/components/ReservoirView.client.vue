@@ -8,21 +8,25 @@
  * Mallas: public/reservorio/ (tools/visor3d.py `web-reservorio`: sin DICOM, sin cabeceras, sin
  * marca ni modelo del dispositivo, sin hospital). El trayecto sale partido en dos piezas:
  *   - medido: los DOS puntos leídos directamente en el TC (portal y punta), con un tramo corto
- *     de ancla — trazo CONTINUO.
+ *     de ancla — tubo LISO.
  *   - interpolado: el tramo intermedio, reconstruido por coste de brillo entre esos dos puntos
- *     (no medido punto a punto) — trazo DISCONTINUO DE VERDAD: son huecos reales en la malla
- *     (arco geodésico sobre la propia superficie), no un efecto de línea.
+ *     (no medido punto a punto) — tubo A RAYAS: dos piezas alternas (interpolado /
+ *     interpolado_b) que casan cara con cara. Hasta el 8-oct-2026 eran huecos reales en la malla
+ *     y se veían como esquirlas sueltas; ahora el catéter es un tubo continuo y la diferencia la
+ *     sigue diciendo la forma, no solo el color.
  * Capa opcional «dispositivo» (8-oct-2026, la pidió Miriam): un modelo de catálogo del port,
- * translúcido, colocado sobre el portal medido. Es una ILUSTRACIÓN (dibujada a partir de fotos,
+ * en lila (el coral queda para lo que sale de su TC), colocado sobre el portal medido. Es una ILUSTRACIÓN (dibujada a partir de fotos,
  * escala 1:1, sin ajustar a su TC), apagada al abrir, y es la única pieza de esta página que
  * nombra el dispositivo: su licencia (CC BY) obliga a citar la obra. No entra en el encuadre ni
  * en ninguna cifra.
  * Hueso y tráquea van de contexto anatómico, en gris apagado, sin protagonismo.
  *
- * Interacción: arrastrar o rueda para girar/acercar (OrbitControls), Y flechas de teclado
- * rotan de verdad la cámara (azimut/polar a mano: OrbitControls no orbita con las flechas de
- * fábrica, solo desplaza). Sin autorrotación: no hay movimiento que prefers-reduced-motion
- * tenga que frenar.
+ * Interacción: arrastrar gira, Ctrl/⌘ + rueda o pellizco acerca, clic derecho o dos dedos
+ * desplaza (OrbitControls). Además, para quien no quiere pelearse con el ratón: botones + / −,
+ * vistas rápidas (todo, reservorio, punta) que mueven el punto de giro al sitio que se mira, y
+ * pantalla completa. Las flechas del teclado giran la cámara de verdad (OrbitControls solo
+ * desplaza con ellas). Sin autorrotación: no hay movimiento que prefers-reduced-motion tenga
+ * que frenar.
  */
 import * as THREE from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
@@ -39,6 +43,11 @@ interface Credito { obra: string; autor: string; fuente: string; licencia: strin
 interface Escena { fechas: Record<string, Fecha>; error_medida_mm: number; error_diferencia_mm: number; modelo?: Credito }
 
 const host = ref<HTMLDivElement | null>(null)
+const caja = ref<HTMLDivElement | null>(null)
+type Vista = 'todo' | 'reservorio' | 'punta'
+const vista = ref<Vista>('todo')
+const completa = ref(false)
+const puedeCompleta = ref(false)
 const loading = ref(true)
 const failed = ref(false)
 const escena = ref<Escena | null>(null)
@@ -46,6 +55,8 @@ const fechas = computed(() => (escena.value ? Object.keys(escena.value.fechas).s
 const fechaActual = ref('')
 // capa ilustrativa del dispositivo: apagada al abrir, se carga solo si se pide
 const verModelo = ref(false)
+// opacidad del dispositivo, en %: 85 por defecto (se ve como un objeto, no como un velo)
+const opacidad = ref(85)
 const hayModelo = computed(() => !!escena.value?.modelo && !!escena.value.fechas[fechaActual.value]?.modelo)
 let mallaModelo: THREE.Mesh | null = null
 
@@ -65,6 +76,10 @@ let raf = 0
 let enVista = true
 let radio = 60
 let grupo = new THREE.Group()
+// puntos de giro de las vistas rápidas, en ejes de three (se recalculan en cada fecha)
+const centroPortal = new THREE.Vector3()
+const centroPunta = new THREE.Vector3()
+const RADIO_DETALLE = 26   // mm que caben alrededor del punto en las vistas «reservorio» y «punta»
 
 /* Contexto en «rayos X» (render, 27-sep-26, el mismo recurso que la cápsula del hígado): el hueso
    y la tráquea eran un gris plano al 28 %, y las costillas se confundían entre sí. Con fresnel,
@@ -81,13 +96,17 @@ function rayosX(mat: THREE.Material, min: number, max: number, halo: number) {
 }
 const MAT = {
   // medido e interpolado: la MISMA familia de color (coral, acción/énfasis del sitio) — lo que
-  // los distingue es la FORMA del trazo (continuo/discontinuo), no el tono.
+  // los distingue es la FORMA: tubo liso frente a tubo a rayas (coral / coral muy claro).
   medido: () => new THREE.MeshPhysicalMaterial({ color: 0xff6b47, roughness: 0.3, clearcoat: 0.85, clearcoatRoughness: 0.12 }),
   interpolado: () => new THREE.MeshPhysicalMaterial({ color: 0xff6b47, roughness: 0.3, clearcoat: 0.85, clearcoatRoughness: 0.12 }),
+  interpolado_b: () => new THREE.MeshPhysicalMaterial({ color: 0xffe3d9, roughness: 0.5, clearcoat: 0.4, clearcoatRoughness: 0.3 }),
   portal: () => new THREE.MeshPhysicalMaterial({ color: 0xff6b47, roughness: 0.25, clearcoat: 0.9, clearcoatRoughness: 0.1 }),
   hueso: () => rayosX(new THREE.MeshPhysicalMaterial({ color: 0x9aa4b2, roughness: 0.9, transparent: true, depthWrite: false }), 0.05, 0.55, 0.40),
-  // ilustración: gris claro translúcido, nunca coral (coral = lo que sale de su TC)
-  modelo: () => new THREE.MeshPhysicalMaterial({ color: 0xd9dee6, roughness: 0.55, transparent: true, opacity: 0.34, depthWrite: false, side: THREE.DoubleSide }),
+  // ilustración: morado, nunca coral (coral = lo que sale de su TC). Morado porque el dispositivo
+  // real lo es («unique purple coloring», resumen 510(k) K072549 de la FDA). La opacidad la pone
+  // quien mira, con el deslizador: casi sólido para verlo «tal como es», o translúcido para ver
+  // dentro el portal medido (Miriam, 8-oct-26). Ver aplicaOpacidad().
+  modelo: () => new THREE.MeshPhysicalMaterial({ color: 0x7d4be0, roughness: 0.45, clearcoat: 0.35, clearcoatRoughness: 0.3 }),
   traquea: () => rayosX(new THREE.MeshPhysicalMaterial({ color: 0x9aa4b2, roughness: 0.9, transparent: true, depthWrite: false }), 0.04, 0.42, 0.25),
 }
 
@@ -112,23 +131,41 @@ async function cargaFecha(fecha: string) {
   // radio de encuadre: SOLO del cateter (medido+interpolado+portal), no del hueso/traquea de
   // contexto — si se deja que el hueso decida el radio, la camara se aleja tanto que el
   // cateter (unos pocos mm de grosor) se ve como un punto perdido en medio del torax.
-  const CATETER = new Set(['medido', 'interpolado', 'portal'])
+  const CATETER = new Set(['medido', 'interpolado', 'interpolado_b', 'portal'])
   const caja = new THREE.Box3()
+  let posMedido: THREE.BufferAttribute | null = null
   await Promise.all(Object.entries(mallas).map(async ([nombre, fichero]) => {
     const g = await geo(props.base + fecha + '/' + fichero)
     const mat = MAT[nombre as keyof typeof MAT]?.() ?? MAT.medido()
     const mesh = new THREE.Mesh(g, mat)
     mesh.renderOrder = nombre === 'hueso' || nombre === 'traquea' ? 1 : 2
     grupo.add(mesh)
-    if (CATETER.has(nombre)) caja.union(new THREE.Box3().setFromBufferAttribute(g.attributes.position as THREE.BufferAttribute))
+    const pos = g.attributes.position as THREE.BufferAttribute
+    if (CATETER.has(nombre)) caja.union(new THREE.Box3().setFromBufferAttribute(pos))
+    if (nombre === 'portal') new THREE.Box3().setFromBufferAttribute(pos).getCenter(centroPortal)
+    if (nombre === 'medido') posMedido = pos
   }))
+  // la punta: el vértice del tramo medido más alejado del portal (el otro extremo leído)
+  centroPunta.copy(centroPortal)
+  if (posMedido) {
+    const p = posMedido as THREE.BufferAttribute
+    const v = new THREE.Vector3()
+    let lejos = -1
+    for (let i = 0; i < p.count; i++) {
+      v.fromBufferAttribute(p, i)
+      const d = v.distanceToSquared(centroPortal)
+      if (d > lejos) { lejos = d; centroPunta.copy(v) }
+    }
+  }
   const esfera = new THREE.Sphere()
   caja.getBoundingSphere(esfera)
   radio = Math.max(15, esfera.radius * 1.6)
-  controls.minDistance = radio * 0.5; controls.maxDistance = radio * 25
+  controls.minDistance = 12; controls.maxDistance = radio * 25
   mallaModelo = null   // limpiaGrupo() ya lo ha soltado con el resto
   fechaActual.value = fecha
   if (verModelo.value) await ponModelo()
+  // al cambiar de fecha se conserva lo que se estaba mirando: el punto de giro va al mismo sitio
+  if (vista.value !== 'todo') controls.target.copy(vista.value === 'reservorio' ? centroPortal : centroPunta)
 }
 
 async function ponModelo() {
@@ -139,8 +176,21 @@ async function ponModelo() {
   if (fecha !== fechaActual.value || !verModelo.value) { g.dispose(); return }
   mallaModelo = new THREE.Mesh(g, MAT.modelo())
   mallaModelo.renderOrder = 3
+  aplicaOpacidad()
   grupo.add(mallaModelo)
 }
+// Al 100 % el modelo es un sólido normal (escribe profundidad y tapa lo que lleva dentro); por
+// debajo es translúcido y deja de escribirla, para que el portal medido se vea a través.
+function aplicaOpacidad() {
+  if (!mallaModelo) return
+  const m = mallaModelo.material as THREE.MeshPhysicalMaterial
+  const o = THREE.MathUtils.clamp(opacidad.value / 100, 0.1, 1)
+  const solido = o >= 0.995
+  if (m.transparent === solido) { m.transparent = !solido; m.needsUpdate = true }
+  m.depthWrite = solido
+  m.opacity = o
+}
+watch(opacidad, aplicaOpacidad)
 function quitaModelo() {
   if (!mallaModelo) return
   mallaModelo.geometry.dispose(); (mallaModelo.material as THREE.Material).dispose()
@@ -162,14 +212,41 @@ function resize() {
   renderer.setSize(w, h, false)
   camera.aspect = w / h; camera.updateProjectionMatrix()
 }
-function reencuadra() {
+function distanciaPara(r: number) {
   const fov = THREE.MathUtils.degToRad(camera.fov / 2)
-  const ajuste = Math.min(1, camera.aspect)
-  const d = (radio * 1.1) / Math.sin(fov) / ajuste
+  return (r * 1.1) / Math.sin(fov) / Math.min(1, camera.aspect)
+}
+function reencuadra() {
+  const d = distanciaPara(radio)
   const incl = THREE.MathUtils.degToRad(12)
   camera.position.set(0, Math.sin(incl) * d, Math.cos(incl) * d)
   controls.target.set(0, 0, 0); controls.update()
+  vista.value = 'todo'
 }
+// Vistas rápidas: mueven el PUNTO DE GIRO al sitio que se mira. Sin esto, al acercar se iba
+// hacia el centro del catéter y el reservorio se salía por el borde del visor.
+function enfoca(cual: Vista) {
+  if (cual === 'todo') { reencuadra(); return }
+  const centro = cual === 'reservorio' ? centroPortal : centroPunta
+  const dir = camera.position.clone().sub(controls.target).normalize()
+  controls.target.copy(centro)
+  camera.position.copy(centro).add(dir.multiplyScalar(distanciaPara(RADIO_DETALLE)))
+  controls.update()
+  vista.value = cual
+}
+function acerca(factor: number) {
+  const offset = camera.position.clone().sub(controls.target)
+  const d = THREE.MathUtils.clamp(offset.length() * factor, controls.minDistance, controls.maxDistance)
+  camera.position.copy(controls.target).add(offset.setLength(d))
+  controls.update()
+}
+function alternaCompleta() {
+  const el = caja.value
+  if (!el) return
+  if (document.fullscreenElement) document.exitFullscreen()
+  else el.requestFullscreen().catch(() => { /* el navegador lo ha negado: el visor sigue igual */ })
+}
+function alCambiarCompleta() { completa.value = document.fullscreenElement === caja.value }
 
 // Rotación de teclado DE VERDAD: OrbitControls solo trae PAN de fábrica en las flechas.
 // Gira la cámara alrededor del objetivo a mano (coordenadas esféricas) y respeta los mismos
@@ -187,6 +264,8 @@ function gira(deltaAzimut: number, deltaPolar: number) {
   controls.update()
 }
 function onKeydown(e: KeyboardEvent) {
+  if (e.key === '+' || e.key === '=') { e.preventDefault(); acerca(0.8); return }
+  if (e.key === '-') { e.preventDefault(); acerca(1.25); return }
   const paso = { ArrowLeft: () => gira(-PASO_AZIMUT, 0), ArrowRight: () => gira(PASO_AZIMUT, 0),
                 ArrowUp: () => gira(0, -PASO_POLAR), ArrowDown: () => gira(0, PASO_POLAR) }[e.key]
   if (!paso) return
@@ -229,6 +308,8 @@ async function init() {
   ro = new ResizeObserver(() => resize()); ro.observe(el)
   io = new IntersectionObserver((e) => { enVista = e.some((x) => x.isIntersecting) }); io.observe(el)
   el.addEventListener('keydown', onKeydown)
+  puedeCompleta.value = !!document.fullscreenEnabled && typeof el.requestFullscreen === 'function'
+  document.addEventListener('fullscreenchange', alCambiarCompleta)
   loading.value = false
   const tick = () => {
     raf = requestAnimationFrame(tick)
@@ -257,6 +338,7 @@ onBeforeUnmount(() => {
   sueltaRueda()
   sueltaCarga(); cancelAnimationFrame(raf); ro?.disconnect(); io?.disconnect()
   host.value?.removeEventListener('keydown', onKeydown)
+  document.removeEventListener('fullscreenchange', alCambiarCompleta)
   limpiaGrupo()
   controls?.dispose(); pmrem?.dispose(); renderer?.dispose()
 })
@@ -276,7 +358,7 @@ function fechaLegible(f: string) {
 
 <template>
   <div class="w-full">
-    <div class="relative w-full rv-caja">
+    <div ref="caja" class="relative w-full rv-caja">
       <p v-if="failed" class="absolute inset-0 flex items-center justify-center text-center text-[13px] p-4" style="color:#d9dee6">
         {{ L('El visor 3D no ha podido cargar en este dispositivo. Los datos siguen debajo, en texto.', 'The 3D viewer could not load on this device. The figures are still below, in text.') }}
       </p>
@@ -285,29 +367,49 @@ function fechaLegible(f: string) {
         ref="host"
         role="img"
         tabindex="0"
-        :aria-label="L('Catéter del reservorio en 3D: trayecto continuo en los dos extremos leídos en el TC (el portal y la punta) y discontinuo en el tramo intermedio, interpolado entre ambos. Hueso y tráquea, en gris, solo de contexto. Arrastra o usa las flechas del teclado para girar, y la rueda para acercar.', 'Reservoir catheter in 3D: continuous path at the two ends read on the CT scan (the port and the tip) and discontinuous in the middle stretch, interpolated between them. Bone and trachea, in grey, for context only. Drag or use the arrow keys to rotate, and scroll to zoom.')"
+        :aria-label="L('Catéter del reservorio en 3D: tubo liso en los dos extremos leídos en el TC (el portal y la punta) y a rayas en el tramo intermedio, interpolado entre ambos. Hueso y tráquea, en gris, solo de contexto. Arrastra o usa las flechas del teclado para girar, y los botones o las teclas + y − para acercar.', 'Reservoir catheter in 3D: a plain tube at the two ends read on the CT scan (the port and the tip) and a striped one in the middle stretch, interpolated between them. Bone and trachea, in grey, for context only. Drag or use the arrow keys to rotate, and the buttons or the + and − keys to zoom.')"
         class="absolute inset-0 cursor-grab active:cursor-grabbing rv-host"
       />
       <div v-if="loading" class="absolute inset-0 flex items-center justify-center text-[12px]" style="color:#aeb6c2">
         {{ L('reconstruyendo 3D…', 'rebuilding 3D…') }}
       </div>
-      <button
-        v-if="!loading && !failed"
-        type="button"
-        class="rv-reencuadre"
-        :aria-label="L('Reencuadrar la vista', 'Reset the view')"
-        :title="L('Reencuadrar', 'Reset view')"
-        @click="reencuadra"
-      >
-        <svg viewBox="0 0 24 24" width="18" height="18" focusable="false" aria-hidden="true">
-          <path d="M19 12a7 7 0 0 1-11.95 4.95M5 12a7 7 0 0 1 11.95-4.95" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-          <path d="M17 3.2V7.2H13M7 20.8V16.8H11" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-        </svg>
-      </button>
+      <div v-if="!loading && !failed" class="rv-mandos" role="group" :aria-label="L('Mandos del visor', 'Viewer controls')">
+        <button type="button" class="rv-mando" :aria-label="L('Acercar', 'Zoom in')" :title="L('Acercar', 'Zoom in')" @click="acerca(0.8)">
+          <svg viewBox="0 0 24 24" width="18" height="18" focusable="false" aria-hidden="true"><path d="M12 5v14M5 12h14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" /></svg>
+        </button>
+        <button type="button" class="rv-mando" :aria-label="L('Alejar', 'Zoom out')" :title="L('Alejar', 'Zoom out')" @click="acerca(1.25)">
+          <svg viewBox="0 0 24 24" width="18" height="18" focusable="false" aria-hidden="true"><path d="M5 12h14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" /></svg>
+        </button>
+        <button type="button" class="rv-mando" :aria-label="L('Reencuadrar la vista', 'Reset the view')" :title="L('Reencuadrar', 'Reset view')" @click="reencuadra">
+          <svg viewBox="0 0 24 24" width="18" height="18" focusable="false" aria-hidden="true">
+            <path d="M19 12a7 7 0 0 1-11.95 4.95M5 12a7 7 0 0 1 11.95-4.95" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+            <path d="M17 3.2V7.2H13M7 20.8V16.8H11" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+          </svg>
+        </button>
+        <button v-if="puedeCompleta" type="button" class="rv-mando" :aria-pressed="completa"
+          :aria-label="completa ? L('Salir de pantalla completa', 'Exit full screen') : L('Pantalla completa', 'Full screen')"
+          :title="completa ? L('Salir de pantalla completa', 'Exit full screen') : L('Pantalla completa', 'Full screen')" @click="alternaCompleta">
+          <svg viewBox="0 0 24 24" width="18" height="18" focusable="false" aria-hidden="true">
+            <path v-if="!completa" d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+            <path v-else d="M9 4v5H4M15 4v5h5M9 20v-5H4M15 20v-5h5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+          </svg>
+        </button>
+      </div>
     </div>
     <p v-if="!failed" class="text-[11px] text-tinta mt-1.5">
-      {{ L('Arrastra o usa las flechas del teclado para girar · Ctrl o ⌘ + rueda para acercar', 'Drag or use the arrow keys to rotate · Ctrl or ⌘ + scroll to zoom') }}
+      {{ L('Arrastra para girar · botones + y −, o Ctrl o ⌘ + rueda, para acercar · clic derecho o dos dedos para desplazar', 'Drag to rotate · + and − buttons, or Ctrl or ⌘ + scroll, to zoom · right-click or two fingers to pan') }}
     </p>
+
+    <!-- vistas rápidas: llevan el punto de giro a lo que se quiere mirar -->
+    <div v-if="!loading && !failed" class="mt-2.5 flex flex-wrap items-center gap-1" role="group" :aria-label="L('Qué mirar', 'What to look at')">
+      <button v-for="v in ([['todo', L('Todo el trayecto', 'Whole path')], ['reservorio', L('El reservorio', 'The port')], ['punta', L('La punta', 'The tip')]] as [Vista, string][])" :key="v[0]"
+        type="button"
+        class="rv-fecha border transition-colors"
+        :class="vista === v[0]
+          ? 'bg-berenjena/10 border-berenjena/40 text-berenjena font-semibold'
+          : 'bg-transparent border-berenjena/20 text-tinta hover:border-berenjena/40'"
+        :aria-pressed="vista === v[0]" @click="enfoca(v[0])">{{ v[1] }}</button>
+    </div>
 
     <!-- selector de fecha: 3 TC separados por meses, la misma reconstrucción cada vez -->
     <div v-if="!loading && !failed && fechas.length > 1" class="mt-2.5 flex flex-wrap items-center gap-1" role="group" :aria-label="L('Elegir fecha del TC', 'Choose CT date')">
@@ -329,16 +431,22 @@ function fechaLegible(f: string) {
           ? 'bg-berenjena/10 border-berenjena/40 text-berenjena font-semibold'
           : 'bg-transparent border-berenjena/20 text-tinta hover:border-berenjena/40'"
         :aria-pressed="verModelo" @click="alternaModelo">{{ L('Ver el dispositivo (ilustración)', 'Show the device (illustration)') }}</button>
+      <label v-if="verModelo" class="rv-opacidad">
+        <span>{{ L('Opacidad del dispositivo', 'Device opacity') }}</span>
+        <input v-model.number="opacidad" type="range" min="10" max="100" step="5"
+          :aria-valuetext="opacidad + ' %'">
+        <output aria-hidden="true">{{ opacidad }} %</output>
+      </label>
     </div>
 
     <!-- leyenda: píldoras, forma + color, reusando .badge-genomic -->
     <div v-if="!loading && !failed" class="mt-2.5 flex flex-wrap items-center gap-2">
-      <span class="badge-genomic" style="color:#ff6b47;background:rgba(255,107,71,0.14)">● {{ L('medido', 'measured') }}</span>
-      <span class="badge-genomic" style="color:#ff6b47;background:rgba(255,107,71,0.14)">╌ {{ L('interpolado', 'interpolated') }}</span>
-      <span v-if="verModelo" class="badge-genomic" style="color:#5b6472;background:rgba(154,164,178,0.2)">◌ {{ L('ilustración', 'illustration') }}</span>
+      <span class="badge-genomic" style="color:#c2410c;background:rgba(255,107,71,0.14)"><span class="rv-muestra rv-muestra--lisa" aria-hidden="true" />{{ L('medido', 'measured') }}</span>
+      <span class="badge-genomic" style="color:#c2410c;background:rgba(255,107,71,0.14)"><span class="rv-muestra rv-muestra--rayas" aria-hidden="true" />{{ L('interpolado', 'interpolated') }}</span>
+      <span v-if="verModelo" class="badge-genomic" style="color:#5b3fa8;background:rgba(168,131,245,0.22)"><span class="rv-muestra rv-muestra--lila" aria-hidden="true" />{{ L('ilustración', 'illustration') }}</span>
     </div>
     <p v-if="!loading && !failed" class="mt-2 text-[11px] text-tinta leading-snug">
-      {{ L('Medido: los dos puntos leídos directamente en el corte del TC: el portal y la punta. Interpolado: la ruta más probable entre ambos sobre el propio TC, no una medida punto a punto; por eso se dibuja discontinua. Hueso y tráquea, en gris, son solo referencia anatómica.', 'Measured: the two points read directly on the CT slice: the port and the tip. Interpolated: the most likely route between them on the CT itself, not a point-by-point measurement; that is why it is drawn discontinuous. Bone and trachea, in grey, are anatomical reference only.') }}
+      {{ L('Medido: los dos puntos leídos directamente en el corte del TC: el portal y la punta. Interpolado: la ruta más probable entre ambos sobre el propio TC, no una medida punto a punto; por eso se dibuja a rayas. Hueso y tráquea, en gris, son solo referencia anatómica.', 'Measured: the two points read directly on the CT slice: the port and the tip. Interpolated: the most likely route between them on the CT itself, not a point-by-point measurement; that is why it is drawn striped. Bone and trachea, in grey, are anatomical reference only.') }}
     </p>
     <p v-if="!loading && !failed && verModelo && escena?.modelo" class="mt-2 text-[11px] text-tinta leading-snug">
       {{ L(`Ilustración, no medida: un modelo de catálogo del dispositivo, dibujado a partir de fotos y colocado a escala 1:1 sobre el portal medido. Coincide con él con un error medio de ${mm(escena.fechas[fechaActual]?.modelo_ajuste_mm)} mm.`,
@@ -358,16 +466,26 @@ function fechaLegible(f: string) {
 <style scoped>
 .rv-caja { aspect-ratio: 1 / 1; background: #1c1126; border-radius: 0.75rem; overflow: hidden; }
 .rv-host:focus-visible { outline: 2px solid #1c969e; outline-offset: -2px; }
-.rv-fecha, .rv-reencuadre { }
 .rv-fecha {
   font-size: 11px; line-height: 1; padding: 7px 11px; min-height: 32px; border-radius: 999px;
 }
 @media (pointer: coarse) { .rv-fecha { min-height: 44px; padding: 0 14px; } }
-.rv-reencuadre {
-  position: absolute; bottom: 10px; right: 10px; width: 44px; height: 44px;
+.rv-caja:fullscreen { aspect-ratio: auto; width: 100vw; height: 100vh; border-radius: 0; }
+.rv-mandos { position: absolute; bottom: 10px; right: 10px; display: flex; flex-direction: column; gap: 6px; }
+.rv-mando {
+  width: 44px; height: 44px;
   display: inline-flex; align-items: center; justify-content: center; border-radius: 10px;
   color: #d9dee6; background: rgba(20, 24, 32, 0.78); border: 1px solid rgba(174, 182, 194, 0.3);
 }
-.rv-reencuadre:hover { background: rgba(30, 37, 48, 0.92); border-color: rgba(174, 182, 194, 0.5); }
-.rv-reencuadre:focus-visible { outline: 2px solid #1c969e; outline-offset: 2px; }
+.rv-mando:hover { background: rgba(30, 37, 48, 0.92); border-color: rgba(174, 182, 194, 0.5); }
+.rv-mando:focus-visible { outline: 2px solid #1c969e; outline-offset: 2px; }
+.rv-mando[aria-pressed='true'] { border-color: #1c969e; }
+.rv-muestra { display: inline-block; width: 22px; height: 7px; border-radius: 4px; margin-right: 6px; vertical-align: middle; }
+.rv-muestra--lisa { background: #ff6b47; }
+.rv-muestra--rayas { background: repeating-linear-gradient(90deg, #ff6b47 0 5px, #ffe3d9 5px 8px); }
+.rv-muestra--lila { background: #7d4be0; }
+.rv-opacidad { display: flex; align-items: center; gap: 10px; margin-top: 8px; font-size: 11px; min-height: 32px; }
+.rv-opacidad input { flex: 1 1 140px; max-width: 260px; accent-color: #7c4ddb; min-height: 24px; }
+.rv-opacidad output { min-width: 3.2em; text-align: right; font-variant-numeric: tabular-nums; }
+@media (pointer: coarse) { .rv-opacidad { min-height: 44px; } .rv-opacidad input { min-height: 44px; } }
 </style>
