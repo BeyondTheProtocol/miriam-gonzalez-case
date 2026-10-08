@@ -55,6 +55,8 @@ const fechas = computed(() => (escena.value ? Object.keys(escena.value.fechas).s
 const fechaActual = ref('')
 // capa ilustrativa del dispositivo: apagada al abrir, se carga solo si se pide
 const verModelo = ref(false)
+// opacidad del dispositivo, en %: 85 por defecto (se ve como un objeto, no como un velo)
+const opacidad = ref(85)
 const hayModelo = computed(() => !!escena.value?.modelo && !!escena.value.fechas[fechaActual.value]?.modelo)
 let mallaModelo: THREE.Mesh | null = null
 
@@ -101,10 +103,10 @@ const MAT = {
   portal: () => new THREE.MeshPhysicalMaterial({ color: 0xff6b47, roughness: 0.25, clearcoat: 0.9, clearcoatRoughness: 0.1 }),
   hueso: () => rayosX(new THREE.MeshPhysicalMaterial({ color: 0x9aa4b2, roughness: 0.9, transparent: true, depthWrite: false }), 0.05, 0.55, 0.40),
   // ilustración: morado, nunca coral (coral = lo que sale de su TC). Morado porque el dispositivo
-  // real lo es («unique purple coloring», resumen 510(k) K072549 de la FDA). Al 34 % en gris no se veía
-  // (Miriam, 8-oct-26): ahora tiene cuerpo, y el fresnel le dibuja el borde; de frente deja ver
-  // el portal medido que lleva dentro.
-  modelo: () => rayosX(new THREE.MeshPhysicalMaterial({ color: 0xa883f5, roughness: 0.4, clearcoat: 0.5, transparent: true, depthWrite: false }), 0.5, 0.96, 0.3),
+  // real lo es («unique purple coloring», resumen 510(k) K072549 de la FDA). La opacidad la pone
+  // quien mira, con el deslizador: casi sólido para verlo «tal como es», o translúcido para ver
+  // dentro el portal medido (Miriam, 8-oct-26). Ver aplicaOpacidad().
+  modelo: () => new THREE.MeshPhysicalMaterial({ color: 0x7d4be0, roughness: 0.45, clearcoat: 0.35, clearcoatRoughness: 0.3 }),
   traquea: () => rayosX(new THREE.MeshPhysicalMaterial({ color: 0x9aa4b2, roughness: 0.9, transparent: true, depthWrite: false }), 0.04, 0.42, 0.25),
 }
 
@@ -174,8 +176,21 @@ async function ponModelo() {
   if (fecha !== fechaActual.value || !verModelo.value) { g.dispose(); return }
   mallaModelo = new THREE.Mesh(g, MAT.modelo())
   mallaModelo.renderOrder = 3
+  aplicaOpacidad()
   grupo.add(mallaModelo)
 }
+// Al 100 % el modelo es un sólido normal (escribe profundidad y tapa lo que lleva dentro); por
+// debajo es translúcido y deja de escribirla, para que el portal medido se vea a través.
+function aplicaOpacidad() {
+  if (!mallaModelo) return
+  const m = mallaModelo.material as THREE.MeshPhysicalMaterial
+  const o = THREE.MathUtils.clamp(opacidad.value / 100, 0.1, 1)
+  const solido = o >= 0.995
+  if (m.transparent === solido) { m.transparent = !solido; m.needsUpdate = true }
+  m.depthWrite = solido
+  m.opacity = o
+}
+watch(opacidad, aplicaOpacidad)
 function quitaModelo() {
   if (!mallaModelo) return
   mallaModelo.geometry.dispose(); (mallaModelo.material as THREE.Material).dispose()
@@ -416,6 +431,12 @@ function fechaLegible(f: string) {
           ? 'bg-berenjena/10 border-berenjena/40 text-berenjena font-semibold'
           : 'bg-transparent border-berenjena/20 text-tinta hover:border-berenjena/40'"
         :aria-pressed="verModelo" @click="alternaModelo">{{ L('Ver el dispositivo (ilustración)', 'Show the device (illustration)') }}</button>
+      <label v-if="verModelo" class="rv-opacidad">
+        <span>{{ L('Opacidad del dispositivo', 'Device opacity') }}</span>
+        <input v-model.number="opacidad" type="range" min="10" max="100" step="5"
+          :aria-valuetext="opacidad + ' %'">
+        <output aria-hidden="true">{{ opacidad }} %</output>
+      </label>
     </div>
 
     <!-- leyenda: píldoras, forma + color, reusando .badge-genomic -->
@@ -462,5 +483,9 @@ function fechaLegible(f: string) {
 .rv-muestra { display: inline-block; width: 22px; height: 7px; border-radius: 4px; margin-right: 6px; vertical-align: middle; }
 .rv-muestra--lisa { background: #ff6b47; }
 .rv-muestra--rayas { background: repeating-linear-gradient(90deg, #ff6b47 0 5px, #ffe3d9 5px 8px); }
-.rv-muestra--lila { background: #a883f5; }
+.rv-muestra--lila { background: #7d4be0; }
+.rv-opacidad { display: flex; align-items: center; gap: 10px; margin-top: 8px; font-size: 11px; min-height: 32px; }
+.rv-opacidad input { flex: 1 1 140px; max-width: 260px; accent-color: #7c4ddb; min-height: 24px; }
+.rv-opacidad output { min-width: 3.2em; text-align: right; font-variant-numeric: tabular-nums; }
+@media (pointer: coarse) { .rv-opacidad { min-height: 44px; } .rv-opacidad input { min-height: 44px; } }
 </style>
