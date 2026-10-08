@@ -10,7 +10,9 @@
  *
  * Qué NO se enseña aquí, a propósito: marca ni modelo del dispositivo, hospital o
  * profesionales, número de intentos de desobstrucción ni fechas de intervención — detalle
- * procedimental que no aporta a esta historia. Solo mallas (visor3d.py `web-reservorio`):
+ * procedimental que no aporta a esta historia. Única excepción (8-oct-2026, petición de
+ * Miriam): la capa opcional «dispositivo» del visor cita el modelo 3D que usa, porque su
+ * licencia obliga; el texto de la página sigue sin nombrarlo. Solo mallas (visor3d.py `web-reservorio`):
  * cero DICOM, cero cabeceras, cero metadatos del estudio.
  */
 const { locale } = useI18n()
