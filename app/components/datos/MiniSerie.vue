@@ -33,7 +33,8 @@ const L = (es: string, en: string) => (props.lang === 'en' ? en : es)
 
 const caja = ref<HTMLElement | null>(null)
 const W = useAncho(caja)
-const { armado, visto } = useQuieto(caja)
+// en reproducción (cabezal) el gráfico ya lo dibuja el cabezal: ahí no hay entrada
+const { armado, visto } = useEntradaViva(caja, 0.3, () => props.cabezal == null)
 const H = 92
 const X0 = EJE_IZQ
 const Y0 = 8
@@ -183,8 +184,8 @@ const valorTxt = (p: Punto) => {
         </template>
         <path :key="`${desde}-${hasta}`" :d="geo.d" class="ms__linea" pathLength="1" />
         <template v-for="q in geo.pts" :key="q.p.f">
-          <path v-if="q.p.fuera === 'bajo'" :d="`M${rc(q.x - 4.5)},${rc(q.y - 3.5)}h9l-4.5,8Z`" class="ms__fuera" :style="{ animationDelay: `${Math.round((q.x / W) * 1200)}ms` }" />
-          <path v-else-if="q.p.fuera === 'alto'" :d="`M${rc(q.x - 4.5)},${rc(q.y + 3.5)}h9l-4.5,-8Z`" class="ms__fuera" :style="{ animationDelay: `${Math.round((q.x / W) * 1200)}ms` }" />
+          <path v-if="q.p.fuera === 'bajo'" :d="`M${rc(q.x - 4.5)},${rc(q.y - 3.5)}h9l-4.5,8Z`" class="ms__fuera" :style="{ animationDelay: `${Math.round((q.x / W) * 600)}ms` }" />
+          <path v-else-if="q.p.fuera === 'alto'" :d="`M${rc(q.x - 4.5)},${rc(q.y + 3.5)}h9l-4.5,-8Z`" class="ms__fuera" :style="{ animationDelay: `${Math.round((q.x / W) * 600)}ms` }" />
           <!-- ◆ el informe lo marcó pero no se sale del rango extraído (p. ej. justo en el límite) -->
           <path v-else-if="q.p.fuera" :d="pathForma('rombo', q.x, q.y, 3.5)" class="ms__marcado" />
           <circle v-else-if="pocos" :cx="q.x" :cy="q.y" r="2.5" class="ms__dentro" />
@@ -236,7 +237,7 @@ const valorTxt = (p: Punto) => {
 .ms__marcado { fill: var(--color-bg); stroke: var(--color-miriam); stroke-width: 1.5; }
 .ms--armado:not(.ms--visto) .ms__linea { stroke-dasharray: 1; stroke-dashoffset: 1; }
 .ms--armado:not(.ms--visto) .ms__fuera { opacity: 0; }
-.ms--visto .ms__linea { stroke-dasharray: 1; animation: ms-trazo 1.3s var(--curva-salida) both; }
+.ms--visto .ms__linea { stroke-dasharray: 1; animation: ms-trazo 700ms var(--curva-salida) both; }
 .ms--visto .ms__fuera { animation: ms-pop 380ms var(--curva-salida) both; }
 @keyframes ms-trazo { from { stroke-dashoffset: 1; } to { stroke-dashoffset: 0; } }
 @keyframes ms-pop { 0% { opacity: 0; transform: scale(0.2); } 70% { opacity: 1; transform: scale(1.5); } 100% { opacity: 1; transform: scale(1); } }

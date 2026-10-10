@@ -171,8 +171,9 @@ export async function abrirNavegador({ ancho = 390, alto = 844, escala = 2 } = {
   await cdp('Page.enable')
   await cdp('Runtime.enable')
   await cdp('Emulation.setDeviceMetricsOverride', { width: ancho, height: alto, deviceScaleFactor: escala, mobile: false })
-  async function cargar(path) {
-    await cdp('Storage.clearDataForOrigin', { origin: ORIGIN, storageTypes: 'all' })
+  // conservar: no borra el almacenamiento (para probar una SEGUNDA visita de la misma sesión)
+  async function cargar(path, { conservar = false } = {}) {
+    if (!conservar) await cdp('Storage.clearDataForOrigin', { origin: ORIGIN, storageTypes: 'all' })
     await evaluate('window.__paginaVieja = true').catch(() => {})
     await cdp('Page.navigate', { url: ORIGIN + path })
     let ok = false

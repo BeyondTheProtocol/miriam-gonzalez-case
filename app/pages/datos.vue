@@ -262,10 +262,6 @@ function cerrarPeli() {
 }
 function fechaPeli(iso: string) { if (peliAbierta.value && ruta.query.t !== iso) router.replace({ query: { ...ruta.query, t: iso }, hash: ruta.hash }) }
 function verDatosDesdePeli() { cerrarPeli(); setTimeout(() => saltar('s-evo'), 80) }
-/* el botón de arriba, junto a «Hoy», toca una cabecera ya publicada: no se enseña hasta que Miriam
-   lo apruebe. En la preview se ve con ?entrada=arriba. */
-const peliArriba = computed(() => ruta.query.entrada === 'arriba')
-
 const sinFresco = material.find((m) => /fresco|fresh/i.test(T(m.muestra)) && /ningun|none|no existe/i.test(`${T(m.donde)} ${T(m.estado)}`))
 /* tarjeta de muestra: título corto («Hígado, segmento IVa») y el resto del texto, entero, debajo */
 const tituloMuestra = (m: any) => T(m.muestra).split(/\s*[(:.]/)[0]
@@ -418,6 +414,15 @@ const n = (v: number) => numCaso(v, lang.value)
           <NuxtLink :to="localePath('/ciencia')" class="dt-dx__link">{{ L('Perfil anatomopatológico y molecular en La\u00a0ciencia\u00a0→', 'Pathology and molecular profile on The science\u00a0page\u00a0→') }}</NuxtLink>
         </section>
 
+        <!-- entrada a «El caso en el tiempo»: franja propia bajo el diagnóstico, botón secundario (contorno) para
+             no competir con la lectura de «Hoy» (diseno, 10-oct-2026). No toca la cabecera ni «Hoy». -->
+        <p class="dt-peli-arriba">
+          <button type="button" class="dt-sonido" aria-haspopup="dialog" @click="abrirPeli">
+            <Icon name="ph:play-circle-fill" class="w-4 h-4" aria-hidden="true" />
+            {{ L('Ver el caso en el tiempo', 'See the case over time') }}
+          </button>
+        </p>
+
         <!-- barra de secciones fija con la sección activa (scroll-spy): en el móvil, saltar sin perderse -->
         <nav class="dt-barra" :aria-label="L('Secciones', 'Sections')">
           <a v-for="[id, es, en] in SECCIONES" :key="id" :href="`#${id}`" class="dt-chip" @click="clicSalto($event, id)" :aria-current="activa === id ? 'true' : undefined"
@@ -425,13 +430,6 @@ const n = (v: number) => numCaso(v, lang.value)
         </nav>
 
         <!-- 1 · Hoy -->
-        <p v-if="peliArriba" class="dt-peli-arriba">
-          <!-- secundario (contorno, no relleno): no compite con la lectura de «Hoy» (diseno, 10-oct-2026) -->
-          <button type="button" class="dt-sonido" aria-haspopup="dialog" @click="abrirPeli">
-            <Icon name="ph:film-strip-fill" class="w-4 h-4" aria-hidden="true" />
-            {{ L('Ver el caso en el tiempo', 'See the case over time') }}
-          </button>
-        </p>
         <section id="s-hoy" class="dt-sec" aria-labelledby="h-hoy">
           <h2 id="h-hoy" class="dt-h2">{{ L('Hoy', 'Today') }}</h2>
           <ul class="dt-eleg" :aria-label="L('Datos que suelen decidir un ensayo', 'Data that usually decide a trial')">

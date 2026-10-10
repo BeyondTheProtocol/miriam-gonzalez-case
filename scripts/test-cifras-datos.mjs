@@ -12,8 +12,12 @@
 //      cada una y los extremos: valor, fecha y texto visible de cada serie, y el reloj;
 //   2. que la película no arranca sola, y que `seek` y `?t=` se acotan al rango real;
 //   3. la página en reposo: el valor de cabecera de cada gráfico de analíticas a la vista y las
-//      tarjetas de «Hoy» de CA 15-3 y hemoglobina.
-// Qué NO coteja: las cifras de carga tumoral, tejido, reservorio ni las otras pestañas de
+//      tarjetas de «Hoy» de CA 15-3 y hemoglobina;
+//   4. carga tumoral: mientras el dibujo se anima, los rótulos solo dicen cifras de uno de los dos
+//      estudios, nunca un valor intermedio;
+//   5. la entrada animada de la primera visita: no deja ningún gráfico escondido y no se repite
+//      en la segunda visita de la sesión.
+// Qué NO coteja: las cifras de tejido, reservorio, PET, lesión a lesión ni las otras pestañas de
 // analíticas. Verde aquí no es «todo /datos cotejado».
 //
 // La expectativa se calcula aquí, aparte del código de la web: si los dos se equivocan igual, será
@@ -123,6 +127,38 @@ try {
       comprobar(`[${lg}] reposo ${m.k}: valor y fecha del último análisis`, m.f === e.f && m.v === String(e.v) && m.txt.includes(valor(e, lg)) && m.txt.includes(fechaCorta(e.f, lg)),
         `pinta «${m.txt}» (${m.v}, ${m.f}); caso.json dice ${valor(e, lg)} (${e.f})`)
     }
+    /* ── 4 · carga tumoral: el dibujo se mueve, las cifras no pasan por valores intermedios ── */
+    const em = caso.enfermedad_medible
+    const rA = em.recist[0], rB = em.recist.at(-1), vA = em.volumen[0], vB = em.volumen.at(-1)
+    const vale = {
+      mm: [`${rA.suma_mm} mm`, `${rB.suma_mm} mm`],
+      ml: [`${num(vA.ml, lg)} ml`, `${num(vB.ml, lg)} ml`],
+      les: [vA.n_lesiones, vB.n_lesiones].map(String),
+    }
+    await nav.evaluate(`document.querySelector('.ct__otra').scrollIntoView({ block: 'center', behavior: 'instant' })`)
+    await nav.sleep(2600) // que termine la entrada de la primera visita, si la hubo
+    await nav.evaluate(`document.querySelector('.ct__otra').click()`)
+    const vistas = { mm: new Set(), ml: new Set(), les: new Set() }
+    for (let i = 0; i < 24; i++) {
+      const d = await nav.evaluate(`[document.querySelector('.ct__cifra').textContent.trim(), document.querySelector('.ct__ml').textContent.trim(), document.querySelector('.ct__fecha').textContent.trim()]`)
+      vistas.mm.add(d[0]); vistas.ml.add(d[1]); vistas.les.add((d[2].match(/· (\d+) /) ?? [])[1] ?? d[2])
+      await nav.sleep(90)
+    }
+    for (const k of ['mm', 'ml', 'les']) {
+      const raras = [...vistas[k]].filter((x) => !vale[k].includes(x))
+      comprobar(`[${lg}] carga tumoral (${k}): durante la animación solo se leen cifras de un estudio real`, raras.length === 0, `aparecieron ${JSON.stringify(raras)}; válidas ${JSON.stringify(vale[k])}`)
+      comprobar(`[${lg}] carga tumoral (${k}): la animación llega a enseñar los dos estudios`, vistas[k].size === 2, `vistas ${JSON.stringify([...vistas[k]])}`)
+    }
+
+    /* ── 5 · la entrada de la primera visita no esconde nada y no se repite ── */
+    const ESCONDIDOS = `document.querySelectorAll('.ms--armado:not(.ms--visto), .lt--armado:not(.lt--visto), .cinta--armado:not(.cinta--visto)').length`
+    const ARMADOS = `document.querySelectorAll('.ms--armado, .lt--armado, .cinta--armado').length`
+    comprobar(`[${lg}] primera visita: hubo entrada animada`, (await nav.evaluate(ARMADOS)) > 0)
+    await nav.sleep(1200) // la reserva de 3 s ya pasó con creces desde la carga
+    comprobar(`[${lg}] primera visita: ningún gráfico se queda escondido`, (await nav.evaluate(ESCONDIDOS)) === 0, `escondidos: ${await nav.evaluate(ESCONDIDOS)}`)
+    await nav.cargar(base, { conservar: true })
+    comprobar(`[${lg}] segunda visita de la sesión: todo quieto, sin entrada`, (await nav.evaluate(ARMADOS)) === 0, `armados: ${await nav.evaluate(ARMADOS)}`)
+
     for (const k of ['ca153', 'hemoglobina']) {
       const e = analito(k).puntos.at(-1)
       comprobar(`[${lg}] «Hoy» escribe el último ${k}`, reposo.hoy.includes(valor(e, lg)), `esperado «${valor(e, lg)}» en las tarjetas de «Hoy»`)

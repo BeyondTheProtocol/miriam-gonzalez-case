@@ -16,7 +16,8 @@ const L = (es: string, en: string) => (props.lang === 'en' ? en : es)
 
 const caja = ref<HTMLElement | null>(null)
 const W = useAncho(caja)
-const { armado, visto } = useQuieto(caja)
+// dentro de «El caso en el tiempo» (compacta) o en reproducción manda el cabezal: sin entrada
+const { armado, visto } = useEntradaViva(caja, 0.3, () => !props.compacta && props.cabezal == null)
 const X = (t: number) => linEscala(props.desde, props.hasta, EJE_IZQ, W.value - EJE_DER)(t)
 const hoyMs = computed(() => msFecha(props.hoy))
 
