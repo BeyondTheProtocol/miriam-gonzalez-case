@@ -78,7 +78,7 @@ const eventos = computed(() => {
 const sel = ref<string | null>(null)
 /* tocar una línea de tratamiento la elige (o la suelta): no mueve nada, solo dice dónde mirar */
 function elegirEtapa(id: string) { sel.value = null; emit('etapa', props.etapa === id ? null : id) }
-const etapaTxt = computed(() => { const l = lineas.value.find((x) => x.id === props.etapa); return l ? `${l.id} · ${txtCaso(l.tratamiento, props.lang)}` : '' })
+const etapaTxt = computed(() => { const l = lineas.value.find((x) => x.id === props.etapa); return l ? `${l.id} · ${txtCaso(l.tratamiento, props.lang).split(' (')[0]}` : '' })
 // Con el dedo, símbolos a 14-16 px no se aciertan (lo midió `diseno`): anterior/siguiente de 44 px.
 function mover(d: 1 | -1) {
   const lista = eventos.value
@@ -124,7 +124,8 @@ const elegido = computed(() => (props.cabezal != null ? eventos.value[eventos.va
       <button v-if="!compacta" type="button" class="lt__paso" :aria-label="L('Evento anterior', 'Previous event')" :disabled="cabezal != null" @click="mover(-1)">‹</button>
       <figcaption class="lt__pie" :aria-live="compacta ? 'off' : 'polite'">
         <template v-if="elegido"><strong class="nums">{{ elegido.fecha_texto }}</strong> · {{ txtCaso(elegido.titulo, lang) }}</template>
-        <template v-else-if="etapaTxt">{{ etapaTxt }}</template>
+        <!-- dos líneas como mucho: el pie reserva ese alto y lo de debajo no salta (el texto entero va en el aria-label de la barra) -->
+        <span v-else-if="etapaTxt" class="lt__etapa">{{ etapaTxt }}</span>
         <!-- en compacta no hay flechas ni hace falta tocar: el pie se queda en blanco hasta el primer evento -->
         <template v-else-if="!compacta">{{ L('Toca un símbolo o usa las flechas para ver qué pasó.', 'Tap a symbol or use the arrows to see what happened.') }}</template>
       </figcaption>
@@ -180,6 +181,7 @@ const elegido = computed(() => (props.cabezal != null ? eventos.value[eventos.va
 .lt__paso:focus-visible { outline: 2px solid var(--color-miriam); outline-offset: 2px; }
 .lt__pie { flex: 1; font: 400 14px/1.4 var(--font-body); color: var(--color-text); margin: 0; min-height: 2.8em; display: flex; align-items: center; }
 .lt__nav--compacta .lt__pie { display: block; min-height: 1.4em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 13px; }
+.lt__etapa { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; line-clamp: 2; overflow: hidden; }
 .lt__ley { display: flex; flex-wrap: wrap; gap: 4px 12px; font: 400 12px var(--font-body); color: var(--color-text-soft); margin: 4px 0 0; }
 .lt__ley span { display: inline-flex; align-items: center; gap: 4px; }
 </style>
