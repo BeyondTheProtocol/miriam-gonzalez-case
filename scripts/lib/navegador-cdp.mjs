@@ -19,7 +19,7 @@ const HYDRATED = `(() => {
   return !!n && !n.isHydrating && n.$router.currentRoute.value.fullPath === location.pathname + location.search + location.hash
 })()`
 
-export async function abrirNavegador({ ancho = 390, alto = 844 } = {}) {
+export async function abrirNavegador({ ancho = 390, alto = 844, escala = 2 } = {}) {
   // ── Servidor estático con URLs limpias (como Netlify: /ciencia → ciencia.html)
   const TYPES = {
     '.html': 'text/html; charset=utf-8',
@@ -170,7 +170,7 @@ export async function abrirNavegador({ ancho = 390, alto = 844 } = {}) {
   }
   await cdp('Page.enable')
   await cdp('Runtime.enable')
-  await cdp('Emulation.setDeviceMetricsOverride', { width: ancho, height: alto, deviceScaleFactor: 2, mobile: false })
+  await cdp('Emulation.setDeviceMetricsOverride', { width: ancho, height: alto, deviceScaleFactor: escala, mobile: false })
   async function cargar(path) {
     await cdp('Storage.clearDataForOrigin', { origin: ORIGIN, storageTypes: 'all' })
     await evaluate('window.__paginaVieja = true').catch(() => {})

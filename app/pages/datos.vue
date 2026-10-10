@@ -426,7 +426,8 @@ const n = (v: number) => numCaso(v, lang.value)
 
         <!-- 1 · Hoy -->
         <p v-if="peliArriba" class="dt-peli-arriba">
-          <button type="button" class="dt-play" aria-haspopup="dialog" @click="abrirPeli">
+          <!-- secundario (contorno, no relleno): no compite con la lectura de «Hoy» (diseno, 10-oct-2026) -->
+          <button type="button" class="dt-sonido" aria-haspopup="dialog" @click="abrirPeli">
             <Icon name="ph:film-strip-fill" class="w-4 h-4" aria-hidden="true" />
             {{ L('Ver el caso en el tiempo', 'See the case over time') }}
           </button>
