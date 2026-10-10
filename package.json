@@ -21,6 +21,7 @@
     "test:mallas-3d": "tsx scripts/test-mallas-3d.ts",
     "test:esqueleto-huesos": "tsx scripts/test-esqueleto-huesos.ts",
     "test:que-cambio": "tsx scripts/test-que-cambio.ts",
+    "test:cifras-datos": "node scripts/test-cifras-datos.mjs",
     "test:short-links": "tsx scripts/test-short-links.ts",
     "icons": "nuxt-seo-utils icons --source favicon.svg",
     "update-fundraiser": "tsx update-fundraiser.ts"

@@ -33,6 +33,10 @@ jobs:
 
       - run: pnpm test:ciencia-nivel
 
+      # /datos: cada cifra que pinta «la película del caso» (y las de cabecera de la página) es la
+      # de caso.json, en cada fecha con análisis. Una cifra interpolada sería un dato clínico falso.
+      - run: pnpm test:cifras-datos
+
       # Privacidad: ninguna cita FUTURA con día junto a un lugar (acoso activo). Va detrás
       # del build para revisar también lo generado (.output/public), que es lo que se sirve.
       - run: pnpm test:citas-futuras

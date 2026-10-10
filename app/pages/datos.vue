@@ -240,6 +240,32 @@ function parar() { cancelAnimationFrame(raf); pausado.value = false; acumulado =
 onBeforeUnmount(() => cancelAnimationFrame(raf))
 const reproduciendo = computed(() => cabezal.value != null && !pausado.value)
 
+/* ── la película del caso: el mismo recorrido, a pantalla completa (app/components/datos/Pelicula.vue) ──
+   Se abre con ?peli=1 (y ?t=AAAA-MM-DD para un día): así el enlace se comparte y Atrás la cierra.
+   Igual que ?pestana=, la query se VIGILA: en la página prerenderizada llega después de hidratar. */
+const router = useRouter()
+const peliAbierta = computed(() => ruta.query.peli === '1')
+const peliT = computed(() => { const t = String(ruta.query.t ?? ''); return /^\d{4}-\d{2}-\d{2}$/.test(t) && !Number.isNaN(msFecha(t)) ? t : null })
+const rangoPeli = rangoVentana('dx', hoyMs)
+const SERIES_PELI: Mini[] = [['ca153', 'lsn', 'CA 15-3', 'CA 15-3'], ['got', 'lsn', 'AST (GOT)', 'AST'], ['hemoglobina', 'real', 'Hemoglobina', 'Hemoglobin']]
+const seriesPeli = computed(() => SERIES_PELI.map(([k, modo, es, en]) => ({ a: an(k), modo, nombre: L(es, en) }))
+  .filter((x): x is { a: Analito; modo: 'real' | 'lsn'; nombre: string } => !!x.a && x.a.puntos.length >= MIN_GRAFICO))
+let peliEmpujada = false // la abrió un botón de esta página: cerrar es volver atrás
+let botonPeli: HTMLElement | null = null // para devolverle el foco al cerrar (Safari no enfoca un botón al pulsarlo)
+function abrirPeli(ev: MouseEvent) { parar(); botonPeli = ev.currentTarget as HTMLElement; peliEmpujada = true; router.push({ query: { ...ruta.query, peli: '1' } }) }
+watch(peliAbierta, (v) => { if (!v && botonPeli) nextTick(() => { botonPeli?.focus({ preventScroll: true }); botonPeli = null }) })
+function cerrarPeli() {
+  if (!peliAbierta.value) return
+  if (peliEmpujada) { peliEmpujada = false; router.back(); return }
+  const { peli: _p, t: _t, ...resto } = ruta.query
+  router.replace({ query: resto, hash: ruta.hash })
+}
+function fechaPeli(iso: string) { if (peliAbierta.value && ruta.query.t !== iso) router.replace({ query: { ...ruta.query, t: iso }, hash: ruta.hash }) }
+function verDatosDesdePeli() { cerrarPeli(); setTimeout(() => saltar('s-evo'), 80) }
+/* el botón de arriba, junto a «Hoy», toca una cabecera ya publicada: no se enseña hasta que Miriam
+   lo apruebe. En la preview se ve con ?entrada=arriba. */
+const peliArriba = computed(() => ruta.query.entrada === 'arriba')
+
 const sinFresco = material.find((m) => /fresco|fresh/i.test(T(m.muestra)) && /ningun|none|no existe/i.test(`${T(m.donde)} ${T(m.estado)}`))
 /* tarjeta de muestra: título corto («Hígado, segmento IVa») y el resto del texto, entero, debajo */
 const tituloMuestra = (m: any) => T(m.muestra).split(/\s*[(:.]/)[0]
@@ -364,6 +390,11 @@ const n = (v: number) => numCaso(v, lang.value)
 <template>
   <div class="overflow-x-clip">
     <div class="dt-progreso" aria-hidden="true" />
+    <ClientOnly>
+      <DatosPelicula :abierta="peliAbierta" :eventos="eventos" :lineas="lineas" :series="seriesPeli" :contexto="contexto"
+                     :desde="rangoPeli[0]" :hasta="rangoPeli[1]" :diagnostico="fechaDx" :hoy="hoy" :t="peliT"
+                     :sello="c.analiticas.sello" :lang="lang" @cerrar="cerrarPeli" @ver="verDatosDesdePeli" @fecha="fechaPeli" />
+    </ClientOnly>
     <section class="section-spacing !pt-8 sm:!pt-12" :aria-label="L('El caso en datos', 'The case in data')">
       <div class="mx-auto w-full max-w-[1120px] px-4 sm:px-6 lg:px-8">
         <PageHeader
@@ -394,6 +425,12 @@ const n = (v: number) => numCaso(v, lang.value)
         </nav>
 
         <!-- 1 · Hoy -->
+        <p v-if="peliArriba" class="dt-peli-arriba">
+          <button type="button" class="dt-play" aria-haspopup="dialog" @click="abrirPeli">
+            <Icon name="ph:film-strip-fill" class="w-4 h-4" aria-hidden="true" />
+            {{ L('Ver el caso en el tiempo', 'See the case over time') }}
+          </button>
+        </p>
         <section id="s-hoy" class="dt-sec" aria-labelledby="h-hoy">
           <h2 id="h-hoy" class="dt-h2">{{ L('Hoy', 'Today') }}</h2>
           <ul class="dt-eleg" :aria-label="L('Datos que suelen decidir un ensayo', 'Data that usually decide a trial')">
@@ -642,6 +679,16 @@ const n = (v: number) => numCaso(v, lang.value)
               <NuxtLink v-if="hayReservorio" :to="localePath('/reservorio')" class="dt-boton">{{ L('La historia completa del reservorio', 'The full port story') }} →</NuxtLink>
           </article>
         </section>
+        <section id="s-peli" class="dt-sec" aria-labelledby="h-peli">
+          <h3 id="h-peli" class="dt-h3">{{ L('El caso en el tiempo', 'The case over time') }}</h3>
+          <p class="dt-nota">{{ L('Del diagnóstico a hoy, a pantalla completa. Dale a reproducir, páralo o arrastra la línea de tiempo.', 'From diagnosis to today, full screen. Press play, pause, or drag the timeline.') }}</p>
+          <div class="dt-controles">
+            <button type="button" class="dt-play" aria-haspopup="dialog" @click="abrirPeli">
+              <Icon name="ph:film-strip-fill" class="w-4 h-4" aria-hidden="true" />
+              {{ L('Ver el recorrido', 'Play it through') }}
+            </button>
+          </div>
+        </section>
         <section class="dt-sec" :aria-label="L('La evolución, en movimiento', 'The course, in motion')">
           <h3 class="dt-h3">{{ L('La evolución, en movimiento', 'The course, in motion') }}</h3>
           <p class="dt-nota">{{ L('Un cabezal recorre del diagnóstico a hoy y los gráficos de «Evolución» se dibujan a su paso.', 'A playhead runs from diagnosis to today and the charts in “Clinical course” draw as it passes.') }}</p>
@@ -760,6 +807,7 @@ const n = (v: number) => numCaso(v, lang.value)
 .dt-sonido[aria-pressed='true'] { background: var(--color-miriam-soft); border-color: var(--color-miriam); }
 .dt-sonido:focus-visible { outline: 2px solid var(--color-miriam); outline-offset: 2px; }
 .dt-play:focus-visible { outline: 2px solid var(--color-text); outline-offset: 2px; }
+.dt-peli-arriba { margin: 14px 0 0; }
 .dt-reloj-fila { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin: 0 0 4px; }
 .dt-reloj-fila .dt-reloj { margin: 0; }
 .dt-vitrina { margin: 40px -16px 0; padding: 4px 16px 20px; background: var(--color-bg-card); border-top: 1px solid rgb(var(--color-text-rgb) / 0.08); border-bottom: 1px solid rgb(var(--color-text-rgb) / 0.08); }

@@ -147,7 +147,7 @@ const valorTxt = (p: Punto) => {
 </script>
 
 <template>
-  <article class="ms" :class="{ 'ms--armado': armado, 'ms--visto': visto }">
+  <article class="ms" :class="{ 'ms--armado': armado, 'ms--visto': visto }" :data-k="a.key" :data-f="mostrado?.f ?? ''" :data-v="mostrado ? String(mostrado.v) : ''">
     <header class="ms__cab">
       <h4 class="ms__nombre">{{ nombre ?? a.nombre }}</h4>
       <p v-if="mostrado" class="ms__valor nums" :class="{ 'ms__valor--cursor': enCursor }">
