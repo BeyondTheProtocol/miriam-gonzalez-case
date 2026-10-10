@@ -252,6 +252,17 @@ const rangoPeli = rangoVentana('dx', hoyMs)
 const SERIES_PELI: Mini[] = [['ca153', 'lsn', 'CA 15-3', 'CA 15-3'], ['got', 'lsn', 'AST (GOT)', 'AST'], ['hemoglobina', 'real', 'Hemoglobina', 'Hemoglobin']]
 const seriesPeli = computed(() => SERIES_PELI.map(([k, modo, es, en]) => ({ a: an(k), modo, nombre: L(es, en) }))
   .filter((x): x is { a: Analito; modo: 'real' | 'lsn'; nombre: string } => !!x.a && x.a.puntos.length >= MIN_GRAFICO))
+/* miniatura del botón de entrada: cada línea sistémica ya empezada, a escala sobre el mismo rango del recorrido */
+const miniBandas = contexto.bandas.map((b) => {
+  const f = (t: number) => Math.min(1, Math.max(0, (t - rangoPeli[0]) / (hoyMs - rangoPeli[0])))
+  return { id: b.id, x: rc(f(b.ini) * 92), w: rc(Math.max(2, (f(Math.min(b.fin, hoyMs)) - f(b.ini)) * 92)) }
+})
+const miniViva = ref(false)
+onMounted(() => {
+  let primera = false
+  try { primera = sessionStorage.getItem('datos-entrada-vista') == null } catch { primera = false }
+  miniViva.value = primera && !window.matchMedia('(prefers-reduced-motion: reduce)').matches
+})
 let peliEmpujada = false // la abrió un botón de esta página: cerrar es volver atrás
 let botonPeli: HTMLElement | null = null // para devolverle el foco al cerrar (Safari no enfoca un botón al pulsarlo)
 function abrirPeli(ev: MouseEvent) { parar(); botonPeli = ev.currentTarget as HTMLElement; peliEmpujada = true; router.push({ query: { ...ruta.query, peli: '1' } }) }
@@ -422,6 +433,18 @@ const n = (v: number) => numCaso(v, lang.value)
           <button type="button" class="dt-sonido" aria-haspopup="dialog" @click="abrirPeli">
             <Icon name="ph:play-circle-fill" class="w-4 h-4" aria-hidden="true" />
             {{ L('Ver el caso en el tiempo', 'See the case over time') }}
+            <!-- miniatura del recorrido: las líneas de tratamiento a escala, del diagnóstico a hoy. Es un dibujo de
+                 invitación, no un dato que se lea (sin cifras ni rótulos). Solo en cliente y con hueco reservado:
+                 aparece dibujándose, sin parpadeo ni salto. Se dibuja en la primera visita; después sale ya hecha. -->
+            <span class="dt-peli-mini" aria-hidden="true">
+              <ClientOnly>
+                <svg viewBox="0 0 96 12" width="96" height="12" :class="{ 'dt-peli-mini--viva': miniViva }">
+                  <line x1="0" x2="96" y1="6" y2="6" class="dt-peli-mini__eje" />
+                  <rect v-for="(b, i) in miniBandas" :key="b.id" :x="b.x" y="2" :width="b.w" height="8" rx="2" class="dt-peli-mini__linea" :style="{ animationDelay: `${200 + i * 140}ms` }" />
+                  <circle cx="94" cy="6" r="2" class="dt-peli-mini__hoy" />
+                </svg>
+              </ClientOnly>
+            </span>
           </button>
         </p>
 
@@ -809,6 +832,14 @@ const n = (v: number) => numCaso(v, lang.value)
 .dt-sonido:focus-visible { outline: 2px solid var(--color-miriam); outline-offset: 2px; }
 .dt-play:focus-visible { outline: 2px solid var(--color-text); outline-offset: 2px; }
 .dt-peli-arriba { margin: 14px 0 0; }
+.dt-peli-mini { display: inline-block; width: 96px; height: 12px; margin-left: 4px; flex: none; }
+.dt-peli-mini svg { display: block; }
+.dt-peli-mini__eje { stroke: rgb(var(--color-text-rgb) / 0.25); }
+.dt-peli-mini__linea { fill: var(--color-miriam); transform-box: fill-box; transform-origin: left center; }
+.dt-peli-mini__hoy { fill: var(--color-text); }
+.dt-peli-mini--viva .dt-peli-mini__linea { animation: dt-mini-crece 600ms var(--curva-salida) both; }
+@keyframes dt-mini-crece { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+@media (prefers-reduced-motion: reduce) { .dt-peli-mini--viva .dt-peli-mini__linea { animation: none; } }
 .dt-reloj-fila { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin: 0 0 4px; }
 .dt-reloj-fila .dt-reloj { margin: 0; }
 .dt-vitrina { margin: 40px -16px 0; padding: 4px 16px 20px; background: var(--color-bg-card); border-top: 1px solid rgb(var(--color-text-rgb) / 0.08); border-bottom: 1px solid rgb(var(--color-text-rgb) / 0.08); }
