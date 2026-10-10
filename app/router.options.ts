@@ -12,6 +12,8 @@ import type { RouterConfig } from '@nuxt/schema'
 export default <RouterConfig>{
   scrollBehavior(to, from, savedPosition) {
     if (savedPosition) return savedPosition
+    // /datos: abrir, cerrar o mover «la película» (?peli=1&t=) solo cambia la query; la página no se mueve
+    if (to.path === from.path && (to.query.peli === '1' || from.query.peli === '1')) return false
     if (to.hash) {
       return { el: to.hash, top: 80 }
     }

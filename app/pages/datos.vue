@@ -118,6 +118,8 @@ const pCa = ultimo(ca); const pHb = ultimo(hb); const pAst = ultimo(ast); const 
 const ventana = ref<Ventana>('anio')
 const rango = computed(() => rangoVentana(ventana.value, hoyMs))
 const cursor = ref<string | null>(null)
+/** línea de tratamiento elegida al tocarla en la línea de tiempo: su banda se marca en cada analítica */
+const etapaSel = ref<string | null>(null)
 const contexto: Contexto = {
   progresiones: eventos.filter((e) => e.clase === 'progresion' && e.precision === 'dia').map((e) => msFecha(e.desde)),
   bandas: sistemicas.map((l) => {
@@ -240,6 +242,39 @@ function parar() { cancelAnimationFrame(raf); pausado.value = false; acumulado =
 onBeforeUnmount(() => cancelAnimationFrame(raf))
 const reproduciendo = computed(() => cabezal.value != null && !pausado.value)
 
+/* ── la película del caso: el mismo recorrido, a pantalla completa (app/components/datos/Pelicula.vue) ──
+   Se abre con ?peli=1 (y ?t=AAAA-MM-DD para un día): así el enlace se comparte y Atrás la cierra.
+   Igual que ?pestana=, la query se VIGILA: en la página prerenderizada llega después de hidratar. */
+const router = useRouter()
+const peliAbierta = computed(() => ruta.query.peli === '1')
+const peliT = computed(() => { const t = String(ruta.query.t ?? ''); return /^\d{4}-\d{2}-\d{2}$/.test(t) && !Number.isNaN(msFecha(t)) ? t : null })
+const rangoPeli = rangoVentana('dx', hoyMs)
+const SERIES_PELI: Mini[] = [['ca153', 'lsn', 'CA 15-3', 'CA 15-3'], ['got', 'lsn', 'AST (GOT)', 'AST'], ['hemoglobina', 'real', 'Hemoglobina', 'Hemoglobin']]
+const seriesPeli = computed(() => SERIES_PELI.map(([k, modo, es, en]) => ({ a: an(k), modo, nombre: L(es, en) }))
+  .filter((x): x is { a: Analito; modo: 'real' | 'lsn'; nombre: string } => !!x.a && x.a.puntos.length >= MIN_GRAFICO))
+/* miniatura del botón de entrada: cada línea sistémica ya empezada, a escala sobre el mismo rango del recorrido */
+const miniBandas = contexto.bandas.map((b) => {
+  const f = (t: number) => Math.min(1, Math.max(0, (t - rangoPeli[0]) / (hoyMs - rangoPeli[0])))
+  return { id: b.id, x: rc(f(b.ini) * 92), w: rc(Math.max(2, (f(Math.min(b.fin, hoyMs)) - f(b.ini)) * 92)) }
+})
+const miniViva = ref(false)
+onMounted(() => {
+  let primera = false
+  try { primera = sessionStorage.getItem('datos-entrada-vista') == null } catch { primera = false }
+  miniViva.value = primera && !window.matchMedia('(prefers-reduced-motion: reduce)').matches
+})
+let peliEmpujada = false // la abrió un botón de esta página: cerrar es volver atrás
+let botonPeli: HTMLElement | null = null // para devolverle el foco al cerrar (Safari no enfoca un botón al pulsarlo)
+function abrirPeli(ev: MouseEvent) { parar(); botonPeli = ev.currentTarget as HTMLElement; peliEmpujada = true; router.push({ query: { ...ruta.query, peli: '1' } }) }
+watch(peliAbierta, (v) => { if (!v && botonPeli) nextTick(() => { botonPeli?.focus({ preventScroll: true }); botonPeli = null }) })
+function cerrarPeli() {
+  if (!peliAbierta.value) return
+  if (peliEmpujada) { peliEmpujada = false; router.back(); return }
+  const { peli: _p, t: _t, ...resto } = ruta.query
+  router.replace({ query: resto, hash: ruta.hash })
+}
+function fechaPeli(iso: string) { if (peliAbierta.value && ruta.query.t !== iso) router.replace({ query: { ...ruta.query, t: iso }, hash: ruta.hash }) }
+function verDatosDesdePeli() { cerrarPeli(); setTimeout(() => saltar('s-evo'), 80) }
 const sinFresco = material.find((m) => /fresco|fresh/i.test(T(m.muestra)) && /ningun|none|no existe/i.test(`${T(m.donde)} ${T(m.estado)}`))
 /* tarjeta de muestra: título corto («Hígado, segmento IVa») y el resto del texto, entero, debajo */
 const tituloMuestra = (m: any) => T(m.muestra).split(/\s*[(:.]/)[0]
@@ -364,6 +399,11 @@ const n = (v: number) => numCaso(v, lang.value)
 <template>
   <div class="overflow-x-clip">
     <div class="dt-progreso" aria-hidden="true" />
+    <ClientOnly>
+      <DatosPelicula :abierta="peliAbierta" :eventos="eventos" :lineas="lineas" :series="seriesPeli" :contexto="contexto"
+                     :desde="rangoPeli[0]" :hasta="rangoPeli[1]" :diagnostico="fechaDx" :hoy="hoy" :t="peliT"
+                     :sello="c.analiticas.sello" :lang="lang" @cerrar="cerrarPeli" @ver="verDatosDesdePeli" @fecha="fechaPeli" />
+    </ClientOnly>
     <section class="section-spacing !pt-8 sm:!pt-12" :aria-label="L('El caso en datos', 'The case in data')">
       <div class="mx-auto w-full max-w-[1120px] px-4 sm:px-6 lg:px-8">
         <PageHeader
@@ -386,6 +426,27 @@ const n = (v: number) => numCaso(v, lang.value)
           <p class="dt-dx__v">{{ dxCorto }}<template v-if="fechaDx">, {{ L('biopsia de', 'biopsy of') }} <span class="nums">{{ mesAnio(fechaDx, lang) }}</span></template> <DatosSello :s="dx.sello" :lang="lang" /></p>
           <NuxtLink :to="localePath('/ciencia')" class="dt-dx__link">{{ L('Perfil anatomopatológico y molecular en La\u00a0ciencia\u00a0→', 'Pathology and molecular profile on The science\u00a0page\u00a0→') }}</NuxtLink>
         </section>
+
+        <!-- entrada a «El caso en el tiempo»: franja propia bajo el diagnóstico, botón secundario (contorno) para
+             no competir con la lectura de «Hoy» (diseno, 10-oct-2026). No toca la cabecera ni «Hoy». -->
+        <p class="dt-peli-arriba">
+          <button type="button" class="dt-sonido" aria-haspopup="dialog" @click="abrirPeli">
+            <Icon name="ph:play-circle-fill" class="w-4 h-4" aria-hidden="true" />
+            {{ L('Ver el caso en el tiempo', 'See the case over time') }}
+            <!-- miniatura del recorrido: las líneas de tratamiento a escala, del diagnóstico a hoy. Es un dibujo de
+                 invitación, no un dato que se lea (sin cifras ni rótulos). Solo en cliente y con hueco reservado:
+                 aparece dibujándose, sin parpadeo ni salto. Se dibuja en la primera visita; después sale ya hecha. -->
+            <span class="dt-peli-mini" aria-hidden="true">
+              <ClientOnly>
+                <svg viewBox="0 0 96 12" width="96" height="12" :class="{ 'dt-peli-mini--viva': miniViva }">
+                  <line x1="0" x2="96" y1="6" y2="6" class="dt-peli-mini__eje" />
+                  <rect v-for="(b, i) in miniBandas" :key="b.id" :x="b.x" y="2" :width="b.w" height="8" rx="2" class="dt-peli-mini__linea" :style="{ animationDelay: `${200 + i * 140}ms` }" />
+                  <circle cx="94" cy="6" r="2" class="dt-peli-mini__hoy" />
+                </svg>
+              </ClientOnly>
+            </span>
+          </button>
+        </p>
 
         <!-- barra de secciones fija con la sección activa (scroll-spy): en el móvil, saltar sin perderse -->
         <nav class="dt-barra" :aria-label="L('Secciones', 'Sections')">
@@ -541,7 +602,7 @@ const n = (v: number) => numCaso(v, lang.value)
             </button>
             <button type="button" class="dt-sonido" @click="parar()">{{ L('Parar', 'Stop') }}</button>
           </div>
-          <DatosLineaTiempo :eventos="eventos" :lineas="lineas" :desde="rango[0]" :hasta="rango[1]" :hoy="hoy" :lang="lang" :cabezal="cabezal" />
+          <DatosLineaTiempo :eventos="eventos" :lineas="lineas" :desde="rango[0]" :hasta="rango[1]" :hoy="hoy" :lang="lang" :cabezal="cabezal" :etapa="etapaSel" @etapa="etapaSel = $event" />
 
           <h3 class="dt-h3">{{ L('Analíticas', 'Labs') }}</h3>
           <p class="dt-nota">{{ L('Mismo eje que la línea de arriba. ▲▼ fuera de rango; ◆ marcado en el informe sin salirse del rango; 1× es el límite normal. Toca un gráfico y verás esa fecha en todos.',
@@ -559,7 +620,7 @@ const n = (v: number) => numCaso(v, lang.value)
               <summary>{{ L('Cada prueba en su gráfico', 'Each test on its own chart') }}</summary>
               <div class="dt-minis">
                 <DatosMiniSerie v-for="m in minis" :key="m.a!.key" :a="m.a!" :nombre="m.nombre" :modo="m.modo" :sin-banda="m.sinBanda"
-                                :desde="rango[0]" :hasta="rango[1]" :contexto="contexto" :cursor="cursor" :cabezal="cabezal" :lang="lang"
+                                :resalta="etapaSel" :desde="rango[0]" :hasta="rango[1]" :contexto="contexto" :cursor="cursor" :cabezal="cabezal" :lang="lang"
                                 @cursor="parar(); cursor = $event" />
               </div>
             </details>
@@ -567,14 +628,14 @@ const n = (v: number) => numCaso(v, lang.value)
           <template v-else>
           <div id="dt-minis" class="dt-minis" aria-live="polite">
             <DatosMiniSerie v-for="m in minisVista" :key="m.a!.key" :a="m.a!" :nombre="m.nombre" :modo="m.modo" :sin-banda="m.sinBanda"
-                            :desde="rango[0]" :hasta="rango[1]" :contexto="contexto" :cursor="cursor" :cabezal="cabezal" :lang="lang"
+                            :resalta="etapaSel" :desde="rango[0]" :hasta="rango[1]" :contexto="contexto" :cursor="cursor" :cabezal="cabezal" :lang="lang"
                             @cursor="parar(); cursor = $event" />
           </div>
           <details v-if="minisPlegados.length" :key="pestana" class="dt-det" :open="plegadosAbiertos" @toggle="plegadosAbiertos = ($event.target as HTMLDetailsElement).open">
             <summary>{{ L(`${minisPlegados.length} pruebas más: ${minisPlegados.map((m) => m.nombre).join(', ')}`, `${minisPlegados.length} more tests: ${minisPlegados.map((m) => m.nombre).join(', ')}`) }}</summary>
             <div class="dt-minis">
               <DatosMiniSerie v-for="m in minisPlegados" :key="m.a!.key" :a="m.a!" :nombre="m.nombre" :modo="m.modo" :sin-banda="m.sinBanda"
-                              :desde="rango[0]" :hasta="rango[1]" :contexto="contexto" :cursor="cursor" :cabezal="cabezal" :lang="lang"
+                              :resalta="etapaSel" :desde="rango[0]" :hasta="rango[1]" :contexto="contexto" :cursor="cursor" :cabezal="cabezal" :lang="lang"
                               @cursor="parar(); cursor = $event" />
             </div>
           </details>
@@ -641,6 +702,16 @@ const n = (v: number) => numCaso(v, lang.value)
               <p class="dt-pie">{{ L('Medida semiautomática sobre sus TC, sin validar por radiología.', 'Semi-automatic measurement on her CT scans, not validated by radiology.') }} <DatosSello :s="reservorio[0].sello" :lang="lang" /></p>
               <NuxtLink v-if="hayReservorio" :to="localePath('/reservorio')" class="dt-boton">{{ L('La historia completa del reservorio', 'The full port story') }} →</NuxtLink>
           </article>
+        </section>
+        <section id="s-peli" class="dt-sec" aria-labelledby="h-peli">
+          <h3 id="h-peli" class="dt-h3">{{ L('El caso en el tiempo', 'The case over time') }}</h3>
+          <p class="dt-nota">{{ L('Del diagnóstico a hoy, a pantalla completa. Dale a reproducir, páralo o arrastra la línea de tiempo.', 'From diagnosis to today, full screen. Press play, pause, or drag the timeline.') }}</p>
+          <div class="dt-controles">
+            <button type="button" class="dt-play" aria-haspopup="dialog" @click="abrirPeli">
+              <Icon name="ph:film-strip-fill" class="w-4 h-4" aria-hidden="true" />
+              {{ L('Ver el caso en el tiempo', 'See the case over time') }}
+            </button>
+          </div>
         </section>
         <section class="dt-sec" :aria-label="L('La evolución, en movimiento', 'The course, in motion')">
           <h3 class="dt-h3">{{ L('La evolución, en movimiento', 'The course, in motion') }}</h3>
@@ -760,6 +831,15 @@ const n = (v: number) => numCaso(v, lang.value)
 .dt-sonido[aria-pressed='true'] { background: var(--color-miriam-soft); border-color: var(--color-miriam); }
 .dt-sonido:focus-visible { outline: 2px solid var(--color-miriam); outline-offset: 2px; }
 .dt-play:focus-visible { outline: 2px solid var(--color-text); outline-offset: 2px; }
+.dt-peli-arriba { margin: 14px 0 0; }
+.dt-peli-mini { display: inline-block; width: 96px; height: 12px; margin-left: 4px; flex: none; }
+.dt-peli-mini svg { display: block; }
+.dt-peli-mini__eje { stroke: rgb(var(--color-text-rgb) / 0.25); }
+.dt-peli-mini__linea { fill: var(--color-miriam); transform-box: fill-box; transform-origin: left center; }
+.dt-peli-mini__hoy { fill: var(--color-text); }
+.dt-peli-mini--viva .dt-peli-mini__linea { animation: dt-mini-crece 600ms var(--curva-salida) both; }
+@keyframes dt-mini-crece { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+@media (prefers-reduced-motion: reduce) { .dt-peli-mini--viva .dt-peli-mini__linea { animation: none; } }
 .dt-reloj-fila { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin: 0 0 4px; }
 .dt-reloj-fila .dt-reloj { margin: 0; }
 .dt-vitrina { margin: 40px -16px 0; padding: 4px 16px 20px; background: var(--color-bg-card); border-top: 1px solid rgb(var(--color-text-rgb) / 0.08); border-bottom: 1px solid rgb(var(--color-text-rgb) / 0.08); }

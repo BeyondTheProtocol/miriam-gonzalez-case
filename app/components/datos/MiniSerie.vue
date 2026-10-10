@@ -26,6 +26,8 @@ const props = defineProps<{
   cursor: string | null
   /** Reproducción: solo se dibuja lo ocurrido hasta este instante (ms), y se marca con una raya. */
   cabezal?: number | null
+  /** id de la línea de tratamiento elegida en la línea de tiempo: su banda se marca más */
+  resalta?: string | null
   lang: Lang
 }>()
 const emit = defineEmits<{ cursor: [f: string | null] }>()
@@ -33,7 +35,8 @@ const L = (es: string, en: string) => (props.lang === 'en' ? en : es)
 
 const caja = ref<HTMLElement | null>(null)
 const W = useAncho(caja)
-const { armado, visto } = useQuieto(caja)
+// en reproducción (cabezal) el gráfico ya lo dibuja el cabezal: ahí no hay entrada
+const { armado, visto } = useEntradaViva(caja, 0.3, () => props.cabezal == null)
 const H = 92
 const X0 = EJE_IZQ
 const Y0 = 8
@@ -147,7 +150,7 @@ const valorTxt = (p: Punto) => {
 </script>
 
 <template>
-  <article class="ms" :class="{ 'ms--armado': armado, 'ms--visto': visto }">
+  <article class="ms" :class="{ 'ms--armado': armado, 'ms--visto': visto }" :data-k="a.key" :data-f="mostrado?.f ?? ''" :data-v="mostrado ? String(mostrado.v) : ''">
     <header class="ms__cab">
       <h4 class="ms__nombre">{{ nombre ?? a.nombre }}</h4>
       <p v-if="mostrado" class="ms__valor nums" :class="{ 'ms__valor--cursor': enCursor }">
@@ -171,7 +174,7 @@ const valorTxt = (p: Punto) => {
            :aria-valuetext="mostrado ? `${fechaCorta(mostrado.f, lang)}: ${valorTxt(mostrado)}` : L('sin dato ese día', 'no value that day')"
            @keydown="tecla" @pointerdown="empezar" @pointermove="arrastrar" @pointerup="soltar" @pointercancel="soltar"
            @pointerleave="hover = null" @focus="enfocado = true" @blur="enfocado = false">
-        <rect v-for="b in geo.bandas" :key="b.id" :x="b.x" :y="Y0" :width="b.w" :height="Y1 - Y0" class="ms__banda-linea" />
+        <rect v-for="b in geo.bandas" :key="b.id" :x="b.x" :y="Y0" :width="b.w" :height="Y1 - Y0" :class="['ms__banda-linea', { 'ms__banda-linea--on': resalta === b.id }]" />
         <rect v-if="geo.banda" :x="X0" :y="geo.banda.y0" :width="W - 6 - X0" :height="Math.max(1, geo.banda.y1 - geo.banda.y0)" class="ms__rango" />
         <line v-for="(x, i) in geo.progs" :key="`p${i}`" :x1="x" :x2="x" :y1="Y0" :y2="Y1" class="ms__prog" />
         <line v-for="an in geo.anios" :key="an.a" :x1="an.x" :x2="an.x" :y1="Y1" :y2="Y1 + 4" class="ms__eje" />
@@ -183,8 +186,8 @@ const valorTxt = (p: Punto) => {
         </template>
         <path :key="`${desde}-${hasta}`" :d="geo.d" class="ms__linea" pathLength="1" />
         <template v-for="q in geo.pts" :key="q.p.f">
-          <path v-if="q.p.fuera === 'bajo'" :d="`M${rc(q.x - 4.5)},${rc(q.y - 3.5)}h9l-4.5,8Z`" class="ms__fuera" :style="{ animationDelay: `${Math.round((q.x / W) * 1200)}ms` }" />
-          <path v-else-if="q.p.fuera === 'alto'" :d="`M${rc(q.x - 4.5)},${rc(q.y + 3.5)}h9l-4.5,-8Z`" class="ms__fuera" :style="{ animationDelay: `${Math.round((q.x / W) * 1200)}ms` }" />
+          <path v-if="q.p.fuera === 'bajo'" :d="`M${rc(q.x - 4.5)},${rc(q.y - 3.5)}h9l-4.5,8Z`" class="ms__fuera" :style="{ animationDelay: `${Math.round((q.x / W) * 600)}ms` }" />
+          <path v-else-if="q.p.fuera === 'alto'" :d="`M${rc(q.x - 4.5)},${rc(q.y + 3.5)}h9l-4.5,-8Z`" class="ms__fuera" :style="{ animationDelay: `${Math.round((q.x / W) * 600)}ms` }" />
           <!-- ◆ el informe lo marcó pero no se sale del rango extraído (p. ej. justo en el límite) -->
           <path v-else-if="q.p.fuera" :d="pathForma('rombo', q.x, q.y, 3.5)" class="ms__marcado" />
           <circle v-else-if="pocos" :cx="q.x" :cy="q.y" r="2.5" class="ms__dentro" />
@@ -221,6 +224,9 @@ const valorTxt = (p: Punto) => {
 .ms__fecha { font: 400 11px var(--font-body); color: var(--color-text-soft); margin-left: 4px; }
 .ms__svg { display: block; margin-top: 4px; touch-action: pan-y; cursor: crosshair; }
 .ms__banda-linea { fill: var(--color-miriam); fill-opacity: 0.05; }
+.ms__banda-linea { transition: fill-opacity var(--dur-micro) var(--curva-salida); }
+.ms__banda-linea--on { fill-opacity: 0.2; }
+@media (prefers-reduced-motion: reduce) { .ms__banda-linea { transition: none; } }
 .ms__rango { fill: var(--color-text); fill-opacity: 0.09; }
 .ms__prog { stroke: var(--color-text); stroke-opacity: 0.4; stroke-dasharray: 3 3; }
 .ms__eje { stroke: var(--viz-eje); }
@@ -236,7 +242,7 @@ const valorTxt = (p: Punto) => {
 .ms__marcado { fill: var(--color-bg); stroke: var(--color-miriam); stroke-width: 1.5; }
 .ms--armado:not(.ms--visto) .ms__linea { stroke-dasharray: 1; stroke-dashoffset: 1; }
 .ms--armado:not(.ms--visto) .ms__fuera { opacity: 0; }
-.ms--visto .ms__linea { stroke-dasharray: 1; animation: ms-trazo 1.3s var(--curva-salida) both; }
+.ms--visto .ms__linea { stroke-dasharray: 1; animation: ms-trazo 700ms var(--curva-salida) both; }
 .ms--visto .ms__fuera { animation: ms-pop 380ms var(--curva-salida) both; }
 @keyframes ms-trazo { from { stroke-dashoffset: 1; } to { stroke-dashoffset: 0; } }
 @keyframes ms-pop { 0% { opacity: 0; transform: scale(0.2); } 70% { opacity: 1; transform: scale(1.5); } 100% { opacity: 1; transform: scale(1); } }

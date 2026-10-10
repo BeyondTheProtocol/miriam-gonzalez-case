@@ -18,7 +18,7 @@ const L = (es: string, en: string) => (props.lang === 'en' ? en : es)
 
 const caja = ref<HTMLElement | null>(null)
 const W = useAncho(caja)
-const { armado, visto } = useQuieto(caja, 0.4)
+const { armado, visto } = useEntradaViva(caja, 0.4)
 const f = ref(1) // 0 = julio, 1 = septiembre (estado final si no hay animación)
 watch(armado, (a) => { if (a && !visto.value) f.value = 0 })
 watch(visto, (v) => { if (!v) return; f.value = 0; setTimeout(() => tween(1800, (x) => { f.value = x }), 350) })
@@ -51,6 +51,14 @@ const puntos = computed(() => Array.from({ length: nLes.value }, (_, i) => {
   return { x: rc(geo.value.cx + rr * Math.cos(a)), y: rc(geo.value.cy + rr * Math.sin(a)), nuevo: i >= (v0.value.n_lesiones ?? 0) }
 }))
 const pct = (a: number, b: number) => `${b >= a ? '+' : ''}${numCaso(Math.round((b / a - 1) * 1000) / 10, props.lang)} %`
+/* Las CIFRAS no se interpolan (10-oct-2026): hasta ese día, «Verlo otra vez» hacía pasar el rótulo por
+   milímetros, mililitros y números de lesiones que nadie midió. Lo que se mueve es el dibujo (la regla,
+   el globo, los puntos); el texto dice el estudio de julio hasta la mitad del recorrido y el de
+   septiembre después, a la vez que cambia la fecha. */
+const fin = computed(() => f.value >= 0.5)
+const mmTxt = computed(() => (fin.value ? r1.value.suma_mm : r0.value.suma_mm) ?? 0)
+const mlTxt = computed(() => (fin.value ? v1.value.ml : v0.value.ml) ?? 0)
+const nLesTxt = computed(() => (fin.value ? v1.value.n_lesiones : v0.value.n_lesiones) ?? 0)
 function otra() { f.value = 0; tween(1800, (x) => { f.value = x }) }
 const fechaTxt = computed(() => (f.value < 0.5 ? fechaCorta(r0.value.fecha, props.lang) : fechaCorta(r1.value.fecha, props.lang)))
 </script>
@@ -69,14 +77,14 @@ const fechaTxt = computed(() => (f.value < 0.5 ? fechaCorta(r0.value.fecha, prop
       <line :x1="geo.umbral" :x2="geo.umbral" y1="24" y2="44" class="ct__umbral" />
       <text :x="geo.umbral" y="64" text-anchor="middle" class="ct__umbral-txt">+20 %</text>
       <!-- la cifra, encima del final de la regla; la marca de +20 % queda libre debajo -->
-      <text :x="geo.XR(mm)" y="22" text-anchor="end" class="ct__cifra nums">{{ Math.round(mm) }} mm</text>
+      <text :x="geo.XR(mm)" y="22" text-anchor="end" class="ct__cifra nums">{{ mmTxt }} mm</text>
       <!-- el globo -->
       <text x="12" y="84" class="ct__etq">{{ L('Volumen tumoral en el hígado (modelo)', 'Tumor volume in the liver (model)') }}</text>
       <circle :cx="geo.cx" :cy="geo.cy" :r="geo.R(v0.ml ?? 0)" class="ct__sombra" />
       <circle :cx="geo.cx" :cy="geo.cy" :r="geo.R(ml)" class="ct__globo" />
       <circle v-for="(p, i) in puntos" :key="i" :cx="p.x" :cy="p.y" :r="p.nuevo ? 3.2 : 2.6" :class="p.nuevo ? 'ct__les ct__les--nueva' : 'ct__les'" />
-      <text :x="geo.cx" :y="geo.cy + 5" text-anchor="middle" class="ct__ml nums">{{ numCaso(Math.round(ml * 10) / 10, lang) }} ml</text>
-      <text :x="geo.cx" :y="geo.H - 4" text-anchor="middle" class="ct__fecha nums">{{ fechaTxt }} · {{ nLes }} {{ L('lesiones', 'lesions') }}</text>
+      <text :x="geo.cx" :y="geo.cy + 5" text-anchor="middle" class="ct__ml nums">{{ numCaso(mlTxt, lang) }} ml</text>
+      <text :x="geo.cx" :y="geo.H - 4" text-anchor="middle" class="ct__fecha nums">{{ fechaTxt }} · {{ nLesTxt }} {{ L('lesiones', 'lesions') }}</text>
     </svg>
     <div class="ct__resumen">
       <p><strong class="nums">{{ pct(r0.suma_mm ?? 1, r1.suma_mm ?? 1) }}</strong> {{ L(`la suma RECIST (${r0.suma_mm} → ${r1.suma_mm} mm). RECIST llama progresión a partir de +20 %.`, `RECIST sum (${r0.suma_mm} → ${r1.suma_mm} mm). RECIST calls progression from +20%.`) }}</p>

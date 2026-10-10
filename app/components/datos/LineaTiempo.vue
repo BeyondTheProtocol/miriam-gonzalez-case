@@ -9,12 +9,18 @@
 import type { Evento, Forma, Lang, Texto } from '~/utils/datosCaso'
 
 interface Linea { id: string; tratamiento: Texto; inicio: string; fin: string | null; motivo_fin?: Texto | null }
-const props = defineProps<{ eventos: Evento[]; lineas: Linea[]; desde: number; hasta: number; hoy: string; lang: Lang; cabezal?: number | null }>()
+const props = defineProps<{ eventos: Evento[]; lineas: Linea[]; desde: number; hasta: number; hoy: string; lang: Lang; cabezal?: number | null
+  /** dentro de «El caso en el tiempo»: sin los botones ‹ › (allí manda el reloj) y con el pie en una línea */
+  compacta?: boolean
+  /** línea de tratamiento elegida (su id): se resalta aquí y, en la página, su banda en cada analítica */
+  etapa?: string | null }>()
+const emit = defineEmits<{ etapa: [id: string | null] }>()
 const L = (es: string, en: string) => (props.lang === 'en' ? en : es)
 
 const caja = ref<HTMLElement | null>(null)
 const W = useAncho(caja)
-const { armado, visto } = useQuieto(caja)
+// dentro de «El caso en el tiempo» (compacta) o en reproducción manda el cabezal: sin entrada
+const { armado, visto } = useEntradaViva(caja, 0.3, () => !props.compacta && props.cabezal == null)
 const X = (t: number) => linEscala(props.desde, props.hasta, EJE_IZQ, W.value - EJE_DER)(t)
 const hoyMs = computed(() => msFecha(props.hoy))
 
@@ -70,6 +76,9 @@ const eventos = computed(() => {
     })
 })
 const sel = ref<string | null>(null)
+/* tocar una línea de tratamiento la elige (o la suelta): no mueve nada, solo dice dónde mirar */
+function elegirEtapa(id: string) { sel.value = null; emit('etapa', props.etapa === id ? null : id) }
+const etapaTxt = computed(() => { const l = lineas.value.find((x) => x.id === props.etapa); return l ? `${l.id} · ${txtCaso(l.tratamiento, props.lang).split(' (')[0]}` : '' })
 // Con el dedo, símbolos a 14-16 px no se aciertan (lo midió `diseno`): anterior/siguiente de 44 px.
 function mover(d: 1 | -1) {
   const lista = eventos.value
@@ -91,10 +100,12 @@ const elegido = computed(() => (props.cabezal != null ? eventos.value[eventos.va
         <line :x1="tk.x" :x2="tk.x" :y1="Y_EJE + 3" :y2="H" :class="tk.anio ? 'lt__rej-anio' : 'lt__rej'" />
         <text :x="tk.x + 3" :y="Y_EJE" :class="['lt__tick', { 'lt__tick--anio': tk.anio }]">{{ tk.txt }}</text>
       </g>
-      <g v-for="l in lineas" :key="l.id">
+      <g v-for="l in lineas" :key="l.id" :class="{ 'lt__lin': !l.rt && !compacta }" :tabindex="l.rt || compacta ? undefined : 0" :role="l.rt || compacta ? undefined : 'button'"
+         :aria-pressed="l.rt || compacta ? undefined : etapa === l.id" :aria-label="l.rt || compacta ? undefined : `${l.id}: ${txtCaso(l.tratamiento, lang)}. ${L('Resaltar en las analíticas', 'Highlight on the charts')}`"
+         @click="!l.rt && !compacta && elegirEtapa(l.id)" @keydown.enter.prevent="!l.rt && !compacta && elegirEtapa(l.id)" @keydown.space.prevent="!l.rt && !compacta && elegirEtapa(l.id)">
         <title>{{ l.id }} · {{ txtCaso(l.tratamiento, lang) }}{{ l.motivo_fin ? ` → ${txtCaso(l.motivo_fin, lang)}` : '' }}</title>
         <rect :x="l.x" :y="l.rt ? Y_RT : Y_LIN" :width="l.w" :height="l.rt ? 8 : 20" rx="3"
-              :class="['lt__linea', 'lt__crece', { 'lt__linea--rt': l.rt, 'lt__linea--futura': l.futura }]"
+              :class="['lt__linea', 'lt__crece', { 'lt__linea--rt': l.rt, 'lt__linea--futura': l.futura, 'lt__linea--sel': etapa === l.id }]"
               :style="{ animationDelay: `${Math.round((l.x / W) * 900)}ms` }" />
         <text v-if="!l.rt && l.w > 22" :x="l.x + 5" :y="Y_LIN + 14" class="lt__linea-txt">{{ l.id }}</text>
       </g>
@@ -102,20 +113,23 @@ const elegido = computed(() => (props.cabezal != null ? eventos.value[eventos.va
       <line v-if="cabezal != null" :x1="X(cabezal)" :x2="X(cabezal)" :y1="0" :y2="H" class="lt__cabezal" />
       <g v-for="e in eventos" :key="e.id" class="lt__ev" tabindex="0" role="button" :style="{ animationDelay: `${300 + Math.round((e.x / W) * 1100)}ms` }"
          :aria-label="`${e.fecha_texto}: ${txtCaso(e.titulo, lang)}`" :aria-pressed="sel === e.id"
-         @click="sel = sel === e.id ? null : e.id" @keydown.enter.prevent="sel = e.id" @keydown.space.prevent="sel = e.id">
+         @click="sel = sel === e.id ? null : e.id; emit('etapa', null)" @keydown.enter.prevent="sel = e.id" @keydown.space.prevent="sel = e.id">
         <rect v-if="!e.puntual" :x="e.xa" :y="e.y - 2" :width="Math.max(2, e.xb - e.xa)" height="4" class="lt__franja" />
         <rect :x="e.x - 11" :y="e.y - 11" width="22" height="22" fill="transparent" />
         <path :d="pathForma(FORMA[e.clase ?? ''] ?? 'circulo', e.x, e.y, 5)"
               :class="['lt__glifo', { 'lt__glifo--fuerte': e.clase === 'progresion' || e.clase === 'diagnostico', 'lt__glifo--sel': sel === e.id }]" />
       </g>
     </svg>
-    <div class="lt__nav">
-      <button type="button" class="lt__paso" :aria-label="L('Evento anterior', 'Previous event')" :disabled="cabezal != null" @click="mover(-1)">‹</button>
-      <figcaption class="lt__pie" aria-live="polite">
+    <div class="lt__nav" :class="{ 'lt__nav--compacta': compacta }">
+      <button v-if="!compacta" type="button" class="lt__paso" :aria-label="L('Evento anterior', 'Previous event')" :disabled="cabezal != null" @click="mover(-1)">‹</button>
+      <figcaption class="lt__pie" :aria-live="compacta ? 'off' : 'polite'">
         <template v-if="elegido"><strong class="nums">{{ elegido.fecha_texto }}</strong> · {{ txtCaso(elegido.titulo, lang) }}</template>
-        <template v-else>{{ L('Toca un símbolo o usa las flechas para ver qué pasó.', 'Tap a symbol or use the arrows to see what happened.') }}</template>
+        <!-- dos líneas como mucho: el pie reserva ese alto y lo de debajo no salta (el texto entero va en el aria-label de la barra) -->
+        <span v-else-if="etapaTxt" class="lt__etapa">{{ etapaTxt }}</span>
+        <!-- en compacta no hay flechas ni hace falta tocar: el pie se queda en blanco hasta el primer evento -->
+        <template v-else-if="!compacta">{{ L('Toca un símbolo o usa las flechas para ver qué pasó.', 'Tap a symbol or use the arrows to see what happened.') }}</template>
       </figcaption>
-      <button type="button" class="lt__paso" :aria-label="L('Evento siguiente', 'Next event')" :disabled="cabezal != null" @click="mover(1)">›</button>
+      <button v-if="!compacta" type="button" class="lt__paso" :aria-label="L('Evento siguiente', 'Next event')" :disabled="cabezal != null" @click="mover(1)">›</button>
     </div>
     <p class="lt__ley">
       <span><svg width="14" height="12" aria-hidden="true"><path :d="pathForma('estrella', 7, 6, 4.5)" class="lt__glifo lt__glifo--fuerte" /></svg>{{ L('diagnóstico', 'diagnosis') }}</span>
@@ -138,6 +152,9 @@ const elegido = computed(() => (props.cabezal != null ? eventos.value[eventos.va
 .lt__linea { fill: var(--viz-sev-2); stroke: var(--color-text); stroke-opacity: 0.8; }
 .lt__linea--rt { fill: var(--viz-sev-4); stroke: none; }
 .lt__linea--futura { fill: none; stroke-dasharray: 4 3; stroke-opacity: 0.8; }
+.lt__lin { cursor: pointer; outline: none; }
+.lt__linea--sel { stroke: var(--color-miriam); stroke-opacity: 1; stroke-width: 2.5; }
+.lt__lin:focus-visible .lt__linea { stroke: var(--color-miriam); stroke-opacity: 1; stroke-width: 2.5; }
 .lt__linea-txt { font: 700 11px var(--font-mono); fill: var(--color-text); pointer-events: none; }
 .lt__hoy { stroke: var(--color-miriam); stroke-width: 1.5; }
 .lt__cabezal { stroke: var(--color-miriam); stroke-width: 2.5; }
@@ -163,6 +180,8 @@ const elegido = computed(() => (props.cabezal != null ? eventos.value[eventos.va
 .lt__paso:disabled { opacity: 0.35; }
 .lt__paso:focus-visible { outline: 2px solid var(--color-miriam); outline-offset: 2px; }
 .lt__pie { flex: 1; font: 400 14px/1.4 var(--font-body); color: var(--color-text); margin: 0; min-height: 2.8em; display: flex; align-items: center; }
+.lt__nav--compacta .lt__pie { display: block; min-height: 1.4em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 13px; }
+.lt__etapa { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; line-clamp: 2; overflow: hidden; }
 .lt__ley { display: flex; flex-wrap: wrap; gap: 4px 12px; font: 400 12px var(--font-body); color: var(--color-text-soft); margin: 4px 0 0; }
 .lt__ley span { display: inline-flex; align-items: center; gap: 4px; }
 </style>

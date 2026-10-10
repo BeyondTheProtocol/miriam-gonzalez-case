@@ -34,6 +34,52 @@ export function useQuieto(_el?: Ref<HTMLElement | null>, _umbral?: number) {
   return { armado: ref(false), visto: ref(false) }
 }
 
+/**
+ * useEntradaViva — los gráficos de /datos se dibujan al entrar en pantalla, pero SOLO la primera
+ * vez que alguien abre la página en esa sesión (Miriam, 10-oct-2026: «quiero que sea dinámico para
+ * la gente que entra»; comité `diseno`: primera visita sí, el resto quieto). Matiza la decisión del
+ * 26-sep (`useQuieto`), no la deroga: al volver a la página, al recargar, al cambiar de pestaña de
+ * analíticas, con la pestaña oculta o con «movimiento reducido», todo se ve en su estado final.
+ *
+ * Qué NO pasa por aquí: las cuatro cifras de «Hoy» (se leen de un vistazo, siguen con useQuieto) y
+ * cualquier número: lo que se anima es el trazo, nunca la cifra.
+ *
+ * La marca de «ya la vio» se escribe cuando arranca la primera animación, no antes: una recarga a
+ * medio cargar no deja a nadie sin su entrada ni gráficos a medio hacer. Los gráficos montados
+ * antes de esa marca conservan su entrada aunque se vean más abajo. Si sessionStorage falla, quieto.
+ */
+const CLAVE_VISTA = 'datos-entrada-vista'
+let enCola = 0
+export function useEntradaViva(el: Ref<HTMLElement | null>, umbral = 0.3, activa: () => boolean = () => true) {
+  const armado = ref(false)
+  const visto = ref(false)
+  let io: IntersectionObserver | null = null
+  let reserva: ReturnType<typeof setTimeout> | undefined
+  let turno: ReturnType<typeof setTimeout> | undefined
+  onMounted(() => {
+    let primera = false
+    try { primera = sessionStorage.getItem(CLAVE_VISTA) == null } catch { primera = false }
+    if (!primera || !activa() || !el.value || document.visibilityState === 'hidden'
+      || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
+    armado.value = true
+    const entra = () => {
+      io?.disconnect(); clearTimeout(reserva)
+      // varios gráficos que entran a la vez arrancan escalonados, 60 ms entre uno y otro
+      turno = setTimeout(() => {
+        visto.value = true
+        try { sessionStorage.setItem(CLAVE_VISTA, '1') } catch { /* sin almacenamiento: nada que recordar */ }
+      }, 60 * enCola++)
+      setTimeout(() => { enCola = 0 }, 400)
+    }
+    io = new IntersectionObserver((e) => { if (e[0]?.isIntersecting) entra() }, { threshold: umbral })
+    io.observe(el.value)
+    // red de seguridad corta: un dato escondido que nadie consigue ver es peor que uno sin entrada
+    reserva = setTimeout(entra, 3000)
+  })
+  onBeforeUnmount(() => { io?.disconnect(); clearTimeout(reserva); clearTimeout(turno) })
+  return { armado, visto }
+}
+
 /** Interpola 0→1 con frenada, durante `ms`, llamando a `cb` en cada fotograma. */
 export function tween(ms: number, cb: (f: number) => void) {
   // En una pestaña oculta requestAnimationFrame no corre: sin esto el gráfico se quedaría en su
