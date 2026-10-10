@@ -4,11 +4,11 @@
  *
  * Misma escala y mismas marcas que MiniSerie (▲▼ fuera de rango, banda del rango, 1× en modo
  * `lsn`), pero pensada para mirarla mientras el cabezal avanza: la línea se descubre hasta el
- * cabezal y una etiqueta va pegada al ÚLTIMO VALOR REAL, con su fecha.
+ * cabezal, un aro marca el ÚLTIMO VALOR REAL y la cabecera lo escribe con su fecha. (La etiqueta
+ * flotante sobre el punto se probó y tapaba el tramo más reciente: diseno, 10-oct-2026.)
  *
  * La cifra no se interpola nunca: es la del último punto de caso.json con fecha ≤ cabezal, y salta
- * de uno al siguiente. La línea llega solo hasta ese punto; cuando el cabezal alcanza un análisis
- * nuevo, el tramo que los une se descubre con una transición corta. `data-k`, `data-f` y `data-v` dejan que el test de cifras coteje lo
+ * de uno al siguiente. La línea llega solo hasta ese punto. `data-k`, `data-f` y `data-v` dejan que el test de cifras coteje lo
  * pintado contra caso.json.
  */
 import type { Analito, Contexto, Lang, Punto } from '~/utils/datosCaso'
@@ -29,9 +29,9 @@ const L = (es: string, en: string) => (props.lang === 'en' ? en : es)
 const caja = ref<HTMLElement | null>(null)
 const W = useAncho(caja)
 const recorte = useId()
-const H = 104
+const H = 88
 const X0 = EJE_IZQ
-const Y0 = 22
+const Y0 = 8
 const Y1 = H - 16
 const val = (p: Punto) => (props.modo === 'lsn' ? xlsn(p) : p.v)
 
@@ -76,9 +76,10 @@ const valorTxt = (p: Punto) => {
   const r = xlsn(p)
   return props.modo === 'lsn' && r != null ? `${base} · ${numCaso(Math.round(r * 10) / 10, props.lang)}×` : base
 }
-/** hasta dónde se ve la línea, en fracción del ancho: hasta el último análisis real, nunca hasta el
- *  cabezal. Un tramo dibujado más allá se leería como un valor que nadie midió. */
-const trazado = computed(() => (actual.value ? Math.min(1, (actual.value.x + 1) / W.value) : 0))
+/** hasta dónde se ve la línea (px): hasta el último análisis real, nunca hasta el cabezal. Un tramo
+ *  dibujado más allá se leería como un valor que nadie midió. Va como atributo `width` y sin
+ *  transición: sigue al dedo 1:1 al arrastrar y no depende de `transform` dentro de un clipPath. */
+const trazado = computed(() => (actual.value ? rc(actual.value.x + 1) : 0))
 const marca = (p: Punto) => (p.fuera === 'bajo' ? '▼ ' : p.fuera === 'alto' ? '▲ ' : p.fuera ? '◆ ' : '')
 </script>
 
@@ -87,16 +88,13 @@ const marca = (p: Punto) => (p.fuera === 'bajo' ? '▼ ' : p.fuera === 'alto' ? 
     <header class="ps__cab">
       <h3 class="ps__nombre">{{ nombre }}</h3>
       <p v-if="actual" class="ps__lee nums">
-        <span class="sr-only">{{ marca(actual.p) }}{{ valorTxt(actual.p) }}, </span>{{ fechaCorta(actual.p.f, lang) }}
+        <span class="ps__valor">{{ marca(actual.p) }}{{ valorTxt(actual.p) }}</span> · {{ fechaCorta(actual.p.f, lang) }}
       </p>
       <p v-else class="ps__lee">{{ L('aún sin análisis', 'no test yet') }}</p>
     </header>
     <div ref="caja" class="ps__caja">
-      <DatosTip v-if="actual" :x="actual.x" :y="actual.y" :ancho="W" :alto="Y1" :izq="X0">
-        <span class="tip__v ps__valor">{{ marca(actual.p) }}{{ valorTxt(actual.p) }}</span>
-      </DatosTip>
       <svg :viewBox="`0 0 ${W} ${H}`" :width="W" :height="H" class="ps__svg" aria-hidden="true">
-        <defs><clipPath :id="recorte"><rect class="ps__recorte" x="0" y="0" :width="W" :height="H" :style="{ transform: `scaleX(${trazado})` }" /></clipPath></defs>
+        <defs><clipPath :id="recorte"><rect x="0" y="0" :width="trazado" :height="H" /></clipPath></defs>
         <rect v-for="b in geo.bandas" :key="b.id" :x="b.x" :y="Y0" :width="b.w" :height="Y1 - Y0" class="ps__banda-linea" />
         <rect v-if="geo.banda" :x="X0" :y="geo.banda.y0" :width="W - 6 - X0" :height="Math.max(1, geo.banda.y1 - geo.banda.y0)" class="ps__rango" />
         <line :x1="X0" :x2="W - 6" :y1="Y1" :y2="Y1" class="ps__eje" />
@@ -121,10 +119,10 @@ const marca = (p: Punto) => (p.fuera === 'bajo' ? '▼ ' : p.fuera === 'alto' ? 
 .ps { padding: 8px 0 2px; border-top: 1px solid rgb(var(--color-text-rgb) / 0.08); }
 .ps__cab { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
 .ps__nombre { font: 700 14px/1.25 var(--font-body); color: var(--color-text); margin: 0; }
-.ps__lee { font: 400 12px var(--font-body); color: var(--color-text-soft); margin: 0; }
+.ps__lee { font: 400 12px var(--font-body); color: var(--color-text-soft); margin: 0; text-align: right; }
 .ps__caja { position: relative; }
 .ps__svg { display: block; }
-.ps__valor { white-space: nowrap; }
+.ps__valor { font: 700 13px var(--font-mono); color: var(--color-text); white-space: nowrap; }
 .ps__banda-linea { fill: var(--color-miriam); fill-opacity: 0.05; }
 .ps__rango { fill: var(--color-text); fill-opacity: 0.09; }
 .ps__eje { stroke: var(--viz-eje); }
@@ -135,7 +133,5 @@ const marca = (p: Punto) => (p.fuera === 'bajo' ? '▼ ' : p.fuera === 'alto' ? 
 .ps__fuera { fill: var(--color-miriam); stroke: var(--color-text); stroke-width: 0.7; }
 .ps__marcado { fill: var(--color-bg); stroke: var(--color-miriam); stroke-width: 1.5; }
 .ps__ahora { fill: var(--color-bg); stroke: var(--color-miriam); stroke-width: 2.5; }
-.ps__recorte { transform-origin: 0 0; transition: transform var(--dur-transicion) var(--curva-salida); }
-@media (prefers-reduced-motion: reduce) { .ps__recorte { transition: none; } }
 .ps__cabezal { stroke: var(--color-miriam); stroke-width: 1.5; }
 </style>

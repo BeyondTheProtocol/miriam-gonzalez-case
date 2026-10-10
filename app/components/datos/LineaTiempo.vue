@@ -9,7 +9,9 @@
 import type { Evento, Forma, Lang, Texto } from '~/utils/datosCaso'
 
 interface Linea { id: string; tratamiento: Texto; inicio: string; fin: string | null; motivo_fin?: Texto | null }
-const props = defineProps<{ eventos: Evento[]; lineas: Linea[]; desde: number; hasta: number; hoy: string; lang: Lang; cabezal?: number | null }>()
+const props = defineProps<{ eventos: Evento[]; lineas: Linea[]; desde: number; hasta: number; hoy: string; lang: Lang; cabezal?: number | null
+  /** dentro de «El caso en el tiempo»: sin los botones ‹ › (allí manda el reloj) y con el pie en una línea */
+  compacta?: boolean }>()
 const L = (es: string, en: string) => (props.lang === 'en' ? en : es)
 
 const caja = ref<HTMLElement | null>(null)
@@ -109,13 +111,13 @@ const elegido = computed(() => (props.cabezal != null ? eventos.value[eventos.va
               :class="['lt__glifo', { 'lt__glifo--fuerte': e.clase === 'progresion' || e.clase === 'diagnostico', 'lt__glifo--sel': sel === e.id }]" />
       </g>
     </svg>
-    <div class="lt__nav">
-      <button type="button" class="lt__paso" :aria-label="L('Evento anterior', 'Previous event')" :disabled="cabezal != null" @click="mover(-1)">‹</button>
-      <figcaption class="lt__pie" aria-live="polite">
+    <div class="lt__nav" :class="{ 'lt__nav--compacta': compacta }">
+      <button v-if="!compacta" type="button" class="lt__paso" :aria-label="L('Evento anterior', 'Previous event')" :disabled="cabezal != null" @click="mover(-1)">‹</button>
+      <figcaption class="lt__pie" :aria-live="compacta ? 'off' : 'polite'">
         <template v-if="elegido"><strong class="nums">{{ elegido.fecha_texto }}</strong> · {{ txtCaso(elegido.titulo, lang) }}</template>
         <template v-else>{{ L('Toca un símbolo o usa las flechas para ver qué pasó.', 'Tap a symbol or use the arrows to see what happened.') }}</template>
       </figcaption>
-      <button type="button" class="lt__paso" :aria-label="L('Evento siguiente', 'Next event')" :disabled="cabezal != null" @click="mover(1)">›</button>
+      <button v-if="!compacta" type="button" class="lt__paso" :aria-label="L('Evento siguiente', 'Next event')" :disabled="cabezal != null" @click="mover(1)">›</button>
     </div>
     <p class="lt__ley">
       <span><svg width="14" height="12" aria-hidden="true"><path :d="pathForma('estrella', 7, 6, 4.5)" class="lt__glifo lt__glifo--fuerte" /></svg>{{ L('diagnóstico', 'diagnosis') }}</span>
@@ -163,6 +165,7 @@ const elegido = computed(() => (props.cabezal != null ? eventos.value[eventos.va
 .lt__paso:disabled { opacity: 0.35; }
 .lt__paso:focus-visible { outline: 2px solid var(--color-miriam); outline-offset: 2px; }
 .lt__pie { flex: 1; font: 400 14px/1.4 var(--font-body); color: var(--color-text); margin: 0; min-height: 2.8em; display: flex; align-items: center; }
+.lt__nav--compacta .lt__pie { display: block; min-height: 1.4em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 13px; }
 .lt__ley { display: flex; flex-wrap: wrap; gap: 4px 12px; font: 400 12px var(--font-body); color: var(--color-text-soft); margin: 4px 0 0; }
 .lt__ley span { display: inline-flex; align-items: center; gap: 4px; }
 </style>

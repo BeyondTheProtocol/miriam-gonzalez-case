@@ -11,8 +11,8 @@
  *    página lo abre con ?peli=1).
  *  · Se abre en pausa. Sin autoplay y sin sonido.
  *  · La barra es un <input type="range">: arrastre, teclado y lector de pantalla sin inventar nada.
- *  · Teclado: Espacio reproduce o pausa; ← → mueven una semana; RePág/AvPág cambian de capítulo;
- *    Inicio/Fin van a los extremos.
+ *  · Teclado, con el foco en la barra: Espacio reproduce o pausa; ← → mueven una semana;
+ *    RePág/AvPág cambian de etapa; Inicio/Fin van a los extremos.
  *  · `window.__peli.seek('AAAA-MM-DD')` coloca el cabezal en un día: lo usan el test de cifras
  *    (scripts/test-cifras-datos.mjs) y la grabación del vídeo.
  */
@@ -61,7 +61,11 @@ const iso = computed(() => new Date(cabezal.value).toISOString().slice(0, 10))
 const capTxt = computed(() => (capitulo.value < 0 ? L('Antes del diagnóstico', 'Before diagnosis') : capitulos.value[capitulo.value]!.nombre))
 const nDias = Math.round((hoyMs - props.desde) / DIA_MS)
 const diaIdx = computed(() => Math.round((cabezal.value - props.desde) / DIA_MS))
-const marcas = computed(() => capitulos.value.filter((c) => c.t > props.desde && c.t < hoyMs).map((c) => ({ k: c.k, pct: ((c.t - props.desde) / (hoyMs - props.desde)) * 100 })))
+/* marcas de etapa sobre la barra. Dos a menos de un 3 % se leen como una sola raya: se dibuja la posterior */
+const marcas = computed(() => {
+  const ms = capitulos.value.filter((c) => c.t > props.desde && c.t < hoyMs).map((c) => ({ k: c.k, pct: ((c.t - props.desde) / (hoyMs - props.desde)) * 100 }))
+  return ms.filter((m, i) => !ms[i + 1] || ms[i + 1]!.pct - m.pct >= 3)
+})
 
 const dlg = ref<HTMLDialogElement | null>(null)
 const play = ref<HTMLButtonElement | null>(null)
@@ -69,9 +73,13 @@ function alBarra(ev: Event) { peli.pausar(); peli.seek(props.desde + Number((ev.
 function tecla(ev: KeyboardEvent) {
   const el = ev.target as HTMLElement
   const enBarra = el.tagName === 'INPUT'
-  if (ev.key === ' ' && el.tagName !== 'BUTTON') { ev.preventDefault(); peli.reproducir() }
-  else if (ev.key === 'PageDown') { ev.preventDefault(); peli.irCapitulo(1) }
-  else if (ev.key === 'PageUp') { ev.preventDefault(); peli.irCapitulo(-1) }
+  // Espacio reproduce solo desde la barra, la escena o el propio diálogo: un botón o un evento de la
+  // línea de tiempo (role=button) se quedan con su Espacio. RePág/AvPág cambian de etapa solo en la
+  // barra (en un slider ya son «salto grande»); en la escena siguen desplazando.
+  const libre = enBarra || el === dlg.value || el.classList.contains('pl__escena')
+  if (ev.key === ' ' && libre) { ev.preventDefault(); peli.reproducir() }
+  else if (enBarra && ev.key === 'PageDown') { ev.preventDefault(); peli.irCapitulo(1) }
+  else if (enBarra && ev.key === 'PageUp') { ev.preventDefault(); peli.irCapitulo(-1) }
   else if (enBarra && (ev.key === 'ArrowRight' || ev.key === 'ArrowUp')) { ev.preventDefault(); peli.pausar(); peli.seek(cabezal.value + 7 * DIA_MS) }
   else if (enBarra && (ev.key === 'ArrowLeft' || ev.key === 'ArrowDown')) { ev.preventDefault(); peli.pausar(); peli.seek(cabezal.value - 7 * DIA_MS) }
 }
@@ -119,12 +127,12 @@ onBeforeUnmount(() => clearTimeout(aviso))
         </button>
       </header>
 
-      <div class="pl__escena">
+      <div class="pl__escena" tabindex="0" role="region" :aria-label="L('Gráficos', 'Charts')">
         <div class="pl__reloj-fila">
           <p class="pl__reloj nums" aria-live="off">{{ fechaCorta(iso, lang) }}</p>
-          <p class="pl__cap" aria-live="polite">{{ capTxt }}</p>
+          <p class="pl__cap" aria-live="polite" :title="capTxt">{{ capTxt }}</p>
         </div>
-        <DatosLineaTiempo :eventos="eventos" :lineas="lineas" :desde="desde" :hasta="hasta" :hoy="hoy" :lang="lang" :cabezal="cabezal" />
+        <DatosLineaTiempo :eventos="eventos" :lineas="lineas" :desde="desde" :hasta="hasta" :hoy="hoy" :lang="lang" :cabezal="cabezal" compacta />
         <DatosPeliSerie v-for="s in series" :key="s.a.key" :a="s.a" :nombre="s.nombre" :modo="s.modo"
                         :desde="desde" :hasta="hasta" :cabezal="cabezal" :contexto="contexto" :lang="lang" />
         <p class="pl__pie">
@@ -135,7 +143,7 @@ onBeforeUnmount(() => clearTimeout(aviso))
 
       <footer class="pl__ctl">
         <div class="pl__barra-caja">
-          <span v-for="m in marcas" :key="m.k" class="pl__marca" :style="{ left: `${m.pct}%` }" aria-hidden="true" />
+          <span v-for="m in marcas" :key="m.k" class="pl__marca" :style="{ left: `calc(10px + (100% - 20px) * ${m.pct / 100})` }" aria-hidden="true" />
           <input type="range" class="pl__barra" min="0" :max="nDias" step="1" :value="diaIdx"
                  :aria-label="L('Fecha mostrada', 'Date shown')" :aria-valuetext="`${fechaCorta(iso, lang)}, ${capTxt}`" @input="alBarra">
         </div>
@@ -170,14 +178,22 @@ onBeforeUnmount(() => clearTimeout(aviso))
 .pl__x { flex: none; width: 44px; height: 44px; display: grid; place-items: center; border-radius: 999px;
   border: 1px solid rgb(var(--color-text-rgb) / 0.2); color: var(--color-text); }
 .pl__escena { flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior: contain; padding-bottom: 8px; }
-.pl__reloj-fila { display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 14px; margin: 2px 0 8px; }
-.pl__reloj { font: var(--tipo-cifra); font-size: clamp(30px, 9vw, 52px); letter-spacing: var(--track-cifra); color: var(--color-miriam); margin: 0; }
-.pl__cap { font: 600 14px/1.3 var(--font-body); color: var(--color-text); margin: 0; }
+/* alto fijo: el nombre de la etapa cambia de largo (de «Hoy» a un tratamiento entero) y sin esto todo
+   lo de debajo saltaba hasta 37 px durante la reproducción (diseno, 10-oct-2026) */
+.pl__reloj-fila { margin: 2px 0 6px; }
+.pl__reloj { font: var(--tipo-cifra); font-size: clamp(30px, 9vw, 52px); line-height: 1.1; letter-spacing: var(--track-cifra); color: var(--color-miriam); margin: 0; }
+.pl__cap { font: 600 14px/1.3 var(--font-body); color: var(--color-text); margin: 0; min-height: 1.3em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.pl__escena:focus-visible { outline: 2px solid var(--color-miriam); outline-offset: -2px; border-radius: 6px; }
 .pl__pie { font: 400 12px/1.5 var(--font-body); color: var(--color-text-soft); margin: 8px 0 0; }
 .pl__ctl { flex: none; padding: 6px 0 10px; border-top: 1px solid rgb(var(--color-text-rgb) / 0.1); background: var(--color-bg); }
 .pl__barra-caja { position: relative; height: 44px; display: flex; align-items: center; }
-.pl__barra { width: 100%; height: 44px; margin: 0; accent-color: var(--color-miriam); touch-action: pan-y; cursor: pointer; }
-.pl__marca { position: absolute; top: 9px; width: 2px; height: 8px; margin-left: -1px; background: var(--color-text); opacity: 0.45; pointer-events: none; }
+/* pulgar propio de 20 px: así las marcas de etapa caen donde cae el pulgar (el nativo mide distinto en cada navegador) */
+.pl__barra { -webkit-appearance: none; appearance: none; width: 100%; height: 44px; margin: 0; background: transparent; touch-action: pan-y; cursor: pointer; }
+.pl__barra::-webkit-slider-runnable-track { height: 6px; border-radius: 999px; background: rgb(var(--color-text-rgb) / 0.22); }
+.pl__barra::-moz-range-track { height: 6px; border-radius: 999px; background: rgb(var(--color-text-rgb) / 0.22); }
+.pl__barra::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 20px; height: 20px; margin-top: -7px; border-radius: 50%; border: 0; background: var(--color-miriam); }
+.pl__barra::-moz-range-thumb { width: 20px; height: 20px; border-radius: 50%; border: 0; background: var(--color-miriam); }
+.pl__marca { position: absolute; top: 4px; width: 2px; height: 12px; margin-left: -1px; background: var(--color-text-soft); pointer-events: none; }
 .pl__botones { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
 .pl__play { display: inline-flex; align-items: center; gap: 8px; min-height: 48px; padding: 0 20px; border-radius: 999px;
   background: var(--color-miriam); color: #fff; font: 700 15px var(--font-body); }
@@ -188,6 +204,8 @@ onBeforeUnmount(() => clearTimeout(aviso))
 .pl__ver { min-height: 44px; padding: 0 6px; font: 600 13.5px var(--font-body); color: var(--color-miriam); }
 .pl__play, .pl__paso, .pl__vel, .pl__x { transition: transform var(--dur-micro) var(--curva-salida); }
 .pl__play:active, .pl__paso:active, .pl__vel:active, .pl__x:active { transform: scale(0.96); }
+.pl__ver:active { transform: scale(0.97); }
+.pl__play, .pl__paso, .pl__vel, .pl__x, .pl__ver { user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; touch-action: manipulation; }
 .pl__play:focus-visible { outline: 2px solid var(--color-text); outline-offset: 2px; }
 .pl__paso:focus-visible, .pl__vel:focus-visible, .pl__x:focus-visible, .pl__ver:focus-visible, .pl__barra:focus-visible { outline: 2px solid var(--color-miriam); outline-offset: 2px; }
 @media (prefers-reduced-motion: no-preference) {

@@ -685,7 +685,7 @@ const n = (v: number) => numCaso(v, lang.value)
           <div class="dt-controles">
             <button type="button" class="dt-play" aria-haspopup="dialog" @click="abrirPeli">
               <Icon name="ph:film-strip-fill" class="w-4 h-4" aria-hidden="true" />
-              {{ L('Ver el recorrido', 'Play it through') }}
+              {{ L('Ver el caso en el tiempo', 'See the case over time') }}
             </button>
           </div>
         </section>
