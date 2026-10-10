@@ -70,6 +70,19 @@ const marcas = computed(() => {
 const dlg = ref<HTMLDialogElement | null>(null)
 const play = ref<HTMLButtonElement | null>(null)
 function alBarra(ev: Event) { peli.pausar(); peli.seek(props.desde + Number((ev.target as HTMLInputElement).value) * DIA_MS) }
+/* Safari de iOS solo mueve un <input type="range"> si el dedo empieza SOBRE el pulgar (visto en el
+   simulador de iPhone 17, 10-oct-2026): tocar o arrastrar desde cualquier otro punto de la barra no
+   hacía nada. La caja recoge el puntero y coloca el cabezal; el input sigue ahí para teclado y lector. */
+const PULGAR = 20
+let arrastrando = false
+function aPuntero(ev: PointerEvent) {
+  const r = (ev.currentTarget as HTMLElement).getBoundingClientRect()
+  const f = Math.min(1, Math.max(0, (ev.clientX - r.left - PULGAR / 2) / Math.max(1, r.width - PULGAR)))
+  peli.pausar(); peli.seek(props.desde + Math.round(f * nDias) * DIA_MS)
+}
+function barraAbajo(ev: PointerEvent) { arrastrando = true; (ev.currentTarget as HTMLElement).setPointerCapture?.(ev.pointerId); aPuntero(ev) }
+function barraMueve(ev: PointerEvent) { if (arrastrando) aPuntero(ev) }
+function barraArriba() { arrastrando = false }
 function tecla(ev: KeyboardEvent) {
   const el = ev.target as HTMLElement
   const enBarra = el.tagName === 'INPUT'
@@ -142,7 +155,7 @@ onBeforeUnmount(() => clearTimeout(aviso))
       </div>
 
       <footer class="pl__ctl">
-        <div class="pl__barra-caja">
+        <div class="pl__barra-caja" @pointerdown="barraAbajo" @pointermove="barraMueve" @pointerup="barraArriba" @pointercancel="barraArriba">
           <span v-for="m in marcas" :key="m.k" class="pl__marca" :style="{ left: `calc(10px + (100% - 20px) * ${m.pct / 100})` }" aria-hidden="true" />
           <input type="range" class="pl__barra" min="0" :max="nDias" step="1" :value="diaIdx"
                  :aria-label="L('Fecha mostrada', 'Date shown')" :aria-valuetext="`${fechaCorta(iso, lang)}, ${capTxt}`" @input="alBarra">
@@ -186,9 +199,9 @@ onBeforeUnmount(() => clearTimeout(aviso))
 .pl__escena:focus-visible { outline: 2px solid var(--color-miriam); outline-offset: -2px; border-radius: 6px; }
 .pl__pie { font: 400 12px/1.5 var(--font-body); color: var(--color-text-soft); margin: 8px 0 0; }
 .pl__ctl { flex: none; padding: 6px 0 10px; border-top: 1px solid rgb(var(--color-text-rgb) / 0.1); background: var(--color-bg); }
-.pl__barra-caja { position: relative; height: 44px; display: flex; align-items: center; }
+.pl__barra-caja { position: relative; height: 44px; display: flex; align-items: center; touch-action: none; cursor: pointer; }
 /* pulgar propio de 20 px: así las marcas de etapa caen donde cae el pulgar (el nativo mide distinto en cada navegador) */
-.pl__barra { -webkit-appearance: none; appearance: none; width: 100%; height: 44px; margin: 0; background: transparent; touch-action: pan-y; cursor: pointer; }
+.pl__barra { -webkit-appearance: none; appearance: none; width: 100%; height: 44px; margin: 0; background: transparent; touch-action: none; cursor: pointer; }
 .pl__barra::-webkit-slider-runnable-track { height: 6px; border-radius: 999px; background: rgb(var(--color-text-rgb) / 0.22); }
 .pl__barra::-moz-range-track { height: 6px; border-radius: 999px; background: rgb(var(--color-text-rgb) / 0.22); }
 .pl__barra::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 20px; height: 20px; margin-top: -7px; border-radius: 50%; border: 0; background: var(--color-miriam); }
