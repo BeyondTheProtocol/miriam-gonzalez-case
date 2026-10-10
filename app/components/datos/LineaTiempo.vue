@@ -115,7 +115,8 @@ const elegido = computed(() => (props.cabezal != null ? eventos.value[eventos.va
       <button v-if="!compacta" type="button" class="lt__paso" :aria-label="L('Evento anterior', 'Previous event')" :disabled="cabezal != null" @click="mover(-1)">‹</button>
       <figcaption class="lt__pie" :aria-live="compacta ? 'off' : 'polite'">
         <template v-if="elegido"><strong class="nums">{{ elegido.fecha_texto }}</strong> · {{ txtCaso(elegido.titulo, lang) }}</template>
-        <template v-else>{{ L('Toca un símbolo o usa las flechas para ver qué pasó.', 'Tap a symbol or use the arrows to see what happened.') }}</template>
+        <!-- en compacta no hay flechas ni hace falta tocar: el pie se queda en blanco hasta el primer evento -->
+        <template v-else-if="!compacta">{{ L('Toca un símbolo o usa las flechas para ver qué pasó.', 'Tap a symbol or use the arrows to see what happened.') }}</template>
       </figcaption>
       <button v-if="!compacta" type="button" class="lt__paso" :aria-label="L('Evento siguiente', 'Next event')" :disabled="cabezal != null" @click="mover(1)">›</button>
     </div>
