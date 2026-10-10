@@ -139,7 +139,9 @@ try {
     await nav.sleep(2600) // que termine la entrada de la primera visita, si la hubo
     await nav.evaluate(`document.querySelector('.ct__otra').click()`)
     const vistas = { mm: new Set(), ml: new Set(), les: new Set() }
-    for (let i = 0; i < 24; i++) {
+    // por reloj y no por número de vueltas: en una máquina cargada cada lectura tarda más y 24 vueltas
+    // podían quedarse cortas o largas respecto a los 1,8 s que dura el dibujo
+    for (const t0 = Date.now(); Date.now() - t0 < 2800;) {
       const d = await nav.evaluate(`[document.querySelector('.ct__cifra').textContent.trim(), document.querySelector('.ct__ml').textContent.trim(), document.querySelector('.ct__fecha').textContent.trim()]`)
       vistas.mm.add(d[0]); vistas.ml.add(d[1]); vistas.les.add((d[2].match(/· (\d+) /) ?? [])[1] ?? d[2])
       await nav.sleep(90)

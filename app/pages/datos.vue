@@ -118,6 +118,8 @@ const pCa = ultimo(ca); const pHb = ultimo(hb); const pAst = ultimo(ast); const 
 const ventana = ref<Ventana>('anio')
 const rango = computed(() => rangoVentana(ventana.value, hoyMs))
 const cursor = ref<string | null>(null)
+/** línea de tratamiento elegida al tocarla en la línea de tiempo: su banda se marca en cada analítica */
+const etapaSel = ref<string | null>(null)
 const contexto: Contexto = {
   progresiones: eventos.filter((e) => e.clase === 'progresion' && e.precision === 'dia').map((e) => msFecha(e.desde)),
   bandas: sistemicas.map((l) => {
@@ -577,7 +579,7 @@ const n = (v: number) => numCaso(v, lang.value)
             </button>
             <button type="button" class="dt-sonido" @click="parar()">{{ L('Parar', 'Stop') }}</button>
           </div>
-          <DatosLineaTiempo :eventos="eventos" :lineas="lineas" :desde="rango[0]" :hasta="rango[1]" :hoy="hoy" :lang="lang" :cabezal="cabezal" />
+          <DatosLineaTiempo :eventos="eventos" :lineas="lineas" :desde="rango[0]" :hasta="rango[1]" :hoy="hoy" :lang="lang" :cabezal="cabezal" :etapa="etapaSel" @etapa="etapaSel = $event" />
 
           <h3 class="dt-h3">{{ L('Analíticas', 'Labs') }}</h3>
           <p class="dt-nota">{{ L('Mismo eje que la línea de arriba. ▲▼ fuera de rango; ◆ marcado en el informe sin salirse del rango; 1× es el límite normal. Toca un gráfico y verás esa fecha en todos.',
@@ -595,7 +597,7 @@ const n = (v: number) => numCaso(v, lang.value)
               <summary>{{ L('Cada prueba en su gráfico', 'Each test on its own chart') }}</summary>
               <div class="dt-minis">
                 <DatosMiniSerie v-for="m in minis" :key="m.a!.key" :a="m.a!" :nombre="m.nombre" :modo="m.modo" :sin-banda="m.sinBanda"
-                                :desde="rango[0]" :hasta="rango[1]" :contexto="contexto" :cursor="cursor" :cabezal="cabezal" :lang="lang"
+                                :resalta="etapaSel" :desde="rango[0]" :hasta="rango[1]" :contexto="contexto" :cursor="cursor" :cabezal="cabezal" :lang="lang"
                                 @cursor="parar(); cursor = $event" />
               </div>
             </details>
@@ -603,14 +605,14 @@ const n = (v: number) => numCaso(v, lang.value)
           <template v-else>
           <div id="dt-minis" class="dt-minis" aria-live="polite">
             <DatosMiniSerie v-for="m in minisVista" :key="m.a!.key" :a="m.a!" :nombre="m.nombre" :modo="m.modo" :sin-banda="m.sinBanda"
-                            :desde="rango[0]" :hasta="rango[1]" :contexto="contexto" :cursor="cursor" :cabezal="cabezal" :lang="lang"
+                            :resalta="etapaSel" :desde="rango[0]" :hasta="rango[1]" :contexto="contexto" :cursor="cursor" :cabezal="cabezal" :lang="lang"
                             @cursor="parar(); cursor = $event" />
           </div>
           <details v-if="minisPlegados.length" :key="pestana" class="dt-det" :open="plegadosAbiertos" @toggle="plegadosAbiertos = ($event.target as HTMLDetailsElement).open">
             <summary>{{ L(`${minisPlegados.length} pruebas más: ${minisPlegados.map((m) => m.nombre).join(', ')}`, `${minisPlegados.length} more tests: ${minisPlegados.map((m) => m.nombre).join(', ')}`) }}</summary>
             <div class="dt-minis">
               <DatosMiniSerie v-for="m in minisPlegados" :key="m.a!.key" :a="m.a!" :nombre="m.nombre" :modo="m.modo" :sin-banda="m.sinBanda"
-                              :desde="rango[0]" :hasta="rango[1]" :contexto="contexto" :cursor="cursor" :cabezal="cabezal" :lang="lang"
+                              :resalta="etapaSel" :desde="rango[0]" :hasta="rango[1]" :contexto="contexto" :cursor="cursor" :cabezal="cabezal" :lang="lang"
                               @cursor="parar(); cursor = $event" />
             </div>
           </details>

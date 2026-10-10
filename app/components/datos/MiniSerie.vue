@@ -26,6 +26,8 @@ const props = defineProps<{
   cursor: string | null
   /** Reproducción: solo se dibuja lo ocurrido hasta este instante (ms), y se marca con una raya. */
   cabezal?: number | null
+  /** id de la línea de tratamiento elegida en la línea de tiempo: su banda se marca más */
+  resalta?: string | null
   lang: Lang
 }>()
 const emit = defineEmits<{ cursor: [f: string | null] }>()
@@ -172,7 +174,7 @@ const valorTxt = (p: Punto) => {
            :aria-valuetext="mostrado ? `${fechaCorta(mostrado.f, lang)}: ${valorTxt(mostrado)}` : L('sin dato ese día', 'no value that day')"
            @keydown="tecla" @pointerdown="empezar" @pointermove="arrastrar" @pointerup="soltar" @pointercancel="soltar"
            @pointerleave="hover = null" @focus="enfocado = true" @blur="enfocado = false">
-        <rect v-for="b in geo.bandas" :key="b.id" :x="b.x" :y="Y0" :width="b.w" :height="Y1 - Y0" class="ms__banda-linea" />
+        <rect v-for="b in geo.bandas" :key="b.id" :x="b.x" :y="Y0" :width="b.w" :height="Y1 - Y0" :class="['ms__banda-linea', { 'ms__banda-linea--on': resalta === b.id }]" />
         <rect v-if="geo.banda" :x="X0" :y="geo.banda.y0" :width="W - 6 - X0" :height="Math.max(1, geo.banda.y1 - geo.banda.y0)" class="ms__rango" />
         <line v-for="(x, i) in geo.progs" :key="`p${i}`" :x1="x" :x2="x" :y1="Y0" :y2="Y1" class="ms__prog" />
         <line v-for="an in geo.anios" :key="an.a" :x1="an.x" :x2="an.x" :y1="Y1" :y2="Y1 + 4" class="ms__eje" />
@@ -222,6 +224,9 @@ const valorTxt = (p: Punto) => {
 .ms__fecha { font: 400 11px var(--font-body); color: var(--color-text-soft); margin-left: 4px; }
 .ms__svg { display: block; margin-top: 4px; touch-action: pan-y; cursor: crosshair; }
 .ms__banda-linea { fill: var(--color-miriam); fill-opacity: 0.05; }
+.ms__banda-linea { transition: fill-opacity var(--dur-micro) var(--curva-salida); }
+.ms__banda-linea--on { fill-opacity: 0.2; }
+@media (prefers-reduced-motion: reduce) { .ms__banda-linea { transition: none; } }
 .ms__rango { fill: var(--color-text); fill-opacity: 0.09; }
 .ms__prog { stroke: var(--color-text); stroke-opacity: 0.4; stroke-dasharray: 3 3; }
 .ms__eje { stroke: var(--viz-eje); }
