@@ -4,3 +4,8 @@ allowBuilds:
   esbuild: false
   sharp: true
   vue-demi: true
+
+# Patched transitive versions; remove when upstream ranges include these fixes.
+overrides:
+  # fontless still requests esbuild 0.27 (GHSA-g7r4-m6w7-qqqr).
+  'esbuild@<0.28.1': '^0.28.1'
