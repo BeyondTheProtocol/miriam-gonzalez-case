@@ -14,6 +14,7 @@
         :to="localePath({ name: 'timeline' }) + '#lo-ultimo'"
         class="latest-bar__link group"
         :aria-label="`${$t('hero.latest_label')}: ${latest.title}`"
+        @click="trackLatest('barra')"
       >
         <span class="hero-live-dot h-2 w-2 shrink-0 rounded-full bg-coral" aria-hidden="true" />
         <span class="font-mono uppercase text-[11px] tracking-[0.16em] font-semibold text-coral-deep shrink-0">
@@ -37,6 +38,7 @@
 const localePath = useLocalePath()
 const route = useRoute()
 const { latest, latestAgo } = useLatestUpdate()
+const { trackLatest } = useSupport()
 
 // El home ya muestra "lo último" dentro del propio hero (SectionHero.vue,
 // misma fuente de datos vía useLatestUpdate). La propuesta 1 del comité

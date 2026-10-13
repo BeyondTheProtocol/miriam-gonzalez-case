@@ -80,6 +80,42 @@ export function useSupport() {
     trackUmami('VerLesiones', { location })
   }
 
+  // Entradas a /datos (teaser de la home, /lesiones, /links, pie): mismo patrón que VerMapa.
+  function trackDatos(origen: string) {
+    trackUmami('VerDatos', { origen })
+  }
+
+  // Clic en «Lo último» (señal de recencia): desde el hero de la home o desde la barra global.
+  function trackLatest(origen: 'hero' | 'barra') {
+    trackUmami('VerUltimo', { origen })
+  }
+
+  // Navegación principal (SiteNav, escritorio y móvil). `destino` es la clave del ítem
+  // (home, science, timeline…), no la ruta: así ES y EN suman en el mismo valor.
+  function trackNav(destino: string) {
+    trackUmami('Navegar', { destino })
+  }
+
+  // Tarjeta «Acabo de llegar» de VisitorPathways: no navega (abre el resumen en la misma
+  // página), así que sin evento propio era invisible.
+  function trackPathwayCurious() {
+    trackUmami('PathwayCurioso')
+  }
+
+  // Página 404: qué ruta se pidió. Solo el pathname (sin query ni hash, que pueden llevar
+  // datos) y recortado. El script de Umami es `defer` y puede no estar aún cuando monta la
+  // página de error, así que se reintenta unos segundos antes de rendirse.
+  function track404(ruta: string) {
+    if (!import.meta.client) return
+    const data = { ruta: ruta.slice(0, 200) }
+    let intentos = 0
+    const enviar = () => {
+      if ((window as unknown as { umami?: unknown }).umami) trackUmami('Error404', data)
+      else if (++intentos < 20) window.setTimeout(enviar, 250)
+    }
+    enviar()
+  }
+
   function trackShare(method: string, from?: string) {
     trackUmami('Compartir', {
       metodo: method,
@@ -106,5 +142,10 @@ export function useSupport() {
     trackBioLink,
     trackMapa,
     trackLesiones,
+    trackDatos,
+    trackLatest,
+    trackNav,
+    trackPathwayCurious,
+    track404,
   }
 }

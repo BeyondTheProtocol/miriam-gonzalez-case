@@ -3,7 +3,7 @@
     <a href="#main-content" class="skip-link" @click="focusMain">{{
       $t('nav.skip_to_content')
     }}</a>
-    <div class="sticky top-0 z-50">
+    <div class="sticky top-0 z-50" data-cabecera-fija>
       <LatestUpdateBar />
       <SiteNav />
     </div>

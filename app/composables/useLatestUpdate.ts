@@ -37,10 +37,18 @@ export function useLatestUpdate() {
     const d = new Date(s)
     return isNaN(+d) ? null : d
   }
+  // «hace N días» se calcula en el navegador, al hidratar. En el prerender `now` es null y
+  // no se pinta nada: el HTML estático llevaba horneado el número del día del build, que
+  // dejaba de ser verdad al día siguiente. Mejor vacío que un número falso.
+  const now = ref<number | null>(null)
+  onMounted(() => {
+    now.value = Date.now()
+  })
   const latestAgo = computed(() => {
+    if (now.value === null) return null
     const d = parseTimelineDate((latest.value as { date?: string } | null)?.date)
     if (!d) return null
-    const days = Math.floor((Date.now() - d.getTime()) / 86400000)
+    const days = Math.floor((now.value - d.getTime()) / 86400000)
     if (days < 0) return null
     if (days === 0) return t('hero.updated_today')
     if (days === 1) return t('hero.updated_ago_one')

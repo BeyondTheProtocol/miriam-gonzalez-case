@@ -56,7 +56,7 @@
           :target="link.external ? '_blank' : undefined"
           :rel="link.external ? 'noopener noreferrer' : undefined"
           class="bio-link bio-link--featured group"
-          @click="trackBioLink(link.id)"
+          @click="onBioLink(link.id)"
         >
           <span class="bio-link__icon" aria-hidden="true">
             <Icon :name="link.icon" class="w-5 h-5" />
@@ -88,7 +88,7 @@
           :rel="link.external ? 'noopener noreferrer' : undefined"
           class="bio-link bio-link--soft group"
           :data-support-cta="link.id === 'apoyar' ? '' : undefined"
-          @click="trackBioLink(link.id)"
+          @click="onBioLink(link.id)"
         >
           <span class="bio-link__icon bio-link__icon--soft" aria-hidden="true">
             <Icon :name="link.icon" class="w-5 h-5" />
@@ -123,7 +123,13 @@
 <script setup lang="ts">
 const { t } = useI18n()
 const localePath = useLocalePath()
-const { trackBioLink } = useSupport()
+const { trackBioLink, trackDatos } = useSupport()
+
+// «Bio-link» mide el hub; la entrada a /datos cuenta además en «VerDatos», con las demás.
+function onBioLink(id: string) {
+  trackBioLink(id)
+  if (id === 'datos') trackDatos('links')
+}
 
 // El Español — artículo del 19/06/2026 (enlace externo, propiedad del medio).
 const EL_ESPANOL_URL =

@@ -53,6 +53,7 @@
       <NuxtLink
         :to="localePath('datos')"
         class="inline-flex items-center min-h-[44px] mt-4 font-semibold text-berenjena underline underline-offset-4"
+        @click="trackDatos('home_teaser')"
       >
         {{ $t('mapaTeaser.datos') }} →
       </NuxtLink>
@@ -62,7 +63,7 @@
 
 <script setup lang="ts">
 const localePath = useLocalePath()
-const { trackLesiones } = useSupport()
+const { trackLesiones, trackDatos } = useSupport()
 
 // id único (no hardcodeado) por si el componente se montara más de una vez:
 // evita colisión de id entre el aria-labelledby de la sección y el h2.

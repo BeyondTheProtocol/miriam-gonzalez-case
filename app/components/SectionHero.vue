@@ -113,6 +113,7 @@
             v-if="latest"
             :to="localePath({ name: 'timeline' }) + '#lo-ultimo'"
             class="hero__latest group"
+            @click="trackLatest('hero')"
           >
             <span class="hero__latest-meta">
               <span class="hero-live-dot h-2 w-2 shrink-0 rounded-full bg-coral" aria-hidden="true" />
@@ -153,7 +154,7 @@
 <script setup lang="ts">
 const localePath = useLocalePath()
 const { locale, t } = useI18n()
-const { trackSupport, trackScience } = useSupport()
+const { trackSupport, trackScience, trackLatest } = useSupport()
 
 type GoFundMeFundraiser = import('../../utils/fundraiser').GoFundMeFundraiser
 const { data: gofundme, refresh: refreshFundraiser } = await useAsyncData<GoFundMeFundraiser | null>(

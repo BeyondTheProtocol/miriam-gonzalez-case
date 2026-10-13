@@ -33,6 +33,7 @@
           :to="localePath(item.to)"
           :class="navClass(item.to)"
           :aria-current="isActive(item.to) ? 'page' : undefined"
+          @click="trackNav(item.key)"
         >
           {{ $t(`nav.${item.key}`) }}
         </NuxtLink>
@@ -124,7 +125,7 @@
             :to="localePath(item.to)"
             :class="navClass(item.to)"
             :aria-current="isActive(item.to) ? 'page' : undefined"
-            @click="mobileOpen = false"
+            @click="onMobileNav(item.key)"
           >
             {{ $t(`nav.${item.key}`) }}
           </NuxtLink>
@@ -183,7 +184,7 @@ const { locale, setLocale } = useI18n()
 const localePath = useLocalePath()
 const route = useRoute()
 const { y } = useWindowScroll()
-const { trackSupport } = useSupport()
+const { trackSupport, trackNav } = useSupport()
 
 const headerRef = ref<HTMLElement | null>(null)
 const mobileOpen = ref(false)
@@ -222,6 +223,11 @@ function navClass(to: unknown): (string | undefined)[] {
       ? 'text-miriam underline decoration-2 decoration-miriam underline-offset-[6px]'
       : 'text-tinta',
   ]
+}
+
+function onMobileNav(key: string) {
+  trackNav(key)
+  mobileOpen.value = false
 }
 
 // Cambiar de idioma manualmente: setLocale escribe el cookie y navega, así la

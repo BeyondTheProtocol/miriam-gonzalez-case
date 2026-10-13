@@ -385,6 +385,7 @@
           <NuxtLink
             id="mapa-metastasis-link"
             :to="localePath('/mapa-metastasis')"
+            @click="trackMapa('ciencia')"
             class="group flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-3.5 rounded-2xl px-4 sm:px-5 py-4 transition-all active:scale-[0.99] sm:hover:-translate-y-0.5"
             style="background:rgba(232,212,237,0.30);text-decoration:none"
           >
@@ -783,7 +784,7 @@ const localePath = useLocalePath()
 const L = (es: string, en: string) => (locale.value === 'es' ? es : en)
 // Cierre de conversión: donación (llano) y financiación como nota (pro). Mismo
 // patrón que el resto del sitio; dispara el goal de apoyo con su ubicación.
-const { GOFUNDME_URL, trackSupport, trackScience } = useSupport()
+const { GOFUNDME_URL, trackSupport, trackScience, trackMapa } = useSupport()
 
 function printPage() {
   if (!import.meta.client) return

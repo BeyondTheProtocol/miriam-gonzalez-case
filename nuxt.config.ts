@@ -59,8 +59,17 @@ export default defineNuxtConfig({
   // ──────────────────────────────────────────────────────────────────────
   // /mapa-metastasis es público (herramienta de apoyo): entra en el sitemap.
   // Solo se excluye su export Markdown crudo (queda fuera de los exports de IA).
+  // Las páginas con `robots: noindex` tampoco van en el sitemap. Las españolas ya no salían;
+  // las inglesas sí, porque su ruta traducida no casaba con la exclusión automática.
   sitemap: {
-    exclude: ['/mapa-metastasis.md', '/en/mapa-metastasis.md'],
+    exclude: [
+      '/mapa-metastasis.md', '/en/mapa-metastasis.md',
+      '/contacto', '/en/contact',
+      '/gracias', '/en/thank-you',
+      '/aviso-legal', '/en/legal-notice',
+      '/privacidad', '/en/privacy',
+      '/cookies', '/en/cookies-policy',
+    ],
   },
 
   // El «sistema de diseño» es una página estática suelta (public/design-system/),

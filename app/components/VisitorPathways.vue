@@ -126,7 +126,7 @@ const props = withDefaults(
 
 const { t, tm, rt } = useI18n()
 const localePath = useLocalePath()
-const { GOFUNDME_URL, trackSupport, trackScience, trackPathway } = useSupport()
+const { GOFUNDME_URL, trackSupport, trackScience, trackPathway, trackPathwayCurious } = useSupport()
 
 // Resolvemos el COMPONENTE real NuxtLink (no la cadena 'NuxtLink'). Pasar el
 // string a <component :is> obliga a Vue a resolverlo por nombre en runtime, algo
@@ -199,6 +199,7 @@ const homePaths = computed<HomePath[]>(() => [
     external: true,
     linkProps: { href: '#pathway-brief' },
     onClick: () => {
+      trackPathwayCurious()
       const el = document.getElementById('pathway-brief')
       if (el && el.tagName === 'DETAILS') (el as HTMLDetailsElement).open = true
       el?.scrollIntoView({ behavior: 'smooth', block: 'start' })

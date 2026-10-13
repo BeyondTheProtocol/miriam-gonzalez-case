@@ -89,10 +89,11 @@
               <ul>
                 <TimelineEntry
                   v-for="entry in group.entries"
-                  :key="entry.date"
+                  :key="`${entry.date}|${entry.title}`"
                   :entry="entry"
-                  :live="entry.date === liveDate"
-                  :echo="echo && entry.date === liveDate"
+                  :anchor="entry === latestEntry"
+                  :live="entry === latestEntry && entry.highlight"
+                  :echo="echo && entry === latestEntry"
                 />
               </ul>
             </div>
@@ -221,11 +222,9 @@ const filtered = computed(() =>
     : orderedEntries.value.filter((e) => categoryForTag(e.tag) === selected.value)
 )
 
-// El hito más reciente (arriba del todo) late en vivo si es destacado.
-const liveDate = computed(() => {
-  const first = orderedEntries.value[0]
-  return first?.highlight ? first.date : null
-})
+// El hito más reciente (arriba del todo): lleva SIEMPRE el ancla #lo-ultimo, y además late
+// en vivo si es destacado. Se compara el objeto y no la fecha: hay hitos que comparten día.
+const latestEntry = computed(() => orderedEntries.value[0] ?? null)
 
 // Agrupar por año en orden de presentación (más reciente primero).
 const groups = computed(() => {

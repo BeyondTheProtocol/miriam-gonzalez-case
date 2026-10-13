@@ -44,8 +44,14 @@ jobs:
       # Privacidad: ninguna sigla de muestra (biopsia, bloque, revisión) en lo publicado.
       - run: pnpm test:siglas-muestra
 
+      # Lo que se rompe sin que nadie lo vea: el ancla #lo-ultimo de la cronología, el
+      # «hace N días» horneado en el HTML, y un sitemap con URLs que dan 404 o son noindex.
+      - run: pnpm test:salud-estatica
+
       # Estos no necesitan el build; van detrás porque el checkout ya está listo.
       - run: pnpm test:short-links
+      # La cronología vive en dos ficheros (timeline.yml y `eventos` de caso.json): que no diverjan.
+      - run: pnpm test:cronologia-caso
       - run: pnpm test:mapa-focos
       - run: pnpm test:mallas-3d
       - run: pnpm test:esqueleto-huesos
