@@ -1,4 +1,5 @@
 <template>
+  <!-- prueba del guardián de la web, 14-oct-2026: no fusionar -->
   <div ref="root" class="dna-divider" :class="{ 'dna-in': inView }" aria-hidden="true">
     <svg class="dna-svg" viewBox="0 0 240 24" width="240" height="24" fill="none">
       <!-- Peldaños (pares de bases) en los puntos de máxima separación -->
