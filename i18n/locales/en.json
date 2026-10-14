@@ -174,7 +174,7 @@
     "sky_cta_pre": "Don’t have yours yet?",
     "sky_cta": "Light your star",
     "sky_cta_note": "Your name appears on the map within the hour.",
-    "sky_a11y": "Decorative map: the constellation Cancer drawn with {n} stars, one per contribution, with the Beehive Cluster (M44) at its heart. Each one is listed in the table below.",
+    "sky_a11y": "Decorative map: the constellation Cancer drawn with {n} stars, each one a contribution, with the Beehive Cluster (M44) at its heart. Each one is listed in the table below.",
     "zoom_in": "Zoom in",
     "zoom_out": "Zoom out",
     "zoom_reset": "Reset view",

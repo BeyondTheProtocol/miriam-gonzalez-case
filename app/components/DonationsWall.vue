@@ -23,6 +23,7 @@
         ref="starMapRef"
         :donations="donations"
         :total="totalRaised"
+        :count="campaign?.donationCount"
         class="mb-6"
       />
 

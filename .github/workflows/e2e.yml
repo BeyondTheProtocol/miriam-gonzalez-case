@@ -54,6 +54,8 @@ jobs:
       - run: pnpm test:cronologia-caso
       # La sala de prensa se mantiene a mano: claves ES/EN en paralelo, citas = set aprobado, sin contador de campaña.
       - run: pnpm test:sala-prensa
+      # La frase de la constelación usa el total real de donantes, no la lista topada a 500.
+      - run: pnpm test:donantes-total
       - run: pnpm test:mapa-focos
       - run: pnpm test:mallas-3d
       - run: pnpm test:esqueleto-huesos
