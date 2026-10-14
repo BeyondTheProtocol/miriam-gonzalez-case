@@ -191,6 +191,14 @@ const supporters = [
   opacity: 0.8;
   transition: opacity 0.2s ease;
 }
+/* Objetivo táctil de 44 px en los logos que son enlace (Tahe, UCAM): el logo mide
+   30 px de alto; el padding agranda la zona pulsable y el margen negativo lo
+   compensa, así el muro no se mueve ni el logo crece (diseno, tras el PR #269). */
+a.logo-wall__item {
+  min-width: 44px;
+  padding-block: 0.45rem;
+  margin-block: -0.45rem;
+}
 a.logo-wall__item:hover .logo-wall__mark,
 a.logo-wall__item:focus-visible .logo-wall__mark {
   opacity: 1;

@@ -1237,6 +1237,7 @@
     display: inline-flex;
     align-items: center;
     gap: 0.45rem;
+    min-height: 44px; /* objetivo táctil (diseno, tras el PR #269): antes 40 px */
     padding: 0.55rem 0.85rem;
     border-radius: 999px;
     border: 1px solid rgb(var(--color-text-rgb) / 0.12);
