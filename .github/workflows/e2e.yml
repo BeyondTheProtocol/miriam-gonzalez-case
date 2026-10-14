@@ -52,6 +52,8 @@ jobs:
       - run: pnpm test:short-links
       # La cronología vive en dos ficheros (timeline.yml y `eventos` de caso.json): que no diverjan.
       - run: pnpm test:cronologia-caso
+      # La sala de prensa se mantiene a mano: claves ES/EN en paralelo, citas = set aprobado, sin contador de campaña.
+      - run: pnpm test:sala-prensa
       - run: pnpm test:mapa-focos
       - run: pnpm test:mallas-3d
       - run: pnpm test:esqueleto-huesos
