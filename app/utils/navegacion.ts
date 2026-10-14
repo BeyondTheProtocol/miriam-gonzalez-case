@@ -55,7 +55,8 @@ export const ICONO_HERRAMIENTA: Record<string, string> = {
   data: 'ph:chart-line-fill',
   lesions: 'ph:cube-fill',
   map: 'ph:map-pin-fill',
-  port: 'ph:syringe-fill',
+  // Un catéter que acaba en la cámara del port (diseno, 14-oct): una jeringa se leía como «inyección».
+  port: 'ph:path-fill',
   bone_biopsy: 'ph:microscope-fill',
 }
 

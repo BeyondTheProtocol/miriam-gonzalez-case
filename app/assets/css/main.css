@@ -1164,6 +1164,8 @@
     text-align: left;
     cursor: pointer;
     -webkit-tap-highlight-color: transparent;
+    /* el margen negativo acerca el anillo de foco al numeral: sin separación no lo roza (diseno, 14-oct) */
+    outline-offset: 0;
   }
   .pathway-card__toggle .pathway-card__title-icon {
     transform: none;
