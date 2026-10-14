@@ -44,34 +44,58 @@
           v-for="(path, i) in homePaths"
           :key="path.id"
           class="pathway-card"
-          :class="`pathway-card--${path.id}`"
+          :class="[`pathway-card--${path.id}`, { 'is-plegada': plegada(path.id) }]"
           role="listitem"
         >
           <div class="pathway-card__head">
             <span class="pathway-card__num" aria-hidden="true">{{ String(i + 1).padStart(2, '0') }}</span>
             <span class="pathway-card__time">{{ path.time }}</span>
           </div>
+          <!-- Móvil (< 640 px): las tarjetas se pliegan a su título para que los seis
+               caminos quepan de un vistazo y lo que viene detrás suba (dictamen `diseno`
+               tras el PR #269). El botón solo existe en móvil y su nombre es el propio
+               título: cero texto nuevo. Donar no se pliega nunca. -->
           <h3 class="pathway-card__title">
-            <Icon :name="path.icon" class="pathway-card__title-icon" aria-hidden="true" />
-            {{ path.title }}
-          </h3>
-          <p class="pathway-card__desc">{{ path.desc }}</p>
-          <ol class="pathway-card__steps" :aria-label="path.stepsAria">
-            <li v-for="(step, i) in path.steps" :key="i">{{ step }}</li>
-          </ol>
-          <div class="pathway-card__cta">
-            <component
-              :is="path.external ? 'a' : NuxtLink"
-              v-bind="path.linkProps"
-              :class="path.primary ? 'btn-cta w-full justify-center' : 'btn-secondary w-full justify-center'"
-              :style="path.external ? 'text-decoration: none' : undefined"
-              @click="path.onClick?.()"
+            <button
+              v-if="plegable && path.id !== 'supporter'"
+              type="button"
+              class="pathway-card__toggle"
+              :aria-expanded="abiertos.has(path.id)"
+              :aria-controls="`pathway-body-${path.id}`"
+              @click="alterna(path.id)"
             >
-              <Icon v-if="path.ctaIcon" :name="path.ctaIcon" class="w-4 h-4" aria-hidden="true" />
-              {{ path.cta }}
-              <span v-if="path.linkProps.target === '_blank'" class="sr-only"> {{ $t('a11y.new_tab') }}</span>
-            </component>
-            <p v-if="path.caption" class="pathway-card__caption">{{ path.caption }}</p>
+              <Icon :name="path.icon" class="pathway-card__title-icon" aria-hidden="true" />
+              <span class="min-w-0 flex-1">{{ path.title }}</span>
+              <Icon name="ph:caret-down" class="pathway-card__caret" aria-hidden="true" />
+            </button>
+            <template v-else>
+              <Icon :name="path.icon" class="pathway-card__title-icon" aria-hidden="true" />
+              {{ path.title }}
+            </template>
+          </h3>
+          <div
+            v-show="!plegada(path.id)"
+            :id="`pathway-body-${path.id}`"
+            class="pathway-card__body"
+          >
+            <p class="pathway-card__desc">{{ path.desc }}</p>
+            <ol class="pathway-card__steps" :aria-label="path.stepsAria">
+              <li v-for="(step, i) in path.steps" :key="i">{{ step }}</li>
+            </ol>
+            <div class="pathway-card__cta">
+              <component
+                :is="path.external ? 'a' : NuxtLink"
+                v-bind="path.linkProps"
+                :class="path.primary ? 'btn-cta w-full justify-center' : 'btn-secondary w-full justify-center'"
+                :style="path.external ? 'text-decoration: none' : undefined"
+                @click="path.onClick?.()"
+              >
+                <Icon v-if="path.ctaIcon" :name="path.ctaIcon" class="w-4 h-4" aria-hidden="true" />
+                {{ path.cta }}
+                <span v-if="path.linkProps.target === '_blank'" class="sr-only"> {{ $t('a11y.new_tab') }}</span>
+              </component>
+              <p v-if="path.caption" class="pathway-card__caption">{{ path.caption }}</p>
+            </div>
           </div>
         </article>
       </div>
@@ -137,6 +161,32 @@ const { GOFUNDME_URL, trackSupport, trackScience, trackPathway, trackPathwayCuri
 const NuxtLink = resolveComponent('NuxtLink')
 
 const titleId = computed(() => `pathways-title-${props.variant}`)
+
+// Plegado en móvil como mejora progresiva: el SSR y la hidratación pintan todo
+// desplegado (igual que antes, y así se queda si el JS falla); al montar, en
+// < 640 px, las tarjetas pasan a plegadas. Un ref propio y no useMediaQuery para
+// que el primer render del cliente coincida con el del servidor.
+const plegable = ref(false)
+const abiertos = ref(new Set<string>())
+const plegada = (id: string) => plegable.value && id !== 'supporter' && !abiertos.value.has(id)
+function alterna(id: string) {
+  const s = new Set(abiertos.value)
+  if (s.has(id)) s.delete(id)
+  else s.add(id)
+  abiertos.value = s
+}
+let dejarDeEscuchar: (() => void) | undefined
+onMounted(() => {
+  if (props.variant !== 'home') return
+  const mq = window.matchMedia('(max-width: 639px)')
+  const aplica = () => {
+    plegable.value = mq.matches
+  }
+  aplica()
+  mq.addEventListener('change', aplica)
+  dejarDeEscuchar = () => mq.removeEventListener('change', aplica)
+})
+onBeforeUnmount(() => dejarDeEscuchar?.())
 
 function arr(key: string): string[] {
   const raw = tm(key) as unknown
