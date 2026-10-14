@@ -174,7 +174,7 @@
     "sky_cta_pre": "¿Aún no tienes la tuya?",
     "sky_cta": "Enciende tu estrella",
     "sky_cta_note": "Tu nombre aparece en el mapa en menos de una hora.",
-    "sky_a11y": "Mapa decorativo: la constelación de Cáncer dibujada con {n} estrellas, una por cada aportación, con el Cúmulo del Pesebre (M44) en su corazón. El detalle está en la tabla siguiente.",
+    "sky_a11y": "Mapa decorativo: la constelación de Cáncer dibujada con {n} estrellas, cada una una aportación, con el Cúmulo del Pesebre (M44) en su corazón. El detalle está en la tabla siguiente.",
     "zoom_in": "Acercar",
     "zoom_out": "Alejar",
     "zoom_reset": "Reiniciar vista",

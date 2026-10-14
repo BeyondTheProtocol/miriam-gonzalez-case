@@ -25,6 +25,7 @@
     "test:short-links": "tsx scripts/test-short-links.ts",
     "test:cronologia-caso": "tsx scripts/test-cronologia-caso.ts",
     "test:sala-prensa": "tsx scripts/test-sala-prensa.ts",
+    "test:donantes-total": "tsx scripts/test-donantes-total.ts",
     "test:salud-estatica": "tsx scripts/test-salud-estatica.ts",
     "icons": "nuxt-seo-utils icons --source favicon.svg",
     "update-fundraiser": "tsx update-fundraiser.ts"

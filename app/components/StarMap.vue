@@ -195,7 +195,7 @@
     </div>
 
     <!-- Lectura accesible del concepto (el mapa es decorativo / aria-hidden). -->
-    <p class="sr-only">{{ $t('thanksWall.sky_a11y', { n: donationCount }) }}</p>
+    <p class="sr-only">{{ $t('thanksWall.sky_a11y', { n: drawnCount }) }}</p>
   </div>
 </template>
 
@@ -219,6 +219,7 @@
  *    la vía accesible a los datos. Animaciones con prefers-reduced-motion.
  */
 import type { PublicDonationSafe } from '../../utils/donationsPublic'
+import { resolveDonorCount } from '../../utils/donorCount'
 
 const props = defineProps<{ donations: PublicDonationSafe[]; total?: string }>()
 const { t, locale } = useI18n()
@@ -264,7 +265,10 @@ const ANCHOR_SLOTS = [
   { key: 'acubens', x: 85, y: 64, mag: 4.2, side: 'left' },
 ]
 
-const donationCount = computed(() => props.donations.length)
+// Estrellas dibujadas = las de la lista (topada a 500 en /donations.json).
+const drawnCount = computed(() => props.donations.length)
+// Donantes que se NOMBRAN: el total oficial, no la longitud de la lista truncada.
+const donationCount = computed(() => resolveDonorCount(props.count, props.donations.length))
 
 const topPatrons = computed(() =>
   [...props.donations]
