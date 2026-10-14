@@ -48,22 +48,50 @@
           <p class="mt-3 font-mono text-[11px] text-tinta">{{ $t('mapaTeaser.disclaimer') }}</p>
         </div>
       </NuxtLink>
-      <!-- Acceso a /datos (27-sep-2026): era una página sin ningún enlace de entrada. Fuera de la
-           tarjeta porque la tarjeta entera ya es un enlace y no se anidan. -->
+      <!-- Mapa de metástasis (dictamen `diseno`, 14-oct-2026): estaba a dos clics, tras
+           /ciencia. Título y texto, los ya publicados de su página (COPY_HERRAMIENTAS). -->
       <NuxtLink
-        :to="localePath('datos')"
-        class="inline-flex items-center min-h-[44px] mt-4 font-semibold text-berenjena underline underline-offset-4"
-        @click="trackDatos('home_teaser')"
+        :to="localePath('mapa-metastasis')"
+        class="card-base mt-4 flex items-start gap-3.5"
+        style="text-decoration: none"
+        @click="trackMapa('home_teaser')"
       >
-        {{ $t('mapaTeaser.datos') }} →
+        <span class="shrink-0 w-9 h-9 rounded-xl bg-miriam-soft flex items-center justify-center" aria-hidden="true">
+          <Icon name="ph:map-pin-fill" class="w-5 h-5 text-berenjena" />
+        </span>
+        <span class="min-w-0 flex-1">
+          <span class="block font-display font-semibold text-berenjena text-lg">{{ mapa[0] }}</span>
+          <span class="block mt-1 text-sm text-tinta leading-relaxed max-w-2xl">{{ mapa[1] }}</span>
+        </span>
+        <Icon name="ph:arrow-right" class="shrink-0 mt-1 w-5 h-5 text-miriam" aria-hidden="true" />
       </NuxtLink>
+      <!-- Acceso a /datos (27-sep-2026): era una página sin ningún enlace de entrada. Fuera de la
+           tarjeta porque la tarjeta entera ya es un enlace y no se anidan. Al lado, el índice
+           de todas las herramientas, con el mismo estilo. -->
+      <div class="mt-4 flex flex-wrap gap-x-8">
+        <NuxtLink
+          :to="localePath('datos')"
+          class="inline-flex items-center min-h-[44px] font-semibold text-berenjena underline underline-offset-4"
+          @click="trackDatos('home_teaser')"
+        >
+          {{ $t('mapaTeaser.datos') }} →
+        </NuxtLink>
+        <NuxtLink
+          :to="localePath({ name: 'herramientas' })"
+          class="inline-flex items-center min-h-[44px] font-semibold text-berenjena underline underline-offset-4"
+        >
+          {{ $t('home.tools_see_all') }} →
+        </NuxtLink>
+      </div>
     </div>
   </section>
 </template>
 
 <script setup lang="ts">
 const localePath = useLocalePath()
-const { trackLesiones, trackDatos } = useSupport()
+const { locale } = useI18n()
+const { trackLesiones, trackDatos, trackMapa } = useSupport()
+const mapa = computed(() => copyHerramienta('map', locale.value))
 
 // id único (no hardcodeado) por si el componente se montara más de una vez:
 // evita colisión de id entre el aria-labelledby de la sección y el h2.

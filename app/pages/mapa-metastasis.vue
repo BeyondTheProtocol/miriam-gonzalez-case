@@ -2293,6 +2293,7 @@ const manifestValidated = (() => {
           <line x1="12" y1="2" x2="12" y2="22" stroke="#faf6f0" stroke-width="1.4" />
         </svg>
         <PageHeader
+          :parent="{ to: localePath({ name: 'herramientas' }), label: $t('nav.tools') }"
           :title="L('Mapa de metástasis', 'Metastasis map')"
           :subtitle="L(
             'Cada lesión ósea, vista con doble trazador PET a la vez: ⁶⁸Ga-DOTATOC (densidad de receptores de somatostatina, SSTR) y ¹⁸F-FDG (metabolismo glucolítico). Una herramienta para que el equipo compare los focos, lesión a lesión, como candidatos a diana de rebiopsia — equipa, no indica.',

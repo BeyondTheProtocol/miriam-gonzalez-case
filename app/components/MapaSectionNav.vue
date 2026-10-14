@@ -5,12 +5,12 @@
        (variant="mobile"); activo en berenjena + punto violeta (NUNCA coral);
        foco gestionado al saltar y respeto por prefers-reduced-motion. Las
        secciones apuntan a los id de los <h2> ya presentes en la página. -->
-  <nav :aria-label="locale === 'es' ? 'Índice de secciones' : 'Section index'">
+  <nav :aria-label="$t('sectionNav.aria')">
     <!-- Móvil: desplegable en el flujo (no pegajoso) -->
     <details v-if="variant === 'mobile'" class="mn-m">
       <summary class="mn-m__summary">
         <Icon name="ph:list-bold" class="w-4 h-4 shrink-0" aria-hidden="true" />
-        {{ locale === 'es' ? 'Saltar a una sección' : 'Jump to a section' }}
+        {{ $t('sectionNav.jump') }}
         <Icon name="ph:caret-down" class="mn-m__caret w-3.5 h-3.5 shrink-0" aria-hidden="true" />
       </summary>
       <ul class="mn-m__list">
@@ -22,7 +22,7 @@
 
     <!-- Desktop: lista; el contenedor padre aporta el sticky -->
     <div v-else class="mn-d">
-      <p class="eyebrow mn-d__title">{{ locale === 'es' ? 'Índice' : 'Contents' }}</p>
+      <p class="eyebrow mn-d__title">{{ $t('sectionNav.contents') }}</p>
       <ul>
         <li v-for="c in chapters" :key="c.id">
           <a
@@ -45,8 +45,7 @@
 const props = withDefaults(defineProps<{ variant?: 'rail' | 'mobile' }>(), {
   variant: 'rail',
 })
-const { locale } = useI18n()
-const L = (es: string, en: string) => (locale.value === 'en' ? en : es)
+const { t } = useI18n()
 
 // ÍNDICE COMPLETO DE LA PÁGINA, mapeado a los id de <h2> ya existentes. Empieza por
 // la HERRAMIENTA (Zona 1: «Dianas idóneas» + el mapa/3D) para poder VOLVER a la
@@ -55,15 +54,17 @@ const L = (es: string, en: string) => (locale.value === 'en' ? en : es)
 // con el <h2> de destino (confirmación de «dónde estoy» tras saltar). Bilingüe, neutra.
 // El índice cubre SOLO la sección general (Zona 2 · de la visión general en adelante);
 // la herramienta (dianas + mapa) va sin menú. Sin entrada de «volver al mapa» (petición).
-const chapters = computed(() => [
-  { id: 'idoneidad', label: L('Idoneidad como diana', 'Suitability as a target') },
-  { id: 'fenotipo', label: L('Mapa de fenotipo', 'Phenotype map') },
-  { id: 'imagen', label: L('La imagen real', 'The real imaging') },
-  { id: 'imagenes-clave', label: L('Imágenes clave por foco', 'Key images per focus') },
-  { id: 'trayectoria', label: L('Trayectoria', 'Trajectory') },
-  { id: 'tabla', label: L('Apéndice (tabla)', 'Appendix (table)') },
-  { id: 'cockpit', label: L('Cómo se lee · desglose', 'How to read it · breakdown') },
-])
+// Etiquetas en i18n (sectionNav.mapa.*): una sola fuente por etiqueta.
+const CAPITULOS = [
+  { id: 'idoneidad', key: 'suitability' },
+  { id: 'fenotipo', key: 'phenotype' },
+  { id: 'imagen', key: 'imaging' },
+  { id: 'imagenes-clave', key: 'key_images' },
+  { id: 'trayectoria', key: 'trajectory' },
+  { id: 'tabla', key: 'table' },
+  { id: 'cockpit', key: 'cockpit' },
+]
+const chapters = computed(() => CAPITULOS.map((c) => ({ id: c.id, label: t(`sectionNav.mapa.${c.key}`) })))
 
 const activeId = ref('')
 let observer: IntersectionObserver | null = null

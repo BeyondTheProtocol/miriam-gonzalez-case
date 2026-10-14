@@ -35,9 +35,11 @@
       </div>
     </section>
     <div class="section-wide py-12 sm:py-16">
-      <!-- D6: marca (2fr) + Navegación/Social (1fr c/u) repartidas a lo ancho del
-           shell. En < md se apila (1 col); en móvil 375-390 es idéntico a hoy. -->
-      <div class="grid gap-10 md:grid-cols-[2fr_1fr_1fr] lg:gap-16 items-start">
+      <!-- Marca · mapa del sitio en tres columnas por intención · Social (dictamen
+           `diseno`, 14-oct-2026). Los grupos salen de app/utils/navegacion.ts, la misma
+           fuente que el menú. En móvil: marca, luego los grupos a dos columnas y Social.
+           Cada enlace mide 44 px de alto (vara táctil de la casa). -->
+      <div class="grid gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,3fr)_minmax(0,0.8fr)] lg:gap-12 items-start">
         <!-- Brand -->
         <div>
           <div class="flex items-center gap-2.5 mb-3">
@@ -52,31 +54,35 @@
         </div>
 
         <!-- Navigation -->
-        <div>
-          <h3 class="eyebrow mb-3 block">
-            {{ $t('footer.nav_heading') }}
-          </h3>
-          <nav :aria-label="$t('nav.footer_label')" class="flex flex-col gap-1.5">
-            <NuxtLink v-for="item in navItems" :key="item.key" :to="localePath(item.to)"
-              class="text-sm text-tinta hover:text-miriam transition-colors"
-              style="text-decoration: none"
-              @click="item.key === 'data' && trackDatos('footer')">
-              {{ $t(`nav.${item.key}`) }}
-            </NuxtLink>
-          </nav>
-        </div>
+        <nav :aria-label="$t('nav.footer_label')" class="grid grid-cols-2 sm:grid-cols-3 gap-x-6 gap-y-8">
+          <div v-for="grupo in PIE" :key="grupo.id">
+            <h3 :id="`pie-${grupo.id}`" class="eyebrow mb-1 block">
+              {{ $t(grupo.heading) }}
+            </h3>
+            <ul :aria-labelledby="`pie-${grupo.id}`" class="flex flex-col">
+              <li v-for="item in grupo.enlaces" :key="item.key">
+                <NuxtLink :to="localePath({ name: item.name })"
+                  class="inline-flex items-center min-h-[44px] text-sm text-tinta hover:text-miriam transition-colors"
+                  style="text-decoration: none"
+                  @click="item.key === 'data' && trackDatos('footer')">
+                  {{ $t(`nav.${item.key}`) }}
+                </NuxtLink>
+              </li>
+            </ul>
+          </div>
+        </nav>
 
         <!-- Social -->
         <div>
-          <h3 class="eyebrow mb-3 block">
+          <h3 class="eyebrow mb-1 block">
             {{ $t('footer.social_heading') }}
           </h3>
-          <div class="flex flex-col gap-1.5">
+          <div class="flex flex-col items-start">
             <a
               href="https://x.com/miriamgonp"
               target="_blank"
               rel="noopener noreferrer"
-              class="text-sm text-tinta hover:text-miriam hover:underline underline-offset-2 transition-colors"
+              class="inline-flex items-center min-h-[44px] text-sm text-tinta hover:text-miriam hover:underline underline-offset-2 transition-colors"
               @click="trackShare('x', 'footer')"
             >
               X / Twitter<span class="sr-only"> {{ $t('a11y.new_tab') }}</span>
@@ -85,7 +91,7 @@
               href="https://www.instagram.com/miriamgonp"
               target="_blank"
               rel="noopener noreferrer"
-              class="text-sm text-tinta hover:text-miriam hover:underline underline-offset-2 transition-colors"
+              class="inline-flex items-center min-h-[44px] text-sm text-tinta hover:text-miriam hover:underline underline-offset-2 transition-colors"
               @click="trackShare('instagram', 'footer')"
             >
               Instagram<span class="sr-only"> {{ $t('a11y.new_tab') }}</span>
@@ -94,14 +100,14 @@
               href="https://www.linkedin.com/in/miriamgonp"
               target="_blank"
               rel="noopener noreferrer"
-              class="text-sm text-tinta hover:text-miriam hover:underline underline-offset-2 transition-colors"
+              class="inline-flex items-center min-h-[44px] text-sm text-tinta hover:text-miriam hover:underline underline-offset-2 transition-colors"
               @click="trackShare('linkedin', 'footer')"
             >
               LinkedIn<span class="sr-only"> {{ $t('a11y.new_tab') }}</span>
             </a>
             <a href="https://gofund.me/3e25cae99" target="_blank" rel="noopener noreferrer"
               @click="trackSupport('footer')"
-              class="inline-flex items-center gap-1 text-sm text-coral-deep hover:text-coral-hover hover:underline underline-offset-2 font-semibold transition-colors">
+              class="inline-flex items-center min-h-[44px] gap-1 text-sm text-coral-deep hover:text-coral-hover hover:underline underline-offset-2 font-semibold transition-colors">
               GoFundMe<Icon name="ph:arrow-up-right-bold" class="w-3 h-3" aria-hidden="true" /><span class="sr-only"> {{ $t('a11y.new_tab') }}</span>
             </a>
           </div>
@@ -120,16 +126,16 @@
       <!-- Legal -->
       <nav
         :aria-label="$t('footer.legal_heading')"
-        class="mt-8 pt-6 flex flex-wrap items-center gap-x-5 gap-y-2"
+        class="mt-8 pt-4 flex flex-wrap items-center gap-x-5"
         style="border-top: 1px solid rgb(var(--color-text-rgb) / 0.08)"
       >
-        <NuxtLink :to="localePath('aviso-legal')" class="text-[11px] font-mono text-tinta hover:text-miriam hover:underline underline-offset-2 transition-colors">
+        <NuxtLink :to="localePath('aviso-legal')" class="inline-flex items-center min-h-[44px] text-[11px] font-mono text-tinta hover:text-miriam hover:underline underline-offset-2 transition-colors">
           {{ $t('footer.legal_notice') }}
         </NuxtLink>
-        <NuxtLink :to="localePath('privacidad')" class="text-[11px] font-mono text-tinta hover:text-miriam hover:underline underline-offset-2 transition-colors">
+        <NuxtLink :to="localePath('privacidad')" class="inline-flex items-center min-h-[44px] text-[11px] font-mono text-tinta hover:text-miriam hover:underline underline-offset-2 transition-colors">
           {{ $t('footer.privacy') }}
         </NuxtLink>
-        <NuxtLink :to="localePath('cookies')" class="text-[11px] font-mono text-tinta hover:text-miriam hover:underline underline-offset-2 transition-colors">
+        <NuxtLink :to="localePath('cookies')" class="inline-flex items-center min-h-[44px] text-[11px] font-mono text-tinta hover:text-miriam hover:underline underline-offset-2 transition-colors">
           {{ $t('footer.cookies') }}
         </NuxtLink>
       </nav>
@@ -168,19 +174,7 @@ const supporters = [
   { name: 'UCAM', img: '/svg/ucam.svg', url: 'https://www.ucam.edu' },
 ]
 
-// Mismo orden que el menú superior + "Cómo ayudar" y "Contacto" al final.
-const navItems = [
-  { key: 'home', to: '/' },
-  { key: 'science', to: '/ciencia' },
-  { key: 'timeline', to: '/timeline' },
-  { key: 'team', to: '/equipo' },
-  { key: 'press', to: '/prensa' },
-  { key: 'collaborate', to: '/colabora' },
-  { key: 'brands', to: '/marcas' },
-  { key: 'data', to: '/datos' },
-  { key: 'expenses', to: '/gastos' },
-  { key: 'contact', to: '/contacto' },
-]
+// Los enlaces del pie (tres grupos) viven en app/utils/navegacion.ts: `PIE`.
 </script>
 
 <style scoped>

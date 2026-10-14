@@ -25,7 +25,14 @@
     "skip_to_content": "Skip to main content",
     "main_content_label": "Main content",
     "switch_to_en": "Switch to English",
-    "language": "Language"
+    "language": "Language",
+    "tools": "Tools",
+    "evidence": "Evidence",
+    "lesions": "Breast, liver and bone",
+    "map": "Metastasis map",
+    "port": "The reservoir",
+    "bone_biopsy": "Bone biopsy",
+    "all_tools": "All tools"
   },
   "a11y": {
     "new_tab": "(opens in a new tab)",
@@ -395,7 +402,8 @@
     "follow_twitter": "miriamgonp on X",
     "cta_science": "Understand the science",
     "latest_badge": "Latest",
-    "read_more": "Read the article"
+    "read_more": "Read the article",
+    "story_link": "Her story, in her own words"
   },
   "story": {
     "title": "Miriam's story",
@@ -457,7 +465,10 @@
     "legal_heading": "Legal",
     "legal_notice": "Legal notice",
     "privacy": "Privacy",
-    "cookies": "Cookies"
+    "cookies": "Cookies",
+    "group_case": "The case",
+    "group_tools": "Tools",
+    "group_involved": "Get involved"
   },
   "entry_disclaimer": {
     "badge": "May 2026 update",
@@ -596,7 +607,8 @@
     "s4_full_breakdown": "See the full breakdown",
     "story_p1_rarity": "0.1%–5% of breast cancers, depending on the definition",
     "story_p1_source": "Source: Gallo et al. review, Front. Endocrinol., 2020 · in the US SEER registry, under 0.1% (Wang et al., BMC Cancer, 2014)",
-    "s4_p1_blind": "blind"
+    "s4_p1_blind": "blind",
+    "tools_see_all": "See all tools"
   },
   "ciencia": {
     "ruta": {
@@ -1117,5 +1129,34 @@
     "datos_sub": "Labs since 2021, treatments and tissue, every number with its source",
     "podcast_title": "My case on Roca Project",
     "podcast_sub": "Episode 100, with Carlos Roca: the diagnosis, family and fear"
+  },
+  "herramientas": {
+    "title": "Case tools",
+    "intro": "Maps, images and data from Miriam's case, to explore at your own pace."
+  },
+  "sectionNav": {
+    "aria": "Section index",
+    "jump": "Jump to a section",
+    "contents": "Contents",
+    "ciencia": {
+      "summary": "Clinical summary",
+      "pathology": "Pathology",
+      "three_sites": "Three sites · 2026",
+      "molecular": "Molecular profile",
+      "imaging": "Functional imaging",
+      "map_biopsy": "Map & biopsy",
+      "panel": "Analysis under way",
+      "history": "Clinical history",
+      "route": "The route"
+    },
+    "mapa": {
+      "suitability": "Suitability as a target",
+      "phenotype": "Phenotype map",
+      "imaging": "The real imaging",
+      "key_images": "Key images per focus",
+      "trajectory": "Trajectory",
+      "table": "Appendix (table)",
+      "cockpit": "How to read it · breakdown"
+    }
   }
 }

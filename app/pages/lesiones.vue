@@ -50,6 +50,7 @@ const biopsia = computed(() =>
     <section class="section-spacing" :aria-label="L('Mama, hígado y hueso', 'Breast, liver and bone')">
       <div class="mx-auto w-full max-w-[1280px] px-4 sm:px-6 lg:px-8">
         <PageHeader
+          :parent="{ to: localePath({ name: 'herramientas' }), label: $t('nav.tools') }"
           :title="L('Mama, hígado y hueso, de un vistazo', 'Breast, liver and bone, at a glance')"
           :subtitle="L('La mama, el hígado y las lesiones óseas.', 'The breast, the liver and the bone lesions.')"
         />
