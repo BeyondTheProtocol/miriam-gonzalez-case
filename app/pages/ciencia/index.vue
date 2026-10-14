@@ -428,6 +428,14 @@
               <Icon name="ph:arrow-right" class="w-4 h-4 transition-transform group-hover:translate-x-0.5" aria-hidden="true" />
             </span>
           </NuxtLink>
+          <!-- El resto de herramientas del caso (dictamen `diseno`, 14-oct-2026) -->
+          <NuxtLink
+            :to="localePath({ name: 'herramientas' })"
+            class="link-action group mt-3 min-h-[44px] text-sm text-miriam"
+          >
+            {{ $t('nav.all_tools') }}
+            <Icon name="ph:arrow-right" class="w-4 h-4 transition-transform group-hover:translate-x-0.5" aria-hidden="true" />
+          </NuxtLink>
         </section>
 
         <!-- Ejes terapéuticos → panel de rebiopsia, subidos por encima de la
