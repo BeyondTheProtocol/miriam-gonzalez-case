@@ -20,6 +20,9 @@
               :aria-describedby="`herr-${h.key}-d`"
               @click="medir(h.key)"
             >
+              <span class="shrink-0 w-9 h-9 rounded-xl bg-miriam-soft flex items-center justify-center" aria-hidden="true">
+                <Icon :name="h.icono" class="herr-icono w-5 h-5 text-berenjena" />
+              </span>
               <!-- La etiqueta solo si dice algo que el título no dice (diseno, 14-oct): «El caso en
                    datos» sobre «El caso en datos» se leía dos veces. -->
               <span v-if="!h.repite" :id="`herr-${h.key}-e`" class="eyebrow block">{{ h.etiqueta }}</span>
@@ -49,7 +52,7 @@ const tarjetas = computed(() =>
     const [titulo, descripcion] = copyHerramienta(h.key, locale.value)
     const etiqueta = t(`nav.${h.key}`)
     const repite = titulo.trim().toLowerCase().startsWith(etiqueta.trim().toLowerCase())
-    return { ...h, titulo, descripcion, etiqueta, repite }
+    return { ...h, titulo, descripcion, etiqueta, repite, icono: ICONO_HERRAMIENTA[h.key] }
   })
 )
 
