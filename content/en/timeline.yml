@@ -114,8 +114,9 @@ entries:
     tag: Molecular
     title: A second reading confirms the profile
     description: >
-      First blood ctDNA on the Guardant360 panel. Results: ESR1 D538G, 3 distinct RB1
-      mutations, FGFR1 amplified and CCND1 amplified.
+      First blood ctDNA on the Guardant360 panel. Results: 3 distinct RB1 mutations, FGFR1
+      amplified and CCND1 amplified. ESR1 D538G is not detected in this test (it was in the
+      liquid biopsy trial a few days earlier).
     highlight: false
 
   - date: 'Apr 20, 2026'
