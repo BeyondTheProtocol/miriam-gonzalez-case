@@ -59,7 +59,8 @@
           <nav :aria-label="$t('nav.footer_label')" class="flex flex-col gap-1.5">
             <NuxtLink v-for="item in navItems" :key="item.key" :to="localePath(item.to)"
               class="text-sm text-tinta hover:text-miriam transition-colors"
-              style="text-decoration: none">
+              style="text-decoration: none"
+              @click="item.key === 'data' && trackDatos('footer')">
               {{ $t(`nav.${item.key}`) }}
             </NuxtLink>
           </nav>
@@ -147,7 +148,7 @@
 
 <script setup lang="ts">
 const localePath = useLocalePath()
-const { trackSupport, trackShare } = useSupport()
+const { trackSupport, trackShare, trackDatos } = useSupport()
 
 // "Con el apoyo de" — todos iguales (logos de empresas/colaboradores). Todos se
 // pintan en blanco monocromo (CSS) para leerse como un conjunto sobre berenjena.

@@ -172,6 +172,14 @@ const scienceSchema = z.object({
     .optional(),
 })
 
+// Las colecciones en español viven en content/es/…, así que su ruta de contenido es
+// /es/historia/…; con `prefix_except_default` la página real es /historia/…. El sitemap
+// publicaba la ruta de contenido tal cual y listaba una URL que da 404. En inglés no pasa
+// porque /en/story/… coincide con la ruta real.
+const sinPrefijoEs = (url: { loc: string }) => {
+  url.loc = url.loc.replace(/^\/es(?=\/)/, '')
+}
+
 export default defineContentConfig({
   collections: {
     timeline_es: defineCollection({
@@ -189,7 +197,7 @@ export default defineContentConfig({
       source: 'es/historia/*.md',
       schema: chapterSchema.extend({
         robots: defineRobotsSchema(),
-        sitemap: defineSitemapSchema(),
+        sitemap: defineSitemapSchema({ name: 'historia_es', onUrl: sinPrefijoEs }),
       }),
     }),
     historia_en: defineCollection({
@@ -205,7 +213,7 @@ export default defineContentConfig({
       source: 'es/ciencia/*.md',
       schema: articleSchema.extend({
         robots: defineRobotsSchema(),
-        sitemap: defineSitemapSchema(),
+        sitemap: defineSitemapSchema({ name: 'ciencia_articles', onUrl: sinPrefijoEs }),
       }),
     }),
     science_articles: defineCollection({

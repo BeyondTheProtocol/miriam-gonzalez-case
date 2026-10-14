@@ -13,6 +13,7 @@ import { LES, PHENO, PHENO_TEXT, BONE3D_KEY } from '#mapa-focos'
 
 const { locale } = useI18n()
 const localePath = useLocalePath()
+const { trackMapa, trackDatos } = useSupport()
 const lang = computed<'es' | 'en'>(() => (locale.value === 'en' ? 'en' : 'es'))
 const L = (es: string, en: string) => (lang.value === 'en' ? en : es)
 
@@ -142,7 +143,7 @@ const biopsia = computed(() =>
                   </template>
                 </ClientOnly>
               </div>
-              <NuxtLink :to="localePath('mapa-metastasis')" class="inline-flex items-center min-h-[44px] mt-2 font-semibold text-berenjena underline underline-offset-4">
+              <NuxtLink :to="localePath('mapa-metastasis')" class="inline-flex items-center min-h-[44px] mt-2 font-semibold text-berenjena underline underline-offset-4" @click="trackMapa('lesiones')">
                 {{ L('Ver este foco con todo el detalle en el mapa de metástasis', 'See this focus in full detail on the metastasis map') }} →
               </NuxtLink>
             </div>
@@ -152,7 +153,7 @@ const biopsia = computed(() =>
         <!-- ===== CIERRE · el reservorio no es enfermedad, es infraestructura del tratamiento:
              eje propio, página propia. Solo el enlace, aquí. ===== -->
         <section class="mt-2 pt-6" style="border-top:1px solid rgba(45,27,61,0.1)">
-          <NuxtLink :to="localePath('datos')" class="flex items-center min-h-[44px] font-semibold text-berenjena underline underline-offset-4">
+          <NuxtLink :to="localePath('datos')" class="flex items-center min-h-[44px] font-semibold text-berenjena underline underline-offset-4" @click="trackDatos('lesiones')">
             {{ L('El caso en datos: analíticas desde 2021, tratamientos y tejido disponible', 'The case in data: labs since 2021, treatments and available tissue') }} →
           </NuxtLink>
           <NuxtLink :to="localePath('reservorio')" class="inline-flex items-center min-h-[44px] font-semibold text-berenjena underline underline-offset-4">

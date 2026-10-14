@@ -1,5 +1,5 @@
 <template>
-  <li :id="live ? 'lo-ultimo' : undefined" class="relative pl-8 pb-9 last:pb-0 group scroll-mt-24">
+  <li :id="anchor ? 'lo-ultimo' : undefined" class="relative pl-8 pb-9 last:pb-0 group scroll-mt-24">
     <!-- Dot · color por categoría (clinical/molecular/network); el más reciente
          destacado late en coral. `echo` = doble pulso de saludo al aterrizar
          desde "Lo último" del hero. -->
@@ -57,6 +57,10 @@
 
 <script setup lang="ts">
 const props = defineProps<{
+  // `anchor` = es el hito más reciente: lleva el id="lo-ultimo" al que apuntan el hero y
+  // la barra global, esté o no destacado. `live` (píldora y punto coral) sí depende de
+  // `highlight`. Iban juntos y el ancla desaparecía con cada entrada no destacada.
+  anchor?: boolean
   live?: boolean
   echo?: boolean
   entry: {

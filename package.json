@@ -23,6 +23,8 @@
     "test:que-cambio": "tsx scripts/test-que-cambio.ts",
     "test:cifras-datos": "node scripts/test-cifras-datos.mjs",
     "test:short-links": "tsx scripts/test-short-links.ts",
+    "test:cronologia-caso": "tsx scripts/test-cronologia-caso.ts",
+    "test:salud-estatica": "tsx scripts/test-salud-estatica.ts",
     "icons": "nuxt-seo-utils icons --source favicon.svg",
     "update-fundraiser": "tsx update-fundraiser.ts"
   },
@@ -55,7 +57,8 @@
     "oxfmt": "^0.50.0",
     "oxlint": "^1.65.0",
     "tsx": "^4.22.4",
-    "typescript": "^5.7.0"
+    "typescript": "^5.7.0",
+    "yaml": "2.8.4"
   },
   "packageManager": "pnpm@11.5.1"
 }

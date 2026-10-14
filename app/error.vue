@@ -78,6 +78,12 @@ const titleKey = computed(() => (is404.value ? 'error.e404_title' : 'error.e500_
 const firmaKey = computed(() => (is404.value ? 'error.e404_firma' : 'error.e500_firma'))
 const ledeKey = computed(() => (is404.value ? 'error.e404_lede' : 'error.e500_lede'))
 
+// Qué rutas dan 404 (enlaces rotos de fuera o propios). Solo en cliente, una vez.
+const { track404 } = useSupport()
+onMounted(() => {
+  if (is404.value) track404(window.location.pathname)
+})
+
 // Las páginas de error no deben indexarse.
 useHead({ meta: [{ name: 'robots', content: 'noindex' }] })
 
