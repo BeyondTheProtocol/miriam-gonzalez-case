@@ -494,8 +494,8 @@ defineOgImage('Default.takumi', {
       : 'Precision Oncology for an Ultra-Rare Tumor',
   description:
     locale.value === 'es'
-      ? 'Ingeniera de software y divulgadora tech. Investiga su propio cáncer de mama metastásico con IA y un equipo internacional, en abierto. Apoya el siguiente análisis.'
-      : 'Software engineer and tech communicator. She investigates her own metastatic breast cancer with AI and an international team, in the open. Support the next analysis.',
+      ? 'Investiga su propio cáncer de mama metastásico con IA y un equipo internacional, en abierto. Apoya el siguiente análisis.'
+      : 'She investigates her own metastatic breast cancer with AI and an international team, in the open. Support the next analysis.',
   role: locale.value === 'es' ? 'Ingeniera de software y divulgadora tech' : 'Software engineer and tech communicator',
   colorMode: 'light',
 })
