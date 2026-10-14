@@ -22,4 +22,7 @@ export const caseData = {
   specialists: '5+',
   /** Nº de países de la red de especialistas. */
   countries: 3,
+  /** Fecha de la última revisión de la sala de prensa (AAAA-MM-DD). Se cambia a mano al revisar
+   *  hechos, citas o bio: así «revisada el …» nunca promete más de lo que se hizo. */
+  pressAsOf: '2026-10-14',
 } as const

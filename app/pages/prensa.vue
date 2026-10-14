@@ -8,8 +8,51 @@
           :subtitle="$t('press.subtitle')"
         />
 
-        <!-- Ficha del caso · hechos clave (izq) + retrato y campaña en vivo (der) -->
-        <div class="grid gap-10 lg:grid-cols-[1.6fr_1fr] lg:gap-14 items-start">
+        <!-- Bifurcador: quien escribe una pieza y quien invita necesitan cosas distintas
+             (de 7 peticiones recientes, 6 eran invitaciones). Dos enlaces, 44 px o más. -->
+        <nav aria-labelledby="press-fork" class="-mt-4">
+          <h2 id="press-fork" class="eyebrow mb-4 block">{{ $t('press.fork_title') }}</h2>
+          <ul class="grid gap-4 sm:grid-cols-2">
+            <li v-for="f in fork" :key="f.href">
+              <a :href="f.href" class="press-fork card-base group flex min-h-[44px] items-start gap-4 h-full">
+                <Icon :name="f.icon" class="size-6 shrink-0 mt-0.5 text-miriam" aria-hidden="true" />
+                <span class="flex-1">
+                  <span class="block font-display font-semibold text-berenjena text-lg leading-snug">
+                    {{ f.title }}
+                  </span>
+                  <span class="mt-1 block text-[14px] text-tinta leading-relaxed">{{ f.desc }}</span>
+                </span>
+                <Icon name="ph:arrow-down" class="size-4 shrink-0 mt-1.5 text-tinta" aria-hidden="true" />
+              </a>
+            </li>
+          </ul>
+        </nav>
+
+        <!-- Cómo trabajo con medios (primera persona): lo que piden quienes invitan -->
+        <section id="colaboracion" class="mt-16 scroll-mt-24" aria-labelledby="press-collab">
+          <div class="card-base" style="border-left: 4px solid #9d44ab">
+            <h2
+              id="press-collab"
+              class="heading-display text-2xl sm:text-3xl text-berenjena mb-3"
+              style="letter-spacing: -0.02em"
+            >
+              {{ $t('press.collab_title') }}
+            </h2>
+            <p class="text-[15px] text-berenjena leading-relaxed max-w-2xl">{{ $t('press.collab_intro') }}</p>
+            <h3 class="eyebrow mt-6 mb-3 block">{{ $t('press.collab_list_title') }}</h3>
+            <ol class="list-decimal pl-5 space-y-1.5 text-[15px] text-berenjena leading-relaxed max-w-2xl">
+              <li v-for="n in 7" :key="n">{{ $t(`press.collab_item_${n}`) }}</li>
+            </ol>
+            <p class="mt-6 text-[15px] text-berenjena leading-relaxed max-w-2xl">{{ $t('press.collab_reply') }}</p>
+            <NuxtLink :to="localePath('contacto') + '?role=journalist'" class="btn-dark mt-6 min-h-[44px]">
+              <Icon name="ph:envelope-simple" class="w-4 h-4" aria-hidden="true" />
+              {{ $t('press.collab_cta') }}
+            </NuxtLink>
+          </div>
+        </section>
+
+        <!-- Ficha del caso · hechos clave (izq) + retrato (der) -->
+        <div id="hechos" class="mt-16 scroll-mt-24 grid gap-10 lg:grid-cols-[1.6fr_1fr] lg:gap-14 items-start">
           <!-- Hechos clave -->
           <div>
             <h2 id="press-facts" class="eyebrow mb-5 block">
@@ -35,7 +78,7 @@
             </dl>
           </div>
 
-          <!-- Retrato + estado de campaña en vivo -->
+          <!-- Retrato (el contador de campaña ya no vive aquí: la sala no lleva importes) -->
           <aside class="card-base">
             <figure class="m-0">
               <NuxtImg
@@ -52,10 +95,21 @@
                 {{ $t('press.photo_caption') }}
               </figcaption>
             </figure>
-            <div class="mt-5 pt-5" style="border-top: 1px solid rgba(45,27,61,0.08)">
-              <GoFundMeProgress />
-            </div>
           </aside>
+        </div>
+
+        <!-- Boilerplate listo para copiar (kit prensa) -->
+        <div class="mt-16">
+          <h2 id="press-boilerplate" class="eyebrow mb-2 block">
+            {{ $t('press.boilerplate_title') }}
+          </h2>
+          <p class="text-sm text-tinta mb-4 max-w-2xl">{{ $t('press.boilerplate_note') }}</p>
+          <div class="card-base">
+            <p id="press-boilerplate-text" class="text-sm text-berenjena leading-relaxed whitespace-pre-line">
+              {{ boilerplateText }}
+            </p>
+            <CopyButton class="mt-5" v-bind="copyProps(boilerplateText)" />
+          </div>
         </div>
 
         <!-- Fotografías de prensa -->
@@ -100,9 +154,10 @@
 
         <!-- Citas citables -->
         <div class="mt-16">
-          <h2 id="press-quotes" class="eyebrow mb-6 block">
+          <h2 id="press-quotes" class="eyebrow mb-2 block">
             {{ $t('press.quotes_title') }}
           </h2>
+          <p class="text-sm text-tinta mb-6 max-w-2xl">{{ $t('press.quotes_note') }}</p>
           <ul aria-labelledby="press-quotes" class="space-y-4">
             <li
               v-for="(quote, i) in quotes"
@@ -110,14 +165,83 @@
               class="card-base border-l-4"
               style="border-left-color: #9d44ab"
             >
-              <blockquote class="m-0">
+              <blockquote
+                class="m-0"
+                :aria-label="$t('press.quote_aria', { n: i + 1, total: quotes.length, source: quote.source })"
+              >
                 <p class="font-display text-lg text-berenjena leading-snug" style="letter-spacing: -0.01em">
                   {{ quote.text }}
                 </p>
                 <footer class="mt-2 text-sm text-tinta">{{ quote.source }}</footer>
               </blockquote>
+              <p v-if="quote.note" class="mt-2 font-mono text-[12px] leading-relaxed text-tinta">
+                {{ quote.note }}
+              </p>
             </li>
           </ul>
+        </div>
+
+        <!-- Plegados: biografía, preguntas frecuentes y cronología (nunca bloquean lo principal) -->
+        <div class="mt-16 space-y-1">
+          <details class="notes-disclosure press-disclosure">
+            <summary>{{ $t('press.bio_title') }}</summary>
+            <div class="grid gap-4 pt-4 sm:grid-cols-2">
+              <div class="card-base">
+                <h3 class="eyebrow mb-3 block">{{ $t('press.bio_short_label') }}</h3>
+                <p class="text-sm text-berenjena leading-relaxed">{{ $t('press.bio_short_text') }}</p>
+                <CopyButton class="mt-5" v-bind="copyProps($t('press.bio_short_text'))" />
+              </div>
+              <div class="card-base">
+                <h3 class="eyebrow mb-3 block">{{ $t('press.bio_long_label') }}</h3>
+                <p class="text-sm text-berenjena leading-relaxed">{{ bioLong }}</p>
+                <CopyButton class="mt-5" v-bind="copyProps(bioLong)" />
+              </div>
+            </div>
+          </details>
+
+          <details class="notes-disclosure press-disclosure">
+            <summary>{{ $t('press.faq_title') }}</summary>
+            <dl class="divide-y pt-2" style="border-color: rgba(45,27,61,0.08)">
+              <div v-for="item in faq" :key="item.q" class="py-4">
+                <dt class="font-display font-semibold text-berenjena text-[16px] leading-snug">{{ item.q }}</dt>
+                <dd class="mt-1 text-[15px] text-berenjena leading-relaxed max-w-2xl">
+                  {{ item.a }}
+                  <NuxtLink
+                    v-if="item.to && !item.to.startsWith('#')"
+                    :to="item.to"
+                    class="link-action ml-1 min-h-[44px] text-miriam"
+                  >
+                    {{ item.toLabel }}
+                  </NuxtLink>
+                  <a
+                    v-else-if="item.to"
+                    :href="item.to"
+                    class="link-action ml-1 min-h-[44px] text-miriam"
+                  >
+                    {{ item.toLabel }}
+                  </a>
+                </dd>
+              </div>
+            </dl>
+          </details>
+
+          <details class="notes-disclosure press-disclosure">
+            <summary>{{ $t('press.timeline_title') }}</summary>
+            <p class="pt-3 text-sm text-tinta">{{ $t('press.timeline_intro') }}</p>
+            <ol class="mt-3 divide-y" style="border-color: rgba(45,27,61,0.08)">
+              <li
+                v-for="item in timeline"
+                :key="item.date"
+                class="grid gap-x-6 gap-y-1 py-3 sm:grid-cols-[170px_1fr]"
+              >
+                <span class="font-mono uppercase text-[11px] tracking-[0.1em] text-tinta pt-0.5">{{ item.date }}</span>
+                <span class="text-[15px] text-berenjena leading-relaxed">{{ item.text }}</span>
+              </li>
+            </ol>
+            <NuxtLink :to="localePath('timeline')" class="link-action mt-2 min-h-[44px] text-miriam">
+              {{ $t('press.timeline_link') }}
+            </NuxtLink>
+          </details>
         </div>
 
         <!-- Guía editorial SÍ/NO -->
@@ -133,7 +257,7 @@
                   {{ $t('press.guide_yes_label') }}
                 </span>
               </div>
-              <p class="text-[14px] text-berenjena leading-relaxed">{{ $t('press.guide_yes') }}</p>
+              <p class="text-[14px] text-berenjena leading-relaxed">{{ $t('press.guide_yes', { age: caseData.currentAge }) }}</p>
             </div>
             <div class="card-base">
               <div class="flex items-center gap-2 mb-3">
@@ -184,28 +308,6 @@
               </a>
             </li>
           </ul>
-        </div>
-
-        <!-- Boilerplate listo para copiar (kit prensa) -->
-        <div class="mt-16">
-          <h2 id="press-boilerplate" class="eyebrow mb-2 block">
-            {{ $t('press.boilerplate_title') }}
-          </h2>
-          <p class="text-sm text-tinta mb-4 max-w-2xl">{{ $t('press.boilerplate_note') }}</p>
-          <div class="card-base">
-            <p id="press-boilerplate-text" class="text-sm text-berenjena leading-relaxed whitespace-pre-line">
-              {{ boilerplateText }}
-            </p>
-            <button
-              type="button"
-              class="btn-secondary mt-5"
-              data-print-hide
-              @click="copyBoilerplate"
-            >
-              <Icon name="ph:copy" class="w-4 h-4" aria-hidden="true" />
-              {{ copyLabel }}
-            </button>
-          </div>
         </div>
 
         <!-- Material descargable / enlaces de referencia -->
@@ -298,7 +400,7 @@
         </section>
 
         <Nota class="mt-12 pt-6" style="border-top: 1px solid rgba(45,27,61,0.08)">
-          {{ $t('footer.updated') }}: {{ $t('footer.month_updated') }} 2026
+          {{ $t('press.updated_label', { date: asOfLabel }) }}
         </Nota>
       </div>
     </section>
@@ -319,28 +421,51 @@ const boilerplateText = computed(() =>
   })
 )
 
-const copyLabel = ref(t('press.boilerplate_copy'))
-async function copyBoilerplate() {
-  if (!import.meta.client) return
-  try {
-    await navigator.clipboard.writeText(boilerplateText.value)
-    copyLabel.value = t('press.boilerplate_copied')
-    setTimeout(() => {
-      copyLabel.value = t('press.boilerplate_copy')
-    }, 2000)
-  } catch {
-    /* sin clipboard */
-  }
-}
+// Las props que comparten todos los botones «copiar» de la página.
+const copyProps = (text: string) => ({
+  text,
+  label: t('press.boilerplate_copy'),
+  copiedLabel: t('press.boilerplate_copied'),
+  failedLabel: t('press.copy_failed'),
+})
+
+const bioLong = computed(() =>
+  t('press.bio_long_text', { age: caseData.currentAge, countries: caseData.countries })
+)
+
+// 'AAAA-MM-DD' → «14 de octubre de 2026» según idioma. La fecha sale de caseData.pressAsOf
+// (revisión humana), no del build: «revisada el …» no promete más de lo que se hizo.
+const asOfLabel = computed(() => {
+  const [y, m, d] = caseData.pressAsOf.split('-').map(Number)
+  return new Intl.DateTimeFormat(locale.value === 'es' ? 'es-ES' : 'en-GB', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+    timeZone: 'UTC',
+  }).format(new Date(Date.UTC(y, m - 1, d)))
+})
+
+const fork = computed(() => [
+  { href: '#hechos', icon: 'ph:newspaper', title: t('press.fork_piece_title'), desc: t('press.fork_piece_desc') },
+  { href: '#colaboracion', icon: 'ph:microphone', title: t('press.fork_invite_title'), desc: t('press.fork_invite_desc') },
+])
 
 // Hechos clave · las cifras que pueden desincronizarse (edad, nº de países)
 // vienen de la fuente única (caseData), no del texto i18n.
-const quotes = computed(() => [
-  { text: t('press.quote_1'), source: t('press.quote_1_source') },
-  { text: t('press.quote_2'), source: t('press.quote_2_source') },
-  { text: t('press.quote_3'), source: t('press.quote_3_source') },
-  { text: t('press.quote_4'), source: t('press.quote_4_source') },
-])
+// En inglés, las citas 1 a 3 son traducciones: se dice, y se enseña el original en español.
+const quotes = computed(() => {
+  const en = locale.value === 'en'
+  const original = (n: number) => t(`press.quote_${n}`, {}, { locale: 'es' })
+  return [1, 2, 3, 4].map((n) => ({
+    text: t(`press.quote_${n}`),
+    source: t(`press.quote_${n}_source`),
+    note: !en
+      ? ''
+      : n < 4
+        ? `Translated from Spanish · Original: «${original(n)}»`
+        : 'Original in English',
+  }))
+})
 
 const facts = computed(() => [
   { label: t('press.fact_who_label'), value: t('press.fact_who_value', { age: caseData.currentAge }) },
@@ -350,6 +475,24 @@ const facts = computed(() => [
   { label: t('press.fact_network_label'), value: t('press.fact_network_value', { countries: caseData.countries }) },
   { label: t('press.fact_lang_label'), value: t('press.fact_lang_value') },
 ])
+
+const faq = computed(() => {
+  const links: Record<number, { to: string; toLabel: string }> = {
+    4: { to: localePath('colabora'), toLabel: t('press.resource_collaborate') },
+    5: { to: localePath('gastos'), toLabel: t('press.resource_expenses') },
+    8: { to: '#colaboracion', toLabel: t('press.collab_title') },
+    9: { to: localePath('timeline'), toLabel: t('press.timeline_title') },
+  }
+  return [1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((i) => ({
+    q: t(`press.faq_q${i}`),
+    a: t(`press.faq_a${i}`, { age: caseData.currentAge }),
+    ...links[i],
+  }))
+})
+
+const timeline = computed(() =>
+  [1, 2, 3, 4, 5, 6, 7].map((i) => ({ date: t(`press.tl_${i}_date`), text: t(`press.tl_${i}_text`) }))
+)
 
 // Apariciones en prensa (content/<locale>/press.yml).
 const { data: pressData } = await useAsyncData(
@@ -425,17 +568,29 @@ useHead({
 
 <style scoped>
 .press-mention,
-.press-resource {
+.press-resource,
+.press-fork {
   text-decoration: none;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 @media (prefers-reduced-motion: no-preference) {
   .press-mention:hover,
-  .press-resource:hover {
+  .press-resource:hover,
+  .press-fork:hover {
     transform: translateY(-2px);
   }
 }
 .press-resource {
   display: block;
+}
+/* El resumen del plegable es el único control: objetivo táctil de 44 px (WCAG 2.5.8 + vara de la casa)
+   y foco visible. El resto del estilo es el de `.notes-disclosure`. */
+.press-disclosure > summary {
+  min-height: 44px;
+  padding-top: 0;
+}
+.press-disclosure > summary:focus-visible {
+  outline: 2px solid var(--color-miriam);
+  outline-offset: 2px;
 }
 </style>
