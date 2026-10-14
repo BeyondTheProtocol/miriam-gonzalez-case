@@ -28,11 +28,11 @@
         class="hidden lg:flex items-center gap-1"
       >
         <NuxtLink
-          v-for="item in allNav"
+          v-for="item in MENU_ESCRITORIO"
           :key="item.key"
-          :to="localePath(item.to)"
-          :class="navClass(item.to)"
-          :aria-current="isActive(item.to) ? 'page' : undefined"
+          :to="localePath({ name: item.name })"
+          :class="navClass(item.key)"
+          :aria-current="ariaCurrent(item.key)"
           @click="trackNav(item.key)"
         >
           {{ $t(`nav.${item.key}`) }}
@@ -57,7 +57,7 @@
             @click="switchLang('es')"
             aria-label="Español"
             :aria-pressed="locale === 'es'"
-            class="inline-flex items-center justify-center px-2.5 py-2 min-h-[36px] transition-colors"
+            class="inline-flex items-center justify-center px-2.5 py-2 min-h-[44px] transition-colors"
             :class="locale === 'es' ? 'bg-berenjena text-cream' : 'text-tinta hover:text-berenjena'"
           >ES</button>
           <button
@@ -65,7 +65,7 @@
             @click="switchLang('en')"
             aria-label="English"
             :aria-pressed="locale === 'en'"
-            class="inline-flex items-center justify-center px-2.5 py-2 min-h-[36px] transition-colors"
+            class="inline-flex items-center justify-center px-2.5 py-2 min-h-[44px] transition-colors"
             :class="locale === 'en' ? 'bg-berenjena text-cream' : 'text-tinta hover:text-berenjena'"
           >EN</button>
         </div>
@@ -85,6 +85,7 @@
 
         <!-- Mobile hamburger -->
         <button
+          ref="hamburguesaRef"
           @click="mobileOpen = !mobileOpen"
           :aria-expanded="mobileOpen"
           aria-controls="mobile-nav"
@@ -102,10 +103,10 @@
 
     <!-- Mobile menu -->
     <Transition
-      enter-active-class="transition-all duration-200 ease-out"
+      enter-active-class="transition-[opacity,transform] duration-[var(--dur-micro)] ease-[var(--curva-salida)]"
       enter-from-class="opacity-0 -translate-y-2"
       enter-to-class="opacity-100 translate-y-0"
-      leave-active-class="transition-all duration-150 ease-in"
+      leave-active-class="transition-[opacity,transform] duration-[var(--dur-micro)] ease-[var(--curva-salida)]"
       leave-from-class="opacity-100 translate-y-0"
       leave-to-class="opacity-0 -translate-y-2"
     >
@@ -120,11 +121,11 @@
           class="section-wide py-4 flex flex-col gap-1 stagger-children"
         >
           <NuxtLink
-            v-for="item in allNav"
+            v-for="item in MENU_MOVIL"
             :key="item.key"
-            :to="localePath(item.to)"
-            :class="navClass(item.to)"
-            :aria-current="isActive(item.to) ? 'page' : undefined"
+            :to="localePath({ name: item.name })"
+            :class="navClass(item.key)"
+            :aria-current="ariaCurrent(item.key)"
             @click="onMobileNav(item.key)"
           >
             {{ $t(`nav.${item.key}`) }}
@@ -134,7 +135,7 @@
             target="_blank"
             rel="noopener noreferrer"
             @click="trackSupport('menu_movil')"
-            class="donate-cta mt-2 flex items-center justify-center gap-1.5 px-4 py-2.5 bg-coral hover:bg-coral-hover text-berenjena text-sm font-semibold rounded-btn"
+            class="donate-cta mt-2 flex items-center justify-center gap-1.5 min-h-[44px] px-4 py-2.5 bg-coral hover:bg-coral-hover text-berenjena text-sm font-semibold rounded-btn"
             style="text-decoration: none"
           >
             <Icon name="ph:heart-fill" class="heart-beat w-3.5 h-3.5" aria-hidden="true" />
@@ -187,39 +188,31 @@ const { y } = useWindowScroll()
 const { trackSupport, trackNav } = useSupport()
 
 const headerRef = ref<HTMLElement | null>(null)
+const hamburguesaRef = ref<HTMLButtonElement | null>(null)
 const mobileOpen = ref(false)
 const scrolled = computed(() => y.value > 20)
 
-const navItems = [
-  { key: 'home', to: { name: 'index' } },
-  { key: 'science', to: { name: 'ciencia' } },
-  { key: 'timeline', to: { name: 'timeline' } },
-  { key: 'team', to: { name: 'equipo' } },
-]
-// "Colabora" ahora vive en el array (antes era markup duplicado suelto).
-const allNav = [...navItems, { key: 'collaborate', to: 'colabora' as const }]
-
-// Página actual: marca el ítem activo también en subpáginas (p. ej. un
-// artículo /ciencia/algo resalta "El caso"). El home solo en coincidencia exacta.
-function isActive(to: unknown): boolean {
-  const target = (localePath(to as never) || '/').replace(/\/+$/, '') || '/'
-  const path = route.path.replace(/\/+$/, '') || '/'
-  if (typeof to === 'object' && to !== null && (to as { name?: string }).name === 'index') {
-    return path === target
-  }
-  return path === target || path.startsWith(target + '/')
-}
+// Ítems del menú: app/utils/navegacion.ts (fuente única con el pie y el índice).
+// Estado activo por NOMBRE de ruta, no por prefijo de path: las herramientas no
+// cuelgan de /herramientas y en inglés las rutas cambian. aria-current="page" en la
+// raíz de la sección; "true" (y el mismo estilo) en una página hija, p. ej. /lesiones
+// marca «Herramientas».
+const routeBaseName = useRouteBaseName()
+const rutaActual = computed(() => routeBaseName(route) ?? undefined)
+const ariaCurrent = (key: string) => ariaCurrentSeccion(key, rutaActual.value)
 
 // Estados del enlace de menú:
 // · reposo  → gris (tinta)
 // · hover   → píldora de fondo miriam-soft + texto berenjena
 // · activo  → violeta miriam + subrayado fijo → distinto del hover ("estás aquí")
-function navClass(to: unknown): (string | undefined)[] {
+// Alto mínimo de 44 px también en escritorio: a 1024 px (lg) es un iPad en
+// horizontal y se usa con el dedo. La cabecera mide 64 px, así que cabe.
+function navClass(key: string): (string | undefined)[] {
   return [
-    'px-3 py-1.5 text-sm font-medium rounded-lg transition-colors',
+    'inline-flex items-center min-h-[44px] px-3 py-1.5 text-sm font-medium rounded-lg transition-colors',
     // hover (ratón) + active (táctil, sin hover): misma píldora miriam-soft
     'hover:bg-miriam-soft/60 hover:text-berenjena active:bg-miriam-soft/60 active:text-berenjena',
-    isActive(to)
+    ariaCurrent(key)
       ? 'text-miriam underline decoration-2 decoration-miriam underline-offset-[6px]'
       : 'text-tinta',
   ]
@@ -238,9 +231,12 @@ async function switchLang(code: 'es' | 'en') {
   mobileOpen.value = false
 }
 
-// Cerrar el menú móvil con Escape y al pulsar fuera de la cabecera.
+// Cerrar el menú móvil con Escape (y devolver el foco a la hamburguesa, que es de
+// donde venía) y al pulsar fuera de la cabecera (ahí el foco ya está en otro sitio).
 onKeyStroke('Escape', () => {
-  if (mobileOpen.value) mobileOpen.value = false
+  if (!mobileOpen.value) return
+  mobileOpen.value = false
+  nextTick(() => hamburguesaRef.value?.focus())
 })
 onClickOutside(headerRef, () => {
   if (mobileOpen.value) mobileOpen.value = false
