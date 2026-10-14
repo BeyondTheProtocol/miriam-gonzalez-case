@@ -2287,11 +2287,6 @@ const manifestValidated = (() => {
         <!-- (B2 · sigilo de autor) El split-disc bivariado — la marca "dos trazadores, una
              lesión" del propio instrumento, izquierda teal (⁶⁸Ga/SSTR) · derecha ámbar (¹⁸F-FDG).
              Decorativo (aria-hidden), UNA sola vez como emblema del héroe. -->
-        <svg viewBox="0 0 24 24" width="26" height="26" aria-hidden="true" class="block mb-3 split-disc-sigil">
-          <path d="M12 2 A10 10 0 0 0 12 22 Z" fill="rgb(28,150,158)" />
-          <path d="M12 2 A10 10 0 0 1 12 22 Z" fill="rgb(214,110,28)" />
-          <line x1="12" y1="2" x2="12" y2="22" stroke="#faf6f0" stroke-width="1.4" />
-        </svg>
         <PageHeader
           :parent="{ to: localePath({ name: 'herramientas' }), label: $t('nav.tools') }"
           :title="L('Mapa de metástasis', 'Metastasis map')"
@@ -2299,7 +2294,16 @@ const manifestValidated = (() => {
             'Cada lesión ósea, vista con doble trazador PET a la vez: ⁶⁸Ga-DOTATOC (densidad de receptores de somatostatina, SSTR) y ¹⁸F-FDG (metabolismo glucolítico). Una herramienta para que el equipo compare los focos, lesión a lesión, como candidatos a diana de rebiopsia — equipa, no indica.',
             'Every bone lesion, seen with dual-tracer PET at once: ⁶⁸Ga-DOTATOC (somatostatin-receptor density, SSTR) and ¹⁸F-FDG (glycolytic metabolism). A tool for the team to compare the foci, lesion by lesion, as rebiopsy-target candidates — it equips, it does not indicate.')"
           :tag="L('PET doble trazador · ' + confirmedFoci.length + ' focos · +' + aiFoci.length + ' por confirmar', 'Dual-tracer PET · ' + confirmedFoci.length + ' foci · +' + aiFoci.length + ' to confirm')"
-        />
+        >
+          <template #emblema>
+            <!-- Va tras la miga «‹ Herramientas» (diseno, tras el PR #269): antes la empujaba a ~197 px. -->
+            <svg viewBox="0 0 24 24" width="26" height="26" aria-hidden="true" class="block mb-3 split-disc-sigil">
+              <path d="M12 2 A10 10 0 0 0 12 22 Z" fill="rgb(28,150,158)" />
+              <path d="M12 2 A10 10 0 0 1 12 22 Z" fill="rgb(214,110,28)" />
+              <line x1="12" y1="2" x2="12" y2="22" stroke="#faf6f0" stroke-width="1.4" />
+            </svg>
+          </template>
+        </PageHeader>
 
         <!-- Fecha de la foto (29-sep-2026): el mapa se construyó en junio para decidir dónde
              biopsiar. Lo que pasó después se dice aquí arriba, no en cada foco. -->

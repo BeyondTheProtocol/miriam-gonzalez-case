@@ -8,6 +8,9 @@
         {{ parent.label }}
       </NuxtLink>
     </div>
+    <!-- Emblema opcional entre la miga y la etiqueta: así la miga queda siempre arriba,
+         a la misma altura en todas las herramientas. -->
+    <slot name="emblema" />
     <span v-if="tag" class="badge-genomic mb-4 inline-flex">{{ tag }}</span>
     <h1
       class="heading-display text-3xl sm:text-4xl lg:text-5xl text-berenjena mb-3"

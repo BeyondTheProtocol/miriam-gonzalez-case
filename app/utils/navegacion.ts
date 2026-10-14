@@ -47,6 +47,19 @@ export const MENU_MOVIL: EnlaceNav[] = [NAV.home, ...MENU_ESCRITORIO]
 // Las herramientas, en el orden del índice y del pie.
 export const HERRAMIENTAS: EnlaceNav[] = [NAV.data, NAV.lesions, NAV.map, NAV.port, NAV.boneBiopsy]
 
+// Icono de cada herramienta (decorativo, aria-hidden) para las tarjetas de /herramientas.
+// Son los que la web ya usaba para cada una: el pin del teaser de la home y de /ciencia
+// (mapa), el microscopio de /ciencia (biopsia), el cubo y la gráfica de /links (lesiones,
+// datos). El reservorio no tenía ninguno: la jeringa es elección de este PR.
+export const ICONO_HERRAMIENTA: Record<string, string> = {
+  data: 'ph:chart-line-fill',
+  lesions: 'ph:cube-fill',
+  map: 'ph:map-pin-fill',
+  // Un catéter que acaba en la cámara del port (diseno, 14-oct): una jeringa se leía como «inyección».
+  port: 'ph:path-fill',
+  bone_biopsy: 'ph:microscope-fill',
+}
+
 // Pie: tres columnas por intención (`heading` es la clave i18n de su título).
 export const PIE: { id: string; heading: string; enlaces: EnlaceNav[] }[] = [
   { id: 'caso', heading: 'footer.group_case', enlaces: [NAV.science, NAV.evidence, NAV.story, NAV.timeline, NAV.team] },

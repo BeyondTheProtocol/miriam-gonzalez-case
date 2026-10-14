@@ -341,7 +341,9 @@ onBeforeUnmount(() => window.removeEventListener('resize', ajusta))
 </script>
 
 <template>
-  <main v-if="D" class="hist">
+  <div v-if="D" class="hist">
+    <!-- Un div y no un <main>: el layout ya pone el <main id="main-content"> y dos
+         landmarks main anidados confunden a los lectores de pantalla (diseno, tras el PR #269). -->
     <header class="hist__head">
       <!-- Miga a /herramientas: mismo marcado que la de PageHeader (esta página no lo usa). -->
       <div class="mb-2">
@@ -573,7 +575,7 @@ onBeforeUnmount(() => window.removeEventListener('resize', ajusta))
         {{ $t('nav.all_tools') }}
       </NuxtLink>
     </div>
-  </main>
+  </div>
 </template>
 
 <style scoped>
