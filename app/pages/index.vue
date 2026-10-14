@@ -2,11 +2,13 @@
   <div>
     <SectionHero />
 
-    <!-- Mapa de metástasis «al primer vistazo»: banda-teaser en el flujo crema,
-         justo bajo el hero (no un tercer botón en el hero, que leería a SaaS). -->
-    <SectionMapaTeaser />
-
+    <!-- «Elige tu camino» justo bajo el hero (dictamen `diseno`, 14-oct-2026): el
+         enrutador por perfil pasa antes que las herramientas. -->
     <VisitorPathways variant="home" />
+
+    <!-- Herramientas «al primer vistazo»: banda-teaser en el flujo crema (no un
+         tercer botón en el hero, que leería a SaaS). -->
+    <SectionMapaTeaser />
 
     <!-- La historia + en sus propias palabras (beat humano: persona antes que problema) -->
     <section v-reveal class="py-20 sm:py-28 relative overflow-hidden" :aria-label="$t('home.story_eyebrow')" style="background: #2d1b3d; color: #faf6f0">
@@ -37,7 +39,7 @@
              "fuerte" a una página aún provisional (la nota ya enlaza redes + La ciencia). -->
         <NuxtLink
           :to="localePath({ name: 'historia' })"
-          class="link-action group mt-7 text-sm text-cream/55"
+          class="link-action group mt-7 min-h-[44px] text-sm text-cream/55"
         >
           {{ $t('home.story_link') }}
           <Icon name="ph:arrow-right" class="w-4 h-4 transition-transform group-hover:translate-x-0.5" aria-hidden="true" />
