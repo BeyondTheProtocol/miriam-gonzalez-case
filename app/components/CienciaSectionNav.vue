@@ -4,12 +4,12 @@
        «Saltar a…» en móvil (variant="mobile"); etiquetas clínicas en sans bajo
        un rótulo mono; activo en berenjena + punto violeta (NUNCA coral); foco
        gestionado al saltar y respeto por prefers-reduced-motion. -->
-  <nav :aria-label="locale === 'es' ? 'Índice de secciones' : 'Section index'">
+  <nav :aria-label="$t('sectionNav.aria')">
     <!-- Móvil: desplegable en el flujo (no pegajoso) -->
     <details v-if="variant === 'mobile'" class="cn-m">
       <summary class="cn-m__summary">
         <Icon name="ph:list-bold" class="w-4 h-4 shrink-0" aria-hidden="true" />
-        {{ locale === 'es' ? 'Saltar a una sección' : 'Jump to a section' }}
+        {{ $t('sectionNav.jump') }}
         <Icon name="ph:caret-down" class="cn-m__caret w-3.5 h-3.5 shrink-0" aria-hidden="true" />
       </summary>
       <ul class="cn-m__list">
@@ -21,7 +21,7 @@
 
     <!-- Desktop: lista; el contenedor padre aporta el sticky -->
     <div v-else class="cn-d">
-      <p class="eyebrow cn-d__title">{{ locale === 'es' ? 'Índice' : 'Contents' }}</p>
+      <p class="eyebrow cn-d__title">{{ $t('sectionNav.contents') }}</p>
       <ul>
         <li v-for="c in chapters" :key="c.id">
           <a
@@ -44,35 +44,23 @@
 const props = withDefaults(defineProps<{ variant?: 'rail' | 'mobile' }>(), {
   variant: 'rail',
 })
-const { locale } = useI18n()
+const { t } = useI18n()
 
-// 6 capítulos clínicos mapeados a ids de título ya existentes en la página
-// (orden de lectura tras subir el panel sobre la historia clínica).
-const chapters = computed(() =>
-  locale.value === 'es'
-    ? [
-        { id: 'snapshot-title', label: 'Resumen clínico' },
-        { id: 'tejido-3veces', label: 'Anatomía patológica' },
-        { id: 'tres-sitios', label: 'Tres sitios · 2026' },
-        { id: 'molecular-profile-title', label: 'Perfil molecular' },
-        { id: 'imaging-tissue-title', label: 'Imagen funcional' },
-        { id: 'mapa-acceso', label: 'Mapa y biopsia' },
-        { id: 'panel-title', label: 'Análisis en curso' },
-        { id: 'treatment-title', label: 'Historia clínica' },
-        { id: 'ruta-title', label: 'La ruta' },
-      ]
-    : [
-        { id: 'snapshot-title', label: 'Clinical summary' },
-        { id: 'tejido-3veces', label: 'Pathology' },
-        { id: 'tres-sitios', label: 'Three sites · 2026' },
-        { id: 'molecular-profile-title', label: 'Molecular profile' },
-        { id: 'imaging-tissue-title', label: 'Functional imaging' },
-        { id: 'mapa-acceso', label: 'Map & biopsy' },
-        { id: 'panel-title', label: 'Analysis under way' },
-        { id: 'treatment-title', label: 'Clinical history' },
-        { id: 'ruta-title', label: 'The route' },
-      ]
-)
+// Capítulos clínicos mapeados a ids de título ya existentes en la página
+// (orden de lectura tras subir el panel sobre la historia clínica). Las etiquetas,
+// en i18n (sectionNav.ciencia.*): una sola fuente por etiqueta.
+const CAPITULOS = [
+  { id: 'snapshot-title', key: 'summary' },
+  { id: 'tejido-3veces', key: 'pathology' },
+  { id: 'tres-sitios', key: 'three_sites' },
+  { id: 'molecular-profile-title', key: 'molecular' },
+  { id: 'imaging-tissue-title', key: 'imaging' },
+  { id: 'mapa-acceso', key: 'map_biopsy' },
+  { id: 'panel-title', key: 'panel' },
+  { id: 'treatment-title', key: 'history' },
+  { id: 'ruta-title', key: 'route' },
+]
+const chapters = computed(() => CAPITULOS.map((c) => ({ id: c.id, label: t(`sectionNav.ciencia.${c.key}`) })))
 
 const activeId = ref('')
 let observer: IntersectionObserver | null = null

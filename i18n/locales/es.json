@@ -1133,5 +1133,30 @@
   "herramientas": {
     "title": "Herramientas del caso",
     "intro": "Mapas, imágenes y datos del caso de Miriam, para explorarlos a tu ritmo."
+  },
+  "sectionNav": {
+    "aria": "Índice de secciones",
+    "jump": "Saltar a una sección",
+    "contents": "Índice",
+    "ciencia": {
+      "summary": "Resumen clínico",
+      "pathology": "Anatomía patológica",
+      "three_sites": "Tres sitios · 2026",
+      "molecular": "Perfil molecular",
+      "imaging": "Imagen funcional",
+      "map_biopsy": "Mapa y biopsia",
+      "panel": "Análisis en curso",
+      "history": "Historia clínica",
+      "route": "La ruta"
+    },
+    "mapa": {
+      "suitability": "Idoneidad como diana",
+      "phenotype": "Mapa de fenotipo",
+      "imaging": "La imagen real",
+      "key_images": "Imágenes clave por foco",
+      "trajectory": "Trayectoria",
+      "table": "Apéndice (tabla)",
+      "cockpit": "Cómo se lee · desglose"
+    }
   }
 }

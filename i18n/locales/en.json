@@ -1133,5 +1133,30 @@
   "herramientas": {
     "title": "Case tools",
     "intro": "Maps, images and data from Miriam's case, to explore at your own pace."
+  },
+  "sectionNav": {
+    "aria": "Section index",
+    "jump": "Jump to a section",
+    "contents": "Contents",
+    "ciencia": {
+      "summary": "Clinical summary",
+      "pathology": "Pathology",
+      "three_sites": "Three sites · 2026",
+      "molecular": "Molecular profile",
+      "imaging": "Functional imaging",
+      "map_biopsy": "Map & biopsy",
+      "panel": "Analysis under way",
+      "history": "Clinical history",
+      "route": "The route"
+    },
+    "mapa": {
+      "suitability": "Suitability as a target",
+      "phenotype": "Phenotype map",
+      "imaging": "The real imaging",
+      "key_images": "Key images per focus",
+      "trajectory": "Trajectory",
+      "table": "Appendix (table)",
+      "cockpit": "How to read it · breakdown"
+    }
   }
 }
