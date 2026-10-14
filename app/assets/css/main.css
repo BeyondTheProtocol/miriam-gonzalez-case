@@ -701,7 +701,12 @@
   .notes-disclosure > summary:hover,
   .notes-disclosure > summary:focus-visible {
     color: var(--color-miriam);
-    outline: none;
+  }
+  /* El cambio de color solo no basta para el foco de teclado (tinta→violeta
+     ≈2,2:1, por debajo del 3:1 de WCAG 1.4.11/2.4.7): anillo como el global. */
+  .notes-disclosure > summary:focus-visible {
+    outline: 2px solid var(--color-miriam);
+    outline-offset: 2px;
   }
   .notes-disclosure[open] > summary {
     color: var(--color-miriam);
