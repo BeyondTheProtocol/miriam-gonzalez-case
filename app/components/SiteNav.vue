@@ -104,11 +104,11 @@
     <!-- Mobile menu -->
     <Transition
       enter-active-class="transition-[opacity,transform] duration-[var(--dur-micro)] ease-[var(--curva-salida)]"
-      enter-from-class="opacity-0 -translate-y-2"
+      enter-from-class="opacity-0 -translate-y-2 motion-reduce:translate-y-0"
       enter-to-class="opacity-100 translate-y-0"
       leave-active-class="transition-[opacity,transform] duration-[var(--dur-micro)] ease-[var(--curva-salida)]"
       leave-from-class="opacity-100 translate-y-0"
-      leave-to-class="opacity-0 -translate-y-2"
+      leave-to-class="opacity-0 -translate-y-2 motion-reduce:translate-y-0"
     >
       <div
         v-if="mobileOpen"
@@ -118,7 +118,7 @@
       >
         <nav
           :aria-label="$t('nav.mobile_label')"
-          class="section-wide py-4 flex flex-col gap-1 stagger-children"
+          class="section-wide py-4 flex flex-col gap-1"
         >
           <NuxtLink
             v-for="item in MENU_MOVIL"

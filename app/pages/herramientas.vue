@@ -16,11 +16,13 @@
               :to="localePath({ name: h.name })"
               class="card-base flex flex-1 flex-col gap-2 min-h-[44px]"
               style="text-decoration: none"
-              :aria-labelledby="`herr-${h.key}-t`"
+              :aria-labelledby="h.repite ? `herr-${h.key}-t` : `herr-${h.key}-e herr-${h.key}-t`"
               :aria-describedby="`herr-${h.key}-d`"
               @click="medir(h.key)"
             >
-              <span class="eyebrow block">{{ $t(`nav.${h.key}`) }}</span>
+              <!-- La etiqueta solo si dice algo que el título no dice (diseno, 14-oct): «El caso en
+                   datos» sobre «El caso en datos» se leía dos veces. -->
+              <span v-if="!h.repite" :id="`herr-${h.key}-e`" class="eyebrow block">{{ h.etiqueta }}</span>
               <h2 :id="`herr-${h.key}-t`" class="font-display font-semibold text-berenjena text-xl leading-snug" style="letter-spacing: -0.01em">
                 {{ h.titulo }}
               </h2>
@@ -45,7 +47,9 @@ const tituloId = useId()
 const tarjetas = computed(() =>
   HERRAMIENTAS.map((h) => {
     const [titulo, descripcion] = copyHerramienta(h.key, locale.value)
-    return { ...h, titulo, descripcion }
+    const etiqueta = t(`nav.${h.key}`)
+    const repite = titulo.trim().toLowerCase().startsWith(etiqueta.trim().toLowerCase())
+    return { ...h, titulo, descripcion, etiqueta, repite }
   })
 )
 
