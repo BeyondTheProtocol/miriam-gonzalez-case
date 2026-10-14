@@ -45,6 +45,7 @@ defineOgImage('Default.takumi', {
     <section class="section-spacing" :aria-label="L('El catéter del reservorio, en 3D', 'The reservoir catheter, in 3D')">
       <div class="mx-auto w-full max-w-[1280px] px-4 sm:px-6 lg:px-8">
         <PageHeader
+          :parent="{ to: localePath({ name: 'herramientas' }), label: $t('nav.tools') }"
           :tag="L('Infraestructura del tratamiento', 'Treatment infrastructure')"
           :title="L('El catéter no se ha movido.', 'The catheter has not moved.')"
           :subtitle="L(

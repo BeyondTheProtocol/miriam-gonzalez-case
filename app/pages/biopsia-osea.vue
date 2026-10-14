@@ -14,6 +14,7 @@
  * conversación clínica. No es diagnóstico ni consejo médico.
  */
 const { locale } = useI18n()
+const localePath = useLocalePath()
 const lang = computed<'es' | 'en'>(() => (locale.value === 'en' ? 'en' : 'es'))
 const L = (es: string, en: string) => (lang.value === 'en' ? en : es)
 
@@ -342,6 +343,13 @@ onBeforeUnmount(() => window.removeEventListener('resize', ajusta))
 <template>
   <main v-if="D" class="hist">
     <header class="hist__head">
+      <!-- Miga a /herramientas: mismo marcado que la de PageHeader (esta página no lo usa). -->
+      <div class="mb-2">
+        <NuxtLink :to="localePath({ name: 'herramientas' })" class="link-action -ml-1 min-h-[44px] pr-2 text-sm text-miriam">
+          <Icon name="ph:caret-left-bold" class="w-3.5 h-3.5" aria-hidden="true" />
+          {{ $t('nav.tools') }}
+        </NuxtLink>
+      </div>
       <span class="hist__tag">{{ L('Biopsia ósea · ilion derecho · tinción HE', 'Bone biopsy · right ilium · H&E stain') }}</span>
       <h1>{{ L('Lo que se puede medir en mi biopsia ósea', 'What can be measured in my bone biopsy') }}</h1>
       <p class="hist__lede">
@@ -552,6 +560,19 @@ onBeforeUnmount(() => window.removeEventListener('resize', ajusta))
         </div>
       </div>
     </section>
+
+    <!-- Salidas (dictamen `diseno`, 14-oct-2026): la página era un callejón sin salida;
+         su único camino era la barra de «Lo último». -->
+    <div class="mt-10 flex flex-col sm:flex-row gap-3">
+      <NuxtLink :to="localePath({ name: 'ciencia' })" class="btn-secondary">
+        <Icon name="ph:flask-fill" class="w-4 h-4" aria-hidden="true" />
+        {{ $t('pathways.brief_cta_science') }}
+      </NuxtLink>
+      <NuxtLink :to="localePath({ name: 'herramientas' })" class="btn-secondary">
+        <Icon name="ph:squares-four-fill" class="w-4 h-4" aria-hidden="true" />
+        {{ $t('nav.all_tools') }}
+      </NuxtLink>
+    </div>
   </main>
 </template>
 

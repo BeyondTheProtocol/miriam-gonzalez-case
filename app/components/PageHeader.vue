@@ -1,5 +1,13 @@
 <template>
   <div class="mb-12">
+    <!-- Miga hacia el índice de la sección (dictamen `diseno`, 14-oct-2026): cada
+         herramienta lleva de vuelta a /herramientas. Opcional; solo enlace + icono SVG. -->
+    <div v-if="parent" class="mb-2">
+      <NuxtLink :to="parent.to" class="link-action -ml-1 min-h-[44px] pr-2 text-sm text-miriam">
+        <Icon name="ph:caret-left-bold" class="w-3.5 h-3.5" aria-hidden="true" />
+        {{ parent.label }}
+      </NuxtLink>
+    </div>
     <span v-if="tag" class="badge-genomic mb-4 inline-flex">{{ tag }}</span>
     <h1
       class="heading-display text-3xl sm:text-4xl lg:text-5xl text-berenjena mb-3"
@@ -19,5 +27,6 @@ defineProps<{
   title?: string
   subtitle?: string
   tag?: string
+  parent?: { to: string; label: string }
 }>()
 </script>
