@@ -25,6 +25,8 @@ export interface VideoWeb {
   segundos: number
   src: string
   poster: string
+  /** Una línea en inglés para quien lee la página EN cuando el vídeo no está en inglés. */
+  resumenEn?: string
   transcripcion: string[]
 }
 
@@ -82,6 +84,7 @@ const adc: VideoWeb = {
   titulo: 'Cómo funciona un ADC',
   descripcion: 'Qué es un anticuerpo conjugado a fármaco y qué hace, desde que entra por la vena hasta lo que ocurre dentro de la célula. Es una explicación general, no un consejo médico.',
   segundos: 132.7,
+  resumenEn: 'A general explainer, in Spanish: what an antibody-drug conjugate (ADC) is and how it works, from the vein to the inside of the cell. Not medical advice.',
   src: '/videos/como-funciona-un-adc.mp4',
   poster: '/videos/como-funciona-un-adc-poster.jpg',
   transcripcion: [
@@ -107,14 +110,14 @@ export const VIDEOS: Record<IdiomaVideo, VideoWeb[]> = {
   en: [promoEn, adc],
 }
 
-/** «1:24», «2:13». */
+/** «1:24», «2:12». Se trunca, como hace el reproductor, para que ambos digan lo mismo. */
 export function duracionVideo(segundos: number): string {
-  const s = Math.round(segundos)
+  const s = Math.floor(segundos)
   return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`
 }
 
 /** Duración ISO 8601 para `<time datetime>`. */
 export function duracionIso(segundos: number): string {
-  const s = Math.round(segundos)
+  const s = Math.floor(segundos)
   return `PT${Math.floor(s / 60)}M${s % 60}S`
 }

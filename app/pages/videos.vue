@@ -42,6 +42,9 @@
               <p :id="`vid-${v.id}-d`" class="text-sm text-tinta leading-relaxed" :lang="v.voz">
                 {{ v.descripcion }}
               </p>
+              <p v-if="v.voz !== idioma && v.resumenEn" class="text-sm text-tinta leading-relaxed" lang="en">
+                {{ v.resumenEn }}
+              </p>
 
               <details class="notes-disclosure video-transcripcion">
                 <summary>{{ $t('videos.transcript') }}</summary>
@@ -91,5 +94,12 @@ defineOgImage('Default.takumi', {
 .video-transcripcion > summary {
   min-height: 44px;
   padding-top: 0;
+}
+/* El patrón notes-disclosure quita el contorno del foco y deja solo un cambio de color
+   (≈2,2:1 entre estados, por debajo de 3:1). Aquí se devuelve el anillo. */
+.video-transcripcion > summary:focus-visible {
+  outline: 2px solid var(--color-miriam);
+  outline-offset: 2px;
+  border-radius: 4px;
 }
 </style>
