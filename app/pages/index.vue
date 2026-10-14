@@ -494,8 +494,9 @@ defineOgImage('Default.takumi', {
       : 'Precision Oncology for an Ultra-Rare Tumor',
   description:
     locale.value === 'es'
-      ? 'BC-NED con FGFR1 ×13 y SSTR+. Apoya la rebiopsia molecular avanzada que puede cambiar su tratamiento.'
-      : 'BC-NED with FGFR1 ×13 and SSTR+. Support the advanced molecular rebiopsy that could change her treatment.',
+      ? 'Investiga su propio cáncer de mama metastásico con IA y un equipo internacional, en abierto. Apoya el siguiente análisis.'
+      : 'She investigates her own metastatic breast cancer with AI and an international team, in the open. Support the next analysis.',
+  role: locale.value === 'es' ? 'Ingeniera de software y divulgadora tech' : 'Software engineer and tech communicator',
   colorMode: 'light',
 })
 
@@ -506,16 +507,16 @@ useSeoMeta({
       : 'Miriam González — Precision Oncology for an Ultra-Rare Tumor',
   description: () =>
     locale.value === 'es'
-      ? 'Miriam tiene un cáncer de mama metastásico ultra-raro que los protocolos no cubren. Apoya las pruebas de precisión que pueden cambiar su tratamiento.'
-      : "Miriam has an ultra-rare metastatic breast cancer that protocols don't cover. Support the precision tests that could change her treatment.",
+      ? 'Miriam González, ingeniera de software y divulgadora tech, investiga con IA y un equipo internacional su propio cáncer de mama metastásico ultra-raro. Apoya las pruebas de precisión que pueden cambiar su tratamiento.'
+      : 'Miriam González, software engineer and tech communicator, investigates her own ultra-rare metastatic breast cancer with AI and an international team. Support the precision tests that could change her treatment.',
   ogTitle: () =>
     locale.value === 'es'
       ? 'Miriam González — Oncología de precisión para un tumor ultra-raro'
       : 'Miriam González — Precision Oncology for an Ultra-Rare Tumor',
   ogDescription: () =>
     locale.value === 'es'
-      ? 'BC-NED con FGFR1 ×13 y SSTR+. Apoya la rebiopsia molecular avanzada que puede cambiar su tratamiento.'
-      : 'BC-NED with FGFR1 ×13 and SSTR+. Support the advanced molecular rebiopsy that could change her treatment.',
+      ? 'Ingeniera de software y divulgadora tech. Investiga su propio cáncer de mama metastásico con IA y un equipo internacional, en abierto. Apoya el siguiente análisis.'
+      : 'Software engineer and tech communicator. She investigates her own metastatic breast cancer with AI and an international team, in the open. Support the next analysis.',
   ogType: 'website',
   ogUrl: () =>
     locale.value === 'es'
@@ -528,8 +529,8 @@ useSeoMeta({
       : 'Miriam González — Precision Oncology for an Ultra-Rare Tumor',
   twitterDescription: () =>
     locale.value === 'es'
-      ? 'BC-NED con FGFR1 ×13 y SSTR+. Apoya la rebiopsia molecular avanzada.'
-      : 'BC-NED with FGFR1 ×13 and SSTR+. Support the advanced molecular rebiopsy.',
+      ? 'Ingeniera de software y divulgadora tech. Investiga su propio cáncer de mama metastásico con IA, en abierto.'
+      : 'Software engineer and tech communicator. She investigates her own metastatic breast cancer with AI, in the open.',
 })
 
 // DonateAction JSON-LD: declara la vía canónica de donación (GoFundMe) para

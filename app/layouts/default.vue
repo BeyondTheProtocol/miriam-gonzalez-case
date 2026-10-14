@@ -77,10 +77,14 @@ useSchemaOrg([
   }),
   definePerson({
     name: 'Miriam González',
+    jobTitle:
+      locale.value === 'es'
+        ? 'Ingeniera de software y divulgadora tech'
+        : 'Software engineer and tech communicator',
     description:
       locale.value === 'es'
-        ? 'Paciente con cáncer de mama metastásico de perfil molecular ultra-raro (BC-NED, FGFR1 ×13, SSTR+).'
-        : 'Patient with metastatic breast cancer of an ultra-rare molecular profile (BC-NED, FGFR1 ×13, SSTR+).',
+        ? 'Ingeniera de software y divulgadora tech. Investiga su propio cáncer de mama metastásico con inteligencia artificial y un equipo internacional, en abierto.'
+        : 'Software engineer and tech communicator. She investigates her own metastatic breast cancer with artificial intelligence and an international team, in the open.',
     sameAs: [
       'https://x.com/miriamgonp',
       'https://www.instagram.com/miriamgonp',
