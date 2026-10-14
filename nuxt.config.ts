@@ -178,6 +178,7 @@ export default defineNuxtConfig({
       'reservorio': { en: '/reservorio' },
       'gastos': { en: '/expenses' },
       'datos': { en: '/data' },
+      'herramientas': { en: '/tools' },
       'gracias': { en: '/thank-you' },
       'aviso-legal': { en: '/legal-notice' },
       'privacidad': { en: '/privacy' },
@@ -262,7 +263,9 @@ export default defineNuxtConfig({
       // /marcas (y /en/brands) es una página B2B SIN enlace en la navegación, así
       // que crawlLinks no la descubre: hay que listarla explícitamente para que
       // se prerenderice como HTML estático.
-      routes: ['/marcas', '/en/brands'],
+      // /herramientas (· /en/tools) se lista también: su enlace vive en el menú, pero así
+      // el índice se prerenderiza aunque algún día deje de estar enlazado.
+      routes: ['/marcas', '/en/brands', '/herramientas', '/en/tools'],
       // /design-system/ es un export estático en public/, no una ruta de Nuxt.
       // crawlLinks lo descubre desde /colabora, intenta prerenderizarlo, da 404
       // y aborta el build. Lo ignoramos: el archivo estático se copia igual.

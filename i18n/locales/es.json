@@ -25,7 +25,14 @@
     "skip_to_content": "Ir al contenido principal",
     "main_content_label": "Contenido principal",
     "switch_to_es": "Cambiar a español",
-    "language": "Idioma"
+    "language": "Idioma",
+    "tools": "Herramientas",
+    "evidence": "Evidencia",
+    "lesions": "Mama, hígado y hueso",
+    "map": "Mapa de metástasis",
+    "port": "El reservorio",
+    "bone_biopsy": "Biopsia ósea",
+    "all_tools": "Todas las herramientas"
   },
   "a11y": {
     "new_tab": "(se abre en una pestaña nueva)",
@@ -418,7 +425,8 @@
     "follow_twitter": "miriamgonp en X",
     "cta_science": "Entender la ciencia del caso",
     "latest_badge": "Lo más reciente",
-    "read_more": "Leer la noticia"
+    "read_more": "Leer la noticia",
+    "story_link": "Su historia, contada por ella"
   },
   "story": {
     "title": "La historia de Miriam",
@@ -480,7 +488,10 @@
     "legal_heading": "Legal",
     "legal_notice": "Aviso legal",
     "privacy": "Privacidad",
-    "cookies": "Cookies"
+    "cookies": "Cookies",
+    "group_case": "El caso",
+    "group_tools": "Herramientas",
+    "group_involved": "Participa"
   },
   "entry_disclaimer": {
     "badge": "Actualización mayo 2026",
@@ -619,7 +630,8 @@
     "s4_full_breakdown": "Ver el desglose completo",
     "story_p1_rarity": "el 0,1 %–5 % de los cánceres de mama, según cómo se defina",
     "story_p1_source": "Fuente: revisión de Gallo et al., Front. Endocrinol., 2020 · en el registro SEER de EE. UU., menos del 0,1 % (Wang et al., BMC Cancer, 2014)",
-    "s4_p1_blind": "a ciegas"
+    "s4_p1_blind": "a ciegas",
+    "tools_see_all": "Ver todas las herramientas"
   },
   "ciencia": {
     "ruta": {
@@ -1117,5 +1129,9 @@
     "datos_sub": "Analíticas desde 2021, tratamientos y tejido, cada cifra con su fuente",
     "podcast_title": "Mi caso en Roca Project",
     "podcast_sub": "Programa 100, con Carlos Roca: el diagnóstico, la familia y el miedo"
+  },
+  "herramientas": {
+    "title": "Herramientas del caso",
+    "intro": "Mapas, imágenes y datos del caso de Miriam, para explorarlos a tu ritmo."
   }
 }
