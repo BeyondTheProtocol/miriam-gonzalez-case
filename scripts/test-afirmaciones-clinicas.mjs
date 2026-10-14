@@ -30,6 +30,11 @@
 //   describe dorsal y lumbar; ningún documento dice que Oncología Radioterápica
 //   revisara los focos de carga.
 //
+// - Estado que caducó (14-oct-2026): la «necesidad» pública seguía pidiendo financiar la rebiopsia
+//   ósea y la revisión del WIN, ya hechas; y el JSON-LD/OG presentaban a Miriam como «Paciente …
+//   (BC-NED, FGFR1 ×13, SSTR+)». El diagnóstico molecular sigue siendo público donde está
+//   aprobado (ciencia, vídeo), pero no es la etiqueta de cabecera.
+//
 // Uso: pnpm test:afirmaciones-clinicas   (CI: .github/workflows/lint.yml)
 import { readdirSync, readFileSync, statSync } from 'node:fs'
 import { extname, join, relative } from 'node:path'
@@ -57,6 +62,8 @@ const PROHIBIDO = [
   { re: /un freno que se (está|va) perdiendo|a brake that is being lost|"se está perdiendo"/, por: 'RB1 solo en ctDNA, no confirmado en tejido' },
   { re: /Pendiente reanálisis sobre tejido actualizado|Pending re-analysis on updated tissue/, por: 'PIK3CA ya reanalizado en tejido (F1CDx jul-2026)' },
   { re: /ECOG 1, sin crisis visceral|ECOG 1, no visceral crisis/, por: 'ECOG documentado 0 (9-sep-2026)' },
+  { re: /Financiar una rebiopsia ósea|Funding for a bone rebiopsy|Obtener el tejido y los primeros análisis de precisión|Obtain the tissue and the first precision analyses|Sin rebiopsia molecular (periódica|y paneles avanzados)|Without (periodic )?molecular rebiopsy( and advanced panels)?,|exige rebiopsia molecular y revisión|requires molecular rebiopsy and international expert review/, por: 'la rebiopsia ósea (8-jul-2026) y el tumor board WIN (21-may-2026) ya ocurrieron: no se piden como futuros' },
+  { re: /Paciente con cáncer de mama metastásico de perfil molecular|Patient with metastatic breast cancer of an ultra-rare molecular profile|BC-NED con FGFR1 ×13 y SSTR\+\. Apoya|BC-NED · FGFR1 ×13 · SSTR\+ \(PET Ga-DOTATOC\)/, por: 'identidad de cabecera (JSON-LD, OG, meta): ingeniera de software y divulgadora tech, no «paciente» + perfil molecular (14-oct-2026)' },
   { re: /2159-8290\.CD-24-0837|s00259-020-05054-9|jclinpath-2020-207002/, por: 'DOI que resuelve a otro paper' },
   { re: /NCCN Guidelines — Neuroendocrine and Adrenal Tumors|ENETS Consensus Guidelines, 2023/, por: 'guía que no recoge un algoritmo para mama NE' },
   { re: /biopsia (ósea )?(de |\()?cresta ilíaca|Biopsia ósea · cresta ilíaca|iliac crest biopsy|Bone biopsy \(right iliac crest\)|Hueso, cresta ilíaca/, por: 'la biopsia de Zúrich es del ilion derecho' },

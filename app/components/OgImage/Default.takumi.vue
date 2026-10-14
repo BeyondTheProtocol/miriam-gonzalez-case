@@ -8,6 +8,9 @@ defineProps({
   colorMode: { type: String, required: false, default: 'light' },
   title: { type: String, required: false, default: 'title' },
   description: { type: String, required: false },
+  // Quién es, antes que el diagnóstico (decisión 14-oct-2026). Cada página puede pasar
+  // su idioma; el valor por defecto sirve a las dos lenguas a la vez.
+  role: { type: String, required: false, default: 'Ingeniera de software y divulgadora tech' },
   width: { type: Number, required: false, default: 1200 },
   height: { type: Number, required: false, default: 630 },
 })
@@ -65,7 +68,7 @@ defineProps({
         </span>
         <span style="color: #9d44ab;">·</span>
         <span style="font-family: 'JetBrains Mono', monospace; font-size: 16px; color: #5a4a68;">
-          BC-NED · FGFR1 ×13 · SSTR+ (PET Ga-DOTATOC)
+          {{ role }}
         </span>
       </div>
     </div>
