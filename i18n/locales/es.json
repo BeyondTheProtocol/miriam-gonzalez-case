@@ -32,6 +32,7 @@
     "map": "Mapa de metástasis",
     "port": "El reservorio",
     "bone_biopsy": "Biopsia ósea",
+    "videos": "Vídeos",
     "all_tools": "Todas las herramientas"
   },
   "a11y": {
@@ -1197,6 +1198,15 @@
   "herramientas": {
     "title": "Herramientas del caso",
     "intro": "Mapas, imágenes y datos del caso de Miriam, para explorarlos a tu ritmo."
+  },
+  "videos": {
+    "title": "Vídeos",
+    "intro": "Vídeos cortos para entender mi caso y cómo trabajo, a tu ritmo. Los tres llevan subtítulos en la imagen.",
+    "duration": "Duración",
+    "voice_other": "Narrado en inglés, subtítulos en inglés",
+    "transcript": "Leer la transcripción",
+    "fallback": "Tu navegador no reproduce este vídeo. Puedes leer la transcripción debajo.",
+    "list_label": "Lista de vídeos"
   },
   "sectionNav": {
     "aria": "Índice de secciones",

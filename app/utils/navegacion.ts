@@ -30,6 +30,7 @@ export const NAV = {
   port: e('port', 'reservorio'),
   boneBiopsy: e('bone_biopsy', 'biopsia-osea'),
   story: e('story', 'historia'),
+  videos: e('videos', 'videos'),
   timeline: e('timeline', 'timeline'),
   team: e('team', 'equipo'),
   collaborate: e('collaborate', 'colabora'),
@@ -62,7 +63,7 @@ export const ICONO_HERRAMIENTA: Record<string, string> = {
 
 // Pie: tres columnas por intención (`heading` es la clave i18n de su título).
 export const PIE: { id: string; heading: string; enlaces: EnlaceNav[] }[] = [
-  { id: 'caso', heading: 'footer.group_case', enlaces: [NAV.science, NAV.evidence, NAV.story, NAV.timeline, NAV.team] },
+  { id: 'caso', heading: 'footer.group_case', enlaces: [NAV.science, NAV.evidence, NAV.story, NAV.videos, NAV.timeline, NAV.team] },
   { id: 'herramientas', heading: 'footer.group_tools', enlaces: [NAV.allTools, ...HERRAMIENTAS] },
   { id: 'participa', heading: 'footer.group_involved', enlaces: [NAV.collaborate, NAV.press, NAV.brands, NAV.expenses, NAV.contact] },
 ]

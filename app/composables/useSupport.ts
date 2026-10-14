@@ -131,6 +131,11 @@ export function useSupport() {
     trackUmami('Bio-link', { destino: destination })
   }
 
+  // Vídeos de /videos: un solo evento «VerVideo», al primer play de cada vídeo, con su id.
+  function trackVideo(id: string) {
+    trackUmami('VerVideo', { id })
+  }
+
   return {
     GOFUNDME_URL,
     trackSupport,
@@ -145,6 +150,7 @@ export function useSupport() {
     trackDatos,
     trackLatest,
     trackNav,
+    trackVideo,
     trackPathwayCurious,
     track404,
   }
