@@ -32,6 +32,7 @@
     "map": "Metastasis map",
     "port": "The reservoir",
     "bone_biopsy": "Bone biopsy",
+    "videos": "Videos",
     "all_tools": "All tools"
   },
   "a11y": {
@@ -1197,6 +1198,15 @@
   "herramientas": {
     "title": "Case tools",
     "intro": "Maps, images and data from Miriam's case, to explore at your own pace."
+  },
+  "videos": {
+    "title": "Videos",
+    "intro": "Short videos to understand my case and how I work, at your own pace. They all have captions on the picture.",
+    "duration": "Length",
+    "voice_other": "Narrated in Spanish, captions in Spanish",
+    "transcript": "Read the transcript",
+    "fallback": "Your browser can't play this video. You can read the transcript below it.",
+    "list_label": "Video list"
   },
   "sectionNav": {
     "aria": "Section index",
