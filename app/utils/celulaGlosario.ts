@@ -122,6 +122,26 @@ export const GLOSARIO_CELULA: Record<string, EntradaGlosario> = {
       def: 'A molecule on the tumor cell’s membrane that a treatment can bind to.',
     },
   },
+  sc_ic: {
+    es: {
+      label: 'intervalo de confianza (IC)',
+      def: 'El margen en el que cae una cifra, dado cuántas células entran en el cálculo. Mide la incertidumbre del recuento en este trozo; no dice cuánto se parece el trozo al resto del tumor.',
+    },
+    en: {
+      label: 'confidence interval (CI)',
+      def: 'The range in which a figure falls, given how many cells go into the calculation. It measures the uncertainty of the count in this piece; it does not say how much the piece resembles the rest of the tumor.',
+    },
+  },
+  sc_n: {
+    es: {
+      label: 'n',
+      def: 'Cuántas células entran en una cifra. Con pocas células, la misma cifra es menos fiable.',
+    },
+    en: {
+      label: 'n',
+      def: 'How many cells go into a figure. With few cells, the same figure is less reliable.',
+    },
+  },
 }
 
 export const ORDEN_GLOSARIO_CELULA = [
@@ -136,4 +156,6 @@ export const ORDEN_GLOSARIO_CELULA = [
   'sc_hla',
   'sc_ihq',
   'sc_diana',
+  'sc_ic',
+  'sc_n',
 ] as const

@@ -6,13 +6,16 @@
 const { locale } = useI18n()
 const lang = computed<'es' | 'en'>(() => (locale.value === 'en' ? 'en' : 'es'))
 const L = (es: string, en: string) => (lang.value === 'en' ? en : es)
+const { hayReales } = useCelulaResultados()
 const filas = computed<[string, string][]>(() => [
   [L('Técnica', 'Technique'), L('10x Genomics Flex: lectura de ARN por sondas, célula a célula.', '10x Genomics Flex: probe-based RNA reading, cell by cell.')],
   [L('Muestras', 'Samples'), L('Dos: una metástasis de hígado y una de hueso, ambas incluidas en parafina.', 'Two: a liver metastasis and a bone metastasis, both embedded in paraffin.')],
   [L('Qué mide', 'What it measures'), L('Qué genes del panel de sondas están expresados en cada célula.', 'Which genes in the probe panel are expressed in each cell.')],
   [L('Qué no mide', 'What it does not measure'), L('Mutaciones, receptores de linfocitos T, genes sin sonda (por ejemplo HLA-\u2060A, -\u2060B y -\u2060C) ni proteínas.', 'Mutations, T-cell receptors, genes without a probe (for example HLA-\u2060A, -\u2060B and -\u2060C) or proteins.')],
   [L('Pruebas que lo complementan', 'Tests that complement it'), L('Secuenciación del exoma (mutaciones y neoantígenos) e inmunohistoquímica (proteínas).', 'Exome sequencing (mutations and neoantigens) and immunohistochemistry (proteins).')],
-  [L('Estado', 'Status'), L('Análisis en marcha. Sin resultados a 16 de octubre de 2026.', 'Analysis under way. No results as of 16 October 2026.')],
+  [L('Estado', 'Status'), hayReales.value
+    ? L(`Primeros resultados publicados por bloques, con su sello (a ${fechaEstado('es')}).`, `First results published block by block, each with its seal (as of ${fechaEstado('en')}).`)
+    : L(`Análisis en marcha. Sin resultados a ${fechaEstado('es')}.`, `Analysis under way. No results as of ${fechaEstado('en')}.`)],
 ])
 </script>
 

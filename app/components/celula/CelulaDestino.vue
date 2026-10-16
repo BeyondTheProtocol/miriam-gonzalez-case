@@ -5,15 +5,19 @@ const localePath = useLocalePath()
 const lang = computed<'es' | 'en'>(() => (locale.value === 'en' ? 'en' : 'es'))
 const L = (es: string, en: string) => (lang.value === 'en' ? en : es)
 const id = useId()
+const { hayReales } = useCelulaResultados()
 </script>
 
 <template>
   <section :aria-labelledby="id">
     <h2 :id="id" class="cel-h2">{{ L('Qué pasa con el resultado', 'What happens with the result') }}</h2>
     <p class="cel-p">
-      {{ L('El primero en verlo es el equipo médico de Miriam. Para ellos es una pieza más de información. Esta página no recomienda ningún tratamiento ni lo va a hacer.', 'Miriam’s medical team sees it first. For them it is one more piece of information. This page does not recommend any treatment and never will.') }}
+      {{ L('El primero en verlo es el equipo médico de Miriam. Para ellos es una pieza más de información. Esta página no recomienda ningún tratamiento, ni lo hará.', 'Miriam’s medical team sees it first. For them it is one more piece of information. This page does not recommend any treatment, and it will not.') }}
     </p>
-    <p class="cel-p">
+    <p v-if="hayReales" class="cel-p">
+      {{ L('Lo que ya ha salido está más arriba, con su sello: verificado, inferido o sin verificar. Lo demás se irá sumando por bloques.', 'What has already come out is above, with its seal: verified, inferred or unverified. The rest will be added block by block.') }}
+    </p>
+    <p v-else class="cel-p">
       {{ L('Cuando haya algo que se pueda contar con seguridad, se contará aquí con su sello: verificado, inferido o sin verificar.', 'When there is something that can be said with confidence, it will be said here with its seal: verified, inferred or unverified.') }}
     </p>
     <div class="cel-cta">

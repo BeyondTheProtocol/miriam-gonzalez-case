@@ -18,8 +18,13 @@ const lang = computed<'es' | 'en'>(() => (locale.value === 'en' ? 'en' : 'es'))
 const L = (es: string, en: string) => (lang.value === 'en' ? en : es)
 
 const copy = computed(() => copyHerramienta('cell_by_cell', locale.value))
+const { hayReales } = useCelulaResultados()
 const seoTitle = () => copy.value[0]
-const seoDescription = () => copy.value[1]
+// la descripción del índice de herramientas dice «todavía no hay resultados»: con resultados, la página no lo repite
+const seoDescription = () => hayReales.value
+  ? L('Un análisis de célula única sobre dos muestras del tumor de Miriam: qué es, qué preguntas puede contestar, qué no puede decir y los primeros resultados, con su sello.',
+    'A single-cell analysis of two of Miriam’s tumor samples: what it is, which questions it can answer, what it cannot say and the first results, each with its seal.')
+  : copy.value[1]
 
 useSeoMeta({
   title: seoTitle, description: seoDescription, ogTitle: seoTitle, ogDescription: seoDescription,
@@ -27,8 +32,10 @@ useSeoMeta({
 })
 defineOgImage('Default.takumi', {
   title: seoTitle,
-  description: () => L('Qué se está midiendo, qué preguntas puede contestar y qué no puede decir. Todavía no hay resultados.',
-    'What is being measured, which questions it can answer and what it cannot say. There are no results yet.'),
+  description: () => hayReales.value
+    ? L('Qué se ha medido, qué preguntas contesta, qué no puede decir y los primeros resultados.', 'What was measured, which questions it answers, what it cannot say and the first results.')
+    : L('Qué se está midiendo, qué preguntas puede contestar y qué no puede decir. Todavía no hay resultados.',
+      'What is being measured, which questions it can answer and what it cannot say. There are no results yet.'),
 })
 </script>
 
@@ -41,8 +48,11 @@ defineOgImage('Default.takumi', {
           :parent="{ to: localePath({ name: 'herramientas' }), label: t('nav.tools') }"
           :tag="L('Análisis en marcha', 'Analysis under way')"
           :title="copy[0]"
-          :subtitle="L('Un análisis que mira las células del tumor de Miriam una a una, en lugar de hacer la media de todas. Todavía no hay resultados.',
-            'An analysis that looks at the cells of Miriam’s tumor one by one, instead of averaging all of them. There are no results yet.')"
+          :subtitle="hayReales
+            ? L('Un análisis que mira las células del tumor de Miriam una a una, en lugar de hacer la media de todas. Estos son los primeros resultados.',
+              'An analysis that looks at the cells of Miriam’s tumor one by one, instead of averaging all of them. These are the first results.')
+            : L('Un análisis que mira las células del tumor de Miriam una a una, en lugar de hacer la media de todas. Todavía no hay resultados.',
+              'An analysis that looks at the cells of Miriam’s tumor one by one, instead of averaging all of them. There are no results yet.')"
         />
 
         <CelulaAviso class="mb-8" />
@@ -53,6 +63,7 @@ defineOgImage('Default.takumi', {
           <CelulaQueEs />
           <CelulaTejido />
           <CelulaPreguntas />
+          <CelulaResultados />
           <CelulaLimites />
           <CelulaDestino />
           <CelulaGlosario />
