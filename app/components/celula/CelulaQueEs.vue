@@ -32,7 +32,7 @@ const trozos: [number, number, number][] = [
     </p>
 
     <figure class="cel-fig">
-      <p class="cel-fig__marca">{{ L('Metáfora', 'Metaphor') }}</p>
+      <p class="eyebrow--sm cel-fig__marca">{{ L('Metáfora', 'Metaphor') }}</p>
       <div class="cel-fig__par">
         <div class="cel-fig__col">
           <svg viewBox="0 0 260 150" class="cel-svg" role="img" :aria-label="L('Un vaso de batido: todo mezclado en un solo color.', 'A smoothie glass: everything blended into one color.')">
@@ -63,11 +63,12 @@ const trozos: [number, number, number][] = [
 </template>
 
 <style scoped>
-.cel-fig { margin-top: 20px; background: var(--color-bg-card); border: 1px solid rgb(var(--color-text-rgb) / 0.08); border-radius: 12px; padding: 16px; }
-.cel-fig__marca { font: 600 11px/1 var(--font-mono); letter-spacing: 0.12em; text-transform: uppercase; color: var(--color-text-soft); margin-bottom: 12px; }
-.cel-fig__par { display: grid; gap: 20px; grid-template-columns: 1fr; }
+.cel-fig { margin: var(--sp-24) 0 0; background: var(--color-bg-card); border: 1px solid rgb(var(--color-text-rgb) / 0.08); border-radius: var(--radius-card); padding: var(--sp-16); }
+@media (min-width: 640px) { .cel-fig { padding: var(--sp-24); } }
+.cel-fig__marca { margin: 0 0 var(--sp-12); }
+.cel-fig__par { display: grid; gap: var(--sp-24); grid-template-columns: 1fr; }
 @media (min-width: 640px) { .cel-fig__par { grid-template-columns: 1fr 1fr; } }
 .cel-svg { display: block; width: 100%; max-width: 300px; height: auto; margin: 0 auto; color: var(--color-text); }
-.cel-fig__pie { margin-top: 8px; font-size: 15px; line-height: 1.5; color: var(--color-text-soft); }
-.cel-fig__nota { margin-top: 14px; font-size: 13px; line-height: 1.5; color: var(--color-text-soft); }
+.cel-fig__pie { margin: var(--sp-8) 0 0; font: var(--tipo-body-sm); color: var(--color-text-soft); }
+.cel-fig__nota { margin-top: var(--sp-16); font-size: var(--texto-xs); line-height: 1.5; color: var(--color-text-soft); }
 </style>

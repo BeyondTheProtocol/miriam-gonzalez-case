@@ -27,7 +27,7 @@ const id = useId()
 </template>
 
 <style scoped>
-.cel-cta { margin-top: 18px; display: flex; flex-wrap: wrap; align-items: center; gap: 14px 20px; }
-.cel-cta__p { flex: 1 1 280px; color: var(--color-text-soft); line-height: 1.55; }
+.cel-cta { margin-top: var(--sp-24); display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-16) var(--sp-24); }
+.cel-cta__p { flex: 1 1 280px; max-width: var(--measure); margin: 0; font: var(--tipo-body-sm); color: var(--color-text-soft); }
 .cel-cta__btn { min-height: 44px; text-decoration: none; }
 </style>

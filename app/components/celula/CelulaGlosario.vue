@@ -24,9 +24,10 @@ const items = computed(() => ORDEN_GLOSARIO_CELULA.map((k) => ({ k, ...GLOSARIO_
 </template>
 
 <style scoped>
-.cel-gl { margin: 14px 0 0; display: grid; gap: 0; }
-@media (min-width: 768px) { .cel-gl { grid-template-columns: 1fr 1fr; column-gap: 32px; } }
-.cel-gl__it { padding: 12px 0; border-top: 1px solid rgb(var(--color-text-rgb) / 0.12); }
-.cel-gl dt { font-weight: 600; color: var(--color-text); }
-.cel-gl dd { margin: 2px 0 0; color: var(--color-text-soft); line-height: 1.55; font-size: 15px; }
+.cel-gl { margin: var(--sp-16) 0 0; display: grid; gap: 0; }
+@media (min-width: 768px) { .cel-gl { grid-template-columns: 1fr 1fr; column-gap: var(--sp-32); } }
+@media (min-width: 1100px) { .cel-gl { grid-template-columns: repeat(3, 1fr); } }
+.cel-gl__it { padding: var(--sp-12) 0; border-top: 1px solid rgb(var(--color-text-rgb) / 0.12); }
+.cel-gl dt { font: 700 var(--texto-sm)/1.4 var(--font-body); color: var(--color-text); }
+.cel-gl dd { margin: var(--sp-4) 0 0; color: var(--color-text-soft); font: var(--tipo-body-sm); }
 </style>

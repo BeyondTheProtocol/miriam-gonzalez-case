@@ -37,12 +37,16 @@ defineOgImage('Default.takumi', {
     <section class="section-spacing" :aria-label="L('Célula a célula: el análisis de célula única', 'Cell by cell: the single-cell analysis')">
       <div class="mx-auto w-full max-w-[1280px] px-4 sm:px-6 lg:px-8">
         <PageHeader
+          class="!mb-6"
           :parent="{ to: localePath({ name: 'herramientas' }), label: t('nav.tools') }"
           :tag="L('Análisis en marcha', 'Analysis under way')"
           :title="copy[0]"
           :subtitle="L('Un análisis que mira las células del tumor de Miriam una a una, en lugar de hacer la media de todas. Todavía no hay resultados.',
             'An analysis that looks at the cells of Miriam’s tumor one by one, instead of averaging all of them. There are no results yet.')"
         />
+
+        <CelulaAviso class="mb-8" />
+        <EcgDivider class="mb-12" />
 
         <div class="cel-flujo">
           <CelulaEstado />
@@ -61,20 +65,19 @@ defineOgImage('Default.takumi', {
 
 <style>
 /* Ritmo y piezas comunes de /celula-a-celula (los componentes de app/components/celula/ las usan).
-   Sin animaciones: nada que desactivar con prefers-reduced-motion. */
-.cel-flujo { display: grid; gap: 48px; max-width: 760px; }
-@media (min-width: 640px) { .cel-flujo { gap: 64px; } }
-.cel-h2 {
-  font-family: var(--font-display); font-weight: 600; color: var(--color-text);
-  font-size: clamp(22px, 2.4vw, 28px); line-height: 1.2; letter-spacing: -0.015em; margin-bottom: 12px;
-}
-.cel-h3 { font-family: var(--font-display); font-weight: 600; color: var(--color-text); font-size: 18px; line-height: 1.3; }
-.cel-p { color: var(--color-text-soft); line-height: 1.65; font-size: 17px; max-width: 64ch; }
-.cel-p + .cel-p { margin-top: 12px; }
-.cel-p--sm { font-size: 15px; margin-top: 4px; }
-.cel-card {
-  background: var(--color-bg-card); border: 1px solid rgb(var(--color-text-rgb) / 0.08);
-  border-radius: 12px; padding: 16px 18px;
-}
-.cel-card__p { margin-top: 4px; color: var(--color-text-soft); line-height: 1.55; font-size: 15px; }
+   Todo con tokens del sistema (btp-tokens.css): tipografía --tipo-*, espaciado --sp-*, radios --radius-*.
+   Las tarjetas son .card-base (la del sistema), no una propia. Sin animaciones. */
+.cel-flujo { display: grid; gap: var(--sp-48); }
+@media (min-width: 640px) { .cel-flujo { gap: var(--sp-64); } }
+.cel-h2 { font: var(--tipo-h2); color: var(--color-text); margin: 0 0 var(--sp-12); }
+.cel-h3 { font: 600 var(--texto-lg)/1.25 var(--font-display); color: var(--color-text); margin: 0; }
+.cel-p { font: var(--tipo-body); color: var(--color-text-soft); max-width: var(--measure); margin: 0; }
+.cel-p + .cel-p { margin-top: var(--sp-12); }
+.cel-p--sm { font: var(--tipo-body-sm); margin-top: var(--sp-4); }
+.cel-card__p { margin: var(--sp-4) 0 0; color: var(--color-text-soft); font: var(--tipo-body-sm); }
+/* tarjetas más compactas que el .card-base por defecto (p-8): son de lectura, no de portada */
+.cel-card { padding: var(--sp-16) var(--sp-24); }
+@media (min-width: 640px) { .cel-card { padding: var(--sp-24); } }
+/* sin corte de línea dentro de un símbolo («HLA-» / «A», «T.» suelto) */
+.cel-nb { white-space: nowrap; }
 </style>
