@@ -37,6 +37,9 @@ jobs:
       # de caso.json, en cada fecha con análisis. Una cifra interpolada sería un dato clínico falso.
       - run: pnpm test:cifras-datos
 
+      # /celula-a-celula: sin demo no hay ni rastro de resultados, y cada cifra pintada con ?demo=1 está en el JSON.
+      - run: pnpm test:celula-cifras
+
       # Privacidad: ninguna cita FUTURA con día junto a un lugar (acoso activo). Va detrás
       # del build para revisar también lo generado (.output/public), que es lo que se sirve.
       - run: pnpm test:citas-futuras
@@ -56,6 +59,8 @@ jobs:
       - run: pnpm test:sala-prensa
       # La frase de la constelación usa el total real de donantes, no la lista topada a 500.
       - run: pnpm test:donantes-total
+      # La puerta de los resultados de /celula-a-celula (verificado + OK de Miriam) y el contrato del JSON publicado.
+      - run: pnpm test:celula-puerta
       - run: pnpm test:mapa-focos
       - run: pnpm test:mallas-3d
       - run: pnpm test:esqueleto-huesos

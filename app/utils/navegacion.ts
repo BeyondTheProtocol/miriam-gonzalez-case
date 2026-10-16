@@ -29,6 +29,7 @@ export const NAV = {
   map: e('map', 'mapa-metastasis'),
   port: e('port', 'reservorio'),
   boneBiopsy: e('bone_biopsy', 'biopsia-osea'),
+  cellByCell: e('cell_by_cell', 'celula-a-celula'),
   story: e('story', 'historia'),
   videos: e('videos', 'videos'),
   timeline: e('timeline', 'timeline'),
@@ -46,7 +47,7 @@ export const MENU_ESCRITORIO: EnlaceNav[] = [NAV.science, NAV.tools, NAV.timelin
 export const MENU_MOVIL: EnlaceNav[] = [NAV.home, ...MENU_ESCRITORIO]
 
 // Las herramientas, en el orden del índice y del pie.
-export const HERRAMIENTAS: EnlaceNav[] = [NAV.data, NAV.lesions, NAV.map, NAV.port, NAV.boneBiopsy]
+export const HERRAMIENTAS: EnlaceNav[] = [NAV.data, NAV.lesions, NAV.map, NAV.port, NAV.boneBiopsy, NAV.cellByCell]
 
 // Icono de cada herramienta (decorativo, aria-hidden) para las tarjetas de /herramientas.
 // Son los que la web ya usaba para cada una: el pin del teaser de la home y de /ciencia
@@ -59,6 +60,8 @@ export const ICONO_HERRAMIENTA: Record<string, string> = {
   // Un catéter que acaba en la cámara del port (diseno, 14-oct): una jeringa se leía como «inyección».
   port: 'ph:path-fill',
   bone_biopsy: 'ph:microscope-fill',
+  // Tres círculos: tres células. Distinto del microscopio de la biopsia (corte de tejido): aquí no se mira un corte, se cuentan células.
+  cell_by_cell: 'ph:circles-three-fill',
 }
 
 // Pie: tres columnas por intención (`heading` es la clave i18n de su título).
@@ -75,7 +78,7 @@ export const PIE: { id: string; heading: string; enlaces: EnlaceNav[] }[] = [
 export const SECCIONES: Record<string, string[]> = {
   home: ['index'],
   science: ['ciencia', 'ciencia-evidencia', 'ciencia-slug'],
-  tools: ['herramientas', 'datos', 'lesiones', 'mapa-metastasis', 'reservorio', 'biopsia-osea'],
+  tools: ['herramientas', 'datos', 'lesiones', 'mapa-metastasis', 'reservorio', 'biopsia-osea', 'celula-a-celula'],
   timeline: ['timeline', 'historia', 'historia-slug'],
   team: ['equipo'],
   collaborate: ['colabora', 'prensa', 'marcas', 'gastos', 'contacto'],
@@ -117,6 +120,11 @@ export const COPY_HERRAMIENTAS: Record<string, { es: [string, string]; en: [stri
   bone_biopsy: {
     es: ['Lo que se puede medir en mi biopsia ósea', 'Lo que un corte de histología puede decir y lo que no. La biopsia ósea de Miriam, calibrada con su propia barra de 100 µm, con los límites de la imagen dichos tan claro como las medidas.'],
     en: ['What can be measured in my bone biopsy', 'What a histology slide can and cannot tell you. Miriam’s own bone biopsy, calibrated against its 100 µm scale bar, with the limits of the image stated as plainly as the measurements.'],
+  },
+  // app/pages/celula-a-celula.vue
+  cell_by_cell: {
+    es: ['Célula a célula', 'Un análisis de célula única sobre dos muestras del tumor de Miriam: qué es, qué preguntas puede contestar y qué no puede decir. Todavía no hay resultados.'],
+    en: ['Cell by cell', 'A single-cell analysis of two of Miriam’s tumor samples: what it is, which questions it can answer and what it cannot say. There are no results yet.'],
   },
 }
 

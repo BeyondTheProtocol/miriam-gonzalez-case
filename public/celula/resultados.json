@@ -1,0 +1,112 @@
+{
+  "version": 1,
+  "ejemplo": true,
+  "por_cada": 100,
+  "ic_nivel": 95,
+  "bloques": {
+    "R0": {
+      "sello": "sin_verificar",
+      "ok_miriam": false,
+      "ejemplo": true,
+      "datos": {
+        "muestras": {
+          "higado": { "leidas": 5000, "usadas": 4000, "usadas_por_100": 80, "genes_mediana": 1000 },
+          "hueso": { "leidas": 3000, "usadas": 1500, "usadas_por_100": 50, "genes_mediana": 500 }
+        }
+      }
+    },
+    "R1": {
+      "sello": "sin_verificar",
+      "ok_miriam": false,
+      "ejemplo": true,
+      "datos": {
+        "muestras": {
+          "higado": { "n_total": 4000, "categorias": [
+            { "clave": "tumoral", "n": 2000, "por_100": 50 },
+            { "clave": "inmune", "n": 1000, "por_100": 25 },
+            { "clave": "sosten", "n": 800, "por_100": 20 },
+            { "clave": "otras", "n": 200, "por_100": 5 }
+          ] },
+          "hueso": { "n_total": 1500, "categorias": [
+            { "clave": "tumoral", "n": 600, "por_100": 40 },
+            { "clave": "inmune", "n": 600, "por_100": 40 },
+            { "clave": "sosten", "n": 225, "por_100": 15 },
+            { "clave": "otras", "n": 75, "por_100": 5 }
+          ] }
+        }
+      }
+    },
+    "R3": {
+      "sello": "sin_verificar",
+      "ok_miriam": false,
+      "ejemplo": true,
+      "datos": {
+        "muestras": {
+          "higado": { "n_tumorales": 2000, "dianas": [
+            { "gen": "Diana A", "en_panel": true, "n": 2000, "n_con": 1000, "por_100": 50, "ic_inf": 40, "ic_sup": 60 },
+            { "gen": "Diana B", "en_panel": true, "n": 2000, "n_con": 400, "por_100": 20, "ic_inf": 10, "ic_sup": 30 },
+            { "gen": "Diana C", "en_panel": true, "n": 2000, "n_con": 100, "por_100": 5, "ic_inf": 2, "ic_sup": 8 },
+            { "gen": "Diana D", "en_panel": false }
+          ] },
+          "hueso": { "n_tumorales": 600, "dianas": [
+            { "gen": "Diana A", "en_panel": true, "n": 600, "n_con": 300, "por_100": 50, "ic_inf": 30, "ic_sup": 70 },
+            { "gen": "Diana B", "en_panel": true, "n": 600, "n_con": 60, "por_100": 10, "ic_inf": 5, "ic_sup": 15 },
+            { "gen": "Diana C", "en_panel": true, "n": 600, "n_con": 120, "por_100": 20, "ic_inf": 10, "ic_sup": 30 },
+            { "gen": "Diana D", "en_panel": false }
+          ] }
+        }
+      }
+    },
+    "R4": {
+      "sello": "sin_verificar",
+      "ok_miriam": false,
+      "ejemplo": true,
+      "datos": {
+        "sin_sonda": ["Molécula X", "Molécula Y"],
+        "muestras": {
+          "higado": { "n_tumorales": 2000, "genes": [
+            { "gen": "Pieza A", "en_panel": true, "n": 2000, "n_con": 1500, "por_100": 75, "ic_inf": 65, "ic_sup": 85 },
+            { "gen": "Pieza B", "en_panel": true, "n": 2000, "n_con": 600, "por_100": 30, "ic_inf": 20, "ic_sup": 40 },
+            { "gen": "Pieza C", "en_panel": true, "n": 2000, "n_con": 200, "por_100": 10, "ic_inf": 5, "ic_sup": 15 }
+          ] },
+          "hueso": { "n_tumorales": 600, "genes": [
+            { "gen": "Pieza A", "en_panel": true, "n": 600, "n_con": 300, "por_100": 50, "ic_inf": 40, "ic_sup": 60 },
+            { "gen": "Pieza B", "en_panel": true, "n": 600, "n_con": 180, "por_100": 30, "ic_inf": 20, "ic_sup": 40 },
+            { "gen": "Pieza C", "en_panel": true, "n": 600, "n_con": 120, "por_100": 20, "ic_inf": 10, "ic_sup": 30 }
+          ] }
+        }
+      }
+    },
+    "R5": {
+      "sello": "sin_verificar",
+      "ok_miriam": false,
+      "ejemplo": true,
+      "datos": {
+        "dianas": [
+          { "gen": "Diana A",
+            "higado": { "n": 2000, "n_con": 1000, "por_100": 50, "ic_inf": 40, "ic_sup": 60 },
+            "hueso": { "n": 600, "n_con": 300, "por_100": 50, "ic_inf": 30, "ic_sup": 70 } },
+          { "gen": "Diana B",
+            "higado": { "n": 2000, "n_con": 400, "por_100": 20, "ic_inf": 10, "ic_sup": 30 },
+            "hueso": { "n": 600, "n_con": 60, "por_100": 10, "ic_inf": 5, "ic_sup": 15 } }
+        ],
+        "cielo": {
+          "higado": { "grupos": [
+            { "clave": "tumoral", "x": 30, "y": 40, "n": 2000 },
+            { "clave": "tumoral", "x": 42, "y": 60, "n": 400 },
+            { "clave": "inmune", "x": 75, "y": 30, "n": 1000 },
+            { "clave": "sosten", "x": 70, "y": 75, "n": 800 },
+            { "clave": "otras", "x": 12, "y": 82, "n": 200 }
+          ] },
+          "hueso": { "grupos": [
+            { "clave": "tumoral", "x": 25, "y": 55, "n": 600 },
+            { "clave": "inmune", "x": 70, "y": 35, "n": 600 },
+            { "clave": "inmune", "x": 82, "y": 62, "n": 200 },
+            { "clave": "sosten", "x": 50, "y": 82, "n": 225 },
+            { "clave": "otras", "x": 15, "y": 15, "n": 75 }
+          ] }
+        }
+      }
+    }
+  }
+}
