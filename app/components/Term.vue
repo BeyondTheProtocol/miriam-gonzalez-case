@@ -10,6 +10,8 @@ const { locale } = useI18n()
 type Entry = { es: { label: string; def: string }; en: { label: string; def: string } }
 
 const GLOSSARY: Record<string, Entry> = {
+  // Términos de /celula-a-celula (fuente única en app/utils/celulaGlosario.ts).
+  ...GLOSARIO_CELULA,
   luminal: {
     es: {
       label: 'luminal',

@@ -1,0 +1,33 @@
+<script setup lang="ts">
+/** Bloque 5 · Qué pasa con el resultado. Describe y equipa; no recomienda ningún tratamiento. */
+const { locale } = useI18n()
+const localePath = useLocalePath()
+const lang = computed<'es' | 'en'>(() => (locale.value === 'en' ? 'en' : 'es'))
+const L = (es: string, en: string) => (lang.value === 'en' ? en : es)
+const id = useId()
+</script>
+
+<template>
+  <section :aria-labelledby="id">
+    <h2 :id="id" class="cel-h2">{{ L('Qué pasa con el resultado', 'What happens with the result') }}</h2>
+    <p class="cel-p">
+      {{ L('El primero en verlo es el equipo médico de Miriam. Para ellos es una pieza más de información. Esta página no recomienda ningún tratamiento ni lo va a hacer.', 'Miriam’s medical team sees it first. For them it is one more piece of information. This page does not recommend any treatment and never will.') }}
+    </p>
+    <p class="cel-p">
+      {{ L('Cuando haya algo que se pueda contar con seguridad, se contará aquí con su sello: verificado, inferido o sin verificar.', 'When there is something that can be said with confidence, it will be said here with its seal: verified, inferred or unverified.') }}
+    </p>
+    <div class="cel-cta">
+      <p class="cel-cta__p">{{ L('Si analizas datos de célula única o trabajas en terapia personalizada y quieres echar una mano, la página «Cómo ayudar» lo explica.', 'If you analyze single-cell data or work on personalized therapy and want to help, the “How to help” page explains how.') }}</p>
+      <NuxtLink :to="localePath({ name: 'colabora' })" class="btn-cta cel-cta__btn">
+        {{ L('Cómo ayudar', 'How to help') }}
+        <Icon name="ph:arrow-right" class="w-5 h-5" aria-hidden="true" />
+      </NuxtLink>
+    </div>
+  </section>
+</template>
+
+<style scoped>
+.cel-cta { margin-top: 18px; display: flex; flex-wrap: wrap; align-items: center; gap: 14px 20px; }
+.cel-cta__p { flex: 1 1 280px; color: var(--color-text-soft); line-height: 1.55; }
+.cel-cta__btn { min-height: 44px; text-decoration: none; }
+</style>
