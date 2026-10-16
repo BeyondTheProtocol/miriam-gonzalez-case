@@ -14,7 +14,7 @@ const id = useId()
   <section class="cel-estado" :aria-labelledby="id">
     <p class="eyebrow cel-estado__fecha">{{ L('Estado a 16 de octubre de 2026', 'Status as of 16 October 2026') }}</p>
     <h2 :id="id" class="cel-estado__t">
-      <span class="block">{{ L('En el laboratorio de análisis.', 'In the analysis lab.') }}</span>
+      <span class="block">{{ L('Datos recibidos. Análisis en marcha.', 'Data received. Analysis under way.') }}</span>
       <span class="block cel-estado__res">{{ L('Resultados: todavía no.', 'Results: not yet.') }}</span>
     </h2>
     <p class="cel-estado__p">
