@@ -75,7 +75,7 @@ const filas = computed(() => PANEL_INTERES.filter((g) => props.d.genes.includes(
 .gi__tabla thead th:first-child { background: var(--superficie); }
 .gi__fila--sel th { background: color-mix(in srgb, var(--identidad) 8%, var(--fondo)) !important; }
 .gi__desliza { display: none; margin: 0 0 var(--sp-8); font: var(--tipo-body-sm); font-size: var(--texto-xs); color: var(--texto-2); }
-@media (max-width: 639px) { .gi__desliza { display: block; } }
+@media (max-width: 639px) { .gi__desliza { display: block; } .gi__gen { flex-direction: column; align-items: flex-start; gap: 0; justify-content: center; } }
 .gi__gen:focus-visible { outline: 2px solid var(--anillo-foco); outline-offset: 1px; }
 .gi__gen[aria-pressed='true'] .gi__prot { color: var(--identidad); text-decoration: underline; text-underline-offset: 3px; }
 .gi__prot { font-weight: 600; white-space: nowrap; }

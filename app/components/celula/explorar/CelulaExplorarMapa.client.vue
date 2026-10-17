@@ -32,7 +32,7 @@ let motor: { pinta: (e: any) => void; desmonta: () => void } | null = null
 function entrada() {
   return {
     uid: `exp-${props.d.lesion}-${props.modo}-${props.gen}-${props.modo === 'coexp' ? props.genB : ''}-${props.tema}-${props.lang}`,
-    tema: props.tema, alto: 520, umap: props.d.celulas.umap, lang: props.lang,
+    tema: props.tema, alto: 520, umap: props.d.celulas.umap, lang: props.lang, rotulos: props.modo === 'grupo',
     conjuntos: props.conjuntos, colores: props.colores, colorearPor: props.colorearPor,
     gen: props.modo === 'gen' ? { simbolo: props.gen, valores: columna(props.d, props.gen) } : null,
     etiquetas: { mapa: props.lang === 'en' ? 'Cell map (UMAP)' : 'Mapa de células (UMAP)' },
@@ -49,13 +49,21 @@ onMounted(async () => {
   catch (e) { emit('error', String((e as Error)?.message ?? e)) }
   finally { cargando.value = false }
 })
-watch(() => [props.d, props.modo, props.gen, props.genB, props.conjuntos, props.colores, props.tema, props.lang], () => { motor?.pinta(entrada()) })
-onBeforeUnmount(() => { motor?.desmonta(); motor = null })
+// Vitessce remonta la vista al cambiar de config: un velo con el fondo del tema tapa el destello gris
+let velo: ReturnType<typeof setTimeout> | null = null
+watch(() => [props.d, props.modo, props.gen, props.genB, props.conjuntos, props.colores, props.tema, props.lang], () => {
+  if (!motor) return
+  cargando.value = true
+  motor.pinta(entrada())
+  if (velo) clearTimeout(velo)
+  velo = setTimeout(() => { cargando.value = false }, 1100)
+})
+onBeforeUnmount(() => { if (velo) clearTimeout(velo); motor?.desmonta(); motor = null })
 </script>
 
 <template>
   <div class="exp-mapa">
-    <p v-if="cargando" class="exp-mapa__carga">{{ lang === 'en' ? 'Loading the map…' : 'Cargando el mapa…' }}</p>
+    <p v-if="cargando" class="exp-mapa__carga" role="status">{{ lang === 'en' ? 'Loading the map…' : 'Cargando el mapa…' }}</p>
     <div
       ref="el"
       class="exp-mapa__lienzo"
@@ -70,7 +78,7 @@ onBeforeUnmount(() => { motor?.desmonta(); motor = null })
 <style scoped>
 .exp-mapa { position: relative; min-height: 520px; border-radius: var(--radius-card); overflow: hidden; border: 1px solid var(--trazo-medio); background: var(--fondo); }
 .exp-mapa__lienzo { position: relative; height: 520px; }
-.exp-mapa__carga { position: absolute; inset: 0; display: grid; place-items: center; margin: 0; font: var(--tipo-body-sm); color: var(--texto-2); }
+.exp-mapa__carga { position: absolute; inset: 0; z-index: 2; display: grid; place-items: center; margin: 0; background: var(--fondo); font: var(--tipo-body-sm); color: var(--texto-2); }
 /* Vitessce pinta sus propios fondos (blanco / #333 / negro): aquí manda el tema del sistema */
 .exp-mapa :deep(.vitessce-container),
 .exp-mapa :deep(.vitessce-container .card),

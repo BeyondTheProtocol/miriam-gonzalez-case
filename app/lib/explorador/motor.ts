@@ -33,6 +33,8 @@ export interface EntradaMotor {
   colorearPor: string
   etiquetas: { mapa: string }
   lang: 'es' | 'en'
+  /** rótulos de conjunto sobre el mapa (solo tiene sentido con los grupos) */
+  rotulos: boolean
 }
 
 const csvCampo = (s: string) => (/[",\n]/.test(s) ? `"${s.replaceAll('"', '""')}"` : s)
@@ -78,7 +80,8 @@ function construyeConfig(e: EntradaMotor, urls: string[]) {
       obsSetColor: { A: e.colores.map((c) => ({ path: c.ruta, color: c.rgb })) },
       embeddingObsRadiusMode: { A: 'manual' },
       embeddingObsRadius: { A: 2 },
-      embeddingObsSetLabelsVisible: { A: !e.gen },
+      // rótulos solo por grupo: en tipo (12 en hueso) y co-expresión se pisaban y parecían nombres de cúmulo
+      embeddingObsSetLabelsVisible: { A: e.rotulos },
     },
     // UNA vista: el mapa. Sin el gestor de conjuntos de Vitessce (permitía crear grupos nuevos por
     // unión/intersección, y la página no reagrupa células); la leyenda va debajo, con el design system.

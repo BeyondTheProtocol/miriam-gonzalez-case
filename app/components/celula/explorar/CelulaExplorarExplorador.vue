@@ -7,7 +7,8 @@
  * ambiental por grupo (violines propios), la tabla de genes de interés con referencia emparejada y
  * valoración de la revisión, co-expresión de dos genes y número de copias (por célula SOLO en el hueso).
  * Qué NO enseña: «% de células tumorales» del hígado, re-clustering ni comparación tumor/hepatocito.
- * Móvil (< 768 px): vista reducida y avisada, sin el mapa (WebGL pesado y poco legible a ese ancho).
+ * Móvil y tableta (< 1024 px): vista reducida y avisada, sin el mapa (WebGL pesado; su lienzo atrapa
+ * el scroll con el dedo).
  * Claro/oscuro: el tema del sistema es manual (data-tema), no prefers-color-scheme; el conmutador
  * «Fondo» pone data-tema="oscuro" en este bloque, el tema oscuro de Vitessce y su paleta de tokens.
  * Violeta = grupo de interés, selección, foco y enlaces; los avisos van en tinta (auditoría `diseno`).
@@ -20,7 +21,8 @@ import { ETIQUETA_GRUPO, ETIQUETA_LESION, ETIQUETA_TIPO, PANEL_INTERES, etiqueta
 const props = defineProps<{ man: Manifiesto; ejemplo: boolean; lang: 'es' | 'en' }>()
 const L = (es: string, en: string) => (props.lang === 'en' ? en : es)
 
-const movil = useMediaQuery('(max-width: 767px)')
+// vista reducida también en tableta: el lienzo de Vitessce lleva touch-action:none y atraparía el scroll con el dedo
+const movil = useMediaQuery('(max-width: 1023px)')
 const lesion = ref<Lesion>(props.man.lesiones.includes('higado') ? 'higado' : props.man.lesiones[0]!)
 const cache = shallowReactive<Partial<Record<Lesion, LesionDatos>>>({})
 const error = ref('')
@@ -144,8 +146,8 @@ function sinTapar(ev: FocusEvent) {
 
     <p v-if="movil" class="exp__movil" role="note">
       <svg class="exp__ico" viewBox="0 0 256 256" aria-hidden="true"><path fill="currentColor" d="M176 16H80a24 24 0 0 0-24 24v176a24 24 0 0 0 24 24h96a24 24 0 0 0 24-24V40a24 24 0 0 0-24-24Zm8 200a8 8 0 0 1-8 8H80a8 8 0 0 1-8-8V40a8 8 0 0 1 8-8h96a8 8 0 0 1 8 8ZM140 60a12 12 0 1 1-12-12 12 12 0 0 1 12 12Z" /></svg>
-      {{ L('En el móvil ves una versión reducida, sin el mapa de células. Para verlo, abre esta página en una pantalla más grande.',
-        'On a phone you see a reduced version, without the cell map. To see it, open this page on a larger screen.') }}
+      {{ L('En el móvil o la tableta ves una versión reducida, sin el mapa de células. Para verlo, abre esta página en un ordenador.',
+        'On a phone or tablet you see a reduced version, without the cell map. To see it, open this page on a computer.') }}
     </p>
 
     <div class="exp__ctl" role="group" :aria-label="L('Controles del explorador', 'Explorer controls')">
@@ -244,12 +246,13 @@ function sinTapar(ev: FocusEvent) {
 
       <div class="exp__bloque">
         <h2 class="exp__h2">{{ L('Dos genes a la vez', 'Two genes at once') }}{{ ej }}</h2>
-        <div class="exp__campo exp__campo--fila">
+        <div v-if="!(modo === 'coexp' && !movil)" class="exp__campo exp__campo--fila">
           <label :for="`${idCtl}-genb`" class="exp__eti">{{ L(`${nombreGen(gen)} con`, `${nombreGen(gen)} with`) }}</label>
           <select :id="`${idCtl}-genb`" v-model="genB" class="exp__sel">
             <option v-for="g in [...genesInteres, ...genesOtros].filter((x) => x !== gen)" :key="g" :value="g">{{ nombreGen(g) }}</option>
           </select>
         </div>
+        <p v-else class="exp__nota">{{ L('El segundo gen se elige junto al mapa, arriba.', 'The second gene is chosen next to the map, above.') }}</p>
         <CelulaExplorarCoexp v-if="etiquetasCx" :d="d" :etiquetas="etiquetasCx" :gen-a="gen" :gen-b="genB" :lang="lang" />
       </div>
 
@@ -286,7 +289,7 @@ function sinTapar(ev: FocusEvent) {
 .exp__movil, .exp__banner { display: flex; gap: var(--sp-8); align-items: flex-start; padding: var(--sp-12) var(--sp-16); border-radius: var(--radius-btn); font: var(--tipo-body-sm); }
 .exp__movil { margin: 0 0 var(--sp-16); background: var(--superficie); color: var(--texto-1); }
 .exp__banner { margin: var(--sp-16) 0 0; position: sticky; top: var(--exp-top, 8px); z-index: 5; background: var(--fondo); border: 2px solid var(--texto-1); color: var(--texto-1); }
-@media (max-width: 767px) { .exp__banner { padding: var(--sp-8) var(--sp-12); font-size: var(--texto-xs); } }
+@media (max-width: 1023px) { .exp__banner { padding: var(--sp-8) var(--sp-12); font-size: var(--texto-xs); } }
 .exp__banner p { margin: 0; }
 .exp__ico { width: 20px; height: 20px; flex: none; margin-top: 1px; color: var(--texto-1); }
 .exp__estado { margin: var(--sp-16) 0 0; font: var(--tipo-body-sm); color: var(--texto-2); }
