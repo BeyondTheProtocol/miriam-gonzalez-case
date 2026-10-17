@@ -318,3 +318,13 @@ entries:
     highlight: false
     link: https://x.com/miriamgonp/status/2108087307219923331
     linkLabel: 'Read it on X →'
+
+  - date: 'Oct 16, 2026'
+    tag: Molecular
+    title: First cell-by-cell results are in
+    description: >
+      The first results of the cell-by-cell analysis of my liver and bone metastases have
+      arrived. Paloma Cejas’s lab at Dana-Farber did it. I explain it on a page, limits included.
+    highlight: false
+    link: /en/cell-by-cell
+    linkLabel: 'See Cell by cell →'
