@@ -25,12 +25,12 @@ const L = (es: string, en: string) => (lang.value === 'en' ? en : es)
 
 const seoTitle = () =>
   lang.value === 'en'
-    ? 'The port: what it is and what is wrong with it — Miriam’s case'
+    ? 'The port: what it is and what’s wrong with it — Miriam’s case'
     : 'El reservorio: qué es y qué le pasa — el caso de Miriam'
 const seoDescription = () =>
   lang.value === 'en'
-    ? 'What a port-a-cath is, why hers, a PowerPort, can take contrast injected under pressure, and why it now lets medication in but no blood out. With the catheter path in 3D.'
-    : 'Qué es un port-a-cath, por qué el suyo, un PowerPort, admite contraste inyectado a presión, y por qué ahora deja meter medicación pero no sacar sangre. Con el trayecto del catéter en 3D.'
+    ? 'What a port-a-cath is, why Miriam’s (a PowerPort) is built to take contrast injected under pressure, and why it now lets medication in but no blood out. With the catheter path in 3D.'
+    : 'Qué es un port-a-cath, por qué el de Miriam (un PowerPort) está diseñado para admitir contraste inyectado a presión y por qué ahora deja meter medicación pero no sacar sangre. Con el trayecto del catéter en 3D.'
 useSeoMeta({
   title: seoTitle, description: seoDescription, ogTitle: seoTitle, ogDescription: seoDescription,
   ogType: 'website', twitterCard: 'summary_large_image', twitterTitle: seoTitle, twitterDescription: seoDescription,
@@ -39,27 +39,29 @@ useSeoMeta({
 // modelo por la etiqueta del implante (24-sep); «power injectable» y forma triangular, web de BD;
 // oclusión de retirada y vaina de fibrina, dossier del 24-sep (el equipo habló de vaina; no
 // confirmada). Sin cifras de la literatura, sin hospital ni fechas de intervención.
+// verificacion (17-oct): el contraste por el port no se vende como ventaja vigente (el comité del
+// 24-sep desaconsejó inyectar sin retorno); «funda de tejido», no «fibrina» (a las semanas ya no lo es).
 const bloques = computed(() => [
   {
     id: 'que-es', icono: 'ph:heartbeat-fill',
     titulo: L('Qué es un port-a-cath', 'What a port-a-cath is'),
     texto: L(
       'Es una cámara pequeña que se implanta bajo la piel del pecho, unida a un catéter fino que llega hasta una vena grande, cerca del corazón. Se pincha a través de una membrana con una aguja especial, y la membrana se cierra al sacarla. No asoma nada fuera del cuerpo. Miriam lo lleva porque las venas de sus brazos son difíciles de pinchar.',
-      'It is a small chamber implanted under the skin of the chest, joined to a thin catheter that runs to a large vein near the heart. It is accessed through a membrane with a special needle, and the membrane seals again when the needle comes out. Nothing sticks out of the body. Miriam has one because the veins in her arms are hard to access.'),
+      'It’s a small chamber implanted under the skin of the chest, joined to a thin catheter that runs to a large vein near the heart. A special needle goes in through a membrane, and the membrane seals again when the needle comes out. Nothing sticks out of the body. Miriam has one because the veins in her arms are hard to get a needle into.'),
   },
   {
     id: 'el-suyo', icono: 'ph:lightning-fill',
     titulo: L('El suyo: un PowerPort de titanio', 'Hers: a titanium PowerPort'),
     texto: L(
-      'A diferencia de muchos reservorios convencionales, admite inyección a presión: por él puede entrar el contraste de un TAC, que se inyecta muy rápido, y así se ahorra otra vía en el brazo. Tiene forma triangular y unos bultos que se notan al tacto, para que quien lo pincha sepa de qué tipo es y dónde está la membrana. Es de titanio y se puede hacer una resonancia con él, en ciertas condiciones.',
-      'Unlike many conventional ports, it can take injection under pressure: the contrast for a CT scan, which goes in very fast, can be given through it, which spares another line in the arm. It has a triangular shape and small bumps you can feel, so whoever accesses it knows what type it is and where the membrane is. It is made of titanium and MRI scans are possible with it, under certain conditions.'),
+      'Está diseñado para admitir inyección a presión, como la del contraste de un TC, que entra muy rápido. No todos los reservorios lo admiten. Mientras no dé sangre, usarlo para el contraste también está en revisión. Tiene forma triangular y unos bultitos que se notan al tacto, para que quien lo pincha sepa de qué tipo es y dónde está la membrana. Y se puede hacer una resonancia con él puesto, en ciertas condiciones.',
+      'It’s built to take injection under pressure, like the contrast for a CT scan, which goes in very fast. Not every port can. While it isn’t giving blood back, using it for contrast is also under review. It’s triangular, with small bumps you can feel, so whoever accesses it knows what type it is and where the membrane is. She can also have an MRI with it in place, under certain conditions.'),
   },
   {
     id: 'que-le-pasa', icono: 'ph:warning-circle-fill',
     titulo: L('Qué le pasa ahora', 'What is wrong with it now'),
     texto: L(
-      'Deja meter medicación, pero no sacar sangre, ni siquiera después de un fármaco para disolver coágulos. Tiene nombre: oclusión de retirada. La causa más habitual es una capa fina de fibrina en la punta del catéter, que hace de válvula: deja salir el líquido y se pega al orificio cuando se aspira. Su equipo médico lo está valorando. Mientras tanto, cada analítica va por una vena del brazo.',
-      'Medication goes in, but blood will not come out, not even after a drug to dissolve clots. It has a name: withdrawal occlusion. The most common cause is a thin layer of fibrin at the catheter tip that acts like a valve: it lets fluid out and sticks to the opening when you pull back. Her medical team is looking into it. In the meantime, every blood test goes through a vein in her arm.'),
+      'Por él entra la medicación, pero no sale sangre, ni siquiera después de un fármaco para disolver coágulos. Se llama oclusión de retirada. La causa más habitual es una funda fina de tejido que crece sobre la punta del catéter y hace de válvula: deja salir el líquido y se pega al orificio cuando se aspira. En su caso no está confirmado que sea eso: su equipo médico lo está valorando. Mientras tanto, cada analítica va por una vena del brazo.',
+      'Medication goes in, but blood won’t come out, not even after a drug to dissolve clots. It’s called a withdrawal occlusion. The most common cause is a thin sleeve of tissue that grows over the catheter tip and acts like a valve: it lets fluid out, then gets sucked against the opening when someone tries to draw blood. In her case that isn’t confirmed yet; her medical team is looking into it. In the meantime, every blood test goes through a vein in her arm.'),
   },
 ])
 
@@ -73,15 +75,17 @@ defineOgImage('Default.takumi', {
 
 <template>
   <div class="overflow-x-clip">
-    <section class="section-spacing" :aria-label="L('El catéter del reservorio, en 3D', 'The reservoir catheter, in 3D')">
+    <section class="section-spacing" :aria-label="L('El catéter del reservorio, en 3D', 'The port catheter, in 3D')">
       <div class="mx-auto w-full max-w-[1280px] px-4 sm:px-6 lg:px-8">
         <PageHeader
           :parent="{ to: localePath({ name: 'herramientas' }), label: $t('nav.tools') }"
           :tag="L('Infraestructura del tratamiento', 'Treatment infrastructure')"
-          :title="L('El reservorio: qué es y qué le pasa', 'The port: what it is and what is wrong with it')"
+          :title="L(
+      'El reservorio: qué es y qué le pasa',
+      'The port: what it is and what’s wrong with it')"
           :subtitle="L(
-            'Miriam lleva un port-a-cath desde 2024: un reservorio bajo la piel que da acceso a una vena grande sin tener que pinchar cada vez las del brazo. Ahora deja meter medicación, pero no sacar sangre.',
-            'Miriam has had a port-a-cath since 2024: a small reservoir under the skin that gives access to a large vein without needling the arm every time. Right now it lets medication in, but no blood out.')"
+      'Miriam lleva un port-a-cath desde 2024: un reservorio bajo la piel que da acceso a una vena grande sin tener que pinchar cada vez las del brazo. Ahora deja meter medicación, pero no sacar sangre.',
+      'Miriam has had a port-a-cath since 2024: a small reservoir under the skin that gives direct access to a large vein, so her arm doesn’t need a new needle every time. Right now medication goes in, but no blood comes out.')"
         />
 
         <div class="grid gap-4 md:grid-cols-3 mb-10">
@@ -95,12 +99,14 @@ defineOgImage('Default.takumi', {
         </div>
 
         <h2 class="font-display font-semibold text-berenjena text-2xl mb-2">
-          {{ L('Lo primero: descartar que el catéter se hubiera movido', 'First: ruling out that the catheter had moved') }}
+          {{ L(
+      'Lo primero: descartar que el catéter se hubiera movido',
+      'First step: making sure the catheter hadn’t moved') }}
         </h2>
         <p class="text-[15px] text-tinta leading-relaxed mb-6 max-w-3xl">
           {{ L(
-            'Cuando un reservorio deja de dar sangre, lo primero que se piensa es que el catéter se ha desplazado. Antes de darlo por hecho se reconstruyó su trayecto en tres TC separados por meses. La punta sale en el mismo sitio las tres veces, y eso no cuadra con un catéter desplazado.',
-            'When a port stops giving blood, the first suspicion is that the catheter has shifted. Before assuming that, its path was rebuilt on three CT scans, months apart. The tip lands in the same place all three times, which does not fit a displaced catheter.') }}
+      'Cuando un reservorio deja de dar sangre, lo primero que se piensa es que el catéter se ha desplazado. Antes de darlo por hecho, se reconstruyó su trayecto en tres TC separados por meses. La punta sale en el mismo sitio las tres veces, y eso no cuadra con un catéter desplazado.',
+      'When a port stops giving blood back, the first suspect is a catheter that has shifted. Before assuming that, its path was rebuilt on three CT scans taken months apart. The tip lands in the same spot all three times, which doesn’t fit a catheter that has moved.') }}
         </p>
 
         <div class="alert-callout mb-6" role="note" :aria-label="L('Aviso: herramienta de apoyo, no diagnóstico', 'Notice: support tool, not a diagnosis')">

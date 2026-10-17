@@ -117,8 +117,8 @@ export const COPY_HERRAMIENTAS: Record<string, { es: [string, string]; en: [stri
   },
   // app/pages/reservorio.vue
   port: {
-    es: ['El reservorio: qué es y qué le pasa', 'Qué es un port-a-cath, por qué el suyo, un PowerPort, admite contraste inyectado a presión, y por qué ahora deja meter medicación pero no sacar sangre. Con el trayecto del catéter en 3D.'],
-    en: ['The port: what it is and what is wrong with it', 'What a port-a-cath is, why hers, a PowerPort, can take contrast injected under pressure, and why it now lets medication in but no blood out. With the catheter path in 3D.'],
+    es: ['El reservorio: qué es y qué le pasa', 'Qué es un port-a-cath, por qué el de Miriam (un PowerPort) está diseñado para admitir contraste inyectado a presión y por qué ahora deja meter medicación pero no sacar sangre. Con el trayecto del catéter en 3D.'],
+    en: ['The port: what it is and what’s wrong with it', 'What a port-a-cath is, why Miriam’s (a PowerPort) is built to take contrast injected under pressure, and why it now lets medication in but no blood out. With the catheter path in 3D.'],
   },
   // app/pages/biopsia-osea.vue
   bone_biopsy: {
