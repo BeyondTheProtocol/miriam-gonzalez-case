@@ -1,6 +1,9 @@
 allowBuilds:
+  '@danmarshall/deckgl-typings': false
   '@parcel/watcher': false
   better-sqlite3: true
+  core-js: false
+  core-js-pure: false
   esbuild: false
   sharp: true
   vue-demi: true

@@ -1,0 +1,21 @@
+{
+  "version": 1,
+  "ejemplo": true,
+  "sello": "sin_verificar",
+  "ok_titular": false,
+  "modo_sondas": "todas_incluidas",
+  "lesiones": [
+    "higado",
+    "hueso"
+  ],
+  "ficheros": [
+    {
+      "ruta": "higado.json",
+      "sha256": "06d2a64c638b2587974f27b58df25993f4c4d2f0bfb6124443d777cfa95951cc"
+    },
+    {
+      "ruta": "hueso.json",
+      "sha256": "db49c929cd97df6b0130bbae6a0b3142a95a9ef41c5fc9743a0aadeeb78fc8a9"
+    }
+  ]
+}

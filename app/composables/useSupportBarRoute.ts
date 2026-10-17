@@ -39,7 +39,10 @@ export function useSupportBarRoute() {
   const isDeepTool = computed(
     () =>
       /^\/(?:en\/)?(?:mapa-metastasis|lesiones)$/.test(path.value) ||
-      /^\/(?:datos|en\/data)$/.test(path.value)
+      /^\/(?:datos|en\/data)$/.test(path.value) ||
+      // explorador célula a célula (17-oct): con el aviso fijo del hígado, cabecera + aviso + barra
+      // se comían casi media pantalla en 375 px (auditoría de `diseno`)
+      /^\/(?:celula-a-celula\/explorar|en\/cell-by-cell\/explore)$/.test(path.value)
   )
 
   // /gracias (· /en/thank-you): la ruta EN no contiene «gracias», así que se
