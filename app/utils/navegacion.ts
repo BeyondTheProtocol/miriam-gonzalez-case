@@ -47,7 +47,11 @@ export const MENU_ESCRITORIO: EnlaceNav[] = [NAV.science, NAV.tools, NAV.timelin
 export const MENU_MOVIL: EnlaceNav[] = [NAV.home, ...MENU_ESCRITORIO]
 
 // Las herramientas, en el orden del índice y del pie.
-export const HERRAMIENTAS: EnlaceNav[] = [NAV.data, NAV.lesions, NAV.map, NAV.port, NAV.boneBiopsy, NAV.cellByCell]
+// La más nueva primero (Miriam, 17-oct-2026): ordena /herramientas, el menú, el pie y la banda de
+// la home. Orden por fecha de estreno de cada página (primer commit en main): célula a célula
+// 16-oct · datos 24-sep 20:13 · reservorio 24-sep 19:20 · lesiones 19-sep · biopsia 5-sep · mapa 11-jun.
+// Una herramienta nueva entra al PRINCIPIO de esta lista.
+export const HERRAMIENTAS: EnlaceNav[] = [NAV.cellByCell, NAV.data, NAV.port, NAV.lesions, NAV.boneBiopsy, NAV.map]
 
 // Icono de cada herramienta (decorativo, aria-hidden) para las tarjetas de /herramientas.
 // Son los que la web ya usaba para cada una: el pin del teaser de la home y de /ciencia

@@ -155,6 +155,14 @@ type BioLink = {
 const PODCAST_URL = 'https://www.youtube.com/watch?v=zVUECrux6zA'
 
 const featured = computed<BioLink[]>(() => [
+  // 17-oct-2026 (Miriam): célula a célula, la herramienta más nueva, va la primera.
+  {
+    id: 'celula',
+    title: 'links.celula_title',
+    sub: 'links.celula_sub',
+    icon: 'ph:circles-three-fill',
+    to: localePath('celula-a-celula'),
+  },
   {
     id: 'lesiones',
     title: 'links.lesiones_title',
