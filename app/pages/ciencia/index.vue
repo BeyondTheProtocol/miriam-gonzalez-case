@@ -523,7 +523,7 @@
                     <td :data-label="$t('ciencia.status')">
                       <span v-if="row.status" :class="['status-badge', panelBadge[row.statusTone] || 'status-badge--pending']">{{ row.status }}</span>
                     </td>
-                    <td class="col-note cell-block" :data-label="$t('ciencia.implication')">{{ row.implication }}<template v-if="row.linkTo"> <NuxtLink :to="localePath(row.linkTo)" class="link-inline">{{ row.linkText }}</NuxtLink></template></td>
+                    <td class="col-note cell-block" :data-label="$t('ciencia.implication')">{{ row.implication }}<NuxtLink v-if="row.linkTo" :to="localePath(row.linkTo)" class="link-inline block mt-2">{{ row.linkText }}</NuxtLink></td>
                   </tr>
                 </tbody>
               </table>
