@@ -16,8 +16,8 @@ const de = (m: 'higado' | 'hueso', gen: string) => d.value.muestras[m].dianas.fi
 
 <template>
   <CelulaBloque clave="R3" :titulo="L('Qué genes están activos en el tumor', 'Which genes are active in the tumor')" :sello="b.sello" :ejemplo="b.ejemplo">
-    <p class="blq__texto">{{ L('Cerca de la mitad de las células tumorales tienen activo el gen NY-BR-1, y una de cada cuatro el 5T4. El patrón se repite igual en el hígado y en el hueso. HER3 también aparece. Dos genes muy buscados en otros tumores, PRAME y MAGE-A4, no están, y saberlo también ayuda a elegir el camino.',
-      'Around half of the tumor cells have the NY-BR-1 gene switched on, and one in four have 5T4. The pattern is the same in the liver and the bone. HER3 shows up too. Two genes much sought after in other tumors, PRAME and MAGE-A4, are not there, and knowing that also helps in choosing the path.') }}</p>
+    <p class="blq__texto">{{ L('Cerca de la mitad de las células tumorales tienen activo el gen NY-⁠BR-⁠1, y una de cada cuatro el 5T4. El patrón se repite igual en el hígado y en el hueso. HER3 también aparece. Dos genes muy buscados en otros tumores, PRAME y MAGE-⁠A4, no están, y saberlo también ayuda a elegir el camino.',
+      'Around half of the tumor cells have the NY-⁠BR-⁠1 gene switched on, and one in four have 5T4. The pattern is the same in the liver and the bone. HER3 shows up too. Two genes much sought after in other tumors, PRAME and MAGE-⁠A4, are not there, and knowing that also helps in choosing the path.') }}</p>
     <ul class="r3__genes">
       <li v-for="g in genes" :key="g.gen" class="r3__gen">
         <h4 class="r3__nombre">{{ g.gen }}</h4>
@@ -56,7 +56,7 @@ const de = (m: 'higado' | 'hueso', gen: string) => d.value.muestras[m].dianas.fi
 .r3__fig :deep(.rej) { max-width: 180px; }
 .r3__cifra { margin: var(--sp-8) 0 0; font: 700 var(--texto-xl)/1.1 var(--font-display); letter-spacing: var(--track-cifra); color: var(--texto-1); }
 .r3__cifra--a { margin: 0; }
-.r3__de { font: 400 var(--texto-xs)/1.2 var(--font-body); color: var(--texto-2); letter-spacing: 0; }
+.r3__de { white-space: nowrap; font: 400 var(--texto-xs)/1.2 var(--font-body); color: var(--texto-2); letter-spacing: 0; }
 .r3__a { display: flex; align-items: center; gap: var(--sp-16); padding: var(--sp-12) var(--sp-16); border: 1px dashed var(--trazo-medio); border-radius: var(--radius-btn); }
 .r3__mini { flex: none; width: 72px; }
 </style>
