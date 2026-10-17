@@ -123,8 +123,8 @@ export const COPY_HERRAMIENTAS: Record<string, { es: [string, string]; en: [stri
   },
   // app/pages/celula-a-celula.vue
   cell_by_cell: {
-    es: ['Célula a célula', 'Un análisis de célula única sobre dos muestras del tumor de Miriam: qué es, qué preguntas puede contestar y qué no puede decir. Todavía no hay resultados.'],
-    en: ['Cell by cell', 'A single-cell analysis of two of Miriam’s tumor samples: what it is, which questions it can answer and what it cannot say. There are no results yet.'],
+    es: ['Célula a célula', 'Un análisis de célula única sobre dos muestras del tumor de Miriam: qué es, qué preguntas puede contestar, qué no puede decir y los primeros resultados.'],
+    en: ['Cell by cell', 'A single-cell analysis of two of Miriam’s tumor samples: what it is, which questions it can answer, what it cannot say and the first results.'],
   },
 }
 
