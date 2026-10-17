@@ -63,6 +63,7 @@ defineOgImage('Default.takumi', {
           <CelulaPreguntas />
           <CelulaResultados />
           <CelulaLimites />
+          <CelulaProximosPasos />
           <CelulaDestino />
           <CelulaGlosario />
           <CelulaFicha />
