@@ -1,5 +1,5 @@
 <script setup lang="ts">
-/** R3 · Qué genes están activos en el tumor. Texto aprobado (17-oct-2026). Figura: cuadrículas de «cada 100» de NY-BR-1 y 5T4 en las dos lesiones; PRAME y MAGE-A4 a 0. */
+/** R3 · Qué genes están activos en el tumor. Texto aprobado (17-oct-2026), ajustado tras el red-team de la fase 2: la cifra del 5T4 del hígado es el techo de su rango según qué células se llamen tumor (detalle en Polaris), así que «una de cada cuatro o cinco» y sin «igual». Figura: cuadrículas de «cada 100» de NY-BR-1 y 5T4 en las dos lesiones; PRAME y MAGE-A4 a 0. */
 import { fmtN, MUESTRAS, type Bloque, type R3 } from '~/utils/celulaResultados'
 const props = defineProps<{ b: Bloque; base: number }>()
 const d = computed(() => props.b.datos as R3)
@@ -16,8 +16,8 @@ const de = (m: 'higado' | 'hueso', gen: string) => d.value.muestras[m].dianas.fi
 
 <template>
   <CelulaBloque clave="R3" :titulo="L('Qué genes están activos en el tumor', 'Which genes are active in the tumor')" :sello="b.sello" :ejemplo="b.ejemplo">
-    <p class="blq__texto">{{ L('Cerca de la mitad de las células tumorales tienen activo el gen NY-⁠BR-⁠1, y una de cada cuatro el 5T4. El patrón se repite igual en el hígado y en el hueso. HER3 también aparece. Dos genes muy buscados en otros tumores, PRAME y MAGE-⁠A4, no están, y saberlo también ayuda a elegir el camino.',
-      'Around half of the tumor cells have the NY-⁠BR-⁠1 gene switched on, and one in four have 5T4. The pattern is the same in the liver and the bone. HER3 shows up too. Two genes much sought after in other tumors, PRAME and MAGE-⁠A4, are not there, and knowing that also helps in choosing the path.') }}</p>
+    <p class="blq__texto">{{ L('Cerca de la mitad de las células tumorales tienen activo el gen NY-⁠BR-⁠1, y alrededor de una de cada cuatro o cinco el 5T4. El patrón se repite en el hígado y en el hueso. HER3 también aparece. Dos genes muy buscados en otros tumores, PRAME y MAGE-⁠A4, no están, y saberlo también ayuda a elegir el camino.',
+      'Around half of the tumor cells have the NY-⁠BR-⁠1 gene switched on, and roughly one in four or five have 5T4. The pattern repeats in the liver and the bone. HER3 shows up too. Two genes much sought after in other tumors, PRAME and MAGE-⁠A4, are not there, and knowing that also helps in choosing the path.') }}</p>
     <ul class="r3__genes">
       <li v-for="g in genes" :key="g.gen" class="r3__gen">
         <h4 class="r3__nombre">{{ g.gen }}</h4>
