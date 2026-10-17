@@ -705,7 +705,8 @@
     "pasos_progreso_curso": "{hechos} de {total} pasos dados · {curso} en curso",
     "pasos_nota_barra": "La barra cuenta los pasos de esta ruta que ya se han dado. No mide cuánto falta para ninguna meta médica.",
     "pasos_cta_ruta": "Ver la ruta completa",
-    "pasos_cta_celula": "El análisis célula a célula, paso a paso"
+    "pasos_cta_celula": "El análisis célula a célula, paso a paso",
+    "tools_new": "Nueva"
   },
   "ciencia": {
     "ruta": {
@@ -1202,7 +1203,9 @@
     "datos_title": "El caso en datos",
     "datos_sub": "Analíticas desde 2021, tratamientos y tejido, cada cifra con su fuente",
     "podcast_title": "Mi caso en Roca Project",
-    "podcast_sub": "Programa 100, con Carlos Roca: el diagnóstico, la familia y el miedo"
+    "podcast_sub": "Programa 100, con Carlos Roca: el diagnóstico, la familia y el miedo",
+    "celula_title": "Mi tumor, célula a célula",
+    "celula_sub": "Qué tiene encendido cada célula del hígado y del hueso, y los primeros resultados"
   },
   "herramientas": {
     "title": "Herramientas del caso",

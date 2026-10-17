@@ -682,7 +682,8 @@
     "pasos_progreso_curso": "{hechos} of {total} steps taken · {curso} in progress",
     "pasos_nota_barra": "The bar counts the steps of this route already taken. It does not measure progress toward any medical goal.",
     "pasos_cta_ruta": "See the full route",
-    "pasos_cta_celula": "The cell-by-cell analysis, step by step"
+    "pasos_cta_celula": "The cell-by-cell analysis, step by step",
+    "tools_new": "New"
   },
   "ciencia": {
     "ruta": {
@@ -1202,7 +1203,9 @@
     "datos_title": "The case in data",
     "datos_sub": "Labs since 2021, treatments and tissue, every number with its source",
     "podcast_title": "My case on Roca Project",
-    "podcast_sub": "Episode 100, with Carlos Roca: the diagnosis, family and fear"
+    "podcast_sub": "Episode 100, with Carlos Roca: the diagnosis, family and fear",
+    "celula_title": "My tumour, cell by cell",
+    "celula_sub": "What each cell in the liver and bone has switched on, and the first results"
   },
   "herramientas": {
     "title": "Case tools",

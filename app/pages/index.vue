@@ -7,8 +7,9 @@
     <VisitorPathways variant="home" />
 
     <!-- Herramientas «al primer vistazo»: banda-teaser en el flujo crema (no un
-         tercer botón en el hero, que leería a SaaS). -->
-    <SectionMapaTeaser />
+         tercer botón en el hero, que leería a SaaS). Desde el 17-oct-2026 es el acceso a
+         TODAS las herramientas, la más nueva primero (antes era el teaser de /lesiones). -->
+    <SectionHerramientasTeaser />
 
     <!-- La historia + en sus propias palabras (beat humano: persona antes que problema) -->
     <section v-reveal class="py-20 sm:py-28 relative overflow-hidden" :aria-label="$t('home.story_eyebrow')" style="background: #2d1b3d; color: #faf6f0">
