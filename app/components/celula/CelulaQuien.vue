@@ -61,7 +61,7 @@ const urlPost = 'https://www.linkedin.com/feed/update/urn:li:activity:7516775760
 </template>
 
 <style scoped>
-.cel-cita { margin: var(--sp-24) 0 0; max-width: var(--measure); }
+.cel-cita { margin: var(--sp-24) 0 var(--sp-24); max-width: var(--measure); }
 .cel-cita__q { margin: 0; padding: 0; }
 .cel-cita__q p { margin: 0; font: 500 var(--texto-lg)/1.45 var(--font-display); color: var(--color-text); }
 .cel-cita__tr { margin: var(--sp-12) 0 0; font: var(--tipo-body-sm); color: var(--color-text-soft); }
