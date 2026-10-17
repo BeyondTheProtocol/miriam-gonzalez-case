@@ -5,10 +5,10 @@
        Título y texto de cada una: los ya publicados de su página (COPY_HERRAMIENTAS); el único
        copy nuevo es la etiqueta «Lo último» (no «Nueva»: la primera de la lista
        siempre es la última en llegar, pero no siempre es nueva; diseno, 17-oct). Sin animación de entrada propia más allá de v-reveal. -->
+  <!-- Segunda mitad de «El objetivo» (mismo crema, diseno 17-oct): sin padding superior ni filete. -->
   <section
     v-reveal
-    class="bg-cream py-14 sm:py-16"
-    style="border-top: 1px solid rgba(45,27,61,0.08)"
+    class="bg-cream pt-0 pb-14 sm:pb-16"
     :aria-labelledby="titleId"
   >
     <div class="section-wide">
