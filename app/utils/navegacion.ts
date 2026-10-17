@@ -117,8 +117,8 @@ export const COPY_HERRAMIENTAS: Record<string, { es: [string, string]; en: [stri
   },
   // app/pages/reservorio.vue
   port: {
-    es: ['El catéter no se ha movido.', 'Su reservorio dejó de dar retorno. Antes de dar por hecho que el catéter se había movido, se reconstruyó su trayecto en tres TC separados por meses: la punta sale en el mismo sitio las tres veces.'],
-    en: ['The catheter has not moved.', 'Her reservoir stopped giving blood return. Before assuming the catheter had moved, its path was rebuilt on three CT scans, months apart: the tip lands in the same place every time.'],
+    es: ['El reservorio: qué es y qué le pasa', 'Qué es un port-a-cath, por qué el suyo, un PowerPort, admite contraste inyectado a presión, y por qué ahora deja meter medicación pero no sacar sangre. Con el trayecto del catéter en 3D.'],
+    en: ['The port: what it is and what is wrong with it', 'What a port-a-cath is, why hers, a PowerPort, can take contrast injected under pressure, and why it now lets medication in but no blood out. With the catheter path in 3D.'],
   },
   // app/pages/biopsia-osea.vue
   bone_biopsy: {
