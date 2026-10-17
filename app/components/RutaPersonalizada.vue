@@ -67,23 +67,13 @@
  * Idea sacada del vídeo de DotCSV sobre Opus 5.5 (explicadores animados en HTML) y validada por
  * el comité de diseño (26-sep-2026). Sin librerías ni recursos externos: SVG + CSS.
  * Al entrar en viewport la línea se traza y los pasos se encienden en orden; el paso EN CURSO
- * late suave. Con reduced-motion todo se ve completo y quieto. Los estados viven aquí, no en el
+ * late suave. Con reduced-motion todo se ve completo y quieto. Los estados viven en utils/rutaPasos.ts, no en el
  * copy: cambiar un estado = cambiar una línea (y cotejarlo con la fuente de verdad del caso).
  */
-type Estado = 'hecho' | 'curso' | 'pendiente' | 'abierto'
-const pasos: { key: string; estado: Estado; icono: string }[] = [
-  { key: 'tejido', estado: 'hecho', icono: 'ph:flask-fill' },
-  { key: 'leer', estado: 'curso', icono: 'ph:dna-fill' },
-  { key: 'dianas', estado: 'pendiente', icono: 'ph:crosshair-fill' },
-  { key: 'disenar', estado: 'pendiente', icono: 'ph:syringe-fill' },
-  { key: 'llegar', estado: 'abierto', icono: 'ph:globe-hemisphere-west-fill' },
-]
-const badge: Record<Estado, string> = {
-  hecho: 'status-badge--active',
-  curso: 'status-badge--firma',
-  pendiente: 'status-badge--pending',
-  abierto: 'status-badge--candidate',
-}
+// Los estados viven en app/utils/rutaPasos.ts (17-oct-2026): la home los enseña también.
+import { BADGE_RUTA, RUTA_PASOS } from '~/utils/rutaPasos'
+const pasos = RUTA_PASOS
+const badge = BADGE_RUTA
 
 const root = ref<HTMLElement | null>(null)
 const inView = ref(false)

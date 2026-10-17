@@ -697,7 +697,15 @@
     "story_p1_rarity": "el 0,1 %–5 % de los cánceres de mama, según cómo se defina",
     "story_p1_source": "Fuente: revisión de Gallo et al., Front. Endocrinol., 2020 · en el registro SEER de EE. UU., menos del 0,1 % (Wang et al., BMC Cancer, 2014)",
     "s4_p1_blind": "a ciegas",
-    "tools_see_all": "Ver todas las herramientas"
+    "tools_see_all": "Ver todas las herramientas",
+    "pasos_eyebrow": "Qué viene después",
+    "pasos_heading": "Cinco pasos hasta una terapia hecha a medida.",
+    "pasos_intro": "Así está hoy la ruta para construir una terapia a partir del tumor de Miriam. En paralelo sigue el tratamiento para controlar la enfermedad.",
+    "pasos_progreso": "{hechos} de {total} pasos dados",
+    "pasos_progreso_curso": "{hechos} de {total} pasos dados · {curso} en curso",
+    "pasos_nota_barra": "La barra cuenta los pasos de esta ruta que ya se han dado. No mide cuánto falta para ninguna meta médica.",
+    "pasos_cta_ruta": "Ver la ruta completa",
+    "pasos_cta_celula": "El análisis célula a célula, paso a paso"
   },
   "ciencia": {
     "ruta": {

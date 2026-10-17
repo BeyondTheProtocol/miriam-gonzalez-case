@@ -674,7 +674,15 @@
     "story_p1_rarity": "0.1%–5% of breast cancers, depending on the definition",
     "story_p1_source": "Source: Gallo et al. review, Front. Endocrinol., 2020 · in the US SEER registry, under 0.1% (Wang et al., BMC Cancer, 2014)",
     "s4_p1_blind": "blind",
-    "tools_see_all": "See all tools"
+    "tools_see_all": "See all tools",
+    "pasos_eyebrow": "What comes next",
+    "pasos_heading": "Five steps to a made-to-measure therapy.",
+    "pasos_intro": "This is where the route stands today: building a therapy from Miriam's own tumour. Treatment to keep the disease in check carries on alongside it.",
+    "pasos_progreso": "{hechos} of {total} steps taken",
+    "pasos_progreso_curso": "{hechos} of {total} steps taken · {curso} in progress",
+    "pasos_nota_barra": "The bar counts the steps of this route already taken. It does not measure progress toward any medical goal.",
+    "pasos_cta_ruta": "See the full route",
+    "pasos_cta_celula": "The cell-by-cell analysis, step by step"
   },
   "ciencia": {
     "ruta": {

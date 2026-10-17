@@ -255,6 +255,10 @@
       </div>
     </section>
 
+    <!-- Próximos pasos · consejo de Javi (17-oct-2026): qué viene después, justo antes de pedir ayuda.
+         La ruta de /ciencia en corto; estados en utils/rutaPasos.ts (fuente única). -->
+    <HomeProximosPasos />
+
     <!-- S4 · ¿Por qué necesitamos tu ayuda? · Destino del dinero
          (aquí el separador es el propio cambio de color de sección) -->
     <section v-reveal class="section-spacing bg-cream-card" id="campaign" :aria-label="$t('home.s4_eyebrow')">
