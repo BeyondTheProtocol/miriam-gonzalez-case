@@ -24,8 +24,8 @@ const idBarra = useId()
 </script>
 
 <template>
-  <section v-reveal class="section-spacing bg-cream" :aria-label="$t('home.pasos_eyebrow')"
-    style="border-top: 1px solid rgba(45,27,61,0.08)">
+  <!-- Sin border-top (diseno, 17-oct): «Elige tu camino» ya trae su línea inferior y el cambio de fondo separa. -->
+  <section v-reveal class="section-spacing bg-cream" :aria-label="$t('home.pasos_eyebrow')">
     <div class="section-wide">
       <p class="eyebrow mb-4 block">{{ $t('home.pasos_eyebrow') }}</p>
       <h2 class="heading-display text-3xl sm:text-5xl text-berenjena mb-6" style="letter-spacing: -0.03em">

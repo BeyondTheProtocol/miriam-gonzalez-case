@@ -82,8 +82,8 @@
     "curious_steps_aria": "Pasos para entender el caso",
     "curious_cta": "Ver resumen de 2 min",
     "curious_caption": "Sin registro. Sin presión.",
-    "clinician_title": "Medicina o investigación",
-    "clinician_desc": "Buscas el detalle clínico: marcadores, imágenes, líneas terapéuticas.",
+    "clinician_title": "Medicina, laboratorio o ensayo",
+    "clinician_desc": "Eres clínico, investigas o llevas un ensayo o un laboratorio: marcadores, imágenes y la ruta del caso.",
     "clinician_steps": [
       "Perfil molecular y tres lecturas del tejido",
       "Imagen funcional y dianas activas",
@@ -131,10 +131,10 @@
     "brief_time": "2 min",
     "brief_heading": "Lo esencial, en cuatro ideas",
     "brief_points": [
-      "Miriam tiene un cáncer de mama metastásico con dos biologías a la vez: luminal (HR+) y neuroendocrina (~80%). Los protocolos españoles solo cubren la primera.",
-      "La rebiopsia molecular ya se hizo (julio de 2026). Sin análisis avanzados y repetidos, el tratamiento se decide a ciegas mientras el tumor evoluciona.",
-      "La campaña financia pruebas de precisión, segundas opiniones y un posible ensayo N-of-1 diseñado para su biología exacta.",
-      "Cada euro queda documentado. Hay formas de ayudar además del dinero: revisión clínica, difusión, tech o simplemente estar."
+      "Miriam tiene un cáncer de mama metastásico con dos biologías a la vez: la de mama y otra neuroendocrina. Los protocolos españoles solo contemplan la primera, así que el tratamiento estándar se queda corto.",
+      "El objetivo es llegar a no tener evidencia de enfermedad con una terapia diseñada a partir de su propio tumor. Hoy la vía principal es una vacuna personalizada. Hay otras inmunoterapias que también se fabrican con sus propias células, como TIL o CAR-T, y sus médicos irán viendo cuál tiene más evidencia para su caso.",
+      "La campaña paga las pruebas para leer el tumor a fondo y las segundas opiniones, y también llegar al ensayo o al laboratorio que pueda hacer esa terapia, esté donde esté. Cada euro queda documentado.",
+      "Hay formas de ayudar además del dinero: revisión clínica, difusión, tech o simplemente estar."
     ],
     "brief_outro": "Si quieres profundizar, La ciencia tiene un resumen para todos y un modo profesional con tablas e imágenes.",
     "brief_cta_science": "Ver la ciencia",
@@ -258,7 +258,7 @@
     "title": "Un cáncer raro, {op} real.",
     "title_short": "Un cáncer raro, una oportunidad real.",
     "title_emphasis": "una oportunidad",
-    "subtitle": "{lead} tiene un tumor con {twofaces} que los protocolos españoles no contemplan. Las pruebas que necesita para tratarlo no las cubre la sanidad pública. Esta web existe para financiarlas.",
+    "subtitle": "{lead} tiene un tumor con {twofaces} que los protocolos españoles no contemplan. El objetivo es llegar a no tener evidencia de enfermedad, con una terapia diseñada a partir de su propio tumor. Esta web financia las pruebas y los pasos que la sanidad pública no cubre.",
     "twofaces": "dos caras",
     "subtitle_lead": "Miriam, {age} años,",
     "cta_donate": "Apoyar a Miriam",
@@ -267,13 +267,12 @@
     "stat_raised_label": "recaudados hasta ahora",
     "stat_donors_label": "personas ya han contribuido",
     "stat_specialists_label": "especialistas en {countries} países",
-    "stat_ne_value": "80%",
-    "stat_ne_label": "diferenciación neuroendocrina",
     "latest_label": "Lo último",
     "updated_today": "actualizado hoy",
     "updated_ago_one": "actualizado ayer",
     "updated_ago": "actualizado hace {n} días",
-    "photo_tag": "Ingeniera · Divulgadora"
+    "photo_tag": "Ingeniera · Divulgadora",
+    "stat_cells_label": "células de sus biopsias leídas una a una"
   },
   "gofundme": {
     "title": "¿Por qué necesitamos tu ayuda?",
@@ -606,7 +605,7 @@
     "s3_outro": "El análisis técnico completo está en La ciencia. Lo esencial: hay una brecha medible entre el tratamiento que recibe y el que su biología requiere.",
     "s4_eyebrow": "Destino del dinero · Transparencia radical",
     "s4_heading": "El tumor evoluciona. La estrategia tiene que evolucionar con él.",
-    "s4_p1": "El tumor evoluciona bajo la presión del tratamiento. En sangre aparecen mutaciones de resistencia (ESR1 D538G, RB1) y en la imagen, dianas nuevas (SSTR+). Sin análisis moleculares repetidos a lo largo del tiempo (este año ya van una biopsia ósea, en julio, y una hepática, en agosto), las decisiones clínicas se toman ",
+    "s4_p1": "El tumor cambia con el tratamiento, así que hay que volver a analizarlo cada cierto tiempo. Si no, las decisiones se toman ",
     "s4_p2": "Cada euro se asigna a una partida concreta y queda documentado en la página de Gastos.",
     "s4_list_intro": "El dinero recaudado cubre, en el orden que haga falta:",
     "s4_list": [
@@ -688,19 +687,19 @@
     "s3_summary": "En la práctica: el tratamiento hormonal aborda la parte {luminal} del tumor, pero deja sin tratar su componente {neuroendocrino}. Confirmarlo y atacarlo exige análisis moleculares y revisión por expertos internacionales, pruebas que la sanidad pública no cubre para un caso tan infrecuente. La rebiopsia y la primera revisión internacional ya están hechas.",
     "s4_buckets_title": "El dinero se destina a:",
     "s4_buckets": [
-      "Pruebas y diagnóstico molecular (análisis del tejido de la rebiopsia, secuenciación, paneles).",
+      "Pruebas para leer el tumor (célula a célula, secuenciación, tipado HLA).",
       "Consultas y segundas opiniones con especialistas internacionales.",
-      "Medicación y tratamientos no cubiertos.",
-      "Herramientas de IA, gestión y difusión del caso."
+      "Viajes y estancias para llegar a un ensayo o a un laboratorio, en el país que sea.",
+      "Medicación, tratamientos y herramientas que no cubre la sanidad pública."
     ],
     "s4_full_breakdown": "Ver el desglose completo",
     "story_p1_rarity": "el 0,1 %–5 % de los cánceres de mama, según cómo se defina",
     "story_p1_source": "Fuente: revisión de Gallo et al., Front. Endocrinol., 2020 · en el registro SEER de EE. UU., menos del 0,1 % (Wang et al., BMC Cancer, 2014)",
     "s4_p1_blind": "a ciegas",
     "tools_see_all": "Ver todas las herramientas",
-    "pasos_eyebrow": "Qué viene después",
-    "pasos_heading": "Cinco pasos hasta una terapia hecha a medida.",
-    "pasos_intro": "Así está hoy la ruta para construir una terapia a partir del tumor de Miriam. En paralelo sigue el tratamiento para controlar la enfermedad.",
+    "pasos_eyebrow": "El objetivo",
+    "pasos_heading": "Hacia una terapia hecha a partir de su propio tumor.",
+    "pasos_intro": "El objetivo es llegar a no tener evidencia de enfermedad: que las pruebas dejen de encontrar el cáncer, y que siga así. Esta es la ruta, paso a paso. En paralelo sigue el tratamiento para controlar la enfermedad.",
     "pasos_progreso": "{hechos} de {total} pasos dados",
     "pasos_progreso_curso": "{hechos} de {total} pasos dados · {curso} en curso",
     "pasos_nota_barra": "La barra cuenta los pasos de esta ruta que ya se han dado. No mide cuánto falta para ninguna meta médica.",
