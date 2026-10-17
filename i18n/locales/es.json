@@ -131,7 +131,7 @@
     "brief_time": "2 min",
     "brief_heading": "Lo esencial, en cuatro ideas",
     "brief_points": [
-      "Miriam tiene un cáncer de mama metastásico con dos biologías a la vez: la de mama y otra neuroendocrina. Los protocolos españoles solo contemplan la primera, así que el tratamiento estándar se queda corto.",
+      "Miriam tiene un cáncer de mama metastásico con dos biologías a la vez: la de mama y otra neuroendocrina. Los protocolos actuales solo contemplan la primera, así que el tratamiento estándar se queda corto.",
       "El objetivo es llegar a no tener evidencia de enfermedad con una terapia diseñada a partir de su propio tumor. Hoy la vía principal es una vacuna personalizada. Hay otras inmunoterapias que también se fabrican con sus propias células, como TIL o CAR-T, y sus médicos irán viendo cuál tiene más evidencia para su caso.",
       "La campaña paga las pruebas para leer el tumor a fondo y las segundas opiniones, y también llegar al ensayo o al laboratorio que pueda hacer esa terapia, esté donde esté. Cada euro queda documentado.",
       "Hay formas de ayudar además del dinero: revisión clínica, difusión, tech o simplemente estar."
@@ -258,7 +258,7 @@
     "title": "Un cáncer raro, {op} real.",
     "title_short": "Un cáncer raro, una oportunidad real.",
     "title_emphasis": "una oportunidad",
-    "subtitle": "{lead} tiene un tumor con {twofaces} que los protocolos españoles no contemplan. El objetivo es llegar a no tener evidencia de enfermedad, con una terapia diseñada a partir de su propio tumor. Esta web financia las pruebas y los pasos que la sanidad pública no cubre.",
+    "subtitle": "{lead} tiene un tumor con {twofaces} que los protocolos actuales no contemplan. El objetivo es llegar a no tener evidencia de enfermedad, con una terapia diseñada a partir de su propio tumor. Esta web financia las pruebas y los pasos que la sanidad pública no cubre.",
     "twofaces": "dos caras",
     "subtitle_lead": "Miriam, {age} años,",
     "cta_donate": "Apoyar a Miriam",
@@ -574,8 +574,8 @@
   },
   "home": {
     "s3_eyebrow": "Brecha clínica",
-    "s3_heading": "Lo que los protocolos españoles no cubren, lo cubrimos nosotros.",
-    "s3_subheading": "Los protocolos españoles solo contemplan la mitad de la biología del tumor: están pensados para el cáncer de mama HR+ estándar, y el de Miriam no lo es.",
+    "s3_heading": "Lo que los protocolos actuales no cubren, lo cubrimos nosotros.",
+    "s3_subheading": "Los protocolos actuales solo contemplan la mitad de la biología del tumor: están pensados para el cáncer de mama HR+ estándar, y el de Miriam no lo es.",
     "s3_p1": "Histológicamente es un carcinoma de mama luminal (HR+/HER2−). Pero la inmunohistoquímica detectó un ~80% de diferenciación neuroendocrina. Esa segunda biología no entra en el protocolo estándar español.",
     "s3_p2": "Resultado práctico: el tratamiento hormonal cubre la parte de mama (luminal). El componente neuroendocrino, con su propia dinámica y dianas, queda sin abordar.",
     "s3_p3": "El equipo oncológico no puede prescribir fuera de protocolo sin evidencia sólida. Generar esa evidencia exige paneles avanzados y revisiones internacionales: la rebiopsia molecular y el comité molecular internacional (WIN) ya se hicieron en 2026, y ahora toca analizar el tejido y seguir midiendo. Nada de eso está financiado por sanidad para un caso de baja frecuencia.",
@@ -804,7 +804,7 @@
     "detailed_analyses": "Análisis detallados",
     "view_reference": "Ver referencia",
     "why_no_fit_guidelines": "¿Por qué este tumor no encaja en los protocolos?",
-    "why_no_fit_guidelines_text": "Sobre el papel es un cáncer de mama {luminal} (HR+/HER2−). En el microscopio, ~80% del tumor muestra diferenciación neuroendocrina, con amplificación {fgfr1} y {ccnd1}. Los protocolos españoles recomiendan tratarlo como luminal estándar e ignorar el componente {neuroendocrino}; sin embargo, la OMS reconoce las neoplasias neuroendocrinas de mama como entidad propia desde su clasificación de 2019, y la literatura clínica indica que este subtipo híbrido ({bcned}) tiene peor pronóstico y suele necesitar estrategias distintas.",
+    "why_no_fit_guidelines_text": "Sobre el papel es un cáncer de mama {luminal} (HR+/HER2−). En el microscopio, ~80% del tumor muestra diferenciación neuroendocrina, con amplificación {fgfr1} y {ccnd1}. Los protocolos actuales recomiendan tratarlo como luminal estándar e ignorar el componente {neuroendocrino}; sin embargo, la OMS reconoce las neoplasias neuroendocrinas de mama como entidad propia desde su clasificación de 2019, y la literatura clínica indica que este subtipo híbrido ({bcned}) tiene peor pronóstico y suele necesitar estrategias distintas.",
     "thesis": "La tesis: la biología, no el órgano de origen, debería guiar el tratamiento.",
     "thesis_goal": "Objetivo: un ensayo N-of-1 que siente precedente para la oncología de precisión en subtipos ultra-raros.",
     "updates_2026_title": "Actualizaciones moleculares 2026",
