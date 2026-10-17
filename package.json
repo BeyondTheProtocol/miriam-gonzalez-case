@@ -48,7 +48,6 @@
     "@types/three": "^0.184.1",
     "@vitessce/constants-internal": "4.1.0",
     "@vitessce/csv": "4.1.0",
-    "@vitessce/obs-sets-manager": "4.1.0",
     "@vitessce/plugins": "4.1.0",
     "@vitessce/scatterplot-embedding": "4.1.0",
     "@vitessce/schemas": "4.1.0",

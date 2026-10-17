@@ -5,7 +5,8 @@
  * Por qué no `vitessce` entero: el paquete agregado arrastra @vitessce/all, que trae neuroglancer con
  * una dependencia git (`ikonate`) que pnpm 11 bloquea (`blockExoticSubdeps`), y además cargaría vistas
  * espaciales, 3D y de imagen que aquí no se usan. Se registran SOLO las piezas que usa la página:
- * scatterplot de embedding, gestor de conjuntos y los cargadores CSV (embedding, conjuntos y matriz).
+ * el scatterplot de embedding y los cargadores CSV (embedding, conjuntos y matriz). El gestor de conjuntos
+ * de Vitessce NO se registra: permite crear grupos nuevos y la página no reagrupa células.
  *
  * `COORDINACION` es copia literal de `baseCoordinationTypes` de @vitessce/all@4.1.0
  * (src/base-plugins.ts), licencia MIT, © Gehlenborg Lab: VitS exige que estén declarados todos los
@@ -19,14 +20,12 @@ import {
   obsEmbeddingCsvSchema, obsSetPath, obsSetsCsvSchema, obsSetsSchema, rgbArray, z,
 } from '@vitessce/schemas'
 import { CsvSource, ObsEmbeddingCsvLoader, ObsFeatureMatrixCsvLoader, ObsSetsCsvLoader } from '@vitessce/csv'
-import { ObsSetsManagerSubscriber } from '@vitessce/obs-sets-manager'
 import { EmbeddingScatterplotSubscriber } from '@vitessce/scatterplot-embedding'
 
 const vista = (nombre: string, componente: unknown) => new PluginViewType(nombre, componente, COMPONENT_COORDINATION_TYPES[nombre])
 
 export const VISTAS = [
   vista(ViewType.SCATTERPLOT, EmbeddingScatterplotSubscriber),
-  vista(ViewType.OBS_SETS, ObsSetsManagerSubscriber),
 ]
 
 export const FICHEROS = [

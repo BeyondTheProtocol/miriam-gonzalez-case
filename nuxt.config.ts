@@ -144,7 +144,7 @@ export default defineNuxtConfig({
       include: ['three', 'three/examples/jsm/controls/OrbitControls.js', 'three/examples/jsm/loaders/PLYLoader.js',
         // explorador célula a célula (/celula-a-celula/explorar): React + piezas de Vitessce, solo en su chunk
         'react', 'react-dom/client', '@vitessce/vit-s', '@vitessce/schemas', '@vitessce/constants-internal', '@vitessce/plugins',
-        '@vitessce/csv', '@vitessce/obs-sets-manager', '@vitessce/scatterplot-embedding']
+        '@vitessce/csv', '@vitessce/scatterplot-embedding']
     }
   },
 

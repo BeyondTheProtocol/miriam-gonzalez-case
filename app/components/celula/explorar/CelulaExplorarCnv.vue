@@ -17,13 +17,20 @@ const ventanas = computed(() => {
   const c = cnv.value
   if (!('valores' in c)) return []
   return c.ventanas.map((v, w) => {
-    const tiras: Tira[] = props.d.grupos.map((g, k) => ({ id: g.id, rol: g.rol, n: g.n, vals: [] as number[] }))
+    const tiras: Tira[] = props.d.grupos.map((g) => ({ id: g.id, rol: g.rol, n: g.n, vals: [] as number[] }))
     c.valores[w]!.forEach((val, i) => { if (val != null) tiras[props.d.celulas.grupo[i]!]!.vals.push(val) })
-    const todos = tiras.flatMap((t) => t.vals)
-    const max = Math.max(1, ...todos)
-    return { nombre: v, tiras: tiras.filter((t) => t.vals.length), max }
+    return { nombre: v, tiras: tiras.filter((t) => t.vals.length) }
   })
 })
+/** UNA escala para todas las ventanas: el mismo valor cae en el mismo sitio en 8p11 y en 11q13. */
+const max = computed(() => {
+  const c = cnv.value
+  if (!('valores' in c)) return 1
+  let m = 1
+  for (const fila of c.valores) for (const v of fila) if (v != null && v > m) m = v
+  return Math.ceil(m)
+})
+const ticksCnv = computed(() => { const paso = max.value > 10 ? 5 : max.value > 5 ? 2 : 1; const t: number[] = []; for (let v = 0; v <= max.value; v += paso) t.push(v); return t })
 const med = (xs: number[]) => { const s = [...xs].sort((a, b) => a - b); return s[Math.floor(s.length / 2)] ?? 0 }
 const fmt = (x: number) => String(Math.round(x * 10) / 10).replace('.', props.lang === 'en' ? '.' : ',')
 // jitter determinista (sin Math.random: el mismo dibujo en cada render)
@@ -38,15 +45,16 @@ const jit = (i: number) => ((Math.sin(i * 12.9898) * 43758.5453) % 1 + 1) % 1
           `Per-cell copy-number estimate in each window (method: ${cnv.metodo}). Each dot is a cell; the tick is the group median.`) }}
       </p>
       <div v-for="v in ventanas" :key="v.nombre" class="cnv__ventana">
-        <h4 class="cnv__h">{{ v.nombre }}</h4>
+        <h3 class="cnv__h">{{ v.nombre }}</h3>
+        <div class="cnv__eje" aria-hidden="true"><span v-for="tk in ticksCnv" :key="tk" :style="{ left: `${(tk / max) * 100}%` }">{{ tk }}</span></div>
         <ul class="cnv__lista">
           <li v-for="t in v.tiras" :key="t.id" class="cnv__fila" :class="`cnv__fila--${t.rol}`">
-            <span class="cnv__nombre">{{ etiqueta(ETIQUETA_GRUPO, t.id, lang) }} <span class="cnv__n nums">n = {{ t.vals.length }}</span></span>
+            <span class="cnv__nombre">{{ etiqueta(ETIQUETA_GRUPO, t.id, lang) }} <span class="cnv__n nums">n = {{ fmtN(t.vals.length, lang) }}</span></span>
             <svg class="cnv__svg" :viewBox="`0 0 ${W} ${H}`" role="img"
                  :aria-label="L(`${etiqueta(ETIQUETA_GRUPO, t.id, 'es')}, ${v.nombre}: mediana ${fmt(med(t.vals))}, ${t.vals.length} células`, `${etiqueta(ETIQUETA_GRUPO, t.id, 'en')}, ${v.nombre}: median ${fmt(med(t.vals))}, ${t.vals.length} cells`)">
               <line :x1="LBL" :x2="W" :y1="H / 2" :y2="H / 2" class="cnv__base" />
-              <circle v-for="(x, i) in t.vals" :key="i" :cx="LBL + (x / v.max) * (W - LBL)" :cy="4 + jit(i) * (H - 8)" r="1.8" class="cnv__punto" />
-              <line :x1="LBL + (med(t.vals) / v.max) * (W - LBL)" :x2="LBL + (med(t.vals) / v.max) * (W - LBL)" y1="1" :y2="H - 1" class="cnv__med" />
+              <circle v-for="(x, i) in t.vals" :key="i" :cx="LBL + (x / max) * (W - LBL)" :cy="4 + jit(i) * (H - 8)" r="1.8" class="cnv__punto" />
+              <line :x1="LBL + (med(t.vals) / max) * (W - LBL)" :x2="LBL + (med(t.vals) / max) * (W - LBL)" y1="1" :y2="H - 1" class="cnv__med" />
             </svg>
             <span class="cnv__val nums">{{ L('mediana', 'median') }} {{ fmt(med(t.vals)) }}</span>
           </li>
@@ -56,8 +64,8 @@ const jit = (i: number) => ((Math.sin(i * 12.9898) * 43758.5453) % 1 + 1) % 1
     <div v-else class="cnv__higado" role="note">
       <p class="cnv__p"><strong>{{ L('En el hígado, el número de copias no se puede leer célula a célula.', 'In the liver, copy number cannot be read cell by cell.') }}</strong></p>
       <p class="cnv__p">
-        {{ L(`Solo hay un dato del conjunto de la muestra (pseudobulk): la ventana ${cnv.pseudobulk.ventana} queda en el percentil ${cnv.pseudobulk.percentil_genoma} del genoma. Dice que el amplicón está en la muestra, no qué células lo llevan.`,
-          `There is only a whole-sample figure (pseudobulk): the ${cnv.pseudobulk.ventana} window sits at percentile ${cnv.pseudobulk.percentil_genoma} of the genome. It says the amplicon is in the sample, not which cells carry it.`) }}
+        {{ L(`Solo hay un dato del conjunto de la muestra (pseudobulk): la ventana ${cnv.pseudobulk.ventana} queda en el percentil ${cnv.pseudobulk.percentil_genoma} del genoma. Describe la muestra entera; no dice qué células aportan esa señal.`,
+          `There is only a whole-sample figure (pseudobulk): the ${cnv.pseudobulk.ventana} window sits at percentile ${cnv.pseudobulk.percentil_genoma} of the genome. It describes the whole sample; it cannot say which cells contribute that signal.`) }}
       </p>
     </div>
   </div>
@@ -69,16 +77,20 @@ const jit = (i: number) => ((Math.sin(i * 12.9898) * 43758.5453) % 1 + 1) % 1
 .cnv__ventana + .cnv__ventana { margin-top: var(--sp-16); }
 .cnv__h { margin: 0 0 var(--sp-8); font: 600 var(--texto-sm)/1.3 var(--font-mono); color: var(--texto-1); }
 .cnv__lista { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--sp-4); }
-.cnv__fila { display: grid; grid-template-columns: minmax(9rem, 14rem) 1fr auto; align-items: center; gap: var(--sp-8); }
+.cnv__fila { display: grid; grid-template-columns: min(14rem, 30%) 1fr 6rem; align-items: center; gap: var(--sp-8); }
 @media (max-width: 639px) { .cnv__fila { grid-template-columns: 1fr auto; } .cnv__svg { grid-column: 1 / -1; grid-row: 2; } }
 .cnv__nombre { font: 600 var(--texto-xs)/1.3 var(--font-body); color: var(--texto-1); }
 .cnv__fila--interes .cnv__nombre { color: var(--identidad); }
-.cnv__n { font: 500 11px var(--font-mono); color: var(--texto-2); }
+.cnv__n { font: 500 var(--texto-xs) var(--font-mono); color: var(--texto-2); }
+.cnv__eje { position: relative; height: 1.3em; margin: 0 0 var(--sp-4); border-bottom: 1px solid var(--trazo-fuerte); font: 500 var(--texto-xs)/1.2 var(--font-mono); color: var(--texto-2); }
+.cnv__eje span { position: absolute; top: 0; transform: translateX(-50%); }
+@media (min-width: 640px) { .cnv__eje { margin-left: calc(min(14rem, 30%) + var(--sp-8)); margin-right: 6.5rem; } }
 .cnv__svg { display: block; width: 100%; height: auto; }
+.cnv__base, .cnv__med { vector-effect: non-scaling-stroke; }
 .cnv__base { stroke: var(--trazo-sutil); }
 .cnv__punto { fill: color-mix(in srgb, var(--texto-2) 70%, transparent); }
 .cnv__fila--interes .cnv__punto { fill: var(--identidad); }
 .cnv__med { stroke: var(--texto-1); stroke-width: 2; }
 .cnv__val { font: 500 var(--texto-xs) var(--font-mono); color: var(--texto-2); white-space: nowrap; }
-.cnv__higado { border-left: 3px solid var(--identidad); padding-left: var(--sp-12); }
+.cnv__higado { border-left: 3px solid var(--texto-1); padding-left: var(--sp-12); }
 </style>

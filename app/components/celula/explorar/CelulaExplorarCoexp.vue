@@ -5,7 +5,7 @@
  * estadística añadida: recuentos y su % del grupo, con el n a la vista.
  */
 import type { Coexp, LesionDatos } from '~/utils/celulaExplorador'
-import { pct, tablaCoexp } from '~/utils/celulaExplorador'
+import { fmtPct, tablaCoexp } from '~/utils/celulaExplorador'
 import { ETIQUETA_GRUPO, etiqueta, nombreGen } from '~/utils/celulaExploradorTexto'
 
 const props = defineProps<{ d: LesionDatos; etiquetas: Coexp[]; genA: string; genB: string; lang: 'es' | 'en' }>()
@@ -19,6 +19,7 @@ const titulo = (c: Coexp) => ({
 
 <template>
   <div class="cx">
+    <p class="cx__desliza" aria-hidden="true">{{ L('Desliza para ver todas las columnas →', 'Swipe to see all columns →') }}</p>
     <div class="cx__scroll" tabindex="0" role="region" :aria-label="L('Tabla de co-expresión', 'Co-expression table')">
       <table class="cx__tabla">
         <caption class="sr-only">{{ L(`Co-expresión de ${nombreGen(genA)} y ${nombreGen(genB)} por grupo`, `Co-expression of ${nombreGen(genA)} and ${nombreGen(genB)} by group`) }}</caption>
@@ -32,15 +33,15 @@ const titulo = (c: Coexp) => ({
         <tbody>
           <tr v-for="f in filas" :key="f.id">
             <th scope="row">{{ etiqueta(ETIQUETA_GRUPO, f.id, lang) }}</th>
-            <td class="cx__num nums">{{ f.n }}</td>
-            <td v-for="c in COLS" :key="c" class="cx__num nums">{{ f.c[c] }} <span class="cx__pct">({{ f.n ? pct(f.c[c] / f.n) : 0 }} %)</span></td>
+            <td class="cx__num nums">{{ fmtN(f.n, lang) }}</td>
+            <td v-for="c in COLS" :key="c" class="cx__num nums">{{ fmtN(f.c[c], lang) }} <span class="cx__pct">({{ fmtPct(f.n ? f.c[c] / f.n : 0, lang) }})</span></td>
           </tr>
         </tbody>
       </table>
     </div>
     <p class="cx__pie">
-      {{ L('Detectado es al menos una lectura del gen. Por debajo del suelo ambiental, una célula puede salir positiva sin expresarlo, así que «los dos» incluye coincidencias por ruido.',
-        'Detected means at least one read of the gene. Below the ambient floor a cell can come out positive without expressing it, so “both” includes coincidences from noise.') }}
+      {{ L('«Detectado» quiere decir al menos una lectura del gen. Una célula puede salir positiva solo por ARN suelto de la muestra, así que «los dos» puede incluir coincidencias por ruido.',
+        '“Detected” means at least one read of the gene. A cell can come out positive from loose RNA in the sample alone, so “both” may include chance overlaps from noise.') }}
     </p>
   </div>
 </template>
@@ -53,6 +54,10 @@ const titulo = (c: Coexp) => ({
 .cx__tabla thead th { font: 600 var(--texto-xs)/1.3 var(--font-body); color: var(--texto-2); background: var(--superficie); }
 .cx__tabla tbody tr:last-child > * { border-bottom: 0; }
 .cx__num { text-align: right !important; white-space: nowrap; }
+.cx__tabla tbody th, .cx__tabla thead th:first-child { position: sticky; left: 0; z-index: 1; background: var(--fondo); }
+.cx__tabla thead th:first-child { background: var(--superficie); }
+.cx__desliza { display: none; margin: 0 0 var(--sp-8); font: var(--tipo-body-sm); font-size: var(--texto-xs); color: var(--texto-2); }
+@media (max-width: 639px) { .cx__desliza { display: block; } }
 .cx__pct { color: var(--texto-2); font-size: var(--texto-xs); }
 .cx__pie { margin: var(--sp-12) 0 0; font: var(--tipo-body-sm); font-size: var(--texto-xs); color: var(--texto-2); max-width: var(--measure); }
 </style>

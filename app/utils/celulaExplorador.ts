@@ -179,6 +179,8 @@ export function tablaCoexp(d: LesionDatos, etiquetas: Coexp[]): { id: string; n:
 
 /** Porcentaje entero para mostrar (la misma regla en toda la página). */
 export const pct = (x: number) => Math.round(100 * x)
+/** «28 %» en ES, «28%» en EN: la misma forma en tablas y violines. */
+export const fmtPct = (x: number, lang: 'es' | 'en') => (lang === 'en' ? `${pct(x)}%` : `${pct(x)} %`)
 
 /** sha256 hex de un texto (SubtleCrypto). */
 export async function sha256Hex(buf: ArrayBuffer): Promise<string> {

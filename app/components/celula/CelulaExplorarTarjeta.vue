@@ -18,7 +18,7 @@ const destino = computed(() => localePath({ name: 'celula-a-celula-explorar', qu
     <h3 class="cel-h3">{{ L('Explorar los datos célula a célula', 'Explore the cell-by-cell data') }}</h3>
     <p class="cel-card__p">
       {{ L('El mapa de células de las dos biopsias, gen a gen, con el n, el suelo ambiental y la referencia de cada medida.',
-        'The cell map of both biopsies, gene by gene, with the n, the ambient floor and the reference of every measure.') }}
+        'The cell map of both biopsies, gene by gene, with the n, the ambient floor and the reference for every measure.') }}
       <template v-if="estado === 'ejemplo'"> {{ L('De momento, con datos de ejemplo.', 'For now, with example data.') }}</template>
     </p>
     <NuxtLink :to="destino" class="link-action xt__enlace">

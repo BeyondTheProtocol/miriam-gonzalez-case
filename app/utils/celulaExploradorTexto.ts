@@ -7,12 +7,12 @@ const t = (es: string, en: string): T => ({ es, en })
 
 export const ETIQUETA_GRUPO: Record<string, T> = {
   luminal_alta_confianza: t('Luminal de alta confianza', 'High-confidence luminal'),
-  malignas_limpias: t('Malignas, llamada limpia', 'Malignant, clean call'),
+  malignas_limpias: t('Malignas, asignación limpia', 'Malignant, clean call'),
   hepatocito: t('Hepatocitos', 'Hepatocytes'),
   NK: t('Células NK', 'NK cells'),
   mieloide: t('Mieloides', 'Myeloid'),
   endotelio: t('Endotelio', 'Endothelium'),
-  fibroblasto_estelar: t('Fibroblastos y estrelladas', 'Fibroblasts and stellate cells'),
+  fibroblasto_estelar: t('Fibroblastos y células estrelladas', 'Fibroblasts and stellate cells'),
   T: t('Linfocitos T', 'T cells'),
   B: t('Linfocitos B', 'B cells'),
   plasmatica: t('Células plasmáticas', 'Plasma cells'),
@@ -42,12 +42,19 @@ export const ETIQUETA_VEREDICTO: Record<string, T> = {
   en_el_limite: t('En el límite', 'Borderline'),
   no_sostenido: t('No se sostiene', 'Does not hold'),
   no_resoluble: t('No se puede resolver con este diseño', 'Cannot be resolved with this design'),
-  referencia_igual_o_mas: t('La referencia lo detecta igual o más', 'The reference detects it as much or more'),
-  solo_nivel: t('Solo cuenta el nivel (está en casi todas)', 'Only the level counts (it is in almost every cell)'),
-  marcador_ne: t('Marcador neuroendocrino, no candidato', 'Neuroendocrine marker, not a candidate'),
+  referencia_igual_o_mas: t('Se detecta igual o más en la referencia', 'Detected as much or more in the reference'),
+  solo_nivel: t('Solo cuenta el nivel (se detecta en casi todas las células)', 'Only the level counts (detected in almost every cell)'),
+  marcador_ne: t('Marcador neuroendocrino', 'Neuroendocrine marker'),
   no: t('No', 'No'),
-  sin_veredicto: t('Sin lectura', 'No reading'),
+  sin_veredicto: t('Sin valorar', 'Not assessed'),
 }
 
 export const nombreGen = (g: string) => (PROTEINA[g] ? `${PROTEINA[g]} (${g})` : g)
 export const etiqueta = (mapa: Record<string, T>, id: string, lang: 'es' | 'en') => mapa[id]?.[lang] ?? id.replaceAll('_', ' ')
+
+/** Etiquetas fijas del explorador (plan del 17-oct-2026): una sola fuente para la cabecera y «Cómo leerlo». */
+export const ETIQUETAS_FIJAS = {
+  n1: t('n=1, FFPE, exploratorio', 'n=1, FFPE, exploratory'),
+  arn: t('ARN ≠ proteína; manda la IHQ', 'RNA ≠ protein; IHC decides'),
+  her2: t('IHQ de HER2: 0', 'HER2 IHC: 0'),
+}

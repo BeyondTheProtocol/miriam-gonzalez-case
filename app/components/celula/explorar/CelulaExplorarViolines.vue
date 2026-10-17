@@ -9,7 +9,7 @@
  * Sin animaciones. El estado no va solo en color: hay texto en cada fila y aria-label con las cifras.
  */
 import type { FilaGrupo } from '~/utils/celulaExplorador'
-import { densidad, pct } from '~/utils/celulaExplorador'
+import { densidad, fmtPct } from '~/utils/celulaExplorador'
 import { ETIQUETA_GRUPO, etiqueta } from '~/utils/celulaExploradorTexto'
 
 const props = defineProps<{ filas: FilaGrupo[]; gen: string; lang: 'es' | 'en' }>()
@@ -17,6 +17,9 @@ const L = (es: string, en: string) => (props.lang === 'en' ? en : es)
 const uid = useId()
 
 const W = 300, H = 40, BX = 340, BW = 140
+const X0 = -12, ANCHO = BX + BW + 24
+/** posición (%) de una x del viewBox, para colocar las etiquetas del eje en HTML */
+const pos = (xv: number) => ((xv - X0) / ANCHO) * 100
 const rango = computed<[number, number]>(() => {
   const todos = props.filas.flatMap((f) => f.niveles)
   if (!todos.length) return [0, 1]
@@ -38,37 +41,26 @@ function forma(f: FilaGrupo): string {
 }
 const mediana = (xs: number[]) => { if (!xs.length) return null; const s = [...xs].sort((p, q) => p - q); return s[Math.floor(s.length / 2)]! }
 const nf = (n: number) => String(n).replace(/\B(?=(\d{3})+(?!\d))/g, props.lang === 'en' ? ',' : '.')
-const aria = (f: FilaGrupo) => {
-  const md = mediana(f.niveles)
-  return L(
-    `${etiqueta(ETIQUETA_GRUPO, f.id, 'es')}, n ${nf(f.n)}: ${props.gen} detectado en ${pct(f.frac)} % (${nf(f.detectadas)} células); suelo ambiental ${pct(f.suelo)} %${md != null ? `; mediana del nivel en las detectadas ${fmt10(md)} CP10k` : ''}.`,
-    `${etiqueta(ETIQUETA_GRUPO, f.id, 'en')}, n ${nf(f.n)}: ${props.gen} detected in ${pct(f.frac)}% (${nf(f.detectadas)} cells); ambient floor ${pct(f.suelo)}%${md != null ? `; median level in detected cells ${fmt10(md)} CP10k` : ''}.`)
-}
 </script>
 
 <template>
   <div class="vio">
     <div class="vio__titulos" aria-hidden="true">
-      <span :style="{ width: `${(W / (BX + BW)) * 100}%` }">{{ L('Nivel en las células con el gen (CP10k)', 'Level in cells with the gene (CP10k)') }}</span>
-      <span :style="{ width: `${(BW / (BX + BW)) * 100}%` }">{{ L('% de células con el gen', '% of cells with the gene') }}</span>
+      <span :style="{ width: `${(W / (BX + BW)) * 100}%` }">{{ L('Nivel en las células donde se detecta (CP10k)', 'Level in cells where detected (CP10k)') }}</span>
+      <span :style="{ width: `${(BW / (BX + BW)) * 100}%` }">{{ L('% de células donde se detecta', '% of cells where detected') }}</span>
     </div>
-    <svg class="vio__eje" :viewBox="`-12 0 ${BX + BW + 24} 22`" aria-hidden="true">
-      <g v-for="tk in ticks" :key="tk">
-        <line :x1="x(tk)" :x2="x(tk)" y1="14" y2="20" class="vio__tick" />
-        <text :x="x(tk)" y="10" text-anchor="middle" class="vio__tt">{{ fmt10(tk) }}</text>
-      </g>
-      <g v-for="p in [0, 50, 100]" :key="`p${p}`">
-        <line :x1="BX + (BW * p) / 100" :x2="BX + (BW * p) / 100" y1="14" y2="20" class="vio__tick" />
-        <text :x="BX + (BW * p) / 100" y="10" text-anchor="middle" class="vio__tt">{{ p }}</text>
-      </g>
-    </svg>
+    <!-- ejes en HTML (no escalan con el viewBox: legibles también a 375 px) -->
+    <div class="vio__eje" aria-hidden="true">
+      <span v-for="tk in ticks" :key="tk" class="vio__tt" :style="{ left: `${pos(x(tk))}%` }">{{ fmt10(tk) }}</span>
+      <span v-for="p in [0, 50, 100]" :key="`p${p}`" class="vio__tt" :style="{ left: `${pos(BX + (BW * p) / 100)}%` }">{{ p }}</span>
+    </div>
     <ul class="vio__lista">
       <li v-for="f in filas" :key="f.id" class="vio__fila" :class="`vio__fila--${f.rol}`">
         <div class="vio__cab">
           <span class="vio__nombre">{{ etiqueta(ETIQUETA_GRUPO, f.id, lang) }}</span>
           <span class="vio__n nums">n = {{ nf(f.n) }}</span>
         </div>
-        <svg class="vio__svg" :viewBox="`-12 0 ${BX + BW + 24} ${H}`" role="img" :aria-label="aria(f)">
+        <svg class="vio__svg" :viewBox="`${X0} 0 ${ANCHO} ${H}`" aria-hidden="true">
           <defs>
             <pattern :id="`${uid}-raya`" width="5" height="5" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
               <line x1="0" y1="0" x2="0" y2="5" class="vio__raya" />
@@ -87,7 +79,7 @@ const aria = (f: FilaGrupo) => {
           <line :x1="BX + BW * Math.min(1, f.suelo)" :x2="BX + BW * Math.min(1, f.suelo)" y1="8" y2="32" class="vio__suelo-linea" />
         </svg>
         <p class="vio__txt nums">
-          {{ L(`Detectado ${pct(f.frac)} % (${nf(f.detectadas)}) · suelo ${pct(f.suelo)} %`, `Detected ${pct(f.frac)}% (${nf(f.detectadas)}) · floor ${pct(f.suelo)}%`) }}
+          {{ L(`Detectado ${fmtPct(f.frac, 'es')} (${nf(f.detectadas)}) · suelo ${fmtPct(f.suelo, 'es')}`, `Detected ${fmtPct(f.frac, 'en')} (${nf(f.detectadas)}) · floor ${fmtPct(f.suelo, 'en')}`) }}<template v-if="mediana(f.niveles) != null"> · {{ L('mediana', 'median') }} {{ fmt10(mediana(f.niveles)!) }} CP10k</template>
           <template v-if="f.detectadas < 3"> · {{ L('pocas células para dibujar la forma', 'too few cells to draw a shape') }}</template>
         </p>
       </li>
@@ -108,9 +100,8 @@ const aria = (f: FilaGrupo) => {
 .vio { color: var(--texto-1); }
 .vio__titulos { display: flex; justify-content: space-between; gap: var(--sp-8); font: 600 var(--texto-xs)/1.3 var(--font-body); color: var(--texto-2); }
 .vio__titulos span:last-child { text-align: right; }
-.vio__eje { display: block; width: 100%; height: auto; margin: var(--sp-4) 0; }
-.vio__tick { stroke: var(--viz-eje); }
-.vio__tt { font: 500 11px var(--font-mono); fill: var(--texto-2); }
+.vio__eje { position: relative; height: 1.4em; margin: var(--sp-4) 0; border-bottom: 1px solid var(--trazo-fuerte); }
+.vio__tt { position: absolute; top: 0; transform: translateX(-50%); font: 500 var(--texto-xs)/1.2 var(--font-mono); color: var(--texto-2); white-space: nowrap; }
 .vio__lista { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--sp-8); }
 .vio__fila { padding: var(--sp-8) 0; border-top: 1px solid var(--trazo-sutil); }
 .vio__cab { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0 var(--sp-8); }
@@ -119,16 +110,16 @@ const aria = (f: FilaGrupo) => {
 .vio__n { font: 500 var(--texto-xs)/1.3 var(--font-mono); color: var(--texto-2); }
 .vio__svg { display: block; width: 100%; height: auto; margin-top: var(--sp-4); overflow: visible; }
 .vio__base { stroke: var(--trazo-medio); }
-.vio__forma { fill: color-mix(in srgb, var(--texto-2) 40%, transparent); stroke: var(--texto-2); stroke-width: 1; }
+.vio__forma { fill: color-mix(in srgb, var(--texto-2) 40%, transparent); stroke: var(--texto-2); stroke-width: 1; vector-effect: non-scaling-stroke; }
 .vio__fila--interes .vio__forma { fill: color-mix(in srgb, var(--identidad) 45%, transparent); stroke: var(--identidad); }
 .vio__punto { fill: var(--texto-2); }
-.vio__mediana { stroke: var(--texto-1); stroke-width: 2; }
-.vio__marco { fill: none; stroke: var(--trazo-interactivo); }
+.vio__mediana { stroke: var(--texto-1); stroke-width: 2; vector-effect: non-scaling-stroke; }
+.vio__marco { fill: none; stroke: var(--trazo-interactivo); vector-effect: non-scaling-stroke; }
 .vio__det { fill: color-mix(in srgb, var(--texto-2) 55%, transparent); }
 .vio__fila--interes .vio__det { fill: color-mix(in srgb, var(--identidad) 70%, transparent); }
 .vio__raya { stroke: var(--texto-1); stroke-width: 2; }
 .vio__suelo { stroke: var(--texto-1); stroke-width: 1; }
-.vio__suelo-linea { stroke: var(--texto-1); stroke-width: 2; }
+.vio__suelo-linea { stroke: var(--texto-1); stroke-width: 2; vector-effect: non-scaling-stroke; }
 .vio__txt { margin: var(--sp-4) 0 0; font: 500 var(--texto-xs)/1.4 var(--font-mono); color: var(--texto-2); }
 .vio__leyenda { display: flex; gap: var(--sp-8); align-items: flex-start; margin: var(--sp-12) 0 0; font: var(--tipo-body-sm); font-size: var(--texto-xs); color: var(--texto-2); max-width: var(--measure); }
 .vio__muestra { flex: none; width: 22px; height: 12px; margin-top: 3px; border: 1px solid var(--texto-1); }

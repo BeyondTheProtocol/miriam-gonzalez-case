@@ -31,7 +31,8 @@ export interface EntradaMotor {
   gen: { simbolo: string; valores: Float32Array } | null
   /** conjunto que colorea el mapa cuando no hay gen */
   colorearPor: string
-  etiquetas: { mapa: string; conjuntos: string }
+  etiquetas: { mapa: string }
+  lang: 'es' | 'en'
 }
 
 const csvCampo = (s: string) => (/[",\n]/.test(s) ? `"${s.replaceAll('"', '""')}"` : s)
@@ -77,29 +78,46 @@ function construyeConfig(e: EntradaMotor, urls: string[]) {
       obsSetColor: { A: e.colores.map((c) => ({ path: c.ruta, color: c.rgb })) },
       embeddingObsRadiusMode: { A: 'manual' },
       embeddingObsRadius: { A: 2 },
+      embeddingObsSetLabelsVisible: { A: !e.gen },
     },
+    // UNA vista: el mapa. Sin el gestor de conjuntos de Vitessce (permitía crear grupos nuevos por
+    // unión/intersección, y la página no reagrupa células); la leyenda va debajo, con el design system.
     layout: [
-      { component: 'scatterplot', coordinationScopes: { dataset: 'A', embeddingType: 'A', obsColorEncoding: 'A', featureSelection: 'A', obsSetSelection: 'A', obsSetColor: 'A', embeddingObsRadiusMode: 'A', embeddingObsRadius: 'A' }, x: 0, y: 0, w: 8, h: 12, props: { title: e.etiquetas.mapa, closeButtonVisible: false, downloadButtonVisible: false } },
-      { component: 'obsSets', coordinationScopes: { dataset: 'A', obsColorEncoding: 'A', obsSetSelection: 'A', obsSetColor: 'A' }, x: 8, y: 0, w: 4, h: 12, props: { title: e.etiquetas.conjuntos, closeButtonVisible: false, downloadButtonVisible: false } },
+      { component: 'scatterplot', coordinationScopes: { dataset: 'A', embeddingType: 'A', obsColorEncoding: 'A', featureSelection: 'A', obsSetSelection: 'A', obsSetColor: 'A', embeddingObsRadiusMode: 'A', embeddingObsRadius: 'A', embeddingObsSetLabelsVisible: 'A' }, x: 0, y: 0, w: 12, h: 12, props: { title: e.etiquetas.mapa, closeButtonVisible: false, downloadButtonVisible: false } },
     ],
   }
 }
 
 export interface Motor { pinta(e: EntradaMotor): void; desmonta(): void }
 
-/** Vitessce anuncia el título de cada vista como encabezado de nivel 1; en esta página van bajo un h2. */
-function bajaEncabezados(el: HTMLElement) {
+/** La interfaz de Vitessce viene en inglés y con títulos de nivel 1: se ajusta a la página (ES/EN, h3). */
+const TEXTOS: Record<string, { es: string; en: string }> = {
+  'Pointer tool': { es: 'Mover y hacer zoom', en: 'Pan and zoom' },
+  'click to recenter': { es: 'Recentrar el mapa', en: 'Recenter the map' },
+  'Recenter': { es: 'Recentrar el mapa', en: 'Recenter the map' },
+}
+function ajusta(el: HTMLElement, lang: 'es' | 'en') {
   for (const h of el.querySelectorAll('[role="heading"][aria-level="1"]')) h.setAttribute('aria-level', '3')
+  for (const b of el.querySelectorAll<HTMLElement>('[title], [aria-label]')) {
+    for (const a of ['title', 'aria-label']) {
+      const v = b.getAttribute(a)
+      if (v && TEXTOS[v]) b.setAttribute(a, TEXTOS[v][lang])
+    }
+  }
+  // el lienzo no se maneja con teclado: que no sea una parada de tabulación sin nombre
+  for (const d of el.querySelectorAll<HTMLElement>('div[tabindex="0"]')) if (!d.getAttribute('aria-label')) d.setAttribute('tabindex', '-1')
 }
 
 export function montaMotor(el: HTMLElement): Motor {
   const raiz: Root = createRoot(el)
-  const vigia = new MutationObserver(() => bajaEncabezados(el))
+  let lang: 'es' | 'en' = 'es'
+  const vigia = new MutationObserver(() => ajusta(el, lang))
   vigia.observe(el, { childList: true, subtree: true })
   let urls: string[] = []
   const libera = () => { for (const u of urls) URL.revokeObjectURL(u); urls = [] }
   return {
     pinta(e) {
+      lang = e.lang
       const nuevas: string[] = []
       const config = upgradeAndParse(construyeConfig(e, nuevas))
       raiz.render(createElement(VitSContainer, {
