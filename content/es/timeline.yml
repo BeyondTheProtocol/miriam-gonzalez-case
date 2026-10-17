@@ -321,3 +321,14 @@ entries:
     highlight: false
     link: https://x.com/miriamgonp/status/2108087307219923331
     linkLabel: 'Leerlo en X →'
+
+  - date: '16 oct 2026'
+    tag: Molecular
+    title: Llegan los primeros resultados célula a célula
+    description: >
+      Han llegado los primeros resultados del análisis célula a célula de mis metástasis de
+      hígado y de hueso. Lo ha hecho el laboratorio de Paloma Cejas, en el Dana-Farber. Lo
+      cuento en una página, con sus límites.
+    highlight: false
+    link: /celula-a-celula
+    linkLabel: 'Ver Célula a célula →'

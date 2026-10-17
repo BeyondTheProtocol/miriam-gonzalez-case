@@ -7,7 +7,8 @@
  *
  * Qué NO se publica aquí, a propósito: ninguna cifra del experimento que no esté en el texto
  * aprobado por Miriam (las pinta public/celula/resultados.json, ver app/utils/celulaResultados.ts),
- * ningún laboratorio ni persona que no sea ya público, ninguna sigla de muestra.
+ * ningún laboratorio ni persona que no sea ya público (el crédito a Paloma Cejas y Dana-Farber, en
+ * CelulaQuien, es público en /ciencia y en su post de LinkedIn), ninguna sigla de muestra.
  *
  * El título y la descripción SON los de `COPY_HERRAMIENTAS.cell_by_cell` (app/utils/navegacion.ts):
  * si cambian aquí, se cambian allí.
@@ -58,6 +59,7 @@ defineOgImage('Default.takumi', {
           <CelulaEstado />
           <CelulaQueEs />
           <CelulaTejido />
+          <CelulaQuien />
           <CelulaPreguntas />
           <CelulaResultados />
           <CelulaLimites />
