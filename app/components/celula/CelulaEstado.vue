@@ -1,6 +1,6 @@
 <script setup lang="ts">
 /**
- * Bloque 0 · Estado. Lo primero que se lee: dónde está el análisis y que todavía no hay
+ * Bloque 0 · Estado. Lo primero que se lee: dónde está el análisis y si ya hay
  * resultados. Sin ninguna cifra del experimento. El sello dice de dónde sale la descripción
  * de la técnica (comprobada el 16-oct-2026), no que haya datos.
  */

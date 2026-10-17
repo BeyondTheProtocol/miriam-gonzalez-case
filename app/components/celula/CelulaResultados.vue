@@ -31,11 +31,11 @@ const mostrar = (k: string) => visibles.value.includes(k as never)
     </p>
     <div class="cel-cielo__bloques">
       <template v-for="k in ORDEN_BLOQUES" :key="k">
-        <CelulaR0 v-if="k === 'R0' && mostrar(k)" :b="res.bloques.R0!" :base="res.por_cada" />
-        <CelulaR1 v-else-if="k === 'R1' && mostrar(k)" :b="res.bloques.R1!" :base="res.por_cada" />
-        <CelulaR3 v-else-if="k === 'R3' && mostrar(k)" :b="res.bloques.R3!" :base="res.por_cada" :nivel="res.ic_nivel" />
-        <CelulaR4 v-else-if="k === 'R4' && mostrar(k)" :b="res.bloques.R4!" :base="res.por_cada" :nivel="res.ic_nivel" />
-        <CelulaR5 v-else-if="k === 'R5' && mostrar(k)" :b="res.bloques.R5!" :base="res.por_cada" :nivel="res.ic_nivel" />
+        <CelulaR0 v-if="k === 'R0' && mostrar(k)" :b="res.bloques.R0!" />
+        <CelulaR3 v-else-if="k === 'R3' && mostrar(k)" :b="res.bloques.R3!" :base="res.por_cada" />
+        <CelulaR4 v-else-if="k === 'R4' && mostrar(k)" :b="res.bloques.R4!" :base="res.por_cada" />
+        <CelulaR5 v-else-if="k === 'R5' && mostrar(k)" :b="res.bloques.R5!" />
+        <CelulaR6 v-else-if="k === 'R6' && mostrar(k)" :b="res.bloques.R6!" />
       </template>
     </div>
   </section>

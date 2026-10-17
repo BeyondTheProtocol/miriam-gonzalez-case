@@ -37,7 +37,7 @@ jobs:
       # de caso.json, en cada fecha con análisis. Una cifra interpolada sería un dato clínico falso.
       - run: pnpm test:cifras-datos
 
-      # /celula-a-celula: sin demo no hay ni rastro de resultados, y cada cifra pintada con ?demo=1 está en el JSON.
+      # /celula-a-celula: salen los 5 bloques aprobados (sin el censo ni rótulo de ejemplo) y cada cifra pintada está en el JSON.
       - run: pnpm test:celula-cifras
 
       # Privacidad: ninguna cita FUTURA con día junto a un lugar (acoso activo). Va detrás

@@ -8,40 +8,35 @@
  *    el JS de la web. Por eso este fichero SOLO contiene bloques ya verificados y con el OK de Miriam
  *    (o, mientras no haya ninguno, el ejemplo falso con `ejemplo: true`). Lo que está en revisión
  *    vive en Polaris, nunca aquí. El test `test:celula-puerta` falla si esto se incumple.
- *  · Todas las cifras llegan hechas: enteros por cada `por_cada` (suman `por_cada` en el censo), IC
- *    calculados por el analista. La página no redondea ni calcula nada; lo que no esté en el JSON
- *    no se muestra (test:celula-cifras).
+ *  · Solo viajan las cifras del texto aprobado por Miriam (enteros «por cada `por_cada`», o el recuento
+ *    de células). R5 y R6 no llevan ningún número. La página no redondea ni calcula nada; lo que no
+ *    esté en el JSON no se muestra (test:celula-cifras). Cada bloque lleva `fecha_ok` (el día del OK).
  *  · Etiquetas de gen tal cual («TROP2»), sin guion de ancho cero ni formato.
  */
 
-export type ClaveBloque = 'R0' | 'R1' | 'R3' | 'R4' | 'R5'
-export const ORDEN_BLOQUES: ClaveBloque[] = ['R0', 'R1', 'R3', 'R4', 'R5']
+export type ClaveBloque = 'R0' | 'R3' | 'R4' | 'R5' | 'R6'
+/** R1 (censo de tipos de célula) NO se publica: ni está en el JSON ni existe aquí. */
+export const ORDEN_BLOQUES: ClaveBloque[] = ['R0', 'R3', 'R4', 'R5', 'R6']
 export type Muestra = 'higado' | 'hueso'
 export const MUESTRAS: Muestra[] = ['higado', 'hueso']
-export type Categoria = 'tumoral' | 'inmune' | 'sosten' | 'otras'
-export const CATEGORIAS: Categoria[] = ['tumoral', 'inmune', 'sosten', 'otras']
 
-export interface Intervalo { n: number; n_con: number; por_100: number; ic_inf: number; ic_sup: number }
-export interface Gen extends Partial<Intervalo> { gen: string; en_panel: boolean }
-export interface R0 { muestras: Record<Muestra, { leidas: number; usadas: number; usadas_por_100: number; genes_mediana: number }> }
-export interface R1 { muestras: Record<Muestra, { n_total: number; categorias: { clave: Categoria; n: number; por_100: number }[] }> }
-export interface R3 { muestras: Record<Muestra, { n_tumorales: number; dianas: Gen[] }> }
-export interface R4 { sin_sonda: string[]; muestras: Record<Muestra, { n_tumorales: number; genes: Gen[] }> }
-export interface R5 {
-  dianas: { gen: string; higado: Intervalo; hueso: Intervalo }[]
-  cielo: Record<Muestra, { grupos: { clave: Categoria; x: number; y: number; n: number }[] }>
-}
-export interface Bloque<D = unknown> { sello: string; ok_miriam: boolean; ejemplo?: boolean; datos: D }
+/** Solo lo que dice el texto aprobado: ni n, ni IC, ni medianas. Lo que no está aquí no se puede pintar. */
+export interface R0 { muestras: Record<Muestra, { celulas: number }> }
+export interface Diana { gen: string; por_100: number; aprox?: boolean }
+export interface R3 { muestras: Record<Muestra, { dianas: Diana[] }>; ausentes: { gen: string; por_100: number }[] }
+export interface R4 { higado: { por_100: number; menos_de: boolean } }
+export interface R5 { gen: string; activo: Record<Muestra, boolean> }
+export interface R6 { patron: 'dispersos' }
+export interface Bloque<D = unknown> { sello: string; ok_miriam: boolean; fecha_ok?: string; ejemplo?: boolean; datos: D }
 export interface Resultados {
   version: number
   ejemplo?: boolean
   por_cada: number
-  ic_nivel: number
   bloques: Partial<Record<ClaveBloque, Bloque>>
 }
 
 /** Fecha de «estado» de la página: UNA fuente para Estado, Ficha y el resto del copy. */
-export const CELULA_ESTADO_ISO = '2026-10-16'
+export const CELULA_ESTADO_ISO = '2026-10-17'
 const MESES = {
   es: ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'],
   en: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
@@ -57,25 +52,18 @@ export function puertaAbierta(b: Bloque | undefined | null): boolean {
 }
 
 const ent = (v: unknown, min = 0, max = Infinity) => typeof v === 'number' && Number.isInteger(v) && v >= min && v <= max
-function intervaloOk(i: Partial<Intervalo> | undefined, por: number): boolean {
-  return !!i && ent(i.n, 1) && ent(i.n_con, 0, i.n) && ent(i.por_100, 0, por) && ent(i.ic_inf, 0, por) && ent(i.ic_sup, 0, por)
-    && i.ic_inf! <= i.por_100! && i.por_100! <= i.ic_sup!
-}
-function genOk(g: Gen, por: number): boolean {
-  return typeof g.gen === 'string' && g.gen.length > 0 && (g.en_panel === false || intervaloOk(g, por))
-}
 /** Forma y coherencia de un bloque. Un bloque mal formado se oculta entero: mejor nada que algo roto. */
 export function bloqueValido(k: ClaveBloque, b: Bloque, por: number): boolean {
   const d = b.datos as any
   try {
-    if (k === 'R0') return MUESTRAS.every((m) => { const x = d.muestras[m]; return ent(x.leidas, 1) && ent(x.usadas, 0, x.leidas) && ent(x.usadas_por_100, 0, por) && ent(x.genes_mediana, 0) })
-    if (k === 'R1') return MUESTRAS.every((m) => { const x = d.muestras[m]; const c = x.categorias; return ent(x.n_total, 1) && c.length > 0
-      && c.every((q: any) => CATEGORIAS.includes(q.clave) && ent(q.n, 0, x.n_total) && ent(q.por_100, 0, por))
-      && c.reduce((s: number, q: any) => s + q.por_100, 0) === por && new Set(c.map((q: any) => q.clave)).size === c.length })
-    if (k === 'R3') return MUESTRAS.every((m) => { const x = d.muestras[m]; return ent(x.n_tumorales, 1) && x.dianas.length > 0 && x.dianas.every((g: Gen) => genOk(g, por)) })
-    if (k === 'R4') return Array.isArray(d.sin_sonda) && MUESTRAS.every((m) => { const x = d.muestras[m]; return ent(x.n_tumorales, 1) && x.genes.length > 0 && x.genes.every((g: Gen) => genOk(g, por)) })
-    if (k === 'R5') return d.dianas.length > 0 && d.dianas.every((q: any) => typeof q.gen === 'string' && intervaloOk(q.higado, por) && intervaloOk(q.hueso, por))
-      && MUESTRAS.every((m) => d.cielo[m].grupos.length > 0 && d.cielo[m].grupos.every((g: any) => CATEGORIAS.includes(g.clave) && ent(g.x, 0, 100) && ent(g.y, 0, 100) && ent(g.n, 1)))
+    if (k === 'R0') return MUESTRAS.every((m) => ent(d.muestras[m].celulas, 1))
+    if (k === 'R3') return MUESTRAS.every((m) => {
+      const x = d.muestras[m].dianas as Diana[]
+      return ['NY-BR-1', '5T4'].every((g) => x.some((q) => q.gen === g)) && x.every((q) => typeof q.gen === 'string' && q.gen.length > 0 && ent(q.por_100, 1, por))
+    }) && d.ausentes.length > 0 && d.ausentes.every((q: any) => typeof q.gen === 'string' && q.por_100 === 0)
+    if (k === 'R4') return ent(d.higado.por_100, 1, por) && typeof d.higado.menos_de === 'boolean'
+    if (k === 'R5') return typeof d.gen === 'string' && MUESTRAS.every((m) => d.activo[m] === true)
+    if (k === 'R6') return d.patron === 'dispersos'
   }
   catch { return false }
   return false

@@ -1,13 +1,13 @@
 <script setup lang="ts">
 /**
- * Célula a célula · fase 1 (16-oct-2026). Explica un análisis de célula única QUE TODAVÍA NO
- * TIENE RESULTADOS: qué es, sobre qué tejido, qué preguntas puede contestar y, con el mismo
+ * Célula a célula · fase 1 (16-oct-2026) y primeros resultados (fase 2, 17-oct-2026, bloques R0, R3,
+ * R4, R5 y R6 con el OK de Miriam; el censo R1 no se publica). Explica un análisis de célula única:
+ * qué es, sobre qué tejido, qué preguntas puede contestar y, con el mismo
  * peso, qué no puede decir. Describe y equipa; no concluye ni recomienda tratamiento.
  *
- * Qué NO se publica aquí, a propósito: ninguna cifra del experimento (ni número de células,
- * ni calidad de las muestras, ni resultados), ningún laboratorio ni persona que no sea ya
- * público, ninguna sigla de muestra. Las dianas que se nombran son las ya públicas del caso
- * y van como pregunta, nunca como hallazgo. La fase 2 (con datos) pasa de nuevo por revisión.
+ * Qué NO se publica aquí, a propósito: ninguna cifra del experimento que no esté en el texto
+ * aprobado por Miriam (las pinta public/celula/resultados.json, ver app/utils/celulaResultados.ts),
+ * ningún laboratorio ni persona que no sea ya público, ninguna sigla de muestra.
  *
  * El título y la descripción SON los de `COPY_HERRAMIENTAS.cell_by_cell` (app/utils/navegacion.ts):
  * si cambian aquí, se cambian allí.
@@ -20,11 +20,7 @@ const L = (es: string, en: string) => (lang.value === 'en' ? en : es)
 const copy = computed(() => copyHerramienta('cell_by_cell', locale.value))
 const { hayReales } = useCelulaResultados()
 const seoTitle = () => copy.value[0]
-// la descripción del índice de herramientas dice «todavía no hay resultados»: con resultados, la página no lo repite
-const seoDescription = () => hayReales.value
-  ? L('Un análisis de célula única sobre dos muestras del tumor de Miriam: qué es, qué preguntas puede contestar, qué no puede decir y los primeros resultados, con su sello.',
-    'A single-cell analysis of two of Miriam’s tumor samples: what it is, which questions it can answer, what it cannot say and the first results, each with its seal.')
-  : copy.value[1]
+const seoDescription = () => copy.value[1]
 
 useSeoMeta({
   title: seoTitle, description: seoDescription, ogTitle: seoTitle, ogDescription: seoDescription,
@@ -46,7 +42,7 @@ defineOgImage('Default.takumi', {
         <PageHeader
           class="!mb-6"
           :parent="{ to: localePath({ name: 'herramientas' }), label: t('nav.tools') }"
-          :tag="L('Análisis en marcha', 'Analysis under way')"
+          :tag="hayReales ? L('Primeros resultados', 'First results') : L('Análisis en marcha', 'Analysis under way')"
           :title="copy[0]"
           :subtitle="hayReales
             ? L('Un análisis que mira las células del tumor de Miriam una a una, en lugar de hacer la media de todas. Estos son los primeros resultados.',
