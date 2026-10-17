@@ -82,8 +82,8 @@
     "curious_steps_aria": "Steps to understand the case",
     "curious_cta": "See 2-minute summary",
     "curious_caption": "No signup. No pressure.",
-    "clinician_title": "Medicine or research",
-    "clinician_desc": "You want clinical detail: markers, imaging, therapeutic lines.",
+    "clinician_title": "Medicine, lab or trial",
+    "clinician_desc": "You're a clinician, a researcher, or you run a trial or a lab: markers, imaging and the route of the case.",
     "clinician_steps": [
       "Molecular profile and three tissue reads",
       "Functional imaging and active targets",
@@ -131,10 +131,10 @@
     "brief_time": "2 min",
     "brief_heading": "The essentials, in four ideas",
     "brief_points": [
-      "Miriam has metastatic breast cancer with two biologies at once: luminal (HR+) and neuroendocrine (~80%). Spanish protocols only cover the first.",
-      "The molecular rebiopsy is already done (July 2026). Without advanced analyses repeated over time, treatment is decided blind while the tumor evolves.",
-      "The campaign funds precision tests, second opinions, and a possible N-of-1 trial designed for her exact biology.",
-      "Every euro is documented. There are ways to help beyond money: clinical review, outreach, tech, or simply being here."
+      "Miriam has metastatic breast cancer with two biologies at once: the breast one and a neuroendocrine one. Spanish protocols only account for the first, so standard treatment falls short.",
+      "The aim is to reach no evidence of disease with a therapy designed from her own tumor. Today the main route is a personalized vaccine. Other therapies from the same family, such as TIL or CAR-T, are on the table, and her doctors will weigh which one has the most evidence for her case.",
+      "The campaign pays for the tests that read the tumor in depth, for second opinions, and for getting to the trial or lab that can make that therapy, wherever it is. Every euro is documented.",
+      "There are ways to help beyond money: clinical review, outreach, tech, or simply being here."
     ],
     "brief_outro": "To go deeper, The science has a summary for everyone and a professional mode with tables and imaging.",
     "brief_cta_science": "View the science",
@@ -258,7 +258,7 @@
     "title": "A rare cancer, {op}.",
     "title_short": "A rare cancer, a real opportunity.",
     "title_emphasis": "a real opportunity",
-    "subtitle": "{lead} has a tumor with {twofaces} that Spanish protocols don't account for. The tests she needs to treat it aren't covered by public healthcare. This site exists to fund them.",
+    "subtitle": "{lead} has a tumor with {twofaces} that Spanish protocols don't account for. The aim is a therapy designed from her own tumor. This site pays for the tests and the steps that public healthcare doesn't cover.",
     "twofaces": "two sides",
     "subtitle_lead": "Miriam, {age},",
     "cta_donate": "Support Miriam",
@@ -267,13 +267,12 @@
     "stat_raised_label": "raised so far",
     "stat_donors_label": "people have contributed",
     "stat_specialists_label": "specialists in {countries} countries",
-    "stat_ne_value": "80%",
-    "stat_ne_label": "neuroendocrine differentiation",
     "latest_label": "Latest",
     "updated_today": "updated today",
     "updated_ago_one": "updated yesterday",
     "updated_ago": "updated {n} days ago",
-    "photo_tag": "Engineer · Communicator"
+    "photo_tag": "Engineer · Communicator",
+    "stat_cells_label": "cells from her tumor read one by one"
   },
   "gofundme": {
     "title": "Why do we need your help?",
@@ -583,7 +582,7 @@
     "s3_outro": "Full technical analysis in The science. The essential point: a measurable gap exists between the treatment she receives and the one her biology requires.",
     "s4_eyebrow": "Where the money goes · Radical transparency",
     "s4_heading": "The tumor evolves. The strategy has to evolve with it.",
-    "s4_p1": "The tumor evolves under treatment pressure. Resistance mutations appear in the blood (ESR1 D538G, RB1), and new targets show up on imaging (SSTR+). Without molecular analyses repeated over time (this year there has already been a bone biopsy, in July, and a liver biopsy, in August), clinical decisions are made ",
+    "s4_p1": "The tumor changes under treatment, so it has to be analysed again every so often. Otherwise, decisions are made ",
     "s4_p2": "Every euro is assigned to a concrete line item and documented on the Expenses page.",
     "s4_list_intro": "The money raised covers, in whatever order is needed:",
     "s4_list": [
@@ -665,19 +664,19 @@
     "s3_summary": "In practice: hormonal treatment addresses the tumor's {luminal} side but leaves its {neuroendocrine} component untreated. Confirming and targeting it requires molecular analyses and international expert review — tests public healthcare doesn't cover for such a rare case. The rebiopsy and the first international review are already done.",
     "s4_buckets_title": "The money goes to:",
     "s4_buckets": [
-      "Molecular tests and diagnostics (analysis of the rebiopsy tissue, sequencing, panels).",
+      "Tests to read the tumor (cell by cell, sequencing, HLA typing).",
       "Consultations and second opinions with international specialists.",
-      "Medication and treatments not covered.",
-      "AI tools, case management and outreach."
+      "Travel and stays to reach a trial or a lab, in whatever country.",
+      "Medication, treatments and tools that public healthcare doesn't cover."
     ],
     "s4_full_breakdown": "See the full breakdown",
     "story_p1_rarity": "0.1%–5% of breast cancers, depending on the definition",
     "story_p1_source": "Source: Gallo et al. review, Front. Endocrinol., 2020 · in the US SEER registry, under 0.1% (Wang et al., BMC Cancer, 2014)",
     "s4_p1_blind": "blind",
     "tools_see_all": "See all tools",
-    "pasos_eyebrow": "What comes next",
-    "pasos_heading": "Five steps to a made-to-measure therapy.",
-    "pasos_intro": "This is where the route stands today: building a therapy from Miriam's own tumour. Treatment to keep the disease in check carries on alongside it.",
+    "pasos_eyebrow": "The aim",
+    "pasos_heading": "Toward a therapy made from her own tumor.",
+    "pasos_intro": "The aim is to reach no evidence of disease: the tests stop finding the cancer, and it stays that way. This is the route, step by step. Treatment to keep the disease in check carries on alongside it.",
     "pasos_progreso": "{hechos} of {total} steps taken",
     "pasos_progreso_curso": "{hechos} of {total} steps taken · {curso} in progress",
     "pasos_nota_barra": "The bar counts the steps of this route already taken. It does not measure progress toward any medical goal.",

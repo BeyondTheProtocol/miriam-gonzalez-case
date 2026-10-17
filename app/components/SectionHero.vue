@@ -152,6 +152,8 @@
 </template>
 
 <script setup lang="ts">
+import resultadosCelula from '~~/public/celula/resultados.json'
+
 const localePath = useLocalePath()
 const { locale, t } = useI18n()
 const { trackSupport, trackScience, trackLatest } = useSupport()
@@ -193,11 +195,23 @@ const donorsFormatted = computed(() => {
   )
 })
 
+// Cuarta cifra (Miriam, 17-oct-2026): fuera el «80 % neuroendocrino» (y nada de Ki67, que cambia
+// con cada informe). Células del tumor leídas una a una en el análisis célula a célula: sale del
+// bloque R0 de resultados.json SOLO si está sellado como verificado y con su OK, así que se pone
+// al día solo y nunca enseña una cifra sin cotejar. Sin dato válido, la cifra no se muestra.
+const celulasLeidas = computed(() => {
+  const r0 = (resultadosCelula as any)?.bloques?.R0
+  if (!r0 || r0.sello !== 'verificado' || r0.ok_miriam !== true) return null
+  const total = Object.values(r0.datos?.muestras ?? {}).reduce(
+    (n: number, m: any) => n + (typeof m?.celulas === 'number' ? m.celulas : 0), 0)
+  return total > 0 ? new Intl.NumberFormat(locale.value === 'es' ? 'es-ES' : 'en-US').format(total) : null
+})
+
 const stats = computed(() => [
   { value: raisedFormatted.value, label: t('hero.stat_raised_label') },
   { value: donorsFormatted.value, label: t('hero.stat_donors_label') },
   { value: caseData.specialists, label: t('hero.stat_specialists_label', { countries: caseData.countries }) },
-  { value: t('hero.stat_ne_value'), label: t('hero.stat_ne_label') },
+  ...(celulasLeidas.value ? [{ value: celulasLeidas.value, label: t('hero.stat_cells_label') }] : []),
 ])
 </script>
 
