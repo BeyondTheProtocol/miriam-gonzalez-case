@@ -3,7 +3,8 @@
        está entre las herramientas. Arriba, en grande, la MÁS NUEVA (primera de HERRAMIENTAS);
        debajo, el resto en el mismo orden (de la más nueva a la más antigua) y el índice.
        Título y texto de cada una: los ya publicados de su página (COPY_HERRAMIENTAS); el único
-       copy nuevo es la etiqueta «Nueva». Sin animación de entrada propia más allá de v-reveal. -->
+       copy nuevo es la etiqueta «Lo último» (no «Nueva»: la primera de la lista
+       siempre es la última en llegar, pero no siempre es nueva; diseno, 17-oct). Sin animación de entrada propia más allá de v-reveal. -->
   <section
     v-reveal
     class="bg-cream py-14 sm:py-16"
@@ -11,7 +12,8 @@
     :aria-labelledby="titleId"
   >
     <div class="section-wide">
-      <p :id="titleId" class="eyebrow mb-2 block">{{ $t('herramientas.title') }}</p>
+      <!-- h2 con aspecto de eyebrow (diseno, 17-oct): la banda necesita su sitio en el esquema de encabezados. -->
+      <h2 :id="titleId" class="eyebrow mb-2 block">{{ $t('herramientas.title') }}</h2>
       <p class="text-base text-tinta leading-relaxed max-w-2xl mb-6">{{ $t('herramientas.intro') }}</p>
 
       <NuxtLink
