@@ -33,6 +33,7 @@ for (const [lg, ruta, cerrado, eti] of [
   for (const e of eti) ok(`[${lg}] etiqueta fija «${e}»`, h.includes(e))
   ok(`[${lg}] noindex sin datos reales`, /<meta name="robots" content="noindex/.test(h))
   ok(`[${lg}] sin rótulo de ejemplo en el HTML`, !/DATOS DE EJEMPLO|EXAMPLE DATA/.test(h))
+  ok(`[${lg}] sin datos reales no se ofrece la matriz a petición`, !/a petición|on request/.test(h))
   ok(`[${lg}] ningún HTML precarga el chunk de Vitessce`, !vitessce.some((f) => h.includes(f)))
 }
 for (const [lg, ruta, txt] of [['es', 'celula-a-celula', 'Abrir el explorador'], ['en', 'en/cell-by-cell', 'Open the explorer']]) {

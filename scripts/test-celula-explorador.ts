@@ -116,6 +116,7 @@ for (const [qué, re] of [
 const pagina = lee(join(RAIZ, 'app/pages/celula-a-celula-explorar.vue'))
 ok('la página es noindex sin datos reales', /robots: \(\) => \(hayReal\.value \? 'index, follow' : 'noindex, follow'\)/.test(pagina))
 ok('con la puerta cerrada no se monta el explorador (v-if sobre el estado)', /<ClientOnly v-if="estado !== 'cerrada'">/.test(pagina))
+ok('la matriz a petición solo se ofrece con datos reales', /<section v-if="hayReal" class="card-base cel-card" aria-labelledby="xp-pide-t">/.test(pagina))
 const tarjeta = lee(join(RAIZ, 'app/components/celula/CelulaExplorarTarjeta.vue'))
 ok('la tarjeta de «Próximos pasos» usa la misma puerta', /v-if="estado !== 'cerrada'"/.test(tarjeta))
 ok('«Próximos pasos» enseña la tarjeta', /<CelulaExplorarTarjeta \/>/.test(lee(join(RAIZ, 'app/components/celula/CelulaProximosPasos.vue'))))

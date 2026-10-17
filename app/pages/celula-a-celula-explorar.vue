@@ -89,7 +89,8 @@ const LEER = [
             </dl>
           </section>
 
-          <section class="card-base cel-card" aria-labelledby="xp-pide-t">
+          <!-- la matriz a petición (opción C) solo se ofrece con datos reales y el OK de Miriam: antes no hay qué ofrecer -->
+          <section v-if="hayReal" class="card-base cel-card" aria-labelledby="xp-pide-t">
             <h2 id="xp-pide-t" class="cel-h3">{{ L('Los datos completos, a petición', 'The full data, on request') }}</h2>
             <p class="cel-card__p">
               {{ L('La matriz completa (h5ad, sin identificadores) se puede pedir para investigación. Va con sus condiciones de uso y la revisión que la acompaña. Escríbenos desde', 'The full matrix (h5ad, no identifiers) can be requested for research. It comes with its terms of use and the accompanying review. Write to us through') }}
