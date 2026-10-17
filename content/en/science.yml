@@ -358,7 +358,7 @@ panelRows:
   - component: Single-cell RNA-seq (10x Genomics Flex)
     method: 'On paraffin tissue, no fresh material needed · Paloma Cejas’s lab (Dana-Farber)'
     targets: 'What each cell expresses: neuroendocrine and luminal states, resistant clones, immune microenvironment, target genes and antigens'
-    status: 'Material at the lab'
+    status: 'First results (October 2026)'
     statusTone: curso
     implication: 'Tells whether the tumour is a mix of populations or one that has changed identity, and which targets each one really expresses'
     linkTo: /celula-a-celula
