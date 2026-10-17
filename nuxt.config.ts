@@ -69,6 +69,8 @@ export default defineNuxtConfig({
       '/aviso-legal', '/en/legal-notice',
       '/privacidad', '/en/privacy',
       '/cookies', '/en/cookies-policy',
+      // explorador célula a célula: noindex mientras no haya datos reales con el OK de Miriam (useSeoMeta de la página)
+      '/celula-a-celula/explorar', '/en/cell-by-cell/explore',
     ],
   },
 
@@ -139,7 +141,10 @@ export default defineNuxtConfig({
     optimizeDeps: {
       // pre-empaquetar three (visor 3D del hueso) evita que Vite lo descubra en
       // caliente y recargue a media página (causaba un 500 transitorio en dev)
-      include: ['three', 'three/examples/jsm/controls/OrbitControls.js', 'three/examples/jsm/loaders/PLYLoader.js']
+      include: ['three', 'three/examples/jsm/controls/OrbitControls.js', 'three/examples/jsm/loaders/PLYLoader.js',
+        // explorador célula a célula (/celula-a-celula/explorar): React + piezas de Vitessce, solo en su chunk
+        'react', 'react-dom/client', '@vitessce/vit-s', '@vitessce/schemas', '@vitessce/constants-internal', '@vitessce/plugins',
+        '@vitessce/csv', '@vitessce/obs-sets-manager', '@vitessce/scatterplot-embedding']
     }
   },
 
@@ -166,6 +171,8 @@ export default defineNuxtConfig({
     pages: {
       'biopsia-osea': { en: '/bone-biopsy' },
       'celula-a-celula': { en: '/cell-by-cell' },
+      // Fichero plano y no pages/celula-a-celula/explorar.vue: así /celula-a-celula no pasa a ser ruta padre.
+      'celula-a-celula-explorar': { es: '/celula-a-celula/explorar', en: '/cell-by-cell/explore' },
       'ciencia/index': { en: '/science' },
       'ciencia/evidencia': { en: '/science/evidence' },
       'ciencia/[slug]': { en: '/science/[slug]' },

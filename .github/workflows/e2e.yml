@@ -40,6 +40,10 @@ jobs:
       # /celula-a-celula: salen los 5 bloques aprobados (sin el censo ni rótulo de ejemplo) y cada cifra pintada está en el JSON.
       - run: pnpm test:celula-cifras
 
+      # /celula-a-celula/explorar: cerrado y noindex sin datos reales, sin pedir datos; con ?demo=1, rótulo de ejemplo,
+      # aviso del hígado, suelo y n en cada violín, CNV por célula solo en el hueso y vista reducida en el móvil.
+      - run: pnpm test:celula-explorador-html
+
       # Privacidad: ninguna cita FUTURA con día junto a un lugar (acoso activo). Va detrás
       # del build para revisar también lo generado (.output/public), que es lo que se sirve.
       - run: pnpm test:citas-futuras
@@ -63,6 +67,8 @@ jobs:
       - run: pnpm test:celula-puerta
       # Próximos pasos de /celula-a-celula: contrato del JSON (sin fuentes, fechas con día ni lugares) y la barra cuenta solo los hechos.
       - run: pnpm test:celula-pasos
+      # Explorador: contrato de public/celula/explorador/ (solo ejemplo o verificado + OK), puerta, muro en la forma y léxico.
+      - run: pnpm test:celula-explorador
       - run: pnpm test:mapa-focos
       - run: pnpm test:mallas-3d
       - run: pnpm test:esqueleto-huesos
