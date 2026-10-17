@@ -132,7 +132,7 @@
     "brief_heading": "The essentials, in four ideas",
     "brief_points": [
       "Miriam has metastatic breast cancer with two biologies at once: breast and neuroendocrine. Spanish protocols only account for the first, so standard treatment falls short.",
-      "The aim is to reach no evidence of disease with a therapy designed from her own tumor. Today the main route is a personalized vaccine. Other therapies in the same family, such as TIL or CAR-T, are on the table, and her doctors will weigh which one has the most evidence for her case.",
+      "The aim is to reach no evidence of disease with a therapy designed from her own tumor. Today the main route is a personalized vaccine. Other immunotherapies are also made from her own cells, such as TIL or CAR-T, and her doctors will weigh which one has the most evidence for her case.",
       "The campaign pays for the tests that read the tumor in depth, for second opinions, and for getting to the trial or lab that can make that therapy, wherever it is. Every euro is documented.",
       "There are ways to help beyond money: clinical review, outreach, tech, or just showing up."
     ],
@@ -258,7 +258,7 @@
     "title": "A rare cancer, {op}.",
     "title_short": "A rare cancer, a real opportunity.",
     "title_emphasis": "a real opportunity",
-    "subtitle": "{lead} has a tumor with {twofaces} that Spanish protocols don't account for. The aim is a therapy designed from her own tumor. This site funds the tests and the steps that public healthcare doesn't cover.",
+    "subtitle": "{lead} has a tumor with {twofaces} that Spanish protocols don't account for. The aim is to reach no evidence of disease, with a therapy designed from her own tumor. This site funds the tests and the steps that public healthcare doesn't cover.",
     "twofaces": "two sides",
     "subtitle_lead": "Miriam, {age},",
     "cta_donate": "Support Miriam",
@@ -272,7 +272,7 @@
     "updated_ago_one": "updated yesterday",
     "updated_ago": "updated {n} days ago",
     "photo_tag": "Engineer · Communicator",
-    "stat_cells_label": "cells from her tumor read one by one"
+    "stat_cells_label": "cells from her biopsies read one by one"
   },
   "gofundme": {
     "title": "Why do we need your help?",

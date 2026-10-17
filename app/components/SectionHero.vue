@@ -196,7 +196,9 @@ const donorsFormatted = computed(() => {
 })
 
 // Cuarta cifra (Miriam, 17-oct-2026): fuera el «80 % neuroendocrino» (y nada de Ki67, que cambia
-// con cada informe). Células del tumor leídas una a una en el análisis célula a célula: sale del
+// con cada informe). Células de sus BIOPSIAS (no «del tumor»: el hígado trae también células sanas)
+// leídas una a una, antes del control de calidad (verificacion, 17-oct: 20.625 → 16.891 en el hígado
+// tras QC). Es la misma cifra, «unas», que publica /celula-a-celula en R0. Sale del
 // bloque R0 de resultados.json SOLO si está sellado como verificado y con su OK, así que se pone
 // al día solo y nunca enseña una cifra sin cotejar. Sin dato válido, la cifra no se muestra.
 const celulasLeidas = computed(() => {

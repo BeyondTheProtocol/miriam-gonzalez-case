@@ -132,7 +132,7 @@
     "brief_heading": "Lo esencial, en cuatro ideas",
     "brief_points": [
       "Miriam tiene un cáncer de mama metastásico con dos biologías a la vez: la de mama y otra neuroendocrina. Los protocolos españoles solo contemplan la primera, así que el tratamiento estándar se queda corto.",
-      "El objetivo es llegar a no tener evidencia de enfermedad con una terapia diseñada a partir de su propio tumor. Hoy la vía principal es una vacuna personalizada. Hay otras terapias de la misma familia, como TIL o CAR-T, y sus médicos irán viendo cuál tiene más evidencia para su caso.",
+      "El objetivo es llegar a no tener evidencia de enfermedad con una terapia diseñada a partir de su propio tumor. Hoy la vía principal es una vacuna personalizada. Hay otras inmunoterapias que también se fabrican con sus propias células, como TIL o CAR-T, y sus médicos irán viendo cuál tiene más evidencia para su caso.",
       "La campaña paga las pruebas para leer el tumor a fondo y las segundas opiniones, y también llegar al ensayo o al laboratorio que pueda hacer esa terapia, esté donde esté. Cada euro queda documentado.",
       "Hay formas de ayudar además del dinero: revisión clínica, difusión, tech o simplemente estar."
     ],
@@ -258,7 +258,7 @@
     "title": "Un cáncer raro, {op} real.",
     "title_short": "Un cáncer raro, una oportunidad real.",
     "title_emphasis": "una oportunidad",
-    "subtitle": "{lead} tiene un tumor con {twofaces} que los protocolos españoles no contemplan. El objetivo es llegar a una terapia diseñada a partir de su propio tumor. Esta web financia las pruebas y los pasos que la sanidad pública no cubre.",
+    "subtitle": "{lead} tiene un tumor con {twofaces} que los protocolos españoles no contemplan. El objetivo es llegar a no tener evidencia de enfermedad, con una terapia diseñada a partir de su propio tumor. Esta web financia las pruebas y los pasos que la sanidad pública no cubre.",
     "twofaces": "dos caras",
     "subtitle_lead": "Miriam, {age} años,",
     "cta_donate": "Apoyar a Miriam",
@@ -272,7 +272,7 @@
     "updated_ago_one": "actualizado ayer",
     "updated_ago": "actualizado hace {n} días",
     "photo_tag": "Ingeniera · Divulgadora",
-    "stat_cells_label": "células de su tumor leídas una a una"
+    "stat_cells_label": "células de sus biopsias leídas una a una"
   },
   "gofundme": {
     "title": "¿Por qué necesitamos tu ayuda?",
