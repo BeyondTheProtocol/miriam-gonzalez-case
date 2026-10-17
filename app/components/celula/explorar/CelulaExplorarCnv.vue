@@ -1,11 +1,13 @@
 <script setup lang="ts">
 /**
  * Número de copias. Hueso: por célula (ventanas del fichero, p. ej. 8p11 y 11q13), una tira de puntos
- * por grupo con su mediana y su n. Hígado: NUNCA por célula (no se puede leer célula a célula); solo el
- * dato del conjunto (pseudobulk) con su aviso. La forma del fichero ya lo impone (motivosLesion).
+ * por grupo con su mediana y su n. Es una puntuación INFERIDA de la expresión (ARN) frente a la referencia
+ * (log2 de lo observado frente a lo esperado), no una lectura de ADN: puede ser negativa, y la escala va
+ * del mínimo al máximo del fichero con el 0 marcado. Hígado: NUNCA por célula (no se puede leer célula a
+ * célula); solo el dato del conjunto (pseudobulk) con su aviso. La forma del fichero ya lo impone.
  */
 import type { LesionDatos } from '~/utils/celulaExplorador'
-import { ETIQUETA_GRUPO, etiqueta } from '~/utils/celulaExploradorTexto'
+import { ETIQUETAS_FIJAS, ETIQUETA_GRUPO, etiqueta } from '~/utils/celulaExploradorTexto'
 
 const props = defineProps<{ d: LesionDatos; lang: 'es' | 'en' }>()
 const L = (es: string, en: string) => (props.lang === 'en' ? en : es)
@@ -22,15 +24,23 @@ const ventanas = computed(() => {
     return { nombre: v, tiras: tiras.filter((t) => t.vals.length) }
   })
 })
-/** UNA escala para todas las ventanas: el mismo valor cae en el mismo sitio en 8p11 y en 11q13. */
-const max = computed(() => {
+/** UNA escala para todas las ventanas: el mismo valor cae en el mismo sitio en 8p11 y en 11q13. Incluye el 0
+ *  y los negativos (una puntuación log2 baja de 0 cuando se observa menos de lo esperado). */
+const escala = computed<[number, number]>(() => {
   const c = cnv.value
-  if (!('valores' in c)) return 1
-  let m = 1
-  for (const fila of c.valores) for (const v of fila) if (v != null && v > m) m = v
-  return Math.ceil(m)
+  if (!('valores' in c)) return [0, 1]
+  let lo = 0, hi = 1
+  for (const fila of c.valores) for (const v of fila) if (v != null) { if (v < lo) lo = v; if (v > hi) hi = v }
+  return [Math.floor(lo), Math.ceil(hi)]
 })
-const ticksCnv = computed(() => { const paso = max.value > 10 ? 5 : max.value > 5 ? 2 : 1; const t: number[] = []; for (let v = 0; v <= max.value; v += paso) t.push(v); return t })
+const pos = (x: number) => (x - escala.value[0]) / (escala.value[1] - escala.value[0])
+const ticksCnv = computed(() => {
+  const [lo, hi] = escala.value, ancho = hi - lo
+  const paso = ancho > 10 ? 5 : ancho > 5 ? 2 : 1
+  const t: number[] = []
+  for (let v = Math.ceil(lo / paso) * paso; v <= hi; v += paso) t.push(v)
+  return t
+})
 const med = (xs: number[]) => { const s = [...xs].sort((a, b) => a - b); return s[Math.floor(s.length / 2)] ?? 0 }
 const fmt = (x: number) => String(Math.round(x * 10) / 10).replace('.', props.lang === 'en' ? '.' : ',')
 // jitter determinista (sin Math.random: el mismo dibujo en cada render)
@@ -41,20 +51,26 @@ const jit = (i: number) => ((Math.sin(i * 12.9898) * 43758.5453) % 1 + 1) % 1
   <div class="cnv">
     <template v-if="'valores' in cnv">
       <p class="cnv__p">
-        {{ L(`Estimación por célula del número de copias en cada ventana (método: ${cnv.metodo}). Cada punto es una célula; la raya, la mediana del grupo.`,
-          `Per-cell copy-number estimate in each window (method: ${cnv.metodo}). Each dot is a cell; the tick is the group median.`) }}
+        <strong>{{ L(`${ETIQUETAS_FIJAS.cnv.es}.`, `${ETIQUETAS_FIJAS.cnv.en}.`) }}</strong>
+        {{ L('Puntuación por célula de cada ventana: log2 de lo que se lee frente a lo que se esperaría según la referencia (0 = como la referencia). Cada punto es una célula; la raya, la mediana del grupo.',
+          'Per-cell score for each window: log2 of what is read against what the reference would predict (0 = like the reference). Each dot is a cell; the tick is the group median.') }}
+      </p>
+      <p class="cnv__p">
+        {{ L('Las células malignas del hueso se eligieron con una inferencia de número de copias del genoma entero, también desde la expresión: que su ventana salga alta no es una medida independiente de esa elección.',
+          'The malignant bone cells were chosen with a whole-genome copy-number inference, also from expression: their window scoring high is not a measure independent of that choice.') }}
       </p>
       <div v-for="v in ventanas" :key="v.nombre" class="cnv__ventana">
         <h3 class="cnv__h">{{ v.nombre }}</h3>
-        <div class="cnv__eje" aria-hidden="true"><span v-for="tk in ticksCnv" :key="tk" :style="{ left: `${(tk / max) * 100}%` }">{{ tk }}</span></div>
+        <div class="cnv__eje" aria-hidden="true"><span v-for="tk in ticksCnv" :key="tk" :style="{ left: `${pos(tk) * 100}%` }">{{ fmt(tk) }}</span></div>
         <ul class="cnv__lista">
           <li v-for="t in v.tiras" :key="t.id" class="cnv__fila" :class="`cnv__fila--${t.rol}`">
             <span class="cnv__nombre">{{ etiqueta(ETIQUETA_GRUPO, t.id, lang) }} <span class="cnv__n nums">n = {{ fmtN(t.vals.length, lang) }}</span></span>
             <svg class="cnv__svg" :viewBox="`0 0 ${W} ${H}`" role="img"
                  :aria-label="L(`${etiqueta(ETIQUETA_GRUPO, t.id, 'es')}, ${v.nombre}: mediana ${fmt(med(t.vals))}, ${t.vals.length} células`, `${etiqueta(ETIQUETA_GRUPO, t.id, 'en')}, ${v.nombre}: median ${fmt(med(t.vals))}, ${t.vals.length} cells`)">
               <line :x1="LBL" :x2="W" :y1="H / 2" :y2="H / 2" class="cnv__base" />
-              <circle v-for="(x, i) in t.vals" :key="i" :cx="LBL + (x / max) * (W - LBL)" :cy="4 + jit(i) * (H - 8)" r="1.8" class="cnv__punto" />
-              <line :x1="LBL + (med(t.vals) / max) * (W - LBL)" :x2="LBL + (med(t.vals) / max) * (W - LBL)" y1="1" :y2="H - 1" class="cnv__med" />
+              <line :x1="LBL + pos(0) * (W - LBL)" :x2="LBL + pos(0) * (W - LBL)" y1="0" :y2="H" class="cnv__cero" />
+              <circle v-for="(x, i) in t.vals" :key="i" :cx="LBL + pos(x) * (W - LBL)" :cy="4 + jit(i) * (H - 8)" r="1.8" class="cnv__punto" />
+              <line :x1="LBL + pos(med(t.vals)) * (W - LBL)" :x2="LBL + pos(med(t.vals)) * (W - LBL)" y1="1" :y2="H - 1" class="cnv__med" />
             </svg>
             <span class="cnv__val nums">{{ L('mediana', 'median') }} {{ fmt(med(t.vals)) }}</span>
           </li>
@@ -88,6 +104,7 @@ const jit = (i: number) => ((Math.sin(i * 12.9898) * 43758.5453) % 1 + 1) % 1
 .cnv__svg { display: block; width: 100%; height: auto; }
 .cnv__base, .cnv__med { vector-effect: non-scaling-stroke; }
 .cnv__base { stroke: var(--trazo-sutil); }
+.cnv__cero { stroke: var(--trazo-fuerte); stroke-dasharray: 2 2; vector-effect: non-scaling-stroke; }
 .cnv__punto { fill: color-mix(in srgb, var(--texto-2) 70%, transparent); }
 .cnv__fila--interes .cnv__punto { fill: var(--identidad); }
 .cnv__med { stroke: var(--texto-1); stroke-width: 2; }

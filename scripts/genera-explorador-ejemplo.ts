@@ -3,13 +3,14 @@
 // Por qué existe (17-oct-2026): la página se construye y se revisa en la preview de Netlify, que es
 // pública. Hasta que Miriam dé el OK al export real (que vive en la zona clínica de Polaris), aquí solo
 // puede haber datos INVENTADOS, marcados `ejemplo: true`. Son aleatorios con semilla fija: no copian
-// ninguna cifra, grupo ni veredicto del análisis real (todos los veredictos son «sin_veredicto»).
+// ninguna cifra, grupo ni veredicto del análisis real (todos los veredictos son «sin_veredicto»; las
+// sondas, el ADN genómico, la selección y la cifra sin circularidad también son inventados).
 // Determinista: dos ejecuciones dan los mismos bytes (y el mismo sha256 del manifiesto).
 // Uso: pnpm exec tsx scripts/genera-explorador-ejemplo.ts
 import { createHash } from 'node:crypto'
 import { mkdirSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
-import { GRUPOS, type LesionDatos, type Lesion, type Manifiesto } from '../app/utils/celulaExplorador'
+import { GRUPOS, type LesionDatos, type Lesion, type Manifiesto, type PapelSeleccion } from '../app/utils/celulaExplorador'
 
 const DIR = join(import.meta.dirname, '..', 'public', 'celula', 'explorador')
 
@@ -90,10 +91,24 @@ function lesion(l: Lesion): LesionDatos {
     referencia[gen] = Number((0.02 + 0.3 * r()).toFixed(3))
     veredicto[gen] = 'sin_veredicto'
   }
+  // sondas [unión, total] por gen, inventadas
+  const sondas: LesionDatos['sondas'] = Object.fromEntries(GENES.map((g) => { const tot = 1 + Math.floor(r() * 5); return [g, [Math.floor(r() * (tot + 1) * 0.5), tot]] }))
+  // selección del grupo de interés (circularidad) y una cifra sin circularidad, inventadas
+  const papeles: [string, PapelSeleccion][] = l === 'higado'
+    ? [['ESR1', 'identidad'], ['KRT19', 'identidad'], ['FGFR1', 'fgfr1_alto'], ['ALB', 'exclusion'], ['PTPRC', 'exclusion'], ['CCND1', 'ligado_er']]
+    : [['KRT19', 'identidad'], ['EPCAM', 'identidad']]
+  const seleccion: LesionDatos['seleccion'] = Object.fromEntries(papeles.filter(([g]) => GENES.includes(g)))
+  const loo: LesionDatos['loo'] = l === 'higado'
+    ? { ESR1: { n: 300 + Math.floor(r() * 100), frac: Number((0.2 + 0.4 * r()).toFixed(4)), ref: Number((0.1 + 0.3 * r()).toFixed(4)), cp10k_pseudobulk: Number((1 + 5 * r()).toFixed(1)) } }
+    : {}
+  const adnEst = Number((l === 'higado' ? 0.001 + 0.004 * r() : 0.05 + 0.2 * r()).toFixed(5))
+  const adn: LesionDatos['adn'] = { sondas_dentro_de_exon: 40000 + Math.floor(r() * 5000), sondas_panel: 50000 + Math.floor(r() * 5000),
+    frac_lecturas_estimada: adnEst, frac_lecturas_cell_ranger: Number(Math.min(1, adnEst * (1.2 + r())).toFixed(5)), frac_lecturas_interes: Number((adnEst * r()).toFixed(5)) }
+  // CNV del hueso: puntuación log2 (observado / esperado), con negativos, como el fichero real
   const cnv: LesionDatos['cnv'] = l === 'higado'
     ? { pseudobulk: { ventana: '8p11', percentil_genoma: 87 } }
-    : { ventanas: ['8p11', '11q13'], metodo: 'ejemplo', valores: [0, 1].map(() => celulas.map((c) => (r() < 0.05 ? null : dos(Math.max(0, c.g === 0 ? 7 + 2.2 * normal() : 2 + 0.7 * normal()))))) }
-  return { version: 1, lesion: l, ejemplo: true, n_celulas: n, grupos, tipos: dz.tipos, celulas: { umap, grupo: celulas.map((c) => c.g), tipo: celulas.map((c) => dz.tipos.indexOf(c.t)) }, genes: GENES, expr, suelo, referencia, veredicto, cnv }
+    : { ventanas: ['8p11', '11q13'], metodo: 'ejemplo', valores: [0, 1].map(() => celulas.map((c) => (r() < 0.05 ? null : dos(c.g === 0 ? 1.8 + 0.9 * normal() : -0.8 + 0.7 * normal())))) }
+  return { version: 1, lesion: l, ejemplo: true, n_celulas: n, grupos, tipos: dz.tipos, celulas: { umap, grupo: celulas.map((c) => c.g), tipo: celulas.map((c) => dz.tipos.indexOf(c.t)) }, genes: GENES, expr, suelo, referencia, veredicto, sondas, seleccion, loo, adn, cnv }
 }
 
 mkdirSync(DIR, { recursive: true })
@@ -103,6 +118,6 @@ for (const l of ['higado', 'hueso'] as Lesion[]) {
   writeFileSync(join(DIR, `${l}.json`), txt)
   ficheros.push({ ruta: `${l}.json`, sha256: createHash('sha256').update(txt).digest('hex') })
 }
-const man: Manifiesto = { version: 1, ejemplo: true, sello: 'sin_verificar', ok_miriam: false, lesiones: ['higado', 'hueso'], ficheros }
+const man: Manifiesto = { version: 1, ejemplo: true, sello: 'sin_verificar', ok_titular: false, modo_sondas: 'todas_incluidas', lesiones: ['higado', 'hueso'], ficheros }
 writeFileSync(join(DIR, 'manifiesto.json'), `${JSON.stringify(man, null, 2)}\n`)
 console.log(`ejemplo escrito en ${DIR}: ${ficheros.map((f) => `${f.ruta} ${f.sha256.slice(0, 12)}`).join(', ')}`)

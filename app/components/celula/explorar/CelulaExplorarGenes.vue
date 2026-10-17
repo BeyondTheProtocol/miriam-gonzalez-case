@@ -1,13 +1,14 @@
 <script setup lang="ts">
 /**
  * Tabla «Genes de interés»: los diez genes del plan, con el grupo de interés frente a la referencia
- * emparejada y el suelo ambiental, y la lectura de la revisión (vocabulario cerrado del fichero).
- * Todas las cifras salen del fichero de la lesión; aquí solo se redondean a % entero (pct).
- * Un toque en el gen lo elige arriba (violines y mapa).
+ * emparejada y el suelo ambiental, las sondas del gen (unión exón-exón / total) y la lectura de Polaris
+ * (borrador, vocabulario cerrado del fichero). Todas las cifras salen del fichero de la lesión; aquí solo
+ * se redondean a % entero (pct). Un gen que participa en la selección del grupo lleva su rótulo de
+ * circularidad y, si existe, la cifra medida sin ella (loo). Un toque en el gen lo elige arriba.
  */
 import type { LesionDatos } from '~/utils/celulaExplorador'
 import { fmtPct, porGrupo } from '~/utils/celulaExplorador'
-import { ETIQUETA_GRUPO, ETIQUETA_VEREDICTO, PANEL_INTERES, PROTEINA, etiqueta } from '~/utils/celulaExploradorTexto'
+import { ETIQUETA_GRUPO, ETIQUETA_VEREDICTO, LECTURA, PANEL_INTERES, PAPEL_SELECCION, PROTEINA, etiqueta } from '~/utils/celulaExploradorTexto'
 
 const props = defineProps<{ d: LesionDatos; lang: 'es' | 'en'; elegido: string }>()
 const emit = defineEmits<{ elegir: [string] }>()
@@ -15,13 +16,16 @@ const L = (es: string, en: string) => (props.lang === 'en' ? en : es)
 const interes = computed(() => props.d.grupos.find((g) => g.rol === 'interes')!)
 const filas = computed(() => PANEL_INTERES.filter((g) => props.d.genes.includes(g)).map((gen) => {
   const f = porGrupo(props.d, gen).find((x) => x.rol === 'interes')!
-  return { gen, frac: f.frac, suelo: f.suelo, ref: props.d.referencia[gen] ?? 0, ver: props.d.veredicto[gen] ?? 'sin_veredicto' }
+  return { gen, frac: f.frac, suelo: f.suelo, ref: props.d.referencia[gen] ?? 0, ver: props.d.veredicto[gen] ?? 'sin_veredicto',
+    sondas: props.d.sondas[gen], papel: props.d.seleccion[gen], loo: props.d.loo[gen] }
 }))
+const nf = (n: number) => fmtN(n, props.lang)
+const fmtCp = (x: number) => String(Math.round(x))
 </script>
 
 <template>
   <div class="gi">
-    <p class="gi__desliza" aria-hidden="true">{{ L('Desliza para ver las cinco columnas →', 'Swipe to see all five columns →') }}</p>
+    <p class="gi__desliza" aria-hidden="true">{{ L('Desliza para ver las seis columnas →', 'Swipe to see all six columns →') }}</p>
     <div class="gi__scroll" tabindex="0" role="region" :aria-label="L('Tabla de genes de interés', 'Genes of interest table')">
       <table class="gi__tabla">
         <caption class="sr-only">{{ L(`Genes de interés en ${etiqueta(ETIQUETA_GRUPO, interes.id, 'es')}, frente a la referencia emparejada y el suelo ambiental`, `Genes of interest in ${etiqueta(ETIQUETA_GRUPO, interes.id, 'en')}, against the matched reference and the ambient floor`) }}</caption>
@@ -31,7 +35,8 @@ const filas = computed(() => PANEL_INTERES.filter((g) => props.d.genes.includes(
             <th scope="col" class="gi__num">{{ etiqueta(ETIQUETA_GRUPO, interes.id, lang) }} <span class="gi__sub nums">n = {{ fmtN(interes.n, lang) }}</span></th>
             <th scope="col" class="gi__num">{{ L('Referencia emparejada', 'Matched reference') }}</th>
             <th scope="col" class="gi__num">{{ L('Suelo ambiental', 'Ambient floor') }}</th>
-            <th scope="col">{{ L('Valoración de la revisión', 'Review assessment') }}</th>
+            <th scope="col" class="gi__num">{{ L('Sondas', 'Probes') }} <span class="gi__sub">{{ L('unión / total', 'junction / total') }}</span></th>
+            <th scope="col">{{ L(LECTURA.columna.es, LECTURA.columna.en) }}</th>
           </tr>
         </thead>
         <tbody>
@@ -42,10 +47,18 @@ const filas = computed(() => PANEL_INTERES.filter((g) => props.d.genes.includes(
                 <span v-if="PROTEINA[f.gen]" class="gi__sim">{{ f.gen }}</span>
               </button>
               <span v-if="f.gen === 'ERBB2'" class="gi__nota">{{ L('IHQ de HER2: 0', 'HER2 IHC: 0') }}</span>
+              <span v-if="f.papel" class="gi__circ">
+                {{ L(`Circular: ${f.gen} ${PAPEL_SELECCION[f.papel]?.es ?? ''}.`, `Circular: ${f.gen} ${PAPEL_SELECCION[f.papel]?.en ?? ''}.`) }}
+                <template v-if="f.loo">
+                  {{ L(`Sin esa circularidad (n = ${nf(f.loo.n)}):`, `Without that circularity (n = ${nf(f.loo.n)}):`) }}
+                  <template v-if="f.loo.frac != null">{{ fmtPct(f.loo.frac, lang) }}</template><template v-if="f.loo.ref != null"> · {{ L('referencia', 'reference') }} {{ fmtPct(f.loo.ref, lang) }}</template><template v-if="f.loo.cp10k_pseudobulk != null"> · pseudobulk {{ fmtCp(f.loo.cp10k_pseudobulk) }} CP10k</template>.
+                </template>
+              </span>
             </th>
-            <td class="gi__num nums">{{ fmtPct(f.frac, lang) }}</td>
+            <td class="gi__num nums">{{ fmtPct(f.frac, lang) }}<span v-if="f.papel" class="gi__ast" :title="L('Cifra circular: ver la nota del gen', 'Circular figure: see the gene note')">*</span></td>
             <td class="gi__num nums">{{ fmtPct(f.ref, lang) }}</td>
             <td class="gi__num nums">{{ fmtPct(f.suelo, lang) }}</td>
+            <td class="gi__num nums">{{ f.sondas ? `${f.sondas[0]} / ${f.sondas[1]}` : '' }}</td>
             <td>{{ etiqueta(ETIQUETA_VEREDICTO, f.ver, lang) }}</td>
           </tr>
         </tbody>
@@ -54,6 +67,11 @@ const filas = computed(() => PANEL_INTERES.filter((g) => props.d.genes.includes(
     <p class="gi__pie">
       {{ L('Porcentaje de células con al menos una lectura del gen. La referencia emparejada son células no tumorales de la misma muestra, con la misma profundidad de lectura. Es ARN: que el gen se lea no dice que la proteína esté en la membrana; eso lo dice la IHQ.',
         'Share of cells with at least one read of the gene. The matched reference is non-tumor cells from the same sample, at the same read depth. This is RNA: reading the gene does not mean the protein is on the membrane; IHC tells you that.') }}
+    </p>
+    <p class="gi__pie">
+      {{ L('Sondas: cuántas sondas del panel tiene el gen y cuántas cruzan una unión entre exones; las demás caen dentro de un exón y también pueden leer ADN genómico.',
+        'Probes: how many panel probes the gene has and how many span an exon junction; the rest fall inside an exon and can also read genomic DNA.') }}
+      {{ L(LECTURA.pie.es, LECTURA.pie.en) }}
     </p>
   </div>
 </template>
@@ -82,5 +100,7 @@ const filas = computed(() => PANEL_INTERES.filter((g) => props.d.genes.includes(
 .gi__sim { font: 500 var(--texto-xs) var(--font-mono); color: var(--texto-2); white-space: nowrap; }
 .gi__nota { display: block; font: 600 var(--texto-xs)/1.3 var(--font-mono); color: var(--texto-1); }
 .gi__fila--sel { background: color-mix(in srgb, var(--identidad) 8%, transparent); }
+.gi__circ { display: block; max-width: 22rem; margin-top: var(--sp-4); font: 500 var(--texto-xs)/1.35 var(--font-body); color: var(--texto-1); white-space: normal; }
+.gi__ast { margin-left: 2px; font-weight: 700; color: var(--texto-1); }
 .gi__pie { margin: var(--sp-12) 0 0; font: var(--tipo-body-sm); font-size: var(--texto-xs); color: var(--texto-2); max-width: var(--measure); }
 </style>

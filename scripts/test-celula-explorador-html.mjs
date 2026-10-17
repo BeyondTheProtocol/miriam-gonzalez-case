@@ -65,7 +65,13 @@ try {
     cnvCelula: document.querySelectorAll('.cnv__svg').length,
     cnvHigado: !!document.querySelector('.cnv__higado'),
     mapa: !!document.querySelector('.exp-mapa'),
+    adn: /hibridan con el ADN genómico/.test(document.querySelector('.vio__adn')?.textContent ?? '') && /Matriz estándar de Cell Ranger/.test(document.querySelector('.vio__adn')?.textContent ?? ''),
+    circTabla: /Circular: FGFR1/.test(document.querySelector('.gi__circ')?.textContent ?? ''),
+    sondasTabla: (document.querySelector('.gi__tabla thead')?.textContent ?? '').includes('unión / total'),
+    lectura: (document.querySelector('.gi__tabla thead')?.textContent ?? '').includes('Lectura de Polaris (borrador)'),
   }))()`)
+  ok('demo: aviso de ADN genómico con el rótulo de la matriz, en el bloque del suelo ambiental', r.adn)
+  ok('demo hígado: la tabla rotula la cifra circular (FGFR1) y enseña las sondas y la lectura de Polaris', r.circTabla && r.sondasTabla && r.lectura)
   ok('demo: rótulo «DATOS DE EJEMPLO»', r.rotulo)
   ok('demo hígado: aviso fijo «tumor frente a hepatocito…»', r.banner)
   ok('demo: un violín por grupo', r.filas > 0 && r.filas === r.grupos, `${r.filas} violines / ${r.grupos} grupos`)
@@ -73,8 +79,11 @@ try {
   ok('demo hígado: sin CNV por célula y con su aviso', r.cnvCelula === 0 && r.cnvHigado)
   ok('demo escritorio: hay mapa', r.mapa)
   ok('demo: el mapa (Vitessce) llega a dibujar su lienzo', await espera(nav, `!!document.querySelector('.exp-mapa canvas')`, 20000))
+  await nav.evaluate(`(() => { const s = document.querySelector('.exp__ctl select'); s.value = 'ESR1'; s.dispatchEvent(new Event('change')) })()`)
+  ok('demo hígado: ESR1 en los violines lleva «Cifra circular» y la cifra sin circularidad', await espera(nav, `/Cifra circular\\..*Sin esa circularidad/s.test(document.querySelector('.vio__circ')?.textContent ?? '')`))
   await nav.evaluate(`[...document.querySelectorAll('.exp__ctl button')].find((b) => /Hueso/.test(b.textContent)).click()`)
   ok('demo hueso: CNV por célula', await espera(nav, `document.querySelectorAll('.cnv__svg').length > 0 && !document.querySelector('.cnv__higado')`))
+  ok('demo hueso: el CNV dice que es inferido de la expresión y no lectura de ADN, y marca el 0', await nav.evaluate(`/no es lectura de ADN/.test(document.querySelector('.cnv')?.textContent ?? '') && document.querySelectorAll('.cnv__cero').length > 0`))
   ok('demo hueso: sin el aviso del hígado', !(await nav.evaluate(`!!document.querySelector('.exp__banner')`)))
 
   await nav.cdp('Emulation.setDeviceMetricsOverride', { width: 375, height: 812, deviceScaleFactor: 1, mobile: true })

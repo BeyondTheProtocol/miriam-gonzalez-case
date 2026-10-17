@@ -2,7 +2,8 @@
 //
 // Por qué existe (17-oct-2026): public/ se sirve tal cual y la preview de Netlify también es pública. En
 // esta fase SOLO puede haber datos sintéticos (`ejemplo: true`); el export real vive en la zona clínica
-// de Polaris y entra aquí únicamente con `sello: "verificado"`, `ok_miriam: true` y `fecha_ok`. Frenos:
+// de Polaris y entra aquí únicamente con `sello: "verificado"`, `ok_titular: true`, `fecha_ok` y
+// `modo_sondas: "todas_incluidas"` (la única versión que se decidió publicar). Frenos:
 //   1. el CONTRATO de public/celula/explorador/: cada fichero está en el manifiesto con su sha256 (nada
 //      suelto), ejemplo y real no se mezclan, y el ejemplo no lleva ninguna lectura de la revisión;
 //   2. la PUERTA (función pura), con un fixture propio y mutantes;
@@ -38,11 +39,13 @@ for (const f of man.ficheros) {
 ok('el manifiesto declara hígado y hueso', JSON.stringify(man.lesiones) === '["higado","hueso"]')
 const esEjemplo = man.ejemplo === true
 if (esEjemplo) {
-  ok('ejemplo: no lleva sello verificado ni OK (no puede pasar por real)', man.sello !== 'verificado' && man.ok_miriam === false && !('fecha_ok' in man))
+  ok('ejemplo: no lleva sello verificado ni OK (no puede pasar por real)', man.sello !== 'verificado' && man.ok_titular === false && !('fecha_ok' in man))
 }
 else {
-  ok('real: verificado, con OK de Miriam y su fecha', man.sello === 'verificado' && man.ok_miriam === true && /^\d{4}-\d{2}-\d{2}$/.test(man.fecha_ok ?? ''))
+  ok('real: verificado, con OK de la titular, su fecha y la versión de todas las sondas', man.sello === 'verificado' && man.ok_titular === true
+    && /^\d{4}-\d{2}-\d{2}$/.test(man.fecha_ok ?? '') && man.modo_sondas === 'todas_incluidas')
 }
+ok('el manifiesto no lleva el nombre de la titular en ninguna clave', !Object.keys(man).some((k) => /miriam/i.test(k)))
 const lesiones: Record<string, LesionDatos> = {}
 for (const l of man.lesiones) {
   const crudo = lee(join(DIR, `${l}.json`))
@@ -53,21 +56,24 @@ for (const l of man.lesiones) {
   ok(`${l}: nada con forma de barcode 10x`, !RE_BARCODE.test(crudo))
   ok(`${l}: nada con forma de ID de bloque ni de probe barcode`, !/\b[A-Z]?\d{2}-\d{4,6}\b|\b[A-H]-[A-H]\d{1,2}\b/.test(crudo))
   ok(`${l}: ninguna fecha`, !/\b(19|20)\d\d-\d\d-\d\d\b/.test(crudo))
-  ok(`${l}: solo las claves del contrato`, JSON.stringify(Object.keys(d).sort()) === JSON.stringify(['celulas', 'cnv', 'ejemplo', 'expr', 'genes', 'grupos', 'lesion', 'n_celulas', 'referencia', 'suelo', 'tipos', 'veredicto', 'version'].filter((k) => esEjemplo || k !== 'ejemplo').sort()), Object.keys(d).join(','))
+  ok(`${l}: solo las claves del contrato`, JSON.stringify(Object.keys(d).sort()) === JSON.stringify(['adn', 'celulas', 'cnv', 'ejemplo', 'expr', 'genes', 'grupos', 'lesion', 'loo', 'n_celulas', 'referencia', 'seleccion', 'sondas', 'suelo', 'tipos', 'veredicto', 'version'].filter((k) => esEjemplo || k !== 'ejemplo').sort()), Object.keys(d).join(','))
   if (esEjemplo) ok(`${l}: el ejemplo no lleva ninguna lectura de la revisión (todo «sin_veredicto»)`, Object.values(d.veredicto).every((v) => v === 'sin_veredicto'))
 }
 
 /* ── 2 · la puerta ── */
-const base: Manifiesto = { version: 1, ejemplo: true, sello: 'sin_verificar', ok_miriam: false, lesiones: ['higado', 'hueso'], ficheros: [] }
-const real = (cambios: Partial<Manifiesto>) => ({ ...clon(base), ejemplo: undefined, sello: 'verificado', ok_miriam: true, fecha_ok: '2026-10-20', ...cambios }) as Manifiesto
+const base: Manifiesto = { version: 1, ejemplo: true, sello: 'sin_verificar', ok_titular: false, modo_sondas: 'todas_incluidas', lesiones: ['higado', 'hueso'], ficheros: [] }
+const real = (cambios: Partial<Manifiesto>) => ({ ...clon(base), ejemplo: undefined, sello: 'verificado', ok_titular: true, fecha_ok: '2026-10-20', ...cambios }) as Manifiesto
 ok('ejemplo sin demo: cerrada', estadoPuerta(base) === 'cerrada')
 ok('ejemplo con demo: ejemplo', estadoPuerta(base, { demo: true }) === 'ejemplo')
 ok('real verificado + OK + fecha: real', estadoPuerta(real({})) === 'real')
-ok('real sin OK: cerrada (también con demo)', estadoPuerta(real({ ok_miriam: false })) === 'cerrada' && estadoPuerta(real({ ok_miriam: false }), { demo: true }) === 'cerrada')
+ok('real sin OK: cerrada (también con demo)', estadoPuerta(real({ ok_titular: false })) === 'cerrada' && estadoPuerta(real({ ok_titular: false }), { demo: true }) === 'cerrada')
 ok('OK sin verificado: cerrada', estadoPuerta(real({ sello: 'inferido' })) === 'cerrada')
-ok('ok_miriam como texto «true»: cerrada', estadoPuerta(real({ ok_miriam: 'true' as never })) === 'cerrada')
+ok('ok_titular como texto «true»: cerrada', estadoPuerta(real({ ok_titular: 'true' as never })) === 'cerrada')
+ok('la clave vieja (con el nombre) ya no abre: cerrada', estadoPuerta({ ...real({}), ok_titular: undefined, ['ok_' + 'miriam']: true } as never) === 'cerrada')
+ok('la versión solo spliced nunca abre: cerrada', estadoPuerta(real({ modo_sondas: 'solo_spliced' })) === 'cerrada')
+ok('sin modo_sondas: cerrada', estadoPuerta(real({ modo_sondas: undefined })) === 'cerrada')
 ok('sin fecha del OK: cerrada', estadoPuerta(real({ fecha_ok: undefined })) === 'cerrada')
-ok('ejemplo con sello verificado y OK: sigue sin pasar por real', estadoPuerta({ ...clon(base), sello: 'verificado', ok_miriam: true, fecha_ok: '2026-10-20' }) === 'cerrada')
+ok('ejemplo con sello verificado y OK: sigue sin pasar por real', estadoPuerta({ ...clon(base), sello: 'verificado', ok_titular: true, fecha_ok: '2026-10-20' }) === 'cerrada')
 ok('sin manifiesto: cerrada', estadoPuerta(null) === 'cerrada' && estadoPuerta(undefined) === 'cerrada')
 ok('manifiesto roto: cerrada', estadoPuerta({ version: 1 } as never, { demo: true }) === 'cerrada')
 
@@ -92,17 +98,32 @@ caza('lesión cambiada', mut(H, (x) => { x.lesion = 'hueso' }, 'higado'))
 caza('hueso sin CNV por célula', mut(B, (x) => { (x as any).cnv = { pseudobulk: { ventana: '8p11', percentil_genoma: 90 } } }, 'hueso'))
 caza('CNV del hueso con longitud equivocada', mut(B, (x) => { (x.cnv as any).valores[0].pop() }, 'hueso'))
 caza('hueso sin su grupo de interés', mut(B, (x) => { x.grupos = x.grupos.filter((g) => g.rol !== 'interes') }, 'hueso'))
+caza('sondas con unión > total', mut(H, (x) => { x.sondas[x.genes[0]!] = [5, 3] }, 'higado'))
+caza('un gen sin sondas', mut(H, (x) => { delete x.sondas[x.genes[0]!] }, 'higado'))
+caza('papel de selección fuera de vocabulario', mut(H, (x) => { (x.seleccion as any)[x.genes[0]!] = 'favorito' }, 'higado'))
+caza('el hueso con un papel distinto de «identidad»', mut(B, (x) => { (x.seleccion as any)[x.genes[0]!] = 'exclusion' }, 'hueso'))
+caza('cifra sin circularidad de un gen que no está en la selección', mut(H, (x) => { x.loo[x.genes.find((g) => !x.seleccion[g])!] = { n: 10, frac: 0.1, ref: 0.1, cp10k_pseudobulk: null } }, 'higado'))
+caza('cifra sin circularidad en el hueso', mut(B, (x) => { x.seleccion[x.genes[0]!] = 'identidad'; x.loo[x.genes[0]!] = { n: 10, frac: 0.1, ref: 0.1, cp10k_pseudobulk: null } }, 'hueso'))
+caza('ADN con una fracción > 1', mut(B, (x) => { x.adn.frac_lecturas_cell_ranger = 1.5 }, 'hueso'))
+caza('sin bloque de ADN', mut(H, (x) => { delete (x as any).adn }, 'higado'))
 ok('el vocabulario de lecturas no tiene «diana»', !VEREDICTOS.some((v) => /diana/i.test(v)))
+ok('el vocabulario de lecturas tiene «cerrado_por_arn» (PRAME/MAGE-A4 del hueso)', (VEREDICTOS as readonly string[]).includes('cerrado_por_arn'))
 
 /* ── 4 · léxico y copy obligatorio ── */
 const FICHEROS_COPY = [
-  'app/pages/celula-a-celula-explorar.vue', 'app/utils/celulaExploradorTexto.ts', 'app/components/celula/CelulaExplorarTarjeta.vue',
+  'app/pages/celula-a-celula-explorar.vue', 'app/utils/celulaExploradorTexto.ts', 'app/components/celula/CelulaExplorarTarjeta.vue', 'app/components/celula/CelulaAviso.vue',
   ...readdirSync(join(RAIZ, 'app/components/celula/explorar')).map((f) => `app/components/celula/explorar/${f}`),
 ]
 const copy = FICHEROS_COPY.map((f) => lee(join(RAIZ, f))).join('\n')
 ok('sin «diana(s)» en el explorador', !/\bdianas?\b/i.test(copy))
 ok('sin «perfil molecular» en el explorador', !/perfil molecular|molecular profile/i.test(copy))
 ok('muro de léxico: nada de científica/scientist/Olune', !/cient[ií]fica|scientist|olune/i.test(copy))
+ok('el método de CNV no se pinta literal (era un nombre interno con «_spliced»)', !/cnv\.metodo|_spliced/.test(copy))
+// Las cifras del caso (ADN genómico, sondas, la cifra sin circularidad) viajan en el fichero de datos, nunca en
+// el texto: fuera los bloques de estilo (CSS lleva %), ningún porcentaje ni «n =» escrito a mano en el copy.
+const sinEstilo = copy.replace(/<style[\s\S]*?<\/style>/g, '')
+ok('ningún porcentaje escrito a mano en el texto del explorador (las cifras salen del fichero)', !/\d\s?%/.test(sinEstilo), (sinEstilo.match(/.{0,30}\d\s?%/g) ?? []).join(' | '))
+ok('ningún «n = <cifra>» escrito a mano en el texto del explorador', !/n = \d/.test(sinEstilo))
 ok('sin guion largo (tell de IA en español)', !/—/.test(copy))
 for (const [qué, re] of [
   ['banner del hígado «tumor frente a hepatocito no está resuelto célula a célula»', /tumor frente a hepatocito no está resuelto célula a célula/],
@@ -112,6 +133,14 @@ for (const [qué, re] of [
   ['aviso de vista reducida en el móvil', /versión reducida/],
   ['rótulo de datos de ejemplo', /DATOS DE EJEMPLO/],
   ['suelo ambiental en los violines', /Suelo ambiental: el porcentaje de células/],
+  ['rótulo de la matriz (todas las sondas; ADN genómico en el hueso)', /Matriz estándar de Cell Ranger, todas las sondas; en el hueso incluye ADN genómico/],
+  ['aviso de ADN genómico en el bloque del suelo ambiental', /sondas del panel caen dentro de un exón y también hibridan con el ADN genómico/],
+  ['CNV inferido de la expresión, no lectura de ADN', /Inferido de la expresión \(ARN\) frente a la referencia; no es lectura de ADN/],
+  ['mediana por célula frente al pseudobulk de la revisión', /Mediana por célula detectada; la revisión da pseudobulk/],
+  ['lectura de Polaris en borrador, pendiente del laboratorio', /Lectura de Polaris, borrador, pendiente de la lectura humana del laboratorio/],
+  ['rótulo de cifra circular', /Cifra circular\./],
+  ['columna de sondas en la tabla de genes', /unión \/ total/],
+  ['aviso «Apoyo a la decisión» (avisos fijos del export)', /Apoyo a la decisión/],
 ] as const) ok(`copy obligatorio: ${qué}`, re.test(copy))
 const pagina = lee(join(RAIZ, 'app/pages/celula-a-celula-explorar.vue'))
 ok('la página es noindex sin datos reales', /robots: \(\) => \(hayReal\.value \? 'index, follow' : 'noindex, follow'\)/.test(pagina))

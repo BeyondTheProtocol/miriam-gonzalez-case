@@ -6,13 +6,16 @@
  *    cuenta como expresión;
  *  · el n del grupo y el número de células detectadas, a la vista.
  * Con menos de 3 células detectadas no se dibuja forma (sería inventarla): se ponen los puntos.
+ * Si el gen participa en la selección del grupo de interés, esa fila lleva el rótulo de circularidad y,
+ * si existe, la cifra medida sin ella (loo). El suelo ambiental lleva el aviso de ADN genómico con las
+ * cifras de la muestra, que vienen del fichero (nunca del texto).
  * Sin animaciones. El estado no va solo en color: hay texto en cada fila y aria-label con las cifras.
  */
-import type { FilaGrupo } from '~/utils/celulaExplorador'
-import { densidad, fmtPct } from '~/utils/celulaExplorador'
-import { ETIQUETA_GRUPO, etiqueta } from '~/utils/celulaExploradorTexto'
+import type { Adn, FilaGrupo, Lesion, Loo } from '~/utils/celulaExplorador'
+import { densidad, fmtPct, fmtPctFino, rangoAdn } from '~/utils/celulaExplorador'
+import { ETIQUETAS_FIJAS, ETIQUETA_GRUPO, PAPEL_SELECCION, etiqueta } from '~/utils/celulaExploradorTexto'
 
-const props = defineProps<{ filas: FilaGrupo[]; gen: string; lang: 'es' | 'en' }>()
+const props = defineProps<{ filas: FilaGrupo[]; gen: string; lang: 'es' | 'en'; lesion: Lesion; adn: Adn; papel?: string; loo?: Loo }>()
 const L = (es: string, en: string) => (props.lang === 'en' ? en : es)
 const uid = useId()
 
@@ -41,6 +44,13 @@ function forma(f: FilaGrupo): string {
 }
 const mediana = (xs: number[]) => { if (!xs.length) return null; const s = [...xs].sort((p, q) => p - q); return s[Math.floor(s.length / 2)]! }
 const nf = (n: number) => String(n).replace(/\B(?=(\d{3})+(?!\d))/g, props.lang === 'en' ? ',' : '.')
+const adnTxt = computed(() => {
+  const a = props.adn, [lo, hi] = rangoAdn(a), f = (x: number) => fmtPctFino(x, props.lang)
+  const hueso = props.lesion === 'hueso'
+  return L(`${nf(a.sondas_dentro_de_exon)} de las ${nf(a.sondas_panel)} sondas del panel caen dentro de un exón y también hibridan con el ADN genómico del tejido fijado en formol (FFPE). En esta muestra supone entre ${f(lo)} y ${f(hi)} de las lecturas (${f(a.frac_lecturas_interes)} en el grupo de interés).${hueso ? ' En el hueso el suelo ambiental incluye ese ADN.' : ''}`,
+    `${nf(a.sondas_dentro_de_exon)} of the panel’s ${nf(a.sondas_panel)} probes fall inside an exon and also bind the genomic DNA of the formalin-fixed tissue (FFPE). In this sample that is between ${f(lo)} and ${f(hi)} of the reads (${f(a.frac_lecturas_interes)} in the group of interest).${hueso ? ' In the bone the ambient floor includes that DNA.' : ''}`)
+})
+const nfCp = (x: number) => String(Math.round(x))
 </script>
 
 <template>
@@ -82,16 +92,30 @@ const nf = (n: number) => String(n).replace(/\B(?=(\d{3})+(?!\d))/g, props.lang 
           {{ L(`Detectado ${fmtPct(f.frac, 'es')} (${nf(f.detectadas)}) · suelo ${fmtPct(f.suelo, 'es')}`, `Detected ${fmtPct(f.frac, 'en')} (${nf(f.detectadas)}) · floor ${fmtPct(f.suelo, 'en')}`) }}<template v-if="mediana(f.niveles) != null"> · {{ L('mediana', 'median') }} {{ fmt10(mediana(f.niveles)!) }} CP10k</template>
           <template v-if="f.detectadas < 3"> · {{ L('pocas células para dibujar la forma', 'too few cells to draw a shape') }}</template>
         </p>
+        <p v-if="f.rol === 'interes' && papel" class="vio__circ" role="note">
+          <strong>{{ L('Cifra circular.', 'Circular figure.') }}</strong>
+          {{ L(`${gen} ${PAPEL_SELECCION[papel]?.es ?? ''}.`, `${gen} ${PAPEL_SELECCION[papel]?.en ?? ''}.`) }}
+          <template v-if="loo">
+            {{ L(`Sin esa circularidad (grupo construido sin ese criterio, n = ${nf(loo.n)}):`, `Without that circularity (group built without that criterion, n = ${nf(loo.n)}):`) }}
+            <template v-if="loo.frac != null">{{ L('detectado', 'detected') }} {{ fmtPct(loo.frac, lang) }}</template><template v-if="loo.ref != null"> · {{ L('referencia', 'reference') }} {{ fmtPct(loo.ref, lang) }}</template><template v-if="loo.cp10k_pseudobulk != null"> · pseudobulk {{ nfCp(loo.cp10k_pseudobulk) }} CP10k</template>.
+          </template>
+        </p>
       </li>
     </ul>
-    <p class="vio__leyenda">
+    <div class="vio__leyenda">
       <span class="vio__muestra vio__muestra--raya" aria-hidden="true" />
-      {{ L('Suelo ambiental: el porcentaje de células en las que el gen saldría solo por ARN suelto en la muestra. Lo que no lo supera no cuenta como expresión.',
-        'Ambient floor: the share of cells where the gene would show up from loose RNA in the sample alone. Anything at or below it does not count as expression.') }}
-    </p>
+      <div>
+        <p>
+          {{ L('Suelo ambiental: el porcentaje de células en las que el gen saldría solo por ARN suelto en la muestra. Lo que no lo supera no cuenta como expresión.',
+            'Ambient floor: the share of cells where the gene would show up from loose RNA in the sample alone. Anything at or below it does not count as expression.') }}
+        </p>
+        <p class="vio__adn"><strong>{{ L(`${ETIQUETAS_FIJAS.matriz.es}.`, `${ETIQUETAS_FIJAS.matriz.en}.`) }}</strong> {{ adnTxt }}</p>
+      </div>
+    </div>
     <p class="vio__leyenda">
       {{ L('El violín es el nivel (CP10k, escala logarítmica) solo en las células donde el gen se detecta; la raya vertical es la mediana.',
         'The violin is the level (CP10k, log scale) only in cells where the gene is detected; the vertical tick is the median.') }}
+      {{ L(`${ETIQUETAS_FIJAS.mediana.es}.`, `${ETIQUETAS_FIJAS.mediana.en}.`) }}
     </p>
   </div>
 </template>
@@ -122,6 +146,9 @@ const nf = (n: number) => String(n).replace(/\B(?=(\d{3})+(?!\d))/g, props.lang 
 .vio__suelo-linea { stroke: var(--texto-1); stroke-width: 2; vector-effect: non-scaling-stroke; }
 .vio__txt { margin: var(--sp-4) 0 0; font: 500 var(--texto-xs)/1.4 var(--font-mono); color: var(--texto-2); }
 .vio__leyenda { display: flex; gap: var(--sp-8); align-items: flex-start; margin: var(--sp-12) 0 0; font: var(--tipo-body-sm); font-size: var(--texto-xs); color: var(--texto-2); max-width: var(--measure); }
+.vio__leyenda p { margin: 0; }
+.vio__adn { margin-top: var(--sp-8) !important; color: var(--texto-1); }
+.vio__circ { margin: var(--sp-4) 0 0; padding: var(--sp-8) var(--sp-12); border-left: 3px solid var(--texto-1); font: var(--tipo-body-sm); font-size: var(--texto-xs); color: var(--texto-1); max-width: var(--measure); }
 .vio__muestra { flex: none; width: 22px; height: 12px; margin-top: 3px; border: 1px solid var(--texto-1); }
 .vio__muestra--raya { background: repeating-linear-gradient(45deg, var(--texto-1) 0 2px, transparent 2px 5px); }
 @media (forced-colors: active) {

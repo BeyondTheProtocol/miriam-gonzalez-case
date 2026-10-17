@@ -46,7 +46,25 @@ export const ETIQUETA_VEREDICTO: Record<string, T> = {
   solo_nivel: t('Solo cuenta el nivel (se detecta en casi todas las células)', 'Only the level counts (detected in almost every cell)'),
   marcador_ne: t('Marcador neuroendocrino', 'Neuroendocrine marker'),
   no: t('No', 'No'),
-  sin_veredicto: t('Sin valorar', 'Not assessed'),
+  cerrado_por_arn: t('Cerrado por ARN; los positivos son ADN de núcleos no tumorales', 'Ruled out by RNA; the positives are DNA from non-tumor nuclei'),
+  sin_veredicto: t('No valorado en esa fila de la revisión', 'Not assessed in that row of the review'),
+}
+/** De quién es la lectura por gen, y en qué estado está: va en la cabecera de la columna y en su pie. */
+export const LECTURA = {
+  columna: t('Lectura de Polaris (borrador)', 'Polaris reading (draft)'),
+  pie: t('Lectura de Polaris, borrador, pendiente de la lectura humana del laboratorio.', 'Polaris reading, draft, pending the laboratory’s human reading.'),
+}
+
+/** Por qué la cifra de un gen en el grupo de interés es circular: el gen participa en la selección del grupo. */
+export const PAPEL_SELECCION: Record<string, T> = {
+  identidad: t('participa en la selección de este grupo (marcador de identidad): su cifra aquí es circular, sale alta por construcción',
+    'takes part in selecting this group (identity marker): its figure here is circular, high by construction'),
+  fgfr1_alto: t('participa en la selección de este grupo (se eligieron células con FGFR1 alto): su nivel aquí sale alto por construcción',
+    'takes part in selecting this group (cells were chosen for high FGFR1): its level here is high by construction'),
+  exclusion: t('participa en la selección de este grupo (marcador de exclusión): su cifra aquí sale baja por construcción',
+    'takes part in selecting this group (exclusion marker): its figure here is low by construction'),
+  ligado_er: t('va ligado al programa con el que se seleccionó este grupo: su cifra aquí sale favorecida',
+    'is tied to the programme used to select this group: its figure here is favoured'),
 }
 
 export const nombreGen = (g: string) => (PROTEINA[g] ? `${PROTEINA[g]} (${g})` : g)
@@ -57,4 +75,10 @@ export const ETIQUETAS_FIJAS = {
   n1: t('n=1, FFPE, exploratorio', 'n=1, FFPE, exploratory'),
   arn: t('ARN ≠ proteína; manda la IHQ', 'RNA ≠ protein; IHC decides'),
   her2: t('IHQ de HER2: 0', 'HER2 IHC: 0'),
+  /** qué matriz es: la estándar, con el ADN genómico que eso arrastra en el hueso */
+  matriz: t('Matriz estándar de Cell Ranger, todas las sondas; en el hueso incluye ADN genómico', 'Standard Cell Ranger matrix, all probes; in the bone it includes genomic DNA'),
+  /** el número de copias del hueso es una inferencia por expresión, no una lectura de ADN */
+  cnv: t('Inferido de la expresión (ARN) frente a la referencia; no es lectura de ADN', 'Inferred from expression (RNA) against the reference; not a DNA readout'),
+  /** el nivel que pinta la página no es el de la revisión */
+  mediana: t('Mediana por célula detectada; la revisión da pseudobulk, así que las cifras de nivel no tienen por qué coincidir', 'Median per detected cell; the review gives pseudobulk, so level figures need not match'),
 }

@@ -5,7 +5,8 @@
  *
  * Qué enseña (plan del 17-oct-2026): mapa por lesión (Vitessce), un gen de la lista con n y suelo
  * ambiental por grupo (violines propios), la tabla de genes de interés con referencia emparejada y
- * valoración de la revisión, co-expresión de dos genes y número de copias (por célula SOLO en el hueso).
+ * lectura de Polaris (borrador), co-expresión de dos genes y número de copias (por célula SOLO en el hueso,
+ * inferido de la expresión frente a la referencia; no es lectura de ADN).
  * Qué NO enseña: «% de células tumorales» del hígado, re-clustering ni comparación tumor/hepatocito.
  * Móvil y tableta (< 1024 px): vista reducida y avisada, sin el mapa (WebGL pesado; su lienzo atrapa
  * el scroll con el dedo).
@@ -223,7 +224,7 @@ function sinTapar(ev: FocusEvent) {
         </div>
         <div id="exp-violines" class="exp__col" tabindex="-1">
           <h2 class="exp__h2">{{ L(`${nombreGen(gen)}, grupo a grupo`, `${nombreGen(gen)}, group by group`) }}{{ ej }}</h2>
-          <CelulaExplorarViolines :filas="filas" :gen="gen" :lang="lang" />
+          <CelulaExplorarViolines :filas="filas" :gen="gen" :lang="lang" :lesion="lesion" :adn="d.adn" :papel="d.seleccion[gen]" :loo="d.loo[gen]" />
         </div>
       </div>
 
@@ -257,7 +258,7 @@ function sinTapar(ev: FocusEvent) {
       </div>
 
       <div class="exp__bloque">
-        <h2 class="exp__h2">{{ L('Número de copias', 'Copy number') }}{{ ej }}</h2>
+        <h2 class="exp__h2">{{ L('Número de copias (inferido)', 'Copy number (inferred)') }}{{ ej }}</h2>
         <CelulaExplorarCnv :d="d" :lang="lang" />
       </div>
     </template>
