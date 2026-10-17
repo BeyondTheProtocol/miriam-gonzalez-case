@@ -360,9 +360,11 @@ panelRows:
   - component: Single-cell RNA-seq (10x Genomics Flex)
     method: 'Sobre tejido en parafina, sin necesidad de fresco · laboratorio de Paloma Cejas (Dana-Farber)'
     targets: 'Qué expresa cada célula: estados neuroendocrino y luminal, clones resistentes, microambiente inmune, genes diana y antígenos'
-    status: 'Material en el laboratorio'
+    status: 'Primeros resultados (octubre 2026)'
     statusTone: curso
     implication: 'Dice si el tumor es una mezcla de poblaciones o una sola que ha cambiado de identidad, y qué dianas expresa de verdad cada una'
+    linkTo: /celula-a-celula
+    linkText: 'Los primeros resultados están en Célula a célula'
   - component: IHQ extendida
     method: 'Cortes de parafina'
     targets: 'Hecho en hígado: RE, RP, HER2, cromogranina A, sinaptofisina. Sin hacer: TROP-2, SSTR2, DLL3, B7-H3, Nectin-4, Rb'

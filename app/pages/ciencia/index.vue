@@ -523,7 +523,7 @@
                     <td :data-label="$t('ciencia.status')">
                       <span v-if="row.status" :class="['status-badge', panelBadge[row.statusTone] || 'status-badge--pending']">{{ row.status }}</span>
                     </td>
-                    <td class="col-note cell-block" :data-label="$t('ciencia.implication')">{{ row.implication }}</td>
+                    <td class="col-note cell-block" :data-label="$t('ciencia.implication')">{{ row.implication }}<NuxtLink v-if="row.linkTo" :to="localePath(row.linkTo)" class="link-inline block mt-2">{{ row.linkText }}</NuxtLink></td>
                   </tr>
                 </tbody>
               </table>
@@ -950,7 +950,7 @@ const faq =
         },
         {
           q: '¿Cuál es el siguiente paso del caso?',
-          a: 'Dos pasos en paralelo: el ensayo TROPION-Breast06 con datopotamab deruxtecan para controlar la enfermedad, y el análisis del tejido de mama, hueso e hígado en el laboratorio de Paloma Cejas en Dana-Farber (single-cell RNA-seq y exoma), del que saldrían las dianas de una terapia personalizada.',
+          a: 'Dos pasos en paralelo: el ensayo TROPION-Breast06 con datopotamab deruxtecan para controlar la enfermedad, y el análisis del tejido de mama, hueso e hígado en el laboratorio de Paloma Cejas en Dana-Farber (single-cell RNA-seq y exoma), del que saldrían las dianas de una terapia personalizada. Los primeros resultados del single-cell ya están publicados en Célula a célula.',
         },
       ]
     : [
@@ -964,7 +964,7 @@ const faq =
         },
         {
           q: 'What is the next step in the case?',
-          a: 'Two steps in parallel: the TROPION-Breast06 trial with datopotamab deruxtecan to control the disease, and analysis of the breast, bone and liver tissue in Paloma Cejas’s lab at Dana-Farber (single-cell RNA-seq and exome), which is where the targets of a personalised therapy would come from.',
+          a: 'Two steps in parallel: the TROPION-Breast06 trial with datopotamab deruxtecan to control the disease, and analysis of the breast, bone and liver tissue in Paloma Cejas’s lab at Dana-Farber (single-cell RNA-seq and exome), which is where the targets of a personalised therapy would come from. The first single-cell results are published in Cell by cell.',
         },
       ]
 
