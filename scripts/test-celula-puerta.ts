@@ -39,6 +39,9 @@ for (const [k, b] of bloques) {
 const APROBADAS = new Set([20600, 2500, 50, 25, 0, 1, 100, real.version])
 const ajenas = numeros(real.bloques).filter((n) => !APROBADAS.has(n))
 ok('el JSON no lleva ninguna cifra fuera del texto aprobado (n, IC, medianas, usadas…)', ajenas.length === 0, `ajenas: ${JSON.stringify(ajenas)}`)
+// Red-team de la fase 2 (17-oct-2026): la cifra del 5T4 del hígado es el techo de su rango según qué células se llamen tumor (detalle en Polaris).
+const higR3 = (real.bloques.R3!.datos as any).muestras.higado.dianas as { gen: string; aprox?: boolean }[]
+ok('R3: el 5T4 del hígado va con aprox (su cifra es el techo de un rango)', higR3.find((q) => q.gen === '5T4')?.aprox === true)
 ok('R5 y R6 no llevan ningún número (visualizaciones sin cifras)', numeros(real.bloques.R5).length === 0 && numeros(real.bloques.R6).length === 0)
 ok('R4 solo dice «menos de 1» y solo del hígado', JSON.stringify(Object.keys((real.bloques.R4!.datos as any))) === '["higado"]' && (real.bloques.R4!.datos as any).higado.menos_de === true)
 ok('el JSON no lleva campos de recuento ni de IC', !/"(n|n_con|ic_inf|ic_sup|ic_nivel|genes_mediana|usadas|leidas)"/.test(crudo))

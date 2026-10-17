@@ -21,7 +21,7 @@
         "muestras": {
           "higado": { "dianas": [
             { "gen": "NY-BR-1", "por_100": 50, "aprox": true },
-            { "gen": "5T4", "por_100": 25 }
+            { "gen": "5T4", "por_100": 25, "aprox": true }
           ] },
           "hueso": { "dianas": [
             { "gen": "NY-BR-1", "por_100": 50, "aprox": true },
