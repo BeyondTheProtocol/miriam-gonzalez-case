@@ -577,7 +577,7 @@ const n = (v: number) => numCaso(v, lang.value)
           <!-- lo que se pide a quien lee: antes plegado al final como «Cómo ayudar» (oncologo-virtual) -->
           <h3 class="dt-h3">{{ L('Qué buscamos', 'What we’re looking for') }}</h3>
           <ul class="dt-busca">
-            <li v-for="(b, i) in seBusca.slice(0, 3)" :key="i">{{ T(b.valor) }} <DatosSello :s="b.sello" :lang="lang" /></li>
+            <li v-for="(b, i) in seBusca.slice(0, 3)" :key="i">{{ T(b.valor) }} <DatosSello :s="b.sello" :lang="lang" /><NuxtLink v-if="b.enlace === 'celula-a-celula'" :to="localePath('/celula-a-celula')" class="link-inline dt-busca__enlace">{{ L('Los primeros resultados están en Célula a célula', 'The first results are in Cell by cell') }}</NuxtLink></li>
           </ul>
           <details v-if="seBusca.slice(3, 5).length" class="dt-det">
             <summary>{{ L(`${seBusca.slice(3, 5).length} más`, `${seBusca.slice(3, 5).length} more`) }}</summary>
@@ -817,6 +817,7 @@ const n = (v: number) => numCaso(v, lang.value)
 .dt-sitios li::before { content: ''; position: absolute; left: 0; top: 0.6em; width: 5px; height: 5px; border-radius: 50%; background: var(--color-miriam); }
 .dt-busca { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; font: 400 14px/1.5 var(--font-body); color: var(--color-text); }
 .dt-busca li { padding: 8px 12px; border-radius: 10px; background: var(--color-bg-card); }
+.dt-busca__enlace { display: block; width: fit-content; padding-block: 10px 2px; }
 .dt-pet { margin-top: 14px; padding: 12px 14px; border-radius: 14px; background: var(--color-bg-card); }
 .dt-pet__k { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; font: 600 12px var(--font-body); color: var(--color-text-soft); margin: 0 0 4px; }
 .dt-pet__v { font: 400 14px/1.5 var(--font-body); color: var(--color-text); margin: 0; }

@@ -108,6 +108,8 @@ const scienceSchema = z.object({
       implication: z.string(),
       status: z.string().optional(),
       statusTone: z.enum(['hecho', 'curso', 'pendiente', 'no']).optional(),
+      linkTo: z.string().optional(),
+      linkText: z.string().optional(),
     })
   ),
   liquidBiopsies: z

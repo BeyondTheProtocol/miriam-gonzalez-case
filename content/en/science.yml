@@ -361,6 +361,8 @@ panelRows:
     status: 'Material at the lab'
     statusTone: curso
     implication: 'Tells whether the tumour is a mix of populations or one that has changed identity, and which targets each one really expresses'
+    linkTo: /celula-a-celula
+    linkText: 'The first results are in Cell by cell'
   - component: Extended IHC
     method: 'Paraffin sections'
     targets: 'Done on liver: ER, PR, HER2, chromogranin A, synaptophysin. Not done: TROP-2, SSTR2, DLL3, B7-H3, Nectin-4, Rb'

@@ -363,6 +363,8 @@ panelRows:
     status: 'Material en el laboratorio'
     statusTone: curso
     implication: 'Dice si el tumor es una mezcla de poblaciones o una sola que ha cambiado de identidad, y qué dianas expresa de verdad cada una'
+    linkTo: /celula-a-celula
+    linkText: 'Los primeros resultados están en Célula a célula'
   - component: IHQ extendida
     method: 'Cortes de parafina'
     targets: 'Hecho en hígado: RE, RP, HER2, cromogranina A, sinaptofisina. Sin hacer: TROP-2, SSTR2, DLL3, B7-H3, Nectin-4, Rb'
