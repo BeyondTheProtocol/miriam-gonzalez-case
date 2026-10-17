@@ -1,0 +1,57 @@
+{
+  "version": 1,
+  "actualizado": "2026-10-17",
+  "pasos": [
+    {
+      "id": "biopsias",
+      "estado": "hecho",
+      "titulo": { "es": "Biopsias de hígado y hueso enviadas al laboratorio", "en": "Liver and bone biopsies sent to the lab" },
+      "detalle": { "es": "Dos trozos pequeños de dos lesiones, guardados en parafina.", "en": "Two small pieces from two lesions, stored in paraffin." }
+    },
+    {
+      "id": "analisis",
+      "estado": "hecho",
+      "titulo": { "es": "Primer análisis célula a célula hecho", "en": "First cell-by-cell analysis done" },
+      "detalle": { "es": "Se ha leído, una a una, qué genes tiene encendidos cada célula.", "en": "Each cell was read one by one, to see which genes it has switched on." }
+    },
+    {
+      "id": "resultados",
+      "estado": "hecho",
+      "titulo": { "es": "Primeros resultados publicados", "en": "First results published" },
+      "detalle": { "es": "Están en esta página, por bloques y con su sello. Se irán sumando más.", "en": "They are on this page, block by block and each with its seal. More will be added." }
+    },
+    {
+      "id": "tinciones",
+      "estado": "pendiente",
+      "termino": "sc_ihq",
+      "titulo": { "es": "Confirmar las dianas en el tejido con otras técnicas", "en": "Confirm the targets in the tissue with other techniques" },
+      "detalle": { "es": "El análisis mide ARN. Con tinciones del tejido se comprueba si la proteína está ahí de verdad. Depende de cuánto tejido quede.", "en": "The analysis measures RNA. Staining the tissue shows whether the protein is actually there. This depends on how much tissue is left." }
+    },
+    {
+      "id": "exoma",
+      "estado": "pendiente",
+      "termino": "sc_wes",
+      "titulo": { "es": "Secuenciar el exoma del tumor y de la sangre", "en": "Sequence the tumor and blood exomes" },
+      "detalle": { "es": "Es la prueba que lee las mutaciones propias del tumor. El análisis célula a célula no las lee.", "en": "This is the test that reads the tumor’s own mutations. The cell-by-cell analysis does not." }
+    },
+    {
+      "id": "hla",
+      "estado": "pendiente",
+      "termino": "sc_hla",
+      "titulo": { "es": "Conocer su tipo de HLA", "en": "Find out her HLA type" },
+      "detalle": { "es": "El HLA varía de una persona a otra, como un carnet inmunitario: con él las células enseñan trozos de proteína al sistema inmune. Saber cuál tiene ella ayuda a ver qué terapias podrían encajar.", "en": "HLA varies from person to person, a bit like an immune ID card: it is what cells use to show pieces of protein to the immune system. Knowing her type helps show which therapies might fit." }
+    },
+    {
+      "id": "cruce",
+      "estado": "pendiente",
+      "titulo": { "es": "Cruzar las mutaciones, el HLA y este análisis", "en": "Bring together the mutations, the HLA and this analysis" },
+      "detalle": { "es": "Juntar las tres piezas para ver qué dianas candidatas podría haber para una terapia personalizada.", "en": "Combine the three pieces to see which candidate targets there could be for a personalized therapy." }
+    },
+    {
+      "id": "equipo",
+      "estado": "pendiente",
+      "titulo": { "es": "Llevarlo al equipo médico para decidir", "en": "Take it to her medical team to decide" },
+      "detalle": { "es": "La decisión es de su equipo médico, con toda la información delante.", "en": "The decision belongs to her medical team, with all the information in front of them." }
+    }
+  ]
+}

@@ -24,6 +24,7 @@
     "test:cifras-datos": "node scripts/test-cifras-datos.mjs",
     "test:celula-puerta": "tsx scripts/test-celula-puerta.ts",
     "test:celula-cifras": "node scripts/test-celula-cifras.mjs",
+    "test:celula-pasos": "tsx scripts/test-celula-pasos.ts",
     "test:short-links": "tsx scripts/test-short-links.ts",
     "test:cronologia-caso": "tsx scripts/test-cronologia-caso.ts",
     "test:sala-prensa": "tsx scripts/test-sala-prensa.ts",

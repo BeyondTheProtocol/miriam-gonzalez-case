@@ -61,6 +61,8 @@ jobs:
       - run: pnpm test:donantes-total
       # La puerta de los resultados de /celula-a-celula (verificado + OK de Miriam) y el contrato del JSON publicado.
       - run: pnpm test:celula-puerta
+      # Próximos pasos de /celula-a-celula: contrato del JSON (sin fuentes, fechas con día ni lugares) y la barra cuenta solo los hechos.
+      - run: pnpm test:celula-pasos
       - run: pnpm test:mapa-focos
       - run: pnpm test:mallas-3d
       - run: pnpm test:esqueleto-huesos
