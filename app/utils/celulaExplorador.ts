@@ -6,7 +6,7 @@
  *  · public/ se sirve tal cual y la preview de Netlify también es pública. Mientras Miriam no dé el
  *    OK, en esa carpeta SOLO hay datos SINTÉTICOS (`ejemplo: true` en el manifiesto y en cada lesión).
  *    El export real vive en la zona clínica de Polaris y entra aquí solo con `sello: "verificado"`,
- *    `ok_titular: true` y `fecha_ok` (AAAA-MM-DD). El test falla si se incumple, y si hay un fichero que
+ *    `ok_titular: true` y `fecha_ok` (AAAA-MM-DD de calendario). El test falla si se incumple, y si hay un fichero que
  *    no está en el manifiesto con su sha256. Es el mismo contrato que valida Polaris
  *    (tools/flex_analisis/explorador/_contrato.py): la clave no lleva el nombre de la titular.
  *  · La puerta es la de /celula-a-celula (puertaAbierta, hostPermiteDemo): con la puerta cerrada la
@@ -29,14 +29,17 @@ export const GRUPOS: Record<Lesion, { interes: string; referencias: string[] }> 
   higado: { interes: 'luminal_alta_confianza', referencias: ['hepatocito', 'NK', 'mieloide', 'endotelio', 'fibroblasto_estelar'] },
   hueso: { interes: 'malignas_limpias', referencias: ['T', 'NK', 'B', 'plasmatica', 'mieloide', 'neutrofilo', 'mastocito', 'endotelio'] },
 }
-export const VEREDICTOS = ['sostenido', 'con_matiz', 'en_el_limite', 'no_sostenido', 'no_resoluble', 'referencia_igual_o_mas', 'solo_nivel', 'marcador_ne', 'no', 'cerrado_por_arn', 'sin_veredicto'] as const
+/** «sostenido_con_matiz» (HER3 del hígado en la revisión) y «con_matiz» (se matiza, no se da por sostenido) son
+ *  lecturas distintas: no se funden (revisión de cifras del 17-oct-2026). */
+export const VEREDICTOS = ['sostenido', 'sostenido_con_matiz', 'con_matiz', 'en_el_limite', 'no_sostenido', 'no_resoluble', 'referencia_igual_o_mas', 'solo_nivel', 'marcador_ne', 'no', 'cerrado_por_arn', 'sin_veredicto'] as const
 export type Veredicto = typeof VEREDICTOS[number]
 /** Papel de un gen en la SELECCIÓN del grupo de interés: su cifra en ese grupo es circular. */
 export const PAPELES_SELECCION = ['identidad', 'fgfr1_alto', 'exclusion', 'ligado_er'] as const
 export type PapelSeleccion = typeof PAPELES_SELECCION[number]
 /** Cifra medida sin la circularidad (el grupo construido sin ese gen o sin ese criterio). */
 export interface Loo { n: number; frac: number | null; ref: number | null; cp10k_pseudobulk: number | null }
-/** ADN genómico de la muestra (las sondas dentro de un exón también lo captan). */
+/** ADN genómico de la muestra (las sondas dentro de un exón también lo captan). Las fracciones son de UMI
+ *  (moléculas contadas), no de lecturas; las claves conservan el nombre del contrato que comparte con Polaris. */
 export interface Adn { sondas_dentro_de_exon: number; sondas_panel: number; frac_lecturas_estimada: number; frac_lecturas_cell_ranger: number; frac_lecturas_interes: number }
 
 export interface Grupo { id: string; rol: Rol; n: number }
@@ -73,12 +76,26 @@ export interface Manifiesto {
 
 /* ── la puerta ─────────────────────────────────────────────────────────── */
 
+/**
+ * fecha_ok: AAAA-MM-DD con cifras ASCII y fecha de calendario real (ni «2026-13-45» ni «2026-02-30» ni
+ * «0000-01-01», nada pegado delante o detrás). La misma regla que fecha_ok_valida de Polaris
+ * (_contrato.py, datetime.date.fromisoformat). setUTCFullYear y no Date.UTC: Date.UTC lleva los años 0-99 a 1900+.
+ */
+export function fechaOkValida(v: unknown): boolean {
+  if (typeof v !== 'string' || !/^[0-9]{4}-[0-9]{2}-[0-9]{2}$/.test(v)) return false
+  const [y, m, d] = v.split('-').map(Number) as [number, number, number]
+  if (y < 1 || m < 1 || m > 12 || d < 1) return false
+  const f = new Date(0)
+  f.setUTCFullYear(y, m - 1, d)
+  return f.getUTCFullYear() === y && f.getUTCMonth() === m - 1 && f.getUTCDate() === d
+}
+
 /** ¿Qué se puede pintar? `real`: verificado + OK. `ejemplo`: solo con demo, y solo si TODO es ejemplo. */
 export function estadoPuerta(m: Manifiesto | null | undefined, opt: { demo?: boolean } = {}): 'real' | 'ejemplo' | 'cerrada' {
   if (!m || !Array.isArray(m.ficheros) || !Array.isArray(m.lesiones)) return 'cerrada'
-  // la misma regla que puertaAbierta() de /celula-a-celula (verificado Y OK === true, booleano), más la fecha del OK;
-  // y solo la versión de todas las sondas (la que se decidió publicar)
-  if (m.ejemplo !== true && m.sello === 'verificado' && m.ok_titular === true && /^\d{4}-\d{2}-\d{2}$/.test(m.fecha_ok ?? '') && m.modo_sondas === 'todas_incluidas') return 'real'
+  // la misma regla que puertaAbierta() de /celula-a-celula (verificado Y OK === true, booleano), más la fecha del OK
+  // (AAAA-MM-DD de calendario, como fecha_ok_valida de Polaris); y solo la versión de todas las sondas (la que se decidió publicar)
+  if (m.ejemplo !== true && m.sello === 'verificado' && m.ok_titular === true && fechaOkValida(m.fecha_ok) && m.modo_sondas === 'todas_incluidas') return 'real'
   if (opt.demo === true && m.ejemplo === true) return 'ejemplo'
   return 'cerrada'
 }
@@ -209,14 +226,14 @@ export function tablaCoexp(d: LesionDatos, etiquetas: Coexp[]): { id: string; n:
   })
 }
 
-/** Porcentaje de lecturas con la precisión que tiene sentido: un decimal por debajo del 10 %, entero por encima. */
+/** Porcentaje fino (fracción de UMI de ADN) con la precisión que tiene sentido: un decimal por debajo del 10 %, entero por encima. */
 export function fmtPctFino(x: number, lang: 'es' | 'en'): string {
   const v = 100 * x
   const t = v < 10 ? (Math.round(v * 10) / 10).toFixed(1) : String(Math.round(v))
   const n = lang === 'en' ? t : t.replace('.', ',')
   return lang === 'en' ? `${n}%` : `${n} %`
 }
-/** Rango de lecturas de ADN de la muestra [menor, mayor] entre la estimación y la de Cell Ranger. */
+/** Rango de la fracción de UMI de ADN de la muestra [menor, mayor] entre la estimación y la de Cell Ranger. */
 export const rangoAdn = (a: Adn): [number, number] => [Math.min(a.frac_lecturas_estimada, a.frac_lecturas_cell_ranger), Math.max(a.frac_lecturas_estimada, a.frac_lecturas_cell_ranger)]
 
 /** Porcentaje entero para mostrar (la misma regla en toda la página). */

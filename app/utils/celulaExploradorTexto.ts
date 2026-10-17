@@ -38,7 +38,10 @@ export const PANEL_INTERES = ['ANKRD30A', 'TPBG', 'ERBB3', 'SLC39A6', 'ERBB2', '
 
 export const ETIQUETA_VEREDICTO: Record<string, T> = {
   sostenido: t('Se sostiene', 'Holds'),
-  con_matiz: t('Se sostiene con matices', 'Holds, with caveats'),
+  /** la revisión lo da por sostenido, con matices (HER3 del hígado) */
+  sostenido_con_matiz: t('Se sostiene con matices', 'Holds, with caveats'),
+  /** la revisión lo matiza y NO lo da por sostenido: nunca «se sostiene» aquí (revisión de cifras, 17-oct-2026) */
+  con_matiz: t('Con matices; no se da por sostenido', 'With caveats; not counted as holding'),
   en_el_limite: t('En el límite', 'Borderline'),
   no_sostenido: t('No se sostiene', 'Does not hold'),
   no_resoluble: t('No se puede resolver con este diseño', 'Cannot be resolved with this design'),

@@ -2,8 +2,11 @@
 /**
  * Número de copias. Hueso: por célula (ventanas del fichero, p. ej. 8p11 y 11q13), una tira de puntos
  * por grupo con su mediana y su n. Es una puntuación INFERIDA de la expresión (ARN) frente a la referencia
- * (log2 de lo observado frente a lo esperado), no una lectura de ADN: puede ser negativa, y la escala va
- * del mínimo al máximo del fichero con el 0 marcado. Hígado: NUNCA por célula (no se puede leer célula a
+ * (log2 de lo observado frente a lo esperado con la proporción pseudobulk de la referencia), no una lectura
+ * de ADN: puede ser negativa, y la escala va del mínimo al máximo del fichero con el 0 marcado. El 0 NO es
+ * «como la referencia»: con pocos UMI por célula la célula típica cae por debajo de 0 (en este caso la
+ * mediana de la propia referencia queda bajo 0), así que el texto manda comparar con las rayas de los
+ * grupos de referencia (revisión de cifras del 17-oct-2026). Hígado: NUNCA por célula (no se puede leer célula a
  * célula); solo el dato del conjunto (pseudobulk) con su aviso. La forma del fichero ya lo impone.
  */
 import type { LesionDatos } from '~/utils/celulaExplorador'
@@ -52,8 +55,13 @@ const jit = (i: number) => ((Math.sin(i * 12.9898) * 43758.5453) % 1 + 1) % 1
     <template v-if="'valores' in cnv">
       <p class="cnv__p">
         <strong>{{ L(`${ETIQUETAS_FIJAS.cnv.es}.`, `${ETIQUETAS_FIJAS.cnv.en}.`) }}</strong>
-        {{ L('Puntuación por célula de cada ventana: log2 de lo que se lee frente a lo que se esperaría según la referencia (0 = como la referencia). Cada punto es una célula; la raya, la mediana del grupo.',
-          'Per-cell score for each window: log2 of what is read against what the reference would predict (0 = like the reference). Each dot is a cell; the tick is the group median.') }}
+        {{ L('Puntuación por célula de cada ventana: log2 de lo que se lee frente a lo que se esperaría si la célula tuviera, en esa ventana, la misma proporción que la referencia en su conjunto (pseudobulk). Cada punto es una célula; la raya, la mediana del grupo.',
+          'Per-cell score for each window: log2 of what is read against what would be expected if the cell carried, in that window, the same share as the reference as a whole (pseudobulk). Each dot is a cell; the tick is the group median.') }}
+      </p>
+      <p class="cnv__p">
+        <strong>{{ L('El 0 no es «como la referencia».', 'The 0 is not «like the reference».') }}</strong>
+        {{ L('Con pocas moléculas (UMI) por célula, la célula típica sale por debajo de 0 aunque no tenga menos copias, y por eso la propia referencia puede quedar por debajo de 0. Compare cada grupo con las rayas de los grupos de referencia, no con el 0.',
+          'With few molecules (UMI) per cell, the typical cell falls below 0 without having fewer copies, which is why the reference itself can sit below 0. Compare each group with the ticks of the reference groups, not with the 0.') }}
       </p>
       <p class="cnv__p">
         {{ L('Las células malignas del hueso se eligieron con una inferencia de número de copias del genoma entero, también desde la expresión: que su ventana salga alta no es una medida independiente de esa elección.',

@@ -4,7 +4,7 @@
  * emparejada y el suelo ambiental, las sondas del gen (unión exón-exón / total) y la lectura de Polaris
  * (borrador, vocabulario cerrado del fichero). Todas las cifras salen del fichero de la lesión; aquí solo
  * se redondean a % entero (pct). Un gen que participa en la selección del grupo lleva su rótulo de
- * circularidad y, si existe, la cifra medida sin ella (loo). Un toque en el gen lo elige arriba.
+ * circularidad y, si existe, la cifra medida sin ella (loo); si no existe, lo dice. Un toque en el gen lo elige arriba.
  */
 import type { LesionDatos } from '~/utils/celulaExplorador'
 import { fmtPct, porGrupo } from '~/utils/celulaExplorador'
@@ -53,6 +53,7 @@ const fmtCp = (x: number) => String(Math.round(x))
                   {{ L(`Sin esa circularidad (n = ${nf(f.loo.n)}):`, `Without that circularity (n = ${nf(f.loo.n)}):`) }}
                   <template v-if="f.loo.frac != null">{{ fmtPct(f.loo.frac, lang) }}</template><template v-if="f.loo.ref != null"> · {{ L('referencia', 'reference') }} {{ fmtPct(f.loo.ref, lang) }}</template><template v-if="f.loo.cp10k_pseudobulk != null"> · pseudobulk {{ fmtCp(f.loo.cp10k_pseudobulk) }} CP10k</template>.
                 </template>
+                <template v-else>{{ L('No hay cifra medida sin esa circularidad.', 'There is no figure measured without that circularity.') }}</template>
               </span>
             </th>
             <td class="gi__num nums">{{ fmtPct(f.frac, lang) }}<span v-if="f.papel" class="gi__ast" :title="L('Cifra circular: ver la nota del gen', 'Circular figure: see the gene note')">*</span></td>
@@ -65,8 +66,8 @@ const fmtCp = (x: number) => String(Math.round(x))
       </table>
     </div>
     <p class="gi__pie">
-      {{ L('Porcentaje de células con al menos una lectura del gen. La referencia emparejada son células no tumorales de la misma muestra, con la misma profundidad de lectura. Es ARN: que el gen se lea no dice que la proteína esté en la membrana; eso lo dice la IHQ.',
-        'Share of cells with at least one read of the gene. The matched reference is non-tumor cells from the same sample, at the same read depth. This is RNA: reading the gene does not mean the protein is on the membrane; IHC tells you that.') }}
+      {{ L('Porcentaje de células con al menos una molécula (UMI) del gen. La referencia emparejada son células no tumorales de la misma muestra, con la misma profundidad (moléculas por célula). Es ARN: que el gen se lea no dice que la proteína esté en la membrana; eso lo dice la IHQ.',
+        'Share of cells with at least one molecule (UMI) of the gene. The matched reference is non-tumor cells from the same sample, at the same depth (molecules per cell). This is RNA: reading the gene does not mean the protein is on the membrane; IHC tells you that.') }}
     </p>
     <p class="gi__pie">
       {{ L('Sondas: cuántas sondas del panel tiene el gen y cuántas cruzan una unión entre exones; las demás caen dentro de un exón y también pueden leer ADN genómico.',

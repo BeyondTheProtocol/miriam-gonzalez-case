@@ -16,9 +16,10 @@ import { createHash } from 'node:crypto'
 import { readdirSync, readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import {
-  RE_BARCODE, VEREDICTOS, coexpresion, densidad, estadoPuerta, motivosLesion, pct, porGrupo, tablaCoexp,
+  PAPELES_SELECCION, RE_BARCODE, VEREDICTOS, coexpresion, densidad, estadoPuerta, fechaOkValida, motivosLesion, pct, porGrupo, tablaCoexp,
   type LesionDatos, type Manifiesto,
 } from '../app/utils/celulaExplorador'
+import { ETIQUETA_VEREDICTO, PAPEL_SELECCION } from '../app/utils/celulaExploradorTexto'
 
 const RAIZ = join(import.meta.dirname, '..')
 const DIR = join(RAIZ, 'public', 'celula', 'explorador')
@@ -43,7 +44,7 @@ if (esEjemplo) {
 }
 else {
   ok('real: verificado, con OK de la titular, su fecha y la versión de todas las sondas', man.sello === 'verificado' && man.ok_titular === true
-    && /^\d{4}-\d{2}-\d{2}$/.test(man.fecha_ok ?? '') && man.modo_sondas === 'todas_incluidas')
+    && fechaOkValida(man.fecha_ok) && man.modo_sondas === 'todas_incluidas')
 }
 ok('el manifiesto no lleva el nombre de la titular en ninguna clave', !Object.keys(man).some((k) => /miriam/i.test(k)))
 const lesiones: Record<string, LesionDatos> = {}
@@ -73,6 +74,14 @@ ok('la clave vieja (con el nombre) ya no abre: cerrada', estadoPuerta({ ...real(
 ok('la versión solo spliced nunca abre: cerrada', estadoPuerta(real({ modo_sondas: 'solo_spliced' })) === 'cerrada')
 ok('sin modo_sondas: cerrada', estadoPuerta(real({ modo_sondas: undefined })) === 'cerrada')
 ok('sin fecha del OK: cerrada', estadoPuerta(real({ fecha_ok: undefined })) === 'cerrada')
+// fecha_ok de calendario, como fecha_ok_valida de Polaris (revisión del muro, 17-oct-2026: «2026-13-45» abría la puerta)
+for (const [qué, f] of [
+  ['mes 13 y día 45', '2026-13-45'], ['30 de febrero', '2026-02-30'], ['29 de febrero de un año no bisiesto', '2026-02-29'], ['año 0', '0000-01-01'],
+  ['mes 0', '2026-00-10'], ['día 0', '2026-10-00'], ['salto de línea detrás', '2026-10-20\n'], ['espacio delante', ' 2026-10-20'],
+  ['cifras árabes orientales', '٢٠٢٦-١٠-٢٠'], ['con hora', '2026-10-20T10:00'], ['día-mes-año', '20-10-2026'], ['texto', 'hoy'], ['número', 20261020 as never],
+] as const) ok(`fecha_ok «${qué}»: cerrada`, estadoPuerta(real({ fecha_ok: f as string })) === 'cerrada')
+ok('fecha_ok 29 de febrero de un bisiesto: real', estadoPuerta(real({ fecha_ok: '2028-02-29' })) === 'real')
+ok('fechaOkValida: los años 0-99 no se cuelan como 1900+', !fechaOkValida('0099-02-29') && fechaOkValida('0096-02-29'))
 ok('ejemplo con sello verificado y OK: sigue sin pasar por real', estadoPuerta({ ...clon(base), sello: 'verificado', ok_titular: true, fecha_ok: '2026-10-20' }) === 'cerrada')
 ok('sin manifiesto: cerrada', estadoPuerta(null) === 'cerrada' && estadoPuerta(undefined) === 'cerrada')
 ok('manifiesto roto: cerrada', estadoPuerta({ version: 1 } as never, { demo: true }) === 'cerrada')
@@ -108,6 +117,12 @@ caza('ADN con una fracción > 1', mut(B, (x) => { x.adn.frac_lecturas_cell_range
 caza('sin bloque de ADN', mut(H, (x) => { delete (x as any).adn }, 'higado'))
 ok('el vocabulario de lecturas no tiene «diana»', !VEREDICTOS.some((v) => /diana/i.test(v)))
 ok('el vocabulario de lecturas tiene «cerrado_por_arn» (PRAME/MAGE-A4 del hueso)', (VEREDICTOS as readonly string[]).includes('cerrado_por_arn'))
+ok('cada lectura del vocabulario tiene su etiqueta ES/EN', VEREDICTOS.every((v) => !!ETIQUETA_VEREDICTO[v]?.es && !!ETIQUETA_VEREDICTO[v]?.en))
+ok('cada papel de selección tiene su texto ES/EN', PAPELES_SELECCION.every((p) => !!PAPEL_SELECCION[p]?.es && !!PAPEL_SELECCION[p]?.en))
+// revisión de cifras (17-oct-2026): «SOSTENIDO con matiz» (HER3 del hígado) y «Con matiz» (HER2, Nectin-4, LIV-1, ESR1) no se funden
+ok('«sostenido_con_matiz» existe y dice que se sostiene', (VEREDICTOS as readonly string[]).includes('sostenido_con_matiz') && /se sostiene/i.test(ETIQUETA_VEREDICTO.sostenido_con_matiz!.es) && /holds/i.test(ETIQUETA_VEREDICTO.sostenido_con_matiz!.en))
+ok('«con_matiz» NUNCA dice que se sostiene', !/se sostiene|holds/i.test(`${ETIQUETA_VEREDICTO.con_matiz!.es} ${ETIQUETA_VEREDICTO.con_matiz!.en}`) && /no se da por sostenido/.test(ETIQUETA_VEREDICTO.con_matiz!.es))
+ok('«con_matiz» y «sostenido_con_matiz» no comparten etiqueta', ETIQUETA_VEREDICTO.con_matiz!.es !== ETIQUETA_VEREDICTO.sostenido_con_matiz!.es && ETIQUETA_VEREDICTO.con_matiz!.en !== ETIQUETA_VEREDICTO.sostenido_con_matiz!.en)
 
 /* ── 4 · léxico y copy obligatorio ── */
 const FICHEROS_COPY = [
@@ -125,6 +140,9 @@ const sinEstilo = copy.replace(/<style[\s\S]*?<\/style>/g, '')
 ok('ningún porcentaje escrito a mano en el texto del explorador (las cifras salen del fichero)', !/\d\s?%/.test(sinEstilo), (sinEstilo.match(/.{0,30}\d\s?%/g) ?? []).join(' | '))
 ok('ningún «n = <cifra>» escrito a mano en el texto del explorador', !/n = \d/.test(sinEstilo))
 ok('sin guion largo (tell de IA en español)', !/—/.test(copy))
+// revisión de cifras (17-oct-2026): las fracciones de ADN y la detección son de UMI (moléculas), no de lecturas
+ok('ninguna fracción «de las lecturas» ni «of the reads» (son UMI)', !/de las lecturas|of the reads/i.test(sinEstilo))
+ok('el 0 del CNV ya no se explica como «como la referencia»', !/0 = como la referencia|0 = like the reference/.test(sinEstilo))
 for (const [qué, re] of [
   ['banner del hígado «tumor frente a hepatocito no está resuelto célula a célula»', /tumor frente a hepatocito no está resuelto célula a célula/],
   ['«ARN ≠ proteína; manda la IHQ»', /ARN ≠ proteína; manda la IHQ/],
@@ -139,6 +157,9 @@ for (const [qué, re] of [
   ['mediana por célula frente al pseudobulk de la revisión', /Mediana por célula detectada; la revisión da pseudobulk/],
   ['lectura de Polaris en borrador, pendiente del laboratorio', /Lectura de Polaris, borrador, pendiente de la lectura humana del laboratorio/],
   ['rótulo de cifra circular', /Cifra circular\./],
+  ['sin cifra fuera de la circularidad, se dice', /No hay cifra medida sin esa circularidad\./],
+  ['CNV: el 0 no es «como la referencia» y se compara con las rayas de la referencia', /El 0 no es «como la referencia»\.[\s\S]*Compare cada grupo con las rayas de los grupos de referencia, no con el 0/],
+  ['ADN genómico como fracción de UMI, no de lecturas', /de las UMI, las moléculas contadas/],
   ['columna de sondas en la tabla de genes', /unión \/ total/],
   ['aviso «Apoyo a la decisión» (avisos fijos del export)', /Apoyo a la decisión/],
 ] as const) ok(`copy obligatorio: ${qué}`, re.test(copy))

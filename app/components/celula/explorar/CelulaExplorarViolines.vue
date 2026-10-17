@@ -6,9 +6,11 @@
  *    cuenta como expresión;
  *  · el n del grupo y el número de células detectadas, a la vista.
  * Con menos de 3 células detectadas no se dibuja forma (sería inventarla): se ponen los puntos.
- * Si el gen participa en la selección del grupo de interés, esa fila lleva el rótulo de circularidad y,
- * si existe, la cifra medida sin ella (loo). El suelo ambiental lleva el aviso de ADN genómico con las
- * cifras de la muestra, que vienen del fichero (nunca del texto).
+ * Si el gen participa en la selección del grupo de interés, esa fila lleva, ANTES de la figura, la cifra
+ * medida sin esa circularidad (loo) si existe, y después el rótulo de cifra circular: la primera cifra que se
+ * lee es la de la revisión, no la circular (revisión de cifras del 17-oct-2026). Sin loo, se dice que no la
+ * hay. El suelo ambiental lleva el aviso de ADN genómico con las cifras de la muestra (fracción de UMI, no de
+ * lecturas), que vienen del fichero (nunca del texto).
  * Sin animaciones. El estado no va solo en color: hay texto en cada fila y aria-label con las cifras.
  */
 import type { Adn, FilaGrupo, Lesion, Loo } from '~/utils/celulaExplorador'
@@ -47,8 +49,8 @@ const nf = (n: number) => String(n).replace(/\B(?=(\d{3})+(?!\d))/g, props.lang 
 const adnTxt = computed(() => {
   const a = props.adn, [lo, hi] = rangoAdn(a), f = (x: number) => fmtPctFino(x, props.lang)
   const hueso = props.lesion === 'hueso'
-  return L(`${nf(a.sondas_dentro_de_exon)} de las ${nf(a.sondas_panel)} sondas del panel caen dentro de un exón y también hibridan con el ADN genómico del tejido fijado en formol (FFPE). En esta muestra supone entre ${f(lo)} y ${f(hi)} de las lecturas (${f(a.frac_lecturas_interes)} en el grupo de interés).${hueso ? ' En el hueso el suelo ambiental incluye ese ADN.' : ''}`,
-    `${nf(a.sondas_dentro_de_exon)} of the panel’s ${nf(a.sondas_panel)} probes fall inside an exon and also bind the genomic DNA of the formalin-fixed tissue (FFPE). In this sample that is between ${f(lo)} and ${f(hi)} of the reads (${f(a.frac_lecturas_interes)} in the group of interest).${hueso ? ' In the bone the ambient floor includes that DNA.' : ''}`)
+  return L(`${nf(a.sondas_dentro_de_exon)} de las ${nf(a.sondas_panel)} sondas del panel caen dentro de un exón y también hibridan con el ADN genómico del tejido fijado en formol (FFPE). En esta muestra supone entre ${f(lo)} y ${f(hi)} de las UMI, las moléculas contadas (${f(a.frac_lecturas_interes)} en el grupo de interés).${hueso ? ' En el hueso el suelo ambiental incluye ese ADN.' : ''}`,
+    `${nf(a.sondas_dentro_de_exon)} of the panel’s ${nf(a.sondas_panel)} probes fall inside an exon and also bind the genomic DNA of the formalin-fixed tissue (FFPE). In this sample that is between ${f(lo)} and ${f(hi)} of the UMIs, the molecules counted (${f(a.frac_lecturas_interes)} in the group of interest).${hueso ? ' In the bone the ambient floor includes that DNA.' : ''}`)
 })
 const nfCp = (x: number) => String(Math.round(x))
 </script>
@@ -70,6 +72,17 @@ const nfCp = (x: number) => String(Math.round(x))
           <span class="vio__nombre">{{ etiqueta(ETIQUETA_GRUPO, f.id, lang) }}</span>
           <span class="vio__n nums">n = {{ nf(f.n) }}</span>
         </div>
+        <!-- circularidad: la cifra sin ella va PRIMERO; la de la figura (este grupo) queda rotulada como circular -->
+        <p v-if="f.rol === 'interes' && papel" class="vio__circ" role="note">
+          <template v-if="loo">
+            <strong>{{ L('Sin esa circularidad', 'Without that circularity') }}</strong>
+            {{ L(`(grupo construido sin ese criterio, n = ${nf(loo.n)}):`, `(group built without that criterion, n = ${nf(loo.n)}):`) }}
+            <template v-if="loo.frac != null">{{ L('detectado', 'detected') }} {{ fmtPct(loo.frac, lang) }}</template><template v-if="loo.ref != null"> · {{ L('referencia', 'reference') }} {{ fmtPct(loo.ref, lang) }}</template><template v-if="loo.cp10k_pseudobulk != null"> · pseudobulk {{ nfCp(loo.cp10k_pseudobulk) }} CP10k</template>.
+          </template>
+          <strong>{{ L('Cifra circular.', 'Circular figure.') }}</strong>
+          {{ L(`La de abajo es la de este grupo, y ${gen} ${PAPEL_SELECCION[papel]?.es ?? ''}.`, `The one below is this group’s, and ${gen} ${PAPEL_SELECCION[papel]?.en ?? ''}.`) }}
+          <template v-if="!loo">{{ L('No hay cifra medida sin esa circularidad.', 'There is no figure measured without that circularity.') }}</template>
+        </p>
         <svg class="vio__svg" :viewBox="`${X0} 0 ${ANCHO} ${H}`" aria-hidden="true">
           <defs>
             <pattern :id="`${uid}-raya`" width="5" height="5" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
@@ -89,16 +102,8 @@ const nfCp = (x: number) => String(Math.round(x))
           <line :x1="BX + BW * Math.min(1, f.suelo)" :x2="BX + BW * Math.min(1, f.suelo)" y1="8" y2="32" class="vio__suelo-linea" />
         </svg>
         <p class="vio__txt nums">
-          {{ L(`Detectado ${fmtPct(f.frac, 'es')} (${nf(f.detectadas)}) · suelo ${fmtPct(f.suelo, 'es')}`, `Detected ${fmtPct(f.frac, 'en')} (${nf(f.detectadas)}) · floor ${fmtPct(f.suelo, 'en')}`) }}<template v-if="mediana(f.niveles) != null"> · {{ L('mediana', 'median') }} {{ fmt10(mediana(f.niveles)!) }} CP10k</template>
+          <template v-if="f.rol === 'interes' && papel">{{ L('Circular · ', 'Circular · ') }}</template>{{ L(`Detectado ${fmtPct(f.frac, 'es')} (${nf(f.detectadas)}) · suelo ${fmtPct(f.suelo, 'es')}`, `Detected ${fmtPct(f.frac, 'en')} (${nf(f.detectadas)}) · floor ${fmtPct(f.suelo, 'en')}`) }}<template v-if="mediana(f.niveles) != null"> · {{ L('mediana', 'median') }} {{ fmt10(mediana(f.niveles)!) }} CP10k</template>
           <template v-if="f.detectadas < 3"> · {{ L('pocas células para dibujar la forma', 'too few cells to draw a shape') }}</template>
-        </p>
-        <p v-if="f.rol === 'interes' && papel" class="vio__circ" role="note">
-          <strong>{{ L('Cifra circular.', 'Circular figure.') }}</strong>
-          {{ L(`${gen} ${PAPEL_SELECCION[papel]?.es ?? ''}.`, `${gen} ${PAPEL_SELECCION[papel]?.en ?? ''}.`) }}
-          <template v-if="loo">
-            {{ L(`Sin esa circularidad (grupo construido sin ese criterio, n = ${nf(loo.n)}):`, `Without that circularity (group built without that criterion, n = ${nf(loo.n)}):`) }}
-            <template v-if="loo.frac != null">{{ L('detectado', 'detected') }} {{ fmtPct(loo.frac, lang) }}</template><template v-if="loo.ref != null"> · {{ L('referencia', 'reference') }} {{ fmtPct(loo.ref, lang) }}</template><template v-if="loo.cp10k_pseudobulk != null"> · pseudobulk {{ nfCp(loo.cp10k_pseudobulk) }} CP10k</template>.
-          </template>
         </p>
       </li>
     </ul>
@@ -148,7 +153,7 @@ const nfCp = (x: number) => String(Math.round(x))
 .vio__leyenda { display: flex; gap: var(--sp-8); align-items: flex-start; margin: var(--sp-12) 0 0; font: var(--tipo-body-sm); font-size: var(--texto-xs); color: var(--texto-2); max-width: var(--measure); }
 .vio__leyenda p { margin: 0; }
 .vio__adn { margin-top: var(--sp-8) !important; color: var(--texto-1); }
-.vio__circ { margin: var(--sp-4) 0 0; padding: var(--sp-8) var(--sp-12); border-left: 3px solid var(--texto-1); font: var(--tipo-body-sm); font-size: var(--texto-xs); color: var(--texto-1); max-width: var(--measure); }
+.vio__circ { margin: var(--sp-4) 0 var(--sp-4); padding: var(--sp-8) var(--sp-12); border-left: 3px solid var(--texto-1); font: var(--tipo-body-sm); font-size: var(--texto-xs); color: var(--texto-1); max-width: var(--measure); }
 .vio__muestra { flex: none; width: 22px; height: 12px; margin-top: 3px; border: 1px solid var(--texto-1); }
 .vio__muestra--raya { background: repeating-linear-gradient(45deg, var(--texto-1) 0 2px, transparent 2px 5px); }
 @media (forced-colors: active) {

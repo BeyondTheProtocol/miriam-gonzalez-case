@@ -1,7 +1,7 @@
 <script setup lang="ts">
 /**
  * Co-expresión de dos genes: cuántas células de cada grupo tienen los dos, solo uno o ninguno
- * (≥1 lectura = detectado). El mapa puede colorearse con estas cuatro clases (ExpMapa). Sin
+ * (≥1 UMI = detectado). El mapa puede colorearse con estas cuatro clases (ExpMapa). Sin
  * estadística añadida: recuentos y su % del grupo, con el n a la vista.
  */
 import type { Coexp, LesionDatos } from '~/utils/celulaExplorador'
@@ -40,8 +40,8 @@ const titulo = (c: Coexp) => ({
       </table>
     </div>
     <p class="cx__pie">
-      {{ L('«Detectado» quiere decir al menos una lectura del gen. Una célula puede salir positiva solo por ARN suelto de la muestra, así que «los dos» puede incluir coincidencias por ruido.',
-        '“Detected” means at least one read of the gene. A cell can come out positive from loose RNA in the sample alone, so “both” may include chance overlaps from noise.') }}
+      {{ L('«Detectado» quiere decir al menos una molécula (UMI) del gen. Una célula puede salir positiva solo por ARN suelto de la muestra, así que «los dos» puede incluir coincidencias por ruido.',
+        '“Detected” means at least one molecule (UMI) of the gene. A cell can come out positive from loose RNA in the sample alone, so “both” may include chance overlaps from noise.') }}
     </p>
   </div>
 </template>
