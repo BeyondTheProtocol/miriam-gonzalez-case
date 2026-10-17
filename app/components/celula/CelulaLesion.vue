@@ -9,7 +9,7 @@
  */
 const props = defineProps<{ halo?: boolean; ne?: boolean; alt: string }>()
 const TOTAL = 64
-const NE = new Set([4, 13, 22, 29, 37, 45, 52, 60])
+const NE = new Set([8, 12, 23, 27, 28, 43, 45, 60])
 const puntos = computed(() => Array.from({ length: TOTAL }, (_, i) => {
   const r = Math.sqrt((i + 0.6) / TOTAL)
   const a = i * 2.399963
