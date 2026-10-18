@@ -124,8 +124,10 @@ const LEER = [
 .xp-leer__fila dt { font: 600 var(--texto-base)/1.4 var(--font-body); color: var(--color-text); }
 .xp-leer__fila dd { margin: var(--sp-4) 0 0; font: var(--tipo-body-sm); color: var(--color-text-soft); }
 .xp-leer-pl summary { cursor: pointer; min-height: 44px; display: flex; align-items: center; gap: var(--sp-8); }
-.xp-leer-pl summary::before { content: '▸'; color: var(--color-text-soft); }
-.xp-leer-pl[open] summary::before { content: '▾'; }
+/* chevron del sistema (main.css .notes-disclosure), no glifos */
+.xp-leer-pl summary::before { content: ''; width: 7px; height: 7px; border-right: 1.5px solid currentColor; border-bottom: 1.5px solid currentColor; transform: rotate(-45deg); transition: transform 0.2s ease; flex-shrink: 0; color: var(--color-text-soft); }
+.xp-leer-pl[open] summary::before { transform: rotate(45deg); }
+@media (prefers-reduced-motion: reduce) { .xp-leer-pl summary::before { transition: none; } }
 .xp-leer-pl summary::-webkit-details-marker { display: none; }
 .xp-leer-pl summary .cel-h2 { margin: 0; }
 .xp-leer-pl summary:focus-visible { outline: 2px solid var(--anillo-foco); outline-offset: 2px; }

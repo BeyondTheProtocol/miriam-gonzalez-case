@@ -159,19 +159,24 @@ async function aseguraZarr(l: Lesion) {
 }
 watch(d, () => { void aseguraZarr(lesion.value) }, { immediate: true })
 /** nombre de proteína → símbolo (HER2 → ERBB2): la página usa los nombres de proteína y un oncólogo buscará por ellos */
-const ALIAS: Record<string, string> = Object.fromEntries(Object.entries(PROTEINA).map(([g, p]) => [p.toUpperCase(), g]))
+/** sin guiones, puntos ni espacios: «Ki-67» y «KI67» buscan lo mismo (diseño, 18-oct) */
+const norm = (t: string) => t.toUpperCase().replace(/[-\s.]/g, '')
+const ALIAS: Record<string, string> = Object.fromEntries(Object.entries(PROTEINA).map(([g, p]) => [norm(p), g]))
 const sugerencias = computed(() => {
-  const q = busca.value.trim().toUpperCase()
+  const q = norm(busca.value.trim())
   const zl = z.value
   if (!zl || q.length < 2) return []
   const porAlias = Object.entries(ALIAS).filter(([p]) => p.startsWith(q)).map(([, g]) => g).filter((g) => zl.tiene(g))
-  return [...new Set([...porAlias, ...zl.genes.filter((g) => g.toUpperCase().startsWith(q))])].slice(0, 12)
+  const porPrefijo = zl.genes.filter((g) => norm(g).startsWith(q))
+  // sin coincidencias por el principio, por «contiene» (KI67 → MKI67)
+  const porContiene = porAlias.length || porPrefijo.length ? [] : zl.genes.filter((g) => norm(g).includes(q))
+  return [...new Set([...porAlias, ...porPrefijo, ...porContiene])].slice(0, 12)
 })
 /** ¿Se puede abrir este gen en el mapa y los violines? Los del JSON siempre; con el Zarr, cualquiera con sonda. */
 const abrible = (g: string) => !!d.value?.expr[g] || (!!z.value && z.value.tiene(g) && !z.value.sinSonda.has(g))
 /** Abre cualquier gen: si no está en el JSON, lee su columna del Zarr y la añade a los datos de la lesión. */
 async function abreGen(g: string, origen: 'busca' | 'marcadores' = 'busca') {
-  g = ALIAS[g.toUpperCase()] ?? g
+  g = ALIAS[norm(g)] ?? z.value?.genes.find((x) => norm(x) === norm(g)) ?? g
   const x = d.value
   avisoBusca.value = ''
   elegidoBusca.value = ''
@@ -179,7 +184,7 @@ async function abreGen(g: string, origen: 'busca' | 'marcadores' = 'busca') {
   if (!x.expr[g]) {
     const zl = z.value
     if (!zl || !zl.tiene(g)) {
-      avisoBusca.value = L(`No hay ningún gen «${g}» en estos datos. Busca por el símbolo del gen, no por la proteína (MKI67, no Ki-67). Si el símbolo es correcto, el panel no lo mide o lo lista con otro nombre; que no se mida no quiere decir que no se exprese.`, `There is no gene “${g}” in these data. Search by gene symbol, not protein name (MKI67, not Ki-67). If the symbol is right, the panel does not measure it or lists it under another name; not being measured does not mean it is not expressed.`)
+      avisoBusca.value = L(`No hay ningún gen «${g}» en estos datos. Busca por el símbolo del gen (como MKI67), no por el nombre de la proteína. Si el símbolo es correcto, el panel no lo mide o lo lista con otro nombre; que no se mida no quiere decir que no se exprese.`, `There is no gene “${g}” in these data. Search by gene symbol (such as MKI67), not by protein name. If the symbol is right, the panel does not measure it or lists it under another name; not being measured does not mean it is not expressed.`)
       return
     }
     if (zl.sinSonda.has(g)) {
@@ -308,7 +313,7 @@ function sinTapar(ev: FocusEvent) {
         <p v-if="leyendoGen" class="exp__nota" role="status">{{ L('Leyendo el gen…', 'Reading the gene…') }}</p>
         <p class="exp__nota exp__nota--busca" role="status">
           <template v-if="avisoBusca">{{ avisoBusca }}</template>
-          <template v-else-if="elegidoBusca && elegidoBusca === gen">{{ errorMapa ? L(`${elegidoBusca} está ahora en los violines.`, `${elegidoBusca} is now in the violins.`) : L(`${elegidoBusca} está ahora en el mapa y en los violines.`, `${elegidoBusca} is now on the map and in the violins.`) }} <button type="button" class="exp__salto" @click="irAGen">{{ L('Ir a los violines', 'Go to the violins') }}</button></template>
+          <template v-else-if="elegidoBusca && elegidoBusca === gen">{{ errorMapa ? L(`${elegidoBusca} está ahora en los violines.`, `${elegidoBusca} is now in the violins.`) : L(`${elegidoBusca} está ahora en el mapa y en los violines.`, `${elegidoBusca} is now on the map and in the violins.`) }} <button type="button" class="exp__salto" @click="irAGen">{{ L('Ir a los violines', 'Go to the violins') }}</button><button v-if="!errorMapa" type="button" class="exp__salto exp__salto--boton exp__solo-estrecho" @click="irAlMapa">{{ L('Ver el mapa', 'See the map') }}</button></template>
         </p>
       </div>
       <div v-if="d" class="exp__campo" :class="{ 'exp__campo--solo-ancho': nivel === 'todos' }">
@@ -331,13 +336,6 @@ function sinTapar(ev: FocusEvent) {
         <p><strong>{{ L('Hígado: tumor frente a hepatocito no está resuelto célula a célula.', 'Liver: tumor versus hepatocyte is not resolved cell by cell.') }}</strong>
           {{ L('«Hepatocitos» y «Otras» también pueden incluir células tumorales.', '“Hepatocytes” and “Other” may also include tumor cells.') }}</p>
       </div>
-      <details class="exp__porque">
-        <summary>{{ L('Qué quiere decir', 'What this means') }}</summary>
-        <p class="exp__nota exp__nota--banner">
-          {{ L('El grupo «Luminal de alta confianza» es un subconjunto, no el tumor entero, y sus cifras no son «% de células tumorales». «Otras, sin asignar a un grupo» y «Hepatocitos» también pueden incluir células tumorales: el tipo se asigna por clúster, y una célula tumoral caída en un clúster de hepatocitos cuenta como hepatocito y queda fuera del grupo de interés.',
-            'The “High-confidence luminal” group is a subset, not the whole tumor, and its figures are not “% of tumor cells”. “Other, not assigned to a group” and “Hepatocytes” may also include tumor cells: type is assigned per cluster, and a tumor cell falling in a hepatocyte cluster counts as hepatocyte and stays out of the group of interest.') }}
-        </p>
-      </details>
     </template>
 
     <p v-if="cargando" class="exp__estado" role="status">{{ L('Cargando los datos…', 'Loading the data…') }}</p>
@@ -385,6 +383,13 @@ function sinTapar(ev: FocusEvent) {
             <p class="exp__nota">{{ L('Hasta cuatro tramos, cortados en los cuartiles de las células donde se detecta; cada tramo incluye su límite superior. Si se detecta en menos de 8 células, un solo tramo.', 'Up to four bands, cut at the quartiles of the cells where it is detected; each band includes its upper limit. If it is detected in fewer than 8 cells, a single band.') }}</p>
           </details>
           <p v-if="otrasGem" class="exp__nota">{{ L(`En el hueso, «Otras» incluye ${fmtN(otrasGem.n, 'es')} células sin GEM limpio: comparten gota con una célula del hígado y pueden llevar su ARN.`, `In the bone, “Other” includes ${fmtN(otrasGem.n, 'en')} cells without a clean GEM: they share a droplet with a liver cell and may carry its RNA.`) }}</p>
+          <details v-if="lesion === 'higado'" class="exp__porque">
+            <summary>{{ L('Qué quiere decir', 'What this means') }}</summary>
+            <p class="exp__nota exp__nota--banner">
+              {{ L('El grupo «Luminal de alta confianza» es un subconjunto, no el tumor entero, y sus cifras no son «% de células tumorales». «Otras, sin asignar a un grupo» y «Hepatocitos» también pueden incluir células tumorales: el tipo se asigna por clúster, y una célula tumoral caída en un clúster de hepatocitos cuenta como hepatocito y queda fuera del grupo de interés.',
+                'The “High-confidence luminal” group is a subset, not the whole tumor, and its figures are not “% of tumor cells”. “Other, not assigned to a group” and “Hepatocytes” may also include tumor cells: type is assigned per cluster, and a tumor cell falling in a hepatocyte cluster counts as hepatocyte and stays out of the group of interest.') }}
+            </p>
+          </details>
           <p class="exp__nota">{{ L(`${nTotal} células de la biopsia, colocadas según lo que se parecen entre sí (UMAP). Dos puntos cercanos son células parecidas; la distancia entre grupos alejados no se interpreta.`,
             `${nTotal} cells from the biopsy, placed by how similar they are (UMAP). Nearby dots are similar cells; distances between far-apart groups are not meaningful.`) }}</p>
           <p v-if="modo === 'gen' || modo === 'coexp'" class="exp__avisos">
@@ -477,7 +482,7 @@ function sinTapar(ev: FocusEvent) {
 @media (min-width: 640px) { .exp { padding: var(--sp-24); } }
 .exp__demo { margin: 0 0 var(--sp-16); padding: var(--sp-12) var(--sp-16); border: 2px dashed var(--texto-1); border-radius: var(--radius-btn); font: 600 var(--texto-sm)/1.45 var(--font-body); }
 .exp__demo strong { display: block; font: 700 var(--texto-sm)/1.4 var(--font-mono); letter-spacing: var(--track-eyebrow); color: var(--texto-1); }
-.exp__ctl { display: flex; flex-wrap: wrap; gap: var(--sp-16) var(--sp-24); align-items: flex-end; padding-bottom: var(--sp-16); border-bottom: 1px solid var(--trazo-medio); }
+.exp__ctl { display: flex; flex-wrap: wrap; gap: var(--sp-16) var(--sp-24); align-items: flex-start; padding-bottom: var(--sp-16); border-bottom: 1px solid var(--trazo-medio); }
 .exp__campo { display: grid; gap: var(--sp-4); }
 .exp__campo--fila { display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-8); margin-bottom: var(--sp-12); }
 .exp__eti { font: 600 var(--texto-xs)/1.3 var(--font-body); color: var(--texto-2); }
@@ -537,6 +542,8 @@ function sinTapar(ev: FocusEvent) {
 .exp__fondo { margin-left: auto; }
 .exp__pintar { margin: 0 0 var(--sp-12); }
 .exp__salto--boton { margin: 0 0 0 var(--sp-8); }
+.exp__solo-estrecho { display: none; }
+@media (max-width: 1023px) { .exp__solo-estrecho { display: inline-block; } }
 @media (max-width: 1023px) { .exp__campo--solo-ancho { display: none; } }   /* en móvil manda el buscador */
 .exp__h2 { font: var(--tipo-h3); color: var(--texto-1); margin: 0 0 var(--sp-12); }
 .exp__nota { margin: var(--sp-8) 0 0; font: var(--tipo-body-sm); font-size: var(--texto-xs); color: var(--texto-2); max-width: var(--measure); }
