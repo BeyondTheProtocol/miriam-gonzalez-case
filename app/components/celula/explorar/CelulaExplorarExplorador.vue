@@ -184,6 +184,21 @@ function elegirDesdeTabla(g: string) {
     : L(`Mostrando ${nombreGen(g)} en el mapa y en los violines, más arriba.`, `Showing ${nombreGen(g)} on the map and in the violins, further up.`)
 }
 
+/** Hueso: células de «Otras» sin GEM limpio (sin número de copias), y cuántas son de un tipo con grupo propio
+ * (verificacion, 18-oct: 137 de tipos de referencia están en «Otras» solo por el GEM). Calculado del fichero. */
+const otrasGem = computed(() => {
+  const x = d.value
+  if (!x || x.lesion !== 'hueso' || !('valores' in x.cnv) || !x.cnv.valores.length) return null
+  const v0 = x.cnv.valores[0]!, ids = new Set(x.grupos.map((g) => g.id))
+  let n = 0, deTipo = 0
+  v0.forEach((v, i) => {
+    if (v != null || x.grupos[x.celulas.grupo[i]!]?.id !== 'otras') return
+    n++
+    if (ids.has(x.tipos[x.celulas.tipo[i]!]!)) deTipo++
+  })
+  return n ? { n, deTipo } : null
+})
+
 /* ── el aviso del hígado queda fijo bajo la cabecera del sitio (sticky y de alto variable) ── */
 const raiz = ref<HTMLElement | null>(null)
 const altoCabecera = ref(0)
@@ -323,6 +338,7 @@ function sinTapar(ev: FocusEvent) {
           </li>
         </ul>
         <p class="exp__nota">{{ L('El n de cada grupo sale directamente del fichero de datos.', 'Each group’s n comes straight from the data file.') }}</p>
+        <p v-if="otrasGem" class="exp__nota">{{ L(`En el hueso, «Otras» incluye ${fmtN(otrasGem.n, 'es')} células sin GEM limpio: comparten gota con una célula del hígado y pueden llevar su ARN. ${fmtN(otrasGem.deTipo, 'es')} de ellas son de tipos que tienen grupo propio y están en «Otras» solo por eso.`, `In the bone, “Other” includes ${fmtN(otrasGem.n, 'en')} cells without a clean GEM: they share a droplet with a liver cell and may carry its RNA. ${fmtN(otrasGem.deTipo, 'en')} of them are of types that have their own group and sit in “Other” only for that reason.`) }}</p>
         <p class="exp__nota">{{ L('Grupo y tipo celular salen de métodos distintos: el grupo, de la selección de células del análisis revisado; el tipo, de la anotación por clúster con marcadores canónicos de uno de los analistas. Por eso una célula del grupo de interés puede figurar con otro tipo, o con el tipo «Sin asignar».',
           'Group and cell type come from different methods: the group, from the cell selection in the reviewed analysis; the type, from one analyst’s per-cluster annotation with canonical markers. That is why a cell in the group of interest may show another type, or the type “Unassigned”.') }}</p>
       </div>

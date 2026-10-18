@@ -5,6 +5,7 @@
  * independientes). Todas las cifras salen del fichero (`qc`); aquí no se escribe ninguna a mano.
  */
 import type { LesionDatos } from '~/utils/celulaExplorador'
+import { fmtPct } from '~/utils/celulaExplorador'
 
 const props = defineProps<{ d: LesionDatos; lang: 'es' | 'en' }>()
 const L = (es: string, en: string) => (props.lang === 'en' ? en : es)
@@ -25,10 +26,26 @@ const filas = computed(() => {
     [L('Genes detectados por célula admitidos', 'Detected genes per cell allowed'), `${n(x.umbral_genes[0])} – ${n(x.umbral_genes[1])}`],
     [L('UMI mitocondriales, máximo admitido', 'Mitochondrial UMI, maximum allowed'), mt.value],
     [L('Dobletes quitados (Scrublet)', 'Doublets removed (Scrublet)'), n(x.scrublet_dobletes)],
+    ...(typeof x.scrublet_umbral === 'number' ? [[L('Umbral de Scrublet (automático)', 'Scrublet threshold (automatic)'), dec(x.scrublet_umbral)] as [string, string]] : []),
   ]
   if (typeof x.mediana_UMI_final === 'number') f.push([L('Mediana de UMI por célula, tras el control', 'Median UMI per cell, after QC'), n(x.mediana_UMI_final)])
   if (typeof x.mediana_genes_final === 'number') f.push([L('Mediana de genes por célula, tras el control', 'Median genes per cell, after QC'), n(x.mediana_genes_final)])
   return f
+})
+/** Matiz de verificacion (18-oct): 1-2 dobletes quitados no es un recuento de dobletes. En el hueso, cuántas células
+ * comparten gota con una del hígado (las que no tienen número de copias: GEM no limpio), calculado del fichero. */
+const sinGem = computed(() => {
+  const c = props.d.cnv
+  if (!('valores' in c) || !c.valores.length) return 0
+  return c.valores[0]!.filter((v) => v == null).length
+})
+const matizDobletes = computed(() => {
+  const x = q.value, u = typeof x.scrublet_umbral === 'number' ? x.scrublet_umbral : null
+  const es = `Scrublet quitó ${n(x.scrublet_dobletes)}${u != null ? ` con un umbral automático de ${dec(u)}` : ''}: no separó una población de dobletes, y una gota con dos células de la misma biopsia no se distingue por su código. Esta cifra no es un recuento de dobletes.`
+  const en = `Scrublet removed ${n(x.scrublet_dobletes)}${u != null ? ` with an automatic threshold of ${dec(u)}` : ''}: it did not separate a doublet population, and a droplet with two cells from the same biopsy cannot be told apart by its barcode. This figure is not a doublet count.`
+  const g = sinGem.value
+  const extra = g ? L(` En el hueso, ${n(g)} de las ${n(x.n_final)} células (${fmtPct(g / x.n_final, 'es')}) comparten gota con una célula del hígado.`, ` In the bone, ${n(g)} of the ${n(x.n_final)} cells (${fmtPct(g / x.n_final, 'en')}) share a droplet with a liver cell.`) : ''
+  return L(es, en) + extra
 })
 </script>
 
@@ -44,6 +61,7 @@ const filas = computed(() => {
         <dd :class="{ nums: /^[\d.,\s–%-]+$/.test(v) }">{{ v }}</dd>
       </div>
     </dl>
+    <p class="qc__p qc__matiz">{{ matizDobletes }}</p>
   </div>
 </template>
 

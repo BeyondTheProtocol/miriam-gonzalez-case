@@ -115,8 +115,8 @@ const nfCp = (x: number) => String(Math.round(x))
       <span class="vio__muestra vio__muestra--raya" aria-hidden="true" />
       <div>
         <p>
-          {{ L('Suelo ambiental: el porcentaje de células en las que el gen saldría solo por ARN suelto en la muestra. Lo que no lo supera no cuenta como expresión.',
-            'Ambient floor: the share of cells where the gene would show up from loose RNA in the sample alone. Anything at or below it does not count as expression.') }}
+          {{ L('Suelo ambiental: el porcentaje de células en las que el gen saldría solo por ARN suelto en la muestra. Lo que no lo supera no cuenta como expresión. Si el suelo supera lo detectado, está sobreestimado para ese gen en ese grupo.',
+            'Ambient floor: the share of cells where the gene would show up from loose RNA in the sample alone. Anything at or below it does not count as expression. If the floor is above what is detected, it is overestimated for that gene in that group.') }}
         </p>
         <p class="vio__adn"><strong>{{ L(`${ETIQUETAS_FIJAS.matriz.es}.`, `${ETIQUETAS_FIJAS.matriz.en}.`) }}</strong> {{ adnTxt }}</p>
       </div>
