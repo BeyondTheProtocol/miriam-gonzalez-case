@@ -37,7 +37,7 @@ let motor: { pinta: (e: any) => void; desmonta: () => void } | null = null
 function entrada() {
   return {
     uid: `exp-${props.d.lesion}-${props.modo}-${props.gen}-${props.modo === 'coexp' ? props.genB : ''}-${props.tema}-${props.lang}`,
-    tema: props.tema, alto: props.alto, umap: props.d.celulas.umap, lang: props.lang, rotulos: props.modo === 'grupo',
+    tema: props.tema, alto: props.alto, umap: props.d.celulas.umap, lang: props.lang, rotulos: props.modo === 'grupo' && !props.movil,   // en móvil los rótulos se cortaban en el borde; la leyenda ya identifica
     conjuntos: props.conjuntos, colores: props.colores, colorearPor: props.colorearPor,
     // el gen se pinta por clases de nivel (conjunto «Nivel de …», lo calcula el padre): lo no detectado en gris,
     // como en Loupe. La escala continua de Vitessce (plasma) dejaba las células a 0 casi del color de las de nivel bajo.
@@ -106,6 +106,8 @@ watch(() => props.movil, (m) => { if (!m) mover.value = false })
 .exp-mapa :deep(.vitessce-container .card),
 .exp-mapa :deep(.vitessce-container [class*="card"]),
 .exp-mapa :deep(.vitessce-container .react-grid-item) { background: var(--fondo) !important; color: var(--texto-1) !important; }
+/* fuera: el tirador de redimensionar de la rejilla de Vitessce */
+.exp-mapa :deep(.react-resizable-handle) { display: none !important; }
 /* fuera: el lazo (crearía selecciones que la página no usa), el menú de opciones y la ayuda (en inglés) */
 .exp-mapa :deep(button[title="Select lasso"]),
 .exp-mapa :deep([aria-label="Open plot options menu"]),

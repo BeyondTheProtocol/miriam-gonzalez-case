@@ -21,6 +21,7 @@ import {
 } from '../app/utils/celulaExplorador'
 import { ETIQUETA_GRUPO, ETIQUETA_TIPO, ETIQUETA_VEREDICTO, PAPEL_SELECCION } from '../app/utils/celulaExploradorTexto'
 import { abreZarr } from '../app/utils/celulaExploradorZarr'
+import { paleta } from '../app/utils/celulaExploradorColor'
 import FileSystemStore from '@zarrita/storage/fs'
 
 const RAIZ = join(import.meta.dirname, '..')
@@ -263,6 +264,26 @@ if (man.zarr?.length) {
     const fuera = z.genes.find((g) => !d.genes.includes(g) && !z.sinSonda.has(g))!
     const cf = await z.columna(fuera)
     ok(`${l}: un gen fuera del panel se lee (columna de n células con valores >= 0)`, cf.length === d.n_celulas && cf.every((v) => v >= 0))
+  }
+}
+
+// paleta del gen elegido (simulador, diseño 18-oct): con los tokens reales, en los dos temas, «no detectado» y los
+// tramos se distinguen por LUMINOSIDAD (ΔL* ≥ 8 entre pasos contiguos; con puntos de radio 2 el tono solo no basta)
+// y el tercer tramo pasa 3:1 con el fondo del mapa
+{
+  const tokens = readFileSync(join(RAIZ, 'app/assets/css/design-system-v2/btp-tokens.css'), 'utf8')
+  const tok = (v: string) => (tokens.match(new RegExp(`${v}:\\s*([\\d\\s]+);`))?.[1] ?? '').trim()
+  const lin = (c: number) => { const x = c / 255; return x <= 0.04045 ? x / 12.92 : ((x + 0.055) / 1.055) ** 2.4 }
+  const Y = (c: number[]) => 0.2126 * lin(c[0]!) + 0.7152 * lin(c[1]!) + 0.0722 * lin(c[2]!)
+  const Lstar = (c: number[]) => { const y = Y(c); return y > 216 / 24389 ? 116 * Math.cbrt(y) - 16 : (24389 / 27) * y }
+  const contraste = (a: number[], b: number[]) => { const [p, q] = [Y(a), Y(b)].sort((x, z) => z - x); return (p! + 0.05) / (q! + 0.05) }
+  for (const tema of ['light', 'dark'] as const) {
+    const p = paleta(tema, tok)
+    const fondo = (tema === 'dark' ? tok('--color-text-rgb') : tok('--color-bg-rgb')).split(/\s+/).map(Number)
+    const pasos = [p.cero, ...p.nivel].map(Lstar)
+    const saltos = pasos.slice(1).map((l, k) => Math.abs(l - pasos[k]!))
+    ok(`paleta ${tema}: «no detectado» y los 4 tramos se separan por luminosidad (ΔL* ≥ 8 entre pasos)`, saltos.every((d) => d >= 8), saltos.map((d) => d.toFixed(1)).join(' / '))
+    ok(`paleta ${tema}: el tercer tramo pasa 3:1 con el fondo del mapa`, contraste(p.nivel[2]!, fondo) >= 3, contraste(p.nivel[2]!, fondo).toFixed(2))
   }
 }
 

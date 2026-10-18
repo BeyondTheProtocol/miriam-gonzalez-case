@@ -69,6 +69,12 @@ if (manPub.ejemplo !== true) {
     ok('real: violines con n y suelo por grupo', await esperaR(navR, `[...document.querySelectorAll('.vio__fila')].filter((f) => /suelo \\d+\\s%/.test(f.textContent) && /n = \\d/.test(f.textContent)).length > 0`))
     ok('real: aviso fijo del hígado', await navR.evaluate(`/tumor frente a hepatocito no está resuelto célula a célula/.test(document.querySelector('.exp__banner')?.textContent ?? '')`))
     // verificacion (18-oct, simulador): lo que corrigió un «falso por omisión» va en el titular, no plegado
+    // diseño (18-oct): con el simulador justo bajo el aviso fijo del hígado, el mapa entero y las pestañas del panel
+    // se ven a la vez (el alto del mapa descuenta cabecera y aviso; antes, con un porcentaje fijo, se cortaba)
+    await navR.evaluate(`(() => { const fijo = parseFloat(getComputedStyle(document.querySelector('.exp')).getPropertyValue('--exp-top')) + document.querySelector('.exp__banner').offsetHeight + 8; window.scrollTo(0, document.querySelector('.exp__sim').getBoundingClientRect().top + window.scrollY - fijo) })()`)
+    await navR.sleep(600)
+    ok('real escritorio hígado: bajo el aviso fijo se ven enteros el mapa y las pestañas del panel', await navR.evaluate(`(() => { const b = document.querySelector('.exp__banner').getBoundingClientRect(), t = document.querySelector('.exp__pestanas').getBoundingClientRect(), m = document.querySelector('.exp-mapa').getBoundingClientRect(); return t.top >= b.bottom - 1 && m.top >= b.bottom - 1 && m.bottom <= window.innerHeight + 1 })()`))
+    await navR.evaluate(`window.scrollTo(0, 0)`)
     ok('real hígado: el titular fijo dice que «Hepatocitos» y «Otras» pueden incluir tumorales', await navR.evaluate(`/«Hepatocitos» y «Otras» también pueden incluir células tumorales/.test(document.querySelector('.exp__banner')?.textContent ?? '')`))
     ok('real simulador: «Datos técnicos» plegado por defecto y con QC, número de copias, perfil y genes de interés dentro', await navR.evaluate(TECNICO_PLEGADO))
     await navR.evaluate(ABRE_TODO)
@@ -251,6 +257,7 @@ try {
   const genMv = await nav.evaluate(`(() => { const b = document.querySelector('.mk__gen:not(.mk__gen--fijo)'); if (!b) return ''; b.click(); return b.textContent.trim() })()`)
   ok('móvil 375: el aviso tras pulsar un gen dice que está en el mapa y en los violines', !!genMv && await espera(nav,
     `/en el mapa y en los violines/.test(document.querySelector('.mk__estado')?.textContent ?? '')`))
+  ok('móvil 375: tras pulsar un gen, «Ver el mapa» está a la vista (el mapa queda arriba del panel)', await nav.evaluate(`(() => { const b = document.querySelector('.mk__vermapa'); return !!b && getComputedStyle(b).display !== 'none' && b.getBoundingClientRect().height >= 44 })()`))
   await nav.cdp('Emulation.setDeviceMetricsOverride', { width: 820, height: 1180, deviceScaleFactor: 1, mobile: true })
   await nav.cargar('/celula-a-celula/explorar?demo=1')
   await espera(nav, `document.querySelectorAll('.vio__fila').length > 0`)

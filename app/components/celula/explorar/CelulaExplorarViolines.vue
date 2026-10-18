@@ -165,8 +165,9 @@ const nfCp = (x: number) => String(Math.round(x))
 .vio__como { margin-top: var(--sp-12); }
 .vio__como summary { cursor: pointer; min-height: 44px; display: flex; align-items: center; font: 600 var(--texto-sm)/1.3 var(--font-body); color: var(--identidad); }
 .vio__como summary::-webkit-details-marker { display: none; }
-.vio__como summary::before { content: '▸'; margin-right: var(--sp-8); }
-.vio__como[open] summary::before { content: '▾'; }
+.vio__como summary::before { content: ''; display: inline-block; width: 7px; height: 7px; border-right: 1.5px solid currentColor; border-bottom: 1.5px solid currentColor; transform: rotate(-45deg); transition: transform 0.2s ease; flex-shrink: 0; margin-right: var(--sp-8); }
+.vio__como[open] summary::before { transform: rotate(45deg); }
+@media (prefers-reduced-motion: reduce) { .vio__como summary::before { transition: none; } }
 .vio__como summary:focus-visible { outline: 2px solid var(--anillo-foco); outline-offset: 2px; }
 .vio__circ { margin: var(--sp-4) 0 var(--sp-4); padding: var(--sp-8) var(--sp-12); border-left: 3px solid var(--texto-1); font: var(--tipo-body-sm); font-size: var(--texto-xs); color: var(--texto-1); max-width: var(--measure); }
 .vio__muestra { flex: none; width: 22px; height: 12px; margin-top: 3px; border: 1px solid var(--texto-1); }

@@ -23,8 +23,10 @@ export function paleta(tema: 'light' | 'dark', leer: (v: string) => string): Pal
   const otras = mezcla(tinta, lienzo, 0.35)
   // gen elegido (simulador, 18-oct): lo no detectado casi del color del fondo, como en Loupe; lo detectado, del violeta
   // claro al intenso en cuatro pasos (más nivel, más tinta)
-  const nivel = [0.32, 0.52, 0.76, 1].map((p) => mezcla(interes, lienzo, p))
-  const cero = mezcla(tinta, lienzo, 0.16)
+  // diseño (18-oct, con los tokens): en oscuro el primer tramo tenía la misma luminosidad que «no detectado» (1,07:1).
+  // Proporciones para ΔL* ≥ 8 entre pasos y el tercer tramo ≥ 3:1 con el fondo; lo vigila scripts/test-celula-explorador.ts
+  const nivel = (osc ? [0.46, 0.63, 0.81, 1] : [0.4, 0.62, 0.82, 1]).map((p) => mezcla(interes, lienzo, p))
+  const cero = mezcla(tinta, lienzo, osc ? 0.12 : 0.16)
   return { interes, ref, otras, coexp: { ambos: interes, solo_a: mezcla(interes, lienzo, 0.45), solo_b: ref[0]!, ninguno: otras }, nivel, cero }
 }
 

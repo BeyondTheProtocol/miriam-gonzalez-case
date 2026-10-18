@@ -28,10 +28,11 @@ const L = (es: string, en: string) => (props.lang === 'en' ? en : es)
 // táctil o estrecho: el mapa va encima del panel y queda quieto hasta pedir moverlo (Vitessce lleva touch-action:none)
 const movil = useMediaQuery('(max-width: 1023px)')
 const { height: altoVentana } = useWindowSize()
-/** el mapa ocupa la pantalla: siete décimas del alto en escritorio y seis en móvil, con topes */
+/** el mapa ocupa lo que queda libre de la pantalla bajo la cabecera del sitio y el aviso fijo (diseño, 18-oct: con un
+ * porcentaje fijo del alto se cortaba por abajo), con topes */
 const altoMapa = computed(() => {
-  const h = altoVentana.value || 900
-  return movil.value ? Math.round(Math.min(560, Math.max(340, h * 0.6))) : Math.round(Math.min(820, Math.max(480, h * 0.7)))
+  const libre = (altoVentana.value || 900) - altoCabecera.value - altoBanner.value - 180
+  return movil.value ? Math.round(Math.min(560, Math.max(340, libre))) : Math.round(Math.min(820, Math.max(480, libre)))
 })
 const panel = ref<'gen' | 'marcadores'>('gen')
 const lesion = ref<Lesion>(props.man.lesiones.includes('higado') ? 'higado' : props.man.lesiones[0]!)
@@ -178,7 +179,7 @@ async function abreGen(g: string, origen: 'busca' | 'marcadores' = 'busca') {
   if (!x.expr[g]) {
     const zl = z.value
     if (!zl || !zl.tiene(g)) {
-      avisoBusca.value = L(`No hay ningún gen «${g}» en estos datos. Busca por el símbolo del gen, no por la proteína (ERBB2, no HER2). Si el símbolo es correcto, el panel no lo mide o lo lista con otro nombre; que no se mida no quiere decir que no se exprese.`, `There is no gene “${g}” in these data. Search by gene symbol, not protein name (ERBB2, not HER2). If the symbol is right, the panel does not measure it or lists it under another name; not being measured does not mean it is not expressed.`)
+      avisoBusca.value = L(`No hay ningún gen «${g}» en estos datos. Busca por el símbolo del gen, no por la proteína (MKI67, no Ki-67). Si el símbolo es correcto, el panel no lo mide o lo lista con otro nombre; que no se mida no quiere decir que no se exprese.`, `There is no gene “${g}” in these data. Search by gene symbol, not protein name (MKI67, not Ki-67). If the symbol is right, the panel does not measure it or lists it under another name; not being measured does not mean it is not expressed.`)
       return
     }
     if (zl.sinSonda.has(g)) {
@@ -208,6 +209,11 @@ async function abreGen(g: string, origen: 'busca' | 'marcadores' = 'busca') {
 /** Elegir un gen (buscador, marcadores o tabla) lo pinta también en el mapa: sin esto el mapa seguía coloreado por
  * grupo y el aviso «está ahora en el mapa» era falso (pase de voz, 18-oct). En co-expresión el gen ya es el gen A. */
 function pintaGen() { if (modo.value !== 'coexp') modo.value = 'gen' }
+/** «Ver el mapa»: lleva el mapa a la vista (en estrecho queda encima del panel). Sin salto automático: lo pide el lector. */
+function irAlMapa() {
+  const quieto = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
+  raiz.value?.querySelector('.exp__mapacol')?.scrollIntoView({ behavior: quieto ? 'auto' : 'smooth', block: 'start' })
+}
 /** «Ir a los violines»: abre la pestaña «Gen» del panel y lleva el foco allí. */
 function irAGen() {
   panel.value = 'gen'
@@ -243,6 +249,18 @@ const otrasGem = computed(() => {
 const raiz = ref<HTMLElement | null>(null)
 const altoCabecera = ref(0)
 let ro: ResizeObserver | null = null
+/** el aviso del hígado (sticky) también ocupa arriba: el panel pegado se coloca DEBAJO de él (diseño, 18-oct: lo tapaba) */
+const bannerEl = ref<HTMLElement | null>(null)
+const altoBanner = ref(0)
+let roB: ResizeObserver | null = null
+watch(bannerEl, (el) => {
+  roB?.disconnect(); roB = null
+  if (!el) { altoBanner.value = 0; return }
+  const mide = () => { altoBanner.value = Math.ceil(el.getBoundingClientRect().height) }
+  mide()
+  roB = new ResizeObserver(mide)
+  roB.observe(el)
+})
 onMounted(() => {
   const cab = document.querySelector<HTMLElement>('[data-cabecera-fija]')
   if (!cab) return
@@ -251,7 +269,7 @@ onMounted(() => {
   ro = new ResizeObserver(mide)
   ro.observe(cab)
 })
-onBeforeUnmount(() => ro?.disconnect())
+onBeforeUnmount(() => { ro?.disconnect(); roB?.disconnect() })
 /** WCAG 2.4.11: el foco no puede quedar tapado por la cabecera ni por el aviso fijo. */
 function sinTapar(ev: FocusEvent) {
   const el = ev.target as HTMLElement
@@ -264,7 +282,7 @@ function sinTapar(ev: FocusEvent) {
 </script>
 
 <template>
-  <section ref="raiz" class="exp" :data-tema="tema === 'oscuro' ? 'oscuro' : undefined" :style="{ '--exp-top': `${altoCabecera + 8}px`, '--alto-panel': `${altoMapa + 160}px` }"
+  <section ref="raiz" class="exp" :data-tema="tema === 'oscuro' ? 'oscuro' : undefined" :style="{ '--exp-top': `${altoCabecera + 8}px`, '--exp-banner': `${altoBanner}px` }"
            :aria-label="L('Explorador de datos', 'Data explorer')" @focusin="sinTapar">
     <div v-if="ejemplo" class="exp__demo" role="note">
       <strong>{{ L('DATOS DE EJEMPLO', 'EXAMPLE DATA') }}</strong>
@@ -308,7 +326,7 @@ function sinTapar(ev: FocusEvent) {
     </div>
 
     <template v-if="lesion === 'higado'">
-      <div class="exp__banner" role="note">
+      <div ref="bannerEl" class="exp__banner" role="note">
         <svg class="exp__ico" viewBox="0 0 256 256" aria-hidden="true"><path fill="currentColor" d="M240.26 186.1 152.81 34.23a28.74 28.74 0 0 0-49.62 0L15.74 186.1a27.45 27.45 0 0 0 0 27.71A28.31 28.31 0 0 0 40.55 228h174.9a28.31 28.31 0 0 0 24.79-14.19 27.45 27.45 0 0 0 .02-27.71ZM120 104a8 8 0 0 1 16 0v40a8 8 0 0 1-16 0Zm8 88a12 12 0 1 1 12-12 12 12 0 0 1-12 12Z" /></svg>
         <p><strong>{{ L('Hígado: tumor frente a hepatocito no está resuelto célula a célula.', 'Liver: tumor versus hepatocyte is not resolved cell by cell.') }}</strong>
           {{ L('«Hepatocitos» y «Otras» también pueden incluir células tumorales.', '“Hepatocytes” and “Other” may also include tumor cells.') }}</p>
@@ -346,15 +364,26 @@ function sinTapar(ev: FocusEvent) {
                 <option v-for="g in [...genesInteres, ...genesOtros].filter((x) => x !== gen)" :key="g" :value="g">{{ nombreGen(g) }}</option>
               </select>
             </div>
+            <div class="exp__campo exp__campo--fila exp__fondo">
+              <span :id="`${idCtl}-tema`" class="exp__eti">{{ L('Fondo', 'Background') }}</span>
+              <div class="exp__seg" role="group" :aria-labelledby="`${idCtl}-tema`">
+                <button type="button" class="exp__btn exp__btn--sm" :aria-pressed="tema === 'claro'" @click="tema = 'claro'">{{ L('Claro', 'Light') }}</button>
+                <button type="button" class="exp__btn exp__btn--sm" :aria-pressed="tema === 'oscuro'" @click="tema = 'oscuro'">{{ L('Oscuro', 'Dark') }}</button>
+              </div>
+            </div>
           </div>
           <a class="sr-only focus:not-sr-only exp__salto" href="#exp-panel">{{ L('Saltar el mapa', 'Skip the map') }}</a>
           <CelulaExplorarMapa :d="d" :modo="modo" :gen="gen" :gen-b="genB" :conjuntos="conjuntos" :colores="colores" :colorear-por="colorearPor"
                               :tema="tema === 'oscuro' ? 'dark' : 'light'" :lang="lang" :alto="altoMapa" :movil="movil" :orden="nivelGen?.orden" @error="errorMapa = $event" />
           <p v-if="errorMapa" class="exp__estado exp__estado--error" role="alert">{{ L('El mapa no se ha podido dibujar en este navegador. El panel y los datos técnicos no dependen de él.', 'The map could not be drawn in this browser. The panel and the technical data do not depend on it.') }}</p>
-          <p v-if="modo === 'gen'" class="exp__leyt">{{ L(`Nivel de ${nombreGen(gen)} en cada célula, en CP10k: no detectado o el tramo en que cae. Hasta cuatro tramos, cortados en los cuartiles de las células donde se detecta (cada tramo incluye su límite superior); si son menos de 8, uno solo.`, `${nombreGen(gen)} level in each cell, in CP10k: not detected, or the band it falls in. Up to four bands, cut at the quartiles of the cells where it is detected (each band includes its upper limit); a single band if there are fewer than 8.`) }}</p>
+          <p v-if="modo === 'gen'" class="exp__leyt">{{ L(`Nivel de ${nombreGen(gen)} en cada célula, en CP10k: no detectado o el tramo en que cae.`, `${nombreGen(gen)} level in each cell, in CP10k: not detected, or the band it falls in.`) }}</p>
           <ul v-if="leyenda.length" class="exp__leyenda" :aria-label="L('Leyenda del mapa', 'Map legend')">
             <li v-for="l in leyenda" :key="l.etiqueta"><span class="exp__muestra" :style="{ background: cssRgb(l.rgb) }" aria-hidden="true" />{{ l.etiqueta }} <span class="nums">{{ fmtN(l.n, lang) }}</span></li>
           </ul>
+          <details v-if="modo === 'gen'" class="exp__porque exp__tramos">
+            <summary>{{ L('Cómo se cortan los tramos', 'How the bands are cut') }}</summary>
+            <p class="exp__nota">{{ L('Hasta cuatro tramos, cortados en los cuartiles de las células donde se detecta; cada tramo incluye su límite superior. Si se detecta en menos de 8 células, un solo tramo.', 'Up to four bands, cut at the quartiles of the cells where it is detected; each band includes its upper limit. If it is detected in fewer than 8 cells, a single band.') }}</p>
+          </details>
           <p v-if="otrasGem" class="exp__nota">{{ L(`En el hueso, «Otras» incluye ${fmtN(otrasGem.n, 'es')} células sin GEM limpio: comparten gota con una célula del hígado y pueden llevar su ARN.`, `In the bone, “Other” includes ${fmtN(otrasGem.n, 'en')} cells without a clean GEM: they share a droplet with a liver cell and may carry its RNA.`) }}</p>
           <p class="exp__nota">{{ L(`${nTotal} células de la biopsia, colocadas según lo que se parecen entre sí (UMAP). Dos puntos cercanos son células parecidas; la distancia entre grupos alejados no se interpreta.`,
             `${nTotal} cells from the biopsy, placed by how similar they are (UMAP). Nearby dots are similar cells; distances between far-apart groups are not meaningful.`) }}</p>
@@ -362,13 +391,6 @@ function sinTapar(ev: FocusEvent) {
             {{ L('El color es ARN, no proteína. El mapa pinta toda célula donde se detecta el gen, aunque esa señal pueda venir del fondo; si un grupo supera su suelo ambiental, se ve en los violines.',
               'Color is RNA, not protein. The map paints every cell where the gene is detected, even if that signal may come from the background; whether a group clears its ambient floor shows in the violins.') }}
           </p>
-          <div class="exp__campo exp__campo--fila exp__fondo">
-            <span :id="`${idCtl}-tema`" class="exp__eti">{{ L('Fondo', 'Background') }}</span>
-            <div class="exp__seg" role="group" :aria-labelledby="`${idCtl}-tema`">
-              <button type="button" class="exp__btn exp__btn--sm" :aria-pressed="tema === 'claro'" @click="tema = 'claro'">{{ L('Claro', 'Light') }}</button>
-              <button type="button" class="exp__btn exp__btn--sm" :aria-pressed="tema === 'oscuro'" @click="tema = 'oscuro'">{{ L('Oscuro', 'Dark') }}</button>
-            </div>
-          </div>
         </div>
         <aside id="exp-panel" class="exp__panel" :aria-label="L('Panel del gen y de los marcadores', 'Gene and markers panel')">
           <div class="exp__seg exp__pestanas" role="group" :aria-label="L('Qué ver en el panel', 'What to show in the panel')">
@@ -377,11 +399,12 @@ function sinTapar(ev: FocusEvent) {
           </div>
           <div v-show="panel === 'gen'" id="exp-violines" class="exp__pcuerpo" tabindex="-1">
             <h2 class="exp__h2">{{ L(`${nombreGen(gen)}, grupo a grupo`, `${nombreGen(gen)}, group by group`) }}{{ ej }}</h2>
+            <button v-if="modo !== 'gen' && modo !== 'coexp' && !errorMapa" type="button" class="exp__btn exp__btn--sm exp__pintar" @click="pintaGen">{{ L(`Pintar ${PROT(gen)} en el mapa`, `Paint ${PROT(gen)} on the map`) }}</button>
             <CelulaExplorarViolines :filas="filas" :gen="gen" :lang="lang" :lesion="lesion" :adn="d.adn" :papel="d.seleccion[gen]" :loo="d.loo[gen]" />
           </div>
           <div v-show="panel === 'marcadores'" class="exp__pcuerpo">
             <h2 class="exp__h2">{{ L('Marcadores por grupo', 'Markers per group') }}{{ ej }}</h2>
-            <CelulaExplorarMarcadores :d="d" :lang="lang" :abribles="abrible" :elegido="gen" :con-mapa="!errorMapa" @elegir="(g: string) => abreGen(g, 'marcadores')" @ir-gen="irAGen" />
+            <CelulaExplorarMarcadores :d="d" :lang="lang" :abribles="abrible" :elegido="gen" :con-mapa="!errorMapa" @elegir="(g: string) => abreGen(g, 'marcadores')" @ir-gen="irAGen" @ir-mapa="irAlMapa" />
           </div>
         </aside>
       </div>
@@ -410,7 +433,7 @@ function sinTapar(ev: FocusEvent) {
         <div id="exp-genes" class="exp__bloque">
           <h2 class="exp__h2">{{ L('Genes de interés', 'Genes of interest') }}{{ ej }}</h2>
           <CelulaExplorarGenes :d="d" :lang="lang" :elegido="gen" @elegir="elegirDesdeTabla" />
-          <p class="exp__estado" role="status">{{ aviso }}</p>
+          <p class="exp__estado" role="status">{{ aviso }}<button v-if="aviso && !errorMapa" type="button" class="exp__salto exp__salto--boton" @click="irAlMapa">{{ L('Ver el mapa', 'See the map') }}</button></p>
         </div>
 
         <div class="exp__bloque">
@@ -485,21 +508,22 @@ function sinTapar(ev: FocusEvent) {
 .exp__sim { display: grid; gap: var(--sp-24); margin-top: var(--sp-16); }
 @media (min-width: 1024px) { .exp__sim { grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr); align-items: start; } }
 .exp__mapacol, .exp__panel { min-width: 0; }
-@media (min-width: 1024px) { .exp__panel { max-height: calc(var(--alto-panel, 80vh)); overflow: auto; position: sticky; top: var(--exp-top, 8px); padding-right: var(--sp-4); } }
+/* el panel pegado va DEBAJO del aviso fijo del hígado y nunca pasa del alto de la pantalla (diseño, 18-oct) */
+@media (min-width: 1024px) { .exp__panel { position: sticky; top: calc(var(--exp-top, 8px) + var(--exp-banner, 0px) + var(--sp-8)); max-height: calc(100dvh - var(--exp-top, 8px) - var(--exp-banner, 0px) - var(--sp-24)); overflow: auto; padding-right: var(--sp-4); } }
 .exp__pestanas { margin-bottom: var(--sp-12); }
 .exp__pcuerpo:focus { outline: none; }
-#exp-violines, #exp-panel { scroll-margin-top: calc(var(--exp-top, 8px) + 7rem); }   /* que el salto no lo tape la cabecera ni el aviso fijo */
+#exp-violines, #exp-panel, .exp__mapacol { scroll-margin-top: calc(var(--exp-top, 8px) + var(--exp-banner, 0px) + var(--sp-16)); }   /* que el salto no lo tape la cabecera ni el aviso fijo */
 .exp__avisos { margin: var(--sp-12) 0 0; font: var(--tipo-body-sm); font-size: var(--texto-xs); color: var(--texto-2); max-width: none; }
 .exp__porque { margin-top: var(--sp-4); }
 .exp__porque summary, .exp__tecnico summary { cursor: pointer; list-style-position: inside; }
 .exp__porque summary { min-height: 44px; display: flex; align-items: center; font: 600 var(--texto-xs)/1.3 var(--font-body); color: var(--identidad); }
 /* con display flex/grid el triángulo nativo desaparece: marca explícita para que se lea como control (voz y diseño) */
 .exp__porque summary::-webkit-details-marker { display: none; }
-.exp__porque summary::before { content: '▸'; margin-right: var(--sp-8); }
-.exp__porque[open] summary::before { content: '▾'; }
+/* chevron del sistema (main.css .notes-disclosure): CSS, no glifos */
+.exp__porque summary::before, .exp__tsum::before { content: ''; display: inline-block; width: 7px; height: 7px; border-right: 1.5px solid currentColor; border-bottom: 1.5px solid currentColor; transform: rotate(-45deg); transition: transform 0.2s ease; flex-shrink: 0; margin-right: var(--sp-8); }
+.exp__porque[open] summary::before, .exp__tecnico[open] .exp__tsum::before { transform: rotate(45deg); }
+@media (prefers-reduced-motion: reduce) { .exp__porque summary::before, .exp__tsum::before { transition: none; } }
 .exp__tecnico summary::-webkit-details-marker { display: none; }
-.exp__tsum::before { content: '▸ '; color: var(--identidad); }
-.exp__tecnico[open] .exp__tsum::before { content: '▾ '; }
 .exp__porque summary:focus-visible, .exp__tecnico summary:focus-visible { outline: 2px solid var(--anillo-foco); outline-offset: 2px; }
 .exp__tecnico { margin-top: var(--sp-32); border-top: 1px solid var(--trazo-medio); padding-top: var(--sp-16); }
 .exp__tecnico summary { display: grid; gap: var(--sp-4); min-height: 44px; padding: var(--sp-8) 0; }
@@ -510,7 +534,9 @@ function sinTapar(ev: FocusEvent) {
 .exp__mapabar { display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-8) var(--sp-24); margin-bottom: var(--sp-8); }
 .exp__mapabar .exp__campo--fila { margin-bottom: 0; }
 .exp__leyt { margin: var(--sp-12) 0 0; font: 600 var(--texto-xs)/1.4 var(--font-body); color: var(--texto-1); max-width: var(--measure); }
-.exp__fondo { margin-top: var(--sp-12); }
+.exp__fondo { margin-left: auto; }
+.exp__pintar { margin: 0 0 var(--sp-12); }
+.exp__salto--boton { margin: 0 0 0 var(--sp-8); }
 @media (max-width: 1023px) { .exp__campo--solo-ancho { display: none; } }   /* en móvil manda el buscador */
 .exp__h2 { font: var(--tipo-h3); color: var(--texto-1); margin: 0 0 var(--sp-12); }
 .exp__nota { margin: var(--sp-8) 0 0; font: var(--tipo-body-sm); font-size: var(--texto-xs); color: var(--texto-2); max-width: var(--measure); }

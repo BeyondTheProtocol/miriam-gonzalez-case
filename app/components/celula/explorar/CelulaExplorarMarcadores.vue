@@ -12,7 +12,7 @@ import { fmtPct } from '~/utils/celulaExplorador'
 import { CIRC_HUESO, CIRC_REFERENCIA, ETIQUETA_GRUPO, etiqueta } from '~/utils/celulaExploradorTexto'
 
 const props = defineProps<{ d: LesionDatos; lang: 'es' | 'en'; abribles: (gen: string) => boolean; elegido: string; conMapa: boolean }>()
-const emit = defineEmits<{ elegir: [gen: string]; irGen: [] }>()
+const emit = defineEmits<{ elegir: [gen: string]; irGen: []; irMapa: [] }>()
 const L = (es: string, en: string) => (props.lang === 'en' ? en : es)
 const grupos = computed(() => props.d.grupos.filter((g) => g.id in props.d.marcadores))
 const grupo = ref<string>(grupos.value.find((g) => g.rol === 'interes')?.id ?? grupos.value[0]?.id ?? '')
@@ -69,7 +69,7 @@ const idCtl = useId()
     <p v-if="esInteres && d.lesion === 'hueso'" class="mk__circ"><strong>{{ L('Circular.', 'Circular.') }}</strong> {{ L(CIRC_HUESO.es, CIRC_HUESO.en) }}</p>
     <p v-if="!esInteres && grupo !== 'otras'" class="mk__cap">{{ L(CIRC_REFERENCIA.es, CIRC_REFERENCIA.en) }}</p>
     <p v-if="grupo === 'otras'" class="mk__cap">{{ L('«Otras» reúne las células que no entran en ningún grupo fijo: sus marcadores describen una mezcla, no un tipo.', '“Other” gathers the cells that do not fall in any fixed group: its markers describe a mix, not a type.') }}</p>
-    <p class="mk__desliza" aria-hidden="true">{{ L('Desliza para ver las seis columnas →', 'Swipe to see all six columns →') }}</p>
+    <p class="mk__desliza" aria-hidden="true">{{ L('Desplaza para ver las seis columnas →', 'Scroll to see all six columns →') }}</p>
     <div class="mk__tabla" role="region" :aria-labelledby="`${idCtl}-cap`" tabindex="0">
       <table>
         <thead>
@@ -102,6 +102,7 @@ const idCtl = useId()
       <template v-if="pulsado && pulsado === elegido">
         {{ conMapa ? L(`${pulsado} está ahora en el mapa y en los violines.`, `${pulsado} is now on the map and in the violins.`) : L(`${pulsado} está ahora en los violines.`, `${pulsado} is now in the violins.`) }}
         <button type="button" class="mk__ir" @click="emit('irGen')">{{ L('Ir a los violines', 'Go to the violins') }}</button>
+        <button v-if="conMapa" type="button" class="mk__vermapa" @click="emit('irMapa')">{{ L('Ver el mapa', 'See the map') }}</button>
       </template>
     </p>
   </div>
@@ -146,14 +147,19 @@ const idCtl = useId()
 }
 .mk__gen--fijo { color: var(--texto-1); text-decoration: none; cursor: default; }
 @media (hover: hover) { .mk__gen:not(.mk__gen--fijo):hover { background: var(--trazo-sutil); } }
-.mk__gen[aria-pressed='true'] { background: color-mix(in srgb, var(--identidad) 14%, transparent); text-decoration-thickness: 2px; }
+.mk__gen[aria-pressed='true'] { background: color-mix(in srgb, var(--identidad) 14%, transparent); text-decoration-thickness: 2px; box-shadow: inset 0 0 0 1px var(--identidad); }
 .mk__estado { margin: var(--sp-8) 0 0; font: var(--tipo-body-sm); font-size: var(--texto-xs); color: var(--texto-1); }
 .mk__estado:empty { margin: 0; }
 .mk__ir { margin-left: var(--sp-8); padding: 0; border: 0; background: none; color: var(--identidad); font: inherit; font-weight: 600; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
 .mk__como { margin: 0 0 var(--sp-12); }
+/* en estrecho el mapa queda arriba del panel: tras pulsar un gen, un botón lleva a verlo (diseño, 18-oct; sin salto automático) */
+.mk__vermapa { display: none; min-height: 44px; margin-left: var(--sp-8); padding: 0 var(--sp-16); border-radius: var(--radius-pill); border: 1px solid var(--trazo-interactivo); background: transparent; color: var(--texto-1); font: 600 var(--texto-sm)/1 var(--font-body); }
+.mk__vermapa:focus-visible { outline: 2px solid var(--anillo-foco); outline-offset: 2px; }
+@media (max-width: 1023px) { .mk__vermapa { display: inline-flex; align-items: center; } }
 .mk__como summary { cursor: pointer; min-height: 44px; display: flex; align-items: center; font: 600 var(--texto-sm)/1.3 var(--font-body); color: var(--identidad); }
 .mk__como summary::-webkit-details-marker { display: none; }
-.mk__como summary::before { content: '▸'; margin-right: var(--sp-8); }
-.mk__como[open] summary::before { content: '▾'; }
+.mk__como summary::before { content: ''; display: inline-block; width: 7px; height: 7px; border-right: 1.5px solid currentColor; border-bottom: 1.5px solid currentColor; transform: rotate(-45deg); transition: transform 0.2s ease; flex-shrink: 0; margin-right: var(--sp-8); }
+.mk__como[open] summary::before { transform: rotate(45deg); }
+@media (prefers-reduced-motion: reduce) { .mk__como summary::before { transition: none; } }
 .mk__como summary:focus-visible { outline: 2px solid var(--anillo-foco); outline-offset: 2px; }
 </style>
