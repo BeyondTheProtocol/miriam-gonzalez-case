@@ -69,7 +69,7 @@ const extremos = computed(() => {
     </p>
     <p class="pf__p">
       <strong>{{ L('Expresión, no ADN.', 'Expression, not DNA.') }}</strong>
-      {{ L('Una región alta es compatible con más copias de ADN, pero no lo demuestra.', 'A high region is compatible with more DNA copies, but does not prove it.') }}
+      {{ L('Una región alta es compatible con más copias de ADN, pero no lo demuestra. Y al revés: un amplicón pequeño puede no verse en una región de 10 Mb resumida con la mediana. Es lo que pasa con 11q13 (CCND1), amplificado por ADN en el hueso.', 'A high region is compatible with more DNA copies, but does not prove it. And the other way round: a small amplicon may not show up in a 10 Mb region summarized by its median. That is what happens with 11q13 (CCND1), known from DNA to be amplified in the bone.') }}
     </p>
     <p v-if="d.lesion === 'hueso'" class="pf__p">
       <strong>{{ L('Circular.', 'Circular.') }}</strong>

@@ -36,8 +36,8 @@ const id = useId()
         <p class="cel-preg__n" aria-hidden="true">3</p>
         <div>
           <h3 class="cel-h3">{{ L('¿Qué dianas de superficie hay y en cuántas células?', 'Which surface targets are there, and in how many cells?') }}</h3>
-          <p class="cel-card__p">{{ L('Entre lo que se buscó: HER3, 5T4, LIV-1, TROP2, Nectin-\u20604, B7-\u2060H3, DLL3 y SSTR2. La pregunta es si su gen está encendido y en qué fracción de las células tumorales, un detalle que una prueba sobre el tejido entero no da. Si un gen no está en el panel de sondas, no se podrá mirar. Se nombran como posibles',
-              'Among what was looked for: HER3, 5T4, LIV-1, TROP2, Nectin-\u20604, B7-\u2060H3, DLL3 and SSTR2. The question is whether their gene is switched on and in what fraction of the tumor cells, a detail that a test on the whole tissue does not give. If a gene is not in the probe panel, it cannot be looked at. They are named as possible') }}
+          <p class="cel-card__p">{{ L('Entre lo que se buscó: HER3, 5T4, LIV-1, TROP2, Nectin-\u20604, B7-\u2060H3, DLL3 y SSTR2. La pregunta es si su gen está encendido y en qué fracción de las células tumorales, un detalle que una prueba sobre el tejido entero no da. En el hígado, de momento, esa fracción no se puede contar. Si un gen no está en el panel de sondas, no se podrá mirar. Se nombran como posibles',
+              'Among what was looked for: HER3, 5T4, LIV-1, TROP2, Nectin-\u20604, B7-\u2060H3, DLL3 and SSTR2. The question is whether their gene is switched on and in what fraction of the tumor cells, a detail that a test on the whole tissue does not give. In the liver, that fraction cannot be counted yet. If a gene is not in the probe panel, it cannot be looked at. They are named as possible') }}
             <Term id="sc_diana" :label="L('dianas de superficie', 'surface targets')" />{{ L(' por las que preguntar.', ' to ask about.') }}</p>
         </div>
       </li>

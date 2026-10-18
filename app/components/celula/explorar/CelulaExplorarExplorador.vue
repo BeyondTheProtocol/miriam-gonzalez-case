@@ -368,8 +368,8 @@ const lecturaDetalle = computed(() => {
  * interés de la otra biopsia, con su suelo, su referencia y su lectura: las mismas funciones y el mismo fichero que su
  * lista de llegada (CelulaExplorarInteres), nada escrito a mano. Solo genes de la revisión que están en los dos ficheros
  * (un gen buscado fuera de ella no tiene lectura). Viaja sin el aviso de su biopsia, así que lleva lo que ese aviso
- * decía: el grupo y su n, «un subconjunto» en el hígado, la circularidad de grupo en el hueso y la IHQ de HER2 solo en
- * el hígado. Se pide aparte: asegura() pondría el «Cargando…» de toda la página. Si no carga, no hay línea. */
+ * decía: el grupo y su n, «un subconjunto» en el hígado, la circularidad de grupo en el hueso, y las etiquetas de su lista
+ * (IHQ de HER2 de esa biopsia, nota de HER3 del hígado). Se pide aparte: asegura() pondría el «Cargando…» de toda la página. Si no carga, no hay línea. */
 const otraLesion = computed(() => props.man.lesiones.find((l) => l !== lesion.value) ?? null)
 watch([() => !!(detalle.value && activo.value), otraLesion], async ([abierto, l]) => {
   if (!abierto || !l || cache[l]) return
@@ -601,12 +601,14 @@ function sinTapar(ev: FocusEvent) {
             </div>
             <p class="exp__dbiop" aria-hidden="true">{{ etiqueta(ETIQUETA_LESION, lesion, lang) }}</p>
             <h2 id="exp-dh2" class="exp__h2">{{ L(`${nombreGen(gen)}, grupo a grupo`, `${nombreGen(gen)}, group by group`) }}<span class="sr-only"> · {{ etiqueta(ETIQUETA_LESION, lesion, lang) }}</span>{{ ej }}</h2>
-            <p class="exp__dlec"><span v-if="gen === 'ERBB2' && lesion === 'higado'" class="exp__dihq">{{ ETIQUETAS_FIJAS.her2[lang] }}</span><template v-if="d.genes.includes(gen)">{{ ETIQUETAS_FIJAS.lectura[lang] }} <strong>{{ lecturaDetalle }}</strong></template><template v-else>{{ lecturaDetalle }}</template></p>
+            <p class="exp__dlec"><span v-if="gen === 'ERBB2'" class="exp__dihq">{{ (lesion === 'higado' ? ETIQUETAS_FIJAS.her2 : ETIQUETAS_FIJAS.her2Hueso)[lang] }}</span><span v-if="gen === 'ERBB3' && lesion === 'higado'" class="exp__dihq">{{ ETIQUETAS_FIJAS.her3Higado[lang] }}</span><template v-if="d.genes.includes(gen)">{{ ETIQUETAS_FIJAS.lectura[lang] }} <strong>{{ lecturaDetalle }}</strong></template><template v-else>{{ lecturaDetalle }}</template></p>
             <p v-if="aliasClinico" class="exp__dlec">{{ L(`${aliasClinico} aquí es ARN, no proteína: cuenta las células con al menos una molécula del gen; la proteína la mide la IHQ.`, `${aliasClinico} here is RNA, not protein: it counts cells with at least one molecule of the gene; protein is measured by IHC.`) }}</p>
             <!-- la otra biopsia (19-oct): la cifra de su grupo de interés, para comparar sin memorizar; ver `otra` -->
             <p v-if="otra" class="exp__otra">
               <span class="exp__otrab">{{ L('La otra biopsia', 'The other biopsy') }} · {{ etiqueta(ETIQUETA_LESION, otra.l, lang) }}</span>
-              <span v-if="gen === 'ERBB2' && otra.l === 'higado'" class="exp__dihq">{{ ETIQUETAS_FIJAS.her2[lang] }}</span>
+              <!-- las mismas etiquetas que su lista de llegada (CelulaExplorarInteres): IHQ de HER2 de cada biopsia y la nota de HER3 del hígado -->
+              <span v-if="gen === 'ERBB2'" class="exp__dihq">{{ (otra.l === 'higado' ? ETIQUETAS_FIJAS.her2 : ETIQUETAS_FIJAS.her2Hueso)[lang] }}</span>
+              <span v-if="gen === 'ERBB3' && otra.l === 'higado'" class="exp__dihq">{{ ETIQUETAS_FIJAS.her3Higado[lang] }}</span>
               {{ otra.grupo }}{{ otra.l === 'higado' ? L(', un subconjunto y no el tumor entero', ', a subset and not the whole tumor') : '' }} (n&nbsp;=&nbsp;{{ otra.n }}):
               <span class="nums">{{ L('detectado', 'detected') }} {{ otra.det }}{{ otra.circular ? L(' (circular)', ' (circular)') : '' }} · {{ L('suelo', 'floor') }} {{ otra.suelo }}{{ otra.marca ? ` (${otra.marca})` : '' }} · {{ L('referencia', 'reference') }} {{ otra.ref }}</span>.
               {{ ETIQUETAS_FIJAS.lecturaCorta[lang] }} <strong>{{ otra.lec }}</strong>.<template v-if="otra.l === 'hueso'">{{ ' ' + L('Ese grupo se eligió en parte por número de copias inferido: su cifra es en parte circular.', 'That group was chosen partly by inferred copy number: its figure is partly circular.') }}</template>
@@ -760,7 +762,7 @@ function sinTapar(ev: FocusEvent) {
 .exp__sinmapa { margin: 0; padding: var(--sp-8) var(--sp-12); border: 2px solid var(--texto-1); border-radius: var(--radius-btn); }
 .exp__dlec { margin: 0 0 var(--sp-12); font: 500 var(--texto-sm)/1.4 var(--font-body); color: var(--texto-2); max-width: var(--measure); }
 .exp__dlec strong { color: var(--texto-1); font-weight: 600; }
-.exp__dihq { display: block; font: 600 var(--texto-xs)/1.4 var(--font-mono); color: var(--texto-1); }
+.exp__dihq { display: block; text-wrap: balance; font: 600 var(--texto-xs)/1.4 var(--font-mono); color: var(--texto-1); }
 /* la otra biopsia: aparte de las cifras de esta (filete a la izquierda), en tinta segunda; la cifra, en tinta */
 .exp__otra { margin: 0 0 var(--sp-12); padding: var(--sp-4) 0 var(--sp-4) var(--sp-12); border-left: 2px solid var(--trazo-medio); font: 500 var(--texto-xs)/1.45 var(--font-body); color: var(--texto-2); max-width: var(--measure); }
 .exp__otra strong, .exp__otra .nums { color: var(--texto-1); font-weight: 600; }

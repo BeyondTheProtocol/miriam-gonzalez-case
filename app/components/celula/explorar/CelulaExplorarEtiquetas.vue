@@ -13,6 +13,7 @@ defineProps<{ lang: 'es' | 'en' }>()
     <li class="et__item"><Icon name="ph:user-bold" class="et__ico" aria-hidden="true" />{{ ETIQUETAS_FIJAS.n1[lang] }}</li>
     <li class="et__item"><Icon name="ph:dna-bold" class="et__ico" aria-hidden="true" />{{ ETIQUETAS_FIJAS.arn[lang] }}</li>
     <li class="et__item"><Icon name="ph:flask-bold" class="et__ico" aria-hidden="true" />{{ ETIQUETAS_FIJAS.her2[lang] }}</li>
+    <li class="et__item"><Icon name="ph:flask-bold" class="et__ico" aria-hidden="true" />{{ ETIQUETAS_FIJAS.re[lang] }}</li>
   </ul>
 </template>
 

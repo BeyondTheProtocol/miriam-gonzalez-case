@@ -52,7 +52,7 @@ function entrada() {
 
 // sin WebGL Vitessce deja una caja vacía sin avisar: se mira antes (una vez por página, app/utils/celulaExploradorWebgl.ts)
 onMounted(async () => {
-  if (!hayWebGl()) { cargando.value = false; emit('error', 'sin WebGL'); return }
+  if (!(await hayWebGl())) { cargando.value = false; emit('error', 'sin WebGL'); return }
   try {
     const m = await import('~/lib/explorador/motor')
     if (!el.value) return

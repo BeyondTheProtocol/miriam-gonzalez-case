@@ -76,8 +76,8 @@ function partes(f: FilaGrupo): { t: string; fuerte?: boolean }[] {
       <span class="vio__muestra vio__muestra--raya" aria-hidden="true" />
       <div>
         <p>
-          {{ L('Suelo ambiental: el porcentaje de células en las que el gen saldría solo por ARN suelto en la muestra. Lo que no lo supera no cuenta como expresión.' + (lesion === 'hueso' ? ' En el hueso, el suelo incluye además el ADN genómico del tejido (ver «Cómo se lee»).' : ''),
-            'Ambient floor: the share of cells where the gene would show up from loose RNA in the sample alone. Anything at or below it does not count as expression.' + (lesion === 'hueso' ? ' In the bone, the floor also includes the tissue’s genomic DNA (see “How to read it”).' : '')) }}
+          {{ L('Suelo ambiental: el porcentaje de células en las que el gen saldría solo por ARN suelto en la muestra. Lo que no lo supera no cuenta como expresión.' + (lesion === 'hueso' ? ' En el hueso, el suelo incluye además el ADN genómico del tejido (ver «Cómo se lee»).' : ' En el hígado el suelo es un mínimo: para los genes del tumor decide la referencia emparejada.'),
+            'Ambient floor: the share of cells where the gene would show up from loose RNA in the sample alone. Anything at or below it does not count as expression.' + (lesion === 'hueso' ? ' In the bone, the floor also includes the tissue’s genomic DNA (see “How to read it”).' : ' In the liver the floor is a minimum: for tumor genes, the matched reference decides.')) }}
         </p>
       </div>
     </div>
@@ -134,6 +134,8 @@ function partes(f: FilaGrupo): { t: string; fuerte?: boolean }[] {
         <p v-if="f.rol === 'interes' && lesion === 'hueso'" class="vio__circ vio__circ--grupo" role="note"><strong>{{ L('Circular.', 'Circular.') }}</strong> {{ L(CIRC_HUESO.es, CIRC_HUESO.en) }}</p>
       </li>
     </ul>
+    <!-- auditoría 18-oct: superar el suelo no basta en los grupos no tumorales (a la vista, después de las cifras) -->
+    <p class="vio__leyenda vio__noBasta"><strong>{{ L('Superar el suelo no basta.', 'Clearing the floor is not enough.') }}</strong> {{ L('En los grupos no tumorales, parte de la señal de los genes del tumor viene de gotas con dos células o de ARN del tumor que el suelo no recoge, y no es expresión de esas células. Vale cuando el grupo de interés supera a esos grupos; si un grupo no tumoral lo supera, esa señal no se explica así.', 'In non-tumor groups, part of the signal from tumor genes comes from droplets holding two cells or from tumor RNA the floor does not capture, and it is not expression by those cells. This holds when the group of interest exceeds those groups; if a non-tumor group exceeds it, that signal is not explained this way.') }}</p>
     <!-- simulador (18-oct): lo explicativo, plegado; las cifras, el n, el suelo y la circularidad quedan siempre a la vista -->
     <details class="vio__como">
       <summary>{{ L('Cómo se lee', 'How to read it') }}</summary>
@@ -179,6 +181,7 @@ function partes(f: FilaGrupo): { t: string; fuerte?: boolean }[] {
 .vio__ref { margin: var(--sp-4) 0 0; font: 500 var(--texto-xs)/1.4 var(--font-mono); color: var(--texto-1); }
 .vio__leyenda { display: flex; gap: var(--sp-8); align-items: flex-start; margin: var(--sp-12) 0 0; font: var(--tipo-body-sm); font-size: var(--texto-xs); color: var(--texto-2); max-width: var(--measure); }
 .vio__leyenda p { margin: 0; }
+.vio__noBasta strong { color: var(--texto-1); }
 .vio__leyenda--arriba { margin: 0 0 var(--sp-12); }
 .vio__adn { margin: var(--sp-8) 0 0; font: var(--tipo-body-sm); font-size: var(--texto-xs); color: var(--texto-1); max-width: var(--measure); }
 .vio__como { margin-top: var(--sp-12); }

@@ -84,9 +84,11 @@ const ponBiopsia = (b) => `(() => { const x = [...document.querySelectorAll('.ex
 // la línea de la otra biopsia (comparar hígado y hueso sin memorizar cifras): sus cifras son las de la lista de llegada de
 // ESA biopsia, del mismo fichero y con las mismas funciones; el test las coteja contra esa lista, sin cifras escritas aquí
 const LINEA_OTRA = `document.querySelector('#exp-violines .exp__otra')?.textContent ?? ''`
-const filaLista = (g) => `(() => { const b = document.querySelector('.gin__gen[data-gen="${g}"]'); if (!b) return null; const td = [...b.closest('tr').querySelectorAll('td')].map((t) => t.firstChild?.textContent.trim() ?? ''); return { det: td[0], ref: td[1], suelo: td[2], lec: document.querySelector('.gin__lecfila[data-gen="${g}"] .gin__ver')?.textContent.trim() ?? '' } })()`
+const filaLista = (g) => `(() => { const b = document.querySelector('.gin__gen[data-gen="${g}"]'); if (!b) return null; const td = [...b.closest('tr').querySelectorAll('td')].map((t) => t.firstChild?.textContent.trim() ?? ''); const lf = document.querySelector('.gin__lecfila[data-gen="${g}"]'); return { det: td[0], ref: td[1], suelo: td[2], lec: lf?.querySelector('.gin__ver')?.textContent.trim() ?? '', etiquetas: [...(lf?.querySelectorAll('.gin__ihq') ?? [])].map((e) => e.textContent.trim()) } })()`
 const esp = (s) => String(s ?? '').replace(/\s+/g, ' ')
-const cuadra = (linea, f) => !!f && !!linea && [f.det, f.suelo, f.ref, f.lec].every((x) => !!x && esp(linea).includes(esp(x)))
+// …y las etiquetas que su lista lleva junto al gen (IHQ de HER2 de esa biopsia, nota de HER3 del hígado; PR #293)
+const ETIQUETAS_OTRA = `[...document.querySelectorAll('#exp-violines .exp__otra .exp__dihq')].map((e) => e.textContent.trim())`
+const cuadra = (linea, f, etiquetas) => !!f && !!linea && [f.det, f.suelo, f.ref, f.lec].every((x) => !!x && esp(linea).includes(esp(x))) && JSON.stringify(etiquetas) === JSON.stringify(f.etiquetas)
 
 /* ── con DATOS REALES publicados (manifiesto sin «ejemplo»): la página está abierta; se comprueba eso y se termina ── */
 const manPub = JSON.parse(readFileSync(join(ROOT, 'celula', 'explorador', 'manifiesto.json'), 'utf8'))
@@ -125,6 +127,9 @@ if (manPub.ejemplo !== true) {
     ok('real llegada: cada gen de la lista lleva su lectura (borrador), la misma que la tabla completa; TROP2 dice «No se sostiene»', await navR.evaluate(`(() => { const filas = [...document.querySelectorAll('.gin__tabla tbody tr.gin__fila')], gi = [...document.querySelectorAll('.gi__tabla tbody tr')]; return filas.length > 0 && filas.every((r) => { const g = r.querySelector('.gin__gen').dataset.gen, lec = (r.nextElementSibling?.querySelector('.gin__lec')?.textContent ?? '').replace(/^[^:]*:\\s*/, '').trim(); const fila = gi.find((x) => x.querySelector('th')?.textContent.includes(g)); return !!lec && !!fila && fila.textContent.includes(lec) }) && /Lectura \\(borrador\\): No se sostiene/.test(document.querySelector('.gin__lecfila[data-gen="TACSTD2"]')?.textContent ?? '') })()`))
     // la fila de la lectura ocupa todo el ancho de la tabla (con una clase repetida quedó metida en la primera columna)
     ok('real llegada: la lectura de cada gen va a todo el ancho de la lista', await navR.evaluate(`(() => { const t = document.querySelector('.gin__tabla').getBoundingClientRect().width, c = [...document.querySelectorAll('.gin__lecfila td')]; return c.length > 0 && c.every((td) => td.getBoundingClientRect().width >= 0.95 * t) })()`))
+    // fusión con #293 (18-oct): HER3 lo tiene igual o más el grupo «Hepatocitos» (no «sanos»), la referencia del hígado no
+    // lleva hepatocitos ni fibroblastos, y el suelo del hígado es un mínimo (a la vista)
+    ok('real hígado: HER3 lleva la nota del grupo «Hepatocitos» y el pie dice qué células forman la referencia', await navR.evaluate(`/En el grupo «Hepatocitos» se detecta igual o más/.test(document.querySelector('.gin__lecfila[data-gen="ERBB3"]')?.textContent ?? '') && /los hepatocitos y los fibroblastos no entran/.test(document.querySelector('.gin__pie')?.textContent ?? '')`))
     ok('real llegada: una cifra circular de la lista lleva asterisco y su nota', await navR.evaluate(`!document.querySelector('.gin__ast') || /Circular\\./.test(document.querySelector('.gin__circ')?.textContent ?? '')`))
     ok('real: aviso fijo del hígado', await navR.evaluate(`/tumor frente a hepatocito no está resuelto célula a célula/.test(document.querySelector('.exp__banner')?.textContent ?? '')`))
     // verificacion (18-oct, simulador): lo que corrigió un «falso por omisión» va en el titular, no plegado
@@ -140,6 +145,7 @@ if (manPub.ejemplo !== true) {
     // comité médico (18-oct): por el buscador o los marcadores se veían las cifras sin la lectura de la revisión
     ok('real: el detalle de HER2 lleva «IHQ de HER2: 0» y su lectura (borrador)', await navR.evaluate(`/IHQ de HER2: 0/.test(document.querySelector('.exp__dlec')?.textContent ?? '') && /Lectura de Polaris \\(borrador, pendiente del laboratorio\\): Con matices/.test(document.querySelector('.exp__dlec')?.textContent ?? '')`))
     ok('real hígado: el detalle de HER2 no se sale del panel y cada violín cuadra con su eje', await navR.evaluate(sinDesborde))
+    ok('real hígado: la leyenda del suelo dice que en el hígado es un mínimo, y «Superar el suelo no basta» va a la vista con su alcance', await navR.evaluate(`/En el hígado el suelo es un mínimo/.test(document.querySelector('.vio__leyenda--arriba')?.textContent ?? '') && /Superar el suelo no basta\\..*si un grupo no tumoral lo supera/s.test(document.querySelector('.vio__noBasta')?.textContent ?? '')`))
     ok('real hígado: la nota bajo el mapa da las células leídas y las que pasaron el control (como «Célula a célula»)', await navR.evaluate(`[...document.querySelectorAll('.exp__mapacol .exp__nota')].some((p) => /19\\.047 células de la biopsia \\(de 20\\.625 leídas; el resto no pasó el control de calidad de este análisis\\)/.test(p.textContent))`))
     await navR.evaluate(`document.querySelector('.exp__volver')?.click()`)
     ok('real: «Volver» devuelve el foco al gen de la lista desde el que se abrió', await esperaR(navR, `document.activeElement?.dataset?.gen === 'ERBB2'`, 5000))
@@ -181,8 +187,8 @@ if (manPub.ejemplo !== true) {
     // verificacion (18-oct): el pie de la lista definía el suelo como «solo ARN suelto»; en el hueso incluye el ADN genómico
     ok('real hueso: en marcadores, FGFR1 y CCND1 (amplificados) llevan † y «cuenta el nivel», no un negativo', await esperaR(navR, marcaGen('FGFR1')) && await navR.evaluate(marcaGen('CCND1')) && await navR.evaluate(sinNivelSinMarca))
     // verificacion (18-oct): la IHQ de HER2 0 es del primario y del hígado, no del hueso
-    ok('real hueso: tampoco en la tabla completa sale «IHQ de HER2», y la etiqueta fija de arriba dice de qué muestras es', await navR.evaluate(`!/IHQ de HER2/.test(document.querySelector('.gi__tabla')?.textContent ?? 'IHQ de HER2') && /IHQ de HER2: 0 \\(primario e hígado\\)/.test(document.querySelector('.et')?.textContent ?? '')`))
-    ok('real hueso: junto a ERBB2 no sale «IHQ de HER2: 0»', await navR.evaluate(`!/IHQ de HER2/.test(document.querySelector('.gin__lecfila[data-gen="ERBB2"]')?.textContent ?? 'IHQ de HER2')`))
+    ok('real hueso: en la tabla completa HER2 dice «no consta» (no «0»), y la etiqueta fija de arriba dice de qué muestras es', await navR.evaluate(`!/IHQ de HER2: 0/.test(document.querySelector('.gi__tabla')?.textContent ?? 'IHQ de HER2: 0') && /IHQ de HER2 \\(hueso\\): no consta/.test(document.querySelector('.gi__tabla')?.textContent ?? '') && /IHQ de HER2: 0 \\(primario e hígado\\)/.test(document.querySelector('.et')?.textContent ?? '')`))
+    ok('real hueso: junto a ERBB2 dice «IHQ de HER2 (hueso): no consta», no «0»', await navR.evaluate(`(() => { const t = document.querySelector('.gin__lecfila[data-gen="ERBB2"]')?.textContent ?? 'IHQ de HER2: 0'; return !/IHQ de HER2: 0/.test(t) && /IHQ de HER2 \\(hueso\\): no consta/.test(t) })()`))
     ok('real hueso: el pie de la lista de llegada dice que el suelo incluye el ADN genómico', await navR.evaluate(`/En el hueso, el suelo incluye además el ADN genómico/.test(document.querySelector('.gin__pie')?.textContent ?? '')`))
     ok('real hueso: el detalle de HER2 no se sale del panel y cada violín cuadra con su eje (a 1440)', await navR.evaluate(sinDesborde))
     ok('real hueso: el detalle dice «Hueso» y cada fila compara detectado y suelo sin que el redondeo los iguale', await navR.evaluate(`/Hueso/.test(document.querySelector('#exp-violines h2')?.textContent ?? '')`) && await navR.evaluate(marcaSuelo))
@@ -258,18 +264,20 @@ if (manPub.ejemplo !== true) {
     await navR.cargar('/celula-a-celula/explorar?gen=ERBB2&biopsia=hueso')
     ok('real enlace: una URL con ?gen=ERBB2&biopsia=hueso abre el detalle de ERBB2 en el hueso', await esperaR(navR, `${enDetalle('ERBB2', 'Hueso')} && document.querySelector('.exp__ctl [aria-pressed="true"]')?.textContent.trim() === 'Hueso'`))
     const otraDeHueso = await esperaR(navR, `!!document.querySelector('#exp-violines .exp__otra')`) ? await navR.evaluate(LINEA_OTRA) : ''
+    const etiDeHueso = await navR.evaluate(ETIQUETAS_OTRA)
     ok('real hueso: el detalle de ERBB2 lleva una línea con el grupo de interés del hígado, su n y «IHQ de HER2: 0»', /Hígado/.test(otraDeHueso) && /Luminal de alta confianza/.test(otraDeHueso) && /n = \d/.test(esp(otraDeHueso)) && /IHQ de HER2: 0/.test(otraDeHueso), otraDeHueso)
     const pasos = await navR.evaluate('history.length')
     await navR.evaluate(ponBiopsia('Hígado'))
     await esperaR(navR, enDetalle('ERBB2', 'Hígado'))
     const filaHigado = await navR.evaluate(filaLista('ERBB2'))
-    ok('real: esa línea da las cifras de la lista del hígado (detectado, suelo, referencia y lectura)', cuadra(otraDeHueso, filaHigado), JSON.stringify({ linea: otraDeHueso, lista: filaHigado }))
+    ok('real: esa línea da las cifras de la lista del hígado (detectado, suelo, referencia, lectura y sus etiquetas)', cuadra(otraDeHueso, filaHigado, etiDeHueso), JSON.stringify({ linea: otraDeHueso, etiDeHueso, lista: filaHigado }))
     ok('real URL: cambiar de biopsia con el gen abierto cambia la URL sin añadir un paso al historial', await navR.evaluate(`${qs('biopsia')} === 'higado' && ${qs('gen')} === 'ERBB2' && history.length === ${pasos}`))
     const otraDeHigado = await navR.evaluate(LINEA_OTRA)
+    const etiDeHigado = await navR.evaluate(ETIQUETAS_OTRA)
     await navR.evaluate(ponBiopsia('Hueso'))
     await esperaR(navR, enDetalle('ERBB2', 'Hueso'))
     const filaHueso = await navR.evaluate(filaLista('ERBB2'))
-    ok('real hígado: la línea del hueso da las cifras de la lista del hueso y no lleva «IHQ de HER2»', /Hueso/.test(otraDeHigado) && cuadra(otraDeHigado, filaHueso) && !/IHQ de HER2/.test(otraDeHigado), JSON.stringify({ linea: otraDeHigado, lista: filaHueso }))
+    ok('real hígado: la línea del hueso da las cifras y etiquetas de la lista del hueso («IHQ de HER2 (hueso): no consta», nunca «0»)', /Hueso/.test(otraDeHigado) && cuadra(otraDeHigado, filaHueso, etiDeHigado) && /IHQ de HER2 \(hueso\): no consta/.test(otraDeHigado) && !/IHQ de HER2: 0/.test(otraDeHigado), JSON.stringify({ linea: otraDeHigado, etiDeHigado, lista: filaHueso }))
     await navR.cargar('/celula-a-celula/explorar?gen=HER2')
     ok('real enlace: ?gen=HER2 abre ERBB2 y la URL queda con el símbolo del gen', await esperaR(navR, `${violinesDe('ERBB2')} && ${qs('gen')} === 'ERBB2'`))
     await navR.cargar('/celula-a-celula/explorar?gen=ZZNOEXISTE1')
@@ -326,8 +334,11 @@ if (manPub.ejemplo !== true) {
   finally { await navR.cerrar() }
   // revisión final (18-oct): sin WebGL (PC de hospital, escritorio virtual) Vitessce dejaba una caja vacía y una leyenda
   // de un mapa que no estaba
+  // sin WebGL de verdad en cualquier sistema: --disable-gpu no basta (en Ubuntu, el CI, Chrome cae a WebGL por software
+  // y el mapa se dibuja), así que la página arranca con getContext('webgl'/'webgl2') devolviendo null
   const navS = await abrirNavegador({ ancho: 1440, alto: 900, escala: 1 })
   try {
+    await navS.cdp('Page.addScriptToEvaluateOnNewDocument', { source: `(() => { const g = HTMLCanvasElement.prototype.getContext; HTMLCanvasElement.prototype.getContext = function (t, ...a) { return /webgl/i.test(String(t)) ? null : g.call(this, t, ...a) } })()` })
     await navS.cargar('/celula-a-celula/explorar')
     ok('real sin WebGL: aviso de que el mapa no se ha podido dibujar, sin caja ni leyenda del mapa, y la lista sigue', await esperaR(navS, `/El mapa no se ha podido dibujar/.test(document.querySelector('.exp__estado--error')?.textContent ?? '') && !document.querySelector('.exp-mapa') && !document.querySelector('.exp__leyenda') && !document.querySelector('.exp__mapabar') && document.querySelectorAll('.gin__tabla tbody tr').length > 0`, 20000))
     ok('real sin WebGL: una sola columna y ningún texto promete el mapa', await navS.evaluate(`getComputedStyle(document.querySelector('.exp__sim')).gridTemplateColumns.split(' ').length === 1 && !/verlo en el mapa/.test(document.querySelector('.gin')?.textContent ?? '')`))
@@ -476,10 +487,11 @@ try {
   await nav.cargar(`/celula-a-celula/explorar?demo=1&gen=${gU}&biopsia=hueso`)
   ok(`demo enlace: ?gen=${gU}&biopsia=hueso abre su detalle en el hueso`, await espera(nav, enDetalle(gU, 'Hueso')))
   const otraD = await espera(nav, `!!document.querySelector('#exp-violines .exp__otra')`) ? await nav.evaluate(LINEA_OTRA) : ''
+  const etiD = await nav.evaluate(ETIQUETAS_OTRA)
   await nav.evaluate(ponBiopsia('Hígado'))
   await espera(nav, enDetalle(gU, 'Hígado'))
   const filaD = await nav.evaluate(filaLista(gU))
-  ok('demo hueso: la línea de la otra biopsia nombra el hígado y da las cifras de su lista (detectado, suelo, referencia y lectura)', /Hígado/.test(otraD) && cuadra(otraD, filaD), JSON.stringify({ linea: otraD, lista: filaD }))
+  ok('demo hueso: la línea de la otra biopsia nombra el hígado y da las cifras de su lista (detectado, suelo, referencia y lectura)', /Hígado/.test(otraD) && cuadra(otraD, filaD, etiD), JSON.stringify({ linea: otraD, etiD, lista: filaD }))
 
   await nav.cdp('Emulation.setDeviceMetricsOverride', { width: 375, height: 812, deviceScaleFactor: 1, mobile: true })
   await nav.cargar('/celula-a-celula/explorar?demo=1')

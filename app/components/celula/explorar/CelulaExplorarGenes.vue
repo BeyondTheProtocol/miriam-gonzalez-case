@@ -46,7 +46,8 @@ const fmtCp = (x: number) => String(Math.round(x))
                 <span class="gi__prot">{{ PROTEINA[f.gen] ?? f.gen }}</span>
                 <span v-if="PROTEINA[f.gen]" class="gi__sim">{{ f.gen }}</span>
               </button>
-              <span v-if="f.gen === 'ERBB2' && d.lesion === 'higado'" class="gi__nota">{{ ETIQUETAS_FIJAS.her2[lang] }}</span>
+              <span v-if="f.gen === 'ERBB2'" class="gi__nota">{{ (d.lesion === 'higado' ? ETIQUETAS_FIJAS.her2 : ETIQUETAS_FIJAS.her2Hueso)[lang] }}</span>
+              <span v-if="f.gen === 'ERBB3' && d.lesion === 'higado'" class="gi__nota">{{ ETIQUETAS_FIJAS.her3Higado[lang] }}</span>
               <span v-if="f.papel" class="gi__circ">
                 {{ L(`Circular: ${f.gen} ${PAPEL_SELECCION[f.papel]?.es ?? ''}.`, `Circular: ${f.gen} ${PAPEL_SELECCION[f.papel]?.en ?? ''}.`) }}
                 <template v-if="f.loo">
@@ -66,8 +67,8 @@ const fmtCp = (x: number) => String(Math.round(x))
       </table>
     </div>
     <p class="gi__pie">
-      {{ L('Porcentaje de células con al menos una molécula (UMI) del gen. La referencia emparejada son células no tumorales de la misma muestra, con la misma profundidad (moléculas por célula). Es ARN: que el gen se lea no dice que la proteína esté en la membrana; eso lo dice la IHQ.',
-        'Share of cells with at least one molecule (UMI) of the gene. The matched reference is non-tumor cells from the same sample, at the same depth (molecules per cell). This is RNA: reading the gene does not mean the protein is on the membrane; IHC tells you that.') }}
+      {{ L('Porcentaje de células con al menos una molécula (UMI) del gen. La referencia emparejada son células no tumorales de la misma muestra, con la misma profundidad (moléculas por célula); en el hígado son linfocitos T y NK, mieloides y endotelio; los hepatocitos y los fibroblastos no entran. Algunos veredictos dependen también de comparaciones que aquí no se pintan. Es ARN: que el gen se lea no dice que la proteína esté en la membrana; eso lo dice la IHQ.',
+        'Share of cells with at least one molecule (UMI) of the gene. The matched reference is non-tumor cells from the same sample, at the same depth (molecules per cell); in the liver they are T and NK cells, myeloid cells and endothelium; hepatocytes and fibroblasts are not included. Some verdicts also depend on comparisons not drawn here. This is RNA: reading the gene does not mean the protein is on the membrane; IHC tells you that.') }}
     </p>
     <p class="gi__pie">
       {{ L('Sondas: cuántas sondas del panel tiene el gen y cuántas cruzan una unión entre exones; las demás caen dentro de un exón y también pueden leer ADN genómico.',
@@ -105,7 +106,7 @@ const fmtCp = (x: number) => String(Math.round(x))
 .gi__gen[aria-pressed='true'] .gi__prot { color: var(--identidad); text-decoration: underline; text-underline-offset: 3px; }
 .gi__prot { font-weight: 600; white-space: nowrap; }
 .gi__sim { font: 500 var(--texto-xs) var(--font-mono); color: var(--texto-2); white-space: nowrap; }
-.gi__nota { display: block; font: 600 var(--texto-xs)/1.3 var(--font-mono); color: var(--texto-1); }
+.gi__nota { display: block; font: 600 var(--texto-xs)/1.3 var(--font-mono); color: var(--texto-1); text-wrap: balance; }
 .gi__fila--sel { background: color-mix(in srgb, var(--identidad) 8%, transparent); }
 .gi__circ { display: block; max-width: 22rem; margin-top: var(--sp-4); font: 500 var(--texto-xs)/1.35 var(--font-body); color: var(--texto-1); white-space: normal; }
 .gi__ast { margin-left: 2px; font-weight: 700; color: var(--texto-1); }

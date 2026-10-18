@@ -35,15 +35,19 @@ for (const [k, b] of bloques) {
   ok(`${k}: lleva la fecha del OK (AAAA-MM-DD)`, /^\d{4}-\d{2}-\d{2}$/.test(b.fecha_ok ?? ''), String(b.fecha_ok))
   ok(`${k}: bien formado`, bloqueValido(k as never, b, real.por_cada))
 }
-// Solo las cifras del texto aprobado: 20.600 / 2.500 (R0), 50 y 25 (R3), 0 (PRAME, MAGE-A4), 1 (R4: «menos de 1»), 100 (por cada).
-const APROBADAS = new Set([20600, 2500, 50, 25, 0, 1, 100, real.version])
+// Solo las cifras del texto aprobado. Auditoría del 18-oct-2026: 20.600 / 2.500 y 19.047 / 1.993 tras el control (R0);
+// 58 y 25 (hígado, grupo de 993) y 54 y 26 (hueso, grupo de 68) en R3, con el n de cada grupo; 0 (PRAME, MAGE-A4);
+// 1 (R4: «en torno a 1, o menos»); 100 (por cada).
+const APROBADAS = new Set([20600, 2500, 19047, 1993, 58, 25, 54, 26, 993, 68, 0, 1, 100, real.version])
 const ajenas = numeros(real.bloques).filter((n) => !APROBADAS.has(n))
 ok('el JSON no lleva ninguna cifra fuera del texto aprobado (n, IC, medianas, usadas…)', ajenas.length === 0, `ajenas: ${JSON.stringify(ajenas)}`)
-// Red-team de la fase 2 (17-oct-2026): la cifra del 5T4 del hígado es el techo de su rango según qué células se llamen tumor (detalle en Polaris).
-const higR3 = (real.bloques.R3!.datos as any).muestras.higado.dianas as { gen: string; aprox?: boolean }[]
-ok('R3: el 5T4 del hígado va con aprox (su cifra es el techo de un rango)', higR3.find((q) => q.gen === '5T4')?.aprox === true)
+// Auditoría del 18-oct-2026: las cifras de R3 son del GRUPO seleccionado de cada lesión, no «% de células tumorales».
+// Cada lesión lleva su n_grupo, y la página lo pinta junto a la cuadrícula.
+const musR3 = (real.bloques.R3!.datos as any).muestras as Record<string, { n_grupo?: number }>
+ok('R3: cada lesión lleva el n de su grupo (grupo seleccionado, no el tumor entero)', ['higado', 'hueso'].every((m) => Number.isInteger(musR3[m]?.n_grupo)))
 ok('R5 y R6 no llevan ningún número (visualizaciones sin cifras)', numeros(real.bloques.R5).length === 0 && numeros(real.bloques.R6).length === 0)
-ok('R4 solo dice «menos de 1» y solo del hígado', JSON.stringify(Object.keys((real.bloques.R4!.datos as any))) === '["higado"]' && (real.bloques.R4!.datos as any).higado.menos_de === true)
+// Auditoría del 18-oct-2026: son linfocitos T y la cifra depende de los marcadores (0,4-1,2 %): «en torno a 1, o menos».
+ok('R4 solo del hígado y dice «en torno a 1, o menos», no «menos de 1»', JSON.stringify(Object.keys((real.bloques.R4!.datos as any))) === '["higado"]' && (real.bloques.R4!.datos as any).higado.menos_de === false && (real.bloques.R4!.datos as any).higado.o_menos === true)
 ok('el JSON no lleva campos de recuento ni de IC', !/"(n|n_con|ic_inf|ic_sup|ic_nivel|genes_mediana|usadas|leidas)"/.test(crudo))
 ok('el JSON no lleva ejemplo ni «Diana A»', !/ejemplo|Diana [A-D]|Pieza [A-C]/.test(crudo))
 
