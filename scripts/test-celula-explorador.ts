@@ -16,10 +16,12 @@ import { createHash } from 'node:crypto'
 import { readdirSync, readFileSync } from 'node:fs'
 import { join, relative, sep } from 'node:path'
 import {
-  MARCADORES_N, PAPELES_SELECCION, RE_BARCODE, VEREDICTOS, coexpresion, densidad, estadoPuerta, fechaOkValida, motivosLesion, nivelMatriz, pct, porGrupo, tablaCoexp,
+  MARCADORES_N, PAPELES_SELECCION, RE_BARCODE, VEREDICTOS, columna, coexpresion, densidad, estadoPuerta, fechaOkValida, motivosLesion, nivelMatriz, pct, porGrupo, tablaCoexp,
   type LesionDatos, type Manifiesto,
 } from '../app/utils/celulaExplorador'
 import { ETIQUETA_VEREDICTO, PAPEL_SELECCION } from '../app/utils/celulaExploradorTexto'
+import { abreZarr } from '../app/utils/celulaExploradorZarr'
+import FileSystemStore from '@zarrita/storage/fs'
 
 const RAIZ = join(import.meta.dirname, '..')
 const DIR = join(RAIZ, 'public', 'celula', 'explorador')
@@ -217,6 +219,30 @@ const dn = densidad([1, 1.2, 1.4, 2], 0, 3)
 ok('densidad: máximo 1 y no negativa', Math.abs(Math.max(...dn) - 1) < 1e-9 && dn.every((y) => y >= 0))
 ok('densidad: con menos de 2 valores no inventa forma', densidad([1], 0, 2).every((y) => y === 0))
 ok('pct redondea a entero', pct(0.344) === 34 && pct(0.345) === 35 && pct(0) === 0)
+
+/* ── 6 · nivel «todos los genes»: el Zarr se lee gen a gen y dice LO MISMO que el JSON en los genes del panel ── */
+if (man.zarr?.length) {
+  ok('el ejemplo abre el nivel de todos los genes (y solo él)', nivelMatriz(man, esEjemplo ? 'ejemplo' : 'real') === (esEjemplo ? 'todos' : nivelMatriz(man, 'real')))
+  for (const l of man.lesiones) {
+    const d = lesiones[l]!
+    const z = await abreZarr(new FileSystemStore(join(DIR, 'zarr', `${l}.zarr`)), d.n_celulas, d.grupos.map((g) => g.id))
+    ok(`${l}: el Zarr trae más genes que el panel del JSON`, z.genes.length > d.genes.length && d.genes.every((g) => z.tiene(g)))
+    let igualCol = true, igualSuelo = true, igualRef = true
+    for (const g of d.genes) {
+      const a = columna(d, g), b = await z.columna(g)
+      for (let i = 0; i < a.length; i++) if (Math.abs(a[i]! - b[i]!) > 1e-3 * Math.max(1, a[i]!)) { igualCol = false; break }
+      const su = z.sueloDe(g)
+      if (!d.grupos.every((x) => su[x.id] === d.suelo[g]![x.id])) igualSuelo = false
+      if (z.refDe(g) !== d.referencia[g]) igualRef = false
+    }
+    ok(`${l}: la columna de cada gen del panel, igual en el Zarr y en el JSON`, igualCol)
+    ok(`${l}: el suelo de cada gen del panel, igual en el Zarr y en el JSON`, igualSuelo)
+    ok(`${l}: la referencia emparejada de cada gen del panel, igual en el Zarr y en el JSON`, igualRef)
+    const fuera = z.genes.find((g) => !d.genes.includes(g) && !z.sinSonda.has(g))!
+    const cf = await z.columna(fuera)
+    ok(`${l}: un gen fuera del panel se lee (columna de n células con valores >= 0)`, cf.length === d.n_celulas && cf.every((v) => v >= 0))
+  }
+}
 
 console.log(fallos ? `\n${fallos} de ${hechos} comprobaciones fallan` : `${hechos} de ${hechos} comprobaciones en verde`)
 process.exit(fallos ? 1 : 0)

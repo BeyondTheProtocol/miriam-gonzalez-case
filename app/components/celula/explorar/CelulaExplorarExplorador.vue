@@ -15,7 +15,8 @@
  * Violeta = grupo de interés, selección, foco y enlaces; los avisos van en tinta (auditoría `diseno`).
  */
 import type { Coexp, Lesion, LesionDatos, Manifiesto } from '~/utils/celulaExplorador'
-import { coexpresion, porGrupo } from '~/utils/celulaExplorador'
+import { coexpresion, nivelMatriz, porGrupo } from '~/utils/celulaExplorador'
+import { abreZarr, storeWeb, type ZarrLesion } from '~/utils/celulaExploradorZarr'
 import { cssRgb, paleta, type RGB } from '~/utils/celulaExploradorColor'
 import { ETIQUETA_GRUPO, ETIQUETA_LESION, ETIQUETA_TIPO, PANEL_INTERES, etiqueta, nombreGen } from '~/utils/celulaExploradorTexto'
 
@@ -107,6 +108,56 @@ const colores = computed(() => {
 })
 const colorearPor = computed(() => (modo.value === 'tipo' ? nombreSet.value.tipo : modo.value === 'coexp' ? nombreSet.value.coexp : nombreSet.value.grupo))
 
+/* ── nivel «todos los genes» (Zarr): solo si el manifiesto lo permite (publicar la matriz completa) ── */
+const nivel = computed(() => nivelMatriz(props.man, props.ejemplo ? 'ejemplo' : 'real'))
+const zcache = shallowReactive<Partial<Record<Lesion, ZarrLesion>>>({})
+const z = computed(() => zcache[lesion.value] ?? null)
+const busca = ref('')
+const avisoBusca = ref('')
+const leyendoGen = ref(false)
+async function aseguraZarr(l: Lesion) {
+  const x = cache[l]
+  if (nivel.value !== 'todos' || zcache[l] || !x) return
+  try { zcache[l] = await abreZarr(storeWeb(l), x.n_celulas, x.grupos.map((g) => g.id)) }
+  catch { avisoBusca.value = L('No se ha podido abrir la matriz de todos los genes. El resto de la página funciona igual.', 'The all-genes matrix could not be opened. The rest of the page works the same.') }
+}
+watch(d, () => { void aseguraZarr(lesion.value) }, { immediate: true })
+const sugerencias = computed(() => {
+  const q = busca.value.trim().toUpperCase()
+  if (!z.value || q.length < 2) return []
+  return z.value.genes.filter((g) => g.toUpperCase().startsWith(q)).slice(0, 12)
+})
+/** ¿Se puede abrir este gen en el mapa y los violines? Los del JSON siempre; con el Zarr, cualquiera con sonda. */
+const abrible = (g: string) => !!d.value?.expr[g] || (!!z.value && z.value.tiene(g) && !z.value.sinSonda.has(g))
+/** Abre cualquier gen: si no está en el JSON, lee su columna del Zarr y la añade a los datos de la lesión. */
+async function abreGen(g: string) {
+  const x = d.value
+  avisoBusca.value = ''
+  if (!x) return
+  if (!x.expr[g]) {
+    const zl = z.value
+    if (!zl || !zl.tiene(g) || zl.sinSonda.has(g)) {
+      avisoBusca.value = L(`${g} no tiene sonda en esta prueba. Que no esté no quiere decir que no se exprese.`, `${g} has no probe in this assay. Not being here does not mean it is not expressed.`)
+      return
+    }
+    leyendoGen.value = true
+    try {
+      const col = await zl.columna(g)
+      const i: number[] = [], v: number[] = []
+      col.forEach((val, k) => { if (val > 0) { i.push(k); v.push(val) } })
+      x.expr[g] = { i, v }
+      x.suelo[g] = zl.sueloDe(g)
+      x.referencia[g] = zl.refDe(g)
+      x.sondas[g] = zl.sondasDe(g)
+      if (!x.veredicto[g]) x.veredicto[g] = 'sin_veredicto'
+    }
+    catch { avisoBusca.value = L(`No se ha podido leer ${g}.`, `${g} could not be read.`); return }
+    finally { leyendoGen.value = false }
+  }
+  busca.value = ''
+  elegirDesdeTabla(g)
+}
+
 /** Elegir un gen desde la tabla: los violines y el mapa cambian arriba, y se anuncia. */
 function elegirDesdeTabla(g: string) {
   gen.value = g
@@ -161,6 +212,7 @@ function sinTapar(ev: FocusEvent) {
       <div v-if="d" class="exp__campo">
         <label :for="`${idCtl}-gen`" class="exp__eti">{{ L('Gen', 'Gene') }}</label>
         <select :id="`${idCtl}-gen`" v-model="gen" class="exp__sel">
+          <option v-if="!d.genes.includes(gen)" :value="gen">{{ gen }}</option>
           <optgroup :label="L('Genes de interés', 'Genes of interest')">
             <option v-for="g in genesInteres" :key="g" :value="g">{{ nombreGen(g) }}</option>
           </optgroup>
@@ -168,6 +220,16 @@ function sinTapar(ev: FocusEvent) {
             <option v-for="g in genesOtros" :key="g" :value="g">{{ g }}</option>
           </optgroup>
         </select>
+      </div>
+      <div v-if="d && nivel === 'todos'" class="exp__campo exp__busca">
+        <label :for="`${idCtl}-busca`" class="exp__eti">{{ L(`Buscar entre los ${z ? fmtN(z.genes.length, lang) : ''} genes`, `Search the ${z ? fmtN(z.genes.length, lang) : ''} genes`) }}</label>
+        <input :id="`${idCtl}-busca`" v-model="busca" class="exp__sel" type="search" autocomplete="off" spellcheck="false" :disabled="!z"
+               :placeholder="L('Símbolo, p. ej. MKI67', 'Symbol, e.g. MKI67')" @keydown.enter.prevent="busca.trim() && abreGen(sugerencias[0] ?? busca.trim().toUpperCase())" />
+        <ul v-if="sugerencias.length" class="exp__sug" :aria-label="L('Genes que coinciden', 'Matching genes')">
+          <li v-for="g in sugerencias" :key="g"><button type="button" class="exp__btn exp__btn--sm" @click="abreGen(g)">{{ g }}</button></li>
+        </ul>
+        <p v-if="leyendoGen" class="exp__nota" role="status">{{ L('Leyendo el gen…', 'Reading the gene…') }}</p>
+        <p v-if="avisoBusca" class="exp__nota" role="status">{{ avisoBusca }}</p>
       </div>
       <div class="exp__campo">
         <span :id="`${idCtl}-tema`" class="exp__eti">{{ L('Fondo', 'Background') }}</span>
@@ -264,7 +326,7 @@ function sinTapar(ev: FocusEvent) {
 
       <div class="exp__bloque">
         <h2 class="exp__h2">{{ L('Marcadores por grupo', 'Markers per group') }}{{ ej }}</h2>
-        <CelulaExplorarMarcadores :d="d" :lang="lang" :abribles="(g: string) => d!.genes.includes(g)" @elegir="elegirDesdeTabla" />
+        <CelulaExplorarMarcadores :d="d" :lang="lang" :abribles="abrible" @elegir="abreGen" />
       </div>
 
       <div class="exp__bloque">
@@ -335,4 +397,6 @@ function sinTapar(ev: FocusEvent) {
 .exp__grupos li { display: flex; justify-content: space-between; gap: var(--sp-8); padding: var(--sp-8) 0; border-bottom: 1px solid var(--trazo-sutil); font: var(--tipo-body-sm); }
 .exp__grupos .nums { font-family: var(--font-mono); color: var(--texto-2); }
 .exp__g--interes span:first-child { color: var(--identidad); font-weight: 600; }
+.exp__busca { position: relative; }
+.exp__sug { list-style: none; margin: var(--sp-4) 0 0; padding: 0; display: flex; flex-wrap: wrap; gap: var(--sp-4); max-width: 28rem; }
 </style>

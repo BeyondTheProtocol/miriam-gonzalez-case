@@ -51,7 +51,6 @@
     "@vitessce/scatterplot-embedding": "4.1.0",
     "@vitessce/schemas": "4.1.0",
     "@vitessce/vit-s": "4.1.0",
-    "@vitessce/zarr": "4.1.0",
     "@vueuse/nuxt": "14.3.0",
     "better-sqlite3": "^12.9.0",
     "nuxt": "^4.4.4",
@@ -60,7 +59,8 @@
     "react-dom": "18.3.1",
     "three": "^0.184.0",
     "vue": "^3.5.0",
-    "vue-router": "^4.5.0"
+    "vue-router": "^4.5.0",
+    "zarrita": "0.7.5"
   },
   "devDependencies": {
     "@nuxt/fonts": "^0.14.0",
@@ -69,6 +69,7 @@
     "@nuxtjs/tailwindcss": "^6.13.0",
     "@tailwindcss/typography": "^0.5.16",
     "@types/node": "^25.9.1",
+    "@zarrita/storage": "0.2.0",
     "nuxt-seo-utils": "^8.1.11",
     "oxfmt": "^0.50.0",
     "oxlint": "^1.65.0",

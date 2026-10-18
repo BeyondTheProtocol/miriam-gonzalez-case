@@ -95,6 +95,19 @@ try {
   ok('demo hígado: perfil por regiones dibujado y con «Expresión, no ADN»', pn.perfil)
   ok('demo hígado: ADN por grupo, una fila por grupo con células y el aviso «por grupo, no por célula»', pn.adnFilas > 0 && pn.adnAviso)
   ok('demo hígado: control de calidad con sus filas', pn.qcFilas >= 6)
+  // nivel «todos los genes» (Zarr, solo en la demo del ejemplo): buscar un gen fuera del panel y verlo en los violines
+  const hayBusca = await espera(nav, `!!document.querySelector('.exp__busca input:not([disabled])')`)
+  ok('demo hígado: buscador de todos los genes activo', hayBusca)
+  if (hayBusca) {
+    await nav.evaluate(`(() => { const i = document.querySelector('.exp__busca input'); i.value = 'EJ001'; i.dispatchEvent(new Event('input')) })()`)
+    const haySug = await espera(nav, `document.querySelectorAll('.exp__sug button').length > 0`)
+    ok('demo hígado: el buscador sugiere genes fuera del panel', haySug)
+    if (haySug) {
+      const elegido = await nav.evaluate(`(() => { const b = document.querySelector('.exp__sug button'); b.click(); return b.textContent.trim() })()`)
+      ok(`demo hígado: ${elegido}, leído del Zarr, sale en los violines con n y suelo por grupo`,
+        await espera(nav, `document.querySelector('#exp-violines h2')?.textContent.includes('${elegido}') && [...document.querySelectorAll('.vio__fila')].filter((f) => /suelo \\d+ %/.test(f.textContent) && /n = \\d/.test(f.textContent)).length > 0`))
+    }
+  }
   await nav.evaluate(`[...document.querySelectorAll('.exp__ctl button')].find((b) => /Hueso/.test(b.textContent)).click()`)
   ok('demo hueso: CNV por célula', await espera(nav, `document.querySelectorAll('.cnv__svg').length > 0 && !document.querySelector('.cnv__higado')`))
   ok('demo hueso: el CNV dice que es inferido de la expresión y no lectura de ADN, y marca el 0', await nav.evaluate(`/no es lectura de ADN/.test(document.querySelector('.cnv')?.textContent ?? '') && document.querySelectorAll('.cnv__cero').length > 0`))
