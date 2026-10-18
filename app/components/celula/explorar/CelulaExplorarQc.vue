@@ -41,7 +41,7 @@ const filas = computed(() => {
     <dl class="qc__lista">
       <div v-for="[k, v] in filas" :key="k" class="qc__fila">
         <dt>{{ k }}</dt>
-        <dd class="nums">{{ v }}</dd>
+        <dd :class="{ nums: /\d/.test(v) }">{{ v }}</dd>
       </div>
     </dl>
   </div>
@@ -52,5 +52,6 @@ const filas = computed(() => {
 .qc__lista { margin: 0; display: grid; gap: 0 var(--sp-24); grid-template-columns: repeat(auto-fill, minmax(min(18rem, 100%), 1fr)); }
 .qc__fila { display: flex; justify-content: space-between; gap: var(--sp-12); padding: var(--sp-8) 0; border-bottom: 1px solid var(--trazo-sutil); font: var(--tipo-body-sm); }
 .qc__fila dt { color: var(--texto-2); }
-.qc__fila dd { margin: 0; color: var(--texto-1); font-family: var(--font-mono); text-align: right; }
+.qc__fila dd { margin: 0; color: var(--texto-1); text-align: right; }
+.qc__fila dd.nums { font-family: var(--font-mono); white-space: nowrap; }
 </style>

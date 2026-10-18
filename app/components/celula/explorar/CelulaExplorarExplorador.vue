@@ -115,6 +115,7 @@ const z = computed(() => zcache[lesion.value] ?? null)
 const busca = ref('')
 const avisoBusca = ref('')
 const leyendoGen = ref(false)
+const elegidoBusca = ref('')
 async function aseguraZarr(l: Lesion) {
   const x = cache[l]
   if (nivel.value !== 'todos' || zcache[l] || !x) return
@@ -130,13 +131,18 @@ const sugerencias = computed(() => {
 /** ¿Se puede abrir este gen en el mapa y los violines? Los del JSON siempre; con el Zarr, cualquiera con sonda. */
 const abrible = (g: string) => !!d.value?.expr[g] || (!!z.value && z.value.tiene(g) && !z.value.sinSonda.has(g))
 /** Abre cualquier gen: si no está en el JSON, lee su columna del Zarr y la añade a los datos de la lesión. */
-async function abreGen(g: string) {
+async function abreGen(g: string, origen: 'busca' | 'marcadores' = 'busca') {
   const x = d.value
   avisoBusca.value = ''
+  elegidoBusca.value = ''
   if (!x) return
   if (!x.expr[g]) {
     const zl = z.value
-    if (!zl || !zl.tiene(g) || zl.sinSonda.has(g)) {
+    if (!zl || !zl.tiene(g)) {
+      avisoBusca.value = L(`No hay ningún gen «${g}» en esta prueba. Revisa el símbolo (por ejemplo, MKI67).`, `There is no gene «${g}» in this assay. Check the symbol (for example, MKI67).`)
+      return
+    }
+    if (zl.sinSonda.has(g)) {
       avisoBusca.value = L(`${g} no está en el panel, así que no se mide. Eso no quiere decir que no se exprese.`, `${g} is not in this panel, so it is not measured. That does not mean it is not expressed.`)
       return
     }
@@ -155,7 +161,8 @@ async function abreGen(g: string) {
     finally { leyendoGen.value = false }
   }
   busca.value = ''
-  elegirDesdeTabla(g)
+  gen.value = g
+  if (origen === 'busca') elegidoBusca.value = g      // los violines quedan DEBAJO del buscador: enlace, no «más arriba»
 }
 
 /** Elegir un gen desde la tabla: los violines y el mapa cambian arriba, y se anuncia. */
@@ -225,11 +232,13 @@ function sinTapar(ev: FocusEvent) {
         <label :for="`${idCtl}-busca`" class="exp__eti">{{ z ? L(`Buscar entre los ${fmtN(z.genes.length, lang)} genes`, `Search the ${fmtN(z.genes.length, lang)} genes`) : L('Buscar un gen', 'Search for a gene') }}</label>
         <input :id="`${idCtl}-busca`" v-model="busca" class="exp__sel" type="search" autocomplete="off" spellcheck="false" :disabled="!z"
                :placeholder="L('Símbolo, p. ej. MKI67', 'Symbol, e.g. MKI67')" @keydown.enter.prevent="busca.trim() && abreGen(sugerencias[0] ?? busca.trim().toUpperCase())" />
+        <p class="sr-only" aria-live="polite">{{ busca.trim().length >= 2 && z ? L(`${sugerencias.length} genes coinciden`, `${sugerencias.length} matching genes`) : '' }}</p>
         <ul v-if="sugerencias.length" class="exp__sug" :aria-label="L('Genes que coinciden', 'Matching genes')">
           <li v-for="g in sugerencias" :key="g"><button type="button" class="exp__btn exp__btn--sm" @click="abreGen(g)">{{ g }}</button></li>
         </ul>
         <p v-if="leyendoGen" class="exp__nota" role="status">{{ L('Leyendo el gen…', 'Reading the gene…') }}</p>
         <p v-if="avisoBusca" class="exp__nota" role="status">{{ avisoBusca }}</p>
+        <p v-if="elegidoBusca && elegidoBusca === gen" class="exp__nota" role="status">{{ L(`${elegidoBusca} está ahora en el mapa y en los violines.`, `${elegidoBusca} is now on the map and in the violins.`) }} <a class="exp__salto" href="#exp-violines">{{ L('Ir a los violines', 'Go to the violins') }}</a></p>
       </div>
       <div class="exp__campo">
         <span :id="`${idCtl}-tema`" class="exp__eti">{{ L('Fondo', 'Background') }}</span>
@@ -326,7 +335,7 @@ function sinTapar(ev: FocusEvent) {
 
       <div class="exp__bloque">
         <h2 class="exp__h2">{{ L('Marcadores por grupo', 'Markers per group') }}{{ ej }}</h2>
-        <CelulaExplorarMarcadores :d="d" :lang="lang" :abribles="abrible" @elegir="abreGen" />
+        <CelulaExplorarMarcadores :d="d" :lang="lang" :abribles="abrible" :elegido="gen" @elegir="(g: string) => abreGen(g, 'marcadores')" />
       </div>
 
       <div class="exp__bloque">
@@ -398,5 +407,6 @@ function sinTapar(ev: FocusEvent) {
 .exp__grupos .nums { font-family: var(--font-mono); color: var(--texto-2); }
 .exp__g--interes span:first-child { color: var(--identidad); font-weight: 600; }
 .exp__busca { position: relative; }
-.exp__sug { list-style: none; margin: var(--sp-4) 0 0; padding: 0; display: flex; flex-wrap: wrap; gap: var(--sp-4); max-width: 28rem; }
+.exp__sug { position: absolute; top: calc(100% + var(--sp-4)); left: 0; z-index: 10; list-style: none; margin: 0; padding: var(--sp-8); display: flex; flex-wrap: wrap; gap: var(--sp-4); width: min(28rem, 90vw); background: var(--fondo); border: 1px solid var(--trazo-fuerte); border-radius: var(--radius-btn); box-shadow: 0 6px 18px color-mix(in srgb, var(--texto-1) 12%, transparent); }
+.exp__sel::placeholder { color: var(--texto-2); opacity: 1; }
 </style>

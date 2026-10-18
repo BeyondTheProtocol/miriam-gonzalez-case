@@ -88,12 +88,12 @@ try {
     marcAviso: /Detectado no es positivo/.test(document.querySelector('.mk')?.textContent ?? '') && /selección hecha a mano/.test(document.querySelector('.mk')?.textContent ?? ''),
     perfil: !!document.querySelector('.pf__linea') && /Expresión, no ADN/.test(document.querySelector('.pf')?.textContent ?? ''),
     adnFilas: document.querySelectorAll('.adng__fila').length,
-    adnAviso: /Por grupo, no por célula/.test(document.querySelector('.adng')?.textContent ?? ''),
+    adnAviso: /Solo por grupo/.test(document.querySelector('.adng')?.textContent ?? ''),
     qcFilas: document.querySelectorAll('.qc__fila').length,
   }))()`)
   ok('demo hígado: marcadores por grupo con filas y sus dos avisos', pn.marcadores > 0 && pn.marcAviso, JSON.stringify(pn))
   ok('demo hígado: perfil por regiones dibujado y con «Expresión, no ADN»', pn.perfil)
-  ok('demo hígado: ADN por grupo, una fila por grupo con células y el aviso «por grupo, no por célula»', pn.adnFilas > 0 && pn.adnAviso)
+  ok('demo hígado: ADN por grupo, una fila por grupo con células y el aviso «solo por grupo»', pn.adnFilas > 0 && pn.adnAviso)
   ok('demo hígado: control de calidad con sus filas', pn.qcFilas >= 6)
   // nivel «todos los genes» (Zarr, solo en la demo del ejemplo): buscar un gen fuera del panel y verlo en los violines
   const hayBusca = await espera(nav, `!!document.querySelector('.exp__busca input:not([disabled])')`)
@@ -108,6 +108,10 @@ try {
         await espera(nav, `document.querySelector('#exp-violines h2')?.textContent.includes('${elegido}') && [...document.querySelectorAll('.vio__fila')].filter((f) => /suelo \\d+ %/.test(f.textContent) && /n = \\d/.test(f.textContent)).length > 0`))
     }
   }
+  // marcadores: pulsar un gen da respuesta visible junto a la tabla (fila marcada y enlace a los violines)
+  const genMk = await nav.evaluate(`(() => { const b = document.querySelector('.mk__gen:not(.mk__gen--fijo)'); if (!b) return ''; b.click(); return b.textContent.trim() })()`)
+  ok('demo hígado: pulsar un gen de marcadores lo marca y avisa junto a la tabla con enlace a los violines', !!genMk && await espera(nav,
+    `!!document.querySelector('.mk__gen[aria-pressed="true"]') && /Ir a los violines/.test(document.querySelector('.mk__estado')?.textContent ?? '') && document.querySelector('#exp-violines h2')?.textContent.includes('${genMk}')`))
   await nav.evaluate(`[...document.querySelectorAll('.exp__ctl button')].find((b) => /Hueso/.test(b.textContent)).click()`)
   ok('demo hueso: CNV por célula', await espera(nav, `document.querySelectorAll('.cnv__svg').length > 0 && !document.querySelector('.cnv__higado')`))
   ok('demo hueso: el CNV dice que es inferido de la expresión y no lectura de ADN, y marca el 0', await nav.evaluate(`/no es lectura de ADN/.test(document.querySelector('.cnv')?.textContent ?? '') && document.querySelectorAll('.cnv__cero').length > 0`))
@@ -121,6 +125,9 @@ try {
   // la página tiene overflow-x: clip, así que un desborde no da scroll: se recortaría sin avisar. Se mide el bloque.
   const desborde = `Math.round(Math.max(...[...document.querySelectorAll('.exp, .exp > *')].map((e) => e.getBoundingClientRect().right)) - window.innerWidth)`
   ok('móvil: el explorador cabe en el ancho (nada recortado a la derecha)', (await nav.evaluate(desborde)) <= 1, `${await nav.evaluate(desborde)} px de más`)
+  ok('móvil: marcadores y perfil avisan de que se deslizan (tablas y figura más anchas que la pantalla)', await nav.evaluate(
+    `['.mk__desliza', '.pf__desliza'].every((q) => { const e = document.querySelector(q); return !!e && getComputedStyle(e).display !== 'none' })`))
+  ok('móvil: el texto del perfil se lee a su tamaño (la figura no se encoge)', await nav.evaluate(`(document.querySelector('.pf__svg')?.getBoundingClientRect().width ?? 0) >= 760`))
   await nav.cdp('Emulation.setDeviceMetricsOverride', { width: 1280, height: 900, deviceScaleFactor: 1, mobile: false })
 
   await nav.cargar('/celula-a-celula?demo=1')

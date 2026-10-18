@@ -3,25 +3,30 @@
  * Marcadores por grupo: cada grupo del contrato frente al resto de la lesión (Wilcoxon, FDR de Benjamini-Hochberg),
  * con el suelo ambiental del gen en ese grupo al lado. Solo grupos fijos del análisis: aquí no se compara una
  * selección libre (con una selección a mano se puede reconstruir algo que el análisis no sostiene). Las cifras
- * salen del fichero (`marcadores`). Un gen se puede abrir en el mapa si está en los datos que se pintan.
+ * salen del fichero (`marcadores`). Un gen se puede abrir en el mapa y los violines si está en los datos.
+ * Patrón de tabla de «Genes de interés» (auditoría `diseno`, 18-oct): primera columna fija, aviso de deslizar en el
+ * móvil, el suelo junto al porcentaje del grupo y la fila elegida marcada, con enlace a los violines.
  */
 import type { LesionDatos } from '~/utils/celulaExplorador'
 import { fmtPct } from '~/utils/celulaExplorador'
 import { ETIQUETA_GRUPO, etiqueta } from '~/utils/celulaExploradorTexto'
 
-const props = defineProps<{ d: LesionDatos; lang: 'es' | 'en'; abribles: (gen: string) => boolean }>()
+const props = defineProps<{ d: LesionDatos; lang: 'es' | 'en'; abribles: (gen: string) => boolean; elegido: string }>()
 const emit = defineEmits<{ elegir: [gen: string] }>()
 const L = (es: string, en: string) => (props.lang === 'en' ? en : es)
 const grupos = computed(() => props.d.grupos.filter((g) => g.id in props.d.marcadores))
-const elegido = ref<string>(grupos.value.find((g) => g.rol === 'interes')?.id ?? grupos.value[0]?.id ?? '')
-watch(grupos, (gs) => { if (!gs.some((g) => g.id === elegido.value)) elegido.value = gs[0]?.id ?? '' })
+const grupo = ref<string>(grupos.value.find((g) => g.rol === 'interes')?.id ?? grupos.value[0]?.id ?? '')
+watch(grupos, (gs) => { if (!gs.some((g) => g.id === grupo.value)) grupo.value = gs[0]?.id ?? '' })
 const filas = computed(() => {
-  const m = props.d.marcadores[elegido.value]
+  const m = props.d.marcadores[grupo.value]
   if (!m) return []
   return m.gen.map((g, k) => ({ gen: g, logfc: m.logfc[k]!, fdr: m.fdr[k]!, a: m.frac_grupo[k]!, b: m.frac_resto[k]!, suelo: m.suelo[k]! }))
 })
-const dec = (x: number, d = 2) => String(Math.round(x * 10 ** d) / 10 ** d).replace('.', props.lang === 'en' ? '.' : ',')
-const fdr = (x: number) => (x < 1e-3 ? x.toExponential(1).replace('.', props.lang === 'en' ? '.' : ',') : dec(x, 3))
+const pulsado = ref('')
+function elige(g: string) { pulsado.value = g; emit('elegir', g) }
+const coma = (s: string) => (props.lang === 'en' ? s : s.replace('.', ','))
+const fc = (x: number) => coma(x.toFixed(2))
+const fdr = (x: number) => (x < 1e-3 ? coma(x.toExponential(1)) : coma(x.toFixed(3)))
 const idCtl = useId()
 </script>
 
@@ -39,36 +44,47 @@ const idCtl = useId()
     <div class="mk__campo">
       <span :id="`${idCtl}-g`" class="mk__eti">{{ L('Grupo', 'Group') }}</span>
       <div class="mk__seg" role="group" :aria-labelledby="`${idCtl}-g`">
-        <button v-for="g in grupos" :key="g.id" type="button" class="mk__btn" :aria-pressed="elegido === g.id" @click="elegido = g.id">{{ etiqueta(ETIQUETA_GRUPO, g.id, lang) }}</button>
+        <button v-for="g in grupos" :key="g.id" type="button" class="mk__btn" :aria-pressed="grupo === g.id" @click="grupo = g.id">{{ etiqueta(ETIQUETA_GRUPO, g.id, lang) }}</button>
       </div>
     </div>
-    <div class="mk__tabla" role="region" :aria-label="L('Tabla de marcadores', 'Marker table')" tabindex="0">
+    <p class="mk__desliza" aria-hidden="true">{{ L('Desliza para ver las seis columnas →', 'Swipe to see all six columns →') }}</p>
+    <div class="mk__tabla" role="region" :aria-labelledby="`${idCtl}-cap`" tabindex="0">
       <table>
+        <caption :id="`${idCtl}-cap`" class="mk__cap">
+          {{ L(`${filas.length} genes de ${etiqueta(ETIQUETA_GRUPO, grupo, 'es')}, ordenados por el estadístico de Wilcoxon; en gris, los de FDR de 0,05 o más (no distinguen al grupo).`,
+            `${filas.length} genes of ${etiqueta(ETIQUETA_GRUPO, grupo, 'en')}, ordered by the Wilcoxon statistic; in grey, those with FDR of 0.05 or more (they do not set the group apart).`) }}
+        </caption>
         <thead>
           <tr>
             <th scope="col">{{ L('Gen', 'Gene') }}</th>
+            <th scope="col">{{ L('En el grupo', 'In the group') }}</th>
+            <th scope="col">{{ L('Suelo ambiental', 'Ambient floor') }}</th>
+            <th scope="col">{{ L('En el resto', 'In the rest') }}</th>
             <th scope="col">log2FC</th>
             <th scope="col">FDR</th>
-            <th scope="col">{{ L('En el grupo', 'In the group') }}</th>
-            <th scope="col">{{ L('En el resto', 'In the rest') }}</th>
-            <th scope="col">{{ L('Suelo', 'Floor') }}</th>
           </tr>
         </thead>
         <tbody>
-          <tr v-for="f in filas" :key="f.gen">
+          <tr v-for="f in filas" :key="f.gen" :class="{ 'mk__nsig': f.fdr >= 0.05 }">
             <th scope="row">
-              <button v-if="abribles(f.gen)" type="button" class="mk__gen" @click="emit('elegir', f.gen)">{{ f.gen }}</button>
-              <span v-else>{{ f.gen }}</span>
+              <button v-if="abribles(f.gen)" type="button" class="mk__gen" :aria-pressed="f.gen === elegido" @click="elige(f.gen)">{{ f.gen }}</button>
+              <span v-else class="mk__gen mk__gen--fijo">{{ f.gen }}</span>
             </th>
-            <td class="nums">{{ dec(f.logfc) }}</td>
-            <td class="nums">{{ fdr(f.fdr) }}</td>
             <td class="nums">{{ fmtPct(f.a, lang) }}</td>
-            <td class="nums">{{ fmtPct(f.b, lang) }}</td>
             <td class="nums">{{ fmtPct(f.suelo, lang) }}</td>
+            <td class="nums">{{ fmtPct(f.b, lang) }}</td>
+            <td class="nums">{{ fc(f.logfc) }}</td>
+            <td class="nums">{{ fdr(f.fdr) }}</td>
           </tr>
         </tbody>
       </table>
     </div>
+    <p class="mk__estado" role="status">
+      <template v-if="pulsado && pulsado === elegido">
+        {{ L(`${pulsado} está ahora en el mapa y en los violines.`, `${pulsado} is now on the map and in the violins.`) }}
+        <a class="mk__ir" href="#exp-violines">{{ L('Ir a los violines', 'Go to the violins') }}</a>
+      </template>
+    </p>
   </div>
 </template>
 
@@ -78,14 +94,36 @@ const idCtl = useId()
 .mk__campo { display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-8); margin-bottom: var(--sp-12); }
 .mk__eti { font: 600 var(--texto-xs)/1.3 var(--font-body); color: var(--texto-2); }
 .mk__seg { display: inline-flex; flex-wrap: wrap; gap: var(--sp-4); }
-.mk__btn { min-height: 44px; padding: 0 var(--sp-12); border-radius: var(--radius-pill); border: 1px solid var(--trazo-interactivo); background: transparent; color: var(--texto-1); font: 600 var(--texto-xs)/1 var(--font-body); }
+.mk__btn {
+  min-height: 44px; padding: 0 var(--sp-12); border-radius: var(--radius-pill); border: 1px solid var(--trazo-interactivo); background: transparent; color: var(--texto-1);
+  font: 600 var(--texto-xs)/1 var(--font-body);
+  transition: background-color var(--dur-micro) var(--curva-salida), color var(--dur-micro) var(--curva-salida), transform var(--dur-micro) var(--curva-salida);
+  -webkit-tap-highlight-color: transparent;
+}
+.mk__btn:active { transform: scale(0.97); }
+@media (prefers-reduced-motion: reduce) { .mk__btn { transition: none; } .mk__btn:active { transform: none; } }
 .mk__btn[aria-pressed='true'] { background: var(--texto-1); color: var(--fondo); border-color: var(--texto-1); }
-.mk__btn:focus-visible, .mk__gen:focus-visible, .mk__tabla:focus-visible { outline: 2px solid var(--anillo-foco); outline-offset: 2px; }
-.mk__tabla { overflow-x: auto; max-height: 28rem; overflow-y: auto; border: 1px solid var(--trazo-sutil); border-radius: var(--radius-btn); }
-.mk__tabla table { width: 100%; border-collapse: collapse; font: var(--tipo-body-sm); font-size: var(--texto-xs); }
+.mk__btn:focus-visible, .mk__gen:focus-visible, .mk__tabla:focus-visible, .mk__ir:focus-visible { outline: 2px solid var(--anillo-foco); outline-offset: 2px; }
+.mk__desliza { display: none; margin: 0 0 var(--sp-8); font: var(--tipo-body-sm); font-size: var(--texto-xs); color: var(--texto-2); }
+@media (max-width: 639px) { .mk__desliza { display: block; } }
+.mk__tabla { overflow: auto; max-height: 30rem; border: 1px solid var(--trazo-sutil); border-radius: var(--radius-btn); }
+.mk__tabla table { width: 100%; min-width: 560px; border-collapse: separate; border-spacing: 0; font: var(--tipo-body-sm); font-size: var(--texto-xs); }
+.mk__cap { caption-side: top; text-align: left; padding: var(--sp-8) var(--sp-12); color: var(--texto-2); font: var(--tipo-body-sm); font-size: var(--texto-xs); }
 .mk__tabla th, .mk__tabla td { padding: var(--sp-8) var(--sp-12); text-align: right; border-bottom: 1px solid var(--trazo-sutil); white-space: nowrap; }
-.mk__tabla th:first-child { text-align: left; }
-.mk__tabla thead th { position: sticky; top: 0; background: var(--fondo); color: var(--texto-2); font-weight: 600; }
+.mk__tabla thead th { position: sticky; top: 0; z-index: 2; background: var(--superficie); color: var(--texto-2); font-weight: 600; box-shadow: inset 0 -1px 0 var(--trazo-fuerte); }
+.mk__tabla th:first-child { text-align: left; position: sticky; left: 0; z-index: 1; background: var(--fondo); }
+.mk__tabla thead th:first-child { z-index: 3; background: var(--superficie); }
 .mk__tabla .nums { font-family: var(--font-mono); color: var(--texto-1); }
-.mk__gen { min-height: 32px; padding: 0; border: 0; background: none; color: var(--identidad); font: 600 var(--texto-xs) var(--font-mono); text-decoration: underline; text-underline-offset: 2px; cursor: pointer; }
+.mk__nsig .nums, .mk__nsig .mk__gen { color: var(--texto-2); }
+.mk__gen {
+  display: inline-flex; align-items: center; min-height: 44px; min-width: 44px; padding: 0 var(--sp-8); margin: -10px 0 -10px calc(-1 * var(--sp-8));
+  border: 0; border-radius: var(--radius-sm); background: none; color: var(--identidad); font: 600 var(--texto-xs) var(--font-mono);
+  text-decoration: underline; text-underline-offset: 2px; cursor: pointer; -webkit-tap-highlight-color: transparent;
+}
+.mk__gen--fijo { color: var(--texto-1); text-decoration: none; cursor: default; }
+@media (hover: hover) { .mk__gen:not(.mk__gen--fijo):hover { background: var(--trazo-sutil); } }
+.mk__gen[aria-pressed='true'] { background: color-mix(in srgb, var(--identidad) 14%, transparent); text-decoration-thickness: 2px; }
+.mk__estado { margin: var(--sp-8) 0 0; font: var(--tipo-body-sm); font-size: var(--texto-xs); color: var(--texto-1); }
+.mk__estado:empty { margin: 0; }
+.mk__ir { margin-left: var(--sp-8); color: var(--identidad); font-weight: 600; }
 </style>
