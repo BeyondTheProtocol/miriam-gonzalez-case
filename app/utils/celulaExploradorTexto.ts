@@ -107,8 +107,8 @@ export const ETIQUETAS_FIJAS = {
   re: t('IHQ de RE: negativa (hígado)', 'ER IHC: negative (liver)'),
   /** auditoría 18-oct: del hueso no consta IHQ de HER2 (solo ADN, FoundationOne) */
   her2Hueso: t('IHQ de HER2 (hueso): no consta', 'HER2 IHC (bone): none reported'),
-  /** auditoría 18-oct: HER3 lo tienen igual o más los hepatocitos sanos */
-  her3Higado: t('En los hepatocitos sanos se detecta igual o más', 'Detected as much or more in healthy hepatocytes'),
+  /** auditoría 18-oct: HER3 lo tiene igual o más el grupo «Hepatocitos» (que puede incluir tumorales: no «sanos», comité médico) */
+  her3Higado: t('En el grupo «Hepatocitos» se detecta igual o más', 'Detected as much or more in the “Hepatocytes” group'),
   /** qué matriz es: la estándar, con el ADN genómico que eso arrastra en el hueso */
   matriz: t('Matriz estándar de Cell Ranger, todas las sondas; en el hueso incluye ADN genómico', 'Standard Cell Ranger matrix, all probes; in the bone it includes genomic DNA'),
   /** el número de copias del hueso es una inferencia por expresión, no una lectura de ADN */
