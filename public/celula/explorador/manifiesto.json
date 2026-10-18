@@ -11,11 +11,22 @@
   "ficheros": [
     {
       "ruta": "higado.json",
-      "sha256": "06d2a64c638b2587974f27b58df25993f4c4d2f0bfb6124443d777cfa95951cc"
+      "sha256": "41b8c591ab97a3cab4009af9691efc5f7df41e512c40a5224a70ae3a419d36a5"
     },
     {
       "ruta": "hueso.json",
-      "sha256": "db49c929cd97df6b0130bbae6a0b3142a95a9ef41c5fc9743a0aadeeb78fc8a9"
+      "sha256": "d2201c32a0c123cee816e79bf3a59258fad585cf52f9354a784b82a3680ee97f"
     }
-  ]
+  ],
+  "zarr": [
+    {
+      "ruta": "zarr/higado.zarr",
+      "sha256_arbol": "caf3250744230fca0915d726ae1664dce268e83bb158c462f7551b39fe76d837"
+    },
+    {
+      "ruta": "zarr/hueso.zarr",
+      "sha256_arbol": "0f80f7dc63b048476baa276118cdbc614ebac73c756be035c1e35b0d30c1cb24"
+    }
+  ],
+  "matriz_completa": "ejemplo"
 }

@@ -5,6 +5,8 @@
  * CONTRATO PARA QUIEN ESCRIBA public/celula/explorador/ (Polaris):
  *  · public/ se sirve tal cual y la preview de Netlify también es pública. Mientras Miriam no dé el
  *    OK, en esa carpeta SOLO hay datos SINTÉTICOS (`ejemplo: true` en el manifiesto y en cada lesión).
+ *    Los genera Polaris (tools/flex_analisis/explorador/ejemplo.py) con los MISMOS constructores y el MISMO
+ *    validador que el export real: un solo formato, con los Zarr de todos los genes.
  *    El export real vive en la zona clínica de Polaris y entra aquí solo con `sello: "verificado"`,
  *    `ok_titular: true` y `fecha_ok` (AAAA-MM-DD de calendario). El test falla si se incumple, y si hay un fichero que
  *    no está en el manifiesto con su sha256. Es el mismo contrato que valida Polaris
@@ -42,6 +44,21 @@ export interface Loo { n: number; frac: number | null; ref: number | null; cp10k
  *  (moléculas contadas), no de lecturas; las claves conservan el nombre del contrato que comparte con Polaris. */
 export interface Adn { sondas_dentro_de_exon: number; sondas_panel: number; frac_lecturas_estimada: number; frac_lecturas_cell_ranger: number; frac_lecturas_interes: number }
 
+/** QC agregado (el del analista A, que fija las células): allow-list del contrato de Polaris (`QC_KEYS`). */
+export interface Qc {
+  fuente: string; n_inicial: number; n_final: number; umbral_UMI: [number, number]; umbral_genes: [number, number]
+  umbral_pct_MT?: number | string; excluidas_UMI_genes?: number; excluidas_MT_adicionales?: number
+  scrublet_dobletes: number; scrublet_umbral?: number | null
+  mediana_UMI_inicial?: number; mediana_UMI_final?: number; mediana_genes_inicial?: number; mediana_genes_final?: number; n_sondas_MT?: number
+}
+/** Marcadores de un grupo del contrato frente al resto de la lesión (Wilcoxon, FDR), con el suelo del gen al lado. */
+export interface Marcadores { gen: string[]; logfc: number[]; fdr: number[]; frac_grupo: number[]; frac_resto: number[]; suelo: number[] }
+/** Perfil de expresión por regiones de 10 Mb (grupo de interés frente a la referencia emparejada). Expresión, no ADN. */
+export interface PerfilBins { cromosoma: string[]; inicio_mb: number[]; log2_rel: number[] }
+export const MARCADORES_N = 50
+const RE_CROMOSOMA = /^chr([1-9]|1\d|2[0-2])$/
+const RE_SIMBOLO = /^[A-Za-z0-9][A-Za-z0-9._-]*$/
+
 export interface Grupo { id: string; rol: Rol; n: number }
 export interface LesionDatos {
   version: number
@@ -62,6 +79,11 @@ export interface LesionDatos {
   loo: Record<string, Loo>
   adn: Adn
   cnv: { ventanas: string[]; metodo: string; valores: (number | null)[][] } | { pseudobulk: { ventana: string; percentil_genoma: number } }
+  qc: Qc
+  marcadores: Record<string, Marcadores>
+  perfil_bins: PerfilBins
+  /** fracción de UMI de ADN genómico por grupo (cociente de medias del tribunal; por célula no es fiable) */
+  adn_por_grupo: Record<string, number>
 }
 export interface Manifiesto {
   version: number
@@ -72,6 +94,10 @@ export interface Manifiesto {
   modo_sondas?: string
   lesiones: Lesion[]
   ficheros: { ruta: string; sha256: string }[]
+  /** AnnData-Zarr por lesión (todos los genes): huella del árbol entero (sha256 del listado «ruta sha256») */
+  zarr?: { ruta: string; sha256_arbol: string }[]
+  /** «ejemplo» en los datos inventados; con datos reales, solo con la fecha de la decisión de publicar la matriz completa */
+  matriz_completa?: 'ejemplo' | { fecha_decision: string }
 }
 
 /* ── la puerta ─────────────────────────────────────────────────────────── */
@@ -98,6 +124,19 @@ export function estadoPuerta(m: Manifiesto | null | undefined, opt: { demo?: boo
   if (m.ejemplo !== true && m.sello === 'verificado' && m.ok_titular === true && fechaOkValida(m.fecha_ok) && m.modo_sondas === 'todas_incluidas') return 'real'
   if (opt.demo === true && m.ejemplo === true) return 'ejemplo'
   return 'cerrada'
+}
+
+/**
+ * ¿Se monta el nivel de TODOS los genes (Zarr)? Publicar todos los genes equivale a publicar la matriz completa
+ * (dato genético, irreversible): con datos reales solo con la fecha de esa decisión de la titular; con el ejemplo,
+ * solo si el manifiesto entero es ejemplo. Si no, la página se queda en el panel de genes del JSON.
+ */
+export function nivelMatriz(m: Manifiesto | null | undefined, estado: 'real' | 'ejemplo' | 'cerrada'): 'todos' | 'panel' {
+  if (!m || estado === 'cerrada' || !Array.isArray(m.zarr) || !Array.isArray(m.lesiones)
+    || JSON.stringify(m.zarr.map((z) => z?.ruta)) !== JSON.stringify(m.lesiones.map((l) => `zarr/${l}.zarr`))) return 'panel'
+  if (estado === 'ejemplo') return m.ejemplo === true && m.matriz_completa === 'ejemplo' ? 'todos' : 'panel'
+  const mc = m.matriz_completa
+  return typeof mc === 'object' && mc !== null && fechaOkValida((mc as { fecha_decision?: unknown }).fecha_decision) ? 'todos' : 'panel'
 }
 
 /* ── la forma (y el muro que va en ella) ───────────────────────────────── */
@@ -168,7 +207,35 @@ export function motivosLesion(d: LesionDatos, esperado: { lesion: Lesion; ejempl
       if (!('valores' in d.cnv)) m.push('el hueso lleva CNV por célula')
       else if (d.cnv.valores.length !== d.cnv.ventanas.length || !d.cnv.valores.every((v) => v.length === n)) m.push('CNV mal formado')
     }
-    if (RE_BARCODE.test(JSON.stringify({ g: d.grupos, t: d.tipos, ge: d.genes }))) m.push('cadena con forma de barcode')
+    // QC agregado (el que fija las células): n_final = células del explorador
+    const q = d.qc
+    const par = (u: unknown) => Array.isArray(u) && u.length === 2 && u.every((x) => typeof x === 'number' && Number.isFinite(x) && x >= 0) && (u[0] as number) <= (u[1] as number)
+    if (!q || typeof q.fuente !== 'string' || q.n_final !== n || !ent(q.n_inicial, n) || !par(q.umbral_UMI) || !par(q.umbral_genes) || !ent(q.scrublet_dobletes)) m.push('qc')
+    // marcadores: solo grupos del contrato presentes, como mucho MARCADORES_N, valores en rango
+    const idsSet = new Set(ids)
+    const mk = d.marcadores
+    if (!mk || typeof mk !== 'object') m.push('marcadores')
+    else for (const [gid, x] of Object.entries(mk)) {
+      if (!idsSet.has(gid)) { m.push(`marcadores de un grupo fuera del contrato: ${gid}`); continue }
+      const L = x?.gen?.length ?? -1
+      const cols = [x?.logfc, x?.fdr, x?.frac_grupo, x?.frac_resto, x?.suelo]
+      if (L < 0 || L > MARCADORES_N || new Set(x.gen).size !== L || !x.gen.every((g) => typeof g === 'string' && RE_SIMBOLO.test(g))
+        || cols.some((c) => !Array.isArray(c) || c.length !== L)) { m.push(`marcadores de ${gid}: forma`); continue }
+      if (!x.logfc.every((v) => typeof v === 'number' && Number.isFinite(v)) || ![x.fdr, x.frac_grupo, x.frac_resto, x.suelo].every((c) => c.every(frac))) m.push(`marcadores de ${gid}: valores fuera de rango`)
+    }
+    // perfil por regiones: listas paralelas, solo chr1-chr22
+    const pb = d.perfil_bins
+    if (!pb || !Array.isArray(pb.cromosoma) || !pb.cromosoma.length || pb.inicio_mb?.length !== pb.cromosoma.length || pb.log2_rel?.length !== pb.cromosoma.length
+      || !pb.cromosoma.every((c) => RE_CROMOSOMA.test(c)) || !pb.inicio_mb.every((v) => typeof v === 'number' && Number.isFinite(v) && v >= 0)
+      || !pb.log2_rel.every((v) => typeof v === 'number' && Number.isFinite(v))) m.push('perfil_bins')
+    // ADN por grupo: un valor en [0, 1) por grupo con células; el del grupo de interés es el de `adn`
+    const ag = d.adn_por_grupo
+    const conCelulas = d.grupos.filter((g) => g.n > 0).map((g) => g.id).sort()
+    const interes = d.grupos.find((g) => g.rol === 'interes')?.id
+    if (!ag || typeof ag !== 'object' || JSON.stringify(Object.keys(ag).sort()) !== JSON.stringify(conCelulas)
+      || !Object.values(ag).every((v) => typeof v === 'number' && Number.isFinite(v) && v >= 0 && v < 1)
+      || !interes || Math.abs((ag[interes] ?? -1) - (d.adn?.frac_lecturas_interes ?? -2)) > 1e-9) m.push('adn_por_grupo')
+    if (RE_BARCODE.test(JSON.stringify({ g: d.grupos, t: d.tipos, ge: d.genes, mk: d.marcadores }))) m.push('cadena con forma de barcode')
   }
   catch { m.push('fichero roto') }
   return m

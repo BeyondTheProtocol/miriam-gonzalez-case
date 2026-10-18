@@ -14,9 +14,9 @@
 // Uso: pnpm test:celula-explorador   (no necesita build)
 import { createHash } from 'node:crypto'
 import { readdirSync, readFileSync } from 'node:fs'
-import { join } from 'node:path'
+import { join, relative, sep } from 'node:path'
 import {
-  PAPELES_SELECCION, RE_BARCODE, VEREDICTOS, coexpresion, densidad, estadoPuerta, fechaOkValida, motivosLesion, pct, porGrupo, tablaCoexp,
+  MARCADORES_N, PAPELES_SELECCION, RE_BARCODE, VEREDICTOS, coexpresion, densidad, estadoPuerta, fechaOkValida, motivosLesion, nivelMatriz, pct, porGrupo, tablaCoexp,
   type LesionDatos, type Manifiesto,
 } from '../app/utils/celulaExplorador'
 import { ETIQUETA_VEREDICTO, PAPEL_SELECCION } from '../app/utils/celulaExploradorTexto'
@@ -30,9 +30,19 @@ const lee = (p: string) => readFileSync(p, 'utf8')
 
 /* ── 1 · contrato de lo publicado ── */
 const man = JSON.parse(lee(join(DIR, 'manifiesto.json'))) as Manifiesto
-const enDisco = readdirSync(DIR).filter((f) => f !== 'manifiesto.json').sort()
+const enDisco = readdirSync(DIR).filter((f) => f !== 'manifiesto.json' && f !== 'zarr').sort()
 ok('todo fichero de la carpeta está en el manifiesto (nada suelto: public/ es público aunque no se pinte)',
   JSON.stringify(enDisco) === JSON.stringify(man.ficheros.map((f) => f.ruta).sort()), `disco ${enDisco} / manifiesto ${man.ficheros.map((f) => f.ruta)}`)
+/** Huella del árbol de un Zarr: sha256 del listado «ruta sha256» de todos sus ficheros, ordenado (la misma que ejemplo.py de Polaris). */
+const shaArbol = (dir: string) => {
+  const filas: string[] = []
+  const anda = (d: string) => { for (const e of readdirSync(d, { withFileTypes: true })) { const p = join(d, e.name); if (e.isDirectory()) anda(p); else filas.push(`${relative(dir, p).split(sep).join('/')} ${createHash('sha256').update(readFileSync(p)).digest('hex')}`) } }
+  anda(dir)
+  return createHash('sha256').update(filas.sort().join('\n')).digest('hex')
+}
+const zarrEnDisco = readdirSync(DIR).includes('zarr') ? readdirSync(join(DIR, 'zarr')).sort().map((z) => `zarr/${z}`) : []
+ok('todo Zarr de la carpeta está en el manifiesto (y solo esos)', JSON.stringify(zarrEnDisco) === JSON.stringify((man.zarr ?? []).map((z) => z.ruta).sort()), `disco ${zarrEnDisco}`)
+for (const z of man.zarr ?? []) ok(`${z.ruta}: huella del árbol del manifiesto`, shaArbol(join(DIR, z.ruta)) === z.sha256_arbol)
 for (const f of man.ficheros) {
   const sha = createHash('sha256').update(readFileSync(join(DIR, f.ruta))).digest('hex')
   ok(`${f.ruta}: sha256 del manifiesto`, sha === f.sha256)
@@ -57,7 +67,7 @@ for (const l of man.lesiones) {
   ok(`${l}: nada con forma de barcode 10x`, !RE_BARCODE.test(crudo))
   ok(`${l}: nada con forma de ID de bloque ni de probe barcode`, !/\b[A-Z]?\d{2}-\d{4,6}\b|\b[A-H]-[A-H]\d{1,2}\b/.test(crudo))
   ok(`${l}: ninguna fecha`, !/\b(19|20)\d\d-\d\d-\d\d\b/.test(crudo))
-  ok(`${l}: solo las claves del contrato`, JSON.stringify(Object.keys(d).sort()) === JSON.stringify(['adn', 'celulas', 'cnv', 'ejemplo', 'expr', 'genes', 'grupos', 'lesion', 'loo', 'n_celulas', 'referencia', 'seleccion', 'sondas', 'suelo', 'tipos', 'veredicto', 'version'].filter((k) => esEjemplo || k !== 'ejemplo').sort()), Object.keys(d).join(','))
+  ok(`${l}: solo las claves del contrato`, JSON.stringify(Object.keys(d).sort()) === JSON.stringify(['adn', 'adn_por_grupo', 'celulas', 'cnv', 'ejemplo', 'expr', 'genes', 'grupos', 'lesion', 'loo', 'marcadores', 'n_celulas', 'perfil_bins', 'qc', 'referencia', 'seleccion', 'sondas', 'suelo', 'tipos', 'veredicto', 'version'].filter((k) => esEjemplo || k !== 'ejemplo').sort()), Object.keys(d).join(','))
   if (esEjemplo) ok(`${l}: el ejemplo no lleva ninguna lectura de la revisión (todo «sin_veredicto»)`, Object.values(d.veredicto).every((v) => v === 'sin_veredicto'))
 }
 
@@ -85,6 +95,16 @@ ok('fechaOkValida: los años 0-99 no se cuelan como 1900+', !fechaOkValida('0099
 ok('ejemplo con sello verificado y OK: sigue sin pasar por real', estadoPuerta({ ...clon(base), sello: 'verificado', ok_titular: true, fecha_ok: '2026-10-20' }) === 'cerrada')
 ok('sin manifiesto: cerrada', estadoPuerta(null) === 'cerrada' && estadoPuerta(undefined) === 'cerrada')
 ok('manifiesto roto: cerrada', estadoPuerta({ version: 1 } as never, { demo: true }) === 'cerrada')
+// nivel de TODOS los genes (Zarr) = publicar la matriz completa: con datos reales, solo con la fecha de esa decisión
+const zs = { zarr: [{ ruta: 'zarr/higado.zarr', sha256_arbol: 'x' }, { ruta: 'zarr/hueso.zarr', sha256_arbol: 'x' }] }
+ok('ejemplo con demo y matriz_completa «ejemplo»: todos los genes', nivelMatriz({ ...clon(base), ...zs, matriz_completa: 'ejemplo' }, 'ejemplo') === 'todos')
+ok('ejemplo sin matriz_completa: solo el panel', nivelMatriz({ ...clon(base), ...zs }, 'ejemplo') === 'panel')
+ok('real sin la decisión de la matriz completa: solo el panel', nivelMatriz(real(zs), 'real') === 'panel')
+ok('real con matriz_completa «ejemplo»: solo el panel (no abre lo real)', nivelMatriz(real({ ...zs, matriz_completa: 'ejemplo' }), 'real') === 'panel')
+ok('real con la fecha de la decisión: todos los genes', nivelMatriz(real({ ...zs, matriz_completa: { fecha_decision: '2026-10-25' } }), 'real') === 'todos')
+ok('real con una fecha de decisión que no es de calendario: solo el panel', nivelMatriz(real({ ...zs, matriz_completa: { fecha_decision: '2026-02-30' } }), 'real') === 'panel')
+ok('puerta cerrada: solo el panel aunque haya decisión', nivelMatriz(real({ ...zs, matriz_completa: { fecha_decision: '2026-10-25' } }), 'cerrada') === 'panel')
+ok('sin los Zarr declarados: solo el panel', nivelMatriz(real({ matriz_completa: { fecha_decision: '2026-10-25' } }), 'real') === 'panel')
 
 /* ── 3 · el muro en la forma (mutantes sobre el hígado y el hueso publicados) ── */
 const H = lesiones.higado!, B = lesiones.hueso!
@@ -115,6 +135,18 @@ caza('cifra sin circularidad de un gen que no está en la selección', mut(H, (x
 caza('cifra sin circularidad en el hueso', mut(B, (x) => { x.seleccion[x.genes[0]!] = 'identidad'; x.loo[x.genes[0]!] = { n: 10, frac: 0.1, ref: 0.1, cp10k_pseudobulk: null } }, 'hueso'))
 caza('ADN con una fracción > 1', mut(B, (x) => { x.adn.frac_lecturas_cell_ranger = 1.5 }, 'hueso'))
 caza('sin bloque de ADN', mut(H, (x) => { delete (x as any).adn }, 'higado'))
+const g0 = (x: LesionDatos) => Object.keys(x.marcadores)[0]!
+caza('marcadores de un grupo fuera del contrato', mut(H, (x) => { x.marcadores.tumor = x.marcadores[g0(x)]! }, 'higado'))
+caza(`más de ${MARCADORES_N} marcadores en un grupo`, mut(H, (x) => { const m = x.marcadores[g0(x)]!; for (const k of ['gen', 'logfc', 'fdr', 'frac_grupo', 'frac_resto', 'suelo'] as const) (m[k] as unknown[]).push(...Array.from({ length: MARCADORES_N }, (_, i) => (k === 'gen' ? `EXTRA${i}` : 0.1))) }, 'higado'))
+caza('un FDR > 1', mut(H, (x) => { x.marcadores[g0(x)]!.fdr[0] = 1.2 }, 'higado'))
+caza('marcadores con columnas de distinta longitud', mut(B, (x) => { x.marcadores[g0(x)]!.suelo.pop() }, 'hueso'))
+caza('perfil con un cromosoma fuera de chr1-chr22', mut(H, (x) => { x.perfil_bins.cromosoma[0] = 'chrX' }, 'higado'))
+caza('ADN de un grupo >= 1', mut(B, (x) => { x.adn_por_grupo[Object.keys(x.adn_por_grupo)[0]!] = 1 }, 'hueso'))
+caza('ADN del grupo de interés distinto del de la lesión', mut(H, (x) => { const i = x.grupos.find((g) => g.rol === 'interes')!.id; x.adn_por_grupo[i] = x.adn_por_grupo[i]! + 0.001 }, 'higado'))
+caza('un grupo con células sin ADN', mut(B, (x) => { delete x.adn_por_grupo[Object.keys(x.adn_por_grupo)[0]!] }, 'hueso'))
+caza('QC con n_final distinto de las células', mut(H, (x) => { x.qc.n_final += 1 }, 'higado'))
+caza('QC con un umbral al revés', mut(B, (x) => { x.qc.umbral_UMI = [9000, 100] }, 'hueso'))
+caza('barcode en un marcador', mut(H, (x) => { x.marcadores[g0(x)]!.gen[0] = 'AAACCCAAGTTGCATC' }, 'higado'))
 ok('el vocabulario de lecturas no tiene «diana»', !VEREDICTOS.some((v) => /diana/i.test(v)))
 ok('el vocabulario de lecturas tiene «cerrado_por_arn» (PRAME/MAGE-A4 del hueso)', (VEREDICTOS as readonly string[]).includes('cerrado_por_arn'))
 ok('cada lectura del vocabulario tiene su etiqueta ES/EN', VEREDICTOS.every((v) => !!ETIQUETA_VEREDICTO[v]?.es && !!ETIQUETA_VEREDICTO[v]?.en))
