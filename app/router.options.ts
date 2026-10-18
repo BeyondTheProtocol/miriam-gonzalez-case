@@ -1,5 +1,5 @@
 import type { RouterConfig } from '@nuxt/schema'
-import { START_LOCATION } from 'vue-router'
+import { START_LOCATION, type LocationQuery } from 'vue-router'
 
 /**
  * Reset de scroll fiable en cada cambio de ruta.
@@ -17,6 +17,9 @@ import { START_LOCATION } from 'vue-router'
  */
 export default <RouterConfig>{
   scrollBehavior(to, from, savedPosition) {
+    // /celula-a-celula/explorar: abrir un gen o cambiar de biopsia (?gen=&biopsia=) solo cambia la query; la página no
+    // se mueve, tampoco con Atrás (el explorador cambia de estado en su sitio)
+    if (to.path === from.path && to.hash === from.hash && soloCambia(to.query, from.query, ['gen', 'biopsia'])) return false
     if (savedPosition) return savedPosition
     // /datos: abrir, cerrar o mover «la película» (?peli=1&t=) solo cambia la query; la página no se mueve
     if (to.path === from.path && (to.query.peli === '1' || from.query.peli === '1')) return false
@@ -33,6 +36,12 @@ export default <RouterConfig>{
     }
     return { top: 0 }
   },
+}
+
+// ¿Las claves de la query que cambian están todas en `claves` (y cambia alguna)?
+function soloCambia(a: LocationQuery, b: LocationQuery, claves: string[]): boolean {
+  const distintas = [...new Set([...Object.keys(a), ...Object.keys(b)])].filter((k) => JSON.stringify(a[k]) !== JSON.stringify(b[k]))
+  return distintas.length > 0 && distintas.every((k) => claves.includes(k))
 }
 
 // Alto real de la cabecera pegajosa (barra «lo último» + nav, ver layouts/default.vue) más

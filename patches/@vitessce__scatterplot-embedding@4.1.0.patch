@@ -1,8 +1,30 @@
 diff --git a/dist/index-BPLMRXHR.js b/dist/index-BPLMRXHR.js
-index 2516e368aaf6096da52fbf5686dfbe912fbbac38..5623a33f6ee5b2fada38525a199c0a3a9cc48e81 100644
+index 2516e368aaf6096da52fbf5686dfbe912fbbac38..43c4d862c46c9fd4a86d82b873dc2340a1af9d8d 100644
 --- a/dist/index-BPLMRXHR.js
 +++ b/dist/index-BPLMRXHR.js
-@@ -151083,7 +151083,13 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
+@@ -151062,7 +151062,13 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
+     }
+     if (cellSetLabelsVisible) {
+       const { zoom } = viewState;
+-      const nodes = cellSetPolygons.map((p) => ({
++      // helpmiriam (19-oct-26): solo se rotula el conjunto de la PRIMERA ruta de la selección. Con un gen, el explorador
++      // selecciona los grupos y detrás los tramos de nivel (las rutas de detrás ganan el color): se ven los grupos
++      // rotulados sobre el mapa pintado por gen, sin rótulos de tramo. Si se descarta alguno, el rótulo va discreto.
++      const raiz = cellSetPolygons[0]?.path?.[0];
++      const rotulados = cellSetPolygons.filter((p) => p.path?.[0] === raiz);
++      const discreto = rotulados.length < cellSetPolygons.length;
++      const nodes = rotulados.map((p) => ({
+         x: p.centroid[0],
+         y: p.centroid[1],
+         label: p.name
+@@ -151077,13 +151083,19 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
+         data: nodes,
+         getPosition: (d) => [d.x, d.y],
+         getText: (d) => d.label,
+-        getColor: theme === "dark" ? [255, 255, 255] : [0, 0, 0],
++        getColor: theme === "dark" ? [255, 255, 255, discreto ? 210 : 255] : [0, 0, 0, discreto ? 200 : 255],
+         getSize: cellSetLabelSize,
+         getAngle: 0,
          getTextAnchor: "middle",
          getAlignmentBaseline: "center",
          fontFamily: LABEL_FONT_FAMILY,
@@ -13,7 +35,7 @@ index 2516e368aaf6096da52fbf5686dfbe912fbbac38..5623a33f6ee5b2fada38525a199c0a3a
 +        characterSet: "auto",
 +        fontSettings: { sdf: true, buffer: 6 },
 +        outlineWidth: 3,
-+        outlineColor: theme === "dark" ? [24, 16, 40, 230] : [255, 255, 255, 230]
++        outlineColor: theme === "dark" ? [24, 16, 40, discreto ? 150 : 230] : [255, 255, 255, discreto ? 150 : 230]
        }));
      }
      return result;

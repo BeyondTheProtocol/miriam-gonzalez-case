@@ -10,6 +10,9 @@
 //      por grupo y en CADA violín el suelo ambiental y el n; hueso con CNV por célula; hígado sin CNV por
 //      célula y con el aviso; móvil (375 px) CON el mapa (simulador, 18-oct), quieto hasta «Mover el mapa».
 //   4. /celula-a-celula?demo=1: la tarjeta aparece y lleva el demo al explorador.
+//   5. Navegación (19-oct), con datos reales y de ejemplo: el gen y la biopsia van en la URL; Atrás (history.back())
+//      deja el explorador abierto y sin el gen, sin recargar; una URL con ?gen= abre su detalle; en el detalle, la línea
+//      de la otra biopsia da las mismas cifras que la lista de llegada de esa biopsia.
 // Uso:  pnpm exec nuxt generate && pnpm test:celula-explorador-html   (CI: e2e.yml)
 import { existsSync, readFileSync, readdirSync } from 'node:fs'
 import { join } from 'node:path'
@@ -69,6 +72,21 @@ const leyendaGen = (g) => `(() => { const li = [...document.querySelectorAll('.e
 const mapaEnGen = `document.querySelector('.exp__mapabar select')?.value === 'gen'`
 
 const busca = (g) => `(() => { const i = document.querySelector('.exp__busca input'); i.value = '${g}'; i.dispatchEvent(new Event('input')); return true })()`
+
+// navegación (19-oct): el estado va en la URL (?gen=ERBB2&biopsia=hueso), así funcionan Atrás, recargar y compartir el
+// enlace. Antes Atrás sacaba de la página y se perdía el gen. Atrás vuelve a donde se estaba: el explorador, sin el gen.
+const qs = (k) => `new URLSearchParams(location.search).get('${k}')`
+// window.__mismaPagina: Atrás no recarga ni sale de la página (si el paso anterior también era el explorador, una recarga
+// lo dejaría «sin gen» y el test pasaría sin probar nada)
+const SIN_GEN = `(window.__mismaPagina === true && !!document.querySelector('.exp') && !document.querySelector('#exp-violines') && !document.querySelector('.exp__chip') && !new URLSearchParams(location.search).has('gen'))`
+const enDetalle = (g, les) => `(!!document.querySelector('#exp-violines h2')?.textContent.includes('${g}') && /${les}/.test(document.querySelector('#exp-violines .exp__dbiop')?.textContent ?? '') && document.querySelectorAll('.vio__fila').length > 0)`
+const ponBiopsia = (b) => `(() => { const x = [...document.querySelectorAll('.exp__ctl button')].find((e) => /^\\s*${b}\\s*$/.test(e.textContent)); x?.click(); return !!x })()`
+// la línea de la otra biopsia (comparar hígado y hueso sin memorizar cifras): sus cifras son las de la lista de llegada de
+// ESA biopsia, del mismo fichero y con las mismas funciones; el test las coteja contra esa lista, sin cifras escritas aquí
+const LINEA_OTRA = `document.querySelector('#exp-violines .exp__otra')?.textContent ?? ''`
+const filaLista = (g) => `(() => { const b = document.querySelector('.gin__gen[data-gen="${g}"]'); if (!b) return null; const td = [...b.closest('tr').querySelectorAll('td')].map((t) => t.firstChild?.textContent.trim() ?? ''); return { det: td[0], ref: td[1], suelo: td[2], lec: document.querySelector('.gin__lecfila[data-gen="${g}"] .gin__ver')?.textContent.trim() ?? '' } })()`
+const esp = (s) => String(s ?? '').replace(/\s+/g, ' ')
+const cuadra = (linea, f) => !!f && !!linea && [f.det, f.suelo, f.ref, f.lec].every((x) => !!x && esp(linea).includes(esp(x)))
 
 /* ── con DATOS REALES publicados (manifiesto sin «ejemplo»): la página está abierta; se comprueba eso y se termina ── */
 const manPub = JSON.parse(readFileSync(join(ROOT, 'celula', 'explorador', 'manifiesto.json'), 'utf8'))
@@ -219,6 +237,43 @@ if (manPub.ejemplo !== true) {
       ok('real: «Ki-67» sugiere MKI67 (búsqueda sin guiones y por «contiene»)', await esperaR(navR, `[...document.querySelectorAll('.exp__sug button')].some((b) => b.dataset.gen === 'MKI67')`))
     }
     else ok('real sin la decisión de la matriz completa: no hay buscador de todos los genes', !(await navR.evaluate(`!!document.querySelector('.exp__busca')`)))
+    /* navegación (19-oct): Atrás, Adelante, recargar y el enlace con el gen */
+    await navR.cargar('/celula-a-celula/explorar')
+    await esperaR(navR, LLEGADA)
+    await navR.evaluate('window.__mismaPagina = true')
+    await navR.evaluate(eligeDeLista('ERBB2'))
+    ok('real URL: abrir un gen de la lista lo deja en la URL (?gen=ERBB2&biopsia=higado)', await esperaR(navR, `${violinesDe('ERBB2')} && ${qs('gen')} === 'ERBB2' && ${qs('biopsia')} === 'higado'`), await navR.evaluate('location.search'))
+    await navR.evaluate('history.back()').catch(() => {})
+    ok('real Atrás: history.back() deja el explorador abierto y sin el gen (ni detalle ni chip, mapa por grupo)', await esperaR(navR, `${SIN_GEN} && ${LLEGADA}`), await navR.evaluate('location.pathname + location.search').catch(String))
+    await navR.evaluate('history.forward()').catch(() => {})
+    ok('real Adelante: history.forward() vuelve a abrir el gen', await esperaR(navR, `${violinesDe('ERBB2')} && ${qs('gen')} === 'ERBB2'`))
+    await navR.evaluate(`document.querySelector('.exp__volver')?.click()`)
+    await esperaR(navR, `!document.querySelector('#exp-violines') && !!document.querySelector('.exp__chip')`)
+    await navR.evaluate('history.back()').catch(() => {})
+    ok('real Atrás tras «Volver»: quita el gen del mapa (Atrás nunca se queda sin hacer nada)', await esperaR(navR, `${SIN_GEN} && ${LLEGADA}`))
+    await navR.evaluate(eligeDeLista('TPBG'))
+    await esperaR(navR, violinesDe('TPBG'))
+    await navR.evaluate(`document.querySelector('.exp__chipx')?.click()`)
+    ok('real ✕: quita el gen y la URL queda sin él', await esperaR(navR, `${SIN_GEN} && ${LLEGADA}`))
+    await navR.cargar('/celula-a-celula/explorar?gen=ERBB2&biopsia=hueso')
+    ok('real enlace: una URL con ?gen=ERBB2&biopsia=hueso abre el detalle de ERBB2 en el hueso', await esperaR(navR, `${enDetalle('ERBB2', 'Hueso')} && document.querySelector('.exp__ctl [aria-pressed="true"]')?.textContent.trim() === 'Hueso'`))
+    const otraDeHueso = await esperaR(navR, `!!document.querySelector('#exp-violines .exp__otra')`) ? await navR.evaluate(LINEA_OTRA) : ''
+    ok('real hueso: el detalle de ERBB2 lleva una línea con el grupo de interés del hígado, su n y «IHQ de HER2: 0»', /Hígado/.test(otraDeHueso) && /Luminal de alta confianza/.test(otraDeHueso) && /n = \d/.test(esp(otraDeHueso)) && /IHQ de HER2: 0/.test(otraDeHueso), otraDeHueso)
+    const pasos = await navR.evaluate('history.length')
+    await navR.evaluate(ponBiopsia('Hígado'))
+    await esperaR(navR, enDetalle('ERBB2', 'Hígado'))
+    const filaHigado = await navR.evaluate(filaLista('ERBB2'))
+    ok('real: esa línea da las cifras de la lista del hígado (detectado, suelo, referencia y lectura)', cuadra(otraDeHueso, filaHigado), JSON.stringify({ linea: otraDeHueso, lista: filaHigado }))
+    ok('real URL: cambiar de biopsia con el gen abierto cambia la URL sin añadir un paso al historial', await navR.evaluate(`${qs('biopsia')} === 'higado' && ${qs('gen')} === 'ERBB2' && history.length === ${pasos}`))
+    const otraDeHigado = await navR.evaluate(LINEA_OTRA)
+    await navR.evaluate(ponBiopsia('Hueso'))
+    await esperaR(navR, enDetalle('ERBB2', 'Hueso'))
+    const filaHueso = await navR.evaluate(filaLista('ERBB2'))
+    ok('real hígado: la línea del hueso da las cifras de la lista del hueso y no lleva «IHQ de HER2»', /Hueso/.test(otraDeHigado) && cuadra(otraDeHigado, filaHueso) && !/IHQ de HER2/.test(otraDeHigado), JSON.stringify({ linea: otraDeHigado, lista: filaHueso }))
+    await navR.cargar('/celula-a-celula/explorar?gen=HER2')
+    ok('real enlace: ?gen=HER2 abre ERBB2 y la URL queda con el símbolo del gen', await esperaR(navR, `${violinesDe('ERBB2')} && ${qs('gen')} === 'ERBB2'`))
+    await navR.cargar('/celula-a-celula/explorar?gen=ZZNOEXISTE1')
+    ok('real enlace: un gen que no existe no abre nada, lo dice y sale de la URL', await esperaR(navR, `/No hay ningún gen «ZZNOEXISTE1»/.test(document.querySelector('.exp__nota--busca')?.textContent ?? '') && !new URLSearchParams(location.search).has('gen') && !document.querySelector('#exp-violines')`))
     await navR.cdp('Emulation.setDeviceMetricsOverride', { width: 1024, height: 768, deviceScaleFactor: 1, mobile: false })
     await navR.cargar('/celula-a-celula/explorar')
     await esperaR(navR, `document.querySelectorAll('.gin__tabla tbody tr').length > 0`)
@@ -260,6 +315,13 @@ if (manPub.ejemplo !== true) {
     await esperaR(navR, `!document.querySelector('.exp__banner')`)
     await navR.evaluate(eligeDeLista('ERBB2'))
     ok('real móvil 375 hueso: el detalle de HER2 no se sale del panel y cada violín cuadra con su eje', await esperaR(navR, `document.querySelector('#exp-violines h2')?.textContent.includes('ERBB2')`) && await navR.evaluate(sinDesborde))
+    // abrir un gen cambia la URL: la página no puede saltar arriba del todo (router.options.ts sube en cada cambio de ruta)
+    await navR.evaluate(`document.querySelector('.exp__volver')?.click()`)
+    await esperaR(navR, `!document.querySelector('#exp-violines')`)
+    await navR.evaluate(`window.scrollTo(0, document.querySelector('.gin__gen[data-gen="CD276"]').getBoundingClientRect().top + scrollY - 300)`)
+    await navR.sleep(300)
+    await navR.evaluate(eligeDeLista('CD276'))
+    ok('real móvil 375: abrir un gen de la lista (cambia la URL) no sube la página arriba del todo', await esperaR(navR, `${violinesDe('CD276')} && ${qs('gen')} === 'CD276'`) && (await navR.evaluate('scrollY')) > 200, `scrollY ${await navR.evaluate('Math.round(scrollY)')}`)
   }
   finally { await navR.cerrar() }
   // revisión final (18-oct): sin WebGL (PC de hospital, escritorio virtual) Vitessce dejaba una caja vacía y una leyenda
@@ -402,6 +464,22 @@ try {
   ok('demo hueso: el CNV dice que es inferido de la expresión y no lectura de ADN, y marca el 0', await nav.evaluate(`/no es lectura de ADN/.test(document.querySelector('.cnv')?.textContent ?? '') && document.querySelectorAll('.cnv__cero').length > 0`))
   ok('demo hueso: el CNV avisa de que el 0 no es «como la referencia»', await nav.evaluate(`/El 0 no es «como la referencia»/.test(document.querySelector('.cnv')?.textContent ?? '') && !/0 = como la referencia/.test(document.querySelector('.cnv')?.textContent ?? '')`))
   ok('demo hueso: sin el aviso del hígado', !(await nav.evaluate(`!!document.querySelector('.exp__banner')`)))
+
+  // navegación (19-oct) con el ejemplo: ?demo=1 tiene que seguir en la URL, o la puerta se cierra y el explorador se va
+  await nav.cargar('/celula-a-celula/explorar?demo=1')
+  await espera(nav, LLEGADA)
+  await nav.evaluate('window.__mismaPagina = true')
+  const gU = await nav.evaluate(eligeDeLista(''))
+  ok(`demo URL: abrir ${gU || 'un gen'} de la lista lo deja en la URL sin perder ?demo=1`, !!gU && await espera(nav, `${violinesDe(gU)} && ${qs('gen')} === '${gU}' && ${qs('biopsia')} === 'higado' && ${qs('demo')} === '1'`), await nav.evaluate('location.search'))
+  await nav.evaluate('history.back()').catch(() => {})
+  ok('demo Atrás: history.back() deja el explorador de ejemplo abierto y sin el gen', await espera(nav, `${SIN_GEN} && ${LLEGADA} && !!document.querySelector('.exp__demo') && ${qs('demo')} === '1'`), await nav.evaluate('location.search').catch(String))
+  await nav.cargar(`/celula-a-celula/explorar?demo=1&gen=${gU}&biopsia=hueso`)
+  ok(`demo enlace: ?gen=${gU}&biopsia=hueso abre su detalle en el hueso`, await espera(nav, enDetalle(gU, 'Hueso')))
+  const otraD = await espera(nav, `!!document.querySelector('#exp-violines .exp__otra')`) ? await nav.evaluate(LINEA_OTRA) : ''
+  await nav.evaluate(ponBiopsia('Hígado'))
+  await espera(nav, enDetalle(gU, 'Hígado'))
+  const filaD = await nav.evaluate(filaLista(gU))
+  ok('demo hueso: la línea de la otra biopsia nombra el hígado y da las cifras de su lista (detectado, suelo, referencia y lectura)', /Hígado/.test(otraD) && cuadra(otraD, filaD), JSON.stringify({ linea: otraD, lista: filaD }))
 
   await nav.cdp('Emulation.setDeviceMetricsOverride', { width: 375, height: 812, deviceScaleFactor: 1, mobile: true })
   await nav.cargar('/celula-a-celula/explorar?demo=1')
