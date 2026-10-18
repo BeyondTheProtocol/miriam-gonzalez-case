@@ -33,7 +33,7 @@ useSeoMeta({
 defineOgImage('Default.takumi', { title: titulo, description: descripcion })
 
 const VERAS = [
-  ['El mapa de células de cada lesión, coloreado por grupo, tipo celular o gen.', 'The cell map of each lesion, coloured by group, cell type or gene.'],
+  ['El mapa de células de cada lesión, coloreado por grupo o por gen.', 'The cell map of each lesion, coloured by group or by gene.'],
   ['Cualquier gen de la lista, grupo a grupo, con su n y su suelo ambiental.', 'Any gene on the list, group by group, with its n and its ambient floor.'],
   ['Los genes de interés frente a la referencia emparejada, con la lectura de Polaris en borrador.', 'The genes of interest against the matched reference, with the draft Polaris reading.'],
   ['Dos genes a la vez: en qué células se detectan los dos.', 'Two genes at once: the cells where both are detected.'],

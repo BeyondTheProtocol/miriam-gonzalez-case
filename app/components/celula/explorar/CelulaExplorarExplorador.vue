@@ -24,7 +24,7 @@ import type { Coexp, Lesion, LesionDatos, Manifiesto } from '~/utils/celulaExplo
 import { coexpresion, columna, nivelMatriz, porGrupo } from '~/utils/celulaExplorador'
 import { abreZarr, storeWeb, type ZarrLesion } from '~/utils/celulaExploradorZarr'
 import { cssRgb, paleta, type RGB } from '~/utils/celulaExploradorColor'
-import { ALIAS_BUSCA, ETIQUETA_GRUPO, ETIQUETA_LESION, ETIQUETA_TIPO, PANEL_INTERES, PROTEINA, etiqueta, nombreGen } from '~/utils/celulaExploradorTexto'
+import { ALIAS_BUSCA, ETIQUETA_GRUPO, ETIQUETA_LESION, PANEL_INTERES, PROTEINA, etiqueta, nombreGen } from '~/utils/celulaExploradorTexto'
 
 const props = defineProps<{ man: Manifiesto; ejemplo: boolean; lang: 'es' | 'en' }>()
 const L = (es: string, en: string) => (props.lang === 'en' ? en : es)
@@ -98,7 +98,7 @@ const pal = computed(() => {
   const css = getComputedStyle(document.documentElement)
   return paleta(tema.value === 'oscuro' ? 'dark' : 'light', (v) => css.getPropertyValue(v))
 })
-const nombreSet = computed(() => ({ grupo: L('Grupo', 'Group'), tipo: L('Tipo celular', 'Cell type'), coexp: L('Co-expresión', 'Co-expression'), gen: L(`Nivel de ${PROT(gen.value)}`, `${PROT(gen.value)} level`) }))
+const nombreSet = computed(() => ({ grupo: L('Grupo', 'Group'), coexp: L('Co-expresión', 'Co-expression'), gen: L(`Nivel de ${PROT(gen.value)}`, `${PROT(gen.value)} level`) }))
 /** Gen elegido, como en Loupe: lo no detectado en gris y lo detectado por tramos de nivel, de claro a intenso.
  * Cortes = cuartiles del CP10k de las células donde se detecta (del fichero, nada a mano); la leyenda da el
  * rango y el n de cada tramo. Orden de dibujo: lo detectado encima de lo no detectado. */
@@ -116,7 +116,7 @@ const nivelGen = computed(() => {
   let cifras = 2
   while (cifras < 6 && new Set(lims.map((v) => Number(v.toPrecision(cifras)))).size < new Set(lims).size) cifras++
   const f = (v: number) => { const t = String(Number(v.toPrecision(cifras))); return props.lang === 'en' ? t : t.replace('.', ',') }
-  const nombres = [L('No detectado', 'Not detected'), ...lims.slice(0, -1).map((a, k) => `${f(a)}–${f(lims[k + 1]!)} CP10k`)]
+  const nombres = [L('No detectado', 'Not detected'), ...lims.slice(0, -1).map((a, k) => (a === lims[k + 1] ? `${f(a)} CP10k` : `${f(a)}–${f(lims[k + 1]!)} CP10k`))]
   const orden = Array.from(col.keys()).sort((a, b) => clases[a]! - clases[b]! || a - b)
   return { clases, nombres, orden }
 })
@@ -125,7 +125,6 @@ const conjuntos = computed(() => {
   if (!x) return []
   const c = [
     { nombre: nombreSet.value.grupo, columna: 'grupo', valores: x.celulas.grupo.map((k) => etiqueta(ETIQUETA_GRUPO, x.grupos[k]!.id, props.lang)) },
-    { nombre: nombreSet.value.tipo, columna: 'tipo', valores: x.celulas.tipo.map((k) => etiqueta(ETIQUETA_TIPO, x.tipos[k]!, props.lang)) },
   ]
   if (modo.value === 'coexp' && etiquetasCx.value) c.push({ nombre: nombreSet.value.coexp, columna: 'coexp', valores: etiquetasCx.value.map((k) => nombresCx.value[k]) })
   const ng = nivelGen.value

@@ -126,7 +126,7 @@ const nfCp = (x: number) => String(Math.round(x))
     <!-- simulador (18-oct): lo explicativo, plegado; las cifras, el n, el suelo y la circularidad quedan siempre a la vista -->
     <details class="vio__como">
       <summary>{{ L('Cómo se lee', 'How to read it') }}</summary>
-      <p class="vio__leyenda">{{ L('Si el suelo supera lo detectado, es el suelo el que está sobreestimado para ese gen en ese grupo.', 'If the floor is above what is detected, it is the floor that is overestimated for that gene in that group.') }}</p>
+      <p class="vio__leyenda">{{ L('Si el suelo supera lo detectado, el suelo está sobreestimado para ese gen en ese grupo o, en grupos pequeños, la diferencia cabe en el azar del muestreo.', 'If the floor is above what is detected, the floor is overestimated for that gene in that group or, in small groups, the difference is within sampling chance.') }}</p>
       <p class="vio__adn"><strong>{{ L(`${ETIQUETAS_FIJAS.matriz.es}.`, `${ETIQUETAS_FIJAS.matriz.en}.`) }}</strong> {{ adnTxt }}</p>
       <p class="vio__leyenda">
         {{ L('El violín es el nivel (CP10k, escala logarítmica) solo en las células donde el gen se detecta; la raya vertical es la mediana.',

@@ -92,7 +92,7 @@ const idCtl = useId()
       {{ L('El porcentaje de células del grupo se lee contra su suelo ambiental: si quedan cerca, la señal puede venir del fondo.',
         'Compare the share of cells in the group with its ambient floor: if close, the signal may come from the background.') }}
     </p>
-    <p class="mk__cap">{{ L('Wilcoxon compara el nivel de expresión célula a célula frente al resto, no solo cuántas células lo detectan: un gen presente en casi todas puede distinguir al grupo por su nivel.', 'Wilcoxon compares the expression level cell by cell against the rest, not just how many cells detect it: a gene present in almost every cell can set the group apart by its level.') }}</p>
+    <p class="mk__cap">{{ L('Wilcoxon compara el nivel de expresión de cada célula del grupo con el de las del resto, por rangos, no solo cuántas células lo detectan: un gen presente en casi todas puede distinguir al grupo por su nivel. El estadístico no se publica; el orden de la tabla es el suyo.', 'Wilcoxon compares the expression level of each cell in the group with that of the rest, by ranks, not just how many cells detect it: a gene present in almost every cell can set the group apart by its level. The statistic is not published; the table follows its order.') }}</p>
     <p v-if="hayCirc" class="mk__circ">
       * <strong>{{ L('Circular.', 'Circular.') }}</strong>
       {{ L('Los genes con asterisco participan en la selección de este grupo o van ligados al programa con el que se seleccionó: su diferencia con el resto sale en parte de cómo se eligió el grupo, no es una medida independiente.',
