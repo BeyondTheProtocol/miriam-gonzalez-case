@@ -202,7 +202,7 @@ async function abreGen(g: string, origen: 'busca' | 'marcadores' | 'interes' = '
   if (!x.expr[g]) {
     const zl = z.value
     if (!zl || !zl.tiene(g)) {
-      avisoBusca.value = L(`No hay ningún gen «${g}» en estos datos. Busca por el símbolo del gen (como MKI67), no por el nombre de la proteína. Si el símbolo es correcto, el panel no lo mide o lo lista con otro nombre; que no se mida no quiere decir que no se exprese.`, `There is no gene “${g}” in these data. Search by gene symbol (such as MKI67), not by protein name. If the symbol is right, the panel does not measure it or lists it under another name; not being measured does not mean it is not expressed.`)
+      avisoBusca.value = L(`No hay ningún gen «${g}» en estos datos. Prueba con el símbolo oficial del gen (como MKI67). Si es correcto, el panel no lo mide o lo lista con otro nombre; que no se mida no quiere decir que no se exprese.`, `There is no gene “${g}” in these data. Try the official gene symbol (such as MKI67). If it is right, the panel does not measure it or lists it under another name; not being measured does not mean it is not expressed.`)
       return
     }
     if (zl.sinSonda.has(g)) {
