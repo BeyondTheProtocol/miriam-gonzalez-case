@@ -98,8 +98,10 @@ export const ETIQUETAS_FIJAS = {
   /** con su muestra (verificacion, 18-oct): la IHQ 0 es del primario (3 lecturas) y de la biopsia hepática; en el hueso,
    * sin muestra nombrada, daba a entender una IHQ que no consta */
   her2: t('IHQ de HER2: 0 (primario e hígado)', 'HER2 IHC: 0 (primary and liver)'),
-  /** etiqueta única de la lectura por gen (lista, detalle): una fuente por rótulo */
+  /** etiqueta de la lectura por gen: completa en el detalle; corta en cada fila de la lista, cuyo pie dice de quién es y
+   * que está pendiente (diseño, 18-oct: la completa repetida diez veces pesaba más que las cifras) */
   lectura: t('Lectura de Polaris (borrador, pendiente del laboratorio):', 'Polaris reading (draft, pending laboratory confirmation):'),
+  lecturaCorta: t('Lectura (borrador):', 'Reading (draft):'),
   /** qué matriz es: la estándar, con el ADN genómico que eso arrastra en el hueso */
   matriz: t('Matriz estándar de Cell Ranger, todas las sondas; en el hueso incluye ADN genómico', 'Standard Cell Ranger matrix, all probes; in the bone it includes genomic DNA'),
   /** el número de copias del hueso es una inferencia por expresión, no una lectura de ADN */

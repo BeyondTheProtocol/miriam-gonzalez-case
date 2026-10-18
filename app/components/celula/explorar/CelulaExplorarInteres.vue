@@ -58,7 +58,7 @@ const nombre = (g: string) => PROTEINA[g] ?? g
           <tr class="gin__lecfila" :data-gen="f.gen">
             <td colspan="4">
               <span v-if="f.gen === 'ERBB2' && d.lesion === 'higado'" class="gin__ihq">{{ ETIQUETAS_FIJAS.her2[lang] }} · </span>
-              <span class="sr-only">{{ nombre(f.gen) }}: </span><span class="gin__lec">{{ ETIQUETAS_FIJAS.lectura[lang] }} <strong class="gin__ver">{{ (ETIQUETA_VEREDICTO[f.ver] ?? ETIQUETA_VEREDICTO.sin_veredicto)[lang] }}</strong></span>
+              <span class="sr-only">{{ nombre(f.gen) }}: </span><span class="gin__lec">{{ ETIQUETAS_FIJAS.lecturaCorta[lang] }} <strong class="gin__ver">{{ (ETIQUETA_VEREDICTO[f.ver] ?? ETIQUETA_VEREDICTO.sin_veredicto)[lang] }}</strong></span>
             </td>
           </tr>
         </template>
