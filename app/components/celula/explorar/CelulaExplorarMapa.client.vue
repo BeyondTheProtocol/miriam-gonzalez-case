@@ -80,12 +80,12 @@ watch(() => props.movil, (m) => { if (!m) mover.value = false })
       :style="{ height: `${alto}px` }"
       role="group"
       :aria-label="lang === 'en'
-        ? 'Visual map of the cells (UMAP). It is used with a mouse or a finger and has no keyboard version. The n per group and the per-gene figures are in the panel next to it and in the technical data; the position of each cell, only here.'
-        : 'Mapa visual de las células (UMAP). Se maneja con ratón o con el dedo y no tiene versión de teclado. Los n por grupo y las cifras por gen están en el panel de al lado y en los datos técnicos; la posición de cada célula, solo aquí.'"
+        ? 'Visual map of the cells (UMAP). It is used with a mouse or a finger and has no keyboard version. The n per group and the per-gene figures are in the gene and markers panel and in the technical data; the position of each cell, only here.'
+        : 'Mapa visual de las células (UMAP). Se maneja con ratón o con el dedo y no tiene versión de teclado. Los n por grupo y las cifras por gen están en el panel del gen y de los marcadores, y en los datos técnicos; la posición de cada célula, solo aquí.'"
     />
     <template v-if="movil">
       <div v-if="!mover" class="exp-mapa__velo" aria-hidden="true" />
-      <button type="button" class="exp-mapa__mover" :aria-pressed="mover" @click="mover = !mover">
+      <button type="button" class="exp-mapa__mover" :class="{ 'exp-mapa__mover--activo': mover }" @click="mover = !mover">
         {{ mover ? (lang === 'en' ? 'Done' : 'Listo') : (lang === 'en' ? 'Move the map' : 'Mover el mapa') }}
       </button>
     </template>
@@ -98,7 +98,7 @@ watch(() => props.movil, (m) => { if (!m) mover.value = false })
 /* velo transparente sobre el lienzo: el dedo desplaza la página hasta que se pide mover el mapa */
 .exp-mapa__velo { position: absolute; inset: 0; z-index: 3; touch-action: pan-y; }
 .exp-mapa__mover { position: absolute; right: var(--sp-12); bottom: var(--sp-12); z-index: 4; min-height: 44px; padding: 0 var(--sp-16); border-radius: var(--radius-pill); border: 1px solid var(--texto-1); background: var(--fondo); color: var(--texto-1); font: 600 var(--texto-sm)/1 var(--font-body); box-shadow: 0 4px 14px color-mix(in srgb, var(--texto-1) 18%, transparent); }
-.exp-mapa__mover[aria-pressed='true'] { background: var(--texto-1); color: var(--fondo); }
+.exp-mapa__mover--activo { background: var(--texto-1); color: var(--fondo); }
 .exp-mapa__mover:focus-visible { outline: 2px solid var(--anillo-foco); outline-offset: 2px; }
 .exp-mapa__carga { position: absolute; inset: 0; z-index: 2; display: grid; place-items: center; margin: 0; background: var(--fondo); font: var(--tipo-body-sm); color: var(--texto-2); }
 /* Vitessce pinta sus propios fondos (blanco / #333 / negro): aquí manda el tema del sistema */

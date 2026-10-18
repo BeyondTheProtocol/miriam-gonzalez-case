@@ -45,12 +45,12 @@ const idCtl = useId()
       {{ L('Genes que más distinguen a cada grupo frente al resto de la lesión (prueba de Wilcoxon, FDR de Benjamini-Hochberg). Solo grupos fijos del análisis; no se compara una selección hecha a mano. Se omiten los genes que solo aparecen en uno de los dos lados (log2FC infinito): no se pueden dar como cifra.',
         'Genes that best set each group apart from the rest of the lesion (Wilcoxon test, Benjamini-Hochberg FDR). Fixed groups of the analysis only; no hand-made selection is compared. Genes seen on only one of the two sides (infinite log2FC) are left out: they cannot be given as a figure.') }}
     </p>
+    </details>
     <p class="mk__p">
       <strong>{{ L('Detectado no es positivo.', 'Detected is not positive.') }}</strong>
       {{ L('El porcentaje de células del grupo se lee contra su suelo ambiental: si quedan cerca, la señal puede venir del fondo.',
         'Compare the share of cells in the group with its ambient floor: if close, the signal may come from the background.') }}
     </p>
-    </details>
     <div class="mk__campo">
       <span :id="`${idCtl}-g`" class="mk__eti">{{ L('Grupo', 'Group') }}</span>
       <div class="mk__seg" role="group" :aria-labelledby="`${idCtl}-g`">
@@ -152,5 +152,8 @@ const idCtl = useId()
 .mk__ir { margin-left: var(--sp-8); padding: 0; border: 0; background: none; color: var(--identidad); font: inherit; font-weight: 600; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
 .mk__como { margin: 0 0 var(--sp-12); }
 .mk__como summary { cursor: pointer; min-height: 44px; display: flex; align-items: center; font: 600 var(--texto-sm)/1.3 var(--font-body); color: var(--identidad); }
+.mk__como summary::-webkit-details-marker { display: none; }
+.mk__como summary::before { content: '▸'; margin-right: var(--sp-8); }
+.mk__como[open] summary::before { content: '▾'; }
 .mk__como summary:focus-visible { outline: 2px solid var(--anillo-foco); outline-offset: 2px; }
 </style>

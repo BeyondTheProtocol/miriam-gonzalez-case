@@ -21,8 +21,8 @@ const L = (es: string, en: string) => (lang.value === 'en' ? en : es)
 const { man, estado, hayReal } = useCelulaExplorador()
 
 const titulo = () => L('Explorar los datos célula a célula', 'Explore the cell-by-cell data')
-const descripcion = () => L('El mapa de células de las dos biopsias de Miriam: busca un gen o un marcador y míralo en el mapa, grupo a grupo, con su n y su suelo ambiental.',
-  'The cell map of Miriam’s two biopsies: search a gene or a marker and see it on the map, group by group, with its n and its ambient floor.')
+const descripcion = () => L('El mapa de células de las dos biopsias de Miriam: busca un gen o elige un marcador y míralo célula a célula en el mapa y grupo a grupo, con su n y su suelo ambiental.',
+  'The cell map of Miriam’s two biopsies: search a gene or pick a marker and see it cell by cell on the map and group by group, with its n and its ambient floor.')
 useSeoMeta({
   title: titulo, description: descripcion, ogTitle: titulo, ogDescription: descripcion,
   ogType: 'website', twitterCard: 'summary_large_image', twitterTitle: titulo, twitterDescription: descripcion,
@@ -85,14 +85,14 @@ const LEER = [
 
           <!-- simulador (18-oct): «Cómo leerlo» plegado; el resumen con texto está en Célula a célula -->
           <details class="xp-leer-pl">
-            <summary><h2 id="xp-leer-t" class="cel-h2">{{ L('Cómo leerlo', 'How to read it') }}</h2></summary>
+            <summary><span class="cel-h2">{{ L('Cómo leerlo', 'How to read it') }}</span></summary>
             <dl class="xp-leer">
               <div v-for="[tEs, dEs, tEn, dEn] in LEER" :key="tEs" class="xp-leer__fila">
                 <dt>{{ L(tEs, tEn) }}</dt>
                 <dd>{{ L(dEs, dEn) }}</dd>
               </div>
             </dl>
-            <p class="cel-p">{{ L('El resumen de lo que dicen estos datos, en texto, está en', 'The summary of what these data say, in text, is in') }} <NuxtLink :to="localePath({ name: 'celula-a-celula' })" class="link-underline">{{ L('Célula a célula', 'Cell by cell') }}</NuxtLink>.</p>
+            <p class="cel-p">{{ L('El resumen en texto de estos datos está en', 'The text summary of these data is in') }} <NuxtLink :to="localePath({ name: 'celula-a-celula' })" class="link-underline">{{ L('Célula a célula', 'Cell by cell') }}</NuxtLink>.</p>
           </details>
 
           <!-- la matriz a petición (opción C) solo se ofrece con datos reales y el OK de Miriam: antes no hay qué ofrecer -->

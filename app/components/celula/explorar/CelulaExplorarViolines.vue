@@ -115,8 +115,8 @@ const nfCp = (x: number) => String(Math.round(x))
       <span class="vio__muestra vio__muestra--raya" aria-hidden="true" />
       <div>
         <p>
-          {{ L('Suelo ambiental: el porcentaje de células en las que el gen saldría solo por ARN suelto en la muestra. Lo que no lo supera no cuenta como expresión. Si el suelo supera lo detectado, está sobreestimado para ese gen en ese grupo.',
-            'Ambient floor: the share of cells where the gene would show up from loose RNA in the sample alone. Anything at or below it does not count as expression. If the floor is above what is detected, it is overestimated for that gene in that group.') }}
+          {{ L('Suelo ambiental: el porcentaje de células en las que el gen saldría solo por ARN suelto en la muestra. Lo que no lo supera no cuenta como expresión. Si el suelo supera lo detectado, está sobreestimado para ese gen en ese grupo.' + (lesion === 'hueso' ? ' En el hueso, el suelo incluye además el ADN genómico del tejido (ver «Cómo se lee»).' : ''),
+            'Ambient floor: the share of cells where the gene would show up from loose RNA in the sample alone. Anything at or below it does not count as expression. If the floor is above what is detected, it is overestimated for that gene in that group.' + (lesion === 'hueso' ? ' In the bone, the floor also includes the tissue’s genomic DNA (see “How to read it”).' : '')) }}
         </p>
       </div>
     </div>
@@ -164,6 +164,9 @@ const nfCp = (x: number) => String(Math.round(x))
 .vio__adn { margin: var(--sp-8) 0 0; font: var(--tipo-body-sm); font-size: var(--texto-xs); color: var(--texto-1); max-width: var(--measure); }
 .vio__como { margin-top: var(--sp-12); }
 .vio__como summary { cursor: pointer; min-height: 44px; display: flex; align-items: center; font: 600 var(--texto-sm)/1.3 var(--font-body); color: var(--identidad); }
+.vio__como summary::-webkit-details-marker { display: none; }
+.vio__como summary::before { content: '▸'; margin-right: var(--sp-8); }
+.vio__como[open] summary::before { content: '▾'; }
 .vio__como summary:focus-visible { outline: 2px solid var(--anillo-foco); outline-offset: 2px; }
 .vio__circ { margin: var(--sp-4) 0 var(--sp-4); padding: var(--sp-8) var(--sp-12); border-left: 3px solid var(--texto-1); font: var(--tipo-body-sm); font-size: var(--texto-xs); color: var(--texto-1); max-width: var(--measure); }
 .vio__muestra { flex: none; width: 22px; height: 12px; margin-top: 3px; border: 1px solid var(--texto-1); }

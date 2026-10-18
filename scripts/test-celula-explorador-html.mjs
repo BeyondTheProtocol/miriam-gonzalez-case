@@ -68,6 +68,8 @@ if (manPub.ejemplo !== true) {
     ok('real sin demo: se monta el explorador, sin rótulo de ejemplo', await esperaR(navR, `!!document.querySelector('.exp') && !document.querySelector('.exp__demo')`))
     ok('real: violines con n y suelo por grupo', await esperaR(navR, `[...document.querySelectorAll('.vio__fila')].filter((f) => /suelo \\d+\\s%/.test(f.textContent) && /n = \\d/.test(f.textContent)).length > 0`))
     ok('real: aviso fijo del hígado', await navR.evaluate(`/tumor frente a hepatocito no está resuelto célula a célula/.test(document.querySelector('.exp__banner')?.textContent ?? '')`))
+    // verificacion (18-oct, simulador): lo que corrigió un «falso por omisión» va en el titular, no plegado
+    ok('real hígado: el titular fijo dice que «Hepatocitos» y «Otras» pueden incluir tumorales', await navR.evaluate(`/«Hepatocitos» y «Otras» también pueden incluir células tumorales/.test(document.querySelector('.exp__banner')?.textContent ?? '')`))
     ok('real simulador: «Datos técnicos» plegado por defecto y con QC, número de copias, perfil y genes de interés dentro', await navR.evaluate(TECNICO_PLEGADO))
     await navR.evaluate(ABRE_TODO)
     ok('real: marcadores, perfil, ADN por grupo y QC con datos', await esperaR(navR, `document.querySelectorAll('.mk__tabla tbody tr').length > 0 && !!document.querySelector('.pf__linea') && document.querySelectorAll('.adng__fila').length > 0 && document.querySelectorAll('.qc__fila').length >= 6`))
@@ -83,6 +85,7 @@ if (manPub.ejemplo !== true) {
     await navR.evaluate(`[...document.querySelectorAll('.exp__ctl button')].find((b) => /^\\s*Hueso\\s*$/.test(b.textContent))?.click()`)
     ok('real hueso: nota de circularidad del grupo (número de copias) en marcadores, genes de interés y perfil', await esperaR(navR, `/En el hueso, las células malignas se eligieron/.test(document.querySelector('.mk')?.textContent ?? '') && /En el hueso, las células malignas se eligieron/.test(document.querySelector('.gi__circh')?.textContent ?? '') && /En el hueso, el grupo de interés se eligió/.test(document.querySelector('.pf')?.textContent ?? '')`))
     ok('real hueso: «n = x de y» con su espacio (no «885de»)', !(await navR.evaluate(nPegado)))
+    ok('real hueso: la leyenda del suelo, a la vista, dice que incluye el ADN genómico (FGFR1 sale con suelo del 100 %)', await navR.evaluate(`/En el hueso, el suelo incluye además el ADN genómico/.test([...document.querySelectorAll('.vio__leyenda')].map((e) => e.textContent).join(' '))`))
     // verificacion (18-oct): Scrublet 1-2 no es un recuento de dobletes; «Otras» del hueso lleva células sin GEM limpio
     ok('real hueso: el QC matiza Scrublet y da las células que comparten gota con el hígado', await navR.evaluate(`/no es un recuento de dobletes/.test(document.querySelector('.qc__matiz')?.textContent ?? '') && /comparten gota con una célula del hígado/.test(document.querySelector('.qc__matiz')?.textContent ?? '')`))
     ok('real hueso: «Células por grupo» dice cuántas de «Otras» no tienen GEM limpio', await navR.evaluate(`[...document.querySelectorAll('.exp__nota')].some((p) => /«Otras» incluye [\\d.]+ células sin GEM limpio/.test(p.textContent))`))
