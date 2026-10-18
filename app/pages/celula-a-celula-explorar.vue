@@ -21,8 +21,8 @@ const L = (es: string, en: string) => (lang.value === 'en' ? en : es)
 const { man, estado, hayReal } = useCelulaExplorador()
 
 const titulo = () => L('Explorar los datos célula a célula', 'Explore the cell-by-cell data')
-/** subtítulo visible de una línea (simulador: el mapa tiene que asomar al entrar); la descripción larga queda para SEO */
-const lema = () => L('Busca un gen y míralo en el mapa de células de las dos biopsias.', 'Search a gene and see it on the cell map of the two biopsies.')
+/* sin subtítulo visible (panel de expertos, 18-oct): repetía la etiqueta del buscador y empujaba el mapa fuera de la
+ * primera pantalla; la descripción larga queda para SEO */
 const descripcion = () => L('El mapa de células de las dos biopsias de Miriam: busca un gen o elige un marcador y míralo célula a célula en el mapa y grupo a grupo, con su n y su suelo ambiental.',
   'The cell map of Miriam’s two biopsies: search a gene or pick a marker and see it cell by cell on the map and group by group, with its n and its ambient floor.')
 useSeoMeta({
@@ -57,14 +57,17 @@ const LEER = [
     <section class="xp-seccion" :aria-label="titulo()">
       <div class="mx-auto w-full max-w-[1280px] px-4 sm:px-6 lg:px-8">
         <PageHeader
-          class="!mb-6"
+          compact
+          class="!mb-4"
           :parent="{ to: localePath({ name: 'celula-a-celula' }), label: L('Célula a célula', 'Cell by cell') }"
           :tag="L('Para profesionales', 'For professionals')"
           :title="titulo()"
-          :subtitle="lema()"
         />
-        <CelulaAviso class="mb-4" />
-        <CelulaExplorarEtiquetas :lang="lang" class="mb-8" />
+        <!-- aviso y etiquetas fijas en una sola franja en escritorio: el mapa tiene que asomar al entrar -->
+        <div class="xp-marco">
+          <CelulaAviso />
+          <CelulaExplorarEtiquetas :lang="lang" />
+        </div>
 
         <div class="xp-flujo">
           <ClientOnly v-if="estado !== 'cerrada'">
@@ -113,7 +116,8 @@ const LEER = [
 
 <style scoped>
 /* simulador: menos aire arriba que una página de lectura, para que el mapa asome al entrar */
-.xp-seccion { padding: 1.5rem 0 4rem; }
+.xp-seccion { padding: 1rem 0 4rem; }
+.xp-marco { display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-8); margin-bottom: var(--sp-12); }
 .xp-flujo { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--sp-48); }
 .xp-cerrado { padding: var(--sp-24); }
 .xp-espera { min-height: 60vh; display: grid; place-items: center; font: var(--tipo-body-sm); color: var(--color-text-soft); }

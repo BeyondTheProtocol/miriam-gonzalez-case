@@ -9,11 +9,15 @@
  * inferido de la expresión frente a la referencia; no es lectura de ADN).
  * Qué NO enseña: «% de células tumorales» del hígado, re-clustering ni comparación tumor/hepatocito.
  * SIMULADOR (18-oct, Miriam: «el mismo simulador que en local [Loupe], el buscador de marcadores y que se vea en el
- * mapa»): el mapa manda. Barra de controles arriba (lesión, buscador de los 18.132 genes, colorear por, fondo), mapa
- * grande con un panel al lado (pestañas «Gen»: violines con n y suelo; «Marcadores»: por grupo, un toque y se pinta en
- * el mapa) y el resto plegado en «Datos técnicos». En táctil el mapa se ve y se mueve tras pulsar «Mover el mapa».
- * Claro/oscuro: el tema del sistema es manual (data-tema), no prefers-color-scheme; el conmutador
- * «Fondo» pone data-tema="oscuro" en este bloque, el tema oscuro de Vitessce y su paleta de tokens.
+ * mapa»; y después: «fácil para gente médica, lo útil, navegación intuitiva»). Panel de expertos (comité médico,
+ * diseño, verificación y comparativa de visores): UNA puerta al gen y tres estados.
+ *  1. Llegada: mapa por grupo + lista corta de genes de interés (gen, % en el grupo, referencia, suelo).
+ *  2. Gen activo (buscador, lista o marcadores): el mapa se pinta y el panel abre el gen grupo a grupo, con «‹ Volver»
+ *     y una ✕ junto al buscador para quitarlo.
+ *  3. A un clic: marcadores, «Más análisis» (tabla completa, dos genes) y «Calidad de los datos».
+ * En táctil el mapa se ve y se mueve tras pulsar «Mover el mapa».
+ * Claro/oscuro: el tema del sistema es manual (data-tema), no prefers-color-scheme; el icono de
+ * sol/luna sobre el mapa pone data-tema="oscuro" en este bloque, el tema oscuro de Vitessce y su paleta de tokens.
  * Violeta = grupo de interés, selección, foco y enlaces; los avisos van en tinta (auditoría `diseno`).
  */
 import type { Coexp, Lesion, LesionDatos, Manifiesto } from '~/utils/celulaExplorador'
@@ -34,7 +38,13 @@ const altoMapa = computed(() => {
   const libre = (altoVentana.value || 900) - altoCabecera.value - altoBanner.value - 180
   return movil.value ? Math.round(Math.min(560, Math.max(340, libre))) : Math.round(Math.min(820, Math.max(480, libre)))
 })
-const panel = ref<'gen' | 'marcadores'>('gen')
+/** pestaña del panel; `detalle` = el gen activo abierto grupo a grupo encima de la pestaña */
+const panel = ref<'interes' | 'marcadores'>('interes')
+/** gen activo (pintado en el mapa); null al llegar: el mapa va por grupo y el panel enseña la lista */
+const activo = ref<string | null>(null)
+const detalle = ref(false)
+const masHigado = ref(false)
+const masAnalisis = ref<HTMLDetailsElement | null>(null)
 const lesion = ref<Lesion>(props.man.lesiones.includes('higado') ? 'higado' : props.man.lesiones[0]!)
 const cache = shallowReactive<Partial<Record<Lesion, LesionDatos>>>({})
 const error = ref('')
@@ -70,7 +80,13 @@ const nombresCx = computed<Record<Coexp, string>>(() => ({
 }))
 const PROT = (g: string) => nombreGen(g).split(' (')[0]!
 const nTotal = computed(() => (d.value ? fmtN(d.value.n_celulas, props.lang) : ''))
-const MODOS = [['grupo', 'Grupo', 'Group'], ['tipo', 'Tipo celular', 'Cell type'], ['gen', 'Gen elegido', 'Selected gene'], ['coexp', 'Dos genes', 'Two genes']] as const
+/** «Colorear por» en un desplegable: Gen y Dos genes solo con un gen activo */
+const MODOS = computed(() => [
+  { k: 'grupo', t: L('Grupo', 'Group'), off: false },
+  { k: 'tipo', t: L('Tipo celular', 'Cell type'), off: false },
+  { k: 'gen', t: activo.value ? L(`Gen: ${PROT(activo.value)}`, `Gene: ${PROT(activo.value)}`) : L('Gen (elige uno)', 'Gene (pick one)'), off: !activo.value },
+  { k: 'coexp', t: L('Dos genes', 'Two genes'), off: !activo.value },
+] as const)
 const idCtl = useId()
 const ej = computed(() => (props.ejemplo ? L(' · ejemplo', ' · example') : ''))
 
@@ -150,14 +166,17 @@ const z = computed(() => zcache[lesion.value] ?? null)
 const busca = ref('')
 const avisoBusca = ref('')
 const leyendoGen = ref(false)
-const elegidoBusca = ref('')
 async function aseguraZarr(l: Lesion) {
   const x = cache[l]
   if (nivel.value !== 'todos' || zcache[l] || !x) return
   try { zcache[l] = await abreZarr(storeWeb(l), x.n_celulas, x.grupos.map((g) => g.id)) }
   catch { avisoBusca.value = L('No se ha podido abrir la matriz de todos los genes, así que el buscador no funciona. El resto de la página, sí.', 'The all-genes matrix could not be opened, so gene search is unavailable. The rest of the page works as usual.') }
 }
-watch(d, () => { void aseguraZarr(lesion.value) }, { immediate: true })
+// al cambiar de biopsia, el gen activo se vuelve a abrir en la otra (comparar hígado y hueso es tarea del médico)
+watch(d, async (x) => {
+  await aseguraZarr(lesion.value)
+  if (x && activo.value) await abreGen(activo.value, panel.value)
+}, { immediate: true })
 /** nombre de proteína → símbolo (HER2 → ERBB2): la página usa los nombres de proteína y un oncólogo buscará por ellos */
 /** sin guiones, puntos ni espacios: «Ki-67» y «KI67» buscan lo mismo (diseño, 18-oct) */
 const norm = (t: string) => t.toUpperCase().replace(/[-\s.]/g, '')
@@ -175,11 +194,10 @@ const sugerencias = computed(() => {
 /** ¿Se puede abrir este gen en el mapa y los violines? Los del JSON siempre; con el Zarr, cualquiera con sonda. */
 const abrible = (g: string) => !!d.value?.expr[g] || (!!z.value && z.value.tiene(g) && !z.value.sinSonda.has(g))
 /** Abre cualquier gen: si no está en el JSON, lee su columna del Zarr y la añade a los datos de la lesión. */
-async function abreGen(g: string, origen: 'busca' | 'marcadores' = 'busca') {
+async function abreGen(g: string, origen: 'busca' | 'marcadores' | 'interes' = 'busca') {
   g = ALIAS[norm(g)] ?? z.value?.genes.find((x) => norm(x) === norm(g)) ?? g
   const x = d.value
   avisoBusca.value = ''
-  elegidoBusca.value = ''
   if (!x) return
   if (!x.expr[g]) {
     const zl = z.value
@@ -207,8 +225,21 @@ async function abreGen(g: string, origen: 'busca' | 'marcadores' = 'busca') {
   }
   busca.value = ''
   gen.value = g
+  activo.value = g
+  if (origen !== 'busca') panel.value = origen        // «‹ Volver» regresa a la pestaña de la que se vino
+  detalle.value = true
   pintaGen()
-  if (origen === 'busca') elegidoBusca.value = g      // los violines quedan DEBAJO del buscador: enlace, no «más arriba»
+}
+/** ✕ del gen activo: el mapa vuelve a los grupos y el panel a su lista */
+function quitaGen() {
+  activo.value = null
+  detalle.value = false
+  if (modo.value === 'gen' || modo.value === 'coexp') modo.value = 'grupo'
+}
+/** abre «Más análisis» y lleva la tabla completa de genes de interés a la vista */
+function abreTabla() {
+  if (masAnalisis.value) masAnalisis.value.open = true
+  void nextTick(() => document.getElementById('exp-genes')?.scrollIntoView({ block: 'start' }))
 }
 
 /** Elegir un gen (buscador, marcadores o tabla) lo pinta también en el mapa: sin esto el mapa seguía coloreado por
@@ -219,17 +250,10 @@ function irAlMapa() {
   const quieto = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
   raiz.value?.querySelector('.exp__mapacol')?.scrollIntoView({ behavior: quieto ? 'auto' : 'smooth', block: 'start' })
 }
-/** «Ir a los violines»: abre la pestaña «Gen» del panel y lleva el foco allí. */
-function irAGen() {
-  panel.value = 'gen'
-  void nextTick(() => document.getElementById('exp-violines')?.focus({ preventScroll: false }))
-}
 
 /** Elegir un gen desde la tabla: los violines y el mapa cambian arriba, y se anuncia. */
-function elegirDesdeTabla(g: string) {
-  gen.value = g
-  pintaGen()
-  panel.value = 'gen'
+async function elegirDesdeTabla(g: string) {
+  await abreGen(g, 'interes')
   aviso.value = errorMapa.value
     ? L(`Mostrando ${nombreGen(g)} en los violines, más arriba.`, `Showing ${nombreGen(g)} in the violins, further up.`)
     : L(`Mostrando ${nombreGen(g)} en el mapa y en los violines, más arriba.`, `Showing ${nombreGen(g)} on the map and in the violins, further up.`)
@@ -294,32 +318,38 @@ function sinTapar(ev: FocusEvent) {
       {{ L('Todo lo que ves aquí es sintético y solo sirve para enseñar cómo funciona la página. No son datos de Miriam.', 'Everything here is synthetic and only shows how the page works. None of it is Miriam’s data.') }}
     </div>
 
-    <!-- barra del simulador: lesión, buscador, colorear por y fondo -->
+    <!-- arriba solo dos cosas: la biopsia y el gen (una sola puerta) -->
     <div class="exp__ctl" role="group" :aria-label="L('Controles del explorador', 'Explorer controls')">
       <div class="exp__campo">
-        <span :id="`${idCtl}-les`" class="exp__eti">{{ L('Lesión', 'Lesion') }}</span>
+        <span :id="`${idCtl}-les`" class="exp__eti">{{ L('Biopsia', 'Biopsy') }}</span>
         <div class="exp__seg" role="group" :aria-labelledby="`${idCtl}-les`">
           <button v-for="l in man.lesiones" :key="l" type="button" class="exp__btn" :aria-pressed="lesion === l" @click="lesion = l">{{ etiqueta(ETIQUETA_LESION, l, lang) }}</button>
         </div>
       </div>
       <div v-if="d && nivel === 'todos'" class="exp__campo exp__busca">
-        <label :for="`${idCtl}-busca`" class="exp__eti">{{ z ? L(`Buscar entre los ${fmtN(z.genes.length, lang)} genes`, `Search the ${fmtN(z.genes.length, lang)} genes`) : L('Buscar un gen', 'Search for a gene') }}</label>
-        <input :id="`${idCtl}-busca`" v-model="busca" class="exp__sel exp__sel--busca" type="search" autocomplete="off" spellcheck="false" :disabled="!z"
-               :placeholder="L('Gen, p. ej. MKI67 o HER2', 'Gene, e.g. MKI67 or HER2')" @keydown.enter.prevent="busca.trim() && abreGen(sugerencias[0] ?? busca.trim().toUpperCase())" />
+        <label :for="`${idCtl}-busca`" class="exp__eti">{{ z ? L(`Buscar un gen entre los ${fmtN(z.genes.length, lang)}`, `Search a gene among the ${fmtN(z.genes.length, lang)}`) : L('Buscar un gen', 'Search for a gene') }}</label>
+        <div class="exp__buscafila">
+          <input :id="`${idCtl}-busca`" v-model="busca" class="exp__sel exp__sel--busca" type="search" autocomplete="off" spellcheck="false" :disabled="!z"
+                 :placeholder="L('Gen, p. ej. MKI67 o HER2', 'Gene, e.g. MKI67 or HER2')" @keydown.enter.prevent="busca.trim() && abreGen(sugerencias[0] ?? busca.trim().toUpperCase())" />
+          <span v-if="activo" class="exp__chip">
+            <span class="exp__chipt">{{ nombreGen(activo) }}</span>
+            <button type="button" class="exp__chipx" :aria-label="L(`Quitar ${nombreGen(activo)} del mapa`, `Remove ${nombreGen(activo)} from the map`)" @click="quitaGen">
+              <svg viewBox="0 0 256 256" aria-hidden="true"><path fill="currentColor" d="M205.66 194.34a8 8 0 0 1-11.32 11.32L128 139.31l-66.34 66.35a8 8 0 0 1-11.32-11.32L116.69 128 50.34 61.66a8 8 0 0 1 11.32-11.32L128 116.69l66.34-66.35a8 8 0 0 1 11.32 11.32L139.31 128Z" /></svg>
+            </button>
+          </span>
+        </div>
         <p class="sr-only" aria-live="polite">{{ busca.trim().length >= 2 && z ? (sugerencias.length === 0 ? L('Ningún gen coincide', 'No matching genes') : sugerencias.length === 1 ? L('1 gen coincide', '1 matching gene') : L(`Se muestran ${sugerencias.length} genes que coinciden`, `Showing ${sugerencias.length} matching genes`)) : '' }}</p>
         <ul v-if="sugerencias.length" class="exp__sug" :aria-label="L('Genes que coinciden', 'Matching genes')">
           <li v-for="g in sugerencias" :key="g"><button type="button" class="exp__btn exp__btn--sm" :data-gen="g" @click="abreGen(g)">{{ PROTEINA[g] ? nombreGen(g) : g }}</button></li>
         </ul>
         <p v-if="leyendoGen" class="exp__nota" role="status">{{ L('Leyendo el gen…', 'Reading the gene…') }}</p>
-        <p class="exp__nota exp__nota--busca" role="status">
-          <template v-if="avisoBusca">{{ avisoBusca }}</template>
-          <template v-else-if="elegidoBusca && elegidoBusca === gen">{{ errorMapa ? L(`${elegidoBusca} está ahora en los violines.`, `${elegidoBusca} is now in the violins.`) : L(`${elegidoBusca} está ahora en el mapa y en los violines.`, `${elegidoBusca} is now on the map and in the violins.`) }} <button type="button" class="exp__salto" @click="irAGen">{{ L('Ir a los violines', 'Go to the violins') }}</button><button v-if="!errorMapa" type="button" class="exp__salto exp__salto--boton exp__solo-estrecho" @click="irAlMapa">{{ L('Ver el mapa', 'See the map') }}</button></template>
-        </p>
+        <p class="exp__nota exp__nota--busca" role="status"><template v-if="avisoBusca">{{ avisoBusca }}</template></p>
       </div>
-      <div v-if="d" class="exp__campo" :class="{ 'exp__campo--solo-ancho': nivel === 'todos' }">
+      <!-- sin la matriz completa (o si no abre), el único selector de gen es esta lista -->
+      <div v-if="d && !z" class="exp__campo">
         <label :for="`${idCtl}-gen`" class="exp__eti">{{ L('Lista de genes', 'Gene list') }}</label>
-        <select :id="`${idCtl}-gen`" v-model="gen" class="exp__sel" @change="pintaGen">
-          <option v-if="!d.genes.includes(gen)" :value="gen">{{ gen }}</option>
+        <select :id="`${idCtl}-gen`" class="exp__sel" :value="activo ?? ''" @change="abreGen(($event.target as HTMLSelectElement).value)">
+          <option value="" disabled>{{ L('Elige un gen', 'Pick a gene') }}</option>
           <optgroup :label="L('Genes de interés', 'Genes of interest')">
             <option v-for="g in genesInteres" :key="g" :value="g">{{ nombreGen(g) }}</option>
           </optgroup>
@@ -334,113 +364,106 @@ function sinTapar(ev: FocusEvent) {
       <div ref="bannerEl" class="exp__banner" role="note">
         <svg class="exp__ico" viewBox="0 0 256 256" aria-hidden="true"><path fill="currentColor" d="M240.26 186.1 152.81 34.23a28.74 28.74 0 0 0-49.62 0L15.74 186.1a27.45 27.45 0 0 0 0 27.71A28.31 28.31 0 0 0 40.55 228h174.9a28.31 28.31 0 0 0 24.79-14.19 27.45 27.45 0 0 0 .02-27.71ZM120 104a8 8 0 0 1 16 0v40a8 8 0 0 1-16 0Zm8 88a12 12 0 1 1 12-12 12 12 0 0 1-12 12Z" /></svg>
         <p><strong>{{ L('Hígado: tumor frente a hepatocito no está resuelto célula a célula.', 'Liver: tumor versus hepatocyte is not resolved cell by cell.') }}</strong>
-          {{ L('«Hepatocitos» y «Otras» también pueden incluir células tumorales.', '“Hepatocytes” and “Other” may also include tumor cells.') }}</p>
+          {{ L('«Hepatocitos» y «Otras» también pueden incluir células tumorales.', '“Hepatocytes” and “Other” may also include tumor cells.') }}
+          <button type="button" class="exp__mas" :aria-expanded="masHigado" @click="masHigado = !masHigado">{{ masHigado ? L('Menos', 'Less') : L('Más', 'More') }}</button></p>
       </div>
+      <p v-if="masHigado" class="exp__nota exp__nota--banner">
+        {{ L('El grupo «Luminal de alta confianza» es un subconjunto, no el tumor entero, y sus cifras no son «% de células tumorales». «Otras, sin asignar a un grupo» y «Hepatocitos» también pueden incluir células tumorales: el tipo se asigna por clúster, y una célula tumoral caída en un clúster de hepatocitos cuenta como hepatocito y queda fuera del grupo de interés.',
+          'The “High-confidence luminal” group is a subset, not the whole tumor, and its figures are not “% of tumor cells”. “Other, not assigned to a group” and “Hepatocytes” may also include tumor cells: type is assigned per cluster, and a tumor cell falling in a hepatocyte cluster counts as hepatocyte and stays out of the group of interest.') }}
+      </p>
     </template>
 
     <p v-if="cargando" class="exp__estado" role="status">{{ L('Cargando los datos…', 'Loading the data…') }}</p>
     <div v-else-if="error" class="exp__estado exp__estado--error" role="alert">
-      <p>{{ L('No se han podido cargar los datos de esta lesión. Para no enseñar datos a medias, no se muestra nada.', 'The data for this lesion could not be loaded. To avoid showing partial data, nothing is shown.') }}</p>
+      <p>{{ L('No se han podido cargar los datos de esta biopsia. Para no enseñar datos a medias, no se muestra nada.', 'The data for this biopsy could not be loaded. To avoid showing partial data, nothing is shown.') }}</p>
       <p class="exp__det">{{ L('Detalle técnico:', 'Technical detail:') }} {{ error }}</p>
     </div>
 
     <template v-else-if="d">
-      <!-- el simulador: mapa grande y, al lado (debajo en móvil), el panel del gen y de los marcadores -->
+      <!-- el simulador: mapa grande y, al lado (debajo en estrecho), el panel -->
       <div class="exp__sim">
         <div class="exp__mapacol">
           <h2 class="sr-only">{{ L('Mapa de células', 'Cell map') }}{{ ej }}</h2>
           <div class="exp__mapabar">
             <div class="exp__campo exp__campo--fila">
-              <span :id="`${idCtl}-modo`" class="exp__eti">{{ L('Colorear por', 'Color by') }}</span>
-              <div class="exp__seg" role="group" :aria-labelledby="`${idCtl}-modo`">
-                <button v-for="[k, es, en] in MODOS" :key="k" type="button" class="exp__btn exp__btn--sm" :aria-pressed="modo === k" @click="modo = k">{{ L(es, en) }}</button>
-              </div>
+              <label :for="`${idCtl}-modo`" class="exp__eti">{{ L('Colorear por', 'Color by') }}</label>
+              <select :id="`${idCtl}-modo`" v-model="modo" class="exp__sel exp__sel--sm">
+                <option v-for="m in MODOS" :key="m.k" :value="m.k" :disabled="m.off">{{ m.t }}</option>
+              </select>
             </div>
             <div v-if="modo === 'coexp'" class="exp__campo exp__campo--fila">
-              <label :for="`${idCtl}-genb-mapa`" class="exp__eti">{{ L(`${nombreGen(gen)} con`, `${nombreGen(gen)} with`) }}</label>
-              <select :id="`${idCtl}-genb-mapa`" v-model="genB" class="exp__sel">
+              <label :for="`${idCtl}-genb-mapa`" class="exp__eti">{{ L(`${PROT(gen)} con`, `${PROT(gen)} with`) }}</label>
+              <select :id="`${idCtl}-genb-mapa`" v-model="genB" class="exp__sel exp__sel--sm">
                 <option v-for="g in [...genesInteres, ...genesOtros].filter((x) => x !== gen)" :key="g" :value="g">{{ nombreGen(g) }}</option>
               </select>
             </div>
-            <div class="exp__campo exp__campo--fila exp__fondo">
-              <span :id="`${idCtl}-tema`" class="exp__eti">{{ L('Fondo', 'Background') }}</span>
-              <div class="exp__seg" role="group" :aria-labelledby="`${idCtl}-tema`">
-                <button type="button" class="exp__btn exp__btn--sm" :aria-pressed="tema === 'claro'" @click="tema = 'claro'">{{ L('Claro', 'Light') }}</button>
-                <button type="button" class="exp__btn exp__btn--sm" :aria-pressed="tema === 'oscuro'" @click="tema = 'oscuro'">{{ L('Oscuro', 'Dark') }}</button>
-              </div>
-            </div>
+            <button type="button" class="exp__tema" :aria-label="tema === 'oscuro' ? L('Fondo claro', 'Light background') : L('Fondo oscuro', 'Dark background')" :title="tema === 'oscuro' ? L('Fondo claro', 'Light background') : L('Fondo oscuro', 'Dark background')" @click="tema = tema === 'oscuro' ? 'claro' : 'oscuro'">
+              <svg v-if="tema === 'oscuro'" viewBox="0 0 256 256" aria-hidden="true"><path fill="currentColor" d="M120 40V16a8 8 0 0 1 16 0v24a8 8 0 0 1-16 0Zm72 88a64 64 0 1 1-64-64 64.07 64.07 0 0 1 64 64Zm-16 0a48 48 0 1 0-48 48 48.05 48.05 0 0 0 48-48ZM58.34 69.66a8 8 0 0 0 11.32-11.32l-16-16a8 8 0 0 0-11.32 11.32Zm0 116.68-16 16a8 8 0 0 0 11.32 11.32l16-16a8 8 0 0 0-11.32-11.32ZM192 72a8 8 0 0 0 5.66-2.34l16-16a8 8 0 0 0-11.32-11.32l-16 16A8 8 0 0 0 192 72Zm5.66 114.34a8 8 0 0 0-11.32 11.32l16 16a8 8 0 0 0 11.32-11.32ZM48 128a8 8 0 0 0-8-8H16a8 8 0 0 0 0 16h24a8 8 0 0 0 8-8Zm80 80a8 8 0 0 0-8 8v24a8 8 0 0 0 16 0v-24a8 8 0 0 0-8-8Zm112-88h-24a8 8 0 0 0 0 16h24a8 8 0 0 0 0-16Z" /></svg>
+              <svg v-else viewBox="0 0 256 256" aria-hidden="true"><path fill="currentColor" d="M233.54 142.23a8 8 0 0 0-8-2 88.08 88.08 0 0 1-109.8-109.8 8 8 0 0 0-10-10 104.84 104.84 0 0 0-52.91 37A104 104 0 0 0 136 224a103.09 103.09 0 0 0 62.52-20.88 104.84 104.84 0 0 0 37-52.91 8 8 0 0 0-1.98-7.98Zm-44.64 48.11A88 88 0 0 1 65.66 67.11a89 89 0 0 1 31.4-26A106 106 0 0 0 96 56a104.11 104.11 0 0 0 104 104 106 106 0 0 0 14.92-1.06 89 89 0 0 1-26.02 31.4Z" /></svg>
+            </button>
           </div>
           <a class="sr-only focus:not-sr-only exp__salto" href="#exp-panel">{{ L('Saltar el mapa', 'Skip the map') }}</a>
           <CelulaExplorarMapa :d="d" :modo="modo" :gen="gen" :gen-b="genB" :conjuntos="conjuntos" :colores="colores" :colorear-por="colorearPor"
                               :tema="tema === 'oscuro' ? 'dark' : 'light'" :lang="lang" :alto="altoMapa" :movil="movil" :orden="nivelGen?.orden" @error="errorMapa = $event" />
-          <p v-if="errorMapa" class="exp__estado exp__estado--error" role="alert">{{ L('El mapa no se ha podido dibujar en este navegador. El panel y los datos técnicos no dependen de él.', 'The map could not be drawn in this browser. The panel and the technical data do not depend on it.') }}</p>
+          <p v-if="errorMapa" class="exp__estado exp__estado--error" role="alert">{{ L('El mapa no se ha podido dibujar en este navegador. El panel y los datos de abajo no dependen de él.', 'The map could not be drawn in this browser. The panel and the data below do not depend on it.') }}</p>
           <p v-if="modo === 'gen'" class="exp__leyt">{{ L(`Nivel de ${nombreGen(gen)} en cada célula, en CP10k: no detectado o el tramo en que cae.`, `${nombreGen(gen)} level in each cell, in CP10k: not detected, or the band it falls in.`) }}</p>
           <ul v-if="leyenda.length" class="exp__leyenda" :aria-label="L('Leyenda del mapa', 'Map legend')">
             <li v-for="l in leyenda" :key="l.etiqueta"><span class="exp__muestra" :style="{ background: cssRgb(l.rgb) }" aria-hidden="true" />{{ l.etiqueta }} <span class="nums">{{ fmtN(l.n, lang) }}</span></li>
           </ul>
-          <details v-if="modo === 'gen'" class="exp__porque exp__tramos">
-            <summary>{{ L('Cómo se cortan los tramos', 'How the bands are cut') }}</summary>
-            <p class="exp__nota">{{ L('Hasta cuatro tramos, cortados en los cuartiles de las células donde se detecta; cada tramo incluye su límite superior. Si se detecta en menos de 8 células, un solo tramo.', 'Up to four bands, cut at the quartiles of the cells where it is detected; each band includes its upper limit. If it is detected in fewer than 8 cells, a single band.') }}</p>
-          </details>
-          <p v-if="otrasGem" class="exp__nota">{{ L(`En el hueso, «Otras» incluye ${fmtN(otrasGem.n, 'es')} células sin GEM limpio: comparten gota con una célula del hígado y pueden llevar su ARN.`, `In the bone, “Other” includes ${fmtN(otrasGem.n, 'en')} cells without a clean GEM: they share a droplet with a liver cell and may carry its RNA.`) }}</p>
-          <details v-if="lesion === 'higado'" class="exp__porque">
-            <summary>{{ L('Qué quiere decir', 'What this means') }}</summary>
-            <p class="exp__nota exp__nota--banner">
-              {{ L('El grupo «Luminal de alta confianza» es un subconjunto, no el tumor entero, y sus cifras no son «% de células tumorales». «Otras, sin asignar a un grupo» y «Hepatocitos» también pueden incluir células tumorales: el tipo se asigna por clúster, y una célula tumoral caída en un clúster de hepatocitos cuenta como hepatocito y queda fuera del grupo de interés.',
-                'The “High-confidence luminal” group is a subset, not the whole tumor, and its figures are not “% of tumor cells”. “Other, not assigned to a group” and “Hepatocytes” may also include tumor cells: type is assigned per cluster, and a tumor cell falling in a hepatocyte cluster counts as hepatocyte and stays out of the group of interest.') }}
-            </p>
-          </details>
-          <p class="exp__nota">{{ L(`${nTotal} células de la biopsia, colocadas según lo que se parecen entre sí (UMAP). Dos puntos cercanos son células parecidas; la distancia entre grupos alejados no se interpreta.`,
-            `${nTotal} cells from the biopsy, placed by how similar they are (UMAP). Nearby dots are similar cells; distances between far-apart groups are not meaningful.`) }}</p>
           <p v-if="modo === 'gen' || modo === 'coexp'" class="exp__avisos">
-            {{ L('El color es ARN, no proteína. El mapa pinta toda célula donde se detecta el gen, aunque esa señal pueda venir del fondo; si un grupo supera su suelo ambiental, se ve en los violines.',
-              'Color is RNA, not protein. The map paints every cell where the gene is detected, even if that signal may come from the background; whether a group clears its ambient floor shows in the violins.') }}
+            {{ L('El color es ARN, no proteína. El mapa pinta toda célula donde se detecta el gen, aunque esa señal pueda venir del fondo; si un grupo supera su suelo ambiental, se ve en sus cifras por grupo.',
+              'Color is RNA, not protein. The map paints every cell where the gene is detected, even if that signal may come from the background; whether a group clears its ambient floor shows in its figures by group.') }}
           </p>
+          <p v-if="modo === 'tipo'" class="exp__nota">{{ L('Grupo y tipo celular salen de métodos distintos: el grupo, de la selección de células del análisis revisado; el tipo, de la anotación por clúster con marcadores canónicos de uno de los analistas. Por eso una célula del grupo de interés puede figurar con otro tipo, o con el tipo «Sin asignar».',
+            'Group and cell type come from different methods: the group, from the cell selection in the reviewed analysis; the type, from one analyst’s per-cluster annotation with canonical markers. That is why a cell in the group of interest may show another type, or the type “Unassigned”.') }}</p>
+          <p v-if="otrasGem" class="exp__nota">{{ L(`En el hueso, «Otras» incluye ${fmtN(otrasGem.n, 'es')} células sin GEM limpio: comparten gota con una célula del hígado y pueden llevar su ARN. ${fmtN(otrasGem.deTipo, 'es')} de ellas son de tipos que tienen grupo propio y están en «Otras» solo por eso.`, `In the bone, “Other” includes ${fmtN(otrasGem.n, 'en')} cells without a clean GEM: they share a droplet with a liver cell and may carry its RNA. ${fmtN(otrasGem.deTipo, 'en')} of them are of types that have their own group and sit in “Other” only for that reason.`) }}</p>
+          <p class="exp__nota">{{ L(`${nTotal} células de la biopsia; dos puntos cercanos son células parecidas.`, `${nTotal} cells from the biopsy; nearby dots are similar cells.`) }}</p>
+          <details class="exp__porque">
+            <summary>{{ L('Cómo leer este mapa', 'How to read this map') }}</summary>
+            <p class="exp__nota">{{ L('Las células se colocan según lo que se parecen entre sí (UMAP). La distancia entre grupos alejados no se interpreta.', 'Cells are placed by how similar they are (UMAP). Distances between far-apart groups are not meaningful.') }}</p>
+            <p class="exp__nota">{{ L('Con un gen, hasta cuatro tramos de nivel, cortados en los cuartiles de las células donde se detecta; cada tramo incluye su límite superior. Si se detecta en menos de 8 células, un solo tramo.', 'With a gene, up to four level bands, cut at the quartiles of the cells where it is detected; each band includes its upper limit. If it is detected in fewer than 8 cells, a single band.') }}</p>
+          </details>
         </div>
-        <aside id="exp-panel" class="exp__panel" :aria-label="L('Panel del gen y de los marcadores', 'Gene and markers panel')">
+
+        <aside id="exp-panel" class="exp__panel" :aria-label="L('Panel de genes', 'Genes panel')">
           <div class="exp__seg exp__pestanas" role="group" :aria-label="L('Qué ver en el panel', 'What to show in the panel')">
-            <button type="button" class="exp__btn exp__btn--sm" :aria-pressed="panel === 'gen'" @click="panel = 'gen'">{{ L('Gen', 'Gene') }}</button>
-            <button type="button" class="exp__btn exp__btn--sm" :aria-pressed="panel === 'marcadores'" @click="panel = 'marcadores'">{{ L('Marcadores', 'Markers') }}</button>
+            <button type="button" class="exp__btn exp__btn--sm" :aria-pressed="panel === 'interes'" @click="panel = 'interes'; detalle = false">{{ L('Genes de interés', 'Genes of interest') }}</button>
+            <button type="button" class="exp__btn exp__btn--sm" :aria-pressed="panel === 'marcadores'" @click="panel = 'marcadores'; detalle = false">{{ L('Marcadores', 'Markers') }}</button>
           </div>
-          <div v-show="panel === 'gen'" id="exp-violines" class="exp__pcuerpo" tabindex="-1">
+          <!-- el gen activo, grupo a grupo -->
+          <div v-if="detalle && activo" id="exp-violines" class="exp__pcuerpo" tabindex="-1">
+            <div class="exp__dcab">
+              <button type="button" class="exp__volver" @click="detalle = false">
+                <svg viewBox="0 0 256 256" aria-hidden="true"><path fill="currentColor" d="M165.66 202.34a8 8 0 0 1-11.32 11.32l-80-80a8 8 0 0 1 0-11.32l80-80a8 8 0 0 1 11.32 11.32L91.31 128Z" /></svg>
+                {{ L('Volver', 'Back') }}<span class="sr-only">{{ panel === 'marcadores' ? L(' a los marcadores', ' to the markers') : L(' a los genes de interés', ' to the genes of interest') }}</span>
+              </button>
+              <button v-if="!errorMapa" type="button" class="exp__vermapa exp__solo-estrecho" @click="irAlMapa">{{ L('Ver el mapa', 'See the map') }}</button>
+            </div>
             <h2 class="exp__h2">{{ L(`${nombreGen(gen)}, grupo a grupo`, `${nombreGen(gen)}, group by group`) }}{{ ej }}</h2>
-            <button v-if="modo !== 'gen' && modo !== 'coexp' && !errorMapa" type="button" class="exp__btn exp__btn--sm exp__pintar" @click="pintaGen">{{ L(`Pintar ${PROT(gen)} en el mapa`, `Paint ${PROT(gen)} on the map`) }}</button>
             <CelulaExplorarViolines :filas="filas" :gen="gen" :lang="lang" :lesion="lesion" :adn="d.adn" :papel="d.seleccion[gen]" :loo="d.loo[gen]" />
           </div>
-          <div v-show="panel === 'marcadores'" class="exp__pcuerpo">
+          <div v-show="!(detalle && activo) && panel === 'interes'" class="exp__pcuerpo">
+            <h2 class="exp__h2">{{ L('Genes de interés', 'Genes of interest') }}{{ ej }}</h2>
+            <CelulaExplorarInteres :d="d" :lang="lang" :activo="activo" @elegir="(g: string) => abreGen(g, 'interes')" @tabla="abreTabla" />
+          </div>
+          <div v-show="!(detalle && activo) && panel === 'marcadores'" class="exp__pcuerpo">
             <h2 class="exp__h2">{{ L('Marcadores por grupo', 'Markers per group') }}{{ ej }}</h2>
-            <CelulaExplorarMarcadores :d="d" :lang="lang" :abribles="abrible" :elegido="gen" :con-mapa="!errorMapa" @elegir="(g: string) => abreGen(g, 'marcadores')" @ir-gen="irAGen" @ir-mapa="irAlMapa" />
+            <CelulaExplorarMarcadores :d="d" :lang="lang" :abribles="abrible" :elegido="activo ?? ''" @elegir="(g: string) => abreGen(g, 'marcadores')" />
           </div>
         </aside>
       </div>
 
-      <!-- todo lo demás, plegado: está a un clic, no estorba al mapa -->
-      <details class="exp__tecnico">
+      <!-- a un clic: lo que busca un clínico con calma, y la calidad de los datos para quien analiza -->
+      <details ref="masAnalisis" class="exp__tecnico exp__masan">
         <summary>
-          <span class="exp__tsum">{{ L('Datos técnicos', 'Technical data') }}</span>
-          <span class="exp__tsub">{{ L('Células por grupo, genes de interés, dos genes a la vez, número de copias (inferido), expresión por regiones del genoma, ADN genómico por grupo y control de calidad', 'Cells per group, genes of interest, two genes at once, copy number (inferred), expression by genome region, genomic DNA per group and quality control') }}</span>
+          <span class="exp__tsum">{{ L('Más análisis', 'More analysis') }}</span>
+          <span class="exp__tsub">{{ L('Tabla completa de genes de interés (con sondas y lectura) y dos genes a la vez', 'Full genes-of-interest table (with probes and reading) and two genes at once') }}</span>
         </summary>
-
-        <div class="exp__bloque">
-          <h2 class="exp__h2">{{ L('Células por grupo', 'Cells per group') }}{{ ej }}</h2>
-          <ul class="exp__grupos">
-            <li v-for="g in d.grupos" :key="g.id" :class="`exp__g--${g.rol}`">
-              <span>{{ etiqueta(ETIQUETA_GRUPO, g.id, lang) }}</span>
-              <span class="nums">n = {{ fmtN(g.n, lang) }}</span>
-            </li>
-          </ul>
-          <p class="exp__nota">{{ L('El n de cada grupo sale directamente del fichero de datos.', 'Each group’s n comes straight from the data file.') }}</p>
-          <p v-if="otrasGem" class="exp__nota">{{ L(`En el hueso, «Otras» incluye ${fmtN(otrasGem.n, 'es')} células sin GEM limpio: comparten gota con una célula del hígado y pueden llevar su ARN. ${fmtN(otrasGem.deTipo, 'es')} de ellas son de tipos que tienen grupo propio y están en «Otras» solo por eso.`, `In the bone, “Other” includes ${fmtN(otrasGem.n, 'en')} cells without a clean GEM: they share a droplet with a liver cell and may carry its RNA. ${fmtN(otrasGem.deTipo, 'en')} of them are of types that have their own group and sit in “Other” only for that reason.`) }}</p>
-          <p class="exp__nota">{{ L('Grupo y tipo celular salen de métodos distintos: el grupo, de la selección de células del análisis revisado; el tipo, de la anotación por clúster con marcadores canónicos de uno de los analistas. Por eso una célula del grupo de interés puede figurar con otro tipo, o con el tipo «Sin asignar».',
-            'Group and cell type come from different methods: the group, from the cell selection in the reviewed analysis; the type, from one analyst’s per-cluster annotation with canonical markers. That is why a cell in the group of interest may show another type, or the type “Unassigned”.') }}</p>
-        </div>
-
         <div id="exp-genes" class="exp__bloque">
-          <h2 class="exp__h2">{{ L('Genes de interés', 'Genes of interest') }}{{ ej }}</h2>
-          <CelulaExplorarGenes :d="d" :lang="lang" :elegido="gen" @elegir="elegirDesdeTabla" />
+          <h2 class="exp__h2">{{ L('Genes de interés: tabla completa', 'Genes of interest: full table') }}{{ ej }}</h2>
+          <CelulaExplorarGenes :d="d" :lang="lang" :elegido="activo ?? ''" @elegir="elegirDesdeTabla" />
           <p class="exp__estado" role="status">{{ aviso }}<button v-if="aviso && !errorMapa" type="button" class="exp__salto exp__salto--boton" @click="irAlMapa">{{ L('Ver el mapa', 'See the map') }}</button></p>
         </div>
-
         <div class="exp__bloque">
           <h2 class="exp__h2">{{ L('Dos genes a la vez', 'Two genes at once') }}{{ ej }}</h2>
           <div v-if="modo !== 'coexp'" class="exp__campo exp__campo--fila">
@@ -452,22 +475,24 @@ function sinTapar(ev: FocusEvent) {
           <p v-else class="exp__nota">{{ L('El segundo gen se elige encima del mapa, junto a «Colorear por».', 'The second gene is chosen above the map, next to “Color by”.') }}</p>
           <CelulaExplorarCoexp v-if="etiquetasCx" :d="d" :etiquetas="etiquetasCx" :gen-a="gen" :gen-b="genB" :lang="lang" />
         </div>
-
+      </details>
+      <details class="exp__tecnico exp__calidad">
+        <summary>
+          <span class="exp__tsum">{{ L('Calidad de los datos', 'Data quality') }}</span>
+          <span class="exp__tsub">{{ L('Número de copias (inferido), expresión por regiones del genoma, ADN genómico por grupo y control de calidad', 'Copy number (inferred), expression by genome region, genomic DNA per group and quality control') }}</span>
+        </summary>
         <div class="exp__bloque">
           <h2 class="exp__h2">{{ L('Número de copias (inferido)', 'Copy number (inferred)') }}{{ ej }}</h2>
           <CelulaExplorarCnv :d="d" :lang="lang" />
         </div>
-
         <div class="exp__bloque">
           <h2 class="exp__h2">{{ L('Expresión por regiones del genoma', 'Expression by genome region') }}{{ ej }}</h2>
           <CelulaExplorarPerfil :d="d" :lang="lang" />
         </div>
-
         <div class="exp__bloque">
           <h2 class="exp__h2">{{ L('ADN genómico por grupo', 'Genomic DNA per group') }}{{ ej }}</h2>
           <CelulaExplorarAdn :d="d" :lang="lang" />
         </div>
-
         <div class="exp__bloque">
           <h2 class="exp__h2">{{ L('Control de calidad', 'Quality control') }}{{ ej }}</h2>
           <CelulaExplorarQc :d="d" :lang="lang" />
@@ -499,9 +524,9 @@ function sinTapar(ev: FocusEvent) {
 .exp__btn[aria-pressed='true'] { background: var(--texto-1); color: var(--fondo); border-color: var(--texto-1); }
 .exp__btn:focus-visible, .exp__sel:focus-visible, .exp__salto:focus-visible { outline: 2px solid var(--anillo-foco); outline-offset: 2px; }
 .exp__sel { min-height: 44px; min-width: 14rem; max-width: 100%; padding: 0 var(--sp-12); border-radius: var(--radius-btn); border: 1px solid var(--trazo-interactivo); background: var(--fondo); color: var(--texto-1); font: 500 var(--texto-base)/1 var(--font-body); }
-.exp__banner { display: flex; gap: var(--sp-8); align-items: flex-start; padding: var(--sp-12) var(--sp-16); border-radius: var(--radius-btn); font: var(--tipo-body-sm); }
+.exp__banner { display: flex; gap: var(--sp-8); align-items: flex-start; padding: var(--sp-8) var(--sp-12); border-radius: var(--radius-btn); font: var(--tipo-body-sm); }
 .exp__banner { margin: var(--sp-16) 0 0; position: sticky; top: var(--exp-top, 8px); z-index: 5; background: var(--fondo); border: 2px solid var(--texto-1); color: var(--texto-1); }
-@media (max-width: 1023px) { .exp__banner { padding: var(--sp-8) var(--sp-12); font-size: var(--texto-xs); } }
+@media (max-width: 1023px) { .exp__banner { font-size: var(--texto-xs); } }
 .exp__banner p { margin: 0; }
 .exp__ico { width: 20px; height: 20px; flex: none; margin-top: 1px; color: var(--texto-1); }
 .exp__estado { margin: var(--sp-16) 0 0; font: var(--tipo-body-sm); color: var(--texto-2); }
@@ -539,12 +564,9 @@ function sinTapar(ev: FocusEvent) {
 .exp__mapabar { display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-8) var(--sp-24); margin-bottom: var(--sp-8); }
 .exp__mapabar .exp__campo--fila { margin-bottom: 0; }
 .exp__leyt { margin: var(--sp-12) 0 0; font: 600 var(--texto-xs)/1.4 var(--font-body); color: var(--texto-1); max-width: var(--measure); }
-.exp__fondo { margin-left: auto; }
-.exp__pintar { margin: 0 0 var(--sp-12); }
 .exp__salto--boton { margin: 0 0 0 var(--sp-8); }
 .exp__solo-estrecho { display: none; }
 @media (max-width: 1023px) { .exp__solo-estrecho { display: inline-block; } }
-@media (max-width: 1023px) { .exp__campo--solo-ancho { display: none; } }   /* en móvil manda el buscador */
 .exp__h2 { font: var(--tipo-h3); color: var(--texto-1); margin: 0 0 var(--sp-12); }
 .exp__nota { margin: var(--sp-8) 0 0; font: var(--tipo-body-sm); font-size: var(--texto-xs); color: var(--texto-2); max-width: var(--measure); }
 .exp__nota--busca:empty { display: none; }
@@ -555,12 +577,39 @@ function sinTapar(ev: FocusEvent) {
 .exp__leyenda .nums { font-family: var(--font-mono); color: var(--texto-2); }
 .exp__muestra { width: 12px; height: 12px; border-radius: 999px; flex: none; box-shadow: 0 0 0 1px var(--trazo-fuerte); }
 .exp__bloque { margin-top: var(--sp-32); padding-top: var(--sp-24); border-top: 1px solid var(--trazo-medio); }
-.exp__grupos { list-style: none; margin: 0; padding: 0; display: grid; gap: 0 var(--sp-24); grid-template-columns: repeat(auto-fill, minmax(min(15rem, 100%), 1fr)); }
-.exp__grupos li { display: flex; justify-content: space-between; gap: var(--sp-8); padding: var(--sp-8) 0; border-bottom: 1px solid var(--trazo-sutil); font: var(--tipo-body-sm); }
-.exp__grupos .nums { font-family: var(--font-mono); color: var(--texto-2); white-space: nowrap; flex: none; }
-.exp__g--interes span:first-child { color: var(--identidad); font-weight: 600; }
 .exp__busca { position: relative; flex: 1 1 18rem; }
-.exp__busca .exp__sel { width: 100%; }
 .exp__sug { position: absolute; top: calc(100% + var(--sp-4)); left: 0; right: 0; z-index: 10; list-style: none; margin: 0; padding: var(--sp-8); display: flex; flex-wrap: wrap; gap: var(--sp-4); max-width: 28rem; background: var(--fondo); border: 1px solid var(--trazo-fuerte); border-radius: var(--radius-btn); box-shadow: 0 6px 18px color-mix(in srgb, var(--texto-1) 12%, transparent); }
+/* buscador + chip del gen activo (la ✕ lo quita del mapa) */
+.exp__buscafila { display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-8); }
+.exp__buscafila .exp__sel--busca { flex: 1 1 14rem; min-width: 0; }
+.exp__chip { display: inline-flex; align-items: center; max-width: 100%; min-height: 44px; padding-left: var(--sp-12); border-radius: var(--radius-pill); border: 1px solid var(--identidad); background: color-mix(in srgb, var(--identidad) 10%, transparent); color: var(--texto-1); font: 600 var(--texto-sm)/1.2 var(--font-body); }
+.exp__chipt { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.exp__chipx, .exp__tema { display: inline-grid; place-items: center; flex: none; width: 44px; height: 44px; padding: 0; border-radius: var(--radius-pill); background: transparent; color: var(--texto-1); cursor: pointer; }
+.exp__chipx { border: 0; }
+.exp__chipx svg { width: 16px; height: 16px; }
+.exp__tema { margin-left: auto; border: 1px solid var(--trazo-interactivo); }
+.exp__tema svg { width: 20px; height: 20px; }
+@media (hover: hover) { .exp__chipx:hover, .exp__tema:hover { background: var(--trazo-sutil); } }
+.exp__chipx:focus-visible, .exp__tema:focus-visible, .exp__volver:focus-visible, .exp__mas:focus-visible { outline: 2px solid var(--anillo-foco); outline-offset: 2px; }
+.exp__mas { margin-left: var(--sp-4); padding: 0; border: 0; background: none; color: var(--identidad); font: inherit; font-weight: 600; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+.exp__sel--sm { min-width: 11rem; font-size: var(--texto-sm); }
+/* detalle del gen: «‹ Volver» a la lista de la que se vino */
+.exp__dcab { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--sp-8); margin-bottom: var(--sp-4); }
+/* en estrecho el mapa queda encima del panel: el detalle trae un botón para volver a verlo (sin salto automático) */
+.exp__vermapa { min-height: 44px; padding: 0 var(--sp-16); border-radius: var(--radius-pill); border: 1px solid var(--trazo-interactivo); background: transparent; color: var(--texto-1); font: 600 var(--texto-sm)/1 var(--font-body); cursor: pointer; }
+.exp__vermapa:focus-visible { outline: 2px solid var(--anillo-foco); outline-offset: 2px; }
+.exp__volver { display: inline-flex; align-items: center; gap: var(--sp-4); min-height: 44px; padding: 0 var(--sp-8) 0 0; border: 0; background: none; color: var(--identidad); font: 600 var(--texto-sm)/1.2 var(--font-body); cursor: pointer; }
+.exp__volver svg { width: 16px; height: 16px; }
+.exp__tecnico + .exp__tecnico { margin-top: 0; }
+/* escritorio: rótulos a la izquierda de su control y menos aire, para que al entrar se vean 400 px de mapa a 1440×900 */
+@media (min-width: 1024px) {
+  .exp { padding-top: var(--sp-16); }
+  .exp__ctl { padding-bottom: var(--sp-12); align-items: center; }
+  .exp__ctl > .exp__campo:not(.exp__busca) { display: flex; align-items: center; gap: var(--sp-8); }
+  .exp__busca { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: center; column-gap: var(--sp-8); }
+  .exp__busca > :not(label) { grid-column: 2; }
+  .exp__banner { margin-top: var(--sp-12); }
+  .exp__sim { margin-top: var(--sp-12); }
+}
 .exp__sel::placeholder { color: var(--texto-2); opacity: 1; }
 </style>

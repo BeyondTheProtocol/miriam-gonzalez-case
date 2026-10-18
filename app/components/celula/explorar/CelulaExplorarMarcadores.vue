@@ -5,14 +5,16 @@
  * selección libre (con una selección a mano se puede reconstruir algo que el análisis no sostiene). Las cifras
  * salen del fichero (`marcadores`). Un gen se puede abrir en el mapa y los violines si está en los datos.
  * Patrón de tabla de «Genes de interés» (auditoría `diseno`, 18-oct): primera columna fija, aviso de deslizar en el
- * móvil, el suelo junto al porcentaje del grupo y la fila elegida marcada, con enlace a los violines.
+ * móvil, el suelo junto al porcentaje del grupo y la fila elegida marcada.
+ * Panel de expertos (18-oct): los 15 primeros con cinco columnas; «Ver los N, con FDR» abre la lista entera y el FDR.
+ * Pulsar un gen abre su detalle en el panel (el explorador lo pinta en el mapa); aquí ya no se anuncia nada.
  */
 import type { LesionDatos } from '~/utils/celulaExplorador'
 import { fmtPct } from '~/utils/celulaExplorador'
 import { CIRC_HUESO, CIRC_REFERENCIA, ETIQUETA_GRUPO, etiqueta } from '~/utils/celulaExploradorTexto'
 
-const props = defineProps<{ d: LesionDatos; lang: 'es' | 'en'; abribles: (gen: string) => boolean; elegido: string; conMapa: boolean }>()
-const emit = defineEmits<{ elegir: [gen: string]; irGen: []; irMapa: [] }>()
+const props = defineProps<{ d: LesionDatos; lang: 'es' | 'en'; abribles: (gen: string) => boolean; elegido: string }>()
+const emit = defineEmits<{ elegir: [gen: string] }>()
 const L = (es: string, en: string) => (props.lang === 'en' ? en : es)
 const grupos = computed(() => props.d.grupos.filter((g) => g.id in props.d.marcadores))
 const grupo = ref<string>(grupos.value.find((g) => g.rol === 'interes')?.id ?? grupos.value[0]?.id ?? '')
@@ -27,8 +29,12 @@ const filas = computed(() => {
 const esInteres = computed(() => props.d.grupos.find((g) => g.id === grupo.value)?.rol === 'interes')
 const circular = (g: string) => esInteres.value && !!props.d.seleccion[g]
 const hayCirc = computed(() => filas.value.some((f) => circular(f.gen)))
-const pulsado = ref('')
-function elige(g: string) { pulsado.value = g; emit('elegir', g) }
+const TOP = 15
+const todos = ref(false)
+const vistas = computed(() => (todos.value ? filas.value : filas.value.slice(0, TOP)))
+/** el FDR se ve con la lista entera (o si la lista ya es corta): en los 15 primeros, el gris ya marca FDR ≥ 0,05 */
+const conFdr = computed(() => todos.value || filas.value.length <= TOP)
+const corta = computed(() => !todos.value && filas.value.length > TOP)
 const coma = (s: string) => (props.lang === 'en' ? s : s.replace('.', ','))
 const fc = (x: number) => coma(x.toFixed(2))
 // FDR 0 en el fichero = por debajo de la precisión del cálculo (doble precisión), no un FDR de 0: se da como cota
@@ -58,8 +64,8 @@ const idCtl = useId()
       </div>
     </div>
     <p :id="`${idCtl}-cap`" class="mk__cap">
-      {{ L(`${etiqueta(ETIQUETA_GRUPO, grupo, 'es')}: ${filas.length} genes, ordenados por el estadístico de Wilcoxon. En gris, los de FDR de 0,05 o más: con ese umbral no distinguen al grupo.`,
-        `${etiqueta(ETIQUETA_GRUPO, grupo, 'en')}: ${filas.length} genes, ranked by the Wilcoxon statistic. In grey, those with FDR of 0.05 or more: at that threshold they do not set the group apart.`) }}
+      {{ L(`${etiqueta(ETIQUETA_GRUPO, grupo, 'es')}: ${corta ? `los ${TOP} primeros de ${filas.length} genes` : `${filas.length} genes`}, ordenados por el estadístico de Wilcoxon. En gris, los de FDR de 0,05 o más: con ese umbral no distinguen al grupo.`,
+        `${etiqueta(ETIQUETA_GRUPO, grupo, 'en')}: ${corta ? `the top ${TOP} of ${filas.length} genes` : `${filas.length} genes`}, ranked by the Wilcoxon statistic. In grey, those with FDR of 0.05 or more: at that threshold they do not set the group apart.`) }}
     </p>
     <p v-if="hayCirc" class="mk__circ">
       * <strong>{{ L('Circular.', 'Circular.') }}</strong>
@@ -69,9 +75,9 @@ const idCtl = useId()
     <p v-if="esInteres && d.lesion === 'hueso'" class="mk__circ"><strong>{{ L('Circular.', 'Circular.') }}</strong> {{ L(CIRC_HUESO.es, CIRC_HUESO.en) }}</p>
     <p v-if="!esInteres && grupo !== 'otras'" class="mk__cap">{{ L(CIRC_REFERENCIA.es, CIRC_REFERENCIA.en) }}</p>
     <p v-if="grupo === 'otras'" class="mk__cap">{{ L('«Otras» reúne las células que no entran en ningún grupo fijo: sus marcadores describen una mezcla, no un tipo.', '“Other” gathers the cells that do not fall in any fixed group: its markers describe a mix, not a type.') }}</p>
-    <p class="mk__desliza" aria-hidden="true">{{ L('Desplaza para ver las seis columnas →', 'Scroll to see all six columns →') }}</p>
+    <p class="mk__desliza" aria-hidden="true">{{ conFdr ? L('Desplaza para ver las seis columnas →', 'Scroll to see all six columns →') : L('Desplaza para ver las cinco columnas →', 'Scroll to see all five columns →') }}</p>
     <div class="mk__tabla" role="region" :aria-labelledby="`${idCtl}-cap`" tabindex="0">
-      <table>
+      <table :class="{ 'mk__t5': !conFdr }">
         <thead>
           <tr>
             <th scope="col">{{ L('Gen', 'Gene') }}</th>
@@ -79,13 +85,13 @@ const idCtl = useId()
             <th scope="col">{{ L('Suelo ambiental', 'Ambient floor') }}</th>
             <th scope="col">{{ L('En el resto', 'In the rest') }}</th>
             <th scope="col">log2FC</th>
-            <th scope="col">FDR</th>
+            <th v-if="conFdr" scope="col">FDR</th>
           </tr>
         </thead>
         <tbody>
-          <tr v-for="f in filas" :key="f.gen" :class="{ 'mk__nsig': f.fdr >= 0.05 }">
+          <tr v-for="f in vistas" :key="f.gen" :class="{ 'mk__nsig': f.fdr >= 0.05 }">
             <th scope="row">
-              <button v-if="abribles(f.gen)" type="button" class="mk__gen" :aria-pressed="f.gen === elegido" @click="elige(f.gen)">{{ f.gen }}</button>
+              <button v-if="abribles(f.gen)" type="button" class="mk__gen" :aria-pressed="f.gen === elegido" @click="emit('elegir', f.gen)">{{ f.gen }}</button>
               <span v-else class="mk__gen mk__gen--fijo">{{ f.gen }}</span>
               <span v-if="circular(f.gen)" class="mk__ast" :title="L('Circular: ver la nota de encima de la tabla', 'Circular: see the note above the table')"><span aria-hidden="true">*</span><span class="sr-only">{{ L('(circular)', '(circular)') }}</span></span>
             </th>
@@ -93,18 +99,14 @@ const idCtl = useId()
             <td class="nums">{{ fmtPct(f.suelo, lang) }}</td>
             <td class="nums">{{ fmtPct(f.b, lang) }}</td>
             <td class="nums">{{ fc(f.logfc) }}</td>
-            <td class="nums">{{ fdr(f.fdr) }}</td>
+            <td v-if="conFdr" class="nums">{{ fdr(f.fdr) }}</td>
           </tr>
         </tbody>
       </table>
     </div>
-    <p class="mk__estado" role="status">
-      <template v-if="pulsado && pulsado === elegido">
-        {{ conMapa ? L(`${pulsado} está ahora en el mapa y en los violines.`, `${pulsado} is now on the map and in the violins.`) : L(`${pulsado} está ahora en los violines.`, `${pulsado} is now in the violins.`) }}
-        <button type="button" class="mk__ir" @click="emit('irGen')">{{ L('Ir a los violines', 'Go to the violins') }}</button>
-        <button v-if="conMapa" type="button" class="mk__vermapa" @click="emit('irMapa')">{{ L('Ver el mapa', 'See the map') }}</button>
-      </template>
-    </p>
+    <button v-if="filas.length > TOP" type="button" class="mk__ir mk__todos" :aria-expanded="todos" @click="todos = !todos">
+      {{ todos ? L(`Ver solo los ${TOP} primeros`, `Show only the top ${TOP}`) : L(`Ver los ${filas.length}, con FDR`, `See all ${filas.length}, with FDR`) }}
+    </button>
   </div>
 </template>
 
@@ -127,7 +129,7 @@ const idCtl = useId()
 .mk__desliza { display: none; margin: 0 0 var(--sp-8); font: var(--tipo-body-sm); font-size: var(--texto-xs); color: var(--texto-2); }
 /* por el ancho de SU caja, no de la ventana: en el simulador la tabla vive en el panel estrecho de escritorio */
 .mk { container-type: inline-size; }
-@container (max-width: 600px) { .mk__desliza { display: block; } }   /* tabla de 560 px + márgenes */
+@container (max-width: 600px) { .mk__desliza { display: block; } }   /* tabla de 560 px (460 con cinco columnas) + márgenes */
 .mk__tabla { overflow: auto; max-height: 30rem; border: 1px solid var(--trazo-sutil); border-radius: var(--radius-btn); }
 @media (max-width: 1023px) { .mk__tabla { max-height: none; } }   /* sin scroll dentro del scroll en táctil (diseño, 18-oct) */
 .mk__circ { margin: 0 0 var(--sp-8); font: var(--tipo-body-sm); font-size: var(--texto-xs); color: var(--texto-1); max-width: var(--measure); }
@@ -148,14 +150,10 @@ const idCtl = useId()
 .mk__gen--fijo { color: var(--texto-1); text-decoration: none; cursor: default; }
 @media (hover: hover) { .mk__gen:not(.mk__gen--fijo):hover { background: var(--trazo-sutil); } }
 .mk__gen[aria-pressed='true'] { background: color-mix(in srgb, var(--identidad) 14%, transparent); text-decoration-thickness: 2px; box-shadow: inset 0 0 0 1px var(--identidad); }
-.mk__estado { margin: var(--sp-8) 0 0; font: var(--tipo-body-sm); font-size: var(--texto-xs); color: var(--texto-1); }
-.mk__estado:empty { margin: 0; }
-.mk__ir { margin-left: var(--sp-8); padding: 0; border: 0; background: none; color: var(--identidad); font: inherit; font-weight: 600; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+.mk__ir { padding: 0; border: 0; background: none; color: var(--identidad); font: inherit; font-weight: 600; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
 .mk__como { margin: 0 0 var(--sp-12); }
-/* en estrecho el mapa queda arriba del panel: tras pulsar un gen, un botón lleva a verlo (diseño, 18-oct; sin salto automático) */
-.mk__vermapa { display: none; min-height: 44px; margin-left: var(--sp-8); padding: 0 var(--sp-16); border-radius: var(--radius-pill); border: 1px solid var(--trazo-interactivo); background: transparent; color: var(--texto-1); font: 600 var(--texto-sm)/1 var(--font-body); }
-.mk__vermapa:focus-visible { outline: 2px solid var(--anillo-foco); outline-offset: 2px; }
-@media (max-width: 1023px) { .mk__vermapa { display: inline-flex; align-items: center; } }
+.mk__todos { min-height: 44px; margin-top: var(--sp-4); font-size: var(--texto-sm); }
+.mk__tabla table.mk__t5 { min-width: 460px; }
 .mk__como summary { cursor: pointer; min-height: 44px; display: flex; align-items: center; font: 600 var(--texto-sm)/1.3 var(--font-body); color: var(--identidad); }
 .mk__como summary::-webkit-details-marker { display: none; }
 .mk__como summary::before { content: ''; display: inline-block; width: 7px; height: 7px; border-right: 1.5px solid currentColor; border-bottom: 1.5px solid currentColor; transform: rotate(-45deg); transition: transform 0.2s ease; flex-shrink: 0; margin-right: var(--sp-8); }

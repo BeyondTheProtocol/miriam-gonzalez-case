@@ -60,6 +60,15 @@ const nfCp = (x: number) => String(Math.round(x))
 
 <template>
   <div class="vio">
+    <div class="vio__leyenda vio__leyenda--arriba">
+      <span class="vio__muestra vio__muestra--raya" aria-hidden="true" />
+      <div>
+        <p>
+          {{ L('Suelo ambiental: el porcentaje de células en las que el gen saldría solo por ARN suelto en la muestra. Lo que no lo supera no cuenta como expresión. Si el suelo supera lo detectado, está sobreestimado para ese gen en ese grupo.' + (lesion === 'hueso' ? ' En el hueso, el suelo incluye además el ADN genómico del tejido (ver «Cómo se lee»).' : ''),
+            'Ambient floor: the share of cells where the gene would show up from loose RNA in the sample alone. Anything at or below it does not count as expression. If the floor is above what is detected, it is overestimated for that gene in that group.' + (lesion === 'hueso' ? ' In the bone, the floor also includes the tissue’s genomic DNA (see “How to read it”).' : '')) }}
+        </p>
+      </div>
+    </div>
     <div class="vio__titulos" aria-hidden="true">
       <span :style="{ width: `${(W / (BX + BW)) * 100}%` }">{{ L('Nivel en las células donde se detecta (CP10k)', 'Level in cells where detected (CP10k)') }}</span>
       <span :style="{ width: `${(BW / (BX + BW)) * 100}%` }">{{ L('% de células donde se detecta', '% of cells where detected') }}</span>
@@ -111,15 +120,6 @@ const nfCp = (x: number) => String(Math.round(x))
         </p>
       </li>
     </ul>
-    <div class="vio__leyenda">
-      <span class="vio__muestra vio__muestra--raya" aria-hidden="true" />
-      <div>
-        <p>
-          {{ L('Suelo ambiental: el porcentaje de células en las que el gen saldría solo por ARN suelto en la muestra. Lo que no lo supera no cuenta como expresión. Si el suelo supera lo detectado, está sobreestimado para ese gen en ese grupo.' + (lesion === 'hueso' ? ' En el hueso, el suelo incluye además el ADN genómico del tejido (ver «Cómo se lee»).' : ''),
-            'Ambient floor: the share of cells where the gene would show up from loose RNA in the sample alone. Anything at or below it does not count as expression. If the floor is above what is detected, it is overestimated for that gene in that group.' + (lesion === 'hueso' ? ' In the bone, the floor also includes the tissue’s genomic DNA (see “How to read it”).' : '')) }}
-        </p>
-      </div>
-    </div>
     <!-- simulador (18-oct): lo explicativo, plegado; las cifras, el n, el suelo y la circularidad quedan siempre a la vista -->
     <details class="vio__como">
       <summary>{{ L('Cómo se lee', 'How to read it') }}</summary>
@@ -161,6 +161,7 @@ const nfCp = (x: number) => String(Math.round(x))
 .vio__txt { margin: var(--sp-4) 0 0; font: 500 var(--texto-xs)/1.4 var(--font-mono); color: var(--texto-2); }
 .vio__leyenda { display: flex; gap: var(--sp-8); align-items: flex-start; margin: var(--sp-12) 0 0; font: var(--tipo-body-sm); font-size: var(--texto-xs); color: var(--texto-2); max-width: var(--measure); }
 .vio__leyenda p { margin: 0; }
+.vio__leyenda--arriba { margin: 0 0 var(--sp-12); }
 .vio__adn { margin: var(--sp-8) 0 0; font: var(--tipo-body-sm); font-size: var(--texto-xs); color: var(--texto-1); max-width: var(--measure); }
 .vio__como { margin-top: var(--sp-12); }
 .vio__como summary { cursor: pointer; min-height: 44px; display: flex; align-items: center; font: 600 var(--texto-sm)/1.3 var(--font-body); color: var(--identidad); }

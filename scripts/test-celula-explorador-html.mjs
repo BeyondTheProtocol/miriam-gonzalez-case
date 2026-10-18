@@ -37,13 +37,24 @@ const nPegado = `[...document.querySelectorAll('.cnv__n')].some((e) => /\\d(de|o
 // console.error y los errores antes de cargar la página. Se ignora solo «Failed to create WebGL context»: el Chrome de
 // las pruebas arranca con --disable-gpu y deck.gl lo avisa; es del entorno, no de la página.
 const ESPIA = `window.__errores = []; addEventListener('error', (e) => __errores.push(String(e.message))); addEventListener('unhandledrejection', (e) => __errores.push(String(e.reason))); const __ce = console.error; console.error = (...a) => { __errores.push(a.map(String).join(' ').slice(0, 200)); __ce(...a) }`
-// simulador (18-oct): «Datos técnicos» va plegado y «Marcadores» es una pestaña del panel. Lo que se MIDE (desbordes,
-// recortes) se mide con todo abierto y visible: medido plegado u oculto, pasaría sin probar nada.
-const ABRE_TODO = `(() => { const t = document.querySelector('details.exp__tecnico'); if (t) t.open = true; [...document.querySelectorAll('.exp__pestanas button')].find((b) => /Marcadores|Markers/.test(b.textContent))?.click(); return true })()`
-const TECNICO_PLEGADO = `(() => { const t = document.querySelector('details.exp__tecnico'); return !!t && !t.open && !!t.querySelector('.qc') && !!t.querySelector('.cnv') && !!t.querySelector('.pf') && !!t.querySelector('.gi__tabla') })()`
+// simulador (18-oct, panel de expertos): «Más análisis» (tabla completa, dos genes) y «Calidad de los datos» (número de
+// copias, perfil, ADN, QC) van plegados; «Marcadores» es una pestaña del panel y enseña 15 filas. Lo que se MIDE
+// (desbordes, recortes) se mide con todo abierto y visible: medido plegado u oculto, pasaría sin probar nada.
+const ABRE_TODO = `(() => { document.querySelectorAll('details.exp__tecnico').forEach((t) => { t.open = true }); [...document.querySelectorAll('.exp__pestanas button')].find((b) => /Marcadores|Markers/.test(b.textContent))?.click(); return true })()`
+const MARCADORES_TODOS = `(() => { const b = document.querySelector('.mk__todos'); if (b && b.getAttribute('aria-expanded') !== 'true') b.click(); return true })()`
+const PLEGADOS = `(() => { const a = document.querySelector('details.exp__masan'), c = document.querySelector('details.exp__calidad'); return !!a && !!c && !a.open && !c.open && !!a.querySelector('.gi__tabla') && !!c.querySelector('.qc') && !!c.querySelector('.cnv') && !!c.querySelector('.pf') && !!c.querySelector('.adng') })()`
+// llegada: mapa por grupo, la lista corta de genes de interés y ningún gen abierto («Gen» desactivado hasta elegir uno)
+const LLEGADA = `(() => { const s = document.querySelector('.exp__mapabar select'); return s?.value === 'grupo' && !!s.querySelector('option[value="gen"]')?.disabled && document.querySelectorAll('.gin__tabla tbody tr').length > 0 && !document.querySelector('#exp-violines') && !document.querySelector('.exp__chip') })()`
+const eligeDeLista = (g) => `(() => { const b = document.querySelector(${g ? `'.gin__gen[data-gen="${g}"]'` : `'.gin__gen'`}); if (!b) return ''; b.click(); return b.dataset.gen })()`
+const violinesDe = (g) => `document.querySelector('#exp-violines h2')?.textContent.includes('${g}') && [...document.querySelectorAll('.vio__fila')].filter((f) => /suelo \\d+\\s%/.test(f.textContent) && /n = \\d/.test(f.textContent)).length > 0`
+const mapaVisible = `(() => { const m = document.querySelector('.exp-mapa')?.getBoundingClientRect(); return m ? Math.round(Math.min(m.bottom, innerHeight) - Math.max(m.top, 0)) : 0 })()`
+const ponModo = (m) => `(() => { const s = document.querySelector('.exp__mapabar select'); s.value = '${m}'; s.dispatchEvent(new Event('change')); return true })()`
+const verMapaEnDetalle = `(() => { const b = document.querySelector('.exp__dcab .exp__vermapa'); return !!b && getComputedStyle(b).display !== 'none' && b.getBoundingClientRect().height >= 44 && !!document.querySelector('.exp__volver') })()`
 // gen elegido: lo no detectado aparte y lo detectado por tramos, con su n; el título nombra el gen
 const leyendaGen = (g) => `(() => { const li = [...document.querySelectorAll('.exp__leyenda li')].map((e) => e.textContent); return li.length >= 2 && /No detectado|Not detected/.test(li[0]) && li.slice(1).every((t) => /CP10k/.test(t)) && (document.querySelector('.exp__leyt')?.textContent ?? '').includes('${g}') })()`
-const mapaEnGen = `[...document.querySelectorAll('.exp__seg button')].some((b) => /Gen elegido|Selected gene/.test(b.textContent) && b.getAttribute('aria-pressed') === 'true')`
+const mapaEnGen = `document.querySelector('.exp__mapabar select')?.value === 'gen'`
+
+const busca = (g) => `(() => { const i = document.querySelector('.exp__busca input'); i.value = '${g}'; i.dispatchEvent(new Event('input')); return true })()`
 
 /* ── con DATOS REALES publicados (manifiesto sin «ejemplo»): la página está abierta; se comprueba eso y se termina ── */
 const manPub = JSON.parse(readFileSync(join(ROOT, 'celula', 'explorador', 'manifiesto.json'), 'utf8'))
@@ -61,23 +72,36 @@ if (manPub.ejemplo !== true) {
     ok(`[real ${lg}] ningún HTML precarga el chunk de Vitessce`, !vitessce.some((f) => h.includes(f)))
   }
   const esperaR = async (nav, expr, ms = 30000) => { const t0 = Date.now(); while (Date.now() - t0 < ms) { if (await nav.evaluate(expr).catch(() => false)) return true; await nav.sleep(250) } return false }
-  const navR = await abrirNavegador({ ancho: 1440, alto: 1000, escala: 1 })
+  const navR = await abrirNavegador({ ancho: 1440, alto: 900, escala: 1 })
   try {
     await navR.cdp('Page.addScriptToEvaluateOnNewDocument', { source: ESPIA })
     await navR.cargar('/celula-a-celula/explorar')
     ok('real sin demo: se monta el explorador, sin rótulo de ejemplo', await esperaR(navR, `!!document.querySelector('.exp') && !document.querySelector('.exp__demo')`))
-    ok('real: violines con n y suelo por grupo', await esperaR(navR, `[...document.querySelectorAll('.vio__fila')].filter((f) => /suelo \\d+\\s%/.test(f.textContent) && /n = \\d/.test(f.textContent)).length > 0`))
+    // panel de expertos (18-oct): al llegar, mapa por grupo y la lista corta de genes de interés
+    ok('real llegada: mapa por grupo, lista de genes de interés y ningún gen abierto', await esperaR(navR, LLEGADA))
+    ok('real llegada 1440×900: sin desplazar se ven al menos 400 px de mapa', await esperaR(navR, `window.scrollY === 0 && ${mapaVisible} >= 400`, 20000), `${await navR.evaluate(mapaVisible)} px`)
+    ok('real llegada: cinco grupos de controles como mucho antes del mapa', await navR.evaluate(`document.querySelectorAll('.exp__ctl > .exp__campo, .exp__mapabar > *').length <= 5`))
+    ok('real llegada: la lista da grupo de interés, referencia y suelo, y su pie define el suelo', await navR.evaluate(`(() => { const h = [...document.querySelectorAll('.gin__tabla thead th')].map((t) => t.textContent); return h.length === 4 && /Referencia/.test(h[2]) && /Suelo/.test(h[3]) && /Suelo ambiental/.test(document.querySelector('.gin__pie')?.textContent ?? '') })()`))
+    ok('real llegada: ERBB2 lleva «IHQ de HER2: 0» en la lista', await navR.evaluate(`/IHQ de HER2: 0/.test(document.querySelector('.gin__gen[data-gen="ERBB2"]')?.closest('th')?.textContent ?? '')`))
+    ok('real llegada: una cifra circular de la lista lleva asterisco y su nota', await navR.evaluate(`!document.querySelector('.gin__ast') || /Circular\\./.test(document.querySelector('.gin__circ')?.textContent ?? '')`))
     ok('real: aviso fijo del hígado', await navR.evaluate(`/tumor frente a hepatocito no está resuelto célula a célula/.test(document.querySelector('.exp__banner')?.textContent ?? '')`))
     // verificacion (18-oct, simulador): lo que corrigió un «falso por omisión» va en el titular, no plegado
+    ok('real hígado: el titular fijo dice que «Hepatocitos» y «Otras» pueden incluir tumorales', await navR.evaluate(`/«Hepatocitos» y «Otras» también pueden incluir células tumorales/.test(document.querySelector('.exp__banner')?.textContent ?? '')`))
+    const g1 = await navR.evaluate(eligeDeLista('ERBB2'))
+    ok(`real: un toque en la lista (${g1 || 'ninguno'}) abre el gen grupo a grupo, con n y suelo en cada violín`, !!g1 && await esperaR(navR, violinesDe(g1)))
+    ok('real: el gen de la lista colorea el mapa y sale su chip con ✕ junto al buscador', await navR.evaluate(mapaEnGen) && await navR.evaluate(`!!document.querySelector('.exp__chip .exp__chipx')`))
     // diseño (18-oct): con el simulador justo bajo el aviso fijo del hígado, el mapa entero y las pestañas del panel
     // se ven a la vez (el alto del mapa descuenta cabecera y aviso; antes, con un porcentaje fijo, se cortaba)
     await navR.evaluate(`(() => { const fijo = parseFloat(getComputedStyle(document.querySelector('.exp')).getPropertyValue('--exp-top')) + document.querySelector('.exp__banner').offsetHeight + 8; window.scrollTo(0, document.querySelector('.exp__sim').getBoundingClientRect().top + window.scrollY - fijo) })()`)
     await navR.sleep(600)
     ok('real escritorio hígado: bajo el aviso fijo se ven enteros el mapa y las pestañas del panel', await navR.evaluate(`(() => { const b = document.querySelector('.exp__banner').getBoundingClientRect(), t = document.querySelector('.exp__pestanas').getBoundingClientRect(), m = document.querySelector('.exp-mapa').getBoundingClientRect(); return t.top >= b.bottom - 1 && m.top >= b.bottom - 1 && m.bottom <= window.innerHeight + 1 })()`))
     await navR.evaluate(`window.scrollTo(0, 0)`)
-    ok('real hígado: el titular fijo dice que «Hepatocitos» y «Otras» pueden incluir tumorales', await navR.evaluate(`/«Hepatocitos» y «Otras» también pueden incluir células tumorales/.test(document.querySelector('.exp__banner')?.textContent ?? '')`))
-    ok('real simulador: «Datos técnicos» plegado por defecto y con QC, número de copias, perfil y genes de interés dentro', await navR.evaluate(TECNICO_PLEGADO))
+    ok('real simulador: «Más análisis» y «Calidad de los datos» plegados, con la tabla completa y con QC, número de copias, perfil y ADN dentro', await navR.evaluate(PLEGADOS))
     await navR.evaluate(ABRE_TODO)
+    ok('real: «Detectado no es positivo» a la vista en marcadores, fuera de lo plegado', await esperaR(navR, `[...document.querySelectorAll('.mk p')].some((p) => /Detectado no es positivo/.test(p.textContent) && !p.closest('details'))`))
+    ok('real: marcadores enseña los 15 primeros con cinco columnas', await navR.evaluate(`document.querySelectorAll('.mk__tabla tbody tr').length === 15 && document.querySelectorAll('.mk__tabla thead th').length === 5`))
+    await navR.evaluate(MARCADORES_TODOS)
+    ok('real: «Ver los 50, con FDR» abre la lista entera y la columna FDR', await esperaR(navR, `document.querySelectorAll('.mk__tabla tbody tr').length > 15 && [...document.querySelectorAll('.mk__tabla thead th')].some((t) => t.textContent.trim() === 'FDR')`))
     ok('real: marcadores, perfil, ADN por grupo y QC con datos', await esperaR(navR, `document.querySelectorAll('.mk__tabla tbody tr').length > 0 && !!document.querySelector('.pf__linea') && document.querySelectorAll('.adng__fila').length > 0 && document.querySelectorAll('.qc__fila').length >= 6`))
     ok('real: el eje del perfil va en el orden del genoma (1, 2, … 22)', await navR.evaluate(perfilEnOrden))
     await navR.sleep(3000)
@@ -89,12 +113,15 @@ if (manPub.ejemplo !== true) {
     // verificacion (18-oct): SPDEF y AGR2 son del panel de identidad y no están en la lista de la web; antes salían sin asterisco
     ok('real hígado: SPDEF y AGR2, fuera de la lista de la web, llevan el asterisco de circularidad en marcadores', await navR.evaluate(`(() => { const f = [...document.querySelectorAll('.mk__tabla tbody th')].filter((th) => /^(SPDEF|AGR2)\\b/.test(th.textContent.trim())); return f.length === 2 && f.every((th) => !!th.querySelector('.mk__ast')) })()`))
     await navR.evaluate(`[...document.querySelectorAll('.exp__ctl button')].find((b) => /^\\s*Hueso\\s*$/.test(b.textContent))?.click()`)
-    ok('real hueso: nota de circularidad del grupo (número de copias) en marcadores, genes de interés y perfil', await esperaR(navR, `/En el hueso, las células malignas se eligieron/.test(document.querySelector('.mk')?.textContent ?? '') && /En el hueso, las células malignas se eligieron/.test(document.querySelector('.gi__circh')?.textContent ?? '') && /En el hueso, el grupo de interés se eligió/.test(document.querySelector('.pf')?.textContent ?? '')`))
+    ok('real hueso: nota de circularidad del grupo (número de copias) en la lista de llegada, marcadores, tabla completa y perfil', await esperaR(navR, `['.gin', '.mk', '.gi__circh'].every((q) => /En el hueso, las células malignas se eligieron/.test(document.querySelector(q)?.textContent ?? '')) && /En el hueso, el grupo de interés se eligió/.test(document.querySelector('.pf')?.textContent ?? '')`))
+    ok('real hueso: el gen abierto en el hígado se vuelve a abrir en el hueso', await esperaR(navR, violinesDe(g1)))
     ok('real hueso: «n = x de y» con su espacio (no «885de»)', !(await navR.evaluate(nPegado)))
-    ok('real hueso: la leyenda del suelo, a la vista, dice que incluye el ADN genómico (FGFR1 sale con suelo del 100 %)', await navR.evaluate(`/En el hueso, el suelo incluye además el ADN genómico/.test([...document.querySelectorAll('.vio__leyenda')].map((e) => e.textContent).join(' '))`))
+    ok('real hueso: la leyenda del suelo, encima de los violines, dice que incluye el ADN genómico (FGFR1 sale con suelo del 100 %)', await navR.evaluate(`(() => { const l = document.querySelector('.vio__leyenda--arriba'), f = document.querySelector('.vio__fila'); return /En el hueso, el suelo incluye además el ADN genómico/.test(l?.textContent ?? '') && !!f && !!(l.compareDocumentPosition(f) & Node.DOCUMENT_POSITION_FOLLOWING) })()`))
     // verificacion (18-oct): Scrublet 1-2 no es un recuento de dobletes; «Otras» del hueso lleva células sin GEM limpio
     ok('real hueso: el QC matiza Scrublet y da las células que comparten gota con el hígado', await navR.evaluate(`/no es un recuento de dobletes/.test(document.querySelector('.qc__matiz')?.textContent ?? '') && /comparten gota con una célula del hígado/.test(document.querySelector('.qc__matiz')?.textContent ?? '')`))
-    ok('real hueso: «Células por grupo» dice cuántas de «Otras» no tienen GEM limpio', await navR.evaluate(`[...document.querySelectorAll('.exp__nota')].some((p) => /«Otras» incluye [\\d.]+ células sin GEM limpio/.test(p.textContent))`))
+    ok('real hueso: junto a la leyenda del mapa, la nota dice cuántas de «Otras» no tienen GEM limpio', await navR.evaluate(`[...document.querySelectorAll('.exp__mapacol .exp__nota')].some((p) => /«Otras» incluye [\\d.]+ células sin GEM limpio/.test(p.textContent))`))
+    await navR.evaluate(ponModo('tipo'))
+    ok('real hueso: coloreando por tipo celular, la nota explica que grupo y tipo salen de métodos distintos', await esperaR(navR, `[...document.querySelectorAll('.exp__mapacol .exp__nota')].some((p) => /Grupo y tipo celular salen de métodos distintos/.test(p.textContent))`))
     ok('real hueso: los violines del grupo de interés llevan la nota de circularidad de grupo', await navR.evaluate(`/En el hueso, las células malignas se eligieron/.test(document.querySelector('.vio__fila--interes .vio__circ--grupo')?.textContent ?? '')`))
     ok('real hueso: el número de copias da «n = x de y» y explica el GEM limpio cuando faltan células', await navR.evaluate(`(() => { const t = document.querySelector('.cnv')?.textContent ?? ''; return !/ de \\d/.test([...document.querySelectorAll('.cnv__n')].map((e) => e.textContent).join('|')) || /GEM limpio/.test(t) })()`))
     await navR.evaluate(`[...document.querySelectorAll('.exp__ctl button')].find((b) => /^\\s*Hígado\\s*$/.test(b.textContent))?.click()`)
@@ -102,28 +129,34 @@ if (manPub.ejemplo !== true) {
     const todos = Array.isArray(manPub.zarr) && manPub.zarr.length > 0
     if (todos) {
       ok('real: buscador de todos los genes activo', await esperaR(navR, `!!document.querySelector('.exp__busca input:not([disabled])')`))
-      await navR.evaluate(`(() => { const i = document.querySelector('.exp__busca input'); i.value = 'ACT'; i.dispatchEvent(new Event('input')) })()`)
+      await navR.evaluate(busca('ACT'))
       const gen = await esperaR(navR, `document.querySelectorAll('.exp__sug button').length > 0`) ? await navR.evaluate(`(() => { const b = document.querySelector('.exp__sug button'); b.click(); return b.textContent.trim() })()`) : ''
       ok(`real: un gen buscado (${gen || 'ninguno'}) se lee del Zarr y sale en los violines`, !!gen && await esperaR(navR, `document.querySelector('#exp-violines h2')?.textContent.includes('${gen}') && document.querySelectorAll('.vio__fila').length > 0`))
-      ok('real: el gen buscado pasa a colorear el mapa («Gen elegido»)', await navR.evaluate(mapaEnGen))
+      ok('real: el gen buscado pasa a colorear el mapa', await navR.evaluate(mapaEnGen))
       ok(`real: la leyenda del mapa da ${gen || 'el gen'} por tramos (no detectado aparte, tramos en CP10k con su n)`, !!gen && await esperaR(navR, leyendaGen(gen)))
-      await navR.evaluate(`(() => { const i = document.querySelector('.exp__busca input'); i.value = 'HER2'; i.dispatchEvent(new Event('input')) })()`)
+      await navR.evaluate(`document.querySelector('.exp__volver')?.click()`)
+      ok('real: «Volver» cierra el detalle y deja el gen en el mapa (chip a la vista)', await esperaR(navR, `!document.querySelector('#exp-violines') && !!document.querySelector('.exp__chip') && ${mapaEnGen}`))
+      await navR.evaluate(`document.querySelector('.exp__chipx')?.click()`)
+      ok('real: la ✕ del chip quita el gen y vuelve a la llegada (mapa por grupo)', await esperaR(navR, LLEGADA))
+      await navR.evaluate(busca('HER2'))
       ok('real: buscar por la proteína (HER2) sugiere el gen (ERBB2)', await esperaR(navR, `document.querySelector('.exp__sug button')?.dataset.gen === 'ERBB2'`))
       // diseño (18-oct): la grafía más tecleada, sin guion ni la M, también llega (KI67 → MKI67)
-      await navR.evaluate(`(() => { const i = document.querySelector('.exp__busca input'); i.value = 'Ki-67'; i.dispatchEvent(new Event('input')) })()`)
+      await navR.evaluate(busca('Ki-67'))
       ok('real: «Ki-67» sugiere MKI67 (búsqueda sin guiones y por «contiene»)', await esperaR(navR, `[...document.querySelectorAll('.exp__sug button')].some((b) => b.dataset.gen === 'MKI67')`))
     }
     else ok('real sin la decisión de la matriz completa: no hay buscador de todos los genes', !(await navR.evaluate(`!!document.querySelector('.exp__busca')`)))
     await navR.cdp('Emulation.setDeviceMetricsOverride', { width: 375, height: 812, deviceScaleFactor: 1, mobile: true })
     await navR.cargar('/celula-a-celula/explorar')
-    await esperaR(navR, `document.querySelectorAll('.vio__fila').length > 0`)
+    await esperaR(navR, `document.querySelectorAll('.gin__tabla tbody tr').length > 0`)
+    ok('real móvil 375×812 llegada: el buscador cabe en la primera pantalla', await esperaR(navR, `window.scrollY === 0 && (document.querySelector('.exp__busca input')?.getBoundingClientRect().bottom ?? 9999) <= innerHeight`))
+    ok('real móvil 375×812 llegada: el mapa empieza antes de 1,2 pantallas', await esperaR(navR, `(document.querySelector('.exp-mapa')?.getBoundingClientRect().top ?? 9999) <= innerHeight * 1.2`), `${await navR.evaluate(`Math.round(document.querySelector('.exp-mapa')?.getBoundingClientRect().top ?? -1)`)} px`)
     const desb = `Math.round(Math.max(...[...document.querySelectorAll('.exp, .exp > *')].map((e) => e.getBoundingClientRect().right)) - window.innerWidth)`
     ok('real móvil: el explorador cabe en el ancho', (await navR.evaluate(desb)) <= 1)
     ok('real móvil: hay mapa, quieto (velo) hasta pulsar «Mover el mapa»', await esperaR(navR, `!!document.querySelector('.exp-mapa') && !!document.querySelector('.exp-mapa__velo') && /Mover el mapa/.test(document.querySelector('.exp-mapa__mover')?.textContent ?? '')`))
     await navR.evaluate(`document.querySelector('.exp-mapa__mover')?.click()`)
-    await navR.evaluate(`(() => { const i = document.querySelector('.exp__busca input'); i.value = 'SPDEF'; i.dispatchEvent(new Event('input')) })()`)
+    await navR.evaluate(busca('SPDEF'))
     if (await esperaR(navR, `document.querySelector('.exp__sug button')?.dataset.gen === 'SPDEF'`, 15000)) await navR.evaluate(`document.querySelector('.exp__sug button').click()`)
-    ok('real móvil: tras buscar un gen, «Ver el mapa» está a la vista junto a «Ir a los violines»', await esperaR(navR, `(() => { const b = [...document.querySelectorAll('.exp__nota--busca button')].find((x) => /Ver el mapa/.test(x.textContent)); return !!b && getComputedStyle(b).display !== 'none' })()`, 20000))
+    ok('real móvil: tras buscar un gen, su detalle lleva «Ver el mapa» a la vista y «Volver»', await esperaR(navR, verMapaEnDetalle, 20000))
     ok('real móvil: tras «Mover el mapa» el velo desaparece y el botón dice «Listo»', await esperaR(navR, `!document.querySelector('.exp-mapa__velo') && /Listo/.test(document.querySelector('.exp-mapa__mover')?.textContent ?? '')`, 5000))
     await navR.evaluate(ABRE_TODO)
     ok('real móvil 375: el resumen del perfil no se recorta (cada región dentro del bloque)', await navR.evaluate(resumenCabe))
@@ -166,13 +199,15 @@ try {
 
   await nav.cdp('Page.addScriptToEvaluateOnNewDocument', { source: ESPIA })
   await nav.cargar('/celula-a-celula/explorar?demo=1')
-  ok('demo: aparecen los violines', await espera(nav, `document.querySelectorAll('.vio__fila').length > 0`))
+  ok('demo: llegada con el mapa por grupo y la lista de genes de interés', await espera(nav, LLEGADA))
+  const nGrupos = await nav.evaluate(`document.querySelectorAll('.exp__leyenda li').length`)   // por grupo: una entrada por grupo
+  const gD = await nav.evaluate(eligeDeLista(''))
+  ok(`demo: un toque en la lista (${gD || 'ninguno'}) abre los violines`, !!gD && await espera(nav, `document.querySelectorAll('.vio__fila').length > 0`))
   const r = await nav.evaluate(`(() => ({
     rotulo: /DATOS DE EJEMPLO/.test(document.querySelector('.exp__demo')?.textContent ?? ''),
     banner: /tumor frente a hepatocito no está resuelto célula a célula/.test(document.querySelector('.exp__banner')?.textContent ?? ''),
     filas: document.querySelectorAll('.vio__fila').length,
     conSuelo: [...document.querySelectorAll('.vio__fila')].filter((f) => f.querySelector('.vio__suelo') && /suelo \\d+\\s%/.test(f.textContent) && /n = \\d/.test(f.textContent)).length,
-    grupos: document.querySelectorAll('.exp__grupos li').length,
     cnvCelula: document.querySelectorAll('.cnv__svg').length,
     cnvHigado: !!document.querySelector('.cnv__higado'),
     mapa: !!document.querySelector('.exp-mapa'),
@@ -182,21 +217,25 @@ try {
     lectura: (document.querySelector('.gi__tabla thead')?.textContent ?? '').includes('Lectura de Polaris (borrador)'),
   }))()`)
   ok('demo: aviso de ADN genómico con el rótulo de la matriz, en el bloque del suelo ambiental', r.adn)
-  ok('demo hígado: la tabla rotula la cifra circular (FGFR1) y enseña las sondas y la lectura de Polaris', r.circTabla && r.sondasTabla && r.lectura)
+  ok('demo hígado: la tabla completa rotula la cifra circular (FGFR1) y enseña las sondas y la lectura de Polaris', r.circTabla && r.sondasTabla && r.lectura)
   ok('demo: rótulo «DATOS DE EJEMPLO»', r.rotulo)
   ok('demo hígado: aviso fijo «tumor frente a hepatocito…»', r.banner)
-  ok('demo: un violín por grupo', r.filas > 0 && r.filas === r.grupos, `${r.filas} violines / ${r.grupos} grupos`)
+  ok('demo: un violín por grupo', r.filas > 0 && r.filas === nGrupos, `${r.filas} violines / ${nGrupos} grupos`)
   ok('demo: el suelo ambiental y el n están en CADA violín', r.conSuelo === r.filas, `${r.conSuelo} de ${r.filas}`)
   ok('demo hígado: sin CNV por célula y con su aviso', r.cnvCelula === 0 && r.cnvHigado)
   ok('demo escritorio: hay mapa', r.mapa)
-  ok('demo simulador: «Datos técnicos» plegado por defecto y con todo dentro', await nav.evaluate(TECNICO_PLEGADO))
+  ok('demo simulador: «Más análisis» y «Calidad de los datos» plegados y con todo dentro', await nav.evaluate(PLEGADOS))
   ok('demo: el mapa (Vitessce) llega a dibujar su lienzo', await espera(nav, `!!document.querySelector('.exp-mapa canvas')`, 20000))
   await nav.sleep(3000)
   ok('demo escritorio: sin errores en la consola (mapa incluido)', (await nav.evaluate(`window.__errores.filter((m) => !/Failed to create WebGL context/.test(m)).length`)) === 0, JSON.stringify(await nav.evaluate(`window.__errores.slice(0, 2)`)))
-  await nav.evaluate(`(() => { const s = document.querySelector('.exp__ctl select'); s.value = 'ESR1'; s.dispatchEvent(new Event('change')) })()`)
+  const hayBusca = await espera(nav, `!!document.querySelector('.exp__busca input:not([disabled])')`)
+  ok('demo hígado: buscador de todos los genes activo', hayBusca)
+  await nav.evaluate(busca('ESR1'))
+  if (await espera(nav, `document.querySelector('.exp__sug button')?.dataset.gen === 'ESR1'`)) await nav.evaluate(`document.querySelector('.exp__sug button').click()`)
   ok('demo hígado: ESR1 en los violines lleva primero la cifra sin circularidad y después «Cifra circular»', await espera(nav, `/Sin esa circularidad.*Cifra circular\\./s.test(document.querySelector('.vio__circ')?.textContent ?? '')`))
   ok('demo hígado: la nota de circularidad va ANTES de la figura y de la cifra circular de la fila', await nav.evaluate(`(() => { const c = document.querySelector('.vio__fila--interes .vio__circ'), t = document.querySelector('.vio__fila--interes .vio__txt'); return !!c && !!t && c.nextElementSibling?.classList.contains('vio__svg') && !!(c.compareDocumentPosition(t) & Node.DOCUMENT_POSITION_FOLLOWING) && /^\\s*Circular · /.test(t.textContent) })()`))
   await nav.evaluate(ABRE_TODO)
+  await nav.evaluate(MARCADORES_TODOS)
   // paneles del 18-oct (marcadores, perfil, ADN por grupo, QC): se pintan con datos y con sus avisos
   const pn = await nav.evaluate(`(() => ({
     marcadores: document.querySelectorAll('.mk__tabla tbody tr').length,
@@ -214,30 +253,29 @@ try {
   ok('demo hígado: ningún FDR de marcadores sale como «0,0e+0»', await nav.evaluate(sinFdrCero))
   ok('demo hígado: las etiquetas del eje del perfil no se pisan', await nav.evaluate(perfilSinPisar))
   ok('demo hígado: ningún valor del QC desborda su celda', await nav.evaluate(qcSinDesborde))
+  ok('escritorio 1280: toda tabla o figura que desborda avisa de que se desliza', await nav.evaluate(`[['.mk__tabla', '.mk__desliza'], ['.pf__marco', '.pf__desliza']].every(([m, a]) => { const e = document.querySelector(m), v = document.querySelector(a); if (!e || !v) return false; return e.scrollWidth <= e.clientWidth + 1 || getComputedStyle(v).display !== 'none' })`))
   // nivel «todos los genes» (Zarr, solo en la demo del ejemplo): buscar un gen fuera del panel y verlo en los violines
-  const hayBusca = await espera(nav, `!!document.querySelector('.exp__busca input:not([disabled])')`)
-  ok('demo hígado: buscador de todos los genes activo', hayBusca)
   if (hayBusca) {
-    await nav.evaluate(`(() => { const i = document.querySelector('.exp__busca input'); i.value = 'EJ001'; i.dispatchEvent(new Event('input')) })()`)
+    await nav.evaluate(busca('EJ001'))
     const haySug = await espera(nav, `document.querySelectorAll('.exp__sug button').length > 0`)
     ok('demo hígado: el buscador sugiere genes fuera del panel', haySug)
     if (haySug) {
       const elegido = await nav.evaluate(`(() => { const b = document.querySelector('.exp__sug button'); b.click(); return b.textContent.trim() })()`)
-      ok(`demo hígado: ${elegido}, leído del Zarr, sale en los violines con n y suelo por grupo`,
-        await espera(nav, `document.querySelector('#exp-violines h2')?.textContent.includes('${elegido}') && [...document.querySelectorAll('.vio__fila')].filter((f) => /suelo \\d+\\s%/.test(f.textContent) && /n = \\d/.test(f.textContent)).length > 0`))
-      ok('demo escritorio: el gen buscado pasa a colorear el mapa («Gen elegido»)', await nav.evaluate(mapaEnGen))
+      ok(`demo hígado: ${elegido}, leído del Zarr, sale en los violines con n y suelo por grupo`, await espera(nav, violinesDe(elegido)))
+      ok('demo escritorio: el gen buscado pasa a colorear el mapa', await nav.evaluate(mapaEnGen))
       // un gen de la selección FUERA de la lista de la web (EJ0003 en el ejemplo) lleva su nota de circularidad en los violines
-      await nav.evaluate(`(() => { const i = document.querySelector('.exp__busca input'); i.value = 'EJ0003'; i.dispatchEvent(new Event('input')) })()`)
+      await nav.evaluate(busca('EJ0003'))
       if (await espera(nav, `document.querySelector('.exp__sug button')?.dataset.gen === 'EJ0003'`)) await nav.evaluate(`document.querySelector('.exp__sug button').click()`)
       ok('demo hígado: EJ0003 (selección, fuera de la lista de la web) sale como cifra circular en los violines', await espera(nav, `document.querySelector('#exp-violines h2')?.textContent.includes('EJ0003') && !!document.querySelector('.vio__fila--interes .vio__circ')`))
     }
   }
-  ok('escritorio 1280: toda tabla o figura que desborda avisa de que se desliza', await nav.evaluate(`[['.mk__tabla', '.mk__desliza'], ['.pf__marco', '.pf__desliza']].every(([m, a]) => { const e = document.querySelector(m), v = document.querySelector(a); if (!e || !v) return false; return e.scrollWidth <= e.clientWidth + 1 || getComputedStyle(v).display !== 'none' })`))
-  // marcadores: pulsar un gen da respuesta visible junto a la tabla (fila marcada y enlace a los violines)
+  // marcadores: pulsar un gen lo pinta en el mapa y abre su detalle; «Volver» regresa a marcadores con la fila marcada
+  await nav.evaluate(ABRE_TODO)
   const genMk = await nav.evaluate(`(() => { const b = document.querySelector('.mk__gen:not(.mk__gen--fijo)'); if (!b) return ''; b.click(); return b.textContent.trim() })()`)
   ok('demo simulador: pulsar un marcador lo pinta en el mapa (leyenda por tramos de ese gen)', !!genMk && await espera(nav, leyendaGen(genMk)) && await nav.evaluate(mapaEnGen))
-  ok('demo hígado: pulsar un gen de marcadores lo marca y avisa junto a la tabla con enlace a los violines', !!genMk && await espera(nav,
-    `!!document.querySelector('.mk__gen[aria-pressed="true"]') && /Ir a los violines/.test(document.querySelector('.mk__estado')?.textContent ?? '') && document.querySelector('#exp-violines h2')?.textContent.includes('${genMk}')`))
+  ok('demo hígado: pulsar un marcador abre su detalle en el panel', !!genMk && await espera(nav, `document.querySelector('#exp-violines h2')?.textContent.includes('${genMk}')`))
+  await nav.evaluate(`document.querySelector('.exp__volver')?.click()`)
+  ok('demo hígado: «Volver» regresa a marcadores con la fila del gen marcada', await espera(nav, `!document.querySelector('#exp-violines') && document.querySelector('.mk')?.offsetParent !== null && document.querySelector('.mk__gen[aria-pressed="true"]')?.textContent.trim() === '${genMk}'`))
   await nav.evaluate(`[...document.querySelectorAll('.exp__ctl button')].find((b) => /Hueso/.test(b.textContent)).click()`)
   ok('demo hueso: CNV por célula', await espera(nav, `document.querySelectorAll('.cnv__svg').length > 0 && !document.querySelector('.cnv__higado')`))
   ok('demo hueso: el CNV dice que es inferido de la expresión y no lectura de ADN, y marca el 0', await nav.evaluate(`/no es lectura de ADN/.test(document.querySelector('.cnv')?.textContent ?? '') && document.querySelectorAll('.cnv__cero').length > 0`))
@@ -246,7 +284,7 @@ try {
 
   await nav.cdp('Emulation.setDeviceMetricsOverride', { width: 375, height: 812, deviceScaleFactor: 1, mobile: true })
   await nav.cargar('/celula-a-celula/explorar?demo=1')
-  ok('móvil: aparecen los violines', await espera(nav, `document.querySelectorAll('.vio__fila').length > 0`))
+  ok('móvil: llegada con la lista de genes de interés', await espera(nav, LLEGADA))
   ok('móvil: hay mapa (simulador), quieto hasta «Mover el mapa»', await espera(nav, `!!document.querySelector('.exp-mapa') && !!document.querySelector('.exp-mapa__velo')`))
   await nav.evaluate(ABRE_TODO)
   // la página tiene overflow-x: clip, así que un desborde no da scroll: se recortaría sin avisar. Se mide el bloque.
@@ -259,11 +297,9 @@ try {
   // invariante de diseño: si una tabla o la figura desborda su marco, su aviso de deslizar está visible (375, 820, 1280)
   const avisoSiDesborda = `[['.mk__tabla', '.mk__desliza'], ['.pf__marco', '.pf__desliza']].every(([m, a]) => { const e = document.querySelector(m), v = document.querySelector(a); if (!e || !v) return false; return e.scrollWidth <= e.clientWidth + 1 || getComputedStyle(v).display !== 'none' })`
   ok('móvil 375: toda tabla o figura que desborda avisa de que se desliza', await nav.evaluate(avisoSiDesborda))
-  // con mapa también en el móvil: el aviso tras pulsar un gen de marcadores dice que está en el mapa y en los violines
+  // con el mapa encima del panel: tras pulsar un marcador, el detalle trae «Ver el mapa» (sin salto automático)
   const genMv = await nav.evaluate(`(() => { const b = document.querySelector('.mk__gen:not(.mk__gen--fijo)'); if (!b) return ''; b.click(); return b.textContent.trim() })()`)
-  ok('móvil 375: el aviso tras pulsar un gen dice que está en el mapa y en los violines', !!genMv && await espera(nav,
-    `/en el mapa y en los violines/.test(document.querySelector('.mk__estado')?.textContent ?? '')`))
-  ok('móvil 375: tras pulsar un gen, «Ver el mapa» está a la vista (el mapa queda arriba del panel)', await nav.evaluate(`(() => { const b = document.querySelector('.mk__vermapa'); return !!b && getComputedStyle(b).display !== 'none' && b.getBoundingClientRect().height >= 44 })()`))
+  ok('móvil 375: tras pulsar un marcador, su detalle lleva «Ver el mapa» a la vista (44 px) y «Volver»', !!genMv && await espera(nav, verMapaEnDetalle))
   await nav.cdp('Emulation.setDeviceMetricsOverride', { width: 820, height: 1180, deviceScaleFactor: 1, mobile: true })
   await nav.cargar('/celula-a-celula/explorar?demo=1')
   await espera(nav, `document.querySelectorAll('.vio__fila').length > 0`)
