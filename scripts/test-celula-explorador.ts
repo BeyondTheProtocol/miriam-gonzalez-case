@@ -19,7 +19,7 @@ import {
   MARCADORES_N, PAPELES_SELECCION, RE_BARCODE, VEREDICTOS, columna, coexpresion, densidad, estadoPuerta, fechaOkValida, motivosLesion, nivelMatriz, pct, porGrupo, tablaCoexp,
   type LesionDatos, type Manifiesto,
 } from '../app/utils/celulaExplorador'
-import { ETIQUETA_VEREDICTO, PAPEL_SELECCION } from '../app/utils/celulaExploradorTexto'
+import { ETIQUETA_GRUPO, ETIQUETA_TIPO, ETIQUETA_VEREDICTO, PAPEL_SELECCION } from '../app/utils/celulaExploradorTexto'
 import { abreZarr } from '../app/utils/celulaExploradorZarr'
 import FileSystemStore from '@zarrita/storage/fs'
 
@@ -158,6 +158,8 @@ caza('QC con n_final distinto de las células', mut(H, (x) => { x.qc.n_final += 
 caza('QC con un umbral al revés', mut(B, (x) => { x.qc.umbral_UMI = [9000, 100] }, 'hueso'))
 caza('barcode en un marcador', mut(H, (x) => { x.marcadores[g0(x)]!.gen[0] = 'AAACCCAAGTTGCATC' }, 'higado'))
 ok('el vocabulario de lecturas no tiene «diana»', !VEREDICTOS.some((v) => /diana/i.test(v)))
+ok('todo tipo celular del fichero tiene su rótulo ES/EN (ninguno sale con el nombre interno)', [...H.tipos, ...B.tipos].every((t) => !!ETIQUETA_TIPO[t]?.es && !!ETIQUETA_TIPO[t]?.en), [...H.tipos, ...B.tipos].filter((t) => !ETIQUETA_TIPO[t]).join(','))
+ok('todo grupo del fichero tiene su rótulo ES/EN', [...H.grupos, ...B.grupos].every((g) => !!ETIQUETA_GRUPO[g.id]?.es && !!ETIQUETA_GRUPO[g.id]?.en))
 ok('el vocabulario de lecturas tiene «cerrado_por_arn» (PRAME/MAGE-A4 del hueso)', (VEREDICTOS as readonly string[]).includes('cerrado_por_arn'))
 ok('cada lectura del vocabulario tiene su etiqueta ES/EN', VEREDICTOS.every((v) => !!ETIQUETA_VEREDICTO[v]?.es && !!ETIQUETA_VEREDICTO[v]?.en))
 ok('cada papel de selección tiene su texto ES/EN', PAPELES_SELECCION.every((p) => !!PAPEL_SELECCION[p]?.es && !!PAPEL_SELECCION[p]?.en))

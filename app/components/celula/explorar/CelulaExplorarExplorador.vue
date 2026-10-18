@@ -259,8 +259,8 @@ function sinTapar(ev: FocusEvent) {
         <p><strong>{{ L('Hígado: tumor frente a hepatocito no está resuelto célula a célula.', 'Liver: tumor versus hepatocyte is not resolved cell by cell.') }}</strong></p>
       </div>
       <p class="exp__nota exp__nota--banner">
-        {{ L('El grupo «luminal de alta confianza» es un subconjunto, no el tumor entero, y sus cifras no son «% de células tumorales».',
-          'The “high-confidence luminal” group is a subset, not the whole tumor, and its figures are not “% of tumor cells”.') }}
+        {{ L('El grupo «luminal de alta confianza» es un subconjunto, no el tumor entero, y sus cifras no son «% de células tumorales». «Otras, sin asignar» puede incluir células tumorales.',
+          'The “high-confidence luminal” group is a subset, not the whole tumor, and its figures are not “% of tumor cells”. “Other, not assigned” may include tumor cells.') }}
       </p>
     </template>
 
@@ -312,6 +312,8 @@ function sinTapar(ev: FocusEvent) {
           </li>
         </ul>
         <p class="exp__nota">{{ L('El n de cada grupo sale directamente del fichero de datos.', 'Each group’s n comes straight from the data file.') }}</p>
+        <p class="exp__nota">{{ L('Grupo y tipo celular salen de métodos distintos: el grupo es la selección del análisis; el tipo, la anotación por marcadores de uno de los analistas. Por eso una célula del grupo de interés puede figurar con otro tipo o «sin asignar».',
+          'Group and cell type come from different methods: the group is the analysis selection; the type, one analyst’s marker-based annotation. That is why a cell in the group of interest may show another type or «unassigned».') }}</p>
       </div>
 
       <div id="exp-genes" class="exp__bloque">

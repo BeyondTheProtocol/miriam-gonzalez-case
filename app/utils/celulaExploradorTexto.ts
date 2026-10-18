@@ -18,7 +18,7 @@ export const ETIQUETA_GRUPO: Record<string, T> = {
   plasmatica: t('Células plasmáticas', 'Plasma cells'),
   neutrofilo: t('Neutrófilos', 'Neutrophils'),
   mastocito: t('Mastocitos', 'Mast cells'),
-  otras: t('Otras células', 'Other cells'),
+  otras: t('Otras, sin asignar a un grupo', 'Other, not assigned to a group'),
 }
 export const ETIQUETA_TIPO: Record<string, T> = {
   luminal: t('Luminal', 'Luminal'), epitelial: t('Epitelial', 'Epithelial'), hepatocito: t('Hepatocito', 'Hepatocyte'),
@@ -26,6 +26,9 @@ export const ETIQUETA_TIPO: Record<string, T> = {
   endotelio: t('Endotelio', 'Endothelium'), fibroblasto: t('Fibroblasto', 'Fibroblast'), plasmatica: t('Plasmática', 'Plasma cell'),
   neutrofilo: t('Neutrófilo', 'Neutrophil'), mastocito: t('Mastocito', 'Mast cell'), osteoclasto: t('Osteoclasto', 'Osteoclast'),
   eritroide: t('Eritroide', 'Erythroid'), estroma: t('Estroma', 'Stroma'),
+  // el vocabulario cerrado de Polaris (_contrato.TIPOS) entero: ningún tipo del fichero sin su rótulo
+  colangiocito: t('Colangiocito', 'Cholangiocyte'), fibroblasto_estelar: t('Fibroblasto o célula estrellada', 'Fibroblast or stellate cell'),
+  osteoblasto: t('Osteoblasto', 'Osteoblast'), megacariocito: t('Megacariocito', 'Megakaryocyte'), no_asignado: t('Sin asignar', 'Unassigned'),
 }
 export const ETIQUETA_LESION: Record<string, T> = { higado: t('Hígado', 'Liver'), hueso: t('Hueso', 'Bone') }
 
