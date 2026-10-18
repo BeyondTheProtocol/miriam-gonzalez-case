@@ -70,7 +70,7 @@ const nombre = (g: string) => PROTEINA[g] ?? g
       {{ L('Porcentaje de células con al menos una molécula (UMI) del gen. Referencia: células no tumorales de la misma muestra, con la misma profundidad. Suelo ambiental: lo que saldría solo por ARN suelto de la muestra; lo que no lo supera no cuenta como expresión. Lectura: la de Polaris, en borrador, pendiente de la lectura humana del laboratorio.' + (d.lesion === 'hueso' ? ' En el hueso, el suelo incluye además el ADN genómico del tejido.' : ''),
         'Share of cells with at least one molecule (UMI) of the gene. Reference: non-tumor cells from the same sample, at the same depth. Ambient floor: what would show up from loose RNA in the sample alone; anything that does not clear it does not count as expression. Reading: Polaris’s, in draft, pending the laboratory’s human reading.' + (d.lesion === 'hueso' ? ' In the bone, the floor also includes the tissue’s genomic DNA.' : '')) }}
     </p>
-    <p v-if="conMotivo" class="gin__pie gin__pmot">{{ PIE_MOTIVO.compara[lang] }}<template v-if="d.lesion === 'higado'"> {{ PIE_MOTIVO.higado[lang] }}</template></p>
+    <p v-if="conMotivo" class="gin__pie gin__pmot">{{ [PIE_MOTIVO.compara[lang], d.lesion === 'higado' ? PIE_MOTIVO.higado[lang] : ''].join(' ').trim() }}</p>
     <p v-if="hayCirc" class="gin__pie gin__circ">
       * <strong>{{ L('Circular.', 'Circular.') }}</strong>
       {{ L('El gen participa en la selección de este grupo o va ligado al programa con el que se seleccionó: su cifra en el grupo sale en parte de cómo se eligió. Al abrirlo verás la cifra sin esa circularidad, si existe.',
