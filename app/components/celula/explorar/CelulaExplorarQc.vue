@@ -41,8 +41,9 @@ const sinGem = computed(() => {
 })
 const matizDobletes = computed(() => {
   const x = q.value, u = typeof x.scrublet_umbral === 'number' ? x.scrublet_umbral : null
-  const es = `Scrublet quitó ${n(x.scrublet_dobletes)}${u != null ? ` con un umbral automático de ${dec(u)}` : ''}: no separó una población de dobletes, y una gota con dos células de la misma biopsia no se distingue por su código. Esta cifra no es un recuento de dobletes.`
-  const en = `Scrublet removed ${n(x.scrublet_dobletes)}${u != null ? ` with an automatic threshold of ${dec(u)}` : ''}: it did not separate a doublet population, and a droplet with two cells from the same biopsy cannot be told apart by its barcode. This figure is not a doublet count.`
+  // sin interpretar el umbral (verificacion, 18-oct: «no separó una población» no lo sostiene ningún fichero)
+  const es = `Scrublet quitó ${u != null ? `las células por encima de un umbral automático de ${dec(u)}: ${n(x.scrublet_dobletes)}` : n(x.scrublet_dobletes)}. Una gota con dos células de la misma biopsia no se distingue por su código. Esta cifra no es un recuento de dobletes.`
+  const en = `Scrublet removed ${u != null ? `the cells above an automatic threshold of ${dec(u)}: ${n(x.scrublet_dobletes)}` : n(x.scrublet_dobletes)}. A droplet with two cells from the same biopsy cannot be told apart by its barcode. This figure is not a doublet count.`
   const g = sinGem.value
   const extra = g ? L(` En el hueso, ${n(g)} de las ${n(x.n_final)} células (${fmtPct(g / x.n_final, 'es')}) comparten gota con una célula del hígado.`, ` In the bone, ${n(g)} of the ${n(x.n_final)} cells (${fmtPct(g / x.n_final, 'en')}) share a droplet with a liver cell.`) : ''
   return L(es, en) + extra

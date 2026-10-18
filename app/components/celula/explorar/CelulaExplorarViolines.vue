@@ -80,7 +80,7 @@ const nfCp = (x: number) => String(Math.round(x))
         <p v-if="f.rol === 'interes' && papel" class="vio__circ" role="note">
           <template v-if="loo">
             <strong>{{ L('Sin esa circularidad', 'Without that circularity') }}</strong>
-            {{ L(`(grupo construido sin ese criterio, n = ${nf(loo.n)}):`, `(group built without that criterion, n = ${nf(loo.n)}):`) }}
+            {{ L(`(grupo construido sin ese criterio, n\u00a0=\u00a0${nf(loo.n)}):`, `(group built without that criterion, n\u00a0=\u00a0${nf(loo.n)}):`) }}
             <template v-if="loo.frac != null">{{ L('detectado', 'detected') }} {{ fmtPct(loo.frac, lang) }}</template><template v-if="loo.ref != null"> · {{ L('referencia', 'reference') }} {{ fmtPct(loo.ref, lang) }}</template><template v-if="loo.cp10k_pseudobulk != null"> · pseudobulk&nbsp;{{ nfCp(loo.cp10k_pseudobulk) }}&nbsp;CP10k</template>.
           </template>
           <strong>{{ L('Cifra circular.', 'Circular figure.') }}</strong>

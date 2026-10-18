@@ -50,7 +50,7 @@ const fmtCp = (x: number) => String(Math.round(x))
               <span v-if="f.papel" class="gi__circ">
                 {{ L(`Circular: ${f.gen} ${PAPEL_SELECCION[f.papel]?.es ?? ''}.`, `Circular: ${f.gen} ${PAPEL_SELECCION[f.papel]?.en ?? ''}.`) }}
                 <template v-if="f.loo">
-                  {{ L(`Sin esa circularidad (n = ${nf(f.loo.n)}):`, `Without that circularity (n = ${nf(f.loo.n)}):`) }}
+                  {{ L(`Sin esa circularidad (n\u00a0=\u00a0${nf(f.loo.n)}):`, `Without that circularity (n\u00a0=\u00a0${nf(f.loo.n)}):`) }}
                   <template v-if="f.loo.frac != null">{{ fmtPct(f.loo.frac, lang) }}</template><template v-if="f.loo.ref != null"> · {{ L('referencia', 'reference') }} {{ fmtPct(f.loo.ref, lang) }}</template><template v-if="f.loo.cp10k_pseudobulk != null"> · pseudobulk&nbsp;{{ fmtCp(f.loo.cp10k_pseudobulk) }}&nbsp;CP10k</template>.
                 </template>
                 <template v-else>{{ L('No hay cifra medida sin esa circularidad.', 'There is no figure measured without that circularity.') }}</template>
