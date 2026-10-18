@@ -304,7 +304,7 @@ if (man.zarr?.length) {
     // lejos de «Otras»
     for (const n of [4, 5, 8]) {
       const t = p.refs(n), ls = t.map(Lstar), min = Math.min(...ls.slice(1).map((l, k) => Math.abs(l - ls[k]!))), otras = Lstar(p.otras)
-      ok(`paleta ${tema}: ${n} grupos de referencia, ${n} tonos sin repetir${n <= 5 ? ' y ΔL* ≥ 8' : ''}, y ninguno pegado a «Otras»`, new Set(t.map(String)).size === n && (n > 5 || min >= 8) && ls.every((l) => Math.abs(l - otras) >= 10), `ΔL* mínimo ${min.toFixed(1)}`)
+      ok(`paleta ${tema}: ${n} grupos de referencia, ${n} tonos sin repetir${n <= 5 ? ' y ΔL* ≥ 8' : ''}, ninguno pegado a «Otras» y todos ≥ 3:1 con el fondo`, new Set(t.map(String)).size === n && (n > 5 || min >= 8) && ls.every((l) => Math.abs(l - otras) >= 10) && t.every((c) => contraste(c, fondo) >= 3), `ΔL* mínimo ${min.toFixed(1)}; contraste mínimo ${Math.min(...t.map((c) => contraste(c, fondo))).toFixed(2)}`)
     }
   }
 }

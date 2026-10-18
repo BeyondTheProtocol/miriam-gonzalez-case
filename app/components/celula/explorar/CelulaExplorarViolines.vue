@@ -114,11 +114,10 @@ const nfCp = (x: number) => String(Math.round(x))
           <line :x1="BX + BW * Math.min(1, f.suelo)" :x2="BX + BW * Math.min(1, f.suelo)" y1="8" y2="32" class="vio__suelo-linea" />
         </svg>
         <p class="vio__txt nums">
-          <template v-if="f.rol === 'interes' && papel">{{ L('Circular · ', 'Circular · ') }}</template><span class="vio__par">{{ L(`Detectado ${fmtParSuelo(f.frac, f.suelo, 'es')[0]} (${nf(f.detectadas)})`, `Detected ${fmtParSuelo(f.frac, f.suelo, 'en')[0]} (${nf(f.detectadas)})`) }}</span> · <span class="vio__par">{{ L(`suelo ${fmtParSuelo(f.frac, f.suelo, 'es')[1]}`, `floor ${fmtParSuelo(f.frac, f.suelo, 'en')[1]}`) }}</span><template v-if="f.frac <= f.suelo"> · <strong class="vio__bajo">{{ L('no supera el suelo', 'does not clear the floor') }}</strong></template><template v-if="mediana(f.niveles) != null"> · <span class="vio__par">{{ L('mediana', 'median') }} {{ fmt10(mediana(f.niveles)!) }} CP10k</span></template>
-          <template v-if="f.detectadas < 3"> · {{ L('pocas células para dibujar la forma', 'too few cells to draw a shape') }}</template>
+          <template v-if="f.rol === 'interes' && papel">{{ L('Circular · ', 'Circular · ') }}</template><span class="vio__par">{{ L(`Detectado ${fmtParSuelo(f.frac, f.suelo, 'es')[0]} (${nf(f.detectadas)})`, `Detected ${fmtParSuelo(f.frac, f.suelo, 'en')[0]} (${nf(f.detectadas)})`) }}</span> <span class="vio__par">· {{ L(`suelo ${fmtParSuelo(f.frac, f.suelo, 'es')[1]}`, `floor ${fmtParSuelo(f.frac, f.suelo, 'en')[1]}`) }}</span><template v-if="f.frac <= f.suelo"> <span class="vio__par">· <strong class="vio__bajo">{{ L('no supera el suelo', 'does not clear the floor') }}</strong></span></template><template v-if="mediana(f.niveles) != null"> <span class="vio__par">· {{ L('mediana', 'median') }} {{ fmt10(mediana(f.niveles)!) }} CP10k</span></template><template v-if="f.detectadas < 3"> <span class="vio__par">· {{ L('pocas células para dibujar la forma', 'too few cells to draw a shape') }}</span></template>
         </p>
         <!-- la referencia emparejada no es ningún grupo de la lista: se da aquí, junto al grupo de interés (comité médico, 18-oct) -->
-        <p v-if="f.rol === 'interes' && referencia != null" class="vio__ref nums">{{ L(`Referencia emparejada: ${fmtPct(referencia, 'es')}`, `Matched reference: ${fmtPct(referencia, 'en')}`) }}</p>
+        <p v-if="f.rol === 'interes' && referencia != null" class="vio__ref nums">{{ L(`Referencia emparejada (células no tumorales de la misma muestra): ${fmtPct(referencia, 'es')}`, `Matched reference (non-tumor cells from the same sample): ${fmtPct(referencia, 'en')}`) }}</p>
         <!-- en el hueso el grupo entero es circular: la nota cierra la fila -->
         <p v-if="f.rol === 'interes' && lesion === 'hueso'" class="vio__circ vio__circ--grupo" role="note"><strong>{{ L('Circular.', 'Circular.') }}</strong> {{ L(CIRC_HUESO.es, CIRC_HUESO.en) }}</p>
       </li>
@@ -164,7 +163,7 @@ const nfCp = (x: number) => String(Math.round(x))
 .vio__suelo-linea { stroke: var(--texto-1); stroke-width: 2; vector-effect: non-scaling-stroke; }
 .vio__txt { margin: var(--sp-4) 0 0; font: 500 var(--texto-xs)/1.4 var(--font-mono); color: var(--texto-2); }
 .vio__bajo { color: var(--texto-1); font-weight: 700; }
-.vio__ref { margin: var(--sp-4) 0 0; font: 600 var(--texto-xs)/1.4 var(--font-mono); color: var(--texto-1); }
+.vio__ref { margin: var(--sp-4) 0 0; font: 500 var(--texto-xs)/1.4 var(--font-mono); color: var(--texto-1); }
 .vio__leyenda { display: flex; gap: var(--sp-8); align-items: flex-start; margin: var(--sp-12) 0 0; font: var(--tipo-body-sm); font-size: var(--texto-xs); color: var(--texto-2); max-width: var(--measure); }
 .vio__leyenda p { margin: 0; }
 .vio__leyenda--arriba { margin: 0 0 var(--sp-12); }

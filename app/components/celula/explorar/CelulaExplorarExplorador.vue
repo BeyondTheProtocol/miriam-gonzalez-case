@@ -373,11 +373,13 @@ function sinTapar(ev: FocusEvent) {
     </div>
 
     <template v-if="lesion === 'higado'">
-      <div ref="bannerEl" class="exp__banner" role="note">
-        <svg class="exp__ico" viewBox="0 0 256 256" aria-hidden="true"><path fill="currentColor" d="M240.26 186.1 152.81 34.23a28.74 28.74 0 0 0-49.62 0L15.74 186.1a27.45 27.45 0 0 0 0 27.71A28.31 28.31 0 0 0 40.55 228h174.9a28.31 28.31 0 0 0 24.79-14.19 27.45 27.45 0 0 0 .02-27.71ZM120 104a8 8 0 0 1 16 0v40a8 8 0 0 1-16 0Zm8 88a12 12 0 1 1 12-12 12 12 0 0 1-12 12Z" /></svg>
-        <p><strong>{{ L('Hígado: tumor frente a hepatocito no está resuelto célula a célula.', 'Liver: tumor versus hepatocyte is not resolved cell by cell.') }}</strong>
-          <span class="exp__banner-2">{{ ' ' + L('«Luminal de alta confianza» es un subconjunto, no el tumor entero; «Hepatocitos» y «Otras» también pueden incluir células tumorales.', '“High-confidence luminal” is a subset, not the whole tumor; “Hepatocytes” and “Other” may also include tumor cells.') }}</span>
-          <button type="button" class="exp__mas" :aria-expanded="masHigado" @click="masHigado = !masHigado">{{ masHigado ? L('Menos', 'Less') : L('Más', 'More') }}</button></p>
+      <div class="exp__bannerfijo">
+        <div ref="bannerEl" class="exp__banner" role="note">
+          <svg class="exp__ico" viewBox="0 0 256 256" aria-hidden="true"><path fill="currentColor" d="M240.26 186.1 152.81 34.23a28.74 28.74 0 0 0-49.62 0L15.74 186.1a27.45 27.45 0 0 0 0 27.71A28.31 28.31 0 0 0 40.55 228h174.9a28.31 28.31 0 0 0 24.79-14.19 27.45 27.45 0 0 0 .02-27.71ZM120 104a8 8 0 0 1 16 0v40a8 8 0 0 1-16 0Zm8 88a12 12 0 1 1 12-12 12 12 0 0 1-12 12Z" /></svg>
+          <p><strong>{{ L('Hígado: tumor frente a hepatocito no está resuelto célula a célula.', 'Liver: tumor versus hepatocyte is not resolved cell by cell.') }}</strong>
+            <span class="exp__banner-2">{{ ' ' + L('«Luminal de alta confianza» es un subconjunto, no el tumor entero; «Hepatocitos» y «Otras» también pueden incluir células tumorales.', '“High-confidence luminal” is a subset, not the whole tumor; “Hepatocytes” and “Other” may also include tumor cells.') }}</span>
+            <button type="button" class="exp__mas" :aria-expanded="masHigado" @click="masHigado = !masHigado">{{ masHigado ? L('Menos', 'Less') : L('Más', 'More') }}</button></p>
+        </div>
       </div>
       <!-- estrecho (diseño, 18-oct): fijo, solo el titular (con la frase dentro tapaba filas y «Volver»); la frase va aquí, a
            la vista al llegar y antes de cualquier cifra -->
@@ -540,10 +542,11 @@ function sinTapar(ev: FocusEvent) {
 .exp__btn:focus-visible, .exp__sel:focus-visible, .exp__salto:focus-visible { outline: 2px solid var(--anillo-foco); outline-offset: 2px; }
 .exp__sel { min-height: 44px; min-width: 14rem; max-width: 100%; padding: 0 var(--sp-12); border-radius: var(--radius-btn); border: 1px solid var(--trazo-interactivo); background: var(--fondo); color: var(--texto-1); font: 500 var(--texto-base)/1 var(--font-body); }
 .exp__banner { display: flex; gap: var(--sp-8); align-items: flex-start; padding: var(--sp-8) var(--sp-12); border-radius: var(--radius-btn); font: var(--tipo-body-sm); }
-.exp__banner { margin: var(--sp-16) 0 0; position: sticky; top: var(--exp-top, 8px); z-index: 5; background: var(--fondo); border: 2px solid var(--texto-1); color: var(--texto-1); }
+.exp__banner { margin: 0; background: var(--fondo); border: 2px solid var(--texto-1); color: var(--texto-1); }
+/* lo fijo es el envoltorio rectangular, con fondo y 9 px por encima: tapa la franja bajo la cabecera y las esquinas */
+.exp__bannerfijo { position: sticky; top: calc(var(--exp-top, 8px) - 9px); z-index: 5; margin-top: 7px; padding-top: 9px; background: var(--fondo); }
 @media (max-width: 1023px) { .exp__banner { font-size: var(--texto-xs); } }
 .exp__banner p { margin: 0; }
-.exp__banner::before { content: ''; position: absolute; left: -2px; right: -2px; bottom: calc(100% + 2px); height: 9px; background: var(--fondo); }   /* por encima del borde, sin pisarlo */
 .exp__banner-sig { display: none; }
 @media (max-width: 1023px) {
   .exp__banner-2 { display: none; }
@@ -620,7 +623,7 @@ function sinTapar(ev: FocusEvent) {
 .exp__tema svg { width: 20px; height: 20px; }
 @media (hover: hover) { .exp__chipx:hover, .exp__tema:hover { background: var(--trazo-sutil); } }
 .exp__chipx:focus-visible, .exp__tema:focus-visible, .exp__volver:focus-visible, .exp__mas:focus-visible { outline: 2px solid var(--anillo-foco); outline-offset: 2px; }
-.exp__mas { margin-left: var(--sp-4); padding: 0; border: 0; background: none; color: var(--identidad); font: inherit; font-weight: 600; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+.exp__mas { margin: -12px -8px -12px var(--sp-4); padding: 12px 8px; border: 0; background: none; color: var(--identidad); font: inherit; font-weight: 600; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
 .exp__sel--sm { min-width: 11rem; font-size: var(--texto-sm); }
 @media (max-width: 639px) {
   .exp__mapabar:not(.exp__mapabar--dos) { flex-wrap: nowrap; gap: var(--sp-8); }
@@ -643,7 +646,7 @@ function sinTapar(ev: FocusEvent) {
   .exp__ctl > .exp__campo:not(.exp__busca) { display: flex; align-items: center; gap: var(--sp-8); }
   .exp__busca { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: center; column-gap: var(--sp-8); }
   .exp__busca > :not(label) { grid-column: 2; }
-  .exp__banner { margin-top: 10px; }
+  .exp__bannerfijo { margin-top: 1px; }
   .exp__sim { margin-top: var(--sp-8); }
 }
 .exp__sel::placeholder { color: var(--texto-2); opacity: 1; }

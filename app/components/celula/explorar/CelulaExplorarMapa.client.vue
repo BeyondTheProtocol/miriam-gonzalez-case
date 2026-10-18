@@ -37,7 +37,7 @@ let motor: { pinta: (e: any) => void; desmonta: () => void } | null = null
 function entrada() {
   return {
     uid: `exp-${props.d.lesion}-${props.modo}-${props.gen}-${props.modo === 'coexp' ? props.genB : ''}-${props.tema}-${props.lang}`,
-    tema: props.tema, alto: props.alto, umap: props.d.celulas.umap, lang: props.lang, rotulos: props.modo === 'grupo', tamRotulo: props.movil ? 10 : 14,   // también en móvil (diseño, 18-oct: sin rótulos dos grupos de tono parecido no se distinguían), más pequeños para que no se corten en el borde
+    tema: props.tema, alto: props.alto, umap: props.d.celulas.umap, lang: props.lang, rotulos: props.modo === 'grupo', tamRotulo: props.movil ? 12 : 14, encuadre: props.movil ? { ancho: el.value?.clientWidth ?? 0, margen: 0.86 } : undefined,   // también en móvil (diseño, 18-oct: sin rótulos dos grupos de tono parecido no se distinguían), más pequeños para que no se corten en el borde
     conjuntos: props.conjuntos, colores: props.colores, colorearPor: props.colorearPor,
     // el gen se pinta por clases de nivel (conjunto «Nivel de …», lo calcula el padre): lo no detectado en gris,
     // como en Loupe. La escala continua de Vitessce (plasma) dejaba las células a 0 casi del color de las de nivel bajo.
@@ -116,6 +116,8 @@ watch(() => props.movil, (m) => { if (!m) mover.value = false })
 .exp-mapa :deep([aria-label="Open plot options menu"]),
 .exp-mapa :deep([aria-label="Open help info"]) { display: none !important; }
 /* «Recentrar el mapa»: a 44 px, opaco y con los colores del tema (Vitessce lo pinta blanco al 65 %) */
+.exp-mapa :deep(button[title="Recentrar el mapa"] svg),
+.exp-mapa :deep(button[title="Recenter the map"] svg) { fill: var(--texto-1) !important; color: var(--texto-1) !important; }   /* en oscuro el icono salía negro sobre fondo oscuro */
 .exp-mapa :deep(button[title="Recentrar el mapa"]),
 .exp-mapa :deep(button[title="Recenter the map"]) { width: 44px !important; height: 44px !important; opacity: 1 !important; background: var(--fondo) !important; color: var(--texto-1) !important; border: 1px solid var(--trazo-interactivo) !important; border-radius: var(--radius-btn) !important; }
 </style>

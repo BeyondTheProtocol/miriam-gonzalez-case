@@ -27,6 +27,8 @@ const nombre = (g: string) => PROTEINA[g] ?? g
 
 <template>
   <div class="gin">
+    <!-- estrecho: la cabecera se iba de la pantalla tras cuatro genes; el grupo se nombra aquí y cada cifra lleva su rótulo -->
+    <p class="gin__cabest" aria-hidden="true">{{ L('Grupo de interés:', 'Group of interest:') }} {{ etiqueta(ETIQUETA_GRUPO, interes.id, lang) }} · n&nbsp;=&nbsp;{{ fmtN(interes.n, lang) }}</p>
     <table class="gin__tabla">
       <caption class="sr-only">{{ L(`Genes de interés en ${etiqueta(ETIQUETA_GRUPO, interes.id, 'es')}, frente a la referencia emparejada y el suelo ambiental. Pulsa un gen para verlo en el mapa y grupo a grupo.`, `Genes of interest in ${etiqueta(ETIQUETA_GRUPO, interes.id, 'en')}, against the matched reference and the ambient floor. Press a gene to see it on the map and group by group.`) }}</caption>
       <thead>
@@ -47,16 +49,16 @@ const nombre = (g: string) => PROTEINA[g] ?? g
                 <span v-if="PROTEINA[f.gen]" class="gin__sim">{{ f.gen }}</span>
               </button>
             </th>
-            <td class="gin__num nums">{{ f.tf }}<span v-if="f.circular" class="gin__ast"><span aria-hidden="true">*</span><span class="sr-only">{{ L('(circular)', '(circular)') }}</span></span></td>
-            <td class="gin__num nums">{{ fmtPct(f.ref, lang) }}</td>
-            <td class="gin__num nums">{{ f.ts }}</td>
+            <td class="gin__num nums" :data-eti="L('Grupo', 'Group')">{{ f.tf }}<span v-if="f.circular" class="gin__ast"><span aria-hidden="true">*</span><span class="sr-only">{{ L('(circular)', '(circular)') }}</span></span></td>
+            <td class="gin__num nums" :data-eti="L('Ref.', 'Ref.')">{{ fmtPct(f.ref, lang) }}</td>
+            <td class="gin__num nums" :data-eti="L('Suelo', 'Floor')">{{ f.ts }}</td>
           </tr>
           <!-- la lectura va con la cifra (comité médico, 18-oct): sin ella, TROP2 o B7-H3 «sobre el suelo y la referencia» se
                leían como positivos y la revisión dice «No se sostiene» -->
           <tr class="gin__lecfila" :data-gen="f.gen">
             <td colspan="4">
               <span v-if="f.gen === 'ERBB2'" class="gin__ihq">{{ ETIQUETAS_FIJAS.her2[lang] }} · </span>
-              <span class="gin__lec">{{ L('Lectura (borrador):', 'Reading (draft):') }} {{ (ETIQUETA_VEREDICTO[f.ver] ?? ETIQUETA_VEREDICTO.sin_veredicto)[lang] }}</span>
+              <span class="sr-only">{{ nombre(f.gen) }}: </span><span class="gin__lec">{{ L('Lectura (borrador):', 'Reading (draft):') }} <strong class="gin__ver">{{ (ETIQUETA_VEREDICTO[f.ver] ?? ETIQUETA_VEREDICTO.sin_veredicto)[lang] }}</strong></span>
             </td>
           </tr>
         </template>
@@ -102,9 +104,15 @@ const nombre = (g: string) => PROTEINA[g] ?? g
 @container (max-width: 440px) {
   .gin__tabla th, .gin__tabla td { padding: var(--sp-4) var(--sp-4); }
   .gin__gen { flex-direction: column; align-items: flex-start; justify-content: center; padding-block: var(--sp-4); }
+  .gin .gin__cabest { display: block; }   /* más específico: la regla base va después en el fichero */
+  .gin__tabla thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }   /* oculta solo a la vista */
+  .gin__tabla tbody td.gin__num { line-height: 1.3; padding-top: var(--sp-8); }
+  .gin__num[data-eti]::before { content: attr(data-eti); display: block; font: 500 var(--texto-xs)/1.2 var(--font-body); color: var(--texto-2); }
 }
 .gin__ihq { font: 600 var(--texto-xs)/1.35 var(--font-mono); color: var(--texto-1); }
 .gin__lec { font: 500 var(--texto-xs)/1.35 var(--font-body); color: var(--texto-2); }
+.gin__ver { font-weight: 600; color: var(--texto-1); }
+.gin__cabest { display: none; margin: 0 0 var(--sp-4); font: 600 var(--texto-xs)/1.35 var(--font-body); color: var(--texto-1); }
 .gin__tabla .gin__fila th, .gin__tabla .gin__fila td { border-bottom: 0; }
 .gin__tabla .gin__lecfila td { padding-top: 0; padding-bottom: var(--sp-8); line-height: 1.35; text-align: left; }
 .gin__ast { display: inline-block; width: 0; overflow: visible; margin-left: 1px; font-weight: 700; color: var(--texto-1); }   /* no empuja la cifra: los «%» alinean */

@@ -23,8 +23,8 @@ export function paleta(tema: 'light' | 'dark', leer: (v: string) => string): Pal
   const interes = rgb(osc ? '--color-miriam-claro-rgb' : '--color-miriam-rgb')
   const ref = [0.85, 0.62, 0.5].map((p) => mezcla(tinta, lienzo, p))
   const otras = mezcla(tinta, lienzo, 0.35)
-  /** n grupos de referencia: n pasos de tinta repartidos entre 0,94 y 0,48 (por encima de «otras», 0,35) */
-  const refs = (n: number) => Array.from({ length: n }, (_, k) => mezcla(tinta, lienzo, n === 1 ? 0.85 : 0.94 - (k * 0.46) / (n - 1)))
+  /** n grupos de referencia: n pasos de tinta repartidos entre 0,94 y 0,5 (el más claro, ≥ 3:1 con el fondo; «otras», 0,35) */
+  const refs = (n: number) => Array.from({ length: n }, (_, k) => mezcla(tinta, lienzo, n === 1 ? 0.85 : 0.94 - (k * 0.44) / (n - 1)))
   // gen elegido (simulador, 18-oct): lo no detectado casi del color del fondo, como en Loupe; lo detectado, del violeta
   // claro al intenso en cuatro pasos (más nivel, más tinta)
   // diseño (18-oct, con los tokens): en oscuro el primer tramo tenía la misma luminosidad que «no detectado» (1,07:1).
