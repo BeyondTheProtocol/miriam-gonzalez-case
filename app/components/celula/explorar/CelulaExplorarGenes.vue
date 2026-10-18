@@ -51,12 +51,12 @@ const fmtCp = (x: number) => String(Math.round(x))
                 {{ L(`Circular: ${f.gen} ${PAPEL_SELECCION[f.papel]?.es ?? ''}.`, `Circular: ${f.gen} ${PAPEL_SELECCION[f.papel]?.en ?? ''}.`) }}
                 <template v-if="f.loo">
                   {{ L(`Sin esa circularidad (n = ${nf(f.loo.n)}):`, `Without that circularity (n = ${nf(f.loo.n)}):`) }}
-                  <template v-if="f.loo.frac != null">{{ fmtPct(f.loo.frac, lang) }}</template><template v-if="f.loo.ref != null"> · {{ L('referencia', 'reference') }} {{ fmtPct(f.loo.ref, lang) }}</template><template v-if="f.loo.cp10k_pseudobulk != null"> · pseudobulk {{ fmtCp(f.loo.cp10k_pseudobulk) }} CP10k</template>.
+                  <template v-if="f.loo.frac != null">{{ fmtPct(f.loo.frac, lang) }}</template><template v-if="f.loo.ref != null"> · {{ L('referencia', 'reference') }} {{ fmtPct(f.loo.ref, lang) }}</template><template v-if="f.loo.cp10k_pseudobulk != null"> · pseudobulk&nbsp;{{ fmtCp(f.loo.cp10k_pseudobulk) }}&nbsp;CP10k</template>.
                 </template>
                 <template v-else>{{ L('No hay cifra medida sin esa circularidad.', 'There is no figure measured without that circularity.') }}</template>
               </span>
             </th>
-            <td class="gi__num nums">{{ fmtPct(f.frac, lang) }}<span v-if="f.papel" class="gi__ast" :title="L('Cifra circular: ver la nota del gen', 'Circular figure: see the gene note')">*</span></td>
+            <td class="gi__num nums">{{ fmtPct(f.frac, lang) }}<span v-if="f.papel" class="gi__ast" :title="L('Cifra circular: ver la nota del gen', 'Circular figure: see the gene note')"><span aria-hidden="true">*</span><span class="sr-only">{{ L('(circular)', '(circular)') }}</span></span></td>
             <td class="gi__num nums">{{ fmtPct(f.ref, lang) }}</td>
             <td class="gi__num nums">{{ fmtPct(f.suelo, lang) }}</td>
             <td class="gi__num nums">{{ f.sondas ? `${f.sondas[0]} / ${f.sondas[1]}` : '' }}</td>

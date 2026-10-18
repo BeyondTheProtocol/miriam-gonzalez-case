@@ -54,7 +54,7 @@ const etis = computed(() => {
 const fmt = (x: number) => signo(props.lang === 'en' ? String(x) : String(x).replace('.', ','))
 /** valores del resumen: 3 cifras significativas, las mismas que guarda el fichero */
 const fmtV = (x: number) => fmt(Number(x.toPrecision(3)))
-const region = (p: { c: string; mb: number }) => `${p.c.replace('chr', L('crom. ', 'chr'))}, ${fmt(p.mb)}-${fmt(p.mb + 10)} Mb`
+const region = (p: { c: string; mb: number }) => `${p.c.replace('chr', L('crom.\u00a0', 'chr'))},\u00a0${fmt(p.mb)}-${fmt(p.mb + 10)}\u00a0Mb`
 const extremos = computed(() => {
   const orden = [...puntos.value].sort((a, b) => b.v - a.v)
   return { altas: orden.slice(0, 3), bajas: orden.slice(-3).reverse() }
@@ -90,8 +90,8 @@ const extremos = computed(() => {
       </svg>
     </div>
     <p class="pf__p pf__resumen">
-      {{ L('Expresión relativa más alta (log2)', 'Highest relative expression (log2)') }}: <span v-for="(p, k) in extremos.altas" :key="`a${k}`" class="nums">{{ region(p) }} ({{ fmtV(p.v) }}){{ k < extremos.altas.length - 1 ? '; ' : '.' }}</span>
-      {{ L('Más baja', 'Lowest') }}: <span v-for="(p, k) in extremos.bajas" :key="`b${k}`" class="nums">{{ region(p) }} ({{ fmtV(p.v) }}){{ k < extremos.bajas.length - 1 ? '; ' : '.' }}</span>
+      {{ L('Expresión relativa más alta (log2)', 'Highest relative expression (log2)') }}: <template v-for="(p, k) in extremos.altas" :key="`a${k}`"><span class="nums">{{ region(p) }}&nbsp;({{ fmtV(p.v) }}){{ k < extremos.altas.length - 1 ? ';' : '.' }}</span>{{ ' ' }}</template>
+      {{ L('Más baja', 'Lowest') }}: <template v-for="(p, k) in extremos.bajas" :key="`b${k}`"><span class="nums">{{ region(p) }}&nbsp;({{ fmtV(p.v) }}){{ k < extremos.bajas.length - 1 ? ';' : '.' }}</span>{{ ' ' }}</template>
     </p>
   </div>
 </template>

@@ -78,7 +78,7 @@ const jit = (i: number) => ((Math.sin(i * 12.9898) * 43758.5453) % 1 + 1) % 1
         <div class="cnv__eje" aria-hidden="true"><span v-for="tk in ticksCnv" :key="tk" :style="{ left: `${pos(tk) * 100}%` }">{{ fmt(tk) }}</span></div>
         <ul class="cnv__lista">
           <li v-for="t in v.tiras" :key="t.id" class="cnv__fila" :class="`cnv__fila--${t.rol}`">
-            <span class="cnv__nombre">{{ etiqueta(ETIQUETA_GRUPO, t.id, lang) }} <span class="cnv__n nums">n = {{ fmtN(t.vals.length, lang) }}<template v-if="t.vals.length !== t.n"> {{ L('de', 'of') }} {{ fmtN(t.n, lang) }}</template></span></span>
+            <span class="cnv__nombre">{{ etiqueta(ETIQUETA_GRUPO, t.id, lang) }} <span class="cnv__n nums">n = {{ fmtN(t.vals.length, lang) }}<template v-if="t.vals.length !== t.n">{{ ` ${L('de', 'of')} ${fmtN(t.n, lang)}` }}</template></span></span>
             <svg class="cnv__svg" :viewBox="`0 0 ${W} ${H}`" role="img"
                  :aria-label="L(`${etiqueta(ETIQUETA_GRUPO, t.id, 'es')}, ${v.nombre}: mediana ${fmt(med(t.vals))}, ${t.vals.length} células`, `${etiqueta(ETIQUETA_GRUPO, t.id, 'en')}, ${v.nombre}: median ${fmt(med(t.vals))}, ${t.vals.length} cells`)">
               <line :x1="LBL" :x2="W" :y1="H / 2" :y2="H / 2" class="cnv__base" />

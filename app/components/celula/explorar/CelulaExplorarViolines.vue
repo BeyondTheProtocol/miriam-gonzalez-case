@@ -15,7 +15,7 @@
  */
 import type { Adn, FilaGrupo, Lesion, Loo } from '~/utils/celulaExplorador'
 import { densidad, fmtPct, fmtPctFino, fmtPctSig } from '~/utils/celulaExplorador'
-import { ETIQUETAS_FIJAS, ETIQUETA_GRUPO, PAPEL_SELECCION, etiqueta } from '~/utils/celulaExploradorTexto'
+import { CIRC_HUESO, ETIQUETAS_FIJAS, ETIQUETA_GRUPO, PAPEL_SELECCION, etiqueta } from '~/utils/celulaExploradorTexto'
 
 const props = defineProps<{ filas: FilaGrupo[]; gen: string; lang: 'es' | 'en'; lesion: Lesion; adn: Adn; papel?: string; loo?: Loo }>()
 const L = (es: string, en: string) => (props.lang === 'en' ? en : es)
@@ -76,11 +76,12 @@ const nfCp = (x: number) => String(Math.round(x))
           <span class="vio__n nums">n = {{ nf(f.n) }}</span>
         </div>
         <!-- circularidad: la cifra sin ella va PRIMERO; la de la figura (este grupo) queda rotulada como circular -->
+        <p v-if="f.rol === 'interes' && lesion === 'hueso'" class="vio__circ vio__circ--grupo" role="note"><strong>{{ L('Circular.', 'Circular.') }}</strong> {{ L(CIRC_HUESO.es, CIRC_HUESO.en) }}</p>
         <p v-if="f.rol === 'interes' && papel" class="vio__circ" role="note">
           <template v-if="loo">
             <strong>{{ L('Sin esa circularidad', 'Without that circularity') }}</strong>
             {{ L(`(grupo construido sin ese criterio, n = ${nf(loo.n)}):`, `(group built without that criterion, n = ${nf(loo.n)}):`) }}
-            <template v-if="loo.frac != null">{{ L('detectado', 'detected') }} {{ fmtPct(loo.frac, lang) }}</template><template v-if="loo.ref != null"> · {{ L('referencia', 'reference') }} {{ fmtPct(loo.ref, lang) }}</template><template v-if="loo.cp10k_pseudobulk != null"> · pseudobulk {{ nfCp(loo.cp10k_pseudobulk) }} CP10k</template>.
+            <template v-if="loo.frac != null">{{ L('detectado', 'detected') }} {{ fmtPct(loo.frac, lang) }}</template><template v-if="loo.ref != null"> · {{ L('referencia', 'reference') }} {{ fmtPct(loo.ref, lang) }}</template><template v-if="loo.cp10k_pseudobulk != null"> · pseudobulk&nbsp;{{ nfCp(loo.cp10k_pseudobulk) }}&nbsp;CP10k</template>.
           </template>
           <strong>{{ L('Cifra circular.', 'Circular figure.') }}</strong>
           {{ L(`La de abajo es la de este grupo, y ${gen} ${PAPEL_SELECCION[papel]?.es ?? ''}.`, `The one below is this group’s, and ${gen} ${PAPEL_SELECCION[papel]?.en ?? ''}.`) }}

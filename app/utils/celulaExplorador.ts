@@ -301,7 +301,7 @@ export function fmtPctFino(x: number, lang: 'es' | 'en'): string {
   const v = 100 * x
   const t = v < 1 ? (Math.round(v * 100) / 100).toFixed(2) : v < 10 ? (Math.round(v * 10) / 10).toFixed(1) : String(Math.round(v))
   const n = lang === 'en' ? t : t.replace('.', ',')
-  return lang === 'en' ? `${n}%` : `${n} %`
+  return lang === 'en' ? `${n}%` : `${n}\u00a0%`
 }
 /** Porcentaje con las cifras significativas que trae el dato (0.002 → «0,2 %», 0.271 → «27,1 %»): la referencia de
  * Cell Ranger llega redondeada y fmtPctFino le inventaba precisión («0,20 %», verificacion 18-oct). */
@@ -309,13 +309,13 @@ export function fmtPctSig(x: number, lang: 'es' | 'en'): string {
   const cifras = String(x).replace('-', '').replace(/e.*$/, '').replace('.', '').replace(/^0+/, '').length || 1
   const t = String(Number((100 * x).toPrecision(Math.min(cifras, 3))))
   const n = lang === 'en' ? t : t.replace('.', ',')
-  return lang === 'en' ? `${n}%` : `${n} %`
+  return lang === 'en' ? `${n}%` : `${n}\u00a0%`
 }
 
 /** Porcentaje entero para mostrar (la misma regla en toda la página). */
 export const pct = (x: number) => Math.round(100 * x)
 /** «28 %» en ES, «28%» en EN: la misma forma en tablas y violines. */
-export const fmtPct = (x: number, lang: 'es' | 'en') => (lang === 'en' ? `${pct(x)}%` : `${pct(x)} %`)
+export const fmtPct = (x: number, lang: 'es' | 'en') => (lang === 'en' ? `${pct(x)}%` : `${pct(x)}\u00a0%`)   // espacio duro: el «%» no se separa de su cifra
 
 /** sha256 hex de un texto (SubtleCrypto). */
 export async function sha256Hex(buf: ArrayBuffer): Promise<string> {

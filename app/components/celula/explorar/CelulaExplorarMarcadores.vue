@@ -82,7 +82,7 @@ const idCtl = useId()
             <th scope="row">
               <button v-if="abribles(f.gen)" type="button" class="mk__gen" :aria-pressed="f.gen === elegido" @click="elige(f.gen)">{{ f.gen }}</button>
               <span v-else class="mk__gen mk__gen--fijo">{{ f.gen }}</span>
-              <span v-if="circular(f.gen)" class="mk__ast" :title="L('Circular: ver la nota de encima de la tabla', 'Circular: see the note above the table')">*</span>
+              <span v-if="circular(f.gen)" class="mk__ast" :title="L('Circular: ver la nota de encima de la tabla', 'Circular: see the note above the table')"><span aria-hidden="true">*</span><span class="sr-only">{{ L('(circular)', '(circular)') }}</span></span>
             </th>
             <td class="nums">{{ fmtPct(f.a, lang) }}</td>
             <td class="nums">{{ fmtPct(f.suelo, lang) }}</td>

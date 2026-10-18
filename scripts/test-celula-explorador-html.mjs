@@ -30,6 +30,9 @@ const perfilSinPisar = `(() => { const r = [...document.querySelectorAll('.pf__e
 const sinFdrCero = `![...document.querySelectorAll('.mk__tabla td')].some((t) => /^0[.,]0e\\+0$/.test(t.textContent.trim()))`
 // diseño (18-oct, datos reales): el valor mitocondrial del QC desbordaba sobre la fila siguiente
 const qcSinDesborde = `[...document.querySelectorAll('.qc__fila dd')].every((dd) => dd.scrollWidth <= dd.clientWidth + 1)`
+// diseño (18-oct, pasada final): el resumen del perfil se recortaba a 375 y salía «885de» en el número de copias
+const resumenCabe = `(() => { const e = document.querySelector('.pf__resumen'); return !!e && [...e.querySelectorAll('.nums')].every((s) => s.getBoundingClientRect().right <= e.getBoundingClientRect().right + 1) })()`
+const nPegado = `[...document.querySelectorAll('.cnv__n')].some((e) => /\\d(de|of)\\b/.test(e.textContent))`
 const mapaEnGen = `[...document.querySelectorAll('.exp__seg button')].some((b) => /Gen elegido|Selected gene/.test(b.textContent) && b.getAttribute('aria-pressed') === 'true')`
 
 /* ── con DATOS REALES publicados (manifiesto sin «ejemplo»): la página está abierta; se comprueba eso y se termina ── */
@@ -52,7 +55,7 @@ if (manPub.ejemplo !== true) {
   try {
     await navR.cargar('/celula-a-celula/explorar')
     ok('real sin demo: se monta el explorador, sin rótulo de ejemplo', await esperaR(navR, `!!document.querySelector('.exp') && !document.querySelector('.exp__demo')`))
-    ok('real: violines con n y suelo por grupo', await esperaR(navR, `[...document.querySelectorAll('.vio__fila')].filter((f) => /suelo \\d+ %/.test(f.textContent) && /n = \\d/.test(f.textContent)).length > 0`))
+    ok('real: violines con n y suelo por grupo', await esperaR(navR, `[...document.querySelectorAll('.vio__fila')].filter((f) => /suelo \\d+\\s%/.test(f.textContent) && /n = \\d/.test(f.textContent)).length > 0`))
     ok('real: aviso fijo del hígado', await navR.evaluate(`/tumor frente a hepatocito no está resuelto célula a célula/.test(document.querySelector('.exp__banner')?.textContent ?? '')`))
     ok('real: marcadores, perfil, ADN por grupo y QC con datos', await esperaR(navR, `document.querySelectorAll('.mk__tabla tbody tr').length > 0 && !!document.querySelector('.pf__linea') && document.querySelectorAll('.adng__fila').length > 0 && document.querySelectorAll('.qc__fila').length >= 6`))
     ok('real: el eje del perfil va en el orden del genoma (1, 2, … 22)', await navR.evaluate(perfilEnOrden))
@@ -64,6 +67,8 @@ if (manPub.ejemplo !== true) {
     ok('real hígado: SPDEF y AGR2, fuera de la lista de la web, llevan el asterisco de circularidad en marcadores', await navR.evaluate(`(() => { const f = [...document.querySelectorAll('.mk__tabla tbody th')].filter((th) => /^(SPDEF|AGR2)\\b/.test(th.textContent.trim())); return f.length === 2 && f.every((th) => !!th.querySelector('.mk__ast')) })()`))
     await navR.evaluate(`[...document.querySelectorAll('.exp__ctl button')].find((b) => /^\\s*Hueso\\s*$/.test(b.textContent))?.click()`)
     ok('real hueso: nota de circularidad del grupo (número de copias) en marcadores, genes de interés y perfil', await esperaR(navR, `/En el hueso, las células malignas se eligieron/.test(document.querySelector('.mk')?.textContent ?? '') && /En el hueso, las células malignas se eligieron/.test(document.querySelector('.gi__circh')?.textContent ?? '') && /En el hueso, el grupo de interés se eligió/.test(document.querySelector('.pf')?.textContent ?? '')`))
+    ok('real hueso: «n = x de y» con su espacio (no «885de»)', !(await navR.evaluate(nPegado)))
+    ok('real hueso: los violines del grupo de interés llevan la nota de circularidad de grupo', await navR.evaluate(`/En el hueso, las células malignas se eligieron/.test(document.querySelector('.vio__fila--interes .vio__circ--grupo')?.textContent ?? '')`))
     ok('real hueso: el número de copias da «n = x de y» y explica el GEM limpio cuando faltan células', await navR.evaluate(`(() => { const t = document.querySelector('.cnv')?.textContent ?? ''; return !/ de \\d/.test([...document.querySelectorAll('.cnv__n')].map((e) => e.textContent).join('|')) || /GEM limpio/.test(t) })()`))
     await navR.evaluate(`[...document.querySelectorAll('.exp__ctl button')].find((b) => /^\\s*Hígado\\s*$/.test(b.textContent))?.click()`)
     await esperaR(navR, `!!document.querySelector('.exp__banner')`)
@@ -83,6 +88,7 @@ if (manPub.ejemplo !== true) {
     await esperaR(navR, `document.querySelectorAll('.vio__fila').length > 0`)
     const desb = `Math.round(Math.max(...[...document.querySelectorAll('.exp, .exp > *')].map((e) => e.getBoundingClientRect().right)) - window.innerWidth)`
     ok('real móvil: el explorador cabe en el ancho', (await navR.evaluate(desb)) <= 1)
+    ok('real móvil 375: el resumen del perfil no se recorta (cada región dentro del bloque)', await navR.evaluate(resumenCabe))
   }
   finally { await navR.cerrar() }
   console.log(fallos ? `\n${fallos} de ${hechos} comprobaciones fallan` : `${hechos} de ${hechos} comprobaciones en verde`)
@@ -126,7 +132,7 @@ try {
     rotulo: /DATOS DE EJEMPLO/.test(document.querySelector('.exp__demo')?.textContent ?? ''),
     banner: /tumor frente a hepatocito no está resuelto célula a célula/.test(document.querySelector('.exp__banner')?.textContent ?? ''),
     filas: document.querySelectorAll('.vio__fila').length,
-    conSuelo: [...document.querySelectorAll('.vio__fila')].filter((f) => f.querySelector('.vio__suelo') && /suelo \\d+ %/.test(f.textContent) && /n = \\d/.test(f.textContent)).length,
+    conSuelo: [...document.querySelectorAll('.vio__fila')].filter((f) => f.querySelector('.vio__suelo') && /suelo \\d+\\s%/.test(f.textContent) && /n = \\d/.test(f.textContent)).length,
     grupos: document.querySelectorAll('.exp__grupos li').length,
     cnvCelula: document.querySelectorAll('.cnv__svg').length,
     cnvHigado: !!document.querySelector('.cnv__higado'),
@@ -175,7 +181,7 @@ try {
     if (haySug) {
       const elegido = await nav.evaluate(`(() => { const b = document.querySelector('.exp__sug button'); b.click(); return b.textContent.trim() })()`)
       ok(`demo hígado: ${elegido}, leído del Zarr, sale en los violines con n y suelo por grupo`,
-        await espera(nav, `document.querySelector('#exp-violines h2')?.textContent.includes('${elegido}') && [...document.querySelectorAll('.vio__fila')].filter((f) => /suelo \\d+ %/.test(f.textContent) && /n = \\d/.test(f.textContent)).length > 0`))
+        await espera(nav, `document.querySelector('#exp-violines h2')?.textContent.includes('${elegido}') && [...document.querySelectorAll('.vio__fila')].filter((f) => /suelo \\d+\\s%/.test(f.textContent) && /n = \\d/.test(f.textContent)).length > 0`))
       ok('demo escritorio: el gen buscado pasa a colorear el mapa («Gen elegido»)', await nav.evaluate(mapaEnGen))
       // un gen de la selección FUERA de la lista de la web (EJ0003 en el ejemplo) lleva su nota de circularidad en los violines
       await nav.evaluate(`(() => { const i = document.querySelector('.exp__busca input'); i.value = 'EJ0003'; i.dispatchEvent(new Event('input')) })()`)
@@ -203,6 +209,7 @@ try {
   ok('móvil: el explorador cabe en el ancho (nada recortado a la derecha)', (await nav.evaluate(desborde)) <= 1, `${await nav.evaluate(desborde)} px de más`)
   ok('móvil: marcadores y perfil avisan de que se deslizan (tablas y figura más anchas que la pantalla)', await nav.evaluate(
     `['.mk__desliza', '.pf__desliza'].every((q) => { const e = document.querySelector(q); return !!e && getComputedStyle(e).display !== 'none' })`))
+  ok('móvil 375: el resumen del perfil no se recorta (cada región dentro del bloque)', await nav.evaluate(resumenCabe))
   ok('móvil: el texto del perfil se lee a su tamaño (la figura no se encoge)', await nav.evaluate(`(document.querySelector('.pf__svg')?.getBoundingClientRect().width ?? 0) >= 760`))
   // invariante de diseño: si una tabla o la figura desborda su marco, su aviso de deslizar está visible (375, 820, 1280)
   const avisoSiDesborda = `[['.mk__tabla', '.mk__desliza'], ['.pf__marco', '.pf__desliza']].every(([m, a]) => { const e = document.querySelector(m), v = document.querySelector(a); if (!e || !v) return false; return e.scrollWidth <= e.clientWidth + 1 || getComputedStyle(v).display !== 'none' })`
