@@ -45,6 +45,11 @@ const shaArbol = (dir: string) => {
 const zarrEnDisco = readdirSync(DIR).includes('zarr') ? readdirSync(join(DIR, 'zarr')).sort().map((z) => `zarr/${z}`) : []
 ok('todo Zarr de la carpeta está en el manifiesto (y solo esos)', JSON.stringify(zarrEnDisco) === JSON.stringify((man.zarr ?? []).map((z) => z.ruta).sort()), `disco ${zarrEnDisco}`)
 for (const z of man.zarr ?? []) ok(`${z.ruta}: huella del árbol del manifiesto`, shaArbol(join(DIR, z.ruta)) === z.sha256_arbol)
+// Netlify no sirve ficheros que empiezan por punto: nada oculto en lo publicado (por eso el Zarr va en v3)
+const ocultos: string[] = []
+const busca = (d: string) => { for (const e of readdirSync(d, { withFileTypes: true })) { if (e.name.startsWith('.')) ocultos.push(join(d, e.name)); else if (e.isDirectory()) busca(join(d, e.name)) } }
+busca(DIR)
+ok('ningún fichero ni carpeta oculta en la carpeta pública (Netlify no los sirve)', ocultos.length === 0, ocultos.slice(0, 3).join(', '))
 // FAIL-CLOSED (revisión de verificación, 18-oct): un Zarr real en public/ se descarga por su URL aunque la interfaz lo
 // esconda. Con datos reales, ningún Zarr en la carpeta sin la fecha de la decisión de publicar la matriz completa.
 if (man.ejemplo !== true && (zarrEnDisco.length || man.zarr?.length)) {

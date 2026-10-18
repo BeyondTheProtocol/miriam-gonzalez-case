@@ -21,11 +21,11 @@
   "zarr": [
     {
       "ruta": "zarr/higado.zarr",
-      "sha256_arbol": "caf3250744230fca0915d726ae1664dce268e83bb158c462f7551b39fe76d837"
+      "sha256_arbol": "4c4ee4804c1559b77a997d8c3bfd5dcc84b1c773800c2a9810d1cb991d0acf8c"
     },
     {
       "ruta": "zarr/hueso.zarr",
-      "sha256_arbol": "0f80f7dc63b048476baa276118cdbc614ebac73c756be035c1e35b0d30c1cb24"
+      "sha256_arbol": "5f8eeb1a0f4ea6f71ae5135fe8aece3dbe7b0aad9fd01c3b3eb626392efc4682"
     }
   ],
   "matriz_completa": "ejemplo"
