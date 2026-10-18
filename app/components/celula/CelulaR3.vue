@@ -16,8 +16,12 @@ const de = (m: 'higado' | 'hueso', gen: string) => d.value.muestras[m].dianas.fi
 
 <template>
   <CelulaBloque clave="R3" :titulo="L('Qué genes están activos en el tumor', 'Which genes are active in the tumor')" :sello="b.sello" :ejemplo="b.ejemplo">
-    <p class="blq__texto">{{ L('Dos genes del tumor destacan en las dos biopsias: NY-⁠BR-⁠1 y 5T4. Se miden en las células tumorales que se pueden identificar con más claridad, un grupo seleccionado y no el tumor entero: NY-⁠BR-⁠1 se lee en algo más de la mitad y 5T4 en una de cada cuatro. Parte de esa señal es ruido de fondo de la muestra, así que la cifra real es algo menor; en el hueso, la del 5T4 todavía no se separa bien de ese fondo. HER3 también aparece, pero las células sanas del hígado lo tienen igual. Dos genes muy buscados en otros tumores, PRAME y MAGE-⁠A4, no se detectan en el ARN de ninguna de las dos, y saberlo también ayuda a elegir el camino.',
-      'Two tumor genes stand out in both biopsies: NY-⁠BR-⁠1 and 5T4. They are measured in the tumor cells that can be identified most clearly, a selected group rather than the whole tumor: NY-⁠BR-⁠1 is read in just over half and 5T4 in one in four. Part of that signal is background noise from the sample, so the real figure is somewhat lower; in the bone, the 5T4 figure cannot yet be separated well from that background. HER3 shows up too, but healthy liver cells have it just as much. Two genes much sought after in other tumors, PRAME and MAGE-⁠A4, are not detected in the RNA of either biopsy, and knowing that also helps in choosing the path.') }}</p>
+    <p class="blq__texto">{{ L('En las dos biopsias destacan dos genes del tumor: NY-⁠BR-⁠1 y 5T4. Se miden en las células tumorales que se pueden identificar con más claridad, un grupo seleccionado y no el tumor entero. En ese grupo, NY-⁠BR-⁠1 se lee en algo más de la mitad de las células y 5T4 en una de cada cuatro.',
+      'Two tumor genes stand out in both biopsies: NY-⁠BR-⁠1 and 5T4. They are measured in the tumor cells that can be identified most clearly, a selected group rather than the whole tumor. In that group, NY-⁠BR-⁠1 is detected in just over half of the cells and 5T4 in one in four.') }}</p>
+    <p class="blq__texto">{{ L('Parte de esa señal es ruido de fondo de la muestra, así que la cifra real es bastante menor. En el hueso, el 5T4 está todavía en el límite frente a las células no tumorales de la misma muestra. HER3 también aparece, pero las células sanas del hígado lo tienen igual o más.',
+      'Part of that signal is background noise from the sample, so the real figure is a good deal lower. In the bone, 5T4 is still borderline against the non-tumor cells from the same sample. HER3 shows up too, but healthy liver cells have it just as much or more.') }}</p>
+    <p class="blq__texto">{{ L('Dos genes muy buscados en otros tumores, PRAME y MAGE-⁠A4, no aparecen en el ARN por encima del fondo en ninguna de las dos biopsias, y saberlo también ayuda a elegir el camino.',
+      'Two genes much sought after in other tumors, PRAME and MAGE-⁠A4, do not appear in the RNA above background in either biopsy, and knowing that also helps in choosing the path.') }}</p>
     <ul class="r3__genes">
       <li v-for="g in genes" :key="g.gen" class="r3__gen">
         <h4 class="r3__nombre">{{ g.gen }}</h4>
@@ -25,8 +29,8 @@ const de = (m: 'higado' | 'hueso', gen: string) => d.value.muestras[m].dianas.fi
           <figure v-for="m in MUESTRAS" :key="m" class="r3__fig" :aria-label="nombre(m)">
             <figcaption class="r3__cap"><Icon :name="icono(m)" aria-hidden="true" />{{ nombre(m) }}</figcaption>
             <CelulaRejilla :por="de(m, g.gen).por_100" :base="base" />
-            <p class="r3__cifra"><span v-if="de(m, g.gen).aprox" aria-hidden="true">~</span>{{ f(de(m, g.gen).por_100) }} <span class="r3__de">{{ L(`de cada ${f(base)} del grupo`, `in every ${f(base)} of the group`) }}</span></p>
-            <p v-if="d.muestras[m].n_grupo" class="r3__n">{{ L(`grupo de ${f(d.muestras[m].n_grupo!)} células`, `group of ${f(d.muestras[m].n_grupo!)} cells`) }}</p>
+            <p class="r3__cifra"><span v-if="de(m, g.gen).aprox" aria-hidden="true">~</span>{{ f(de(m, g.gen).por_100) }} <span class="r3__de">{{ L(`de cada ${f(base)}`, `in every ${f(base)}`) }}</span></p>
+            <p v-if="d.muestras[m].n_grupo" class="r3__n">{{ L(`del grupo de ${f(d.muestras[m].n_grupo!)}\u00a0células`, `of the group of ${f(d.muestras[m].n_grupo!)}\u00a0cells`) }}</p>
           </figure>
         </div>
       </li>

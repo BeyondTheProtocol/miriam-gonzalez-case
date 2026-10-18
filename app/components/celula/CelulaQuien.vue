@@ -24,8 +24,8 @@ const urlPost = 'https://www.linkedin.com/feed/update/urn:li:activity:7516775760
   <section :aria-labelledby="id">
     <h2 :id="id" class="cel-h2">{{ L('Quién lo ha hecho', 'Who did it') }}</h2>
     <p class="cel-p">
-      {{ L('El análisis lo hace el laboratorio de Paloma Cejas en el Dana-Farber Cancer Institute, donde es codirectora del Center for Functional Cancer Epigenetics.',
-        'The analysis is done by Paloma Cejas’s lab at the Dana-Farber Cancer Institute, where she is co-director of the Center for Functional Cancer Epigenetics.') }}
+      {{ L('La prueba la hace el laboratorio de Paloma Cejas en el Dana-Farber Cancer Institute, donde es codirectora del Center for Functional Cancer Epigenetics.',
+        'The test is run by Paloma Cejas’s lab at the Dana-Farber Cancer Institute, where she is co-director of the Center for Functional Cancer Epigenetics.') }}
     </p>
     <p class="cel-p">
       {{ L('Lo que lo hace especial es el tejido. Hasta hace poco, leer célula a célula pedía tejido fresco. Con', 'What makes it special is the tissue. Until recently, reading cell by cell needed fresh tissue. With') }}

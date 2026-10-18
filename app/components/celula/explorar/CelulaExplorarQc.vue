@@ -53,8 +53,8 @@ const matizDobletes = computed(() => {
 <template>
   <div class="qc">
     <p class="qc__p">
-      {{ L('Qué células entran en el explorador y por qué. Umbrales por desviación mediana absoluta (MAD) sobre moléculas, genes y % mitocondrial por célula; después se pasa un filtro de dobletes (Scrublet) que, con su umbral automático, quitó muy pocas. Se estima que alrededor de 1 de cada 10 gotas del hígado lleva más de una célula, y siguen dentro. Las células del explorador son las que quedan tras este control.',
-        'Which cells enter the explorer and why. Thresholds by median absolute deviation (MAD) on molecules, genes and mitochondrial % per cell; then a doublet filter (Scrublet) is applied, which with its automatic threshold removed very few. About 1 in 10 liver droplets is estimated to hold more than one cell, and they stay in. The cells in the explorer are the ones left after this QC.') }}
+      {{ L('Qué células entran en el explorador y por qué. Umbrales por desviación mediana absoluta (MAD) sobre moléculas, genes y % mitocondrial por célula; después se pasa un filtro de dobletes (Scrublet) que, con su umbral automático, quitó muy pocas células. Se estima que al menos 1 de cada 10 gotas del hígado lleva más de una célula (según el método, bastantes más), y esas gotas siguen dentro. Las células del explorador son las que quedan tras este control.',
+        'Which cells enter the explorer and why. Thresholds by median absolute deviation (MAD) on molecules, genes and mitochondrial % per cell; then a doublet filter (Scrublet) is applied, which, with its automatic threshold, removed very few cells. At least 1 in 10 liver droplets is estimated to hold more than one cell (quite a few more, depending on the method), and those droplets stay in. The cells in the explorer are the ones left after this QC.') }}
     </p>
     <dl class="qc__lista">
       <div v-for="[k, v] in filas" :key="k" class="qc__fila">

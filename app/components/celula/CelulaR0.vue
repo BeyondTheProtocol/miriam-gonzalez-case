@@ -7,6 +7,12 @@ const { locale } = useI18n()
 const lang = computed<'es' | 'en'>(() => (locale.value === 'en' ? 'en' : 'es'))
 const L = (es: string, en: string) => (lang.value === 'en' ? en : es)
 const f = (n: number) => fmtN(n, lang.value)
+// Tras el control de calidad (auditoría 18-oct): solo si el JSON trae las dos cifras, nunca «0».
+const qc = (es: boolean) => {
+  const h = d.value.muestras.higado.tras_qc, u = d.value.muestras.hueso.tras_qc
+  if (!h || !u) return ''
+  return es ? ` Tras el control de calidad quedan ${f(h)} en el hígado y ${f(u)} en el hueso.` : ` After quality control, ${f(h)} remain in the liver and ${f(u)} in the bone.`
+}
 const nombre = (m: string) => (m === 'higado' ? L('Hígado', 'Liver') : L('Hueso', 'Bone'))
 const icono = (m: string) => (m === 'higado' ? 'ph:drop-half-fill' : 'ph:bone-fill')
 const maxN = computed(() => Math.max(...MUESTRAS.map((m) => d.value.muestras[m].celulas)))
@@ -15,8 +21,8 @@ const ancho = (m: 'higado' | 'hueso') => `${(d.value.muestras[m].celulas / maxN.
 
 <template>
   <CelulaBloque clave="R0" :titulo="L('¿Salió bien la prueba?', 'Did the test work?')" :sello="b.sello" :ejemplo="b.ejemplo">
-    <p class="blq__texto">{{ L(`Sí. Se leyeron célula a célula dos biopsias: unas 20.600 células del hígado y unas 2.500 del hueso, un tejido especialmente difícil que hay que descalcificar antes de leerlo. Tras el control de calidad quedan ${f(d.muestras.higado.tras_qc ?? 0)} y ${f(d.muestras.hueso.tras_qc ?? 0)}. Según el laboratorio, las dos dieron datos de excelente calidad; en el hueso hay más ruido de fondo, como es normal en un tejido descalcificado.`,
-      `Yes. Two biopsies were read cell by cell: about 20,600 cells from the liver and about 2,500 from the bone, a particularly difficult tissue that has to be decalcified before it can be read. After quality control, ${f(d.muestras.higado.tras_qc ?? 0)} and ${f(d.muestras.hueso.tras_qc ?? 0)} remain. According to the lab, both gave excellent-quality data; the bone carries more background noise, as is normal for decalcified tissue.`) }}</p>
+    <p class="blq__texto">{{ L(`Sí. Se leyeron célula a célula dos biopsias: unas 20.600 células del hígado y unas 2.500 del hueso, un tejido especialmente difícil que hay que descalcificar antes de leerlo.${qc(true)} Según el laboratorio, las dos dieron datos de excelente calidad; en el hueso hay más ruido de fondo, como es normal en un tejido descalcificado.`,
+      `Yes. Two biopsies were read cell by cell: about 20,600 cells from the liver and about 2,500 from the bone, a particularly difficult tissue that has to be decalcified before it can be read.${qc(false)} According to the lab, both gave excellent-quality data; the bone carries more background noise, as is normal for decalcified tissue.`) }}</p>
     <div class="blq__par">
       <section v-for="m in MUESTRAS" :key="m" class="blq__muestra" :aria-label="nombre(m)">
         <h4 class="blq__mt"><Icon :name="icono(m)" aria-hidden="true" />{{ nombre(m) }}</h4>

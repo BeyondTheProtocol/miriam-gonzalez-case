@@ -5,7 +5,7 @@
     "R0": {
       "sello": "verificado",
       "ok_miriam": true,
-      "fecha_ok": "2026-10-17",
+      "fecha_ok": "2026-10-18",
       "datos": {
         "muestras": {
           "higado": { "celulas": 20600, "tras_qc": 19047 },
@@ -16,7 +16,7 @@
     "R3": {
       "sello": "verificado",
       "ok_miriam": true,
-      "fecha_ok": "2026-10-17",
+      "fecha_ok": "2026-10-18",
       "datos": {
         "muestras": {
           "higado": { "n_grupo": 993, "dianas": [
@@ -37,7 +37,7 @@
     "R4": {
       "sello": "verificado",
       "ok_miriam": true,
-      "fecha_ok": "2026-10-17",
+      "fecha_ok": "2026-10-18",
       "datos": {
         "higado": { "por_100": 1, "menos_de": false, "o_menos": true }
       }
@@ -45,7 +45,7 @@
     "R5": {
       "sello": "verificado",
       "ok_miriam": true,
-      "fecha_ok": "2026-10-17",
+      "fecha_ok": "2026-10-18",
       "datos": {
         "gen": "FGFR1",
         "activo": { "higado": true, "hueso": true }
@@ -54,7 +54,7 @@
     "R6": {
       "sello": "verificado",
       "ok_miriam": true,
-      "fecha_ok": "2026-10-17",
+      "fecha_ok": "2026-10-18",
       "datos": {
         "patron": "dispersos"
       }

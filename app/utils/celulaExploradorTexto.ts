@@ -23,7 +23,7 @@ export const ETIQUETA_GRUPO: Record<string, T> = {
 }
 export const ETIQUETA_TIPO: Record<string, T> = {
   luminal: t('Luminal', 'Luminal'), epitelial: t('Epitelial', 'Epithelial'), hepatocito: t('Hepatocito', 'Hepatocyte'),
-  nk: t('T y NK', 'T and NK'), linfocito_t: t('Linfocito T', 'T cell'), linfocito_b: t('Linfocito B', 'B cell'), mieloide: t('Mieloide', 'Myeloid'),
+  nk: t('Linfocito T o NK', 'T or NK cell'), linfocito_t: t('Linfocito T', 'T cell'), linfocito_b: t('Linfocito B', 'B cell'), mieloide: t('Mieloide', 'Myeloid'),
   endotelio: t('Endotelio', 'Endothelium'), fibroblasto: t('Fibroblasto', 'Fibroblast'), plasmatica: t('Plasmática', 'Plasma cell'),
   neutrofilo: t('Neutrófilo', 'Neutrophil'), mastocito: t('Mastocito', 'Mast cell'), osteoclasto: t('Osteoclasto', 'Osteoclast'),
   eritroide: t('Eritroide', 'Erythroid'), estroma: t('Estroma', 'Stroma'),
@@ -83,7 +83,7 @@ export const ETIQUETAS_FIJAS = {
   arn: t('ARN ≠ proteína; manda la IHQ', 'RNA ≠ protein; IHC decides'),
   her2: t('IHQ de HER2: 0 (primario e hígado)', 'HER2 IHC: 0 (primary and liver)'),
   /** auditoría 18-oct: el ARN del programa de estrógeno está activo, pero la tinción del hígado salió negativa */
-  re: t('IHQ de RE (hígado): negativa', 'ER IHC (liver): negative'),
+  re: t('IHQ de RE: negativa (hígado)', 'ER IHC: negative (liver)'),
   /** qué matriz es: la estándar, con el ADN genómico que eso arrastra en el hueso */
   matriz: t('Matriz estándar de Cell Ranger, todas las sondas; en el hueso incluye ADN genómico', 'Standard Cell Ranger matrix, all probes; in the bone it includes genomic DNA'),
   /** el número de copias del hueso es una inferencia por expresión, no una lectura de ADN */
