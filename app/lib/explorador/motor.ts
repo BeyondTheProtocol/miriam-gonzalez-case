@@ -93,6 +93,10 @@ function construyeConfig(e: EntradaMotor, urls: string[]) {
 
 export interface Motor { pinta(e: EntradaMotor): void; desmonta(): void }
 
+/** Vitessce pide `getTermMapping` (ensembl → hgnc) para los rótulos de gen; con la lista vacía tiraba «TypeError: n is
+ * not a function» en consola (diseño, 18-oct). Aquí los genes ya van por su símbolo: un mapa vacío, local, sin red. */
+const FUNCIONES = [{ functionType: 'getTermMapping', asyncFunction: async () => new Map<string, string>() }]
+
 /** La interfaz de Vitessce viene en inglés y con títulos de nivel 1: se ajusta a la página (ES/EN, h3). */
 const TEXTOS: Record<string, { es: string; en: string }> = {
   'Pointer tool': { es: 'Mover y hacer zoom', en: 'Pan and zoom' },
@@ -129,7 +133,7 @@ export function montaMotor(el: HTMLElement): Motor {
       const config = upgradeAndParse(construyeConfig(e, nuevas))
       raiz.render(createElement(VitSContainer, {
         config, theme: e.tema, height: e.alto, uid: 'exp', validateConfig: true,
-        viewTypes: VISTAS, fileTypes: FICHEROS, jointFileTypes: [], coordinationTypes: COORDINACION, asyncFunctions: [],
+        viewTypes: VISTAS, fileTypes: FICHEROS, jointFileTypes: [], coordinationTypes: COORDINACION, asyncFunctions: FUNCIONES,
         remountOnUidChange: true,
       }))
       // las URL de la config anterior se liberan cuando la nueva ya está pedida

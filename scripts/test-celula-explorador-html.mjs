@@ -33,6 +33,9 @@ const qcSinDesborde = `[...document.querySelectorAll('.qc__fila dd')].every((dd)
 // diseño (18-oct, pasada final): el resumen del perfil se recortaba a 375 y salía «885de» en el número de copias
 const resumenCabe = `(() => { const e = document.querySelector('.pf__resumen'); return !!e && [...e.querySelectorAll('.nums')].every((s) => s.getBoundingClientRect().right <= e.getBoundingClientRect().right + 1) })()`
 const nPegado = `[...document.querySelectorAll('.cnv__n')].some((e) => /\\d(de|of)\\b/.test(e.textContent))`
+// consola limpia: Vitessce tiraba «TypeError: n is not a function» (getTermMapping sin implementar). Se registra
+// console.error y los errores antes de cargar la página.
+const ESPIA = `window.__errores = []; addEventListener('error', (e) => __errores.push(String(e.message))); addEventListener('unhandledrejection', (e) => __errores.push(String(e.reason))); const __ce = console.error; console.error = (...a) => { __errores.push(a.map(String).join(' ').slice(0, 200)); __ce(...a) }`
 const mapaEnGen = `[...document.querySelectorAll('.exp__seg button')].some((b) => /Gen elegido|Selected gene/.test(b.textContent) && b.getAttribute('aria-pressed') === 'true')`
 
 /* ── con DATOS REALES publicados (manifiesto sin «ejemplo»): la página está abierta; se comprueba eso y se termina ── */
@@ -53,12 +56,15 @@ if (manPub.ejemplo !== true) {
   const esperaR = async (nav, expr, ms = 30000) => { const t0 = Date.now(); while (Date.now() - t0 < ms) { if (await nav.evaluate(expr).catch(() => false)) return true; await nav.sleep(250) } return false }
   const navR = await abrirNavegador({ ancho: 1440, alto: 1000, escala: 1 })
   try {
+    await navR.cdp('Page.addScriptToEvaluateOnNewDocument', { source: ESPIA })
     await navR.cargar('/celula-a-celula/explorar')
     ok('real sin demo: se monta el explorador, sin rótulo de ejemplo', await esperaR(navR, `!!document.querySelector('.exp') && !document.querySelector('.exp__demo')`))
     ok('real: violines con n y suelo por grupo', await esperaR(navR, `[...document.querySelectorAll('.vio__fila')].filter((f) => /suelo \\d+\\s%/.test(f.textContent) && /n = \\d/.test(f.textContent)).length > 0`))
     ok('real: aviso fijo del hígado', await navR.evaluate(`/tumor frente a hepatocito no está resuelto célula a célula/.test(document.querySelector('.exp__banner')?.textContent ?? '')`))
     ok('real: marcadores, perfil, ADN por grupo y QC con datos', await esperaR(navR, `document.querySelectorAll('.mk__tabla tbody tr').length > 0 && !!document.querySelector('.pf__linea') && document.querySelectorAll('.adng__fila').length > 0 && document.querySelectorAll('.qc__fila').length >= 6`))
     ok('real: el eje del perfil va en el orden del genoma (1, 2, … 22)', await navR.evaluate(perfilEnOrden))
+    await navR.sleep(3000)
+    ok('real escritorio: sin errores en la consola (mapa incluido)', (await navR.evaluate(`window.__errores.length`)) === 0, JSON.stringify(await navR.evaluate(`window.__errores.slice(0, 2)`)))
     ok('real: ningún FDR de marcadores sale como «0,0e+0»', await navR.evaluate(sinFdrCero))
     ok('real: las etiquetas del eje del perfil no se pisan (20, 21, 22)', await navR.evaluate(perfilSinPisar))
     ok('real: ningún valor del QC desborda su celda', await navR.evaluate(qcSinDesborde))
@@ -129,6 +135,7 @@ try {
   ok('sin demo: no se pide ningún fichero de lesión', (await nav.evaluate(pedidos)).length === 0)
   ok('sin demo: no se monta el explorador', !(await nav.evaluate(`!!document.querySelector('.exp')`)))
 
+  await nav.cdp('Page.addScriptToEvaluateOnNewDocument', { source: ESPIA })
   await nav.cargar('/celula-a-celula/explorar?demo=1')
   ok('demo: aparecen los violines', await espera(nav, `document.querySelectorAll('.vio__fila').length > 0`))
   const r = await nav.evaluate(`(() => ({
@@ -154,6 +161,8 @@ try {
   ok('demo hígado: sin CNV por célula y con su aviso', r.cnvCelula === 0 && r.cnvHigado)
   ok('demo escritorio: hay mapa', r.mapa)
   ok('demo: el mapa (Vitessce) llega a dibujar su lienzo', await espera(nav, `!!document.querySelector('.exp-mapa canvas')`, 20000))
+  await nav.sleep(3000)
+  ok('demo escritorio: sin errores en la consola (mapa incluido)', (await nav.evaluate(`window.__errores.length`)) === 0, JSON.stringify(await nav.evaluate(`window.__errores.slice(0, 2)`)))
   await nav.evaluate(`(() => { const s = document.querySelector('.exp__ctl select'); s.value = 'ESR1'; s.dispatchEvent(new Event('change')) })()`)
   ok('demo hígado: ESR1 en los violines lleva primero la cifra sin circularidad y después «Cifra circular»', await espera(nav, `/Sin esa circularidad.*Cifra circular\\./s.test(document.querySelector('.vio__circ')?.textContent ?? '')`))
   ok('demo hígado: la nota de circularidad va ANTES de la figura y de la cifra circular de la fila', await nav.evaluate(`(() => { const c = document.querySelector('.vio__fila--interes .vio__circ'), t = document.querySelector('.vio__fila--interes .vio__txt'); return !!c && !!t && c.nextElementSibling?.classList.contains('vio__svg') && !!(c.compareDocumentPosition(t) & Node.DOCUMENT_POSITION_FOLLOWING) && /^\\s*Circular · /.test(t.textContent) })()`))
