@@ -1,13 +1,13 @@
 {
   "shape": [
-    261
+    267
   ],
   "data_type": "string",
   "chunk_grid": {
     "name": "regular",
     "configuration": {
       "chunk_shape": [
-        261
+        267
       ]
     }
   },

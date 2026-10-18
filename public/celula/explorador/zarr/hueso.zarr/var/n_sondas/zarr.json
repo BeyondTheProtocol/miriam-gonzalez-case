@@ -1,13 +1,13 @@
 {
   "shape": [
-    1277
+    18132
   ],
   "data_type": "int32",
   "chunk_grid": {
     "name": "regular",
     "configuration": {
       "chunk_shape": [
-        1277
+        18132
       ]
     }
   },

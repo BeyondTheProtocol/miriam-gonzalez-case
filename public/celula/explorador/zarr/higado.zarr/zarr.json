@@ -172,8 +172,8 @@
       "X": {
         "attributes": {
           "shape": [
-            1600,
-            1277
+            19047,
+            18132
           ],
           "encoding-type": "csc_matrix",
           "encoding-version": "0.1.0"
@@ -188,14 +188,14 @@
       },
       "obs/_index": {
         "shape": [
-          1600
+          19047
         ],
         "data_type": "string",
         "chunk_grid": {
           "name": "regular",
           "configuration": {
             "chunk_shape": [
-              1600
+              19047
             ]
           }
         },
@@ -243,14 +243,14 @@
       },
       "obs/n_genes": {
         "shape": [
-          1600
+          19047
         ],
         "data_type": "int32",
         "chunk_grid": {
           "name": "regular",
           "configuration": {
             "chunk_shape": [
-              1600
+              19047
             ]
           }
         },
@@ -300,14 +300,14 @@
       },
       "obs/umi": {
         "shape": [
-          1600
+          19047
         ],
         "data_type": "int64",
         "chunk_grid": {
           "name": "regular",
           "configuration": {
             "chunk_shape": [
-              1600
+              19047
             ]
           }
         },
@@ -343,7 +343,7 @@
       },
       "obsm/X_umap": {
         "shape": [
-          1600,
+          19047,
           2
         ],
         "data_type": "float32",
@@ -351,7 +351,7 @@
           "name": "regular",
           "configuration": {
             "chunk_shape": [
-              1600,
+              19047,
               2
             ]
           }
@@ -401,14 +401,14 @@
       },
       "uns/genes_sin_sonda": {
         "shape": [
-          3
+          0
         ],
         "data_type": "string",
         "chunk_grid": {
           "name": "regular",
           "configuration": {
             "chunk_shape": [
-              3
+              1
             ]
           }
         },
@@ -579,14 +579,14 @@
       },
       "var/_index": {
         "shape": [
-          1277
+          18132
         ],
         "data_type": "string",
         "chunk_grid": {
           "name": "regular",
           "configuration": {
             "chunk_shape": [
-              1277
+              18132
             ]
           }
         },
@@ -620,14 +620,14 @@
       },
       "var/ensembl": {
         "shape": [
-          1277
+          18132
         ],
         "data_type": "string",
         "chunk_grid": {
           "name": "regular",
           "configuration": {
             "chunk_shape": [
-              1277
+              18132
             ]
           }
         },
@@ -661,14 +661,14 @@
       },
       "var/n_sondas": {
         "shape": [
-          1277
+          18132
         ],
         "data_type": "int32",
         "chunk_grid": {
           "name": "regular",
           "configuration": {
             "chunk_shape": [
-              1277
+              18132
             ]
           }
         },
@@ -704,14 +704,14 @@
       },
       "var/n_sondas_union": {
         "shape": [
-          1277
+          18132
         ],
         "data_type": "int32",
         "chunk_grid": {
           "name": "regular",
           "configuration": {
             "chunk_shape": [
-              1277
+              18132
             ]
           }
         },
@@ -747,14 +747,14 @@
       },
       "var/referencia_emparejada": {
         "shape": [
-          1277
+          18132
         ],
         "data_type": "float64",
         "chunk_grid": {
           "name": "regular",
           "configuration": {
             "chunk_shape": [
-              1277
+              18132
             ]
           }
         },
@@ -790,14 +790,14 @@
       },
       "var/suelo__endotelio": {
         "shape": [
-          1277
+          18132
         ],
         "data_type": "float64",
         "chunk_grid": {
           "name": "regular",
           "configuration": {
             "chunk_shape": [
-              1277
+              18132
             ]
           }
         },
@@ -833,14 +833,14 @@
       },
       "var/suelo__fibroblasto_estelar": {
         "shape": [
-          1277
+          18132
         ],
         "data_type": "float64",
         "chunk_grid": {
           "name": "regular",
           "configuration": {
             "chunk_shape": [
-              1277
+              18132
             ]
           }
         },
@@ -876,14 +876,14 @@
       },
       "var/suelo__hepatocito": {
         "shape": [
-          1277
+          18132
         ],
         "data_type": "float64",
         "chunk_grid": {
           "name": "regular",
           "configuration": {
             "chunk_shape": [
-              1277
+              18132
             ]
           }
         },
@@ -919,14 +919,14 @@
       },
       "var/suelo__luminal_alta_confianza": {
         "shape": [
-          1277
+          18132
         ],
         "data_type": "float64",
         "chunk_grid": {
           "name": "regular",
           "configuration": {
             "chunk_shape": [
-              1277
+              18132
             ]
           }
         },
@@ -962,14 +962,14 @@
       },
       "var/suelo__mieloide": {
         "shape": [
-          1277
+          18132
         ],
         "data_type": "float64",
         "chunk_grid": {
           "name": "regular",
           "configuration": {
             "chunk_shape": [
-              1277
+              18132
             ]
           }
         },
@@ -1005,14 +1005,14 @@
       },
       "var/suelo__NK": {
         "shape": [
-          1277
+          18132
         ],
         "data_type": "float64",
         "chunk_grid": {
           "name": "regular",
           "configuration": {
             "chunk_shape": [
-              1277
+              18132
             ]
           }
         },
@@ -1048,14 +1048,14 @@
       },
       "var/suelo__otras": {
         "shape": [
-          1277
+          18132
         ],
         "data_type": "float64",
         "chunk_grid": {
           "name": "regular",
           "configuration": {
             "chunk_shape": [
-              1277
+              18132
             ]
           }
         },
@@ -1091,7 +1091,7 @@
       },
       "X/data": {
         "shape": [
-          388414
+          29282132
         ],
         "data_type": "float32",
         "chunk_grid": {
@@ -1131,7 +1131,7 @@
       },
       "X/indices": {
         "shape": [
-          388414
+          29282132
         ],
         "data_type": "int32",
         "chunk_grid": {
@@ -1171,7 +1171,7 @@
       },
       "X/indptr": {
         "shape": [
-          1278
+          18133
         ],
         "data_type": "int32",
         "chunk_grid": {
@@ -1252,14 +1252,14 @@
       },
       "obs/grupo/codes": {
         "shape": [
-          1600
+          19047
         ],
         "data_type": "int8",
         "chunk_grid": {
           "name": "regular",
           "configuration": {
             "chunk_shape": [
-              1600
+              19047
             ]
           }
         },
@@ -1292,14 +1292,14 @@
       },
       "obs/tipo_celular/categories": {
         "shape": [
-          8
+          7
         ],
         "data_type": "string",
         "chunk_grid": {
           "name": "regular",
           "configuration": {
             "chunk_shape": [
-              8
+              7
             ]
           }
         },
@@ -1333,14 +1333,14 @@
       },
       "obs/tipo_celular/codes": {
         "shape": [
-          1600
+          19047
         ],
         "data_type": "int8",
         "chunk_grid": {
           "name": "regular",
           "configuration": {
             "chunk_shape": [
-              1600
+              19047
             ]
           }
         },
@@ -1737,14 +1737,14 @@
       },
       "uns/perfil_bins/cromosoma": {
         "shape": [
-          261
+          267
         ],
         "data_type": "string",
         "chunk_grid": {
           "name": "regular",
           "configuration": {
             "chunk_shape": [
-              261
+              267
             ]
           }
         },
@@ -1778,14 +1778,14 @@
       },
       "uns/perfil_bins/inicio_mb": {
         "shape": [
-          261
+          267
         ],
         "data_type": "float64",
         "chunk_grid": {
           "name": "regular",
           "configuration": {
             "chunk_shape": [
-              261
+              267
             ]
           }
         },
@@ -1821,14 +1821,14 @@
       },
       "uns/perfil_bins/log2_rel": {
         "shape": [
-          261
+          267
         ],
         "data_type": "float64",
         "chunk_grid": {
           "name": "regular",
           "configuration": {
             "chunk_shape": [
-              261
+              267
             ]
           }
         },

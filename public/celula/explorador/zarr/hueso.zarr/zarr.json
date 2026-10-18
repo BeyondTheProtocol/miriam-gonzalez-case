@@ -124,13 +124,9 @@
             "n_sondas_union",
             "referencia_emparejada",
             "suelo__malignas_limpias",
-            "suelo__T",
-            "suelo__NK",
-            "suelo__B",
             "suelo__plasmatica",
             "suelo__mieloide",
             "suelo__neutrofilo",
-            "suelo__mastocito",
             "suelo__endotelio",
             "suelo__otras"
           ],
@@ -175,8 +171,8 @@
       "X": {
         "attributes": {
           "shape": [
-            420,
-            1277
+            1993,
+            18132
           ],
           "encoding-type": "csc_matrix",
           "encoding-version": "0.1.0"
@@ -191,14 +187,14 @@
       },
       "obs/_index": {
         "shape": [
-          420
+          1993
         ],
         "data_type": "string",
         "chunk_grid": {
           "name": "regular",
           "configuration": {
             "chunk_shape": [
-              420
+              1993
             ]
           }
         },
@@ -246,14 +242,14 @@
       },
       "obs/n_genes": {
         "shape": [
-          420
+          1993
         ],
         "data_type": "int32",
         "chunk_grid": {
           "name": "regular",
           "configuration": {
             "chunk_shape": [
-              420
+              1993
             ]
           }
         },
@@ -303,14 +299,14 @@
       },
       "obs/umi": {
         "shape": [
-          420
+          1993
         ],
         "data_type": "int64",
         "chunk_grid": {
           "name": "regular",
           "configuration": {
             "chunk_shape": [
-              420
+              1993
             ]
           }
         },
@@ -346,7 +342,7 @@
       },
       "obsm/X_umap": {
         "shape": [
-          420,
+          1993,
           2
         ],
         "data_type": "float32",
@@ -354,7 +350,7 @@
           "name": "regular",
           "configuration": {
             "chunk_shape": [
-              420,
+              1993,
               2
             ]
           }
@@ -404,14 +400,14 @@
       },
       "uns/genes_sin_sonda": {
         "shape": [
-          3
+          0
         ],
         "data_type": "string",
         "chunk_grid": {
           "name": "regular",
           "configuration": {
             "chunk_shape": [
-              3
+              1
             ]
           }
         },
@@ -582,14 +578,14 @@
       },
       "var/_index": {
         "shape": [
-          1277
+          18132
         ],
         "data_type": "string",
         "chunk_grid": {
           "name": "regular",
           "configuration": {
             "chunk_shape": [
-              1277
+              18132
             ]
           }
         },
@@ -623,14 +619,14 @@
       },
       "var/ensembl": {
         "shape": [
-          1277
+          18132
         ],
         "data_type": "string",
         "chunk_grid": {
           "name": "regular",
           "configuration": {
             "chunk_shape": [
-              1277
+              18132
             ]
           }
         },
@@ -664,14 +660,14 @@
       },
       "var/n_sondas": {
         "shape": [
-          1277
+          18132
         ],
         "data_type": "int32",
         "chunk_grid": {
           "name": "regular",
           "configuration": {
             "chunk_shape": [
-              1277
+              18132
             ]
           }
         },
@@ -707,14 +703,14 @@
       },
       "var/n_sondas_union": {
         "shape": [
-          1277
+          18132
         ],
         "data_type": "int32",
         "chunk_grid": {
           "name": "regular",
           "configuration": {
             "chunk_shape": [
-              1277
+              18132
             ]
           }
         },
@@ -750,57 +746,14 @@
       },
       "var/referencia_emparejada": {
         "shape": [
-          1277
+          18132
         ],
         "data_type": "float64",
         "chunk_grid": {
           "name": "regular",
           "configuration": {
             "chunk_shape": [
-              1277
-            ]
-          }
-        },
-        "chunk_key_encoding": {
-          "name": "default",
-          "configuration": {
-            "separator": "/"
-          }
-        },
-        "fill_value": 0.0,
-        "codecs": [
-          {
-            "name": "bytes",
-            "configuration": {
-              "endian": "little"
-            }
-          },
-          {
-            "name": "zstd",
-            "configuration": {
-              "level": 0,
-              "checksum": false
-            }
-          }
-        ],
-        "attributes": {
-          "encoding-type": "array",
-          "encoding-version": "0.2.0"
-        },
-        "zarr_format": 3,
-        "node_type": "array",
-        "storage_transformers": []
-      },
-      "var/suelo__B": {
-        "shape": [
-          1277
-        ],
-        "data_type": "float64",
-        "chunk_grid": {
-          "name": "regular",
-          "configuration": {
-            "chunk_shape": [
-              1277
+              18132
             ]
           }
         },
@@ -836,14 +789,14 @@
       },
       "var/suelo__endotelio": {
         "shape": [
-          1277
+          18132
         ],
         "data_type": "float64",
         "chunk_grid": {
           "name": "regular",
           "configuration": {
             "chunk_shape": [
-              1277
+              18132
             ]
           }
         },
@@ -879,57 +832,14 @@
       },
       "var/suelo__malignas_limpias": {
         "shape": [
-          1277
+          18132
         ],
         "data_type": "float64",
         "chunk_grid": {
           "name": "regular",
           "configuration": {
             "chunk_shape": [
-              1277
-            ]
-          }
-        },
-        "chunk_key_encoding": {
-          "name": "default",
-          "configuration": {
-            "separator": "/"
-          }
-        },
-        "fill_value": 0.0,
-        "codecs": [
-          {
-            "name": "bytes",
-            "configuration": {
-              "endian": "little"
-            }
-          },
-          {
-            "name": "zstd",
-            "configuration": {
-              "level": 0,
-              "checksum": false
-            }
-          }
-        ],
-        "attributes": {
-          "encoding-type": "array",
-          "encoding-version": "0.2.0"
-        },
-        "zarr_format": 3,
-        "node_type": "array",
-        "storage_transformers": []
-      },
-      "var/suelo__mastocito": {
-        "shape": [
-          1277
-        ],
-        "data_type": "float64",
-        "chunk_grid": {
-          "name": "regular",
-          "configuration": {
-            "chunk_shape": [
-              1277
+              18132
             ]
           }
         },
@@ -965,14 +875,14 @@
       },
       "var/suelo__mieloide": {
         "shape": [
-          1277
+          18132
         ],
         "data_type": "float64",
         "chunk_grid": {
           "name": "regular",
           "configuration": {
             "chunk_shape": [
-              1277
+              18132
             ]
           }
         },
@@ -1008,57 +918,14 @@
       },
       "var/suelo__neutrofilo": {
         "shape": [
-          1277
+          18132
         ],
         "data_type": "float64",
         "chunk_grid": {
           "name": "regular",
           "configuration": {
             "chunk_shape": [
-              1277
-            ]
-          }
-        },
-        "chunk_key_encoding": {
-          "name": "default",
-          "configuration": {
-            "separator": "/"
-          }
-        },
-        "fill_value": 0.0,
-        "codecs": [
-          {
-            "name": "bytes",
-            "configuration": {
-              "endian": "little"
-            }
-          },
-          {
-            "name": "zstd",
-            "configuration": {
-              "level": 0,
-              "checksum": false
-            }
-          }
-        ],
-        "attributes": {
-          "encoding-type": "array",
-          "encoding-version": "0.2.0"
-        },
-        "zarr_format": 3,
-        "node_type": "array",
-        "storage_transformers": []
-      },
-      "var/suelo__NK": {
-        "shape": [
-          1277
-        ],
-        "data_type": "float64",
-        "chunk_grid": {
-          "name": "regular",
-          "configuration": {
-            "chunk_shape": [
-              1277
+              18132
             ]
           }
         },
@@ -1094,14 +961,14 @@
       },
       "var/suelo__otras": {
         "shape": [
-          1277
+          18132
         ],
         "data_type": "float64",
         "chunk_grid": {
           "name": "regular",
           "configuration": {
             "chunk_shape": [
-              1277
+              18132
             ]
           }
         },
@@ -1137,57 +1004,14 @@
       },
       "var/suelo__plasmatica": {
         "shape": [
-          1277
+          18132
         ],
         "data_type": "float64",
         "chunk_grid": {
           "name": "regular",
           "configuration": {
             "chunk_shape": [
-              1277
-            ]
-          }
-        },
-        "chunk_key_encoding": {
-          "name": "default",
-          "configuration": {
-            "separator": "/"
-          }
-        },
-        "fill_value": 0.0,
-        "codecs": [
-          {
-            "name": "bytes",
-            "configuration": {
-              "endian": "little"
-            }
-          },
-          {
-            "name": "zstd",
-            "configuration": {
-              "level": 0,
-              "checksum": false
-            }
-          }
-        ],
-        "attributes": {
-          "encoding-type": "array",
-          "encoding-version": "0.2.0"
-        },
-        "zarr_format": 3,
-        "node_type": "array",
-        "storage_transformers": []
-      },
-      "var/suelo__T": {
-        "shape": [
-          1277
-        ],
-        "data_type": "float64",
-        "chunk_grid": {
-          "name": "regular",
-          "configuration": {
-            "chunk_shape": [
-              1277
+              18132
             ]
           }
         },
@@ -1223,7 +1047,7 @@
       },
       "X/data": {
         "shape": [
-          96697
+          1991229
         ],
         "data_type": "float32",
         "chunk_grid": {
@@ -1263,7 +1087,7 @@
       },
       "X/indices": {
         "shape": [
-          96697
+          1991229
         ],
         "data_type": "int32",
         "chunk_grid": {
@@ -1303,7 +1127,7 @@
       },
       "X/indptr": {
         "shape": [
-          1278
+          18133
         ],
         "data_type": "int32",
         "chunk_grid": {
@@ -1343,14 +1167,14 @@
       },
       "obs/grupo/categories": {
         "shape": [
-          10
+          6
         ],
         "data_type": "string",
         "chunk_grid": {
           "name": "regular",
           "configuration": {
             "chunk_shape": [
-              10
+              6
             ]
           }
         },
@@ -1384,14 +1208,14 @@
       },
       "obs/grupo/codes": {
         "shape": [
-          420
+          1993
         ],
         "data_type": "int8",
         "chunk_grid": {
           "name": "regular",
           "configuration": {
             "chunk_shape": [
-              420
+              1993
             ]
           }
         },
@@ -1424,14 +1248,14 @@
       },
       "obs/tipo_celular/categories": {
         "shape": [
-          12
+          9
         ],
         "data_type": "string",
         "chunk_grid": {
           "name": "regular",
           "configuration": {
             "chunk_shape": [
-              12
+              9
             ]
           }
         },
@@ -1465,14 +1289,14 @@
       },
       "obs/tipo_celular/codes": {
         "shape": [
-          420
+          1993
         ],
         "data_type": "int8",
         "chunk_grid": {
           "name": "regular",
           "configuration": {
             "chunk_shape": [
-              420
+              1993
             ]
           }
         },
@@ -1497,45 +1321,6 @@
         ],
         "attributes": {
           "encoding-type": "array",
-          "encoding-version": "0.2.0"
-        },
-        "zarr_format": 3,
-        "node_type": "array",
-        "storage_transformers": []
-      },
-      "uns/adn_por_grupo/B": {
-        "shape": [],
-        "data_type": "float64",
-        "chunk_grid": {
-          "name": "regular",
-          "configuration": {
-            "chunk_shape": []
-          }
-        },
-        "chunk_key_encoding": {
-          "name": "default",
-          "configuration": {
-            "separator": "/"
-          }
-        },
-        "fill_value": 0.0,
-        "codecs": [
-          {
-            "name": "bytes",
-            "configuration": {
-              "endian": "little"
-            }
-          },
-          {
-            "name": "zstd",
-            "configuration": {
-              "level": 0,
-              "checksum": false
-            }
-          }
-        ],
-        "attributes": {
-          "encoding-type": "numeric-scalar",
           "encoding-version": "0.2.0"
         },
         "zarr_format": 3,
@@ -1582,45 +1367,6 @@
         "storage_transformers": []
       },
       "uns/adn_por_grupo/malignas_limpias": {
-        "shape": [],
-        "data_type": "float64",
-        "chunk_grid": {
-          "name": "regular",
-          "configuration": {
-            "chunk_shape": []
-          }
-        },
-        "chunk_key_encoding": {
-          "name": "default",
-          "configuration": {
-            "separator": "/"
-          }
-        },
-        "fill_value": 0.0,
-        "codecs": [
-          {
-            "name": "bytes",
-            "configuration": {
-              "endian": "little"
-            }
-          },
-          {
-            "name": "zstd",
-            "configuration": {
-              "level": 0,
-              "checksum": false
-            }
-          }
-        ],
-        "attributes": {
-          "encoding-type": "numeric-scalar",
-          "encoding-version": "0.2.0"
-        },
-        "zarr_format": 3,
-        "node_type": "array",
-        "storage_transformers": []
-      },
-      "uns/adn_por_grupo/mastocito": {
         "shape": [],
         "data_type": "float64",
         "chunk_grid": {
@@ -1737,45 +1483,6 @@
         "node_type": "array",
         "storage_transformers": []
       },
-      "uns/adn_por_grupo/NK": {
-        "shape": [],
-        "data_type": "float64",
-        "chunk_grid": {
-          "name": "regular",
-          "configuration": {
-            "chunk_shape": []
-          }
-        },
-        "chunk_key_encoding": {
-          "name": "default",
-          "configuration": {
-            "separator": "/"
-          }
-        },
-        "fill_value": 0.0,
-        "codecs": [
-          {
-            "name": "bytes",
-            "configuration": {
-              "endian": "little"
-            }
-          },
-          {
-            "name": "zstd",
-            "configuration": {
-              "level": 0,
-              "checksum": false
-            }
-          }
-        ],
-        "attributes": {
-          "encoding-type": "numeric-scalar",
-          "encoding-version": "0.2.0"
-        },
-        "zarr_format": 3,
-        "node_type": "array",
-        "storage_transformers": []
-      },
       "uns/adn_por_grupo/otras": {
         "shape": [],
         "data_type": "float64",
@@ -1854,58 +1561,6 @@
         "node_type": "array",
         "storage_transformers": []
       },
-      "uns/adn_por_grupo/T": {
-        "shape": [],
-        "data_type": "float64",
-        "chunk_grid": {
-          "name": "regular",
-          "configuration": {
-            "chunk_shape": []
-          }
-        },
-        "chunk_key_encoding": {
-          "name": "default",
-          "configuration": {
-            "separator": "/"
-          }
-        },
-        "fill_value": 0.0,
-        "codecs": [
-          {
-            "name": "bytes",
-            "configuration": {
-              "endian": "little"
-            }
-          },
-          {
-            "name": "zstd",
-            "configuration": {
-              "level": 0,
-              "checksum": false
-            }
-          }
-        ],
-        "attributes": {
-          "encoding-type": "numeric-scalar",
-          "encoding-version": "0.2.0"
-        },
-        "zarr_format": 3,
-        "node_type": "array",
-        "storage_transformers": []
-      },
-      "uns/marcadores/B": {
-        "attributes": {
-          "encoding-type": "dict",
-          "encoding-version": "0.1.0"
-        },
-        "zarr_format": 3,
-        "consolidated_metadata": {
-          "kind": "inline",
-          "must_understand": false,
-          "metadata": {}
-        },
-        "node_type": "group"
-      },
       "uns/marcadores/endotelio": {
         "attributes": {
           "encoding-type": "dict",
@@ -1920,19 +1575,6 @@
         "node_type": "group"
       },
       "uns/marcadores/malignas_limpias": {
-        "attributes": {
-          "encoding-type": "dict",
-          "encoding-version": "0.1.0"
-        },
-        "zarr_format": 3,
-        "consolidated_metadata": {
-          "kind": "inline",
-          "must_understand": false,
-          "metadata": {}
-        },
-        "node_type": "group"
-      },
-      "uns/marcadores/mastocito": {
         "attributes": {
           "encoding-type": "dict",
           "encoding-version": "0.1.0"
@@ -1971,19 +1613,6 @@
         },
         "node_type": "group"
       },
-      "uns/marcadores/NK": {
-        "attributes": {
-          "encoding-type": "dict",
-          "encoding-version": "0.1.0"
-        },
-        "zarr_format": 3,
-        "consolidated_metadata": {
-          "kind": "inline",
-          "must_understand": false,
-          "metadata": {}
-        },
-        "node_type": "group"
-      },
       "uns/marcadores/otras": {
         "attributes": {
           "encoding-type": "dict",
@@ -2010,29 +1639,16 @@
         },
         "node_type": "group"
       },
-      "uns/marcadores/T": {
-        "attributes": {
-          "encoding-type": "dict",
-          "encoding-version": "0.1.0"
-        },
-        "zarr_format": 3,
-        "consolidated_metadata": {
-          "kind": "inline",
-          "must_understand": false,
-          "metadata": {}
-        },
-        "node_type": "group"
-      },
       "uns/perfil_bins/cromosoma": {
         "shape": [
-          254
+          274
         ],
         "data_type": "string",
         "chunk_grid": {
           "name": "regular",
           "configuration": {
             "chunk_shape": [
-              254
+              274
             ]
           }
         },
@@ -2066,14 +1682,14 @@
       },
       "uns/perfil_bins/inicio_mb": {
         "shape": [
-          254
+          274
         ],
         "data_type": "float64",
         "chunk_grid": {
           "name": "regular",
           "configuration": {
             "chunk_shape": [
-              254
+              274
             ]
           }
         },
@@ -2109,270 +1725,14 @@
       },
       "uns/perfil_bins/log2_rel": {
         "shape": [
-          254
+          274
         ],
         "data_type": "float64",
         "chunk_grid": {
           "name": "regular",
           "configuration": {
             "chunk_shape": [
-              254
-            ]
-          }
-        },
-        "chunk_key_encoding": {
-          "name": "default",
-          "configuration": {
-            "separator": "/"
-          }
-        },
-        "fill_value": 0.0,
-        "codecs": [
-          {
-            "name": "bytes",
-            "configuration": {
-              "endian": "little"
-            }
-          },
-          {
-            "name": "zstd",
-            "configuration": {
-              "level": 0,
-              "checksum": false
-            }
-          }
-        ],
-        "attributes": {
-          "encoding-type": "array",
-          "encoding-version": "0.2.0"
-        },
-        "zarr_format": 3,
-        "node_type": "array",
-        "storage_transformers": []
-      },
-      "uns/marcadores/B/fdr": {
-        "shape": [
-          50
-        ],
-        "data_type": "float64",
-        "chunk_grid": {
-          "name": "regular",
-          "configuration": {
-            "chunk_shape": [
-              50
-            ]
-          }
-        },
-        "chunk_key_encoding": {
-          "name": "default",
-          "configuration": {
-            "separator": "/"
-          }
-        },
-        "fill_value": 0.0,
-        "codecs": [
-          {
-            "name": "bytes",
-            "configuration": {
-              "endian": "little"
-            }
-          },
-          {
-            "name": "zstd",
-            "configuration": {
-              "level": 0,
-              "checksum": false
-            }
-          }
-        ],
-        "attributes": {
-          "encoding-type": "array",
-          "encoding-version": "0.2.0"
-        },
-        "zarr_format": 3,
-        "node_type": "array",
-        "storage_transformers": []
-      },
-      "uns/marcadores/B/frac_grupo": {
-        "shape": [
-          50
-        ],
-        "data_type": "float64",
-        "chunk_grid": {
-          "name": "regular",
-          "configuration": {
-            "chunk_shape": [
-              50
-            ]
-          }
-        },
-        "chunk_key_encoding": {
-          "name": "default",
-          "configuration": {
-            "separator": "/"
-          }
-        },
-        "fill_value": 0.0,
-        "codecs": [
-          {
-            "name": "bytes",
-            "configuration": {
-              "endian": "little"
-            }
-          },
-          {
-            "name": "zstd",
-            "configuration": {
-              "level": 0,
-              "checksum": false
-            }
-          }
-        ],
-        "attributes": {
-          "encoding-type": "array",
-          "encoding-version": "0.2.0"
-        },
-        "zarr_format": 3,
-        "node_type": "array",
-        "storage_transformers": []
-      },
-      "uns/marcadores/B/frac_resto": {
-        "shape": [
-          50
-        ],
-        "data_type": "float64",
-        "chunk_grid": {
-          "name": "regular",
-          "configuration": {
-            "chunk_shape": [
-              50
-            ]
-          }
-        },
-        "chunk_key_encoding": {
-          "name": "default",
-          "configuration": {
-            "separator": "/"
-          }
-        },
-        "fill_value": 0.0,
-        "codecs": [
-          {
-            "name": "bytes",
-            "configuration": {
-              "endian": "little"
-            }
-          },
-          {
-            "name": "zstd",
-            "configuration": {
-              "level": 0,
-              "checksum": false
-            }
-          }
-        ],
-        "attributes": {
-          "encoding-type": "array",
-          "encoding-version": "0.2.0"
-        },
-        "zarr_format": 3,
-        "node_type": "array",
-        "storage_transformers": []
-      },
-      "uns/marcadores/B/gen": {
-        "shape": [
-          50
-        ],
-        "data_type": "string",
-        "chunk_grid": {
-          "name": "regular",
-          "configuration": {
-            "chunk_shape": [
-              50
-            ]
-          }
-        },
-        "chunk_key_encoding": {
-          "name": "default",
-          "configuration": {
-            "separator": "/"
-          }
-        },
-        "fill_value": "",
-        "codecs": [
-          {
-            "name": "vlen-utf8",
-            "configuration": {}
-          },
-          {
-            "name": "zstd",
-            "configuration": {
-              "level": 0,
-              "checksum": false
-            }
-          }
-        ],
-        "attributes": {
-          "encoding-type": "string-array",
-          "encoding-version": "0.2.0"
-        },
-        "zarr_format": 3,
-        "node_type": "array",
-        "storage_transformers": []
-      },
-      "uns/marcadores/B/logfc": {
-        "shape": [
-          50
-        ],
-        "data_type": "float64",
-        "chunk_grid": {
-          "name": "regular",
-          "configuration": {
-            "chunk_shape": [
-              50
-            ]
-          }
-        },
-        "chunk_key_encoding": {
-          "name": "default",
-          "configuration": {
-            "separator": "/"
-          }
-        },
-        "fill_value": 0.0,
-        "codecs": [
-          {
-            "name": "bytes",
-            "configuration": {
-              "endian": "little"
-            }
-          },
-          {
-            "name": "zstd",
-            "configuration": {
-              "level": 0,
-              "checksum": false
-            }
-          }
-        ],
-        "attributes": {
-          "encoding-type": "array",
-          "encoding-version": "0.2.0"
-        },
-        "zarr_format": 3,
-        "node_type": "array",
-        "storage_transformers": []
-      },
-      "uns/marcadores/B/suelo": {
-        "shape": [
-          50
-        ],
-        "data_type": "float64",
-        "chunk_grid": {
-          "name": "regular",
-          "configuration": {
-            "chunk_shape": [
-              50
+              274
             ]
           }
         },
@@ -2876,262 +2236,6 @@
         "storage_transformers": []
       },
       "uns/marcadores/malignas_limpias/suelo": {
-        "shape": [
-          50
-        ],
-        "data_type": "float64",
-        "chunk_grid": {
-          "name": "regular",
-          "configuration": {
-            "chunk_shape": [
-              50
-            ]
-          }
-        },
-        "chunk_key_encoding": {
-          "name": "default",
-          "configuration": {
-            "separator": "/"
-          }
-        },
-        "fill_value": 0.0,
-        "codecs": [
-          {
-            "name": "bytes",
-            "configuration": {
-              "endian": "little"
-            }
-          },
-          {
-            "name": "zstd",
-            "configuration": {
-              "level": 0,
-              "checksum": false
-            }
-          }
-        ],
-        "attributes": {
-          "encoding-type": "array",
-          "encoding-version": "0.2.0"
-        },
-        "zarr_format": 3,
-        "node_type": "array",
-        "storage_transformers": []
-      },
-      "uns/marcadores/mastocito/fdr": {
-        "shape": [
-          50
-        ],
-        "data_type": "float64",
-        "chunk_grid": {
-          "name": "regular",
-          "configuration": {
-            "chunk_shape": [
-              50
-            ]
-          }
-        },
-        "chunk_key_encoding": {
-          "name": "default",
-          "configuration": {
-            "separator": "/"
-          }
-        },
-        "fill_value": 0.0,
-        "codecs": [
-          {
-            "name": "bytes",
-            "configuration": {
-              "endian": "little"
-            }
-          },
-          {
-            "name": "zstd",
-            "configuration": {
-              "level": 0,
-              "checksum": false
-            }
-          }
-        ],
-        "attributes": {
-          "encoding-type": "array",
-          "encoding-version": "0.2.0"
-        },
-        "zarr_format": 3,
-        "node_type": "array",
-        "storage_transformers": []
-      },
-      "uns/marcadores/mastocito/frac_grupo": {
-        "shape": [
-          50
-        ],
-        "data_type": "float64",
-        "chunk_grid": {
-          "name": "regular",
-          "configuration": {
-            "chunk_shape": [
-              50
-            ]
-          }
-        },
-        "chunk_key_encoding": {
-          "name": "default",
-          "configuration": {
-            "separator": "/"
-          }
-        },
-        "fill_value": 0.0,
-        "codecs": [
-          {
-            "name": "bytes",
-            "configuration": {
-              "endian": "little"
-            }
-          },
-          {
-            "name": "zstd",
-            "configuration": {
-              "level": 0,
-              "checksum": false
-            }
-          }
-        ],
-        "attributes": {
-          "encoding-type": "array",
-          "encoding-version": "0.2.0"
-        },
-        "zarr_format": 3,
-        "node_type": "array",
-        "storage_transformers": []
-      },
-      "uns/marcadores/mastocito/frac_resto": {
-        "shape": [
-          50
-        ],
-        "data_type": "float64",
-        "chunk_grid": {
-          "name": "regular",
-          "configuration": {
-            "chunk_shape": [
-              50
-            ]
-          }
-        },
-        "chunk_key_encoding": {
-          "name": "default",
-          "configuration": {
-            "separator": "/"
-          }
-        },
-        "fill_value": 0.0,
-        "codecs": [
-          {
-            "name": "bytes",
-            "configuration": {
-              "endian": "little"
-            }
-          },
-          {
-            "name": "zstd",
-            "configuration": {
-              "level": 0,
-              "checksum": false
-            }
-          }
-        ],
-        "attributes": {
-          "encoding-type": "array",
-          "encoding-version": "0.2.0"
-        },
-        "zarr_format": 3,
-        "node_type": "array",
-        "storage_transformers": []
-      },
-      "uns/marcadores/mastocito/gen": {
-        "shape": [
-          50
-        ],
-        "data_type": "string",
-        "chunk_grid": {
-          "name": "regular",
-          "configuration": {
-            "chunk_shape": [
-              50
-            ]
-          }
-        },
-        "chunk_key_encoding": {
-          "name": "default",
-          "configuration": {
-            "separator": "/"
-          }
-        },
-        "fill_value": "",
-        "codecs": [
-          {
-            "name": "vlen-utf8",
-            "configuration": {}
-          },
-          {
-            "name": "zstd",
-            "configuration": {
-              "level": 0,
-              "checksum": false
-            }
-          }
-        ],
-        "attributes": {
-          "encoding-type": "string-array",
-          "encoding-version": "0.2.0"
-        },
-        "zarr_format": 3,
-        "node_type": "array",
-        "storage_transformers": []
-      },
-      "uns/marcadores/mastocito/logfc": {
-        "shape": [
-          50
-        ],
-        "data_type": "float64",
-        "chunk_grid": {
-          "name": "regular",
-          "configuration": {
-            "chunk_shape": [
-              50
-            ]
-          }
-        },
-        "chunk_key_encoding": {
-          "name": "default",
-          "configuration": {
-            "separator": "/"
-          }
-        },
-        "fill_value": 0.0,
-        "codecs": [
-          {
-            "name": "bytes",
-            "configuration": {
-              "endian": "little"
-            }
-          },
-          {
-            "name": "zstd",
-            "configuration": {
-              "level": 0,
-              "checksum": false
-            }
-          }
-        ],
-        "attributes": {
-          "encoding-type": "array",
-          "encoding-version": "0.2.0"
-        },
-        "zarr_format": 3,
-        "node_type": "array",
-        "storage_transformers": []
-      },
-      "uns/marcadores/mastocito/suelo": {
         "shape": [
           50
         ],
@@ -3686,262 +2790,6 @@
         "node_type": "array",
         "storage_transformers": []
       },
-      "uns/marcadores/NK/fdr": {
-        "shape": [
-          50
-        ],
-        "data_type": "float64",
-        "chunk_grid": {
-          "name": "regular",
-          "configuration": {
-            "chunk_shape": [
-              50
-            ]
-          }
-        },
-        "chunk_key_encoding": {
-          "name": "default",
-          "configuration": {
-            "separator": "/"
-          }
-        },
-        "fill_value": 0.0,
-        "codecs": [
-          {
-            "name": "bytes",
-            "configuration": {
-              "endian": "little"
-            }
-          },
-          {
-            "name": "zstd",
-            "configuration": {
-              "level": 0,
-              "checksum": false
-            }
-          }
-        ],
-        "attributes": {
-          "encoding-type": "array",
-          "encoding-version": "0.2.0"
-        },
-        "zarr_format": 3,
-        "node_type": "array",
-        "storage_transformers": []
-      },
-      "uns/marcadores/NK/frac_grupo": {
-        "shape": [
-          50
-        ],
-        "data_type": "float64",
-        "chunk_grid": {
-          "name": "regular",
-          "configuration": {
-            "chunk_shape": [
-              50
-            ]
-          }
-        },
-        "chunk_key_encoding": {
-          "name": "default",
-          "configuration": {
-            "separator": "/"
-          }
-        },
-        "fill_value": 0.0,
-        "codecs": [
-          {
-            "name": "bytes",
-            "configuration": {
-              "endian": "little"
-            }
-          },
-          {
-            "name": "zstd",
-            "configuration": {
-              "level": 0,
-              "checksum": false
-            }
-          }
-        ],
-        "attributes": {
-          "encoding-type": "array",
-          "encoding-version": "0.2.0"
-        },
-        "zarr_format": 3,
-        "node_type": "array",
-        "storage_transformers": []
-      },
-      "uns/marcadores/NK/frac_resto": {
-        "shape": [
-          50
-        ],
-        "data_type": "float64",
-        "chunk_grid": {
-          "name": "regular",
-          "configuration": {
-            "chunk_shape": [
-              50
-            ]
-          }
-        },
-        "chunk_key_encoding": {
-          "name": "default",
-          "configuration": {
-            "separator": "/"
-          }
-        },
-        "fill_value": 0.0,
-        "codecs": [
-          {
-            "name": "bytes",
-            "configuration": {
-              "endian": "little"
-            }
-          },
-          {
-            "name": "zstd",
-            "configuration": {
-              "level": 0,
-              "checksum": false
-            }
-          }
-        ],
-        "attributes": {
-          "encoding-type": "array",
-          "encoding-version": "0.2.0"
-        },
-        "zarr_format": 3,
-        "node_type": "array",
-        "storage_transformers": []
-      },
-      "uns/marcadores/NK/gen": {
-        "shape": [
-          50
-        ],
-        "data_type": "string",
-        "chunk_grid": {
-          "name": "regular",
-          "configuration": {
-            "chunk_shape": [
-              50
-            ]
-          }
-        },
-        "chunk_key_encoding": {
-          "name": "default",
-          "configuration": {
-            "separator": "/"
-          }
-        },
-        "fill_value": "",
-        "codecs": [
-          {
-            "name": "vlen-utf8",
-            "configuration": {}
-          },
-          {
-            "name": "zstd",
-            "configuration": {
-              "level": 0,
-              "checksum": false
-            }
-          }
-        ],
-        "attributes": {
-          "encoding-type": "string-array",
-          "encoding-version": "0.2.0"
-        },
-        "zarr_format": 3,
-        "node_type": "array",
-        "storage_transformers": []
-      },
-      "uns/marcadores/NK/logfc": {
-        "shape": [
-          50
-        ],
-        "data_type": "float64",
-        "chunk_grid": {
-          "name": "regular",
-          "configuration": {
-            "chunk_shape": [
-              50
-            ]
-          }
-        },
-        "chunk_key_encoding": {
-          "name": "default",
-          "configuration": {
-            "separator": "/"
-          }
-        },
-        "fill_value": 0.0,
-        "codecs": [
-          {
-            "name": "bytes",
-            "configuration": {
-              "endian": "little"
-            }
-          },
-          {
-            "name": "zstd",
-            "configuration": {
-              "level": 0,
-              "checksum": false
-            }
-          }
-        ],
-        "attributes": {
-          "encoding-type": "array",
-          "encoding-version": "0.2.0"
-        },
-        "zarr_format": 3,
-        "node_type": "array",
-        "storage_transformers": []
-      },
-      "uns/marcadores/NK/suelo": {
-        "shape": [
-          50
-        ],
-        "data_type": "float64",
-        "chunk_grid": {
-          "name": "regular",
-          "configuration": {
-            "chunk_shape": [
-              50
-            ]
-          }
-        },
-        "chunk_key_encoding": {
-          "name": "default",
-          "configuration": {
-            "separator": "/"
-          }
-        },
-        "fill_value": 0.0,
-        "codecs": [
-          {
-            "name": "bytes",
-            "configuration": {
-              "endian": "little"
-            }
-          },
-          {
-            "name": "zstd",
-            "configuration": {
-              "level": 0,
-              "checksum": false
-            }
-          }
-        ],
-        "attributes": {
-          "encoding-type": "array",
-          "encoding-version": "0.2.0"
-        },
-        "zarr_format": 3,
-        "node_type": "array",
-        "storage_transformers": []
-      },
       "uns/marcadores/otras/fdr": {
         "shape": [
           50
@@ -4412,262 +3260,6 @@
         "storage_transformers": []
       },
       "uns/marcadores/plasmatica/suelo": {
-        "shape": [
-          50
-        ],
-        "data_type": "float64",
-        "chunk_grid": {
-          "name": "regular",
-          "configuration": {
-            "chunk_shape": [
-              50
-            ]
-          }
-        },
-        "chunk_key_encoding": {
-          "name": "default",
-          "configuration": {
-            "separator": "/"
-          }
-        },
-        "fill_value": 0.0,
-        "codecs": [
-          {
-            "name": "bytes",
-            "configuration": {
-              "endian": "little"
-            }
-          },
-          {
-            "name": "zstd",
-            "configuration": {
-              "level": 0,
-              "checksum": false
-            }
-          }
-        ],
-        "attributes": {
-          "encoding-type": "array",
-          "encoding-version": "0.2.0"
-        },
-        "zarr_format": 3,
-        "node_type": "array",
-        "storage_transformers": []
-      },
-      "uns/marcadores/T/fdr": {
-        "shape": [
-          50
-        ],
-        "data_type": "float64",
-        "chunk_grid": {
-          "name": "regular",
-          "configuration": {
-            "chunk_shape": [
-              50
-            ]
-          }
-        },
-        "chunk_key_encoding": {
-          "name": "default",
-          "configuration": {
-            "separator": "/"
-          }
-        },
-        "fill_value": 0.0,
-        "codecs": [
-          {
-            "name": "bytes",
-            "configuration": {
-              "endian": "little"
-            }
-          },
-          {
-            "name": "zstd",
-            "configuration": {
-              "level": 0,
-              "checksum": false
-            }
-          }
-        ],
-        "attributes": {
-          "encoding-type": "array",
-          "encoding-version": "0.2.0"
-        },
-        "zarr_format": 3,
-        "node_type": "array",
-        "storage_transformers": []
-      },
-      "uns/marcadores/T/frac_grupo": {
-        "shape": [
-          50
-        ],
-        "data_type": "float64",
-        "chunk_grid": {
-          "name": "regular",
-          "configuration": {
-            "chunk_shape": [
-              50
-            ]
-          }
-        },
-        "chunk_key_encoding": {
-          "name": "default",
-          "configuration": {
-            "separator": "/"
-          }
-        },
-        "fill_value": 0.0,
-        "codecs": [
-          {
-            "name": "bytes",
-            "configuration": {
-              "endian": "little"
-            }
-          },
-          {
-            "name": "zstd",
-            "configuration": {
-              "level": 0,
-              "checksum": false
-            }
-          }
-        ],
-        "attributes": {
-          "encoding-type": "array",
-          "encoding-version": "0.2.0"
-        },
-        "zarr_format": 3,
-        "node_type": "array",
-        "storage_transformers": []
-      },
-      "uns/marcadores/T/frac_resto": {
-        "shape": [
-          50
-        ],
-        "data_type": "float64",
-        "chunk_grid": {
-          "name": "regular",
-          "configuration": {
-            "chunk_shape": [
-              50
-            ]
-          }
-        },
-        "chunk_key_encoding": {
-          "name": "default",
-          "configuration": {
-            "separator": "/"
-          }
-        },
-        "fill_value": 0.0,
-        "codecs": [
-          {
-            "name": "bytes",
-            "configuration": {
-              "endian": "little"
-            }
-          },
-          {
-            "name": "zstd",
-            "configuration": {
-              "level": 0,
-              "checksum": false
-            }
-          }
-        ],
-        "attributes": {
-          "encoding-type": "array",
-          "encoding-version": "0.2.0"
-        },
-        "zarr_format": 3,
-        "node_type": "array",
-        "storage_transformers": []
-      },
-      "uns/marcadores/T/gen": {
-        "shape": [
-          50
-        ],
-        "data_type": "string",
-        "chunk_grid": {
-          "name": "regular",
-          "configuration": {
-            "chunk_shape": [
-              50
-            ]
-          }
-        },
-        "chunk_key_encoding": {
-          "name": "default",
-          "configuration": {
-            "separator": "/"
-          }
-        },
-        "fill_value": "",
-        "codecs": [
-          {
-            "name": "vlen-utf8",
-            "configuration": {}
-          },
-          {
-            "name": "zstd",
-            "configuration": {
-              "level": 0,
-              "checksum": false
-            }
-          }
-        ],
-        "attributes": {
-          "encoding-type": "string-array",
-          "encoding-version": "0.2.0"
-        },
-        "zarr_format": 3,
-        "node_type": "array",
-        "storage_transformers": []
-      },
-      "uns/marcadores/T/logfc": {
-        "shape": [
-          50
-        ],
-        "data_type": "float64",
-        "chunk_grid": {
-          "name": "regular",
-          "configuration": {
-            "chunk_shape": [
-              50
-            ]
-          }
-        },
-        "chunk_key_encoding": {
-          "name": "default",
-          "configuration": {
-            "separator": "/"
-          }
-        },
-        "fill_value": 0.0,
-        "codecs": [
-          {
-            "name": "bytes",
-            "configuration": {
-              "endian": "little"
-            }
-          },
-          {
-            "name": "zstd",
-            "configuration": {
-              "level": 0,
-              "checksum": false
-            }
-          }
-        ],
-        "attributes": {
-          "encoding-type": "array",
-          "encoding-version": "0.2.0"
-        },
-        "zarr_format": 3,
-        "node_type": "array",
-        "storage_transformers": []
-      },
-      "uns/marcadores/T/suelo": {
         "shape": [
           50
         ],

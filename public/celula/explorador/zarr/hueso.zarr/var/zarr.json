@@ -6,13 +6,9 @@
       "n_sondas_union",
       "referencia_emparejada",
       "suelo__malignas_limpias",
-      "suelo__T",
-      "suelo__NK",
-      "suelo__B",
       "suelo__plasmatica",
       "suelo__mieloide",
       "suelo__neutrofilo",
-      "suelo__mastocito",
       "suelo__endotelio",
       "suelo__otras"
     ],

@@ -1,8 +1,8 @@
 {
   "version": 1,
-  "ejemplo": true,
-  "sello": "sin_verificar",
-  "ok_titular": false,
+  "sello": "verificado",
+  "ok_titular": true,
+  "fecha_ok": "2026-10-18",
   "modo_sondas": "todas_incluidas",
   "lesiones": [
     "higado",
@@ -11,22 +11,24 @@
   "ficheros": [
     {
       "ruta": "higado.json",
-      "sha256": "e1a557b0def1a6f51a21a12d82b395ab453464cfec9aeb5c97bd61bfcff86a10"
+      "sha256": "0a565ecd6d863c1fc3be089c0a796999dba3babcfdc9de3a85cf22f0cfd4f06d"
     },
     {
       "ruta": "hueso.json",
-      "sha256": "5ec62e663e0fd8e1630d7e61ee9f092508d94091ad4f42acd405f24d0973dd3a"
+      "sha256": "8e9a732313c45cdf5ca62afba0239a8198b1361400017e01bf7f34df2c61b987"
     }
   ],
   "zarr": [
     {
       "ruta": "zarr/higado.zarr",
-      "sha256_arbol": "4c4ee4804c1559b77a997d8c3bfd5dcc84b1c773800c2a9810d1cb991d0acf8c"
+      "sha256_arbol": "df91391525fa82d55166aa94f55577a43c268d23f40283bf9f1fbb490f150afa"
     },
     {
       "ruta": "zarr/hueso.zarr",
-      "sha256_arbol": "5f8eeb1a0f4ea6f71ae5135fe8aece3dbe7b0aad9fd01c3b3eb626392efc4682"
+      "sha256_arbol": "90c4a3776119c76e27b65be2b3d7febec44a80697272c515f70c79b99dc2edcc"
     }
   ],
-  "matriz_completa": "ejemplo"
+  "matriz_completa": {
+    "fecha_decision": "2026-10-18"
+  }
 }
