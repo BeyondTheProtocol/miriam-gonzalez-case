@@ -9,7 +9,8 @@ export const ETIQUETA_GRUPO: Record<string, T> = {
   luminal_alta_confianza: t('Luminal de alta confianza', 'High-confidence luminal'),
   malignas_limpias: t('Malignas, asignación limpia', 'Malignant, clean call'),
   hepatocito: t('Hepatocitos', 'Hepatocytes'),
-  NK: t('Células NK', 'NK cells'),
+  // Auditoría 18-oct: el clúster de 281 es T/NK, mayoritariamente T (la salida T9 ya lo llamaba T_NK).
+  NK: t('Linfocitos T y NK', 'T and NK cells'),
   mieloide: t('Mieloides', 'Myeloid'),
   endotelio: t('Endotelio', 'Endothelium'),
   fibroblasto_estelar: t('Fibroblastos y células estrelladas', 'Fibroblasts and stellate cells'),
@@ -22,7 +23,7 @@ export const ETIQUETA_GRUPO: Record<string, T> = {
 }
 export const ETIQUETA_TIPO: Record<string, T> = {
   luminal: t('Luminal', 'Luminal'), epitelial: t('Epitelial', 'Epithelial'), hepatocito: t('Hepatocito', 'Hepatocyte'),
-  nk: t('NK', 'NK'), linfocito_t: t('Linfocito T', 'T cell'), linfocito_b: t('Linfocito B', 'B cell'), mieloide: t('Mieloide', 'Myeloid'),
+  nk: t('Linfocito T o NK', 'T or NK cell'), linfocito_t: t('Linfocito T', 'T cell'), linfocito_b: t('Linfocito B', 'B cell'), mieloide: t('Mieloide', 'Myeloid'),
   endotelio: t('Endotelio', 'Endothelium'), fibroblasto: t('Fibroblasto', 'Fibroblast'), plasmatica: t('Plasmática', 'Plasma cell'),
   neutrofilo: t('Neutrófilo', 'Neutrophil'), mastocito: t('Mastocito', 'Mast cell'), osteoclasto: t('Osteoclasto', 'Osteoclast'),
   eritroide: t('Eritroide', 'Erythroid'), estroma: t('Estroma', 'Stroma'),
@@ -80,7 +81,9 @@ export const etiqueta = (mapa: Record<string, T>, id: string, lang: 'es' | 'en')
 export const ETIQUETAS_FIJAS = {
   n1: t('n=1, FFPE, exploratorio', 'n=1, FFPE, exploratory'),
   arn: t('ARN ≠ proteína; manda la IHQ', 'RNA ≠ protein; IHC decides'),
-  her2: t('IHQ de HER2: 0', 'HER2 IHC: 0'),
+  her2: t('IHQ de HER2: 0 (primario e hígado)', 'HER2 IHC: 0 (primary and liver)'),
+  /** auditoría 18-oct: el ARN del programa de estrógeno está activo, pero la tinción del hígado salió negativa */
+  re: t('IHQ de RE: negativa (hígado)', 'ER IHC: negative (liver)'),
   /** qué matriz es: la estándar, con el ADN genómico que eso arrastra en el hueso */
   matriz: t('Matriz estándar de Cell Ranger, todas las sondas; en el hueso incluye ADN genómico', 'Standard Cell Ranger matrix, all probes; in the bone it includes genomic DNA'),
   /** el número de copias del hueso es una inferencia por expresión, no una lectura de ADN */

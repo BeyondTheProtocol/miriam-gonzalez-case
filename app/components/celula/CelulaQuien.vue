@@ -24,8 +24,8 @@ const urlPost = 'https://www.linkedin.com/feed/update/urn:li:activity:7516775760
   <section :aria-labelledby="id">
     <h2 :id="id" class="cel-h2">{{ L('Quién lo ha hecho', 'Who did it') }}</h2>
     <p class="cel-p">
-      {{ L('El análisis lo hace el laboratorio de Paloma Cejas en el Dana-Farber Cancer Institute, donde es codirectora del Center for Functional Cancer Epigenetics.',
-        'The analysis is done by Paloma Cejas’s lab at the Dana-Farber Cancer Institute, where she is co-director of the Center for Functional Cancer Epigenetics.') }}
+      {{ L('La prueba la hace el laboratorio de Paloma Cejas en el Dana-Farber Cancer Institute, donde es codirectora del Center for Functional Cancer Epigenetics.',
+        'The test is run by Paloma Cejas’s lab at the Dana-Farber Cancer Institute, where she is co-director of the Center for Functional Cancer Epigenetics.') }}
     </p>
     <p class="cel-p">
       {{ L('Lo que lo hace especial es el tejido. Hasta hace poco, leer célula a célula pedía tejido fresco. Con', 'What makes it special is the tissue. Until recently, reading cell by cell needed fresh tissue. With') }}
@@ -54,8 +54,8 @@ const urlPost = 'https://www.linkedin.com/feed/update/urn:li:activity:7516775760
     </figure>
 
     <p class="cel-p cel-p--sm">
-      {{ L('El laboratorio hace el análisis. Las explicaciones de esta página las escribe Miriam y no hablan en nombre del laboratorio.',
-        'The lab does the analysis. The explanations on this page are Miriam’s own and don’t speak for the lab.') }}
+      {{ L('El laboratorio hace la prueba y su propio análisis. Las cifras de «Resultados» salen de un análisis aparte que hace Polaris, el sistema de Miriam, sobre esos mismos datos: no son cifras del laboratorio. Ni esas cifras ni las explicaciones de esta página hablan en nombre del laboratorio.',
+        'The lab runs the test and its own analysis. The figures in “Results” come from a separate analysis that Polaris, Miriam’s system, runs on those same data: they are not the lab’s figures. Neither those figures nor the explanations on this page speak for the lab.') }}
     </p>
   </section>
 </template>
