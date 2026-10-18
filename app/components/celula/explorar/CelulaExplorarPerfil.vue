@@ -37,6 +37,18 @@ const tramos = computed(() => cromos.value.map((c, j) => {
   return { c, a, b, par: j % 2 === 0 }
 }))
 const signo = (s: string) => s.replace('-', '−')
+/** etiquetas de cromosoma en dos filas: baja a la segunda solo si en la primera no cabe junto a la anterior
+ * (con el índice par/impar, 20 y 21 seguían pegados: «2021»). HUECO ≈ ancho de «22» más aire. */
+const HUECO = 18
+const etis = computed(() => {
+  const ult = [-Infinity, -Infinity]
+  return tramos.value.map((t) => {
+    const x = (t.a + t.b) / 2
+    const fila = x - ult[0] >= HUECO ? 0 : x - ult[1] >= HUECO ? 1 : 0
+    ult[fila] = x
+    return { c: t.c, x, y: H - 6 - fila * 12 }
+  })
+})
 const fmt = (x: number) => signo(props.lang === 'en' ? String(x) : String(x).replace('.', ','))
 /** valores del resumen: 3 cifras significativas, las mismas que guarda el fichero */
 const fmtV = (x: number) => fmt(Number(x.toPrecision(3)))
@@ -63,7 +75,7 @@ const extremos = computed(() => {
         <rect v-for="t in tramos" :key="t.c" :x="t.a" :width="t.b - t.a" y="0" :height="H" :class="t.par ? 'pf__par' : 'pf__impar'" />
         <line :x1="IZQ" :x2="W" :y1="y(0)" :y2="y(0)" class="pf__cero" />
         <polyline :points="puntos.map((p, k) => `${xs[k]},${y(p.v)}`).join(' ')" class="pf__linea" />
-        <text v-for="(t, j) in tramos" :key="`l-${t.c}`" :x="(t.a + t.b) / 2" :y="H - 6 - ((t.b - t.a) < 15 && j % 2 ? 12 : 0)" class="pf__eti">{{ t.c.replace('chr', '') }}</text>
+        <text v-for="t in etis" :key="`l-${t.c}`" :x="t.x" :y="t.y" class="pf__eti">{{ t.c.replace('chr', '') }}</text>
         <text :x="IZQ - 4" :y="y(escala[1]) + 4" class="pf__eje">{{ fmt(escala[1]) }}</text>
         <text :x="IZQ - 4" :y="y(0) + 4" class="pf__eje">0</text>
         <text :x="IZQ - 4" :y="y(escala[0]) + 4" class="pf__eje">{{ fmt(escala[0]) }}</text>

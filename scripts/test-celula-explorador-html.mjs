@@ -26,6 +26,7 @@ ok('existe el chunk del motor (Vitessce)', vitessce.length > 0)
 // pase de voz (18-oct): el eje del perfil iba en orden de texto (1, 10, 11…); un FDR 0 salía «0,0e+0»; y al elegir
 // un gen el aviso decía «está en el mapa» con el mapa aún coloreado por grupo
 const perfilEnOrden = `(() => { const n = [...document.querySelectorAll('.pf__eti')].map((e) => Number(e.textContent)); return n.length > 1 && n.every((x, k) => k === 0 || x > n[k - 1]) })()`
+const perfilSinPisar = `(() => { const r = [...document.querySelectorAll('.pf__eti')].map((e) => e.getBoundingClientRect()); return r.length > 1 && r.every((a, i) => r.every((b, j) => j <= i || a.right <= b.left || b.right <= a.left || a.bottom <= b.top || b.bottom <= a.top)) })()`
 const sinFdrCero = `![...document.querySelectorAll('.mk__tabla td')].some((t) => /^0[.,]0e\\+0$/.test(t.textContent.trim()))`
 // diseño (18-oct, datos reales): el valor mitocondrial del QC desbordaba sobre la fila siguiente
 const qcSinDesborde = `[...document.querySelectorAll('.qc__fila dd')].every((dd) => dd.scrollWidth <= dd.clientWidth + 1)`
@@ -56,6 +57,7 @@ if (manPub.ejemplo !== true) {
     ok('real: marcadores, perfil, ADN por grupo y QC con datos', await esperaR(navR, `document.querySelectorAll('.mk__tabla tbody tr').length > 0 && !!document.querySelector('.pf__linea') && document.querySelectorAll('.adng__fila').length > 0 && document.querySelectorAll('.qc__fila').length >= 6`))
     ok('real: el eje del perfil va en el orden del genoma (1, 2, … 22)', await navR.evaluate(perfilEnOrden))
     ok('real: ningún FDR de marcadores sale como «0,0e+0»', await navR.evaluate(sinFdrCero))
+    ok('real: las etiquetas del eje del perfil no se pisan (20, 21, 22)', await navR.evaluate(perfilSinPisar))
     ok('real: ningún valor del QC desborda su celda', await navR.evaluate(qcSinDesborde))
     ok('real hígado: en marcadores del grupo de interés, los genes de la selección llevan asterisco y la nota de circularidad', await navR.evaluate(`!!document.querySelector('.mk__circ') && document.querySelectorAll('.mk__ast').length > 0`))
     const todos = Array.isArray(manPub.zarr) && manPub.zarr.length > 0
@@ -154,6 +156,7 @@ try {
   ok('demo hígado: control de calidad con sus filas', pn.qcFilas >= 6)
   ok('demo hígado: el eje del perfil va en el orden del genoma (1, 2, … 22)', await nav.evaluate(perfilEnOrden))
   ok('demo hígado: ningún FDR de marcadores sale como «0,0e+0»', await nav.evaluate(sinFdrCero))
+  ok('demo hígado: las etiquetas del eje del perfil no se pisan', await nav.evaluate(perfilSinPisar))
   ok('demo hígado: ningún valor del QC desborda su celda', await nav.evaluate(qcSinDesborde))
   // nivel «todos los genes» (Zarr, solo en la demo del ejemplo): buscar un gen fuera del panel y verlo en los violines
   const hayBusca = await espera(nav, `!!document.querySelector('.exp__busca input:not([disabled])')`)

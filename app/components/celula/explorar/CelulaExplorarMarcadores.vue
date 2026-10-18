@@ -59,8 +59,8 @@ const idCtl = useId()
     </p>
     <p v-if="hayCirc" class="mk__circ">
       * <strong>{{ L('Circular.', 'Circular.') }}</strong>
-      {{ L('Los genes con asterisco participan en la selección de este grupo: su diferencia con el resto sale en parte de cómo se eligió el grupo, no es una medida independiente.',
-        'Genes with an asterisk take part in selecting this group: their difference from the rest partly comes from how the group was chosen, so it is not an independent measurement.') }}
+      {{ L('Los genes con asterisco participan en la selección de este grupo o van ligados al programa con el que se seleccionó: su diferencia con el resto sale en parte de cómo se eligió el grupo, no es una medida independiente.',
+        'Genes with an asterisk take part in selecting this group or are tied to the program it was selected by: their difference from the rest partly comes from how the group was chosen, so it is not an independent measurement.') }}
     </p>
     <p class="mk__desliza" aria-hidden="true">{{ L('Desliza para ver las seis columnas →', 'Swipe to see all six columns →') }}</p>
     <div class="mk__tabla" role="region" :aria-labelledby="`${idCtl}-cap`" tabindex="0">

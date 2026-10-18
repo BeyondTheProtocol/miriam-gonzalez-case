@@ -44,8 +44,8 @@ const titulo = (c: Coexp) => ({
     <p v-if="circ.length" class="cx__pie cx__circ">
       <strong>{{ L('Circular.', 'Circular.') }}</strong>
       {{ circ.length === 1
-        ? L(`${circ[0]} participa en la selección del grupo de interés: en esa fila, su cifra sale en parte de cómo se eligió el grupo.`, `${circ[0]} takes part in selecting the group of interest: in that row, its figure partly comes from how the group was chosen.`)
-        : L(`${circ[0]} y ${circ[1]} participan en la selección del grupo de interés: en esa fila, sus cifras salen en parte de cómo se eligió el grupo.`, `${circ[0]} and ${circ[1]} take part in selecting the group of interest: in that row, their figures partly come from how the group was chosen.`) }}
+        ? L(`${circ[0]} está ligado a cómo se seleccionó el grupo de interés: en esa fila, su cifra sale en parte de esa selección.`, `${circ[0]} is tied to how the group of interest was selected: in that row, its figure partly comes from that selection.`)
+        : L(`${circ[0]} y ${circ[1]} están ligados a cómo se seleccionó el grupo de interés: en esa fila, sus cifras salen en parte de esa selección.`, `${circ[0]} and ${circ[1]} are tied to how the group of interest was selected: in that row, their figures partly come from that selection.`) }}
     </p>
     <p class="cx__pie">
       {{ L('«Detectado» quiere decir al menos una molécula (UMI) del gen. Una célula puede salir positiva solo por ARN suelto de la muestra, así que «los dos» puede incluir coincidencias por ruido.',
