@@ -368,8 +368,9 @@ const lecturaDetalle = computed(() => {
  * interés de la otra biopsia, con su suelo, su referencia y su lectura: las mismas funciones y el mismo fichero que su
  * lista de llegada (CelulaExplorarInteres), nada escrito a mano. Solo genes de la revisión que están en los dos ficheros
  * (un gen buscado fuera de ella no tiene lectura). Viaja sin el aviso de su biopsia, así que lleva lo que ese aviso
- * decía: el grupo y su n, «un subconjunto» en el hígado, la circularidad de grupo en el hueso, y las etiquetas de su lista
- * (IHQ de HER2 de esa biopsia, nota de HER3 del hígado). Se pide aparte: asegura() pondría el «Cargando…» de toda la página. Si no carga, no hay línea. */
+ * decía: el grupo y su n, «un subconjunto» en el hígado, la cifra sin circularidad primero (loo, FGFR1 y ESR1 del hígado),
+ * la circularidad de grupo y el ADN del suelo en el hueso, y las etiquetas de su lista (IHQ de HER2 de esa biopsia, nota
+ * de HER3 del hígado; diseño, 19-oct). Se pide aparte: asegura() pondría el «Cargando…» de toda la página. Si no carga, no hay línea. */
 const otraLesion = computed(() => props.man.lesiones.find((l) => l !== lesion.value) ?? null)
 watch([() => !!(detalle.value && activo.value), otraLesion], async ([abierto, l]) => {
   if (!abierto || !l || cache[l]) return
@@ -384,7 +385,7 @@ const otra = computed(() => {
   const [det, suelo] = fmtParSuelo(f.frac, f.suelo, props.lang)
   const marca = f.frac >= 0.9 && f.suelo >= 0.9 ? L('en casi todas las células: cuenta el nivel', 'in almost every cell: the level is what counts') : f.frac <= f.suelo ? L('no supera el suelo', 'does not clear the floor') : ''
   return {
-    l, det, suelo, marca, ref: fmtPct(o.referencia[g] ?? 0, props.lang), circular: !!o.seleccion[g],
+    l, det, suelo, marca, ref: fmtPct(o.referencia[g] ?? 0, props.lang), circular: !!o.seleccion[g], loo: o.seleccion[g] ? (o.loo?.[g] ?? null) : null,
     grupo: etiqueta(ETIQUETA_GRUPO, gi.id, props.lang), n: fmtN(gi.n, props.lang),
     lec: (ETIQUETA_VEREDICTO[o.veredicto[g] ?? 'sin_veredicto'] ?? ETIQUETA_VEREDICTO.sin_veredicto!)[props.lang],
   }
@@ -609,9 +610,15 @@ function sinTapar(ev: FocusEvent) {
               <!-- las mismas etiquetas que su lista de llegada (CelulaExplorarInteres): IHQ de HER2 de cada biopsia y la nota de HER3 del hígado -->
               <span v-if="gen === 'ERBB2'" class="exp__dihq">{{ (otra.l === 'higado' ? ETIQUETAS_FIJAS.her2 : ETIQUETAS_FIJAS.her2Hueso)[lang] }}</span>
               <span v-if="gen === 'ERBB3' && otra.l === 'higado'" class="exp__dihq">{{ ETIQUETAS_FIJAS.her3Higado[lang] }}</span>
-              {{ otra.grupo }}{{ otra.l === 'higado' ? L(', un subconjunto y no el tumor entero', ', a subset and not the whole tumor') : '' }} (n&nbsp;=&nbsp;{{ otra.n }}):
-              <span class="nums">{{ L('detectado', 'detected') }} {{ otra.det }}{{ otra.circular ? L(' (circular)', ' (circular)') : '' }} · {{ L('suelo', 'floor') }} {{ otra.suelo }}{{ otra.marca ? ` (${otra.marca})` : '' }} · {{ L('referencia', 'reference') }} {{ otra.ref }}</span>.
-              {{ ETIQUETAS_FIJAS.lecturaCorta[lang] }} <strong>{{ otra.lec }}</strong>.<template v-if="otra.l === 'hueso'">{{ ' ' + L('Ese grupo se eligió en parte por número de copias inferido: su cifra es en parte circular.', 'That group was chosen partly by inferred copy number: its figure is partly circular.') }}</template>
+              <!-- circular con cifra medida sin esa circularidad (loo): esa va PRIMERO, como en los violines (revisión del 17-oct) -->
+              <span v-if="otra.loo" class="exp__otral"><strong>{{ L('Sin esa circularidad', 'Without that circularity') }}</strong>
+                {{ L(`(grupo construido sin ese criterio, n\u00a0=\u00a0${fmtN(otra.loo.n, lang)}):`, `(group built without that criterion, n\u00a0=\u00a0${fmtN(otra.loo.n, lang)}):`) }}<template v-if="otra.loo.frac != null">{{ ' ' }}<span class="exp__par">{{ L('detectado', 'detected') }}&nbsp;{{ fmtPct(otra.loo.frac, lang) }}</span></template><template v-if="otra.loo.ref != null">, <span class="exp__par">{{ L('referencia', 'reference') }}&nbsp;{{ fmtPct(otra.loo.ref, lang) }}</span></template>.</span>
+              <span class="exp__otral">{{ otra.grupo }}{{ otra.l === 'higado' ? L(', un subconjunto y no el tumor entero', ', a subset and not the whole tumor') : '' }} (n&nbsp;=&nbsp;{{ otra.n }}):</span>
+              <!-- cada etiqueta con su cifra, sin partirse al final de línea (diseño, 19-oct: a 375 «detectado» quedaba solo) -->
+              <span class="nums"><template v-if="otra.loo">{{ L('Cifra circular. ', 'Circular figure. ') }}</template><span class="exp__par">{{ L('detectado', 'detected') }}&nbsp;{{ otra.det }}</span>{{ otra.circular && !otra.loo ? L(' (circular)', ' (circular)') : '' }}&nbsp;· <span class="exp__par">{{ L('suelo', 'floor') }}&nbsp;{{ otra.suelo }}</span>{{ otra.marca ? ` (${otra.marca})` : '' }}&nbsp;· <span class="exp__par">{{ L('referencia', 'reference') }}&nbsp;{{ otra.ref }}</span>.</span>
+              <span class="exp__otral">{{ ETIQUETAS_FIJAS.lecturaCorta[lang] }} <strong>{{ otra.lec }}</strong>.</span>
+              <!-- en la vista del hígado no está la nota del hueso: su circularidad de grupo y el ADN de su suelo viajan con la cifra -->
+              <span v-if="otra.l === 'hueso'" class="exp__otral">{{ L('Ese grupo se eligió en parte por número de copias inferido: su cifra no es del todo independiente de esa elección. En el hueso, el suelo incluye además el ADN genómico del tejido.', 'That group was chosen partly by inferred copy number: its figure is not fully independent of that choice. In the bone, the floor also includes the tissue’s genomic DNA.') }}</span>
             </p>
             <CelulaExplorarViolines :filas="filas" :gen="gen" :lang="lang" :lesion="lesion" :adn="d.adn" :papel="d.seleccion[gen]" :loo="d.loo[gen]" :referencia="d.referencia[gen]" />
           </div>
@@ -766,6 +773,9 @@ function sinTapar(ev: FocusEvent) {
 /* la otra biopsia: aparte de las cifras de esta (filete a la izquierda), en tinta segunda; la cifra, en tinta */
 .exp__otra { margin: 0 0 var(--sp-12); padding: var(--sp-4) 0 var(--sp-4) var(--sp-12); border-left: 2px solid var(--trazo-medio); font: 500 var(--texto-xs)/1.45 var(--font-body); color: var(--texto-2); max-width: var(--measure); }
 .exp__otra strong, .exp__otra .nums { color: var(--texto-1); font-weight: 600; }
+.exp__otral, .exp__otra .nums { display: block; }
+.exp__par { white-space: nowrap; }
+.exp__otra .exp__dihq { margin: var(--sp-4) 0; }
 .exp__otrab { display: block; font: 700 var(--texto-xs)/1.3 var(--font-mono); letter-spacing: var(--track-eyebrow); text-transform: uppercase; color: var(--texto-2); }
 .exp__dbiop { margin: 0; font: 700 var(--texto-xs)/1.3 var(--font-mono); letter-spacing: var(--track-eyebrow); text-transform: uppercase; color: var(--texto-2); }
 .exp__nota { margin: var(--sp-8) 0 0; font: var(--tipo-body-sm); font-size: var(--texto-xs); color: var(--texto-2); max-width: var(--measure); }

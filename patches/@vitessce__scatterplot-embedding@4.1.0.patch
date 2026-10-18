@@ -1,8 +1,20 @@
 diff --git a/dist/index-BPLMRXHR.js b/dist/index-BPLMRXHR.js
-index 2516e368aaf6096da52fbf5686dfbe912fbbac38..43c4d862c46c9fd4a86d82b873dc2340a1af9d8d 100644
+index 2516e368aaf6096da52fbf5686dfbe912fbbac38..4fdbf26d1b87f3aa0f1fc32134ba2168621074b6 100644
 --- a/dist/index-BPLMRXHR.js
 +++ b/dist/index-BPLMRXHR.js
-@@ -151062,7 +151062,13 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
+@@ -150629,7 +150629,10 @@ class AbstractSpatialOrScatterplot extends PureComponent {
+     }
+     const showCellSelectionTools = this.obsSegmentationsData !== null;
+     const showPanTool = layers.length > 0;
+-    const useDevicePixels = !use3d && (this.obsSegmentationsData?.shape?.[0] < 1e5 || this.obsLocationsData?.shape?.[1] < 1e5);
++    // helpmiriam (19-oct-26): el scatterplot no tiene obsSegmentationsData ni obsLocationsData, así que la condición daba
++    // false y el lienzo se pintaba a 1x en pantallas de 2x y 3x (rótulos con letras rotas). Se le añade su embedding, con
++    // el mismo tope de 100.000 puntos que Vitessce pone a lo demás.
++    const useDevicePixels = !use3d && (this.obsSegmentationsData?.shape?.[0] < 1e5 || this.obsLocationsData?.shape?.[1] < 1e5 || this.props.obsEmbedding?.shape?.[1] < 1e5);
+     let controller;
+     if (isRawView) {
+       controller = false;
+@@ -151062,7 +151065,13 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
      }
      if (cellSetLabelsVisible) {
        const { zoom } = viewState;
@@ -17,7 +29,7 @@ index 2516e368aaf6096da52fbf5686dfbe912fbbac38..43c4d862c46c9fd4a86d82b873dc2340
          x: p.centroid[0],
          y: p.centroid[1],
          label: p.name
-@@ -151077,13 +151083,19 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
+@@ -151077,13 +151086,19 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
          data: nodes,
          getPosition: (d) => [d.x, d.y],
          getText: (d) => d.label,

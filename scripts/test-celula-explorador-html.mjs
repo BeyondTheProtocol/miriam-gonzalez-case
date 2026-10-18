@@ -278,6 +278,11 @@ if (manPub.ejemplo !== true) {
     await esperaR(navR, enDetalle('ERBB2', 'Hueso'))
     const filaHueso = await navR.evaluate(filaLista('ERBB2'))
     ok('real hígado: la línea del hueso da las cifras y etiquetas de la lista del hueso («IHQ de HER2 (hueso): no consta», nunca «0»)', /Hueso/.test(otraDeHigado) && cuadra(otraDeHigado, filaHueso, etiDeHigado) && /IHQ de HER2 \(hueso\): no consta/.test(otraDeHigado) && !/IHQ de HER2: 0/.test(otraDeHigado), JSON.stringify({ linea: otraDeHigado, etiDeHigado, lista: filaHueso }))
+    ok('real hígado: la línea del hueso dice que su grupo se eligió en parte por número de copias y que su suelo incluye ADN genómico (la nota del hueso no está en esta vista)', /no es del todo independiente de esa elección/.test(otraDeHigado) && /En el hueso, el suelo incluye además el ADN genómico del tejido/.test(otraDeHigado), otraDeHigado)
+    // diseño (19-oct): un gen circular del hígado con cifra medida sin esa circularidad (loo) la da PRIMERO, como los violines
+    const looF = JSON.parse(readFileSync(join(ROOT, 'celula', 'explorador', 'higado.json'), 'utf8')).loo?.FGFR1
+    await navR.cargar('/celula-a-celula/explorar?gen=FGFR1&biopsia=hueso')
+    ok('real hueso: en FGFR1, la línea del hígado da primero la cifra sin circularidad (con la n del fichero) y rotula la circular', !!looF && await esperaR(navR, `(() => { const t = (document.querySelector('#exp-violines .exp__otra')?.textContent ?? '').replace(/\\s+/g, ' '); const a = t.indexOf('Sin esa circularidad'), b = t.indexOf('Cifra circular. detectado'); return a >= 0 && b > a && t.includes('n = ${String(looF?.n).replace(/\B(?=(\d{3})+(?!\d))/g, '.')}') })()`), await navR.evaluate(LINEA_OTRA).catch(String))
     await navR.cargar('/celula-a-celula/explorar?gen=HER2')
     ok('real enlace: ?gen=HER2 abre ERBB2 y la URL queda con el símbolo del gen', await esperaR(navR, `${violinesDe('ERBB2')} && ${qs('gen')} === 'ERBB2'`))
     await navR.cargar('/celula-a-celula/explorar?gen=ZZNOEXISTE1')
@@ -509,6 +514,9 @@ try {
   const avisoSiDesborda = `[['.mk__tabla', '.mk__desliza'], ['.pf__marco', '.pf__desliza']].every(([m, a]) => { const e = document.querySelector(m), v = document.querySelector(a); if (!e || !v) return false; return e.scrollWidth <= e.clientWidth + 1 || getComputedStyle(v).display !== 'none' })`
   ok('móvil 375: toda tabla o figura que desborda avisa de que se desliza', await nav.evaluate(avisoSiDesborda))
   // con el mapa encima del panel: tras pulsar un marcador, el detalle trae «Ver el mapa» (sin salto automático)
+  // sin la lista de todos los genes (Zarr) aún cargada, los marcadores de fuera del JSON no se abren (mk__gen--fijo): se
+  // espera a uno abrible (19-oct: en frío el test pulsaba antes y fallaba de vez en cuando, también sobre 2e31aee)
+  await espera(nav, `!!document.querySelector('.mk__gen:not(.mk__gen--fijo)')`)
   const genMv = await nav.evaluate(`(() => { const b = document.querySelector('.mk__gen:not(.mk__gen--fijo)'); if (!b) return ''; b.click(); return b.textContent.trim() })()`)
   ok('móvil 375: tras pulsar un marcador, su detalle lleva «Ver el mapa» a la vista (44 px) y «Volver»', !!genMv && await espera(nav, verMapaEnDetalle))
   await nav.cdp('Emulation.setDeviceMetricsOverride', { width: 820, height: 1180, deviceScaleFactor: 1, mobile: true })
