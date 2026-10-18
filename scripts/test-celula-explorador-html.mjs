@@ -268,8 +268,11 @@ if (manPub.ejemplo !== true) {
   finally { await navR.cerrar() }
   // revisión final (18-oct): sin WebGL (PC de hospital, escritorio virtual) Vitessce dejaba una caja vacía y una leyenda
   // de un mapa que no estaba
+  // sin WebGL de verdad en cualquier sistema: --disable-gpu no basta (en Ubuntu, el CI, Chrome cae a WebGL por software
+  // y el mapa se dibuja), así que la página arranca con getContext('webgl'/'webgl2') devolviendo null
   const navS = await abrirNavegador({ ancho: 1440, alto: 900, escala: 1 })
   try {
+    await navS.cdp('Page.addScriptToEvaluateOnNewDocument', { source: `(() => { const g = HTMLCanvasElement.prototype.getContext; HTMLCanvasElement.prototype.getContext = function (t, ...a) { return /webgl/i.test(String(t)) ? null : g.call(this, t, ...a) } })()` })
     await navS.cargar('/celula-a-celula/explorar')
     ok('real sin WebGL: aviso de que el mapa no se ha podido dibujar, sin caja ni leyenda del mapa, y la lista sigue', await esperaR(navS, `/El mapa no se ha podido dibujar/.test(document.querySelector('.exp__estado--error')?.textContent ?? '') && !document.querySelector('.exp-mapa') && !document.querySelector('.exp__leyenda') && !document.querySelector('.exp__mapabar') && document.querySelectorAll('.gin__tabla tbody tr').length > 0`, 20000))
     ok('real sin WebGL: una sola columna y ningún texto promete el mapa', await navS.evaluate(`getComputedStyle(document.querySelector('.exp__sim')).gridTemplateColumns.split(' ').length === 1 && !/verlo en el mapa/.test(document.querySelector('.gin')?.textContent ?? '')`))
