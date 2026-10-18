@@ -69,6 +69,15 @@ const leyendaGen = (g) => `(() => { const li = [...document.querySelectorAll('.e
 const mapaEnGen = `document.querySelector('.exp__mapabar select')?.value === 'gen'`
 
 const busca = (g) => `(() => { const i = document.querySelector('.exp__busca input'); i.value = '${g}'; i.dispatchEvent(new Event('input')); return true })()`
+// revisión del PR #294: para ver el estado intermedio de una apertura, las peticiones al Zarr que casen con
+// window.__reten (una RegExp) esperan en cola hasta window.__suelta(); con __reten = null todo pasa como siempre.
+// window.__falla (RegExp) + window.__fallaN: las N siguientes peticiones que casen fallan (lectura caída)
+const RETEN = `(() => { const f = window.fetch; window.__reten = null; window.__falla = null; window.__fallaN = 0; window.__colas = []; window.__suelta = () => { const c = window.__colas; window.__colas = []; c.forEach((r) => r()) }; window.fetch = function (u, ...a) { const url = String(u?.url ?? u); if (window.__falla && window.__fallaN > 0 && window.__falla.test(url)) { window.__fallaN--; return Promise.reject(new TypeError('fallo de prueba')) } if (window.__reten && window.__reten.test(url)) return new Promise((r) => window.__colas.push(r)).then(() => f.call(this, u, ...a)); return f.call(this, u, ...a) } })()`
+const sueltaZarr = `(() => { window.__reten = null; window.__suelta(); return true })()`
+const sugiereYAbre = (g) => `(() => { const b = [...document.querySelectorAll('.exp__sug button')].find((x) => x.dataset.gen === '${g}'); if (!b) return false; b.click(); return true })()`
+/** ¿el elemento cae entero dentro de lo visible del panel (que en escritorio tiene scroll propio)? */
+const dentroPanel = (sel) => `(() => { const p = document.querySelector('#exp-panel').getBoundingClientRect(), e = document.querySelector('${sel}')?.getBoundingClientRect(); return !!e && e.height > 0 && e.top >= p.top - 1 && e.bottom <= p.bottom + 1 })()`
+const pulsaBiopsia = (b) => `(() => { const x = [...document.querySelectorAll('.exp__ctl button')].find((e) => /^\\s*${b}\\s*$/.test(e.textContent)); x?.click(); return !!x })()`
 
 /* ── con DATOS REALES publicados (manifiesto sin «ejemplo»): la página está abierta; se comprueba eso y se termina ── */
 const manPub = JSON.parse(readFileSync(join(ROOT, 'celula', 'explorador', 'manifiesto.json'), 'utf8'))
@@ -89,6 +98,7 @@ if (manPub.ejemplo !== true) {
   const navR = await abrirNavegador({ ancho: 1440, alto: 900, escala: 1, gl: true })
   try {
     await navR.cdp('Page.addScriptToEvaluateOnNewDocument', { source: ESPIA })
+    await navR.cdp('Page.addScriptToEvaluateOnNewDocument', { source: RETEN })
     await navR.cargar('/celula-a-celula/explorar')
     ok('real sin demo: se monta el explorador, sin rótulo de ejemplo', await esperaR(navR, `!!document.querySelector('.exp') && !document.querySelector('.exp__demo')`))
     // panel de expertos (18-oct): al llegar, mapa por grupo y la lista corta de genes de interés
@@ -221,6 +231,128 @@ if (manPub.ejemplo !== true) {
       // diseño (18-oct): la grafía más tecleada, sin guion ni la M, también llega (KI67 → MKI67)
       await navR.evaluate(busca('Ki-67'))
       ok('real: «Ki-67» sugiere MKI67 (búsqueda sin guiones y por «contiene»)', await esperaR(navR, `[...document.querySelectorAll('.exp__sug button')].some((b) => b.dataset.gen === 'MKI67')`))
+
+      // revisión del PR #294 (Copilot). VIM, KRT18 y CD274 están solo en el Zarr (no en el JSON) y no se han abierto antes:
+      // su columna hay que leerla, y se retiene para ver el estado intermedio.
+      const abreDelZarr = async (g) => { await navR.evaluate(busca(g)); return (await esperaR(navR, `[...document.querySelectorAll('.exp__sug button')].some((b) => b.dataset.gen === '${g}')`, 10000)) && navR.evaluate(sugiereYAbre(g)) }
+      // 1) la ✕ pulsada con una columna en camino no se deshace al llegar la columna (con ESR1 abierto)
+      await navR.evaluate(`window.__reten = /higado\\.zarr\\/X\\//; true`)
+      ok('real PR#294: con su columna retenida, VIM queda «Leyendo el gen…» y el chip sigue en ESR1', await abreDelZarr('VIM') && await esperaR(navR, `/Leyendo el gen/.test(document.querySelector('.exp__busca')?.textContent ?? '') && /ESR1|ER\\b/.test(document.querySelector('.exp__chipt')?.textContent ?? '')`, 10000))
+      await navR.evaluate(`document.querySelector('.exp__chipx')?.click()`)
+      await navR.evaluate(sueltaZarr)
+      await navR.sleep(1500)
+      ok('real PR#294: la ✕ pulsada mientras se leía VIM se mantiene al llegar la columna (sin chip, sin detalle, mapa por grupo)', await navR.evaluate(`!document.querySelector('.exp__chip') && !document.querySelector('#exp-violines') && !document.querySelector('.exp__busca .exp__nota[role="status"]:not(.exp__nota--busca)') && document.querySelector('.exp__mapabar select')?.value === 'grupo'`))
+      // 1b) abrir OTRO gen mientras se lee uno: gana el último (CD44 retenido; luego ERBB2 de la lista, que está en el JSON)
+      await navR.evaluate(`window.__reten = /higado\\.zarr\\/X\\//; true`)
+      ok('real PR#294: CD44 queda leyendo con su columna retenida', await abreDelZarr('CD44') && await esperaR(navR, `/Leyendo el gen/.test(document.querySelector('.exp__busca')?.textContent ?? '')`, 10000))
+      await navR.evaluate(eligeDeLista('ERBB2'))
+      await esperaR(navR, violinesDe('ERBB2'))
+      await navR.evaluate(sueltaZarr)
+      await esperaR(navR, `window.__colas.length === 0`)
+      await navR.sleep(1000)
+      ok('real PR#294: abrir otro gen mientras se leía CD44 lo deja obsoleto: al llegar su columna sigue ERBB2', await navR.evaluate(`document.querySelector('#exp-violines h2')?.textContent.includes('ERBB2') && !/CD44/.test(document.querySelector('.exp__chipt')?.textContent ?? 'CD44') && !/Leyendo el gen/.test(document.querySelector('.exp__busca')?.textContent ?? '')`))
+      await navR.evaluate(`document.querySelector('.exp__chipx')?.click()`)
+      // 2) cambio de biopsia con un gen solo del Zarr abierto: mientras se lee en la otra, ni mapa ni detalle de otro gen
+      ok('real PR#294: KRT18 (solo en el Zarr) se abre en el hígado', await abreDelZarr('KRT18') && await esperaR(navR, `document.querySelector('#exp-violines h2')?.textContent.includes('KRT18') && document.querySelectorAll('#exp-violines .vio__fila').length > 0`))
+      await navR.evaluate(`window.__reten = /hueso\\.zarr\\/X\\//; true`)
+      await navR.evaluate(pulsaBiopsia('Hueso'))
+      ok('real PR#294: al pasar al hueso, mientras se lee, chip, título y aviso nombran KRT18 y no hay violines de otro gen', await esperaR(navR, `/KRT18/.test(document.querySelector('.exp__chipt')?.textContent ?? '') && document.querySelector('#exp-violines h2')?.textContent.includes('KRT18') && /Leyendo KRT18 en esta biopsia/.test(document.querySelector('#exp-violines')?.textContent ?? '') && document.querySelectorAll('#exp-violines .vio__fila').length === 0`, 15000))
+      ok('real PR#294: y el mapa va por grupo mientras tanto, y lo dice', await navR.evaluate(`(() => { const li = [...document.querySelectorAll('.exp__leyenda li')].map((e) => e.textContent); return li.length > 2 && !li.some((t) => /No detectado/.test(t)) && /mientras, el mapa va por grupo/.test(document.querySelector('.exp__mapacol .exp__leyendo')?.textContent ?? '') })()`))
+      // un intento que falla antes de leer (gen que no existe) no deja colgada la reapertura (revisión del PR #294)
+      await navR.evaluate(busca('ZZNOEXISTE2'))
+      await navR.evaluate(`document.querySelector('.exp__busca input').dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }))`)
+      ok('real PR#294: mientras se lee KRT18, buscar un gen que no existe da su aviso y no toca el chip', await esperaR(navR, `/No hay ningún gen «ZZNOEXISTE2»/.test(document.querySelector('.exp__nota--busca')?.textContent ?? '') && /KRT18/.test(document.querySelector('.exp__chipt')?.textContent ?? '')`, 10000))
+      await navR.evaluate(sueltaZarr)
+      ok('real PR#294: al llegar la columna, KRT18 sale en los violines y en el mapa del hueso', await esperaR(navR, `document.querySelector('#exp-violines h2')?.textContent.includes('KRT18') && document.querySelectorAll('#exp-violines .vio__fila').length > 0 && !document.querySelector('.exp__leyendo')`) && await esperaR(navR, leyendaGen('KRT18')))
+      // 2b) otra apertura que pasa sus comprobaciones y FALLA al leer deja obsoleta la reapertura: se relanza (si no,
+      // «Leyendo…» para siempre). LYZ abierto en el hueso, retenido en el hígado; SPP1 falla al leer.
+      ok('real PR#294: LYZ (solo en el Zarr) se abre en el hueso', await abreDelZarr('LYZ') && await esperaR(navR, `document.querySelector('#exp-violines h2')?.textContent.includes('LYZ') && document.querySelectorAll('#exp-violines .vio__fila').length > 0`))
+      await navR.evaluate(`window.__reten = /higado\\.zarr\\/X\\//; true`)
+      await navR.evaluate(pulsaBiopsia('Hígado'))
+      await esperaR(navR, `/Leyendo LYZ en esta biopsia/.test(document.querySelector('#exp-violines')?.textContent ?? '')`, 15000)
+      await navR.evaluate(`window.__falla = /higado\\.zarr\\/X\\//; window.__fallaN = 1; true`)
+      ok('real PR#294: SPP1 falla al leer y lo dice, y LYZ sigue leyéndose (no se queda colgado)', await abreDelZarr('SPP1') && await esperaR(navR, `/No se ha podido leer SPP1/.test(document.querySelector('.exp__nota--busca')?.textContent ?? '') && /Leyendo LYZ en esta biopsia/.test(document.querySelector('#exp-violines')?.textContent ?? '') && /LYZ/.test(document.querySelector('.exp__chipt')?.textContent ?? '')`, 10000))
+      await navR.evaluate(`window.__falla = null; window.__fallaN = 0; true`)
+      await navR.evaluate(sueltaZarr)
+      ok('real PR#294: al llegar la columna relanzada, LYZ sale en los violines del hígado', await esperaR(navR, `document.querySelector('#exp-violines h2')?.textContent.includes('LYZ') && document.querySelectorAll('#exp-violines .vio__fila').length > 0 && !document.querySelector('.exp__leyendo')`, 15000))
+      await navR.evaluate(`document.querySelector('.exp__chipx')?.click()`)
+      await navR.evaluate(pulsaBiopsia('Hueso'))
+      await esperaR(navR, `!document.querySelector('.exp__banner') && document.querySelectorAll('.gin__tabla tbody tr').length > 0`)
+      // 3) la ✕ durante la reapertura tras cambiar de biopsia también se mantiene (CD274 abierto en el hueso, retenido en el hígado)
+      ok('real PR#294: CD274 (solo en el Zarr) se abre en el hueso', await abreDelZarr('CD274') && await esperaR(navR, `document.querySelector('#exp-violines h2')?.textContent.includes('CD274') && document.querySelectorAll('#exp-violines .vio__fila').length > 0`))
+      // el segundo gen de «Dos genes» en ANKRD30A, que será el gen de reserva en el hígado (segunda ronda: tras la ✕ salía «X y X»)
+      ok('real PR#294 (premisa): el segundo gen de «Dos genes» queda en ANKRD30A, el futuro gen de reserva', await navR.evaluate(`(() => { const s = document.querySelector('.exp__masan select'); if (!s) return false; s.value = 'ANKRD30A'; s.dispatchEvent(new Event('change')); return s.value === 'ANKRD30A' })()`))
+      await navR.evaluate(`window.__reten = /higado\\.zarr\\/X\\//; true`)
+      await navR.evaluate(pulsaBiopsia('Hígado'))
+      ok('real PR#294: de vuelta al hígado, CD274 queda «leyendo» en el detalle', await esperaR(navR, `/Leyendo .*CD274.* en esta biopsia/.test(document.querySelector('#exp-violines')?.textContent ?? '')`, 15000))
+      await navR.evaluate(`document.querySelector('.exp__chipx')?.click()`)
+      await navR.evaluate(sueltaZarr)
+      await navR.sleep(1500)
+      ok('real PR#294: la ✕ durante la reapertura se mantiene al llegar la columna', await navR.evaluate(`!document.querySelector('.exp__chip') && !document.querySelector('#exp-violines') && !document.querySelector('.exp__leyendo') && document.querySelector('.exp__mapabar select')?.value === 'grupo'`))
+      ok('real PR#294: tras la ✕ con la reserva puesta, «Dos genes» no enfrenta un gen consigo mismo (su selector no queda en blanco)', await esperaR(navR, `(() => { const s = document.querySelector('.exp__masan select'); return !!s && s.value !== '' && s.value !== 'ANKRD30A' })()`, 5000), await navR.evaluate(`document.querySelector('.exp__masan select')?.value ?? 'sin selector'`))
+      // 3b) «Volver» mientras se reabre: al llegar la columna, el detalle sigue cerrado y el foco donde lo dejó el usuario;
+      // el gen sí queda puesto (chip y mapa). S100A4 está solo en el Zarr.
+      ok('real PR#294: S100A4 (solo en el Zarr) se abre en el hígado', await abreDelZarr('S100A4') && await esperaR(navR, `document.querySelector('#exp-violines h2')?.textContent.includes('S100A4') && document.querySelectorAll('#exp-violines .vio__fila').length > 0`))
+      await navR.evaluate(`window.__reten = /hueso\\.zarr\\/X\\//; true`)
+      await navR.evaluate(pulsaBiopsia('Hueso'))
+      await esperaR(navR, `/Leyendo S100A4 en esta biopsia/.test(document.querySelector('#exp-violines')?.textContent ?? '')`, 15000)
+      await navR.evaluate(`document.querySelector('.exp__volver')?.click()`)
+      await esperaR(navR, `!document.querySelector('#exp-violines')`, 5000)
+      await navR.evaluate(`(() => { document.querySelector('.gin__gen')?.focus(); return true })()`)
+      await navR.evaluate(sueltaZarr)
+      ok('real PR#294: «Volver» durante la reapertura: al llegar la columna el detalle sigue cerrado, el foco no se mueve y el mapa pinta S100A4', await esperaR(navR, leyendaGen('S100A4'), 15000) && await navR.evaluate(`!document.querySelector('#exp-violines') && /S100A4/.test(document.querySelector('.exp__chipt')?.textContent ?? '') && !!document.activeElement?.classList.contains('gin__gen')`))
+      await navR.evaluate(`document.querySelector('.exp__chipx')?.click()`)
+      await navR.evaluate(pulsaBiopsia('Hígado'))
+      await esperaR(navR, `!!document.querySelector('.exp__banner') && document.querySelectorAll('.gin__tabla tbody tr').length > 0`)
+      // 4) panel de escritorio con scroll propio: abrir desde el fondo de una lista larga deja «Volver» y el título a la
+      // vista; «Volver» devuelve la lista a su sitio con la fila de origen a la vista y enfocada, sin mover la página
+      // sin desplazamiento suave en los bloques 4 a 6: lo que «no mueve la página» se mide con la página ya quieta
+      await navR.evaluate(`document.documentElement.style.scrollBehavior = 'auto'; true`)
+      await navR.evaluate(`[...document.querySelectorAll('.exp__pestanas button')].find((b) => /Marcadores/.test(b.textContent))?.click()`)
+      await navR.evaluate(MARCADORES_TODOS)
+      ok('real PR#294: con los 50 marcadores, el panel de escritorio hace scroll propio', await esperaR(navR, `(() => { const p = document.querySelector('#exp-panel'); return getComputedStyle(p).overflowY !== 'visible' && p.scrollHeight > p.clientHeight + 200 })()`, 10000))
+      const gFondo = await navR.evaluate(`(() => { const p = document.querySelector('#exp-panel'); p.scrollIntoView({ block: 'start', behavior: 'instant' }); p.scrollTop = p.scrollHeight; const bs = [...p.querySelectorAll('.mk__gen:not(.mk__gen--fijo)')]; const b = bs[bs.length - 1]; if (!b) return ''; window.__y0 = scrollY; window.__s0 = p.scrollTop; b.click(); return b.dataset.gen })()`)
+      ok(`real PR#294: abierto ${gFondo || 'un marcador'} desde el fondo de la lista, «Volver» y el título quedan a la vista en el panel`, !!gFondo && await esperaR(navR, `document.querySelector('#exp-violines h2')?.textContent.includes('${gFondo}') && ${dentroPanel('.exp__volver')} && ${dentroPanel('#exp-dh2')}`))
+      await navR.evaluate(`document.querySelector('.exp__volver').click()`)
+      ok('real PR#294: «Volver» devuelve la lista a su sitio, con la fila de origen a la vista y enfocada, sin mover la página', !!gFondo && await esperaR(navR, `(() => { const p = document.querySelector('#exp-panel'), b = document.querySelector('.mk__gen[data-gen="${gFondo}"]'); return !!b && document.activeElement === b && ${dentroPanel(`.mk__gen[data-gen="${gFondo}"]`)} && Math.abs(p.scrollTop - window.__s0) < 60 && Math.abs(scrollY - window.__y0) < 2 })()`))
+      // 4b) «Volver» con TECLADO tras cambiar de biopsia (la fila de origen puede no estar): la página no se mueve y el foco
+      // queda a la vista dentro del panel (revisión del PR #294: el foco iba antes que el scroll del panel y la página subía)
+      await navR.evaluate(`(() => { const p = document.querySelector('#exp-panel'); p.scrollTop = p.scrollHeight; document.querySelector('.mk__gen[data-gen="${gFondo}"]')?.click(); return true })()`)
+      await esperaR(navR, `document.querySelector('#exp-violines h2')?.textContent.includes('${gFondo}')`)
+      await navR.evaluate(pulsaBiopsia('Hueso'))
+      await esperaR(navR, `!document.querySelector('.exp__banner') && document.querySelector('#exp-violines h2')?.textContent.includes('${gFondo}') && !document.querySelector('.exp__leyendo')`, 15000)
+      const yTeclado = await navR.evaluate(`(() => { document.querySelector('.exp__volver')?.focus(); return Math.round(scrollY) })()`)
+      await navR.cdp('Input.dispatchKeyEvent', { type: 'keyDown', key: 'Enter', code: 'Enter', windowsVirtualKeyCode: 13, nativeVirtualKeyCode: 13, text: '\r' })
+      await navR.cdp('Input.dispatchKeyEvent', { type: 'keyUp', key: 'Enter', code: 'Enter', windowsVirtualKeyCode: 13, nativeVirtualKeyCode: 13 })
+      ok('real PR#294: «Volver» con teclado tras cambiar de biopsia no mueve la página y deja el foco a la vista en el panel', !!gFondo && await esperaR(navR, `(() => { const a = document.activeElement, p = document.querySelector('#exp-panel'); if (document.querySelector('#exp-violines') || !a || !p.contains(a)) return false; const pr = p.getBoundingClientRect(), r = a.getBoundingClientRect(); return r.top >= pr.top - 1 && r.bottom <= pr.bottom + 1 && Math.abs(Math.round(scrollY) - ${yTeclado}) < 2 })()`, 10000), await navR.evaluate(`JSON.stringify({ y: Math.round(scrollY), antes: ${yTeclado}, foco: document.activeElement?.className })`))
+      // 5) «Tabla completa, con sondas y lectura» deja el título de la tabla a la vista, no bajo la cabecera y el aviso fijos.
+      // Se mide la posición FINAL con el desplazamiento instantáneo: con el suave, a medio camino el título pasa por la zona
+      // buena aunque acabe tapado, y así el test pasaba con el fallo.
+      await navR.evaluate(pulsaBiopsia('Hígado'))
+      await esperaR(navR, `!!document.querySelector('.exp__bannerfijo') && parseFloat(getComputedStyle(document.querySelector('.exp')).getPropertyValue('--exp-banner')) > 0`)
+      await navR.evaluate(`[...document.querySelectorAll('.exp__pestanas button')].find((b) => /Genes de interés/.test(b.textContent))?.click()`)
+      await navR.evaluate(`document.querySelector('.gin__enlace')?.click()`)
+      await navR.evaluate(`new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(() => r(true))))`)
+      await navR.sleep(300)
+      ok('real PR#294: «Tabla completa» deja el título de la tabla bajo la cabecera y el aviso fijos, a la vista, con el foco', await navR.evaluate(`(() => { const h = document.querySelector('#exp-genes h2')?.getBoundingClientRect(); const cab = document.querySelector('[data-cabecera-fija]')?.getBoundingClientRect(); const ban = document.querySelector('.exp__bannerfijo')?.getBoundingClientRect(); const tope = Math.max(cab?.bottom ?? 0, ban?.bottom ?? 0); return !!h && !!document.querySelector('details.exp__masan')?.open && h.top >= tope - 1 && h.bottom <= innerHeight && document.activeElement === document.querySelector('#exp-genes h2') })()`))
+      // 6) abrir un gen desde la tabla completa no mueve la página ni el foco: su aviso dice «más arriba» y es verdad
+      // (revisión del PR #294: el detalle se llevaba la página arriba y el aviso quedaba fuera de pantalla)
+      // Sin el anclaje del scroll de Chrome (como en Safari): lo que cambia encima lo compensa la página. Desde la LLEGADA
+      // (sin gen, mapa por grupo): al abrir aparecen encima la leyenda por tramos y los avisos; con un gen ya activo nada
+      // cambia de alto y el test pasaba también sin compensar (tercera ronda de la revisión)
+      await navR.evaluate(`document.querySelector('.exp__chipx')?.click()`)
+      await esperaR(navR, LLEGADA, 10000)
+      await navR.evaluate(`document.querySelector('.gin__enlace')?.click()`)
+      await navR.evaluate(`new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(() => r(true))))`)
+      await navR.sleep(300)
+      await navR.evaluate(`(() => { const s = document.createElement('style'); s.id = 'sin-anclaje'; s.textContent = 'html, body { overflow-anchor: none !important }'; document.head.append(s); window.__y6 = scrollY; return true })()`)
+      const yTabla = await navR.evaluate(`Math.round(document.querySelector('#exp-genes .gi__gen').getBoundingClientRect().top)`)
+      const gTabla = await navR.evaluate(`(() => { const b = document.querySelector('#exp-genes .gi__gen'); if (!b) return ''; b.focus(); b.click(); return b.textContent.trim() })()`)
+      await navR.evaluate(`new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(() => r(true))))`)
+      await navR.sleep(300)
+      ok(`real PR#294: abrir ${gTabla || 'un gen'} desde la tabla completa (sin anclaje del navegador) no mueve la tabla en la pantalla ni el foco, y avisa «más arriba»`, !!gTabla && await esperaR(navR, `/Mostrando .* más arriba/.test(document.querySelector('#exp-genes .exp__estado')?.textContent ?? '') && Math.abs(Math.round(document.querySelector('#exp-genes .gi__gen').getBoundingClientRect().top) - ${yTabla}) < 2 && Math.abs(scrollY - window.__y6) > 20 && !!document.activeElement?.classList.contains('gi__gen')`, 10000), await navR.evaluate(`JSON.stringify({ top: Math.round(document.querySelector('#exp-genes .gi__gen').getBoundingClientRect().top), antes: ${yTabla}, compensado: Math.round(scrollY - window.__y6) })`))
+      ok('real PR#294: tras abrir desde la tabla, la página devuelve el anclaje del navegador (overflow-anchor en línea vacío)', await esperaR(navR, `document.documentElement.style.overflowAnchor === '' && document.body.style.overflowAnchor === ''`, 3000))
+      await navR.evaluate(`document.getElementById('sin-anclaje')?.remove(); document.documentElement.style.scrollBehavior = ''; true`)
     }
     else ok('real sin la decisión de la matriz completa: no hay buscador de todos los genes', !(await navR.evaluate(`!!document.querySelector('.exp__busca')`)))
     await navR.cdp('Emulation.setDeviceMetricsOverride', { width: 1024, height: 768, deviceScaleFactor: 1, mobile: false })
@@ -257,6 +389,21 @@ if (manPub.ejemplo !== true) {
     await navR.evaluate(busca('SPDEF'))
     if (await esperaR(navR, `document.querySelector('.exp__sug button')?.dataset.gen === 'SPDEF'`, 15000)) await navR.evaluate(`document.querySelector('.exp__sug button').click()`)
     ok('real móvil: tras buscar un gen, su detalle lleva «Ver el mapa» a la vista y «Volver»', await esperaR(navR, verMapaEnDetalle, 20000))
+    // segunda ronda del PR #294: «Volver» llevaba el foco al buscador, la página subía hasta él y en táctil salía el teclado
+    const yVolverMovil = await navR.evaluate(`(() => { document.documentElement.style.scrollBehavior = 'auto'; document.querySelector('.exp__volver').scrollIntoView({ block: 'center' }); return Math.round(scrollY) })()`)
+    await navR.evaluate(`document.querySelector('.exp__volver').click()`)
+    ok('real móvil: «Volver» (origen el buscador) deja el foco en la pestaña del panel, no en el buscador, y la página casi no se mueve', await esperaR(navR, `!document.querySelector('#exp-violines') && document.activeElement?.getAttribute('role') === 'tab' && Math.abs(Math.round(scrollY) - ${yVolverMovil}) < 150`, 5000), await navR.evaluate(`JSON.stringify({ y: Math.round(scrollY), antes: ${yVolverMovil}, foco: document.activeElement?.tagName })`))
+    // a 375 el panel no es fijo: al abrir un gen desde la tabla completa, la lista del panel (encima de la tabla) pasa a
+    // detalle y cambia de alto. Sin el anclaje del navegador (como en Safari), la página lo compensa: la tabla no se mueve
+    await navR.evaluate(`(() => { const s = document.createElement('style'); s.id = 'sin-anclaje'; s.textContent = 'html, body { overflow-anchor: none !important }'; document.head.append(s); document.querySelector('.gin__enlace')?.click(); return true })()`)
+    await navR.evaluate(`new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(() => r(true))))`)
+    await navR.sleep(300)
+    const gMovil = await navR.evaluate(`(() => { const b = [...document.querySelectorAll('#exp-genes .gi__gen')].find((x) => x.getAttribute('aria-pressed') !== 'true'); if (!b) return ''; window.__topMovil = Math.round(b.getBoundingClientRect().top); window.__bMovil = b; b.focus(); b.click(); return b.textContent.trim() })()`)
+    await navR.evaluate(`new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(() => r(true))))`)
+    await navR.sleep(300)
+    ok('real móvil 375: tras abrir desde la tabla, la página devuelve el anclaje del navegador', await esperaR(navR, `document.documentElement.style.overflowAnchor === '' && document.body.style.overflowAnchor === ''`, 3000))
+    ok(`real móvil 375: abrir ${gMovil || 'un gen'} desde la tabla completa (sin anclaje del navegador) no mueve la tabla en la pantalla`, !!gMovil && await esperaR(navR, `/Mostrando .* más arriba/.test(document.querySelector('#exp-genes .exp__estado')?.textContent ?? '') && Math.abs(Math.round(window.__bMovil.getBoundingClientRect().top) - window.__topMovil) < 2`, 10000), await navR.evaluate(`JSON.stringify({ top: Math.round(window.__bMovil?.getBoundingClientRect().top ?? -1), antes: window.__topMovil })`))
+    await navR.evaluate(`document.getElementById('sin-anclaje')?.remove(); document.documentElement.style.scrollBehavior = ''; true`)
     ok('real móvil: tras «Mover el mapa» el velo desaparece y el botón dice «Listo»', await esperaR(navR, `!document.querySelector('.exp-mapa__velo') && /Listo/.test(document.querySelector('.exp-mapa__mover')?.textContent ?? '')`, 5000))
     await navR.evaluate(ABRE_TODO)
     ok('real móvil 375: el resumen del perfil no se recorta (cada región dentro del bloque)', await navR.evaluate(resumenCabe))
@@ -288,6 +435,11 @@ if (manPub.ejemplo !== true) {
     await esperaR(navS, `document.querySelector('#exp-violines h2')?.textContent.includes('CDH1')`)
     await navS.evaluate(`[...document.querySelectorAll('.exp__ctl button')].find((b) => /^\\s*Hueso\\s*$/.test(b.textContent))?.click()`)
     ok('real, lista del hueso caída: al pasar al hueso el gen se quita y se dice por qué', await esperaR(navS, `!document.querySelector('.exp__chip') && !document.querySelector('#exp-violines') && /CDH1 no se puede abrir en esta biopsia/.test(document.querySelector('.exp__nota--busca')?.textContent ?? '')`, 20000))
+    // segunda ronda del PR #294: el <select> de reserva abre un gen en cada cambio; si el foco se iba al detalle, con
+    // teclado no se podía recorrer la lista (WCAG 3.2.2). El gen se abre y el foco se queda en el select.
+    await navS.evaluate(`(() => { const s = document.querySelector('.exp__ctl select'); s.focus(); s.value = 'ERBB2'; s.dispatchEvent(new Event('change')); return true })()`)
+    ok('real, lista del hueso caída: la lista de reserva anuncia el gen que abre (sin WebGL, sin prometer el mapa)', await esperaR(navS, `(() => { const t = document.querySelector('.exp__ctl select')?.closest('.exp__campo')?.querySelector('[role=status]')?.textContent ?? ''; return t.includes('ERBB2') && !/mapa/.test(t) })()`, 10000))
+    ok('real, lista del hueso caída: elegir un gen en la lista de reserva lo abre y deja el foco en la lista', await esperaR(navS, `document.querySelector('#exp-violines h2')?.textContent.includes('ERBB2') && document.activeElement === document.querySelector('.exp__ctl select')`, 10000))
   }
   finally { await navS.cerrar() }
   console.log(fallos ? `\n${fallos} de ${hechos} comprobaciones fallan` : `${hechos} de ${hechos} comprobaciones en verde`)
