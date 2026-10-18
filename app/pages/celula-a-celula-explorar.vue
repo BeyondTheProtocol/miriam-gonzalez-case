@@ -21,6 +21,8 @@ const L = (es: string, en: string) => (lang.value === 'en' ? en : es)
 const { man, estado, hayReal } = useCelulaExplorador()
 
 const titulo = () => L('Explorar los datos célula a célula', 'Explore the cell-by-cell data')
+/** subtítulo visible de una línea (simulador: el mapa tiene que asomar al entrar); la descripción larga queda para SEO */
+const lema = () => L('Busca un gen y míralo en el mapa de células de las dos biopsias.', 'Search a gene and see it on the cell map of the two biopsies.')
 const descripcion = () => L('El mapa de células de las dos biopsias de Miriam: busca un gen o elige un marcador y míralo célula a célula en el mapa y grupo a grupo, con su n y su suelo ambiental.',
   'The cell map of Miriam’s two biopsies: search a gene or pick a marker and see it cell by cell on the map and group by group, with its n and its ambient floor.')
 useSeoMeta({
@@ -52,14 +54,14 @@ const LEER = [
 
 <template>
   <div class="overflow-x-clip">
-    <section class="section-spacing" :aria-label="titulo()">
+    <section class="xp-seccion" :aria-label="titulo()">
       <div class="mx-auto w-full max-w-[1280px] px-4 sm:px-6 lg:px-8">
         <PageHeader
           class="!mb-6"
           :parent="{ to: localePath({ name: 'celula-a-celula' }), label: L('Célula a célula', 'Cell by cell') }"
           :tag="L('Para profesionales', 'For professionals')"
           :title="titulo()"
-          :subtitle="descripcion()"
+          :subtitle="lema()"
         />
         <CelulaAviso class="mb-4" />
         <CelulaExplorarEtiquetas :lang="lang" class="mb-8" />
@@ -110,6 +112,8 @@ const LEER = [
 </template>
 
 <style scoped>
+/* simulador: menos aire arriba que una página de lectura, para que el mapa asome al entrar */
+.xp-seccion { padding: 1.5rem 0 4rem; }
 .xp-flujo { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--sp-48); }
 .xp-cerrado { padding: var(--sp-24); }
 .xp-espera { min-height: 60vh; display: grid; place-items: center; font: var(--tipo-body-sm); color: var(--color-text-soft); }
