@@ -1,0 +1,32 @@
+{
+  "version": 1,
+  "ejemplo": true,
+  "sello": "sin_verificar",
+  "ok_titular": false,
+  "modo_sondas": "todas_incluidas",
+  "lesiones": [
+    "higado",
+    "hueso"
+  ],
+  "ficheros": [
+    {
+      "ruta": "higado.json",
+      "sha256": "721bd31201439ef49188226a8b73cfd02dfc0abaf05b2fac7b4825982e474c4e"
+    },
+    {
+      "ruta": "hueso.json",
+      "sha256": "f562fa18333068153986e0a7b153988cd661cf2a591c1dd438f879a2691c0b9e"
+    }
+  ],
+  "zarr": [
+    {
+      "ruta": "zarr/higado.zarr",
+      "sha256_arbol": "4c4ee4804c1559b77a997d8c3bfd5dcc84b1c773800c2a9810d1cb991d0acf8c"
+    },
+    {
+      "ruta": "zarr/hueso.zarr",
+      "sha256_arbol": "5f8eeb1a0f4ea6f71ae5135fe8aece3dbe7b0aad9fd01c3b3eb626392efc4682"
+    }
+  ],
+  "matriz_completa": "ejemplo"
+}

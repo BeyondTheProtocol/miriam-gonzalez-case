@@ -37,6 +37,9 @@ export async function abrirNavegador({ ancho = 390, alto = 844, escala = 2 } = {
       /^(\.\.[/\\])+/,
       ''
     )
+    // como Netlify: un fichero o carpeta que empieza por punto NO se sirve (verificado en la vista previa del PR #290,
+    // 18-oct-2026: .zarray/.zgroup daban 404). Si el test los sirviera, daría por bueno lo que en producción falla.
+    if (clean.split(/[/\\]/).some((seg) => seg.startsWith('.') && seg !== '.' && seg !== '..')) return null
     const base = join(ROOT, clean)
     for (const p of [base, `${base}.html`, join(base, 'index.html')]) {
       if (existsSync(p) && statSync(p).isFile()) return p

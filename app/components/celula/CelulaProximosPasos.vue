@@ -85,6 +85,8 @@ const ESTADO = {
     </ol>
 
     <p class="pp__fecha">{{ L(`Estado de los pasos a ${fechaActualizado(datos.actualizado, 'es')}.`, `Status of the steps as of ${fechaActualizado(datos.actualizado, 'en')}.`) }}</p>
+    <!-- explorador para profesionales: solo existe si su puerta está abierta (datos reales con OK, o demo) -->
+    <CelulaExplorarTarjeta />
   </section>
 </template>
 
