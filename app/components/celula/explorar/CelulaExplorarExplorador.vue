@@ -659,7 +659,7 @@ function sinTapar(ev: FocusEvent) {
 .exp__dlec { margin: 0 0 var(--sp-12); font: 500 var(--texto-sm)/1.4 var(--font-body); color: var(--texto-2); max-width: var(--measure); }
 .exp__dlec strong { color: var(--texto-1); font-weight: 600; }
 .exp__dpie { margin: calc(-1 * var(--sp-8)) 0 var(--sp-12); font: 500 var(--texto-xs)/1.4 var(--font-body); color: var(--texto-2); max-width: var(--measure); text-wrap: pretty; }
-.exp__dihq { display: block; font: 600 var(--texto-xs)/1.4 var(--font-mono); color: var(--texto-1); }
+.exp__dihq { display: block; text-wrap: balance; font: 600 var(--texto-xs)/1.4 var(--font-mono); color: var(--texto-1); }
 .exp__dbiop { margin: 0; font: 700 var(--texto-xs)/1.3 var(--font-mono); letter-spacing: var(--track-eyebrow); text-transform: uppercase; color: var(--texto-2); }
 .exp__nota { margin: var(--sp-8) 0 0; font: var(--tipo-body-sm); font-size: var(--texto-xs); color: var(--texto-2); max-width: var(--measure); }
 .exp__nota--busca:empty { display: none; }

@@ -72,7 +72,8 @@ export const etiquetaLectura = (ver: string, conMotivo: boolean, lang: 'es' | 'e
  * referencia que se ven y la lectura dice «No se sostiene»). Ids de Polaris (_contrato.MOTIVOS, con la línea del acta de
  * la que sale cada uno). Sin cifras: las del caso viajan en el fichero. */
 export const ETIQUETA_MOTIVO: Record<string, T> = {
-  hepatocitos_igual_o_mas: t('se detecta igual o más en los hepatocitos no tumorales', 'detected as much or more in non-tumor hepatocytes'),
+  /** el grupo «Hepatocitos» puede incluir tumorales: ni «sanos» ni «no tumorales» (comité médico, fusión con #293) */
+  hepatocitos_igual_o_mas: t('se detecta igual o más en el grupo «Hepatocitos»', 'detected as much or more in the “Hepatocytes” group'),
   seleccion_por_er: t('el grupo se eligió por el programa de estrógeno', 'the group was selected by its estrogen program'),
   arn_no_es_her2_low: t('en ARN no equivale a HER2-low; manda la IHQ', 'in RNA it does not mean HER2-low; IHC decides'),
   minoria: t('solo en una minoría de células', 'only in a minority of cells'),
@@ -85,7 +86,9 @@ export const ETIQUETA_MOTIVO: Record<string, T> = {
     'it is used to measure the tumor’s loose RNA and does not clear it: the two cannot be told apart'),
   depende_del_nulo: t('supera el suelo y la referencia, pero frente al ARN suelto del tumor depende del conjunto de células',
     'it clears the floor and the reference, but against the tumor’s loose RNA it depends on the cell set'),
-  parecido_en_todas: t('se detecta parecido en todos los tipos de células no tumorales', 'detected at a similar rate in every non-tumor cell type'),
+  /** l.130 del acta («parecido en todos los compartimentos») es a igual profundidad (detección ponderada por decil de UMI, como
+   * la referencia); la detección bruta por grupo del detalle no lo es y en B7-H3 va de T/NK, el más bajo, a «Hepatocitos» */
+  parecido_en_todas: t('a igual profundidad, se detecta parecido en los demás tipos celulares', 'at matched depth, detected at a similar rate in the other cell types'),
   disperso_en_el_tumor: t('disperso por el tumor luminal', 'scattered through the luminal tumor'),
   casi_no_se_detecta: t('se detecta en muy pocas células', 'detected in very few cells'),
   cero_en_posibles_tumorales: t('cero en las células que podrían ser tumor, con sondas que sí funcionan', 'zero in the cells that could be tumor, with probes that do work'),
@@ -159,9 +162,9 @@ export const ETIQUETAS_FIJAS = {
   re: t('IHQ de RE: negativa (hígado)', 'ER IHC: negative (liver)'),
   /** auditoría 18-oct: del hueso no consta IHQ de HER2 (solo ADN, FoundationOne) */
   her2Hueso: t('IHQ de HER2 (hueso): no consta', 'HER2 IHC (bone): none reported'),
-  /** auditoría 18-oct: HER3 lo tienen igual o más los hepatocitos sanos. Con el motivo en el fichero ya va en el paréntesis
-   * de la lectura (hepatocitos_igual_o_mas); solo se pinta con datos que aún no lo traen */
-  her3Higado: t('En los hepatocitos sanos se detecta igual o más', 'Detected as much or more in healthy hepatocytes'),
+  /** auditoría 18-oct: HER3 lo tiene igual o más el grupo «Hepatocitos» (que puede incluir tumorales: no «sanos», comité médico).
+   * Con el motivo en el fichero ya va en el paréntesis de la lectura (hepatocitos_igual_o_mas); solo se pinta sin él */
+  her3Higado: t('En el grupo «Hepatocitos» se detecta igual o más', 'Detected as much or more in the “Hepatocytes” group'),
   /** qué matriz es: la estándar, con el ADN genómico que eso arrastra en el hueso */
   matriz: t('Matriz estándar de Cell Ranger, todas las sondas; en el hueso incluye ADN genómico', 'Standard Cell Ranger matrix, all probes; in the bone it includes genomic DNA'),
   /** el número de copias del hueso es una inferencia por expresión, no una lectura de ADN */

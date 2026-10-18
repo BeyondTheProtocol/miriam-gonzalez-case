@@ -58,17 +58,18 @@ const nombre = (g: string) => PROTEINA[g] ?? g
                leían como positivos y la revisión dice «No se sostiene» -->
           <tr class="gin__lecfila" :data-gen="f.gen">
             <td colspan="4">
+              <span class="sr-only">{{ nombre(f.gen) }}: </span>
               <span v-if="f.gen === 'ERBB2'" class="gin__ihq">{{ (d.lesion === 'higado' ? ETIQUETAS_FIJAS.her2 : ETIQUETAS_FIJAS.her2Hueso)[lang] }}</span>
               <span v-if="f.gen === 'ERBB3' && d.lesion === 'higado' && !f.mot" class="gin__ihq">{{ ETIQUETAS_FIJAS.her3Higado[lang] }}</span>
-              <span class="sr-only">{{ nombre(f.gen) }}: </span><span class="gin__lec">{{ ETIQUETAS_FIJAS.lecturaCorta[lang] }} <strong class="gin__ver">{{ etiquetaLectura(f.ver, conMotivo, lang) }}</strong><span v-if="f.mot" class="gin__mot" :data-motivo="f.mot"> ({{ etiqueta(ETIQUETA_MOTIVO, f.mot, lang) }})</span></span>
+              <span class="gin__lec">{{ ETIQUETAS_FIJAS.lecturaCorta[lang] }} <strong class="gin__ver">{{ etiquetaLectura(f.ver, conMotivo, lang) }}</strong><span v-if="f.mot" class="gin__mot" :data-motivo="f.mot"> ({{ etiqueta(ETIQUETA_MOTIVO, f.mot, lang) }})</span></span>
             </td>
           </tr>
         </template>
       </tbody>
     </table>
     <p class="gin__pie">
-      {{ L('Porcentaje de células con al menos una molécula (UMI) del gen. Referencia: células no tumorales de la misma muestra, con la misma profundidad. Suelo ambiental: lo que saldría solo por ARN suelto de la muestra; lo que no lo supera no cuenta como expresión. Lectura: la de Polaris, en borrador, pendiente de la lectura humana del laboratorio.' + (d.lesion === 'hueso' ? ' En el hueso, el suelo incluye además el ADN genómico del tejido.' : ''),
-        'Share of cells with at least one molecule (UMI) of the gene. Reference: non-tumor cells from the same sample, at the same depth. Ambient floor: what would show up from loose RNA in the sample alone; anything that does not clear it does not count as expression. Reading: Polaris’s, in draft, pending the laboratory’s human reading.' + (d.lesion === 'hueso' ? ' In the bone, the floor also includes the tissue’s genomic DNA.' : '')) }}
+      {{ L('Porcentaje de células con al menos una molécula (UMI) del gen. Referencia: células no tumorales de la misma muestra, con la misma profundidad' + (d.lesion === 'higado' ? ' (en el hígado, linfocitos T y NK, mieloides y endotelio; los hepatocitos y los fibroblastos no entran)' : '') + '. Suelo ambiental: lo que saldría solo por ARN suelto de la muestra; lo que no lo supera no cuenta como expresión. Lectura: la de Polaris, en borrador, pendiente de la lectura humana del laboratorio.' + (d.lesion === 'hueso' ? ' En el hueso, el suelo incluye además el ADN genómico del tejido.' : ''),
+        'Share of cells with at least one molecule (UMI) of the gene. Reference: non-tumor cells from the same sample, at the same depth' + (d.lesion === 'higado' ? ' (in the liver, T and NK lymphocytes, myeloid cells and endothelium; hepatocytes and fibroblasts are not included)' : '') + '. Ambient floor: what would show up from loose RNA in the sample alone; anything that does not clear it does not count as expression. Reading: Polaris’s, in draft, pending the laboratory’s human reading.' + (d.lesion === 'hueso' ? ' In the bone, the floor also includes the tissue’s genomic DNA.' : '')) }}
     </p>
     <p v-if="conMotivo" class="gin__pie gin__pmot">{{ pieMotivo(lang) }}</p>
     <p v-if="hayCirc" class="gin__pie gin__circ">
@@ -112,7 +113,7 @@ const nombre = (g: string) => PROTEINA[g] ?? g
   .gin__tabla tbody td.gin__num { line-height: 1.3; padding-top: var(--sp-8); }
   .gin__num[data-eti]::before { content: attr(data-eti); display: block; font: 500 var(--texto-xs)/1.2 var(--font-body); color: var(--texto-2); }
 }
-.gin__ihq { display: block; font: 600 var(--texto-xs)/1.35 var(--font-mono); color: var(--texto-1); }
+.gin__ihq { display: block; text-wrap: balance; font: 600 var(--texto-xs)/1.35 var(--font-mono); color: var(--texto-1); }
 .gin__lec { font: 500 var(--texto-xs)/1.35 var(--font-body); color: var(--texto-2); }
 .gin__ver { font-weight: 600; color: var(--texto-1); }
 /* diseño (revisión del motivo): a 375 quedaban huérfanos de una palabra («más)», «la IHQ)») */
