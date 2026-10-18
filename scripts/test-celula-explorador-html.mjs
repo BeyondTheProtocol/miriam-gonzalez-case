@@ -22,6 +22,48 @@ const html = (r) => { for (const p of [`${r}.html`, join(r, 'index.html')]) { co
 /* ── 1 · HTML estático ── */
 const vitessce = readdirSync(join(ROOT, '_nuxt')).filter((f) => f.endsWith('.js') && readFileSync(join(ROOT, '_nuxt', f), 'utf8').includes('Plot options and controls'))
 ok('existe el chunk del motor (Vitessce)', vitessce.length > 0)
+
+/* ── con DATOS REALES publicados (manifiesto sin «ejemplo»): la página está abierta; se comprueba eso y se termina ── */
+const manPub = JSON.parse(readFileSync(join(ROOT, 'celula', 'explorador', 'manifiesto.json'), 'utf8'))
+if (manPub.ejemplo !== true) {
+  for (const [lg, ruta, eti] of [
+    ['es', 'celula-a-celula/explorar', ['n=1, FFPE, exploratorio', 'ARN ≠ proteína; manda la IHQ', 'IHQ de HER2: 0']],
+    ['en', 'en/cell-by-cell/explore', ['n=1, FFPE, exploratory', 'RNA ≠ protein; IHC decides', 'HER2 IHC: 0']],
+  ]) {
+    const h = html(ruta)
+    ok(`[real ${lg}] existe ${ruta}`, !!h)
+    if (!h) continue
+    for (const e of eti) ok(`[real ${lg}] etiqueta fija «${e}»`, h.includes(e))
+    ok(`[real ${lg}] con datos reales la página se indexa`, !/<meta name="robots" content="noindex/.test(h))
+    ok(`[real ${lg}] sin rótulo de ejemplo`, !/DATOS DE EJEMPLO|EXAMPLE DATA/.test(h))
+    ok(`[real ${lg}] ningún HTML precarga el chunk de Vitessce`, !vitessce.some((f) => h.includes(f)))
+  }
+  const esperaR = async (nav, expr, ms = 30000) => { const t0 = Date.now(); while (Date.now() - t0 < ms) { if (await nav.evaluate(expr).catch(() => false)) return true; await nav.sleep(250) } return false }
+  const navR = await abrirNavegador({ ancho: 1440, alto: 1000, escala: 1 })
+  try {
+    await navR.cargar('/celula-a-celula/explorar')
+    ok('real sin demo: se monta el explorador, sin rótulo de ejemplo', await esperaR(navR, `!!document.querySelector('.exp') && !document.querySelector('.exp__demo')`))
+    ok('real: violines con n y suelo por grupo', await esperaR(navR, `[...document.querySelectorAll('.vio__fila')].filter((f) => /suelo \\d+ %/.test(f.textContent) && /n = \\d/.test(f.textContent)).length > 0`))
+    ok('real: aviso fijo del hígado', await navR.evaluate(`/tumor frente a hepatocito no está resuelto célula a célula/.test(document.querySelector('.exp__banner')?.textContent ?? '')`))
+    ok('real: marcadores, perfil, ADN por grupo y QC con datos', await esperaR(navR, `document.querySelectorAll('.mk__tabla tbody tr').length > 0 && !!document.querySelector('.pf__linea') && document.querySelectorAll('.adng__fila').length > 0 && document.querySelectorAll('.qc__fila').length >= 6`))
+    const todos = Array.isArray(manPub.zarr) && manPub.zarr.length > 0
+    if (todos) {
+      ok('real: buscador de todos los genes activo', await esperaR(navR, `!!document.querySelector('.exp__busca input:not([disabled])')`))
+      await navR.evaluate(`(() => { const i = document.querySelector('.exp__busca input'); i.value = 'ACT'; i.dispatchEvent(new Event('input')) })()`)
+      const gen = await esperaR(navR, `document.querySelectorAll('.exp__sug button').length > 0`) ? await navR.evaluate(`(() => { const b = document.querySelector('.exp__sug button'); b.click(); return b.textContent.trim() })()`) : ''
+      ok(`real: un gen buscado (${gen || 'ninguno'}) se lee del Zarr y sale en los violines`, !!gen && await esperaR(navR, `document.querySelector('#exp-violines h2')?.textContent.includes('${gen}') && document.querySelectorAll('.vio__fila').length > 0`))
+    }
+    else ok('real sin la decisión de la matriz completa: no hay buscador de todos los genes', !(await navR.evaluate(`!!document.querySelector('.exp__busca')`)))
+    await navR.cdp('Emulation.setDeviceMetricsOverride', { width: 375, height: 812, deviceScaleFactor: 1, mobile: true })
+    await navR.cargar('/celula-a-celula/explorar')
+    await esperaR(navR, `document.querySelectorAll('.vio__fila').length > 0`)
+    const desb = `Math.round(Math.max(...[...document.querySelectorAll('.exp, .exp > *')].map((e) => e.getBoundingClientRect().right)) - window.innerWidth)`
+    ok('real móvil: el explorador cabe en el ancho', (await navR.evaluate(desb)) <= 1)
+  }
+  finally { await navR.cerrar() }
+  console.log(fallos ? `\n${fallos} de ${hechos} comprobaciones fallan` : `${hechos} de ${hechos} comprobaciones en verde`)
+  process.exit(fallos ? 1 : 0)
+}
 for (const [lg, ruta, cerrado, eti] of [
   ['es', 'celula-a-celula/explorar', 'Todavía no está abierto', ['n=1, FFPE, exploratorio', 'ARN ≠ proteína; manda la IHQ', 'IHQ de HER2: 0']],
   ['en', 'en/cell-by-cell/explore', 'Not open yet', ['n=1, FFPE, exploratory', 'RNA ≠ protein; IHC decides', 'HER2 IHC: 0']],
