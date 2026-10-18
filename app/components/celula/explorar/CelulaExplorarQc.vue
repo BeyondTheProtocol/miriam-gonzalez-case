@@ -20,14 +20,14 @@ const filas = computed(() => {
   const x = q.value
   const f: [string, string][] = [
     [L('Células antes del control', 'Cells before QC'), n(x.n_inicial)],
-    [L('Células que quedan', 'Cells kept'), n(x.n_final)],
+    [L('Células tras el control', 'Cells after QC'), n(x.n_final)],
     [L('Moléculas (UMI) por célula admitidas', 'Molecules (UMI) per cell allowed'), `${n(x.umbral_UMI[0])} – ${n(x.umbral_UMI[1])}`],
     [L('Genes detectados por célula admitidos', 'Detected genes per cell allowed'), `${n(x.umbral_genes[0])} – ${n(x.umbral_genes[1])}`],
     [L('Mitocondriales', 'Mitochondrial'), mt.value],
     [L('Dobletes quitados (Scrublet)', 'Doublets removed (Scrublet)'), n(x.scrublet_dobletes)],
   ]
-  if (typeof x.mediana_UMI_final === 'number') f.push([L('Mediana de UMI por célula, al final', 'Median UMI per cell, at the end'), n(x.mediana_UMI_final)])
-  if (typeof x.mediana_genes_final === 'number') f.push([L('Mediana de genes por célula, al final', 'Median genes per cell, at the end'), n(x.mediana_genes_final)])
+  if (typeof x.mediana_UMI_final === 'number') f.push([L('Mediana de UMI por célula, tras el control', 'Median UMI per cell, after QC'), n(x.mediana_UMI_final)])
+  if (typeof x.mediana_genes_final === 'number') f.push([L('Mediana de genes por célula, tras el control', 'Median genes per cell, after QC'), n(x.mediana_genes_final)])
   return f
 })
 </script>
@@ -35,8 +35,8 @@ const filas = computed(() => {
 <template>
   <div class="qc">
     <p class="qc__p">
-      {{ L('Qué células entran en el explorador y por qué. Umbrales por desviación mediana absoluta (MAD) sobre moléculas y genes por célula; después se quitan los dobletes. Es el mismo control en los dos análisis independientes.',
-        'Which cells enter the explorer and why. Thresholds by median absolute deviation (MAD) on molecules and genes per cell; doublets are removed afterwards. It is the same control in both independent analyses.') }}
+      {{ L('Qué células entran en el explorador y por qué. Umbrales por desviación mediana absoluta (MAD) sobre moléculas y genes por célula; después se quitan los dobletes. Las células del explorador son las que quedan tras este control.',
+        'Which cells enter the explorer and why. Thresholds by median absolute deviation (MAD) on molecules and genes per cell; doublets are removed afterwards. The cells in the explorer are the ones left after this QC.') }}
     </p>
     <dl class="qc__lista">
       <div v-for="[k, v] in filas" :key="k" class="qc__fila">

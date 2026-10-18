@@ -28,13 +28,13 @@ const idCtl = useId()
 <template>
   <div class="mk">
     <p class="mk__p">
-      {{ L('Genes que más distinguen a cada grupo frente al resto de la lesión (prueba de Wilcoxon, FDR de Benjamini-Hochberg). Solo grupos fijos del análisis; no se compara una selección hecha a mano.',
-        'Genes that best set each group apart from the rest of the lesion (Wilcoxon test, Benjamini-Hochberg FDR). Fixed groups of the analysis only; no hand-made selection is compared.') }}
+      {{ L('Genes que más distinguen a cada grupo frente al resto de la lesión (prueba de Wilcoxon, FDR de Benjamini-Hochberg). Solo grupos fijos del análisis; no se compara una selección hecha a mano. Se omiten los genes que solo aparecen en uno de los dos lados (log2FC infinito): no se pueden dar como cifra.',
+        'Genes that best set each group apart from the rest of the lesion (Wilcoxon test, Benjamini-Hochberg FDR). Fixed groups of the analysis only; no hand-made selection is compared. Genes seen on only one of the two sides (infinite log2FC) are left out: they cannot be given as a figure.') }}
     </p>
     <p class="mk__p">
       <strong>{{ L('Detectado no es positivo.', 'Detected is not positive.') }}</strong>
-      {{ L('Compara el porcentaje del grupo con su suelo ambiental: si quedan cerca, la señal puede ser ambiente.',
-        'Compare the group percentage with its ambient floor: if they are close, the signal may be ambient.') }}
+      {{ L('El porcentaje de células del grupo se lee contra su suelo ambiental: si quedan cerca, la señal puede venir del fondo.',
+        'Compare the share of cells in the group with its ambient floor: if close, the signal may come from the background.') }}
     </p>
     <div class="mk__campo">
       <span :id="`${idCtl}-g`" class="mk__eti">{{ L('Grupo', 'Group') }}</span>

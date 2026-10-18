@@ -119,7 +119,7 @@ async function aseguraZarr(l: Lesion) {
   const x = cache[l]
   if (nivel.value !== 'todos' || zcache[l] || !x) return
   try { zcache[l] = await abreZarr(storeWeb(l), x.n_celulas, x.grupos.map((g) => g.id)) }
-  catch { avisoBusca.value = L('No se ha podido abrir la matriz de todos los genes. El resto de la página funciona igual.', 'The all-genes matrix could not be opened. The rest of the page works the same.') }
+  catch { avisoBusca.value = L('No se ha podido abrir la matriz de todos los genes, así que el buscador no funciona. El resto de la página, sí.', 'The all-genes matrix could not be opened, so gene search is unavailable. The rest of the page works as usual.') }
 }
 watch(d, () => { void aseguraZarr(lesion.value) }, { immediate: true })
 const sugerencias = computed(() => {
@@ -137,7 +137,7 @@ async function abreGen(g: string) {
   if (!x.expr[g]) {
     const zl = z.value
     if (!zl || !zl.tiene(g) || zl.sinSonda.has(g)) {
-      avisoBusca.value = L(`${g} no tiene sonda en esta prueba. Que no esté no quiere decir que no se exprese.`, `${g} has no probe in this assay. Not being here does not mean it is not expressed.`)
+      avisoBusca.value = L(`${g} no está en el panel, así que no se mide. Eso no quiere decir que no se exprese.`, `${g} is not in this panel, so it is not measured. That does not mean it is not expressed.`)
       return
     }
     leyendoGen.value = true
@@ -222,7 +222,7 @@ function sinTapar(ev: FocusEvent) {
         </select>
       </div>
       <div v-if="d && nivel === 'todos'" class="exp__campo exp__busca">
-        <label :for="`${idCtl}-busca`" class="exp__eti">{{ L(`Buscar entre los ${z ? fmtN(z.genes.length, lang) : ''} genes`, `Search the ${z ? fmtN(z.genes.length, lang) : ''} genes`) }}</label>
+        <label :for="`${idCtl}-busca`" class="exp__eti">{{ z ? L(`Buscar entre los ${fmtN(z.genes.length, lang)} genes`, `Search the ${fmtN(z.genes.length, lang)} genes`) : L('Buscar un gen', 'Search for a gene') }}</label>
         <input :id="`${idCtl}-busca`" v-model="busca" class="exp__sel" type="search" autocomplete="off" spellcheck="false" :disabled="!z"
                :placeholder="L('Símbolo, p. ej. MKI67', 'Symbol, e.g. MKI67')" @keydown.enter.prevent="busca.trim() && abreGen(sugerencias[0] ?? busca.trim().toUpperCase())" />
         <ul v-if="sugerencias.length" class="exp__sug" :aria-label="L('Genes que coinciden', 'Matching genes')">
@@ -330,7 +330,7 @@ function sinTapar(ev: FocusEvent) {
       </div>
 
       <div class="exp__bloque">
-        <h2 class="exp__h2">{{ L('Perfil por regiones del genoma', 'Genome region profile') }}{{ ej }}</h2>
+        <h2 class="exp__h2">{{ L('Expresión por regiones del genoma', 'Expression by genome region') }}{{ ej }}</h2>
         <CelulaExplorarPerfil :d="d" :lang="lang" />
       </div>
 

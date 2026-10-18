@@ -19,13 +19,17 @@ const max = computed(() => Math.max(1e-9, ...filas.value.map((f) => f.v)))
 <template>
   <div class="adng">
     <p class="adng__p">
-      {{ L('Estimación, para cada grupo, de la parte de las UMI, las moléculas contadas, que viene de ADN genómico y no de ARN: las sondas que caen dentro de un exón también lo captan. Un gen poco frecuente que aparece en pocas células de un grupo con mucho ADN puede ser ADN, no expresión.',
-        'Estimate, for each group, of the share of UMI, the molecules counted, that comes from genomic DNA rather than RNA: probes that fall inside an exon capture it too. A rare gene seen in a few cells of a group with a lot of DNA may be DNA, not expression.') }}
+      {{ L('Estimación, para cada grupo, de la parte de las UMI, las moléculas contadas, que viene de ADN genómico y no de ARN: las sondas que caen dentro de un exón también hibridan con el ADN genómico. Si un gen aparece en pocas células de un grupo con mucho ADN, puede ser ADN y no expresión.',
+        'Estimate, for each group, of the share of UMI, the molecules counted, that comes from genomic DNA rather than RNA: probes that fall inside an exon also hybridize to genomic DNA. If a gene shows up in a few cells of a group with a lot of DNA, it may be DNA, not expression.') }}
     </p>
     <p class="adng__p">
       <strong>{{ L('Por grupo, no por célula.', 'Per group, not per cell.') }}</strong>
-      {{ L('La estimación es un cociente del grupo entero. Célula a célula no es fiable: en células con pocas moléculas puede salir un valor imposible, así que no se enseña.',
-        'The estimate is a ratio over the whole group. Cell by cell it is not reliable: in cells with few molecules it can come out impossible, so it is not shown.') }}
+      {{ L('La estimación es un cociente del grupo entero. Célula a célula no es fiable: en células con pocas moléculas puede salir más ADN que moléculas en total, que es imposible, así que no se enseña.',
+        'The estimate is a ratio over the whole group. Cell by cell it is not reliable: in cells with few molecules it can exceed the total molecules, which is impossible, so it is not shown.') }}
+    </p>
+    <p class="adng__p">
+      {{ L('La estimación se da en las dos lesiones. El suelo ambiental de los violines solo descuenta el ADN en el hueso, por decisión del análisis.',
+        'The estimate is given for both lesions. The ambient floor in the violins only accounts for DNA in the bone, by decision of the analysis.') }}
     </p>
     <ul class="adng__lista">
       <li v-for="f in filas" :key="f.id" class="adng__fila" :class="`adng__fila--${f.rol}`">

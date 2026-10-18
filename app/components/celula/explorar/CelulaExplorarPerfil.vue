@@ -36,15 +36,15 @@ const fmt = (x: number) => String(x).replace('.', props.lang === 'en' ? '.' : ',
 <template>
   <div class="pf">
     <p class="pf__p">
-      {{ L('Para cada región de 10 Mb, la expresión del grupo de interés frente a la referencia emparejada (log2, mediana por región, centrada). Cromosomas 1 a 22.',
-        'For each 10 Mb region, expression in the group of interest against the matched reference (log2, median per region, centred). Chromosomes 1 to 22.') }}
+      {{ L('Para cada región de 10 Mb, la expresión del grupo de interés frente a la referencia emparejada (log2, mediana por región, centrada en la mediana de todas las regiones). Cromosomas 1 a 22.',
+        'For each 10 Mb region, expression in the group of interest against the matched reference (log2, median per region, centered on the median of all regions). Chromosomes 1 to 22.') }}
     </p>
     <p class="pf__p">
       <strong>{{ L('Expresión, no ADN.', 'Expression, not DNA.') }}</strong>
       {{ L('Una región alta es compatible con más copias de ADN, pero no lo demuestra.', 'A high region is compatible with more DNA copies, but does not prove it.') }}
     </p>
     <svg class="pf__svg" :viewBox="`0 0 ${W} ${H}`" role="img"
-         :aria-label="L(`Perfil por regiones del genoma, ${puntos.length} regiones de los cromosomas 1 a 22`, `Genome region profile, ${puntos.length} regions of chromosomes 1 to 22`)">
+         :aria-label="L(`Expresión por regiones del genoma, ${puntos.length} regiones de los cromosomas 1 a 22`, `Expression by genome region, ${puntos.length} regions of chromosomes 1 to 22`)">
       <rect v-for="t in tramos" :key="t.c" :x="t.a" :width="t.b - t.a" y="0" :height="H" :class="t.par ? 'pf__par' : 'pf__impar'" />
       <line x1="0" :x2="W" :y1="y(0)" :y2="y(0)" class="pf__cero" />
       <polyline :points="puntos.map((p, k) => `${xs[k]},${y(p.v)}`).join(' ')" class="pf__linea" />

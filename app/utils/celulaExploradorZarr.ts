@@ -35,9 +35,11 @@ export async function abreZarr(store: Leible, n: number, grupos: string[]): Prom
   const ref = (await todo('var/referencia_emparejada')) as ArrayLike<number>
   const ns = (await todo('var/n_sondas')) as ArrayLike<number>
   const nu = (await todo('var/n_sondas_union')) as ArrayLike<number>
-  let sin: string[] = []
-  try { sin = Array.from(await todo('uns/genes_sin_sonda'), String) }
-  catch { sin = [] }                                   // vacío: anndata puede no escribir el array
+  // Sin sonda = 0 sondas en var (siempre está). Se le suma la lista de uns si se puede leer; si no se puede, no se
+  // cae a «ninguno»: un gen sin sonda nunca se enseña como «0 por ciento detectado» (revisión de verificación).
+  const sin = genes.filter((_, j) => Number(ns[j]) === 0)
+  try { sin.push(...Array.from(await todo('uns/genes_sin_sonda'), String)) }
+  catch { /* la lista de uns es redundante con n_sondas */ }
   const pos = new Map(genes.map((g, k) => [g, k]))
   const idx = (g: string) => { const j = pos.get(g); if (j === undefined) throw new Error(`${g} no está en la matriz`); return j }
   const cache = new Map<string, Float32Array>()

@@ -45,6 +45,14 @@ const shaArbol = (dir: string) => {
 const zarrEnDisco = readdirSync(DIR).includes('zarr') ? readdirSync(join(DIR, 'zarr')).sort().map((z) => `zarr/${z}`) : []
 ok('todo Zarr de la carpeta está en el manifiesto (y solo esos)', JSON.stringify(zarrEnDisco) === JSON.stringify((man.zarr ?? []).map((z) => z.ruta).sort()), `disco ${zarrEnDisco}`)
 for (const z of man.zarr ?? []) ok(`${z.ruta}: huella del árbol del manifiesto`, shaArbol(join(DIR, z.ruta)) === z.sha256_arbol)
+// FAIL-CLOSED (revisión de verificación, 18-oct): un Zarr real en public/ se descarga por su URL aunque la interfaz lo
+// esconda. Con datos reales, ningún Zarr en la carpeta sin la fecha de la decisión de publicar la matriz completa.
+if (man.ejemplo !== true && (zarrEnDisco.length || man.zarr?.length)) {
+  const mcR = man.matriz_completa
+  ok('real con Zarr en la carpeta: solo con la fecha de la decisión de publicar la matriz completa',
+    typeof mcR === 'object' && mcR !== null && fechaOkValida((mcR as { fecha_decision?: unknown }).fecha_decision))
+}
+if (man.ejemplo === true) ok('el ejemplo no puede declarar una decisión real de la matriz completa', man.matriz_completa === undefined || man.matriz_completa === 'ejemplo')
 for (const f of man.ficheros) {
   const sha = createHash('sha256').update(readFileSync(join(DIR, f.ruta))).digest('hex')
   ok(`${f.ruta}: sha256 del manifiesto`, sha === f.sha256)
@@ -222,7 +230,9 @@ ok('pct redondea a entero', pct(0.344) === 34 && pct(0.345) === 35 && pct(0) ===
 
 /* ── 6 · nivel «todos los genes»: el Zarr se lee gen a gen y dice LO MISMO que el JSON en los genes del panel ── */
 if (man.zarr?.length) {
-  ok('el ejemplo abre el nivel de todos los genes (y solo él)', nivelMatriz(man, esEjemplo ? 'ejemplo' : 'real') === (esEjemplo ? 'todos' : nivelMatriz(man, 'real')))
+  const mc = man.matriz_completa
+  const conDecision = typeof mc === 'object' && mc !== null && fechaOkValida((mc as { fecha_decision?: unknown }).fecha_decision)
+  ok('el nivel de todos los genes se abre solo con el ejemplo o con la fecha de la decisión', nivelMatriz(man, esEjemplo ? 'ejemplo' : 'real') === (esEjemplo ? (mc === 'ejemplo' ? 'todos' : 'panel') : (conDecision ? 'todos' : 'panel')))
   for (const l of man.lesiones) {
     const d = lesiones[l]!
     const z = await abreZarr(new FileSystemStore(join(DIR, 'zarr', `${l}.zarr`)), d.n_celulas, d.grupos.map((g) => g.id))
