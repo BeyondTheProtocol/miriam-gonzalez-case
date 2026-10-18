@@ -190,13 +190,13 @@ const otrasGem = computed(() => {
   const x = d.value
   if (!x || x.lesion !== 'hueso' || !('valores' in x.cnv) || !x.cnv.valores.length) return null
   const v0 = x.cnv.valores[0]!, ids = new Set(x.grupos.map((g) => g.id))
-  let n = 0, deTipo = 0
+  let cuenta = 0, deTipo = 0
   v0.forEach((v, i) => {
     if (v != null || x.grupos[x.celulas.grupo[i]!]?.id !== 'otras') return
-    n++
+    cuenta++
     if (ids.has(x.tipos[x.celulas.tipo[i]!]!)) deTipo++
   })
-  return n ? { n, deTipo } : null
+  return cuenta ? { n: cuenta, deTipo } : null
 })
 
 /* ── el aviso del hígado queda fijo bajo la cabecera del sitio (sticky y de alto variable) ── */
