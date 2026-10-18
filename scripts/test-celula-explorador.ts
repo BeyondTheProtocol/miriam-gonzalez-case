@@ -16,10 +16,10 @@ import { createHash } from 'node:crypto'
 import { readdirSync, readFileSync } from 'node:fs'
 import { join, relative, sep } from 'node:path'
 import {
-  MARCADORES_N, PAPELES_SELECCION, RE_BARCODE, VEREDICTOS, columna, coexpresion, densidad, estadoPuerta, fechaOkValida, fmtParSuelo, motivosLesion, nivelMatriz, pct, porGrupo, tablaCoexp,
+  MARCADORES_N, MOTIVO_LECTURAS, MOTIVOS, PAPELES_SELECCION, RE_BARCODE, VEREDICTOS, VEREDICTOS_SIN_MOTIVO, columna, coexpresion, densidad, estadoPuerta, fechaOkValida, fmtParSuelo, motivoDe, motivosLesion, nivelMatriz, pct, porGrupo, tablaCoexp,
   type LesionDatos, type Manifiesto,
 } from '../app/utils/celulaExplorador'
-import { ALIAS_BUSCA, ETIQUETA_GRUPO, ETIQUETA_TIPO, ETIQUETA_VEREDICTO, PAPEL_SELECCION, etiqueta } from '../app/utils/celulaExploradorTexto'
+import { ALIAS_BUSCA, ETIQUETA_GRUPO, ETIQUETA_MOTIVO, ETIQUETA_TIPO, ETIQUETA_VEREDICTO, PAPEL_SELECCION, etiqueta } from '../app/utils/celulaExploradorTexto'
 import { abreZarr } from '../app/utils/celulaExploradorZarr'
 import { paleta } from '../app/utils/celulaExploradorColor'
 import FileSystemStore from '@zarrita/storage/fs'
@@ -83,8 +83,9 @@ for (const l of man.lesiones) {
   ok(`${l}: nada con forma de barcode 10x`, !RE_BARCODE.test(crudo))
   ok(`${l}: nada con forma de ID de bloque ni de probe barcode`, !/\b[A-Z]?\d{2}-\d{4,6}\b|\b[A-H]-[A-H]\d{1,2}\b/.test(crudo))
   ok(`${l}: ninguna fecha`, !/\b(19|20)\d\d-\d\d-\d\d\b/.test(crudo))
-  ok(`${l}: solo las claves del contrato`, JSON.stringify(Object.keys(d).sort()) === JSON.stringify(['adn', 'adn_por_grupo', 'celulas', 'cnv', 'ejemplo', 'expr', 'genes', 'grupos', 'lesion', 'loo', 'marcadores', 'n_celulas', 'perfil_bins', 'qc', 'referencia', 'seleccion', 'sondas', 'suelo', 'tipos', 'veredicto', 'version'].filter((k) => esEjemplo || k !== 'ejemplo').sort()), Object.keys(d).join(','))
+  ok(`${l}: solo las claves del contrato`, JSON.stringify(Object.keys(d).sort()) === JSON.stringify(['adn', 'adn_por_grupo', 'celulas', 'cnv', 'ejemplo', 'expr', 'genes', 'grupos', 'lesion', 'loo', 'marcadores', 'n_celulas', 'perfil_bins', 'qc', 'referencia', 'seleccion', 'sondas', 'suelo', 'tipos', 'veredicto', 'version'].filter((k) => esEjemplo || k !== 'ejemplo').concat('motivo' in d ? ['motivo'] : []).sort()), Object.keys(d).join(','))
   if (esEjemplo) ok(`${l}: el ejemplo no lleva ninguna lectura de la revisión (todo «sin_veredicto»)`, Object.values(d.veredicto).every((v) => v === 'sin_veredicto'))
+  if (esEjemplo && d.motivo) ok(`${l}: el ejemplo no lleva ningún motivo de la revisión (todo null)`, Object.values(d.motivo).every((v) => v === null))
 }
 
 /* ── 2 · la puerta ── */
@@ -168,6 +169,36 @@ ok('todo tipo celular del fichero tiene su rótulo ES/EN (ninguno sale con el no
 ok('todo grupo del fichero tiene su rótulo ES/EN', [...H.grupos, ...B.grupos].every((g) => !!ETIQUETA_GRUPO[g.id]?.es && !!ETIQUETA_GRUPO[g.id]?.en))
 ok('el vocabulario de lecturas tiene «cerrado_por_arn» (PRAME/MAGE-A4 del hueso)', (VEREDICTOS as readonly string[]).includes('cerrado_por_arn'))
 ok('cada lectura del vocabulario tiene su etiqueta ES/EN', VEREDICTOS.every((v) => !!ETIQUETA_VEREDICTO[v]?.es && !!ETIQUETA_VEREDICTO[v]?.en))
+// motivo de cada lectura (comité médico, 18-oct-2026): mismo vocabulario que Polaris, con texto ES/EN, sin cifras ni «diana»
+ok('cada motivo del vocabulario tiene su texto ES/EN', MOTIVOS.every((m) => !!ETIQUETA_MOTIVO[m]?.es && !!ETIQUETA_MOTIVO[m]?.en) && Object.keys(ETIQUETA_MOTIVO).length === MOTIVOS.length)
+ok('cada motivo dice qué lecturas admite, y ninguna es de las que no lo llevan', JSON.stringify(Object.keys(MOTIVO_LECTURAS).sort()) === JSON.stringify([...MOTIVOS].sort())
+  && Object.values(MOTIVO_LECTURAS).every((vs) => vs.length > 0 && vs.every((v) => (VEREDICTOS as readonly string[]).includes(v) && !VEREDICTOS_SIN_MOTIVO.includes(v))))
+ok('ningún texto de motivo lleva cifras ni «diana»', Object.values(ETIQUETA_MOTIVO).every((x) => !/\d|diana|target/i.test(`${x.es} ${x.en}`.replace(/HER2-low/g, ''))))
+// verificacion (18-oct): la etiqueta de «cerrado_por_arn» daba la razón del hueso («los positivos son ADN…») también en el
+// hígado, donde no hay positivos; la razón va en el motivo, que cambia por biopsia
+ok('«cerrado_por_arn» no da en la etiqueta la razón de una sola biopsia', !/positiv/i.test(`${ETIQUETA_VEREDICTO.cerrado_por_arn!.es} ${ETIQUETA_VEREDICTO.cerrado_por_arn!.en}`))
+{
+  // fixture con motivo: los datos publicados aún no lo traen (pendiente del OK de la titular) y el validador tiene que
+  // aceptarlo bien formado y cazar lo mal formado
+  const conMotivo = (d: LesionDatos) => {
+    const x = clon(d)
+    x.motivo = Object.fromEntries(x.genes.map((g) => {
+      const v = x.veredicto[g]!
+      return [g, VEREDICTOS_SIN_MOTIVO.includes(v) ? null : MOTIVOS.find((m) => MOTIVO_LECTURAS[m].includes(v)) ?? null]
+    }))
+    return x
+  }
+  const HM = conMotivo(H), g0 = H.genes[0]!, g1 = H.genes[1]!
+  ok('motivo: un fichero con motivo bien formado se pinta', motivosLesion(HM, { lesion: 'higado', ejemplo: esEjemplo }).length === 0, motivosLesion(HM, { lesion: 'higado', ejemplo: esEjemplo }).join('; '))
+  ok('motivo: sin motivo en el fichero también se pinta (datos de antes), y la lectura va sin paréntesis', motivosLesion(H, { lesion: 'higado', ejemplo: esEjemplo }).length === 0 && motivoDe(H, g0) === (H.motivo?.[g0] ?? null))
+  caza('motivo fuera de vocabulario', mut(HM, (x) => { x.veredicto[g0] = 'no_sostenido'; (x.motivo as any)[g0] = 'diana_debil' }, 'higado'))
+  caza('lectura «no_sostenido» sin motivo', mut(HM, (x) => { x.veredicto[g0] = 'no_sostenido'; x.motivo![g0] = null }, 'higado'))
+  caza('motivo en una lectura «sostenido», que no lo lleva', mut(HM, (x) => { x.veredicto[g0] = 'sostenido'; x.motivo![g0] = 'minoria' }, 'higado'))
+  caza('motivo de otra lectura («casi_no_se_detecta» en un «con_matiz»)', mut(HM, (x) => { x.veredicto[g0] = 'con_matiz'; x.motivo![g0] = 'casi_no_se_detecta' }, 'higado'))
+  caza('un gen sin su clave en motivo', mut(HM, (x) => { delete x.motivo![g1] }, 'higado'))
+  caza('una clave de motivo que no es un gen', mut(HM, (x) => { x.motivo!.NOESGEN = null }, 'higado'))
+  ok('motivoDe: el del fichero, o null', motivoDe({ ...HM, motivo: { ...HM.motivo, [g0]: 'minoria' } }, g0) === 'minoria' && motivoDe(HM, 'NOESGEN') === null)
+}
 ok('cada papel de selección tiene su texto ES/EN', PAPELES_SELECCION.every((p) => !!PAPEL_SELECCION[p]?.es && !!PAPEL_SELECCION[p]?.en))
 // revisión de cifras (17-oct-2026): «SOSTENIDO con matiz» (HER3 del hígado) y «Con matiz» (HER2, Nectin-4, LIV-1, ESR1) no se funden
 ok('«sostenido_con_matiz» existe y dice que se sostiene', (VEREDICTOS as readonly string[]).includes('sostenido_con_matiz') && /se sostiene/i.test(ETIQUETA_VEREDICTO.sostenido_con_matiz!.es) && /holds/i.test(ETIQUETA_VEREDICTO.sostenido_con_matiz!.en))
@@ -331,6 +362,11 @@ if (man.zarr?.length) {
   if (JSON.parse(readFileSync(join(DIR, 'manifiesto.json'), 'utf8')).ejemplo !== true) {   // solo con los datos reales
     const vh = JSON.parse(readFileSync(join(DIR, 'higado.json'), 'utf8')).veredicto, vb = JSON.parse(readFileSync(join(DIR, 'hueso.json'), 'utf8')).veredicto
     ok('veredictos de la enmienda del 18-oct: HER3 del hígado «con_matiz» y 5T4 del hueso «en_el_limite»', vh.ERBB3 === 'con_matiz' && vb.TPBG === 'en_el_limite', `ERBB3 ${vh.ERBB3} · TPBG ${vb.TPBG}`)
+    // con el motivo en el fichero (export del acta con motivo), el caso que lo pidió: TROP2 del hígado lleva su porqué
+    const mh = JSON.parse(readFileSync(join(DIR, 'higado.json'), 'utf8')).motivo, mb = JSON.parse(readFileSync(join(DIR, 'hueso.json'), 'utf8')).motivo
+    if (mh && mb) ok('motivos del acta: TROP2 y B7-H3 del hígado, HER3 del hígado y PRAME en cada biopsia', mh.TACSTD2 === 'fondo_arn_tumoral' && mh.CD276 === 'parecido_en_todas'
+      && mh.ERBB3 === 'hepatocitos_igual_o_mas' && mh.PRAME === 'cero_en_posibles_tumorales' && mb.PRAME === 'adn_de_nucleos_no_tumorales' && mb.TPBG === 'referencia_poco_precisa',
+    JSON.stringify({ TACSTD2: mh.TACSTD2, CD276: mh.CD276, ERBB3: mh.ERBB3, PRAME: [mh.PRAME, mb.PRAME], TPBG: mb.TPBG }))
   }
 }
 // verificacion (18-oct): los alias del buscador llevan a un GEN; una isoforma (CLDN18.2) no se puede leer con sondas del gen entero

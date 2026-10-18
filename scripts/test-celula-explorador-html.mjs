@@ -129,6 +129,16 @@ if (manPub.ejemplo !== true) {
     ok('real: con 5T4 abierto, el segundo gen de «Dos genes» no es 5T4', await esperaR(navR, `document.querySelector('#exp-violines h2')?.textContent.includes('TPBG') && !!document.querySelector('.exp__masan select')?.value && document.querySelector('.exp__masan select').value !== 'TPBG' && !/5T4 \\(TPBG\\) y 5T4 \\(TPBG\\)/.test(document.querySelector('.exp__masan')?.textContent ?? '')`))
     await navR.evaluate(eligeDeLista('TACSTD2'))
     ok('real: el detalle de TROP2 dice «No se sostiene»', await esperaR(navR, `/Lectura de Polaris \\(borrador, pendiente del laboratorio\\): No se sostiene/.test(document.querySelector('.exp__dlec')?.textContent ?? '') && document.querySelector('#exp-violines h2')?.textContent.includes('TACSTD2')`))
+    // comité médico (18-oct): «13 % frente a 9 % de referencia» y «No se sostiene» no se concilian sin el porqué. Con el
+    // motivo en el fichero, va entre paréntesis tras la lectura en el detalle, la lista y la tabla completa (los datos
+    // publicados antes de él no lo traen y la lectura sale sin paréntesis)
+    if (JSON.parse(readFileSync(join(ROOT, 'celula', 'explorador', 'higado.json'), 'utf8')).motivo) {
+      const MOT_TROP2 = /No se sostiene \(no supera el fondo del ARN tumoral suelto, más alto que el suelo que se muestra\)/
+      ok('real motivo: el detalle de TROP2 lleva su motivo tras la lectura', await navR.evaluate(`${MOT_TROP2}.test(document.querySelector('.exp__dlec')?.textContent ?? '')`))
+      ok('real motivo: la lista de llegada lleva el motivo de TROP2 y el de HER3 sin repetir el aviso de los hepatocitos', await navR.evaluate(`${MOT_TROP2}.test(document.querySelector('.gin__lecfila[data-gen="TACSTD2"]')?.textContent ?? '') && (() => { const t = document.querySelector('.gin__lecfila[data-gen="ERBB3"]')?.textContent ?? ''; return (t.match(/hepatocitos sanos/g) ?? []).length === 1 && /\\(los hepatocitos sanos lo detectan igual o más\\)/.test(t) })()`))
+      ok('real motivo: la tabla completa lleva el motivo de TROP2', await navR.evaluate(`[...document.querySelectorAll('.gi__tabla tbody tr')].some((r) => r.querySelector('th')?.textContent.includes('TACSTD2') && ${MOT_TROP2}.test(r.textContent))`))
+      ok('real motivo: «Se sostiene» va sin paréntesis (NY-BR-1)', await navR.evaluate(`!document.querySelector('.gin__lecfila[data-gen="ANKRD30A"] .gin__mot') && /Se sostiene\\s*$/.test(document.querySelector('.gin__lecfila[data-gen="ANKRD30A"]')?.textContent.trim() ?? '')`))
+    }
     await navR.evaluate(eligeDeLista('ERBB2'))
     await esperaR(navR, violinesDe('ERBB2'))
     ok('real: el gen de la lista colorea el mapa y sale su chip con ✕ junto al buscador', await navR.evaluate(mapaEnGen) && await navR.evaluate(`!!document.querySelector('.exp__chip .exp__chipx')`))

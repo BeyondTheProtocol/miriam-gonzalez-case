@@ -7,8 +7,8 @@
  * circularidad y, si existe, la cifra medida sin ella (loo); si no existe, lo dice. Un toque en el gen lo elige arriba.
  */
 import type { LesionDatos } from '~/utils/celulaExplorador'
-import { fmtPct, porGrupo } from '~/utils/celulaExplorador'
-import { CIRC_HUESO, ETIQUETA_GRUPO, ETIQUETA_VEREDICTO, LECTURA, PANEL_INTERES, PAPEL_SELECCION, PROTEINA, etiqueta, ETIQUETAS_FIJAS } from '~/utils/celulaExploradorTexto'
+import { fmtPct, motivoDe, porGrupo } from '~/utils/celulaExplorador'
+import { CIRC_HUESO, ETIQUETA_GRUPO, ETIQUETA_MOTIVO, ETIQUETA_VEREDICTO, LECTURA, PANEL_INTERES, PAPEL_SELECCION, PROTEINA, etiqueta, ETIQUETAS_FIJAS } from '~/utils/celulaExploradorTexto'
 
 const props = defineProps<{ d: LesionDatos; lang: 'es' | 'en'; elegido: string }>()
 const emit = defineEmits<{ elegir: [string] }>()
@@ -16,7 +16,7 @@ const L = (es: string, en: string) => (props.lang === 'en' ? en : es)
 const interes = computed(() => props.d.grupos.find((g) => g.rol === 'interes')!)
 const filas = computed(() => PANEL_INTERES.filter((g) => props.d.genes.includes(g)).map((gen) => {
   const f = porGrupo(props.d, gen).find((x) => x.rol === 'interes')!
-  return { gen, frac: f.frac, suelo: f.suelo, ref: props.d.referencia[gen] ?? 0, ver: props.d.veredicto[gen] ?? 'sin_veredicto',
+  return { gen, frac: f.frac, suelo: f.suelo, ref: props.d.referencia[gen] ?? 0, ver: props.d.veredicto[gen] ?? 'sin_veredicto', mot: motivoDe(props.d, gen),
     sondas: props.d.sondas[gen], papel: props.d.seleccion[gen], loo: props.d.loo[gen] }
 }))
 const nf = (n: number) => fmtN(n, props.lang)
@@ -47,7 +47,7 @@ const fmtCp = (x: number) => String(Math.round(x))
                 <span v-if="PROTEINA[f.gen]" class="gi__sim">{{ f.gen }}</span>
               </button>
               <span v-if="f.gen === 'ERBB2'" class="gi__nota">{{ (d.lesion === 'higado' ? ETIQUETAS_FIJAS.her2 : ETIQUETAS_FIJAS.her2Hueso)[lang] }}</span>
-              <span v-if="f.gen === 'ERBB3' && d.lesion === 'higado'" class="gi__nota">{{ ETIQUETAS_FIJAS.her3Higado[lang] }}</span>
+              <span v-if="f.gen === 'ERBB3' && d.lesion === 'higado' && !f.mot" class="gi__nota">{{ ETIQUETAS_FIJAS.her3Higado[lang] }}</span>
               <span v-if="f.papel" class="gi__circ">
                 {{ L(`Circular: ${f.gen} ${PAPEL_SELECCION[f.papel]?.es ?? ''}.`, `Circular: ${f.gen} ${PAPEL_SELECCION[f.papel]?.en ?? ''}.`) }}
                 <template v-if="f.loo">
@@ -61,7 +61,7 @@ const fmtCp = (x: number) => String(Math.round(x))
             <td class="gi__num nums">{{ fmtPct(f.ref, lang) }}</td>
             <td class="gi__num nums">{{ fmtPct(f.suelo, lang) }}</td>
             <td class="gi__num nums">{{ f.sondas ? `${f.sondas[0]} / ${f.sondas[1]}` : '' }}</td>
-            <td>{{ etiqueta(ETIQUETA_VEREDICTO, f.ver, lang) }}</td>
+            <td>{{ etiqueta(ETIQUETA_VEREDICTO, f.ver, lang) }}<span v-if="f.mot" class="gi__mot" :data-motivo="f.mot"> ({{ etiqueta(ETIQUETA_MOTIVO, f.mot, lang) }})</span></td>
           </tr>
         </tbody>
       </table>

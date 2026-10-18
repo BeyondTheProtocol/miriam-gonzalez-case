@@ -53,9 +53,31 @@ export const ETIQUETA_VEREDICTO: Record<string, T> = {
   solo_nivel: t('Solo cuenta el nivel (se detecta en casi todas las células)', 'Only the level counts (detected in almost every cell)'),
   marcador_ne: t('Marcador neuroendocrino', 'Neuroendocrine marker'),
   no: t('No', 'No'),
-  cerrado_por_arn: t('Cerrado por ARN; los positivos son ADN de núcleos no tumorales', 'Ruled out by RNA; the positives are DNA from non-tumor nuclei'),
+  /** el porqué va en el motivo, que cambia por biopsia: en el hígado no hay positivos (verificacion, 18-oct-2026: la
+   * etiqueta decía «los positivos son ADN de núcleos no tumorales» también en el hígado, donde el acta da 0) */
+  cerrado_por_arn: t('Cerrado por ARN', 'Ruled out by RNA'),
   sin_veredicto: t('No valorado en esa fila de la revisión', 'Not assessed in that row of the review'),
 }
+/** Motivo de cada lectura, entre paréntesis tras ella (comité médico, 18-oct-2026: TROP2 del hígado supera el suelo y la
+ * referencia que se ven y la lectura dice «No se sostiene»). Ids de Polaris (_contrato.MOTIVOS, con la línea del acta de
+ * la que sale cada uno). Sin cifras: las del caso viajan en el fichero. */
+export const ETIQUETA_MOTIVO: Record<string, T> = {
+  hepatocitos_igual_o_mas: t('los hepatocitos sanos lo detectan igual o más', 'healthy hepatocytes detect it as much or more'),
+  seleccion_por_er: t('el grupo se eligió por el programa de estrógeno', 'the group was chosen by its estrogen program'),
+  arn_no_es_her2_low: t('en ARN no equivale a HER2-low; manda la IHQ', 'in RNA it does not mean HER2-low; IHC decides'),
+  minoria: t('solo en una minoría de células', 'only in a minority of cells'),
+  /** el suelo calculado con el ARN del propio tumor suelto en la muestra, que la tabla no pinta (auditoría, 18-oct-2026) */
+  fondo_arn_tumoral: t('no supera el fondo del ARN tumoral suelto, más alto que el suelo que se muestra', 'does not clear the background from loose tumor RNA, higher than the floor shown'),
+  parecido_en_todas: t('se detecta parecido en todas las células no tumorales', 'detected at a similar rate in every non-tumor cell type'),
+  disperso_en_el_tumor: t('disperso por el tumor luminal', 'scattered through the luminal tumor'),
+  casi_no_se_detecta: t('se detecta en muy pocas células', 'detected in very few cells'),
+  cero_en_posibles_tumorales: t('cero en las células que podrían ser tumor, con sondas que sí funcionan', 'zero in the cells that could be tumor, with probes that do work'),
+  adn_de_nucleos_no_tumorales: t('los positivos son ADN de núcleos no tumorales', 'the positives are DNA from non-tumor nuclei'),
+  referencia_poco_precisa: t('la referencia tiene pocas células efectivas y la diferencia apenas se separa de cero', 'the reference has few effective cells and the difference barely clears zero'),
+  supera_por_poco: t('supera a la referencia por muy poco', 'clears the reference by very little'),
+  depende_del_conjunto: t('supera a la referencia solo en un conjunto algo más amplio de células malignas', 'clears the reference only in a slightly wider set of malignant cells'),
+}
+
 /** De quién es la lectura por gen, y en qué estado está: va en la cabecera de la columna y en su pie. */
 export const LECTURA = {
   columna: t('Lectura de Polaris (borrador)', 'Polaris reading (draft)'),
@@ -107,7 +129,8 @@ export const ETIQUETAS_FIJAS = {
   re: t('IHQ de RE: negativa (hígado)', 'ER IHC: negative (liver)'),
   /** auditoría 18-oct: del hueso no consta IHQ de HER2 (solo ADN, FoundationOne) */
   her2Hueso: t('IHQ de HER2 (hueso): no consta', 'HER2 IHC (bone): none reported'),
-  /** auditoría 18-oct: HER3 lo tienen igual o más los hepatocitos sanos */
+  /** auditoría 18-oct: HER3 lo tienen igual o más los hepatocitos sanos. Con el motivo en el fichero ya va en el paréntesis
+   * de la lectura (hepatocitos_igual_o_mas); solo se pinta con datos que aún no lo traen */
   her3Higado: t('En los hepatocitos sanos se detecta igual o más', 'Detected as much or more in healthy hepatocytes'),
   /** qué matriz es: la estándar, con el ADN genómico que eso arrastra en el hueso */
   matriz: t('Matriz estándar de Cell Ranger, todas las sondas; en el hueso incluye ADN genómico', 'Standard Cell Ranger matrix, all probes; in the bone it includes genomic DNA'),

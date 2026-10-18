@@ -9,8 +9,8 @@
  * y «IHQ de HER2: 0 (primario e hígado)» junto a ERBB2, solo en el hígado.
  */
 import type { LesionDatos } from '~/utils/celulaExplorador'
-import { fmtParSuelo, fmtPct, porGrupo } from '~/utils/celulaExplorador'
-import { CIRC_HUESO, ETIQUETA_GRUPO, ETIQUETA_VEREDICTO, ETIQUETAS_FIJAS, PANEL_INTERES, PROTEINA, etiqueta } from '~/utils/celulaExploradorTexto'
+import { fmtParSuelo, fmtPct, motivoDe, porGrupo } from '~/utils/celulaExplorador'
+import { CIRC_HUESO, ETIQUETA_GRUPO, ETIQUETA_MOTIVO, ETIQUETA_VEREDICTO, ETIQUETAS_FIJAS, PANEL_INTERES, PROTEINA, etiqueta } from '~/utils/celulaExploradorTexto'
 
 const props = defineProps<{ d: LesionDatos; lang: 'es' | 'en'; activo: string | null; sinMapa?: boolean }>()
 const emit = defineEmits<{ elegir: [string]; tabla: [] }>()
@@ -19,7 +19,7 @@ const interes = computed(() => props.d.grupos.find((g) => g.rol === 'interes')!)
 const filas = computed(() => PANEL_INTERES.filter((g) => props.d.genes.includes(g)).map((gen) => {
   const f = porGrupo(props.d, gen).find((x) => x.rol === 'interes')!
   const [tf, ts] = fmtParSuelo(f.frac, f.suelo, props.lang)
-  return { gen, frac: f.frac, suelo: f.suelo, tf, ts, ref: props.d.referencia[gen] ?? 0, circular: !!props.d.seleccion[gen], ver: props.d.veredicto[gen] ?? 'sin_veredicto' }
+  return { gen, frac: f.frac, suelo: f.suelo, tf, ts, ref: props.d.referencia[gen] ?? 0, circular: !!props.d.seleccion[gen], ver: props.d.veredicto[gen] ?? 'sin_veredicto', mot: motivoDe(props.d, gen) }
 }))
 const hayCirc = computed(() => filas.value.some((f) => f.circular))
 const nombre = (g: string) => PROTEINA[g] ?? g
@@ -58,8 +58,8 @@ const nombre = (g: string) => PROTEINA[g] ?? g
           <tr class="gin__lecfila" :data-gen="f.gen">
             <td colspan="4">
               <span v-if="f.gen === 'ERBB2'" class="gin__ihq">{{ (d.lesion === 'higado' ? ETIQUETAS_FIJAS.her2 : ETIQUETAS_FIJAS.her2Hueso)[lang] }}</span>
-              <span v-if="f.gen === 'ERBB3' && d.lesion === 'higado'" class="gin__ihq">{{ ETIQUETAS_FIJAS.her3Higado[lang] }}</span>
-              <span class="sr-only">{{ nombre(f.gen) }}: </span><span class="gin__lec">{{ ETIQUETAS_FIJAS.lecturaCorta[lang] }} <strong class="gin__ver">{{ (ETIQUETA_VEREDICTO[f.ver] ?? ETIQUETA_VEREDICTO.sin_veredicto)[lang] }}</strong></span>
+              <span v-if="f.gen === 'ERBB3' && d.lesion === 'higado' && !f.mot" class="gin__ihq">{{ ETIQUETAS_FIJAS.her3Higado[lang] }}</span>
+              <span class="sr-only">{{ nombre(f.gen) }}: </span><span class="gin__lec">{{ ETIQUETAS_FIJAS.lecturaCorta[lang] }} <strong class="gin__ver">{{ (ETIQUETA_VEREDICTO[f.ver] ?? ETIQUETA_VEREDICTO.sin_veredicto)[lang] }}</strong><span v-if="f.mot" class="gin__mot" :data-motivo="f.mot"> ({{ etiqueta(ETIQUETA_MOTIVO, f.mot, lang) }})</span></span>
             </td>
           </tr>
         </template>

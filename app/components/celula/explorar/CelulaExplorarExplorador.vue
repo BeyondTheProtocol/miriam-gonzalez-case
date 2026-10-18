@@ -21,10 +21,10 @@
  * Violeta = grupo de interés, selección, foco y enlaces; los avisos van en tinta (auditoría `diseno`).
  */
 import type { Coexp, Lesion, LesionDatos, Manifiesto } from '~/utils/celulaExplorador'
-import { coexpresion, columna, nivelMatriz, porGrupo } from '~/utils/celulaExplorador'
+import { coexpresion, columna, motivoDe, nivelMatriz, porGrupo } from '~/utils/celulaExplorador'
 import { abreZarr, storeWeb, type ZarrLesion } from '~/utils/celulaExploradorZarr'
 import { cssRgb, paleta, type RGB } from '~/utils/celulaExploradorColor'
-import { ALIAS_BUSCA, ETIQUETA_GRUPO, ETIQUETA_LESION, ETIQUETA_VEREDICTO, ETIQUETAS_FIJAS, NOMBRE_CLINICO, PANEL_INTERES, PROTEINA, etiqueta, nombreGen } from '~/utils/celulaExploradorTexto'
+import { ALIAS_BUSCA, ETIQUETA_GRUPO, ETIQUETA_LESION, ETIQUETA_MOTIVO, ETIQUETA_VEREDICTO, ETIQUETAS_FIJAS, NOMBRE_CLINICO, PANEL_INTERES, PROTEINA, etiqueta, nombreGen } from '~/utils/celulaExploradorTexto'
 
 const props = defineProps<{ man: Manifiesto; ejemplo: boolean; lang: 'es' | 'en' }>()
 const L = (es: string, en: string) => (props.lang === 'en' ? en : es)
@@ -291,6 +291,8 @@ const lecturaDetalle = computed(() => {
   if (!x.genes.includes(gen.value)) return L('Este gen no está en la revisión: no tiene lectura.', 'This gene is not in the review: it has no reading.')
   return (ETIQUETA_VEREDICTO[x.veredicto[gen.value] ?? 'sin_veredicto'] ?? ETIQUETA_VEREDICTO.sin_veredicto!)[props.lang]
 })
+/** su motivo (comité médico, 18-oct): entre paréntesis tras la lectura; solo de genes de la revisión */
+const motivoDetalle = computed(() => (d.value?.genes.includes(gen.value) ? motivoDe(d.value, gen.value) : null))
 /** abre «Más análisis» y lleva la tabla completa de genes de interés a la vista */
 function abreTabla() {
   if (masAnalisis.value) masAnalisis.value.open = true
@@ -503,7 +505,7 @@ function sinTapar(ev: FocusEvent) {
             </div>
             <p class="exp__dbiop" aria-hidden="true">{{ etiqueta(ETIQUETA_LESION, lesion, lang) }}</p>
             <h2 id="exp-dh2" class="exp__h2">{{ L(`${nombreGen(gen)}, grupo a grupo`, `${nombreGen(gen)}, group by group`) }}<span class="sr-only"> · {{ etiqueta(ETIQUETA_LESION, lesion, lang) }}</span>{{ ej }}</h2>
-            <p class="exp__dlec"><span v-if="gen === 'ERBB2'" class="exp__dihq">{{ (lesion === 'higado' ? ETIQUETAS_FIJAS.her2 : ETIQUETAS_FIJAS.her2Hueso)[lang] }}</span><span v-if="gen === 'ERBB3' && lesion === 'higado'" class="exp__dihq">{{ ETIQUETAS_FIJAS.her3Higado[lang] }}</span><template v-if="d.genes.includes(gen)">{{ ETIQUETAS_FIJAS.lectura[lang] }} <strong>{{ lecturaDetalle }}</strong></template><template v-else>{{ lecturaDetalle }}</template></p>
+            <p class="exp__dlec"><span v-if="gen === 'ERBB2'" class="exp__dihq">{{ (lesion === 'higado' ? ETIQUETAS_FIJAS.her2 : ETIQUETAS_FIJAS.her2Hueso)[lang] }}</span><span v-if="gen === 'ERBB3' && lesion === 'higado' && !motivoDetalle" class="exp__dihq">{{ ETIQUETAS_FIJAS.her3Higado[lang] }}</span><template v-if="d.genes.includes(gen)">{{ ETIQUETAS_FIJAS.lectura[lang] }} <strong>{{ lecturaDetalle }}</strong><span v-if="motivoDetalle" class="exp__dmot" :data-motivo="motivoDetalle"> ({{ etiqueta(ETIQUETA_MOTIVO, motivoDetalle, lang) }})</span></template><template v-else>{{ lecturaDetalle }}</template></p>
             <p v-if="aliasClinico" class="exp__dlec">{{ L(`${aliasClinico} aquí es ARN, no proteína: cuenta las células con al menos una molécula del gen; la proteína la mide la IHQ.`, `${aliasClinico} here is RNA, not protein: it counts cells with at least one molecule of the gene; protein is measured by IHC.`) }}</p>
             <CelulaExplorarViolines :filas="filas" :gen="gen" :lang="lang" :lesion="lesion" :adn="d.adn" :papel="d.seleccion[gen]" :loo="d.loo[gen]" :referencia="d.referencia[gen]" />
           </div>
