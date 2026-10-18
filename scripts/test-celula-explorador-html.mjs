@@ -34,7 +34,8 @@ const qcSinDesborde = `[...document.querySelectorAll('.qc__fila dd')].every((dd)
 const resumenCabe = `(() => { const e = document.querySelector('.pf__resumen'); return !!e && [...e.querySelectorAll('.nums')].every((s) => s.getBoundingClientRect().right <= e.getBoundingClientRect().right + 1) })()`
 const nPegado = `[...document.querySelectorAll('.cnv__n')].some((e) => /\\d(de|of)\\b/.test(e.textContent))`
 // consola limpia: Vitessce tiraba «TypeError: n is not a function» (getTermMapping sin implementar). Se registra
-// console.error y los errores antes de cargar la página.
+// console.error y los errores antes de cargar la página. Se ignora solo «Failed to create WebGL context»: el Chrome de
+// las pruebas arranca con --disable-gpu y deck.gl lo avisa; es del entorno, no de la página.
 const ESPIA = `window.__errores = []; addEventListener('error', (e) => __errores.push(String(e.message))); addEventListener('unhandledrejection', (e) => __errores.push(String(e.reason))); const __ce = console.error; console.error = (...a) => { __errores.push(a.map(String).join(' ').slice(0, 200)); __ce(...a) }`
 const mapaEnGen = `[...document.querySelectorAll('.exp__seg button')].some((b) => /Gen elegido|Selected gene/.test(b.textContent) && b.getAttribute('aria-pressed') === 'true')`
 
@@ -64,7 +65,7 @@ if (manPub.ejemplo !== true) {
     ok('real: marcadores, perfil, ADN por grupo y QC con datos', await esperaR(navR, `document.querySelectorAll('.mk__tabla tbody tr').length > 0 && !!document.querySelector('.pf__linea') && document.querySelectorAll('.adng__fila').length > 0 && document.querySelectorAll('.qc__fila').length >= 6`))
     ok('real: el eje del perfil va en el orden del genoma (1, 2, … 22)', await navR.evaluate(perfilEnOrden))
     await navR.sleep(3000)
-    ok('real escritorio: sin errores en la consola (mapa incluido)', (await navR.evaluate(`window.__errores.length`)) === 0, JSON.stringify(await navR.evaluate(`window.__errores.slice(0, 2)`)))
+    ok('real escritorio: sin errores en la consola (mapa incluido)', (await navR.evaluate(`window.__errores.filter((m) => !/Failed to create WebGL context/.test(m)).length`)) === 0, JSON.stringify(await navR.evaluate(`window.__errores.slice(0, 2)`)))
     ok('real: ningún FDR de marcadores sale como «0,0e+0»', await navR.evaluate(sinFdrCero))
     ok('real: las etiquetas del eje del perfil no se pisan (20, 21, 22)', await navR.evaluate(perfilSinPisar))
     ok('real: ningún valor del QC desborda su celda', await navR.evaluate(qcSinDesborde))
@@ -162,7 +163,7 @@ try {
   ok('demo escritorio: hay mapa', r.mapa)
   ok('demo: el mapa (Vitessce) llega a dibujar su lienzo', await espera(nav, `!!document.querySelector('.exp-mapa canvas')`, 20000))
   await nav.sleep(3000)
-  ok('demo escritorio: sin errores en la consola (mapa incluido)', (await nav.evaluate(`window.__errores.length`)) === 0, JSON.stringify(await nav.evaluate(`window.__errores.slice(0, 2)`)))
+  ok('demo escritorio: sin errores en la consola (mapa incluido)', (await nav.evaluate(`window.__errores.filter((m) => !/Failed to create WebGL context/.test(m)).length`)) === 0, JSON.stringify(await nav.evaluate(`window.__errores.slice(0, 2)`)))
   await nav.evaluate(`(() => { const s = document.querySelector('.exp__ctl select'); s.value = 'ESR1'; s.dispatchEvent(new Event('change')) })()`)
   ok('demo hígado: ESR1 en los violines lleva primero la cifra sin circularidad y después «Cifra circular»', await espera(nav, `/Sin esa circularidad.*Cifra circular\\./s.test(document.querySelector('.vio__circ')?.textContent ?? '')`))
   ok('demo hígado: la nota de circularidad va ANTES de la figura y de la cifra circular de la fila', await nav.evaluate(`(() => { const c = document.querySelector('.vio__fila--interes .vio__circ'), t = document.querySelector('.vio__fila--interes .vio__txt'); return !!c && !!t && c.nextElementSibling?.classList.contains('vio__svg') && !!(c.compareDocumentPosition(t) & Node.DOCUMENT_POSITION_FOLLOWING) && /^\\s*Circular · /.test(t.textContent) })()`))
