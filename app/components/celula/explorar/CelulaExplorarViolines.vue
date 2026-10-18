@@ -161,9 +161,7 @@ function partes(f: FilaGrupo): { t: string; fuerte?: boolean }[] {
 .vio__nombre { font: 600 var(--texto-sm)/1.3 var(--font-body); color: var(--texto-1); }
 .vio__fila--interes .vio__nombre { color: var(--identidad); }
 .vio__n { font: 500 var(--texto-xs)/1.3 var(--font-mono); color: var(--texto-2); white-space: nowrap; }
-.vio__par { display: inline-block; margin-inline-end: 0.4em; }
-.vio__par:not(:last-child)::after { content: '\00a0\00b7'; }   /* el punto cierra la parte: nunca empieza línea */
-.vio__txt { overflow-wrap: anywhere; }
+.vio__txt { display: flex; flex-wrap: wrap; gap: 0 1.1em; overflow-wrap: anywhere; }   /* partes separadas por aire, sin «·» colgados (diseño, 18-oct) */
 .vio__svg { display: block; width: 100%; height: auto; margin-top: var(--sp-4); overflow: visible; }
 .vio__base { stroke: var(--trazo-medio); }
 .vio__forma { fill: color-mix(in srgb, var(--texto-2) 40%, transparent); stroke: var(--texto-2); stroke-width: 1; vector-effect: non-scaling-stroke; }

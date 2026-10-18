@@ -12,7 +12,7 @@ import type { LesionDatos } from '~/utils/celulaExplorador'
 import { fmtParSuelo, fmtPct, porGrupo } from '~/utils/celulaExplorador'
 import { CIRC_HUESO, ETIQUETA_GRUPO, ETIQUETA_VEREDICTO, ETIQUETAS_FIJAS, PANEL_INTERES, PROTEINA, etiqueta } from '~/utils/celulaExploradorTexto'
 
-const props = defineProps<{ d: LesionDatos; lang: 'es' | 'en'; activo: string | null }>()
+const props = defineProps<{ d: LesionDatos; lang: 'es' | 'en'; activo: string | null; sinMapa?: boolean }>()
 const emit = defineEmits<{ elegir: [string]; tabla: [] }>()
 const L = (es: string, en: string) => (props.lang === 'en' ? en : es)
 const interes = computed(() => props.d.grupos.find((g) => g.rol === 'interes')!)
@@ -30,7 +30,7 @@ const nombre = (g: string) => PROTEINA[g] ?? g
     <!-- estrecho: la cabecera se iba de la pantalla tras cuatro genes; el grupo se nombra aquí y cada cifra lleva su rótulo -->
     <p class="gin__cabest" aria-hidden="true">{{ L('Grupo de interés:', 'Group of interest:') }} {{ etiqueta(ETIQUETA_GRUPO, interes.id, lang) }} · n&nbsp;=&nbsp;{{ fmtN(interes.n, lang) }}</p>
     <table class="gin__tabla">
-      <caption class="sr-only">{{ L(`Genes de interés en ${etiqueta(ETIQUETA_GRUPO, interes.id, 'es')}, frente a la referencia emparejada y el suelo ambiental. Pulsa un gen para verlo en el mapa y grupo a grupo.`, `Genes of interest in ${etiqueta(ETIQUETA_GRUPO, interes.id, 'en')}, against the matched reference and the ambient floor. Press a gene to see it on the map and group by group.`) }}</caption>
+      <caption class="sr-only">{{ L(`Genes de interés en ${etiqueta(ETIQUETA_GRUPO, interes.id, 'es')}, frente a la referencia emparejada y el suelo ambiental. Pulsa un gen para verlo ${sinMapa ? '' : 'en el mapa y '}grupo a grupo.`, `Genes of interest in ${etiqueta(ETIQUETA_GRUPO, interes.id, 'en')}, against the matched reference and the ambient floor. Press a gene to see it ${sinMapa ? '' : 'on the map and '}group by group.`) }}</caption>
       <thead>
         <tr>
           <th scope="col">{{ L('Gen', 'Gene') }}</th>
@@ -57,7 +57,7 @@ const nombre = (g: string) => PROTEINA[g] ?? g
                leían como positivos y la revisión dice «No se sostiene» -->
           <tr class="gin__lecfila" :data-gen="f.gen">
             <td colspan="4">
-              <span v-if="f.gen === 'ERBB2'" class="gin__ihq">{{ ETIQUETAS_FIJAS.her2[lang] }} · </span>
+              <span v-if="f.gen === 'ERBB2' && d.lesion === 'higado'" class="gin__ihq">{{ ETIQUETAS_FIJAS.her2[lang] }} · </span>
               <span class="sr-only">{{ nombre(f.gen) }}: </span><span class="gin__lec">{{ L('Lectura (borrador):', 'Reading (draft):') }} <strong class="gin__ver">{{ (ETIQUETA_VEREDICTO[f.ver] ?? ETIQUETA_VEREDICTO.sin_veredicto)[lang] }}</strong></span>
             </td>
           </tr>
@@ -75,7 +75,7 @@ const nombre = (g: string) => PROTEINA[g] ?? g
     </p>
     <p v-if="d.lesion === 'hueso'" class="gin__pie gin__circ"><strong>{{ L('Circular.', 'Circular.') }}</strong> {{ L(CIRC_HUESO.es, CIRC_HUESO.en) }}</p>
     <p class="gin__acciones">
-      <span>{{ L('Pulsa un gen para verlo en el mapa y grupo a grupo.', 'Press a gene to see it on the map and group by group.') }}</span>
+      <span>{{ sinMapa ? L('Pulsa un gen para verlo grupo a grupo.', 'Press a gene to see it group by group.') : L('Pulsa un gen para verlo en el mapa y grupo a grupo.', 'Press a gene to see it on the map and group by group.') }}</span>
       <button type="button" class="gin__enlace" @click="emit('tabla')">{{ L('Tabla completa, con sondas y lectura', 'Full table, with probes and reading') }}</button>
     </p>
   </div>

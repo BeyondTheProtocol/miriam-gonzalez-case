@@ -99,8 +99,8 @@ watch(() => props.tactil, (m) => { if (!m) mover.value = false })
       :style="{ height: `${alto}px` }"
       role="group"
       :aria-label="lang === 'en'
-        ? 'Visual map of the cells (UMAP). It is used with a mouse or a finger and has no keyboard version. The n per group and the per-gene figures are in the gene and markers panel and in the technical data; the position of each cell, only here.'
-        : 'Mapa visual de las células (UMAP). Se maneja con ratón o con el dedo y no tiene versión de teclado. Los n por grupo y las cifras por gen están en el panel del gen y de los marcadores, y en los datos técnicos; la posición de cada célula, solo aquí.'"
+        ? 'Visual map of the cells (UMAP). It is used with a mouse or a finger and has no keyboard version. The n per group and the per-gene figures are in the gene and markers panel and in More analysis and Data quality; the position of each cell, only here.'
+        : 'Mapa visual de las células (UMAP). Se maneja con ratón o con el dedo y no tiene versión de teclado. Los n por grupo y las cifras por gen están en el panel del gen y de los marcadores, y en «Más análisis» y «Calidad de los datos»; la posición de cada célula, solo aquí.'"
     />
     <template v-if="tactil">
       <div v-if="!mover" class="exp-mapa__velo" aria-hidden="true" />

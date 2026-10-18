@@ -33,6 +33,12 @@ const TOP = 15
 const todos = ref(false)
 const vistas = computed(() => (todos.value ? filas.value : filas.value.slice(0, TOP)))
 /** el FDR se ve con la lista entera (o si la lista ya es corta): en los 15 primeros, el gris ya marca FDR ≥ 0,05 */
+/** la misma regla que en los violines (comité médico, 18-oct: en Marcadores FGFR1 y CCND1 salían con grupo y suelo al
+ * completo bajo «Detectado no es positivo», un negativo falso del gen amplificado): † casi todas las células, cuenta el nivel;
+ * ‡ no supera el suelo */
+const marca = (f: { a: number; suelo: number }) => (f.a >= 0.9 && f.suelo >= 0.9 ? '†' : f.a <= f.suelo ? '‡' : '')
+const hayNivel = computed(() => vistas.value.some((f) => marca(f) === '†'))
+const hayBajo = computed(() => vistas.value.some((f) => marca(f) === '‡'))
 const conFdr = computed(() => todos.value || filas.value.length <= TOP)
 const corta = computed(() => !todos.value && filas.value.length > TOP)
 const coma = (s: string) => (props.lang === 'en' ? s : s.replace('.', ','))
@@ -72,7 +78,7 @@ const idCtl = useId()
               <span v-if="circular(f.gen)" class="mk__ast" :title="L('Circular: ver la nota de debajo de la tabla', 'Circular: see the note below the table')"><span aria-hidden="true">*</span><span class="sr-only">{{ L('(circular)', '(circular)') }}</span></span>
             </th>
             <td class="nums">{{ fmtPct(f.a, lang) }}</td>
-            <td class="nums">{{ fmtPct(f.suelo, lang) }}</td>
+            <td class="nums">{{ fmtPct(f.suelo, lang) }}<span v-if="marca(f)" class="mk__marca"><span aria-hidden="true">{{ marca(f) }}</span><span class="sr-only">{{ marca(f) === '†' ? L('(en casi todas las células: cuenta el nivel)', '(in almost every cell: the level is what counts)') : L('(no supera el suelo)', '(does not clear the floor)') }}</span></span></td>
             <td class="nums">{{ fmtPct(f.b, lang) }}</td>
             <td class="nums">{{ fc(f.logfc) }}</td>
             <td v-if="conFdr" class="nums">{{ fdr(f.fdr) }}</td>
@@ -85,13 +91,15 @@ const idCtl = useId()
     </button>
     <p :id="`${idCtl}-cap`" class="mk__cap">
       {{ L(`${etiqueta(ETIQUETA_GRUPO, grupo, 'es')}: ${corta ? `los ${TOP} primeros de ${filas.length} genes` : `${filas.length} genes`}, ordenados por el estadístico de Wilcoxon. En gris, los de FDR de 0,05 o más: con ese umbral no distinguen al grupo.`,
-        `${etiqueta(ETIQUETA_GRUPO, grupo, 'en')}: ${corta ? `the top ${TOP} of ${filas.length} genes` : `${filas.length} genes`}, ranked by the Wilcoxon statistic. In grey, those with FDR of 0.05 or more: at that threshold they do not set the group apart.`) }}
+        `${etiqueta(ETIQUETA_GRUPO, grupo, 'en')}: ${corta ? `the top ${TOP} of ${filas.length} genes` : `${filas.length} genes`}, ranked by the Wilcoxon statistic. In gray, those with FDR of 0.05 or more: at that threshold they do not set the group apart.`) }}
     </p>
     <p class="mk__p">
       <strong>{{ L('Detectado no es positivo.', 'Detected is not positive.') }}</strong>
-      {{ L('El porcentaje de células del grupo se lee contra su suelo ambiental: si quedan cerca, la señal puede venir del fondo.',
-        'Compare the share of cells in the group with its ambient floor: if close, the signal may come from the background.') }}
+      {{ L('El porcentaje de células del grupo se lee contra su suelo ambiental: si quedan cerca, la señal puede venir del fondo; si los dos están en casi todas las células, el porcentaje no distingue y cuenta el nivel.',
+        'Compare the share of cells in the group with its ambient floor: if close, the signal may come from the background; if both are in almost every cell, the share tells nothing apart and the level is what counts.') }}
     </p>
+    <p v-if="hayNivel" class="mk__circ">† {{ L('En casi todas las células del grupo y del fondo: el porcentaje no distingue; cuenta el nivel (log2FC y, al abrir el gen, su mediana por grupo).', 'In almost every cell of the group and of the background: the share tells nothing apart; the level is what counts (log2FC and, when you open the gene, its median per group).') }}</p>
+    <p v-if="hayBajo" class="mk__circ">‡ {{ L('No supera el suelo ambiental en este grupo: no cuenta como expresión.', 'Does not clear the ambient floor in this group: it does not count as expression.') }}</p>
     <p class="mk__cap">{{ L('Wilcoxon compara el nivel de expresión de cada célula del grupo con el de las del resto, por rangos, no solo cuántas células lo detectan: un gen presente en casi todas puede distinguir al grupo por su nivel. El estadístico no se publica; el orden de la tabla es el suyo.', 'Wilcoxon compares the expression level of each cell in the group with that of the rest, by ranks, not just how many cells detect it: a gene present in almost every cell can set the group apart by its level. The statistic is not published; the table follows its order.') }}</p>
     <p v-if="hayCirc" class="mk__circ">
       * <strong>{{ L('Circular.', 'Circular.') }}</strong>
@@ -136,6 +144,7 @@ const idCtl = useId()
 @container (max-width: 440px) { .mk__desliza--5 { display: block; } }
 .mk__tabla { overflow-x: auto; border: 1px solid var(--trazo-sutil); border-radius: var(--radius-btn); margin-bottom: var(--sp-4); }   /* sin alto máximo: el panel ya desplaza (diseño, 18-oct: se cortaba la fila 12) */
 .mk__circ { margin: 0 0 var(--sp-8); font: var(--tipo-body-sm); font-size: var(--texto-xs); color: var(--texto-1); max-width: var(--measure); }
+.mk__marca { margin-left: 2px; font: 700 var(--texto-xs) var(--font-body); color: var(--texto-1); }
 .mk__ast { margin-left: 2px; font: 600 var(--texto-xs) var(--font-body); color: var(--texto-1); }
 .mk__tabla table { width: 100%; min-width: 560px; border-collapse: separate; border-spacing: 0; font: var(--tipo-body-sm); font-size: var(--texto-xs); }
 .mk__cap { margin: 0 0 var(--sp-8); color: var(--texto-2); font: var(--tipo-body-sm); font-size: var(--texto-xs); max-width: var(--measure); }

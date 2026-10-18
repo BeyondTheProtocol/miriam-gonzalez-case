@@ -320,7 +320,7 @@ if (man.zarr?.length) {
     const abs = join(RAIZ, r)
     return r.endsWith('.ts') || r.endsWith('.vue') ? [readFileSync(abs, 'utf8')] : readdirSync(abs).filter((f) => f.endsWith('.vue')).map((f) => readFileSync(join(abs, f), 'utf8'))
   }).join('\n')
-  const brit = fuentes.match(/\b(colour\w*|favour\w*|programme\w*|behaviour\w*|centre\w*)\b/gi) ?? []
+  const brit = fuentes.match(/\b(colour\w*|favour\w*|programme\w*|behaviour\w*|centre\w*|grey|tumour\w*|analyse\w*|licence|fibre\w*)\b/gi) ?? []
   ok('inglés de EE. UU. en el explorador (sin colour, favour, programme…)', brit.length === 0, brit.join(', '))
 }
 // verificacion (18-oct): los alias del buscador llevan a un GEN; una isoforma (CLDN18.2) no se puede leer con sondas del gen entero
