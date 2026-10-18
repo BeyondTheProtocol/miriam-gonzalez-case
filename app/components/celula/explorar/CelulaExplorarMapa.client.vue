@@ -9,6 +9,7 @@
  */
 import type { LesionDatos } from '~/utils/celulaExplorador'
 import type { RGB } from '~/utils/celulaExploradorColor'
+import { hayWebGl } from '~/utils/celulaExploradorWebgl'
 
 const props = defineProps<{
   d: LesionDatos
@@ -49,21 +50,7 @@ function entrada() {
   }
 }
 
-/** sin WebGL (PC de hospital, escritorio virtual, GPU bloqueada) Vitessce no avisa: deja una caja vacía. Se mira antes,
- * UNA vez por página y soltando el contexto de prueba: Chrome limita los contextos vivos y, al remontar el mapa muchas
- * veces, la prueba acababa diciendo «sin WebGL» con WebGL (test con datos de ejemplo, 18-oct). */
-let hayGl: boolean | null = null
-function hayWebGl() {
-  if (hayGl !== null) return hayGl
-  try {
-    const c = document.createElement('canvas')
-    const g = (c.getContext('webgl2') || c.getContext('webgl')) as WebGLRenderingContext | null
-    hayGl = !!g
-    g?.getExtension('WEBGL_lose_context')?.loseContext()
-  }
-  catch { hayGl = false }
-  return hayGl
-}
+// sin WebGL Vitessce deja una caja vacía sin avisar: se mira antes (una vez por página, app/utils/celulaExploradorWebgl.ts)
 onMounted(async () => {
   if (!hayWebGl()) { cargando.value = false; emit('error', 'sin WebGL'); return }
   try {
