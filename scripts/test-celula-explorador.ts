@@ -197,7 +197,8 @@ for (const [qué, re] of [
   ['«ARN ≠ proteína; manda la IHQ»', /ARN ≠ proteína; manda la IHQ/],
   ['«n=1, FFPE, exploratorio»', /n=1, FFPE, exploratorio/],
   ['«IHQ de HER2: 0»', /IHQ de HER2: 0/],
-  ['aviso de vista reducida en el móvil', /versión reducida/],
+  // simulador (18-oct): el móvil ya no es una vista reducida sin mapa; el mapa está, quieto hasta pedir moverlo
+  ['mapa en el móvil, quieto hasta «Mover el mapa»', /Mover el mapa/],
   ['rótulo de datos de ejemplo', /DATOS DE EJEMPLO/],
   ['suelo ambiental en los violines', /Suelo ambiental: el porcentaje de células/],
   ['rótulo de la matriz (todas las sondas; ADN genómico en el hueso)', /Matriz estándar de Cell Ranger, todas las sondas; en el hueso incluye ADN genómico/],

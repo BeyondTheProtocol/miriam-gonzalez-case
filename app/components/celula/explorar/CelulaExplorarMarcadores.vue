@@ -12,7 +12,7 @@ import { fmtPct } from '~/utils/celulaExplorador'
 import { CIRC_HUESO, CIRC_REFERENCIA, ETIQUETA_GRUPO, etiqueta } from '~/utils/celulaExploradorTexto'
 
 const props = defineProps<{ d: LesionDatos; lang: 'es' | 'en'; abribles: (gen: string) => boolean; elegido: string; conMapa: boolean }>()
-const emit = defineEmits<{ elegir: [gen: string] }>()
+const emit = defineEmits<{ elegir: [gen: string]; irGen: [] }>()
 const L = (es: string, en: string) => (props.lang === 'en' ? en : es)
 const grupos = computed(() => props.d.grupos.filter((g) => g.id in props.d.marcadores))
 const grupo = ref<string>(grupos.value.find((g) => g.rol === 'interes')?.id ?? grupos.value[0]?.id ?? '')
@@ -38,6 +38,9 @@ const idCtl = useId()
 
 <template>
   <div class="mk">
+    <!-- simulador (18-oct): el método, plegado; el grupo, la tabla y los avisos de circularidad, a la vista -->
+    <details class="mk__como">
+      <summary>{{ L('Cómo se calcula', 'How it is computed') }}</summary>
     <p class="mk__p">
       {{ L('Genes que más distinguen a cada grupo frente al resto de la lesión (prueba de Wilcoxon, FDR de Benjamini-Hochberg). Solo grupos fijos del análisis; no se compara una selección hecha a mano. Se omiten los genes que solo aparecen en uno de los dos lados (log2FC infinito): no se pueden dar como cifra.',
         'Genes that best set each group apart from the rest of the lesion (Wilcoxon test, Benjamini-Hochberg FDR). Fixed groups of the analysis only; no hand-made selection is compared. Genes seen on only one of the two sides (infinite log2FC) are left out: they cannot be given as a figure.') }}
@@ -47,6 +50,7 @@ const idCtl = useId()
       {{ L('El porcentaje de células del grupo se lee contra su suelo ambiental: si quedan cerca, la señal puede venir del fondo.',
         'Compare the share of cells in the group with its ambient floor: if close, the signal may come from the background.') }}
     </p>
+    </details>
     <div class="mk__campo">
       <span :id="`${idCtl}-g`" class="mk__eti">{{ L('Grupo', 'Group') }}</span>
       <div class="mk__seg" role="group" :aria-labelledby="`${idCtl}-g`">
@@ -97,7 +101,7 @@ const idCtl = useId()
     <p class="mk__estado" role="status">
       <template v-if="pulsado && pulsado === elegido">
         {{ conMapa ? L(`${pulsado} está ahora en el mapa y en los violines.`, `${pulsado} is now on the map and in the violins.`) : L(`${pulsado} está ahora en los violines.`, `${pulsado} is now in the violins.`) }}
-        <a class="mk__ir" href="#exp-violines">{{ L('Ir a los violines', 'Go to the violins') }}</a>
+        <button type="button" class="mk__ir" @click="emit('irGen')">{{ L('Ir a los violines', 'Go to the violins') }}</button>
       </template>
     </p>
   </div>
@@ -143,5 +147,8 @@ const idCtl = useId()
 .mk__gen[aria-pressed='true'] { background: color-mix(in srgb, var(--identidad) 14%, transparent); text-decoration-thickness: 2px; }
 .mk__estado { margin: var(--sp-8) 0 0; font: var(--tipo-body-sm); font-size: var(--texto-xs); color: var(--texto-1); }
 .mk__estado:empty { margin: 0; }
-.mk__ir { margin-left: var(--sp-8); color: var(--identidad); font-weight: 600; }
+.mk__ir { margin-left: var(--sp-8); padding: 0; border: 0; background: none; color: var(--identidad); font: inherit; font-weight: 600; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+.mk__como { margin: 0 0 var(--sp-12); }
+.mk__como summary { cursor: pointer; min-height: 44px; display: flex; align-items: center; font: 600 var(--texto-sm)/1.3 var(--font-body); color: var(--identidad); }
+.mk__como summary:focus-visible { outline: 2px solid var(--anillo-foco); outline-offset: 2px; }
 </style>

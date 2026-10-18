@@ -8,7 +8,7 @@
 import type { Coexp } from '~/utils/celulaExplorador'
 
 export type RGB = [number, number, number]
-export interface Paleta { interes: RGB; ref: RGB[]; otras: RGB; coexp: Record<Coexp, RGB> }
+export interface Paleta { interes: RGB; ref: RGB[]; otras: RGB; coexp: Record<Coexp, RGB>; nivel: RGB[]; cero: RGB }
 
 const mezcla = (a: RGB, b: RGB, p: number): RGB => a.map((x, i) => Math.round(x * p + b[i]! * (1 - p))) as RGB
 
@@ -21,7 +21,11 @@ export function paleta(tema: 'light' | 'dark', leer: (v: string) => string): Pal
   const interes = rgb(osc ? '--color-miriam-claro-rgb' : '--color-miriam-rgb')
   const ref = [0.85, 0.62, 0.5].map((p) => mezcla(tinta, lienzo, p))
   const otras = mezcla(tinta, lienzo, 0.35)
-  return { interes, ref, otras, coexp: { ambos: interes, solo_a: mezcla(interes, lienzo, 0.45), solo_b: ref[0]!, ninguno: otras } }
+  // gen elegido (simulador, 18-oct): lo no detectado casi del color del fondo, como en Loupe; lo detectado, del violeta
+  // claro al intenso en cuatro pasos (más nivel, más tinta)
+  const nivel = [0.32, 0.52, 0.76, 1].map((p) => mezcla(interes, lienzo, p))
+  const cero = mezcla(tinta, lienzo, 0.16)
+  return { interes, ref, otras, coexp: { ambos: interes, solo_a: mezcla(interes, lienzo, 0.45), solo_b: ref[0]!, ninguno: otras }, nivel, cero }
 }
 
 export const cssRgb = (c: RGB) => `rgb(${c[0]} ${c[1]} ${c[2]})`

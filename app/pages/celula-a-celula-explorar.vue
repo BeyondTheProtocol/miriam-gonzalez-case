@@ -21,8 +21,8 @@ const L = (es: string, en: string) => (lang.value === 'en' ? en : es)
 const { man, estado, hayReal } = useCelulaExplorador()
 
 const titulo = () => L('Explorar los datos célula a célula', 'Explore the cell-by-cell data')
-const descripcion = () => L('Para oncólogos moleculares: el mapa de células de las dos biopsias de Miriam, gen a gen, con el n, el suelo ambiental y la referencia a la vista en cada medida.',
-  'For molecular oncologists: the cell map of Miriam’s two biopsies, gene by gene, with the n, the ambient floor and the reference shown for every measure.')
+const descripcion = () => L('El mapa de células de las dos biopsias de Miriam: busca un gen o un marcador y míralo en el mapa, grupo a grupo, con su n y su suelo ambiental.',
+  'The cell map of Miriam’s two biopsies: search a gene or a marker and see it on the map, group by group, with its n and its ambient floor.')
 useSeoMeta({
   title: titulo, description: descripcion, ogTitle: titulo, ogDescription: descripcion,
   ogType: 'website', twitterCard: 'summary_large_image', twitterTitle: titulo, twitterDescription: descripcion,
@@ -83,15 +83,17 @@ const LEER = [
             </ul>
           </section>
 
-          <section aria-labelledby="xp-leer-t">
-            <h2 id="xp-leer-t" class="cel-h2">{{ L('Cómo leerlo', 'How to read it') }}</h2>
+          <!-- simulador (18-oct): «Cómo leerlo» plegado; el resumen con texto está en Célula a célula -->
+          <details class="xp-leer-pl">
+            <summary><h2 id="xp-leer-t" class="cel-h2">{{ L('Cómo leerlo', 'How to read it') }}</h2></summary>
             <dl class="xp-leer">
               <div v-for="[tEs, dEs, tEn, dEn] in LEER" :key="tEs" class="xp-leer__fila">
                 <dt>{{ L(tEs, tEn) }}</dt>
                 <dd>{{ L(dEs, dEn) }}</dd>
               </div>
             </dl>
-          </section>
+            <p class="cel-p">{{ L('El resumen de lo que dicen estos datos, en texto, está en', 'The summary of what these data say, in text, is in') }} <NuxtLink :to="localePath({ name: 'celula-a-celula' })" class="link-underline">{{ L('Célula a célula', 'Cell by cell') }}</NuxtLink>.</p>
+          </details>
 
           <!-- la matriz a petición (opción C) solo se ofrece con datos reales y el OK de Miriam: antes no hay qué ofrecer -->
           <section v-if="hayReal" class="card-base cel-card" aria-labelledby="xp-pide-t">
@@ -117,4 +119,11 @@ const LEER = [
 .xp-leer { margin: 0; display: grid; gap: var(--sp-12); max-width: var(--measure); }
 .xp-leer__fila dt { font: 600 var(--texto-base)/1.4 var(--font-body); color: var(--color-text); }
 .xp-leer__fila dd { margin: var(--sp-4) 0 0; font: var(--tipo-body-sm); color: var(--color-text-soft); }
+.xp-leer-pl summary { cursor: pointer; min-height: 44px; display: flex; align-items: center; gap: var(--sp-8); }
+.xp-leer-pl summary::before { content: '▸'; color: var(--color-text-soft); }
+.xp-leer-pl[open] summary::before { content: '▾'; }
+.xp-leer-pl summary::-webkit-details-marker { display: none; }
+.xp-leer-pl summary .cel-h2 { margin: 0; }
+.xp-leer-pl summary:focus-visible { outline: 2px solid var(--anillo-foco); outline-offset: 2px; }
+.xp-leer-pl .xp-leer { margin-top: var(--sp-16); }
 </style>

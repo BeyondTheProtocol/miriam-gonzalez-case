@@ -8,7 +8,7 @@
 //   2. En Chrome, SIN ?demo: la página no pide ningún fichero de lesión (la puerta cerrada no carga datos).
 //   3. En Chrome, CON ?demo=1 (host local): rótulo «DATOS DE EJEMPLO», aviso fijo del hígado, un violín
 //      por grupo y en CADA violín el suelo ambiental y el n; hueso con CNV por célula; hígado sin CNV por
-//      célula y con el aviso; móvil (375 px) sin el mapa y con el aviso de vista reducida.
+//      célula y con el aviso; móvil (375 px) CON el mapa (simulador, 18-oct), quieto hasta «Mover el mapa».
 //   4. /celula-a-celula?demo=1: la tarjeta aparece y lleva el demo al explorador.
 // Uso:  pnpm exec nuxt generate && pnpm test:celula-explorador-html   (CI: e2e.yml)
 import { existsSync, readFileSync, readdirSync } from 'node:fs'
@@ -37,6 +37,12 @@ const nPegado = `[...document.querySelectorAll('.cnv__n')].some((e) => /\\d(de|o
 // console.error y los errores antes de cargar la página. Se ignora solo «Failed to create WebGL context»: el Chrome de
 // las pruebas arranca con --disable-gpu y deck.gl lo avisa; es del entorno, no de la página.
 const ESPIA = `window.__errores = []; addEventListener('error', (e) => __errores.push(String(e.message))); addEventListener('unhandledrejection', (e) => __errores.push(String(e.reason))); const __ce = console.error; console.error = (...a) => { __errores.push(a.map(String).join(' ').slice(0, 200)); __ce(...a) }`
+// simulador (18-oct): «Datos técnicos» va plegado y «Marcadores» es una pestaña del panel. Lo que se MIDE (desbordes,
+// recortes) se mide con todo abierto y visible: medido plegado u oculto, pasaría sin probar nada.
+const ABRE_TODO = `(() => { const t = document.querySelector('details.exp__tecnico'); if (t) t.open = true; [...document.querySelectorAll('.exp__pestanas button')].find((b) => /Marcadores|Markers/.test(b.textContent))?.click(); return true })()`
+const TECNICO_PLEGADO = `(() => { const t = document.querySelector('details.exp__tecnico'); return !!t && !t.open && !!t.querySelector('.qc') && !!t.querySelector('.cnv') && !!t.querySelector('.pf') && !!t.querySelector('.gi__tabla') })()`
+// gen elegido: lo no detectado aparte y lo detectado por tramos, con su n; el título nombra el gen
+const leyendaGen = (g) => `(() => { const li = [...document.querySelectorAll('.exp__leyenda li')].map((e) => e.textContent); return li.length >= 2 && /No detectado|Not detected/.test(li[0]) && li.slice(1).every((t) => /CP10k/.test(t)) && (document.querySelector('.exp__leyt')?.textContent ?? '').includes('${g}') })()`
 const mapaEnGen = `[...document.querySelectorAll('.exp__seg button')].some((b) => /Gen elegido|Selected gene/.test(b.textContent) && b.getAttribute('aria-pressed') === 'true')`
 
 /* ── con DATOS REALES publicados (manifiesto sin «ejemplo»): la página está abierta; se comprueba eso y se termina ── */
@@ -62,6 +68,8 @@ if (manPub.ejemplo !== true) {
     ok('real sin demo: se monta el explorador, sin rótulo de ejemplo', await esperaR(navR, `!!document.querySelector('.exp') && !document.querySelector('.exp__demo')`))
     ok('real: violines con n y suelo por grupo', await esperaR(navR, `[...document.querySelectorAll('.vio__fila')].filter((f) => /suelo \\d+\\s%/.test(f.textContent) && /n = \\d/.test(f.textContent)).length > 0`))
     ok('real: aviso fijo del hígado', await navR.evaluate(`/tumor frente a hepatocito no está resuelto célula a célula/.test(document.querySelector('.exp__banner')?.textContent ?? '')`))
+    ok('real simulador: «Datos técnicos» plegado por defecto y con QC, número de copias, perfil y genes de interés dentro', await navR.evaluate(TECNICO_PLEGADO))
+    await navR.evaluate(ABRE_TODO)
     ok('real: marcadores, perfil, ADN por grupo y QC con datos', await esperaR(navR, `document.querySelectorAll('.mk__tabla tbody tr').length > 0 && !!document.querySelector('.pf__linea') && document.querySelectorAll('.adng__fila').length > 0 && document.querySelectorAll('.qc__fila').length >= 6`))
     ok('real: el eje del perfil va en el orden del genoma (1, 2, … 22)', await navR.evaluate(perfilEnOrden))
     await navR.sleep(3000)
@@ -89,6 +97,7 @@ if (manPub.ejemplo !== true) {
       const gen = await esperaR(navR, `document.querySelectorAll('.exp__sug button').length > 0`) ? await navR.evaluate(`(() => { const b = document.querySelector('.exp__sug button'); b.click(); return b.textContent.trim() })()`) : ''
       ok(`real: un gen buscado (${gen || 'ninguno'}) se lee del Zarr y sale en los violines`, !!gen && await esperaR(navR, `document.querySelector('#exp-violines h2')?.textContent.includes('${gen}') && document.querySelectorAll('.vio__fila').length > 0`))
       ok('real: el gen buscado pasa a colorear el mapa («Gen elegido»)', await navR.evaluate(mapaEnGen))
+      ok(`real: la leyenda del mapa da ${gen || 'el gen'} por tramos (no detectado aparte, tramos en CP10k con su n)`, !!gen && await esperaR(navR, leyendaGen(gen)))
       await navR.evaluate(`(() => { const i = document.querySelector('.exp__busca input'); i.value = 'HER2'; i.dispatchEvent(new Event('input')) })()`)
       ok('real: buscar por la proteína (HER2) sugiere el gen (ERBB2)', await esperaR(navR, `document.querySelector('.exp__sug button')?.dataset.gen === 'ERBB2'`))
     }
@@ -98,6 +107,10 @@ if (manPub.ejemplo !== true) {
     await esperaR(navR, `document.querySelectorAll('.vio__fila').length > 0`)
     const desb = `Math.round(Math.max(...[...document.querySelectorAll('.exp, .exp > *')].map((e) => e.getBoundingClientRect().right)) - window.innerWidth)`
     ok('real móvil: el explorador cabe en el ancho', (await navR.evaluate(desb)) <= 1)
+    ok('real móvil: hay mapa, quieto (velo) hasta pulsar «Mover el mapa»', await esperaR(navR, `!!document.querySelector('.exp-mapa') && !!document.querySelector('.exp-mapa__velo') && /Mover el mapa/.test(document.querySelector('.exp-mapa__mover')?.textContent ?? '')`))
+    await navR.evaluate(`document.querySelector('.exp-mapa__mover')?.click()`)
+    ok('real móvil: tras «Mover el mapa» el velo desaparece y el botón dice «Listo»', await esperaR(navR, `!document.querySelector('.exp-mapa__velo') && /Listo/.test(document.querySelector('.exp-mapa__mover')?.textContent ?? '')`, 5000))
+    await navR.evaluate(ABRE_TODO)
     ok('real móvil 375: el resumen del perfil no se recorta (cada región dentro del bloque)', await navR.evaluate(resumenCabe))
   }
   finally { await navR.cerrar() }
@@ -161,12 +174,14 @@ try {
   ok('demo: el suelo ambiental y el n están en CADA violín', r.conSuelo === r.filas, `${r.conSuelo} de ${r.filas}`)
   ok('demo hígado: sin CNV por célula y con su aviso', r.cnvCelula === 0 && r.cnvHigado)
   ok('demo escritorio: hay mapa', r.mapa)
+  ok('demo simulador: «Datos técnicos» plegado por defecto y con todo dentro', await nav.evaluate(TECNICO_PLEGADO))
   ok('demo: el mapa (Vitessce) llega a dibujar su lienzo', await espera(nav, `!!document.querySelector('.exp-mapa canvas')`, 20000))
   await nav.sleep(3000)
   ok('demo escritorio: sin errores en la consola (mapa incluido)', (await nav.evaluate(`window.__errores.filter((m) => !/Failed to create WebGL context/.test(m)).length`)) === 0, JSON.stringify(await nav.evaluate(`window.__errores.slice(0, 2)`)))
   await nav.evaluate(`(() => { const s = document.querySelector('.exp__ctl select'); s.value = 'ESR1'; s.dispatchEvent(new Event('change')) })()`)
   ok('demo hígado: ESR1 en los violines lleva primero la cifra sin circularidad y después «Cifra circular»', await espera(nav, `/Sin esa circularidad.*Cifra circular\\./s.test(document.querySelector('.vio__circ')?.textContent ?? '')`))
   ok('demo hígado: la nota de circularidad va ANTES de la figura y de la cifra circular de la fila', await nav.evaluate(`(() => { const c = document.querySelector('.vio__fila--interes .vio__circ'), t = document.querySelector('.vio__fila--interes .vio__txt'); return !!c && !!t && c.nextElementSibling?.classList.contains('vio__svg') && !!(c.compareDocumentPosition(t) & Node.DOCUMENT_POSITION_FOLLOWING) && /^\\s*Circular · /.test(t.textContent) })()`))
+  await nav.evaluate(ABRE_TODO)
   // paneles del 18-oct (marcadores, perfil, ADN por grupo, QC): se pintan con datos y con sus avisos
   const pn = await nav.evaluate(`(() => ({
     marcadores: document.querySelectorAll('.mk__tabla tbody tr').length,
@@ -205,6 +220,7 @@ try {
   ok('escritorio 1280: toda tabla o figura que desborda avisa de que se desliza', await nav.evaluate(`[['.mk__tabla', '.mk__desliza'], ['.pf__marco', '.pf__desliza']].every(([m, a]) => { const e = document.querySelector(m), v = document.querySelector(a); if (!e || !v) return false; return e.scrollWidth <= e.clientWidth + 1 || getComputedStyle(v).display !== 'none' })`))
   // marcadores: pulsar un gen da respuesta visible junto a la tabla (fila marcada y enlace a los violines)
   const genMk = await nav.evaluate(`(() => { const b = document.querySelector('.mk__gen:not(.mk__gen--fijo)'); if (!b) return ''; b.click(); return b.textContent.trim() })()`)
+  ok('demo simulador: pulsar un marcador lo pinta en el mapa (leyenda por tramos de ese gen)', !!genMk && await espera(nav, leyendaGen(genMk)) && await nav.evaluate(mapaEnGen))
   ok('demo hígado: pulsar un gen de marcadores lo marca y avisa junto a la tabla con enlace a los violines', !!genMk && await espera(nav,
     `!!document.querySelector('.mk__gen[aria-pressed="true"]') && /Ir a los violines/.test(document.querySelector('.mk__estado')?.textContent ?? '') && document.querySelector('#exp-violines h2')?.textContent.includes('${genMk}')`))
   await nav.evaluate(`[...document.querySelectorAll('.exp__ctl button')].find((b) => /Hueso/.test(b.textContent)).click()`)
@@ -216,7 +232,8 @@ try {
   await nav.cdp('Emulation.setDeviceMetricsOverride', { width: 375, height: 812, deviceScaleFactor: 1, mobile: true })
   await nav.cargar('/celula-a-celula/explorar?demo=1')
   ok('móvil: aparecen los violines', await espera(nav, `document.querySelectorAll('.vio__fila').length > 0`))
-  ok('móvil: sin mapa y con el aviso de vista reducida', await nav.evaluate(`!document.querySelector('.exp-mapa') && /versión reducida/.test(document.querySelector('.exp__movil')?.textContent ?? '')`))
+  ok('móvil: hay mapa (simulador), quieto hasta «Mover el mapa»', await espera(nav, `!!document.querySelector('.exp-mapa') && !!document.querySelector('.exp-mapa__velo')`))
+  await nav.evaluate(ABRE_TODO)
   // la página tiene overflow-x: clip, así que un desborde no da scroll: se recortaría sin avisar. Se mide el bloque.
   const desborde = `Math.round(Math.max(...[...document.querySelectorAll('.exp, .exp > *')].map((e) => e.getBoundingClientRect().right)) - window.innerWidth)`
   ok('móvil: el explorador cabe en el ancho (nada recortado a la derecha)', (await nav.evaluate(desborde)) <= 1, `${await nav.evaluate(desborde)} px de más`)
@@ -227,13 +244,14 @@ try {
   // invariante de diseño: si una tabla o la figura desborda su marco, su aviso de deslizar está visible (375, 820, 1280)
   const avisoSiDesborda = `[['.mk__tabla', '.mk__desliza'], ['.pf__marco', '.pf__desliza']].every(([m, a]) => { const e = document.querySelector(m), v = document.querySelector(a); if (!e || !v) return false; return e.scrollWidth <= e.clientWidth + 1 || getComputedStyle(v).display !== 'none' })`
   ok('móvil 375: toda tabla o figura que desborda avisa de que se desliza', await nav.evaluate(avisoSiDesborda))
-  // sin mapa en el móvil: el aviso tras pulsar un gen de marcadores no puede decir «en el mapa»
+  // con mapa también en el móvil: el aviso tras pulsar un gen de marcadores dice que está en el mapa y en los violines
   const genMv = await nav.evaluate(`(() => { const b = document.querySelector('.mk__gen:not(.mk__gen--fijo)'); if (!b) return ''; b.click(); return b.textContent.trim() })()`)
-  ok('móvil 375: el aviso tras pulsar un gen dice «en los violines» y no «en el mapa» (aquí no hay mapa)', !!genMv && await espera(nav,
-    `/en los violines/.test(document.querySelector('.mk__estado')?.textContent ?? '') && !/mapa/.test(document.querySelector('.mk__estado')?.textContent ?? '')`))
+  ok('móvil 375: el aviso tras pulsar un gen dice que está en el mapa y en los violines', !!genMv && await espera(nav,
+    `/en el mapa y en los violines/.test(document.querySelector('.mk__estado')?.textContent ?? '')`))
   await nav.cdp('Emulation.setDeviceMetricsOverride', { width: 820, height: 1180, deviceScaleFactor: 1, mobile: true })
   await nav.cargar('/celula-a-celula/explorar?demo=1')
   await espera(nav, `document.querySelectorAll('.vio__fila').length > 0`)
+  await nav.evaluate(ABRE_TODO)
   ok('tableta 820: toda tabla o figura que desborda avisa de que se desliza', await nav.evaluate(avisoSiDesborda))
   await nav.cdp('Emulation.setDeviceMetricsOverride', { width: 1280, height: 900, deviceScaleFactor: 1, mobile: false })
 

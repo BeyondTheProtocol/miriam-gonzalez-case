@@ -35,6 +35,8 @@ export interface EntradaMotor {
   lang: 'es' | 'en'
   /** rótulos de conjunto sobre el mapa (solo tiene sentido con los grupos) */
   rotulos: boolean
+  /** orden de dibujo de las células (las últimas, encima): con un gen, lo detectado encima de lo no detectado */
+  orden?: number[]
 }
 
 const csvCampo = (s: string) => (/[",\n]/.test(s) ? `"${s.replaceAll('"', '""')}"` : s)
@@ -48,10 +50,11 @@ function blob(texto: string, urls: string[]): string {
 
 function construyeConfig(e: EntradaMotor, urls: string[]) {
   const n = e.umap.length / 2
+  const orden = e.orden?.length === n ? e.orden : Array.from({ length: n }, (_, i) => i)
   const emb = ['id,umap_1,umap_2']
-  for (let i = 0; i < n; i++) emb.push(`${id(i)},${e.umap[2 * i]},${e.umap[2 * i + 1]}`)
+  for (const i of orden) emb.push(`${id(i)},${e.umap[2 * i]},${e.umap[2 * i + 1]}`)
   const sets = [['id', ...e.conjuntos.map((c) => c.columna)].join(',')]
-  for (let i = 0; i < n; i++) sets.push([id(i), ...e.conjuntos.map((c) => csvCampo(c.valores[i] ?? ''))].join(','))
+  for (const i of orden) sets.push([id(i), ...e.conjuntos.map((c) => csvCampo(c.valores[i] ?? ''))].join(','))
 
   const files: Record<string, unknown>[] = [
     { fileType: 'obsEmbedding.csv', url: blob(emb.join('\n'), urls), coordinationValues: { obsType: 'cell', embeddingType: 'UMAP' }, options: { obsIndex: 'id', obsEmbedding: ['umap_1', 'umap_2'] } },

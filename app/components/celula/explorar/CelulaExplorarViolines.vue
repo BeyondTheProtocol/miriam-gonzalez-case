@@ -118,14 +118,18 @@ const nfCp = (x: number) => String(Math.round(x))
           {{ L('Suelo ambiental: el porcentaje de células en las que el gen saldría solo por ARN suelto en la muestra. Lo que no lo supera no cuenta como expresión. Si el suelo supera lo detectado, está sobreestimado para ese gen en ese grupo.',
             'Ambient floor: the share of cells where the gene would show up from loose RNA in the sample alone. Anything at or below it does not count as expression. If the floor is above what is detected, it is overestimated for that gene in that group.') }}
         </p>
-        <p class="vio__adn"><strong>{{ L(`${ETIQUETAS_FIJAS.matriz.es}.`, `${ETIQUETAS_FIJAS.matriz.en}.`) }}</strong> {{ adnTxt }}</p>
       </div>
     </div>
-    <p class="vio__leyenda">
-      {{ L('El violín es el nivel (CP10k, escala logarítmica) solo en las células donde el gen se detecta; la raya vertical es la mediana.',
-        'The violin is the level (CP10k, log scale) only in cells where the gene is detected; the vertical tick is the median.') }}
-      {{ L(`${ETIQUETAS_FIJAS.mediana.es}.`, `${ETIQUETAS_FIJAS.mediana.en}.`) }}
-    </p>
+    <!-- simulador (18-oct): lo explicativo, plegado; las cifras, el n, el suelo y la circularidad quedan siempre a la vista -->
+    <details class="vio__como">
+      <summary>{{ L('Cómo se lee', 'How to read it') }}</summary>
+      <p class="vio__adn"><strong>{{ L(`${ETIQUETAS_FIJAS.matriz.es}.`, `${ETIQUETAS_FIJAS.matriz.en}.`) }}</strong> {{ adnTxt }}</p>
+      <p class="vio__leyenda">
+        {{ L('El violín es el nivel (CP10k, escala logarítmica) solo en las células donde el gen se detecta; la raya vertical es la mediana.',
+          'The violin is the level (CP10k, log scale) only in cells where the gene is detected; the vertical tick is the median.') }}
+        {{ L(`${ETIQUETAS_FIJAS.mediana.es}.`, `${ETIQUETAS_FIJAS.mediana.en}.`) }}
+      </p>
+    </details>
   </div>
 </template>
 
@@ -157,7 +161,10 @@ const nfCp = (x: number) => String(Math.round(x))
 .vio__txt { margin: var(--sp-4) 0 0; font: 500 var(--texto-xs)/1.4 var(--font-mono); color: var(--texto-2); }
 .vio__leyenda { display: flex; gap: var(--sp-8); align-items: flex-start; margin: var(--sp-12) 0 0; font: var(--tipo-body-sm); font-size: var(--texto-xs); color: var(--texto-2); max-width: var(--measure); }
 .vio__leyenda p { margin: 0; }
-.vio__adn { margin-top: var(--sp-8) !important; color: var(--texto-1); }
+.vio__adn { margin: var(--sp-8) 0 0; font: var(--tipo-body-sm); font-size: var(--texto-xs); color: var(--texto-1); max-width: var(--measure); }
+.vio__como { margin-top: var(--sp-12); }
+.vio__como summary { cursor: pointer; min-height: 44px; display: flex; align-items: center; font: 600 var(--texto-sm)/1.3 var(--font-body); color: var(--identidad); }
+.vio__como summary:focus-visible { outline: 2px solid var(--anillo-foco); outline-offset: 2px; }
 .vio__circ { margin: var(--sp-4) 0 var(--sp-4); padding: var(--sp-8) var(--sp-12); border-left: 3px solid var(--texto-1); font: var(--tipo-body-sm); font-size: var(--texto-xs); color: var(--texto-1); max-width: var(--measure); }
 .vio__muestra { flex: none; width: 22px; height: 12px; margin-top: 3px; border: 1px solid var(--texto-1); }
 .vio__muestra--raya { background: repeating-linear-gradient(45deg, var(--texto-1) 0 2px, transparent 2px 5px); }
