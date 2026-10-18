@@ -71,6 +71,11 @@ const extremos = computed(() => {
       <strong>{{ L('Expresión, no ADN.', 'Expression, not DNA.') }}</strong>
       {{ L('Una región alta es compatible con más copias de ADN, pero no lo demuestra.', 'A high region is compatible with more DNA copies, but does not prove it.') }}
     </p>
+    <p v-if="d.lesion === 'hueso'" class="pf__p">
+      <strong>{{ L('Circular.', 'Circular.') }}</strong>
+      {{ L('En el hueso, el grupo de interés se eligió por número de copias inferido de la expresión: un perfil alto en las regiones con más copias es, en parte, consecuencia de esa selección.',
+        'In the bone, the group of interest was chosen by copy number inferred from expression: a high profile in the regions with more copies is partly a consequence of that selection.') }}
+    </p>
     <p class="pf__desliza" aria-hidden="true">{{ L('Desliza para ver el genoma entero →', 'Swipe to see the whole genome →') }}</p>
     <div class="pf__marco" tabindex="0" role="region" :aria-label="L('Gráfica de expresión por regiones del genoma', 'Chart of expression by genome region')">
       <svg class="pf__svg" :viewBox="`0 0 ${W} ${H}`" :width="W" :height="H" aria-hidden="true">
@@ -94,6 +99,7 @@ const extremos = computed(() => {
 <style scoped>
 .pf__p { margin: 0 0 var(--sp-12); font: var(--tipo-body-sm); color: var(--texto-2); max-width: var(--measure); }
 .pf__p strong { color: var(--texto-1); }
+.pf__resumen .nums { white-space: nowrap; }
 .pf__desliza { display: none; margin: 0 0 var(--sp-8); font: var(--tipo-body-sm); font-size: var(--texto-xs); color: var(--texto-2); }
 @media (max-width: 899px) { .pf__desliza { display: block; } }   /* figura de 760 px + márgenes del bloque */
 .pf__marco { overflow-x: auto; border: 1px solid var(--trazo-sutil); border-radius: var(--radius-btn); }

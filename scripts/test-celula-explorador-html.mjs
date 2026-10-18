@@ -60,6 +60,13 @@ if (manPub.ejemplo !== true) {
     ok('real: las etiquetas del eje del perfil no se pisan (20, 21, 22)', await navR.evaluate(perfilSinPisar))
     ok('real: ningún valor del QC desborda su celda', await navR.evaluate(qcSinDesborde))
     ok('real hígado: en marcadores del grupo de interés, los genes de la selección llevan asterisco y la nota de circularidad', await navR.evaluate(`!!document.querySelector('.mk__circ') && document.querySelectorAll('.mk__ast').length > 0`))
+    // verificacion (18-oct): SPDEF y AGR2 son del panel de identidad y no están en la lista de la web; antes salían sin asterisco
+    ok('real hígado: SPDEF y AGR2, fuera de la lista de la web, llevan el asterisco de circularidad en marcadores', await navR.evaluate(`(() => { const f = [...document.querySelectorAll('.mk__tabla tbody th')].filter((th) => /^(SPDEF|AGR2)\\b/.test(th.textContent.trim())); return f.length === 2 && f.every((th) => !!th.querySelector('.mk__ast')) })()`))
+    await navR.evaluate(`[...document.querySelectorAll('.exp__ctl button')].find((b) => /^\\s*Hueso\\s*$/.test(b.textContent))?.click()`)
+    ok('real hueso: nota de circularidad del grupo (número de copias) en marcadores, genes de interés y perfil', await esperaR(navR, `/En el hueso, las células malignas se eligieron/.test(document.querySelector('.mk')?.textContent ?? '') && /En el hueso, las células malignas se eligieron/.test(document.querySelector('.gi__circh')?.textContent ?? '') && /En el hueso, el grupo de interés se eligió/.test(document.querySelector('.pf')?.textContent ?? '')`))
+    ok('real hueso: el número de copias da «n = x de y» y explica el GEM limpio cuando faltan células', await navR.evaluate(`(() => { const t = document.querySelector('.cnv')?.textContent ?? ''; return !/ de \\d/.test([...document.querySelectorAll('.cnv__n')].map((e) => e.textContent).join('|')) || /GEM limpio/.test(t) })()`))
+    await navR.evaluate(`[...document.querySelectorAll('.exp__ctl button')].find((b) => /^\\s*Hígado\\s*$/.test(b.textContent))?.click()`)
+    await esperaR(navR, `!!document.querySelector('.exp__banner')`)
     const todos = Array.isArray(manPub.zarr) && manPub.zarr.length > 0
     if (todos) {
       ok('real: buscador de todos los genes activo', await esperaR(navR, `!!document.querySelector('.exp__busca input:not([disabled])')`))
@@ -170,6 +177,10 @@ try {
       ok(`demo hígado: ${elegido}, leído del Zarr, sale en los violines con n y suelo por grupo`,
         await espera(nav, `document.querySelector('#exp-violines h2')?.textContent.includes('${elegido}') && [...document.querySelectorAll('.vio__fila')].filter((f) => /suelo \\d+ %/.test(f.textContent) && /n = \\d/.test(f.textContent)).length > 0`))
       ok('demo escritorio: el gen buscado pasa a colorear el mapa («Gen elegido»)', await nav.evaluate(mapaEnGen))
+      // un gen de la selección FUERA de la lista de la web (EJ0003 en el ejemplo) lleva su nota de circularidad en los violines
+      await nav.evaluate(`(() => { const i = document.querySelector('.exp__busca input'); i.value = 'EJ0003'; i.dispatchEvent(new Event('input')) })()`)
+      if (await espera(nav, `document.querySelector('.exp__sug button')?.dataset.gen === 'EJ0003'`)) await nav.evaluate(`document.querySelector('.exp__sug button').click()`)
+      ok('demo hígado: EJ0003 (selección, fuera de la lista de la web) sale como cifra circular en los violines', await espera(nav, `document.querySelector('#exp-violines h2')?.textContent.includes('EJ0003') && !!document.querySelector('.vio__fila--interes .vio__circ')`))
     }
   }
   ok('escritorio 1280: toda tabla o figura que desborda avisa de que se desliza', await nav.evaluate(`[['.mk__tabla', '.mk__desliza'], ['.pf__marco', '.pf__desliza']].every(([m, a]) => { const e = document.querySelector(m), v = document.querySelector(a); if (!e || !v) return false; return e.scrollWidth <= e.clientWidth + 1 || getComputedStyle(v).display !== 'none' })`))

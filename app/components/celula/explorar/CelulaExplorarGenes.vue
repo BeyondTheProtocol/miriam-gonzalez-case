@@ -8,7 +8,7 @@
  */
 import type { LesionDatos } from '~/utils/celulaExplorador'
 import { fmtPct, porGrupo } from '~/utils/celulaExplorador'
-import { ETIQUETA_GRUPO, ETIQUETA_VEREDICTO, LECTURA, PANEL_INTERES, PAPEL_SELECCION, PROTEINA, etiqueta } from '~/utils/celulaExploradorTexto'
+import { CIRC_HUESO, ETIQUETA_GRUPO, ETIQUETA_VEREDICTO, LECTURA, PANEL_INTERES, PAPEL_SELECCION, PROTEINA, etiqueta } from '~/utils/celulaExploradorTexto'
 
 const props = defineProps<{ d: LesionDatos; lang: 'es' | 'en'; elegido: string }>()
 const emit = defineEmits<{ elegir: [string] }>()
@@ -74,6 +74,7 @@ const fmtCp = (x: number) => String(Math.round(x))
         'Probes: how many panel probes the gene has and how many span an exon junction; the rest fall inside an exon and can also read genomic DNA.') }}
       {{ L(LECTURA.pie.es, LECTURA.pie.en) }}
     </p>
+    <p v-if="d.lesion === 'hueso'" class="gi__pie gi__circh"><strong>{{ L('Circular.', 'Circular.') }}</strong> {{ L(CIRC_HUESO.es, CIRC_HUESO.en) }}</p>
   </div>
 </template>
 
@@ -82,6 +83,9 @@ const fmtCp = (x: number) => String(Math.round(x))
 .gi__scroll:focus-visible { outline: 2px solid var(--anillo-foco); outline-offset: 2px; }
 .gi__tabla { width: 100%; border-collapse: collapse; font: var(--tipo-body-sm); color: var(--texto-1); min-width: 620px; }
 .gi__tabla th, .gi__tabla td { padding: var(--sp-8) var(--sp-12); text-align: left; border-bottom: 1px solid var(--trazo-sutil); vertical-align: top; }
+/* diseño, 18-oct: en móvil «Lectura de Polaris» se partía en 5 líneas e hinchaba las filas */
+@media (max-width: 899px) { .gi__tabla td:last-child { min-width: 14rem; } }
+.gi__circh { color: var(--texto-1); }
 .gi__tabla thead th { font: 600 var(--texto-xs)/1.3 var(--font-body); color: var(--texto-2); background: var(--superficie); }
 .gi__tabla tbody tr:last-child > * { border-bottom: 0; }
 .gi__num { text-align: right !important; white-space: nowrap; }

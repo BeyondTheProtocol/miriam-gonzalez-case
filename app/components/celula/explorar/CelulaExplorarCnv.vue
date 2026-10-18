@@ -27,6 +27,8 @@ const ventanas = computed(() => {
     return { nombre: v, tiras: tiras.filter((t) => t.vals.length) }
   })
 })
+/** ¿Algún grupo tiene aquí menos células que en el resto de la página? (células sin GEM limpio: valor null) */
+const incompletas = computed(() => ventanas.value.some((v) => v.tiras.some((t) => t.vals.length !== t.n)))
 /** UNA escala para todas las ventanas: el mismo valor cae en el mismo sitio en 8p11 y en 11q13. Incluye el 0
  *  y los negativos (una puntuación log2 baja de 0 cuando se observa menos de lo esperado). */
 const escala = computed<[number, number]>(() => {
@@ -67,12 +69,16 @@ const jit = (i: number) => ((Math.sin(i * 12.9898) * 43758.5453) % 1 + 1) % 1
         {{ L('Las células malignas del hueso se eligieron con una inferencia de número de copias del genoma entero, también desde la expresión: que su ventana salga alta no es una medida independiente de esa elección.',
           'The malignant bone cells were chosen with a whole-genome copy-number inference, also from expression: their window scoring high is not a measure independent of that choice.') }}
       </p>
+      <p v-if="incompletas" class="cnv__p">
+        {{ L('El número de copias por célula solo se calcula en células con GEM limpio: las que no comparten gota (GEM) con una célula del hígado. Las dos biopsias se procesaron juntas y una gota compartida puede mezclar ARN de las dos; por eso, cuando aquí sale «n = x de y», faltan las células sin GEM limpio.',
+          'Copy number per cell is only computed in cells with a clean GEM: those that do not share a droplet (GEM) with a liver cell. Both biopsies were processed together and a shared droplet can mix RNA from both; so when this shows “n = x of y”, the cells without a clean GEM are missing.') }}
+      </p>
       <div v-for="v in ventanas" :key="v.nombre" class="cnv__ventana">
         <h3 class="cnv__h">{{ v.nombre }}</h3>
         <div class="cnv__eje" aria-hidden="true"><span v-for="tk in ticksCnv" :key="tk" :style="{ left: `${pos(tk) * 100}%` }">{{ fmt(tk) }}</span></div>
         <ul class="cnv__lista">
           <li v-for="t in v.tiras" :key="t.id" class="cnv__fila" :class="`cnv__fila--${t.rol}`">
-            <span class="cnv__nombre">{{ etiqueta(ETIQUETA_GRUPO, t.id, lang) }} <span class="cnv__n nums">n = {{ fmtN(t.vals.length, lang) }}</span></span>
+            <span class="cnv__nombre">{{ etiqueta(ETIQUETA_GRUPO, t.id, lang) }} <span class="cnv__n nums">n = {{ fmtN(t.vals.length, lang) }}<template v-if="t.vals.length !== t.n"> {{ L('de', 'of') }} {{ fmtN(t.n, lang) }}</template></span></span>
             <svg class="cnv__svg" :viewBox="`0 0 ${W} ${H}`" role="img"
                  :aria-label="L(`${etiqueta(ETIQUETA_GRUPO, t.id, 'es')}, ${v.nombre}: mediana ${fmt(med(t.vals))}, ${t.vals.length} células`, `${etiqueta(ETIQUETA_GRUPO, t.id, 'en')}, ${v.nombre}: median ${fmt(med(t.vals))}, ${t.vals.length} cells`)">
               <line :x1="LBL" :x2="W" :y1="H / 2" :y2="H / 2" class="cnv__base" />
@@ -105,7 +111,7 @@ const jit = (i: number) => ((Math.sin(i * 12.9898) * 43758.5453) % 1 + 1) % 1
 @media (max-width: 639px) { .cnv__fila { grid-template-columns: 1fr auto; } .cnv__svg { grid-column: 1 / -1; grid-row: 2; } }
 .cnv__nombre { font: 600 var(--texto-xs)/1.3 var(--font-body); color: var(--texto-1); }
 .cnv__fila--interes .cnv__nombre { color: var(--identidad); }
-.cnv__n { font: 500 var(--texto-xs) var(--font-mono); color: var(--texto-2); }
+.cnv__n { font: 500 var(--texto-xs) var(--font-mono); color: var(--texto-2); white-space: nowrap; }
 .cnv__eje { position: relative; height: 1.3em; margin: 0 0 var(--sp-4); border-bottom: 1px solid var(--trazo-fuerte); font: 500 var(--texto-xs)/1.2 var(--font-mono); color: var(--texto-2); }
 .cnv__eje span { position: absolute; top: 0; transform: translateX(-50%); }
 @media (min-width: 640px) { .cnv__eje { margin-left: calc(min(14rem, 30%) + var(--sp-8)); margin-right: 6.5rem; } }

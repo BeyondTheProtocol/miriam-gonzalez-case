@@ -270,8 +270,8 @@ function sinTapar(ev: FocusEvent) {
         <p><strong>{{ L('Hígado: tumor frente a hepatocito no está resuelto célula a célula.', 'Liver: tumor versus hepatocyte is not resolved cell by cell.') }}</strong></p>
       </div>
       <p class="exp__nota exp__nota--banner">
-        {{ L('El grupo «Luminal de alta confianza» es un subconjunto, no el tumor entero, y sus cifras no son «% de células tumorales». «Otras, sin asignar a un grupo» también puede incluir células tumorales.',
-          'The “High-confidence luminal” group is a subset, not the whole tumor, and its figures are not “% of tumor cells”. “Other, not assigned to a group” may also include tumor cells.') }}
+        {{ L('El grupo «Luminal de alta confianza» es un subconjunto, no el tumor entero, y sus cifras no son «% de células tumorales». «Otras, sin asignar a un grupo» y «Hepatocitos» también pueden incluir células tumorales: el tipo se asigna por clúster, y una célula tumoral caída en un clúster de hepatocitos cuenta como hepatocito y queda fuera del grupo de interés.',
+          'The “High-confidence luminal” group is a subset, not the whole tumor, and its figures are not “% of tumor cells”. “Other, not assigned to a group” and “Hepatocytes” may also include tumor cells: type is assigned per cluster, and a tumor cell falling in a hepatocyte cluster counts as hepatocyte and stays out of the group of interest.') }}
       </p>
     </template>
 
@@ -323,8 +323,8 @@ function sinTapar(ev: FocusEvent) {
           </li>
         </ul>
         <p class="exp__nota">{{ L('El n de cada grupo sale directamente del fichero de datos.', 'Each group’s n comes straight from the data file.') }}</p>
-        <p class="exp__nota">{{ L('Grupo y tipo celular salen de métodos distintos: el grupo, de la selección de células del análisis revisado; el tipo, de la anotación por marcadores de uno de los analistas. Por eso una célula del grupo de interés puede figurar con otro tipo, o con el tipo «Sin asignar».',
-          'Group and cell type come from different methods: the group, from the cell selection in the reviewed analysis; the type, from one analyst’s marker-based annotation. That is why a cell in the group of interest may show another type, or the type “Unassigned”.') }}</p>
+        <p class="exp__nota">{{ L('Grupo y tipo celular salen de métodos distintos: el grupo, de la selección de células del análisis revisado; el tipo, de la anotación por clúster con marcadores canónicos de uno de los analistas. Por eso una célula del grupo de interés puede figurar con otro tipo, o con el tipo «Sin asignar».',
+          'Group and cell type come from different methods: the group, from the cell selection in the reviewed analysis; the type, from one analyst’s per-cluster annotation with canonical markers. That is why a cell in the group of interest may show another type, or the type “Unassigned”.') }}</p>
       </div>
 
       <div id="exp-genes" class="exp__bloque">

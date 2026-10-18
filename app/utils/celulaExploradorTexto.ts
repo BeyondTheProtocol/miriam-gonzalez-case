@@ -88,3 +88,12 @@ export const ETIQUETAS_FIJAS = {
   /** el nivel que pinta la página no es el de la revisión */
   mediana: t('Mediana por célula detectada; la revisión da pseudobulk, así que las cifras de nivel no tienen por qué coincidir', 'Median per detected cell; the review gives pseudobulk, so level figures need not match'),
 }
+
+/** Circularidad de GRUPO (18-oct, diseño y verificacion con datos reales). En el hueso el grupo de interés se eligió por
+ * número de copias inferido de la expresión y por identidad epitelial: los genes de las regiones con más copias
+ * inferidas salen favorecidos por construcción, gen a gen no se puede rotular. Sin nombrar genes ni posiciones. */
+export const CIRC_HUESO = t('En el hueso, las células malignas se eligieron por número de copias inferido de la propia expresión y por identidad epitelial: los genes de las regiones con más copias inferidas salen favorecidos en ese grupo por construcción, así que su diferencia con el resto no es una medida independiente.',
+  'In the bone, malignant cells were chosen by copy number inferred from expression itself and by epithelial identity: genes in regions with more inferred copies come out favored in that group by construction, so their difference from the rest is not an independent measurement.')
+/** Los tipos de referencia se anotaron por clúster con marcadores canónicos: sus marcadores salen arriba en parte por eso. */
+export const CIRC_REFERENCIA = t('Los tipos celulares se anotaron por clúster con marcadores canónicos: que esos marcadores encabecen su grupo es, en parte, por construcción.',
+  'Cell types were annotated per cluster with canonical markers: those markers topping their own group is partly by construction.')

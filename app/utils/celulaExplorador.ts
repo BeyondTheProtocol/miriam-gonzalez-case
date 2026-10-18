@@ -189,7 +189,9 @@ export function motivosLesion(d: LesionDatos, esperado: { lesion: Lesion; ejempl
     }
     if (!d.sondas || Object.keys(d.sondas).length !== d.genes.length) m.push('sondas: un gen de más o de menos')
     const sel = d.seleccion
-    if (!sel || typeof sel !== 'object' || !Object.entries(sel).every(([g, p]) => d.genes.includes(g) && (PAPELES_SELECCION as readonly string[]).includes(p))) m.push('selección fuera de vocabulario')
+    // la selección cubre TODO el panel desde el 18-oct (la página abre cualquier gen): genes fuera de la lista valen; que
+    // existan en el Zarr lo coteja el test del contrato
+    if (!sel || typeof sel !== 'object' || !Object.entries(sel).every(([g, p]) => typeof g === 'string' && g.length > 0 && (PAPELES_SELECCION as readonly string[]).includes(p))) m.push('selección fuera de vocabulario')
     else if (d.lesion === 'hueso' && Object.values(sel).some((p) => p !== 'identidad')) m.push('selección del hueso fuera de vocabulario')
     const loo = d.loo
     if (!loo || typeof loo !== 'object' || (d.lesion === 'hueso' && Object.keys(loo).length)) m.push('loo')
@@ -301,8 +303,14 @@ export function fmtPctFino(x: number, lang: 'es' | 'en'): string {
   const n = lang === 'en' ? t : t.replace('.', ',')
   return lang === 'en' ? `${n}%` : `${n} %`
 }
-/** Rango de la fracción de UMI de ADN de la muestra [menor, mayor] entre la estimación y la de Cell Ranger. */
-export const rangoAdn = (a: Adn): [number, number] => [Math.min(a.frac_lecturas_estimada, a.frac_lecturas_cell_ranger), Math.max(a.frac_lecturas_estimada, a.frac_lecturas_cell_ranger)]
+/** Porcentaje con las cifras significativas que trae el dato (0.002 → «0,2 %», 0.271 → «27,1 %»): la referencia de
+ * Cell Ranger llega redondeada y fmtPctFino le inventaba precisión («0,20 %», verificacion 18-oct). */
+export function fmtPctSig(x: number, lang: 'es' | 'en'): string {
+  const cifras = String(x).replace('-', '').replace(/e.*$/, '').replace('.', '').replace(/^0+/, '').length || 1
+  const t = String(Number((100 * x).toPrecision(Math.min(cifras, 3))))
+  const n = lang === 'en' ? t : t.replace('.', ',')
+  return lang === 'en' ? `${n}%` : `${n} %`
+}
 
 /** Porcentaje entero para mostrar (la misma regla en toda la página). */
 export const pct = (x: number) => Math.round(100 * x)

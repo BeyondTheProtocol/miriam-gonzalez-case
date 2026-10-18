@@ -6,7 +6,7 @@
  */
 import type { Coexp, LesionDatos } from '~/utils/celulaExplorador'
 import { fmtPct, tablaCoexp } from '~/utils/celulaExplorador'
-import { ETIQUETA_GRUPO, etiqueta, nombreGen } from '~/utils/celulaExploradorTexto'
+import { CIRC_HUESO, ETIQUETA_GRUPO, etiqueta, nombreGen } from '~/utils/celulaExploradorTexto'
 
 const props = defineProps<{ d: LesionDatos; etiquetas: Coexp[]; genA: string; genB: string; lang: 'es' | 'en' }>()
 const L = (es: string, en: string) => (props.lang === 'en' ? en : es)
@@ -41,6 +41,7 @@ const titulo = (c: Coexp) => ({
         </tbody>
       </table>
     </div>
+    <p v-if="d.lesion === 'hueso'" class="cx__pie cx__circ"><strong>{{ L('Circular.', 'Circular.') }}</strong> {{ L(CIRC_HUESO.es, CIRC_HUESO.en) }}</p>
     <p v-if="circ.length" class="cx__pie cx__circ">
       <strong>{{ L('Circular.', 'Circular.') }}</strong>
       {{ circ.length === 1

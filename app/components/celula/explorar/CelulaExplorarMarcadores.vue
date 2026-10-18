@@ -9,7 +9,7 @@
  */
 import type { LesionDatos } from '~/utils/celulaExplorador'
 import { fmtPct } from '~/utils/celulaExplorador'
-import { ETIQUETA_GRUPO, etiqueta } from '~/utils/celulaExploradorTexto'
+import { CIRC_HUESO, CIRC_REFERENCIA, ETIQUETA_GRUPO, etiqueta } from '~/utils/celulaExploradorTexto'
 
 const props = defineProps<{ d: LesionDatos; lang: 'es' | 'en'; abribles: (gen: string) => boolean; elegido: string; conMapa: boolean }>()
 const emit = defineEmits<{ elegir: [gen: string] }>()
@@ -62,6 +62,8 @@ const idCtl = useId()
       {{ L('Los genes con asterisco participan en la selección de este grupo o van ligados al programa con el que se seleccionó: su diferencia con el resto sale en parte de cómo se eligió el grupo, no es una medida independiente.',
         'Genes with an asterisk take part in selecting this group or are tied to the program it was selected by: their difference from the rest partly comes from how the group was chosen, so it is not an independent measurement.') }}
     </p>
+    <p v-if="esInteres && d.lesion === 'hueso'" class="mk__circ"><strong>{{ L('Circular.', 'Circular.') }}</strong> {{ L(CIRC_HUESO.es, CIRC_HUESO.en) }}</p>
+    <p v-if="!esInteres" class="mk__cap">{{ L(CIRC_REFERENCIA.es, CIRC_REFERENCIA.en) }}</p>
     <p class="mk__desliza" aria-hidden="true">{{ L('Desliza para ver las seis columnas →', 'Swipe to see all six columns →') }}</p>
     <div class="mk__tabla" role="region" :aria-labelledby="`${idCtl}-cap`" tabindex="0">
       <table>

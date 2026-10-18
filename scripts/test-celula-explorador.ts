@@ -255,6 +255,10 @@ if (man.zarr?.length) {
     ok(`${l}: la columna de cada gen del panel, igual en el Zarr y en el JSON`, igualCol)
     ok(`${l}: el suelo de cada gen del panel, igual en el Zarr y en el JSON`, igualSuelo)
     ok(`${l}: la referencia emparejada de cada gen del panel, igual en el Zarr y en el JSON`, igualRef)
+    // la selección (circularidad) cubre todo el panel: cada gen existe en el Zarr, y al menos uno está fuera de la lista
+    const sel = Object.keys(d.seleccion)
+    ok(`${l}: cada gen de la selección (circularidad) está en el panel del Zarr`, sel.every((g) => z.tiene(g)), sel.filter((g) => !z.tiene(g)).join(','))
+    ok(`${l}: la selección rotula genes del panel fuera de la lista de la web (los que abre el buscador o marcadores)`, sel.some((g) => !d.genes.includes(g)))
     const fuera = z.genes.find((g) => !d.genes.includes(g) && !z.sinSonda.has(g))!
     const cf = await z.columna(fuera)
     ok(`${l}: un gen fuera del panel se lee (columna de n células con valores >= 0)`, cf.length === d.n_celulas && cf.every((v) => v >= 0))

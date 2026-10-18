@@ -14,7 +14,7 @@
  * Sin animaciones. El estado no va solo en color: hay texto en cada fila y aria-label con las cifras.
  */
 import type { Adn, FilaGrupo, Lesion, Loo } from '~/utils/celulaExplorador'
-import { densidad, fmtPct, fmtPctFino, rangoAdn } from '~/utils/celulaExplorador'
+import { densidad, fmtPct, fmtPctFino, fmtPctSig } from '~/utils/celulaExplorador'
 import { ETIQUETAS_FIJAS, ETIQUETA_GRUPO, PAPEL_SELECCION, etiqueta } from '~/utils/celulaExploradorTexto'
 
 const props = defineProps<{ filas: FilaGrupo[]; gen: string; lang: 'es' | 'en'; lesion: Lesion; adn: Adn; papel?: string; loo?: Loo }>()
@@ -47,10 +47,13 @@ function forma(f: FilaGrupo): string {
 const mediana = (xs: number[]) => { if (!xs.length) return null; const s = [...xs].sort((p, q) => p - q); return s[Math.floor(s.length / 2)]! }
 const nf = (n: number) => String(n).replace(/\B(?=(\d{3})+(?!\d))/g, props.lang === 'en' ? ',' : '.')
 const adnTxt = computed(() => {
-  const a = props.adn, [lo, hi] = rangoAdn(a), f = (x: number) => fmtPctFino(x, props.lang)
+  // dos estimaciones de la MUESTRA ENTERA, con su nombre (no un rango: se leía como rango entre grupos y no cuadraba
+  // con las barras de «ADN genómico por grupo»; diseño y verificacion, 18-oct). Cell Ranger, con su propia precisión.
+  const a = props.adn, f = (x: number) => fmtPctFino(x, props.lang)
+  const est = f(a.frac_lecturas_estimada), cr = fmtPctSig(a.frac_lecturas_cell_ranger, props.lang)
   const hueso = props.lesion === 'hueso'
-  return L(`${nf(a.sondas_dentro_de_exon)} de las ${nf(a.sondas_panel)} sondas del panel caen dentro de un exón y también hibridan con el ADN genómico del tejido fijado en formol (FFPE). En esta muestra supone entre ${f(lo)} y ${f(hi)} de las UMI, las moléculas contadas (${f(a.frac_lecturas_interes)} en el grupo de interés).${hueso ? ' En el hueso el suelo ambiental incluye ese ADN.' : ''}`,
-    `${nf(a.sondas_dentro_de_exon)} of the panel’s ${nf(a.sondas_panel)} probes fall inside an exon and also bind the genomic DNA of the formalin-fixed tissue (FFPE). In this sample that is between ${f(lo)} and ${f(hi)} of the UMIs, the molecules counted (${f(a.frac_lecturas_interes)} in the group of interest).${hueso ? ' In the bone the ambient floor includes that DNA.' : ''}`)
+  return L(`${nf(a.sondas_dentro_de_exon)} de las ${nf(a.sondas_panel)} sondas del panel caen dentro de un exón y también hibridan con el ADN genómico del tejido fijado en formol (FFPE). Para la muestra entera hay dos estimaciones de la parte de las UMI, las moléculas contadas, que viene de ese ADN: ${est} (la de este análisis) y ${cr} (la de Cell Ranger, «Estimated UMIs from genomic DNA»). En el grupo de interés, ${f(a.frac_lecturas_interes)}.${hueso ? ' En el hueso el suelo ambiental incluye ese ADN.' : ''}`,
+    `${nf(a.sondas_dentro_de_exon)} of the panel’s ${nf(a.sondas_panel)} probes fall inside an exon and also bind the genomic DNA of the formalin-fixed tissue (FFPE). For the whole sample there are two estimates of the share of UMIs, the molecules counted, that comes from that DNA: ${est} (this analysis) and ${cr} (Cell Ranger’s “Estimated UMIs from genomic DNA”). In the group of interest, ${f(a.frac_lecturas_interes)}.${hueso ? ' In the bone the ambient floor includes that DNA.' : ''}`)
 })
 const nfCp = (x: number) => String(Math.round(x))
 </script>
@@ -102,7 +105,7 @@ const nfCp = (x: number) => String(Math.round(x))
           <line :x1="BX + BW * Math.min(1, f.suelo)" :x2="BX + BW * Math.min(1, f.suelo)" y1="8" y2="32" class="vio__suelo-linea" />
         </svg>
         <p class="vio__txt nums">
-          <template v-if="f.rol === 'interes' && papel">{{ L('Circular · ', 'Circular · ') }}</template>{{ L(`Detectado ${fmtPct(f.frac, 'es')} (${nf(f.detectadas)}) · suelo ${fmtPct(f.suelo, 'es')}`, `Detected ${fmtPct(f.frac, 'en')} (${nf(f.detectadas)}) · floor ${fmtPct(f.suelo, 'en')}`) }}<template v-if="mediana(f.niveles) != null"> · {{ L('mediana', 'median') }} {{ fmt10(mediana(f.niveles)!) }} CP10k</template>
+          <template v-if="f.rol === 'interes' && papel">{{ L('Circular · ', 'Circular · ') }}</template><span class="vio__par">{{ L(`Detectado ${fmtPct(f.frac, 'es')} (${nf(f.detectadas)})`, `Detected ${fmtPct(f.frac, 'en')} (${nf(f.detectadas)})`) }}</span> · <span class="vio__par">{{ L(`suelo ${fmtPct(f.suelo, 'es')}`, `floor ${fmtPct(f.suelo, 'en')}`) }}</span><template v-if="mediana(f.niveles) != null"> · <span class="vio__par">{{ L('mediana', 'median') }} {{ fmt10(mediana(f.niveles)!) }} CP10k</span></template>
           <template v-if="f.detectadas < 3"> · {{ L('pocas células para dibujar la forma', 'too few cells to draw a shape') }}</template>
         </p>
       </li>
@@ -136,7 +139,8 @@ const nfCp = (x: number) => String(Math.round(x))
 .vio__cab { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0 var(--sp-8); }
 .vio__nombre { font: 600 var(--texto-sm)/1.3 var(--font-body); color: var(--texto-1); }
 .vio__fila--interes .vio__nombre { color: var(--identidad); }
-.vio__n { font: 500 var(--texto-xs)/1.3 var(--font-mono); color: var(--texto-2); }
+.vio__n { font: 500 var(--texto-xs)/1.3 var(--font-mono); color: var(--texto-2); white-space: nowrap; }
+.vio__par { white-space: nowrap; }
 .vio__svg { display: block; width: 100%; height: auto; margin-top: var(--sp-4); overflow: visible; }
 .vio__base { stroke: var(--trazo-medio); }
 .vio__forma { fill: color-mix(in srgb, var(--texto-2) 40%, transparent); stroke: var(--texto-2); stroke-width: 1; vector-effect: non-scaling-stroke; }
