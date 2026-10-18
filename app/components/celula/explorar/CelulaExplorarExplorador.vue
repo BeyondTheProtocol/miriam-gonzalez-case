@@ -503,7 +503,7 @@ function sinTapar(ev: FocusEvent) {
             </div>
             <p class="exp__dbiop" aria-hidden="true">{{ etiqueta(ETIQUETA_LESION, lesion, lang) }}</p>
             <h2 id="exp-dh2" class="exp__h2">{{ L(`${nombreGen(gen)}, grupo a grupo`, `${nombreGen(gen)}, group by group`) }}<span class="sr-only"> · {{ etiqueta(ETIQUETA_LESION, lesion, lang) }}</span>{{ ej }}</h2>
-            <p class="exp__dlec"><span v-if="gen === 'ERBB2' && lesion === 'higado'" class="exp__dihq">{{ ETIQUETAS_FIJAS.her2[lang] }}</span><template v-if="d.genes.includes(gen)">{{ ETIQUETAS_FIJAS.lectura[lang] }} <strong>{{ lecturaDetalle }}</strong></template><template v-else>{{ lecturaDetalle }}</template></p>
+            <p class="exp__dlec"><span v-if="gen === 'ERBB2'" class="exp__dihq">{{ (lesion === 'higado' ? ETIQUETAS_FIJAS.her2 : ETIQUETAS_FIJAS.her2Hueso)[lang] }}</span><span v-if="gen === 'ERBB3' && lesion === 'higado'" class="exp__dihq">{{ ETIQUETAS_FIJAS.her3Higado[lang] }}</span><template v-if="d.genes.includes(gen)">{{ ETIQUETAS_FIJAS.lectura[lang] }} <strong>{{ lecturaDetalle }}</strong></template><template v-else>{{ lecturaDetalle }}</template></p>
             <p v-if="aliasClinico" class="exp__dlec">{{ L(`${aliasClinico} aquí es ARN, no proteína: cuenta las células con al menos una molécula del gen; la proteína la mide la IHQ.`, `${aliasClinico} here is RNA, not protein: it counts cells with at least one molecule of the gene; protein is measured by IHC.`) }}</p>
             <CelulaExplorarViolines :filas="filas" :gen="gen" :lang="lang" :lesion="lesion" :adn="d.adn" :papel="d.seleccion[gen]" :loo="d.loo[gen]" :referencia="d.referencia[gen]" />
           </div>

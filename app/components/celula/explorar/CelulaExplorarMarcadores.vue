@@ -90,8 +90,8 @@ const idCtl = useId()
       {{ todos ? L(`Ver solo los ${TOP} primeros`, `Show only the top ${TOP}`) : L(`Ver los ${filas.length}, con FDR`, `See all ${filas.length}, with FDR`) }}
     </button>
     <p :id="`${idCtl}-cap`" class="mk__cap">
-      {{ L(`${etiqueta(ETIQUETA_GRUPO, grupo, 'es')}: ${corta ? `los ${TOP} primeros de ${filas.length} genes` : `${filas.length} genes`}, ordenados por el estadístico de Wilcoxon. En gris, los de FDR de 0,05 o más: con ese umbral no distinguen al grupo.`,
-        `${etiqueta(ETIQUETA_GRUPO, grupo, 'en')}: ${corta ? `the top ${TOP} of ${filas.length} genes` : `${filas.length} genes`}, ranked by the Wilcoxon statistic. In gray, those with FDR of 0.05 or more: at that threshold they do not set the group apart.`) }}
+      {{ L(`${etiqueta(ETIQUETA_GRUPO, grupo, 'es')}: ${corta ? `los ${TOP} primeros de ${filas.length} genes` : `${filas.length} genes`}, ordenados por el estadístico de Wilcoxon. En gris, los de FDR de 0,05 o más: con ese umbral no distinguen al grupo. El FDR es descriptivo: todas las células son de una sola paciente, así que no son réplicas independientes.`,
+        `${etiqueta(ETIQUETA_GRUPO, grupo, 'en')}: ${corta ? `the top ${TOP} of ${filas.length} genes` : `${filas.length} genes`}, ranked by the Wilcoxon statistic. In gray, those with FDR of 0.05 or more: at that threshold they do not set the group apart. The FDR is descriptive: all the cells come from a single patient, so they are not independent replicates.`) }}
     </p>
     <p class="mk__p">
       <strong>{{ L('Detectado no es positivo.', 'Detected is not positive.') }}</strong>

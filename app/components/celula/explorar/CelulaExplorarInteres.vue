@@ -57,7 +57,8 @@ const nombre = (g: string) => PROTEINA[g] ?? g
                leían como positivos y la revisión dice «No se sostiene» -->
           <tr class="gin__lecfila" :data-gen="f.gen">
             <td colspan="4">
-              <span v-if="f.gen === 'ERBB2' && d.lesion === 'higado'" class="gin__ihq">{{ ETIQUETAS_FIJAS.her2[lang] }}</span>
+              <span v-if="f.gen === 'ERBB2'" class="gin__ihq">{{ (d.lesion === 'higado' ? ETIQUETAS_FIJAS.her2 : ETIQUETAS_FIJAS.her2Hueso)[lang] }}</span>
+              <span v-if="f.gen === 'ERBB3' && d.lesion === 'higado'" class="gin__ihq">{{ ETIQUETAS_FIJAS.her3Higado[lang] }}</span>
               <span class="sr-only">{{ nombre(f.gen) }}: </span><span class="gin__lec">{{ ETIQUETAS_FIJAS.lecturaCorta[lang] }} <strong class="gin__ver">{{ (ETIQUETA_VEREDICTO[f.ver] ?? ETIQUETA_VEREDICTO.sin_veredicto)[lang] }}</strong></span>
             </td>
           </tr>

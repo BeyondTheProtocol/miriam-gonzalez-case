@@ -7,8 +7,8 @@
 //      ni rótulo de ejemplo; el estado ya no dice «todavía no» y enlaza a #resultados;
 //   2. CADA cifra de su texto, de sus aria-label y de sus <title> está en el JSON (en formato ES o
 //      EN). Se ignoran los dígitos pegados a letras o guiones (símbolos de gen: 5T4, HER3, NY-BR-1);
-//   3. las cuadrículas pintan exactamente los rellenos que dice el JSON (50, 50, 25, 25 y ninguno en
-//      R4), R5 y R6 no pintan ninguna cifra y R6 ningún porcentaje;
+//   3. las cuadrículas pintan exactamente los rellenos que dice el JSON (R3: los de cada grupo; R4: uno, sin
+//      contorno, «en torno a 1… o menos» desde la auditoría del 18-oct); R5 y R6 no pintan ninguna cifra y R6 ningún porcentaje;
 //   4. el detector funciona: si se inyecta una cifra que no está en el JSON, lo avisa (si no, un
 //      verde aquí no significaría nada).
 // Qué NO cotejo: la puerta (verificado + OK) y el contrato del fichero; eso es test:celula-puerta.
@@ -95,7 +95,7 @@ try {
     const esperado = [...dianas.higado.dianas.flatMap((g, i) => [g.por_100, dianas.hueso.dianas[i].por_100]), ...json.bloques.R3.datos.ausentes.map((a) => a.por_100)]
     comprobar(`[${lg}] R3 pinta las cuadrículas de cada 100 que dice el JSON`, JSON.stringify(rellenosR3) === JSON.stringify(esperado) && r3.rejillas.every((q) => q.total === json.por_cada), `pinta ${rellenosR3}, JSON ${esperado}`)
     const r4 = R('R4')
-    comprobar(`[${lg}] R4: una cuadrícula, ningún punto relleno y un contorno «menos de 1»`, r4.rejillas.length === 1 && r4.rejillas[0].rellenos === 0 && r4.rejillas[0].contorno === 1 && /(menos de|fewer than) 1\b/.test(r4.texto))
+    comprobar(`[${lg}] R4: una cuadrícula con un punto, sin contorno, «en torno a 1… o menos» (auditoría 18-oct)`, r4.rejillas.length === 1 && r4.rejillas[0].rellenos === 1 && r4.rejillas[0].contorno === 0 && /(en torno a|around) 1\b/.test(r4.texto) && /(o menos|or fewer)/.test(r4.texto) && !/(menos de|fewer than) 1\b/.test(r4.texto))
     comprobar(`[${lg}] R5 no pinta ninguna cifra`, cifrasDe(sinSello(R('R5').texto)).length === 0, JSON.stringify(cifrasDe(sinSello(R('R5').texto))))
     comprobar(`[${lg}] R6 no pinta ninguna cifra ni porcentaje`, cifrasDe(sinSello(R('R6').texto)).length === 0 && !/%|de cada|in every|per cent|percent/i.test(R('R6').texto), JSON.stringify(cifrasDe(sinSello(R('R6').texto))))
     comprobar(`[${lg}] R6 nombra los rasgos neuroendocrinos (CHGA, SYP, INSM1)`, ['CHGA', 'SYP', 'INSM1'].every((g) => R('R6').texto.includes(g)))

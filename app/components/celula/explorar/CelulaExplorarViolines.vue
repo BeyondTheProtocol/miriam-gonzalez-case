@@ -134,6 +134,8 @@ function partes(f: FilaGrupo): { t: string; fuerte?: boolean }[] {
         <p v-if="f.rol === 'interes' && lesion === 'hueso'" class="vio__circ vio__circ--grupo" role="note"><strong>{{ L('Circular.', 'Circular.') }}</strong> {{ L(CIRC_HUESO.es, CIRC_HUESO.en) }}</p>
       </li>
     </ul>
+    <!-- auditoría 18-oct: superar el suelo no basta en los grupos no tumorales (a la vista, después de las cifras) -->
+    <p class="vio__leyenda vio__noBasta">{{ L('Superar el suelo no basta: en los grupos no tumorales, parte de la señal de los genes del tumor viene de gotas con dos células o de ARN del tumor que el suelo no recoge, y no es expresión de esas células.', 'Clearing the floor is not enough: in non-tumor groups, part of the signal from tumor genes comes from droplets holding two cells or from tumor RNA the floor does not capture, and it is not expression by those cells.') }}</p>
     <!-- simulador (18-oct): lo explicativo, plegado; las cifras, el n, el suelo y la circularidad quedan siempre a la vista -->
     <details class="vio__como">
       <summary>{{ L('Cómo se lee', 'How to read it') }}</summary>
