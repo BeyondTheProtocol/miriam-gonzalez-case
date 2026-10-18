@@ -11,7 +11,7 @@ import type { LesionDatos } from '~/utils/celulaExplorador'
 import { fmtPct } from '~/utils/celulaExplorador'
 import { ETIQUETA_GRUPO, etiqueta } from '~/utils/celulaExploradorTexto'
 
-const props = defineProps<{ d: LesionDatos; lang: 'es' | 'en'; abribles: (gen: string) => boolean; elegido: string }>()
+const props = defineProps<{ d: LesionDatos; lang: 'es' | 'en'; abribles: (gen: string) => boolean; elegido: string; conMapa: boolean }>()
 const emit = defineEmits<{ elegir: [gen: string] }>()
 const L = (es: string, en: string) => (props.lang === 'en' ? en : es)
 const grupos = computed(() => props.d.grupos.filter((g) => g.id in props.d.marcadores))
@@ -47,13 +47,13 @@ const idCtl = useId()
         <button v-for="g in grupos" :key="g.id" type="button" class="mk__btn" :aria-pressed="grupo === g.id" @click="grupo = g.id">{{ etiqueta(ETIQUETA_GRUPO, g.id, lang) }}</button>
       </div>
     </div>
+    <p :id="`${idCtl}-cap`" class="mk__cap">
+      {{ L(`${filas.length} genes de ${etiqueta(ETIQUETA_GRUPO, grupo, 'es')}, ordenados por el estadístico de Wilcoxon; en gris, los de FDR de 0,05 o más (no distinguen al grupo).`,
+        `${filas.length} genes of ${etiqueta(ETIQUETA_GRUPO, grupo, 'en')}, ordered by the Wilcoxon statistic; in grey, those with FDR of 0.05 or more (they do not set the group apart).`) }}
+    </p>
     <p class="mk__desliza" aria-hidden="true">{{ L('Desliza para ver las seis columnas →', 'Swipe to see all six columns →') }}</p>
     <div class="mk__tabla" role="region" :aria-labelledby="`${idCtl}-cap`" tabindex="0">
       <table>
-        <caption :id="`${idCtl}-cap`" class="mk__cap">
-          {{ L(`${filas.length} genes de ${etiqueta(ETIQUETA_GRUPO, grupo, 'es')}, ordenados por el estadístico de Wilcoxon; en gris, los de FDR de 0,05 o más (no distinguen al grupo).`,
-            `${filas.length} genes of ${etiqueta(ETIQUETA_GRUPO, grupo, 'en')}, ordered by the Wilcoxon statistic; in grey, those with FDR of 0.05 or more (they do not set the group apart).`) }}
-        </caption>
         <thead>
           <tr>
             <th scope="col">{{ L('Gen', 'Gene') }}</th>
@@ -81,7 +81,7 @@ const idCtl = useId()
     </div>
     <p class="mk__estado" role="status">
       <template v-if="pulsado && pulsado === elegido">
-        {{ L(`${pulsado} está ahora en el mapa y en los violines.`, `${pulsado} is now on the map and in the violins.`) }}
+        {{ conMapa ? L(`${pulsado} está ahora en el mapa y en los violines.`, `${pulsado} is now on the map and in the violins.`) : L(`${pulsado} está ahora en los violines.`, `${pulsado} is now in the violins.`) }}
         <a class="mk__ir" href="#exp-violines">{{ L('Ir a los violines', 'Go to the violins') }}</a>
       </template>
     </p>
@@ -105,10 +105,10 @@ const idCtl = useId()
 .mk__btn[aria-pressed='true'] { background: var(--texto-1); color: var(--fondo); border-color: var(--texto-1); }
 .mk__btn:focus-visible, .mk__gen:focus-visible, .mk__tabla:focus-visible, .mk__ir:focus-visible { outline: 2px solid var(--anillo-foco); outline-offset: 2px; }
 .mk__desliza { display: none; margin: 0 0 var(--sp-8); font: var(--tipo-body-sm); font-size: var(--texto-xs); color: var(--texto-2); }
-@media (max-width: 639px) { .mk__desliza { display: block; } }
+@media (max-width: 719px) { .mk__desliza { display: block; } }   /* tabla de 560 px + márgenes del bloque */
 .mk__tabla { overflow: auto; max-height: 30rem; border: 1px solid var(--trazo-sutil); border-radius: var(--radius-btn); }
 .mk__tabla table { width: 100%; min-width: 560px; border-collapse: separate; border-spacing: 0; font: var(--tipo-body-sm); font-size: var(--texto-xs); }
-.mk__cap { caption-side: top; text-align: left; padding: var(--sp-8) var(--sp-12); color: var(--texto-2); font: var(--tipo-body-sm); font-size: var(--texto-xs); }
+.mk__cap { margin: 0 0 var(--sp-8); color: var(--texto-2); font: var(--tipo-body-sm); font-size: var(--texto-xs); max-width: var(--measure); }
 .mk__tabla th, .mk__tabla td { padding: var(--sp-8) var(--sp-12); text-align: right; border-bottom: 1px solid var(--trazo-sutil); white-space: nowrap; }
 .mk__tabla thead th { position: sticky; top: 0; z-index: 2; background: var(--superficie); color: var(--texto-2); font-weight: 600; box-shadow: inset 0 -1px 0 var(--trazo-fuerte); }
 .mk__tabla th:first-child { text-align: left; position: sticky; left: 0; z-index: 1; background: var(--fondo); }

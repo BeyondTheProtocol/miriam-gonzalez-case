@@ -168,7 +168,9 @@ async function abreGen(g: string, origen: 'busca' | 'marcadores' = 'busca') {
 /** Elegir un gen desde la tabla: los violines y el mapa cambian arriba, y se anuncia. */
 function elegirDesdeTabla(g: string) {
   gen.value = g
-  aviso.value = L(`Mostrando ${nombreGen(g)} en el mapa y en los violines, más arriba.`, `Showing ${nombreGen(g)} on the map and in the violins, further up.`)
+  aviso.value = movil.value
+    ? L(`Mostrando ${nombreGen(g)} en los violines, más arriba.`, `Showing ${nombreGen(g)} in the violins, further up.`)
+    : L(`Mostrando ${nombreGen(g)} en el mapa y en los violines, más arriba.`, `Showing ${nombreGen(g)} on the map and in the violins, further up.`)
 }
 
 /* ── el aviso del hígado queda fijo bajo la cabecera del sitio (sticky y de alto variable) ── */
@@ -237,8 +239,10 @@ function sinTapar(ev: FocusEvent) {
           <li v-for="g in sugerencias" :key="g"><button type="button" class="exp__btn exp__btn--sm" @click="abreGen(g)">{{ g }}</button></li>
         </ul>
         <p v-if="leyendoGen" class="exp__nota" role="status">{{ L('Leyendo el gen…', 'Reading the gene…') }}</p>
-        <p v-if="avisoBusca" class="exp__nota" role="status">{{ avisoBusca }}</p>
-        <p v-if="elegidoBusca && elegidoBusca === gen" class="exp__nota" role="status">{{ L(`${elegidoBusca} está ahora en el mapa y en los violines.`, `${elegidoBusca} is now on the map and in the violins.`) }} <a class="exp__salto" href="#exp-violines">{{ L('Ir a los violines', 'Go to the violins') }}</a></p>
+        <p class="exp__nota exp__nota--busca" role="status">
+          <template v-if="avisoBusca">{{ avisoBusca }}</template>
+          <template v-else-if="elegidoBusca && elegidoBusca === gen">{{ movil ? L(`${elegidoBusca} está ahora en los violines.`, `${elegidoBusca} is now in the violins.`) : L(`${elegidoBusca} está ahora en el mapa y en los violines.`, `${elegidoBusca} is now on the map and in the violins.`) }} <a class="exp__salto" href="#exp-violines">{{ L('Ir a los violines', 'Go to the violins') }}</a></template>
+        </p>
       </div>
       <div class="exp__campo">
         <span :id="`${idCtl}-tema`" class="exp__eti">{{ L('Fondo', 'Background') }}</span>
@@ -335,7 +339,7 @@ function sinTapar(ev: FocusEvent) {
 
       <div class="exp__bloque">
         <h2 class="exp__h2">{{ L('Marcadores por grupo', 'Markers per group') }}{{ ej }}</h2>
-        <CelulaExplorarMarcadores :d="d" :lang="lang" :abribles="abrible" :elegido="gen" @elegir="(g: string) => abreGen(g, 'marcadores')" />
+        <CelulaExplorarMarcadores :d="d" :lang="lang" :abribles="abrible" :elegido="gen" :con-mapa="!movil" @elegir="(g: string) => abreGen(g, 'marcadores')" />
       </div>
 
       <div class="exp__bloque">
@@ -393,8 +397,10 @@ function sinTapar(ev: FocusEvent) {
 @media (min-width: 1024px) { .exp__rejilla:not(.exp__rejilla--movil) { grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); } }
 .exp__col { min-width: 0; }
 .exp__col:focus { outline: none; }
+#exp-violines { scroll-margin-top: calc(var(--exp-top, 8px) + 7rem); }   /* que el salto no lo tape la cabecera ni el aviso fijo */
 .exp__h2 { font: var(--tipo-h3); color: var(--texto-1); margin: 0 0 var(--sp-12); }
 .exp__nota { margin: var(--sp-8) 0 0; font: var(--tipo-body-sm); font-size: var(--texto-xs); color: var(--texto-2); max-width: var(--measure); }
+.exp__nota--busca:empty { margin: 0; }
 .exp__nota--banner { margin-top: var(--sp-8); }
 .exp__salto { display: inline-block; margin-bottom: var(--sp-8); color: var(--identidad); font: 600 var(--texto-sm) var(--font-body); }
 .exp__leyenda { list-style: none; margin: var(--sp-12) 0 0; padding: 0; display: flex; flex-wrap: wrap; gap: var(--sp-4) var(--sp-16); font: var(--tipo-body-sm); font-size: var(--texto-xs); color: var(--texto-1); }
@@ -407,6 +413,6 @@ function sinTapar(ev: FocusEvent) {
 .exp__grupos .nums { font-family: var(--font-mono); color: var(--texto-2); }
 .exp__g--interes span:first-child { color: var(--identidad); font-weight: 600; }
 .exp__busca { position: relative; }
-.exp__sug { position: absolute; top: calc(100% + var(--sp-4)); left: 0; z-index: 10; list-style: none; margin: 0; padding: var(--sp-8); display: flex; flex-wrap: wrap; gap: var(--sp-4); width: min(28rem, 90vw); background: var(--fondo); border: 1px solid var(--trazo-fuerte); border-radius: var(--radius-btn); box-shadow: 0 6px 18px color-mix(in srgb, var(--texto-1) 12%, transparent); }
+.exp__sug { position: absolute; top: calc(100% + var(--sp-4)); left: 0; right: 0; z-index: 10; list-style: none; margin: 0; padding: var(--sp-8); display: flex; flex-wrap: wrap; gap: var(--sp-4); max-width: 28rem; background: var(--fondo); border: 1px solid var(--trazo-fuerte); border-radius: var(--radius-btn); box-shadow: 0 6px 18px color-mix(in srgb, var(--texto-1) 12%, transparent); }
 .exp__sel::placeholder { color: var(--texto-2); opacity: 1; }
 </style>

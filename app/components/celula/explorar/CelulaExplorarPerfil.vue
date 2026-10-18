@@ -75,7 +75,7 @@ const extremos = computed(() => {
 .pf__p { margin: 0 0 var(--sp-12); font: var(--tipo-body-sm); color: var(--texto-2); max-width: var(--measure); }
 .pf__p strong { color: var(--texto-1); }
 .pf__desliza { display: none; margin: 0 0 var(--sp-8); font: var(--tipo-body-sm); font-size: var(--texto-xs); color: var(--texto-2); }
-@media (max-width: 799px) { .pf__desliza { display: block; } }
+@media (max-width: 899px) { .pf__desliza { display: block; } }   /* figura de 760 px + márgenes del bloque */
 .pf__marco { overflow-x: auto; border: 1px solid var(--trazo-sutil); border-radius: var(--radius-btn); }
 .pf__marco:focus-visible { outline: 2px solid var(--anillo-foco); outline-offset: 2px; }
 .pf__svg { display: block; width: 100%; min-width: 760px; height: auto; }
