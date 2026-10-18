@@ -13,7 +13,7 @@ const n = (x: number) => fmtN(Math.round(x), props.lang)
 const dec = (x: number) => String(Math.round(x * 100) / 100).replace('.', props.lang === 'en' ? '.' : ',')
 const mt = computed(() => {
   const v = q.value.umbral_pct_MT
-  if (typeof v === 'number') return L(`hasta ${dec(v)} por ciento de UMI mitocondriales`, `up to ${dec(v)} percent mitochondrial UMI`)
+  if (typeof v === 'number') return L(`${dec(v)} %`, `${dec(v)}%`)
   return L('no aplica: el panel no tiene sondas mitocondriales', 'not applicable: the panel has no mitochondrial probes')
 })
 const filas = computed(() => {
@@ -23,7 +23,7 @@ const filas = computed(() => {
     [L('Células tras el control', 'Cells after QC'), n(x.n_final)],
     [L('Moléculas (UMI) por célula admitidas', 'Molecules (UMI) per cell allowed'), `${n(x.umbral_UMI[0])} – ${n(x.umbral_UMI[1])}`],
     [L('Genes detectados por célula admitidos', 'Detected genes per cell allowed'), `${n(x.umbral_genes[0])} – ${n(x.umbral_genes[1])}`],
-    [L('Mitocondriales', 'Mitochondrial'), mt.value],
+    [L('UMI mitocondriales, máximo admitido', 'Mitochondrial UMI, maximum allowed'), mt.value],
     [L('Dobletes quitados (Scrublet)', 'Doublets removed (Scrublet)'), n(x.scrublet_dobletes)],
   ]
   if (typeof x.mediana_UMI_final === 'number') f.push([L('Mediana de UMI por célula, tras el control', 'Median UMI per cell, after QC'), n(x.mediana_UMI_final)])
@@ -41,7 +41,7 @@ const filas = computed(() => {
     <dl class="qc__lista">
       <div v-for="[k, v] in filas" :key="k" class="qc__fila">
         <dt>{{ k }}</dt>
-        <dd :class="{ nums: /\d/.test(v) }">{{ v }}</dd>
+        <dd :class="{ nums: /^[\d.,\s–%-]+$/.test(v) }">{{ v }}</dd>
       </div>
     </dl>
   </div>

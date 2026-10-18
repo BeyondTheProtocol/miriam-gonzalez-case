@@ -94,7 +94,9 @@ const fmtCp = (x: number) => String(Math.round(x))
 .gi__tabla thead th:first-child { background: var(--superficie); }
 .gi__fila--sel th { background: color-mix(in srgb, var(--identidad) 8%, var(--fondo)) !important; }
 .gi__desliza { display: none; margin: 0 0 var(--sp-8); font: var(--tipo-body-sm); font-size: var(--texto-xs); color: var(--texto-2); }
-@media (max-width: 639px) { .gi__desliza { display: block; } .gi__gen { flex-direction: column; align-items: flex-start; gap: 0; justify-content: center; } }
+@media (max-width: 639px) { .gi__gen { flex-direction: column; align-items: flex-start; gap: 0; justify-content: center; margin-block: 0; } .gi__nota, .gi__circ { margin-top: var(--sp-4); } }
+/* diseño, 18-oct: a 768 la tabla ya se corta (Sondas, Lectura) y el aviso solo salía por debajo de 640 */
+@media (max-width: 899px) { .gi__desliza { display: block; } }
 .gi__gen:focus-visible { outline: 2px solid var(--anillo-foco); outline-offset: 1px; }
 .gi__gen[aria-pressed='true'] .gi__prot { color: var(--identidad); text-decoration: underline; text-underline-offset: 3px; }
 .gi__prot { font-weight: 600; white-space: nowrap; }

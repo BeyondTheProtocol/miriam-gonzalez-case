@@ -59,7 +59,7 @@ const jit = (i: number) => ((Math.sin(i * 12.9898) * 43758.5453) % 1 + 1) % 1
           'Per-cell score for each window: log2 of what is read against what would be expected if the cell carried, in that window, the same share as the reference as a whole (pseudobulk). Each dot is a cell; the tick is the group median.') }}
       </p>
       <p class="cnv__p">
-        <strong>{{ L('El 0 no es «como la referencia».', 'The 0 is not «like the reference».') }}</strong>
+        <strong>{{ L('El 0 no es «como la referencia».', 'The 0 is not “like the reference”.') }}</strong>
         {{ L('Con pocas moléculas (UMI) por célula, la célula típica sale por debajo de 0 aunque no tenga menos copias, y por eso la propia referencia puede quedar por debajo de 0. Compare cada grupo con las rayas de los grupos de referencia, no con el 0.',
           'With few molecules (UMI) per cell, the typical cell falls below 0 without having fewer copies, which is why the reference itself can sit below 0. Compare each group with the ticks of the reference groups, not with the 0.') }}
       </p>

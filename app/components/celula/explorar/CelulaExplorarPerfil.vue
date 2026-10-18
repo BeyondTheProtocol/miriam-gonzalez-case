@@ -13,7 +13,10 @@ const L = (es: string, en: string) => (props.lang === 'en' ? en : es)
 const W = 760, H = 200, M = 24, IZQ = 34
 const puntos = computed(() => {
   const p = props.d.perfil_bins
+  // orden del genoma (1, 2, … 22), no el del fichero: allí va en orden de texto (1, 10, 11…) y el eje salía así
+  const num = (c: string) => Number(c.replace('chr', ''))
   return p.cromosoma.map((c, k) => ({ c, mb: p.inicio_mb[k]!, v: p.log2_rel[k]! }))
+    .sort((a, b) => num(a.c) - num(b.c) || a.mb - b.mb)
 })
 const cromos = computed(() => {
   const orden: string[] = []
@@ -33,8 +36,11 @@ const tramos = computed(() => cromos.value.map((c, j) => {
   const a = IZQ + (ks[0]! / puntos.value.length) * ancho, b = IZQ + ((ks[ks.length - 1]! + 1) / puntos.value.length) * ancho
   return { c, a, b, par: j % 2 === 0 }
 }))
-const fmt = (x: number) => (props.lang === 'en' ? String(x) : String(x).replace('.', ','))
-const region = (p: { c: string; mb: number }) => `${p.c.replace('chr', L('crom. ', 'chr '))}, ${fmt(p.mb)}-${fmt(p.mb + 10)} Mb`
+const signo = (s: string) => s.replace('-', '−')
+const fmt = (x: number) => signo(props.lang === 'en' ? String(x) : String(x).replace('.', ','))
+/** valores del resumen: 3 cifras significativas, las mismas que guarda el fichero */
+const fmtV = (x: number) => fmt(Number(x.toPrecision(3)))
+const region = (p: { c: string; mb: number }) => `${p.c.replace('chr', L('crom. ', 'chr'))}, ${fmt(p.mb)}-${fmt(p.mb + 10)} Mb`
 const extremos = computed(() => {
   const orden = [...puntos.value].sort((a, b) => b.v - a.v)
   return { altas: orden.slice(0, 3), bajas: orden.slice(-3).reverse() }
@@ -57,7 +63,7 @@ const extremos = computed(() => {
         <rect v-for="t in tramos" :key="t.c" :x="t.a" :width="t.b - t.a" y="0" :height="H" :class="t.par ? 'pf__par' : 'pf__impar'" />
         <line :x1="IZQ" :x2="W" :y1="y(0)" :y2="y(0)" class="pf__cero" />
         <polyline :points="puntos.map((p, k) => `${xs[k]},${y(p.v)}`).join(' ')" class="pf__linea" />
-        <text v-for="t in tramos" :key="`l-${t.c}`" :x="(t.a + t.b) / 2" :y="H - 6" class="pf__eti">{{ t.c.replace('chr', '') }}</text>
+        <text v-for="(t, j) in tramos" :key="`l-${t.c}`" :x="(t.a + t.b) / 2" :y="H - 6 - ((t.b - t.a) < 15 && j % 2 ? 12 : 0)" class="pf__eti">{{ t.c.replace('chr', '') }}</text>
         <text :x="IZQ - 4" :y="y(escala[1]) + 4" class="pf__eje">{{ fmt(escala[1]) }}</text>
         <text :x="IZQ - 4" :y="y(0) + 4" class="pf__eje">0</text>
         <text :x="IZQ - 4" :y="y(escala[0]) + 4" class="pf__eje">{{ fmt(escala[0]) }}</text>
@@ -65,8 +71,8 @@ const extremos = computed(() => {
       </svg>
     </div>
     <p class="pf__p pf__resumen">
-      {{ L('Regiones más altas', 'Highest regions') }}: <span v-for="(p, k) in extremos.altas" :key="`a${k}`" class="nums">{{ region(p) }} ({{ fmt(p.v) }}){{ k < extremos.altas.length - 1 ? '; ' : '.' }}</span>
-      {{ L('Más bajas', 'Lowest') }}: <span v-for="(p, k) in extremos.bajas" :key="`b${k}`" class="nums">{{ region(p) }} ({{ fmt(p.v) }}){{ k < extremos.bajas.length - 1 ? '; ' : '.' }}</span>
+      {{ L('Expresión relativa más alta (log2)', 'Highest relative expression (log2)') }}: <span v-for="(p, k) in extremos.altas" :key="`a${k}`" class="nums">{{ region(p) }} ({{ fmtV(p.v) }}){{ k < extremos.altas.length - 1 ? '; ' : '.' }}</span>
+      {{ L('Más baja', 'Lowest') }}: <span v-for="(p, k) in extremos.bajas" :key="`b${k}`" class="nums">{{ region(p) }} ({{ fmtV(p.v) }}){{ k < extremos.bajas.length - 1 ? '; ' : '.' }}</span>
     </p>
   </div>
 </template>

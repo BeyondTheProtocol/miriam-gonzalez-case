@@ -7,3 +7,5 @@ allowBuilds:
   esbuild: false
   sharp: true
   vue-demi: true
+patchedDependencies:
+  '@vitessce/scatterplot-embedding@4.1.0': patches/@vitessce__scatterplot-embedding@4.1.0.patch

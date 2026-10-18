@@ -12,6 +12,8 @@ const props = defineProps<{ d: LesionDatos; etiquetas: Coexp[]; genA: string; ge
 const L = (es: string, en: string) => (props.lang === 'en' ? en : es)
 const filas = computed(() => tablaCoexp(props.d, props.etiquetas))
 const COLS: Coexp[] = ['ambos', 'solo_a', 'solo_b', 'ninguno']
+/** genes de los dos que participan en la selección del grupo de interés: en esa fila su cifra es circular */
+const circ = computed(() => [...new Set([props.genA, props.genB])].filter((g) => !!props.d.seleccion[g]))
 const titulo = (c: Coexp) => ({
   ambos: L('Los dos', 'Both'), solo_a: L(`Solo ${props.genA}`, `${props.genA} only`), solo_b: L(`Solo ${props.genB}`, `${props.genB} only`), ninguno: L('Ninguno', 'Neither'),
 })[c]
@@ -39,6 +41,12 @@ const titulo = (c: Coexp) => ({
         </tbody>
       </table>
     </div>
+    <p v-if="circ.length" class="cx__pie cx__circ">
+      <strong>{{ L('Circular.', 'Circular.') }}</strong>
+      {{ circ.length === 1
+        ? L(`${circ[0]} participa en la selección del grupo de interés: en esa fila, su cifra sale en parte de cómo se eligió el grupo.`, `${circ[0]} takes part in selecting the group of interest: in that row, its figure partly comes from how the group was chosen.`)
+        : L(`${circ[0]} y ${circ[1]} participan en la selección del grupo de interés: en esa fila, sus cifras salen en parte de cómo se eligió el grupo.`, `${circ[0]} and ${circ[1]} take part in selecting the group of interest: in that row, their figures partly come from how the group was chosen.`) }}
+    </p>
     <p class="cx__pie">
       {{ L('«Detectado» quiere decir al menos una molécula (UMI) del gen. Una célula puede salir positiva solo por ARN suelto de la muestra, así que «los dos» puede incluir coincidencias por ruido.',
         '“Detected” means at least one molecule (UMI) of the gene. A cell can come out positive from loose RNA in the sample alone, so “both” may include chance overlaps from noise.') }}
@@ -59,5 +67,6 @@ const titulo = (c: Coexp) => ({
 .cx__desliza { display: none; margin: 0 0 var(--sp-8); font: var(--tipo-body-sm); font-size: var(--texto-xs); color: var(--texto-2); }
 @media (max-width: 639px) { .cx__desliza { display: block; } }
 .cx__pct { color: var(--texto-2); font-size: var(--texto-xs); }
+.cx__circ { color: var(--texto-1); }
 .cx__pie { margin: var(--sp-12) 0 0; font: var(--tipo-body-sm); font-size: var(--texto-xs); color: var(--texto-2); max-width: var(--measure); }
 </style>

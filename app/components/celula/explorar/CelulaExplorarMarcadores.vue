@@ -22,11 +22,17 @@ const filas = computed(() => {
   if (!m) return []
   return m.gen.map((g, k) => ({ gen: g, logfc: m.logfc[k]!, fdr: m.fdr[k]!, a: m.frac_grupo[k]!, b: m.frac_resto[k]!, suelo: m.suelo[k]! }))
 })
+/** En el grupo de interés, un gen que participa en su selección sale arriba por cómo se eligió el grupo (diseño, 18-oct:
+ * Genes y Violines lo rotulaban y aquí no, y «Cómo leerlo» promete que esos genes llevan su rótulo). */
+const esInteres = computed(() => props.d.grupos.find((g) => g.id === grupo.value)?.rol === 'interes')
+const circular = (g: string) => esInteres.value && !!props.d.seleccion[g]
+const hayCirc = computed(() => filas.value.some((f) => circular(f.gen)))
 const pulsado = ref('')
 function elige(g: string) { pulsado.value = g; emit('elegir', g) }
 const coma = (s: string) => (props.lang === 'en' ? s : s.replace('.', ','))
 const fc = (x: number) => coma(x.toFixed(2))
-const fdr = (x: number) => (x < 1e-3 ? coma(x.toExponential(1)) : coma(x.toFixed(3)))
+// FDR 0 en el fichero = por debajo de la precisión del cálculo (doble precisión), no un FDR de 0: se da como cota
+const fdr = (x: number) => (x <= 0 ? '< 1e-300' : x < 1e-3 ? coma(x.toExponential(1)) : coma(x.toFixed(3)))
 const idCtl = useId()
 </script>
 
@@ -48,8 +54,13 @@ const idCtl = useId()
       </div>
     </div>
     <p :id="`${idCtl}-cap`" class="mk__cap">
-      {{ L(`${filas.length} genes de ${etiqueta(ETIQUETA_GRUPO, grupo, 'es')}, ordenados por el estadístico de Wilcoxon; en gris, los de FDR de 0,05 o más (no distinguen al grupo).`,
-        `${filas.length} genes of ${etiqueta(ETIQUETA_GRUPO, grupo, 'en')}, ordered by the Wilcoxon statistic; in grey, those with FDR of 0.05 or more (they do not set the group apart).`) }}
+      {{ L(`${etiqueta(ETIQUETA_GRUPO, grupo, 'es')}: ${filas.length} genes, ordenados por el estadístico de Wilcoxon. En gris, los de FDR de 0,05 o más: con ese umbral no distinguen al grupo.`,
+        `${etiqueta(ETIQUETA_GRUPO, grupo, 'en')}: ${filas.length} genes, ranked by the Wilcoxon statistic. In grey, those with FDR of 0.05 or more: at that threshold they do not set the group apart.`) }}
+    </p>
+    <p v-if="hayCirc" class="mk__circ">
+      * <strong>{{ L('Circular.', 'Circular.') }}</strong>
+      {{ L('Los genes con asterisco participan en la selección de este grupo: su diferencia con el resto sale en parte de cómo se eligió el grupo, no es una medida independiente.',
+        'Genes with an asterisk take part in selecting this group: their difference from the rest partly comes from how the group was chosen, so it is not an independent measurement.') }}
     </p>
     <p class="mk__desliza" aria-hidden="true">{{ L('Desliza para ver las seis columnas →', 'Swipe to see all six columns →') }}</p>
     <div class="mk__tabla" role="region" :aria-labelledby="`${idCtl}-cap`" tabindex="0">
@@ -69,6 +80,7 @@ const idCtl = useId()
             <th scope="row">
               <button v-if="abribles(f.gen)" type="button" class="mk__gen" :aria-pressed="f.gen === elegido" @click="elige(f.gen)">{{ f.gen }}</button>
               <span v-else class="mk__gen mk__gen--fijo">{{ f.gen }}</span>
+              <span v-if="circular(f.gen)" class="mk__ast" :title="L('Circular: ver la nota de encima de la tabla', 'Circular: see the note above the table')">*</span>
             </th>
             <td class="nums">{{ fmtPct(f.a, lang) }}</td>
             <td class="nums">{{ fmtPct(f.suelo, lang) }}</td>
@@ -107,6 +119,9 @@ const idCtl = useId()
 .mk__desliza { display: none; margin: 0 0 var(--sp-8); font: var(--tipo-body-sm); font-size: var(--texto-xs); color: var(--texto-2); }
 @media (max-width: 719px) { .mk__desliza { display: block; } }   /* tabla de 560 px + márgenes del bloque */
 .mk__tabla { overflow: auto; max-height: 30rem; border: 1px solid var(--trazo-sutil); border-radius: var(--radius-btn); }
+@media (max-width: 1023px) { .mk__tabla { max-height: none; } }   /* sin scroll dentro del scroll en táctil (diseño, 18-oct) */
+.mk__circ { margin: 0 0 var(--sp-8); font: var(--tipo-body-sm); font-size: var(--texto-xs); color: var(--texto-1); max-width: var(--measure); }
+.mk__ast { margin-left: 2px; font: 600 var(--texto-xs) var(--font-body); color: var(--texto-1); }
 .mk__tabla table { width: 100%; min-width: 560px; border-collapse: separate; border-spacing: 0; font: var(--tipo-body-sm); font-size: var(--texto-xs); }
 .mk__cap { margin: 0 0 var(--sp-8); color: var(--texto-2); font: var(--tipo-body-sm); font-size: var(--texto-xs); max-width: var(--measure); }
 .mk__tabla th, .mk__tabla td { padding: var(--sp-8) var(--sp-12); text-align: right; border-bottom: 1px solid var(--trazo-sutil); white-space: nowrap; }

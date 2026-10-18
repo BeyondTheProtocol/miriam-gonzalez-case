@@ -293,10 +293,11 @@ export function tablaCoexp(d: LesionDatos, etiquetas: Coexp[]): { id: string; n:
   })
 }
 
-/** Porcentaje fino (fracción de UMI de ADN) con la precisión que tiene sentido: un decimal por debajo del 10 %, entero por encima. */
+/** Porcentaje fino (fracción de UMI de ADN) con la precisión que tiene sentido: dos decimales por debajo del 1 %
+ * (con uno, una barra visible salía «0,0 %»: pase de voz, 18-oct), uno por debajo del 10 %, entero por encima. */
 export function fmtPctFino(x: number, lang: 'es' | 'en'): string {
   const v = 100 * x
-  const t = v < 10 ? (Math.round(v * 10) / 10).toFixed(1) : String(Math.round(v))
+  const t = v < 1 ? (Math.round(v * 100) / 100).toFixed(2) : v < 10 ? (Math.round(v * 10) / 10).toFixed(1) : String(Math.round(v))
   const n = lang === 'en' ? t : t.replace('.', ',')
   return lang === 'en' ? `${n}%` : `${n} %`
 }

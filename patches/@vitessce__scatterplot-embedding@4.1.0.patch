@@ -1,0 +1,19 @@
+diff --git a/dist/index-BPLMRXHR.js b/dist/index-BPLMRXHR.js
+index 2516e368aaf6096da52fbf5686dfbe912fbbac38..5623a33f6ee5b2fada38525a199c0a3a9cc48e81 100644
+--- a/dist/index-BPLMRXHR.js
++++ b/dist/index-BPLMRXHR.js
+@@ -151083,7 +151083,13 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
+         getTextAnchor: "middle",
+         getAlignmentBaseline: "center",
+         fontFamily: LABEL_FONT_FAMILY,
+-        fontWeight: "normal"
++        fontWeight: "normal",
++        // helpmiriam (18-oct-26): sin characterSet, deck.gl solo dibuja ASCII y «Células» salía «C lulas».
++        // El contorno separa el rótulo de los puntos de su propio cúmulo (diseño, revisión con datos reales).
++        characterSet: "auto",
++        fontSettings: { sdf: true, buffer: 6 },
++        outlineWidth: 3,
++        outlineColor: theme === "dark" ? [24, 16, 40, 230] : [255, 255, 255, 230]
+       }));
+     }
+     return result;

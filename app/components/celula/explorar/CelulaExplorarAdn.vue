@@ -24,8 +24,8 @@ const max = computed(() => Math.max(1e-9, ...filas.value.map((f) => f.v)))
     </p>
     <p class="adng__p">
       <strong>{{ L('Solo por grupo.', 'Per group only.') }}</strong>
-      {{ L('Es un cociente del grupo entero: célula a célula puede salir más ADN que moléculas en total, que es imposible. Se da en las dos lesiones; el suelo ambiental de los violines solo descuenta el ADN en el hueso.',
-        'It is a ratio over the whole group: cell by cell it can exceed the total molecules, which is impossible. It is given for both lesions; the ambient floor in the violins only accounts for DNA in the bone.') }}
+      {{ L('Es un cociente sobre el grupo entero. Célula a célula, la estimación puede superar el total de moléculas de la célula, y eso es imposible. Aquí se muestra para las dos lesiones, pero el suelo ambiental de los violines incluye este ADN solo en el hueso, no en el hígado.',
+        'It is a ratio over the whole group. Cell by cell, the estimate can exceed the cell’s total molecules, which is impossible. It is shown here for both lesions, but the ambient floor in the violins includes this DNA only in the bone, not in the liver.') }}
     </p>
     <p class="adng__escala">{{ L(`Escala de las barras: de 0 a ${fmtPctFino(max, 'es')}, el valor mayor.`, `Bar scale: from 0 to ${fmtPctFino(max, 'en')}, the largest value.`) }}</p>
     <ul class="adng__lista">

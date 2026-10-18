@@ -23,6 +23,14 @@ const html = (r) => { for (const p of [`${r}.html`, join(r, 'index.html')]) { co
 const vitessce = readdirSync(join(ROOT, '_nuxt')).filter((f) => f.endsWith('.js') && readFileSync(join(ROOT, '_nuxt', f), 'utf8').includes('Plot options and controls'))
 ok('existe el chunk del motor (Vitessce)', vitessce.length > 0)
 
+// pase de voz (18-oct): el eje del perfil iba en orden de texto (1, 10, 11…); un FDR 0 salía «0,0e+0»; y al elegir
+// un gen el aviso decía «está en el mapa» con el mapa aún coloreado por grupo
+const perfilEnOrden = `(() => { const n = [...document.querySelectorAll('.pf__eti')].map((e) => Number(e.textContent)); return n.length > 1 && n.every((x, k) => k === 0 || x > n[k - 1]) })()`
+const sinFdrCero = `![...document.querySelectorAll('.mk__tabla td')].some((t) => /^0[.,]0e\\+0$/.test(t.textContent.trim()))`
+// diseño (18-oct, datos reales): el valor mitocondrial del QC desbordaba sobre la fila siguiente
+const qcSinDesborde = `[...document.querySelectorAll('.qc__fila dd')].every((dd) => dd.scrollWidth <= dd.clientWidth + 1)`
+const mapaEnGen = `[...document.querySelectorAll('.exp__seg button')].some((b) => /Gen elegido|Selected gene/.test(b.textContent) && b.getAttribute('aria-pressed') === 'true')`
+
 /* ── con DATOS REALES publicados (manifiesto sin «ejemplo»): la página está abierta; se comprueba eso y se termina ── */
 const manPub = JSON.parse(readFileSync(join(ROOT, 'celula', 'explorador', 'manifiesto.json'), 'utf8'))
 if (manPub.ejemplo !== true) {
@@ -46,12 +54,19 @@ if (manPub.ejemplo !== true) {
     ok('real: violines con n y suelo por grupo', await esperaR(navR, `[...document.querySelectorAll('.vio__fila')].filter((f) => /suelo \\d+ %/.test(f.textContent) && /n = \\d/.test(f.textContent)).length > 0`))
     ok('real: aviso fijo del hígado', await navR.evaluate(`/tumor frente a hepatocito no está resuelto célula a célula/.test(document.querySelector('.exp__banner')?.textContent ?? '')`))
     ok('real: marcadores, perfil, ADN por grupo y QC con datos', await esperaR(navR, `document.querySelectorAll('.mk__tabla tbody tr').length > 0 && !!document.querySelector('.pf__linea') && document.querySelectorAll('.adng__fila').length > 0 && document.querySelectorAll('.qc__fila').length >= 6`))
+    ok('real: el eje del perfil va en el orden del genoma (1, 2, … 22)', await navR.evaluate(perfilEnOrden))
+    ok('real: ningún FDR de marcadores sale como «0,0e+0»', await navR.evaluate(sinFdrCero))
+    ok('real: ningún valor del QC desborda su celda', await navR.evaluate(qcSinDesborde))
+    ok('real hígado: en marcadores del grupo de interés, los genes de la selección llevan asterisco y la nota de circularidad', await navR.evaluate(`!!document.querySelector('.mk__circ') && document.querySelectorAll('.mk__ast').length > 0`))
     const todos = Array.isArray(manPub.zarr) && manPub.zarr.length > 0
     if (todos) {
       ok('real: buscador de todos los genes activo', await esperaR(navR, `!!document.querySelector('.exp__busca input:not([disabled])')`))
       await navR.evaluate(`(() => { const i = document.querySelector('.exp__busca input'); i.value = 'ACT'; i.dispatchEvent(new Event('input')) })()`)
       const gen = await esperaR(navR, `document.querySelectorAll('.exp__sug button').length > 0`) ? await navR.evaluate(`(() => { const b = document.querySelector('.exp__sug button'); b.click(); return b.textContent.trim() })()`) : ''
       ok(`real: un gen buscado (${gen || 'ninguno'}) se lee del Zarr y sale en los violines`, !!gen && await esperaR(navR, `document.querySelector('#exp-violines h2')?.textContent.includes('${gen}') && document.querySelectorAll('.vio__fila').length > 0`))
+      ok('real: el gen buscado pasa a colorear el mapa («Gen elegido»)', await navR.evaluate(mapaEnGen))
+      await navR.evaluate(`(() => { const i = document.querySelector('.exp__busca input'); i.value = 'HER2'; i.dispatchEvent(new Event('input')) })()`)
+      ok('real: buscar por la proteína (HER2) sugiere el gen (ERBB2)', await esperaR(navR, `document.querySelector('.exp__sug button')?.dataset.gen === 'ERBB2'`))
     }
     else ok('real sin la decisión de la matriz completa: no hay buscador de todos los genes', !(await navR.evaluate(`!!document.querySelector('.exp__busca')`)))
     await navR.cdp('Emulation.setDeviceMetricsOverride', { width: 375, height: 812, deviceScaleFactor: 1, mobile: true })
@@ -137,6 +152,9 @@ try {
   ok('demo hígado: perfil por regiones dibujado y con «Expresión, no ADN»', pn.perfil)
   ok('demo hígado: ADN por grupo, una fila por grupo con células y el aviso «solo por grupo»', pn.adnFilas > 0 && pn.adnAviso)
   ok('demo hígado: control de calidad con sus filas', pn.qcFilas >= 6)
+  ok('demo hígado: el eje del perfil va en el orden del genoma (1, 2, … 22)', await nav.evaluate(perfilEnOrden))
+  ok('demo hígado: ningún FDR de marcadores sale como «0,0e+0»', await nav.evaluate(sinFdrCero))
+  ok('demo hígado: ningún valor del QC desborda su celda', await nav.evaluate(qcSinDesborde))
   // nivel «todos los genes» (Zarr, solo en la demo del ejemplo): buscar un gen fuera del panel y verlo en los violines
   const hayBusca = await espera(nav, `!!document.querySelector('.exp__busca input:not([disabled])')`)
   ok('demo hígado: buscador de todos los genes activo', hayBusca)
@@ -148,6 +166,7 @@ try {
       const elegido = await nav.evaluate(`(() => { const b = document.querySelector('.exp__sug button'); b.click(); return b.textContent.trim() })()`)
       ok(`demo hígado: ${elegido}, leído del Zarr, sale en los violines con n y suelo por grupo`,
         await espera(nav, `document.querySelector('#exp-violines h2')?.textContent.includes('${elegido}') && [...document.querySelectorAll('.vio__fila')].filter((f) => /suelo \\d+ %/.test(f.textContent) && /n = \\d/.test(f.textContent)).length > 0`))
+      ok('demo escritorio: el gen buscado pasa a colorear el mapa («Gen elegido»)', await nav.evaluate(mapaEnGen))
     }
   }
   ok('escritorio 1280: toda tabla o figura que desborda avisa de que se desliza', await nav.evaluate(`[['.mk__tabla', '.mk__desliza'], ['.pf__marco', '.pf__desliza']].every(([m, a]) => { const e = document.querySelector(m), v = document.querySelector(a); if (!e || !v) return false; return e.scrollWidth <= e.clientWidth + 1 || getComputedStyle(v).display !== 'none' })`))

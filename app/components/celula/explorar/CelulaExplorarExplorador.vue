@@ -18,7 +18,7 @@ import type { Coexp, Lesion, LesionDatos, Manifiesto } from '~/utils/celulaExplo
 import { coexpresion, nivelMatriz, porGrupo } from '~/utils/celulaExplorador'
 import { abreZarr, storeWeb, type ZarrLesion } from '~/utils/celulaExploradorZarr'
 import { cssRgb, paleta, type RGB } from '~/utils/celulaExploradorColor'
-import { ETIQUETA_GRUPO, ETIQUETA_LESION, ETIQUETA_TIPO, PANEL_INTERES, etiqueta, nombreGen } from '~/utils/celulaExploradorTexto'
+import { ETIQUETA_GRUPO, ETIQUETA_LESION, ETIQUETA_TIPO, PANEL_INTERES, PROTEINA, etiqueta, nombreGen } from '~/utils/celulaExploradorTexto'
 
 const props = defineProps<{ man: Manifiesto; ejemplo: boolean; lang: 'es' | 'en' }>()
 const L = (es: string, en: string) => (props.lang === 'en' ? en : es)
@@ -123,15 +123,20 @@ async function aseguraZarr(l: Lesion) {
   catch { avisoBusca.value = L('No se ha podido abrir la matriz de todos los genes, así que el buscador no funciona. El resto de la página, sí.', 'The all-genes matrix could not be opened, so gene search is unavailable. The rest of the page works as usual.') }
 }
 watch(d, () => { void aseguraZarr(lesion.value) }, { immediate: true })
+/** nombre de proteína → símbolo (HER2 → ERBB2): la página usa los nombres de proteína y un oncólogo buscará por ellos */
+const ALIAS: Record<string, string> = Object.fromEntries(Object.entries(PROTEINA).map(([g, p]) => [p.toUpperCase(), g]))
 const sugerencias = computed(() => {
   const q = busca.value.trim().toUpperCase()
-  if (!z.value || q.length < 2) return []
-  return z.value.genes.filter((g) => g.toUpperCase().startsWith(q)).slice(0, 12)
+  const zl = z.value
+  if (!zl || q.length < 2) return []
+  const porAlias = Object.entries(ALIAS).filter(([p]) => p.startsWith(q)).map(([, g]) => g).filter((g) => zl.tiene(g))
+  return [...new Set([...porAlias, ...zl.genes.filter((g) => g.toUpperCase().startsWith(q))])].slice(0, 12)
 })
 /** ¿Se puede abrir este gen en el mapa y los violines? Los del JSON siempre; con el Zarr, cualquiera con sonda. */
 const abrible = (g: string) => !!d.value?.expr[g] || (!!z.value && z.value.tiene(g) && !z.value.sinSonda.has(g))
 /** Abre cualquier gen: si no está en el JSON, lee su columna del Zarr y la añade a los datos de la lesión. */
 async function abreGen(g: string, origen: 'busca' | 'marcadores' = 'busca') {
+  g = ALIAS[g.toUpperCase()] ?? g
   const x = d.value
   avisoBusca.value = ''
   elegidoBusca.value = ''
@@ -139,7 +144,7 @@ async function abreGen(g: string, origen: 'busca' | 'marcadores' = 'busca') {
   if (!x.expr[g]) {
     const zl = z.value
     if (!zl || !zl.tiene(g)) {
-      avisoBusca.value = L(`No hay ningún gen «${g}» en esta prueba. Revisa el símbolo (por ejemplo, MKI67).`, `There is no gene «${g}» in this assay. Check the symbol (for example, MKI67).`)
+      avisoBusca.value = L(`No hay ningún gen «${g}» en estos datos. Busca por el símbolo del gen, no por la proteína (ERBB2, no HER2). Si el símbolo es correcto, el panel no lo mide o lo lista con otro nombre; que no se mida no quiere decir que no se exprese.`, `There is no gene “${g}” in these data. Search by gene symbol, not protein name (ERBB2, not HER2). If the symbol is right, the panel does not measure it or lists it under another name; not being measured does not mean it is not expressed.`)
       return
     }
     if (zl.sinSonda.has(g)) {
@@ -157,17 +162,23 @@ async function abreGen(g: string, origen: 'busca' | 'marcadores' = 'busca') {
       x.sondas[g] = zl.sondasDe(g)
       if (!x.veredicto[g]) x.veredicto[g] = 'sin_veredicto'
     }
-    catch { avisoBusca.value = L(`No se ha podido leer ${g}.`, `${g} could not be read.`); return }
+    catch { avisoBusca.value = L(`No se ha podido leer ${g}. Vuelve a intentarlo.`, `${g} could not be read. Try again.`); return }
     finally { leyendoGen.value = false }
   }
   busca.value = ''
   gen.value = g
+  pintaGen()
   if (origen === 'busca') elegidoBusca.value = g      // los violines quedan DEBAJO del buscador: enlace, no «más arriba»
 }
+
+/** Elegir un gen (buscador, marcadores o tabla) lo pinta también en el mapa: sin esto el mapa seguía coloreado por
+ * grupo y el aviso «está ahora en el mapa» era falso (pase de voz, 18-oct). En co-expresión el gen ya es el gen A. */
+function pintaGen() { if (!movil.value && modo.value !== 'coexp') modo.value = 'gen' }
 
 /** Elegir un gen desde la tabla: los violines y el mapa cambian arriba, y se anuncia. */
 function elegirDesdeTabla(g: string) {
   gen.value = g
+  pintaGen()
   aviso.value = movil.value
     ? L(`Mostrando ${nombreGen(g)} en los violines, más arriba.`, `Showing ${nombreGen(g)} in the violins, further up.`)
     : L(`Mostrando ${nombreGen(g)} en el mapa y en los violines, más arriba.`, `Showing ${nombreGen(g)} on the map and in the violins, further up.`)
@@ -234,9 +245,9 @@ function sinTapar(ev: FocusEvent) {
         <label :for="`${idCtl}-busca`" class="exp__eti">{{ z ? L(`Buscar entre los ${fmtN(z.genes.length, lang)} genes`, `Search the ${fmtN(z.genes.length, lang)} genes`) : L('Buscar un gen', 'Search for a gene') }}</label>
         <input :id="`${idCtl}-busca`" v-model="busca" class="exp__sel" type="search" autocomplete="off" spellcheck="false" :disabled="!z"
                :placeholder="L('Símbolo, p. ej. MKI67', 'Symbol, e.g. MKI67')" @keydown.enter.prevent="busca.trim() && abreGen(sugerencias[0] ?? busca.trim().toUpperCase())" />
-        <p class="sr-only" aria-live="polite">{{ busca.trim().length >= 2 && z ? L(`${sugerencias.length} genes coinciden`, `${sugerencias.length} matching genes`) : '' }}</p>
+        <p class="sr-only" aria-live="polite">{{ busca.trim().length >= 2 && z ? (sugerencias.length === 0 ? L('Ningún gen coincide', 'No matching genes') : sugerencias.length === 1 ? L('1 gen coincide', '1 matching gene') : L(`Se muestran ${sugerencias.length} genes que coinciden`, `Showing ${sugerencias.length} matching genes`)) : '' }}</p>
         <ul v-if="sugerencias.length" class="exp__sug" :aria-label="L('Genes que coinciden', 'Matching genes')">
-          <li v-for="g in sugerencias" :key="g"><button type="button" class="exp__btn exp__btn--sm" @click="abreGen(g)">{{ g }}</button></li>
+          <li v-for="g in sugerencias" :key="g"><button type="button" class="exp__btn exp__btn--sm" :data-gen="g" @click="abreGen(g)">{{ PROTEINA[g] ? nombreGen(g) : g }}</button></li>
         </ul>
         <p v-if="leyendoGen" class="exp__nota" role="status">{{ L('Leyendo el gen…', 'Reading the gene…') }}</p>
         <p class="exp__nota exp__nota--busca" role="status">
@@ -259,8 +270,8 @@ function sinTapar(ev: FocusEvent) {
         <p><strong>{{ L('Hígado: tumor frente a hepatocito no está resuelto célula a célula.', 'Liver: tumor versus hepatocyte is not resolved cell by cell.') }}</strong></p>
       </div>
       <p class="exp__nota exp__nota--banner">
-        {{ L('El grupo «luminal de alta confianza» es un subconjunto, no el tumor entero, y sus cifras no son «% de células tumorales». «Otras, sin asignar» puede incluir células tumorales.',
-          'The “high-confidence luminal” group is a subset, not the whole tumor, and its figures are not “% of tumor cells”. “Other, not assigned” may include tumor cells.') }}
+        {{ L('El grupo «Luminal de alta confianza» es un subconjunto, no el tumor entero, y sus cifras no son «% de células tumorales». «Otras, sin asignar a un grupo» también puede incluir células tumorales.',
+          'The “High-confidence luminal” group is a subset, not the whole tumor, and its figures are not “% of tumor cells”. “Other, not assigned to a group” may also include tumor cells.') }}
       </p>
     </template>
 
@@ -312,8 +323,8 @@ function sinTapar(ev: FocusEvent) {
           </li>
         </ul>
         <p class="exp__nota">{{ L('El n de cada grupo sale directamente del fichero de datos.', 'Each group’s n comes straight from the data file.') }}</p>
-        <p class="exp__nota">{{ L('Grupo y tipo celular salen de métodos distintos: el grupo es la selección del análisis; el tipo, la anotación por marcadores de uno de los analistas. Por eso una célula del grupo de interés puede figurar con otro tipo o «sin asignar».',
-          'Group and cell type come from different methods: the group is the analysis selection; the type, one analyst’s marker-based annotation. That is why a cell in the group of interest may show another type or «unassigned».') }}</p>
+        <p class="exp__nota">{{ L('Grupo y tipo celular salen de métodos distintos: el grupo, de la selección de células del análisis revisado; el tipo, de la anotación por marcadores de uno de los analistas. Por eso una célula del grupo de interés puede figurar con otro tipo, o con el tipo «Sin asignar».',
+          'Group and cell type come from different methods: the group, from the cell selection in the reviewed analysis; the type, from one analyst’s marker-based annotation. That is why a cell in the group of interest may show another type, or the type “Unassigned”.') }}</p>
       </div>
 
       <div id="exp-genes" class="exp__bloque">
@@ -402,7 +413,7 @@ function sinTapar(ev: FocusEvent) {
 #exp-violines { scroll-margin-top: calc(var(--exp-top, 8px) + 7rem); }   /* que el salto no lo tape la cabecera ni el aviso fijo */
 .exp__h2 { font: var(--tipo-h3); color: var(--texto-1); margin: 0 0 var(--sp-12); }
 .exp__nota { margin: var(--sp-8) 0 0; font: var(--tipo-body-sm); font-size: var(--texto-xs); color: var(--texto-2); max-width: var(--measure); }
-.exp__nota--busca:empty { margin: 0; }
+.exp__nota--busca:empty { display: none; }
 .exp__nota--banner { margin-top: var(--sp-8); }
 .exp__salto { display: inline-block; margin-bottom: var(--sp-8); color: var(--identidad); font: 600 var(--texto-sm) var(--font-body); }
 .exp__leyenda { list-style: none; margin: var(--sp-12) 0 0; padding: 0; display: flex; flex-wrap: wrap; gap: var(--sp-4) var(--sp-16); font: var(--tipo-body-sm); font-size: var(--texto-xs); color: var(--texto-1); }
@@ -412,7 +423,7 @@ function sinTapar(ev: FocusEvent) {
 .exp__bloque { margin-top: var(--sp-32); padding-top: var(--sp-24); border-top: 1px solid var(--trazo-medio); }
 .exp__grupos { list-style: none; margin: 0; padding: 0; display: grid; gap: 0 var(--sp-24); grid-template-columns: repeat(auto-fill, minmax(min(15rem, 100%), 1fr)); }
 .exp__grupos li { display: flex; justify-content: space-between; gap: var(--sp-8); padding: var(--sp-8) 0; border-bottom: 1px solid var(--trazo-sutil); font: var(--tipo-body-sm); }
-.exp__grupos .nums { font-family: var(--font-mono); color: var(--texto-2); }
+.exp__grupos .nums { font-family: var(--font-mono); color: var(--texto-2); white-space: nowrap; flex: none; }
 .exp__g--interes span:first-child { color: var(--identidad); font-weight: 600; }
 .exp__busca { position: relative; }
 .exp__sug { position: absolute; top: calc(100% + var(--sp-4)); left: 0; right: 0; z-index: 10; list-style: none; margin: 0; padding: var(--sp-8); display: flex; flex-wrap: wrap; gap: var(--sp-4); max-width: 28rem; background: var(--fondo); border: 1px solid var(--trazo-fuerte); border-radius: var(--radius-btn); box-shadow: 0 6px 18px color-mix(in srgb, var(--texto-1) 12%, transparent); }

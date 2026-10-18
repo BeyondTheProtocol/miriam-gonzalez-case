@@ -107,6 +107,10 @@ function ajusta(el: HTMLElement, lang: 'es' | 'en') {
       if (v && TEXTOS[v]) b.setAttribute(a, TEXTOS[v][lang])
     }
   }
+  // pie «19,047 cells» de Vitessce: fijo en inglés y con coma de miles; la página ya da «19.047 células…» debajo
+  for (const n of el.querySelectorAll<HTMLElement>('p, span, div')) {
+    if (!n.childElementCount && /^\s*[\d,]+ cells?\s*$/.test(n.textContent ?? '')) n.style.display = 'none'
+  }
   // el lienzo no se maneja con teclado: que no sea una parada de tabulación sin nombre
   for (const d of el.querySelectorAll<HTMLElement>('div[tabindex="0"]')) if (!d.getAttribute('aria-label')) d.setAttribute('tabindex', '-1')
 }

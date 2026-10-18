@@ -4,6 +4,9 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
+patchedDependencies:
+  '@vitessce/scatterplot-embedding@4.1.0': f6ad37341f17e8f5d100331e2af66fccd69c6b2d98341f9757c60477d8f2ad88
+
 importers:
 
   .:
@@ -46,7 +49,7 @@ importers:
         version: 4.1.0
       '@vitessce/scatterplot-embedding':
         specifier: 4.1.0
-        version: 4.1.0(95680afbf31aa8b59dc557ec6025e767)
+        version: 4.1.0(patch_hash=f6ad37341f17e8f5d100331e2af66fccd69c6b2d98341f9757c60477d8f2ad88)(95680afbf31aa8b59dc557ec6025e767)
       '@vitessce/schemas':
         specifier: 4.1.0
         version: 4.1.0
@@ -14329,7 +14332,7 @@ snapshots:
     dependencies:
       zod: 3.25.76
 
-  '@vitessce/scatterplot-embedding@4.1.0(95680afbf31aa8b59dc557ec6025e767)':
+  '@vitessce/scatterplot-embedding@4.1.0(patch_hash=f6ad37341f17e8f5d100331e2af66fccd69c6b2d98341f9757c60477d8f2ad88)(95680afbf31aa8b59dc557ec6025e767)':
     dependencies:
       '@turf/circle': 7.4.0
       '@vitessce/constants-internal': 4.1.0
