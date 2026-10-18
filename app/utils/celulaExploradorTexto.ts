@@ -70,7 +70,7 @@ export const PAPEL_SELECCION: Record<string, T> = {
   exclusion: t('participa en la selección de este grupo (marcador de exclusión): su cifra aquí sale baja por construcción',
     'takes part in selecting this group (exclusion marker): its figure here is low by construction'),
   ligado_er: t('va ligado al programa con el que se seleccionó este grupo: su cifra aquí sale favorecida',
-    'is tied to the programme used to select this group: its figure here is favoured'),
+    'is tied to the program used to select this group: its figure here is favored'),
 }
 
 /** Nombres clínicos que un médico teclea, solo para el BUSCADOR (comité médico, 18-oct: «ER» no llevaba a ESR1 ni

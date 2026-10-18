@@ -24,13 +24,15 @@ import type { Coexp, Lesion, LesionDatos, Manifiesto } from '~/utils/celulaExplo
 import { coexpresion, columna, nivelMatriz, porGrupo } from '~/utils/celulaExplorador'
 import { abreZarr, storeWeb, type ZarrLesion } from '~/utils/celulaExploradorZarr'
 import { cssRgb, paleta, type RGB } from '~/utils/celulaExploradorColor'
-import { ALIAS_BUSCA, ETIQUETA_GRUPO, ETIQUETA_LESION, PANEL_INTERES, PROTEINA, etiqueta, nombreGen } from '~/utils/celulaExploradorTexto'
+import { ALIAS_BUSCA, ETIQUETA_GRUPO, ETIQUETA_LESION, ETIQUETA_VEREDICTO, ETIQUETAS_FIJAS, PANEL_INTERES, PROTEINA, etiqueta, nombreGen } from '~/utils/celulaExploradorTexto'
 
 const props = defineProps<{ man: Manifiesto; ejemplo: boolean; lang: 'es' | 'en' }>()
 const L = (es: string, en: string) => (props.lang === 'en' ? en : es)
 
 // táctil o estrecho: el mapa va encima del panel y queda quieto hasta pedir moverlo (Vitessce lleva touch-action:none)
 const movil = useMediaQuery('(max-width: 1023px)')
+const gruesa = useMediaQuery('(pointer: coarse)')
+const tactil = computed(() => movil.value || gruesa.value)
 const { height: altoVentana } = useWindowSize()
 /** el mapa ocupa lo que queda libre de la pantalla bajo la cabecera del sitio y el aviso fijo (diseño, 18-oct: con un
  * porcentaje fijo del alto se cortaba por abajo), con topes */
@@ -71,6 +73,8 @@ watch(d, (x) => {
   if (!x.genes.includes(genB.value) || genB.value === gen.value) genB.value = x.genes.find((g) => g !== gen.value)!
 })
 
+// Dos genes: el segundo gen nunca es el primero (al abrir TPBG salía «5T4 y 5T4»; revisión final, 18-oct)
+watch(gen, (g) => { if (genB.value === g && d.value) genB.value = [...PANEL_INTERES.filter((x) => d.value!.genes.includes(x)), ...d.value.genes].find((x) => x !== g)! })
 const genesInteres = computed(() => (d.value ? PANEL_INTERES.filter((g) => d.value!.genes.includes(g)) : []))
 const genesOtros = computed(() => (d.value ? d.value.genes.filter((g) => !PANEL_INTERES.includes(g)).sort() : []))
 const filas = computed(() => (d.value ? porGrupo(d.value, gen.value) : []))
@@ -80,6 +84,8 @@ const nombresCx = computed<Record<Coexp, string>>(() => ({
 }))
 const PROT = (g: string) => nombreGen(g).split(' (')[0]!
 const nTotal = computed(() => (d.value ? fmtN(d.value.n_celulas, props.lang) : ''))
+/** células leídas antes del control de calidad (del fichero), si difieren de las que quedan */
+const nLeidas = computed(() => { const n = (d.value?.qc as { n_inicial?: number } | undefined)?.n_inicial; return d.value && typeof n === 'number' && n > d.value.n_celulas ? fmtN(n, props.lang) : '' })
 /** «Colorear por» en un desplegable: Gen y Dos genes solo con un gen activo */
 const MODOS = computed(() => [
   { k: 'grupo', t: L('Grupo', 'Group'), off: false },
@@ -164,12 +170,14 @@ const zcache = shallowReactive<Partial<Record<Lesion, ZarrLesion>>>({})
 const z = computed(() => zcache[lesion.value] ?? null)
 const busca = ref('')
 const avisoBusca = ref('')
+/** la matriz completa no abrió: el aviso queda fijo (abreGen no lo borra) y aparece la lista de reserva */
+const avisoZarr = ref('')
 const leyendoGen = ref(false)
 async function aseguraZarr(l: Lesion) {
   const x = cache[l]
   if (nivel.value !== 'todos' || zcache[l] || !x) return
   try { zcache[l] = await abreZarr(storeWeb(l), x.n_celulas, x.grupos.map((g) => g.id)) }
-  catch { avisoBusca.value = L('No se ha podido abrir la matriz de todos los genes, así que el buscador no funciona. El resto de la página, sí.', 'The all-genes matrix could not be opened, so gene search is unavailable. The rest of the page works as usual.') }
+  catch { avisoZarr.value = L('No se ha podido abrir la matriz de todos los genes, así que el buscador no funciona. El resto de la página, sí.', 'The all-genes matrix could not be opened, so gene search is unavailable. The rest of the page works as usual.') }
 }
 // al cambiar de biopsia, el gen activo se vuelve a abrir en la otra (comparar hígado y hueso es tarea del médico)
 watch(d, async (x) => {
@@ -196,6 +204,9 @@ const sugerencias = computed(() => {
 /** ¿Se puede abrir este gen en el mapa y los violines? Los del JSON siempre; con el Zarr, cualquiera con sonda. */
 const abrible = (g: string) => !!d.value?.expr[g] || (!!z.value && z.value.tiene(g) && !z.value.sinSonda.has(g))
 /** Abre cualquier gen: si no está en el JSON, lee su columna del Zarr y la añade a los datos de la lesión. */
+/** de dónde se abrió el gen: «Volver» devuelve el foco a ese gen en esa lista, o al buscador (WCAG 2.4.3; revisión final,
+ * 18-oct: caía en <body>). Por el origen y no por el foco previo: Safari no enfoca un botón al pulsarlo. */
+let origenDetalle: 'busca' | 'marcadores' | 'interes' = 'busca'
 async function abreGen(g: string, origen: 'busca' | 'marcadores' | 'interes' = 'busca') {
   g = ALIAS[norm(g)] ?? z.value?.genes.find((x) => norm(x) === norm(g)) ?? g
   const x = d.value
@@ -229,8 +240,17 @@ async function abreGen(g: string, origen: 'busca' | 'marcadores' | 'interes' = '
   gen.value = g
   activo.value = g
   if (origen !== 'busca') panel.value = origen        // «‹ Volver» regresa a la pestaña de la que se vino
+  origenDetalle = origen
   detalle.value = true
   pintaGen()
+  void nextTick(() => document.getElementById('exp-violines')?.focus({ preventScroll: true }))
+}
+function cierraDetalle() {
+  detalle.value = false
+  void nextTick(() => {
+    const sel = origenDetalle === 'marcadores' ? `.mk__gen[data-gen="${gen.value}"]` : origenDetalle === 'interes' ? `.gin__gen[data-gen="${gen.value}"]` : `#${idCtl}-busca`
+    ;(raiz.value?.querySelector<HTMLElement>(sel) ?? document.getElementById(`${idCtl}-tab-${panel.value}`))?.focus({ preventScroll: true })
+  })
 }
 /** pestañas del panel (patrón tablist: flechas para moverse; diseño, 18-oct: parecían chips) */
 const PESTANAS = computed(() => [{ k: 'interes' as const, t: L('Genes de interés', 'Genes of interest') }, { k: 'marcadores' as const, t: L('Marcadores', 'Markers') }])
@@ -247,7 +267,16 @@ function quitaGen() {
   activo.value = null
   detalle.value = false
   if (modo.value === 'gen' || modo.value === 'coexp') modo.value = 'grupo'
+  void nextTick(() => document.getElementById(`${idCtl}-busca`)?.focus({ preventScroll: true }))
 }
+/** lectura del gen abierto: la de la revisión si está en ella; si llegó por el buscador y no está, se dice (comité
+ * médico, 18-oct: por el buscador se veían las cifras de TROP2 sin su «No se sostiene») */
+const lecturaDetalle = computed(() => {
+  const x = d.value
+  if (!x) return ''
+  if (!x.genes.includes(gen.value)) return L('Este gen no está en la revisión: no tiene lectura.', 'This gene is not in the review: it has no reading.')
+  return (ETIQUETA_VEREDICTO[x.veredicto[gen.value] ?? 'sin_veredicto'] ?? ETIQUETA_VEREDICTO.sin_veredicto!)[props.lang]
+})
 /** abre «Más análisis» y lleva la tabla completa de genes de interés a la vista */
 function abreTabla() {
   if (masAnalisis.value) masAnalisis.value.open = true
@@ -342,7 +371,7 @@ function sinTapar(ev: FocusEvent) {
         <label :for="`${idCtl}-busca`" class="exp__eti">{{ z ? L(`Buscar un gen entre los ${fmtN(z.genes.length, lang)}`, `Search a gene among the ${fmtN(z.genes.length, lang)}`) : L('Buscar un gen', 'Search for a gene') }}</label>
         <div class="exp__buscafila">
           <input :id="`${idCtl}-busca`" v-model="busca" class="exp__sel exp__sel--busca" type="search" autocomplete="off" spellcheck="false" :disabled="!z"
-                 :placeholder="L('Gen, p. ej. MKI67 o HER2', 'Gene, e.g. MKI67 or HER2')" @keydown.enter.prevent="busca.trim() && abreGen(sugerencias[0] ?? busca.trim().toUpperCase())" />
+                 :placeholder="z ? L('Gen, p. ej. MKI67 o HER2', 'Gene, e.g. MKI67 or HER2') : avisoZarr ? L('Buscador no disponible', 'Search unavailable') : L('Cargando la lista de genes…', 'Loading the gene list…')" @keydown.enter.prevent="busca.trim() && abreGen(sugerencias[0] ?? busca.trim().toUpperCase())" />
           <span v-if="activo" class="exp__chip">
             <span class="exp__chipt">{{ nombreGen(activo) }}</span>
             <button type="button" class="exp__chipx" :aria-label="L(`Quitar ${nombreGen(activo)} del mapa`, `Remove ${nombreGen(activo)} from the map`)" @click="quitaGen">
@@ -356,9 +385,10 @@ function sinTapar(ev: FocusEvent) {
         </ul>
         <p v-if="leyendoGen" class="exp__nota" role="status">{{ L('Leyendo el gen…', 'Reading the gene…') }}</p>
         <p class="exp__nota exp__nota--busca" role="status"><template v-if="avisoBusca">{{ avisoBusca }}</template></p>
+        <p v-if="avisoZarr" class="exp__nota" role="alert">{{ avisoZarr }}</p>
       </div>
       <!-- sin la matriz completa (o si no abre), el único selector de gen es esta lista -->
-      <div v-if="d && !z" class="exp__campo">
+      <div v-if="d && (nivel !== 'todos' || avisoZarr)" class="exp__campo">
         <label :for="`${idCtl}-gen`" class="exp__eti">{{ L('Lista de genes', 'Gene list') }}</label>
         <select :id="`${idCtl}-gen`" class="exp__sel" :value="activo ?? ''" @change="abreGen(($event.target as HTMLSelectElement).value)">
           <option value="" disabled>{{ L('Elige un gen', 'Pick a gene') }}</option>
@@ -401,7 +431,7 @@ function sinTapar(ev: FocusEvent) {
       <div class="exp__sim">
         <div class="exp__mapacol">
           <h2 class="sr-only">{{ L('Mapa de células', 'Cell map') }}{{ ej }}</h2>
-          <div class="exp__mapabar" :class="{ 'exp__mapabar--dos': modo === 'coexp' }">
+          <div v-if="!errorMapa" class="exp__mapabar" :class="{ 'exp__mapabar--dos': modo === 'coexp' }">
             <div class="exp__campo exp__campo--fila">
               <label :for="`${idCtl}-modo`" class="exp__eti">{{ L('Colorear por', 'Color by') }}</label>
               <select :id="`${idCtl}-modo`" v-model="modo" class="exp__sel exp__sel--sm">
@@ -419,11 +449,12 @@ function sinTapar(ev: FocusEvent) {
               <svg v-else viewBox="0 0 256 256" aria-hidden="true"><path fill="currentColor" d="M233.54 142.23a8 8 0 0 0-8-2 88.08 88.08 0 0 1-109.8-109.8 8 8 0 0 0-10-10 104.84 104.84 0 0 0-52.91 37A104 104 0 0 0 136 224a103.09 103.09 0 0 0 62.52-20.88 104.84 104.84 0 0 0 37-52.91 8 8 0 0 0-1.98-7.98Zm-44.64 48.11A88 88 0 0 1 65.66 67.11a89 89 0 0 1 31.4-26A106 106 0 0 0 96 56a104.11 104.11 0 0 0 104 104 106 106 0 0 0 14.92-1.06 89 89 0 0 1-26.02 31.4Z" /></svg>
             </button>
           </div>
-          <a class="sr-only focus:not-sr-only exp__salto" href="#exp-panel">{{ L('Saltar el mapa', 'Skip the map') }}</a>
-          <CelulaExplorarMapa :d="d" :modo="modo" :gen="gen" :gen-b="genB" :conjuntos="conjuntos" :colores="colores" :colorear-por="colorearPor"
-                              :tema="tema === 'oscuro' ? 'dark' : 'light'" :lang="lang" :alto="altoMapa" :movil="movil" :orden="nivelGen?.orden" @error="errorMapa = $event" />
+          <a v-if="!errorMapa" class="sr-only focus:not-sr-only exp__salto" href="#exp-panel">{{ L('Saltar el mapa', 'Skip the map') }}</a>
+          <CelulaExplorarMapa v-if="!errorMapa" :d="d" :modo="modo" :gen="gen" :gen-b="genB" :conjuntos="conjuntos" :colores="colores" :colorear-por="colorearPor"
+                              :tema="tema === 'oscuro' ? 'dark' : 'light'" :lang="lang" :alto="altoMapa" :movil="movil" :tactil="tactil" :orden="nivelGen?.orden" @error="errorMapa = $event" />
           <p v-if="errorMapa" class="exp__estado exp__estado--error" role="alert">{{ L('El mapa no se ha podido dibujar en este navegador. El panel y los datos de abajo no dependen de él.', 'The map could not be drawn in this browser. The panel and the data below do not depend on it.') }}</p>
-          <p v-if="modo === 'gen'" class="exp__leyt">{{ L(`Nivel de ${nombreGen(gen)} en cada célula, en CP10k (moléculas del gen por cada 10.000 de la célula): no detectado o el tramo en que cae. Los tramos son de esta biopsia: el mismo color no es el mismo nivel en el hígado y en el hueso.`, `${nombreGen(gen)} level in each cell, in CP10k (molecules of the gene per 10,000 in the cell): not detected, or the band it falls in. The bands belong to this biopsy: the same colour is not the same level in the liver and in the bone.`) }}</p>
+          <template v-if="!errorMapa">
+          <p v-if="modo === 'gen'" class="exp__leyt">{{ L(`Nivel de ${nombreGen(gen)} en cada célula, en CP10k (moléculas del gen por cada 10.000 de la célula): no detectado o el tramo en que cae. Los tramos son de esta biopsia: el mismo color no es el mismo nivel en el hígado y en el hueso.`, `${nombreGen(gen)} level in each cell, in CP10k (molecules of the gene per 10,000 in the cell): not detected, or the band it falls in. The bands belong to this biopsy: the same color is not the same level in the liver and in the bone.`) }}</p>
           <ul v-if="leyenda.length" class="exp__leyenda" :aria-label="L('Leyenda del mapa', 'Map legend')">
             <li v-for="l in leyenda" :key="l.etiqueta"><span class="exp__muestra" :style="{ background: cssRgb(l.rgb) }" aria-hidden="true" />{{ l.etiqueta }} <span class="nums">{{ fmtN(l.n, lang) }}</span></li>
           </ul>
@@ -431,10 +462,12 @@ function sinTapar(ev: FocusEvent) {
             {{ L('El color es ARN, no proteína. El mapa pinta toda célula donde se detecta el gen, aunque esa señal pueda venir del fondo; si un grupo supera su suelo ambiental, se ve en sus cifras por grupo.',
               'Color is RNA, not protein. The map paints every cell where the gene is detected, even if that signal may come from the background; whether a group clears its ambient floor shows in its figures by group.') }}
           </p>
+          </template>
           <p v-if="otrasGem" class="exp__nota">{{ L(`En el hueso, «Otras» incluye ${fmtN(otrasGem.n, 'es')} células sin GEM limpio: comparten gota con una célula del hígado y pueden llevar su ARN. ${fmtN(otrasGem.deTipo, 'es')} de ellas son de tipos que tienen grupo propio y están en «Otras» solo por eso.`, `In the bone, “Other” includes ${fmtN(otrasGem.n, 'en')} cells without a clean GEM: they share a droplet with a liver cell and may carry its RNA. ${fmtN(otrasGem.deTipo, 'en')} of them are of types that have their own group and sit in “Other” only for that reason.`) }}</p>
-          <p class="exp__nota">{{ L(`${nTotal} células de la biopsia, colocadas según lo que se parecen (UMAP): dos puntos cercanos son células parecidas; la distancia entre grupos alejados no se interpreta.`, `${nTotal} cells from the biopsy, placed by similarity (UMAP): nearby dots are similar cells; distances between far-apart groups are not meaningful.`) }}</p>
-          <details v-if="modo === 'gen'" class="exp__porque">
-            <summary>{{ L('Cómo se cortan los tramos de color', 'How the colour bands are cut') }}</summary>
+          <p v-if="!errorMapa" class="exp__nota">{{ L(`${nTotal} células de la biopsia${nLeidas ? ` (de ${nLeidas} leídas; el resto no pasó el control de calidad)` : ''}, colocadas según lo que se parecen (UMAP): dos puntos cercanos son células parecidas; la distancia entre grupos alejados no se interpreta.`, `${nTotal} cells from the biopsy${nLeidas ? ` (of ${nLeidas} read; the rest did not pass quality control)` : ''}, placed by similarity (UMAP): nearby dots are similar cells; distances between far-apart groups are not meaningful.`) }}</p>
+          <p v-else class="exp__nota">{{ L(`${nTotal} células de la biopsia${nLeidas ? ` (de ${nLeidas} leídas; el resto no pasó el control de calidad)` : ''}.`, `${nTotal} cells from the biopsy${nLeidas ? ` (of ${nLeidas} read; the rest did not pass quality control)` : ''}.`) }}</p>
+          <details v-if="modo === 'gen' && !errorMapa" class="exp__porque">
+            <summary>{{ L('Cómo se cortan los tramos de color', 'How the color bands are cut') }}</summary>
             <p class="exp__nota">{{ L('Con un gen, hasta cuatro tramos de nivel, cortados en los cuartiles de las células donde se detecta; cada tramo incluye su límite superior. Si se detecta en menos de 8 células, un solo tramo.', 'With a gene, up to four level bands, cut at the quartiles of the cells where it is detected; each band includes its upper limit. If it is detected in fewer than 8 cells, a single band.') }}</p>
           </details>
         </div>
@@ -448,7 +481,7 @@ function sinTapar(ev: FocusEvent) {
           <!-- el gen activo, grupo a grupo -->
           <div v-if="detalle && activo" id="exp-violines" class="exp__pcuerpo" tabindex="-1">
             <div class="exp__dcab">
-              <button type="button" class="exp__volver" @click="detalle = false">
+              <button type="button" class="exp__volver" @click="cierraDetalle">
                 <svg viewBox="0 0 256 256" aria-hidden="true"><path fill="currentColor" d="M165.66 202.34a8 8 0 0 1-11.32 11.32l-80-80a8 8 0 0 1 0-11.32l80-80a8 8 0 0 1 11.32 11.32L91.31 128Z" /></svg>
                 {{ L('Volver', 'Back') }}<span class="sr-only">{{ panel === 'marcadores' ? L(' a los marcadores', ' to the markers') : L(' a los genes de interés', ' to the genes of interest') }}</span>
               </button>
@@ -456,6 +489,7 @@ function sinTapar(ev: FocusEvent) {
             </div>
             <p class="exp__dbiop" aria-hidden="true">{{ etiqueta(ETIQUETA_LESION, lesion, lang) }}</p>
             <h2 class="exp__h2">{{ L(`${nombreGen(gen)}, grupo a grupo`, `${nombreGen(gen)}, group by group`) }}<span class="sr-only"> · {{ etiqueta(ETIQUETA_LESION, lesion, lang) }}</span>{{ ej }}</h2>
+            <p class="exp__dlec"><span v-if="gen === 'ERBB2'" class="exp__dihq">{{ ETIQUETAS_FIJAS.her2[lang] }} · </span><template v-if="d.genes.includes(gen)">{{ L('Lectura (borrador):', 'Reading (draft):') }} <strong>{{ lecturaDetalle }}</strong></template><template v-else>{{ lecturaDetalle }}</template></p>
             <CelulaExplorarViolines :filas="filas" :gen="gen" :lang="lang" :lesion="lesion" :adn="d.adn" :papel="d.seleccion[gen]" :loo="d.loo[gen]" :referencia="d.referencia[gen]" />
           </div>
           <div v-show="!(detalle && activo) && panel === 'interes'" class="exp__pcuerpo">
@@ -599,6 +633,9 @@ function sinTapar(ev: FocusEvent) {
 .exp__solo-estrecho { display: none; }
 @media (max-width: 1023px) { .exp__solo-estrecho { display: inline-block; } }
 .exp__h2 { font: var(--tipo-h3); color: var(--texto-1); margin: 0 0 var(--sp-12); }
+.exp__dlec { margin: 0 0 var(--sp-12); font: 500 var(--texto-sm)/1.4 var(--font-body); color: var(--texto-2); max-width: var(--measure); }
+.exp__dlec strong { color: var(--texto-1); font-weight: 600; }
+.exp__dihq { font: 600 var(--texto-xs)/1.4 var(--font-mono); color: var(--texto-1); }
 .exp__dbiop { margin: 0; font: 700 var(--texto-xs)/1.3 var(--font-mono); letter-spacing: var(--track-eyebrow); text-transform: uppercase; color: var(--texto-2); }
 .exp__nota { margin: var(--sp-8) 0 0; font: var(--tipo-body-sm); font-size: var(--texto-xs); color: var(--texto-2); max-width: var(--measure); }
 .exp__nota--busca:empty { display: none; }
@@ -623,7 +660,7 @@ function sinTapar(ev: FocusEvent) {
 .exp__tema svg { width: 20px; height: 20px; }
 @media (hover: hover) { .exp__chipx:hover, .exp__tema:hover { background: var(--trazo-sutil); } }
 .exp__chipx:focus-visible, .exp__tema:focus-visible, .exp__volver:focus-visible, .exp__mas:focus-visible { outline: 2px solid var(--anillo-foco); outline-offset: 2px; }
-.exp__mas { margin: -12px -8px -12px var(--sp-4); padding: 12px 8px; border: 0; background: none; color: var(--identidad); font: inherit; font-weight: 600; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+.exp__mas { display: inline-flex; align-items: center; justify-content: center; min-width: 44px; min-height: 44px; margin: -12px -8px -12px var(--sp-4); padding: 0 8px; vertical-align: middle; border: 0; background: none; color: var(--identidad); font: inherit; font-weight: 600; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
 .exp__sel--sm { min-width: 11rem; font-size: var(--texto-sm); }
 @media (max-width: 639px) {
   .exp__mapabar:not(.exp__mapabar--dos) { flex-wrap: nowrap; gap: var(--sp-8); }

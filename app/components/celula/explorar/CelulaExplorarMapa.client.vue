@@ -25,8 +25,11 @@ const props = defineProps<{
   orden?: number[]
   /** alto del mapa en px (lo decide el padre según la pantalla) */
   alto: number
-  /** en táctil el lienzo atrapa el dedo: queda quieto hasta pulsar «Mover el mapa» */
+  /** estrecho: rótulos más pequeños y encuadre con margen */
   movil: boolean
+  /** táctil (estrecho o puntero grueso, p. ej. iPad apaisado): el lienzo atrapa el dedo, así que queda quieto hasta
+   * pulsar «Mover el mapa» */
+  tactil: boolean
 }>()
 const emit = defineEmits<{ error: [string] }>()
 
@@ -37,7 +40,7 @@ let motor: { pinta: (e: any) => void; desmonta: () => void } | null = null
 function entrada() {
   return {
     uid: `exp-${props.d.lesion}-${props.modo}-${props.gen}-${props.modo === 'coexp' ? props.genB : ''}-${props.tema}-${props.lang}`,
-    tema: props.tema, alto: props.alto, umap: props.d.celulas.umap, lang: props.lang, rotulos: props.modo === 'grupo', tamRotulo: props.movil ? 12 : 14, encuadre: props.movil ? { ancho: el.value?.clientWidth ?? 0, margen: 0.86 } : undefined,   // también en móvil (diseño, 18-oct: sin rótulos dos grupos de tono parecido no se distinguían), más pequeños para que no se corten en el borde
+    tema: props.tema, alto: props.alto, umap: props.d.celulas.umap, lang: props.lang, rotulos: props.modo === 'grupo', tamRotulo: props.movil ? 12 : 14, encuadre: props.movil ? { ancho: el.value?.clientWidth || window.innerWidth - 32, margen: 0.86 } : undefined,   // también en móvil (diseño, 18-oct: sin rótulos dos grupos de tono parecido no se distinguían), más pequeños para que no se corten en el borde
     conjuntos: props.conjuntos, colores: props.colores, colorearPor: props.colorearPor,
     // el gen se pinta por clases de nivel (conjunto «Nivel de …», lo calcula el padre): lo no detectado en gris,
     // como en Loupe. La escala continua de Vitessce (plasma) dejaba las células a 0 casi del color de las de nivel bajo.
@@ -46,7 +49,13 @@ function entrada() {
   }
 }
 
+/** sin WebGL (PC de hospital, escritorio virtual, GPU bloqueada) Vitessce no avisa: deja una caja vacía. Se mira antes. */
+function hayWebGl() {
+  try { const c = document.createElement('canvas'); return !!(c.getContext('webgl2') || c.getContext('webgl')) }
+  catch { return false }
+}
 onMounted(async () => {
+  if (!hayWebGl()) { cargando.value = false; emit('error', 'sin WebGL'); return }
   try {
     const m = await import('~/lib/explorador/motor')
     if (!el.value) return
@@ -68,7 +77,7 @@ watch(() => [props.d, props.modo, props.gen, props.genB, props.conjuntos, props.
 onBeforeUnmount(() => { if (velo) clearTimeout(velo); motor?.desmonta(); motor = null })
 /** Móvil: el mapa se ve, pero no se mueve hasta pedirlo; así el dedo desplaza la página (Vitessce lleva touch-action:none). */
 const mover = ref(false)
-watch(() => props.movil, (m) => { if (!m) mover.value = false })
+watch(() => props.tactil, (m) => { if (!m) mover.value = false })
 </script>
 
 <template>
@@ -83,7 +92,7 @@ watch(() => props.movil, (m) => { if (!m) mover.value = false })
         ? 'Visual map of the cells (UMAP). It is used with a mouse or a finger and has no keyboard version. The n per group and the per-gene figures are in the gene and markers panel and in the technical data; the position of each cell, only here.'
         : 'Mapa visual de las células (UMAP). Se maneja con ratón o con el dedo y no tiene versión de teclado. Los n por grupo y las cifras por gen están en el panel del gen y de los marcadores, y en los datos técnicos; la posición de cada célula, solo aquí.'"
     />
-    <template v-if="movil">
+    <template v-if="tactil">
       <div v-if="!mover" class="exp-mapa__velo" aria-hidden="true" />
       <button type="button" class="exp-mapa__mover" :class="{ 'exp-mapa__mover--activo': mover }" @click="mover = !mover">
         {{ mover ? (lang === 'en' ? 'Done' : 'Listo') : (lang === 'en' ? 'Move the map' : 'Mover el mapa') }}

@@ -314,6 +314,15 @@ if (man.zarr?.length) {
   const [a1, b1] = fmtParSuelo(0.103, 0.096, 'es'), [a2, b2] = fmtParSuelo(0.8603, 0.86, 'es'), [a3, b3] = fmtParSuelo(0.41, 0.043, 'es')
   ok('fmtParSuelo: 10,3 frente a 9,6 con un decimal; 86,03 frente a 86,00 con dos; 41 frente a 4 sin decimal', a1 === '10,3 %' && b1 === '9,6 %' && a2 === '86,03 %' && b2 === '86,00 %' && a3 === '41 %' && b3 === '4 %', [a1, b1, a2, b2, a3, b3].join(' | '))
 }
+// revisión final (18-oct): la página en inglés es en-US; mezclaba «Color by» con «colour», «favoured», «programme»
+{
+  const fuentes = ['app/components/celula/explorar', 'app/utils/celulaExploradorTexto.ts', 'app/pages/celula-a-celula-explorar.vue'].flatMap((r) => {
+    const abs = join(RAIZ, r)
+    return r.endsWith('.ts') || r.endsWith('.vue') ? [readFileSync(abs, 'utf8')] : readdirSync(abs).filter((f) => f.endsWith('.vue')).map((f) => readFileSync(join(abs, f), 'utf8'))
+  }).join('\n')
+  const brit = fuentes.match(/\b(colour\w*|favour\w*|programme\w*|behaviour\w*|centre\w*)\b/gi) ?? []
+  ok('inglés de EE. UU. en el explorador (sin colour, favour, programme…)', brit.length === 0, brit.join(', '))
+}
 // verificacion (18-oct): los alias del buscador llevan a un GEN; una isoforma (CLDN18.2) no se puede leer con sondas del gen entero
 ok('alias de búsqueda: ninguno es una isoforma (p. ej. «CLDN18.2»)', !Object.keys(ALIAS_BUSCA).some((k) => /\d\.\d/.test(k)), Object.keys(ALIAS_BUSCA).filter((k) => /\d\.\d/.test(k)).join(', '))
 

@@ -67,7 +67,7 @@ const idCtl = useId()
         <tbody>
           <tr v-for="f in vistas" :key="f.gen" :class="{ 'mk__nsig': f.fdr >= 0.05 }">
             <th scope="row">
-              <button v-if="abribles(f.gen)" type="button" class="mk__gen" :aria-pressed="f.gen === elegido" @click="emit('elegir', f.gen)">{{ f.gen }}</button>
+              <button v-if="abribles(f.gen)" type="button" class="mk__gen" :data-gen="f.gen" :aria-pressed="f.gen === elegido" @click="emit('elegir', f.gen)">{{ f.gen }}</button>
               <span v-else class="mk__gen mk__gen--fijo">{{ f.gen }}</span>
               <span v-if="circular(f.gen)" class="mk__ast" :title="L('Circular: ver la nota de debajo de la tabla', 'Circular: see the note below the table')"><span aria-hidden="true">*</span><span class="sr-only">{{ L('(circular)', '(circular)') }}</span></span>
             </th>
