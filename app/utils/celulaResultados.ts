@@ -20,11 +20,13 @@ export const ORDEN_BLOQUES: ClaveBloque[] = ['R0', 'R3', 'R4', 'R5', 'R6']
 export type Muestra = 'higado' | 'hueso'
 export const MUESTRAS: Muestra[] = ['higado', 'hueso']
 
-/** Solo lo que dice el texto aprobado: ni n, ni IC, ni medianas. Lo que no está aquí no se puede pintar. */
-export interface R0 { muestras: Record<Muestra, { celulas: number }> }
+/** Solo lo que dice el texto aprobado: ni IC ni medianas; el único n es el del grupo de R3 (auditoría 18-oct). Lo que no está aquí no se puede pintar. */
+export interface R0 { muestras: Record<Muestra, { celulas: number; tras_qc?: number }> }
 export interface Diana { gen: string; por_100: number; aprox?: boolean }
-export interface R3 { muestras: Record<Muestra, { dianas: Diana[] }>; ausentes: { gen: string; por_100: number }[] }
-export interface R4 { higado: { por_100: number; menos_de: boolean } }
+/** `n_grupo`: células del grupo en el que se mide (auditoría 18-oct: grupo seleccionado, no el tumor entero). */
+export interface R3 { muestras: Record<Muestra, { n_grupo?: number; dianas: Diana[] }>; ausentes: { gen: string; por_100: number }[] }
+/** `o_menos`: «en torno a N de cada 100, o menos» (linfocitos T: la cifra depende de los marcadores; auditoría 18-oct). */
+export interface R4 { higado: { por_100: number; menos_de: boolean; o_menos?: boolean } }
 export interface R5 { gen: string; activo: Record<Muestra, boolean> }
 export interface R6 { patron: 'dispersos' }
 export interface Bloque<D = unknown> { sello: string; ok_miriam: boolean; fecha_ok?: string; ejemplo?: boolean; datos: D }
@@ -36,7 +38,7 @@ export interface Resultados {
 }
 
 /** Fecha de «estado» de la página: UNA fuente para Estado, Ficha y el resto del copy. */
-export const CELULA_ESTADO_ISO = '2026-10-17'
+export const CELULA_ESTADO_ISO = '2026-10-18'
 const MESES = {
   es: ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'],
   en: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
@@ -56,12 +58,13 @@ const ent = (v: unknown, min = 0, max = Infinity) => typeof v === 'number' && Nu
 export function bloqueValido(k: ClaveBloque, b: Bloque, por: number): boolean {
   const d = b.datos as any
   try {
-    if (k === 'R0') return MUESTRAS.every((m) => ent(d.muestras[m].celulas, 1))
+    if (k === 'R0') return MUESTRAS.every((m) => ent(d.muestras[m].celulas, 1) && (d.muestras[m].tras_qc === undefined || ent(d.muestras[m].tras_qc, 1, d.muestras[m].celulas)))
     if (k === 'R3') return MUESTRAS.every((m) => {
       const x = d.muestras[m].dianas as Diana[]
       return ['NY-BR-1', '5T4'].every((g) => x.some((q) => q.gen === g)) && x.every((q) => typeof q.gen === 'string' && q.gen.length > 0 && ent(q.por_100, 1, por))
+        && (d.muestras[m].n_grupo === undefined || ent(d.muestras[m].n_grupo, 1))
     }) && d.ausentes.length > 0 && d.ausentes.every((q: any) => typeof q.gen === 'string' && q.por_100 === 0)
-    if (k === 'R4') return ent(d.higado.por_100, 1, por) && typeof d.higado.menos_de === 'boolean'
+    if (k === 'R4') return ent(d.higado.por_100, 1, por) && typeof d.higado.menos_de === 'boolean' && (d.higado.o_menos === undefined || typeof d.higado.o_menos === 'boolean') && !(d.higado.menos_de && d.higado.o_menos)
     if (k === 'R5') return typeof d.gen === 'string' && MUESTRAS.every((m) => d.activo[m] === true)
     if (k === 'R6') return d.patron === 'dispersos'
   }

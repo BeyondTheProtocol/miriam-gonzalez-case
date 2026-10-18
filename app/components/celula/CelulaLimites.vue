@@ -34,7 +34,7 @@ const id = useId()
       </li>
       <li>
         <strong>{{ L('Son dos trozos pequeños de dos lesiones.', 'These are two small pieces of two lesions.') }}</strong>
-        {{ L('No tienen por qué representar al resto del tumor. Además, el hueso hay que descalcificarlo para cortarlo, y eso puede dañar el ARN; cuánto, se sabrá al ver los datos.', 'They do not necessarily represent the rest of the tumor. Bone also has to be decalcified to be cut, and that can degrade the RNA; how much will only be known once the data are seen.') }}
+        {{ L('No tienen por qué representar al resto del tumor. Además, el hueso hay que descalcificarlo para cortarlo, y eso daña el ARN: en este hueso, una cuarta parte de lo leído es ADN y no ARN.', 'They do not necessarily represent the rest of the tumor. Bone also has to be decalcified to be cut, and that damages the RNA: in this bone, a quarter of what was read is DNA, not RNA.') }}
         <DatosSello s="inferido" :lang="lang" />
       </li>
     </ul>

@@ -12,8 +12,8 @@ const icono = (m: string) => (m === 'higado' ? 'ph:drop-half-fill' : 'ph:bone-fi
 
 <template>
   <CelulaBloque clave="R5" :titulo="L('Hígado y hueso, el mismo tumor', 'Liver and bone, the same tumor')" :sello="b.sello" :ejemplo="b.ejemplo">
-    <p class="blq__texto">{{ L('Las dos metástasis comparten los mismos genes principales, y la amplificación del gen FGFR1, ya conocida por ADN, se ve activa en las dos. El análisis del número de copias indica que la metástasis del hueso deriva de la del hígado.',
-      'Both metastases share the same main genes, and the amplification of the FGFR1 gene, already known from DNA, shows up as active in both. The copy-number analysis indicates that the bone metastasis derives from the liver one.') }}</p>
+    <p class="blq__texto">{{ L('Las dos metástasis comparten los mismos genes principales, y la amplificación del gen FGFR1, ya conocida por ADN, se ve activa en las dos. El perfil de copias que se lee en el ARN es compatible con que las dos vengan del mismo clon; la secuenciación del exoma del hígado podrá confirmarlo.',
+      'Both metastases share the same main genes, and the amplification of the FGFR1 gene, already known from DNA, shows up as active in both. The copy-number profile read in the RNA is consistent with both coming from the same clone; sequencing the exome of the liver will be able to confirm it.') }}</p>
     <div class="blq__par">
       <figure v-for="m in MUESTRAS" :key="m" class="r5__fig">
         <figcaption class="blq__mt"><Icon :name="icono(m)" aria-hidden="true" />{{ nombre(m) }}</figcaption>

@@ -26,8 +26,8 @@ const mostrar = (k: string) => visibles.value.includes(k as never)
     <p class="eyebrow--sm cel-cielo__eti">{{ L('Lo que ha salido', 'What came out') }}</p>
     <h2 :id="id" class="cel-cielo__t">{{ L('Resultados', 'Results') }}</h2>
     <p class="cel-cielo__p">
-      {{ L('Cada bloque se publica cuando está verificado y Miriam le ha dado el visto bueno, así que pueden ir apareciendo de uno en uno. Todo describe estas dos muestras, y cada una es un trozo pequeño de una lesión.',
-        'Each block is published once it has been verified and Miriam has approved it, so they may appear one at a time. Everything describes these two samples, and each one is a small piece of one lesion.') }}
+      {{ L('Cada bloque se publica cuando está verificado y Miriam le ha dado el visto bueno, así que pueden ir apareciendo de uno en uno. Todo describe estas dos muestras, y cada una es un trozo pequeño de una lesión. Las cifras salen de un análisis propio (Polaris) sobre los datos del laboratorio, no de su informe; lo que es opinión del laboratorio se dice así.',
+        'Each block is published once it has been verified and Miriam has approved it, so they may appear one at a time. Everything describes these two samples, and each one is a small piece of one lesion. The figures come from an analysis of our own (Polaris) on the lab’s data, not from its report; what is the lab’s opinion is labeled as such.') }}
     </p>
     <div class="cel-cielo__bloques">
       <template v-for="k in ORDEN_BLOQUES" :key="k">

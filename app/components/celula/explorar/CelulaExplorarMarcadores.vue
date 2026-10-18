@@ -54,8 +54,8 @@ const idCtl = useId()
       </div>
     </div>
     <p :id="`${idCtl}-cap`" class="mk__cap">
-      {{ L(`${etiqueta(ETIQUETA_GRUPO, grupo, 'es')}: ${filas.length} genes, ordenados por el estadístico de Wilcoxon. En gris, los de FDR de 0,05 o más: con ese umbral no distinguen al grupo.`,
-        `${etiqueta(ETIQUETA_GRUPO, grupo, 'en')}: ${filas.length} genes, ranked by the Wilcoxon statistic. In grey, those with FDR of 0.05 or more: at that threshold they do not set the group apart.`) }}
+      {{ L(`${etiqueta(ETIQUETA_GRUPO, grupo, 'es')}: ${filas.length} genes, ordenados por el estadístico de Wilcoxon. En gris, los de FDR de 0,05 o más: con ese umbral no distinguen al grupo. El FDR es descriptivo: las células son réplicas de una sola paciente.`,
+        `${etiqueta(ETIQUETA_GRUPO, grupo, 'en')}: ${filas.length} genes, ranked by the Wilcoxon statistic. In grey, those with FDR of 0.05 or more: at that threshold they do not set the group apart. The FDR is descriptive: the cells are replicates from a single patient.`) }}
     </p>
     <p v-if="hayCirc" class="mk__circ">
       * <strong>{{ L('Circular.', 'Circular.') }}</strong>

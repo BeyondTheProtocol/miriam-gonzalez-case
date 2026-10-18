@@ -8,8 +8,8 @@
       "fecha_ok": "2026-10-17",
       "datos": {
         "muestras": {
-          "higado": { "celulas": 20600 },
-          "hueso": { "celulas": 2500 }
+          "higado": { "celulas": 20600, "tras_qc": 19047 },
+          "hueso": { "celulas": 2500, "tras_qc": 1993 }
         }
       }
     },
@@ -19,13 +19,13 @@
       "fecha_ok": "2026-10-17",
       "datos": {
         "muestras": {
-          "higado": { "dianas": [
-            { "gen": "NY-BR-1", "por_100": 50, "aprox": true },
-            { "gen": "5T4", "por_100": 25, "aprox": true }
-          ] },
-          "hueso": { "dianas": [
-            { "gen": "NY-BR-1", "por_100": 50, "aprox": true },
+          "higado": { "n_grupo": 993, "dianas": [
+            { "gen": "NY-BR-1", "por_100": 58 },
             { "gen": "5T4", "por_100": 25 }
+          ] },
+          "hueso": { "n_grupo": 68, "dianas": [
+            { "gen": "NY-BR-1", "por_100": 54 },
+            { "gen": "5T4", "por_100": 26 }
           ] }
         },
         "ausentes": [
@@ -39,7 +39,7 @@
       "ok_miriam": true,
       "fecha_ok": "2026-10-17",
       "datos": {
-        "higado": { "por_100": 1, "menos_de": true }
+        "higado": { "por_100": 1, "menos_de": false, "o_menos": true }
       }
     },
     "R5": {

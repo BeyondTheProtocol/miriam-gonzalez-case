@@ -94,8 +94,8 @@ const jit = (i: number) => ((Math.sin(i * 12.9898) * 43758.5453) % 1 + 1) % 1
     <div v-else class="cnv__higado" role="note">
       <p class="cnv__p"><strong>{{ L('En el hígado, el número de copias no se puede leer célula a célula.', 'In the liver, copy number cannot be read cell by cell.') }}</strong></p>
       <p class="cnv__p">
-        {{ L(`Solo hay un dato del conjunto de la muestra (pseudobulk): la ventana ${cnv.pseudobulk.ventana} queda en el percentil ${cnv.pseudobulk.percentil_genoma} del genoma. Describe la muestra entera; no dice qué células aportan esa señal.`,
-          `There is only a whole-sample figure (pseudobulk): the ${cnv.pseudobulk.ventana} window sits at percentile ${cnv.pseudobulk.percentil_genoma} of the genome. It describes the whole sample; it cannot say which cells contribute that signal.`) }}
+        {{ L(`Solo hay un dato del conjunto de la muestra (pseudobulk): la ventana ${cnv.pseudobulk.ventana} queda en el percentil ${cnv.pseudobulk.percentil_genoma} del genoma. Se calcula en el grupo de interés frente a la referencia, y ese grupo se eligió en parte por FGFR1, que está en esa ventana; no dice qué células aportan la señal.`,
+          `There is only a whole-sample figure (pseudobulk): the ${cnv.pseudobulk.ventana} window sits at percentile ${cnv.pseudobulk.percentil_genoma} of the genome. It is computed in the group of interest against the reference, and that group was chosen partly by FGFR1, which sits in that window; it cannot say which cells contribute the signal.`) }}
       </p>
     </div>
   </div>

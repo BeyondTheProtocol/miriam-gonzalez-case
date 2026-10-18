@@ -15,8 +15,8 @@ const ancho = (m: 'higado' | 'hueso') => `${(d.value.muestras[m].celulas / maxN.
 
 <template>
   <CelulaBloque clave="R0" :titulo="L('¿Salió bien la prueba?', 'Did the test work?')" :sello="b.sello" :ejemplo="b.ejemplo">
-    <p class="blq__texto">{{ L('Sí, y muy bien. Se analizaron célula a célula dos biopsias: unas 20.600 células del hígado y unas 2.500 del hueso, un tejido especialmente difícil que hay que descalcificar antes de leerlo. Las dos dieron datos de excelente calidad.',
-      'Yes, and very well. Two biopsies were analyzed cell by cell: about 20,600 cells from the liver and about 2,500 from the bone, a particularly difficult tissue that has to be decalcified before it can be read. Both gave excellent-quality data.') }}</p>
+    <p class="blq__texto">{{ L(`Sí. Se leyeron célula a célula dos biopsias: unas 20.600 células del hígado y unas 2.500 del hueso, un tejido especialmente difícil que hay que descalcificar antes de leerlo. Tras el control de calidad quedan ${f(d.muestras.higado.tras_qc ?? 0)} y ${f(d.muestras.hueso.tras_qc ?? 0)}. Según el laboratorio, las dos dieron datos de excelente calidad; en el hueso hay más ruido de fondo, como es normal en un tejido descalcificado.`,
+      `Yes. Two biopsies were read cell by cell: about 20,600 cells from the liver and about 2,500 from the bone, a particularly difficult tissue that has to be decalcified before it can be read. After quality control, ${f(d.muestras.higado.tras_qc ?? 0)} and ${f(d.muestras.hueso.tras_qc ?? 0)} remain. According to the lab, both gave excellent-quality data; the bone carries more background noise, as is normal for decalcified tissue.`) }}</p>
     <div class="blq__par">
       <section v-for="m in MUESTRAS" :key="m" class="blq__muestra" :aria-label="nombre(m)">
         <h4 class="blq__mt"><Icon :name="icono(m)" aria-hidden="true" />{{ nombre(m) }}</h4>

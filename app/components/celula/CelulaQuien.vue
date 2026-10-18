@@ -54,8 +54,8 @@ const urlPost = 'https://www.linkedin.com/feed/update/urn:li:activity:7516775760
     </figure>
 
     <p class="cel-p cel-p--sm">
-      {{ L('El laboratorio hace el análisis. Las explicaciones de esta página las escribe Miriam y no hablan en nombre del laboratorio.',
-        'The lab does the analysis. The explanations on this page are Miriam’s own and don’t speak for the lab.') }}
+      {{ L('El laboratorio hace la prueba y su propio análisis. Las cifras de «Resultados» salen de un análisis aparte que hace Polaris, el sistema de Miriam, sobre esos mismos datos: no son cifras del laboratorio. Ni esas cifras ni las explicaciones de esta página hablan en nombre del laboratorio.',
+        'The lab runs the test and its own analysis. The figures in “Results” come from a separate analysis that Polaris, Miriam’s system, runs on those same data: they are not the lab’s figures. Neither those figures nor the explanations on this page speak for the lab.') }}
     </p>
   </section>
 </template>
