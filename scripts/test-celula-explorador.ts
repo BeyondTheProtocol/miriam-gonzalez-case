@@ -19,7 +19,7 @@ import {
   MARCADORES_N, MOTIVO_LECTURAS, MOTIVOS, PAPELES_SELECCION, RE_BARCODE, VEREDICTOS, VEREDICTOS_SIN_MOTIVO, columna, coexpresion, densidad, estadoPuerta, fechaOkValida, fmtParSuelo, motivoDe, motivosLesion, nivelMatriz, pct, porGrupo, tablaCoexp,
   type LesionDatos, type Manifiesto,
 } from '../app/utils/celulaExplorador'
-import { ALIAS_BUSCA, ETIQUETA_GRUPO, ETIQUETA_MOTIVO, ETIQUETA_TIPO, ETIQUETA_VEREDICTO, ETIQUETA_VEREDICTO_CON_MOTIVO, PAPEL_SELECCION, PIE_MOTIVO, etiqueta, etiquetaLectura } from '../app/utils/celulaExploradorTexto'
+import { ALIAS_BUSCA, ETIQUETA_GRUPO, ETIQUETA_MOTIVO, ETIQUETA_TIPO, ETIQUETA_VEREDICTO, ETIQUETA_VEREDICTO_CON_MOTIVO, PAPEL_SELECCION, PIE_MOTIVO, etiqueta, etiquetaLectura, pieMotivo } from '../app/utils/celulaExploradorTexto'
 import { abreZarr } from '../app/utils/celulaExploradorZarr'
 import { paleta } from '../app/utils/celulaExploradorColor'
 import FileSystemStore from '@zarrita/storage/fs'
@@ -180,8 +180,9 @@ ok('«cerrado_por_arn» con motivo en el fichero no da en la etiqueta la razón 
 // diseño (revisión del motivo): sin motivo en el fichero se queda la etiqueta publicada, para que el código pueda salir antes que los datos
 ok('etiquetaLectura: corta con motivo, la publicada sin él', etiquetaLectura('cerrado_por_arn', true, 'es') === 'Cerrado por ARN'
   && etiquetaLectura('cerrado_por_arn', false, 'es') === ETIQUETA_VEREDICTO.cerrado_por_arn!.es && etiquetaLectura('no_sostenido', true, 'en') === ETIQUETA_VEREDICTO.no_sostenido!.en)
-ok('pie del motivo: ES/EN, sin cifras, dice que compara el extremo bajo del margen de error y, en el hígado, que la revisión es más estricta que la regla',
-  Object.values(PIE_MOTIVO).every((x) => !!x.es && !!x.en && !/\d/.test(`${x.es} ${x.en}`)) && /extremo bajo del margen de error/.test(PIE_MOTIVO.compara.es) && /más estricta que la regla/.test(PIE_MOTIVO.higado.es))
+ok('pie del motivo: ES/EN, sin cifras; usa el extremo bajo del margen de error y la revisión se aparta de la regla (las dos biopsias)',
+  Object.values(PIE_MOTIVO).every((x) => !!x.es && !!x.en && !/\d/.test(`${x.es} ${x.en}`)) && /usa el extremo bajo del margen de error/.test(PIE_MOTIVO.compara.es)
+  && /se aparta de la regla fijada antes del análisis/.test(PIE_MOTIVO.aparta.es) && /^\S.*\. \S/.test(pieMotivo('es')) && /^\S.*\. \S/.test(pieMotivo('en')))
 {
   // fixture con motivo: los datos publicados aún no lo traen (pendiente del OK de la titular) y el validador tiene que
   // aceptarlo bien formado y cazar lo mal formado

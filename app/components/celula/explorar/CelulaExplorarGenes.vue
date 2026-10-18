@@ -8,7 +8,7 @@
  */
 import type { LesionDatos } from '~/utils/celulaExplorador'
 import { fmtPct, motivoDe, porGrupo, traeMotivo } from '~/utils/celulaExplorador'
-import { CIRC_HUESO, ETIQUETA_GRUPO, ETIQUETA_MOTIVO, LECTURA, PIE_MOTIVO, etiquetaLectura, PANEL_INTERES, PAPEL_SELECCION, PROTEINA, etiqueta, ETIQUETAS_FIJAS } from '~/utils/celulaExploradorTexto'
+import { CIRC_HUESO, ETIQUETA_GRUPO, ETIQUETA_MOTIVO, LECTURA, etiquetaLectura, pieMotivo, PANEL_INTERES, PAPEL_SELECCION, PROTEINA, etiqueta, ETIQUETAS_FIJAS } from '~/utils/celulaExploradorTexto'
 
 const props = defineProps<{ d: LesionDatos; lang: 'es' | 'en'; elegido: string }>()
 const emit = defineEmits<{ elegir: [string] }>()
@@ -76,7 +76,7 @@ const fmtCp = (x: number) => String(Math.round(x))
         'Probes: how many panel probes the gene has and how many span an exon junction; the rest fall inside an exon and can also read genomic DNA.') }}
       {{ L(LECTURA.pie.es, LECTURA.pie.en) }}
     </p>
-    <p v-if="conMotivo" class="gi__pie gi__pmot">{{ [PIE_MOTIVO.compara[lang], d.lesion === 'higado' ? PIE_MOTIVO.higado[lang] : ''].join(' ').trim() }}</p>
+    <p v-if="conMotivo" class="gi__pie gi__pmot">{{ pieMotivo(lang) }}</p>
     <p v-if="d.lesion === 'hueso'" class="gi__pie gi__circh"><strong>{{ L('Circular.', 'Circular.') }}</strong> {{ L(CIRC_HUESO.es, CIRC_HUESO.en) }}</p>
   </div>
 </template>

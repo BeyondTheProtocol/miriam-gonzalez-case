@@ -42,7 +42,8 @@ export const PANEL_INTERES = ['ANKRD30A', 'TPBG', 'ERBB3', 'SLC39A6', 'ERBB2', '
 
 export const ETIQUETA_VEREDICTO: Record<string, T> = {
   sostenido: t('Se sostiene', 'Holds'),
-  /** la revisión lo da por sostenido, con matices (HER3 del hígado) */
+  /** la revisión lo da por sostenido, con matices. Ningún gen lo usa desde la enmienda del 18-oct-2026 (HER3 del hígado pasó
+   * a con_matiz); se queda en el vocabulario, igual que en Polaris, por si otra fila del acta lo vuelve a usar */
   sostenido_con_matiz: t('Se sostiene con matices', 'Holds, with caveats'),
   /** la revisión lo matiza y NO lo da por sostenido: nunca «se sostiene» aquí (revisión de cifras, 17-oct-2026) */
   con_matiz: t('Con matices; no se da por sostenido', 'With caveats; not counted as holding'),
@@ -77,31 +78,35 @@ export const ETIQUETA_MOTIVO: Record<string, T> = {
   minoria: t('solo en una minoría de células', 'only in a minority of cells'),
   /** el ARN suelto del propio tumor, que el suelo pintado no recoge (auditoría, 18-oct-2026: E26, H18). La lectura es la de la
    * revisión, más estricta que la regla fijada antes del análisis en varios genes del hígado: lo dice el pie */
-  por_poco_y_arn_tumoral: t('supera la referencia por poco y en pocas células, pero no el ARN suelto del tumor, que el suelo no recoge',
-    'it clears the reference narrowly and in few cells, but not the tumor’s loose RNA, which the floor leaves out'),
-  no_se_separa_del_arn_tumoral: t('es uno de los genes con que se mide el ARN suelto del tumor, y no lo supera: este diseño no los separa',
-    'it is one of the genes used to measure the tumor’s loose RNA, and does not clear it: this design cannot tell them apart'),
-  depende_del_nulo: t('supera el suelo y la referencia; frente al ARN suelto del tumor, depende del conjunto de células',
-    'it clears the floor and the reference; against the tumor’s loose RNA, it depends on the cell set'),
+  por_poco_y_arn_tumoral: t('supera la referencia por poco y en una minoría de células, pero no el ARN suelto del tumor, que el suelo no recoge',
+    'it clears the reference narrowly and in a minority of cells, but not the tumor’s loose RNA, which the floor leaves out'),
+  /** ser trazador no basta (NY-BR-1 y ESR1 también lo son y superan ese fondo): por eso dice también que no lo supera */
+  no_se_separa_del_arn_tumoral: t('se usa para medir el ARN suelto del tumor y no lo supera: no se distingue de él',
+    'it is used to measure the tumor’s loose RNA and does not clear it: the two cannot be told apart'),
+  depende_del_nulo: t('supera el suelo y la referencia, pero frente al ARN suelto del tumor depende del conjunto de células',
+    'it clears the floor and the reference, but against the tumor’s loose RNA it depends on the cell set'),
   parecido_en_todas: t('se detecta parecido en todos los tipos de células no tumorales', 'detected at a similar rate in every non-tumor cell type'),
   disperso_en_el_tumor: t('disperso por el tumor luminal', 'scattered through the luminal tumor'),
   casi_no_se_detecta: t('se detecta en muy pocas células', 'detected in very few cells'),
   cero_en_posibles_tumorales: t('cero en las células que podrían ser tumor, con sondas que sí funcionan', 'zero in the cells that could be tumor, with probes that do work'),
   adn_de_nucleos_no_tumorales: t('los positivos son ADN de núcleos no tumorales', 'the positives are DNA from non-tumor nuclei'),
-  referencia_poco_precisa: t('claro sobre el suelo; frente a la referencia, que tiene pocas células efectivas, el margen de error es amplio',
-    'clearly above the floor; against the reference, which has few effective cells, the margin of error is wide'),
+  referencia_poco_precisa: t('bien por encima del suelo; la referencia tiene pocas células efectivas y el margen de error es amplio',
+    'well above the floor; the reference has few effective cells and the margin of error is wide'),
   supera_por_poco: t('supera a la referencia por muy poco', 'clears the reference by very little'),
   depende_del_conjunto: t('supera a la referencia solo en un conjunto algo más amplio de células malignas', 'clears the reference only in a slightly wider set of malignant cells'),
 }
 
-/** Pie de la lectura cuando el fichero trae motivos (diseño y verificacion, revisión del motivo). Cómo se compara: el extremo
- * bajo del intervalo de confianza de Wilson (hígado, vía 1; hueso, tribunal: `lo > dref`), no la cifra. Y, solo en el hígado,
- * que la lectura de la revisión es más estricta que la regla prefijada en varios genes (comité médico). */
+/** Pie de la lectura cuando el fichero trae motivos (diseño, verificacion y comité médico, revisión del motivo). Cómo se
+ * compara: el extremo bajo del intervalo de confianza de Wilson (hígado, vía 1; hueso, tribunal: `lo > dref`), no la cifra.
+ * Y que en varios genes la lectura de la revisión se aparta de la regla fijada antes del análisis: en las dos biopsias (por
+ * debajo, reformulada o, HER3 del hueso, por encima; INFORME_LIMPIEZA de Polaris, regla_frente_a_acta). Va también en el
+ * detalle del gen, que es donde se lee la lectura de uno. */
 export const PIE_MOTIVO = {
-  compara: t('La lectura compara el extremo bajo del margen de error del grupo, no su cifra.', 'The reading uses the lower end of the group’s margin of error, not its figure.'),
-  higado: t('En varios genes, la lectura de la revisión es más estricta que la regla fijada antes del análisis; el paréntesis dice por qué.',
-    'For several genes, the review’s reading is stricter than the rule set before the analysis; the parenthesis says why.'),
+  compara: t('La lectura usa el extremo bajo del margen de error del grupo, no su cifra.', 'The reading uses the lower end of the group’s margin of error, not its figure.'),
+  aparta: t('En varios genes, la lectura de la revisión se aparta de la regla fijada antes del análisis; la lectura o su paréntesis dice por qué.',
+    'For several genes, the review’s reading departs from the rule set before the analysis; the reading or its parenthesis says why.'),
 }
+export const pieMotivo = (lang: 'es' | 'en') => `${PIE_MOTIVO.compara[lang]} ${PIE_MOTIVO.aparta[lang]}`
 
 /** De quién es la lectura por gen, y en qué estado está: va en la cabecera de la columna y en su pie. */
 export const LECTURA = {
