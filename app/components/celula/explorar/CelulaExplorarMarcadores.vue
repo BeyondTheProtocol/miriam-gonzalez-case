@@ -28,7 +28,7 @@ const filas = computed(() => {
  * Genes y Violines lo rotulaban y aquí no, y «Cómo leerlo» promete que esos genes llevan su rótulo). */
 const esInteres = computed(() => props.d.grupos.find((g) => g.id === grupo.value)?.rol === 'interes')
 const circular = (g: string) => esInteres.value && !!props.d.seleccion[g]
-const hayCirc = computed(() => filas.value.some((f) => circular(f.gen)))
+const hayCirc = computed(() => vistas.value.some((f) => circular(f.gen)))
 const TOP = 15
 const todos = ref(false)
 const vistas = computed(() => (todos.value ? filas.value : filas.value.slice(0, TOP)))
@@ -44,38 +44,14 @@ const idCtl = useId()
 
 <template>
   <div class="mk">
-    <!-- simulador (18-oct): el método, plegado; el grupo, la tabla y los avisos de circularidad, a la vista -->
-    <details class="mk__como">
-      <summary>{{ L('Cómo se calcula', 'How it is computed') }}</summary>
-    <p class="mk__p">
-      {{ L('Genes que más distinguen a cada grupo frente al resto de la lesión (prueba de Wilcoxon, FDR de Benjamini-Hochberg). Solo grupos fijos del análisis; no se compara una selección hecha a mano. Se omiten los genes que solo aparecen en uno de los dos lados (log2FC infinito): no se pueden dar como cifra.',
-        'Genes that best set each group apart from the rest of the lesion (Wilcoxon test, Benjamini-Hochberg FDR). Fixed groups of the analysis only; no hand-made selection is compared. Genes seen on only one of the two sides (infinite log2FC) are left out: they cannot be given as a figure.') }}
-    </p>
-    </details>
-    <p class="mk__p">
-      <strong>{{ L('Detectado no es positivo.', 'Detected is not positive.') }}</strong>
-      {{ L('El porcentaje de células del grupo se lee contra su suelo ambiental: si quedan cerca, la señal puede venir del fondo.',
-        'Compare the share of cells in the group with its ambient floor: if close, the signal may come from the background.') }}
-    </p>
+    <!-- panel de expertos y diseño (18-oct): datos primero; las notas, debajo de la tabla -->
     <div class="mk__campo">
       <span :id="`${idCtl}-g`" class="mk__eti">{{ L('Grupo', 'Group') }}</span>
       <div class="mk__seg" role="group" :aria-labelledby="`${idCtl}-g`">
         <button v-for="g in grupos" :key="g.id" type="button" class="mk__btn" :aria-pressed="grupo === g.id" @click="grupo = g.id">{{ etiqueta(ETIQUETA_GRUPO, g.id, lang) }}</button>
       </div>
     </div>
-    <p :id="`${idCtl}-cap`" class="mk__cap">
-      {{ L(`${etiqueta(ETIQUETA_GRUPO, grupo, 'es')}: ${corta ? `los ${TOP} primeros de ${filas.length} genes` : `${filas.length} genes`}, ordenados por el estadístico de Wilcoxon. En gris, los de FDR de 0,05 o más: con ese umbral no distinguen al grupo.`,
-        `${etiqueta(ETIQUETA_GRUPO, grupo, 'en')}: ${corta ? `the top ${TOP} of ${filas.length} genes` : `${filas.length} genes`}, ranked by the Wilcoxon statistic. In grey, those with FDR of 0.05 or more: at that threshold they do not set the group apart.`) }}
-    </p>
-    <p v-if="hayCirc" class="mk__circ">
-      * <strong>{{ L('Circular.', 'Circular.') }}</strong>
-      {{ L('Los genes con asterisco participan en la selección de este grupo o van ligados al programa con el que se seleccionó: su diferencia con el resto sale en parte de cómo se eligió el grupo, no es una medida independiente.',
-        'Genes with an asterisk take part in selecting this group or are tied to the program it was selected by: their difference from the rest partly comes from how the group was chosen, so it is not an independent measurement.') }}
-    </p>
-    <p v-if="esInteres && d.lesion === 'hueso'" class="mk__circ"><strong>{{ L('Circular.', 'Circular.') }}</strong> {{ L(CIRC_HUESO.es, CIRC_HUESO.en) }}</p>
-    <p v-if="!esInteres && grupo !== 'otras'" class="mk__cap">{{ L(CIRC_REFERENCIA.es, CIRC_REFERENCIA.en) }}</p>
-    <p v-if="grupo === 'otras'" class="mk__cap">{{ L('«Otras» reúne las células que no entran en ningún grupo fijo: sus marcadores describen una mezcla, no un tipo.', '“Other” gathers the cells that do not fall in any fixed group: its markers describe a mix, not a type.') }}</p>
-    <p class="mk__desliza" aria-hidden="true">{{ conFdr ? L('Desplaza para ver las seis columnas →', 'Scroll to see all six columns →') : L('Desplaza para ver las cinco columnas →', 'Scroll to see all five columns →') }}</p>
+    <p class="mk__desliza" :class="conFdr ? 'mk__desliza--6' : 'mk__desliza--5'" aria-hidden="true">{{ conFdr ? L('Desplaza para ver las seis columnas →', 'Scroll to see all six columns →') : L('Desplaza para ver las cinco columnas →', 'Scroll to see all five columns →') }}</p>
     <div class="mk__tabla" role="region" :aria-labelledby="`${idCtl}-cap`" tabindex="0">
       <table :class="{ 'mk__t5': !conFdr }">
         <thead>
@@ -93,7 +69,7 @@ const idCtl = useId()
             <th scope="row">
               <button v-if="abribles(f.gen)" type="button" class="mk__gen" :aria-pressed="f.gen === elegido" @click="emit('elegir', f.gen)">{{ f.gen }}</button>
               <span v-else class="mk__gen mk__gen--fijo">{{ f.gen }}</span>
-              <span v-if="circular(f.gen)" class="mk__ast" :title="L('Circular: ver la nota de encima de la tabla', 'Circular: see the note above the table')"><span aria-hidden="true">*</span><span class="sr-only">{{ L('(circular)', '(circular)') }}</span></span>
+              <span v-if="circular(f.gen)" class="mk__ast" :title="L('Circular: ver la nota de debajo de la tabla', 'Circular: see the note below the table')"><span aria-hidden="true">*</span><span class="sr-only">{{ L('(circular)', '(circular)') }}</span></span>
             </th>
             <td class="nums">{{ fmtPct(f.a, lang) }}</td>
             <td class="nums">{{ fmtPct(f.suelo, lang) }}</td>
@@ -107,11 +83,37 @@ const idCtl = useId()
     <button v-if="filas.length > TOP" type="button" class="mk__ir mk__todos" :aria-expanded="todos" @click="todos = !todos">
       {{ todos ? L(`Ver solo los ${TOP} primeros`, `Show only the top ${TOP}`) : L(`Ver los ${filas.length}, con FDR`, `See all ${filas.length}, with FDR`) }}
     </button>
+    <p :id="`${idCtl}-cap`" class="mk__cap">
+      {{ L(`${etiqueta(ETIQUETA_GRUPO, grupo, 'es')}: ${corta ? `los ${TOP} primeros de ${filas.length} genes` : `${filas.length} genes`}, ordenados por el estadístico de Wilcoxon. En gris, los de FDR de 0,05 o más: con ese umbral no distinguen al grupo.`,
+        `${etiqueta(ETIQUETA_GRUPO, grupo, 'en')}: ${corta ? `the top ${TOP} of ${filas.length} genes` : `${filas.length} genes`}, ranked by the Wilcoxon statistic. In grey, those with FDR of 0.05 or more: at that threshold they do not set the group apart.`) }}
+    </p>
+    <p class="mk__p">
+      <strong>{{ L('Detectado no es positivo.', 'Detected is not positive.') }}</strong>
+      {{ L('El porcentaje de células del grupo se lee contra su suelo ambiental: si quedan cerca, la señal puede venir del fondo.',
+        'Compare the share of cells in the group with its ambient floor: if close, the signal may come from the background.') }}
+    </p>
+    <p class="mk__cap">{{ L('Wilcoxon compara el nivel de expresión célula a célula frente al resto, no solo cuántas células lo detectan: un gen presente en casi todas puede distinguir al grupo por su nivel.', 'Wilcoxon compares the expression level cell by cell against the rest, not just how many cells detect it: a gene present in almost every cell can set the group apart by its level.') }}</p>
+    <p v-if="hayCirc" class="mk__circ">
+      * <strong>{{ L('Circular.', 'Circular.') }}</strong>
+      {{ L('Los genes con asterisco participan en la selección de este grupo o van ligados al programa con el que se seleccionó: su diferencia con el resto sale en parte de cómo se eligió el grupo, no es una medida independiente.',
+        'Genes with an asterisk take part in selecting this group or are tied to the program it was selected by: their difference from the rest partly comes from how the group was chosen, so it is not an independent measurement.') }}
+    </p>
+    <p v-if="esInteres && d.lesion === 'hueso'" class="mk__circ"><strong>{{ L('Circular.', 'Circular.') }}</strong> {{ L(CIRC_HUESO.es, CIRC_HUESO.en) }}</p>
+    <p v-if="!esInteres && grupo !== 'otras'" class="mk__cap">{{ L(CIRC_REFERENCIA.es, CIRC_REFERENCIA.en) }}</p>
+    <p v-if="grupo === 'otras'" class="mk__cap">{{ L('«Otras» reúne las células que no entran en ningún grupo fijo: sus marcadores describen una mezcla, no un tipo.', '“Other” gathers the cells that do not fall in any fixed group: its markers describe a mix, not a type.') }}</p>
+    <!-- simulador (18-oct): el método, plegado; el grupo, la tabla y los avisos de circularidad, a la vista -->
+    <details class="mk__como">
+      <summary>{{ L('Cómo se calcula', 'How it is computed') }}</summary>
+    <p class="mk__p">
+      {{ L('Genes que más distinguen a cada grupo frente al resto de la lesión (prueba de Wilcoxon, FDR de Benjamini-Hochberg). Solo grupos fijos del análisis; no se compara una selección hecha a mano. Se omiten los genes que solo aparecen en uno de los dos lados (log2FC infinito): no se pueden dar como cifra.',
+        'Genes that best set each group apart from the rest of the lesion (Wilcoxon test, Benjamini-Hochberg FDR). Fixed groups of the analysis only; no hand-made selection is compared. Genes seen on only one of the two sides (infinite log2FC) are left out: they cannot be given as a figure.') }}
+    </p>
+    </details>
   </div>
 </template>
 
 <style scoped>
-.mk__p { margin: 0 0 var(--sp-12); font: var(--tipo-body-sm); color: var(--texto-2); max-width: var(--measure); }
+.mk__p { margin: 0 0 var(--sp-8); font: var(--tipo-body-sm); font-size: var(--texto-xs); color: var(--texto-2); max-width: var(--measure); }
 .mk__p strong { color: var(--texto-1); }
 .mk__campo { display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-8); margin-bottom: var(--sp-12); }
 .mk__eti { font: 600 var(--texto-xs)/1.3 var(--font-body); color: var(--texto-2); }
@@ -124,14 +126,15 @@ const idCtl = useId()
 }
 .mk__btn:active { transform: scale(0.97); }
 @media (prefers-reduced-motion: reduce) { .mk__btn { transition: none; } .mk__btn:active { transform: none; } }
-.mk__btn[aria-pressed='true'] { background: var(--texto-1); color: var(--fondo); border-color: var(--texto-1); }
+.mk__btn[aria-pressed='true'] { background: color-mix(in srgb, var(--identidad) 14%, transparent); color: var(--texto-1); border-color: var(--identidad); box-shadow: inset 0 0 0 1px var(--identidad); }
 .mk__btn:focus-visible, .mk__gen:focus-visible, .mk__tabla:focus-visible, .mk__ir:focus-visible { outline: 2px solid var(--anillo-foco); outline-offset: 2px; }
 .mk__desliza { display: none; margin: 0 0 var(--sp-8); font: var(--tipo-body-sm); font-size: var(--texto-xs); color: var(--texto-2); }
 /* por el ancho de SU caja, no de la ventana: en el simulador la tabla vive en el panel estrecho de escritorio */
 .mk { container-type: inline-size; }
-@container (max-width: 600px) { .mk__desliza { display: block; } }   /* tabla de 560 px (460 con cinco columnas) + márgenes */
-.mk__tabla { overflow: auto; max-height: 30rem; border: 1px solid var(--trazo-sutil); border-radius: var(--radius-btn); }
-@media (max-width: 1023px) { .mk__tabla { max-height: none; } }   /* sin scroll dentro del scroll en táctil (diseño, 18-oct) */
+/* el aviso solo cuando la tabla desborda su caja: 560 px con seis columnas, 420 con cinco (diseño, 18-oct: salía con todo a la vista) */
+@container (max-width: 600px) { .mk__desliza--6 { display: block; } }
+@container (max-width: 440px) { .mk__desliza--5 { display: block; } }
+.mk__tabla { overflow-x: auto; border: 1px solid var(--trazo-sutil); border-radius: var(--radius-btn); margin-bottom: var(--sp-4); }   /* sin alto máximo: el panel ya desplaza (diseño, 18-oct: se cortaba la fila 12) */
 .mk__circ { margin: 0 0 var(--sp-8); font: var(--tipo-body-sm); font-size: var(--texto-xs); color: var(--texto-1); max-width: var(--measure); }
 .mk__ast { margin-left: 2px; font: 600 var(--texto-xs) var(--font-body); color: var(--texto-1); }
 .mk__tabla table { width: 100%; min-width: 560px; border-collapse: separate; border-spacing: 0; font: var(--tipo-body-sm); font-size: var(--texto-xs); }
@@ -151,9 +154,9 @@ const idCtl = useId()
 @media (hover: hover) { .mk__gen:not(.mk__gen--fijo):hover { background: var(--trazo-sutil); } }
 .mk__gen[aria-pressed='true'] { background: color-mix(in srgb, var(--identidad) 14%, transparent); text-decoration-thickness: 2px; box-shadow: inset 0 0 0 1px var(--identidad); }
 .mk__ir { padding: 0; border: 0; background: none; color: var(--identidad); font: inherit; font-weight: 600; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
-.mk__como { margin: 0 0 var(--sp-12); }
+.mk__como { margin: var(--sp-4) 0 0; }
 .mk__todos { min-height: 44px; margin-top: var(--sp-4); font-size: var(--texto-sm); }
-.mk__tabla table.mk__t5 { min-width: 460px; }
+.mk__tabla table.mk__t5 { min-width: 420px; }
 .mk__como summary { cursor: pointer; min-height: 44px; display: flex; align-items: center; font: 600 var(--texto-sm)/1.3 var(--font-body); color: var(--identidad); }
 .mk__como summary::-webkit-details-marker { display: none; }
 .mk__como summary::before { content: ''; display: inline-block; width: 7px; height: 7px; border-right: 1.5px solid currentColor; border-bottom: 1.5px solid currentColor; transform: rotate(-45deg); transition: transform 0.2s ease; flex-shrink: 0; margin-right: var(--sp-8); }

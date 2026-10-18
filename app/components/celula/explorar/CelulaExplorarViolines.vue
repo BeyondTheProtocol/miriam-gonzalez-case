@@ -14,14 +14,14 @@
  * Sin animaciones. El estado no va solo en color: hay texto en cada fila y aria-label con las cifras.
  */
 import type { Adn, FilaGrupo, Lesion, Loo } from '~/utils/celulaExplorador'
-import { densidad, fmtPct, fmtPctFino, fmtPctSig } from '~/utils/celulaExplorador'
+import { densidad, fmtParSuelo, fmtPct, fmtPctFino, fmtPctSig } from '~/utils/celulaExplorador'
 import { CIRC_HUESO, ETIQUETAS_FIJAS, ETIQUETA_GRUPO, PAPEL_SELECCION, etiqueta } from '~/utils/celulaExploradorTexto'
 
-const props = defineProps<{ filas: FilaGrupo[]; gen: string; lang: 'es' | 'en'; lesion: Lesion; adn: Adn; papel?: string; loo?: Loo }>()
+const props = defineProps<{ filas: FilaGrupo[]; gen: string; lang: 'es' | 'en'; lesion: Lesion; adn: Adn; papel?: string; loo?: Loo; referencia?: number }>()
 const L = (es: string, en: string) => (props.lang === 'en' ? en : es)
 const uid = useId()
 
-const W = 300, H = 40, BX = 340, BW = 140
+const W = 300, H = 40, BX = 372, BW = 140
 const X0 = -12, ANCHO = BX + BW + 24
 /** posición (%) de una x del viewBox, para colocar las etiquetas del eje en HTML */
 const pos = (xv: number) => ((xv - X0) / ANCHO) * 100
@@ -64,8 +64,8 @@ const nfCp = (x: number) => String(Math.round(x))
       <span class="vio__muestra vio__muestra--raya" aria-hidden="true" />
       <div>
         <p>
-          {{ L('Suelo ambiental: el porcentaje de células en las que el gen saldría solo por ARN suelto en la muestra. Lo que no lo supera no cuenta como expresión. Si el suelo supera lo detectado, está sobreestimado para ese gen en ese grupo.' + (lesion === 'hueso' ? ' En el hueso, el suelo incluye además el ADN genómico del tejido (ver «Cómo se lee»).' : ''),
-            'Ambient floor: the share of cells where the gene would show up from loose RNA in the sample alone. Anything at or below it does not count as expression. If the floor is above what is detected, it is overestimated for that gene in that group.' + (lesion === 'hueso' ? ' In the bone, the floor also includes the tissue’s genomic DNA (see “How to read it”).' : '')) }}
+          {{ L('Suelo ambiental: el porcentaje de células en las que el gen saldría solo por ARN suelto en la muestra. Lo que no lo supera no cuenta como expresión.' + (lesion === 'hueso' ? ' En el hueso, el suelo incluye además el ADN genómico del tejido (ver «Cómo se lee»).' : ''),
+            'Ambient floor: the share of cells where the gene would show up from loose RNA in the sample alone. Anything at or below it does not count as expression.' + (lesion === 'hueso' ? ' In the bone, the floor also includes the tissue’s genomic DNA (see “How to read it”).' : '')) }}
         </p>
       </div>
     </div>
@@ -85,7 +85,6 @@ const nfCp = (x: number) => String(Math.round(x))
           <span class="vio__n nums">n = {{ nf(f.n) }}</span>
         </div>
         <!-- circularidad: la cifra sin ella va PRIMERO; la de la figura (este grupo) queda rotulada como circular -->
-        <p v-if="f.rol === 'interes' && lesion === 'hueso'" class="vio__circ vio__circ--grupo" role="note"><strong>{{ L('Circular.', 'Circular.') }}</strong> {{ L(CIRC_HUESO.es, CIRC_HUESO.en) }}</p>
         <p v-if="f.rol === 'interes' && papel" class="vio__circ" role="note">
           <template v-if="loo">
             <strong>{{ L('Sin esa circularidad', 'Without that circularity') }}</strong>
@@ -107,7 +106,7 @@ const nfCp = (x: number) => String(Math.round(x))
           <template v-else>
             <circle v-for="(v, k) in f.niveles" :key="k" :cx="x(v)" :cy="H / 2" r="3" class="vio__punto" />
           </template>
-          <line v-if="mediana(f.niveles) != null" :x1="x(mediana(f.niveles)!)" :x2="x(mediana(f.niveles)!)" :y1="H / 2 - 9" :y2="H / 2 + 9" class="vio__mediana" />
+          <line v-if="mediana(f.niveles) != null" :x1="x(mediana(f.niveles)!)" :x2="x(mediana(f.niveles)!)" :y1="H / 2 - 6" :y2="H / 2 + 6" class="vio__mediana" />
           <!-- detección y suelo ambiental, en la misma figura -->
           <rect :x="BX" y="12" :width="BW" height="16" class="vio__marco" />
           <rect :x="BX" y="12" :width="BW * Math.min(1, f.frac)" height="16" class="vio__det" />
@@ -115,14 +114,19 @@ const nfCp = (x: number) => String(Math.round(x))
           <line :x1="BX + BW * Math.min(1, f.suelo)" :x2="BX + BW * Math.min(1, f.suelo)" y1="8" y2="32" class="vio__suelo-linea" />
         </svg>
         <p class="vio__txt nums">
-          <template v-if="f.rol === 'interes' && papel">{{ L('Circular · ', 'Circular · ') }}</template><span class="vio__par">{{ L(`Detectado ${fmtPct(f.frac, 'es')} (${nf(f.detectadas)})`, `Detected ${fmtPct(f.frac, 'en')} (${nf(f.detectadas)})`) }}</span> · <span class="vio__par">{{ L(`suelo ${fmtPct(f.suelo, 'es')}`, `floor ${fmtPct(f.suelo, 'en')}`) }}</span><template v-if="mediana(f.niveles) != null"> · <span class="vio__par">{{ L('mediana', 'median') }} {{ fmt10(mediana(f.niveles)!) }} CP10k</span></template>
+          <template v-if="f.rol === 'interes' && papel">{{ L('Circular · ', 'Circular · ') }}</template><span class="vio__par">{{ L(`Detectado ${fmtParSuelo(f.frac, f.suelo, 'es')[0]} (${nf(f.detectadas)})`, `Detected ${fmtParSuelo(f.frac, f.suelo, 'en')[0]} (${nf(f.detectadas)})`) }}</span> · <span class="vio__par">{{ L(`suelo ${fmtParSuelo(f.frac, f.suelo, 'es')[1]}`, `floor ${fmtParSuelo(f.frac, f.suelo, 'en')[1]}`) }}</span><template v-if="f.frac <= f.suelo"> · <strong class="vio__bajo">{{ L('no supera el suelo', 'does not clear the floor') }}</strong></template><template v-if="mediana(f.niveles) != null"> · <span class="vio__par">{{ L('mediana', 'median') }} {{ fmt10(mediana(f.niveles)!) }} CP10k</span></template>
           <template v-if="f.detectadas < 3"> · {{ L('pocas células para dibujar la forma', 'too few cells to draw a shape') }}</template>
         </p>
+        <!-- la referencia emparejada no es ningún grupo de la lista: se da aquí, junto al grupo de interés (comité médico, 18-oct) -->
+        <p v-if="f.rol === 'interes' && referencia != null" class="vio__ref nums">{{ L(`Referencia emparejada: ${fmtPct(referencia, 'es')}`, `Matched reference: ${fmtPct(referencia, 'en')}`) }}</p>
+        <!-- en el hueso el grupo entero es circular: la nota cierra la fila -->
+        <p v-if="f.rol === 'interes' && lesion === 'hueso'" class="vio__circ vio__circ--grupo" role="note"><strong>{{ L('Circular.', 'Circular.') }}</strong> {{ L(CIRC_HUESO.es, CIRC_HUESO.en) }}</p>
       </li>
     </ul>
     <!-- simulador (18-oct): lo explicativo, plegado; las cifras, el n, el suelo y la circularidad quedan siempre a la vista -->
     <details class="vio__como">
       <summary>{{ L('Cómo se lee', 'How to read it') }}</summary>
+      <p class="vio__leyenda">{{ L('Si el suelo supera lo detectado, es el suelo el que está sobreestimado para ese gen en ese grupo.', 'If the floor is above what is detected, it is the floor that is overestimated for that gene in that group.') }}</p>
       <p class="vio__adn"><strong>{{ L(`${ETIQUETAS_FIJAS.matriz.es}.`, `${ETIQUETAS_FIJAS.matriz.en}.`) }}</strong> {{ adnTxt }}</p>
       <p class="vio__leyenda">
         {{ L('El violín es el nivel (CP10k, escala logarítmica) solo en las células donde el gen se detecta; la raya vertical es la mediana.',
@@ -159,6 +163,8 @@ const nfCp = (x: number) => String(Math.round(x))
 .vio__suelo { stroke: var(--texto-1); stroke-width: 1; }
 .vio__suelo-linea { stroke: var(--texto-1); stroke-width: 2; vector-effect: non-scaling-stroke; }
 .vio__txt { margin: var(--sp-4) 0 0; font: 500 var(--texto-xs)/1.4 var(--font-mono); color: var(--texto-2); }
+.vio__bajo { color: var(--texto-1); font-weight: 700; }
+.vio__ref { margin: var(--sp-4) 0 0; font: 600 var(--texto-xs)/1.4 var(--font-mono); color: var(--texto-1); }
 .vio__leyenda { display: flex; gap: var(--sp-8); align-items: flex-start; margin: var(--sp-12) 0 0; font: var(--tipo-body-sm); font-size: var(--texto-xs); color: var(--texto-2); max-width: var(--measure); }
 .vio__leyenda p { margin: 0; }
 .vio__leyenda--arriba { margin: 0 0 var(--sp-12); }

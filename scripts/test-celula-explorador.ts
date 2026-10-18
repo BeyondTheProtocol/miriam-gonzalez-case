@@ -299,6 +299,13 @@ if (man.zarr?.length) {
     const saltos = pasos.slice(1).map((l, k) => Math.abs(l - pasos[k]!))
     ok(`paleta ${tema}: «no detectado» y los 4 tramos se separan por luminosidad (ΔL* ≥ 8 entre pasos)`, saltos.every((d) => d >= 8), saltos.map((d) => d.toFixed(1)).join(' / '))
     ok(`paleta ${tema}: el tercer tramo pasa 3:1 con el fondo del mapa`, contraste(p.nivel[2]!, fondo) >= 3, contraste(p.nivel[2]!, fondo).toFixed(2))
+    // diseño (18-oct): con tres tonos fijos repetidos, dos grupos de referencia salían del mismo color. Un tono por grupo:
+    // hasta 5 grupos (los datos reales: 5 en el hígado, 4 en el hueso) separados por ΔL* ≥ 8; con 8, distintos; y todos
+    // lejos de «Otras»
+    for (const n of [4, 5, 8]) {
+      const t = p.refs(n), ls = t.map(Lstar), min = Math.min(...ls.slice(1).map((l, k) => Math.abs(l - ls[k]!))), otras = Lstar(p.otras)
+      ok(`paleta ${tema}: ${n} grupos de referencia, ${n} tonos sin repetir${n <= 5 ? ' y ΔL* ≥ 8' : ''}, y ninguno pegado a «Otras»`, new Set(t.map(String)).size === n && (n > 5 || min >= 8) && ls.every((l) => Math.abs(l - otras) >= 10), `ΔL* mínimo ${min.toFixed(1)}`)
+    }
   }
 }
 

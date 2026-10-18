@@ -24,7 +24,7 @@ import type { Coexp, Lesion, LesionDatos, Manifiesto } from '~/utils/celulaExplo
 import { coexpresion, columna, nivelMatriz, porGrupo } from '~/utils/celulaExplorador'
 import { abreZarr, storeWeb, type ZarrLesion } from '~/utils/celulaExploradorZarr'
 import { cssRgb, paleta, type RGB } from '~/utils/celulaExploradorColor'
-import { ETIQUETA_GRUPO, ETIQUETA_LESION, ETIQUETA_TIPO, PANEL_INTERES, PROTEINA, etiqueta, nombreGen } from '~/utils/celulaExploradorTexto'
+import { ALIAS_BUSCA, ETIQUETA_GRUPO, ETIQUETA_LESION, ETIQUETA_TIPO, PANEL_INTERES, PROTEINA, etiqueta, nombreGen } from '~/utils/celulaExploradorTexto'
 
 const props = defineProps<{ man: Manifiesto; ejemplo: boolean; lang: 'es' | 'en' }>()
 const L = (es: string, en: string) => (props.lang === 'en' ? en : es)
@@ -52,7 +52,7 @@ const cargando = ref(false)
 const d = computed(() => cache[lesion.value] ?? null)
 const gen = ref('ANKRD30A')
 const genB = ref('TPBG')
-const modo = ref<'grupo' | 'tipo' | 'gen' | 'coexp'>('grupo')
+const modo = ref<'grupo' | 'gen' | 'coexp'>('grupo')
 const tema = ref<'claro' | 'oscuro'>('claro')
 const errorMapa = ref('')
 const aviso = ref('')
@@ -83,7 +83,6 @@ const nTotal = computed(() => (d.value ? fmtN(d.value.n_celulas, props.lang) : '
 /** «Colorear por» en un desplegable: Gen y Dos genes solo con un gen activo */
 const MODOS = computed(() => [
   { k: 'grupo', t: L('Grupo', 'Group'), off: false },
-  { k: 'tipo', t: L('Tipo celular', 'Cell type'), off: false },
   { k: 'gen', t: activo.value ? L(`Gen: ${PROT(activo.value)}`, `Gene: ${PROT(activo.value)}`) : L('Gen (elige uno)', 'Gene (pick one)'), off: !activo.value },
   { k: 'coexp', t: L('Dos genes', 'Two genes'), off: !activo.value },
 ] as const)
@@ -112,8 +111,11 @@ const nivelGen = computed(() => {
   const cortes = det.length >= 8 ? [...new Set([q(0.25), q(0.5), q(0.75)])].filter((c) => c < det[det.length - 1]!) : []
   const clase = (v: number) => (v <= 0 ? 0 : 1 + cortes.filter((c) => v > c).length)
   const clases = Array.from(col, clase)
-  const f = (v: number) => { const t = String(Number(v.toPrecision(2))); return props.lang === 'en' ? t : t.replace('.', ',') }
   const lims = det.length ? [det[0]!, ...cortes, det[det.length - 1]!] : []
+  // dos cifras significativas; si dos límites distintos redondean igual, se sube la precisión (dos tramos no pueden llamarse igual)
+  let cifras = 2
+  while (cifras < 6 && new Set(lims.map((v) => Number(v.toPrecision(cifras)))).size < new Set(lims).size) cifras++
+  const f = (v: number) => { const t = String(Number(v.toPrecision(cifras))); return props.lang === 'en' ? t : t.replace('.', ',') }
   const nombres = [L('No detectado', 'Not detected'), ...lims.slice(0, -1).map((a, k) => `${f(a)}–${f(lims[k + 1]!)} CP10k`)]
   const orden = Array.from(col.keys()).sort((a, b) => clases[a]! - clases[b]! || a - b)
   return { clases, nombres, orden }
@@ -135,12 +137,10 @@ const leyenda = computed<{ etiqueta: string; rgb: RGB; n: number }[]>(() => {
   const x = d.value, p = pal.value
   if (!x || !p) return []
   if (modo.value === 'grupo') {
+    // un tono propio por grupo de referencia: ninguna fila de la leyenda comparte color (diseño, 18-oct)
+    const tonos = p.refs(x.grupos.filter((g) => g.rol !== 'interes' && g.rol !== 'otras').length)
     let r = 0
-    return x.grupos.map((g) => ({ etiqueta: etiqueta(ETIQUETA_GRUPO, g.id, props.lang), n: g.n, rgb: g.rol === 'interes' ? p.interes : g.rol === 'otras' ? p.otras : p.ref[r++ % p.ref.length]! }))
-  }
-  if (modo.value === 'tipo') {
-    const cuenta = x.tipos.map((_, k) => x.celulas.tipo.filter((t) => t === k).length)
-    return x.tipos.map((t, k) => ({ etiqueta: etiqueta(ETIQUETA_TIPO, t, props.lang), n: cuenta[k]!, rgb: p.ref[k % p.ref.length]! }))
+    return x.grupos.map((g) => ({ etiqueta: etiqueta(ETIQUETA_GRUPO, g.id, props.lang), n: g.n, rgb: g.rol === 'interes' ? p.interes : g.rol === 'otras' ? p.otras : tonos[r++]! }))
   }
   if (modo.value === 'coexp' && etiquetasCx.value) {
     const cx = etiquetasCx.value
@@ -157,7 +157,7 @@ const colores = computed(() => {
   const set = colorearPor.value
   return leyenda.value.map((l) => ({ ruta: [set, l.etiqueta] as [string, string], rgb: l.rgb }))
 })
-const colorearPor = computed(() => (modo.value === 'tipo' ? nombreSet.value.tipo : modo.value === 'coexp' ? nombreSet.value.coexp : modo.value === 'gen' ? nombreSet.value.gen : nombreSet.value.grupo))
+const colorearPor = computed(() => (modo.value === 'coexp' ? nombreSet.value.coexp : modo.value === 'gen' ? nombreSet.value.gen : nombreSet.value.grupo))
 
 /* ── nivel «todos los genes» (Zarr): solo si el manifiesto lo permite (publicar la matriz completa) ── */
 const nivel = computed(() => nivelMatriz(props.man, props.ejemplo ? 'ejemplo' : 'real'))
@@ -180,7 +180,10 @@ watch(d, async (x) => {
 /** nombre de proteína → símbolo (HER2 → ERBB2): la página usa los nombres de proteína y un oncólogo buscará por ellos */
 /** sin guiones, puntos ni espacios: «Ki-67» y «KI67» buscan lo mismo (diseño, 18-oct) */
 const norm = (t: string) => t.toUpperCase().replace(/[-\s.]/g, '')
-const ALIAS: Record<string, string> = Object.fromEntries(Object.entries(PROTEINA).map(([g, p]) => [norm(p), g]))
+const ALIAS: Record<string, string> = {
+  ...Object.fromEntries(Object.entries(ALIAS_BUSCA).map(([p, g]) => [norm(p), g])),
+  ...Object.fromEntries(Object.entries(PROTEINA).map(([g, p]) => [norm(p), g])),
+}
 const sugerencias = computed(() => {
   const q = norm(busca.value.trim())
   const zl = z.value
@@ -229,6 +232,16 @@ async function abreGen(g: string, origen: 'busca' | 'marcadores' | 'interes' = '
   if (origen !== 'busca') panel.value = origen        // «‹ Volver» regresa a la pestaña de la que se vino
   detalle.value = true
   pintaGen()
+}
+/** pestañas del panel (patrón tablist: flechas para moverse; diseño, 18-oct: parecían chips) */
+const PESTANAS = computed(() => [{ k: 'interes' as const, t: L('Genes de interés', 'Genes of interest') }, { k: 'marcadores' as const, t: L('Marcadores', 'Markers') }])
+function ponPestana(k: 'interes' | 'marcadores') { panel.value = k; detalle.value = false }
+function teclaPestana(ev: KeyboardEvent) {
+  if (ev.key !== 'ArrowRight' && ev.key !== 'ArrowLeft' && ev.key !== 'Home' && ev.key !== 'End') return
+  ev.preventDefault()
+  const k = ev.key === 'Home' ? 'interes' : ev.key === 'End' ? 'marcadores' : panel.value === 'interes' ? 'marcadores' : 'interes'
+  ponPestana(k)
+  void nextTick(() => document.getElementById(`${idCtl}-tab-${k}`)?.focus())
 }
 /** ✕ del gen activo: el mapa vuelve a los grupos y el panel a su lista */
 function quitaGen() {
@@ -364,12 +377,15 @@ function sinTapar(ev: FocusEvent) {
       <div ref="bannerEl" class="exp__banner" role="note">
         <svg class="exp__ico" viewBox="0 0 256 256" aria-hidden="true"><path fill="currentColor" d="M240.26 186.1 152.81 34.23a28.74 28.74 0 0 0-49.62 0L15.74 186.1a27.45 27.45 0 0 0 0 27.71A28.31 28.31 0 0 0 40.55 228h174.9a28.31 28.31 0 0 0 24.79-14.19 27.45 27.45 0 0 0 .02-27.71ZM120 104a8 8 0 0 1 16 0v40a8 8 0 0 1-16 0Zm8 88a12 12 0 1 1 12-12 12 12 0 0 1-12 12Z" /></svg>
         <p><strong>{{ L('Hígado: tumor frente a hepatocito no está resuelto célula a célula.', 'Liver: tumor versus hepatocyte is not resolved cell by cell.') }}</strong>
-          {{ L('«Hepatocitos» y «Otras» también pueden incluir células tumorales.', '“Hepatocytes” and “Other” may also include tumor cells.') }}
+          <span class="exp__banner-2">{{ L('«Luminal de alta confianza» es un subconjunto, no el tumor entero; «Hepatocitos» y «Otras» también pueden incluir células tumorales.', '“High-confidence luminal” is a subset, not the whole tumor; “Hepatocytes” and “Other” may also include tumor cells.') }}</span>
           <button type="button" class="exp__mas" :aria-expanded="masHigado" @click="masHigado = !masHigado">{{ masHigado ? L('Menos', 'Less') : L('Más', 'More') }}</button></p>
       </div>
+      <!-- estrecho (diseño, 18-oct): fijo, solo el titular (con la frase dentro tapaba filas y «Volver»); la frase va aquí, a
+           la vista al llegar y antes de cualquier cifra -->
+      <p class="exp__banner-sig">{{ L('«Luminal de alta confianza» es un subconjunto, no el tumor entero; «Hepatocitos» y «Otras» también pueden incluir células tumorales.', '“High-confidence luminal” is a subset, not the whole tumor; “Hepatocytes” and “Other” may also include tumor cells.') }}</p>
       <p v-if="masHigado" class="exp__nota exp__nota--banner">
-        {{ L('El grupo «Luminal de alta confianza» es un subconjunto, no el tumor entero, y sus cifras no son «% de células tumorales». «Otras, sin asignar a un grupo» y «Hepatocitos» también pueden incluir células tumorales: el tipo se asigna por clúster, y una célula tumoral caída en un clúster de hepatocitos cuenta como hepatocito y queda fuera del grupo de interés.',
-          'The “High-confidence luminal” group is a subset, not the whole tumor, and its figures are not “% of tumor cells”. “Other, not assigned to a group” and “Hepatocytes” may also include tumor cells: type is assigned per cluster, and a tumor cell falling in a hepatocyte cluster counts as hepatocyte and stays out of the group of interest.') }}
+        {{ L('Las cifras del grupo «Luminal de alta confianza» no son «% de células tumorales». El tipo se asigna por clúster: una célula tumoral caída en un clúster de hepatocitos cuenta como hepatocito y queda fuera del grupo de interés, y «Otras, sin asignar a un grupo» también puede incluir células tumorales.',
+          'The figures of the “High-confidence luminal” group are not “% of tumor cells”. Type is assigned per cluster: a tumor cell falling in a hepatocyte cluster counts as hepatocyte and stays out of the group of interest, and “Other, not assigned to a group” may also include tumor cells.') }}
       </p>
     </template>
 
@@ -384,7 +400,7 @@ function sinTapar(ev: FocusEvent) {
       <div class="exp__sim">
         <div class="exp__mapacol">
           <h2 class="sr-only">{{ L('Mapa de células', 'Cell map') }}{{ ej }}</h2>
-          <div class="exp__mapabar">
+          <div class="exp__mapabar" :class="{ 'exp__mapabar--dos': modo === 'coexp' }">
             <div class="exp__campo exp__campo--fila">
               <label :for="`${idCtl}-modo`" class="exp__eti">{{ L('Colorear por', 'Color by') }}</label>
               <select :id="`${idCtl}-modo`" v-model="modo" class="exp__sel exp__sel--sm">
@@ -406,7 +422,7 @@ function sinTapar(ev: FocusEvent) {
           <CelulaExplorarMapa :d="d" :modo="modo" :gen="gen" :gen-b="genB" :conjuntos="conjuntos" :colores="colores" :colorear-por="colorearPor"
                               :tema="tema === 'oscuro' ? 'dark' : 'light'" :lang="lang" :alto="altoMapa" :movil="movil" :orden="nivelGen?.orden" @error="errorMapa = $event" />
           <p v-if="errorMapa" class="exp__estado exp__estado--error" role="alert">{{ L('El mapa no se ha podido dibujar en este navegador. El panel y los datos de abajo no dependen de él.', 'The map could not be drawn in this browser. The panel and the data below do not depend on it.') }}</p>
-          <p v-if="modo === 'gen'" class="exp__leyt">{{ L(`Nivel de ${nombreGen(gen)} en cada célula, en CP10k: no detectado o el tramo en que cae.`, `${nombreGen(gen)} level in each cell, in CP10k: not detected, or the band it falls in.`) }}</p>
+          <p v-if="modo === 'gen'" class="exp__leyt">{{ L(`Nivel de ${nombreGen(gen)} en cada célula, en CP10k (moléculas del gen por cada 10.000 de la célula): no detectado o el tramo en que cae. Los tramos son de esta biopsia: el mismo color no es el mismo nivel en el hígado y en el hueso.`, `${nombreGen(gen)} level in each cell, in CP10k (molecules of the gene per 10,000 in the cell): not detected, or the band it falls in. The bands belong to this biopsy: the same colour is not the same level in the liver and in the bone.`) }}</p>
           <ul v-if="leyenda.length" class="exp__leyenda" :aria-label="L('Leyenda del mapa', 'Map legend')">
             <li v-for="l in leyenda" :key="l.etiqueta"><span class="exp__muestra" :style="{ background: cssRgb(l.rgb) }" aria-hidden="true" />{{ l.etiqueta }} <span class="nums">{{ fmtN(l.n, lang) }}</span></li>
           </ul>
@@ -414,22 +430,20 @@ function sinTapar(ev: FocusEvent) {
             {{ L('El color es ARN, no proteína. El mapa pinta toda célula donde se detecta el gen, aunque esa señal pueda venir del fondo; si un grupo supera su suelo ambiental, se ve en sus cifras por grupo.',
               'Color is RNA, not protein. The map paints every cell where the gene is detected, even if that signal may come from the background; whether a group clears its ambient floor shows in its figures by group.') }}
           </p>
-          <p v-if="modo === 'tipo'" class="exp__nota">{{ L('Grupo y tipo celular salen de métodos distintos: el grupo, de la selección de células del análisis revisado; el tipo, de la anotación por clúster con marcadores canónicos de uno de los analistas. Por eso una célula del grupo de interés puede figurar con otro tipo, o con el tipo «Sin asignar».',
-            'Group and cell type come from different methods: the group, from the cell selection in the reviewed analysis; the type, from one analyst’s per-cluster annotation with canonical markers. That is why a cell in the group of interest may show another type, or the type “Unassigned”.') }}</p>
           <p v-if="otrasGem" class="exp__nota">{{ L(`En el hueso, «Otras» incluye ${fmtN(otrasGem.n, 'es')} células sin GEM limpio: comparten gota con una célula del hígado y pueden llevar su ARN. ${fmtN(otrasGem.deTipo, 'es')} de ellas son de tipos que tienen grupo propio y están en «Otras» solo por eso.`, `In the bone, “Other” includes ${fmtN(otrasGem.n, 'en')} cells without a clean GEM: they share a droplet with a liver cell and may carry its RNA. ${fmtN(otrasGem.deTipo, 'en')} of them are of types that have their own group and sit in “Other” only for that reason.`) }}</p>
-          <p class="exp__nota">{{ L(`${nTotal} células de la biopsia; dos puntos cercanos son células parecidas.`, `${nTotal} cells from the biopsy; nearby dots are similar cells.`) }}</p>
-          <details class="exp__porque">
-            <summary>{{ L('Cómo leer este mapa', 'How to read this map') }}</summary>
-            <p class="exp__nota">{{ L('Las células se colocan según lo que se parecen entre sí (UMAP). La distancia entre grupos alejados no se interpreta.', 'Cells are placed by how similar they are (UMAP). Distances between far-apart groups are not meaningful.') }}</p>
+          <p class="exp__nota">{{ L(`${nTotal} células de la biopsia, colocadas según lo que se parecen (UMAP): dos puntos cercanos son células parecidas; la distancia entre grupos alejados no se interpreta.`, `${nTotal} cells from the biopsy, placed by similarity (UMAP): nearby dots are similar cells; distances between far-apart groups are not meaningful.`) }}</p>
+          <details v-if="modo === 'gen'" class="exp__porque">
+            <summary>{{ L('Cómo se cortan los tramos de color', 'How the colour bands are cut') }}</summary>
             <p class="exp__nota">{{ L('Con un gen, hasta cuatro tramos de nivel, cortados en los cuartiles de las células donde se detecta; cada tramo incluye su límite superior. Si se detecta en menos de 8 células, un solo tramo.', 'With a gene, up to four level bands, cut at the quartiles of the cells where it is detected; each band includes its upper limit. If it is detected in fewer than 8 cells, a single band.') }}</p>
           </details>
         </div>
 
         <aside id="exp-panel" class="exp__panel" :aria-label="L('Panel de genes', 'Genes panel')">
-          <div class="exp__seg exp__pestanas" role="group" :aria-label="L('Qué ver en el panel', 'What to show in the panel')">
-            <button type="button" class="exp__btn exp__btn--sm" :aria-pressed="panel === 'interes'" @click="panel = 'interes'; detalle = false">{{ L('Genes de interés', 'Genes of interest') }}</button>
-            <button type="button" class="exp__btn exp__btn--sm" :aria-pressed="panel === 'marcadores'" @click="panel = 'marcadores'; detalle = false">{{ L('Marcadores', 'Markers') }}</button>
+          <div class="exp__pestanas" role="tablist" :aria-label="L('Qué ver en el panel', 'What to show in the panel')" @keydown="teclaPestana">
+            <button v-for="t in PESTANAS" :id="`${idCtl}-tab-${t.k}`" :key="t.k" type="button" role="tab" class="exp__tab" :aria-selected="panel === t.k"
+                    :aria-controls="`${idCtl}-tp`" :tabindex="panel === t.k ? 0 : -1" @click="ponPestana(t.k)">{{ t.t }}</button>
           </div>
+          <div :id="`${idCtl}-tp`" role="tabpanel" :aria-labelledby="`${idCtl}-tab-${panel}`">
           <!-- el gen activo, grupo a grupo -->
           <div v-if="detalle && activo" id="exp-violines" class="exp__pcuerpo" tabindex="-1">
             <div class="exp__dcab">
@@ -439,16 +453,17 @@ function sinTapar(ev: FocusEvent) {
               </button>
               <button v-if="!errorMapa" type="button" class="exp__vermapa exp__solo-estrecho" @click="irAlMapa">{{ L('Ver el mapa', 'See the map') }}</button>
             </div>
-            <h2 class="exp__h2">{{ L(`${nombreGen(gen)}, grupo a grupo`, `${nombreGen(gen)}, group by group`) }}{{ ej }}</h2>
-            <CelulaExplorarViolines :filas="filas" :gen="gen" :lang="lang" :lesion="lesion" :adn="d.adn" :papel="d.seleccion[gen]" :loo="d.loo[gen]" />
+            <h2 class="exp__h2">{{ L(`${nombreGen(gen)}, grupo a grupo`, `${nombreGen(gen)}, group by group`) }} <span class="exp__h2l">· {{ etiqueta(ETIQUETA_LESION, lesion, lang) }}</span>{{ ej }}</h2>
+            <CelulaExplorarViolines :filas="filas" :gen="gen" :lang="lang" :lesion="lesion" :adn="d.adn" :papel="d.seleccion[gen]" :loo="d.loo[gen]" :referencia="d.referencia[gen]" />
           </div>
           <div v-show="!(detalle && activo) && panel === 'interes'" class="exp__pcuerpo">
-            <h2 class="exp__h2">{{ L('Genes de interés', 'Genes of interest') }}{{ ej }}</h2>
+            <h2 class="sr-only">{{ L('Genes de interés', 'Genes of interest') }}{{ ej }}</h2>
             <CelulaExplorarInteres :d="d" :lang="lang" :activo="activo" @elegir="(g: string) => abreGen(g, 'interes')" @tabla="abreTabla" />
           </div>
           <div v-show="!(detalle && activo) && panel === 'marcadores'" class="exp__pcuerpo">
-            <h2 class="exp__h2">{{ L('Marcadores por grupo', 'Markers per group') }}{{ ej }}</h2>
+            <h2 class="sr-only">{{ L('Marcadores por grupo', 'Markers per group') }}{{ ej }}</h2>
             <CelulaExplorarMarcadores :d="d" :lang="lang" :abribles="abrible" :elegido="activo ?? ''" @elegir="(g: string) => abreGen(g, 'marcadores')" />
+          </div>
           </div>
         </aside>
       </div>
@@ -528,6 +543,12 @@ function sinTapar(ev: FocusEvent) {
 .exp__banner { margin: var(--sp-16) 0 0; position: sticky; top: var(--exp-top, 8px); z-index: 5; background: var(--fondo); border: 2px solid var(--texto-1); color: var(--texto-1); }
 @media (max-width: 1023px) { .exp__banner { font-size: var(--texto-xs); } }
 .exp__banner p { margin: 0; }
+.exp__banner::before { content: ''; position: absolute; left: -2px; right: -2px; bottom: 100%; height: 9px; background: var(--fondo); }
+.exp__banner-sig { display: none; }
+@media (max-width: 1023px) {
+  .exp__banner-2 { display: none; }
+  .exp__banner-sig { display: block; margin: var(--sp-8) 0 0; font: var(--tipo-body-sm); font-size: var(--texto-xs); color: var(--texto-1); }
+}
 .exp__ico { width: 20px; height: 20px; flex: none; margin-top: 1px; color: var(--texto-1); }
 .exp__estado { margin: var(--sp-16) 0 0; font: var(--tipo-body-sm); color: var(--texto-2); }
 .exp__estado:empty { margin: 0; }
@@ -540,13 +561,18 @@ function sinTapar(ev: FocusEvent) {
 .exp__mapacol, .exp__panel { min-width: 0; }
 /* el panel pegado va DEBAJO del aviso fijo del hígado y nunca pasa del alto de la pantalla (diseño, 18-oct) */
 @media (min-width: 1024px) { .exp__panel { position: sticky; top: calc(var(--exp-top, 8px) + var(--exp-banner, 0px) + var(--sp-8)); max-height: calc(100dvh - var(--exp-top, 8px) - var(--exp-banner, 0px) - var(--sp-24)); overflow: auto; padding-right: var(--sp-4); } }
-.exp__pestanas { margin-bottom: var(--sp-12); }
+/* pestañas como pestañas: subrayado, no píldora (la píldora rellena es la biopsia y el grupo de marcadores) */
+.exp__pestanas { display: flex; gap: var(--sp-16); margin-bottom: var(--sp-12); border-bottom: 1px solid var(--trazo-medio); }
+.exp__tab { min-height: 44px; padding: 0 var(--sp-4); border: 0; border-bottom: 3px solid transparent; margin-bottom: -1px; border-radius: 0; background: none; color: var(--texto-2); font: 600 var(--texto-sm)/1 var(--font-body); cursor: pointer; }
+.exp__tab[aria-selected='true'] { color: var(--texto-1); border-bottom-color: var(--identidad); }
+@media (hover: hover) { .exp__tab:hover { color: var(--texto-1); } }
+.exp__tab:focus-visible { outline: 2px solid var(--anillo-foco); outline-offset: 2px; }
 .exp__pcuerpo:focus { outline: none; }
 #exp-violines, #exp-panel, .exp__mapacol { scroll-margin-top: calc(var(--exp-top, 8px) + var(--exp-banner, 0px) + var(--sp-16)); }   /* que el salto no lo tape la cabecera ni el aviso fijo */
 .exp__avisos { margin: var(--sp-12) 0 0; font: var(--tipo-body-sm); font-size: var(--texto-xs); color: var(--texto-2); max-width: none; }
 .exp__porque { margin-top: var(--sp-4); }
 .exp__porque summary, .exp__tecnico summary { cursor: pointer; list-style-position: inside; }
-.exp__porque summary { min-height: 44px; display: flex; align-items: center; font: 600 var(--texto-xs)/1.3 var(--font-body); color: var(--identidad); }
+.exp__porque summary { min-height: 44px; display: flex; align-items: center; font: 600 var(--texto-sm)/1.3 var(--font-body); color: var(--identidad); }
 /* con display flex/grid el triángulo nativo desaparece: marca explícita para que se lea como control (voz y diseño) */
 .exp__porque summary::-webkit-details-marker { display: none; }
 /* chevron del sistema (main.css .notes-disclosure): CSS, no glifos */
@@ -557,9 +583,9 @@ function sinTapar(ev: FocusEvent) {
 .exp__tsum::before { vertical-align: 0.22em; margin-right: var(--sp-12); }
 .exp__tecnico summary::-webkit-details-marker { display: none; }
 .exp__porque summary:focus-visible, .exp__tecnico summary:focus-visible { outline: 2px solid var(--anillo-foco); outline-offset: 2px; }
-.exp__tecnico { margin-top: var(--sp-32); border-top: 1px solid var(--trazo-medio); padding-top: var(--sp-16); }
+.exp__tecnico { margin-top: var(--sp-24); border: 1px solid var(--trazo-medio); border-radius: var(--radius-btn); padding: 0 var(--sp-16); }
 .exp__tecnico summary { display: grid; gap: var(--sp-4); min-height: 44px; padding: var(--sp-8) 0; }
-.exp__tsum { font: var(--tipo-h3); color: var(--texto-1); }
+.exp__tsum { font: 600 var(--texto-base)/1.3 var(--font-body); color: var(--texto-1); }
 .exp__tsub { font: var(--tipo-body-sm); font-size: var(--texto-xs); color: var(--texto-2); }
 .exp__tecnico > .exp__bloque:first-of-type { border-top: 0; margin-top: var(--sp-16); padding-top: 0; }
 .exp__sel--busca { min-width: min(22rem, 100%); }
@@ -570,6 +596,7 @@ function sinTapar(ev: FocusEvent) {
 .exp__solo-estrecho { display: none; }
 @media (max-width: 1023px) { .exp__solo-estrecho { display: inline-block; } }
 .exp__h2 { font: var(--tipo-h3); color: var(--texto-1); margin: 0 0 var(--sp-12); }
+.exp__h2l { color: var(--texto-2); white-space: nowrap; }
 .exp__nota { margin: var(--sp-8) 0 0; font: var(--tipo-body-sm); font-size: var(--texto-xs); color: var(--texto-2); max-width: var(--measure); }
 .exp__nota--busca:empty { display: none; }
 .exp__nota--banner { margin-top: var(--sp-8); }
@@ -589,12 +616,17 @@ function sinTapar(ev: FocusEvent) {
 .exp__chipx, .exp__tema { display: inline-grid; place-items: center; flex: none; width: 44px; height: 44px; padding: 0; border-radius: var(--radius-pill); background: transparent; color: var(--texto-1); cursor: pointer; }
 .exp__chipx { border: 0; }
 .exp__chipx svg { width: 16px; height: 16px; }
-.exp__tema { margin-left: auto; border: 1px solid var(--trazo-interactivo); }
+.exp__tema { border: 1px solid var(--trazo-interactivo); }
 .exp__tema svg { width: 20px; height: 20px; }
 @media (hover: hover) { .exp__chipx:hover, .exp__tema:hover { background: var(--trazo-sutil); } }
 .exp__chipx:focus-visible, .exp__tema:focus-visible, .exp__volver:focus-visible, .exp__mas:focus-visible { outline: 2px solid var(--anillo-foco); outline-offset: 2px; }
 .exp__mas { margin-left: var(--sp-4); padding: 0; border: 0; background: none; color: var(--identidad); font: inherit; font-weight: 600; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
 .exp__sel--sm { min-width: 11rem; font-size: var(--texto-sm); }
+@media (max-width: 639px) {
+  .exp__mapabar:not(.exp__mapabar--dos) { flex-wrap: nowrap; gap: var(--sp-8); }
+  .exp__mapabar:not(.exp__mapabar--dos) .exp__campo--fila { flex: 1 1 auto; min-width: 0; flex-wrap: nowrap; }
+  .exp__mapabar:not(.exp__mapabar--dos) .exp__sel--sm { min-width: 0; flex: 1 1 auto; }
+}
 /* detalle del gen: «‹ Volver» a la lista de la que se vino */
 .exp__dcab { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--sp-8); margin-bottom: var(--sp-4); }
 /* en estrecho el mapa queda encima del panel: el detalle trae un botón para volver a verlo (sin salto automático) */
@@ -602,7 +634,8 @@ function sinTapar(ev: FocusEvent) {
 .exp__vermapa:focus-visible { outline: 2px solid var(--anillo-foco); outline-offset: 2px; }
 .exp__volver { display: inline-flex; align-items: center; gap: var(--sp-4); min-height: 44px; padding: 0 var(--sp-8) 0 0; border: 0; background: none; color: var(--identidad); font: 600 var(--texto-sm)/1.2 var(--font-body); cursor: pointer; }
 .exp__volver svg { width: 16px; height: 16px; }
-.exp__tecnico + .exp__tecnico { margin-top: 0; }
+.exp__tecnico + .exp__tecnico { margin-top: var(--sp-8); }
+.exp__tecnico[open] { padding-bottom: var(--sp-16); }
 /* escritorio: rótulos a la izquierda de su control y menos aire, para que al entrar se vean 400 px de mapa a 1440×900 */
 @media (min-width: 1024px) {
   .exp { padding-top: var(--sp-16); }
@@ -610,8 +643,8 @@ function sinTapar(ev: FocusEvent) {
   .exp__ctl > .exp__campo:not(.exp__busca) { display: flex; align-items: center; gap: var(--sp-8); }
   .exp__busca { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: center; column-gap: var(--sp-8); }
   .exp__busca > :not(label) { grid-column: 2; }
-  .exp__banner { margin-top: var(--sp-12); }
-  .exp__sim { margin-top: var(--sp-12); }
+  .exp__banner { margin-top: 10px; }
+  .exp__sim { margin-top: var(--sp-8); }
 }
 .exp__sel::placeholder { color: var(--texto-2); opacity: 1; }
 </style>

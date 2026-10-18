@@ -73,6 +73,13 @@ export const PAPEL_SELECCION: Record<string, T> = {
     'is tied to the programme used to select this group: its figure here is favoured'),
 }
 
+/** Nombres clínicos que un médico teclea, solo para el BUSCADOR (comité médico, 18-oct: «ER» no llevaba a ESR1 ni
+ * «PD-L1» a CD274). Equivalencias estándar de HGNC; no se usan como rótulo. */
+export const ALIAS_BUSCA: Record<string, string> = {
+  ER: 'ESR1', PR: 'PGR', 'Ki-67': 'MKI67', 'PD-L1': 'CD274', 'PD-1': 'PDCD1', p53: 'TP53', 'E-cadherina': 'CDH1', 'E-cadherin': 'CDH1',
+  CK7: 'KRT7', CK8: 'KRT8', CK18: 'KRT18', CK19: 'KRT19', CK20: 'KRT20', 'c-MET': 'MET', HER4: 'ERBB4', 'CLDN18.2': 'CLDN18',
+  'B7-H4': 'VTCN1', CEA: 'CEACAM5', mamaglobina: 'SCGB2A2', mammaglobin: 'SCGB2A2', 'GCDFP-15': 'PIP',
+}
 export const nombreGen = (g: string) => (PROTEINA[g] ? `${PROTEINA[g]} (${g})` : g)
 export const etiqueta = (mapa: Record<string, T>, id: string, lang: 'es' | 'en') => mapa[id]?.[lang] ?? id.replaceAll('_', ' ')
 

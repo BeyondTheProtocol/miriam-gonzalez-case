@@ -49,6 +49,12 @@ const eligeDeLista = (g) => `(() => { const b = document.querySelector(${g ? `'.
 const violinesDe = (g) => `document.querySelector('#exp-violines h2')?.textContent.includes('${g}') && [...document.querySelectorAll('.vio__fila')].filter((f) => /suelo \\d+\\s%/.test(f.textContent) && /n = \\d/.test(f.textContent)).length > 0`
 const mapaVisible = `(() => { const m = document.querySelector('.exp-mapa')?.getBoundingClientRect(); return m ? Math.round(Math.min(m.bottom, innerHeight) - Math.max(m.top, 0)) : 0 })()`
 const ponModo = (m) => `(() => { const s = document.querySelector('.exp__mapabar select'); s.value = '${m}'; s.dispatchEvent(new Event('change')); return true })()`
+// comité médico (18-oct): detectado y suelo que redondean igual salían «10 % · suelo 10 %» (10,3 frente a 9,6), y una fila
+// por debajo del suelo no lo decía. Invariante: por debajo → «no supera el suelo»; por encima → sin la marca; dos cifras
+// iguales solo con decimal o con la marca.
+const marcaSuelo = `(() => { const fs = [...document.querySelectorAll('.vio__fila')]; return fs.length > 0 && fs.every((f) => { const t = f.querySelector('.vio__txt')?.textContent ?? ''; const m = t.match(/Detectado ([\\d,]+)\\s%.*?suelo ([\\d,]+)\\s%/s); if (!m) return false; const a = parseFloat(m[1].replace(',', '.')), b = parseFloat(m[2].replace(',', '.')), marca = /no supera el suelo/.test(t); return (a < b ? marca : true) && (a > b ? !marca : true) && (m[1] !== m[2] || m[1].includes(',') || marca) }) })()`
+// diseño (18-oct): con tres tonos fijos, Hepatocitos y Endotelio salían iguales (y sin rótulos en el móvil)
+const colorUnico = `(() => { const m = [...document.querySelectorAll('.exp__leyenda .exp__muestra')].map((e) => getComputedStyle(e).backgroundColor); return m.length > 2 && new Set(m).size === m.length })()`
 const verMapaEnDetalle = `(() => { const b = document.querySelector('.exp__dcab .exp__vermapa'); return !!b && getComputedStyle(b).display !== 'none' && b.getBoundingClientRect().height >= 44 && !!document.querySelector('.exp__volver') })()`
 // gen elegido: lo no detectado aparte y lo detectado por tramos, con su n; el título nombra el gen
 const leyendaGen = (g) => `(() => { const li = [...document.querySelectorAll('.exp__leyenda li')].map((e) => e.textContent); return li.length >= 2 && /No detectado|Not detected/.test(li[0]) && li.slice(1).every((t) => /CP10k/.test(t)) && (document.querySelector('.exp__leyt')?.textContent ?? '').includes('${g}') })()`
@@ -80,15 +86,26 @@ if (manPub.ejemplo !== true) {
     // panel de expertos (18-oct): al llegar, mapa por grupo y la lista corta de genes de interés
     ok('real llegada: mapa por grupo, lista de genes de interés y ningún gen abierto', await esperaR(navR, LLEGADA))
     ok('real llegada 1440×900: sin desplazar se ven al menos 400 px de mapa', await esperaR(navR, `window.scrollY === 0 && ${mapaVisible} >= 400`, 20000), `${await navR.evaluate(mapaVisible)} px`)
+    ok('real llegada: por grupo, ninguna fila de la leyenda repite color', await esperaR(navR, colorUnico))
+    // diseño (18-oct): «Tipo celular» repetía cada tono hasta cuatro veces y sin rótulos no se leía; fuera hasta tenerlos
+    ok('real llegada: «Colorear por» no ofrece «Tipo celular»', await navR.evaluate(`![...document.querySelectorAll('.exp__mapabar select option')].some((o) => /Tipo celular/.test(o.textContent))`))
+    ok('real llegada: las pestañas del panel son pestañas (tablist, una seleccionada) y las flechas cambian de pestaña', await navR.evaluate(`(() => { const t = [...document.querySelectorAll('.exp__pestanas [role="tab"]')]; if (t.length !== 2 || t.filter((b) => b.getAttribute('aria-selected') === 'true').length !== 1) return false; t[0].focus(); t[0].dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true })); return true })()`) && await esperaR(navR, `document.querySelector('.exp__pestanas [role="tab"][aria-selected="true"]')?.textContent.includes('Marcadores') && document.activeElement?.textContent.includes('Marcadores')`) && await navR.evaluate(`(() => { document.querySelector('.exp__pestanas [role="tab"]').click(); return true })()`))
     ok('real llegada: cinco grupos de controles como mucho antes del mapa', await navR.evaluate(`document.querySelectorAll('.exp__ctl > .exp__campo, .exp__mapabar > *').length <= 5`))
     ok('real llegada: la lista da grupo de interés, referencia y suelo, y su pie define el suelo', await navR.evaluate(`(() => { const h = [...document.querySelectorAll('.gin__tabla thead th')].map((t) => t.textContent); return h.length === 4 && /Referencia/.test(h[2]) && /Suelo/.test(h[3]) && /Suelo ambiental/.test(document.querySelector('.gin__pie')?.textContent ?? '') })()`))
     ok('real llegada: ERBB2 lleva «IHQ de HER2: 0» en la lista', await navR.evaluate(`/IHQ de HER2: 0/.test(document.querySelector('.gin__gen[data-gen="ERBB2"]')?.closest('th')?.textContent ?? '')`))
+    // comité médico (18-oct): sin la lectura al lado, TROP2 o B7-H3 «sobre el suelo y la referencia» se leían como positivos
+    ok('real llegada: cada gen de la lista lleva su lectura (borrador), la misma que la tabla completa; TROP2 dice «No se sostiene»', await navR.evaluate(`(() => { const filas = [...document.querySelectorAll('.gin__tabla tbody tr')], gi = [...document.querySelectorAll('.gi__tabla tbody tr')]; return filas.length > 0 && filas.every((r) => { const g = r.querySelector('.gin__gen').dataset.gen, lec = (r.querySelector('.gin__lec')?.textContent ?? '').replace(/^[^:]*:\\s*/, '').trim(); const fila = gi.find((x) => x.querySelector('th')?.textContent.includes(g)); return !!lec && !!fila && fila.textContent.includes(lec) }) && /Lectura \\(borrador\\): No se sostiene/.test(document.querySelector('.gin__gen[data-gen="TACSTD2"]')?.closest('th')?.textContent ?? '') })()`))
     ok('real llegada: una cifra circular de la lista lleva asterisco y su nota', await navR.evaluate(`!document.querySelector('.gin__ast') || /Circular\\./.test(document.querySelector('.gin__circ')?.textContent ?? '')`))
     ok('real: aviso fijo del hígado', await navR.evaluate(`/tumor frente a hepatocito no está resuelto célula a célula/.test(document.querySelector('.exp__banner')?.textContent ?? '')`))
     // verificacion (18-oct, simulador): lo que corrigió un «falso por omisión» va en el titular, no plegado
+    // verificacion (18-oct, simulador): con la lista de llegada, la cifra del grupo de interés es lo primero que se lee
+    ok('real hígado: el titular fijo dice que «Luminal de alta confianza» es un subconjunto, no el tumor entero', await navR.evaluate(`/«Luminal de alta confianza» es un subconjunto, no el tumor entero/.test(document.querySelector('.exp__banner')?.textContent ?? '')`))
+    ok('real: el «no se interpreta» de las distancias del UMAP está a la vista, no plegado', await navR.evaluate(`[...document.querySelectorAll('.exp__mapacol .exp__nota')].some((p) => /la distancia entre grupos alejados no se interpreta/.test(p.textContent) && !p.closest('details'))`))
     ok('real hígado: el titular fijo dice que «Hepatocitos» y «Otras» pueden incluir tumorales', await navR.evaluate(`/«Hepatocitos» y «Otras» también pueden incluir células tumorales/.test(document.querySelector('.exp__banner')?.textContent ?? '')`))
     const g1 = await navR.evaluate(eligeDeLista('ERBB2'))
     ok(`real: un toque en la lista (${g1 || 'ninguno'}) abre el gen grupo a grupo, con n y suelo en cada violín`, !!g1 && await esperaR(navR, violinesDe(g1)))
+    ok('real: el detalle nombra la biopsia y da la referencia emparejada junto al grupo de interés', await navR.evaluate(`/Hígado/.test(document.querySelector('#exp-violines h2')?.textContent ?? '') && /Referencia emparejada: \\d+\\s%/.test(document.querySelector('.vio__fila--interes .vio__ref')?.textContent ?? '')`))
+    ok('real hígado: detectado frente a suelo, comparable en cada fila (decimal si redondean igual; «no supera el suelo» si queda por debajo)', await navR.evaluate(marcaSuelo))
     ok('real: el gen de la lista colorea el mapa y sale su chip con ✕ junto al buscador', await navR.evaluate(mapaEnGen) && await navR.evaluate(`!!document.querySelector('.exp__chip .exp__chipx')`))
     // diseño (18-oct): con el simulador justo bajo el aviso fijo del hígado, el mapa entero y las pestañas del panel
     // se ven a la vez (el alto del mapa descuenta cabecera y aviso; antes, con un porcentaje fijo, se cortaba)
@@ -99,6 +116,8 @@ if (manPub.ejemplo !== true) {
     ok('real simulador: «Más análisis» y «Calidad de los datos» plegados, con la tabla completa y con QC, número de copias, perfil y ADN dentro', await navR.evaluate(PLEGADOS))
     await navR.evaluate(ABRE_TODO)
     ok('real: «Detectado no es positivo» a la vista en marcadores, fuera de lo plegado', await esperaR(navR, `[...document.querySelectorAll('.mk p')].some((p) => /Detectado no es positivo/.test(p.textContent) && !p.closest('details'))`))
+    ok('real: en marcadores la tabla va antes que sus notas', await navR.evaluate(`(() => { const t = document.querySelector('.mk__tabla'), c = document.querySelector('.mk__cap'); return !!t && !!c && !!(t.compareDocumentPosition(c) & Node.DOCUMENT_POSITION_FOLLOWING) })()`))
+    ok('real 1440: con las cinco columnas a la vista no sale «Desplaza…»', await navR.evaluate(`(() => { const e = document.querySelector('.mk__tabla'), v = document.querySelector('.mk__desliza'); return !!e && !!v && (e.scrollWidth > e.clientWidth + 1 || getComputedStyle(v).display === 'none') })()`))
     ok('real: marcadores enseña los 15 primeros con cinco columnas', await navR.evaluate(`document.querySelectorAll('.mk__tabla tbody tr').length === 15 && document.querySelectorAll('.mk__tabla thead th').length === 5`))
     await navR.evaluate(MARCADORES_TODOS)
     ok('real: «Ver los 50, con FDR» abre la lista entera y la columna FDR', await esperaR(navR, `document.querySelectorAll('.mk__tabla tbody tr').length > 15 && [...document.querySelectorAll('.mk__tabla thead th')].some((t) => t.textContent.trim() === 'FDR')`))
@@ -115,13 +134,18 @@ if (manPub.ejemplo !== true) {
     await navR.evaluate(`[...document.querySelectorAll('.exp__ctl button')].find((b) => /^\\s*Hueso\\s*$/.test(b.textContent))?.click()`)
     ok('real hueso: nota de circularidad del grupo (número de copias) en la lista de llegada, marcadores, tabla completa y perfil', await esperaR(navR, `['.gin', '.mk', '.gi__circh'].every((q) => /En el hueso, las células malignas se eligieron/.test(document.querySelector(q)?.textContent ?? '')) && /En el hueso, el grupo de interés se eligió/.test(document.querySelector('.pf')?.textContent ?? '')`))
     ok('real hueso: el gen abierto en el hígado se vuelve a abrir en el hueso', await esperaR(navR, violinesDe(g1)))
+    // verificacion (18-oct): el pie de la lista definía el suelo como «solo ARN suelto»; en el hueso incluye el ADN genómico
+    ok('real hueso: el pie de la lista de llegada dice que el suelo incluye el ADN genómico', await navR.evaluate(`/En el hueso, el suelo incluye además el ADN genómico/.test(document.querySelector('.gin__pie')?.textContent ?? '')`))
+    ok('real hueso: el detalle dice «Hueso» y cada fila compara detectado y suelo sin que el redondeo los iguale', await navR.evaluate(`/Hueso/.test(document.querySelector('#exp-violines h2')?.textContent ?? '')`) && await navR.evaluate(marcaSuelo))
+    await navR.evaluate(eligeDeLista('MUC1'))
+    ok('real hueso: MUC1, con filas por debajo del suelo, las marca («no supera el suelo») y cumple el invariante', await esperaR(navR, `document.querySelector('#exp-violines h2')?.textContent.includes('MUC1') && /no supera el suelo/.test(document.querySelector('#exp-violines')?.textContent ?? '')`) && await navR.evaluate(marcaSuelo))
     ok('real hueso: «n = x de y» con su espacio (no «885de»)', !(await navR.evaluate(nPegado)))
     ok('real hueso: la leyenda del suelo, encima de los violines, dice que incluye el ADN genómico (FGFR1 sale con suelo del 100 %)', await navR.evaluate(`(() => { const l = document.querySelector('.vio__leyenda--arriba'), f = document.querySelector('.vio__fila'); return /En el hueso, el suelo incluye además el ADN genómico/.test(l?.textContent ?? '') && !!f && !!(l.compareDocumentPosition(f) & Node.DOCUMENT_POSITION_FOLLOWING) })()`))
     // verificacion (18-oct): Scrublet 1-2 no es un recuento de dobletes; «Otras» del hueso lleva células sin GEM limpio
     ok('real hueso: el QC matiza Scrublet y da las células que comparten gota con el hígado', await navR.evaluate(`/no es un recuento de dobletes/.test(document.querySelector('.qc__matiz')?.textContent ?? '') && /comparten gota con una célula del hígado/.test(document.querySelector('.qc__matiz')?.textContent ?? '')`))
     ok('real hueso: junto a la leyenda del mapa, la nota dice cuántas de «Otras» no tienen GEM limpio', await navR.evaluate(`[...document.querySelectorAll('.exp__mapacol .exp__nota')].some((p) => /«Otras» incluye [\\d.]+ células sin GEM limpio/.test(p.textContent))`))
-    await navR.evaluate(ponModo('tipo'))
-    ok('real hueso: coloreando por tipo celular, la nota explica que grupo y tipo salen de métodos distintos', await esperaR(navR, `[...document.querySelectorAll('.exp__mapacol .exp__nota')].some((p) => /Grupo y tipo celular salen de métodos distintos/.test(p.textContent))`))
+    await navR.evaluate(ponModo('grupo'))
+    ok('real hueso: por grupo, ninguna fila de la leyenda repite color', await esperaR(navR, colorUnico))
     ok('real hueso: los violines del grupo de interés llevan la nota de circularidad de grupo', await navR.evaluate(`/En el hueso, las células malignas se eligieron/.test(document.querySelector('.vio__fila--interes .vio__circ--grupo')?.textContent ?? '')`))
     ok('real hueso: el número de copias da «n = x de y» y explica el GEM limpio cuando faltan células', await navR.evaluate(`(() => { const t = document.querySelector('.cnv')?.textContent ?? ''; return !/ de \\d/.test([...document.querySelectorAll('.cnv__n')].map((e) => e.textContent).join('|')) || /GEM limpio/.test(t) })()`))
     await navR.evaluate(`[...document.querySelectorAll('.exp__ctl button')].find((b) => /^\\s*Hígado\\s*$/.test(b.textContent))?.click()`)
@@ -144,6 +168,11 @@ if (manPub.ejemplo !== true) {
       await navR.evaluate(busca('ZZNOEXISTE1'))
       await navR.evaluate(`document.querySelector('.exp__busca input').dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }))`)
       ok('real: el aviso de gen no encontrado sale y no dice «no por el nombre de la proteína»', await esperaR(navR, `(() => { const t = document.querySelector('.exp__nota--busca')?.textContent ?? ''; return /No hay ningún gen «ZZNOEXISTE1»/.test(t) && !/no por el nombre de la proteína|no por la proteína/.test(t) })()`))
+      // comité médico (18-oct): nombres clínicos que teclea un médico
+      await navR.evaluate(busca('ER'))
+      ok('real: «ER» sugiere ESR1 en primer lugar', await esperaR(navR, `document.querySelector('.exp__sug button')?.dataset.gen === 'ESR1'`))
+      await navR.evaluate(busca('PD-L1'))
+      ok('real: «PD-L1» sugiere CD274', await esperaR(navR, `[...document.querySelectorAll('.exp__sug button')].some((b) => b.dataset.gen === 'CD274')`))
       // diseño (18-oct): la grafía más tecleada, sin guion ni la M, también llega (KI67 → MKI67)
       await navR.evaluate(busca('Ki-67'))
       ok('real: «Ki-67» sugiere MKI67 (búsqueda sin guiones y por «contiene»)', await esperaR(navR, `[...document.querySelectorAll('.exp__sug button')].some((b) => b.dataset.gen === 'MKI67')`))
@@ -154,6 +183,10 @@ if (manPub.ejemplo !== true) {
     await esperaR(navR, `document.querySelectorAll('.gin__tabla tbody tr').length > 0`)
     ok('real móvil 375×812 llegada: el buscador cabe en la primera pantalla', await esperaR(navR, `window.scrollY === 0 && (document.querySelector('.exp__busca input')?.getBoundingClientRect().bottom ?? 9999) <= innerHeight`))
     ok('real móvil 375×812 llegada: el mapa empieza antes de 1,2 pantallas', await esperaR(navR, `(document.querySelector('.exp-mapa')?.getBoundingClientRect().top ?? 9999) <= innerHeight * 1.2`), `${await navR.evaluate(`Math.round(document.querySelector('.exp-mapa')?.getBoundingClientRect().top ?? -1)`)} px`)
+    // diseño (18-oct): fijo, a 375 el aviso del hígado medía 96 px y tapaba filas y «Volver»; fijo solo el titular, y la
+    // frase de «Luminal… subconjunto / Hepatocitos y Otras» a la vista debajo, antes de las cifras
+    ok('real móvil 375 hígado: el aviso fijo mide 70 px o menos y la frase del subconjunto se ve debajo', await navR.evaluate(`(() => { const b = document.querySelector('.exp__banner'), f = document.querySelector('.exp__banner-sig'); return !!b && b.getBoundingClientRect().height <= 70 && !!f && getComputedStyle(f).display !== 'none' && /es un subconjunto, no el tumor entero/.test(f.textContent) && /«Hepatocitos» y «Otras» también pueden incluir células tumorales/.test(f.textContent) })()`), `${await navR.evaluate(`Math.round(document.querySelector('.exp__banner')?.getBoundingClientRect().height ?? -1)`)} px`)
+    ok('real móvil 375: por grupo, ninguna fila de la leyenda repite color', await esperaR(navR, colorUnico))
     const desb = `Math.round(Math.max(...[...document.querySelectorAll('.exp, .exp > *')].map((e) => e.getBoundingClientRect().right)) - window.innerWidth)`
     ok('real móvil: el explorador cabe en el ancho', (await navR.evaluate(desb)) <= 1)
     // capturas del 18-oct: a 375 la lista de llegada se salía por la derecha (Referencia y Suelo cortadas) y el test de

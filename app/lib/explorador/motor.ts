@@ -35,6 +35,8 @@ export interface EntradaMotor {
   lang: 'es' | 'en'
   /** rótulos de conjunto sobre el mapa (solo tiene sentido con los grupos) */
   rotulos: boolean
+  /** tamaño de los rótulos (px de Vitessce) */
+  tamRotulo?: number
   /** orden de dibujo de las células (las últimas, encima): con un gen, lo detectado encima de lo no detectado */
   orden?: number[]
 }
@@ -85,11 +87,12 @@ function construyeConfig(e: EntradaMotor, urls: string[]) {
       embeddingObsRadius: { A: 2 },
       // rótulos solo por grupo: en tipo (12 en hueso) y co-expresión se pisaban y parecían nombres de cúmulo
       embeddingObsSetLabelsVisible: { A: e.rotulos },
+      embeddingObsSetLabelSize: { A: e.tamRotulo ?? 14 },
     },
     // UNA vista: el mapa. Sin el gestor de conjuntos de Vitessce (permitía crear grupos nuevos por
     // unión/intersección, y la página no reagrupa células); la leyenda va debajo, con el design system.
     layout: [
-      { component: 'scatterplot', coordinationScopes: { dataset: 'A', embeddingType: 'A', obsColorEncoding: 'A', featureSelection: 'A', obsSetSelection: 'A', obsSetColor: 'A', embeddingObsRadiusMode: 'A', embeddingObsRadius: 'A', embeddingObsSetLabelsVisible: 'A' }, x: 0, y: 0, w: 12, h: 12, props: { title: e.etiquetas.mapa, closeButtonVisible: false, downloadButtonVisible: false } },
+      { component: 'scatterplot', coordinationScopes: { dataset: 'A', embeddingType: 'A', obsColorEncoding: 'A', featureSelection: 'A', obsSetSelection: 'A', obsSetColor: 'A', embeddingObsRadiusMode: 'A', embeddingObsRadius: 'A', embeddingObsSetLabelsVisible: 'A', embeddingObsSetLabelSize: 'A' }, x: 0, y: 0, w: 12, h: 12, props: { title: e.etiquetas.mapa, closeButtonVisible: false, downloadButtonVisible: false } },
     ],
   }
 }

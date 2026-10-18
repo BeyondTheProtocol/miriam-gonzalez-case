@@ -90,7 +90,7 @@ const LEER = [
 
           <!-- simulador (18-oct): «Cómo leerlo» plegado; el resumen con texto está en Célula a célula -->
           <details class="xp-leer-pl">
-            <summary><span class="cel-h2">{{ L('Cómo leerlo', 'How to read it') }}</span></summary>
+            <summary><span class="xp-leer-t">{{ L('Cómo leerlo', 'How to read it') }}</span></summary>
             <dl class="xp-leer">
               <div v-for="[tEs, dEs, tEn, dEn] in LEER" :key="tEs" class="xp-leer__fila">
                 <dt>{{ L(tEs, tEn) }}</dt>
@@ -127,13 +127,15 @@ const LEER = [
 .xp-leer { margin: 0; display: grid; gap: var(--sp-12); max-width: var(--measure); }
 .xp-leer__fila dt { font: 600 var(--texto-base)/1.4 var(--font-body); color: var(--color-text); }
 .xp-leer__fila dd { margin: var(--sp-4) 0 0; font: var(--tipo-body-sm); color: var(--color-text-soft); }
+.xp-leer-pl { border: 1px solid var(--trazo-medio); border-radius: var(--radius-btn); padding: 0 var(--sp-16); }
+.xp-leer-pl[open] { padding-bottom: var(--sp-16); }
 .xp-leer-pl summary { cursor: pointer; min-height: 44px; display: flex; align-items: center; gap: var(--sp-8); }
+.xp-leer-t { font: 600 var(--texto-base)/1.3 var(--font-body); color: var(--color-text); }
 /* chevron del sistema (main.css .notes-disclosure), no glifos */
 .xp-leer-pl summary::before { content: ''; width: 7px; height: 7px; border-right: 1.5px solid currentColor; border-bottom: 1.5px solid currentColor; transform: rotate(-45deg); transition: transform 0.2s ease; flex-shrink: 0; color: var(--color-text-soft); }
 .xp-leer-pl[open] summary::before { transform: rotate(45deg); }
 @media (prefers-reduced-motion: reduce) { .xp-leer-pl summary::before { transition: none; } }
 .xp-leer-pl summary::-webkit-details-marker { display: none; }
-.xp-leer-pl summary .cel-h2 { margin: 0; }
 .xp-leer-pl summary:focus-visible { outline: 2px solid var(--anillo-foco); outline-offset: 2px; }
 .xp-leer-pl .xp-leer { margin-top: var(--sp-16); }
 </style>

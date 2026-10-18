@@ -9,8 +9,8 @@
  * y «IHQ de HER2: 0» junto a ERBB2.
  */
 import type { LesionDatos } from '~/utils/celulaExplorador'
-import { fmtPct, porGrupo } from '~/utils/celulaExplorador'
-import { CIRC_HUESO, ETIQUETA_GRUPO, ETIQUETAS_FIJAS, PANEL_INTERES, PROTEINA, etiqueta } from '~/utils/celulaExploradorTexto'
+import { fmtParSuelo, fmtPct, porGrupo } from '~/utils/celulaExplorador'
+import { CIRC_HUESO, ETIQUETA_GRUPO, ETIQUETA_VEREDICTO, ETIQUETAS_FIJAS, PANEL_INTERES, PROTEINA, etiqueta } from '~/utils/celulaExploradorTexto'
 
 const props = defineProps<{ d: LesionDatos; lang: 'es' | 'en'; activo: string | null }>()
 const emit = defineEmits<{ elegir: [string]; tabla: [] }>()
@@ -18,7 +18,8 @@ const L = (es: string, en: string) => (props.lang === 'en' ? en : es)
 const interes = computed(() => props.d.grupos.find((g) => g.rol === 'interes')!)
 const filas = computed(() => PANEL_INTERES.filter((g) => props.d.genes.includes(g)).map((gen) => {
   const f = porGrupo(props.d, gen).find((x) => x.rol === 'interes')!
-  return { gen, frac: f.frac, suelo: f.suelo, ref: props.d.referencia[gen] ?? 0, circular: !!props.d.seleccion[gen] }
+  const [tf, ts] = fmtParSuelo(f.frac, f.suelo, props.lang)
+  return { gen, frac: f.frac, suelo: f.suelo, tf, ts, ref: props.d.referencia[gen] ?? 0, circular: !!props.d.seleccion[gen], ver: props.d.veredicto[gen] ?? 'sin_veredicto' }
 }))
 const hayCirc = computed(() => filas.value.some((f) => f.circular))
 const nombre = (g: string) => PROTEINA[g] ?? g
@@ -44,16 +45,19 @@ const nombre = (g: string) => PROTEINA[g] ?? g
               <span v-if="PROTEINA[f.gen]" class="gin__sim">{{ f.gen }}</span>
             </button>
             <span v-if="f.gen === 'ERBB2'" class="gin__ihq">{{ ETIQUETAS_FIJAS.her2[lang] }}</span>
+            <!-- la lectura va con la cifra (comité médico, 18-oct): sin ella, TROP2 o B7-H3 «sobre el suelo y la referencia» se
+                 leían como positivos y la revisión dice «No se sostiene» -->
+            <span class="gin__lec">{{ L('Lectura (borrador):', 'Reading (draft):') }} {{ (ETIQUETA_VEREDICTO[f.ver] ?? ETIQUETA_VEREDICTO.sin_veredicto)[lang] }}</span>
           </th>
-          <td class="gin__num nums">{{ fmtPct(f.frac, lang) }}<span v-if="f.circular" class="gin__ast"><span aria-hidden="true">*</span><span class="sr-only">{{ L('(circular)', '(circular)') }}</span></span></td>
+          <td class="gin__num nums">{{ f.tf }}<span v-if="f.circular" class="gin__ast"><span aria-hidden="true">*</span><span class="sr-only">{{ L('(circular)', '(circular)') }}</span></span></td>
           <td class="gin__num nums">{{ fmtPct(f.ref, lang) }}</td>
-          <td class="gin__num nums">{{ fmtPct(f.suelo, lang) }}</td>
+          <td class="gin__num nums">{{ f.ts }}</td>
         </tr>
       </tbody>
     </table>
     <p class="gin__pie">
-      {{ L('Porcentaje de células con al menos una molécula (UMI) del gen. Referencia: células no tumorales de la misma muestra, con la misma profundidad. Suelo ambiental: lo que saldría solo por ARN suelto de la muestra; lo que no lo supera no cuenta como expresión.',
-        'Share of cells with at least one molecule (UMI) of the gene. Reference: non-tumor cells from the same sample, at the same depth. Ambient floor: what would show up from loose RNA in the sample alone; anything that does not clear it does not count as expression.') }}
+      {{ L('Porcentaje de células con al menos una molécula (UMI) del gen. Referencia: células no tumorales de la misma muestra, con la misma profundidad. Suelo ambiental: lo que saldría solo por ARN suelto de la muestra; lo que no lo supera no cuenta como expresión. Lectura: la de Polaris, en borrador, pendiente de la lectura humana del laboratorio.' + (d.lesion === 'hueso' ? ' En el hueso, el suelo incluye además el ADN genómico del tejido.' : ''),
+        'Share of cells with at least one molecule (UMI) of the gene. Reference: non-tumor cells from the same sample, at the same depth. Ambient floor: what would show up from loose RNA in the sample alone; anything that does not clear it does not count as expression. Reading: Polaris’s, in draft, pending the laboratory’s human reading.' + (d.lesion === 'hueso' ? ' In the bone, the floor also includes the tissue’s genomic DNA.' : '')) }}
     </p>
     <p v-if="hayCirc" class="gin__pie gin__circ">
       * <strong>{{ L('Circular.', 'Circular.') }}</strong>
@@ -93,7 +97,8 @@ const nombre = (g: string) => PROTEINA[g] ?? g
   .gin__gen { flex-direction: column; align-items: flex-start; justify-content: center; padding-block: var(--sp-4); }
 }
 .gin__ihq { display: block; font: 600 var(--texto-xs)/1.3 var(--font-mono); color: var(--texto-1); }
-.gin__ast { margin-left: 2px; font-weight: 700; color: var(--texto-1); }
+.gin__lec { display: block; margin-bottom: var(--sp-4); font: 500 var(--texto-xs)/1.35 var(--font-body); color: var(--texto-2); }
+.gin__ast { display: inline-block; width: 0; overflow: visible; margin-left: 1px; font-weight: 700; color: var(--texto-1); }   /* no empuja la cifra: los «%» alinean */
 .gin__tabla td.nums { font-family: var(--font-mono); color: var(--texto-1); }
 .gin__pie { margin: var(--sp-8) 0 0; font: var(--tipo-body-sm); font-size: var(--texto-xs); color: var(--texto-2); max-width: var(--measure); }
 .gin__circ { color: var(--texto-1); }
