@@ -6,7 +6,7 @@
  * fichero (las mismas de la tabla completa, CelulaExplorarGenes, que sigue en «Más análisis» con las sondas y la
  * lectura). Un toque en un gen lo abre: se pinta en el mapa y se lee grupo a grupo.
  * Avisos que viajan con la cifra (verificacion): asterisco y nota de circularidad, nota de grupo del hueso (CIRC_HUESO)
- * y «IHQ de HER2: 0» junto a ERBB2.
+ * y «IHQ de HER2: 0 (primario e hígado)» junto a ERBB2, solo en el hígado.
  */
 import type { LesionDatos } from '~/utils/celulaExplorador'
 import { fmtParSuelo, fmtPct, porGrupo } from '~/utils/celulaExplorador'
@@ -57,7 +57,7 @@ const nombre = (g: string) => PROTEINA[g] ?? g
                leían como positivos y la revisión dice «No se sostiene» -->
           <tr class="gin__lecfila" :data-gen="f.gen">
             <td colspan="4">
-              <span v-if="f.gen === 'ERBB2' && d.lesion === 'higado'" class="gin__ihq">{{ ETIQUETAS_FIJAS.her2[lang] }} · </span>
+              <span v-if="f.gen === 'ERBB2' && d.lesion === 'higado'" class="gin__ihq">{{ ETIQUETAS_FIJAS.her2[lang] }}</span>
               <span class="sr-only">{{ nombre(f.gen) }}: </span><span class="gin__lec">{{ ETIQUETAS_FIJAS.lecturaCorta[lang] }} <strong class="gin__ver">{{ (ETIQUETA_VEREDICTO[f.ver] ?? ETIQUETA_VEREDICTO.sin_veredicto)[lang] }}</strong></span>
             </td>
           </tr>
@@ -109,13 +109,13 @@ const nombre = (g: string) => PROTEINA[g] ?? g
   .gin__tabla tbody td.gin__num { line-height: 1.3; padding-top: var(--sp-8); }
   .gin__num[data-eti]::before { content: attr(data-eti); display: block; font: 500 var(--texto-xs)/1.2 var(--font-body); color: var(--texto-2); }
 }
-.gin__ihq { font: 600 var(--texto-xs)/1.35 var(--font-mono); color: var(--texto-1); }
+.gin__ihq { display: block; font: 600 var(--texto-xs)/1.35 var(--font-mono); color: var(--texto-1); }
 .gin__lec { font: 500 var(--texto-xs)/1.35 var(--font-body); color: var(--texto-2); }
 .gin__ver { font-weight: 600; color: var(--texto-1); }
 .gin__cabest { display: none; margin: 0 0 var(--sp-4); font: 600 var(--texto-xs)/1.35 var(--font-body); color: var(--texto-1); }
 .gin__tabla .gin__fila th, .gin__tabla .gin__fila td { border-bottom: 0; }
 .gin__tabla .gin__lecfila td { padding-top: 0; padding-bottom: var(--sp-8); line-height: 1.35; text-align: left; }
-.gin__ast { display: inline-block; width: 0; overflow: visible; margin-left: 1px; font-weight: 700; color: var(--texto-1); }   /* no empuja la cifra: los «%» alinean */
+.gin__ast { display: inline-block; width: 0; overflow: visible; margin-left: 1px; margin-right: -1px; font-weight: 700; color: var(--texto-1); }   /* no empuja la cifra: los «%» alinean */
 .gin__tabla td.nums { font-family: var(--font-mono); color: var(--texto-1); }
 .gin__pie { margin: var(--sp-8) 0 0; font: var(--tipo-body-sm); font-size: var(--texto-xs); color: var(--texto-2); max-width: var(--measure); }
 .gin__circ { color: var(--texto-1); }

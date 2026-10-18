@@ -211,7 +211,7 @@ if (manPub.ejemplo !== true) {
       await navR.evaluate(busca('ER'))
       ok('real: «ER» sugiere ESR1 en primer lugar', await esperaR(navR, `document.querySelector('.exp__sug button')?.dataset.gen === 'ESR1'`))
       await navR.evaluate(`document.querySelector('.exp__sug button')?.click()`)
-      ok('real: ESR1, buscado como «ER», avisa de que es ARN y no el porcentaje de IHQ de ER', await esperaR(navR, `/Es ARN, no el resultado de la IHQ de ER:/.test([...document.querySelectorAll('.exp__dlec')].map((e) => e.textContent).join(' '))`))
+      ok('real: ESR1, buscado como «ER», avisa de que es ARN y no proteína', await esperaR(navR, `/ER aquí es ARN, no proteína:/.test([...document.querySelectorAll('.exp__dlec')].map((e) => e.textContent).join(' '))`))
       await navR.evaluate(busca('PD-L1'))
       ok('real: «PD-L1» sugiere CD274', await esperaR(navR, `[...document.querySelectorAll('.exp__sug button')].some((b) => b.dataset.gen === 'CD274')`))
       // diseño (18-oct): la grafía más tecleada, sin guion ni la M, también llega (KI67 → MKI67)

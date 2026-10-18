@@ -144,7 +144,7 @@ const idCtl = useId()
 @container (max-width: 440px) { .mk__desliza--5 { display: block; } }
 .mk__tabla { overflow-x: auto; border: 1px solid var(--trazo-sutil); border-radius: var(--radius-btn); margin-bottom: var(--sp-4); }   /* sin alto máximo: el panel ya desplaza (diseño, 18-oct: se cortaba la fila 12) */
 .mk__circ { margin: 0 0 var(--sp-8); font: var(--tipo-body-sm); font-size: var(--texto-xs); color: var(--texto-1); max-width: var(--measure); }
-.mk__marca { display: inline-block; width: 0; overflow: visible; margin-left: 1px; font: 700 var(--texto-xs) var(--font-body); color: var(--texto-1); }   /* no mueve la cifra: la columna alinea */
+.mk__marca { display: inline-block; width: 0; overflow: visible; margin-left: 1px; margin-right: -1px; font: 700 var(--texto-xs) var(--font-body); color: var(--texto-1); }   /* no mueve la cifra: la columna alinea */
 .mk__ast { margin-left: 2px; font: 600 var(--texto-xs) var(--font-body); color: var(--texto-1); }
 .mk__tabla table { width: 100%; min-width: 560px; border-collapse: separate; border-spacing: 0; font: var(--tipo-body-sm); font-size: var(--texto-xs); }
 .mk__cap { margin: 0 0 var(--sp-8); color: var(--texto-2); font: var(--tipo-body-sm); font-size: var(--texto-xs); max-width: var(--measure); }

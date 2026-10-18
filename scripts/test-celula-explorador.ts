@@ -325,6 +325,14 @@ if (man.zarr?.length) {
   const brit = fuentes.match(/\b(colour\w*|favour\w*|programme\w*|behaviour\w*|centre\w*|grey|tumour\w*|analyse\w*|licence|fibre\w*)\b/gi) ?? []
   ok('inglés de EE. UU. en el explorador (sin colour, favour, programme…)', brit.length === 0, brit.join(', '))
 }
+// comité médico (18-oct): los datos servidos llevaban dos «se sostiene» que la enmienda del acta retiró, y todo seguía en
+// verde. Los veredictos de la enmienda, atados aquí; y ningún «se sostiene con matices» en el hígado tras ella.
+{
+  if (JSON.parse(readFileSync(join(DIR, 'manifiesto.json'), 'utf8')).ejemplo !== true) {   // solo con los datos reales
+    const vh = JSON.parse(readFileSync(join(DIR, 'higado.json'), 'utf8')).veredicto, vb = JSON.parse(readFileSync(join(DIR, 'hueso.json'), 'utf8')).veredicto
+    ok('veredictos de la enmienda del 18-oct: HER3 del hígado «con_matiz» y 5T4 del hueso «en_el_limite»', vh.ERBB3 === 'con_matiz' && vb.TPBG === 'en_el_limite', `ERBB3 ${vh.ERBB3} · TPBG ${vb.TPBG}`)
+  }
+}
 // verificacion (18-oct): los alias del buscador llevan a un GEN; una isoforma (CLDN18.2) no se puede leer con sondas del gen entero
 ok('alias de búsqueda: ninguno es una isoforma (p. ej. «CLDN18.2»)', !Object.keys(ALIAS_BUSCA).some((k) => /\d\.\d/.test(k)), Object.keys(ALIAS_BUSCA).filter((k) => /\d\.\d/.test(k)).join(', '))
 
