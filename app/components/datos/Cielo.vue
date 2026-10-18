@@ -13,7 +13,7 @@
  * estático queda el texto; los píxeles los pinta el cliente.
  */
 import type { Analito, Contexto, Lang, Punto } from '~/utils/datosCaso'
-import { unidadTxt, valCaso } from '~/utils/datosCaso'
+import { DESDE_ANALITICAS, unidadTxt, valCaso } from '~/utils/datosCaso'
 
 const props = defineProps<{
   grupos: Record<string, { analitos: Analito[] }>
@@ -32,7 +32,7 @@ const ORDEN: [string, string, string][] = [
   ['renal_hepatico', 'Hígado y riñón', 'Liver & kidney'], ['electrolitos', 'Iones', 'Ions'],
 ]
 const DIA = 86400000
-const desde = Date.UTC(2023, 11, 1)
+const desde = msFecha(DESDE_ANALITICAS)
 const hasta = msFecha(props.hoy) + 20 * DIA
 
 const filas = computed(() => {
@@ -49,6 +49,8 @@ type PuntoCielo = (typeof puntos.value)[number]
 const sel = ref<PuntoCielo | null>(null)
 const nPuntos = computed(() => puntos.value.length)
 const nFuera = computed(() => puntos.value.filter((p) => p.fuera).length)
+/** extracciones = días con analítica, en la MISMA ventana que los valores (lo que cita el artículo de X) */
+const nExtracciones = computed(() => new Set(puntos.value.map((p) => p.p.f)).size)
 // miles con separador siempre (es-ES no agrupa 4 cifras: «1696» se lee peor que «1.696»)
 const miles = (n: number) => String(n).replace(/\B(?=(\d{3})+(?!\d))/g, props.lang === 'en' ? ',' : '.')
 
@@ -221,11 +223,11 @@ const lectura = computed(() => {
     <div class="cielo__dentro">
       <p class="cielo__cifra"><span class="nums">{{ miles(nPuntos) }}</span> {{ L('valores de laboratorio', 'lab values') }}</p>
       <p class="cielo__sub">
-        {{ L(`Cada punto es uno. Los ${miles(nFuera)} violetas se salieron de rango.`, `Each dot is one. The ${miles(nFuera)} violet ones fell outside the range.`) }}
+        {{ L(`De ${nExtracciones} extracciones desde diciembre de 2023. Cada punto es uno; los ${miles(nFuera)} violetas se salieron de rango.`, `From ${nExtracciones} blood draws since December 2023. Each dot is one; the ${miles(nFuera)} violet ones fell outside the range.`) }}
       </p>
       <div ref="caja" class="cielo__lienzo" @pointerup="tocar">
         <canvas ref="lienzo" class="cielo__canvas" role="slider" tabindex="0"
-                :aria-label="L(`${nPuntos} valores de laboratorio desde diciembre de 2023, ${nFuera} fuera de rango, ordenados por fecha y por prueba. Flechas izquierda y derecha: fechas; arriba y abajo: pruebas; Intro: ir a esa fecha.`, `${nPuntos} lab values since December 2023, ${nFuera} out of range, by date and by test. Left and right arrows: dates; up and down: tests; Enter: go to that date.`)"
+                :aria-label="L(`${nPuntos} valores de laboratorio de ${nExtracciones} extracciones desde diciembre de 2023, ${nFuera} fuera de rango, ordenados por fecha y por prueba. Flechas izquierda y derecha: fechas; arriba y abajo: pruebas; Intro: ir a esa fecha.`, `${nPuntos} lab values from ${nExtracciones} blood draws since December 2023, ${nFuera} out of range, by date and by test. Left and right arrows: dates; up and down: tests; Enter: go to that date.`)"
                 :aria-valuemin="0" :aria-valuemax="Math.max(0, nPuntos - 1)" :aria-valuenow="sel ? puntos.indexOf(sel) : undefined"
                 :aria-valuetext="lectura || undefined" @keydown="tecla" />
       </div>

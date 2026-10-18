@@ -308,8 +308,8 @@ const soloMes = computed(() => {
 })
 const etiquetaLector = computed(() => {
   const k = cuenta.value, inc = k.incierto ? L(`, ${k.incierto} con fecha aproximada`, `, ${k.incierto} with an approximate date`) : ''
-  return L(`${k.total} días desde el diagnóstico: ${k.trat} en una línea de tratamiento, ${k.sin} sin línea en curso${inc}. ${k.labs} analíticas.${soloMes.value} Usa las flechas para recorrer analíticas, TAC y progresiones.`,
-    `${k.total} days since diagnosis: ${k.trat} on a treatment line, ${k.sin} with no line running${inc}. ${k.labs} lab reports.${soloMes.value} Arrow keys move through lab reports, CT scans and progressions.`)
+  return L(`${k.total} días desde el diagnóstico: ${k.trat} en una línea de tratamiento, ${k.sin} sin línea en curso${inc}. ${k.labs} extracciones desde el diagnóstico.${soloMes.value} Usa las flechas para recorrer analíticas, TAC y progresiones.`,
+    `${k.total} days since diagnosis: ${k.trat} on a treatment line, ${k.sin} with no line running${inc}. ${k.labs} blood draws since diagnosis.${soloMes.value} Arrow keys move through lab reports, CT scans and progressions.`)
 })
 const miles = (n: number) => String(n).replace(/\B(?=(\d{3})+(?!\d))/g, props.lang === 'en' ? ',' : '.')
 </script>
@@ -318,7 +318,7 @@ const miles = (n: number) => String(n).replace(/\B(?=(\d{3})+(?!\d))/g, props.la
   <figure class="dias">
     <p class="dias__cifra"><span class="nums">{{ miles(cuenta.total) }}</span> {{ L('días', 'days') }}</p>
     <p class="dias__sub nums">
-      {{ L(`${miles(cuenta.trat)} en una línea de tratamiento · ${miles(cuenta.sin)} sin línea en curso`, `${miles(cuenta.trat)} on a treatment line · ${miles(cuenta.sin)} with no line running`) }}<template v-if="cuenta.incierto"> · {{ L(`${cuenta.incierto} con fecha aproximada`, `${cuenta.incierto} with an approximate date`) }}</template> · {{ L(`${cuenta.labs} analíticas`, `${cuenta.labs} lab reports`) }}
+      {{ L(`${miles(cuenta.trat)} en una línea de tratamiento · ${miles(cuenta.sin)} sin línea en curso`, `${miles(cuenta.trat)} on a treatment line · ${miles(cuenta.sin)} with no line running`) }}<template v-if="cuenta.incierto"> · {{ L(`${cuenta.incierto} con fecha aproximada`, `${cuenta.incierto} with an approximate date`) }}</template> · {{ L(`${cuenta.labs} extracciones desde el diagnóstico`, `${cuenta.labs} blood draws since diagnosis`) }}
     </p>
     <div ref="caja" class="dias__caja">
       <DatosTip v-if="tip" :x="tip.x" :y="tip.y" :ancho="W" :alto="H" :izq="IZQ">
