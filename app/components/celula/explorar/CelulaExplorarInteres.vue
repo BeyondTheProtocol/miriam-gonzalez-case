@@ -70,15 +70,28 @@ const nombre = (g: string) => PROTEINA[g] ?? g
 
 <style scoped>
 .gin__tabla { width: 100%; border-collapse: collapse; font: var(--tipo-body-sm); }
-.gin__tabla th, .gin__tabla td { padding: var(--sp-4) var(--sp-8); border-bottom: 1px solid var(--trazo-sutil); text-align: left; vertical-align: middle; }
+.gin { container-type: inline-size; }
+.gin__tabla th, .gin__tabla td { padding: var(--sp-4) var(--sp-8); border-bottom: 1px solid var(--trazo-sutil); text-align: left; vertical-align: top; }
+/* la cifra, a la altura del nombre del gen (botón de 44 px con el texto centrado), no centrada en la fila entera */
+.gin__tabla tbody td { line-height: 44px; }
 .gin__tabla thead th { font: 600 var(--texto-xs)/1.3 var(--font-body); color: var(--texto-2); vertical-align: bottom; }
 .gin__num { text-align: right !important; white-space: nowrap; }
+/* el nombre del grupo de interés puede partirse en la cabecera (a 375 no cabía en una línea); las cifras, nunca */
+.gin__tabla thead th.gin__num { white-space: normal; }
 .gin__sub { display: block; font: 500 var(--texto-xs)/1.3 var(--font-mono); color: var(--texto-2); }
-.gin__gen { display: inline-flex; align-items: baseline; gap: var(--sp-8); min-height: 44px; padding: 0 var(--sp-8); margin-left: calc(-1 * var(--sp-8)); border: 0; border-radius: var(--radius-sm); background: transparent; color: var(--identidad); font: 600 var(--texto-sm)/1.2 var(--font-body); text-align: left; cursor: pointer; text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 3px; }
+.gin__gen { display: inline-flex; align-items: center; flex-wrap: wrap; gap: 0 var(--sp-8); min-height: 44px; padding: 0 var(--sp-8); margin-left: calc(-1 * var(--sp-8)); border: 0; border-radius: var(--radius-sm); background: transparent; color: var(--identidad); font: 600 var(--texto-sm)/1.2 var(--font-body); text-align: left; cursor: pointer; }
+/* subrayado solo en el nombre: en el botón entero alcanzaba también al símbolo */
+.gin__prot { white-space: nowrap; text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 3px; }
 @media (hover: hover) { .gin__gen:hover { background: var(--trazo-sutil); } }
 .gin__gen:focus-visible { outline: 2px solid var(--anillo-foco); outline-offset: 1px; }
-.gin__gen[aria-pressed='true'] { background: color-mix(in srgb, var(--identidad) 14%, transparent); box-shadow: inset 0 0 0 1px var(--identidad); text-decoration-thickness: 2px; }
-.gin__sim { font: 500 var(--texto-xs) var(--font-mono); color: var(--texto-2); text-decoration: none; }
+.gin__gen[aria-pressed='true'] { background: color-mix(in srgb, var(--identidad) 14%, transparent); box-shadow: inset 0 0 0 1px var(--identidad); }
+.gin__gen[aria-pressed='true'] .gin__prot { text-decoration-thickness: 2px; }
+.gin__sim { font: 500 var(--texto-xs) var(--font-mono); color: var(--texto-2); }
+/* panel estrecho (móvil, 311 px útiles): nombre y símbolo uno encima del otro y menos relleno, para que quepan las cuatro columnas */
+@container (max-width: 440px) {
+  .gin__tabla th, .gin__tabla td { padding: var(--sp-4) var(--sp-4); }
+  .gin__gen { flex-direction: column; align-items: flex-start; justify-content: center; padding-block: var(--sp-4); }
+}
 .gin__ihq { display: block; font: 600 var(--texto-xs)/1.3 var(--font-mono); color: var(--texto-1); }
 .gin__ast { margin-left: 2px; font-weight: 700; color: var(--texto-1); }
 .gin__tabla td.nums { font-family: var(--font-mono); color: var(--texto-1); }

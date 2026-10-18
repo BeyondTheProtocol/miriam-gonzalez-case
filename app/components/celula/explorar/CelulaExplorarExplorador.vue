@@ -553,6 +553,8 @@ function sinTapar(ev: FocusEvent) {
 .exp__porque summary::before, .exp__tsum::before { content: ''; display: inline-block; width: 7px; height: 7px; border-right: 1.5px solid currentColor; border-bottom: 1.5px solid currentColor; transform: rotate(-45deg); transition: transform 0.2s ease; flex-shrink: 0; margin-right: var(--sp-8); }
 .exp__porque[open] summary::before, .exp__tecnico[open] .exp__tsum::before { transform: rotate(45deg); }
 @media (prefers-reduced-motion: reduce) { .exp__porque summary::before, .exp__tsum::before { transition: none; } }
+/* en el título grande de un plegado, la flecha a media altura de la letra (se quedaba en la línea base) */
+.exp__tsum::before { vertical-align: 0.22em; margin-right: var(--sp-12); }
 .exp__tecnico summary::-webkit-details-marker { display: none; }
 .exp__porque summary:focus-visible, .exp__tecnico summary:focus-visible { outline: 2px solid var(--anillo-foco); outline-offset: 2px; }
 .exp__tecnico { margin-top: var(--sp-32); border-top: 1px solid var(--trazo-medio); padding-top: var(--sp-16); }

@@ -152,6 +152,9 @@ if (manPub.ejemplo !== true) {
     ok('real móvil 375×812 llegada: el mapa empieza antes de 1,2 pantallas', await esperaR(navR, `(document.querySelector('.exp-mapa')?.getBoundingClientRect().top ?? 9999) <= innerHeight * 1.2`), `${await navR.evaluate(`Math.round(document.querySelector('.exp-mapa')?.getBoundingClientRect().top ?? -1)`)} px`)
     const desb = `Math.round(Math.max(...[...document.querySelectorAll('.exp, .exp > *')].map((e) => e.getBoundingClientRect().right)) - window.innerWidth)`
     ok('real móvil: el explorador cabe en el ancho', (await navR.evaluate(desb)) <= 1)
+    // capturas del 18-oct: a 375 la lista de llegada se salía por la derecha (Referencia y Suelo cortadas) y el test de
+    // ancho, que mide solo los hijos directos del explorador, no lo veía. Se mide la tabla contra su caja.
+    ok('real móvil 375: la lista de genes de interés cabe en su caja (las cuatro columnas a la vista)', await navR.evaluate(`(() => { const t = document.querySelector('.gin__tabla'), c = document.querySelector('.gin'); return !!t && !!c && t.getBoundingClientRect().right <= c.getBoundingClientRect().right + 1 && t.getBoundingClientRect().right <= innerWidth })()`), `${await navR.evaluate(`Math.round((document.querySelector('.gin__tabla')?.getBoundingClientRect().right ?? 0) - innerWidth)`)} px de más`)
     ok('real móvil: hay mapa, quieto (velo) hasta pulsar «Mover el mapa»', await esperaR(navR, `!!document.querySelector('.exp-mapa') && !!document.querySelector('.exp-mapa__velo') && /Mover el mapa/.test(document.querySelector('.exp-mapa__mover')?.textContent ?? '')`))
     await navR.evaluate(`document.querySelector('.exp-mapa__mover')?.click()`)
     await navR.evaluate(busca('SPDEF'))
