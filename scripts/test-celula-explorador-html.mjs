@@ -82,6 +82,19 @@ try {
   await nav.evaluate(`(() => { const s = document.querySelector('.exp__ctl select'); s.value = 'ESR1'; s.dispatchEvent(new Event('change')) })()`)
   ok('demo hígado: ESR1 en los violines lleva primero la cifra sin circularidad y después «Cifra circular»', await espera(nav, `/Sin esa circularidad.*Cifra circular\\./s.test(document.querySelector('.vio__circ')?.textContent ?? '')`))
   ok('demo hígado: la nota de circularidad va ANTES de la figura y de la cifra circular de la fila', await nav.evaluate(`(() => { const c = document.querySelector('.vio__fila--interes .vio__circ'), t = document.querySelector('.vio__fila--interes .vio__txt'); return !!c && !!t && c.nextElementSibling?.classList.contains('vio__svg') && !!(c.compareDocumentPosition(t) & Node.DOCUMENT_POSITION_FOLLOWING) && /^\\s*Circular · /.test(t.textContent) })()`))
+  // paneles del 18-oct (marcadores, perfil, ADN por grupo, QC): se pintan con datos y con sus avisos
+  const pn = await nav.evaluate(`(() => ({
+    marcadores: document.querySelectorAll('.mk__tabla tbody tr').length,
+    marcAviso: /Detectado no es positivo/.test(document.querySelector('.mk')?.textContent ?? '') && /selección hecha a mano/.test(document.querySelector('.mk')?.textContent ?? ''),
+    perfil: !!document.querySelector('.pf__linea') && /Expresión, no ADN/.test(document.querySelector('.pf')?.textContent ?? ''),
+    adnFilas: document.querySelectorAll('.adng__fila').length,
+    adnAviso: /Por grupo, no por célula/.test(document.querySelector('.adng')?.textContent ?? ''),
+    qcFilas: document.querySelectorAll('.qc__fila').length,
+  }))()`)
+  ok('demo hígado: marcadores por grupo con filas y sus dos avisos', pn.marcadores > 0 && pn.marcAviso, JSON.stringify(pn))
+  ok('demo hígado: perfil por regiones dibujado y con «Expresión, no ADN»', pn.perfil)
+  ok('demo hígado: ADN por grupo, una fila por grupo con células y el aviso «por grupo, no por célula»', pn.adnFilas > 0 && pn.adnAviso)
+  ok('demo hígado: control de calidad con sus filas', pn.qcFilas >= 6)
   await nav.evaluate(`[...document.querySelectorAll('.exp__ctl button')].find((b) => /Hueso/.test(b.textContent)).click()`)
   ok('demo hueso: CNV por célula', await espera(nav, `document.querySelectorAll('.cnv__svg').length > 0 && !document.querySelector('.cnv__higado')`))
   ok('demo hueso: el CNV dice que es inferido de la expresión y no lectura de ADN, y marca el 0', await nav.evaluate(`/no es lectura de ADN/.test(document.querySelector('.cnv')?.textContent ?? '') && document.querySelectorAll('.cnv__cero').length > 0`))

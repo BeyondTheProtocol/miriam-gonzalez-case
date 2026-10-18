@@ -11,11 +11,11 @@
   "ficheros": [
     {
       "ruta": "higado.json",
-      "sha256": "41b8c591ab97a3cab4009af9691efc5f7df41e512c40a5224a70ae3a419d36a5"
+      "sha256": "721bd31201439ef49188226a8b73cfd02dfc0abaf05b2fac7b4825982e474c4e"
     },
     {
       "ruta": "hueso.json",
-      "sha256": "d2201c32a0c123cee816e79bf3a59258fad585cf52f9354a784b82a3680ee97f"
+      "sha256": "f562fa18333068153986e0a7b153988cd661cf2a591c1dd438f879a2691c0b9e"
     }
   ],
   "zarr": [

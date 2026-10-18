@@ -261,6 +261,26 @@ function sinTapar(ev: FocusEvent) {
         <h2 class="exp__h2">{{ L('Número de copias (inferido)', 'Copy number (inferred)') }}{{ ej }}</h2>
         <CelulaExplorarCnv :d="d" :lang="lang" />
       </div>
+
+      <div class="exp__bloque">
+        <h2 class="exp__h2">{{ L('Marcadores por grupo', 'Markers per group') }}{{ ej }}</h2>
+        <CelulaExplorarMarcadores :d="d" :lang="lang" :abribles="(g: string) => d!.genes.includes(g)" @elegir="elegirDesdeTabla" />
+      </div>
+
+      <div class="exp__bloque">
+        <h2 class="exp__h2">{{ L('Perfil por regiones del genoma', 'Genome region profile') }}{{ ej }}</h2>
+        <CelulaExplorarPerfil :d="d" :lang="lang" />
+      </div>
+
+      <div class="exp__bloque">
+        <h2 class="exp__h2">{{ L('ADN genómico por grupo', 'Genomic DNA per group') }}{{ ej }}</h2>
+        <CelulaExplorarAdn :d="d" :lang="lang" />
+      </div>
+
+      <div class="exp__bloque">
+        <h2 class="exp__h2">{{ L('Control de calidad', 'Quality control') }}{{ ej }}</h2>
+        <CelulaExplorarQc :d="d" :lang="lang" />
+      </div>
     </template>
   </section>
 </template>
