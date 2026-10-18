@@ -19,7 +19,7 @@ import {
   MARCADORES_N, PAPELES_SELECCION, RE_BARCODE, VEREDICTOS, columna, coexpresion, densidad, estadoPuerta, fechaOkValida, motivosLesion, nivelMatriz, pct, porGrupo, tablaCoexp,
   type LesionDatos, type Manifiesto,
 } from '../app/utils/celulaExplorador'
-import { ETIQUETA_GRUPO, ETIQUETA_TIPO, ETIQUETA_VEREDICTO, PAPEL_SELECCION } from '../app/utils/celulaExploradorTexto'
+import { ETIQUETA_GRUPO, ETIQUETA_TIPO, ETIQUETA_VEREDICTO, PAPEL_SELECCION, etiqueta } from '../app/utils/celulaExploradorTexto'
 import { abreZarr } from '../app/utils/celulaExploradorZarr'
 import { paleta } from '../app/utils/celulaExploradorColor'
 import FileSystemStore from '@zarrita/storage/fs'
@@ -264,6 +264,21 @@ if (man.zarr?.length) {
     const fuera = z.genes.find((g) => !d.genes.includes(g) && !z.sinSonda.has(g))!
     const cf = await z.columna(fuera)
     ok(`${l}: un gen fuera del panel se lee (columna de n células con valores >= 0)`, cf.length === d.n_celulas && cf.every((v) => v >= 0))
+  }
+}
+
+// verificacion (18-oct, simplificación para médicos): ninguna ETIQUETA visible de un grupo o tipo del hígado dice
+// «tumor», «maligno» ni «cáncer». El grupo de interés es un subconjunto (993 = 528 epiteliales + 465 sin asignar; 3.201
+// epiteliales están en «Otras»): rotularlo «tumor» sería falso. El muro de los datos solo mira ids; esto mira rótulos.
+{
+  const vetado = /tumor|tumoral|malign|c[aá]ncer|cancer/i
+  const H = lesiones.higado
+  if (H) {
+    const malos = [
+      ...H.grupos.flatMap((g) => [etiqueta(ETIQUETA_GRUPO, g.id, 'es'), etiqueta(ETIQUETA_GRUPO, g.id, 'en')]),
+      ...H.tipos.flatMap((t) => [etiqueta(ETIQUETA_TIPO, t, 'es'), etiqueta(ETIQUETA_TIPO, t, 'en')]),
+    ].filter((x) => vetado.test(x))
+    ok('hígado: ningún rótulo de grupo ni de tipo dice «tumor», «maligno» o «cáncer» (ES y EN)', malos.length === 0, malos.join(' | '))
   }
 }
 
