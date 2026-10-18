@@ -1,0 +1,34 @@
+{
+  "version": 1,
+  "sello": "verificado",
+  "ok_titular": true,
+  "fecha_ok": "2026-10-18",
+  "modo_sondas": "todas_incluidas",
+  "lesiones": [
+    "higado",
+    "hueso"
+  ],
+  "ficheros": [
+    {
+      "ruta": "higado.json",
+      "sha256": "0a565ecd6d863c1fc3be089c0a796999dba3babcfdc9de3a85cf22f0cfd4f06d"
+    },
+    {
+      "ruta": "hueso.json",
+      "sha256": "8e9a732313c45cdf5ca62afba0239a8198b1361400017e01bf7f34df2c61b987"
+    }
+  ],
+  "zarr": [
+    {
+      "ruta": "zarr/higado.zarr",
+      "sha256_arbol": "df91391525fa82d55166aa94f55577a43c268d23f40283bf9f1fbb490f150afa"
+    },
+    {
+      "ruta": "zarr/hueso.zarr",
+      "sha256_arbol": "90c4a3776119c76e27b65be2b3d7febec44a80697272c515f70c79b99dc2edcc"
+    }
+  ],
+  "matriz_completa": {
+    "fecha_decision": "2026-10-18"
+  }
+}
