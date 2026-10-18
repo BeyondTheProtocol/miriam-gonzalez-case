@@ -19,7 +19,7 @@ import {
   MARCADORES_N, MOTIVO_LECTURAS, MOTIVOS, PAPELES_SELECCION, RE_BARCODE, VEREDICTOS, VEREDICTOS_SIN_MOTIVO, columna, coexpresion, densidad, estadoPuerta, fechaOkValida, fmtParSuelo, motivoDe, motivosLesion, nivelMatriz, pct, porGrupo, tablaCoexp,
   type LesionDatos, type Manifiesto,
 } from '../app/utils/celulaExplorador'
-import { ALIAS_BUSCA, ETIQUETA_GRUPO, ETIQUETA_MOTIVO, ETIQUETA_TIPO, ETIQUETA_VEREDICTO, PAPEL_SELECCION, etiqueta } from '../app/utils/celulaExploradorTexto'
+import { ALIAS_BUSCA, ETIQUETA_GRUPO, ETIQUETA_MOTIVO, ETIQUETA_TIPO, ETIQUETA_VEREDICTO, ETIQUETA_VEREDICTO_CON_MOTIVO, PAPEL_SELECCION, PIE_MOTIVO, etiqueta, etiquetaLectura } from '../app/utils/celulaExploradorTexto'
 import { abreZarr } from '../app/utils/celulaExploradorZarr'
 import { paleta } from '../app/utils/celulaExploradorColor'
 import FileSystemStore from '@zarrita/storage/fs'
@@ -176,7 +176,12 @@ ok('cada motivo dice qué lecturas admite, y ninguna es de las que no lo llevan'
 ok('ningún texto de motivo lleva cifras ni «diana»', Object.values(ETIQUETA_MOTIVO).every((x) => !/\d|diana|target/i.test(`${x.es} ${x.en}`.replace(/HER2-low/g, ''))))
 // verificacion (18-oct): la etiqueta de «cerrado_por_arn» daba la razón del hueso («los positivos son ADN…») también en el
 // hígado, donde no hay positivos; la razón va en el motivo, que cambia por biopsia
-ok('«cerrado_por_arn» no da en la etiqueta la razón de una sola biopsia', !/positiv/i.test(`${ETIQUETA_VEREDICTO.cerrado_por_arn!.es} ${ETIQUETA_VEREDICTO.cerrado_por_arn!.en}`))
+ok('«cerrado_por_arn» con motivo en el fichero no da en la etiqueta la razón de una sola biopsia', !/positiv/i.test(`${ETIQUETA_VEREDICTO_CON_MOTIVO.cerrado_por_arn!.es} ${ETIQUETA_VEREDICTO_CON_MOTIVO.cerrado_por_arn!.en}`))
+// diseño (revisión del motivo): sin motivo en el fichero se queda la etiqueta publicada, para que el código pueda salir antes que los datos
+ok('etiquetaLectura: corta con motivo, la publicada sin él', etiquetaLectura('cerrado_por_arn', true, 'es') === 'Cerrado por ARN'
+  && etiquetaLectura('cerrado_por_arn', false, 'es') === ETIQUETA_VEREDICTO.cerrado_por_arn!.es && etiquetaLectura('no_sostenido', true, 'en') === ETIQUETA_VEREDICTO.no_sostenido!.en)
+ok('pie del motivo: ES/EN, sin cifras, dice que compara el extremo bajo del margen de error y, en el hígado, que la revisión es más estricta que la regla',
+  Object.values(PIE_MOTIVO).every((x) => !!x.es && !!x.en && !/\d/.test(`${x.es} ${x.en}`)) && /extremo bajo del margen de error/.test(PIE_MOTIVO.compara.es) && /más estricta que la regla/.test(PIE_MOTIVO.higado.es))
 {
   // fixture con motivo: los datos publicados aún no lo traen (pendiente del OK de la titular) y el validador tiene que
   // aceptarlo bien formado y cazar lo mal formado
@@ -364,9 +369,10 @@ if (man.zarr?.length) {
     ok('veredictos de la enmienda del 18-oct: HER3 del hígado «con_matiz» y 5T4 del hueso «en_el_limite»', vh.ERBB3 === 'con_matiz' && vb.TPBG === 'en_el_limite', `ERBB3 ${vh.ERBB3} · TPBG ${vb.TPBG}`)
     // con el motivo en el fichero (export del acta con motivo), el caso que lo pidió: TROP2 del hígado lleva su porqué
     const mh = JSON.parse(readFileSync(join(DIR, 'higado.json'), 'utf8')).motivo, mb = JSON.parse(readFileSync(join(DIR, 'hueso.json'), 'utf8')).motivo
-    if (mh && mb) ok('motivos del acta: TROP2 y B7-H3 del hígado, HER3 del hígado y PRAME en cada biopsia', mh.TACSTD2 === 'fondo_arn_tumoral' && mh.CD276 === 'parecido_en_todas'
-      && mh.ERBB3 === 'hepatocitos_igual_o_mas' && mh.PRAME === 'cero_en_posibles_tumorales' && mb.PRAME === 'adn_de_nucleos_no_tumorales' && mb.TPBG === 'referencia_poco_precisa',
-    JSON.stringify({ TACSTD2: mh.TACSTD2, CD276: mh.CD276, ERBB3: mh.ERBB3, PRAME: [mh.PRAME, mb.PRAME], TPBG: mb.TPBG }))
+    if (mh && mb) ok('motivos del acta: TROP2, LIV-1, MUC1, B7-H3 y HER3 del hígado, PRAME en cada biopsia, 5T4 e INSM1 del hueso', mh.TACSTD2 === 'por_poco_y_arn_tumoral'
+      && mh.SLC39A6 === 'depende_del_nulo' && mh.MUC1 === 'no_se_separa_del_arn_tumoral' && mh.CD276 === 'parecido_en_todas' && mh.ERBB3 === 'hepatocitos_igual_o_mas'
+      && mh.PRAME === 'cero_en_posibles_tumorales' && mb.PRAME === 'adn_de_nucleos_no_tumorales' && mb.TPBG === 'referencia_poco_precisa' && mb.INSM1 === 'casi_no_se_detecta',
+    JSON.stringify({ TACSTD2: mh.TACSTD2, SLC39A6: mh.SLC39A6, MUC1: mh.MUC1, CD276: mh.CD276, ERBB3: mh.ERBB3, PRAME: [mh.PRAME, mb.PRAME], TPBG: mb.TPBG, INSM1: mb.INSM1 }))
   }
 }
 // verificacion (18-oct): los alias del buscador llevan a un GEN; una isoforma (CLDN18.2) no se puede leer con sondas del gen entero

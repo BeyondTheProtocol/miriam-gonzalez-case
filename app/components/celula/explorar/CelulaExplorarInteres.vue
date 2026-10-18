@@ -9,8 +9,8 @@
  * y «IHQ de HER2: 0 (primario e hígado)» junto a ERBB2, solo en el hígado.
  */
 import type { LesionDatos } from '~/utils/celulaExplorador'
-import { fmtParSuelo, fmtPct, motivoDe, porGrupo } from '~/utils/celulaExplorador'
-import { CIRC_HUESO, ETIQUETA_GRUPO, ETIQUETA_MOTIVO, ETIQUETA_VEREDICTO, ETIQUETAS_FIJAS, PANEL_INTERES, PROTEINA, etiqueta } from '~/utils/celulaExploradorTexto'
+import { fmtParSuelo, fmtPct, motivoDe, porGrupo, traeMotivo } from '~/utils/celulaExplorador'
+import { CIRC_HUESO, ETIQUETA_GRUPO, ETIQUETA_MOTIVO, PIE_MOTIVO, etiquetaLectura, ETIQUETAS_FIJAS, PANEL_INTERES, PROTEINA, etiqueta } from '~/utils/celulaExploradorTexto'
 
 const props = defineProps<{ d: LesionDatos; lang: 'es' | 'en'; activo: string | null; sinMapa?: boolean }>()
 const emit = defineEmits<{ elegir: [string]; tabla: [] }>()
@@ -22,6 +22,7 @@ const filas = computed(() => PANEL_INTERES.filter((g) => props.d.genes.includes(
   return { gen, frac: f.frac, suelo: f.suelo, tf, ts, ref: props.d.referencia[gen] ?? 0, circular: !!props.d.seleccion[gen], ver: props.d.veredicto[gen] ?? 'sin_veredicto', mot: motivoDe(props.d, gen) }
 }))
 const hayCirc = computed(() => filas.value.some((f) => f.circular))
+const conMotivo = computed(() => traeMotivo(props.d))
 const nombre = (g: string) => PROTEINA[g] ?? g
 </script>
 
@@ -59,7 +60,7 @@ const nombre = (g: string) => PROTEINA[g] ?? g
             <td colspan="4">
               <span v-if="f.gen === 'ERBB2'" class="gin__ihq">{{ (d.lesion === 'higado' ? ETIQUETAS_FIJAS.her2 : ETIQUETAS_FIJAS.her2Hueso)[lang] }}</span>
               <span v-if="f.gen === 'ERBB3' && d.lesion === 'higado' && !f.mot" class="gin__ihq">{{ ETIQUETAS_FIJAS.her3Higado[lang] }}</span>
-              <span class="sr-only">{{ nombre(f.gen) }}: </span><span class="gin__lec">{{ ETIQUETAS_FIJAS.lecturaCorta[lang] }} <strong class="gin__ver">{{ (ETIQUETA_VEREDICTO[f.ver] ?? ETIQUETA_VEREDICTO.sin_veredicto)[lang] }}</strong><span v-if="f.mot" class="gin__mot" :data-motivo="f.mot"> ({{ etiqueta(ETIQUETA_MOTIVO, f.mot, lang) }})</span></span>
+              <span class="sr-only">{{ nombre(f.gen) }}: </span><span class="gin__lec">{{ ETIQUETAS_FIJAS.lecturaCorta[lang] }} <strong class="gin__ver">{{ etiquetaLectura(f.ver, conMotivo, lang) }}</strong><span v-if="f.mot" class="gin__mot" :data-motivo="f.mot"> ({{ etiqueta(ETIQUETA_MOTIVO, f.mot, lang) }})</span></span>
             </td>
           </tr>
         </template>
@@ -69,6 +70,7 @@ const nombre = (g: string) => PROTEINA[g] ?? g
       {{ L('Porcentaje de células con al menos una molécula (UMI) del gen. Referencia: células no tumorales de la misma muestra, con la misma profundidad. Suelo ambiental: lo que saldría solo por ARN suelto de la muestra; lo que no lo supera no cuenta como expresión. Lectura: la de Polaris, en borrador, pendiente de la lectura humana del laboratorio.' + (d.lesion === 'hueso' ? ' En el hueso, el suelo incluye además el ADN genómico del tejido.' : ''),
         'Share of cells with at least one molecule (UMI) of the gene. Reference: non-tumor cells from the same sample, at the same depth. Ambient floor: what would show up from loose RNA in the sample alone; anything that does not clear it does not count as expression. Reading: Polaris’s, in draft, pending the laboratory’s human reading.' + (d.lesion === 'hueso' ? ' In the bone, the floor also includes the tissue’s genomic DNA.' : '')) }}
     </p>
+    <p v-if="conMotivo" class="gin__pie gin__pmot">{{ PIE_MOTIVO.compara[lang] }}<template v-if="d.lesion === 'higado'"> {{ PIE_MOTIVO.higado[lang] }}</template></p>
     <p v-if="hayCirc" class="gin__pie gin__circ">
       * <strong>{{ L('Circular.', 'Circular.') }}</strong>
       {{ L('El gen participa en la selección de este grupo o va ligado al programa con el que se seleccionó: su cifra en el grupo sale en parte de cómo se eligió. Al abrirlo verás la cifra sin esa circularidad, si existe.',
@@ -113,6 +115,8 @@ const nombre = (g: string) => PROTEINA[g] ?? g
 .gin__ihq { display: block; font: 600 var(--texto-xs)/1.35 var(--font-mono); color: var(--texto-1); }
 .gin__lec { font: 500 var(--texto-xs)/1.35 var(--font-body); color: var(--texto-2); }
 .gin__ver { font-weight: 600; color: var(--texto-1); }
+/* diseño (revisión del motivo): a 375 quedaban huérfanos de una palabra («más)», «la IHQ)») */
+.gin__tabla .gin__lecfila td { text-wrap: pretty; }
 .gin__cabest { display: none; margin: 0 0 var(--sp-4); font: 600 var(--texto-xs)/1.35 var(--font-body); color: var(--texto-1); }
 .gin__tabla .gin__fila th, .gin__tabla .gin__fila td { border-bottom: 0; }
 .gin__tabla .gin__lecfila td { padding-top: 0; padding-bottom: var(--sp-8); line-height: 1.35; text-align: left; }

@@ -38,21 +38,24 @@ export type Veredicto = typeof VEREDICTOS[number]
 /** Motivo de cada lectura (comité médico, 18-oct-2026: TROP2 del hígado supera el suelo y la referencia que se ven y la
  *  lectura dice «No se sostiene»; sin el porqué no se puede conciliar). Vocabulario CERRADO, el mismo de Polaris
  *  (_contrato.MOTIVOS). Lo que su etiqueta ya explica o no tiene lectura va sin motivo (null). */
-export const MOTIVOS = ['hepatocitos_igual_o_mas', 'seleccion_por_er', 'arn_no_es_her2_low', 'minoria', 'fondo_arn_tumoral',
-  'parecido_en_todas', 'disperso_en_el_tumor', 'casi_no_se_detecta', 'cero_en_posibles_tumorales', 'adn_de_nucleos_no_tumorales',
+export const MOTIVOS = ['hepatocitos_igual_o_mas', 'seleccion_por_er', 'arn_no_es_her2_low', 'minoria', 'por_poco_y_arn_tumoral',
+  'no_se_separa_del_arn_tumoral', 'depende_del_nulo', 'parecido_en_todas', 'disperso_en_el_tumor', 'casi_no_se_detecta', 'cero_en_posibles_tumorales', 'adn_de_nucleos_no_tumorales',
   'referencia_poco_precisa', 'supera_por_poco', 'depende_del_conjunto'] as const
 export type Motivo = typeof MOTIVOS[number]
 export const VEREDICTOS_SIN_MOTIVO: readonly Veredicto[] = ['sostenido', 'referencia_igual_o_mas', 'solo_nivel', 'sin_veredicto']
 const MATIZ: readonly Veredicto[] = ['sostenido_con_matiz', 'con_matiz', 'en_el_limite', 'no_sostenido', 'no_resoluble']
 /** Qué lecturas admite cada motivo (_contrato.MOTIVO_LECTURAS). */
 export const MOTIVO_LECTURAS: Record<Motivo, readonly Veredicto[]> = {
-  hepatocitos_igual_o_mas: MATIZ, seleccion_por_er: MATIZ, arn_no_es_her2_low: MATIZ, minoria: MATIZ, fondo_arn_tumoral: MATIZ,
-  parecido_en_todas: MATIZ, referencia_poco_precisa: MATIZ, supera_por_poco: MATIZ, depende_del_conjunto: MATIZ,
-  disperso_en_el_tumor: ['marcador_ne'], casi_no_se_detecta: ['no'],
+  hepatocitos_igual_o_mas: MATIZ, seleccion_por_er: MATIZ, arn_no_es_her2_low: MATIZ, minoria: MATIZ, por_poco_y_arn_tumoral: MATIZ,
+  no_se_separa_del_arn_tumoral: MATIZ, depende_del_nulo: MATIZ, parecido_en_todas: MATIZ, referencia_poco_precisa: MATIZ,
+  supera_por_poco: MATIZ, depende_del_conjunto: MATIZ,
+  disperso_en_el_tumor: ['marcador_ne'], casi_no_se_detecta: ['no', 'marcador_ne'],
   cero_en_posibles_tumorales: ['cerrado_por_arn'], adn_de_nucleos_no_tumorales: ['cerrado_por_arn'],
 }
 /** Motivo de la lectura de un gen, o null (sin motivo en el fichero, o la etiqueta ya lo dice). */
 export const motivoDe = (d: LesionDatos, gen: string): Motivo | null => d.motivo?.[gen] ?? null
+/** ¿El fichero trae motivos? Con ellos la página dice en el pie cómo se compara y acorta las etiquetas que llevaban la razón dentro. */
+export const traeMotivo = (d: LesionDatos): boolean => d.motivo !== undefined
 /** Papel de un gen en la SELECCIÓN del grupo de interés: su cifra en ese grupo es circular. */
 export const PAPELES_SELECCION = ['identidad', 'fgfr1_alto', 'exclusion', 'ligado_er'] as const
 export type PapelSeleccion = typeof PAPELES_SELECCION[number]

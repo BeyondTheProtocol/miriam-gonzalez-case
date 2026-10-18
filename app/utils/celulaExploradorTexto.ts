@@ -53,29 +53,54 @@ export const ETIQUETA_VEREDICTO: Record<string, T> = {
   solo_nivel: t('Solo cuenta el nivel (se detecta en casi todas las células)', 'Only the level counts (detected in almost every cell)'),
   marcador_ne: t('Marcador neuroendocrino', 'Neuroendocrine marker'),
   no: t('No', 'No'),
-  /** el porqué va en el motivo, que cambia por biopsia: en el hígado no hay positivos (verificacion, 18-oct-2026: la
-   * etiqueta decía «los positivos son ADN de núcleos no tumorales» también en el hígado, donde el acta da 0) */
-  cerrado_por_arn: t('Cerrado por ARN', 'Ruled out by RNA'),
+  /** con motivo en el fichero se acorta (ETIQUETA_VEREDICTO_CON_MOTIVO) y la razón va al motivo de cada biopsia */
+  cerrado_por_arn: t('Cerrado por ARN; los positivos son ADN de núcleos no tumorales', 'Ruled out by RNA; the positives are DNA from non-tumor nuclei'),
   sin_veredicto: t('No valorado en esa fila de la revisión', 'Not assessed in that row of the review'),
 }
+/** Etiquetas que llevaban la razón dentro y se acortan cuando el fichero trae el motivo (verificacion, 18-oct-2026: la de
+ * «cerrado_por_arn» daba la razón del hueso también en el hígado, donde el acta da 0 positivos). Sin motivo en el fichero
+ * se queda la de ETIQUETA_VEREDICTO, la publicada: así el código puede salir antes que los datos sin quitar nada. */
+export const ETIQUETA_VEREDICTO_CON_MOTIVO: Record<string, T> = {
+  cerrado_por_arn: t('Cerrado por ARN', 'Ruled out by RNA'),
+}
+/** Lectura de un gen: la etiqueta corta si el fichero trae motivo y la hay; si no, la de siempre. */
+export const etiquetaLectura = (ver: string, conMotivo: boolean, lang: 'es' | 'en') =>
+  (conMotivo && ETIQUETA_VEREDICTO_CON_MOTIVO[ver]?.[lang]) || etiqueta(ETIQUETA_VEREDICTO, ver, lang)
+
 /** Motivo de cada lectura, entre paréntesis tras ella (comité médico, 18-oct-2026: TROP2 del hígado supera el suelo y la
  * referencia que se ven y la lectura dice «No se sostiene»). Ids de Polaris (_contrato.MOTIVOS, con la línea del acta de
  * la que sale cada uno). Sin cifras: las del caso viajan en el fichero. */
 export const ETIQUETA_MOTIVO: Record<string, T> = {
-  hepatocitos_igual_o_mas: t('los hepatocitos sanos lo detectan igual o más', 'healthy hepatocytes detect it as much or more'),
-  seleccion_por_er: t('el grupo se eligió por el programa de estrógeno', 'the group was chosen by its estrogen program'),
+  hepatocitos_igual_o_mas: t('se detecta igual o más en los hepatocitos no tumorales', 'detected as much or more in non-tumor hepatocytes'),
+  seleccion_por_er: t('el grupo se eligió por el programa de estrógeno', 'the group was selected by its estrogen program'),
   arn_no_es_her2_low: t('en ARN no equivale a HER2-low; manda la IHQ', 'in RNA it does not mean HER2-low; IHC decides'),
   minoria: t('solo en una minoría de células', 'only in a minority of cells'),
-  /** el suelo calculado con el ARN del propio tumor suelto en la muestra, que la tabla no pinta (auditoría, 18-oct-2026) */
-  fondo_arn_tumoral: t('no supera el fondo del ARN tumoral suelto, más alto que el suelo que se muestra', 'does not clear the background from loose tumor RNA, higher than the floor shown'),
-  parecido_en_todas: t('se detecta parecido en todas las células no tumorales', 'detected at a similar rate in every non-tumor cell type'),
+  /** el ARN suelto del propio tumor, que el suelo pintado no recoge (auditoría, 18-oct-2026: E26, H18). La lectura es la de la
+   * revisión, más estricta que la regla fijada antes del análisis en varios genes del hígado: lo dice el pie */
+  por_poco_y_arn_tumoral: t('supera la referencia por poco y en pocas células, pero no el ARN suelto del tumor, que el suelo no recoge',
+    'it clears the reference narrowly and in few cells, but not the tumor’s loose RNA, which the floor leaves out'),
+  no_se_separa_del_arn_tumoral: t('es uno de los genes con que se mide el ARN suelto del tumor, y no lo supera: este diseño no los separa',
+    'it is one of the genes used to measure the tumor’s loose RNA, and does not clear it: this design cannot tell them apart'),
+  depende_del_nulo: t('supera el suelo y la referencia; frente al ARN suelto del tumor, depende del conjunto de células',
+    'it clears the floor and the reference; against the tumor’s loose RNA, it depends on the cell set'),
+  parecido_en_todas: t('se detecta parecido en todos los tipos de células no tumorales', 'detected at a similar rate in every non-tumor cell type'),
   disperso_en_el_tumor: t('disperso por el tumor luminal', 'scattered through the luminal tumor'),
   casi_no_se_detecta: t('se detecta en muy pocas células', 'detected in very few cells'),
   cero_en_posibles_tumorales: t('cero en las células que podrían ser tumor, con sondas que sí funcionan', 'zero in the cells that could be tumor, with probes that do work'),
   adn_de_nucleos_no_tumorales: t('los positivos son ADN de núcleos no tumorales', 'the positives are DNA from non-tumor nuclei'),
-  referencia_poco_precisa: t('la referencia tiene pocas células efectivas y la diferencia apenas se separa de cero', 'the reference has few effective cells and the difference barely clears zero'),
+  referencia_poco_precisa: t('claro sobre el suelo; frente a la referencia, que tiene pocas células efectivas, el margen de error es amplio',
+    'clearly above the floor; against the reference, which has few effective cells, the margin of error is wide'),
   supera_por_poco: t('supera a la referencia por muy poco', 'clears the reference by very little'),
   depende_del_conjunto: t('supera a la referencia solo en un conjunto algo más amplio de células malignas', 'clears the reference only in a slightly wider set of malignant cells'),
+}
+
+/** Pie de la lectura cuando el fichero trae motivos (diseño y verificacion, revisión del motivo). Cómo se compara: el extremo
+ * bajo del intervalo de confianza de Wilson (hígado, vía 1; hueso, tribunal: `lo > dref`), no la cifra. Y, solo en el hígado,
+ * que la lectura de la revisión es más estricta que la regla prefijada en varios genes (comité médico). */
+export const PIE_MOTIVO = {
+  compara: t('La lectura compara el extremo bajo del margen de error del grupo, no su cifra.', 'The reading uses the lower end of the group’s margin of error, not its figure.'),
+  higado: t('En varios genes, la lectura de la revisión es más estricta que la regla fijada antes del análisis; el paréntesis dice por qué.',
+    'For several genes, the review’s reading is stricter than the rule set before the analysis; the parenthesis says why.'),
 }
 
 /** De quién es la lectura por gen, y en qué estado está: va en la cabecera de la columna y en su pie. */

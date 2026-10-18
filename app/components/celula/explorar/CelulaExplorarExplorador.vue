@@ -21,10 +21,10 @@
  * Violeta = grupo de interés, selección, foco y enlaces; los avisos van en tinta (auditoría `diseno`).
  */
 import type { Coexp, Lesion, LesionDatos, Manifiesto } from '~/utils/celulaExplorador'
-import { coexpresion, columna, motivoDe, nivelMatriz, porGrupo } from '~/utils/celulaExplorador'
+import { coexpresion, columna, motivoDe, nivelMatriz, porGrupo, traeMotivo } from '~/utils/celulaExplorador'
 import { abreZarr, storeWeb, type ZarrLesion } from '~/utils/celulaExploradorZarr'
 import { cssRgb, paleta, type RGB } from '~/utils/celulaExploradorColor'
-import { ALIAS_BUSCA, ETIQUETA_GRUPO, ETIQUETA_LESION, ETIQUETA_MOTIVO, ETIQUETA_VEREDICTO, ETIQUETAS_FIJAS, NOMBRE_CLINICO, PANEL_INTERES, PROTEINA, etiqueta, nombreGen } from '~/utils/celulaExploradorTexto'
+import { ALIAS_BUSCA, ETIQUETA_GRUPO, ETIQUETA_LESION, ETIQUETA_MOTIVO, etiquetaLectura, ETIQUETAS_FIJAS, NOMBRE_CLINICO, PANEL_INTERES, PROTEINA, etiqueta, nombreGen } from '~/utils/celulaExploradorTexto'
 
 const props = defineProps<{ man: Manifiesto; ejemplo: boolean; lang: 'es' | 'en' }>()
 const L = (es: string, en: string) => (props.lang === 'en' ? en : es)
@@ -289,7 +289,7 @@ const lecturaDetalle = computed(() => {
   const x = d.value
   if (!x) return ''
   if (!x.genes.includes(gen.value)) return L('Este gen no está en la revisión: no tiene lectura.', 'This gene is not in the review: it has no reading.')
-  return (ETIQUETA_VEREDICTO[x.veredicto[gen.value] ?? 'sin_veredicto'] ?? ETIQUETA_VEREDICTO.sin_veredicto!)[props.lang]
+  return etiquetaLectura(x.veredicto[gen.value] ?? 'sin_veredicto', traeMotivo(x), props.lang)
 })
 /** su motivo (comité médico, 18-oct): entre paréntesis tras la lectura; solo de genes de la revisión */
 const motivoDetalle = computed(() => (d.value?.genes.includes(gen.value) ? motivoDe(d.value, gen.value) : null))
