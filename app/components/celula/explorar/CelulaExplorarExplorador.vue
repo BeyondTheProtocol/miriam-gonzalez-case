@@ -377,7 +377,7 @@ function sinTapar(ev: FocusEvent) {
       <div ref="bannerEl" class="exp__banner" role="note">
         <svg class="exp__ico" viewBox="0 0 256 256" aria-hidden="true"><path fill="currentColor" d="M240.26 186.1 152.81 34.23a28.74 28.74 0 0 0-49.62 0L15.74 186.1a27.45 27.45 0 0 0 0 27.71A28.31 28.31 0 0 0 40.55 228h174.9a28.31 28.31 0 0 0 24.79-14.19 27.45 27.45 0 0 0 .02-27.71ZM120 104a8 8 0 0 1 16 0v40a8 8 0 0 1-16 0Zm8 88a12 12 0 1 1 12-12 12 12 0 0 1-12 12Z" /></svg>
         <p><strong>{{ L('Hígado: tumor frente a hepatocito no está resuelto célula a célula.', 'Liver: tumor versus hepatocyte is not resolved cell by cell.') }}</strong>
-          <span class="exp__banner-2">{{ L('«Luminal de alta confianza» es un subconjunto, no el tumor entero; «Hepatocitos» y «Otras» también pueden incluir células tumorales.', '“High-confidence luminal” is a subset, not the whole tumor; “Hepatocytes” and “Other” may also include tumor cells.') }}</span>
+          <span class="exp__banner-2">{{ ' ' + L('«Luminal de alta confianza» es un subconjunto, no el tumor entero; «Hepatocitos» y «Otras» también pueden incluir células tumorales.', '“High-confidence luminal” is a subset, not the whole tumor; “Hepatocytes” and “Other” may also include tumor cells.') }}</span>
           <button type="button" class="exp__mas" :aria-expanded="masHigado" @click="masHigado = !masHigado">{{ masHigado ? L('Menos', 'Less') : L('Más', 'More') }}</button></p>
       </div>
       <!-- estrecho (diseño, 18-oct): fijo, solo el titular (con la frase dentro tapaba filas y «Volver»); la frase va aquí, a
@@ -453,7 +453,8 @@ function sinTapar(ev: FocusEvent) {
               </button>
               <button v-if="!errorMapa" type="button" class="exp__vermapa exp__solo-estrecho" @click="irAlMapa">{{ L('Ver el mapa', 'See the map') }}</button>
             </div>
-            <h2 class="exp__h2">{{ L(`${nombreGen(gen)}, grupo a grupo`, `${nombreGen(gen)}, group by group`) }} <span class="exp__h2l">· {{ etiqueta(ETIQUETA_LESION, lesion, lang) }}</span>{{ ej }}</h2>
+            <p class="exp__dbiop" aria-hidden="true">{{ etiqueta(ETIQUETA_LESION, lesion, lang) }}</p>
+            <h2 class="exp__h2">{{ L(`${nombreGen(gen)}, grupo a grupo`, `${nombreGen(gen)}, group by group`) }}<span class="sr-only"> · {{ etiqueta(ETIQUETA_LESION, lesion, lang) }}</span>{{ ej }}</h2>
             <CelulaExplorarViolines :filas="filas" :gen="gen" :lang="lang" :lesion="lesion" :adn="d.adn" :papel="d.seleccion[gen]" :loo="d.loo[gen]" :referencia="d.referencia[gen]" />
           </div>
           <div v-show="!(detalle && activo) && panel === 'interes'" class="exp__pcuerpo">
@@ -543,7 +544,7 @@ function sinTapar(ev: FocusEvent) {
 .exp__banner { margin: var(--sp-16) 0 0; position: sticky; top: var(--exp-top, 8px); z-index: 5; background: var(--fondo); border: 2px solid var(--texto-1); color: var(--texto-1); }
 @media (max-width: 1023px) { .exp__banner { font-size: var(--texto-xs); } }
 .exp__banner p { margin: 0; }
-.exp__banner::before { content: ''; position: absolute; left: -2px; right: -2px; bottom: 100%; height: 9px; background: var(--fondo); }
+.exp__banner::before { content: ''; position: absolute; left: -2px; right: -2px; bottom: calc(100% + 2px); height: 9px; background: var(--fondo); }   /* por encima del borde, sin pisarlo */
 .exp__banner-sig { display: none; }
 @media (max-width: 1023px) {
   .exp__banner-2 { display: none; }
@@ -596,7 +597,7 @@ function sinTapar(ev: FocusEvent) {
 .exp__solo-estrecho { display: none; }
 @media (max-width: 1023px) { .exp__solo-estrecho { display: inline-block; } }
 .exp__h2 { font: var(--tipo-h3); color: var(--texto-1); margin: 0 0 var(--sp-12); }
-.exp__h2l { color: var(--texto-2); white-space: nowrap; }
+.exp__dbiop { margin: 0; font: 700 var(--texto-xs)/1.3 var(--font-mono); letter-spacing: var(--track-eyebrow); text-transform: uppercase; color: var(--texto-2); }
 .exp__nota { margin: var(--sp-8) 0 0; font: var(--tipo-body-sm); font-size: var(--texto-xs); color: var(--texto-2); max-width: var(--measure); }
 .exp__nota--busca:empty { display: none; }
 .exp__nota--banner { margin-top: var(--sp-8); }

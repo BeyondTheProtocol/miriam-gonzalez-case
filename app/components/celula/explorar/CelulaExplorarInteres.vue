@@ -38,21 +38,28 @@ const nombre = (g: string) => PROTEINA[g] ?? g
         </tr>
       </thead>
       <tbody>
-        <tr v-for="f in filas" :key="f.gen" :class="{ 'gin__fila--activa': f.gen === activo }">
-          <th scope="row">
-            <button type="button" class="gin__gen" :aria-pressed="f.gen === activo" :data-gen="f.gen" @click="emit('elegir', f.gen)">
-              <span class="gin__prot">{{ nombre(f.gen) }}</span>
-              <span v-if="PROTEINA[f.gen]" class="gin__sim">{{ f.gen }}</span>
-            </button>
-            <span v-if="f.gen === 'ERBB2'" class="gin__ihq">{{ ETIQUETAS_FIJAS.her2[lang] }}</span>
-            <!-- la lectura va con la cifra (comité médico, 18-oct): sin ella, TROP2 o B7-H3 «sobre el suelo y la referencia» se
-                 leían como positivos y la revisión dice «No se sostiene» -->
-            <span class="gin__lec">{{ L('Lectura (borrador):', 'Reading (draft):') }} {{ (ETIQUETA_VEREDICTO[f.ver] ?? ETIQUETA_VEREDICTO.sin_veredicto)[lang] }}</span>
-          </th>
-          <td class="gin__num nums">{{ f.tf }}<span v-if="f.circular" class="gin__ast"><span aria-hidden="true">*</span><span class="sr-only">{{ L('(circular)', '(circular)') }}</span></span></td>
-          <td class="gin__num nums">{{ fmtPct(f.ref, lang) }}</td>
-          <td class="gin__num nums">{{ f.ts }}</td>
-        </tr>
+        <!-- dos filas por gen: cifras y, a todo el ancho, IHQ y lectura (en 375 la lectura se partía en tres líneas) -->
+        <template v-for="f in filas" :key="f.gen">
+          <tr class="gin__fila" :class="{ 'gin__fila--activa': f.gen === activo }">
+            <th scope="row">
+              <button type="button" class="gin__gen" :aria-pressed="f.gen === activo" :data-gen="f.gen" @click="emit('elegir', f.gen)">
+                <span class="gin__prot">{{ nombre(f.gen) }}</span>
+                <span v-if="PROTEINA[f.gen]" class="gin__sim">{{ f.gen }}</span>
+              </button>
+            </th>
+            <td class="gin__num nums">{{ f.tf }}<span v-if="f.circular" class="gin__ast"><span aria-hidden="true">*</span><span class="sr-only">{{ L('(circular)', '(circular)') }}</span></span></td>
+            <td class="gin__num nums">{{ fmtPct(f.ref, lang) }}</td>
+            <td class="gin__num nums">{{ f.ts }}</td>
+          </tr>
+          <!-- la lectura va con la cifra (comité médico, 18-oct): sin ella, TROP2 o B7-H3 «sobre el suelo y la referencia» se
+               leían como positivos y la revisión dice «No se sostiene» -->
+          <tr class="gin__lecfila" :data-gen="f.gen">
+            <td colspan="4">
+              <span v-if="f.gen === 'ERBB2'" class="gin__ihq">{{ ETIQUETAS_FIJAS.her2[lang] }} · </span>
+              <span class="gin__lec">{{ L('Lectura (borrador):', 'Reading (draft):') }} {{ (ETIQUETA_VEREDICTO[f.ver] ?? ETIQUETA_VEREDICTO.sin_veredicto)[lang] }}</span>
+            </td>
+          </tr>
+        </template>
       </tbody>
     </table>
     <p class="gin__pie">
@@ -96,8 +103,10 @@ const nombre = (g: string) => PROTEINA[g] ?? g
   .gin__tabla th, .gin__tabla td { padding: var(--sp-4) var(--sp-4); }
   .gin__gen { flex-direction: column; align-items: flex-start; justify-content: center; padding-block: var(--sp-4); }
 }
-.gin__ihq { display: block; font: 600 var(--texto-xs)/1.3 var(--font-mono); color: var(--texto-1); }
-.gin__lec { display: block; margin-bottom: var(--sp-4); font: 500 var(--texto-xs)/1.35 var(--font-body); color: var(--texto-2); }
+.gin__ihq { font: 600 var(--texto-xs)/1.35 var(--font-mono); color: var(--texto-1); }
+.gin__lec { font: 500 var(--texto-xs)/1.35 var(--font-body); color: var(--texto-2); }
+.gin__tabla .gin__fila th, .gin__tabla .gin__fila td { border-bottom: 0; }
+.gin__tabla .gin__lecfila td { padding-top: 0; padding-bottom: var(--sp-8); line-height: 1.35; text-align: left; }
 .gin__ast { display: inline-block; width: 0; overflow: visible; margin-left: 1px; font-weight: 700; color: var(--texto-1); }   /* no empuja la cifra: los «%» alinean */
 .gin__tabla td.nums { font-family: var(--font-mono); color: var(--texto-1); }
 .gin__pie { margin: var(--sp-8) 0 0; font: var(--tipo-body-sm); font-size: var(--texto-xs); color: var(--texto-2); max-width: var(--measure); }
