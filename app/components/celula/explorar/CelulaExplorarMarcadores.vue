@@ -124,7 +124,9 @@ const idCtl = useId()
 .mk__btn[aria-pressed='true'] { background: var(--texto-1); color: var(--fondo); border-color: var(--texto-1); }
 .mk__btn:focus-visible, .mk__gen:focus-visible, .mk__tabla:focus-visible, .mk__ir:focus-visible { outline: 2px solid var(--anillo-foco); outline-offset: 2px; }
 .mk__desliza { display: none; margin: 0 0 var(--sp-8); font: var(--tipo-body-sm); font-size: var(--texto-xs); color: var(--texto-2); }
-@media (max-width: 719px) { .mk__desliza { display: block; } }   /* tabla de 560 px + márgenes del bloque */
+/* por el ancho de SU caja, no de la ventana: en el simulador la tabla vive en el panel estrecho de escritorio */
+.mk { container-type: inline-size; }
+@container (max-width: 600px) { .mk__desliza { display: block; } }   /* tabla de 560 px + márgenes */
 .mk__tabla { overflow: auto; max-height: 30rem; border: 1px solid var(--trazo-sutil); border-radius: var(--radius-btn); }
 @media (max-width: 1023px) { .mk__tabla { max-height: none; } }   /* sin scroll dentro del scroll en táctil (diseño, 18-oct) */
 .mk__circ { margin: 0 0 var(--sp-8); font: var(--tipo-body-sm); font-size: var(--texto-xs); color: var(--texto-1); max-width: var(--measure); }
