@@ -78,7 +78,7 @@ const idCtl = useId()
               <span v-if="circular(f.gen)" class="mk__ast" :title="L('Circular: ver la nota de debajo de la tabla', 'Circular: see the note below the table')"><span aria-hidden="true">*</span><span class="sr-only">{{ L('(circular)', '(circular)') }}</span></span>
             </th>
             <td class="nums">{{ fmtPct(f.a, lang) }}</td>
-            <td class="nums">{{ fmtPct(f.suelo, lang) }}<span v-if="marca(f)" class="mk__marca"><span aria-hidden="true">{{ marca(f) }}</span><span class="sr-only">{{ marca(f) === '†' ? L('(en casi todas las células: cuenta el nivel)', '(in almost every cell: the level is what counts)') : L('(no supera el suelo)', '(does not clear the floor)') }}</span></span></td>
+            <td class="nums">{{ fmtPct(f.suelo, lang) }}<span v-if="marca(f)" class="mk__marca" :title="marca(f) === '†' ? L('En casi todas las células: cuenta el nivel (nota de debajo)', 'In almost every cell: the level is what counts (note below)') : L('No supera el suelo (nota de debajo)', 'Does not clear the floor (note below)')"><span aria-hidden="true">{{ marca(f) }}</span><span class="sr-only">{{ marca(f) === '†' ? L('(en casi todas las células: cuenta el nivel)', '(in almost every cell: the level is what counts)') : L('(no supera el suelo)', '(does not clear the floor)') }}</span></span></td>
             <td class="nums">{{ fmtPct(f.b, lang) }}</td>
             <td class="nums">{{ fc(f.logfc) }}</td>
             <td v-if="conFdr" class="nums">{{ fdr(f.fdr) }}</td>
@@ -95,17 +95,17 @@ const idCtl = useId()
     </p>
     <p class="mk__p">
       <strong>{{ L('Detectado no es positivo.', 'Detected is not positive.') }}</strong>
-      {{ L('El porcentaje de células del grupo se lee contra su suelo ambiental: si quedan cerca, la señal puede venir del fondo; si los dos están en casi todas las células, el porcentaje no distingue y cuenta el nivel.',
-        'Compare the share of cells in the group with its ambient floor: if close, the signal may come from the background; if both are in almost every cell, the share tells nothing apart and the level is what counts.') }}
+      {{ L('El porcentaje de células del grupo se lee contra su suelo ambiental: si quedan cerca, la señal puede venir del fondo (salvo †: ahí cuenta el nivel).',
+        'Compare the share of cells in the group with its ambient floor: if close, the signal may come from the background (except †: there the level is what counts).') }}
     </p>
-    <p v-if="hayNivel" class="mk__circ">† {{ L('En casi todas las células del grupo y del fondo: el porcentaje no distingue; cuenta el nivel (log2FC y, al abrir el gen, su mediana por grupo).', 'In almost every cell of the group and of the background: the share tells nothing apart; the level is what counts (log2FC and, when you open the gene, its median per group).') }}</p>
-    <p v-if="hayBajo" class="mk__circ">‡ {{ L('No supera el suelo ambiental en este grupo: no cuenta como expresión.', 'Does not clear the ambient floor in this group: it does not count as expression.') }}</p>
     <p class="mk__cap">{{ L('Wilcoxon compara el nivel de expresión de cada célula del grupo con el de las del resto, por rangos, no solo cuántas células lo detectan: un gen presente en casi todas puede distinguir al grupo por su nivel. El estadístico no se publica; el orden de la tabla es el suyo.', 'Wilcoxon compares the expression level of each cell in the group with that of the rest, by ranks, not just how many cells detect it: a gene present in almost every cell can set the group apart by its level. The statistic is not published; the table follows its order.') }}</p>
     <p v-if="hayCirc" class="mk__circ">
       * <strong>{{ L('Circular.', 'Circular.') }}</strong>
       {{ L('Los genes con asterisco participan en la selección de este grupo o van ligados al programa con el que se seleccionó: su diferencia con el resto sale en parte de cómo se eligió el grupo, no es una medida independiente.',
         'Genes with an asterisk take part in selecting this group or are tied to the program it was selected by: their difference from the rest partly comes from how the group was chosen, so it is not an independent measurement.') }}
     </p>
+    <p v-if="hayNivel" class="mk__circ">† {{ L('El gen está en casi todas las células del grupo y también en su suelo ambiental (nueve de cada diez o más): el porcentaje no distingue; cuenta el nivel (log2FC y, al abrir el gen, su mediana por grupo).', 'The gene is in almost every cell of the group and also in its ambient floor (nine in ten or more): the share tells nothing apart; the level is what counts (log2FC and, when you open the gene, its median per group).') }}</p>
+    <p v-if="hayBajo" class="mk__circ">‡ {{ L('No supera el suelo ambiental en este grupo: no cuenta como expresión, o el suelo está sobreestimado para ese gen en ese grupo (en grupos pequeños, la diferencia puede caber en el azar del muestreo).', 'Does not clear the ambient floor in this group: it does not count as expression, or the floor is overestimated for that gene in that group (in small groups, the difference may be within sampling chance).') }}</p>
     <p v-if="esInteres && d.lesion === 'hueso'" class="mk__circ"><strong>{{ L('Circular.', 'Circular.') }}</strong> {{ L(CIRC_HUESO.es, CIRC_HUESO.en) }}</p>
     <p v-if="!esInteres && grupo !== 'otras'" class="mk__cap">{{ L(CIRC_REFERENCIA.es, CIRC_REFERENCIA.en) }}</p>
     <p v-if="grupo === 'otras'" class="mk__cap">{{ L('«Otras» reúne las células que no entran en ningún grupo fijo: sus marcadores describen una mezcla, no un tipo.', '“Other” gathers the cells that do not fall in any fixed group: its markers describe a mix, not a type.') }}</p>
@@ -144,7 +144,7 @@ const idCtl = useId()
 @container (max-width: 440px) { .mk__desliza--5 { display: block; } }
 .mk__tabla { overflow-x: auto; border: 1px solid var(--trazo-sutil); border-radius: var(--radius-btn); margin-bottom: var(--sp-4); }   /* sin alto máximo: el panel ya desplaza (diseño, 18-oct: se cortaba la fila 12) */
 .mk__circ { margin: 0 0 var(--sp-8); font: var(--tipo-body-sm); font-size: var(--texto-xs); color: var(--texto-1); max-width: var(--measure); }
-.mk__marca { margin-left: 2px; font: 700 var(--texto-xs) var(--font-body); color: var(--texto-1); }
+.mk__marca { display: inline-block; width: 0; overflow: visible; margin-left: 1px; font: 700 var(--texto-xs) var(--font-body); color: var(--texto-1); }   /* no mueve la cifra: la columna alinea */
 .mk__ast { margin-left: 2px; font: 600 var(--texto-xs) var(--font-body); color: var(--texto-1); }
 .mk__tabla table { width: 100%; min-width: 560px; border-collapse: separate; border-spacing: 0; font: var(--tipo-body-sm); font-size: var(--texto-xs); }
 .mk__cap { margin: 0 0 var(--sp-8); color: var(--texto-2); font: var(--tipo-body-sm); font-size: var(--texto-xs); max-width: var(--measure); }

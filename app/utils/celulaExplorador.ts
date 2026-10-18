@@ -320,6 +320,7 @@ export const fmtPct = (x: number, lang: 'es' | 'en') => (lang === 'en' ? `${pct(
  * 18-oct: «10 % · suelo 10 %» era 10,3 frente a 9,6 y no se podía comparar). */
 export function fmtParSuelo(frac: number, suelo: number, lang: 'es' | 'en'): [string, string] {
   if (pct(frac) !== pct(suelo)) return [fmtPct(frac, lang), fmtPct(suelo, lang)]
+  if ((100 * frac).toFixed(2) === (100 * suelo).toFixed(2)) return [fmtPct(frac, lang), fmtPct(suelo, lang)]   // iguales de verdad: enteros
   const d = (100 * frac).toFixed(1) === (100 * suelo).toFixed(1) ? 2 : 1   // a un decimal aún iguales: dos
   const f = (x: number) => { const t = (100 * x).toFixed(d); return lang === 'en' ? `${t}%` : `${t.replace('.', ',')}\u00a0%` }
   return [f(frac), f(suelo)]

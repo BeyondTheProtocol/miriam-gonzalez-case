@@ -101,7 +101,7 @@ function partes(f: FilaGrupo): { t: string; fuerte?: boolean }[] {
           <template v-if="loo">
             <strong>{{ L('Sin esa circularidad', 'Without that circularity') }}</strong>
             {{ L(`(grupo construido sin ese criterio, n\u00a0=\u00a0${nf(loo.n)}):`, `(group built without that criterion, n\u00a0=\u00a0${nf(loo.n)}):`) }}
-            <template v-if="loo.frac != null">{{ L('detectado', 'detected') }} {{ fmtPct(loo.frac, lang) }}</template><template v-if="loo.ref != null"> · {{ L('referencia', 'reference') }} {{ fmtPct(loo.ref, lang) }}</template><template v-if="loo.cp10k_pseudobulk != null"> · pseudobulk&nbsp;{{ nfCp(loo.cp10k_pseudobulk) }}&nbsp;CP10k</template>.
+            <template v-if="loo.frac != null">{{ L('detectado', 'detected') }} {{ fmtPct(loo.frac, lang) }}</template><template v-if="loo.ref != null">, {{ L('referencia', 'reference') }} {{ fmtPct(loo.ref, lang) }}</template><template v-if="loo.cp10k_pseudobulk != null">, pseudobulk&nbsp;{{ nfCp(loo.cp10k_pseudobulk) }}&nbsp;CP10k</template>.
           </template>
           <strong>{{ L('Cifra circular.', 'Circular figure.') }}</strong>
           {{ L(`La de abajo es la de este grupo, y ${gen} ${PAPEL_SELECCION[papel]?.es ?? ''}.`, `The one below is this group’s, and ${gen} ${PAPEL_SELECCION[papel]?.en ?? ''}.`) }}
@@ -126,7 +126,7 @@ function partes(f: FilaGrupo): { t: string; fuerte?: boolean }[] {
           <line :x1="BX + BW * Math.min(1, f.suelo)" :x2="BX + BW * Math.min(1, f.suelo)" y1="8" y2="32" class="vio__suelo-linea" />
         </svg>
         <p class="vio__txt nums">
-          <template v-if="f.rol === 'interes' && papel">{{ L('Circular · ', 'Circular · ') }}</template><span v-for="(x, k) in partes(f)" :key="k" class="vio__par"><strong v-if="x.fuerte" class="vio__bajo">{{ x.t }}</strong><template v-else>{{ x.t }}</template></span>
+          <strong v-if="f.rol === 'interes' && papel" class="vio__bajo">{{ L('Circular', 'Circular') }}</strong><span v-for="(x, k) in partes(f)" :key="k" class="vio__par"><strong v-if="x.fuerte" class="vio__bajo">{{ x.t }}</strong><template v-else>{{ x.t }}</template></span>
         </p>
         <!-- la referencia emparejada no es ningún grupo de la lista: se da aquí, junto al grupo de interés (comité médico, 18-oct) -->
         <p v-if="f.rol === 'interes' && referencia != null" class="vio__ref nums">{{ L(`Referencia emparejada (células no tumorales de la misma muestra, a la misma profundidad): ${fmtPct(referencia, 'es')}`, `Matched reference (non-tumor cells from the same sample, at the same depth): ${fmtPct(referencia, 'en')}`) }}</p>
@@ -161,7 +161,7 @@ function partes(f: FilaGrupo): { t: string; fuerte?: boolean }[] {
 .vio__nombre { font: 600 var(--texto-sm)/1.3 var(--font-body); color: var(--texto-1); }
 .vio__fila--interes .vio__nombre { color: var(--identidad); }
 .vio__n { font: 500 var(--texto-xs)/1.3 var(--font-mono); color: var(--texto-2); white-space: nowrap; }
-.vio__txt { display: flex; flex-wrap: wrap; gap: 0 1.1em; overflow-wrap: anywhere; }   /* partes separadas por aire, sin «·» colgados (diseño, 18-oct) */
+.vio__txt { display: flex; flex-wrap: wrap; gap: 0 1.7em; overflow-wrap: anywhere; }   /* partes separadas por aire, sin «·» colgados (diseño, 18-oct) */
 .vio__svg { display: block; width: 100%; height: auto; margin-top: var(--sp-4); overflow: visible; }
 .vio__base { stroke: var(--trazo-medio); }
 .vio__forma { fill: color-mix(in srgb, var(--texto-2) 40%, transparent); stroke: var(--texto-2); stroke-width: 1; vector-effect: non-scaling-stroke; }

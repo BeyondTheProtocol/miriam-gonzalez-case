@@ -104,7 +104,7 @@ if (manPub.ejemplo !== true) {
     ok('real llegada: la lista da grupo de interés, referencia y suelo, y su pie define el suelo', await navR.evaluate(`(() => { const h = [...document.querySelectorAll('.gin__tabla thead th')].map((t) => t.textContent); return h.length === 4 && /Referencia/.test(h[2]) && /Suelo/.test(h[3]) && /Suelo ambiental/.test(document.querySelector('.gin__pie')?.textContent ?? '') })()`))
     ok('real llegada: ERBB2 lleva «IHQ de HER2: 0» en la lista', await navR.evaluate(`/IHQ de HER2: 0/.test(document.querySelector('.gin__lecfila[data-gen="ERBB2"]')?.textContent ?? '')`))
     // comité médico (18-oct): sin la lectura al lado, TROP2 o B7-H3 «sobre el suelo y la referencia» se leían como positivos
-    ok('real llegada: cada gen de la lista lleva su lectura (borrador), la misma que la tabla completa; TROP2 dice «No se sostiene»', await navR.evaluate(`(() => { const filas = [...document.querySelectorAll('.gin__tabla tbody tr.gin__fila')], gi = [...document.querySelectorAll('.gi__tabla tbody tr')]; return filas.length > 0 && filas.every((r) => { const g = r.querySelector('.gin__gen').dataset.gen, lec = (r.nextElementSibling?.querySelector('.gin__lec')?.textContent ?? '').replace(/^[^:]*:\\s*/, '').trim(); const fila = gi.find((x) => x.querySelector('th')?.textContent.includes(g)); return !!lec && !!fila && fila.textContent.includes(lec) }) && /Lectura \\(borrador\\): No se sostiene/.test(document.querySelector('.gin__lecfila[data-gen="TACSTD2"]')?.textContent ?? '') })()`))
+    ok('real llegada: cada gen de la lista lleva su lectura (borrador), la misma que la tabla completa; TROP2 dice «No se sostiene»', await navR.evaluate(`(() => { const filas = [...document.querySelectorAll('.gin__tabla tbody tr.gin__fila')], gi = [...document.querySelectorAll('.gi__tabla tbody tr')]; return filas.length > 0 && filas.every((r) => { const g = r.querySelector('.gin__gen').dataset.gen, lec = (r.nextElementSibling?.querySelector('.gin__lec')?.textContent ?? '').replace(/^[^:]*:\\s*/, '').trim(); const fila = gi.find((x) => x.querySelector('th')?.textContent.includes(g)); return !!lec && !!fila && fila.textContent.includes(lec) }) && /Lectura de Polaris \\(borrador, pendiente del laboratorio\\): No se sostiene/.test(document.querySelector('.gin__lecfila[data-gen="TACSTD2"]')?.textContent ?? '') })()`))
     // la fila de la lectura ocupa todo el ancho de la tabla (con una clase repetida quedó metida en la primera columna)
     ok('real llegada: la lectura de cada gen va a todo el ancho de la lista', await navR.evaluate(`(() => { const t = document.querySelector('.gin__tabla').getBoundingClientRect().width, c = [...document.querySelectorAll('.gin__lecfila td')]; return c.length > 0 && c.every((td) => td.getBoundingClientRect().width >= 0.95 * t) })()`))
     ok('real llegada: una cifra circular de la lista lleva asterisco y su nota', await navR.evaluate(`!document.querySelector('.gin__ast') || /Circular\\./.test(document.querySelector('.gin__circ')?.textContent ?? '')`))
@@ -163,6 +163,7 @@ if (manPub.ejemplo !== true) {
     // verificacion (18-oct): el pie de la lista definía el suelo como «solo ARN suelto»; en el hueso incluye el ADN genómico
     ok('real hueso: en marcadores, FGFR1 y CCND1 (amplificados) llevan † y «cuenta el nivel», no un negativo', await esperaR(navR, marcaGen('FGFR1')) && await navR.evaluate(marcaGen('CCND1')) && await navR.evaluate(sinNivelSinMarca))
     // verificacion (18-oct): la IHQ de HER2 0 es del primario y del hígado, no del hueso
+    ok('real hueso: tampoco en la tabla completa sale «IHQ de HER2», y la etiqueta fija de arriba dice de qué muestras es', await navR.evaluate(`!/IHQ de HER2/.test(document.querySelector('.gi__tabla')?.textContent ?? 'IHQ de HER2') && /IHQ de HER2: 0 \\(primario e hígado\\)/.test(document.querySelector('.et')?.textContent ?? '')`))
     ok('real hueso: junto a ERBB2 no sale «IHQ de HER2: 0»', await navR.evaluate(`!/IHQ de HER2/.test(document.querySelector('.gin__lecfila[data-gen="ERBB2"]')?.textContent ?? 'IHQ de HER2')`))
     ok('real hueso: el pie de la lista de llegada dice que el suelo incluye el ADN genómico', await navR.evaluate(`/En el hueso, el suelo incluye además el ADN genómico/.test(document.querySelector('.gin__pie')?.textContent ?? '')`))
     ok('real hueso: el detalle de HER2 no se sale del panel y cada violín cuadra con su eje (a 1440)', await navR.evaluate(sinDesborde))
@@ -210,7 +211,7 @@ if (manPub.ejemplo !== true) {
       await navR.evaluate(busca('ER'))
       ok('real: «ER» sugiere ESR1 en primer lugar', await esperaR(navR, `document.querySelector('.exp__sug button')?.dataset.gen === 'ESR1'`))
       await navR.evaluate(`document.querySelector('.exp__sug button')?.click()`)
-      ok('real: ESR1, buscado como «ER», avisa de que es ARN y no el porcentaje de IHQ de ER', await esperaR(navR, `/Es ARN, no el porcentaje de IHQ de ER:/.test([...document.querySelectorAll('.exp__dlec')].map((e) => e.textContent).join(' '))`))
+      ok('real: ESR1, buscado como «ER», avisa de que es ARN y no el porcentaje de IHQ de ER', await esperaR(navR, `/Es ARN, no el resultado de la IHQ de ER:/.test([...document.querySelectorAll('.exp__dlec')].map((e) => e.textContent).join(' '))`))
       await navR.evaluate(busca('PD-L1'))
       ok('real: «PD-L1» sugiere CD274', await esperaR(navR, `[...document.querySelectorAll('.exp__sug button')].some((b) => b.dataset.gen === 'CD274')`))
       // diseño (18-oct): la grafía más tecleada, sin guion ni la M, también llega (KI67 → MKI67)
@@ -268,6 +269,18 @@ if (manPub.ejemplo !== true) {
     await navS.cargar('/celula-a-celula/explorar')
     ok('real sin WebGL: aviso de que el mapa no se ha podido dibujar, sin caja ni leyenda del mapa, y la lista sigue', await esperaR(navS, `/El mapa no se ha podido dibujar/.test(document.querySelector('.exp__estado--error')?.textContent ?? '') && !document.querySelector('.exp-mapa') && !document.querySelector('.exp__leyenda') && !document.querySelector('.exp__mapabar') && document.querySelectorAll('.gin__tabla tbody tr').length > 0`, 20000))
     ok('real sin WebGL: una sola columna y ningún texto promete el mapa', await navS.evaluate(`getComputedStyle(document.querySelector('.exp__sim')).gridTemplateColumns.split(' ').length === 1 && !/verlo en el mapa/.test(document.querySelector('.gin')?.textContent ?? '')`))
+    // diseño (18-oct): sin mapa, el panel seguía siendo una caja con scroll propio y escondía genes sin avisar
+    ok('real sin WebGL: el panel no tiene scroll propio (se ven todos los genes bajando la página)', await navS.evaluate(`(() => { const p = document.querySelector('#exp-panel'); return p.scrollHeight <= p.clientHeight + 1 })()`))
+    // crítico (18-oct): con la lista de genes del hueso caída, al pasar al hueso el gen abierto en el hígado cambiaba en silencio
+    await navS.cdp('Network.enable')
+    await navS.cdp('Network.setBlockedURLs', { urls: ['*hueso.zarr*'] })
+    await navS.cargar('/celula-a-celula/explorar')
+    await esperaR(navS, `!!document.querySelector('.exp__busca input:not([disabled])')`)
+    await navS.evaluate(busca('CDH1'))
+    if (await esperaR(navS, `document.querySelector('.exp__sug button')?.dataset.gen === 'CDH1'`, 15000)) await navS.evaluate(`document.querySelector('.exp__sug button').click()`)
+    await esperaR(navS, `document.querySelector('#exp-violines h2')?.textContent.includes('CDH1')`)
+    await navS.evaluate(`[...document.querySelectorAll('.exp__ctl button')].find((b) => /^\\s*Hueso\\s*$/.test(b.textContent))?.click()`)
+    ok('real, lista del hueso caída: al pasar al hueso el gen se quita y se dice por qué', await esperaR(navS, `!document.querySelector('.exp__chip') && !document.querySelector('#exp-violines') && /CDH1 no se puede abrir en esta biopsia/.test(document.querySelector('.exp__nota--busca')?.textContent ?? '')`, 20000))
   }
   finally { await navS.cerrar() }
   console.log(fallos ? `\n${fallos} de ${hechos} comprobaciones fallan` : `${hechos} de ${hechos} comprobaciones en verde`)
@@ -341,7 +354,7 @@ try {
   await nav.evaluate(busca('ESR1'))
   if (await espera(nav, `document.querySelector('.exp__sug button')?.dataset.gen === 'ESR1'`)) await nav.evaluate(`document.querySelector('.exp__sug button').click()`)
   ok('demo hígado: ESR1 en los violines lleva primero la cifra sin circularidad y después «Cifra circular»', await espera(nav, `/Sin esa circularidad.*Cifra circular\\./s.test(document.querySelector('.vio__circ')?.textContent ?? '')`))
-  ok('demo hígado: la nota de circularidad va ANTES de la figura y de la cifra circular de la fila', await nav.evaluate(`(() => { const c = document.querySelector('.vio__fila--interes .vio__circ'), t = document.querySelector('.vio__fila--interes .vio__txt'); return !!c && !!t && c.nextElementSibling?.classList.contains('vio__svg') && !!(c.compareDocumentPosition(t) & Node.DOCUMENT_POSITION_FOLLOWING) && /^\\s*Circular · /.test(t.textContent) })()`))
+  ok('demo hígado: la nota de circularidad va ANTES de la figura y de la cifra circular de la fila', await nav.evaluate(`(() => { const c = document.querySelector('.vio__fila--interes .vio__circ'), t = document.querySelector('.vio__fila--interes .vio__txt'); return !!c && !!t && c.nextElementSibling?.classList.contains('vio__svg') && !!(c.compareDocumentPosition(t) & Node.DOCUMENT_POSITION_FOLLOWING) && /^\\s*Circular/.test(t.textContent) })()`))
   await nav.evaluate(ABRE_TODO)
   await nav.evaluate(MARCADORES_TODOS)
   // paneles del 18-oct (marcadores, perfil, ADN por grupo, QC): se pintan con datos y con sus avisos

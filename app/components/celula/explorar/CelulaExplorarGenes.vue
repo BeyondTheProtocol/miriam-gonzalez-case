@@ -8,7 +8,7 @@
  */
 import type { LesionDatos } from '~/utils/celulaExplorador'
 import { fmtPct, porGrupo } from '~/utils/celulaExplorador'
-import { CIRC_HUESO, ETIQUETA_GRUPO, ETIQUETA_VEREDICTO, LECTURA, PANEL_INTERES, PAPEL_SELECCION, PROTEINA, etiqueta } from '~/utils/celulaExploradorTexto'
+import { CIRC_HUESO, ETIQUETA_GRUPO, ETIQUETA_VEREDICTO, LECTURA, PANEL_INTERES, PAPEL_SELECCION, PROTEINA, etiqueta, ETIQUETAS_FIJAS } from '~/utils/celulaExploradorTexto'
 
 const props = defineProps<{ d: LesionDatos; lang: 'es' | 'en'; elegido: string }>()
 const emit = defineEmits<{ elegir: [string] }>()
@@ -46,7 +46,7 @@ const fmtCp = (x: number) => String(Math.round(x))
                 <span class="gi__prot">{{ PROTEINA[f.gen] ?? f.gen }}</span>
                 <span v-if="PROTEINA[f.gen]" class="gi__sim">{{ f.gen }}</span>
               </button>
-              <span v-if="f.gen === 'ERBB2'" class="gi__nota">{{ L('IHQ de HER2: 0', 'HER2 IHC: 0') }}</span>
+              <span v-if="f.gen === 'ERBB2' && d.lesion === 'higado'" class="gi__nota">{{ ETIQUETAS_FIJAS.her2[lang] }}</span>
               <span v-if="f.papel" class="gi__circ">
                 {{ L(`Circular: ${f.gen} ${PAPEL_SELECCION[f.papel]?.es ?? ''}.`, `Circular: ${f.gen} ${PAPEL_SELECCION[f.papel]?.en ?? ''}.`) }}
                 <template v-if="f.loo">

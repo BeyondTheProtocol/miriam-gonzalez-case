@@ -312,6 +312,8 @@ if (man.zarr?.length) {
 // comité médico y verificacion (18-oct): detectado y suelo nunca salen iguales por redondeo si no lo son
 {
   const [a1, b1] = fmtParSuelo(0.103, 0.096, 'es'), [a2, b2] = fmtParSuelo(0.8603, 0.86, 'es'), [a3, b3] = fmtParSuelo(0.41, 0.043, 'es')
+  const [a4, b4] = fmtParSuelo(1, 1, 'es')
+  ok('fmtParSuelo: iguales de verdad (100 frente a 100) salen enteros, no «100,00»', a4 === '100\u00a0%' && b4 === '100\u00a0%', `${a4} | ${b4}`)
   ok('fmtParSuelo: 10,3 frente a 9,6 con un decimal; 86,03 frente a 86,00 con dos; 41 frente a 4 sin decimal', a1 === '10,3 %' && b1 === '9,6 %' && a2 === '86,03 %' && b2 === '86,00 %' && a3 === '41 %' && b3 === '4 %', [a1, b1, a2, b2, a3, b3].join(' | '))
 }
 // revisión final (18-oct): la página en inglés es en-US; mezclaba «Color by» con «colour», «favoured», «programme»
