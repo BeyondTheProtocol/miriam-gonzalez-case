@@ -10,7 +10,9 @@ import type { LesionDatos } from '~/utils/celulaExplorador'
 
 const props = defineProps<{ d: LesionDatos; lang: 'es' | 'en' }>()
 const L = (es: string, en: string) => (props.lang === 'en' ? en : es)
-const W = 760, H = 200, M = 24, IZQ = 34
+const W = 760, H = 214, M = 24, IZQ = 34
+/** margen de abajo: dos filas de etiquetas de cromosoma sin tocar la curva */
+const MB = 40
 const puntos = computed(() => {
   const p = props.d.perfil_bins
   // orden del genoma (1, 2, … 22), no el del fichero: allí va en orden de texto (1, 10, 11…) y el eje salía así
@@ -28,7 +30,7 @@ const escala = computed<[number, number]>(() => {
   for (const x of puntos.value) { if (x.v < lo) lo = x.v; if (x.v > hi) hi = x.v }
   return [Math.floor(lo * 2) / 2, Math.ceil(hi * 2) / 2]
 })
-const y = (v: number) => M + (1 - (v - escala.value[0]) / (escala.value[1] - escala.value[0])) * (H - 2 * M)
+const y = (v: number) => M + (1 - (v - escala.value[0]) / (escala.value[1] - escala.value[0])) * (H - M - MB)
 const ancho = W - IZQ
 const xs = computed(() => puntos.value.map((_, k) => IZQ + (k + 0.5) * (ancho / Math.max(1, puntos.value.length))))
 const tramos = computed(() => cromos.value.map((c, j) => {
@@ -39,14 +41,14 @@ const tramos = computed(() => cromos.value.map((c, j) => {
 const signo = (s: string) => s.replace('-', '−')
 /** etiquetas de cromosoma en dos filas: baja a la segunda solo si en la primera no cabe junto a la anterior
  * (con el índice par/impar, 20 y 21 seguían pegados: «2021»). HUECO ≈ ancho de «22» más aire. */
-const HUECO = 18
+const HUECO = 22
 const etis = computed(() => {
   const ult = [-Infinity, -Infinity]
   return tramos.value.map((t) => {
     const x = (t.a + t.b) / 2
     const fila = x - ult[0] >= HUECO ? 0 : x - ult[1] >= HUECO ? 1 : 0
     ult[fila] = x
-    return { c: t.c, x, y: H - 6 - fila * 12 }
+    return { c: t.c, x, y: H - 6 - fila * 16 }
   })
 })
 const fmt = (x: number) => signo(props.lang === 'en' ? String(x) : String(x).replace('.', ','))
