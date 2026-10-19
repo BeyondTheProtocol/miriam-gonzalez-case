@@ -89,6 +89,9 @@ const LEER = [
           </section>
 
           <!-- plan «muy útil a científicos» (19-oct): ficheros, cómo leerlos y cómo citarlos; solo lo que ya es público -->
+          <!-- D5 del plan para científicos (OK de Miriam al contenido, 19-oct): de qué muestras salen los datos y a qué
+               tratamientos estuvieron expuestas; cifras cotejadas en app/utils/celulaContexto.ts -->
+          <CelulaExplorarContexto v-if="hayReal" :lang="lang" />
           <CelulaExplorarDatos v-if="hayReal" :man="man" :lang="lang" />
 
           <!-- simulador (18-oct): «Cómo leerlo» plegado; el resumen con texto está en Célula a célula -->
