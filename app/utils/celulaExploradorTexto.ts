@@ -82,8 +82,8 @@ export const ETIQUETA_MOTIVO: Record<string, T> = {
   por_poco_minoria_no_hueso: t('supera la referencia por poco y en una minoría de células; no supera el ARN suelto del tumor ni se repite en el hueso',
     'it clears the reference narrowly and in a minority of cells; it does not clear the tumor’s loose RNA or repeat in the bone'),
   minoria_no_hueso: t('en una minoría de células, y no se repite en el hueso', 'in a minority of cells, and it does not repeat in the bone'),
-  trazador_no_hueso: t('se usa para medir el ARN suelto del tumor, que la referencia también recoge; no se repite en el hueso',
-    'it is used to measure the tumor’s loose RNA, which the reference also picks up; it does not repeat in the bone'),
+  trazador_no_hueso: t('se usa para medir el ARN suelto del tumor, que también llega a la referencia; no se repite en el hueso',
+    'it is used to measure the tumor’s loose RNA, which also reaches the reference; it does not repeat in the bone'),
   /** l.130 del acta («parecido en todos los compartimentos») es a igual profundidad (detección ponderada por decil de UMI, como
    * la referencia); la detección bruta por grupo del detalle no lo es y en B7-H3 va de T/NK, el más bajo, a «Hepatocitos» */
   parecido_en_todas: t('a igual profundidad, se detecta parecido en los demás tipos celulares', 'at matched depth, detected at a similar rate in the other cell types'),
