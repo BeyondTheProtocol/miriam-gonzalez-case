@@ -39,7 +39,7 @@ export type Veredicto = typeof VEREDICTOS[number]
  *  lectura dice «No se sostiene»; sin el porqué no se puede conciliar). Vocabulario CERRADO, el mismo de Polaris
  *  (_contrato.MOTIVOS). Lo que su etiqueta ya explica o no tiene lectura va sin motivo (null). */
 export const MOTIVOS = ['hepatocitos_igual_o_mas', 'seleccion_por_er', 'arn_no_es_her2_low', 'por_poco_minoria_no_hueso',
-  'minoria_no_hueso', 'trazador_no_hueso', 'parecido_en_todas', 'disperso_en_el_tumor', 'casi_no_se_detecta', 'cero_en_posibles_tumorales', 'adn_de_nucleos_no_tumorales',
+  'minoria_no_hueso', 'trazador_no_hueso', 'no_robusto_parecido_no_hueso', 'disperso_en_el_tumor', 'casi_no_se_detecta', 'cero_en_posibles_tumorales', 'adn_de_nucleos_no_tumorales',
   'referencia_poco_precisa', 'supera_por_poco', 'depende_del_conjunto'] as const
 export type Motivo = typeof MOTIVOS[number]
 export const VEREDICTOS_SIN_MOTIVO: readonly Veredicto[] = ['sostenido', 'referencia_igual_o_mas', 'solo_nivel', 'sin_veredicto']
@@ -47,7 +47,7 @@ const MATIZ: readonly Veredicto[] = ['sostenido_con_matiz', 'con_matiz', 'en_el_
 /** Qué lecturas admite cada motivo (_contrato.MOTIVO_LECTURAS). */
 export const MOTIVO_LECTURAS: Record<Motivo, readonly Veredicto[]> = {
   hepatocitos_igual_o_mas: MATIZ, seleccion_por_er: MATIZ, arn_no_es_her2_low: MATIZ, por_poco_minoria_no_hueso: MATIZ,
-  minoria_no_hueso: MATIZ, trazador_no_hueso: MATIZ, parecido_en_todas: MATIZ, referencia_poco_precisa: MATIZ,
+  minoria_no_hueso: MATIZ, trazador_no_hueso: MATIZ, no_robusto_parecido_no_hueso: MATIZ, referencia_poco_precisa: MATIZ,
   supera_por_poco: MATIZ, depende_del_conjunto: MATIZ,
   disperso_en_el_tumor: ['marcador_ne'], casi_no_se_detecta: ['no', 'marcador_ne'],
   cero_en_posibles_tumorales: ['cerrado_por_arn'], adn_de_nucleos_no_tumorales: ['cerrado_por_arn'],

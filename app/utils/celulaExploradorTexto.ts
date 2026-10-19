@@ -84,9 +84,11 @@ export const ETIQUETA_MOTIVO: Record<string, T> = {
   minoria_no_hueso: t('en una minoría de células, y no se repite en el hueso', 'in a minority of cells, and it does not repeat in the bone'),
   trazador_no_hueso: t('se usa para medir el ARN suelto del tumor, que también llega a la referencia; no se repite en el hueso',
     'it is used to measure the tumor’s loose RNA, which also reaches the reference; it does not repeat in the bone'),
-  /** l.130 del acta («parecido en todos los compartimentos») es a igual profundidad (detección ponderada por decil de UMI, como
-   * la referencia); la detección bruta por grupo del detalle no lo es y en B7-H3 va de T/NK, el más bajo, a «Hepatocitos» */
-  parecido_en_todas: t('a igual profundidad, se detecta parecido en los demás tipos celulares', 'at matched depth, detected at a similar rate in the other cell types'),
+  /** B7-H3, ENMIENDA del 19-oct (acta l.186): «débil» por la regla fijada antes del análisis (no se mantiene en toda la malla
+   * de variantes prefijadas; la malla solo guarda si es positiva, no qué comparación falla). «Parecido» es a igual profundidad
+   * (detección ponderada por decil de UMI, como la referencia); la bruta por grupo del detalle no lo es */
+  no_robusto_parecido_no_hueso: t('no se mantiene en todas las variantes prefijadas de elegir el grupo; a igual profundidad se detecta parecido en los demás tipos celulares, y no se repite en el hueso',
+    'it does not hold across all the pre-set ways of choosing the group; at matched depth it is detected at a similar rate in the other cell types, and it does not repeat in the bone'),
   disperso_en_el_tumor: t('disperso por el tumor luminal', 'scattered through the luminal tumor'),
   casi_no_se_detecta: t('se detecta en muy pocas células', 'detected in very few cells'),
   cero_en_posibles_tumorales: t('cero en las células que podrían ser tumor, con sondas que sí funcionan', 'zero in the cells that could be tumor, with probes that do work'),

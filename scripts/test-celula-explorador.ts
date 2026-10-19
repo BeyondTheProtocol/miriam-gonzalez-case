@@ -371,7 +371,7 @@ if (man.zarr?.length) {
     // con el motivo en el fichero (export del acta con motivo), el caso que lo pidió: TROP2 del hígado lleva su porqué
     const mh = JSON.parse(readFileSync(join(DIR, 'higado.json'), 'utf8')).motivo, mb = JSON.parse(readFileSync(join(DIR, 'hueso.json'), 'utf8')).motivo
     if (mh && mb) ok('motivos del acta (enmienda del 19-oct): TROP2, Nectin-4, MUC1, B7-H3 y HER3 del hígado, LIV-1 sin motivo, PRAME en cada biopsia, 5T4 e INSM1 del hueso', mh.TACSTD2 === 'por_poco_minoria_no_hueso'
-      && mh.NECTIN4 === 'minoria_no_hueso' && mh.SLC39A6 === null && mh.MUC1 === 'trazador_no_hueso' && mh.CD276 === 'parecido_en_todas' && mh.ERBB3 === 'hepatocitos_igual_o_mas'
+      && mh.NECTIN4 === 'minoria_no_hueso' && mh.SLC39A6 === null && mh.MUC1 === 'trazador_no_hueso' && mh.CD276 === 'no_robusto_parecido_no_hueso' && mh.ERBB3 === 'hepatocitos_igual_o_mas'
       && mh.PRAME === 'cero_en_posibles_tumorales' && mb.PRAME === 'adn_de_nucleos_no_tumorales' && mb.TPBG === 'referencia_poco_precisa' && mb.INSM1 === 'casi_no_se_detecta',
     JSON.stringify({ TACSTD2: mh.TACSTD2, NECTIN4: mh.NECTIN4, SLC39A6: mh.SLC39A6, MUC1: mh.MUC1, CD276: mh.CD276, ERBB3: mh.ERBB3, PRAME: [mh.PRAME, mb.PRAME], TPBG: mb.TPBG, INSM1: mb.INSM1 }))
   }
