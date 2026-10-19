@@ -401,6 +401,21 @@ if (man.zarr?.length) {
   ok('tsv: tabuladores y saltos de línea dentro de un campo se quitan; nulos vacíos; termina en salto', tsv([['a', 'b\tc'], [1, null], ['x\ny', 0.5]]) === 'a\tb c\n1\t\nx y\t0.5\n')
   ok('r4: 4 decimales, vacío si no hay número', r4(0.123456) === 0.1235 && r4(null) === '' && r4(Number.NaN) === '')
 }
+// D5, «Muestra y contexto» (OK de Miriam al contenido, 19-oct): las cifras son las cotejadas contra los informes originales
+// (Polaris y verificacion); el texto no lleva fechas, hospitales, nombres ni el mecanismo del fármaco del ensayo (acotaba el ensayo)
+{
+  const C = await import('../app/utils/celulaContexto')
+  const lecturas = C.PRIMARIO_LECTURAS.map((l) => [l.id, l.re, l.rp, l.ki67, l.her2Debil])
+  ok('contexto: tres lecturas del primario cotejadas (95/5/60, 100/100/—, 85/20/40)', JSON.stringify(lecturas) === JSON.stringify([['diagnostico', 95, 5, 60, false], ['segunda', 100, 100, null, true], ['revision', 85, 20, 40, false]]), JSON.stringify(lecturas))
+  ok('contexto: hígado RE 0, RP 5 (2+); hueso Ki-67 ~15; HER2 débil en menos del 10; NE 80', C.HIGADO.re === 0 && C.HIGADO.rp === 5 && C.HIGADO.rpIntensidad === '2+' && C.HUESO_KI67_APROX === 15 && C.HER2_DEBIL_MENOS_DE === 10 && C.PRIMARIO_NE_PCT === 80)
+  ok('contexto: intervalos cotejados (15 d, 14/6/5 sem, 16 meses, semivida 40 d, ventana 16 sem)', JSON.stringify(C.INTERVALOS) === JSON.stringify({ ribociclibDias: 15, huesoTrasCdk46Semanas: 14, huesoTrasFulvestrantSemanas: 6, higadoEn3lSemanas: 5, fulvestrant2lMeses: 16, semividaFulvestrantDias: 40, ventanaMaxSemanas: 16 }))
+  ok('contexto: el rango de RE del primario sale de las tres lecturas (85-100)', JSON.stringify(C.rangoRePrimario()) === '[85,100]')
+  const txt = lee(join(RAIZ, 'app/components/celula/explorar/CelulaExplorarContexto.vue'))
+  ok('contexto: sin fechas en el texto', !/\b\d{1,2}[-/.]\d{1,2}[-/.]\d{2,4}\b|\b20\d\d\b/.test(txt))
+  ok('contexto: sin hospitales, laboratorios ni nombres', !/vall d|hebron|huvh|triemli|z[uü]rich|anderson|dana|dfci|quir[oó]n|miriam|gonz[aá]lez/i.test(txt))
+  ok('contexto: sin el mecanismo del fármaco del ensayo (KAT6 acotaba el ensayo)', !/kat6|bg-?75202/i.test(txt))
+  ok('contexto: la etiqueta literal del hueso («tumor neuroendocrino (NET)») y la frase del RE sin concluir', /tumor neuroendocrino \(NET\) de la mama/.test(txt) && /no distingue por sí solo/.test(txt) && /no se han encontrado datos equivalentes/.test(txt))
+}
 // revisión final (18-oct): la página en inglés es en-US; mezclaba «Color by» con «colour», «favoured», «programme»
 {
   const fuentes = ['app/components/celula/explorar', 'app/utils/celulaExploradorTexto.ts', 'app/pages/celula-a-celula-explorar.vue'].flatMap((r) => {
