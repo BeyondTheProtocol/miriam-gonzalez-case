@@ -3,14 +3,20 @@
 # + credibility. Serves the north star: credibility → trust → allies/funding →
 # vaccine. The home media strip follows this same order.
 #   1. El País — Spain's #1 daily, tech section, with an English edition.
-#   2. El Español — major national digital daily, strong on-message headline, recent.
-#   3. La Opinión de Murcia — regional, anchors the local/human angle.
-#   4. La 7 — regional TV (Instagram clip), closes the list.
+#   2. La Vanguardia — major national masthead; a light piece (Clic section, built
+#      on a clip from the Roca Project podcast), hence behind El País.
+#   3. El Español — major national digital daily, strong on-message headline.
+#   4. La Opinión de Murcia — regional, anchors the local/human angle.
+#   5. La 7 — regional TV (Instagram clip), closes the list.
 articles:
   - outlet: El País (English)
     url: https://english.elpais.com/technology/2026-04-25/whats-the-best-way-to-talk-about-health-with-chatbots.html?outputType=amp
     title: What's the best way to talk about health with chatbots
     date: '2026-04-25'
+  - outlet: La Vanguardia
+    url: https://www.lavanguardia.com/clic/20260816/11613280/miriam-gonzalez-paciente-cancer-mama-raro-me-siento-desventaja-frente-paciente-tenga-cancer-mama-metastasico.html
+    title: 'Miriam González, a patient with a rare breast cancer: "I feel at a disadvantage next to a patient with a typical metastatic breast cancer" (in Spanish)'
+    date: '2026-08-16'
   - outlet: El Español
     url: https://www.elespanol.com/alicante/vivir/salud/20260619/miren-ingeniera-anos-usa-ia-luchar-cancer-mama-unico-contactan-oncologos-mundo/1003744290903_0.html
     title: "Miriam, an engineer, uses AI to fight her unique breast cancer… (in Spanish)"

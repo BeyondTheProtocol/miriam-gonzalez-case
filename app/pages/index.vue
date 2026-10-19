@@ -141,6 +141,13 @@
             @click="trackPress('El País')"
           >El País<span class="sr-only"> {{ $t('a11y.new_tab') }}</span></a>
           <a
+            :href="laVanguardiaUrl"
+            target="_blank"
+            rel="noopener"
+            class="link-logo text-2xl sm:text-3xl"
+            @click="trackPress('La Vanguardia')"
+          >La Vanguardia<span class="sr-only"> {{ $t('a11y.new_tab') }}</span></a>
+          <a
             :href="elEspanolUrl"
             target="_blank"
             rel="noopener"
@@ -184,6 +191,8 @@ const { trackPress } = useSupport()
 // mayor alcance/prestigio antes que regionales → credibilidad → confianza.
 const elPaisUrl =
   'https://elpais.com/tecnologia/2026-04-23/asi-usa-una-paciente-con-cancer-metastasico-la-ia-para-entender-su-enfermedad-cual-es-el-mejor-metodo-para-hablar-de-salud-con-chatbots.html'
+const laVanguardiaUrl =
+  'https://www.lavanguardia.com/clic/20260816/11613280/miriam-gonzalez-paciente-cancer-mama-raro-me-siento-desventaja-frente-paciente-tenga-cancer-mama-metastasico.html'
 const elEspanolUrl =
   'https://www.elespanol.com/alicante/vivir/salud/20260619/miren-ingeniera-anos-usa-ia-luchar-cancer-mama-unico-contactan-oncologos-mundo/1003744290903_0.html'
 const murciaUrl =
