@@ -599,6 +599,24 @@ if (manPub.ejemplo !== true) {
     ok('real móvil 375: abrir un gen de la lista (cambia la URL) no sube la página arriba del todo', await esperaR(navR, `${violinesDe('CD276')} && ${qs('gen')} === 'CD276'`) && (await navR.evaluate('scrollY')) > 200, `scrollY ${await navR.evaluate('Math.round(scrollY)')}`)
   }
   finally { await navR.cerrar() }
+  // Miriam (19-oct): «en móvil está constantemente recargándose». La barra de direcciones cambia el alto de la ventana al
+  // hacer scroll; el mapa seguía ese alto y Vitessce se montaba entero en cada cambio («Cargando el mapa…»; reproducido en
+  // producción: 6 montajes en 6 cambios). En táctil el alto solo se renueva al cambiar el ancho (girar el móvil).
+  const navM = await abrirNavegador({ ancho: 390, alto: 750, escala: 2, gl: true })
+  try {
+    const metrica = (w, h) => navM.cdp('Emulation.setDeviceMetricsOverride', { width: w, height: h, deviceScaleFactor: 2, mobile: true })
+    await metrica(390, 750)
+    await navM.cdp('Emulation.setTouchEmulationEnabled', { enabled: true, maxTouchPoints: 5 })
+    await navM.cargar('/celula-a-celula/explorar')
+    const listo = await esperaR(navM, `!!document.querySelector('.exp-mapa canvas') && !document.querySelector('.exp-mapa__carga')`)
+    await navM.evaluate(`(() => { window.__cargas = 0; const m = document.querySelector('.exp-mapa'); window.__alto0 = m.querySelector('.exp-mapa__lienzo').style.height; new MutationObserver(() => { const c = !!m.querySelector('.exp-mapa__carga'); if (c && !window.__vista) window.__cargas++; window.__vista = c }).observe(m, { childList: true, subtree: true }); return true })()`)
+    for (const h of [664, 750, 664, 750]) { await metrica(390, h); await navM.sleep(1300) }
+    ok('real móvil: la barra de direcciones (solo cambia el alto) no vuelve a montar el mapa', listo && await navM.evaluate(`window.__cargas === 0 && document.querySelector('.exp-mapa__lienzo').style.height === window.__alto0`))
+    // contraprueba: girar el móvil (cambia el ancho) sí recalcula el alto del mapa
+    await metrica(844, 390)
+    ok('real móvil: girar el móvil (cambia el ancho) sí recalcula el alto del mapa', await esperaR(navM, `document.querySelector('.exp-mapa__lienzo')?.style.height !== window.__alto0`, 8000))
+  }
+  finally { await navM.cerrar() }
   // revisión final (18-oct): sin WebGL (PC de hospital, escritorio virtual) Vitessce dejaba una caja vacía y una leyenda
   // de un mapa que no estaba
   // sin WebGL de verdad en cualquier sistema: --disable-gpu no basta (en Ubuntu, el CI, Chrome cae a WebGL por software
