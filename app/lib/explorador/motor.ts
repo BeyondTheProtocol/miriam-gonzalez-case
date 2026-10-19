@@ -35,6 +35,8 @@ export interface EntradaMotor {
   lang: 'es' | 'en'
   /** rótulos de conjunto sobre el mapa (solo tiene sentido con los grupos) */
   rotulos: boolean
+  /** conjunto que se rotula si no es el que colorea (con un gen: los grupos sobre el mapa pintado por nivel) */
+  rotulosDe?: string
   /** tamaño de los rótulos (px de Vitessce) */
   tamRotulo?: number
   /** encuadre inicial con margen: ancho del contenedor (px) y fracción del lienzo que ocupan los datos. Sin él, Vitessce
@@ -84,7 +86,11 @@ function construyeConfig(e: EntradaMotor, urls: string[]) {
     vista.embeddingTargetY = { A: -(y0 + (y1 - y0) / 2) }   // Vitessce dibuja con el eje y hacia abajo
   }
   const primero = e.conjuntos.find((c) => c.nombre === e.colorearPor) ?? e.conjuntos[0]!
-  const seleccion = [...new Set(primero.valores)].sort().map((v) => [primero.nombre, v])
+  const rutas = (c: ConjuntoCsv) => [...new Set(c.valores)].sort().map((v) => [c.nombre, v])
+  // rótulos de otro conjunto (19-oct): sus rutas van DELANTE. Vitessce da a cada célula el color de la última ruta
+  // seleccionada que la contiene, así que colorea el conjunto de detrás; el parche de Vitessce rotula solo el de delante.
+  const deRotulos = e.rotulos && e.rotulosDe && e.rotulosDe !== primero.nombre ? e.conjuntos.find((c) => c.nombre === e.rotulosDe) : undefined
+  const seleccion = [...(deRotulos ? rutas(deRotulos) : []), ...rutas(primero)]
   return {
     version: '1.0.16',
     name: e.etiquetas.mapa,
@@ -101,7 +107,7 @@ function construyeConfig(e: EntradaMotor, urls: string[]) {
       obsSetColor: { A: e.colores.map((c) => ({ path: c.ruta, color: c.rgb })) },
       embeddingObsRadiusMode: { A: 'manual' },
       embeddingObsRadius: { A: 2 },
-      // rótulos solo por grupo: en tipo (12 en hueso) y co-expresión se pisaban y parecían nombres de cúmulo
+      // rótulos solo de los grupos: en tipo (12 en hueso) y co-expresión se pisaban y parecían nombres de cúmulo
       embeddingObsSetLabelsVisible: { A: e.rotulos },
       embeddingObsSetLabelSize: { A: e.tamRotulo ?? 14 },
       ...vista,

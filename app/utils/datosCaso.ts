@@ -48,6 +48,11 @@ export const txtCaso = (v: Texto | null | undefined, lang: Lang): string => {
   return (lang === 'en' ? v.en : undefined) ?? v.es
 }
 
+/** Desde cuándo cuentan las cifras de analíticas del panel («N valores de M extracciones desde
+ *  diciembre de 2023»). Una sola ventana para todo el panel: antes Cielo contaba desde aquí y Dias desde
+ *  el diagnóstico, y las dos cifras se leían como si fueran la misma (18-oct-2026). */
+export const DESDE_ANALITICAS = '2023-12-01'
+
 /** Día → milisegundos UTC (sin zona: una fecha clínica no tiene hora). */
 export const msFecha = (iso: string): number => {
   const [a, m, d] = iso.split('-').map(Number)

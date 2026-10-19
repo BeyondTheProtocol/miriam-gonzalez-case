@@ -16,18 +16,35 @@
  *     y una ✕ junto al buscador para quitarlo.
  *  3. A un clic: marcadores, «Más análisis» (tabla completa, dos genes) y «Calidad de los datos».
  * En táctil el mapa se ve y se mueve tras pulsar «Mover el mapa».
+ * NAVEGACIÓN (19-oct): el gen y la biopsia van en la URL (Atrás, recargar y compartir el enlace); en el detalle, la cifra
+ * del grupo de interés de la otra biopsia; con un gen, el mapa sigue rotulando los grupos (discretos).
  * Claro/oscuro: el tema del sistema es manual (data-tema), no prefers-color-scheme; el icono de
  * sol/luna sobre el mapa pone data-tema="oscuro" en este bloque, el tema oscuro de Vitessce y su paleta de tokens.
  * Violeta = grupo de interés, selección, foco y enlaces; los avisos van en tinta (auditoría `diseno`).
  */
 import type { Coexp, Lesion, LesionDatos, Manifiesto } from '~/utils/celulaExplorador'
-import { coexpresion, columna, motivoDe, nivelMatriz, porGrupo, traeMotivo } from '~/utils/celulaExplorador'
+import { coexpresion, columna, fmtParSuelo, fmtPct, motivoDe, nivelMatriz, porGrupo, traeMotivo } from '~/utils/celulaExplorador'
 import { abreZarr, storeWeb, type ZarrLesion } from '~/utils/celulaExploradorZarr'
 import { cssRgb, paleta, type RGB } from '~/utils/celulaExploradorColor'
 import { ALIAS_BUSCA, ETIQUETA_GRUPO, ETIQUETA_LESION, ETIQUETA_MOTIVO, etiquetaLectura, ETIQUETAS_FIJAS, pieMotivo, NOMBRE_CLINICO, PANEL_INTERES, PROTEINA, etiqueta, nombreGen } from '~/utils/celulaExploradorTexto'
 
 const props = defineProps<{ man: Manifiesto; ejemplo: boolean; lang: 'es' | 'en' }>()
 const L = (es: string, en: string) => (props.lang === 'en' ? en : es)
+
+/* ── el estado en la URL (navegación, 19-oct): ?gen=ERBB2&biopsia=hueso. Así funcionan Atrás, recargar y compartir el
+ * enlace; antes Atrás sacaba de la página y se perdía el gen. La URL manda: abrir un gen añade un paso al historial;
+ * cambiar de biopsia, quitar el gen o corregir la URL (HER2 → ERBB2, un gen que no existe) lo reemplazan. Atrás a una
+ * URL sin gen deja el explorador sin gen, como estaba. Lo demás de la URL se conserva (sin ?demo=1 la puerta del
+ * ejemplo se cierra y el explorador desaparece). ── */
+// la ruta del router y no useRoute(): la de la página se pone al día más tarde y, al montar, aún llegaba sin la query
+const router = useRouter()
+const ruta = () => router.currentRoute.value
+type Query = ReturnType<typeof ruta>['query']
+const LESION_0: Lesion = props.man.lesiones.includes('higado') ? 'higado' : props.man.lesiones[0]!
+const lesionDe = (q: Query): Lesion => { const b = q.biopsia; return typeof b === 'string' && (props.man.lesiones as string[]).includes(b) ? (b as Lesion) : LESION_0 }
+const genDe = (q: Query): string | null => { const g = q.gen; return typeof g === 'string' && /^[\w.-]{1,40}$/.test(g) ? g : null }
+/** gen pedido por la URL al cargar o al cambiar de biopsia desde la URL: lo abre el watch(d) cuando hay datos (y matriz) */
+let genPendiente: string | null = genDe(ruta().query)
 
 // táctil o estrecho: el mapa va encima del panel y queda quieto hasta pedir moverlo (Vitessce lleva touch-action:none)
 const movil = useMediaQuery('(max-width: 1023px)')
@@ -47,7 +64,7 @@ const activo = ref<string | null>(null)
 const detalle = ref(false)
 const masHigado = ref(false)
 const masAnalisis = ref<HTMLDetailsElement | null>(null)
-const lesion = ref<Lesion>(props.man.lesiones.includes('higado') ? 'higado' : props.man.lesiones[0]!)
+const lesion = ref<Lesion>(lesionDe(ruta().query))
 const cache = shallowReactive<Partial<Record<Lesion, LesionDatos>>>({})
 /** carga y error POR biopsia (revisión del PR #294: con hígado → hueso → hígado rápido, el hígado enseñaba «Cargando…» o
  * el error del hueso); una carga en curso no se repite */
@@ -237,14 +254,21 @@ async function reabreActivo(abreDetalle = false) {
   await aseguraZarr(l)
   // otra acción por medio (biopsia, ✕ u otro gen): se encarga ella
   if (lesion.value !== l || turno.value !== t0 || activo.value !== a || d.value !== x) return
-  if ((await abreGen(a, 'busca', { reabre: true })) === false) {
-    const av = avisoBusca.value
-    quitaGen(false)
-    avisoBusca.value = av
-  }
+  // y fuera también de la URL: si no, cada recarga lo volvería a intentar
+  if ((await abreGen(a, 'busca', { reabre: true })) === false) quitaPorUrl()
+}
+/** El gen que pide la URL (al cargar, con Atrás o Adelante, o un enlace): después de la matriz, que un gen buscado puede
+ * no estar en el JSON. Con otra acción por medio, se encarga ella; si no se abre, fuera de la URL con su aviso. */
+async function abreDeUrl(g: string) {
+  const x = d.value, l = lesion.value, t0 = turno.value
+  await aseguraZarr(l)
+  if (lesion.value !== l || d.value !== x || turno.value !== t0) return
+  if ((await abreGen(g, panel.value, { historial: 'replace' })) === false) quitaPorUrl()
 }
 watch(d, (x) => {
   if (x) void aseguraZarr(lesion.value)
+  // al cargar (o al cambiar de biopsia desde la URL) se abre el gen de la URL; si no, el activo se reabre en la nueva biopsia
+  if (x && genPendiente) { const g = genPendiente; genPendiente = null; void abreDeUrl(g); return }
   void reabreActivo(true)
 }, { immediate: true })
 /** nombre de proteína → símbolo (HER2 → ERBB2): la página usa los nombres de proteína y un oncólogo buscará por ellos */
@@ -274,8 +298,9 @@ type Origen = 'busca' | 'lista' | 'marcadores' | 'interes' | 'tabla'
 /** Abre un gen. true: abierto · false: no se pudo (con su aviso) · null: obsoleta (otra acción la adelantó), sin tocar nada.
  * `reabre`: la reapertura silenciosa al cambiar de biopsia (solo pone el gen). `revela`: abierto desde la lista del panel;
  * si el principio del detalle quedó por encima de la pantalla, se sube hasta él. Desde la tabla de «Más análisis» ni la
- * página ni el foco se mueven: su aviso dice «más arriba» y ofrece «Ver el mapa». */
-async function abreGen(g: string, origen: Origen = 'busca', { reabre = false, revela = false } = {}): Promise<boolean | null> {
+ * página ni el foco se mueven: su aviso dice «más arriba» y ofrece «Ver el mapa». `historial`: «push» si lo abre el lector
+ * (Atrás vuelve a donde estaba); «replace» si lo abre la URL (navegación, 19-oct). */
+async function abreGen(g: string, origen: Origen = 'busca', { reabre = false, revela = false, historial = 'push' as 'push' | 'replace' } = {}): Promise<boolean | null> {
   g = ALIAS[norm(g)] ?? z.value?.genes.find((x) => norm(x) === norm(g)) ?? g
   const x = d.value
   if (!reabre) avisoBusca.value = ''
@@ -349,6 +374,7 @@ async function abreGen(g: string, origen: Origen = 'busca', { reabre = false, re
   if (p && !detalle.value) scrollLista = p.scrollTop
   detalle.value = true
   pintaGen()
+  escribeUrl(historial)
   void nextTick(() => {
     // el detalle empieza arriba del panel (abierto desde abajo de una lista larga, «Volver» y el título quedaban fuera)
     if (p) p.scrollTop = 0
@@ -363,6 +389,44 @@ async function abreGen(g: string, origen: Origen = 'busca', { reabre = false, re
     v?.focus({ preventScroll: true })
   })
   return true
+}
+/** el estado a la URL: el gen activo con su biopsia; sin gen, la biopsia solo si no es la de llegada. Si ya coincide, nada. */
+function escribeUrl(modo: 'push' | 'replace') {
+  const ahora = ruta().query, q = { ...ahora }
+  delete q.gen; delete q.biopsia
+  if (activo.value) Object.assign(q, { gen: activo.value, biopsia: lesion.value })
+  else if (lesion.value !== LESION_0) q.biopsia = lesion.value
+  if (q.gen === ahora.gen && q.biopsia === ahora.biopsia) return
+  void (modo === 'push' ? router.push({ query: q }) : router.replace({ query: q })).catch(() => {})
+}
+/** la URL pedía un gen que aquí no se abre: fuera el gen (con su aviso) y fuera de la URL */
+function quitaPorUrl() {
+  const aviso = avisoBusca.value
+  quitaGen(false)
+  avisoBusca.value = aviso
+  escribeUrl('replace')
+}
+/** URL → estado: Atrás, Adelante o un enlace dentro de la misma página. Lo que escribe escribeUrl ya coincide y no hace nada. */
+watch(() => [ruta().query.gen, ruta().query.biopsia], () => {
+  const l = lesionDe(ruta().query), g = genDe(ruta().query)
+  if (l !== lesion.value) {
+    // el watch(d) abre el gen en la nueva biopsia; sin gen en la URL, se quita antes
+    genPendiente = g
+    if (!g) quitaGen(false)
+    lesion.value = l
+    return
+  }
+  if (g === activo.value || (g && g === genPendiente)) return
+  genPendiente = null
+  if (!g) { quitaGen(false); return }
+  // sin datos todavía, lo abre el watch(d) al llegar; con datos, después de la matriz (un gen buscado puede no estar en el JSON)
+  if (!d.value) { genPendiente = g; return }
+  void abreDeUrl(g)
+})
+function ponLesion(l: Lesion) {
+  if (l === lesion.value) return
+  lesion.value = l
+  escribeUrl('replace')
 }
 function cierraDetalle() {
   detalle.value = false
@@ -432,6 +496,15 @@ function quitaGen(enfocar = true) {
   if (modo.value === 'gen' || modo.value === 'coexp') modo.value = 'grupo'
   if (enfocar) void nextTick(() => document.getElementById(`${idCtl}-busca`)?.focus({ preventScroll: true }))
 }
+/** ✕ del chip: si el paso anterior del historial es esta misma página sin gen (el gen se abrió aquí), se vuelve a él;
+ * reemplazar dejaría dos pasos iguales y el siguiente Atrás no haría nada */
+function quitaDesdeChip() {
+  quitaGen()
+  const atras = (window.history.state as { back?: string | null } | null)?.back
+  const prev = atras ? router.resolve(atras) : null
+  if (prev && prev.path === ruta().path && !prev.query.gen && lesionDe(prev.query) === lesion.value && prev.query.demo === ruta().query.demo) router.back()
+  else escribeUrl('replace')
+}
 /** lectura del gen abierto: la de la revisión si está en ella; si llegó por el buscador y no está, se dice (comité
  * médico, 18-oct: por el buscador se veían las cifras de TROP2 sin su «No se sostiene») */
 /** gen al que se llega por un nombre clínico (ER, Ki-67, PD-L1…): su % se confunde con el índice de IHQ (comité médico) */
@@ -444,6 +517,31 @@ const lecturaDetalle = computed(() => {
 })
 /** su motivo (comité médico, 18-oct): entre paréntesis tras la lectura; solo de genes de la revisión */
 const motivoDetalle = computed(() => (d.value?.genes.includes(gen.value) ? motivoDe(d.value, gen.value) : null))
+/** La otra biopsia en el detalle del gen (19-oct): comparar hígado y hueso sin memorizar cifras. La cifra del grupo de
+ * interés de la otra biopsia, con su suelo, su referencia y su lectura: las mismas funciones y el mismo fichero que su
+ * lista de llegada (CelulaExplorarInteres), nada escrito a mano. Solo genes de la revisión que están en los dos ficheros
+ * (un gen buscado fuera de ella no tiene lectura). Viaja sin el aviso de su biopsia, así que lleva lo que ese aviso
+ * decía: el grupo y su n, «un subconjunto» en el hígado, la cifra sin circularidad primero (loo, FGFR1 y ESR1 del hígado),
+ * la circularidad de grupo y el ADN del suelo en el hueso, y las etiquetas de su lista (IHQ de HER2 de esa biopsia, nota
+ * de HER3 del hígado; diseño, 19-oct). Se pide aparte: asegura() pondría el «Cargando…» de toda la página. Si no carga, no hay línea. */
+const otraLesion = computed(() => props.man.lesiones.find((l) => l !== lesion.value) ?? null)
+watch([() => !!(detalle.value && activo.value), otraLesion], ([abierto, l]) => { if (abierto && l && !cache[l]) void asegura(l) }, { immediate: true })
+const otra = computed(() => {
+  const l = otraLesion.value, o = l ? cache[l] : undefined, g = gen.value
+  // mientras el gen activo se reabre en esta biopsia, `gen` es uno de reserva: sin línea (no hay detalle con cifras)
+  if (!listo.value || !l || !o || !d.value?.genes.includes(g) || !o.genes.includes(g)) return null
+  const gi = o.grupos.find((x) => x.rol === 'interes')
+  const f = porGrupo(o, g).find((x) => x.rol === 'interes')
+  if (!gi || !f) return null
+  const [det, suelo] = fmtParSuelo(f.frac, f.suelo, props.lang)
+  const marca = f.frac >= 0.9 && f.suelo >= 0.9 ? L('en casi todas las células: cuenta el nivel', 'in almost every cell: the level is what counts') : f.frac <= f.suelo ? L('no supera el suelo', 'does not clear the floor') : ''
+  return {
+    l, det, suelo, marca, ref: fmtPct(o.referencia[g] ?? 0, props.lang), circular: !!o.seleccion[g], loo: o.seleccion[g] ? (o.loo?.[g] ?? null) : null,
+    grupo: etiqueta(ETIQUETA_GRUPO, gi.id, props.lang), n: fmtN(gi.n, props.lang),
+    // la lectura de la otra biopsia, como la de esta: etiqueta corta si su fichero trae motivo, y su paréntesis
+    lec: etiquetaLectura(o.veredicto[g] ?? 'sin_veredicto', traeMotivo(o), props.lang), mot: motivoDe(o, g),
+  }
+})
 /** abre «Más análisis» y lleva la tabla completa de genes de interés a la vista */
 function abreTabla() {
   if (masAnalisis.value) masAnalisis.value.open = true
@@ -534,7 +632,7 @@ function sinTapar(ev: FocusEvent) {
       <div class="exp__campo">
         <span :id="`${idCtl}-les`" class="exp__eti">{{ L('Biopsia', 'Biopsy') }}</span>
         <div class="exp__seg" role="group" :aria-labelledby="`${idCtl}-les`">
-          <button v-for="l in man.lesiones" :key="l" type="button" class="exp__btn" :aria-pressed="lesion === l" @click="lesion = l">{{ etiqueta(ETIQUETA_LESION, l, lang) }}</button>
+          <button v-for="l in man.lesiones" :key="l" type="button" class="exp__btn" :aria-pressed="lesion === l" @click="ponLesion(l)">{{ etiqueta(ETIQUETA_LESION, l, lang) }}</button>
         </div>
       </div>
       <div v-if="d && nivel === 'todos'" class="exp__campo exp__busca">
@@ -544,7 +642,7 @@ function sinTapar(ev: FocusEvent) {
                  :placeholder="z ? L('Gen, p. ej. MKI67 o HER2', 'Gene, e.g. MKI67 or HER2') : avisoZarr ? L('Buscador no disponible', 'Search unavailable') : L('Cargando la lista de genes…', 'Loading the gene list…')" @keydown.enter.prevent="busca.trim() && abreGen(sugerencias[0] ?? busca.trim().toUpperCase())" />
           <span v-if="activo" class="exp__chip">
             <span class="exp__chipt">{{ nombreGen(activo) }}</span>
-            <button type="button" class="exp__chipx" :aria-label="errorMapa ? L(`Quitar ${nombreGen(activo)}`, `Remove ${nombreGen(activo)}`) : L(`Quitar ${nombreGen(activo)} del mapa`, `Remove ${nombreGen(activo)} from the map`)" @click="quitaGen">
+            <button type="button" class="exp__chipx" :aria-label="errorMapa ? L(`Quitar ${nombreGen(activo)}`, `Remove ${nombreGen(activo)}`) : L(`Quitar ${nombreGen(activo)} del mapa`, `Remove ${nombreGen(activo)} from the map`)" @click="quitaDesdeChip">
               <svg viewBox="0 0 256 256" aria-hidden="true"><path fill="currentColor" d="M205.66 194.34a8 8 0 0 1-11.32 11.32L128 139.31l-66.34 66.35a8 8 0 0 1-11.32-11.32L116.69 128 50.34 61.66a8 8 0 0 1 11.32-11.32L128 116.69l66.34-66.35a8 8 0 0 1 11.32 11.32L139.31 128Z" /></svg>
             </button>
           </span>
@@ -668,6 +766,22 @@ function sinTapar(ev: FocusEvent) {
             <!-- comité médico (revisión del motivo): al abrir un gen la lista y su pie se ocultan; la lectura de uno se lee aquí -->
             <p v-if="traeMotivo(d) && d.genes.includes(gen)" class="exp__dpie">{{ pieMotivo(lang) }}</p>
             <p v-if="aliasClinico" class="exp__dlec">{{ L(`${aliasClinico} aquí es ARN, no proteína: cuenta las células con al menos una molécula del gen; la proteína la mide la IHQ.`, `${aliasClinico} here is RNA, not protein: it counts cells with at least one molecule of the gene; protein is measured by IHC.`) }}</p>
+            <!-- la otra biopsia (19-oct): la cifra de su grupo de interés, para comparar sin memorizar; ver `otra` -->
+            <p v-if="otra" class="exp__otra">
+              <span class="exp__otrab">{{ L('La otra biopsia', 'The other biopsy') }} · {{ etiqueta(ETIQUETA_LESION, otra.l, lang) }}</span>
+              <!-- las mismas etiquetas que su lista de llegada (CelulaExplorarInteres): IHQ de HER2 de cada biopsia y la nota de HER3 del hígado -->
+              <span v-if="gen === 'ERBB2'" class="exp__dihq">{{ (otra.l === 'higado' ? ETIQUETAS_FIJAS.her2 : ETIQUETAS_FIJAS.her2Hueso)[lang] }}</span>
+              <span v-if="gen === 'ERBB3' && otra.l === 'higado' && !otra.mot" class="exp__dihq">{{ ETIQUETAS_FIJAS.her3Higado[lang] }}</span>
+              <span class="exp__otral">{{ otra.grupo }}{{ otra.l === 'higado' ? L(', un subconjunto y no el tumor entero', ', a subset and not the whole tumor') : '' }} (n&nbsp;=&nbsp;{{ otra.n }}):</span>
+              <!-- circular con cifra medida sin esa circularidad (loo): esa es la primera cifra, como en los violines (revisión del 17-oct); el grupo se nombra antes (diseño, 19-oct) -->
+              <span v-if="otra.loo" class="exp__otral"><strong>{{ L('Sin esa circularidad', 'Without that circularity') }}</strong>
+                {{ L(`(grupo construido sin ese criterio, n\u00a0=\u00a0${fmtN(otra.loo.n, lang)}):`, `(group built without that criterion, n\u00a0=\u00a0${fmtN(otra.loo.n, lang)}):`) }}<template v-if="otra.loo.frac != null">{{ ' ' }}<span class="exp__par">{{ L('detectado', 'detected') }}&nbsp;{{ fmtPct(otra.loo.frac, lang) }}</span></template><template v-if="otra.loo.ref != null">, <span class="exp__par">{{ L('referencia', 'reference') }}&nbsp;{{ fmtPct(otra.loo.ref, lang) }}</span></template>.</span>
+              <!-- cada etiqueta con su cifra, sin partirse al final de línea (diseño, 19-oct: a 375 «detectado» quedaba solo) -->
+              <span class="nums"><template v-if="otra.loo">{{ L('Cifra circular. ', 'Circular figure. ') }}</template><span class="exp__par">{{ L('detectado', 'detected') }}&nbsp;{{ otra.det }}</span>{{ otra.circular && !otra.loo ? L(' (circular)', ' (circular)') : '' }}&nbsp;· <span class="exp__par">{{ L('suelo', 'floor') }}&nbsp;{{ otra.suelo }}</span>{{ otra.marca ? ` (${otra.marca})` : '' }}&nbsp;· <span class="exp__par">{{ L('referencia', 'reference') }}&nbsp;{{ otra.ref }}</span>.</span>
+              <span class="exp__otral">{{ ETIQUETAS_FIJAS.lecturaCorta[lang] }} <strong>{{ otra.lec }}</strong><span v-if="otra.mot" class="exp__dmot" :data-motivo="otra.mot"> ({{ etiqueta(ETIQUETA_MOTIVO, otra.mot, lang) }})</span>.</span>
+              <!-- en la vista del hígado no está la nota del hueso: su circularidad de grupo y el ADN de su suelo viajan con la cifra -->
+              <span v-if="otra.l === 'hueso'" class="exp__otral">{{ L('Ese grupo se eligió en parte por número de copias inferido: su cifra no es del todo independiente de esa elección. En el hueso, el suelo incluye además el ADN genómico del tejido.', 'That group was chosen partly by inferred copy number: its figure is not fully independent of that choice. In the bone, the floor also includes the tissue’s genomic DNA.') }}</span>
+            </p>
             <CelulaExplorarViolines :filas="filas" :gen="gen" :lang="lang" :lesion="lesion" :adn="d.adn" :papel="d.seleccion[gen]" :loo="d.loo[gen]" :referencia="d.referencia[gen]" />
             </template>
           </div>
@@ -822,6 +936,13 @@ function sinTapar(ev: FocusEvent) {
 .exp__dlec strong { color: var(--texto-1); font-weight: 600; }
 .exp__dpie { margin: calc(-1 * var(--sp-8)) 0 var(--sp-12); font: 500 var(--texto-xs)/1.4 var(--font-body); color: var(--texto-2); max-width: var(--measure); text-wrap: pretty; }
 .exp__dihq { display: block; text-wrap: balance; font: 600 var(--texto-xs)/1.4 var(--font-mono); color: var(--texto-1); }
+/* la otra biopsia: aparte de las cifras de esta (filete a la izquierda), en tinta segunda; la cifra, en tinta */
+.exp__otra { margin: 0 0 var(--sp-12); padding: var(--sp-4) 0 var(--sp-4) var(--sp-12); border-left: 2px solid var(--trazo-medio); font: 500 var(--texto-xs)/1.45 var(--font-body); color: var(--texto-2); max-width: var(--measure); }
+.exp__otra strong, .exp__otra .nums { color: var(--texto-1); font-weight: 600; }
+.exp__otral, .exp__otra .nums { display: block; }
+.exp__par { white-space: nowrap; }
+.exp__otra .exp__dihq { margin: var(--sp-4) 0; }
+.exp__otrab { display: block; font: 700 var(--texto-xs)/1.3 var(--font-mono); letter-spacing: var(--track-eyebrow); text-transform: uppercase; color: var(--texto-2); }
 .exp__dbiop { margin: 0; font: 700 var(--texto-xs)/1.3 var(--font-mono); letter-spacing: var(--track-eyebrow); text-transform: uppercase; color: var(--texto-2); }
 .exp__nota { margin: var(--sp-8) 0 0; font: var(--tipo-body-sm); font-size: var(--texto-xs); color: var(--texto-2); max-width: var(--measure); }
 .exp__nota--busca:empty { display: none; }

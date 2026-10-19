@@ -11,6 +11,7 @@
 // 4. La guía pública no nombra lo que nunca se dice en público («Olune») ni «científica» como SÍ.
 // 5. /prensa no lleva el contador de campaña ni la fecha fija «junio de 2026».
 // 6. `caseData.pressAsOf` es una fecha válida y no es futura.
+// 7. La tira de medios de la home = content/es/press.yml (mismos medios, mismo orden, mismos enlaces).
 //
 // Uso:  pnpm test:sala-prensa
 import { readFileSync } from 'node:fs'
@@ -71,6 +72,21 @@ if (m) {
   const f = new Date(`${m[1]}T00:00:00Z`)
   ok(!Number.isNaN(f.getTime()) && f.getTime() <= Date.now() + 86_400_000, `pressAsOf (${m[1]}) es una fecha válida y no futura`)
 }
+
+// 7 · la tira de medios de la home es copia a mano de content/es/press.yml: mismos medios y
+// mismo orden curado (una pieza añadida solo a la sala dejaba la home atrás sin aviso).
+const yml = readFileSync('content/es/press.yml', 'utf-8')
+const medios = [...yml.matchAll(/^\s*- outlet:\s*(.+?)\s*$/gm)].map((x) => x[1].replace(/^['"]|['"]$/g, ''))
+const home = readFileSync('app/pages/index.vue', 'utf-8')
+const tira = [...home.matchAll(/trackPress\('([^']+)'\)/g)].map((x) => x[1])
+ok(medios.length > 0, `content/es/press.yml lista medios (${medios.length})`)
+ok(
+  JSON.stringify(tira) === JSON.stringify(medios),
+  `la tira de la home = press.yml, en el mismo orden${JSON.stringify(tira) === JSON.stringify(medios) ? '' : ` (home: ${tira.join(', ')} · yml: ${medios.join(', ')})`}`,
+)
+const urlsYml = [...yml.matchAll(/^\s*url:\s*(\S+)\s*$/gm)].map((x) => x[1])
+const sinEnlace = urlsYml.filter((u) => !home.includes(u))
+ok(sinEnlace.length === 0, `cada enlace de press.yml está en la home${sinEnlace.length ? ` (faltan: ${sinEnlace.join(', ')})` : ''}`)
 
 if (fallos) {
   console.error(`\n❌ ${fallos} fallo(s) en la sala de prensa`)
