@@ -14,8 +14,8 @@
  * Sin animaciones. El estado no va solo en color: hay texto en cada fila y aria-label con las cifras.
  */
 import type { Adn, FilaGrupo, Lesion, Loo } from '~/utils/celulaExplorador'
-import { densidad, fmtParSuelo, fmtPct, fmtPctFino, fmtPctSig } from '~/utils/celulaExplorador'
-import { CIRC_HUESO, ETIQUETAS_FIJAS, ETIQUETA_GRUPO, PAPEL_SELECCION, etiqueta } from '~/utils/celulaExploradorTexto'
+import { densidad, fmtIC, fmtParSuelo, fmtPct, fmtPctFino, fmtPctSig, icLoo, r4, tsv } from '~/utils/celulaExplorador'
+import { CIRC_HUESO, ETIQUETAS_FIJAS, ETIQUETA_GRUPO, IC_NOTA, PAPEL_SELECCION, etiqueta } from '~/utils/celulaExploradorTexto'
 
 const props = defineProps<{ filas: FilaGrupo[]; gen: string; lang: 'es' | 'en'; lesion: Lesion; adn: Adn; papel?: string; loo?: Loo; referencia?: number }>()
 const L = (es: string, en: string) => (props.lang === 'en' ? en : es)
@@ -56,11 +56,25 @@ const adnTxt = computed(() => {
     `${nf(a.sondas_dentro_de_exon)} of the panel’s ${nf(a.sondas_panel)} probes fall inside an exon and also bind the genomic DNA of the formalin-fixed tissue (FFPE). For the whole sample there are two estimates of the share of UMIs, the molecules counted, that comes from that DNA: ${est} (this analysis) and ${cr} (Cell Ranger’s “Estimated UMIs from genomic DNA”). In the group of interest, ${f(a.frac_lecturas_interes)}.${hueso ? ' In the bone the ambient floor includes that DNA.' : ''}`)
 })
 const nfCp = (x: number) => String(Math.round(x))
+/* «Copiar cifras (TSV)» (plan «muy útil a científicos», 19-oct): lo que ya se ve, en texto tabulado, sin cifras nuevas */
+const copiado = ref('')
+async function copiaTSV() {
+  const cab = ['lesion', 'gen', 'grupo', 'n', 'detectadas', 'frac_detectada', 'ic95_inf', 'ic95_sup', 'suelo', 'mediana_cp10k']
+  const filas = props.filas.map((f) => {
+    const m = mediana(f.niveles)
+    return [props.lesion, props.gen, f.id, f.n, f.detectadas, r4(f.frac), r4(f.ic?.[0]), r4(f.ic?.[1]), r4(f.suelo), m == null ? '' : Number((10 ** m).toPrecision(3))]
+  })
+  try { await navigator.clipboard.writeText(tsv([cab, ...filas])); copiado.value = L('Copiado: una fila por grupo.', 'Copied: one row per group.') }
+  catch { copiado.value = L('No se pudo copiar en este navegador.', 'Could not copy in this browser.') }
+}
 /** Partes de la línea de cifras. Si detectado y suelo pasan los dos de 0,9, el porcentaje no distingue nada: cuenta el
  * nivel (comité médico, 18-oct: FGFR1 del hueso salía «no supera el suelo», una lectura de negativo falsa). */
 function partes(f: FilaGrupo): { t: string; fuerte?: boolean }[] {
   const [a, b] = fmtParSuelo(f.frac, f.suelo, props.lang)
-  const p: { t: string; fuerte?: boolean }[] = [{ t: L(`Detectado ${a} (${nf(f.detectadas)})`, `Detected ${a} (${nf(f.detectadas)})`) }, { t: L(`suelo ${b}`, `floor ${b}`) }]
+  const p: { t: string; fuerte?: boolean; ic?: boolean }[] = [{ t: L(`Detectado ${a} (${nf(f.detectadas)})`, `Detected ${a} (${nf(f.detectadas)})`) }]
+  // IC95 de Wilson (plan «muy útil a científicos», 19-oct): descriptivo, justo después de la cifra que acota
+  if (f.ic) p.push({ t: fmtIC(f.ic, props.lang), ic: true })
+  p.push({ t: L(`suelo ${b}`, `floor ${b}`) })
   if (f.frac >= 0.9 && f.suelo >= 0.9) p.push({ t: L('en casi todas las células: cuenta el nivel', 'in almost every cell: the level is what counts'), fuerte: true })
   else if (f.frac <= f.suelo) p.push({ t: L('no supera el suelo', 'does not clear the floor'), fuerte: true })
   const m = mediana(f.niveles)
@@ -101,7 +115,7 @@ function partes(f: FilaGrupo): { t: string; fuerte?: boolean }[] {
           <template v-if="loo">
             <strong>{{ L('Sin esa circularidad', 'Without that circularity') }}</strong>
             {{ L(`(grupo construido sin ese criterio, n\u00a0=\u00a0${nf(loo.n)}):`, `(group built without that criterion, n\u00a0=\u00a0${nf(loo.n)}):`) }}
-            <template v-if="loo.frac != null">{{ L('detectado', 'detected') }} {{ fmtPct(loo.frac, lang) }}</template><template v-if="loo.ref != null">, {{ L('referencia', 'reference') }} {{ fmtPct(loo.ref, lang) }}</template><template v-if="loo.cp10k_pseudobulk != null">, pseudobulk&nbsp;{{ nfCp(loo.cp10k_pseudobulk) }}&nbsp;CP10k</template>.
+            <template v-if="loo.frac != null">{{ L('detectado', 'detected') }} {{ fmtPct(loo.frac, lang) }}<template v-if="icLoo(loo)"> ({{ fmtIC(icLoo(loo), lang) }})</template></template><template v-if="loo.ref != null">, {{ L('referencia', 'reference') }} {{ fmtPct(loo.ref, lang) }}</template><template v-if="loo.cp10k_pseudobulk != null">, pseudobulk&nbsp;{{ nfCp(loo.cp10k_pseudobulk) }}&nbsp;CP10k</template>.
           </template>
           <strong>{{ L('Cifra circular.', 'Circular figure.') }}</strong>
           {{ L(`La de abajo es la de este grupo, y ${gen} ${PAPEL_SELECCION[papel]?.es ?? ''}.`, `The one below is this group’s, and ${gen} ${PAPEL_SELECCION[papel]?.en ?? ''}.`) }}
@@ -126,7 +140,7 @@ function partes(f: FilaGrupo): { t: string; fuerte?: boolean }[] {
           <line :x1="BX + BW * Math.min(1, f.suelo)" :x2="BX + BW * Math.min(1, f.suelo)" y1="8" y2="32" class="vio__suelo-linea" />
         </svg>
         <p class="vio__txt nums">
-          <strong v-if="f.rol === 'interes' && papel" class="vio__bajo">{{ L('Circular', 'Circular') }}</strong><span v-for="(x, k) in partes(f)" :key="k" class="vio__par"><strong v-if="x.fuerte" class="vio__bajo">{{ x.t }}</strong><template v-else>{{ x.t }}</template></span>
+          <strong v-if="f.rol === 'interes' && papel" class="vio__bajo">{{ L('Circular', 'Circular') }}</strong><span v-for="(x, k) in partes(f)" :key="k" class="vio__par" :class="{ 'vio__par--ic': x.ic }"><strong v-if="x.fuerte" class="vio__bajo">{{ x.t }}</strong><template v-else>{{ x.t }}</template></span>
         </p>
         <!-- la referencia emparejada no es ningún grupo de la lista: se da aquí, junto al grupo de interés (comité médico, 18-oct) -->
         <p v-if="f.rol === 'interes' && referencia != null" class="vio__ref nums">{{ L(`Referencia emparejada (células no tumorales de la misma muestra, a la misma profundidad): ${fmtPct(referencia, 'es')}`, `Matched reference (non-tumor cells from the same sample, at the same depth): ${fmtPct(referencia, 'en')}`) }}</p>
@@ -134,12 +148,17 @@ function partes(f: FilaGrupo): { t: string; fuerte?: boolean }[] {
         <p v-if="f.rol === 'interes' && lesion === 'hueso'" class="vio__circ vio__circ--grupo" role="note"><strong>{{ L('Circular.', 'Circular.') }}</strong> {{ L(CIRC_HUESO.es, CIRC_HUESO.en) }}</p>
       </li>
     </ul>
+    <div class="vio__copiar">
+      <button type="button" class="vio__btn" @click="copiaTSV">{{ L('Copiar cifras (TSV)', 'Copy figures (TSV)') }}</button>
+      <span class="vio__estado" role="status" aria-live="polite">{{ copiado }}</span>
+    </div>
     <!-- auditoría 18-oct: superar el suelo no basta en los grupos no tumorales (a la vista, después de las cifras) -->
     <p class="vio__leyenda vio__noBasta"><strong>{{ L('Superar el suelo no basta.', 'Clearing the floor is not enough.') }}</strong> {{ L('En los grupos no tumorales, parte de la señal de los genes del tumor viene de gotas con dos células o de ARN del tumor que el suelo no recoge, y no es expresión de esas células. Vale cuando el grupo de interés supera a esos grupos; si un grupo no tumoral lo supera, esa señal no se explica así.', 'In non-tumor groups, part of the signal from tumor genes comes from droplets holding two cells or from tumor RNA the floor does not capture, and it is not expression by those cells. This holds when the group of interest exceeds those groups; if a non-tumor group exceeds it, that signal is not explained this way.') }}</p>
     <!-- simulador (18-oct): lo explicativo, plegado; las cifras, el n, el suelo y la circularidad quedan siempre a la vista -->
     <details class="vio__como">
       <summary>{{ L('Cómo se lee', 'How to read it') }}</summary>
       <p class="vio__leyenda">{{ L('Si el suelo supera lo detectado, el suelo está sobreestimado para ese gen en ese grupo o, en grupos pequeños, la diferencia cabe en el azar del muestreo.', 'If the floor is above what is detected, the floor is overestimated for that gene in that group or, in small groups, the difference is within sampling chance.') }}</p>
+      <p class="vio__leyenda">{{ L(IC_NOTA.es, IC_NOTA.en) }}</p>
       <p class="vio__adn"><strong>{{ L(`${ETIQUETAS_FIJAS.matriz.es}.`, `${ETIQUETAS_FIJAS.matriz.en}.`) }}</strong> {{ adnTxt }}</p>
       <p class="vio__leyenda">
         {{ L('El violín es el nivel (CP10k, escala logarítmica) solo en las células donde el gen se detecta; la raya vertical es la mediana.',
@@ -184,6 +203,11 @@ function partes(f: FilaGrupo): { t: string; fuerte?: boolean }[] {
 .vio__noBasta strong { color: var(--texto-1); }
 .vio__leyenda--arriba { margin: 0 0 var(--sp-12); }
 .vio__adn { margin: var(--sp-8) 0 0; font: var(--tipo-body-sm); font-size: var(--texto-xs); color: var(--texto-1); max-width: var(--measure); }
+.vio__copiar { display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-8) var(--sp-12); margin-top: var(--sp-12); }
+.vio__btn { min-height: 44px; padding: 0 var(--sp-16); border: 1px solid var(--trazo-interactivo); border-radius: var(--radius-btn); background: var(--fondo); color: var(--texto-1); font: 600 var(--texto-sm)/1.2 var(--font-body); -webkit-tap-highlight-color: transparent; }
+@media (hover: hover) { .vio__btn:hover { background: var(--trazo-sutil); } }
+.vio__btn:focus-visible { outline: 2px solid var(--anillo-foco); outline-offset: 2px; }
+.vio__estado { font: var(--tipo-body-sm); font-size: var(--texto-xs); color: var(--texto-2); }
 .vio__como { margin-top: var(--sp-12); }
 .vio__como summary { cursor: pointer; min-height: 44px; display: flex; align-items: center; font: 600 var(--texto-sm)/1.3 var(--font-body); color: var(--identidad); }
 .vio__como summary::-webkit-details-marker { display: none; }

@@ -16,7 +16,7 @@ import { createHash } from 'node:crypto'
 import { readdirSync, readFileSync } from 'node:fs'
 import { join, relative, sep } from 'node:path'
 import {
-  MARCADORES_N, MOTIVO_LECTURAS, MOTIVOS, PAPELES_SELECCION, RE_BARCODE, VEREDICTOS, VEREDICTOS_SIN_MOTIVO, columna, coexpresion, densidad, estadoPuerta, fechaOkValida, fmtParSuelo, motivoDe, motivosLesion, nivelMatriz, pct, porGrupo, tablaCoexp,
+  MARCADORES_N, MOTIVO_LECTURAS, MOTIVOS, PAPELES_SELECCION, RE_BARCODE, VEREDICTOS, VEREDICTOS_SIN_MOTIVO, columna, coexpresion, densidad, estadoPuerta, fechaOkValida, fmtIC, fmtParSuelo, icLoo, motivoDe, motivosLesion, nivelMatriz, pct, porGrupo, r4, tablaCoexp, tsv, wilson,
   type LesionDatos, type Manifiesto,
 } from '../app/utils/celulaExplorador'
 import { ALIAS_BUSCA, ETIQUETA_GRUPO, ETIQUETA_MOTIVO, ETIQUETA_TIPO, ETIQUETA_VEREDICTO, ETIQUETA_VEREDICTO_CON_MOTIVO, PAPEL_SELECCION, PIE_MOTIVO, etiqueta, etiquetaLectura, pieMotivo } from '../app/utils/celulaExploradorTexto'
@@ -378,6 +378,27 @@ if (man.zarr?.length) {
   const [a4, b4] = fmtParSuelo(1, 1, 'es')
   ok('fmtParSuelo: iguales de verdad (100 frente a 100) salen enteros, no «100,00»', a4 === '100\u00a0%' && b4 === '100\u00a0%', `${a4} | ${b4}`)
   ok('fmtParSuelo: 10,3 frente a 9,6 con un decimal; 86,03 frente a 86,00 con dos; 41 frente a 4 sin decimal', a1 === '10,3 %' && b1 === '9,6 %' && a2 === '86,03 %' && b2 === '86,00 %' && a3 === '41 %' && b3 === '4 %', [a1, b1, a2, b2, a3, b3].join(' | '))
+}
+// plan «muy útil a científicos» (19-oct): IC95 de Wilson igual al del análisis (tribunal/_comun.py, z = 1,959964), con
+// respuestas conocidas calculadas en Python; su formato; y el TSV de «Copiar cifras»
+{
+  const PY: [number, number, number, number][] = [   // k, n, inferior, superior (Python, 19-oct)
+    [0, 10, 0.0, 0.2775328030260577], [10, 10, 0.7224671969739421, 1.0], [3, 10, 0.10779126655639398, 0.6032218546540291],
+    [572, 993, 0.5450599803421864, 0.606418470573629], [18, 68, 0.17449740610772085, 0.38007734086569805],
+    [1, 68, 0.0026006835473572493, 0.07870973208531903], [0, 13577, 0.0, 0.0002828586794807068],
+  ]
+  const malos = PY.filter(([k, n, lo, hi]) => { const ic = wilson(k, n); return !ic || Math.abs(ic[0] - lo) > 1e-12 || Math.abs(ic[1] - hi) > 1e-12 })
+  ok('wilson: igual que el análisis en Python (7 casos, incluidos k = 0 y k = n)', malos.length === 0, JSON.stringify(malos))
+  ok('wilson: sin n o con k fuera de rango, null', wilson(0, 0) === null && wilson(3, 2) === null && wilson(-1, 5) === null)
+  ok('wilson: k = 0 da inferior 0 y k = n da superior 1', wilson(0, 50)![0] === 0 && wilson(50, 50)![1] === 1)
+  ok('fmtIC: enteros por encima del 10 % y un decimal por debajo', fmtIC([0.545, 0.6064], 'es') === 'IC 95 %: 55–61\u00a0%' && fmtIC([0.0026, 0.0787], 'es') === 'IC 95 %: 0,3–7,9\u00a0%' && fmtIC([0.545, 0.6064], 'en') === '95% CI: 55–61%', [fmtIC([0.545, 0.6064], 'es'), fmtIC([0.0026, 0.0787], 'es')].join(' | '))
+  ok('fmtIC: sin IC, cadena vacía', fmtIC(null, 'es') === '')
+  ok('fmtIC: si los dos extremos redondean igual, un decimal (FGFR1 sin circularidad salía «100–100 %»)', fmtIC(wilson(3323, 3324), 'es') === 'IC 95 %: 99,8–100,0\u00a0%', fmtIC(wilson(3323, 3324), 'es'))
+  ok('icLoo: reconstruye k de n y la fracción (628 y 0,5844 → 367)', JSON.stringify(icLoo({ n: 628, frac: 0.5844 })) === JSON.stringify(wilson(367, 628)) && icLoo({ n: 10, frac: null }) === null)
+  const filasIc = porGrupo(H, H.genes[0]!)
+  ok('porGrupo: cada fila lleva el IC de Wilson de sus detectadas', filasIc.every((f) => JSON.stringify(f.ic) === JSON.stringify(wilson(f.detectadas, f.n))))
+  ok('tsv: tabuladores y saltos de línea dentro de un campo se quitan; nulos vacíos; termina en salto', tsv([['a', 'b\tc'], [1, null], ['x\ny', 0.5]]) === 'a\tb c\n1\t\nx y\t0.5\n')
+  ok('r4: 4 decimales, vacío si no hay número', r4(0.123456) === 0.1235 && r4(null) === '' && r4(Number.NaN) === '')
 }
 // revisión final (18-oct): la página en inglés es en-US; mezclaba «Color by» con «colour», «favoured», «programme»
 {
