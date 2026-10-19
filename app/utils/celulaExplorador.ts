@@ -316,6 +316,15 @@ export function fmtPctSig(x: number, lang: 'es' | 'en'): string {
 export const pct = (x: number) => Math.round(100 * x)
 /** «28 %» en ES, «28%» en EN: la misma forma en tablas y violines. */
 export const fmtPct = (x: number, lang: 'es' | 'en') => (lang === 'en' ? `${pct(x)}%` : `${pct(x)}\u00a0%`)   // espacio duro: el «%» no se separa de su cifra
+/** Detectado y suelo, uno junto al otro: si redondeados a entero salen iguales, los dos con un decimal (comité médico,
+ * 18-oct: «10 % · suelo 10 %» era 10,3 frente a 9,6 y no se podía comparar). */
+export function fmtParSuelo(frac: number, suelo: number, lang: 'es' | 'en'): [string, string] {
+  if (pct(frac) !== pct(suelo)) return [fmtPct(frac, lang), fmtPct(suelo, lang)]
+  if ((100 * frac).toFixed(2) === (100 * suelo).toFixed(2)) return [fmtPct(frac, lang), fmtPct(suelo, lang)]   // iguales de verdad: enteros
+  const d = (100 * frac).toFixed(1) === (100 * suelo).toFixed(1) ? 2 : 1   // a un decimal aún iguales: dos
+  const f = (x: number) => { const t = (100 * x).toFixed(d); return lang === 'en' ? `${t}%` : `${t.replace('.', ',')}\u00a0%` }
+  return [f(frac), f(suelo)]
+}
 
 /** sha256 hex de un texto (SubtleCrypto). */
 export async function sha256Hex(buf: ArrayBuffer): Promise<string> {

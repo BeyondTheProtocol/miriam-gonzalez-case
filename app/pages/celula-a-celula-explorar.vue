@@ -21,8 +21,10 @@ const L = (es: string, en: string) => (lang.value === 'en' ? en : es)
 const { man, estado, hayReal } = useCelulaExplorador()
 
 const titulo = () => L('Explorar los datos célula a célula', 'Explore the cell-by-cell data')
-const descripcion = () => L('Para oncólogos moleculares: el mapa de células de las dos biopsias de Miriam, gen a gen, con el n, el suelo ambiental y la referencia a la vista en cada medida.',
-  'For molecular oncologists: the cell map of Miriam’s two biopsies, gene by gene, with the n, the ambient floor and the reference shown for every measure.')
+/* sin subtítulo visible (panel de expertos, 18-oct): repetía la etiqueta del buscador y empujaba el mapa fuera de la
+ * primera pantalla; la descripción larga queda para SEO */
+const descripcion = () => L('El mapa de células de las dos biopsias de Miriam: busca un gen o elige un marcador y míralo célula a célula en el mapa y grupo a grupo, con su n y su suelo ambiental.',
+  'The cell map of Miriam’s two biopsies: search a gene or pick a marker and see it cell by cell on the map and group by group, with its n and its ambient floor.')
 useSeoMeta({
   title: titulo, description: descripcion, ogTitle: titulo, ogDescription: descripcion,
   ogType: 'website', twitterCard: 'summary_large_image', twitterTitle: titulo, twitterDescription: descripcion,
@@ -31,7 +33,7 @@ useSeoMeta({
 defineOgImage('Default.takumi', { title: titulo, description: descripcion })
 
 const VERAS = [
-  ['El mapa de células de cada lesión, coloreado por grupo, tipo celular o gen.', 'The cell map of each lesion, coloured by group, cell type or gene.'],
+  ['El mapa de células de cada lesión, coloreado por grupo o por gen.', 'The cell map of each lesion, colored by group or by gene.'],
   ['Cualquier gen de la lista, grupo a grupo, con su n y su suelo ambiental.', 'Any gene on the list, group by group, with its n and its ambient floor.'],
   ['Los genes de interés frente a la referencia emparejada, con la lectura de Polaris en borrador.', 'The genes of interest against the matched reference, with the draft Polaris reading.'],
   ['Dos genes a la vez: en qué células se detectan los dos.', 'Two genes at once: the cells where both are detected.'],
@@ -52,17 +54,20 @@ const LEER = [
 
 <template>
   <div class="overflow-x-clip">
-    <section class="section-spacing" :aria-label="titulo()">
+    <section class="xp-seccion" :aria-label="titulo()">
       <div class="mx-auto w-full max-w-[1280px] px-4 sm:px-6 lg:px-8">
         <PageHeader
-          class="!mb-6"
+          compact
+          class="!mb-4"
           :parent="{ to: localePath({ name: 'celula-a-celula' }), label: L('Célula a célula', 'Cell by cell') }"
           :tag="L('Para profesionales', 'For professionals')"
           :title="titulo()"
-          :subtitle="descripcion()"
         />
-        <CelulaAviso class="mb-4" />
-        <CelulaExplorarEtiquetas :lang="lang" class="mb-8" />
+        <!-- aviso y etiquetas fijas en una sola franja en escritorio: el mapa tiene que asomar al entrar -->
+        <div class="xp-marco">
+          <CelulaAviso />
+          <CelulaExplorarEtiquetas :lang="lang" />
+        </div>
 
         <div class="xp-flujo">
           <ClientOnly v-if="estado !== 'cerrada'">
@@ -83,15 +88,17 @@ const LEER = [
             </ul>
           </section>
 
-          <section aria-labelledby="xp-leer-t">
-            <h2 id="xp-leer-t" class="cel-h2">{{ L('Cómo leerlo', 'How to read it') }}</h2>
+          <!-- simulador (18-oct): «Cómo leerlo» plegado; el resumen con texto está en Célula a célula -->
+          <details class="xp-leer-pl">
+            <summary><span class="xp-leer-t">{{ L('Cómo leerlo', 'How to read it') }}</span></summary>
             <dl class="xp-leer">
               <div v-for="[tEs, dEs, tEn, dEn] in LEER" :key="tEs" class="xp-leer__fila">
                 <dt>{{ L(tEs, tEn) }}</dt>
                 <dd>{{ L(dEs, dEn) }}</dd>
               </div>
             </dl>
-          </section>
+            <p class="cel-p">{{ L('El resumen en texto de estos datos está en', 'The text summary of these data is in') }} <NuxtLink :to="localePath({ name: 'celula-a-celula' })" class="link-underline">{{ L('Célula a célula', 'Cell by cell') }}</NuxtLink>.</p>
+          </details>
 
           <!-- 18-oct: la matriz de todos los genes ya es pública (Zarr, decisión 2 de Miriam); el fichero h5ad sigue a petición -->
           <section v-if="hayReal" class="card-base cel-card" aria-labelledby="xp-pide-t">
@@ -108,6 +115,9 @@ const LEER = [
 </template>
 
 <style scoped>
+/* simulador: menos aire arriba que una página de lectura, para que el mapa asome al entrar */
+.xp-seccion { padding: 1rem 0 4rem; }
+.xp-marco { display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-8); margin-bottom: var(--sp-12); }
 .xp-flujo { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--sp-48); }
 .xp-cerrado { padding: var(--sp-24); }
 .xp-espera { min-height: 60vh; display: grid; place-items: center; font: var(--tipo-body-sm); color: var(--color-text-soft); }
@@ -117,4 +127,15 @@ const LEER = [
 .xp-leer { margin: 0; display: grid; gap: var(--sp-12); max-width: var(--measure); }
 .xp-leer__fila dt { font: 600 var(--texto-base)/1.4 var(--font-body); color: var(--color-text); }
 .xp-leer__fila dd { margin: var(--sp-4) 0 0; font: var(--tipo-body-sm); color: var(--color-text-soft); }
+.xp-leer-pl { border: 1px solid var(--trazo-medio); border-radius: var(--radius-btn); padding: 0 var(--sp-16); }
+.xp-leer-pl[open] { padding-bottom: var(--sp-16); }
+.xp-leer-pl summary { cursor: pointer; min-height: 44px; display: flex; align-items: center; gap: var(--sp-8); }
+.xp-leer-t { font: 600 var(--texto-base)/1.3 var(--font-body); color: var(--color-text); }
+/* chevron del sistema (main.css .notes-disclosure), no glifos */
+.xp-leer-pl summary::before { content: ''; width: 7px; height: 7px; border-right: 1.5px solid currentColor; border-bottom: 1.5px solid currentColor; transform: rotate(-45deg); transition: transform 0.2s ease; flex-shrink: 0; color: var(--color-text-soft); }
+.xp-leer-pl[open] summary::before { transform: rotate(45deg); }
+@media (prefers-reduced-motion: reduce) { .xp-leer-pl summary::before { transition: none; } }
+.xp-leer-pl summary::-webkit-details-marker { display: none; }
+.xp-leer-pl summary:focus-visible { outline: 2px solid var(--anillo-foco); outline-offset: 2px; }
+.xp-leer-pl .xp-leer { margin-top: var(--sp-16); }
 </style>

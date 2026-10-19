@@ -19,7 +19,8 @@ const HYDRATED = `(() => {
   return !!n && !n.isHydrating && n.$router.currentRoute.value.fullPath === location.pathname + location.search + location.hash
 })()`
 
-export async function abrirNavegador({ ancho = 390, alto = 844, escala = 2 } = {}) {
+/** `gl: true` da WebGL por software (SwiftShader) para probar el mapa del explorador; por defecto, sin GPU ni WebGL. */
+export async function abrirNavegador({ ancho = 390, alto = 844, escala = 2, gl = false } = {}) {
   // ── Servidor estático con URLs limpias (como Netlify: /ciencia → ciencia.html)
   const TYPES = {
     '.html': 'text/html; charset=utf-8',
@@ -90,7 +91,7 @@ export async function abrirNavegador({ ancho = 390, alto = 844, escala = 2 } = {
         `--user-data-dir=${profile}`,
         '--no-first-run',
         '--no-default-browser-check',
-        '--disable-gpu',
+        ...(gl ? ['--use-angle=swiftshader', '--enable-unsafe-swiftshader'] : ['--disable-gpu']),
         // En los runners de Ubuntu 24.04 AppArmor corta el sandbox de Chrome.
         ...(process.env.CI ? ['--no-sandbox'] : []),
         ...(process.env.CI ? ['--disable-dev-shm-usage'] : []),

@@ -71,9 +71,24 @@ export const PAPEL_SELECCION: Record<string, T> = {
   exclusion: t('participa en la selección de este grupo (marcador de exclusión): su cifra aquí sale baja por construcción',
     'takes part in selecting this group (exclusion marker): its figure here is low by construction'),
   ligado_er: t('va ligado al programa con el que se seleccionó este grupo: su cifra aquí sale favorecida',
-    'is tied to the programme used to select this group: its figure here is favoured'),
+    'is tied to the program used to select this group: its figure here is favored'),
 }
 
+/** Nombres clínicos que un médico teclea, solo para el BUSCADOR (comité médico, 18-oct: «ER» no llevaba a ESR1 ni
+ * «PD-L1» a CD274). Equivalencias estándar de HGNC (cotejadas por verificacion, 18-oct); no se usan como rótulo. Sin
+ * isoformas: «CLDN18.2» NO lleva a CLDN18, porque las sondas cuentan el gen entero y no distinguen la 18.2. */
+export const ALIAS_BUSCA: Record<string, string> = {
+  ER: 'ESR1', PR: 'PGR', 'Ki-67': 'MKI67', 'PD-L1': 'CD274', 'PD-1': 'PDCD1', p53: 'TP53', 'E-cadherina': 'CDH1', 'E-cadherin': 'CDH1',
+  CK7: 'KRT7', CK8: 'KRT8', CK18: 'KRT18', CK19: 'KRT19', CK20: 'KRT20', 'c-MET': 'MET', HER4: 'ERBB4',
+  'B7-H4': 'VTCN1', CEA: 'CEACAM5', mamaglobina: 'SCGB2A2', mammaglobin: 'SCGB2A2', 'GCDFP-15': 'PIP',
+}
+/** nombre clínico por idioma, para avisar de que el % del explorador es ARN y no el resultado de la IHQ (comité médico) */
+export const NOMBRE_CLINICO: Record<string, T> = {
+  ESR1: t('ER', 'ER'), PGR: t('PR', 'PR'), MKI67: t('Ki-67', 'Ki-67'), CD274: t('PD-L1', 'PD-L1'), PDCD1: t('PD-1', 'PD-1'), TP53: t('p53', 'p53'),
+  CDH1: t('E-cadherina', 'E-cadherin'), KRT7: t('CK7', 'CK7'), KRT8: t('CK8', 'CK8'), KRT18: t('CK18', 'CK18'), KRT19: t('CK19', 'CK19'), KRT20: t('CK20', 'CK20'),
+  MET: t('c-MET', 'c-MET'), ERBB4: t('HER4', 'HER4'), VTCN1: t('B7-H4', 'B7-H4'), CEACAM5: t('CEA', 'CEA'), SCGB2A2: t('mamaglobina', 'mammaglobin'), PIP: t('GCDFP-15', 'GCDFP-15'),
+  ERBB2: t('HER2', 'HER2'), ERBB3: t('HER3', 'HER3'), TACSTD2: t('TROP2', 'TROP2'), CD276: t('B7-H3', 'B7-H3'), NECTIN4: t('Nectin-4', 'Nectin-4'),
+}
 export const nombreGen = (g: string) => (PROTEINA[g] ? `${PROTEINA[g]} (${g})` : g)
 export const etiqueta = (mapa: Record<string, T>, id: string, lang: 'es' | 'en') => mapa[id]?.[lang] ?? id.replaceAll('_', ' ')
 
@@ -81,9 +96,19 @@ export const etiqueta = (mapa: Record<string, T>, id: string, lang: 'es' | 'en')
 export const ETIQUETAS_FIJAS = {
   n1: t('n=1, FFPE, exploratorio', 'n=1, FFPE, exploratory'),
   arn: t('ARN ≠ proteína; manda la IHQ', 'RNA ≠ protein; IHC decides'),
+  /** con su muestra (verificacion, 18-oct): la IHQ 0 es del primario (3 lecturas) y de la biopsia hepática; en el hueso,
+   * sin muestra nombrada, daba a entender una IHQ que no consta */
   her2: t('IHQ de HER2: 0 (primario e hígado)', 'HER2 IHC: 0 (primary and liver)'),
+  /** etiqueta de la lectura por gen: completa en el detalle; corta en cada fila de la lista, cuyo pie dice de quién es y
+   * que está pendiente (diseño, 18-oct: la completa repetida diez veces pesaba más que las cifras) */
+  lectura: t('Lectura de Polaris (borrador, pendiente del laboratorio):', 'Polaris reading (draft, pending the laboratory’s reading):'),
+  lecturaCorta: t('Lectura (borrador):', 'Reading (draft):'),
   /** auditoría 18-oct: el ARN del programa de estrógeno está activo, pero la tinción del hígado salió negativa */
   re: t('IHQ de RE: negativa (hígado)', 'ER IHC: negative (liver)'),
+  /** auditoría 18-oct: del hueso no consta IHQ de HER2 (solo ADN, FoundationOne) */
+  her2Hueso: t('IHQ de HER2 (hueso): no consta', 'HER2 IHC (bone): none reported'),
+  /** auditoría 18-oct: HER3 lo tiene igual o más el grupo «Hepatocitos» (que puede incluir tumorales: no «sanos», comité médico) */
+  her3Higado: t('En el grupo «Hepatocitos» se detecta igual o más', 'Detected as much or more in the “Hepatocytes” group'),
   /** qué matriz es: la estándar, con el ADN genómico que eso arrastra en el hueso */
   matriz: t('Matriz estándar de Cell Ranger, todas las sondas; en el hueso incluye ADN genómico', 'Standard Cell Ranger matrix, all probes; in the bone it includes genomic DNA'),
   /** el número de copias del hueso es una inferencia por expresión, no una lectura de ADN */

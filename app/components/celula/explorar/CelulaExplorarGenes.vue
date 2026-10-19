@@ -8,7 +8,7 @@
  */
 import type { LesionDatos } from '~/utils/celulaExplorador'
 import { fmtPct, porGrupo } from '~/utils/celulaExplorador'
-import { CIRC_HUESO, ETIQUETA_GRUPO, ETIQUETA_VEREDICTO, LECTURA, PANEL_INTERES, PAPEL_SELECCION, PROTEINA, etiqueta } from '~/utils/celulaExploradorTexto'
+import { CIRC_HUESO, ETIQUETA_GRUPO, ETIQUETA_VEREDICTO, LECTURA, PANEL_INTERES, PAPEL_SELECCION, PROTEINA, etiqueta, ETIQUETAS_FIJAS } from '~/utils/celulaExploradorTexto'
 
 const props = defineProps<{ d: LesionDatos; lang: 'es' | 'en'; elegido: string }>()
 const emit = defineEmits<{ elegir: [string] }>()
@@ -46,9 +46,8 @@ const fmtCp = (x: number) => String(Math.round(x))
                 <span class="gi__prot">{{ PROTEINA[f.gen] ?? f.gen }}</span>
                 <span v-if="PROTEINA[f.gen]" class="gi__sim">{{ f.gen }}</span>
               </button>
-              <span v-if="f.gen === 'ERBB2' && d.lesion === 'higado'" class="gi__nota">{{ L('IHQ de HER2 (hígado): 0', 'HER2 IHC (liver): 0') }}</span>
-              <span v-else-if="f.gen === 'ERBB2'" class="gi__nota">{{ L('IHQ de HER2 (hueso): no consta', 'HER2 IHC (bone): none reported') }}</span>
-              <span v-if="f.gen === 'ERBB3' && d.lesion === 'higado'" class="gi__nota">{{ L('En los hepatocitos sanos se detecta igual o más', 'Detected as much or more in healthy hepatocytes') }}</span>
+              <span v-if="f.gen === 'ERBB2'" class="gi__nota">{{ (d.lesion === 'higado' ? ETIQUETAS_FIJAS.her2 : ETIQUETAS_FIJAS.her2Hueso)[lang] }}</span>
+              <span v-if="f.gen === 'ERBB3' && d.lesion === 'higado'" class="gi__nota">{{ ETIQUETAS_FIJAS.her3Higado[lang] }}</span>
               <span v-if="f.papel" class="gi__circ">
                 {{ L(`Circular: ${f.gen} ${PAPEL_SELECCION[f.papel]?.es ?? ''}.`, `Circular: ${f.gen} ${PAPEL_SELECCION[f.papel]?.en ?? ''}.`) }}
                 <template v-if="f.loo">
@@ -107,7 +106,7 @@ const fmtCp = (x: number) => String(Math.round(x))
 .gi__gen[aria-pressed='true'] .gi__prot { color: var(--identidad); text-decoration: underline; text-underline-offset: 3px; }
 .gi__prot { font-weight: 600; white-space: nowrap; }
 .gi__sim { font: 500 var(--texto-xs) var(--font-mono); color: var(--texto-2); white-space: nowrap; }
-.gi__nota { display: block; font: 600 var(--texto-xs)/1.3 var(--font-mono); color: var(--texto-1); }
+.gi__nota { display: block; font: 600 var(--texto-xs)/1.3 var(--font-mono); color: var(--texto-1); text-wrap: balance; }
 .gi__fila--sel { background: color-mix(in srgb, var(--identidad) 8%, transparent); }
 .gi__circ { display: block; max-width: 22rem; margin-top: var(--sp-4); font: 500 var(--texto-xs)/1.35 var(--font-body); color: var(--texto-1); white-space: normal; }
 .gi__ast { margin-left: 2px; font-weight: 700; color: var(--texto-1); }

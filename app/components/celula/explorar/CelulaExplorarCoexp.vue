@@ -14,8 +14,10 @@ const filas = computed(() => tablaCoexp(props.d, props.etiquetas))
 const COLS: Coexp[] = ['ambos', 'solo_a', 'solo_b', 'ninguno']
 /** genes de los dos que participan en la selección del grupo de interés: en esa fila su cifra es circular */
 const circ = computed(() => [...new Set([props.genA, props.genB])].filter((g) => !!props.d.seleccion[g]))
+/** el mismo nombre que la leyenda del mapa (5T4, no TPBG) */
+const P = (g: string) => nombreGen(g).split(' (')[0]!
 const titulo = (c: Coexp) => ({
-  ambos: L('Los dos', 'Both'), solo_a: L(`Solo ${props.genA}`, `${props.genA} only`), solo_b: L(`Solo ${props.genB}`, `${props.genB} only`), ninguno: L('Ninguno', 'Neither'),
+  ambos: L('Los dos', 'Both'), solo_a: L(`Solo ${P(props.genA)}`, `${P(props.genA)} only`), solo_b: L(`Solo ${P(props.genB)}`, `${P(props.genB)} only`), ninguno: L('Ninguno', 'Neither'),
 })[c]
 </script>
 

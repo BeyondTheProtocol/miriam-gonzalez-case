@@ -25,4 +25,5 @@ defineProps<{ lang: 'es' | 'en' }>()
   font: 700 var(--texto-xs)/1.2 var(--font-mono); letter-spacing: 0.02em; color: var(--texto-1);
 }
 .et__ico { width: 16px; height: 16px; flex: none; }
+@media (max-width: 639px) { .et__item { min-height: 28px; padding: 0; background: none; } }   /* diseño, 18-oct: apiladas restaban sitio al buscador */
 </style>

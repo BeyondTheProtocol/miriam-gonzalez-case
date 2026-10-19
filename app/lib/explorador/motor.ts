@@ -35,6 +35,15 @@ export interface EntradaMotor {
   lang: 'es' | 'en'
   /** rótulos de conjunto sobre el mapa (solo tiene sentido con los grupos) */
   rotulos: boolean
+  /** conjunto que se rotula si no es el que colorea (con un gen: los grupos sobre el mapa pintado por nivel) */
+  rotulosDe?: string
+  /** tamaño de los rótulos (px de Vitessce) */
+  tamRotulo?: number
+  /** encuadre inicial con margen: ancho del contenedor (px) y fracción del lienzo que ocupan los datos. Sin él, Vitessce
+   * encaja los datos de borde a borde y en el móvil los rótulos de los cúmulos del borde se cortaban (diseño, 18-oct). */
+  encuadre?: { ancho: number; margen: number }
+  /** orden de dibujo de las células (las últimas, encima): con un gen, lo detectado encima de lo no detectado */
+  orden?: number[]
 }
 
 const csvCampo = (s: string) => (/[",\n]/.test(s) ? `"${s.replaceAll('"', '""')}"` : s)
@@ -48,10 +57,11 @@ function blob(texto: string, urls: string[]): string {
 
 function construyeConfig(e: EntradaMotor, urls: string[]) {
   const n = e.umap.length / 2
+  const orden = e.orden?.length === n ? e.orden : Array.from({ length: n }, (_, i) => i)
   const emb = ['id,umap_1,umap_2']
-  for (let i = 0; i < n; i++) emb.push(`${id(i)},${e.umap[2 * i]},${e.umap[2 * i + 1]}`)
+  for (const i of orden) emb.push(`${id(i)},${e.umap[2 * i]},${e.umap[2 * i + 1]}`)
   const sets = [['id', ...e.conjuntos.map((c) => c.columna)].join(',')]
-  for (let i = 0; i < n; i++) sets.push([id(i), ...e.conjuntos.map((c) => csvCampo(c.valores[i] ?? ''))].join(','))
+  for (const i of orden) sets.push([id(i), ...e.conjuntos.map((c) => csvCampo(c.valores[i] ?? ''))].join(','))
 
   const files: Record<string, unknown>[] = [
     { fileType: 'obsEmbedding.csv', url: blob(emb.join('\n'), urls), coordinationValues: { obsType: 'cell', embeddingType: 'UMAP' }, options: { obsIndex: 'id', obsEmbedding: ['umap_1', 'umap_2'] } },
@@ -62,8 +72,25 @@ function construyeConfig(e: EntradaMotor, urls: string[]) {
     for (let i = 0; i < n; i++) m.push(`${id(i)},${e.gen.valores[i] ?? 0}`)
     files.push({ fileType: 'obsFeatureMatrix.csv', url: blob(m.join('\n'), urls), coordinationValues: { obsType: 'cell', featureType: 'gene', featureValueType: 'expression' } })
   }
+  // misma cuenta que Vitessce (log2 de píxeles por unidad), con margen; «Recentrar» vuelve a este encuadre
+  const vista: Record<string, { A: number }> = {}
+  if (e.encuadre && e.encuadre.ancho > 0 && n > 1) {
+    let x0 = Infinity, x1 = -Infinity, y0 = Infinity, y1 = -Infinity
+    for (let i = 0; i < n; i++) {
+      const x = e.umap[2 * i]!, y = e.umap[2 * i + 1]!
+      if (x < x0) x0 = x; if (x > x1) x1 = x; if (y < y0) y0 = y; if (y > y1) y1 = y
+    }
+    const w = Math.max(100, e.encuadre.ancho - 24), h = Math.max(100, e.alto - 60)   // lienzo: sin el relleno ni el título de la tarjeta
+    vista.embeddingZoom = { A: Math.log2(Math.min(w / (x1 - x0), h / (y1 - y0)) * e.encuadre.margen) }
+    vista.embeddingTargetX = { A: x0 + (x1 - x0) / 2 }
+    vista.embeddingTargetY = { A: -(y0 + (y1 - y0) / 2) }   // Vitessce dibuja con el eje y hacia abajo
+  }
   const primero = e.conjuntos.find((c) => c.nombre === e.colorearPor) ?? e.conjuntos[0]!
-  const seleccion = [...new Set(primero.valores)].sort().map((v) => [primero.nombre, v])
+  const rutas = (c: ConjuntoCsv) => [...new Set(c.valores)].sort().map((v) => [c.nombre, v])
+  // rótulos de otro conjunto (19-oct): sus rutas van DELANTE. Vitessce da a cada célula el color de la última ruta
+  // seleccionada que la contiene, así que colorea el conjunto de detrás; el parche de Vitessce rotula solo el de delante.
+  const deRotulos = e.rotulos && e.rotulosDe && e.rotulosDe !== primero.nombre ? e.conjuntos.find((c) => c.nombre === e.rotulosDe) : undefined
+  const seleccion = [...(deRotulos ? rutas(deRotulos) : []), ...rutas(primero)]
   return {
     version: '1.0.16',
     name: e.etiquetas.mapa,
@@ -80,13 +107,15 @@ function construyeConfig(e: EntradaMotor, urls: string[]) {
       obsSetColor: { A: e.colores.map((c) => ({ path: c.ruta, color: c.rgb })) },
       embeddingObsRadiusMode: { A: 'manual' },
       embeddingObsRadius: { A: 2 },
-      // rótulos solo por grupo: en tipo (12 en hueso) y co-expresión se pisaban y parecían nombres de cúmulo
+      // rótulos solo de los grupos: en tipo (12 en hueso) y co-expresión se pisaban y parecían nombres de cúmulo
       embeddingObsSetLabelsVisible: { A: e.rotulos },
+      embeddingObsSetLabelSize: { A: e.tamRotulo ?? 14 },
+      ...vista,
     },
     // UNA vista: el mapa. Sin el gestor de conjuntos de Vitessce (permitía crear grupos nuevos por
     // unión/intersección, y la página no reagrupa células); la leyenda va debajo, con el design system.
     layout: [
-      { component: 'scatterplot', coordinationScopes: { dataset: 'A', embeddingType: 'A', obsColorEncoding: 'A', featureSelection: 'A', obsSetSelection: 'A', obsSetColor: 'A', embeddingObsRadiusMode: 'A', embeddingObsRadius: 'A', embeddingObsSetLabelsVisible: 'A' }, x: 0, y: 0, w: 12, h: 12, props: { title: e.etiquetas.mapa, closeButtonVisible: false, downloadButtonVisible: false } },
+      { component: 'scatterplot', coordinationScopes: { dataset: 'A', embeddingType: 'A', obsColorEncoding: 'A', featureSelection: 'A', obsSetSelection: 'A', obsSetColor: 'A', embeddingObsRadiusMode: 'A', embeddingObsRadius: 'A', embeddingObsSetLabelsVisible: 'A', embeddingObsSetLabelSize: 'A', ...Object.fromEntries(Object.keys(vista).map((k) => [k, 'A'])) }, x: 0, y: 0, w: 12, h: 12, props: { title: e.etiquetas.mapa, closeButtonVisible: false, downloadButtonVisible: false } },
     ],
   }
 }

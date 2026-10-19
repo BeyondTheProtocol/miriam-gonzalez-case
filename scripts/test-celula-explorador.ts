@@ -16,11 +16,12 @@ import { createHash } from 'node:crypto'
 import { readdirSync, readFileSync } from 'node:fs'
 import { join, relative, sep } from 'node:path'
 import {
-  MARCADORES_N, PAPELES_SELECCION, RE_BARCODE, VEREDICTOS, columna, coexpresion, densidad, estadoPuerta, fechaOkValida, motivosLesion, nivelMatriz, pct, porGrupo, tablaCoexp,
+  MARCADORES_N, PAPELES_SELECCION, RE_BARCODE, VEREDICTOS, columna, coexpresion, densidad, estadoPuerta, fechaOkValida, fmtParSuelo, motivosLesion, nivelMatriz, pct, porGrupo, tablaCoexp,
   type LesionDatos, type Manifiesto,
 } from '../app/utils/celulaExplorador'
-import { ETIQUETA_GRUPO, ETIQUETA_TIPO, ETIQUETA_VEREDICTO, PAPEL_SELECCION } from '../app/utils/celulaExploradorTexto'
+import { ALIAS_BUSCA, ETIQUETA_GRUPO, ETIQUETA_TIPO, ETIQUETA_VEREDICTO, PAPEL_SELECCION, etiqueta } from '../app/utils/celulaExploradorTexto'
 import { abreZarr } from '../app/utils/celulaExploradorZarr'
+import { paleta } from '../app/utils/celulaExploradorColor'
 import FileSystemStore from '@zarrita/storage/fs'
 
 const RAIZ = join(import.meta.dirname, '..')
@@ -197,7 +198,8 @@ for (const [qué, re] of [
   ['«ARN ≠ proteína; manda la IHQ»', /ARN ≠ proteína; manda la IHQ/],
   ['«n=1, FFPE, exploratorio»', /n=1, FFPE, exploratorio/],
   ['«IHQ de HER2: 0»', /IHQ de HER2: 0/],
-  ['aviso de vista reducida en el móvil', /versión reducida/],
+  // simulador (18-oct): el móvil ya no es una vista reducida sin mapa; el mapa está, quieto hasta pedir moverlo
+  ['mapa en el móvil, quieto hasta «Mover el mapa»', /Mover el mapa/],
   ['rótulo de datos de ejemplo', /DATOS DE EJEMPLO/],
   ['suelo ambiental en los violines', /Suelo ambiental: el porcentaje de células/],
   ['rótulo de la matriz (todas las sondas; ADN genómico en el hueso)', /Matriz estándar de Cell Ranger, todas las sondas; en el hueso incluye ADN genómico/],
@@ -264,6 +266,75 @@ if (man.zarr?.length) {
     ok(`${l}: un gen fuera del panel se lee (columna de n células con valores >= 0)`, cf.length === d.n_celulas && cf.every((v) => v >= 0))
   }
 }
+
+// verificacion (18-oct, simplificación para médicos): ninguna ETIQUETA visible de un grupo o tipo del hígado dice
+// «tumor», «maligno» ni «cáncer». El grupo de interés es un subconjunto (993 = 528 epiteliales + 465 sin asignar; 3.201
+// epiteliales están en «Otras»): rotularlo «tumor» sería falso. El muro de los datos solo mira ids; esto mira rótulos.
+{
+  const vetado = /tumor|tumoral|malign|c[aá]ncer|cancer/i
+  const H = lesiones.higado
+  if (H) {
+    const malos = [
+      ...H.grupos.flatMap((g) => [etiqueta(ETIQUETA_GRUPO, g.id, 'es'), etiqueta(ETIQUETA_GRUPO, g.id, 'en')]),
+      ...H.tipos.flatMap((t) => [etiqueta(ETIQUETA_TIPO, t, 'es'), etiqueta(ETIQUETA_TIPO, t, 'en')]),
+    ].filter((x) => vetado.test(x))
+    ok('hígado: ningún rótulo de grupo ni de tipo dice «tumor», «maligno» o «cáncer» (ES y EN)', malos.length === 0, malos.join(' | '))
+  }
+}
+
+// paleta del gen elegido (simulador, diseño 18-oct): con los tokens reales, en los dos temas, «no detectado» y los
+// tramos se distinguen por LUMINOSIDAD (ΔL* ≥ 8 entre pasos contiguos; con puntos de radio 2 el tono solo no basta)
+// y el tercer tramo pasa 3:1 con el fondo del mapa
+{
+  const tokens = readFileSync(join(RAIZ, 'app/assets/css/design-system-v2/btp-tokens.css'), 'utf8')
+  const tok = (v: string) => (tokens.match(new RegExp(`${v}:\\s*([\\d\\s]+);`))?.[1] ?? '').trim()
+  const lin = (c: number) => { const x = c / 255; return x <= 0.04045 ? x / 12.92 : ((x + 0.055) / 1.055) ** 2.4 }
+  const Y = (c: number[]) => 0.2126 * lin(c[0]!) + 0.7152 * lin(c[1]!) + 0.0722 * lin(c[2]!)
+  const Lstar = (c: number[]) => { const y = Y(c); return y > 216 / 24389 ? 116 * Math.cbrt(y) - 16 : (24389 / 27) * y }
+  const contraste = (a: number[], b: number[]) => { const [p, q] = [Y(a), Y(b)].sort((x, z) => z - x); return (p! + 0.05) / (q! + 0.05) }
+  for (const tema of ['light', 'dark'] as const) {
+    const p = paleta(tema, tok)
+    const fondo = (tema === 'dark' ? tok('--color-text-rgb') : tok('--color-bg-rgb')).split(/\s+/).map(Number)
+    const pasos = [p.cero, ...p.nivel].map(Lstar)
+    const saltos = pasos.slice(1).map((l, k) => Math.abs(l - pasos[k]!))
+    ok(`paleta ${tema}: «no detectado» y los 4 tramos se separan por luminosidad (ΔL* ≥ 8 entre pasos)`, saltos.every((d) => d >= 8), saltos.map((d) => d.toFixed(1)).join(' / '))
+    ok(`paleta ${tema}: el tercer tramo pasa 3:1 con el fondo del mapa`, contraste(p.nivel[2]!, fondo) >= 3, contraste(p.nivel[2]!, fondo).toFixed(2))
+    // diseño (18-oct): con tres tonos fijos repetidos, dos grupos de referencia salían del mismo color. Un tono por grupo:
+    // hasta 5 grupos (los datos reales: 5 en el hígado, 4 en el hueso) separados por ΔL* ≥ 8; con 8, distintos; y todos
+    // lejos de «Otras»
+    for (const n of [4, 5, 8]) {
+      const t = p.refs(n), ls = t.map(Lstar), min = Math.min(...ls.slice(1).map((l, k) => Math.abs(l - ls[k]!))), otras = Lstar(p.otras)
+      ok(`paleta ${tema}: ${n} grupos de referencia, ${n} tonos sin repetir${n <= 5 ? ' y ΔL* ≥ 8' : ''}, ninguno pegado a «Otras» y todos ≥ 3:1 con el fondo`, new Set(t.map(String)).size === n && (n > 5 || min >= 8) && ls.every((l) => Math.abs(l - otras) >= 10) && t.every((c) => contraste(c, fondo) >= 3), `ΔL* mínimo ${min.toFixed(1)}; contraste mínimo ${Math.min(...t.map((c) => contraste(c, fondo))).toFixed(2)}`)
+    }
+  }
+}
+
+// comité médico y verificacion (18-oct): detectado y suelo nunca salen iguales por redondeo si no lo son
+{
+  const [a1, b1] = fmtParSuelo(0.103, 0.096, 'es'), [a2, b2] = fmtParSuelo(0.8603, 0.86, 'es'), [a3, b3] = fmtParSuelo(0.41, 0.043, 'es')
+  const [a4, b4] = fmtParSuelo(1, 1, 'es')
+  ok('fmtParSuelo: iguales de verdad (100 frente a 100) salen enteros, no «100,00»', a4 === '100\u00a0%' && b4 === '100\u00a0%', `${a4} | ${b4}`)
+  ok('fmtParSuelo: 10,3 frente a 9,6 con un decimal; 86,03 frente a 86,00 con dos; 41 frente a 4 sin decimal', a1 === '10,3 %' && b1 === '9,6 %' && a2 === '86,03 %' && b2 === '86,00 %' && a3 === '41 %' && b3 === '4 %', [a1, b1, a2, b2, a3, b3].join(' | '))
+}
+// revisión final (18-oct): la página en inglés es en-US; mezclaba «Color by» con «colour», «favoured», «programme»
+{
+  const fuentes = ['app/components/celula/explorar', 'app/utils/celulaExploradorTexto.ts', 'app/pages/celula-a-celula-explorar.vue'].flatMap((r) => {
+    const abs = join(RAIZ, r)
+    return r.endsWith('.ts') || r.endsWith('.vue') ? [readFileSync(abs, 'utf8')] : readdirSync(abs).filter((f) => f.endsWith('.vue')).map((f) => readFileSync(join(abs, f), 'utf8'))
+  }).join('\n')
+  const brit = fuentes.match(/\b(colour\w*|favour\w*|programme\w*|behaviour\w*|centre\w*|grey|tumour\w*|analyse\w*|licence|fibre\w*)\b/gi) ?? []
+  ok('inglés de EE. UU. en el explorador (sin colour, favour, programme…)', brit.length === 0, brit.join(', '))
+}
+// comité médico (18-oct): los datos servidos llevaban dos «se sostiene» que la enmienda del acta retiró, y todo seguía en
+// verde. Los veredictos de la enmienda, atados aquí; y ningún «se sostiene con matices» en el hígado tras ella.
+{
+  if (JSON.parse(readFileSync(join(DIR, 'manifiesto.json'), 'utf8')).ejemplo !== true) {   // solo con los datos reales
+    const vh = JSON.parse(readFileSync(join(DIR, 'higado.json'), 'utf8')).veredicto, vb = JSON.parse(readFileSync(join(DIR, 'hueso.json'), 'utf8')).veredicto
+    ok('veredictos de la enmienda del 18-oct: HER3 del hígado «con_matiz» y 5T4 del hueso «en_el_limite»', vh.ERBB3 === 'con_matiz' && vb.TPBG === 'en_el_limite', `ERBB3 ${vh.ERBB3} · TPBG ${vb.TPBG}`)
+  }
+}
+// verificacion (18-oct): los alias del buscador llevan a un GEN; una isoforma (CLDN18.2) no se puede leer con sondas del gen entero
+ok('alias de búsqueda: ninguno es una isoforma (p. ej. «CLDN18.2»)', !Object.keys(ALIAS_BUSCA).some((k) => /\d\.\d/.test(k)), Object.keys(ALIAS_BUSCA).filter((k) => /\d\.\d/.test(k)).join(', '))
 
 console.log(fallos ? `\n${fallos} de ${hechos} comprobaciones fallan` : `${hechos} de ${hechos} comprobaciones en verde`)
 process.exit(fallos ? 1 : 0)

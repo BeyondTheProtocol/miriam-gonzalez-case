@@ -14,14 +14,14 @@
  * Sin animaciones. El estado no va solo en color: hay texto en cada fila y aria-label con las cifras.
  */
 import type { Adn, FilaGrupo, Lesion, Loo } from '~/utils/celulaExplorador'
-import { densidad, fmtPct, fmtPctFino, fmtPctSig } from '~/utils/celulaExplorador'
+import { densidad, fmtParSuelo, fmtPct, fmtPctFino, fmtPctSig } from '~/utils/celulaExplorador'
 import { CIRC_HUESO, ETIQUETAS_FIJAS, ETIQUETA_GRUPO, PAPEL_SELECCION, etiqueta } from '~/utils/celulaExploradorTexto'
 
-const props = defineProps<{ filas: FilaGrupo[]; gen: string; lang: 'es' | 'en'; lesion: Lesion; adn: Adn; papel?: string; loo?: Loo }>()
+const props = defineProps<{ filas: FilaGrupo[]; gen: string; lang: 'es' | 'en'; lesion: Lesion; adn: Adn; papel?: string; loo?: Loo; referencia?: number }>()
 const L = (es: string, en: string) => (props.lang === 'en' ? en : es)
 const uid = useId()
 
-const W = 300, H = 40, BX = 340, BW = 140
+const W = 300, H = 40, BX = 372, BW = 140
 const X0 = -12, ANCHO = BX + BW + 24
 /** posición (%) de una x del viewBox, para colocar las etiquetas del eje en HTML */
 const pos = (xv: number) => ((xv - X0) / ANCHO) * 100
@@ -56,17 +56,38 @@ const adnTxt = computed(() => {
     `${nf(a.sondas_dentro_de_exon)} of the panel’s ${nf(a.sondas_panel)} probes fall inside an exon and also bind the genomic DNA of the formalin-fixed tissue (FFPE). For the whole sample there are two estimates of the share of UMIs, the molecules counted, that comes from that DNA: ${est} (this analysis) and ${cr} (Cell Ranger’s “Estimated UMIs from genomic DNA”). In the group of interest, ${f(a.frac_lecturas_interes)}.${hueso ? ' In the bone the ambient floor includes that DNA.' : ''}`)
 })
 const nfCp = (x: number) => String(Math.round(x))
+/** Partes de la línea de cifras. Si detectado y suelo pasan los dos de 0,9, el porcentaje no distingue nada: cuenta el
+ * nivel (comité médico, 18-oct: FGFR1 del hueso salía «no supera el suelo», una lectura de negativo falsa). */
+function partes(f: FilaGrupo): { t: string; fuerte?: boolean }[] {
+  const [a, b] = fmtParSuelo(f.frac, f.suelo, props.lang)
+  const p: { t: string; fuerte?: boolean }[] = [{ t: L(`Detectado ${a} (${nf(f.detectadas)})`, `Detected ${a} (${nf(f.detectadas)})`) }, { t: L(`suelo ${b}`, `floor ${b}`) }]
+  if (f.frac >= 0.9 && f.suelo >= 0.9) p.push({ t: L('en casi todas las células: cuenta el nivel', 'in almost every cell: the level is what counts'), fuerte: true })
+  else if (f.frac <= f.suelo) p.push({ t: L('no supera el suelo', 'does not clear the floor'), fuerte: true })
+  const m = mediana(f.niveles)
+  if (m != null) p.push({ t: `${L('mediana', 'median')} ${fmt10(m)} CP10k` })
+  if (f.detectadas < 3) p.push({ t: L('pocas células para dibujar la forma', 'too few cells to draw a shape') })
+  return p
+}
 </script>
 
 <template>
   <div class="vio">
+    <div class="vio__leyenda vio__leyenda--arriba">
+      <span class="vio__muestra vio__muestra--raya" aria-hidden="true" />
+      <div>
+        <p>
+          {{ L('Suelo ambiental: el porcentaje de células en las que el gen saldría solo por ARN suelto en la muestra. Lo que no lo supera no cuenta como expresión.' + (lesion === 'hueso' ? ' En el hueso, el suelo incluye además el ADN genómico del tejido (ver «Cómo se lee»).' : ' En el hígado el suelo es un mínimo: para los genes del tumor decide la referencia emparejada.'),
+            'Ambient floor: the share of cells where the gene would show up from loose RNA in the sample alone. Anything at or below it does not count as expression.' + (lesion === 'hueso' ? ' In the bone, the floor also includes the tissue’s genomic DNA (see “How to read it”).' : ' In the liver the floor is a minimum: for tumor genes, the matched reference decides.')) }}
+        </p>
+      </div>
+    </div>
     <div class="vio__titulos" aria-hidden="true">
       <span :style="{ width: `${(W / (BX + BW)) * 100}%` }">{{ L('Nivel en las células donde se detecta (CP10k)', 'Level in cells where detected (CP10k)') }}</span>
       <span :style="{ width: `${(BW / (BX + BW)) * 100}%` }">{{ L('% de células donde se detecta', '% of cells where detected') }}</span>
     </div>
     <!-- ejes en HTML (no escalan con el viewBox: legibles también a 375 px) -->
     <div class="vio__eje" aria-hidden="true">
-      <span v-for="tk in ticks" :key="tk" class="vio__tt" :style="{ left: `${pos(x(tk))}%` }">{{ fmt10(tk) }}</span>
+      <span v-for="(tk, k) in ticks" :key="tk" class="vio__tt" :class="{ 'vio__tt--salta': ticks.length > 4 && k % 2 === 1 }" :style="{ left: `${pos(x(tk))}%` }">{{ fmt10(tk) }}</span>
       <span v-for="p in [0, 50, 100]" :key="`p${p}`" class="vio__tt" :style="{ left: `${pos(BX + (BW * p) / 100)}%` }">{{ p }}</span>
     </div>
     <ul class="vio__lista">
@@ -76,12 +97,11 @@ const nfCp = (x: number) => String(Math.round(x))
           <span class="vio__n nums">n = {{ nf(f.n) }}</span>
         </div>
         <!-- circularidad: la cifra sin ella va PRIMERO; la de la figura (este grupo) queda rotulada como circular -->
-        <p v-if="f.rol === 'interes' && lesion === 'hueso'" class="vio__circ vio__circ--grupo" role="note"><strong>{{ L('Circular.', 'Circular.') }}</strong> {{ L(CIRC_HUESO.es, CIRC_HUESO.en) }}</p>
         <p v-if="f.rol === 'interes' && papel" class="vio__circ" role="note">
           <template v-if="loo">
             <strong>{{ L('Sin esa circularidad', 'Without that circularity') }}</strong>
             {{ L(`(grupo construido sin ese criterio, n\u00a0=\u00a0${nf(loo.n)}):`, `(group built without that criterion, n\u00a0=\u00a0${nf(loo.n)}):`) }}
-            <template v-if="loo.frac != null">{{ L('detectado', 'detected') }} {{ fmtPct(loo.frac, lang) }}</template><template v-if="loo.ref != null"> · {{ L('referencia', 'reference') }} {{ fmtPct(loo.ref, lang) }}</template><template v-if="loo.cp10k_pseudobulk != null"> · pseudobulk&nbsp;{{ nfCp(loo.cp10k_pseudobulk) }}&nbsp;CP10k</template>.
+            <template v-if="loo.frac != null">{{ L('detectado', 'detected') }} {{ fmtPct(loo.frac, lang) }}</template><template v-if="loo.ref != null">, {{ L('referencia', 'reference') }} {{ fmtPct(loo.ref, lang) }}</template><template v-if="loo.cp10k_pseudobulk != null">, pseudobulk&nbsp;{{ nfCp(loo.cp10k_pseudobulk) }}&nbsp;CP10k</template>.
           </template>
           <strong>{{ L('Cifra circular.', 'Circular figure.') }}</strong>
           {{ L(`La de abajo es la de este grupo, y ${gen} ${PAPEL_SELECCION[papel]?.es ?? ''}.`, `The one below is this group’s, and ${gen} ${PAPEL_SELECCION[papel]?.en ?? ''}.`) }}
@@ -98,7 +118,7 @@ const nfCp = (x: number) => String(Math.round(x))
           <template v-else>
             <circle v-for="(v, k) in f.niveles" :key="k" :cx="x(v)" :cy="H / 2" r="3" class="vio__punto" />
           </template>
-          <line v-if="mediana(f.niveles) != null" :x1="x(mediana(f.niveles)!)" :x2="x(mediana(f.niveles)!)" :y1="H / 2 - 9" :y2="H / 2 + 9" class="vio__mediana" />
+          <line v-if="mediana(f.niveles) != null" :x1="x(mediana(f.niveles)!)" :x2="x(mediana(f.niveles)!)" :y1="H / 2 - 6" :y2="H / 2 + 6" class="vio__mediana" />
           <!-- detección y suelo ambiental, en la misma figura -->
           <rect :x="BX" y="12" :width="BW" height="16" class="vio__marco" />
           <rect :x="BX" y="12" :width="BW * Math.min(1, f.frac)" height="16" class="vio__det" />
@@ -106,42 +126,44 @@ const nfCp = (x: number) => String(Math.round(x))
           <line :x1="BX + BW * Math.min(1, f.suelo)" :x2="BX + BW * Math.min(1, f.suelo)" y1="8" y2="32" class="vio__suelo-linea" />
         </svg>
         <p class="vio__txt nums">
-          <template v-if="f.rol === 'interes' && papel">{{ L('Circular · ', 'Circular · ') }}</template><span class="vio__par">{{ L(`Detectado ${fmtPct(f.frac, 'es')} (${nf(f.detectadas)})`, `Detected ${fmtPct(f.frac, 'en')} (${nf(f.detectadas)})`) }}</span> · <span class="vio__par">{{ L(`suelo ${fmtPct(f.suelo, 'es')}`, `floor ${fmtPct(f.suelo, 'en')}`) }}</span><template v-if="mediana(f.niveles) != null"> · <span class="vio__par">{{ L('mediana', 'median') }} {{ fmt10(mediana(f.niveles)!) }} CP10k</span></template>
-          <template v-if="f.detectadas < 3"> · {{ L('pocas células para dibujar la forma', 'too few cells to draw a shape') }}</template>
+          <strong v-if="f.rol === 'interes' && papel" class="vio__bajo">{{ L('Circular', 'Circular') }}</strong><span v-for="(x, k) in partes(f)" :key="k" class="vio__par"><strong v-if="x.fuerte" class="vio__bajo">{{ x.t }}</strong><template v-else>{{ x.t }}</template></span>
         </p>
+        <!-- la referencia emparejada no es ningún grupo de la lista: se da aquí, junto al grupo de interés (comité médico, 18-oct) -->
+        <p v-if="f.rol === 'interes' && referencia != null" class="vio__ref nums">{{ L(`Referencia emparejada (células no tumorales de la misma muestra, a la misma profundidad): ${fmtPct(referencia, 'es')}`, `Matched reference (non-tumor cells from the same sample, at the same depth): ${fmtPct(referencia, 'en')}`) }}</p>
+        <!-- en el hueso el grupo entero es circular: la nota cierra la fila -->
+        <p v-if="f.rol === 'interes' && lesion === 'hueso'" class="vio__circ vio__circ--grupo" role="note"><strong>{{ L('Circular.', 'Circular.') }}</strong> {{ L(CIRC_HUESO.es, CIRC_HUESO.en) }}</p>
       </li>
     </ul>
-    <div class="vio__leyenda">
-      <span class="vio__muestra vio__muestra--raya" aria-hidden="true" />
-      <div>
-        <p>
-          {{ L('Suelo ambiental: el porcentaje de células en las que el gen saldría solo por ARN suelto en la muestra. Lo que no lo supera no cuenta como expresión. Pero superarlo no basta: en los grupos no tumorales, parte de la señal de los genes del tumor viene de gotas con dos células o de ARN del tumor que el suelo no recoge, y no es expresión de esas células. Si el suelo supera lo detectado, está sobreestimado para ese gen en ese grupo.',
-            'Ambient floor: the share of cells where the gene would show up from loose RNA in the sample alone. Anything at or below it does not count as expression. But clearing it is not enough: in non-tumor groups, part of the signal from tumor genes comes from droplets holding two cells or from tumor RNA the floor does not capture, and it is not expression by those cells. If the floor is above what is detected, it is overestimated for that gene in that group.') }}
-        </p>
-        <p class="vio__adn"><strong>{{ L(`${ETIQUETAS_FIJAS.matriz.es}.`, `${ETIQUETAS_FIJAS.matriz.en}.`) }}</strong> {{ adnTxt }}</p>
-      </div>
-    </div>
-    <p class="vio__leyenda">
-      {{ L('El violín es el nivel (CP10k, escala logarítmica) solo en las células donde el gen se detecta; la raya vertical es la mediana.',
-        'The violin is the level (CP10k, log scale) only in cells where the gene is detected; the vertical tick is the median.') }}
-      {{ L(`${ETIQUETAS_FIJAS.mediana.es}.`, `${ETIQUETAS_FIJAS.mediana.en}.`) }}
-    </p>
+    <!-- auditoría 18-oct: superar el suelo no basta en los grupos no tumorales (a la vista, después de las cifras) -->
+    <p class="vio__leyenda vio__noBasta"><strong>{{ L('Superar el suelo no basta.', 'Clearing the floor is not enough.') }}</strong> {{ L('En los grupos no tumorales, parte de la señal de los genes del tumor viene de gotas con dos células o de ARN del tumor que el suelo no recoge, y no es expresión de esas células. Vale cuando el grupo de interés supera a esos grupos; si un grupo no tumoral lo supera, esa señal no se explica así.', 'In non-tumor groups, part of the signal from tumor genes comes from droplets holding two cells or from tumor RNA the floor does not capture, and it is not expression by those cells. This holds when the group of interest exceeds those groups; if a non-tumor group exceeds it, that signal is not explained this way.') }}</p>
+    <!-- simulador (18-oct): lo explicativo, plegado; las cifras, el n, el suelo y la circularidad quedan siempre a la vista -->
+    <details class="vio__como">
+      <summary>{{ L('Cómo se lee', 'How to read it') }}</summary>
+      <p class="vio__leyenda">{{ L('Si el suelo supera lo detectado, el suelo está sobreestimado para ese gen en ese grupo o, en grupos pequeños, la diferencia cabe en el azar del muestreo.', 'If the floor is above what is detected, the floor is overestimated for that gene in that group or, in small groups, the difference is within sampling chance.') }}</p>
+      <p class="vio__adn"><strong>{{ L(`${ETIQUETAS_FIJAS.matriz.es}.`, `${ETIQUETAS_FIJAS.matriz.en}.`) }}</strong> {{ adnTxt }}</p>
+      <p class="vio__leyenda">
+        {{ L('El violín es el nivel (CP10k, escala logarítmica) solo en las células donde el gen se detecta; la raya vertical es la mediana.',
+          'The violin is the level (CP10k, log scale) only in cells where the gene is detected; the vertical tick is the median.') }}
+        {{ L(`${ETIQUETAS_FIJAS.mediana.es}.`, `${ETIQUETAS_FIJAS.mediana.en}.`) }}
+      </p>
+    </details>
   </div>
 </template>
 
 <style scoped>
-.vio { color: var(--texto-1); }
+.vio { color: var(--texto-1); container-type: inline-size; }
+@container (max-width: 440px) { .vio__tt--salta { display: none; } }
 .vio__titulos { display: flex; justify-content: space-between; gap: var(--sp-8); font: 600 var(--texto-xs)/1.3 var(--font-body); color: var(--texto-2); }
 .vio__titulos span:last-child { text-align: right; }
 .vio__eje { position: relative; height: 1.4em; margin: var(--sp-4) 0; border-bottom: 1px solid var(--trazo-fuerte); }
 .vio__tt { position: absolute; top: 0; transform: translateX(-50%); font: 500 var(--texto-xs)/1.2 var(--font-mono); color: var(--texto-2); white-space: nowrap; }
-.vio__lista { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--sp-8); }
-.vio__fila { padding: var(--sp-8) 0; border-top: 1px solid var(--trazo-sutil); }
+.vio__lista { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--sp-8); }   /* ninguna fila ensancha la columna */
+.vio__fila { min-width: 0; padding: var(--sp-8) 0; border-top: 1px solid var(--trazo-sutil); }
 .vio__cab { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0 var(--sp-8); }
 .vio__nombre { font: 600 var(--texto-sm)/1.3 var(--font-body); color: var(--texto-1); }
 .vio__fila--interes .vio__nombre { color: var(--identidad); }
 .vio__n { font: 500 var(--texto-xs)/1.3 var(--font-mono); color: var(--texto-2); white-space: nowrap; }
-.vio__par { white-space: nowrap; }
+.vio__txt { display: flex; flex-wrap: wrap; gap: 0 1.7em; overflow-wrap: anywhere; }   /* partes separadas por aire, sin «·» colgados (diseño, 18-oct) */
 .vio__svg { display: block; width: 100%; height: auto; margin-top: var(--sp-4); overflow: visible; }
 .vio__base { stroke: var(--trazo-medio); }
 .vio__forma { fill: color-mix(in srgb, var(--texto-2) 40%, transparent); stroke: var(--texto-2); stroke-width: 1; vector-effect: non-scaling-stroke; }
@@ -155,9 +177,20 @@ const nfCp = (x: number) => String(Math.round(x))
 .vio__suelo { stroke: var(--texto-1); stroke-width: 1; }
 .vio__suelo-linea { stroke: var(--texto-1); stroke-width: 2; vector-effect: non-scaling-stroke; }
 .vio__txt { margin: var(--sp-4) 0 0; font: 500 var(--texto-xs)/1.4 var(--font-mono); color: var(--texto-2); }
+.vio__bajo { color: var(--texto-1); font-weight: 700; }
+.vio__ref { margin: var(--sp-4) 0 0; font: 500 var(--texto-xs)/1.4 var(--font-mono); color: var(--texto-1); }
 .vio__leyenda { display: flex; gap: var(--sp-8); align-items: flex-start; margin: var(--sp-12) 0 0; font: var(--tipo-body-sm); font-size: var(--texto-xs); color: var(--texto-2); max-width: var(--measure); }
 .vio__leyenda p { margin: 0; }
-.vio__adn { margin-top: var(--sp-8) !important; color: var(--texto-1); }
+.vio__noBasta strong { color: var(--texto-1); }
+.vio__leyenda--arriba { margin: 0 0 var(--sp-12); }
+.vio__adn { margin: var(--sp-8) 0 0; font: var(--tipo-body-sm); font-size: var(--texto-xs); color: var(--texto-1); max-width: var(--measure); }
+.vio__como { margin-top: var(--sp-12); }
+.vio__como summary { cursor: pointer; min-height: 44px; display: flex; align-items: center; font: 600 var(--texto-sm)/1.3 var(--font-body); color: var(--identidad); }
+.vio__como summary::-webkit-details-marker { display: none; }
+.vio__como summary::before { content: ''; display: inline-block; width: 7px; height: 7px; border-right: 1.5px solid currentColor; border-bottom: 1.5px solid currentColor; transform: rotate(-45deg); transition: transform 0.2s ease; flex-shrink: 0; margin-right: var(--sp-8); }
+.vio__como[open] summary::before { transform: rotate(45deg); }
+@media (prefers-reduced-motion: reduce) { .vio__como summary::before { transition: none; } }
+.vio__como summary:focus-visible { outline: 2px solid var(--anillo-foco); outline-offset: 2px; }
 .vio__circ { margin: var(--sp-4) 0 var(--sp-4); padding: var(--sp-8) var(--sp-12); border-left: 3px solid var(--texto-1); font: var(--tipo-body-sm); font-size: var(--texto-xs); color: var(--texto-1); max-width: var(--measure); }
 .vio__muestra { flex: none; width: 22px; height: 12px; margin-top: 3px; border: 1px solid var(--texto-1); }
 .vio__muestra--raya { background: repeating-linear-gradient(45deg, var(--texto-1) 0 2px, transparent 2px 5px); }
