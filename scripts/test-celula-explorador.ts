@@ -16,7 +16,7 @@ import { createHash } from 'node:crypto'
 import { readdirSync, readFileSync } from 'node:fs'
 import { join, relative, sep } from 'node:path'
 import {
-  MARCADORES_N, MOTIVO_LECTURAS, MOTIVOS, PAPELES_SELECCION, RE_BARCODE, VEREDICTOS, VEREDICTOS_SIN_MOTIVO, columna, coexpresion, densidad, estadoPuerta, fechaOkValida, fmtIC, fmtParSuelo, icLoo, motivoDe, motivosLesion, nivelMatriz, pct, porGrupo, r4, tablaCoexp, tsv, wilson,
+  MARCADORES_N, MOTIVO_LECTURAS, MOTIVOS, PAPELES_SELECCION, RE_BARCODE, VEREDICTOS, VEREDICTOS_SIN_MOTIVO, columna, coexpresion, densidad, estadoPuerta, etiquetaIC, fechaOkValida, fmtIC, fmtParSuelo, fmtRangoIC, icLoo, motivoDe, motivosLesion, nivelMatriz, pct, porGrupo, r4, tablaCoexp, tsv, wilson,
   type LesionDatos, type Manifiesto,
 } from '../app/utils/celulaExplorador'
 import { ALIAS_BUSCA, ETIQUETA_GRUPO, ETIQUETA_MOTIVO, ETIQUETA_TIPO, ETIQUETA_VEREDICTO, ETIQUETA_VEREDICTO_CON_MOTIVO, PAPEL_SELECCION, PIE_MOTIVO, etiqueta, etiquetaLectura, pieMotivo } from '../app/utils/celulaExploradorTexto'
@@ -393,6 +393,7 @@ if (man.zarr?.length) {
   ok('wilson: k = 0 da inferior 0 y k = n da superior 1', wilson(0, 50)![0] === 0 && wilson(50, 50)![1] === 1)
   ok('fmtIC: enteros por encima del 10 % y un decimal por debajo', fmtIC([0.545, 0.6064], 'es') === 'IC 95 %: 55–61\u00a0%' && fmtIC([0.0026, 0.0787], 'es') === 'IC 95 %: 0,3–7,9\u00a0%' && fmtIC([0.545, 0.6064], 'en') === '95% CI: 55–61%', [fmtIC([0.545, 0.6064], 'es'), fmtIC([0.0026, 0.0787], 'es')].join(' | '))
   ok('fmtIC: sin IC, cadena vacía', fmtIC(null, 'es') === '')
+  ok('fmtRangoIC: solo el rango (la tabla a 390 px cortaba la cifra tras el prefijo) y etiquetaIC aparte', fmtRangoIC([0.2229, 0.2766], 'es') === '22–28\u00a0%' && fmtRangoIC([0.2229, 0.2766], 'en') === '22–28%' && etiquetaIC('es') === 'IC 95 %' && etiquetaIC('en') === '95% CI' && fmtIC([0.2229, 0.2766], 'es') === `${etiquetaIC('es')}: ${fmtRangoIC([0.2229, 0.2766], 'es')}`)
   ok('fmtIC: si los dos extremos redondean igual, un decimal (FGFR1 sin circularidad salía «100–100 %»)', fmtIC(wilson(3323, 3324), 'es') === 'IC 95 %: 99,8–100,0\u00a0%', fmtIC(wilson(3323, 3324), 'es'))
   ok('icLoo: reconstruye k de n y la fracción (628 y 0,5844 → 367)', JSON.stringify(icLoo({ n: 628, frac: 0.5844 })) === JSON.stringify(wilson(367, 628)) && icLoo({ n: 10, frac: null }) === null)
   const filasIc = porGrupo(H, H.genes[0]!)

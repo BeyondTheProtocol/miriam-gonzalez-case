@@ -57,23 +57,23 @@ const adnTxt = computed(() => {
 })
 const nfCp = (x: number) => String(Math.round(x))
 /* «Copiar cifras (TSV)» (plan «muy útil a científicos», 19-oct): lo que ya se ve, en texto tabulado, sin cifras nuevas */
-const copiado = ref('')
+const { estado: copiado, copia, reinicia } = useCopiado()
+watch(() => [props.gen, props.lesion], reinicia)
 async function copiaTSV() {
   const cab = ['lesion', 'gen', 'grupo', 'n', 'detectadas', 'frac_detectada', 'ic95_inf', 'ic95_sup', 'suelo', 'mediana_cp10k']
   const filas = props.filas.map((f) => {
     const m = mediana(f.niveles)
     return [props.lesion, props.gen, f.id, f.n, f.detectadas, r4(f.frac), r4(f.ic?.[0]), r4(f.ic?.[1]), r4(f.suelo), m == null ? '' : Number((10 ** m).toPrecision(3))]
   })
-  try { await navigator.clipboard.writeText(tsv([cab, ...filas])); copiado.value = L('Copiado: una fila por grupo.', 'Copied: one row per group.') }
-  catch { copiado.value = L('No se pudo copiar en este navegador.', 'Could not copy in this browser.') }
+  await copia(tsv([cab, ...filas]), L('Copiado: una fila por grupo.', 'Copied: one row per group.'), L('No se pudo copiar en este navegador.', 'Could not copy in this browser.'))
 }
 /** Partes de la línea de cifras. Si detectado y suelo pasan los dos de 0,9, el porcentaje no distingue nada: cuenta el
  * nivel (comité médico, 18-oct: FGFR1 del hueso salía «no supera el suelo», una lectura de negativo falsa). */
 function partes(f: FilaGrupo): { t: string; fuerte?: boolean }[] {
   const [a, b] = fmtParSuelo(f.frac, f.suelo, props.lang)
-  const p: { t: string; fuerte?: boolean; ic?: boolean }[] = [{ t: L(`Detectado ${a} (${nf(f.detectadas)})`, `Detected ${a} (${nf(f.detectadas)})`) }]
+  const p: { t: string; fuerte?: boolean }[] = [{ t: L(`Detectado ${a} (${nf(f.detectadas)})`, `Detected ${a} (${nf(f.detectadas)})`) }]
   // IC95 de Wilson (plan «muy útil a científicos», 19-oct): descriptivo, justo después de la cifra que acota
-  if (f.ic) p.push({ t: fmtIC(f.ic, props.lang), ic: true })
+  if (f.ic) p.push({ t: fmtIC(f.ic, props.lang) })
   p.push({ t: L(`suelo ${b}`, `floor ${b}`) })
   if (f.frac >= 0.9 && f.suelo >= 0.9) p.push({ t: L('en casi todas las células: cuenta el nivel', 'in almost every cell: the level is what counts'), fuerte: true })
   else if (f.frac <= f.suelo) p.push({ t: L('no supera el suelo', 'does not clear the floor'), fuerte: true })
@@ -104,7 +104,7 @@ function partes(f: FilaGrupo): { t: string; fuerte?: boolean }[] {
       <span v-for="(tk, k) in ticks" :key="tk" class="vio__tt" :class="{ 'vio__tt--salta': ticks.length > 4 && k % 2 === 1 }" :style="{ left: `${pos(x(tk))}%` }">{{ fmt10(tk) }}</span>
       <span v-for="p in [0, 50, 100]" :key="`p${p}`" class="vio__tt" :style="{ left: `${pos(BX + (BW * p) / 100)}%` }">{{ p }}</span>
     </div>
-    <ul class="vio__lista">
+    <ul class="vio__lista" role="list">
       <li v-for="f in filas" :key="f.id" class="vio__fila" :class="`vio__fila--${f.rol}`">
         <div class="vio__cab">
           <span class="vio__nombre">{{ etiqueta(ETIQUETA_GRUPO, f.id, lang) }}</span>
@@ -140,7 +140,7 @@ function partes(f: FilaGrupo): { t: string; fuerte?: boolean }[] {
           <line :x1="BX + BW * Math.min(1, f.suelo)" :x2="BX + BW * Math.min(1, f.suelo)" y1="8" y2="32" class="vio__suelo-linea" />
         </svg>
         <p class="vio__txt nums">
-          <strong v-if="f.rol === 'interes' && papel" class="vio__bajo">{{ L('Circular', 'Circular') }}</strong><span v-for="(x, k) in partes(f)" :key="k" class="vio__par" :class="{ 'vio__par--ic': x.ic }"><strong v-if="x.fuerte" class="vio__bajo">{{ x.t }}</strong><template v-else>{{ x.t }}</template></span>
+          <strong v-if="f.rol === 'interes' && papel" class="vio__bajo">{{ L('Circular', 'Circular') }}</strong><span v-for="(x, k) in partes(f)" :key="k" class="vio__par"><strong v-if="x.fuerte" class="vio__bajo">{{ x.t }}</strong><template v-else>{{ x.t }}</template></span>
         </p>
         <!-- la referencia emparejada no es ningún grupo de la lista: se da aquí, junto al grupo de interés (comité médico, 18-oct) -->
         <p v-if="f.rol === 'interes' && referencia != null" class="vio__ref nums">{{ L(`Referencia emparejada (células no tumorales de la misma muestra, a la misma profundidad): ${fmtPct(referencia, 'es')}`, `Matched reference (non-tumor cells from the same sample, at the same depth): ${fmtPct(referencia, 'en')}`) }}</p>
@@ -150,7 +150,7 @@ function partes(f: FilaGrupo): { t: string; fuerte?: boolean }[] {
     </ul>
     <div class="vio__copiar">
       <button type="button" class="vio__btn" @click="copiaTSV">{{ L('Copiar cifras (TSV)', 'Copy figures (TSV)') }}</button>
-      <span class="vio__estado" role="status" aria-live="polite">{{ copiado }}</span>
+      <span class="vio__estado" role="status">{{ copiado }}</span>
     </div>
     <!-- auditoría 18-oct: superar el suelo no basta en los grupos no tumorales (a la vista, después de las cifras) -->
     <p class="vio__leyenda vio__noBasta"><strong>{{ L('Superar el suelo no basta.', 'Clearing the floor is not enough.') }}</strong> {{ L('En los grupos no tumorales, parte de la señal de los genes del tumor viene de gotas con dos células o de ARN del tumor que el suelo no recoge, y no es expresión de esas células. Vale cuando el grupo de interés supera a esos grupos; si un grupo no tumoral lo supera, esa señal no se explica así.', 'In non-tumor groups, part of the signal from tumor genes comes from droplets holding two cells or from tumor RNA the floor does not capture, and it is not expression by those cells. This holds when the group of interest exceeds those groups; if a non-tumor group exceeds it, that signal is not explained this way.') }}</p>

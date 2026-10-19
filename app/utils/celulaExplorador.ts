@@ -303,9 +303,17 @@ export function wilson(k: number, n: number): [number, number] | null {
  * «100–100 %»). */
 export function fmtIC(ic: [number, number] | null, lang: 'es' | 'en'): string {
   if (!ic) return ''
+  return `${etiquetaIC(lang)}: ${fmtRangoIC(ic, lang)}`
+}
+/** Nivel del IC (el de Z_WILSON) y su etiqueta: «IC 95 %» / «95% CI». */
+export const NIVEL_IC = 95
+export const etiquetaIC = (lang: 'es' | 'en') => (lang === 'en' ? `${NIVEL_IC}% CI` : `IC ${NIVEL_IC} %`)
+/** Solo el rango, «55–61 %» (en la tabla a 390 px el prefijo cortaba la cifra; la etiqueta va en la cabecera). */
+export function fmtRangoIC(ic: [number, number] | null, lang: 'es' | 'en'): string {
+  if (!ic) return ''
   const dec = 100 * ic[1] < 10 || Math.round(100 * ic[0]) === Math.round(100 * ic[1]) ? 1 : 0
   const f = (x: number) => { const t = (100 * x).toFixed(dec); return lang === 'en' ? t : t.replace('.', ',') }
-  return lang === 'en' ? `95% CI: ${f(ic[0])}–${f(ic[1])}%` : `IC 95 %: ${f(ic[0])}–${f(ic[1])} %`
+  return lang === 'en' ? `${f(ic[0])}–${f(ic[1])}%` : `${f(ic[0])}–${f(ic[1])}\u00a0%`
 }
 
 export interface FilaGrupo { id: string; rol: Rol; n: number; detectadas: number; frac: number; ic: [number, number] | null; suelo: number; niveles: number[] }

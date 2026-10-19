@@ -36,17 +36,21 @@ const bibtex = computed(() => [
   `  note = {sha256 ${huellas.value}${fecha.value ? `; ${fecha.value}` : ''}}`,
   '}',
 ].join('\n'))
-const codigo = `pip install anndata zarr fsspec aiohttp
+/* Lo que se copia se ejecuta tal cual en Python (pase de diseño, 19-oct: mezclaba shell y Python): la instalación va
+ * comentada y la biopsia es una variable. Probado el 19-oct en un entorno limpio. */
+const codigoTxt = computed(() => [
+  `# ${L('en un terminal', 'in a terminal')}: pip install anndata zarr fsspec aiohttp`,
+  'import anndata as ad',
+  '',
+  `lesion = "higado"   # ${L('o', 'or')} "hueso"`,
+  `adata = ad.read_zarr(f"${BASE}/zarr/{lesion}.zarr")`,
+].join('\n'))
+/** En pantalla la fecha no se parte (guiones de no separación); lo copiado lleva el texto original. */
+const citaVista = computed(() => (fecha.value ? cita.value.replace(fecha.value, fecha.value.replaceAll('-', '\u2011')) : cita.value))
 
-import anndata as ad
-adata = ad.read_zarr("${BASE}/zarr/higado.zarr")   # o hueso.zarr`
-const codigoTxt = computed(() => (props.lang === 'en' ? codigo.replace('# o hueso', '# or hueso') : codigo))
-
-const estado = ref('')
-async function copia(texto: string, que: string) {
-  try { await navigator.clipboard.writeText(texto); estado.value = L(`Copiado: ${que}.`, `Copied: ${que}.`) }
-  catch { estado.value = L('No se pudo copiar en este navegador.', 'Could not copy in this browser.') }
-}
+const { estado: estadoCodigo, copia: copiaCodigo } = useCopiado()
+const { estado: estadoCita, copia: copiaCita } = useCopiado()
+const NO = () => L('No se pudo copiar en este navegador.', 'Could not copy in this browser.')
 </script>
 
 <template>
@@ -55,7 +59,7 @@ async function copia(texto: string, que: string) {
     <p class="dat__p">{{ L(`Los datos de esta página son públicos y se pueden usar para investigar. Son de una sola paciente (${ETIQUETAS_FIJAS.n1.es}) y son ARN, no proteína.`, `The data on this page are public and can be used for research. They come from a single patient (${ETIQUETAS_FIJAS.n1.en}) and are RNA, not protein.`) }}</p>
 
     <h3 class="dat__sub">{{ L('Ficheros', 'Files') }}</h3>
-    <ul class="dat__lista">
+    <ul class="dat__lista" role="list">
       <li v-for="x in lesiones" :key="x.l" class="dat__fila">
         <strong class="dat__les">{{ nombre(x.l) }}</strong>
         <span v-if="x.zarr" class="dat__item">
@@ -73,19 +77,20 @@ async function copia(texto: string, que: string) {
       {{ L('lleva la versión, el sello de verificación y el sha256 completo de cada fichero.', 'carries the version, the verification seal and the full sha256 of every file.') }}
     </p>
 
-    <h3 class="dat__sub">{{ L('Cómo leerlo en Python', 'How to read it in Python') }}</h3>
-    <pre class="dat__code"><code>{{ codigoTxt }}</code></pre>
+    <h3 class="dat__sub">{{ L('Abrirlo en Python', 'Open it in Python') }}</h3>
+    <pre class="dat__code" tabindex="0" role="region" :aria-label="L('Código para abrirlo en Python', 'Code to open it in Python')"><code>{{ codigoTxt }}</code></pre>
     <div class="dat__acciones">
-      <button type="button" class="dat__btn" @click="copia(codigoTxt, L('el código', 'the code'))">{{ L('Copiar el código', 'Copy the code') }}</button>
+      <button type="button" class="dat__btn" @click="copiaCodigo(codigoTxt, L('Copiado: el código.', 'Copied: the code.'), NO())">{{ L('Copiar el código', 'Copy the code') }}</button>
+      <span class="dat__estado" role="status">{{ estadoCodigo }}</span>
     </div>
     <p class="dat__p dat__p--sm">{{ L('Probado el 19-oct-2026 con anndata 0.13 y zarr 3.4. Se lee por partes desde la web: el hígado tarda alrededor de un minuto. Las células van con un índice propio, no con su código de barras.', 'Tested on 19 Oct 2026 with anndata 0.13 and zarr 3.4. It is read piece by piece from the web: the liver takes about a minute. Cells carry an index of their own, not their barcode.') }}</p>
 
     <h3 class="dat__sub">{{ L('Cómo citarlo', 'How to cite it') }}</h3>
-    <p class="dat__cita">{{ cita }}</p>
+    <p class="dat__cita">{{ citaVista }}</p>
     <div class="dat__acciones">
-      <button type="button" class="dat__btn" @click="copia(cita, L('la cita', 'the citation'))">{{ L('Copiar la cita', 'Copy the citation') }}</button>
-      <button type="button" class="dat__btn" @click="copia(bibtex, 'BibTeX')">{{ L('Copiar BibTeX', 'Copy BibTeX') }}</button>
-      <span class="dat__estado" role="status" aria-live="polite">{{ estado }}</span>
+      <button type="button" class="dat__btn" @click="copiaCita(cita, L('Copiado: la cita.', 'Copied: the citation.'), NO())">{{ L('Copiar la cita', 'Copy the citation') }}</button>
+      <button type="button" class="dat__btn" @click="copiaCita(bibtex, L('Copiado: BibTeX.', 'Copied: BibTeX.'), NO())">{{ L('Copiar BibTeX', 'Copy BibTeX') }}</button>
+      <span class="dat__estado" role="status">{{ estadoCita }}</span>
     </div>
     <p class="dat__p dat__p--sm">{{ L('Si los datos cambian, cambian la versión y la huella: cítalo con las dos.', 'If the data change, the version and the fingerprint change: cite it with both.') }}</p>
   </section>
@@ -104,8 +109,9 @@ async function copia(texto: string, que: string) {
 .dat__item { font: var(--tipo-body-sm); color: var(--texto-2); overflow-wrap: anywhere; }
 .dat__url, .dat__sha { font: 500 var(--texto-xs)/1.4 var(--font-mono); color: var(--texto-1); overflow-wrap: anywhere; }
 .dat__sha { margin-left: var(--sp-8); color: var(--texto-2); }
-.dat__code { margin: 0; padding: var(--sp-12) var(--sp-16); border: 1px solid var(--trazo-medio); border-radius: var(--radius-btn); background: var(--superficie); font: 500 var(--texto-xs)/1.5 var(--font-mono); color: var(--texto-1); white-space: pre-wrap; overflow-wrap: anywhere; }
-.dat__cita { margin: 0; padding: var(--sp-12) var(--sp-16); border-left: 3px solid var(--trazo-fuerte); font: var(--tipo-body-sm); color: var(--texto-1); max-width: var(--measure); user-select: all; overflow-wrap: anywhere; }
+.dat__code { margin: 0; max-width: 46rem; padding: var(--sp-12) var(--sp-16); border: 1px solid var(--trazo-fuerte); border-radius: var(--radius-btn); background: var(--fondo); font: 500 var(--texto-xs)/1.5 var(--font-mono); color: var(--texto-1); white-space: pre; overflow-x: auto; }
+.dat__code:focus-visible { outline: 2px solid var(--anillo-foco); outline-offset: 2px; }
+.dat__cita { margin: 0; padding: var(--sp-12) var(--sp-16); border-left: 3px solid var(--trazo-fuerte); font: var(--tipo-body-sm); color: var(--texto-1); max-width: 46rem; user-select: all; overflow-wrap: anywhere; }
 .dat__acciones { display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-8) var(--sp-12); margin-top: var(--sp-12); }
 .dat__btn { min-height: 44px; padding: 0 var(--sp-16); border: 1px solid var(--trazo-interactivo); border-radius: var(--radius-btn); background: var(--fondo); color: var(--texto-1); font: 600 var(--texto-sm)/1.2 var(--font-body); -webkit-tap-highlight-color: transparent; }
 @media (hover: hover) { .dat__btn:hover { background: var(--trazo-sutil); } }
