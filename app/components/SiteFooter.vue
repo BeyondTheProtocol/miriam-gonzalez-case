@@ -60,11 +60,11 @@
               {{ $t(grupo.heading) }}
             </h3>
             <ul :aria-labelledby="`pie-${grupo.id}`" class="flex flex-col">
-              <li v-for="item in grupo.enlaces" :key="item.key">
+              <li v-for="item in grupo.enlaces.filter(visible)" :key="item.key">
                 <NuxtLink :to="localePath({ name: item.name })"
                   class="inline-flex items-center min-h-[44px] text-sm text-tinta hover:text-miriam transition-colors"
                   style="text-decoration: none"
-                  @click="item.key === 'data' && trackDatos('footer')">
+                  @click="medirPie(item.key)">
                   {{ $t(`nav.${item.key}`) }}
                 </NuxtLink>
               </li>
@@ -154,7 +154,7 @@
 
 <script setup lang="ts">
 const localePath = useLocalePath()
-const { trackSupport, trackShare, trackDatos } = useSupport()
+const { trackSupport, trackShare, trackDatos, trackCelula, trackExplorador } = useSupport()
 
 // "Con el apoyo de" — todos iguales (logos de empresas/colaboradores). Todos se
 // pintan en blanco monocromo (CSS) para leerse como un conjunto sobre berenjena.
@@ -174,7 +174,14 @@ const supporters = [
   { name: 'UCAM', img: '/svg/ucam.svg', url: 'https://www.ucam.edu' },
 ]
 
-// Los enlaces del pie (tres grupos) viven en app/utils/navegacion.ts: `PIE`.
+// Los enlaces del pie (tres grupos) viven en app/utils/navegacion.ts: `PIE`. El explorador de células solo
+// sale con su puerta abierta (useHerramientas).
+const { visible } = useHerramientas()
+function medirPie(key: string) {
+  if (key === 'data') trackDatos('footer')
+  else if (key === 'cell_by_cell') trackCelula('pie')
+  else if (key === 'cell_explorer') trackExplorador('pie')
+}
 </script>
 
 <style scoped>

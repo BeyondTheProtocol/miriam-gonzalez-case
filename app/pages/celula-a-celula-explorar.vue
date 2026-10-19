@@ -14,7 +14,7 @@
  */
 import { ETIQUETAS_FIJAS } from '~/utils/celulaExploradorTexto'
 
-const { locale } = useI18n()
+const { locale, t } = useI18n()
 const localePath = useLocalePath()
 const lang = computed<'es' | 'en'>(() => (locale.value === 'en' ? 'en' : 'es'))
 const L = (es: string, en: string) => (lang.value === 'en' ? en : es)
@@ -56,13 +56,17 @@ const LEER = [
   <div class="overflow-x-clip">
     <section class="xp-seccion" :aria-label="titulo()">
       <div class="mx-auto w-full max-w-[1280px] px-4 sm:px-6 lg:px-8">
+        <!-- Miga a Herramientas, como las demás herramientas; a su página madre se vuelve por el divisor, que con la
+             puerta abierta sustituye a la etiqueta «Para profesionales» (diseno, 19-oct). -->
         <PageHeader
           compact
           class="!mb-4"
-          :parent="{ to: localePath({ name: 'celula-a-celula' }), label: L('Célula a célula', 'Cell by cell') }"
-          :tag="L('Para profesionales', 'For professionals')"
+          :parent="{ to: localePath({ name: 'herramientas' }), label: t('nav.tools') }"
+          :tag="hayReal ? undefined : L('Para profesionales', 'For professionals')"
           :title="titulo()"
-        />
+        >
+          <template #fila><CelulaNivel activo="pro" /></template>
+        </PageHeader>
         <!-- aviso y etiquetas fijas en una sola franja en escritorio: el mapa tiene que asomar al entrar -->
         <div class="xp-marco">
           <CelulaAviso />

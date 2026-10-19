@@ -51,6 +51,8 @@ defineOgImage('Default.takumi', {
             : L('Un análisis que mira las células del tumor de Miriam una a una, en lugar de hacer la media de todas. Todavía no hay resultados.',
               'An analysis that looks at the cells of Miriam’s tumor one by one, instead of averaging all of them. There are no results yet.')"
         />
+        <!-- el divisor justo bajo el H1: esta es la versión para mentes curiosas; el explorador, la de profesionales -->
+        <CelulaNivel activo="simple" class="mb-8" />
 
         <CelulaAviso class="mb-8" />
         <EcgDivider class="mb-12" />

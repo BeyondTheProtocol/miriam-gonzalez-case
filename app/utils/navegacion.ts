@@ -30,6 +30,7 @@ export const NAV = {
   port: e('port', 'reservorio'),
   boneBiopsy: e('bone_biopsy', 'biopsia-osea'),
   cellByCell: e('cell_by_cell', 'celula-a-celula'),
+  cellExplorer: e('cell_explorer', 'celula-a-celula-explorar'),
   story: e('story', 'historia'),
   videos: e('videos', 'videos'),
   timeline: e('timeline', 'timeline'),
@@ -51,7 +52,11 @@ export const MENU_MOVIL: EnlaceNav[] = [NAV.home, ...MENU_ESCRITORIO]
 // la home. Orden por fecha de estreno de cada página (primer commit en main): célula a célula
 // 16-oct · datos 24-sep 20:13 · reservorio 24-sep 19:20 · lesiones 19-sep · biopsia 5-sep · mapa 11-jun.
 // Una herramienta nueva entra al PRINCIPIO de esta lista.
-export const HERRAMIENTAS: EnlaceNav[] = [NAV.cellByCell, NAV.data, NAV.port, NAV.lesions, NAV.boneBiopsy, NAV.map]
+// Excepción (diseno, 19-oct; Miriam lo decide en la vista previa): el explorador de células (18-oct) va SEGUNDO,
+// detrás de su página madre. La primera es la tarjeta grande de la home, y la del explorador le enseñaría al
+// público general «su n y su suelo ambiental»; la madre es la versión para todos y el divisor lleva de una a otra.
+// Se oculta mientras su puerta no esté abierta (useHerramientas).
+export const HERRAMIENTAS: EnlaceNav[] = [NAV.cellByCell, NAV.cellExplorer, NAV.data, NAV.port, NAV.lesions, NAV.boneBiopsy, NAV.map]
 
 // Icono de cada herramienta (decorativo, aria-hidden) para las tarjetas de /herramientas.
 // Son los que la web ya usaba para cada una: el pin del teaser de la home y de /ciencia
@@ -66,6 +71,8 @@ export const ICONO_HERRAMIENTA: Record<string, string> = {
   bone_biopsy: 'ph:microscope-fill',
   // Tres círculos: tres células. Distinto del microscopio de la biopsia (corte de tejido): aquí no se mira un corte, se cuentan células.
   cell_by_cell: 'ph:circles-three-fill',
+  // Una lupa: buscar un gen y mirarlo célula a célula. Distinta de los tres círculos de su página madre.
+  cell_explorer: 'ph:magnifying-glass-fill',
 }
 
 // Pie: tres columnas por intención (`heading` es la clave i18n de su título).
@@ -82,7 +89,7 @@ export const PIE: { id: string; heading: string; enlaces: EnlaceNav[] }[] = [
 export const SECCIONES: Record<string, string[]> = {
   home: ['index'],
   science: ['ciencia', 'ciencia-evidencia', 'ciencia-slug'],
-  tools: ['herramientas', 'datos', 'lesiones', 'mapa-metastasis', 'reservorio', 'biopsia-osea', 'celula-a-celula'],
+  tools: ['herramientas', 'datos', 'lesiones', 'mapa-metastasis', 'reservorio', 'biopsia-osea', 'celula-a-celula', 'celula-a-celula-explorar'],
   timeline: ['timeline', 'historia', 'historia-slug'],
   team: ['equipo'],
   collaborate: ['colabora', 'prensa', 'marcas', 'gastos', 'contacto'],
@@ -124,6 +131,11 @@ export const COPY_HERRAMIENTAS: Record<string, { es: [string, string]; en: [stri
   bone_biopsy: {
     es: ['Lo que se puede medir en mi biopsia ósea', 'Lo que un corte de histología puede decir y lo que no. La biopsia ósea de Miriam, calibrada con su propia barra de 100 µm, con los límites de la imagen dichos tan claro como las medidas.'],
     en: ['What can be measured in my bone biopsy', 'What a histology slide can and cannot tell you. Miriam’s own bone biopsy, calibrated against its 100 µm scale bar, with the limits of the image stated as plainly as the measurements.'],
+  },
+  // app/pages/celula-a-celula-explorar.vue (título y descripción de useSeoMeta)
+  cell_explorer: {
+    es: ['Explorar los datos célula a célula', 'El mapa de células de las dos biopsias de Miriam: busca un gen o elige un marcador y míralo célula a célula en el mapa y grupo a grupo, con su n y su suelo ambiental.'],
+    en: ['Explore the cell-by-cell data', 'The cell map of Miriam’s two biopsies: search a gene or pick a marker and see it cell by cell on the map and group by group, with its n and its ambient floor.'],
   },
   // app/pages/celula-a-celula.vue
   cell_by_cell: {

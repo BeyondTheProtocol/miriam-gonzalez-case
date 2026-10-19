@@ -1,5 +1,8 @@
 <template>
   <NuxtLoadingIndicator color="#9d44ab" :height="3" />
+  <!-- Anuncia el título de la página nueva al navegar (diseno, 19-oct): el divisor de célula a célula cambia de
+       página, y sin esto el cambio era mudo para un lector de pantalla. -->
+  <NuxtRouteAnnouncer />
   <NuxtLayout>
     <NuxtPage />
   </NuxtLayout>

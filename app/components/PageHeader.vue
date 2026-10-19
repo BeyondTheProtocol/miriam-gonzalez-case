@@ -23,6 +23,11 @@
     >
       <slot name="title">{{ title }}</slot>
     </h1>
+    <!-- `fila` (opt-in): justo bajo el H1 en móvil y, en la cabecera compacta de escritorio, en la misma fila que la
+         miga (p. ej. el divisor de público del explorador; diseno, 19-oct). -->
+    <div v-if="$slots.fila" :class="compact ? 'mb-2 lg:order-2 lg:mb-0' : 'mb-4'">
+      <slot name="fila" />
+    </div>
     <p v-if="subtitle" class="text-tinta max-w-2xl leading-relaxed" :class="compact ? 'hidden sm:block text-base lg:order-3 lg:basis-full' : 'text-lg'">
       {{ subtitle }}
     </p>

@@ -10,6 +10,7 @@ const lang = computed<'es' | 'en'>(() => (locale.value === 'en' ? 'en' : 'es'))
 const L = (es: string, en: string) => (lang.value === 'en' ? en : es)
 const { estado } = useCelulaExplorador()
 const destino = computed(() => localePath({ name: 'celula-a-celula-explorar', query: estado.value === 'ejemplo' ? { demo: '1' } : undefined }))
+const { trackExplorador } = useSupport()
 </script>
 
 <template>
@@ -21,7 +22,7 @@ const destino = computed(() => localePath({ name: 'celula-a-celula-explorar', qu
         'The cell map of both biopsies, gene by gene, with the n, the ambient floor and the reference for every measure.') }}
       <template v-if="estado === 'ejemplo'"> {{ L('De momento, con datos de ejemplo.', 'For now, with example data.') }}</template>
     </p>
-    <NuxtLink :to="destino" class="link-action xt__enlace">
+    <NuxtLink :to="destino" class="link-action xt__enlace" @click="trackExplorador('tarjeta_proximos')">
       {{ L('Abrir el explorador', 'Open the explorer') }}
       <Icon name="ph:arrow-right-bold" class="w-4 h-4" aria-hidden="true" />
     </NuxtLink>
