@@ -127,6 +127,30 @@ try {
       comprobar(`[${lg}] reposo ${m.k}: valor y fecha del último análisis`, m.f === e.f && m.v === String(e.v) && m.txt.includes(valor(e, lg)) && m.txt.includes(fechaCorta(e.f, lg)),
         `pinta «${m.txt}» (${m.v}, ${m.f}); caso.json dice ${valor(e, lg)} (${e.f})`)
     }
+    /* ── 3b · las cifras de la vitrina: valores y extracciones en UNA ventana (18-oct-2026) ──
+       El artículo de X del 18-oct cita «más de 1.800 valores de más de 70 extracciones desde diciembre de
+       2023». Antes, Cielo contaba valores desde dic-2023 y Dias analíticas desde el diagnóstico, y se
+       leían como la misma ventana. Aquí se recalcula aparte: Cielo pinta marcadores, sangre, hígado-riñón
+       e iones (no hormonas) desde el 1-dic-2023 hasta hoy + 20 días; Dias, días con analítica desde el
+       diagnóstico hasta hoy, y su rótulo tiene que decir «desde el diagnóstico». */
+    const desdeCielo = Date.UTC(2023, 11, 1)
+    const ptsCielo = ['marcadores', 'hematologia', 'renal_hepatico', 'electrolitos']
+      .flatMap((g) => (caso.analiticas.grupos[g]?.analitos ?? []).flatMap((a) => a.puntos))
+      .filter((p) => ms(p.f) >= desdeCielo && ms(p.f) <= ms(HOY) + 20 * DIA)
+    const extracciones = new Set(ptsCielo.map((p) => p.f)).size
+    const dx = caso.ficha.fecha_diagnostico.valor.es
+    const diasLab = new Set(Object.values(caso.analiticas.grupos).flatMap((g) => g.analitos.flatMap((a) => a.puntos))
+      .map((p) => p.f).filter((f) => ms(f) >= ms(dx) && ms(f) <= ms(HOY))).size
+    const vitrina = await nav.evaluate(`(() => ({
+      cifra: document.querySelector('.cielo__cifra')?.textContent.replace(/\\s+/g, ' ').trim() ?? '',
+      sub: document.querySelector('.cielo__sub')?.textContent.replace(/\\s+/g, ' ').trim() ?? '',
+      dias: document.querySelector('.dias__sub, .dias__cifra + p')?.textContent.replace(/\\s+/g, ' ').trim() ?? '',
+    }))()`)
+    const milesLg = (n) => String(n).replace(/\B(?=(\d{3})+(?!\d))/g, lg === 'en' ? ',' : '.')
+    comprobar(`[${lg}] Cielo: la cifra es la de caso.json desde dic-2023`, vitrina.cifra.startsWith(milesLg(ptsCielo.length)), `pinta «${vitrina.cifra}», esperado ${milesLg(ptsCielo.length)}`)
+    comprobar(`[${lg}] Cielo: dice cuántas extracciones y desde cuándo`, vitrina.sub.includes(lg === 'en' ? `${extracciones} blood draws since December 2023` : `${extracciones} extracciones desde diciembre de 2023`), `sub «${vitrina.sub}», esperado ${extracciones}`)
+    comprobar(`[${lg}] Dias: las analíticas llevan su ventana`, vitrina.dias.includes(lg === 'en' ? `${diasLab} blood draws since diagnosis` : `${diasLab} extracciones desde el diagnóstico`), `rótulo «${vitrina.dias}», esperado ${diasLab}`)
+
     /* ── 4 · carga tumoral: el dibujo se mueve, las cifras no pasan por valores intermedios ── */
     const em = caso.enfermedad_medible
     const rA = em.recist[0], rB = em.recist.at(-1), vA = em.volumen[0], vB = em.volumen.at(-1)
