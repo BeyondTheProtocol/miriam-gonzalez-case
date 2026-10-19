@@ -329,7 +329,13 @@ const orientaAbierta = ref(false)
 const anclaBusca = ref<HTMLElement | null>(null)
 const orientacion = computed(() => (d.value ? (MARCADORES_ORIENTACION[d.value.lesion] ?? []).filter((m) => abrible(m.gen)) : []))
 const verOrienta = computed(() => orientaAbierta.value && !!z.value && !busca.value.trim() && orientacion.value.length > 0)
-function abreOrienta() { if (!busca.value.trim()) orientaAbierta.value = true }
+function abreOrienta() {
+  if (busca.value.trim() || orientaAbierta.value) return
+  orientaAbierta.value = true
+  // en el móvil la lista mide unos 390 px y el teclado sale a la vez: el campo sube bajo la cabecera para que se vean los
+  // marcadores (diseño, 19-oct; con teclado, de 3-4 a 6 a la vista). Es un salto, pero lo pide su toque, no la página
+  if (movil.value) void nextTick(() => anclaBusca.value?.closest('.exp__busca')?.scrollIntoView({ block: 'start', behavior: 'instant' as ScrollBehavior }))
+}
 function abreOrientaTeclado() {
   abreOrienta()
   void nextTick(() => anclaBusca.value?.querySelector<HTMLButtonElement>('.exp__orienta button')?.focus())
@@ -1029,7 +1035,7 @@ function sinTapar(ev: FocusEvent) {
 .exp__muestra { width: 12px; height: 12px; border-radius: 999px; flex: none; box-shadow: 0 0 0 1px color-mix(in srgb, var(--texto-1) 50%, transparent); }
 .exp__bloque { margin-top: var(--sp-32); padding-top: var(--sp-24); border-top: 1px solid var(--trazo-medio); }
 .exp__busca { position: relative; flex: 1 1 18rem; }
-.exp__sug { position: absolute; top: calc(100% + var(--sp-4)); left: 0; right: 0; z-index: 10; list-style: none; margin: 0; padding: var(--sp-8); display: flex; flex-wrap: wrap; gap: var(--sp-4); max-width: 28rem; background: var(--fondo); border: 1px solid var(--trazo-fuerte); border-radius: var(--radius-btn); box-shadow: 0 6px 18px color-mix(in srgb, var(--texto-1) 12%, transparent); }
+.exp__sug { position: absolute; top: calc(100% + var(--sp-8)); left: 0; right: 0; z-index: 10; list-style: none; margin: 0; padding: var(--sp-8); display: flex; flex-wrap: wrap; gap: var(--sp-4); max-width: 28rem; background: var(--fondo); border: 1px solid var(--trazo-fuerte); border-radius: var(--radius-btn); box-shadow: 0 6px 18px color-mix(in srgb, var(--texto-1) 12%, transparent); }
 /* buscador + chip del gen activo (la ✕ lo quita del mapa) */
 .exp__buscafila { display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-8); }
 /* el campo y sus listas en un ancla propia: las listas salen pegadas al campo aunque el chip del gen activo baje de línea */
@@ -1040,7 +1046,10 @@ function sinTapar(ev: FocusEvent) {
 .exp__orientat { margin: 0; font: 600 var(--texto-xs)/1.3 var(--font-body); color: var(--texto-1); }
 .exp__orientan { margin: var(--sp-4) 0 var(--sp-8); font: var(--tipo-body-sm); font-size: var(--texto-xs); color: var(--texto-2); }
 .exp__orl { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: var(--sp-4); }
-.exp__orb { min-height: 44px; }
+/* reparte las etiquetas largas en dos líneas parejas (PECAM1 dejaba «inmunes)» sola a 375; diseño, 19-oct) */
+.exp__orb { min-height: 44px; text-wrap: balance; }
+/* al subir el campo en el móvil, que no lo tape la cabecera fija */
+.exp__busca { scroll-margin-top: calc(var(--exp-top, 8px) + 8px); }
 .exp__chip { display: inline-flex; align-items: center; max-width: 100%; min-height: 44px; padding-left: var(--sp-12); border-radius: var(--radius-pill); border: 1px solid var(--identidad); background: color-mix(in srgb, var(--identidad) 10%, transparent); color: var(--texto-1); font: 600 var(--texto-sm)/1.2 var(--font-body); }
 .exp__chipt { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .exp__chipx, .exp__tema { display: inline-grid; place-items: center; flex: none; width: 44px; height: 44px; padding: 0; border-radius: var(--radius-pill); background: transparent; color: var(--texto-1); cursor: pointer; }
