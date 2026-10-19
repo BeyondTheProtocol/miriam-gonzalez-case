@@ -178,6 +178,9 @@ export const ETIQUETAS_FIJAS = {
  * inferidas salen favorecidos por construcción, gen a gen no se puede rotular. Sin nombrar genes ni posiciones. */
 export const CIRC_HUESO = t('En el hueso, las células malignas se eligieron por número de copias inferido de la propia expresión y por identidad epitelial: los genes de las regiones con más copias inferidas salen favorecidos en ese grupo por construcción, así que su diferencia con el resto no es una medida independiente.',
   'In the bone, malignant cells were chosen by copy number inferred from expression itself and by epithelial identity: genes in regions with more inferred copies come out favored in that group by construction, so their difference from the rest is not an independent measurement.')
+/** IC95 de Wilson junto a cada % (plan «muy útil a científicos», 19-oct; rótulo del comité médico): qué mide y qué no. */
+export const IC_NOTA = t('El intervalo de confianza (Wilson) es la precisión del recuento de células de esta muestra. No cubre el ARN ambiental, las gotas con dos células ni cómo se eligió el grupo, y no es el veredicto: la lectura compara el extremo bajo con la referencia y el suelo.',
+  'The confidence interval (Wilson) is the precision of the cell count in this sample. It does not cover ambient RNA, droplets holding two cells or how the group was chosen, and it is not the verdict: the reading compares the low end with the reference and the floor.')
 /** Los tipos de referencia se anotaron por clúster con marcadores canónicos: sus marcadores salen arriba en parte por eso. */
 export const CIRC_REFERENCIA = t('Los tipos celulares se anotaron por clúster con marcadores canónicos: que esos marcadores encabecen su grupo es, en parte, por construcción.',
   'Cell types were annotated per cluster with canonical markers: those markers topping their own group is partly by construction.')

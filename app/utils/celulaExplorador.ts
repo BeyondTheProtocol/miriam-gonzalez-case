@@ -286,15 +286,58 @@ export function columna(d: LesionDatos, gen: string): Float32Array {
   return out
 }
 
-export interface FilaGrupo { id: string; rol: Rol; n: number; detectadas: number; frac: number; suelo: number; niveles: number[] }
-/** Por grupo: n, células con ≥1 UMI, fracción, suelo ambiental y niveles (log10 CP10k) de las detectadas. */
+/** z del IC95, el mismo valor que el análisis (tools/flex_analisis/tribunal/_comun.py y cierre/_c.py). */
+export const Z_WILSON = 1.959964
+/** IC95 de Wilson de k de n, con la fórmula del análisis (plan «muy útil a científicos», 19-oct). k = 0 da límite inferior 0
+ * y k = n, superior 1. Mide la precisión del recuento de células de ESTA muestra: no cubre el ARN ambiental, los dobletes ni
+ * cómo se eligió el grupo, y no es el veredicto. Sin n, null. */
+export function wilson(k: number, n: number): [number, number] | null {
+  if (!n || k < 0 || k > n) return null
+  const z = Z_WILSON, p = k / n, d = 1 + (z * z) / n
+  const c = (p + (z * z) / (2 * n)) / d
+  const h = (z * Math.sqrt((p * (1 - p)) / n + (z * z) / (4 * n * n))) / d
+  return [k === 0 ? 0 : Math.max(0, c - h), k === n ? 1 : Math.min(1, c + h)]
+}
+/** «IC 95 %: 55–61 %» (ES) / «95% CI: 55–61%» (EN). Con un decimal si el límite superior queda por debajo del 10 % o si los
+ * dos extremos redondean al mismo entero (en enteros, un 1,2–4,9 % saldría «1–5 %»; uno muy estrecho, «0–0 %», y FGFR1,
+ * «100–100 %»). */
+export function fmtIC(ic: [number, number] | null, lang: 'es' | 'en'): string {
+  if (!ic) return ''
+  return `${etiquetaIC(lang)}: ${fmtRangoIC(ic, lang)}`
+}
+/** Nivel del IC (el de Z_WILSON) y su etiqueta: «IC 95 %» / «95% CI». */
+export const NIVEL_IC = 95
+export const etiquetaIC = (lang: 'es' | 'en') => (lang === 'en' ? `${NIVEL_IC}% CI` : `IC ${NIVEL_IC} %`)
+/** Solo el rango, «55–61 %» (en la tabla a 390 px el prefijo cortaba la cifra; la etiqueta va en la cabecera). */
+export function fmtRangoIC(ic: [number, number] | null, lang: 'es' | 'en'): string {
+  if (!ic) return ''
+  const dec = 100 * ic[1] < 10 || Math.round(100 * ic[0]) === Math.round(100 * ic[1]) ? 1 : 0
+  const f = (x: number) => { const t = (100 * x).toFixed(dec); return lang === 'en' ? t : t.replace('.', ',') }
+  return lang === 'en' ? `${f(ic[0])}–${f(ic[1])}%` : `${f(ic[0])}–${f(ic[1])}\u00a0%`
+}
+
+export interface FilaGrupo { id: string; rol: Rol; n: number; detectadas: number; frac: number; ic: [number, number] | null; suelo: number; niveles: number[] }
+/** Por grupo: n, células con ≥1 UMI, fracción con su IC95 de Wilson, suelo ambiental y niveles (log10 CP10k) de las detectadas. */
 export function porGrupo(d: LesionDatos, gen: string): FilaGrupo[] {
   const col = columna(d, gen)
   return d.grupos.map((g, k) => {
     const niveles: number[] = []
     for (let i = 0; i < d.n_celulas; i++) if (d.celulas.grupo[i] === k && col[i]! > 0) niveles.push(Math.log10(col[i]!))
-    return { id: g.id, rol: g.rol, n: g.n, detectadas: niveles.length, frac: g.n ? niveles.length / g.n : 0, suelo: d.suelo[gen]?.[g.id] ?? 0, niveles }
+    return { id: g.id, rol: g.rol, n: g.n, detectadas: niveles.length, frac: g.n ? niveles.length / g.n : 0, ic: wilson(niveles.length, g.n),
+      suelo: d.suelo[gen]?.[g.id] ?? 0, niveles }
   })
+}
+/** Texto tabulado (TSV) para pegar en una hoja o en R/Python: tabuladores y saltos de línea dentro de un campo, fuera. */
+export function tsv(filas: (string | number | null | undefined)[][]): string {
+  const campo = (v: string | number | null | undefined) => (v == null ? '' : String(v).replace(/[\t\r\n]+/g, ' '))
+  return filas.map((f) => f.map(campo).join('\t')).join('\n') + '\n'
+}
+/** Fracción con 4 decimales para el TSV (la precisión de los ficheros publicados). */
+export const r4 = (x: number | null | undefined) => (x == null || !Number.isFinite(x) ? '' : Number(x.toFixed(4)))
+/** IC de una cifra sin circularidad (loo): el fichero trae su n y su fracción (redondeada a 4 decimales); k se reconstruye. */
+export function icLoo(loo: { n: number; frac: number | null } | undefined): [number, number] | null {
+  if (!loo || loo.frac == null || !loo.n) return null
+  return wilson(Math.round(loo.frac * loo.n), loo.n)
 }
 
 /** Densidad (KDE gaussiana, Silverman) en `m` puntos de [a, b], normalizada a máximo 1. */

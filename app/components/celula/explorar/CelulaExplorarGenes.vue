@@ -7,8 +7,8 @@
  * circularidad y, si existe, la cifra medida sin ella (loo); si no existe, lo dice. Un toque en el gen lo elige arriba.
  */
 import type { LesionDatos } from '~/utils/celulaExplorador'
-import { fmtPct, motivoDe, porGrupo, traeMotivo } from '~/utils/celulaExplorador'
-import { CIRC_HUESO, ETIQUETA_GRUPO, ETIQUETA_MOTIVO, LECTURA, etiquetaLectura, pieMotivo, PANEL_INTERES, PAPEL_SELECCION, PROTEINA, etiqueta, ETIQUETAS_FIJAS } from '~/utils/celulaExploradorTexto'
+import { etiquetaIC, fmtIC, fmtPct, fmtRangoIC, icLoo, motivoDe, porGrupo, r4, traeMotivo, tsv } from '~/utils/celulaExplorador'
+import { CIRC_HUESO, ETIQUETA_GRUPO, ETIQUETA_MOTIVO, IC_NOTA, LECTURA, etiquetaLectura, pieMotivo, PANEL_INTERES, PAPEL_SELECCION, PROTEINA, etiqueta, ETIQUETAS_FIJAS } from '~/utils/celulaExploradorTexto'
 
 const props = defineProps<{ d: LesionDatos; lang: 'es' | 'en'; elegido: string }>()
 const emit = defineEmits<{ elegir: [string] }>()
@@ -16,12 +16,21 @@ const L = (es: string, en: string) => (props.lang === 'en' ? en : es)
 const interes = computed(() => props.d.grupos.find((g) => g.rol === 'interes')!)
 const filas = computed(() => PANEL_INTERES.filter((g) => props.d.genes.includes(g)).map((gen) => {
   const f = porGrupo(props.d, gen).find((x) => x.rol === 'interes')!
-  return { gen, frac: f.frac, suelo: f.suelo, ref: props.d.referencia[gen] ?? 0, ver: props.d.veredicto[gen] ?? 'sin_veredicto', mot: motivoDe(props.d, gen),
-    sondas: props.d.sondas[gen], papel: props.d.seleccion[gen], loo: props.d.loo[gen] }
+  return { gen, frac: f.frac, ic: f.ic, n: f.n, detectadas: f.detectadas, suelo: f.suelo, ref: props.d.referencia[gen] ?? 0, ver: props.d.veredicto[gen] ?? 'sin_veredicto',
+    mot: motivoDe(props.d, gen), sondas: props.d.sondas[gen], papel: props.d.seleccion[gen], loo: props.d.loo[gen] }
 }))
 const conMotivo = computed(() => traeMotivo(props.d))
 const nf = (n: number) => fmtN(n, props.lang)
 const fmtCp = (x: number) => String(Math.round(x))
+/* «Copiar cifras (TSV)» (plan «muy útil a científicos», 19-oct): la tabla tal como se ve, con el IC y la cifra sin circularidad */
+const { estado: copiado, copia, reinicia } = useCopiado()
+watch(() => props.d.lesion, reinicia)
+async function copiaTSV() {
+  const cab = ['lesion', 'gen', 'grupo', 'n', 'detectadas', 'frac_detectada', 'ic95_inf', 'ic95_sup', 'circular', 'loo_n', 'loo_frac', 'referencia_emparejada', 'suelo', 'sondas_union', 'sondas_total', 'lectura', 'motivo']
+  const filas_tsv = filas.value.map((f) => [props.d.lesion, f.gen, interes.value.id, f.n, f.detectadas, r4(f.frac), r4(f.ic?.[0]), r4(f.ic?.[1]), f.papel ? 'si' : 'no',
+    f.loo?.n ?? '', r4(f.loo?.frac), r4(f.ref), r4(f.suelo), f.sondas?.[0] ?? '', f.sondas?.[1] ?? '', f.ver, f.mot ?? ''])
+  await copia(tsv([cab, ...filas_tsv]), L('Copiado: una fila por gen.', 'Copied: one row per gene.'), L('No se pudo copiar en este navegador.', 'Could not copy in this browser.'))
+}
 </script>
 
 <template>
@@ -33,7 +42,7 @@ const fmtCp = (x: number) => String(Math.round(x))
         <thead>
           <tr>
             <th scope="col">{{ L('Gen', 'Gene') }}</th>
-            <th scope="col" class="gi__num">{{ etiqueta(ETIQUETA_GRUPO, interes.id, lang) }} <span class="gi__sub nums">n = {{ fmtN(interes.n, lang) }}</span></th>
+            <th scope="col" class="gi__num">{{ etiqueta(ETIQUETA_GRUPO, interes.id, lang) }} <span class="gi__sub nums">n = {{ fmtN(interes.n, lang) }}</span><span class="gi__sub">{{ L(`${etiquetaIC('es')} debajo`, `${etiquetaIC('en')} below`) }}</span></th>
             <th scope="col" class="gi__num">{{ L('Referencia emparejada', 'Matched reference') }}</th>
             <th scope="col" class="gi__num">{{ L('Suelo ambiental', 'Ambient floor') }}</th>
             <th scope="col" class="gi__num">{{ L('Sondas', 'Probes') }} <span class="gi__sub">{{ L('unión / total', 'junction / total') }}</span></th>
@@ -53,12 +62,12 @@ const fmtCp = (x: number) => String(Math.round(x))
                 {{ L(`Circular: ${f.gen} ${PAPEL_SELECCION[f.papel]?.es ?? ''}.`, `Circular: ${f.gen} ${PAPEL_SELECCION[f.papel]?.en ?? ''}.`) }}
                 <template v-if="f.loo">
                   {{ L(`Sin esa circularidad (n\u00a0=\u00a0${nf(f.loo.n)}):`, `Without that circularity (n\u00a0=\u00a0${nf(f.loo.n)}):`) }}
-                  <template v-if="f.loo.frac != null">{{ fmtPct(f.loo.frac, lang) }}</template><template v-if="f.loo.ref != null"> · {{ L('referencia', 'reference') }} {{ fmtPct(f.loo.ref, lang) }}</template><template v-if="f.loo.cp10k_pseudobulk != null"> · pseudobulk&nbsp;{{ fmtCp(f.loo.cp10k_pseudobulk) }}&nbsp;CP10k</template>.
+                  <template v-if="f.loo.frac != null">{{ fmtPct(f.loo.frac, lang) }}<template v-if="icLoo(f.loo)"> ({{ fmtIC(icLoo(f.loo), lang) }})</template></template><template v-if="f.loo.ref != null"> · {{ L('referencia', 'reference') }} {{ fmtPct(f.loo.ref, lang) }}</template><template v-if="f.loo.cp10k_pseudobulk != null"> · pseudobulk&nbsp;{{ fmtCp(f.loo.cp10k_pseudobulk) }}&nbsp;CP10k</template>.
                 </template>
                 <template v-else>{{ L('No hay cifra medida sin esa circularidad.', 'There is no figure measured without that circularity.') }}</template>
               </span>
             </th>
-            <td class="gi__num nums">{{ fmtPct(f.frac, lang) }}<span v-if="f.papel" class="gi__ast" :title="L('Cifra circular: ver la nota del gen', 'Circular figure: see the gene note')"><span aria-hidden="true">*</span><span class="sr-only">{{ L('(circular)', '(circular)') }}</span></span></td>
+            <td class="gi__num nums">{{ fmtPct(f.frac, lang) }}<span v-if="f.papel" class="gi__ast" :title="L('Cifra circular: ver la nota del gen', 'Circular figure: see the gene note')"><span aria-hidden="true">*</span><span class="sr-only">{{ L('(circular)', '(circular)') }}</span></span><span v-if="!f.papel && f.ic" class="gi__ic"><span class="sr-only">{{ etiquetaIC(lang) }}: </span>{{ fmtRangoIC(f.ic, lang) }}</span></td>
             <td class="gi__num nums">{{ fmtPct(f.ref, lang) }}</td>
             <td class="gi__num nums">{{ fmtPct(f.suelo, lang) }}</td>
             <td class="gi__num nums">{{ f.sondas ? `${f.sondas[0]} / ${f.sondas[1]}` : '' }}</td>
@@ -66,6 +75,10 @@ const fmtCp = (x: number) => String(Math.round(x))
           </tr>
         </tbody>
       </table>
+    </div>
+    <div class="gi__copiar">
+      <button type="button" class="gi__btn" @click="copiaTSV">{{ L('Copiar cifras (TSV)', 'Copy figures (TSV)') }}</button>
+      <span class="gi__estado" role="status">{{ copiado }}</span>
     </div>
     <p class="gi__pie">
       {{ L('Porcentaje de células con al menos una molécula (UMI) del gen. La referencia emparejada son células no tumorales de la misma muestra, con la misma profundidad (moléculas por célula); en el hígado son linfocitos T y NK, mieloides y endotelio; los hepatocitos y los fibroblastos no entran. Algunos veredictos dependen también de comparaciones que aquí no se pintan. Es ARN: que el gen se lea no dice que la proteína esté en la membrana; eso lo dice la IHQ.',
@@ -76,6 +89,7 @@ const fmtCp = (x: number) => String(Math.round(x))
         'Probes: how many panel probes the gene has and how many span an exon junction; the rest fall inside an exon and can also read genomic DNA.') }}
       {{ L(LECTURA.pie.es, LECTURA.pie.en) }}
     </p>
+    <p class="gi__pie">{{ L(IC_NOTA.es, IC_NOTA.en) }} {{ L('En las cifras circulares, el IC va sobre la cifra medida sin esa circularidad.', 'For circular figures, the CI is on the figure measured without that circularity.') }}</p>
     <p v-if="conMotivo" class="gi__pie gi__pmot">{{ pieMotivo(lang) }}</p>
     <p v-if="d.lesion === 'hueso'" class="gi__pie gi__circh"><strong>{{ L('Circular.', 'Circular.') }}</strong> {{ L(CIRC_HUESO.es, CIRC_HUESO.en) }}</p>
   </div>
@@ -116,5 +130,14 @@ const fmtCp = (x: number) => String(Math.round(x))
 .gi__lec { text-wrap: pretty; }
 .gi__ver { font-weight: 600; color: var(--texto-1); }
 .gi__mot { color: var(--texto-2); }
+/* pase de diseño (19-oct): a 390 la cabecera del grupo, sin partir, ensanchaba la columna y el % y su IC quedaban fuera de
+   la primera vista (la columna fija del gen ocupa 162 de 288 px); en estrecho la cabecera se parte */
+@media (max-width: 639px) { .gi__tabla thead th:nth-child(2) { white-space: normal; min-width: 6.5rem; } }
+.gi__ic { display: block; font: 500 var(--texto-xs)/1.3 var(--font-mono); color: var(--texto-2); }
+.gi__copiar { display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-8) var(--sp-12); margin-top: var(--sp-12); }
+.gi__btn { min-height: 44px; padding: 0 var(--sp-16); border: 1px solid var(--trazo-interactivo); border-radius: var(--radius-btn); background: var(--fondo); color: var(--texto-1); font: 600 var(--texto-sm)/1.2 var(--font-body); -webkit-tap-highlight-color: transparent; }
+@media (hover: hover) { .gi__btn:hover { background: var(--trazo-sutil); } }
+.gi__btn:focus-visible { outline: 2px solid var(--anillo-foco); outline-offset: 2px; }
+.gi__estado { font: var(--tipo-body-sm); font-size: var(--texto-xs); color: var(--texto-2); }
 .gi__pie { margin: var(--sp-12) 0 0; font: var(--tipo-body-sm); font-size: var(--texto-xs); color: var(--texto-2); max-width: var(--measure); }
 </style>

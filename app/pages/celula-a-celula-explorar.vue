@@ -88,6 +88,9 @@ const LEER = [
             </ul>
           </section>
 
+          <!-- plan «muy útil a científicos» (19-oct): ficheros, cómo leerlos y cómo citarlos; solo lo que ya es público -->
+          <CelulaExplorarDatos v-if="hayReal" :man="man" :lang="lang" />
+
           <!-- simulador (18-oct): «Cómo leerlo» plegado; el resumen con texto está en Célula a célula -->
           <details class="xp-leer-pl">
             <summary><span class="xp-leer-t">{{ L('Cómo leerlo', 'How to read it') }}</span></summary>
