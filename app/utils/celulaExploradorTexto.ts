@@ -33,6 +33,29 @@ export const ETIQUETA_TIPO: Record<string, T> = {
 }
 export const ETIQUETA_LESION: Record<string, T> = { higado: t('Hígado', 'Liver'), hueso: t('Hueso', 'Bone') }
 
+/** Lo que sugiere el buscador al tocarlo VACÍO (propuesta de Miriam, 19-oct-2026; lista cerrada del comité médico):
+ * marcadores para orientarse en el mapa, uno por tipo celular de la biopsia, solo genes del fichero (d.genes, no el Zarr).
+ * Van por su SÍMBOLO con el tipo al lado, nunca por el nombre clínico (Ki-67, HER2…): se leería como resultado de IHQ y
+ * aquí es ARN. Fuera genes de fármaco y biomarcadores de decisión (ESR1, PGR, AR, ERBB2…) y los 10 de interés, que ya
+ * están en el panel de llegada. Lo vigila scripts/test-celula-explorador.ts. */
+const LEUCOCITO = t('Leucocito', 'Leukocyte'), PROLIFERACION = t('Proliferación', 'Proliferation')
+// verificacion (19-oct, con los datos del fichero): PECAM1 sale también en inmunes (casi tanto en las plasmáticas del hueso
+// como en su endotelio) y CD68 en el hueso enciende más a los osteoclastos que a las mieloides
+const ENDOTELIO_PECAM1 = t('Endotelio (también algunas inmunes)', 'Endothelium (also some immune cells)')
+const MIELOIDE_HUESO = t('Mieloide, osteoclasto incluido', 'Myeloid, osteoclasts included')
+export const MARCADORES_ORIENTACION: Record<string, { gen: string; tipo: T }[]> = {
+  higado: [
+    { gen: 'EPCAM', tipo: ETIQUETA_TIPO.epitelial! }, { gen: 'ALB', tipo: ETIQUETA_TIPO.hepatocito! }, { gen: 'PTPRC', tipo: LEUCOCITO },
+    { gen: 'CD3E', tipo: ETIQUETA_TIPO.linfocito_t! }, { gen: 'CD68', tipo: ETIQUETA_TIPO.mieloide! }, { gen: 'PECAM1', tipo: ENDOTELIO_PECAM1 },
+    { gen: 'COL1A1', tipo: ETIQUETA_TIPO.fibroblasto_estelar! }, { gen: 'MKI67', tipo: PROLIFERACION },
+  ],
+  hueso: [
+    { gen: 'EPCAM', tipo: ETIQUETA_TIPO.epitelial! }, { gen: 'PTPRC', tipo: LEUCOCITO }, { gen: 'CD68', tipo: MIELOIDE_HUESO },
+    { gen: 'S100A8', tipo: ETIQUETA_TIPO.neutrofilo! }, { gen: 'ACP5', tipo: ETIQUETA_TIPO.osteoclasto! }, { gen: 'HBB', tipo: ETIQUETA_TIPO.eritroide! },
+    { gen: 'PECAM1', tipo: ENDOTELIO_PECAM1 }, { gen: 'COL1A1', tipo: ETIQUETA_TIPO.estroma! }, { gen: 'MKI67', tipo: PROLIFERACION },
+  ],
+}
+
 /** Nombre de proteína con el que lo conoce un clínico. El símbolo del gen va siempre al lado. */
 export const PROTEINA: Record<string, string> = {
   ANKRD30A: 'NY-BR-1', TPBG: '5T4', ERBB3: 'HER3', SLC39A6: 'LIV-1', ERBB2: 'HER2', TACSTD2: 'TROP2', CD276: 'B7-H3', NECTIN4: 'Nectin-4',

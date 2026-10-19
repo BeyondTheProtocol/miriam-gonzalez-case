@@ -26,7 +26,7 @@ import type { Coexp, Lesion, LesionDatos, Manifiesto } from '~/utils/celulaExplo
 import { coexpresion, columna, fmtParSuelo, fmtPct, motivoDe, nivelMatriz, porGrupo, traeMotivo } from '~/utils/celulaExplorador'
 import { abreZarr, storeWeb, type ZarrLesion } from '~/utils/celulaExploradorZarr'
 import { cssRgb, paleta, type RGB } from '~/utils/celulaExploradorColor'
-import { ALIAS_BUSCA, ETIQUETA_GRUPO, ETIQUETA_LESION, ETIQUETA_MOTIVO, etiquetaLectura, ETIQUETAS_FIJAS, pieMotivo, NOMBRE_CLINICO, PANEL_INTERES, PROTEINA, etiqueta, nombreGen } from '~/utils/celulaExploradorTexto'
+import { ALIAS_BUSCA, ETIQUETA_GRUPO, ETIQUETA_LESION, ETIQUETA_MOTIVO, etiquetaLectura, ETIQUETAS_FIJAS, pieMotivo, MARCADORES_ORIENTACION, NOMBRE_CLINICO, PANEL_INTERES, PROTEINA, etiqueta, nombreGen } from '~/utils/celulaExploradorTexto'
 
 const props = defineProps<{ man: Manifiesto; ejemplo: boolean; lang: 'es' | 'en' }>()
 const L = (es: string, en: string) => (props.lang === 'en' ? en : es)
@@ -320,6 +320,34 @@ const sugerencias = computed(() => {
 })
 /** ¿Se puede abrir este gen en el mapa y los violines? Los del JSON siempre; con el Zarr, cualquiera con sonda. */
 const abrible = (g: string) => !!d.value?.expr[g] || (!!z.value && z.value.tiene(g) && !z.value.sinSonda.has(g))
+/** Al tocar el buscador VACÍO (propuesta de Miriam, 19-oct): marcadores de tipo celular de esta biopsia para orientarse
+ * en el mapa (lista cerrada del comité médico, MARCADORES_ORIENTACION). Se abre con clic o toque y con ↓, NUNCA con el
+ * foco: la página enfoca el campo por programa tras la ✕ y tras «Volver» y la lista saldría sin pedirla (diseño). Se
+ * cierra con Esc, al tocar fuera, al salir con Tab (solo si el foco va a otro sitio: Safari no enfoca el botón al
+ * pulsarlo y la lista se iría antes del clic) y al elegir. Al teclear dos letras pasa a las coincidencias, como antes. */
+const orientaAbierta = ref(false)
+const anclaBusca = ref<HTMLElement | null>(null)
+const orientacion = computed(() => (d.value ? (MARCADORES_ORIENTACION[d.value.lesion] ?? []).filter((m) => abrible(m.gen)) : []))
+const verOrienta = computed(() => orientaAbierta.value && !!z.value && !busca.value.trim() && orientacion.value.length > 0)
+function abreOrienta() { if (!busca.value.trim()) orientaAbierta.value = true }
+function abreOrientaTeclado() {
+  abreOrienta()
+  void nextTick(() => anclaBusca.value?.querySelector<HTMLButtonElement>('.exp__orienta button')?.focus())
+}
+function cierraOrienta(volverAlCampo = false) {
+  if (!orientaAbierta.value) return
+  orientaAbierta.value = false
+  if (volverAlCampo) void nextTick(() => document.getElementById(`${idCtl}-busca`)?.focus({ preventScroll: true }))
+}
+function escBusca(ev: KeyboardEvent) { if (verOrienta.value) { ev.preventDefault(); cierraOrienta() } }
+function salidaBusca(ev: FocusEvent) {
+  const a = ev.relatedTarget as Node | null
+  if (a && anclaBusca.value && !anclaBusca.value.contains(a)) cierraOrienta()
+}
+function toqueFuera(ev: Event) { if (orientaAbierta.value && anclaBusca.value && !anclaBusca.value.contains(ev.target as Node)) cierraOrienta() }
+function eligeOrienta(g: string) { cierraOrienta(); void abreGen(g) }
+onMounted(() => document.addEventListener('pointerdown', toqueFuera, true))
+onBeforeUnmount(() => document.removeEventListener('pointerdown', toqueFuera, true))
 /** Abre cualquier gen: si no está en el JSON, lee su columna del Zarr y la añade a los datos de la lesión. */
 /** de dónde se abrió el gen: «Volver» devuelve el foco a ese gen en esa lista, o al buscador (WCAG 2.4.3; revisión final,
  * 18-oct: caía en <body>). Por el origen y no por el foco previo: Safari no enfoca un botón al pulsarlo. */
@@ -668,8 +696,24 @@ function sinTapar(ev: FocusEvent) {
       <div v-if="d && nivel === 'todos'" class="exp__campo exp__busca">
         <label :for="`${idCtl}-busca`" class="exp__eti">{{ z ? L(`Buscar un gen entre los ${fmtN(z.genes.length, lang)}`, `Search a gene among the ${fmtN(z.genes.length, lang)}`) : L('Buscar un gen', 'Search for a gene') }}</label>
         <div class="exp__buscafila">
-          <input :id="`${idCtl}-busca`" v-model="busca" class="exp__sel exp__sel--busca" type="search" autocomplete="off" spellcheck="false" :disabled="!z"
-                 :placeholder="z ? L('Gen, p. ej. MKI67 o HER2', 'Gene, e.g. MKI67 or HER2') : avisoZarr ? L('Buscador no disponible', 'Search unavailable') : L('Cargando la lista de genes…', 'Loading the gene list…')" @keydown.enter.prevent="busca.trim() && abreGen(sugerencias[0] ?? busca.trim().toUpperCase())" />
+          <!-- las listas cuelgan del campo y no de toda la fila: con un gen activo, a 375 el chip baja de línea (diseño, 19-oct) -->
+          <div ref="anclaBusca" class="exp__buscaancla" @focusout="salidaBusca">
+            <input :id="`${idCtl}-busca`" v-model="busca" class="exp__sel exp__sel--busca" type="search" autocomplete="off" spellcheck="false" :disabled="!z"
+                   :placeholder="z ? L('Gen, p. ej. MKI67 o HER2', 'Gene, e.g. MKI67 or HER2') : avisoZarr ? L('Buscador no disponible', 'Search unavailable') : L('Cargando la lista de genes…', 'Loading the gene list…')"
+                   @keydown.enter.prevent="busca.trim() && abreGen(sugerencias[0] ?? busca.trim().toUpperCase())" @click="abreOrienta" @keydown.down.prevent="abreOrientaTeclado" @keydown.esc="escBusca" />
+            <ul v-if="sugerencias.length" class="exp__sug" :aria-label="L('Genes que coinciden', 'Matching genes')">
+              <li v-for="g in sugerencias" :key="g"><button type="button" class="exp__btn exp__btn--sm" :data-gen="g" @click="abreGen(g)">{{ PROTEINA[g] ? nombreGen(g) : g }}</button></li>
+            </ul>
+            <div v-else-if="verOrienta" class="exp__sug exp__orienta" role="group" :aria-labelledby="`${idCtl}-orienta`" @keydown.esc.prevent="cierraOrienta(true)">
+              <p :id="`${idCtl}-orienta`" class="exp__orientat">{{ L('Marcadores de tipo celular', 'Cell-type markers') }}</p>
+              <!-- voz-miriam y verificacion (19-oct): «varios se usaron para formar los grupos; el detalle lo indica» era falso en el
+                   hueso, y muchos de estos sirvieron para ANOTAR los tipos (su detalle no lo dice): sale alto en su grupo en parte por construcción -->
+              <p class="exp__orientan">{{ L('Para orientarte en el mapa. Muchos se usaron para anotar los tipos celulares, así que salen altos en su grupo en parte por construcción.', 'To find your way around the map. Many were used to annotate the cell types, so they come out high in their group partly by construction.') }}</p>
+              <ul class="exp__orl">
+                <li v-for="m in orientacion" :key="m.gen"><button type="button" class="exp__btn exp__btn--sm exp__orb" :data-gen="m.gen" @click="eligeOrienta(m.gen)">{{ m.gen }} · {{ L(m.tipo.es, m.tipo.en) }}</button></li>
+              </ul>
+            </div>
+          </div>
           <span v-if="activo" class="exp__chip">
             <span class="exp__chipt">{{ nombreGen(activo) }}</span>
             <button type="button" class="exp__chipx" :aria-label="errorMapa ? L(`Quitar ${nombreGen(activo)}`, `Remove ${nombreGen(activo)}`) : L(`Quitar ${nombreGen(activo)} del mapa`, `Remove ${nombreGen(activo)} from the map`)" @click="quitaDesdeChip">
@@ -677,10 +721,7 @@ function sinTapar(ev: FocusEvent) {
             </button>
           </span>
         </div>
-        <p class="sr-only" aria-live="polite">{{ busca.trim().length >= 2 && z ? (sugerencias.length === 0 ? L('Ningún gen coincide', 'No matching genes') : sugerencias.length === 1 ? L('1 gen coincide', '1 matching gene') : L(`Se muestran ${sugerencias.length} genes que coinciden`, `Showing ${sugerencias.length} matching genes`)) : '' }}</p>
-        <ul v-if="sugerencias.length" class="exp__sug" :aria-label="L('Genes que coinciden', 'Matching genes')">
-          <li v-for="g in sugerencias" :key="g"><button type="button" class="exp__btn exp__btn--sm" :data-gen="g" @click="abreGen(g)">{{ PROTEINA[g] ? nombreGen(g) : g }}</button></li>
-        </ul>
+        <p class="sr-only" aria-live="polite">{{ busca.trim().length >= 2 && z ? (sugerencias.length === 0 ? L('Ningún gen coincide', 'No matching genes') : sugerencias.length === 1 ? L('1 gen coincide', '1 matching gene') : L(`Se muestran ${sugerencias.length} genes que coinciden`, `Showing ${sugerencias.length} matching genes`)) : verOrienta ? (orientacion.length === 1 ? L('1 marcador de tipo celular para orientarte en el mapa', '1 cell-type marker to find your way around the map') : L(`${orientacion.length} marcadores de tipo celular para orientarte en el mapa`, `${orientacion.length} cell-type markers to find your way around the map`)) : '' }}</p>
         <p v-if="leyendoGen" class="exp__nota" role="status">{{ L('Leyendo el gen…', 'Reading the gene…') }}</p>
         <p class="exp__nota exp__nota--busca" role="status"><template v-if="avisoBusca">{{ avisoBusca }}</template></p>
         <p v-if="avisoZarr" class="exp__nota" role="alert">{{ avisoZarr }}</p>
@@ -991,7 +1032,15 @@ function sinTapar(ev: FocusEvent) {
 .exp__sug { position: absolute; top: calc(100% + var(--sp-4)); left: 0; right: 0; z-index: 10; list-style: none; margin: 0; padding: var(--sp-8); display: flex; flex-wrap: wrap; gap: var(--sp-4); max-width: 28rem; background: var(--fondo); border: 1px solid var(--trazo-fuerte); border-radius: var(--radius-btn); box-shadow: 0 6px 18px color-mix(in srgb, var(--texto-1) 12%, transparent); }
 /* buscador + chip del gen activo (la ✕ lo quita del mapa) */
 .exp__buscafila { display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-8); }
-.exp__buscafila .exp__sel--busca { flex: 1 1 14rem; min-width: 0; }
+/* el campo y sus listas en un ancla propia: las listas salen pegadas al campo aunque el chip del gen activo baje de línea */
+.exp__buscaancla { position: relative; flex: 1 1 14rem; min-width: 0; }
+.exp__buscaancla .exp__sel--busca { width: 100%; }
+/* marcadores para orientarse (al tocar el campo vacío): título, una nota y botones de al menos 44 px */
+.exp__orienta { display: block; }
+.exp__orientat { margin: 0; font: 600 var(--texto-xs)/1.3 var(--font-body); color: var(--texto-1); }
+.exp__orientan { margin: var(--sp-4) 0 var(--sp-8); font: var(--tipo-body-sm); font-size: var(--texto-xs); color: var(--texto-2); }
+.exp__orl { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: var(--sp-4); }
+.exp__orb { min-height: 44px; }
 .exp__chip { display: inline-flex; align-items: center; max-width: 100%; min-height: 44px; padding-left: var(--sp-12); border-radius: var(--radius-pill); border: 1px solid var(--identidad); background: color-mix(in srgb, var(--identidad) 10%, transparent); color: var(--texto-1); font: 600 var(--texto-sm)/1.2 var(--font-body); }
 .exp__chipt { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .exp__chipx, .exp__tema { display: inline-grid; place-items: center; flex: none; width: 44px; height: 44px; padding: 0; border-radius: var(--radius-pill); background: transparent; color: var(--texto-1); cursor: pointer; }
