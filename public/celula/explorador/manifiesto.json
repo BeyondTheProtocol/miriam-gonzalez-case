@@ -2,7 +2,7 @@
   "version": 1,
   "sello": "verificado",
   "ok_titular": true,
-  "fecha_ok": "2026-10-18",
+  "fecha_ok": "2026-10-19",
   "modo_sondas": "todas_incluidas",
   "lesiones": [
     "higado",
@@ -11,11 +11,11 @@
   "ficheros": [
     {
       "ruta": "higado.json",
-      "sha256": "b450db27272ec8a4acd290a3295dba125f0f1b62ff1ab5a587ed655aab26fa27"
+      "sha256": "789bea83dbb67a8e5b46860ed27555f2e4502cb254c73246de5fa8b81f8d80a3"
     },
     {
       "ruta": "hueso.json",
-      "sha256": "33bae4e0ff261ef68d6cdfb9e0c151d3c1017aa065f959a3e01b3f53e93f75aa"
+      "sha256": "3473781cb771c9c614dde85ae42c2b45d3a342445e561c7689b5ce89e7da5fbe"
     }
   ],
   "zarr": [
