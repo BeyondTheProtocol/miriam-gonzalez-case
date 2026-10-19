@@ -218,8 +218,8 @@ const leyenda = computed<{ etiqueta: string; rgb: RGB; n: number }[]>(() => {
   const x = d.value, p = pal.value
   if (!x || !p) return []
   if (modoVista.value === 'grupo') {
-    // un tono propio por grupo de referencia: ninguna fila de la leyenda comparte color (diseño, 18-oct)
-    const tonos = p.refs(x.grupos.filter((g) => g.rol !== 'interes' && g.rol !== 'otras').length)
+    // un color por tipo celular (g.id), el mismo en las dos biopsias; ninguna fila de la leyenda comparte color (diseño, 19-oct)
+    const tonos = p.refsPorId(x.grupos.filter((g) => g.rol !== 'interes' && g.rol !== 'otras').map((g) => g.id))
     let r = 0
     return x.grupos.map((g) => ({ etiqueta: etiqueta(ETIQUETA_GRUPO, g.id, props.lang), n: g.n, rgb: g.rol === 'interes' ? p.interes : g.rol === 'otras' ? p.otras : tonos[r++]! }))
   }
