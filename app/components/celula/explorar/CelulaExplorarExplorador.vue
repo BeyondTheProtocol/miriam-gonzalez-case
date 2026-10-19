@@ -50,11 +50,18 @@ let genPendiente: string | null = genDe(ruta().query)
 const movil = useMediaQuery('(max-width: 1023px)')
 const gruesa = useMediaQuery('(pointer: coarse)')
 const tactil = computed(() => movil.value || gruesa.value)
-const { height: altoVentana } = useWindowSize()
+const { width: anchoVentana, height: altoVentana } = useWindowSize()
+/** Alto de referencia del mapa. En táctil la barra de direcciones cambia el alto de la ventana al hacer scroll; si el mapa
+ * lo siguiera, Vitessce se montaría entero en cada scroll («Cargando el mapa…»; Miriam, 19-oct: «en móvil está
+ * constantemente recargándose»). En táctil solo se renueva cuando cambia el ancho (girar el móvil); en escritorio, siempre. */
+const altoEstable = ref(0)
+watch([anchoVentana, altoVentana, tactil], ([w, h, t], antes) => {
+  if (!altoEstable.value || !t || w !== antes?.[0]) altoEstable.value = h
+}, { immediate: true })
 /** el mapa ocupa lo que queda libre de la pantalla bajo la cabecera del sitio y el aviso fijo (diseño, 18-oct: con un
  * porcentaje fijo del alto se cortaba por abajo), con topes */
 const altoMapa = computed(() => {
-  const libre = (altoVentana.value || 900) - altoCabecera.value - altoBanner.value - 180
+  const libre = (altoEstable.value || 900) - altoCabecera.value - altoBanner.value - 180
   return movil.value ? Math.round(Math.min(560, Math.max(340, libre))) : Math.round(Math.min(820, Math.max(480, libre)))
 })
 /** pestaña del panel; `detalle` = el gen activo abierto grupo a grupo encima de la pestaña */
