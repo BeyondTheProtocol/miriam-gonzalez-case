@@ -275,6 +275,11 @@ ok('densidad: máximo 1 y no negativa', Math.abs(Math.max(...dn) - 1) < 1e-9 && 
 ok('densidad: con menos de 2 valores no inventa forma', densidad([1], 0, 2).every((y) => y === 0))
 ok('pct redondea a entero', pct(0.344) === 34 && pct(0.345) === 35 && pct(0) === 0)
 
+// verificacion y un escéptico (19-oct): con datos reales la nota del mapa nombra Cell Ranger y Loupe, y eso solo se
+// comprueba contra el Zarr (su uns/version y el UMAP crudo, en el bloque de abajo); un paquete real sin Zarr se saltaría
+// ese freno y la frase saldría sin comprobar
+if (!esEjemplo) ok('real: el paquete trae el Zarr (sin él no se comprueba que el mapa sea el de Cell Ranger que nombra la nota)', !!man.zarr?.length)
+
 /* ── 6 · nivel «todos los genes»: el Zarr se lee gen a gen y dice LO MISMO que el JSON en los genes del panel ── */
 if (man.zarr?.length) {
   const mc = man.matriz_completa
