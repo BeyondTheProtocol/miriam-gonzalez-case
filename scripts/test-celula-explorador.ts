@@ -314,6 +314,14 @@ if (man.zarr?.length) {
       maxDif = Math.max(maxDif, Math.abs(ju[i]! - (zu[i]! - (zx0 + zx1) / 2) / f), Math.abs(ju[i + 1]! - (zu[i + 1]! - (zy0 + zy1) / 2) / f))
     }
     ok(`${l}: el mapa del JSON es el UMAP del Zarr con un solo factor de escala (no deformado)`, zu.length === ju.length && maxDif <= 0.006, `máx. diferencia ${maxDif.toFixed(4)}`)
+    // verificacion (19-oct): con datos reales la nota nombra Cell Ranger y Loupe; el Zarr publicado tiene que decir lo mismo
+    // de su mapa (uns/version la escribe el export de Polaris), o la frase no sale con esos datos
+    if (!esEjemplo) {
+      // un array de dimensión 0: zarrita devuelve el valor suelto, no un trozo con .data (si no se lee, falla cerrado)
+      const vz: unknown = await zarr.get(await zarr.open(zarr.root(new FileSystemStore(join(DIR, 'zarr', `${l}.zarr`))).resolve('uns/version'), { kind: 'array' }))
+      const ver = typeof vz === 'string' ? vz : String((vz as { data?: ArrayLike<unknown> } | null)?.data?.[0] ?? '')
+      ok(`${l}: el Zarr dice que el mapa es el UMAP de Cell Ranger del .cloupe (lo que afirma la nota)`, /mapa = UMAP de Cell Ranger \(\.cloupe\)/.test(ver), ver)
+    }
   }
 }
 

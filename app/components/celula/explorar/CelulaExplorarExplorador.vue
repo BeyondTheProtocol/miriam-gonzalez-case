@@ -132,11 +132,16 @@ const notaMapa = computed(() => {
   const lei = nLeidas.value
   const qc = lei ? L(` (de ${lei} leídas; el resto no pasó el control de calidad de este análisis)`, ` (of ${lei} read; the rest did not pass this analysis’s quality control)`) : ''
   if (props.ejemplo) {
-    return L(`${nTotal.value} células de ejemplo${qc}, en posiciones inventadas que imitan un mapa de células: en uno de verdad, dos puntos cercanos son células parecidas y la distancia entre grupos alejados no se interpreta.`,
-      `${nTotal.value} example cells${qc}, at made-up positions that mimic a cell map: in a real one, nearby dots are similar cells and distances between far-apart groups are not meaningful.`)
+    return L(`${nTotal.value} células de ejemplo${qc}, en posiciones inventadas que imitan un mapa de células: en uno de verdad, dos puntos cercanos suelen ser células parecidas y la distancia entre grupos alejados no se interpreta.`,
+      `${nTotal.value} example cells${qc}, at made-up positions that mimic a cell map: in a real one, nearby dots tend to be similar cells and distances between far-apart groups are not meaningful.`)
   }
-  return L(`${nTotal.value} células de la biopsia${qc}. Cada una está donde la colocó el UMAP de Cell Ranger (10x Genomics), como en Loupe Browser.${lei ? ' Las que no pasaron el control de calidad no se dibujan y dejan huecos o zonas más ralas; el mapa también tiene claros de por sí.' : ''} Dos puntos cercanos son células parecidas; la distancia entre grupos alejados no se interpreta.`,
-    `${nTotal.value} cells from the biopsy${qc}. Each one sits where Cell Ranger’s UMAP (10x Genomics) placed it, as in Loupe Browser.${lei ? ' Cells that failed quality control are not drawn and leave gaps or sparser patches; the map also has empty areas of its own.' : ''} Nearby dots are similar cells; distances between far-apart groups are not meaningful.`)
+  // verificacion, voz-miriam y un lector no experto (19-oct): que la posición es parecido y NO el sitio en el tejido (sin
+  // eso un lego lee el mapa como una foto y un hueco como tejido vacío); «el programa de 10x Genomics» y no «(10x)», que
+  // suena a aumentos de microscopio; las células del control dejan zonas más ralas (medido por clúster), pero un hueco
+  // concreto no se puede atribuir a eso, porque un UMAP deja espacio vacío entre grupos por sí mismo; y lo cercano «suele»
+  // ser parecido, no siempre (la vecindad local también se deforma al pasar a 2D)
+  return L(`${nTotal.value} células de la biopsia${qc}. Están colocadas según lo que se parecen, no según dónde estaban en el tejido: es el UMAP que calcula Cell Ranger, el programa de 10x Genomics, el mismo que muestra Loupe Browser.${lei ? ' Las que no pasaron el control no se dibujan y algunas zonas se ven más ralas. Un UMAP también suele dejar espacio vacío entre grupos, así que un hueco, por sí solo, no dice si ahí se quitaron células.' : ''} Dos puntos cercanos suelen ser células parecidas, pero la distancia entre grupos alejados no se interpreta.`,
+    `${nTotal.value} cells from the biopsy${qc}. They are placed by how similar they are, not by where they sat in the tissue: this is the UMAP computed by Cell Ranger, 10x Genomics’ software, the same one Loupe Browser shows.${lei ? ' Cells that did not pass are not drawn, which makes some areas look sparser. A UMAP also tends to leave empty space between groups, so a gap alone does not tell you whether cells were removed there.' : ''} Nearby dots are usually similar cells, but distances between far-apart groups are not meaningful.`)
 })
 /** «Colorear por» en un desplegable: Gen y Dos genes solo con un gen activo */
 const MODOS = computed(() => [

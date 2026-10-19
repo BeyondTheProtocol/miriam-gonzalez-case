@@ -185,7 +185,9 @@ if (manPub.ejemplo !== true) {
     await navR.sleep(1500)
     const dib1440 = await dibujoDelMapa(navR)
     ok('real 1440: el dibujo del mapa ocupa al menos el 80 % del lienzo en el eje que limita', llenaLienzo(dib1440), JSON.stringify(dib1440 && { w: dib1440.w, h: dib1440.h, caja: dib1440.caja }))
-    ok('real: la nota del mapa dice que es el UMAP de Cell Ranger, como en Loupe, y qué son los huecos', await navR.evaluate(`[...document.querySelectorAll('.exp__mapacol .exp__nota')].some((p) => /donde la colocó el UMAP de Cell Ranger \\(10x Genomics\\), como en Loupe Browser\\. Las que no pasaron el control de calidad no se dibujan y dejan huecos o zonas más ralas; el mapa también tiene claros de por sí\\./.test(p.textContent))`))
+    // verificacion y lector no experto (19-oct): la posición es parecido, no sitio en el tejido; las zonas ralas por el
+    // control están medidas, pero un hueco concreto no se puede atribuir a eso
+    ok('real: la nota del mapa dice que la posición no es el tejido, que es el UMAP de Cell Ranger (el de Loupe) y qué son (y qué no) los huecos', await navR.evaluate(`[...document.querySelectorAll('.exp__mapacol .exp__nota')].some((p) => /Están colocadas según lo que se parecen, no según dónde estaban en el tejido: es el UMAP que calcula Cell Ranger, el programa de 10x Genomics, el mismo que muestra Loupe Browser\\. Las que no pasaron el control no se dibujan y algunas zonas se ven más ralas\\. Un UMAP también suele dejar espacio vacío entre grupos, así que un hueco, por sí solo, no dice si ahí se quitaron células\\. Dos puntos cercanos suelen ser células parecidas, pero la distancia entre grupos alejados no se interpreta\\./.test(p.textContent))`))
     ok('real, por grupo: un aviso dice que los colores no son los clústeres de Cell Ranger', await navR.evaluate(`/Los colores son los grupos de este análisis, no los clústeres de Cell Ranger/.test(document.querySelector('.exp__avisos--grupo')?.textContent ?? '')`))
     ok('real llegada: por grupo, ninguna fila de la leyenda repite color', await esperaR(navR, colorUnico))
     // diseño (18-oct): «Tipo celular» repetía cada tono hasta cuatro veces y sin rótulos no se leía; fuera hasta tenerlos
@@ -247,7 +249,15 @@ if (manPub.ejemplo !== true) {
     // se ven a la vez (el alto del mapa descuenta cabecera y aviso; antes, con un porcentaje fijo, se cortaba)
     await navR.evaluate(`(() => { const fijo = parseFloat(getComputedStyle(document.querySelector('.exp')).getPropertyValue('--exp-top')) + document.querySelector('.exp__banner').offsetHeight + 8; window.scrollTo(0, document.querySelector('.exp__sim').getBoundingClientRect().top + window.scrollY - fijo) })()`)
     await navR.sleep(600)
-    ok('real escritorio hígado: bajo el aviso fijo se ven enteros el mapa y las pestañas del panel', await esperaR(navR, `(() => { const b = document.querySelector('.exp__banner').getBoundingClientRect(), t = document.querySelector('.exp__pestanas').getBoundingClientRect(), m = document.querySelector('.exp-mapa').getBoundingClientRect(); return t.top >= b.bottom - 1 && m.top >= b.bottom - 1 && m.bottom <= window.innerHeight + 1 })()`, 5000), await navR.evaluate(`(() => { const r = (q) => { const e = document.querySelector(q)?.getBoundingClientRect(); return e ? [Math.round(e.top), Math.round(e.bottom)] : null }; return JSON.stringify({ aviso: r('.exp__banner'), pestanas: r('.exp__pestanas'), mapa: r('.exp-mapa'), alto: innerHeight, y: scrollY }) })()`))
+    // 19-oct: con 5 s fallaba 2 de 3 corridas con la máquina cargada y el diagnóstico de justo después ya cumplía (mismos
+    // números las dos veces): una evaluación se queda esperando a la página, ocupada recoloreando el gen, y vuelve con el
+    // estado de antes de asentarse. Mismo tope que el resto de esperas (30 s); la condición no cambia, y el detalle dice
+    // cuánto tardó por si vuelve
+    const t0Aviso = Date.now()
+    const avisoOk = await esperaR(navR, `(() => { const b = document.querySelector('.exp__banner').getBoundingClientRect(), t = document.querySelector('.exp__pestanas').getBoundingClientRect(), m = document.querySelector('.exp-mapa').getBoundingClientRect(); return t.top >= b.bottom - 1 && m.top >= b.bottom - 1 && m.bottom <= window.innerHeight + 1 })()`)
+    const msAviso = Date.now() - t0Aviso
+    ok('real escritorio hígado: bajo el aviso fijo se ven enteros el mapa y las pestañas del panel', avisoOk, `${await navR.evaluate(`(() => { const r = (q) => { const e = document.querySelector(q)?.getBoundingClientRect(); return e ? [Math.round(e.top), Math.round(e.bottom)] : null }; return JSON.stringify({ aviso: r('.exp__banner'), pestanas: r('.exp__pestanas'), mapa: r('.exp-mapa'), alto: innerHeight, y: scrollY }) })()`)} · ${msAviso} ms`)
+    if (avisoOk && msAviso > 5000) console.log(`  (aviso: el mapa y las pestañas tardaron ${msAviso} ms en quedar bajo el aviso fijo)`)
     await navR.evaluate(`window.scrollTo(0, 0)`)
     ok('real simulador: «Más análisis» y «Calidad de los datos» plegados, con la tabla completa y con QC, número de copias, perfil y ADN dentro', await navR.evaluate(PLEGADOS))
     await navR.evaluate(ABRE_TODO)
