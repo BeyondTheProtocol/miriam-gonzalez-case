@@ -105,6 +105,14 @@ const emit = defineEmits<{ 'update:activo': [id: string]; cambia: [id: string] }
     width: auto;
     max-width: none;
   }
+}
+@media (min-width: 1024px) {
+  /* 4 px menos de alto en escritorio (la diana sigue en 44): el mapa del explorador tiene que asomar al entrar */
+  .reading-level__seg {
+    padding: 1px;
+  }
+}
+@media (min-width: 640px) {
   .reading-level__btn {
     flex: 0 0 auto;
     white-space: nowrap;
@@ -120,7 +128,8 @@ const emit = defineEmits<{ 'update:activo': [id: string]; cambia: [id: string] }
   font-weight: 600;
 }
 .reading-level__btn:focus-visible {
-  outline: 2px solid var(--color-cta);
+  /* el anillo del sistema (violeta, 5,07:1): el coral daba 2,62:1 sobre crema (diseno, 19-oct) */
+  outline: 2px solid var(--anillo-foco);
   outline-offset: 2px;
 }
 @media (forced-colors: active) {

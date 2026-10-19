@@ -48,7 +48,7 @@
             </span>
             <span class="min-w-0 flex-1">
               <!-- el explorador dice para quién es (diseno, 19-oct): la etiqueta ya publicada de /ciencia -->
-              <span v-if="h.key === 'cell_explorer'" class="eyebrow--sm block">{{ $t('ciencia.level_pro') }}</span>
+              <span v-if="h.key === 'cell_explorer'" class="eyebrow--sm block leading-none mb-0.5">{{ $t('ciencia.level_pro') }}</span>
               <span class="block font-display font-semibold text-berenjena text-base leading-snug">{{ h.titulo }}</span>
             </span>
             <Icon name="ph:arrow-right" class="shrink-0 w-5 h-5 text-miriam" aria-hidden="true" />

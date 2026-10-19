@@ -436,13 +436,11 @@
                 <Icon name="ph:magnifying-glass-fill" class="w-5 h-5 text-berenjena" aria-hidden="true" />
               </span>
               <p class="flex-1 text-sm text-tinta leading-relaxed">
-                {{ locale === 'es'
-                  ? 'El mapa de células de las dos biopsias, gen a gen, con el n, el suelo ambiental y la referencia de cada medida.'
-                  : 'The cell map of both biopsies, gene by gene, with the n, the ambient floor and the reference for every measure.' }}
+                {{ TARJETA_EXPLORADOR.texto[locale === 'en' ? 'en' : 'es'] }}
               </p>
             </div>
             <span class="inline-flex w-full sm:w-auto shrink-0 items-center justify-center sm:justify-start gap-2 text-sm font-semibold text-berenjena group-hover:text-miriam transition-colors rounded-xl bg-miriam-soft sm:bg-transparent px-4 sm:px-0 py-2.5 sm:py-0">
-              {{ locale === 'es' ? 'Abrir el explorador' : 'Open the explorer' }}
+              {{ TARJETA_EXPLORADOR.boton[locale === 'en' ? 'en' : 'es'] }}
               <Icon name="ph:arrow-right" class="w-4 h-4 transition-transform group-hover:translate-x-0.5" aria-hidden="true" />
             </span>
           </NuxtLink>
@@ -1043,6 +1041,7 @@ const { data: articles } = await useAsyncData(
 )
 
 import type { Collections, ScienceEnCollectionItem } from '@nuxt/content'
+import { TARJETA_EXPLORADOR } from '~/utils/celulaExploradorTexto'
 
 const { data: scienceData } = await useAsyncData(
   `science-data-${locale.value}`,

@@ -460,6 +460,9 @@ ok('alias de búsqueda: ninguno es una isoforma (p. ej. «CLDN18.2»)', !Object.
     /<CelulaNivel activo="simple"/.test(madreSrc) && /<CelulaNivel activo="pro"/.test(pagina))
   const nivel = lee(join(RAIZ, 'app', 'components', 'celula', 'CelulaNivel.vue'))
   ok('el divisor solo existe con la puerta del explorador abierta', /v-if="hayReal"/.test(nivel))
+  const frase = 'El mapa de células de las dos biopsias, gen a gen'
+  const repetida = ['app/pages/ciencia/index.vue', 'app/components/celula/CelulaExplorarTarjeta.vue'].filter((f) => lee(join(RAIZ, f)).includes(frase))
+  ok('el texto de la tarjeta del explorador tiene una sola fuente (TARJETA_EXPLORADOR), sin copias a mano', repetida.length === 0, repetida.join(', '))
 }
 
 console.log(fallos ? `\n${fallos} de ${hechos} comprobaciones fallan` : `${hechos} de ${hechos} comprobaciones en verde`)

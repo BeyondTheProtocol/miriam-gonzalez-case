@@ -5,6 +5,14 @@
 type T = { es: string; en: string }
 const t = (es: string, en: string): T => ({ es, en })
 
+// Texto y botón de la tarjeta del explorador: «Próximos pasos» de /celula-a-celula y «Para tu equipo médico» de
+// /ciencia. Una sola fuente (diseno, 19-oct): las dos tarjetas dicen lo mismo con las mismas palabras.
+export const TARJETA_EXPLORADOR = {
+  texto: t('El mapa de células de las dos biopsias, gen a gen, con el n, el suelo ambiental y la referencia de cada medida.',
+    'The cell map of both biopsies, gene by gene, with the n, the ambient floor and the reference for every measure.'),
+  boton: t('Abrir el explorador', 'Open the explorer'),
+}
+
 export const ETIQUETA_GRUPO: Record<string, T> = {
   luminal_alta_confianza: t('Luminal de alta confianza', 'High-confidence luminal'),
   malignas_limpias: t('Malignas, asignación limpia', 'Malignant, clean call'),

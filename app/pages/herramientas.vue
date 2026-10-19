@@ -26,6 +26,8 @@
               <!-- La etiqueta solo si dice algo que el título no dice (diseno, 14-oct): «El caso en
                    datos» sobre «El caso en datos» se leía dos veces. -->
               <span v-if="!h.repite" :id="`herr-${h.key}-e`" class="eyebrow block">{{ h.etiqueta }}</span>
+              <!-- sin etiqueta, su línea se reserva: así los títulos de una misma fila quedan alineados (diseno, 19-oct) -->
+              <span v-else class="eyebrow block" aria-hidden="true">&nbsp;</span>
               <h2 :id="`herr-${h.key}-t`" class="font-display font-semibold text-berenjena text-xl leading-snug" style="letter-spacing: -0.01em">
                 {{ h.titulo }}
               </h2>

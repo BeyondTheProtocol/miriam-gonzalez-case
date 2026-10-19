@@ -60,7 +60,7 @@ const LEER = [
              puerta abierta sustituye a la etiqueta «Para profesionales» (diseno, 19-oct). -->
         <PageHeader
           compact
-          class="!mb-4"
+          class="!mb-4 lg:!mb-2"
           :parent="{ to: localePath({ name: 'herramientas' }), label: t('nav.tools') }"
           :tag="hayReal ? undefined : L('Para profesionales', 'For professionals')"
           :title="titulo()"
