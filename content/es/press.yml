@@ -3,14 +3,20 @@
 # + credibilidad. Sirve a la estrella polar: credibilidad → confianza → aliados/
 # financiación → vacuna. La home (tira de medios) sigue este mismo orden.
 #   1. El País — diario nacional nº1, sección tech, con edición en inglés.
-#   2. El Español — gran nacional digital, titular fuerte y en mensaje, reciente.
-#   3. La Opinión de Murcia — regional, ancla el ángulo local/humano.
-#   4. La 7 — TV regional (clip en Instagram), cierra la lista.
+#   2. La Vanguardia — gran cabecera nacional; pieza ligera (sección Clic, sobre un
+#      clip del pódcast Roca Project), por eso detrás de El País.
+#   3. El Español — gran nacional digital, titular fuerte y en mensaje.
+#   4. La Opinión de Murcia — regional, ancla el ángulo local/humano.
+#   5. La 7 — TV regional (clip en Instagram), cierra la lista.
 articles:
   - outlet: El País
     url: https://elpais.com/tecnologia/2026-04-23/asi-usa-una-paciente-con-cancer-metastasico-la-ia-para-entender-su-enfermedad-cual-es-el-mejor-metodo-para-hablar-de-salud-con-chatbots.html
     title: Así usa una paciente con cáncer metastásico la IA para entender su enfermedad
     date: '2026-04-23'
+  - outlet: La Vanguardia
+    url: https://www.lavanguardia.com/clic/20260816/11613280/miriam-gonzalez-paciente-cancer-mama-raro-me-siento-desventaja-frente-paciente-tenga-cancer-mama-metastasico.html
+    title: 'Miriam González, paciente con cáncer de mama raro: «Me siento en desventaja frente a una paciente que tenga un cáncer de mama metastásico al uso»'
+    date: '2026-08-16'
   - outlet: El Español
     url: https://www.elespanol.com/alicante/vivir/salud/20260619/miren-ingeniera-anos-usa-ia-luchar-cancer-mama-unico-contactan-oncologos-mundo/1003744290903_0.html
     title: 'Miriam, ingeniera, usa la IA para luchar contra su cáncer de mama único…'
