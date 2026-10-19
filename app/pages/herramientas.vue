@@ -26,6 +26,8 @@
               <!-- La etiqueta solo si dice algo que el título no dice (diseno, 14-oct): «El caso en
                    datos» sobre «El caso en datos» se leía dos veces. -->
               <span v-if="!h.repite" :id="`herr-${h.key}-e`" class="eyebrow block">{{ h.etiqueta }}</span>
+              <!-- sin etiqueta, su línea se reserva: así los títulos de una misma fila quedan alineados (diseno, 19-oct) -->
+              <span v-else class="eyebrow block" aria-hidden="true">&nbsp;</span>
               <h2 :id="`herr-${h.key}-t`" class="font-display font-semibold text-berenjena text-xl leading-snug" style="letter-spacing: -0.01em">
                 {{ h.titulo }}
               </h2>
@@ -44,13 +46,16 @@
 <script setup lang="ts">
 const { locale, t } = useI18n()
 const localePath = useLocalePath()
-const { trackMapa, trackLesiones, trackDatos } = useSupport()
+const { trackMapa, trackLesiones, trackDatos, trackCelula, trackExplorador } = useSupport()
+const { herramientas } = useHerramientas()
 const tituloId = useId()
 
 const tarjetas = computed(() =>
-  HERRAMIENTAS.map((h) => {
+  herramientas.value.map((h) => {
     const [titulo, descripcion] = copyHerramienta(h.key, locale.value)
-    const etiqueta = t(`nav.${h.key}`)
+    // El explorador lleva por etiqueta su público, «Para profesionales» (ya publicada en /ciencia y en su tarjeta;
+    // diseno, 19-oct): avisa al público general de que esa tarjeta es la técnica.
+    const etiqueta = h.key === 'cell_explorer' ? t('ciencia.level_pro') : t(`nav.${h.key}`)
     const repite = titulo.trim().toLowerCase().startsWith(etiqueta.trim().toLowerCase())
     return { ...h, titulo, descripcion, etiqueta, repite, icono: ICONO_HERRAMIENTA[h.key] }
   })
@@ -61,6 +66,8 @@ function medir(key: string) {
   if (key === 'map') trackMapa('herramientas')
   else if (key === 'lesions') trackLesiones('herramientas')
   else if (key === 'data') trackDatos('herramientas')
+  else if (key === 'cell_by_cell') trackCelula('herramientas')
+  else if (key === 'cell_explorer') trackExplorador('herramientas')
 }
 
 useSeoMeta({

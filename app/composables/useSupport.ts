@@ -85,6 +85,15 @@ export function useSupport() {
     trackUmami('VerDatos', { origen })
   }
 
+  // Entradas a /celula-a-celula y a su explorador (diseno, 19-oct): hasta ahora no se medía de dónde
+  // llegaba nadie. `origen`: herramientas · home_teaser · pie · divisor · tarjeta_proximos · ciencia_acceso.
+  function trackCelula(origen: string) {
+    trackUmami('VerCelula', { origen })
+  }
+  function trackExplorador(origen: string) {
+    trackUmami('VerExplorador', { origen })
+  }
+
   // Clic en «Lo último» (señal de recencia): desde el hero de la home o desde la barra global.
   function trackLatest(origen: 'hero' | 'barra') {
     trackUmami('VerUltimo', { origen })
@@ -148,6 +157,8 @@ export function useSupport() {
     trackMapa,
     trackLesiones,
     trackDatos,
+    trackCelula,
+    trackExplorador,
     trackLatest,
     trackNav,
     trackVideo,

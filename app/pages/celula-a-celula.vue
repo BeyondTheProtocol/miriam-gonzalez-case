@@ -50,7 +50,10 @@ defineOgImage('Default.takumi', {
               'An analysis that looks at the cells of Miriam’s tumor one by one, instead of averaging all of them. These are the first results.')
             : L('Un análisis que mira las células del tumor de Miriam una a una, en lugar de hacer la media de todas. Todavía no hay resultados.',
               'An analysis that looks at the cells of Miriam’s tumor one by one, instead of averaging all of them. There are no results yet.')"
-        />
+        >
+          <!-- el divisor justo bajo el H1, en el mismo sitio que en el explorador: esta es la versión para mentes curiosas -->
+          <template #fila><CelulaNivel activo="simple" /></template>
+        </PageHeader>
 
         <CelulaAviso class="mb-8" />
         <EcgDivider class="mb-12" />

@@ -46,7 +46,11 @@
             <span class="shrink-0 w-9 h-9 rounded-xl bg-miriam-soft flex items-center justify-center" aria-hidden="true">
               <Icon :name="h.icono" class="w-5 h-5 text-berenjena" />
             </span>
-            <span class="min-w-0 flex-1 font-display font-semibold text-berenjena text-base leading-snug">{{ h.titulo }}</span>
+            <span class="min-w-0 flex-1">
+              <!-- el explorador dice para quién es (diseno, 19-oct): la etiqueta ya publicada de /ciencia -->
+              <span v-if="h.key === 'cell_explorer'" class="eyebrow--sm block leading-none mb-0.5">{{ $t('ciencia.level_pro') }}</span>
+              <span class="block font-display font-semibold text-berenjena text-base leading-snug">{{ h.titulo }}</span>
+            </span>
             <Icon name="ph:arrow-right" class="shrink-0 w-5 h-5 text-miriam" aria-hidden="true" />
           </NuxtLink>
         </li>
@@ -65,11 +69,12 @@
 <script setup lang="ts">
 const { locale } = useI18n()
 const localePath = useLocalePath()
-const { trackMapa, trackLesiones, trackDatos } = useSupport()
+const { trackMapa, trackLesiones, trackDatos, trackCelula, trackExplorador } = useSupport()
+const { herramientas } = useHerramientas()
 const titleId = useId()
 
 const tarjetas = computed(() =>
-  HERRAMIENTAS.map((h) => {
+  herramientas.value.map((h) => {
     const [titulo, descripcion] = copyHerramienta(h.key, locale.value)
     return { ...h, titulo, descripcion, icono: ICONO_HERRAMIENTA[h.key] ?? 'ph:wrench-fill' }
   })
@@ -82,5 +87,7 @@ function medir(key: string) {
   if (key === 'map') trackMapa('home_teaser')
   else if (key === 'lesions') trackLesiones('home_teaser')
   else if (key === 'data') trackDatos('home_teaser')
+  else if (key === 'cell_by_cell') trackCelula('home_teaser')
+  else if (key === 'cell_explorer') trackExplorador('home_teaser')
 }
 </script>

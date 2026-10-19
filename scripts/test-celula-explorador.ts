@@ -24,6 +24,7 @@ import { abreZarr } from '../app/utils/celulaExploradorZarr'
 import { CASILLAS, CASILLA_DE_TIPO, paleta } from '../app/utils/celulaExploradorColor'
 import FileSystemStore from '@zarrita/storage/fs'
 import * as zarr from 'zarrita'
+import { COPY_HERRAMIENTAS, HERRAMIENTAS, ICONO_HERRAMIENTA, SECCIONES } from '../app/utils/navegacion'
 
 const RAIZ = join(import.meta.dirname, '..')
 const DIR = join(RAIZ, 'public', 'celula', 'explorador')
@@ -536,6 +537,28 @@ if (man.zarr?.length) {
 }
 // verificacion (18-oct): los alias del buscador llevan a un GEN; una isoforma (CLDN18.2) no se puede leer con sondas del gen entero
 ok('alias de búsqueda: ninguno es una isoforma (p. ej. «CLDN18.2»)', !Object.keys(ALIAS_BUSCA).some((k) => /\d\.\d/.test(k)), Object.keys(ALIAS_BUSCA).filter((k) => /\d\.\d/.test(k)).join(', '))
+
+// 19-oct (Miriam: el explorador «super a mano en toda la web»; dictamen diseno): el explorador es una herramienta más.
+{
+  const sinSeccion = HERRAMIENTAS.filter((h) => !SECCIONES.tools!.includes(h.name)).map((h) => h.name)
+  ok('toda herramienta está en SECCIONES.tools (el menú marca «Herramientas» en cada una)', sinSeccion.length === 0, sinSeccion.join(', '))
+  const es = JSON.parse(lee(join(RAIZ, 'i18n', 'locales', 'es.json'))).nav, en = JSON.parse(lee(join(RAIZ, 'i18n', 'locales', 'en.json'))).nav
+  const cojas = HERRAMIENTAS.filter((h) => !COPY_HERRAMIENTAS[h.key] || !ICONO_HERRAMIENTA[h.key] || !es[h.key] || !en[h.key]).map((h) => h.key)
+  ok('toda herramienta tiene título y descripción publicados, icono y etiqueta de menú en es y en', cojas.length === 0, cojas.join(', '))
+  const xp = HERRAMIENTAS.findIndex((h) => h.key === 'cell_explorer'), madre = HERRAMIENTAS.findIndex((h) => h.key === 'cell_by_cell')
+  ok('el explorador está entre las herramientas, justo detrás de su página madre', xp === madre + 1 && madre >= 0, `madre ${madre} · explorador ${xp}`)
+  const pagina = lee(join(RAIZ, 'app', 'pages', 'celula-a-celula-explorar.vue'))
+  const literal = (['es', 'en'] as const).every((l) => COPY_HERRAMIENTAS.cell_explorer![l].every((t) => pagina.includes(t)))
+  ok('el título y la descripción del explorador en Herramientas son los publicados en su página (copia literal)', literal)
+  const madreSrc = lee(join(RAIZ, 'app', 'pages', 'celula-a-celula.vue'))
+  ok('el divisor está en las dos páginas: «mentes curiosas» en célula a célula y «profesionales» en el explorador',
+    /<CelulaNivel activo="simple"/.test(madreSrc) && /<CelulaNivel activo="pro"/.test(pagina))
+  const nivel = lee(join(RAIZ, 'app', 'components', 'celula', 'CelulaNivel.vue'))
+  ok('el divisor solo existe con la puerta del explorador abierta', /v-if="hayReal"/.test(nivel))
+  const frase = 'El mapa de células de las dos biopsias, gen a gen'
+  const repetida = ['app/pages/ciencia/index.vue', 'app/components/celula/CelulaExplorarTarjeta.vue'].filter((f) => lee(join(RAIZ, f)).includes(frase))
+  ok('el texto de la tarjeta del explorador tiene una sola fuente (TARJETA_EXPLORADOR), sin copias a mano', repetida.length === 0, repetida.join(', '))
+}
 
 console.log(fallos ? `\n${fallos} de ${hechos} comprobaciones fallan` : `${hechos} de ${hechos} comprobaciones en verde`)
 process.exit(fallos ? 1 : 0)

@@ -49,22 +49,14 @@
           </button>
         </div>
 
-        <div class="reading-level mb-10" role="group" :aria-label="$t('ciencia.level_aria')">
-          <span class="reading-level__hint">{{ $t('ciencia.level_hint') }}</span>
-          <div class="reading-level__seg">
-            <button
-              v-for="opt in levelOptions"
-              :key="opt.id"
-              type="button"
-              class="reading-level__btn"
-              :class="{ 'is-active': level === opt.id }"
-              :aria-pressed="level === opt.id"
-              @click="level = opt.id"
-            >
-              {{ opt.label }}
-            </button>
-          </div>
-        </div>
+        <NivelLectura
+          :activo="level"
+          class="mb-10"
+          :opciones="levelOptions"
+          :hint="$t('ciencia.level_hint')"
+          :aria="$t('ciencia.level_aria')"
+          @update:activo="ponerNivel"
+        />
 
         <!-- A11y: anuncia el cambio de modo a lectores de pantalla (el comité
              marcó «nada de cambios de contenido silenciosos» como prioridad). -->
@@ -425,6 +417,30 @@
             </div>
             <span class="inline-flex w-full sm:w-auto shrink-0 items-center justify-center sm:justify-start gap-2 text-sm font-semibold text-berenjena group-hover:text-miriam transition-colors rounded-xl bg-miriam-soft sm:bg-transparent px-4 sm:px-0 py-2.5 sm:py-0">
               {{ locale === 'es' ? 'Abrir el visor de la biopsia' : 'Open the biopsy viewer' }}
+              <Icon name="ph:arrow-right" class="w-4 h-4 transition-transform group-hover:translate-x-0.5" aria-hidden="true" />
+            </span>
+          </NuxtLink>
+
+          <!-- (acceso médicos) el explorador de células (diseno, 19-oct): texto y botón de su tarjeta ya publicada;
+               solo con su puerta abierta -->
+          <NuxtLink
+            v-if="exploradorAbierto"
+            id="explorador-celulas-link"
+            :to="localePath({ name: 'celula-a-celula-explorar' })"
+            @click="trackExplorador('ciencia_acceso')"
+            class="group mt-3 flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-3.5 rounded-2xl px-4 sm:px-5 py-4 transition-all active:scale-[0.99] sm:hover:-translate-y-0.5"
+            style="background:rgba(232,212,237,0.30);text-decoration:none"
+          >
+            <div class="flex items-start gap-3.5 flex-1">
+              <span class="shrink-0 w-9 h-9 rounded-xl bg-miriam-soft flex items-center justify-center">
+                <Icon name="ph:magnifying-glass-fill" class="w-5 h-5 text-berenjena" aria-hidden="true" />
+              </span>
+              <p class="flex-1 text-sm text-tinta leading-relaxed">
+                {{ TARJETA_EXPLORADOR.texto[locale === 'en' ? 'en' : 'es'] }}
+              </p>
+            </div>
+            <span class="inline-flex w-full sm:w-auto shrink-0 items-center justify-center sm:justify-start gap-2 text-sm font-semibold text-berenjena group-hover:text-miriam transition-colors rounded-xl bg-miriam-soft sm:bg-transparent px-4 sm:px-0 py-2.5 sm:py-0">
+              {{ TARJETA_EXPLORADOR.boton[locale === 'en' ? 'en' : 'es'] }}
               <Icon name="ph:arrow-right" class="w-4 h-4 transition-transform group-hover:translate-x-0.5" aria-hidden="true" />
             </span>
           </NuxtLink>
@@ -792,7 +808,8 @@ const localePath = useLocalePath()
 const L = (es: string, en: string) => (locale.value === 'es' ? es : en)
 // Cierre de conversión: donación (llano) y financiación como nota (pro). Mismo
 // patrón que el resto del sitio; dispara el goal de apoyo con su ubicación.
-const { GOFUNDME_URL, trackSupport, trackScience, trackMapa } = useSupport()
+const { GOFUNDME_URL, trackSupport, trackScience, trackMapa, trackExplorador } = useSupport()
+const { hayReal: exploradorAbierto } = useCelulaExplorador()
 
 function printPage() {
   if (!import.meta.client) return
@@ -874,6 +891,8 @@ function goPro() {
     }
   })
 }
+// El componente devuelve el id como texto; aquí vuelve a ser un ReadingLevel.
+const ponerNivel = (v: string) => { level.value = v === 'pro' ? 'pro' : 'simple' }
 const levelOptions = computed(() => [
   { id: 'simple' as const, label: t('ciencia.level_simple') },
   { id: 'pro' as const, label: t('ciencia.level_pro') },
@@ -1022,6 +1041,7 @@ const { data: articles } = await useAsyncData(
 )
 
 import type { Collections, ScienceEnCollectionItem } from '@nuxt/content'
+import { TARJETA_EXPLORADOR } from '~/utils/celulaExploradorTexto'
 
 const { data: scienceData } = await useAsyncData(
   `science-data-${locale.value}`,
@@ -1079,76 +1099,5 @@ const snapshotRows = computed(() =>
 /* Columna de referencia (VHIO) resaltada en la tabla de patología "3 lecturas". */
 .reads-vh { background: rgb(var(--color-miriam-rgb) / 0.07); }
 
-/* Conmutador de nivel de lectura (ciencia en 3 capas). Sigue la paleta del
-   sistema: berenjena para el activo, mono para las etiquetas. Tap target ≥40px. */
-.reading-level {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 0.5rem 0.875rem;
-}
-.reading-level__hint {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 11px;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: rgb(var(--color-text-rgb) / 0.55);
-}
-.reading-level__seg {
-  /* Móvil: ocupa el ancho y las pastillas se reparten la fila (etiquetas largas
-     como «Para mentes curiosas» no se salen). En sm+ vuelve a tamaño automático. */
-  display: flex;
-  width: 100%;
-  max-width: 440px;
-  padding: 3px;
-  border-radius: 999px;
-  background: rgb(var(--color-text-rgb) / 0.05);
-  border: 1px solid rgb(var(--color-text-rgb) / 0.1);
-}
-.reading-level__btn {
-  appearance: none;
-  border: none;
-  background: transparent;
-  cursor: pointer;
-  flex: 1 1 0;
-  min-width: 0;
-  text-align: center;
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 12px;
-  letter-spacing: 0.02em;
-  line-height: 1.15;
-  color: rgb(var(--color-text-rgb) / 0.62);
-  padding: 8px 12px;
-  min-height: 40px;
-  border-radius: 999px;
-  transition: background 0.18s ease, color 0.18s ease;
-}
-@media (min-width: 640px) {
-  .reading-level__seg {
-    width: auto;
-    max-width: none;
-  }
-  .reading-level__btn {
-    flex: 0 0 auto;
-    white-space: nowrap;
-    padding: 9px 16px;
-  }
-}
-.reading-level__btn:hover {
-  color: var(--color-text);
-}
-.reading-level__btn.is-active {
-  background: var(--color-text);
-  color: var(--color-bg);
-  font-weight: 600;
-}
-.reading-level__btn:focus-visible {
-  outline: 2px solid var(--color-cta);
-  outline-offset: 2px;
-}
-@media (prefers-reduced-motion: reduce) {
-  .reading-level__btn {
-    transition: none;
-  }
-}
+/* El conmutador de nivel vive en app/components/NivelLectura.vue (común con célula a célula, 19-oct). */
 </style>

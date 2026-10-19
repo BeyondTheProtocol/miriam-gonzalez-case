@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { TARJETA_EXPLORADOR } from '~/utils/celulaExploradorTexto'
 /**
  * Tarjeta sobria hacia el explorador (/celula-a-celula/explorar), al final de «Próximos pasos».
  * Misma puerta que el explorador: sin datos reales con el OK de Miriam NO existe (ni hueco). Con
@@ -10,6 +11,8 @@ const lang = computed<'es' | 'en'>(() => (locale.value === 'en' ? 'en' : 'es'))
 const L = (es: string, en: string) => (lang.value === 'en' ? en : es)
 const { estado } = useCelulaExplorador()
 const destino = computed(() => localePath({ name: 'celula-a-celula-explorar', query: estado.value === 'ejemplo' ? { demo: '1' } : undefined }))
+const { trackExplorador } = useSupport()
+const { texto, boton } = TARJETA_EXPLORADOR
 </script>
 
 <template>
@@ -17,12 +20,11 @@ const destino = computed(() => localePath({ name: 'celula-a-celula-explorar', qu
     <p class="eyebrow--sm xt__eti">{{ L('Para profesionales', 'For professionals') }}</p>
     <h3 class="cel-h3">{{ L('Explorar los datos célula a célula', 'Explore the cell-by-cell data') }}</h3>
     <p class="cel-card__p">
-      {{ L('El mapa de células de las dos biopsias, gen a gen, con el n, el suelo ambiental y la referencia de cada medida.',
-        'The cell map of both biopsies, gene by gene, with the n, the ambient floor and the reference for every measure.') }}
+      {{ texto[lang] }}
       <template v-if="estado === 'ejemplo'"> {{ L('De momento, con datos de ejemplo.', 'For now, with example data.') }}</template>
     </p>
-    <NuxtLink :to="destino" class="link-action xt__enlace">
-      {{ L('Abrir el explorador', 'Open the explorer') }}
+    <NuxtLink :to="destino" class="link-action xt__enlace" @click="trackExplorador('tarjeta_proximos')">
+      {{ boton[lang] }}
       <Icon name="ph:arrow-right-bold" class="w-4 h-4" aria-hidden="true" />
     </NuxtLink>
   </aside>
