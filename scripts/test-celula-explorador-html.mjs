@@ -16,7 +16,61 @@
 // Uso:  pnpm exec nuxt generate && pnpm test:celula-explorador-html   (CI: e2e.yml)
 import { existsSync, readFileSync, readdirSync } from 'node:fs'
 import { join } from 'node:path'
+import { inflateSync } from 'node:zlib'
 import { abrirNavegador, ROOT } from './lib/navegador-cdp.mjs'
+
+/* ── píxeles del mapa (plan del 19-oct, mapa de Loupe): lo que se DIBUJA, no la caja del contenedor ── */
+/** PNG de 8 bits RGB o RGBA → { w, h, bpp, px }, con los cinco filtros de línea (sin dependencias). */
+function decodePng(buf) {
+  let pos = 8, w = 0, h = 0, ct = 0, bd = 0
+  const idat = []
+  while (pos < buf.length) {
+    const len = buf.readUInt32BE(pos), tipo = buf.toString('ascii', pos + 4, pos + 8), dat = buf.subarray(pos + 8, pos + 8 + len)
+    if (tipo === 'IHDR') { w = dat.readUInt32BE(0); h = dat.readUInt32BE(4); bd = dat[8]; ct = dat[9] }
+    else if (tipo === 'IDAT') idat.push(dat)
+    else if (tipo === 'IEND') break
+    pos += 12 + len
+  }
+  if (bd !== 8 || (ct !== 6 && ct !== 2)) throw new Error(`PNG no soportado (profundidad ${bd}, color ${ct})`)
+  const bpp = ct === 6 ? 4 : 3, stride = w * bpp, raw = inflateSync(Buffer.concat(idat)), px = Buffer.alloc(h * stride)
+  for (let y = 0; y < h; y++) {
+    const f = raw[y * (stride + 1)], src = raw.subarray(y * (stride + 1) + 1, (y + 1) * (stride + 1))
+    const out = px.subarray(y * stride, (y + 1) * stride), prev = y ? px.subarray((y - 1) * stride, y * stride) : null
+    for (let i = 0; i < stride; i++) {
+      const a = i >= bpp ? out[i - bpp] : 0, b = prev ? prev[i] : 0, c = prev && i >= bpp ? prev[i - bpp] : 0
+      let v = src[i]
+      if (f === 1) v += a
+      else if (f === 2) v += b
+      else if (f === 3) v += (a + b) >> 1
+      else if (f === 4) { const p = a + b - c, pa = Math.abs(p - a), pb = Math.abs(p - b), pc = Math.abs(p - c); v += pa <= pb && pa <= pc ? a : pb <= pc ? b : c }
+      out[i] = v & 255
+    }
+  }
+  return { w, h, bpp, px }
+}
+/** Captura del lienzo del mapa (sin los botones encima) y los píxeles que no son fondo: su caja y una función para contar
+ * píxeles dibujados en un rectángulo. El fondo es el color más frecuente. */
+async function dibujoDelMapa(nav) {
+  // el lienzo entero a la vista: lo que queda fuera de la ventana sale en blanco en la captura
+  await nav.evaluate(`(() => { const s = document.createElement('style'); s.id = 'sin-botones-mapa'; s.textContent = '.exp-mapa button, .exp-mapa__mover, .exp-mapa__velo, .exp-mapa__carga { visibility: hidden !important }'; document.head.append(s); const b = document.documentElement.style.scrollBehavior; document.documentElement.style.scrollBehavior = 'auto'; document.querySelector('.exp-mapa canvas')?.scrollIntoView({ block: 'center' }); document.documentElement.style.scrollBehavior = b; return true })()`)
+  await nav.sleep(800)
+  const r = await nav.evaluate(`(() => { const c = document.querySelector('.exp-mapa canvas'); if (!c) return null; const b = c.getBoundingClientRect(); return { x: b.left + scrollX, y: b.top + scrollY, w: b.width, h: b.height } })()`)
+  if (!r || r.w < 50 || r.h < 50) return null
+  const shot = await nav.cdp('Page.captureScreenshot', { format: 'png', clip: { x: r.x, y: r.y, width: r.w, height: r.h, scale: 1 } })
+  await nav.evaluate(`document.getElementById('sin-botones-mapa')?.remove(); true`)
+  const { w, h, bpp, px } = decodePng(Buffer.from(shot.data, 'base64'))
+  const cuenta = new Map()
+  for (let i = 0; i < w * h; i += 7) { const k = (px[i * bpp] << 16) | (px[i * bpp + 1] << 8) | px[i * bpp + 2]; cuenta.set(k, (cuenta.get(k) ?? 0) + 1) }
+  const fondo = [...cuenta.entries()].sort((a, b) => b[1] - a[1])[0][0]
+  const fr = (fondo >> 16) & 255, fg = (fondo >> 8) & 255, fb = fondo & 255
+  const tinta = (x, y) => { const i = (y * w + x) * bpp; return Math.max(Math.abs(px[i] - fr), Math.abs(px[i + 1] - fg), Math.abs(px[i + 2] - fb)) > 30 }
+  let x0 = w, y0 = h, x1 = -1, y1 = -1
+  for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) if (tinta(x, y)) { if (x < x0) x0 = x; if (x > x1) x1 = x; if (y < y0) y0 = y; if (y > y1) y1 = y }
+  const enCaja = (ax, ay, bx, by) => { let n = 0; for (let y = Math.max(0, ay); y <= Math.min(h - 1, by); y++) for (let x = Math.max(0, ax); x <= Math.min(w - 1, bx); x++) if (tinta(x, y)) n++; return n }
+  return { w, h, caja: x1 < 0 ? null : { x0, y0, x1, y1 }, enCaja }
+}
+/** ¿El dibujo aprovecha el lienzo? En el eje que limita, el dibujo ocupa al menos el 80 %. */
+const llenaLienzo = (d) => !!d?.caja && ((d.caja.x1 - d.caja.x0 + 1) >= 0.8 * d.w || (d.caja.y1 - d.caja.y0 + 1) >= 0.8 * d.h)
 
 let fallos = 0, hechos = 0
 const ok = (nombre, cond, det = '') => { hechos++; if (!cond) { fallos++; console.log(`✘ ${nombre}${det ? `\n    ${det}` : ''}`) } }
@@ -126,6 +180,13 @@ if (manPub.ejemplo !== true) {
     // panel de expertos (18-oct): al llegar, mapa por grupo y la lista corta de genes de interés
     ok('real llegada: mapa por grupo, lista de genes de interés y ningún gen abierto', await esperaR(navR, LLEGADA))
     ok('real llegada 1440×900: sin desplazar se ven al menos 400 px de mapa', await esperaR(navR, `window.scrollY === 0 && ${mapaVisible} >= 400`, 20000), `${await navR.evaluate(mapaVisible)} px`)
+    // plan del 19-oct (el mapa de Loupe): el dibujo aprovecha el lienzo, con un solo factor de escala el eje que limita llega
+    // casi al borde; y la nota dice de dónde salen las posiciones y qué son los huecos
+    await navR.sleep(1500)
+    const dib1440 = await dibujoDelMapa(navR)
+    ok('real 1440: el dibujo del mapa ocupa al menos el 80 % del lienzo en el eje que limita', llenaLienzo(dib1440), JSON.stringify(dib1440 && { w: dib1440.w, h: dib1440.h, caja: dib1440.caja }))
+    ok('real: la nota del mapa dice que es el UMAP de Cell Ranger, como en Loupe, y qué son los huecos', await navR.evaluate(`[...document.querySelectorAll('.exp__mapacol .exp__nota')].some((p) => /donde la colocó el UMAP de Cell Ranger \\(10x Genomics\\), como en Loupe Browser\\. Las que no pasaron el control de calidad no se dibujan y dejan huecos o zonas más ralas; el mapa también tiene claros de por sí\\./.test(p.textContent))`))
+    ok('real, por grupo: un aviso dice que los colores no son los clústeres de Cell Ranger', await navR.evaluate(`/Los colores son los grupos de este análisis, no los clústeres de Cell Ranger/.test(document.querySelector('.exp__avisos--grupo')?.textContent ?? '')`))
     ok('real llegada: por grupo, ninguna fila de la leyenda repite color', await esperaR(navR, colorUnico))
     // diseño (18-oct): «Tipo celular» repetía cada tono hasta cuatro veces y sin rótulos no se leía; fuera hasta tenerlos
     ok('real llegada: «Colorear por» no ofrece «Tipo celular»', await navR.evaluate(`![...document.querySelectorAll('.exp__mapabar select option')].some((o) => /Tipo celular/.test(o.textContent))`))
@@ -465,6 +526,9 @@ if (manPub.ejemplo !== true) {
     // ancho, que mide solo los hijos directos del explorador, no lo veía. Se mide la tabla contra su caja.
     ok('real móvil 375: la lista de genes de interés cabe en su caja (las cuatro columnas a la vista)', await navR.evaluate(`(() => { const t = document.querySelector('.gin__tabla'), c = document.querySelector('.gin'); return !!t && !!c && t.getBoundingClientRect().right <= c.getBoundingClientRect().right + 1 && t.getBoundingClientRect().right <= innerWidth })()`), `${await navR.evaluate(`Math.round((document.querySelector('.gin__tabla')?.getBoundingClientRect().right ?? 0) - innerWidth)`)} px de más`)
     ok('real móvil: hay mapa, quieto (velo) hasta pulsar «Mover el mapa»', await esperaR(navR, `!!document.querySelector('.exp-mapa') && !!document.querySelector('.exp-mapa__velo') && /Mover el mapa/.test(document.querySelector('.exp-mapa__mover')?.textContent ?? '')`))
+    await navR.sleep(1500)
+    const dib375 = await dibujoDelMapa(navR)
+    ok('real móvil 375: el dibujo del mapa ocupa al menos el 80 % del lienzo en el eje que limita', llenaLienzo(dib375), JSON.stringify(dib375 && { w: dib375.w, h: dib375.h, caja: dib375.caja }))
     await navR.evaluate(`document.querySelector('.exp-mapa__mover')?.click()`)
     await navR.evaluate(busca('SPDEF'))
     if (await esperaR(navR, `document.querySelector('.exp__sug button')?.dataset.gen === 'SPDEF'`, 15000)) await navR.evaluate(`document.querySelector('.exp__sug button').click()`)
@@ -568,8 +632,19 @@ try {
   await nav.cargar('/celula-a-celula/explorar?demo=1')
   ok('demo: llegada con el mapa por grupo y la lista de genes de interés', await espera(nav, LLEGADA))
   const nGrupos = await nav.evaluate(`document.querySelectorAll('.exp__leyenda li').length`)   // por grupo: una entrada por grupo
+  ok('demo: con datos de ejemplo, la nota del mapa no habla de Cell Ranger ni de Loupe (sus posiciones son inventadas)', await nav.evaluate(`[...document.querySelectorAll('.exp__mapacol .exp__nota')].every((p) => !/Cell Ranger|Loupe/.test(p.textContent)) && !document.querySelector('.exp__avisos--grupo')`))
   const gD = await nav.evaluate(eligeDeLista(''))
   ok(`demo: un toque en la lista (${gD || 'ninguno'}) abre los violines`, !!gD && await espera(nav, `document.querySelectorAll('.vio__fila').length > 0`))
+  // orientación (plan del 19-oct): la célula-sonda del ejemplo está sola arriba a la derecha y las otras tres esquinas de
+  // la caja del dibujo, vacías; en espejo (vertical u horizontal) estaría en otra esquina. Con un gen, el mapa va sin rótulos.
+  await nav.sleep(1500)
+  const dibD = await dibujoDelMapa(nav)
+  const esquinas = dibD?.caja ? (() => {
+    const { x0, y0, x1, y1 } = dibD.caja, bw = Math.max(3, Math.round((x1 - x0) * 0.1)), bh = Math.max(3, Math.round((y1 - y0) * 0.1))
+    return { arribaDcha: dibD.enCaja(x1 - bw, y0, x1, y0 + bh), arribaIzq: dibD.enCaja(x0, y0, x0 + bw, y0 + bh), abajoDcha: dibD.enCaja(x1 - bw, y1 - bh, x1, y1), abajoIzq: dibD.enCaja(x0, y1 - bh, x0 + bw, y1) }
+  })() : null
+  ok('demo: el mapa no sale en espejo (la célula-sonda, sola arriba a la derecha; las otras tres esquinas, vacías)', !!esquinas && esquinas.arribaDcha > 0 && esquinas.arribaIzq === 0 && esquinas.abajoDcha === 0 && esquinas.abajoIzq === 0, JSON.stringify(esquinas))
+  ok('demo 1280: el dibujo del mapa ocupa al menos el 80 % del lienzo en el eje que limita', llenaLienzo(dibD), JSON.stringify(dibD && { w: dibD.w, h: dibD.h, caja: dibD.caja }))
   const r = await nav.evaluate(`(() => ({
     rotulo: /DATOS DE EJEMPLO/.test(document.querySelector('.exp__demo')?.textContent ?? ''),
     banner: /tumor frente a hepatocito no está resuelto célula a célula/.test(document.querySelector('.exp__banner')?.textContent ?? ''),
@@ -690,6 +765,9 @@ try {
   await nav.cdp('Emulation.setDeviceMetricsOverride', { width: 820, height: 1180, deviceScaleFactor: 1, mobile: true })
   await nav.cargar('/celula-a-celula/explorar?demo=1')
   await espera(nav, `document.querySelectorAll('.vio__fila').length > 0`)
+  await nav.sleep(1500)
+  const dib820 = await dibujoDelMapa(nav)
+  ok('tableta 820: el dibujo del mapa ocupa al menos el 80 % del lienzo en el eje que limita', llenaLienzo(dib820), JSON.stringify(dib820 && { w: dib820.w, h: dib820.h, caja: dib820.caja }))
   await nav.evaluate(ABRE_TODO)
   ok('tableta 820: toda tabla o figura que desborda avisa de que se desliza', await nav.evaluate(avisoSiDesborda))
   await nav.cdp('Emulation.setDeviceMetricsOverride', { width: 1280, height: 900, deviceScaleFactor: 1, mobile: false })

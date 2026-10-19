@@ -125,6 +125,19 @@ const PROT = (g: string) => nombreGen(g).split(' (')[0]!
 const nTotal = computed(() => (d.value ? fmtN(d.value.n_celulas, props.lang) : ''))
 /** células leídas antes del control de calidad (del fichero), si difieren de las que quedan */
 const nLeidas = computed(() => { const n = (d.value?.qc as { n_inicial?: number } | undefined)?.n_inicial; return d.value && typeof n === 'number' && n > d.value.n_celulas ? fmtN(n, props.lang) : '' })
+/** Nota bajo el mapa. Con datos reales dice de dónde salen las posiciones: el UMAP de Cell Ranger, el que dibuja Loupe
+ * (plan del 19-oct; procedencia leída del .cloupe: pipeline SC_RNA_COUNTER_CS, «Default Pipeline Analysis»), y que los
+ * huecos son células que no pasaron el control. Con el ejemplo no: sus posiciones son inventadas. */
+const notaMapa = computed(() => {
+  const lei = nLeidas.value
+  const qc = lei ? L(` (de ${lei} leídas; el resto no pasó el control de calidad de este análisis)`, ` (of ${lei} read; the rest did not pass this analysis’s quality control)`) : ''
+  if (props.ejemplo) {
+    return L(`${nTotal.value} células de ejemplo${qc}, en posiciones inventadas que imitan un mapa de células: en uno de verdad, dos puntos cercanos son células parecidas y la distancia entre grupos alejados no se interpreta.`,
+      `${nTotal.value} example cells${qc}, at made-up positions that mimic a cell map: in a real one, nearby dots are similar cells and distances between far-apart groups are not meaningful.`)
+  }
+  return L(`${nTotal.value} células de la biopsia${qc}. Cada una está donde la colocó el UMAP de Cell Ranger (10x Genomics), como en Loupe Browser.${lei ? ' Las que no pasaron el control de calidad no se dibujan y dejan huecos o zonas más ralas; el mapa también tiene claros de por sí.' : ''} Dos puntos cercanos son células parecidas; la distancia entre grupos alejados no se interpreta.`,
+    `${nTotal.value} cells from the biopsy${qc}. Each one sits where Cell Ranger’s UMAP (10x Genomics) placed it, as in Loupe Browser.${lei ? ' Cells that failed quality control are not drawn and leave gaps or sparser patches; the map also has empty areas of its own.' : ''} Nearby dots are similar cells; distances between far-apart groups are not meaningful.`)
+})
 /** «Colorear por» en un desplegable: Gen y Dos genes solo con un gen activo */
 const MODOS = computed(() => [
   { k: 'grupo', t: L('Grupo', 'Group'), off: false },
@@ -725,6 +738,8 @@ function sinTapar(ev: FocusEvent) {
           <p v-if="errorMapa" class="exp__estado exp__estado--error exp__sinmapa" role="alert">{{ L('El mapa no se ha podido dibujar en este navegador (recarga la página, o prueba con otro navegador o con la aceleración gráfica activada). El panel y los datos de abajo no dependen de él.', 'The map could not be drawn in this browser (reload the page, or try another browser or turn on graphics acceleration). The panel and the data below do not depend on it.') }}</p>
           <template v-if="!errorMapa">
           <p v-if="modoVista === 'gen'" class="exp__leyt">{{ L(`Nivel de ${nombreGen(gen)} en cada célula, en CP10k (moléculas del gen por cada 10.000 de la célula): no detectado o el tramo en que cae. Los tramos son de esta biopsia: el mismo color no es el mismo nivel en el hígado y en el hueso.`, `${nombreGen(gen)} level in each cell, in CP10k (molecules of the gene per 10,000 in the cell): not detected, or the band it falls in. The bands belong to this biopsy: the same color is not the same level in the liver and in the bone.`) }}</p>
+          <!-- datos reales: el dibujo es el de Loupe, el color no (plan del 19-oct; sin esto, «otra vez no se parece») -->
+          <p v-if="modoVista === 'grupo' && !ejemplo" class="exp__avisos exp__avisos--grupo">{{ L('Los colores son los grupos de este análisis, no los clústeres de Cell Ranger.', 'Colors show the groups from this analysis, not Cell Ranger’s clusters.') }}</p>
           <ul v-if="leyenda.length" class="exp__leyenda" :aria-label="L('Leyenda del mapa', 'Map legend')">
             <li v-for="l in leyenda" :key="l.etiqueta"><span class="exp__muestra" :style="{ background: cssRgb(l.rgb) }" aria-hidden="true" />{{ l.etiqueta }} <span class="nums">{{ fmtN(l.n, lang) }}</span></li>
           </ul>
@@ -734,7 +749,7 @@ function sinTapar(ev: FocusEvent) {
           </p>
           </template>
           <p v-if="otrasGem" class="exp__nota">{{ L(`En el hueso, «Otras» incluye ${fmtN(otrasGem.n, 'es')} células sin GEM limpio: comparten gota con una célula del hígado y pueden llevar su ARN. ${fmtN(otrasGem.deTipo, 'es')} de ellas son de tipos que tienen grupo propio y están en «Otras» solo por eso.`, `In the bone, “Other” includes ${fmtN(otrasGem.n, 'en')} cells without a clean GEM: they share a droplet with a liver cell and may carry its RNA. ${fmtN(otrasGem.deTipo, 'en')} of them are of types that have their own group and sit in “Other” only for that reason.`) }}</p>
-          <p v-if="!errorMapa" class="exp__nota">{{ L(`${nTotal} células de la biopsia${nLeidas ? ` (de ${nLeidas} leídas; el resto no pasó el control de calidad de este análisis)` : ''}, colocadas según lo que se parecen (UMAP): dos puntos cercanos son células parecidas; la distancia entre grupos alejados no se interpreta.`, `${nTotal} cells from the biopsy${nLeidas ? ` (of ${nLeidas} read; the rest did not pass this analysis’s quality control)` : ''}, placed by similarity (UMAP): nearby dots are similar cells; distances between far-apart groups are not meaningful.`) }}</p>
+          <p v-if="!errorMapa" class="exp__nota">{{ notaMapa }}</p>
           <p v-else class="exp__nota">{{ L(`${nTotal} células de la biopsia${nLeidas ? ` (de ${nLeidas} leídas; el resto no pasó el control de calidad de este análisis)` : ''}.`, `${nTotal} cells from the biopsy${nLeidas ? ` (of ${nLeidas} read; the rest did not pass this analysis’s quality control)` : ''}.`) }}</p>
           <details v-if="modoVista === 'gen' && !errorMapa" class="exp__porque">
             <summary>{{ L('Cómo se cortan los tramos de color', 'How the color bands are cut') }}</summary>

@@ -23,6 +23,7 @@ import { ALIAS_BUSCA, ETIQUETA_GRUPO, ETIQUETA_MOTIVO, ETIQUETA_TIPO, ETIQUETA_V
 import { abreZarr } from '../app/utils/celulaExploradorZarr'
 import { paleta } from '../app/utils/celulaExploradorColor'
 import FileSystemStore from '@zarrita/storage/fs'
+import * as zarr from 'zarrita'
 
 const RAIZ = join(import.meta.dirname, '..')
 const DIR = join(RAIZ, 'public', 'celula', 'explorador')
@@ -301,6 +302,18 @@ if (man.zarr?.length) {
     const fuera = z.genes.find((g) => !d.genes.includes(g) && !z.sinSonda.has(g))!
     const cf = await z.columna(fuera)
     ok(`${l}: un gen fuera del panel se lee (columna de n células con valores >= 0)`, cf.length === d.n_celulas && cf.every((v) => v >= 0))
+    // el mapa (19-oct, plan del mapa de Loupe): el JSON es el UMAP crudo del Zarr reescalado con UN factor para los dos
+    // ejes. Con un export viejo (cada eje reescalado por separado) esto falla: la nota «UMAP de Cell Ranger» no puede
+    // salir con datos que no lo son
+    const xu = await zarr.get(await zarr.open(zarr.root(new FileSystemStore(join(DIR, 'zarr', `${l}.zarr`))).resolve('obsm/X_umap'), { kind: 'array' }))
+    const zu = Array.from(xu.data as Float32Array, Number), ju = d.celulas.umap
+    const caja = (v: number[], k: number) => { let lo = Infinity, hi = -Infinity; for (let i = k; i < v.length; i += 2) { lo = Math.min(lo, v[i]!); hi = Math.max(hi, v[i]!) } return [lo, hi] as const }
+    const [zx0, zx1] = caja(zu, 0), [zy0, zy1] = caja(zu, 1), f = Math.max(zx1 - zx0, zy1 - zy0) / 20
+    let maxDif = 0
+    for (let i = 0; i < ju.length; i += 2) {
+      maxDif = Math.max(maxDif, Math.abs(ju[i]! - (zu[i]! - (zx0 + zx1) / 2) / f), Math.abs(ju[i + 1]! - (zu[i + 1]! - (zy0 + zy1) / 2) / f))
+    }
+    ok(`${l}: el mapa del JSON es el UMAP del Zarr con un solo factor de escala (no deformado)`, zu.length === ju.length && maxDif <= 0.006, `máx. diferencia ${maxDif.toFixed(4)}`)
   }
 }
 
