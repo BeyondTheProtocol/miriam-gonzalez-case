@@ -971,7 +971,9 @@ function sinTapar(ev: FocusEvent) {
 .exp__leyenda { list-style: none; margin: var(--sp-12) 0 0; padding: 0; display: flex; flex-wrap: wrap; gap: var(--sp-4) var(--sp-16); font: var(--tipo-body-sm); font-size: var(--texto-xs); color: var(--texto-1); }
 .exp__leyenda li { display: inline-flex; align-items: center; gap: var(--sp-8); }
 .exp__leyenda .nums { font-family: var(--font-mono); color: var(--texto-2); }
-.exp__muestra { width: 12px; height: 12px; border-radius: 999px; flex: none; box-shadow: 0 0 0 1px var(--trazo-fuerte); }
+/* aro al 45 % de la tinta (diseño, 19-oct): con el 20 % las muestras claras («Otras», «No detectado») no llegaban a 3:1
+   contra el fondo y la muestra no se distinguía como forma (WCAG 1.4.11); la paleta no se toca */
+.exp__muestra { width: 12px; height: 12px; border-radius: 999px; flex: none; box-shadow: 0 0 0 1px color-mix(in srgb, var(--texto-1) 45%, transparent); }
 .exp__bloque { margin-top: var(--sp-32); padding-top: var(--sp-24); border-top: 1px solid var(--trazo-medio); }
 .exp__busca { position: relative; flex: 1 1 18rem; }
 .exp__sug { position: absolute; top: calc(100% + var(--sp-4)); left: 0; right: 0; z-index: 10; list-style: none; margin: 0; padding: var(--sp-8); display: flex; flex-wrap: wrap; gap: var(--sp-4); max-width: 28rem; background: var(--fondo); border: 1px solid var(--trazo-fuerte); border-radius: var(--radius-btn); box-shadow: 0 6px 18px color-mix(in srgb, var(--texto-1) 12%, transparent); }

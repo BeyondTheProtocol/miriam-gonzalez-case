@@ -175,6 +175,9 @@ if (manPub.ejemplo !== true) {
   try {
     await navR.cdp('Page.addScriptToEvaluateOnNewDocument', { source: ESPIA })
     await navR.cdp('Page.addScriptToEvaluateOnNewDocument', { source: RETEN })
+    // contraprueba a mano (19-oct): CONTRA_SIN_ACOTAR=1 apaga en el parche de Vitessce el acotado de los rótulos al lienzo,
+    // y las comprobaciones de «ningún rótulo toca el borde» a 375 tienen que ponerse rojas
+    if (process.env.CONTRA_SIN_ACOTAR) await navR.cdp('Page.addScriptToEvaluateOnNewDocument', { source: 'globalThis.__helpmiriamSinAcotar = true' })
     await navR.cargar('/celula-a-celula/explorar')
     ok('real sin demo: se monta el explorador, sin rótulo de ejemplo', await esperaR(navR, `!!document.querySelector('.exp') && !document.querySelector('.exp__demo')`))
     // panel de expertos (18-oct): al llegar, mapa por grupo y la lista corta de genes de interés
@@ -539,6 +542,18 @@ if (manPub.ejemplo !== true) {
     await navR.sleep(1500)
     const dib375 = await dibujoDelMapa(navR)
     ok('real móvil 375: el dibujo del mapa ocupa al menos el 80 % del lienzo en el eje que limita', llenaLienzo(dib375), JSON.stringify(dib375 && { w: dib375.w, h: dib375.h, caja: dib375.caja }))
+    // diseño (19-oct, render con el UMAP de Cell Ranger): a 375 los rótulos se cortaban contra el borde del lienzo
+    // («s, asignación limpia» en el hueso, «estrellada» en el hígado). Ni rótulo ni célula toca el borde: 2 px libres
+    const sinBorde = (d) => !!d?.caja && d.caja.x0 >= 2 && d.caja.y0 >= 2 && d.caja.x1 <= d.w - 3 && d.caja.y1 <= d.h - 3
+    ok('real móvil 375 hígado: ningún rótulo ni célula toca el borde del lienzo', sinBorde(dib375), JSON.stringify(dib375 && { w: dib375.w, h: dib375.h, caja: dib375.caja }))
+    await navR.cargar('/celula-a-celula/explorar?biopsia=hueso')
+    await esperaR(navR, `!!document.querySelector('.exp-mapa__velo') && document.querySelector('.exp__ctl [aria-pressed="true"]')?.textContent.trim() === 'Hueso'`)
+    await navR.sleep(1500)
+    const dib375h = await dibujoDelMapa(navR)
+    ok('real móvil 375 hueso: ningún rótulo ni célula toca el borde del lienzo', sinBorde(dib375h), JSON.stringify(dib375h && { w: dib375h.w, h: dib375h.h, caja: dib375h.caja }))
+    await navR.cargar('/celula-a-celula/explorar')
+    await esperaR(navR, `!!document.querySelector('.exp-mapa__velo') && /Mover el mapa/.test(document.querySelector('.exp-mapa__mover')?.textContent ?? '')`)
+    await navR.sleep(1500)
     await navR.evaluate(`document.querySelector('.exp-mapa__mover')?.click()`)
     await navR.evaluate(busca('SPDEF'))
     if (await esperaR(navR, `document.querySelector('.exp__sug button')?.dataset.gen === 'SPDEF'`, 15000)) await navR.evaluate(`document.querySelector('.exp__sug button').click()`)

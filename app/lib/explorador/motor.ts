@@ -106,7 +106,10 @@ function construyeConfig(e: EntradaMotor, urls: string[]) {
       obsSetSelection: { A: seleccion },
       obsSetColor: { A: e.colores.map((c) => ({ path: c.ruta, color: c.rgb })) },
       embeddingObsRadiusMode: { A: 'manual' },
-      embeddingObsRadius: { A: 2 },
+      // radio según cuántas células hay (diseño, 19-oct, render con el UMAP de Cell Ranger): 2 px fijos eran buenos para
+      // las ~19.000 del hígado, pero con las ~2.000 del hueso el mapa parecía a medio cargar. 2 px hacia 20.000 células,
+      // crece con la raíz cuarta y nunca pasa de 4
+      embeddingObsRadius: { A: Math.min(4, Math.max(2, 2 * (20000 / Math.max(1, n)) ** 0.25)) },
       // rótulos solo de los grupos: en tipo (12 en hueso) y co-expresión se pisaban y parecían nombres de cúmulo
       embeddingObsSetLabelsVisible: { A: e.rotulos },
       embeddingObsSetLabelSize: { A: e.tamRotulo ?? 14 },
