@@ -1,8 +1,39 @@
 diff --git a/dist/index-BPLMRXHR.js b/dist/index-BPLMRXHR.js
-index 2516e368aaf6096da52fbf5686dfbe912fbbac38..4fdbf26d1b87f3aa0f1fc32134ba2168621074b6 100644
+index 2516e368aaf6096da52fbf5686dfbe912fbbac38..3d846ef643f264ecbb675596dd00330f1b9f3b23 100644
 --- a/dist/index-BPLMRXHR.js
 +++ b/dist/index-BPLMRXHR.js
-@@ -150629,7 +150629,10 @@ class AbstractSpatialOrScatterplot extends PureComponent {
+@@ -12816,12 +12816,29 @@ function treeToCellPolygonsBySetNames(currTree, obsIndex, obsEmbedding, selected
+         const hullCoords = concaveman(cellPositions, concavity);
+         if (hullCoords) {
+           const centroidCoords = centroid$1(points).geometry.coordinates;
++          // helpmiriam (19-oct-26): el rótulo va donde está el grueso del grupo, no en su media. Con el UMAP de Cell Ranger
++          // un grupo repartido en islas tenía la media en el vacío y el rótulo no señalaba a nada (diseño, render real).
++          // Ancla = media de las células de la casilla más poblada de una rejilla de 16 × 16 sobre la caja del grupo.
++          let bx0 = Infinity, bx1 = -Infinity, by0 = Infinity, by1 = -Infinity;
++          for (const [px, py] of cellPositions) {
++            if (px < bx0) bx0 = px; if (px > bx1) bx1 = px; if (py < by0) by0 = py; if (py > by1) by1 = py;
++          }
++          const G = 16, sx = (bx1 - bx0) / G || 1, sy = (by1 - by0) / G || 1, celdas = new Map();
++          for (const [px, py] of cellPositions) {
++            const k = Math.min(G - 1, Math.floor((px - bx0) / sx)) * G + Math.min(G - 1, Math.floor((py - by0) / sy));
++            const c = celdas.get(k) || [0, 0, 0];
++            c[0] += 1; c[1] += px; c[2] += py;
++            celdas.set(k, c);
++          }
++          let pico = null;
++          for (const c of celdas.values()) if (!pico || c[0] > pico[0]) pico = c;
+           cellSetPolygons.push({
+             path: setNamePath,
+             name: setNamePath[setNamePath.length - 1],
+             hull: hullCoords,
+             color: nodeColor,
+-            centroid: centroidCoords
++            centroid: centroidCoords,
++            anchor: pico ? [pico[1] / pico[0], pico[2] / pico[0]] : centroidCoords
+           });
+         }
+       }
+@@ -150629,7 +150646,10 @@ class AbstractSpatialOrScatterplot extends PureComponent {
      }
      const showCellSelectionTools = this.obsSegmentationsData !== null;
      const showPanTool = layers.length > 0;
@@ -14,11 +45,13 @@ index 2516e368aaf6096da52fbf5686dfbe912fbbac38..4fdbf26d1b87f3aa0f1fc32134ba2168
      let controller;
      if (isRawView) {
        controller = false;
-@@ -151062,7 +151065,13 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
+@@ -151062,9 +151082,15 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
      }
      if (cellSetLabelsVisible) {
        const { zoom } = viewState;
 -      const nodes = cellSetPolygons.map((p) => ({
+-        x: p.centroid[0],
+-        y: p.centroid[1],
 +      // helpmiriam (19-oct-26): solo se rotula el conjunto de la PRIMERA ruta de la selección. Con un gen, el explorador
 +      // selecciona los grupos y detrás los tramos de nivel (las rutas de detrás ganan el color): se ven los grupos
 +      // rotulados sobre el mapa pintado por gen, sin rótulos de tramo. Si se descarta alguno, el rótulo va discreto.
@@ -26,10 +59,39 @@ index 2516e368aaf6096da52fbf5686dfbe912fbbac38..4fdbf26d1b87f3aa0f1fc32134ba2168
 +      const rotulados = cellSetPolygons.filter((p) => p.path?.[0] === raiz);
 +      const discreto = rotulados.length < cellSetPolygons.length;
 +      const nodes = rotulados.map((p) => ({
-         x: p.centroid[0],
-         y: p.centroid[1],
++        x: (p.anchor || p.centroid)[0],
++        y: (p.anchor || p.centroid)[1],
          label: p.name
-@@ -151077,13 +151086,19 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
+       }));
+       const collisionForce = this.cellSetsForceSimulation.size((d) => [
+@@ -151072,18 +151098,46 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
+         cellSetLabelSize * 1 / 2 ** zoom * 1.5
+       ]);
+       forceSimulation().nodes(nodes).force("collision", collisionForce).tick(NUM_FORCE_SIMULATION_TICKS);
++      // helpmiriam (19-oct-26): cada rótulo, ENTERO dentro de la caja de los datos (la que el explorador encaja en el
++      // lienzo con margen). Sin esto, a 375 px «Malignas, asignación limpia» salía «s, asignación limpia» cortado por el
++      // borde (diseño, render real). Ancho medido con la misma fuente y el contorno; en unidades de dato a este zoom.
++      // (`__helpmiriamSinAcotar` solo lo pone el test de Chrome, para comprobar que sin esto el test se pone rojo)
++      if (typeof document !== "undefined" && rotulados.length && !globalThis.__helpmiriamSinAcotar) {
++        let cx0 = Infinity, cx1 = -Infinity, cy0 = Infinity, cy1 = -Infinity;
++        for (const p of rotulados) for (const [hx, hy] of p.hull) {
++          if (hx < cx0) cx0 = hx; if (hx > cx1) cx1 = hx; if (hy < cy0) cy0 = hy; if (hy > cy1) cy1 = hy;
++        }
++        const medidor = this._helpmiriamMedidor || (this._helpmiriamMedidor = document.createElement("canvas").getContext("2d"));
++        if (medidor) {
++          medidor.font = `${cellSetLabelSize}px ${LABEL_FONT_FAMILY}`;
++          const escala = 2 ** zoom, borde = 3 + 2;
++          const medio = (lo, hi, v, semi) => (hi - lo <= 2 * semi ? (lo + hi) / 2 : Math.min(hi - semi, Math.max(lo + semi, v)));
++          for (const d of nodes) {
++            const semiAncho = (medidor.measureText(d.label).width / 2 + borde) / escala;
++            const semiAlto = (cellSetLabelSize * 0.6 + borde) / escala;
++            d.x = medio(cx0, cx1, d.x, semiAncho);
++            d.y = medio(cy0, cy1, d.y, semiAlto);
++          }
++        }
++      }
+       result.push(new TextLayer({
+         id: "cell-sets-text-layer",
          data: nodes,
          getPosition: (d) => [d.x, d.y],
          getText: (d) => d.label,

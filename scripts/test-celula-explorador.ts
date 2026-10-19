@@ -16,13 +16,14 @@ import { createHash } from 'node:crypto'
 import { readdirSync, readFileSync } from 'node:fs'
 import { join, relative, sep } from 'node:path'
 import {
-  MARCADORES_N, PAPELES_SELECCION, RE_BARCODE, VEREDICTOS, columna, coexpresion, densidad, estadoPuerta, fechaOkValida, fmtParSuelo, motivosLesion, nivelMatriz, pct, porGrupo, tablaCoexp,
+  MARCADORES_N, MOTIVO_LECTURAS, MOTIVOS, PAPELES_SELECCION, RE_BARCODE, VEREDICTOS, VEREDICTOS_SIN_MOTIVO, columna, coexpresion, densidad, estadoPuerta, fechaOkValida, fmtParSuelo, motivoDe, motivosLesion, nivelMatriz, pct, porGrupo, tablaCoexp,
   type LesionDatos, type Manifiesto,
 } from '../app/utils/celulaExplorador'
-import { ALIAS_BUSCA, ETIQUETA_GRUPO, ETIQUETA_TIPO, ETIQUETA_VEREDICTO, PAPEL_SELECCION, etiqueta } from '../app/utils/celulaExploradorTexto'
+import { ALIAS_BUSCA, ETIQUETA_GRUPO, ETIQUETA_MOTIVO, ETIQUETA_TIPO, ETIQUETA_VEREDICTO, ETIQUETA_VEREDICTO_CON_MOTIVO, PAPEL_SELECCION, PIE_MOTIVO, etiqueta, etiquetaLectura, pieMotivo } from '../app/utils/celulaExploradorTexto'
 import { abreZarr } from '../app/utils/celulaExploradorZarr'
 import { paleta } from '../app/utils/celulaExploradorColor'
 import FileSystemStore from '@zarrita/storage/fs'
+import * as zarr from 'zarrita'
 
 const RAIZ = join(import.meta.dirname, '..')
 const DIR = join(RAIZ, 'public', 'celula', 'explorador')
@@ -83,8 +84,9 @@ for (const l of man.lesiones) {
   ok(`${l}: nada con forma de barcode 10x`, !RE_BARCODE.test(crudo))
   ok(`${l}: nada con forma de ID de bloque ni de probe barcode`, !/\b[A-Z]?\d{2}-\d{4,6}\b|\b[A-H]-[A-H]\d{1,2}\b/.test(crudo))
   ok(`${l}: ninguna fecha`, !/\b(19|20)\d\d-\d\d-\d\d\b/.test(crudo))
-  ok(`${l}: solo las claves del contrato`, JSON.stringify(Object.keys(d).sort()) === JSON.stringify(['adn', 'adn_por_grupo', 'celulas', 'cnv', 'ejemplo', 'expr', 'genes', 'grupos', 'lesion', 'loo', 'marcadores', 'n_celulas', 'perfil_bins', 'qc', 'referencia', 'seleccion', 'sondas', 'suelo', 'tipos', 'veredicto', 'version'].filter((k) => esEjemplo || k !== 'ejemplo').sort()), Object.keys(d).join(','))
+  ok(`${l}: solo las claves del contrato`, JSON.stringify(Object.keys(d).sort()) === JSON.stringify(['adn', 'adn_por_grupo', 'celulas', 'cnv', 'ejemplo', 'expr', 'genes', 'grupos', 'lesion', 'loo', 'marcadores', 'n_celulas', 'perfil_bins', 'qc', 'referencia', 'seleccion', 'sondas', 'suelo', 'tipos', 'veredicto', 'version'].filter((k) => esEjemplo || k !== 'ejemplo').concat('motivo' in d ? ['motivo'] : []).sort()), Object.keys(d).join(','))
   if (esEjemplo) ok(`${l}: el ejemplo no lleva ninguna lectura de la revisión (todo «sin_veredicto»)`, Object.values(d.veredicto).every((v) => v === 'sin_veredicto'))
+  if (esEjemplo && d.motivo) ok(`${l}: el ejemplo no lleva ningún motivo de la revisión (todo null)`, Object.values(d.motivo).every((v) => v === null))
 }
 
 /* ── 2 · la puerta ── */
@@ -168,6 +170,42 @@ ok('todo tipo celular del fichero tiene su rótulo ES/EN (ninguno sale con el no
 ok('todo grupo del fichero tiene su rótulo ES/EN', [...H.grupos, ...B.grupos].every((g) => !!ETIQUETA_GRUPO[g.id]?.es && !!ETIQUETA_GRUPO[g.id]?.en))
 ok('el vocabulario de lecturas tiene «cerrado_por_arn» (PRAME/MAGE-A4 del hueso)', (VEREDICTOS as readonly string[]).includes('cerrado_por_arn'))
 ok('cada lectura del vocabulario tiene su etiqueta ES/EN', VEREDICTOS.every((v) => !!ETIQUETA_VEREDICTO[v]?.es && !!ETIQUETA_VEREDICTO[v]?.en))
+// motivo de cada lectura (comité médico, 18-oct-2026): mismo vocabulario que Polaris, con texto ES/EN, sin cifras ni «diana»
+ok('cada motivo del vocabulario tiene su texto ES/EN', MOTIVOS.every((m) => !!ETIQUETA_MOTIVO[m]?.es && !!ETIQUETA_MOTIVO[m]?.en) && Object.keys(ETIQUETA_MOTIVO).length === MOTIVOS.length)
+ok('cada motivo dice qué lecturas admite, y ninguna es de las que no lo llevan', JSON.stringify(Object.keys(MOTIVO_LECTURAS).sort()) === JSON.stringify([...MOTIVOS].sort())
+  && Object.values(MOTIVO_LECTURAS).every((vs) => vs.length > 0 && vs.every((v) => (VEREDICTOS as readonly string[]).includes(v) && !VEREDICTOS_SIN_MOTIVO.includes(v))))
+ok('ningún texto de motivo lleva cifras ni «diana»', Object.values(ETIQUETA_MOTIVO).every((x) => !/\d|diana|target/i.test(`${x.es} ${x.en}`.replace(/HER2-low/g, ''))))
+// verificacion (18-oct): la etiqueta de «cerrado_por_arn» daba la razón del hueso («los positivos son ADN…») también en el
+// hígado, donde no hay positivos; la razón va en el motivo, que cambia por biopsia
+ok('«cerrado_por_arn» con motivo en el fichero no da en la etiqueta la razón de una sola biopsia', !/positiv/i.test(`${ETIQUETA_VEREDICTO_CON_MOTIVO.cerrado_por_arn!.es} ${ETIQUETA_VEREDICTO_CON_MOTIVO.cerrado_por_arn!.en}`))
+// diseño (revisión del motivo): sin motivo en el fichero se queda la etiqueta publicada, para que el código pueda salir antes que los datos
+ok('etiquetaLectura: corta con motivo, la publicada sin él', etiquetaLectura('cerrado_por_arn', true, 'es') === 'Cerrado por ARN'
+  && etiquetaLectura('cerrado_por_arn', false, 'es') === ETIQUETA_VEREDICTO.cerrado_por_arn!.es && etiquetaLectura('no_sostenido', true, 'en') === ETIQUETA_VEREDICTO.no_sostenido!.en)
+ok('pie del motivo: ES/EN, sin cifras; usa el extremo bajo del margen de error y la revisión se aparta de la regla (las dos biopsias)',
+  Object.values(PIE_MOTIVO).every((x) => !!x.es && !!x.en && !/\d/.test(`${x.es} ${x.en}`)) && /usa el extremo bajo del margen de error/.test(PIE_MOTIVO.compara.es)
+  && /se aparta de la regla fijada antes del análisis/.test(PIE_MOTIVO.aparta.es) && /^\S.*\. \S/.test(pieMotivo('es')) && /^\S.*\. \S/.test(pieMotivo('en')))
+{
+  // fixture con motivo: los datos publicados aún no lo traen (pendiente del OK de la titular) y el validador tiene que
+  // aceptarlo bien formado y cazar lo mal formado
+  const conMotivo = (d: LesionDatos) => {
+    const x = clon(d)
+    x.motivo = Object.fromEntries(x.genes.map((g) => {
+      const v = x.veredicto[g]!
+      return [g, VEREDICTOS_SIN_MOTIVO.includes(v) ? null : MOTIVOS.find((m) => MOTIVO_LECTURAS[m].includes(v)) ?? null]
+    }))
+    return x
+  }
+  const HM = conMotivo(H), g0 = H.genes[0]!, g1 = H.genes[1]!
+  ok('motivo: un fichero con motivo bien formado se pinta', motivosLesion(HM, { lesion: 'higado', ejemplo: esEjemplo }).length === 0, motivosLesion(HM, { lesion: 'higado', ejemplo: esEjemplo }).join('; '))
+  ok('motivo: sin motivo en el fichero también se pinta (datos de antes), y la lectura va sin paréntesis', motivosLesion(H, { lesion: 'higado', ejemplo: esEjemplo }).length === 0 && motivoDe(H, g0) === (H.motivo?.[g0] ?? null))
+  caza('motivo fuera de vocabulario', mut(HM, (x) => { x.veredicto[g0] = 'no_sostenido'; (x.motivo as any)[g0] = 'diana_debil' }, 'higado'))
+  caza('lectura «no_sostenido» sin motivo', mut(HM, (x) => { x.veredicto[g0] = 'no_sostenido'; x.motivo![g0] = null }, 'higado'))
+  caza('motivo en una lectura «sostenido», que no lo lleva', mut(HM, (x) => { x.veredicto[g0] = 'sostenido'; x.motivo![g0] = 'minoria' }, 'higado'))
+  caza('motivo de otra lectura («casi_no_se_detecta» en un «con_matiz»)', mut(HM, (x) => { x.veredicto[g0] = 'con_matiz'; x.motivo![g0] = 'casi_no_se_detecta' }, 'higado'))
+  caza('un gen sin su clave en motivo', mut(HM, (x) => { delete x.motivo![g1] }, 'higado'))
+  caza('una clave de motivo que no es un gen', mut(HM, (x) => { x.motivo!.NOESGEN = null }, 'higado'))
+  ok('motivoDe: el del fichero, o null', motivoDe({ ...HM, motivo: { ...HM.motivo, [g0]: 'minoria_no_hueso' } }, g0) === 'minoria_no_hueso' && motivoDe(HM, 'NOESGEN') === null)
+}
 ok('cada papel de selección tiene su texto ES/EN', PAPELES_SELECCION.every((p) => !!PAPEL_SELECCION[p]?.es && !!PAPEL_SELECCION[p]?.en))
 // revisión de cifras (17-oct-2026): «SOSTENIDO con matiz» (HER3 del hígado) y «Con matiz» (HER2, Nectin-4, LIV-1, ESR1) no se funden
 ok('«sostenido_con_matiz» existe y dice que se sostiene', (VEREDICTOS as readonly string[]).includes('sostenido_con_matiz') && /se sostiene/i.test(ETIQUETA_VEREDICTO.sostenido_con_matiz!.es) && /holds/i.test(ETIQUETA_VEREDICTO.sostenido_con_matiz!.en))
@@ -237,6 +275,11 @@ ok('densidad: máximo 1 y no negativa', Math.abs(Math.max(...dn) - 1) < 1e-9 && 
 ok('densidad: con menos de 2 valores no inventa forma', densidad([1], 0, 2).every((y) => y === 0))
 ok('pct redondea a entero', pct(0.344) === 34 && pct(0.345) === 35 && pct(0) === 0)
 
+// verificacion y un escéptico (19-oct): con datos reales la nota del mapa nombra Cell Ranger y Loupe, y eso solo se
+// comprueba contra el Zarr (su uns/version y el UMAP crudo, en el bloque de abajo); un paquete real sin Zarr se saltaría
+// ese freno y la frase saldría sin comprobar
+if (!esEjemplo) ok('real: el paquete trae el Zarr (sin él no se comprueba que el mapa sea el de Cell Ranger que nombra la nota)', !!man.zarr?.length)
+
 /* ── 6 · nivel «todos los genes»: el Zarr se lee gen a gen y dice LO MISMO que el JSON en los genes del panel ── */
 if (man.zarr?.length) {
   const mc = man.matriz_completa
@@ -264,6 +307,26 @@ if (man.zarr?.length) {
     const fuera = z.genes.find((g) => !d.genes.includes(g) && !z.sinSonda.has(g))!
     const cf = await z.columna(fuera)
     ok(`${l}: un gen fuera del panel se lee (columna de n células con valores >= 0)`, cf.length === d.n_celulas && cf.every((v) => v >= 0))
+    // el mapa (19-oct, plan del mapa de Loupe): el JSON es el UMAP crudo del Zarr reescalado con UN factor para los dos
+    // ejes. Con un export viejo (cada eje reescalado por separado) esto falla: la nota «UMAP de Cell Ranger» no puede
+    // salir con datos que no lo son
+    const xu = await zarr.get(await zarr.open(zarr.root(new FileSystemStore(join(DIR, 'zarr', `${l}.zarr`))).resolve('obsm/X_umap'), { kind: 'array' }))
+    const zu = Array.from(xu.data as Float32Array, Number), ju = d.celulas.umap
+    const caja = (v: number[], k: number) => { let lo = Infinity, hi = -Infinity; for (let i = k; i < v.length; i += 2) { lo = Math.min(lo, v[i]!); hi = Math.max(hi, v[i]!) } return [lo, hi] as const }
+    const [zx0, zx1] = caja(zu, 0), [zy0, zy1] = caja(zu, 1), f = Math.max(zx1 - zx0, zy1 - zy0) / 20
+    let maxDif = 0
+    for (let i = 0; i < ju.length; i += 2) {
+      maxDif = Math.max(maxDif, Math.abs(ju[i]! - (zu[i]! - (zx0 + zx1) / 2) / f), Math.abs(ju[i + 1]! - (zu[i + 1]! - (zy0 + zy1) / 2) / f))
+    }
+    ok(`${l}: el mapa del JSON es el UMAP del Zarr con un solo factor de escala (no deformado)`, zu.length === ju.length && maxDif <= 0.006, `máx. diferencia ${maxDif.toFixed(4)}`)
+    // verificacion (19-oct): con datos reales la nota nombra Cell Ranger y Loupe; el Zarr publicado tiene que decir lo mismo
+    // de su mapa (uns/version la escribe el export de Polaris), o la frase no sale con esos datos
+    if (!esEjemplo) {
+      // un array de dimensión 0: zarrita devuelve el valor suelto, no un trozo con .data (si no se lee, falla cerrado)
+      const vz: unknown = await zarr.get(await zarr.open(zarr.root(new FileSystemStore(join(DIR, 'zarr', `${l}.zarr`))).resolve('uns/version'), { kind: 'array' }))
+      const ver = typeof vz === 'string' ? vz : String((vz as { data?: ArrayLike<unknown> } | null)?.data?.[0] ?? '')
+      ok(`${l}: el Zarr dice que el mapa es el UMAP de Cell Ranger del .cloupe (lo que afirma la nota)`, /mapa = UMAP de Cell Ranger \(\.cloupe\)/.test(ver), ver)
+    }
   }
 }
 
@@ -331,6 +394,12 @@ if (man.zarr?.length) {
   if (JSON.parse(readFileSync(join(DIR, 'manifiesto.json'), 'utf8')).ejemplo !== true) {   // solo con los datos reales
     const vh = JSON.parse(readFileSync(join(DIR, 'higado.json'), 'utf8')).veredicto, vb = JSON.parse(readFileSync(join(DIR, 'hueso.json'), 'utf8')).veredicto
     ok('veredictos de la enmienda del 18-oct: HER3 del hígado «con_matiz» y 5T4 del hueso «en_el_limite»', vh.ERBB3 === 'con_matiz' && vb.TPBG === 'en_el_limite', `ERBB3 ${vh.ERBB3} · TPBG ${vb.TPBG}`)
+    // con el motivo en el fichero (export del acta con motivo), el caso que lo pidió: TROP2 del hígado lleva su porqué
+    const mh = JSON.parse(readFileSync(join(DIR, 'higado.json'), 'utf8')).motivo, mb = JSON.parse(readFileSync(join(DIR, 'hueso.json'), 'utf8')).motivo
+    if (mh && mb) ok('motivos del acta (enmienda del 19-oct): TROP2, Nectin-4, MUC1, B7-H3 y HER3 del hígado, LIV-1 sin motivo, PRAME en cada biopsia, 5T4 e INSM1 del hueso', mh.TACSTD2 === 'por_poco_minoria_no_hueso'
+      && mh.NECTIN4 === 'minoria_no_hueso' && mh.SLC39A6 === null && mh.MUC1 === 'trazador_no_hueso' && mh.CD276 === 'no_robusto_parecido_no_hueso' && mh.ERBB3 === 'hepatocitos_igual_o_mas'
+      && mh.PRAME === 'cero_en_posibles_tumorales' && mb.PRAME === 'adn_de_nucleos_no_tumorales' && mb.TPBG === 'referencia_poco_precisa' && mb.INSM1 === 'casi_no_se_detecta',
+    JSON.stringify({ TACSTD2: mh.TACSTD2, NECTIN4: mh.NECTIN4, SLC39A6: mh.SLC39A6, MUC1: mh.MUC1, CD276: mh.CD276, ERBB3: mh.ERBB3, PRAME: [mh.PRAME, mb.PRAME], TPBG: mb.TPBG, INSM1: mb.INSM1 }))
   }
 }
 // verificacion (18-oct): los alias del buscador llevan a un GEN; una isoforma (CLDN18.2) no se puede leer con sondas del gen entero

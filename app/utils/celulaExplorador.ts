@@ -35,6 +35,27 @@ export const GRUPOS: Record<Lesion, { interes: string; referencias: string[] }> 
  *  lecturas distintas: no se funden (revisión de cifras del 17-oct-2026). */
 export const VEREDICTOS = ['sostenido', 'sostenido_con_matiz', 'con_matiz', 'en_el_limite', 'no_sostenido', 'no_resoluble', 'referencia_igual_o_mas', 'solo_nivel', 'marcador_ne', 'no', 'cerrado_por_arn', 'sin_veredicto'] as const
 export type Veredicto = typeof VEREDICTOS[number]
+/** Motivo de cada lectura (comité médico, 18-oct-2026: TROP2 del hígado supera el suelo y la referencia que se ven y la
+ *  lectura dice «No se sostiene»; sin el porqué no se puede conciliar). Vocabulario CERRADO, el mismo de Polaris
+ *  (_contrato.MOTIVOS). Lo que su etiqueta ya explica o no tiene lectura va sin motivo (null). */
+export const MOTIVOS = ['hepatocitos_igual_o_mas', 'seleccion_por_er', 'arn_no_es_her2_low', 'por_poco_minoria_no_hueso',
+  'minoria_no_hueso', 'trazador_no_hueso', 'no_robusto_parecido_no_hueso', 'disperso_en_el_tumor', 'casi_no_se_detecta', 'cero_en_posibles_tumorales', 'adn_de_nucleos_no_tumorales',
+  'referencia_poco_precisa', 'supera_por_poco', 'depende_del_conjunto'] as const
+export type Motivo = typeof MOTIVOS[number]
+export const VEREDICTOS_SIN_MOTIVO: readonly Veredicto[] = ['sostenido', 'referencia_igual_o_mas', 'solo_nivel', 'sin_veredicto']
+const MATIZ: readonly Veredicto[] = ['sostenido_con_matiz', 'con_matiz', 'en_el_limite', 'no_sostenido', 'no_resoluble']
+/** Qué lecturas admite cada motivo (_contrato.MOTIVO_LECTURAS). */
+export const MOTIVO_LECTURAS: Record<Motivo, readonly Veredicto[]> = {
+  hepatocitos_igual_o_mas: MATIZ, seleccion_por_er: MATIZ, arn_no_es_her2_low: MATIZ, por_poco_minoria_no_hueso: MATIZ,
+  minoria_no_hueso: MATIZ, trazador_no_hueso: MATIZ, no_robusto_parecido_no_hueso: MATIZ, referencia_poco_precisa: MATIZ,
+  supera_por_poco: MATIZ, depende_del_conjunto: MATIZ,
+  disperso_en_el_tumor: ['marcador_ne'], casi_no_se_detecta: ['no', 'marcador_ne'],
+  cero_en_posibles_tumorales: ['cerrado_por_arn'], adn_de_nucleos_no_tumorales: ['cerrado_por_arn'],
+}
+/** Motivo de la lectura de un gen, o null (sin motivo en el fichero, o la etiqueta ya lo dice). */
+export const motivoDe = (d: LesionDatos, gen: string): Motivo | null => d.motivo?.[gen] ?? null
+/** ¿El fichero trae motivos? Con ellos la página dice en el pie cómo se compara y acorta las etiquetas que llevaban la razón dentro. */
+export const traeMotivo = (d: LesionDatos): boolean => d.motivo !== undefined
 /** Papel de un gen en la SELECCIÓN del grupo de interés: su cifra en ese grupo es circular. */
 export const PAPELES_SELECCION = ['identidad', 'fgfr1_alto', 'exclusion', 'ligado_er'] as const
 export type PapelSeleccion = typeof PAPELES_SELECCION[number]
@@ -73,6 +94,8 @@ export interface LesionDatos {
   suelo: Record<string, Record<string, number>>
   referencia: Record<string, number>
   veredicto: Record<string, Veredicto>
+  /** el porqué de cada lectura; opcional para que los datos publicados antes de él sigan pintándose (sin paréntesis) */
+  motivo?: Record<string, Motivo | null>
   /** [sondas que cruzan una unión exón-exón, sondas totales] por gen */
   sondas: Record<string, [number, number]>
   seleccion: Record<string, PapelSeleccion>
@@ -188,6 +211,16 @@ export function motivosLesion(d: LesionDatos, esperado: { lesion: Lesion; ejempl
       if (!Array.isArray(so) || so.length !== 2 || !ent(so[0]) || !ent(so[1], 1) || so[0] > so[1]) m.push(`sondas de ${gen}`)
     }
     if (!d.sondas || Object.keys(d.sondas).length !== d.genes.length) m.push('sondas: un gen de más o de menos')
+    // motivo (si viene): una clave por gen; null donde la etiqueta ya lo dice, y si no, uno del vocabulario que le toque
+    if (d.motivo !== undefined) {
+      const mo = d.motivo
+      if (!mo || typeof mo !== 'object' || JSON.stringify(Object.keys(mo).sort()) !== JSON.stringify([...d.genes].sort())) m.push('motivo: un gen de más o de menos')
+      else for (const gen of d.genes) {
+        const v = d.veredicto[gen] as Veredicto, x = mo[gen]
+        const ok = x === null ? VEREDICTOS_SIN_MOTIVO.includes(v) : (MOTIVOS as readonly string[]).includes(x as string) && !VEREDICTOS_SIN_MOTIVO.includes(v) && MOTIVO_LECTURAS[x as Motivo].includes(v)
+        if (!ok) m.push(`motivo de ${gen}`)
+      }
+    }
     const sel = d.seleccion
     // la selección cubre TODO el panel desde el 18-oct (la página abre cualquier gen): genes fuera de la lista valen; que
     // existan en el Zarr lo coteja el test del contrato

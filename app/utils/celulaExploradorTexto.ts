@@ -42,7 +42,8 @@ export const PANEL_INTERES = ['ANKRD30A', 'TPBG', 'ERBB3', 'SLC39A6', 'ERBB2', '
 
 export const ETIQUETA_VEREDICTO: Record<string, T> = {
   sostenido: t('Se sostiene', 'Holds'),
-  /** la revisión lo da por sostenido, con matices (HER3 del hígado) */
+  /** la revisión lo da por sostenido, con matices: desde la enmienda del 19-oct-2026, TROP2, Nectin-4 y MUC1 del hígado (la
+   * regla fijada antes del análisis los da positivos; no se repiten en el hueso). HER3 del hígado dejó de serlo el 18-oct */
   sostenido_con_matiz: t('Se sostiene con matices', 'Holds, with caveats'),
   /** la revisión lo matiza y NO lo da por sostenido: nunca «se sostiene» aquí (revisión de cifras, 17-oct-2026) */
   con_matiz: t('Con matices; no se da por sostenido', 'With caveats; not counted as holding'),
@@ -53,9 +54,63 @@ export const ETIQUETA_VEREDICTO: Record<string, T> = {
   solo_nivel: t('Solo cuenta el nivel (se detecta en casi todas las células)', 'Only the level counts (detected in almost every cell)'),
   marcador_ne: t('Marcador neuroendocrino', 'Neuroendocrine marker'),
   no: t('No', 'No'),
+  /** con motivo en el fichero se acorta (ETIQUETA_VEREDICTO_CON_MOTIVO) y la razón va al motivo de cada biopsia */
   cerrado_por_arn: t('Cerrado por ARN; los positivos son ADN de núcleos no tumorales', 'Ruled out by RNA; the positives are DNA from non-tumor nuclei'),
   sin_veredicto: t('No valorado en esa fila de la revisión', 'Not assessed in that row of the review'),
 }
+/** Etiquetas que llevaban la razón dentro y se acortan cuando el fichero trae el motivo (verificacion, 18-oct-2026: la de
+ * «cerrado_por_arn» daba la razón del hueso también en el hígado, donde el acta da 0 positivos). Sin motivo en el fichero
+ * se queda la de ETIQUETA_VEREDICTO, la publicada: así el código puede salir antes que los datos sin quitar nada. */
+export const ETIQUETA_VEREDICTO_CON_MOTIVO: Record<string, T> = {
+  cerrado_por_arn: t('Cerrado por ARN', 'Ruled out by RNA'),
+}
+/** Lectura de un gen: la etiqueta corta si el fichero trae motivo y la hay; si no, la de siempre. */
+export const etiquetaLectura = (ver: string, conMotivo: boolean, lang: 'es' | 'en') =>
+  (conMotivo && ETIQUETA_VEREDICTO_CON_MOTIVO[ver]?.[lang]) || etiqueta(ETIQUETA_VEREDICTO, ver, lang)
+
+/** Motivo de cada lectura, entre paréntesis tras ella (comité médico, 18-oct-2026: TROP2 del hígado supera el suelo y la
+ * referencia que se ven y la lectura dice «No se sostiene»). Ids de Polaris (_contrato.MOTIVOS, con la línea del acta de
+ * la que sale cada uno). Sin cifras: las del caso viajan en el fichero. */
+export const ETIQUETA_MOTIVO: Record<string, T> = {
+  /** el grupo «Hepatocitos» puede incluir tumorales: ni «sanos» ni «no tumorales» (comité médico, fusión con #293) */
+  hepatocitos_igual_o_mas: t('se detecta igual o más en el grupo «Hepatocitos»', 'detected as much or more in the “Hepatocytes” group'),
+  seleccion_por_er: t('el grupo se eligió por el programa de estrógeno', 'the group was selected by its estrogen program'),
+  arn_no_es_her2_low: t('en ARN no equivale a HER2-low; manda la IHQ', 'in RNA it does not mean HER2-low; IHC decides'),
+  /** ENMIENDA del 19-oct (acta l.182-184): TROP2, Nectin-4 y MUC1 del hígado vuelven a lo que da la regla fijada antes del
+   * análisis (sostenidos con matiz); el matiz es la discordancia con el hueso, que la regla ya preveía. TROP2 y MUC1 además
+   * no superan el ARN suelto del tumor, sensibilidad declarada que no decide */
+  por_poco_minoria_no_hueso: t('supera la referencia por poco y en una minoría de células; no supera el ARN suelto del tumor ni se repite en el hueso',
+    'it clears the reference narrowly and in a minority of cells; it does not clear the tumor’s loose RNA or repeat in the bone'),
+  minoria_no_hueso: t('en una minoría de células, y no se repite en el hueso', 'in a minority of cells, and it does not repeat in the bone'),
+  trazador_no_hueso: t('se usa para medir el ARN suelto del tumor, que también llega a la referencia; no se repite en el hueso',
+    'it is used to measure the tumor’s loose RNA, which also reaches the reference; it does not repeat in the bone'),
+  /** B7-H3, ENMIENDA del 19-oct (acta l.186): «débil» por la regla fijada antes del análisis (no se mantiene en toda la malla
+   * de variantes prefijadas; la malla solo guarda si es positiva, no qué comparación falla). «Parecido» es a igual profundidad
+   * (detección ponderada por decil de UMI, como la referencia); la bruta por grupo del detalle no lo es */
+  no_robusto_parecido_no_hueso: t('no se mantiene en todas las variantes prefijadas de elegir el grupo; a igual profundidad se detecta parecido en los demás tipos celulares, y no se repite en el hueso',
+    'it does not hold across all the pre-set ways of choosing the group; at matched depth it is detected at a similar rate in the other cell types, and it does not repeat in the bone'),
+  disperso_en_el_tumor: t('disperso por el tumor luminal', 'scattered through the luminal tumor'),
+  casi_no_se_detecta: t('se detecta en muy pocas células', 'detected in very few cells'),
+  cero_en_posibles_tumorales: t('cero en las células que podrían ser tumor, con sondas que sí funcionan', 'zero in the cells that could be tumor, with probes that do work'),
+  adn_de_nucleos_no_tumorales: t('los positivos son ADN de núcleos no tumorales', 'the positives are DNA from non-tumor nuclei'),
+  referencia_poco_precisa: t('bien por encima del suelo; la referencia tiene pocas células efectivas y el margen de error es amplio',
+    'well above the floor; the reference has few effective cells and the margin of error is wide'),
+  supera_por_poco: t('supera a la referencia por muy poco', 'clears the reference by very little'),
+  depende_del_conjunto: t('supera a la referencia solo en un conjunto algo más amplio de células malignas', 'clears the reference only in a slightly wider set of malignant cells'),
+}
+
+/** Pie de la lectura cuando el fichero trae motivos (diseño, verificacion y comité médico, revisión del motivo). Cómo se
+ * compara: el extremo bajo del intervalo de confianza de Wilson (hígado, vía 1; hueso, tribunal: `lo > dref`), no la cifra.
+ * Y que en varios genes la lectura de la revisión se aparta de la regla fijada antes del análisis: en las dos biopsias (por
+ * debajo, reformulada o, HER3 del hueso, por encima; INFORME_LIMPIEZA de Polaris, regla_frente_a_acta). Va también en el
+ * detalle del gen, que es donde se lee la lectura de uno. */
+export const PIE_MOTIVO = {
+  compara: t('La lectura usa el extremo bajo del margen de error del grupo, no su cifra.', 'The reading uses the lower end of the group’s margin of error, not its figure.'),
+  aparta: t('En varios genes, la lectura de la revisión se aparta de la regla fijada antes del análisis; la lectura o su paréntesis dice por qué.',
+    'For several genes, the review’s reading departs from the rule set before the analysis; the reading or its parenthesis says why.'),
+}
+export const pieMotivo = (lang: 'es' | 'en') => `${PIE_MOTIVO.compara[lang]} ${PIE_MOTIVO.aparta[lang]}`
+
 /** De quién es la lectura por gen, y en qué estado está: va en la cabecera de la columna y en su pie. */
 export const LECTURA = {
   columna: t('Lectura de Polaris (borrador)', 'Polaris reading (draft)'),
@@ -107,7 +162,8 @@ export const ETIQUETAS_FIJAS = {
   re: t('IHQ de RE: negativa (hígado)', 'ER IHC: negative (liver)'),
   /** auditoría 18-oct: del hueso no consta IHQ de HER2 (solo ADN, FoundationOne) */
   her2Hueso: t('IHQ de HER2 (hueso): no consta', 'HER2 IHC (bone): none reported'),
-  /** auditoría 18-oct: HER3 lo tiene igual o más el grupo «Hepatocitos» (que puede incluir tumorales: no «sanos», comité médico) */
+  /** auditoría 18-oct: HER3 lo tiene igual o más el grupo «Hepatocitos» (que puede incluir tumorales: no «sanos», comité médico).
+   * Con el motivo en el fichero ya va en el paréntesis de la lectura (hepatocitos_igual_o_mas); solo se pinta sin él */
   her3Higado: t('En el grupo «Hepatocitos» se detecta igual o más', 'Detected as much or more in the “Hepatocytes” group'),
   /** qué matriz es: la estándar, con el ADN genómico que eso arrastra en el hueso */
   matriz: t('Matriz estándar de Cell Ranger, todas las sondas; en el hueso incluye ADN genómico', 'Standard Cell Ranger matrix, all probes; in the bone it includes genomic DNA'),

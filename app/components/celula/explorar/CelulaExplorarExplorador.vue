@@ -23,10 +23,10 @@
  * Violeta = grupo de interés, selección, foco y enlaces; los avisos van en tinta (auditoría `diseno`).
  */
 import type { Coexp, Lesion, LesionDatos, Manifiesto } from '~/utils/celulaExplorador'
-import { coexpresion, columna, fmtParSuelo, fmtPct, nivelMatriz, porGrupo } from '~/utils/celulaExplorador'
+import { coexpresion, columna, fmtParSuelo, fmtPct, motivoDe, nivelMatriz, porGrupo, traeMotivo } from '~/utils/celulaExplorador'
 import { abreZarr, storeWeb, type ZarrLesion } from '~/utils/celulaExploradorZarr'
 import { cssRgb, paleta, type RGB } from '~/utils/celulaExploradorColor'
-import { ALIAS_BUSCA, ETIQUETA_GRUPO, ETIQUETA_LESION, ETIQUETA_VEREDICTO, ETIQUETAS_FIJAS, NOMBRE_CLINICO, PANEL_INTERES, PROTEINA, etiqueta, nombreGen } from '~/utils/celulaExploradorTexto'
+import { ALIAS_BUSCA, ETIQUETA_GRUPO, ETIQUETA_LESION, ETIQUETA_MOTIVO, etiquetaLectura, ETIQUETAS_FIJAS, pieMotivo, NOMBRE_CLINICO, PANEL_INTERES, PROTEINA, etiqueta, nombreGen } from '~/utils/celulaExploradorTexto'
 
 const props = defineProps<{ man: Manifiesto; ejemplo: boolean; lang: 'es' | 'en' }>()
 const L = (es: string, en: string) => (props.lang === 'en' ? en : es)
@@ -125,6 +125,24 @@ const PROT = (g: string) => nombreGen(g).split(' (')[0]!
 const nTotal = computed(() => (d.value ? fmtN(d.value.n_celulas, props.lang) : ''))
 /** células leídas antes del control de calidad (del fichero), si difieren de las que quedan */
 const nLeidas = computed(() => { const n = (d.value?.qc as { n_inicial?: number } | undefined)?.n_inicial; return d.value && typeof n === 'number' && n > d.value.n_celulas ? fmtN(n, props.lang) : '' })
+/** Nota bajo el mapa. Con datos reales dice de dónde salen las posiciones: el UMAP de Cell Ranger, el que dibuja Loupe
+ * (plan del 19-oct; procedencia leída del .cloupe: pipeline SC_RNA_COUNTER_CS, «Default Pipeline Analysis»), y que los
+ * huecos son células que no pasaron el control. Con el ejemplo no: sus posiciones son inventadas. */
+const notaMapa = computed(() => {
+  const lei = nLeidas.value
+  const qc = lei ? L(` (de ${lei} leídas; el resto no pasó el control de calidad de este análisis)`, ` (of ${lei} read; the rest did not pass this analysis’s quality control)`) : ''
+  if (props.ejemplo) {
+    return L(`${nTotal.value} células de ejemplo${qc}, en posiciones inventadas que imitan un mapa de células: en uno de verdad, dos puntos cercanos suelen ser células parecidas y la distancia entre grupos alejados no se interpreta.`,
+      `${nTotal.value} example cells${qc}, at made-up positions that mimic a cell map: in a real one, nearby dots tend to be similar cells and distances between far-apart groups are not meaningful.`)
+  }
+  // verificacion, voz-miriam y un lector no experto (19-oct): que la posición es parecido y NO el sitio en el tejido (sin
+  // eso un lego lee el mapa como una foto y un hueco como tejido vacío); «el programa de 10x Genomics» y no «(10x)», que
+  // suena a aumentos de microscopio; las células del control dejan zonas más ralas (medido por clúster), pero un hueco
+  // concreto no se puede atribuir a eso, porque un UMAP deja espacio vacío entre grupos por sí mismo; y lo cercano «suele»
+  // ser parecido, no siempre (la vecindad local también se deforma al pasar a 2D)
+  return L(`${nTotal.value} células de la biopsia${qc}. Están colocadas según lo que se parecen, no según dónde estaban en el tejido: es el UMAP que calcula Cell Ranger, el programa de 10x Genomics, el mismo que muestra Loupe Browser.${lei ? ' Las que no pasaron el control no se dibujan y algunas zonas se ven más ralas. Un UMAP también suele dejar espacio vacío entre grupos, así que un hueco, por sí solo, no dice si ahí se quitaron células.' : ''} Dos puntos cercanos suelen ser células parecidas, pero la distancia entre grupos alejados no se interpreta.`,
+    `${nTotal.value} cells from the biopsy${qc}. They are placed by how similar they are, not by where they sat in the tissue: this is the UMAP computed by Cell Ranger, 10x Genomics’ software, the same one Loupe Browser shows.${lei ? ' Cells that did not pass are not drawn, which makes some areas look sparser. A UMAP also tends to leave empty space between groups, so a gap alone does not tell you whether cells were removed there.' : ''} Nearby dots are usually similar cells, but distances between far-apart groups are not meaningful.`)
+})
 /** «Colorear por» en un desplegable: Gen y Dos genes solo con un gen activo */
 const MODOS = computed(() => [
   { k: 'grupo', t: L('Grupo', 'Group'), off: false },
@@ -164,6 +182,18 @@ const nivelGen = computed(() => {
   const nombres = [L('No detectado', 'Not detected'), ...lims.slice(0, -1).map((a, k) => (a === lims[k + 1] ? `${f(a)} CP10k` : `${f(a)}–${f(lims[k + 1]!)} CP10k`))]
   const orden = Array.from(col.keys()).sort((a, b) => clases[a]! - clases[b]! || a - b)
   return { clases, nombres, orden }
+})
+/** Orden de dibujo del mapa (las últimas, encima). Con un gen, lo detectado encima. Por grupo, «Otras» debajo, las
+ * referencias de mayor a menor y el grupo de interés encima de todo (diseño, 19-oct: con el radio del hueso, las 1.290
+ * «Otras» tapaban a las 68 malignas y el morado de la leyenda no salía en el mapa). `__helpmiriamSinOrden` solo lo pone
+ * la contraprueba del test de Chrome. */
+const ordenMapa = computed(() => {
+  if (nivelGen.value) return nivelGen.value.orden
+  const x = d.value
+  if (!x || modoVista.value !== 'grupo' || (typeof window !== 'undefined' && (window as { __helpmiriamSinOrden?: boolean }).__helpmiriamSinOrden)) return undefined
+  const peso = x.grupos.map((g) => (g.rol === 'otras' ? 0 : g.rol === 'interes' ? 2 : 1))
+  const g = x.celulas.grupo
+  return Array.from(g.keys()).sort((a, b) => peso[g[a]!]! - peso[g[b]!]! || x.grupos[g[b]!]!.n - x.grupos[g[a]!]!.n || a - b)
 })
 const conjuntos = computed(() => {
   const x = d.value
@@ -513,8 +543,10 @@ const lecturaDetalle = computed(() => {
   const x = d.value
   if (!x) return ''
   if (!x.genes.includes(gen.value)) return L('Este gen no está en la revisión: no tiene lectura.', 'This gene is not in the review: it has no reading.')
-  return (ETIQUETA_VEREDICTO[x.veredicto[gen.value] ?? 'sin_veredicto'] ?? ETIQUETA_VEREDICTO.sin_veredicto!)[props.lang]
+  return etiquetaLectura(x.veredicto[gen.value] ?? 'sin_veredicto', traeMotivo(x), props.lang)
 })
+/** su motivo (comité médico, 18-oct): entre paréntesis tras la lectura; solo de genes de la revisión */
+const motivoDetalle = computed(() => (d.value?.genes.includes(gen.value) ? motivoDe(d.value, gen.value) : null))
 /** La otra biopsia en el detalle del gen (19-oct): comparar hígado y hueso sin memorizar cifras. La cifra del grupo de
  * interés de la otra biopsia, con su suelo, su referencia y su lectura: las mismas funciones y el mismo fichero que su
  * lista de llegada (CelulaExplorarInteres), nada escrito a mano. Solo genes de la revisión que están en los dos ficheros
@@ -536,7 +568,8 @@ const otra = computed(() => {
   return {
     l, det, suelo, marca, ref: fmtPct(o.referencia[g] ?? 0, props.lang), circular: !!o.seleccion[g], loo: o.seleccion[g] ? (o.loo?.[g] ?? null) : null,
     grupo: etiqueta(ETIQUETA_GRUPO, gi.id, props.lang), n: fmtN(gi.n, props.lang),
-    lec: (ETIQUETA_VEREDICTO[o.veredicto[g] ?? 'sin_veredicto'] ?? ETIQUETA_VEREDICTO.sin_veredicto!)[props.lang],
+    // la lectura de la otra biopsia, como la de esta: etiqueta corta si su fichero trae motivo, y su paréntesis
+    lec: etiquetaLectura(o.veredicto[g] ?? 'sin_veredicto', traeMotivo(o), props.lang), mot: motivoDe(o, g),
   }
 })
 /** abre «Más análisis» y lleva la tabla completa de genes de interés a la vista */
@@ -718,10 +751,12 @@ function sinTapar(ev: FocusEvent) {
           <p v-if="!errorMapa && !listo && activo" class="exp__nota exp__leyendo" role="status">{{ L(`Leyendo ${nombreGen(activo)} en esta biopsia; mientras, el mapa va por grupo.`, `Reading ${nombreGen(activo)} in this biopsy; meanwhile the map is colored by group.`) }}</p>
           <a v-if="!errorMapa" class="sr-only focus:not-sr-only exp__salto" href="#exp-panel">{{ L('Saltar el mapa', 'Skip the map') }}</a>
           <CelulaExplorarMapa v-if="!errorMapa" :d="d" :modo="modoVista" :gen="gen" :gen-b="genB" :conjuntos="conjuntos" :colores="colores" :colorear-por="colorearPor"
-                              :tema="tema === 'oscuro' ? 'dark' : 'light'" :lang="lang" :alto="altoMapa" :movil="movil" :tactil="tactil" :orden="nivelGen?.orden" @error="errorMapa = $event" />
+                              :tema="tema === 'oscuro' ? 'dark' : 'light'" :lang="lang" :alto="altoMapa" :movil="movil" :tactil="tactil" :orden="ordenMapa" @error="errorMapa = $event" />
           <p v-if="errorMapa" class="exp__estado exp__estado--error exp__sinmapa" role="alert">{{ L('El mapa no se ha podido dibujar en este navegador (recarga la página, o prueba con otro navegador o con la aceleración gráfica activada). El panel y los datos de abajo no dependen de él.', 'The map could not be drawn in this browser (reload the page, or try another browser or turn on graphics acceleration). The panel and the data below do not depend on it.') }}</p>
           <template v-if="!errorMapa">
           <p v-if="modoVista === 'gen'" class="exp__leyt">{{ L(`Nivel de ${nombreGen(gen)} en cada célula, en CP10k (moléculas del gen por cada 10.000 de la célula): no detectado o el tramo en que cae. Los tramos son de esta biopsia: el mismo color no es el mismo nivel en el hígado y en el hueso.`, `${nombreGen(gen)} level in each cell, in CP10k (molecules of the gene per 10,000 in the cell): not detected, or the band it falls in. The bands belong to this biopsy: the same color is not the same level in the liver and in the bone.`) }}</p>
+          <!-- datos reales: el dibujo es el de Loupe, el color no (plan del 19-oct; sin esto, «otra vez no se parece») -->
+          <p v-if="modoVista === 'grupo' && !ejemplo" class="exp__avisos exp__avisos--grupo">{{ L('Los colores son los grupos de este análisis, no los clústeres de Cell Ranger.', 'Colors show the groups from this analysis, not Cell Ranger’s clusters.') }}</p>
           <ul v-if="leyenda.length" class="exp__leyenda" :aria-label="L('Leyenda del mapa', 'Map legend')">
             <li v-for="l in leyenda" :key="l.etiqueta"><span class="exp__muestra" :style="{ background: cssRgb(l.rgb) }" aria-hidden="true" />{{ l.etiqueta }} <span class="nums">{{ fmtN(l.n, lang) }}</span></li>
           </ul>
@@ -731,7 +766,7 @@ function sinTapar(ev: FocusEvent) {
           </p>
           </template>
           <p v-if="otrasGem" class="exp__nota">{{ L(`En el hueso, «Otras» incluye ${fmtN(otrasGem.n, 'es')} células sin GEM limpio: comparten gota con una célula del hígado y pueden llevar su ARN. ${fmtN(otrasGem.deTipo, 'es')} de ellas son de tipos que tienen grupo propio y están en «Otras» solo por eso.`, `In the bone, “Other” includes ${fmtN(otrasGem.n, 'en')} cells without a clean GEM: they share a droplet with a liver cell and may carry its RNA. ${fmtN(otrasGem.deTipo, 'en')} of them are of types that have their own group and sit in “Other” only for that reason.`) }}</p>
-          <p v-if="!errorMapa" class="exp__nota">{{ L(`${nTotal} células de la biopsia${nLeidas ? ` (de ${nLeidas} leídas; el resto no pasó el control de calidad de este análisis)` : ''}, colocadas según lo que se parecen (UMAP): dos puntos cercanos son células parecidas; la distancia entre grupos alejados no se interpreta.`, `${nTotal} cells from the biopsy${nLeidas ? ` (of ${nLeidas} read; the rest did not pass this analysis’s quality control)` : ''}, placed by similarity (UMAP): nearby dots are similar cells; distances between far-apart groups are not meaningful.`) }}</p>
+          <p v-if="!errorMapa" class="exp__nota">{{ notaMapa }}</p>
           <p v-else class="exp__nota">{{ L(`${nTotal} células de la biopsia${nLeidas ? ` (de ${nLeidas} leídas; el resto no pasó el control de calidad de este análisis)` : ''}.`, `${nTotal} cells from the biopsy${nLeidas ? ` (of ${nLeidas} read; the rest did not pass this analysis’s quality control)` : ''}.`) }}</p>
           <details v-if="modoVista === 'gen' && !errorMapa" class="exp__porque">
             <summary>{{ L('Cómo se cortan los tramos de color', 'How the color bands are cut') }}</summary>
@@ -759,21 +794,23 @@ function sinTapar(ev: FocusEvent) {
             <!-- recién cambiada la biopsia: el gen activo aún se está leyendo en ella (nada de cifras de otro gen mientras) -->
             <p v-if="!listo" class="exp__estado exp__leyendo" role="status">{{ L(`Leyendo ${nombreGen(activo)} en esta biopsia…`, `Reading ${nombreGen(activo)} in this biopsy…`) }}</p>
             <template v-else>
-            <p class="exp__dlec"><span v-if="gen === 'ERBB2'" class="exp__dihq">{{ (lesion === 'higado' ? ETIQUETAS_FIJAS.her2 : ETIQUETAS_FIJAS.her2Hueso)[lang] }}</span><span v-if="gen === 'ERBB3' && lesion === 'higado'" class="exp__dihq">{{ ETIQUETAS_FIJAS.her3Higado[lang] }}</span><template v-if="d.genes.includes(gen)">{{ ETIQUETAS_FIJAS.lectura[lang] }} <strong>{{ lecturaDetalle }}</strong></template><template v-else>{{ lecturaDetalle }}</template></p>
+            <p class="exp__dlec"><span v-if="gen === 'ERBB2'" class="exp__dihq">{{ (lesion === 'higado' ? ETIQUETAS_FIJAS.her2 : ETIQUETAS_FIJAS.her2Hueso)[lang] }}</span><span v-if="gen === 'ERBB3' && lesion === 'higado' && !motivoDetalle" class="exp__dihq">{{ ETIQUETAS_FIJAS.her3Higado[lang] }}</span><template v-if="d.genes.includes(gen)">{{ ETIQUETAS_FIJAS.lectura[lang] }} <strong>{{ lecturaDetalle }}</strong><span v-if="motivoDetalle" class="exp__dmot" :data-motivo="motivoDetalle"> ({{ etiqueta(ETIQUETA_MOTIVO, motivoDetalle, lang) }})</span></template><template v-else>{{ lecturaDetalle }}</template></p>
+            <!-- comité médico (revisión del motivo): al abrir un gen la lista y su pie se ocultan; la lectura de uno se lee aquí -->
+            <p v-if="traeMotivo(d) && d.genes.includes(gen)" class="exp__dpie">{{ pieMotivo(lang) }}</p>
             <p v-if="aliasClinico" class="exp__dlec">{{ L(`${aliasClinico} aquí es ARN, no proteína: cuenta las células con al menos una molécula del gen; la proteína la mide la IHQ.`, `${aliasClinico} here is RNA, not protein: it counts cells with at least one molecule of the gene; protein is measured by IHC.`) }}</p>
             <!-- la otra biopsia (19-oct): la cifra de su grupo de interés, para comparar sin memorizar; ver `otra` -->
             <p v-if="otra" class="exp__otra">
               <span class="exp__otrab">{{ L('La otra biopsia', 'The other biopsy') }} · {{ etiqueta(ETIQUETA_LESION, otra.l, lang) }}</span>
               <!-- las mismas etiquetas que su lista de llegada (CelulaExplorarInteres): IHQ de HER2 de cada biopsia y la nota de HER3 del hígado -->
               <span v-if="gen === 'ERBB2'" class="exp__dihq">{{ (otra.l === 'higado' ? ETIQUETAS_FIJAS.her2 : ETIQUETAS_FIJAS.her2Hueso)[lang] }}</span>
-              <span v-if="gen === 'ERBB3' && otra.l === 'higado'" class="exp__dihq">{{ ETIQUETAS_FIJAS.her3Higado[lang] }}</span>
+              <span v-if="gen === 'ERBB3' && otra.l === 'higado' && !otra.mot" class="exp__dihq">{{ ETIQUETAS_FIJAS.her3Higado[lang] }}</span>
               <span class="exp__otral">{{ otra.grupo }}{{ otra.l === 'higado' ? L(', un subconjunto y no el tumor entero', ', a subset and not the whole tumor') : '' }} (n&nbsp;=&nbsp;{{ otra.n }}):</span>
               <!-- circular con cifra medida sin esa circularidad (loo): esa es la primera cifra, como en los violines (revisión del 17-oct); el grupo se nombra antes (diseño, 19-oct) -->
               <span v-if="otra.loo" class="exp__otral"><strong>{{ L('Sin esa circularidad', 'Without that circularity') }}</strong>
                 {{ L(`(grupo construido sin ese criterio, n\u00a0=\u00a0${fmtN(otra.loo.n, lang)}):`, `(group built without that criterion, n\u00a0=\u00a0${fmtN(otra.loo.n, lang)}):`) }}<template v-if="otra.loo.frac != null">{{ ' ' }}<span class="exp__par">{{ L('detectado', 'detected') }}&nbsp;{{ fmtPct(otra.loo.frac, lang) }}</span></template><template v-if="otra.loo.ref != null">, <span class="exp__par">{{ L('referencia', 'reference') }}&nbsp;{{ fmtPct(otra.loo.ref, lang) }}</span></template>.</span>
               <!-- cada etiqueta con su cifra, sin partirse al final de línea (diseño, 19-oct: a 375 «detectado» quedaba solo) -->
               <span class="nums"><template v-if="otra.loo">{{ L('Cifra circular. ', 'Circular figure. ') }}</template><span class="exp__par">{{ L('detectado', 'detected') }}&nbsp;{{ otra.det }}</span>{{ otra.circular && !otra.loo ? L(' (circular)', ' (circular)') : '' }}&nbsp;· <span class="exp__par">{{ L('suelo', 'floor') }}&nbsp;{{ otra.suelo }}</span>{{ otra.marca ? ` (${otra.marca})` : '' }}&nbsp;· <span class="exp__par">{{ L('referencia', 'reference') }}&nbsp;{{ otra.ref }}</span>.</span>
-              <span class="exp__otral">{{ ETIQUETAS_FIJAS.lecturaCorta[lang] }} <strong>{{ otra.lec }}</strong>.</span>
+              <span class="exp__otral">{{ ETIQUETAS_FIJAS.lecturaCorta[lang] }} <strong>{{ otra.lec }}</strong><span v-if="otra.mot" class="exp__dmot" :data-motivo="otra.mot"> ({{ etiqueta(ETIQUETA_MOTIVO, otra.mot, lang) }})</span>.</span>
               <!-- en la vista del hígado no está la nota del hueso: su circularidad de grupo y el ADN de su suelo viajan con la cifra -->
               <span v-if="otra.l === 'hueso'" class="exp__otral">{{ L('Ese grupo se eligió en parte por número de copias inferido: su cifra no es del todo independiente de esa elección. En el hueso, el suelo incluye además el ADN genómico del tejido.', 'That group was chosen partly by inferred copy number: its figure is not fully independent of that choice. In the bone, the floor also includes the tissue’s genomic DNA.') }}</span>
             </p>
@@ -929,6 +966,7 @@ function sinTapar(ev: FocusEvent) {
 .exp__sinmapa { margin: 0; padding: var(--sp-8) var(--sp-12); border: 2px solid var(--texto-1); border-radius: var(--radius-btn); }
 .exp__dlec { margin: 0 0 var(--sp-12); font: 500 var(--texto-sm)/1.4 var(--font-body); color: var(--texto-2); max-width: var(--measure); }
 .exp__dlec strong { color: var(--texto-1); font-weight: 600; }
+.exp__dpie { margin: calc(-1 * var(--sp-8)) 0 var(--sp-12); font: 500 var(--texto-xs)/1.4 var(--font-body); color: var(--texto-2); max-width: var(--measure); text-wrap: pretty; }
 .exp__dihq { display: block; text-wrap: balance; font: 600 var(--texto-xs)/1.4 var(--font-mono); color: var(--texto-1); }
 /* la otra biopsia: aparte de las cifras de esta (filete a la izquierda), en tinta segunda; la cifra, en tinta */
 .exp__otra { margin: 0 0 var(--sp-12); padding: var(--sp-4) 0 var(--sp-4) var(--sp-12); border-left: 2px solid var(--trazo-medio); font: 500 var(--texto-xs)/1.45 var(--font-body); color: var(--texto-2); max-width: var(--measure); }
@@ -945,7 +983,9 @@ function sinTapar(ev: FocusEvent) {
 .exp__leyenda { list-style: none; margin: var(--sp-12) 0 0; padding: 0; display: flex; flex-wrap: wrap; gap: var(--sp-4) var(--sp-16); font: var(--tipo-body-sm); font-size: var(--texto-xs); color: var(--texto-1); }
 .exp__leyenda li { display: inline-flex; align-items: center; gap: var(--sp-8); }
 .exp__leyenda .nums { font-family: var(--font-mono); color: var(--texto-2); }
-.exp__muestra { width: 12px; height: 12px; border-radius: 999px; flex: none; box-shadow: 0 0 0 1px var(--trazo-fuerte); }
+/* aro al 50 % de la tinta (diseño, 19-oct; 3,1:1 en claro): con el 20 % las muestras claras («Otras», «No detectado») no llegaban a 3:1
+   contra el fondo y la muestra no se distinguía como forma (WCAG 1.4.11); la paleta no se toca */
+.exp__muestra { width: 12px; height: 12px; border-radius: 999px; flex: none; box-shadow: 0 0 0 1px color-mix(in srgb, var(--texto-1) 50%, transparent); }
 .exp__bloque { margin-top: var(--sp-32); padding-top: var(--sp-24); border-top: 1px solid var(--trazo-medio); }
 .exp__busca { position: relative; flex: 1 1 18rem; }
 .exp__sug { position: absolute; top: calc(100% + var(--sp-4)); left: 0; right: 0; z-index: 10; list-style: none; margin: 0; padding: var(--sp-8); display: flex; flex-wrap: wrap; gap: var(--sp-4); max-width: 28rem; background: var(--fondo); border: 1px solid var(--trazo-fuerte); border-radius: var(--radius-btn); box-shadow: 0 6px 18px color-mix(in srgb, var(--texto-1) 12%, transparent); }

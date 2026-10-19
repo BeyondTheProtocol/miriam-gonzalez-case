@@ -16,7 +16,63 @@
 // Uso:  pnpm exec nuxt generate && pnpm test:celula-explorador-html   (CI: e2e.yml)
 import { existsSync, readFileSync, readdirSync } from 'node:fs'
 import { join } from 'node:path'
+import { inflateSync } from 'node:zlib'
 import { abrirNavegador, ROOT } from './lib/navegador-cdp.mjs'
+
+/* ── píxeles del mapa (plan del 19-oct, mapa de Loupe): lo que se DIBUJA, no la caja del contenedor ── */
+/** PNG de 8 bits RGB o RGBA → { w, h, bpp, px }, con los cinco filtros de línea (sin dependencias). */
+function decodePng(buf) {
+  let pos = 8, w = 0, h = 0, ct = 0, bd = 0
+  const idat = []
+  while (pos < buf.length) {
+    const len = buf.readUInt32BE(pos), tipo = buf.toString('ascii', pos + 4, pos + 8), dat = buf.subarray(pos + 8, pos + 8 + len)
+    if (tipo === 'IHDR') { w = dat.readUInt32BE(0); h = dat.readUInt32BE(4); bd = dat[8]; ct = dat[9] }
+    else if (tipo === 'IDAT') idat.push(dat)
+    else if (tipo === 'IEND') break
+    pos += 12 + len
+  }
+  if (bd !== 8 || (ct !== 6 && ct !== 2)) throw new Error(`PNG no soportado (profundidad ${bd}, color ${ct})`)
+  const bpp = ct === 6 ? 4 : 3, stride = w * bpp, raw = inflateSync(Buffer.concat(idat)), px = Buffer.alloc(h * stride)
+  for (let y = 0; y < h; y++) {
+    const f = raw[y * (stride + 1)], src = raw.subarray(y * (stride + 1) + 1, (y + 1) * (stride + 1))
+    const out = px.subarray(y * stride, (y + 1) * stride), prev = y ? px.subarray((y - 1) * stride, y * stride) : null
+    for (let i = 0; i < stride; i++) {
+      const a = i >= bpp ? out[i - bpp] : 0, b = prev ? prev[i] : 0, c = prev && i >= bpp ? prev[i - bpp] : 0
+      let v = src[i]
+      if (f === 1) v += a
+      else if (f === 2) v += b
+      else if (f === 3) v += (a + b) >> 1
+      else if (f === 4) { const p = a + b - c, pa = Math.abs(p - a), pb = Math.abs(p - b), pc = Math.abs(p - c); v += pa <= pb && pa <= pc ? a : pb <= pc ? b : c }
+      out[i] = v & 255
+    }
+  }
+  return { w, h, bpp, px }
+}
+/** Captura del lienzo del mapa (sin los botones encima) y los píxeles que no son fondo: su caja y una función para contar
+ * píxeles dibujados en un rectángulo. El fondo es el color más frecuente. */
+async function dibujoDelMapa(nav) {
+  // el lienzo entero a la vista: lo que queda fuera de la ventana sale en blanco en la captura
+  await nav.evaluate(`(() => { const s = document.createElement('style'); s.id = 'sin-botones-mapa'; s.textContent = '.exp-mapa button, .exp-mapa__mover, .exp-mapa__velo, .exp-mapa__carga { visibility: hidden !important }'; document.head.append(s); const b = document.documentElement.style.scrollBehavior; document.documentElement.style.scrollBehavior = 'auto'; document.querySelector('.exp-mapa canvas')?.scrollIntoView({ block: 'center' }); document.documentElement.style.scrollBehavior = b; return true })()`)
+  await nav.sleep(800)
+  const r = await nav.evaluate(`(() => { const c = document.querySelector('.exp-mapa canvas'); if (!c) return null; const b = c.getBoundingClientRect(); return { x: b.left + scrollX, y: b.top + scrollY, w: b.width, h: b.height } })()`)
+  if (!r || r.w < 50 || r.h < 50) return null
+  const shot = await nav.cdp('Page.captureScreenshot', { format: 'png', clip: { x: r.x, y: r.y, width: r.w, height: r.h, scale: 1 } })
+  await nav.evaluate(`document.getElementById('sin-botones-mapa')?.remove(); true`)
+  const { w, h, bpp, px } = decodePng(Buffer.from(shot.data, 'base64'))
+  const cuenta = new Map()
+  for (let i = 0; i < w * h; i += 7) { const k = (px[i * bpp] << 16) | (px[i * bpp + 1] << 8) | px[i * bpp + 2]; cuenta.set(k, (cuenta.get(k) ?? 0) + 1) }
+  const fondo = [...cuenta.entries()].sort((a, b) => b[1] - a[1])[0][0]
+  const fr = (fondo >> 16) & 255, fg = (fondo >> 8) & 255, fb = fondo & 255
+  const tinta = (x, y) => { const i = (y * w + x) * bpp; return Math.max(Math.abs(px[i] - fr), Math.abs(px[i + 1] - fg), Math.abs(px[i + 2] - fb)) > 30 }
+  let x0 = w, y0 = h, x1 = -1, y1 = -1
+  for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) if (tinta(x, y)) { if (x < x0) x0 = x; if (x > x1) x1 = x; if (y < y0) y0 = y; if (y > y1) y1 = y }
+  const enCaja = (ax, ay, bx, by) => { let n = 0; for (let y = Math.max(0, ay); y <= Math.min(h - 1, by); y++) for (let x = Math.max(0, ax); x <= Math.min(w - 1, bx); x++) if (tinta(x, y)) n++; return n }
+  /** píxeles de un color (± tol por canal): cuánto se ve de un grupo en el mapa */
+  const deColor = ([r, g, b], tol = 40) => { let n = 0; for (let i = 0; i < w * h; i++) { const j = i * bpp; if (Math.abs(px[j] - r) <= tol && Math.abs(px[j + 1] - g) <= tol && Math.abs(px[j + 2] - b) <= tol) n++ } return n }
+  return { w, h, caja: x1 < 0 ? null : { x0, y0, x1, y1 }, enCaja, deColor }
+}
+/** ¿El dibujo aprovecha el lienzo? En el eje que limita, el dibujo ocupa al menos el 80 %. */
+const llenaLienzo = (d) => !!d?.caja && ((d.caja.x1 - d.caja.x0 + 1) >= 0.8 * d.w || (d.caja.y1 - d.caja.y0 + 1) >= 0.8 * d.h)
 
 let fallos = 0, hechos = 0
 const ok = (nombre, cond, det = '') => { hechos++; if (!cond) { fallos++; console.log(`✘ ${nombre}${det ? `\n    ${det}` : ''}`) } }
@@ -101,6 +157,8 @@ const cuadra = (linea, f, etiquetas) => !!f && !!linea && [f.det, f.suelo, f.ref
 
 /* ── con DATOS REALES publicados (manifiesto sin «ejemplo»): la página está abierta; se comprueba eso y se termina ── */
 const manPub = JSON.parse(readFileSync(join(ROOT, 'celula', 'explorador', 'manifiesto.json'), 'utf8'))
+// la lectura de TROP2 sale del fichero: «No se sostiene» hasta la enmienda del acta del 19-oct, «Se sostiene con matices» con ella
+const LEC_TROP2 = ({ no_sostenido: 'No se sostiene', sostenido_con_matiz: 'Se sostiene con matices' })[manPub.ejemplo === true ? '' : JSON.parse(readFileSync(join(ROOT, 'celula', 'explorador', 'higado.json'), 'utf8')).veredicto?.TACSTD2] ?? '(sin lectura conocida)'
 if (manPub.ejemplo !== true) {
   for (const [lg, ruta, eti] of [
     ['es', 'celula-a-celula/explorar', ['n=1, FFPE, exploratorio', 'ARN ≠ proteína; manda la IHQ', 'IHQ de HER2: 0']],
@@ -119,11 +177,25 @@ if (manPub.ejemplo !== true) {
   try {
     await navR.cdp('Page.addScriptToEvaluateOnNewDocument', { source: ESPIA })
     await navR.cdp('Page.addScriptToEvaluateOnNewDocument', { source: RETEN })
+    // contraprueba a mano (19-oct): CONTRA_SIN_ACOTAR=1 apaga en el parche de Vitessce el acotado de los rótulos al lienzo,
+    // y las comprobaciones de «ningún rótulo toca el borde» a 375 tienen que ponerse rojas
+    if (process.env.CONTRA_SIN_ACOTAR) await navR.cdp('Page.addScriptToEvaluateOnNewDocument', { source: 'globalThis.__helpmiriamSinAcotar = true' })
+    // y CONTRA_SIN_ORDEN=1 quita el orden de dibujo por grupo: «el grupo de interés se ve» tiene que ponerse rojo
+    if (process.env.CONTRA_SIN_ORDEN) await navR.cdp('Page.addScriptToEvaluateOnNewDocument', { source: 'window.__helpmiriamSinOrden = true' })
     await navR.cargar('/celula-a-celula/explorar')
     ok('real sin demo: se monta el explorador, sin rótulo de ejemplo', await esperaR(navR, `!!document.querySelector('.exp') && !document.querySelector('.exp__demo')`))
     // panel de expertos (18-oct): al llegar, mapa por grupo y la lista corta de genes de interés
     ok('real llegada: mapa por grupo, lista de genes de interés y ningún gen abierto', await esperaR(navR, LLEGADA))
     ok('real llegada 1440×900: sin desplazar se ven al menos 400 px de mapa', await esperaR(navR, `window.scrollY === 0 && ${mapaVisible} >= 400`, 20000), `${await navR.evaluate(mapaVisible)} px`)
+    // plan del 19-oct (el mapa de Loupe): el dibujo aprovecha el lienzo, con un solo factor de escala el eje que limita llega
+    // casi al borde; y la nota dice de dónde salen las posiciones y qué son los huecos
+    await navR.sleep(1500)
+    const dib1440 = await dibujoDelMapa(navR)
+    ok('real 1440: el dibujo del mapa ocupa al menos el 80 % del lienzo en el eje que limita', llenaLienzo(dib1440), JSON.stringify(dib1440 && { w: dib1440.w, h: dib1440.h, caja: dib1440.caja }))
+    // verificacion y lector no experto (19-oct): la posición es parecido, no sitio en el tejido; las zonas ralas por el
+    // control están medidas, pero un hueco concreto no se puede atribuir a eso
+    ok('real: la nota del mapa dice que la posición no es el tejido, que es el UMAP de Cell Ranger (el de Loupe) y qué son (y qué no) los huecos', await navR.evaluate(`[...document.querySelectorAll('.exp__mapacol .exp__nota')].some((p) => /Están colocadas según lo que se parecen, no según dónde estaban en el tejido: es el UMAP que calcula Cell Ranger, el programa de 10x Genomics, el mismo que muestra Loupe Browser\\. Las que no pasaron el control no se dibujan y algunas zonas se ven más ralas\\. Un UMAP también suele dejar espacio vacío entre grupos, así que un hueco, por sí solo, no dice si ahí se quitaron células\\. Dos puntos cercanos suelen ser células parecidas, pero la distancia entre grupos alejados no se interpreta\\./.test(p.textContent))`))
+    ok('real, por grupo: un aviso dice que los colores no son los clústeres de Cell Ranger', await navR.evaluate(`/Los colores son los grupos de este análisis, no los clústeres de Cell Ranger/.test(document.querySelector('.exp__avisos--grupo')?.textContent ?? '')`))
     ok('real llegada: por grupo, ninguna fila de la leyenda repite color', await esperaR(navR, colorUnico))
     // diseño (18-oct): «Tipo celular» repetía cada tono hasta cuatro veces y sin rótulos no se leía; fuera hasta tenerlos
     ok('real llegada: «Colorear por» no ofrece «Tipo celular»', await navR.evaluate(`![...document.querySelectorAll('.exp__mapabar select option')].some((o) => /Tipo celular/.test(o.textContent))`))
@@ -134,12 +206,13 @@ if (manPub.ejemplo !== true) {
     ok('real llegada: la lista da grupo de interés, referencia y suelo, y su pie define el suelo', await navR.evaluate(`(() => { const h = [...document.querySelectorAll('.gin__tabla thead th')].map((t) => t.textContent); return h.length === 4 && /Referencia/.test(h[2]) && /Suelo/.test(h[3]) && /Suelo ambiental/.test(document.querySelector('.gin__pie')?.textContent ?? '') })()`))
     ok('real llegada: ERBB2 lleva «IHQ de HER2: 0» en la lista', await navR.evaluate(`/IHQ de HER2: 0/.test(document.querySelector('.gin__lecfila[data-gen="ERBB2"]')?.textContent ?? '')`))
     // comité médico (18-oct): sin la lectura al lado, TROP2 o B7-H3 «sobre el suelo y la referencia» se leían como positivos
-    ok('real llegada: cada gen de la lista lleva su lectura (borrador), la misma que la tabla completa; TROP2 dice «No se sostiene»', await navR.evaluate(`(() => { const filas = [...document.querySelectorAll('.gin__tabla tbody tr.gin__fila')], gi = [...document.querySelectorAll('.gi__tabla tbody tr')]; return filas.length > 0 && filas.every((r) => { const g = r.querySelector('.gin__gen').dataset.gen, lec = (r.nextElementSibling?.querySelector('.gin__lec')?.textContent ?? '').replace(/^[^:]*:\\s*/, '').trim(); const fila = gi.find((x) => x.querySelector('th')?.textContent.includes(g)); return !!lec && !!fila && fila.textContent.includes(lec) }) && /Lectura \\(borrador\\): No se sostiene/.test(document.querySelector('.gin__lecfila[data-gen="TACSTD2"]')?.textContent ?? '') })()`))
+    ok(`real llegada: cada gen de la lista lleva su lectura (borrador), la misma que la tabla completa; TROP2 dice «${LEC_TROP2}»`, await navR.evaluate(`(() => { const filas = [...document.querySelectorAll('.gin__tabla tbody tr.gin__fila')], gi = [...document.querySelectorAll('.gi__tabla tbody tr')]; return filas.length > 0 && filas.every((r) => { const g = r.querySelector('.gin__gen').dataset.gen, lec = (r.nextElementSibling?.querySelector('.gin__lec')?.textContent ?? '').replace(/^[^:]*:\\s*/, '').trim(); const fila = gi.find((x) => x.querySelector('th')?.textContent.includes(g)); return !!lec && !!fila && fila.textContent.includes(lec) }) && /Lectura \\(borrador\\): ${LEC_TROP2}/.test(document.querySelector('.gin__lecfila[data-gen="TACSTD2"]')?.textContent ?? '') })()`))
     // la fila de la lectura ocupa todo el ancho de la tabla (con una clase repetida quedó metida en la primera columna)
     ok('real llegada: la lectura de cada gen va a todo el ancho de la lista', await navR.evaluate(`(() => { const t = document.querySelector('.gin__tabla').getBoundingClientRect().width, c = [...document.querySelectorAll('.gin__lecfila td')]; return c.length > 0 && c.every((td) => td.getBoundingClientRect().width >= 0.95 * t) })()`))
     // fusión con #293 (18-oct): HER3 lo tiene igual o más el grupo «Hepatocitos» (no «sanos»), la referencia del hígado no
     // lleva hepatocitos ni fibroblastos, y el suelo del hígado es un mínimo (a la vista)
-    ok('real hígado: HER3 lleva la nota del grupo «Hepatocitos» y el pie dice qué células forman la referencia', await navR.evaluate(`/En el grupo «Hepatocitos» se detecta igual o más/.test(document.querySelector('.gin__lecfila[data-gen="ERBB3"]')?.textContent ?? '') && /los hepatocitos y los fibroblastos no entran/.test(document.querySelector('.gin__pie')?.textContent ?? '')`))
+    // con motivo en el fichero la nota va en el paréntesis de la lectura (hepatocitos_igual_o_mas) y el chip no se repite
+    ok('real hígado: HER3 lleva la nota del grupo «Hepatocitos» y el pie dice qué células forman la referencia', await navR.evaluate(`/En el grupo «Hepatocitos» se detecta igual o más|\\(se detecta igual o más en el grupo «Hepatocitos»\\)/.test(document.querySelector('.gin__lecfila[data-gen="ERBB3"]')?.textContent ?? '') && /los hepatocitos y los fibroblastos no entran/.test(document.querySelector('.gin__pie')?.textContent ?? '')`))
     ok('real llegada: una cifra circular de la lista lleva asterisco y su nota', await navR.evaluate(`!document.querySelector('.gin__ast') || /Circular\\./.test(document.querySelector('.gin__circ')?.textContent ?? '')`))
     ok('real: aviso fijo del hígado', await navR.evaluate(`/tumor frente a hepatocito no está resuelto célula a célula/.test(document.querySelector('.exp__banner')?.textContent ?? '')`))
     // verificacion (18-oct, simulador): lo que corrigió un «falso por omisión» va en el titular, no plegado
@@ -162,7 +235,20 @@ if (manPub.ejemplo !== true) {
     await navR.evaluate(eligeDeLista('TPBG'))
     ok('real: con 5T4 abierto, el segundo gen de «Dos genes» no es 5T4', await esperaR(navR, `document.querySelector('#exp-violines h2')?.textContent.includes('TPBG') && !!document.querySelector('.exp__masan select')?.value && document.querySelector('.exp__masan select').value !== 'TPBG' && !/5T4 \\(TPBG\\) y 5T4 \\(TPBG\\)/.test(document.querySelector('.exp__masan')?.textContent ?? '')`))
     await navR.evaluate(eligeDeLista('TACSTD2'))
-    ok('real: el detalle de TROP2 dice «No se sostiene»', await esperaR(navR, `/Lectura de Polaris \\(borrador, pendiente del laboratorio\\): No se sostiene/.test(document.querySelector('.exp__dlec')?.textContent ?? '') && document.querySelector('#exp-violines h2')?.textContent.includes('TACSTD2')`))
+    ok(`real: el detalle de TROP2 dice «${LEC_TROP2}»`, await esperaR(navR, `/Lectura de Polaris \\(borrador, pendiente del laboratorio\\): ${LEC_TROP2}/.test(document.querySelector('.exp__dlec')?.textContent ?? '') && document.querySelector('#exp-violines h2')?.textContent.includes('TACSTD2')`))
+    // comité médico (18-oct): «13 % frente a 9 % de referencia» y «No se sostiene» no se concilian sin el porqué. Con el
+    // motivo en el fichero, va entre paréntesis tras la lectura en el detalle, la lista y la tabla completa (los datos
+    // publicados antes de él no lo traen y la lectura sale sin paréntesis)
+    if (JSON.parse(readFileSync(join(ROOT, 'celula', 'explorador', 'higado.json'), 'utf8')).motivo) {
+      const MOT_TROP2 = /Se sostiene con matices \(supera la referencia por poco y en una minoría de células; no supera el ARN suelto del tumor ni se repite en el hueso\)/
+      const PIE = /usa el extremo bajo del margen de error del grupo, no su cifra\. En varios genes, la lectura de la revisión se aparta de la regla fijada antes del análisis/
+      ok('real motivo: el detalle de TROP2 lleva su motivo tras la lectura y, debajo, el pie (la lista y su pie se ocultan al abrir un gen)', await navR.evaluate(`${MOT_TROP2}.test(document.querySelector('.exp__dlec')?.textContent ?? '') && ${PIE}.test(document.querySelector('.exp__dpie')?.textContent ?? '')`))
+      ok('real motivo: la lista de llegada lleva el motivo de TROP2 y el de HER3 sin repetir el aviso de los hepatocitos', await navR.evaluate(`${MOT_TROP2}.test(document.querySelector('.gin__lecfila[data-gen="TACSTD2"]')?.textContent ?? '') && (() => { const t = document.querySelector('.gin__lecfila[data-gen="ERBB3"]')?.textContent ?? ''; return (t.match(/Hepatocitos/g) ?? []).length === 1 && /\\(se detecta igual o más en el grupo «Hepatocitos»\\)/.test(t) })()`))
+      ok('real motivo: el pie de la lista dice cómo se compara y que la revisión se aparta de la regla', await navR.evaluate(`${PIE}.test(document.querySelector('.gin__pmot')?.textContent ?? '')`))
+      ok('real motivo: el pie de la tabla completa, con sus dos frases separadas', await navR.evaluate(`${PIE}.test(document.querySelector('.gi__pmot')?.textContent ?? '')`))
+      ok('real motivo: la tabla completa lleva el motivo de TROP2, con la lectura en negrita como la lista', await navR.evaluate(`[...document.querySelectorAll('.gi__tabla tbody tr')].some((r) => r.querySelector('th')?.textContent.includes('TACSTD2') && ${MOT_TROP2}.test(r.textContent) && Number(getComputedStyle(r.querySelector('.gi__ver')).fontWeight) >= 600)`))
+      ok('real motivo: «Se sostiene» va sin paréntesis (NY-BR-1)', await navR.evaluate(`!document.querySelector('.gin__lecfila[data-gen="ANKRD30A"] .gin__mot') && /Se sostiene\\s*$/.test(document.querySelector('.gin__lecfila[data-gen="ANKRD30A"]')?.textContent.trim() ?? '')`))
+    }
     await navR.evaluate(eligeDeLista('ERBB2'))
     await esperaR(navR, violinesDe('ERBB2'))
     ok('real: el gen de la lista colorea el mapa y sale su chip con ✕ junto al buscador', await navR.evaluate(mapaEnGen) && await navR.evaluate(`!!document.querySelector('.exp__chip .exp__chipx')`))
@@ -170,7 +256,15 @@ if (manPub.ejemplo !== true) {
     // se ven a la vez (el alto del mapa descuenta cabecera y aviso; antes, con un porcentaje fijo, se cortaba)
     await navR.evaluate(`(() => { const fijo = parseFloat(getComputedStyle(document.querySelector('.exp')).getPropertyValue('--exp-top')) + document.querySelector('.exp__banner').offsetHeight + 8; window.scrollTo(0, document.querySelector('.exp__sim').getBoundingClientRect().top + window.scrollY - fijo) })()`)
     await navR.sleep(600)
-    ok('real escritorio hígado: bajo el aviso fijo se ven enteros el mapa y las pestañas del panel', await esperaR(navR, `(() => { const b = document.querySelector('.exp__banner').getBoundingClientRect(), t = document.querySelector('.exp__pestanas').getBoundingClientRect(), m = document.querySelector('.exp-mapa').getBoundingClientRect(); return t.top >= b.bottom - 1 && m.top >= b.bottom - 1 && m.bottom <= window.innerHeight + 1 })()`, 5000), await navR.evaluate(`(() => { const r = (q) => { const e = document.querySelector(q)?.getBoundingClientRect(); return e ? [Math.round(e.top), Math.round(e.bottom)] : null }; return JSON.stringify({ aviso: r('.exp__banner'), pestanas: r('.exp__pestanas'), mapa: r('.exp-mapa'), alto: innerHeight, y: scrollY }) })()`))
+    // 19-oct: con 5 s fallaba 2 de 3 corridas con la máquina cargada y el diagnóstico de justo después ya cumplía (mismos
+    // números las dos veces): una evaluación se queda esperando a la página, ocupada recoloreando el gen, y vuelve con el
+    // estado de antes de asentarse. Mismo tope que el resto de esperas (30 s); la condición no cambia, y el detalle dice
+    // cuánto tardó por si vuelve
+    const t0Aviso = Date.now()
+    const avisoOk = await esperaR(navR, `(() => { const b = document.querySelector('.exp__banner').getBoundingClientRect(), t = document.querySelector('.exp__pestanas').getBoundingClientRect(), m = document.querySelector('.exp-mapa').getBoundingClientRect(); return t.top >= b.bottom - 1 && m.top >= b.bottom - 1 && m.bottom <= window.innerHeight + 1 })()`)
+    const msAviso = Date.now() - t0Aviso
+    ok('real escritorio hígado: bajo el aviso fijo se ven enteros el mapa y las pestañas del panel', avisoOk, `${await navR.evaluate(`(() => { const r = (q) => { const e = document.querySelector(q)?.getBoundingClientRect(); return e ? [Math.round(e.top), Math.round(e.bottom)] : null }; return JSON.stringify({ aviso: r('.exp__banner'), pestanas: r('.exp__pestanas'), mapa: r('.exp-mapa'), alto: innerHeight, y: scrollY }) })()`)} · ${msAviso} ms`)
+    if (avisoOk && msAviso > 5000) console.log(`  (aviso: el mapa y las pestañas tardaron ${msAviso} ms en quedar bajo el aviso fijo)`)
     await navR.evaluate(`window.scrollTo(0, 0)`)
     ok('real simulador: «Más análisis» y «Calidad de los datos» plegados, con la tabla completa y con QC, número de copias, perfil y ADN dentro', await navR.evaluate(PLEGADOS))
     await navR.evaluate(ABRE_TODO)
@@ -449,6 +543,27 @@ if (manPub.ejemplo !== true) {
     // ancho, que mide solo los hijos directos del explorador, no lo veía. Se mide la tabla contra su caja.
     ok('real móvil 375: la lista de genes de interés cabe en su caja (las cuatro columnas a la vista)', await navR.evaluate(`(() => { const t = document.querySelector('.gin__tabla'), c = document.querySelector('.gin'); return !!t && !!c && t.getBoundingClientRect().right <= c.getBoundingClientRect().right + 1 && t.getBoundingClientRect().right <= innerWidth })()`), `${await navR.evaluate(`Math.round((document.querySelector('.gin__tabla')?.getBoundingClientRect().right ?? 0) - innerWidth)`)} px de más`)
     ok('real móvil: hay mapa, quieto (velo) hasta pulsar «Mover el mapa»', await esperaR(navR, `!!document.querySelector('.exp-mapa') && !!document.querySelector('.exp-mapa__velo') && /Mover el mapa/.test(document.querySelector('.exp-mapa__mover')?.textContent ?? '')`))
+    await navR.sleep(1500)
+    const dib375 = await dibujoDelMapa(navR)
+    ok('real móvil 375: el dibujo del mapa ocupa al menos el 80 % del lienzo en el eje que limita', llenaLienzo(dib375), JSON.stringify(dib375 && { w: dib375.w, h: dib375.h, caja: dib375.caja }))
+    // diseño (19-oct, render con el UMAP de Cell Ranger): a 375 los rótulos se cortaban contra el borde del lienzo
+    // («s, asignación limpia» en el hueso, «estrellada» en el hígado). Ni rótulo ni célula toca el borde: 2 px libres
+    const sinBorde = (d) => !!d?.caja && d.caja.x0 >= 2 && d.caja.y0 >= 2 && d.caja.x1 <= d.w - 3 && d.caja.y1 <= d.h - 3
+    ok('real móvil 375 hígado: ningún rótulo ni célula toca el borde del lienzo', sinBorde(dib375), JSON.stringify(dib375 && { w: dib375.w, h: dib375.h, caja: dib375.caja }))
+    await navR.cargar('/celula-a-celula/explorar?biopsia=hueso')
+    await esperaR(navR, `!!document.querySelector('.exp-mapa__velo') && document.querySelector('.exp__ctl [aria-pressed="true"]')?.textContent.trim() === 'Hueso'`)
+    await navR.sleep(1500)
+    const dib375h = await dibujoDelMapa(navR)
+    ok('real móvil 375 hueso: ningún rótulo ni célula toca el borde del lienzo', sinBorde(dib375h), JSON.stringify(dib375h && { w: dib375h.w, h: dib375h.h, caja: dib375h.caja }))
+    // diseño (19-oct, ronda 2): por grupo, las 1.290 «Otras» tapaban a las 68 malignas del hueso y el violeta de la leyenda
+    // no salía en el mapa (97 → 7 px a 375). El grupo de interés se dibuja el último: su color tiene que verse.
+    // Contraprueba: CONTRA_SIN_ORDEN=1 (dibujo por índice) lo pone rojo
+    const rgbInteres = (await navR.evaluate(`getComputedStyle(document.querySelector('.exp__leyenda li .exp__muestra')).backgroundColor`) ?? '').match(/\d+/g)?.slice(0, 3).map(Number)
+    const pxInteres = rgbInteres && dib375h ? dib375h.deColor(rgbInteres) : -1
+    ok('real móvil 375 hueso, por grupo: el color del grupo de interés se ve en el mapa (dibujado encima de «Otras»)', pxInteres >= 60, `${pxInteres} px de rgb(${rgbInteres})`)
+    await navR.cargar('/celula-a-celula/explorar')
+    await esperaR(navR, `!!document.querySelector('.exp-mapa__velo') && /Mover el mapa/.test(document.querySelector('.exp-mapa__mover')?.textContent ?? '')`)
+    await navR.sleep(1500)
     await navR.evaluate(`document.querySelector('.exp-mapa__mover')?.click()`)
     await navR.evaluate(busca('SPDEF'))
     if (await esperaR(navR, `document.querySelector('.exp__sug button')?.dataset.gen === 'SPDEF'`, 15000)) await navR.evaluate(`document.querySelector('.exp__sug button').click()`)
@@ -552,8 +667,19 @@ try {
   await nav.cargar('/celula-a-celula/explorar?demo=1')
   ok('demo: llegada con el mapa por grupo y la lista de genes de interés', await espera(nav, LLEGADA))
   const nGrupos = await nav.evaluate(`document.querySelectorAll('.exp__leyenda li').length`)   // por grupo: una entrada por grupo
+  ok('demo: con datos de ejemplo, la nota del mapa no habla de Cell Ranger ni de Loupe (sus posiciones son inventadas)', await nav.evaluate(`[...document.querySelectorAll('.exp__mapacol .exp__nota')].every((p) => !/Cell Ranger|Loupe/.test(p.textContent)) && !document.querySelector('.exp__avisos--grupo')`))
   const gD = await nav.evaluate(eligeDeLista(''))
   ok(`demo: un toque en la lista (${gD || 'ninguno'}) abre los violines`, !!gD && await espera(nav, `document.querySelectorAll('.vio__fila').length > 0`))
+  // orientación (plan del 19-oct): la célula-sonda del ejemplo está sola arriba a la derecha y las otras tres esquinas de
+  // la caja del dibujo, vacías; en espejo (vertical u horizontal) estaría en otra esquina. Con un gen, el mapa va sin rótulos.
+  await nav.sleep(1500)
+  const dibD = await dibujoDelMapa(nav)
+  const esquinas = dibD?.caja ? (() => {
+    const { x0, y0, x1, y1 } = dibD.caja, bw = Math.max(3, Math.round((x1 - x0) * 0.1)), bh = Math.max(3, Math.round((y1 - y0) * 0.1))
+    return { arribaDcha: dibD.enCaja(x1 - bw, y0, x1, y0 + bh), arribaIzq: dibD.enCaja(x0, y0, x0 + bw, y0 + bh), abajoDcha: dibD.enCaja(x1 - bw, y1 - bh, x1, y1), abajoIzq: dibD.enCaja(x0, y1 - bh, x0 + bw, y1) }
+  })() : null
+  ok('demo: el mapa no sale en espejo (la célula-sonda, sola arriba a la derecha; las otras tres esquinas, vacías)', !!esquinas && esquinas.arribaDcha > 0 && esquinas.arribaIzq === 0 && esquinas.abajoDcha === 0 && esquinas.abajoIzq === 0, JSON.stringify(esquinas))
+  ok('demo 1280: el dibujo del mapa ocupa al menos el 80 % del lienzo en el eje que limita', llenaLienzo(dibD), JSON.stringify(dibD && { w: dibD.w, h: dibD.h, caja: dibD.caja }))
   const r = await nav.evaluate(`(() => ({
     rotulo: /DATOS DE EJEMPLO/.test(document.querySelector('.exp__demo')?.textContent ?? ''),
     banner: /tumor frente a hepatocito no está resuelto célula a célula/.test(document.querySelector('.exp__banner')?.textContent ?? ''),
@@ -674,6 +800,9 @@ try {
   await nav.cdp('Emulation.setDeviceMetricsOverride', { width: 820, height: 1180, deviceScaleFactor: 1, mobile: true })
   await nav.cargar('/celula-a-celula/explorar?demo=1')
   await espera(nav, `document.querySelectorAll('.vio__fila').length > 0`)
+  await nav.sleep(1500)
+  const dib820 = await dibujoDelMapa(nav)
+  ok('tableta 820: el dibujo del mapa ocupa al menos el 80 % del lienzo en el eje que limita', llenaLienzo(dib820), JSON.stringify(dib820 && { w: dib820.w, h: dib820.h, caja: dib820.caja }))
   await nav.evaluate(ABRE_TODO)
   ok('tableta 820: toda tabla o figura que desborda avisa de que se desliza', await nav.evaluate(avisoSiDesborda))
   await nav.cdp('Emulation.setDeviceMetricsOverride', { width: 1280, height: 900, deviceScaleFactor: 1, mobile: false })
