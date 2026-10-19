@@ -67,7 +67,9 @@ async function dibujoDelMapa(nav) {
   let x0 = w, y0 = h, x1 = -1, y1 = -1
   for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) if (tinta(x, y)) { if (x < x0) x0 = x; if (x > x1) x1 = x; if (y < y0) y0 = y; if (y > y1) y1 = y }
   const enCaja = (ax, ay, bx, by) => { let n = 0; for (let y = Math.max(0, ay); y <= Math.min(h - 1, by); y++) for (let x = Math.max(0, ax); x <= Math.min(w - 1, bx); x++) if (tinta(x, y)) n++; return n }
-  return { w, h, caja: x1 < 0 ? null : { x0, y0, x1, y1 }, enCaja }
+  /** píxeles de un color (± tol por canal): cuánto se ve de un grupo en el mapa */
+  const deColor = ([r, g, b], tol = 40) => { let n = 0; for (let i = 0; i < w * h; i++) { const j = i * bpp; if (Math.abs(px[j] - r) <= tol && Math.abs(px[j + 1] - g) <= tol && Math.abs(px[j + 2] - b) <= tol) n++ } return n }
+  return { w, h, caja: x1 < 0 ? null : { x0, y0, x1, y1 }, enCaja, deColor }
 }
 /** ¿El dibujo aprovecha el lienzo? En el eje que limita, el dibujo ocupa al menos el 80 %. */
 const llenaLienzo = (d) => !!d?.caja && ((d.caja.x1 - d.caja.x0 + 1) >= 0.8 * d.w || (d.caja.y1 - d.caja.y0 + 1) >= 0.8 * d.h)
@@ -178,6 +180,8 @@ if (manPub.ejemplo !== true) {
     // contraprueba a mano (19-oct): CONTRA_SIN_ACOTAR=1 apaga en el parche de Vitessce el acotado de los rótulos al lienzo,
     // y las comprobaciones de «ningún rótulo toca el borde» a 375 tienen que ponerse rojas
     if (process.env.CONTRA_SIN_ACOTAR) await navR.cdp('Page.addScriptToEvaluateOnNewDocument', { source: 'globalThis.__helpmiriamSinAcotar = true' })
+    // y CONTRA_SIN_ORDEN=1 quita el orden de dibujo por grupo: «el grupo de interés se ve» tiene que ponerse rojo
+    if (process.env.CONTRA_SIN_ORDEN) await navR.cdp('Page.addScriptToEvaluateOnNewDocument', { source: 'window.__helpmiriamSinOrden = true' })
     await navR.cargar('/celula-a-celula/explorar')
     ok('real sin demo: se monta el explorador, sin rótulo de ejemplo', await esperaR(navR, `!!document.querySelector('.exp') && !document.querySelector('.exp__demo')`))
     // panel de expertos (18-oct): al llegar, mapa por grupo y la lista corta de genes de interés
@@ -551,6 +555,12 @@ if (manPub.ejemplo !== true) {
     await navR.sleep(1500)
     const dib375h = await dibujoDelMapa(navR)
     ok('real móvil 375 hueso: ningún rótulo ni célula toca el borde del lienzo', sinBorde(dib375h), JSON.stringify(dib375h && { w: dib375h.w, h: dib375h.h, caja: dib375h.caja }))
+    // diseño (19-oct, ronda 2): por grupo, las 1.290 «Otras» tapaban a las 68 malignas del hueso y el violeta de la leyenda
+    // no salía en el mapa (97 → 7 px a 375). El grupo de interés se dibuja el último: su color tiene que verse.
+    // Contraprueba: CONTRA_SIN_ORDEN=1 (dibujo por índice) lo pone rojo
+    const rgbInteres = (await navR.evaluate(`getComputedStyle(document.querySelector('.exp__leyenda li .exp__muestra')).backgroundColor`) ?? '').match(/\d+/g)?.slice(0, 3).map(Number)
+    const pxInteres = rgbInteres && dib375h ? dib375h.deColor(rgbInteres) : -1
+    ok('real móvil 375 hueso, por grupo: el color del grupo de interés se ve en el mapa (dibujado encima de «Otras»)', pxInteres >= 60, `${pxInteres} px de rgb(${rgbInteres})`)
     await navR.cargar('/celula-a-celula/explorar')
     await esperaR(navR, `!!document.querySelector('.exp-mapa__velo') && /Mover el mapa/.test(document.querySelector('.exp-mapa__mover')?.textContent ?? '')`)
     await navR.sleep(1500)

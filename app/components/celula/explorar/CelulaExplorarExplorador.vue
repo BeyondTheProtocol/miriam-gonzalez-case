@@ -183,6 +183,18 @@ const nivelGen = computed(() => {
   const orden = Array.from(col.keys()).sort((a, b) => clases[a]! - clases[b]! || a - b)
   return { clases, nombres, orden }
 })
+/** Orden de dibujo del mapa (las últimas, encima). Con un gen, lo detectado encima. Por grupo, «Otras» debajo, las
+ * referencias de mayor a menor y el grupo de interés encima de todo (diseño, 19-oct: con el radio del hueso, las 1.290
+ * «Otras» tapaban a las 68 malignas y el morado de la leyenda no salía en el mapa). `__helpmiriamSinOrden` solo lo pone
+ * la contraprueba del test de Chrome. */
+const ordenMapa = computed(() => {
+  if (nivelGen.value) return nivelGen.value.orden
+  const x = d.value
+  if (!x || modoVista.value !== 'grupo' || (typeof window !== 'undefined' && (window as { __helpmiriamSinOrden?: boolean }).__helpmiriamSinOrden)) return undefined
+  const peso = x.grupos.map((g) => (g.rol === 'otras' ? 0 : g.rol === 'interes' ? 2 : 1))
+  const g = x.celulas.grupo
+  return Array.from(g.keys()).sort((a, b) => peso[g[a]!]! - peso[g[b]!]! || x.grupos[g[b]!]!.n - x.grupos[g[a]!]!.n || a - b)
+})
 const conjuntos = computed(() => {
   const x = d.value
   if (!x) return []
@@ -739,7 +751,7 @@ function sinTapar(ev: FocusEvent) {
           <p v-if="!errorMapa && !listo && activo" class="exp__nota exp__leyendo" role="status">{{ L(`Leyendo ${nombreGen(activo)} en esta biopsia; mientras, el mapa va por grupo.`, `Reading ${nombreGen(activo)} in this biopsy; meanwhile the map is colored by group.`) }}</p>
           <a v-if="!errorMapa" class="sr-only focus:not-sr-only exp__salto" href="#exp-panel">{{ L('Saltar el mapa', 'Skip the map') }}</a>
           <CelulaExplorarMapa v-if="!errorMapa" :d="d" :modo="modoVista" :gen="gen" :gen-b="genB" :conjuntos="conjuntos" :colores="colores" :colorear-por="colorearPor"
-                              :tema="tema === 'oscuro' ? 'dark' : 'light'" :lang="lang" :alto="altoMapa" :movil="movil" :tactil="tactil" :orden="nivelGen?.orden" @error="errorMapa = $event" />
+                              :tema="tema === 'oscuro' ? 'dark' : 'light'" :lang="lang" :alto="altoMapa" :movil="movil" :tactil="tactil" :orden="ordenMapa" @error="errorMapa = $event" />
           <p v-if="errorMapa" class="exp__estado exp__estado--error exp__sinmapa" role="alert">{{ L('El mapa no se ha podido dibujar en este navegador (recarga la página, o prueba con otro navegador o con la aceleración gráfica activada). El panel y los datos de abajo no dependen de él.', 'The map could not be drawn in this browser (reload the page, or try another browser or turn on graphics acceleration). The panel and the data below do not depend on it.') }}</p>
           <template v-if="!errorMapa">
           <p v-if="modoVista === 'gen'" class="exp__leyt">{{ L(`Nivel de ${nombreGen(gen)} en cada célula, en CP10k (moléculas del gen por cada 10.000 de la célula): no detectado o el tramo en que cae. Los tramos son de esta biopsia: el mismo color no es el mismo nivel en el hígado y en el hueso.`, `${nombreGen(gen)} level in each cell, in CP10k (molecules of the gene per 10,000 in the cell): not detected, or the band it falls in. The bands belong to this biopsy: the same color is not the same level in the liver and in the bone.`) }}</p>
@@ -971,9 +983,9 @@ function sinTapar(ev: FocusEvent) {
 .exp__leyenda { list-style: none; margin: var(--sp-12) 0 0; padding: 0; display: flex; flex-wrap: wrap; gap: var(--sp-4) var(--sp-16); font: var(--tipo-body-sm); font-size: var(--texto-xs); color: var(--texto-1); }
 .exp__leyenda li { display: inline-flex; align-items: center; gap: var(--sp-8); }
 .exp__leyenda .nums { font-family: var(--font-mono); color: var(--texto-2); }
-/* aro al 45 % de la tinta (diseño, 19-oct): con el 20 % las muestras claras («Otras», «No detectado») no llegaban a 3:1
+/* aro al 50 % de la tinta (diseño, 19-oct; 3,1:1 en claro): con el 20 % las muestras claras («Otras», «No detectado») no llegaban a 3:1
    contra el fondo y la muestra no se distinguía como forma (WCAG 1.4.11); la paleta no se toca */
-.exp__muestra { width: 12px; height: 12px; border-radius: 999px; flex: none; box-shadow: 0 0 0 1px color-mix(in srgb, var(--texto-1) 45%, transparent); }
+.exp__muestra { width: 12px; height: 12px; border-radius: 999px; flex: none; box-shadow: 0 0 0 1px color-mix(in srgb, var(--texto-1) 50%, transparent); }
 .exp__bloque { margin-top: var(--sp-32); padding-top: var(--sp-24); border-top: 1px solid var(--trazo-medio); }
 .exp__busca { position: relative; flex: 1 1 18rem; }
 .exp__sug { position: absolute; top: calc(100% + var(--sp-4)); left: 0; right: 0; z-index: 10; list-style: none; margin: 0; padding: var(--sp-8); display: flex; flex-wrap: wrap; gap: var(--sp-4); max-width: 28rem; background: var(--fondo); border: 1px solid var(--trazo-fuerte); border-radius: var(--radius-btn); box-shadow: 0 6px 18px color-mix(in srgb, var(--texto-1) 12%, transparent); }
