@@ -19,7 +19,7 @@ import {
   MARCADORES_N, MOTIVO_LECTURAS, MOTIVOS, PAPELES_SELECCION, RE_BARCODE, VEREDICTOS, VEREDICTOS_SIN_MOTIVO, columna, coexpresion, densidad, estadoPuerta, etiquetaIC, fechaOkValida, fmtIC, fmtParSuelo, fmtRangoIC, icLoo, motivoDe, motivosLesion, nivelMatriz, pct, porGrupo, r4, tablaCoexp, tsv, wilson,
   type LesionDatos, type Manifiesto,
 } from '../app/utils/celulaExplorador'
-import { ALIAS_BUSCA, ETIQUETA_GRUPO, ETIQUETA_MOTIVO, ETIQUETA_TIPO, ETIQUETA_VEREDICTO, ETIQUETA_VEREDICTO_CON_MOTIVO, PAPEL_SELECCION, PIE_MOTIVO, etiqueta, etiquetaLectura, pieMotivo } from '../app/utils/celulaExploradorTexto'
+import { ALIAS_BUSCA, ETIQUETA_GRUPO, ETIQUETA_MOTIVO, ETIQUETA_TIPO, ETIQUETA_VEREDICTO, ETIQUETA_VEREDICTO_CON_MOTIVO, MARCADORES_ORIENTACION, PANEL_INTERES, PAPEL_SELECCION, PIE_MOTIVO, etiqueta, etiquetaLectura, pieMotivo } from '../app/utils/celulaExploradorTexto'
 import { abreZarr } from '../app/utils/celulaExploradorZarr'
 import { paleta } from '../app/utils/celulaExploradorColor'
 import FileSystemStore from '@zarrita/storage/fs'
@@ -220,6 +220,20 @@ const FICHEROS_COPY = [
 const copy = FICHEROS_COPY.map((f) => lee(join(RAIZ, f))).join('\n')
 ok('sin «diana(s)» en el explorador', !/\bdianas?\b/i.test(copy))
 ok('sin «perfil molecular» en el explorador', !/perfil molecular|molecular profile/i.test(copy))
+// comité médico (19-oct, sugerencias del buscador): nada que se lea como recomendación
+ok('sin «recomendado», «candidato» ni «accionable» en el explorador', !/recomend|recommend|candidat|accionable|actionable/i.test(copy))
+// el buscador al tocarlo vacío (propuesta de Miriam, 19-oct; lista cerrada del comité médico): marcadores de tipo celular
+// de la biopsia, en su fichero, sin genes de fármaco ni biomarcadores de decisión, sin los 10 de interés, uno por tipo y
+// por su símbolo (un nombre clínico como «Ki-67» o «ER» se lee como resultado de IHQ y aquí es ARN)
+const FUERA_ORIENTA = /^(ESR1|PGR|AR|ERBB2|ERBB3|CD274|PRAME|MAGE\w*|CTAG\w*|CLDN\w*|ROR1|FOLR1|CEACAM5|VTCN1|MSLN|DLL3|SSTR2|NCAM1|GPNMB|CDH17|FAP)$/
+for (const l of man.lesiones) {
+  const lista = MARCADORES_ORIENTACION[l] ?? []
+  ok(`${l}: el buscador tiene marcadores de tipo celular para orientarse`, lista.length >= 6, String(lista.length))
+  if (!esEjemplo) ok(`${l}: cada marcador del buscador está en el fichero de esa biopsia`, lista.every((m) => lesiones[l]!.genes.includes(m.gen)), lista.filter((m) => !lesiones[l]!.genes.includes(m.gen)).map((m) => m.gen).join(','))
+  ok(`${l}: ningún marcador del buscador es gen de fármaco, biomarcador de decisión ni uno de los 10 de interés`, lista.every((m) => !FUERA_ORIENTA.test(m.gen) && !PANEL_INTERES.includes(m.gen)), lista.filter((m) => FUERA_ORIENTA.test(m.gen) || PANEL_INTERES.includes(m.gen)).map((m) => m.gen).join(','))
+  ok(`${l}: un marcador por tipo celular`, new Set(lista.map((m) => m.tipo.es)).size === lista.length)
+}
+ok('los marcadores del buscador van por su símbolo, sin nombre clínico (Ki-67, HER2, ER, PR, PD-L1)', Object.values(MARCADORES_ORIENTACION).flat().every((m) => !/\bki-?67\b|\bher2\b|\bER\b|\bPR\b|\bpd-?l1\b/i.test(`${m.gen} ${m.tipo.es} ${m.tipo.en}`)))
 ok('muro de léxico: nada de científica/scientist/Olune', !/cient[ií]fica|scientist|olune/i.test(copy))
 ok('el método de CNV no se pinta literal (era un nombre interno con «_spliced»)', !/cnv\.metodo|_spliced/.test(copy))
 // Las cifras del caso (ADN genómico, sondas, la cifra sin circularidad) viajan en el fichero de datos, nunca en

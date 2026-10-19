@@ -71,6 +71,19 @@ async function dibujoDelMapa(nav) {
   const deColor = ([r, g, b], tol = 40) => { let n = 0; for (let i = 0; i < w * h; i++) { const j = i * bpp; if (Math.abs(px[j] - r) <= tol && Math.abs(px[j + 1] - g) <= tol && Math.abs(px[j + 2] - b) <= tol) n++ } return n }
   return { w, h, caja: x1 < 0 ? null : { x0, y0, x1, y1 }, enCaja, deColor }
 }
+/** Clic de verdad en el centro de un elemento (pointerdown, mousedown, mouseup y click, como un dedo o un ratón): un
+ * `el.click()` no dispara pointerdown, y el buscador cierra sus marcadores al tocar fuera por pointerdown. */
+async function clicEn(nav, selector) {
+  // desplazamiento instantáneo: con el suave, las coordenadas se leían antes de llegar y el clic caía en otro elemento
+  const ok = await nav.evaluate(`(() => { const e = document.querySelector(${JSON.stringify(selector)}); if (!e) return false; const h = document.documentElement, sb = h.style.scrollBehavior; h.style.scrollBehavior = 'auto'; e.scrollIntoView({ block: 'center', behavior: 'instant' }); h.style.scrollBehavior = sb; return true })()`)
+  if (!ok) return false
+  await nav.evaluate(`new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(() => r(true))))`)
+  const p = await nav.evaluate(`(() => { const b = document.querySelector(${JSON.stringify(selector)}).getBoundingClientRect(); return { x: b.left + b.width / 2, y: b.top + b.height / 2 } })()`)
+  for (const type of ['mousePressed', 'mouseReleased']) await nav.cdp('Input.dispatchMouseEvent', { type, x: p.x, y: p.y, button: 'left', clickCount: 1 })
+  return true
+}
+/** Una tecla de verdad (keyDown y keyUp) sobre lo que tenga el foco */
+async function tecla(nav, key, vk) { for (const type of ['keyDown', 'keyUp']) await nav.cdp('Input.dispatchKeyEvent', { type, key, code: key, windowsVirtualKeyCode: vk, nativeVirtualKeyCode: vk }) }
 /** ¿El dibujo aprovecha el lienzo? En el eje que limita, el dibujo ocupa al menos el 80 %. */
 const llenaLienzo = (d) => !!d?.caja && ((d.caja.x1 - d.caja.x0 + 1) >= 0.8 * d.w || (d.caja.y1 - d.caja.y0 + 1) >= 0.8 * d.h)
 
@@ -513,6 +526,53 @@ if (manPub.ejemplo !== true) {
     ok('real enlace: ?gen=HER2 abre ERBB2 y la URL queda con el símbolo del gen', await esperaR(navR, `${violinesDe('ERBB2')} && ${qs('gen')} === 'ERBB2'`))
     await navR.cargar('/celula-a-celula/explorar?gen=ZZNOEXISTE1')
     ok('real enlace: un gen que no existe no abre nada, lo dice y sale de la URL', await esperaR(navR, `/No hay ningún gen «ZZNOEXISTE1»/.test(document.querySelector('.exp__nota--busca')?.textContent ?? '') && !new URLSearchParams(location.search).has('gen') && !document.querySelector('#exp-violines')`))
+    // el buscador al tocarlo vacío (propuesta de Miriam, 19-oct): marcadores de tipo celular de la biopsia (lista cerrada
+    // del comité médico) para orientarse en el mapa. Se abren con clic o toque, nunca con el foco ni al cargar (diseño)
+    await navR.cargar('/celula-a-celula/explorar')
+    await esperaR(navR, `document.querySelectorAll('.gin__tabla tbody tr').length > 0 && !!document.querySelector('.exp__busca input:not([disabled])')`, 30000)
+    const genesOrienta = `JSON.stringify([...document.querySelectorAll('.exp__orienta button')].map((b) => b.dataset.gen))`
+    const ORIENTA_HIGADO = ['EPCAM', 'ALB', 'PTPRC', 'CD3E', 'CD68', 'PECAM1', 'COL1A1', 'MKI67']
+    const ORIENTA_HUESO = ['EPCAM', 'PTPRC', 'CD68', 'S100A8', 'ACP5', 'HBB', 'PECAM1', 'COL1A1', 'MKI67']
+    ok('real: al llegar no hay ninguna lista abierta bajo el buscador', await navR.evaluate(`!document.querySelector('.exp__orienta') && !document.querySelector('.exp__sug')`))
+    // un clic real en un sitio neutro da el foco al documento: sin él, el focus() de abajo no dispara el evento y el
+    // test pasaba aunque la lista se abriera con el foco (contraprueba del 19-oct)
+    await clicEn(navR, '.exp__leyenda')
+    await navR.evaluate(`document.querySelector('.exp__busca input').focus(); true`)
+    await navR.sleep(300)
+    ok('real: el foco solo, sin clic, no abre los marcadores (la página enfoca el campo tras la ✕ y «Volver»)', await navR.evaluate(`document.activeElement === document.querySelector('.exp__busca input') && !document.querySelector('.exp__orienta')`))
+    await clicEn(navR, '.exp__busca input')
+    ok('real hígado: al tocar el buscador vacío salen los marcadores de tipo celular de la biopsia, en su orden', await esperaR(navR, `${genesOrienta} === '${JSON.stringify(ORIENTA_HIGADO)}'`, 5000), await navR.evaluate(genesOrienta))
+    ok('real: los marcadores llevan su título, el símbolo con el tipo y ninguna lectura ni nombre clínico', await navR.evaluate(`(() => { const o = document.querySelector('.exp__orienta'); return !!o && /Marcadores de tipo celular/.test(o.textContent) && /MKI67 · Proliferación/.test(o.textContent) && /ALB · Hepatocito/.test(o.textContent) && !/Se sostiene|No se sostiene|matices|borrador|Ki-67|HER2/.test(o.textContent) })()`))
+    ok('real: el lector de pantalla oye cuántos marcadores hay', await navR.evaluate(`[...document.querySelectorAll('.exp__busca [aria-live]')].some((p) => /^8 marcadores de tipo celular/.test(p.textContent.trim()))`))
+    await tecla(navR, 'Escape', 27)
+    ok('real: Esc cierra los marcadores', await esperaR(navR, `!document.querySelector('.exp__orienta')`, 3000))
+    await clicEn(navR, '.exp__busca input')
+    await esperaR(navR, `!!document.querySelector('.exp__orienta')`, 3000)
+    await clicEn(navR, '.exp__leyenda')
+    ok('real: tocar fuera cierra los marcadores', await esperaR(navR, `!document.querySelector('.exp__orienta')`, 3000))
+    await clicEn(navR, '.exp__busca input')
+    await esperaR(navR, `!!document.querySelector('.exp__orienta')`, 3000)
+    const escribe = (v) => `(() => { const i = document.querySelector('.exp__busca input'); i.value = ${JSON.stringify(v)}; i.dispatchEvent(new Event('input', { bubbles: true })); return true })()`
+    await navR.evaluate(escribe('MK'))
+    ok('real: con dos letras salen las coincidencias en lugar de los marcadores', await esperaR(navR, `!document.querySelector('.exp__orienta') && !!document.querySelector('.exp__sug [data-gen="MKI67"]')`, 3000))
+    await navR.evaluate(escribe(''))
+    ok('real: al borrar lo escrito vuelven los marcadores', await esperaR(navR, `!!document.querySelector('.exp__orienta')`, 3000))
+    // como en Safari: el campo pierde el foco SIN que el botón lo reciba (al pulsar) y el clic llega después (al soltar), con
+    // tiempo para repintar en medio: si la lista se fuera con ese blur, el botón ya no estaría (contraprueba del 19-oct)
+    await navR.evaluate(`document.querySelector('.exp__busca input').blur(); true`)
+    await navR.evaluate(`new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(() => r(true))))`)
+    await navR.evaluate(`(() => { document.querySelector('.exp__orienta [data-gen="ALB"]')?.click(); return true })()`)
+    ok('real: elegir un marcador (también como en Safari, sin foco en el botón) lo abre y cierra la lista', await esperaR(navR, `document.querySelector('#exp-violines h2')?.textContent.includes('ALB') && !document.querySelector('.exp__orienta')`, 20000))
+    await navR.evaluate(`document.querySelector('.exp__chipx')?.click(); true`)
+    await navR.sleep(800)
+    ok('real: tras quitar el gen con la ✕ (el foco vuelve al campo) la lista no sale sola', await navR.evaluate(`!document.querySelector('.exp__orienta') && document.activeElement === document.querySelector('.exp__busca input')`))
+    await tecla(navR, 'ArrowDown', 40)
+    ok('real: con el teclado, ↓ en el campo vacío abre los marcadores y lleva el foco al primero', await esperaR(navR, `!!document.querySelector('.exp__orienta') && document.activeElement?.dataset?.gen === 'EPCAM'`, 3000))
+    await tecla(navR, 'Escape', 27)
+    ok('real: Esc desde un marcador cierra la lista y devuelve el foco al campo', await esperaR(navR, `!document.querySelector('.exp__orienta') && document.activeElement === document.querySelector('.exp__busca input')`, 3000))
+    await navR.cargar('/celula-a-celula/explorar?gen=ERBB2')
+    await esperaR(navR, violinesDe('ERBB2'))
+    ok('real enlace: con ?gen= no se abre ninguna lista bajo el buscador', await navR.evaluate(`!document.querySelector('.exp__orienta')`))
     await navR.cdp('Emulation.setDeviceMetricsOverride', { width: 1024, height: 768, deviceScaleFactor: 1, mobile: false })
     await navR.cargar('/celula-a-celula/explorar')
     await esperaR(navR, `document.querySelectorAll('.gin__tabla tbody tr').length > 0`)
@@ -597,6 +657,16 @@ if (manPub.ejemplo !== true) {
     await navR.sleep(300)
     await navR.evaluate(eligeDeLista('CD276'))
     ok('real móvil 375: abrir un gen de la lista (cambia la URL) no sube la página arriba del todo', await esperaR(navR, `${violinesDe('CD276')} && ${qs('gen')} === 'CD276'`) && (await navR.evaluate('scrollY')) > 200, `scrollY ${await navR.evaluate('Math.round(scrollY)')}`)
+    // marcadores del buscador a 375, en el hueso y con un gen activo (el chip baja de línea): la lista pegada al campo,
+    // botones de 44 px y nada fuera del ancho (diseño, 19-oct)
+    await clicEn(navR, '.exp__busca input')
+    ok('real móvil 375 hueso: al tocar el buscador vacío salen los marcadores del hueso', await esperaR(navR, `${genesOrienta} === '${JSON.stringify(ORIENTA_HUESO)}'`, 5000), await navR.evaluate(genesOrienta))
+    ok('real móvil 375: con un gen activo, la lista de marcadores sale pegada al campo (≤ 12 px)', await navR.evaluate(`(() => { const i = document.querySelector('.exp__busca input').getBoundingClientRect(), o = document.querySelector('.exp__orienta')?.getBoundingClientRect(); return !!o && o.top - i.bottom >= 0 && o.top - i.bottom <= 12 })()`), await navR.evaluate(`Math.round((document.querySelector('.exp__orienta')?.getBoundingClientRect().top ?? 0) - document.querySelector('.exp__busca input').getBoundingClientRect().bottom) + ' px'`))
+    // diseño (19-oct): la lista mide ~390 px; al tocar, el campo sube bajo la cabecera para que entre (y quepa más con teclado)
+    ok('real móvil 375: tras tocar el campo, la lista de marcadores cabe entera en la pantalla', await esperaR(navR, `(() => { const o = document.querySelector('.exp__orienta')?.getBoundingClientRect(); return !!o && o.top >= 0 && o.bottom <= innerHeight })()`, 3000), await navR.evaluate(`JSON.stringify((({ top, bottom }) => ({ top: Math.round(top), bottom: Math.round(bottom), alto: innerHeight }))(document.querySelector('.exp__orienta')?.getBoundingClientRect() ?? { top: -1, bottom: -1 }))`))
+    ok('real móvil 375: cada marcador mide al menos 44 px de alto y la lista cabe en el ancho', await navR.evaluate(`(() => { const b = [...document.querySelectorAll('.exp__orienta button')], o = document.querySelector('.exp__orienta').getBoundingClientRect(); return b.length > 0 && b.every((x) => x.getBoundingClientRect().height >= 44) && o.right <= innerWidth && document.documentElement.scrollWidth <= innerWidth })()`))
+    await tecla(navR, 'Escape', 27)
+    ok('real móvil 375: Esc cierra los marcadores', await esperaR(navR, `!document.querySelector('.exp__orienta')`, 3000))
   }
   finally { await navR.cerrar() }
   // Miriam (19-oct): «en móvil está constantemente recargándose». La barra de direcciones cambia el alto de la ventana al
