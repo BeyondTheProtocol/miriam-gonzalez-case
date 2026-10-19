@@ -42,8 +42,8 @@ export const PANEL_INTERES = ['ANKRD30A', 'TPBG', 'ERBB3', 'SLC39A6', 'ERBB2', '
 
 export const ETIQUETA_VEREDICTO: Record<string, T> = {
   sostenido: t('Se sostiene', 'Holds'),
-  /** la revisión lo da por sostenido, con matices. Ningún gen lo usa desde la enmienda del 18-oct-2026 (HER3 del hígado pasó
-   * a con_matiz); se queda en el vocabulario, igual que en Polaris, por si otra fila del acta lo vuelve a usar */
+  /** la revisión lo da por sostenido, con matices: desde la enmienda del 19-oct-2026, TROP2, Nectin-4 y MUC1 del hígado (la
+   * regla fijada antes del análisis los da positivos; no se repiten en el hueso). HER3 del hígado dejó de serlo el 18-oct */
   sostenido_con_matiz: t('Se sostiene con matices', 'Holds, with caveats'),
   /** la revisión lo matiza y NO lo da por sostenido: nunca «se sostiene» aquí (revisión de cifras, 17-oct-2026) */
   con_matiz: t('Con matices; no se da por sostenido', 'With caveats; not counted as holding'),
@@ -76,16 +76,14 @@ export const ETIQUETA_MOTIVO: Record<string, T> = {
   hepatocitos_igual_o_mas: t('se detecta igual o más en el grupo «Hepatocitos»', 'detected as much or more in the “Hepatocytes” group'),
   seleccion_por_er: t('el grupo se eligió por el programa de estrógeno', 'the group was selected by its estrogen program'),
   arn_no_es_her2_low: t('en ARN no equivale a HER2-low; manda la IHQ', 'in RNA it does not mean HER2-low; IHC decides'),
-  minoria: t('solo en una minoría de células', 'only in a minority of cells'),
-  /** el ARN suelto del propio tumor, que el suelo pintado no recoge (auditoría, 18-oct-2026: E26, H18). La lectura es la de la
-   * revisión, más estricta que la regla fijada antes del análisis en varios genes del hígado: lo dice el pie */
-  por_poco_y_arn_tumoral: t('supera la referencia por poco y en una minoría de células, pero no el ARN suelto del tumor, que el suelo no recoge',
-    'it clears the reference narrowly and in a minority of cells, but not the tumor’s loose RNA, which the floor leaves out'),
-  /** ser trazador no basta (NY-BR-1 y ESR1 también lo son y superan ese fondo): por eso dice también que no lo supera */
-  no_se_separa_del_arn_tumoral: t('se usa para medir el ARN suelto del tumor y no lo supera: no se distingue de él',
-    'it is used to measure the tumor’s loose RNA and does not clear it: the two cannot be told apart'),
-  depende_del_nulo: t('supera el suelo y la referencia, pero frente al ARN suelto del tumor depende del conjunto de células',
-    'it clears the floor and the reference, but against the tumor’s loose RNA it depends on the cell set'),
+  /** ENMIENDA del 19-oct (acta l.182-184): TROP2, Nectin-4 y MUC1 del hígado vuelven a lo que da la regla fijada antes del
+   * análisis (sostenidos con matiz); el matiz es la discordancia con el hueso, que la regla ya preveía. TROP2 y MUC1 además
+   * no superan el ARN suelto del tumor, sensibilidad declarada que no decide */
+  por_poco_minoria_no_hueso: t('supera la referencia por poco y en una minoría de células; no supera el ARN suelto del tumor ni se repite en el hueso',
+    'it clears the reference narrowly and in a minority of cells; it does not clear the tumor’s loose RNA or repeat in the bone'),
+  minoria_no_hueso: t('en una minoría de células, y no se repite en el hueso', 'in a minority of cells, and it does not repeat in the bone'),
+  trazador_no_hueso: t('se usa para medir el ARN suelto del tumor, que la referencia también recoge; no se repite en el hueso',
+    'it is used to measure the tumor’s loose RNA, which the reference also picks up; it does not repeat in the bone'),
   /** l.130 del acta («parecido en todos los compartimentos») es a igual profundidad (detección ponderada por decil de UMI, como
    * la referencia); la detección bruta por grupo del detalle no lo es y en B7-H3 va de T/NK, el más bajo, a «Hepatocitos» */
   parecido_en_todas: t('a igual profundidad, se detecta parecido en los demás tipos celulares', 'at matched depth, detected at a similar rate in the other cell types'),

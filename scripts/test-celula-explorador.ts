@@ -203,7 +203,7 @@ ok('pie del motivo: ES/EN, sin cifras; usa el extremo bajo del margen de error y
   caza('motivo de otra lectura («casi_no_se_detecta» en un «con_matiz»)', mut(HM, (x) => { x.veredicto[g0] = 'con_matiz'; x.motivo![g0] = 'casi_no_se_detecta' }, 'higado'))
   caza('un gen sin su clave en motivo', mut(HM, (x) => { delete x.motivo![g1] }, 'higado'))
   caza('una clave de motivo que no es un gen', mut(HM, (x) => { x.motivo!.NOESGEN = null }, 'higado'))
-  ok('motivoDe: el del fichero, o null', motivoDe({ ...HM, motivo: { ...HM.motivo, [g0]: 'minoria' } }, g0) === 'minoria' && motivoDe(HM, 'NOESGEN') === null)
+  ok('motivoDe: el del fichero, o null', motivoDe({ ...HM, motivo: { ...HM.motivo, [g0]: 'minoria_no_hueso' } }, g0) === 'minoria_no_hueso' && motivoDe(HM, 'NOESGEN') === null)
 }
 ok('cada papel de selección tiene su texto ES/EN', PAPELES_SELECCION.every((p) => !!PAPEL_SELECCION[p]?.es && !!PAPEL_SELECCION[p]?.en))
 // revisión de cifras (17-oct-2026): «SOSTENIDO con matiz» (HER3 del hígado) y «Con matiz» (HER2, Nectin-4, LIV-1, ESR1) no se funden
@@ -370,10 +370,10 @@ if (man.zarr?.length) {
     ok('veredictos de la enmienda del 18-oct: HER3 del hígado «con_matiz» y 5T4 del hueso «en_el_limite»', vh.ERBB3 === 'con_matiz' && vb.TPBG === 'en_el_limite', `ERBB3 ${vh.ERBB3} · TPBG ${vb.TPBG}`)
     // con el motivo en el fichero (export del acta con motivo), el caso que lo pidió: TROP2 del hígado lleva su porqué
     const mh = JSON.parse(readFileSync(join(DIR, 'higado.json'), 'utf8')).motivo, mb = JSON.parse(readFileSync(join(DIR, 'hueso.json'), 'utf8')).motivo
-    if (mh && mb) ok('motivos del acta: TROP2, LIV-1, MUC1, B7-H3 y HER3 del hígado, PRAME en cada biopsia, 5T4 e INSM1 del hueso', mh.TACSTD2 === 'por_poco_y_arn_tumoral'
-      && mh.SLC39A6 === 'depende_del_nulo' && mh.MUC1 === 'no_se_separa_del_arn_tumoral' && mh.CD276 === 'parecido_en_todas' && mh.ERBB3 === 'hepatocitos_igual_o_mas'
+    if (mh && mb) ok('motivos del acta (enmienda del 19-oct): TROP2, Nectin-4, MUC1, B7-H3 y HER3 del hígado, LIV-1 sin motivo, PRAME en cada biopsia, 5T4 e INSM1 del hueso', mh.TACSTD2 === 'por_poco_minoria_no_hueso'
+      && mh.NECTIN4 === 'minoria_no_hueso' && mh.SLC39A6 === null && mh.MUC1 === 'trazador_no_hueso' && mh.CD276 === 'parecido_en_todas' && mh.ERBB3 === 'hepatocitos_igual_o_mas'
       && mh.PRAME === 'cero_en_posibles_tumorales' && mb.PRAME === 'adn_de_nucleos_no_tumorales' && mb.TPBG === 'referencia_poco_precisa' && mb.INSM1 === 'casi_no_se_detecta',
-    JSON.stringify({ TACSTD2: mh.TACSTD2, SLC39A6: mh.SLC39A6, MUC1: mh.MUC1, CD276: mh.CD276, ERBB3: mh.ERBB3, PRAME: [mh.PRAME, mb.PRAME], TPBG: mb.TPBG, INSM1: mb.INSM1 }))
+    JSON.stringify({ TACSTD2: mh.TACSTD2, NECTIN4: mh.NECTIN4, SLC39A6: mh.SLC39A6, MUC1: mh.MUC1, CD276: mh.CD276, ERBB3: mh.ERBB3, PRAME: [mh.PRAME, mb.PRAME], TPBG: mb.TPBG, INSM1: mb.INSM1 }))
   }
 }
 // verificacion (18-oct): los alias del buscador llevan a un GEN; una isoforma (CLDN18.2) no se puede leer con sondas del gen entero
