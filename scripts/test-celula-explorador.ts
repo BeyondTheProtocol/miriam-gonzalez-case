@@ -21,7 +21,7 @@ import {
 } from '../app/utils/celulaExplorador'
 import { ALIAS_BUSCA, ETIQUETA_GRUPO, ETIQUETA_MOTIVO, ETIQUETA_TIPO, ETIQUETA_VEREDICTO, ETIQUETA_VEREDICTO_CON_MOTIVO, MARCADORES_ORIENTACION, PANEL_INTERES, PAPEL_SELECCION, PIE_MOTIVO, etiqueta, etiquetaLectura, pieMotivo } from '../app/utils/celulaExploradorTexto'
 import { abreZarr } from '../app/utils/celulaExploradorZarr'
-import { paleta } from '../app/utils/celulaExploradorColor'
+import { CASILLAS, CASILLA_DE_TIPO, paleta } from '../app/utils/celulaExploradorColor'
 import FileSystemStore from '@zarrita/storage/fs'
 import * as zarr from 'zarrita'
 
@@ -369,6 +369,51 @@ if (man.zarr?.length) {
   const Y = (c: number[]) => 0.2126 * lin(c[0]!) + 0.7152 * lin(c[1]!) + 0.0722 * lin(c[2]!)
   const Lstar = (c: number[]) => { const y = Y(c); return y > 216 / 24389 ? 116 * Math.cbrt(y) - 16 : (24389 / 27) * y }
   const contraste = (a: number[], b: number[]) => { const [p, q] = [Y(a), Y(b)].sort((x, z) => z - x); return (p! + 0.05) / (q! + 0.05) }
+  // medidas del color para los grupos de referencia: OKLCH (matiz y croma), ΔE2000 y simulación de daltonismo (Machado 2009,
+  // severidad 1; coincide con la emulación de Chrome a ≤ 1 por canal, medido el 19-oct-2026 sobre 52 muestras)
+  const gam = (v: number) => { v = Math.max(0, Math.min(1, v)); return 255 * (v <= 0.0031308 ? 12.92 * v : 1.055 * v ** (1 / 2.4) - 0.055) }
+  const oklch = (c: number[]) => {
+    const [r, g, b] = c.map(lin) as [number, number, number]
+    const l = Math.cbrt(0.4122214708 * r + 0.5363325363 * g + 0.0514459929 * b), m = Math.cbrt(0.2119034982 * r + 0.6806995451 * g + 0.1073969566 * b), s = Math.cbrt(0.0883024619 * r + 0.2817188376 * g + 0.6299787005 * b)
+    const a = 1.9779984951 * l - 2.428592205 * m + 0.4505937099 * s, bb = 0.0259040371 * l + 0.7827717662 * m - 0.808675766 * s
+    return { C: Math.hypot(a, bb), h: (((Math.atan2(bb, a) * 180) / Math.PI) + 360) % 360 }
+  }
+  const lab = (c: number[]) => {
+    const [r, g, b] = c.map(lin) as [number, number, number]
+    const f = (t: number) => (t > 216 / 24389 ? Math.cbrt(t) : ((24389 / 27) * t + 16) / 116)
+    const fx = f((0.4124564 * r + 0.3575761 * g + 0.1804375 * b) / 0.95047), fy = f(0.2126729 * r + 0.7151522 * g + 0.072175 * b), fz = f((0.0193339 * r + 0.119192 * g + 0.9503041 * b) / 1.08883)
+    return [116 * fy - 16, 500 * (fx - fy), 200 * (fy - fz)] as [number, number, number]
+  }
+  const de00 = (c1: number[], c2: number[]) => {
+    const [L1, a1, b1] = lab(c1), [L2, a2, b2] = lab(c2), rad = Math.PI / 180
+    const Cb = (Math.hypot(a1, b1) + Math.hypot(a2, b2)) / 2, G = 0.5 * (1 - Math.sqrt(Cb ** 7 / (Cb ** 7 + 25 ** 7)))
+    const a1p = (1 + G) * a1, a2p = (1 + G) * a2, C1p = Math.hypot(a1p, b1), C2p = Math.hypot(a2p, b2)
+    const hh = (b: number, a: number) => { const x = Math.atan2(b, a) / rad; return x < 0 ? x + 360 : x }
+    const h1p = C1p === 0 ? 0 : hh(b1, a1p), h2p = C2p === 0 ? 0 : hh(b2, a2p)
+    let dhp = 0
+    if (C1p * C2p !== 0) { dhp = h2p - h1p; if (dhp > 180) dhp -= 360; else if (dhp < -180) dhp += 360 }
+    const dHp = 2 * Math.sqrt(C1p * C2p) * Math.sin((dhp * rad) / 2), Lbp = (L1 + L2) / 2, Cbp = (C1p + C2p) / 2
+    let hbp = h1p + h2p
+    if (C1p * C2p !== 0) hbp = Math.abs(h1p - h2p) <= 180 ? (h1p + h2p) / 2 : h1p + h2p < 360 ? (h1p + h2p + 360) / 2 : (h1p + h2p - 360) / 2
+    const T = 1 - 0.17 * Math.cos((hbp - 30) * rad) + 0.24 * Math.cos(2 * hbp * rad) + 0.32 * Math.cos((3 * hbp + 6) * rad) - 0.2 * Math.cos((4 * hbp - 63) * rad)
+    const Rc = 2 * Math.sqrt(Cbp ** 7 / (Cbp ** 7 + 25 ** 7)), Sl = 1 + (0.015 * (Lbp - 50) ** 2) / Math.sqrt(20 + (Lbp - 50) ** 2)
+    const Sc = 1 + 0.045 * Cbp, Sh = 1 + 0.015 * Cbp * T, Rt = -Math.sin(2 * 30 * Math.exp(-(((hbp - 275) / 25) ** 2)) * rad) * Rc
+    return Math.sqrt(((L2 - L1) / Sl) ** 2 + ((C2p - C1p) / Sc) ** 2 + (dHp / Sh) ** 2 + Rt * ((C2p - C1p) / Sc) * (dHp / Sh))
+  }
+  const MACHADO = {
+    normal: [[1, 0, 0], [0, 1, 0], [0, 0, 1]],
+    deut: [[0.367322, 0.860646, -0.227968], [0.280085, 0.672501, 0.047413], [-0.01182, 0.04294, 0.968881]],
+    prot: [[0.152286, 1.052583, -0.204868], [0.114503, 0.786281, 0.099216], [-0.003882, -0.048116, 1.051998]],
+  } as const
+  const cvd = (c: number[], t: keyof typeof MACHADO) => { const l = c.map(lin); return MACHADO[t].map((f) => Math.round(gam(f[0]! * l[0]! + f[1]! * l[1]! + f[2]! * l[2]!))) }
+  // lo que se pide a los grupos de referencia (se mide en CADA biopsia publicada y en los dos temas)
+  const MIN_DE = { normal: 9.8, deut: 7.1, prot: 6.3 } as const   // lo conseguido: 10,0 / 7,3 / 6,5. Comité médico, 19-oct: croma ≤ 0,07 en TODAS las referencias; es el precio: la ronda 2, con croma hasta 0,10, daba 13,0 / 9,2 / 9,2 (la 1, con verde y amarillo: 17,9 / 12,6 / 12,9)
+  // el violeta de interés frente a la referencia más cercana (lo que el comité quería proteger: con deuteranopía y protanopía el violeta se vuelve azul); conseguido 21,3 / 9,2 / 11,1
+  const MIN_DE_INTERES = { normal: 20, deut: 9, prot: 10.5 } as const
+  const BANDA_FRIA = [212, 264], BANDA_TIERRA = [52, 68]        // matiz OKLCH: fuera quedan amarillo, verde y cian (68–212), violeta y rosa (264–360) y rojo y coral (< 52)
+  const CROMA_MAX = 0.07, CROMA_HEPATOCITO = 0.045, CONTRASTE_HEPATOCITO = 3.6   // ninguna referencia por encima de 0,07 (comité médico, 19-oct); la más grande, el hepatocito, no grita
+  const RATIO_CROMA = { light: 2.5, dark: 2.0 } as const   // croma del violeta de interés / croma de cada referencia (comité médico, 19-oct: 0,175/0,07 = 2,5 en claro; 0,144/0,07 = 2,06 en oscuro)
+  const CROMA_OTRAS_MAX = 0.02   // «Otras» neutra de verdad: teñida de la familia del violeta (0,042 a 311°) se leía como «interés diluido»
   for (const tema of ['light', 'dark'] as const) {
     const p = paleta(tema, tok)
     const fondo = (tema === 'dark' ? tok('--color-text-rgb') : tok('--color-bg-rgb')).split(/\s+/).map(Number)
@@ -376,12 +421,48 @@ if (man.zarr?.length) {
     const saltos = pasos.slice(1).map((l, k) => Math.abs(l - pasos[k]!))
     ok(`paleta ${tema}: «no detectado» y los 4 tramos se separan por luminosidad (ΔL* ≥ 8 entre pasos)`, saltos.every((d) => d >= 8), saltos.map((d) => d.toFixed(1)).join(' / '))
     ok(`paleta ${tema}: el tercer tramo pasa 3:1 con el fondo del mapa`, contraste(p.nivel[2]!, fondo) >= 3, contraste(p.nivel[2]!, fondo).toFixed(2))
-    // diseño (18-oct): con tres tonos fijos repetidos, dos grupos de referencia salían del mismo color. Un tono por grupo:
-    // hasta 5 grupos (los datos reales: 5 en el hígado, 4 en el hueso) separados por ΔL* ≥ 8; con 8, distintos; y todos
-    // lejos de «Otras»
-    for (const n of [4, 5, 8]) {
-      const t = p.refs(n), ls = t.map(Lstar), min = Math.min(...ls.slice(1).map((l, k) => Math.abs(l - ls[k]!))), otras = Lstar(p.otras)
-      ok(`paleta ${tema}: ${n} grupos de referencia, ${n} tonos sin repetir${n <= 5 ? ' y ΔL* ≥ 8' : ''}, ninguno pegado a «Otras» y todos ≥ 3:1 con el fondo`, new Set(t.map(String)).size === n && (n > 5 || min >= 8) && ls.every((l) => Math.abs(l - otras) >= 10) && t.every((c) => contraste(c, fondo) >= 3), `ΔL* mínimo ${min.toFixed(1)}; contraste mínimo ${Math.min(...t.map((c) => contraste(c, fondo))).toFixed(2)}`)
+    // grupos de referencia (excepción acotada del canon, Miriam 19-oct-2026): un color por TIPO celular, el mismo en las dos
+    // biopsias, sin verde ni amarillo, dos familias por matiz, apagados y por debajo del violeta de interés. Se mide en los
+    // ficheros publicados (hígado y hueso), no en una lista a mano. ΔL* ≥ 8 entre contiguas ya no vale: con ≥ 3:1 y menos que
+    // el violeta, las referencias caben en ~11 unidades de L*; la separación la dan el matiz, el croma y el ΔE2000.
+    const kInteres = contraste(p.interes, fondo), Lotras = Lstar(p.otras), porId = new Map<string, string>()
+    for (const f of readdirSync(DIR).filter((x) => x.endsWith('.json') && x !== 'manifiesto.json').sort()) {
+      const ids = (JSON.parse(lee(join(DIR, f))) as { grupos: { id: string; rol: string }[] }).grupos.filter((g) => g.rol !== 'interes' && g.rol !== 'otras').map((g) => g.id)
+      const cols = p.refsPorId(ids), nombre = `paleta ${tema} · ${f}`
+      // la cobertura solo se exige con los datos REALES: el ejemplo sintético (ejemplo.py de Polaris) puede traer otros ids y entonces toman casilla libre
+      if (man.ejemplo !== true) ok(`${nombre}: cada tipo de referencia tiene su casilla (${ids.join(', ')})`, ids.every((id) => id in CASILLA_DE_TIPO), ids.filter((id) => !(id in CASILLA_DE_TIPO)).join(', '))
+      ok(`${nombre}: ${ids.length} colores distintos entre sí`, new Set(cols.map(String)).size === ids.length)
+      ids.forEach((id, k) => { const prev = porId.get(id), act = String(cols[k]); ok(`${nombre}: «${id}» tiene el mismo color en todas las biopsias`, prev === undefined || prev === act, `${prev} / ${act}`); porId.set(id, act) })
+      const peorDe = { normal: 1e9, deut: 1e9, prot: 1e9 }
+      const todos = [p.interes, ...cols, p.otras]
+      for (const t of ['normal', 'deut', 'prot'] as const) for (let i = 0; i < todos.length; i++) for (let j = i + 1; j < todos.length; j++) peorDe[t] = Math.min(peorDe[t], de00(cvd(todos[i]!, t), cvd(todos[j]!, t)))
+      for (const t of ['normal', 'deut', 'prot'] as const) ok(`${nombre}: ΔE2000 mínimo entre interés, referencias y «Otras» ≥ ${MIN_DE[t]} (${t})`, peorDe[t] >= MIN_DE[t], peorDe[t].toFixed(1))
+      for (const t of ['normal', 'deut', 'prot'] as const) { const d = Math.min(...cols.map((c) => de00(cvd(p.interes, t), cvd(c, t)))); ok(`${nombre}: ΔE2000 del violeta de interés con la referencia más cercana ≥ ${MIN_DE_INTERES[t]} (${t})`, d >= MIN_DE_INTERES[t], d.toFixed(1)) }
+      cols.forEach((c, k) => {
+        const id = ids[k]!, o = oklch(c), k31 = contraste(c, fondo), esFria = CASILLA_DE_TIPO[id]?.startsWith('frio') ?? true
+        const [h0, h1] = esFria ? BANDA_FRIA : BANDA_TIERRA
+        ok(`${nombre} · ${id}: ≥ 3:1 con el fondo y al menos 0,5 por debajo del violeta de interés`, k31 >= 3 && k31 <= kInteres - 0.5, `${k31.toFixed(2)} (violeta ${kInteres.toFixed(2)})`)
+        ok(`${nombre} · ${id}: ≥ 10 de ΔL* con «Otras»`, Math.abs(Lstar(c) - Lotras) >= 10, Math.abs(Lstar(c) - Lotras).toFixed(1))
+        ok(`${nombre} · ${id}: croma OKLCH ≤ ${CROMA_MAX} (apagado)`, o.C <= CROMA_MAX, o.C.toFixed(3))
+        ok(`${nombre} · ${id}: el croma del violeta de interés es ≥ ${RATIO_CROMA[tema]} veces el suyo`, oklch(p.interes).C / o.C >= RATIO_CROMA[tema], (oklch(p.interes).C / o.C).toFixed(2))
+        ok(`${nombre} · ${id}: matiz ${o.h.toFixed(0)}° dentro de su familia (${esFria ? 'fría' : 'tierra'} ${h0}–${h1}°): ni verde, ni amarillo, ni rojo, ni violeta`, o.h >= h0! && o.h <= h1!, o.h.toFixed(0))
+        if (id === 'hepatocito') ok(`${nombre} · hepatocito (la referencia más grande): croma ≤ ${CROMA_HEPATOCITO} y contraste ≤ ${CONTRASTE_HEPATOCITO}:1`, o.C <= CROMA_HEPATOCITO && k31 <= CONTRASTE_HEPATOCITO, `C ${o.C.toFixed(3)}, ${k31.toFixed(2)}:1`)
+      })
+    }
+    // «Otras» (comité médico, 19-oct): neutra de verdad (croma ≤ 0,02) y visible (≥ 2:1 con el fondo). En oscuro es un gris calculado de los tokens; en claro, la mezcla 0,35.
+    // El «Ninguno» de co-expresión NO se toca: sigue siendo la mezcla 0,35 de tinta en los dos temas (el gris de «Otras» es solo de «Por grupo»)
+    ok(`paleta ${tema}: «Otras» es neutra (croma OKLCH ≤ ${CROMA_OTRAS_MAX}) y se ve (≥ 2:1 con el fondo)`, oklch(p.otras).C <= CROMA_OTRAS_MAX && contraste(p.otras, fondo) >= 2, `C ${oklch(p.otras).C.toFixed(3)}, ${contraste(p.otras, fondo).toFixed(2)}:1`)
+    const tintaTema = (tema === 'dark' ? tok('--color-bg-rgb') : tok('--color-text-rgb')).split(/\s+/).map(Number)
+    ok(`paleta ${tema}: el «Ninguno» de co-expresión conserva la mezcla 0,35 de tinta`, String(p.coexp.ninguno) === String(tintaTema.map((x, i) => Math.round(x * 0.35 + fondo[i]! * 0.65))), String(p.coexp.ninguno))
+    // sin casilla propia (T, B, mastocito: aún sin datos): toman una casilla libre, sin pisar a los que sí la tienen
+    const resto = p.refsPorId(['T', 'B', 'mastocito', 'mieloide', 'endotelio'])
+    ok(`paleta ${tema}: tipos sin casilla toman colores libres y distintos, sin pisar los suyos`, new Set(resto.map(String)).size === 5 && String(resto[3]) === String(p.refsPorId(['mieloide'])[0]) && String(resto[4]) === String(p.refsPorId(['endotelio'])[0]))
+    // tokens: el hex y su puente RGB dicen lo mismo (si uno cambia y el otro no, el canon miente)
+    for (const c of CASILLAS) {
+      const hexTok = (v: string) => (tokens.match(new RegExp(`${v}:\\s*(#[0-9a-fA-F]{6})`))?.[1] ?? '').toLowerCase()
+      const sufijo = tema === 'dark' ? '-osc' : ''
+      const dehex = [1, 3, 5].map((i) => parseInt(hexTok(`--viz-cat-${c}${sufijo}`).slice(i, i + 2), 16)).join(' ')
+      ok(`tokens ${tema} · ${c}: --viz-cat-${c}${sufijo} y su puente -rgb coinciden`, tok(`--viz-cat-${c}${sufijo}-rgb`) === dehex, `${dehex} / ${tok(`--viz-cat-${c}${sufijo}-rgb`)}`)
     }
   }
 }

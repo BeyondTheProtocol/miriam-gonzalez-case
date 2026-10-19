@@ -5,7 +5,10 @@
 
    REGLA DE ORO: no se añade NI UN HEX nuevo. Los 5 colores + 2 derivados
    oficiales son los únicos átomos; todo estado/velo/trazo se deriva con
-   color-mix(). Si "hace falta" un color, la respuesta es no. */
+   color-mix(). Si "hace falta" un color, la respuesta es no.
+   ÚNICA EXCEPCIÓN (Miriam, 19-oct-2026): los 14 tokens --viz-cat-* de la categórica
+   nominal del mapa del explorador (ver el bloque «Categórica NOMINAL»). No abre la puerta
+   a más colores: cualquier ampliación vuelve a pasar por su firma. */
 
 :root {
   /* ── Paleta: 5 colores (disciplina máxima) ───────────────────── */
@@ -133,6 +136,22 @@
   --viz-sev-4: color-mix(in srgb, var(--color-miriam) 82%, var(--color-bg));
   --viz-sev-5: var(--color-miriam);
 
+  /* Categórica NOMINAL del mapa del explorador (/celula-a-celula/explorar) — EXCEPCIÓN ACOTADA a «ni un hex nuevo»
+     (Miriam, 19-oct-2026). SOLO grupos de referencia de ese mapa; NUNCA niveles, severidad ni estados.
+     Sin rojo, verde ni amarillo (ni violeta, rosa o coral). Dos familias por matiz: frío (inmune) y tierra (estructural).
+     Matiz fijo por casilla en los dos temas; claro y -osc cambian luminosidad y croma. Croma OKLCH ≤ 0,07 (comité médico,
+     19-oct: con deuteranopía y protanopía el violeta del interés se vuelve azul; con 0,07 su croma es ≥ 2,5 veces el de
+     una referencia en claro y ≥ 2,0 en oscuro), ≥ 3:1 con el fondo y por debajo del contraste del violeta.
+     El color no es la única señal: hay etiqueta sobre el mapa y leyenda.
+     El componente lee los dos juegos desde :root (el tema oscuro vive en data-tema del bloque, no en :root): por eso -osc. */
+  --viz-cat-frio-1: #3f7986;   --viz-cat-frio-1-osc: #5595a3;
+  --viz-cat-frio-2: #788fb3;   --viz-cat-frio-2-osc: #5e769b;
+  --viz-cat-frio-3: #5c758a;   --viz-cat-frio-3-osc: #738ea4;
+  --viz-cat-frio-4: #6d9098;   --viz-cat-frio-4-osc: #53767f;
+  --viz-cat-tierra-1: #9b8b7b; --viz-cat-tierra-1-osc: #7c6c5d;
+  --viz-cat-tierra-2: #ab7f61; --viz-cat-tierra-2-osc: #996e51;
+  --viz-cat-tierra-3: #896b4d; --viz-cat-tierra-3-osc: #a88a6c;
+
   /* ══ ROLES SEMÁNTICOS POR TEMA (los componentes usan ESTOS) ════
      El componente no sabe en qué fondo vive: pinta con roles y el tema
      los remapea. Modo oscuro = editorial y MANUAL (data-tema), nunca
@@ -185,4 +204,12 @@
   --color-cta-hover-rgb: 229 87 58;
   --cielo-resplandor-rgb: 58 36 80;
   --berenjena-2-rgb: 58 35 80;
+  /* categórica nominal del mapa del explorador (mismos valores que --viz-cat-*; lo lee paleta()) */
+  --viz-cat-frio-1-rgb: 63 121 134;   --viz-cat-frio-1-osc-rgb: 85 149 163;
+  --viz-cat-frio-2-rgb: 120 143 179;  --viz-cat-frio-2-osc-rgb: 94 118 155;
+  --viz-cat-frio-3-rgb: 92 117 138;   --viz-cat-frio-3-osc-rgb: 115 142 164;
+  --viz-cat-frio-4-rgb: 109 144 152;   --viz-cat-frio-4-osc-rgb: 83 118 127;
+  --viz-cat-tierra-1-rgb: 155 139 123; --viz-cat-tierra-1-osc-rgb: 124 108 93;
+  --viz-cat-tierra-2-rgb: 171 127 97;  --viz-cat-tierra-2-osc-rgb: 153 110 81;
+  --viz-cat-tierra-3-rgb: 137 107 77;  --viz-cat-tierra-3-osc-rgb: 168 138 108;
 }
