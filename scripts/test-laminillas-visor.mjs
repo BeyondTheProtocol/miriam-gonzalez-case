@@ -14,6 +14,9 @@
 //   · el zoom va a la par en µm por píxel de pantalla en los tres paneles;
 //   · el paneo se mueve junto entre las dos de mama y es libre con el hígado; sin enlace, libre;
 //   · «HE de referencia» añade la HE de cada muestra; la cabecera de columna recorre la muestra.
+// Navegación (20-oct-2026, «no es intuitiva»), siempre: el selector de arriba cambia el visor en su
+// sitio y deja su título a la vista (sin el salto de 3.000 px de antes); la miniatura abre ESA
+// laminilla; anterior/siguiente; «Todas las laminillas» vuelve a la matriz; los enlaces viejos.
 //
 // Contra un despliegue real (preview de Netlify con las teselas ya en el bucket), sin build local:
 //   LAMINILLAS_ORIGEN=https://deploy-preview-NNN--<sitio>.netlify.app pnpm test:laminillas-visor
@@ -123,6 +126,15 @@ async function espera(expr, ms = 20000) {
 }
 const HIDRATADA = `(() => { const n = document.querySelector('#__nuxt')?.__vue_app__?.config.globalProperties.$nuxt
   return !!n && !n.isHydrating && n.$router.currentRoute.value.fullPath === location.pathname + location.search + location.hash })()`
+// Clic de ratón de verdad (CDP), no el.click(): así cuenta lo que tapa el botón y dónde está.
+async function clic(expr, centra = true) {
+  if (centra) { await ev(`(${expr}).scrollIntoView({ block: 'center' })`); await sleep(400) }
+  const r = await ev(`(() => { const b = (${expr}).getBoundingClientRect(); return { x: b.left + b.width / 2, y: b.top + b.height / 2 } })()`)
+  await cdp('Input.dispatchMouseEvent', { type: 'mouseMoved', x: r.x, y: r.y })
+  await cdp('Input.dispatchMouseEvent', { type: 'mousePressed', x: r.x, y: r.y, button: 'left', clickCount: 1 })
+  await cdp('Input.dispatchMouseEvent', { type: 'mouseReleased', x: r.x, y: r.y, button: 'left', clickCount: 1 })
+  await sleep(300)
+}
 async function carga(ruta, ancho = 1280, alto = 900) {
   await cdp('Emulation.setDeviceMetricsOverride', { width: ancho, height: alto, deviceScaleFactor: 1, mobile: ancho < 600 })
   await cdp('Page.navigate', { url: ORIGIN + ruta })
@@ -158,9 +170,56 @@ for (const ancho of [320, 390]) {
 }
 await carga('/laminillas?fila=re&he=1', 390, 844)
 ok(await espera(`document.querySelectorAll('.visor-panel').length === 6`, 15000), 'móvil: los 6 paneles montados')
-const movil = await ev(`(() => ({ ops: document.querySelectorAll('.visor-selector input').length,
-  visibles: [...document.querySelectorAll('.visor-panel')].filter((p) => getComputedStyle(p).visibility !== 'hidden').length }))()`)
-ok(movil.ops === 6 && movil.visibles === 1, `móvil: selector con ${movil.ops} opciones y ${movil.visibles} panel visible`)
+const VISIBLE = `[...document.querySelectorAll('.visor-panel')].filter((p) => getComputedStyle(p).visibility !== 'hidden').map((p) => p.querySelector('.visor-rotulo')?.textContent.trim())`
+const movil = await ev(`(() => ({ ops: document.querySelectorAll('.visor-selector input').length, visibles: ${VISIBLE} }))()`)
+ok(movil.ops === 2 && movil.visibles.length === 1, `móvil: un panel visible (${movil.visibles}) y solo alterna con su HE (${movil.ops} opciones)`)
+// La muestra se elige arriba; cambiarla solo cambia el panel visible (los 6 siguen montados).
+await clic(`[...document.querySelectorAll('.muestras-chips .chip')].find((b) => /Hígado/.test(b.textContent))`)
+ok(await espera(`/Hígado/.test(${VISIBLE}.join()) && document.querySelectorAll('.visor-panel').length === 6 && /muestra=higado-2026/.test(location.search)`, 8000),
+  'móvil: elegir «Hígado 2026» arriba enseña su panel sin reabrir el visor')
+ok(await ev(`!document.querySelector('.muestras-chips .chip:not([aria-label])')?.textContent.includes('Todas')`), 'móvil: sin «Todas» (se ve un panel cada vez)')
+
+// ── Navegación (sin teselas: lo que se mide es dónde queda cada cosa, no la imagen)
+console.log('Navegación')
+const FIJO = `(() => { const c = document.querySelector('[data-cabecera-fija]').getBoundingClientRect().height; const s = document.querySelector('.selector'); return c + (getComputedStyle(s).position === 'sticky' ? s.getBoundingClientRect().height : 0) })()`
+// La fila del título entera (con sus botones), no solo el h2: los botones asoman por encima.
+const TITULO_A_LA_VISTA = `(() => { const t = document.querySelector('.visor-cabecera'); if (!t) return false; const y = Math.min(t.getBoundingClientRect().top, ...[...t.querySelectorAll('button')].map((b) => b.getBoundingClientRect().top)); return y >= ${FIJO} - 2 && y < innerHeight * 0.45 })()`
+await carga('/laminillas', 1440, 900)
+ok(await ev(`getComputedStyle(document.querySelector('.selector')).position === 'sticky'`), 'escritorio: el selector se pega bajo la cabecera')
+ok(await ev(`document.querySelector('#matriz .nota, #matriz [class*=nota]')?.getBoundingClientRect().top < document.querySelector('.matriz').getBoundingClientRect().top`), 'la instrucción va encima de la tabla, no debajo')
+await ev(`window.scrollTo(0, 1600)`); await sleep(400)
+await clic(`[...document.querySelectorAll('.selector .chip')].find((b) => b.textContent.trim() === 'RP')`, false)
+ok(await espera(`/fila=rp/.test(location.search) && !!document.querySelector('#visor-titulo')`, 8000), 'el chip «RP» abre RP en todas sus muestras')
+await sleep(1200)
+ok(await ev(TITULO_A_LA_VISTA), `tras elegir en el selector, el título del visor queda a la vista bajo el selector (y=${await ev(`Math.round(document.querySelector('.visor-cabecera').getBoundingClientRect().top)`)})`)
+ok(await ev(`!document.querySelector('.matriz')`), 'el visor ocupa el sitio de la matriz')
+const y0 = await ev(`scrollY`)
+await clic(`[...document.querySelectorAll('.visor-acciones button')].find((b) => b.getAttribute('aria-label') === 'Siguiente')`, false)
+ok(await espera(`/fila=her2/.test(location.search)`, 8000), '«Siguiente» pasa de RP a HER2 (orden de la tabla)')
+await sleep(1200)
+ok(Math.abs((await ev(`scrollY`)) - y0) < 4, 'y la página no se mueve (antes cada paso subía al principio)')
+ok((await ev(`document.querySelector('.visor-posicion').textContent.trim()`)).startsWith('4 de '), 'la posición dice «4 de N»')
+await clic(`[...document.querySelectorAll('.selector .chip')].find((b) => /Todas las laminillas/.test(b.textContent))`, false)
+ok(await espera(`!location.search && !!document.querySelector('.matriz')`, 8000), '«Todas las laminillas» vuelve a la matriz')
+// Una fila de abajo de la tabla: el visor sale arriba, a la vista, no 3.000 px más abajo.
+await clic(`[...document.querySelectorAll('.matriz__filaboton')].find((b) => b.textContent.includes('INSM1'))`)
+ok(await espera(`/fila=insm1/.test(location.search)`, 8000), 'la fila INSM1 abre su visor')
+await sleep(1200)
+ok(await ev(TITULO_A_LA_VISTA), 'abrir desde una fila de abajo deja el título del visor a la vista')
+ok(await ev(`document.activeElement?.id === 'visor-titulo'`), 'y el foco va al título')
+await carga('/laminillas', 1440, 900)
+await clic(`[...document.querySelectorAll('.matriz__miniboton')].find((b) => /Hígado/.test(b.getAttribute('aria-label')) && /HER2/.test(b.getAttribute('aria-label')))`)
+ok(await espera(`/muestra=higado-2026/.test(location.search) && document.querySelectorAll('.visor-panel').length === 1`, 8000), 'la miniatura de HER2 · Hígado abre esa laminilla sola')
+ok(await ev(`[...document.querySelectorAll('.muestras-chips .chip')].find((b) => b.getAttribute('aria-pressed') === 'true')?.textContent.includes('Hígado')`), 'y el selector marca «Hígado 2026»')
+await clic(`[...document.querySelectorAll('.muestras-chips .chip')].find((b) => b.textContent.trim() === 'Todas')`, false)
+ok(await espera(`/fila=her2/.test(location.search) && !/muestra=/.test(location.search) && document.querySelectorAll('.visor-panel').length === 3`, 8000), '«Todas» la compara en las 3 muestras')
+for (const [ruta, que, cond] of [
+  ['/laminillas?fila=re&he=1', '?fila=re&he=1', `document.querySelectorAll('.visor-panel').length === 6`],
+  ['/laminillas?muestra=mama-2024&n=1', '?muestra=mama-2024&n=1', `document.querySelectorAll('.visor-panel').length === 1 && /^1 de \\d+/.test(document.querySelector('.visor-posicion')?.textContent.trim() ?? '')`],
+]) {
+  await carga(ruta, 1440, 900)
+  ok(await espera(cond, 8000), `enlace de antes ${que} abre lo mismo que antes`)
+}
 
 // ── Visor (con teselas)
 const PANELES = `[...document.querySelectorAll('.visor-panel')].map((p) => ({ um: +p.dataset.umPx || 0, c: (p.dataset.centroUm || '0,0').split(',').map(Number), rot: p.querySelector('.visor-rotulo')?.textContent.trim() }))`
@@ -205,19 +264,16 @@ if (CON_TESELAS) {
   ok(Math.hypot(...delta(p2[1], p3[1])) < 1 && Math.hypot(...delta(p2[0], p3[0])) > 10, 'sin enlace, la otra mama se queda quieta')
   await ev(`[...document.querySelectorAll('.visor-acciones button')].find((b) => /HE de referencia|Reference/.test(b.textContent)).click()`)
   ok(await espera(`${PANELES}.length === 6`, 15000), '«HE de referencia» pone la HE de cada muestra (6 paneles)')
-  // Foco: abrir desde el botón de la fila y volver a la tabla lo devuelve a ese botón.
   await carga('/laminillas', 1280, 900)
   await ev(`[...document.querySelectorAll('.matriz__filaboton')].find((b) => b.textContent.includes('Ki-67')).click()`)
   ok(await espera(`document.querySelectorAll('.visor-panel').length === 2`, 15000), 'la fila de Ki-67 abre sus 2 paneles')
-  await ev(`[...document.querySelectorAll('.visor-acciones button')].find((b) => /Volver a la tabla|Back to the table/.test(b.textContent)).click()`)
-  ok(await espera(`document.activeElement?.classList.contains('matriz__filaboton') && document.activeElement.textContent.includes('Ki-67')`, 8000), 'al volver a la tabla, el foco vuelve al botón de la fila')
   await carga('/laminillas?muestra=mama-2024&n=1', 1280, 900)
-  ok(await espera(`${PANELES}.length === 1 && /^1 de \\d+/.test(document.querySelector('.recorrido__estado')?.textContent.trim() ?? '')`, 15000), 'la cabecera de columna abre el recorrido en «1 de N»')
+  ok(await espera(`${PANELES}.length === 1 && /^1 de \\d+/.test(document.querySelector('.visor-posicion')?.textContent.trim() ?? '')`, 15000), 'una muestra sola, en «1 de N»')
   await espera(`${PANELES}.every((p) => p.um > 0)`, 15000)
   await ev(`document.querySelector('.visor-barra button').click()`); await sleep(1500)
   const antes = (await ev(PANELES))[0].um
-  await ev(`[...document.querySelectorAll('.recorrido button')].at(-1).click()`)
-  ok(await espera(`/^2 de \\d+/.test(document.querySelector('.recorrido__estado')?.textContent.trim() ?? '')`, 8000), '«Siguiente» pasa a «2 de N»')
+  await ev(`[...document.querySelectorAll('.visor-acciones button')].find((b) => b.getAttribute('aria-label') === 'Siguiente').click()`)
+  ok(await espera(`/^2 de \\d+/.test(document.querySelector('.visor-posicion')?.textContent.trim() ?? '')`, 8000), '«Siguiente» pasa a «2 de N»')
   await espera(`${PANELES}.every((p) => p.um > 0)`, 15000); await sleep(1500)
   const despues = (await ev(PANELES))[0].um
   ok(Math.abs(despues / antes - 1) < 0.01, `al pasar de laminilla se conserva la escala (${antes.toFixed(3)} → ${despues.toFixed(3)} µm/px)`)

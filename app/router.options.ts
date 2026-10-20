@@ -20,6 +20,9 @@ export default <RouterConfig>{
     // /celula-a-celula/explorar: abrir un gen o cambiar de biopsia (?gen=&biopsia=) solo cambia la query; la página no
     // se mueve, tampoco con Atrás (el explorador cambia de estado en su sitio)
     if (to.path === from.path && to.hash === from.hash && soloCambia(to.query, from.query, ['gen', 'biopsia'])) return false
+    // /laminillas: elegir tinción o muestra (?fila=&muestra=&n=&he=) cambia el visor en su sitio; el
+    // scroll lo lleva la página (antes cada «Siguiente» subía al principio de la página)
+    if (to.path === from.path && to.hash === from.hash && soloCambia(to.query, from.query, ['fila', 'muestra', 'n', 'he'])) return false
     if (savedPosition) return savedPosition
     // /datos: abrir, cerrar o mover «la película» (?peli=1&t=) solo cambia la query; la página no se mueve
     if (to.path === from.path && (to.query.peli === '1' || from.query.peli === '1')) return false

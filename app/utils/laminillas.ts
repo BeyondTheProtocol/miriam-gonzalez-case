@@ -119,6 +119,70 @@ export function reglaRedonda(umPorPx: number, idioma: Idioma = 'es', min = 64, m
   return { um, px: um / umPorPx, texto }
 }
 
+/**
+ * Lo que enseña la página: una tinción en todas sus muestras (`muestra` null) o una muestra sola,
+ * en su laminilla `paso` de `deMuestra` (así una muestra con dos cortes de HE elige cuál).
+ * Sin `marcador`, la matriz.
+ */
+export interface Vista { marcador: string | null; muestra: string | null; paso: number; he: boolean }
+
+/**
+ * Query → vista. Admite los enlaces de antes del 20-oct-2026, que ya pueden estar compartidos:
+ * `?fila=re` (comparar) y `?muestra=x&n=3` (recorrer la columna). `?fila=re&muestra=x` es la
+ * tinción en esa muestra; si la muestra no la tiene, se compara en las que sí.
+ */
+export function vistaDeQuery(m: Manifest, q: Record<string, unknown>): Vista {
+  const he = q.he === '1'
+  const fila = typeof q.fila === 'string' && filas(m).some((f) => f.marcador.id === q.fila) ? q.fila : null
+  const muestra = typeof q.muestra === 'string' && m.muestras.some((x) => x.id === q.muestra) ? q.muestra : null
+  if (!muestra) return { marcador: fila, muestra: null, paso: 0, he }
+  const lista = deMuestra(m, muestra)
+  if (fila) {
+    const i = lista.findIndex((l) => l.marcador === fila)
+    return i >= 0 ? { marcador: fila, muestra, paso: i, he } : { marcador: fila, muestra: null, paso: 0, he }
+  }
+  const paso = Math.min(Math.max(0, (Number(q.n ?? 1) || 1) - 1), lista.length - 1)
+  return { marcador: lista[paso]?.marcador ?? null, muestra, paso, he }
+}
+
+/** Vista → query. Una muestra sola se escribe como antes (`muestra` + `n`), para no tener dos formas. */
+export function queryDeVista(v: Vista): Record<string, string> {
+  const he = v.he ? { he: '1' } : {}
+  if (v.muestra) return { muestra: v.muestra, n: String(v.paso + 1), ...he }
+  if (v.marcador) return { fila: v.marcador, ...he }
+  return {}
+}
+
+/** La vista de `marcador` conservando la muestra elegida si la tiene; si no, en todas sus muestras. */
+export function conMarcador(m: Manifest, v: Vista, marcador: string): Vista {
+  const i = v.muestra ? deMuestra(m, v.muestra).findIndex((l) => l.marcador === marcador) : -1
+  return i >= 0 ? { ...v, marcador, paso: i } : { ...v, marcador, muestra: null, paso: 0 }
+}
+
+/** La vista de `marcador` en la muestra `muestra` sola (null = en todas). Undefined si no la tiene. */
+export function enMuestra(m: Manifest, v: Vista, muestra: string | null): Vista | undefined {
+  if (!v.marcador) return undefined
+  if (!muestra) return { ...v, muestra: null, paso: 0 }
+  const i = deMuestra(m, muestra).findIndex((l) => l.marcador === v.marcador)
+  return i >= 0 ? { ...v, muestra, paso: i } : undefined
+}
+
+/**
+ * Anterior/siguiente, con vuelta al principio. Con una muestra sola recorre sus laminillas (cortes
+ * incluidos, como el recorrido de columna de antes); en todas, recorre las filas.
+ */
+export function mueveVista(m: Manifest, v: Vista, d: number): Vista {
+  if (v.muestra) {
+    const lista = deMuestra(m, v.muestra)
+    const i = (Math.min(v.paso, lista.length - 1) + d + lista.length) % lista.length
+    return { ...v, paso: i, marcador: lista[i]!.marcador }
+  }
+  const fs = filas(m)
+  const i0 = fs.findIndex((f) => f.marcador.id === v.marcador)
+  const i = (Math.max(0, i0) + d + fs.length) % fs.length
+  return { ...v, marcador: fs[i]!.marcador.id }
+}
+
 /** Fuente DZI en línea para OpenSeadragon: así no hace falta pedir el .dzi (ni CORS para él). */
 export function fuenteDzi(m: Manifest, l: Laminilla, base = m.teselas) {
   return {

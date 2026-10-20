@@ -10,8 +10,10 @@
  * Sin normalizar color: se pinta lo que dio cada escáner.
  *
  * Móvil (< 768 px; diseno, 20-oct): OpenSeadragon fija `touch-action: none` en el lienzo, así que
- * con varios paneles apilados un dedo nunca desplaza la página. Se ve UN panel cada vez, con un
- * selector de radios; los demás siguen montados (visibility) para conservar la escala y alternar.
+ * con varios paneles apilados un dedo nunca desplaza la página. Se ve UN panel cada vez; los demás
+ * siguen montados (visibility) para conservar la escala y alternar. La muestra visible la elige la
+ * página (`muestraVisible`); los radios solo alternan entre los paneles de esa muestra (la tinción
+ * y su HE de referencia). Las flechas de mover se pliegan tras un botón para que la imagen suba.
  */
 import type OpenSeadragonNS from 'openseadragon'
 import { fuenteDzi, grupoPaneo, reglaRedonda, type Idioma, type Laminilla, type Manifest } from '~/utils/laminillas'
@@ -26,6 +28,8 @@ const props = defineProps<{
   rotulos: string[]
   /** Nombre accesible completo de cada panel (marcador · muestra), por posición. */
   nombres: string[]
+  /** Móvil: la muestra cuyo panel se ve (null = el primero). En escritorio se ven todos. */
+  muestraVisible?: string | null
 }>()
 
 const L = (es: string, en: string) => (props.idioma === 'en' ? en : es)
@@ -40,6 +44,8 @@ const fsDisponible = ref(false)
 const ayudaAbierta = ref(true)
 const activo = ref(0)
 const idAyuda = useId()
+const idFlechas = useId()
+const flechas = ref(false)
 
 type Panel = { v: OpenSeadragonNS.Viewer; l: Laminilla; grupo: string; ultimo: { x: number; y: number } | null }
 let OSD: typeof OpenSeadragonNS | null = null
@@ -51,6 +57,12 @@ let escalaPrevia: number | null = null
 const celdas = computed(() => props.rejilla.flat())
 const columnas = computed(() => Math.max(1, ...props.rejilla.map((f) => f.length)))
 const conLamina = computed(() => celdas.value.map((l, i) => (l ? i : -1)).filter((i) => i >= 0))
+/** Paneles entre los que se alterna en móvil: los de la muestra visible (o todos, si no hay). */
+const opciones = computed(() => {
+  const deLaMuestra = props.muestraVisible ? conLamina.value.filter((i) => celdas.value[i]!.muestra === props.muestraVisible) : []
+  return deLaMuestra.length ? deLaMuestra : conLamina.value
+})
+function activaVisible() { activo.value = Math.max(0, opciones.value[0] ?? 0) }
 const hayGrupoComun = computed(() => {
   const g = celdas.value.filter(Boolean).map((l) => grupoPaneo(props.manifest, l!.muestra))
   return new Set(g).size < g.length
@@ -211,7 +223,7 @@ async function monta() {
   const previo = paneles.find(abierto)
   escalaPrevia = previo ? umPorPx(previo) : null
   cierra()
-  activo.value = Math.max(0, conLamina.value[0] ?? 0)
+  activaVisible()
   await nextTick()
   if (!OSD) OSD = (await import('openseadragon')).default
   if (gen !== generacion) return
@@ -223,6 +235,8 @@ async function monta() {
 
 // Otras laminillas (recorrido, HE de referencia): se reabren conservando la escala física.
 watch(() => celdas.value.map((l) => l?.id ?? '-').join('|'), () => monta())
+// Otra muestra en móvil, con las mismas laminillas: solo cambia el panel visible, sin reabrir.
+watch(() => props.muestraVisible, activaVisible)
 
 function zoom(f: number) {
   const p = paneles.find(abierto)
@@ -277,7 +291,10 @@ onBeforeUnmount(() => {
           <Icon name="ph:corners-out-bold" class="w-4 h-4" aria-hidden="true" />{{ L('Encuadrar', 'Fit') }}
         </button>
       </div>
-      <div class="visor-grupo" role="group" :aria-label="L('Mover', 'Move')">
+      <button type="button" class="visor-boton visor-boton--texto visor-flechas-boton" :aria-expanded="flechas" :aria-controls="idFlechas" @click="flechas = !flechas">
+        <Icon name="ph:arrows-out-cardinal-bold" class="w-4 h-4" aria-hidden="true" />{{ L('Flechas', 'Arrows') }}
+      </button>
+      <div :id="idFlechas" class="visor-grupo visor-flechas" :class="{ 'visor-flechas--abiertas': flechas }" role="group" :aria-label="L('Mover', 'Move')">
         <button type="button" class="visor-boton" :aria-label="L('Mover a la izquierda', 'Move left')" @click="desplaza(-1, 0)">
           <Icon name="ph:arrow-left-bold" class="w-4 h-4" aria-hidden="true" />
         </button>
@@ -316,9 +333,9 @@ onBeforeUnmount(() => {
             'Zoom is matched in microns across all panels; movement is independent, because these are different tissues. Keyboard: arrows to move, plus and minus to zoom, 0 to fit. Colours as each scanner captured them, not normalised.') }}
     </p>
     </details>
-    <fieldset v-if="conLamina.length > 1" class="visor-selector">
+    <fieldset v-if="opciones.length > 1" class="visor-selector">
       <legend class="sr-only">{{ L('Laminilla visible', 'Visible slide') }}</legend>
-      <label v-for="i in conLamina" :key="i" class="visor-selector__op">
+      <label v-for="i in opciones" :key="i" class="visor-selector__op">
         <input v-model="activo" type="radio" :name="idAyuda + '-panel'" :value="i" class="sr-only">
         <span>{{ rotulos[i] }}</span>
       </label>
@@ -364,6 +381,12 @@ onBeforeUnmount(() => {
 .visor-boton:focus-visible { outline: 3px solid var(--anillo-foco); outline-offset: 2px; }
 .visor-ayuda { font-size: var(--texto-xs); color: var(--color-text-soft); margin: 0 0 var(--sp-12); max-width: 76ch; line-height: 1.5; }
 .visor-ayuda-sum { display: none; }
+.visor-flechas-boton { display: none; }
+@media (max-width: 767px) {
+  .visor-flechas-boton { display: inline-flex; }
+  .visor-flechas-boton[aria-expanded='true'] { background: var(--seleccionado-bg); border-color: var(--color-miriam); }
+  .visor-flechas:not(.visor-flechas--abiertas) { display: none; }
+}
 @media (max-width: 767px) {
   .visor-ayuda-sum { display: list-item; cursor: pointer; min-height: 44px; padding-top: 12px; font-size: var(--texto-sm); font-weight: 600; color: var(--color-text); }
   .visor-ayuda-sum:focus-visible { outline: 3px solid var(--anillo-foco); outline-offset: 2px; }

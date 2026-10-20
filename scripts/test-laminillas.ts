@@ -6,7 +6,7 @@
 //
 // Uso:  pnpm test:laminillas
 import { existsSync, readFileSync } from 'node:fs'
-import { filas, grupoPaneo, heDe, deMuestra, reglaRedonda, type Manifest } from '../app/utils/laminillas'
+import { filas, grupoPaneo, heDe, deMuestra, reglaRedonda, vistaDeQuery, queryDeVista, conMarcador, enMuestra, mueveVista, type Manifest } from '../app/utils/laminillas'
 
 const M = JSON.parse(readFileSync('app/data/laminillas.json', 'utf-8')) as Manifest
 let fallos = 0
@@ -81,6 +81,32 @@ if (n === 3 && M.laminillas.length === 32) {
 }
 for (const m of M.muestras) ok(!!heDe(M, m.id), `${m.id}: tiene HE de referencia`)
 ok(M.muestras.every((m) => deMuestra(M, m.id).length === M.laminillas.filter((l) => l.muestra === m.id).length), 'el recorrido de cada columna pasa por todas sus laminillas')
+
+console.log('Navegación: la URL, la de antes y la de ahora')
+const V = (q: Record<string, unknown>) => vistaDeQuery(M, q)
+const igual = (a: unknown, b: unknown) => JSON.stringify(a) === JSON.stringify(b)
+ok(igual(V({}), { marcador: null, muestra: null, paso: 0, he: false }), 'sin query, la matriz')
+ok(igual(V({ fila: 're', he: '1' }), { marcador: 're', muestra: null, paso: 0, he: true }), 'enlace viejo ?fila=re&he=1: RE en todas sus muestras, con HE')
+ok(igual(V({ fila: 'inventada' }), { marcador: null, muestra: null, paso: 0, he: false }), 'una tinción que no existe no abre nada')
+const mama = deMuestra(M, 'mama-2024')
+ok(igual(V({ muestra: 'mama-2024', n: '3' }), { marcador: mama[2]!.marcador, muestra: 'mama-2024', paso: 2, he: false }), 'enlace viejo ?muestra=…&n=3: la 3.ª laminilla de esa muestra')
+ok(V({ muestra: 'mama-2024', n: '999' }).paso === mama.length - 1 && V({ muestra: 'mama-2024', n: 'x' }).paso === 0, 'un n fuera de rango se acota')
+ok(igual(V({ fila: 'gata3', muestra: 'higado-2026' }), { marcador: 'gata3', muestra: null, paso: 0, he: false }), 'una muestra sin esa tinción cae a «en todas sus muestras»')
+for (const q of [{ fila: 'rp' }, { muestra: 'mama-reeval', n: '4', he: '1' }, { fila: 'ki67', muestra: 'mama-2024' }]) {
+  const v = V(q)
+  ok(igual(V(queryDeVista(v)), v), `ida y vuelta por la URL: ${JSON.stringify(q)}`)
+}
+const he2 = mama.findIndex((l) => l.id === 'mama-2024/he-2')
+if (he2 >= 0) ok(V(queryDeVista({ marcador: 'he', muestra: 'mama-2024', paso: he2, he: false })).paso === he2, 'el 2.º corte de HE se puede enlazar')
+const enMama = V({ fila: 're', muestra: 'mama-2024' })
+ok(conMarcador(M, enMama, 'her2').muestra === 'mama-2024', 'cambiar de tinción conserva la muestra elegida si la tiene')
+ok(conMarcador(M, enMama, 'p63').muestra === null, 'si no la tiene, pasa a todas las muestras que sí')
+ok(enMuestra(M, V({ fila: 'gata3' }), 'higado-2026') === undefined, 'no se puede elegir una muestra sin esa tinción')
+ok(enMuestra(M, enMama, null)?.muestra === null, '«todas» quita la muestra')
+const comp = V({ fila: F[0]!.marcador.id })
+ok(mueveVista(M, comp, 1).marcador === F[1]!.marcador.id && mueveVista(M, comp, -1).marcador === F[F.length - 1]!.marcador.id, 'en todas, anterior/siguiente recorre las filas con vuelta')
+const ultima = { marcador: mama[mama.length - 1]!.marcador, muestra: 'mama-2024', paso: mama.length - 1, he: false }
+ok(mueveVista(M, ultima, 1).paso === 0 && mueveVista(M, ultima, 1).muestra === 'mama-2024', 'con una muestra, recorre sus laminillas con vuelta')
 
 console.log('Una 4.ª columna entra sin tocar código')
 const M4: Manifest = structuredClone(M)
