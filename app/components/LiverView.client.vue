@@ -1,7 +1,7 @@
 <script setup lang="ts">
 /**
  * LiverView — el hígado en 3D, girable, con TODAS sus lesiones: las dos dianas del informe con
- * la medida del radiólogo, y el resto como detección automática sin validar (igual que el vídeo).
+ * la medida del radiólogo, y el resto como detección automática revisada por un radiólogo, sin informe firmado (igual que el vídeo).
  *
  * La escena es la del vídeo del hígado ya aprobado (tools/visor3d_web/render.js en Polaris):
  * mismos materiales (hígado translúcido con Fresnel, vasos, vesícula, lesión crema), mismas
@@ -89,7 +89,7 @@ function tipoA(les: Lesion): Pick<Entrada, 'titulo' | 'lineas' | 'medida' | 'pro
   }
   lineas.push(['La vio Polaris y la confirmó un radiólogo.', 'Flagged by Polaris and confirmed by a radiologist.'])
   return {
-    titulo: ['Lesión candidata', 'Candidate lesion'],
+    titulo: ['Lesión detectada por la IA y revisada', 'AI-detected, radiologist-reviewed lesion'],
     lineas,
     medida: [`${dec(les.diametro_auto_mm)} mm`, `${les.diametro_auto_mm} mm`],
     procedencia: ['Polaris + radiólogo', 'Polaris + radiologist'],
@@ -732,11 +732,11 @@ onBeforeUnmount(() => {
       </li>
       <li class="flex items-start gap-1.5">
         <span class="inline-block w-2.5 h-2.5 mt-[3px] shrink-0 rounded-full border border-berenjena/70" style="background:#f2b23c" aria-hidden="true" />
-        {{ L(`Otras ${cuenta.medibles} lesiones candidatas de 10 mm o más (detección automática)`, `${cuenta.medibles} other candidate lesions of 10 mm or more (automatic detection)`) }}
+        {{ L(`Otras ${cuenta.medibles} lesiones de 10 mm o más (detección automática, revisadas por un radiólogo)`, `${cuenta.medibles} other lesions of 10 mm or more (automatic detection, radiologist-reviewed)`) }}
       </li>
       <li class="flex items-start gap-1.5">
         <span class="inline-block w-2.5 h-2.5 mt-[3px] shrink-0 rounded-full border border-berenjena/70" style="background:#7c5cf0" aria-hidden="true" />
-        {{ L(`${cuenta.pequenas} lesiones candidatas de menos de 10 mm (detección automática)`, `${cuenta.pequenas} candidate lesions under 10 mm (automatic detection)`) }}
+        {{ L(`${cuenta.pequenas} lesiones de menos de 10 mm (detección automática, revisadas por un radiólogo)`, `${cuenta.pequenas} lesions under 10 mm (automatic detection, radiologist-reviewed)`) }}
       </li>
       <li class="flex items-start gap-1.5">
         <span class="inline-block w-2.5 h-2.5 mt-[3px] shrink-0 rounded-full border border-berenjena/70" style="background:#1c969e" aria-hidden="true" />
@@ -789,7 +789,7 @@ onBeforeUnmount(() => {
       </li>
     </ul>
     <p v-if="!loading && !failed" class="mt-1.5 text-[11px] text-tinta leading-snug">
-      {{ L('RECIST 1.1 solo mide lesiones de 10 mm o más. Las lesiones candidatas vienen de segmentación automática (IA, 100 % local): el modelo las detecta y ningún radiólogo las ha confirmado. Puede haber de más o de menos, y en las dianas el modelo mide 2-6 mm por debajo del radiólogo. Las venas más finas pueden salir incompletas.', 'RECIST 1.1 only measures lesions of 10 mm or more. Candidate lesions come from automatic segmentation (AI, 100% local): the model detects them and no radiologist has confirmed them. It may miss some or flag extra ones, and on the targets it measures 2-6 mm below the radiologist. The thinnest veins may appear incomplete.') }}
+      {{ L('RECIST 1.1 solo mide lesiones de 10 mm o más. Las lesiones vienen de segmentación automática (IA, 100 % local): un radiólogo ha revisado las que marcó la IA y las ha confirmado, pero esa revisión fue una lectura informal y no consta en el informe oficial firmado. Puede haber de más o de menos, y en las dianas el modelo mide 2-6 mm por debajo del radiólogo. Las venas más finas pueden salir incompletas.', 'RECIST 1.1 only measures lesions of 10 mm or more. The lesions come from automatic segmentation (AI, 100% local): a radiologist reviewed the ones the AI flagged and confirmed them, but that review was an informal read and is not in the signed official report. It may miss some or flag extra ones, and on the targets it measures 2-6 mm below the radiologist. The thinnest veins may appear incomplete.') }}
     </p>
 
     <!-- Alternativa accesible al 3D (spec de diseño, 2.5): un <canvas> con 55 puntos no es
