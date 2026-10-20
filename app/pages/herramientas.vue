@@ -46,7 +46,7 @@
 <script setup lang="ts">
 const { locale, t } = useI18n()
 const localePath = useLocalePath()
-const { trackMapa, trackLesiones, trackDatos, trackCelula, trackExplorador } = useSupport()
+const { trackMapa, trackLesiones, trackDatos, trackCelula, trackExplorador, trackLaminillas } = useSupport()
 const { herramientas } = useHerramientas()
 const tituloId = useId()
 
@@ -55,7 +55,7 @@ const tarjetas = computed(() =>
     const [titulo, descripcion] = copyHerramienta(h.key, locale.value)
     // El explorador lleva por etiqueta su público, «Para profesionales» (ya publicada en /ciencia y en su tarjeta;
     // diseno, 19-oct): avisa al público general de que esa tarjeta es la técnica.
-    const etiqueta = h.key === 'cell_explorer' ? t('ciencia.level_pro') : t(`nav.${h.key}`)
+    const etiqueta = h.key === 'cell_explorer' || h.key === 'slides' ? t('ciencia.level_pro') : t(`nav.${h.key}`)
     const repite = titulo.trim().toLowerCase().startsWith(etiqueta.trim().toLowerCase())
     return { ...h, titulo, descripcion, etiqueta, repite, icono: ICONO_HERRAMIENTA[h.key] }
   })
@@ -68,6 +68,7 @@ function medir(key: string) {
   else if (key === 'data') trackDatos('herramientas')
   else if (key === 'cell_by_cell') trackCelula('herramientas')
   else if (key === 'cell_explorer') trackExplorador('herramientas')
+  else if (key === 'slides') trackLaminillas('herramientas')
 }
 
 useSeoMeta({

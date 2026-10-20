@@ -2,11 +2,11 @@
 /**
  * /laminillas · /en/slides — las laminillas escaneadas del caso, en un visor público.
  *
- * Entrada: matriz marcador × muestra con miniaturas (prerenderizada: se lee sin JS). Pinchar una
+ * Entrada: matriz marcador × muestra con miniaturas (prerenderizada: se lee sin JS). Elegir una
  * fila abre la comparación de esa tinción en todas las muestras (OpenSeadragon, zoom a la par en
- * µm, paneo enlazado solo dentro del mismo bloque); pinchar la cabecera de una columna recorre
- * todas las tinciones de esa muestra. Botón «HE de referencia»: pone al lado la HE de la misma
- * muestra. Todo sale de app/data/laminillas.json (ver app/utils/laminillas.ts).
+ * µm, movimiento enlazado solo dentro del mismo bloque); elegir la cabecera de una columna recorre
+ * todas las tinciones de esa muestra. Botón «HE de referencia»: pone la HE de la misma muestra
+ * debajo de cada panel. Todo sale de app/data/laminillas.json (ver app/utils/laminillas.ts).
  *
  * Herramienta de apoyo, no diagnóstico. Cada dato clínico de las fichas lleva su sello de
  * verificación contra el informe original. Sin normalizar color.
@@ -26,11 +26,14 @@ const M = datos as unknown as Manifest
 const teselas = (config.public.laminillasTeselas as string) || M.teselas
 const filas = calculaFilas(M)
 const total = M.laminillas.length
+const nMuestras = M.muestras.length
+const PALABRAS: Record<'es' | 'en', string[]> = { es: ['cero', 'una', 'dos', 'tres', 'cuatro', 'cinco'], en: ['zero', 'one', 'two', 'three', 'four', 'five'] }
+const palabra = (n: number, i: 'es' | 'en') => PALABRAS[i][n] ?? String(n)
 
 const seoTitle = () => idioma.value === 'en' ? 'The slides, under the microscope · Miriam’s case' : 'Las laminillas, al microscopio · el caso de Miriam'
 const seoDescription = () => idioma.value === 'en'
-  ? `${total} scanned pathology slides from three of Miriam’s samples, side by side: zoom down to the cell, a micron ruler set to each scanner and what each report says. A support tool, not a diagnosis.`
-  : `${total} laminillas de anatomía patológica escaneadas de tres muestras de Miriam, lado a lado: zoom hasta la célula, una regla en micras ajustada a cada escáner y lo que dice cada informe. Herramienta de apoyo, no diagnóstico.`
+  ? `${total} scanned pathology slides from ${palabra(nMuestras, 'en')} of Miriam’s samples, side by side: zoom down to the cell, a micron ruler set to each scanner and what each report says. A support tool, not a diagnosis.`
+  : `${total} laminillas de anatomía patológica escaneadas de ${palabra(nMuestras, 'es')} muestras de Miriam, lado a lado: zoom hasta la célula, una regla en micras ajustada a cada escáner y lo que dice cada informe. Herramienta de apoyo, no diagnóstico.`
 useSeoMeta({
   title: seoTitle,
   description: seoDescription,
@@ -45,15 +48,10 @@ useSeoMeta({
 const t = (x: { es: string; en: string } | null | undefined) => (x ? x[idioma.value] : '')
 const nombreMarcador = (id: string) => t(M.marcadores.find((m) => m.id === id)?.nombre)
 const nombreMuestra = (id: string) => t(M.muestras.find((m) => m.id === id)?.corto)
-function etiqueta(l: Laminilla) {
-  return `${nombreMarcador(l.marcador)} · ${nombreMuestra(l.muestra)}${l.variante ? ' · ' + t(l.variante) : ''}`
-}
-const etiquetas = computed(() => Object.fromEntries(M.laminillas.map((l) => [l.id, etiqueta(l)])))
+const conVariante = (base: string, l: Laminilla) => base + (l.variante ? ' · ' + t(l.variante) : '')
+const etiqueta = (l: Laminilla) => conVariante(`${nombreMarcador(l.marcador)} · ${nombreMuestra(l.muestra)}`, l)
+const mppTexto = (mpp: number, dec: number) => mpp.toLocaleString(idioma.value === 'en' ? 'en-US' : 'es-ES', { maximumFractionDigits: dec })
 
-// Grupos de filas: en todas las muestras, en varias, en una.
-const nMuestras = M.muestras.length
-const PALABRAS: Record<'es' | 'en', string[]> = { es: ['cero', 'una', 'dos', 'tres', 'cuatro', 'cinco'], en: ['zero', 'one', 'two', 'three', 'four', 'five'] }
-const palabra = (n: number, i: 'es' | 'en') => PALABRAS[i][n] ?? String(n)
 const grupos = computed(() => {
   const g: { id: string; titulo: string; filas: Fila[] }[] = [
     { id: 'todas', titulo: L(`En las ${nMuestras} muestras`, `In all ${nMuestras} samples`), filas: filas.filter((f) => f.n === nMuestras) },
@@ -78,12 +76,26 @@ function leeQuery() {
 }
 watch(() => route.query, leeQuery, { immediate: true, deep: true })
 
-function irA(q: Record<string, string>) {
-  router.replace({ query: q, hash: '#visor' })
+// Abrir y cerrar el visor entra en el historial (el «atrás» del móvil vuelve a la tabla); cambiar
+// de paso o de HE de referencia, no. Al cerrar, el foco vuelve al botón que lo abrió.
+let disparador: HTMLElement | null = null
+function recuerda(e?: Event) {
+  const el = e?.currentTarget as HTMLElement | undefined
+  disparador = (el?.tagName === 'TR' ? el.querySelector('button') : el) ?? null
 }
-function abreFila(id: string) { irA({ fila: id, ...(conHE.value ? { he: '1' } : {}) }) }
-function abreMuestra(id: string) { irA({ muestra: id, n: '1' }) }
-function cierra() { router.replace({ query: {}, hash: '#matriz' }) }
+function abreFila(id: string, e?: Event) {
+  recuerda(e)
+  router.push({ query: { fila: id, ...(conHE.value ? { he: '1' } : {}) }, hash: '#visor' })
+}
+function abreMuestra(id: string, e?: Event) {
+  recuerda(e)
+  router.push({ query: { muestra: id, n: '1' }, hash: '#visor' })
+}
+async function cierra() {
+  await router.push({ query: {}, hash: '#matriz' })
+  await nextTick()
+  disparador?.focus()
+}
 function alternaHE() {
   const q: Record<string, string> = { ...(route.query as Record<string, string>) }
   if (conHE.value) delete q.he
@@ -102,18 +114,27 @@ function mueve(d: number) {
 
 const filaActual = computed(() => filas.find((f) => f.marcador.id === fila.value))
 const columnasFila = computed(() => M.muestras.filter((m) => filaActual.value?.celdas[m.id]))
+const puedeHE = computed(() => (fila.value ? fila.value !== 'he' : actual.value ? actual.value.marcador !== 'he' : false))
 const rejilla = computed<(Laminilla | null)[][]>(() => {
   if (filaActual.value) {
     const arriba = columnasFila.value.map((m) => filaActual.value!.celdas[m.id]![0]!)
-    if (conHE.value && fila.value !== 'he') return [arriba, columnasFila.value.map((m) => heDe(M, m.id) ?? null)]
+    if (conHE.value && puedeHE.value) return [arriba, columnasFila.value.map((m) => heDe(M, m.id) ?? null)]
     return [arriba]
   }
   if (actual.value) {
     const he = heDe(M, actual.value.muestra)
-    return [conHE.value && actual.value.marcador !== 'he' && he ? [actual.value, he] : [actual.value]]
+    return [conHE.value && puedeHE.value && he ? [actual.value, he] : [actual.value]]
   }
   return []
 })
+// Rótulo corto en cada panel (el título ya dice el resto): en una fila, la muestra; en el recorrido,
+// el marcador. La HE de referencia se nombra como tal. El nombre accesible lleva siempre las dos cosas.
+const rotulos = computed(() => rejilla.value.flatMap((filaR, r) => filaR.map((l) => {
+  if (!l) return ''
+  if (fila.value) return r === 0 ? conVariante(nombreMuestra(l.muestra), l) : `HE · ${nombreMuestra(l.muestra)}`
+  return conVariante(r === 0 && l === actual.value ? nombreMarcador(l.marcador) : L('HE de referencia', 'Reference H&E'), l)
+})))
+const nombres = computed(() => rejilla.value.flat().map((l) => (l ? etiqueta(l) : '')))
 const fichas = computed(() => rejilla.value.flat().filter((l): l is Laminilla => !!l))
 const tituloVisor = computed(() => {
   if (filaActual.value) {
@@ -124,12 +145,17 @@ const tituloVisor = computed(() => {
   if (muestra.value) return L(`${nombreMuestra(muestra.value)}: todas sus tinciones`, `${nombreMuestra(muestra.value)}: every stain`)
   return ''
 })
+// Donde se leen las cifras que no coinciden entre informes, el aviso se repite junto al visor.
+const conDiscordancia = computed(() => ['re', 'rp', 'ki67'].includes(fila.value ?? ''))
+const textoDiscordancia = computed(() => L(
+  'Las lecturas del bloque de mama no coinciden en todas las cifras: RE 95 % en el informe de 2024 y 85 % en la revisión de 2026, RP 5 % y 20 %, Ki-67 60 % y 40 %. Cada ficha da la del informe de su propia tanda de laminillas.',
+  'The readings of the breast block do not agree on every figure: ER 95% in the 2024 report and 85% in the 2026 review, PR 5% and 20%, Ki-67 60% and 40%. Each record gives the figure from the report for its own batch of slides.'))
 
 const encabezado = ref<HTMLElement | null>(null)
 watch([fila, muestra], async ([f, m], [f0, m0]) => {
   if ((f && f !== f0) || (m && m !== m0)) {
     await nextTick()
-    encabezado.value?.focus({ preventScroll: false })
+    encabezado.value?.focus({ preventScroll: true })
     encabezado.value?.scrollIntoView({ behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'start' })
   }
 })
@@ -163,15 +189,8 @@ function teclas(e: KeyboardEvent) {
             'The results shown are those in the pathology reports, each with its source and verification seal. Looking at the image does not replace them: the medical team interprets them.') }}</p>
         </div>
 
-        <ul class="como-se-lee mb-10">
-          <li>{{ L(`Cada fila es una tinción y cada columna, una muestra. Arriba van las que tienen las ${palabra(nMuestras, 'es')} muestras.`, `Each row is a stain and each column a sample. The ones all ${palabra(nMuestras, 'en')} samples share come first.`) }}</li>
-          <li>{{ L('Pincha una fila para ver esa tinción en todas sus muestras a la vez, con el zoom a la par.', 'Click a row to see that stain in all its samples at once, with matched zoom.') }}</li>
-          <li>{{ L('Pincha la cabecera de una columna para recorrer todas las tinciones de esa muestra.', 'Click a column header to step through every stain from that sample.') }}</li>
-          <li>{{ L('Los colores son los de cada escáner, sin normalizar: el mismo marrón puede verse distinto en dos escáneres.', 'Colours are as each scanner captured them, not normalised: the same brown can look different on two scanners.') }}</li>
-        </ul>
-
         <!-- Matriz marcador × muestra -->
-        <div id="matriz" class="scroll-mt-[5.5rem]">
+        <div id="matriz" class="scroll-mt-32">
           <table class="matriz">
             <caption class="matriz__leyenda">
               {{ L(`${total} laminillas: tinción por muestra`, `${total} slides: stain by sample`) }}
@@ -180,9 +199,9 @@ function teclas(e: KeyboardEvent) {
               <tr>
                 <th scope="col" class="matriz__esquina">{{ L('Tinción', 'Stain') }}</th>
                 <th v-for="m in M.muestras" :key="m.id" scope="col" class="matriz__col">
-                  <button type="button" class="matriz__colboton" @click="abreMuestra(m.id)">
+                  <button type="button" class="matriz__colboton" :aria-current="muestra === m.id ? 'true' : undefined" @click="abreMuestra(m.id, $event)">
                     <span class="matriz__colnombre">{{ t(m.corto) }}</span>
-                    <span class="matriz__colmeta">{{ m.aumento }} · {{ m.mpp.toLocaleString(idioma === 'en' ? 'en-US' : 'es-ES', { maximumFractionDigits: 3 }) }} µm/px</span>
+                    <span class="matriz__colmeta"><span class="whitespace-nowrap">{{ m.aumento }}</span> <span class="whitespace-nowrap">{{ mppTexto(m.mpp, 3) }} µm/px</span></span>
                     <span class="sr-only">{{ L('Recorrer todas las tinciones de esta muestra', 'Step through every stain from this sample') }}</span>
                   </button>
                 </th>
@@ -190,11 +209,11 @@ function teclas(e: KeyboardEvent) {
             </thead>
             <tbody v-for="g in grupos" :key="g.id">
               <tr class="matriz__grupo">
-                <th :colspan="M.muestras.length + 1" scope="colgroup">{{ g.titulo }}</th>
+                <th :colspan="M.muestras.length + 1" scope="rowgroup">{{ g.titulo }}</th>
               </tr>
-              <tr v-for="f in g.filas" :key="f.marcador.id" class="matriz__fila" :class="{ 'matriz__fila--activa': fila === f.marcador.id }" @click="abreFila(f.marcador.id)">
+              <tr v-for="f in g.filas" :key="f.marcador.id" class="matriz__fila" :class="{ 'matriz__fila--activa': fila === f.marcador.id }" @click="abreFila(f.marcador.id, $event)">
                 <th scope="row" class="matriz__filacab">
-                  <button type="button" class="matriz__filaboton" :aria-pressed="fila === f.marcador.id" @click.stop="abreFila(f.marcador.id)">
+                  <button type="button" class="matriz__filaboton" :aria-current="fila === f.marcador.id ? 'true' : undefined" @click.stop="abreFila(f.marcador.id, $event)">
                     <span>{{ t(f.marcador.nombre) }}</span>
                     <span v-if="f.marcador.nota" class="matriz__nota">{{ t(f.marcador.nota) }}</span>
                   </button>
@@ -205,7 +224,7 @@ function teclas(e: KeyboardEvent) {
                       v-for="l in f.celdas[m.id]"
                       :key="l.id"
                       :src="l.miniatura"
-                      :alt="etiquetas[l.id]"
+                      :alt="L('Laminilla', 'Slide') + (l.variante ? ' · ' + t(l.variante) : '')"
                       class="matriz__mini"
                       :class="{ 'matriz__mini--doble': f.celdas[m.id]!.length > 1 }"
                       width="96" height="96" loading="lazy" decoding="async"
@@ -218,36 +237,35 @@ function teclas(e: KeyboardEvent) {
               </tr>
             </tbody>
           </table>
+          <Nota icon="tap" class="mt-4">{{ L(
+            'Elige una fila para comparar esa tinción en todas sus muestras, con el zoom a la par, o la cabecera de una columna para recorrer esa muestra.',
+            'Pick a row to compare that stain across all its samples with matched zoom, or a column header to step through that sample.') }}</Nota>
+          <p class="discordancia mt-6">{{ textoDiscordancia }}</p>
           <dl class="muestras mt-6">
             <div v-for="m in M.muestras" :key="m.id">
               <dt>{{ t(m.largo) }}</dt>
-              <dd>{{ m.escaner }} · {{ m.aumento }} · {{ m.mpp.toLocaleString(idioma === 'en' ? 'en-US' : 'es-ES', { maximumFractionDigits: 5 }) }} µm/px<span v-if="m.nota">. {{ t(m.nota) }}</span></dd>
+              <dd>{{ m.escaner }} · {{ m.aumento }} · {{ mppTexto(m.mpp, 5) }} µm/px<span v-if="m.nota">. {{ t(m.nota) }}</span></dd>
             </div>
           </dl>
-          <p class="discordancia mt-4">{{ L(
-            'Las lecturas del bloque de mama no coinciden en todas las cifras: RE 95 % en el informe de 2024 y 85 % en la revisión de 2026, RP 5 % y 20 %, Ki-67 60 % y 40 %. Cada ficha da la del informe de su propia tanda de laminillas. Los marcadores neuroendocrinos de la tabla son cromogranina, sinaptofisina, INSM1 y CD56.',
-            'The readings of the breast block do not agree on every figure: ER 95% in the 2024 report and 85% in the 2026 review, PR 5% and 20%, Ki-67 60% and 40%. Each record gives the figure from the report for its own batch of slides. The neuroendocrine markers in the table are chromogranin, synaptophysin, INSM1 and CD56.') }}</p>
+          <p class="muestras-nota mt-4">{{ L(
+            'Los marcadores neuroendocrinos de la tabla son cromogranina, sinaptofisina, INSM1 y CD56.',
+            'The neuroendocrine markers in the table are chromogranin, synaptophysin, INSM1 and CD56.') }}</p>
         </div>
 
         <!-- Comparación (fila) o recorrido (columna) -->
-        <section v-if="rejilla.length" id="visor" class="visor-seccion scroll-mt-[5.5rem]" :aria-labelledby="'visor-titulo'" @keydown="teclas">
+        <section v-if="rejilla.length" id="visor" class="visor-seccion scroll-mt-32" aria-labelledby="visor-titulo" @keydown="teclas">
           <div class="visor-cabecera">
-            <h2 id="visor-titulo" ref="encabezado" tabindex="-1" class="font-display font-semibold text-berenjena text-2xl">{{ tituloVisor }}</h2>
+            <h2 id="visor-titulo" ref="encabezado" tabindex="-1" class="font-display font-semibold text-berenjena text-2xl scroll-mt-32">{{ tituloVisor }}</h2>
             <div class="visor-acciones">
               <button type="button" class="btn-ghost min-h-[44px]" @click="cierra">
                 <Icon name="ph:table-bold" class="w-4 h-4" aria-hidden="true" />{{ L('Volver a la tabla', 'Back to the table') }}
               </button>
-              <button
-                type="button"
-                class="btn-secondary min-h-[44px]"
-                :aria-pressed="conHE"
-                :disabled="fila === 'he' || actual?.marcador === 'he'"
-                @click="alternaHE"
-              >
-                <Icon name="ph:square-split-horizontal-bold" class="w-4 h-4" aria-hidden="true" />{{ L('HE de referencia', 'Reference H&E') }}
+              <button v-if="puedeHE" type="button" class="btn-secondary min-h-[44px]" :aria-pressed="conHE" @click="alternaHE">
+                <Icon :name="conHE ? 'ph:check-bold' : 'ph:square-split-horizontal-bold'" class="w-4 h-4" aria-hidden="true" />{{ L('HE de referencia', 'Reference H&E') }}
               </button>
             </div>
           </div>
+          <p v-if="conDiscordancia" class="discordancia mb-3">{{ textoDiscordancia }}</p>
           <div v-if="muestra && recorrido.length" class="recorrido">
             <button type="button" class="btn-secondary min-h-[44px]" @click="mueve(-1)">
               <Icon name="ph:caret-left-bold" class="w-4 h-4" aria-hidden="true" />{{ L('Anterior', 'Previous') }}
@@ -261,13 +279,13 @@ function teclas(e: KeyboardEvent) {
             </button>
           </div>
           <ClientOnly>
-            <LaminillasVisor :manifest="M" :rejilla="rejilla" :idioma="idioma" :teselas="teselas" :etiquetas="etiquetas" />
+            <LaminillasVisor :manifest="M" :rejilla="rejilla" :idioma="idioma" :teselas="teselas" :rotulos="rotulos" :nombres="nombres" />
             <template #fallback>
               <div class="visor-cargando">{{ L('Cargando el visor…', 'Loading the viewer…') }}</div>
             </template>
           </ClientOnly>
           <div class="fichas" :style="{ '--cols': Math.min(3, rejilla[0]?.length ?? 1) }">
-            <LaminillasFicha v-for="l in fichas" :key="l.id" :manifest="M" :laminilla="l" :idioma="idioma" :titulo="etiquetas[l.id] ?? l.id" />
+            <LaminillasFicha v-for="l in fichas" :key="l.id" :manifest="M" :laminilla="l" :idioma="idioma" :titulo="etiqueta(l)" />
           </div>
         </section>
       </div>
@@ -276,47 +294,55 @@ function teclas(e: KeyboardEvent) {
 </template>
 
 <style scoped>
-.como-se-lee { display: grid; gap: var(--sp-8); max-width: 72ch; padding-left: 1.1rem; list-style: disc; color: var(--color-text-soft); font-size: var(--texto-sm); line-height: 1.55; }
 .matriz { width: 100%; border-collapse: separate; border-spacing: 0; table-layout: fixed; }
 .matriz__leyenda { caption-side: top; text-align: left; font-family: var(--font-display); font-weight: 600; font-size: var(--texto-xl); color: var(--color-text); margin-bottom: var(--sp-12); }
 .matriz__esquina { width: 30%; text-align: left; font-size: var(--texto-xs); color: var(--color-text-soft); font-weight: 600; padding: 0 var(--sp-8) var(--sp-8) 0; vertical-align: bottom; }
 @media (min-width: 768px) { .matriz__esquina { width: 22%; } }
 .matriz__col { padding: 0 2px var(--sp-8); vertical-align: bottom; }
-.matriz__colboton { display: flex; flex-direction: column; align-items: center; gap: 2px; width: 100%; min-height: 44px; padding: 6px 4px;
+.matriz__colboton { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; width: 100%; min-height: 44px; padding: 6px 4px;
   border-radius: var(--radius-md); background: var(--color-bg-card); border: 1px solid color-mix(in srgb, var(--color-text) 14%, transparent); color: var(--color-text); }
-.matriz__colboton:hover { border-color: var(--color-miriam); }
+.matriz__colboton[aria-current='true'] { border-color: var(--color-miriam); background: var(--seleccionado-bg); }
 .matriz__colboton:focus-visible, .matriz__filaboton:focus-visible { outline: 3px solid var(--anillo-foco); outline-offset: 2px; }
 .matriz__colnombre { font-weight: 700; font-size: var(--texto-sm); line-height: 1.2; text-align: center; }
-@media (max-width: 480px) { .matriz__colnombre { font-size: var(--texto-xs); hyphens: auto; overflow-wrap: anywhere; } }
-.matriz__colmeta { font-family: var(--font-mono); font-size: 11px; color: var(--color-text-soft); text-align: center; }
-.matriz__grupo th { text-align: left; padding: var(--sp-16) 0 var(--sp-4); font-family: var(--font-mono); font-size: 11px; text-transform: uppercase; letter-spacing: .1em; color: var(--color-text-soft); font-weight: 600; }
+.matriz__colmeta { font-family: var(--font-mono); font-size: 12px; color: var(--color-text-soft); text-align: center; }
+@media (max-width: 479px) {
+  .matriz__colnombre { font-size: 13px; overflow-wrap: anywhere; hyphens: auto; }
+  .matriz__colboton { min-height: 76px; }
+}
+.matriz__grupo th { text-align: left; padding: var(--sp-16) 0 var(--sp-4); font-family: var(--font-mono); font-size: 12px; text-transform: uppercase; letter-spacing: .1em; color: var(--color-text-soft); font-weight: 600; }
 .matriz__fila { cursor: pointer; }
 .matriz__fila > * { border-top: 1px solid color-mix(in srgb, var(--color-text) 10%, transparent); }
-.matriz__fila:hover > *, .matriz__fila--activa > * { background: color-mix(in srgb, var(--color-miriam-soft) 45%, transparent); }
+.matriz__fila--activa > * { background: color-mix(in srgb, var(--color-miriam-soft) 45%, transparent); }
+@media (hover: hover) and (pointer: fine) {
+  .matriz__fila:hover > * { background: color-mix(in srgb, var(--color-miriam-soft) 45%, transparent); }
+  .matriz__colboton:hover { border-color: var(--color-miriam); }
+}
 .matriz__filacab { text-align: left; padding: 0; }
 .matriz__filaboton { display: flex; flex-direction: column; align-items: flex-start; justify-content: center; width: 100%; min-height: 64px; padding: 6px 8px 6px 4px;
   font-weight: 700; font-size: var(--texto-sm); color: var(--color-text); text-align: left; border-radius: var(--radius-sm); }
-.matriz__filaboton[aria-pressed='true'] { color: var(--color-miriam); }
-.matriz__nota { font-weight: 400; font-size: 11px; color: var(--color-text-soft); line-height: 1.3; }
+.matriz__filaboton[aria-current='true'] { color: var(--color-miriam); }
+.matriz__nota { font-weight: 400; font-size: 12px; color: var(--color-text-soft); line-height: 1.3; }
 .matriz__celda { text-align: center; padding: 6px 2px; vertical-align: middle; }
 .matriz__mini { display: inline-block; width: min(96px, 100%); aspect-ratio: 1; object-fit: contain; background: #fff; border-radius: var(--radius-sm);
   border: 1px solid color-mix(in srgb, var(--color-text) 10%, transparent); }
 .matriz__mini--doble { width: min(46px, 48%); margin: 0 1px; }
 .matriz__vacia { color: color-mix(in srgb, var(--color-text) 35%, transparent); font-size: var(--texto-lg); }
+.discordancia { max-width: 80ch; font-size: var(--texto-sm); color: var(--color-text); line-height: 1.55; }
 .muestras { display: grid; gap: var(--sp-8); font-size: var(--texto-xs); color: var(--color-text-soft); max-width: 80ch; }
 .muestras dt { font-weight: 700; color: var(--color-text); }
 .muestras dd { margin: 0; line-height: 1.5; }
-.discordancia { max-width: 80ch; font-size: var(--texto-xs); color: var(--color-text-soft); line-height: 1.55; }
+.muestras-nota { max-width: 80ch; font-size: var(--texto-xs); color: var(--color-text-soft); line-height: 1.5; }
 .visor-seccion { margin-top: var(--sp-48); padding-top: var(--sp-24); border-top: 1px solid color-mix(in srgb, var(--color-text) 12%, transparent); }
 .visor-cabecera { display: flex; flex-wrap: wrap; gap: var(--sp-12); align-items: center; justify-content: space-between; margin-bottom: var(--sp-12); }
 .visor-cabecera h2:focus { outline: none; }
 .visor-cabecera h2:focus-visible { outline: 3px solid var(--anillo-foco); outline-offset: 4px; }
 .visor-acciones { display: flex; flex-wrap: wrap; gap: var(--sp-8); }
-.visor-acciones .btn-secondary[aria-pressed='true'] { background: var(--seleccionado-bg); }
-.visor-acciones .btn-secondary:disabled { opacity: .5; cursor: not-allowed; }
+/* Pulsado: violeta suave con texto berenjena también en hover (el hover del DS pone texto crema: 1,29:1). */
+.visor-acciones .btn-secondary[aria-pressed='true'],
+.visor-acciones .btn-secondary[aria-pressed='true']:hover { background: var(--seleccionado-bg); color: var(--color-text); }
 .recorrido { display: flex; flex-wrap: wrap; gap: var(--sp-8); align-items: center; margin-bottom: var(--sp-12); }
 .recorrido__estado { margin: 0; font-size: var(--texto-sm); color: var(--color-text); min-width: 12ch; }
-.visor-cargando { display: flex; align-items: center; justify-content: center; height: clamp(280px, 52vh, 640px); background: var(--color-bg-card); color: var(--color-text-soft); border-radius: var(--radius-md); }
+.visor-cargando { display: flex; align-items: center; justify-content: center; height: clamp(280px, 52svh, 640px); background: var(--color-bg-card); color: var(--color-text-soft); border-radius: var(--radius-md); }
 .fichas { display: grid; gap: var(--sp-12); margin-top: var(--sp-16); grid-template-columns: 1fr; }
 @media (min-width: 1024px) { .fichas { grid-template-columns: repeat(var(--cols), minmax(0, 1fr)); } }
 </style>

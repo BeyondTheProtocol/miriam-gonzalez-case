@@ -50,14 +50,16 @@ export const MENU_MOVIL: EnlaceNav[] = [NAV.home, ...MENU_ESCRITORIO]
 // Las herramientas, en el orden del índice y del pie.
 // La más nueva primero (Miriam, 17-oct-2026): ordena /herramientas, el menú, el pie y la banda de
 // la home. Orden por fecha de estreno de cada página (primer commit en main): célula a célula
-// 16-oct · datos 24-sep 20:13 · reservorio 24-sep 19:20 · lesiones 19-sep · mapa 11-jun. Laminillas (20-oct) va primera
-// y sustituye al visor de la biopsia ósea (5-sep), que ahora redirige a /laminillas.
+// 16-oct · datos 24-sep 20:13 · reservorio 24-sep 19:20 · lesiones 19-sep · mapa 11-jun. Laminillas (20-oct) sustituye al
+// visor de la biopsia ósea (5-sep), que ahora redirige a /laminillas. Va TERCERA, no primera (diseno, 20-oct; Miriam lo
+// decide en la vista previa): la primera es la tarjeta grande «Lo último» de la home y la barra global sigue apuntando a
+// célula a célula; además es herramienta para profesionales, como el explorador, y el par madre + explorador va junto.
 // Una herramienta nueva entra al PRINCIPIO de esta lista.
 // Excepción (diseno, 19-oct; Miriam lo decide en la vista previa): el explorador de células (18-oct) va SEGUNDO,
 // detrás de su página madre. La primera es la tarjeta grande de la home, y la del explorador le enseñaría al
 // público general «su n y su suelo ambiental»; la madre es la versión para todos y el divisor lleva de una a otra.
 // Se oculta mientras su puerta no esté abierta (useHerramientas).
-export const HERRAMIENTAS: EnlaceNav[] = [NAV.slides, NAV.cellByCell, NAV.cellExplorer, NAV.data, NAV.port, NAV.lesions, NAV.map]
+export const HERRAMIENTAS: EnlaceNav[] = [NAV.cellByCell, NAV.cellExplorer, NAV.slides, NAV.data, NAV.port, NAV.lesions, NAV.map]
 
 // Icono de cada herramienta (decorativo, aria-hidden) para las tarjetas de /herramientas.
 // Son los que la web ya usaba para cada una: el pin del teaser de la home y de /ciencia

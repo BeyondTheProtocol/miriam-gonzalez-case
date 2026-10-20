@@ -12,7 +12,7 @@ const t = (x: { es: string; en: string } | null | undefined) => (x ? x[props.idi
 
 const muestra = computed(() => props.manifest.muestras.find((m) => m.id === props.laminilla.muestra))
 const marcador = computed(() => props.manifest.marcadores.find((m) => m.id === props.laminilla.marcador))
-const mppTexto = computed(() => props.laminilla.mpp.toLocaleString(props.idioma === 'en' ? 'en-US' : 'es-ES', { maximumFractionDigits: 4 }))
+const mppTexto = computed(() => props.laminilla.mpp.toLocaleString(props.idioma === 'en' ? 'en-US' : 'es-ES', { maximumFractionDigits: 5 }))
 
 const SELLOS: Record<Sello, { es: string; en: string; icono: string }> = {
   verificado: { es: 'Verificado contra el informe original', en: 'Checked against the original report', icono: 'ph:seal-check-fill' },
@@ -25,7 +25,7 @@ const sello = computed(() => SELLOS[props.laminilla.ficha.sello])
 </script>
 
 <template>
-  <section class="ficha" :aria-label="L('Ficha de ', 'Record for ') + titulo">
+  <article class="ficha" :aria-label="L('Ficha de ', 'Record for ') + titulo">
     <h3 class="ficha__titulo">{{ titulo }}</h3>
     <dl class="ficha__datos">
       <div><dt>{{ L('Marcador', 'Marker') }}</dt><dd>{{ t(marcador?.nombre) }}<span v-if="marcador?.nota" class="ficha__nota"> · {{ t(marcador.nota) }}</span></dd></div>
@@ -46,7 +46,7 @@ const sello = computed(() => SELLOS[props.laminilla.ficha.sello])
         </dd>
       </div>
     </dl>
-  </section>
+  </article>
 </template>
 
 <style scoped>
@@ -63,7 +63,10 @@ const sello = computed(() => SELLOS[props.laminilla.ficha.sello])
   border-radius: 999px; font-size: var(--texto-xs); font-weight: 600; color: var(--color-text);
   border: 1px solid color-mix(in srgb, var(--color-text) 30%, transparent); }
 .ficha__sello[data-sello='verificado'] { background: var(--color-miriam-soft); border-color: transparent; }
-.ficha__sello[data-sello='inferido'] { border-style: dashed; }
+/* Misma gramática que el sello de /datos (datos/Sello.vue): verificado = violeta suave, inferido =
+   tinte gris, sin verificar = borde discontinuo. Quien la aprendió allí la lee igual aquí. */
+.ficha__sello[data-sello='inferido'] { background: rgb(var(--color-text-rgb) / .06); border-color: transparent; }
+.ficha__sello[data-sello='sin-verificar'] { background: transparent; border: 1px dashed rgb(var(--color-text-rgb) / .45); }
 .ficha__nota { color: var(--color-text-soft); }
 .ficha__nota--bloque { display: block; margin-top: 6px; font-size: var(--texto-xs); }
 </style>

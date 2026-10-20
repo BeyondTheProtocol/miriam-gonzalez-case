@@ -60,8 +60,9 @@ recoge(M)
 ok(!textos.some((t) => /ultra-?low|\bnull\b/i.test(t)), 'ningún texto usa «ultralow» ni «null» para HER2')
 
 console.log('La nota de discordancia de la página casa con las fichas')
-const pagina = readFileSync('app/pages/laminillas.vue', 'utf-8')
-const fichaDe = (id: string) => M.laminillas.find((l) => l.id === id)?.ficha.resultado?.es ?? ''
+// Espacio duro entre cifra y «%»: en la ficha va el carácter; en el código de la página, la secuencia \u00a0.
+const pagina = readFileSync('app/pages/laminillas.vue', 'utf-8').replaceAll('\\u00a0', ' ').replaceAll('\u00a0', ' ')
+const fichaDe = (id: string) => (M.laminillas.find((l) => l.id === id)?.ficha.resultado?.es ?? '').replaceAll('\u00a0', ' ')
 for (const [id, cifra] of [['mama-2024/re', '95 %'], ['mama-reeval/re', '85 %'], ['mama-2024/rp', '5 %'], ['mama-reeval/rp', '20 %'], ['mama-2024/ki67', '60 %'], ['mama-reeval/ki67', '40 %']] as const) {
   if (!M.laminillas.some((l) => l.id === id)) continue
   ok(fichaDe(id).includes(cifra) && pagina.includes(cifra), `${id}: «${cifra}» está en su ficha y en la nota`)

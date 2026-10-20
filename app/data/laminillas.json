@@ -16,7 +16,7 @@
    },
    "grupo_paneo": "mama",
    "escaner": "Roche VENTANA DP 200",
-   "aumento": "40x",
+   "aumento": "40×",
    "mpp": 0.25
   },
   {
@@ -31,7 +31,7 @@
    },
    "grupo_paneo": "mama",
    "escaner": "Grundium Ocus40 (inferido del formato)",
-   "aumento": "40x",
+   "aumento": "40×",
    "mpp": 0.25055,
    "nota": {
     "es": "Revisión de 2026 del mismo bloque de mama (lo dice su informe). Que estos escaneos sean sus laminillas se deduce del nombre de los ficheros.",
@@ -50,7 +50,7 @@
    },
    "grupo_paneo": "higado",
    "escaner": "Hamamatsu C13220",
-   "aumento": "20x",
+   "aumento": "20×",
    "mpp": 0.458863
   }
  ],
@@ -66,7 +66,7 @@
    "id": "re",
    "nombre": {
     "es": "RE · receptor de estrógenos",
-    "en": "ER · oestrogen receptor"
+    "en": "ER · estrogen receptor"
    }
   },
   {
@@ -290,8 +290,8 @@
      "en": "Biopsy of August 2026; report of September 2026"
     },
     "resultado": {
-     "es": "Receptores de estrógeno: negativo (0 %).",
-     "en": "Oestrogen receptors: negative (0%)."
+     "es": "Receptores de estrógeno: negativo (0 %).",
+     "en": "Estrogen receptors: negative (0%)."
     },
     "fuente": {
      "es": "Informe de anatomía patológica de la biopsia hepática, septiembre de 2026",
@@ -319,7 +319,7 @@
      "en": "Biopsy of August 2026; report of September 2026"
     },
     "resultado": {
-     "es": "Receptores de progesterona: positividad en el 5 % de las células neoplásicas (2+).",
+     "es": "Receptores de progesterona: positividad en el 5 % de las células neoplásicas (2+).",
      "en": "Progesterone receptors: positive in 5% of neoplastic cells (2+)."
     },
     "fuente": {
@@ -435,7 +435,7 @@
      "en": "Report of January 2024"
     },
     "resultado": {
-     "es": "Cromogranina: positiva (80 % de células neoplásicas).",
+     "es": "Cromogranina: positiva (80 % de células neoplásicas).",
      "en": "Chromogranin: positive (80% of neoplastic cells)."
     },
     "fuente": {
@@ -520,7 +520,7 @@
      "en": "Report of January 2024"
     },
     "resultado": {
-     "es": "Carcinoma infiltrante sin tipo especial con diferenciación neuroendocrina, grado II (formación tubular 3, pleomorfismo nuclear 2, actividad mitótica 2). Carcinoma ductal in situ de patrón micropapilar y cribiforme, con atipia nuclear de grado 2 y sin comedonecrosis (20 % de la neoplasia).",
+     "es": "Carcinoma infiltrante sin tipo especial con diferenciación neuroendocrina, grado II (formación tubular 3, pleomorfismo nuclear 2, actividad mitótica 2). Carcinoma ductal in situ de patrón micropapilar y cribiforme, con atipia nuclear de grado 2 y sin comedonecrosis (20 % de la neoplasia).",
      "en": "Invasive carcinoma of no special type with neuroendocrine differentiation, grade II (tubule formation 3, nuclear pleomorphism 2, mitotic activity 2). Ductal carcinoma in situ, micropapillary and cribriform pattern, nuclear atypia grade 2, no comedonecrosis (20% of the neoplasm)."
     },
     "fuente": {
@@ -553,7 +553,7 @@
      "en": "Report of January 2024"
     },
     "resultado": {
-     "es": "Carcinoma infiltrante sin tipo especial con diferenciación neuroendocrina, grado II (formación tubular 3, pleomorfismo nuclear 2, actividad mitótica 2). Carcinoma ductal in situ de patrón micropapilar y cribiforme, con atipia nuclear de grado 2 y sin comedonecrosis (20 % de la neoplasia).",
+     "es": "Carcinoma infiltrante sin tipo especial con diferenciación neuroendocrina, grado II (formación tubular 3, pleomorfismo nuclear 2, actividad mitótica 2). Carcinoma ductal in situ de patrón micropapilar y cribiforme, con atipia nuclear de grado 2 y sin comedonecrosis (20 % de la neoplasia).",
      "en": "Invasive carcinoma of no special type with neuroendocrine differentiation, grade II (tubule formation 3, nuclear pleomorphism 2, mitotic activity 2). Ductal carcinoma in situ, micropapillary and cribriform pattern, nuclear atypia grade 2, no comedonecrosis (20% of the neoplasm)."
     },
     "fuente": {
@@ -615,7 +615,7 @@
      "en": "Report of January 2024"
     },
     "resultado": {
-     "es": "Actividad proliferativa (Ki-67): 60 %.",
+     "es": "Actividad proliferativa (Ki-67): 60 %.",
      "en": "Proliferative activity (Ki-67): 60%."
     },
     "fuente": {
@@ -644,8 +644,8 @@
      "en": "Report of January 2024"
     },
     "resultado": {
-     "es": "Receptores de estrógenos: positivos (95 % de células neoplásicas).",
-     "en": "Oestrogen receptors: positive (95% of neoplastic cells)."
+     "es": "Receptores de estrógenos: positivos (95 % de células neoplásicas).",
+     "en": "Estrogen receptors: positive (95% of neoplastic cells)."
     },
     "fuente": {
      "es": "Informe de anatomía patológica de la biopsia de mama, enero de 2024",
@@ -673,7 +673,7 @@
      "en": "Report of January 2024"
     },
     "resultado": {
-     "es": "Receptores de progesterona: positivos (5 % de células neoplásicas).",
+     "es": "Receptores de progesterona: positivos (5 % de células neoplásicas).",
      "en": "Progesterone receptors: positive (5% of neoplastic cells)."
     },
     "fuente": {
@@ -702,7 +702,7 @@
      "en": "Report of January 2024"
     },
     "resultado": {
-     "es": "Sinaptofisina: positiva (80 % de células neoplásicas).",
+     "es": "Sinaptofisina: positiva (80 % de células neoplásicas).",
      "en": "Synaptophysin: positive (80% of neoplastic cells)."
     },
     "fuente": {
@@ -754,8 +754,8 @@
    "miniatura": "/laminillas-miniaturas/mama-reeval/ae1ae3.webp",
    "ficha": {
     "laboratorio": {
-     "es": "Teñida e informada en anatomía patológica del hospital de referencia (Barcelona); escaneada en Dana-Farber (inferido)",
-     "en": "Stained and reported by the pathology department of the referral hospital (Barcelona); scanned at Dana-Farber (inferred)"
+     "es": "Teñida e informada en anatomía patológica del hospital de referencia (Barcelona); escaneada en otro centro (inferido)",
+     "en": "Stained and reported by the pathology department of the referral hospital (Barcelona); scanned at another centre (inferred)"
     },
     "fecha": {
      "es": "Informe de revisión de junio de 2026",
@@ -781,8 +781,8 @@
    "miniatura": "/laminillas-miniaturas/mama-reeval/ck19.webp",
    "ficha": {
     "laboratorio": {
-     "es": "Teñida e informada en anatomía patológica del hospital de referencia (Barcelona); escaneada en Dana-Farber (inferido)",
-     "en": "Stained and reported by the pathology department of the referral hospital (Barcelona); scanned at Dana-Farber (inferred)"
+     "es": "Teñida e informada en anatomía patológica del hospital de referencia (Barcelona); escaneada en otro centro (inferido)",
+     "en": "Stained and reported by the pathology department of the referral hospital (Barcelona); scanned at another centre (inferred)"
     },
     "fecha": {
      "es": "Informe de revisión de junio de 2026",
@@ -814,8 +814,8 @@
    "miniatura": "/laminillas-miniaturas/mama-reeval/cromogranina.webp",
    "ficha": {
     "laboratorio": {
-     "es": "Teñida e informada en anatomía patológica del hospital de referencia (Barcelona); escaneada en Dana-Farber (inferido)",
-     "en": "Stained and reported by the pathology department of the referral hospital (Barcelona); scanned at Dana-Farber (inferred)"
+     "es": "Teñida e informada en anatomía patológica del hospital de referencia (Barcelona); escaneada en otro centro (inferido)",
+     "en": "Stained and reported by the pathology department of the referral hospital (Barcelona); scanned at another centre (inferred)"
     },
     "fecha": {
      "es": "Informe de revisión de junio de 2026",
@@ -847,15 +847,15 @@
    "miniatura": "/laminillas-miniaturas/mama-reeval/he.webp",
    "ficha": {
     "laboratorio": {
-     "es": "Teñida e informada en anatomía patológica del hospital de referencia (Barcelona); escaneada en Dana-Farber (inferido)",
-     "en": "Stained and reported by the pathology department of the referral hospital (Barcelona); scanned at Dana-Farber (inferred)"
+     "es": "Teñida e informada en anatomía patológica del hospital de referencia (Barcelona); escaneada en otro centro (inferido)",
+     "en": "Stained and reported by the pathology department of the referral hospital (Barcelona); scanned at another centre (inferred)"
     },
     "fecha": {
      "es": "Informe de revisión de junio de 2026",
      "en": "Review report of June 2026"
     },
     "resultado": {
-     "es": "Carcinoma infiltrante con diferenciación neuroendocrina, grado histológico 2 de Nottingham (diferenciación tubular 3, pleomorfismo nuclear 2, mitosis 1). Sin invasión vascular ni necrosis tumoral. Componente intraductal presente, de patrón micropapilar y grado nuclear bajo. Microcalcificaciones en el componente tumoral. Linfocitos intratumorales (TILs) por debajo del 5 %. Subtipo inmunohistoquímico: luminal B, HER2 negativo.",
+     "es": "Carcinoma infiltrante con diferenciación neuroendocrina, grado histológico 2 de Nottingham (diferenciación tubular 3, pleomorfismo nuclear 2, mitosis 1). Sin invasión vascular ni necrosis tumoral. Componente intraductal presente, de patrón micropapilar y grado nuclear bajo. Microcalcificaciones en el componente tumoral. Linfocitos intratumorales (TILs) por debajo del 5 %. Subtipo inmunohistoquímico: luminal B, HER2 negativo.",
      "en": "Invasive carcinoma with neuroendocrine differentiation, Nottingham histological grade 2 (tubule formation 3, nuclear pleomorphism 2, mitoses 1). No vascular invasion or tumour necrosis. Intraductal component present, micropapillary pattern, low nuclear grade. Microcalcifications in the tumour component. Tumour-infiltrating lymphocytes (TILs) below 5%. Immunohistochemical subtype: luminal B, HER2 negative."
     },
     "fuente": {
@@ -880,8 +880,8 @@
    "miniatura": "/laminillas-miniaturas/mama-reeval/her2.webp",
    "ficha": {
     "laboratorio": {
-     "es": "Teñida e informada en anatomía patológica del hospital de referencia (Barcelona); escaneada en Dana-Farber (inferido)",
-     "en": "Stained and reported by the pathology department of the referral hospital (Barcelona); scanned at Dana-Farber (inferred)"
+     "es": "Teñida e informada en anatomía patológica del hospital de referencia (Barcelona); escaneada en otro centro (inferido)",
+     "en": "Stained and reported by the pathology department of the referral hospital (Barcelona); scanned at another centre (inferred)"
     },
     "fecha": {
      "es": "Informe de revisión de junio de 2026",
@@ -913,8 +913,8 @@
    "miniatura": "/laminillas-miniaturas/mama-reeval/her2-neg.webp",
    "ficha": {
     "laboratorio": {
-     "es": "Teñida e informada en anatomía patológica del hospital de referencia (Barcelona); escaneada en Dana-Farber (inferido)",
-     "en": "Stained and reported by the pathology department of the referral hospital (Barcelona); scanned at Dana-Farber (inferred)"
+     "es": "Teñida e informada en anatomía patológica del hospital de referencia (Barcelona); escaneada en otro centro (inferido)",
+     "en": "Stained and reported by the pathology department of the referral hospital (Barcelona); scanned at another centre (inferred)"
     },
     "fecha": {
      "es": "Informe de revisión de junio de 2026",
@@ -940,8 +940,8 @@
    "miniatura": "/laminillas-miniaturas/mama-reeval/insm1.webp",
    "ficha": {
     "laboratorio": {
-     "es": "Teñida e informada en anatomía patológica del hospital de referencia (Barcelona); escaneada en Dana-Farber (inferido)",
-     "en": "Stained and reported by the pathology department of the referral hospital (Barcelona); scanned at Dana-Farber (inferred)"
+     "es": "Teñida e informada en anatomía patológica del hospital de referencia (Barcelona); escaneada en otro centro (inferido)",
+     "en": "Stained and reported by the pathology department of the referral hospital (Barcelona); scanned at another centre (inferred)"
     },
     "fecha": {
      "es": "Informe de revisión de junio de 2026",
@@ -973,15 +973,15 @@
    "miniatura": "/laminillas-miniaturas/mama-reeval/ki67.webp",
    "ficha": {
     "laboratorio": {
-     "es": "Teñida e informada en anatomía patológica del hospital de referencia (Barcelona); escaneada en Dana-Farber (inferido)",
-     "en": "Stained and reported by the pathology department of the referral hospital (Barcelona); scanned at Dana-Farber (inferred)"
+     "es": "Teñida e informada en anatomía patológica del hospital de referencia (Barcelona); escaneada en otro centro (inferido)",
+     "en": "Stained and reported by the pathology department of the referral hospital (Barcelona); scanned at another centre (inferred)"
     },
     "fecha": {
      "es": "Informe de revisión de junio de 2026",
      "en": "Review report of June 2026"
     },
     "resultado": {
-     "es": "Ki-67: 40 % (clona 30-9).",
+     "es": "Ki-67: 40 % (clona 30-9).",
      "en": "Ki-67: 40% (clone 30-9)."
     },
     "fuente": {
@@ -1006,8 +1006,8 @@
    "miniatura": "/laminillas-miniaturas/mama-reeval/p63.webp",
    "ficha": {
     "laboratorio": {
-     "es": "Teñida e informada en anatomía patológica del hospital de referencia (Barcelona); escaneada en Dana-Farber (inferido)",
-     "en": "Stained and reported by the pathology department of the referral hospital (Barcelona); scanned at Dana-Farber (inferred)"
+     "es": "Teñida e informada en anatomía patológica del hospital de referencia (Barcelona); escaneada en otro centro (inferido)",
+     "en": "Stained and reported by the pathology department of the referral hospital (Barcelona); scanned at another centre (inferred)"
     },
     "fecha": {
      "es": "Informe de revisión de junio de 2026",
@@ -1039,16 +1039,16 @@
    "miniatura": "/laminillas-miniaturas/mama-reeval/re.webp",
    "ficha": {
     "laboratorio": {
-     "es": "Teñida e informada en anatomía patológica del hospital de referencia (Barcelona); escaneada en Dana-Farber (inferido)",
-     "en": "Stained and reported by the pathology department of the referral hospital (Barcelona); scanned at Dana-Farber (inferred)"
+     "es": "Teñida e informada en anatomía patológica del hospital de referencia (Barcelona); escaneada en otro centro (inferido)",
+     "en": "Stained and reported by the pathology department of the referral hospital (Barcelona); scanned at another centre (inferred)"
     },
     "fecha": {
      "es": "Informe de revisión de junio de 2026",
      "en": "Review report of June 2026"
     },
     "resultado": {
-     "es": "Receptores de estrógeno: positivos, intensidad alta, score 225, 85 % de núcleos positivos (clona SP1).",
-     "en": "Oestrogen receptors: positive, high intensity, score 225, 85% positive nuclei (clone SP1)."
+     "es": "Receptores de estrógeno: positivos, intensidad alta, score 225, 85 % de núcleos positivos (clona SP1).",
+     "en": "Estrogen receptors: positive, high intensity, score 225, 85% positive nuclei (clone SP1)."
     },
     "fuente": {
      "es": "Informe de revisión del mismo bloque de mama, hospital de referencia, junio de 2026",
@@ -1072,8 +1072,8 @@
    "miniatura": "/laminillas-miniaturas/mama-reeval/receptor-androgenos.webp",
    "ficha": {
     "laboratorio": {
-     "es": "Teñida e informada en anatomía patológica del hospital de referencia (Barcelona); escaneada en Dana-Farber (inferido)",
-     "en": "Stained and reported by the pathology department of the referral hospital (Barcelona); scanned at Dana-Farber (inferred)"
+     "es": "Teñida e informada en anatomía patológica del hospital de referencia (Barcelona); escaneada en otro centro (inferido)",
+     "en": "Stained and reported by the pathology department of the referral hospital (Barcelona); scanned at another centre (inferred)"
     },
     "fecha": {
      "es": "Informe de revisión de junio de 2026",
@@ -1099,15 +1099,15 @@
    "miniatura": "/laminillas-miniaturas/mama-reeval/rp.webp",
    "ficha": {
     "laboratorio": {
-     "es": "Teñida e informada en anatomía patológica del hospital de referencia (Barcelona); escaneada en Dana-Farber (inferido)",
-     "en": "Stained and reported by the pathology department of the referral hospital (Barcelona); scanned at Dana-Farber (inferred)"
+     "es": "Teñida e informada en anatomía patológica del hospital de referencia (Barcelona); escaneada en otro centro (inferido)",
+     "en": "Stained and reported by the pathology department of the referral hospital (Barcelona); scanned at another centre (inferred)"
     },
     "fecha": {
      "es": "Informe de revisión de junio de 2026",
      "en": "Review report of June 2026"
     },
     "resultado": {
-     "es": "Receptores de progesterona: positivos, intensidad baja, score 25, 20 % de núcleos positivos (clona 1E2).",
+     "es": "Receptores de progesterona: positivos, intensidad baja, score 25, 20 % de núcleos positivos (clona 1E2).",
      "en": "Progesterone receptors: positive, low intensity, score 25, 20% positive nuclei (clone 1E2)."
     },
     "fuente": {
@@ -1132,8 +1132,8 @@
    "miniatura": "/laminillas-miniaturas/mama-reeval/sinaptofisina.webp",
    "ficha": {
     "laboratorio": {
-     "es": "Teñida e informada en anatomía patológica del hospital de referencia (Barcelona); escaneada en Dana-Farber (inferido)",
-     "en": "Stained and reported by the pathology department of the referral hospital (Barcelona); scanned at Dana-Farber (inferred)"
+     "es": "Teñida e informada en anatomía patológica del hospital de referencia (Barcelona); escaneada en otro centro (inferido)",
+     "en": "Stained and reported by the pathology department of the referral hospital (Barcelona); scanned at another centre (inferred)"
     },
     "fecha": {
      "es": "Informe de revisión de junio de 2026",

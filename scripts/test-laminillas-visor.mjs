@@ -148,6 +148,11 @@ for (const [ruta, que] of [['/laminillas', 'la tabla'], ['/laminillas?fila=re&he
   const r = await ev(`({ sw: document.documentElement.scrollWidth, w: window.innerWidth })`)
   ok(r.sw <= r.w, `móvil 390 px, ${que}: sin scroll horizontal (${r.sw} ≤ ${r.w})`)
 }
+await carga('/laminillas?fila=re&he=1', 390, 844)
+ok(await espera(`document.querySelectorAll('.visor-panel').length === 6`, 15000), 'móvil: los 6 paneles montados')
+const movil = await ev(`(() => ({ ops: document.querySelectorAll('.visor-selector input').length,
+  visibles: [...document.querySelectorAll('.visor-panel')].filter((p) => getComputedStyle(p).visibility !== 'hidden').length }))()`)
+ok(movil.ops === 6 && movil.visibles === 1, `móvil: selector con ${movil.ops} opciones y ${movil.visibles} panel visible`)
 
 // ── Visor (con teselas)
 const PANELES = `[...document.querySelectorAll('.visor-panel')].map((p) => ({ um: +p.dataset.umPx || 0, c: (p.dataset.centroUm || '0,0').split(',').map(Number), rot: p.querySelector('.visor-rotulo')?.textContent.trim() }))`
@@ -170,6 +175,7 @@ if (CON_TESELAS) {
   await carga('/laminillas?fila=re', 1440, 1000)
   ok(await espera(`${PANELES}.length === 3 && ${PANELES}.every((p) => p.um > 0)`, 30000), 'RE: tres paneles abiertos (Mama 2024, Mama reevaluación, Hígado)')
   await sleep(3000)
+  ok(await ev(`document.querySelectorAll('.visor-regla').length`) === 3, 'una regla en µm por panel')
   let p0 = await ev(PANELES)
   const igual = (ps) => ps.every((p) => Math.abs(p.um / ps[0].um - 1) < 0.005)
   ok(igual(p0), `zoom a la par en µm/px de pantalla (${p0.map((p) => p.um.toFixed(3)).join(' · ')})`)
@@ -184,21 +190,40 @@ if (CON_TESELAS) {
   ok(Math.hypot(...d0) > 10, `arrastrar mueve el panel (${d0.map((x) => x.toFixed(1)).join(', ')} µm)`)
   ok(cerca(d0, d1, tol), `la otra mama se mueve lo mismo en µm (${d1.map((x) => x.toFixed(1)).join(', ')})`)
   ok(Math.hypot(...d2) < 1, `el hígado no se mueve: paneo libre (${d2.map((x) => x.toFixed(1)).join(', ')})`)
-  await ev(`[...document.querySelectorAll('.visor-barra button')].find((b) => b.hasAttribute('aria-pressed') && /Paneo|panning/.test(b.textContent)).click()`)
+  await ev(`[...document.querySelectorAll('.visor-barra button')].find((b) => b.hasAttribute('aria-pressed') && /Mover a la par|Move together/.test(b.textContent)).click()`)
   await sleep(500)
   await arrastra(0, 120, 80)
   const p3 = await ev(PANELES)
   ok(Math.hypot(...delta(p2[1], p3[1])) < 1 && Math.hypot(...delta(p2[0], p3[0])) > 10, 'sin enlace, la otra mama se queda quieta')
   await ev(`[...document.querySelectorAll('.visor-acciones button')].find((b) => /HE de referencia|Reference/.test(b.textContent)).click()`)
   ok(await espera(`${PANELES}.length === 6`, 15000), '«HE de referencia» pone la HE de cada muestra (6 paneles)')
+  // Foco: abrir desde el botón de la fila y volver a la tabla lo devuelve a ese botón.
+  await carga('/laminillas', 1280, 900)
+  await ev(`[...document.querySelectorAll('.matriz__filaboton')].find((b) => b.textContent.includes('Ki-67')).click()`)
+  ok(await espera(`document.querySelectorAll('.visor-panel').length === 2`, 15000), 'la fila de Ki-67 abre sus 2 paneles')
+  await ev(`[...document.querySelectorAll('.visor-acciones button')].find((b) => /Volver a la tabla|Back to the table/.test(b.textContent)).click()`)
+  ok(await espera(`document.activeElement?.classList.contains('matriz__filaboton') && document.activeElement.textContent.includes('Ki-67')`, 8000), 'al volver a la tabla, el foco vuelve al botón de la fila')
   await carga('/laminillas?muestra=mama-2024&n=1', 1280, 900)
   ok(await espera(`${PANELES}.length === 1 && /^1 de \\d+/.test(document.querySelector('.recorrido__estado')?.textContent.trim() ?? '')`, 15000), 'la cabecera de columna abre el recorrido en «1 de N»')
+  await espera(`${PANELES}.every((p) => p.um > 0)`, 15000)
+  await ev(`document.querySelector('.visor-barra button').click()`); await sleep(1500)
+  const antes = (await ev(PANELES))[0].um
   await ev(`[...document.querySelectorAll('.recorrido button')].at(-1).click()`)
   ok(await espera(`/^2 de \\d+/.test(document.querySelector('.recorrido__estado')?.textContent.trim() ?? '')`, 8000), '«Siguiente» pasa a «2 de N»')
+  await espera(`${PANELES}.every((p) => p.um > 0)`, 15000); await sleep(1500)
+  const despues = (await ev(PANELES))[0].um
+  ok(Math.abs(despues / antes - 1) < 0.01, `al pasar de laminilla se conserva la escala (${antes.toFixed(3)} → ${despues.toFixed(3)} µm/px)`)
   await sleep(2500)
   ok(red.ok > 20 && red.fallo === 0, `teselas: ${red.ok} cargadas, ${red.fallo} fallidas`)
 } else {
   console.log('  (sin LAMINILLAS_TESELAS_DIR ni LAMINILLAS_ORIGEN: no se prueban teselas ni sincronía)')
+}
+// Sin teselas, cada panel tiene que decirlo (no quedarse en blanco). Opt-in: en CI las teselas apuntan
+// al bucket real y, una vez subidas, cargan; esto solo tiene sentido cuando se sabe que faltan.
+if (process.env.LAMINILLAS_ESPERA_FALLO === '1') {
+  await carga('/laminillas?fila=re', 1280, 900)
+  ok(await espera(`document.querySelectorAll('.visor-panel').length === 3 && document.querySelectorAll('.visor-fallo').length === 3`, 20000),
+    'sin teselas, cada panel avisa de que no se han podido cargar')
 }
 
 ws.close(); chrome.kill(); web.close(); teselas?.close()
