@@ -842,9 +842,10 @@ const level = ref<ReadingLevel>(route.query.nivel === 'pro' ? 'pro' : 'simple')
 // Verificado en producción el 11-sep-2026, con ese arreglo ya desplegado.
 let levelFromUrl = false
 // Con ?nivel=pro y un #ancla del bloque pro (el botón de clínica de la home lleva #snapshot-title; /caso,
-// #mapa-acceso), en una carga directa el navegador busca el ancla cuando el bloque aún está oculto
-// (v-show, la query llega tras hidratar) y se queda arriba. Se baja aquí, una sola vez, ya con el
-// nivel aplicado (plan del 20-oct-2026). En la navegación desde la home también pasa y es inocuo.
+// #mapa-acceso), el scroll al ancla lo hace el router (router.options.ts), también en la carga directa:
+// verificado en Chrome en producción el 20-oct-2026. Aquí solo se lleva el FOCO al ancla, una vez, como
+// hace goPro(), para que el lector de pantalla empiece ahí. Sin mover la página: un segundo scroll a la
+// vez que el del router (los dos suaves) se pisaba en el CI y la dejaba a medio camino.
 let anclaHecha = false
 function applyUrlLevel(): boolean {
   const q = route.query.nivel
@@ -855,7 +856,7 @@ function applyUrlLevel(): boolean {
   }
   if (q === 'pro' && route.hash && !anclaHecha) {
     anclaHecha = true
-    irAlAncla(route.hash.slice(1))
+    enfocarAncla(route.hash.slice(1))
   }
   return true
 }
@@ -891,17 +892,21 @@ const levelAnnounce = computed(() =>
 // pro, gestionando el foco (a11y: el cambio de contenido no debe ser silencioso).
 function goPro() {
   level.value = 'pro'
-  irAlAncla('snapshot-title')
-}
-function irAlAncla(id: string) {
   nextTick(() => {
-    const el = document.getElementById(id)
-    if (el) {
-      el.setAttribute('tabindex', '-1')
-      el.focus({ preventScroll: true })
-      el.scrollIntoView({ behavior: 'smooth', block: 'start' })
-    }
+    const el = enfocar('snapshot-title')
+    el?.scrollIntoView({ behavior: 'smooth', block: 'start' })
   })
+}
+function enfocar(id: string): HTMLElement | null {
+  const el = document.getElementById(id)
+  if (el) {
+    el.setAttribute('tabindex', '-1')
+    el.focus({ preventScroll: true })
+  }
+  return el
+}
+function enfocarAncla(id: string) {
+  nextTick(() => enfocar(id))
 }
 // El componente devuelve el id como texto; aquí vuelve a ser un ReadingLevel.
 const ponerNivel = (v: string) => { level.value = v === 'pro' ? 'pro' : 'simple' }

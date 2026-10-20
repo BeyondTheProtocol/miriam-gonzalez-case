@@ -115,6 +115,8 @@ async function hasta(cond, ms = 6000) {
   }
   return false
 }
+// Para el mensaje de un fallo: dónde se quedó la página (en el CI no hay capturas).
+const DONDE = (id) => `(() => { const el = document.getElementById('${id}'); const b = el?.getBoundingClientRect(); return { ruta: location.pathname + location.search + location.hash, scrollY: Math.round(scrollY), top: b ? Math.round(b.top) : null, visible: !!el && el.offsetParent !== null, alto: innerHeight } })()`
 const EN_PANTALLA = (id) => `(() => { const el = document.getElementById('${id}'); if (!el || el.offsetParent === null) return false; const b = el.getBoundingClientRect(); return b.top >= 0 && b.top < innerHeight - 40 })()`
 
 try {
@@ -221,16 +223,19 @@ try {
     }
     await evaluate(`document.querySelector('.pathway-card--clinician .pathway-card__cta a').click()`)
     const llego = await hasta(`location.pathname === '/ciencia' && ${EN_PANTALLA('snapshot-title')}`)
-    ok(llego, `${w}px, clic desde la home: #snapshot-title en pantalla`)
+    const donde = llego ? '' : ` (${JSON.stringify(await evaluate(DONDE('snapshot-title')))})`
+    ok(llego, `${w}px, clic desde la home: #snapshot-title en pantalla${donde}`)
     ok(await evaluate(`document.activeElement?.id === 'snapshot-title'`), `${w}px, clic desde la home: el foco está en «De un vistazo»`)
     // Otra página antes: navegar a la MISMA URL con #ancla es un salto dentro del documento, no una carga.
     await cargar('/')
     for (const ruta of ['/ciencia?nivel=pro#snapshot-title', '/en/science?nivel=pro#snapshot-title']) {
       await cargar(ruta)
       ok(await hasta(EN_PANTALLA('snapshot-title')), `${w}px, carga directa de ${ruta}: #snapshot-title en pantalla`)
+      ok(await hasta(`document.activeElement?.id === 'snapshot-title'`, 3000), `${w}px, carga directa de ${ruta}: el foco está en «De un vistazo»`)
     }
     await cargar('/ciencia?nivel=pro&utm_source=referral&utm_medium=medico&utm_campaign=equipo-clinico#mapa-acceso')
     ok(await hasta(EN_PANTALLA('mapa-acceso')), `${w}px, carga directa del destino de /caso: #mapa-acceso en pantalla`)
+    ok(await hasta(`document.activeElement?.id === 'mapa-acceso'`, 3000), `${w}px, carga directa del destino de /caso: el foco está en el acceso para el equipo médico`)
   }
 
   console.log('\n7. Contraste alto y colores forzados')
