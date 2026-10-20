@@ -1,7 +1,8 @@
 <template>
   <!-- Herramientas en la home (Miriam, 17-oct-2026): sustituye al teaser de /lesiones, que ya
-       está entre las herramientas. Arriba, en grande, la MÁS NUEVA (primera de HERRAMIENTAS);
-       debajo, el resto en el mismo orden (de la más nueva a la más antigua) y el índice.
+       está entre las herramientas. Arriba, en grande, LO_ULTIMO (la que anuncia la barra «LO ÚLTIMO»;
+       desde el 20-oct ya no es la primera de HERRAMIENTAS); debajo, el resto en el orden de
+       HERRAMIENTAS (del cuerpo a la célula) y el índice.
        Título y texto de cada una: los ya publicados de su página (COPY_HERRAMIENTAS); el único
        copy nuevo es la etiqueta «Lo último» (no «Nueva»: la primera de la lista
        siempre es la última en llegar, pero no siempre es nueva; diseno, 17-oct). Sin animación de entrada propia más allá de v-reveal. -->
@@ -48,7 +49,7 @@
             </span>
             <span class="min-w-0 flex-1">
               <!-- el explorador dice para quién es (diseno, 19-oct): la etiqueta ya publicada de /ciencia -->
-              <span v-if="h.key === 'cell_explorer'" class="eyebrow--sm block leading-none mb-0.5">{{ $t('ciencia.level_pro') }}</span>
+              <span v-if="h.key === 'cell_explorer' || h.key === 'slides'" class="eyebrow--sm block leading-none mb-0.5">{{ $t('ciencia.level_pro') }}</span>
               <span class="block font-display font-semibold text-berenjena text-base leading-snug">{{ h.titulo }}</span>
             </span>
             <Icon name="ph:arrow-right" class="shrink-0 w-5 h-5 text-miriam" aria-hidden="true" />
@@ -69,7 +70,7 @@
 <script setup lang="ts">
 const { locale } = useI18n()
 const localePath = useLocalePath()
-const { trackMapa, trackLesiones, trackDatos, trackCelula, trackExplorador } = useSupport()
+const { trackMapa, trackLesiones, trackDatos, trackCelula, trackExplorador, trackLaminillas } = useSupport()
 const { herramientas } = useHerramientas()
 const titleId = useId()
 
@@ -79,8 +80,9 @@ const tarjetas = computed(() =>
     return { ...h, titulo, descripcion, icono: ICONO_HERRAMIENTA[h.key] ?? 'ph:wrench-fill' }
   })
 )
-const destacada = computed(() => tarjetas.value[0]!)
-const resto = computed(() => tarjetas.value.slice(1))
+// Si LO_ULTIMO estuviera oculta (puerta cerrada), se destaca la primera de la lista.
+const destacada = computed(() => tarjetas.value.find((t) => t.key === LO_ULTIMO.key) ?? tarjetas.value[0]!)
+const resto = computed(() => tarjetas.value.filter((t) => t.key !== destacada.value.key))
 
 // Los mismos eventos que medía el teaser anterior, con el mismo origen (home_teaser).
 function medir(key: string) {
@@ -89,5 +91,6 @@ function medir(key: string) {
   else if (key === 'data') trackDatos('home_teaser')
   else if (key === 'cell_by_cell') trackCelula('home_teaser')
   else if (key === 'cell_explorer') trackExplorador('home_teaser')
+  else if (key === 'slides') trackLaminillas('home_teaser')
 }
 </script>

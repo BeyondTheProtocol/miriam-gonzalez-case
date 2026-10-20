@@ -36,6 +36,8 @@
     "test:home-caminos": "node scripts/test-home-caminos.mjs",
     "icons": "nuxt-seo-utils icons --source favicon.svg",
     "update-fundraiser": "tsx update-fundraiser.ts",
+    "test:laminillas": "tsx scripts/test-laminillas.ts",
+    "test:laminillas-visor": "node scripts/test-laminillas-visor.mjs",
     "test:tres-dianas": "tsx scripts/test-tres-dianas.ts"
   },
   "dependencies": {
@@ -58,6 +60,7 @@
     "better-sqlite3": "^12.9.0",
     "nuxt": "^4.4.4",
     "nuxt-ai-ready": "1.3.2",
+    "openseadragon": "5.0.1",
     "react": "18.3.1",
     "react-dom": "18.3.1",
     "three": "^0.184.0",
@@ -72,6 +75,7 @@
     "@nuxtjs/tailwindcss": "^6.13.0",
     "@tailwindcss/typography": "^0.5.16",
     "@types/node": "^25.9.1",
+    "@types/openseadragon": "5.0.1",
     "@zarrita/storage": "0.2.0",
     "nuxt-seo-utils": "^8.1.11",
     "oxfmt": "^0.50.0",
