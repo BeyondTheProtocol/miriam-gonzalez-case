@@ -5,15 +5,15 @@
       Aviso legal
     </h1>
     <p class="font-mono text-xs text-tinta mb-8">
-      Última actualización · 14 de junio de 2026
+      Última actualización · 20 de octubre de 2026
     </p>
 
     <div class="alert-callout mb-10">
       <p class="alert-callout__title">
         <Icon name="ph:warning-circle-fill" class="w-4 h-4" aria-hidden="true" />
-        Pendiente: NIF
+        Pendiente: NIF y domicilio
       </p>
-      El NIF de Beyond the Protocol se añadirá cuando la entidad esté constituida. Recomendamos una revisión jurídica final antes de retirar el <code>noindex</code> y publicar.
+      El NIF y el domicilio de Beyond the Protocol se añadirán cuando la entidad esté constituida.
     </div>
 
     <article class="prose prose-ink max-w-none">
@@ -51,10 +51,13 @@
       <p>El titular procura mantener la información actualizada y veraz, pero no garantiza la ausencia de errores ni la disponibilidad ininterrumpida del sitio. No será responsable de los daños derivados del uso del sitio, de la imposibilidad de acceso o de la presencia de elementos lesivos introducidos por terceros ajenos a su control.</p>
 
       <h2>9 · Protección de datos</h2>
-      <p>El tratamiento de los datos personales que el usuario pueda facilitar se rige por la <NuxtLink :to="localePath('privacidad')" class="link-inline">Política de privacidad</NuxtLink> y la <NuxtLink :to="localePath('cookies')" class="link-inline">Política de cookies</NuxtLink>, que forman parte integrante de este Aviso legal.</p>
+      <p>Beyond the Protocol, como titular del sitio web, cumple con el Reglamento (UE) 2016/679 del Parlamento Europeo y del Consejo, de 27 de abril de 2016, relativo a la protección de las personas físicas en lo que respecta al tratamiento de sus datos personales y a la libre circulación de estos datos, y demás normativa vigente en cada momento, y vela por garantizar un correcto uso y tratamiento de los datos personales del usuario. Si desea obtener información más detallada sobre el tratamiento de los datos recabados a través del sitio web, consulte nuestra <NuxtLink :to="localePath('privacidad')" class="link-inline">Política de privacidad</NuxtLink> y la <NuxtLink :to="localePath('cookies')" class="link-inline">Política de cookies</NuxtLink>, que forman parte integrante de este Aviso legal.</p>
 
       <h2>10 · Legislación aplicable y jurisdicción</h2>
-      <p>El presente Aviso legal se rige por la legislación española. Para la resolución de cualquier controversia, las partes se someten a los juzgados y tribunales del domicilio del titular, salvo que la normativa de protección de los consumidores disponga otro fuero.</p>
+      <p>El presente Aviso legal se rige por la legislación española. Los juzgados y tribunales del domicilio del titular serán competentes para resolver todos los conflictos derivados o relacionados con el uso del sitio, a menos que el usuario actúe como consumidor, en cuyo caso la competencia recaerá en los juzgados y tribunales correspondientes al domicilio del consumidor.</p>
+
+      <h2>11 · Modificación del Aviso legal</h2>
+      <p>Beyond the Protocol se reserva el derecho de ampliar, modificar o sustituir los términos de este Aviso legal. Si se producen cambios relevantes, se publicarán en este sitio web con una antelación razonable a su entrada en vigor.</p>
     </article>
   </main>
 </template>
