@@ -55,6 +55,10 @@ jobs:
       # «hace N días» horneado en el HTML, y un sitemap con URLs que dan 404 o son noindex.
       - run: pnpm test:salud-estatica
 
+      # El sitemap sigue a la puerta del explorador: abierta, es-ES.xml y en-US.xml listan su URL;
+      # cerrada, ninguno; y el robots del HTML generado dice lo mismo.
+      - run: pnpm test:sitemap-explorador
+
       # Home, «Elige tu camino»: accesos directos de clínica y single-cell (href reales sin JS, 44 px,
       # ≤ 2 líneas a 1024, la rejilla tesela, el tabulador sigue el DOM, «Ver detalle clínico» aterriza
       # en «De un vistazo» con clic y con carga directa).

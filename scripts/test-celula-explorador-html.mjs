@@ -738,7 +738,10 @@ for (const [lg, ruta, txt] of [['es', 'celula-a-celula', 'Abrir el explorador'],
   ok(`[${lg}] /celula-a-celula sin la tarjeta (puerta cerrada)`, !!h && !h.includes(txt))
   ok(`[${lg}] /celula-a-celula no precarga Vitessce`, !!h && !vitessce.some((f) => h.includes(f)))
 }
-const sitemaps = readdirSync(ROOT).filter((f) => /^sitemap.*\.xml$/.test(f)).map((f) => readFileSync(join(ROOT, f), 'utf8')).join('\n')
+// los de cada idioma, en __sitemap__/: el sitemap_index.xml de la raíz solo lista esos ficheros, no las páginas
+const dirSitemaps = join(ROOT, '__sitemap__')
+const sitemaps = (existsSync(dirSitemaps) ? readdirSync(dirSitemaps) : []).filter((f) => f.endsWith('.xml')).map((f) => readFileSync(join(dirSitemaps, f), 'utf8')).join('\n')
+ok('hay sitemaps por idioma con URLs', sitemaps.includes('<loc>'))
 ok('el sitemap no lista el explorador', !/celula-a-celula\/explorar|cell-by-cell\/explore/.test(sitemaps))
 
 /* ── 2-4 · en Chrome ── */
