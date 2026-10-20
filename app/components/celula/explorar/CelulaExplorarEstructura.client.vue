@@ -328,7 +328,7 @@ const descripcion = computed(() => L(
     <figcaption class="de__pie">
       <p class="de__sello">{{ L('Predicción, no medición.', 'A prediction, not a measurement.') }}</p>
       <!-- que nadie lea «la proteína de Miriam»: el bloque va bajo las cifras de la biopsia (Adri y verificacion, 20-oct) -->
-      <p class="de__ctx">{{ L('Es la proteína humana de referencia (UniProt), no la de la biopsia de Miriam.', 'This is the human reference protein (UniProt), not the one from Miriam’s biopsy.') }}</p>
+      <p class="de__ctx">{{ L('Parte de la secuencia de referencia de la proteína humana (UniProt), sin datos de la biopsia de Miriam.', 'Built from the reference sequence of the human protein (UniProt), with no data from Miriam’s biopsy.') }}</p>
       <template v-if="estado === 'listo'">
         <p :id="`${uid}-desc`" class="sr-only">{{ descripcion }}</p>
         <p class="de__ley-t" aria-hidden="true">{{ L('Confianza del modelo en cada parte de la proteína (pLDDT)', 'Model confidence in each part of the protein (pLDDT)') }}</p>
@@ -346,8 +346,8 @@ const descripcion = computed(() => L(
         </p>
       </template>
       <p class="de__clave">
-        {{ L('AlphaFold es un programa de inteligencia artificial que predice cómo se pliega una proteína a partir de su secuencia de aminoácidos. Aquí parte de la secuencia de referencia de la proteína humana, así que no dice si esta proteína está en las células de Miriam; eso lo dice la inmunohistoquímica.',
-             'AlphaFold is an artificial intelligence program that predicts how a protein folds from its amino acid sequence. Here it starts from the reference sequence of the human protein, so it does not say whether this protein is in Miriam’s cells; immunohistochemistry tells you that.') }}
+        {{ L('AlphaFold es un programa de inteligencia artificial que predice cómo se pliega una proteína a partir de su secuencia de aminoácidos. Por eso no dice si esta proteína está en las células de Miriam; eso lo dice la inmunohistoquímica.',
+             'AlphaFold is an artificial intelligence program that predicts how a protein folds from its amino acid sequence. So it does not say whether this protein is in Miriam’s cells; immunohistochemistry tells you that.') }}
       </p>
       <template v-if="estado === 'listo'">
         <p class="de__meta">{{ L('Modelo', 'Model') }} AF-{{ uniprot }}-F1{{ version ? ` v${version}` : '' }} · {{ nResiduos }} {{ L('aminoácidos', 'amino acids') }}</p>

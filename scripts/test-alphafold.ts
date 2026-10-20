@@ -94,7 +94,7 @@ ok('crédito y licencia visibles', visor.includes('(Google DeepMind · EMBL-EBI)
 ok('cita de AlphaFold (Jumper 2021) y de AlphaFold DB (Bertoni 2025)', visor.includes('10.1038/s41586-021-03819-2') && visor.includes('10.1093/nar/gkaf1226'))
 ok('enlace a UniProt de la proteína', visor.includes('urlUniprot(uniprot)'))
 // Adri y verificacion (20-oct): el bloque va bajo las cifras de la biopsia; que nadie lea «la proteína de Miriam»
-ok('dice, arriba, que es la proteína de referencia y no la de la biopsia (ES y EN)', visor.includes('Es la proteína humana de referencia (UniProt), no la de la biopsia de Miriam.') && visor.includes('This is the human reference protein (UniProt)'))
+ok('dice, arriba, que parte de la secuencia de referencia y no de la biopsia (ES y EN)', visor.includes('Parte de la secuencia de referencia de la proteína humana (UniProt), sin datos de la biopsia de Miriam.') && visor.includes('Built from the reference sequence of the human protein (UniProt), with no data from Miriam’s biopsy.'))
 ok('la regla de lectura de < 50 de la FAQ de AlphaFold DB (ES y EN)', visor.includes('(< 50) no se interpretan') && visor.includes('(< 50) should not be interpreted'))
 ok('la leyenda va antes del crédito y las referencias', visor.indexOf('class="de__leyenda"') < visor.indexOf('class="de__fuente"') && visor.indexOf('class="de__fuente"') < visor.indexOf("L('Referencias:'"))
 ok('cada estructura dice «predicción, no medición» (ES y EN)', visor.includes('Predicción, no medición.') && visor.includes('A prediction, not a measurement.'))
