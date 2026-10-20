@@ -69,7 +69,7 @@ export const BANDAS: readonly Banda[] = ['muy_alta', 'alta', 'baja', 'muy_baja']
 export const banda = (p: number): Banda => (p > 90 ? 'muy_alta' : p > 70 ? 'alta' : p > 50 ? 'baja' : 'muy_baja')
 export const ETIQUETA_BANDA: Record<Banda, { es: string; en: string }> = {
   muy_alta: { es: 'Muy alta (> 90)', en: 'Very high (> 90)' },
-  alta: { es: 'Alta (70–90)', en: 'Confident (70–90)' },
+  alta: { es: 'Alta (70–90)', en: 'High (70–90)' },   // «High», como el visor de AlphaFold DB hoy (verificacion, 20-oct)
   baja: { es: 'Baja (50–70)', en: 'Low (50–70)' },
   muy_baja: { es: 'Muy baja (< 50)', en: 'Very low (< 50)' },
 }

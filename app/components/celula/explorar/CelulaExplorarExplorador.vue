@@ -878,7 +878,7 @@ function sinTapar(ev: FocusEvent) {
             <CelulaExplorarViolines :filas="filas" :gen="gen" :lang="lang" :lesion="lesion" :adn="d.adn" :papel="d.seleccion[gen]" :loo="d.loo[gen]" :referencia="d.referencia[gen]" />
             <!-- la forma de la proteína (AlphaFold), debajo de las cifras y plegada: el modelo solo se pide al abrirla -->
             <details v-if="uniprotDetalle" :key="`forma-${gen}`" class="exp__porque exp__forma" @toggle="formaAbierta = ($event.target as HTMLDetailsElement).open">
-              <summary>{{ L(`Forma predicha de ${PROT(gen)} (AlphaFold)`, `Predicted shape of ${PROT(gen)} (AlphaFold)`) }}</summary>
+              <summary>{{ L(`Forma 3D predicha de ${PROT(gen)} (AlphaFold)`, `Predicted 3D shape of ${PROT(gen)} (AlphaFold)`) }}</summary>
               <LazyCelulaExplorarEstructura v-if="formaAbierta" :gen="gen" :uniprot="uniprotDetalle" :proteina="PROT(gen)" :lang="lang" />
             </details>
             </template>

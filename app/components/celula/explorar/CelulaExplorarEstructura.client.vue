@@ -236,8 +236,8 @@ onBeforeUnmount(() => {
 
 const pct = (k: number) => (nResiduos.value ? Math.round((100 * k) / nResiduos.value) : 0)
 const descripcion = computed(() => L(
-  `Estructura predicha de ${props.proteina} (${props.gen}, UniProt ${props.uniprot}) por AlphaFold, ${nResiduos.value} aminoácidos, coloreada por la confianza del modelo; el tubo es más fino donde la confianza es menor. Es una predicción, no una medición.`,
-  `Predicted structure of ${props.proteina} (${props.gen}, UniProt ${props.uniprot}) by AlphaFold, ${nResiduos.value} amino acids, colored by model confidence; the tube is thinner where confidence is lower. A prediction, not a measurement.`,
+  `Forma predicha de ${props.proteina} (${props.gen}, UniProt ${props.uniprot}) por AlphaFold, ${nResiduos.value} aminoácidos, coloreada por la confianza del modelo; el tubo es más fino donde la confianza es menor. Es una predicción, no una medición.`,
+  `Predicted shape of ${props.proteina} (${props.gen}, UniProt ${props.uniprot}) by AlphaFold, ${nResiduos.value} amino acids, colored by model confidence; the tube is thinner where confidence is lower. A prediction, not a measurement.`,
 ))
 </script>
 
@@ -249,7 +249,7 @@ const descripcion = computed(() => L(
         class="de__host"
         :role="estado === 'listo' ? 'application' : undefined"
         :aria-roledescription="estado === 'listo' ? L('visor 3D', '3D viewer') : undefined"
-        :aria-label="estado === 'listo' ? L(`Estructura de ${proteina}`, `${proteina} structure`) : undefined"
+        :aria-label="estado === 'listo' ? L(`Forma de ${proteina}`, `${proteina} shape`) : undefined"
         :aria-describedby="estado === 'listo' ? `${uid}-desc ${uid}-uso` : undefined"
         :aria-hidden="estado === 'listo' ? undefined : 'true'"
         :tabindex="estado === 'listo' ? 0 : undefined"
@@ -261,7 +261,7 @@ const descripcion = computed(() => L(
         <a :href="urlEntradaAlphaFold(uniprot)" class="link-underline" target="_blank" rel="noopener">AlphaFold DB</a>.
       </p>
       <div v-if="estado === 'listo'" class="de__mandos">
-        <div class="de__pasos" role="group" :aria-label="L(`Mover la estructura de ${proteina}`, `Move the ${proteina} structure`)">
+        <div class="de__pasos" role="group" :aria-label="L(`Mover la forma de ${proteina}`, `Move the ${proteina} shape`)">
           <button type="button" class="de__paso" :aria-label="L('Girar a la izquierda', 'Rotate left')" @click="gira(-PASO, 0)"><span aria-hidden="true">↶</span></button>
           <button type="button" class="de__paso" :aria-label="L('Girar a la derecha', 'Rotate right')" @click="gira(PASO, 0)"><span aria-hidden="true">↷</span></button>
           <button type="button" class="de__paso" :aria-label="L('Acercar', 'Zoom in')" @click="acerca(0.9)"><span aria-hidden="true">+</span></button>
@@ -273,37 +273,46 @@ const descripcion = computed(() => L(
       </div>
     </div>
     <!-- región viva siempre presente: solo anuncia el error (tres «cargando» a la vez serían ruido) -->
-    <p class="sr-only" role="status">{{ estado === 'error' ? L(`No se ha podido cargar la estructura de ${proteina}.`, `The ${proteina} structure could not be loaded.`) : '' }}</p>
+    <p class="sr-only" role="status">{{ estado === 'error' ? L(`No se ha podido cargar la forma de ${proteina}.`, `The ${proteina} shape could not be loaded.`) : '' }}</p>
     <figcaption class="de__pie">
       <p class="de__sello">{{ L('Predicción, no medición.', 'A prediction, not a measurement.') }}</p>
-      <p class="de__fuente">
-        <a :href="urlEntradaAlphaFold(uniprot)" class="link-underline" target="_blank" rel="noopener">AlphaFold DB<span class="sr-only">{{ L(' (se abre en otra pestaña)', ' (opens in a new tab)') }}</span></a> (Google DeepMind · EMBL-EBI) · <a href="https://creativecommons.org/licenses/by/4.0/" class="link-underline" target="_blank" rel="noopener license">CC BY 4.0<span class="sr-only">{{ L(' (se abre en otra pestaña)', ' (opens in a new tab)') }}</span></a>
-        · <a :href="urlUniprot(uniprot)" class="link-underline" target="_blank" rel="noopener">UniProt {{ uniprot }}<span class="sr-only">{{ L(' (se abre en otra pestaña)', ' (opens in a new tab)') }}</span></a>
+      <!-- contexto (Adri y verificacion, 20-oct): el bloque va bajo las cifras de la biopsia; que nadie lea «la proteína de Miriam» -->
+      <p class="de__ctx">
+        {{ L('AlphaFold es un programa de inteligencia artificial que predice cómo se pliega una proteína a partir de su secuencia de aminoácidos. Aquí se usa la secuencia de referencia de la proteína humana (UniProt), no la de la biopsia de Miriam: el modelo no dice si esta proteína está en sus células; eso lo dice la inmunohistoquímica.',
+             'AlphaFold is an artificial intelligence program that predicts how a protein folds from its amino acid sequence. It uses the reference sequence of the human protein (UniProt), not one from Miriam’s biopsy: the model does not say whether this protein is in her cells; immunohistochemistry tells you that.') }}
       </p>
-      <!-- las citas que pide AlphaFold DB (su FAQ, 20-oct-2026): vivían en el pie de la página aparte; ahora van con cada estructura -->
-      <p class="de__meta">
-        {{ L('Citas:', 'Citations:') }}
-        Jumper J. et al. <cite>Nature</cite> 596, 583–589 (2021), <a href="https://doi.org/10.1038/s41586-021-03819-2" class="link-underline" target="_blank" rel="noopener">doi:10.1038/s41586-021-03819-2</a> ·
-        Bertoni D. et al. <cite>Nucleic Acids Research</cite> (2025), <a href="https://doi.org/10.1093/nar/gkaf1226" class="link-underline" target="_blank" rel="noopener">doi:10.1093/nar/gkaf1226</a> ·
-        <span lang="en">AlphaFold Data Copyright (2022) DeepMind Technologies Limited</span>
-      </p>
+      <!-- la leyenda, pegada al visor (Adri, 20-oct): antes iba tras el crédito y las citas y en escritorio no se veía -->
       <template v-if="estado === 'listo'">
         <p :id="`${uid}-desc`" class="sr-only">{{ descripcion }}</p>
-        <p class="de__ley-t" aria-hidden="true">{{ L('Confianza del modelo (pLDDT), por aminoácido', 'Model confidence (pLDDT), per amino acid') }}</p>
-        <ul class="de__leyenda" :aria-label="L('Confianza del modelo (pLDDT), por aminoácido', 'Model confidence (pLDDT), per amino acid')">
+        <p class="de__ley-t" aria-hidden="true">{{ L('Confianza del modelo en cada parte de la proteína (pLDDT)', 'Model confidence in each part of the protein (pLDDT)') }}</p>
+        <ul class="de__leyenda" :aria-label="L('Confianza del modelo en cada parte de la proteína (pLDDT)', 'Model confidence in each part of the protein (pLDDT)')">
           <li v-for="b in BANDAS" :key="b">
             <span class="de__muestra" :class="`de__muestra--${b}`" :style="{ background: muestras[b] }" aria-hidden="true" />
             <span>{{ ETIQUETA_BANDA[b][lang] }}</span>
             <span class="de__cifra">{{ pct(reparto[b]) }}&nbsp;%</span>
           </li>
         </ul>
-        <p class="de__meta">
-          {{ L('Modelo', 'Model') }} AF-{{ uniprot }}-F1{{ version ? ` v${version}` : '' }} · {{ nResiduos }} {{ L('aminoácidos', 'amino acids') }} · {{ L('tubo más fino = menos confianza', 'thinner tube = lower confidence') }}
+        <!-- la regla de lectura de < 50 es la de la FAQ de AlphaFold DB («should not be interpreted»; verificacion, 20-oct) -->
+        <p class="de__clave">
+          {{ L('El porcentaje es la parte de la proteína en cada nivel. El tubo es más fino donde el modelo confía menos. Las zonas de confianza muy baja (< 50) no se interpretan: AlphaFold DB las asocia a regiones sin una forma fija.',
+               'The percentage is the share of the protein at each level. The tube is thinner where the model is less confident. Very low confidence regions (< 50) should not be interpreted: AlphaFold DB associates them with regions without a fixed shape.') }}
         </p>
+        <p class="de__meta">{{ L('Modelo', 'Model') }} AF-{{ uniprot }}-F1{{ version ? ` v${version}` : '' }} · {{ nResiduos }} {{ L('aminoácidos', 'amino acids') }}</p>
         <p :id="`${uid}-uso`" class="de__meta">
           {{ L('Gírala con los botones, arrastrando con el ratón o, con el foco en el visor, con las flechas; acerca con + y −.', 'Rotate it with the buttons, by dragging with the mouse or, with focus on the viewer, with the arrow keys; zoom with + and −.') }}
         </p>
       </template>
+      <p class="de__fuente">
+        <a :href="urlEntradaAlphaFold(uniprot)" class="link-underline" target="_blank" rel="noopener">AlphaFold DB<span class="sr-only">{{ L(' (se abre en otra pestaña)', ' (opens in a new tab)') }}</span></a> (Google DeepMind · EMBL-EBI) · <a href="https://creativecommons.org/licenses/by/4.0/" class="link-underline" target="_blank" rel="noopener license">CC BY 4.0<span class="sr-only">{{ L(' (se abre en otra pestaña)', ' (opens in a new tab)') }}</span></a>
+        · <a :href="urlUniprot(uniprot)" class="link-underline" target="_blank" rel="noopener">UniProt {{ uniprot }}<span class="sr-only">{{ L(' (se abre en otra pestaña)', ' (opens in a new tab)') }}</span></a>
+      </p>
+      <!-- las citas que pide AlphaFold DB (su FAQ, 20-oct-2026; volumen y páginas de Bertoni según Crossref): vivían en el pie de la página aparte -->
+      <p class="de__meta">
+        {{ L('Referencias:', 'References:') }}
+        Jumper J. et al. <cite>Nature</cite> 596, 583–589 (2021), <a href="https://doi.org/10.1038/s41586-021-03819-2" class="link-underline" target="_blank" rel="noopener">doi:10.1038/s41586-021-03819-2</a> ·
+        Bertoni D. et al. <cite>Nucleic Acids Research</cite> 54, D358–D362 (2025), <a href="https://doi.org/10.1093/nar/gkaf1226" class="link-underline" target="_blank" rel="noopener">doi:10.1093/nar/gkaf1226</a> ·
+        <span lang="en">AlphaFold Data Copyright (2022) DeepMind Technologies Limited</span>
+      </p>
     </figcaption>
   </figure>
 </template>
@@ -329,6 +338,8 @@ const descripcion = computed(() => L(
 .de__pie { display: grid; gap: var(--sp-8); }
 .de__sello { margin: 0; font: var(--tipo-eyebrow); color: var(--identidad); }
 .de__fuente { margin: 0; font: var(--tipo-body-sm); color: var(--texto-2); }
+.de__ctx { margin: 0; font: var(--tipo-body-sm); color: var(--texto-1); }
+.de__clave { margin: 0; font: var(--tipo-body-sm); color: var(--texto-2); }
 .de__ley-t { margin: 0; font: 600 var(--texto-sm)/1.3 var(--font-body); color: var(--texto-1); }
 .de__leyenda { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--sp-4) var(--sp-16); font: var(--tipo-body-sm); color: var(--texto-2); }
 .de__leyenda li { display: flex; align-items: center; gap: var(--sp-8); }
