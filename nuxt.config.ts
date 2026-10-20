@@ -171,6 +171,7 @@ export default defineNuxtConfig({
       'celula-a-celula': { en: '/cell-by-cell' },
       // Fichero plano y no pages/celula-a-celula/explorar.vue: así /celula-a-celula no pasa a ser ruta padre.
       'celula-a-celula-explorar': { es: '/celula-a-celula/explorar', en: '/cell-by-cell/explore' },
+      'tres-dianas': { en: '/three-targets' },
       'ciencia/index': { en: '/science' },
       'ciencia/evidencia': { en: '/science/evidence' },
       'ciencia/[slug]': { en: '/science/[slug]' },
