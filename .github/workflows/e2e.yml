@@ -64,6 +64,10 @@ jobs:
       # _redirects sin .html que lo sombree. Las teselas y la sincronía se prueban en local (LAMINILLAS_TESELAS_DIR).
       - run: pnpm test:laminillas-visor
 
+      # AlphaFold en el explorador, en navegador (con el modelo interceptado, sin red): plegado no pide nada, 20 aperturas
+      # no matan el WebGL del mapa, «Volver» lo deja plegado, el tema oscuro repinta y a 375 px no hay scroll horizontal.
+      - run: pnpm test:alphafold-visor
+
       # Estos no necesitan el build; van detrás porque el checkout ya está listo.
       - run: pnpm test:short-links
       # /laminillas: contrato del manifest, privacidad (sin siglas de muestra ni términos vetados), orden de filas,
@@ -83,7 +87,8 @@ jobs:
       - run: pnpm test:celula-pasos
       # Explorador: contrato de public/celula/explorador/ (solo ejemplo o verificado + OK), puerta, muro en la forma y léxico.
       - run: pnpm test:celula-explorador
-      - run: pnpm test:tres-dianas
+      # AlphaFold en el detalle del gen del explorador: las diez proteínas con su UniProt cotejado, plegado, y /tres-dianas con 301.
+      - run: pnpm test:alphafold
       - run: pnpm test:mapa-focos
       - run: pnpm test:mallas-3d
       - run: pnpm test:esqueleto-huesos
