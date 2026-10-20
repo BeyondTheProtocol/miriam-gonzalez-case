@@ -1,7 +1,8 @@
 <template>
   <!-- Herramientas en la home (Miriam, 17-oct-2026): sustituye al teaser de /lesiones, que ya
-       está entre las herramientas. Arriba, en grande, la MÁS NUEVA (primera de HERRAMIENTAS);
-       debajo, el resto en el mismo orden (de la más nueva a la más antigua) y el índice.
+       está entre las herramientas. Arriba, en grande, LO_ULTIMO (la que anuncia la barra «LO ÚLTIMO»;
+       desde el 20-oct ya no es la primera de HERRAMIENTAS); debajo, el resto en el orden de
+       HERRAMIENTAS (del cuerpo a la célula) y el índice.
        Título y texto de cada una: los ya publicados de su página (COPY_HERRAMIENTAS); el único
        copy nuevo es la etiqueta «Lo último» (no «Nueva»: la primera de la lista
        siempre es la última en llegar, pero no siempre es nueva; diseno, 17-oct). Sin animación de entrada propia más allá de v-reveal. -->
@@ -79,8 +80,9 @@ const tarjetas = computed(() =>
     return { ...h, titulo, descripcion, icono: ICONO_HERRAMIENTA[h.key] ?? 'ph:wrench-fill' }
   })
 )
-const destacada = computed(() => tarjetas.value[0]!)
-const resto = computed(() => tarjetas.value.slice(1))
+// Si LO_ULTIMO estuviera oculta (puerta cerrada), se destaca la primera de la lista.
+const destacada = computed(() => tarjetas.value.find((t) => t.key === LO_ULTIMO.key) ?? tarjetas.value[0]!)
+const resto = computed(() => tarjetas.value.filter((t) => t.key !== destacada.value.key))
 
 // Los mismos eventos que medía el teaser anterior, con el mismo origen (home_teaser).
 function medir(key: string) {
