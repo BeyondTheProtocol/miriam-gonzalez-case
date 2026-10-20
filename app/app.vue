@@ -29,7 +29,7 @@
 </template>
 
 <script setup lang="ts">
-// El idioma lo gestiona @nuxtjs/i18n: detección del navegador en la 1ª visita
-// (detectBrowserLanguage + cookie) y cambio manual vía setLocale (SiteNav).
+// El idioma lo gestiona @nuxtjs/i18n por la URL (/ o /en), sin detección del
+// navegador ni cookie; el cambio manual va por setLocale (SiteNav).
 // Sin redirects manuales aquí — pisaban la elección del usuario.
 </script>
