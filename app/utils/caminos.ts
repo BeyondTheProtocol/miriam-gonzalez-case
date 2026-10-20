@@ -32,14 +32,14 @@ const h = (enlace: EnlaceNav): Acceso => ({ tipo: 'herramienta', enlace })
 // Clínica: datos → lesiones → contacto. «Mama, hígado y hueso» y no el mapa (comité médico, 20-oct, y
 // decisión de Miriam al aprobar el plan): el mapa sale de estudios de marzo a junio de 2026; /lesiones,
 // de la imagen del 8-sep. El mapa sigue en la banda, en /ciencia y en /caso.
-// Single-cell: explorador → datos (qué tejido, cuándo, con qué tratamiento) → biopsia ósea.
+// Single-cell: explorador → datos (qué tejido, cuándo, con qué tratamiento) → laminillas (antes, la biopsia ósea).
 // Prensa y tech (PR 2, regla de diseño «una lista, un tipo»): solo se enlaza el paso que ya nombra un
 // destino que su botón no cubre. Prensa: «Datos del caso listos para citar» → /datos (prensa.vue no
 // enlaza /datos). Tech: «Repo público y documentación» → el repo. Curiosos, pacientes y donar, sin
 // accesos: sus pasos son acciones y sus herramientas ya están en la banda.
 export const ACCESOS: Record<CaminoConAccesos, Acceso[]> = {
   clinician: [h(NAV.data), h(NAV.lesions), { tipo: 'contacto', rol: 'oncologist', etiqueta: 'nav.contact' }],
-  research: [h(NAV.cellExplorer), h(NAV.data), h(NAV.boneBiopsy)],
+  research: [h(NAV.cellExplorer), h(NAV.data), h(NAV.slides)],
   press: [{ tipo: 'herramienta', enlace: NAV.data, etiqueta: 'pathways.press_acceso' }],
   // Logo de GitHub, no ph:code: este repite el icono del título de tech y no dice adónde lleva (diseno, 20-oct).
   tech: [{ tipo: 'externo', href: REPO_URL, etiqueta: 'pathways.tech_acceso', icono: 'ph:github-logo-fill' }],

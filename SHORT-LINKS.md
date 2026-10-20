@@ -42,6 +42,7 @@ control y tu analítica.
 - ⚠️ **Un corto NUNCA puede ser prefijo de su destino ni de otra página.** `nitro.prerender.ignore`
   hace match por prefijo: `/biopsia` en esa lista dejó sin prerenderizar `/biopsia-osea` y tiró
   la página entera a un 404 en producción (20-sep-2026). Por eso la biopsia no tiene genérico.
+  Desde el 20-oct-2026 los `/biopsia-*` llevan a `/laminillas` (y `/biopsia-osea` redirige con 301).
 - `slug` = corto y memorable (`3d`, `caso`, `marcas`…). Si el slug coincide con una
   página existente (`/lesiones`), NO se crea el genérico: la propia URL hace de enlace
   genérico y solo se crean los `-x`, `-in`, `-ig`, `-tt`, `-yt`.
@@ -66,11 +67,11 @@ control y tu analítica.
 | `/lesiones-ig` | `/lesiones` | `lanzamiento-lesiones` (Instagram/bio) |
 | `/lesiones-tt` | `/lesiones` | `lanzamiento-lesiones` (TikTok/bio) |
 | `/lesiones-yt` | `/lesiones` | `lanzamiento-lesiones` (YouTube/bio) |
-| `/biopsia-x` | `/biopsia-osea` | `lanzamiento-biopsia` (X) |
-| `/biopsia-in` | `/biopsia-osea` | `lanzamiento-biopsia` (LinkedIn) |
-| `/biopsia-ig` | `/biopsia-osea` | `lanzamiento-biopsia` (Instagram/bio) |
-| `/biopsia-tt` | `/biopsia-osea` | `lanzamiento-biopsia` (TikTok/bio) |
-| `/biopsia-yt` | `/biopsia-osea` | `lanzamiento-biopsia` (YouTube/bio) |
+| `/biopsia-x` | `/laminillas` | `lanzamiento-biopsia` (X) |
+| `/biopsia-in` | `/laminillas` | `lanzamiento-biopsia` (LinkedIn) |
+| `/biopsia-ig` | `/laminillas` | `lanzamiento-biopsia` (Instagram/bio) |
+| `/biopsia-tt` | `/laminillas` | `lanzamiento-biopsia` (TikTok/bio) |
+| `/biopsia-yt` | `/laminillas` | `lanzamiento-biopsia` (YouTube/bio) |
 | `/caso` | `/ciencia?nivel=pro#mapa-acceso` | `equipo-clinico` (reenvío a médicos, no redes) |
 | `/donar` | GoFundMe (externo) | — (sin UTM: salto externo, no medible en Umami) |
 | `/polaris` | repo público de Polaris en GitHub (externo) | medido vía Link de Umami `cloud.umami.is/q/polaris-repo` («General → Repo Polaris», en Umami → Links) |

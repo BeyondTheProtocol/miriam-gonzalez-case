@@ -60,8 +60,15 @@ jobs:
       # en «De un vistazo» con clic y con carga directa).
       - run: pnpm test:home-caminos
 
+      # /laminillas: la matriz se pinta sin JS, sin scroll horizontal en móvil, y /biopsia-osea sale con 301 en
+      # _redirects sin .html que lo sombree. Las teselas y la sincronía se prueban en local (LAMINILLAS_TESELAS_DIR).
+      - run: pnpm test:laminillas-visor
+
       # Estos no necesitan el build; van detrás porque el checkout ya está listo.
       - run: pnpm test:short-links
+      # /laminillas: contrato del manifest, privacidad (sin siglas de muestra ni términos vetados), orden de filas,
+      # paneo por bloque, que una 4.ª columna entra sin tocar código y el alta y el 301 de la ruta.
+      - run: pnpm test:laminillas
       # La cronología vive en dos ficheros (timeline.yml y `eventos` de caso.json): que no diverjan.
       - run: pnpm test:cronologia-caso
       # La sala de prensa se mantiene a mano: claves ES/EN en paralelo, citas = set aprobado, sin contador de campaña.

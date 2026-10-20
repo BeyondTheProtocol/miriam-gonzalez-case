@@ -7,6 +7,9 @@ export default defineNuxtConfig({
     turnstileSecretKey: process.env.TURNSTILE_SECRET_KEY || '',
     public: {
       turnstileSiteKey: process.env.NUXT_PUBLIC_TURNSTILE_SITE_KEY || '',
+      // /laminillas: raíz de las teselas. Vacía = la del manifest (app/data/laminillas.json, el bucket).
+      // Solo para probar contra un servidor local: NUXT_PUBLIC_LAMINILLAS_TESELAS=http://127.0.0.1:8090/v1/
+      laminillasTeselas: process.env.NUXT_PUBLIC_LAMINILLAS_TESELAS || '',
     },
   },
 
@@ -14,6 +17,7 @@ export default defineNuxtConfig({
     llmsTxt: {
       notes: [
         'The metastasis map (/mapa-metastasis) is a public decision-SUPPORT tool — Miriam’s own case — not a diagnosis or medical advice. The raw Markdown export (/mapa-metastasis.md) stays out of AI exports; the page itself is public.',
+        'The slide viewer (/laminillas) is a public decision-SUPPORT tool with Miriam’s own scanned pathology slides — not a diagnosis or medical advice. Each report result it quotes carries its source and verification seal.',
       ],
     },
   },
@@ -144,7 +148,9 @@ export default defineNuxtConfig({
       include: ['three', 'three/examples/jsm/controls/OrbitControls.js', 'three/examples/jsm/loaders/PLYLoader.js',
         // explorador célula a célula (/celula-a-celula/explorar): React + piezas de Vitessce, solo en su chunk
         'react', 'react-dom/client', '@vitessce/vit-s', '@vitessce/schemas', '@vitessce/constants-internal', '@vitessce/plugins',
-        '@vitessce/csv', '@vitessce/scatterplot-embedding']
+        '@vitessce/csv', '@vitessce/scatterplot-embedding',
+        // visor de laminillas (/laminillas)
+        'openseadragon']
     }
   },
 
@@ -167,7 +173,7 @@ export default defineNuxtConfig({
     detectBrowserLanguage: false,
     customRoutes: 'config',
     pages: {
-      'biopsia-osea': { en: '/bone-biopsy' },
+      'laminillas': { en: '/slides' },
       'celula-a-celula': { en: '/cell-by-cell' },
       // Fichero plano y no pages/celula-a-celula/explorar.vue: así /celula-a-celula no pasa a ser ruta padre.
       'celula-a-celula-explorar': { es: '/celula-a-celula/explorar', en: '/cell-by-cell/explore' },
@@ -231,15 +237,22 @@ export default defineNuxtConfig({
     '/lesiones-ig': { redirect: { to: '/lesiones?utm_source=instagram&utm_medium=bio&utm_campaign=lanzamiento-lesiones', statusCode: 302 } },
     '/lesiones-tt': { redirect: { to: '/lesiones?utm_source=tiktok&utm_medium=bio&utm_campaign=lanzamiento-lesiones', statusCode: 302 } },
     '/lesiones-yt': { redirect: { to: '/lesiones?utm_source=youtube&utm_medium=bio&utm_campaign=lanzamiento-lesiones', statusCode: 302 } },
-    // /biopsia-osea (visor de la microfotografía HE). Sin genérico, a propósito:
+    // /biopsia-osea → /laminillas (20-oct-2026): el visor de laminillas sustituye al de la microfotografía.
+    // 301 (permanente) y las dos rutas en `prerender.ignore`: sin ese .html no hay nada que sombree la regla.
+    '/biopsia-osea': { redirect: { to: '/laminillas', statusCode: 301 } },
+    '/en/bone-biopsy': { redirect: { to: '/en/slides', statusCode: 301 } },
+    // i18n crea también la variante /en/biopsia-osea de la regla de arriba: que no quede como página vacía.
+    '/en/biopsia-osea': { redirect: { to: '/en/slides', statusCode: 301 } },
+    // Enlaces cortos de la biopsia: van directos a /laminillas (sin encadenar con el 301 de arriba).
+    // Sin genérico, a propósito:
     // NO hay genérico «/biopsia»: `prerender.ignore` hace match por PREFIJO, así que
     // ignorar '/biopsia' deja sin prerenderizar /biopsia-osea y la página entera da 404
     // (pasó en producción el 20-sep-2026). Un corto no puede ser prefijo de su destino.
-    '/biopsia-x': { redirect: { to: '/biopsia-osea?utm_source=twitter&utm_medium=post&utm_campaign=lanzamiento-biopsia', statusCode: 302 } },
-    '/biopsia-in': { redirect: { to: '/biopsia-osea?utm_source=linkedin&utm_medium=post&utm_campaign=lanzamiento-biopsia', statusCode: 302 } },
-    '/biopsia-ig': { redirect: { to: '/biopsia-osea?utm_source=instagram&utm_medium=bio&utm_campaign=lanzamiento-biopsia', statusCode: 302 } },
-    '/biopsia-tt': { redirect: { to: '/biopsia-osea?utm_source=tiktok&utm_medium=bio&utm_campaign=lanzamiento-biopsia', statusCode: 302 } },
-    '/biopsia-yt': { redirect: { to: '/biopsia-osea?utm_source=youtube&utm_medium=bio&utm_campaign=lanzamiento-biopsia', statusCode: 302 } },
+    '/biopsia-x': { redirect: { to: '/laminillas?utm_source=twitter&utm_medium=post&utm_campaign=lanzamiento-biopsia', statusCode: 302 } },
+    '/biopsia-in': { redirect: { to: '/laminillas?utm_source=linkedin&utm_medium=post&utm_campaign=lanzamiento-biopsia', statusCode: 302 } },
+    '/biopsia-ig': { redirect: { to: '/laminillas?utm_source=instagram&utm_medium=bio&utm_campaign=lanzamiento-biopsia', statusCode: 302 } },
+    '/biopsia-tt': { redirect: { to: '/laminillas?utm_source=tiktok&utm_medium=bio&utm_campaign=lanzamiento-biopsia', statusCode: 302 } },
+    '/biopsia-yt': { redirect: { to: '/laminillas?utm_source=youtube&utm_medium=bio&utm_campaign=lanzamiento-biopsia', statusCode: 302 } },
     '/donar': { redirect: { to: 'https://www.gofundme.com/f/biopsia-molecular-que-puede-cambiar-su-tratamiento', statusCode: 302 } },
     // El repo público de Polaris. Destino EXTERNO: un 302 directo a GitHub no lo vería Umami (el
     // navegador nunca carga una página con su script, por eso /donar sale «no medible»). Así que
@@ -283,6 +296,8 @@ export default defineNuxtConfig({
         '/3d', '/3d-x', '/3d-in', '/3d-ig', '/3d-tt', '/3d-yt', '/donar', '/caso', '/polaris',
         '/lesiones-x', '/lesiones-in', '/lesiones-ig', '/lesiones-tt', '/lesiones-yt',
         '/biopsia-x', '/biopsia-in', '/biopsia-ig', '/biopsia-tt', '/biopsia-yt',
+        // la página vieja de la biopsia: solo queda su 301 a /laminillas
+        '/biopsia-osea', '/en/bone-biopsy', '/en/biopsia-osea',
         // datos en vivo: que nitro NO prerenderice un fichero que sombree el 302
         '/fundraiser.json', '/donations.json',
       ],

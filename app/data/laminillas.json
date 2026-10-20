@@ -1,0 +1,1158 @@
+{
+ "version": 1,
+ "teselas": "https://btp-laminillas-visor.s3.fr-par.scw.cloud/v1/",
+ "tile": 510,
+ "overlap": 1,
+ "muestras": [
+  {
+   "id": "mama-2024",
+   "corto": {
+    "es": "Mama 2024",
+    "en": "Breast 2024"
+   },
+   "largo": {
+    "es": "Mama · biopsia del diagnóstico (2024)",
+    "en": "Breast · diagnostic biopsy (2024)"
+   },
+   "grupo_paneo": "mama",
+   "escaner": "Roche VENTANA DP 200",
+   "aumento": "40x",
+   "mpp": 0.25
+  },
+  {
+   "id": "mama-reeval",
+   "corto": {
+    "es": "Mama reevaluación",
+    "en": "Breast re-evaluation"
+   },
+   "largo": {
+    "es": "Mama · reevaluación (escaneos de 2026)",
+    "en": "Breast · re-evaluation (2026 scans)"
+   },
+   "grupo_paneo": "mama",
+   "escaner": "Grundium Ocus40 (inferido del formato)",
+   "aumento": "40x",
+   "mpp": 0.25055,
+   "nota": {
+    "es": "Revisión de 2026 del mismo bloque de mama (lo dice su informe). Que estos escaneos sean sus laminillas se deduce del nombre de los ficheros.",
+    "en": "2026 review of the same breast block (its report says so). That these scans are its slides is deduced from the file names."
+   }
+  },
+  {
+   "id": "higado-2026",
+   "corto": {
+    "es": "Hígado 2026",
+    "en": "Liver 2026"
+   },
+   "largo": {
+    "es": "Hígado · biopsia de 2026",
+    "en": "Liver · 2026 biopsy"
+   },
+   "grupo_paneo": "higado",
+   "escaner": "Hamamatsu C13220",
+   "aumento": "20x",
+   "mpp": 0.458863
+  }
+ ],
+ "marcadores": [
+  {
+   "id": "he",
+   "nombre": {
+    "es": "HE",
+    "en": "H&E"
+   }
+  },
+  {
+   "id": "re",
+   "nombre": {
+    "es": "RE · receptor de estrógenos",
+    "en": "ER · oestrogen receptor"
+   }
+  },
+  {
+   "id": "rp",
+   "nombre": {
+    "es": "RP · receptor de progesterona",
+    "en": "PR · progesterone receptor"
+   }
+  },
+  {
+   "id": "her2",
+   "nombre": {
+    "es": "HER2",
+    "en": "HER2"
+   }
+  },
+  {
+   "id": "cromogranina",
+   "nombre": {
+    "es": "Cromogranina",
+    "en": "Chromogranin"
+   }
+  },
+  {
+   "id": "sinaptofisina",
+   "nombre": {
+    "es": "Sinaptofisina",
+    "en": "Synaptophysin"
+   },
+   "nota": {
+    "es": "en Mama 2024 el fichero dice «SNF»: inferido",
+    "en": "Breast 2024 file says “SNF”: inferred"
+   }
+  },
+  {
+   "id": "ki67",
+   "nombre": {
+    "es": "Ki-67",
+    "en": "Ki-67"
+   }
+  },
+  {
+   "id": "ck19",
+   "nombre": {
+    "es": "CK19",
+    "en": "CK19"
+   }
+  },
+  {
+   "id": "gata3",
+   "nombre": {
+    "es": "GATA3",
+    "en": "GATA3"
+   }
+  },
+  {
+   "id": "e-cadherina",
+   "nombre": {
+    "es": "E-cadherina",
+    "en": "E-cadherin"
+   }
+  },
+  {
+   "id": "cd56",
+   "nombre": {
+    "es": "CD56",
+    "en": "CD56"
+   }
+  },
+  {
+   "id": "ttf1",
+   "nombre": {
+    "es": "TTF-1",
+    "en": "TTF-1"
+   }
+  },
+  {
+   "id": "ae1ae3",
+   "nombre": {
+    "es": "AE1/AE3",
+    "en": "AE1/AE3"
+   }
+  },
+  {
+   "id": "p63",
+   "nombre": {
+    "es": "p63",
+    "en": "p63"
+   }
+  },
+  {
+   "id": "insm1",
+   "nombre": {
+    "es": "INSM1",
+    "en": "INSM1"
+   }
+  },
+  {
+   "id": "receptor-androgenos",
+   "nombre": {
+    "es": "RA · receptor de andrógenos",
+    "en": "AR · androgen receptor"
+   }
+  },
+  {
+   "id": "her2-neg",
+   "nombre": {
+    "es": "«HER2, NEG»",
+    "en": "“HER2, NEG”"
+   },
+   "nota": {
+    "es": "así se llama el fichero; no consta si es un control negativo",
+    "en": "the file is named so; whether it is a negative control is not stated"
+   }
+  }
+ ],
+ "laminillas": [
+  {
+   "id": "higado-2026/cromogranina",
+   "muestra": "higado-2026",
+   "marcador": "cromogranina",
+   "dzi": "higado/cromogranina.dzi",
+   "ancho": 19200,
+   "alto": 11520,
+   "mpp": 0.458863,
+   "miniatura": "/laminillas-miniaturas/higado-2026/cromogranina.webp",
+   "ficha": {
+    "laboratorio": {
+     "es": "Anatomía patológica del hospital de referencia (Barcelona)",
+     "en": "Pathology department of the referral hospital (Barcelona)"
+    },
+    "fecha": {
+     "es": "Biopsia de agosto de 2026; informe de septiembre de 2026",
+     "en": "Biopsy of August 2026; report of September 2026"
+    },
+    "resultado": {
+     "es": "El informe solo dice «positividad inmunohistoquímica para cromogranina A», sin porcentaje ni intensidad.",
+     "en": "The report only says “immunohistochemical positivity for chromogranin A”, with no percentage or intensity."
+    },
+    "fuente": {
+     "es": "Informe de anatomía patológica de la biopsia hepática, septiembre de 2026",
+     "en": "Pathology report of the liver biopsy, September 2026"
+    },
+    "sello": "verificado"
+   }
+  },
+  {
+   "id": "higado-2026/he",
+   "muestra": "higado-2026",
+   "marcador": "he",
+   "dzi": "higado/he.dzi",
+   "ancho": 78720,
+   "alto": 49536,
+   "mpp": 0.458863,
+   "miniatura": "/laminillas-miniaturas/higado-2026/he.webp",
+   "ficha": {
+    "laboratorio": {
+     "es": "Anatomía patológica del hospital de referencia (Barcelona)",
+     "en": "Pathology department of the referral hospital (Barcelona)"
+    },
+    "fecha": {
+     "es": "Biopsia de agosto de 2026; informe de septiembre de 2026",
+     "en": "Biopsy of August 2026; report of September 2026"
+    },
+    "resultado": {
+     "es": "Infiltración por carcinoma con diferenciación neuroendocrina (positividad inmunohistoquímica para cromogranina A y sinaptofisina), morfológicamente compatible con metástasis de carcinoma mamario conocido.",
+     "en": "Infiltration by carcinoma with neuroendocrine differentiation (immunohistochemical positivity for chromogranin A and synaptophysin), morphologically compatible with metastasis of the known breast carcinoma."
+    },
+    "fuente": {
+     "es": "Informe de anatomía patológica de la biopsia hepática, septiembre de 2026",
+     "en": "Pathology report of the liver biopsy, September 2026"
+    },
+    "sello": "verificado"
+   }
+  },
+  {
+   "id": "higado-2026/her2",
+   "muestra": "higado-2026",
+   "marcador": "her2",
+   "dzi": "higado/her2.dzi",
+   "ancho": 61440,
+   "alto": 18432,
+   "mpp": 0.458863,
+   "miniatura": "/laminillas-miniaturas/higado-2026/her2.webp",
+   "ficha": {
+    "laboratorio": {
+     "es": "Anatomía patológica del hospital de referencia (Barcelona)",
+     "en": "Pathology department of the referral hospital (Barcelona)"
+    },
+    "fecha": {
+     "es": "Biopsia de agosto de 2026; informe de septiembre de 2026",
+     "en": "Biopsy of August 2026; report of September 2026"
+    },
+    "resultado": {
+     "es": "HER2: negativo (0). No se observa expresión de HER2 en las células neoplásicas, con controles positivos y negativos.",
+     "en": "HER2: negative (0). No HER2 expression is seen in the neoplastic cells, with positive and negative controls."
+    },
+    "fuente": {
+     "es": "Informe de anatomía patológica de la biopsia hepática, septiembre de 2026",
+     "en": "Pathology report of the liver biopsy, September 2026"
+    },
+    "sello": "verificado"
+   }
+  },
+  {
+   "id": "higado-2026/re",
+   "muestra": "higado-2026",
+   "marcador": "re",
+   "dzi": "higado/re.dzi",
+   "ancho": 78720,
+   "alto": 26496,
+   "mpp": 0.458863,
+   "miniatura": "/laminillas-miniaturas/higado-2026/re.webp",
+   "ficha": {
+    "laboratorio": {
+     "es": "Anatomía patológica del hospital de referencia (Barcelona)",
+     "en": "Pathology department of the referral hospital (Barcelona)"
+    },
+    "fecha": {
+     "es": "Biopsia de agosto de 2026; informe de septiembre de 2026",
+     "en": "Biopsy of August 2026; report of September 2026"
+    },
+    "resultado": {
+     "es": "Receptores de estrógeno: negativo (0 %).",
+     "en": "Oestrogen receptors: negative (0%)."
+    },
+    "fuente": {
+     "es": "Informe de anatomía patológica de la biopsia hepática, septiembre de 2026",
+     "en": "Pathology report of the liver biopsy, September 2026"
+    },
+    "sello": "verificado"
+   }
+  },
+  {
+   "id": "higado-2026/rp",
+   "muestra": "higado-2026",
+   "marcador": "rp",
+   "dzi": "higado/rp.dzi",
+   "ancho": 67200,
+   "alto": 26496,
+   "mpp": 0.458863,
+   "miniatura": "/laminillas-miniaturas/higado-2026/rp.webp",
+   "ficha": {
+    "laboratorio": {
+     "es": "Anatomía patológica del hospital de referencia (Barcelona)",
+     "en": "Pathology department of the referral hospital (Barcelona)"
+    },
+    "fecha": {
+     "es": "Biopsia de agosto de 2026; informe de septiembre de 2026",
+     "en": "Biopsy of August 2026; report of September 2026"
+    },
+    "resultado": {
+     "es": "Receptores de progesterona: positividad en el 5 % de las células neoplásicas (2+).",
+     "en": "Progesterone receptors: positive in 5% of neoplastic cells (2+)."
+    },
+    "fuente": {
+     "es": "Informe de anatomía patológica de la biopsia hepática, septiembre de 2026",
+     "en": "Pathology report of the liver biopsy, September 2026"
+    },
+    "sello": "verificado"
+   }
+  },
+  {
+   "id": "higado-2026/sinaptofisina",
+   "muestra": "higado-2026",
+   "marcador": "sinaptofisina",
+   "dzi": "higado/sinaptofisina.dzi",
+   "ancho": 90240,
+   "alto": 27648,
+   "mpp": 0.458863,
+   "miniatura": "/laminillas-miniaturas/higado-2026/sinaptofisina.webp",
+   "ficha": {
+    "laboratorio": {
+     "es": "Anatomía patológica del hospital de referencia (Barcelona)",
+     "en": "Pathology department of the referral hospital (Barcelona)"
+    },
+    "fecha": {
+     "es": "Biopsia de agosto de 2026; informe de septiembre de 2026",
+     "en": "Biopsy of August 2026; report of September 2026"
+    },
+    "resultado": {
+     "es": "El informe solo dice «positividad inmunohistoquímica para sinaptofisina», sin porcentaje ni intensidad.",
+     "en": "The report only says “immunohistochemical positivity for synaptophysin”, with no percentage or intensity."
+    },
+    "fuente": {
+     "es": "Informe de anatomía patológica de la biopsia hepática, septiembre de 2026",
+     "en": "Pathology report of the liver biopsy, September 2026"
+    },
+    "sello": "verificado"
+   }
+  },
+  {
+   "id": "mama-2024/cd56",
+   "muestra": "mama-2024",
+   "marcador": "cd56",
+   "dzi": "mama-2024/cd56.dzi",
+   "ancho": 57344,
+   "alto": 38912,
+   "mpp": 0.25,
+   "miniatura": "/laminillas-miniaturas/mama-2024/cd56.webp",
+   "ficha": {
+    "laboratorio": {
+     "es": "Anatomía patológica del hospital del diagnóstico (Murcia)",
+     "en": "Pathology department of the diagnosing hospital (Murcia)"
+    },
+    "fecha": {
+     "es": "Informe de enero de 2024",
+     "en": "Report of January 2024"
+    },
+    "resultado": {
+     "es": "CD56: negativo.",
+     "en": "CD56: negative."
+    },
+    "fuente": {
+     "es": "Informe de anatomía patológica de la biopsia de mama, enero de 2024",
+     "en": "Pathology report of the breast biopsy, January 2024"
+    },
+    "sello": "verificado"
+   }
+  },
+  {
+   "id": "mama-2024/ck19",
+   "muestra": "mama-2024",
+   "marcador": "ck19",
+   "dzi": "mama-2024/ck19.dzi",
+   "ancho": 65536,
+   "alto": 34816,
+   "mpp": 0.25,
+   "miniatura": "/laminillas-miniaturas/mama-2024/ck19.webp",
+   "ficha": {
+    "laboratorio": {
+     "es": "Anatomía patológica del hospital del diagnóstico (Murcia)",
+     "en": "Pathology department of the diagnosing hospital (Murcia)"
+    },
+    "fecha": {
+     "es": "Informe de enero de 2024",
+     "en": "Report of January 2024"
+    },
+    "resultado": {
+     "es": "Citoqueratina 19: positiva.",
+     "en": "Cytokeratin 19: positive."
+    },
+    "fuente": {
+     "es": "Informe de anatomía patológica de la biopsia de mama, enero de 2024",
+     "en": "Pathology report of the breast biopsy, January 2024"
+    },
+    "sello": "verificado"
+   }
+  },
+  {
+   "id": "mama-2024/cromogranina",
+   "muestra": "mama-2024",
+   "marcador": "cromogranina",
+   "dzi": "mama-2024/cromogranina.dzi",
+   "ancho": 61440,
+   "alto": 40960,
+   "mpp": 0.25,
+   "miniatura": "/laminillas-miniaturas/mama-2024/cromogranina.webp",
+   "ficha": {
+    "laboratorio": {
+     "es": "Anatomía patológica del hospital del diagnóstico (Murcia)",
+     "en": "Pathology department of the diagnosing hospital (Murcia)"
+    },
+    "fecha": {
+     "es": "Informe de enero de 2024",
+     "en": "Report of January 2024"
+    },
+    "resultado": {
+     "es": "Cromogranina: positiva (80 % de células neoplásicas).",
+     "en": "Chromogranin: positive (80% of neoplastic cells)."
+    },
+    "fuente": {
+     "es": "Informe de anatomía patológica de la biopsia de mama, enero de 2024",
+     "en": "Pathology report of the breast biopsy, January 2024"
+    },
+    "sello": "verificado"
+   }
+  },
+  {
+   "id": "mama-2024/e-cadherina",
+   "muestra": "mama-2024",
+   "marcador": "e-cadherina",
+   "dzi": "mama-2024/e-cadherina.dzi",
+   "ancho": 65536,
+   "alto": 35840,
+   "mpp": 0.25,
+   "miniatura": "/laminillas-miniaturas/mama-2024/e-cadherina.webp",
+   "ficha": {
+    "laboratorio": {
+     "es": "Anatomía patológica del hospital del diagnóstico (Murcia)",
+     "en": "Pathology department of the diagnosing hospital (Murcia)"
+    },
+    "fecha": {
+     "es": "Informe de enero de 2024",
+     "en": "Report of January 2024"
+    },
+    "resultado": null,
+    "fuente": null,
+    "sello": "sin-verificar",
+    "nota": {
+     "es": "El informe de 2024 no incluye E-cadherina: la tinción solo existe como escaneo.",
+     "en": "The 2024 report does not include E-cadherin: the stain exists only as a scan."
+    }
+   }
+  },
+  {
+   "id": "mama-2024/gata3",
+   "muestra": "mama-2024",
+   "marcador": "gata3",
+   "dzi": "mama-2024/gata3.dzi",
+   "ancho": 65536,
+   "alto": 43008,
+   "mpp": 0.25,
+   "miniatura": "/laminillas-miniaturas/mama-2024/gata3.webp",
+   "ficha": {
+    "laboratorio": {
+     "es": "Anatomía patológica del hospital del diagnóstico (Murcia)",
+     "en": "Pathology department of the diagnosing hospital (Murcia)"
+    },
+    "fecha": {
+     "es": "Informe de enero de 2024",
+     "en": "Report of January 2024"
+    },
+    "resultado": {
+     "es": "GATA-3: positivo (tinción nuclear).",
+     "en": "GATA-3: positive (nuclear staining)."
+    },
+    "fuente": {
+     "es": "Informe de anatomía patológica de la biopsia de mama, enero de 2024",
+     "en": "Pathology report of the breast biopsy, January 2024"
+    },
+    "sello": "verificado"
+   }
+  },
+  {
+   "id": "mama-2024/he-1",
+   "muestra": "mama-2024",
+   "marcador": "he",
+   "dzi": "mama-2024/he-1.dzi",
+   "ancho": 49152,
+   "alto": 155648,
+   "mpp": 0.25,
+   "miniatura": "/laminillas-miniaturas/mama-2024/he-1.webp",
+   "ficha": {
+    "laboratorio": {
+     "es": "Anatomía patológica del hospital del diagnóstico (Murcia)",
+     "en": "Pathology department of the diagnosing hospital (Murcia)"
+    },
+    "fecha": {
+     "es": "Informe de enero de 2024",
+     "en": "Report of January 2024"
+    },
+    "resultado": {
+     "es": "Carcinoma infiltrante sin tipo especial con diferenciación neuroendocrina, grado II (formación tubular 3, pleomorfismo nuclear 2, actividad mitótica 2). Carcinoma ductal in situ de patrón micropapilar y cribiforme, con atipia nuclear de grado 2 y sin comedonecrosis (20 % de la neoplasia).",
+     "en": "Invasive carcinoma of no special type with neuroendocrine differentiation, grade II (tubule formation 3, nuclear pleomorphism 2, mitotic activity 2). Ductal carcinoma in situ, micropapillary and cribriform pattern, nuclear atypia grade 2, no comedonecrosis (20% of the neoplasm)."
+    },
+    "fuente": {
+     "es": "Informe de anatomía patológica de la biopsia de mama, enero de 2024",
+     "en": "Pathology report of the breast biopsy, January 2024"
+    },
+    "sello": "verificado"
+   },
+   "variante": {
+    "es": "corte 1",
+    "en": "section 1"
+   }
+  },
+  {
+   "id": "mama-2024/he-2",
+   "muestra": "mama-2024",
+   "marcador": "he",
+   "dzi": "mama-2024/he-2.dzi",
+   "ancho": 53248,
+   "alto": 153600,
+   "mpp": 0.25,
+   "miniatura": "/laminillas-miniaturas/mama-2024/he-2.webp",
+   "ficha": {
+    "laboratorio": {
+     "es": "Anatomía patológica del hospital del diagnóstico (Murcia)",
+     "en": "Pathology department of the diagnosing hospital (Murcia)"
+    },
+    "fecha": {
+     "es": "Informe de enero de 2024",
+     "en": "Report of January 2024"
+    },
+    "resultado": {
+     "es": "Carcinoma infiltrante sin tipo especial con diferenciación neuroendocrina, grado II (formación tubular 3, pleomorfismo nuclear 2, actividad mitótica 2). Carcinoma ductal in situ de patrón micropapilar y cribiforme, con atipia nuclear de grado 2 y sin comedonecrosis (20 % de la neoplasia).",
+     "en": "Invasive carcinoma of no special type with neuroendocrine differentiation, grade II (tubule formation 3, nuclear pleomorphism 2, mitotic activity 2). Ductal carcinoma in situ, micropapillary and cribriform pattern, nuclear atypia grade 2, no comedonecrosis (20% of the neoplasm)."
+    },
+    "fuente": {
+     "es": "Informe de anatomía patológica de la biopsia de mama, enero de 2024",
+     "en": "Pathology report of the breast biopsy, January 2024"
+    },
+    "sello": "verificado"
+   },
+   "variante": {
+    "es": "corte 2",
+    "en": "section 2"
+   }
+  },
+  {
+   "id": "mama-2024/her2",
+   "muestra": "mama-2024",
+   "marcador": "her2",
+   "dzi": "mama-2024/her2.dzi",
+   "ancho": 20480,
+   "alto": 40960,
+   "mpp": 0.25,
+   "miniatura": "/laminillas-miniaturas/mama-2024/her2.webp",
+   "ficha": {
+    "laboratorio": {
+     "es": "Anatomía patológica del hospital del diagnóstico (Murcia)",
+     "en": "Pathology department of the diagnosing hospital (Murcia)"
+    },
+    "fecha": {
+     "es": "Informe de enero de 2024",
+     "en": "Report of January 2024"
+    },
+    "resultado": {
+     "es": "HER2 (Pathway, Roche): negativo (0).",
+     "en": "HER2 (Pathway, Roche): negative (0)."
+    },
+    "fuente": {
+     "es": "Informe de anatomía patológica de la biopsia de mama, enero de 2024",
+     "en": "Pathology report of the breast biopsy, January 2024"
+    },
+    "sello": "verificado"
+   }
+  },
+  {
+   "id": "mama-2024/ki67",
+   "muestra": "mama-2024",
+   "marcador": "ki67",
+   "dzi": "mama-2024/ki67.dzi",
+   "ancho": 36864,
+   "alto": 61440,
+   "mpp": 0.25,
+   "miniatura": "/laminillas-miniaturas/mama-2024/ki67.webp",
+   "ficha": {
+    "laboratorio": {
+     "es": "Anatomía patológica del hospital del diagnóstico (Murcia)",
+     "en": "Pathology department of the diagnosing hospital (Murcia)"
+    },
+    "fecha": {
+     "es": "Informe de enero de 2024",
+     "en": "Report of January 2024"
+    },
+    "resultado": {
+     "es": "Actividad proliferativa (Ki-67): 60 %.",
+     "en": "Proliferative activity (Ki-67): 60%."
+    },
+    "fuente": {
+     "es": "Informe de anatomía patológica de la biopsia de mama, enero de 2024",
+     "en": "Pathology report of the breast biopsy, January 2024"
+    },
+    "sello": "verificado"
+   }
+  },
+  {
+   "id": "mama-2024/re",
+   "muestra": "mama-2024",
+   "marcador": "re",
+   "dzi": "mama-2024/re.dzi",
+   "ancho": 49152,
+   "alto": 39936,
+   "mpp": 0.25,
+   "miniatura": "/laminillas-miniaturas/mama-2024/re.webp",
+   "ficha": {
+    "laboratorio": {
+     "es": "Anatomía patológica del hospital del diagnóstico (Murcia)",
+     "en": "Pathology department of the diagnosing hospital (Murcia)"
+    },
+    "fecha": {
+     "es": "Informe de enero de 2024",
+     "en": "Report of January 2024"
+    },
+    "resultado": {
+     "es": "Receptores de estrógenos: positivos (95 % de células neoplásicas).",
+     "en": "Oestrogen receptors: positive (95% of neoplastic cells)."
+    },
+    "fuente": {
+     "es": "Informe de anatomía patológica de la biopsia de mama, enero de 2024",
+     "en": "Pathology report of the breast biopsy, January 2024"
+    },
+    "sello": "verificado"
+   }
+  },
+  {
+   "id": "mama-2024/rp",
+   "muestra": "mama-2024",
+   "marcador": "rp",
+   "dzi": "mama-2024/rp.dzi",
+   "ancho": 53248,
+   "alto": 31744,
+   "mpp": 0.25,
+   "miniatura": "/laminillas-miniaturas/mama-2024/rp.webp",
+   "ficha": {
+    "laboratorio": {
+     "es": "Anatomía patológica del hospital del diagnóstico (Murcia)",
+     "en": "Pathology department of the diagnosing hospital (Murcia)"
+    },
+    "fecha": {
+     "es": "Informe de enero de 2024",
+     "en": "Report of January 2024"
+    },
+    "resultado": {
+     "es": "Receptores de progesterona: positivos (5 % de células neoplásicas).",
+     "en": "Progesterone receptors: positive (5% of neoplastic cells)."
+    },
+    "fuente": {
+     "es": "Informe de anatomía patológica de la biopsia de mama, enero de 2024",
+     "en": "Pathology report of the breast biopsy, January 2024"
+    },
+    "sello": "verificado"
+   }
+  },
+  {
+   "id": "mama-2024/sinaptofisina",
+   "muestra": "mama-2024",
+   "marcador": "sinaptofisina",
+   "dzi": "mama-2024/sinaptofisina.dzi",
+   "ancho": 57344,
+   "alto": 51200,
+   "mpp": 0.25,
+   "miniatura": "/laminillas-miniaturas/mama-2024/sinaptofisina.webp",
+   "ficha": {
+    "laboratorio": {
+     "es": "Anatomía patológica del hospital del diagnóstico (Murcia)",
+     "en": "Pathology department of the diagnosing hospital (Murcia)"
+    },
+    "fecha": {
+     "es": "Informe de enero de 2024",
+     "en": "Report of January 2024"
+    },
+    "resultado": {
+     "es": "Sinaptofisina: positiva (80 % de células neoplásicas).",
+     "en": "Synaptophysin: positive (80% of neoplastic cells)."
+    },
+    "fuente": {
+     "es": "Informe de anatomía patológica de la biopsia de mama, enero de 2024",
+     "en": "Pathology report of the breast biopsy, January 2024"
+    },
+    "sello": "inferido",
+    "nota": {
+     "es": "El resultado es el del informe. Que el fichero «SNF» sea la sinaptofisina se deduce del nombre; no está confirmado.",
+     "en": "The result is the one in the report. That the “SNF” file is synaptophysin is deduced from its name; it is not confirmed."
+    }
+   }
+  },
+  {
+   "id": "mama-2024/ttf1",
+   "muestra": "mama-2024",
+   "marcador": "ttf1",
+   "dzi": "mama-2024/ttf1.dzi",
+   "ancho": 65536,
+   "alto": 41984,
+   "mpp": 0.25,
+   "miniatura": "/laminillas-miniaturas/mama-2024/ttf1.webp",
+   "ficha": {
+    "laboratorio": {
+     "es": "Anatomía patológica del hospital del diagnóstico (Murcia)",
+     "en": "Pathology department of the diagnosing hospital (Murcia)"
+    },
+    "fecha": {
+     "es": "Informe de enero de 2024",
+     "en": "Report of January 2024"
+    },
+    "resultado": null,
+    "fuente": null,
+    "sello": "sin-verificar",
+    "nota": {
+     "es": "Ningún informe de esta muestra menciona TTF-1: la tinción solo existe como escaneo.",
+     "en": "No report on this sample mentions TTF-1: the stain exists only as a scan."
+    }
+   }
+  },
+  {
+   "id": "mama-reeval/ae1ae3",
+   "muestra": "mama-reeval",
+   "marcador": "ae1ae3",
+   "dzi": "mama-reeval/ae1ae3.dzi",
+   "ancho": 20480,
+   "alto": 32768,
+   "mpp": 0.25055,
+   "miniatura": "/laminillas-miniaturas/mama-reeval/ae1ae3.webp",
+   "ficha": {
+    "laboratorio": {
+     "es": "Teñida e informada en anatomía patológica del hospital de referencia (Barcelona); escaneada en Dana-Farber (inferido)",
+     "en": "Stained and reported by the pathology department of the referral hospital (Barcelona); scanned at Dana-Farber (inferred)"
+    },
+    "fecha": {
+     "es": "Informe de revisión de junio de 2026",
+     "en": "Review report of June 2026"
+    },
+    "resultado": null,
+    "fuente": null,
+    "sello": "sin-verificar",
+    "nota": {
+     "es": "Ningún informe de este bloque da AE1/AE3: la tinción solo existe como escaneo.",
+     "en": "No report on this block gives AE1/AE3: the stain exists only as a scan."
+    }
+   }
+  },
+  {
+   "id": "mama-reeval/ck19",
+   "muestra": "mama-reeval",
+   "marcador": "ck19",
+   "dzi": "mama-reeval/ck19.dzi",
+   "ancho": 40960,
+   "alto": 28672,
+   "mpp": 0.25055,
+   "miniatura": "/laminillas-miniaturas/mama-reeval/ck19.webp",
+   "ficha": {
+    "laboratorio": {
+     "es": "Teñida e informada en anatomía patológica del hospital de referencia (Barcelona); escaneada en Dana-Farber (inferido)",
+     "en": "Stained and reported by the pathology department of the referral hospital (Barcelona); scanned at Dana-Farber (inferred)"
+    },
+    "fecha": {
+     "es": "Informe de revisión de junio de 2026",
+     "en": "Review report of June 2026"
+    },
+    "resultado": {
+     "es": "CK19: expresión heterogénea de patrón en mosaico (clona A53-B/A2.26).",
+     "en": "CK19: heterogeneous expression in a mosaic pattern (clone A53-B/A2.26)."
+    },
+    "fuente": {
+     "es": "Informe de revisión del mismo bloque de mama, hospital de referencia, junio de 2026",
+     "en": "Review report of the same breast block, referral hospital, June 2026"
+    },
+    "sello": "inferido",
+    "nota": {
+     "es": "El resultado es el del informe de revisión. Que este escaneo sea una de las laminillas de esa revisión se deduce del nombre de los ficheros; no está confirmado.",
+     "en": "The result is the one in the review report. That this scan is one of that review’s slides is deduced from the file names; it is not confirmed."
+    }
+   }
+  },
+  {
+   "id": "mama-reeval/cromogranina",
+   "muestra": "mama-reeval",
+   "marcador": "cromogranina",
+   "dzi": "mama-reeval/cromogranina.dzi",
+   "ancho": 28672,
+   "alto": 28672,
+   "mpp": 0.25055,
+   "miniatura": "/laminillas-miniaturas/mama-reeval/cromogranina.webp",
+   "ficha": {
+    "laboratorio": {
+     "es": "Teñida e informada en anatomía patológica del hospital de referencia (Barcelona); escaneada en Dana-Farber (inferido)",
+     "en": "Stained and reported by the pathology department of the referral hospital (Barcelona); scanned at Dana-Farber (inferred)"
+    },
+    "fecha": {
+     "es": "Informe de revisión de junio de 2026",
+     "en": "Review report of June 2026"
+    },
+    "resultado": {
+     "es": "Cromogranina: expresión positiva y focal.",
+     "en": "Chromogranin: positive, focal expression."
+    },
+    "fuente": {
+     "es": "Informe de revisión del mismo bloque de mama, hospital de referencia, junio de 2026",
+     "en": "Review report of the same breast block, referral hospital, June 2026"
+    },
+    "sello": "inferido",
+    "nota": {
+     "es": "El resultado es el del informe de revisión. Que este escaneo sea una de las laminillas de esa revisión se deduce del nombre de los ficheros; no está confirmado.",
+     "en": "The result is the one in the review report. That this scan is one of that review’s slides is deduced from the file names; it is not confirmed."
+    }
+   }
+  },
+  {
+   "id": "mama-reeval/he",
+   "muestra": "mama-reeval",
+   "marcador": "he",
+   "dzi": "mama-reeval/he.dzi",
+   "ancho": 36864,
+   "alto": 24576,
+   "mpp": 0.25055,
+   "miniatura": "/laminillas-miniaturas/mama-reeval/he.webp",
+   "ficha": {
+    "laboratorio": {
+     "es": "Teñida e informada en anatomía patológica del hospital de referencia (Barcelona); escaneada en Dana-Farber (inferido)",
+     "en": "Stained and reported by the pathology department of the referral hospital (Barcelona); scanned at Dana-Farber (inferred)"
+    },
+    "fecha": {
+     "es": "Informe de revisión de junio de 2026",
+     "en": "Review report of June 2026"
+    },
+    "resultado": {
+     "es": "Carcinoma infiltrante con diferenciación neuroendocrina, grado histológico 2 de Nottingham (diferenciación tubular 3, pleomorfismo nuclear 2, mitosis 1). Sin invasión vascular ni necrosis tumoral. Componente intraductal presente, de patrón micropapilar y grado nuclear bajo. Microcalcificaciones en el componente tumoral. Linfocitos intratumorales (TILs) por debajo del 5 %. Subtipo inmunohistoquímico: luminal B, HER2 negativo.",
+     "en": "Invasive carcinoma with neuroendocrine differentiation, Nottingham histological grade 2 (tubule formation 3, nuclear pleomorphism 2, mitoses 1). No vascular invasion or tumour necrosis. Intraductal component present, micropapillary pattern, low nuclear grade. Microcalcifications in the tumour component. Tumour-infiltrating lymphocytes (TILs) below 5%. Immunohistochemical subtype: luminal B, HER2 negative."
+    },
+    "fuente": {
+     "es": "Informe de revisión del mismo bloque de mama, hospital de referencia, junio de 2026",
+     "en": "Review report of the same breast block, referral hospital, June 2026"
+    },
+    "sello": "inferido",
+    "nota": {
+     "es": "El resultado es el del informe de revisión. Que este escaneo sea una de las laminillas de esa revisión se deduce del nombre de los ficheros; no está confirmado.",
+     "en": "The result is the one in the review report. That this scan is one of that review’s slides is deduced from the file names; it is not confirmed."
+    }
+   }
+  },
+  {
+   "id": "mama-reeval/her2",
+   "muestra": "mama-reeval",
+   "marcador": "her2",
+   "dzi": "mama-reeval/her2.dzi",
+   "ancho": 32768,
+   "alto": 20480,
+   "mpp": 0.25055,
+   "miniatura": "/laminillas-miniaturas/mama-reeval/her2.webp",
+   "ficha": {
+    "laboratorio": {
+     "es": "Teñida e informada en anatomía patológica del hospital de referencia (Barcelona); escaneada en Dana-Farber (inferido)",
+     "en": "Stained and reported by the pathology department of the referral hospital (Barcelona); scanned at Dana-Farber (inferred)"
+    },
+    "fecha": {
+     "es": "Informe de revisión de junio de 2026",
+     "en": "Review report of June 2026"
+    },
+    "resultado": {
+     "es": "HER2: negativo (0), ausencia de tinción de membrana (clona 4B5).",
+     "en": "HER2: negative (0), no membrane staining (clone 4B5)."
+    },
+    "fuente": {
+     "es": "Informe de revisión del mismo bloque de mama, hospital de referencia, junio de 2026",
+     "en": "Review report of the same breast block, referral hospital, June 2026"
+    },
+    "sello": "inferido",
+    "nota": {
+     "es": "El resultado es el del informe de revisión. Que este escaneo sea una de las laminillas de esa revisión se deduce del nombre de los ficheros; no está confirmado.",
+     "en": "The result is the one in the review report. That this scan is one of that review’s slides is deduced from the file names; it is not confirmed."
+    }
+   }
+  },
+  {
+   "id": "mama-reeval/her2-neg",
+   "muestra": "mama-reeval",
+   "marcador": "her2-neg",
+   "dzi": "mama-reeval/her2-neg.dzi",
+   "ancho": 32768,
+   "alto": 32768,
+   "mpp": 0.25055,
+   "miniatura": "/laminillas-miniaturas/mama-reeval/her2-neg.webp",
+   "ficha": {
+    "laboratorio": {
+     "es": "Teñida e informada en anatomía patológica del hospital de referencia (Barcelona); escaneada en Dana-Farber (inferido)",
+     "en": "Stained and reported by the pathology department of the referral hospital (Barcelona); scanned at Dana-Farber (inferred)"
+    },
+    "fecha": {
+     "es": "Informe de revisión de junio de 2026",
+     "en": "Review report of June 2026"
+    },
+    "resultado": null,
+    "fuente": null,
+    "sello": "sin-verificar",
+    "nota": {
+     "es": "Así se llama el fichero. Ningún documento dice qué es: el informe de revisión da un solo HER2 y no menciona un control.",
+     "en": "That is the file name. No document says what it is: the review report gives a single HER2 and mentions no control."
+    }
+   }
+  },
+  {
+   "id": "mama-reeval/insm1",
+   "muestra": "mama-reeval",
+   "marcador": "insm1",
+   "dzi": "mama-reeval/insm1.dzi",
+   "ancho": 28672,
+   "alto": 24576,
+   "mpp": 0.25055,
+   "miniatura": "/laminillas-miniaturas/mama-reeval/insm1.webp",
+   "ficha": {
+    "laboratorio": {
+     "es": "Teñida e informada en anatomía patológica del hospital de referencia (Barcelona); escaneada en Dana-Farber (inferido)",
+     "en": "Stained and reported by the pathology department of the referral hospital (Barcelona); scanned at Dana-Farber (inferred)"
+    },
+    "fecha": {
+     "es": "Informe de revisión de junio de 2026",
+     "en": "Review report of June 2026"
+    },
+    "resultado": {
+     "es": "El informe trae dos líneas: «INSM1: expresión nuclear heterogénea de patrón en mosaico» e «INSM1: positiva».",
+     "en": "The report has two lines: “INSM1: heterogeneous nuclear expression in a mosaic pattern” and “INSM1: positive”."
+    },
+    "fuente": {
+     "es": "Informe de revisión del mismo bloque de mama, hospital de referencia, junio de 2026",
+     "en": "Review report of the same breast block, referral hospital, June 2026"
+    },
+    "sello": "inferido",
+    "nota": {
+     "es": "El resultado es el del informe de revisión. Que este escaneo sea una de las laminillas de esa revisión se deduce del nombre de los ficheros; no está confirmado.",
+     "en": "The result is the one in the review report. That this scan is one of that review’s slides is deduced from the file names; it is not confirmed."
+    }
+   }
+  },
+  {
+   "id": "mama-reeval/ki67",
+   "muestra": "mama-reeval",
+   "marcador": "ki67",
+   "dzi": "mama-reeval/ki67.dzi",
+   "ancho": 28672,
+   "alto": 32768,
+   "mpp": 0.25055,
+   "miniatura": "/laminillas-miniaturas/mama-reeval/ki67.webp",
+   "ficha": {
+    "laboratorio": {
+     "es": "Teñida e informada en anatomía patológica del hospital de referencia (Barcelona); escaneada en Dana-Farber (inferido)",
+     "en": "Stained and reported by the pathology department of the referral hospital (Barcelona); scanned at Dana-Farber (inferred)"
+    },
+    "fecha": {
+     "es": "Informe de revisión de junio de 2026",
+     "en": "Review report of June 2026"
+    },
+    "resultado": {
+     "es": "Ki-67: 40 % (clona 30-9).",
+     "en": "Ki-67: 40% (clone 30-9)."
+    },
+    "fuente": {
+     "es": "Informe de revisión del mismo bloque de mama, hospital de referencia, junio de 2026",
+     "en": "Review report of the same breast block, referral hospital, June 2026"
+    },
+    "sello": "inferido",
+    "nota": {
+     "es": "El resultado es el del informe de revisión. Que este escaneo sea una de las laminillas de esa revisión se deduce del nombre de los ficheros; no está confirmado.",
+     "en": "The result is the one in the review report. That this scan is one of that review’s slides is deduced from the file names; it is not confirmed."
+    }
+   }
+  },
+  {
+   "id": "mama-reeval/p63",
+   "muestra": "mama-reeval",
+   "marcador": "p63",
+   "dzi": "mama-reeval/p63.dzi",
+   "ancho": 32768,
+   "alto": 24576,
+   "mpp": 0.25055,
+   "miniatura": "/laminillas-miniaturas/mama-reeval/p63.webp",
+   "ficha": {
+    "laboratorio": {
+     "es": "Teñida e informada en anatomía patológica del hospital de referencia (Barcelona); escaneada en Dana-Farber (inferido)",
+     "en": "Stained and reported by the pathology department of the referral hospital (Barcelona); scanned at Dana-Farber (inferred)"
+    },
+    "fecha": {
+     "es": "Informe de revisión de junio de 2026",
+     "en": "Review report of June 2026"
+    },
+    "resultado": {
+     "es": "p63: negativo (clona 4A4).",
+     "en": "p63: negative (clone 4A4)."
+    },
+    "fuente": {
+     "es": "Informe de revisión del mismo bloque de mama, hospital de referencia, junio de 2026",
+     "en": "Review report of the same breast block, referral hospital, June 2026"
+    },
+    "sello": "inferido",
+    "nota": {
+     "es": "El resultado es el del informe de revisión. Que este escaneo sea una de las laminillas de esa revisión se deduce del nombre de los ficheros; no está confirmado.",
+     "en": "The result is the one in the review report. That this scan is one of that review’s slides is deduced from the file names; it is not confirmed."
+    }
+   }
+  },
+  {
+   "id": "mama-reeval/re",
+   "muestra": "mama-reeval",
+   "marcador": "re",
+   "dzi": "mama-reeval/re.dzi",
+   "ancho": 36864,
+   "alto": 28672,
+   "mpp": 0.25055,
+   "miniatura": "/laminillas-miniaturas/mama-reeval/re.webp",
+   "ficha": {
+    "laboratorio": {
+     "es": "Teñida e informada en anatomía patológica del hospital de referencia (Barcelona); escaneada en Dana-Farber (inferido)",
+     "en": "Stained and reported by the pathology department of the referral hospital (Barcelona); scanned at Dana-Farber (inferred)"
+    },
+    "fecha": {
+     "es": "Informe de revisión de junio de 2026",
+     "en": "Review report of June 2026"
+    },
+    "resultado": {
+     "es": "Receptores de estrógeno: positivos, intensidad alta, score 225, 85 % de núcleos positivos (clona SP1).",
+     "en": "Oestrogen receptors: positive, high intensity, score 225, 85% positive nuclei (clone SP1)."
+    },
+    "fuente": {
+     "es": "Informe de revisión del mismo bloque de mama, hospital de referencia, junio de 2026",
+     "en": "Review report of the same breast block, referral hospital, June 2026"
+    },
+    "sello": "inferido",
+    "nota": {
+     "es": "El resultado es el del informe de revisión. Que este escaneo sea una de las laminillas de esa revisión se deduce del nombre de los ficheros; no está confirmado.",
+     "en": "The result is the one in the review report. That this scan is one of that review’s slides is deduced from the file names; it is not confirmed."
+    }
+   }
+  },
+  {
+   "id": "mama-reeval/receptor-androgenos",
+   "muestra": "mama-reeval",
+   "marcador": "receptor-androgenos",
+   "dzi": "mama-reeval/receptor-androgenos.dzi",
+   "ancho": 24576,
+   "alto": 28672,
+   "mpp": 0.25055,
+   "miniatura": "/laminillas-miniaturas/mama-reeval/receptor-androgenos.webp",
+   "ficha": {
+    "laboratorio": {
+     "es": "Teñida e informada en anatomía patológica del hospital de referencia (Barcelona); escaneada en Dana-Farber (inferido)",
+     "en": "Stained and reported by the pathology department of the referral hospital (Barcelona); scanned at Dana-Farber (inferred)"
+    },
+    "fecha": {
+     "es": "Informe de revisión de junio de 2026",
+     "en": "Review report of June 2026"
+    },
+    "resultado": null,
+    "fuente": null,
+    "sello": "sin-verificar",
+    "nota": {
+     "es": "El informe de revisión cita la clona del receptor de andrógenos en su lista de anticuerpos, pero no da resultado.",
+     "en": "The review report lists the androgen receptor clone among its antibodies but gives no result."
+    }
+   }
+  },
+  {
+   "id": "mama-reeval/rp",
+   "muestra": "mama-reeval",
+   "marcador": "rp",
+   "dzi": "mama-reeval/rp.dzi",
+   "ancho": 32768,
+   "alto": 24576,
+   "mpp": 0.25055,
+   "miniatura": "/laminillas-miniaturas/mama-reeval/rp.webp",
+   "ficha": {
+    "laboratorio": {
+     "es": "Teñida e informada en anatomía patológica del hospital de referencia (Barcelona); escaneada en Dana-Farber (inferido)",
+     "en": "Stained and reported by the pathology department of the referral hospital (Barcelona); scanned at Dana-Farber (inferred)"
+    },
+    "fecha": {
+     "es": "Informe de revisión de junio de 2026",
+     "en": "Review report of June 2026"
+    },
+    "resultado": {
+     "es": "Receptores de progesterona: positivos, intensidad baja, score 25, 20 % de núcleos positivos (clona 1E2).",
+     "en": "Progesterone receptors: positive, low intensity, score 25, 20% positive nuclei (clone 1E2)."
+    },
+    "fuente": {
+     "es": "Informe de revisión del mismo bloque de mama, hospital de referencia, junio de 2026",
+     "en": "Review report of the same breast block, referral hospital, June 2026"
+    },
+    "sello": "inferido",
+    "nota": {
+     "es": "El resultado es el del informe de revisión. Que este escaneo sea una de las laminillas de esa revisión se deduce del nombre de los ficheros; no está confirmado.",
+     "en": "The result is the one in the review report. That this scan is one of that review’s slides is deduced from the file names; it is not confirmed."
+    }
+   }
+  },
+  {
+   "id": "mama-reeval/sinaptofisina",
+   "muestra": "mama-reeval",
+   "marcador": "sinaptofisina",
+   "dzi": "mama-reeval/sinaptofisina.dzi",
+   "ancho": 24576,
+   "alto": 32768,
+   "mpp": 0.25055,
+   "miniatura": "/laminillas-miniaturas/mama-reeval/sinaptofisina.webp",
+   "ficha": {
+    "laboratorio": {
+     "es": "Teñida e informada en anatomía patológica del hospital de referencia (Barcelona); escaneada en Dana-Farber (inferido)",
+     "en": "Stained and reported by the pathology department of the referral hospital (Barcelona); scanned at Dana-Farber (inferred)"
+    },
+    "fecha": {
+     "es": "Informe de revisión de junio de 2026",
+     "en": "Review report of June 2026"
+    },
+    "resultado": {
+     "es": "El informe trae dos líneas que no casan: «Sinaptofisina: expresión heterogénea» y «Sinaptofisina: negativa» (clona MRQ-40). Hay un solo escaneo y no se puede saber a cuál de las dos corresponde.",
+     "en": "The report has two lines that do not match: “Synaptophysin: heterogeneous expression” and “Synaptophysin: negative” (clone MRQ-40). There is a single scan and it cannot be told which line it belongs to."
+    },
+    "fuente": {
+     "es": "Informe de revisión del mismo bloque de mama, hospital de referencia, junio de 2026",
+     "en": "Review report of the same breast block, referral hospital, June 2026"
+    },
+    "sello": "inferido",
+    "nota": {
+     "es": "El resultado es el del informe de revisión. Que este escaneo sea una de las laminillas de esa revisión se deduce del nombre de los ficheros; no está confirmado.",
+     "en": "The result is the one in the review report. That this scan is one of that review’s slides is deduced from the file names; it is not confirmed."
+    }
+   }
+  }
+ ]
+}

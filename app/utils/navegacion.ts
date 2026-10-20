@@ -28,7 +28,7 @@ export const NAV = {
   lesions: e('lesions', 'lesiones'),
   map: e('map', 'mapa-metastasis'),
   port: e('port', 'reservorio'),
-  boneBiopsy: e('bone_biopsy', 'biopsia-osea'),
+  slides: e('slides', 'laminillas'),
   cellByCell: e('cell_by_cell', 'celula-a-celula'),
   cellExplorer: e('cell_explorer', 'celula-a-celula-explorar'),
   story: e('story', 'historia'),
@@ -50,13 +50,14 @@ export const MENU_MOVIL: EnlaceNav[] = [NAV.home, ...MENU_ESCRITORIO]
 // Las herramientas, en el orden del índice y del pie.
 // La más nueva primero (Miriam, 17-oct-2026): ordena /herramientas, el menú, el pie y la banda de
 // la home. Orden por fecha de estreno de cada página (primer commit en main): célula a célula
-// 16-oct · datos 24-sep 20:13 · reservorio 24-sep 19:20 · lesiones 19-sep · biopsia 5-sep · mapa 11-jun.
+// 16-oct · datos 24-sep 20:13 · reservorio 24-sep 19:20 · lesiones 19-sep · mapa 11-jun. Laminillas (20-oct) va primera
+// y sustituye al visor de la biopsia ósea (5-sep), que ahora redirige a /laminillas.
 // Una herramienta nueva entra al PRINCIPIO de esta lista.
 // Excepción (diseno, 19-oct; Miriam lo decide en la vista previa): el explorador de células (18-oct) va SEGUNDO,
 // detrás de su página madre. La primera es la tarjeta grande de la home, y la del explorador le enseñaría al
 // público general «su n y su suelo ambiental»; la madre es la versión para todos y el divisor lleva de una a otra.
 // Se oculta mientras su puerta no esté abierta (useHerramientas).
-export const HERRAMIENTAS: EnlaceNav[] = [NAV.cellByCell, NAV.cellExplorer, NAV.data, NAV.port, NAV.lesions, NAV.boneBiopsy, NAV.map]
+export const HERRAMIENTAS: EnlaceNav[] = [NAV.slides, NAV.cellByCell, NAV.cellExplorer, NAV.data, NAV.port, NAV.lesions, NAV.map]
 
 // Icono de cada herramienta (decorativo, aria-hidden) para las tarjetas de /herramientas.
 // Son los que la web ya usaba para cada una: el pin del teaser de la home y de /ciencia
@@ -68,7 +69,7 @@ export const ICONO_HERRAMIENTA: Record<string, string> = {
   map: 'ph:map-pin-fill',
   // Un catéter que acaba en la cámara del port (diseno, 14-oct): una jeringa se leía como «inyección».
   port: 'ph:path-fill',
-  bone_biopsy: 'ph:microscope-fill',
+  slides: 'ph:microscope-fill',
   // Tres círculos: tres células. Distinto del microscopio de la biopsia (corte de tejido): aquí no se mira un corte, se cuentan células.
   cell_by_cell: 'ph:circles-three-fill',
   // Una lupa: buscar un gen y mirarlo célula a célula. Distinta de los tres círculos de su página madre.
@@ -89,7 +90,7 @@ export const PIE: { id: string; heading: string; enlaces: EnlaceNav[] }[] = [
 export const SECCIONES: Record<string, string[]> = {
   home: ['index'],
   science: ['ciencia', 'ciencia-evidencia', 'ciencia-slug'],
-  tools: ['herramientas', 'datos', 'lesiones', 'mapa-metastasis', 'reservorio', 'biopsia-osea', 'celula-a-celula', 'celula-a-celula-explorar'],
+  tools: ['herramientas', 'datos', 'lesiones', 'mapa-metastasis', 'reservorio', 'laminillas', 'celula-a-celula', 'celula-a-celula-explorar'],
   timeline: ['timeline', 'historia', 'historia-slug'],
   team: ['equipo'],
   collaborate: ['colabora', 'prensa', 'marcas', 'gastos', 'contacto'],
@@ -127,11 +128,12 @@ export const COPY_HERRAMIENTAS: Record<string, { es: [string, string]; en: [stri
     es: ['El reservorio: qué es y qué le pasa', 'Qué es un port-a-cath, por qué el de Miriam (un PowerPort) está diseñado para admitir contraste inyectado a presión y por qué ahora deja meter medicación pero no sacar sangre. Con el trayecto del catéter en 3D.'],
     en: ['The port: what it is and what’s wrong with it', 'What a port-a-cath is, why Miriam’s (a PowerPort) is built to take contrast injected under pressure, and why it now lets medication in but no blood out. With the catheter path in 3D.'],
   },
-  // app/pages/biopsia-osea.vue
-  bone_biopsy: {
-    es: ['Lo que se puede medir en mi biopsia ósea', 'Lo que un corte de histología puede decir y lo que no. La biopsia ósea de Miriam, calibrada con su propia barra de 100 µm, con los límites de la imagen dichos tan claro como las medidas.'],
-    en: ['What can be measured in my bone biopsy', 'What a histology slide can and cannot tell you. Miriam’s own bone biopsy, calibrated against its 100 µm scale bar, with the limits of the image stated as plainly as the measurements.'],
+  // app/pages/laminillas.vue
+  slides: {
+    es: ['Las laminillas, al microscopio', '32 laminillas de anatomía patológica escaneadas de tres muestras de Miriam, lado a lado: zoom hasta la célula, una regla en micras ajustada a cada escáner y lo que dice cada informe. Herramienta de apoyo, no diagnóstico.'],
+    en: ['The slides, under the microscope', '32 scanned pathology slides from three of Miriam’s samples, side by side: zoom down to the cell, a micron ruler set to each scanner and what each report says. A support tool, not a diagnosis.'],
   },
+
   // app/pages/celula-a-celula-explorar.vue (título y descripción de useSeoMeta)
   cell_explorer: {
     es: ['Explorar los datos célula a célula', 'El mapa de células de las dos biopsias de Miriam: busca un gen o elige un marcador y míralo célula a célula en el mapa y grupo a grupo, con su n y su suelo ambiental.'],

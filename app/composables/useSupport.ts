@@ -93,9 +93,9 @@ export function useSupport() {
   function trackExplorador(origen: string) {
     trackUmami('VerExplorador', { origen })
   }
-  // /biopsia-osea no tenía evento: entra con los accesos directos de la home (20-oct).
-  function trackBiopsia(origen: string) {
-    trackUmami('VerBiopsia', { origen })
+  // /laminillas (20-oct; hereda el hueco de /biopsia-osea, que redirige aquí).
+  function trackLaminillas(origen: string) {
+    trackUmami('VerLaminillas', { origen })
   }
   // Entrada a una herramienta por su clave de NAV, con el evento propio de cada una. La usan los accesos
   // directos de «Elige tu camino» (origen home_camino_<camino>). El reservorio no tiene evento.
@@ -105,7 +105,7 @@ export function useSupport() {
     else if (key === 'data') trackDatos(origen)
     else if (key === 'cell_by_cell') trackCelula(origen)
     else if (key === 'cell_explorer') trackExplorador(origen)
-    else if (key === 'bone_biopsy') trackBiopsia(origen)
+    else if (key === 'slides') trackLaminillas(origen)
   }
 
   // Clic en «Lo último» (señal de recencia): desde el hero de la home o desde la barra global.
@@ -173,7 +173,7 @@ export function useSupport() {
     trackDatos,
     trackCelula,
     trackExplorador,
-    trackBiopsia,
+    trackLaminillas,
     trackHerramienta,
     trackLatest,
     trackNav,
