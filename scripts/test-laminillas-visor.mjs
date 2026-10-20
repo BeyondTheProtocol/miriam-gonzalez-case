@@ -181,7 +181,7 @@ if (CON_TESELAS) {
   console.log(`Visor (con teselas${REMOTO ? ', contra ' + REMOTO : ''})`)
   await cdp('Page.navigate', { url: 'about:blank' })
   await carga('/laminillas?fila=re', 1440, 1000)
-  ok(await espera(`${PANELES}.length === 3 && ${PANELES}.every((p) => p.um > 0)`, 30000), 'RE: tres paneles abiertos (Mama 2024, Mama reevaluación, Hígado)')
+  ok(await espera(`${PANELES}.length === 3 && ${PANELES}.every((p) => p.um > 0)`, 30000), 'RE: tres paneles abiertos (Mama 2024, Mama revisión, Hígado)')
   await sleep(3000)
   ok(await ev(`document.querySelectorAll('.visor-regla').length`) === 3, 'una regla en µm por panel')
   let p0 = await ev(PANELES)

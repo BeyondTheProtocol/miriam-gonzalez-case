@@ -22,12 +22,12 @@
   {
    "id": "mama-reeval",
    "corto": {
-    "es": "Mama reevaluación",
-    "en": "Breast re-evaluation"
+    "es": "Mama revisión",
+    "en": "Breast review"
    },
    "largo": {
-    "es": "Mama · reevaluación (escaneos de 2026)",
-    "en": "Breast · re-evaluation (2026 scans)"
+    "es": "Mama · revisión del mismo bloque (2026)",
+    "en": "Breast · review of the same block (2026)"
    },
    "grupo_paneo": "mama",
    "escaner": "Grundium Ocus40 (inferido del formato)",

@@ -411,8 +411,8 @@
               </span>
               <p class="flex-1 text-sm text-tinta leading-relaxed">
                 {{ locale === 'es'
-                  ? 'Las 32 laminillas escaneadas del caso (la mama del diagnóstico, su reevaluación y el hígado), lado a lado y con el zoom a la par, con una regla en micras y lo que dice cada informe.'
-                  : 'The case’s 32 scanned slides (the diagnostic breast biopsy, its re-evaluation and the liver), side by side with matched zoom, a micron ruler and what each report says.' }}
+                  ? 'Las 32 laminillas escaneadas del caso (la mama del diagnóstico, su revisión de 2026 y el hígado), lado a lado y con el zoom a la par, con una regla en micras y lo que dice cada informe.'
+                  : 'The case’s 32 scanned slides (the diagnostic breast biopsy, its 2026 review and the liver), side by side with matched zoom, a micron ruler and what each report says.' }}
               </p>
             </div>
             <span class="inline-flex w-full sm:w-auto shrink-0 items-center justify-center sm:justify-start gap-2 text-sm font-semibold text-berenjena group-hover:text-miriam transition-colors rounded-xl bg-miriam-soft sm:bg-transparent px-4 sm:px-0 py-2.5 sm:py-0">
