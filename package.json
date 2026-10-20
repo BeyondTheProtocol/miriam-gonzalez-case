@@ -38,7 +38,8 @@
     "update-fundraiser": "tsx update-fundraiser.ts",
     "test:laminillas": "tsx scripts/test-laminillas.ts",
     "test:laminillas-visor": "node scripts/test-laminillas-visor.mjs",
-    "test:tres-dianas": "tsx scripts/test-tres-dianas.ts"
+    "test:alphafold": "tsx scripts/test-alphafold.ts",
+    "test:alphafold-visor": "node scripts/test-alphafold-visor.mjs"
   },
   "dependencies": {
     "@netlify/functions": "^5.3.0",

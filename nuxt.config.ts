@@ -177,7 +177,6 @@ export default defineNuxtConfig({
       'celula-a-celula': { en: '/cell-by-cell' },
       // Fichero plano y no pages/celula-a-celula/explorar.vue: así /celula-a-celula no pasa a ser ruta padre.
       'celula-a-celula-explorar': { es: '/celula-a-celula/explorar', en: '/cell-by-cell/explore' },
-      'tres-dianas': { en: '/three-targets' },
       'ciencia/index': { en: '/science' },
       'ciencia/evidencia': { en: '/science/evidence' },
       'ciencia/[slug]': { en: '/science/[slug]' },
@@ -244,6 +243,12 @@ export default defineNuxtConfig({
     '/en/bone-biopsy': { redirect: { to: '/en/slides', statusCode: 301 } },
     // i18n crea también la variante /en/biopsia-osea de la regla de arriba: que no quede como página vacía.
     '/en/biopsia-osea': { redirect: { to: '/en/slides', statusCode: 301 } },
+    // /tres-dianas → el explorador (20-oct-2026): AlphaFold va como información de cada proteína en el detalle del gen,
+    // no como página aparte (lo acordado con Miriam). 301 sin query: un destino con «?» lo trata test-short-links como corto de campaña.
+    '/tres-dianas': { redirect: { to: '/celula-a-celula/explorar', statusCode: 301 } },
+    '/en/three-targets': { redirect: { to: '/en/cell-by-cell/explore', statusCode: 301 } },
+    // i18n crea también la variante /en/tres-dianas de la regla de arriba (como /en/biopsia-osea): que no quede vacía.
+    '/en/tres-dianas': { redirect: { to: '/en/cell-by-cell/explore', statusCode: 301 } },
     // Enlaces cortos de la biopsia: van directos a /laminillas (sin encadenar con el 301 de arriba).
     // Sin genérico, a propósito:
     // NO hay genérico «/biopsia»: `prerender.ignore` hace match por PREFIJO, así que
@@ -299,6 +304,8 @@ export default defineNuxtConfig({
         '/biopsia-x', '/biopsia-in', '/biopsia-ig', '/biopsia-tt', '/biopsia-yt',
         // la página vieja de la biopsia: solo queda su 301 a /laminillas
         '/biopsia-osea', '/en/bone-biopsy', '/en/biopsia-osea',
+        // la página retirada de AlphaFold: solo queda su 301 al explorador
+        '/tres-dianas', '/en/three-targets', '/en/tres-dianas',
         // datos en vivo: que nitro NO prerenderice un fichero que sombree el 302
         '/fundraiser.json', '/donations.json',
       ],
