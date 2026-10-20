@@ -2,14 +2,16 @@
 /**
  * DianaEstructura — la estructura PREDICHA de una proteína (AlphaFold DB), girable, como isla de cliente.
  *
- * El modelo se pide a la API pública de AlphaFold DB por su UniProt (app/utils/tresDianas.ts) cuando el visor
- * entra en pantalla; no se guarda en la web. Se dibuja la traza de los carbonos alfa como un tubo, coloreado por la
- * confianza de la predicción (pLDDT, columna del factor B) con los tokens del design system.
+ * El modelo se pide a la API pública de AlphaFold DB por su UniProt (app/utils/tresDianas.ts) cuando el visor se
+ * acerca a la pantalla; no se guarda en la web. Se dibuja la traza de los carbonos alfa como un tubo coloreado por la
+ * confianza del modelo (pLDDT, columna del factor B) con los tokens del DS. El color no va solo (ceci, 20-oct): el tubo
+ * es más fino cuanto menos confianza (estilo «putty»), y la leyenda va en texto con su porcentaje de aminoácidos.
  *
- * Movimiento (gramática del sitio: «dibuja una vez al entrar y descansa»): da UNA vuelta al entrar en pantalla y se
- * para; nunca con «movimiento reducido». Botón para dar otra vuelta o pararla (WCAG 2.2.2). Arrastrar gira (ratón; en
- * táctil, dos dedos, para que uno siga desplazando la página), Ctrl/⌘ + rueda acerca, y con el foco en el visor las
- * flechas giran a pasos. Todo lo que dice el dibujo está también en texto (leyenda y descripción).
+ * Movimiento (gramática del sitio: «dibuja una vez al entrar y descansa»): UNA vuelta cuando el visor está a la vista
+ * de verdad (mitad dentro), nunca con «movimiento reducido», y nunca dos visores a la vez (al girar uno, los otros
+ * paran). Botón para dar otra vuelta o pararla (WCAG 2.2.2). Ratón: arrastrar gira, Ctrl/⌘ + rueda acerca. Teclado
+ * (con el foco en el visor) y botones de paso para quien no arrastra (2.5.7): girar y acercar. En táctil el visor no
+ * captura el dedo: la página sigue desplazándose y ampliándose; se gira con los botones.
  */
 import * as THREE from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
@@ -19,6 +21,9 @@ import { BANDAS, ETIQUETA_BANDA, banda, encuadre, pdbDeRespuesta, trazaCA, urlAp
 const props = defineProps<{ diana: Diana; lang: 'es' | 'en' }>()
 const L = (es: string, en: string) => (props.lang === 'en' ? en : es)
 
+/** el visor que gira ahora (uno solo en la página): compartido entre instancias */
+const girandoAhora = useState<string | null>('diana-girando', () => null)
+
 const caja = ref<HTMLElement | null>(null)
 const host = ref<HTMLElement | null>(null)
 const estado = ref<'espera' | 'cargando' | 'listo' | 'error'>('espera')
@@ -26,6 +31,7 @@ const girando = ref(false)
 const version = ref<number | null>(null)
 const nResiduos = ref(0)
 const reparto = ref<Record<Banda, number>>({ muy_alta: 0, alta: 0, baja: 0, muy_baja: 0 })
+const uid = `de-${props.diana.uniprot}`
 
 let renderer: THREE.WebGLRenderer | null = null
 let escena: THREE.Scene | null = null
@@ -34,21 +40,29 @@ let controles: OrbitControls | null = null
 let malla: THREE.Mesh | null = null
 let raf = 0
 let io: IntersectionObserver | null = null
+let ioVista: IntersectionObserver | null = null
 let ro: ResizeObserver | null = null
 let sueltaRueda: (() => void) | null = null
 let reduce = false
+let vueltaDeEntrada = false
 /** ángulo que falta para completar la vuelta en curso (rad) */
 let falta = 0
 let ultimo = 0
+/** hay que volver a pintar (el bucle no pinta si nada cambia) */
+let sucio = true
 
-/** Colores por banda, de los tokens (ningún hex nuevo): tinta, violeta firma, violeta suave y gris de tinta. */
+/** Radio del tubo por banda: más fino cuanto menos confianza. */
+const RADIO: Record<Banda, number> = { muy_alta: 0.75, alta: 0.6, baja: 0.42, muy_baja: 0.28 }
+
+/** Colores por banda, de los tokens (ningún hex nuevo): la rampa --viz-sev del violeta y un gris de tinta. */
 function colores(): Record<Banda, THREE.Color> {
   const css = getComputedStyle(document.documentElement)
   const rgb = (v: string) => css.getPropertyValue(v).trim().split(/\s+/).map(Number) as [number, number, number]
   const tinta = rgb('--color-text-rgb'), violeta = rgb('--color-miriam-rgb'), crema = rgb('--color-bg-rgb')
   const mezcla = (a: number[], b: number[], p: number) => a.map((x, i) => Math.round(x * p + b[i]! * (1 - p)))
   const c = (x: number[]) => new THREE.Color().setRGB(x[0]! / 255, x[1]! / 255, x[2]! / 255, THREE.SRGBColorSpace)
-  return { muy_alta: c(tinta), alta: c(violeta), baja: c(mezcla(violeta, crema, 0.45)), muy_baja: c(mezcla(tinta, crema, 0.3)) }
+  // rampa (diseno, 20-oct): violeta firma → --viz-sev-3 (60 %) → --viz-sev-2 (38 %); la muy baja, gris de tinta neutro
+  return { muy_alta: c(violeta), alta: c(mezcla(violeta, crema, 0.6)), baja: c(mezcla(violeta, crema, 0.38)), muy_baja: c(mezcla(tinta, crema, 0.55)) }
 }
 /** Muestras de la leyenda: los mismos colores, en CSS. */
 const muestras = ref<Record<Banda, string>>({ muy_alta: '', alta: '', baja: '', muy_baja: '' })
@@ -69,7 +83,7 @@ async function carga() {
     const cuenta: Record<Banda, number> = { muy_alta: 0, alta: 0, baja: 0, muy_baja: 0 }
     for (const p of traza.plddt) cuenta[banda(p)]++
     reparto.value = cuenta
-    monta(traza)
+    if (!monta(traza)) throw new Error('sin WebGL')
     estado.value = 'listo'
   }
   catch (e) {
@@ -78,11 +92,11 @@ async function carga() {
   }
 }
 
-function monta(traza: ReturnType<typeof trazaCA>) {
+function monta(traza: ReturnType<typeof trazaCA>): boolean {
   const el = host.value
-  if (!el) return
+  if (!el) return false
   try { renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true }) }
-  catch { estado.value = 'error'; return }
+  catch { return false }
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
   renderer.outputColorSpace = THREE.SRGBColorSpace
   renderer.setClearColor(0x000000, 0)
@@ -100,15 +114,24 @@ function monta(traza: ReturnType<typeof trazaCA>) {
   for (let i = 0; i < traza.n; i++) puntos.push(new THREE.Vector3(traza.xyz[3 * i]! - centro[0], traza.xyz[3 * i + 1]! - centro[1], traza.xyz[3 * i + 2]! - centro[2]))
   const curva = new THREE.CatmullRomCurve3(puntos, false, 'centripetal')
   const tramos = Math.min(traza.n * 4, 6000), radial = 6
-  const geo = new THREE.TubeGeometry(curva, tramos, 0.55, radial, false)
+  const geo = new THREE.TubeGeometry(curva, tramos, 1, radial, false)   // radio 1: cada anillo se escala a su banda
   const cs = colores()
   muestras.value = Object.fromEntries(BANDAS.map((b) => [b, `#${cs[b].getHexString(THREE.SRGBColorSpace)}`])) as Record<Banda, string>
-  const col = new Float32Array(geo.attributes.position!.count * 3)
+  const pos = geo.attributes.position!
+  const col = new Float32Array(pos.count * 3)
+  const p = new THREE.Vector3(), v = new THREE.Vector3()
   for (let j = 0; j <= tramos; j++) {
-    const res = Math.min(traza.n - 1, Math.round((j / tramos) * (traza.n - 1)))
-    const c = cs[banda(traza.plddt[res]!)]
-    for (let k = 0; k <= radial; k++) { const v = j * (radial + 1) + k; col[3 * v] = c.r; col[3 * v + 1] = c.g; col[3 * v + 2] = c.b }
+    const b = banda(traza.plddt[Math.min(traza.n - 1, Math.round((j / tramos) * (traza.n - 1)))]!)
+    const c = cs[b]
+    curva.getPointAt(j / tramos, p)
+    for (let k = 0; k <= radial; k++) {
+      const i = j * (radial + 1) + k
+      v.fromBufferAttribute(pos, i).sub(p).multiplyScalar(RADIO[b]).add(p)
+      pos.setXYZ(i, v.x, v.y, v.z)
+      col[3 * i] = c.r; col[3 * i + 1] = c.g; col[3 * i + 2] = c.b
+    }
   }
+  geo.computeVertexNormals()
   geo.setAttribute('color', new THREE.BufferAttribute(col, 3))
   malla = new THREE.Mesh(geo, new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.55, metalness: 0.05 }))
   escena.add(malla)
@@ -120,18 +143,26 @@ function monta(traza: ReturnType<typeof trazaCA>) {
   controles.enablePan = false
   controles.minDistance = radio * 0.8
   controles.maxDistance = radio * 5
-  // táctil: un dedo desplaza la página; dos dedos giran y acercan
-  controles.touches = { ONE: -1 as unknown as THREE.TOUCH, TWO: THREE.TOUCH.DOLLY_ROTATE }
-  renderer.domElement.style.touchAction = 'pan-y'
-  controles.addEventListener('start', () => { falta = 0; girando.value = false })
+  // táctil: el visor no se queda el dedo (ni uno ni dos): la página se desplaza y se amplía; se gira con los botones
+  controles.touches = { ONE: -1 as unknown as THREE.TOUCH, TWO: -1 as unknown as THREE.TOUCH }
+  renderer.domElement.style.touchAction = 'pan-x pan-y pinch-zoom'
+  controles.addEventListener('start', () => para())
+  controles.addEventListener('change', () => { sucio = true })
   sueltaRueda = ruedaConModificador(el, () => L('Ctrl o ⌘ + rueda para acercar', 'Ctrl or ⌘ + scroll to zoom'))
 
   ajusta()
   ro = new ResizeObserver(ajusta)
   ro.observe(el)
-  if (!reduce) unaVuelta()
+  // la vuelta de entrada, solo con el visor a la vista de verdad (no al cargarlo 200 px antes)
+  if (!reduce && caja.value) {
+    ioVista = new IntersectionObserver((e) => {
+      if (e[0]?.isIntersecting && !vueltaDeEntrada) { vueltaDeEntrada = true; ioVista?.disconnect(); unaVuelta() }
+    }, { threshold: 0.5 })
+    ioVista.observe(caja.value)
+  }
   ultimo = performance.now()
   bucle()
+  return true
 }
 
 function ajusta() {
@@ -143,12 +174,14 @@ function ajusta() {
   renderer.domElement.style.height = `${h}px`
   camara.aspect = w / h
   camara.updateProjectionMatrix()
+  sucio = true
 }
 
-/** Una vuelta completa (~14 s) y quieto. */
-function unaVuelta() { falta = Math.PI * 2; girando.value = true }
-function para() { falta = 0; girando.value = false }
+/** Una vuelta completa (~14 s) y quieto. Para a los demás visores. */
+function unaVuelta() { falta = Math.PI * 2; girando.value = true; girandoAhora.value = uid }
+function para() { falta = 0; girando.value = false; if (girandoAhora.value === uid) girandoAhora.value = null }
 function alterna() { if (girando.value) para(); else unaVuelta() }
+watch(girandoAhora, (g) => { if (g !== uid && girando.value) { falta = 0; girando.value = false } })
 
 function bucle() {
   raf = requestAnimationFrame(bucle)
@@ -158,25 +191,31 @@ function bucle() {
     const paso = Math.min(falta, dt * (Math.PI * 2 / 14))
     malla.rotation.y += paso
     falta -= paso
-    if (falta <= 0) girando.value = false
+    sucio = true
+    if (falta <= 0) para()
   }
-  controles?.update()
-  if (renderer && escena && camara) renderer.render(escena, camara)
+  if (controles?.update()) sucio = true
+  if (sucio && renderer && escena && camara) { renderer.render(escena, camara); sucio = false }
 }
 
-/** Teclado: flechas giran 15° (el tubo, no la cámara: así no se pelea con el amortiguado), + y − acercan. */
+/** Pasos de giro y zoom: los usan el teclado y los botones. */
+function gira(dx: number, dy: number) { if (!malla) return; malla.rotation.y += dx; malla.rotation.x += dy; para(); sucio = true }
+function acerca(f: number) {
+  if (!camara || !controles) return
+  const d = camara.position.length() * f
+  if (d < controles.minDistance || d > controles.maxDistance) return
+  camara.position.multiplyScalar(f); para(); sucio = true
+}
+const PASO = Math.PI / 12
 function tecla(e: KeyboardEvent) {
-  if (!malla || !camara || !controles) return
-  const p = Math.PI / 12
-  if (e.key === 'ArrowLeft') malla.rotation.y -= p
-  else if (e.key === 'ArrowRight') malla.rotation.y += p
-  else if (e.key === 'ArrowUp') malla.rotation.x -= p
-  else if (e.key === 'ArrowDown') malla.rotation.x += p
-  else if (e.key === '+' || e.key === '=') camara.position.multiplyScalar(0.9)
-  else if (e.key === '-') camara.position.multiplyScalar(1.1)
+  if (e.key === 'ArrowLeft') gira(-PASO, 0)
+  else if (e.key === 'ArrowRight') gira(PASO, 0)
+  else if (e.key === 'ArrowUp') gira(0, -PASO)
+  else if (e.key === 'ArrowDown') gira(0, PASO)
+  else if (e.key === '+' || e.key === '=') acerca(0.9)
+  else if (e.key === '-') acerca(1.1)
   else return
   e.preventDefault()
-  para()
 }
 
 onMounted(() => { reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches })
@@ -188,7 +227,8 @@ watch(caja, (el) => {
 }, { immediate: true, flush: 'post' })
 onBeforeUnmount(() => {
   cancelAnimationFrame(raf)
-  io?.disconnect(); ro?.disconnect(); sueltaRueda?.()
+  if (girandoAhora.value === uid) girandoAhora.value = null
+  io?.disconnect(); ioVista?.disconnect(); ro?.disconnect(); sueltaRueda?.()
   controles?.dispose()
   if (malla) { malla.geometry.dispose(); (malla.material as THREE.Material).dispose() }
   renderer?.dispose()
@@ -197,8 +237,8 @@ onBeforeUnmount(() => {
 
 const pct = (k: number) => (nResiduos.value ? Math.round((100 * k) / nResiduos.value) : 0)
 const descripcion = computed(() => L(
-  `Estructura predicha de ${props.diana.proteina} (${props.diana.gen}, UniProt ${props.diana.uniprot}) por AlphaFold, ${nResiduos.value} aminoácidos, coloreada por la confianza de la predicción. Es una predicción, no una medición.`,
-  `Predicted structure of ${props.diana.proteina} (${props.diana.gen}, UniProt ${props.diana.uniprot}) by AlphaFold, ${nResiduos.value} amino acids, colored by prediction confidence. A prediction, not a measurement.`,
+  `Estructura predicha de ${props.diana.proteina} (${props.diana.gen}, UniProt ${props.diana.uniprot}) por AlphaFold, ${nResiduos.value} aminoácidos, coloreada por la confianza del modelo; el tubo es más fino donde la confianza es menor. Es una predicción, no una medición.`,
+  `Predicted structure of ${props.diana.proteina} (${props.diana.gen}, UniProt ${props.diana.uniprot}) by AlphaFold, ${nResiduos.value} amino acids, colored by model confidence; the tube is thinner where confidence is lower. A prediction, not a measurement.`,
 ))
 </script>
 
@@ -208,34 +248,55 @@ const descripcion = computed(() => L(
       <div
         ref="host"
         class="de__host"
-        role="img"
-        tabindex="0"
-        :aria-label="estado === 'listo' ? `${descripcion} ${L('Con el foco aquí, las flechas la giran.', 'With focus here, the arrow keys rotate it.')}` : L(`Estructura predicha de ${diana.proteina}`, `Predicted structure of ${diana.proteina}`)"
+        :role="estado === 'listo' ? 'application' : undefined"
+        :aria-roledescription="estado === 'listo' ? L('visor 3D', '3D viewer') : undefined"
+        :aria-label="estado === 'listo' ? L(`Estructura de ${diana.proteina}`, `${diana.proteina} structure`) : undefined"
+        :aria-describedby="estado === 'listo' ? `${uid}-desc ${uid}-uso` : undefined"
+        :aria-hidden="estado === 'listo' ? undefined : 'true'"
+        :tabindex="estado === 'listo' ? 0 : undefined"
         @keydown="tecla"
       />
-      <p v-if="estado === 'espera' || estado === 'cargando'" class="de__aviso" aria-live="polite">{{ L('Cargando el modelo de AlphaFold DB…', 'Loading the AlphaFold DB model…') }}</p>
-      <p v-else-if="estado === 'error'" class="de__aviso" role="status">
+      <p v-if="estado === 'espera' || estado === 'cargando'" class="de__aviso" aria-hidden="true">{{ L('Cargando el modelo de AlphaFold DB…', 'Loading the AlphaFold DB model…') }}</p>
+      <p v-else-if="estado === 'error'" class="de__aviso">
         {{ L('No se ha podido cargar el modelo aquí. Puedes verlo en', 'The model could not be loaded here. You can see it on') }}
         <a :href="urlEntradaAlphaFold(diana.uniprot)" class="link-underline" target="_blank" rel="noopener">AlphaFold DB</a>.
       </p>
-      <button v-if="estado === 'listo'" type="button" class="de__girar" :aria-pressed="girando" @click="alterna">
-        {{ girando ? L('Parar el giro', 'Stop rotation') : L('Dar una vuelta', 'Rotate once') }}
-      </button>
+      <div v-if="estado === 'listo'" class="de__mandos">
+        <div class="de__pasos" role="group" :aria-label="L(`Mover la estructura de ${diana.proteina}`, `Move the ${diana.proteina} structure`)">
+          <button type="button" class="de__paso" :aria-label="L('Girar a la izquierda', 'Rotate left')" @click="gira(-PASO, 0)"><span aria-hidden="true">↶</span></button>
+          <button type="button" class="de__paso" :aria-label="L('Girar a la derecha', 'Rotate right')" @click="gira(PASO, 0)"><span aria-hidden="true">↷</span></button>
+          <button type="button" class="de__paso" :aria-label="L('Acercar', 'Zoom in')" @click="acerca(0.9)"><span aria-hidden="true">+</span></button>
+          <button type="button" class="de__paso" :aria-label="L('Alejar', 'Zoom out')" @click="acerca(1.1)"><span aria-hidden="true">−</span></button>
+        </div>
+        <button type="button" class="de__girar" @click="alterna">
+          {{ girando ? L('Parar el giro', 'Stop rotation') : L('Dar una vuelta', 'Rotate once') }}
+        </button>
+      </div>
     </div>
+    <!-- región viva siempre presente: solo anuncia el error (tres «cargando» a la vez serían ruido) -->
+    <p class="sr-only" role="status">{{ estado === 'error' ? L(`No se ha podido cargar la estructura de ${diana.proteina}.`, `The ${diana.proteina} structure could not be loaded.`) : '' }}</p>
     <figcaption class="de__pie">
       <p class="de__sello">{{ L('Predicción, no medición.', 'A prediction, not a measurement.') }}</p>
-      <p v-if="estado === 'listo'" class="de__ley-t" aria-hidden="true">{{ L('Confianza del modelo (pLDDT), por aminoácido', 'Model confidence (pLDDT), per amino acid') }}</p>
-      <ul v-if="estado === 'listo'" class="de__leyenda" :aria-label="L('Confianza del modelo (pLDDT), por aminoácido', 'Model confidence (pLDDT), per amino acid')">
-        <li v-for="b in BANDAS" :key="b">
-          <span class="de__muestra" :style="{ background: muestras[b] }" aria-hidden="true" />
-          <span>{{ ETIQUETA_BANDA[b][lang] }}</span>
-          <span class="de__cifra">{{ pct(reparto[b]) }}&nbsp;%</span>
-        </li>
-      </ul>
-      <p v-if="estado === 'listo'" class="de__meta">
-        {{ L('Modelo', 'Model') }} AF-{{ diana.uniprot }}-F1{{ version ? ` v${version}` : '' }} · {{ nResiduos }} {{ L('aminoácidos', 'amino acids') }} ·
-        {{ L('arrastra para girar; Ctrl/⌘ + rueda para acercar', 'drag to rotate; Ctrl/⌘ + scroll to zoom') }}
+      <p class="de__fuente">
+        <a :href="urlEntradaAlphaFold(diana.uniprot)" class="link-underline" target="_blank" rel="noopener">AlphaFold DB<span class="sr-only">{{ L(' (se abre en otra pestaña)', ' (opens in a new tab)') }}</span></a> (Google DeepMind · EMBL-EBI) · <a href="https://creativecommons.org/licenses/by/4.0/" class="link-underline" target="_blank" rel="noopener license">CC BY 4.0<span class="sr-only">{{ L(' (se abre en otra pestaña)', ' (opens in a new tab)') }}</span></a>
       </p>
+      <template v-if="estado === 'listo'">
+        <p :id="`${uid}-desc`" class="sr-only">{{ descripcion }}</p>
+        <p class="de__ley-t" aria-hidden="true">{{ L('Confianza del modelo (pLDDT), por aminoácido', 'Model confidence (pLDDT), per amino acid') }}</p>
+        <ul class="de__leyenda" :aria-label="L('Confianza del modelo (pLDDT), por aminoácido', 'Model confidence (pLDDT), per amino acid')">
+          <li v-for="b in BANDAS" :key="b">
+            <span class="de__muestra" :class="`de__muestra--${b}`" :style="{ background: muestras[b] }" aria-hidden="true" />
+            <span>{{ ETIQUETA_BANDA[b][lang] }}</span>
+            <span class="de__cifra">{{ pct(reparto[b]) }}&nbsp;%</span>
+          </li>
+        </ul>
+        <p class="de__meta">
+          {{ L('Modelo', 'Model') }} AF-{{ diana.uniprot }}-F1{{ version ? ` v${version}` : '' }} · {{ nResiduos }} {{ L('aminoácidos', 'amino acids') }} · {{ L('tubo más fino = menos confianza', 'thinner tube = lower confidence') }}
+        </p>
+        <p :id="`${uid}-uso`" class="de__meta">
+          {{ L('Gírala con los botones, arrastrando con el ratón o, con el foco en el visor, con las flechas; acerca con + y −.', 'Rotate it with the buttons, by dragging with the mouse or, with focus on the viewer, with the arrow keys; zoom with + and −.') }}
+        </p>
+      </template>
     </figcaption>
   </figure>
 </template>
@@ -247,19 +308,30 @@ const descripcion = computed(() => L(
 .de__host:active { cursor: grabbing; }
 .de__host:focus-visible { outline: 2px solid var(--anillo-foco); outline-offset: -4px; border-radius: var(--radius-btn); }
 .de__aviso { position: absolute; inset: 0; display: grid; place-items: center; padding: var(--sp-16); text-align: center; font: var(--tipo-body-sm); color: var(--texto-2); }
-.de__girar {
-  position: absolute; right: var(--sp-8); bottom: var(--sp-8); min-height: 44px; padding: 0 var(--sp-16);
-  border-radius: 9999px; border: 1px solid var(--trazo-interactivo); background: var(--fondo); color: var(--texto-1);
+.de__mandos { position: absolute; left: var(--sp-8); right: var(--sp-8); bottom: var(--sp-8); display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: var(--sp-8); pointer-events: none; }
+.de__mandos > * { pointer-events: auto; }
+.de__pasos { display: flex; gap: var(--sp-4); }
+.de__paso, .de__girar {
+  min-height: 44px; border-radius: 9999px; border: 1px solid var(--trazo-interactivo); background: var(--fondo); color: var(--texto-1);
   font: 600 var(--texto-sm)/1 var(--font-body); cursor: pointer;
 }
-.de__girar:hover { background: var(--superficie); }
-.de__girar:focus-visible { outline: 2px solid var(--anillo-foco); outline-offset: 2px; }
+.de__paso { min-width: 44px; font-size: 1.1rem; }
+.de__girar { padding: 0 var(--sp-16); }
+.de__paso:hover, .de__girar:hover { background: var(--superficie); }
+.de__paso:focus-visible, .de__girar:focus-visible { outline: 2px solid var(--anillo-foco); outline-offset: 2px; }
 .de__pie { display: grid; gap: var(--sp-8); }
 .de__sello { margin: 0; font: var(--tipo-eyebrow); color: var(--identidad); }
+.de__fuente { margin: 0; font: var(--tipo-body-sm); color: var(--texto-2); }
 .de__ley-t { margin: 0; font: 600 var(--texto-sm)/1.3 var(--font-body); color: var(--texto-1); }
 .de__leyenda { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--sp-4) var(--sp-16); font: var(--tipo-body-sm); color: var(--texto-2); }
 .de__leyenda li { display: flex; align-items: center; gap: var(--sp-8); }
-.de__muestra { width: 14px; height: 14px; border-radius: 3px; flex-shrink: 0; border: 1px solid var(--trazo-fuerte); }
+/* borde ≥ 3:1 (ceci, 20-oct) y la misma señal de forma que el tubo: muestra más baja cuanto menos confianza */
+.de__muestra { width: 16px; border-radius: 3px; flex-shrink: 0; border: 1px solid var(--trazo-interactivo); }
+.de__muestra--muy_alta { height: 16px; }
+.de__muestra--alta { height: 12px; }
+.de__muestra--baja { height: 8px; }
+.de__muestra--muy_baja { height: 5px; }
 .de__cifra { margin-left: auto; font-family: var(--font-mono); font-size: 0.85em; }
 .de__meta { margin: 0; font: var(--tipo-body-sm); color: var(--texto-3); }
+@media (max-width: 380px) { .de__leyenda { grid-template-columns: minmax(0, 1fr); } }
 </style>

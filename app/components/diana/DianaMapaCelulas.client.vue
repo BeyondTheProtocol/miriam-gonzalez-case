@@ -1,7 +1,8 @@
 <script setup lang="ts">
 /**
  * DianaMapaCelulas — el mapa de células (UMAP) de UNA biopsia del explorador publicado, en pequeño y quieto, con las
- * células donde se lee el ARN de un gen (≥ 1 molécula, lo que el explorador pinta fuera del gris en su modo gen).
+ * células donde se lee el ARN de un gen (≥ 1 molécula: lo que el explorador pinta fuera del gris «No detectado» en su modo
+ * gen; aquí sin distinguir niveles, que el explorador sí separa por clases).
  *
  * Sin cifras a propósito: ni recuentos ni porcentajes (esos, con su suelo ambiental y su referencia, viven en el
  * explorador, a un clic). El grupo de interés va en un tono más oscuro de la tinta para que se vea DÓNDE caen las
@@ -44,6 +45,7 @@ function dibuja() {
   for (let i = 0; i < n; i++) if (props.d.celulas.grupo[i] !== interes) ctx.fillRect(px(i) - r, py(i) - r, 2 * r, 2 * r)
   ctx.fillStyle = `rgba(${tinta},0.42)`
   for (let i = 0; i < n; i++) if (props.d.celulas.grupo[i] === interes) ctx.fillRect(px(i) - r, py(i) - r, 2 * r, 2 * r)
+  // violeta sólido y un poco más grande (ceci, 20-oct: al 55 % una célula suelta no llegaba a 3:1; el tamaño es la señal de forma)
   ctx.fillStyle = `rgb(${violeta})`
   const rd = r + 0.4
   for (const i of detectadas(props.d.expr, props.gen)) ctx.fillRect(px(i) - rd, py(i) - rd, 2 * rd, 2 * rd)

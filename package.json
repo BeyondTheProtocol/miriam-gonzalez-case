@@ -35,7 +35,8 @@
     "test:caminos": "tsx scripts/test-caminos.ts",
     "test:home-caminos": "node scripts/test-home-caminos.mjs",
     "icons": "nuxt-seo-utils icons --source favicon.svg",
-    "update-fundraiser": "tsx update-fundraiser.ts"
+    "update-fundraiser": "tsx update-fundraiser.ts",
+    "test:tres-dianas": "tsx scripts/test-tres-dianas.ts"
   },
   "dependencies": {
     "@netlify/functions": "^5.3.0",
