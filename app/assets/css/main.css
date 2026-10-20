@@ -1018,9 +1018,10 @@
     align-self: center;
   }
 
-  /* Bento asimétrico (hallazgo #1 auditoría 26-sep-26): en vez de 6 tarjetas
+  /* Bento asimétrico (hallazgo #1 auditoría 26-sep-26): en vez de tarjetas
      idénticas, la de "supporter" (donar, CTA primario) protagoniza en un
-     bloque 2x2; el resto se reparte en bloques desiguales. Mobile-first:
+     bloque 2x2; el resto se reparte en bloques desiguales. Son 7 desde el
+     20-oct-26 (clínica y laboratorio/single-cell separados). Mobile-first:
      bajo 640px todo colapsa a una columna — la asimetría es cosa de
      tablet/desktop, donde hay sitio para respirar. */
   .pathway-grid {
@@ -1039,17 +1040,22 @@
       grid-column: 1 / -1;
     }
   }
+  /* ≥ 1024: clínica y laboratorio/single-cell lado a lado (plan del 20-oct). Mismo orden visual que
+     el del DOM (supporter, curious, clinician, research, press, tech, peer), que es el del tabulador.
+     Si un acceso directo pasa de 2 líneas a 1024 px, la variante de 4 filas (clínica y research a
+     2 columnas) está en el plan; lo vigila scripts/test-home-caminos.mjs. */
   @media (min-width: 1024px) {
     .pathway-grid {
       grid-template-columns: repeat(4, minmax(0, 1fr));
       grid-template-areas:
         'supporter supporter curious curious'
-        'supporter supporter clinician press'
-        'tech tech peer peer';
+        'supporter supporter clinician research'
+        'press tech peer peer';
     }
     .pathway-card--supporter { grid-area: supporter; }
     .pathway-card--curious   { grid-area: curious; }
     .pathway-card--clinician { grid-area: clinician; }
+    .pathway-card--research  { grid-area: research; }
     .pathway-card--press     { grid-area: press; }
     .pathway-card--tech      { grid-area: tech; }
     .pathway-card--peer      { grid-area: peer; }
@@ -1176,7 +1182,7 @@
     transform: none;
   }
   /* Plegada (solo existe en móvil): menos aire y el número más pequeño, para que
-     los seis títulos quepan casi en una pantalla. */
+     los siete títulos quepan casi en una pantalla. */
   .pathway-card.is-plegada {
     gap: 0.35rem;
     padding: 0.85rem 1.1rem;
@@ -1223,9 +1229,76 @@
     color: var(--color-miriam);
     flex-shrink: 0;
   }
+  /* Accesos directos de los caminos profesionales (plan del 20-oct). Clase propia: .pathway-chip
+     (cápsula, texto sin cortes) la comparten el pie y /colabora y no se toca. Filas de 44 px que
+     envuelven, borde de control ≥3:1 (--trazo-interactivo), icono de la herramienta delante y
+     flecha detrás, ambos SVG. Hover solo con puntero fino: en táctil se quedaría pegado. */
+  .pathway-accesos {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+  }
+  .pathway-acceso {
+    display: flex;
+    align-items: center;
+    gap: 0.55rem;
+    width: 100%;
+    min-height: 44px;
+    padding: 0.5rem 0.7rem;
+    border-radius: 10px;
+    border: 1px solid var(--trazo-interactivo);
+    background: var(--color-bg);
+    color: var(--color-text);
+    font-size: 0.875rem;
+    font-weight: 600;
+    line-height: 1.3;
+    text-decoration: none;
+    -webkit-tap-highlight-color: transparent;
+    transition: border-color var(--dur-micro, 150ms) var(--curva-salida, ease-out),
+      background-color var(--dur-micro, 150ms) var(--curva-salida, ease-out);
+  }
+  .pathway-acceso__icono {
+    width: 1.05rem;
+    height: 1.05rem;
+    flex-shrink: 0;
+    color: var(--color-miriam);
+  }
+  .pathway-acceso__label {
+    flex: 1;
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+  .pathway-acceso__flecha {
+    width: 0.95rem;
+    height: 0.95rem;
+    flex-shrink: 0;
+    color: var(--color-miriam);
+  }
+  @media (hover: hover) {
+    .pathway-acceso:hover {
+      border-color: var(--color-miriam);
+      background: rgb(var(--color-miriam-rgb) / 0.06);
+    }
+  }
+  .pathway-acceso:active {
+    background: rgb(var(--color-miriam-rgb) / 0.1);
+  }
+  @media (forced-colors: active) {
+    .pathway-acceso {
+      border-color: LinkText;
+    }
+  }
   .pathway-card__cta {
     margin-top: auto;
     padding-top: 0.35rem;
+  }
+  /* Sin palabra huérfana en el botón cuando envuelve («Escribir al equipo / tech»; diseno, 20-oct). */
+  .pathway-card__cta .btn-cta,
+  .pathway-card__cta .btn-secondary {
+    text-wrap: balance;
   }
   .pathway-card__caption {
     margin-top: 0.45rem;
@@ -1357,7 +1430,8 @@
     transition: none;
   }
   .pathway-card,
-  .pathway-card__caret {
+  .pathway-card__caret,
+  .pathway-acceso {
     transition: none;
   }
 }

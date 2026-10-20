@@ -841,12 +841,22 @@ const level = ref<ReadingLevel>(route.query.nivel === 'pro' ? 'pro' : 'simple')
 // investigación» del home y el enlace corto /caso seguían abriendo el modo llano.
 // Verificado en producción el 11-sep-2026, con ese arreglo ya desplegado.
 let levelFromUrl = false
+// Con ?nivel=pro y un #ancla del bloque pro (el botón de clínica de la home lleva #snapshot-title; /caso,
+// #mapa-acceso), el scroll al ancla lo hace el router (router.options.ts), también en la carga directa:
+// verificado en Chrome en producción el 20-oct-2026. Aquí solo se lleva el FOCO al ancla, una vez, como
+// hace goPro(), para que el lector de pantalla empiece ahí. Sin mover la página: un segundo scroll a la
+// vez que el del router (los dos suaves) se pisaba en el CI y la dejaba a medio camino.
+let anclaHecha = false
 function applyUrlLevel(): boolean {
   const q = route.query.nivel
   if (q !== 'pro' && q !== 'simple') return false
   if (level.value !== q) {
     levelFromUrl = true
     level.value = q
+  }
+  if (q === 'pro' && route.hash && !anclaHecha) {
+    anclaHecha = true
+    enfocarAncla(route.hash.slice(1))
   }
   return true
 }
@@ -883,13 +893,20 @@ const levelAnnounce = computed(() =>
 function goPro() {
   level.value = 'pro'
   nextTick(() => {
-    const el = document.getElementById('snapshot-title')
-    if (el) {
-      el.setAttribute('tabindex', '-1')
-      el.focus({ preventScroll: true })
-      el.scrollIntoView({ behavior: 'smooth', block: 'start' })
-    }
+    const el = enfocar('snapshot-title')
+    el?.scrollIntoView({ behavior: 'smooth', block: 'start' })
   })
+}
+function enfocar(id: string): HTMLElement | null {
+  const el = document.getElementById(id)
+  if (el) {
+    el.setAttribute('tabindex', '-1')
+    el.focus({ preventScroll: true })
+  }
+  return el
+}
+function enfocarAncla(id: string) {
+  nextTick(() => enfocar(id))
 }
 // El componente devuelve el id como texto; aquí vuelve a ser un ReadingLevel.
 const ponerNivel = (v: string) => { level.value = v === 'pro' ? 'pro' : 'simple' }

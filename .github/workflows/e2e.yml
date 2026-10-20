@@ -55,12 +55,19 @@ jobs:
       # «hace N días» horneado en el HTML, y un sitemap con URLs que dan 404 o son noindex.
       - run: pnpm test:salud-estatica
 
+      # Home, «Elige tu camino»: accesos directos de clínica y single-cell (href reales sin JS, 44 px,
+      # ≤ 2 líneas a 1024, la rejilla tesela, el tabulador sigue el DOM, «Ver detalle clínico» aterriza
+      # en «De un vistazo» con clic y con carga directa).
+      - run: pnpm test:home-caminos
+
       # Estos no necesitan el build; van detrás porque el checkout ya está listo.
       - run: pnpm test:short-links
       # La cronología vive en dos ficheros (timeline.yml y `eventos` de caso.json): que no diverjan.
       - run: pnpm test:cronologia-caso
       # La sala de prensa se mantiene a mano: claves ES/EN en paralelo, citas = set aprobado, sin contador de campaña.
       - run: pnpm test:sala-prensa
+      # Caminos de la home: 1-3 accesos, puerta del explorador, claves ES/EN, léxico de las tarjetas profesionales y rejilla.
+      - run: pnpm test:caminos
       # La frase de la constelación usa el total real de donantes, no la lista topada a 500.
       - run: pnpm test:donantes-total
       # La puerta de los resultados de /celula-a-celula (verificado + OK de Miriam) y el contrato del JSON publicado.
