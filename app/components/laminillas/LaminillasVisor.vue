@@ -36,6 +36,8 @@ const fallos = reactive<Record<number, boolean>>({})
 const enlazado = ref(true)
 const pantallaCompleta = ref(false)
 const fsDisponible = ref(false)
+// La ayuda se pliega en móvil (diseno, 20-oct: con ella abierta el primer panel quedaba bajo el pliegue).
+const ayudaAbierta = ref(true)
 const activo = ref(0)
 const idAyuda = useId()
 
@@ -250,6 +252,7 @@ function alPantalla() { pantallaCompleta.value = document.fullscreenElement === 
 
 onMounted(() => {
   fsDisponible.value = !!document.fullscreenEnabled
+  ayudaAbierta.value = window.matchMedia('(min-width: 768px)').matches
   monta()
   document.addEventListener('fullscreenchange', alPantalla)
 })
@@ -303,6 +306,8 @@ onBeforeUnmount(() => {
         {{ L('Pantalla completa', 'Full screen') }}
       </button>
     </div>
+    <details class="visor-ayuda-det" :open="ayudaAbierta" @toggle="ayudaAbierta = ($event.target as HTMLDetailsElement).open">
+    <summary class="visor-ayuda-sum">{{ L('Cómo se usa', 'How to use it') }}</summary>
     <p :id="idAyuda" class="visor-ayuda">
       {{ hayGrupoComun
         ? L('El zoom va a la par en micras en todos los paneles. Mover a la par solo enlaza cortes del mismo bloque de tejido: suéltalo para alinearlos y vuelve a activarlo. Con el teclado: flechas para mover, más y menos para el zoom, 0 para encuadrar. Colores tal como los dio cada escáner, sin normalizar.',
@@ -310,6 +315,7 @@ onBeforeUnmount(() => {
         : L('El zoom va a la par en micras en todos los paneles; el movimiento es libre, porque son tejidos distintos. Con el teclado: flechas para mover, más y menos para el zoom, 0 para encuadrar. Colores tal como los dio cada escáner, sin normalizar.',
             'Zoom is matched in microns across all panels; movement is independent, because these are different tissues. Keyboard: arrows to move, plus and minus to zoom, 0 to fit. Colours as each scanner captured them, not normalised.') }}
     </p>
+    </details>
     <fieldset v-if="conLamina.length > 1" class="visor-selector">
       <legend class="sr-only">{{ L('Laminilla visible', 'Visible slide') }}</legend>
       <label v-for="i in conLamina" :key="i" class="visor-selector__op">
@@ -342,9 +348,8 @@ onBeforeUnmount(() => {
 </template>
 
 <style scoped>
-.visor-caja { background: var(--color-bg); }
-.visor-caja--completa { padding: var(--sp-16); overflow: auto; }
-.visor-barra { display: flex; flex-wrap: wrap; gap: var(--sp-8); align-items: center; margin-bottom: var(--sp-8); }
+.visor-caja--completa { background: var(--color-bg); padding: var(--sp-16); overflow: auto; }
+.visor-barra { display: flex; flex-wrap: wrap; gap: var(--sp-8) var(--sp-16); align-items: center; margin-bottom: var(--sp-8); }
 .visor-grupo { display: inline-flex; gap: var(--sp-4); }
 .visor-boton {
   display: inline-flex; align-items: center; justify-content: center; gap: 6px;
@@ -358,6 +363,11 @@ onBeforeUnmount(() => {
 .visor-boton[aria-pressed='true'] { background: var(--seleccionado-bg); border-color: var(--color-miriam); }
 .visor-boton:focus-visible { outline: 3px solid var(--anillo-foco); outline-offset: 2px; }
 .visor-ayuda { font-size: var(--texto-xs); color: var(--color-text-soft); margin: 0 0 var(--sp-12); max-width: 76ch; line-height: 1.5; }
+.visor-ayuda-sum { display: none; }
+@media (max-width: 767px) {
+  .visor-ayuda-sum { display: list-item; cursor: pointer; min-height: 44px; padding-top: 12px; font-size: var(--texto-sm); font-weight: 600; color: var(--color-text); }
+  .visor-ayuda-sum:focus-visible { outline: 3px solid var(--anillo-foco); outline-offset: 2px; }
+}
 .visor-selector { display: none; border: 0; margin: 0 0 var(--sp-8); padding: 0; gap: var(--sp-8); flex-wrap: wrap; }
 .visor-selector__op { display: inline-flex; align-items: center; min-height: 44px; padding: 0 14px; border-radius: var(--radius-md);
   border: 1px solid color-mix(in srgb, var(--color-text) 40%, transparent); background: var(--color-bg-card);
@@ -373,7 +383,7 @@ onBeforeUnmount(() => {
 .visor-rotulo { position: absolute; z-index: 2; top: 8px; left: 8px; right: 8px; pointer-events: none;
   font-size: var(--texto-xs); font-weight: 600; color: var(--color-text);
   background: color-mix(in srgb, var(--color-bg) 92%, transparent); padding: 4px 8px; border-radius: var(--radius-sm); width: fit-content; }
-.visor-lienzo { width: 100%; height: clamp(280px, 52svh, 640px); }
+.visor-lienzo { width: 100%; height: clamp(280px, 52svh, 520px); }
 .visor-caja--completa .visor-lienzo { height: calc((100dvh - 160px) / var(--filas, 1)); }
 .visor-lienzo :deep(.openseadragon-canvas:focus-visible) { outline: 3px solid var(--anillo-foco); outline-offset: -3px; }
 .visor-regla { position: absolute; z-index: 2; left: 10px; bottom: 10px; pointer-events: none;
@@ -386,6 +396,7 @@ onBeforeUnmount(() => {
   background: var(--color-bg-card); color: var(--color-text); padding: 8px 10px; border-radius: var(--radius-sm); }
 .visor-hueco { display: flex; align-items: center; justify-content: center; height: clamp(280px, 52svh, 640px);
   color: var(--color-text-soft); font-size: var(--texto-sm); background: var(--color-bg-card); }
+.visor-hueco { height: clamp(280px, 52svh, 520px); }
 @media (max-width: 767px) {
   .visor-selector { display: flex; }
   .visor-panel { grid-area: 1 / 1; }

@@ -340,6 +340,10 @@ function teclas(e: KeyboardEvent) {
 .visor-cabecera h2:focus { outline: none; }
 .visor-cabecera h2:focus-visible { outline: 3px solid var(--anillo-foco); outline-offset: 4px; }
 .visor-acciones { display: flex; flex-wrap: wrap; gap: var(--sp-8); }
+@media (max-width: 767px) {
+  .visor-acciones { flex-wrap: nowrap; width: 100%; }
+  .visor-acciones > * { flex: 1 1 0; padding-inline: 10px; font-size: var(--texto-sm); }
+}
 /* Pulsado: violeta suave con texto berenjena también en hover (el hover del DS pone texto crema: 1,29:1). */
 .visor-acciones .btn-secondary[aria-pressed='true'],
 .visor-acciones .btn-secondary[aria-pressed='true']:hover { background: var(--seleccionado-bg); color: var(--color-text); }
