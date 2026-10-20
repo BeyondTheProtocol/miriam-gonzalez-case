@@ -37,6 +37,8 @@ const caja = ref<HTMLDivElement | null>(null)
 const nodos = ref<HTMLDivElement[]>([])
 const reglas = reactive<Record<number, { px: number; texto: string }>>({})
 const fallos = reactive<Record<number, boolean>>({})
+// Hasta la primera tesela, el panel lo dice (se quedaba en blanco unos segundos).
+const cargando = reactive<Record<number, boolean>>({})
 const enlazado = ref(true)
 const pantallaCompleta = ref(false)
 const fsDisponible = ref(false)
@@ -150,10 +152,11 @@ function abrePanel(i: number, el: HTMLDivElement, l: Laminilla, gen: number) {
     navigatorPosition: 'TOP_LEFT',
     navigatorSizeRatio: 0.16,
     navigatorAutoFade: false,
-    // Minimapa claro, con el recuadro en el violeta de la marca (por defecto es negro y rojo).
-    navigatorBackground: '#ffffff',
-    navigatorBorderColor: '#cfc6d4',
-    navigatorDisplayRegionColor: '#9d44ab',
+    // Minimapa claro, con tokens del DS (por defecto es negro y rojo). OpenSeadragon los pone en
+    // estilos en línea, así que var() funciona tal cual.
+    navigatorBackground: '#fff',
+    navigatorBorderColor: 'var(--trazo-interactivo)',
+    navigatorDisplayRegionColor: 'var(--color-miriam)',
     animationTime: reducido() ? 0 : 0.5,
     springStiffness: reducido() ? 100 : 7,
     blendTime: 0,
@@ -168,6 +171,7 @@ function abrePanel(i: number, el: HTMLDivElement, l: Laminilla, gen: number) {
   const panel: Panel = { v, l, grupo: grupoPaneo(props.manifest, l.muestra), ultimo: null }
   paneles[i] = panel
   fallos[i] = false
+  cargando[i] = true
   v.addHandler('open', () => {
     if (gen !== generacion) return
     panel.ultimo = centroUm(panel)
@@ -180,8 +184,8 @@ function abrePanel(i: number, el: HTMLDivElement, l: Laminilla, gen: number) {
   // teselas, una a una. Si fallan varias y no ha cargado ninguna, el panel lo dice.
   let cargadas = 0
   let fallidas = 0
-  v.addHandler('tile-loaded', () => { cargadas++; fallos[i] = false })
-  v.addHandler('tile-load-failed', () => { fallidas++; if (!cargadas && fallidas >= 4) fallos[i] = true })
+  v.addHandler('tile-loaded', () => { cargadas++; fallos[i] = false; cargando[i] = false })
+  v.addHandler('tile-load-failed', () => { fallidas++; if (!cargadas && fallidas >= 4) { fallos[i] = true; cargando[i] = false } })
   v.addHandler('viewport-change', () => alCambiar(i))
   v.addHandler('resize', () => pintaRegla(i))
   // Teclas de OpenSeadragon: «0» encuadraba SOLO este panel (y los demás copiaban su escala);
@@ -232,14 +236,33 @@ function zoom(f: number) {
   p.v.viewport.zoomBy(f)
   p.v.viewport.applyConstraints()
 }
-/** Mover sin arrastrar (WCAG 2.5.7): desplaza el primer panel; el paneo enlazado hace el resto. */
+/**
+ * Mover sin arrastrar (WCAG 2.5.7): el botón es una orden explícita, así que mueve TODOS los paneles
+ * lo mismo (con el zoom a la par en µm, mismos píxeles = mismos µm), también los de otro bloque, que
+ * con el ratón se mueven sueltos. Antes movía solo el primero y su grupo: el hígado no se podía mover.
+ */
 function desplaza(dx: number, dy: number) {
-  const p = paneles.find(abierto)
-  if (!p || !OSD) return
-  const w = (p.v.container as HTMLElement).clientWidth
-  const h = (p.v.container as HTMLElement).clientHeight
-  p.v.viewport.panBy(p.v.viewport.deltaPointsFromPixels(new OSD.Point(dx * w * 0.25, dy * h * 0.25)))
-  p.v.viewport.applyConstraints()
+  const abiertos = paneles.filter(abierto)
+  if (!abiertos.length || !OSD) return
+  const w = (abiertos[0]!.v.container as HTMLElement).clientWidth
+  const h = (abiertos[0]!.v.container as HTMLElement).clientHeight
+  sincronizando = true
+  try {
+    for (const p of abiertos) {
+      p.v.viewport.panBy(p.v.viewport.deltaPointsFromPixels(new OSD.Point(dx * w * 0.25, dy * h * 0.25)), true)
+      p.v.viewport.applyConstraints(true)
+    }
+  } finally {
+    sincronizando = false
+  }
+  for (const p of abiertos) p.ultimo = centroUm(p)
+  paneles.forEach((_, i) => pintaRegla(i))
+}
+/** Esc cierra «Más» (y no sale de comparar, que es lo que haría en la página). */
+function escMas(e: KeyboardEvent) {
+  if (!mas.value) return
+  mas.value = false
+  e.stopPropagation()
 }
 function alternaEnlace() {
   enlazado.value = !enlazado.value
@@ -266,7 +289,7 @@ onBeforeUnmount(() => {
 
 <template>
   <div ref="caja" class="visor-caja" :class="{ 'visor-caja--completa': pantallaCompleta }">
-    <div class="visor-barra" role="toolbar" :aria-label="L('Controles del visor', 'Viewer controls')">
+    <div class="visor-barra" role="group" :aria-label="L('Controles del visor', 'Viewer controls')" @keydown.esc="escMas">
       <button type="button" class="visor-boton" :aria-label="L('Acercar', 'Zoom in')" @click="zoom(1.6)">
         <Icon name="ph:plus-bold" class="w-4 h-4" aria-hidden="true" />
       </button>
@@ -307,11 +330,12 @@ onBeforeUnmount(() => {
           </button>
         </div>
         <p :id="idAyuda" class="visor-ayuda">
+          <!-- Copy publicado retocado (pase de voz, 20-oct): dice qué hacen ← → fuera de la imagen, «+ y -» como en la tecla, y «salen tal cual». -->
           {{ hayGrupoComun
-            ? L('El zoom va a la par en micras en todos los paneles. Mover a la par solo enlaza cortes del mismo bloque de tejido: suéltalo para alinearlos y vuelve a activarlo. Con el teclado, dentro de la imagen: flechas para mover, más y menos para el zoom, 0 para encuadrar. Colores tal como los dio cada escáner, sin normalizar.',
-                'Zoom is matched in microns across all panels. Move together only links sections of the same tissue block: turn it off to line them up, then on again. Keyboard, inside the image: arrows to move, plus and minus to zoom, 0 to fit. Colours as each scanner captured them, not normalised.')
-            : L('Con el teclado, dentro de la imagen: flechas para mover, más y menos para el zoom, 0 para encuadrar. Colores tal como los dio cada escáner, sin normalizar.',
-                'Keyboard, inside the image: arrows to move, plus and minus to zoom, 0 to fit. Colours as each scanner captured them, not normalised.') }}
+            ? L('El zoom va a la par en micras en todos los paneles. Mover a la par solo enlaza cortes del mismo bloque de tejido: suéltalo para alinearlos y vuelve a activarlo. Con el teclado: ← → cambian de laminilla. Dentro de la imagen: flechas para mover, + y - para el zoom, 0 para encuadrar. Los colores salen tal cual de cada escáner, sin normalizar.',
+                'Zoom is matched in microns across all panels. Move together only links sections of the same tissue block: turn it off to line them up, then on again. Keyboard: ← → switch slides. Inside the image: arrows to move, + and - to zoom, 0 to fit. Colors come straight from each scanner, not normalized.')
+            : L('Con el teclado: ← → cambian de laminilla. Dentro de la imagen: flechas para mover, + y - para el zoom, 0 para encuadrar. Los colores salen tal cual de cada escáner, sin normalizar.',
+                'Keyboard: ← → switch slides. Inside the image: arrows to move, + and - to zoom, 0 to fit. Colors come straight from each scanner, not normalized.') }}
         </p>
       </div>
     </div>
@@ -324,6 +348,7 @@ onBeforeUnmount(() => {
             <span class="visor-regla__barra" :style="{ width: reglas[i].px + 'px' }" />
             <span class="visor-regla__texto">{{ reglas[i].texto }}</span>
           </div>
+          <p v-if="cargando[i] && !fallos[i]" class="visor-cargando" aria-hidden="true">{{ L('Cargando teselas…', 'Loading tiles…') }}</p>
           <p v-if="fallos[i]" class="visor-fallo" role="status">
             {{ L('No se han podido cargar las teselas de esta laminilla.', 'The tiles for this slide could not be loaded.') }}
           </p>
@@ -370,6 +395,8 @@ onBeforeUnmount(() => {
 .visor-regla__texto { font-family: var(--font-mono); font-size: 12px; color: var(--color-text); }
 .visor-fallo { position: absolute; inset: auto 8px 48px 8px; z-index: 2; font-size: var(--texto-sm);
   background: var(--color-bg-card); color: var(--color-text); padding: 8px 10px; border-radius: var(--radius-sm); }
+.visor-cargando { position: absolute; z-index: 1; inset: 0; margin: 0; display: flex; align-items: center; justify-content: center; pointer-events: none;
+  font-size: var(--texto-sm); color: var(--color-text-soft); }
 .visor-hueco { display: flex; align-items: center; justify-content: center; height: 100%;
   color: var(--color-text-soft); font-size: var(--texto-sm); background: var(--color-bg-card); }
 /* En móvil «Mover a la par» queda en el icono (con su nombre accesible): la barra cabe en una fila. */

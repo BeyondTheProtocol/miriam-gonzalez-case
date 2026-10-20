@@ -19,7 +19,7 @@
  */
 import datos from '~/data/laminillas.json'
 import {
-  companeras, heDe, ordenGaleria, primeraLaminilla, queryDeVista, vecinaEnGaleria, vistaDeQuery,
+  companeras, grupoPaneo, heDe, ordenGaleria, primeraLaminilla, queryDeVista, vecinaEnGaleria, vistaDeQuery,
   type Agrupacion, type Laminilla, type Manifest, type Vista,
 } from '~/utils/laminillas'
 
@@ -69,7 +69,8 @@ const hermanas = computed(() => companeras(M, actual.value))
 const puedeComparar = computed(() => hermanas.value.length > 1)
 const comparando = computed(() => vista.value.comparar && puedeComparar.value)
 const puedeHE = computed(() => actual.value.marcador !== 'he')
-const conHE = computed(() => vista.value.he && puedeHE.value)
+// En móvil no hay «HE al lado» al comparar: con los paneles apilados, 6 no caben.
+const conHE = computed(() => vista.value.he && puedeHE.value && !(estrecho.value && comparando.value))
 const enVista = computed(() => (comparando.value ? hermanas.value : [actual.value]))
 
 // Móvil (< 768 px): rejilla en filas (cada muestra una fila; comparar apila) y galería por muestra.
@@ -110,10 +111,12 @@ const tituloCorto = computed(() => {
 })
 const textoComparar = computed(() => {
   const n = hermanas.value.length
-  return L(`Comparar en las ${n} muestras`, n === 2 ? 'Compare both samples' : `Compare all ${n} samples`)
+  return L(`Comparar las ${n} muestras`, n === 2 ? 'Compare both samples' : `Compare all ${n} samples`)
 })
 // Donde se leen las cifras que no coinciden entre informes, el aviso va en la ficha.
-const conDiscordancia = computed(() => ['re', 'rp', 'ki67'].includes(actual.value.marcador))
+// Solo si se ve alguna laminilla del bloque de mama: en la RE del hígado salía junto a «negativo (0 %)»
+// un párrafo sobre cifras de mama (diseno, 21-oct).
+const conDiscordancia = computed(() => ['re', 'rp', 'ki67'].includes(actual.value.marcador) && fichas.value.some((l) => grupoPaneo(M, l.muestra) === 'mama'))
 const textoDiscordancia = computed(() => L(
   'Las lecturas del bloque de mama no coinciden en todas las cifras: RE 95 % en el informe de 2024 y 85 % en la revisión de 2026, RP 5 % y 20 %, Ki-67 60 % y 40 %. Cada ficha da la del informe de su propia tanda de laminillas.',
   'The readings of the breast block do not agree on every figure: ER 95% in the 2024 report and 85% in the 2026 review, PR 5% and 20%, Ki-67 60% and 40%. Each record gives the figure from the report for its own batch of slides.'))
@@ -125,23 +128,31 @@ function ve(v: Vista, historial = true) {
   const q = queryDeVista(v)
   return historial ? router.push({ query: q }) : router.replace({ query: q })
 }
-function elige(id: string) {
+async function elige(id: string) {
   if (id === actual.value.id) return
   const l = M.laminillas.find((x) => x.id === id)
-  ve({ laminilla: id, comparar: vista.value.comparar && !!l && companeras(M, l).length > 1, he: vista.value.he })
+  // Si el foco estaba en la galería (← → desde un enlace), se va con la laminilla nueva.
+  const enGaleria = !!document.activeElement?.closest('.gal__lista')
+  await ve({ laminilla: id, comparar: vista.value.comparar && !!l && companeras(M, l).length > 1, he: vista.value.he })
+  if (enGaleria) document.querySelector<HTMLElement>(`.gal__item[data-l="${CSS.escape(id)}"]`)?.focus({ preventScroll: true })
 }
 const mueve = (d: number) => elige(vecinaEnGaleria(M, actual.value.id, d, por.value).id)
 const alternaComparar = () => ve({ ...vista.value, laminilla: actual.value.id, comparar: !comparando.value }, false)
 const alternaHE = () => ve({ ...vista.value, laminilla: actual.value.id, he: !conHE.value }, false)
 
-// ── Ficha: panel a la derecha (abierto desde 1024 px) o cajón en móvil (cerrado). Esc lo cierra.
-const fichaAbierta = ref(true)
+// ── Ficha: columna a la derecha desde 1024 px (abierta por defecto desde 1280) y, por debajo,
+// panel superpuesto (tableta) o cajón (móvil) que se comporta como diálogo: foco dentro al abrir,
+// el resto inerte, velo que cierra, Esc, y el foco vuelve al botón (diseno, 21-oct: K3 de a11y).
+// Cerrada en el HTML prerenderizado: en móvil salía abierta hasta hidratar.
+const fichaAbierta = ref(false)
+const superpuesta = ref(false)
+const modal = computed(() => superpuesta.value && fichaAbierta.value)
 const botonFicha = ref<HTMLElement | null>(null)
 const tituloFicha = ref<HTMLElement | null>(null)
 async function alternaFicha() {
   fichaAbierta.value = !fichaAbierta.value
   await nextTick()
-  if (fichaAbierta.value && estrecho.value) tituloFicha.value?.focus()
+  if (fichaAbierta.value && superpuesta.value) tituloFicha.value?.focus()
   if (!fichaAbierta.value) botonFicha.value?.focus()
 }
 
@@ -150,10 +161,12 @@ function teclas(e: KeyboardEvent) {
   if (e.altKey || e.ctrlKey || e.metaKey || e.shiftKey) return
   const el = e.target as HTMLElement | null
   if (el?.closest('.openseadragon-canvas, input, textarea, select, [contenteditable="true"]')) return
+  // Con el informe abierto encima, ← → no cambian lo que hay debajo.
+  if (modal.value && e.key !== 'Escape') return
   if (e.key === 'ArrowRight') { e.preventDefault(); mueve(1) }
   else if (e.key === 'ArrowLeft') { e.preventDefault(); mueve(-1) }
   else if (e.key === 'Escape') {
-    if (estrecho.value && fichaAbierta.value) alternaFicha()
+    if (modal.value) alternaFicha()
     else if (comparando.value) alternaComparar()
   }
 }
@@ -162,24 +175,35 @@ function teclas(e: KeyboardEvent) {
 const altoCabecera = ref(112)
 let ro: ResizeObserver | null = null
 let mqMovil: MediaQueryList | null = null
-let mqAncho: MediaQueryList | null = null
+let mqSuperpuesta: MediaQueryList | null = null
 const alMovil = () => { estrecho.value = !!mqMovil?.matches }
+const alSuperpuesta = () => { superpuesta.value = !!mqSuperpuesta?.matches }
 onMounted(() => {
   mqMovil = window.matchMedia('(max-width: 767px)')
-  mqAncho = window.matchMedia('(min-width: 1024px)')
+  mqSuperpuesta = window.matchMedia('(max-width: 1023px)')
   alMovil()
+  alSuperpuesta()
   mqMovil.addEventListener('change', alMovil)
-  fichaAbierta.value = mqAncho.matches
+  mqSuperpuesta.addEventListener('change', alSuperpuesta)
+  fichaAbierta.value = window.matchMedia('(min-width: 1280px)').matches
   const cab = document.querySelector<HTMLElement>('[data-cabecera-fija]')
-  const mide = () => { altoCabecera.value = Math.ceil(cab?.getBoundingClientRect().height ?? 112) }
+  // scroll-padding: con la cabecera pegada, el foco que llega por Tab no queda debajo (2.4.11).
+  const mide = () => {
+    altoCabecera.value = Math.ceil(cab?.getBoundingClientRect().height ?? 112)
+    document.documentElement.style.scrollPaddingTop = `${altoCabecera.value + 8}px`
+  }
   mide()
   ro = new ResizeObserver(mide)
   if (cab) ro.observe(cab)
+  document.documentElement.classList.add('lam-activa')
   window.addEventListener('keydown', teclas)
 })
 onBeforeUnmount(() => {
   mqMovil?.removeEventListener('change', alMovil)
+  mqSuperpuesta?.removeEventListener('change', alSuperpuesta)
   ro?.disconnect()
+  document.documentElement.style.scrollPaddingTop = ''
+  document.documentElement.classList.remove('lam-activa')
   window.removeEventListener('keydown', teclas)
 })
 </script>
@@ -191,10 +215,11 @@ onBeforeUnmount(() => {
         <Icon name="ph:arrow-left-bold" class="w-4 h-4" aria-hidden="true" /><span class="lam__volver-texto">{{ $t('nav.tools') }}</span>
       </NuxtLink>
       <h1 class="lam__h1">{{ L('Las laminillas, al microscopio', 'The slides, under the microscope') }}</h1>
-      <details class="lam__aviso">
+      <details class="lam__aviso" role="note">
         <summary>
           <Icon name="ph:info-fill" class="w-4 h-4 shrink-0" aria-hidden="true" />
           <span>{{ L('Herramienta de APOYO a la decisión. No es diagnóstico ni consejo médico.', 'A decision-SUPPORT tool. Not a diagnosis or medical advice.') }}</span>
+          <Icon name="ph:caret-down-bold" class="lam__aviso-flecha w-3 h-3 shrink-0" aria-hidden="true" />
         </summary>
         <p>{{ L(
           'Los resultados que aparecen son los de los informes de anatomía patológica, cada uno con su fuente y su sello de verificación. Mirar la imagen no los sustituye: los interpreta el equipo médico.',
@@ -203,34 +228,25 @@ onBeforeUnmount(() => {
     </div>
 
     <div class="lam__cuerpo">
-      <LaminillasGaleria
-        class="lam__galeria"
-        :manifest="M"
-        :idioma="idioma"
-        :por="por"
-        :activa="actual.id"
-        :tambien="enVista.filter((l) => l.id !== actual.id).map((l) => l.id)"
-        :enlace="enlace"
-        @elige="elige"
-        @por="porElegida = $event"
-      />
-
-      <section class="lam__visor" aria-labelledby="lam-titulo">
+      <!-- Orden del DOM: el visor primero (lo principal; ← → y ‹ › cambian de laminilla sin pasar por
+           la lista), después la galería y la ficha. Dónde se ven lo decide grid-template-areas. -->
+      <section class="lam__visor" aria-labelledby="lam-titulo" :inert="modal ? '' : undefined">
         <div class="lam__cab">
           <h2 id="lam-titulo" class="lam__titulo" aria-live="polite">
             <span class="lam__titulo-texto lam__titulo-largo">{{ titulo }}</span>
             <span class="lam__titulo-texto lam__titulo-corto" aria-hidden="true">{{ tituloCorto }}</span>
-            <span class="lam__pos">{{ L(`${posicion} de ${total}`, `${posicion} of ${total}`) }}</span>
+            <span class="lam__pos"><span class="sr-only">{{ ', ' + L('laminilla', 'slide') + ' ' }}</span>{{ L(`${posicion} de ${total}`, `${posicion} of ${total}`) }}</span>
           </h2>
           <div class="lam__acciones">
+            <!-- Interruptor, como «HE al lado»: el texto no cambia (el nombre accesible es el mismo, 2.5.3); se marca pulsado. -->
             <button v-if="puedeComparar" type="button" class="lam__accion" :aria-pressed="comparando" :aria-label="textoComparar" @click="alternaComparar">
-              <Icon :name="comparando ? 'ph:square-bold' : 'ph:columns-bold'" class="w-4 h-4" aria-hidden="true" /><span class="lam__accion-texto">{{ comparando ? L('Ver solo esta', 'Show just this one') : textoComparar }}</span>
+              <Icon name="ph:columns-bold" class="w-4 h-4" aria-hidden="true" /><span class="lam__accion-texto">{{ textoComparar }}</span><span class="lam__accion-corto" aria-hidden="true">{{ L('Comparar', 'Compare') }}</span>
             </button>
-            <button v-if="puedeHE" type="button" class="lam__accion" :aria-pressed="conHE" :aria-label="L('HE al lado', 'H&E alongside')" @click="alternaHE">
-              <Icon name="ph:square-split-horizontal-bold" class="w-4 h-4" aria-hidden="true" /><span class="lam__accion-texto">{{ L('HE al lado', 'H&E alongside') }}</span>
+            <button v-if="puedeHE && !(estrecho && comparando)" type="button" class="lam__accion" :aria-pressed="conHE" :aria-label="L('HE al lado', 'H&E alongside')" @click="alternaHE">
+              <Icon name="ph:square-split-horizontal-bold" class="w-4 h-4" aria-hidden="true" /><span class="lam__accion-texto">{{ L('HE al lado', 'H&E alongside') }}</span><span class="lam__accion-corto" aria-hidden="true">{{ L('HE al lado', 'H&E') }}</span>
             </button>
-            <button ref="botonFicha" type="button" class="lam__accion" :aria-expanded="fichaAbierta" aria-controls="lam-ficha" :aria-label="L('Lo que dice el informe', 'What the report says')" @click="alternaFicha">
-              <Icon name="ph:file-text-bold" class="w-4 h-4" aria-hidden="true" /><span class="lam__accion-texto">{{ L('Informe', 'Report') }}</span>
+            <button ref="botonFicha" type="button" class="lam__accion" :aria-expanded="fichaAbierta" aria-controls="lam-ficha" :aria-label="L('Informe', 'Report')" @click="alternaFicha">
+              <Icon name="ph:file-text-bold" class="w-4 h-4" aria-hidden="true" /><span class="lam__accion-texto">{{ L('Informe', 'Report') }}</span><span class="lam__accion-corto" aria-hidden="true">{{ L('Informe', 'Report') }}</span>
             </button>
           </div>
         </div>
@@ -241,18 +257,33 @@ onBeforeUnmount(() => {
               <div class="lam__cargando">{{ L('Cargando el visor…', 'Loading the viewer…') }}</div>
             </template>
           </ClientOnly>
-          <button type="button" class="lam__flecha lam__flecha--ant" :aria-label="L('Laminilla anterior', 'Previous slide')" @click="mueve(-1)">
+          <button v-if="!comparando" type="button" class="lam__flecha lam__flecha--ant" :aria-label="L('Laminilla anterior', 'Previous slide')" @click="mueve(-1)">
             <Icon name="ph:caret-left-bold" class="w-5 h-5" aria-hidden="true" />
           </button>
-          <button type="button" class="lam__flecha lam__flecha--sig" :aria-label="L('Laminilla siguiente', 'Next slide')" @click="mueve(1)">
+          <button v-if="!comparando" type="button" class="lam__flecha lam__flecha--sig" :aria-label="L('Laminilla siguiente', 'Next slide')" @click="mueve(1)">
             <Icon name="ph:caret-right-bold" class="w-5 h-5" aria-hidden="true" />
           </button>
         </div>
       </section>
 
+      <LaminillasGaleria
+        class="lam__galeria"
+        :manifest="M"
+        :idioma="idioma"
+        :por="por"
+        :activa="actual.id"
+        :tambien="enVista.filter((l) => l.id !== actual.id).map((l) => l.id)"
+        :enlace="enlace"
+        :inert="modal ? '' : undefined"
+        @elige="elige"
+        @por="porElegida = $event"
+      />
+
+      <div v-if="modal" class="lam__velo" aria-hidden="true" @click="alternaFicha" />
       <aside v-show="fichaAbierta" id="lam-ficha" class="lam__ficha" aria-labelledby="lam-ficha-titulo">
         <div class="lam__ficha-cab">
-          <h2 id="lam-ficha-titulo" ref="tituloFicha" tabindex="-1" class="lam__ficha-titulo">{{ L('Lo que dice el informe', 'What the report says') }}</h2>
+          <!-- «Informe»: cada ficha ya trae el campo «Lo que dice el informe»; así no sale dos veces seguidas. -->
+          <h2 id="lam-ficha-titulo" ref="tituloFicha" tabindex="-1" class="lam__ficha-titulo">{{ L('Informe', 'Report') }}</h2>
           <button type="button" class="lam__cerrar" :aria-label="L('Cerrar el informe', 'Close the report')" @click="alternaFicha">
             <Icon name="ph:x-bold" class="w-4 h-4" aria-hidden="true" />
           </button>
@@ -285,18 +316,25 @@ onBeforeUnmount(() => {
 /* La herramienta llena la pantalla bajo la cabecera fija del sitio: no hay que desplazar la página. */
 .lam { height: calc(100dvh - var(--alto-cabecera, 112px)); min-height: 420px; display: flex; flex-direction: column; background: var(--color-bg); }
 .lam__barra { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 16px; padding: 8px 16px; border-bottom: 1px solid color-mix(in srgb, var(--color-text) 12%, transparent); }
-.lam__volver { display: inline-flex; align-items: center; gap: 6px; min-height: 36px; font-size: var(--texto-sm); color: var(--color-text); text-decoration: none; }
+.lam__volver { display: inline-flex; align-items: center; gap: 6px; min-height: 44px; min-width: 44px; font-size: var(--texto-sm); color: var(--color-text); text-decoration: none; }
 .lam__volver:focus-visible { outline: 3px solid var(--anillo-foco); outline-offset: 2px; border-radius: var(--radius-sm); }
 .lam__h1 { margin: 0; font-family: var(--font-display); font-weight: 600; font-size: var(--texto-lg); color: var(--color-text); }
-.lam__aviso { margin-left: auto; max-width: 62ch; font-size: var(--texto-xs); color: var(--color-text); }
+.lam__aviso { margin-left: auto; font-size: var(--texto-xs); color: var(--color-text); }
 .lam__aviso summary { display: flex; align-items: center; gap: 6px; min-height: 36px; cursor: pointer; font-weight: 600; list-style: none; }
 .lam__aviso summary::-webkit-details-marker { display: none; }
+.lam__aviso-flecha { transition: transform var(--dur-micro, .15s) ease; }
+.lam__aviso[open] .lam__aviso-flecha { transform: rotate(180deg); }
+@media (prefers-reduced-motion: reduce) { .lam__aviso-flecha { transition: none; } }
 .lam__aviso summary:focus-visible { outline: 3px solid var(--anillo-foco); outline-offset: 2px; border-radius: var(--radius-sm); }
 .lam__aviso p { margin: 4px 0 6px 22px; line-height: 1.5; }
 
-.lam__cuerpo { position: relative; flex: 1; min-height: 0; display: grid; grid-template-columns: 280px minmax(0, 1fr) 340px; }
-.lam--sin-ficha .lam__cuerpo { grid-template-columns: 280px minmax(0, 1fr); }
-.lam__galeria { border-right: 1px solid color-mix(in srgb, var(--color-text) 12%, transparent); }
+.lam__cuerpo { position: relative; flex: 1; min-height: 0; display: grid; grid-template-columns: 280px minmax(0, 1fr) 340px; grid-template-areas: 'gal visor ficha'; }
+.lam--sin-ficha .lam__cuerpo { grid-template-columns: 280px minmax(0, 1fr); grid-template-areas: 'gal visor'; }
+.lam__visor { grid-area: visor; }
+.lam__galeria { grid-area: gal; border-right: 1px solid color-mix(in srgb, var(--color-text) 12%, transparent); }
+.lam__ficha { grid-area: ficha; }
+/* Velo bajo el informe superpuesto (tableta y móvil): lo de debajo queda inerte y un toque lo cierra. */
+.lam__velo { position: absolute; z-index: 9; inset: 0; background: color-mix(in srgb, var(--color-text) 28%, transparent); }
 
 .lam__visor { display: flex; flex-direction: column; min-width: 0; min-height: 0; }
 .lam__cab { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 6px 12px; padding: 8px 12px; }
@@ -307,6 +345,9 @@ onBeforeUnmount(() => {
 .lam__accion { display: inline-flex; align-items: center; gap: 6px; min-height: 44px; padding: 0 12px; border-radius: var(--radius-md);
   border: 1px solid var(--trazo-interactivo); background: var(--color-bg-card); font: 600 var(--texto-sm) var(--font-body); color: var(--color-text); }
 .lam__accion[aria-pressed='true'], .lam__accion[aria-expanded='true'] { background: var(--seleccionado-bg); border-color: var(--color-miriam); }
+/* Pulsado no solo por color (1.4.1): el rótulo se subraya, como en «Por muestra / Por tinción». */
+.lam__accion[aria-pressed='true'] :is(.lam__accion-texto, .lam__accion-corto), .lam__accion[aria-expanded='true'] :is(.lam__accion-texto, .lam__accion-corto) { text-decoration: underline; text-underline-offset: 3px; }
+.lam__accion-corto { display: none; }
 .lam__accion:focus-visible, .lam__flecha:focus-visible, .lam__cerrar:focus-visible { outline: 3px solid var(--anillo-foco); outline-offset: 2px; }
 @media (hover: hover) and (pointer: fine) {
   .lam__accion:hover, .lam__flecha:hover { border-color: var(--color-miriam); }
@@ -320,7 +361,7 @@ onBeforeUnmount(() => {
 .lam__flecha--ant { left: 20px; }
 .lam__flecha--sig { right: 20px; }
 
-.lam__ficha { display: flex; flex-direction: column; min-height: 0; border-left: 1px solid color-mix(in srgb, var(--color-text) 12%, transparent); background: var(--color-bg); }
+.lam__ficha { position: relative; z-index: 10; display: flex; flex-direction: column; min-height: 0; border-left: 1px solid color-mix(in srgb, var(--color-text) 12%, transparent); background: var(--color-bg); }
 .lam__ficha-cab { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 8px 12px; border-bottom: 1px solid color-mix(in srgb, var(--color-text) 10%, transparent); }
 .lam__ficha-titulo { margin: 0; font-family: var(--font-display); font-weight: 600; font-size: var(--texto-base, 1rem); color: var(--color-text); }
 .lam__ficha-titulo:focus { outline: none; }
@@ -340,30 +381,39 @@ onBeforeUnmount(() => {
 /* Tableta: galería más estrecha; la ficha se abre encima del visor, a la derecha. */
 @media (max-width: 1023px) {
   .lam__cuerpo, .lam--sin-ficha .lam__cuerpo { grid-template-columns: 220px minmax(0, 1fr); }
-  .lam__ficha { position: absolute; z-index: 10; top: 0; right: 0; bottom: 0; width: min(360px, 90%); box-shadow: -8px 0 24px rgb(0 0 0 / .12); }
+  .lam__cuerpo, .lam--sin-ficha .lam__cuerpo { grid-template-areas: 'gal visor'; }
+  .lam__ficha { position: absolute; z-index: 10; top: 0; right: 0; bottom: 0; width: min(360px, 90%); box-shadow: var(--sombra-flotante); }
 }
 /* Móvil: el visor arriba, la tira de la galería debajo y la ficha en un cajón desde abajo. */
 @media (max-width: 767px) {
   .lam__barra { padding: 4px 12px; gap: 0 12px; }
   .lam__volver-texto, .lam__h1 { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
   .lam__aviso { margin-left: 0; flex: 1; }
-  .lam__cuerpo, .lam--sin-ficha .lam__cuerpo { grid-template-columns: minmax(0, 1fr); grid-template-rows: minmax(0, 1fr) auto; }
-  .lam__galeria { order: 2; border-right: 0; }
-  .lam__cab { padding: 6px 10px; flex-wrap: nowrap; }
-  .lam__titulo { flex-wrap: nowrap; font-size: var(--texto-base, 1rem); min-width: 0; }
+  .lam__cuerpo, .lam--sin-ficha .lam__cuerpo { grid-template-columns: minmax(0, 1fr); grid-template-rows: minmax(0, 1fr) auto; grid-template-areas: 'visor' 'gal'; }
+  .lam__galeria { border-right: 0; }
+  /* Dos filas: el título y, debajo, las acciones con su rótulo visible (solo icono no se entendía). */
+  .lam__cab { padding: 6px 10px; gap: 4px; }
+  .lam__titulo { flex-wrap: nowrap; font-size: var(--texto-base, 1rem); min-width: 0; width: 100%; }
   .lam__titulo-texto { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   /* El largo sigue en el árbol de accesibilidad (sr-only); se ve el corto. */
   .lam__titulo-largo { position: absolute; width: 1px; height: 1px; clip: rect(0 0 0 0); }
   .lam__titulo-corto { display: inline; }
   .lam__pos { white-space: nowrap; }
-  .lam__acciones { flex-wrap: nowrap; }
-  .lam__accion { padding: 0 10px; }
+  .lam__acciones { flex-wrap: nowrap; width: 100%; }
+  .lam__accion { flex: 1 1 0; justify-content: center; min-width: 44px; padding: 0 8px; font-size: var(--texto-xs); }
   .lam__accion-texto { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+  .lam__accion-corto { display: inline; }
   .lam__lienzo { padding: 0 6px 6px; }
-  .lam__flecha { width: 40px; height: 48px; }
+  .lam__flecha { width: 44px; height: 48px; }
   .lam__flecha--ant { left: 10px; }
   .lam__flecha--sig { right: 10px; }
   .lam__ficha { top: auto; left: 0; right: 0; width: auto; max-height: 72%; border-left: 0; border-top: 1px solid color-mix(in srgb, var(--color-text) 14%, transparent);
-    border-radius: var(--radius-md) var(--radius-md) 0 0; box-shadow: 0 -8px 24px rgb(0 0 0 / .14); }
+    border-radius: var(--radius-md) var(--radius-md) 0 0; box-shadow: var(--sombra-flotante); }
+}
+/* Pantallas bajas (o zoom del 200 % en adelante): la cabecera del sitio deja de pegarse para que la
+   herramienta no quede en un tercio de la pantalla. */
+@media (max-height: 560px) {
+  :global(html.lam-activa [data-cabecera-fija]) { position: static; }
+  .lam { height: 100dvh; }
 }
 </style>

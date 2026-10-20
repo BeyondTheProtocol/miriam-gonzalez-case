@@ -211,6 +211,28 @@ ok(await ev(`scrollY === 0`), 'después de todo eso, la página no se ha movido 
 await clic(`[...document.querySelectorAll('.gal__por-boton')].find((b) => /tinción/.test(b.textContent))`)
 ok(await espera(`document.querySelectorAll('.gal__grupo').length === ${new Set(manifest.laminillas.map((l) => l.marcador)).size}`, 4000), '«Por tinción»: un grupo por tinción')
 
+console.log('Ficha y orden')
+await carga('/laminillas?l=higado-2026/re', 1440, 900)
+ok(await ev(`!document.querySelector('.lam__discordancia')`), 'la RE del hígado no lleva el párrafo de las cifras del bloque de mama')
+await carga(`/laminillas?l=${re.id}`, 1440, 900)
+ok(await ev(`!!document.querySelector('.lam__discordancia')`), 'la RE de mama sí')
+ok(await ev(`!!document.querySelector('#lam-ficha .ficha__datos > div')?.classList.contains('ficha__resultado')`), 'en la ficha, lo que dice el informe va primero')
+ok(await ev(`!!(document.querySelector('.lam__visor').compareDocumentPosition(document.querySelector('.gal')) & Node.DOCUMENT_POSITION_FOLLOWING)`), 'en el DOM, el visor va antes que la galería (2.4.3)')
+await clic(`[...document.querySelectorAll('.lam__accion')].find((b) => /Comparar/.test(b.getAttribute('aria-label') ?? ''))`)
+await espera(`${PANELES_N} === ${nRe}`, 8000)
+ok(await ev(`!document.querySelector('.lam__flecha')`), 'al comparar no hay ‹ › encima de los paneles (tapaban rótulos y reglas)')
+ok(await ev(`/underline/.test(getComputedStyle([...document.querySelectorAll('.lam__accion')].find((b) => b.getAttribute('aria-pressed') === 'true').querySelector('.lam__accion-texto')).textDecorationLine)`), 'pulsado no solo por color: el rótulo se subraya (1.4.1)')
+
+console.log('Tableta: el informe es un diálogo')
+await carga('/laminillas', 768, 1024)
+ok(await ev(`getComputedStyle(document.querySelector('#lam-ficha')).display === 'none'`), '768 px: el informe empieza cerrado')
+await clic(`[...document.querySelectorAll('.lam__accion')].find((b) => b.getAttribute('aria-controls') === 'lam-ficha')`)
+ok(await espera(`document.activeElement?.id === 'lam-ficha-titulo'`, 4000), 'al abrirlo, el foco va a su título')
+ok(await ev(`document.querySelector('.lam__visor').inert && document.querySelector('.gal').inert && !!document.querySelector('.lam__velo')`), 'lo de debajo queda inerte, con velo')
+await tecla('Escape', 'Escape')
+ok(await espera(`getComputedStyle(document.querySelector('#lam-ficha')).display === 'none' && document.activeElement?.getAttribute('aria-controls') === 'lam-ficha'`, 4000), 'Esc lo cierra y el foco vuelve al botón')
+ok(await ev(`!document.querySelector('.lam__visor').inert`), 'y lo de debajo vuelve a funcionar')
+
 console.log('Enlaces de antes')
 for (const [ruta, que, cond] of [
   ['/laminillas?fila=re&he=1', '?fila=re&he=1', `${PANELES_N} === ${nRe * 2}`],
@@ -235,6 +257,9 @@ for (const ancho of [320, 390]) {
 }
 await carga('/laminillas', 390, 844)
 ok(await ev(`getComputedStyle(document.querySelector('#lam-ficha')).display === 'none'`), 'móvil: la ficha empieza plegada (cajón)')
+ok(await ev(`(() => { const b = [...document.querySelectorAll('.lam__accion')]; return b.length >= 2 && b.every((x) => { const c = x.querySelector('.lam__accion-corto'); return !!c && !!c.offsetParent && c.getBoundingClientRect().width > 10 && c.textContent.trim().length >= 2 }) })()`), 'móvil: CADA acción lleva su rótulo visible, no solo el icono')
+ok(await ev(`[...document.querySelectorAll('.lam__accion, .lam__flecha, .lam__volver')].every((b) => b.getBoundingClientRect().width >= 44 && b.getBoundingClientRect().height >= 44)`), 'móvil: acciones, ‹ › y volver de 44 px como mínimo')
+ok(await ev(`[...document.querySelectorAll('.gal__item .gal__corto')].filter((s) => /^HE/.test(s.textContent.trim())).map((s) => s.textContent.trim()).slice(0, 2).join() === 'HE 1,HE 2'`), 'móvil: los dos cortes de HE se distinguen en la tira («HE 1», «HE 2»)')
 await clic(`[...document.querySelectorAll('.lam__accion')].find((b) => b.getAttribute('aria-controls') === 'lam-ficha')`)
 ok(await espera(`getComputedStyle(document.querySelector('#lam-ficha')).display !== 'none' && document.activeElement?.id === 'lam-ficha-titulo'`, 4000), 'móvil: «Informe» abre el cajón con el foco en su título')
 await tecla('Escape', 'Escape')
@@ -285,6 +310,12 @@ if (CON_TESELAS) {
   await arrastra(0, 120, 80)
   const p3 = await ev(PANELES)
   ok(Math.hypot(...delta(p2[1], p3[1])) < 1 && Math.hypot(...delta(p2[0], p3[0])) > 10, 'sin enlace, la otra mama se queda quieta')
+  // 2.5.7: las flechas de «Más» mueven TODOS los paneles, también el hígado (con el ratón va suelto).
+  await ev(`[...document.querySelectorAll('.visor-barra button')].find((b) => b.getAttribute('aria-controls')).click()`); await sleep(300)
+  const p4 = await ev(PANELES)
+  await ev(`[...document.querySelectorAll('.visor-barra button')].find((b) => /Mover a la derecha|Move right/.test(b.getAttribute('aria-label') ?? '')).click()`); await sleep(800)
+  const p5 = await ev(PANELES)
+  ok([0, 1, 2].every((i) => Math.hypot(...delta(p4[i], p5[i])) > 1), `«Mover a la derecha» mueve los tres, también el hígado (${[0, 1, 2].map((i) => delta(p4[i], p5[i])[0].toFixed(0)).join(' · ')} µm)`)
   await sleep(2500)
   ok(red.ok > 20 && red.fallo === 0, `teselas: ${red.ok} cargadas, ${red.fallo} fallidas`)
 } else {

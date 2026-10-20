@@ -30,7 +30,19 @@ const tituloGrupo = (id: string) => (props.por === 'muestra' ? t(muestra(id)?.co
 const conVariante = (base: string, l: Laminilla) => base + (l.variante ? ' · ' + t(l.variante) : '')
 /** Rótulo largo (columna de escritorio) y corto (tira del móvil). */
 const largo = (l: Laminilla) => conVariante(props.por === 'muestra' ? t(marcador(l.marcador)?.nombre) : t(muestra(l.muestra)?.corto), l)
-const corto = (l: Laminilla) => conVariante(props.por === 'muestra' ? t(marcador(l.marcador)?.nombre).split(' · ')[0]! : t(muestra(l.muestra)?.corto), l)
+// Corto: la sigla y, si hay varios cortes, su número («HE 1», «HE 2»; «HE · cort…» no los distinguía).
+const numCorte = (l: Laminilla) => (l.variante ? t(l.variante).replace(/\D+/g, '') : '')
+const corto = (l: Laminilla) => {
+  const base = props.por === 'muestra' ? t(marcador(l.marcador)?.nombre).split(' · ')[0]! : t(muestra(l.muestra)?.corto)
+  const n = numCorte(l)
+  return n ? `${base} ${n}` : conVariante(base, l)
+}
+/** Clic normal: cambia el visor en su sitio. Con Ctrl/Cmd/Mayús o botón central, el enlace hace lo suyo. */
+function clic(e: MouseEvent, id: string) {
+  if (e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return
+  e.preventDefault()
+  emit('elige', id)
+}
 const voz = (l: Laminilla) => `${t(marcador(l.marcador)?.nombre)}, ${t(muestra(l.muestra)?.corto)}${l.variante ? ', ' + t(l.variante) : ''}`.replaceAll(' · ', ', ')
 
 // La activa, a la vista DENTRO de la galería (sin scrollIntoView, que movería también la página).
@@ -56,13 +68,13 @@ onMounted(() => nextTick(aLaVista))
   <nav class="gal" :aria-label="L('Galería de laminillas', 'Slide gallery')">
     <div class="gal__cab">
       <span class="gal__n">{{ L(`${manifest.laminillas.length} laminillas`, `${manifest.laminillas.length} slides`) }}</span>
-      <div class="gal__por" role="group" :aria-label="L('Agrupar', 'Group')">
+      <div class="gal__por" role="group" :aria-label="L('Agrupar por', 'Group by')">
         <button type="button" class="gal__por-boton" :aria-pressed="por === 'muestra'" @click="emit('por', 'muestra')">{{ L('Por muestra', 'By sample') }}</button>
         <button type="button" class="gal__por-boton" :aria-pressed="por === 'tincion'" @click="emit('por', 'tincion')">{{ L('Por tinción', 'By stain') }}</button>
       </div>
     </div>
     <div ref="lista" class="gal__lista">
-      <section v-for="g in grupos" :key="g.id" class="gal__grupo" :aria-labelledby="`gal-${g.id}`">
+      <div v-for="g in grupos" :key="g.id" class="gal__grupo" role="group" :aria-labelledby="`gal-${g.id}`">
         <h2 :id="`gal-${g.id}`" class="gal__titulo">{{ tituloGrupo(g.id) }} <span class="gal__cuenta">· {{ g.laminillas.length }}</span></h2>
         <ul class="gal__items">
           <li v-for="l in g.laminillas" :key="l.id">
@@ -73,7 +85,7 @@ onMounted(() => nextTick(aLaVista))
               :aria-current="l.id === activa ? 'true' : undefined"
               :aria-label="voz(l)"
               :data-l="l.id"
-              @click.prevent="emit('elige', l.id)"
+              @click="clic($event, l.id)"
             >
               <img :src="l.miniatura" alt="" class="gal__mini" width="56" height="56" loading="lazy" decoding="async">
               <span class="gal__largo" aria-hidden="true">{{ largo(l) }}</span>
@@ -81,7 +93,7 @@ onMounted(() => nextTick(aLaVista))
             </a>
           </li>
         </ul>
-      </section>
+      </div>
     </div>
   </nav>
 </template>
@@ -90,7 +102,7 @@ onMounted(() => nextTick(aLaVista))
 .gal { display: flex; flex-direction: column; min-height: 0; height: 100%; background: var(--color-bg); }
 .gal__cab { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 6px; padding: 10px 12px 8px;
   border-bottom: 1px solid color-mix(in srgb, var(--color-text) 10%, transparent); }
-.gal__n { font-family: var(--font-mono); font-size: 12px; color: var(--color-text-soft); }
+.gal__n { font-family: var(--font-mono); font-size: var(--texto-xs); color: var(--color-text-soft); }
 .gal__por { display: inline-flex; border: 1px solid var(--trazo-interactivo); border-radius: var(--radius-md); overflow: hidden; }
 .gal__por-boton { min-height: 36px; padding: 0 10px; font: 600 var(--texto-xs) var(--font-body); color: var(--color-text); background: var(--color-bg-card); }
 .gal__por-boton + .gal__por-boton { border-left: 1px solid var(--trazo-interactivo); }
@@ -98,7 +110,7 @@ onMounted(() => nextTick(aLaVista))
 .gal__por-boton:focus-visible { outline: 3px solid var(--anillo-foco); outline-offset: -3px; }
 .gal__lista { position: relative; flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior: contain; padding: 4px 8px 12px; }
 .gal__titulo { position: sticky; top: -4px; z-index: 1; margin: 0; padding: 10px 4px 4px; background: var(--color-bg);
-  font-family: var(--font-mono); font-size: 12px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--color-text-soft); }
+  font-family: var(--font-mono); font-size: var(--texto-xs); font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--color-text-soft); }
 .gal__cuenta { font-weight: 400; }
 .gal__items { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; }
 .gal__item { display: grid; grid-template-columns: 56px minmax(0, 1fr); align-items: center; gap: 10px; padding: 4px 6px; border-radius: var(--radius-md);
@@ -119,10 +131,10 @@ onMounted(() => nextTick(aLaVista))
   .gal__cab { display: none; }
   .gal__lista { display: flex; gap: 10px; overflow-x: auto; overflow-y: hidden; padding: 6px 10px 8px; scroll-snap-type: x proximity; scrollbar-width: thin; }
   .gal__grupo { display: flex; align-items: flex-start; gap: 4px; flex: none; }
-  .gal__titulo { position: static; writing-mode: vertical-rl; transform: rotate(180deg); padding: 2px 0; font-size: 11px; letter-spacing: .04em; max-height: 72px; overflow: hidden; }
+  .gal__titulo { position: static; writing-mode: vertical-rl; transform: rotate(180deg); padding: 2px 0; font-size: var(--texto-xs); letter-spacing: .04em; max-height: 72px; overflow: hidden; }
   .gal__cuenta { display: none; }
   .gal__items { display: flex; gap: 4px; }
-  .gal__item { grid-template-columns: 1fr; justify-items: center; gap: 2px; width: 64px; padding: 3px; font-size: 11px; text-align: center; scroll-snap-align: center; }
+  .gal__item { grid-template-columns: 1fr; justify-items: center; gap: 2px; width: 64px; padding: 3px; font-size: var(--texto-xs); text-align: center; scroll-snap-align: center; }
   .gal__mini { width: 52px; height: 52px; }
   .gal__largo { display: none; }
   .gal__corto { display: block; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }

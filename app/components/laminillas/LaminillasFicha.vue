@@ -27,12 +27,9 @@ const sello = computed(() => SELLOS[props.laminilla.ficha.sello])
 <template>
   <article class="ficha" :aria-label="L('Ficha de ', 'Record for ') + titulo">
     <h3 class="ficha__titulo">{{ titulo }}</h3>
+    <!-- El resultado primero (21-oct, diseno: quedaba bajo el pliegue, tras datos que repiten el título).
+         «Marcador» solo si trae nota (p. ej. «SNF»); el nombre ya está en el título. -->
     <dl class="ficha__datos">
-      <div><dt>{{ L('Marcador', 'Marker') }}</dt><dd>{{ t(marcador?.nombre) }}<span v-if="marcador?.nota" class="ficha__nota"> · {{ t(marcador.nota) }}</span></dd></div>
-      <div><dt>{{ L('Muestra', 'Sample') }}</dt><dd>{{ t(muestra?.largo) }}<span v-if="laminilla.variante"> · {{ t(laminilla.variante) }}</span></dd></div>
-      <div><dt>{{ L('Laboratorio', 'Laboratory') }}</dt><dd>{{ t(laminilla.ficha.laboratorio) ?? L('No consta', 'Not stated') }}</dd></div>
-      <div><dt>{{ L('Fecha', 'Date') }}</dt><dd>{{ t(laminilla.ficha.fecha) ?? L('No consta', 'Not stated') }}</dd></div>
-      <div><dt>{{ L('Escáner', 'Scanner') }}</dt><dd>{{ muestra?.escaner }} · {{ muestra?.aumento }} · {{ mppTexto }} µm/px</dd></div>
       <div class="ficha__resultado">
         <dt>{{ L('Lo que dice el informe', 'What the report says') }}</dt>
         <dd>
@@ -45,6 +42,11 @@ const sello = computed(() => SELLOS[props.laminilla.ficha.sello])
           <span v-if="laminilla.ficha.nota" class="ficha__nota ficha__nota--bloque">{{ t(laminilla.ficha.nota) }}</span>
         </dd>
       </div>
+      <div v-if="marcador?.nota"><dt>{{ L('Marcador', 'Marker') }}</dt><dd>{{ t(marcador?.nombre) }}<span class="ficha__nota"> · {{ t(marcador.nota) }}</span></dd></div>
+      <div><dt>{{ L('Muestra', 'Sample') }}</dt><dd>{{ t(muestra?.largo) }}<span v-if="laminilla.variante"> · {{ t(laminilla.variante) }}</span></dd></div>
+      <div><dt>{{ L('Laboratorio', 'Laboratory') }}</dt><dd>{{ t(laminilla.ficha.laboratorio) ?? L('No consta', 'Not stated') }}</dd></div>
+      <div><dt>{{ L('Fecha', 'Date') }}</dt><dd>{{ t(laminilla.ficha.fecha) ?? L('No consta', 'Not stated') }}</dd></div>
+      <div><dt>{{ L('Escáner', 'Scanner') }}</dt><dd>{{ muestra?.escaner }} · {{ muestra?.aumento }} · {{ mppTexto }} µm/px</dd></div>
     </dl>
   </article>
 </template>
