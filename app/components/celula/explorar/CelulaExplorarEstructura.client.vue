@@ -1,10 +1,12 @@
 <script setup lang="ts">
 /**
- * DianaEstructura — la estructura PREDICHA de una proteína (AlphaFold DB), girable, como isla de cliente.
+ * CelulaExplorarEstructura: la estructura PREDICHA de la proteína del gen abierto en el explorador (AlphaFold DB),
+ * girable, como isla de cliente. Vive plegada en el detalle del gen y solo se monta al desplegarla, así que three.js y
+ * el modelo no se piden a quien no la abre (app/utils/alphafold.ts; nació en una página aparte, retirada el 20-oct-2026).
  *
- * El modelo se pide a la API pública de AlphaFold DB por su UniProt (app/utils/tresDianas.ts) cuando el visor se
- * acerca a la pantalla; no se guarda en la web. Se dibuja la traza de los carbonos alfa como un tubo coloreado por la
- * confianza del modelo (pLDDT, columna del factor B) con los tokens del DS. El color no va solo (ceci, 20-oct): el tubo
+ * El modelo se pide a la API pública de AlphaFold DB por su UniProt al montarse el visor; no se guarda en la web. Se
+ * dibuja la traza de los carbonos alfa como un tubo coloreado por la confianza del modelo (pLDDT, columna del factor B)
+ * con los tokens del DS. El color no va solo (ceci, 20-oct): el tubo
  * es más fino cuanto menos confianza (estilo «putty»), y la leyenda va en texto con su porcentaje de aminoácidos.
  *
  * Movimiento (gramática del sitio: «dibuja una vez al entrar y descansa»): UNA vuelta cuando el visor está a la vista
@@ -16,13 +18,14 @@
 import * as THREE from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
 import { ruedaConModificador } from '~/composables/useAlVer'
-import { BANDAS, ETIQUETA_BANDA, banda, encuadre, pdbDeRespuesta, trazaCA, urlApiAlphaFold, urlEntradaAlphaFold, type Banda, type Diana } from '~/utils/tresDianas'
+import { BANDAS, ETIQUETA_BANDA, banda, encuadre, pdbDeRespuesta, trazaCA, urlApiAlphaFold, urlEntradaAlphaFold, urlUniprot, type Banda } from '~/utils/alphafold'
 
-const props = defineProps<{ diana: Diana; lang: 'es' | 'en' }>()
+/** gen del explorador, su UniProt (UNIPROT de utils/alphafold) y el nombre de la proteína con el que se la conoce */
+const props = defineProps<{ gen: string; uniprot: string; proteina: string; lang: 'es' | 'en' }>()
 const L = (es: string, en: string) => (props.lang === 'en' ? en : es)
 
 /** el visor que gira ahora (uno solo en la página): compartido entre instancias */
-const girandoAhora = useState<string | null>('diana-girando', () => null)
+const girandoAhora = useState<string | null>('estructura-girando', () => null)
 
 const caja = ref<HTMLElement | null>(null)
 const host = ref<HTMLElement | null>(null)
@@ -31,7 +34,7 @@ const girando = ref(false)
 const version = ref<number | null>(null)
 const nResiduos = ref(0)
 const reparto = ref<Record<Banda, number>>({ muy_alta: 0, alta: 0, baja: 0, muy_baja: 0 })
-const uid = `de-${props.diana.uniprot}`
+const uid = `de-${props.uniprot}`
 
 let renderer: THREE.WebGLRenderer | null = null
 let escena: THREE.Scene | null = null
@@ -39,7 +42,6 @@ let camara: THREE.PerspectiveCamera | null = null
 let controles: OrbitControls | null = null
 let malla: THREE.Mesh | null = null
 let raf = 0
-let io: IntersectionObserver | null = null
 let ioVista: IntersectionObserver | null = null
 let ro: ResizeObserver | null = null
 let sueltaRueda: (() => void) | null = null
@@ -61,7 +63,7 @@ function colores(): Record<Banda, THREE.Color> {
   const tinta = rgb('--color-text-rgb'), violeta = rgb('--color-miriam-rgb'), crema = rgb('--color-bg-rgb')
   const mezcla = (a: number[], b: number[], p: number) => a.map((x, i) => Math.round(x * p + b[i]! * (1 - p)))
   const c = (x: number[]) => new THREE.Color().setRGB(x[0]! / 255, x[1]! / 255, x[2]! / 255, THREE.SRGBColorSpace)
-  // rampa (diseno, 20-oct): violeta firma → --viz-sev-3 (60 %) → --viz-sev-2 (38 %); la muy baja, gris de tinta neutro
+  // rampa (diseno, 20-oct): violeta firma → --viz-sev-3 (mezcla 0,6) → --viz-sev-2 (mezcla 0,38); la muy baja, gris de tinta neutro
   return { muy_alta: c(violeta), alta: c(mezcla(violeta, crema, 0.6)), baja: c(mezcla(violeta, crema, 0.38)), muy_baja: c(mezcla(tinta, crema, 0.55)) }
 }
 /** Muestras de la leyenda: los mismos colores, en CSS. */
@@ -70,9 +72,9 @@ const muestras = ref<Record<Banda, string>>({ muy_alta: '', alta: '', baja: '', 
 async function carga() {
   estado.value = 'cargando'
   try {
-    const r = await fetch(urlApiAlphaFold(props.diana.uniprot), { credentials: 'omit', referrerPolicy: 'no-referrer' })
+    const r = await fetch(urlApiAlphaFold(props.uniprot), { credentials: 'omit', referrerPolicy: 'no-referrer' })
     if (!r.ok) throw new Error(`API ${r.status}`)
-    const pdb = pdbDeRespuesta(await r.json(), props.diana.uniprot)
+    const pdb = pdbDeRespuesta(await r.json(), props.uniprot)
     if (!pdb) throw new Error('respuesta sin modelo de ese UniProt')
     const f = await fetch(pdb.url, { credentials: 'omit', referrerPolicy: 'no-referrer' })
     if (!f.ok) throw new Error(`PDB ${f.status}`)
@@ -87,7 +89,7 @@ async function carga() {
     estado.value = 'listo'
   }
   catch (e) {
-    console.warn('[DianaEstructura]', props.diana.uniprot, e)
+    console.warn('[CelulaExplorarEstructura]', props.uniprot, e)
     estado.value = 'error'
   }
 }
@@ -219,16 +221,13 @@ function tecla(e: KeyboardEvent) {
 }
 
 onMounted(() => { reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches })
-// la ref puede llegar después de montar (isla de cliente dentro de <ClientOnly>): se vigila en vez de leerla al montar
-watch(caja, (el) => {
-  if (!el || io || estado.value !== 'espera') return
-  io = new IntersectionObserver((e) => { if (e[0]?.isIntersecting && estado.value === 'espera') { io?.disconnect(); carga() } }, { rootMargin: '200px' })
-  io.observe(el)
-}, { immediate: true, flush: 'post' })
+// en el explorador el visor solo se monta cuando alguien despliega el bloque: carga ya, sin esperar a verlo en pantalla
+// (la espera por IntersectionObserver era de la página con tres visores; dentro del panel dejaba «Cargando…» sin pedir nada)
+watch(caja, (el) => { if (el && estado.value === 'espera') void carga() }, { immediate: true, flush: 'post' })
 onBeforeUnmount(() => {
   cancelAnimationFrame(raf)
   if (girandoAhora.value === uid) girandoAhora.value = null
-  io?.disconnect(); ioVista?.disconnect(); ro?.disconnect(); sueltaRueda?.()
+  ioVista?.disconnect(); ro?.disconnect(); sueltaRueda?.()
   controles?.dispose()
   if (malla) { malla.geometry.dispose(); (malla.material as THREE.Material).dispose() }
   renderer?.dispose()
@@ -237,8 +236,8 @@ onBeforeUnmount(() => {
 
 const pct = (k: number) => (nResiduos.value ? Math.round((100 * k) / nResiduos.value) : 0)
 const descripcion = computed(() => L(
-  `Estructura predicha de ${props.diana.proteina} (${props.diana.gen}, UniProt ${props.diana.uniprot}) por AlphaFold, ${nResiduos.value} aminoácidos, coloreada por la confianza del modelo; el tubo es más fino donde la confianza es menor. Es una predicción, no una medición.`,
-  `Predicted structure of ${props.diana.proteina} (${props.diana.gen}, UniProt ${props.diana.uniprot}) by AlphaFold, ${nResiduos.value} amino acids, colored by model confidence; the tube is thinner where confidence is lower. A prediction, not a measurement.`,
+  `Estructura predicha de ${props.proteina} (${props.gen}, UniProt ${props.uniprot}) por AlphaFold, ${nResiduos.value} aminoácidos, coloreada por la confianza del modelo; el tubo es más fino donde la confianza es menor. Es una predicción, no una medición.`,
+  `Predicted structure of ${props.proteina} (${props.gen}, UniProt ${props.uniprot}) by AlphaFold, ${nResiduos.value} amino acids, colored by model confidence; the tube is thinner where confidence is lower. A prediction, not a measurement.`,
 ))
 </script>
 
@@ -250,7 +249,7 @@ const descripcion = computed(() => L(
         class="de__host"
         :role="estado === 'listo' ? 'application' : undefined"
         :aria-roledescription="estado === 'listo' ? L('visor 3D', '3D viewer') : undefined"
-        :aria-label="estado === 'listo' ? L(`Estructura de ${diana.proteina}`, `${diana.proteina} structure`) : undefined"
+        :aria-label="estado === 'listo' ? L(`Estructura de ${proteina}`, `${proteina} structure`) : undefined"
         :aria-describedby="estado === 'listo' ? `${uid}-desc ${uid}-uso` : undefined"
         :aria-hidden="estado === 'listo' ? undefined : 'true'"
         :tabindex="estado === 'listo' ? 0 : undefined"
@@ -259,10 +258,10 @@ const descripcion = computed(() => L(
       <p v-if="estado === 'espera' || estado === 'cargando'" class="de__aviso" aria-hidden="true">{{ L('Cargando el modelo de AlphaFold DB…', 'Loading the AlphaFold DB model…') }}</p>
       <p v-else-if="estado === 'error'" class="de__aviso">
         {{ L('No se ha podido cargar el modelo aquí. Puedes verlo en', 'The model could not be loaded here. You can see it on') }}
-        <a :href="urlEntradaAlphaFold(diana.uniprot)" class="link-underline" target="_blank" rel="noopener">AlphaFold DB</a>.
+        <a :href="urlEntradaAlphaFold(uniprot)" class="link-underline" target="_blank" rel="noopener">AlphaFold DB</a>.
       </p>
       <div v-if="estado === 'listo'" class="de__mandos">
-        <div class="de__pasos" role="group" :aria-label="L(`Mover la estructura de ${diana.proteina}`, `Move the ${diana.proteina} structure`)">
+        <div class="de__pasos" role="group" :aria-label="L(`Mover la estructura de ${proteina}`, `Move the ${proteina} structure`)">
           <button type="button" class="de__paso" :aria-label="L('Girar a la izquierda', 'Rotate left')" @click="gira(-PASO, 0)"><span aria-hidden="true">↶</span></button>
           <button type="button" class="de__paso" :aria-label="L('Girar a la derecha', 'Rotate right')" @click="gira(PASO, 0)"><span aria-hidden="true">↷</span></button>
           <button type="button" class="de__paso" :aria-label="L('Acercar', 'Zoom in')" @click="acerca(0.9)"><span aria-hidden="true">+</span></button>
@@ -274,11 +273,19 @@ const descripcion = computed(() => L(
       </div>
     </div>
     <!-- región viva siempre presente: solo anuncia el error (tres «cargando» a la vez serían ruido) -->
-    <p class="sr-only" role="status">{{ estado === 'error' ? L(`No se ha podido cargar la estructura de ${diana.proteina}.`, `The ${diana.proteina} structure could not be loaded.`) : '' }}</p>
+    <p class="sr-only" role="status">{{ estado === 'error' ? L(`No se ha podido cargar la estructura de ${proteina}.`, `The ${proteina} structure could not be loaded.`) : '' }}</p>
     <figcaption class="de__pie">
       <p class="de__sello">{{ L('Predicción, no medición.', 'A prediction, not a measurement.') }}</p>
       <p class="de__fuente">
-        <a :href="urlEntradaAlphaFold(diana.uniprot)" class="link-underline" target="_blank" rel="noopener">AlphaFold DB<span class="sr-only">{{ L(' (se abre en otra pestaña)', ' (opens in a new tab)') }}</span></a> (Google DeepMind · EMBL-EBI) · <a href="https://creativecommons.org/licenses/by/4.0/" class="link-underline" target="_blank" rel="noopener license">CC BY 4.0<span class="sr-only">{{ L(' (se abre en otra pestaña)', ' (opens in a new tab)') }}</span></a>
+        <a :href="urlEntradaAlphaFold(uniprot)" class="link-underline" target="_blank" rel="noopener">AlphaFold DB<span class="sr-only">{{ L(' (se abre en otra pestaña)', ' (opens in a new tab)') }}</span></a> (Google DeepMind · EMBL-EBI) · <a href="https://creativecommons.org/licenses/by/4.0/" class="link-underline" target="_blank" rel="noopener license">CC BY 4.0<span class="sr-only">{{ L(' (se abre en otra pestaña)', ' (opens in a new tab)') }}</span></a>
+        · <a :href="urlUniprot(uniprot)" class="link-underline" target="_blank" rel="noopener">UniProt {{ uniprot }}<span class="sr-only">{{ L(' (se abre en otra pestaña)', ' (opens in a new tab)') }}</span></a>
+      </p>
+      <!-- las citas que pide AlphaFold DB (su FAQ, 20-oct-2026): vivían en el pie de la página aparte; ahora van con cada estructura -->
+      <p class="de__meta">
+        {{ L('Citas:', 'Citations:') }}
+        Jumper J. et al. <cite>Nature</cite> 596, 583–589 (2021), <a href="https://doi.org/10.1038/s41586-021-03819-2" class="link-underline" target="_blank" rel="noopener">doi:10.1038/s41586-021-03819-2</a> ·
+        Bertoni D. et al. <cite>Nucleic Acids Research</cite> (2025), <a href="https://doi.org/10.1093/nar/gkaf1226" class="link-underline" target="_blank" rel="noopener">doi:10.1093/nar/gkaf1226</a> ·
+        <span lang="en">AlphaFold Data Copyright (2022) DeepMind Technologies Limited</span>
       </p>
       <template v-if="estado === 'listo'">
         <p :id="`${uid}-desc`" class="sr-only">{{ descripcion }}</p>
@@ -291,7 +298,7 @@ const descripcion = computed(() => L(
           </li>
         </ul>
         <p class="de__meta">
-          {{ L('Modelo', 'Model') }} AF-{{ diana.uniprot }}-F1{{ version ? ` v${version}` : '' }} · {{ nResiduos }} {{ L('aminoácidos', 'amino acids') }} · {{ L('tubo más fino = menos confianza', 'thinner tube = lower confidence') }}
+          {{ L('Modelo', 'Model') }} AF-{{ uniprot }}-F1{{ version ? ` v${version}` : '' }} · {{ nResiduos }} {{ L('aminoácidos', 'amino acids') }} · {{ L('tubo más fino = menos confianza', 'thinner tube = lower confidence') }}
         </p>
         <p :id="`${uid}-uso`" class="de__meta">
           {{ L('Gírala con los botones, arrastrando con el ratón o, con el foco en el visor, con las flechas; acerca con + y −.', 'Rotate it with the buttons, by dragging with the mouse or, with focus on the viewer, with the arrow keys; zoom with + and −.') }}

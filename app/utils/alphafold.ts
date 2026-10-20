@@ -1,35 +1,28 @@
 /**
- * «Tres dianas, dos mapas» (/tres-dianas · EN /three-targets): para cada diana, la estructura PREDICHA de AlphaFold DB
- * y, a su lado, dónde se lee su ARN en el mapa de células ya publicado (/celula-a-celula/explorar). Funciones puras con
- * test (scripts/test-tres-dianas.ts).
+ * AlphaFold en el explorador célula a célula: la estructura PREDICHA de cada proteína de «Genes de interés», como
+ * información adicional del gen abierto (bloque plegado en su detalle, CelulaExplorarEstructura.client.vue). Funciones
+ * puras con test (scripts/test-alphafold.ts).
+ *
+ * POR QUÉ AQUÍ Y NO EN UNA PÁGINA (Miriam, 20-oct-2026): lo acordado era que lo que aporta AlphaFold sea información
+ * de cada proteína que sale en célula a célula; /tres-dianas (PR #311) la sacó a una página aparte y se retiró con un
+ * 301 al explorador (nuxt.config.ts).
  *
  * Lo que NO hace, a propósito:
- *  · No trae cifras. El mapa marca las células con al menos una molécula del gen (lo mismo que pinta el explorador en
- *    su modo gen) y la lectura es la del fichero publicado, con las etiquetas del explorador. Los porcentajes, el suelo
- *    ambiental y la referencia viven en el explorador, a un clic (enlace profundo ?gen=&biopsia=).
+ *  · No trae cifras del caso: la expresión, el suelo y la lectura siguen en el detalle del gen, encima del bloque.
  *  · No guarda estructuras. El modelo se pide a la API pública de AlphaFold DB por su UniProt, en el navegador del
- *    visitante (CORS abierto); así siempre es la última versión del modelo y el crédito apunta a la fuente.
- *  · La puerta es la del explorador (useCelulaExplorador): con la puerta cerrada, sin mapa ni lectura.
+ *    visitante (CORS abierto) y solo al desplegar el bloque; así siempre es la última versión y el crédito apunta a la fuente.
+ *  · Nada sobre fármacos, epítopos ni si una proteína se puede atacar: describe la forma, no concluye.
  *
- * Diana fuera de esta lista = no sale. Las tres pasaron el paso 0 de `verificacion` (20-oct-2026): expresión ya pública
- * en el explorador (manifiesto verificado, ok_titular) y modelo de AlphaFold DB con licencia CC BY 4.0.
+ * Gen fuera de UNIPROT = sin bloque. Los diez UniProt se cotejaron el 20-oct-2026 contra UniProt REST (Swiss-Prot,
+ * humano, gene_exact) y los diez tienen modelo v6 en AlphaFold DB (CC BY 4.0).
  */
 
-export interface Diana {
-  /** símbolo del gen, la clave del fichero del explorador */
-  gen: string
-  /** nombre de la proteína con el que se la conoce */
-  proteina: string
-  uniprot: string
-  /** qué es, en una línea, sin promesas terapéuticas */
-  que: { es: string; en: string }
+/** Gen del explorador → UniProt de su proteína (Swiss-Prot, Homo sapiens). Las diez de PANEL_INTERES, ni una más. */
+export const UNIPROT: Readonly<Record<string, string>> = {
+  ANKRD30A: 'Q9BXX3', TPBG: 'Q13641', ERBB3: 'P21860', SLC39A6: 'Q13433', ERBB2: 'P04626',
+  TACSTD2: 'P09758', CD276: 'Q5ZPR3', NECTIN4: 'Q96NY8', MUC1: 'P15941', FGFR1: 'P11362',
 }
-
-export const DIANAS: readonly Diana[] = [
-  { gen: 'ERBB2', proteina: 'HER2', uniprot: 'P04626', que: { es: 'Receptor de la membrana de la familia EGFR.', en: 'A membrane receptor of the EGFR family.' } },
-  { gen: 'TACSTD2', proteina: 'TROP2', uniprot: 'P09758', que: { es: 'Glicoproteína de la superficie de las células epiteliales.', en: 'A surface glycoprotein of epithelial cells.' } },
-  { gen: 'CD276', proteina: 'B7-H3', uniprot: 'Q5ZPR3', que: { es: 'Proteína de la familia B7, en la superficie celular.', en: 'A B7-family protein on the cell surface.' } },
-] as const
+export const uniprotDe = (gen: string): string | null => UNIPROT[gen] ?? null
 
 const RE_UNIPROT = /^[OPQ][0-9][A-Z0-9]{3}[0-9]$|^[A-NR-Z][0-9]([A-Z][A-Z0-9]{2}[0-9]){1,2}$/
 export const uniprotValido = (u: string) => RE_UNIPROT.test(u)
@@ -90,13 +83,3 @@ export function encuadre(t: Traza): { centro: [number, number, number]; radio: n
   for (let i = 0; i < t.n; i++) r = Math.max(r, Math.hypot(t.xyz[3 * i]! - c[0], t.xyz[3 * i + 1]! - c[1], t.xyz[3 * i + 2]! - c[2]))
   return { centro: c, radio: r || 1 }
 }
-
-/** Índices de las células donde el explorador lee el gen (≥ 1 molécula): lo que su modo gen pinta fuera del gris. */
-export function detectadas(expr: Record<string, { i: number[]; v: number[] }> | undefined, gen: string): number[] {
-  const e = expr?.[gen]
-  if (!e || !Array.isArray(e.i)) return []
-  return e.i.filter((k, j) => Number.isInteger(k) && k >= 0 && (e.v[j] ?? 0) > 0)
-}
-
-/** Enlace profundo al explorador con el gen y la biopsia (los lee su URL desde el 19-oct). */
-export const queryExplorador = (gen: string, biopsia: 'higado' | 'hueso') => ({ gen, biopsia })
