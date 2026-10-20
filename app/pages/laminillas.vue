@@ -52,6 +52,9 @@ const nombreMarcador = (id: string) => t(M.marcadores.find((m) => m.id === id)?.
 const nombreMuestra = (id: string) => t(M.muestras.find((m) => m.id === id)?.corto)
 const conVariante = (base: string, l: Laminilla) => base + (l.variante ? ' · ' + t(l.variante) : '')
 const etiqueta = (l: Laminilla) => conVariante(`${nombreMarcador(l.marcador)} · ${nombreMuestra(l.muestra)}`, l)
+// Para el lector de pantalla, comas: el «·» separa sigla y nombre y también tinción y muestra, y
+// según el nivel de puntuación se calla sin pausa o se lee (pase de voz, 20-oct).
+const etiquetaVoz = (l: Laminilla) => etiqueta(l).replaceAll(' · ', ', ')
 const mppTexto = (mpp: number, dec: number) => mpp.toLocaleString(idioma.value === 'en' ? 'en-US' : 'es-ES', { maximumFractionDigits: dec })
 
 const grupos = computed(() => {
@@ -64,6 +67,8 @@ const grupos = computed(() => {
 })
 // Nombre corto para el selector («RE · receptor de estrógenos» → «RE»); el completo va en aria-label.
 const corto = (f: Fila) => t(f.marcador.nombre).split(' · ')[0]!
+const nombreChip = (f: Fila) => (corto(f) === t(f.marcador.nombre) ? undefined : t(f.marcador.nombre).replaceAll(' · ', ', '))
+const tituloChip = (f: Fila) => t(f.marcador.nombre) + (f.marcador.nota ? ` (${t(f.marcador.nota)})` : '')
 
 // La vista sale SOLO de la query (ver vistaDeQuery: también los enlaces de antes del 20-oct). En la
 // página prerenderizada la query llega vacía durante la hidratación y se aplica después.
@@ -100,7 +105,7 @@ const rotulos = computed(() => rejilla.value.flatMap((filaR, r) => filaR.map((l)
   if (unaSola.value) return r === 0 && l === actual.value ? conVariante(nombreMarcador(l.marcador), l) : L('HE de referencia', 'Reference H&E')
   return r === 0 ? conVariante(nombreMuestra(l.muestra), l) : `HE · ${nombreMuestra(l.muestra)}`
 })))
-const nombres = computed(() => rejilla.value.flat().map((l) => (l ? etiqueta(l) : '')))
+const nombres = computed(() => rejilla.value.flat().map((l) => (l ? etiquetaVoz(l) : '')))
 // En móvil solo se ve un panel: debajo, solo sus fichas.
 const fichas = computed(() => rejilla.value.flat().filter((l): l is Laminilla => !!l && (!estrecho.value || l.muestra === muestraVisible.value)))
 const tituloVisor = computed(() => {
@@ -108,8 +113,12 @@ const tituloVisor = computed(() => {
   const nombre = t(filaActual.value.marcador.nombre)
   if (unaSola.value && vista.value.muestra) return `${nombre} · ${nombreMuestra(vista.value.muestra)}`
   const n = columnasFila.value.length
-  return L(`${nombre} en ${n === 1 ? 'su muestra' : `las ${n} muestras`}`, `${nombre} in ${n === 1 ? 'its sample' : `all ${n} samples`}`)
+  // Una sola muestra: se nombra (antes «en su muestra», que no decía cuál). Dos: «both» en inglés.
+  if (n === 1) return `${nombre} · ${nombreMuestra(columnasFila.value[0]!.id)}`
+  return L(`${nombre} en las ${n} muestras`, `${nombre} in ${n === 2 ? 'both samples' : `all ${n} samples`}`)
 })
+// Lo que se cuenta cambia: tinciones (en todas) o laminillas (una muestra). Se ve desde 768 px.
+const queCuenta = computed(() => (vista.value.muestra ? L('Laminilla', 'Slide') : L('Tinción', 'Stain')))
 const posicion = computed(() => {
   if (vista.value.muestra) return { i: Math.min(vista.value.paso, recorrido.value.length - 1) + 1, n: recorrido.value.length }
   return { i: filas.findIndex((f) => f.marcador.id === vista.value.marcador) + 1, n: filas.length }
@@ -124,26 +133,30 @@ const textoDiscordancia = computed(() => L(
 // moverse dentro (tinción, muestra, anterior/siguiente, HE), no. El scroll lo lleva la página
 // (router.options.ts no lo toca para estas claves).
 // El foco va al título solo cuando alguien abre el visor desde la matriz, no al llegar con un enlace.
+// `origen` es el botón desde el que se abrió (data-origen): al volver a la matriz (chip, botón o
+// «atrás») la página vuelve a él y le devuelve el foco, en vez de dejarte arriba de la tabla.
 let focoAlTitulo = false
-function ve(v: Vista) {
+let origen: string | null = null
+function ve(v: Vista, desde?: string) {
   const desdeMatriz = !vista.value.marcador && !!v.marcador
   focoAlTitulo = desdeMatriz
+  if (desdeMatriz) origen = desde ?? null
   const q = queryDeVista(v)
   return desdeMatriz || !v.marcador ? router.push({ query: q }) : router.replace({ query: q })
 }
-const eligeTincion = (id: string) => ve(conMarcador(M, vista.value, id))
+const eligeTincion = (id: string) => ve(conMarcador(M, vista.value, id), `chip:${id}`)
 function eligeMuestra(id: string | null) {
   const v = enMuestra(M, vista.value, id)
   if (v) ve(v)
 }
-const abreFila = (id: string) => ve({ marcador: id, muestra: null, paso: 0, he: vista.value.he })
+const abreFila = (id: string) => ve({ marcador: id, muestra: null, paso: 0, he: vista.value.he }, `fila:${id}`)
 function abreLaminilla(l: Laminilla) {
   const paso = deMuestra(M, l.muestra).findIndex((x) => x.id === l.id)
-  ve({ marcador: l.marcador, muestra: l.muestra, paso: Math.max(0, paso), he: vista.value.he })
+  ve({ marcador: l.marcador, muestra: l.muestra, paso: Math.max(0, paso), he: vista.value.he }, `mini:${l.id}`)
 }
 function abreColumna(id: string) {
   const primera = deMuestra(M, id)[0]
-  if (primera) ve({ marcador: primera.marcador, muestra: id, paso: 0, he: vista.value.he })
+  if (primera) ve({ marcador: primera.marcador, muestra: id, paso: 0, he: vista.value.he }, `col:${id}`)
 }
 const aMatriz = () => ve({ marcador: null, muestra: null, paso: 0, he: false })
 const mueve = (d: number) => ve(mueveVista(M, vista.value, d))
@@ -151,39 +164,58 @@ const alternaHE = () => ve({ ...vista.value, he: !vista.value.he })
 const tieneTincion = (id: string) => !!filaActual.value?.celdas[id]
 const muestraElegida = (id: string) => (estrecho.value ? muestraVisible.value === id : vista.value.muestra === id)
 
-// Alto de la cabecera fija del sitio (barra «lo último» + menú), para que el selector se pegue
-// justo debajo.
+// Desde 768 px se pega bajo la cabecera del sitio SOLO la fila del título del visor (título,
+// anterior/siguiente, volver): el selector entero pegado fijaba 282 px y tapaba el foco (diseno,
+// 20-oct). Mientras algo está pegado, scroll-padding-top evita que el foco quede debajo (WCAG 2.4.11).
 const altoCabecera = ref(80)
-const selector = ref<HTMLElement | null>(null)
 const encabezado = ref<HTMLElement | null>(null)
+const filaTitulo = ref<HTMLElement | null>(null)
+const seccion = ref<HTMLElement | null>(null)
 const ancla = ref<HTMLElement | null>(null)
 let ro: ResizeObserver | null = null
+const cabecera = () => document.querySelector<HTMLElement>('[data-cabecera-fija]')
+const pegada = () => !!filaTitulo.value && getComputedStyle(filaTitulo.value).position === 'sticky'
+/** Alto fijo arriba: la cabecera del sitio y, si hay visor pegado, su fila del título. */
+const altoFijo = (conFila = true) => (cabecera()?.getBoundingClientRect().height ?? altoCabecera.value) + (conFila && pegada() ? filaTitulo.value!.getBoundingClientRect().height : 0)
+function mide() {
+  altoCabecera.value = Math.ceil(cabecera()?.getBoundingClientRect().height ?? 80)
+  document.documentElement.style.scrollPaddingTop = `${Math.ceil(altoFijo()) + 8}px`
+}
 onMounted(() => {
   mq = window.matchMedia('(max-width: 767px)')
   alMq()
   mq.addEventListener('change', alMq)
-  const cab = document.querySelector<HTMLElement>('[data-cabecera-fija]')
-  const mide = () => { altoCabecera.value = cab ? Math.ceil(cab.getBoundingClientRect().height) : 80 }
   mide()
   ro = new ResizeObserver(mide)
+  const cab = cabecera()
   if (cab) ro.observe(cab)
 })
-onBeforeUnmount(() => { mq?.removeEventListener('change', alMq); ro?.disconnect() })
+watch(filaTitulo, (el, viejo) => { if (viejo) ro?.unobserve(viejo); if (el) ro?.observe(el); nextTick(mide) })
+onBeforeUnmount(() => { mq?.removeEventListener('change', alMq); ro?.disconnect(); document.documentElement.style.scrollPaddingTop = '' })
 
 // Al cambiar lo que se ve, el título del visor (o la matriz) se lleva bajo la cabecera y el
 // selector, si no está ya ahí. Al abrir desde la matriz, el foco va al título.
 const suave = () => !window.matchMedia('(prefers-reduced-motion: reduce)').matches
-function aLaVista(destino: HTMLElement | null, animado = true) {
+/** Lleva `destino` bajo la cabecera si está tapado o demasiado abajo. Se mide en el momento. */
+function aLaVista(destino: HTMLElement | null, animado = true, centrado = false) {
   if (!destino) return
-  // Se mide en el momento: al abrir el visor el selector crece (fila «Muestra») antes de que el
-  // ResizeObserver lo sepa, y con el alto viejo el título quedaba tapado bajo el selector.
-  const cab = document.querySelector<HTMLElement>('[data-cabecera-fija]')
-  const sel = selector.value
-  const pegado = !!sel && getComputedStyle(sel).position === 'sticky'
-  const fijo = (cab?.getBoundingClientRect().height ?? altoCabecera.value) + (pegado ? sel!.getBoundingClientRect().height : 0) + 8
-  const top = destino.getBoundingClientRect().top
-  if (top < fijo - 1 || top > window.innerHeight * 0.4) {
-    window.scrollTo({ top: window.scrollY + top - fijo, behavior: animado && suave() ? 'smooth' : 'auto' })
+  // El visor se mide por su sección (la fila pegada da su posición pegada, no la natural) y se deja
+  // justo donde se pega su fila del título: así anterior/siguiente no mueve la página ni un píxel.
+  const esVisor = destino === seccion.value
+  const fijo = esVisor ? altoFijo(false) + (pegada() ? 0 : 8) : altoFijo() + 8
+  const caja = destino.getBoundingClientRect()
+  if (caja.top < fijo - 1 || caja.bottom > window.innerHeight - 8 || (!centrado && caja.top > window.innerHeight * 0.4)) {
+    const y = centrado ? caja.top - (window.innerHeight - caja.height) / 2 : caja.top - fijo
+    window.scrollTo({ top: window.scrollY + y, behavior: animado && suave() ? 'smooth' : 'auto' })
+  }
+}
+/** En móvil las tiras de chips se deslizan: el chip pulsado tiene que quedar dentro de su tira. */
+function centraChips() {
+  for (const tira of document.querySelectorAll<HTMLElement>('.selector__chips, .muestras-chips')) {
+    const chip = tira.querySelector<HTMLElement>('[aria-pressed="true"]')
+    if (!chip || tira.scrollWidth <= tira.clientWidth) continue
+    const fuera = chip.offsetLeft < tira.scrollLeft || chip.offsetLeft + chip.offsetWidth > tira.scrollLeft + tira.clientWidth
+    if (fuera) tira.scrollTo({ left: chip.offsetLeft - 16 })
   }
 }
 watch(() => [vista.value.marcador, vista.value.muestra, vista.value.paso] as const, async ([m, mu, p], [m0, mu0, p0]) => {
@@ -191,16 +223,24 @@ watch(() => [vista.value.marcador, vista.value.muestra, vista.value.paso] as con
   // En móvil, cambiar de muestra con la misma tinción solo cambia el panel visible: no se mueve nada.
   if (estrecho.value && m === m0 && m0) return
   await nextTick()
-  // La fila entera del título: los botones (44 px) asoman por encima del h2.
-  aLaVista(m ? (encabezado.value?.parentElement ?? null) : ancla.value)
-  if (m && !m0 && focoAlTitulo) encabezado.value?.focus({ preventScroll: true })
+  centraChips()
+  mide()
+  if (m) {
+    aLaVista(seccion.value)
+    if (!m0 && focoAlTitulo) encabezado.value?.focus({ preventScroll: true })
+  } else {
+    // De vuelta a la matriz: al botón desde el que se abrió, con su foco.
+    const vuelta = origen ? document.querySelector<HTMLElement>(`[data-origen="${origen}"]`) : null
+    if (vuelta) { aLaVista(vuelta, false, true); vuelta.focus({ preventScroll: true }) } else aLaVista(ancla.value)
+    origen = null
+  }
   focoAlTitulo = false
 })
 // Un enlace que ya trae la vista (?fila=…) abre con el visor a la vista, no bajo el aviso.
 onMounted(async () => {
-  if (!vista.value.marcador) return
   await nextTick()
-  aLaVista(encabezado.value?.parentElement ?? null, false)
+  centraChips()
+  if (vista.value.marcador) aLaVista(seccion.value, false)
 })
 function teclas(e: KeyboardEvent) {
   if (!vista.value.marcador || !e.altKey) return
@@ -233,22 +273,23 @@ function teclas(e: KeyboardEvent) {
         </div>
 
         <div ref="ancla" />
-        <!-- Selector: siempre arriba. En escritorio se pega bajo la cabecera; en móvil no, que se
-             comería un cuarto de la pantalla del visor. -->
-        <nav ref="selector" class="selector" :style="{ '--alto-cabecera': altoCabecera + 'px' }" :aria-label="L('Elegir laminilla', 'Choose a slide')">
+        <!-- Selector arriba, en flujo (no se pega: tapaba el foco y un tercio de la pantalla). -->
+        <nav class="selector" :aria-label="L('Elegir laminilla', 'Choose a slide')">
           <div class="selector__fila">
             <span class="selector__rotulo" aria-hidden="true">{{ L('Tinción', 'Stain') }}</span>
             <div class="selector__chips" role="group" :aria-label="L('Tinción', 'Stain')">
-              <button type="button" class="chip" :aria-pressed="!vista.marcador" @click="aMatriz">
+              <button type="button" class="lam-chip" :aria-pressed="!vista.marcador" @click="aMatriz">
                 <Icon name="ph:table-bold" class="w-4 h-4" aria-hidden="true" />{{ L('Todas las laminillas', 'All slides') }}
               </button>
               <button
                 v-for="f in filas"
                 :key="f.marcador.id"
                 type="button"
-                class="chip"
+                class="lam-chip"
                 :aria-pressed="vista.marcador === f.marcador.id"
-                :aria-label="corto(f) === t(f.marcador.nombre) ? undefined : t(f.marcador.nombre)"
+                :aria-label="nombreChip(f)"
+                :title="tituloChip(f)"
+                :data-origen="`chip:${f.marcador.id}`"
                 @click="eligeTincion(f.marcador.id)"
               >{{ corto(f) }}</button>
             </div>
@@ -274,7 +315,7 @@ function teclas(e: KeyboardEvent) {
                 <tr>
                   <th scope="col" class="matriz__esquina">{{ L('Tinción', 'Stain') }}</th>
                   <th v-for="m in M.muestras" :key="m.id" scope="col" class="matriz__col">
-                    <button type="button" class="matriz__colboton" @click="abreColumna(m.id)">
+                    <button type="button" class="matriz__colboton" :data-origen="`col:${m.id}`" @click="abreColumna(m.id)">
                       <span class="matriz__colnombre">{{ t(m.corto) }}</span>
                       <span class="matriz__colmeta"><span class="whitespace-nowrap">{{ m.aumento }}</span> <span class="matriz__colmpp whitespace-nowrap">{{ mppTexto(m.mpp, 3) }} µm/px</span></span>
                       <span class="sr-only">{{ L('Ver todas las tinciones de esta muestra, una a una', 'See every stain from this sample, one by one') }}</span>
@@ -288,7 +329,7 @@ function teclas(e: KeyboardEvent) {
                 </tr>
                 <tr v-for="f in g.filas" :key="f.marcador.id" class="matriz__fila" @click="abreFila(f.marcador.id)">
                   <th scope="row" class="matriz__filacab">
-                    <button type="button" class="matriz__filaboton" @click.stop="abreFila(f.marcador.id)">
+                    <button type="button" class="matriz__filaboton" :data-origen="`fila:${f.marcador.id}`" @click.stop="abreFila(f.marcador.id)">
                       <span class="matriz__filanombre">{{ t(f.marcador.nombre) }}<Icon name="ph:caret-right-bold" class="matriz__flecha" aria-hidden="true" /></span>
                       <span v-if="f.marcador.nota" class="matriz__nota">{{ t(f.marcador.nota) }}</span>
                     </button>
@@ -301,7 +342,8 @@ function teclas(e: KeyboardEvent) {
                         type="button"
                         class="matriz__miniboton"
                         :class="{ 'matriz__miniboton--doble': f.celdas[m.id]!.length > 1 }"
-                        :aria-label="L('Ver ', 'See ') + etiqueta(l)"
+                        :aria-label="L('Ver ', 'See ') + etiquetaVoz(l)"
+                        :data-origen="`mini:${l.id}`"
                         @click.stop="abreLaminilla(l)"
                       >
                         <img :src="l.miniatura" alt="" class="matriz__mini" width="96" height="96" loading="lazy" decoding="async">
@@ -317,19 +359,22 @@ function teclas(e: KeyboardEvent) {
             <p class="discordancia mt-6">{{ textoDiscordancia }}</p>
           </div>
 
-          <section v-else class="visor-seccion" aria-labelledby="visor-titulo" @keydown="teclas">
-            <div class="visor-cabecera">
+          <section v-else ref="seccion" class="visor-seccion" aria-labelledby="visor-titulo" @keydown="teclas">
+            <div ref="filaTitulo" class="visor-cabecera" :style="{ '--alto-cabecera': altoCabecera + 'px' }">
               <h2 id="visor-titulo" ref="encabezado" tabindex="-1" class="font-display font-semibold text-berenjena text-2xl">{{ tituloVisor }}</h2>
               <div class="visor-acciones">
-                <button type="button" class="btn-secondary min-h-[44px]" :aria-label="L('Anterior', 'Previous')" @click="mueve(-1)">
+                <button type="button" class="btn-ghost min-h-[44px] visor-volver" :aria-label="L('Todas las laminillas', 'All slides')" @click="aMatriz">
+                  <Icon name="ph:table-bold" class="w-4 h-4" aria-hidden="true" /><span class="visor-acciones__texto">{{ L('Todas las laminillas', 'All slides') }}</span>
+                </button>
+                <button type="button" class="btn-secondary min-h-[44px]" :aria-label="vista.muestra ? L('Laminilla anterior', 'Previous slide') : L('Tinción anterior', 'Previous stain')" @click="mueve(-1)">
                   <Icon name="ph:caret-left-bold" class="w-4 h-4" aria-hidden="true" /><span class="visor-acciones__texto">{{ L('Anterior', 'Previous') }}</span>
                 </button>
-                <p class="visor-posicion" aria-live="polite">{{ L(`${posicion.i} de ${posicion.n}`, `${posicion.i} of ${posicion.n}`) }}</p>
-                <button type="button" class="btn-secondary min-h-[44px]" :aria-label="L('Siguiente', 'Next')" @click="mueve(1)">
+                <p class="visor-posicion" aria-live="polite"><span class="visor-posicion__que">{{ queCuenta + ' ' }}</span>{{ L(`${posicion.i} de ${posicion.n}`, `${posicion.i} of ${posicion.n}`) }}</p>
+                <button type="button" class="btn-secondary min-h-[44px]" :aria-label="vista.muestra ? L('Laminilla siguiente', 'Next slide') : L('Tinción siguiente', 'Next stain')" @click="mueve(1)">
                   <span class="visor-acciones__texto">{{ L('Siguiente', 'Next') }}</span><Icon name="ph:caret-right-bold" class="w-4 h-4" aria-hidden="true" />
                 </button>
-                <button v-if="puedeHE" type="button" class="btn-secondary min-h-[44px]" :aria-pressed="conHE" @click="alternaHE">
-                  <Icon :name="conHE ? 'ph:check-bold' : 'ph:square-split-horizontal-bold'" class="w-4 h-4" aria-hidden="true" />{{ L('HE de referencia', 'Reference H&E') }}
+                <button v-if="puedeHE" type="button" class="btn-secondary min-h-[44px]" :aria-label="L('HE de referencia', 'Reference H&E')" :aria-pressed="conHE" @click="alternaHE">
+                  <Icon :name="conHE ? 'ph:check-bold' : 'ph:square-split-horizontal-bold'" class="w-4 h-4" aria-hidden="true" /><span class="visor-he-largo">{{ L('HE de referencia', 'Reference H&E') }}</span><span class="visor-he-corto" aria-hidden="true">{{ L('HE', 'H&E') }}</span>
                 </button>
               </div>
             </div>
@@ -362,31 +407,19 @@ function teclas(e: KeyboardEvent) {
 </template>
 
 <style scoped>
-/* Selector: chips con la misma gramática que los radios del visor (visor-selector__op): pulsado =
-   violeta suave + borde violeta + subrayado (no solo color). */
+/* Selector (los chips, .lam-chip, viven en main.css: los comparte LaminillasMuestras). */
 .selector { display: grid; gap: var(--sp-8); padding: var(--sp-12) 0; margin-bottom: var(--sp-16);
-  border-bottom: 1px solid color-mix(in srgb, var(--color-text) 12%, transparent); background: var(--color-bg); }
-@media (min-width: 768px) {
-  .selector { position: sticky; top: var(--alto-cabecera, 80px); z-index: 20; }
-}
+  border-bottom: 1px solid color-mix(in srgb, var(--color-text) 12%, transparent); }
 .selector__fila { display: flex; align-items: center; gap: var(--sp-8) var(--sp-12); min-width: 0; }
 .selector__rotulo { flex: none; width: 4.5rem; font-family: var(--font-mono); font-size: 12px; text-transform: uppercase; letter-spacing: .08em; color: var(--color-text-soft); font-weight: 600; }
 .selector__chips { display: flex; flex-wrap: wrap; gap: 6px; min-width: 0; }
 @media (max-width: 767px) {
   .selector__fila { flex-direction: column; align-items: stretch; gap: 4px; }
   .selector__rotulo { width: auto; }
-  /* En móvil una sola línea que se desliza (sin desbordar la página). */
-  .selector__chips { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; padding-bottom: 2px; margin-inline: -4px; padding-inline: 4px; }
+  /* En móvil una sola línea que se desliza (sin desbordar la página). El relleno deja sitio al
+     anillo de foco, que overflow-x recortaría arriba y abajo. */
+  .selector__chips { position: relative; flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; padding: 6px; margin: -6px; }
   .selector__chips::-webkit-scrollbar { display: none; }
-}
-.chip { flex: none; display: inline-flex; align-items: center; gap: 6px; min-height: 44px; padding: 0 14px; border-radius: var(--radius-md);
-  border: 1px solid color-mix(in srgb, var(--color-text) 30%, transparent); background: var(--color-bg-card);
-  font: 600 var(--texto-sm) var(--font-body); color: var(--color-text); white-space: nowrap; cursor: pointer; }
-.chip[aria-pressed='true'] { background: var(--seleccionado-bg); border-color: var(--color-miriam); text-decoration: underline; text-underline-offset: 4px; }
-.chip[aria-disabled='true'] { opacity: .45; cursor: not-allowed; border-style: dashed; }
-.chip:focus-visible { outline: 3px solid var(--anillo-foco); outline-offset: 2px; }
-@media (hover: hover) and (pointer: fine) {
-  .chip:not([aria-disabled='true']):hover { border-color: var(--color-miriam); }
 }
 .matriz { width: 100%; border-collapse: separate; border-spacing: 0; table-layout: fixed; }
 .matriz__leyenda { caption-side: top; text-align: left; font-family: var(--font-display); font-weight: 600; font-size: var(--texto-xl); color: var(--color-text); margin-bottom: var(--sp-12); }
@@ -435,18 +468,32 @@ function teclas(e: KeyboardEvent) {
 .muestras dd { margin: 0; line-height: 1.5; }
 .muestras-nota { max-width: 80ch; font-size: var(--texto-xs); color: var(--color-text-soft); line-height: 1.5; }
 .visor-cabecera { display: flex; flex-wrap: wrap; gap: var(--sp-12); align-items: center; justify-content: space-between; margin-bottom: var(--sp-12); }
-.visor-posicion { margin: 0; min-width: 7ch; text-align: center; font-family: var(--font-mono); font-size: var(--texto-sm); color: var(--color-text); }
+@media (min-width: 768px) {
+  /* Solo esta fila se pega: anterior/siguiente y volver siempre a mano, por poco alto. */
+  .visor-cabecera { position: sticky; top: var(--alto-cabecera, 80px); z-index: 20; background: var(--color-bg); padding-block: var(--sp-8);
+    border-bottom: 1px solid color-mix(in srgb, var(--color-text) 12%, transparent); }
+}
+.visor-posicion { margin: 0; min-width: 7ch; text-align: center; font-size: var(--texto-sm); font-variant-numeric: tabular-nums; color: var(--color-text); }
+.visor-he-corto { display: none; }
 .visor-cabecera h2:focus { outline: none; }
 .visor-cabecera h2:focus-visible { outline: 3px solid var(--anillo-foco); outline-offset: 4px; }
 .visor-acciones { display: flex; flex-wrap: wrap; gap: var(--sp-8); }
 .visor-acciones { align-items: center; }
 @media (max-width: 767px) {
   .visor-cabecera h2 { font-size: var(--texto-xl); }
-  .visor-acciones { width: 100%; flex-wrap: nowrap; }
+  .visor-acciones { width: 100%; flex-wrap: wrap; }
   .visor-acciones > .btn-secondary { flex: 0 0 auto; padding-inline: 12px; font-size: var(--texto-sm); }
   .visor-acciones > .btn-secondary:last-child { margin-left: auto; }
-  /* «Anterior» / «Siguiente» quedan en la flecha (con su nombre accesible): el sitio es para la HE. */
-  .visor-acciones__texto { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+  /* «Anterior» / «Siguiente» / «Todas las laminillas» quedan en el icono (con su nombre accesible);
+     el contador, «2 de 17» (lo que cuenta lo oye el lector). */
+  .visor-acciones__texto, .visor-posicion__que { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+  /* «HE» corto: con «HE de referencia» la fila no cabía y el botón bajaba solo a otra línea. */
+  .visor-he-largo { display: none; }
+  .visor-he-corto { display: inline; }
+}
+/* A 320 px no cabe todo en una fila: la HE baja a la suya (antes se salía de la pantalla). */
+@media (max-width: 380px) {
+  .visor-acciones > .btn-secondary:last-child { margin-left: 0; }
 }
 /* Pulsado: violeta suave con texto berenjena también en hover (el hover del DS pone texto crema: 1,29:1). */
 .visor-acciones .btn-secondary[aria-pressed='true'],

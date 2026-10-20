@@ -13,7 +13,8 @@
  * con varios paneles apilados un dedo nunca desplaza la página. Se ve UN panel cada vez; los demás
  * siguen montados (visibility) para conservar la escala y alternar. La muestra visible la elige la
  * página (`muestraVisible`); los radios solo alternan entre los paneles de esa muestra (la tinción
- * y su HE de referencia). Las flechas de mover se pliegan tras un botón para que la imagen suba.
+ * y su HE de referencia). La barra cabe en una fila (zoom y encuadrar con icono) y lo demás (flechas,
+ * mover a la par, pantalla completa) se pliega tras «Más», para que la imagen suba (diseno, 20-oct).
  */
 import type OpenSeadragonNS from 'openseadragon'
 import { fuenteDzi, grupoPaneo, reglaRedonda, type Idioma, type Laminilla, type Manifest } from '~/utils/laminillas'
@@ -287,14 +288,15 @@ onBeforeUnmount(() => {
         <button type="button" class="visor-boton" :aria-label="L('Alejar', 'Zoom out')" @click="zoom(1 / 1.6)">
           <Icon name="ph:minus-bold" class="w-4 h-4" aria-hidden="true" />
         </button>
-        <button type="button" class="visor-boton visor-boton--texto" @click="encuadra">
-          <Icon name="ph:corners-out-bold" class="w-4 h-4" aria-hidden="true" />{{ L('Encuadrar', 'Fit') }}
+        <button type="button" class="visor-boton visor-boton--texto" :aria-label="L('Encuadrar', 'Fit')" @click="encuadra">
+          <Icon name="ph:corners-out-bold" class="w-4 h-4" aria-hidden="true" /><span class="visor-texto-ancho">{{ L('Encuadrar', 'Fit') }}</span>
         </button>
       </div>
-      <button type="button" class="visor-boton visor-boton--texto visor-flechas-boton" :aria-expanded="flechas" :aria-controls="idFlechas" @click="flechas = !flechas">
-        <Icon name="ph:arrows-out-cardinal-bold" class="w-4 h-4" aria-hidden="true" />{{ L('Flechas', 'Arrows') }}
+      <button type="button" class="visor-boton visor-boton--texto visor-mas-boton" :aria-expanded="flechas" :aria-controls="idFlechas" @click="flechas = !flechas">
+        <Icon name="ph:dots-three-bold" class="w-4 h-4" aria-hidden="true" />{{ L('Más', 'More') }}
       </button>
-      <div :id="idFlechas" class="visor-grupo visor-flechas" :class="{ 'visor-flechas--abiertas': flechas }" role="group" :aria-label="L('Mover', 'Move')">
+      <div :id="idFlechas" class="visor-mas" :class="{ 'visor-mas--abierta': flechas }">
+      <div class="visor-grupo" role="group" :aria-label="L('Mover', 'Move')">
         <button type="button" class="visor-boton" :aria-label="L('Mover a la izquierda', 'Move left')" @click="desplaza(-1, 0)">
           <Icon name="ph:arrow-left-bold" class="w-4 h-4" aria-hidden="true" />
         </button>
@@ -322,8 +324,9 @@ onBeforeUnmount(() => {
         <Icon :name="pantallaCompleta ? 'ph:arrows-in-bold' : 'ph:arrows-out-bold'" class="w-4 h-4" aria-hidden="true" />
         {{ L('Pantalla completa', 'Full screen') }}
       </button>
+      </div>
     </div>
-    <details class="visor-ayuda-det" :open="ayudaAbierta" @toggle="ayudaAbierta = ($event.target as HTMLDetailsElement).open">
+    <details class="visor-ayuda-det" :class="{ 'visor-ayuda-det--con-mas': flechas }" :open="ayudaAbierta" @toggle="ayudaAbierta = ($event.target as HTMLDetailsElement).open">
     <summary class="visor-ayuda-sum">{{ L('Cómo se usa', 'How to use it') }}</summary>
     <p :id="idAyuda" class="visor-ayuda">
       {{ hayGrupoComun
@@ -381,11 +384,16 @@ onBeforeUnmount(() => {
 .visor-boton:focus-visible { outline: 3px solid var(--anillo-foco); outline-offset: 2px; }
 .visor-ayuda { font-size: var(--texto-xs); color: var(--color-text-soft); margin: 0 0 var(--sp-12); max-width: 76ch; line-height: 1.5; }
 .visor-ayuda-sum { display: none; }
-.visor-flechas-boton { display: none; }
+.visor-mas-boton { display: none; }
+.visor-mas { display: contents; }
 @media (max-width: 767px) {
-  .visor-flechas-boton { display: inline-flex; }
-  .visor-flechas-boton[aria-expanded='true'] { background: var(--seleccionado-bg); border-color: var(--color-miriam); }
-  .visor-flechas:not(.visor-flechas--abiertas) { display: none; }
+  .visor-mas-boton { display: inline-flex; }
+  .visor-mas-boton[aria-expanded='true'] { background: var(--seleccionado-bg); border-color: var(--color-miriam); }
+  .visor-mas:not(.visor-mas--abierta) { display: none; }
+  .visor-mas--abierta { display: flex; flex-wrap: wrap; gap: var(--sp-8); width: 100%; }
+  /* «Cómo se usa» también va tras «Más»: cada fila de controles empujaba la imagen fuera de la pantalla. */
+  .visor-ayuda-det:not(.visor-ayuda-det--con-mas) { display: none; }
+  .visor-texto-ancho { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 }
 @media (max-width: 767px) {
   .visor-ayuda-sum { display: list-item; cursor: pointer; min-height: 44px; padding-top: 12px; font-size: var(--texto-sm); font-weight: 600; color: var(--color-text); }

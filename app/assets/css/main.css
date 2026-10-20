@@ -1494,3 +1494,20 @@
     content: none;
   }
 }
+
+/* Chip de /laminillas (selector de tinción y de muestra). Borde con el token del DS
+   (--trazo-interactivo, ≥3:1 sobre crema); pulsado = violeta suave + borde + subrayado, no solo
+   color, como los radios del visor. Compartido por la página y LaminillasMuestras. */
+@layer components {
+  .lam-chip {
+    flex: none; display: inline-flex; align-items: center; gap: 6px; min-height: 44px; padding: 0 14px;
+    border-radius: var(--radius-md); border: 1px solid var(--trazo-interactivo); background: var(--color-bg-card);
+    font: 600 var(--texto-sm) var(--font-body); color: var(--color-text); white-space: nowrap; cursor: pointer;
+  }
+  .lam-chip[aria-pressed='true'] { background: var(--seleccionado-bg); border-color: var(--color-miriam); text-decoration: underline; text-underline-offset: 4px; }
+  .lam-chip[aria-disabled='true'] { opacity: .45; cursor: not-allowed; border-style: dashed; }
+  .lam-chip:focus-visible { outline: 3px solid var(--anillo-foco); outline-offset: 2px; }
+  @media (hover: hover) and (pointer: fine) {
+    .lam-chip:not([aria-disabled='true']):hover { border-color: var(--color-miriam); }
+  }
+}
