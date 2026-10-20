@@ -15,6 +15,9 @@
 //   · el paneo se mueve junto entre las dos de mama y es libre con el hígado; sin enlace, libre;
 //   · «HE de referencia» añade la HE de cada muestra; la cabecera de columna recorre la muestra.
 //
+// Contra un despliegue real (preview de Netlify con las teselas ya en el bucket), sin build local:
+//   LAMINILLAS_ORIGEN=https://deploy-preview-NNN--<sitio>.netlify.app pnpm test:laminillas-visor
+//
 // Uso:  pnpm exec nuxt generate && pnpm test:laminillas-visor
 import { spawn } from 'node:child_process'
 import { existsSync, mkdtempSync, readFileSync, rmSync, statSync } from 'node:fs'
@@ -24,17 +27,20 @@ import { extname, join, normalize } from 'node:path'
 import { setTimeout as sleep } from 'node:timers/promises'
 
 const ROOT = join(import.meta.dirname, '..', '.output', 'public')
-if (!existsSync(join(ROOT, 'laminillas.html'))) {
+const REMOTO = (process.env.LAMINILLAS_ORIGEN || '').replace(/\/$/, '')
+if (!REMOTO && !existsSync(join(ROOT, 'laminillas.html'))) {
   console.error(`No existe ${ROOT}/laminillas.html. Corre antes \`pnpm exec nuxt generate\`.`)
   process.exit(2)
 }
 const TESELAS = process.env.LAMINILLAS_TESELAS_DIR || ''
+const CON_TESELAS = !!(TESELAS || REMOTO)
 const manifest = JSON.parse(readFileSync(join(import.meta.dirname, '..', 'app', 'data', 'laminillas.json'), 'utf8'))
 
 let fallos = 0
 const ok = (cond, msg) => { console.log(`  ${cond ? '✅' : '❌'} ${msg}`); if (!cond) fallos++ }
 
 // ── Estático (lo que no necesita navegador)
+if (!REMOTO) {
 console.log('Build estático')
 // `_redirects` solo lo escribe el preset de Netlify (en su build lo detecta solo; en local, NETLIFY=1).
 const fRed = [join(ROOT, '_redirects'), join(import.meta.dirname, '..', 'dist', '_redirects')].find(existsSync)
@@ -50,6 +56,7 @@ ok(existsSync(join(ROOT, 'en', 'slides.html')), 'existe /en/slides')
 const sitemap = ['sitemap.xml', '__sitemap__/es-ES.xml', '__sitemap__/en-US.xml']
   .map((f) => join(ROOT, f)).filter(existsSync).map((f) => readFileSync(f, 'utf8')).join('\n')
 ok(/helpmiriam\.com\/laminillas</.test(sitemap) && /helpmiriam\.com\/en\/slides</.test(sitemap), 'el sitemap lleva /laminillas y /en/slides')
+}
 
 // ── Servidores: estático (como Netlify: /x → x.html) y, si hay, teselas en 127.0.0.1:8090
 const TYPES = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript', '.css': 'text/css', '.json': 'application/json',
@@ -66,7 +73,7 @@ function sirve(raiz) {
 }
 const web = sirve(ROOT)
 await new Promise((r) => web.listen(0, '127.0.0.1', r))
-const ORIGIN = `http://127.0.0.1:${web.address().port}`
+const ORIGIN = REMOTO || `http://127.0.0.1:${web.address().port}`
 let teselas = null
 if (TESELAS) {
   teselas = sirve(TESELAS)
@@ -157,8 +164,8 @@ async function arrastra(i, dx, dy) {
 const delta = (a, b) => [b.c[0] - a.c[0], b.c[1] - a.c[1]]
 const cerca = (d1, d2, tol) => Math.abs(d1[0] - d2[0]) <= tol && Math.abs(d1[1] - d2[1]) <= tol
 
-if (TESELAS) {
-  console.log('Visor (con teselas)')
+if (CON_TESELAS) {
+  console.log(`Visor (con teselas${REMOTO ? ', contra ' + REMOTO : ''})`)
   await cdp('Page.navigate', { url: 'about:blank' })
   await carga('/laminillas?fila=re', 1440, 1000)
   ok(await espera(`${PANELES}.length === 3 && ${PANELES}.every((p) => p.um > 0)`, 30000), 'RE: tres paneles abiertos (Mama 2024, Mama reevaluación, Hígado)')
@@ -191,7 +198,7 @@ if (TESELAS) {
   await sleep(2500)
   ok(red.ok > 20 && red.fallo === 0, `teselas: ${red.ok} cargadas, ${red.fallo} fallidas`)
 } else {
-  console.log('  (sin LAMINILLAS_TESELAS_DIR: no se prueban teselas ni sincronía)')
+  console.log('  (sin LAMINILLAS_TESELAS_DIR ni LAMINILLAS_ORIGEN: no se prueban teselas ni sincronía)')
 }
 
 ws.close(); chrome.kill(); web.close(); teselas?.close()

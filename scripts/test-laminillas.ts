@@ -33,7 +33,11 @@ for (const l of M.laminillas) {
   if (l.ficha.resultado) ok(!!l.ficha.fuente, `${l.id}: un resultado lleva su fuente`)
   else ok(l.ficha.sello === 'sin-verificar' && !!l.ficha.nota, `${l.id}: sin resultado → «sin verificar» y explica por qué`)
   if (l.ficha.sello === 'inferido') ok(!!l.ficha.nota, `${l.id}: lo inferido dice qué se infiere`)
+  if (l.ficha.sello === 'inferido') ok(!!l.ficha.resultado, `${l.id}: «inferido» solo con resultado del informe (lo deducido es la atribución)`)
 }
+
+const ficha = readFileSync('app/components/laminillas/LaminillasFicha.vue', 'utf-8')
+ok(!/inferido[^\n]*no confirmado en un informe/i.test(ficha), 'el sello «inferido» no dice que el resultado no está en un informe')
 
 console.log('Privacidad (lo que se publica)')
 const publicado = [

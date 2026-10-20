@@ -16,8 +16,10 @@ const mppTexto = computed(() => props.laminilla.mpp.toLocaleString(props.idioma 
 
 const SELLOS: Record<Sello, { es: string; en: string; icono: string }> = {
   verificado: { es: 'Verificado contra el informe original', en: 'Checked against the original report', icono: 'ph:seal-check-fill' },
-  inferido: { es: 'Inferido, no confirmado en un informe', en: 'Inferred, not confirmed in a report', icono: 'ph:seal-question' },
-  'sin-verificar': { es: 'Sin verificar', en: 'Not verified', icono: 'ph:seal-warning' },
+  // «inferido» con resultado: el resultado SÍ está en un informe verificado; lo deducido es que este
+  // escaneo sea esa laminilla. Sin resultado no se usa (eso es «sin verificar»).
+  inferido: { es: 'Resultado del informe; que sea este escaneo se deduce', en: 'Result from the report; that it is this scan is deduced', icono: 'ph:seal-question' },
+  'sin-verificar': { es: 'Sin verificar: ningún informe da resultado', en: 'Not verified: no report gives a result', icono: 'ph:seal-warning' },
 }
 const sello = computed(() => SELLOS[props.laminilla.ficha.sello])
 </script>
