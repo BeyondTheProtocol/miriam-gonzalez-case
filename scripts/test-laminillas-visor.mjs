@@ -148,6 +148,14 @@ for (const [ruta, que] of [['/laminillas', 'la tabla'], ['/laminillas?fila=re&he
   const r = await ev(`({ sw: document.documentElement.scrollWidth, w: window.innerWidth })`)
   ok(r.sw <= r.w, `móvil 390 px, ${que}: sin scroll horizontal (${r.sw} ≤ ${r.w})`)
 }
+// Que nada se salga de su celda (overflow-x-clip lo taparía al medir el scroll de la página).
+for (const ancho of [320, 390]) {
+  await carga('/laminillas', ancho, 900)
+  const desb = await ev(`[...document.querySelectorAll('.matriz__colboton, .matriz__filaboton, .matriz__colboton > span:not(.sr-only), .matriz__filaboton > span:not(.sr-only)')]
+    .filter((e) => e.scrollWidth > e.clientWidth + 1 || e.getBoundingClientRect().right > e.closest('th, td').getBoundingClientRect().right + 1)
+    .map((e) => e.textContent.trim().slice(0, 24))`)
+  ok(desb.length === 0, `móvil ${ancho} px: ningún texto de cabecera se sale de su celda${desb.length ? ' (' + desb.join(' | ') + ')' : ''}`)
+}
 await carga('/laminillas?fila=re&he=1', 390, 844)
 ok(await espera(`document.querySelectorAll('.visor-panel').length === 6`, 15000), 'móvil: los 6 paneles montados')
 const movil = await ev(`(() => ({ ops: document.querySelectorAll('.visor-selector input').length,

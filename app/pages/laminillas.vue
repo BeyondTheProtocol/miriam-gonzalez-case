@@ -201,7 +201,7 @@ function teclas(e: KeyboardEvent) {
                 <th v-for="m in M.muestras" :key="m.id" scope="col" class="matriz__col">
                   <button type="button" class="matriz__colboton" :aria-current="muestra === m.id ? 'true' : undefined" @click="abreMuestra(m.id, $event)">
                     <span class="matriz__colnombre">{{ t(m.corto) }}</span>
-                    <span class="matriz__colmeta"><span class="whitespace-nowrap">{{ m.aumento }}</span> <span class="whitespace-nowrap">{{ mppTexto(m.mpp, 3) }} µm/px</span></span>
+                    <span class="matriz__colmeta"><span class="whitespace-nowrap">{{ m.aumento }}</span> <span class="matriz__colmpp whitespace-nowrap">{{ mppTexto(m.mpp, 3) }} µm/px</span></span>
                     <span class="sr-only">{{ L('Recorrer todas las tinciones de esta muestra', 'Step through every stain from this sample') }}</span>
                   </button>
                 </th>
@@ -307,7 +307,10 @@ function teclas(e: KeyboardEvent) {
 .matriz__colmeta { font-family: var(--font-mono); font-size: 12px; color: var(--color-text-soft); text-align: center; }
 @media (max-width: 479px) {
   .matriz__colnombre { font-size: 13px; overflow-wrap: anywhere; hyphens: auto; }
-  .matriz__colboton { min-height: 76px; }
+  .matriz__colboton { min-height: 64px; }
+  /* A este ancho el µm/px no cabe en la cabecera: sigue en la lista de muestras y en cada ficha. */
+  .matriz__colmpp { display: none; }
+  .matriz__filaboton { font-size: 13px; overflow-wrap: anywhere; hyphens: auto; }
 }
 .matriz__grupo th { text-align: left; padding: var(--sp-16) 0 var(--sp-4); font-family: var(--font-mono); font-size: 12px; text-transform: uppercase; letter-spacing: .1em; color: var(--color-text-soft); font-weight: 600; }
 .matriz__fila { cursor: pointer; }
