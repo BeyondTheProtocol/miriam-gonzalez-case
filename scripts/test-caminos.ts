@@ -10,8 +10,10 @@
 // 3. En «research», /datos nunca va primero (con la puerta abierta y cerrada).
 // 4. Claves `pathways` iguales en ES y EN; las etiquetas de los accesos existen en los dos.
 // 5. Léxico prohibido en las tarjetas profesionales (comité médico, 20-oct), ES y EN.
-// 6. La rejilla ≥ 1024 px: cada área es un rectángulo y sus nombres son los ids de las tarjetas.
+// 6. La rejilla ≥ 1024 px (12 columnas): tesela sin huecos ni solapes, una celda por tarjeta, en el orden del DOM.
 // 7. Destinos: el botón clínico aterriza en «De un vistazo»; research y el h5ad, con rol de investigador.
+// 8. Prensa y tech (PR 2): el paso que pasa a acceso conserva su texto publicado, sale de la lista de
+//    pasos (no se repite) y la lista se queda con sus pasos de acción.
 //
 // Uso:  pnpm test:caminos
 import { readFileSync } from 'node:fs'
@@ -30,7 +32,7 @@ const explorador = readFileSync('app/pages/celula-a-celula-explorar.vue', 'utf-8
 
 const clavesHerr = new Set(HERRAMIENTAS.map((h) => h.key))
 const roles = (contacto.match(/const VALID_ROLES = \[([^\]]*)\]/)?.[1] ?? '').match(/'([a-z]+)'/g)?.map((s) => s.slice(1, -1)) ?? []
-const etiqueta = (a: Acceso) => (a.tipo === 'herramienta' ? `nav.${a.enlace.key}` : a.etiqueta)
+const etiqueta = (a: Acceso) => (a.tipo === 'herramienta' ? a.etiqueta ?? `nav.${a.enlace.key}` : a.etiqueta)
 const get = (o: Record<string, unknown>, ruta: string) => ruta.split('.').reduce<unknown>((x, k) => (x as Record<string, unknown> | undefined)?.[k], o)
 const todas = (_e: EnlaceNav) => true
 const sinExplorador = (e: EnlaceNav) => e.key !== 'cell_explorer'
@@ -100,31 +102,52 @@ for (const [loc, d] of [['ES', pes], ['EN', pen]] as const) {
   }
 }
 
-console.log('6. Rejilla ≥ 1024 px')
-const bloque = css.match(/@media \(min-width: 1024px\) \{\s*\.pathway-grid \{[^}]*grid-template-areas:([^;]*);/)
-ok(!!bloque, 'encuentro grid-template-areas de .pathway-grid a ≥ 1024 px')
-const filas = (bloque?.[1] ?? '').match(/'([^']*)'/g)?.map((f) => f.slice(1, -1).trim().split(/\s+/)) ?? []
-ok(filas.length > 0 && filas.every((f) => f.length === 4), `todas las filas tienen 4 columnas (${filas.length} filas)`)
-const nombres = [...new Set(filas.flat())]
-ok(!nombres.includes('.'), 'sin celdas vacías')
-for (const n of nombres) {
-  const celdas = filas.flatMap((f, r) => f.map((x, c) => [x, r, c] as const)).filter(([x]) => x === n)
-  const r0 = Math.min(...celdas.map(([, r]) => r)), r1 = Math.max(...celdas.map(([, r]) => r))
-  const c0 = Math.min(...celdas.map(([, , c]) => c)), c1 = Math.max(...celdas.map(([, , c]) => c))
-  ok(celdas.length === (r1 - r0 + 1) * (c1 - c0 + 1), `el área «${n}» es un rectángulo`)
-  ok(new RegExp(`\\.pathway-card--${n}\\s*\\{\\s*grid-area:\\s*${n};`).test(css), `.pathway-card--${n} tiene su grid-area`)
+console.log('6. Rejilla ≥ 1024 px (12 columnas)')
+const bloque = css.match(/@media \(min-width: 1024px\) \{\s*\.pathway-grid \{ grid-template-columns: repeat\((\d+), minmax\(0, 1fr\)\); \}([\s\S]*?)\n {2}\}/)
+ok(!!bloque, 'encuentro la rejilla de .pathway-grid a ≥ 1024 px')
+const COLS = Number(bloque?.[1] ?? 0)
+ok(COLS === 12, `12 columnas (${COLS})`)
+const pos = [...(bloque?.[2] ?? '').matchAll(/\.pathway-card--([a-z]+)\s*\{\s*grid-column:\s*(\d+)\s*\/\s*span\s*(\d+);\s*grid-row:\s*(\d+)(?:\s*\/\s*span\s*(\d+))?;\s*\}/g)]
+  .map((m) => ({ id: m[1]!, c: Number(m[2]), cs: Number(m[3]), r: Number(m[4]), rs: Number(m[5] ?? 1) }))
+const filasN = Math.max(0, ...pos.map((x) => x.r + x.rs - 1))
+const celdas: string[][] = Array.from({ length: filasN }, () => Array(COLS).fill(''))
+let solapes = 0
+for (const x of pos) for (let r = x.r; r < x.r + x.rs; r++) for (let c = x.c; c < x.c + x.cs; c++) {
+  if (c > COLS || r > filasN) { solapes++; continue }
+  if (celdas[r - 1]![c - 1]) solapes++
+  celdas[r - 1]![c - 1] = x.id
 }
+ok(solapes === 0, `ninguna tarjeta se sale ni se solapa (${solapes})`)
+ok(celdas.every((f) => f.every(Boolean)), `sin celdas vacías (${filasN} filas × ${COLS})`)
 const homePaths = caminosVue.slice(caminosVue.indexOf('const homePaths'))
 const ids = [...homePaths.matchAll(/\n {4}id: '([a-z]+)'/g)].map((m) => m[1])
 ok(ids.length === 7, `7 caminos en la home (${ids.join(', ')})`)
-ok(JSON.stringify([...nombres].sort()) === JSON.stringify([...ids].sort()), 'las áreas de la rejilla son exactamente los ids de las tarjetas')
+ok(JSON.stringify(pos.map((x) => x.id).sort()) === JSON.stringify([...ids].sort()), 'cada tarjeta tiene su sitio en la rejilla, y solo ellas')
 // El orden visual (fila a fila, de izquierda a derecha, por primera aparición) es el del DOM = el del tabulador.
-ok(JSON.stringify(filas.flat().filter((x, i, a) => a.indexOf(x) === i)) === JSON.stringify(ids), 'el orden visual de la rejilla es el del DOM')
+ok(JSON.stringify(celdas.flat().filter((x, i, a) => a.indexOf(x) === i)) === JSON.stringify(ids), 'el orden visual de la rejilla es el del DOM')
+const fila2 = celdas[1] ?? []
+ok(fila2.indexOf('research') === fila2.lastIndexOf('clinician') + 1, 'clínica y single-cell, lado a lado en la fila 2')
 
 console.log('7. Destinos')
 ok(/linkProps: \{ to: localePath\(\{ name: 'ciencia' \}\) \+ '\?nivel=pro#snapshot-title' \}/.test(caminosVue), 'el botón clínico va a /ciencia?nivel=pro#snapshot-title («De un vistazo»)')
 ok(/id: 'research'[\s\S]*?linkProps: \{ to: localePath\(\{ name: 'contacto', query: \{ role: 'researcher' \} \}\) \}/.test(caminosVue), 'el botón de research va a /contacto con rol de investigador')
 ok(/aria-labelledby="xp-pide-t"[\s\S]*?localePath\(\{ name: 'contacto', query: \{ role: 'researcher' \} \}\)/.test(explorador), 'el h5ad del explorador va a /contacto con rol de investigador')
+
+console.log('8. Prensa y tech: el paso reubicado no cambia de texto')
+// Textos publicados antes del PR 2 (main, 20-oct-2026): pasan de la lista de pasos a su acceso, igual.
+const REUBICADOS = {
+  press_acceso: { es: 'Datos del caso listos para citar', en: 'Case data ready to cite', lista: 'press_steps' },
+  tech_acceso: { es: 'Repo público y documentación', en: 'Public repo and documentation', lista: 'tech_steps' },
+} as const
+for (const [clave, r] of Object.entries(REUBICADOS)) {
+  for (const [loc, d] of [['es', pes], ['en', pen]] as const) {
+    ok(d[clave] === r[loc], `${loc}: ${clave} es el texto publicado («${r[loc]}»)`)
+    const lista = d[r.lista] as string[]
+    ok(Array.isArray(lista) && lista.length === 2 && !lista.includes(r[loc]), `${loc}: ${r.lista} se queda con 2 pasos y sin repetir el acceso`)
+  }
+}
+ok(ACCESOS.tech.length === 1 && ACCESOS.tech[0]?.tipo === 'externo', 'tech: un acceso, externo (el repo)')
+ok(ACCESOS.press.length === 1 && ACCESOS.press[0]?.tipo === 'herramienta' && ACCESOS.press[0].enlace.key === 'data', 'prensa: un acceso, a /datos')
 
 console.log(fallos ? `\n❌ ${fallos} fallo(s)` : '\n✅ caminos de la home en orden')
 process.exit(fallos ? 1 : 0)

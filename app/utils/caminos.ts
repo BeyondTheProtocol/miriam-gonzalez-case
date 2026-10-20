@@ -15,12 +15,17 @@
  */
 import { NAV, type EnlaceNav } from './navegacion'
 
+// `etiqueta` (clave i18n) solo cuando el rótulo no es el del menú: en prensa y tech el acceso es un paso
+// ya publicado de la propia tarjeta, que sale de la lista de pasos y pasa a ser enlace sin cambiar el texto.
 export type Acceso =
-  | { tipo: 'herramienta'; enlace: EnlaceNav }
+  | { tipo: 'herramienta'; enlace: EnlaceNav; etiqueta?: string }
   | { tipo: 'contacto'; rol: 'oncologist' | 'researcher'; etiqueta: 'nav.contact' }
-  | { tipo: 'externo'; href: string; etiqueta: string }
+  | { tipo: 'externo'; href: string; etiqueta: string; icono?: string }
 
-export type CaminoConAccesos = 'clinician' | 'research'
+export type CaminoConAccesos = 'clinician' | 'research' | 'press' | 'tech'
+
+// El repo público, el mismo que enlazan el layout (schema.org) y /colabora.
+export const REPO_URL = 'https://github.com/beyondtheprotocol/miriam-gonzalez-case'
 
 const h = (enlace: EnlaceNav): Acceso => ({ tipo: 'herramienta', enlace })
 
@@ -28,9 +33,16 @@ const h = (enlace: EnlaceNav): Acceso => ({ tipo: 'herramienta', enlace })
 // decisión de Miriam al aprobar el plan): el mapa sale de estudios de marzo a junio de 2026; /lesiones,
 // de la imagen del 8-sep. El mapa sigue en la banda, en /ciencia y en /caso.
 // Single-cell: explorador → datos (qué tejido, cuándo, con qué tratamiento) → biopsia ósea.
+// Prensa y tech (PR 2, regla de diseño «una lista, un tipo»): solo se enlaza el paso que ya nombra un
+// destino que su botón no cubre. Prensa: «Datos del caso listos para citar» → /datos (prensa.vue no
+// enlaza /datos). Tech: «Repo público y documentación» → el repo. Curiosos, pacientes y donar, sin
+// accesos: sus pasos son acciones y sus herramientas ya están en la banda.
 export const ACCESOS: Record<CaminoConAccesos, Acceso[]> = {
   clinician: [h(NAV.data), h(NAV.lesions), { tipo: 'contacto', rol: 'oncologist', etiqueta: 'nav.contact' }],
   research: [h(NAV.cellExplorer), h(NAV.data), h(NAV.boneBiopsy)],
+  press: [{ tipo: 'herramienta', enlace: NAV.data, etiqueta: 'pathways.press_acceso' }],
+  // Logo de GitHub, no ph:code: este repite el icono del título de tech y no dice adónde lleva (diseno, 20-oct).
+  tech: [{ tipo: 'externo', href: REPO_URL, etiqueta: 'pathways.tech_acceso', icono: 'ph:github-logo-fill' }],
 }
 
 /**

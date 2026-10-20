@@ -96,19 +96,19 @@
     "press_desc": "You have an audience or cover health. You need verifiable facts.",
     "press_steps": [
       "Press room with real coverage",
-      "Case data ready to cite",
       "Direct contact for interviews"
     ],
+    "press_acceso": "Case data ready to cite",
     "press_steps_aria": "Steps for journalists",
     "press_cta": "Go to the press room",
     "press_caption": "Verifiable kit. No spin.",
     "tech_title": "Tech, data, or AI",
     "tech_desc": "You want to contribute code, pipelines, or analysis to the open case.",
     "tech_steps": [
-      "Public repo and documentation",
       "Links to Beyond the Protocol",
       "Contact with tech profile pre-selected"
     ],
+    "tech_acceso": "Public repo and documentation",
     "tech_steps_aria": "Steps for technical profiles",
     "tech_cta": "Write to the tech team",
     "tech_caption": "Open code. Non-sensitive data public.",

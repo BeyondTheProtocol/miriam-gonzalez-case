@@ -12,7 +12,7 @@
         class="pathway-acceso"
         @click="medir(a)"
       >
-        <Icon :name="iconoExterno ?? 'ph:link-simple'" class="pathway-acceso__icono" aria-hidden="true" />
+        <Icon :name="a.icono ?? 'ph:link-simple'" class="pathway-acceso__icono" aria-hidden="true" />
         <span class="pathway-acceso__label">{{ $t(a.etiqueta) }}</span>
         <span class="sr-only"> {{ $t('a11y.new_tab') }}</span>
         <Icon name="ph:arrow-up-right" class="pathway-acceso__flecha" aria-hidden="true" />
@@ -38,7 +38,6 @@ const props = defineProps<{
   accesos: Acceso[]
   /** id del camino (clinician, research…): da el origen de los eventos, `home_camino_<camino>`. */
   camino: string
-  iconoExterno?: string
 }>()
 
 const { t } = useI18n()
@@ -51,7 +50,7 @@ function destino(a: Acceso) {
   return a.href
 }
 function etiqueta(a: Acceso) {
-  if (a.tipo === 'herramienta') return t(`nav.${a.enlace.key}`)
+  if (a.tipo === 'herramienta') return t(a.etiqueta ?? `nav.${a.enlace.key}`)
   return t(a.etiqueta)
 }
 function icono(a: Acceso) {

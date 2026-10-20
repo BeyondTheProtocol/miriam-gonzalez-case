@@ -3,7 +3,8 @@
 // directo a las diferentes herramientas porque /ciencia es muy largo»).
 //
 // Lo que comprueba, en ES y EN:
-// 1. 320 a 1280 px: 7 caminos en orden, sin scroll horizontal; los accesos con su href, ≥ 44 px y
+// 1. 320 a 1280 px: 7 caminos en orden, sin scroll horizontal; los accesos (clínica, single-cell, prensa
+//    y tech) con su href, ≥ 44 px y
 //    (≥ 640 px) en ≤ 2 líneas: si a 1024 alguno pasa de 2, toca la rejilla de 4 filas del plan.
 //    En móvil, plegados fuera del tabulador y, al abrir la tarjeta, dentro y con aria-expanded.
 //    320 y 640 px cubren también el zoom al 400 % y al 200 % de una pantalla de 1280.
@@ -15,6 +16,7 @@
 //    desde la home y con carga directa; y el destino de /caso (#mapa-acceso), con carga directa.
 // 7. Contraste alto y colores forzados: los accesos siguen visibles y de 44 px.
 // 8. /colabora y el pie siguen con sus chips (no se tocan).
+// 9. El acceso de tech es externo: pestaña nueva, rel="noopener noreferrer" y aviso para lector de pantalla.
 //
 // CAPTURAS=<carpeta> guarda capturas de la rejilla para la revisión de `diseno`.
 // Uso: pnpm exec nuxt generate && pnpm test:home-caminos
@@ -37,6 +39,7 @@ const CAPTURAS = process.env.CAPTURAS
 if (CAPTURAS) mkdirSync(CAPTURAS, { recursive: true })
 
 const ORDEN = ['supporter', 'curious', 'clinician', 'research', 'press', 'tech', 'peer']
+const CON_ACCESOS = ['clinician', 'research', 'press', 'tech']
 const ESPERADO = {
   es: {
     home: '/',
@@ -44,6 +47,8 @@ const ESPERADO = {
     clinicianCta: '/ciencia?nivel=pro#snapshot-title',
     research: ['/celula-a-celula/explorar', '/datos', '/biopsia-osea'],
     researchCta: '/contacto?role=researcher',
+    press: ['/datos'],
+    tech: ['https://github.com/beyondtheprotocol/miriam-gonzalez-case'],
     ciencia: '/ciencia',
   },
   en: {
@@ -52,10 +57,12 @@ const ESPERADO = {
     clinicianCta: '/en/science?nivel=pro#snapshot-title',
     research: ['/en/cell-by-cell/explore', '/en/data', '/en/bone-biopsy'],
     researchCta: '/en/contact?role=researcher',
+    press: ['/en/data'],
+    tech: ['https://github.com/beyondtheprotocol/miriam-gonzalez-case'],
     ciencia: '/en/science',
   },
 }
-const ANCHOS = [320, 375, 639, 640, 768, 1023, 1024, 1280]
+const ANCHOS = [320, 375, 639, 640, 768, 1023, 1024, 1280, 1440]
 
 const LEER = `(() => {
   const id = (c) => [...c.classList].find((k) => k.startsWith('pathway-card--')).slice('pathway-card--'.length)
@@ -130,16 +137,15 @@ try {
       ok(s.sw <= s.vw, `${w}px: sin scroll horizontal (${s.sw} ≤ ${s.vw})`)
       ok(JSON.stringify(s.ids) === JSON.stringify(ORDEN), `${w}px: 7 caminos en orden (${s.ids.join(', ')})`)
       if (w < 640) {
-        const ocultos = ['clinician', 'research'].every((id) => s.accesos[id].length === 3 && s.accesos[id].every((a) => !a.visible))
-        ok(ocultos && s.toggles.clinician === 'false' && s.toggles.research === 'false', `${w}px: plegadas, los accesos no se ven ni se tabulan`)
+        const ocultos = CON_ACCESOS.every((id) => s.accesos[id].length === E[id].length && s.accesos[id].every((a) => !a.visible))
+        ok(ocultos && CON_ACCESOS.every((id) => s.toggles[id] === 'false'), `${w}px: plegadas, los accesos no se ven ni se tabulan`)
         console.log(`     (alto de la rejilla plegada a ${w}px: ${Math.round(s.alturaRejilla)} px)`)
-        await abrir('clinician')
-        await abrir('research')
+        for (const id of CON_ACCESOS) await abrir(id)
         await sleep(250)
         s = await evaluate(LEER)
-        ok(s.toggles.clinician === 'true' && s.toggles.research === 'true', `${w}px: al abrir, aria-expanded="true"`)
+        ok(CON_ACCESOS.every((id) => s.toggles[id] === 'true'), `${w}px: al abrir, aria-expanded="true"`)
       }
-      for (const id of ['clinician', 'research']) {
+      for (const id of CON_ACCESOS) {
         const a = s.accesos[id]
         ok(JSON.stringify(a.map((x) => x.href)) === JSON.stringify(E[id]), `${w}px ${id}: accesos ${a.map((x) => x.href).join(' · ')}`)
         ok(a.every((x) => x.visible && x.h >= 44), `${w}px ${id}: visibles y ≥ 44 px (${a.map((x) => Math.round(x.h)).join(', ')})`)
@@ -166,7 +172,7 @@ try {
         ok(resto.every((id) => Math.abs(R[id].w - R.curious.w) <= 1) && R.supporter.w > R.curious.w * 1.9, `${w}px: «Quiero ayudar ya» a lo ancho y el resto en pares`)
       }
       console.log(`     (alto de la rejilla a ${w}px: ${Math.round(s.alturaRejilla)} px)`)
-      if ([375, 768, 1024, 1280].includes(w)) await capturar(`${loc}-${w}`)
+      if ([375, 768, 1024, 1280, 1440].includes(w)) await capturar(`${loc}-${w}`)
     }
   }
 
@@ -200,8 +206,8 @@ try {
     const f = loc === 'es' ? join(ROOT, 'index.html') : [join(ROOT, 'en.html'), join(ROOT, 'en', 'index.html')].find(existsSync)
     const html = readFileSync(f, 'utf8')
     const n = (html.match(/class="pathway-acceso"/g) || []).length
-    ok(n === 6, `${loc}: 6 accesos en el HTML (${n})`)
-    for (const href of [...E.clinician, ...E.research, E.clinicianCta, E.researchCta]) {
+    ok(n === 8, `${loc}: 8 accesos en el HTML (${n})`)
+    for (const href of [...E.clinician, ...E.research, ...E.press, ...E.tech, E.clinicianCta, E.researchCta]) {
       ok(html.includes(`href="${href}"`), `${loc}: href="${href}" está en el HTML`)
     }
   }
@@ -245,13 +251,12 @@ try {
       await ancho(w)
       await cargar('/')
       if (w < 640) {
-        await abrir('clinician')
-        await abrir('research')
+        for (const id of CON_ACCESOS) await abrir(id)
         await sleep(250)
       }
       const s = await evaluate(LEER)
-      const todos = [...s.accesos.clinician, ...s.accesos.research]
-      ok(todos.length === 6 && todos.every((a) => a.visible && a.h >= 44 && !/rgba\(0, 0, 0, 0\)|transparent/.test(a.borde)), `${nombre} ${w}px: los 6 accesos visibles, ≥ 44 px y con borde`)
+      const todos = CON_ACCESOS.flatMap((id) => s.accesos[id])
+      ok(todos.length === 8 && todos.every((a) => a.visible && a.h >= 44 && !/rgba\(0, 0, 0, 0\)|transparent/.test(a.borde)), `${nombre} ${w}px: los 8 accesos visibles, ≥ 44 px y con borde`)
       await capturar(`${nombre}-${w}`)
     }
     await cdp('Emulation.setEmulatedMedia', { features: [] })
@@ -265,6 +270,13 @@ try {
   await cargar('/')
   const pie = await evaluate(`({ chips: document.querySelectorAll('footer .pathway-chip').length, accesos: document.querySelectorAll('footer .pathway-acceso').length })`)
   ok(pie.chips > 0 && pie.accesos === 0, `pie: sus chips (${pie.chips}) y ningún acceso de la home`)
+
+  console.log('\n9. El acceso de tech es externo')
+  await ancho(1280)
+  await cargar('/')
+  const ext = await evaluate(`(() => { const a = document.querySelector('.pathway-card--tech .pathway-acceso'); return a ? { href: a.getAttribute('href'), target: a.getAttribute('target'), rel: a.getAttribute('rel'), aviso: a.querySelector('.sr-only')?.textContent.trim() ?? '' } : null })()`)
+  ok(!!ext && ext.target === '_blank' && ext.rel === 'noopener noreferrer', `tech: abre en pestaña nueva con rel="noopener noreferrer" (${JSON.stringify(ext)})`)
+  ok(!!ext && /pestaña nueva/.test(ext.aviso), 'tech: avisa al lector de pantalla de la pestaña nueva')
 } finally {
   await nav.cerrar()
   clearTimeout(tope)
