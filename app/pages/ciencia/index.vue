@@ -841,12 +841,21 @@ const level = ref<ReadingLevel>(route.query.nivel === 'pro' ? 'pro' : 'simple')
 // investigación» del home y el enlace corto /caso seguían abriendo el modo llano.
 // Verificado en producción el 11-sep-2026, con ese arreglo ya desplegado.
 let levelFromUrl = false
+// Con ?nivel=pro y un #ancla del bloque pro (el botón de clínica de la home lleva #snapshot-title; /caso,
+// #mapa-acceso), en una carga directa el navegador busca el ancla cuando el bloque aún está oculto
+// (v-show, la query llega tras hidratar) y se queda arriba. Se baja aquí, una sola vez, ya con el
+// nivel aplicado (plan del 20-oct-2026). En la navegación desde la home también pasa y es inocuo.
+let anclaHecha = false
 function applyUrlLevel(): boolean {
   const q = route.query.nivel
   if (q !== 'pro' && q !== 'simple') return false
   if (level.value !== q) {
     levelFromUrl = true
     level.value = q
+  }
+  if (q === 'pro' && route.hash && !anclaHecha) {
+    anclaHecha = true
+    irAlAncla(route.hash.slice(1))
   }
   return true
 }
@@ -882,8 +891,11 @@ const levelAnnounce = computed(() =>
 // pro, gestionando el foco (a11y: el cambio de contenido no debe ser silencioso).
 function goPro() {
   level.value = 'pro'
+  irAlAncla('snapshot-title')
+}
+function irAlAncla(id: string) {
   nextTick(() => {
-    const el = document.getElementById('snapshot-title')
+    const el = document.getElementById(id)
     if (el) {
       el.setAttribute('tabindex', '-1')
       el.focus({ preventScroll: true })

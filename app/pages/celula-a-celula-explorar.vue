@@ -115,7 +115,7 @@ const LEER = [
             <h2 id="xp-pide-t" class="cel-h3">{{ L('El fichero completo, a petición', 'The full file, on request') }}</h2>
             <p class="cel-card__p">
               {{ L('La matriz de todos los genes ya se puede leer aquí, gen a gen. Si necesitas el fichero completo (h5ad, sin identificadores) para investigación, escríbenos desde', 'The matrix of all genes can already be read here, gene by gene. If you need the full file (h5ad, no identifiers) for research, write to us through') }}
-              <NuxtLink :to="localePath({ name: 'contacto' })" class="link-underline">{{ L('Contacto', 'Contact') }}</NuxtLink>.
+              <NuxtLink :to="localePath({ name: 'contacto', query: { role: 'researcher' } })" class="link-underline">{{ L('Contacto', 'Contact') }}</NuxtLink>.
             </p>
           </section>
         </div>

@@ -49,9 +49,10 @@
         >
           <div class="pathway-card__head">
             <span class="pathway-card__num" aria-hidden="true">{{ String(i + 1).padStart(2, '0') }}</span>
-            <span class="pathway-card__time">{{ path.time }}</span>
+            <!-- sin tiempo en «research»: no se inventan minutos (diseno, 20-oct) -->
+            <span v-if="path.time" class="pathway-card__time">{{ path.time }}</span>
           </div>
-          <!-- Móvil (< 640 px): las tarjetas se pliegan a su título para que los seis
+          <!-- Móvil (< 640 px): las tarjetas se pliegan a su título para que los siete
                caminos quepan de un vistazo y lo que viene detrás suba (dictamen `diseno`
                tras el PR #269). El botón solo existe en móvil y su nombre es el propio
                título: cero texto nuevo. Donar no se pliega nunca. -->
@@ -79,7 +80,10 @@
             class="pathway-card__body"
           >
             <p class="pathway-card__desc">{{ path.desc }}</p>
-            <ol class="pathway-card__steps" :aria-label="path.stepsAria">
+            <!-- Los caminos profesionales llevan accesos directos a sus herramientas en vez de pasos de
+                 texto (Miriam, 20-oct: «/ciencia es muy largo… la gente se puede perder»). -->
+            <PathwayAccesos v-if="path.accesos" :accesos="path.accesos" :camino="path.id" />
+            <ol v-else class="pathway-card__steps" :aria-label="path.stepsAria">
               <li v-for="(step, i) in path.steps" :key="i">{{ step }}</li>
             </ol>
             <div class="pathway-card__cta">
@@ -143,6 +147,8 @@
 </template>
 
 <script setup lang="ts">
+import type { Acceso } from '~/utils/caminos'
+
 const props = withDefaults(
   defineProps<{ variant?: 'home' | 'colabora' }>(),
   { variant: 'home' }
@@ -151,6 +157,7 @@ const props = withDefaults(
 const { t, tm, rt } = useI18n()
 const localePath = useLocalePath()
 const { GOFUNDME_URL, trackSupport, trackScience, trackPathway, trackPathwayCurious } = useSupport()
+const { visible } = useHerramientas()
 
 // Resolvemos el COMPONENTE real NuxtLink (no la cadena 'NuxtLink'). Pasar el
 // string a <component :is> obliga a Vue a resolverlo por nombre en runtime, algo
@@ -199,11 +206,13 @@ const briefPoints = computed(() => arr('pathways.brief_points'))
 interface HomePath {
   id: string
   icon: string
-  time: string
+  time?: string
   title: string
   desc: string
-  steps: string[]
-  stepsAria: string
+  // Pasos de texto, o accesos directos (caminos profesionales). Uno u otro, nunca mezclados (diseno).
+  steps?: string[]
+  stepsAria?: string
+  accesos?: Acceso[]
   cta: string
   ctaIcon?: string
   caption?: string
@@ -261,16 +270,30 @@ const homePaths = computed<HomePath[]>(() => [
     time: t('pathways.time_6'),
     title: t('pathways.clinician_title'),
     desc: t('pathways.clinician_desc'),
-    steps: arr('pathways.clinician_steps'),
-    stepsAria: t('pathways.clinician_steps_aria'),
+    accesos: accesosDe('clinician', visible),
     cta: t('pathways.clinician_cta'),
     ctaIcon: 'ph:flask-fill',
     caption: t('pathways.clinician_caption'),
-    linkProps: { to: localePath({ name: 'ciencia' }) + '?nivel=pro' },
+    // #snapshot-title: aterriza en «De un vistazo», no en la cabecera de /ciencia (plan del 20-oct)
+    linkProps: { to: localePath({ name: 'ciencia' }) + '?nivel=pro#snapshot-title' },
     onClick: () => {
       trackScience('pathway_clinician')
       trackPathway('clinician')
     },
+  },
+  {
+    // Laboratorio o single-cell (Miriam, 20-oct: «los que mejor van a saber interpretar el single
+    // cell deben tener acceso»). Antes compartían tarjeta con clínica y acababan en /ciencia.
+    id: 'research',
+    icon: 'ph:circles-three-fill',
+    title: t('pathways.research_title'),
+    desc: t('pathways.research_desc'),
+    accesos: accesosDe('research', visible),
+    cta: t('pathways.research_cta'),
+    ctaIcon: 'ph:envelope-simple-fill',
+    caption: t('pathways.research_caption'),
+    linkProps: { to: localePath({ name: 'contacto', query: { role: 'researcher' } }) },
+    onClick: () => trackPathway('research'),
   },
   {
     id: 'press',

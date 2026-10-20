@@ -86,12 +86,26 @@ export function useSupport() {
   }
 
   // Entradas a /celula-a-celula y a su explorador (diseno, 19-oct): hasta ahora no se medía de dónde
-  // llegaba nadie. `origen`: herramientas · home_teaser · pie · divisor · tarjeta_proximos · ciencia_acceso.
+  // llegaba nadie. `origen`: herramientas · home_teaser · home_camino_<camino> · pie · divisor · tarjeta_proximos · ciencia_acceso.
   function trackCelula(origen: string) {
     trackUmami('VerCelula', { origen })
   }
   function trackExplorador(origen: string) {
     trackUmami('VerExplorador', { origen })
+  }
+  // /biopsia-osea no tenía evento: entra con los accesos directos de la home (20-oct).
+  function trackBiopsia(origen: string) {
+    trackUmami('VerBiopsia', { origen })
+  }
+  // Entrada a una herramienta por su clave de NAV, con el evento propio de cada una. La usan los accesos
+  // directos de «Elige tu camino» (origen home_camino_<camino>). El reservorio no tiene evento.
+  function trackHerramienta(key: string, origen: string) {
+    if (key === 'map') trackMapa(origen)
+    else if (key === 'lesions') trackLesiones(origen)
+    else if (key === 'data') trackDatos(origen)
+    else if (key === 'cell_by_cell') trackCelula(origen)
+    else if (key === 'cell_explorer') trackExplorador(origen)
+    else if (key === 'bone_biopsy') trackBiopsia(origen)
   }
 
   // Clic en «Lo último» (señal de recencia): desde el hero de la home o desde la barra global.
@@ -159,6 +173,8 @@ export function useSupport() {
     trackDatos,
     trackCelula,
     trackExplorador,
+    trackBiopsia,
+    trackHerramienta,
     trackLatest,
     trackNav,
     trackVideo,
