@@ -20,14 +20,18 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
 import { ruedaConModificador } from '~/composables/useAlVer'
 import { BANDAS, ETIQUETA_BANDA, banda, encuadre, pdbDeRespuesta, trazaCA, urlApiAlphaFold, urlEntradaAlphaFold, urlUniprot, type Banda } from '~/utils/alphafold'
 
-/** gen del explorador, su UniProt (UNIPROT de utils/alphafold) y el nombre de la proteína con el que se la conoce */
-const props = defineProps<{ gen: string; uniprot: string; proteina: string; lang: 'es' | 'en' }>()
+/** gen del explorador, su UniProt (UNIPROT de utils/alphafold), el nombre de la proteína con el que se la conoce y el tema
+ * del explorador (data-tema es de su bloque, no de :root: los colores del tubo lo necesitan; diseno, 20-oct) */
+const props = defineProps<{ gen: string; uniprot: string; proteina: string; lang: 'es' | 'en'; tema: 'claro' | 'oscuro' }>()
+/** al montarse, el lienzo: el explorador lo pone a la vista (al desplegar en escritorio se abría fuera; diseno, 20-oct) */
+const emit = defineEmits<{ montado: [HTMLElement] }>()
 const L = (es: string, en: string) => (props.lang === 'en' ? en : es)
 
 /** el visor que gira ahora (uno solo en la página): compartido entre instancias */
 const girandoAhora = useState<string | null>('estructura-girando', () => null)
 
 const caja = ref<HTMLElement | null>(null)
+const lienzo = ref<HTMLElement | null>(null)
 const host = ref<HTMLElement | null>(null)
 const estado = ref<'espera' | 'cargando' | 'listo' | 'error'>('espera')
 const girando = ref(false)
@@ -56,31 +60,67 @@ let sucio = true
 /** Radio del tubo por banda: más fino cuanto menos confianza. */
 const RADIO: Record<Banda, number> = { muy_alta: 0.75, alta: 0.6, baja: 0.42, muy_baja: 0.28 }
 
-/** Colores por banda, de los tokens (ningún hex nuevo): la rampa --viz-sev del violeta y un gris de tinta. */
-function colores(): Record<Banda, THREE.Color> {
+/** Colores por banda, de los tokens (ningún hex nuevo): la rampa --viz-sev del violeta y un gris de tinta. En oscuro la
+ * rampa parte del violeta claro y baja hacia la tinta: con la de claro, lo menos fiable brillaba y lo más fiable se hundía
+ * (muy alta 2,03:1 sobre el lienzo; diseno, 20-oct). Alta y baja quedan bajo 3:1 en los dos temas, como se aceptó el
+ * 20-oct: el grosor del tubo y la leyenda en texto con su % llevan la señal. */
+function colores(tema: 'claro' | 'oscuro'): Record<Banda, THREE.Color> {
   const css = getComputedStyle(document.documentElement)
   const rgb = (v: string) => css.getPropertyValue(v).trim().split(/\s+/).map(Number) as [number, number, number]
   const tinta = rgb('--color-text-rgb'), violeta = rgb('--color-miriam-rgb'), crema = rgb('--color-bg-rgb')
   const mezcla = (a: number[], b: number[], p: number) => a.map((x, i) => Math.round(x * p + b[i]! * (1 - p)))
   const c = (x: number[]) => new THREE.Color().setRGB(x[0]! / 255, x[1]! / 255, x[2]! / 255, THREE.SRGBColorSpace)
+  if (tema === 'oscuro') {
+    const claro = rgb('--color-miriam-claro-rgb')
+    return { muy_alta: c(claro), alta: c(mezcla(claro, tinta, 0.8)), baja: c(mezcla(claro, tinta, 0.6)), muy_baja: c(mezcla(crema, tinta, 0.5)) }
+  }
   // rampa (diseno, 20-oct): violeta firma → --viz-sev-3 (mezcla 0,6) → --viz-sev-2 (mezcla 0,38); la muy baja, gris de tinta neutro
   return { muy_alta: c(violeta), alta: c(mezcla(violeta, crema, 0.6)), baja: c(mezcla(violeta, crema, 0.38)), muy_baja: c(mezcla(tinta, crema, 0.55)) }
 }
+/** banda de cada anillo del tubo: para repintar al cambiar de tema sin rehacer la geometría */
+let bandaAnillo: Banda[] = []
+let radialTubo = 0
+function pinta() {
+  if (!malla) return
+  const cs = colores(props.tema)
+  muestras.value = Object.fromEntries(BANDAS.map((b) => [b, `#${cs[b].getHexString(THREE.SRGBColorSpace)}`])) as Record<Banda, string>
+  const geo = malla.geometry
+  const n = geo.attributes.position!.count
+  const col = (geo.getAttribute('color') as THREE.BufferAttribute | undefined)?.array as Float32Array | undefined ?? new Float32Array(n * 3)
+  for (let j = 0; j < bandaAnillo.length; j++) {
+    const c = cs[bandaAnillo[j]!]
+    for (let k = 0; k <= radialTubo; k++) { const i = j * (radialTubo + 1) + k; col[3 * i] = c.r; col[3 * i + 1] = c.g; col[3 * i + 2] = c.b }
+  }
+  if (!geo.getAttribute('color')) geo.setAttribute('color', new THREE.BufferAttribute(col, 3))
+  else geo.getAttribute('color')!.needsUpdate = true
+  sucio = true
+}
+watch(() => props.tema, pinta)
 /** Muestras de la leyenda: los mismos colores, en CSS. */
 const muestras = ref<Record<Banda, string>>({ muy_alta: '', alta: '', baja: '', muy_baja: '' })
 
+/** el modelo ya leído, por UniProt: reabrir el bloque no vuelve a pedirlo (diseno, 20-oct: 40 peticiones en 19 aperturas) */
+const CACHE = ((globalThis as { __afCache?: Map<string, { traza: ReturnType<typeof trazaCA>; version: number | null }> }).__afCache ??= new Map())
+let corta: AbortController | null = null
 async function carga() {
   estado.value = 'cargando'
   try {
-    const r = await fetch(urlApiAlphaFold(props.uniprot), { credentials: 'omit', referrerPolicy: 'no-referrer' })
-    if (!r.ok) throw new Error(`API ${r.status}`)
-    const pdb = pdbDeRespuesta(await r.json(), props.uniprot)
-    if (!pdb) throw new Error('respuesta sin modelo de ese UniProt')
-    const f = await fetch(pdb.url, { credentials: 'omit', referrerPolicy: 'no-referrer' })
-    if (!f.ok) throw new Error(`PDB ${f.status}`)
-    const traza = trazaCA(await f.text())
-    if (traza.n < 4) throw new Error('modelo vacío')
-    version.value = pdb.version
+    let m = CACHE.get(props.uniprot)
+    if (!m) {
+      corta = new AbortController()
+      const op = { credentials: 'omit', referrerPolicy: 'no-referrer', signal: corta.signal } as const
+      const r = await fetch(urlApiAlphaFold(props.uniprot), op)
+      if (!r.ok) throw new Error(`API ${r.status}`)
+      const pdb = pdbDeRespuesta(await r.json(), props.uniprot)
+      if (!pdb) throw new Error('respuesta sin modelo de ese UniProt')
+      const f = await fetch(pdb.url, op)
+      if (!f.ok) throw new Error(`PDB ${f.status}`)
+      m = { traza: trazaCA(await f.text()), version: pdb.version }
+      if (m.traza.n < 4) throw new Error('modelo vacío')
+      CACHE.set(props.uniprot, m)
+    }
+    const traza = m.traza
+    version.value = m.version
     nResiduos.value = traza.n
     const cuenta: Record<Banda, number> = { muy_alta: 0, alta: 0, baja: 0, muy_baja: 0 }
     for (const p of traza.plddt) cuenta[banda(p)]++
@@ -89,6 +129,7 @@ async function carga() {
     estado.value = 'listo'
   }
   catch (e) {
+    if (corta?.signal.aborted) return   // se plegó mientras cargaba: no es un error
     console.warn('[CelulaExplorarEstructura]', props.uniprot, e)
     estado.value = 'error'
   }
@@ -117,25 +158,23 @@ function monta(traza: ReturnType<typeof trazaCA>): boolean {
   const curva = new THREE.CatmullRomCurve3(puntos, false, 'centripetal')
   const tramos = Math.min(traza.n * 4, 6000), radial = 6
   const geo = new THREE.TubeGeometry(curva, tramos, 1, radial, false)   // radio 1: cada anillo se escala a su banda
-  const cs = colores()
-  muestras.value = Object.fromEntries(BANDAS.map((b) => [b, `#${cs[b].getHexString(THREE.SRGBColorSpace)}`])) as Record<Banda, string>
   const pos = geo.attributes.position!
-  const col = new Float32Array(pos.count * 3)
   const p = new THREE.Vector3(), v = new THREE.Vector3()
+  bandaAnillo = []
+  radialTubo = radial
   for (let j = 0; j <= tramos; j++) {
     const b = banda(traza.plddt[Math.min(traza.n - 1, Math.round((j / tramos) * (traza.n - 1)))]!)
-    const c = cs[b]
+    bandaAnillo.push(b)
     curva.getPointAt(j / tramos, p)
     for (let k = 0; k <= radial; k++) {
       const i = j * (radial + 1) + k
       v.fromBufferAttribute(pos, i).sub(p).multiplyScalar(RADIO[b]).add(p)
       pos.setXYZ(i, v.x, v.y, v.z)
-      col[3 * i] = c.r; col[3 * i + 1] = c.g; col[3 * i + 2] = c.b
     }
   }
   geo.computeVertexNormals()
-  geo.setAttribute('color', new THREE.BufferAttribute(col, 3))
   malla = new THREE.Mesh(geo, new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.55, metalness: 0.05 }))
+  pinta()   // los colores del tema y las muestras de la leyenda
   escena.add(malla)
 
   camara = new THREE.PerspectiveCamera(35, 1, 0.1, radio * 20)
@@ -220,7 +259,10 @@ function tecla(e: KeyboardEvent) {
   e.preventDefault()
 }
 
-onMounted(() => { reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches })
+onMounted(() => {
+  reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+  if (lienzo.value) emit('montado', lienzo.value)
+})
 // en el explorador el visor solo se monta cuando alguien despliega el bloque: carga ya, sin esperar a verlo en pantalla
 // (la espera por IntersectionObserver era de la página con tres visores; dentro del panel dejaba «Cargando…» sin pedir nada)
 watch(caja, (el) => { if (el && estado.value === 'espera') void carga() }, { immediate: true, flush: 'post' })
@@ -229,11 +271,18 @@ onBeforeUnmount(() => {
   if (girandoAhora.value === uid) girandoAhora.value = null
   ioVista?.disconnect(); ro?.disconnect(); sueltaRueda?.()
   controles?.dispose()
+  corta?.abort()
   if (malla) { malla.geometry.dispose(); (malla.material as THREE.Material).dispose() }
+  // soltar el contexto WebGL YA: dispose() no lo hace, y a la 16.ª apertura el navegador mataba el del mapa (diseno, 20-oct)
+  renderer?.forceContextLoss()
   renderer?.dispose()
   renderer?.domElement.remove()
 })
 
+/** lo que anuncia la región viva: hay un solo visor, así que «cargando» ya no es ruido (diseno, 20-oct) */
+const anuncio = computed(() => (estado.value === 'cargando' ? L(`Cargando la forma de ${props.proteina}…`, `Loading the ${props.proteina} shape…`)
+  : estado.value === 'listo' ? L(`Forma de ${props.proteina} cargada.`, `${props.proteina} shape loaded.`)
+    : estado.value === 'error' ? L(`No se ha podido cargar la forma de ${props.proteina}.`, `The ${props.proteina} shape could not be loaded.`) : ''))
 const pct = (k: number) => (nResiduos.value ? Math.round((100 * k) / nResiduos.value) : 0)
 const descripcion = computed(() => L(
   `Forma predicha de ${props.proteina} (${props.gen}, UniProt ${props.uniprot}) por AlphaFold, ${nResiduos.value} aminoácidos, coloreada por la confianza del modelo; el tubo es más fino donde la confianza es menor. Es una predicción, no una medición.`,
@@ -243,7 +292,7 @@ const descripcion = computed(() => L(
 
 <template>
   <figure ref="caja" class="de">
-    <div class="de__lienzo">
+    <div ref="lienzo" class="de__lienzo">
       <div
         ref="host"
         class="de__host"
@@ -260,28 +309,26 @@ const descripcion = computed(() => L(
         {{ L('No se ha podido cargar el modelo aquí. Puedes verlo en', 'The model could not be loaded here. You can see it on') }}
         <a :href="urlEntradaAlphaFold(uniprot)" class="link-underline" target="_blank" rel="noopener">AlphaFold DB</a>.
       </p>
-      <div v-if="estado === 'listo'" class="de__mandos">
-        <div class="de__pasos" role="group" :aria-label="L(`Mover la forma de ${proteina}`, `Move the ${proteina} shape`)">
-          <button type="button" class="de__paso" :aria-label="L('Girar a la izquierda', 'Rotate left')" @click="gira(-PASO, 0)"><span aria-hidden="true">↶</span></button>
-          <button type="button" class="de__paso" :aria-label="L('Girar a la derecha', 'Rotate right')" @click="gira(PASO, 0)"><span aria-hidden="true">↷</span></button>
-          <button type="button" class="de__paso" :aria-label="L('Acercar', 'Zoom in')" @click="acerca(0.9)"><span aria-hidden="true">+</span></button>
-          <button type="button" class="de__paso" :aria-label="L('Alejar', 'Zoom out')" @click="acerca(1.1)"><span aria-hidden="true">−</span></button>
-        </div>
-        <button type="button" class="de__girar" @click="alterna">
-          {{ girando ? L('Parar el giro', 'Stop rotation') : L('Dar una vuelta', 'Rotate once') }}
-        </button>
-      </div>
     </div>
-    <!-- región viva siempre presente: solo anuncia el error (tres «cargando» a la vez serían ruido) -->
-    <p class="sr-only" role="status">{{ estado === 'error' ? L(`No se ha podido cargar la forma de ${proteina}.`, `The ${proteina} shape could not be loaded.`) : '' }}</p>
+    <!-- los mandos, debajo del lienzo y en flujo: superpuestos tapaban casi un tercio del modelo a 320 px (diseno, 20-oct) -->
+    <div v-if="estado === 'listo'" class="de__mandos">
+      <div class="de__pasos" role="group" :aria-label="L(`Mover la forma de ${proteina}`, `Move the ${proteina} shape`)">
+        <button type="button" class="de__paso" :aria-label="L('Girar a la izquierda', 'Rotate left')" @click="gira(-PASO, 0)"><span aria-hidden="true">↶</span></button>
+        <button type="button" class="de__paso" :aria-label="L('Girar a la derecha', 'Rotate right')" @click="gira(PASO, 0)"><span aria-hidden="true">↷</span></button>
+        <button type="button" class="de__paso" :aria-label="L('Acercar', 'Zoom in')" @click="acerca(0.9)"><span aria-hidden="true">+</span></button>
+        <button type="button" class="de__paso" :aria-label="L('Alejar', 'Zoom out')" @click="acerca(1.1)"><span aria-hidden="true">−</span></button>
+      </div>
+      <button type="button" class="de__girar" @click="alterna">
+        {{ girando ? L('Parar el giro', 'Stop rotation') : L('Dar una vuelta', 'Rotate once') }}
+      </button>
+    </div>
+    <p class="sr-only" role="status">{{ anuncio }}</p>
+    <!-- orden (Adri y diseno, 20-oct): primero lo que hace falta para leer el modelo (aviso corto, leyenda y su clave),
+         después la explicación larga, el modelo y el crédito -->
     <figcaption class="de__pie">
       <p class="de__sello">{{ L('Predicción, no medición.', 'A prediction, not a measurement.') }}</p>
-      <!-- contexto (Adri y verificacion, 20-oct): el bloque va bajo las cifras de la biopsia; que nadie lea «la proteína de Miriam» -->
-      <p class="de__ctx">
-        {{ L('AlphaFold es un programa de inteligencia artificial que predice cómo se pliega una proteína a partir de su secuencia de aminoácidos. Aquí se usa la secuencia de referencia de la proteína humana (UniProt), no la de la biopsia de Miriam: el modelo no dice si esta proteína está en sus células; eso lo dice la inmunohistoquímica.',
-             'AlphaFold is an artificial intelligence program that predicts how a protein folds from its amino acid sequence. It uses the reference sequence of the human protein (UniProt), not one from Miriam’s biopsy: the model does not say whether this protein is in her cells; immunohistochemistry tells you that.') }}
-      </p>
-      <!-- la leyenda, pegada al visor (Adri, 20-oct): antes iba tras el crédito y las citas y en escritorio no se veía -->
+      <!-- que nadie lea «la proteína de Miriam»: el bloque va bajo las cifras de la biopsia (Adri y verificacion, 20-oct) -->
+      <p class="de__ctx">{{ L('Es la proteína humana de referencia (UniProt), no la de la biopsia de Miriam.', 'This is the human reference protein (UniProt), not the one from Miriam’s biopsy.') }}</p>
       <template v-if="estado === 'listo'">
         <p :id="`${uid}-desc`" class="sr-only">{{ descripcion }}</p>
         <p class="de__ley-t" aria-hidden="true">{{ L('Confianza del modelo en cada parte de la proteína (pLDDT)', 'Model confidence in each part of the protein (pLDDT)') }}</p>
@@ -297,6 +344,12 @@ const descripcion = computed(() => L(
           {{ L('El porcentaje es la parte de la proteína en cada nivel. El tubo es más fino donde el modelo confía menos. Las zonas de confianza muy baja (< 50) no se interpretan: AlphaFold DB las asocia a regiones sin una forma fija.',
                'The percentage is the share of the protein at each level. The tube is thinner where the model is less confident. Very low confidence regions (< 50) should not be interpreted: AlphaFold DB associates them with regions without a fixed shape.') }}
         </p>
+      </template>
+      <p class="de__clave">
+        {{ L('AlphaFold es un programa de inteligencia artificial que predice cómo se pliega una proteína a partir de su secuencia de aminoácidos. Aquí parte de la secuencia de referencia de la proteína humana, así que no dice si esta proteína está en las células de Miriam; eso lo dice la inmunohistoquímica.',
+             'AlphaFold is an artificial intelligence program that predicts how a protein folds from its amino acid sequence. Here it starts from the reference sequence of the human protein, so it does not say whether this protein is in Miriam’s cells; immunohistochemistry tells you that.') }}
+      </p>
+      <template v-if="estado === 'listo'">
         <p class="de__meta">{{ L('Modelo', 'Model') }} AF-{{ uniprot }}-F1{{ version ? ` v${version}` : '' }} · {{ nResiduos }} {{ L('aminoácidos', 'amino acids') }}</p>
         <p :id="`${uid}-uso`" class="de__meta">
           {{ L('Gírala con los botones, arrastrando con el ratón o, con el foco en el visor, con las flechas; acerca con + y −.', 'Rotate it with the buttons, by dragging with the mouse or, with focus on the viewer, with the arrow keys; zoom with + and −.') }}
@@ -324,20 +377,25 @@ const descripcion = computed(() => L(
 .de__host:active { cursor: grabbing; }
 .de__host:focus-visible { outline: 2px solid var(--anillo-foco); outline-offset: -4px; border-radius: var(--radius-btn); }
 .de__aviso { position: absolute; inset: 0; display: grid; place-items: center; padding: var(--sp-16); text-align: center; font: var(--tipo-body-sm); color: var(--texto-2); }
-.de__mandos { position: absolute; left: var(--sp-8); right: var(--sp-8); bottom: var(--sp-8); display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: var(--sp-8); pointer-events: none; }
-.de__mandos > * { pointer-events: auto; }
+.de__mandos { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: var(--sp-8); }
 .de__pasos { display: flex; gap: var(--sp-4); }
 .de__paso, .de__girar {
   min-height: 44px; border-radius: 9999px; border: 1px solid var(--trazo-interactivo); background: var(--fondo); color: var(--texto-1);
   font: 600 var(--texto-sm)/1 var(--font-body); cursor: pointer;
+  /* táctil (vara movimiento-movil; diseno, 20-oct): sin destello ni retardo de doble toque, y respuesta al pulsar */
+  -webkit-tap-highlight-color: transparent; touch-action: manipulation;
+  transition: transform var(--dur-micro) var(--curva-entrada);
 }
+.de__paso:active, .de__girar:active { transform: scale(0.97); }
+@media (prefers-reduced-motion: reduce) { .de__paso, .de__girar { transition: none; } .de__paso:active, .de__girar:active { transform: none; } }
 .de__paso { min-width: 44px; font-size: 1.1rem; }
 .de__girar { padding: 0 var(--sp-16); }
-.de__paso:hover, .de__girar:hover { background: var(--superficie); }
+@media (hover: hover) and (pointer: fine) { .de__paso:hover, .de__girar:hover { background: var(--superficie); } }
 .de__paso:focus-visible, .de__girar:focus-visible { outline: 2px solid var(--anillo-foco); outline-offset: 2px; }
 .de__pie { display: grid; gap: var(--sp-8); }
 .de__sello { margin: 0; font: var(--tipo-eyebrow); color: var(--identidad); }
 .de__fuente { margin: 0; font: var(--tipo-body-sm); color: var(--texto-2); }
+.de__fuente a { white-space: nowrap; }   /* «CC BY 4.0» y «UniProt P04626» se partían (diseno, 20-oct) */
 .de__ctx { margin: 0; font: var(--tipo-body-sm); color: var(--texto-1); }
 .de__clave { margin: 0; font: var(--tipo-body-sm); color: var(--texto-2); }
 .de__ley-t { margin: 0; font: 600 var(--texto-sm)/1.3 var(--font-body); color: var(--texto-1); }

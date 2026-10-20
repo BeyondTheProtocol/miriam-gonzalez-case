@@ -2,14 +2,16 @@
 //
 // Por qué existe (20-oct-2026): la estructura de AlphaFold DB es información de cada proteína del explorador, no una
 // página aparte (lo acordado con Miriam; /tres-dianas se retiró con un 301). Este test nació con /tres-dianas y se
-// movió, no se tiró. Cinco frenos:
+// movió, no se tiró. Seis frenos:
 //   1. el mapa gen → UniProt cubre EXACTAMENTE las diez de «Genes de interés», con UniProt de forma válida y los
 //      cotejados el 20-oct contra UniProt REST;
 //   2. la URL del modelo solo se acepta si es de AlphaFold DB, por https y de ESE UniProt (la API devuelve isoformas);
 //   3. el lector del PDB y las bandas de pLDDT hacen lo que dicen;
 //   4. el bloque va dentro del explorador, plegado, y el visor solo se monta al desplegarlo; la página vieja ya no existe
 //      y su ruta redirige con 301;
-//   5. el muro del copy: crédito, citas y «predicción, no medición» visibles; sin «vacuna», «científica», «Olune» ni
+//   5. el visor suelta su contexto WebGL, cancela y guarda la carga, pinta según el tema y deja los mandos fuera del
+//      modelo (diseno, 20-oct; el comportamiento en navegador lo prueba test:alphafold-visor);
+//   6. el muro del copy: crédito, citas y «predicción, no medición» visibles; sin «vacuna», «científica», «Olune» ni
 //      «tumor» en el texto visible.
 // Uso: pnpm test:alphafold   (no necesita build)
 import { existsSync, readFileSync } from 'node:fs'
@@ -61,30 +63,42 @@ ok('bandas de AlphaFold DB (> 90, > 70, > 50)', banda(90.1) === 'muy_alta' && ba
 ok('cuatro bandas en orden', BANDAS.join() === 'muy_alta,alta,baja,muy_baja')
 
 /* ── 4 · dentro del explorador, plegado; la página vieja, fuera ── */
-const explorador = lee('app', 'components', 'celula', 'explorar', 'CelulaExplorarExplorador.vue')
-const visor = lee('app', 'components', 'celula', 'explorar', 'CelulaExplorarEstructura.client.vue')
+const dir = ['app', 'components', 'celula', 'explorar'] as const
+const explorador = lee(...dir, 'CelulaExplorarExplorador.vue')
+const forma = lee(...dir, 'CelulaExplorarForma.vue')
+const visor = lee(...dir, 'CelulaExplorarEstructura.client.vue')
 const util = lee('app', 'utils', 'alphafold.ts')
 const cfg = lee('nuxt.config.ts')
-const bloque = explorador.match(/<details v-if="uniprotDetalle"[\s\S]*?<\/details>/)?.[0] ?? ''
-ok('el bloque está en el detalle del gen, plegado (<details> sin «open»)', !!bloque && !/\sopen[\s>=]/.test(bloque.split('>')[0]!))
-ok('va después de los violines (primero las cifras)', explorador.indexOf('<CelulaExplorarViolines') < explorador.indexOf('<details v-if="uniprotDetalle"'))
-ok('el visor solo se monta al desplegar (Lazy + v-if)', /<LazyCelulaExplorarEstructura v-if="formaAbierta"/.test(bloque))
-ok('se pliega al cambiar de gen', /watch\(gen, \(\) => \{ formaAbierta\.value = false \}\)/.test(explorador))
+const tplForma = forma.match(/<template>[\s\S]*<\/template>/)?.[0] ?? ''
+ok('el bloque está en el detalle del gen (CelulaExplorarForma)', /<CelulaExplorarForma v-if="uniprotDetalle"/.test(explorador))
+ok('va después de los violines (primero las cifras)', explorador.indexOf('<CelulaExplorarViolines') < explorador.indexOf('<CelulaExplorarForma'))
+ok('plegado por defecto (<details> sin «open»)', /<details class="fo"/.test(tplForma) && !/<details[^>]*\sopen[\s>=:]/.test(tplForma))
+ok('el visor solo se monta al desplegar (Lazy + v-if)', /<LazyCelulaExplorarEstructura v-if="abierta"/.test(tplForma))
+// diseno, 20-oct: con el estado en el explorador, «Volver» y reabrir montaba el visor plegado; el estado vive en el bloque
+ok('el estado «abierto» vive en el bloque, no en el explorador', /const abierta = ref\(false\)/.test(forma) && !/formaAbierta/.test(explorador))
+ok('al montarse, el visor se pone a la vista', /@montado="formaALaVista"/.test(explorador) && /emit\('montado', lienzo\.value\)/.test(visor))
 ok('ya no existe la página /tres-dianas ni su mapa propio', !existsSync(join(raiz, 'app', 'pages', 'tres-dianas.vue')) && !existsSync(join(raiz, 'app', 'components', 'diana')))
 for (const ruta of ['/tres-dianas', '/en/three-targets', '/en/tres-dianas'])
   ok(`${ruta} redirige con 301 al explorador`, new RegExp(`'${ruta}': \\{ redirect: \\{ to: '/(en/cell-by-cell/explore|celula-a-celula/explorar)', statusCode: 301 \\} \\}`).test(cfg))
 ok('sin ruta i18n de la página vieja', !/'tres-dianas':\s*\{\s*en:/.test(cfg))
 
-/* ── 5 · el muro del copy ── */
+/* ── 5 · el visor: recursos, tema y forma (diseno, 20-oct) ── */
+ok('suelta el contexto WebGL al desmontarse (forceContextLoss antes de dispose)', /forceContextLoss\(\)\s*\n\s*renderer\?\.dispose\(\)/.test(visor))
+ok('cancela la carga al desmontarse y guarda el modelo por UniProt', /corta\?\.abort\(\)/.test(visor) && /CACHE\.set\(props\.uniprot/.test(visor))
+ok('colores por tema del explorador y repinta al cambiarlo', /tema: 'claro' \| 'oscuro'/.test(visor) && /watch\(\(\) => props\.tema, pinta\)/.test(visor) && /:tema="tema"/.test(explorador) && /:tema="tema"/.test(tplForma))
+ok('los mandos van debajo del lienzo, en flujo', !/\.de__mandos \{[^}]*position:\s*absolute/.test(visor) && visor.indexOf('class="de__mandos"') > visor.indexOf('class="de__aviso"'))
+ok('hover solo con puntero fino (sin hover pegado en táctil)', /@media \(hover: hover\) and \(pointer: fine\) \{ \.de__paso:hover/.test(visor))
+
+/* ── 6 · el muro del copy ── */
 ok('crédito y licencia visibles', visor.includes('(Google DeepMind · EMBL-EBI)') && visor.includes('creativecommons.org/licenses/by/4.0'))
 ok('cita de AlphaFold (Jumper 2021) y de AlphaFold DB (Bertoni 2025)', visor.includes('10.1038/s41586-021-03819-2') && visor.includes('10.1093/nar/gkaf1226'))
 ok('enlace a UniProt de la proteína', visor.includes('urlUniprot(uniprot)'))
 // Adri y verificacion (20-oct): el bloque va bajo las cifras de la biopsia; que nadie lea «la proteína de Miriam»
-ok('dice que es la secuencia de referencia y no la de la biopsia (ES y EN)', visor.includes('secuencia de referencia de la proteína humana') && visor.includes('reference sequence of the human protein'))
+ok('dice, arriba, que es la proteína de referencia y no la de la biopsia (ES y EN)', visor.includes('Es la proteína humana de referencia (UniProt), no la de la biopsia de Miriam.') && visor.includes('This is the human reference protein (UniProt)'))
 ok('la regla de lectura de < 50 de la FAQ de AlphaFold DB (ES y EN)', visor.includes('(< 50) no se interpretan') && visor.includes('(< 50) should not be interpreted'))
 ok('la leyenda va antes del crédito y las referencias', visor.indexOf('class="de__leyenda"') < visor.indexOf('class="de__fuente"') && visor.indexOf('class="de__fuente"') < visor.indexOf("L('Referencias:'"))
 ok('cada estructura dice «predicción, no medición» (ES y EN)', visor.includes('Predicción, no medición.') && visor.includes('A prediction, not a measurement.'))
-const visible = (bloque + visor + util).replace(/\/\*[\s\S]*?\*\//g, '').replace(/^\s*\/\/.*$/gm, '').replace(/<!--[\s\S]*?-->/g, '')
+const visible = (tplForma + visor + util).replace(/\/\*[\s\S]*?\*\//g, '').replace(/^\s*\/\/.*$/gm, '').replace(/<!--[\s\S]*?-->/g, '')
 for (const p of [/vacuna/i, /vaccine/i, /cient[ií]fica/i, /Olune/i]) ok(`sin ${p} en el texto visible`, !p.test(visible))
 ok('no dice «tumor» ni «maligno»', !/tumor|malign|c[aá]ncer/i.test(visible))
 ok('nada sobre fármacos ni dianas terapéuticas', !/f[aá]rmaco|drug|druggab|ep[ií]topo|epitope|tratamiento|treatment/i.test(visible))

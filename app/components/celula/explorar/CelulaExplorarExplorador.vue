@@ -590,11 +590,10 @@ const lecturaDetalle = computed(() => {
 /** su motivo (comité médico, 18-oct): entre paréntesis tras la lectura; solo de genes de la revisión */
 const motivoDetalle = computed(() => (d.value?.genes.includes(gen.value) ? motivoDe(d.value, gen.value) : null))
 /** AlphaFold como información de la proteína del gen abierto, no como página aparte (Miriam, 20-oct-2026). Solo las diez
- * de «Genes de interés» (UNIPROT de utils/alphafold). Va plegada debajo de las cifras; el visor, y con él three.js y el
- * modelo, se monta solo al desplegarla, y se vuelve a plegar al cambiar de gen. */
+ * de «Genes de interés» (UNIPROT de utils/alphafold). Va plegada debajo de las cifras (CelulaExplorarForma, con su propio
+ * estado: nace plegada cada vez que se monta, por cualquier camino). */
 const uniprotDetalle = computed(() => (listo.value ? uniprotDe(gen.value) : null))
-const formaAbierta = ref(false)
-watch(gen, () => { formaAbierta.value = false })
+const formaALaVista = (el: HTMLElement) => { void nextTick(() => aLaVista(el)) }
 /** La otra biopsia en el detalle del gen (19-oct): comparar hígado y hueso sin memorizar cifras. La cifra del grupo de
  * interés de la otra biopsia, con su suelo, su referencia y su lectura: las mismas funciones y el mismo fichero que su
  * lista de llegada (CelulaExplorarInteres), nada escrito a mano. Solo genes de la revisión que están en los dos ficheros
@@ -876,11 +875,9 @@ function sinTapar(ev: FocusEvent) {
               <span v-if="otra.l === 'hueso'" class="exp__otral">{{ L('Ese grupo se eligió en parte por número de copias inferido: su cifra no es del todo independiente de esa elección. En el hueso, el suelo incluye además el ADN genómico del tejido.', 'That group was chosen partly by inferred copy number: its figure is not fully independent of that choice. In the bone, the floor also includes the tissue’s genomic DNA.') }}</span>
             </p>
             <CelulaExplorarViolines :filas="filas" :gen="gen" :lang="lang" :lesion="lesion" :adn="d.adn" :papel="d.seleccion[gen]" :loo="d.loo[gen]" :referencia="d.referencia[gen]" />
-            <!-- la forma de la proteína (AlphaFold), debajo de las cifras y plegada: el modelo solo se pide al abrirla -->
-            <details v-if="uniprotDetalle" :key="`forma-${gen}`" class="exp__porque exp__forma" @toggle="formaAbierta = ($event.target as HTMLDetailsElement).open">
-              <summary>{{ L(`Forma 3D predicha de ${PROT(gen)} (AlphaFold)`, `Predicted 3D shape of ${PROT(gen)} (AlphaFold)`) }}</summary>
-              <LazyCelulaExplorarEstructura v-if="formaAbierta" :gen="gen" :uniprot="uniprotDetalle" :proteina="PROT(gen)" :lang="lang" />
-            </details>
+            <!-- la forma de la proteína (AlphaFold), debajo de las cifras y plegada: el modelo solo se pide al abrirla; al
+                 montarse el visor, se pone a la vista (en escritorio se abría fuera del panel; diseno, 20-oct) -->
+            <CelulaExplorarForma v-if="uniprotDetalle" :key="`forma-${gen}`" :gen="gen" :uniprot="uniprotDetalle" :proteina="PROT(gen)" :lang="lang" :tema="tema" @montado="formaALaVista" />
             </template>
           </div>
           <div v-show="!(detalle && activo) && panel === 'interes'" class="exp__pcuerpo">
@@ -1001,8 +998,6 @@ function sinTapar(ev: FocusEvent) {
 #exp-violines, #exp-panel, #exp-genes, .exp__mapacol { scroll-margin-top: calc(var(--exp-top, 8px) + var(--exp-banner, 0px) + var(--sp-16)); }   /* que el salto no lo tape la cabecera ni el aviso fijo */
 .exp__avisos { margin: var(--sp-12) 0 0; font: var(--tipo-body-sm); font-size: var(--texto-xs); color: var(--texto-2); max-width: none; }
 .exp__porque { margin-top: var(--sp-4); }
-.exp__forma { margin-top: var(--sp-16); padding-top: var(--sp-8); border-top: 1px solid var(--trazo-medio); }
-.exp__forma[open] > summary { margin-bottom: var(--sp-12); }
 .exp__porque summary, .exp__tecnico summary { cursor: pointer; list-style-position: inside; }
 .exp__porque summary { min-height: 44px; display: flex; align-items: center; font: 600 var(--texto-sm)/1.3 var(--font-body); color: var(--identidad); }
 /* con display flex/grid el triángulo nativo desaparece: marca explícita para que se lea como control (voz y diseño) */
