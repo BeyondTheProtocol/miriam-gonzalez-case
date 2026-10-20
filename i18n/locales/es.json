@@ -96,19 +96,19 @@
     "press_desc": "Tienes audiencia o cubres salud. Necesitas hechos verificables.",
     "press_steps": [
       "Sala de prensa con cobertura real",
-      "Datos del caso listos para citar",
       "Contacto directo para entrevistas"
     ],
+    "press_acceso": "Datos del caso listos para citar",
     "press_steps_aria": "Pasos para periodistas",
     "press_cta": "Ir a la sala de prensa",
     "press_caption": "Kit verificable. Sin spin.",
     "tech_title": "Tech, datos o IA",
     "tech_desc": "Quieres aportar código, pipelines o análisis al caso abierto.",
     "tech_steps": [
-      "Repo público y documentación",
       "Enlaces a Beyond the Protocol",
       "Contacto con perfil tech preseleccionado"
     ],
+    "tech_acceso": "Repo público y documentación",
     "tech_steps_aria": "Pasos para perfiles técnicos",
     "tech_cta": "Escribir al equipo tech",
     "tech_caption": "Código abierto. Datos no sensibles públicos.",

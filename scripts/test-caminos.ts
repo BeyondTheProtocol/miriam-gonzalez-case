@@ -12,6 +12,8 @@
 // 5. Léxico prohibido en las tarjetas profesionales (comité médico, 20-oct), ES y EN.
 // 6. La rejilla ≥ 1024 px: cada área es un rectángulo y sus nombres son los ids de las tarjetas.
 // 7. Destinos: el botón clínico aterriza en «De un vistazo»; research y el h5ad, con rol de investigador.
+// 8. Prensa y tech (PR 2): el paso que pasa a acceso conserva su texto publicado, sale de la lista de
+//    pasos (no se repite) y la lista se queda con sus pasos de acción.
 //
 // Uso:  pnpm test:caminos
 import { readFileSync } from 'node:fs'
@@ -30,7 +32,7 @@ const explorador = readFileSync('app/pages/celula-a-celula-explorar.vue', 'utf-8
 
 const clavesHerr = new Set(HERRAMIENTAS.map((h) => h.key))
 const roles = (contacto.match(/const VALID_ROLES = \[([^\]]*)\]/)?.[1] ?? '').match(/'([a-z]+)'/g)?.map((s) => s.slice(1, -1)) ?? []
-const etiqueta = (a: Acceso) => (a.tipo === 'herramienta' ? `nav.${a.enlace.key}` : a.etiqueta)
+const etiqueta = (a: Acceso) => (a.tipo === 'herramienta' ? a.etiqueta ?? `nav.${a.enlace.key}` : a.etiqueta)
 const get = (o: Record<string, unknown>, ruta: string) => ruta.split('.').reduce<unknown>((x, k) => (x as Record<string, unknown> | undefined)?.[k], o)
 const todas = (_e: EnlaceNav) => true
 const sinExplorador = (e: EnlaceNav) => e.key !== 'cell_explorer'
@@ -125,6 +127,22 @@ console.log('7. Destinos')
 ok(/linkProps: \{ to: localePath\(\{ name: 'ciencia' \}\) \+ '\?nivel=pro#snapshot-title' \}/.test(caminosVue), 'el botón clínico va a /ciencia?nivel=pro#snapshot-title («De un vistazo»)')
 ok(/id: 'research'[\s\S]*?linkProps: \{ to: localePath\(\{ name: 'contacto', query: \{ role: 'researcher' \} \}\) \}/.test(caminosVue), 'el botón de research va a /contacto con rol de investigador')
 ok(/aria-labelledby="xp-pide-t"[\s\S]*?localePath\(\{ name: 'contacto', query: \{ role: 'researcher' \} \}\)/.test(explorador), 'el h5ad del explorador va a /contacto con rol de investigador')
+
+console.log('8. Prensa y tech: el paso reubicado no cambia de texto')
+// Textos publicados antes del PR 2 (main, 20-oct-2026): pasan de la lista de pasos a su acceso, igual.
+const REUBICADOS = {
+  press_acceso: { es: 'Datos del caso listos para citar', en: 'Case data ready to cite', lista: 'press_steps' },
+  tech_acceso: { es: 'Repo público y documentación', en: 'Public repo and documentation', lista: 'tech_steps' },
+} as const
+for (const [clave, r] of Object.entries(REUBICADOS)) {
+  for (const [loc, d] of [['es', pes], ['en', pen]] as const) {
+    ok(d[clave] === r[loc], `${loc}: ${clave} es el texto publicado («${r[loc]}»)`)
+    const lista = d[r.lista] as string[]
+    ok(Array.isArray(lista) && lista.length === 2 && !lista.includes(r[loc]), `${loc}: ${r.lista} se queda con 2 pasos y sin repetir el acceso`)
+  }
+}
+ok(ACCESOS.tech.length === 1 && ACCESOS.tech[0]?.tipo === 'externo', 'tech: un acceso, externo (el repo)')
+ok(ACCESOS.press.length === 1 && ACCESOS.press[0]?.tipo === 'herramienta' && ACCESOS.press[0].enlace.key === 'data', 'prensa: un acceso, a /datos')
 
 console.log(fallos ? `\n❌ ${fallos} fallo(s)` : '\n✅ caminos de la home en orden')
 process.exit(fallos ? 1 : 0)

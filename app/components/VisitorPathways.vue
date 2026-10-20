@@ -80,12 +80,13 @@
             class="pathway-card__body"
           >
             <p class="pathway-card__desc">{{ path.desc }}</p>
-            <!-- Los caminos profesionales llevan accesos directos a sus herramientas en vez de pasos de
-                 texto (Miriam, 20-oct: «/ciencia es muy largo… la gente se puede perder»). -->
-            <PathwayAccesos v-if="path.accesos" :accesos="path.accesos" :camino="path.id" />
-            <ol v-else class="pathway-card__steps" :aria-label="path.stepsAria">
+            <!-- Accesos directos a herramientas (Miriam, 20-oct: «/ciencia es muy largo… la gente se puede
+                 perder»). Clínica y single-cell: solo accesos. Prensa y tech: sus pasos de acción en texto
+                 y, aparte y debajo, el paso que nombra un destino como acceso (diseno: una lista, un tipo). -->
+            <ol v-if="path.steps?.length" class="pathway-card__steps" :aria-label="path.stepsAria">
               <li v-for="(step, i) in path.steps" :key="i">{{ step }}</li>
             </ol>
+            <PathwayAccesos v-if="path.accesos" :accesos="path.accesos" :camino="path.id" />
             <div class="pathway-card__cta">
               <component
                 :is="path.external ? 'a' : NuxtLink"
@@ -302,6 +303,7 @@ const homePaths = computed<HomePath[]>(() => [
     title: t('pathways.press_title'),
     desc: t('pathways.press_desc'),
     steps: arr('pathways.press_steps'),
+    accesos: accesosDe('press', visible),
     stepsAria: t('pathways.press_steps_aria'),
     cta: t('pathways.press_cta'),
     ctaIcon: 'ph:megaphone-simple-fill',
@@ -316,6 +318,7 @@ const homePaths = computed<HomePath[]>(() => [
     title: t('pathways.tech_title'),
     desc: t('pathways.tech_desc'),
     steps: arr('pathways.tech_steps'),
+    accesos: accesosDe('tech', visible),
     stepsAria: t('pathways.tech_steps_aria'),
     cta: t('pathways.tech_cta'),
     ctaIcon: 'ph:envelope-simple-fill',
