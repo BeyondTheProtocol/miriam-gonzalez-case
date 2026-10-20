@@ -44,8 +44,8 @@
         <!-- Language switch — toggle segmentado discreto: muestra ambos idiomas y
              marca el activo con un tinte suave (no una píldora rellena), para no
              competir con el CTA coral. Oculto en móviles pequeños (<sm): allí vive
-             dentro del menú desplegable. setLocale() escribe el cookie
-             i18n_redirected → la elección persiste y no rebota con la detección. -->
+             dentro del menú desplegable. setLocale() navega a la URL del
+             otro idioma; no hay cookie ni detección del navegador. -->
         <div
           role="group"
           :aria-label="$t('nav.language')"

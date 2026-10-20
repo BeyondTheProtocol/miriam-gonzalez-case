@@ -161,12 +161,10 @@ export default defineNuxtConfig({
     defaultLocale: 'es',
     strategy: 'prefix_except_default',
     langDir: 'locales/',
-    detectBrowserLanguage: {
-      useCookie: true ,
-      cookieKey: 'i18n_redirected',
-      redirectOn: 'root',
-      fallbackLocale: 'es',
-    },
+    // Sin detección por idioma del navegador: Google desaconseja redirigir entre
+    // versiones de idioma, y así el sitio no instala ninguna cookie (ni banner).
+    // El idioma lo marca la URL (/ o /en) y el usuario cambia con el selector ES/EN.
+    detectBrowserLanguage: false,
     customRoutes: 'config',
     pages: {
       'biopsia-osea': { en: '/bone-biopsy' },
