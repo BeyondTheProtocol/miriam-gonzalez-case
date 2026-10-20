@@ -119,6 +119,70 @@ export function reglaRedonda(umPorPx: number, idioma: Idioma = 'es', min = 64, m
   return { um, px: um / umPorPx, texto }
 }
 
+// ── Visor con galería (rediseño del 20-oct-2026: «lo de hacer scroll no mola; un visor e ir
+// cambiando, o las slides como una galería»). Lo que se ve es UNA laminilla (o, al comparar, esa
+// tinción en todas sus muestras), y la galería lista las 32 para ir cambiando.
+
+export type Agrupacion = 'muestra' | 'tincion'
+export interface GrupoGaleria { id: string; laminillas: Laminilla[] }
+/** Lo que enseña el visor: la laminilla `laminilla`, sola o comparada, con o sin su HE al lado. */
+export interface Vista { laminilla: string; comparar: boolean; he: boolean }
+
+/**
+ * Grupos de la galería. Por muestra: el orden del manifest y, dentro, el de las filas (HE primero).
+ * Por tinción: el orden de las filas y, dentro, el de las muestras (quedan juntas, p. ej., las RE).
+ */
+export function gruposGaleria(m: Manifest, por: Agrupacion): GrupoGaleria[] {
+  if (por === 'muestra') return m.muestras.map((x) => ({ id: x.id, laminillas: deMuestra(m, x.id) })).filter((g) => g.laminillas.length)
+  return filas(m).map((f) => ({ id: f.marcador.id, laminillas: m.muestras.flatMap((x) => f.celdas[x.id] ?? []) }))
+}
+
+/** Las laminillas en el orden de la galería (el que recorren anterior/siguiente). */
+export const ordenGaleria = (m: Manifest, por: Agrupacion) => gruposGaleria(m, por).flatMap((g) => g.laminillas)
+
+/** La primera laminilla: la HE de la primera muestra (o la primera que haya). */
+export const primeraLaminilla = (m: Manifest): Laminilla => heDe(m, m.muestras[0]!.id) ?? m.laminillas[0]!
+
+/**
+ * Query → vista. `?l=<id>&comparar=1&he=1`. Admite los enlaces de antes, que ya pueden estar
+ * compartidos: `?fila=re` (comparar esa tinción) y `?muestra=x&n=3` (la 3.ª laminilla de x).
+ * Sin nada válido, la primera.
+ */
+export function vistaDeQuery(m: Manifest, q: Record<string, unknown>): Vista {
+  const he = q.he === '1'
+  if (typeof q.l === 'string' && m.laminillas.some((l) => l.id === q.l)) return { laminilla: q.l, comparar: q.comparar === '1', he }
+  if (typeof q.fila === 'string') {
+    const f = filas(m).find((x) => x.marcador.id === q.fila)
+    const l = f && m.muestras.map((x) => f.celdas[x.id]?.[0]).find(Boolean)
+    if (l) return { laminilla: l.id, comparar: f!.n > 1, he }
+  }
+  if (typeof q.muestra === 'string' && m.muestras.some((x) => x.id === q.muestra)) {
+    const lista = deMuestra(m, q.muestra)
+    const i = Math.min(Math.max(0, (Number(q.n ?? 1) || 1) - 1), lista.length - 1)
+    if (lista[i]) return { laminilla: lista[i]!.id, comparar: false, he }
+  }
+  return { laminilla: primeraLaminilla(m).id, comparar: false, he }
+}
+
+/** Vista → query (la forma nueva; la vieja solo se lee). */
+export function queryDeVista(v: Vista): Record<string, string> {
+  return { l: v.laminilla, ...(v.comparar ? { comparar: '1' } : {}), ...(v.he ? { he: '1' } : {}) }
+}
+
+/** La misma tinción en cada muestra que la tiene, en el orden de las muestras; la de `l` es ella misma. */
+export function companeras(m: Manifest, l: Laminilla): Laminilla[] {
+  const f = filas(m).find((x) => x.marcador.id === l.marcador)
+  if (!f) return [l]
+  return m.muestras.filter((x) => f.celdas[x.id]).map((x) => (x.id === l.muestra ? l : f.celdas[x.id]![0]!))
+}
+
+/** Anterior/siguiente en el orden de la galería, con vuelta al principio. */
+export function vecinaEnGaleria(m: Manifest, id: string, d: number, por: Agrupacion): Laminilla {
+  const orden = ordenGaleria(m, por)
+  const i = Math.max(0, orden.findIndex((l) => l.id === id))
+  return orden[(i + d + orden.length) % orden.length]!
+}
+
 /** Fuente DZI en línea para OpenSeadragon: así no hace falta pedir el .dzi (ni CORS para él). */
 export function fuenteDzi(m: Manifest, l: Laminilla, base = m.teselas) {
   return {

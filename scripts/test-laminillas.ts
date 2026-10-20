@@ -6,7 +6,7 @@
 //
 // Uso:  pnpm test:laminillas
 import { existsSync, readFileSync } from 'node:fs'
-import { filas, grupoPaneo, heDe, deMuestra, reglaRedonda, type Manifest } from '../app/utils/laminillas'
+import { filas, grupoPaneo, heDe, deMuestra, reglaRedonda, gruposGaleria, ordenGaleria, primeraLaminilla, vistaDeQuery, queryDeVista, companeras, vecinaEnGaleria, type Manifest } from '../app/utils/laminillas'
 
 const M = JSON.parse(readFileSync('app/data/laminillas.json', 'utf-8')) as Manifest
 let fallos = 0
@@ -81,6 +81,32 @@ if (n === 3 && M.laminillas.length === 32) {
 }
 for (const m of M.muestras) ok(!!heDe(M, m.id), `${m.id}: tiene HE de referencia`)
 ok(M.muestras.every((m) => deMuestra(M, m.id).length === M.laminillas.filter((l) => l.muestra === m.id).length), 'el recorrido de cada columna pasa por todas sus laminillas')
+
+console.log('Galería y URL (visor con galería, 20-oct)')
+const igual = (a: unknown, b: unknown) => JSON.stringify(a) === JSON.stringify(b)
+for (const por of ['muestra', 'tincion'] as const) {
+  const o = ordenGaleria(M, por)
+  ok(o.length === M.laminillas.length && new Set(o.map((l) => l.id)).size === o.length, `galería «${por}»: las ${M.laminillas.length} laminillas, cada una una vez`)
+}
+ok(gruposGaleria(M, 'muestra').map((g) => g.id).join() === M.muestras.map((m) => m.id).join(), 'por muestra: un grupo por muestra, en su orden')
+ok(gruposGaleria(M, 'tincion').map((g) => g.id).join() === F.map((f) => f.marcador.id).join(), 'por tinción: un grupo por tinción, en el orden de la tabla')
+ok(gruposGaleria(M, 'muestra')[0]!.laminillas[0]!.marcador === 'he', 'cada muestra empieza por su HE')
+const V = (q: Record<string, unknown>) => vistaDeQuery(M, q)
+ok(igual(V({}), { laminilla: primeraLaminilla(M).id, comparar: false, he: false }), 'sin query, la HE de la primera muestra')
+const una = M.laminillas[5]!
+ok(igual(V({ l: una.id, comparar: '1', he: '1' }), { laminilla: una.id, comparar: true, he: true }), '?l=…&comparar=1&he=1')
+ok(V({ l: 'inventada' }).laminilla === primeraLaminilla(M).id, 'una laminilla que no existe abre la primera')
+ok(V({ fila: 're', he: '1' }).comparar && V({ fila: 're' }).laminilla.endsWith('/re') && V({ fila: 're', he: '1' }).he, 'enlace viejo ?fila=re&he=1: RE comparada, con HE')
+const soloUna = F.find((f) => f.n === 1)!
+ok(!V({ fila: soloUna.marcador.id }).comparar, `enlace viejo ?fila=${soloUna.marcador.id} (una sola muestra): sin comparar`)
+ok(V({ muestra: 'mama-2024', n: '3' }).laminilla === deMuestra(M, 'mama-2024')[2]!.id, 'enlace viejo ?muestra=…&n=3: la 3.ª de esa muestra')
+ok(V({ muestra: 'mama-2024', n: '999' }).laminilla === deMuestra(M, 'mama-2024').at(-1)!.id, 'un n fuera de rango se acota')
+for (const v of [V({ l: una.id }), V({ l: una.id, comparar: '1' }), V({ l: una.id, he: '1' })]) ok(igual(V(queryDeVista(v)), v), `ida y vuelta por la URL: ${JSON.stringify(queryDeVista(v))}`)
+const re = M.laminillas.find((l) => l.id.endsWith('/re'))!
+ok(companeras(M, re).length === F.find((f) => f.marcador.id === 're')!.n && companeras(M, re).includes(re), 'comparar RE: una por muestra que la tiene, y ella misma')
+const ultimaG = ordenGaleria(M, 'muestra').at(-1)!
+ok(vecinaEnGaleria(M, ultimaG.id, 1, 'muestra').id === ordenGaleria(M, 'muestra')[0]!.id, 'siguiente de la última: vuelve a la primera')
+ok(vecinaEnGaleria(M, ordenGaleria(M, 'tincion')[0]!.id, 1, 'tincion').id === ordenGaleria(M, 'tincion')[1]!.id, 'siguiente sigue el orden de la galería elegida')
 
 console.log('Una 4.ª columna entra sin tocar código')
 const M4: Manifest = structuredClone(M)

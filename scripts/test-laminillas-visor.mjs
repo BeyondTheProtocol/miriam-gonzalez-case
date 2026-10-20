@@ -3,17 +3,20 @@
 // sirve Netlify. Mismo arnés sin dependencias que test-ciencia-nivel: servidor estático propio +
 // Chrome del sistema por CDP.
 //
-// Siempre (también en CI, sin teselas):
-//   · la matriz se pinta sin JS: filas en orden, una miniatura por laminilla;
-//   · en móvil (390 px) no hay scroll horizontal, ni en la tabla ni con el visor abierto;
+// Siempre (también en CI, sin teselas). Visor con galería (rediseño del 20-oct-2026):
+//   · la galería se pinta sin JS: un enlace ?l= por laminilla, agrupadas por muestra;
+//   · la herramienta llena la pantalla bajo la cabecera y NINGUNA interacción mueve la página
+//     (clic de ratón real por CDP: miniatura, ‹ ›, teclado, comparar, HE, informe, atrás);
+//   · comparar pone la misma tinción de cada muestra (apiladas en móvil); los enlaces de antes valen;
+//   · en móvil (320–390 px) no hay scroll horizontal y la galería es una tira que se desliza;
 //   · /biopsia-osea y /en/bone-biopsy salen en _redirects con 301 y no queda su .html;
 //   · /laminillas y /en/slides están en el sitemap.
 // Con teselas (LAMINILLAS_TESELAS_DIR=<carpeta que contiene v1/>, y el build hecho con
 // NUXT_PUBLIC_LAMINILLAS_TESELAS=http://127.0.0.1:8090/v1/):
-//   · las teselas cargan sin un solo fallo;
+//   · las teselas cargan sin un solo fallo; con un panel hay minimapa;
 //   · el zoom va a la par en µm por píxel de pantalla en los tres paneles;
 //   · el paneo se mueve junto entre las dos de mama y es libre con el hígado; sin enlace, libre;
-//   · «HE de referencia» añade la HE de cada muestra; la cabecera de columna recorre la muestra.
+//   · «HE al lado» añade la HE de cada muestra.
 //
 // Contra un despliegue real (preview de Netlify con las teselas ya en el bucket), sin build local:
 //   LAMINILLAS_ORIGEN=https://deploy-preview-NNN--<sitio>.netlify.app pnpm test:laminillas-visor
@@ -131,42 +134,118 @@ async function carga(ruta, ancho = 1280, alto = 900) {
 }
 await cdp('Page.enable'); await cdp('Runtime.enable'); await cdp('Network.enable')
 
-// ── Matriz (sin teselas)
-console.log('Matriz')
+// Clic de ratón de verdad (CDP), no el.click(): así cuenta lo que tapa el botón y dónde está.
+async function clic(expr) {
+  const r = await ev(`(() => { const b = (${expr}).getBoundingClientRect(); return { x: b.left + b.width / 2, y: b.top + b.height / 2 } })()`)
+  await cdp('Input.dispatchMouseEvent', { type: 'mouseMoved', x: r.x, y: r.y })
+  await cdp('Input.dispatchMouseEvent', { type: 'mousePressed', x: r.x, y: r.y, button: 'left', clickCount: 1 })
+  await cdp('Input.dispatchMouseEvent', { type: 'mouseReleased', x: r.x, y: r.y, button: 'left', clickCount: 1 })
+  await sleep(400)
+}
+async function tecla(key, code) {
+  await cdp('Input.dispatchKeyEvent', { type: 'keyDown', key, code, windowsVirtualKeyCode: key === 'ArrowRight' ? 39 : key === 'ArrowLeft' ? 37 : 27 })
+  await cdp('Input.dispatchKeyEvent', { type: 'keyUp', key, code, windowsVirtualKeyCode: key === 'ArrowRight' ? 39 : key === 'ArrowLeft' ? 37 : 27 })
+  await sleep(400)
+}
+const L_ = () => `new URLSearchParams(location.search).get('l')`
+const MINI = (id) => `document.querySelector('.gal__item[data-l="${id}"]')`
+// Como haría alguien: desplazar la galería (por dentro, no la página) hasta ver la miniatura.
+async function verEnGaleria(id) {
+  await ev(`(() => { const a = ${MINI(id)}; const c = a.closest('.gal__lista'); c.scrollTop = a.offsetTop - c.clientHeight / 2; c.scrollLeft = a.offsetLeft - c.clientWidth / 2 })()`)
+  await sleep(300)
+}
+const PANELES_N = `document.querySelectorAll('.visor-panel').length`
+// La herramienta acaba en el borde de abajo de la ventana (±2 px): se usa sin desplazar la página.
+const LLENA = `(() => { const b = document.querySelector('.lam').getBoundingClientRect().bottom; return Math.abs(b - innerHeight) <= 2 })()`
+
+// ── Galería (sin teselas)
+console.log('Galería')
 await carga('/laminillas')
-const matriz = await ev(`(() => ({
-  filas: [...document.querySelectorAll('.matriz__filacab button span:first-child')].map((s) => s.textContent.trim()),
-  minis: document.querySelectorAll('.matriz__mini').length,
-  cols: document.querySelectorAll('.matriz__colboton').length,
+const gal = await ev(`(() => ({
+  enlaces: [...document.querySelectorAll('a.gal__item')].map((a) => a.getAttribute('href')),
+  grupos: document.querySelectorAll('.gal__grupo').length,
+  minis: document.querySelectorAll('.gal__mini').length,
 }))()`)
-ok(matriz.minis === manifest.laminillas.length, `una miniatura por laminilla (${matriz.minis}/${manifest.laminillas.length})`)
-ok(matriz.cols === manifest.muestras.length, `una columna por muestra (${matriz.cols})`)
-ok(matriz.filas.length > 0 && matriz.filas[0].startsWith('HE'), `la primera fila es la HE (${matriz.filas.slice(0, 6).join(' · ')})`)
-for (const [ruta, que] of [['/laminillas', 'la tabla'], ['/laminillas?fila=re&he=1', 'el visor con HE de referencia'], ['/laminillas?muestra=mama-2024&n=1', 'el recorrido']]) {
-  await carga(ruta, 390, 844)
-  await sleep(1500)
-  const r = await ev(`({ sw: document.documentElement.scrollWidth, w: window.innerWidth })`)
-  ok(r.sw <= r.w, `móvil 390 px, ${que}: sin scroll horizontal (${r.sw} ≤ ${r.w})`)
+ok(gal.minis === manifest.laminillas.length, `una miniatura por laminilla (${gal.minis}/${manifest.laminillas.length})`)
+ok(gal.enlaces.every((h) => /[?&]l=/.test(h ?? '')), 'cada miniatura es un enlace ?l= (sirve sin JS y para compartir)')
+ok(gal.grupos === manifest.muestras.length, `por muestra: un grupo por muestra (${gal.grupos})`)
+ok(await ev(`document.querySelector('.gal__item[aria-current="true"]')?.dataset.l`) === manifest.laminillas.find((l) => l.muestra === manifest.muestras[0].id && l.marcador === 'he').id, 'sin query, se ve la HE de la primera muestra')
+
+console.log('Sin desplazar la página')
+for (const [w, h] of [[1440, 900], [1366, 768], [1024, 768], [390, 844], [375, 667]]) {
+  await carga('/laminillas', w, h)
+  await sleep(600)
+  ok(await ev(LLENA), `${w}×${h}: la herramienta llena la pantalla bajo la cabecera`)
+  const sw = await ev(`({ sw: document.documentElement.scrollWidth, w: innerWidth })`)
+  ok(sw.sw <= sw.w, `${w}×${h}: sin scroll horizontal (${sw.sw} ≤ ${sw.w})`)
 }
-// Que nada se salga de su celda (overflow-x-clip lo taparía al medir el scroll de la página).
+await carga('/laminillas', 1440, 900)
+const destino = manifest.laminillas.find((l) => l.muestra === 'higado-2026' && l.marcador === 'her2')
+await verEnGaleria(destino.id)
+await clic(MINI(destino.id))
+ok(await espera(`${L_()} === '${destino.id}'`, 8000), 'clic en una miniatura: el visor pasa a esa laminilla')
+ok(await ev(`document.querySelector('#lam-titulo').textContent.includes('Hígado')`), 'y el título lo dice')
+await clic(`document.querySelector('.lam__flecha--sig')`)
+const tras = await ev(L_())
+ok(tras && tras !== destino.id, `‹ › encima de la imagen: «siguiente» cambia de laminilla (${tras})`)
+await ev(`document.activeElement?.blur(); document.body.focus()`)
+await tecla('ArrowLeft', 'ArrowLeft')
+ok(await espera(`${L_()} === '${destino.id}'`, 6000), '← del teclado vuelve a la anterior')
+await ev(`history.back()`)
+ok(await espera(`${L_()} === '${tras}'`, 6000), '«atrás» del navegador vuelve a la laminilla anterior')
+const re = manifest.laminillas.find((l) => l.muestra === 'mama-2024' && l.marcador === 're')
+await verEnGaleria(re.id)
+await clic(MINI(re.id))
+await espera(`${L_()} === '${re.id}'`, 6000)
+await clic(`[...document.querySelectorAll('.lam__accion')].find((b) => /Comparar/.test(b.getAttribute('aria-label') ?? ''))`)
+const nRe = new Set(manifest.laminillas.filter((l) => l.marcador === 're').map((l) => l.muestra)).size
+ok(await espera(`${PANELES_N} === ${nRe} && new URLSearchParams(location.search).get('comparar') === '1'`, 8000), `«Comparar» pone RE en sus ${nRe} muestras, lado a lado`)
+ok(await ev(`(() => { const p = [...document.querySelectorAll('.visor-panel')].map((x) => x.getBoundingClientRect()); return p.every((r) => Math.abs(r.top - p[0].top) < 2) })()`), 'en escritorio, en columnas')
+await clic(`[...document.querySelectorAll('.lam__accion')].find((b) => /HE al lado/.test(b.getAttribute('aria-label') ?? ''))`)
+ok(await espera(`${PANELES_N} === ${nRe * 2}`, 8000), '«HE al lado» añade la HE de cada muestra')
+await clic(`[...document.querySelectorAll('.lam__accion')].find((b) => b.getAttribute('aria-controls') === 'lam-ficha')`)
+ok(await espera(`getComputedStyle(document.querySelector('#lam-ficha')).display === 'none'`, 4000), '«Informe» pliega la ficha')
+await clic(`[...document.querySelectorAll('.lam__accion')].find((b) => b.getAttribute('aria-controls') === 'lam-ficha')`)
+ok(await espera(`getComputedStyle(document.querySelector('#lam-ficha')).display !== 'none' && document.querySelectorAll('#lam-ficha .ficha').length >= ${nRe}`, 4000), 'y la vuelve a abrir con una ficha por panel')
+ok(await ev(`scrollY === 0`), 'después de todo eso, la página no se ha movido (scrollY = 0)')
+await clic(`[...document.querySelectorAll('.gal__por-boton')].find((b) => /tinción/.test(b.textContent))`)
+ok(await espera(`document.querySelectorAll('.gal__grupo').length === ${new Set(manifest.laminillas.map((l) => l.marcador)).size}`, 4000), '«Por tinción»: un grupo por tinción')
+
+console.log('Enlaces de antes')
+for (const [ruta, que, cond] of [
+  ['/laminillas?fila=re&he=1', '?fila=re&he=1', `${PANELES_N} === ${nRe * 2}`],
+  ['/laminillas?muestra=mama-2024&n=3', '?muestra=mama-2024&n=3', `${PANELES_N} === 1 && document.querySelectorAll('.gal__grupo')[0].querySelectorAll('.gal__item')[2].getAttribute('aria-current') === 'true'`],
+  ['/laminillas?fila=ki67#visor', '?fila=ki67#visor', `${PANELES_N} === 2`],
+]) {
+  await carga(ruta, 1440, 900)
+  ok(await espera(cond, 8000), `${que} sigue abriendo lo mismo`)
+  ok(await ev(`scrollY === 0`), `${que}: la página arriba, con la herramienta a la vista`)
+}
+
+console.log('Móvil')
 for (const ancho of [320, 390]) {
-  await carga('/laminillas', ancho, 900)
-  const desb = await ev(`[...document.querySelectorAll('.matriz__colboton, .matriz__filaboton, .matriz__colboton > span:not(.sr-only), .matriz__filaboton > span:not(.sr-only)')]
-    .filter((e) => e.scrollWidth > e.clientWidth + 1 || e.getBoundingClientRect().right > e.closest('th, td').getBoundingClientRect().right + 1)
-    .map((e) => e.textContent.trim().slice(0, 24))`)
-  ok(desb.length === 0, `móvil ${ancho} px: ningún texto de cabecera se sale de su celda${desb.length ? ' (' + desb.join(' | ') + ')' : ''}`)
+  await carga(`/laminillas?l=${re.id}&comparar=1`, ancho, 844)
+  await sleep(800)
+  const m = await ev(`(() => { const p = [...document.querySelectorAll('.visor-panel')].map((x) => x.getBoundingClientRect()); const g = document.querySelector('.gal__lista');
+    return { apiladas: p.every((r) => Math.abs(r.left - p[0].left) < 2) && p.length > 1, tira: g.scrollWidth > g.clientWidth, sw: document.documentElement.scrollWidth, w: innerWidth,
+      fuera: [...document.querySelectorAll('.lam__cab button, .visor-barra button')].filter((b) => b.offsetParent && b.getBoundingClientRect().right > innerWidth + 0.5).length } })()`)
+  ok(m.apiladas, `móvil ${ancho} px: comparar apila los paneles`)
+  ok(m.tira, `móvil ${ancho} px: la galería es una tira que se desliza`)
+  ok(m.sw <= m.w && m.fuera === 0, `móvil ${ancho} px: sin scroll horizontal y ningún botón fuera de la pantalla`)
 }
-await carga('/laminillas?fila=re&he=1', 390, 844)
-ok(await espera(`document.querySelectorAll('.visor-panel').length === 6`, 15000), 'móvil: los 6 paneles montados')
-const movil = await ev(`(() => ({ ops: document.querySelectorAll('.visor-selector input').length,
-  visibles: [...document.querySelectorAll('.visor-panel')].filter((p) => getComputedStyle(p).visibility !== 'hidden').length }))()`)
-ok(movil.ops === 6 && movil.visibles === 1, `móvil: selector con ${movil.ops} opciones y ${movil.visibles} panel visible`)
+await carga('/laminillas', 390, 844)
+ok(await ev(`getComputedStyle(document.querySelector('#lam-ficha')).display === 'none'`), 'móvil: la ficha empieza plegada (cajón)')
+await clic(`[...document.querySelectorAll('.lam__accion')].find((b) => b.getAttribute('aria-controls') === 'lam-ficha')`)
+ok(await espera(`getComputedStyle(document.querySelector('#lam-ficha')).display !== 'none' && document.activeElement?.id === 'lam-ficha-titulo'`, 4000), 'móvil: «Informe» abre el cajón con el foco en su título')
+await tecla('Escape', 'Escape')
+ok(await espera(`getComputedStyle(document.querySelector('#lam-ficha')).display === 'none'`, 4000), 'móvil: Esc cierra el cajón')
+await verEnGaleria(re.id)
+await clic(MINI(re.id))
+ok(await espera(`${L_()} === '${re.id}'`, 6000) && await ev(`scrollY === 0`), 'móvil: tocar en la tira cambia la imagen sin mover la página')
 
 // ── Visor (con teselas)
 const PANELES = `[...document.querySelectorAll('.visor-panel')].map((p) => ({ um: +p.dataset.umPx || 0, c: (p.dataset.centroUm || '0,0').split(',').map(Number), rot: p.querySelector('.visor-rotulo')?.textContent.trim() }))`
 async function arrastra(i, dx, dy) {
-  await ev(`document.querySelectorAll('.visor-lienzo')[${i}].scrollIntoView({ block: 'center' })`)
-  await sleep(800)
   const r = await ev(`(() => { const b = document.querySelectorAll('.visor-lienzo')[${i}].getBoundingClientRect(); return { x: b.left + b.width / 2, y: b.top + b.height / 2 } })()`)
   await cdp('Input.dispatchMouseEvent', { type: 'mouseMoved', x: r.x, y: r.y })
   await cdp('Input.dispatchMouseEvent', { type: 'mousePressed', x: r.x, y: r.y, button: 'left', clickCount: 1 })
@@ -180,11 +259,14 @@ const cerca = (d1, d2, tol) => Math.abs(d1[0] - d2[0]) <= tol && Math.abs(d1[1] 
 if (CON_TESELAS) {
   console.log(`Visor (con teselas${REMOTO ? ', contra ' + REMOTO : ''})`)
   await cdp('Page.navigate', { url: 'about:blank' })
-  await carga('/laminillas?fila=re', 1440, 1000)
-  ok(await espera(`${PANELES}.length === 3 && ${PANELES}.every((p) => p.um > 0)`, 30000), 'RE: tres paneles abiertos (Mama 2024, Mama revisión, Hígado)')
+  await carga(`/laminillas?l=${re.id}`, 1440, 1000)
+  ok(await espera(`${PANELES}.length === 1 && ${PANELES}.every((p) => p.um > 0)`, 30000), 'una laminilla abierta')
+  ok(await ev(`!!document.querySelector('.navigator, .openseadragon-container .navigator')`), 'con un panel hay minimapa')
+  await carga(`/laminillas?l=${re.id}&comparar=1`, 1440, 1000)
+  ok(await espera(`${PANELES}.length === 3 && ${PANELES}.every((p) => p.um > 0)`, 30000), 'RE comparada: tres paneles abiertos (Mama 2024, Mama revisión, Hígado)')
   await sleep(3000)
   ok(await ev(`document.querySelectorAll('.visor-regla').length`) === 3, 'una regla en µm por panel')
-  let p0 = await ev(PANELES)
+  const p0 = await ev(PANELES)
   const igual = (ps) => ps.every((p) => Math.abs(p.um / ps[0].um - 1) < 0.005)
   ok(igual(p0), `zoom a la par en µm/px de pantalla (${p0.map((p) => p.um.toFixed(3)).join(' · ')})`)
   await ev(`document.querySelector('.visor-barra button').click()`); await sleep(1200)
@@ -203,24 +285,6 @@ if (CON_TESELAS) {
   await arrastra(0, 120, 80)
   const p3 = await ev(PANELES)
   ok(Math.hypot(...delta(p2[1], p3[1])) < 1 && Math.hypot(...delta(p2[0], p3[0])) > 10, 'sin enlace, la otra mama se queda quieta')
-  await ev(`[...document.querySelectorAll('.visor-acciones button')].find((b) => /HE de referencia|Reference/.test(b.textContent)).click()`)
-  ok(await espera(`${PANELES}.length === 6`, 15000), '«HE de referencia» pone la HE de cada muestra (6 paneles)')
-  // Foco: abrir desde el botón de la fila y volver a la tabla lo devuelve a ese botón.
-  await carga('/laminillas', 1280, 900)
-  await ev(`[...document.querySelectorAll('.matriz__filaboton')].find((b) => b.textContent.includes('Ki-67')).click()`)
-  ok(await espera(`document.querySelectorAll('.visor-panel').length === 2`, 15000), 'la fila de Ki-67 abre sus 2 paneles')
-  await ev(`[...document.querySelectorAll('.visor-acciones button')].find((b) => /Volver a la tabla|Back to the table/.test(b.textContent)).click()`)
-  ok(await espera(`document.activeElement?.classList.contains('matriz__filaboton') && document.activeElement.textContent.includes('Ki-67')`, 8000), 'al volver a la tabla, el foco vuelve al botón de la fila')
-  await carga('/laminillas?muestra=mama-2024&n=1', 1280, 900)
-  ok(await espera(`${PANELES}.length === 1 && /^1 de \\d+/.test(document.querySelector('.recorrido__estado')?.textContent.trim() ?? '')`, 15000), 'la cabecera de columna abre el recorrido en «1 de N»')
-  await espera(`${PANELES}.every((p) => p.um > 0)`, 15000)
-  await ev(`document.querySelector('.visor-barra button').click()`); await sleep(1500)
-  const antes = (await ev(PANELES))[0].um
-  await ev(`[...document.querySelectorAll('.recorrido button')].at(-1).click()`)
-  ok(await espera(`/^2 de \\d+/.test(document.querySelector('.recorrido__estado')?.textContent.trim() ?? '')`, 8000), '«Siguiente» pasa a «2 de N»')
-  await espera(`${PANELES}.every((p) => p.um > 0)`, 15000); await sleep(1500)
-  const despues = (await ev(PANELES))[0].um
-  ok(Math.abs(despues / antes - 1) < 0.01, `al pasar de laminilla se conserva la escala (${antes.toFixed(3)} → ${despues.toFixed(3)} µm/px)`)
   await sleep(2500)
   ok(red.ok > 20 && red.fallo === 0, `teselas: ${red.ok} cargadas, ${red.fallo} fallidas`)
 } else {
@@ -229,7 +293,7 @@ if (CON_TESELAS) {
 // Sin teselas, cada panel tiene que decirlo (no quedarse en blanco). Opt-in: en CI las teselas apuntan
 // al bucket real y, una vez subidas, cargan; esto solo tiene sentido cuando se sabe que faltan.
 if (process.env.LAMINILLAS_ESPERA_FALLO === '1') {
-  await carga('/laminillas?fila=re', 1280, 900)
+  await carga(`/laminillas?l=${re.id}&comparar=1`, 1280, 900)
   ok(await espera(`document.querySelectorAll('.visor-panel').length === 3 && document.querySelectorAll('.visor-fallo').length === 3`, 20000),
     'sin teselas, cada panel avisa de que no se han podido cargar')
 }
