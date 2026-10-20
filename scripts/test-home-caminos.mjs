@@ -62,7 +62,7 @@ const ESPERADO = {
     ciencia: '/en/science',
   },
 }
-const ANCHOS = [320, 375, 639, 640, 768, 1023, 1024, 1280]
+const ANCHOS = [320, 375, 639, 640, 768, 1023, 1024, 1280, 1440]
 
 const LEER = `(() => {
   const id = (c) => [...c.classList].find((k) => k.startsWith('pathway-card--')).slice('pathway-card--'.length)
@@ -172,7 +172,7 @@ try {
         ok(resto.every((id) => Math.abs(R[id].w - R.curious.w) <= 1) && R.supporter.w > R.curious.w * 1.9, `${w}px: «Quiero ayudar ya» a lo ancho y el resto en pares`)
       }
       console.log(`     (alto de la rejilla a ${w}px: ${Math.round(s.alturaRejilla)} px)`)
-      if ([375, 768, 1024, 1280].includes(w)) await capturar(`${loc}-${w}`)
+      if ([375, 768, 1024, 1280, 1440].includes(w)) await capturar(`${loc}-${w}`)
     }
   }
 

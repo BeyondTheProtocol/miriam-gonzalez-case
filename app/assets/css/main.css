@@ -1040,25 +1040,20 @@
       grid-column: 1 / -1;
     }
   }
-  /* ≥ 1024: clínica y laboratorio/single-cell lado a lado (plan del 20-oct). Mismo orden visual que
-     el del DOM (supporter, curious, clinician, research, press, tech, peer), que es el del tabulador.
-     Si un acceso directo pasa de 2 líneas a 1024 px, la variante de 4 filas (clínica y research a
-     2 columnas) está en el plan; lo vigila scripts/test-home-caminos.mjs. */
+  /* ≥ 1024: 12 columnas (diseno, 20-oct). Filas 1 y 2 como en el PR #306: donar 2×2 y clínica y
+     laboratorio/single-cell lado a lado (3/12 = ¼). La fila 3 va en tercios (4/12): con ¼ los accesos
+     de prensa y tech pasaban a 3 líneas con las fuentes de Linux (CI); con ⅓ caben en 2 con cualquier
+     fuente. Mismo orden visual que el del DOM (supporter, curious, clinician, research, press, tech,
+     peer), que es el del tabulador. Lo vigilan test-caminos (teselado) y test-home-caminos (≤ 2 líneas). */
   @media (min-width: 1024px) {
-    .pathway-grid {
-      grid-template-columns: repeat(4, minmax(0, 1fr));
-      grid-template-areas:
-        'supporter supporter curious curious'
-        'supporter supporter clinician research'
-        'press tech peer peer';
-    }
-    .pathway-card--supporter { grid-area: supporter; }
-    .pathway-card--curious   { grid-area: curious; }
-    .pathway-card--clinician { grid-area: clinician; }
-    .pathway-card--research  { grid-area: research; }
-    .pathway-card--press     { grid-area: press; }
-    .pathway-card--tech      { grid-area: tech; }
-    .pathway-card--peer      { grid-area: peer; }
+    .pathway-grid { grid-template-columns: repeat(12, minmax(0, 1fr)); }
+    .pathway-card--supporter { grid-column: 1 / span 6;  grid-row: 1 / span 2; }
+    .pathway-card--curious   { grid-column: 7 / span 6;  grid-row: 1; }
+    .pathway-card--clinician { grid-column: 7 / span 3;  grid-row: 2; }
+    .pathway-card--research  { grid-column: 10 / span 3; grid-row: 2; }
+    .pathway-card--press     { grid-column: 1 / span 4;  grid-row: 3; }
+    .pathway-card--tech      { grid-column: 5 / span 4;  grid-row: 3; }
+    .pathway-card--peer      { grid-column: 9 / span 4;  grid-row: 3; }
   }
 
   .pathway-card {
