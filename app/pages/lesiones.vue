@@ -5,7 +5,7 @@
  * Traslada el visor del mapa de metástasis (mismo esquema del esqueleto, mismos focos,
  * mismo visor 3D BoneTriView; datos leídos del propio mapa en cada build vía #mapa-focos) y le suma el
  * hígado (visor 3D girable con todas sus lesiones: las dianas con la medida del radiólogo y el
- * resto como detección automática sin validar, igual que el vídeo) y la mama (medida del informe).
+ * resto como detección automática revisada por un radiólogo, sin informe firmado, igual que el vídeo) y la mama (medida del informe).
  * Sin interpretación añadida.
  * Herramienta de apoyo a la decisión — no es diagnóstico ni consejo médico.
  */
@@ -89,7 +89,7 @@ const biopsia = computed(() =>
             <div class="mb-3">
               <ClientOnly>
                 <LiverView base="/lesiones/higado/" fallback="/lesiones/higado-2026-09-08.webp"
-                  :fallback-alt="L('Reconstrucción 3D del hígado de Miriam desde su TC del 8 de septiembre de 2026, con los vasos y las lesiones: dos lesiones diana con anillo y la medida del radiólogo (segmento II, 20 mm; segmento IVb, 19 mm) y el resto, lesiones candidatas por detección automática, sin validar', '3D reconstruction of Miriam’s liver from her 8 September 2026 CT, with the vessels and the lesions: two ringed target lesions with the radiologist’s measurement (segment II, 20 mm; segment IVb, 19 mm) and the rest, candidate lesions from automatic detection, not validated')" />
+                  :fallback-alt="L('Reconstrucción 3D del hígado de Miriam desde su TC del 8 de septiembre de 2026, con los vasos y las lesiones: dos lesiones diana con anillo y la medida del radiólogo (segmento II, 20 mm; segmento IVb, 19 mm) y el resto, lesiones detectadas automáticamente y revisadas por un radiólogo, que las ha confirmado (no constan en el informe oficial firmado)', '3D reconstruction of Miriam’s liver from her 8 September 2026 CT, with the vessels and the lesions: two ringed target lesions with the radiologist’s measurement (segment II, 20 mm; segment IVb, 19 mm) and the rest, lesions detected automatically and reviewed by a radiologist, who confirmed them (not in the signed official report)')" />
                 <template #fallback>
                   <div class="rounded-xl flex items-center justify-center text-[12px]" style="aspect-ratio:1/1;background:#1c1126;color:#aeb6c2">
                     {{ L('cargando visor…', 'loading viewer…') }}
