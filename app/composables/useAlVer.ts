@@ -127,13 +127,20 @@ export function cargaCercana(el: Element, arranca: () => void, margen = '150px')
  * 27-sep-2026, verificado en vivo). El listener va en CAPTURA sobre el contenedor: la rueda sin
  * modificador no llega al canvas (OrbitControls no la ve y la página baja) y se enseña un aviso
  * breve de cómo acercar. El táctil no pasa por aquí: el pellizco son eventos de puntero.
+ *
+ * El aviso sale en el primer gesto de rueda y no vuelve mientras el visor siga montado: dentro del panel con scroll del
+ * explorador reaparecía encima del modelo en cada gesto (diseno, 20-oct). Un gesto es la ráfaga de eventos de la rueda o
+ * del trackpad; acaba cuando pasan 1,2 s sin ninguno y el aviso se apaga. Lo que se corta es solo el aviso: la rueda
+ * sin modificador sigue sin llegar al canvas en cada gesto, o acercaría sin Ctrl.
  */
 export function ruedaConModificador(host: HTMLElement, aviso: () => string): () => void {
   let tapa: HTMLDivElement | null = null
   let t: ReturnType<typeof setTimeout> | undefined
+  let avisado = false
   const onWheel = (e: WheelEvent) => {
     if (e.ctrlKey || e.metaKey) return
     e.stopPropagation()
+    if (avisado) return
     if (!tapa) {
       tapa = document.createElement('div')
       tapa.setAttribute('aria-hidden', 'true')
@@ -145,7 +152,7 @@ export function ruedaConModificador(host: HTMLElement, aviso: () => string): () 
     tapa.textContent = aviso()
     tapa.style.opacity = '1'
     clearTimeout(t)
-    t = setTimeout(() => { if (tapa) tapa.style.opacity = '0' }, 1200)
+    t = setTimeout(() => { avisado = true; if (tapa) tapa.style.opacity = '0' }, 1200)
   }
   host.addEventListener('wheel', onWheel, { capture: true, passive: true })
   return () => { host.removeEventListener('wheel', onWheel, { capture: true }); clearTimeout(t); tapa?.remove() }
