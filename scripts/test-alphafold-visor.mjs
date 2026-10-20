@@ -115,7 +115,7 @@ try {
   ok(peticionesAF === 2, `dos peticiones: la ficha y el modelo (${peticionesAF})`)
   ok(await ev(`(() => { const l = document.querySelector('.fo .de__lienzo').getBoundingClientRect(), m = document.querySelector('.fo .de__mandos').getBoundingClientRect(); return m.top >= l.bottom - 1 })()`), 'los mandos van debajo del modelo, no encima')
   await sleep(300)
-  ok(await ev(`(() => { const r = document.querySelector('.fo .de__lienzo').getBoundingClientRect(); return r.top >= 0 && r.top < innerHeight })()`), 'al desplegar, el visor queda a la vista')
+  ok(await ev(`(() => { const r = document.querySelector('.fo .de__lienzo').getBoundingClientRect(), m = document.querySelector('.fo .de__mandos').getBoundingClientRect(); return r.top >= 0 && m.bottom <= innerHeight + 1 })()`), 'al desplegar, el modelo y sus mandos quedan a la vista')
   ok((await ev(`document.querySelectorAll('.fo .de__leyenda li').length`)) === 4, 'leyenda de cuatro bandas')
 
   console.log('Tema oscuro')
@@ -129,7 +129,11 @@ try {
   await ev(`document.querySelector('.exp__tema').click()`)
 
   console.log('Aperturas y cierres')
-  for (let i = 0; i < 20; i++) { await cierra(); await abre() }
+  // cada ciclo cuenta solo si de verdad se plegó y se volvió a montar (Copilot, #314: si el visor dejara de montarse, el
+  // bucle terminaría sin probar nada y las comprobaciones de abajo pasarían igual)
+  let ciclos = 0
+  for (let i = 0; i < 20; i++) { if (await cierra() && await abre()) ciclos++; else break }
+  ok(ciclos === 20, `20 ciclos completos de plegar y desplegar (${ciclos})`)
   const vivoDespues = await ev(mapaVivo)
   ok(vivoDespues.length > 0 && vivoDespues.every(Boolean), '20 aperturas y cierres: el mapa conserva su contexto WebGL')
   ok(peticionesAF === 2, `el modelo se pidió una sola vez (caché): ${peticionesAF} peticiones`)

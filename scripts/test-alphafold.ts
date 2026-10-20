@@ -76,7 +76,7 @@ ok('plegado por defecto (<details> sin «open»)', /<details class="fo"/.test(tp
 ok('el visor solo se monta al desplegar (Lazy + v-if)', /<LazyCelulaExplorarEstructura v-if="abierta"/.test(tplForma))
 // diseno, 20-oct: con el estado en el explorador, «Volver» y reabrir montaba el visor plegado; el estado vive en el bloque
 ok('el estado «abierto» vive en el bloque, no en el explorador', /const abierta = ref\(false\)/.test(forma) && !/formaAbierta/.test(explorador))
-ok('al montarse, el visor se pone a la vista', /@montado="formaALaVista"/.test(explorador) && /emit\('montado', lienzo\.value\)/.test(visor))
+ok('al montarse, el visor y sus mandos se ponen a la vista', /@montado="formaALaVista"/.test(explorador) && /emit\('montado', visorEl\.value\)/.test(visor) && /\.de__mandos-caja \{ min-height: 44px; \}/.test(visor))
 ok('ya no existe la página /tres-dianas ni su mapa propio', !existsSync(join(raiz, 'app', 'pages', 'tres-dianas.vue')) && !existsSync(join(raiz, 'app', 'components', 'diana')))
 for (const ruta of ['/tres-dianas', '/en/three-targets', '/en/tres-dianas'])
   ok(`${ruta} redirige con 301 al explorador`, new RegExp(`'${ruta}': \\{ redirect: \\{ to: '/(en/cell-by-cell/explore|celula-a-celula/explorar)', statusCode: 301 \\} \\}`).test(cfg))
@@ -94,7 +94,7 @@ ok('crédito y licencia visibles', visor.includes('(Google DeepMind · EMBL-EBI)
 ok('cita de AlphaFold (Jumper 2021) y de AlphaFold DB (Bertoni 2025)', visor.includes('10.1038/s41586-021-03819-2') && visor.includes('10.1093/nar/gkaf1226'))
 ok('enlace a UniProt de la proteína', visor.includes('urlUniprot(uniprot)'))
 // Adri y verificacion (20-oct): el bloque va bajo las cifras de la biopsia; que nadie lea «la proteína de Miriam»
-ok('dice, arriba, que parte de la secuencia de referencia y no de la biopsia (ES y EN)', visor.includes('Parte de la secuencia de referencia de la proteína humana (UniProt), sin datos de la biopsia de Miriam.') && visor.includes('Built from the reference sequence of the human protein (UniProt), with no data from Miriam’s biopsy.'))
+ok('dice, arriba, que parte de la secuencia de referencia y no de la biopsia (ES y EN)', visor.includes('Se calcula a partir de la secuencia de referencia de la proteína humana (UniProt), sin datos de la biopsia de Miriam.') && visor.includes('Built from the reference sequence of the human protein (UniProt), with no data from Miriam’s biopsy.'))
 ok('la regla de lectura de < 50 de la FAQ de AlphaFold DB (ES y EN)', visor.includes('(< 50) no se interpretan') && visor.includes('(< 50) should not be interpreted'))
 ok('la leyenda va antes del crédito y las referencias', visor.indexOf('class="de__leyenda"') < visor.indexOf('class="de__fuente"') && visor.indexOf('class="de__fuente"') < visor.indexOf("L('Referencias:'"))
 ok('cada estructura dice «predicción, no medición» (ES y EN)', visor.includes('Predicción, no medición.') && visor.includes('A prediction, not a measurement.'))

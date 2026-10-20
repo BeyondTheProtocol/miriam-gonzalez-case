@@ -23,7 +23,7 @@ import { BANDAS, ETIQUETA_BANDA, banda, encuadre, pdbDeRespuesta, trazaCA, urlAp
 /** gen del explorador, su UniProt (UNIPROT de utils/alphafold), el nombre de la proteína con el que se la conoce y el tema
  * del explorador (data-tema es de su bloque, no de :root: los colores del tubo lo necesitan; diseno, 20-oct) */
 const props = defineProps<{ gen: string; uniprot: string; proteina: string; lang: 'es' | 'en'; tema: 'claro' | 'oscuro' }>()
-/** al montarse, el lienzo: el explorador lo pone a la vista (al desplegar en escritorio se abría fuera; diseno, 20-oct) */
+/** al montarse, el lienzo y sus mandos: el explorador los pone a la vista (al desplegar en escritorio se abría fuera; diseno, 20-oct) */
 const emit = defineEmits<{ montado: [HTMLElement] }>()
 const L = (es: string, en: string) => (props.lang === 'en' ? en : es)
 
@@ -31,7 +31,8 @@ const L = (es: string, en: string) => (props.lang === 'en' ? en : es)
 const girandoAhora = useState<string | null>('estructura-girando', () => null)
 
 const caja = ref<HTMLElement | null>(null)
-const lienzo = ref<HTMLElement | null>(null)
+/** lienzo y mandos juntos: lo que el explorador pone a la vista al desplegar (diseno, 2.ª pasada: los mandos quedaban fuera) */
+const visorEl = ref<HTMLElement | null>(null)
 const host = ref<HTMLElement | null>(null)
 const estado = ref<'espera' | 'cargando' | 'listo' | 'error'>('espera')
 const girando = ref(false)
@@ -261,7 +262,7 @@ function tecla(e: KeyboardEvent) {
 
 onMounted(() => {
   reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches
-  if (lienzo.value) emit('montado', lienzo.value)
+  if (visorEl.value) emit('montado', visorEl.value)
 })
 // en el explorador el visor solo se monta cuando alguien despliega el bloque: carga ya, sin esperar a verlo en pantalla
 // (la espera por IntersectionObserver era de la página con tres visores; dentro del panel dejaba «Cargando…» sin pedir nada)
@@ -292,7 +293,8 @@ const descripcion = computed(() => L(
 
 <template>
   <figure ref="caja" class="de">
-    <div ref="lienzo" class="de__lienzo">
+    <div ref="visorEl" class="de__visor">
+    <div class="de__lienzo">
       <div
         ref="host"
         class="de__host"
@@ -310,7 +312,9 @@ const descripcion = computed(() => L(
         <a :href="urlEntradaAlphaFold(uniprot)" class="link-underline" target="_blank" rel="noopener">AlphaFold DB</a>.
       </p>
     </div>
-    <!-- los mandos, debajo del lienzo y en flujo: superpuestos tapaban casi un tercio del modelo a 320 px (diseno, 20-oct) -->
+    <!-- los mandos, debajo del lienzo y en flujo: superpuestos tapaban casi un tercio del modelo a 320 px (diseno, 20-oct).
+         Su hueco existe desde el principio (min-height): al cargar no empujan el pie (diseno, 2.ª pasada) -->
+    <div class="de__mandos-caja">
     <div v-if="estado === 'listo'" class="de__mandos">
       <div class="de__pasos" role="group" :aria-label="L(`Mover la forma de ${proteina}`, `Move the ${proteina} shape`)">
         <button type="button" class="de__paso" :aria-label="L('Girar a la izquierda', 'Rotate left')" @click="gira(-PASO, 0)"><span aria-hidden="true">↶</span></button>
@@ -322,13 +326,15 @@ const descripcion = computed(() => L(
         {{ girando ? L('Parar el giro', 'Stop rotation') : L('Dar una vuelta', 'Rotate once') }}
       </button>
     </div>
+    </div>
+    </div>
     <p class="sr-only" role="status">{{ anuncio }}</p>
     <!-- orden (Adri y diseno, 20-oct): primero lo que hace falta para leer el modelo (aviso corto, leyenda y su clave),
          después la explicación larga, el modelo y el crédito -->
     <figcaption class="de__pie">
       <p class="de__sello">{{ L('Predicción, no medición.', 'A prediction, not a measurement.') }}</p>
       <!-- que nadie lea «la proteína de Miriam»: el bloque va bajo las cifras de la biopsia (Adri y verificacion, 20-oct) -->
-      <p class="de__ctx">{{ L('Parte de la secuencia de referencia de la proteína humana (UniProt), sin datos de la biopsia de Miriam.', 'Built from the reference sequence of the human protein (UniProt), with no data from Miriam’s biopsy.') }}</p>
+      <p class="de__ctx">{{ L('Se calcula a partir de la secuencia de referencia de la proteína humana (UniProt), sin datos de la biopsia de Miriam.', 'Built from the reference sequence of the human protein (UniProt), with no data from Miriam’s biopsy.') }}</p>
       <template v-if="estado === 'listo'">
         <p :id="`${uid}-desc`" class="sr-only">{{ descripcion }}</p>
         <p class="de__ley-t" aria-hidden="true">{{ L('Confianza del modelo en cada parte de la proteína (pLDDT)', 'Model confidence in each part of the protein (pLDDT)') }}</p>
@@ -346,8 +352,8 @@ const descripcion = computed(() => L(
         </p>
       </template>
       <p class="de__clave">
-        {{ L('AlphaFold es un programa de inteligencia artificial que predice cómo se pliega una proteína a partir de su secuencia de aminoácidos. Por eso no dice si esta proteína está en las células de Miriam; eso lo dice la inmunohistoquímica.',
-             'AlphaFold is an artificial intelligence program that predicts how a protein folds from its amino acid sequence. So it does not say whether this protein is in Miriam’s cells; immunohistochemistry tells you that.') }}
+        {{ L('AlphaFold es un programa de inteligencia artificial que predice cómo se pliega una proteína a partir de su secuencia de aminoácidos, sin mirar ningún tejido. Por eso no dice si esta proteína está en las células de Miriam; eso lo dice la inmunohistoquímica.',
+             'AlphaFold is an artificial intelligence program that predicts how a protein folds from its amino acid sequence, without looking at any tissue. So it does not say whether this protein is in Miriam’s cells; immunohistochemistry tells you that.') }}
       </p>
       <template v-if="estado === 'listo'">
         <p class="de__meta">{{ L('Modelo', 'Model') }} AF-{{ uniprot }}-F1{{ version ? ` v${version}` : '' }} · {{ nResiduos }} {{ L('aminoácidos', 'amino acids') }}</p>
@@ -377,6 +383,8 @@ const descripcion = computed(() => L(
 .de__host:active { cursor: grabbing; }
 .de__host:focus-visible { outline: 2px solid var(--anillo-foco); outline-offset: -4px; border-radius: var(--radius-btn); }
 .de__aviso { position: absolute; inset: 0; display: grid; place-items: center; padding: var(--sp-16); text-align: center; font: var(--tipo-body-sm); color: var(--texto-2); }
+.de__visor { display: grid; gap: var(--sp-12); }
+.de__mandos-caja { min-height: 44px; }
 .de__mandos { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: var(--sp-8); }
 .de__pasos { display: flex; gap: var(--sp-4); }
 .de__paso, .de__girar {
