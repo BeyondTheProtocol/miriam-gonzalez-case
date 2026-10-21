@@ -951,8 +951,8 @@ useSeoMeta({
       : 'Molecular profile BC-NED · FGFR1/CCND1 · ER− in the liver',
   ogDescription: () =>
     locale.value === 'es'
-      ? 'Análisis científico del caso: BC-NED, HER2 0, amplificación de FGFR1 y CCND1, SSTR+ en hueso (PET Ga-68). Metástasis óseas y hepáticas; el hígado es RE 0 %. Tejido en análisis en Dana-Farber y ensayo con Dato-DXd previsto en octubre de 2026.'
-      : 'Scientific case analysis: BC-NED, HER2 0, FGFR1 and CCND1 amplification, SSTR+ in bone (Ga-68 PET). Bone and liver metastases; the liver is ER 0%. Tissue under analysis at Dana-Farber and a Dato-DXd trial expected in October 2026.',
+      ? 'Análisis científico del caso: BC-NED, HER2 0, amplificación de FGFR1 y CCND1, SSTR+ en hueso (PET Ga-68). Metástasis óseas y hepáticas; el hígado es RE 0 %. Tejido en análisis en Dana-Farber y, desde octubre de 2026, en ensayo con Dato-DXd.'
+      : 'Scientific case analysis: BC-NED, HER2 0, FGFR1 and CCND1 amplification, SSTR+ in bone (Ga-68 PET). Bone and liver metastases; the liver is ER 0%. Tissue under analysis at Dana-Farber and, since October 2026, on a Dato-DXd trial.',
   ogType: 'article',
   twitterCard: 'summary_large_image',
   twitterTitle: () =>

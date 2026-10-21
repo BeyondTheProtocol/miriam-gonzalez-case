@@ -55,13 +55,13 @@ treatments:
     outcome: >-
       Ensayo fase IIIb de un solo brazo para cáncer de mama HR+/HER2 IHQ 0
       refractario a endocrino y sin quimioterapia previa en metastásico;
-      Dato-DXd 6 mg/kg cada 3 semanas. La biopsia hepática confirma HER2 0
-      (informe del 21 de septiembre de 2026). Pruebas de cribado a primeros de
-      octubre; la primera dosis está prevista para el 7 de octubre de 2026.
-      Nunca ha recibido quimioterapia, ADC, inmunoterapia ni radioligandos.
-      Estado funcional: ECOG 0 (septiembre de 2026).
+      Dato-DXd 6 mg/kg cada 3 semanas. La biopsia hepática confirma HER2 0 y
+      PD-L1 CPS 0 (informes de septiembre de 2026). Cribado del 1 al 6 de
+      octubre; el hospital documenta la inclusión y pauta el primer ciclo para
+      el 7 de octubre de 2026. Antes de este ensayo nunca había recibido
+      quimioterapia, ADC, inmunoterapia ni radioligandos. Estado funcional:
+      ECOG 0 (octubre de 2026).
     active: true
-    badge: En cribado
 paperSections:
   - title: Transformación Neuroendocrina y Pérdida de RB1
     tag: Transformación NE
@@ -266,7 +266,7 @@ paperSections:
   - title: 'ADC anti-TROP-2: Datopotamab Deruxtecan'
     tag: TROP-2 · ADC
     tone: info
-    subtitle: 'Está previsto que en octubre de 2026 entre en TROPION-Breast06 (NCT07205822), fase IIIb de un solo brazo, sin quimioterapia previa; el ensayo que sostiene el fármaco exigía 1-2 líneas de quimioterapia antes'
+    subtitle: 'Entró en TROPION-Breast06 (NCT07205822) el 7 de octubre de 2026, fase IIIb de un solo brazo, sin quimioterapia previa; el ensayo que sostiene el fármaco exigía 1-2 líneas de quimioterapia antes'
     papers:
       - ref: 'Bardia et al., 2025 — Journal of Clinical Oncology (DOI: 10.1200/JCO.24.00920)'
         finding: 'TROPION-Breast01: menor riesgo de progresión o muerte frente a la quimioterapia a elección del investigador (HR 0,63)'
