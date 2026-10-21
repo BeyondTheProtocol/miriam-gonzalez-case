@@ -131,6 +131,9 @@ async function carga(ruta, ancho = 1280, alto = 900) {
   await cdp('Page.navigate', { url: ORIGIN + ruta })
   await espera(HIDRATADA)
   await sleep(500)
+  // En una preview de Netlify, su barra («Netlify Drawer», un iframe de 48 px abajo) tapa la tira de
+  // la galería en móvil. En producción no existe: se quita para medir la página y no la barra.
+  if (REMOTO) await ev(`(() => { for (let i = 0; i < 20; i++) document.querySelectorAll('iframe[title="Netlify Drawer"], netlify-drawer, #netlify-drawer').forEach((f) => f.remove()) })()`).catch(() => {})
 }
 await cdp('Page.enable'); await cdp('Runtime.enable'); await cdp('Network.enable')
 
