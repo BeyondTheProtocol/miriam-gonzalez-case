@@ -19,7 +19,8 @@
  */
 import datos from '~/data/laminillas.json'
 import {
-  companeras, grupoPaneo, heDe, ordenGaleria, primeraLaminilla, queryDeVista, vecinaEnGaleria, vistaDeQuery,
+  companeras, grupoPaneo, gruposGaleria, heDe, ordenGaleria, primeraLaminilla, queryDeVista, vecinaEnGaleria, vistaDeQuery,
+  zonaDe, zonas as calculaZonas,
   type Agrupacion, type Laminilla, type Manifest, type Vista,
 } from '~/utils/laminillas'
 
@@ -94,7 +95,10 @@ const rotulos = computed(() => rejilla.value.flat().map((l) => {
 const nombres = computed(() => rejilla.value.flat().map((l) => (l ? etiquetaVoz(l) : '')))
 const fichas = computed(() => [...new Map(rejilla.value.flat().filter((l): l is Laminilla => !!l).map((l) => [l.id, l])).values()])
 
-const orden = computed(() => ordenGaleria(M, por.value))
+// Zona: la de la laminilla que se ve. La galería, ‹ › y el contador se quedan dentro de ella.
+const zonasM = calculaZonas(M)
+const zona = computed(() => zonaDe(M, actual.value.muestra))
+const orden = computed(() => ordenGaleria(M, por.value, zona.value))
 const posicion = computed(() => orden.value.findIndex((l) => l.id === actual.value.id) + 1)
 const titulo = computed(() => {
   if (!comparando.value) return etiqueta(actual.value)
@@ -136,7 +140,12 @@ async function elige(id: string) {
   await ve({ laminilla: id, comparar: vista.value.comparar && !!l && companeras(M, l).length > 1, he: vista.value.he })
   if (enGaleria) document.querySelector<HTMLElement>(`.gal__item[data-l="${CSS.escape(id)}"]`)?.focus({ preventScroll: true })
 }
-const mueve = (d: number) => elige(vecinaEnGaleria(M, actual.value.id, d, por.value).id)
+const mueve = (d: number) => elige(vecinaEnGaleria(M, actual.value.id, d, por.value, zona.value).id)
+/** Otra zona: su primera laminilla (la HE de su primera muestra, que encabeza la galería por muestra). */
+const primeraDeZona = (z: string) => gruposGaleria(M, 'muestra', z)[0]?.laminillas[0]?.id ?? primeraLaminilla(M).id
+function eligeZona(z: string) {
+  if (z !== zona.value) elige(primeraDeZona(z))
+}
 const alternaComparar = () => ve({ ...vista.value, laminilla: actual.value.id, comparar: !comparando.value }, false)
 const alternaHE = () => ve({ ...vista.value, laminilla: actual.value.id, he: !conHE.value }, false)
 
@@ -235,7 +244,7 @@ onBeforeUnmount(() => {
           <h2 id="lam-titulo" class="lam__titulo" aria-live="polite">
             <span class="lam__titulo-texto lam__titulo-largo">{{ titulo }}</span>
             <span class="lam__titulo-texto lam__titulo-corto" aria-hidden="true">{{ tituloCorto }}</span>
-            <span class="lam__pos"><span class="sr-only">{{ ', ' + L('laminilla', 'slide') + ' ' }}</span>{{ L(`${posicion} de ${total}`, `${posicion} of ${total}`) }}</span>
+            <span class="lam__pos"><span class="sr-only">{{ ', ' + L('laminilla', 'slide') + ' ' }}</span>{{ L(`${posicion} de ${orden.length}`, `${posicion} of ${orden.length}`) }}</span>
           </h2>
           <div class="lam__acciones">
             <!-- Interruptor, como «HE al lado»: el texto no cambia (el nombre accesible es el mismo, 2.5.3); se marca pulsado. -->
@@ -271,12 +280,16 @@ onBeforeUnmount(() => {
         :manifest="M"
         :idioma="idioma"
         :por="por"
+        :zona="zona"
+        :zonas="zonasM"
+        :primera-de-zona="primeraDeZona"
         :activa="actual.id"
         :tambien="enVista.filter((l) => l.id !== actual.id).map((l) => l.id)"
         :enlace="enlace"
         :inert="modal ? '' : undefined"
         @elige="elige"
         @por="porElegida = $event"
+        @zona="eligeZona"
       />
 
       <div v-if="modal" class="lam__velo" aria-hidden="true" @click="alternaFicha" />

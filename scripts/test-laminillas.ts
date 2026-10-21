@@ -6,7 +6,7 @@
 //
 // Uso:  pnpm test:laminillas
 import { existsSync, readFileSync } from 'node:fs'
-import { filas, grupoPaneo, heDe, deMuestra, reglaRedonda, gruposGaleria, ordenGaleria, primeraLaminilla, vistaDeQuery, queryDeVista, companeras, vecinaEnGaleria, type Manifest } from '../app/utils/laminillas'
+import { filas, grupoPaneo, heDe, deMuestra, reglaRedonda, gruposGaleria, ordenGaleria, primeraLaminilla, vistaDeQuery, queryDeVista, companeras, vecinaEnGaleria, zonas, zonaDe, nombreZona, type Manifest } from '../app/utils/laminillas'
 
 const M = JSON.parse(readFileSync('app/data/laminillas.json', 'utf-8')) as Manifest
 let fallos = 0
@@ -108,6 +108,17 @@ const ultimaG = ordenGaleria(M, 'muestra').at(-1)!
 ok(vecinaEnGaleria(M, ultimaG.id, 1, 'muestra').id === ordenGaleria(M, 'muestra')[0]!.id, 'siguiente de la última: vuelve a la primera')
 ok(vecinaEnGaleria(M, ordenGaleria(M, 'tincion')[0]!.id, 1, 'tincion').id === ordenGaleria(M, 'tincion')[1]!.id, 'siguiente sigue el orden de la galería elegida')
 
+console.log('Zonas (mama, hígado y, cuando haya, hueso)')
+const Z = zonas(M)
+ok(Z.join() === [...new Set(M.muestras.map((m) => m.grupo_paneo))].join(), `zonas en el orden de las muestras (${Z.join(', ')})`)
+ok(Z.every((z) => !!nombreZona(M, z).es && !!nombreZona(M, z).en), 'cada zona tiene nombre en es y en')
+for (const z of Z) {
+  const o = ordenGaleria(M, 'muestra', z)
+  ok(o.length > 0 && o.every((l) => zonaDe(M, l.muestra) === z), `zona ${z}: la galería solo trae sus laminillas (${o.length})`)
+  ok(o.every((l) => zonaDe(M, vecinaEnGaleria(M, l.id, 1, 'muestra', z).muestra) === z), `zona ${z}: anterior/siguiente no se sale de ella`)
+}
+ok(Z.reduce((n, z) => n + ordenGaleria(M, 'muestra', z).length, 0) === M.laminillas.length, 'entre todas las zonas están las 32')
+
 console.log('Una 4.ª columna entra sin tocar código')
 const M4: Manifest = structuredClone(M)
 M4.muestras.push({ id: 'hueso-zurich', corto: { es: 'Hueso', en: 'Bone' }, largo: { es: 'Hueso', en: 'Bone' }, grupo_paneo: 'hueso', escaner: 'x', mpp: 0.25, aumento: '40x' })
@@ -119,6 +130,7 @@ ok(F4.filter((f) => f.n === M4.muestras.length).map((f) => f.marcador.id).sort()
   'las filas con todas las columnas (también la nueva) suben arriba')
 ok(grupoPaneo(M4, 'hueso-zurich') !== grupoPaneo(M4, 'mama-2024'), 'la columna nueva tiene su propio grupo de paneo')
 ok(heDe(M4, 'hueso-zurich')?.id === 'hueso-zurich/he', 'y su propia HE de referencia')
+ok(zonas(M4).includes('hueso') && nombreZona(M4, 'hueso').es === 'Hueso', 'y su zona «Hueso» aparece sola en el selector')
 
 console.log('Regla')
 for (const um of [0.05, 0.25, 1, 7.3, 40]) {

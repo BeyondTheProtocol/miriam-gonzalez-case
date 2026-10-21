@@ -169,9 +169,14 @@ const gal = await ev(`(() => ({
   grupos: document.querySelectorAll('.gal__grupo').length,
   minis: document.querySelectorAll('.gal__mini').length,
 }))()`)
-ok(gal.minis === manifest.laminillas.length, `una miniatura por laminilla (${gal.minis}/${manifest.laminillas.length})`)
+// La galería enseña la zona de la laminilla que se ve (al llegar, la mama); el resto, tras su pestaña.
+const zonaDeM = (id) => { const m = manifest.muestras.find((x) => x.id === id); return m.zona ?? m.grupo_paneo }
+const zona0 = zonaDeM(manifest.muestras[0].id)
+const enZona0 = manifest.laminillas.filter((l) => zonaDeM(l.muestra) === zona0)
+ok(gal.minis === enZona0.length, `una miniatura por laminilla de la zona (${gal.minis}/${enZona0.length})`)
+ok(await ev(`[...document.querySelectorAll('a.gal__zona')].every((a) => /[?&]l=/.test(a.getAttribute('href') ?? ''))`), 'las pestañas de zona son enlaces (sin JS también se llega a cada zona)')
 ok(gal.enlaces.every((h) => /[?&]l=/.test(h ?? '')), 'cada miniatura es un enlace ?l= (sirve sin JS y para compartir)')
-ok(gal.grupos === manifest.muestras.length, `por muestra: un grupo por muestra (${gal.grupos})`)
+ok(gal.grupos === manifest.muestras.filter((m) => zonaDeM(m.id) === zona0).length, `por muestra: un grupo por muestra de la zona (${gal.grupos})`)
 ok(await ev(`document.querySelector('.gal__item[aria-current="true"]')?.dataset.l`) === manifest.laminillas.find((l) => l.muestra === manifest.muestras[0].id && l.marcador === 'he').id, 'sin query, se ve la HE de la primera muestra')
 
 console.log('Sin desplazar la página')
@@ -183,11 +188,11 @@ for (const [w, h] of [[1440, 900], [1366, 768], [1024, 768], [390, 844], [375, 6
   ok(sw.sw <= sw.w, `${w}×${h}: sin scroll horizontal (${sw.sw} ≤ ${sw.w})`)
 }
 await carga('/laminillas', 1440, 900)
-const destino = manifest.laminillas.find((l) => l.muestra === 'higado-2026' && l.marcador === 'her2')
+const destino = manifest.laminillas.find((l) => l.muestra === 'mama-reeval' && l.marcador === 'her2')
 await verEnGaleria(destino.id)
 await clic(MINI(destino.id))
 ok(await espera(`${L_()} === '${destino.id}'`, 8000), 'clic en una miniatura: el visor pasa a esa laminilla')
-ok(await ev(`document.querySelector('#lam-titulo').textContent.includes('Hígado')`), 'y el título lo dice')
+ok(await ev(`document.querySelector('#lam-titulo').textContent.includes('revisión')`), 'y el título lo dice')
 await clic(`document.querySelector('.lam__flecha--sig')`)
 const tras = await ev(L_())
 ok(tras && tras !== destino.id, `‹ › encima de la imagen: «siguiente» cambia de laminilla (${tras})`)
@@ -212,7 +217,22 @@ await clic(`[...document.querySelectorAll('.lam__accion')].find((b) => b.getAttr
 ok(await espera(`getComputedStyle(document.querySelector('#lam-ficha')).display !== 'none' && document.querySelectorAll('#lam-ficha .ficha').length >= ${nRe}`, 4000), 'y la vuelve a abrir con una ficha por panel')
 ok(await ev(`scrollY === 0`), 'después de todo eso, la página no se ha movido (scrollY = 0)')
 await clic(`[...document.querySelectorAll('.gal__por-boton')].find((b) => /tinción/.test(b.textContent))`)
-ok(await espera(`document.querySelectorAll('.gal__grupo').length === ${new Set(manifest.laminillas.map((l) => l.marcador)).size}`, 4000), '«Por tinción»: un grupo por tinción')
+ok(await espera(`document.querySelectorAll('.gal__grupo').length === ${new Set(enZona0.map((l) => l.marcador)).size}`, 4000), '«Por tinción»: un grupo por tinción de la zona')
+
+console.log('Zonas')
+await carga('/laminillas', 1440, 900)
+const zonasEsperadas = [...new Set(manifest.muestras.map((m) => m.grupo_paneo))]
+ok(await ev(`document.querySelectorAll('.gal__zona').length`) === zonasEsperadas.length, `una pestaña por zona (${zonasEsperadas.length})`)
+await clic(`[...document.querySelectorAll('.gal__zona')].find((b) => /Hígado/.test(b.textContent))`)
+const higado = manifest.laminillas.filter((l) => l.muestra === 'higado-2026')
+ok(await espera(`/^higado-2026\\//.test(${L_()} ?? '') && document.querySelectorAll('.gal__item').length === ${higado.length}`, 8000), `«Hígado»: la galería trae solo sus ${higado.length} laminillas y el visor salta a la primera`)
+ok(await ev(`document.querySelector('.lam__pos').textContent.trim().endsWith('1 de ${higado.length}')`), `el contador cuenta dentro de la zona («1 de ${higado.length}»)`)
+await clic(`document.querySelector('.lam__flecha--ant')`)
+ok(await espera(`/^higado-2026\\//.test(${L_()} ?? '')`, 6000), '‹ desde la primera vuelve a la última del hígado, sin salir de la zona')
+await clic(`[...document.querySelectorAll('.gal__zona')].find((b) => /Mama/.test(b.textContent))`)
+ok(await espera(`/^mama-2024\\//.test(${L_()} ?? '')`, 6000) && await ev(`scrollY === 0`), '«Mama» vuelve a la mama, sin mover la página')
+await carga('/laminillas', 390, 844)
+ok(await ev(`[...document.querySelectorAll('.gal__zona')].every((b) => b.offsetParent && b.getBoundingClientRect().height >= 44)`), 'móvil: las pestañas de zona se ven y miden 44 px')
 
 console.log('Ficha y orden')
 await carga('/laminillas?l=higado-2026/re', 1440, 900)

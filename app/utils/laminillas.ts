@@ -24,6 +24,8 @@ export interface Muestra {
   aumento: string
   /** Texto corto de procedencia de la columna, apto para público (sin siglas ni números de bloque). */
   nota?: Texto
+  /** Zona del cuerpo (mama, hígado, hueso…). Si falta, la da `grupo_paneo` (mismo bloque = misma zona). */
+  zona?: string
 }
 
 export interface Marcador {
@@ -124,6 +126,26 @@ export function reglaRedonda(umPorPx: number, idioma: Idioma = 'es', min = 64, m
 // tinción en todas sus muestras), y la galería lista las 32 para ir cambiando.
 
 export type Agrupacion = 'muestra' | 'tincion'
+
+// ── Zonas (Miriam, 21-oct: «tiene que haber un selector de zona mama, hígado, hueso cuando haya»).
+// Salen de los datos: cuando entren laminillas de hueso, su zona aparece sola.
+const NOMBRES_ZONA: Record<string, Texto> = {
+  mama: { es: 'Mama', en: 'Breast' },
+  higado: { es: 'Hígado', en: 'Liver' },
+  hueso: { es: 'Hueso', en: 'Bone' },
+}
+export const zonaDe = (m: Manifest, muestra: string): string => {
+  const x = m.muestras.find((y) => y.id === muestra)
+  return x?.zona ?? x?.grupo_paneo ?? muestra
+}
+/** Las zonas con laminillas, en el orden de las muestras. */
+export const zonas = (m: Manifest): string[] => [...new Set(m.muestras.filter((x) => m.laminillas.some((l) => l.muestra === x.id)).map((x) => zonaDe(m, x.id)))]
+/** Nombre de la zona; si no está en la lista, la primera palabra del nombre corto de su primera muestra. */
+export function nombreZona(m: Manifest, zona: string): Texto {
+  if (NOMBRES_ZONA[zona]) return NOMBRES_ZONA[zona]!
+  const x = m.muestras.find((y) => zonaDe(m, y.id) === zona)
+  return x ? { es: x.corto.es.split(' ')[0]!, en: x.corto.en.split(' ')[0]! } : { es: zona, en: zona }
+}
 export interface GrupoGaleria { id: string; laminillas: Laminilla[] }
 /** Lo que enseña el visor: la laminilla `laminilla`, sola o comparada, con o sin su HE al lado. */
 export interface Vista { laminilla: string; comparar: boolean; he: boolean }
@@ -132,13 +154,14 @@ export interface Vista { laminilla: string; comparar: boolean; he: boolean }
  * Grupos de la galería. Por muestra: el orden del manifest y, dentro, el de las filas (HE primero).
  * Por tinción: el orden de las filas y, dentro, el de las muestras (quedan juntas, p. ej., las RE).
  */
-export function gruposGaleria(m: Manifest, por: Agrupacion): GrupoGaleria[] {
-  if (por === 'muestra') return m.muestras.map((x) => ({ id: x.id, laminillas: deMuestra(m, x.id) })).filter((g) => g.laminillas.length)
-  return filas(m).map((f) => ({ id: f.marcador.id, laminillas: m.muestras.flatMap((x) => f.celdas[x.id] ?? []) }))
+export function gruposGaleria(m: Manifest, por: Agrupacion, zona?: string): GrupoGaleria[] {
+  const enZona = m.muestras.filter((x) => !zona || zonaDe(m, x.id) === zona)
+  if (por === 'muestra') return enZona.map((x) => ({ id: x.id, laminillas: deMuestra(m, x.id) })).filter((g) => g.laminillas.length)
+  return filas(m).map((f) => ({ id: f.marcador.id, laminillas: enZona.flatMap((x) => f.celdas[x.id] ?? []) })).filter((g) => g.laminillas.length)
 }
 
 /** Las laminillas en el orden de la galería (el que recorren anterior/siguiente). */
-export const ordenGaleria = (m: Manifest, por: Agrupacion) => gruposGaleria(m, por).flatMap((g) => g.laminillas)
+export const ordenGaleria = (m: Manifest, por: Agrupacion, zona?: string) => gruposGaleria(m, por, zona).flatMap((g) => g.laminillas)
 
 /** La primera laminilla: la HE de la primera muestra (o la primera que haya). */
 export const primeraLaminilla = (m: Manifest): Laminilla => heDe(m, m.muestras[0]!.id) ?? m.laminillas[0]!
@@ -176,9 +199,9 @@ export function companeras(m: Manifest, l: Laminilla): Laminilla[] {
   return m.muestras.filter((x) => f.celdas[x.id]).map((x) => (x.id === l.muestra ? l : f.celdas[x.id]![0]!))
 }
 
-/** Anterior/siguiente en el orden de la galería, con vuelta al principio. */
-export function vecinaEnGaleria(m: Manifest, id: string, d: number, por: Agrupacion): Laminilla {
-  const orden = ordenGaleria(m, por)
+/** Anterior/siguiente en el orden de la galería (dentro de la zona, si se da), con vuelta al principio. */
+export function vecinaEnGaleria(m: Manifest, id: string, d: number, por: Agrupacion, zona?: string): Laminilla {
+  const orden = ordenGaleria(m, por, zona)
   const i = Math.max(0, orden.findIndex((l) => l.id === id))
   return orden[(i + d + orden.length) % orden.length]!
 }

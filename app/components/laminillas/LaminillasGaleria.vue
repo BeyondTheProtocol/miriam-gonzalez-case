@@ -5,25 +5,33 @@
  * Escritorio: columna a la izquierda del visor, que se desplaza ella sola. Móvil: tira deslizable
  * bajo el visor (se desliza la tira, no la imagen: en el visor ese gesto ya mueve la laminilla).
  *
+ * Arriba, la zona (mama, hígado y, cuando haya, hueso): la galería enseña solo sus laminillas.
+ *
  * Cada laminilla es un enlace de verdad (?l=…): sin JS se puede abrir y compartir; con JS la página
  * cambia el visor en su sitio. La activa lleva aria-current y la galería la mantiene a la vista.
  */
-import { gruposGaleria, type Agrupacion, type Idioma, type Laminilla, type Manifest } from '~/utils/laminillas'
+import { gruposGaleria, nombreZona, type Agrupacion, type Idioma, type Laminilla, type Manifest } from '~/utils/laminillas'
 
 const props = defineProps<{
   manifest: Manifest
   idioma: Idioma
   por: Agrupacion
+  /** Zona que se ve y las que hay (si hay una sola, no se enseña el selector). */
+  zona: string
+  zonas: string[]
   activa: string
+  /** Primera laminilla de cada zona (destino del enlace de su pestaña). */
+  primeraDeZona: (zona: string) => string
   /** Las otras laminillas que se ven al comparar (se marcan, sin aria-current). */
   tambien: string[]
   enlace: (id: string) => string
 }>()
-const emit = defineEmits<{ elige: [id: string]; por: [por: Agrupacion] }>()
+const emit = defineEmits<{ elige: [id: string]; por: [por: Agrupacion]; zona: [zona: string] }>()
 const L = (es: string, en: string) => (props.idioma === 'en' ? en : es)
 const t = (x: { es: string; en: string } | undefined) => (x ? x[props.idioma] : '')
 
-const grupos = computed(() => gruposGaleria(props.manifest, props.por))
+const grupos = computed(() => gruposGaleria(props.manifest, props.por, props.zona))
+const enZona = computed(() => grupos.value.reduce((n, g) => n + g.laminillas.length, 0))
 const marcador = (id: string) => props.manifest.marcadores.find((m) => m.id === id)
 const muestra = (id: string) => props.manifest.muestras.find((m) => m.id === id)
 const tituloGrupo = (id: string) => (props.por === 'muestra' ? t(muestra(id)?.corto) : t(marcador(id)?.nombre))
@@ -36,6 +44,11 @@ const corto = (l: Laminilla) => {
   const base = props.por === 'muestra' ? t(marcador(l.marcador)?.nombre).split(' · ')[0]! : t(muestra(l.muestra)?.corto)
   const n = numCorte(l)
   return n ? `${base} ${n}` : conVariante(base, l)
+}
+function clicZona(e: MouseEvent, z: string) {
+  if (e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return
+  e.preventDefault()
+  emit('zona', z)
 }
 /** Clic normal: cambia el visor en su sitio. Con Ctrl/Cmd/Mayús o botón central, el enlace hace lo suyo. */
 function clic(e: MouseEvent, id: string) {
@@ -66,8 +79,18 @@ onMounted(() => nextTick(aLaVista))
 
 <template>
   <nav class="gal" :aria-label="L('Galería de laminillas', 'Slide gallery')">
+    <div v-if="zonas.length > 1" class="gal__zonas" role="group" :aria-label="L('Zona', 'Area')">
+      <a
+        v-for="z in zonas"
+        :key="z"
+        :href="enlace(primeraDeZona(z))"
+        class="gal__zona"
+        :aria-current="z === zona ? 'true' : undefined"
+        @click="clicZona($event, z)"
+      >{{ t(nombreZona(manifest, z)) }}</a>
+    </div>
     <div class="gal__cab">
-      <span class="gal__n">{{ L(`${manifest.laminillas.length} laminillas`, `${manifest.laminillas.length} slides`) }}</span>
+      <span class="gal__n">{{ L(`${enZona} laminillas`, `${enZona} slides`) }}</span>
       <div class="gal__por" role="group" :aria-label="L('Agrupar por', 'Group by')">
         <button type="button" class="gal__por-boton" :aria-pressed="por === 'muestra'" @click="emit('por', 'muestra')">{{ L('Por muestra', 'By sample') }}</button>
         <button type="button" class="gal__por-boton" :aria-pressed="por === 'tincion'" @click="emit('por', 'tincion')">{{ L('Por tinción', 'By stain') }}</button>
@@ -100,6 +123,15 @@ onMounted(() => nextTick(aLaVista))
 
 <style scoped>
 .gal { display: flex; flex-direction: column; min-height: 0; height: 100%; background: var(--color-bg); }
+.gal__zonas { display: flex; gap: 4px; padding: 10px 12px 0; }
+.gal__zona { flex: 1 1 0; display: inline-flex; align-items: center; justify-content: center; min-height: 44px; padding: 0 10px; border-radius: var(--radius-md);
+  border: 1px solid var(--trazo-interactivo); background: var(--color-bg-card); font: 600 var(--texto-sm) var(--font-body); color: var(--color-text); text-decoration: none; }
+/* La actual: violeta suave, borde violeta y subrayado (no solo color, 1.4.1). */
+.gal__zona[aria-current='true'] { background: var(--seleccionado-bg); border-color: var(--color-miriam); text-decoration: underline; text-underline-offset: 4px; }
+.gal__zona:focus-visible { outline: 3px solid var(--anillo-foco); outline-offset: 2px; }
+@media (hover: hover) and (pointer: fine) {
+  .gal__zona:not([aria-current='true']):hover { border-color: var(--color-miriam); }
+}
 .gal__cab { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 6px; padding: 10px 12px 8px;
   border-bottom: 1px solid color-mix(in srgb, var(--color-text) 10%, transparent); }
 .gal__n { font-family: var(--font-mono); font-size: var(--texto-xs); color: var(--color-text-soft); }
@@ -129,6 +161,7 @@ onMounted(() => nextTick(aLaVista))
 @media (max-width: 767px) {
   .gal { height: auto; border-top: 1px solid color-mix(in srgb, var(--color-text) 12%, transparent); }
   .gal__cab { display: none; }
+  .gal__zonas { padding: 6px 10px 0; }
   .gal__lista { display: flex; gap: 10px; overflow-x: auto; overflow-y: hidden; padding: 6px 10px 8px; scroll-snap-type: x proximity; scrollbar-width: thin; }
   .gal__grupo { display: flex; align-items: flex-start; gap: 4px; flex: none; }
   .gal__titulo { position: static; writing-mode: vertical-rl; transform: rotate(180deg); padding: 2px 0; font-size: var(--texto-xs); letter-spacing: .04em; max-height: 72px; overflow: hidden; }
