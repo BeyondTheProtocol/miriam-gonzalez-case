@@ -74,6 +74,19 @@ export const ETIQUETA_BANDA: Record<Banda, { es: string; en: string }> = {
   muy_baja: { es: 'Muy baja (< 50)', en: 'Very low (< 50)' },
 }
 
+/** Parte de los aminoácidos con confianza muy baja (pLDDT < 50), de 0 a 1: la línea de la vista previa (verificacion, 21-oct). */
+export function fraccionMuyBaja(plddt: ArrayLike<number>): number {
+  if (!plddt.length) return 0
+  let k = 0
+  for (let i = 0; i < plddt.length; i++) if (banda(plddt[i]!) === 'muy_baja') k++
+  return k / plddt.length
+}
+/** Aviso fuerte de la vista previa: más de la mitad en confianza muy baja. El umbral es NUESTRO: la FAQ de AlphaFold DB
+ * solo dice que lo < 50 no se interpreta, no da regla por proteína (verificacion, 21-oct). Con la v6, MUC1 (0,71) y
+ * ANKRD30A (0,523); SLC39A6 se queda en 0,461 y lleva solo la línea. */
+export const UMBRAL_AVISO = 0.5
+export const avisoConfianza = (fraccion: number) => fraccion > UMBRAL_AVISO
+
 /** Centro y radio de la traza, para encuadrar la cámara. */
 export function encuadre(t: Traza): { centro: [number, number, number]; radio: number } {
   if (!t.n) return { centro: [0, 0, 0], radio: 1 }

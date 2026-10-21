@@ -594,6 +594,24 @@ const motivoDetalle = computed(() => (d.value?.genes.includes(gen.value) ? motiv
  * estado: nace plegada cada vez que se monta, por cualquier camino). */
 const uniprotDetalle = computed(() => (listo.value ? uniprotDe(gen.value) : null))
 const formaALaVista = (el: HTMLElement) => { void nextTick(() => aLaVista(el)) }
+/** la vista previa de la forma (CelulaExplorarVistaForma, una sola): «3D» en «Genes de interés» la abre; el bloque del
+ * detalle se despliega desde fuera con su abre() («Forma 3D» junto al título y «Ver la forma completa»; 21-oct-2026) */
+const vistaForma = ref<{ entra: (g: string, el: HTMLElement) => void; sale: () => void; fija: (g: string, el: HTMLElement, tactil: boolean) => void; abiertaDe: string | null } | null>(null)
+const formaRef = ref<{ abre: () => void } | null>(null)
+function alForma(tipo: 'entra' | 'sale' | 'fija', g: string, el: HTMLElement, tactil: boolean) {
+  const v = vistaForma.value
+  if (!v) return
+  if (tipo === 'entra') v.entra(g, el)
+  else if (tipo === 'sale') v.sale()
+  else v.fija(g, el, tactil)
+}
+/** «Ver la forma completa»: abre el gen (si no es el del detalle) y, ya pintado el detalle, despliega su bloque. Después del
+ * nextTick de abreGen, que pone el foco en el detalle: el foco acaba en el título del bloque */
+async function verFormaCompleta(g: string) {
+  if (!(detalle.value && activo.value === g) && (await abreGen(g, 'interes', { revela: true })) !== true) return
+  await nextTick()
+  formaRef.value?.abre()
+}
 /** La otra biopsia en el detalle del gen (19-oct): comparar hígado y hueso sin memorizar cifras. La cifra del grupo de
  * interés de la otra biopsia, con su suelo, su referencia y su lectura: las mismas funciones y el mismo fichero que su
  * lista de llegada (CelulaExplorarInteres), nada escrito a mano. Solo genes de la revisión que están en los dos ficheros
@@ -691,6 +709,8 @@ onBeforeUnmount(() => { ro?.disconnect(); roB?.disconnect() })
 function sinTapar(ev: FocusEvent) {
   const el = ev.target as HTMLElement
   if (!el?.matches?.(':focus-visible')) return
+  // la vista previa de la forma flota en la capa superior: desplazar la página no la destapa, solo la descoloca
+  if (el.closest('.pv__flota, .pv__hoja')) return
   // dentro del panel con scroll propio, primero el panel; el tope es el del panel pegado (revisión del PR #294)
   aLaVista(el, true)
 }
@@ -851,6 +871,12 @@ function sinTapar(ev: FocusEvent) {
             </div>
             <p class="exp__dbiop" aria-hidden="true">{{ etiqueta(ETIQUETA_LESION, lesion, lang) }}</p>
             <h2 id="exp-dh2" class="exp__h2">{{ L(`${nombreGen(activo)}, grupo a grupo`, `${nombreGen(activo)}, group by group`) }}<span class="sr-only"> · {{ etiqueta(ETIQUETA_LESION, lesion, lang) }}</span>{{ ej }}</h2>
+            <!-- la forma 3D, a un toque desde arriba: el bloque sigue bajo las cifras (Adri y verificacion, 20-oct), pero en el
+                 móvil quedaba a cinco pantallas (Miriam, 21-oct). Icono Phosphor «cube» (regular), de @phosphor-icons/core 2.1.1 -->
+            <button v-if="uniprotDetalle" type="button" class="exp__dforma" @click="formaRef?.abre()">
+              <svg viewBox="0 0 256 256" aria-hidden="true"><path fill="currentColor" d="M223.68,66.15,135.68,18h0a15.88,15.88,0,0,0-15.36,0l-88,48.17a16,16,0,0,0-8.32,14v95.64a16,16,0,0,0,8.32,14l88,48.17a15.88,15.88,0,0,0,15.36,0l88-48.17a16,16,0,0,0,8.32-14V80.18A16,16,0,0,0,223.68,66.15ZM128,32h0l80.34,44L128,120,47.66,76ZM40,90l80,43.78v85.79L40,175.82Zm96,129.57V133.82L216,90v85.78Z" /></svg>
+              {{ L('Forma 3D', '3D shape') }}<span class="sr-only">{{ L(` de ${PROT(gen)}, más abajo`, ` of ${PROT(gen)}, further down`) }}</span>
+            </button>
             <!-- recién cambiada la biopsia: el gen activo aún se está leyendo en ella (nada de cifras de otro gen mientras) -->
             <p v-if="!listo" class="exp__estado exp__leyendo" role="status">{{ L(`Leyendo ${nombreGen(activo)} en esta biopsia…`, `Reading ${nombreGen(activo)} in this biopsy…`) }}</p>
             <template v-else>
@@ -877,12 +903,12 @@ function sinTapar(ev: FocusEvent) {
             <CelulaExplorarViolines :filas="filas" :gen="gen" :lang="lang" :lesion="lesion" :adn="d.adn" :papel="d.seleccion[gen]" :loo="d.loo[gen]" :referencia="d.referencia[gen]" />
             <!-- la forma de la proteína (AlphaFold), debajo de las cifras y plegada: el modelo solo se pide al abrirla; al
                  montarse el visor, se pone a la vista (en escritorio se abría fuera del panel; diseno, 20-oct) -->
-            <CelulaExplorarForma v-if="uniprotDetalle" :key="`forma-${gen}`" :gen="gen" :uniprot="uniprotDetalle" :proteina="PROT(gen)" :lang="lang" :tema="tema" @montado="formaALaVista" />
+            <CelulaExplorarForma v-if="uniprotDetalle" ref="formaRef" :key="`forma-${gen}`" :gen="gen" :uniprot="uniprotDetalle" :proteina="PROT(gen)" :lang="lang" :tema="tema" @montado="formaALaVista" />
             </template>
           </div>
           <div v-show="!(detalle && activo) && panel === 'interes'" class="exp__pcuerpo">
             <h2 class="sr-only">{{ L('Genes de interés', 'Genes of interest') }}{{ ej }}</h2>
-            <CelulaExplorarInteres :d="d" :lang="lang" :activo="activo" :sin-mapa="!!errorMapa" @elegir="(g: string) => abreGen(g, 'interes', { revela: true })" @tabla="abreTabla" />
+            <CelulaExplorarInteres :d="d" :lang="lang" :activo="activo" :sin-mapa="!!errorMapa" :forma-abierta="vistaForma?.abiertaDe ?? null" @elegir="(g: string) => abreGen(g, 'interes', { revela: true })" @tabla="abreTabla" @forma="alForma" />
           </div>
           <div v-show="!(detalle && activo) && panel === 'marcadores'" class="exp__pcuerpo">
             <h2 class="sr-only">{{ L('Marcadores por grupo', 'Markers per group') }}{{ ej }}</h2>
@@ -939,6 +965,8 @@ function sinTapar(ev: FocusEvent) {
           <CelulaExplorarQc :d="d" :lang="lang" />
         </div>
       </details>
+      <!-- la vista previa de la forma 3D: una sola, dentro de .exp (hereda data-tema); sale en la capa superior -->
+      <CelulaExplorarVistaForma ref="vistaForma" :lang="lang" :tema="tema" @completa="verFormaCompleta" />
     </template>
   </section>
 </template>
@@ -1087,6 +1115,18 @@ function sinTapar(ev: FocusEvent) {
 /* en estrecho el mapa queda encima del panel: el detalle trae un botón para volver a verlo (sin salto automático) */
 .exp__vermapa { min-height: 44px; padding: 0 var(--sp-16); border-radius: var(--radius-pill); border: 1px solid var(--trazo-interactivo); background: transparent; color: var(--texto-1); font: 600 var(--texto-sm)/1 var(--font-body); cursor: pointer; }
 .exp__vermapa:focus-visible { outline: 2px solid var(--anillo-foco); outline-offset: 2px; }
+/* «Forma 3D» bajo el título del detalle: la misma píldora que «3D» de la lista */
+.exp__dforma {
+  display: inline-flex; align-items: center; gap: var(--sp-8); min-height: 44px; margin: calc(-1 * var(--sp-4)) 0 var(--sp-12); padding: 0 var(--sp-16) 0 var(--sp-12);
+  border: 1px solid var(--trazo-interactivo); border-radius: var(--radius-pill); background: transparent; color: var(--identidad);
+  font: 600 var(--texto-sm)/1 var(--font-body); cursor: pointer;
+  -webkit-tap-highlight-color: transparent; touch-action: manipulation; transition: transform var(--dur-micro) var(--curva-entrada);
+}
+.exp__dforma svg { width: 18px; height: 18px; flex: none; }
+.exp__dforma:active { transform: scale(0.97); }
+@media (hover: hover) and (pointer: fine) { .exp__dforma:hover { background: var(--trazo-sutil); } }
+.exp__dforma:focus-visible { outline: 2px solid var(--anillo-foco); outline-offset: 2px; }
+@media (prefers-reduced-motion: reduce) { .exp__dforma { transition: none; } .exp__dforma:active { transform: none; } }
 .exp__volver { display: inline-flex; align-items: center; gap: var(--sp-4); min-height: 44px; padding: 0 var(--sp-8) 0 0; border: 0; background: none; color: var(--identidad); font: 600 var(--texto-sm)/1.2 var(--font-body); cursor: pointer; }
 .exp__volver svg { width: 16px; height: 16px; }
 .exp__tecnico + .exp__tecnico { margin-top: var(--sp-8); }

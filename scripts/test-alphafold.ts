@@ -13,11 +13,14 @@
 //      modelo, con iconos Phosphor cotejados; el aviso de la rueda sale una vez por visor (diseno, 20-oct; el
 //      comportamiento en navegador lo prueba test:alphafold-visor);
 //   6. el muro del copy: crédito, citas y «predicción, no medición» visibles; sin «vacuna», «científica», «Olune» ni
-//      «tumor» en el texto visible.
+//      «tumor» en el texto visible;
+//   7. la vista previa al pasar el ratón por «3D» (Miriam, 21-oct-2026): una sola, solo con ratón, sin abrirse al enfocar,
+//      con el visor compacto (sin mandos, vuelta de 5 s, ids propios), los avisos y la regla de confianza muy baja (> 50 %,
+//      cotejada con la API de AlphaFold DB el 21-oct). El comportamiento en navegador lo prueba test:alphafold-visor.
 // Uso: pnpm test:alphafold   (no necesita build)
 import { existsSync, readFileSync } from 'node:fs'
 import { join } from 'node:path'
-import { BANDAS, UNIPROT, banda, encuadre, pdbDeRespuesta, trazaCA, uniprotDe, uniprotValido } from '../app/utils/alphafold'
+import { BANDAS, UMBRAL_AVISO, UNIPROT, avisoConfianza, banda, encuadre, fraccionMuyBaja, pdbDeRespuesta, trazaCA, uniprotDe, uniprotValido } from '../app/utils/alphafold'
 import { PANEL_INTERES } from '../app/utils/celulaExploradorTexto'
 
 const raiz = join(import.meta.dirname, '..')
@@ -62,6 +65,16 @@ ok('lee x y el pLDDT del factor B', t.xyz[0] === 1 && t.xyz[3] === 4 && t.plddt[
 ok('encuadre centrado', Math.abs(encuadre(t).centro[0] - 4) < 1e-6 && Math.abs(encuadre(t).radio - 3) < 1e-6)
 ok('bandas de AlphaFold DB (> 90, > 70, > 50)', banda(90.1) === 'muy_alta' && banda(90) === 'alta' && banda(70) === 'baja' && banda(50) === 'muy_baja' && banda(10) === 'muy_baja')
 ok('cuatro bandas en orden', BANDAS.join() === 'muy_alta,alta,baja,muy_baja')
+ok('fracción de confianza muy baja (< 50, como la banda)', fraccionMuyBaja([95, 60, 30, 50]) === 0.5 && fraccionMuyBaja([]) === 0 && fraccionMuyBaja(t.plddt) === 1 / 3)
+// fractionPlddtVeryLow de la API de AlphaFold DB (v6), cotejada el 21-oct-2026 con curl (verificacion: en MUC1 la traza del PDB
+// da 891/1255 = 0,71, lo mismo). Si AlphaFold DB publica otra versión, se vuelve a cotejar
+const MUY_BAJA_V6: Record<string, number> = {
+  MUC1: 0.71, ANKRD30A: 0.523, SLC39A6: 0.461, ERBB3: 0.297, ERBB2: 0.245, FGFR1: 0.234, NECTIN4: 0.157, TPBG: 0.14, CD276: 0.107, TACSTD2: 0.087,
+}
+ok('el umbral del aviso es «más de la mitad»', UMBRAL_AVISO === 0.5 && !avisoConfianza(0.5) && avisoConfianza(0.501))
+const conAviso = Object.keys(MUY_BAJA_V6).filter((g) => avisoConfianza(MUY_BAJA_V6[g]!)).sort().join()
+ok('con la v6, el aviso fuerte sale en MUC1 y ANKRD30A, no en LIV-1 (0,461) ni en las demás', conAviso === 'ANKRD30A,MUC1', conAviso)
+ok('las cifras cotejadas son de las diez', JSON.stringify(Object.keys(MUY_BAJA_V6).sort()) === JSON.stringify(Object.keys(UNIPROT).sort()))
 
 /* ── 4 · dentro del explorador, plegado; la página vieja, fuera ── */
 const dir = ['app', 'components', 'celula', 'explorar'] as const
@@ -73,7 +86,7 @@ const cfg = lee('nuxt.config.ts')
 const tplForma = forma.match(/<template>[\s\S]*<\/template>/)?.[0] ?? ''
 ok('el bloque está en el detalle del gen (CelulaExplorarForma)', /<CelulaExplorarForma v-if="uniprotDetalle"/.test(explorador))
 ok('va después de los violines (primero las cifras)', explorador.indexOf('<CelulaExplorarViolines') < explorador.indexOf('<CelulaExplorarForma'))
-ok('plegado por defecto (<details> sin «open»)', /<details class="fo"/.test(tplForma) && !/<details[^>]*\sopen[\s>=:]/.test(tplForma))
+ok('plegado por defecto (<details> sin «open»)', /<details[^>]*\sclass="fo"/.test(tplForma) && !/<details[^>]*\sopen[\s>=:]/.test(tplForma))
 ok('el visor solo se monta al desplegar (Lazy + v-if)', /<LazyCelulaExplorarEstructura v-if="abierta"/.test(tplForma))
 // diseno, 20-oct: con el estado en el explorador, «Volver» y reabrir montaba el visor plegado; el estado vive en el bloque
 ok('el estado «abierto» vive en el bloque, no en el explorador', /const abierta = ref\(false\)/.test(forma) && !/formaAbierta/.test(explorador))
@@ -108,6 +121,35 @@ ok('iconos de 20 px centrados por la caja del botón', /\.de__paso \{[^}]*displa
 const rueda = lee('app', 'composables', 'useAlVer.ts').match(/export function ruedaConModificador[\s\S]*?\n\}/)?.[0] ?? ''
 ok('aviso de rueda: una vez por visor, y la rueda sola sigue sin llegar al canvas', /e\.stopPropagation\(\)\s*\n\s*if \(avisado\) return/.test(rueda) && /setTimeout\(\(\) => \{ avisado = true;/.test(rueda))
 
+/* ── 7 · la vista previa al pasar el ratón (21-oct-2026) ── */
+const vista = lee(...dir, 'CelulaExplorarVistaForma.vue')
+const interes = lee(...dir, 'CelulaExplorarInteres.vue')
+const tplVista = vista.match(/<template>[\s\S]*<\/template>/)?.[0] ?? ''
+const boton3d = interes.match(/<button v-if="uniprotDe\(f\.gen\)"[\s\S]*?<\/button>/)?.[0] ?? ''
+const CUBE = 'M223.68,66.15,135.68,18h0a15.88,15.88,0,0,0-15.36,0l-88,48.17a16,16,0,0,0-8.32,14v95.64a16,16,0,0,0,8.32,14l88,48.17a15.88,15.88,0,0,0,15.36,0l88-48.17a16,16,0,0,0,8.32-14V80.18A16,16,0,0,0,223.68,66.15ZM128,32h0l80.34,44L128,120,47.66,76ZM40,90l80,43.78v85.79L40,175.82Zm96,129.57V133.82L216,90v85.78Z'
+ok('«3D» solo en las proteínas con modelo, hermano del botón del gen (nunca dentro)', !!boton3d && /<\/button>\s*<!--[\s\S]*?-->\s*<button v-if="uniprotDe\(f\.gen\)"/.test(interes))
+ok('«3D» con texto visible y nombre accesible que lo contiene (2.5.3)', />3D<\/span>/.test(boton3d) && /`Forma 3D de \$\{nombre\(f\.gen\)\}`/.test(boton3d) && /`3D shape of /.test(boton3d))
+ok('«3D» dice que abre un diálogo y si está abierto', /aria-haspopup="dialog"/.test(boton3d) && /:aria-expanded="formaAbierta === f\.gen"/.test(boton3d))
+// diseno, 21-oct: abrir al enfocar abriría diez vistas al recorrer la lista con Tab; con teclado, Enter/Espacio (el clic)
+ok('no se abre al enfocar', !/@focus(in)?=/.test(boton3d))
+ok('el hover solo cuenta con ratón (el toque emula un mouseenter)', /pointerType === 'mouse'/.test(interes) && /@pointerenter="forma3d\(\$event, 'entra'/.test(boton3d))
+ok('icono «cube» de Phosphor cotejado (lista y detalle)', boton3d.includes(CUBE) && explorador.includes(CUBE))
+ok('una sola vista previa en el explorador, dentro de .exp', (explorador.match(/<CelulaExplorarVistaForma /g) ?? []).length === 1 && explorador.indexOf('<CelulaExplorarVistaForma') < explorador.lastIndexOf('</section>'))
+ok('esperas de abrir y cerrar (400 / 200 ms)', /ESPERA_ABRE = 400/.test(vista) && /ESPERA_CIERRA = 200/.test(vista))
+ok('Esc la cierra y el foco vuelve al «3D» (fija y hoja)', /e\.key !== 'Escape'/.test(vista) && /ancla\.focus\(/.test(vista) && /@close="alCerrarHoja"/.test(tplVista))
+ok('capa superior: popover manual en escritorio y <dialog> modal en la hoja', /popover="manual"/.test(tplVista) && /showPopover\(\)/.test(vista) && /<dialog ref="hoja"/.test(tplVista) && /showModal\(\)/.test(vista))
+ok('sin Teleport (heredaría el tema de :root, no el de .exp)', !/Teleport/i.test(tplVista))
+ok('el visor de la vista previa es el mismo, en compacto, montado solo al abrir', (tplVista.match(/<LazyCelulaExplorarEstructura [^>]*compacto/g) ?? []).length === 2 && /v-if="abierta && abierta\.modo !== 'hoja'"/.test(tplVista) && /v-if="abierta && abierta\.modo === 'hoja'"/.test(tplVista))
+ok('«Ver la forma completa» abre el bloque desde fuera, sin guardar su estado en el explorador', /defineExpose\(\{ abre \}\)/.test(forma) && /formaRef\.value\?\.abre\(\)/.test(explorador) && /formaRef\?\.abre\(\)/.test(explorador) && !/formaAbierta/.test(explorador))
+ok('compacto: ids y giro propios (sufijo -pv)', /const uid = `de-\$\{props\.uniprot\}\$\{props\.compacto \? '-pv' : ''\}`/.test(visor))
+ok('compacto: sin arrastre ni rueda, sin foco, role="img"', /if \(!props\.compacto\) \{\s*\n\s*controles = new OrbitControls/.test(visor) && /compacto \? 'img' : 'application'/.test(visor) && /:tabindex="estado === 'listo' && !compacto \? 0 : undefined"/.test(visor) && /<div v-if="!compacto" class="de__mandos-caja">/.test(visor))
+ok('compacto: una vuelta de 5 s (2.2.2), y quieta con movimiento reducido', /const SEG_VUELTA = props\.compacto \? 5 : 14/.test(visor) && /if \(!reduce && props\.compacto\) unaVuelta\(\)/.test(visor))
+ok('compacto: no mueve la página al montarse', /if \(visorEl\.value && !props\.compacto\) emit\('montado'/.test(visor))
+const pieCompacto = visor.match(/<figcaption v-if="compacto"[\s\S]*?<\/figcaption>/)?.[0] ?? ''
+ok('la vista previa lleva sello, «sin datos de la biopsia», leyenda, la línea de % y el crédito CC BY', pieCompacto.includes('Predicción, no medición.') && pieCompacto.includes('sin datos de la biopsia de Miriam') && pieCompacto.includes('with no data from Miriam’s biopsy') && pieCompacto.includes('class="de__leyenda"') && pieCompacto.includes('Confianza muy baja (pLDDT < 50) en el') && pieCompacto.includes('(Google DeepMind · EMBL-EBI)') && pieCompacto.includes('creativecommons.org/licenses/by/4.0'))
+ok('el aviso fuerte sale de la regla, no de una lista de genes', /<p v-if="avisoConfianza\(fMuyBaja\)" class="de__alerta">/.test(pieCompacto) && !/MUC1|ANKRD30A/.test(pieCompacto))
+ok('el aviso dice lo de la FAQ (no se interpretan; sin forma fija o dentro de un complejo)', pieCompacto.includes('esas zonas no deben interpretarse') && pieCompacto.includes('dentro de un complejo') && pieCompacto.includes('should not be interpreted'))
+
 /* ── 6 · el muro del copy ── */
 ok('crédito y licencia visibles', visor.includes('(Google DeepMind · EMBL-EBI)') && visor.includes('creativecommons.org/licenses/by/4.0'))
 ok('cita de AlphaFold (Jumper 2021) y de AlphaFold DB (Bertoni 2025)', visor.includes('10.1038/s41586-021-03819-2') && visor.includes('10.1093/nar/gkaf1226'))
@@ -117,7 +159,7 @@ ok('dice, arriba, que parte de la secuencia de referencia y no de la biopsia (ES
 ok('la regla de lectura de < 50 de la FAQ de AlphaFold DB (ES y EN)', visor.includes('(< 50) no se interpretan') && visor.includes('(< 50) should not be interpreted'))
 ok('la leyenda va antes del crédito y las referencias', visor.indexOf('class="de__leyenda"') < visor.indexOf('class="de__fuente"') && visor.indexOf('class="de__fuente"') < visor.indexOf("L('Referencias:'"))
 ok('cada estructura dice «predicción, no medición» (ES y EN)', visor.includes('Predicción, no medición.') && visor.includes('A prediction, not a measurement.'))
-const visible = (tplForma + visor + util).replace(/\/\*[\s\S]*?\*\//g, '').replace(/^\s*\/\/.*$/gm, '').replace(/<!--[\s\S]*?-->/g, '')
+const visible = (tplForma + visor + util + tplVista + boton3d).replace(/\/\*[\s\S]*?\*\//g, '').replace(/^\s*\/\/.*$/gm, '').replace(/<!--[\s\S]*?-->/g, '')
 for (const p of [/vacuna/i, /vaccine/i, /cient[ií]fica/i, /Olune/i]) ok(`sin ${p} en el texto visible`, !p.test(visible))
 ok('no dice «tumor» ni «maligno»', !/tumor|malign|c[aá]ncer/i.test(visible))
 ok('nada sobre fármacos ni dianas terapéuticas', !/f[aá]rmaco|drug|druggab|ep[ií]topo|epitope|tratamiento|treatment/i.test(visible))
