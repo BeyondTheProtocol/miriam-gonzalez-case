@@ -215,17 +215,37 @@ try {
   ok(await ev(`!document.querySelector('.pv__flota .de__alerta')`), 'HER2 (25 % muy baja): sin aviso fuerte')
   ok(await ev(`!document.querySelector('.pv__flota .de__mandos') && document.querySelector('.pv__flota .de__host').getAttribute('role') === 'img' && !document.querySelector('.pv__flota .de__host').hasAttribute('tabindex')`), 'compacta: sin mandos, un dibujo (role img) que no recibe el foco')
   const [fx, fy] = await ev(`(() => { const r = document.querySelector('.pv__flota').getBoundingClientRect(); return [r.x + r.width / 2, r.y + 20] })()`)
-  // del botón a la flotante en dos movimientos seguidos (sin esperar el acuse de cada uno: con WebGL por software el acuse
-  // tardaba segundos mientras gira y vencía la espera de cierre; un ratón real cruza esos ~100 px en 100–200 ms)
-  await Promise.all([raton((ex + fx) / 2, ey), raton(fx, fy)]); await sleep(900)
-  ok(await ev(flotaAbierta), 'el ratón puede entrar en ella sin que se cierre (1.4.13)')
-  await raton(5, 5); await sleep(1000)
+  // del botón a la flotante. Con WebGL por software el hilo se satura (un temporizador de 400 ms llegó a dispararse a los
+  // 18 s) y el tiempo de aquí no es el de un ratón real: se mide EN LA PÁGINA el hueco entre salir del «3D» y entrar en
+  // la flotante. Cerrada con un hueco menor que la espera de cierre = fallo de verdad; con un hueco mayor, el entorno no
+  // deja concluir (se dice, no se aprueba). La velocidad real la midió diseno con el hilo libre (143 px; 600 ms aguantan
+  // desde ~240 px/s)
+  await ev(`(() => { const f = document.querySelector('.pv__flota'); window.__hueco = {}; document.querySelector('.gin__3d[data-gen3d="ERBB2"]').addEventListener('pointerleave', () => { window.__hueco.sale = performance.now() }, { once: true }); f.addEventListener('pointerenter', () => { window.__hueco.entra = performance.now(); window.__hueco.abierta = f.matches(':popover-open') }, { once: true }); f.addEventListener('toggle', (e) => { if (e.newState === 'closed' && window.__hueco.cierra === undefined) window.__hueco.cierra = performance.now() }) })()`)
+  await Promise.all([raton((ex + fx) / 2, ey), raton(fx, fy)])
+  await espera(`window.__hueco.entra !== undefined || window.__hueco.cierra !== undefined`, 20000); await sleep(1200)
+  const h = await ev(`({ ...window.__hueco, ahora: document.querySelector('.pv__flota').matches(':popover-open') })`)
+  if (h.entra !== undefined && (h.abierta || h.entra - h.sale < 600)) ok(h.abierta && h.ahora, `el ratón puede entrar en ella sin que se cierre y se queda abierta (1.4.13; ${Math.round(h.entra - h.sale)} ms del botón a la flotante)`)
+  // se cerró antes de que el ratón entrara: fallo si fue antes de la espera de cierre; si no, el entorno no dejó llegar a tiempo
+  else if (h.cierra !== undefined && h.sale !== undefined && h.cierra - h.sale < 590) ok(false, `se cerró a los ${Math.round(h.cierra - h.sale)} ms de salir del «3D», antes de la espera de cierre (1.4.13)`)
+  else console.log(`  ⚠️  no concluyente (1.4.13): el entorno no llevó el ratón del «3D» a la flotante en menos de 600 ms (${JSON.stringify(h)})`)
+  await raton(5, 5); await sleep(1500)
   ok(!(await ev(flotaAbierta)), 'al salir, se cierra')
   await raton(ex, ey); await espera(FLOTA, 8000)
   await tecla('Escape'); await sleep(200)
   ok(!(await ev(flotaAbierta)), 'Esc la cierra sin mover el ratón (1.4.13)')
   ok(peticionesAF === base + 2, `reabrir la misma no vuelve a pedir el modelo (caché): ${peticionesAF - base}`)
   await raton(5, 5); await sleep(300)
+
+  // el aviso «Hígado…» sin fijar (página arriba): la flotante tampoco lo tapa (diseno, 21-oct)
+  await ev(`scrollTo({ top: 0, behavior: 'instant' })`); await sleep(400)
+  const arriba = await ev(`(() => { const r = document.querySelector('.gin__3d').getBoundingClientRect(); return r.top > 0 && r.bottom < innerHeight ? [r.x + r.width / 2, r.y + r.height / 2] : null })()`)
+  if (arriba) {
+    await raton(arriba[0], arriba[1])
+    ok(await espera(FLOTA, 8000) && await ev(`document.querySelector('.pv__flota').getBoundingClientRect().top >= document.querySelector('.exp__bannerfijo').getBoundingClientRect().bottom`), 'con la página arriba, la flotante queda bajo el aviso sin fijar')
+    ok(await ev(`(() => { const b = document.querySelector('.pv__flota .pv__completa').getBoundingClientRect(); return b.top >= 0 && b.bottom <= innerHeight })()`), '«Ver la forma completa», siempre a la vista en la flotante')
+    await raton(5, 5); await sleep(1500)
+  }
+  else ok(false, 'con la página arriba el primer «3D» no se ve: no se puede probar el aviso sin fijar')
 
   console.log('Vista previa fija: clic y teclado')
   ;[ex, ey] = await centro('.gin__3d[data-gen3d="ERBB2"]')
@@ -249,7 +269,7 @@ try {
   await raton(mx, my)
   ok(await espera(`${FLOTA} && !!document.querySelector('.pv__flota .de__alerta')`, 8000), 'MUC1 (80 % muy baja en el modelo de prueba): aviso fuerte')
   ok(await ev(`document.querySelector('.pv__flota .de__alerta').textContent.includes('más de la mitad') && !document.querySelector('.pv__flota .de__linea')`), 'el aviso dice «más de la mitad» y lleva dentro la línea del %')
-  await raton(5, 5); await sleep(1000)
+  await raton(5, 5); await sleep(1500)
 
   console.log('Vista previa: tema, recursos y «Ver la forma completa»')
   await ev(`document.querySelector('.exp__tema').click()`)

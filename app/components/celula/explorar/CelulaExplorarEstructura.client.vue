@@ -23,7 +23,7 @@
 import * as THREE from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
 import { ruedaConModificador } from '~/composables/useAlVer'
-import { BANDAS, ETIQUETA_BANDA, avisoConfianza, banda, encuadre, fraccionMuyBaja, pdbDeRespuesta, trazaCA, urlApiAlphaFold, urlEntradaAlphaFold, urlUniprot, type Banda } from '~/utils/alphafold'
+import { BANDAS, ETIQUETA_BANDA, avisoConfianza, banda, encuadre, fraccionMuyBaja, pctDe, pdbDeRespuesta, trazaCA, urlApiAlphaFold, urlEntradaAlphaFold, urlUniprot, type Banda } from '~/utils/alphafold'
 
 /** gen del explorador, su UniProt (UNIPROT de utils/alphafold), el nombre de la proteína con el que se la conoce y el tema
  * del explorador (data-tema es de su bloque, no de :root: los colores del tubo lo necesitan; diseno, 20-oct) */
@@ -303,7 +303,7 @@ const anuncio = computed(() => (estado.value === 'cargando' ? L(`Cargando la for
     : estado.value === 'error' ? L(`No se ha podido cargar la forma de ${props.proteina}.`, `The ${props.proteina} shape could not be loaded.`) : ''))
 const pct = (k: number) => (nResiduos.value ? Math.round((100 * k) / nResiduos.value) : 0)
 /** el porcentaje: con espacio duro antes del signo en español, pegado en inglés */
-const pctMuyBaja = computed(() => `${Math.round(100 * fMuyBaja.value)}${props.lang === 'en' ? '' : '\u00a0'}%`)
+const pctMuyBaja = computed(() => `${pctDe(fMuyBaja.value)}${props.lang === 'en' ? '' : '\u00a0'}%`)
 const descripcion = computed(() => L(
   `Forma predicha de ${props.proteina} (${props.gen}, UniProt ${props.uniprot}) por AlphaFold, ${nResiduos.value} aminoácidos, coloreada por la confianza del modelo; el tubo es más fino donde la confianza es menor. Es una predicción, no una medición.`,
   `Predicted shape of ${props.proteina} (${props.gen}, UniProt ${props.uniprot}) by AlphaFold, ${nResiduos.value} amino acids, colored by model confidence; the tube is thinner where confidence is lower. A prediction, not a measurement.`,
@@ -326,10 +326,11 @@ const descripcion = computed(() => L(
         @keydown="tecla"
       />
       <p v-if="estado === 'espera' || estado === 'cargando'" class="de__aviso" aria-hidden="true">{{ L('Cargando el modelo de AlphaFold DB…', 'Loading the AlphaFold DB model…') }}</p>
-      <p v-else-if="estado === 'error'" class="de__aviso">
+      <!-- en un solo <span>: el aviso es grid y repartía texto, enlace y punto en tres filas (diseno, 21-oct) -->
+      <p v-else-if="estado === 'error'" class="de__aviso"><span>
         {{ L('No se ha podido cargar el modelo aquí. Puedes verlo en', 'The model could not be loaded here. You can see it on') }}
         <a :href="urlEntradaAlphaFold(uniprot)" class="link-underline" target="_blank" rel="noopener">AlphaFold DB</a>.
-      </p>
+      </span></p>
     </div>
     <!-- los mandos, debajo del lienzo y en flujo: superpuestos tapaban casi un tercio del modelo a 320 px (diseno, 20-oct).
          Su hueco existe desde el principio (min-height): al cargar no empujan el pie (diseno, 2.ª pasada) -->
@@ -367,6 +368,15 @@ const descripcion = computed(() => L(
       <p class="de__ctx">{{ L('Se calcula a partir de la secuencia de referencia de la proteína humana (UniProt), sin datos de la biopsia de Miriam: no dice si esta proteína está en sus células.', 'Built from the human protein’s reference sequence (UniProt), with no data from Miriam’s biopsy, so it doesn’t say whether this protein is in her cells.') }}</p>
       <!-- mientras carga, la leyenda y la línea ocupan su sitio sin verse: la vista previa no crece de golpe (diseno, 21-oct) -->
       <div v-if="estado !== 'error'" class="de__pvdatos" :style="estado === 'listo' ? undefined : { visibility: 'hidden' }" :aria-hidden="estado === 'listo' ? undefined : 'true'">
+        <!-- antes que la leyenda: en ventanas bajas lo de abajo queda bajo el pliegue, y el aviso importa más que la clave
+             de colores (21-oct). La línea, en las diez; si pasa de la mitad, la línea va dentro del aviso (umbral nuestro; textos de verificacion,
+             21-oct, fieles a la FAQ de AlphaFold DB: «should not be interpreted», «only structured as part of a complex», «may be of use»;
+             pase de voz-miriam; una sola pieza en vez de dos que decían lo mismo, diseno) -->
+        <p v-if="estado !== 'listo' || !avisoConfianza(fMuyBaja)" class="de__linea">{{ L(`Confianza muy baja (pLDDT < 50) en el ${pctMuyBaja} de los aminoácidos.`, `Very low confidence (pLDDT < 50) in ${pctMuyBaja} of the amino acids.`) }}</p>
+        <p v-else class="de__alerta">
+          {{ L(`Confianza muy baja (pLDDT < 50) en el ${pctMuyBaja} de los aminoácidos: más de la mitad de la proteína. AlphaFold DB indica que esas zonas no deben interpretarse: apuntan a regiones sin forma fija por sí solas, o que solo la toman dentro de un complejo. El modelo puede servir para señalarlas, no para describir su forma.`,
+               `Very low confidence (pLDDT < 50) in ${pctMuyBaja} of the amino acids: more than half of the protein. AlphaFold DB says those regions should not be interpreted: they point to stretches with no fixed shape on their own, or that are only structured as part of a complex. The model may help point them out, not describe their shape.`) }}
+        </p>
         <p class="de__ley-t" aria-hidden="true">{{ L('Confianza del modelo (pLDDT)', 'Model confidence (pLDDT)') }}</p>
         <!-- sin el color solo: la muestra es más baja cuanto menos confianza, como el tubo -->
         <ul class="de__leyenda" :aria-label="L('Confianza del modelo (pLDDT); el tubo es más fino donde confía menos', 'Model confidence (pLDDT); the tube is thinner where confidence is lower')">
@@ -375,14 +385,6 @@ const descripcion = computed(() => L(
             <span>{{ ETIQUETA_BANDA[b][lang] }}</span>
           </li>
         </ul>
-        <!-- la línea, en las diez; si pasa de la mitad, la línea va dentro del aviso (umbral nuestro; textos de verificacion,
-             21-oct, fieles a la FAQ de AlphaFold DB: «should not be interpreted», «only structured as part of a complex»;
-             pase de voz-miriam; una sola pieza en vez de dos que decían lo mismo, diseno) -->
-        <p v-if="estado !== 'listo' || !avisoConfianza(fMuyBaja)" class="de__linea">{{ L(`Confianza muy baja (pLDDT < 50) en el ${pctMuyBaja} de los aminoácidos.`, `Very low confidence (pLDDT < 50) in ${pctMuyBaja} of the amino acids.`) }}</p>
-        <p v-else class="de__alerta">
-          {{ L(`Confianza muy baja (pLDDT < 50) en el ${pctMuyBaja} de los aminoácidos: más de la mitad de la proteína. AlphaFold DB indica que esas zonas no deben interpretarse: apuntan a regiones sin forma fija por sí solas, o que solo la toman dentro de un complejo. El modelo sirve para señalarlas, no para describir su forma.`,
-               `Very low confidence (pLDDT < 50) in ${pctMuyBaja} of the amino acids: more than half of the protein. AlphaFold DB says those regions should not be interpreted: they point to stretches with no fixed shape on their own, or that are only structured as part of a complex. The model is useful for pointing them out, not for describing their shape.`) }}
-        </p>
       </div>
       <p class="de__fuente">
         <a :href="urlEntradaAlphaFold(uniprot)" class="link-underline" target="_blank" rel="noopener">AlphaFold DB<span class="sr-only">{{ L(' (se abre en otra pestaña)', ' (opens in a new tab)') }}</span></a> <span class="de__nw">(Google DeepMind · EMBL-EBI)</span> <span class="de__nw">· <a href="https://creativecommons.org/licenses/by/4.0/" class="link-underline" target="_blank" rel="noopener license">CC BY 4.0<span class="sr-only">{{ L(' (se abre en otra pestaña)', ' (opens in a new tab)') }}</span></a></span>

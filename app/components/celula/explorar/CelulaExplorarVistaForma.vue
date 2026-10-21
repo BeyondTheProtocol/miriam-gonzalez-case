@@ -6,8 +6,9 @@
  * mismo del bloque, en su variante compacta (CelulaExplorarEstructura, `compacto`), y abajo «Ver la forma completa».
  *
  * Cómo se abre (decisión de Miriam con diseno, 21-oct):
- *  · ratón sobre «3D» 400 ms → flota junto al botón; se cierra 200 ms después de salir del botón y de ella. El puntero
- *    puede entrar en ella y Esc la cierra (WCAG 1.4.13). Solo con ratón (pointerType): el toque emula un mouseenter;
+ *  · ratón sobre «3D» 400 ms → flota a la izquierda del panel, sobre el mapa; se cierra 600 ms después de salir del
+ *    botón y de ella. El puntero puede entrar en ella y Esc la cierra (WCAG 1.4.13). Solo con ratón (pointerType): el
+ *    toque emula un mouseenter;
  *  · clic o Enter/Espacio en «3D» → se queda fija, con el foco dentro; Esc o ✕ la cierran y el foco vuelve al botón.
  *    No se abre al enfocar: recorrer las diez filas con Tab abriría diez (diseno);
  *  · toque, o pantalla estrecha → hoja inferior (<dialog> modal, el patrón de .qc-hoja en QueCambio, sin arrastre).
@@ -34,8 +35,9 @@ let ancla: HTMLElement | null = null
 let tAbre: ReturnType<typeof setTimeout> | undefined
 let tCierra: ReturnType<typeof setTimeout> | undefined
 
-/** cerrar espera 400 ms: del botón a la flotante hay ~80 px de recorrido (diseno, 21-oct; 1.4.13) */
-const ESPERA_ABRE = 400, ESPERA_CAMBIA = 150, ESPERA_CIERRA = 400
+/** cerrar espera 600 ms: del «3D» a la flotante hay 143 px (medido, diseno, 21-oct); con 400 se cerraba a 250 px/s,
+ * con 600 aguanta desde ~240 px/s (1.4.13: se tiene que poder llegar a ella) */
+const ESPERA_ABRE = 400, ESPERA_CAMBIA = 150, ESPERA_CIERRA = 600
 const estrecho = () => window.matchMedia('(max-width: 639px), (hover: none), (pointer: coarse)').matches
 
 /** ratón sobre «3D»: abre tras la espera; si ya hay una flotando, cambia antes. Una fija u hoja abierta manda. */
@@ -107,7 +109,9 @@ function coloca(recentra = true) {
   const f = flota.value
   if (!f || !ancla?.isConnected) return
   const css = getComputedStyle(ancla.closest('.exp') ?? document.documentElement), m = 8, sep = 12
-  const arriba = (parseFloat(css.getPropertyValue('--exp-top')) || 0) + (parseFloat(css.getPropertyValue('--exp-banner')) || 0) + m
+  // el aviso «Hígado…» aún sin fijar (página arriba) queda más abajo que su tope fijo: tampoco se tapa (diseno, 21-oct)
+  const aviso = ancla.closest('.exp')?.querySelector('.exp__bannerfijo')?.getBoundingClientRect().bottom ?? 0
+  const arriba = Math.max((parseFloat(css.getPropertyValue('--exp-top')) || 0) + (parseFloat(css.getPropertyValue('--exp-banner')) || 0) + m, aviso + m)
   const alto = Math.max(160, innerHeight - arriba - m)
   const r = ancla.getBoundingClientRect(), w = f.offsetWidth, h = Math.min(f.offsetHeight, alto)
   const borde = (ancla.closest('.exp__panel') ?? ancla).getBoundingClientRect().left
@@ -178,19 +182,24 @@ const titulo = computed(() => L(`Forma 3D predicha de ${proteina.value}`, `Predi
 
 <template>
   <div class="pv">
-    <!-- flotante (escritorio): popover manual, colocado junto al «3D» -->
+    <!-- flotante (escritorio): popover manual, a la izquierda del panel; como en la hoja, «Ver la forma completa» va en un
+         pie fuera del scroll: en ventanas bajas (< ~750 px) quedaba oculto (diseno, 21-oct) -->
     <div ref="flota" popover="manual" class="pv__flota" role="dialog" aria-labelledby="pv-titulo-flota" tabindex="-1"
          :style="{ top: `${pos.top}px`, left: `${pos.left}px`, maxHeight: pos.alto ? `${pos.alto}px` : undefined, '--pv-max': pos.alto ? `${pos.alto}px` : undefined }"
          @pointerenter="quedate" @pointerleave="sale" @focusout="focoFuera">
       <template v-if="abierta && abierta.modo !== 'hoja'">
-        <div class="pv__cab">
-          <p id="pv-titulo-flota" class="pv__t">{{ titulo }}</p>
-          <button type="button" class="pv__x" :aria-label="L('Cerrar', 'Close')" @click="cierra(true)">
-            <svg viewBox="0 0 256 256" aria-hidden="true"><path fill="currentColor" d="M205.66,194.34a8,8,0,0,1-11.32,11.32L128,139.31,61.66,205.66a8,8,0,0,1-11.32-11.32L116.69,128,50.34,61.66A8,8,0,0,1,61.66,50.34L128,116.69l66.34-66.35a8,8,0,0,1,11.32,11.32L139.31,128Z" /></svg>
-          </button>
+        <div class="pv__cuerpo">
+          <div class="pv__cab">
+            <p id="pv-titulo-flota" class="pv__t">{{ titulo }}</p>
+            <button type="button" class="pv__x" :aria-label="L('Cerrar', 'Close')" @click="cierra(true)">
+              <svg viewBox="0 0 256 256" aria-hidden="true"><path fill="currentColor" d="M205.66,194.34a8,8,0,0,1-11.32,11.32L128,139.31,61.66,205.66a8,8,0,0,1-11.32-11.32L116.69,128,50.34,61.66A8,8,0,0,1,61.66,50.34L128,116.69l66.34-66.35a8,8,0,0,1,11.32,11.32L139.31,128Z" /></svg>
+            </button>
+          </div>
+          <LazyCelulaExplorarEstructura :key="`pv-${abierta.uniprot}`" compacto :gen="abierta.gen" :uniprot="abierta.uniprot" :proteina="proteina" :lang="lang" :tema="tema" />
         </div>
-        <LazyCelulaExplorarEstructura :key="`pv-${abierta.uniprot}`" compacto :gen="abierta.gen" :uniprot="abierta.uniprot" :proteina="proteina" :lang="lang" :tema="tema" />
-        <button type="button" class="pv__completa" @click="completa">{{ L('Ver la forma completa', 'See the full shape') }}</button>
+        <div class="pv__pie">
+          <button type="button" class="pv__completa" @click="completa">{{ L('Ver la forma completa', 'See the full shape') }}</button>
+        </div>
       </template>
     </div>
     <!-- hoja inferior (táctil o estrecho): dialog modal; Esc, foco atrapado y fondo inerte, nativos -->
@@ -217,13 +226,17 @@ const titulo = computed(() => L(`Forma 3D predicha de ${proteina.value}`, `Predi
 <style scoped>
 /* la flotante: capa superior, colocada a mano (inset y margin del popover, fuera) */
 .pv__flota {
-  position: fixed; inset: auto; margin: 0; width: min(340px, calc(100vw - 16px)); max-height: calc(100dvh - 16px); overflow-y: auto;
-  padding: var(--sp-12); border: 1px solid var(--trazo-fuerte); border-radius: var(--radius-btn);
+  position: fixed; inset: auto; margin: 0; width: min(340px, calc(100vw - 16px)); max-height: calc(100dvh - 16px); overflow: hidden;
+  padding: 0; border: 1px solid var(--trazo-fuerte); border-radius: var(--radius-btn);
   background: var(--fondo); color: var(--texto-1); box-shadow: var(--sombra-flotante); --pv-alto: 180px;
   /* el alto de la vista previa ya cargada (sin aviso; medido el 21-oct): la primera vez, mientras llega el visor, no
      crece de 122 a 550 px de golpe (diseno). Nunca por encima del alto que deja coloca() */
   min-height: min(550px, var(--pv-max, calc(100dvh - 16px)));
 }
+/* abierta: columna con el cuerpo desplazable y el pie fijo (solo abierta: un display propio taparía el display:none del popover) */
+.pv__flota:popover-open { display: flex; flex-direction: column; }
+.pv__cuerpo { flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior: contain; padding: var(--sp-12) var(--sp-12) var(--sp-8); }
+.pv__flota .pv__pie { padding: var(--sp-8) var(--sp-12) var(--sp-12); }
 .pv__flota:focus-visible { outline: 2px solid var(--anillo-foco); outline-offset: 2px; }
 /* entra desde 0,97 y transparente, desde el lado del botón, con la curva de salida (vara movimiento-movil); se ve a
    menudo: duración micro. Con movimiento reducido, solo opacidad */

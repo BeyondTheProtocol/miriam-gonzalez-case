@@ -81,11 +81,14 @@ export function fraccionMuyBaja(plddt: ArrayLike<number>): number {
   for (let i = 0; i < plddt.length; i++) if (banda(plddt[i]!) === 'muy_baja') k++
   return k / plddt.length
 }
+/** El porcentaje que se enseña (entero). */
+export const pctDe = (fraccion: number) => Math.round(100 * fraccion)
 /** Aviso fuerte de la vista previa: más de la mitad en confianza muy baja. El umbral es NUESTRO: la FAQ de AlphaFold DB
- * solo dice que lo < 50 no se interpreta, no da regla por proteína (verificacion, 21-oct). Con la v6, MUC1 (0,71) y
- * ANKRD30A (0,523); SLC39A6 se queda en 0,461 y lleva solo la línea. */
-export const UMBRAL_AVISO = 0.5
-export const avisoConfianza = (fraccion: number) => fraccion > UMBRAL_AVISO
+ * solo dice que lo < 50 no se interpreta, no da regla por proteína (verificacion, 21-oct). Va sobre el porcentaje que se
+ * enseña, no sobre la fracción: con 0,502 diría «50 %: más de la mitad» (verificacion). Con la v6, MUC1 (71 %) y
+ * ANKRD30A (52 %); SLC39A6 se queda en 46 % y lleva solo la línea. */
+export const UMBRAL_AVISO = 50
+export const avisoConfianza = (fraccion: number) => pctDe(fraccion) > UMBRAL_AVISO
 
 /** Centro y radio de la traza, para encuadrar la cámara. */
 export function encuadre(t: Traza): { centro: [number, number, number]; radio: number } {

@@ -20,7 +20,7 @@
 // Uso: pnpm test:alphafold   (no necesita build)
 import { existsSync, readFileSync } from 'node:fs'
 import { join } from 'node:path'
-import { BANDAS, UMBRAL_AVISO, UNIPROT, avisoConfianza, banda, encuadre, fraccionMuyBaja, pdbDeRespuesta, trazaCA, uniprotDe, uniprotValido } from '../app/utils/alphafold'
+import { BANDAS, UMBRAL_AVISO, UNIPROT, avisoConfianza, banda, encuadre, fraccionMuyBaja, pctDe, pdbDeRespuesta, trazaCA, uniprotDe, uniprotValido } from '../app/utils/alphafold'
 import { PANEL_INTERES } from '../app/utils/celulaExploradorTexto'
 
 const raiz = join(import.meta.dirname, '..')
@@ -71,7 +71,7 @@ ok('fracción de confianza muy baja (< 50, como la banda)', fraccionMuyBaja([95,
 const MUY_BAJA_V6: Record<string, number> = {
   MUC1: 0.71, ANKRD30A: 0.523, SLC39A6: 0.461, ERBB3: 0.297, ERBB2: 0.245, FGFR1: 0.234, NECTIN4: 0.157, TPBG: 0.14, CD276: 0.107, TACSTD2: 0.087,
 }
-ok('el umbral del aviso es «más de la mitad»', UMBRAL_AVISO === 0.5 && !avisoConfianza(0.5) && avisoConfianza(0.501))
+ok('el umbral del aviso es «más de la mitad» del porcentaje que se enseña (nunca «50 %: más de la mitad»)', UMBRAL_AVISO === 50 && pctDe(0.502) === 50 && !avisoConfianza(0.5) && !avisoConfianza(0.502) && avisoConfianza(0.51))
 const conAviso = Object.keys(MUY_BAJA_V6).filter((g) => avisoConfianza(MUY_BAJA_V6[g]!)).sort().join()
 ok('con la v6, el aviso fuerte sale en MUC1 y ANKRD30A, no en LIV-1 (0,461) ni en las demás', conAviso === 'ANKRD30A,MUC1', conAviso)
 ok('las cifras cotejadas son de las diez', JSON.stringify(Object.keys(MUY_BAJA_V6).sort()) === JSON.stringify(Object.keys(UNIPROT).sort()))
@@ -135,7 +135,9 @@ ok('no se abre al enfocar', !/@focus(in)?=/.test(boton3d))
 ok('el hover solo cuenta con ratón (el toque emula un mouseenter)', /pointerType === 'mouse'/.test(interes) && /@pointerenter="forma3d\(\$event, 'entra'/.test(boton3d))
 ok('icono «cube» de Phosphor cotejado (lista y detalle)', boton3d.includes(CUBE) && explorador.includes(CUBE))
 ok('una sola vista previa en el explorador, dentro de .exp', (explorador.match(/<CelulaExplorarVistaForma /g) ?? []).length === 1 && explorador.indexOf('<CelulaExplorarVistaForma') < explorador.lastIndexOf('</section>'))
-ok('esperas de abrir y cerrar (400 / 400 ms: del botón a la flotante hay ~80 px; diseno)', /ESPERA_ABRE = 400/.test(vista) && /ESPERA_CIERRA = 400/.test(vista))
+ok('esperas de abrir y cerrar (400 / 600 ms: del «3D» a la flotante hay 143 px; diseno)', /ESPERA_ABRE = 400/.test(vista) && /ESPERA_CIERRA = 600/.test(vista))
+ok('tampoco tapa el aviso cuando aún no está fijado', /querySelector\('\.exp__bannerfijo'\)/.test(vista))
+ok('flotante: «Ver la forma completa» en un pie fuera del scroll', /<div class="pv__cuerpo">[\s\S]*?<\/div>\s*<div class="pv__pie">\s*<button type="button" class="pv__completa"/.test(tplVista) && /\.pv__flota:popover-open \{ display: flex;/.test(vista))
 ok('Tab fuera de la fija devuelve el foco al «3D» (2.4.3)', /!ancla\?\.contains\(t\)\) cierra\(true\)/.test(vista))
 ok('la flotante no tapa la cabecera ni el aviso fijo, y su alto se acota (desplaza por dentro)', /--exp-top/.test(vista) && /--exp-banner/.test(vista) && /maxHeight: pos\.alto/.test(tplVista))
 ok('al crecer el contenido no se recentra (no salta)', /coloca\(false\)/.test(vista))
@@ -155,7 +157,7 @@ const pieCompacto = visor.match(/<figcaption v-if="compacto"[\s\S]*?<\/figcaptio
 ok('la vista previa lleva sello, «sin datos de la biopsia», leyenda, la línea de % y el crédito CC BY', pieCompacto.includes('Predicción, no medición.') && pieCompacto.includes('sin datos de la biopsia de Miriam') && pieCompacto.includes('with no data from Miriam’s biopsy') && pieCompacto.includes('class="de__leyenda"') && pieCompacto.includes('Confianza muy baja (pLDDT < 50) en el') && pieCompacto.includes('(Google DeepMind · EMBL-EBI)') && pieCompacto.includes('creativecommons.org/licenses/by/4.0'))
 ok('el aviso fuerte sale de la regla, no de una lista de genes, y lleva dentro la línea del %', /<p v-if="estado !== 'listo' \|\| !avisoConfianza\(fMuyBaja\)" class="de__linea">[\s\S]*?<p v-else class="de__alerta">\s*\{\{ L\(`Confianza muy baja \(pLDDT < 50\) en el \$\{pctMuyBaja\}/.test(pieCompacto) && !/MUC1|ANKRD30A/.test(pieCompacto))
 ok('mientras carga, leyenda y línea guardan su sitio sin verse', /class="de__pvdatos" :style="estado === 'listo' \? undefined : \{ visibility: 'hidden' \}"/.test(pieCompacto))
-ok('el aviso dice lo de la FAQ (no se interpretan; sin forma fija o dentro de un complejo)', pieCompacto.includes('esas zonas no deben interpretarse') && pieCompacto.includes('dentro de un complejo') && pieCompacto.includes('should not be interpreted'))
+ok('el aviso dice lo de la FAQ (no se interpretan; sin forma fija o dentro de un complejo; puede servir para señalarlas)', pieCompacto.includes('esas zonas no deben interpretarse') && pieCompacto.includes('dentro de un complejo') && pieCompacto.includes('should not be interpreted') && pieCompacto.includes('puede servir para señalarlas') && pieCompacto.includes('may help point them out'))
 
 /* ── 6 · el muro del copy ── */
 ok('crédito y licencia visibles', visor.includes('(Google DeepMind · EMBL-EBI)') && visor.includes('creativecommons.org/licenses/by/4.0'))
