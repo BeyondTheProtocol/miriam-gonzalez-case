@@ -9,9 +9,11 @@
  * demás la misma distancia en µm, sin forzarlas a un mismo punto: cada corte conserva su encuadre.
  * Sin normalizar color: se pinta lo que dio cada escáner.
  *
- * Móvil (< 768 px; diseno, 20-oct): OpenSeadragon fija `touch-action: none` en el lienzo, así que
- * con varios paneles apilados un dedo nunca desplaza la página. Se ve UN panel cada vez, con un
- * selector de radios; los demás siguen montados (visibility) para conservar la escala y alternar.
+ * Rediseño «visor con galería» (20-oct): el visor LLENA su contenedor (la página le da la altura de
+ * la pantalla) y la rejilla la orienta la página (en móvil, comparar apila los paneles). Con un
+ * solo panel lleva minimapa (`minimapa`). La barra flota arriba a la derecha: zoom, encuadrar,
+ * mover a la par, pantalla completa y «Más» (las flechas de mover, alternativa al arrastre de WCAG
+ * 2.5.7, y la ayuda). Al cambiar de laminilla se encuadra: en una galería, cada imagen entra entera.
  */
 import type OpenSeadragonNS from 'openseadragon'
 import { fuenteDzi, grupoPaneo, reglaRedonda, type Idioma, type Laminilla, type Manifest } from '~/utils/laminillas'
@@ -26,6 +28,8 @@ const props = defineProps<{
   rotulos: string[]
   /** Nombre accesible completo de cada panel (marcador · muestra), por posición. */
   nombres: string[]
+  /** Minimapa (navigator de OpenSeadragon) cuando hay un solo panel. */
+  minimapa?: boolean
 }>()
 
 const L = (es: string, en: string) => (props.idioma === 'en' ? en : es)
@@ -33,20 +37,20 @@ const caja = ref<HTMLDivElement | null>(null)
 const nodos = ref<HTMLDivElement[]>([])
 const reglas = reactive<Record<number, { px: number; texto: string }>>({})
 const fallos = reactive<Record<number, boolean>>({})
+// Hasta la primera tesela, el panel lo dice (se quedaba en blanco unos segundos).
+const cargando = reactive<Record<number, boolean>>({})
 const enlazado = ref(true)
 const pantallaCompleta = ref(false)
 const fsDisponible = ref(false)
-// La ayuda se pliega en móvil (diseno, 20-oct: con ella abierta el primer panel quedaba bajo el pliegue).
-const ayudaAbierta = ref(true)
-const activo = ref(0)
+const mas = ref(false)
 const idAyuda = useId()
+const idMas = useId()
 
 type Panel = { v: OpenSeadragonNS.Viewer; l: Laminilla; grupo: string; ultimo: { x: number; y: number } | null }
 let OSD: typeof OpenSeadragonNS | null = null
 let paneles: Panel[] = []
 let sincronizando = false
 let generacion = 0
-let escalaPrevia: number | null = null
 
 const celdas = computed(() => props.rejilla.flat())
 const columnas = computed(() => Math.max(1, ...props.rejilla.map((f) => f.length)))
@@ -144,7 +148,15 @@ function abrePanel(i: number, el: HTMLDivElement, l: Laminilla, gen: number) {
     tileSources: fuenteDzi(props.manifest, l, props.teselas || props.manifest.teselas),
     drawer: 'canvas',
     showNavigationControl: false,
-    showNavigator: false,
+    showNavigator: !!props.minimapa && conLamina.value.length === 1,
+    navigatorPosition: 'TOP_LEFT',
+    navigatorSizeRatio: 0.16,
+    navigatorAutoFade: false,
+    // Minimapa claro, con tokens del DS (por defecto es negro y rojo). OpenSeadragon los pone en
+    // estilos en línea, así que var() funciona tal cual.
+    navigatorBackground: '#fff',
+    navigatorBorderColor: 'var(--trazo-interactivo)',
+    navigatorDisplayRegionColor: 'var(--color-miriam)',
     animationTime: reducido() ? 0 : 0.5,
     springStiffness: reducido() ? 100 : 7,
     blendTime: 0,
@@ -159,24 +171,21 @@ function abrePanel(i: number, el: HTMLDivElement, l: Laminilla, gen: number) {
   const panel: Panel = { v, l, grupo: grupoPaneo(props.manifest, l.muestra), ultimo: null }
   paneles[i] = panel
   fallos[i] = false
+  cargando[i] = true
   v.addHandler('open', () => {
     if (gen !== generacion) return
     panel.ultimo = centroUm(panel)
     pintaRegla(i)
-    // Cuando han abierto todos: a la escala que había (recorrido de columna) o encuadre común.
-    if (paneles.filter(abierto).length === conLamina.value.length) {
-      if (escalaPrevia) aEscala(escalaPrevia)
-      else encuadra()
-      escalaPrevia = null
-    }
+    // Cuando han abierto todos, encuadre común: cada laminilla entra entera, a la misma escala física.
+    if (paneles.filter(abierto).length === conLamina.value.length) encuadra()
   })
   v.addHandler('open-failed', () => { fallos[i] = true })
   // Con la fuente en línea OpenSeadragon abre aunque el bucket no responda: lo que falla son las
   // teselas, una a una. Si fallan varias y no ha cargado ninguna, el panel lo dice.
   let cargadas = 0
   let fallidas = 0
-  v.addHandler('tile-loaded', () => { cargadas++; fallos[i] = false })
-  v.addHandler('tile-load-failed', () => { fallidas++; if (!cargadas && fallidas >= 4) fallos[i] = true })
+  v.addHandler('tile-loaded', () => { cargadas++; fallos[i] = false; cargando[i] = false })
+  v.addHandler('tile-load-failed', () => { fallidas++; if (!cargadas && fallidas >= 4) { fallos[i] = true; cargando[i] = false } })
   v.addHandler('viewport-change', () => alCambiar(i))
   v.addHandler('resize', () => pintaRegla(i))
   // Teclas de OpenSeadragon: «0» encuadraba SOLO este panel (y los demás copiaban su escala);
@@ -208,10 +217,7 @@ async function monta() {
   // Dos montajes seguidos (el de onMounted y el de la query aplicada tras hidratar) no se pisan:
   // los eventos de una generación vieja no tocan el estado.
   const gen = ++generacion
-  const previo = paneles.find(abierto)
-  escalaPrevia = previo ? umPorPx(previo) : null
   cierra()
-  activo.value = Math.max(0, conLamina.value[0] ?? 0)
   await nextTick()
   if (!OSD) OSD = (await import('openseadragon')).default
   if (gen !== generacion) return
@@ -221,8 +227,8 @@ async function monta() {
   })
 }
 
-// Otras laminillas (recorrido, HE de referencia): se reabren conservando la escala física.
-watch(() => celdas.value.map((l) => l?.id ?? '-').join('|'), () => monta())
+// Otras laminillas (galería, comparar, HE al lado): se reabren y se encuadran.
+watch(() => [celdas.value.map((l) => l?.id ?? '-').join('|'), columnas.value, !!props.minimapa], () => monta())
 
 function zoom(f: number) {
   const p = paneles.find(abierto)
@@ -230,14 +236,33 @@ function zoom(f: number) {
   p.v.viewport.zoomBy(f)
   p.v.viewport.applyConstraints()
 }
-/** Mover sin arrastrar (WCAG 2.5.7): desplaza el panel visible; el paneo enlazado hace el resto. */
+/**
+ * Mover sin arrastrar (WCAG 2.5.7): el botón es una orden explícita, así que mueve TODOS los paneles
+ * lo mismo (con el zoom a la par en µm, mismos píxeles = mismos µm), también los de otro bloque, que
+ * con el ratón se mueven sueltos. Antes movía solo el primero y su grupo: el hígado no se podía mover.
+ */
 function desplaza(dx: number, dy: number) {
-  const p = paneles[activo.value] && abierto(paneles[activo.value]) ? paneles[activo.value] : paneles.find(abierto)
-  if (!p || !OSD) return
-  const w = (p.v.container as HTMLElement).clientWidth
-  const h = (p.v.container as HTMLElement).clientHeight
-  p.v.viewport.panBy(p.v.viewport.deltaPointsFromPixels(new OSD.Point(dx * w * 0.25, dy * h * 0.25)))
-  p.v.viewport.applyConstraints()
+  const abiertos = paneles.filter(abierto)
+  if (!abiertos.length || !OSD) return
+  const w = (abiertos[0]!.v.container as HTMLElement).clientWidth
+  const h = (abiertos[0]!.v.container as HTMLElement).clientHeight
+  sincronizando = true
+  try {
+    for (const p of abiertos) {
+      p.v.viewport.panBy(p.v.viewport.deltaPointsFromPixels(new OSD.Point(dx * w * 0.25, dy * h * 0.25)), true)
+      p.v.viewport.applyConstraints(true)
+    }
+  } finally {
+    sincronizando = false
+  }
+  for (const p of abiertos) p.ultimo = centroUm(p)
+  paneles.forEach((_, i) => pintaRegla(i))
+}
+/** Esc cierra «Más» (y no sale de comparar, que es lo que haría en la página). */
+function escMas(e: KeyboardEvent) {
+  if (!mas.value) return
+  mas.value = false
+  e.stopPropagation()
 }
 function alternaEnlace() {
   enlazado.value = !enlazado.value
@@ -252,7 +277,6 @@ function alPantalla() { pantallaCompleta.value = document.fullscreenElement === 
 
 onMounted(() => {
   fsDisponible.value = !!document.fullscreenEnabled
-  ayudaAbierta.value = window.matchMedia('(min-width: 768px)').matches
   monta()
   document.addEventListener('fullscreenchange', alPantalla)
 })
@@ -265,32 +289,16 @@ onBeforeUnmount(() => {
 
 <template>
   <div ref="caja" class="visor-caja" :class="{ 'visor-caja--completa': pantallaCompleta }">
-    <div class="visor-barra">
-      <div class="visor-grupo" role="group" :aria-label="L('Zoom', 'Zoom')">
-        <button type="button" class="visor-boton" :aria-label="L('Acercar', 'Zoom in')" @click="zoom(1.6)">
-          <Icon name="ph:plus-bold" class="w-4 h-4" aria-hidden="true" />
-        </button>
-        <button type="button" class="visor-boton" :aria-label="L('Alejar', 'Zoom out')" @click="zoom(1 / 1.6)">
-          <Icon name="ph:minus-bold" class="w-4 h-4" aria-hidden="true" />
-        </button>
-        <button type="button" class="visor-boton visor-boton--texto" @click="encuadra">
-          <Icon name="ph:corners-out-bold" class="w-4 h-4" aria-hidden="true" />{{ L('Encuadrar', 'Fit') }}
-        </button>
-      </div>
-      <div class="visor-grupo" role="group" :aria-label="L('Mover', 'Move')">
-        <button type="button" class="visor-boton" :aria-label="L('Mover a la izquierda', 'Move left')" @click="desplaza(-1, 0)">
-          <Icon name="ph:arrow-left-bold" class="w-4 h-4" aria-hidden="true" />
-        </button>
-        <button type="button" class="visor-boton" :aria-label="L('Mover arriba', 'Move up')" @click="desplaza(0, -1)">
-          <Icon name="ph:arrow-up-bold" class="w-4 h-4" aria-hidden="true" />
-        </button>
-        <button type="button" class="visor-boton" :aria-label="L('Mover abajo', 'Move down')" @click="desplaza(0, 1)">
-          <Icon name="ph:arrow-down-bold" class="w-4 h-4" aria-hidden="true" />
-        </button>
-        <button type="button" class="visor-boton" :aria-label="L('Mover a la derecha', 'Move right')" @click="desplaza(1, 0)">
-          <Icon name="ph:arrow-right-bold" class="w-4 h-4" aria-hidden="true" />
-        </button>
-      </div>
+    <div class="visor-barra" role="group" :aria-label="L('Controles del visor', 'Viewer controls')" @keydown.esc="escMas">
+      <button type="button" class="visor-boton" :aria-label="L('Acercar', 'Zoom in')" @click="zoom(1.6)">
+        <Icon name="ph:plus-bold" class="w-4 h-4" aria-hidden="true" />
+      </button>
+      <button type="button" class="visor-boton" :aria-label="L('Alejar', 'Zoom out')" @click="zoom(1 / 1.6)">
+        <Icon name="ph:minus-bold" class="w-4 h-4" aria-hidden="true" />
+      </button>
+      <button type="button" class="visor-boton" :aria-label="L('Encuadrar', 'Fit')" :title="L('Encuadrar', 'Fit')" @click="encuadra">
+        <Icon name="ph:corners-out-bold" class="w-4 h-4" aria-hidden="true" />
+      </button>
       <button
         v-if="hayGrupoComun"
         type="button"
@@ -298,45 +306,49 @@ onBeforeUnmount(() => {
         :aria-pressed="enlazado"
         @click="alternaEnlace"
       >
-        <Icon :name="enlazado ? 'ph:link-bold' : 'ph:link-break-bold'" class="w-4 h-4" aria-hidden="true" />
-        {{ L('Mover a la par', 'Move together') }}
+        <Icon :name="enlazado ? 'ph:link-bold' : 'ph:link-break-bold'" class="w-4 h-4" aria-hidden="true" /><span class="visor-boton__texto">{{ L('Mover a la par', 'Move together') }}</span>
       </button>
-      <button v-if="fsDisponible" type="button" class="visor-boton visor-boton--texto ml-auto" :aria-pressed="pantallaCompleta" @click="alternaPantalla">
+      <button v-if="fsDisponible" type="button" class="visor-boton" :aria-label="L('Pantalla completa', 'Full screen')" :title="L('Pantalla completa', 'Full screen')" :aria-pressed="pantallaCompleta" @click="alternaPantalla">
         <Icon :name="pantallaCompleta ? 'ph:arrows-in-bold' : 'ph:arrows-out-bold'" class="w-4 h-4" aria-hidden="true" />
-        {{ L('Pantalla completa', 'Full screen') }}
       </button>
+      <button type="button" class="visor-boton" :aria-label="L('Más controles', 'More controls')" :title="L('Más controles', 'More controls')" :aria-expanded="mas" :aria-controls="idMas" @click="mas = !mas">
+        <Icon name="ph:dots-three-bold" class="w-4 h-4" aria-hidden="true" />
+      </button>
+      <div v-show="mas" :id="idMas" class="visor-mas">
+        <div class="visor-grupo" role="group" :aria-label="L('Mover', 'Move')">
+          <button type="button" class="visor-boton" :aria-label="L('Mover a la izquierda', 'Move left')" @click="desplaza(-1, 0)">
+            <Icon name="ph:arrow-left-bold" class="w-4 h-4" aria-hidden="true" />
+          </button>
+          <button type="button" class="visor-boton" :aria-label="L('Mover arriba', 'Move up')" @click="desplaza(0, -1)">
+            <Icon name="ph:arrow-up-bold" class="w-4 h-4" aria-hidden="true" />
+          </button>
+          <button type="button" class="visor-boton" :aria-label="L('Mover abajo', 'Move down')" @click="desplaza(0, 1)">
+            <Icon name="ph:arrow-down-bold" class="w-4 h-4" aria-hidden="true" />
+          </button>
+          <button type="button" class="visor-boton" :aria-label="L('Mover a la derecha', 'Move right')" @click="desplaza(1, 0)">
+            <Icon name="ph:arrow-right-bold" class="w-4 h-4" aria-hidden="true" />
+          </button>
+        </div>
+        <p :id="idAyuda" class="visor-ayuda">
+          <!-- Copy publicado retocado (pase de voz, 20-oct): dice qué hacen ← → fuera de la imagen, «+ y -» como en la tecla, y «salen tal cual». -->
+          {{ hayGrupoComun
+            ? L('El zoom va a la par en micras en todos los paneles. Mover a la par solo enlaza cortes del mismo bloque de tejido: suéltalo para alinearlos y vuelve a activarlo. Con el teclado: ← → cambian de laminilla. Dentro de la imagen: flechas para mover, + y - para el zoom, 0 para encuadrar. Los colores salen tal cual de cada escáner, sin normalizar.',
+                'Zoom is matched in microns across all panels. Move together only links sections of the same tissue block: turn it off to line them up, then on again. Keyboard: ← → switch slides. Inside the image: arrows to move, + and - to zoom, 0 to fit. Colors come straight from each scanner, not normalized.')
+            : L('Con el teclado: ← → cambian de laminilla. Dentro de la imagen: flechas para mover, + y - para el zoom, 0 para encuadrar. Los colores salen tal cual de cada escáner, sin normalizar.',
+                'Keyboard: ← → switch slides. Inside the image: arrows to move, + and - to zoom, 0 to fit. Colors come straight from each scanner, not normalized.') }}
+        </p>
+      </div>
     </div>
-    <details class="visor-ayuda-det" :open="ayudaAbierta" @toggle="ayudaAbierta = ($event.target as HTMLDetailsElement).open">
-    <summary class="visor-ayuda-sum">{{ L('Cómo se usa', 'How to use it') }}</summary>
-    <p :id="idAyuda" class="visor-ayuda">
-      {{ hayGrupoComun
-        ? L('El zoom va a la par en micras en todos los paneles. Mover a la par solo enlaza cortes del mismo bloque de tejido: suéltalo para alinearlos y vuelve a activarlo. Con el teclado: flechas para mover, más y menos para el zoom, 0 para encuadrar. Colores tal como los dio cada escáner, sin normalizar.',
-            'Zoom is matched in microns across all panels. Move together only links sections of the same tissue block: turn it off to line them up, then on again. Keyboard: arrows to move, plus and minus to zoom, 0 to fit. Colours as each scanner captured them, not normalised.')
-        : L('El zoom va a la par en micras en todos los paneles; el movimiento es libre, porque son tejidos distintos. Con el teclado: flechas para mover, más y menos para el zoom, 0 para encuadrar. Colores tal como los dio cada escáner, sin normalizar.',
-            'Zoom is matched in microns across all panels; movement is independent, because these are different tissues. Keyboard: arrows to move, plus and minus to zoom, 0 to fit. Colours as each scanner captured them, not normalised.') }}
-    </p>
-    </details>
-    <fieldset v-if="conLamina.length > 1" class="visor-selector">
-      <legend class="sr-only">{{ L('Laminilla visible', 'Visible slide') }}</legend>
-      <label v-for="i in conLamina" :key="i" class="visor-selector__op">
-        <input v-model="activo" type="radio" :name="idAyuda + '-panel'" :value="i" class="sr-only">
-        <span>{{ rotulos[i] }}</span>
-      </label>
-    </fieldset>
     <div class="visor-rejilla" :style="{ '--cols': columnas, '--filas': rejilla.length }">
-      <figure
-        v-for="(l, i) in celdas"
-        :key="i + '-' + (l?.id ?? 'hueco')"
-        class="visor-panel"
-        :class="{ 'visor-panel--activo': i === activo }"
-      >
+      <figure v-for="(l, i) in celdas" :key="i + '-' + (l?.id ?? 'hueco')" class="visor-panel">
         <template v-if="l">
-          <figcaption class="visor-rotulo">{{ rotulos[i] }}</figcaption>
+          <figcaption v-if="rotulos[i]" class="visor-rotulo">{{ rotulos[i] }}</figcaption>
           <div :ref="(el) => { if (el) nodos[i] = el as HTMLDivElement }" class="visor-lienzo" />
           <div v-if="reglas[i]" class="visor-regla" aria-hidden="true">
             <span class="visor-regla__barra" :style="{ width: reglas[i].px + 'px' }" />
             <span class="visor-regla__texto">{{ reglas[i].texto }}</span>
           </div>
+          <p v-if="cargando[i] && !fallos[i]" class="visor-cargando" aria-hidden="true">{{ L('Cargando teselas…', 'Loading tiles…') }}</p>
           <p v-if="fallos[i]" class="visor-fallo" role="status">
             {{ L('No se han podido cargar las teselas de esta laminilla.', 'The tiles for this slide could not be loaded.') }}
           </p>
@@ -348,45 +360,34 @@ onBeforeUnmount(() => {
 </template>
 
 <style scoped>
-.visor-caja--completa { background: var(--color-bg); padding: var(--sp-16); overflow: auto; }
-.visor-barra { display: flex; flex-wrap: wrap; gap: var(--sp-8) var(--sp-16); align-items: center; margin-bottom: var(--sp-8); }
-.visor-grupo { display: inline-flex; gap: var(--sp-4); }
+/* Llena el contenedor que le da la página (la altura de la pantalla, menos cabecera y barras). */
+.visor-caja { position: relative; height: 100%; min-height: 0; }
+.visor-caja--completa { background: var(--color-bg); }
+.visor-barra { position: absolute; z-index: 4; top: 8px; right: 8px; display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 4px; max-width: calc(100% - 16px); }
+.visor-grupo { display: inline-flex; gap: 4px; }
 .visor-boton {
   display: inline-flex; align-items: center; justify-content: center; gap: 6px;
-  min-width: 44px; min-height: 44px; padding: 0 12px; border-radius: var(--radius-md);
-  border: 1px solid color-mix(in srgb, var(--color-text) 22%, transparent);
-  background: var(--color-bg-card); color: var(--color-text); font-weight: 600; font-size: var(--texto-sm);
+  min-width: 44px; min-height: 44px; padding: 0 10px; border-radius: var(--radius-md);
+  border: 1px solid var(--trazo-interactivo); background: color-mix(in srgb, var(--color-bg-card) 94%, transparent);
+  color: var(--color-text); font-weight: 600; font-size: var(--texto-sm);
 }
 @media (hover: hover) and (pointer: fine) {
   .visor-boton:hover { background: var(--secundario-hover); }
 }
-.visor-boton[aria-pressed='true'] { background: var(--seleccionado-bg); border-color: var(--color-miriam); }
+.visor-boton[aria-pressed='true'], .visor-boton[aria-expanded='true'] { background: var(--seleccionado-bg); border-color: var(--color-miriam); }
 .visor-boton:focus-visible { outline: 3px solid var(--anillo-foco); outline-offset: 2px; }
-.visor-ayuda { font-size: var(--texto-xs); color: var(--color-text-soft); margin: 0 0 var(--sp-12); max-width: 76ch; line-height: 1.5; }
-.visor-ayuda-sum { display: none; }
-@media (max-width: 767px) {
-  .visor-ayuda-sum { display: list-item; cursor: pointer; min-height: 44px; padding-top: 12px; font-size: var(--texto-sm); font-weight: 600; color: var(--color-text); }
-  .visor-ayuda-sum:focus-visible { outline: 3px solid var(--anillo-foco); outline-offset: 2px; }
-}
-.visor-selector { display: none; border: 0; margin: 0 0 var(--sp-8); padding: 0; gap: var(--sp-8); flex-wrap: wrap; }
-.visor-selector__op { display: inline-flex; align-items: center; min-height: 44px; padding: 0 14px; border-radius: var(--radius-md);
-  border: 1px solid color-mix(in srgb, var(--color-text) 40%, transparent); background: var(--color-bg-card);
-  font: 600 var(--texto-sm) var(--font-body); color: var(--color-text); cursor: pointer; }
-.visor-selector__op:has(input:checked) { background: var(--seleccionado-bg); border-color: var(--color-miriam); text-decoration: underline; text-underline-offset: 4px; }
-.visor-selector__op:has(input:focus-visible) { outline: 3px solid var(--anillo-foco); outline-offset: 2px; }
-.visor-rejilla { display: grid; gap: var(--sp-12); grid-template-columns: 1fr; }
-@media (min-width: 768px) {
-  .visor-rejilla { grid-template-columns: repeat(var(--cols), minmax(0, 1fr)); }
-}
-.visor-panel { position: relative; margin: 0; border-radius: var(--radius-md); overflow: hidden;
+.visor-mas { flex-basis: 100%; display: flex; flex-direction: column; align-items: flex-end; gap: 6px; }
+.visor-ayuda { margin: 0; max-width: 34ch; font-size: var(--texto-xs); line-height: 1.45; color: var(--color-text); background: var(--color-bg-card);
+  border: 1px solid color-mix(in srgb, var(--color-text) 14%, transparent); border-radius: var(--radius-md); padding: 8px 10px; }
+.visor-rejilla { height: 100%; display: grid; gap: 6px; grid-template-columns: repeat(var(--cols), minmax(0, 1fr)); grid-template-rows: repeat(var(--filas), minmax(0, 1fr)); }
+.visor-panel { position: relative; margin: 0; min-height: 0; border-radius: var(--radius-md); overflow: hidden;
   border: 1px solid color-mix(in srgb, var(--color-text) 14%, transparent); background: #fff; }
-.visor-rotulo { position: absolute; z-index: 2; top: 8px; left: 8px; right: 8px; pointer-events: none;
+.visor-rotulo { position: absolute; z-index: 2; bottom: 40px; left: 8px; pointer-events: none;
   font-size: var(--texto-xs); font-weight: 600; color: var(--color-text);
-  background: color-mix(in srgb, var(--color-bg) 92%, transparent); padding: 4px 8px; border-radius: var(--radius-sm); width: fit-content; }
-.visor-lienzo { width: 100%; height: clamp(280px, 52svh, 520px); }
-.visor-caja--completa .visor-lienzo { height: calc((100dvh - 160px) / var(--filas, 1)); }
+  background: color-mix(in srgb, var(--color-bg) 92%, transparent); padding: 4px 8px; border-radius: var(--radius-sm); width: fit-content; max-width: calc(100% - 16px); }
+.visor-lienzo { position: absolute; inset: 0; }
 .visor-lienzo :deep(.openseadragon-canvas:focus-visible) { outline: 3px solid var(--anillo-foco); outline-offset: -3px; }
-.visor-regla { position: absolute; z-index: 2; left: 10px; bottom: 10px; pointer-events: none;
+.visor-regla { position: absolute; z-index: 2; left: 8px; bottom: 8px; pointer-events: none;
   display: flex; flex-direction: column; gap: 2px; padding: 4px 6px 3px; border-radius: var(--radius-sm);
   background: color-mix(in srgb, var(--color-bg) 92%, transparent); }
 .visor-regla__barra { display: block; height: 4px; background: var(--color-text);
@@ -394,13 +395,12 @@ onBeforeUnmount(() => {
 .visor-regla__texto { font-family: var(--font-mono); font-size: 12px; color: var(--color-text); }
 .visor-fallo { position: absolute; inset: auto 8px 48px 8px; z-index: 2; font-size: var(--texto-sm);
   background: var(--color-bg-card); color: var(--color-text); padding: 8px 10px; border-radius: var(--radius-sm); }
-.visor-hueco { display: flex; align-items: center; justify-content: center; height: clamp(280px, 52svh, 640px);
+.visor-cargando { position: absolute; z-index: 1; inset: 0; margin: 0; display: flex; align-items: center; justify-content: center; pointer-events: none;
+  font-size: var(--texto-sm); color: var(--color-text-soft); }
+.visor-hueco { display: flex; align-items: center; justify-content: center; height: 100%;
   color: var(--color-text-soft); font-size: var(--texto-sm); background: var(--color-bg-card); }
-.visor-hueco { height: clamp(280px, 52svh, 520px); }
+/* En móvil «Mover a la par» queda en el icono (con su nombre accesible): la barra cabe en una fila. */
 @media (max-width: 767px) {
-  .visor-selector { display: flex; }
-  .visor-panel { grid-area: 1 / 1; }
-  .visor-panel:not(.visor-panel--activo) { visibility: hidden; pointer-events: none; }
-  .visor-lienzo, .visor-hueco { height: clamp(260px, 52svh, 480px); }
+  .visor-boton__texto { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 }
 </style>

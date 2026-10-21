@@ -24,6 +24,8 @@ export interface Muestra {
   aumento: string
   /** Texto corto de procedencia de la columna, apto para público (sin siglas ni números de bloque). */
   nota?: Texto
+  /** Zona del cuerpo (mama, hígado, hueso…). Si falta, la da `grupo_paneo` (mismo bloque = misma zona). */
+  zona?: string
 }
 
 export interface Marcador {
@@ -117,6 +119,91 @@ export function reglaRedonda(umPorPx: number, idioma: Idioma = 'es', min = 64, m
   const loc = idioma === 'en' ? 'en-US' : 'es-ES'
   const texto = um >= 1000 ? `${(um / 1000).toLocaleString(loc)} mm` : `${um.toLocaleString(loc)} µm`
   return { um, px: um / umPorPx, texto }
+}
+
+// ── Visor con galería (rediseño del 20-oct-2026: «lo de hacer scroll no mola; un visor e ir
+// cambiando, o las slides como una galería»). Lo que se ve es UNA laminilla (o, al comparar, esa
+// tinción en todas sus muestras), y la galería lista las 32 para ir cambiando.
+
+export type Agrupacion = 'muestra' | 'tincion'
+
+// ── Zonas (Miriam, 21-oct: «tiene que haber un selector de zona mama, hígado, hueso cuando haya»).
+// Salen de los datos: cuando entren laminillas de hueso, su zona aparece sola.
+const NOMBRES_ZONA: Record<string, Texto> = {
+  mama: { es: 'Mama', en: 'Breast' },
+  higado: { es: 'Hígado', en: 'Liver' },
+  hueso: { es: 'Hueso', en: 'Bone' },
+}
+export const zonaDe = (m: Manifest, muestra: string): string => {
+  const x = m.muestras.find((y) => y.id === muestra)
+  return x?.zona ?? x?.grupo_paneo ?? muestra
+}
+/** Las zonas con laminillas, en el orden de las muestras. */
+export const zonas = (m: Manifest): string[] => [...new Set(m.muestras.filter((x) => m.laminillas.some((l) => l.muestra === x.id)).map((x) => zonaDe(m, x.id)))]
+/** Nombre de la zona; si no está en la lista, la primera palabra del nombre corto de su primera muestra. */
+export function nombreZona(m: Manifest, zona: string): Texto {
+  if (NOMBRES_ZONA[zona]) return NOMBRES_ZONA[zona]!
+  const x = m.muestras.find((y) => zonaDe(m, y.id) === zona)
+  return x ? { es: x.corto.es.split(' ')[0]!, en: x.corto.en.split(' ')[0]! } : { es: zona, en: zona }
+}
+export interface GrupoGaleria { id: string; laminillas: Laminilla[] }
+/** Lo que enseña el visor: la laminilla `laminilla`, sola o comparada, con o sin su HE al lado. */
+export interface Vista { laminilla: string; comparar: boolean; he: boolean }
+
+/**
+ * Grupos de la galería. Por muestra: el orden del manifest y, dentro, el de las filas (HE primero).
+ * Por tinción: el orden de las filas y, dentro, el de las muestras (quedan juntas, p. ej., las RE).
+ */
+export function gruposGaleria(m: Manifest, por: Agrupacion, zona?: string): GrupoGaleria[] {
+  const enZona = m.muestras.filter((x) => !zona || zonaDe(m, x.id) === zona)
+  if (por === 'muestra') return enZona.map((x) => ({ id: x.id, laminillas: deMuestra(m, x.id) })).filter((g) => g.laminillas.length)
+  return filas(m).map((f) => ({ id: f.marcador.id, laminillas: enZona.flatMap((x) => f.celdas[x.id] ?? []) })).filter((g) => g.laminillas.length)
+}
+
+/** Las laminillas en el orden de la galería (el que recorren anterior/siguiente). */
+export const ordenGaleria = (m: Manifest, por: Agrupacion, zona?: string) => gruposGaleria(m, por, zona).flatMap((g) => g.laminillas)
+
+/** La primera laminilla: la HE de la primera muestra (o la primera que haya). */
+export const primeraLaminilla = (m: Manifest): Laminilla => heDe(m, m.muestras[0]!.id) ?? m.laminillas[0]!
+
+/**
+ * Query → vista. `?l=<id>&comparar=1&he=1`. Admite los enlaces de antes, que ya pueden estar
+ * compartidos: `?fila=re` (comparar esa tinción) y `?muestra=x&n=3` (la 3.ª laminilla de x).
+ * Sin nada válido, la primera.
+ */
+export function vistaDeQuery(m: Manifest, q: Record<string, unknown>): Vista {
+  const he = q.he === '1'
+  if (typeof q.l === 'string' && m.laminillas.some((l) => l.id === q.l)) return { laminilla: q.l, comparar: q.comparar === '1', he }
+  if (typeof q.fila === 'string') {
+    const f = filas(m).find((x) => x.marcador.id === q.fila)
+    const l = f && m.muestras.map((x) => f.celdas[x.id]?.[0]).find(Boolean)
+    if (l) return { laminilla: l.id, comparar: f!.n > 1, he }
+  }
+  if (typeof q.muestra === 'string' && m.muestras.some((x) => x.id === q.muestra)) {
+    const lista = deMuestra(m, q.muestra)
+    const i = Math.min(Math.max(0, (Number(q.n ?? 1) || 1) - 1), lista.length - 1)
+    if (lista[i]) return { laminilla: lista[i]!.id, comparar: false, he }
+  }
+  return { laminilla: primeraLaminilla(m).id, comparar: false, he }
+}
+
+/** Vista → query (la forma nueva; la vieja solo se lee). */
+export function queryDeVista(v: Vista): Record<string, string> {
+  return { l: v.laminilla, ...(v.comparar ? { comparar: '1' } : {}), ...(v.he ? { he: '1' } : {}) }
+}
+
+/** La misma tinción en cada muestra que la tiene, en el orden de las muestras; la de `l` es ella misma. */
+export function companeras(m: Manifest, l: Laminilla): Laminilla[] {
+  const f = filas(m).find((x) => x.marcador.id === l.marcador)
+  if (!f) return [l]
+  return m.muestras.filter((x) => f.celdas[x.id]).map((x) => (x.id === l.muestra ? l : f.celdas[x.id]![0]!))
+}
+
+/** Anterior/siguiente en el orden de la galería (dentro de la zona, si se da), con vuelta al principio. */
+export function vecinaEnGaleria(m: Manifest, id: string, d: number, por: Agrupacion, zona?: string): Laminilla {
+  const orden = ordenGaleria(m, por, zona)
+  const i = Math.max(0, orden.findIndex((l) => l.id === id))
+  return orden[(i + d + orden.length) % orden.length]!
 }
 
 /** Fuente DZI en línea para OpenSeadragon: así no hace falta pedir el .dzi (ni CORS para él). */
