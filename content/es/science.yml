@@ -55,13 +55,13 @@ treatments:
     outcome: >-
       Ensayo fase IIIb de un solo brazo para cáncer de mama HR+/HER2 IHQ 0
       refractario a endocrino y sin quimioterapia previa en metastásico;
-      Dato-DXd 6 mg/kg cada 3 semanas. La biopsia hepática confirma HER2 0
-      (informe del 21 de septiembre de 2026). Pruebas de cribado a primeros de
-      octubre; la primera dosis está prevista para el 7 de octubre de 2026.
-      Nunca ha recibido quimioterapia, ADC, inmunoterapia ni radioligandos.
-      Estado funcional: ECOG 0 (septiembre de 2026).
+      Dato-DXd 6 mg/kg cada 3 semanas. La biopsia hepática confirma HER2 0 y
+      PD-L1 CPS 0 (informes de septiembre de 2026). Cribado del 1 al 6 de
+      octubre; el hospital documenta la inclusión y pauta el primer ciclo para
+      el 7 de octubre de 2026. Antes de este ensayo nunca había recibido
+      quimioterapia, ADC, inmunoterapia ni radioligandos. Estado funcional:
+      ECOG 0 (octubre de 2026).
     active: true
-    badge: En cribado
 paperSections:
   - title: Transformación Neuroendocrina y Pérdida de RB1
     tag: Transformación NE

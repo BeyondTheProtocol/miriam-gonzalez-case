@@ -56,12 +56,11 @@ treatments:
       Single-arm phase IIIb trial for HR+/HER2 IHC 0 breast cancer refractory
       to endocrine therapy and with no prior chemotherapy in the metastatic
       setting; Dato-DXd 6 mg/kg every 3 weeks. The liver biopsy confirms HER2 0
-      (report of 21 September 2026). Screening tests in early October; the
-      first dose is expected on 7 October 2026. She has never received
-      chemotherapy, ADCs, immunotherapy or radioligands. Performance status:
-      ECOG 0 (September 2026).
+      and PD-L1 CPS 0 (September 2026 reports). Screening from 1 to 6 October;
+      the hospital documents her enrolment and schedules cycle 1 for 7 October
+      2026. Before this trial she had never received chemotherapy, ADCs,
+      immunotherapy or radioligands. Performance status: ECOG 0 (October 2026).
     active: true
-    badge: In screening
 paperSections:
   - title: Neuroendocrine Transformation and RB1 Loss
     tag: NE transformation
