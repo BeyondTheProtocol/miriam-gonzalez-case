@@ -266,7 +266,7 @@ paperSections:
   - title: 'ADC anti-TROP-2: Datopotamab Deruxtecan'
     tag: TROP-2 · ADC
     tone: info
-    subtitle: 'Está previsto que en octubre de 2026 entre en TROPION-Breast06 (NCT07205822), fase IIIb de un solo brazo, sin quimioterapia previa; el ensayo que sostiene el fármaco exigía 1-2 líneas de quimioterapia antes'
+    subtitle: 'Entró en TROPION-Breast06 (NCT07205822) el 7 de octubre de 2026, fase IIIb de un solo brazo, sin quimioterapia previa; el ensayo que sostiene el fármaco exigía 1-2 líneas de quimioterapia antes'
     papers:
       - ref: 'Bardia et al., 2025 — Journal of Clinical Oncology (DOI: 10.1200/JCO.24.00920)'
         finding: 'TROPION-Breast01: menor riesgo de progresión o muerte frente a la quimioterapia a elección del investigador (HR 0,63)'
