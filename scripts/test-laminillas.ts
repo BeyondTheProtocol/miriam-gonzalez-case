@@ -152,7 +152,7 @@ const nav = readFileSync('app/utils/navegacion.ts', 'utf-8')
 ok(/slides:\s*e\('slides',\s*'laminillas'\)/.test(nav) && /HERRAMIENTAS[^\n]*NAV\.slides/.test(nav), 'está en la navegación y en el índice de herramientas')
 
 const orden = nav.match(/export const HERRAMIENTAS: EnlaceNav\[\] = \[([^\]]*)\]/)?.[1] ?? ''
-ok(orden.replace(/\s/g, '') === 'NAV.data,NAV.lesions,NAV.map,NAV.slides,NAV.cellByCell,NAV.cellExplorer,NAV.port', 'herramientas en el orden «del cuerpo a la célula»')
+ok(orden.replace(/\s/g, '') === 'NAV.data,NAV.lesions,NAV.slides,NAV.cellByCell,NAV.cellExplorer,NAV.port', 'herramientas en el orden «del cuerpo a la célula» (sin el mapa de solo hueso desde el 21-oct)')
 const ultimo = nav.match(/export const LO_ULTIMO: EnlaceNav = NAV\.(\w+)/)?.[1]
 ok(!!ultimo && orden.includes('NAV.' + ultimo), `la destacada «Lo último» (${ultimo}) es una de las herramientas`)
 
