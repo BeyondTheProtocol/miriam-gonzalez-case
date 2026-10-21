@@ -4,7 +4,8 @@
 // revisión de `diseno`: (1) cada apertura dejaba vivo un contexto WebGL y a la 16.ª el mapa de células se quedaba en
 // blanco; (2) «Volver» y reabrir el mismo gen montaba el visor con el bloque plegado. Aquí se prueban en un navegador:
 //   1. plegado no pide nada a AlphaFold ni monta el visor; desplegado lo monta, a la vista, con su leyenda y los mandos
-//      debajo del modelo (no encima);
+//      debajo del modelo (no encima); el aviso de la rueda sale en el primer gesto y no vuelve, y la rueda sin Ctrl
+//      nunca llega al canvas;
 //   2. 20 aperturas y cierres no matan el contexto WebGL del mapa, y el modelo se pide una sola vez (caché);
 //   3. «Volver» y reabrir el mismo gen deja el bloque plegado y sin visor;
 //   4. el tema oscuro repinta la rampa (la de claro se invertía sobre el fondo oscuro);
@@ -117,6 +118,21 @@ try {
   await sleep(300)
   ok(await ev(`(() => { const r = document.querySelector('.fo .de__lienzo').getBoundingClientRect(), m = document.querySelector('.fo .de__mandos').getBoundingClientRect(); return r.top >= 0 && m.bottom <= innerHeight + 1 })()`), 'al desplegar, el modelo y sus mandos quedan a la vista')
   ok((await ev(`document.querySelectorAll('.fo .de__leyenda li').length`)) === 4, 'leyenda de cuatro bandas')
+
+  console.log('Rueda sobre el visor')
+  // diseno, 20-oct: dentro del panel con scroll, «Ctrl o ⌘ + rueda para acercar» reaparecía en cada gesto. Sale en el primero
+  // y no más; y la rueda sin modificador nunca llega al canvas (si llegara, OrbitControls acercaría sin Ctrl)
+  await ev(`(() => { window.__ruedaCanvas = 0; document.querySelector('.fo .de__host canvas').addEventListener('wheel', () => window.__ruedaCanvas++) })()`)
+  const gesto = (ctrl = false) => ev(`(() => { const c = document.querySelector('.fo .de__host canvas'); for (let i = 0; i < 3; i++) c.dispatchEvent(new WheelEvent('wheel', { deltaY: 40, bubbles: true, cancelable: true, ctrlKey: ${ctrl} })) })()`)
+  const avisoRueda = `[...document.querySelectorAll('.fo .de__host > div[aria-hidden="true"]')].filter((d) => d.textContent.includes('para acercar') && d.style.opacity === '1').length`
+  await gesto()
+  ok((await ev(avisoRueda)) === 1, 'primer gesto de rueda: sale el aviso')
+  await sleep(1700)
+  await gesto()
+  ok((await ev(avisoRueda)) === 0, 'segundo gesto: el aviso no vuelve')
+  ok((await ev(`window.__ruedaCanvas`)) === 0, 'la rueda sin Ctrl no llega al canvas en ningún gesto (no acerca)')
+  await gesto(true)
+  ok((await ev(`window.__ruedaCanvas`)) === 3, 'Ctrl + rueda sí llega al canvas (acerca)')
 
   console.log('Tema oscuro')
   const claro = await ev(muestras)

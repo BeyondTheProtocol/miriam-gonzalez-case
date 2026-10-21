@@ -10,7 +10,8 @@
 //   4. el bloque va dentro del explorador, plegado, y el visor solo se monta al desplegarlo; la página vieja ya no existe
 //      y su ruta redirige con 301;
 //   5. el visor suelta su contexto WebGL, cancela y guarda la carga, pinta según el tema y deja los mandos fuera del
-//      modelo (diseno, 20-oct; el comportamiento en navegador lo prueba test:alphafold-visor);
+//      modelo, con iconos Phosphor cotejados; el aviso de la rueda sale una vez por visor (diseno, 20-oct; el
+//      comportamiento en navegador lo prueba test:alphafold-visor);
 //   6. el muro del copy: crédito, citas y «predicción, no medición» visibles; sin «vacuna», «científica», «Olune» ni
 //      «tumor» en el texto visible.
 // Uso: pnpm test:alphafold   (no necesita build)
@@ -88,6 +89,24 @@ ok('cancela la carga al desmontarse y guarda el modelo por UniProt', /corta\?\.a
 ok('colores por tema del explorador y repinta al cambiarlo', /tema: 'claro' \| 'oscuro'/.test(visor) && /watch\(\(\) => props\.tema, pinta\)/.test(visor) && /:tema="tema"/.test(explorador) && /:tema="tema"/.test(tplForma))
 ok('los mandos van debajo del lienzo, en flujo', !/\.de__mandos \{[^}]*position:\s*absolute/.test(visor) && visor.indexOf('class="de__mandos"') > visor.indexOf('class="de__aviso"'))
 ok('hover solo con puntero fino (sin hover pegado en táctil)', /@media \(hover: hover\) and \(pointer: fine\) \{ \.de__paso:hover/.test(visor))
+// diseno, 20-oct: los mandos eran glifos de texto (↶ ↷ + −) que salían de una fuente de reserva y bajaban 1–2 px; ahora son
+// los iconos de Phosphor (regular) que usa .exp__volver. Paths cotejados el 20-oct contra @phosphor-icons/core 2.1.1
+// (assets/regular/*.svg); si se cambia de icono, se vuelve a cotejar contra la fuente, no se dibuja de memoria
+const PHOSPHOR: Record<string, string> = {
+  'arrow-arc-left': 'M232,184a8,8,0,0,1-16,0A88,88,0,0,0,65.78,121.78L43.4,144H88a8,8,0,0,1,0,16H24a8,8,0,0,1-8-8V88a8,8,0,0,1,16,0v44.77l22.48-22.33A104,104,0,0,1,232,184Z',
+  'arrow-arc-right': 'M240,88v64a8,8,0,0,1-8,8H168a8,8,0,0,1,0-16h44.6l-22.36-22.21A88,88,0,0,0,40,184a8,8,0,0,1-16,0,104,104,0,0,1,177.54-73.54L224,132.77V88a8,8,0,0,1,16,0Z',
+  plus: 'M224,128a8,8,0,0,1-8,8H136v80a8,8,0,0,1-16,0V136H40a8,8,0,0,1,0-16h80V40a8,8,0,0,1,16,0v80h80A8,8,0,0,1,224,128Z',
+  minus: 'M224,128a8,8,0,0,1-8,8H40a8,8,0,0,1,0-16H216A8,8,0,0,1,224,128Z',
+}
+const pasos = visor.match(/<div class="de__pasos"[\s\S]*?\n {6}<\/div>/)?.[0] ?? ''
+const iconos = [...pasos.matchAll(/<svg viewBox="0 0 256 256" aria-hidden="true"><path fill="currentColor" d="([^"]+)" \/><\/svg>/g)].map((m) => m[1])
+ok('los cuatro mandos llevan su icono Phosphor, en orden (girar ←, girar →, acercar, alejar)', JSON.stringify(iconos) === JSON.stringify(Object.values(PHOSPHOR)), `${iconos.length} iconos`)
+ok('sin glifos de texto en los mandos', !/[↶↷−]|>\+</.test(pasos))
+ok('iconos de 20 px centrados por la caja del botón', /\.de__paso \{[^}]*display: grid; place-items: center;/.test(visor) && /\.de__paso svg \{ display: block; width: 20px; height: 20px; \}/.test(visor))
+// diseno, 20-oct: en el panel con scroll el aviso «Ctrl o ⌘ + rueda» reaparecía en cada gesto. Sale una vez por visor; lo que
+// NO se puede cortar es el stopPropagation de cada gesto (si el «ya avisado» va antes, la rueda sola acerca en los cinco visores)
+const rueda = lee('app', 'composables', 'useAlVer.ts').match(/export function ruedaConModificador[\s\S]*?\n\}/)?.[0] ?? ''
+ok('aviso de rueda: una vez por visor, y la rueda sola sigue sin llegar al canvas', /e\.stopPropagation\(\)\s*\n\s*if \(avisado\) return/.test(rueda) && /setTimeout\(\(\) => \{ avisado = true;/.test(rueda))
 
 /* ── 6 · el muro del copy ── */
 ok('crédito y licencia visibles', visor.includes('(Google DeepMind · EMBL-EBI)') && visor.includes('creativecommons.org/licenses/by/4.0'))

@@ -316,11 +316,22 @@ const descripcion = computed(() => L(
          Su hueco existe desde el principio (min-height): al cargar no empujan el pie (diseno, 2.ª pasada) -->
     <div class="de__mandos-caja">
     <div v-if="estado === 'listo'" class="de__mandos">
+      <!-- iconos Phosphor (regular), como los de .exp__volver; paths tal cual de @phosphor-icons/core 2.1.1 (arrow-arc-left,
+           arrow-arc-right, plus, minus). Eran glifos de texto: las flechas salían de una fuente de reserva y + y − quedaban
+           1–2 px bajo el centro (diseno, 20-oct) -->
       <div class="de__pasos" role="group" :aria-label="L(`Mover la forma de ${proteina}`, `Move the ${proteina} shape`)">
-        <button type="button" class="de__paso" :aria-label="L('Girar a la izquierda', 'Rotate left')" @click="gira(-PASO, 0)"><span aria-hidden="true">↶</span></button>
-        <button type="button" class="de__paso" :aria-label="L('Girar a la derecha', 'Rotate right')" @click="gira(PASO, 0)"><span aria-hidden="true">↷</span></button>
-        <button type="button" class="de__paso" :aria-label="L('Acercar', 'Zoom in')" @click="acerca(0.9)"><span aria-hidden="true">+</span></button>
-        <button type="button" class="de__paso" :aria-label="L('Alejar', 'Zoom out')" @click="acerca(1.1)"><span aria-hidden="true">−</span></button>
+        <button type="button" class="de__paso" :aria-label="L('Girar a la izquierda', 'Rotate left')" @click="gira(-PASO, 0)">
+          <svg viewBox="0 0 256 256" aria-hidden="true"><path fill="currentColor" d="M232,184a8,8,0,0,1-16,0A88,88,0,0,0,65.78,121.78L43.4,144H88a8,8,0,0,1,0,16H24a8,8,0,0,1-8-8V88a8,8,0,0,1,16,0v44.77l22.48-22.33A104,104,0,0,1,232,184Z" /></svg>
+        </button>
+        <button type="button" class="de__paso" :aria-label="L('Girar a la derecha', 'Rotate right')" @click="gira(PASO, 0)">
+          <svg viewBox="0 0 256 256" aria-hidden="true"><path fill="currentColor" d="M240,88v64a8,8,0,0,1-8,8H168a8,8,0,0,1,0-16h44.6l-22.36-22.21A88,88,0,0,0,40,184a8,8,0,0,1-16,0,104,104,0,0,1,177.54-73.54L224,132.77V88a8,8,0,0,1,16,0Z" /></svg>
+        </button>
+        <button type="button" class="de__paso" :aria-label="L('Acercar', 'Zoom in')" @click="acerca(0.9)">
+          <svg viewBox="0 0 256 256" aria-hidden="true"><path fill="currentColor" d="M224,128a8,8,0,0,1-8,8H136v80a8,8,0,0,1-16,0V136H40a8,8,0,0,1,0-16h80V40a8,8,0,0,1,16,0v80h80A8,8,0,0,1,224,128Z" /></svg>
+        </button>
+        <button type="button" class="de__paso" :aria-label="L('Alejar', 'Zoom out')" @click="acerca(1.1)">
+          <svg viewBox="0 0 256 256" aria-hidden="true"><path fill="currentColor" d="M224,128a8,8,0,0,1-8,8H40a8,8,0,0,1,0-16H216A8,8,0,0,1,224,128Z" /></svg>
+        </button>
       </div>
       <button type="button" class="de__girar" @click="alterna">
         {{ girando ? L('Parar el giro', 'Stop rotation') : L('Dar una vuelta', 'Rotate once') }}
@@ -396,7 +407,9 @@ const descripcion = computed(() => L(
 }
 .de__paso:active, .de__girar:active { transform: scale(0.97); }
 @media (prefers-reduced-motion: reduce) { .de__paso, .de__girar { transition: none; } .de__paso:active, .de__girar:active { transform: none; } }
-.de__paso { min-width: 44px; font-size: 1.1rem; }
+/* el icono, centrado por la caja y no por la línea de texto (un svg en línea se sienta en la base y baja 1–2 px) */
+.de__paso { min-width: 44px; padding: 0; display: grid; place-items: center; }
+.de__paso svg { display: block; width: 20px; height: 20px; }
 .de__girar { padding: 0 var(--sp-16); }
 @media (hover: hover) and (pointer: fine) { .de__paso:hover, .de__girar:hover { background: var(--superficie); } }
 .de__paso:focus-visible, .de__girar:focus-visible { outline: 2px solid var(--anillo-foco); outline-offset: 2px; }
