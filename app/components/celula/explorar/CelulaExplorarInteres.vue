@@ -129,8 +129,9 @@ function forma3d(e: Event, tipo: 'entra' | 'sale' | 'fija', gen: string) {
 .gin__gen[aria-pressed='true'] { background: color-mix(in srgb, var(--identidad) 14%, transparent); box-shadow: inset 0 0 0 1px var(--identidad); }
 .gin__gen[aria-pressed='true'] .gin__prot { text-decoration-thickness: 2px; }
 .gin__sim { font: 500 var(--texto-xs) var(--font-mono); color: var(--texto-2); }
-/* el gen y su «3D» en la misma celda (sin quinta columna) */
-.gin__genfila { display: flex; align-items: center; gap: var(--sp-4); }
+/* el gen y su «3D» en la misma celda (sin quinta columna); en rejilla, para que los «3D» formen columna aunque los
+   nombres midan distinto (diseno, 21-oct). 1fr respeta el ancho mínimo del nombre: no lo monta encima del botón */
+.gin__genfila { display: grid; grid-template-columns: 1fr auto; align-items: center; gap: var(--sp-4); }
 .gin__3d {
   display: inline-flex; align-items: center; gap: var(--sp-4); flex: none; min-height: 44px; min-width: 44px; padding: 0 var(--sp-8);
   border: 1px solid var(--trazo-interactivo); border-radius: 9999px; background: transparent; color: var(--identidad);
@@ -139,9 +140,15 @@ function forma3d(e: Event, tipo: 'entra' | 'sale' | 'fija', gen: string) {
 }
 .gin__3d svg { display: block; width: 16px; height: 16px; }
 .gin__3d:active { transform: scale(0.97); }
-@media (hover: hover) and (pointer: fine) { .gin__3d:hover { background: var(--trazo-sutil); } }
+/* sobre el fondo tintado el violeta bajaba de 4,5:1 (4,10–4,37; diseno, 21-oct): el texto pasa a tinta */
+@media (hover: hover) and (pointer: fine) { .gin__3d:hover { background: var(--trazo-sutil); color: var(--texto-1); } }
 .gin__3d:focus-visible { outline: 2px solid var(--anillo-foco); outline-offset: 1px; }
-.gin__3d[aria-expanded='true'] { background: color-mix(in srgb, var(--identidad) 14%, transparent); border-color: var(--identidad); }
+.gin__3d[aria-expanded='true'] { background: color-mix(in srgb, var(--identidad) 14%, transparent); border-color: var(--identidad); color: var(--texto-1); }
+/* a 320 px la tabla se salía de la tarjeta con el «3D» al lado: debajo del símbolo (diseno, 21-oct) */
+@container (max-width: 300px) {
+  .gin__genfila { grid-template-columns: minmax(0, 1fr); gap: 0; }
+  .gin__3d { justify-self: start; }
+}
 @media (prefers-reduced-motion: reduce) { .gin__3d { transition: none; } .gin__3d:active { transform: none; } }
 /* panel estrecho (móvil, 311 px útiles): nombre y símbolo uno encima del otro y menos relleno, para que quepan las cuatro columnas */
 @container (max-width: 440px) {

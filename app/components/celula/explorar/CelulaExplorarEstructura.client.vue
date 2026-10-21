@@ -365,24 +365,27 @@ const descripcion = computed(() => L(
     <figcaption v-if="compacto" class="de__pie">
       <p class="de__sello">{{ L('Predicción, no medición.', 'A prediction, not a measurement.') }}</p>
       <p class="de__ctx">{{ L('Se calcula a partir de la secuencia de referencia de la proteína humana (UniProt), sin datos de la biopsia de Miriam: no dice si esta proteína está en sus células.', 'Built from the human protein’s reference sequence (UniProt), with no data from Miriam’s biopsy, so it doesn’t say whether this protein is in her cells.') }}</p>
-      <template v-if="estado === 'listo'">
-        <p class="de__ley-t" aria-hidden="true">{{ L('Confianza del modelo (pLDDT). Donde confía menos, el tubo es más fino', 'Model confidence (pLDDT). The tube is thinner where confidence is lower') }}</p>
-        <ul class="de__leyenda" :aria-label="L('Confianza del modelo (pLDDT). Donde confía menos, el tubo es más fino', 'Model confidence (pLDDT). The tube is thinner where confidence is lower')">
+      <!-- mientras carga, la leyenda y la línea ocupan su sitio sin verse: la vista previa no crece de golpe (diseno, 21-oct) -->
+      <div v-if="estado !== 'error'" class="de__pvdatos" :style="estado === 'listo' ? undefined : { visibility: 'hidden' }" :aria-hidden="estado === 'listo' ? undefined : 'true'">
+        <p class="de__ley-t" aria-hidden="true">{{ L('Confianza del modelo (pLDDT)', 'Model confidence (pLDDT)') }}</p>
+        <!-- sin el color solo: la muestra es más baja cuanto menos confianza, como el tubo -->
+        <ul class="de__leyenda" :aria-label="L('Confianza del modelo (pLDDT); el tubo es más fino donde confía menos', 'Model confidence (pLDDT); the tube is thinner where confidence is lower')">
           <li v-for="b in BANDAS" :key="b">
             <span class="de__muestra" :class="`de__muestra--${b}`" :style="{ background: muestras[b] }" aria-hidden="true" />
             <span>{{ ETIQUETA_BANDA[b][lang] }}</span>
           </li>
         </ul>
-        <!-- la línea, en las diez; el aviso, si pasa de la mitad (umbral nuestro; textos de verificacion, 21-oct, fieles a la FAQ de AlphaFold DB:
-             «should not be interpreted», «only structured as part of a complex»; pase de voz-miriam) -->
-        <p class="de__linea">{{ L(`Confianza muy baja (pLDDT < 50) en el ${pctMuyBaja} de los aminoácidos.`, `Very low confidence (pLDDT < 50) in ${pctMuyBaja} of the amino acids.`) }}</p>
-        <p v-if="avisoConfianza(fMuyBaja)" class="de__alerta">
-          {{ L('Más de la mitad de esta proteína tiene confianza muy baja. AlphaFold DB indica que esas zonas no deben interpretarse: apuntan a regiones sin forma fija por sí solas, o que solo la toman dentro de un complejo. El modelo sirve para señalarlas, no para describir su forma.',
-               'More than half of this protein is predicted with very low confidence. AlphaFold DB says those regions should not be interpreted: they point to stretches with no fixed shape on their own, or that are only structured as part of a complex. The model is useful for pointing them out, not for describing their shape.') }}
+        <!-- la línea, en las diez; si pasa de la mitad, la línea va dentro del aviso (umbral nuestro; textos de verificacion,
+             21-oct, fieles a la FAQ de AlphaFold DB: «should not be interpreted», «only structured as part of a complex»;
+             pase de voz-miriam; una sola pieza en vez de dos que decían lo mismo, diseno) -->
+        <p v-if="estado !== 'listo' || !avisoConfianza(fMuyBaja)" class="de__linea">{{ L(`Confianza muy baja (pLDDT < 50) en el ${pctMuyBaja} de los aminoácidos.`, `Very low confidence (pLDDT < 50) in ${pctMuyBaja} of the amino acids.`) }}</p>
+        <p v-else class="de__alerta">
+          {{ L(`Confianza muy baja (pLDDT < 50) en el ${pctMuyBaja} de los aminoácidos: más de la mitad de la proteína. AlphaFold DB indica que esas zonas no deben interpretarse: apuntan a regiones sin forma fija por sí solas, o que solo la toman dentro de un complejo. El modelo sirve para señalarlas, no para describir su forma.`,
+               `Very low confidence (pLDDT < 50) in ${pctMuyBaja} of the amino acids: more than half of the protein. AlphaFold DB says those regions should not be interpreted: they point to stretches with no fixed shape on their own, or that are only structured as part of a complex. The model is useful for pointing them out, not for describing their shape.`) }}
         </p>
-      </template>
+      </div>
       <p class="de__fuente">
-        <a :href="urlEntradaAlphaFold(uniprot)" class="link-underline" target="_blank" rel="noopener">AlphaFold DB<span class="sr-only">{{ L(' (se abre en otra pestaña)', ' (opens in a new tab)') }}</span></a> (Google DeepMind · EMBL-EBI) · <a href="https://creativecommons.org/licenses/by/4.0/" class="link-underline" target="_blank" rel="noopener license">CC BY 4.0<span class="sr-only">{{ L(' (se abre en otra pestaña)', ' (opens in a new tab)') }}</span></a>
+        <a :href="urlEntradaAlphaFold(uniprot)" class="link-underline" target="_blank" rel="noopener">AlphaFold DB<span class="sr-only">{{ L(' (se abre en otra pestaña)', ' (opens in a new tab)') }}</span></a> <span class="de__nw">(Google DeepMind · EMBL-EBI)</span> <span class="de__nw">· <a href="https://creativecommons.org/licenses/by/4.0/" class="link-underline" target="_blank" rel="noopener license">CC BY 4.0<span class="sr-only">{{ L(' (se abre en otra pestaña)', ' (opens in a new tab)') }}</span></a></span>
       </p>
     </figcaption>
     <figcaption v-else class="de__pie">
@@ -479,6 +482,8 @@ const descripcion = computed(() => L(
 .de--compacto .de__host, .de--compacto .de__host:active { cursor: default; }
 .de--compacto .de__pie { gap: var(--sp-4); }
 .de--compacto .de__ley-t { font-size: var(--texto-xs); }
+.de__pvdatos { display: grid; gap: var(--sp-4); }
+.de__nw { white-space: nowrap; }   /* «· CC BY 4.0» quedaba huérfano y «EMBL-EBI» se partía por el guion (diseno, 21-oct) */
 /* dos columnas también a 375: las etiquetas son cortas y en una sola la leyenda llenaba media hoja */
 .de--compacto .de__leyenda { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; column-gap: var(--sp-12); }
 .de--compacto .de__ctx, .de--compacto .de__linea, .de--compacto .de__alerta, .de--compacto .de__fuente, .de--compacto .de__leyenda { font-size: var(--texto-xs); }

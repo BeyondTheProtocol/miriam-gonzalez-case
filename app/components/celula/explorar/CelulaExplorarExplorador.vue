@@ -1124,7 +1124,7 @@ function sinTapar(ev: FocusEvent) {
 }
 .exp__dforma svg { width: 18px; height: 18px; flex: none; }
 .exp__dforma:active { transform: scale(0.97); }
-@media (hover: hover) and (pointer: fine) { .exp__dforma:hover { background: var(--trazo-sutil); } }
+@media (hover: hover) and (pointer: fine) { .exp__dforma:hover { background: var(--trazo-sutil); color: var(--texto-1); } }   /* 4,5:1 sobre el tinte */
 .exp__dforma:focus-visible { outline: 2px solid var(--anillo-foco); outline-offset: 2px; }
 @media (prefers-reduced-motion: reduce) { .exp__dforma { transition: none; } .exp__dforma:active { transform: none; } }
 .exp__volver { display: inline-flex; align-items: center; gap: var(--sp-4); min-height: 44px; padding: 0 var(--sp-8) 0 0; border: 0; background: none; color: var(--identidad); font: 600 var(--texto-sm)/1.2 var(--font-body); cursor: pointer; }

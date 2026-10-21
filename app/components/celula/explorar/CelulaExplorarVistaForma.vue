@@ -29,12 +29,13 @@ const proteina = computed(() => (abierta.value ? PROTEINA[abierta.value.gen] ?? 
 const flota = ref<HTMLElement | null>(null)
 const hoja = ref<HTMLDialogElement | null>(null)
 const cierreHoja = ref<HTMLButtonElement | null>(null)
-const pos = ref({ top: 0, left: 0 })
+const pos = ref({ top: 0, left: 0, alto: 0 })
 let ancla: HTMLElement | null = null
 let tAbre: ReturnType<typeof setTimeout> | undefined
 let tCierra: ReturnType<typeof setTimeout> | undefined
 
-const ESPERA_ABRE = 400, ESPERA_CAMBIA = 150, ESPERA_CIERRA = 200
+/** cerrar espera 400 ms: del botón a la flotante hay ~80 px de recorrido (diseno, 21-oct; 1.4.13) */
+const ESPERA_ABRE = 400, ESPERA_CAMBIA = 150, ESPERA_CIERRA = 400
 const estrecho = () => window.matchMedia('(max-width: 639px), (hover: none), (pointer: coarse)').matches
 
 /** ratón sobre «3D»: abre tras la espera; si ya hay una flotando, cambia antes. Una fija u hoja abierta manda. */
@@ -98,22 +99,29 @@ function completa() {
 }
 
 /** a la izquierda del panel (sobre el mapa), a la altura del botón: junto al botón tapaba los nombres de las otras
- * proteínas de la lista (capturas del 21-oct). Si no cabe (panel a todo el ancho), debajo o encima. Siempre dentro. */
-function coloca() {
+ * proteínas de la lista (capturas del 21-oct). Si no cabe (panel a todo el ancho), debajo o encima. Nunca encima de la
+ * cabecera fija ni del aviso fijo del explorador (el mismo tope que .exp__panel; diseno, 21-oct), y con su alto acotado
+ * a lo que queda: si no cabe, desplaza por dentro. `recentra`: al abrir y al desplazar la página; cuando solo crece el
+ * contenido (llega el modelo, sale el aviso) se queda donde estaba y solo sube lo justo para no salirse (no salta). */
+function coloca(recentra = true) {
   const f = flota.value
   if (!f || !ancla?.isConnected) return
-  const r = ancla.getBoundingClientRect(), w = f.offsetWidth, h = f.offsetHeight, m = 8, sep = 12
+  const css = getComputedStyle(ancla.closest('.exp') ?? document.documentElement), m = 8, sep = 12
+  const arriba = (parseFloat(css.getPropertyValue('--exp-top')) || 0) + (parseFloat(css.getPropertyValue('--exp-banner')) || 0) + m
+  const alto = Math.max(160, innerHeight - arriba - m)
+  const r = ancla.getBoundingClientRect(), w = f.offsetWidth, h = Math.min(f.offsetHeight, alto)
   const borde = (ancla.closest('.exp__panel') ?? ancla).getBoundingClientRect().left
-  const dentro = (v: number, max: number) => Math.max(m, Math.min(v, max - m))
+  const enVertical = (v: number) => Math.max(arriba, Math.min(v, innerHeight - m - h))
   let left = borde - w - sep, top: number
-  if (left >= m) top = dentro(r.top + r.height / 2 - h / 2, innerHeight - h)
+  if (!recentra && pos.value.alto) { left = pos.value.left; top = enVertical(pos.value.top) }
+  else if (left >= m) top = enVertical(r.top + r.height / 2 - h / 2)
   else {
-    left = dentro(r.right - w, innerWidth - w)
-    top = r.bottom + sep + h <= innerHeight - m ? r.bottom + sep : dentro(r.top - sep - h, innerHeight - h)
+    left = Math.max(m, Math.min(r.right - w, innerWidth - w - m))
+    top = r.bottom + sep + h <= innerHeight - m ? r.bottom + sep : enVertical(r.top - sep - h)
   }
-  pos.value = { top: Math.round(top), left: Math.round(left) }
+  pos.value = { top: Math.round(top), left: Math.round(left), alto: Math.round(alto) }
 }
-/** al cargar el modelo crece (leyenda, aviso): se recoloca */
+/** al cargar el modelo crece (leyenda, aviso): no se recentra, solo no se sale */
 let ro: ResizeObserver | null = null
 /** al desplazar: la flotante sigue al botón; si el botón sale de la vista, se cierra */
 function alDesplazar() {
@@ -137,17 +145,18 @@ function pulsaFuera(e: PointerEvent) {
   if (flota.value?.contains(t) || ancla?.contains(t)) return
   cierra(false)
 }
-/** con Tab fuera de la fija se cierra (sin robar el foco a donde se fue) */
+/** con Tab fuera de la fija se cierra y el foco vuelve al «3D»: la flotante vive al final del explorador y el foco caía
+ * allí, lejos de la fila (diseno, 21-oct; 2.4.3). El siguiente Tab sigue en la lista */
 function focoFuera(e: FocusEvent) {
   const a = abierta.value, t = e.relatedTarget as Node | null
-  if (a?.modo === 'fija' && t && !flota.value?.contains(t) && !ancla?.contains(t)) cierra(false)
+  if (a?.modo === 'fija' && t && !flota.value?.contains(t) && !ancla?.contains(t)) cierra(true)
 }
 /** hoja: Esc nativo, ✕ o el fondo */
 function alCerrarHoja() { if (abierta.value?.modo === 'hoja') { const el = ancla; abierta.value = null; if (el?.isConnected) el.focus({ preventScroll: true }) } }
 function clicFondo(e: MouseEvent) { if (e.target === hoja.value) cierra(true) }
 
 onMounted(() => {
-  if (flota.value) { ro = new ResizeObserver(() => { if (abierta.value && abierta.value.modo !== 'hoja') coloca() }); ro.observe(flota.value) }
+  if (flota.value) { ro = new ResizeObserver(() => { if (abierta.value && abierta.value.modo !== 'hoja') coloca(false) }); ro.observe(flota.value) }
   document.addEventListener('keydown', tecla)
   document.addEventListener('pointerdown', pulsaFuera, true)
   window.addEventListener('scroll', alDesplazar, { capture: true, passive: true })
@@ -171,7 +180,7 @@ const titulo = computed(() => L(`Forma 3D predicha de ${proteina.value}`, `Predi
   <div class="pv">
     <!-- flotante (escritorio): popover manual, colocado junto al «3D» -->
     <div ref="flota" popover="manual" class="pv__flota" role="dialog" aria-labelledby="pv-titulo-flota" tabindex="-1"
-         :style="{ top: `${pos.top}px`, left: `${pos.left}px` }"
+         :style="{ top: `${pos.top}px`, left: `${pos.left}px`, maxHeight: pos.alto ? `${pos.alto}px` : undefined, '--pv-max': pos.alto ? `${pos.alto}px` : undefined }"
          @pointerenter="quedate" @pointerleave="sale" @focusout="focoFuera">
       <template v-if="abierta && abierta.modo !== 'hoja'">
         <div class="pv__cab">
@@ -185,17 +194,22 @@ const titulo = computed(() => L(`Forma 3D predicha de ${proteina.value}`, `Predi
       </template>
     </div>
     <!-- hoja inferior (táctil o estrecho): dialog modal; Esc, foco atrapado y fondo inerte, nativos -->
+    <!-- «Ver la forma completa», en un pie fuera del scroll: dentro quedaba bajo el borde de la pantalla (diseno, 21-oct) -->
     <dialog ref="hoja" class="pv__hoja" aria-labelledby="pv-titulo-hoja" @close="alCerrarHoja" @click="clicFondo">
-      <div v-if="abierta && abierta.modo === 'hoja'" class="pv__dentro">
-        <div class="pv__cab">
-          <h2 id="pv-titulo-hoja" class="pv__t">{{ titulo }}</h2>
-          <button ref="cierreHoja" type="button" class="pv__x" :aria-label="L('Cerrar', 'Close')" @click="cierra(true)">
-            <svg viewBox="0 0 256 256" aria-hidden="true"><path fill="currentColor" d="M205.66,194.34a8,8,0,0,1-11.32,11.32L128,139.31,61.66,205.66a8,8,0,0,1-11.32-11.32L116.69,128,50.34,61.66A8,8,0,0,1,61.66,50.34L128,116.69l66.34-66.35a8,8,0,0,1,11.32,11.32L139.31,128Z" /></svg>
-          </button>
+      <template v-if="abierta && abierta.modo === 'hoja'">
+        <div class="pv__dentro">
+          <div class="pv__cab">
+            <h2 id="pv-titulo-hoja" class="pv__t">{{ titulo }}</h2>
+            <button ref="cierreHoja" type="button" class="pv__x" :aria-label="L('Cerrar', 'Close')" @click="cierra(true)">
+              <svg viewBox="0 0 256 256" aria-hidden="true"><path fill="currentColor" d="M205.66,194.34a8,8,0,0,1-11.32,11.32L128,139.31,61.66,205.66a8,8,0,0,1-11.32-11.32L116.69,128,50.34,61.66A8,8,0,0,1,61.66,50.34L128,116.69l66.34-66.35a8,8,0,0,1,11.32,11.32L139.31,128Z" /></svg>
+            </button>
+          </div>
+          <LazyCelulaExplorarEstructura :key="`pv-${abierta.uniprot}`" compacto :gen="abierta.gen" :uniprot="abierta.uniprot" :proteina="proteina" :lang="lang" :tema="tema" />
         </div>
-        <LazyCelulaExplorarEstructura :key="`pv-${abierta.uniprot}`" compacto :gen="abierta.gen" :uniprot="abierta.uniprot" :proteina="proteina" :lang="lang" :tema="tema" />
-        <button type="button" class="pv__completa" @click="completa">{{ L('Ver la forma completa', 'See the full shape') }}</button>
-      </div>
+        <div class="pv__pie">
+          <button type="button" class="pv__completa" @click="completa">{{ L('Ver la forma completa', 'See the full shape') }}</button>
+        </div>
+      </template>
     </dialog>
   </div>
 </template>
@@ -204,13 +218,17 @@ const titulo = computed(() => L(`Forma 3D predicha de ${proteina.value}`, `Predi
 /* la flotante: capa superior, colocada a mano (inset y margin del popover, fuera) */
 .pv__flota {
   position: fixed; inset: auto; margin: 0; width: min(340px, calc(100vw - 16px)); max-height: calc(100dvh - 16px); overflow-y: auto;
-  padding: var(--sp-12); border: 1px solid var(--trazo-medio); border-radius: var(--radius-btn);
-  background: var(--fondo); color: var(--texto-1); box-shadow: var(--sombra-flotante); --pv-alto: 200px;
+  padding: var(--sp-12); border: 1px solid var(--trazo-fuerte); border-radius: var(--radius-btn);
+  background: var(--fondo); color: var(--texto-1); box-shadow: var(--sombra-flotante); --pv-alto: 180px;
+  /* el alto de la vista previa ya cargada (sin aviso; medido el 21-oct): la primera vez, mientras llega el visor, no
+     crece de 122 a 550 px de golpe (diseno). Nunca por encima del alto que deja coloca() */
+  min-height: min(550px, var(--pv-max, calc(100dvh - 16px)));
 }
 .pv__flota:focus-visible { outline: 2px solid var(--anillo-foco); outline-offset: 2px; }
-/* entra desde 0,97 y transparente, con la curva de salida (vara movimiento-movil); con movimiento reducido, solo opacidad */
+/* entra desde 0,97 y transparente, desde el lado del botón, con la curva de salida (vara movimiento-movil); se ve a
+   menudo: duración micro. Con movimiento reducido, solo opacidad */
 @media (prefers-reduced-motion: no-preference) {
-  .pv__flota:popover-open { animation: pv-aparece var(--dur-transicion) var(--curva-salida) both; }
+  .pv__flota:popover-open { transform-origin: right center; animation: pv-aparece var(--dur-micro) var(--curva-salida) both; }
 }
 @media (prefers-reduced-motion: reduce) {
   .pv__flota:popover-open { animation: pv-funde var(--dur-micro) linear both; }
@@ -234,18 +252,23 @@ const titulo = computed(() => L(`Forma 3D predicha de ${proteina.value}`, `Predi
   -webkit-tap-highlight-color: transparent; touch-action: manipulation; transition: transform var(--dur-micro) var(--curva-entrada);
 }
 .pv__completa:active { transform: scale(0.97); }
-@media (hover: hover) and (pointer: fine) { .pv__completa:hover { background: var(--superficie); } }
+/* sobre el fondo tintado el violeta bajaba de 4,5:1 (diseno, 21-oct): el texto pasa a tinta */
+@media (hover: hover) and (pointer: fine) { .pv__completa:hover { background: var(--superficie); color: var(--texto-1); } }
 @media (prefers-reduced-motion: reduce) { .pv__completa { transition: none; } .pv__completa:active { transform: none; } }
 
 /* la hoja: pegada abajo y a todo el ancho (como .qc-hoja de QueCambio), con el velo del DS */
 .pv__hoja {
   position: fixed; inset: auto 0 0 0; margin: 0 auto; width: 100%; max-width: 560px; max-height: 88dvh; padding: 0;
   border: 0; border-radius: 20px 20px 0 0; background: var(--fondo); color: var(--texto-1); overflow: hidden;
-  box-shadow: var(--sombra-flotante); --pv-alto: min(42dvh, 300px);
+  box-shadow: var(--sombra-flotante); --pv-alto: min(34dvh, 240px);
+  /* la primera vez, mientras llega el visor, la hoja no sube de 137 a 600 px de golpe (medido a 375 el 21-oct; diseno) */
+  min-height: min(600px, 88dvh);
 }
 .pv__hoja[open] { display: flex; flex-direction: column; }
 .pv__hoja::backdrop { background: var(--velo-berenjena-60); }
-.pv__dentro { overflow-y: auto; overscroll-behavior: contain; padding: var(--sp-12) var(--sp-16) calc(var(--sp-16) + env(safe-area-inset-bottom)); }
+.pv__dentro { flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior: contain; padding: var(--sp-12) var(--sp-16) var(--sp-12); }
+.pv__pie { flex: none; padding: var(--sp-8) var(--sp-16) calc(var(--sp-12) + env(safe-area-inset-bottom)); border-top: 1px solid var(--trazo-medio); background: var(--fondo); }
+.pv__pie .pv__completa { margin-top: 0; }
 .pv__hoja .pv__t { font-size: var(--texto-sm); }
 @media (prefers-reduced-motion: no-preference) {
   .pv__hoja[open] { animation: pv-sube var(--dur-transicion) var(--curva-salida) both; }
