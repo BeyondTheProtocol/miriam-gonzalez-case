@@ -49,13 +49,16 @@ export const MENU_MOVIL: EnlaceNav[] = [NAV.home, ...MENU_ESCRITORIO]
 
 // Las herramientas, en el orden del índice, de la banda de la home y del pie.
 // Orden con criterio (Miriam, 20-oct-2026: «hay que poner un orden en las herramientas»; antes iban por fecha de
-// estreno): del cuerpo a la célula. Primero el caso en datos (la entrada), después la imagen (mama, hígado y hueso;
-// el mapa del hueso), luego el tejido (las laminillas), la célula (célula a célula y, justo detrás, su explorador,
-// que la página madre presenta) y al final la infraestructura del tratamiento (el reservorio).
+// estreno): del cuerpo a la célula. Primero el caso en datos (la entrada), después la imagen (mama, hígado y hueso),
+// luego el tejido (las laminillas), la célula (célula a célula y, justo detrás, su explorador, que la página madre
+// presenta) y al final la infraestructura del tratamiento (el reservorio).
+// El mapa de metástasis (solo hueso) sale de la lista (Miriam, 21-oct-2026: «el del hueso solo lo eliminamos y
+// laminillas lo dejamos»): «Mama, hígado y hueso» ya lo incluye. La página sigue publicada y enlazada desde
+// /lesiones y /ciencia, porque /lesiones lee sus focos de ella en cada build (#mapa-focos).
 // Una herramienta nueva entra en su sitio de ese recorrido, no al principio. La que se destaca como «Lo último» en la
 // home ya no es la primera de esta lista: es LO_ULTIMO (abajo). El explorador se oculta mientras su puerta no esté
 // abierta (useHerramientas).
-export const HERRAMIENTAS: EnlaceNav[] = [NAV.data, NAV.lesions, NAV.map, NAV.slides, NAV.cellByCell, NAV.cellExplorer, NAV.port]
+export const HERRAMIENTAS: EnlaceNav[] = [NAV.data, NAV.lesions, NAV.slides, NAV.cellByCell, NAV.cellExplorer, NAV.port]
 
 // La herramienta que la home destaca en grande con la etiqueta «Lo último». Tiene que ser la misma que anuncia la
 // barra global «LO ÚLTIMO» (la última entrada de la cronología): hoy, célula a célula. Cuando se anuncie otra, se
