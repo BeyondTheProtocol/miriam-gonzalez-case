@@ -1,3 +1,11 @@
+import manifiestoExplorador from './public/celula/explorador/manifiesto.json'
+import { estadoPuerta, type Manifiesto } from './app/utils/celulaExplorador'
+
+// Explorador célula a célula: la misma puerta que el robots de su página (useCelulaExplorador → estadoPuerta).
+// Abierta (verificado + OK de Miriam), entra en el sitemap; cerrada, fuera. Una lista fija se quedó atrás
+// cuando la puerta se abrió el 19-oct-2026. Test: pnpm test:sitemap-explorador.
+const exploradorAbierto = estadoPuerta(manifiestoExplorador as unknown as Manifiesto) === 'real'
+
 export default defineNuxtConfig({
   compatibilityDate: '2025-04-01',
 
@@ -73,8 +81,8 @@ export default defineNuxtConfig({
       '/aviso-legal', '/en/legal-notice',
       '/privacidad', '/en/privacy',
       '/cookies', '/en/cookies-policy',
-      // explorador célula a célula: noindex mientras no haya datos reales con el OK de Miriam (useSeoMeta de la página)
-      '/celula-a-celula/explorar', '/en/cell-by-cell/explore',
+      // explorador célula a célula: fuera solo con la puerta cerrada (entonces la página es noindex; ver exploradorAbierto)
+      ...(exploradorAbierto ? [] : ['/celula-a-celula/explorar', '/en/cell-by-cell/explore']),
     ],
   },
 

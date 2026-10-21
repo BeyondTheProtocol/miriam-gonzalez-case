@@ -32,6 +32,7 @@
     "test:sala-prensa": "tsx scripts/test-sala-prensa.ts",
     "test:donantes-total": "tsx scripts/test-donantes-total.ts",
     "test:salud-estatica": "tsx scripts/test-salud-estatica.ts",
+    "test:sitemap-explorador": "tsx scripts/test-sitemap-explorador.ts",
     "test:caminos": "tsx scripts/test-caminos.ts",
     "test:home-caminos": "node scripts/test-home-caminos.mjs",
     "icons": "nuxt-seo-utils icons --source favicon.svg",
