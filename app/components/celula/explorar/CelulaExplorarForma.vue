@@ -7,16 +7,29 @@
  * Componente propio para que el estado «abierto» viva y muera con el <details> (diseno, 20-oct): con ese estado en el
  * explorador, «Volver» y reabrir el mismo gen volvía a montar el bloque plegado pero con el visor dentro, pidiendo el
  * modelo sin que nadie lo desplegara. Mismo aspecto que «Cómo se lee» (.exp__porque del explorador).
+ * Por eso, cuando lo abren desde fuera («Forma 3D» junto al título del detalle y «Ver la forma completa» de la vista
+ * previa, 21-oct-2026), es con `abre()`: una orden, no un estado que el explorador guarde.
  */
 const props = defineProps<{ gen: string; uniprot: string; proteina: string; lang: 'es' | 'en'; tema: 'claro' | 'oscuro' }>()
 const emit = defineEmits<{ montado: [HTMLElement] }>()
 const L = (es: string, en: string) => (props.lang === 'en' ? en : es)
 const abierta = ref(false)
+const detalles = ref<HTMLDetailsElement | null>(null)
+const sumario = ref<HTMLElement | null>(null)
+/** despliega el bloque y lleva el foco a su título; el visor, al montarse, se pone a la vista (montado → aLaVista) */
+function abre() {
+  const d = detalles.value
+  if (!d) return
+  sumario.value?.focus({ preventScroll: true })
+  if (!d.open) d.open = true
+  else emit('montado', d)
+}
+defineExpose({ abre })
 </script>
 
 <template>
-  <details class="fo" @toggle="abierta = ($event.target as HTMLDetailsElement).open">
-    <summary>{{ L(`Forma 3D predicha de ${proteina} (AlphaFold)`, `Predicted 3D shape of ${proteina} (AlphaFold)`) }}</summary>
+  <details ref="detalles" class="fo" @toggle="abierta = ($event.target as HTMLDetailsElement).open">
+    <summary ref="sumario">{{ L(`Forma 3D predicha de ${proteina} (AlphaFold)`, `Predicted 3D shape of ${proteina} (AlphaFold)`) }}</summary>
     <LazyCelulaExplorarEstructura v-if="abierta" :gen="gen" :uniprot="uniprot" :proteina="proteina" :lang="lang" :tema="tema" @montado="(el: HTMLElement) => emit('montado', el)" />
   </details>
 </template>

@@ -14,15 +14,20 @@
  * paran). Botón para dar otra vuelta o pararla (WCAG 2.2.2). Ratón: arrastrar gira, Ctrl/⌘ + rueda acerca. Teclado
  * (con el foco en el visor) y botones de paso para quien no arrastra (2.5.7): girar y acercar. En táctil el visor no
  * captura el dedo: la página sigue desplazándose y ampliándose; se gira con los botones.
+ *
+ * `compacto` (21-oct-2026): la variante de la vista previa que sale al pasar el ratón por «3D» en «Genes de interés»
+ * (CelulaExplorarVistaForma). Mismo modelo, misma caché y mismos colores, sin mandos: no se arrastra ni se enfoca (un
+ * dibujo, role="img"), da una vuelta de 5 s (WCAG 2.2.2: lo que se mueve solo más de 5 s necesita pausa) y su pie es
+ * corto: sello, contexto, leyenda, la parte con confianza muy baja y el crédito. Lo demás, en el bloque completo.
  */
 import * as THREE from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
 import { ruedaConModificador } from '~/composables/useAlVer'
-import { BANDAS, ETIQUETA_BANDA, banda, encuadre, pdbDeRespuesta, trazaCA, urlApiAlphaFold, urlEntradaAlphaFold, urlUniprot, type Banda } from '~/utils/alphafold'
+import { BANDAS, ETIQUETA_BANDA, avisoConfianza, banda, encuadre, fraccionMuyBaja, pctDe, pdbDeRespuesta, trazaCA, urlApiAlphaFold, urlEntradaAlphaFold, urlUniprot, type Banda } from '~/utils/alphafold'
 
 /** gen del explorador, su UniProt (UNIPROT de utils/alphafold), el nombre de la proteína con el que se la conoce y el tema
  * del explorador (data-tema es de su bloque, no de :root: los colores del tubo lo necesitan; diseno, 20-oct) */
-const props = defineProps<{ gen: string; uniprot: string; proteina: string; lang: 'es' | 'en'; tema: 'claro' | 'oscuro' }>()
+const props = defineProps<{ gen: string; uniprot: string; proteina: string; lang: 'es' | 'en'; tema: 'claro' | 'oscuro'; compacto?: boolean }>()
 /** al montarse, el lienzo y sus mandos: el explorador los pone a la vista (al desplegar en escritorio se abría fuera; diseno, 20-oct) */
 const emit = defineEmits<{ montado: [HTMLElement] }>()
 const L = (es: string, en: string) => (props.lang === 'en' ? en : es)
@@ -39,7 +44,12 @@ const girando = ref(false)
 const version = ref<number | null>(null)
 const nResiduos = ref(0)
 const reparto = ref<Record<Banda, number>>({ muy_alta: 0, alta: 0, baja: 0, muy_baja: 0 })
-const uid = `de-${props.uniprot}`
+/** parte con confianza muy baja (pLDDT < 50), de 0 a 1: la línea y el aviso de la vista previa */
+const fMuyBaja = ref(0)
+/** con sufijo en la vista previa: con ella y el bloque abiertos para el mismo gen, ni los ids ni «el que gira» chocan */
+const uid = `de-${props.uniprot}${props.compacto ? '-pv' : ''}`
+/** segundos de la vuelta: 14 en el bloque (tiene botón de parar), 5 en la vista previa (no lo tiene) */
+const SEG_VUELTA = props.compacto ? 5 : 14
 
 let renderer: THREE.WebGLRenderer | null = null
 let escena: THREE.Scene | null = null
@@ -126,6 +136,7 @@ async function carga() {
     const cuenta: Record<Banda, number> = { muy_alta: 0, alta: 0, baja: 0, muy_baja: 0 }
     for (const p of traza.plddt) cuenta[banda(p)]++
     reparto.value = cuenta
+    fMuyBaja.value = fraccionMuyBaja(traza.plddt)
     if (!monta(traza)) throw new Error('sin WebGL')
     estado.value = 'listo'
   }
@@ -179,24 +190,29 @@ function monta(traza: ReturnType<typeof trazaCA>): boolean {
   escena.add(malla)
 
   camara = new THREE.PerspectiveCamera(35, 1, 0.1, radio * 20)
-  camara.position.set(0, 0, radio * 2.9)
-  controles = new OrbitControls(camara, renderer.domElement)
-  controles.enableDamping = true
-  controles.enablePan = false
-  controles.minDistance = radio * 0.8
-  controles.maxDistance = radio * 5
-  // táctil: el visor no se queda el dedo (ni uno ni dos): la página se desplaza y se amplía; se gira con los botones
-  controles.touches = { ONE: -1 as unknown as THREE.TOUCH, TWO: -1 as unknown as THREE.TOUCH }
-  renderer.domElement.style.touchAction = 'pan-x pan-y pinch-zoom'
-  controles.addEventListener('start', () => para())
-  controles.addEventListener('change', () => { sucio = true })
-  sueltaRueda = ruedaConModificador(el, () => L('Ctrl o ⌘ + rueda para acercar', 'Ctrl or ⌘ + scroll to zoom'))
+  // la vista previa es apaisada: más lejos, para que el modelo no se corte por arriba y por abajo (capturas, 21-oct)
+  camara.position.set(0, 0, radio * (props.compacto ? 3.4 : 2.9))
+  // la vista previa es un dibujo: sin arrastre ni rueda (se gira y se acerca en el bloque completo)
+  if (!props.compacto) {
+    controles = new OrbitControls(camara, renderer.domElement)
+    controles.enableDamping = true
+    controles.enablePan = false
+    controles.minDistance = radio * 0.8
+    controles.maxDistance = radio * 5
+    // táctil: el visor no se queda el dedo (ni uno ni dos): la página se desplaza y se amplía; se gira con los botones
+    controles.touches = { ONE: -1 as unknown as THREE.TOUCH, TWO: -1 as unknown as THREE.TOUCH }
+    renderer.domElement.style.touchAction = 'pan-x pan-y pinch-zoom'
+    controles.addEventListener('start', () => para())
+    controles.addEventListener('change', () => { sucio = true })
+    sueltaRueda = ruedaConModificador(el, () => L('Ctrl o ⌘ + rueda para acercar', 'Ctrl or ⌘ + scroll to zoom'))
+  }
 
   ajusta()
   ro = new ResizeObserver(ajusta)
   ro.observe(el)
-  // la vuelta de entrada, solo con el visor a la vista de verdad (no al cargarlo 200 px antes)
-  if (!reduce && caja.value) {
+  // la vuelta de entrada, solo con el visor a la vista de verdad (no al cargarlo 200 px antes); la vista previa ya lo está
+  if (!reduce && props.compacto) unaVuelta()
+  else if (!reduce && caja.value) {
     ioVista = new IntersectionObserver((e) => {
       if (e[0]?.isIntersecting && !vueltaDeEntrada) { vueltaDeEntrada = true; ioVista?.disconnect(); unaVuelta() }
     }, { threshold: 0.5 })
@@ -219,7 +235,7 @@ function ajusta() {
   sucio = true
 }
 
-/** Una vuelta completa (~14 s) y quieto. Para a los demás visores. */
+/** Una vuelta completa (SEG_VUELTA) y quieto. Para a los demás visores. */
 function unaVuelta() { falta = Math.PI * 2; girando.value = true; girandoAhora.value = uid }
 function para() { falta = 0; girando.value = false; if (girandoAhora.value === uid) girandoAhora.value = null }
 function alterna() { if (girando.value) para(); else unaVuelta() }
@@ -230,7 +246,7 @@ function bucle() {
   const ahora = performance.now(), dt = Math.min(0.05, (ahora - ultimo) / 1000)
   ultimo = ahora
   if (malla && falta > 0) {
-    const paso = Math.min(falta, dt * (Math.PI * 2 / 14))
+    const paso = Math.min(falta, dt * (Math.PI * 2 / SEG_VUELTA))
     malla.rotation.y += paso
     falta -= paso
     sucio = true
@@ -262,7 +278,8 @@ function tecla(e: KeyboardEvent) {
 
 onMounted(() => {
   reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches
-  if (visorEl.value) emit('montado', visorEl.value)
+  // la vista previa no mueve la página: flota sobre ella
+  if (visorEl.value && !props.compacto) emit('montado', visorEl.value)
 })
 // en el explorador el visor solo se monta cuando alguien despliega el bloque: carga ya, sin esperar a verlo en pantalla
 // (la espera por IntersectionObserver era de la página con tres visores; dentro del panel dejaba «Cargando…» sin pedir nada)
@@ -285,6 +302,8 @@ const anuncio = computed(() => (estado.value === 'cargando' ? L(`Cargando la for
   : estado.value === 'listo' ? L(`Forma de ${props.proteina} cargada.`, `${props.proteina} shape loaded.`)
     : estado.value === 'error' ? L(`No se ha podido cargar la forma de ${props.proteina}.`, `The ${props.proteina} shape could not be loaded.`) : ''))
 const pct = (k: number) => (nResiduos.value ? Math.round((100 * k) / nResiduos.value) : 0)
+/** el porcentaje: con espacio duro antes del signo en español, pegado en inglés */
+const pctMuyBaja = computed(() => `${pctDe(fMuyBaja.value)}${props.lang === 'en' ? '' : '\u00a0'}%`)
 const descripcion = computed(() => L(
   `Forma predicha de ${props.proteina} (${props.gen}, UniProt ${props.uniprot}) por AlphaFold, ${nResiduos.value} aminoácidos, coloreada por la confianza del modelo; el tubo es más fino donde la confianza es menor. Es una predicción, no una medición.`,
   `Predicted shape of ${props.proteina} (${props.gen}, UniProt ${props.uniprot}) by AlphaFold, ${nResiduos.value} amino acids, colored by model confidence; the tube is thinner where confidence is lower. A prediction, not a measurement.`,
@@ -292,29 +311,30 @@ const descripcion = computed(() => L(
 </script>
 
 <template>
-  <figure ref="caja" class="de">
+  <figure ref="caja" class="de" :class="{ 'de--compacto': compacto }">
     <div ref="visorEl" class="de__visor">
     <div class="de__lienzo">
       <div
         ref="host"
         class="de__host"
-        :role="estado === 'listo' ? 'application' : undefined"
-        :aria-roledescription="estado === 'listo' ? L('visor 3D', '3D viewer') : undefined"
-        :aria-label="estado === 'listo' ? L(`Forma de ${proteina}`, `${proteina} shape`) : undefined"
-        :aria-describedby="estado === 'listo' ? `${uid}-desc ${uid}-uso` : undefined"
+        :role="estado === 'listo' ? (compacto ? 'img' : 'application') : undefined"
+        :aria-roledescription="estado === 'listo' && !compacto ? L('visor 3D', '3D viewer') : undefined"
+        :aria-label="estado === 'listo' ? (compacto ? descripcion : L(`Forma de ${proteina}`, `${proteina} shape`)) : undefined"
+        :aria-describedby="estado === 'listo' && !compacto ? `${uid}-desc ${uid}-uso` : undefined"
         :aria-hidden="estado === 'listo' ? undefined : 'true'"
-        :tabindex="estado === 'listo' ? 0 : undefined"
+        :tabindex="estado === 'listo' && !compacto ? 0 : undefined"
         @keydown="tecla"
       />
       <p v-if="estado === 'espera' || estado === 'cargando'" class="de__aviso" aria-hidden="true">{{ L('Cargando el modelo de AlphaFold DB…', 'Loading the AlphaFold DB model…') }}</p>
-      <p v-else-if="estado === 'error'" class="de__aviso">
+      <!-- en un solo <span>: el aviso es grid y repartía texto, enlace y punto en tres filas (diseno, 21-oct) -->
+      <p v-else-if="estado === 'error'" class="de__aviso"><span>
         {{ L('No se ha podido cargar el modelo aquí. Puedes verlo en', 'The model could not be loaded here. You can see it on') }}
         <a :href="urlEntradaAlphaFold(uniprot)" class="link-underline" target="_blank" rel="noopener">AlphaFold DB</a>.
-      </p>
+      </span></p>
     </div>
     <!-- los mandos, debajo del lienzo y en flujo: superpuestos tapaban casi un tercio del modelo a 320 px (diseno, 20-oct).
          Su hueco existe desde el principio (min-height): al cargar no empujan el pie (diseno, 2.ª pasada) -->
-    <div class="de__mandos-caja">
+    <div v-if="!compacto" class="de__mandos-caja">
     <div v-if="estado === 'listo'" class="de__mandos">
       <!-- iconos Phosphor (regular), como los de .exp__volver; paths tal cual de @phosphor-icons/core 2.1.1 (arrow-arc-left,
            arrow-arc-right, plus, minus). Eran glifos de texto: las flechas salían de una fuente de reserva y + y − quedaban
@@ -342,7 +362,35 @@ const descripcion = computed(() => L(
     <p class="sr-only" role="status">{{ anuncio }}</p>
     <!-- orden (Adri y diseno, 20-oct): primero lo que hace falta para leer el modelo (aviso corto, leyenda y su clave),
          después la explicación larga, el modelo y el crédito -->
-    <figcaption class="de__pie">
+    <!-- la vista previa (compacto): lo justo para leer el dibujo sin tomarlo por un dato de la biopsia; lo demás, en el bloque -->
+    <figcaption v-if="compacto" class="de__pie">
+      <p class="de__sello">{{ L('Predicción, no medición.', 'A prediction, not a measurement.') }}</p>
+      <p class="de__ctx">{{ L('Se calcula a partir de la secuencia de referencia de la proteína humana (UniProt), sin datos de la biopsia de Miriam: no dice si esta proteína está en sus células.', 'Built from the human protein’s reference sequence (UniProt), with no data from Miriam’s biopsy, so it doesn’t say whether this protein is in her cells.') }}</p>
+      <!-- mientras carga, la leyenda y la línea ocupan su sitio sin verse: la vista previa no crece de golpe (diseno, 21-oct) -->
+      <div v-if="estado !== 'error'" class="de__pvdatos" :style="estado === 'listo' ? undefined : { visibility: 'hidden' }" :aria-hidden="estado === 'listo' ? undefined : 'true'">
+        <!-- antes que la leyenda: en ventanas bajas lo de abajo queda bajo el pliegue, y el aviso importa más que la clave
+             de colores (21-oct). La línea, en las diez; si pasa de la mitad, la línea va dentro del aviso (umbral nuestro; textos de verificacion,
+             21-oct, fieles a la FAQ de AlphaFold DB: «should not be interpreted», «only structured as part of a complex», «may be of use»;
+             pase de voz-miriam; una sola pieza en vez de dos que decían lo mismo, diseno) -->
+        <p v-if="estado !== 'listo' || !avisoConfianza(fMuyBaja)" class="de__linea">{{ L(`Confianza muy baja (pLDDT < 50) en el ${pctMuyBaja} de los aminoácidos.`, `Very low confidence (pLDDT < 50) in ${pctMuyBaja} of the amino acids.`) }}</p>
+        <p v-else class="de__alerta">
+          {{ L(`Confianza muy baja (pLDDT < 50) en el ${pctMuyBaja} de los aminoácidos: más de la mitad de la proteína. AlphaFold DB indica que esas zonas no deben interpretarse: apuntan a regiones sin forma fija por sí solas, o que solo la toman dentro de un complejo. El modelo puede servir para señalarlas, no para describir su forma.`,
+               `Very low confidence (pLDDT < 50) in ${pctMuyBaja} of the amino acids: more than half of the protein. AlphaFold DB says those regions should not be interpreted: they point to stretches with no fixed shape on their own, or that are only structured as part of a complex. The model may help point them out, not describe their shape.`) }}
+        </p>
+        <p class="de__ley-t" aria-hidden="true">{{ L('Confianza del modelo (pLDDT)', 'Model confidence (pLDDT)') }}</p>
+        <!-- sin el color solo: la muestra es más baja cuanto menos confianza, como el tubo -->
+        <ul class="de__leyenda" :aria-label="L('Confianza del modelo (pLDDT); el tubo es más fino donde confía menos', 'Model confidence (pLDDT); the tube is thinner where confidence is lower')">
+          <li v-for="b in BANDAS" :key="b">
+            <span class="de__muestra" :class="`de__muestra--${b}`" :style="{ background: muestras[b] }" aria-hidden="true" />
+            <span>{{ ETIQUETA_BANDA[b][lang] }}</span>
+          </li>
+        </ul>
+      </div>
+      <p class="de__fuente">
+        <a :href="urlEntradaAlphaFold(uniprot)" class="link-underline" target="_blank" rel="noopener">AlphaFold DB<span class="sr-only">{{ L(' (se abre en otra pestaña)', ' (opens in a new tab)') }}</span></a> <span class="de__nw">(Google DeepMind · EMBL-EBI)</span> <span class="de__nw">· <a href="https://creativecommons.org/licenses/by/4.0/" class="link-underline" target="_blank" rel="noopener license">CC BY 4.0<span class="sr-only">{{ L(' (se abre en otra pestaña)', ' (opens in a new tab)') }}</span></a></span>
+      </p>
+    </figcaption>
+    <figcaption v-else class="de__pie">
       <p class="de__sello">{{ L('Predicción, no medición.', 'A prediction, not a measurement.') }}</p>
       <!-- que nadie lea «la proteína de Miriam»: el bloque va bajo las cifras de la biopsia (Adri y verificacion, 20-oct) -->
       <p class="de__ctx">{{ L('Se calcula a partir de la secuencia de referencia de la proteína humana (UniProt), sin datos de la biopsia de Miriam.', 'Built from the reference sequence of the human protein (UniProt), with no data from Miriam’s biopsy.') }}</p>
@@ -430,5 +478,19 @@ const descripcion = computed(() => L(
 .de__muestra--muy_baja { height: 5px; }
 .de__cifra { margin-left: auto; font-family: var(--font-mono); font-size: 0.85em; }
 .de__meta { margin: 0; font: var(--tipo-body-sm); color: var(--texto-3); }
+/* vista previa: lienzo bajo y apaisado (cabe en la capa flotante y en la hoja), sin cursor de arrastre, pie compacto */
+.de--compacto { gap: var(--sp-8); }
+.de--compacto .de__lienzo { aspect-ratio: auto; height: var(--pv-alto, 200px); max-height: none; }
+.de--compacto .de__host, .de--compacto .de__host:active { cursor: default; }
+.de--compacto .de__pie { gap: var(--sp-4); }
+.de--compacto .de__ley-t { font-size: var(--texto-xs); }
+.de__pvdatos { display: grid; gap: var(--sp-4); }
+.de__nw { white-space: nowrap; }   /* «· CC BY 4.0» quedaba huérfano y «EMBL-EBI» se partía por el guion (diseno, 21-oct) */
+/* dos columnas también a 375: las etiquetas son cortas y en una sola la leyenda llenaba media hoja */
+.de--compacto .de__leyenda { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; column-gap: var(--sp-12); }
+.de--compacto .de__ctx, .de--compacto .de__linea, .de--compacto .de__alerta, .de--compacto .de__fuente, .de--compacto .de__leyenda { font-size: var(--texto-xs); }
+.de__linea { margin: 0; font: var(--tipo-body-sm); color: var(--texto-1); }
+/* el aviso: filete a la izquierda (no solo color) y texto principal */
+.de__alerta { margin: 0; padding-left: var(--sp-8); border-left: 3px solid var(--identidad); font: var(--tipo-body-sm); color: var(--texto-1); }
 @media (max-width: 380px) { .de__leyenda { grid-template-columns: minmax(0, 1fr); } }
 </style>
