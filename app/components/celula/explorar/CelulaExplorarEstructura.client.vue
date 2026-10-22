@@ -364,8 +364,7 @@ const descripcion = computed(() => L(
          después la explicación larga, el modelo y el crédito -->
     <!-- la vista previa (compacto): lo justo para leer el dibujo sin tomarlo por un dato de la biopsia; lo demás, en el bloque -->
     <figcaption v-if="compacto" class="de__pie">
-      <p class="de__sello">{{ L('Predicción, no medición.', 'A prediction, not a measurement.') }}</p>
-      <p class="de__ctx">{{ L('Se calcula a partir de la secuencia de referencia de la proteína humana (UniProt), sin datos de la biopsia de Miriam: no dice si esta proteína está en sus células.', 'Built from the human protein’s reference sequence (UniProt), with no data from Miriam’s biopsy, so it doesn’t say whether this protein is in her cells.') }}</p>
+      <p class="de__ctx">{{ L('Predicción a partir de la secuencia de referencia (UniProt), sin datos de la biopsia de Miriam.', 'Predicted from the reference sequence (UniProt), with no data from Miriam’s biopsy.') }}</p>
       <!-- mientras carga, la leyenda y la línea ocupan su sitio sin verse: la vista previa no crece de golpe (diseno, 21-oct) -->
       <div v-if="estado !== 'error'" class="de__pvdatos" :style="estado === 'listo' ? undefined : { visibility: 'hidden' }" :aria-hidden="estado === 'listo' ? undefined : 'true'">
         <!-- antes que la leyenda: en ventanas bajas lo de abajo queda bajo el pliegue, y el aviso importa más que la clave
@@ -374,8 +373,8 @@ const descripcion = computed(() => L(
              pase de voz-miriam; una sola pieza en vez de dos que decían lo mismo, diseno) -->
         <p v-if="estado !== 'listo' || !avisoConfianza(fMuyBaja)" class="de__linea">{{ L(`Confianza muy baja (pLDDT < 50) en el ${pctMuyBaja} de los aminoácidos.`, `Very low confidence (pLDDT < 50) in ${pctMuyBaja} of the amino acids.`) }}</p>
         <p v-else class="de__alerta">
-          {{ L(`Confianza muy baja (pLDDT < 50) en el ${pctMuyBaja} de los aminoácidos: más de la mitad de la proteína. AlphaFold DB indica que esas zonas no deben interpretarse: apuntan a regiones sin forma fija por sí solas, o que solo la toman dentro de un complejo. El modelo puede servir para señalarlas, no para describir su forma.`,
-               `Very low confidence (pLDDT < 50) in ${pctMuyBaja} of the amino acids: more than half of the protein. AlphaFold DB says those regions should not be interpreted: they point to stretches with no fixed shape on their own, or that are only structured as part of a complex. The model may help point them out, not describe their shape.`) }}
+          {{ L(`Confianza muy baja (pLDDT < 50) en el ${pctMuyBaja} de los aminoácidos, más de la mitad. AlphaFold DB indica que esas zonas no deben interpretarse: pueden no tener forma fija, o tenerla solo dentro de un complejo.`,
+               `Very low confidence (pLDDT < 50) in ${pctMuyBaja} of the amino acids, more than half. AlphaFold DB says these regions should not be interpreted: they may have no fixed shape, or only have one as part of a complex.`) }}
         </p>
         <p class="de__ley-t" aria-hidden="true">{{ L('Confianza del modelo (pLDDT)', 'Model confidence (pLDDT)') }}</p>
         <!-- sin el color solo: la muestra es más baja cuanto menos confianza, como el tubo -->
@@ -391,9 +390,8 @@ const descripcion = computed(() => L(
       </p>
     </figcaption>
     <figcaption v-else class="de__pie">
-      <p class="de__sello">{{ L('Predicción, no medición.', 'A prediction, not a measurement.') }}</p>
       <!-- que nadie lea «la proteína de Miriam»: el bloque va bajo las cifras de la biopsia (Adri y verificacion, 20-oct) -->
-      <p class="de__ctx">{{ L('Se calcula a partir de la secuencia de referencia de la proteína humana (UniProt), sin datos de la biopsia de Miriam.', 'Built from the reference sequence of the human protein (UniProt), with no data from Miriam’s biopsy.') }}</p>
+      <p class="de__ctx">{{ L('Predicción a partir de la secuencia de referencia (UniProt), sin datos de la biopsia de Miriam.', 'Predicted from the reference sequence (UniProt), with no data from Miriam’s biopsy.') }}</p>
       <template v-if="estado === 'listo'">
         <p :id="`${uid}-desc`" class="sr-only">{{ descripcion }}</p>
         <p class="de__ley-t" aria-hidden="true">{{ L('Confianza del modelo en cada parte de la proteína (pLDDT)', 'Model confidence in each part of the protein (pLDDT)') }}</p>
@@ -410,10 +408,6 @@ const descripcion = computed(() => L(
                'The percentage is the share of the protein at each level. The tube is thinner where the model is less confident. Very low confidence regions (< 50) should not be interpreted: AlphaFold DB associates them with regions without a fixed shape.') }}
         </p>
       </template>
-      <p class="de__clave">
-        {{ L('AlphaFold es un programa de inteligencia artificial que predice cómo se pliega una proteína a partir de su secuencia de aminoácidos, sin mirar ningún tejido. Por eso no dice si esta proteína está en las células de Miriam; eso lo dice la inmunohistoquímica.',
-             'AlphaFold is an artificial intelligence program that predicts how a protein folds from its amino acid sequence, without looking at any tissue. So it does not say whether this protein is in Miriam’s cells; immunohistochemistry tells you that.') }}
-      </p>
       <template v-if="estado === 'listo'">
         <p class="de__meta">{{ L('Modelo', 'Model') }} AF-{{ uniprot }}-F1{{ version ? ` v${version}` : '' }} · {{ nResiduos }} {{ L('aminoácidos', 'amino acids') }}</p>
         <p :id="`${uid}-uso`" class="de__meta">
@@ -462,7 +456,6 @@ const descripcion = computed(() => L(
 @media (hover: hover) and (pointer: fine) { .de__paso:hover, .de__girar:hover { background: var(--superficie); } }
 .de__paso:focus-visible, .de__girar:focus-visible { outline: 2px solid var(--anillo-foco); outline-offset: 2px; }
 .de__pie { display: grid; gap: var(--sp-8); }
-.de__sello { margin: 0; font: var(--tipo-eyebrow); color: var(--identidad); }
 .de__fuente { margin: 0; font: var(--tipo-body-sm); color: var(--texto-2); }
 .de__fuente a { white-space: nowrap; }   /* «CC BY 4.0» y «UniProt P04626» se partían (diseno, 20-oct) */
 .de__ctx { margin: 0; font: var(--tipo-body-sm); color: var(--texto-1); }

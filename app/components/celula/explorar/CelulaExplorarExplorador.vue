@@ -27,7 +27,7 @@ import { coexpresion, columna, fmtParSuelo, fmtPct, motivoDe, nivelMatriz, porGr
 import { abreZarr, storeWeb, type ZarrLesion } from '~/utils/celulaExploradorZarr'
 import { cssRgb, paleta, type RGB } from '~/utils/celulaExploradorColor'
 import { uniprotDe } from '~/utils/alphafold'
-import { ALIAS_BUSCA, ETIQUETA_GRUPO, ETIQUETA_LESION, ETIQUETA_MOTIVO, etiquetaLectura, ETIQUETAS_FIJAS, pieMotivo, MARCADORES_ORIENTACION, NOMBRE_CLINICO, PANEL_INTERES, PROTEINA, etiqueta, nombreGen } from '~/utils/celulaExploradorTexto'
+import { ALIAS_BUSCA, AVISO_HIGADO, ETIQUETA_GRUPO, ETIQUETA_LESION, ETIQUETA_MOTIVO, etiquetaLectura, ETIQUETAS_FIJAS, MARCADORES_ORIENTACION, NOMBRE_CLINICO, PANEL_INTERES, PROTEINA, etiqueta, nombreGen } from '~/utils/celulaExploradorTexto'
 
 const props = defineProps<{ man: Manifiesto; ejemplo: boolean; lang: 'es' | 'en' }>()
 const L = (es: string, en: string) => (props.lang === 'en' ? en : es)
@@ -59,10 +59,10 @@ const altoEstable = ref(0)
 watch([anchoVentana, altoVentana, tactil], ([w, h, t], antes) => {
   if (!altoEstable.value || !t || w !== antes?.[0]) altoEstable.value = h
 }, { immediate: true })
-/** el mapa ocupa lo que queda libre de la pantalla bajo la cabecera del sitio y el aviso fijo (diseño, 18-oct: con un
+/** el mapa ocupa lo que queda libre de la pantalla bajo la cabecera del sitio (diseño, 18-oct: con un
  * porcentaje fijo del alto se cortaba por abajo), con topes */
 const altoMapa = computed(() => {
-  const libre = (altoEstable.value || 900) - altoCabecera.value - altoBanner.value - 180
+  const libre = (altoEstable.value || 900) - altoCabecera.value - 180
   return movil.value ? Math.round(Math.min(560, Math.max(340, libre))) : Math.round(Math.min(820, Math.max(480, libre)))
 })
 /** pestaña del panel; `detalle` = el gen activo abierto grupo a grupo encima de la pestaña */
@@ -70,7 +70,6 @@ const panel = ref<'interes' | 'marcadores'>('interes')
 /** gen activo (pintado en el mapa); null al llegar: el mapa va por grupo y el panel enseña la lista */
 const activo = ref<string | null>(null)
 const detalle = ref(false)
-const masHigado = ref(false)
 const masAnalisis = ref<HTMLDetailsElement | null>(null)
 const lesion = ref<Lesion>(lesionDe(ruta().query))
 const cache = shallowReactive<Partial<Record<Lesion, LesionDatos>>>({})
@@ -138,7 +137,7 @@ const nLeidas = computed(() => { const n = (d.value?.qc as { n_inicial?: number 
  * huecos son células que no pasaron el control. Con el ejemplo no: sus posiciones son inventadas. */
 const notaMapa = computed(() => {
   const lei = nLeidas.value
-  const qc = lei ? L(` (de ${lei} leídas; el resto no pasó el control de calidad de este análisis)`, ` (of ${lei} read; the rest did not pass this analysis’s quality control)`) : ''
+  const qc = lei ? L(` (de ${lei} leídas; el resto no pasó el control de calidad de este análisis)`, ` (out of ${lei} read; the rest didn’t pass this analysis’s quality control)`) : ''
   if (props.ejemplo) {
     return L(`${nTotal.value} células de ejemplo${qc}, en posiciones inventadas que imitan un mapa de células: en uno de verdad, dos puntos cercanos suelen ser células parecidas y la distancia entre grupos alejados no se interpreta.`,
       `${nTotal.value} example cells${qc}, at made-up positions that mimic a cell map: in a real one, nearby dots tend to be similar cells and distances between far-apart groups are not meaningful.`)
@@ -148,8 +147,9 @@ const notaMapa = computed(() => {
   // suena a aumentos de microscopio; las células del control dejan zonas más ralas (medido por clúster), pero un hueco
   // concreto no se puede atribuir a eso, porque un UMAP deja espacio vacío entre grupos por sí mismo; y lo cercano «suele»
   // ser parecido, no siempre (la vecindad local también se deforma al pasar a 2D)
-  return L(`${nTotal.value} células de la biopsia${qc}. Están colocadas según lo que se parecen, no según dónde estaban en el tejido: es el UMAP que calcula Cell Ranger, el programa de 10x Genomics, el mismo que muestra Loupe Browser.${lei ? ' Las que no pasaron el control no se dibujan y algunas zonas se ven más ralas. Un UMAP también suele dejar espacio vacío entre grupos, así que un hueco, por sí solo, no dice si ahí se quitaron células.' : ''} Dos puntos cercanos suelen ser células parecidas, pero la distancia entre grupos alejados no se interpreta.`,
-    `${nTotal.value} cells from the biopsy${qc}. They are placed by how similar they are, not by where they sat in the tissue: this is the UMAP computed by Cell Ranger, 10x Genomics’ software, the same one Loupe Browser shows.${lei ? ' Cells that did not pass are not drawn, which makes some areas look sparser. A UMAP also tends to leave empty space between groups, so a gap alone does not tell you whether cells were removed there.' : ''} Nearby dots are usually similar cells, but distances between far-apart groups are not meaningful.`)
+  // avisos aligerados (22-oct-2026): huecos y distancias de un UMAP son saber de oficio para quien usa la página
+  return L(`${nTotal.value} células${qc}. Están colocadas por parecido, no por su sitio en el tejido: es el UMAP de Cell Ranger, el que muestra Loupe Browser.`,
+    `${nTotal.value} cells${qc}. They’re placed by similarity, not by where they sat in the tissue: it’s Cell Ranger’s UMAP, the one Loupe Browser shows.`)
 })
 /** «Colorear por» en un desplegable: Gen y Dos genes solo con un gen activo */
 const MODOS = computed(() => [
@@ -523,7 +523,7 @@ function controlDeVuelta(): HTMLElement | null {
   const c = document.getElementById(origenDetalle === 'lista' ? `${idCtl}-gen` : `${idCtl}-busca`) as HTMLInputElement | HTMLSelectElement | null
   if (!c || c.disabled || (origenDetalle === 'busca' && tactil.value)) return null
   const r = c.getBoundingClientRect()
-  return r.height > 0 && r.top >= altoCabecera.value + altoBanner.value && r.bottom <= window.innerHeight ? c : null
+  return r.height > 0 && r.top >= altoCabecera.value && r.bottom <= window.innerHeight ? c : null
 }
 /* ── scroll del panel (revisión del PR #294) ── */
 const panelEl = ref<HTMLElement | null>(null)
@@ -543,7 +543,7 @@ function aLaVista(el: HTMLElement | null | undefined, soloArriba = false) {
     if (r.top < pr.top) p.scrollTop -= pr.top - r.top + 8
     else if (!soloArriba && r.bottom > pr.bottom) p.scrollTop += r.bottom - pr.bottom + 8
   }
-  const tope = altoCabecera.value + altoBanner.value + 16
+  const tope = altoCabecera.value + 16
   const r = el.getBoundingClientRect()
   if (r.top < tope) window.scrollBy({ top: r.top - tope, behavior: 'instant' as ScrollBehavior })
   else if (!soloArriba && r.bottom > window.innerHeight) window.scrollBy({ top: r.bottom - window.innerHeight + 16, behavior: 'instant' as ScrollBehavior })
@@ -680,22 +680,10 @@ const otrasGem = computed(() => {
   return cuenta ? { n: cuenta, deTipo } : null
 })
 
-/* ── el aviso del hígado queda fijo bajo la cabecera del sitio (sticky y de alto variable) ── */
+/* ── la cabecera fija del sitio: lo que se lleva a la vista queda debajo de ella ── */
 const raiz = ref<HTMLElement | null>(null)
 const altoCabecera = ref(0)
 let ro: ResizeObserver | null = null
-/** el aviso del hígado (sticky) también ocupa arriba: el panel pegado se coloca DEBAJO de él (diseño, 18-oct: lo tapaba) */
-const bannerEl = ref<HTMLElement | null>(null)
-const altoBanner = ref(0)
-let roB: ResizeObserver | null = null
-watch(bannerEl, (el) => {
-  roB?.disconnect(); roB = null
-  if (!el) { altoBanner.value = 0; return }
-  const mide = () => { altoBanner.value = Math.ceil(el.getBoundingClientRect().height) }
-  mide()
-  roB = new ResizeObserver(mide)
-  roB.observe(el)
-})
 onMounted(() => {
   const cab = document.querySelector<HTMLElement>('[data-cabecera-fija]')
   if (!cab) return
@@ -704,8 +692,8 @@ onMounted(() => {
   ro = new ResizeObserver(mide)
   ro.observe(cab)
 })
-onBeforeUnmount(() => { ro?.disconnect(); roB?.disconnect() })
-/** WCAG 2.4.11: el foco no puede quedar tapado por la cabecera ni por el aviso fijo. */
+onBeforeUnmount(() => { ro?.disconnect() })
+/** WCAG 2.4.11: el foco no puede quedar tapado por la cabecera fija. */
 function sinTapar(ev: FocusEvent) {
   const el = ev.target as HTMLElement
   if (!el?.matches?.(':focus-visible')) return
@@ -717,7 +705,7 @@ function sinTapar(ev: FocusEvent) {
 </script>
 
 <template>
-  <section ref="raiz" class="exp" :data-tema="tema === 'oscuro' ? 'oscuro' : undefined" :style="{ '--exp-top': `${altoCabecera + 8}px`, '--exp-banner': `${altoBanner}px` }"
+  <section ref="raiz" class="exp" :data-tema="tema === 'oscuro' ? 'oscuro' : undefined" :style="{ '--exp-top': `${altoCabecera + 8}px` }"
            :aria-label="L('Explorador de datos', 'Data explorer')" @focusin="sinTapar">
     <div v-if="ejemplo" class="exp__demo" role="note">
       <strong>{{ L('DATOS DE EJEMPLO', 'EXAMPLE DATA') }}</strong>
@@ -747,7 +735,7 @@ function sinTapar(ev: FocusEvent) {
               <p :id="`${idCtl}-orienta`" class="exp__orientat">{{ L('Marcadores de tipo celular', 'Cell-type markers') }}</p>
               <!-- voz-miriam y verificacion (19-oct): «varios se usaron para formar los grupos; el detalle lo indica» era falso en el
                    hueso, y muchos de estos sirvieron para ANOTAR los tipos (su detalle no lo dice): sale alto en su grupo en parte por construcción -->
-              <p class="exp__orientan">{{ L('Para orientarte en el mapa. Muchos se usaron para anotar los tipos celulares, así que salen altos en su grupo en parte por construcción.', 'To find your way around the map. Many were used to annotate the cell types, so they come out high in their group partly by construction.') }}</p>
+              <p class="exp__orientan">{{ L('Para orientarte en el mapa.', 'To find your way around the map.') }}</p>
               <ul class="exp__orl">
                 <li v-for="m in orientacion" :key="m.gen"><button type="button" class="exp__btn exp__btn--sm exp__orb" :data-gen="m.gen" @click="eligeOrienta(m.gen)">{{ m.gen }} · {{ L(m.tipo.es, m.tipo.en) }}</button></li>
               </ul>
@@ -780,24 +768,6 @@ function sinTapar(ev: FocusEvent) {
         <p class="sr-only" role="status">{{ avisoLista }}</p>
       </div>
     </div>
-
-    <template v-if="lesion === 'higado'">
-      <div class="exp__bannerfijo">
-        <div ref="bannerEl" class="exp__banner" role="note">
-          <svg class="exp__ico" viewBox="0 0 256 256" aria-hidden="true"><path fill="currentColor" d="M240.26 186.1 152.81 34.23a28.74 28.74 0 0 0-49.62 0L15.74 186.1a27.45 27.45 0 0 0 0 27.71A28.31 28.31 0 0 0 40.55 228h174.9a28.31 28.31 0 0 0 24.79-14.19 27.45 27.45 0 0 0 .02-27.71ZM120 104a8 8 0 0 1 16 0v40a8 8 0 0 1-16 0Zm8 88a12 12 0 1 1 12-12 12 12 0 0 1-12 12Z" /></svg>
-          <p><strong>{{ L('Hígado: tumor frente a hepatocito no está resuelto célula a célula.', 'Liver: tumor versus hepatocyte is not resolved cell by cell.') }}</strong>
-            <span class="exp__banner-2">{{ ' ' + L('«Luminal de alta confianza» es un subconjunto, no el tumor entero; «Hepatocitos» y «Otras» también pueden incluir células tumorales.', '“High-confidence luminal” is a subset, not the whole tumor; “Hepatocytes” and “Other” may also include tumor cells.') }}</span>
-            <button type="button" class="exp__mas" :aria-expanded="masHigado" @click="masHigado = !masHigado">{{ masHigado ? L('Menos', 'Less') : L('Más', 'More') }}</button></p>
-        </div>
-      </div>
-      <!-- estrecho (diseño, 18-oct): fijo, solo el titular (con la frase dentro tapaba filas y «Volver»); la frase va aquí, a
-           la vista al llegar y antes de cualquier cifra -->
-      <p class="exp__banner-sig">{{ L('«Luminal de alta confianza» es un subconjunto, no el tumor entero; «Hepatocitos» y «Otras» también pueden incluir células tumorales.', '“High-confidence luminal” is a subset, not the whole tumor; “Hepatocytes” and “Other” may also include tumor cells.') }}</p>
-      <p v-if="masHigado" class="exp__nota exp__nota--banner">
-        {{ L('Las cifras del grupo «Luminal de alta confianza» no son «% de células tumorales». El tipo se asigna por clúster: una célula tumoral caída en un clúster de hepatocitos cuenta como hepatocito y queda fuera del grupo de interés, y «Otras, sin asignar a un grupo» también puede incluir células tumorales.',
-          'The figures of the “High-confidence luminal” group are not “% of tumor cells”. Type is assigned per cluster: a tumor cell falling in a hepatocyte cluster counts as hepatocyte and stays out of the group of interest, and “Other, not assigned to a group” may also include tumor cells.') }}
-      </p>
-    </template>
 
     <p v-if="cargando" class="exp__estado" role="status">{{ L('Cargando los datos…', 'Loading the data…') }}</p>
     <div v-else-if="error" class="exp__estado exp__estado--error" role="alert">
@@ -834,17 +804,18 @@ function sinTapar(ev: FocusEvent) {
                               :tema="tema === 'oscuro' ? 'dark' : 'light'" :lang="lang" :alto="altoMapa" :movil="movil" :tactil="tactil" :orden="ordenMapa" @error="errorMapa = $event" />
           <p v-if="errorMapa" class="exp__estado exp__estado--error exp__sinmapa" role="alert">{{ L('El mapa no se ha podido dibujar en este navegador (recarga la página, o prueba con otro navegador o con la aceleración gráfica activada). El panel y los datos de abajo no dependen de él.', 'The map could not be drawn in this browser (reload the page, or try another browser or turn on graphics acceleration). The panel and the data below do not depend on it.') }}</p>
           <template v-if="!errorMapa">
-          <p v-if="modoVista === 'gen'" class="exp__leyt">{{ L(`Nivel de ${nombreGen(gen)} en cada célula, en CP10k (moléculas del gen por cada 10.000 de la célula): no detectado o el tramo en que cae. Los tramos son de esta biopsia: el mismo color no es el mismo nivel en el hígado y en el hueso.`, `${nombreGen(gen)} level in each cell, in CP10k (molecules of the gene per 10,000 in the cell): not detected, or the band it falls in. The bands belong to this biopsy: the same color is not the same level in the liver and in the bone.`) }}</p>
+          <p v-if="modoVista === 'gen'" class="exp__leyt">{{ L(`Nivel de ${nombreGen(gen)} por célula, en CP10k (moléculas del gen por cada 10.000 de la célula). Los tramos son de esta biopsia: el color no se compara entre hígado y hueso.`, `${nombreGen(gen)} level per cell, in CP10k (gene molecules per 10,000 in the cell). Bands are specific to this biopsy: don’t compare colors between liver and bone.`) }}</p>
           <!-- datos reales: el dibujo es el de Loupe, el color no (plan del 19-oct; sin esto, «otra vez no se parece») -->
           <p v-if="modoVista === 'grupo' && !ejemplo" class="exp__avisos exp__avisos--grupo">{{ L('Los colores son los grupos de este análisis, no los clústeres de Cell Ranger.', 'Colors show the groups from this analysis, not Cell Ranger’s clusters.') }}</p>
           <ul v-if="leyenda.length" class="exp__leyenda" :aria-label="L('Leyenda del mapa', 'Map legend')">
             <li v-for="l in leyenda" :key="l.etiqueta"><span class="exp__muestra" :style="{ background: cssRgb(l.rgb) }" aria-hidden="true" />{{ l.etiqueta }} <span class="nums">{{ fmtN(l.n, lang) }}</span></li>
           </ul>
           <p v-if="modoVista === 'gen' || modoVista === 'coexp'" class="exp__avisos">
-            {{ L('El color es ARN, no proteína. El mapa pinta toda célula donde se detecta el gen, aunque esa señal pueda venir del fondo; si un grupo supera su suelo ambiental, se ve en sus cifras por grupo.',
-              'Color is RNA, not protein. The map paints every cell where the gene is detected, even if that signal may come from the background; whether a group clears its ambient floor shows in its figures by group.') }}
+            {{ L('El mapa pinta toda célula con al menos una molécula del gen, aunque venga del ARN suelto. Si un grupo supera su suelo, se ve en sus cifras.',
+              'Every cell with at least one molecule of the gene is colored, even if it comes from loose RNA. Whether a group clears its floor shows in the group figures.') }}
           </p>
           </template>
+          <p v-if="lesion === 'higado'" class="exp__avisos exp__avisos--higado">{{ L(AVISO_HIGADO.grupos.es, AVISO_HIGADO.grupos.en) }}</p>
           <p v-if="otrasGem" class="exp__nota">{{ L(`En el hueso, «Otras» incluye ${fmtN(otrasGem.n, 'es')} células sin GEM limpio: comparten gota con una célula del hígado y pueden llevar su ARN. ${fmtN(otrasGem.deTipo, 'es')} de ellas son de tipos que tienen grupo propio y están en «Otras» solo por eso.`, `In the bone, “Other” includes ${fmtN(otrasGem.n, 'en')} cells without a clean GEM: they share a droplet with a liver cell and may carry its RNA. ${fmtN(otrasGem.deTipo, 'en')} of them are of types that have their own group and sit in “Other” only for that reason.`) }}</p>
           <p v-if="!errorMapa" class="exp__nota">{{ notaMapa }}</p>
           <p v-else class="exp__nota">{{ L(`${nTotal} células de la biopsia${nLeidas ? ` (de ${nLeidas} leídas; el resto no pasó el control de calidad de este análisis)` : ''}.`, `${nTotal} cells from the biopsy${nLeidas ? ` (of ${nLeidas} read; the rest did not pass this analysis’s quality control)` : ''}.`) }}</p>
@@ -881,16 +852,15 @@ function sinTapar(ev: FocusEvent) {
             <p v-if="!listo" class="exp__estado exp__leyendo" role="status">{{ L(`Leyendo ${nombreGen(activo)} en esta biopsia…`, `Reading ${nombreGen(activo)} in this biopsy…`) }}</p>
             <template v-else>
             <p class="exp__dlec"><span v-if="gen === 'ERBB2'" class="exp__dihq">{{ (lesion === 'higado' ? ETIQUETAS_FIJAS.her2 : ETIQUETAS_FIJAS.her2Hueso)[lang] }}</span><span v-if="gen === 'ERBB3' && lesion === 'higado' && !motivoDetalle" class="exp__dihq">{{ ETIQUETAS_FIJAS.her3Higado[lang] }}</span><template v-if="d.genes.includes(gen)">{{ ETIQUETAS_FIJAS.lectura[lang] }} <strong>{{ lecturaDetalle }}</strong><span v-if="motivoDetalle" class="exp__dmot" :data-motivo="motivoDetalle"> ({{ etiqueta(ETIQUETA_MOTIVO, motivoDetalle, lang) }})</span></template><template v-else>{{ lecturaDetalle }}</template></p>
-            <!-- comité médico (revisión del motivo): al abrir un gen la lista y su pie se ocultan; la lectura de uno se lee aquí -->
-            <p v-if="traeMotivo(d) && d.genes.includes(gen)" class="exp__dpie">{{ pieMotivo(lang) }}</p>
-            <p v-if="aliasClinico" class="exp__dlec">{{ L(`${aliasClinico} aquí es ARN, no proteína: cuenta las células con al menos una molécula del gen; la proteína la mide la IHQ.`, `${aliasClinico} here is RNA, not protein: it counts cells with at least one molecule of the gene; protein is measured by IHC.`) }}</p>
+            <!-- HER2 ya lleva su IHQ y su lectura («manda la IHQ»): la línea sería la cuarta vez (avisos aligerados, 22-oct) -->
+            <p v-if="aliasClinico && gen !== 'ERBB2'" class="exp__dlec">{{ L(`${aliasClinico} aquí es ARN, no IHQ.`, `${aliasClinico} here is RNA, not IHC.`) }}</p>
             <!-- la otra biopsia (19-oct): la cifra de su grupo de interés, para comparar sin memorizar; ver `otra` -->
             <p v-if="otra" class="exp__otra">
               <span class="exp__otrab">{{ L('La otra biopsia', 'The other biopsy') }} · {{ etiqueta(ETIQUETA_LESION, otra.l, lang) }}</span>
               <!-- las mismas etiquetas que su lista de llegada (CelulaExplorarInteres): IHQ de HER2 de cada biopsia y la nota de HER3 del hígado -->
               <span v-if="gen === 'ERBB2'" class="exp__dihq">{{ (otra.l === 'higado' ? ETIQUETAS_FIJAS.her2 : ETIQUETAS_FIJAS.her2Hueso)[lang] }}</span>
               <span v-if="gen === 'ERBB3' && otra.l === 'higado' && !otra.mot" class="exp__dihq">{{ ETIQUETAS_FIJAS.her3Higado[lang] }}</span>
-              <span class="exp__otral">{{ otra.grupo }}{{ otra.l === 'higado' ? L(', un subconjunto y no el tumor entero', ', a subset and not the whole tumor') : '' }} (n&nbsp;=&nbsp;{{ otra.n }}):</span>
+              <span class="exp__otral">{{ otra.grupo }}{{ otra.l === 'higado' ? L(', un subconjunto', ', a subset') : '' }} (n&nbsp;=&nbsp;{{ otra.n }}):</span>
               <!-- circular con cifra medida sin esa circularidad (loo): esa es la primera cifra, como en los violines (revisión del 17-oct); el grupo se nombra antes (diseño, 19-oct) -->
               <span v-if="otra.loo" class="exp__otral"><strong>{{ L('Sin esa circularidad', 'Without that circularity') }}</strong>
                 {{ L(`(grupo construido sin ese criterio, n\u00a0=\u00a0${fmtN(otra.loo.n, lang)}):`, `(group built without that criterion, n\u00a0=\u00a0${fmtN(otra.loo.n, lang)}):`) }}<template v-if="otra.loo.frac != null">{{ ' ' }}<span class="exp__par">{{ L('detectado', 'detected') }}&nbsp;{{ fmtPct(otra.loo.frac, lang) }}</span></template><template v-if="otra.loo.ref != null">, <span class="exp__par">{{ L('referencia', 'reference') }}&nbsp;{{ fmtPct(otra.loo.ref, lang) }}</span></template>.</span>
@@ -898,7 +868,7 @@ function sinTapar(ev: FocusEvent) {
               <span class="nums"><template v-if="otra.loo">{{ L('Cifra circular. ', 'Circular figure. ') }}</template><span class="exp__par">{{ L('detectado', 'detected') }}&nbsp;{{ otra.det }}</span>{{ otra.circular && !otra.loo ? L(' (circular)', ' (circular)') : '' }}&nbsp;· <span class="exp__par">{{ L('suelo', 'floor') }}&nbsp;{{ otra.suelo }}</span>{{ otra.marca ? ` (${otra.marca})` : '' }}&nbsp;· <span class="exp__par">{{ L('referencia', 'reference') }}&nbsp;{{ otra.ref }}</span>.</span>
               <span class="exp__otral">{{ ETIQUETAS_FIJAS.lecturaCorta[lang] }} <strong>{{ otra.lec }}</strong><span v-if="otra.mot" class="exp__dmot" :data-motivo="otra.mot"> ({{ etiqueta(ETIQUETA_MOTIVO, otra.mot, lang) }})</span>.</span>
               <!-- en la vista del hígado no está la nota del hueso: su circularidad de grupo y el ADN de su suelo viajan con la cifra -->
-              <span v-if="otra.l === 'hueso'" class="exp__otral">{{ L('Ese grupo se eligió en parte por número de copias inferido: su cifra no es del todo independiente de esa elección. En el hueso, el suelo incluye además el ADN genómico del tejido.', 'That group was chosen partly by inferred copy number: its figure is not fully independent of that choice. In the bone, the floor also includes the tissue’s genomic DNA.') }}</span>
+              <span v-if="otra.l === 'hueso'" class="exp__otral">{{ L('Grupo elegido en parte por número de copias inferido; su suelo incluye también ADN genómico.', 'Group chosen partly by inferred copy number; its floor also includes genomic DNA.') }}</span>
             </p>
             <CelulaExplorarViolines :filas="filas" :gen="gen" :lang="lang" :lesion="lesion" :adn="d.adn" :papel="d.seleccion[gen]" :loo="d.loo[gen]" :referencia="d.referencia[gen]" />
             <!-- la forma de la proteína (AlphaFold), debajo de las cifras y plegada: el modelo solo se pide al abrirla; al
@@ -993,18 +963,6 @@ function sinTapar(ev: FocusEvent) {
 .exp__btn[aria-pressed='true'] { background: var(--texto-1); color: var(--fondo); border-color: var(--texto-1); }
 .exp__btn:focus-visible, .exp__sel:focus-visible, .exp__salto:focus-visible { outline: 2px solid var(--anillo-foco); outline-offset: 2px; }
 .exp__sel { min-height: 44px; min-width: 14rem; max-width: 100%; padding: 0 var(--sp-12); border-radius: var(--radius-btn); border: 1px solid var(--trazo-interactivo); background: var(--fondo); color: var(--texto-1); font: 500 var(--texto-base)/1 var(--font-body); }
-.exp__banner { display: flex; gap: var(--sp-8); align-items: flex-start; padding: var(--sp-8) var(--sp-12); border-radius: var(--radius-btn); font: var(--tipo-body-sm); }
-.exp__banner { margin: 0; background: var(--fondo); border: 2px solid var(--texto-1); color: var(--texto-1); }
-/* lo fijo es el envoltorio rectangular, con fondo y 9 px por encima: tapa la franja bajo la cabecera y las esquinas */
-.exp__bannerfijo { position: sticky; top: calc(var(--exp-top, 8px) - 9px); z-index: 5; margin-top: 7px; padding-top: 9px; background: var(--fondo); }
-@media (max-width: 1023px) { .exp__banner { font-size: var(--texto-xs); } }
-.exp__banner p { margin: 0; }
-.exp__banner-sig { display: none; }
-@media (max-width: 1023px) {
-  .exp__banner-2 { display: none; }
-  .exp__banner-sig { display: block; margin: var(--sp-8) 0 0; font: var(--tipo-body-sm); font-size: var(--texto-xs); color: var(--texto-1); }
-}
-.exp__ico { width: 20px; height: 20px; flex: none; margin-top: 1px; color: var(--texto-1); }
 .exp__estado { margin: var(--sp-16) 0 0; font: var(--tipo-body-sm); color: var(--texto-2); }
 .exp__estado:empty { margin: 0; }
 .exp__estado--error { color: var(--texto-1); font-weight: 600; }
@@ -1015,7 +973,7 @@ function sinTapar(ev: FocusEvent) {
 @media (min-width: 1024px) { .exp__sim { grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr); align-items: start; } }
 .exp__mapacol, .exp__panel { min-width: 0; }
 /* el panel pegado va DEBAJO del aviso fijo del hígado y nunca pasa del alto de la pantalla (diseño, 18-oct) */
-@media (min-width: 1024px) { .exp__panel { position: sticky; top: calc(var(--exp-top, 8px) + var(--exp-banner, 0px) + var(--sp-8)); max-height: calc(100dvh - var(--exp-top, 8px) - var(--exp-banner, 0px) - var(--sp-24)); overflow: auto; padding-inline: var(--sp-8); margin-inline: calc(-1 * var(--sp-8)); } }
+@media (min-width: 1024px) { .exp__panel { position: sticky; top: calc(var(--exp-top, 8px) + var(--sp-8)); max-height: calc(100dvh - var(--exp-top, 8px) - var(--sp-24)); overflow: auto; padding-inline: var(--sp-8); margin-inline: calc(-1 * var(--sp-8)); } }
 /* pestañas como pestañas: subrayado, no píldora (la píldora rellena es la biopsia y el grupo de marcadores) */
 .exp__pestanas { display: flex; gap: var(--sp-16); margin-bottom: var(--sp-12); border-bottom: 1px solid var(--trazo-medio); }
 .exp__tab { min-height: 44px; padding: 0 var(--sp-4); border: 0; border-bottom: 3px solid transparent; margin-bottom: -1px; border-radius: 0; background: none; color: var(--texto-2); font: 600 var(--texto-sm)/1 var(--font-body); cursor: pointer; }
@@ -1023,7 +981,7 @@ function sinTapar(ev: FocusEvent) {
 @media (hover: hover) { .exp__tab:hover { color: var(--texto-1); } }
 .exp__tab:focus-visible { outline: 2px solid var(--anillo-foco); outline-offset: 2px; }
 .exp__pcuerpo:focus { outline: none; }
-#exp-violines, #exp-panel, #exp-genes, .exp__mapacol { scroll-margin-top: calc(var(--exp-top, 8px) + var(--exp-banner, 0px) + var(--sp-16)); }   /* que el salto no lo tape la cabecera ni el aviso fijo */
+#exp-violines, #exp-panel, #exp-genes, .exp__mapacol { scroll-margin-top: calc(var(--exp-top, 8px) + var(--sp-16)); }   /* que el salto no lo tape la cabecera fija */
 .exp__avisos { margin: var(--sp-12) 0 0; font: var(--tipo-body-sm); font-size: var(--texto-xs); color: var(--texto-2); max-width: none; }
 .exp__porque { margin-top: var(--sp-4); }
 .exp__porque summary, .exp__tecnico summary { cursor: pointer; list-style-position: inside; }
@@ -1069,7 +1027,6 @@ function sinTapar(ev: FocusEvent) {
 .exp__dbiop { margin: 0; font: 700 var(--texto-xs)/1.3 var(--font-mono); letter-spacing: var(--track-eyebrow); text-transform: uppercase; color: var(--texto-2); }
 .exp__nota { margin: var(--sp-8) 0 0; font: var(--tipo-body-sm); font-size: var(--texto-xs); color: var(--texto-2); max-width: var(--measure); }
 .exp__nota--busca:empty { display: none; }
-.exp__nota--banner { margin-top: var(--sp-8); }
 .exp__salto { display: inline-block; margin-bottom: var(--sp-8); padding: 0; border: 0; background: none; color: var(--identidad); font: 600 var(--texto-sm) var(--font-body); text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
 .exp__leyenda { list-style: none; margin: var(--sp-12) 0 0; padding: 0; display: flex; flex-wrap: wrap; gap: var(--sp-4) var(--sp-16); font: var(--tipo-body-sm); font-size: var(--texto-xs); color: var(--texto-1); }
 .exp__leyenda li { display: inline-flex; align-items: center; gap: var(--sp-8); }
@@ -1102,8 +1059,7 @@ function sinTapar(ev: FocusEvent) {
 .exp__tema { border: 1px solid var(--trazo-interactivo); }
 .exp__tema svg { width: 20px; height: 20px; }
 @media (hover: hover) { .exp__chipx:hover, .exp__tema:hover { background: var(--trazo-sutil); } }
-.exp__chipx:focus-visible, .exp__tema:focus-visible, .exp__volver:focus-visible, .exp__mas:focus-visible { outline: 2px solid var(--anillo-foco); outline-offset: 2px; }
-.exp__mas { display: inline-flex; align-items: center; justify-content: center; min-width: 44px; min-height: 44px; margin: -12px -8px -12px var(--sp-4); padding: 0 8px; vertical-align: middle; border: 0; background: none; color: var(--identidad); font: inherit; font-weight: 600; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+.exp__chipx:focus-visible, .exp__tema:focus-visible, .exp__volver:focus-visible { outline: 2px solid var(--anillo-foco); outline-offset: 2px; }
 .exp__sel--sm { min-width: 11rem; font-size: var(--texto-sm); }
 @media (max-width: 639px) {
   .exp__mapabar:not(.exp__mapabar--dos) { flex-wrap: nowrap; gap: var(--sp-8); }
@@ -1138,7 +1094,6 @@ function sinTapar(ev: FocusEvent) {
   .exp__ctl > .exp__campo:not(.exp__busca) { display: flex; align-items: center; gap: var(--sp-8); }
   .exp__busca { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: center; column-gap: var(--sp-8); }
   .exp__busca > :not(label) { grid-column: 2; }
-  .exp__bannerfijo { margin-top: 1px; }
   .exp__sim { margin-top: var(--sp-8); }
 }
 .exp__sel::placeholder { color: var(--texto-2); opacity: 1; }

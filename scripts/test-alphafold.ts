@@ -136,10 +136,11 @@ ok('el hover solo cuenta con ratón (el toque emula un mouseenter)', /pointerTyp
 ok('icono «cube» de Phosphor cotejado (lista y detalle)', boton3d.includes(CUBE) && explorador.includes(CUBE))
 ok('una sola vista previa en el explorador, dentro de .exp', (explorador.match(/<CelulaExplorarVistaForma /g) ?? []).length === 1 && explorador.indexOf('<CelulaExplorarVistaForma') < explorador.lastIndexOf('</section>'))
 ok('esperas de abrir y cerrar (400 / 600 ms: del «3D» a la flotante hay 143 px; diseno)', /ESPERA_ABRE = 400/.test(vista) && /ESPERA_CIERRA = 600/.test(vista))
-ok('tampoco tapa el aviso cuando aún no está fijado', /querySelector\('\.exp__bannerfijo'\)/.test(vista))
+// sin aviso fijo del hígado desde el 22-oct-2026: la flotante solo se coloca bajo la cabecera
+ok('ya no hay aviso fijo que esquivar: la flotante va bajo la cabecera', !/exp__bannerfijo|--exp-banner/.test(vista) && /--exp-top/.test(vista))
 ok('flotante: «Ver la forma completa» en un pie fuera del scroll', /<div class="pv__cuerpo">[\s\S]*?<\/div>\s*<div class="pv__pie">\s*<button type="button" class="pv__completa"/.test(tplVista) && /\.pv__flota:popover-open \{ display: flex;/.test(vista))
 ok('Tab fuera de la fija devuelve el foco al «3D» (2.4.3)', /!ancla\?\.contains\(t\)\) cierra\(true\)/.test(vista))
-ok('la flotante no tapa la cabecera ni el aviso fijo, y su alto se acota (desplaza por dentro)', /--exp-top/.test(vista) && /--exp-banner/.test(vista) && /maxHeight: pos\.alto/.test(tplVista))
+ok('la flotante no tapa la cabecera, y su alto se acota (desplaza por dentro)', /--exp-top/.test(vista) && /maxHeight: pos\.alto/.test(tplVista))
 ok('al crecer el contenido no se recentra (no salta)', /coloca\(false\)/.test(vista))
 ok('hoja: «Ver la forma completa» en un pie fuera del scroll', /<div class="pv__pie">\s*<button type="button" class="pv__completa"/.test(tplVista) && /\.pv__dentro \{ flex: 1; min-height: 0; overflow-y: auto;/.test(vista))
 ok('contraste: en hover y abierto, el texto de «3D», «Forma 3D» y «Ver la forma completa» pasa a tinta', /\.gin__3d:hover \{[^}]*color: var\(--texto-1\)/.test(interes) && /\.gin__3d\[aria-expanded='true'\] \{[^}]*color: var\(--texto-1\)/.test(interes) && /\.exp__dforma:hover \{[^}]*color: var\(--texto-1\)/.test(explorador) && /\.pv__completa:hover \{[^}]*color: var\(--texto-1\)/.test(vista))
@@ -154,20 +155,21 @@ ok('compacto: sin arrastre ni rueda, sin foco, role="img"', /if \(!props\.compac
 ok('compacto: una vuelta de 5 s (2.2.2), y quieta con movimiento reducido', /const SEG_VUELTA = props\.compacto \? 5 : 14/.test(visor) && /if \(!reduce && props\.compacto\) unaVuelta\(\)/.test(visor))
 ok('compacto: no mueve la página al montarse', /if \(visorEl\.value && !props\.compacto\) emit\('montado'/.test(visor))
 const pieCompacto = visor.match(/<figcaption v-if="compacto"[\s\S]*?<\/figcaption>/)?.[0] ?? ''
-ok('la vista previa lleva sello, «sin datos de la biopsia», leyenda, la línea de % y el crédito CC BY', pieCompacto.includes('Predicción, no medición.') && pieCompacto.includes('sin datos de la biopsia de Miriam') && pieCompacto.includes('with no data from Miriam’s biopsy') && pieCompacto.includes('class="de__leyenda"') && pieCompacto.includes('Confianza muy baja (pLDDT < 50) en el') && pieCompacto.includes('(Google DeepMind · EMBL-EBI)') && pieCompacto.includes('creativecommons.org/licenses/by/4.0'))
+ok('la vista previa lleva la línea de predicción («sin datos de la biopsia»), leyenda, la línea de % y el crédito CC BY', pieCompacto.includes('Predicción a partir de la secuencia de referencia (UniProt)') && pieCompacto.includes('sin datos de la biopsia de Miriam') && pieCompacto.includes('with no data from Miriam’s biopsy') && pieCompacto.includes('class="de__leyenda"') && pieCompacto.includes('Confianza muy baja (pLDDT < 50) en el') && pieCompacto.includes('(Google DeepMind · EMBL-EBI)') && pieCompacto.includes('creativecommons.org/licenses/by/4.0'))
 ok('el aviso fuerte sale de la regla, no de una lista de genes, y lleva dentro la línea del %', /<p v-if="estado !== 'listo' \|\| !avisoConfianza\(fMuyBaja\)" class="de__linea">[\s\S]*?<p v-else class="de__alerta">\s*\{\{ L\(`Confianza muy baja \(pLDDT < 50\) en el \$\{pctMuyBaja\}/.test(pieCompacto) && !/MUC1|ANKRD30A/.test(pieCompacto))
 ok('mientras carga, leyenda y línea guardan su sitio sin verse', /class="de__pvdatos" :style="estado === 'listo' \? undefined : \{ visibility: 'hidden' \}"/.test(pieCompacto))
-ok('el aviso dice lo de la FAQ (no se interpretan; sin forma fija o dentro de un complejo; puede servir para señalarlas)', pieCompacto.includes('esas zonas no deben interpretarse') && pieCompacto.includes('dentro de un complejo') && pieCompacto.includes('should not be interpreted') && pieCompacto.includes('puede servir para señalarlas') && pieCompacto.includes('may help point them out'))
+ok('el aviso dice lo de la FAQ (no se interpretan; sin forma fija o solo dentro de un complejo)', pieCompacto.includes('esas zonas no deben interpretarse') && pieCompacto.includes('dentro de un complejo') && pieCompacto.includes('should not be interpreted'))
 
 /* ── 6 · el muro del copy ── */
 ok('crédito y licencia visibles', visor.includes('(Google DeepMind · EMBL-EBI)') && visor.includes('creativecommons.org/licenses/by/4.0'))
 ok('cita de AlphaFold (Jumper 2021) y de AlphaFold DB (Bertoni 2025)', visor.includes('10.1038/s41586-021-03819-2') && visor.includes('10.1093/nar/gkaf1226'))
 ok('enlace a UniProt de la proteína', visor.includes('urlUniprot(uniprot)'))
 // Adri y verificacion (20-oct): el bloque va bajo las cifras de la biopsia; que nadie lea «la proteína de Miriam»
-ok('dice, arriba, que parte de la secuencia de referencia y no de la biopsia (ES y EN)', visor.includes('Se calcula a partir de la secuencia de referencia de la proteína humana (UniProt), sin datos de la biopsia de Miriam.') && visor.includes('Built from the reference sequence of the human protein (UniProt), with no data from Miriam’s biopsy.'))
+ok('dice, arriba, que parte de la secuencia de referencia y no de la biopsia (ES y EN)', visor.includes('Predicción a partir de la secuencia de referencia (UniProt), sin datos de la biopsia de Miriam.') && visor.includes('Predicted from the reference sequence (UniProt), with no data from Miriam’s biopsy.'))
 ok('la regla de lectura de < 50 de la FAQ de AlphaFold DB (ES y EN)', visor.includes('(< 50) no se interpretan') && visor.includes('(< 50) should not be interpreted'))
 ok('la leyenda va antes del crédito y las referencias', visor.indexOf('class="de__leyenda"') < visor.indexOf('class="de__fuente"') && visor.indexOf('class="de__fuente"') < visor.indexOf("L('Referencias:'"))
-ok('cada estructura dice «predicción, no medición» (ES y EN)', visor.includes('Predicción, no medición.') && visor.includes('A prediction, not a measurement.'))
+// avisos aligerados (22-oct-2026): una línea en vez de sello + contexto + párrafo «AlphaFold es un programa…»
+ok('una sola línea de predicción, sin el sello suelto ni el párrafo de qué es AlphaFold', !visor.includes('Predicción, no medición.') && !visor.includes('AlphaFold es un programa'))
 const visible = (tplForma + visor + util + tplVista + boton3d).replace(/\/\*[\s\S]*?\*\//g, '').replace(/^\s*\/\/.*$/gm, '').replace(/<!--[\s\S]*?-->/g, '')
 for (const p of [/vacuna/i, /vaccine/i, /cient[ií]fica/i, /Olune/i]) ok(`sin ${p} en el texto visible`, !p.test(visible))
 ok('no dice «tumor» ni «maligno»', !/tumor|malign|c[aá]ncer/i.test(visible))

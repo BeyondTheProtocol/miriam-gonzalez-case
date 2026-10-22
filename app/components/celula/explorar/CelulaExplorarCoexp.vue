@@ -6,7 +6,7 @@
  */
 import type { Coexp, LesionDatos } from '~/utils/celulaExplorador'
 import { fmtPct, tablaCoexp } from '~/utils/celulaExplorador'
-import { CIRC_HUESO, ETIQUETA_GRUPO, etiqueta, nombreGen } from '~/utils/celulaExploradorTexto'
+import { CIRC_HUESO, ETIQUETA_GRUPO, etiqueta, etiquetaInteres, nombreGen } from '~/utils/celulaExploradorTexto'
 
 const props = defineProps<{ d: LesionDatos; etiquetas: Coexp[]; genA: string; genB: string; lang: 'es' | 'en' }>()
 const L = (es: string, en: string) => (props.lang === 'en' ? en : es)
@@ -36,7 +36,7 @@ const titulo = (c: Coexp) => ({
         </thead>
         <tbody>
           <tr v-for="f in filas" :key="f.id">
-            <th scope="row">{{ etiqueta(ETIQUETA_GRUPO, f.id, lang) }}</th>
+            <th scope="row">{{ etiquetaInteres(f.id, lang) }}</th>
             <td class="cx__num nums">{{ fmtN(f.n, lang) }}</td>
             <td v-for="c in COLS" :key="c" class="cx__num nums">{{ fmtN(f.c[c], lang) }} <span class="cx__pct">({{ fmtPct(f.n ? f.c[c] / f.n : 0, lang) }})</span></td>
           </tr>

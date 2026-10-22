@@ -15,7 +15,7 @@
  */
 import type { Adn, FilaGrupo, Lesion, Loo } from '~/utils/celulaExplorador'
 import { densidad, fmtIC, fmtParSuelo, fmtPct, fmtPctFino, fmtPctSig, icLoo, r4, tsv } from '~/utils/celulaExplorador'
-import { CIRC_HUESO, ETIQUETAS_FIJAS, ETIQUETA_GRUPO, IC_NOTA, PAPEL_SELECCION, etiqueta } from '~/utils/celulaExploradorTexto'
+import { AVISO_HIGADO, CIRC_HUESO, ETIQUETAS_FIJAS, ETIQUETA_GRUPO, IC_NOTA, PAPEL_SELECCION, etiqueta, etiquetaInteres } from '~/utils/celulaExploradorTexto'
 
 const props = defineProps<{ filas: FilaGrupo[]; gen: string; lang: 'es' | 'en'; lesion: Lesion; adn: Adn; papel?: string; loo?: Loo; referencia?: number }>()
 const L = (es: string, en: string) => (props.lang === 'en' ? en : es)
@@ -90,8 +90,9 @@ function partes(f: FilaGrupo): { t: string; fuerte?: boolean }[] {
       <span class="vio__muestra vio__muestra--raya" aria-hidden="true" />
       <div>
         <p>
-          {{ L('Suelo ambiental: el porcentaje de células en las que el gen saldría solo por ARN suelto en la muestra. Lo que no lo supera no cuenta como expresión.' + (lesion === 'hueso' ? ' En el hueso, el suelo incluye además el ADN genómico del tejido (ver «Cómo se lee»).' : ' En el hígado el suelo es un mínimo: para los genes del tumor decide la referencia emparejada.'),
-            'Ambient floor: the share of cells where the gene would show up from loose RNA in the sample alone. Anything at or below it does not count as expression.' + (lesion === 'hueso' ? ' In the bone, the floor also includes the tissue’s genomic DNA (see “How to read it”).' : ' In the liver the floor is a minimum: for tumor genes, the matched reference decides.')) }}
+          {{ lesion === 'hueso'
+            ? L('Rayado: suelo ambiental (ARN suelto y, en el hueso, también ADN genómico); lo que no lo supera no cuenta.', 'Hatched: ambient floor (loose RNA and, in the bone, genomic DNA too); anything that doesn’t clear it doesn’t count.')
+            : L('Rayado: suelo ambiental (lo que daría solo el ARN suelto); lo que no lo supera no cuenta. En el hígado es un mínimo: para los genes del tumor decide la referencia emparejada.', 'Hatched: ambient floor (what loose RNA alone would give); anything that doesn’t clear it doesn’t count. In the liver it’s a minimum: for tumor genes, the matched reference decides.') }}
         </p>
       </div>
     </div>
@@ -107,7 +108,7 @@ function partes(f: FilaGrupo): { t: string; fuerte?: boolean }[] {
     <ul class="vio__lista" role="list">
       <li v-for="f in filas" :key="f.id" class="vio__fila" :class="`vio__fila--${f.rol}`">
         <div class="vio__cab">
-          <span class="vio__nombre">{{ etiqueta(ETIQUETA_GRUPO, f.id, lang) }}</span>
+          <span class="vio__nombre">{{ f.rol === 'interes' ? etiquetaInteres(f.id, lang) : etiqueta(ETIQUETA_GRUPO, f.id, lang) }}</span>
           <span class="vio__n nums">n = {{ nf(f.n) }}</span>
         </div>
         <!-- circularidad: la cifra sin ella va PRIMERO; la de la figura (este grupo) queda rotulada como circular -->
@@ -143,7 +144,7 @@ function partes(f: FilaGrupo): { t: string; fuerte?: boolean }[] {
           <strong v-if="f.rol === 'interes' && papel" class="vio__bajo">{{ L('Circular', 'Circular') }}</strong><span v-for="(x, k) in partes(f)" :key="k" class="vio__par"><strong v-if="x.fuerte" class="vio__bajo">{{ x.t }}</strong><template v-else>{{ x.t }}</template></span>
         </p>
         <!-- la referencia emparejada no es ningún grupo de la lista: se da aquí, junto al grupo de interés (comité médico, 18-oct) -->
-        <p v-if="f.rol === 'interes' && referencia != null" class="vio__ref nums">{{ L(`Referencia emparejada (células no tumorales de la misma muestra, a la misma profundidad): ${fmtPct(referencia, 'es')}`, `Matched reference (non-tumor cells from the same sample, at the same depth): ${fmtPct(referencia, 'en')}`) }}</p>
+        <p v-if="f.rol === 'interes' && referencia != null" class="vio__ref nums">{{ L(`Referencia emparejada (no tumorales, misma muestra y profundidad): ${fmtPct(referencia, 'es')}`, `Matched reference (non-tumor, same sample and depth): ${fmtPct(referencia, 'en')}`) }}</p>
         <!-- en el hueso el grupo entero es circular: la nota cierra la fila -->
         <p v-if="f.rol === 'interes' && lesion === 'hueso'" class="vio__circ vio__circ--grupo" role="note"><strong>{{ L('Circular.', 'Circular.') }}</strong> {{ L(CIRC_HUESO.es, CIRC_HUESO.en) }}</p>
       </li>
@@ -153,10 +154,11 @@ function partes(f: FilaGrupo): { t: string; fuerte?: boolean }[] {
       <span class="vio__estado" role="status">{{ copiado }}</span>
     </div>
     <!-- auditoría 18-oct: superar el suelo no basta en los grupos no tumorales (a la vista, después de las cifras) -->
-    <p class="vio__leyenda vio__noBasta"><strong>{{ L('Superar el suelo no basta.', 'Clearing the floor is not enough.') }}</strong> {{ L('En los grupos no tumorales, parte de la señal de los genes del tumor viene de gotas con dos células o de ARN del tumor que el suelo no recoge, y no es expresión de esas células. Vale cuando el grupo de interés supera a esos grupos; si un grupo no tumoral lo supera, esa señal no se explica así.', 'In non-tumor groups, part of the signal from tumor genes comes from droplets holding two cells or from tumor RNA the floor does not capture, and it is not expression by those cells. This holds when the group of interest exceeds those groups; if a non-tumor group exceeds it, that signal is not explained this way.') }}</p>
+    <p class="vio__leyenda vio__noBasta"><strong>{{ L('Superar el suelo no basta.', 'Clearing the floor is not enough.') }}</strong> {{ L('En grupos no tumorales, parte de la señal de los genes del tumor viene de gotas con dos células o de ARN del tumor que el suelo no recoge; si un grupo no tumoral supera al de interés, eso no lo explica.', 'In non-tumor groups, part of the signal from tumor genes comes from droplets holding two cells or from tumor RNA the floor doesn’t capture; if a non-tumor group exceeds the group of interest, that doesn’t explain it.') }}</p>
     <!-- simulador (18-oct): lo explicativo, plegado; las cifras, el n, el suelo y la circularidad quedan siempre a la vista -->
     <details class="vio__como">
       <summary>{{ L('Cómo se lee', 'How to read it') }}</summary>
+      <p v-if="lesion === 'higado'" class="vio__leyenda">{{ L(AVISO_HIGADO.cifras.es, AVISO_HIGADO.cifras.en) }}</p>
       <p class="vio__leyenda">{{ L('Si el suelo supera lo detectado, el suelo está sobreestimado para ese gen en ese grupo o, en grupos pequeños, la diferencia cabe en el azar del muestreo.', 'If the floor is above what is detected, the floor is overestimated for that gene in that group or, in small groups, the difference is within sampling chance.') }}</p>
       <p class="vio__leyenda">{{ L(IC_NOTA.es, IC_NOTA.en) }}</p>
       <p class="vio__adn"><strong>{{ L(`${ETIQUETAS_FIJAS.matriz.es}.`, `${ETIQUETAS_FIJAS.matriz.en}.`) }}</strong> {{ adnTxt }}</p>

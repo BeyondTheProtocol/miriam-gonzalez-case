@@ -8,7 +8,7 @@
  */
 import type { LesionDatos } from '~/utils/celulaExplorador'
 import { etiquetaIC, fmtIC, fmtPct, fmtRangoIC, icLoo, motivoDe, porGrupo, r4, traeMotivo, tsv } from '~/utils/celulaExplorador'
-import { CIRC_HUESO, ETIQUETA_GRUPO, ETIQUETA_MOTIVO, IC_NOTA, LECTURA, etiquetaLectura, pieMotivo, PANEL_INTERES, PAPEL_SELECCION, PROTEINA, etiqueta, ETIQUETAS_FIJAS } from '~/utils/celulaExploradorTexto'
+import { AVISO_HIGADO, CIRC_HUESO, ETIQUETA_GRUPO, ETIQUETA_MOTIVO, IC_NOTA, LECTURA, etiquetaLectura, pieMotivo, PANEL_INTERES, PAPEL_SELECCION, PROTEINA, etiqueta, ETIQUETAS_FIJAS } from '~/utils/celulaExploradorTexto'
 
 const props = defineProps<{ d: LesionDatos; lang: 'es' | 'en'; elegido: string }>()
 const emit = defineEmits<{ elegir: [string] }>()
@@ -42,7 +42,7 @@ async function copiaTSV() {
         <thead>
           <tr>
             <th scope="col">{{ L('Gen', 'Gene') }}</th>
-            <th scope="col" class="gi__num">{{ etiqueta(ETIQUETA_GRUPO, interes.id, lang) }} <span class="gi__sub nums">n = {{ fmtN(interes.n, lang) }}</span><span class="gi__sub">{{ L(`${etiquetaIC('es')} debajo`, `${etiquetaIC('en')} below`) }}</span></th>
+            <th scope="col" class="gi__num">{{ etiqueta(ETIQUETA_GRUPO, interes.id, lang) }} <span v-if="interes.id === 'luminal_alta_confianza'" class="gi__sub">{{ AVISO_HIGADO.rotulo[lang] }}</span><span class="gi__sub nums">n = {{ fmtN(interes.n, lang) }}</span><span class="gi__sub">{{ L(`${etiquetaIC('es')} debajo`, `${etiquetaIC('en')} below`) }}</span></th>
             <th scope="col" class="gi__num">{{ L('Referencia emparejada', 'Matched reference') }}</th>
             <th scope="col" class="gi__num">{{ L('Suelo ambiental', 'Ambient floor') }}</th>
             <th scope="col" class="gi__num">{{ L('Sondas', 'Probes') }} <span class="gi__sub">{{ L('unión / total', 'junction / total') }}</span></th>
