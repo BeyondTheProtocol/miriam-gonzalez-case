@@ -111,9 +111,8 @@ function coloca(recentra = true) {
   const f = flota.value
   if (!f || !ancla?.isConnected) return
   const css = getComputedStyle(ancla.closest('.exp') ?? document.documentElement), m = 8, sep = 12
-  // el aviso «Hígado…» aún sin fijar (página arriba) queda más abajo que su tope fijo: tampoco se tapa (diseno, 21-oct)
-  const aviso = ancla.closest('.exp')?.querySelector('.exp__bannerfijo')?.getBoundingClientRect().bottom ?? 0
-  const arriba = Math.max((parseFloat(css.getPropertyValue('--exp-top')) || 0) + (parseFloat(css.getPropertyValue('--exp-banner')) || 0) + m, aviso + m)
+  // bajo la cabecera fija del sitio (el aviso fijo del hígado se quitó el 22-oct-2026)
+  const arriba = (parseFloat(css.getPropertyValue('--exp-top')) || 0) + m
   const alto = Math.max(160, innerHeight - arriba - m)
   const r = ancla.getBoundingClientRect(), w = f.offsetWidth, h = Math.min(f.offsetHeight, alto)
   const borde = (ancla.closest('.exp__panel') ?? ancla).getBoundingClientRect().left

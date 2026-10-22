@@ -46,7 +46,7 @@ const LEER = [
   [`${ETIQUETAS_FIJAS.matriz.es}.`, 'Son las cuentas que da Cell Ranger con todas las sondas del panel, la misma base del análisis revisado.', `${ETIQUETAS_FIJAS.matriz.en}.`, 'These are the counts Cell Ranger gives with every probe on the panel, the same basis as the reviewed analysis.'],
   ['Cifras circulares.', 'Si un gen se usó para elegir las células de un grupo, su cifra en ese grupo sale alta (o baja) por construcción. Esos genes llevan su rótulo y, cuando la revisión lo midió sin esa circularidad, esa otra cifra al lado.', 'Circular figures.', 'If a gene was used to choose a group’s cells, its figure in that group comes out high (or low) by construction. Those genes carry a label and, where the review measured them without that circularity, that other figure next to it.'],
   [`${ETIQUETAS_FIJAS.mediana.es}.`, 'El nivel que pinta la página es la mediana en las células donde se detecta el gen; la revisión da el nivel de toda la población junta.', `${ETIQUETAS_FIJAS.mediana.en}.`, 'The level the page draws is the median in cells where the gene is detected; the review gives the level of the whole population pooled.'],
-  ['Lectura de Polaris.', 'La lectura por gen es de Polaris y está en borrador, pendiente de la lectura humana del laboratorio. No habla en nombre del laboratorio.', 'Polaris reading.', 'The per-gene reading is Polaris’s and is a draft, pending the laboratory’s human reading. It does not speak for the laboratory.'],
+  ['Lectura de Polaris.', 'La lectura por gen es de Polaris, en borrador, no del informe del laboratorio.', 'Polaris reading.', 'The per-gene reading is Polaris’s own, in draft, not from the lab report.'],
   ['Referencia emparejada.', 'Células no tumorales de la misma muestra, con la misma profundidad (moléculas por célula); en el hígado son linfocitos T y NK, mieloides y endotelio; los hepatocitos y los fibroblastos no entran. Si un gen se detecta igual o más en la referencia que en el grupo de interés, no sirve para distinguir el tumor.', 'Matched reference.', 'Non-tumor cells from the same sample, at the same depth (molecules per cell); in the liver they are T and NK cells, myeloid cells and endothelium; hepatocytes and fibroblasts are not included. If a gene is detected as much or more in the reference than in the group of interest, it does not tell the tumor apart.'],
   ['Grupos fijos.', 'Los grupos y su n vienen del análisis revisado. La página no vuelve a agrupar células ni calcula un «% de células tumorales» del hígado.', 'Fixed groups.', 'The groups and their n come from the reviewed analysis. The page does not regroup cells or compute a “% of tumor cells” for the liver.'],
 ] as const
@@ -100,7 +100,7 @@ const LEER = [
 
           <!-- simulador (18-oct): «Cómo leerlo» plegado; el resumen con texto está en Célula a célula -->
           <details class="xp-leer-pl">
-            <summary><span class="xp-leer-t">{{ L('Cómo leerlo', 'How to read it') }}</span></summary>
+            <summary><span class="xp-leer-t">{{ L('Cómo se lee', 'How to read it') }}</span></summary>
             <dl class="xp-leer">
               <div v-for="[tEs, dEs, tEn, dEn] in LEER" :key="tEs" class="xp-leer__fila">
                 <dt>{{ L(tEs, tEn) }}</dt>

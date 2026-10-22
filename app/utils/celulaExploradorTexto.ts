@@ -136,16 +136,19 @@ export const ETIQUETA_MOTIVO: Record<string, T> = {
  * debajo, reformulada o, HER3 del hueso, por encima; INFORME_LIMPIEZA de Polaris, regla_frente_a_acta). Va también en el
  * detalle del gen, que es donde se lee la lectura de uno. */
 export const PIE_MOTIVO = {
-  compara: t('La lectura usa el extremo bajo del margen de error del grupo, no su cifra.', 'The reading uses the lower end of the group’s margin of error, not its figure.'),
-  aparta: t('En varios genes, la lectura de la revisión se aparta de la regla fijada antes del análisis; la lectura o su paréntesis dice por qué.',
-    'For several genes, the review’s reading departs from the rule set before the analysis; the reading or its parenthesis says why.'),
+  compara: t('La lectura usa el extremo bajo del margen de error, no la cifra;', 'The reading uses the low end of the margin of error, not the figure;'),
+  aparta: t('si se aparta de la regla fijada antes del análisis, el paréntesis dice por qué.',
+    'where it departs from the rule set before the analysis, the parenthesis says why.'),
 }
+/** una sola línea, en el pie de la lista (avisos aligerados, 22-oct-2026: ya no se repite en el detalle del gen) */
 export const pieMotivo = (lang: 'es' | 'en') => `${PIE_MOTIVO.compara[lang]} ${PIE_MOTIVO.aparta[lang]}`
 
-/** De quién es la lectura por gen, y en qué estado está: va en la cabecera de la columna y en su pie. */
+/** De quién es la lectura por gen, y en qué estado está: cabecera de la columna de la tabla completa y la línea que abre
+ * la lista (avisos aligerados, 22-oct-2026). Ya no promete una lectura humana del laboratorio: no consta que se le haya
+ * pedido (verificacion). «Borrador» una sola vez y no en cada fila: el acta sigue en borrador (verificacion). */
 export const LECTURA = {
   columna: t('Lectura de Polaris (borrador)', 'Polaris reading (draft)'),
-  pie: t('Lectura de Polaris, borrador, pendiente de la lectura humana del laboratorio.', 'Polaris reading, draft, pending the laboratory’s human reading.'),
+  pie: t('Las lecturas son de Polaris, en borrador, no del informe del laboratorio.', 'Readings are Polaris’s own, in draft, not from the lab report.'),
 }
 
 /** Por qué la cifra de un gen en el grupo de interés es circular: el gen participa en la selección del grupo. */
@@ -187,8 +190,8 @@ export const ETIQUETAS_FIJAS = {
   her2: t('IHQ de HER2: 0 (primario e hígado)', 'HER2 IHC: 0 (primary and liver)'),
   /** etiqueta de la lectura por gen: completa en el detalle; corta en cada fila de la lista, cuyo pie dice de quién es y
    * que está pendiente (diseño, 18-oct: la completa repetida diez veces pesaba más que las cifras) */
-  lectura: t('Lectura de Polaris (borrador, pendiente del laboratorio):', 'Polaris reading (draft, pending the laboratory’s reading):'),
-  lecturaCorta: t('Lectura (borrador):', 'Reading (draft):'),
+  lectura: t('Lectura de Polaris (borrador):', 'Polaris reading (draft):'),
+  lecturaCorta: t('Lectura:', 'Reading:'),
   /** auditoría 18-oct: el ARN del programa de estrógeno está activo, pero la tinción del hígado salió negativa */
   re: t('IHQ de RE: negativa (hígado)', 'ER IHC: negative (liver)'),
   /** auditoría 18-oct: del hueso no consta IHQ de HER2 (solo ADN, FoundationOne) */
@@ -207,8 +210,22 @@ export const ETIQUETAS_FIJAS = {
 /** Circularidad de GRUPO (18-oct, diseño y verificacion con datos reales). En el hueso el grupo de interés se eligió por
  * número de copias inferido de la expresión y por identidad epitelial: los genes de las regiones con más copias
  * inferidas salen favorecidos por construcción, gen a gen no se puede rotular. Sin nombrar genes ni posiciones. */
-export const CIRC_HUESO = t('En el hueso, las células malignas se eligieron por número de copias inferido de la propia expresión y por identidad epitelial: los genes de las regiones con más copias inferidas salen favorecidos en ese grupo por construcción, así que su diferencia con el resto no es una medida independiente.',
-  'In the bone, malignant cells were chosen by copy number inferred from expression itself and by epithelial identity: genes in regions with more inferred copies come out favored in that group by construction, so their difference from the rest is not an independent measurement.')
+export const CIRC_HUESO = t('En el hueso, el grupo se eligió en parte por número de copias inferido de la propia expresión: los genes de regiones con más copias salen favorecidos por construcción.',
+  'In the bone, the group was chosen partly by copy number inferred from the expression itself, so genes in regions with more copies are favored by construction.')
+/** Aviso del hígado SIN recuadro fijo (Miriam, 22-oct-2026: «ese aviso es muy molesto ahí siempre presente como un cuadro»).
+ * Va en texto llano junto a las cifras del grupo: el rótulo junto al nombre del grupo de interés, la frase de «Hepatocitos» y
+ * «Otras» bajo el mapa y la explicación en «Cómo se lee». El titular de que tumor y hepatocito no se resolvían era
+ * incertidumbre de Polaris (criterios más duros que los de DFCI), no del informe: fuera. Sin «del tumor»: el análisis no
+ * llama «tumor» a ningún grupo del hígado (verificacion). */
+export const AVISO_HIGADO = {
+  rotulo: t('subconjunto', 'subset'),
+  grupos: t('«Hepatocitos» y «Otras» también pueden incluir células tumorales.', '“Hepatocytes” and “Other” can include tumor cells too.'),
+  cifras: t('Las cifras de «Luminal de alta confianza» no son «% de células tumorales»: es un subconjunto, no el tumor entero. El tipo se asigna por clúster.',
+    'High-confidence luminal figures aren’t “% of tumor cells”: it’s a subset, not the whole tumor. Cell type is assigned per cluster.'),
+}
+/** nombre del grupo de interés con su rótulo de subconjunto (solo el del hígado), allí donde se ven sus cifras */
+export const etiquetaInteres = (id: string, lang: 'es' | 'en') =>
+  id === 'luminal_alta_confianza' ? `${etiqueta(ETIQUETA_GRUPO, id, lang)} · ${AVISO_HIGADO.rotulo[lang]}` : etiqueta(ETIQUETA_GRUPO, id, lang)
 /** IC95 de Wilson junto a cada % (plan «muy útil a científicos», 19-oct; rótulo del comité médico): qué mide y qué no. */
 export const IC_NOTA = t('El intervalo de confianza (Wilson) es la precisión del recuento de células de esta muestra. No cubre el ARN ambiental, las gotas con dos células ni cómo se eligió el grupo, y no es el veredicto: la lectura compara el extremo bajo con la referencia y el suelo.',
   'The confidence interval (Wilson) is the precision of the cell count in this sample. It does not cover ambient RNA, droplets holding two cells or how the group was chosen, and it is not the verdict: the reading compares the low end with the reference and the floor.')

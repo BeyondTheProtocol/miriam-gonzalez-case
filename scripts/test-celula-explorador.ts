@@ -182,9 +182,9 @@ ok('«cerrado_por_arn» con motivo en el fichero no da en la etiqueta la razón 
 // diseño (revisión del motivo): sin motivo en el fichero se queda la etiqueta publicada, para que el código pueda salir antes que los datos
 ok('etiquetaLectura: corta con motivo, la publicada sin él', etiquetaLectura('cerrado_por_arn', true, 'es') === 'Cerrado por ARN'
   && etiquetaLectura('cerrado_por_arn', false, 'es') === ETIQUETA_VEREDICTO.cerrado_por_arn!.es && etiquetaLectura('no_sostenido', true, 'en') === ETIQUETA_VEREDICTO.no_sostenido!.en)
-ok('pie del motivo: ES/EN, sin cifras; usa el extremo bajo del margen de error y la revisión se aparta de la regla (las dos biopsias)',
+ok('pie del motivo: ES/EN, sin cifras, una sola línea; usa el extremo bajo del margen de error y dice por qué se aparta de la regla',
   Object.values(PIE_MOTIVO).every((x) => !!x.es && !!x.en && !/\d/.test(`${x.es} ${x.en}`)) && /usa el extremo bajo del margen de error/.test(PIE_MOTIVO.compara.es)
-  && /se aparta de la regla fijada antes del análisis/.test(PIE_MOTIVO.aparta.es) && /^\S.*\. \S/.test(pieMotivo('es')) && /^\S.*\. \S/.test(pieMotivo('en')))
+  && /se aparta de la regla fijada antes del análisis/.test(PIE_MOTIVO.aparta.es) && /^\S[^.]*; \S.*\.$/.test(pieMotivo('es')) && /^\S[^.]*; \S.*\.$/.test(pieMotivo('en')))
 {
   // fixture con motivo: los datos publicados aún no lo traen (pendiente del OK de la titular) y el validador tiene que
   // aceptarlo bien formado y cazar lo mal formado
@@ -247,19 +247,21 @@ ok('sin guion largo (tell de IA en español)', !/—/.test(copy))
 ok('ninguna fracción «de las lecturas» ni «of the reads» (son UMI)', !/de las lecturas|of the reads/i.test(sinEstilo))
 ok('el 0 del CNV ya no se explica como «como la referencia»', !/0 = como la referencia|0 = like the reference/.test(sinEstilo))
 for (const [qué, re] of [
-  ['banner del hígado «tumor frente a hepatocito no está resuelto célula a célula»', /tumor frente a hepatocito no está resuelto célula a célula/],
+  // avisos aligerados (22-oct-2026): el hígado ya no lleva recuadro fijo; la idea va en texto llano junto a las cifras
+  ['hígado: «Luminal de alta confianza» es un subconjunto, no el tumor entero', /es un subconjunto, no el tumor entero/],
+  ['hígado: «Hepatocitos» y «Otras» también pueden incluir células tumorales', /«Hepatocitos» y «Otras» también pueden incluir células tumorales/],
   ['«ARN ≠ proteína; manda la IHQ»', /ARN ≠ proteína; manda la IHQ/],
   ['«n=1, FFPE, exploratorio»', /n=1, FFPE, exploratorio/],
   ['«IHQ de HER2: 0»', /IHQ de HER2: 0/],
   // simulador (18-oct): el móvil ya no es una vista reducida sin mapa; el mapa está, quieto hasta pedir moverlo
   ['mapa en el móvil, quieto hasta «Mover el mapa»', /Mover el mapa/],
   ['rótulo de datos de ejemplo', /DATOS DE EJEMPLO/],
-  ['suelo ambiental en los violines', /Suelo ambiental: el porcentaje de células/],
+  ['suelo ambiental en los violines', /Rayado: suelo ambiental/],
   ['rótulo de la matriz (todas las sondas; ADN genómico en el hueso)', /Matriz estándar de Cell Ranger, todas las sondas; en el hueso incluye ADN genómico/],
   ['aviso de ADN genómico en el bloque del suelo ambiental', /sondas del panel caen dentro de un exón y también hibridan con el ADN genómico/],
   ['CNV inferido de la expresión, no lectura de ADN', /Inferido de la expresión \(ARN\) frente a la referencia; no es lectura de ADN/],
   ['mediana por célula frente al pseudobulk de la revisión', /Mediana por célula detectada; la revisión da pseudobulk/],
-  ['lectura de Polaris en borrador, pendiente del laboratorio', /Lectura de Polaris, borrador, pendiente de la lectura humana del laboratorio/],
+  ['las lecturas son de Polaris, en borrador, no del informe del laboratorio', /Las lecturas son de Polaris, en borrador, no del informe del laboratorio/],
   ['rótulo de cifra circular', /Cifra circular\./],
   ['sin cifra fuera de la circularidad, se dice', /No hay cifra medida sin esa circularidad\./],
   ['CNV: el 0 no es «como la referencia» y se compara con las rayas de la referencia', /El 0 no es «como la referencia»\.[\s\S]*Compare cada grupo con las rayas de los grupos de referencia, no con el 0/],
@@ -267,6 +269,11 @@ for (const [qué, re] of [
   ['columna de sondas en la tabla de genes', /unión \/ total/],
   ['aviso «Apoyo a la decisión» (avisos fijos del export)', /Apoyo a la decisión/],
 ] as const) ok(`copy obligatorio: ${qué}`, re.test(copy))
+// avisos aligerados (22-oct-2026): ni el titular del hígado (era incertidumbre de Polaris, no del informe de DFCI) ni la
+// promesa de una lectura humana del laboratorio que nadie ha pedido
+ok('sin el titular «tumor frente a hepatocito no está resuelto»', !/tumor frente a hepatocito no está resuelto/.test(copy))
+ok('sin «pendiente de la lectura humana del laboratorio» ni «pendiente del laboratorio»', !/pendiente de la lectura humana del laboratorio|pendiente del laboratorio|pending the laboratory/.test(copy))
+ok('sin recuadro fijo en el explorador', !/exp__bannerfijo|position: sticky; top: calc\(var\(--exp-top, 8px\) - 9px\)/.test(copy))
 const pagina = lee(join(RAIZ, 'app/pages/celula-a-celula-explorar.vue'))
 ok('la página es noindex sin datos reales', /robots: \(\) => \(hayReal\.value \? 'index, follow' : 'noindex, follow'\)/.test(pagina))
 ok('con la puerta cerrada no se monta el explorador (v-if sobre el estado)', /<ClientOnly v-if="estado !== 'cerrada'">/.test(pagina))

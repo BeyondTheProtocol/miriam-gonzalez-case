@@ -13,7 +13,7 @@
 import type { LesionDatos } from '~/utils/celulaExplorador'
 import { uniprotDe } from '~/utils/alphafold'
 import { fmtParSuelo, fmtPct, motivoDe, porGrupo, traeMotivo } from '~/utils/celulaExplorador'
-import { CIRC_HUESO, ETIQUETA_GRUPO, ETIQUETA_MOTIVO, etiquetaLectura, pieMotivo, ETIQUETAS_FIJAS, PANEL_INTERES, PROTEINA, etiqueta } from '~/utils/celulaExploradorTexto'
+import { AVISO_HIGADO, CIRC_HUESO, ETIQUETA_GRUPO, ETIQUETA_MOTIVO, LECTURA, etiquetaInteres, etiquetaLectura, pieMotivo, ETIQUETAS_FIJAS, PANEL_INTERES, PROTEINA, etiqueta } from '~/utils/celulaExploradorTexto'
 
 const props = defineProps<{ d: LesionDatos; lang: 'es' | 'en'; activo: string | null; sinMapa?: boolean; formaAbierta?: string | null }>()
 /** forma: ratón que entra o sale de «3D», o pulsación (con `tactil` si fue con el dedo: abre la hoja) */
@@ -43,13 +43,15 @@ function forma3d(e: Event, tipo: 'entra' | 'sale' | 'fija', gen: string) {
 <template>
   <div class="gin">
     <!-- estrecho: la cabecera se iba de la pantalla tras cuatro genes; el grupo se nombra aquí y cada cifra lleva su rótulo -->
-    <p class="gin__cabest" aria-hidden="true">{{ L('Grupo de interés:', 'Group of interest:') }} {{ etiqueta(ETIQUETA_GRUPO, interes.id, lang) }} · n&nbsp;=&nbsp;{{ fmtN(interes.n, lang) }}</p>
+    <p class="gin__cabest" aria-hidden="true">{{ L('Grupo de interés:', 'Group of interest:') }} {{ etiquetaInteres(interes.id, lang) }} · n&nbsp;=&nbsp;{{ fmtN(interes.n, lang) }}</p>
+    <!-- de quién son las lecturas, una vez y arriba (avisos aligerados, 22-oct-2026: antes «(borrador)» en cada fila) -->
+    <p class="gin__autor">{{ L(LECTURA.pie.es, LECTURA.pie.en) }}</p>
     <table class="gin__tabla">
       <caption class="sr-only">{{ L(`Genes de interés en ${etiqueta(ETIQUETA_GRUPO, interes.id, 'es')}, frente a la referencia emparejada y el suelo ambiental. Pulsa un gen para verlo ${sinMapa ? '' : 'en el mapa y '}grupo a grupo.`, `Genes of interest in ${etiqueta(ETIQUETA_GRUPO, interes.id, 'en')}, against the matched reference and the ambient floor. Press a gene to see it ${sinMapa ? '' : 'on the map and '}group by group.`) }}</caption>
       <thead>
         <tr>
           <th scope="col">{{ L('Gen', 'Gene') }}</th>
-          <th scope="col" class="gin__num">{{ etiqueta(ETIQUETA_GRUPO, interes.id, lang) }} <span class="gin__sub nums">n&nbsp;=&nbsp;{{ fmtN(interes.n, lang) }}</span></th>
+          <th scope="col" class="gin__num">{{ etiqueta(ETIQUETA_GRUPO, interes.id, lang) }} <span class="gin__sub nums">{{ interes.id === 'luminal_alta_confianza' ? `${AVISO_HIGADO.rotulo[lang]} · ` : '' }}n&nbsp;=&nbsp;{{ fmtN(interes.n, lang) }}</span></th>
           <th scope="col" class="gin__num">{{ L('Referencia', 'Reference') }}</th>
           <th scope="col" class="gin__num">{{ L('Suelo', 'Floor') }}</th>
         </tr>
@@ -93,14 +95,14 @@ function forma3d(e: Event, tipo: 'entra' | 'sale' | 'fija', gen: string) {
       </tbody>
     </table>
     <p class="gin__pie">
-      {{ L('Porcentaje de células con al menos una molécula (UMI) del gen. Referencia: células no tumorales de la misma muestra, con la misma profundidad' + (d.lesion === 'higado' ? ' (en el hígado, linfocitos T y NK, mieloides y endotelio; los hepatocitos y los fibroblastos no entran)' : '') + '. Suelo ambiental: lo que saldría solo por ARN suelto de la muestra; lo que no lo supera no cuenta como expresión. Lectura: la de Polaris, en borrador, pendiente de la lectura humana del laboratorio.' + (d.lesion === 'hueso' ? ' En el hueso, el suelo incluye además el ADN genómico del tejido.' : ''),
-        'Share of cells with at least one molecule (UMI) of the gene. Reference: non-tumor cells from the same sample, at the same depth' + (d.lesion === 'higado' ? ' (in the liver, T and NK lymphocytes, myeloid cells and endothelium; hepatocytes and fibroblasts are not included)' : '') + '. Ambient floor: what would show up from loose RNA in the sample alone; anything that does not clear it does not count as expression. Reading: Polaris’s, in draft, pending the laboratory’s human reading.' + (d.lesion === 'hueso' ? ' In the bone, the floor also includes the tissue’s genomic DNA.' : '')) }}
+      {{ L('% de células con al menos una molécula (UMI) del gen. Referencia: células no tumorales de la misma muestra, a la misma profundidad' + (d.lesion === 'higado' ? ' (en el hígado, sin hepatocitos ni fibroblastos)' : '') + '. Suelo ambiental: lo que daría solo el ARN suelto; si no lo supera, no cuenta como expresión.' + (d.lesion === 'hueso' ? ' En el hueso, el suelo incluye también ADN genómico.' : ''),
+        '% of cells with at least one molecule (UMI) of the gene. Reference: non-tumor cells from the same sample, at the same depth' + (d.lesion === 'higado' ? ' (in the liver, no hepatocytes or fibroblasts)' : '') + '. Ambient floor: what loose RNA alone would give; anything that doesn’t clear it isn’t counted as expression.' + (d.lesion === 'hueso' ? ' In the bone, the floor also includes genomic DNA.' : '')) }}
     </p>
     <p v-if="conMotivo" class="gin__pie gin__pmot">{{ pieMotivo(lang) }}</p>
     <p v-if="hayCirc" class="gin__pie gin__circ">
       * <strong>{{ L('Circular.', 'Circular.') }}</strong>
-      {{ L('El gen participa en la selección de este grupo o va ligado al programa con el que se seleccionó: su cifra en el grupo sale en parte de cómo se eligió. Al abrirlo verás la cifra sin esa circularidad, si existe.',
-        'The gene takes part in selecting this group or is tied to the program it was selected by: its figure in the group partly comes from how it was chosen. Open it to see the figure without that circularity, where it exists.') }}
+      {{ L('El gen entra en la selección del grupo o va ligado al programa que lo seleccionó. Al abrirlo verás la cifra sin esa circularidad, si la hay.',
+        'The gene helps select this group, or is tied to the program that selected it. Open it to see the figure without that circularity, if there is one.') }}
     </p>
     <p v-if="d.lesion === 'hueso'" class="gin__pie gin__circ"><strong>{{ L('Circular.', 'Circular.') }}</strong> {{ L(CIRC_HUESO.es, CIRC_HUESO.en) }}</p>
     <p class="gin__acciones">
@@ -170,6 +172,8 @@ function forma3d(e: Event, tipo: 'entra' | 'sale' | 'fija', gen: string) {
 .gin__ast { display: inline-block; width: 0; overflow: visible; margin-left: 1px; margin-right: -1px; font-weight: 700; color: var(--texto-1); }   /* no empuja la cifra: los «%» alinean */
 .gin__tabla td.nums { font-family: var(--font-mono); color: var(--texto-1); }
 .gin__pie { margin: var(--sp-8) 0 0; font: var(--tipo-body-sm); font-size: var(--texto-xs); color: var(--texto-2); max-width: var(--measure); }
+/* de quién son las lecturas, una línea encima de la lista (sustituye a «(borrador)» en cada fila; 22-oct-2026) */
+.gin__autor { margin: 0 0 var(--sp-8); font: var(--tipo-body-sm); font-size: var(--texto-xs); color: var(--texto-2); }
 .gin__circ { color: var(--texto-1); }
 .gin__acciones { display: flex; flex-wrap: wrap; gap: var(--sp-8) var(--sp-16); align-items: center; margin: var(--sp-12) 0 0; font: var(--tipo-body-sm); font-size: var(--texto-xs); color: var(--texto-2); }
 .gin__enlace { min-height: 44px; padding: 0; border: 0; background: none; color: var(--identidad); font: 600 var(--texto-sm)/1.2 var(--font-body); text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }

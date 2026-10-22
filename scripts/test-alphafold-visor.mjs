@@ -233,7 +233,7 @@ try {
   ok(peticionesAF === base + 2, `al abrirla, dos peticiones (${peticionesAF - base})`)
   ok(await ev(`document.querySelector('.gin__3d[data-gen3d="ERBB2"]').getAttribute('aria-expanded') === 'true'`), '«3D» dice que está abierta (aria-expanded)')
   ok(await ev(`(() => { const f = document.querySelector('.pv__flota').getBoundingClientRect(), b = document.querySelector('.gin__3d[data-gen3d="ERBB2"]').getBoundingClientRect(); return f.left >= 0 && f.top >= 0 && f.right <= innerWidth && f.bottom <= innerHeight && f.right <= document.querySelector('.exp__panel').getBoundingClientRect().left && f.top >= document.querySelector('.exp__panel').getBoundingClientRect().top - 1 })()`), 'dentro de la ventana, a la izquierda del panel y bajo el aviso fijo: no tapa el botón, los nombres ni el aviso')
-  ok(await ev(`(() => { const t = document.querySelector('.pv__flota').textContent; return t.includes('Predicción, no medición.') && t.includes('sin datos de la biopsia') && t.includes('Confianza muy baja (pLDDT < 50) en el 25') && t.includes('CC BY 4.0') })()`), 'lleva sello, contexto, la línea con su % y el crédito')
+  ok(await ev(`(() => { const t = document.querySelector('.pv__flota').textContent; return t.includes('Predicción a partir de la secuencia de referencia') && t.includes('sin datos de la biopsia') && t.includes('Confianza muy baja (pLDDT < 50) en el 25') && t.includes('CC BY 4.0') })()`), 'lleva sello, contexto, la línea con su % y el crédito')
   ok(await ev(`!document.querySelector('.pv__flota .de__alerta')`), 'HER2 (25 % muy baja): sin aviso fuerte')
   ok(await ev(`!document.querySelector('.pv__flota .de__mandos') && document.querySelector('.pv__flota .de__host').getAttribute('role') === 'img' && !document.querySelector('.pv__flota .de__host').hasAttribute('tabindex')`), 'compacta: sin mandos, un dibujo (role img) que no recibe el foco')
   const [fx, fy] = await ev(`(() => { const r = document.querySelector('.pv__flota').getBoundingClientRect(); return [r.x + r.width / 2, r.y + 20] })()`)
@@ -258,16 +258,16 @@ try {
   ok(peticionesAF === base + 2, `reabrir la misma no vuelve a pedir el modelo (caché): ${peticionesAF - base}`)
   await raton(5, 5); await sleep(300)
 
-  // el aviso «Hígado…» sin fijar (página arriba): la flotante tampoco lo tapa (diseno, 21-oct)
+  // con la página arriba, la flotante queda bajo la cabecera (el aviso fijo del hígado se quitó el 22-oct-2026)
   await ev(`scrollTo({ top: 0, behavior: 'instant' })`); await sleep(400)
   const arriba = await ev(`(() => { const r = document.querySelector('.gin__3d').getBoundingClientRect(); return r.top > 0 && r.bottom < innerHeight ? [r.x + r.width / 2, r.y + r.height / 2] : null })()`)
   if (arriba) {
     await raton(arriba[0], arriba[1])
-    ok(await espera(FLOTA, 8000) && await ev(`document.querySelector('.pv__flota').getBoundingClientRect().top >= document.querySelector('.exp__bannerfijo').getBoundingClientRect().bottom`), 'con la página arriba, la flotante queda bajo el aviso sin fijar')
+    ok(await espera(FLOTA, 8000) && await ev(`document.querySelector('.pv__flota').getBoundingClientRect().top >= document.querySelector('[data-cabecera-fija]').getBoundingClientRect().bottom`), 'con la página arriba, la flotante queda bajo la cabecera')
     ok(await ev(`(() => { const b = document.querySelector('.pv__flota .pv__completa').getBoundingClientRect(); return b.top >= 0 && b.bottom <= innerHeight })()`), '«Ver la forma completa», siempre a la vista en la flotante')
     await raton(5, 5); await sleep(1500)
   }
-  else ok(false, 'con la página arriba el primer «3D» no se ve: no se puede probar el aviso sin fijar')
+  else ok(false, 'con la página arriba el primer «3D» no se ve: no se puede probar la flotante bajo la cabecera')
 
   console.log('Vista previa fija: clic y teclado')
   ;[ex, ey] = await centro('.gin__3d[data-gen3d="ERBB2"]')
