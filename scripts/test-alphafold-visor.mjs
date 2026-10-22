@@ -206,7 +206,9 @@ try {
         if (e === undefined || (salio && salio[2] - e < 400)) malos.push(g); else buenos.push(`${g} (${Math.round(ms - e)} ms encima)`)
       }
     }
-    ok(malos.length === 0, `${que}: no se abre ningún «3D» sobre el que el ratón estuvo menos de 400 ms (${cortos.size} pasadas cortas${malos.length ? `; abiertos mal: ${malos.join(', ')}` : ''})`)
+    // sin ninguna pasada corta medida no hay nada que juzgar: verde sobre nada no es verde
+    if (malos.length || cortos.size) ok(malos.length === 0, `${que}: no se abre ningún «3D» sobre el que el ratón estuvo menos de 400 ms (${cortos.size} pasadas cortas${malos.length ? `; abiertos mal: ${malos.join(', ')}` : ''})`)
+    else console.log(`  ⚠️  ${que}: no concluyente, el entorno no registró ninguna pasada de menos de 400 ms`)
     if (buenos.length) console.log(`  ⚠️  ${que}: el entorno dejó el ratón ≥ 400 ms sobre ${buenos.join(', ')} y se abrió (lo correcto); esa parte no es concluyente`)
     return cortos.size
   }
