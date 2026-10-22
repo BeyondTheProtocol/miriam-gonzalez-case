@@ -38,7 +38,9 @@ let tCierra: ReturnType<typeof setTimeout> | undefined
 /** cerrar espera 600 ms: del «3D» a la flotante hay 143 px (medido, diseno, 21-oct); con 400 se cerraba a 250 px/s,
  * con 600 aguanta desde ~240 px/s (1.4.13: se tiene que poder llegar a ella) */
 const ESPERA_ABRE = 400, ESPERA_CAMBIA = 150, ESPERA_CIERRA = 600
-const estrecho = () => window.matchMedia('(max-width: 639px), (hover: none), (pointer: coarse)').matches
+/** hoja si se tocó con el dedo (eso lo dice el `tactil` de la pulsación) o si la pantalla es estrecha; no por «hover: none»:
+ * un navegador sin ratón detectado (Chrome sin pantalla del CI) abría la hoja con el clic o con Enter en escritorio */
+const estrecho = () => window.matchMedia('(max-width: 639px)').matches
 
 /** ratón sobre «3D»: abre tras la espera; si ya hay una flotando, cambia antes. Una fija u hoja abierta manda. */
 function entra(gen: string, el: HTMLElement) {
