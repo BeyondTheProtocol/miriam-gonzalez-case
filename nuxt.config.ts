@@ -1,5 +1,17 @@
+import { execSync } from 'node:child_process'
 import manifiestoExplorador from './public/celula/explorador/manifiesto.json'
 import { estadoPuerta, type Manifiesto } from './app/utils/celulaExplorador'
+
+// «Última actualización» del pie = el día del último commit, leído en el build. Cada despliegue
+// trae el suyo; un rebuild sin cambios no la mueve. Sin git (no debería pasar en Netlify), la
+// hora del build. Test: pnpm test:pie-fecha.
+function fechaUltimoCambio(): string {
+  try {
+    const iso = execSync('git log -1 --format=%cI', { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }).trim()
+    if (iso) return iso
+  } catch { /* sin git: se usa la hora del build */ }
+  return new Date().toISOString()
+}
 
 // Explorador célula a célula: la misma puerta que el robots de su página (useCelulaExplorador → estadoPuerta).
 // Abierta (verificado + OK de Miriam), entra en el sitemap; cerrada, fuera. Una lista fija se quedó atrás
@@ -18,6 +30,7 @@ export default defineNuxtConfig({
       // /laminillas: raíz de las teselas. Vacía = la del manifest (app/data/laminillas.json, el bucket).
       // Solo para probar contra un servidor local: NUXT_PUBLIC_LAMINILLAS_TESELAS=http://127.0.0.1:8090/v1/
       laminillasTeselas: process.env.NUXT_PUBLIC_LAMINILLAS_TESELAS || '',
+      ultimoCambio: fechaUltimoCambio(),
     },
   },
 
