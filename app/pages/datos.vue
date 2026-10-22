@@ -684,8 +684,8 @@ const n = (v: number) => numCaso(v, lang.value)
         <!-- el reservorio: su estado importa (ADC iv), pero su historia y el 3D son para explorar (oncologo-virtual) -->
         <section v-if="reservorio.length" id="s-reservorio" class="dt-sec" :aria-label="L('Reservorio venoso', 'Venous port')">
           <article class="dt-tarjeta">
-              <p class="dt-tarjeta__t">{{ L('Reservorio venoso: el catéter mide lo mismo en los tres TC', 'Venous port: the catheter measures the same length on all three CT scans') }}</p>
-              <p class="dt-tarjeta__l">{{ L('El reservorio dejó de dar retorno de sangre. Longitud del catéter, del portal a la punta, en tres TC:', 'The port stopped giving blood return. Catheter length, port to tip, on three CT scans:') }}</p>
+              <p class="dt-tarjeta__t">{{ L('Reservorio venoso: el catéter anterior medía lo mismo en los tres TC', 'Venous port: the previous catheter measured the same length on all three CT scans') }}</p>
+              <p class="dt-tarjeta__l">{{ L('El primer reservorio dejó de dar retorno de sangre y en octubre de 2026 se cambió por otro. Longitud de su catéter, del portal a la punta, en tres TC:', 'The first port stopped giving blood return and was replaced in October 2026. Its catheter length, port to tip, on three CT scans:') }}</p>
               <DatosReservorio :medidas="reservorio" :lang="lang" />
               <!-- el 3D (mallas de ~4 MB) solo se descarga si se pide: el móvil no lo paga por defecto -->
               <button v-if="!ver3d" type="button" class="dt-3d" @click="ver3d = true">

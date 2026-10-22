@@ -17,6 +17,13 @@
  * Lo que sigue sin enseñarse, a propósito: hospital o profesionales, número de intentos de
  * desobstrucción ni fechas de intervención. Solo mallas (visor3d.py `web-reservorio`): cero DICOM,
  * cero cabeceras, cero metadatos del estudio.
+ *
+ * 22-oct-2026, recambio: el reservorio se cambió por otro en octubre de 2026 (informe de
+ * radiología cotejado contra el original: retirada, uno nuevo «mismo tamaño» en el bolsillo previo,
+ * colocación y funcionamiento comprobados con fluoroscopia). La página pasa a contar el primero en
+ * pasado y el 3D queda como HISTÓRICO del catéter anterior (badge status-badge--reference, diseno 22-oct). Del nuevo no se afirma modelo, ni que dé
+ * sangre, ni por dónde van las analíticas: el informe no lo dice. Sin calibre, ni hospital, ni día.
+ * Fuera también la causa probable (funda de tejido): el informe del recambio no la nombra.
  */
 const { locale } = useI18n()
 const localePath = useLocalePath()
@@ -25,12 +32,12 @@ const L = (es: string, en: string) => (lang.value === 'en' ? en : es)
 
 const seoTitle = () =>
   lang.value === 'en'
-    ? 'The port: what it is and what’s wrong with it — Miriam’s case'
-    : 'El reservorio: qué es y qué le pasa — el caso de Miriam'
+    ? 'The port: what it is and why it was replaced — Miriam’s case'
+    : 'El reservorio: qué es y por qué se cambió — el caso de Miriam'
 const seoDescription = () =>
   lang.value === 'en'
-    ? 'What a port-a-cath is, why Miriam’s (a PowerPort) is built to take contrast injected under pressure, and why it now lets medication in but no blood out. With the catheter path in 3D.'
-    : 'Qué es un port-a-cath, por qué el de Miriam (un PowerPort) está diseñado para admitir contraste inyectado a presión y por qué ahora deja meter medicación pero no sacar sangre. Con el trayecto del catéter en 3D.'
+    ? 'What a port-a-cath is, which one Miriam had (a PowerPort, built to take contrast injected under pressure), why it stopped giving blood back and how it was replaced in October 2026. With the old catheter’s path in 3D.'
+    : 'Qué es un port-a-cath, cuál llevaba Miriam (un PowerPort, diseñado para admitir contraste inyectado a presión), por qué dejó de dar sangre y cómo se cambió por otro en octubre de 2026. Con el trayecto del catéter anterior en 3D.'
 useSeoMeta({
   title: seoTitle, description: seoDescription, ogTitle: seoTitle, ogDescription: seoDescription,
   ogType: 'website', twitterCard: 'summary_large_image', twitterTitle: seoTitle, twitterDescription: seoDescription,
@@ -51,25 +58,25 @@ const bloques = computed(() => [
   },
   {
     id: 'el-suyo', icono: 'ph:lightning-fill',
-    titulo: L('El suyo: un PowerPort de titanio', 'Hers: a titanium PowerPort'),
+    titulo: L('El primero: un PowerPort de titanio', 'The first one: a titanium PowerPort'),
     texto: L(
-      'Está diseñado para admitir inyección a presión, como la del contraste de un TC, que entra muy rápido. No todos los reservorios lo admiten. Mientras no dé sangre, usarlo para el contraste también está en revisión. Tiene forma triangular y unos bultitos que se notan al tacto, para que quien lo pincha sepa de qué tipo es y dónde está la membrana. Y se puede hacer una resonancia con él puesto, en ciertas condiciones.',
-      'It’s built to take injection under pressure, like the contrast for a CT scan, which goes in very fast. Not every port can. While it isn’t giving blood back, using it for contrast is also under review. It’s triangular, with small bumps you can feel, so whoever accesses it knows what type it is and where the membrane is. She can also have an MRI with it in place, under certain conditions.'),
+      'Estaba diseñado para admitir inyección a presión, como la del contraste de un TC, que entra muy rápido. No todos los reservorios lo admiten. Tenía forma triangular y unos bultitos que se notaban al tacto, para que quien lo pinchaba supiera de qué tipo era y dónde estaba la membrana. Del nuevo se sabe que su catéter es del mismo grosor que el anterior; el modelo no consta.',
+      'It was built to take injection under pressure, like the contrast for a CT scan, which goes in very fast. Not every port can. It was triangular, with small bumps you could feel, so whoever accessed it knew what type it was and where the membrane was. The new one’s catheter is the same gauge as the old one; the model isn’t on record.'),
   },
   {
-    id: 'que-le-pasa', icono: 'ph:warning-circle-fill',
-    titulo: L('Qué le pasa ahora', 'What is wrong with it now'),
+    id: 'que-le-paso', icono: 'ph:arrows-clockwise-fill',
+    titulo: L('Qué le pasó y qué se hizo', 'What went wrong and what was done'),
     texto: L(
-      'Por él entra la medicación, pero no sale sangre, ni siquiera después de un fármaco para disolver coágulos. Se llama oclusión de retirada. La causa más habitual es una funda fina de tejido que crece sobre la punta del catéter y hace de válvula: deja salir el líquido y se pega al orificio cuando se aspira. En su caso no está confirmado que sea eso: su equipo médico lo está valorando. Mientras tanto, cada analítica va por una vena del brazo.',
-      'Medication goes in, but blood won’t come out, not even after a drug to dissolve clots. It’s called a withdrawal occlusion. The most common cause is a thin sleeve of tissue that grows over the catheter tip and acts like a valve: it lets fluid out, then gets sucked against the opening when someone tries to draw blood. In her case that isn’t confirmed yet; her medical team is looking into it. In the meantime, every blood test goes through a vein in her arm.'),
+      'Por él entraba la medicación, pero no salía sangre, ni siquiera después de un fármaco para disolver coágulos. Eso se llama oclusión de retirada. En octubre de 2026 se lo quitaron y le pusieron otro en el mismo sitio, bajo la piel. Con rayos X se comprobó la colocación y que funcionaba al terminar.',
+      'Medication went in, but blood wouldn’t come out, not even after a drug to dissolve clots. That’s called a withdrawal occlusion. In October 2026 it was taken out and a new one was put in the same place, under the skin. An X-ray check confirmed its position and that it was working when they finished.'),
   },
 ])
 
 defineOgImage('Default.takumi', {
   title: seoTitle,
   description: () => lang.value === 'en'
-    ? 'A port-a-cath, from the inside: what it is and what is wrong with it.'
-    : 'Un port-a-cath por dentro: qué es y qué le pasa.',
+    ? 'A port-a-cath, from the inside: what it is, what went wrong with hers and how it was replaced.'
+    : 'Un port-a-cath por dentro: qué es, qué le pasó al suyo y cómo se cambió.',
 })
 </script>
 
@@ -81,11 +88,11 @@ defineOgImage('Default.takumi', {
           :parent="{ to: localePath({ name: 'herramientas' }), label: $t('nav.tools') }"
           :tag="L('Infraestructura del tratamiento', 'Treatment infrastructure')"
           :title="L(
-      'El reservorio: qué es y qué le pasa',
-      'The port: what it is and what’s wrong with it')"
+      'El reservorio: qué es y por qué se cambió',
+      'The port: what it is and why it was replaced')"
           :subtitle="L(
-      'Miriam lleva un port-a-cath desde 2024: un reservorio bajo la piel que da acceso a una vena grande sin tener que pinchar cada vez las del brazo. Ahora deja meter medicación, pero no sacar sangre.',
-      'Miriam has had a port-a-cath since 2024: a small reservoir under the skin that gives direct access to a large vein, so her arm doesn’t need a new needle every time. Right now medication goes in, but no blood comes out.')"
+      'Miriam lleva un port-a-cath desde 2024: un reservorio bajo la piel que da acceso a una vena grande sin tener que pinchar cada vez las del brazo. El primero dejó de dar sangre y en octubre de 2026 se lo cambiaron por otro.',
+      'Miriam has had a port-a-cath since 2024: a small reservoir under the skin that gives direct access to a large vein, so her arm doesn’t need a new needle every time. The first one stopped giving blood back, and in October 2026 it was replaced.')"
         />
 
         <div class="grid gap-4 md:grid-cols-3 mb-10">
@@ -98,15 +105,16 @@ defineOgImage('Default.takumi', {
           </section>
         </div>
 
+        <span class="status-badge status-badge--reference mb-2">{{ L('Histórico', 'Archive') }}</span>
         <h2 class="font-display font-semibold text-berenjena text-2xl mb-2">
           {{ L(
-      'Lo primero: descartar que el catéter se hubiera movido',
-      'First step: making sure the catheter hadn’t moved') }}
+      'El catéter anterior, medido en tres TC',
+      'The previous catheter, measured on three CT scans') }}
         </h2>
         <p class="text-[15px] text-tinta leading-relaxed mb-6 max-w-3xl">
           {{ L(
-      'Cuando un reservorio deja de dar sangre, lo primero que se piensa es que el catéter se ha desplazado. Antes de darlo por hecho, se reconstruyó su trayecto en tres TC separados por meses. La punta sale en el mismo sitio las tres veces, y eso no cuadra con un catéter desplazado.',
-      'When a port stops giving blood back, the first suspect is a catheter that has shifted. Before assuming that, its path was rebuilt on three CT scans taken months apart. The tip lands in the same spot all three times, which doesn’t fit a catheter that has moved.') }}
+      'Cuando un reservorio deja de dar sangre, lo primero que se piensa es que el catéter se ha desplazado. Antes de darlo por hecho, se reconstruyó el trayecto del primero en tres TC separados por meses. La punta sale en el mismo sitio las tres veces: entre esas fechas no se desplazó, dentro del margen de la medida. Eso solo dice que no cambió de sitio; no dice si ese sitio era el mejor, y el 3D no responde a eso. Este modelo es del reservorio anterior; el nuevo todavía no tiene reconstrucción.',
+      'When a port stops giving blood back, the first suspect is a catheter that has shifted. Before assuming that, the first one’s path was rebuilt on three CT scans taken months apart. The tip lands in the same spot all three times: it didn’t shift between those dates, within the measurement margin. That only says it stayed put; it doesn’t say whether that spot was the best one, and the 3D can’t answer that. This model shows the previous port; the new one hasn’t been reconstructed yet.') }}
         </p>
 
         <div class="alert-callout mb-6" role="note" :aria-label="L('Aviso: herramienta de apoyo, no diagnóstico', 'Notice: support tool, not a diagnosis')">

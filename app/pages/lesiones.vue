@@ -158,7 +158,7 @@ const biopsia = computed(() =>
             {{ L('El caso en datos: analíticas desde 2021, tratamientos y tejido disponible', 'The case in data: labs since 2021, treatments and available tissue') }} →
           </NuxtLink>
           <NuxtLink :to="localePath('reservorio')" class="inline-flex items-center min-h-[44px] font-semibold text-berenjena underline underline-offset-4">
-            {{ L('El catéter del reservorio, en 3D: medido en tres TC separados por meses', 'The reservoir catheter, in 3D: measured across three CT scans, months apart') }} →
+            {{ L('El catéter del reservorio anterior, en 3D: medido en tres TC separados por meses', 'The previous port catheter, in 3D: measured across three CT scans, months apart') }} →
           </NuxtLink>
         </section>
       </div>
