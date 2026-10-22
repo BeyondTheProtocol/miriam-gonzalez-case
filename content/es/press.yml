@@ -4,18 +4,24 @@
 # credibilidad → confianza → aliados/financiación → vacuna. La home (tira de
 # medios) sigue este mismo orden.
 #   1. El País — diario nacional nº1, sección tech, con edición en inglés.
-#   2. Redacción Médica — medio de salud que leen los clínicos; entrevista a fondo.
-#   3. La Vanguardia — gran cabecera nacional; pieza ligera (sección Clic, sobre un
+#   2. El País (columna de opinión de Delia Rodríguez) — misma cabecera nº1; Miriam
+#      como ejemplo central.
+#   3. Redacción Médica — medio de salud que leen los clínicos; entrevista a fondo.
+#   4. La Vanguardia — gran cabecera nacional; pieza ligera (sección Clic, sobre un
 #      clip del pódcast Roca Project), por eso detrás de El País.
-#   4. El Español — gran nacional digital, titular fuerte y en mensaje.
-#   5. Corresponsables — medio de RSE; entrevista en exclusiva.
-#   6. La Opinión de Murcia — regional, ancla el ángulo local/humano.
-#   7. La 7 — TV regional (clip en Instagram), cierra la lista.
+#   5. El Español — gran nacional digital, titular fuerte y en mensaje.
+#   6. Corresponsables — medio de RSE; entrevista en exclusiva.
+#   7. La Opinión de Murcia — regional, ancla el ángulo local/humano.
+#   8. La 7 — TV regional (clip en Instagram), cierra la lista.
 articles:
   - outlet: El País
     url: https://elpais.com/tecnologia/2026-04-23/asi-usa-una-paciente-con-cancer-metastasico-la-ia-para-entender-su-enfermedad-cual-es-el-mejor-metodo-para-hablar-de-salud-con-chatbots.html
     title: Así usa una paciente con cáncer metastásico la IA para entender su enfermedad
     date: '2026-04-23'
+  - outlet: El País
+    url: https://elpais.com/opinion/2026-10-22/empoderadas-del-no-es-nada-a-investigar-tu-propio-tumor.html
+    title: 'Empoderadas: del “no es nada” a investigar tu propio tumor'
+    date: '2026-10-22'
   - outlet: Redacción Médica
     url: https://www.redaccionmedica.com/innovacion/20261021/miriam-gonzalez-una-ingeniera-de-software-con-metastasis-estadio-construye-su-propio-modelo-ia-para-buscar-vacuna-personalizada/362852_0.html
     title: 'Miriam González, una ingeniera de software con metástasis estadio 4, construye su propio modelo con IA para buscar una vacuna personalizada'

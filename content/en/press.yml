@@ -4,18 +4,24 @@
 # credibility → trust → allies/funding → vaccine. The home media strip follows
 # this same order.
 #   1. El País — Spain's #1 daily, tech section, with an English edition.
-#   2. Redacción Médica — health outlet read by clinicians; in-depth interview.
-#   3. La Vanguardia — major national masthead; a light piece (Clic section, built
+#   2. El País (opinion column by Delia Rodríguez) — same masthead as no. 1; Miriam
+#      as the central example.
+#   3. Redacción Médica — health outlet read by clinicians; in-depth interview.
+#   4. La Vanguardia — major national masthead; a light piece (Clic section, built
 #      on a clip from the Roca Project podcast), hence behind El País.
-#   4. El Español — major national digital daily, strong on-message headline.
-#   5. Corresponsables — CSR outlet; exclusive interview.
-#   6. La Opinión de Murcia — regional, anchors the local/human angle.
-#   7. La 7 — regional TV (Instagram clip), closes the list.
+#   5. El Español — major national digital daily, strong on-message headline.
+#   6. Corresponsables — CSR outlet; exclusive interview.
+#   7. La Opinión de Murcia — regional, anchors the local/human angle.
+#   8. La 7 — regional TV (Instagram clip), closes the list.
 articles:
   - outlet: El País (English)
     url: https://english.elpais.com/technology/2026-04-25/whats-the-best-way-to-talk-about-health-with-chatbots.html?outputType=amp
     title: What's the best way to talk about health with chatbots
     date: '2026-04-25'
+  - outlet: El País
+    url: https://elpais.com/opinion/2026-10-22/empoderadas-del-no-es-nada-a-investigar-tu-propio-tumor.html
+    title: 'Empowered: from “it’s nothing” to investigating your own tumor (in Spanish)'
+    date: '2026-10-22'
   - outlet: Redacción Médica
     url: https://www.redaccionmedica.com/innovacion/20261021/miriam-gonzalez-una-ingeniera-de-software-con-metastasis-estadio-construye-su-propio-modelo-ia-para-buscar-vacuna-personalizada/362852_0.html
     title: 'Miriam González, a software engineer with stage 4 metastatic cancer, builds her own AI model to search for a personalized vaccine (in Spanish)'
