@@ -1,18 +1,31 @@
 # Press coverage — CURATED ORDER (most important first), not chronological.
 # Criterion (marketing/credibility, Adri's review prevails): reach + prestige
-# + credibility. Serves the north star: credibility → trust → allies/funding →
-# vaccine. The home media strip follows this same order.
+# or relevance for clinical access + credibility. Serves the north star:
+# credibility → trust → allies/funding → vaccine. The home media strip follows
+# this same order.
 #   1. El País — Spain's #1 daily, tech section, with an English edition.
-#   2. La Vanguardia — major national masthead; a light piece (Clic section, built
+#   2. El País (opinion column by Delia Rodríguez) — same masthead as no. 1; Miriam
+#      as the central example.
+#   3. Redacción Médica — health outlet read by clinicians; in-depth interview.
+#   4. La Vanguardia — major national masthead; a light piece (Clic section, built
 #      on a clip from the Roca Project podcast), hence behind El País.
-#   3. El Español — major national digital daily, strong on-message headline.
-#   4. La Opinión de Murcia — regional, anchors the local/human angle.
-#   5. La 7 — regional TV (Instagram clip), closes the list.
+#   5. El Español — major national digital daily, strong on-message headline.
+#   6. Corresponsables — CSR outlet; exclusive interview.
+#   7. La Opinión de Murcia — regional, anchors the local/human angle.
+#   8. La 7 — regional TV (Instagram clip), closes the list.
 articles:
   - outlet: El País (English)
     url: https://english.elpais.com/technology/2026-04-25/whats-the-best-way-to-talk-about-health-with-chatbots.html?outputType=amp
     title: What's the best way to talk about health with chatbots
     date: '2026-04-25'
+  - outlet: El País
+    url: https://elpais.com/opinion/2026-10-22/empoderadas-del-no-es-nada-a-investigar-tu-propio-tumor.html
+    title: 'Empowered: from “it’s nothing” to investigating your own tumor (in Spanish)'
+    date: '2026-10-22'
+  - outlet: Redacción Médica
+    url: https://www.redaccionmedica.com/innovacion/20261021/miriam-gonzalez-una-ingeniera-de-software-con-metastasis-estadio-construye-su-propio-modelo-ia-para-buscar-vacuna-personalizada/362852_0.html
+    title: 'Miriam González, a software engineer with stage 4 metastatic cancer, builds her own AI model to search for a personalized vaccine (in Spanish)'
+    date: '2026-10-21'
   - outlet: La Vanguardia
     url: https://www.lavanguardia.com/clic/20260816/11613280/miriam-gonzalez-paciente-cancer-mama-raro-me-siento-desventaja-frente-paciente-tenga-cancer-mama-metastasico.html
     title: 'Miriam González on why a rare breast cancer leaves her at a disadvantage (in Spanish)'
@@ -21,6 +34,10 @@ articles:
     url: https://www.elespanol.com/alicante/vivir/salud/20260619/miren-ingeniera-anos-usa-ia-luchar-cancer-mama-unico-contactan-oncologos-mundo/1003744290903_0.html
     title: "Miriam, an engineer, uses AI to fight her unique breast cancer… (in Spanish)"
     date: '2026-06-19'
+  - outlet: Corresponsables
+    url: https://www.corresponsables.com/entrevistas/miriam-gonzalez-polaris-colaboracion-paciente-ciencia-empresa/
+    title: 'Miriam González: "When patients, science and business build together, things move quite a bit faster" (in Spanish)'
+    date: '2026-10-19'
   - outlet: La Opinión de Murcia
     url: https://www.laopiniondemurcia.es/comunidad/2026/05/30/paciente-murciana-aguarda-nuevo-tratamiento-130816775.html
     title: 'A patient from Murcia awaits a new precision treatment (in Spanish)'
