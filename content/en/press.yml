@@ -1,7 +1,8 @@
 # Press coverage — CURATED ORDER (most important first), not chronological.
 # Criterion (marketing/credibility, Adri's review prevails): reach + prestige
-# + credibility. Serves the north star: credibility → trust → allies/funding →
-# vaccine. The home media strip follows this same order.
+# or relevance for clinical access + credibility. Serves the north star:
+# credibility → trust → allies/funding → vaccine. The home media strip follows
+# this same order.
 #   1. El País — Spain's #1 daily, tech section, with an English edition.
 #   2. Redacción Médica — health outlet read by clinicians; in-depth interview.
 #   3. La Vanguardia — major national masthead; a light piece (Clic section, built
@@ -17,7 +18,7 @@ articles:
     date: '2026-04-25'
   - outlet: Redacción Médica
     url: https://www.redaccionmedica.com/innovacion/20261021/miriam-gonzalez-una-ingeniera-de-software-con-metastasis-estadio-construye-su-propio-modelo-ia-para-buscar-vacuna-personalizada/362852_0.html
-    title: 'Miriam González, a software engineer with metastatic cancer, builds her own AI model to search for a personalized vaccine (in Spanish)'
+    title: 'Miriam González, a software engineer with stage 4 metastatic cancer, builds her own AI model to search for a personalized vaccine (in Spanish)'
     date: '2026-10-21'
   - outlet: La Vanguardia
     url: https://www.lavanguardia.com/clic/20260816/11613280/miriam-gonzalez-paciente-cancer-mama-raro-me-siento-desventaja-frente-paciente-tenga-cancer-mama-metastasico.html
@@ -29,7 +30,7 @@ articles:
     date: '2026-06-19'
   - outlet: Corresponsables
     url: https://www.corresponsables.com/entrevistas/miriam-gonzalez-polaris-colaboracion-paciente-ciencia-empresa/
-    title: 'Miriam González: "When patients, science and business build together, things move much faster" (in Spanish)'
+    title: 'Miriam González: "When patients, science and business build together, things move quite a bit faster" (in Spanish)'
     date: '2026-10-19'
   - outlet: La Opinión de Murcia
     url: https://www.laopiniondemurcia.es/comunidad/2026/05/30/paciente-murciana-aguarda-nuevo-tratamiento-130816775.html

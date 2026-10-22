@@ -1,7 +1,8 @@
 # Apariciones en prensa — ORDEN CURADO (más importante primero), no cronológico.
 # Criterio (marketing/credibilidad, review de Adri prevalece): alcance + prestigio
-# + credibilidad. Sirve a la estrella polar: credibilidad → confianza → aliados/
-# financiación → vacuna. La home (tira de medios) sigue este mismo orden.
+# o relevancia para el acceso clínico + credibilidad. Sirve a la estrella polar:
+# credibilidad → confianza → aliados/financiación → vacuna. La home (tira de
+# medios) sigue este mismo orden.
 #   1. El País — diario nacional nº1, sección tech, con edición en inglés.
 #   2. Redacción Médica — medio de salud que leen los clínicos; entrevista a fondo.
 #   3. La Vanguardia — gran cabecera nacional; pieza ligera (sección Clic, sobre un
@@ -17,7 +18,7 @@ articles:
     date: '2026-04-23'
   - outlet: Redacción Médica
     url: https://www.redaccionmedica.com/innovacion/20261021/miriam-gonzalez-una-ingeniera-de-software-con-metastasis-estadio-construye-su-propio-modelo-ia-para-buscar-vacuna-personalizada/362852_0.html
-    title: 'Miriam González, una ingeniera de software con metástasis, construye su propio modelo con IA para buscar una vacuna personalizada'
+    title: 'Miriam González, una ingeniera de software con metástasis estadio 4, construye su propio modelo con IA para buscar una vacuna personalizada'
     date: '2026-10-21'
   - outlet: La Vanguardia
     url: https://www.lavanguardia.com/clic/20260816/11613280/miriam-gonzalez-paciente-cancer-mama-raro-me-siento-desventaja-frente-paciente-tenga-cancer-mama-metastasico.html

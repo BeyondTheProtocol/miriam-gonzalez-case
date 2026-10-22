@@ -202,7 +202,8 @@ const { trackPress } = useSupport()
 
 // Cobertura de prensa real (verificada). ORDEN CURADO (más importante primero),
 // el mismo que la Sala de prensa (content/<locale>/press.yml): nacionales de
-// mayor alcance/prestigio antes que regionales → credibilidad → confianza.
+// mayor alcance/prestigio o relevancia para el acceso clínico antes que regionales →
+// credibilidad → confianza.
 const elPaisUrl =
   'https://elpais.com/tecnologia/2026-04-23/asi-usa-una-paciente-con-cancer-metastasico-la-ia-para-entender-su-enfermedad-cual-es-el-mejor-metodo-para-hablar-de-salud-con-chatbots.html'
 const redaccionMedicaUrl =
