@@ -141,8 +141,8 @@
       </nav>
 
       <div class="mt-4 flex flex-col sm:flex-row justify-between items-center gap-2">
-        <p class="text-[11px] font-mono text-tinta">
-          {{ $t('footer.updated') }}: {{ $t('footer.month_updated') }} 2026
+        <p v-if="fechaCambio" class="text-[11px] font-mono text-tinta">
+          {{ $t('footer.updated') }}: <time :datetime="diaDelCambio" data-pie-fecha>{{ fechaCambio }}</time>
         </p>
         <p class="text-[11px] font-mono text-tinta">
           {{ $t('footer.made_with') }}
@@ -155,6 +155,12 @@
 <script setup lang="ts">
 const localePath = useLocalePath()
 const { trackSupport, trackShare, trackDatos, trackCelula, trackExplorador } = useSupport()
+
+// «Última actualización»: el día del último cambio, que trae el build (ver app/utils/fechaCambio.ts).
+const { locale } = useI18n()
+const ultimoCambio = useRuntimeConfig().public.ultimoCambio as string
+const fechaCambio = computed(() => formatearFechaCambio(ultimoCambio, locale.value))
+const diaDelCambio = diaCambio(ultimoCambio)
 
 // "Con el apoyo de" — todos iguales (logos de empresas/colaboradores). Todos se
 // pintan en blanco monocromo (CSS) para leerse como un conjunto sobre berenjena.

@@ -55,6 +55,9 @@ jobs:
       # «hace N días» horneado en el HTML, y un sitemap con URLs que dan 404 o son noindex.
       - run: pnpm test:salud-estatica
 
+      # El pie dice el día del último cambio (último commit en el build), no un mes escrito a mano.
+      - run: pnpm test:pie-fecha
+
       # El sitemap sigue a la puerta del explorador: abierta, es-ES.xml y en-US.xml listan su URL;
       # cerrada, ninguno; y el robots del HTML generado dice lo mismo.
       - run: pnpm test:sitemap-explorador
