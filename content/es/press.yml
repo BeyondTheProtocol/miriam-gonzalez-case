@@ -3,16 +3,22 @@
 # + credibilidad. Sirve a la estrella polar: credibilidad → confianza → aliados/
 # financiación → vacuna. La home (tira de medios) sigue este mismo orden.
 #   1. El País — diario nacional nº1, sección tech, con edición en inglés.
-#   2. La Vanguardia — gran cabecera nacional; pieza ligera (sección Clic, sobre un
+#   2. Redacción Médica — medio de salud que leen los clínicos; entrevista a fondo.
+#   3. La Vanguardia — gran cabecera nacional; pieza ligera (sección Clic, sobre un
 #      clip del pódcast Roca Project), por eso detrás de El País.
-#   3. El Español — gran nacional digital, titular fuerte y en mensaje.
-#   4. La Opinión de Murcia — regional, ancla el ángulo local/humano.
-#   5. La 7 — TV regional (clip en Instagram), cierra la lista.
+#   4. El Español — gran nacional digital, titular fuerte y en mensaje.
+#   5. Corresponsables — medio de RSE; entrevista en exclusiva.
+#   6. La Opinión de Murcia — regional, ancla el ángulo local/humano.
+#   7. La 7 — TV regional (clip en Instagram), cierra la lista.
 articles:
   - outlet: El País
     url: https://elpais.com/tecnologia/2026-04-23/asi-usa-una-paciente-con-cancer-metastasico-la-ia-para-entender-su-enfermedad-cual-es-el-mejor-metodo-para-hablar-de-salud-con-chatbots.html
     title: Así usa una paciente con cáncer metastásico la IA para entender su enfermedad
     date: '2026-04-23'
+  - outlet: Redacción Médica
+    url: https://www.redaccionmedica.com/innovacion/20261021/miriam-gonzalez-una-ingeniera-de-software-con-metastasis-estadio-construye-su-propio-modelo-ia-para-buscar-vacuna-personalizada/362852_0.html
+    title: 'Miriam González, una ingeniera de software con metástasis, construye su propio modelo con IA para buscar una vacuna personalizada'
+    date: '2026-10-21'
   - outlet: La Vanguardia
     url: https://www.lavanguardia.com/clic/20260816/11613280/miriam-gonzalez-paciente-cancer-mama-raro-me-siento-desventaja-frente-paciente-tenga-cancer-mama-metastasico.html
     title: 'Miriam González, paciente con cáncer de mama raro: «Me siento en desventaja frente a una paciente que tenga un cáncer de mama metastásico al uso»'
@@ -21,6 +27,10 @@ articles:
     url: https://www.elespanol.com/alicante/vivir/salud/20260619/miren-ingeniera-anos-usa-ia-luchar-cancer-mama-unico-contactan-oncologos-mundo/1003744290903_0.html
     title: 'Miriam, ingeniera, usa la IA para luchar contra su cáncer de mama único…'
     date: '2026-06-19'
+  - outlet: Corresponsables
+    url: https://www.corresponsables.com/entrevistas/miriam-gonzalez-polaris-colaboracion-paciente-ciencia-empresa/
+    title: 'Miriam González: «Cuando paciente, ciencia y empresa construyen juntos, las cosas se mueven bastante más rápido»'
+    date: '2026-10-19'
   - outlet: La Opinión de Murcia
     url: https://www.laopiniondemurcia.es/comunidad/2026/05/30/paciente-murciana-aguarda-nuevo-tratamiento-130816775.html
     title: Una paciente murciana, a la espera de un nuevo tratamiento de precisión
