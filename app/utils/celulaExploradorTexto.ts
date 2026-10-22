@@ -219,7 +219,9 @@ export const CIRC_HUESO = t('En el hueso, el grupo se eligió en parte por núme
  * llama «tumor» a ningún grupo del hígado (verificacion). */
 export const AVISO_HIGADO = {
   rotulo: t('subconjunto', 'subset'),
-  grupos: t('«Hepatocitos» y «Otras» también pueden incluir células tumorales.', '“Hepatocytes” and “Other” can include tumor cells too.'),
+  /** la frase bajo el mapa da el referente de «subconjunto» (diseno, 22-oct); sin «del tumor» (verificacion) */
+  grupos: t('«Luminal de alta confianza» es un subconjunto, no el tumor entero; «Hepatocitos» y «Otras» también pueden incluir células tumorales.',
+    '“High-confidence luminal” is a subset, not the whole tumor; “Hepatocytes” and “Other” can include tumor cells too.'),
   cifras: t('Las cifras de «Luminal de alta confianza» no son «% de células tumorales»: es un subconjunto, no el tumor entero. El tipo se asigna por clúster.',
     'High-confidence luminal figures aren’t “% of tumor cells”: it’s a subset, not the whole tumor. Cell type is assigned per cluster.'),
 }

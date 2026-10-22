@@ -42,7 +42,7 @@ async function copiaTSV() {
         <thead>
           <tr>
             <th scope="col">{{ L('Gen', 'Gene') }}</th>
-            <th scope="col" class="gi__num">{{ etiqueta(ETIQUETA_GRUPO, interes.id, lang) }} <span class="gi__sub nums">{{ interes.id === 'luminal_alta_confianza' ? `${AVISO_HIGADO.rotulo[lang]} · ` : '' }}n = {{ fmtN(interes.n, lang) }}</span><span class="gi__sub">{{ L(`${etiquetaIC('es')} debajo`, `${etiquetaIC('en')} below`) }}</span></th>
+            <th scope="col" class="gi__num">{{ etiqueta(ETIQUETA_GRUPO, interes.id, lang) }} <span v-if="interes.id === 'luminal_alta_confianza'" class="gi__sub">{{ AVISO_HIGADO.rotulo[lang] }}</span><span class="gi__sub nums">n = {{ fmtN(interes.n, lang) }}</span><span class="gi__sub">{{ L(`${etiquetaIC('es')} debajo`, `${etiquetaIC('en')} below`) }}</span></th>
             <th scope="col" class="gi__num">{{ L('Referencia emparejada', 'Matched reference') }}</th>
             <th scope="col" class="gi__num">{{ L('Suelo ambiental', 'Ambient floor') }}</th>
             <th scope="col" class="gi__num">{{ L('Sondas', 'Probes') }} <span class="gi__sub">{{ L('unión / total', 'junction / total') }}</span></th>

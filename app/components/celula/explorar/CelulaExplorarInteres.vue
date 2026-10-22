@@ -51,7 +51,7 @@ function forma3d(e: Event, tipo: 'entra' | 'sale' | 'fija', gen: string) {
       <thead>
         <tr>
           <th scope="col">{{ L('Gen', 'Gene') }}</th>
-          <th scope="col" class="gin__num">{{ etiqueta(ETIQUETA_GRUPO, interes.id, lang) }} <span class="gin__sub nums">{{ interes.id === 'luminal_alta_confianza' ? `${AVISO_HIGADO.rotulo[lang]} · ` : '' }}n&nbsp;=&nbsp;{{ fmtN(interes.n, lang) }}</span></th>
+          <th scope="col" class="gin__num">{{ etiqueta(ETIQUETA_GRUPO, interes.id, lang) }} <span v-if="interes.id === 'luminal_alta_confianza'" class="gin__sub">{{ AVISO_HIGADO.rotulo[lang] }}</span><span class="gin__sub nums">n&nbsp;=&nbsp;{{ fmtN(interes.n, lang) }}</span></th>
           <th scope="col" class="gin__num">{{ L('Referencia', 'Reference') }}</th>
           <th scope="col" class="gin__num">{{ L('Suelo', 'Floor') }}</th>
         </tr>
