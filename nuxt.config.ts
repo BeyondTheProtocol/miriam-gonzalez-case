@@ -286,8 +286,10 @@ export default defineNuxtConfig({
     // «General → Repo Polaris», no en las visitas de la web.
     '/polaris': { redirect: { to: 'https://cloud.umami.is/q/polaris-repo', statusCode: 302 } },
     // (acceso para médicos) enlace corto SERIO para reenviar al equipo clínico (no de redes):
-    // helpmiriam.com/caso → el panel del mapa. UTM «referral/medico» para distinguir el canal.
-    '/caso': { redirect: { to: '/ciencia?nivel=pro&utm_source=referral&utm_medium=medico&utm_campaign=equipo-clinico#mapa-acceso', statusCode: 302 } },
+    // helpmiriam.com/caso → «Qué buscamos» de /datos: lo que el equipo clínico puede hacer por el caso.
+    // Hasta el 23-oct-2026 llevaba al panel del mapa de /ciencia (#mapa-acceso). UTM «referral/medico»
+    // para distinguir el canal. Sigue en 302: el destino puede cambiar otra vez (rediseño, fase F1).
+    '/caso': { redirect: { to: '/datos?utm_source=referral&utm_medium=medico&utm_campaign=equipo-clinico#que-buscamos', statusCode: 302 } },
     // Llevaba solo al mapa de metástasis. Desde que existe el visor de la biopsia son DOS
     // herramientas en el mismo bloque, y este es el enlace que la propia página imprime para
     // que un médico lo comparta con su equipo: tiene que abrirlas las dos.

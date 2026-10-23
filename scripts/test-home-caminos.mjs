@@ -13,7 +13,8 @@
 // 4. Sin JS: los href reales están en el HTML generado (el bug de iOS Chrome dejaba enlaces sin href).
 // 5. /contacto preselecciona el rol (oncologist, researcher).
 // 6. «Ver detalle clínico» deja «De un vistazo» (#snapshot-title) en pantalla y con el foco, con clic
-//    desde la home y con carga directa; y el destino de /caso (#mapa-acceso), con carga directa.
+//    desde la home y con carga directa; y el destino de /caso (#que-buscamos, en /datos; leído de
+//    nuxt.config.ts), con carga directa: el título queda a la vista y por debajo de la barra de secciones.
 // 7. Contraste alto y colores forzados: los accesos siguen visibles y de 44 px.
 // 8. /colabora y el pie siguen con sus chips (no se tocan).
 // 9. El acceso de tech es externo: pestaña nueva, rel="noopener noreferrer" y aviso para lector de pantalla.
@@ -124,6 +125,12 @@ async function hasta(cond, ms = 6000) {
 }
 // Para el mensaje de un fallo: dónde se quedó la página (en el CI no hay capturas).
 const DONDE = (id) => `(() => { const el = document.getElementById('${id}'); const b = el?.getBoundingClientRect(); return { ruta: location.pathname + location.search + location.hash, scrollY: Math.round(scrollY), top: b ? Math.round(b.top) : null, visible: !!el && el.offsetParent !== null, alto: innerHeight } })()`
+// Destino real de /caso: se lee de nuxt.config.ts, no se copia aquí, para que el test siga al enlace que se reenvía a médicos.
+const DESTINO_CASO = readFileSync(join(import.meta.dirname, '..', 'nuxt.config.ts'), 'utf8').match(/'\/caso':\s*\{\s*redirect:\s*\{\s*to:\s*'([^']+)'/)?.[1] ?? ''
+// ¿El título está a la vista Y por debajo de la barra fija de /datos (.dt-barra)? Con el router a solas (top: 80) quedaba tapado.
+// Se mide el título (h2) y no la sección: la sección empieza a 124 px y su relleno de arriba (32 px) deja el título libre; en
+// escritorio la barra baja hasta 132 px, así que el borde de la sección pasa por debajo de ella sin tapar nada.
+const BAJO_LA_BARRA = (id) => `(() => { const el = document.getElementById('${id}'); const barra = document.querySelector('.dt-barra'); if (!el || !barra || el.offsetParent === null) return false; const t = el.getBoundingClientRect().top; return t >= barra.getBoundingClientRect().bottom - 2 && t < innerHeight - 40 })()`
 const EN_PANTALLA = (id) => `(() => { const el = document.getElementById('${id}'); if (!el || el.offsetParent === null) return false; const b = el.getBoundingClientRect(); return b.top >= 0 && b.top < innerHeight - 40 })()`
 
 try {
@@ -239,9 +246,24 @@ try {
       ok(await hasta(EN_PANTALLA('snapshot-title')), `${w}px, carga directa de ${ruta}: #snapshot-title en pantalla`)
       ok(await hasta(`document.activeElement?.id === 'snapshot-title'`, 3000), `${w}px, carga directa de ${ruta}: el foco está en «De un vistazo»`)
     }
+    // /caso (el enlace que se reenvía a médicos) → «Qué buscamos» de /datos, en ES y EN (rediseño F1, 23-oct-2026).
+    // Carga directa: en la página prerenderizada el hash llega después de hidratar y el router a solas deja el
+    // título bajo la barra; la página lo recoloca cuando el scroll se queda quieto (~200 ms), así que se espera
+    // a que la posición correcta aguante medio segundo.
+    ok(/^\/datos\?.*#que-buscamos$/.test(DESTINO_CASO), `/caso aterriza en /datos#que-buscamos (${DESTINO_CASO || 'sin regla en nuxt.config.ts'})`)
+    for (const ruta of [DESTINO_CASO, DESTINO_CASO.replace(/^\/datos/, '/en/data')]) {
+      await cargar('/')
+      await cargar(ruta)
+      const llego = await hasta(BAJO_LA_BARRA('h-busca'), 6000)
+      await sleep(500)
+      const sigue = llego && (await evaluate(BAJO_LA_BARRA('h-busca')))
+      const donde = sigue ? '' : ` (${JSON.stringify(await evaluate(DONDE('h-busca')))})`
+      ok(sigue, `${w}px, carga directa de ${ruta}: el título «Qué buscamos» a la vista y bajo la barra de secciones${donde}`)
+    }
+    // el enlace antiguo de /caso sigue funcionando: hay quien lo tiene guardado o reenviado
     await cargar('/ciencia?nivel=pro&utm_source=referral&utm_medium=medico&utm_campaign=equipo-clinico#mapa-acceso')
-    ok(await hasta(EN_PANTALLA('mapa-acceso')), `${w}px, carga directa del destino de /caso: #mapa-acceso en pantalla`)
-    ok(await hasta(`document.activeElement?.id === 'mapa-acceso'`, 3000), `${w}px, carga directa del destino de /caso: el foco está en el acceso para el equipo médico`)
+    ok(await hasta(EN_PANTALLA('mapa-acceso')), `${w}px, carga directa del destino ANTIGUO de /caso: #mapa-acceso en pantalla`)
+    ok(await hasta(`document.activeElement?.id === 'mapa-acceso'`, 3000), `${w}px, carga directa del destino ANTIGUO de /caso: el foco está en el acceso para el equipo médico`)
   }
 
   console.log('\n7. Contraste alto y colores forzados')

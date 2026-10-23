@@ -2,16 +2,20 @@
 /**
  * /datos — el caso de Miriam en datos, para quien puede moverlo. Versión 2 (24-sep-2026, a
  * petición de Miriam): SOLO clínica (el perfil molecular ya está en /ciencia), móvil primero y
- * con el dato por delante. Orden de lectura, de arriba abajo en un móvil de 375 px:
- *   1. hoy, en cuatro cifras · 2. línea de tiempo · 3. analíticas en pequeños múltiplos con la
- *   misma ventana y la misma fecha marcada · 4. carga tumoral · 5. tejido y reservorio ·
- *   6-9. lo demás, plegado.
+ * con el dato por delante. Orden de lectura, de arriba abajo en un móvil de 375 px (rediseño F1,
+ * 23-oct-2026: «Qué buscamos» sube al segundo lugar, con su ancla #que-buscamos):
+ *   1. hoy, en cuatro cifras · 2. qué buscamos (la petición a quien puede mover el caso) ·
+ *   3. tejido y muestras · 4. carga tumoral · 5. evolución (línea de tiempo + analíticas en
+ *   pequeños múltiplos con la misma ventana y la misma fecha marcada) · 6. «el caso, visto de otra
+ *   forma» (los visores) y lo demás, plegado.
  * Todo sale de app/data/caso.json (Polaris, `tools/caso_publico.py`): cada cifra con su fuente y
  * su sello, fail-closed. Esta página ordena y dibuja; no interpreta.
  */
 import caso from '~/data/caso.json'
 import type { Analito, Contexto, Evento, Lang, Punto, Texto, Ventana } from '~/utils/datosCaso'
 import { unidadTxt, valCaso } from '~/utils/datosCaso'
+import type { PeticionFuente } from '~/utils/peticiones'
+import { peticionesPublicas } from '~/utils/peticiones'
 
 const { locale } = useI18n()
 const localePath = useLocalePath()
@@ -29,7 +33,9 @@ const lineas: any[] = c.lineas ?? []
 const em = c.enfermedad_medible ?? {}
 const material: any[] = c.material ?? []
 const reservorio: any[] = c.reservorio ?? []
-const seBusca: any[] = c.se_busca ?? []
+const seBusca: PeticionFuente[] = c.se_busca ?? []
+/* qué peticiones se publican y en qué orden, lo decide utils/peticiones.ts; sin ninguna, la sección no sale */
+const hayPeticiones = peticionesPublicas(seBusca).length > 0
 const eventos: Evento[] = c.eventos ?? []
 const grupos: Record<string, { analitos: Analito[] }> = c.analiticas.grupos
 const an = (k: string) => buscarAnalito(grupos, k)
@@ -295,11 +301,18 @@ function irAFecha(iso: string) {
 }
 
 /* barra de secciones: la activa es la última cuyo inicio ya pasó bajo la cabecera */
-// en el orden de lectura de un clínico o un investigador (Miriam, 25-sep; oncologo-virtual + diseno):
-// estado y elegibilidad → enfermedad medible → material → evolución → vitrina. Mismo orden que el DOM (scroll-spy).
-// «Carga tumoral» y no «Hígado»: la pestaña de analíticas ya se llama «Hígado» (diseno); el h2 lo dice igual
-const SECCIONES: [string, string, string][] = [['s-hoy', 'Hoy', 'Today'], ['s-higado', 'Carga tumoral', 'Tumor burden'],
-  ['s-tejido', 'Tejido', 'Tissue'], ['s-evo', 'Evolución', 'Clinical course'], ['s-vitrina', 'Otra vista', 'Another view']]
+// en el orden de lectura de un clínico o un investigador (Miriam, 25-sep; oncologo-virtual + diseno), con la
+// petición en segundo lugar desde el 23-oct (rediseño F1): estado y elegibilidad → qué buscamos → material →
+// enfermedad medible → evolución → vitrina. Mismo orden que el DOM (scroll-spy).
+// «Carga tumoral» y no «Hígado»: la pestaña de analíticas ya se llama «Hígado» (diseno); el h2 lo dice igual.
+// `que-buscamos` va SIN el prefijo `s-`: es el ancla que comparten /caso, la home y /ciencia. Estar aquí la
+// pone en la barra de secciones, en el scroll-spy y en la recolocación de alHash al llegar con #que-buscamos.
+// Un salto a esta ancla desde la barra de secciones cuenta como «VerPeticion» con origen `datos`
+// (el plugin de Umami mide todo enlace a #que-buscamos): se separa por origen.
+const SECCION_PETICION: [string, string, string][] = hayPeticiones ? [['que-buscamos', 'Qué buscamos', 'What we’re looking for']] : []
+const SECCIONES: [string, string, string][] = [['s-hoy', 'Hoy', 'Today'], ...SECCION_PETICION,
+  ['s-tejido', 'Tejido', 'Tissue'], ['s-higado', 'Carga tumoral', 'Tumor burden'],
+  ['s-evo', 'Evolución', 'Clinical course'], ['s-vitrina', 'Otra vista', 'Another view']]
 const activa = ref('s-hoy')
 /* saltar a una sección SIN el router: su scrollBehavior (toda la web) fija top: 80 e ignora el
    scroll-margin-top de .dt-sec, y el título quedaba bajo la barra fija (medido por CDP a 390 px) */
@@ -512,7 +525,46 @@ const n = (v: number) => numCaso(v, lang.value)
           </section>
         </section>
 
-        <!-- 2 · Carga tumoral: lo segundo que busca un clínico (RECIST y PET de cuerpo entero, por eso no «en el hígado»); antes en el 5.º pantallazo -->
+        <!-- 2 · Qué buscamos: la petición a quien puede mover el caso. Antes colgaba al final de «Tejido» (y plegada a
+             partir de la tercera). Es la palanca más directa de la web hacia NED, y el ancla que comparten /caso (el
+             enlace que se reenvía a médicos), la home y /ciencia (rediseño F1, 23-oct-2026). Las 5 peticiones que ya
+             eran públicas, en un orden de prioridad PROVISIONAL (utils/peticiones.ts); sin plegar: el que llega aquí
+             por el ancla viene a leerlas. -->
+        <section v-if="hayPeticiones" id="que-buscamos" class="dt-sec" aria-labelledby="h-busca">
+          <h2 id="h-busca" class="dt-h2">{{ L('Qué buscamos', 'What we’re looking for') }}</h2>
+          <QueBuscamos :fuente="seBusca" />
+        </section>
+
+        <!-- 3 · Tejido: decide el acceso a la vacuna (ruta a NED), por eso antes que Evolución y que la carga tumoral -->
+        <section id="s-tejido" class="dt-sec" aria-labelledby="h-tejido">
+          <h2 id="h-tejido" class="dt-h2">{{ L('Tejido y muestras', 'Tissue and samples') }}</h2>
+          <p v-if="sinFresco" class="dt-resumen-tejido">
+            <strong>{{ L('Todo el material disponible está en parafina.', 'All available material is in paraffin.') }}</strong>
+            {{ L('No hay tejido fresco, congelado ni PBMC.', 'There is no fresh or frozen tissue and no PBMC.') }}
+            <DatosSello :s="sinFresco.sello" :lang="lang" />
+          </p>
+          <div class="dt-tarjetas">
+            <article v-for="(m, i) in material.slice(0, 3)" :key="i" class="dt-tarjeta">
+              <p class="dt-tarjeta__t">{{ tituloMuestra(m) }}</p>
+              <p v-if="detalleMuestra(m)" class="dt-tarjeta__det">{{ detalleMuestra(m) }}</p>
+              <p class="dt-tarjeta__l"><span>{{ L('Dónde', 'Where') }}</span> {{ T(m.donde) }} · <span>{{ L('Estado', 'Status') }}</span> {{ T(m.estado) }}</p>
+              <p class="dt-tarjeta__pie"><span class="nums">{{ m.fecha }}</span> <DatosSello :s="m.sello" :lang="lang" /></p>
+            </article>
+            <details v-if="material.length > 3" class="dt-det dt-tarjeta--ancha">
+              <summary>{{ material.length === 4 ? L('1 muestra más', '1 more sample') : L(`Otras ${material.length - 3} muestras`, `${material.length - 3} more samples`) }}</summary>
+              <div class="dt-tarjetas">
+                <article v-for="(m, i) in material.slice(3)" :key="i" class="dt-tarjeta">
+                  <p class="dt-tarjeta__t">{{ tituloMuestra(m) }}</p>
+              <p v-if="detalleMuestra(m)" class="dt-tarjeta__det">{{ detalleMuestra(m) }}</p>
+                  <p class="dt-tarjeta__l"><span>{{ L('Dónde', 'Where') }}</span> {{ T(m.donde) }} · <span>{{ L('Estado', 'Status') }}</span> {{ T(m.estado) }}</p>
+                  <p class="dt-tarjeta__pie"><span class="nums">{{ m.fecha }}</span> <DatosSello :s="m.sello" :lang="lang" /></p>
+                </article>
+              </div>
+            </details>
+          </div>
+        </section>
+
+        <!-- 4 · Carga tumoral: lo segundo que busca un clínico (RECIST y PET de cuerpo entero, por eso no «en el hígado»); antes en el 5.º pantallazo -->
         <section v-if="(em.recist ?? []).length" id="s-higado" class="dt-sec" aria-labelledby="h-carga">
           <h2 id="h-carga" class="dt-h2">{{ L('Carga tumoral', 'Tumor burden') }}</h2>
           <DatosCargaTumoral :recist="em.recist" :volumen="em.volumen ?? []" :lang="lang" />
@@ -547,46 +599,7 @@ const n = (v: number) => numCaso(v, lang.value)
           </details>
         </section>
 
-        <!-- 3 · Tejido: decide el acceso a la vacuna (ruta a NED), por eso antes que Evolución -->
-        <section id="s-tejido" class="dt-sec" aria-labelledby="h-tejido">
-          <h2 id="h-tejido" class="dt-h2">{{ L('Tejido y muestras', 'Tissue and samples') }}</h2>
-          <p v-if="sinFresco" class="dt-resumen-tejido">
-            <strong>{{ L('Todo el material disponible está en parafina.', 'All available material is in paraffin.') }}</strong>
-            {{ L('No hay tejido fresco, congelado ni PBMC.', 'There is no fresh or frozen tissue and no PBMC.') }}
-            <DatosSello :s="sinFresco.sello" :lang="lang" />
-          </p>
-          <div class="dt-tarjetas">
-            <article v-for="(m, i) in material.slice(0, 3)" :key="i" class="dt-tarjeta">
-              <p class="dt-tarjeta__t">{{ tituloMuestra(m) }}</p>
-              <p v-if="detalleMuestra(m)" class="dt-tarjeta__det">{{ detalleMuestra(m) }}</p>
-              <p class="dt-tarjeta__l"><span>{{ L('Dónde', 'Where') }}</span> {{ T(m.donde) }} · <span>{{ L('Estado', 'Status') }}</span> {{ T(m.estado) }}</p>
-              <p class="dt-tarjeta__pie"><span class="nums">{{ m.fecha }}</span> <DatosSello :s="m.sello" :lang="lang" /></p>
-            </article>
-            <details v-if="material.length > 3" class="dt-det dt-tarjeta--ancha">
-              <summary>{{ material.length === 4 ? L('1 muestra más', '1 more sample') : L(`Otras ${material.length - 3} muestras`, `${material.length - 3} more samples`) }}</summary>
-              <div class="dt-tarjetas">
-                <article v-for="(m, i) in material.slice(3)" :key="i" class="dt-tarjeta">
-                  <p class="dt-tarjeta__t">{{ tituloMuestra(m) }}</p>
-              <p v-if="detalleMuestra(m)" class="dt-tarjeta__det">{{ detalleMuestra(m) }}</p>
-                  <p class="dt-tarjeta__l"><span>{{ L('Dónde', 'Where') }}</span> {{ T(m.donde) }} · <span>{{ L('Estado', 'Status') }}</span> {{ T(m.estado) }}</p>
-                  <p class="dt-tarjeta__pie"><span class="nums">{{ m.fecha }}</span> <DatosSello :s="m.sello" :lang="lang" /></p>
-                </article>
-              </div>
-            </details>
-          </div>
-          <!-- lo que se pide a quien lee: antes plegado al final como «Cómo ayudar» (oncologo-virtual) -->
-          <h3 class="dt-h3">{{ L('Qué buscamos', 'What we’re looking for') }}</h3>
-          <ul class="dt-busca">
-            <li v-for="(b, i) in seBusca.slice(0, 3)" :key="i">{{ T(b.valor) }} <DatosSello :s="b.sello" :lang="lang" /><NuxtLink v-if="b.enlace === 'celula-a-celula'" :to="localePath('/celula-a-celula')" class="link-inline dt-busca__enlace">{{ L('Los primeros resultados están en Célula a célula', 'The first results are in Cell by cell') }}</NuxtLink></li>
-          </ul>
-          <details v-if="seBusca.slice(3, 5).length" class="dt-det">
-            <summary>{{ L(`${seBusca.slice(3, 5).length} más`, `${seBusca.slice(3, 5).length} more`) }}</summary>
-            <ul class="dt-busca"><li v-for="(b, i) in seBusca.slice(3, 5)" :key="i">{{ T(b.valor) }} <DatosSello :s="b.sello" :lang="lang" /></li></ul>
-          </details>
-          <NuxtLink :to="localePath('/contacto')" class="dt-boton">{{ L('Escríbenos', 'Write to us') }} →</NuxtLink>
-        </section>
-
-        <!-- 4 · Evolución: línea de tiempo + analíticas con la misma ventana (la profundidad, no la entrada) -->
+        <!-- 5 · Evolución: línea de tiempo + analíticas con la misma ventana (la profundidad, no la entrada) -->
         <section id="s-evo" class="dt-sec" aria-labelledby="h-evo">
           <h2 id="h-evo" class="dt-h2">{{ L('Evolución', 'Clinical course') }}</h2>
           <div class="dt-controles">
@@ -667,7 +680,7 @@ const n = (v: number) => numCaso(v, lang.value)
           <p class="dt-pie"><DatosSello :s="c.analiticas.sello" :lang="lang" /> {{ L('Cómo se leen y fechan: en «Fuentes y método».', 'How they are read and dated: under “Sources and method”.') }}</p>
         </section>
 
-        <!-- 5 · vitrina: lo más visual y menos accionable de un vistazo, al final (Miriam, 25-sep); un solo
+        <!-- 6 · vitrina: lo más visual y menos accionable de un vistazo, al final (Miriam, 25-sep); un solo
              bloque con fondo propio, para que se lea como escaparate y no como piezas sueltas (diseno) -->
         <div class="dt-vitrina">
         <section id="s-vitrina" class="dt-sec" aria-labelledby="h-vitrina">
@@ -731,7 +744,7 @@ const n = (v: number) => numCaso(v, lang.value)
         </section>
         </div>
 
-        <!-- 6 · lo demás, plegado -->
+        <!-- 7 · lo demás, plegado -->
         <section class="dt-sec dt-plegados" :aria-label="L('Más detalle', 'More detail')">
           <p class="dt-molecular">
             {{ L('El diagnóstico completo, los receptores, la historia de tratamientos y el perfil molecular los tienes en', 'You’ll find the full diagnosis, receptors, treatment history and molecular profile on') }}
@@ -817,7 +830,6 @@ const n = (v: number) => numCaso(v, lang.value)
 .dt-sitios li::before { content: ''; position: absolute; left: 0; top: 0.6em; width: 5px; height: 5px; border-radius: 50%; background: var(--color-miriam); }
 .dt-busca { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; font: 400 14px/1.5 var(--font-body); color: var(--color-text); }
 .dt-busca li { padding: 8px 12px; border-radius: 10px; background: var(--color-bg-card); }
-.dt-busca__enlace { display: block; width: fit-content; padding-block: 10px 2px; }
 .dt-pet { margin-top: 14px; padding: 12px 14px; border-radius: 14px; background: var(--color-bg-card); }
 .dt-pet__k { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; font: 600 12px var(--font-body); color: var(--color-text-soft); margin: 0 0 4px; }
 .dt-pet__v { font: 400 14px/1.5 var(--font-body); color: var(--color-text); margin: 0; }

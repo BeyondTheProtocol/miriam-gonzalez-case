@@ -26,9 +26,19 @@
 //    servidor del arnés no tiene /fundraiser.json. Aquí se intercepta `fetch` y se contesta otra cifra,
 //    o un error. Corre igual con o sin semilla (sin ella, el HTML llega sin tarjeta y el cliente la pinta).
 //
+// Y la petición del rediseño (F1, 23-oct-2026):
+//
+// 8. «Qué buscamos» es la 2.ª sección de /datos (Hoy → Qué buscamos → Tejido → Carga tumoral → Evolución →
+//    visores), con su ancla #que-buscamos (a ella aterriza /caso) y SOLO las 5 peticiones aprobadas, en el
+//    orden provisional de prioridad. La FoundationOne y la anemia (6.ª y 7.ª de se_busca) esperan su gate y
+//    no se pintan. El corte es una lista blanca (app/utils/peticiones.ts), no «las 5 primeras»: aquí se
+//    prueba que cada regla casa con UN elemento de la fuente, para que una petición reescrita en caso.json
+//    ponga esto en rojo en vez de desaparecer de /datos en silencio.
+//
 // Uso:  pnpm exec nuxt generate && pnpm test:salud-estatica
 import { existsSync, readFileSync, readdirSync } from 'node:fs'
 import { join } from 'node:path'
+import { REGLAS_PETICIONES, peticionesPublicas, seleccionarPeticiones } from '../app/utils/peticiones'
 
 const PUB = '.output/public'
 const SITIO = 'https://helpmiriam.com'
@@ -199,5 +209,43 @@ if (existsSync('seed/fundraiser.json')) {
   }
 }
 
-console.log(fallos ? `\n❌ ${fallos} fallo(s)` : '\n✅ ancla, «hace N días», sitemap, <main> único, «Ver quién apoya» y campaña (en el HTML y en vivo) en verde')
+// 8
+{
+  const seBusca = (JSON.parse(readFileSync('app/data/caso.json', 'utf-8')) as { se_busca: { valor: { es: string; en: string } }[] }).se_busca
+  const publicas = peticionesPublicas(seBusca as never)
+  const CLAVES = ['ensayo-post-tb06', 'laboratorio-neoantigenos', 'radiologia-higado', 'hla', 'ihc-dianas']
+
+  // la fuente: cada regla casa con UN elemento (ni con ninguno, ni con dos) y salen las 5, en orden
+  for (const r of REGLAS_PETICIONES) {
+    const n = seBusca.filter((b) => r.huella.test(b.valor.es)).length
+    ok(n === 1, `se_busca: la huella de «${r.clave}» casa con un solo elemento (casa con ${n})`)
+  }
+  ok(JSON.stringify(publicas.map((p) => p.clave)) === JSON.stringify(CLAVES), `se publican las 5 peticiones aprobadas, por prioridad (${publicas.map((p) => p.clave).join(' · ')})`)
+  const SIN_GATE = /FoundationOne|hipoproliferativa|hypoproliferative/
+  ok(!publicas.some((p) => SIN_GATE.test(p.valor.es) || SIN_GATE.test(p.valor.en)), 'ni la FoundationOne ni la anemia (6.ª y 7.ª, pendientes de su gate) están entre las publicadas')
+  // el componente: tope y filtro
+  ok(JSON.stringify(seleccionarPeticiones(publicas, { limite: 3 }).map((p) => p.clave)) === JSON.stringify(CLAVES.slice(0, 3)), 'con límite 3 salen las 3 de mayor prioridad')
+  ok(JSON.stringify(seleccionarPeticiones(publicas, { filtro: ['hla', 'ihc'], limite: 1 }).map((p) => p.clave)) === JSON.stringify(['hla']), 'el filtro por tema se aplica antes del límite')
+  ok(seleccionarPeticiones(publicas).length === 5 && seleccionarPeticiones(publicas, { limite: 0 }).length === 0, 'sin opciones salen las 5; con límite 0, ninguna')
+
+  // lo generado, en ES y EN
+  const IDS = ['id="s-hoy"', 'id="que-buscamos"', 'id="s-tejido"', 'id="s-higado"', 'id="s-evo"', 'id="s-vitrina"']
+  for (const [idioma, pagina, contacto] of [['es', 'datos.html', '/contacto?role=researcher'], ['en', 'en/data.html', '/en/contact?role=researcher']] as const) {
+    const h = html(pagina)
+    ok((h.match(/\bid="que-buscamos"/g)?.length ?? 0) === 1, `${pagina}: exactamente un id="que-buscamos"`)
+    const pos = IDS.map((id) => h.indexOf(id))
+    ok(pos.every((p, i) => p >= 0 && (i === 0 || p > pos[i - 1]!)), `${pagina}: orden Hoy → Qué buscamos → Tejido → Carga tumoral → Evolución → visores (${pos.join(' < ')})`)
+    const bloque = h.slice(h.indexOf('id="que-buscamos"'), h.indexOf('id="s-tejido"'))
+    ok((bloque.match(/<li\b/g)?.length ?? 0) === 5, `${pagina}: «Qué buscamos» pinta 5 peticiones (${bloque.match(/<li\b/g)?.length ?? 0})`)
+    ok(!/<details\b/.test(bloque), `${pagina}: sin plegar: ninguna petición queda dentro de un <details>`)
+    const puestos = publicas.map((p) => bloque.indexOf(p.valor[idioma].slice(0, 24)))
+    ok(puestos.every((q, i) => q >= 0 && (i === 0 || q > puestos[i - 1]!)), `${pagina}: las 5 peticiones salen en el orden de prioridad (${puestos.join(' < ')})`)
+    ok(!SIN_GATE.test(bloque), `${pagina}: ni la FoundationOne ni la anemia en «Qué buscamos»`)
+    ok(bloque.includes(`href="${contacto}"`), `${pagina}: «Escríbenos» va a ${contacto}, sin correo directo`)
+    ok(!/mailto:/.test(bloque), `${pagina}: ningún mailto: en «Qué buscamos»`)
+    ok(h.includes('href="#que-buscamos"'), `${pagina}: la barra de secciones tiene su chip «Qué buscamos»`)
+  }
+}
+
+console.log(fallos ? `\n❌ ${fallos} fallo(s)` : '\n✅ ancla, «hace N días», sitemap, <main> único, «Ver quién apoya», campaña (en el HTML y en vivo) y «Qué buscamos» en verde')
 process.exit(fallos ? 1 : 0)

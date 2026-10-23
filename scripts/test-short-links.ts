@@ -10,6 +10,8 @@
 //   página a un 404 en producción (20-sep-2026).
 // 2. Todo enlace corto lleva su UTM (source, medium y campaign) salvo los que saltan fuera.
 // 3. Los cortos están documentados en SHORT-LINKS.md (la tabla no se queda atrás).
+// 4. /caso, el enlace que se reenvía a médicos, aterriza en «Qué buscamos» de /datos (rediseño F1,
+//   23-oct-2026), y esa ancla existe en la página y en la tabla de SHORT-LINKS.md.
 //
 // Uso:  pnpm test:short-links
 import { readFileSync, readdirSync } from 'node:fs'
@@ -48,6 +50,12 @@ for (const { ruta, destino } of redirects) {
   ok(destino === destino.toLowerCase(), `${ruta} apunta a un destino en minúsculas (Umami agrupa exacto)`)
   ok(doc.includes(`\`${ruta}\``), `${ruta} está en la tabla de SHORT-LINKS.md`)
 }
+
+// 4
+const caso = redirects.find(r => r.ruta === '/caso')?.destino ?? ''
+ok(/^\/datos\?utm_source=referral&utm_medium=medico&utm_campaign=equipo-clinico#que-buscamos$/.test(caso), `/caso → /datos con su UTM de equipo clínico y el ancla #que-buscamos (${caso || 'sin regla'})`)
+ok(readFileSync('app/pages/datos.vue', 'utf-8').includes('id="que-buscamos"'), 'app/pages/datos.vue lleva el id="que-buscamos" al que apunta /caso')
+ok(/\|\s*`\/caso`\s*\|\s*`\/datos#que-buscamos`\s*\|/.test(doc), 'la fila de /caso en SHORT-LINKS.md dice /datos#que-buscamos')
 
 console.log(fallos ? `\n❌ ${fallos} fallo(s)` : '\n✅ enlaces cortos en verde')
 process.exit(fallos ? 1 : 0)
