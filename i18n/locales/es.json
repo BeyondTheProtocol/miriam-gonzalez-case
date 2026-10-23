@@ -278,9 +278,9 @@
     "stat_cells_label": "células de sus biopsias leídas una a una",
     "h1": "Miriam, {age} años, busca un tratamiento hecho a partir de {op}.",
     "h1_emphasis": "su propio tumor",
-    "lede": "Es ingeniera de software. Su tumor no encaja en los protocolos habituales y lo estudia en abierto, con médicos y laboratorios de varios países.",
+    "lede": "Es ingeniera de software. Su tumor no encaja en los protocolos habituales y ella lo estudia en abierto, con médicos y laboratorios de varios países.",
     "cta_understand": "Entender el caso",
-    "pro_link": "¿Eres clínico o laboratorio? Qué necesitamos",
+    "pro_link": "¿Clínico o laboratorio? Mira qué necesitamos",
     "proof_support": "{n} personas apoyan el caso"
   },
   "gofundme": {
@@ -1229,8 +1229,8 @@
     "celula_title": "Mi tumor, célula a célula",
     "celula_sub": "Qué tiene encendido cada célula del hígado y del hueso, y los primeros resultados",
     "prensa_title": "Mi caso en la prensa",
-    "prensa_sub": "Lo que han publicado sobre el caso",
-    "cronologia_title": "El caso paso a paso",
+    "prensa_sub": "Lo que han contado los medios",
+    "cronologia_title": "Mi caso, paso a paso",
     "cronologia_sub": "Lo que ha pasado, en orden"
   },
   "herramientas": {

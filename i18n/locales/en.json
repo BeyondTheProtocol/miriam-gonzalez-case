@@ -278,9 +278,9 @@
     "stat_cells_label": "cells from her biopsies read one by one",
     "h1": "Miriam, {age}, is looking for a treatment made from {op}.",
     "h1_emphasis": "her own tumor",
-    "lede": "She is a software engineer. Her tumor doesn't fit the usual protocols, and she studies it in the open, with doctors and labs in several countries.",
+    "lede": "She's a software engineer. Her tumor doesn't fit the usual protocols, and she studies it in the open, with doctors and labs in several countries.",
     "cta_understand": "Understand the case",
-    "pro_link": "Are you a clinician or a lab? What we need",
+    "pro_link": "Clinician or lab? See what we need",
     "proof_support": "{n} people support the case"
   },
   "gofundme": {
@@ -696,7 +696,7 @@
     "caso_1": "Miriam has metastatic breast cancer.",
     "caso_2": "A diagnosis that fit no protocol.",
     "caso_3": "The standard treatment isn't enough: it has to be designed around her specific tumor.",
-    "donde_heading": "Where we are and what's missing",
+    "donde_heading": "Where we are and what's left",
     "ahora": "Now:",
     "buscamos_heading": "What we’re looking for",
     "buscamos_escribir": "Write to the team",
@@ -1229,9 +1229,9 @@
     "celula_title": "My tumor, cell by cell",
     "celula_sub": "What each cell in the liver and bone has switched on, and the first results",
     "prensa_title": "My case in the press",
-    "prensa_sub": "What the press has published about the case",
-    "cronologia_title": "The case step by step",
-    "cronologia_sub": "What has happened, in order"
+    "prensa_sub": "What the media have said about it",
+    "cronologia_title": "My case, step by step",
+    "cronologia_sub": "What's happened, in order"
   },
   "herramientas": {
     "title": "Case tools",
@@ -1251,7 +1251,7 @@
   },
   "puertas": {
     "apoyar": "Support",
-    "clinico": "Clinical or laboratory",
+    "clinico": "Clinician or lab",
     "prensa": "Press",
     "otras": "Other ways"
   },

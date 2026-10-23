@@ -188,15 +188,15 @@ const gofundme = await useFundraiser()
 // SEO (rediseño F5): sin «ultra-raro» (contradecía la cifra de rareza de la propia web) ni promesas de destino del dinero.
 // La identidad de cabecera es «ingeniera de software», no «paciente» + perfil molecular (test-afirmaciones-clinicas).
 const TITULO = {
-  es: 'Miriam González — Busca un tratamiento hecho a partir de su propio tumor',
-  en: 'Miriam González — Looking for a treatment made from her own tumor',
+  es: 'Miriam González · Busca un tratamiento hecho a partir de su propio tumor',
+  en: 'Miriam González · Looking for a treatment made from her own tumor',
 }
 const DESCRIPCION = {
   es: 'Miriam González, ingeniera de software, tiene un cáncer de mama metastásico que no encaja en los protocolos habituales. Lo estudia en abierto, con médicos y laboratorios de varios países.',
   en: "Miriam González, a software engineer, has a metastatic breast cancer that doesn't fit the usual protocols. She studies it in the open, with doctors and labs in several countries.",
 }
 const DESCRIPCION_CORTA = {
-  es: 'Ingeniera de software. Su cáncer de mama metastásico no encaja en los protocolos habituales y lo estudia en abierto.',
+  es: 'Ingeniera de software. Su cáncer de mama metastásico no encaja en los protocolos habituales y ella lo estudia en abierto.',
   en: "Software engineer. Her metastatic breast cancer doesn't fit the usual protocols, and she studies it in the open.",
 }
 
