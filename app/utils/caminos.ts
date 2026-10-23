@@ -31,7 +31,7 @@ const h = (enlace: EnlaceNav): Acceso => ({ tipo: 'herramienta', enlace })
 
 // Clínica: datos → lesiones → contacto. «Mama, hígado y hueso» y no el mapa (comité médico, 20-oct, y
 // decisión de Miriam al aprobar el plan): el mapa sale de estudios de marzo a junio de 2026; /lesiones,
-// de la imagen del 8-sep. El mapa sigue en la banda, en /ciencia y en /caso.
+// de la imagen del 8-sep. El mapa sigue en la banda y en /ciencia (/caso ya no lo abre: desde el 23-oct aterriza en «Qué buscamos»).
 // Single-cell: explorador → datos (qué tejido, cuándo, con qué tratamiento) → laminillas (antes, la biopsia ósea).
 // Prensa y tech (PR 2, regla de diseño «una lista, un tipo»): solo se enlaza el paso que ya nombra un
 // destino que su botón no cubre. Prensa: «Datos del caso listos para citar» → /datos (prensa.vue no

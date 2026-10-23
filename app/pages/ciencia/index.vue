@@ -795,8 +795,9 @@ const level = ref<ReadingLevel>(route.query.nivel === 'pro' ? 'pro' : 'simple')
 // investigación» del home y el enlace corto /caso seguían abriendo el modo llano.
 // Verificado en producción el 11-sep-2026, con ese arreglo ya desplegado.
 let levelFromUrl = false
-// Con ?nivel=pro y un #ancla del bloque pro (el botón de clínica de la home lleva #snapshot-title; /caso,
-// #mapa-acceso), el scroll al ancla lo hace el router (router.options.ts), también en la carga directa:
+// Con ?nivel=pro y un #ancla del bloque pro (el botón de clínica de la home lleva #snapshot-title; el enlace
+// antiguo de /caso, #mapa-acceso, que sigue funcionando: /caso aterriza hoy en /datos#que-buscamos), el scroll
+// al ancla lo hace el router (router.options.ts), también en la carga directa:
 // verificado en Chrome en producción el 20-oct-2026. Aquí solo se lleva el FOCO al ancla, una vez, como
 // hace goPro(), para que el lector de pantalla empiece ahí. Sin mover la página: un segundo scroll a la
 // vez que el del router (los dos suaves) se pisaba en el CI y la dejaba a medio camino.

@@ -14,7 +14,9 @@
 // 5. /contacto preselecciona el rol (oncologist, researcher).
 // 6. «Ver detalle clínico» deja «De un vistazo» (#snapshot-title) en pantalla y con el foco, con clic
 //    desde la home y con carga directa; y el destino de /caso (#que-buscamos, en /datos; leído de
-//    nuxt.config.ts), con carga directa: el título queda a la vista y por debajo de la barra de secciones.
+//    nuxt.config.ts), con carga directa: el título queda a la vista y por debajo de la barra de secciones,
+//    el foco está en él (el primer Tab entra en las peticiones, no en los chips) y, con la barra ya pegada,
+//    ningún chip queda tapado por la cabecera fija (a 375, 1024 y 1280 px).
 // 7. Contraste alto y colores forzados: los accesos siguen visibles y de 44 px.
 // 8. /colabora y el pie siguen con sus chips (no se tocan).
 // 9. El acceso de tech es externo: pestaña nueva, rel="noopener noreferrer" y aviso para lector de pantalla.
@@ -132,6 +134,21 @@ const DESTINO_CASO = readFileSync(join(import.meta.dirname, '..', 'nuxt.config.t
 // escritorio la barra baja hasta 132 px, así que el borde de la sección pasa por debajo de ella sin tapar nada.
 const BAJO_LA_BARRA = (id) => `(() => { const el = document.getElementById('${id}'); const barra = document.querySelector('.dt-barra'); if (!el || !barra || el.offsetParent === null) return false; const t = el.getBoundingClientRect().top; return t >= barra.getBoundingClientRect().bottom - 2 && t < innerHeight - 40 })()`
 const EN_PANTALLA = (id) => `(() => { const el = document.getElementById('${id}'); if (!el || el.offsetParent === null) return false; const b = el.getBoundingClientRect(); return b.top >= 0 && b.top < innerHeight - 40 })()`
+// Los chips de /datos (.dt-barra), con la barra ya pegada bajo la cabecera fija: ¿alguno queda tapado? Se mide con
+// elementFromPoint en el centro de cada chip (lo que de verdad recibe el toque) y con el borde: el chip entero, por debajo
+// de la cabecera. A 375 px la barra tiene scroll horizontal; se mueve su scrollLeft (no scrollIntoView: movería la página).
+const CHIPS_LIBRES = `(() => {
+  const cab = document.querySelector('[data-cabecera-fija]'); const barra = document.querySelector('.dt-barra')
+  if (!cab || !barra) return null
+  const suelo = cab.getBoundingClientRect().bottom
+  return { suelo: Math.round(suelo), pegada: Math.abs(barra.getBoundingClientRect().top - suelo) <= 1, barraTop: Math.round(barra.getBoundingClientRect().top),
+    chips: [...barra.querySelectorAll('.dt-chip')].map((chip) => {
+      barra.scrollLeft = Math.max(0, chip.offsetLeft - 16)
+      const r = chip.getBoundingClientRect()
+      const el = document.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2)
+      return { texto: chip.textContent.trim(), top: Math.round(r.top), h: Math.round(r.height), libre: r.top >= suelo - 1 && !!el && chip.contains(el) }
+    }) }
+})()`
 
 try {
   for (const loc of ['es', 'en']) {
@@ -259,11 +276,37 @@ try {
       const sigue = llego && (await evaluate(BAJO_LA_BARRA('h-busca')))
       const donde = sigue ? '' : ` (${JSON.stringify(await evaluate(DONDE('h-busca')))})`
       ok(sigue, `${w}px, carga directa de ${ruta}: el título «Qué buscamos» a la vista y bajo la barra de secciones${donde}`)
+      // El destino antiguo (/ciencia#mapa-acceso) llevaba el foco al ancla; este también: quien navega con teclado o con
+      // lector de pantalla empieza en «Qué buscamos» y el primer Tab entra en las peticiones, no en los chips ni en «Hoy».
+      ok(await hasta(`document.activeElement?.id === 'h-busca'`, 3000), `${w}px, carga directa de ${ruta}: el foco está en «Qué buscamos» (${await evaluate(`document.activeElement?.tagName + '#' + (document.activeElement?.id || '')`)})`)
+      await tab()
+      const tras = await evaluate(`(() => { const el = document.activeElement; return { dentro: !!el?.closest('#que-buscamos'), que: (el?.tagName ?? '') + ' ' + (el?.getAttribute('href') ?? el?.textContent?.trim().slice(0, 24) ?? '') } })()`)
+      ok(tras.dentro, `${w}px, carga directa de ${ruta}: el primer Tab entra en las peticiones (${tras.que})`)
     }
     // el enlace antiguo de /caso sigue funcionando: hay quien lo tiene guardado o reenviado
     await cargar('/ciencia?nivel=pro&utm_source=referral&utm_medium=medico&utm_campaign=equipo-clinico#mapa-acceso')
     ok(await hasta(EN_PANTALLA('mapa-acceso')), `${w}px, carga directa del destino ANTIGUO de /caso: #mapa-acceso en pantalla`)
     ok(await hasta(`document.activeElement?.id === 'mapa-acceso'`, 3000), `${w}px, carga directa del destino ANTIGUO de /caso: el foco está en el acceso para el equipo médico`)
+  }
+
+  console.log('\n6b. Los chips de /datos no los tapa la cabecera fija')
+  // Preexistente (la barra «lo último» se montó sobre la cabecera el 26-sep y la barra de secciones seguía a top: 64/72 px),
+  // pero /caso aterriza aquí: es la primera pantalla del médico. Medido en el build: la cabecera cubría los 6 chips a 375,
+  // 1024 y 1280 px y quedaban ~13 de 44 px tocables.
+  for (const ruta of [DESTINO_CASO, DESTINO_CASO.replace(/^\/datos/, '/en/data')]) {
+    for (const w of [375, 1024, 1280]) {
+      await ancho(w, 800)
+      await cargar('/')
+      await cargar(ruta)
+      await hasta(BAJO_LA_BARRA('h-busca'), 6000)
+      await sleep(500)
+      const b = await evaluate(CHIPS_LIBRES)
+      ok(!!b && b.chips.length === 6, `${w}px ${ruta}: la barra tiene sus 6 chips (${b?.chips.length})`)
+      ok(!!b && b.pegada, `${w}px ${ruta}: la barra queda pegada justo bajo la cabecera (barra a ${b?.barraTop} px, cabecera hasta ${b?.suelo} px)`)
+      const tapados = (b?.chips ?? []).filter((c) => !c.libre)
+      ok(tapados.length === 0, `${w}px ${ruta}: ningún chip tapado por la cabecera${tapados.length ? ` (tapados: ${tapados.map((c) => `${c.texto} a ${c.top} px`).join(', ')})` : ''}`)
+      ok(!!b && b.chips.every((c) => c.h >= 44), `${w}px ${ruta}: los chips conservan 44 px de alto (${b?.chips.map((c) => c.h).join(', ')})`)
+    }
   }
 
   console.log('\n7. Contraste alto y colores forzados')

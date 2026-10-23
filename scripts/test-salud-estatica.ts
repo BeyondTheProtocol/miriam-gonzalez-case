@@ -34,11 +34,17 @@
 //    no se pintan. El corte es una lista blanca (app/utils/peticiones.ts), no «las 5 primeras»: aquí se
 //    prueba que cada regla casa con UN elemento de la fuente, para que una petición reescrita en caso.json
 //    ponga esto en rojo en vez de desaparecer de /datos en silencio.
+//    El enlace «Ver todo lo que buscamos» (la home y /ciencia lo llevarán con `limite`) sale solo si se enseñan
+//    menos de las publicadas, salvo que la página diga lo contrario; y la prop del componente lo permite de
+//    verdad: una prop booleana ausente llega como `false` si no declara `default`.
 //
 // Uso:  pnpm exec nuxt generate && pnpm test:salud-estatica
 import { existsSync, readFileSync, readdirSync } from 'node:fs'
 import { join } from 'node:path'
-import { REGLAS_PETICIONES, peticionesPublicas, seleccionarPeticiones } from '../app/utils/peticiones'
+import { createSSRApp, defineComponent, h } from 'vue'
+import { parse, compileScript } from 'vue/compiler-sfc'
+import { renderToString } from 'vue/server-renderer'
+import { REGLAS_PETICIONES, hayEnlaceTodas, peticionesPublicas, seleccionarPeticiones } from '../app/utils/peticiones'
 
 const PUB = '.output/public'
 const SITIO = 'https://helpmiriam.com'
@@ -227,6 +233,23 @@ if (existsSync('seed/fundraiser.json')) {
   ok(JSON.stringify(seleccionarPeticiones(publicas, { limite: 3 }).map((p) => p.clave)) === JSON.stringify(CLAVES.slice(0, 3)), 'con límite 3 salen las 3 de mayor prioridad')
   ok(JSON.stringify(seleccionarPeticiones(publicas, { filtro: ['hla', 'ihc'], limite: 1 }).map((p) => p.clave)) === JSON.stringify(['hla']), 'el filtro por tema se aplica antes del límite')
   ok(seleccionarPeticiones(publicas).length === 5 && seleccionarPeticiones(publicas, { limite: 0 }).length === 0, 'sin opciones salen las 5; con límite 0, ninguna')
+
+  // el enlace «Ver todo lo que buscamos»: la regla…
+  ok(hayEnlaceTodas(undefined, 3, 5) === true, 'enlace «Ver todo»: con límite 3 de 5 publicadas, sale')
+  ok(hayEnlaceTodas(undefined, 5, 5) === false, 'enlace «Ver todo»: si se enseñan todas (/datos), no sale')
+  ok(hayEnlaceTodas(false, 3, 5) === false && hayEnlaceTodas(true, 5, 5) === true, 'enlace «Ver todo»: verTodas explícito manda (false lo quita, true lo pone)')
+  // …y que el componente la deja actuar. Se compila el SFC real, se toma la declaración de su prop `verTodas` y se
+  // renderiza con Vue: ausente tiene que llegar `undefined` (con `false`, la regla de arriba nunca se aplicaría).
+  {
+    const { descriptor } = parse(readFileSync('app/components/QueBuscamos.vue', 'utf-8'), { filename: 'QueBuscamos.vue' })
+    const declaracion = compileScript(descriptor, { id: 'qb' }).content.match(/\bverTodas:\s*(\{[^}]*\})/)?.[1]
+    ok(!!declaracion, `QueBuscamos: la prop verTodas está declarada (${declaracion ?? 'no se encuentra'})`)
+    if (declaracion) {
+      const sonda = defineComponent({ props: { verTodas: new Function(`return (${declaracion})`)() }, setup: (p) => () => h('i', String(p.verTodas)) })
+      const ausente = await renderToString(createSSRApp(sonda))
+      ok(ausente.includes('undefined'), `QueBuscamos: sin verTodas llega «undefined» y no «false» (${ausente})`)
+    }
+  }
 
   // lo generado, en ES y EN
   const IDS = ['id="s-hoy"', 'id="que-buscamos"', 'id="s-tejido"', 'id="s-higado"', 'id="s-evo"', 'id="s-vitrina"']

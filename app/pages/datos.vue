@@ -319,7 +319,27 @@ const activa = ref('s-hoy')
 /** posición en la página sin transformaciones: la entrada animada de .dt-sec (translateY) engañaba a
  *  scrollIntoView y las secciones lejanas aterrizaban ~33 px más arriba */
 const yPagina = (el: HTMLElement) => { let y = 0; for (let n: HTMLElement | null = el; n; n = n.offsetParent as HTMLElement | null) y += n.offsetTop; return y }
-const MARGEN = 124 // = scroll-margin-top de .dt-sec: cabecera + barra de secciones
+/* La cabecera fija ([data-cabecera-fija]: la barra «lo último» + SiteNav) mide ~103 px en móvil y ~111 desde 640 px. La barra
+   de secciones se pegaba a `top: 64/72 px`, de antes de que se montara «lo último» (26-sep): la cabecera la tapaba (~40 px de
+   cada chip; quedaban ~13 de 44 px tocables, medido con elementFromPoint a 375, 1024 y 1280 px). Ahora se MIDE, como hace
+   router.options.ts, y llega a la CSS como --dt-cab (la CSS lleva un valor de reserva para el primer pintado y sin JS). */
+const cabAlto = ref(0)
+const estiloCab = computed(() => (cabAlto.value ? { '--dt-cab': `${cabAlto.value}px` } : undefined))
+let vigilaCab: ResizeObserver | undefined
+onMounted(() => {
+  const cab = document.querySelector<HTMLElement>('[data-cabecera-fija]')
+  if (!cab) return
+  const medir = () => { cabAlto.value = cab.offsetHeight }
+  medir()
+  if (typeof ResizeObserver !== 'undefined') { vigilaCab = new ResizeObserver(medir); vigilaCab.observe(cab) }
+})
+onBeforeUnmount(() => vigilaCab?.disconnect())
+/** hueco que dejan la cabecera fija y la barra de secciones (= scroll-margin-top de .dt-sec). Se lee del DOM en el momento:
+ *  así no hay carrera con el observador de arriba ni con una cabecera que cambie de alto (la barra «lo último» puede no estar). */
+function margen(): number {
+  const alto = (sel: string, reserva: number) => document.querySelector<HTMLElement>(sel)?.offsetHeight ?? reserva
+  return alto('[data-cabecera-fija]', 103) + alto('.dt-barra', 61)
+}
 /** clic normal: salto propio; con Cmd/Ctrl/Mayús o botón central, lo de siempre (abrir en pestaña nueva) */
 function clicSalto(ev: MouseEvent, id: string, antes?: () => void) {
   if (ev.metaKey || ev.ctrlKey || ev.shiftKey || ev.altKey || ev.button !== 0) return
@@ -331,12 +351,26 @@ function clicSalto(ev: MouseEvent, id: string, antes?: () => void) {
    y 50 ms después el scroll suave del router, ~1,3 s). Por eso se vigila ruta.hash, se espera a que
    el scroll se quede quieto 200 ms y se recoloca en seco ('instant': 'auto' heredaría el smooth). */
 let hashHecho = false
+/* Quien llega por /caso (el enlace que se reenvía a médicos) con teclado o con lector de pantalla empieza en «Qué buscamos»
+   y no en los chips ni en «Hoy»: sin esto el primer Tab caía en el chip «Tejido» y había que cruzar ~2.500 px de «Hoy» hasta
+   las peticiones. El destino antiguo (/ciencia#mapa-acceso) ya llevaba el foco a su ancla. Una vez, tras recolocar, y sin
+   mover la página (un segundo scroll a la vez que el de la recolocación se pisaría). */
+function enfocarPeticion() {
+  const h = document.getElementById('h-busca')
+  if (!h) return
+  h.setAttribute('tabindex', '-1')
+  h.focus({ preventScroll: true })
+}
 function alHash(h: string) {
   const id = h.slice(1)
   // también las secciones sin chip de la vitrina (calendario y reservorio), que se pueden enlazar
   if (hashHecho || !(SECCIONES.some(([s]) => s === id) || id === 's-dias' || id === 's-reservorio')) return
   hashHecho = true
-  const recolocar = () => { const el = document.getElementById(id); if (el) window.scrollTo({ top: Math.max(0, yPagina(el) - MARGEN), behavior: 'instant' }) }
+  const recolocar = () => {
+    const el = document.getElementById(id)
+    if (el) window.scrollTo({ top: Math.max(0, yPagina(el) - margen()), behavior: 'instant' })
+    if (id === 'que-buscamos') enfocarPeticion()
+  }
   let quieto: ReturnType<typeof setTimeout> | undefined
   const t0 = performance.now()
   const alMover = () => {
@@ -350,7 +384,7 @@ onMounted(() => alHash(location.hash))
 watch(() => ruta.hash, (h) => alHash(h))
 function saltar(id: string) {
   const el = document.getElementById(id); if (!el) return
-  window.scrollTo({ top: Math.max(0, yPagina(el) - MARGEN), behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' })
+  window.scrollTo({ top: Math.max(0, yPagina(el) - margen()), behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' })
   history.replaceState(history.state, '', `#${id}`)
 }
 let chipActivo: HTMLElement | null = null
@@ -361,7 +395,7 @@ function espiar() {
   cancelAnimationFrame(rafSpy)
   rafSpy = requestAnimationFrame(() => {
     let a = SECCIONES[0]![0]
-    for (const [id] of SECCIONES) { const el = document.getElementById(id); if (el && yPagina(el) - window.scrollY <= MARGEN + 40) a = id }
+    for (const [id] of SECCIONES) { const el = document.getElementById(id); if (el && yPagina(el) - window.scrollY <= margen() + 40) a = id }
     activa.value = a
   })
 }
@@ -410,7 +444,7 @@ const n = (v: number) => numCaso(v, lang.value)
 </script>
 
 <template>
-  <div class="overflow-x-clip">
+  <div class="dt-raiz overflow-x-clip" :style="estiloCab">
     <div class="dt-progreso" aria-hidden="true" />
     <ClientOnly>
       <DatosPelicula :abierta="peliAbierta" :eventos="eventos" :lineas="lineas" :series="seriesPeli" :contexto="contexto"
@@ -773,11 +807,14 @@ const n = (v: number) => numCaso(v, lang.value)
     background: var(--color-miriam); transform-origin: 0 50%; animation: dt-avanza linear both; animation-timeline: scroll(root); }
   @keyframes dt-avanza { from { transform: scaleX(0); } to { transform: scaleX(1); } }
 }
-.dt-barra { position: sticky; top: 64px; z-index: 40; display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none;
+/* alto de la cabecera fija: valor de reserva (medido: «lo último» + nav) hasta que la página lo mide y lo pone en línea */
+.dt-raiz { --dt-cab: 103px; }
+@media (min-width: 640px) { .dt-raiz { --dt-cab: 111px; } }
+.dt-barra { position: sticky; top: var(--dt-cab); z-index: 40; display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none;
   margin: 16px -16px 0; padding: 8px 16px; background: rgb(var(--color-bg-rgb) / 0.92); backdrop-filter: saturate(1.4) blur(8px);
   border-bottom: 1px solid rgb(var(--color-text-rgb) / 0.08); }
 .dt-barra::-webkit-scrollbar { display: none; }
-@media (min-width: 640px) { .dt-barra { top: 72px; margin: 16px 0 0; padding: 8px 0; } }
+@media (min-width: 640px) { .dt-barra { margin: 16px 0 0; padding: 8px 0; } }
 .dt-chip { flex: none; display: inline-flex; align-items: center; min-height: 44px; padding: 0 14px; border-radius: 999px; white-space: nowrap;
   font: 600 13px var(--font-body); color: var(--color-text-soft); border: 1px solid rgb(var(--color-text-rgb) / 0.12);
   transition: background var(--dur-micro), color var(--dur-micro), border-color var(--dur-micro); }
@@ -787,7 +824,7 @@ const n = (v: number) => numCaso(v, lang.value)
 .dt-cifra-link:active { transform: scale(0.98); }
 .dt-cifra-link:focus-visible { outline: 2px solid var(--color-miriam); outline-offset: 3px; }
 .dt-cifra-link > * { height: 100%; }
-.dt-sec { padding-top: 32px; scroll-margin-top: 124px; }
+.dt-sec { padding-top: 32px; scroll-margin-top: calc(var(--dt-cab) + 61px); } /* 61 = alto de la barra de secciones */
 /* Sin entrada al hacer scroll (26-sep-2026): las secciones se leen, no se animan al pasar (skill
    `movimiento-movil`). Antes había un `animation-timeline: view()` que deslizaba cada sección. */
 .dt-h2 { font: var(--tipo-h2); color: var(--color-text); margin: 0 0 12px; }

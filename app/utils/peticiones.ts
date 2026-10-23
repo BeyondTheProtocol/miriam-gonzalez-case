@@ -80,3 +80,13 @@ export function seleccionarPeticiones(
   const filtradas = filtro?.length ? publicas.filter((p) => filtro.includes(p.tema)) : [...publicas]
   return limite != null ? filtradas.slice(0, Math.max(0, limite)) : filtradas
 }
+
+/**
+ * ¿Lleva el enlace «Ver todo lo que buscamos»? Si la página lo pide (`verTodas` true o false) manda lo que pida; sin valor,
+ * aparece solo cuando se enseñan menos peticiones de las publicadas (en /datos salen todas y no hace falta).
+ * Vive aquí y no en el componente porque una prop booleana AUSENTE llega como `false`, no como `undefined`, y `??` ya no
+ * tomaba la rama por defecto: el componente lo evita con `default: undefined` y esta función se prueba sola.
+ */
+export function hayEnlaceTodas(verTodas: boolean | undefined, mostradas: number, publicas: number): boolean {
+  return verTodas ?? mostradas < publicas
+}
