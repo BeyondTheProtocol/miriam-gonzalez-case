@@ -22,8 +22,9 @@
             <span class="font-mono text-[11px] tracking-[0.04em] text-miriam mt-1">helpmiriam.com</span>
           </span>
         </NuxtLink>
-      <!-- Desktop nav -->
+      <!-- Desktop nav. Chrome mínimo (/links, /gracias): sin menú, ver useChromeMinimo. -->
       <nav
+        v-if="!minimo"
         :aria-label="$t('nav.main_label')"
         class="hidden lg:flex items-center gap-1"
       >
@@ -45,11 +46,14 @@
              marca el activo con un tinte suave (no una píldora rellena), para no
              competir con el CTA coral. Oculto en móviles pequeños (<sm): allí vive
              dentro del menú desplegable. setLocale() navega a la URL del
-             otro idioma; no hay cookie ni detección del navegador. -->
+             otro idioma; no hay cookie ni detección del navegador. Con el
+             chrome mínimo no hay menú desplegable: el selector se queda en la
+             cabecera también en móvil. -->
         <div
           role="group"
           :aria-label="$t('nav.language')"
-          class="hidden sm:flex items-center rounded-md overflow-hidden font-mono text-[11px] font-semibold tracking-widest uppercase"
+          class="items-center rounded-md overflow-hidden font-mono text-[11px] font-semibold tracking-widest uppercase"
+          :class="minimo ? 'flex' : 'hidden sm:flex'"
           style="border: 1px solid rgb(var(--color-text-rgb) / 0.1)"
         >
           <button
@@ -70,8 +74,9 @@
           >EN</button>
         </div>
 
-        <!-- Donate CTA -->
+        <!-- Donate CTA. Oculto en /gracias: quien llega ahí acaba de donar (useChromeMinimo). -->
         <a
+          v-if="!sinApoyo"
           href="https://gofund.me/3e25cae99"
           target="_blank"
           rel="noopener noreferrer"
@@ -85,6 +90,7 @@
 
         <!-- Mobile hamburger -->
         <button
+          v-if="!minimo"
           ref="hamburguesaRef"
           @click="mobileOpen = !mobileOpen"
           :aria-expanded="mobileOpen"
@@ -111,7 +117,7 @@
       leave-to-class="opacity-0 -translate-y-2 motion-reduce:translate-y-0"
     >
       <div
-        v-if="mobileOpen"
+        v-if="mobileOpen && !minimo"
         id="mobile-nav"
         class="lg:hidden bg-cream/95 backdrop-blur-lg"
         style="border-top: 1px solid rgb(var(--color-text-rgb) / 0.08)"
@@ -186,6 +192,7 @@ const localePath = useLocalePath()
 const route = useRoute()
 const { y } = useWindowScroll()
 const { trackSupport, trackNav } = useSupport()
+const { minimo, sinApoyo } = useChromeMinimo()
 
 const headerRef = ref<HTMLElement | null>(null)
 const hamburguesaRef = ref<HTMLButtonElement | null>(null)

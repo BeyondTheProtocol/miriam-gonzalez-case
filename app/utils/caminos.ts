@@ -28,6 +28,9 @@ export type CaminoConAccesos = 'clinician' | 'research' | 'press' | 'tech'
 export const REPO_URL = 'https://github.com/beyondtheprotocol/miriam-gonzalez-case'
 
 const h = (enlace: EnlaceNav): Acceso => ({ tipo: 'herramienta', enlace })
+// /datos se llamaba «El caso en datos» en estas tarjetas cuando el menú aún lo llamaba así; el menú pasó a «Datos» (F3) y
+// aquí se conserva el rótulo publicado, con su nueva clave. La key (analítica, icono) es la de siempre.
+const datos: Acceso = { tipo: 'herramienta', enlace: NAV.data, etiqueta: 'nav.data_case' }
 
 // Clínica: datos → lesiones → contacto. «Mama, hígado y hueso» y no el mapa (comité médico, 20-oct, y
 // decisión de Miriam al aprobar el plan): el mapa sale de estudios de marzo a junio de 2026; /lesiones,
@@ -38,8 +41,8 @@ const h = (enlace: EnlaceNav): Acceso => ({ tipo: 'herramienta', enlace })
 // enlaza /datos). Tech: «Repo público y documentación» → el repo. Curiosos, pacientes y donar, sin
 // accesos: sus pasos son acciones y sus herramientas ya están en la banda.
 export const ACCESOS: Record<CaminoConAccesos, Acceso[]> = {
-  clinician: [h(NAV.data), h(NAV.lesions), { tipo: 'contacto', rol: 'oncologist', etiqueta: 'nav.contact' }],
-  research: [h(NAV.cellExplorer), h(NAV.data), h(NAV.slides)],
+  clinician: [datos, h(NAV.lesions), { tipo: 'contacto', rol: 'oncologist', etiqueta: 'nav.contact' }],
+  research: [h(NAV.cellExplorer), datos, h(NAV.slides)],
   press: [{ tipo: 'herramienta', enlace: NAV.data, etiqueta: 'pathways.press_acceso' }],
   // Logo de GitHub, no ph:code: este repite el icono del título de tech y no dice adónde lleva (diseno, 20-oct).
   tech: [{ tipo: 'externo', href: REPO_URL, etiqueta: 'pathways.tech_acceso', icono: 'ph:github-logo-fill' }],
@@ -54,3 +57,28 @@ export function accesosDe(camino: CaminoConAccesos, visible: (e: EnlaceNav) => b
     a.tipo === 'herramienta' && !visible(a.enlace) ? h(NAV.cellByCell) : a
   )
 }
+
+/**
+ * Las cuatro puertas (rediseño de arquitectura, F3, 23-oct-2026): la taxonomía ÚNICA de «qué quiere hacer quien llega».
+ * Sustituye a los dos enrutadores que había (las 7 tarjetas de la home y el selector «por perfil» del pie y de /colabora):
+ * ni minutos ni pasos, un nombre y un destino. La home (F5) y /colabora (F10) las pintan; hasta entonces conviven con
+ * ACCESOS, que sigue siendo la lista de la home actual.
+ *
+ * · `etiqueta` → clave i18n (`puertas.*`).
+ * · `destino` → la campaña (`apoyo`: quien pinta resuelve GOFUNDME_URL y mide con trackSupport) o una ruta por NOMBRE, con su
+ *   ancla. «Clínico o laboratorio» aterriza en «Qué buscamos» (/datos#que-buscamos), la petición concreta.
+ */
+export type PuertaId = 'apoyar' | 'clinico' | 'prensa' | 'otras'
+export type DestinoPuerta = { tipo: 'apoyo' } | { tipo: 'ruta'; name: string; hash?: string }
+export interface Puerta {
+  id: PuertaId
+  etiqueta: string
+  destino: DestinoPuerta
+}
+
+export const PUERTAS: Puerta[] = [
+  { id: 'apoyar', etiqueta: 'puertas.apoyar', destino: { tipo: 'apoyo' } },
+  { id: 'clinico', etiqueta: 'puertas.clinico', destino: { tipo: 'ruta', name: 'datos', hash: '#que-buscamos' } },
+  { id: 'prensa', etiqueta: 'puertas.prensa', destino: { tipo: 'ruta', name: 'prensa' } },
+  { id: 'otras', etiqueta: 'puertas.otras', destino: { tipo: 'ruta', name: 'colabora' } },
+]

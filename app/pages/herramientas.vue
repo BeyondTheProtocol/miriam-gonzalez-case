@@ -55,7 +55,8 @@ const tarjetas = computed(() =>
     const [titulo, descripcion] = copyHerramienta(h.key, locale.value)
     // El explorador lleva por etiqueta su público, «Para profesionales» (ya publicada en /ciencia y en su tarjeta;
     // diseno, 19-oct): avisa al público general de que esa tarjeta es la técnica.
-    const etiqueta = h.key === 'cell_explorer' || h.key === 'slides' ? t('ciencia.level_pro') : t(`nav.${h.key}`)
+    // /datos se llama «Datos» en el menú desde F3; aquí sigue siendo «El caso en datos» (nav.data_case), que es su título.
+    const etiqueta = h.key === 'cell_explorer' || h.key === 'slides' ? t('ciencia.level_pro') : t(h.key === 'data' ? 'nav.data_case' : `nav.${h.key}`)
     const repite = titulo.trim().toLowerCase().startsWith(etiqueta.trim().toLowerCase())
     return { ...h, titulo, descripcion, etiqueta, repite, icono: ICONO_HERRAMIENTA[h.key] }
   })

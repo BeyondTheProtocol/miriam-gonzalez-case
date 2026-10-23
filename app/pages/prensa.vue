@@ -399,9 +399,7 @@
           </div>
         </section>
 
-        <Nota class="mt-12 pt-6" style="border-top: 1px solid rgba(45,27,61,0.08)">
-          {{ $t('press.updated_label', { date: asOfLabel }) }}
-        </Nota>
+        <ActualizadoEl class="mt-12 pt-6" style="border-top: 1px solid rgba(45,27,61,0.08)" :fecha="caseData.pressAsOf" clave="press.updated_label" />
       </div>
     </section>
   </div>
@@ -432,18 +430,6 @@ const copyProps = (text: string) => ({
 const bioLong = computed(() =>
   t('press.bio_long_text', { age: caseData.currentAge, countries: caseData.countries })
 )
-
-// 'AAAA-MM-DD' → «14 de octubre de 2026» según idioma. La fecha sale de caseData.pressAsOf
-// (revisión humana), no del build: «revisada el …» no promete más de lo que se hizo.
-const asOfLabel = computed(() => {
-  const [y, m, d] = caseData.pressAsOf.split('-').map(Number)
-  return new Intl.DateTimeFormat(locale.value === 'es' ? 'es-ES' : 'en-GB', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-    timeZone: 'UTC',
-  }).format(new Date(Date.UTC(y, m - 1, d)))
-})
 
 const fork = computed(() => [
   { href: '#hechos', icon: 'ph:newspaper', title: t('press.fork_piece_title'), desc: t('press.fork_piece_desc') },

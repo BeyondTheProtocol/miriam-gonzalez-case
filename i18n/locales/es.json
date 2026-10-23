@@ -14,8 +14,9 @@
     "donate": "Apoyar a Miriam",
     "collaborate": "Cómo ayudar",
     "brands": "Marcas",
-    "data": "El caso en datos",
-    "expenses": "Gastos",
+    "data": "Datos",
+    "data_case": "El caso en datos",
+    "expenses": "Transparencia",
     "main_label": "Navegación principal",
     "mobile_label": "Navegación móvil",
     "footer_label": "Navegación del sitio",
@@ -545,7 +546,7 @@
     "disclaimer": "Este sitio es un recurso informativo mantenido por el equipo de apoyo de Miriam. No sustituye asesoramiento médico profesional.",
     "updated": "Última actualización",
     "nav_heading": "Navegación",
-    "social_heading": "Social",
+    "social_heading": "Redes",
     "made_with": "Hecho con cariño, ciencia y mucha IA.",
     "site_header": "Encabezado del sitio",
     "site_footer": "Pie de página",
@@ -555,7 +556,8 @@
     "cookies": "Cookies",
     "group_case": "El caso",
     "group_tools": "Herramientas",
-    "group_involved": "Participa"
+    "group_involved": "Participa",
+    "group_data": "Datos"
   },
   "entry_disclaimer": {
     "badge": "Actualización mayo 2026",
@@ -1217,6 +1219,15 @@
     "transcript": "Leer la transcripción",
     "fallback": "Tu navegador no reproduce este vídeo. Puedes leer la transcripción debajo.",
     "list_label": "Lista de vídeos"
+  },
+  "page": {
+    "updated": "Actualizado el {date}"
+  },
+  "puertas": {
+    "apoyar": "Apoyar",
+    "clinico": "Clínico o laboratorio",
+    "prensa": "Prensa",
+    "otras": "Otras formas"
   },
   "sectionNav": {
     "aria": "Índice de secciones",

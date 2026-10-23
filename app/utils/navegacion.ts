@@ -8,11 +8,18 @@
  * · `name` → el nombre BASE de la ruta (sin el sufijo `___es`/`___en` que añade
  *            i18n). Se navega por nombre, nunca por path escrito a mano, y así
  *            funciona igual en /lesiones y en /en/lesiones.
+ * · `etiqueta` (opcional) → la clave i18n de la etiqueta cuando no es `nav.<key>`.
+ *
+ * Aquí viven también las redes (REDES) y los enlaces legales (LEGAL): el pie, el pie reducido de
+ * /links y /gracias, los enlaces rápidos de /colabora y el schema.org del layout leen la misma lista.
  */
 
 export interface EnlaceNav {
   key: string
   name: string
+  // Clave i18n de la etiqueta cuando NO es `nav.<key>` (p. ej. el pie lleva «El caso en datos» donde el menú lleva «Datos»).
+  // La key, y con ella la analítica y el icono, no cambian.
+  etiqueta?: string
 }
 
 const e = (key: string, name: string): EnlaceNav => ({ key, name })
@@ -22,7 +29,6 @@ export const NAV = {
   home: e('home', 'index'),
   science: e('science', 'ciencia'),
   evidence: e('evidence', 'ciencia-evidencia'),
-  tools: e('tools', 'herramientas'),
   allTools: e('all_tools', 'herramientas'),
   data: e('data', 'datos'),
   lesions: e('lesions', 'lesiones'),
@@ -42,12 +48,13 @@ export const NAV = {
   contact: e('contact', 'contacto'),
 } as const
 
-// Menú principal. En escritorio no va «Inicio»: el logo ya lleva a la home y así
-// cabe «Herramientas» a 1024 px. En móvil sí va, el primero.
-export const MENU_ESCRITORIO: EnlaceNav[] = [NAV.science, NAV.tools, NAV.timeline, NAV.team, NAV.collaborate]
+// Menú principal (rediseño de arquitectura, F3, 23-oct-2026): cinco ítems, «Datos» donde estaba «Herramientas». /datos es
+// la casa de las herramientas y de «Qué buscamos»; /herramientas se fusiona en /datos#visores en F4. En escritorio no va
+// «Inicio»: el logo ya lleva a la home. En móvil sí va, el primero.
+export const MENU_ESCRITORIO: EnlaceNav[] = [NAV.science, NAV.data, NAV.timeline, NAV.team, NAV.collaborate]
 export const MENU_MOVIL: EnlaceNav[] = [NAV.home, ...MENU_ESCRITORIO]
 
-// Las herramientas, en el orden del índice, de la banda de la home y del pie.
+// Las herramientas, en el orden del índice y de la banda de la home (el pie lleva su propia lista, PIE, desde F3).
 // Orden con criterio (Miriam, 20-oct-2026: «hay que poner un orden en las herramientas»; antes iban por fecha de
 // estreno): del cuerpo a la célula. Primero el caso en datos (la entrada), después la imagen (mama, hígado y hueso),
 // luego el tejido (las laminillas), la célula (célula a célula y, justo detrás, su explorador, que la página madre
@@ -82,22 +89,55 @@ export const ICONO_HERRAMIENTA: Record<string, string> = {
   cell_explorer: 'ph:magnifying-glass-fill',
 }
 
-// Pie: tres columnas por intención (`heading` es la clave i18n de su título).
+// «El caso en datos» con su nombre largo: en el pie, bajo el título «Datos», un enlace que se llamase «Datos» no diría
+// nada. Misma key y misma ruta que NAV.data (la analítica no cambia); solo cambia la etiqueta.
+const DATOS_CASO: EnlaceNav = { ...NAV.data, etiqueta: 'nav.data_case' }
+
+// Pie (rediseño de arquitectura, F3, 23-oct-2026): 13 enlaces de navegación en tres columnas (`heading` es la clave i18n de
+// su título) y, a su lado, las otras dos del pie: REDES y LEGAL (abajo). Fuera del pie, que ya no tiene sitio para ellos:
+// Historia, Vídeos, Marcas, Reservorio, «Todas las herramientas» y el selector «por perfil». El explorador de células
+// solo sale con su puerta abierta (useHerramientas).
 export const PIE: { id: string; heading: string; enlaces: EnlaceNav[] }[] = [
-  { id: 'caso', heading: 'footer.group_case', enlaces: [NAV.science, NAV.evidence, NAV.story, NAV.videos, NAV.timeline, NAV.team] },
-  { id: 'herramientas', heading: 'footer.group_tools', enlaces: [NAV.allTools, ...HERRAMIENTAS] },
-  { id: 'participa', heading: 'footer.group_involved', enlaces: [NAV.collaborate, NAV.press, NAV.brands, NAV.expenses, NAV.contact] },
+  { id: 'caso', heading: 'footer.group_case', enlaces: [NAV.science, NAV.evidence, NAV.timeline, NAV.team] },
+  { id: 'datos', heading: 'footer.group_data', enlaces: [DATOS_CASO, NAV.lesions, NAV.slides, NAV.cellByCell, NAV.cellExplorer] },
+  { id: 'participa', heading: 'footer.group_involved', enlaces: [NAV.collaborate, NAV.press, NAV.expenses, NAV.contact] },
+]
+
+// Redes de Miriam, UNA vez. Las leen el pie (y el pie reducido de /links y /gracias), los enlaces rápidos de /colabora y el
+// schema.org del layout (`sameAs`). `nombre` es el de la red; `pie` solo cuando el pie la llama distinto.
+export const REDES_USUARIO = '@miriamgonp'
+export interface Red {
+  id: string
+  nombre: string
+  pie?: string
+  url: string
+}
+export const REDES: Red[] = [
+  { id: 'x', nombre: 'X', pie: 'X / Twitter', url: 'https://x.com/miriamgonp' },
+  { id: 'instagram', nombre: 'Instagram', url: 'https://www.instagram.com/miriamgonp' },
+  { id: 'linkedin', nombre: 'LinkedIn', url: 'https://www.linkedin.com/in/miriamgonp' },
+  { id: 'tiktok', nombre: 'TikTok', url: 'https://tiktok.com/@miriamgonp' },
+  { id: 'youtube', nombre: 'YouTube', url: 'https://youtube.com/@miriamgonp' },
+]
+
+// Legal: los tres textos viven en su propia página (no en i18n), así que aquí solo van el nombre de la ruta y el rótulo.
+export const LEGAL: { name: string; etiqueta: string }[] = [
+  { name: 'aviso-legal', etiqueta: 'footer.legal_notice' },
+  { name: 'privacidad', etiqueta: 'footer.privacy' },
+  { name: 'cookies', etiqueta: 'footer.cookies' },
 ]
 
 // Estado activo del menú: qué rutas cuelgan de cada ítem. La primera de cada lista
 // es la raíz de la sección (allí el ítem lleva aria-current="page"); en las demás,
 // aria-current="true" y el mismo estilo activo. Por nombre de ruta y no por prefijo
-// de path, porque las herramientas no cuelgan de la URL /herramientas.
+// de path, porque las herramientas no cuelgan de la URL /datos.
+// F3: «Herramientas» pasa a «Datos». /herramientas y /reservorio (se fusionan en /datos en F4), /historia (a /timeline) y
+// la ruta de artículos de ciencia (borrada en F0) salen de la lista: de las que siguen vivas hasta F4, ninguna marca ítem.
 export const SECCIONES: Record<string, string[]> = {
   home: ['index'],
   science: ['ciencia', 'ciencia-evidencia'],
-  tools: ['herramientas', 'datos', 'lesiones', 'mapa-metastasis', 'reservorio', 'laminillas', 'celula-a-celula', 'celula-a-celula-explorar'],
-  timeline: ['timeline', 'historia', 'historia-slug'],
+  data: ['datos', 'lesiones', 'laminillas', 'celula-a-celula', 'celula-a-celula-explorar', 'mapa-metastasis'],
+  timeline: ['timeline'],
   team: ['equipo'],
   collaborate: ['colabora', 'prensa', 'marcas', 'gastos', 'contacto'],
 }

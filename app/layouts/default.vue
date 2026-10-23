@@ -4,7 +4,8 @@
       $t('nav.skip_to_content')
     }}</a>
     <div class="sticky top-0 z-50" data-cabecera-fija>
-      <LatestUpdateBar />
+      <!-- Chrome mínimo (/links, /gracias): sin la barra «lo último» (useChromeMinimo). -->
+      <LatestUpdateBar v-if="!minimo" />
       <SiteNav />
     </div>
     <main
@@ -33,6 +34,7 @@ const { locale } = useI18n()
 // hasSupportBar: ¿puede aparecer la barra en esta ruta? Decide si <main> reserva
 // su hueco (por ruta, no por visibilidad: sin saltos de layout al hacer scroll).
 const { isBrandsRoute, hasSupportBar } = useSupportBarRoute()
+const { minimo } = useChromeMinimo()
 
 function focusMain() {
   nextTick(() => {
@@ -54,18 +56,15 @@ useHead({
         : 'Miriam González · helpmiriam.com',
 })
 
-// Datos estructurados base (Schema.org / JSON-LD) en todo el sitio.
+// Datos estructurados base (Schema.org / JSON-LD) en todo el sitio. Las redes salen de REDES
+// (app/utils/navegacion.ts), la misma lista que el pie y /colabora.
+const urlsRedes = REDES.map((r) => r.url)
 useSchemaOrg([
   defineOrganization({
     name: 'Beyond the Protocol',
     url: 'https://helpmiriam.com',
     logo: 'https://helpmiriam.com/img/miriam-avatar.webp',
-    sameAs: [
-      'https://github.com/beyondtheprotocol/miriam-gonzalez-case',
-      'https://x.com/miriamgonp',
-      'https://www.instagram.com/miriamgonp',
-      'https://www.linkedin.com/in/miriamgonp',
-    ],
+    sameAs: [REPO_URL, ...urlsRedes],
   }),
   defineWebSite({
     name: 'Help Miriam',
@@ -85,11 +84,7 @@ useSchemaOrg([
       locale.value === 'es'
         ? 'Ingeniera de software y divulgadora tech. Investiga su propio cáncer de mama metastásico con inteligencia artificial y un equipo internacional, en abierto.'
         : 'Software engineer and tech communicator. She investigates her own metastatic breast cancer with artificial intelligence and an international team, in the open.',
-    sameAs: [
-      'https://x.com/miriamgonp',
-      'https://www.instagram.com/miriamgonp',
-      'https://www.linkedin.com/in/miriamgonp',
-    ],
+    sameAs: urlsRedes,
   }),
 ])
 </script>

@@ -14,8 +14,9 @@
     "donate": "Support Miriam",
     "collaborate": "How to help",
     "brands": "Brands",
-    "data": "The case in data",
-    "expenses": "Expenses",
+    "data": "Data",
+    "data_case": "The case in data",
+    "expenses": "Transparency",
     "main_label": "Primary navigation",
     "mobile_label": "Mobile navigation",
     "footer_label": "Site navigation",
@@ -532,7 +533,8 @@
     "cookies": "Cookies",
     "group_case": "The case",
     "group_tools": "Tools",
-    "group_involved": "Get involved"
+    "group_involved": "Get involved",
+    "group_data": "Data"
   },
   "entry_disclaimer": {
     "badge": "May 2026 update",
@@ -1217,6 +1219,15 @@
     "transcript": "Read the transcript",
     "fallback": "Your browser can't play this video. You can read the transcript below it.",
     "list_label": "Video list"
+  },
+  "page": {
+    "updated": "Updated {date}"
+  },
+  "puertas": {
+    "apoyar": "Support",
+    "clinico": "Clinical or laboratory",
+    "prensa": "Press",
+    "otras": "Other ways"
   },
   "sectionNav": {
     "aria": "Section index",

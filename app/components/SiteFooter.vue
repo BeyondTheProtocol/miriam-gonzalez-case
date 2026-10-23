@@ -1,60 +1,100 @@
 <template>
   <footer :aria-label="$t('footer.site_footer')" class="bg-cream-card" style="border-top: 1px solid rgb(var(--color-text-rgb) / 0.08)">
-    <!-- Con el apoyo de — muro de logos uniforme: todos en blanco monocromo, misma
-         altura óptica, centrados. Cada logo se aplana a silueta crema
-         (logo-wall__mark) para que GitHub/Notion/Tahe/Never Surrender/UCAM se lean
-         como un solo conjunto sobre la banda berenjena, sin cajas ni colores dispares.
-         Flex-wrap en vez de rejilla fija: con 5 logos (o los que vengan) la última
-         fila queda centrada en vez de dejar un huérfano pegado a la izquierda. -->
-    <section class="bg-berenjena" :aria-label="$t('index.supported_by')">
-      <div class="section-wide py-10 sm:py-12 text-center">
-        <p class="text-cream/70 text-xs font-mono font-medium uppercase tracking-[0.12em] mb-9">
-          {{ $t('index.supported_by') }}
+    <!-- Chrome mínimo (/links, /gracias; useChromeMinimo): la marca, el aviso, las redes y lo legal, en una sola
+         columna centrada. Sin el muro de logos ni las columnas de navegación: son páginas de una sola acción. -->
+    <div v-if="minimo" class="section-wide py-8 sm:py-10">
+      <div class="flex flex-col items-center gap-3 text-center">
+        <div class="flex items-center gap-2.5">
+          <BrandMark class="w-8 h-8 shrink-0" />
+          <span class="font-display font-semibold text-berenjena text-sm">
+            {{ $t('site.title') }}
+          </span>
+        </div>
+        <p class="text-xs text-tinta leading-relaxed max-w-md">
+          {{ $t('footer.disclaimer') }}
         </p>
-        <ul class="flex flex-wrap items-center justify-center gap-x-10 sm:gap-x-12 gap-y-10 max-w-3xl mx-auto">
-          <!-- shrink-0: sin él los <li> se encogen antes de que el flex-wrap salte
-               de línea, y en móvil los logos se desbordan de la banda. -->
-          <li v-for="s in supporters" :key="s.name" class="flex shrink-0 items-center justify-center">
-            <component
-              :is="s.url ? 'a' : 'span'"
-              v-bind="s.url ? { href: s.url, target: '_blank', rel: 'sponsored noopener' } : {}"
-              class="logo-wall__item inline-flex items-center justify-center"
-              :aria-label="s.url ? s.name : undefined"
-            >
-              <img
-                :src="s.img"
-                :alt="s.name"
-                class="logo-wall__mark w-auto object-contain"
-                :class="s.raster ? 'logo-wall__mark--raster' : 'logo-wall__mark--vector'"
-                loading="lazy"
-                decoding="async"
-              />
-            </component>
-          </li>
-        </ul>
+        <nav :aria-label="$t('nav.footer_label')" class="flex flex-col items-center">
+          <ul :aria-label="$t('footer.social_heading')" class="flex flex-wrap items-center justify-center gap-x-3 sm:gap-x-5">
+            <li v-for="red in REDES" :key="red.id">
+              <a
+                :href="red.url"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="inline-flex items-center min-h-[44px] text-sm text-tinta hover:text-miriam hover:underline underline-offset-2 transition-colors"
+                @click="trackShare(red.id, 'footer_minimo')"
+              >
+                {{ red.pie ?? red.nombre }}<span class="sr-only"> {{ $t('a11y.new_tab') }}</span>
+              </a>
+            </li>
+          </ul>
+          <ul :aria-label="$t('footer.legal_heading')" class="flex flex-wrap items-center justify-center gap-x-5">
+            <li v-for="l in LEGAL" :key="l.name">
+              <NuxtLink
+                :to="localePath({ name: l.name })"
+                class="inline-flex items-center min-h-[44px] text-xs font-mono text-tinta hover:text-miriam hover:underline underline-offset-2 transition-colors"
+              >
+                {{ $t(l.etiqueta) }}
+              </NuxtLink>
+            </li>
+          </ul>
+        </nav>
+        <p class="text-[11px] font-mono text-tinta">
+          {{ $t('footer.made_with') }}
+        </p>
       </div>
-    </section>
-    <div class="section-wide py-12 sm:py-16">
-      <!-- Marca · mapa del sitio en tres columnas por intención · Social (dictamen
-           `diseno`, 14-oct-2026). Los grupos salen de app/utils/navegacion.ts, la misma
-           fuente que el menú. En móvil: marca, luego los grupos a dos columnas y Social.
-           Cada enlace mide 44 px de alto (vara táctil de la casa). -->
-      <div class="grid gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,3fr)_minmax(0,0.8fr)] lg:gap-12 items-start">
-        <!-- Brand -->
-        <div>
-          <div class="flex items-center gap-2.5 mb-3">
+    </div>
+
+    <template v-else>
+      <!-- Con el apoyo de — muro de logos uniforme: todos en blanco monocromo, misma
+           altura óptica, centrados. Cada logo se aplana a silueta crema
+           (logo-wall__mark) para que GitHub/Notion/Tahe/Never Surrender/UCAM se lean
+           como un solo conjunto sobre la banda berenjena, sin cajas ni colores dispares.
+           Flex-wrap en vez de rejilla fija: con 5 logos (o los que vengan) la última
+           fila queda centrada en vez de dejar un huérfano pegado a la izquierda.
+           Rediseño de arquitectura (F3): sin el rótulo visible «Con el apoyo de»; el nombre de la
+           sección lo conserva `aria-label`, así que el lector de pantalla lo sigue oyendo. -->
+      <section class="bg-berenjena" :aria-label="$t('index.supported_by')">
+        <div class="section-wide py-9 sm:py-10 text-center">
+          <ul class="flex flex-wrap items-center justify-center gap-x-10 sm:gap-x-12 gap-y-10 max-w-3xl mx-auto">
+            <!-- shrink-0: sin él los <li> se encogen antes de que el flex-wrap salte
+                 de línea, y en móvil los logos se desbordan de la banda. -->
+            <li v-for="s in supporters" :key="s.name" class="flex shrink-0 items-center justify-center">
+              <component
+                :is="s.url ? 'a' : 'span'"
+                v-bind="s.url ? { href: s.url, target: '_blank', rel: 'sponsored noopener' } : {}"
+                class="logo-wall__item inline-flex items-center justify-center"
+                :aria-label="s.url ? s.name : undefined"
+              >
+                <img
+                  :src="s.img"
+                  :alt="s.name"
+                  class="logo-wall__mark w-auto object-contain"
+                  :class="s.raster ? 'logo-wall__mark--raster' : 'logo-wall__mark--vector'"
+                  loading="lazy"
+                  decoding="async"
+                />
+              </component>
+            </li>
+          </ul>
+        </div>
+      </section>
+      <div class="section-wide py-12 sm:py-16">
+        <!-- Marca y aviso, en una fila; debajo, cinco columnas (rediseño de arquitectura, F3): tres de
+             navegación por intención (13 enlaces; salen de app/utils/navegacion.ts, la misma fuente que el
+             menú), Redes y Legal. En móvil, dos columnas. Cada enlace mide 44 px de alto (vara táctil de la casa). -->
+        <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:gap-8">
+          <div class="flex items-center gap-2.5 shrink-0">
             <BrandMark class="w-8 h-8 shrink-0" />
             <span class="font-display font-semibold text-berenjena text-sm">
               {{ $t('site.title') }}
             </span>
           </div>
-          <p class="text-xs text-tinta leading-relaxed max-w-xs">
+          <p class="text-xs text-tinta leading-relaxed max-w-xl">
             {{ $t('footer.disclaimer') }}
           </p>
         </div>
 
-        <!-- Navigation -->
-        <nav :aria-label="$t('nav.footer_label')" class="grid grid-cols-2 sm:grid-cols-3 gap-x-6 gap-y-8">
+        <nav :aria-label="$t('nav.footer_label')" class="mt-10 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-x-6 gap-y-8">
           <div v-for="grupo in PIE" :key="grupo.id">
             <h3 :id="`pie-${grupo.id}`" class="eyebrow mb-1 block">
               {{ $t(grupo.heading) }}
@@ -65,102 +105,71 @@
                   class="inline-flex items-center min-h-[44px] text-sm text-tinta hover:text-miriam transition-colors"
                   style="text-decoration: none"
                   @click="medirPie(item.key)">
-                  {{ $t(`nav.${item.key}`) }}
+                  {{ $t(item.etiqueta ?? `nav.${item.key}`) }}
+                </NuxtLink>
+              </li>
+            </ul>
+          </div>
+
+          <!-- Redes (REDES) y, al final, la campaña -->
+          <div>
+            <h3 id="pie-redes" class="eyebrow mb-1 block">
+              {{ $t('footer.social_heading') }}
+            </h3>
+            <ul aria-labelledby="pie-redes" class="flex flex-col items-start">
+              <li v-for="red in REDES" :key="red.id">
+                <a
+                  :href="red.url"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="inline-flex items-center min-h-[44px] text-sm text-tinta hover:text-miriam hover:underline underline-offset-2 transition-colors"
+                  @click="trackShare(red.id, 'footer')"
+                >
+                  {{ red.pie ?? red.nombre }}<span class="sr-only"> {{ $t('a11y.new_tab') }}</span>
+                </a>
+              </li>
+              <li>
+                <a href="https://gofund.me/3e25cae99" target="_blank" rel="noopener noreferrer"
+                  @click="trackSupport('footer')"
+                  class="inline-flex items-center min-h-[44px] gap-1 text-sm text-coral-deep hover:text-coral-hover hover:underline underline-offset-2 font-semibold transition-colors">
+                  GoFundMe<Icon name="ph:arrow-up-right-bold" class="w-3 h-3" aria-hidden="true" /><span class="sr-only"> {{ $t('a11y.new_tab') }}</span>
+                </a>
+              </li>
+            </ul>
+          </div>
+
+          <!-- Legal (LEGAL) -->
+          <div>
+            <h3 id="pie-legal" class="eyebrow mb-1 block">
+              {{ $t('footer.legal_heading') }}
+            </h3>
+            <ul aria-labelledby="pie-legal" class="flex flex-col">
+              <li v-for="l in LEGAL" :key="l.name">
+                <NuxtLink :to="localePath({ name: l.name })"
+                  class="inline-flex items-center min-h-[44px] text-sm text-tinta hover:text-miriam transition-colors"
+                  style="text-decoration: none">
+                  {{ $t(l.etiqueta) }}
                 </NuxtLink>
               </li>
             </ul>
           </div>
         </nav>
 
-        <!-- Social -->
-        <div>
-          <h3 class="eyebrow mb-1 block">
-            {{ $t('footer.social_heading') }}
-          </h3>
-          <div class="flex flex-col items-start">
-            <a
-              href="https://x.com/miriamgonp"
-              target="_blank"
-              rel="noopener noreferrer"
-              class="inline-flex items-center min-h-[44px] text-sm text-tinta hover:text-miriam hover:underline underline-offset-2 transition-colors"
-              @click="trackShare('x', 'footer')"
-            >
-              X / Twitter<span class="sr-only"> {{ $t('a11y.new_tab') }}</span>
-            </a>
-            <a
-              href="https://www.instagram.com/miriamgonp"
-              target="_blank"
-              rel="noopener noreferrer"
-              class="inline-flex items-center min-h-[44px] text-sm text-tinta hover:text-miriam hover:underline underline-offset-2 transition-colors"
-              @click="trackShare('instagram', 'footer')"
-            >
-              Instagram<span class="sr-only"> {{ $t('a11y.new_tab') }}</span>
-            </a>
-            <a
-              href="https://www.linkedin.com/in/miriamgonp"
-              target="_blank"
-              rel="noopener noreferrer"
-              class="inline-flex items-center min-h-[44px] text-sm text-tinta hover:text-miriam hover:underline underline-offset-2 transition-colors"
-              @click="trackShare('linkedin', 'footer')"
-            >
-              LinkedIn<span class="sr-only"> {{ $t('a11y.new_tab') }}</span>
-            </a>
-            <a href="https://gofund.me/3e25cae99" target="_blank" rel="noopener noreferrer"
-              @click="trackSupport('footer')"
-              class="inline-flex items-center min-h-[44px] gap-1 text-sm text-coral-deep hover:text-coral-hover hover:underline underline-offset-2 font-semibold transition-colors">
-              GoFundMe<Icon name="ph:arrow-up-right-bold" class="w-3 h-3" aria-hidden="true" /><span class="sr-only"> {{ $t('a11y.new_tab') }}</span>
-            </a>
-          </div>
-        </div>
-      </div>
-
-      <!-- Chips "por perfil" (propuesta 4 del comité, 26-sep-2026): mismo
-           componente y misma copy que /colabora (ProfileChips.vue), para que
-           quien llegue por un enlace directo a cualquier página encuentre su
-           vía sin tener que pasar antes por /colabora. -->
-      <div class="mt-10 pt-8" style="border-top: 1px solid rgb(var(--color-text-rgb) / 0.08)">
-        <h3 class="eyebrow mb-3 block">{{ $t('collaborate.profiles_eyebrow') }}</h3>
-        <ProfileChips />
-      </div>
-
-      <!-- Legal -->
-      <nav
-        :aria-label="$t('footer.legal_heading')"
-        class="mt-8 pt-4 flex flex-wrap items-center gap-x-5"
-        style="border-top: 1px solid rgb(var(--color-text-rgb) / 0.08)"
-      >
-        <NuxtLink :to="localePath('aviso-legal')" class="inline-flex items-center min-h-[44px] text-[11px] font-mono text-tinta hover:text-miriam hover:underline underline-offset-2 transition-colors">
-          {{ $t('footer.legal_notice') }}
-        </NuxtLink>
-        <NuxtLink :to="localePath('privacidad')" class="inline-flex items-center min-h-[44px] text-[11px] font-mono text-tinta hover:text-miriam hover:underline underline-offset-2 transition-colors">
-          {{ $t('footer.privacy') }}
-        </NuxtLink>
-        <NuxtLink :to="localePath('cookies')" class="inline-flex items-center min-h-[44px] text-[11px] font-mono text-tinta hover:text-miriam hover:underline underline-offset-2 transition-colors">
-          {{ $t('footer.cookies') }}
-        </NuxtLink>
-      </nav>
-
-      <div class="mt-4 flex flex-col sm:flex-row justify-between items-center gap-2">
-        <p v-if="fechaCambio" class="text-[11px] font-mono text-tinta">
-          {{ $t('footer.updated') }}: <time :datetime="diaDelCambio" data-pie-fecha>{{ fechaCambio }}</time>
-        </p>
-        <p class="text-[11px] font-mono text-tinta">
+        <p class="mt-10 text-[11px] font-mono text-tinta">
           {{ $t('footer.made_with') }}
         </p>
       </div>
-    </div>
+    </template>
   </footer>
 </template>
 
 <script setup lang="ts">
 const localePath = useLocalePath()
 const { trackSupport, trackShare, trackDatos, trackCelula, trackExplorador } = useSupport()
+const { minimo } = useChromeMinimo()
 
-// «Última actualización»: el día del último cambio, que trae el build (ver app/utils/fechaCambio.ts).
-const { locale } = useI18n()
-const ultimoCambio = useRuntimeConfig().public.ultimoCambio as string
-const fechaCambio = computed(() => formatearFechaCambio(ultimoCambio, locale.value))
-const diaDelCambio = diaCambio(ultimoCambio)
+// El pie ya no lleva la fecha global del build («Última actualización»): rediseño de arquitectura, F3. Cada página dice la
+// suya donde tiene una fecha fiable (ActualizadoEl).
 
 // "Con el apoyo de" — todos iguales (logos de empresas/colaboradores). Todos se
 // pintan en blanco monocromo (CSS) para leerse como un conjunto sobre berenjena.
@@ -180,8 +189,8 @@ const supporters = [
   { name: 'UCAM', img: '/svg/ucam.svg', url: 'https://www.ucam.edu' },
 ]
 
-// Los enlaces del pie (tres grupos) viven en app/utils/navegacion.ts: `PIE`. El explorador de células solo
-// sale con su puerta abierta (useHerramientas).
+// Los enlaces del pie (tres grupos), las redes y lo legal viven en app/utils/navegacion.ts: `PIE`, `REDES`, `LEGAL`.
+// El explorador de células solo sale con su puerta abierta (useHerramientas).
 const { visible } = useHerramientas()
 function medirPie(key: string) {
   if (key === 'data') trackDatos('footer')

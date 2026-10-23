@@ -547,8 +547,10 @@ ok('alias de búsqueda: ninguno es una isoforma (p. ej. «CLDN18.2»)', !Object.
 
 // 19-oct (Miriam: el explorador «super a mano en toda la web»; dictamen diseno): el explorador es una herramienta más.
 {
-  const sinSeccion = HERRAMIENTAS.filter((h) => !SECCIONES.tools!.includes(h.name)).map((h) => h.name)
-  ok('toda herramienta está en SECCIONES.tools (el menú marca «Herramientas» en cada una)', sinSeccion.length === 0, sinSeccion.join(', '))
+  // F3 (23-oct-2026): «Herramientas» pasa a «Datos» (SECCIONES.data). El reservorio sigue en HERRAMIENTAS hasta F4, que lo
+  // fusiona en /datos#reservorio, pero ya no marca ítem (la decisión lo saca de SECCIONES): excepción explícita, a quitar en F4.
+  const sinSeccion = HERRAMIENTAS.filter((h) => h.name !== 'reservorio' && !SECCIONES.data!.includes(h.name)).map((h) => h.name)
+  ok('toda herramienta (salvo el reservorio, que F4 fusiona en /datos) está en SECCIONES.data (el menú marca «Datos» en cada una)', sinSeccion.length === 0, sinSeccion.join(', '))
   const es = JSON.parse(lee(join(RAIZ, 'i18n', 'locales', 'es.json'))).nav, en = JSON.parse(lee(join(RAIZ, 'i18n', 'locales', 'en.json'))).nav
   const cojas = HERRAMIENTAS.filter((h) => !COPY_HERRAMIENTAS[h.key] || !ICONO_HERRAMIENTA[h.key] || !es[h.key] || !en[h.key]).map((h) => h.key)
   ok('toda herramienta tiene título y descripción publicados, icono y etiqueta de menú en es y en', cojas.length === 0, cojas.join(', '))

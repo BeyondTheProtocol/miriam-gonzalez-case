@@ -384,11 +384,8 @@ const quickLinks = computed<QuickLink[]>(() => {
     { label: locale.value === 'es' ? 'Marcas · co-creación' : 'Brands · co-creation', url: localePath('marcas'), external: false },
     { label: 'Repo · GitHub', url: 'https://github.com/beyondtheprotocol/miriam-gonzalez-case', external: true },
     { label: 'GoFundMe · ' + GOFUNDME_URL.replace('https://', ''), url: GOFUNDME_URL, external: true },
-    { label: '@miriamgonp · Instagram', url: 'https://instagram.com/miriamgonp', external: true },
-    { label: '@miriamgonp · X', url: 'https://x.com/miriamgonp', external: true },
-    { label: '@miriamgonp · TikTok', url: 'https://tiktok.com/@miriamgonp', external: true },
-    { label: '@miriamgonp · YouTube', url: 'https://youtube.com/@miriamgonp', external: true },
-    { label: '@miriamgonp · LinkedIn', url: 'https://linkedin.com/in/miriamgonp', external: true },
+    // Las redes salen de REDES (app/utils/navegacion.ts), la misma lista que el pie y el schema.org del layout.
+    ...REDES.map((r) => ({ label: `${REDES_USUARIO} · ${r.nombre}`, url: r.url, external: true })),
     { label: locale.value === 'es' ? 'Contacto' : 'Contact', url: localePath('contacto'), external: false },
   ]
 })

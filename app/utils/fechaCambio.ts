@@ -1,12 +1,13 @@
-// La fecha del pie («Última actualización»): el día del último cambio de la web.
+// Fechas de «Actualizado el …» (ActualizadoEl.vue): el día en lenguaje llano y su `datetime`.
 //
-// Por qué: el pie decía «junio de 2026» escrito a mano y nadie lo tocaba al publicar (seguía así el
-// 22-oct-2026). Regla de Miriam: cada vez que la web cambia, el pie lo dice. La fecha sale del
-// último commit en el build (nuxt.config.ts → runtimeConfig.public.ultimoCambio), así que cada
-// despliegue la trae sola. Es una fecha absoluta: hornearla en el HTML es verdad hasta el
-// siguiente cambio (al revés que el «hace N días», que caducaba al día siguiente).
+// Historia: nació el 22-oct-2026 para la «Última actualización» del PIE, que decía el día del último commit del sitio
+// entero (regla de Miriam: cada vez que cambia la web, el pie lo dice). El rediseño de arquitectura (F3, 23-oct-2026)
+// quitó esa fecha global del pie —decía «actualizado» de páginas que no habían cambiado— y cada página dice la suya donde
+// tiene una fecha fiable. `nuxt.config.ts` sigue calculando `runtimeConfig.public.ultimoCambio` (sin lector desde F3):
+// si Miriam quiere el pie como estaba, basta con volver a leerlo en SiteFooter.vue; estas funciones son las mismas.
 //
-// Hora de Madrid: un cambio a las 00:30 en España es del día de España, no del de UTC.
+// Admite un instante ISO o solo un día (AAAA-MM-DD). Hora de Madrid: un cambio a las 00:30 en España es del día de
+// España, no del de UTC. Un día suelto se lee como medianoche UTC, que en Madrid sigue siendo ese mismo día (va por delante).
 export function formatearFechaCambio(iso: string | undefined, locale: string): string {
   const d = iso ? new Date(iso) : null
   if (!d || isNaN(+d)) return ''

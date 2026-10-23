@@ -18,8 +18,12 @@
 //    el foco está en él (el primer Tab entra en las peticiones, no en los chips) y, con la barra ya pegada,
 //    ningún chip queda tapado por la cabecera fija (a 375, 1024 y 1280 px).
 // 7. Contraste alto y colores forzados: los accesos siguen visibles y de 44 px.
-// 8. /colabora y el pie siguen con sus chips (no se tocan).
+// 8. /colabora conserva sus chips «por perfil»; el pie ya no los lleva (rediseño de arquitectura, F3: los sustituyen las
+//    cuatro puertas de utils/caminos.ts, que pintarán la home y /colabora en F5 y F10).
 // 9. El acceso de tech es externo: pestaña nueva, rel="noopener noreferrer" y aviso para lector de pantalla.
+// 10. Chrome mínimo (F3): /links y /gracias, en ES y EN a 375 y 1280 px, sin menú, sin barra «lo último» y con un pie
+//    reducido (las 5 redes y lo legal, sin logos ni columnas); /gracias además sin «Apoyar» en la cabecera ni en el pie.
+//    El chrome reaparece y desaparece al navegar sin recargar (logo → home → atrás; «Volver al inicio» → atrás).
 //
 // CAPTURAS=<carpeta> guarda capturas de la rejilla para la revisión de `diseno`.
 // Uso: pnpm exec nuxt generate && pnpm test:home-caminos
@@ -327,14 +331,14 @@ try {
     await cdp('Emulation.setEmulatedMedia', { features: [] })
   }
 
-  console.log('\n8. /colabora y el pie, sin cambios')
+  console.log('\n8. /colabora conserva sus chips; el pie ya no los lleva')
   await ancho(1280)
   await cargar('/colabora')
   const colabora = await evaluate(`({ chips: document.querySelectorAll('main .pathway-chip').length, accesos: document.querySelectorAll('.pathway-acceso').length })`)
   ok(colabora.chips > 0 && colabora.accesos === 0, `/colabora: sus chips (${colabora.chips}) y ningún acceso de la home`)
   await cargar('/')
   const pie = await evaluate(`({ chips: document.querySelectorAll('footer .pathway-chip').length, accesos: document.querySelectorAll('footer .pathway-acceso').length })`)
-  ok(pie.chips > 0 && pie.accesos === 0, `pie: sus chips (${pie.chips}) y ningún acceso de la home`)
+  ok(pie.chips === 0 && pie.accesos === 0, `pie: ningún chip «por perfil» (${pie.chips}) ni acceso de la home (${pie.accesos})`)
 
   console.log('\n9. El acceso de tech es externo')
   await ancho(1280)
@@ -342,6 +346,86 @@ try {
   const ext = await evaluate(`(() => { const a = document.querySelector('.pathway-card--tech .pathway-acceso'); return a ? { href: a.getAttribute('href'), target: a.getAttribute('target'), rel: a.getAttribute('rel'), aviso: a.querySelector('.sr-only')?.textContent.trim() ?? '' } : null })()`)
   ok(!!ext && ext.target === '_blank' && ext.rel === 'noopener noreferrer', `tech: abre en pestaña nueva con rel="noopener noreferrer" (${JSON.stringify(ext)})`)
   ok(!!ext && /pestaña nueva/.test(ext.aviso), 'tech: avisa al lector de pantalla de la pestaña nueva')
+
+  console.log('\n10. Chrome mínimo en /links y /gracias')
+  // Qué hay en la cabecera y el pie de la página cargada.
+  const CHROME = `(() => {
+    const cab = document.querySelector('[data-cabecera-fija]')
+    const visible = (el) => !!el && el.offsetParent !== null && getComputedStyle(el).visibility !== 'hidden'
+    const idioma = cab ? cab.querySelector('[role=group]') : null
+    const redes = ['x.com', 'instagram.com', 'linkedin.com', 'tiktok.com', 'youtube.com']
+    return {
+      barra: !!document.querySelector('.latest-bar'),
+      menu: !!(cab && cab.querySelector('nav')),
+      hamburguesa: !!(cab && cab.querySelector('button[aria-controls=mobile-nav]')),
+      idiomaVisible: visible(idioma),
+      botonesIdioma: idioma ? [...idioma.querySelectorAll('button')].map((b) => Math.round(b.getBoundingClientRect().height)) : [],
+      apoyoCabecera: [...(cab ? cab.querySelectorAll('a[href*="gofund.me"]') : [])].some(visible),
+      apoyoPie: !!document.querySelector('footer a[href*="gofund.me"]'),
+      columnasPie: document.querySelectorAll('footer [id^=pie-]').length,
+      logos: !!document.querySelector('footer .logo-wall__mark'),
+      redesPie: [...document.querySelectorAll('footer a[href]')].filter((a) => redes.some((r) => a.getAttribute('href').includes(r))).length,
+      legalPie: document.querySelectorAll('footer a[href*="aviso-legal"], footer a[href*="legal-notice"], footer a[href*="privacidad"], footer a[href*="privacy"], footer a[href*="cookies"]').length,
+      sw: document.documentElement.scrollWidth, vw: innerWidth,
+    }
+  })()`
+  const CASOS = [
+    { loc: 'es', ruta: '/links', home: '/', gracias: false },
+    { loc: 'es', ruta: '/gracias', home: '/', gracias: true },
+    { loc: 'en', ruta: '/en/links', home: '/en', gracias: false },
+    { loc: 'en', ruta: '/en/thank-you', home: '/en', gracias: true },
+  ]
+  for (const w of [375, 1280]) {
+    await ancho(w)
+    for (const c of CASOS) {
+      await cargar(c.ruta)
+      const m = await evaluate(CHROME)
+      const t = `${c.ruta} a ${w}px`
+      ok(!m.menu && !m.hamburguesa && !m.barra, `${t}: sin menú, sin botón de menú y sin la barra «lo último»`)
+      ok(m.idiomaVisible && m.botonesIdioma.length === 2 && m.botonesIdioma.every((h) => h >= 44), `${t}: el selector de idioma se queda a la vista, con 44 px (${m.botonesIdioma.join(', ')})`)
+      ok(m.columnasPie === 0 && !m.logos && m.redesPie === 5 && m.legalPie === 3, `${t}: pie reducido: sin columnas (${m.columnasPie}) ni logos, con las 5 redes (${m.redesPie}) y lo legal (${m.legalPie})`)
+      ok(!m.apoyoPie, `${t}: el pie no lleva «Apoyar»`)
+      if (c.gracias) ok(!m.apoyoCabecera, `${t}: /gracias no lleva «Apoyar» en la cabecera`)
+      else if (w >= 640) ok(m.apoyoCabecera, `${t}: /links conserva «Apoyar» en la cabecera hasta que F6 lo ponga en la página`)
+      ok(m.sw <= m.vw, `${t}: sin scroll horizontal (${m.sw} ≤ ${m.vw})`)
+    }
+  }
+  // el control: una página normal conserva todo
+  await ancho(1280)
+  for (const ruta of ['/datos', '/en/data']) {
+    await cargar(ruta)
+    const m = await evaluate(CHROME)
+    ok(m.menu && m.barra && m.columnasPie === 5 && m.logos && m.apoyoPie, `${ruta}: chrome completo (menú ${m.menu}, barra ${m.barra}, ${m.columnasPie} columnas de pie, logos ${m.logos}, GoFundMe en el pie ${m.apoyoPie})`)
+  }
+  // Navegar sin recargar: el chrome entra y sale con la ruta (una marca en `window` prueba que no hubo recarga).
+  const enRuta = (ruta) => hasta(`location.pathname === '${ruta}'`, 8000)
+  for (const c of CASOS) {
+    await ancho(1280)
+    await cargar(c.ruta)
+    await evaluate(`window.__sinRecarga = true`)
+    await evaluate(`document.querySelector('[data-cabecera-fija] a[href="${c.home}"]').click()`)
+    ok(await enRuta(c.home), `${c.ruta} → logo → ${c.home}`)
+    await sleep(400)
+    let m = await evaluate(CHROME)
+    ok(m.menu && m.columnasPie === 5 && m.logos, `${c.ruta} → inicio sin recargar: reaparecen el menú (${m.menu}) y el pie completo (${m.columnasPie} columnas)`)
+    await evaluate(`history.back()`)
+    ok(await enRuta(c.ruta), `atrás → ${c.ruta}`)
+    await sleep(400)
+    m = await evaluate(CHROME)
+    ok(!m.menu && m.columnasPie === 0 && !m.barra && (c.gracias ? !m.apoyoCabecera : true), `${c.ruta} al volver: chrome mínimo otra vez (menú ${m.menu}, columnas ${m.columnasPie}, barra ${m.barra})`)
+    ok(await evaluate(`window.__sinRecarga === true`), `${c.ruta}: todo el recorrido fue navegación del cliente, sin recargar`)
+  }
+  // /gracias: «Volver al inicio» (el botón de la página) hace lo mismo.
+  for (const c of CASOS.filter((x) => x.gracias)) {
+    await cargar(c.ruta)
+    await evaluate(`window.__sinRecarga = true`)
+    await evaluate(`[...document.querySelectorAll('main a')].find((a) => a.getAttribute('href') === '${c.home}').click()`)
+    ok(await enRuta(c.home), `${c.ruta} → «Volver al inicio» → ${c.home}`)
+    await sleep(400)
+    const m = await evaluate(CHROME)
+    ok(m.menu && m.apoyoCabecera, `${c.ruta} → inicio: vuelven el menú y «Apoyar» (${m.menu}, ${m.apoyoCabecera})`)
+    ok(await evaluate(`window.__sinRecarga === true`), `${c.ruta} → inicio: sin recargar`)
+  }
 } finally {
   await nav.cerrar()
   clearTimeout(tope)

@@ -458,10 +458,11 @@ const n = (v: number) => numCaso(v, lang.value)
           :title="L('El caso en datos', 'The case in data')"
           :subtitle="L('La evolución clínica de Miriam de un vistazo, con la fuente de cada cifra.', 'Miriam’s clinical course at a glance, and where every number comes from.')"
         >
-          <p class="mt-4 font-mono text-[11px] uppercase tracking-[0.12em] text-tinta">
-            {{ L('Actualizado', 'Updated') }} {{ fechaCorta(hoy, lang) }} ·
-            <a href="/datos/caso.json" download class="text-miriam underline underline-offset-2">{{ L('Descargar los datos', 'Download the data') }}</a>
-          </p>
+          <!-- La fecha, con la voz de Nota que usan las demás páginas (rediseño F3): la de caso.json, no la del build. -->
+          <div class="mt-4 flex flex-wrap items-baseline gap-x-4 gap-y-1">
+            <ActualizadoEl :fecha="c.actualizado" />
+            <a href="/datos/caso.json" download class="font-mono text-[11px] uppercase tracking-[0.12em] text-miriam underline underline-offset-2">{{ L('Descargar los datos', 'Download the data') }}</a>
+          </div>
         </PageHeader>
         <p class="dt-aviso">
           <Icon name="ph:info-fill" class="w-4 h-4 shrink-0" aria-hidden="true" />

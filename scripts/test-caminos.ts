@@ -14,10 +14,12 @@
 // 7. Destinos: el botón clínico aterriza en «De un vistazo»; research y el h5ad, con rol de investigador.
 // 8. Prensa y tech (PR 2): el paso que pasa a acceso conserva su texto publicado, sale de la lista de
 //    pasos (no se repite) y la lista se queda con sus pasos de acción.
+// 9. Las cuatro puertas (rediseño de arquitectura, F3): la taxonomía única, sin minutos ni pasos, con destinos que existen.
+//    Y /datos conserva en estas tarjetas su rótulo publicado («El caso en datos») aunque el menú diga «Datos».
 //
 // Uso:  pnpm test:caminos
-import { readFileSync } from 'node:fs'
-import { ACCESOS, accesosDe, type Acceso } from '../app/utils/caminos'
+import { existsSync, readFileSync } from 'node:fs'
+import { ACCESOS, PUERTAS, accesosDe, type Acceso } from '../app/utils/caminos'
 import { HERRAMIENTAS, NAV, type EnlaceNav } from '../app/utils/navegacion'
 
 let fallos = 0
@@ -148,6 +150,28 @@ for (const [clave, r] of Object.entries(REUBICADOS)) {
 }
 ok(ACCESOS.tech.length === 1 && ACCESOS.tech[0]?.tipo === 'externo', 'tech: un acceso, externo (el repo)')
 ok(ACCESOS.press.length === 1 && ACCESOS.press[0]?.tipo === 'herramienta' && ACCESOS.press[0].enlace.key === 'data', 'prensa: un acceso, a /datos')
+
+console.log('9. Las cuatro puertas')
+ok(JSON.stringify(PUERTAS.map((p) => p.id)) === JSON.stringify(['apoyar', 'clinico', 'prensa', 'otras']), 'cuatro puertas, en este orden: Apoyar, Clínico o laboratorio, Prensa, Otras formas')
+ok(PUERTAS.every((p) => JSON.stringify(Object.keys(p).sort()) === JSON.stringify(['destino', 'etiqueta', 'id'])), 'una puerta es un nombre y un destino: sin minutos, pasos ni subtítulos')
+const pu = (es.puertas ?? {}) as Record<string, string>
+const puEn = (en.puertas ?? {}) as Record<string, string>
+ok(PUERTAS.every((p) => typeof get(es, p.etiqueta) === 'string' && typeof get(en, p.etiqueta) === 'string' && get(es, p.etiqueta) !== ''), 'cada puerta tiene su rótulo en ES y EN')
+ok(JSON.stringify(Object.keys(pu).sort()) === JSON.stringify(Object.keys(puEn).sort()) && Object.keys(pu).length === PUERTAS.length, 'puertas.*: mismas claves en ES y EN, y ninguna de sobra')
+for (const [loc, d] of [['ES', pu], ['EN', puEn]] as const) {
+  for (const [re, nombre] of PROHIBIDO) {
+    const malos = Object.entries(d).filter(([, v]) => re.test(v)).map(([k]) => k)
+    ok(malos.length === 0, `${loc}: puertas sin «${nombre}»${malos.length ? ` (en ${malos.join(', ')})` : ''}`)
+  }
+}
+const rutas = PUERTAS.flatMap((p) => (p.destino.tipo === 'ruta' ? [p.destino] : []))
+ok(PUERTAS.filter((p) => p.destino.tipo === 'apoyo').map((p) => p.id).join() === 'apoyar', 'solo «Apoyar» va a la campaña; el resto, a rutas del sitio')
+ok(rutas.every((r) => existsSync(`app/pages/${r.name}.vue`)), `cada destino es una página que existe (${rutas.map((r) => r.name).join(', ')})`)
+const datosVue = readFileSync('app/pages/datos.vue', 'utf-8') + readFileSync('app/components/QueBuscamos.vue', 'utf-8')
+const clinico = PUERTAS.find((p) => p.id === 'clinico')!
+ok(clinico.destino.tipo === 'ruta' && clinico.destino.name === 'datos' && clinico.destino.hash === '#que-buscamos' && datosVue.includes('que-buscamos'), '«Clínico o laboratorio» aterriza en «Qué buscamos» (/datos#que-buscamos), que existe')
+ok(JSON.stringify(Object.values(ACCESOS).flat().filter((a) => a.tipo === 'herramienta' && a.enlace.key === 'data' && !(a.etiqueta ?? '').startsWith('pathways.')).map((a) => a.etiqueta)) === JSON.stringify(['nav.data_case', 'nav.data_case']), 'clínica y single-cell siguen rotulando /datos como «El caso en datos»')
+ok(get(es, 'nav.data_case') === 'El caso en datos' && get(en, 'nav.data_case') === 'The case in data' && get(es, 'nav.data') === 'Datos' && get(en, 'nav.data') === 'Data', 'nav.data es «Datos»/«Data» (menú) y nav.data_case, «El caso en datos»/«The case in data» (pie y tarjetas)')
 
 console.log(fallos ? `\n❌ ${fallos} fallo(s)` : '\n✅ caminos de la home en orden')
 process.exit(fallos ? 1 : 0)

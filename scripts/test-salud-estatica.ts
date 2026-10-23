@@ -38,6 +38,14 @@
 //    menos de las publicadas, salvo que la página diga lo contrario; y la prop del componente lo permite de
 //    verdad: una prop booleana ausente llega como `false` si no declara `default`.
 //
+// Y la navegación del rediseño (F3, 23-oct-2026):
+//
+// 9. El menú tiene 5 ítems («Datos» donde estaba «Herramientas») y marca la sección en las páginas de datos; el pie, 13
+//    enlaces en 3 columnas más Redes y Legal, sin chips «por perfil», sin fecha global ni los enlaces que salieron; las
+//    redes salen de UNA lista (pie, /colabora y schema.org); y /links y /gracias llevan el chrome mínimo (sin menú, sin barra
+//    «lo último», pie reducido, y /gracias sin «Apoyar»). Lo que no se ve en el HTML (el chrome al navegar sin recargar,
+//    los 44 px) lo prueba test-home-caminos §10 en Chrome.
+//
 // Uso:  pnpm exec nuxt generate && pnpm test:salud-estatica
 import { existsSync, readFileSync, readdirSync } from 'node:fs'
 import { join } from 'node:path'
@@ -45,6 +53,9 @@ import { createSSRApp, defineComponent, h } from 'vue'
 import { parse, compileScript } from 'vue/compiler-sfc'
 import { renderToString } from 'vue/server-renderer'
 import { REGLAS_PETICIONES, hayEnlaceTodas, peticionesPublicas, seleccionarPeticiones } from '../app/utils/peticiones'
+import { LEGAL, MENU_ESCRITORIO, MENU_MOVIL, PIE, REDES, SECCIONES, type EnlaceNav } from '../app/utils/navegacion'
+import { estadoPuerta, type Manifiesto } from '../app/utils/celulaExplorador'
+import manifiestoExplorador from '../public/celula/explorador/manifiesto.json'
 
 const PUB = '.output/public'
 const SITIO = 'https://helpmiriam.com'
@@ -270,5 +281,112 @@ if (existsSync('seed/fundraiser.json')) {
   }
 }
 
-console.log(fallos ? `\n❌ ${fallos} fallo(s)` : '\n✅ ancla, «hace N días», sitemap, <main> único, «Ver quién apoya», campaña (en el HTML y en vivo) y «Qué buscamos» en verde')
+// 9
+{
+  const limpio = (ruta: string) => html(ruta).replace(/<script\b[\s\S]*?<\/script>/g, '').replace(/<!--[\s\S]*?-->/g, '')
+  type Enlace = { href: string; actual?: string; texto: string }
+  const enlaces = (trozo: string): Enlace[] =>
+    [...trozo.matchAll(/<a\b([^>]*)>([\s\S]*?)<\/a>/g)].map((m) => ({
+      href: /\bhref="([^"]*)"/.exec(m[1]!)?.[1] ?? '',
+      actual: /\baria-current="([^"]+)"/.exec(m[1]!)?.[1],
+      texto: m[2]!.replace(/<span class="sr-only"[\s\S]*?<\/span>/g, '').replace(/<[^>]+>/g, '').trim(),
+    }))
+  const bloque = (h: string, re: RegExp) => h.match(re)?.[0] ?? ''
+  const cabecera = (h: string) => bloque(h, /<div class="sticky top-0 z-50"[\s\S]*?<\/header>/)
+  const pie = (h: string) => bloque(h, /<footer\b[\s\S]*?<\/footer>/)
+  const menu = (h: string, etiqueta: string) => bloque(cabecera(h), new RegExp(`<nav\\b[^>]*aria-label="${etiqueta}"[\\s\\S]*?</nav>`))
+
+  const D = { es: JSON.parse(readFileSync('i18n/locales/es.json', 'utf-8')), en: JSON.parse(readFileSync('i18n/locales/en.json', 'utf-8')) }
+  const t = (locale: 'es' | 'en', clave: string) => clave.split('.').reduce<any>((o, k) => o?.[k], D[locale]) as string
+  const etiqueta = (locale: 'es' | 'en', e: EnlaceNav) => t(locale, e.etiqueta ?? `nav.${e.key}`)
+  const RUTA: Record<'es' | 'en', Record<string, string>> = {
+    es: { index: '/', ciencia: '/ciencia', 'ciencia-evidencia': '/ciencia/evidencia', timeline: '/timeline', equipo: '/equipo', datos: '/datos', lesiones: '/lesiones', laminillas: '/laminillas', 'celula-a-celula': '/celula-a-celula', 'celula-a-celula-explorar': '/celula-a-celula/explorar', colabora: '/colabora', prensa: '/prensa', gastos: '/gastos', contacto: '/contacto', 'aviso-legal': '/aviso-legal', privacidad: '/privacidad', cookies: '/cookies' },
+    en: { index: '/en', ciencia: '/en/science', 'ciencia-evidencia': '/en/science/evidence', timeline: '/en/timeline', equipo: '/en/team', datos: '/en/data', lesiones: '/en/lesiones', laminillas: '/en/slides', 'celula-a-celula': '/en/cell-by-cell', 'celula-a-celula-explorar': '/en/cell-by-cell/explore', colabora: '/en/collaborate', prensa: '/en/press', gastos: '/en/expenses', contacto: '/en/contact', 'aviso-legal': '/en/legal-notice', privacidad: '/en/privacy', cookies: '/en/cookies-policy' },
+  }
+  const abierto = estadoPuerta(manifiestoExplorador as unknown as Manifiesto) === 'real'
+  const visible = (e: EnlaceNav) => e.key !== 'cell_explorer' || abierto
+
+  // — la fuente (navegacion.ts)
+  ok(JSON.stringify(MENU_ESCRITORIO.map((e) => e.key)) === JSON.stringify(['science', 'data', 'timeline', 'team', 'collaborate']), 'menú: La ciencia · Datos · Cronología · Equipo · Cómo ayudar')
+  ok(MENU_MOVIL.length === 6 && MENU_MOVIL[0]!.key === 'home' && MENU_MOVIL.slice(1).every((e, i) => e === MENU_ESCRITORIO[i]), 'menú móvil: Inicio primero y luego los mismos cinco')
+  ok(PIE.flatMap((g) => g.enlaces).length === 13 && JSON.stringify(PIE.map((g) => g.enlaces.length)) === JSON.stringify([4, 5, 4]), 'pie: 13 enlaces de navegación en 3 columnas (4 + 5 + 4)')
+  ok(!('tools' in SECCIONES) && JSON.stringify(SECCIONES.data) === JSON.stringify(['datos', 'lesiones', 'laminillas', 'celula-a-celula', 'celula-a-celula-explorar', 'mapa-metastasis']), 'SECCIONES: «tools» pasa a «data» con sus 6 páginas')
+  const fuera = ['herramientas', 'reservorio', 'historia', 'historia-slug', 'ciencia-slug'].filter((n) => Object.values(SECCIONES).some((l) => l.includes(n)))
+  ok(fuera.length === 0, `SECCIONES: ya no marcan ítem /herramientas, /reservorio, /historia ni la ruta de artículos${fuera.length ? ` (siguen: ${fuera.join(', ')})` : ''}`)
+  ok(MENU_ESCRITORIO.every((e) => e.key in SECCIONES), 'cada ítem del menú tiene su sección')
+  ok(REDES.length === 5 && new Set(REDES.map((r) => r.id)).size === 5 && new Set(REDES.map((r) => r.url)).size === 5 && REDES.every((r) => r.url.startsWith('https://') && r.url.includes('miriamgonp')), 'REDES: 5 redes distintas, https, de @miriamgonp')
+
+  for (const loc of ['es', 'en'] as const) {
+    const home = loc === 'es' ? 'index.html' : 'en.html'
+    const R = RUTA[loc]
+    // — el menú
+    const m = enlaces(menu(limpio(home), t(loc, 'nav.main_label')))
+    ok(JSON.stringify(m.map((e) => e.texto)) === JSON.stringify(MENU_ESCRITORIO.map((e) => etiqueta(loc, e))), `${home}: el menú dice ${m.map((e) => e.texto).join(' · ')}`)
+    ok(JSON.stringify(m.map((e) => e.href)) === JSON.stringify(MENU_ESCRITORIO.map((e) => R[e.name])), `${home}: y lleva a ${m.map((e) => e.href).join(' · ')}`)
+    // La sección se marca por nombre de ruta: las seis de datos marcan «Datos»; las que salieron de SECCIONES, ninguna.
+    const marcada = (pagina: string) => enlaces(menu(limpio(pagina), t(loc, 'nav.main_label'))).filter((e) => e.actual).map((e) => `${e.texto}=${e.actual}`)
+    const pag = (es: string, en: string) => (loc === 'es' ? es : en)
+    const datos = t(loc, 'nav.data')
+    ok(JSON.stringify(marcada(pag('datos.html', 'en/data.html'))) === JSON.stringify([`${datos}=page`]), `${pag('datos.html', 'en/data.html')}: marca «${datos}» (page)`)
+    ok(JSON.stringify(marcada(pag('lesiones.html', 'en/lesiones.html'))) === JSON.stringify([`${datos}=true`]), `${pag('lesiones.html', 'en/lesiones.html')}: marca «${datos}» (true), como sección`)
+    ok(JSON.stringify(marcada(pag('timeline.html', 'en/timeline.html'))) === JSON.stringify([`${t(loc, 'nav.timeline')}=page`]), `${pag('timeline.html', 'en/timeline.html')}: marca la cronología`)
+    ok(marcada(pag('herramientas.html', 'en/tools.html')).length === 0, `${pag('herramientas.html', 'en/tools.html')}: sin ítem marcado (hasta F4 la fusiona en /datos)`)
+
+    // — el pie
+    const f = pie(limpio(home))
+    const grupos = [...f.matchAll(/<h3 id="pie-([a-z]+)"[^>]*>([^<]*)<\/h3>\s*<ul[^>]*>([\s\S]*?)<\/ul>/g)].map((g) => ({ id: g[1]!, titulo: g[2]!, links: enlaces(g[3]!) }))
+    ok(JSON.stringify(grupos.map((g) => g.id)) === JSON.stringify(['caso', 'datos', 'participa', 'redes', 'legal']), `${home}: el pie tiene 5 columnas: ${grupos.map((g) => g.id).join(' · ')}`)
+    for (const g of PIE) {
+      const real = grupos.find((x) => x.id === g.id)
+      const esperados = g.enlaces.filter(visible)
+      ok(!!real && JSON.stringify(real.links.map((e) => e.texto)) === JSON.stringify(esperados.map((e) => etiqueta(loc, e))), `${home} · ${g.id}: ${real?.links.map((e) => e.texto).join(' · ')}`)
+      ok(!!real && JSON.stringify(real.links.map((e) => e.href)) === JSON.stringify(esperados.map((e) => R[e.name])), `${home} · ${g.id}: los destinos son los de navegacion.ts`)
+      ok(!!real && real.titulo === t(loc, g.heading), `${home} · ${g.id}: el título de la columna es «${t(loc, g.heading)}»`)
+    }
+    const redes = grupos.find((g) => g.id === 'redes')
+    ok(!!redes && JSON.stringify(redes.links.map((e) => e.href)) === JSON.stringify([...REDES.map((r) => r.url), 'https://gofund.me/3e25cae99']), `${home} · redes: las 5 de REDES y, al final, la campaña`)
+    ok(!!redes && JSON.stringify(redes.links.slice(0, 5).map((e) => e.texto)) === JSON.stringify(REDES.map((r) => r.pie ?? r.nombre)), `${home} · redes: ${redes?.links.slice(0, 5).map((e) => e.texto).join(' · ')}`)
+    const legal = grupos.find((g) => g.id === 'legal')
+    ok(!!legal && JSON.stringify(legal.links.map((e) => e.href)) === JSON.stringify(LEGAL.map((l) => R[l.name])) && JSON.stringify(legal.links.map((e) => e.texto)) === JSON.stringify(LEGAL.map((l) => t(loc, l.etiqueta))), `${home} · legal: ${legal?.links.map((e) => e.texto).join(' · ')}`)
+    const salidos = (loc === 'es' ? ['/historia', '/videos', '/marcas', '/reservorio', '/herramientas'] : ['/en/story', '/en/videos', '/en/brands', '/en/reservorio', '/en/tools'])
+    const hrefsPie = enlaces(f).map((e) => e.href)
+    ok(salidos.every((r) => !hrefsPie.includes(r)), `${home}: el pie ya no enlaza ${salidos.join(', ')}`)
+    ok(!/pathway-chip|<time\b|data-pie-fecha/.test(f), `${home}: el pie no lleva chips «por perfil» ni fecha`)
+    ok(!f.includes(t(loc, 'nav.all_tools')), `${home}: ni «${t(loc, 'nav.all_tools')}»`)
+    ok(new RegExp(`<section[^>]*aria-label="${t(loc, 'index.supported_by')}"`).test(f) && !new RegExp(`>\\s*${t(loc, 'index.supported_by')}\\s*<`).test(f), `${home}: los logos «${t(loc, 'index.supported_by')}» van sin rótulo visible y con su nombre accesible`)
+  }
+
+  // — las redes, de una sola lista, en los tres sitios
+  {
+    const raw = html('index.html')
+    const jsonld = [...raw.matchAll(/<script[^>]*type="application\/ld\+json"[^>]*>([\s\S]*?)<\/script>/g)].map((x) => x[1]!).join('\n')
+    ok(REDES.every((r) => jsonld.includes(r.url)), 'schema.org: las 5 redes en sameAs (Organization y Person)')
+    ok((jsonld.match(/https:\/\/github\.com\/beyondtheprotocol\/miriam-gonzalez-case/g)?.length ?? 0) >= 1, 'schema.org: el repo sigue en el sameAs de la organización')
+    const c = enlaces(limpio('colabora.html'))
+    ok(REDES.every((r) => c.some((e) => e.href === r.url && e.texto === `@miriamgonp · ${r.nombre}`)), '/colabora: sus enlaces rápidos a las 5 redes, con el rótulo de siempre («@miriamgonp · X»…)')
+  }
+
+  // — chrome mínimo: /links y /gracias
+  for (const [pagina, loc, gracias] of [['links.html', 'es', false], ['en/links.html', 'en', false], ['gracias.html', 'es', true], ['en/thank-you.html', 'en', true]] as const) {
+    const h = limpio(pagina)
+    const cab = cabecera(h), f = pie(h)
+    ok(!/<nav\b/.test(cab) && !cab.includes('aria-controls="mobile-nav"'), `${pagina}: la cabecera no lleva menú ni botón de menú`)
+    ok(!h.includes('latest-bar'), `${pagina}: sin la barra «lo último»`)
+    const grupoIdioma = cab.match(/<div\b[^>]*role="group"[^>]*>/)?.[0] ?? ''
+    const clasesIdioma = (/class="([^"]*)"/.exec(grupoIdioma)?.[1] ?? '').split(/\s+/)
+    ok(clasesIdioma.includes('flex') && !clasesIdioma.includes('hidden'), `${pagina}: el selector de idioma está en la cabecera también en móvil (clases: ${clasesIdioma.slice(0, 2).join(' ')}…)`)
+    const hrefs = enlaces(f).map((e) => e.href)
+    ok(REDES.every((r) => hrefs.includes(r.url)) && LEGAL.every((l) => hrefs.includes(RUTA[loc][l.name]!)), `${pagina}: el pie reducido lleva las 5 redes y lo legal`)
+    ok(!f.includes('id="pie-caso"') && !f.includes('logo-wall'), `${pagina}: sin columnas de navegación ni muro de logos`)
+    ok(!hrefs.some((x) => x.includes('gofund.me')), `${pagina}: el pie no lleva «Apoyar»`)
+    const apoyoCab = enlaces(cab).some((e) => e.href.includes('gofund.me'))
+    ok(gracias ? !apoyoCab : apoyoCab, gracias ? `${pagina}: sin «Apoyar» en la cabecera` : `${pagina}: conserva «Apoyar» en la cabecera (F6 lo pondrá en la página)`)
+  }
+  {
+    const h = limpio('datos.html')
+    ok(/<nav\b/.test(cabecera(h)) && h.includes('latest-bar') && h.includes('id="pie-caso"') && h.includes('logo-wall'), 'control: /datos conserva el chrome completo (menú, barra «lo último», pie de 5 columnas y logos)')
+  }
+}
+
+console.log(fallos ? `\n❌ ${fallos} fallo(s)` : '\n✅ ancla, «hace N días», sitemap, <main> único, «Ver quién apoya», campaña (en el HTML y en vivo), «Qué buscamos» y navegación (menú, pie, redes, chrome mínimo) en verde')
 process.exit(fallos ? 1 : 0)
