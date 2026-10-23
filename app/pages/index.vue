@@ -124,6 +124,7 @@
           {{ $t('home.s5_heading') }}
         </h2>
         <GoFundMeProgress card />
+        <CampanaOficial location="home" />
 
         <!-- Caso en prensa · tira de medios + contacto de prensa (estilo prototipo) -->
         <div

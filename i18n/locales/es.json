@@ -1124,6 +1124,12 @@
     "popup_cta": "Cuéntame qué hacéis",
     "popup_dismiss": "Ahora no"
   },
+  "campanaOficial": {
+    "titulo": "Campaña oficial",
+    "intro": "Mi campaña oficial de donaciones es esta:",
+    "otras": "Si ves otra campaña, recaudación o iniciativa a mi nombre, no la he creado ni la gestiono yo.",
+    "actualizado": "Actualizado el 23 de octubre de 2026. Si cambia, te aviso aquí."
+  },
   "expenses": {
     "title": "Destino del dinero",
     "subtitle": "Transparencia radical: cada euro, documentado.",

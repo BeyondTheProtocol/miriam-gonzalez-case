@@ -10,6 +10,12 @@
  */
 export const GOFUNDME_URL = 'https://gofund.me/3e25cae99'
 
+// URL larga de la misma campaña (los cortos gofund.me/3e25cae99 y /60665ab35
+// redirigen aquí, comprobado con curl el 23-oct-2026). La usa el aviso de
+// «Campaña oficial» para que lo que se lee coincida con el destino.
+export const GOFUNDME_CANONICAL_URL =
+  'https://www.gofundme.com/f/biopsia-molecular-que-puede-cambiar-su-tratamiento'
+
 export function useSupport() {
   const nuxtApp = useNuxtApp()
 
@@ -51,6 +57,12 @@ export function useSupport() {
     // Umami (convivencia con Plausible): mismo evento «VerCiencia», con el botón
     // como propiedad. Mismo patrón que «Donar» en trackSupport.
     trackUmami('VerCiencia', { location })
+  }
+
+  // Clic en el enlace del aviso «Campaña oficial». Evento propio: no cuenta
+  // como «Apoyar» ni arma el «¿Has donado?» de DonationReturnPrompt.
+  function trackOfficialCampaign(location: string) {
+    trackUmami('CampanaOficial', { location })
   }
 
   function trackPress(outlet: string) {
@@ -161,8 +173,10 @@ export function useSupport() {
 
   return {
     GOFUNDME_URL,
+    GOFUNDME_CANONICAL_URL,
     trackSupport,
     trackScience,
+    trackOfficialCampaign,
     trackPress,
     trackContact,
     trackPathway,
