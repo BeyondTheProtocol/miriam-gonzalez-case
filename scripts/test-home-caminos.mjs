@@ -21,8 +21,12 @@
 // 8. /colabora conserva sus chips «por perfil»; el pie ya no los lleva (rediseño de arquitectura, F3: los sustituyen las
 //    cuatro puertas de utils/caminos.ts, que pintarán la home y /colabora en F5 y F10).
 // 9. El acceso de tech es externo: pestaña nueva, rel="noopener noreferrer" y aviso para lector de pantalla.
-// 10. Chrome mínimo (F3): /links y /gracias, en ES y EN a 375 y 1280 px, sin menú, sin barra «lo último» y con un pie
+// 10. Chrome mínimo (F3): /links y /gracias, en ES y EN a 320, 375 y 1280 px, sin menú, sin barra «lo último» y con un pie
 //    reducido (las 5 redes y lo legal, sin logos ni columnas); /gracias además sin «Apoyar» en la cabecera ni en el pie.
+//    /links conserva en la cabecera, a TODOS los anchos (también en móvil, donde ya no hay hamburguesa), un enlace a
+//    GoFundMe visible y de 44 px, sin solaparse con el logo ni con el selector de idioma: es la puerta móvil de la bio.
+//    Bajo 420 px el nombre del logo pasa a sr-only en /links (no en /gracias), y mientras se recorre /links a 375×568
+//    nunca hay un segundo enlace a GoFundMe a la vista (la barra «Donar» del móvil no sale encima).
 //    El chrome reaparece y desaparece al navegar sin recargar (logo → home → atrás; «Volver al inicio» → atrás).
 //
 // CAPTURAS=<carpeta> guarda capturas de la rejilla para la revisión de `diseno`.
@@ -361,6 +365,16 @@ try {
       idiomaVisible: visible(idioma),
       botonesIdioma: idioma ? [...idioma.querySelectorAll('button')].map((b) => Math.round(b.getBoundingClientRect().height)) : [],
       apoyoCabecera: [...(cab ? cab.querySelectorAll('a[href*="gofund.me"]') : [])].some(visible),
+      apoyoAlto: (() => { const a = cab && [...cab.querySelectorAll('a[href*="gofund.me"]')].find(visible); return a ? Math.round(a.getBoundingClientRect().height) : 0 })(),
+      // cabecera sin solapes: logo, selector de idioma y «Apoyar» uno tras otro, y dentro del ancho de la pantalla
+      cabeceraOrdenada: (() => {
+        if (!cab) return false
+        const cajas = [cab.querySelector('a'), idioma, cab.querySelector('a[href*="gofund.me"]')].filter(Boolean).map((el) => el.getBoundingClientRect())
+        return cajas.every((b, i) => b.right <= innerWidth && (i === 0 || b.left >= cajas[i - 1].right - 0.5))
+      })(),
+      logoNombre: !!(cab && /Miriam/.test(cab.querySelector('a').textContent)),
+      // el nombre del logo, ¿a la vista? (sr-only mide 1 px: sigue en el árbol de accesibilidad, no en pantalla)
+      logoTexto: !!cab && cab.querySelector('a span span').getBoundingClientRect().width > 20,
       apoyoPie: !!document.querySelector('footer a[href*="gofund.me"]'),
       columnasPie: document.querySelectorAll('footer [id^=pie-]').length,
       logos: !!document.querySelector('footer .logo-wall__mark'),
@@ -375,7 +389,7 @@ try {
     { loc: 'en', ruta: '/en/links', home: '/en', gracias: false },
     { loc: 'en', ruta: '/en/thank-you', home: '/en', gracias: true },
   ]
-  for (const w of [375, 1280]) {
+  for (const w of [320, 375, 420, 1280]) {
     await ancho(w)
     for (const c of CASOS) {
       await cargar(c.ruta)
@@ -385,10 +399,29 @@ try {
       ok(m.idiomaVisible && m.botonesIdioma.length === 2 && m.botonesIdioma.every((h) => h >= 44), `${t}: el selector de idioma se queda a la vista, con 44 px (${m.botonesIdioma.join(', ')})`)
       ok(m.columnasPie === 0 && !m.logos && m.redesPie === 5 && m.legalPie === 3, `${t}: pie reducido: sin columnas (${m.columnasPie}) ni logos, con las 5 redes (${m.redesPie}) y lo legal (${m.legalPie})`)
       ok(!m.apoyoPie, `${t}: el pie no lleva «Apoyar»`)
+      ok(m.cabeceraOrdenada && m.logoNombre, `${t}: cabecera sin solapes y con el nombre del logo accesible (${m.cabeceraOrdenada}, ${m.logoNombre})`)
+      // El nombre se retira a la vista solo en /links bajo 420 px (donde «Apoyar» no deja sitio); /gracias lo conserva siempre.
+      const nombreVisible = c.gracias || w >= 420
+      ok(m.logoTexto === nombreVisible, `${t}: el nombre del logo ${nombreVisible ? 'sigue a la vista' : 'queda solo para el lector de pantalla'} (${m.logoTexto})`)
       if (c.gracias) ok(!m.apoyoCabecera, `${t}: /gracias no lleva «Apoyar» en la cabecera`)
-      else if (w >= 640) ok(m.apoyoCabecera, `${t}: /links conserva «Apoyar» en la cabecera hasta que F6 lo ponga en la página`)
+      else ok(m.apoyoCabecera && m.apoyoAlto >= 44, `${t}: /links lleva «Apoyar» (GoFundMe) a la vista en la cabecera, también en móvil, con ${m.apoyoAlto} px de alto`)
       ok(m.sw <= m.vw, `${t}: sin scroll horizontal (${m.sw} ≤ ${m.vw})`)
     }
+  }
+  // /links en móvil: con «Apoyar» fijo en la cabecera, a ninguna altura de scroll puede haber un segundo enlace a GoFundMe
+  // a la vista (la barra «Donar» del móvil no debe salir encima: dos botones coral iguales a la vez). Se mide a 375×568 (un
+  // iPhone SE): sin `data-support-cta` en el botón de la cabecera, la barra sale ahí hacia los 500 px de scroll con dos a la vez.
+  await ancho(375, 568)
+  for (const ruta of ['/links', '/en/links']) {
+    await cargar(ruta)
+    const alto = await evaluate('document.documentElement.scrollHeight')
+    const cuentas = []
+    for (let y = 0; y <= alto; y += 50) {
+      await evaluate(`window.scrollTo(0, ${y})`)
+      await sleep(300)
+      cuentas.push(await evaluate(`[...document.querySelectorAll('a[href*="gofund.me"]')].filter((a) => { const r = a.getBoundingClientRect(); return a.offsetParent !== null && r.bottom > 0 && r.top < innerHeight }).length`))
+    }
+    ok(cuentas.every((n) => n === 1), `${ruta} a 375×568: un solo enlace a GoFundMe a la vista en ${cuentas.length} alturas de scroll (${cuentas.join('')})`)
   }
   // el control: una página normal conserva todo
   await ancho(1280)
