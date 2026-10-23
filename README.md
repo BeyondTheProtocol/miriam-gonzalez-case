@@ -46,8 +46,7 @@ app/
   pages/
     index.vue              → Landing (hero + GoFundMe + molecular profile + thesis)
     ciencia/
-      index.vue            → Complete scientific page + article list
-      [slug].vue           → Individual science article
+      index.vue            → Complete scientific page
     historia/
       index.vue            → Chapter list
       [slug].vue           → Individual chapter with prev/next
@@ -60,7 +59,6 @@ app/
     SiteNav.vue            → Sticky navigation with i18n toggle
     SiteFooter.vue         → Footer
     SectionHero.vue        → Landing hero
-    SectionCampaign.vue    → GoFundMe section
     MolecularProfile.vue   → Molecular profile table
     TimelineEntry.vue      → Individual timeline entry
     TeamCard.vue           → Team member card
@@ -78,8 +76,8 @@ public/
     fundraiser.json        → Static snapshot of GoFundMe progress (gitignored, auto-generated at build time)
 
 content/
-  es/  →  timeline.yml, team.yml, press.yml, science.yml, historia/*.md, ciencia/*.md
-  en/  →  timeline.yml, team.yml, press.yml, science.yml, story/*.md, science/*.md
+  es/  →  timeline.yml, team.yml, press.yml, science.yml, historia/*.md
+  en/  →  timeline.yml, team.yml, press.yml, science.yml, story/*.md
 
 i18n/locales/
   es.json           → Spanish strings

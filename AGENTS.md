@@ -41,6 +41,11 @@ The website has two audiences: scientists/physicians (science page, molecular pr
 - Privacy-first analytics. Configured with `ignoredHostnames: ['localhost']` so local dev doesn't pollute stats.
 - No cookie banner needed (GDPR-compliant by design).
 
+### Analytics: Umami events
+- Umami Cloud (cookieless, aggregated) runs next to Plausible; the script is loaded from `nuxt.config.ts` (`data-domains` limits it to helpmiriam.com, so previews and localhost send nothing).
+- Events go through `trackUmami()` (`app/utils/umami.ts`). The long-standing ones are emitted by each link through `useSupport()` (Donar, VerCiencia, Contacto, Pathway, Navegar, Bio-link…): **never rename one**, it splits its series.
+- Four more are emitted by `app/plugins/umami-delegado.client.ts`, which watches clicks and scroll for the whole document (so links added later are measured without wiring): `Clic-gofundme {pagina, origen}`, `VerPeticion {origen}` (any link to `#que-buscamos`), `Contacto-clic {rol, pagina}` (any link to `/contacto`) and `Scroll {pct, pagina}` (25 · 50 · 75 · 100 of the scroll range, only scroll moved by the reader). `pagina` is the route base name, so ES and EN add up. Logic lives in `app/utils/umami.ts`; test: `pnpm exec tsx scripts/test-umami-eventos.ts` (needs a static build for its browser part).
+
 ### @vueuse/nuxt
 - Provides VueUse composables as Nuxt auto-imports. Currently used in `SiteNav.vue` via `useWindowScroll()` for scroll-aware header styling.
 
@@ -65,15 +70,15 @@ The website has two audiences: scientists/physicians (science page, molecular pr
 
 ### Nuxt Content v3
 - `@nuxt/content` v3 active. Collections defined in `content.config.ts`.
-- 12 collections: `timeline_es`, `timeline_en`, `historia_es`, `historia_en`, `ciencia_articles`, `science_articles`, `team_es`, `team_en`, `press_es`, `press_en`, `science_es`, `science_en`.
+- 10 collections: `timeline_es`, `timeline_en`, `historia_es`, `historia_en`, `team_es`, `team_en`, `press_es`, `press_en`, `science_es`, `science_en`. (`ciencia_articles` and `science_articles` and the `/ciencia/[slug]` route were removed on 2026-10-23: they never held an article.)
 - Timeline: `.yml` files in `content/es/timeline.yml` and `content/en/timeline.yml`.
-- Story and science: `.md` files in `content/es/historia/`, `content/en/story/`, `content/es/ciencia/`, `content/en/science/`.
+- Story: `.md` files in `content/es/historia/` and `content/en/story/`.
 - Team data: `content/es/team.yml` and `content/en/team.yml` (3 groups: `coreTeam`, `medicalNetwork`, `integrativeSupport`).
 - Press mentions: `content/es/press.yml` and `content/en/press.yml`.
 - Science page data (treatments, papers, panel): `content/es/science.yml` and `content/en/science.yml`.
-- Articles/chapters are linked between languages with `translationKey` in frontmatter.
-- Language-specific slugs: ES `/ciencia/analisis-fgfr1`, EN `/en/science/fgfr1-analysis` — custom routes configured in `nuxt.config.ts` under `i18n.pages`.
-- **Page collections** (`historia_es`, `historia_en`, `ciencia_articles`, `science_articles`) have their schemas extended with `defineRobotsSchema()` and `defineSitemapSchema()`. This enables per-file SEO control via frontmatter (e.g. `robots: noindex`, `sitemap: { priority: 0.8 }`).
+- Chapters are linked between languages with `translationKey` in frontmatter.
+- Language-specific slugs are configured in `nuxt.config.ts` under `i18n.pages`.
+- **Page collections** (`historia_es`, `historia_en`) have their schemas extended with `defineRobotsSchema()` and `defineSitemapSchema()`. This enables per-file SEO control via frontmatter (e.g. `robots: noindex`, `sitemap: { priority: 0.8 }`).
 - **Data collections** (timeline, team, press, science YML) do NOT have SEO schemas — they are not routed pages.
 - If you modify `content.config.ts`, run `pnpm nuxt prepare` to regenerate types.
 

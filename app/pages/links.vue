@@ -1,8 +1,5 @@
 <template>
-  <main
-    class="relative overflow-hidden section-container max-w-xl py-14 sm:py-20"
-    :aria-label="$t('links.aria_page')"
-  >
+  <div class="relative overflow-hidden section-container max-w-xl py-14 sm:py-20">
     <!-- Constelación de fondo (decorativa, on-brand) — el mismo cielo de /gracias,
          densidad baja para no competir con los botones. -->
     <Constellation :count="28" />
@@ -117,7 +114,7 @@
         {{ $t('links.footnote') }}
       </p>
     </div>
-  </main>
+  </div>
 </template>
 
 <script setup lang="ts">

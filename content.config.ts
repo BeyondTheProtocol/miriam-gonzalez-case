@@ -22,17 +22,6 @@ const chapterSchema = z.object({
   translationKey: z.string(),
 })
 
-const articleSchema = z.object({
-  title: z.string(),
-  date: z.string(),
-  tags: z.array(z.string()),
-  excerpt: z.string(),
-  translationKey: z.string().optional(),
-  references: z
-    .array(z.object({ id: z.string(), link: z.string() }))
-    .optional(),
-})
-
 const teamMemberSchema = z.object({
   role: z.string(),
   description: z.string(),
@@ -206,22 +195,6 @@ export default defineContentConfig({
       type: 'page',
       source: 'en/story/*.md',
       schema: chapterSchema.extend({
-        robots: defineRobotsSchema(),
-        sitemap: defineSitemapSchema(),
-      }),
-    }),
-    ciencia_articles: defineCollection({
-      type: 'page',
-      source: 'es/ciencia/*.md',
-      schema: articleSchema.extend({
-        robots: defineRobotsSchema(),
-        sitemap: defineSitemapSchema({ name: 'ciencia_articles', onUrl: sinPrefijoEs }),
-      }),
-    }),
-    science_articles: defineCollection({
-      type: 'page',
-      source: 'en/science/*.md',
-      schema: articleSchema.extend({
         robots: defineRobotsSchema(),
         sitemap: defineSitemapSchema(),
       }),

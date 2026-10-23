@@ -200,7 +200,6 @@ export default defineNuxtConfig({
       'celula-a-celula-explorar': { es: '/celula-a-celula/explorar', en: '/cell-by-cell/explore' },
       'ciencia/index': { en: '/science' },
       'ciencia/evidencia': { en: '/science/evidence' },
-      'ciencia/[slug]': { en: '/science/[slug]' },
       'historia/index': { en: '/story' },
       'historia/[slug]': { en: '/story/[slug]' },
       'equipo': { en: '/team' },

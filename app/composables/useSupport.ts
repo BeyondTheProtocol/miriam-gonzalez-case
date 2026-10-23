@@ -36,6 +36,9 @@ export function useSupport() {
     fire('Apoyar', location)
     // Umami (convivencia con Plausible): «Donar» con el botón como propiedad.
     trackUmami('Donar', { location })
+    // Deja la etiqueta para «Clic-gofundme» (plugins/umami-delegado.client.ts), que cuenta TODO clic a
+    // GoFundMe, también el de enlaces sin trackSupport, y le pone a cada uno el botón que lo originó.
+    recordarApoyo(location)
     // Marca para el aviso suave al volver de GoFundMe (DonationReturnPrompt).
     try {
       sessionStorage.setItem('hm_support_ts', String(Date.now()))
@@ -60,6 +63,9 @@ export function useSupport() {
   function trackContact(role: string) {
     trackUmami('Contacto', { rol: role })
   }
+  // OJO: este «Contacto» solo lo emite /colabora, con sus propios valores de rol. El clic a /contacto desde
+  // cualquier página, con el rol de ?role=, es «Contacto-clic» (plugins/umami-delegado.client.ts, F0): evento
+  // nuevo para no mezclar series. Lo mismo vale para «Clic-gofundme», «VerPeticion» y «Scroll».
 
   function trackPathway(route: string) {
     trackUmami('Pathway', { ruta: route })

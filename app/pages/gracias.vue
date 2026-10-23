@@ -1,5 +1,5 @@
 <template>
-  <main class="relative overflow-hidden section-container max-w-2xl py-20 sm:py-28 text-center">
+  <div class="relative overflow-hidden section-container max-w-2xl py-20 sm:py-28 text-center">
     <!-- B1 · constelación de quienes apoyan (decorativa, detrás del mensaje) -->
     <Constellation :count="donorCount" :donations="donations" />
     <div class="relative z-10">
@@ -37,7 +37,7 @@
       {{ $t('thanks.follow') }}
     </p>
     </div>
-  </main>
+  </div>
 </template>
 
 <script setup lang="ts">

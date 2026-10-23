@@ -16,8 +16,6 @@ content/
     science.yml           → datos de la página de ciencia: tratamientos, papers, panel
     historia/
       01-el-comienzo.md   → capítulo 1 → genera /historia/01-...
-    ciencia/
-      analisis-fgfr1.md   → artículo → genera /ciencia/analisis-fgfr1
 
   en/
     timeline.yml          → cronología completa en inglés
@@ -26,12 +24,10 @@ content/
     science.yml           → datos de la página de ciencia en inglés
     story/
       01-the-beginning.md → genera /en/story/01-...
-    science/
-      fgfr1-analysis.md   → genera /en/science/fgfr1-analysis
 ```
 
 > No es obligatorio tener todos los archivos en los dos idiomas.
-> Si un artículo o capítulo solo existe en español, la web lo muestra
+> Si un capítulo solo existe en español, la web lo muestra
 > en español independientemente del idioma seleccionado, con un aviso.
 > Es mejor leer en español que no leer nada.
 
@@ -163,63 +159,11 @@ Ambos deben tener el mismo `translationKey` en el frontmatter.
 
 ---
 
-## 3. Ciencia (`content/es/ciencia/`)
+## 3. Ciencia (retirada)
 
-Cada análisis generado por IA es un archivo `.md` separado.
-La web genera automáticamente una página para cada uno y los lista en `/ciencia`.
-
-### Nombre del archivo
-
-Slug descriptivo en minúsculas con guiones:
-
-```
-analisis-fgfr1-amplificacion.md
-perfil-neuroendocrino.md
-resistencia-cdk4-6i.md
-```
-
-### Formato del archivo
-
-```markdown
----
-title: Amplificación FGFR1 ×13 como driver biológico dominante
-date: 2026-04-11
-tags: [FGFR1, amplificación, driver, BC-NED]
-excerpt: >
-  Análisis de la implicación terapéutica de la amplificación FGFR1 ×13
-  en el contexto de un tumor híbrido luminal-neuroendocrino.
-translationKey: fgfr1-analysis
-references:
-  - id: Drago 2019
-    link: https://pmc.ncbi.nlm.nih.gov/articles/PMC6825550/
-  - id: NCT04483505
-    link: https://www.nature.com/articles/s41698-025-01106-1
----
-
-## El problema
-
-La amplificación FGFR1 ×13 en este caso no es una alteración secundaria...
-```
-
-### Campos del frontmatter
-
-| Campo            | Obligatorio | Qué es |
-|------------------|-------------|--------|
-| `title`          | ✅ | Título del análisis |
-| `date`           | ✅ | Fecha en formato `YYYY-MM-DD` |
-| `tags`           | ✅ | Lista de etiquetas para filtrar y agrupar artículos |
-| `excerpt`        | ✅ | Resumen de 2-3 frases. Aparece en el índice |
-| `translationKey` | ❌ | Clave compartida con la versión EN para enlazar traducciones |
-| `references`     | ❌ | Referencias con `id` (cómo aparece en el texto) y `link` |
-| `robots`         | ❌ | Control de indexación. Ejemplo: `noindex` para artículos en borrador |
-| `sitemap`        | ❌ | Control del sitemap. Ejemplo: `{ priority: 0.9, lastmod: 2026-05-01 }` |
-
-### Versión en inglés (`content/en/science/`)
-
-- ES: `content/es/ciencia/analisis-fgfr1.md` → URL: `/ciencia/analisis-fgfr1`
-- EN: `content/en/science/fgfr1-analysis.md` → URL: `/en/science/fgfr1-analysis`
-
-Ambos deben tener el mismo `translationKey`.
+Los análisis en Markdown (`content/es/ciencia/`, `content/en/science/`) y la ruta `/ciencia/[slug]` se
+retiraron el 23-oct-2026: nunca llegó a publicarse ningún artículo. La página de ciencia sale de
+`app/pages/ciencia/` y de los datos de la sección 6.
 
 ---
 
@@ -318,9 +262,9 @@ debe consultarse con el equipo médico antes de cambiar:
 
 ---
 
-## SEO por artículo o capítulo
+## SEO por capítulo
 
-Los archivos `.md` de `historia/` y `ciencia/` aceptan campos SEO en el frontmatter:
+Los archivos `.md` de `historia/` aceptan campos SEO en el frontmatter:
 
 ```markdown
 ---

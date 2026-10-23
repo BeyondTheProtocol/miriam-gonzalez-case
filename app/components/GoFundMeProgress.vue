@@ -1,18 +1,13 @@
 <script setup lang="ts">
-import type { GoFundMeFundraiser } from '../../utils/fundraiser'
-
 withDefaults(defineProps<{ card?: boolean }>(), { card: false })
 
 const { locale, t } = useI18n()
 const localePath = useLocalePath()
 const { trackSupport } = useSupport()
 
-// Datos de la campaña: JSON estático regenerado por la función de Netlify
-// (arquitectura de main). Se carga en cliente; las cifras tienen fallback.
-const data = ref<GoFundMeFundraiser | null>(null)
-onMounted(async () => {
-  data.value = await $fetch('/fundraiser.json')
-})
+// Datos de la campaña: la cifra del build ya viene en el HTML prerenderizado (semilla de
+// `seed/fundraiser.json`) y el cliente la sustituye por la viva al montar (ver useFundraiser).
+const data = await useFundraiser()
 
 const pct = computed(() => {
   if (!data.value) return 0

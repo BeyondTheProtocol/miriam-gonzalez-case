@@ -692,52 +692,6 @@
             </span>
           </NuxtLink>
         </div>
-
-        <div v-if="articles && articles.length > 0">
-          <p class="eyebrow mb-2 block">{{ locale === 'es' ? 'Profundizar' : 'Go deeper' }}</p>
-          <h2 class="heading-display text-2xl text-berenjena mb-2" style="letter-spacing: -0.02em">
-            {{ $t('ciencia.detailed_analyses') }}
-          </h2>
-          <p class="text-sm text-tinta leading-relaxed mb-6 max-w-2xl">
-            {{ locale === 'es'
-              ? 'Cada hallazgo, desarrollado en su propio artículo con la evidencia que lo respalda.'
-              : 'Each finding, developed in its own article with the evidence behind it.' }}
-          </p>
-          <div class="space-y-4">
-            <NuxtLink
-              v-for="(article, i) in articles"
-              :key="article.path"
-              :to="localePath(`/ciencia/${article.stem?.split('/').pop()}`)"
-              class="card-base flex items-start justify-between gap-4 transition-all group hover:-translate-y-0.5"
-              :class="{ 'card-marked': i % 2 === 0 }"
-              style="text-decoration:none"
-            >
-              <div class="flex-1 min-w-0">
-                <div class="flex flex-wrap items-center gap-1.5 mb-2">
-                  <span
-                    v-for="tag in article.tags"
-                    :key="tag"
-                    class="status-badge status-badge--reference"
-                    >{{ tag }}</span
-                  >
-                </div>
-                <h3
-                  class="font-display font-semibold text-berenjena text-base mb-1 group-hover:text-miriam transition-colors"
-                >
-                  {{ article.title }}
-                </h3>
-                <p class="text-xs text-tinta leading-relaxed line-clamp-2">
-                  {{ article.excerpt }}
-                </p>
-              </div>
-              <Icon
-                name="ph:arrow-right"
-                class="shrink-0 w-4 h-4 text-tinta group-hover:text-miriam transition-colors mt-0.5"
-                aria-hidden="true"
-              />
-            </NuxtLink>
-          </div>
-        </div>
         </div>
         <!-- /solo médicos -->
 
@@ -1042,20 +996,6 @@ const conditionJsonLd = computed(() =>
 useHead({
   script: [{ type: 'application/ld+json', innerHTML: conditionJsonLd }],
 })
-
-const { data: articles } = await useAsyncData(
-  `ciencia-index-${locale.value}`,
-  async () => {
-    if (locale.value === 'en') {
-      const enArticles = await queryCollection('science_articles')
-        .order('date', 'DESC')
-        .all()
-      if (enArticles.length) return enArticles
-    }
-    return queryCollection('ciencia_articles').order('date', 'DESC').all()
-  },
-  { watch: [locale] }
-)
 
 import type { Collections, ScienceEnCollectionItem } from '@nuxt/content'
 import { TARJETA_EXPLORADOR } from '~/utils/celulaExploradorTexto'

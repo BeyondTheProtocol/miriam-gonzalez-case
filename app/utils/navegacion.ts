@@ -95,7 +95,7 @@ export const PIE: { id: string; heading: string; enlaces: EnlaceNav[] }[] = [
 // de path, porque las herramientas no cuelgan de la URL /herramientas.
 export const SECCIONES: Record<string, string[]> = {
   home: ['index'],
-  science: ['ciencia', 'ciencia-evidencia', 'ciencia-slug'],
+  science: ['ciencia', 'ciencia-evidencia'],
   tools: ['herramientas', 'datos', 'lesiones', 'mapa-metastasis', 'reservorio', 'laminillas', 'celula-a-celula', 'celula-a-celula-explorar'],
   timeline: ['timeline', 'historia', 'historia-slug'],
   team: ['equipo'],

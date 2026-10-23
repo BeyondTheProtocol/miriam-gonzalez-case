@@ -158,24 +158,9 @@ const localePath = useLocalePath()
 const { locale, t } = useI18n()
 const { trackSupport, trackScience, trackLatest } = useSupport()
 
-type GoFundMeFundraiser = import('../../utils/fundraiser').GoFundMeFundraiser
-const { data: gofundme, refresh: refreshFundraiser } = await useAsyncData<GoFundMeFundraiser | null>(
-  'hero-fundraiser',
-  async () => {
-    if (import.meta.server) {
-      try {
-        const { readFile } = await import('node:fs/promises')
-        return JSON.parse(await readFile('seed/fundraiser.json', 'utf-8'))
-      } catch {
-        return null
-      }
-    }
-    return $fetch<GoFundMeFundraiser>('/fundraiser.json')
-  }
-)
-onMounted(() => {
-  refreshFundraiser()
-})
+// El total de la campaña: semilla del build en el HTML y cifra viva al montar (useFundraiser lo
+// comparte con la tarjeta de la campaña: una sola petición por página).
+const gofundme = await useFundraiser()
 
 const { latest, latestAgo } = useLatestUpdate()
 
