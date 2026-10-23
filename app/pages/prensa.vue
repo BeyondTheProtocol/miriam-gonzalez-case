@@ -280,8 +280,8 @@
           </div>
         </div>
 
-        <!-- El caso en los medios -->
-        <div class="mt-16">
+        <!-- El caso en los medios. #cobertura: el destino de «Mi caso en la prensa» de /links (F6). -->
+        <div id="cobertura" class="mt-16 scroll-mt-24">
           <h2 id="press-mentions" class="eyebrow mb-2 block">
             {{ $t('press.mentions_title') }}
           </h2>

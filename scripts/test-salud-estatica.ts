@@ -43,8 +43,8 @@
 // 9. El menú tiene 5 ítems («Datos» donde estaba «Herramientas») y marca la sección en las páginas de datos; el pie, 13
 //    enlaces en 3 columnas más Redes y Legal, sin chips «por perfil», sin fecha global ni los enlaces que salieron; las
 //    redes salen de UNA lista (pie, /colabora y schema.org); y /links y /gracias llevan el chrome mínimo (sin menú, sin barra
-//    «lo último», pie reducido, y /gracias sin «Apoyar»). Lo que no se ve en el HTML (el chrome al navegar sin recargar,
-//    los 44 px) lo prueba test-home-caminos §10 en Chrome.
+//    «lo último», pie reducido y, desde F6, sin «Apoyar» en la cabecera de ninguna de las dos). Lo que no se ve en el HTML (el
+//    chrome al navegar sin recargar, los 44 px) lo prueba test-home-caminos §10 en Chrome.
 //
 // Y las fusiones del rediseño (F4, 23-oct-2026):
 //
@@ -66,6 +66,15 @@
 //    «Tratamiento» de /datos; «Qué buscamos» con las 3 primeras peticiones PÚBLICAS (ni la FoundationOne ni la anemia, ni en el
 //    HTML ni en el payload); la tira de prensa y las cuatro puertas con sus destinos; nada de «ultra-raro» en el SEO/OG/schema;
 //    y el JSON de 230 KB del caso fuera del JS que carga la home.
+//
+// Y las puertas sociales del rediseño (F6, 23-oct-2026):
+//
+// 12. /lesiones lleva «En corto» arriba (≤ 40 palabras, con la fecha de la foto, hecho de frases que la propia página ya publica) y,
+//    antes de los dos enlaces de cierre de siempre, un cierre de apoyo ESTÁTICO con «Apoyar a Miriam» y «Entender el caso»; el texto
+//    sellado sigue entero. /links: ocho filas en el orden decidido, con el apoyo (GoFundMe directo, coral) en 2.º lugar y UN solo
+//    enlace a GoFundMe en la página; «mama, hígado y hueso»; la prensa va a /prensa#cobertura (que existe). /gracias: sin «Donación
+//    recibida», «100 %», «mensual» ni «sin intermediarios»; el recibo como lo dice /gastos (money.recibo), con el rol «other» y sin
+//    correo directo; un paso siguiente útil y ≤ 70 palabras.
 //
 // Uso:  pnpm exec nuxt generate && pnpm test:salud-estatica
 import { existsSync, readFileSync, readdirSync } from 'node:fs'
@@ -432,7 +441,7 @@ if (existsSync('seed/fundraiser.json')) {
   }
 
   // — chrome mínimo: /links y /gracias
-  for (const [pagina, loc, gracias] of [['links.html', 'es', false], ['en/links.html', 'en', false], ['gracias.html', 'es', true], ['en/thank-you.html', 'en', true]] as const) {
+  for (const [pagina, loc] of [['links.html', 'es'], ['en/links.html', 'en'], ['gracias.html', 'es'], ['en/thank-you.html', 'en']] as const) {
     const h = limpio(pagina)
     const cab = cabecera(h), f = pie(h)
     ok(!/<nav\b/.test(cab) && !cab.includes('aria-controls="mobile-nav"'), `${pagina}: la cabecera no lleva menú ni botón de menú`)
@@ -445,7 +454,9 @@ if (existsSync('seed/fundraiser.json')) {
     ok(!f.includes('id="pie-caso"') && !f.includes('logo-wall'), `${pagina}: sin columnas de navegación ni muro de logos`)
     ok(!hrefs.some((x) => x.includes('gofund.me')), `${pagina}: el pie no lleva «Apoyar»`)
     const apoyoCab = enlaces(cab).some((e) => e.href.includes('gofund.me'))
-    ok(gracias ? !apoyoCab : apoyoCab, gracias ? `${pagina}: sin «Apoyar» en la cabecera` : `${pagina}: conserva «Apoyar» en la cabecera (F6 lo pondrá en la página)`)
+    // F6 (23-oct-2026): hasta F3 /links conservaba «Apoyar» en la cabecera porque la página aún no llevaba la campaña; ahora es su 2.ª fila
+    // (§12) y la cabecera no la repite: en ninguna de las dos hay un segundo enlace a GoFundMe.
+    ok(!apoyoCab, `${pagina}: sin «Apoyar» en la cabecera${pagina.includes('links') ? ' (es la 2.ª fila de la página: §12)' : ''}`)
   }
   {
     const h = limpio('datos.html')
@@ -714,5 +725,135 @@ if (existsSync('seed/fundraiser.json')) {
   ok(payload.length > 0 && payload.length < 60_000 && !/FoundationOne CDx de hueso|n_analiticas/.test(payload), `index: el payload de la home es corto (${payload.length} B) y sin las peticiones sin gate ni las analíticas`)
 }
 
-console.log(fallos ? `\n❌ ${fallos} fallo(s)` : '\n✅ ancla, «hace N días», sitemap (sin redirigidas ni archivadas, hreflang por pares), <main> único, «Ver quién apoya», campaña (en el HTML y en vivo), «Qué buscamos», navegación (menú, pie, redes, chrome mínimo) y fusiones de F4 (herramientas, reservorio, mapa archivado, vídeos) en verde')
+// 12 — las puertas sociales del rediseño (F6, 23-oct-2026): /lesiones, /links y /gracias
+{
+  const decodificar = (t: string) => t.replace(/&amp;/g, '&').replace(/&quot;/g, '"').replace(/&#39;|&apos;/g, "'").replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&nbsp;/g, ' ')
+  const sinScripts = (ruta: string) => html(ruta).replace(/<script\b[\s\S]*?<\/script>/g, '').replace(/<!--[\s\S]*?-->/g, '')
+  const visible = (trozo: string) => decodificar(trozo.replace(/<style\b[\s\S]*?<\/style>/g, '').replace(/<[^>]+>/g, ' ')).replace(/\s+/g, ' ').trim()
+  const principal = (ruta: string) => sinScripts(ruta).match(/<main\b[\s\S]*?<\/main>/)?.[0] ?? ''
+  const palabras = (s: string) => s.split(' ').filter(Boolean).length
+  const D = { es: JSON.parse(readFileSync('i18n/locales/es.json', 'utf-8')), en: JSON.parse(readFileSync('i18n/locales/en.json', 'utf-8')) }
+  const t = (loc: 'es' | 'en', clave: string) => clave.split('.').reduce<any>((o, k) => o?.[k], D[loc]) as string
+  type A = { href: string; clase: string; atributos: string; texto: string }
+  const anclas = (trozo: string): A[] =>
+    [...trozo.matchAll(/<a\b([^>]*)>([\s\S]*?)<\/a>/g)].map((m) => ({
+      href: decodificar(/\bhref="([^"]*)"/.exec(m[1]!)?.[1] ?? ''),
+      clase: /\bclass="([^"]*)"/.exec(m[1]!)?.[1] ?? '',
+      atributos: m[1]!,
+      texto: visible(m[2]!),
+    }))
+  const GOFUNDME = 'https://gofund.me/3e25cae99'
+  const PODCAST = 'https://www.youtube.com/watch?v=zVUECrux6zA'
+  const R = {
+    es: { celula: '/celula-a-celula', lesiones: '/lesiones', datos: '/datos', prensa: '/prensa#cobertura', timeline: '/timeline', marcas: '/marcas', inicio: '/', gastos: '/gastos', contacto: '/contacto?role=other', ultimo: '/timeline#lo-ultimo', caso: '/#caso', reservorio: '/datos#reservorio' },
+    en: { celula: '/en/cell-by-cell', lesiones: '/en/lesiones', datos: '/en/data', prensa: '/en/press#cobertura', timeline: '/en/timeline', marcas: '/en/brands', inicio: '/en', gastos: '/en/expenses', contacto: '/en/contact?role=other', ultimo: '/en/timeline#lo-ultimo', caso: '/en#caso', reservorio: '/en/data#reservorio' },
+  }
+  // lo que el criterio de legal-burocracia (23-oct-2026) retira, y lo que la decisión quitó de estas tres páginas
+  const DINERO_RETIRADO = /cada euro|every euro|100\s?%|sin intermediarios|middlem|no intermediar|mensual|monthly|recibo disponible|receipt available|por (email|correo)|by e-?mail|transparencia total|full transparency|[€$£]|\beuros?\b/i
+
+  for (const [loc, lesiones, links, gracias, prensa] of [
+    ['es', 'lesiones.html', 'links.html', 'gracias.html', 'prensa.html'],
+    ['en', 'en/lesiones.html', 'en/links.html', 'en/thank-you.html', 'en/press.html'],
+  ] as const) {
+    // ── /lesiones ──────────────────────────────────────────────────────────────────────────────────────────────
+    {
+      const h = sinScripts(lesiones)
+      const main = principal(lesiones)
+      const txt = visible(main)
+      const bloque = main.match(/<section[^>]*aria-labelledby="en-corto-titulo"[\s\S]*?<\/section>/)?.[0] ?? ''
+      const cuerpo = visible(bloque.replace(/<h2\b[\s\S]*?<\/h2>/, ''))
+      const resto = txt.replace(visible(bloque), '')
+      ok(bloque.length > 0 && visible(bloque.match(/<h2\b[\s\S]*?<\/h2>/)?.[0] ?? '') === (loc === 'es' ? 'En corto' : 'In short'), `${lesiones}: lleva el bloque «${loc === 'es' ? 'En corto' : 'In short'}»`)
+      ok(palabras(cuerpo) <= 40 && palabras(cuerpo) >= 20, `${lesiones}: «En corto» cabe en 40 palabras (${palabras(cuerpo)})`)
+      ok(/2026/.test(cuerpo) && (loc === 'es' ? /8 de septiembre/ : /8 September/).test(cuerpo), `${lesiones}: «En corto» lleva la fecha de la foto (8-sep-2026)`)
+      ok(!/\d\s?(mm|cm)\b|→|55\b|[€$£]/.test(cuerpo), `${lesiones}: «En corto» sin cifras clínicas, sin flechas y sin el «55» del radiólogo (va abajo, con sus dos salvedades)`)
+      // cada frase de «En corto» (salvo la de las fechas de mama e hígado, que las compone) existe ENTERA y TAL CUAL en el resto de la página
+      const frases = cuerpo.split(/(?<=\.)\s+/).filter(Boolean)
+      ok(frases.length === 3, `${lesiones}: «En corto» son 3 frases (${frases.length})`)
+      const rotulo = loc === 'es' ? /^Hueso:\s*/ : /^Bone:\s*/
+      // ENTERAS, con su punto: una frase recortada («…RM de junio.» por «…RM de junio de 2026.») ya no es la publicada
+      const fuera = [frases[1]?.replace(rotulo, ''), frases[2]]
+      ok(fuera.every((f) => !!f && resto.includes(f)), `${lesiones}: la del hueso y la del PET del 8-sep existen ENTERAS y tal cual en la propia página, fuera del bloque (${fuera.map((f) => (f ?? '').slice(0, 30)).join(' | ')})`)
+      // el texto sellado sigue ahí, entero (la comprobación completa se hizo contra el HTML de antes de F6: solo líneas añadidas)
+      const SELLADO = loc === 'es'
+        ? ['Un radiólogo, en lectura informal por DM y sin informe firmado, marcó 55 medidas en el hígado de este TC y las considera 55 lesiones distintas', 'El informe oficial dice M1 múltiples.', 'Herramienta de APOYO a la decisión. No es diagnóstico ni consejo médico.', 'La mama, el hígado y las lesiones óseas.']
+        : ['A radiologist, in an informal DM read and without a signed report, marked 55 measurements on the liver in this CT and considers them 55 distinct lesions', 'The official report says multiple M1.', 'A decision-SUPPORT tool. Not a diagnosis or medical advice.', 'The breast, the liver and the bone lesions.']
+      ok(SELLADO.every((f) => txt.includes(f)), `${lesiones}: el texto sellado de la página sigue entero (${SELLADO.length} frases)`)
+      // orden del DOM = orden visual: título · «En corto» · aviso · …; y el aviso va DESPUÉS de «En corto»
+      const pos = ['<h1', 'id="en-corto-titulo"', 'class="alert-callout', 'id="mama-titulo"', 'id="hueso-titulo"', 'id="cierre-apoyo-titulo"'].map((m) => main.indexOf(m))
+      ok(pos.every((p, i) => p >= 0 && (i === 0 || p > pos[i - 1]!)), `${lesiones}: título · En corto · aviso · mama · hueso · cierre de apoyo, en ese orden (${pos.join(' < ')})`)
+      ok((main.match(/<h1\b/g)?.length ?? 0) === 1, `${lesiones}: un solo <h1>`)
+      // el cierre de apoyo: estático (en el HTML), con los dos botones del hero y los dos enlaces de antes intactos
+      const cierre = main.match(/<section[^>]*aria-labelledby="cierre-apoyo-titulo"[\s\S]*?<\/section>/)?.[0] ?? ''
+      const ca = anclas(cierre)
+      ok(ca.length === 2 && ca[0]!.href === GOFUNDME && ca[1]!.href === R[loc].caso, `${lesiones}: el cierre lleva «Apoyar» (GoFundMe) y «Entender el caso» (${R[loc].caso}) (${ca.map((a) => a.href).join(' · ')})`)
+      ok(ca[0]?.texto.startsWith(t(loc, 'nav.donate')) && ca[1]?.texto === t(loc, 'hero.cta_understand'), `${lesiones}: con los rótulos de siempre («${t(loc, 'nav.donate')}», «${t(loc, 'hero.cta_understand')}»)`)
+      ok(/\bbtn-cta\b/.test(ca[0]?.clase ?? '') && /\bbtn-secondary\b/.test(ca[1]?.clase ?? '') && /data-support-cta/.test(ca[0]?.atributos ?? ''), `${lesiones}: el de apoyo es el botón coral del DS (btn-cta, data-support-cta) y el otro, el secundario`)
+      ok(/target="_blank"/.test(ca[0]?.atributos ?? '') && /rel="noopener noreferrer"/.test(ca[0]?.atributos ?? '') && (ca[0]?.texto ?? '').includes(t(loc, 'a11y.new_tab')), `${lesiones}: el de GoFundMe abre pestaña nueva con rel="noopener noreferrer" y lo avisa`)
+      ok((main.match(/\bbtn-cta\b/g)?.length ?? 0) === 1, `${lesiones}: un solo botón coral en toda la página`)
+      const viejos = anclas(main.slice(main.indexOf('id="cierre-apoyo-titulo"'))).filter((a) => a.href === R[loc].datos || a.href === R[loc].reservorio).map((a) => a.href)
+      ok(JSON.stringify(viejos) === JSON.stringify([R[loc].datos, R[loc].reservorio]), `${lesiones}: los dos enlaces de cierre que ya había (${R[loc].datos}, ${R[loc].reservorio}) siguen, detrás del bloque nuevo`)
+      ok(!DINERO_RETIRADO.test(visible(cierre)) && !DINERO_RETIRADO.test(cuerpo), `${lesiones}: ni «En corto» ni el cierre llevan importes ni frases del dinero retiradas`)
+      ok(!h.includes('>Donación recibida<'), `${lesiones}: control del test (la página no habla de donaciones)`)
+    }
+
+    // ── /links ─────────────────────────────────────────────────────────────────────────────────────────────────
+    {
+      const main = principal(links)
+      const nav = main.match(/<nav\b[\s\S]*?<\/nav>/)?.[0] ?? ''
+      const filas = anclas(nav)
+      const ESPERADAS = [R[loc].celula, GOFUNDME, R[loc].lesiones, R[loc].datos, R[loc].prensa, PODCAST, R[loc].timeline, R[loc].marcas]
+      ok(JSON.stringify(filas.map((a) => a.href)) === JSON.stringify(ESPERADAS), `${links}: ocho filas en el orden decidido: célula a célula · apoyar · lesiones · datos · prensa · podcast · cronología · marcas (${filas.map((a) => a.href).join(' · ')})`)
+      const hr = nav.indexOf('<hr')
+      ok(hr > 0 && anclas(nav.slice(0, hr)).length === 6 && anclas(nav.slice(hr)).length === 2, `${links}: seis destacados y, tras el filete, dos secundarios (cronología y marcas)`)
+      const apoyo = filas[1]
+      ok(!!apoyo && /bio-link--apoyo/.test(apoyo.clase) && /data-support-cta/.test(apoyo.atributos) && /target="_blank"/.test(apoyo.atributos) && /rel="noopener noreferrer"/.test(apoyo.atributos) && apoyo.texto.includes(t(loc, 'a11y.new_tab')), `${links}: la 2.ª fila es el apoyo: GoFundMe directo, coral, con data-support-cta, pestaña nueva con rel="noopener noreferrer" y aviso`)
+      ok(filas.filter((a) => a.href.includes('gofund.me')).length === 1 && (sinScripts(links).match(/gofund\.me/g)?.length ?? 0) === 1, `${links}: un solo enlace a GoFundMe en toda la página (ni cabecera ni pie)`)
+      ok(!!apoyo && apoyo.texto.startsWith(t(loc, 'links.apoyar_title')) && apoyo.texto.includes(t(loc, 'links.apoyar_sub')), `${links}: «${t(loc, 'links.apoyar_title')}» · ${t(loc, 'links.apoyar_sub')}`)
+      // la fila de lesiones dice las TRES zonas (antes «el hígado y la mama»: faltaba el hueso)
+      const sub = t(loc, 'links.lesiones_sub')
+      ok(filas[2]!.texto.includes(sub) && (loc === 'es' ? /mama/i.test(sub) && /hígado/i.test(sub) && /hueso/i.test(sub) : /breast/i.test(sub) && /liver/i.test(sub) && /bone/i.test(sub)), `${links}: la fila de lesiones nombra mama, hígado y hueso («${sub}»)`)
+      ok(!/elespanol\.com/.test(sinScripts(links)), `${links}: sin enlace suelto al artículo de El Español (la prensa va a ${R[loc].prensa})`)
+      const texto = visible(main)
+      ok(!DINERO_RETIRADO.test(texto) && !/apoyar (mi|su) tratamiento|support (my|her) treatment|financiar|fund(ing)? (my|her)/i.test(texto), `${links}: ni frases del dinero retiradas ni «apoyar mi tratamiento» (destino del dinero, criterio de legal-burocracia)`)
+      ok(!/financ|tratamiento|treatment/i.test(t(loc, 'links.meta_description')) || /apoyar el caso|support the case/.test(t(loc, 'links.meta_description')), `${links}: la meta description habla de apoyar el caso, no de financiar un tratamiento`)
+      // el presupuesto: la decisión puso 100 palabras (hoy 158 con este recuento). Las ocho filas y sus subtítulos suman más; el techo es
+      // lo que había antes de F6 (no puede crecer) y la cifra real queda en el mensaje para la revisión.
+      ok(palabras(texto) <= 158, `${links}: ${palabras(texto)} palabras (techo: las 158 de antes de F6; tope de la decisión: 100, no alcanzado)`)
+    }
+
+    // ── /prensa#cobertura (el destino de la fila de prensa de /links) ─────────────────────────────────────────
+    {
+      const p = sinScripts(prensa)
+      const ancla = p.match(/<div id="cobertura"[^>]*>[\s\S]*?id="press-mentions"/)?.[0] ?? ''
+      ok((p.match(/\bid="cobertura"/g)?.length ?? 0) === 1 && ancla.length > 0, `${prensa}: #cobertura existe una vez y abre la sección de cobertura (donde aterriza /links)`)
+      ok(/\bscroll-mt-24\b/.test(ancla), `${prensa}: #cobertura deja hueco bajo la cabecera pegajosa (scroll-mt-24)`)
+    }
+
+    // ── /gracias ───────────────────────────────────────────────────────────────────────────────────────────────
+    {
+      const h = sinScripts(gracias)
+      const main = principal(gracias)
+      const texto = visible(main)
+      ok(!DINERO_RETIRADO.test(texto) && !/Donaci[oó]n recibida|Donation received/i.test(h), `${gracias}: sin «Donación recibida», «100 %», «mensual», «sin intermediarios», «por email» ni importes`)
+      ok(texto.split(t(loc, 'money.recibo')).length - 1 === 1, `${gracias}: el recibo lo dice la frase canónica (money.recibo), una vez: «${t(loc, 'money.recibo')}»`)
+      const a = anclas(main)
+      const contacto = a.find((x) => x.href === R[loc].contacto)
+      ok(!!contacto && contacto.texto === t(loc, 'expenses.faq_help_link') && /aria-describedby="gracias-recibo"/.test(contacto.atributos), `${gracias}: «${t(loc, 'expenses.faq_help_link')}» → ${R[loc].contacto} (rol «other»), descrito por la frase del recibo; sin correo directo`)
+      ok(!/mailto:/.test(h) && !/@[a-z0-9-]+\.[a-z]{2,}/i.test(texto.replace(/@miriamgonp/g, '')), `${gracias}: ningún correo directo (el contacto profesional va por /contacto)`)
+      ok(a.some((x) => x.href === R[loc].gastos && x.texto === t(loc, 'home.dinero_informe')), `${gracias}: enlaza al informe de gastos (${R[loc].gastos})`)
+      const siguiente = a.find((x) => x.href === R[loc].ultimo)
+      ok(!!siguiente && siguiente.texto === t(loc, 'thanks.next') && /btn-secondary/.test(siguiente.clase), `${gracias}: el paso siguiente lleva a lo último del caso (${R[loc].ultimo}) con «${t(loc, 'thanks.next')}»`)
+      ok(!a.some((x) => x.href === R[loc].inicio) && !a.some((x) => x.href.includes('gofund.me')), `${gracias}: sin «Volver al inicio» (el logo de la cabecera va a la home) y sin enlace a GoFundMe`)
+      ok(/name="robots"[^>]*noindex|noindex[^>]*name="robots"/.test(h), `${gracias}: sigue en noindex`)
+      ok(!/Donaci[oó]n recibida|Donation received/i.test(h.match(/<title>[\s\S]*?<\/title>/)?.[0] ?? '') && h.includes(`<title>${t(loc, 'thanks.eyebrow')} ·`), `${gracias}: el <title> dice «${t(loc, 'thanks.eyebrow')}»`)
+      ok(palabras(texto) <= 70, `${gracias}: ${palabras(texto)} palabras (tope de la decisión: 70)`)
+      // el texto que sale de la web al compartir tampoco promete a qué va el dinero
+      ok(!/financ|fund\b|funding|tratamiento oncol|cancer treatment|[€$£]|\beuros?\b/i.test(t(loc, 'thanks.share_text')), `${gracias}: el texto de «Compartir» («${t(loc, 'thanks.share_text')}») no dice a qué va el dinero`)
+      ok(/ingeniera de software|software engineer/.test(t(loc, 'thanks.share_text')), `${gracias}: y presenta a Miriam como ingeniera de software`)
+    }
+  }
+}
+
+console.log(fallos ? `\n❌ ${fallos} fallo(s)` : '\n✅ ancla, «hace N días», sitemap (sin redirigidas ni archivadas, hreflang por pares), <main> único, «Ver quién apoya», campaña (en el HTML y en vivo), «Qué buscamos», navegación (menú, pie, redes, chrome mínimo) fusiones de F4 (herramientas, reservorio, mapa archivado, vídeos), la home de F5 y las puertas sociales de F6 (/lesiones, /links, /gracias) en verde')
 process.exit(fallos ? 1 : 0)

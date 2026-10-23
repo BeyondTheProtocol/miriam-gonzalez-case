@@ -209,6 +209,36 @@ if (process.env.SIN_NAVEGADOR) {
     const cc = await de(EVENTO_CONTACTO_CLIC)
     ok(cc.length === 1 && cc[0]?.d?.rol === 'researcher' && cc[0]?.d?.pagina === 'index', `«Escribir al equipo» manda UN «${EVENTO_CONTACTO_CLIC}» con rol researcher desde «index» (${JSON.stringify(cc.map((x) => x.d))})`)
 
+    // C3c · las puertas sociales (F6, 23-oct-2026): lo que mide el apoyo de /links y de /lesiones, y lo que mide /gracias. Un clic = un «Donar»
+    // con SU origen y un «Clic-gofundme» que lo hereda; /links, además, un «Bio-link» (apoyar). Sin llamadas dobles: el plugin cuenta el href y
+    // la página, el botón.
+    for (const [ruta, origenEsperado, pagina] of [['/links', 'links', 'links'], ['/lesiones', 'lesiones_cierre', 'lesiones']] as const) {
+      await nav.cargar(ruta)
+      await vaciar()
+      const hay = await nav.evaluate(`!!document.querySelector('main a[data-support-cta][href^="https://gofund.me/"]')`)
+      ok(hay, `${ruta} tiene su enlace de apoyo a GoFundMe con data-support-cta`)
+      await nav.evaluate(`document.querySelector('main a[data-support-cta][href^="https://gofund.me/"]').click()`)
+      await nav.sleep(150)
+      const d = await de('Donar'), g = await de(EVENTO_GOFUNDME)
+      ok(d.length === 1 && d[0]?.d?.location === origenEsperado, `${ruta}: un clic de apoyo manda UN «Donar» desde «${origenEsperado}» (${JSON.stringify(d.map((x) => x.d))})`)
+      ok(g.length === 1 && g[0]?.d?.origen === origenEsperado && g[0]?.d?.pagina === pagina, `${ruta}: y UN «${EVENTO_GOFUNDME}» con ese origen, desde la página «${pagina}» (${JSON.stringify(g.map((x) => x.d))})`)
+      if (ruta === '/links') {
+        const b = await de('Bio-link')
+        ok(b.length === 1 && b[0]?.d?.destino === 'apoyar', `/links: y UN «Bio-link» con destino «apoyar» (${JSON.stringify(b.map((x) => x.d))})`)
+      }
+    }
+    await nav.cargar('/gracias')
+    await vaciar()
+    await nav.evaluate(`document.querySelector('main a[href="/contacto?role=other"]').click()`)
+    await nav.sleep(150)
+    const recibo = await de(EVENTO_CONTACTO_CLIC)
+    ok(recibo.length === 1 && recibo[0]?.d?.rol === 'other' && recibo[0]?.d?.pagina === 'gracias', `/gracias: «Escríbenos» manda UN «${EVENTO_CONTACTO_CLIC}» con rol other desde «gracias» (${JSON.stringify(recibo.map((x) => x.d))})`)
+    await vaciar()
+    await nav.evaluate(`document.querySelector('main a[href="/timeline#lo-ultimo"]').click()`)
+    await nav.sleep(150)
+    const ultimo = await de('VerUltimo')
+    ok(ultimo.length === 1 && ultimo[0]?.d?.origen === 'gracias', `/gracias: «Ver lo último del caso» manda UN «VerUltimo» desde «gracias» (${JSON.stringify(ultimo.map((x) => x.d))})`)
+
     // C4 · scroll: una vez por umbral, en orden, solo el que mueve el usuario, y de cero en la página siguiente
     const recorridoActual = async (): Promise<number> => nav.evaluate('document.documentElement.scrollHeight - window.innerHeight')
     const yActual = async (): Promise<number> => nav.evaluate('Math.round(window.scrollY)')

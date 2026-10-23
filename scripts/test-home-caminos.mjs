@@ -14,7 +14,7 @@
 // 2. El tabulador recorre todo <main> en el orden del DOM (a 1280 y a 375 px) y el anillo de foco se ve.
 // 3. «Entender el caso» baja a #caso (clic y teclado): el título queda a la vista y por debajo de la cabecera fija.
 // 4. Los clics llevan a donde dicen: «Escribir al equipo» → /contacto con el rol de investigación ya marcado.
-// 5. /contacto preselecciona el rol (oncologist, researcher).
+// 5. /contacto preselecciona el rol (oncologist, researcher y other, el de «Escríbenos» de /gracias).
 // 6. Los destinos antiguos que siguen vivos: /ciencia?nivel=pro#snapshot-title («De un vistazo», con el foco) y el destino de
 //    /caso (#que-buscamos, en /datos; leído de nuxt.config.ts), con carga directa: el título queda a la vista y por debajo de la
 //    barra de secciones, el foco está en él (el primer Tab entra en las peticiones, no en los chips) y, con la barra ya pegada,
@@ -23,13 +23,14 @@
 // 8. /colabora conserva sus chips «por perfil»; el pie ya no los lleva (rediseño de arquitectura, F3; /colabora los cambia por
 //    las cuatro puertas en F10).
 // 9. Los enlaces que abren pestaña nueva (la puerta «Apoyar», el hero y la prensa): rel="noopener" y aviso para lector de pantalla.
-// 10. Chrome mínimo (F3): /links y /gracias, en ES y EN a 320, 375 y 1280 px, sin menú, sin barra «lo último» y con un pie
-//    reducido (las 5 redes y lo legal, sin logos ni columnas); /gracias además sin «Apoyar» en la cabecera ni en el pie.
-//    /links conserva en la cabecera, a TODOS los anchos (también en móvil, donde ya no hay hamburguesa), un enlace a
-//    GoFundMe visible y de 44 px, sin solaparse con el logo ni con el selector de idioma: es la puerta móvil de la bio.
-//    Bajo 420 px el nombre del logo pasa a sr-only en /links (no en /gracias), y mientras se recorre /links a 375×568
-//    nunca hay un segundo enlace a GoFundMe a la vista (la barra «Donar» del móvil no sale encima).
-//    El chrome reaparece y desaparece al navegar sin recargar (logo → home → atrás; «Volver al inicio» → atrás).
+// 10. Chrome mínimo (F3, F6): /links y /gracias, en ES y EN a 320, 375 y 1280 px, sin menú, sin barra «lo último» y con un pie
+//    reducido (las 5 redes y lo legal, sin logos ni columnas), y SIN «Apoyar» ni en la cabecera ni en el pie. Hasta F6, /links
+//    conservaba en la cabecera un enlace a GoFundMe (la puerta móvil de la bio, con el nombre del logo en sr-only bajo 420 px
+//    para que cupiera); desde F6 el apoyo es la 2.ª fila de la propia página (coral, de 44 px como mínimo, a la vista en la primera
+//    pantalla de un móvil de 375×667) y la cabecera lleva solo el logo, con su nombre a la vista a todos los anchos, y el selector
+//    de idioma. Mientras se recorre /links a 375×568 nunca hay DOS enlaces a GoFundMe a la vista (la fila y la barra «Donar» del
+//    móvil no coinciden), y en la primera pantalla hay uno.
+//    El chrome reaparece y desaparece al navegar sin recargar (logo → home → atrás; el paso siguiente de /gracias → atrás).
 //
 // CAPTURAS=<carpeta> guarda capturas de la rejilla para la revisión de `diseno`.
 // Uso: pnpm exec nuxt generate && pnpm test:home-caminos
@@ -259,7 +260,7 @@ try {
   }
 
   console.log('\n5. /contacto preselecciona el rol')
-  for (const [ruta, rol] of [['/contacto?role=oncologist', 'oncologist'], ['/contacto?role=researcher', 'researcher'], ['/en/contact?role=researcher', 'researcher']]) {
+  for (const [ruta, rol] of [['/contacto?role=oncologist', 'oncologist'], ['/contacto?role=researcher', 'researcher'], ['/en/contact?role=researcher', 'researcher'], ['/contacto?role=other', 'other'], ['/en/contact?role=other', 'other']]) {
     await cargar(ruta)
     const v = await evaluate(`document.querySelector('select option[value="${rol}"]')?.parentElement.value ?? null`)
     ok(v === rol, `${ruta}: el selector llega con «${rol}» (${v})`)
@@ -385,6 +386,14 @@ try {
       // el nombre del logo, ¿a la vista? (sr-only mide 1 px: sigue en el árbol de accesibilidad, no en pantalla)
       logoTexto: !!cab && cab.querySelector('a span span').getBoundingClientRect().width > 20,
       apoyoPie: !!document.querySelector('footer a[href*="gofund.me"]'),
+      // el apoyo dentro de la página (F6): en /links, la 2.ª fila del <nav> de enlaces
+      apoyoPagina: (() => {
+        const filas = [...document.querySelectorAll('main nav a')]
+        const a = filas.find((x) => (x.getAttribute('href') || '').includes('gofund.me'))
+        if (!a) return null
+        const r = a.getBoundingClientRect()
+        return { orden: filas.indexOf(a) + 1, alto: Math.round(r.height), top: Math.round(r.top), rel: a.getAttribute('rel'), supportCta: a.hasAttribute('data-support-cta') }
+      })(),
       columnasPie: document.querySelectorAll('footer [id^=pie-]').length,
       logos: !!document.querySelector('footer .logo-wall__mark'),
       redesPie: [...document.querySelectorAll('footer a[href]')].filter((a) => redes.some((r) => a.getAttribute('href').includes(r))).length,
@@ -409,17 +418,19 @@ try {
       ok(m.columnasPie === 0 && !m.logos && m.redesPie === 5 && m.legalPie === 3, `${t}: pie reducido: sin columnas (${m.columnasPie}) ni logos, con las 5 redes (${m.redesPie}) y lo legal (${m.legalPie})`)
       ok(!m.apoyoPie, `${t}: el pie no lleva «Apoyar»`)
       ok(m.cabeceraOrdenada && m.logoNombre, `${t}: cabecera sin solapes y con el nombre del logo accesible (${m.cabeceraOrdenada}, ${m.logoNombre})`)
-      // El nombre se retira a la vista solo en /links bajo 420 px (donde «Apoyar» no deja sitio); /gracias lo conserva siempre.
-      const nombreVisible = c.gracias || w >= 420
-      ok(m.logoTexto === nombreVisible, `${t}: el nombre del logo ${nombreVisible ? 'sigue a la vista' : 'queda solo para el lector de pantalla'} (${m.logoTexto})`)
-      if (c.gracias) ok(!m.apoyoCabecera, `${t}: /gracias no lleva «Apoyar» en la cabecera`)
-      else ok(m.apoyoCabecera && m.apoyoAlto >= 44, `${t}: /links lleva «Apoyar» (GoFundMe) a la vista en la cabecera, también en móvil, con ${m.apoyoAlto} px de alto`)
+      // Sin «Apoyar» en la cabecera, el nombre del logo cabe entero a todos los anchos (en /links, hasta F6, bajo 420 px pasaba a sr-only).
+      ok(m.logoTexto, `${t}: el nombre del logo sigue a la vista (${m.logoTexto})`)
+      ok(!m.apoyoCabecera, `${t}: ${c.gracias ? '/gracias' : '/links'} no lleva «Apoyar» en la cabecera`)
+      if (c.gracias) ok(m.apoyoPagina === null, `${t}: /gracias no lleva ningún enlace a GoFundMe en la página`)
+      else ok(!!m.apoyoPagina && m.apoyoPagina.orden === 2 && m.apoyoPagina.alto >= 44 && m.apoyoPagina.rel === 'noopener noreferrer' && m.apoyoPagina.supportCta, `${t}: /links lleva «Apoyar» (GoFundMe) como 2.ª fila de la página, de ${m.apoyoPagina?.alto} px, con rel="noopener noreferrer" y data-support-cta`)
       ok(m.sw <= m.vw, `${t}: sin scroll horizontal (${m.sw} ≤ ${m.vw})`)
     }
   }
-  // /links en móvil: con «Apoyar» fijo en la cabecera, a ninguna altura de scroll puede haber un segundo enlace a GoFundMe
-  // a la vista (la barra «Donar» del móvil no debe salir encima: dos botones coral iguales a la vez). Se mide a 375×568 (un
-  // iPhone SE): sin `data-support-cta` en el botón de la cabecera, la barra sale ahí hacia los 500 px de scroll con dos a la vez.
+  // /links en móvil: la fila de apoyo lleva `data-support-cta`, así que la barra «Donar» del móvil no sale mientras está a la vista:
+  // a ninguna altura de scroll puede haber DOS enlaces a GoFundMe a la vista (dos botones coral iguales a la vez). Antes de F6, con
+  // «Apoyar» fijo en la cabecera, siempre había exactamente uno; ahora, sin cabecera de apoyo, en la primera pantalla hay uno (la
+  // fila) y, al bajar, la barra del móvil toma el relevo (o no hay ninguno cerca del pie, donde la barra se esconde). Se mide a
+  // 375×568 (un iPhone SE de los primeros: la fila asoma, no se ve entera).
   await ancho(375, 568)
   for (const ruta of ['/links', '/en/links']) {
     await cargar(ruta)
@@ -430,7 +441,7 @@ try {
       await sleep(300)
       cuentas.push(await evaluate(`[...document.querySelectorAll('a[href*="gofund.me"]')].filter((a) => { const r = a.getBoundingClientRect(); return a.offsetParent !== null && r.bottom > 0 && r.top < innerHeight }).length`))
     }
-    ok(cuentas.every((n) => n === 1), `${ruta} a 375×568: un solo enlace a GoFundMe a la vista en ${cuentas.length} alturas de scroll (${cuentas.join('')})`)
+    ok(cuentas.every((n) => n <= 1) && cuentas[0] === 1, `${ruta} a 375×568: nunca dos enlaces a GoFundMe a la vista y, en la primera pantalla, uno (${cuentas.length} alturas de scroll: ${cuentas.join('')})`)
   }
   // el control: una página normal conserva todo
   await ancho(1280)
@@ -454,19 +465,22 @@ try {
     ok(await enRuta(c.ruta), `atrás → ${c.ruta}`)
     await sleep(400)
     m = await evaluate(CHROME)
-    ok(!m.menu && m.columnasPie === 0 && !m.barra && (c.gracias ? !m.apoyoCabecera : true), `${c.ruta} al volver: chrome mínimo otra vez (menú ${m.menu}, columnas ${m.columnasPie}, barra ${m.barra})`)
+    ok(!m.menu && m.columnasPie === 0 && !m.barra && !m.apoyoCabecera, `${c.ruta} al volver: chrome mínimo otra vez (menú ${m.menu}, columnas ${m.columnasPie}, barra ${m.barra}, «Apoyar» en la cabecera ${m.apoyoCabecera})`)
     ok(await evaluate(`window.__sinRecarga === true`), `${c.ruta}: todo el recorrido fue navegación del cliente, sin recargar`)
   }
-  // /gracias: «Volver al inicio» (el botón de la página) hace lo mismo.
+  // /gracias: el paso siguiente («Ver lo último del caso», que sustituye a «Volver al inicio» en F6) hace lo mismo: va a /timeline#lo-ultimo
+  // sin recargar y la página de destino recupera el chrome completo.
   for (const c of CASOS.filter((x) => x.gracias)) {
+    const destino = c.loc === 'es' ? '/timeline' : '/en/timeline'
     await cargar(c.ruta)
     await evaluate(`window.__sinRecarga = true`)
-    await evaluate(`[...document.querySelectorAll('main a')].find((a) => a.getAttribute('href') === '${c.home}').click()`)
-    ok(await enRuta(c.home), `${c.ruta} → «Volver al inicio» → ${c.home}`)
+    await evaluate(`[...document.querySelectorAll('main a')].find((a) => a.getAttribute('href') === '${destino}#lo-ultimo').click()`)
+    ok(await enRuta(destino), `${c.ruta} → «Ver lo último del caso» → ${destino}#lo-ultimo`)
     await sleep(400)
     const m = await evaluate(CHROME)
-    ok(m.menu && m.apoyoCabecera, `${c.ruta} → inicio: vuelven el menú y «Apoyar» (${m.menu}, ${m.apoyoCabecera})`)
-    ok(await evaluate(`window.__sinRecarga === true`), `${c.ruta} → inicio: sin recargar`)
+    ok(m.menu && m.apoyoCabecera, `${c.ruta} → ${destino}: vuelven el menú y «Apoyar» (${m.menu}, ${m.apoyoCabecera})`)
+    ok(await evaluate(`location.hash === '#lo-ultimo'`), `${c.ruta} → ${destino}: el hash #lo-ultimo llega`)
+    ok(await evaluate(`window.__sinRecarga === true`), `${c.ruta} → ${destino}: sin recargar`)
   }
 } finally {
   await nav.cerrar()

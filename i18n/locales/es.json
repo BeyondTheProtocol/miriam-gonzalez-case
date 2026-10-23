@@ -231,14 +231,15 @@
     "legend_cgsyn": "Cg · Syn: gránulos neuroendocrinos (el 80% del tumor)."
   },
   "thanks": {
-    "eyebrow": "Donación recibida · Gracias",
+    "eyebrow": "Gracias",
     "title": "Acabas de acercar el siguiente {firma}.",
     "firma": "análisis",
     "lede": "Recibirás el recibo por email. El 100% va al caso de Miriam, con informe mensual de gastos y sin intermediarios. Gracias por estar.",
     "share": "Compartir la campaña",
-    "share_text": "Ayuda a Miriam a financiar un tratamiento oncológico de precisión.",
+    "share_text": "El caso de Miriam: una ingeniera de software que busca un tratamiento hecho a partir de su propio tumor.",
     "copied": "¡Enlace copiado!",
     "home": "Volver al inicio",
+    "next": "Ver lo último del caso",
     "follow": "¿Quieres seguir el caso de cerca? {'@'}miriamgonp en Instagram"
   },
   "error": {
@@ -1205,7 +1206,7 @@
   },
   "links": {
     "meta_title": "Miriam González · Enlaces",
-    "meta_description": "Todos los enlaces del caso de Miriam González en un solo sitio: sus lesiones en 3D, el podcast con Carlos Roca, la cobertura en prensa, colaboración con marcas y cómo apoyar su tratamiento.",
+    "meta_description": "Todos los enlaces del caso de Miriam González en un solo sitio: sus lesiones en 3D, el podcast con Carlos Roca, la cobertura en prensa, colaboración con marcas y cómo apoyar el caso.",
     "aria_page": "Enlaces de Miriam González",
     "aria_nav": "Enlaces destacados",
     "avatar_alt": "Retrato de Miriam González",
@@ -1215,18 +1216,22 @@
     "elespanol_sub": "«La ingeniera que usa la IA para luchar contra su cáncer»",
     "marcas_title": "Para marcas y empresas",
     "marcas_sub": "Un escaparate para tu marca, en colaboración",
-    "apoyar_title": "Apoyar mi tratamiento",
-    "apoyar_sub": "Cómo ayudar, con transparencia total",
+    "apoyar_title": "Apoyar mi caso",
+    "apoyar_sub": "Te lleva a mi campaña en GoFundMe",
     "caso_title": "Mi caso, desde el principio",
     "caso_sub": "La historia completa en helpmiriam.com",
     "lesiones_title": "Mis lesiones en 3D",
-    "lesiones_sub": "El hígado y la mama, girables: lo que mide el informe y lo que detecta la IA",
+    "lesiones_sub": "La mama, el hígado y el hueso, girables",
     "datos_title": "El caso en datos",
     "datos_sub": "Analíticas desde 2021, tratamientos y tejido, cada cifra con su fuente",
     "podcast_title": "Mi caso en Roca Project",
     "podcast_sub": "Programa 100, con Carlos Roca: el diagnóstico, la familia y el miedo",
     "celula_title": "Mi tumor, célula a célula",
-    "celula_sub": "Qué tiene encendido cada célula del hígado y del hueso, y los primeros resultados"
+    "celula_sub": "Qué tiene encendido cada célula del hígado y del hueso, y los primeros resultados",
+    "prensa_title": "Mi caso en la prensa",
+    "prensa_sub": "Lo que han publicado sobre el caso",
+    "cronologia_title": "El caso paso a paso",
+    "cronologia_sub": "Lo que ha pasado, en orden"
   },
   "herramientas": {
     "title": "Herramientas del caso",
@@ -1276,6 +1281,7 @@
     }
   },
   "money": {
-    "destino": "El dinero recibido se destina a los gastos del caso; el informe de gastos detalla las partidas, impuesto de donaciones incluido, con su fecha."
+    "destino": "El dinero recibido se destina a los gastos del caso; el informe de gastos detalla las partidas, impuesto de donaciones incluido, con su fecha.",
+    "recibo": "Puedes solicitar un recibo escribiéndonos."
   }
 }

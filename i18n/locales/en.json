@@ -231,14 +231,15 @@
     "legend_cgsyn": "Cg · Syn: neuroendocrine granules (80% of the tumor)."
   },
   "thanks": {
-    "eyebrow": "Donation received · Thank you",
+    "eyebrow": "Thank you",
     "title": "You've just brought the next {firma} closer.",
     "firma": "test",
     "lede": "You'll get the receipt by email. 100% goes to Miriam's case, with a monthly expense report and no middlemen. Thank you for being here.",
     "share": "Share the campaign",
-    "share_text": "Help Miriam fund precision cancer treatment.",
+    "share_text": "Miriam's case: a software engineer looking for a treatment made from her own tumor.",
     "copied": "Link copied!",
     "home": "Back to home",
+    "next": "See the latest on the case",
     "follow": "Want to follow the case closely? {'@'}miriamgonp on Instagram"
   },
   "error": {
@@ -1205,7 +1206,7 @@
   },
   "links": {
     "meta_title": "Miriam González · Links",
-    "meta_description": "Every link to Miriam González's case in one place: her lesions in 3D, the podcast with Carlos Roca, press coverage, brand collaborations and how to support her treatment.",
+    "meta_description": "Every link to Miriam González's case in one place: her lesions in 3D, the podcast with Carlos Roca, press coverage, brand collaborations and how to support the case.",
     "aria_page": "Miriam González's links",
     "aria_nav": "Featured links",
     "avatar_alt": "Portrait of Miriam González",
@@ -1215,18 +1216,22 @@
     "elespanol_sub": "“The engineer using AI to fight her cancer” (Spanish)",
     "marcas_title": "For brands and companies",
     "marcas_sub": "A showcase for your brand, in partnership",
-    "apoyar_title": "Support my treatment",
-    "apoyar_sub": "How to help, with full transparency",
+    "apoyar_title": "Support my case",
+    "apoyar_sub": "Takes you to my GoFundMe campaign",
     "caso_title": "My case, from the start",
     "caso_sub": "The full story on helpmiriam.com",
     "lesiones_title": "My lesions in 3D",
-    "lesiones_sub": "Liver and breast, rotatable: what the report measures and what the AI detects",
+    "lesiones_sub": "Breast, liver and bone, rotatable",
     "datos_title": "The case in data",
     "datos_sub": "Labs since 2021, treatments and tissue, every number with its source",
     "podcast_title": "My case on Roca Project",
     "podcast_sub": "Episode 100, with Carlos Roca: the diagnosis, family and fear",
     "celula_title": "My tumor, cell by cell",
-    "celula_sub": "What each cell in the liver and bone has switched on, and the first results"
+    "celula_sub": "What each cell in the liver and bone has switched on, and the first results",
+    "prensa_title": "My case in the press",
+    "prensa_sub": "What the press has published about the case",
+    "cronologia_title": "The case step by step",
+    "cronologia_sub": "What has happened, in order"
   },
   "herramientas": {
     "title": "Case tools",
@@ -1276,6 +1281,7 @@
     }
   },
   "money": {
-    "destino": "The money received goes to the costs of the case; the expense report lists the line items, gift tax included, with its date."
+    "destino": "The money received goes to the costs of the case; the expense report lists the line items, gift tax included, with its date.",
+    "recibo": "You can request a receipt by getting in touch."
   }
 }

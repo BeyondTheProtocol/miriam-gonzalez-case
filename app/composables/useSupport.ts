@@ -114,8 +114,8 @@ export function useSupport() {
     else if (key === 'slides') trackLaminillas(origen)
   }
 
-  // Clic en «Lo último» (señal de recencia): desde el hero de la home o desde la barra global.
-  function trackLatest(origen: 'hero' | 'barra') {
+  // Clic en «Lo último» (señal de recencia): desde el hero de la home, desde la barra global o, tras donar, desde /gracias.
+  function trackLatest(origen: 'hero' | 'barra' | 'gracias') {
     trackUmami('VerUltimo', { origen })
   }
 

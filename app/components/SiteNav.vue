@@ -15,15 +15,7 @@
       <NuxtLink :to="localePath('/')" class="flex items-center gap-2.5 group" style="text-decoration: none">
           <!-- Logo redondo: monograma «m» + constelación de destellos (DS, violeta miriam) -->
           <BrandMark class="w-11 h-11 shrink-0" />
-          <!-- /links en móvil (<420 px): el nombre y el dominio ya están grandes en el cuerpo de la página, y con
-               «Apoyar» y ES/EN no caben sin partir el nombre en dos líneas (a 320 px, ni así). Se quedan para el
-               lector de pantalla: sr-only mantiene el nombre accesible del enlace al inicio. /gracias (sin «Apoyar»)
-               sí cabe entera y conserva su marca. -->
-          <span
-            class="flex flex-col leading-none"
-            :class="minimo && !sinApoyo ? 'max-[419px]:sr-only' : ''"
-            translate="no"
-          >
+          <span class="flex flex-col leading-none" translate="no">
             <span class="font-display font-semibold text-berenjena text-sm tracking-tight">
               {{ $t('site.title') }}
             </span>
@@ -82,27 +74,20 @@
           >EN</button>
         </div>
 
-        <!-- Donate CTA. Oculto en /gracias: quien llega ahí acaba de donar (useChromeMinimo).
-             Bajo `sm` solo existe con el chrome mínimo (/links): sin hamburguesa, el menú desplegable
-             donde vivía el botón no está, y quien llega desde la bio de una red (móvil) tiene que
-             tener a un toque el mismo «Apoyar» que tenía. Compacto («Apoyar») para que quepa junto al
-             logo y al selector de idioma; el resto de rutas conserva el botón dentro del menú. Con el chrome
-             mínimo lleva `data-support-cta`: a la vista a todas horas, la barra «Donar» del móvil sobraría
-             (MobileSupportBar no se muestra mientras hay un CTA de apoyo en pantalla), y no habría dos corales. -->
+        <!-- Donate CTA. Con el chrome mínimo (/links, /gracias) no hay botón en la cabecera (useChromeMinimo): en
+             /gracias quien llega ya ha donado, y /links lleva el apoyo como su 2.ª fila (F6). Bajo `sm` el botón
+             vive dentro del menú desplegable. -->
         <a
-          v-if="!sinApoyo"
+          v-if="!minimo"
           href="https://gofund.me/3e25cae99"
           target="_blank"
           rel="noopener noreferrer"
           @click="trackSupport('cabecera')"
-          :data-support-cta="minimo ? '' : undefined"
-          class="donate-cta items-center gap-1.5 min-h-[44px] py-2 bg-coral hover:bg-coral-hover text-berenjena text-sm font-semibold rounded-btn transition-all hover:-translate-y-0.5 hover:shadow-[0_10px_22px_-8px_rgba(255,107,71,0.55)]"
-          :class="minimo ? 'inline-flex px-3 sm:px-4' : 'hidden sm:inline-flex px-4'"
+          class="donate-cta hidden sm:inline-flex items-center gap-1.5 min-h-[44px] px-4 py-2 bg-coral hover:bg-coral-hover text-berenjena text-sm font-semibold rounded-btn transition-all hover:-translate-y-0.5 hover:shadow-[0_10px_22px_-8px_rgba(255,107,71,0.55)]"
           style="text-decoration: none"
         >
           <Icon name="ph:heart-fill" class="heart-beat w-3.5 h-3.5" aria-hidden="true" />
-          <span class="sm:hidden">{{ $t('nav.donate_short') }}</span>
-          <span class="hidden sm:inline">{{ $t('nav.donate') }}</span><span class="sr-only"> {{ $t('a11y.new_tab') }}</span>
+          {{ $t('nav.donate') }}<span class="sr-only"> {{ $t('a11y.new_tab') }}</span>
         </a>
 
         <!-- Mobile hamburger -->
@@ -209,7 +194,7 @@ const localePath = useLocalePath()
 const route = useRoute()
 const { y } = useWindowScroll()
 const { trackSupport, trackNav } = useSupport()
-const { minimo, sinApoyo } = useChromeMinimo()
+const { minimo } = useChromeMinimo()
 
 const headerRef = ref<HTMLElement | null>(null)
 const hamburguesaRef = ref<HTMLButtonElement | null>(null)

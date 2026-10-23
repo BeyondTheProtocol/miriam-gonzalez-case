@@ -16,7 +16,7 @@
 // 3. Léxico prohibido (comité médico, 20-oct) sobre toda la copy nueva de la home y de las puertas, ES y EN.
 // 4. Hero: H1 con la edad variable y la frase pedida, lede ≤ 35 palabras, sin «ultra-raro» y sin importes ni promesa de destino.
 // 5. «El caso en 3 frases»: solo las tres frases que la home ya publicaba (fijadas aquí) y ninguna afirmación nueva.
-// 6. El dinero: UNA frase de destino, la canónica de legal-burocracia (23-oct-2026), sin importes ni «cada euro».
+// 6. El dinero: UNA frase de destino y UNA del recibo (F6), las canónicas de legal-burocracia (23-oct-2026), sin importes ni «cada euro».
 // 7. La home ya no usa lo que se fue (componentes, claves del dinero retiradas, euros en el hero).
 //
 // Uso:  pnpm test:caminos
@@ -66,7 +66,7 @@ const USADAS = [
   'home.s9_strip_label', 'home.s9_press_contact', 'home.caso_heading', 'home.caso_1', 'home.caso_2', 'home.caso_3',
   'home.donde_heading', 'home.ahora', 'home.pasos_intro', 'home.pasos_nota_barra', 'home.pasos_progreso', 'home.pasos_progreso_curso', 'home.pasos_cta_ruta',
   'home.buscamos_heading', 'home.buscamos_escribir', 'home.buscamos_todas', 'home.donde_3d',
-  'home.dinero_eyebrow', 'home.dinero_heading', 'home.dinero_informe', 'home.s4_cta_button', 'money.destino',
+  'home.dinero_eyebrow', 'home.dinero_heading', 'home.dinero_informe', 'home.s4_cta_button', 'money.destino', 'money.recibo',
   'home.s6_eyebrow', 'home.s6_quote', 'home.s6_signature', 'home.puertas_heading',
 ]
 for (const clave of USADAS) {
@@ -87,7 +87,7 @@ const PROHIBIDO: [RegExp, string][] = [
 // (pasos_intro, s6_quote, las peticiones de caso.json): se revisan donde nacieron y su léxico no es el de esta copy.
 const NUEVAS = ['hero.h1', 'hero.h1_emphasis', 'hero.lede', 'hero.cta_understand', 'hero.pro_link', 'hero.proof_support',
   'home.caso_heading', 'home.caso_1', 'home.caso_2', 'home.caso_3', 'home.donde_heading', 'home.ahora', 'home.buscamos_heading', 'home.buscamos_escribir',
-  'home.buscamos_todas', 'home.donde_3d', 'home.dinero_eyebrow', 'home.dinero_heading', 'home.dinero_informe', 'home.puertas_heading', 'money.destino']
+  'home.buscamos_todas', 'home.donde_3d', 'home.dinero_eyebrow', 'home.dinero_heading', 'home.dinero_informe', 'home.puertas_heading', 'money.destino', 'money.recibo']
 for (const [loc, d] of [['ES', es], ['EN', en]] as const) {
   const textos = [...NUEVAS.map((k) => [k, String(get(d, k))] as const), ...Object.entries(d.puertas as Record<string, string>).map(([k, v]) => [`puertas.${k}`, v] as const)]
   for (const [re, nombre] of PROHIBIDO) {
@@ -144,7 +144,23 @@ for (const [loc, d] of [['es', es], ['en', en]] as const) {
   })(d, '')
   ok(repetida.length === 1 && repetida[0] === 'money.destino', `${loc}: la frase canónica vive en UNA sola clave (${repetida.join(', ')})`)
 }
-ok(!('recibo' in es.money) || es.money.recibo === 'Puedes solicitar un recibo escribiéndonos.', 'money.recibo, si existe, es la frase canónica (la home no la usa: el proceso del recibo está pendiente, G2d)')
+// El recibo (F6, 23-oct-2026): la segunda frase canónica del criterio de legal-burocracia. Es la de /gastos (expenses.faq_a3, hasta que F10 la
+// retire de ahí y la concatene desde money.recibo), sin «por email», sin plazo y sin importes. La home no la usa (el proceso del recibo está
+// pendiente, G2d); la usa /gracias, y su presencia ahí la vigila test-salud-estatica §12.
+const RECIBO = {
+  es: 'Puedes solicitar un recibo escribiéndonos.',
+  en: 'You can request a receipt by getting in touch.',
+}
+for (const [loc, d] of [['es', es], ['en', en]] as const) {
+  ok(d.money.recibo === RECIBO[loc], `${loc}: money.recibo es la frase canónica (${d.money.recibo})`)
+  ok(!/[€$£]|\d|\beuros?\b|cada |every |100|mensual|monthly|intermediari|middlem|email|e-mail|correo|plazo|horas|días|hours|days|certificad|desgrav|tax relief/i.test(d.money.recibo), `${loc}: money.recibo sin importes, «por email», plazos ni promesas fiscales`)
+  const repetida = (function buscar(o: unknown, ruta: string): string[] {
+    if (typeof o === 'string') return o === d.money.recibo ? [ruta] : []
+    if (o && typeof o === 'object') return Object.entries(o).flatMap(([k, v]) => buscar(v, ruta ? `${ruta}.${k}` : k))
+    return []
+  })(d, '')
+  ok(repetida.length === 1 && repetida[0] === 'money.recibo', `${loc}: la frase del recibo vive en UNA sola clave (${repetida.join(', ')})`)
+}
 
 console.log('7. La home ya no usa lo que se fue')
 const home = lee('app/pages/index.vue')
