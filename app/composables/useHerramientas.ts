@@ -1,7 +1,7 @@
 import { HERRAMIENTAS, type EnlaceNav } from '~/utils/navegacion'
 
 /**
- * Las herramientas que se enseñan (índice, banda de la home y pie): HERRAMIENTAS menos las que tienen
+ * Las herramientas que se enseñan (franja #visores de /datos, banda de la home y pie): HERRAMIENTAS menos las que tienen
  * puerta y la tienen cerrada. Hoy solo el explorador de células: sale si su puerta está en `real`
  * (useCelulaExplorador), la misma regla que su tarjeta de «Próximos pasos». Así no hay enlace a una
  * página que diría «todavía no está abierto».

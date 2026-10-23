@@ -160,7 +160,7 @@ export function useSupport() {
     trackUmami('Bio-link', { destino: destination })
   }
 
-  // Vídeos de /videos: un solo evento «VerVideo», al primer play de cada vídeo, con su id.
+  // Vídeos de la web (el ADC en /ciencia, el promo en /prensa; antes, /videos): un solo evento «VerVideo», al primer play de cada vídeo, con su id.
   function trackVideo(id: string) {
     trackUmami('VerVideo', { id })
   }

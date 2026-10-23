@@ -70,16 +70,13 @@ The website has two audiences: scientists/physicians (science page, molecular pr
 
 ### Nuxt Content v3
 - `@nuxt/content` v3 active. Collections defined in `content.config.ts`.
-- 10 collections: `timeline_es`, `timeline_en`, `historia_es`, `historia_en`, `team_es`, `team_en`, `press_es`, `press_en`, `science_es`, `science_en`. (`ciencia_articles` and `science_articles` and the `/ciencia/[slug]` route were removed on 2026-10-23: they never held an article.)
+- 8 collections: `timeline_es`, `timeline_en`, `team_es`, `team_en`, `press_es`, `press_en`, `science_es`, `science_en`. (`ciencia_articles` and `science_articles` and the `/ciencia/[slug]` route were removed on 2026-10-23: they never held an article. `historia_es` and `historia_en` went the same day, with the `/historia` page: see "Merged and archived pages" below.)
 - Timeline: `.yml` files in `content/es/timeline.yml` and `content/en/timeline.yml`.
-- Story: `.md` files in `content/es/historia/` and `content/en/story/`.
 - Team data: `content/es/team.yml` and `content/en/team.yml` (3 groups: `coreTeam`, `medicalNetwork`, `integrativeSupport`).
 - Press mentions: `content/es/press.yml` and `content/en/press.yml`.
 - Science page data (treatments, papers, panel): `content/es/science.yml` and `content/en/science.yml`.
-- Chapters are linked between languages with `translationKey` in frontmatter.
 - Language-specific slugs are configured in `nuxt.config.ts` under `i18n.pages`.
-- **Page collections** (`historia_es`, `historia_en`) have their schemas extended with `defineRobotsSchema()` and `defineSitemapSchema()`. This enables per-file SEO control via frontmatter (e.g. `robots: noindex`, `sitemap: { priority: 0.8 }`).
-- **Data collections** (timeline, team, press, science YML) do NOT have SEO schemas — they are not routed pages.
+- All collections are **data collections** (timeline, team, press, science YML): they have no SEO schemas because they are not routed pages. (Before 2026-10-23 the two story collections were page collections with `defineRobotsSchema()` / `defineSitemapSchema()`.)
 - If you modify `content.config.ts`, run `pnpm nuxt prepare` to regenerate types.
 
 ## Design Decisions
@@ -195,7 +192,12 @@ Edit `content/es/science.yml` and `content/en/science.yml`. The file has three s
 3. Use the same pattern: `<img src="/img/your-logo.ext" alt="Brand Name" class="h-10 w-auto object-contain" />` and a `<span>` label below.
 
 ### Alba's Text (Story)
-Replace the placeholder content in `app/pages/historia/index.vue` with the real text. Keep the `prose prose-ink` structure. If the text is long, consider migrating it to `content/es/historia.md` and `content/en/historia.md`.
+The `/historia` page (a placeholder that said "in preparation", plus an empty chapter 1) was merged into `/timeline` on 2026-10-23 (architecture redesign, phase F4): `/historia` and `/en/story` redirect to `/timeline` with a 302, because the real story may come back. When it does, restore `app/pages/historia/index.vue`, `[slug].vue`, the `historia_es` / `historia_en` collections in `content.config.ts` and the `i18n.pages` entries from git history (commit before `rediseno(F4)`), and drop the redirects from `routeRules` and `nitro.prerender.ignore`. The one human line `/timeline` shows today is `historia.story_teaser_1`.
+
+### Merged and archived pages (redesign F4, 2026-10-23)
+- `/herramientas` (301) → `/datos#visores`; `/reservorio` (302) → `/datos#reservorio` (folded block, no 3D); `/historia` (302) and its chapter (301) → `/timeline`; `/videos` (301) → `/ciencia` (ADC explainer, next to the TROP-2 axis; the Polaris promo lives in `/prensa`). Each redirect is three `routeRules` (ES, EN, `/en/<spanish-slug>`) and three entries in `nitro.prerender.ignore`; see `nuxt.config.ts` and `pnpm test:short-links`.
+- `/3d*` short links keep their 302 and UTM but now land on `/lesiones`.
+- `/mapa-metastasis` is an **archive** ("Histórico · junio 2026"): still 200, `noindex, follow`, out of the sitemap, no internal links. It is not deleted because `/lesiones` reads its foci at build time (`#mapa-focos`).
 
 ## Commands
 

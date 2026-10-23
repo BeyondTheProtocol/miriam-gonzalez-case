@@ -13,7 +13,7 @@ import { LES, PHENO, PHENO_TEXT, BONE3D_KEY } from '#mapa-focos'
 
 const { locale } = useI18n()
 const localePath = useLocalePath()
-const { trackMapa, trackDatos } = useSupport()
+const { trackDatos } = useSupport()
 const lang = computed<'es' | 'en'>(() => (locale.value === 'en' ? 'en' : 'es'))
 const L = (es: string, en: string) => (lang.value === 'en' ? en : es)
 
@@ -50,7 +50,7 @@ const biopsia = computed(() =>
     <section class="section-spacing" :aria-label="L('Mama, hígado y hueso', 'Breast, liver and bone')">
       <div class="mx-auto w-full max-w-[1280px] px-4 sm:px-6 lg:px-8">
         <PageHeader
-          :parent="{ to: localePath({ name: 'herramientas' }), label: $t('nav.tools') }"
+          :parent="{ to: localePath({ name: 'datos', hash: '#visores' }), label: $t('nav.data') }"
           :title="L('Mama, hígado y hueso, de un vistazo', 'Breast, liver and bone, at a glance')"
           :subtitle="L('La mama, el hígado y las lesiones óseas.', 'The breast, the liver and the bone lesions.')"
         />
@@ -144,21 +144,20 @@ const biopsia = computed(() =>
                   </template>
                 </ClientOnly>
               </div>
-              <NuxtLink :to="localePath('mapa-metastasis')" class="inline-flex items-center min-h-[44px] mt-2 font-semibold text-berenjena underline underline-offset-4" @click="trackMapa('lesiones')">
-                {{ L('Ver este foco con todo el detalle en el mapa de metástasis', 'See this focus in full detail on the metastasis map') }} →
-              </NuxtLink>
             </div>
           </div>
         </section>
 
         <!-- ===== CIERRE · el reservorio no es enfermedad, es infraestructura del tratamiento:
-             eje propio, página propia. Solo el enlace, aquí. ===== -->
+             eje propio, bloque propio en /datos (#reservorio; su página se fusionó allí en el rediseño, F4, 23-oct-2026).
+             Solo el enlace, aquí. Con F4 salieron de este cierre el enlace al mapa de metástasis (archivo, sin enlaces
+             internos) y el «en 3D» del reservorio (el bloque de /datos no lleva 3D): son enlaces, no texto clínico. ===== -->
         <section class="mt-2 pt-6" style="border-top:1px solid rgba(45,27,61,0.1)">
           <NuxtLink :to="localePath('datos')" class="flex items-center min-h-[44px] font-semibold text-berenjena underline underline-offset-4" @click="trackDatos('lesiones')">
             {{ L('El caso en datos: analíticas desde 2021, tratamientos y tejido disponible', 'The case in data: labs since 2021, treatments and available tissue') }} →
           </NuxtLink>
-          <NuxtLink :to="localePath('reservorio')" class="inline-flex items-center min-h-[44px] font-semibold text-berenjena underline underline-offset-4">
-            {{ L('El catéter del reservorio anterior, en 3D: medido en tres TC separados por meses', 'The previous port catheter, in 3D: measured across three CT scans, months apart') }} →
+          <NuxtLink :to="localePath({ name: 'datos', hash: '#reservorio' })" class="inline-flex items-center min-h-[44px] font-semibold text-berenjena underline underline-offset-4">
+            {{ L('El reservorio: qué es y por qué se cambió', 'The port: what it is and why it was replaced') }} →
           </NuxtLink>
         </section>
       </div>

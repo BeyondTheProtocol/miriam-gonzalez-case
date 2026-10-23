@@ -46,6 +46,17 @@
 //    «lo último», pie reducido, y /gracias sin «Apoyar»). Lo que no se ve en el HTML (el chrome al navegar sin recargar,
 //    los 44 px) lo prueba test-home-caminos §10 en Chrome.
 //
+// Y las fusiones del rediseño (F4, 23-oct-2026):
+//
+// 10. /herramientas, /reservorio, /historia (y su capítulo) y /videos ya no existen en lo generado (ni su .html ni su
+//    entrada del sitemap) y NADA enlaza a ellas, salvo las migas «← Herramientas» de célula a célula y su explorador
+//    (que esta fase no puede tocar y resuelven a través de una ruta de compatibilidad con 301). /datos lleva la franja
+//    #visores (las herramientas, con el título y el texto ya publicados de cada una) y el bloque plegado #reservorio
+//    (las dos frases y las medidas ya publicadas en /reservorio, palabra por palabra, SIN 3D). El mapa de metástasis
+//    es un archivo: 200, noindex, «Histórico · junio 2026», fuera del sitemap y sin ningún enlace. El ADC vive en
+//    /ciencia y el promo en /prensa, con su transcripción entera. El sitemap no lista redirigidas ni archivadas y su
+//    hreflang va por pares recíprocos.
+//
 // Uso:  pnpm exec nuxt generate && pnpm test:salud-estatica
 import { existsSync, readFileSync, readdirSync } from 'node:fs'
 import { join } from 'node:path'
@@ -53,7 +64,8 @@ import { createSSRApp, defineComponent, h } from 'vue'
 import { parse, compileScript } from 'vue/compiler-sfc'
 import { renderToString } from 'vue/server-renderer'
 import { REGLAS_PETICIONES, hayEnlaceTodas, peticionesPublicas, seleccionarPeticiones } from '../app/utils/peticiones'
-import { LEGAL, MENU_ESCRITORIO, MENU_MOVIL, PIE, REDES, SECCIONES, type EnlaceNav } from '../app/utils/navegacion'
+import { HERRAMIENTAS, LEGAL, MENU_ESCRITORIO, MENU_MOVIL, PIE, REDES, SECCIONES, copyHerramienta, type EnlaceNav } from '../app/utils/navegacion'
+import { VIDEO_ADC, VIDEO_PROMO } from '../app/utils/videos'
 import { estadoPuerta, type Manifiesto } from '../app/utils/celulaExplorador'
 import manifiestoExplorador from '../public/celula/explorador/manifiesto.json'
 
@@ -112,6 +124,45 @@ for (const sm of sitemaps) {
   ok(!locs.some((l) => /^https:\/\/helpmiriam\.com\/es(\/|$)/.test(l)), `${sm}: ninguna URL con prefijo /es (el español no lo lleva)`)
 }
 ok(total > 0, `cada URL del sitemap existe y es indexable (${total} revisadas)`)
+
+// 3.bis — sitemap sin redirigidas ni archivadas, y hreflang por pares (F4)
+{
+  const cfg = readFileSync('nuxt.config.ts', 'utf-8')
+  const redirigidas = new Set([...cfg.matchAll(/'(\/[^']*)':\s*\{\s*redirect:/g)].map((m) => m[1]!))
+  const ARCHIVADAS = ['/mapa-metastasis', '/en/mapa-metastasis']
+  type Entrada = { loc: string; alt: Record<string, string> }
+  const entradas: Record<string, Entrada[]> = {}
+  for (const sm of sitemaps) {
+    entradas[sm.replace('.xml', '')] = [...html(join('__sitemap__', sm)).matchAll(/<url>([\s\S]*?)<\/url>/g)].map((u) => ({
+      loc: /<loc>([^<]+)<\/loc>/.exec(u[1]!)![1]!,
+      alt: Object.fromEntries([...u[1]!.matchAll(/hreflang="([^"]+)"\s+href="([^"]+)"/g)].map((a) => [a[1]!, a[2]!])),
+    }))
+  }
+  const todas = Object.values(entradas).flat()
+  const ruta = (loc: string) => loc.slice(SITIO.length) || '/'
+  const conRedirect = todas.filter((e) => redirigidas.has(ruta(e.loc)) || redirigidas.has(ruta(e.loc).replace(/\/$/, '')))
+  ok(conRedirect.length === 0, `el sitemap no lista ninguna URL que redirige${conRedirect.length ? ` (${conRedirect.map((e) => e.loc).join(', ')})` : ''}`)
+  const archivadas = todas.filter((e) => ARCHIVADAS.includes(ruta(e.loc)))
+  ok(archivadas.length === 0, `el sitemap no lista el mapa de metástasis (archivo)${archivadas.length ? ` (${archivadas.map((e) => e.loc).join(', ')})` : ''}`)
+  // hreflang por pares: toda URL lleva es-ES, en-US y x-default; cada alternativa es una URL del sitemap de SU idioma; y el par es
+  // recíproco (la página inglesa apunta de vuelta a la española). Antes, /historia/01-el-comienzo salía sin pareja.
+  const idiomas: Record<string, string> = { 'es-ES': 'es-ES', 'en-US': 'en-US' }
+  let sinPar = 0
+  for (const [sm, lista] of Object.entries(entradas)) {
+    for (const e of lista) {
+      const par = idiomas[sm] ? e.alt : {}
+      const alts = ['es-ES', 'en-US', 'x-default'].map((k) => par[k])
+      if (alts.some((a) => !a)) { sinPar++; ok(false, `${sm}: ${e.loc} sin es-ES / en-US / x-default (${Object.keys(par).join(', ') || 'ninguno'})`); continue }
+      const [es, en, def] = alts as string[]
+      if (!(entradas['es-ES']?.some((x) => x.loc === es) && entradas['en-US']?.some((x) => x.loc === en))) { sinPar++; ok(false, `${sm}: ${e.loc} apunta a una alternativa que no está en el sitemap de su idioma (${es} / ${en})`); continue }
+      if (def !== es) { sinPar++; ok(false, `${sm}: ${e.loc} tiene x-default distinto de la versión española (${def} ≠ ${es})`); continue }
+      const vuelta = entradas[sm === 'es-ES' ? 'en-US' : 'es-ES']?.find((x) => x.loc === (sm === 'es-ES' ? en : es))
+      if (!vuelta || vuelta.alt['es-ES'] !== es || vuelta.alt['en-US'] !== en) { sinPar++; ok(false, `${sm}: ${e.loc} ↔ ${sm === 'es-ES' ? en : es} no es un par recíproco`) }
+    }
+  }
+  ok(sinPar === 0 && todas.length > 0, `hreflang por pares: cada URL del sitemap tiene su pareja recíproca en el otro idioma (${todas.length} URL)`)
+  ok(entradas['es-ES']?.length === entradas['en-US']?.length, `el sitemap en español y en inglés tienen el mismo número de URL (${entradas['es-ES']?.length} y ${entradas['en-US']?.length})`)
+}
 
 // 4
 const paginasNuxt: string[] = []
@@ -263,12 +314,12 @@ if (existsSync('seed/fundraiser.json')) {
   }
 
   // lo generado, en ES y EN
-  const IDS = ['id="s-hoy"', 'id="que-buscamos"', 'id="s-tejido"', 'id="s-higado"', 'id="s-evo"', 'id="s-vitrina"']
+  const IDS = ['id="s-hoy"', 'id="que-buscamos"', 'id="s-tejido"', 'id="s-higado"', 'id="s-evo"', 'id="visores"', 'id="reservorio"', 'id="s-vitrina"']
   for (const [idioma, pagina, contacto] of [['es', 'datos.html', '/contacto?role=researcher'], ['en', 'en/data.html', '/en/contact?role=researcher']] as const) {
     const h = html(pagina)
     ok((h.match(/\bid="que-buscamos"/g)?.length ?? 0) === 1, `${pagina}: exactamente un id="que-buscamos"`)
     const pos = IDS.map((id) => h.indexOf(id))
-    ok(pos.every((p, i) => p >= 0 && (i === 0 || p > pos[i - 1]!)), `${pagina}: orden Hoy → Qué buscamos → Tejido → Carga tumoral → Evolución → visores (${pos.join(' < ')})`)
+    ok(pos.every((p, i) => p >= 0 && (i === 0 || p > pos[i - 1]!)), `${pagina}: orden Hoy → Qué buscamos → Tejido → Carga tumoral → Evolución → herramientas (#visores) → reservorio → vitrina (${pos.join(' < ')})`)
     const bloque = h.slice(h.indexOf('id="que-buscamos"'), h.indexOf('id="s-tejido"'))
     ok((bloque.match(/<li\b/g)?.length ?? 0) === 5, `${pagina}: «Qué buscamos» pinta 5 peticiones (${bloque.match(/<li\b/g)?.length ?? 0})`)
     ok(!/<details\b/.test(bloque), `${pagina}: sin plegar: ninguna petición queda dentro de un <details>`)
@@ -330,7 +381,8 @@ if (existsSync('seed/fundraiser.json')) {
     ok(JSON.stringify(marcada(pag('datos.html', 'en/data.html'))) === JSON.stringify([`${datos}=page`]), `${pag('datos.html', 'en/data.html')}: marca «${datos}» (page)`)
     ok(JSON.stringify(marcada(pag('lesiones.html', 'en/lesiones.html'))) === JSON.stringify([`${datos}=true`]), `${pag('lesiones.html', 'en/lesiones.html')}: marca «${datos}» (true), como sección`)
     ok(JSON.stringify(marcada(pag('timeline.html', 'en/timeline.html'))) === JSON.stringify([`${t(loc, 'nav.timeline')}=page`]), `${pag('timeline.html', 'en/timeline.html')}: marca la cronología`)
-    ok(marcada(pag('herramientas.html', 'en/tools.html')).length === 0, `${pag('herramientas.html', 'en/tools.html')}: sin ítem marcado (hasta F4 la fusiona en /datos)`)
+    // F4: /herramientas se fusionó en /datos#visores; ya no hay página que marque ítem (ni que no lo marque). Lo comprueba §10.
+    ok(!existsSync(join(PUB, pag('herramientas.html', 'en/tools.html'))), `${pag('herramientas.html', 'en/tools.html')}: ya no existe (F4 la fusionó en /datos)`)
 
     // — el pie
     const f = pie(limpio(home))
@@ -388,5 +440,138 @@ if (existsSync('seed/fundraiser.json')) {
   }
 }
 
-console.log(fallos ? `\n❌ ${fallos} fallo(s)` : '\n✅ ancla, «hace N días», sitemap, <main> único, «Ver quién apoya», campaña (en el HTML y en vivo), «Qué buscamos» y navegación (menú, pie, redes, chrome mínimo) en verde')
+// 10 — fusiones del rediseño (F4, 23-oct-2026)
+{
+  const limpio = (ruta: string) => html(ruta).replace(/<script\b[\s\S]*?<\/script>/g, '').replace(/<!--[\s\S]*?-->/g, '')
+  const decodifica = (x: string) => x.replace(/&#39;|&apos;/g, "'").replace(/&quot;/g, '"').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&')
+  const texto = (trozo: string) => decodifica(trozo.replace(/<[^>]+>/g, ' ')).replace(/\s+/g, ' ').trim()
+  const D = { es: JSON.parse(readFileSync('i18n/locales/es.json', 'utf-8')), en: JSON.parse(readFileSync('i18n/locales/en.json', 'utf-8')) }
+  const t = (loc: 'es' | 'en', clave: string) => clave.split('.').reduce<any>((o, k) => o?.[k], D[loc]) as string
+  const P = {
+    es: { datos: 'datos.html', lesiones: 'lesiones.html', laminillas: 'laminillas.html', celula: 'celula-a-celula.html', explorar: 'celula-a-celula/explorar.html', mapa: 'mapa-metastasis.html', ciencia: 'ciencia.html', prensa: 'prensa.html', timeline: 'timeline.html', home: 'index.html' },
+    en: { datos: 'en/data.html', lesiones: 'en/lesiones.html', laminillas: 'en/slides.html', celula: 'en/cell-by-cell.html', explorar: 'en/cell-by-cell/explore.html', mapa: 'en/mapa-metastasis.html', ciencia: 'en/science.html', prensa: 'en/press.html', timeline: 'en/timeline.html', home: 'en.html' },
+  } as const
+  const RUTA = {
+    es: { lesions: '/lesiones', slides: '/laminillas', cell_by_cell: '/celula-a-celula', cell_explorer: '/celula-a-celula/explorar', visores: '/datos#visores', reservorio: '/datos#reservorio' },
+    en: { lesions: '/en/lesiones', slides: '/en/slides', cell_by_cell: '/en/cell-by-cell', cell_explorer: '/en/cell-by-cell/explore', visores: '/en/data#visores', reservorio: '/en/data#reservorio' },
+  } as const
+
+  // a) las páginas fusionadas no existen en lo generado (ni .html ni carpeta con index)
+  const RETIRADAS = ['herramientas', 'reservorio', 'historia', 'historia/01-el-comienzo', 'videos', 'en/tools', 'en/herramientas', 'en/reservorio', 'en/story', 'en/historia', 'en/story/01-the-beginning', 'en/historia/01-el-comienzo', 'en/videos']
+  const quedan = RETIRADAS.filter((r) => existsSync(join(PUB, `${r}.html`)) || existsSync(join(PUB, r, 'index.html')))
+  ok(quedan.length === 0, `ninguna página fusionada sigue generada (su .html sombrearía el redirect)${quedan.length ? `: ${quedan.join(', ')}` : ''}`)
+  ok(existsSync(join(PUB, 'reservorio')) && existsSync(join(PUB, 'videos', 'como-funciona-un-adc.mp4')), 'public/reservorio/ y public/videos/ siguen ahí (los ficheros no se tocan; el redirect de /reservorio y los vídeos conviven con ellos)')
+
+  // b) nada enlaza a lo retirado (ni al mapa, que es archivo sin enlaces), salvo las migas de célula a célula y su explorador
+  const COMPAT = new Set(['celula-a-celula.html', 'celula-a-celula/explorar.html', 'en/cell-by-cell.html', 'en/cell-by-cell/explore.html'])
+  const RETIRADA_HREF = /^(?:\/en)?\/(?:herramientas|tools|reservorio|historia|story|videos|mapa-metastasis)(?:[/#?]|$)/
+  const hrefsDe = (ruta: string) => [...limpio(ruta).matchAll(/<a\b([^>]*)>/g)].map((m) => /\bhref="([^"]*)"/.exec(m[1]!)?.[1])
+  const malos: string[] = [], sinHref: string[] = []
+  for (const f of paginasNuxt) {
+    for (const href of hrefsDe(f)) {
+      if (href === undefined) sinHref.push(f)
+      else if (RETIRADA_HREF.test(href) && !(COMPAT.has(f) && /^(?:\/en\/tools|\/herramientas)$/.test(href)) && !(f.endsWith('mapa-metastasis.html') && href.includes('mapa-metastasis'))) malos.push(`${f} → ${href}`)
+    }
+  }
+  ok(malos.length === 0, `ninguna página enlaza a /herramientas, /reservorio, /historia, /videos ni al mapa${malos.length ? `: ${malos.slice(0, 6).join(' · ')}` : ''}`)
+  ok(sinHref.length === 0, `ningún <a> sin href en ${paginasNuxt.length} páginas (una miga a una ruta que no existe se pinta así)${sinHref.length ? `: ${[...new Set(sinHref)].join(', ')}` : ''}`)
+  for (const loc of ['es', 'en'] as const) {
+    // las migas de célula a célula siguen a la ruta de compatibilidad, que el CDN redirige (3 reglas en nuxt.config.ts)
+    for (const f of [P[loc].celula, P[loc].explorar]) {
+      const compat = loc === 'es' ? '/herramientas' : '/en/tools'
+      ok(hrefsDe(f).includes(compat), `${f}: su miga «${t(loc, 'nav.tools')}» lleva a ${compat} (301 a /datos#visores), no a un <a> vacío`)
+    }
+    // el resto de migas van a la franja de herramientas de /datos
+    for (const f of [P[loc].lesiones, P[loc].laminillas, P[loc].mapa]) {
+      const enl = [...limpio(f).matchAll(/<a\b([^>]*\bhref="([^"]*)"[^>]*)>([\s\S]*?)<\/a>/g)].filter((m) => m[2] === RUTA[loc].visores)
+      ok(enl.length === 1 && texto(enl[0]![3]!) === t(loc, 'nav.data'), `${f}: su miga es «${t(loc, 'nav.data')}» → ${RUTA[loc].visores} (${enl.length})`)
+    }
+    ok(!hrefsDe(P[loc].datos).some((h) => h === RUTA[loc].visores), `${P[loc].datos}: no lleva miga a sí misma (es de primer nivel desde F3)`)
+  }
+
+  // c) /datos: la franja de herramientas y el bloque plegado del reservorio
+  const XABIERTO = estadoPuerta(manifiestoExplorador as unknown as Manifiesto) === 'real'
+  for (const loc of ['es', 'en'] as const) {
+    const f = P[loc].datos
+    const h = limpio(f)
+    const A = h.indexOf('id="visores"'), B = h.indexOf('id="reservorio"'), C = h.indexOf('id="s-vitrina"')
+    ok((h.match(/\bid="visores"/g)?.length ?? 0) === 1 && (h.match(/\bid="reservorio"/g)?.length ?? 0) === 1, `${f}: exactamente un id="visores" y un id="reservorio" (a ellos aterrizan los redirects)`)
+    const franja = h.slice(h.lastIndexOf('<section', A), h.lastIndexOf('<section', B)), bloque = h.slice(h.lastIndexOf('<section', B), C)
+    ok(texto(franja).startsWith(`${t(loc, 'herramientas.title')} ${t(loc, 'herramientas.intro')}`), `${f}: la franja se titula «${t(loc, 'herramientas.title')}» y lleva su intro ya publicada`)
+    const esperadas = HERRAMIENTAS.filter((x) => x.key !== 'data' && (x.key !== 'cell_explorer' || XABIERTO))
+    const tarjetas = [...franja.matchAll(/<li\b[^>]*>\s*<a\b[^>]*\bhref="([^"]*)"[^>]*>([\s\S]*?)<\/a>\s*<\/li>/g)]
+    ok(JSON.stringify(tarjetas.map((m) => m[1])) === JSON.stringify(esperadas.map((x) => RUTA[loc][x.key as 'lesions'])), `${f}: tarjetas en el orden de HERRAMIENTAS, sin /datos, sin el mapa y sin el reservorio (${tarjetas.map((m) => m[1]).join(' · ')})`)
+    esperadas.forEach((x, i) => {
+      const [titulo, descripcion] = copyHerramienta(x.key, loc)
+      const cuerpo = texto(tarjetas[i]?.[2] ?? '')
+      ok(cuerpo.includes(titulo) && cuerpo.includes(descripcion), `${f}: la tarjeta «${titulo}» lleva su título y su descripción ya publicados, palabra por palabra`)
+    })
+    ok(!/reservorio|port-a-cath|\bport\b/i.test(texto(franja).replace(t(loc, 'herramientas.intro'), '')), `${f}: la franja de herramientas no incluye el reservorio`)
+    ok(h.includes('href="#visores"'), `${f}: la barra de secciones tiene su chip «Herramientas» (sin él, el scroll-spy seguía marcando «Evolución»)`)
+    // los dos enlaces «Todas las herramientas» que quedan (la home y /ciencia) llevan a la franja, no a la página que ya no existe
+    for (const origen of [P[loc].home, P[loc].ciencia]) {
+      const todas = [...limpio(origen).matchAll(/<a\b[^>]*\bhref="([^"]*)"[^>]*>([\s\S]*?)<\/a>/g)].filter((m) => texto(m[2]!).includes(t(loc, 'nav.all_tools')))
+      ok(todas.length === 1 && todas[0]![1] === RUTA[loc].visores, `${origen}: «${t(loc, 'nav.all_tools')}» lleva a ${RUTA[loc].visores} (${todas.map((m) => m[1]).join(', ') || 'no está'})`)
+    }
+    // el bloque del reservorio: plegado, SIN 3D, con las frases y las medidas publicadas
+    const FRASES = {
+      es: 'Es una cámara pequeña que se implanta bajo la piel del pecho, unida a un catéter fino que llega hasta una vena grande, cerca del corazón. Se pincha a través de una membrana con una aguja especial, y la membrana se cierra al sacarla.',
+      en: 'It’s a small chamber implanted under the skin of the chest, joined to a thin catheter that runs to a large vein near the heart. A special needle goes in through a membrane, and the membrane seals again when the needle comes out.',
+    }
+    const MEDIDAS = {
+      es: 'Longitud del catéter, portal→punta, en las tres fechas: 150,8 mm · 152,2 mm · 151,7 mm (± 5 mm cada medida; ± 10 mm en la diferencia entre fechas). Dentro de ese margen, es la misma medida las tres veces.',
+      en: 'Catheter length, port→tip, across the three dates: 150.8 mm · 152.2 mm · 151.7 mm (± 5 mm per measurement; ± 10 mm on the difference between dates). Within that margin, it is the same measurement all three times.',
+    }
+    const det = /<details\b([^>]*)>/.exec(bloque)
+    ok(!!det && !/\bopen\b/.test(det[1]!), `${f}: el reservorio va en un <details> cerrado por defecto`)
+    ok(texto(bloque).includes(FRASES[loc]), `${f}: las dos frases de «qué es un port-a-cath», tal cual estaban en /reservorio`)
+    ok(texto(bloque).includes(MEDIDAS[loc]), `${f}: las medidas, tal cual estaban en /reservorio (si caso.json cambia una cifra, esto se pone en rojo: es dato clínico)`)
+    ok(!/<button\b|<canvas\b|3D|ReservoirView|\/reservorio\//i.test(bloque), `${f}: el bloque del reservorio no lleva 3D (ni botón, ni lienzo, ni mallas)`)
+  }
+
+  // d) el mapa de metástasis es un archivo: noindex, rotulado, fuera del sitemap y sin enlaces
+  for (const loc of ['es', 'en'] as const) {
+    const f = P[loc].mapa
+    const meta = html(f).match(/<meta\b[^>]*\bname="robots"[^>]*>/gi)?.join(' ') ?? ''
+    ok(/noindex/i.test(meta) && !/content="index/i.test(meta), `${f}: robots dice noindex (${meta.match(/content="([^"]*)"/)?.[1] ?? 'sin meta'})`)
+    ok(texto(limpio(f)).includes(loc === 'es' ? 'Histórico · junio 2026' : 'Archive · June 2026'), `${f}: lleva su rótulo «${loc === 'es' ? 'Histórico · junio 2026' : 'Archive · June 2026'}»`)
+    ok((limpio(f).match(/<h1\b/g)?.length ?? 0) === 1, `${f}: sigue en 200 y con un solo <h1>`)
+  }
+  ok(!/Disallow:\s*\/(?:en\/)?mapa-metastasis/.test(readFileSync('public/_robots.txt', 'utf-8')), 'public/_robots.txt no bloquea el mapa: bloquearlo impediría ver su noindex')
+
+  // e) vídeos: el ADC en /ciencia (junto al eje TROP-2) y el promo en /prensa, con la transcripción entera
+  const chequeaVideo = (f: string, v: typeof VIDEO_ADC, extra: (cuerpo: string) => void) => {
+    const cuerpo = limpio(f)
+    const art = [...cuerpo.matchAll(/<article\b[^>]*>[\s\S]*?<\/article>/g)].map((m) => m[0]).find((a) => a.includes(v.src))
+    ok(!!art, `${f}: lleva el vídeo ${v.id}`)
+    if (!art) return
+    ok(/<video\b[^>]*\bpreload="none"/.test(art) && art.includes(`poster="${v.poster}"`) && /<video\b[^>]*\bcontrols/.test(art), `${f}: ${v.id} con controles, sin descargar nada antes de pulsar play y con su póster`)
+    ok(texto(art).includes(v.titulo) && texto(art).includes(v.descripcion), `${f}: ${v.id} con su título y su descripción`)
+    ok(v.transcripcion.every((p) => texto(art).includes(p)), `${f}: ${v.id} con su transcripción entera (${v.transcripcion.length} párrafos), palabra por palabra`)
+    ok(/<details\b[^>]*>\s*<summary\b/.test(art), `${f}: ${v.id} con la transcripción en un plegable`)
+    extra(art)
+  }
+  for (const loc of ['es', 'en'] as const) {
+    chequeaVideo(P[loc].ciencia, VIDEO_ADC, (art) => {
+      ok(loc === 'es' ? !art.includes(t('es', 'videos.voice_other')) : texto(art).includes(t('en', 'videos.voice_other')) && texto(art).includes(VIDEO_ADC.resumenEn!), `${P[loc].ciencia}: ${loc === 'es' ? 'sin aviso de idioma' : 'avisa de que está narrado en español y lleva su resumen en inglés'}`)
+    })
+    chequeaVideo(P[loc].prensa, VIDEO_PROMO[loc], () => {})
+    // el ADC está pegado al eje TROP-2: después de los ejes y antes del panel de rebiopsia
+    const c = limpio(P[loc].ciencia)
+    const ejes = c.indexOf('id="axes-title"'), adc = c.indexOf(VIDEO_ADC.src), panel = c.indexOf('id="panel-title"')
+    ok(ejes > 0 && adc > ejes && panel > adc, `${P[loc].ciencia}: el vídeo del ADC va justo después de los ejes terapéuticos y antes del panel (${ejes} < ${adc} < ${panel})`)
+    // fuera de la capa de datos (v-show) para que se vea también en el modo llano, que es el que abre quien venía de /videos:
+    // el HTML sale con el modo llano, así que la capa de datos lleva display:none y el vídeo NO puede estar dentro de ninguna.
+    const abiertos: string[] = []
+    for (const m of c.slice(0, adc).matchAll(/<(\/?)(div|section)\b([^>]*)>/g)) { if (m[1]) abiertos.pop(); else abiertos.push(m[3]!) }
+    ok(adc > 0 && !abiertos.some((a) => /display:\s*none/.test(a)), `${P[loc].ciencia}: el vídeo del ADC se ve también en el modo llano (ningún contenedor suyo está oculto)`)
+  }
+
+  // f) /timeline: la línea humana de /historia (frase ya publicada), sin enlace a /historia
+  for (const loc of ['es', 'en'] as const) {
+    ok(texto(limpio(P[loc].timeline)).includes(t(loc, 'historia.story_teaser_1')), `${P[loc].timeline}: lleva la línea de /historia (historia.story_teaser_1), tal cual`)
+  }
+}
+
+console.log(fallos ? `\n❌ ${fallos} fallo(s)` : '\n✅ ancla, «hace N días», sitemap (sin redirigidas ni archivadas, hreflang por pares), <main> único, «Ver quién apoya», campaña (en el HTML y en vivo), «Qué buscamos», navegación (menú, pie, redes, chrome mínimo) y fusiones de F4 (herramientas, reservorio, mapa archivado, vídeos) en verde')
 process.exit(fallos ? 1 : 0)

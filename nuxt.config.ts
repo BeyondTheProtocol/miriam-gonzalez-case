@@ -37,7 +37,7 @@ export default defineNuxtConfig({
   aiReady: {
     llmsTxt: {
       notes: [
-        'The metastasis map (/mapa-metastasis) is a public decision-SUPPORT tool — Miriam’s own case — not a diagnosis or medical advice. The raw Markdown export (/mapa-metastasis.md) stays out of AI exports; the page itself is public.',
+        'The metastasis map (/mapa-metastasis) is an archived (June 2026) decision-SUPPORT tool — Miriam’s own case — not a diagnosis or medical advice. The raw Markdown export (/mapa-metastasis.md) stays out of AI exports; the page itself stays reachable at its URL but is noindex and no longer linked from the site (current view: /lesiones).',
         'The slide viewer (/laminillas) is a public decision-SUPPORT tool with Miriam’s own scanned pathology slides — not a diagnosis or medical advice. Each report result it quotes carries its source and verification seal.',
       ],
     },
@@ -82,12 +82,15 @@ export default defineNuxtConfig({
   // data-production-content="index, follow…" lo que servirá producción. Comprobar:
   //   rm -rf .nuxt .output && pnpm generate   →  inspeccionar .output/public/<página>.html
   // ──────────────────────────────────────────────────────────────────────
-  // /mapa-metastasis es público (herramienta de apoyo): entra en el sitemap.
-  // Solo se excluye su export Markdown crudo (queda fuera de los exports de IA).
+  // /mapa-metastasis es ARCHIVO desde el rediseño (F4, 23-oct-2026): sigue en 200 (la lee /lesiones en cada build
+  // —#mapa-focos— y puede tener enlaces entrantes), pero con `robots: noindex, follow`, sin enlaces internos y fuera
+  // del sitemap. Su export Markdown crudo queda además fuera de los exports de IA.
   // Las páginas con `robots: noindex` tampoco van en el sitemap. Las españolas ya no salían;
   // las inglesas sí, porque su ruta traducida no casaba con la exclusión automática.
+  // NO se añade `Disallow` en public/_robots.txt: bloquearía el rastreo y Google nunca vería el noindex.
   sitemap: {
     exclude: [
+      '/mapa-metastasis', '/en/mapa-metastasis',
       '/mapa-metastasis.md', '/en/mapa-metastasis.md',
       '/contacto', '/en/contact',
       '/gracias', '/en/thank-you',
@@ -200,17 +203,13 @@ export default defineNuxtConfig({
       'celula-a-celula-explorar': { es: '/celula-a-celula/explorar', en: '/cell-by-cell/explore' },
       'ciencia/index': { en: '/science' },
       'ciencia/evidencia': { en: '/science/evidence' },
-      'historia/index': { en: '/story' },
-      'historia/[slug]': { en: '/story/[slug]' },
       'equipo': { en: '/team' },
       'prensa': { en: '/press' },
       'contacto': { en: '/contact' },
       'colabora': { en: '/collaborate' },
       'marcas': { en: '/brands' },
-      'reservorio': { en: '/reservorio' },
       'gastos': { en: '/expenses' },
       'datos': { en: '/data' },
-      'herramientas': { en: '/tools' },
       'gracias': { en: '/thank-you' },
       'aviso-legal': { en: '/legal-notice' },
       'privacidad': { en: '/privacy' },
@@ -242,13 +241,15 @@ export default defineNuxtConfig({
   //   limpio, se EXCLUYEN estas rutas del prerender (nitro.prerender.ignore), así
   //   solo queda la regla 302 en _redirects, sin `.html` que la sombree.
   routeRules: {
-    '/3d': { redirect: { to: '/mapa-metastasis?utm_source=short&utm_medium=link&utm_campaign=lanzamiento-herramienta', statusCode: 302 } },
-    '/3d-x': { redirect: { to: '/mapa-metastasis?utm_source=twitter&utm_medium=post&utm_campaign=lanzamiento-herramienta', statusCode: 302 } },
-    '/3d-in': { redirect: { to: '/mapa-metastasis?utm_source=linkedin&utm_medium=post&utm_campaign=lanzamiento-herramienta', statusCode: 302 } },
-    '/3d-ig': { redirect: { to: '/mapa-metastasis?utm_source=instagram&utm_medium=bio&utm_campaign=lanzamiento-herramienta', statusCode: 302 } },
+    // Desde el rediseño (F4, 23-oct-2026) los /3d* llevan a /lesiones, que ya incluye el mapa de hueso (el mapa pasó a
+    // archivo). Siguen en 302 y con los MISMOS UTM (`lanzamiento-herramienta`), para no romper la serie en Umami.
+    '/3d': { redirect: { to: '/lesiones?utm_source=short&utm_medium=link&utm_campaign=lanzamiento-herramienta', statusCode: 302 } },
+    '/3d-x': { redirect: { to: '/lesiones?utm_source=twitter&utm_medium=post&utm_campaign=lanzamiento-herramienta', statusCode: 302 } },
+    '/3d-in': { redirect: { to: '/lesiones?utm_source=linkedin&utm_medium=post&utm_campaign=lanzamiento-herramienta', statusCode: 302 } },
+    '/3d-ig': { redirect: { to: '/lesiones?utm_source=instagram&utm_medium=bio&utm_campaign=lanzamiento-herramienta', statusCode: 302 } },
     // Faltaban desde junio: TikTok y YouTube caían en el genérico /3d y no se distinguían.
-    '/3d-tt': { redirect: { to: '/mapa-metastasis?utm_source=tiktok&utm_medium=bio&utm_campaign=lanzamiento-herramienta', statusCode: 302 } },
-    '/3d-yt': { redirect: { to: '/mapa-metastasis?utm_source=youtube&utm_medium=bio&utm_campaign=lanzamiento-herramienta', statusCode: 302 } },
+    '/3d-tt': { redirect: { to: '/lesiones?utm_source=tiktok&utm_medium=bio&utm_campaign=lanzamiento-herramienta', statusCode: 302 } },
+    '/3d-yt': { redirect: { to: '/lesiones?utm_source=youtube&utm_medium=bio&utm_campaign=lanzamiento-herramienta', statusCode: 302 } },
     // /lesiones (mama, hígado y hueso). Mismo patrón que /3d*, más TikTok: el vídeo de
     // esta página es vertical y ahí sí hay enlace propio que medir. No hay genérico:
     // /lesiones ya es la página, y para WhatsApp o correo se reparte su URL tal cual.
@@ -279,6 +280,28 @@ export default defineNuxtConfig({
     '/biopsia-ig': { redirect: { to: '/laminillas?utm_source=instagram&utm_medium=bio&utm_campaign=lanzamiento-biopsia', statusCode: 302 } },
     '/biopsia-tt': { redirect: { to: '/laminillas?utm_source=tiktok&utm_medium=bio&utm_campaign=lanzamiento-biopsia', statusCode: 302 } },
     '/biopsia-yt': { redirect: { to: '/laminillas?utm_source=youtube&utm_medium=bio&utm_campaign=lanzamiento-biopsia', statusCode: 302 } },
+    // ── Rediseño de arquitectura, F4 (23-oct-2026): páginas fusionadas ──────────────────────────────────────────
+    // Cada una son TRES reglas (ES, EN y la variante /en/<slug-es> que crea i18n) y las tres van en `prerender.ignore`
+    // (si no, su .html de meta-refresh sombrea el redirect). Donde el slug EN es igual al ES, bastan dos. Sin query: un
+    // destino con «?» lo trata test-short-links como corto de campaña. El fragmento # sí (como /caso).
+    // /herramientas (índice) → franja de visores de /datos. 301: la fusión es definitiva.
+    '/herramientas': { redirect: { to: '/datos#visores', statusCode: 301 } },
+    '/en/tools': { redirect: { to: '/en/data#visores', statusCode: 301 } },
+    '/en/herramientas': { redirect: { to: '/en/data#visores', statusCode: 301 } },
+    // /reservorio → bloque plegado de /datos. 302 hasta que Miriam confirme la fusión (G6; pidió ese enfoque el 17-oct).
+    '/reservorio': { redirect: { to: '/datos#reservorio', statusCode: 302 } },
+    '/en/reservorio': { redirect: { to: '/en/data#reservorio', statusCode: 302 } },
+    // /historia (solo tenía un aviso «pronto» y el capítulo 1) → /timeline. 302: la historia real puede volver.
+    '/historia': { redirect: { to: '/timeline', statusCode: 302 } },
+    '/en/story': { redirect: { to: '/en/timeline', statusCode: 302 } },
+    '/en/historia': { redirect: { to: '/en/timeline', statusCode: 302 } },
+    // El capítulo 1 se borra (ES y EN): 301.
+    '/historia/01-el-comienzo': { redirect: { to: '/timeline', statusCode: 301 } },
+    '/en/story/01-the-beginning': { redirect: { to: '/en/timeline', statusCode: 301 } },
+    '/en/historia/01-el-comienzo': { redirect: { to: '/en/timeline', statusCode: 301 } },
+    // /videos → /ciencia (el ADC vive allí; el promo, en /prensa). /en/videos conserva su slug: dos reglas.
+    '/videos': { redirect: { to: '/ciencia', statusCode: 301 } },
+    '/en/videos': { redirect: { to: '/en/science', statusCode: 301 } },
     '/donar': { redirect: { to: 'https://www.gofundme.com/f/biopsia-molecular-que-puede-cambiar-su-tratamiento', statusCode: 302 } },
     // El repo público de Polaris. Destino EXTERNO: un 302 directo a GitHub no lo vería Umami (el
     // navegador nunca carga una página con su script, por eso /donar sale «no medible»). Así que
@@ -310,9 +333,7 @@ export default defineNuxtConfig({
       // /marcas (y /en/brands) es una página B2B SIN enlace en la navegación, así
       // que crawlLinks no la descubre: hay que listarla explícitamente para que
       // se prerenderice como HTML estático.
-      // /herramientas (· /en/tools) se lista también: su enlace vive en el menú, pero así
-      // el índice se prerenderiza aunque algún día deje de estar enlazado.
-      routes: ['/marcas', '/en/brands', '/herramientas', '/en/tools'],
+      routes: ['/marcas', '/en/brands'],
       // /design-system/ es un export estático en public/, no una ruta de Nuxt.
       // crawlLinks lo descubre desde /colabora, intenta prerenderizarlo, da 404
       // y aborta el build. Lo ignoramos: el archivo estático se copia igual.
@@ -328,6 +349,14 @@ export default defineNuxtConfig({
         '/biopsia-osea', '/en/bone-biopsy', '/en/biopsia-osea',
         // la página retirada de AlphaFold: solo queda su 301 al explorador
         '/tres-dianas', '/en/three-targets', '/en/tres-dianas',
+        // páginas fusionadas (rediseño F4): solo queda su redirect. OJO: `ignore` casa por PREFIJO, y ninguna de estas
+        // es prefijo de una página viva (test-short-links §1.bis); los ficheros de public/ (reservorio/, videos/) no
+        // se prerenderizan, así que tampoco les afecta.
+        '/herramientas', '/en/tools', '/en/herramientas',
+        '/reservorio', '/en/reservorio',
+        '/historia', '/en/story', '/en/historia',
+        '/historia/01-el-comienzo', '/en/story/01-the-beginning', '/en/historia/01-el-comienzo',
+        '/videos', '/en/videos',
         // datos en vivo: que nitro NO prerenderice un fichero que sombree el 302
         '/fundraiser.json', '/donations.json',
       ],

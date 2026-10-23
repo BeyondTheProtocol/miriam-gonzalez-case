@@ -309,7 +309,8 @@ try {
       await hasta(BAJO_LA_BARRA('h-busca'), 6000)
       await sleep(500)
       const b = await evaluate(CHIPS_LIBRES)
-      ok(!!b && b.chips.length === 6, `${w}px ${ruta}: la barra tiene sus 6 chips (${b?.chips.length})`)
+      // F4 (23-oct-2026): +1 chip, «Herramientas» (#visores): la franja que sustituye al índice /herramientas. Antes eran 6.
+      ok(!!b && b.chips.length === 7, `${w}px ${ruta}: la barra tiene sus 7 chips (${b?.chips.length})`)
       ok(!!b && b.pegada, `${w}px ${ruta}: la barra queda pegada justo bajo la cabecera (barra a ${b?.barraTop} px, cabecera hasta ${b?.suelo} px)`)
       const tapados = (b?.chips ?? []).filter((c) => !c.libre)
       ok(tapados.length === 0, `${w}px ${ruta}: ningún chip tapado por la cabecera${tapados.length ? ` (tapados: ${tapados.map((c) => `${c.texto} a ${c.top} px`).join(', ')})` : ''}`)

@@ -1,7 +1,7 @@
 <template>
   <div :class="compact ? 'mb-6 lg:flex lg:flex-wrap lg:items-center lg:gap-x-6' : 'mb-12'">
     <!-- Miga hacia el índice de la sección (dictamen `diseno`, 14-oct-2026): cada
-         herramienta lleva de vuelta a /herramientas. Opcional; solo enlace + icono SVG.
+         herramienta lleva de vuelta a la franja de visores de /datos (#visores; antes, al índice /herramientas). Opcional; solo enlace + icono SVG.
          `compact` (opt-in, simuladores donde el contenido tiene que asomar al entrar): miga y etiqueta
          en una línea, H1 más pequeño y el subtítulo solo desde sm. -->
     <!-- compacto en escritorio: miga y etiqueta a la derecha del título, en la misma fila (el contenido sube una fila) -->

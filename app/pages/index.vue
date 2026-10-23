@@ -41,15 +41,9 @@
             {{ $t('home.story_p1_source') }}
           </a>
         </p>
-        <!-- Atenuado mientras /historia esté en preparación: no manda tráfico
-             "fuerte" a una página aún provisional (la nota ya enlaza redes + La ciencia). -->
-        <NuxtLink
-          :to="localePath({ name: 'historia' })"
-          class="link-action group mt-7 min-h-[44px] text-sm text-cream/55"
-        >
-          {{ $t('home.story_link') }}
-          <Icon name="ph:arrow-right" class="w-4 h-4 transition-transform group-hover:translate-x-0.5" aria-hidden="true" />
-        </NuxtLink>
+        <!-- Aquí había un enlace atenuado «Conocer a Miriam (pronto)» a /historia, que solo tenía un aviso de «en
+             preparación». /historia se fusionó en /timeline en el rediseño (F4, 23-oct-2026; redirige allí) y el enlace
+             se quita: no hay a dónde mandar con esa promesa. La home entera se rehace en F5. -->
 
         <!-- En sus propias palabras -->
         <div class="mt-14 pt-12" style="border-top: 1px solid rgba(250,246,240,0.15)">

@@ -47,9 +47,6 @@ app/
     index.vue              → Landing (hero + GoFundMe + molecular profile + thesis)
     ciencia/
       index.vue            → Complete scientific page
-    historia/
-      index.vue            → Chapter list
-      [slug].vue           → Individual chapter with prev/next
     equipo.vue             → Team (anonymous, by profession)
     timeline.vue           → Week-by-week timeline
     contacto.vue           → Contact + Netlify Forms
@@ -76,8 +73,8 @@ public/
     fundraiser.json        → Static snapshot of GoFundMe progress (gitignored, auto-generated at build time)
 
 content/
-  es/  →  timeline.yml, team.yml, press.yml, science.yml, historia/*.md
-  en/  →  timeline.yml, team.yml, press.yml, science.yml, story/*.md
+  es/  →  timeline.yml, team.yml, press.yml, science.yml
+  en/  →  timeline.yml, team.yml, press.yml, science.yml
 
 i18n/locales/
   es.json           → Spanish strings
@@ -117,7 +114,7 @@ If you have a good idea, feature request, or notice something that could be impr
 - [x] ~~robots.txt~~ → managed by `nuxt-robots` (`public/_robots.txt`)
 - [x] ~~Sitemap~~ → `@nuxtjs/sitemap` with i18n hreflang auto-generated
 - [x] ~~AEO / agentic search~~ → `nuxt-ai-ready` serves `/llms.txt`
-- [ ] Alba's complete text in `app/pages/historia/index.vue` — will be added gradually
+- [ ] Alba's complete text (the story): `/historia` was merged into `/timeline` on 2026-10-23 (302); see "Alba's Text (Story)" in AGENTS.md to bring the page back
 - [x] Add favicon (`public/favicon.ico` or `public/favicon.svg`)
 - [ ] Verify `helpmiriam.com` in Google Search Console and request indexing
 - [ ] Think about a way to auto-update the timeline from social media posts

@@ -1,6 +1,4 @@
 import { defineCollection, defineContentConfig, z } from '@nuxt/content'
-import { defineRobotsSchema } from '@nuxtjs/robots/content'
-import { defineSitemapSchema } from '@nuxtjs/sitemap/content'
 
 const timelineEntrySchema = z.object({
   date: z.string(),
@@ -12,14 +10,6 @@ const timelineEntrySchema = z.object({
   linkLabel: z.string().optional(),
   image: z.string().optional(),
   imageAlt: z.string().optional(),
-})
-
-const chapterSchema = z.object({
-  order: z.number(),
-  title: z.string(),
-  subtitle: z.string().optional(),
-  excerpt: z.string(),
-  translationKey: z.string(),
 })
 
 const teamMemberSchema = z.object({
@@ -163,14 +153,6 @@ const scienceSchema = z.object({
     .optional(),
 })
 
-// Las colecciones en español viven en content/es/…, así que su ruta de contenido es
-// /es/historia/…; con `prefix_except_default` la página real es /historia/…. El sitemap
-// publicaba la ruta de contenido tal cual y listaba una URL que da 404. En inglés no pasa
-// porque /en/story/… coincide con la ruta real.
-const sinPrefijoEs = (url: { loc: string }) => {
-  url.loc = url.loc.replace(/^\/es(?=\/)/, '')
-}
-
 export default defineContentConfig({
   collections: {
     timeline_es: defineCollection({
@@ -182,22 +164,6 @@ export default defineContentConfig({
       type: 'data',
       source: 'en/timeline.yml',
       schema: z.object({ entries: z.array(timelineEntrySchema) }),
-    }),
-    historia_es: defineCollection({
-      type: 'page',
-      source: 'es/historia/*.md',
-      schema: chapterSchema.extend({
-        robots: defineRobotsSchema(),
-        sitemap: defineSitemapSchema({ name: 'historia_es', onUrl: sinPrefijoEs }),
-      }),
-    }),
-    historia_en: defineCollection({
-      type: 'page',
-      source: 'en/story/*.md',
-      schema: chapterSchema.extend({
-        robots: defineRobotsSchema(),
-        sitemap: defineSitemapSchema(),
-      }),
     }),
     team_es: defineCollection({
       type: 'data',

@@ -152,6 +152,15 @@
           <p class="mt-4 text-sm text-tinta max-w-2xl">{{ $t('press.photo_download_note') }}</p>
         </div>
 
+        <!-- Vídeo: el promo de Polaris, con su transcripción. Venía de /videos, fusionada aquí en el rediseño (F4,
+             23-oct-2026; /videos redirige a /ciencia, donde vive el explicativo del ADC). Mismo vídeo y mismas palabras. -->
+        <div id="video" class="mt-16 scroll-mt-24">
+          <h2 id="press-video" class="eyebrow mb-5 block">
+            {{ $t('videos.title') }}
+          </h2>
+          <VideoCaso :video="VIDEO_PROMO[locale === 'en' ? 'en' : 'es']" nivel="h3" class="max-w-2xl" />
+        </div>
+
         <!-- Citas citables -->
         <div class="mt-16">
           <h2 id="press-quotes" class="eyebrow mb-2 block">

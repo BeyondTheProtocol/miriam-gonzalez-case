@@ -58,7 +58,7 @@
       </ul>
 
       <NuxtLink
-        :to="localePath({ name: 'herramientas' })"
+        :to="localePath({ name: 'datos', hash: '#visores' })"
         class="mt-4 inline-flex items-center min-h-[44px] font-semibold text-berenjena underline underline-offset-4"
       >
         {{ $t('nav.all_tools') }} →

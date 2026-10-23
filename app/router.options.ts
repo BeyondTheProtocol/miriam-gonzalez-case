@@ -16,6 +16,20 @@ import { START_LOCATION, type LocationQuery } from 'vue-router'
  * así que aquí no forzamos `behavior`.
  */
 export default <RouterConfig>{
+  // COMPATIBILIDAD TEMPORAL (rediseño F4, 23-oct-2026): /herramientas se fusionó en /datos#visores y su página se borró,
+  // pero las migas «← Herramientas» de celula-a-celula.vue y celula-a-celula-explorar.vue (que esta fase no toca: las
+  // editan los PR #285/#290) siguen llamando a localePath({ name: 'herramientas' }). Sin una ruta con ese nombre,
+  // localePath devuelve '' y la miga se pinta como un <a> SIN href (medido en nuxt dev). Estas dos rutas solo existen
+  // para que resuelva: el HTML lleva href="/herramientas" (y "/en/tools"), que el CDN redirige con 301 a
+  // /datos#visores, y en el cliente el router hace la misma redirección. RETIRAR en F11, cuando esas dos páginas
+  // cambien su miga a /datos#visores: entonces se quitan estas dos rutas y, en test-salud-estatica §10, la excepción COMPAT
+  // (y la comprobación «su miga lleva a /herramientas»), que pasa a exigir que sus migas apunten a /datos#visores. El resto
+  // de §10 es la red de seguridad de toda la fase F4: NO se borra.
+  routes: (_routes) => [
+    ..._routes,
+    { name: 'herramientas___es', path: '/herramientas', redirect: '/datos#visores' },
+    { name: 'herramientas___en', path: '/en/tools', redirect: '/en/data#visores' },
+  ],
   scrollBehavior(to, from, savedPosition) {
     // /celula-a-celula/explorar: abrir un gen o cambiar de biopsia (?gen=&biopsia=) solo cambia la query; la página no
     // se mueve, tampoco con Atrás (el explorador cambia de estado en su sitio)

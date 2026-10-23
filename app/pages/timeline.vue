@@ -11,15 +11,11 @@
           :title="$t('timeline.title')"
           :subtitle="$t('timeline.subtitle')"
         >
-          <!-- Su historia, contada por ella (dictamen `diseno`, 14-oct-2026): /historia
-               solo tenía un enlace, en la pantalla 6 de la home en móvil. -->
-          <NuxtLink
-            :to="localePath({ name: 'historia' })"
-            class="link-action group mt-3 min-h-[44px] text-sm text-miriam"
-          >
-            {{ $t('timeline.story_link') }}
-            <Icon name="ph:arrow-right" class="w-4 h-4 transition-transform group-hover:translate-x-0.5" aria-hidden="true" />
-          </NuxtLink>
+          <!-- Una línea humana de /historia, fusionada aquí en el rediseño (F4, 23-oct-2026; /historia redirige a esta página).
+               Antes de esta línea había un enlace «Su historia, contada por ella» a una página que solo decía «en
+               preparación». Es la frase de arranque de esa historia (clave historia.story_teaser_1, ya publicada), tal cual:
+               sin copy nuevo. La revisa `voz-miriam`. -->
+          <p class="mt-3 max-w-prose text-sm text-tinta leading-relaxed">{{ $t('historia.story_teaser_1') }}</p>
           <!-- La escala de la cronología (hitos · años · red) en texto plano.
                Aquí vivía el contador de días sin tratamiento; se retiró al
                empezar el ensayo (ago-2026), ver SectionHero. -->
