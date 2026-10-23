@@ -16,11 +16,6 @@ export const GOFUNDME_URL = 'https://gofund.me/3e25cae99'
 export const GOFUNDME_CANONICAL_URL =
   'https://www.gofundme.com/f/biopsia-molecular-que-puede-cambiar-su-tratamiento'
 
-// Frase sobre cripto/tokens del aviso de «Campaña oficial»: apagada hasta que
-// la valide su abogada (legal-burocracia, 23-oct-2026). Un solo interruptor
-// para las tres instancias del aviso.
-export const CAMPANA_OFICIAL_CRIPTO = false
-
 export function useSupport() {
   const nuxtApp = useNuxtApp()
 
@@ -179,7 +174,6 @@ export function useSupport() {
   return {
     GOFUNDME_URL,
     GOFUNDME_CANONICAL_URL,
-    CAMPANA_OFICIAL_CRIPTO,
     trackSupport,
     trackScience,
     trackOfficialCampaign,

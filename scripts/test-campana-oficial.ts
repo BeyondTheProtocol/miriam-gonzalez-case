@@ -6,9 +6,10 @@
 //    ese mismo slug (que se pueda comprobar a ojo).
 // 3. El aviso no se hace pasar por un CTA de donar: ni data-support-cta (la
 //    barra móvil se esconde con él) ni trackSupport (armaría el «¿Has donado?»).
-// 4. La frase de cripto sigue apagada hasta que la valide su abogada.
-// 5. ES y EN tienen las mismas claves y el texto no dice nada que legal vetó:
-//    «única/only», importes, «estafa/fraude/scam», pump.fun.
+// 4. ES y EN tienen las mismas claves y el texto no dice nada que legal vetó:
+//    «única/only», importes, «estafa/fraude/scam», ni cripto/tokens. Una frase
+//    de cripto no puede ir «apagada» en las locales: el fichero de idioma viaja
+//    entero en el bundle público, se pinte o no.
 //
 // Uso:  pnpm test:campana-oficial
 import { readFileSync } from 'node:fs'
@@ -38,15 +39,13 @@ ok(!plantilla.includes('data-support-cta'), 'el aviso no lleva data-support-cta'
 ok(!/trackSupport/.test(plantilla + codigo), 'el aviso no llama a trackSupport')
 
 // 4
-ok(/CAMPANA_OFICIAL_CRIPTO\s*=\s*false/.test(support), 'la frase de cripto sigue apagada')
-
-// 5
 const es = JSON.parse(readFileSync('i18n/locales/es.json', 'utf-8')).campanaOficial ?? {}
 const en = JSON.parse(readFileSync('i18n/locales/en.json', 'utf-8')).campanaOficial ?? {}
-const claves = ['titulo', 'intro', 'otras', 'cripto', 'actualizado']
+const claves = ['titulo', 'intro', 'otras', 'actualizado']
 for (const k of claves) ok(Boolean(es[k]) && Boolean(en[k]), `campanaOficial.${k} existe en ES y EN`)
+ok(Object.keys(es).length === claves.length && Object.keys(en).length === claves.length, 'no hay claves de más (nada «apagado» que viaje en el bundle)')
 const texto = JSON.stringify([es, en]).toLowerCase()
-for (const vetada of ['única', 'unica', '"only', ' only ', 'estafa', 'fraude', 'scam', 'fraud', 'pump', '€', '$'])
+for (const vetada of ['única', 'unica', '"only', ' only ', 'estafa', 'fraude', 'scam', 'fraud', 'pump', 'token', 'cripto', 'crypto', '€', '$'])
   ok(!texto.includes(vetada), `el aviso no dice «${vetada.trim()}»`)
 
 console.log(fallos ? `\n❌ ${fallos} fallo(s)` : '\n✅ aviso «Campaña oficial» en orden')

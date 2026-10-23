@@ -28,9 +28,6 @@
       </a>
       <p class="text-sm text-tinta leading-relaxed">
         {{ $t('campanaOficial.otras') }}
-        <template v-if="CAMPANA_OFICIAL_CRIPTO">{{
-          $t('campanaOficial.cripto')
-        }}</template>
       </p>
       <p
         class="mt-2 font-mono text-[12px] leading-relaxed campana-oficial__meta"
@@ -57,11 +54,7 @@ withDefaults(defineProps<{ footer?: boolean; location: string }>(), {
 })
 
 const route = useRoute()
-const {
-  GOFUNDME_CANONICAL_URL,
-  CAMPANA_OFICIAL_CRIPTO,
-  trackOfficialCampaign,
-} = useSupport()
+const { GOFUNDME_CANONICAL_URL, trackOfficialCampaign } = useSupport()
 
 const slug = GOFUNDME_CANONICAL_URL.replace(/^https:\/\/www\./, '')
 
