@@ -114,6 +114,10 @@
         </div>
       </div>
 
+      <!-- Campaña oficial (23-oct-2026): el pie es lo único que cubre todas las
+           páginas; en la home se calla porque ya va bajo la barra de la campaña. -->
+      <CampanaOficial footer location="footer" />
+
       <!-- Chips "por perfil" (propuesta 4 del comité, 26-sep-2026): mismo
            componente y misma copy que /colabora (ProfileChips.vue), para que
            quien llegue por un enlace directo a cualquier página encuentre su

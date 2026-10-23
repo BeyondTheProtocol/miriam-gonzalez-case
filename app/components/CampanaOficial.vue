@@ -1,0 +1,94 @@
+<template>
+  <div
+    v-if="!(footer && isHome)"
+    :id="footer ? 'campana-oficial' : undefined"
+    role="note"
+    :aria-label="$t('campanaOficial.titulo')"
+    class="campana-oficial"
+    :class="footer ? 'mt-10 pt-8 scroll-mt-24' : 'mt-8 pt-6'"
+  >
+    <div class="max-w-2xl">
+      <p class="text-sm font-semibold text-berenjena">
+        <span class="campana-oficial__mark" aria-hidden="true">✱</span>
+        {{ $t('campanaOficial.titulo') }}
+      </p>
+      <p class="mt-1 text-sm text-tinta leading-relaxed">
+        {{ $t('campanaOficial.intro') }}
+      </p>
+      <a
+        :href="GOFUNDME_CANONICAL_URL"
+        target="_blank"
+        rel="noopener noreferrer"
+        translate="no"
+        lang="es"
+        class="campana-oficial__slug link-inline font-mono"
+        @click="trackOfficialCampaign(location)"
+      >
+        {{ slug }}<span class="sr-only"> {{ $t('a11y.new_tab') }}</span>
+      </a>
+      <p class="text-sm text-tinta leading-relaxed">
+        {{ $t('campanaOficial.otras') }}
+        <template v-if="CAMPANA_OFICIAL_CRIPTO">{{
+          $t('campanaOficial.cripto')
+        }}</template>
+      </p>
+      <p
+        class="mt-2 font-mono text-[12px] leading-relaxed campana-oficial__meta"
+      >
+        {{ $t('campanaOficial.actualizado') }}
+      </p>
+    </div>
+  </div>
+</template>
+
+<script setup lang="ts">
+/**
+ * Aviso «Campaña oficial» (23-oct-2026): dice cuál es su campaña de donación y
+ * que cualquier otra a su nombre no la ha creado ella. Nota al margen sin caja
+ * (comité de diseño): ni alarma, ni coral, ni sticky, para no competir con el
+ * botón de donar. El enlace muestra el slug largo para que se pueda comprobar a
+ * ojo, y no lleva data-support-cta ni trackSupport (no es un clic de «Apoyar»).
+ *
+ * Tres instancias: pie (todas las páginas salvo la home, con ancla
+ * #campana-oficial), home bajo la barra de la campaña y /gastos.
+ */
+withDefaults(defineProps<{ footer?: boolean; location: string }>(), {
+  footer: false,
+})
+
+const route = useRoute()
+const {
+  GOFUNDME_CANONICAL_URL,
+  CAMPANA_OFICIAL_CRIPTO,
+  trackOfficialCampaign,
+} = useSupport()
+
+const slug = GOFUNDME_CANONICAL_URL.replace(/^https:\/\/www\./, '')
+
+// La home ya lo lleva bajo la barra de la campaña: el del pie se calla ahí.
+const isHome = computed(() => {
+  const path = route.path.replace(/\/+$/, '') || '/'
+  return path === '/' || path === '/en'
+})
+</script>
+
+<style scoped>
+.campana-oficial {
+  border-top: 1px solid var(--trazo-sutil);
+}
+.campana-oficial__mark {
+  color: var(--color-miriam);
+  margin-right: 0.35rem;
+}
+.campana-oficial__slug {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  font-size: 13px;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+.campana-oficial__meta {
+  color: rgb(var(--color-text-soft-rgb) / 0.78);
+}
+</style>

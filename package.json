@@ -28,6 +28,7 @@
     "test:celula-explorador": "tsx scripts/test-celula-explorador.ts",
     "test:celula-explorador-html": "node scripts/test-celula-explorador-html.mjs",
     "test:short-links": "tsx scripts/test-short-links.ts",
+    "test:campana-oficial": "tsx scripts/test-campana-oficial.ts",
     "test:cronologia-caso": "tsx scripts/test-cronologia-caso.ts",
     "test:sala-prensa": "tsx scripts/test-sala-prensa.ts",
     "test:donantes-total": "tsx scripts/test-donantes-total.ts",
