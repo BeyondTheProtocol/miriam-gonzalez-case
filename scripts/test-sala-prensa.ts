@@ -11,10 +11,13 @@
 // 4. La guía pública no nombra lo que nunca se dice en público («Olune») ni «científica» como SÍ.
 // 5. /prensa no lleva el contador de campaña ni la fecha fija «junio de 2026».
 // 6. `caseData.pressAsOf` es una fecha válida y no es futura.
-// 7. La tira de medios de la home = content/es/press.yml (mismos medios únicos, mismo orden, y el enlace de la primera pieza de cada medio).
+// 7. La tira de medios de la home se LEE de content/<idioma>/press.yml (rediseño F5, 23-oct-2026): ni un medio ni una URL escritos
+//    a mano en la página o en su componente; los medios únicos salen en el orden de la sala de prensa, con el enlace de su primera
+//    pieza, en ES y en EN. Si hay build (.output/public), se comprueba además en el HTML generado de las dos home.
 //
 // Uso:  pnpm test:sala-prensa
-import { readFileSync } from 'node:fs'
+import { existsSync, readFileSync } from 'node:fs'
+import { join } from 'node:path'
 
 let fallos = 0
 const ok = (cond: boolean, msg: string) => { console.log(`  ${cond ? '✅' : '❌'} ${msg}`); if (!cond) fallos++ }
@@ -73,28 +76,42 @@ if (m) {
   ok(!Number.isNaN(f.getTime()) && f.getTime() <= Date.now() + 86_400_000, `pressAsOf (${m[1]}) es una fecha válida y no futura`)
 }
 
-// 7 · la tira de medios de la home es copia a mano de content/es/press.yml: mismos medios y
-// mismo orden curado (una pieza añadida solo a la sala dejaba la home atrás sin aviso).
-const yml = readFileSync('content/es/press.yml', 'utf-8')
-// La tira lista medios; la sala, piezas: un medio con varias piezas sale una vez (primera aparición) y la home enlaza su primera pieza.
-const piezas: { medio: string; url: string }[] = []
-for (const linea of yml.split('\n')) {
-  const o = linea.match(/^\s*- outlet:\s*(.+?)\s*$/)
-  if (o) { piezas.push({ medio: o[1].replace(/^['"]|['"]$/g, ''), url: '' }); continue }
-  const u = linea.match(/^\s*url:\s*(\S+)\s*$/)
-  if (u && piezas.length) piezas[piezas.length - 1].url = u[1]
+// 7 · la tira de medios de la home sale de press.yml (rediseño F5): antes eran 7 enlaces a mano en index.vue y se desincronizaban.
+// Se reproduce AQUÍ la regla de usePrensaMedios (un medio una vez, con la primera pieza; sin paréntesis) y se compara con el código y,
+// si hay build, con el HTML generado.
+function leerPrensa(loc: 'es' | 'en') {
+  const yml = readFileSync(`content/${loc}/press.yml`, 'utf-8')
+  const piezas: { medio: string; url: string }[] = []
+  for (const linea of yml.split('\n')) {
+    const o = linea.match(/^\s*- outlet:\s*(.+?)\s*$/)
+    if (o) { piezas.push({ medio: o[1].replace(/^['"]|['"]$/g, ''), url: '' }); continue }
+    const u = linea.match(/^\s*url:\s*(\S+)\s*$/)
+    if (u && piezas.length) piezas[piezas.length - 1].url = u[1]
+  }
+  const limpio = piezas.map((p) => ({ medio: p.medio.replace(/\s*\([^)]*\)\s*$/, '').trim(), url: p.url }))
+  return limpio.filter((p, i) => limpio.findIndex((q) => q.medio === p.medio) === i)
 }
-const primeras = piezas.filter((p, i) => piezas.findIndex((q) => q.medio === p.medio) === i)
-const medios = primeras.map((p) => p.medio)
 const home = readFileSync('app/pages/index.vue', 'utf-8')
-const tira = [...home.matchAll(/trackPress\('([^']+)'\)/g)].map((x) => x[1])
-ok(medios.length > 0, `content/es/press.yml lista medios (${medios.length})`)
-ok(
-  JSON.stringify(tira) === JSON.stringify(medios),
-  `la tira de la home = press.yml, en el mismo orden${JSON.stringify(tira) === JSON.stringify(medios) ? '' : ` (home: ${tira.join(', ')} · yml: ${medios.join(', ')})`}`,
-)
-const sinEnlace = primeras.map((p) => p.url).filter((u) => !u || !home.includes(u))
-ok(sinEnlace.length === 0, `el enlace de la primera pieza de cada medio de press.yml está en la home${sinEnlace.length ? ` (faltan: ${sinEnlace.join(', ')})` : ''}`)
+const tira = readFileSync('app/components/PrensaTira.vue', 'utf-8')
+const compo = readFileSync('app/composables/usePrensaMedios.ts', 'utf-8')
+const ymls = { es: leerPrensa('es'), en: leerPrensa('en') }
+ok(ymls.es.length > 0 && ymls.en.length > 0, `content/{es,en}/press.yml listan medios (${ymls.es.length} y ${ymls.en.length})`)
+ok(JSON.stringify(ymls.es.map((m) => m.medio)) === JSON.stringify(ymls.en.map((m) => m.medio)), `ES y EN tienen los mismos medios y en el mismo orden${JSON.stringify(ymls.es.map((m) => m.medio)) === JSON.stringify(ymls.en.map((m) => m.medio)) ? '' : ` (es: ${ymls.es.map((m) => m.medio).join(', ')} · en: ${ymls.en.map((m) => m.medio).join(', ')})`}`)
+ok(/<PrensaTira\b/.test(home) && /queryCollection\(/.test(compo) && /press_es/.test(compo) && /press_en/.test(compo) && /usePrensaMedios\(\)/.test(tira), 'la home pinta PrensaTira, que lee press_es / press_en con queryCollection (usePrensaMedios)')
+const escritos = [...ymls.es, ...ymls.en].flatMap((m) => [m.medio, m.url]).filter((x) => x && (home.includes(x) || tira.includes(x)))
+ok(escritos.length === 0, `ni index.vue ni PrensaTira.vue llevan un medio o una URL de press.yml escritos a mano${escritos.length ? ` (${[...new Set(escritos)].join(', ')})` : ''}`)
+ok(!/trackPress\('/.test(home), 'la home ya no llama a trackPress con un medio literal (lo hace la tira con el nombre leído)')
+
+// 7b · en el HTML generado (si hay build): mismos medios, mismo orden y el enlace de la primera pieza de cada uno
+const pub = '.output/public'
+for (const [loc, fichero] of [['es', 'index.html'], ['en', 'en.html']] as const) {
+  if (!existsSync(join(pub, fichero))) { console.log(`  ⚠️  sin ${pub}/${fichero}: se omite la comprobación del HTML (ejecuta antes \`pnpm exec nuxt generate\`)`); continue }
+  const h = readFileSync(join(pub, fichero), 'utf-8').replace(/<script\b[\s\S]*?<\/script>/g, '')
+  const franja = h.match(/<section[^>]*class="[^"]*prensa-tira[^"]*"[\s\S]*?<\/section>/)?.[0] ?? ''
+  ok(franja.length > 0, `${fichero}: la tira de prensa está en el HTML`)
+  const enlaces = [...franja.matchAll(/<a\b[^>]*\bhref="([^"]+)"[^>]*class="[^"]*prensa-tira__medio[^"]*"[^>]*>([^<]*)</g)].map((m) => ({ medio: m[2].trim(), url: m[1].replace(/&amp;/g, '&') }))
+  ok(JSON.stringify(enlaces) === JSON.stringify(ymls[loc]), `${fichero}: la tira = press.yml (${ymls[loc].map((m) => m.medio).join(', ')})${JSON.stringify(enlaces) === JSON.stringify(ymls[loc]) ? '' : ` — sale: ${JSON.stringify(enlaces)}`}`)
+}
 
 if (fallos) {
   console.error(`\n❌ ${fallos} fallo(s) en la sala de prensa`)

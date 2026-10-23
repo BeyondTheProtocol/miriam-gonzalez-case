@@ -18,6 +18,9 @@
  *   verTodas   enlace a /datos#que-buscamos. Sin valor, aparece solo si se enseñan menos de las publicadas
  *              (en /datos no sale: ya están todas); con true o false manda lo que diga la página. La regla vive
  *              en utils/peticiones.ts (hayEnlaceTodas).
+ *   acciones   la fila de «Escríbenos» y «Ver todo lo que buscamos». Por defecto sí; la home (F5) la quita y pinta la
+ *              suya, con el botón «Escribir al equipo» y el enlace al 3D en la misma fila, para no tener dos enlaces
+ *              seguidos al mismo sitio. Con `acciones` en false `verTodas` no hace nada.
  *
  * El enlace a /datos#que-buscamos lo mide el plugin de Umami (VerPeticion), igual que cualquier otro.
  */
@@ -34,7 +37,8 @@ const props = withDefaults(defineProps<{
   limite?: number
   filtro?: readonly TemaPeticion[]
   verTodas?: boolean
-}>(), { verTodas: undefined })
+  acciones?: boolean
+}>(), { verTodas: undefined, acciones: true })
 
 const { locale } = useI18n()
 const localePath = useLocalePath()
@@ -54,7 +58,7 @@ const enlaceTodas = computed(() => hayEnlaceTodas(props.verTodas, mostradas.valu
         <NuxtLink v-if="p.enlace === 'celula-a-celula'" :to="localePath('/celula-a-celula')" class="link-inline qb__resultados">{{ L('Los primeros resultados están en Célula a célula', 'The first results are in Cell by cell') }}</NuxtLink>
       </li>
     </ul>
-    <div class="qb__acciones">
+    <div v-if="acciones" class="qb__acciones">
       <!-- el contacto profesional va por el formulario con su rol, sin correo directo ni plazo prometido -->
       <NuxtLink :to="localePath({ name: 'contacto', query: { role: 'researcher' } })" class="link-action group min-h-[44px] text-sm text-miriam">
         {{ L('Escríbenos', 'Write to us') }}

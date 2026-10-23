@@ -80,6 +80,59 @@ export const fechaCorta = (iso: string, lang: Lang): string => {
 }
 export const mesCorto = (mes0: number, lang: Lang) => (lang === 'en' ? MESES_EN : MESES_ES)[mes0]
 
+/** Una línea de `lineas` de caso.json tal como la usa «Tratamiento» (no se tipa todo el JSON). */
+export interface LineaCaso {
+  id: string
+  tratamiento: Texto
+  inicio: string
+  fin?: string | null
+  sello?: string
+}
+
+/** Lo que enseña «Tratamiento» hoy. `enCurso` distingue una línea sistémica activa (`valor` es su id: «4L») de los
+ *  casos «sin línea sistémica» (`valor` es la frase). */
+export interface TratamientoHoy {
+  valor: string
+  detalle: string
+  fecha: string
+  sello?: string
+  notaSello?: string
+  enCurso: boolean
+}
+
+/**
+ * «Tratamiento» de hoy, UNA sola vez para toda la web: la cifra de /datos (sección «Hoy») y la línea «Ahora» de la home
+ * salen de aquí, así que no pueden contar dos cosas distintas (rediseño F5, 23-oct-2026; antes vivía dentro de datos.vue).
+ * `hoyMs` es la fecha de `generado` de caso.json, no la del reloj: el HTML prerenderizado no caduca a medianoche.
+ *
+ * Con una línea sistémica en curso: su id, su tratamiento (hasta el primer « (») y «desde <inicio>». Sin ella: «sin línea
+ * sistémica» (no «sin tratamiento»: la supresión ovárica sigue; lo vio comite-medico), con el plan futuro aparte.
+ */
+export function tratamientoHoy(lineas: readonly LineaCaso[], hoyMs: number, lang: Lang): TratamientoHoy {
+  const L = (es: string, en: string) => (lang === 'en' ? en : es)
+  const corto = (v: Texto) => txtCaso(v, lang).split(' (')[0]!
+  const sistemicas = lineas.filter((l) => /^\d+L$/i.test(l.id))
+  const actual = sistemicas.find((l) => { const i = rangoParcial(l.inicio); const f = l.fin ? rangoParcial(l.fin) : null; return i && i[0] <= hoyMs && (!f || f[1] >= hoyMs) })
+  if (actual) {
+    return { valor: actual.id, detalle: corto(actual.tratamiento), fecha: L(`desde ${fechaCorta(actual.inicio, 'es')}`, `since ${fechaCorta(actual.inicio, 'en')}`), sello: actual.sello, enCurso: true }
+  }
+  const proxima = sistemicas.find((l) => { const i = rangoParcial(l.inicio); return i && i[0] > hoyMs })
+  const ultimaTerminada = [...sistemicas].filter((l) => l.fin && rangoParcial(l.fin)![1] < hoyMs).pop()
+  const fondo = lineas.some((l) => l.id === 'LHRHa' && !l.fin) ? L('Goserelina en curso. ', 'Goserelin ongoing. ') : ''
+  // solo el mes de una cita futura (seguridad): «previsto en oct 2026», no «el»
+  const prep = proxima && /^\d{4}-\d{2}$/.test(proxima.inicio) ? 'en' : 'el'
+  const prox = proxima ? L(`Próximo: ${corto(proxima.tratamiento)}, previsto ${prep} ${fechaCorta(proxima.inicio, 'es')}.`, `Next: ${corto(proxima.tratamiento)}, planned for ${fechaCorta(proxima.inicio, 'en')}.`) : ''
+  return {
+    valor: L('Sin línea sistémica', 'No systemic line'),
+    detalle: fondo + prox,
+    fecha: ultimaTerminada ? L(`desde ${fechaCorta(ultimaTerminada.fin!, 'es')} (fin de la ${ultimaTerminada.id})`, `since ${fechaCorta(ultimaTerminada.fin!, 'en')} (end of ${ultimaTerminada.id})`) : '',
+    // el hecho (fin de la línea) lleva su sello; el plan futuro va aparte, marcado como «lo dice Miriam»
+    sello: ultimaTerminada?.sello,
+    notaSello: proxima?.sello,
+    enCurso: false,
+  }
+}
+
 /** Número con coma decimal en español; sin inventar decimales. */
 export const numCaso = (v: number, lang: Lang, dec?: number): string => {
   const s = dec == null ? String(v) : v.toFixed(dec)

@@ -1,91 +1,79 @@
-// Frenos de los accesos directos de «Elige tu camino» (plan del 20-oct-2026, Miriam: «en la home la
-// gente sepa qué mirar… acceso directo a las diferentes herramientas porque /ciencia es muy largo»).
+// Frenos de «cómo ayudar» y del texto de la home tras el rediseño de arquitectura (F3 y F5, 23-oct-2026).
 //
-// La clase del fallo: la lista de accesos crece, apunta a una herramienta que no existe o con la puerta
-// cerrada, se le cuela léxico que concluye («dianas», «mejor», «segunda opinión»), la rejilla deja una
-// tarjeta fuera de su área o una clave queda sin traducir. Nada de eso se ve hasta que alguien entra.
+// Historia: hasta F5 este test vigilaba los accesos directos de las siete tarjetas de «Elige tu camino» (plan del 20-oct-2026:
+// de 1 a 3 accesos por camino, puerta del explorador, rejilla de 12 columnas, pasos de prensa y tech). La decisión del rediseño
+// quitó esas tarjetas y puso CUATRO PUERTAS (utils/caminos.ts → PUERTAS, pintadas por Puertas.vue), así que esas comprobaciones
+// ya no tienen nada que vigilar y se retiran con el código que cubrían (ACCESOS, accesosDe, PathwayAccesos, la rejilla CSS).
+// Lo que protegían de fondo se conserva: el léxico de las tarjetas profesionales (aquí, sobre la copy nueva), las claves ES/EN
+// sin desparejar y los destinos que existen.
 //
-// 1. De 1 a 3 accesos por camino; herramientas ∈ HERRAMIENTAS; roles ∈ VALID_ROLES de /contacto.
-// 2. Puerta del explorador cerrada → su hueco lo ocupa Célula a célula (siempre visible), sin hueco.
-// 3. En «research», /datos nunca va primero (con la puerta abierta y cerrada).
-// 4. Claves `pathways` iguales en ES y EN; las etiquetas de los accesos existen en los dos.
-// 5. Léxico prohibido en las tarjetas profesionales (comité médico, 20-oct), ES y EN.
-// 6. La rejilla ≥ 1024 px (12 columnas): tesela sin huecos ni solapes, una celda por tarjeta, en el orden del DOM.
-// 7. Destinos: el botón clínico aterriza en «De un vistazo»; research y el h5ad, con rol de investigador.
-// 8. Prensa y tech (PR 2): el paso que pasa a acceso conserva su texto publicado, sale de la lista de
-//    pasos (no se repite) y la lista se queda con sus pasos de acción.
-// 9. Las cuatro puertas (rediseño de arquitectura, F3): la taxonomía única, sin minutos ni pasos, con destinos que existen.
-//    Y /datos conserva en estas tarjetas su rótulo publicado («El caso en datos») aunque el menú diga «Datos».
+// La clase del fallo: se le cuela a la home léxico que concluye («dianas», «mejor», «segunda opinión»), una frase del dinero
+// que no se puede sostener («cada euro», «100 %»), una afirmación nueva en «El caso en 3 frases», un importe en el hero o una
+// clave sin traducir. Nada de eso se ve hasta que alguien entra.
+//
+// 1. Las cuatro puertas: la taxonomía única, un nombre y un destino, con destinos que existen.
+// 2. Claves ES/EN iguales en lo que toca la home (hero, home, puertas, money, pathways) y arrays de la misma longitud.
+// 3. Léxico prohibido (comité médico, 20-oct) sobre toda la copy nueva de la home y de las puertas, ES y EN.
+// 4. Hero: H1 con la edad variable y la frase pedida, lede ≤ 35 palabras, sin «ultra-raro» y sin importes ni promesa de destino.
+// 5. «El caso en 3 frases»: solo las tres frases que la home ya publicaba (fijadas aquí) y ninguna afirmación nueva.
+// 6. El dinero: UNA frase de destino, la canónica de legal-burocracia (23-oct-2026), sin importes ni «cada euro».
+// 7. La home ya no usa lo que se fue (componentes, claves del dinero retiradas, euros en el hero).
 //
 // Uso:  pnpm test:caminos
 import { existsSync, readFileSync } from 'node:fs'
-import { ACCESOS, PUERTAS, accesosDe, type Acceso } from '../app/utils/caminos'
-import { HERRAMIENTAS, NAV, type EnlaceNav } from '../app/utils/navegacion'
+import { PUERTAS } from '../app/utils/caminos'
 
 let fallos = 0
 const ok = (cond: boolean, msg: string) => { console.log(`  ${cond ? '✅' : '❌'} ${msg}`); if (!cond) fallos++ }
 
 const es = JSON.parse(readFileSync('i18n/locales/es.json', 'utf-8'))
 const en = JSON.parse(readFileSync('i18n/locales/en.json', 'utf-8'))
-const contacto = readFileSync('app/pages/contacto.vue', 'utf-8')
-const caminosVue = readFileSync('app/components/VisitorPathways.vue', 'utf-8')
-const css = readFileSync('app/assets/css/main.css', 'utf-8')
-const explorador = readFileSync('app/pages/celula-a-celula-explorar.vue', 'utf-8')
-
-const clavesHerr = new Set(HERRAMIENTAS.map((h) => h.key))
-const roles = (contacto.match(/const VALID_ROLES = \[([^\]]*)\]/)?.[1] ?? '').match(/'([a-z]+)'/g)?.map((s) => s.slice(1, -1)) ?? []
-const etiqueta = (a: Acceso) => (a.tipo === 'herramienta' ? a.etiqueta ?? `nav.${a.enlace.key}` : a.etiqueta)
 const get = (o: Record<string, unknown>, ruta: string) => ruta.split('.').reduce<unknown>((x, k) => (x as Record<string, unknown> | undefined)?.[k], o)
-const todas = (_e: EnlaceNav) => true
-const sinExplorador = (e: EnlaceNav) => e.key !== 'cell_explorer'
+const palabras = (t: string) => t.trim().split(/\s+/).filter(Boolean).length
+const lee = (f: string) => readFileSync(f, 'utf-8')
 
-console.log('1. Accesos por camino')
-ok(roles.length > 0, `VALID_ROLES leído de contacto.vue (${roles.join(', ')})`)
-for (const [camino, lista] of Object.entries(ACCESOS)) {
-  ok(lista.length >= 1 && lista.length <= 3, `${camino}: entre 1 y 3 accesos (${lista.length})`)
-  for (const a of lista) {
-    if (a.tipo === 'herramienta') ok(clavesHerr.has(a.enlace.key), `${camino}: «${a.enlace.key}» es una herramienta`)
-    else if (a.tipo === 'contacto') ok(roles.includes(a.rol), `${camino}: el rol «${a.rol}» existe en /contacto`)
-    else ok(a.href.startsWith('https://'), `${camino}: el externo es https (${a.href})`)
+console.log('1. Las cuatro puertas')
+ok(JSON.stringify(PUERTAS.map((p) => p.id)) === JSON.stringify(['apoyar', 'clinico', 'prensa', 'otras']), 'cuatro puertas, en este orden: Apoyar, Clínico o laboratorio, Prensa, Otras formas')
+ok(PUERTAS.every((p) => JSON.stringify(Object.keys(p).sort()) === JSON.stringify(['destino', 'etiqueta', 'id'])), 'una puerta es un nombre y un destino: sin minutos, pasos ni subtítulos')
+const pu = (es.puertas ?? {}) as Record<string, string>
+const puEn = (en.puertas ?? {}) as Record<string, string>
+ok(PUERTAS.every((p) => typeof get(es, p.etiqueta) === 'string' && typeof get(en, p.etiqueta) === 'string' && get(es, p.etiqueta) !== ''), 'cada puerta tiene su rótulo en ES y EN')
+ok(JSON.stringify(Object.keys(pu).sort()) === JSON.stringify(Object.keys(puEn).sort()) && Object.keys(pu).length === PUERTAS.length, 'puertas.*: mismas claves en ES y EN, y ninguna de sobra')
+const rutas = PUERTAS.flatMap((p) => (p.destino.tipo === 'ruta' ? [p.destino] : []))
+ok(PUERTAS.filter((p) => p.destino.tipo === 'apoyo').map((p) => p.id).join() === 'apoyar', 'solo «Apoyar» va a la campaña; el resto, a rutas del sitio')
+ok(rutas.every((r) => existsSync(`app/pages/${r.name}.vue`)), `cada destino es una página que existe (${rutas.map((r) => r.name).join(', ')})`)
+const datosVue = lee('app/pages/datos.vue') + lee('app/components/QueBuscamos.vue')
+const clinico = PUERTAS.find((p) => p.id === 'clinico')!
+ok(clinico.destino.tipo === 'ruta' && clinico.destino.name === 'datos' && clinico.destino.hash === '#que-buscamos' && datosVue.includes('que-buscamos'), '«Clínico o laboratorio» aterriza en «Qué buscamos» (/datos#que-buscamos), que existe')
+ok(/<Puertas\b/.test(lee('app/pages/index.vue')), 'la home pinta las puertas con Puertas.vue')
+ok(get(es, 'nav.data_case') === 'El caso en datos' && get(en, 'nav.data_case') === 'The case in data' && get(es, 'nav.data') === 'Datos' && get(en, 'nav.data') === 'Data', 'nav.data es «Datos»/«Data» (menú) y nav.data_case, «El caso en datos»/«The case in data» (pie)')
+
+console.log('2. Claves ES/EN')
+for (const ns of ['hero', 'home', 'puertas', 'money', 'pathways']) {
+  const a = (es[ns] ?? {}) as Record<string, unknown>
+  const b = (en[ns] ?? {}) as Record<string, unknown>
+  const soloEs = Object.keys(a).filter((k) => !(k in b))
+  const soloEn = Object.keys(b).filter((k) => !(k in a))
+  ok(soloEs.length === 0 && soloEn.length === 0, `mismas claves ${ns}.* en ES y EN${soloEs.length + soloEn.length ? ` (solo ES: ${soloEs.join(', ')}; solo EN: ${soloEn.join(', ')})` : ''}`)
+  for (const k of Object.keys(a)) {
+    if (Array.isArray(a[k])) ok(Array.isArray(b[k]) && (b[k] as unknown[]).length === (a[k] as unknown[]).length, `${ns}.${k}: misma longitud en ES y EN`)
   }
 }
-
-console.log('2. Puerta del explorador')
-for (const camino of Object.keys(ACCESOS) as (keyof typeof ACCESOS)[]) {
-  const abierta = accesosDe(camino, todas)
-  const cerrada = accesosDe(camino, sinExplorador)
-  ok(abierta.length === ACCESOS[camino].length && cerrada.length === ACCESOS[camino].length, `${camino}: mismo número de accesos con la puerta abierta y cerrada`)
-  ok(cerrada.every((a) => a && !(a.tipo === 'herramienta' && a.enlace.key === 'cell_explorer')), `${camino}: con la puerta cerrada no hay explorador ni hueco`)
-}
-const researchCerrada = accesosDe('research', sinExplorador)
-ok(researchCerrada[0]?.tipo === 'herramienta' && researchCerrada[0].enlace.key === NAV.cellByCell.key, 'research con la puerta cerrada empieza por Célula a célula')
-ok(accesosDe('research', todas)[0]?.tipo === 'herramienta' && (accesosDe('research', todas)[0] as { enlace: EnlaceNav }).enlace.key === 'cell_explorer', 'research con la puerta abierta empieza por el explorador')
-
-console.log('3. /datos nunca primero en research')
-for (const [nombre, vis] of [['abierta', todas], ['cerrada', sinExplorador]] as const) {
-  const p = accesosDe('research', vis)[0]
-  ok(!(p?.tipo === 'herramienta' && p.enlace.key === 'data'), `puerta ${nombre}: el primero de research no es /datos`)
+// Las claves que la home pinta ahora existen, traducidas y no vacías (una clave que falta se pinta como la propia clave).
+const USADAS = [
+  'home.hero_eyebrow', 'hero.h1', 'hero.h1_emphasis', 'hero.lede', 'hero.cta_donate', 'hero.cta_understand', 'hero.pro_link', 'hero.proof_support',
+  'hero.latest_label', 'hero.photo_tag', 'hero.section_label', 'hero.cta_science',
+  'home.s9_strip_label', 'home.s9_press_contact', 'home.caso_heading', 'home.caso_1', 'home.caso_2', 'home.caso_3',
+  'home.donde_heading', 'home.ahora', 'home.pasos_intro', 'home.pasos_nota_barra', 'home.pasos_progreso', 'home.pasos_progreso_curso', 'home.pasos_cta_ruta',
+  'home.buscamos_heading', 'home.buscamos_escribir', 'home.buscamos_todas', 'home.donde_3d',
+  'home.dinero_eyebrow', 'home.dinero_heading', 'home.dinero_informe', 'home.s4_cta_button', 'money.destino',
+  'home.s6_eyebrow', 'home.s6_quote', 'home.s6_signature', 'home.puertas_heading',
+]
+for (const clave of USADAS) {
+  ok(typeof get(es, clave) === 'string' && typeof get(en, clave) === 'string' && get(es, clave) !== '' && get(en, clave) !== '', `«${clave}» existe en ES y EN`)
 }
 
-console.log('4. Claves ES/EN')
-const pes = es.pathways as Record<string, unknown>
-const pen = en.pathways as Record<string, unknown>
-const soloEs = Object.keys(pes).filter((k) => !(k in pen))
-const soloEn = Object.keys(pen).filter((k) => !(k in pes))
-ok(soloEs.length === 0 && soloEn.length === 0, `mismas claves pathways.* en ES y EN${soloEs.length + soloEn.length ? ` (solo ES: ${soloEs.join(', ')}; solo EN: ${soloEn.join(', ')})` : ''}`)
-for (const k of Object.keys(pes)) {
-  if (Array.isArray(pes[k])) ok(Array.isArray(pen[k]) && (pen[k] as unknown[]).length === (pes[k] as unknown[]).length, `pathways.${k}: misma longitud en ES y EN`)
-}
-const usadas = new Set<string>(['pathways.accesos_aria', 'a11y.new_tab'])
-for (const lista of Object.values(ACCESOS)) for (const a of lista) usadas.add(etiqueta(a))
-usadas.add(`nav.${NAV.cellByCell.key}`) // el sustituto con la puerta cerrada
-for (const k of ['research_title', 'research_desc', 'research_cta', 'research_caption']) usadas.add(`pathways.${k}`)
-for (const clave of usadas) {
-  ok(typeof get(es, clave) === 'string' && typeof get(en, clave) === 'string', `«${clave}» existe en ES y EN`)
-}
-ok(!('clinician_steps' in pes) && !/clinician_steps/.test(caminosVue), 'los pasos clínicos publicados ya no existen (se borran con el plan)')
-
-console.log('5. Léxico de las tarjetas profesionales')
+console.log('3. Léxico de la copy nueva')
 const PROHIBIDO: [RegExp, string][] = [
   [/\bdianas?\b|\btargets?\b/i, 'dianas/targets'],
   [/perfil molecular|molecular profile/i, 'perfil molecular'],
@@ -95,83 +83,83 @@ const PROHIBIDO: [RegExp, string][] = [
   [/segunda opini[oó]n|second opinion/i, 'segunda opinión (el formulario no es ese proceso)'],
   [/recomend|recommend/i, 'recomendar'],
 ]
-for (const [loc, d] of [['ES', pes], ['EN', pen]] as const) {
-  const textos = Object.entries(d).filter(([k]) => /^(clinician|research)_/.test(k)).map(([k, v]) => [k, JSON.stringify(v)] as const)
-  ok(textos.length >= 8, `${loc}: hay ${textos.length} textos clinician_/research_ que revisar`)
+// Lo nuevo de la home. Excluidas a propósito las frases ya publicadas de otras páginas que la home reutiliza tal cual
+// (pasos_intro, s6_quote, las peticiones de caso.json): se revisan donde nacieron y su léxico no es el de esta copy.
+const NUEVAS = ['hero.h1', 'hero.h1_emphasis', 'hero.lede', 'hero.cta_understand', 'hero.pro_link', 'hero.proof_support',
+  'home.caso_heading', 'home.caso_1', 'home.caso_2', 'home.caso_3', 'home.donde_heading', 'home.ahora', 'home.buscamos_heading', 'home.buscamos_escribir',
+  'home.buscamos_todas', 'home.donde_3d', 'home.dinero_eyebrow', 'home.dinero_heading', 'home.dinero_informe', 'home.puertas_heading', 'money.destino']
+for (const [loc, d] of [['ES', es], ['EN', en]] as const) {
+  const textos = [...NUEVAS.map((k) => [k, String(get(d, k))] as const), ...Object.entries(d.puertas as Record<string, string>).map(([k, v]) => [`puertas.${k}`, v] as const)]
   for (const [re, nombre] of PROHIBIDO) {
     const malos = textos.filter(([, v]) => re.test(v)).map(([k]) => k)
     ok(malos.length === 0, `${loc}: sin «${nombre}»${malos.length ? ` (en ${malos.join(', ')})` : ''}`)
   }
 }
 
-console.log('6. Rejilla ≥ 1024 px (12 columnas)')
-const bloque = css.match(/@media \(min-width: 1024px\) \{\s*\.pathway-grid \{ grid-template-columns: repeat\((\d+), minmax\(0, 1fr\)\); \}([\s\S]*?)\n {2}\}/)
-ok(!!bloque, 'encuentro la rejilla de .pathway-grid a ≥ 1024 px')
-const COLS = Number(bloque?.[1] ?? 0)
-ok(COLS === 12, `12 columnas (${COLS})`)
-const pos = [...(bloque?.[2] ?? '').matchAll(/\.pathway-card--([a-z]+)\s*\{\s*grid-column:\s*(\d+)\s*\/\s*span\s*(\d+);\s*grid-row:\s*(\d+)(?:\s*\/\s*span\s*(\d+))?;\s*\}/g)]
-  .map((m) => ({ id: m[1]!, c: Number(m[2]), cs: Number(m[3]), r: Number(m[4]), rs: Number(m[5] ?? 1) }))
-const filasN = Math.max(0, ...pos.map((x) => x.r + x.rs - 1))
-const celdas: string[][] = Array.from({ length: filasN }, () => Array(COLS).fill(''))
-let solapes = 0
-for (const x of pos) for (let r = x.r; r < x.r + x.rs; r++) for (let c = x.c; c < x.c + x.cs; c++) {
-  if (c > COLS || r > filasN) { solapes++; continue }
-  if (celdas[r - 1]![c - 1]) solapes++
-  celdas[r - 1]![c - 1] = x.id
+console.log('4. Hero')
+const H1 = { es: 'Miriam, {age} años, busca un tratamiento hecho a partir de {op}.', en: 'Miriam, {age}, is looking for a treatment made from {op}.' }
+for (const [loc, d] of [['es', es], ['en', en]] as const) {
+  ok(d.hero.h1 === H1[loc], `${loc}: el H1 es la frase pedida, con la edad como variable y «su propio tumor» como énfasis (${d.hero.h1})`)
+  ok(String(d.hero.h1).includes('{age}'), `${loc}: la edad va como {age} (sube sola cada 1 de enero): ninguna edad escrita a mano`)
+  ok(palabras(d.hero.lede) <= 35, `${loc}: el lede no pasa de 35 palabras (${palabras(d.hero.lede)})`)
+  const hero = [d.home.hero_eyebrow, d.hero.h1, d.hero.h1_emphasis, d.hero.lede, d.hero.cta_understand, d.hero.pro_link, d.hero.proof_support, d.hero.cta_donate].join(' ¶ ')
+  ok(!/ultra/i.test(hero), `${loc}: el hero no dice «ultra-raro» (contradecía la cifra de rareza de la propia web)`)
+  ok(!/[€$£]|\beuros?\b|\d[\d.,]*\s?%/i.test(hero), `${loc}: el hero no lleva importes, euros ni porcentajes`)
+  ok(!/financia|funds?\b|cada euro|every euro|sin intermediarios|100\s?%/i.test(d.hero.lede), `${loc}: el lede no promete a qué va el dinero (eso, en su bloque y con la frase canónica)`)
 }
-ok(solapes === 0, `ninguna tarjeta se sale ni se solapa (${solapes})`)
-ok(celdas.every((f) => f.every(Boolean)), `sin celdas vacías (${filasN} filas × ${COLS})`)
-const homePaths = caminosVue.slice(caminosVue.indexOf('const homePaths'))
-const ids = [...homePaths.matchAll(/\n {4}id: '([a-z]+)'/g)].map((m) => m[1])
-ok(ids.length === 7, `7 caminos en la home (${ids.join(', ')})`)
-ok(JSON.stringify(pos.map((x) => x.id).sort()) === JSON.stringify([...ids].sort()), 'cada tarjeta tiene su sitio en la rejilla, y solo ellas')
-// El orden visual (fila a fila, de izquierda a derecha, por primera aparición) es el del DOM = el del tabulador.
-ok(JSON.stringify(celdas.flat().filter((x, i, a) => a.indexOf(x) === i)) === JSON.stringify(ids), 'el orden visual de la rejilla es el del DOM')
-const fila2 = celdas[1] ?? []
-ok(fila2.indexOf('research') === fila2.lastIndexOf('clinician') + 1, 'clínica y single-cell, lado a lado en la fila 2')
+ok(es.home.hero_eyebrow === 'Cáncer de mama metastásico · diferenciación neuroendocrina' && en.home.hero_eyebrow === 'Metastatic breast cancer · neuroendocrine differentiation', 'el eyebrow es el pedido, en ES y EN')
+ok(es.hero.cta_understand === 'Entender el caso' && es.hero.cta_donate === 'Apoyar a Miriam', 'los dos botones del hero: «Apoyar a Miriam» y «Entender el caso»')
+ok(/\{n\}/.test(es.hero.proof_support) && /\{n\}/.test(en.hero.proof_support) && !/[€$£]/.test(es.hero.proof_support + en.hero.proof_support), 'la prueba lleva el número de personas ({n}) y ningún importe')
 
-console.log('7. Destinos')
-ok(/linkProps: \{ to: localePath\(\{ name: 'ciencia' \}\) \+ '\?nivel=pro#snapshot-title' \}/.test(caminosVue), 'el botón clínico va a /ciencia?nivel=pro#snapshot-title («De un vistazo»)')
-ok(/id: 'research'[\s\S]*?linkProps: \{ to: localePath\(\{ name: 'contacto', query: \{ role: 'researcher' \} \}\) \}/.test(caminosVue), 'el botón de research va a /contacto con rol de investigador')
-ok(/aria-labelledby="xp-pide-t"[\s\S]*?localePath\(\{ name: 'contacto', query: \{ role: 'researcher' \} \}\)/.test(explorador), 'el h5ad del explorador va a /contacto con rol de investigador')
-
-console.log('8. Prensa y tech: el paso reubicado no cambia de texto')
-// Textos publicados antes del PR 2 (main, 20-oct-2026): pasan de la lista de pasos a su acceso, igual.
-const REUBICADOS = {
-  press_acceso: { es: 'Datos del caso listos para citar', en: 'Case data ready to cite', lista: 'press_steps' },
-  tech_acceso: { es: 'Repo público y documentación', en: 'Public repo and documentation', lista: 'tech_steps' },
-} as const
-for (const [clave, r] of Object.entries(REUBICADOS)) {
-  for (const [loc, d] of [['es', pes], ['en', pen]] as const) {
-    ok(d[clave] === r[loc], `${loc}: ${clave} es el texto publicado («${r[loc]}»)`)
-    const lista = d[r.lista] as string[]
-    ok(Array.isArray(lista) && lista.length === 2 && !lista.includes(r[loc]), `${loc}: ${r.lista} se queda con 2 pasos y sin repetir el acceso`)
-  }
+console.log('5. «El caso en 3 frases»')
+// Las tres frases que la home YA publicaba (la home publicada el 23-oct-2026, antes del rediseño): cambiar una exige el OK de Miriam y del comité
+// médico, no este test. Verbatim o recortadas de: hero/«Resumen de 2 min» (punto 1), la historia (título y cierre del párrafo).
+const PUBLICADAS = {
+  es: ['Miriam tiene un cáncer de mama metastásico.', 'Un diagnóstico que no cabía en ningún protocolo.', 'El tratamiento estándar no basta: hay que diseñarlo a medida de su tumor.'],
+  en: ['Miriam has metastatic breast cancer.', 'A diagnosis that fit no protocol.', "The standard treatment isn't enough: it has to be designed around her specific tumor."],
 }
-ok(ACCESOS.tech.length === 1 && ACCESOS.tech[0]?.tipo === 'externo', 'tech: un acceso, externo (el repo)')
-ok(ACCESOS.press.length === 1 && ACCESOS.press[0]?.tipo === 'herramienta' && ACCESOS.press[0].enlace.key === 'data', 'prensa: un acceso, a /datos')
-
-console.log('9. Las cuatro puertas')
-ok(JSON.stringify(PUERTAS.map((p) => p.id)) === JSON.stringify(['apoyar', 'clinico', 'prensa', 'otras']), 'cuatro puertas, en este orden: Apoyar, Clínico o laboratorio, Prensa, Otras formas')
-ok(PUERTAS.every((p) => JSON.stringify(Object.keys(p).sort()) === JSON.stringify(['destino', 'etiqueta', 'id'])), 'una puerta es un nombre y un destino: sin minutos, pasos ni subtítulos')
-const pu = (es.puertas ?? {}) as Record<string, string>
-const puEn = (en.puertas ?? {}) as Record<string, string>
-ok(PUERTAS.every((p) => typeof get(es, p.etiqueta) === 'string' && typeof get(en, p.etiqueta) === 'string' && get(es, p.etiqueta) !== ''), 'cada puerta tiene su rótulo en ES y EN')
-ok(JSON.stringify(Object.keys(pu).sort()) === JSON.stringify(Object.keys(puEn).sort()) && Object.keys(pu).length === PUERTAS.length, 'puertas.*: mismas claves en ES y EN, y ninguna de sobra')
-for (const [loc, d] of [['ES', pu], ['EN', puEn]] as const) {
-  for (const [re, nombre] of PROHIBIDO) {
-    const malos = Object.entries(d).filter(([, v]) => re.test(v)).map(([k]) => k)
-    ok(malos.length === 0, `${loc}: puertas sin «${nombre}»${malos.length ? ` (en ${malos.join(', ')})` : ''}`)
-  }
+for (const [loc, d] of [['es', es], ['en', en]] as const) {
+  const frases = [d.home.caso_1, d.home.caso_2, d.home.caso_3]
+  ok(JSON.stringify(frases) === JSON.stringify(PUBLICADAS[loc]), `${loc}: las tres frases son las ya publicadas${JSON.stringify(frases) === JSON.stringify(PUBLICADAS[loc]) ? '' : ` — salen: ${JSON.stringify(frases)}`}`)
+  const todo = frases.join(' ')
+  ok(palabras(todo) <= 80, `${loc}: el bloque entero cabe en 80 palabras (${palabras(todo)})`)
+  ok(!/dos biolog|two biolog|dos caras|two sides|two faces|vacuna|vaccine|v[ií]a principal|main route|\d/i.test(todo), `${loc}: ni «dos biologías/caras» como hecho, ni «vacuna / vía principal», ni cifras`)
 }
-const rutas = PUERTAS.flatMap((p) => (p.destino.tipo === 'ruta' ? [p.destino] : []))
-ok(PUERTAS.filter((p) => p.destino.tipo === 'apoyo').map((p) => p.id).join() === 'apoyar', 'solo «Apoyar» va a la campaña; el resto, a rutas del sitio')
-ok(rutas.every((r) => existsSync(`app/pages/${r.name}.vue`)), `cada destino es una página que existe (${rutas.map((r) => r.name).join(', ')})`)
-const datosVue = readFileSync('app/pages/datos.vue', 'utf-8') + readFileSync('app/components/QueBuscamos.vue', 'utf-8')
-const clinico = PUERTAS.find((p) => p.id === 'clinico')!
-ok(clinico.destino.tipo === 'ruta' && clinico.destino.name === 'datos' && clinico.destino.hash === '#que-buscamos' && datosVue.includes('que-buscamos'), '«Clínico o laboratorio» aterriza en «Qué buscamos» (/datos#que-buscamos), que existe')
-ok(JSON.stringify(Object.values(ACCESOS).flat().filter((a) => a.tipo === 'herramienta' && a.enlace.key === 'data' && !(a.etiqueta ?? '').startsWith('pathways.')).map((a) => a.etiqueta)) === JSON.stringify(['nav.data_case', 'nav.data_case']), 'clínica y single-cell siguen rotulando /datos como «El caso en datos»')
-ok(get(es, 'nav.data_case') === 'El caso en datos' && get(en, 'nav.data_case') === 'The case in data' && get(es, 'nav.data') === 'Datos' && get(en, 'nav.data') === 'Data', 'nav.data es «Datos»/«Data» (menú) y nav.data_case, «El caso en datos»/«The case in data» (pie y tarjetas)')
+ok(!/caso_[123]/.test(lee('app/pages/ciencia/index.vue')), 'las frases son de la home: /ciencia no las reutiliza')
 
-console.log(fallos ? `\n❌ ${fallos} fallo(s)` : '\n✅ caminos de la home en orden')
+console.log('6. El dinero')
+// Criterio de legal-burocracia (23-oct-2026): UNA frase de destino. Sin importes, «cada euro», «100 %», «mensual» ni «sin intermediarios».
+const DESTINO = {
+  es: 'El dinero recibido se destina a los gastos del caso; el informe de gastos detalla las partidas, impuesto de donaciones incluido, con su fecha.',
+  en: 'The money received goes to the costs of the case; the expense report lists the line items, gift tax included, with its date.',
+}
+for (const [loc, d] of [['es', es], ['en', en]] as const) {
+  ok(d.money.destino === DESTINO[loc], `${loc}: money.destino es la frase canónica (${d.money.destino})`)
+  ok(!/[€$£]|\d|\beuros?\b|cada |every |100|mensual|monthly|intermediari|íntegr|integral|direct/i.test(d.money.destino), `${loc}: money.destino sin importes, «cada euro», «100 %», «mensual», «intermediarios» ni «directamente»`)
+  // una sola clave con esa frase (test-una-fuente completo llega con F2)
+  const repetida = (function buscar(o: unknown, ruta: string): string[] {
+    if (typeof o === 'string') return o === d.money.destino ? [ruta] : []
+    if (o && typeof o === 'object') return Object.entries(o).flatMap(([k, v]) => buscar(v, ruta ? `${ruta}.${k}` : k))
+    return []
+  })(d, '')
+  ok(repetida.length === 1 && repetida[0] === 'money.destino', `${loc}: la frase canónica vive en UNA sola clave (${repetida.join(', ')})`)
+}
+ok(!('recibo' in es.money) || es.money.recibo === 'Puedes solicitar un recibo escribiéndonos.', 'money.recibo, si existe, es la frase canónica (la home no la usa: el proceso del recibo está pendiente, G2d)')
+
+console.log('7. La home ya no usa lo que se fue')
+const home = lee('app/pages/index.vue')
+const hero = lee('app/components/SectionHero.vue')
+const SE_FUERON = ['VisitorPathways', 'SectionHerramientasTeaser', 'PathwayAccesos', 'ProfileChips']
+ok(SE_FUERON.every((c) => !home.includes(c)), `index.vue ya no usa ${SE_FUERON.join(', ')}`)
+ok(!existsSync('app/components/SectionHerramientasTeaser.vue') && !existsSync('app/components/PathwayAccesos.vue'), 'SectionHerramientasTeaser.vue y PathwayAccesos.vue se borraron (código muerto)')
+ok(!/export const ACCESOS|function accesosDe|function trackPathwayCurious|trackPathwayCurious,/.test(lee('app/utils/caminos.ts') + lee('app/composables/useSupport.ts') + lee('app/components/VisitorPathways.vue')), 'ACCESOS, accesosDe y trackPathwayCurious ya no existen (ni como código)')
+// claves retiradas por el criterio del dinero (siguen en los JSON hasta la limpieza con el OK de Miriam, pero la home no las pinta)
+const RETIRADAS = ['hero_cta_donate_caption', 'hero_cta_science_caption', 's4_p2', 's4_buckets', 's4_buckets_title', 's4_full_breakdown', 's5_heading', 's4_cta_caption', 's4_list', 's4_list_intro', 'story_p1', 'story_p1_tail', 'hero_social_proof', 's4_heading', 's4_p1']
+const pintan = RETIRADAS.filter((k) => new RegExp(`home\\.${k}\\b`).test(home + hero + lee('app/components/HomeProximosPasos.vue') + lee('app/components/PrensaTira.vue') + lee('app/components/Puertas.vue')))
+ok(pintan.length === 0, `la home no pinta ninguna clave de las retiradas${pintan.length ? ` (${pintan.join(', ')})` : ''}`)
+const heroTexto = hero.replace(/<style[\s\S]*?<\/style>/, '')
+ok(!/raised|stat_raised|formatCurrency|currentAmount|goalAmount|celulasLeidas|resultados\.json|specialists/.test(heroTexto), 'el hero no calcula ni pinta recaudación, especialistas ni células (sin importes: euros solo en el bloque de la campaña)')
+ok(!/\$t\('hero\.(stat_|title|subtitle)|pathways\.hero_sr_summary|aria-describedby/.test(heroTexto), 'el hero no usa el título/subtítulo viejos ni el resumen para lectores de pantalla (decía «ultra-raro» y «dos biologías»)')
+
+console.log(fallos ? `\n❌ ${fallos} fallo(s)` : '\n✅ puertas y copy de la home en orden')
 process.exit(fallos ? 1 : 0)

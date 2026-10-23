@@ -274,7 +274,13 @@
     "updated_ago_one": "actualizado ayer",
     "updated_ago": "actualizado hace {n} días",
     "photo_tag": "Ingeniera · Divulgadora",
-    "stat_cells_label": "células de sus biopsias leídas una a una"
+    "stat_cells_label": "células de sus biopsias leídas una a una",
+    "h1": "Miriam, {age} años, busca un tratamiento hecho a partir de {op}.",
+    "h1_emphasis": "su propio tumor",
+    "lede": "Es ingeniera de software. Su tumor no encaja en los protocolos habituales y lo estudia en abierto, con médicos y laboratorios de varios países.",
+    "cta_understand": "Entender el caso",
+    "pro_link": "¿Eres clínico o laboratorio? Qué necesitamos",
+    "proof_support": "{n} personas apoyan el caso"
   },
   "gofundme": {
     "title": "¿Por qué necesitamos tu ayuda?",
@@ -678,7 +684,7 @@
     "hero_cta_donate_caption": "Cada euro va a investigación clínica aplicada a su caso.",
     "hero_cta_science_caption": "Accede al perfil molecular completo en La ciencia.",
     "hero_social_proof": "Ya nos apoyan {n} personas · visto en El País",
-    "hero_eyebrow": "Cáncer de mama metastásico · Perfil molecular ultra-raro",
+    "hero_eyebrow": "Cáncer de mama metastásico · diferenciación neuroendocrina",
     "story_eyebrow": "La historia",
     "story_heading": "Un diagnóstico que no cabía en ningún protocolo.",
     "story_p1": "Con 33 años, a Miriam le diagnosticaron un cáncer de mama metastásico tan raro que se ve en ",
@@ -707,7 +713,21 @@
     "pasos_nota_barra": "La barra cuenta los pasos de esta ruta que ya se han dado. No mide cuánto falta para ninguna meta médica.",
     "pasos_cta_ruta": "Ver la ruta completa",
     "pasos_cta_celula": "El análisis célula a célula, paso a paso",
-    "tools_new": "Lo último"
+    "tools_new": "Lo último",
+    "caso_heading": "El caso en 3 frases",
+    "caso_1": "Miriam tiene un cáncer de mama metastásico.",
+    "caso_2": "Un diagnóstico que no cabía en ningún protocolo.",
+    "caso_3": "El tratamiento estándar no basta: hay que diseñarlo a medida de su tumor.",
+    "donde_heading": "Dónde estamos y qué falta",
+    "ahora": "Ahora:",
+    "buscamos_heading": "Qué buscamos",
+    "buscamos_escribir": "Escribir al equipo",
+    "buscamos_todas": "Ver todo lo que buscamos",
+    "donde_3d": "Míralo en 3D",
+    "dinero_eyebrow": "Destino del dinero",
+    "dinero_heading": "A qué va el dinero",
+    "dinero_informe": "Ver el informe de gastos",
+    "puertas_heading": "Cómo ayudar"
   },
   "ciencia": {
     "ruta": {
@@ -1254,5 +1274,8 @@
       "table": "Apéndice (tabla)",
       "cockpit": "Cómo se lee · desglose"
     }
+  },
+  "money": {
+    "destino": "El dinero recibido se destina a los gastos del caso; el informe de gastos detalla las partidas, impuesto de donaciones incluido, con su fecha."
   }
 }

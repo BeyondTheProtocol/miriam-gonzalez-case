@@ -57,6 +57,16 @@
 //    /ciencia y el promo en /prensa, con su transcripción entera. El sitemap no lista redirigidas ni archivadas y su
 //    hreflang va por pares recíprocos.
 //
+// Y la home del rediseño (F5, 23-oct-2026):
+//
+// 11. Siete bloques en el orden decidido (hero · prensa · el caso en 3 frases · dónde estamos y qué falta · dinero · cita ·
+//    cómo ayudar), un solo <h1> con la edad y un <h2> por bloque; los euros solo dentro del bloque de la campaña y NINGUNA de
+//    las frases retiradas por el criterio del dinero («cada euro», «100 %», «sin intermediarios», «mensual», «recibo
+//    disponible»); UNA frase de destino (money.destino) y UN solo botón coral en esa zona; «Ahora» = la misma cuenta que la cifra
+//    «Tratamiento» de /datos; «Qué buscamos» con las 3 primeras peticiones PÚBLICAS (ni la FoundationOne ni la anemia, ni en el
+//    HTML ni en el payload); la tira de prensa y las cuatro puertas con sus destinos; nada de «ultra-raro» en el SEO/OG/schema;
+//    y el JSON de 230 KB del caso fuera del JS que carga la home.
+//
 // Uso:  pnpm exec nuxt generate && pnpm test:salud-estatica
 import { existsSync, readFileSync, readdirSync } from 'node:fs'
 import { join } from 'node:path'
@@ -66,6 +76,9 @@ import { renderToString } from 'vue/server-renderer'
 import { REGLAS_PETICIONES, hayEnlaceTodas, peticionesPublicas, seleccionarPeticiones } from '../app/utils/peticiones'
 import { HERRAMIENTAS, LEGAL, MENU_ESCRITORIO, MENU_MOVIL, PIE, REDES, SECCIONES, copyHerramienta, type EnlaceNav } from '../app/utils/navegacion'
 import { VIDEO_ADC, VIDEO_PROMO } from '../app/utils/videos'
+import { PUERTAS } from '../app/utils/caminos'
+import { caseData } from '../app/utils/caseData'
+import { msFecha, tratamientoHoy, txtCaso } from '../app/utils/datosCaso'
 import { estadoPuerta, type Manifiesto } from '../app/utils/celulaExplorador'
 import manifiestoExplorador from '../public/celula/explorador/manifiesto.json'
 
@@ -508,10 +521,15 @@ if (existsSync('seed/fundraiser.json')) {
     })
     ok(!/reservorio|port-a-cath|\bport\b/i.test(texto(franja).replace(t(loc, 'herramientas.intro'), '')), `${f}: la franja de herramientas no incluye el reservorio`)
     ok(h.includes('href="#visores"'), `${f}: la barra de secciones tiene su chip «Herramientas» (sin él, el scroll-spy seguía marcando «Evolución»)`)
-    // los dos enlaces «Todas las herramientas» que quedan (la home y /ciencia) llevan a la franja, no a la página que ya no existe
-    for (const origen of [P[loc].home, P[loc].ciencia]) {
+    // el enlace «Todas las herramientas» que queda (/ciencia) lleva a la franja, no a la página que ya no existe. La home tenía otro,
+    // en su banda de herramientas; F5 (23-oct-2026) quitó la banda y, con ella, el enlace: la home ya no lo lleva.
+    for (const origen of [P[loc].ciencia]) {
       const todas = [...limpio(origen).matchAll(/<a\b[^>]*\bhref="([^"]*)"[^>]*>([\s\S]*?)<\/a>/g)].filter((m) => texto(m[2]!).includes(t(loc, 'nav.all_tools')))
       ok(todas.length === 1 && todas[0]![1] === RUTA[loc].visores, `${origen}: «${t(loc, 'nav.all_tools')}» lleva a ${RUTA[loc].visores} (${todas.map((m) => m[1]).join(', ') || 'no está'})`)
+    }
+    {
+      const enLaHome = [...limpio(P[loc].home).replace(/<footer\b[\s\S]*?<\/footer>/, '').matchAll(/<a\b[^>]*>([\s\S]*?)<\/a>/g)].filter((m) => texto(m[1]!).includes(t(loc, 'nav.all_tools')))
+      ok(enLaHome.length === 0, `${P[loc].home}: la banda de herramientas salió de la home (F5) y «${t(loc, 'nav.all_tools')}» con ella`)
     }
     // el bloque del reservorio: plegado, SIN 3D, con las frases y las medidas publicadas
     const FRASES = {
@@ -571,6 +589,129 @@ if (existsSync('seed/fundraiser.json')) {
   for (const loc of ['es', 'en'] as const) {
     ok(texto(limpio(P[loc].timeline)).includes(t(loc, 'historia.story_teaser_1')), `${P[loc].timeline}: lleva la línea de /historia (historia.story_teaser_1), tal cual`)
   }
+}
+
+
+// 11
+{
+  const decodificar = (t: string) => t.replace(/&amp;/g, '&').replace(/&quot;/g, '"').replace(/&#39;|&apos;/g, "'").replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&nbsp;/g, ' ')
+  const sinScripts = (ruta: string) => html(ruta).replace(/<script\b[\s\S]*?<\/script>/g, '').replace(/<!--[\s\S]*?-->/g, '')
+  const visible = (trozo: string) => decodificar(trozo.replace(/<style\b[\s\S]*?<\/style>/g, '').replace(/<[^>]+>/g, ' ')).replace(/\s+/g, ' ').trim()
+  const D = { es: JSON.parse(readFileSync('i18n/locales/es.json', 'utf-8')), en: JSON.parse(readFileSync('i18n/locales/en.json', 'utf-8')) }
+  const t = (loc: 'es' | 'en', clave: string) => clave.split('.').reduce<any>((o, k) => o?.[k], D[loc]) as string
+  const caso = JSON.parse(readFileSync('app/data/caso.json', 'utf-8')) as { generado: string; lineas: never[]; se_busca: never[] }
+  const publicas = peticionesPublicas(caso.se_busca)
+  const semilla = existsSync('seed/fundraiser.json') ? (JSON.parse(readFileSync('seed/fundraiser.json', 'utf-8')) as { donationCount: number }) : null
+  // lo que la decisión quitó o la regla del dinero prohíbe: ni una de estas en el texto visible de la home
+  const SE_FUERON: [RegExp, string][] = [
+    [/cada euro|every euro/i, '«cada euro»'], [/100\s?%/, '«100 %»'], [/sin intermediarios|no intermediar/i, '«sin intermediarios»'], [/mensual|monthly/i, '«mensual»'],
+    [/recibo disponible|receipt available/i, '«recibo disponible»'], [/ultra-?raro|ultra-?rare/i, '«ultra-raro»'], [/5\+/, '«5+ especialistas»'], [/23[.,]100/, '«23.100»'],
+    [/\(pronto\)|\(soon\)/i, '«(pronto)»'], [/Resumen del caso en 2 minutos|2-minute/i, 'resumen de 2 min'], [/Tómate el tiempo|Take the time/i, 'microcopy de relleno'],
+    [/Sin registro\. Sin presión|No sign-up\. No pressure/i, 'microcopy de relleno'], [/dos biolog|two biolog/i, '«dos biologías» como hecho'], [/en el país que sea|wherever it is/i, 'lista de partidas del dinero'],
+  ]
+  for (const [loc, pagina, edadTexto] of [
+    ['es', 'index.html', `Miriam, ${caseData.currentAge} años, busca un tratamiento hecho a partir de su propio tumor.`],
+    ['en', 'en.html', `Miriam, ${caseData.currentAge}, is looking for a treatment made from her own tumor.`],
+  ] as const) {
+    const crudo = html(pagina)
+    const h = sinScripts(pagina)
+    const main = h.match(/<main\b[\s\S]*?<\/main>/)?.[0] ?? ''
+    const texto = visible(main)
+    const seccion = (re: RegExp) => main.match(re)?.[0] ?? ''
+    const hero = seccion(/<section class="hero\b[\s\S]*?<\/section>/)
+    const campana = seccion(/<section[^>]*id="campaign"[\s\S]*?<\/section>/)
+    const donde = seccion(/<section[^>]*aria-labelledby="h-donde"[\s\S]*?<\/section>/)
+    const puertas = seccion(/<ul class="puertas"[\s\S]*?<\/ul>/)
+
+    // a) estructura: 7 bloques, en orden, un h1 y un h2 por bloque
+    const marcas = ['<section class="hero', 'class="prensa-tira', 'id="caso"', 'aria-labelledby="h-donde"', 'id="campaign"', 'aria-labelledby="h-cita"', 'aria-labelledby="h-puertas"']
+    const pos = marcas.map((m) => main.indexOf(m))
+    ok(pos.every((p, i) => p >= 0 && (i === 0 || p > pos[i - 1]!)), `${pagina}: los 7 bloques, en este orden: hero · prensa · caso · dónde estamos · dinero · cita · cómo ayudar (${pos.join(' < ')})`)
+    ok((main.match(/<section\b/g)?.length ?? 0) === 7, `${pagina}: exactamente 7 bloques (${main.match(/<section\b/g)?.length ?? 0})`)
+    ok((main.match(/<h1\b/g)?.length ?? 0) === 1 && decodificar((main.match(/<h1\b[\s\S]*?<\/h1>/)?.[0] ?? '').replace(/<[^>]+>/g, '')).replace(/\s+/g, ' ').trim() === edadTexto, `${pagina}: un solo <h1>, «${edadTexto}» (la edad sale de caseData)`)
+    const h2 = [...main.matchAll(/<h2\b[^>]*>([\s\S]*?)<\/h2>/g)].map((m) => visible(m[1]!))
+    const H2 = ['home.caso_heading', 'home.donde_heading', 'home.dinero_heading', 'home.s6_eyebrow', 'home.puertas_heading'].map((k) => t(loc, k))
+    ok(JSON.stringify(h2) === JSON.stringify(H2), `${pagina}: un <h2> por bloque, sin saltos (${h2.join(' · ')})`)
+    ok((main.match(/\bid="caso"/g)?.length ?? 0) === 1 && /<section id="caso"[^>]*\bscroll-mt-24\b/.test(main), `${pagina}: #caso existe una vez y deja hueco bajo la cabecera pegajosa (scroll-mt-24)`)
+
+    // b) hero
+    ok(visible(hero).includes(t(loc, 'home.hero_eyebrow')) && visible(hero).includes(t(loc, 'hero.lede')), `${pagina}: el hero lleva el eyebrow y el lede pedidos`)
+    ok(hero.includes('href="https://gofund.me/3e25cae99"') && hero.includes('href="#caso"'), `${pagina}: el hero: «Apoyar» (GoFundMe) y «Entender el caso» (#caso)`)
+    const proRuta = loc === 'es' ? '/datos#que-buscamos' : '/en/data#que-buscamos'
+    ok(new RegExp(`class="hero__pro[^"]*"[^>]*>|href="${proRuta}"[^>]*class="hero__pro`).test(hero) && hero.includes(`href="${proRuta}"`), `${pagina}: el enlace «¿Eres clínico o laboratorio?» va a ${proRuta}`)
+    ok(hero.includes(`href="${loc === 'es' ? '/timeline' : '/en/timeline'}#lo-ultimo"`), `${pagina}: «Lo último» va a /timeline#lo-ultimo`)
+    ok(!/[€$£]|\beuros?\b/i.test(visible(hero)), `${pagina}: el hero no lleva importes ni «euros» (sin importes de recaudación hacia fuera)`)
+    if (semilla) {
+      const n = new Intl.NumberFormat(loc === 'es' ? 'es-ES' : 'en-US').format(semilla.donationCount)
+      ok(visible(hero).includes(t(loc, 'hero.proof_support').replace('{n}', n)) && hero.includes('hero__support'), `${pagina}: la prueba dice «${t(loc, 'hero.proof_support').replace('{n}', n)}» (sin importe)`)
+    } else {
+      ok(!hero.includes('hero__support') && !/\s—\s/.test(visible(hero)), `${pagina}: sin cifra de la campaña, la línea de «personas» no se pinta (nada de «—»)`)
+    }
+
+    // c) lo que se fue y lo que la regla del dinero prohíbe, en TODO el texto visible
+    for (const [re, nombre] of SE_FUERON) ok(!re.test(texto), `${pagina}: sin ${nombre}`)
+    ok(!/[€$£]|\beuros?\b/i.test(visible(main.replace(campana, ''))), `${pagina}: ningún importe ni «euros» fuera del bloque de la campaña`)
+
+    // d) el dinero: UNA frase de destino, un solo botón coral
+    const destino = t(loc, 'money.destino')
+    ok(texto.split(destino).length - 1 === 1, `${pagina}: money.destino aparece una vez`)
+    ok(campana.includes(destino) && campana.includes(`href="${loc === 'es' ? '/gastos' : '/en/expenses'}"`), `${pagina}: el bloque del dinero lleva la frase de destino y el enlace al informe de gastos`)
+    const corales = [...campana.matchAll(/<a\b[^>]*class="[^"]*\bbtn-cta\b[^"]*"[^>]*>/g)].map((m) => m[0])
+    ok(corales.length === 1 && corales[0]!.includes('href="https://gofund.me/3e25cae99"'), `${pagina}: un solo botón coral en la zona del dinero (${corales.length})`)
+    ok(!/\bbtn-cta\b/.test(main.replace(hero, '').replace(campana, '')), `${pagina}: fuera del hero y del bloque del dinero no hay más botones coral`)
+
+    // e) «Dónde estamos»: Ahora = /datos, 3 peticiones públicas y sus tres enlaces
+    const hoy = tratamientoHoy(caso.lineas, msFecha(String(caso.generado).slice(0, 10)), loc)
+    ok(hoy.enCurso, `${pagina}: caso.json tiene una línea sistémica en curso (la que alimenta «Ahora»)`)
+    const ahora = visible(donde.match(/<p[^>]*class="home-ahora"[\s\S]*?<\/p>/)?.[0] ?? '')
+    ok(ahora.startsWith(t(loc, 'home.ahora')) && ahora.includes(`${hoy.detalle} · ${hoy.fecha}`), `${pagina}: «Ahora» dice «${hoy.detalle} · ${hoy.fecha}» (${ahora.slice(0, 90)})`)
+    const datosTxt = visible(html(loc === 'es' ? 'datos.html' : 'en/data.html'))
+    ok(datosTxt.includes(hoy.detalle) && datosTxt.includes(hoy.fecha), `${pagina}: y /datos dice lo mismo en su cifra «Tratamiento» (misma función: tratamientoHoy)`)
+    const lista = donde.match(/<ul class="qb__lista"[\s\S]*?<\/ul>/)?.[0] ?? ''
+    const items = [...lista.matchAll(/<li\b[^>]*>([\s\S]*?)<\/li>/g)].map((m) => visible(m[1]!))
+    ok(items.length === 3 && items.every((it, i) => it.startsWith(txtCaso(publicas[i]!.valor, loc).slice(0, 40))), `${pagina}: «Qué buscamos» pinta las 3 primeras peticiones públicas, tal cual y por prioridad (${items.length})`)
+    ok(!/FoundationOne CDx de hueso|hipoproliferativa|hypoproliferative/.test(crudo) && !donde.includes('qb__acciones'), `${pagina}: ni la FoundationOne ni la anemia en el HTML, y la fila de acciones es la de la home (no la del componente)`)
+    const contacto = loc === 'es' ? '/contacto?role=researcher' : '/en/contact?role=researcher'
+    const hrefs = [...donde.matchAll(/<a\b[^>]*\bhref="([^"]+)"/g)].map((m) => m[1]!)
+    ok(hrefs.includes(contacto) && hrefs.includes(proRuta) && hrefs.includes(loc === 'es' ? '/lesiones' : '/en/lesiones') && !/mailto:/.test(donde), `${pagina}: «${t(loc, 'home.buscamos_escribir')}» → ${contacto}, «ver todo» → ${proRuta}, «3D» → /lesiones, sin correo directo`)
+    ok(visible(donde).includes(t(loc, 'home.pasos_nota_barra')) && donde.includes('role="progressbar"'), `${pagina}: la ruta de 5 pasos con su nota (la barra no mide cuánto falta para ninguna meta médica)`)
+
+    // f) prensa y puertas
+    ok(/<li[^>]*>\s*<a\b[^>]*prensa-tira__medio/.test(main) && (main.match(/prensa-tira__medio/g)?.length ?? 0) === 7, `${pagina}: la tira de prensa pinta 7 medios (el detalle del orden y de las URLs, en test-sala-prensa)`)
+    const hp = [...puertas.matchAll(/<a\b[^>]*\bhref="([^"]+)"[^>]*>([\s\S]*?)<\/a>/g)].map((m) => ({ href: m[1]!, texto: visible(m[2]!).replace(t(loc, 'a11y.new_tab'), '').trim() }))
+    const esperadas = [
+      'https://gofund.me/3e25cae99', loc === 'es' ? '/datos#que-buscamos' : '/en/data#que-buscamos', loc === 'es' ? '/prensa' : '/en/press', loc === 'es' ? '/colabora' : '/en/collaborate',
+    ]
+    ok(JSON.stringify(hp.map((x) => x.href)) === JSON.stringify(esperadas), `${pagina}: las 4 puertas, en orden, con sus destinos (${hp.map((x) => x.href).join(' · ')})`)
+    ok(JSON.stringify(hp.map((x) => x.texto)) === JSON.stringify(PUERTAS.map((p) => t(loc, p.etiqueta))), `${pagina}: y con los rótulos de puertas.* (${hp.map((x) => x.texto).join(' · ')})`)
+    ok(/rel="noopener noreferrer"/.test(puertas) && /\(se abre|\(opens/.test(puertas), `${pagina}: la puerta de GoFundMe abre en pestaña nueva y lo avisa`)
+
+    // g) todo enlace que abre pestaña nueva lo avisa. Se exceptúa el botón de la propia tarjeta de la campaña (GoFundMeProgress,
+    //    que esta fase no toca: lleva `mt-3`, el del botón de reserva no): no lleva el aviso y queda como hallazgo para el comité.
+    const nuevas = [...main.matchAll(/<a\b[^>]*target="_blank"[^>]*>[\s\S]*?<\/a>/g)].map((m) => m[0]).filter((a) => !/class="btn-cta mt-3\b/.test(a))
+    ok(nuevas.length >= 9 && nuevas.every((a) => /rel="noopener/.test(a) && a.includes(t(loc, 'a11y.new_tab'))), `${pagina}: los ${nuevas.length} enlaces de pestaña nueva (sin el de la tarjeta de la campaña) llevan rel="noopener" y el aviso para lectores de pantalla`)
+
+    // h) presupuesto de palabras. La decisión puso un tope de 530 para toda la home; no contó que «Qué buscamos» va TAL CUAL (≈150
+    //    palabras de caso.json) ni la tarjeta de la campaña (≈70, de otra fuente y «se queda como hoy»). Se vigila lo PROPIO de la
+    //    home (con los textos para lectores de pantalla): hoy ≈ 410; 450 deja margen sin dejar que crezca.
+    const sinAjenos = visible(main.replace(/<ul class="qb__lista"[\s\S]*?<\/ul>/, '').replace(/<div class="rounded-\[24px\][\s\S]*?<\/section>/, '</section>'))
+    const n = sinAjenos.split(' ').length
+    ok(n <= 450, `${pagina}: el texto propio de la home (sin las peticiones literales ni la tarjeta de la campaña) cabe en 450 palabras: ${n} (con ellas: ${texto.split(' ').length}; tope de la decisión: 530)`)
+
+    // i) SEO: sin «ultra-raro» y con la identidad «ingeniera de software» (no «paciente» + perfil molecular)
+    const cabeza = crudo.match(/<head\b[\s\S]*?<\/head>/)?.[0] ?? ''
+    const ld = [...crudo.matchAll(/<script[^>]*type="application\/ld\+json"[^>]*>([\s\S]*?)<\/script>/g)].map((m) => m[1]).join('\n')
+    ok(!/ultra/i.test(visible(cabeza.replace(/<link\b[^>]*>/g, '').replace(/<meta\b([^>]*)>/g, ' $1 ')) + ld), `${pagina}: ni el <title>, ni la meta description, ni OG, ni Twitter, ni el JSON-LD dicen «ultra-raro»`)
+    const desc = decodificar(cabeza.match(/<meta[^>]*name="description"[^>]*content="([^"]*)"/)?.[1] ?? '')
+    ok(/ingeniera de software|software engineer/.test(desc) && !/paciente con|patient with/i.test(desc), `${pagina}: la descripción presenta a Miriam como ingeniera de software (${desc.slice(0, 70)}…)`)
+  }
+
+  // j) la home no carga el JSON del caso (≈230 KB): ni en su JS inicial ni en su payload
+  const cargados = [...html('index.html').matchAll(/<(?:link\b[^>]*rel="modulepreload"[^>]*href|script\b[^>]*src)="(\/_nuxt\/[^"]+\.js)"/g)].map((m) => m[1]!)
+  const pesados = cargados.filter((f) => existsSync(join(PUB, f)) && /"n_analiticas"/.test(readFileSync(join(PUB, f), 'utf-8')))
+  ok(cargados.length > 0 && pesados.length === 0, `index.html: ninguno de los ${cargados.length} .js que carga la home lleva el JSON de caso.json${pesados.length ? ` (lo lleva ${pesados.join(', ')})` : ''}`)
+  const payload = existsSync(join(PUB, '_payload.json')) ? readFileSync(join(PUB, '_payload.json'), 'utf-8') : ''
+  ok(payload.length > 0 && payload.length < 60_000 && !/FoundationOne CDx de hueso|n_analiticas/.test(payload), `index: el payload de la home es corto (${payload.length} B) y sin las peticiones sin gate ni las analíticas`)
 }
 
 console.log(fallos ? `\n❌ ${fallos} fallo(s)` : '\n✅ ancla, «hace N días», sitemap (sin redirigidas ni archivadas, hreflang por pares), <main> único, «Ver quién apoya», campaña (en el HTML y en vivo), «Qué buscamos», navegación (menú, pie, redes, chrome mínimo) y fusiones de F4 (herramientas, reservorio, mapa archivado, vídeos) en verde')

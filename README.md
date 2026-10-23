@@ -44,7 +44,7 @@ For automatic deployment with Vercel:
 ```
 app/
   pages/
-    index.vue              → Landing (hero + GoFundMe + molecular profile + thesis)
+    index.vue              → Landing, 7 blocks: hero · press · the case in 3 sentences · where we are and what's missing · where the money goes · her quote · four doors
     ciencia/
       index.vue            → Complete scientific page
     equipo.vue             → Team (anonymous, by profession)

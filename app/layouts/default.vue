@@ -70,8 +70,8 @@ useSchemaOrg([
     name: 'Help Miriam',
     description:
       locale.value === 'es'
-        ? 'Caso de Miriam González: oncología de precisión para un cáncer de mama metastásico de perfil molecular ultra-raro.'
-        : "Miriam González's case: precision oncology for a metastatic breast cancer with an ultra-rare molecular profile.",
+        ? 'Caso de Miriam González: un cáncer de mama metastásico estudiado en abierto, en busca de un tratamiento hecho a partir de su propio tumor.'
+        : "Miriam González's case: a metastatic breast cancer studied in the open, in search of a treatment made from her own tumor.",
     inLanguage: locale.value === 'es' ? 'es-ES' : 'en-US',
   }),
   definePerson({

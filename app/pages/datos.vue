@@ -57,22 +57,9 @@ defineOgImage('Default.takumi', { title: () => L('El caso en datos', 'The case i
 
 /* ── 1. hoy, en cuatro cifras ─────────────────────────────────────────────────── */
 const sistemicas = lineas.filter((l) => /^\d+L$/i.test(l.id))
-const actual = sistemicas.find((l) => { const i = rangoParcial(l.inicio); const f = l.fin ? rangoParcial(l.fin) : null; return i && i[0] <= hoyMs && (!f || f[1] >= hoyMs) })
 const proxima = sistemicas.find((l) => { const i = rangoParcial(l.inicio); return i && i[0] > hoyMs })
-const ultimaTerminada = [...sistemicas].filter((l) => l.fin && rangoParcial(l.fin)![1] < hoyMs).pop()
-const corto = (v: Texto) => T(v).split(' (')[0]
-const cifraTrat = computed(() => {
-  if (actual) return { valor: actual.id, detalle: corto(actual.tratamiento), fecha: L(`desde ${fechaCorta(actual.inicio, 'es')}`, `since ${fechaCorta(actual.inicio, 'en')}`), sello: actual.sello }
-  // «sin línea sistémica», no «sin tratamiento»: la supresión ovárica sigue (lo vio comite-medico)
-  const fondo = lineas.some((l) => l.id === 'LHRHa' && !l.fin) ? L('Goserelina en curso. ', 'Goserelin ongoing. ') : ''
-  // solo el mes de una cita futura (seguridad): «previsto en oct 2026», no «el»
-  const prep = proxima && /^\d{4}-\d{2}$/.test(proxima.inicio) ? 'en' : 'el'
-  const prox = proxima ? L(`Próximo: ${corto(proxima.tratamiento)}, previsto ${prep} ${fechaCorta(proxima.inicio, 'es')}.`, `Next: ${corto(proxima.tratamiento)}, planned for ${fechaCorta(proxima.inicio, 'en')}.`) : ''
-  return { valor: L('Sin línea sistémica', 'No systemic line'), detalle: fondo + prox,
-    fecha: ultimaTerminada ? L(`desde ${fechaCorta(ultimaTerminada.fin, 'es')} (fin de la ${ultimaTerminada.id})`, `since ${fechaCorta(ultimaTerminada.fin, 'en')} (end of ${ultimaTerminada.id})`) : '',
-    // el hecho (fin de la línea) lleva su sello; el plan futuro va aparte, marcado como «lo dice Miriam»
-    sello: ultimaTerminada?.sello, notaSello: proxima?.sello }
-})
+/* «Tratamiento» de hoy: la misma cuenta que la línea «Ahora» de la home (rediseño F5; utils/datosCaso.ts) */
+const cifraTrat = computed(() => tratamientoHoy(lineas, hoyMs, lang.value))
 /** últimos 90 días: ¿había una línea sistémica en curso? (solo días seguros; un mes aproximado cuenta como no) */
 const franja90 = Array.from({ length: 90 }, (_, i) => {
   const t = hoyMs - (89 - i) * 86400000

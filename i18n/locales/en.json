@@ -274,7 +274,13 @@
     "updated_ago_one": "updated yesterday",
     "updated_ago": "updated {n} days ago",
     "photo_tag": "Engineer · Communicator",
-    "stat_cells_label": "cells from her biopsies read one by one"
+    "stat_cells_label": "cells from her biopsies read one by one",
+    "h1": "Miriam, {age}, is looking for a treatment made from {op}.",
+    "h1_emphasis": "her own tumor",
+    "lede": "She is a software engineer. Her tumor doesn't fit the usual protocols, and she studies it in the open, with doctors and labs in several countries.",
+    "cta_understand": "Understand the case",
+    "pro_link": "Are you a clinician or a lab? What we need",
+    "proof_support": "{n} people support the case"
   },
   "gofundme": {
     "title": "Why do we need your help?",
@@ -655,7 +661,7 @@
     "hero_cta_donate_caption": "Every euro funds clinical research applied to her case.",
     "hero_cta_science_caption": "Open the full molecular profile in The science.",
     "hero_social_proof": "Already supported by {n} people · featured in El País",
-    "hero_eyebrow": "Metastatic breast cancer · Ultra-rare molecular profile",
+    "hero_eyebrow": "Metastatic breast cancer · neuroendocrine differentiation",
     "story_eyebrow": "The story",
     "story_heading": "A diagnosis that fit no protocol.",
     "story_p1": "At 33, Miriam was diagnosed with a metastatic breast cancer so rare it is seen in ",
@@ -684,7 +690,21 @@
     "pasos_nota_barra": "The bar counts the steps of this route already taken. It does not measure progress toward any medical goal.",
     "pasos_cta_ruta": "See the full route",
     "pasos_cta_celula": "The cell-by-cell analysis, step by step",
-    "tools_new": "Latest"
+    "tools_new": "Latest",
+    "caso_heading": "The case in 3 sentences",
+    "caso_1": "Miriam has metastatic breast cancer.",
+    "caso_2": "A diagnosis that fit no protocol.",
+    "caso_3": "The standard treatment isn't enough: it has to be designed around her specific tumor.",
+    "donde_heading": "Where we are and what's missing",
+    "ahora": "Now:",
+    "buscamos_heading": "What we’re looking for",
+    "buscamos_escribir": "Write to the team",
+    "buscamos_todas": "See everything we’re looking for",
+    "donde_3d": "See it in 3D",
+    "dinero_eyebrow": "Where the money goes",
+    "dinero_heading": "What the money is for",
+    "dinero_informe": "See the expense report",
+    "puertas_heading": "How to help"
   },
   "ciencia": {
     "ruta": {
@@ -1254,5 +1274,8 @@
       "table": "Appendix (table)",
       "cockpit": "How to read it · breakdown"
     }
+  },
+  "money": {
+    "destino": "The money received goes to the costs of the case; the expense report lists the line items, gift tax included, with its date."
   }
 }

@@ -95,12 +95,21 @@ ok(scrollDeUsuario(60_000, 1, true), 'arrastrando la barra de scroll vale aunque
 console.log('\nB · los eventos que ya existían')
 const soporte = readFileSync('app/composables/useSupport.ts', 'utf-8')
 const contacto = readFileSync('app/pages/contacto.vue', 'utf-8')
-const ANTIGUOS = ['Donar', 'VerCiencia', 'Clic-prensa', 'Contacto', 'Pathway', 'VerMapa', 'VerLesiones', 'VerDatos', 'VerCelula', 'VerExplorador', 'VerLaminillas', 'VerUltimo', 'Navegar', 'PathwayCurioso', 'Error404', 'Compartir', 'Bio-link', 'VerVideo']
+// F5 (23-oct-2026): «PathwayCurioso» se fue de esta lista porque su única emisora, la tarjeta «Acabo de llegar» de las siete de la home,
+// desapareció con ellas (la home pinta ahora cuatro puertas). Sigue «Pathway»: lo emiten los chips «por perfil» de /colabora hasta F10.
+const ANTIGUOS = ['Donar', 'VerCiencia', 'Clic-prensa', 'Contacto', 'Pathway', 'VerMapa', 'VerLesiones', 'VerDatos', 'VerCelula', 'VerExplorador', 'VerLaminillas', 'VerUltimo', 'Navegar', 'Error404', 'Compartir', 'Bio-link', 'VerVideo']
 for (const nombre of ANTIGUOS) ok(soporte.includes(`trackUmami('${nombre}'`), `useSupport.ts sigue emitiendo «${nombre}»`)
 ok(/trackUmami\('Contacto-enviado',\s*\{\s*rol:/.test(contacto), 'contacto.vue sigue emitiendo «Contacto-enviado» con su rol')
 const NUEVOS = [EVENTO_GOFUNDME, EVENTO_PETICION, EVENTO_CONTACTO_CLIC, EVENTO_SCROLL]
 ok(NUEVOS.every((n) => ![...ANTIGUOS, 'Contacto-enviado'].includes(n)), `los cuatro nombres nuevos (${NUEVOS.join(', ')}) no pisan ninguno de los de siempre`)
 ok(/recordarApoyo\(location\)/.test(soporte), 'trackSupport deja la etiqueta de origen para «Clic-gofundme»')
+// F5: las cuatro puertas de la home miden «Puerta» con la puerta como propiedad (sustituye a «Pathway»/«PathwayCurioso» de las siete tarjetas)
+ok(/trackUmami\('Puerta',\s*\{\s*puerta:/.test(soporte), 'useSupport.ts emite «Puerta» con la puerta como propiedad')
+ok(![...ANTIGUOS, 'Contacto-enviado', EVENTO_GOFUNDME, EVENTO_PETICION, EVENTO_CONTACTO_CLIC, EVENTO_SCROLL].includes('Puerta'), 'el nombre «Puerta» no pisa ninguno de los demás')
+ok(!soporte.includes("trackUmami('PathwayCurioso'"), '«PathwayCurioso» ya no se emite: su tarjeta se fue de la home (F5)')
+// y la medición no se duplica: VerPeticion, Contacto-clic y Clic-gofundme los emite el plugin por el href; la home no los llama a mano
+const homeVue = readFileSync('app/pages/index.vue', 'utf-8') + readFileSync('app/components/SectionHero.vue', 'utf-8') + readFileSync('app/components/Puertas.vue', 'utf-8')
+ok(!/trackUmami\('(VerPeticion|Contacto-clic|Clic-gofundme)'/.test(homeVue) && !/track(Peticion|ContactoClic)/.test(homeVue), 'la home no llama a mano a VerPeticion / Contacto-clic / Clic-gofundme (los emite el plugin: contarían doble)')
 const plugin = readFileSync('app/plugins/umami-delegado.client.ts', 'utf-8')
 ok(/addEventListener\(\s*'scroll'[\s\S]*?\{ passive: true \}/.test(plugin), 'el listener de scroll es pasivo')
 ok(plugin.includes("addEventListener('auxclick'"), 'el botón central (auxclick) también cuenta')
@@ -173,6 +182,32 @@ if (process.env.SIN_NAVEGADOR) {
     await nav.sleep(150)
     const pet = await de(EVENTO_PETICION)
     ok(pet.length === 1 && pet[0]?.d?.origen === 'index', `un enlace a /datos#que-buscamos manda «${EVENTO_PETICION}» desde «index» (${JSON.stringify(pet[0]?.d)})`)
+
+    // C3b · la home (F5): sus enlaces REALES miden una vez, sin llamadas a mano
+    await nav.cargar('/')
+    await vaciar()
+    await nav.evaluate(`document.querySelector('.hero__pro').click()`)
+    await nav.sleep(150)
+    ok((await de(EVENTO_PETICION)).length === 1 && (await de(EVENTO_PETICION))[0]?.d?.origen === 'index', `el enlace «¿Eres clínico o laboratorio?» del hero manda UN «${EVENTO_PETICION}» desde «index» (${JSON.stringify((await de(EVENTO_PETICION)).map((x) => x.d))})`)
+    await vaciar()
+    await nav.evaluate(`document.querySelector('.puertas a[href="/datos#que-buscamos"]').click()`)
+    await nav.sleep(150)
+    ok((await de(EVENTO_PETICION)).length === 1, `la puerta «Clínico o laboratorio» manda UN «${EVENTO_PETICION}» (${(await de(EVENTO_PETICION)).length})`)
+    ok((await de('Puerta')).length === 1 && (await de('Puerta'))[0]?.d?.puerta === 'clinico', `y UN «Puerta» con puerta «clinico» (${JSON.stringify((await de('Puerta')).map((x) => x.d))})`)
+    await vaciar()
+    await nav.evaluate(`document.querySelector('.puertas a[href^="https://gofund.me/"]').click()`)
+    await nav.sleep(150)
+    ok((await de('Puerta'))[0]?.d?.puerta === 'apoyar' && (await de('Donar'))[0]?.d?.location === 'home_puertas', `la puerta «Apoyar» manda «Puerta» (apoyar) y «Donar» desde home_puertas (${JSON.stringify([...(await de('Puerta')), ...(await de('Donar'))].map((x) => x.d))})`)
+    ok((await de(EVENTO_GOFUNDME)).length === 1 && (await de(EVENTO_GOFUNDME))[0]?.d?.origen === 'home_puertas', `y UN «${EVENTO_GOFUNDME}» con ese origen (${JSON.stringify((await de(EVENTO_GOFUNDME)).map((x) => x.d))})`)
+    await vaciar()
+    await nav.evaluate(`document.querySelector('a[data-support-cta][href^="https://gofund.me/"]').click()`)
+    await nav.sleep(150)
+    ok((await de('Donar'))[0]?.d?.location === 'home_hero', `el botón del hero sigue midiendo «Donar» desde home_hero (${JSON.stringify((await de('Donar')).map((x) => x.d))})`)
+    await vaciar()
+    await nav.evaluate(`document.querySelector('a[href="/contacto?role=researcher"]').click()`)
+    await nav.sleep(150)
+    const cc = await de(EVENTO_CONTACTO_CLIC)
+    ok(cc.length === 1 && cc[0]?.d?.rol === 'researcher' && cc[0]?.d?.pagina === 'index', `«Escribir al equipo» manda UN «${EVENTO_CONTACTO_CLIC}» con rol researcher desde «index» (${JSON.stringify(cc.map((x) => x.d))})`)
 
     // C4 · scroll: una vez por umbral, en orden, solo el que mueve el usuario, y de cero en la página siguiente
     const recorridoActual = async (): Promise<number> => nav.evaluate('document.documentElement.scrollHeight - window.innerHeight')

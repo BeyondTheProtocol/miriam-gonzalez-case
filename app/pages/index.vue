@@ -1,189 +1,165 @@
 <template>
   <div>
+    <!-- Rediseño de arquitectura, F5 (23-oct-2026): la home pasa de 8 bloques a 7, en este orden (DOM = orden visual):
+         1 hero · 2 prensa · 3 el caso en 3 frases · 4 dónde estamos y qué falta · 5 a qué va el dinero · 6 cita de Miriam ·
+         7 cómo ayudar. Un solo <h1> (el del hero) y un <h2> por bloque. Lo que se fue: resumen de 2 minutos, siete tarjetas
+         con minutos, banda de herramientas, párrafo de historia y su «(pronto)», «5+ especialistas», «23.100 células», los
+         euros del hero y el microcopy de relleno. -->
+
+    <!-- 1 · Hero: en cinco segundos, quién es, qué busca y qué puedes hacer -->
     <SectionHero />
 
-    <!-- «Elige tu camino» justo bajo el hero (dictamen `diseno`, 14-oct-2026): el
-         enrutador por perfil pasa antes que las herramientas. -->
-    <VisitorPathways variant="home" />
+    <!-- 2 · Prensa, justo debajo: credibilidad antes de pedir (medios leídos de content/<idioma>/press.yml) -->
+    <PrensaTira />
 
-    <!-- Hacia dónde va (17-oct-2026, repaso de la home): el objetivo único y la ruta de 5 pasos.
-         Sustituye al antiguo «Hacia dónde va» del ensayo N-of-1 y a la línea de marcadores.
-         Los pasos, consejo de Javi; estados en utils/rutaPasos.ts (fuente única). -->
-    <HomeProximosPasos />
-
-    <!-- Herramientas «al primer vistazo»: banda-teaser en el flujo crema (no un
-         tercer botón en el hero, que leería a SaaS). Desde el 17-oct-2026 es el acceso a
-         TODAS las herramientas, la más nueva primero (antes era el teaser de /lesiones). -->
-    <SectionHerramientasTeaser />
-
-    <!-- La historia + en sus propias palabras (beat humano: persona antes que problema) -->
-    <section v-reveal class="py-20 sm:py-28 relative overflow-hidden" :aria-label="$t('home.story_eyebrow')" style="background: #2d1b3d; color: #faf6f0">
-      <div class="absolute inset-0 opacity-[0.04]" style="background-image: radial-gradient(circle at 1px 1px, #faf6f0 1px, transparent 0); background-size: 32px 32px;" />
-      <div class="relative section-wide">
-        <p class="eyebrow block" style="color: #e8d4ed">
-          {{ $t('home.story_eyebrow') }}
-        </p>
-        <h2 class="heading-display text-3xl sm:text-4xl mt-4 mb-6" style="color: #faf6f0; letter-spacing: -0.03em">
-          {{ $t('home.story_heading') }}
+    <!-- 3 · El caso en 3 frases (#caso: a él baja «Entender el caso» del hero). La única capa llana del sitio, compuesta SOLO
+         con frases que la home ya publicaba (verbatim o recortadas, sin afirmaciones nuevas): qué tiene, por qué no encaja,
+         qué se hace. Sin «dos biologías» como hecho: eso espera a su gate (G1). -->
+    <section
+      id="caso"
+      v-reveal
+      class="scroll-mt-24 bg-cream py-14 sm:py-20"
+      aria-labelledby="h-caso"
+    >
+      <div class="section-wide">
+        <h2 id="h-caso" class="heading-display text-3xl sm:text-4xl text-berenjena mb-8" style="letter-spacing: -0.03em">
+          {{ $t('home.caso_heading') }}
         </h2>
-        <p class="text-base sm:text-lg leading-relaxed max-w-2xl" style="color: rgba(250,246,240,0.92)">
-          {{ $t('home.story_p1')
-          }}<strong class="font-semibold text-cream">{{ $t('home.story_p1_rarity') }}</strong>{{ $t('home.story_p1_tail') }}
-        </p>
-        <!-- Cita verificable de la rareza: que nadie pueda decir que es inventada. -->
-        <p class="mt-2.5 font-mono text-xs" style="color: rgba(250,246,240,0.5)">
-          <a
-            href="https://doi.org/10.3389/fendo.2020.610230"
-            target="_blank"
-            rel="noopener"
-            class="underline underline-offset-2 decoration-cream/25 transition-colors hover:text-cream/85"
-          >
-            {{ $t('home.story_p1_source') }}
-          </a>
-        </p>
-        <!-- Aquí había un enlace atenuado «Conocer a Miriam (pronto)» a /historia, que solo tenía un aviso de «en
-             preparación». /historia se fusionó en /timeline en el rediseño (F4, 23-oct-2026; redirige allí) y el enlace
-             se quita: no hay a dónde mandar con esa promesa. La home entera se rehace en F5. -->
-
-        <!-- En sus propias palabras -->
-        <div class="mt-14 pt-12" style="border-top: 1px solid rgba(250,246,240,0.15)">
-          <p class="eyebrow mb-8 block" style="color: #e8d4ed">
-            {{ $t('home.s6_eyebrow') }}
-          </p>
-          <!-- Las comillas en dos tonos —coral y violeta— son el guiño a las
-               «dos caras» del tumor de las que habla la cita. Decorativo. -->
-          <blockquote class="font-display text-2xl sm:text-3xl lg:text-4xl font-semibold leading-[1.2] max-w-3xl" style="letter-spacing: -0.025em">
-            <span style="color: #ff6b47">«</span>{{ $t('home.s6_quote') }}<span style="color: #b870c3">»</span>
-          </blockquote>
-          <p class="mt-8 font-display italic text-xl" style="color: #e8d4ed">
-            — {{ $t('home.s6_signature') }}
-          </p>
-        </div>
+        <ol class="caso__frases" role="list">
+          <li v-for="n in 3" :key="n">
+            <span class="caso__num" aria-hidden="true">{{ n }}</span>
+            <span class="caso__texto">{{ $t(`home.caso_${n}`) }}</span>
+          </li>
+        </ol>
+        <NuxtLink
+          :to="localePath('ciencia')"
+          class="link-action group mt-8 min-h-[44px] text-miriam"
+          @click="trackScience('home_caso')"
+        >
+          {{ $t('hero.cta_science') }}
+          <Icon name="ph:arrow-right" class="w-4 h-4 transition-transform group-hover:translate-x-0.5" aria-hidden="true" />
+        </NuxtLink>
       </div>
     </section>
 
-
-    <!-- S4 · ¿Por qué necesitamos tu ayuda? · Destino del dinero
-         (aquí el separador es el propio cambio de color de sección) -->
-    <section v-reveal class="section-spacing bg-cream-card" id="campaign" :aria-label="$t('home.s4_eyebrow')">
+    <!-- 4 · Dónde estamos y qué falta: la ruta, lo que se hace hoy y la petición concreta a quien puede moverla.
+         «Ahora» sale de caso.json (el mismo cálculo que la cifra «Tratamiento» de /datos); sin línea en curso, no se pinta. -->
+    <!-- Fondo crema (no «card»): las peticiones de «Qué buscamos» son tarjetas de papel y necesitan un fondo distinto del suyo.
+         La línea de arriba separa este bloque del anterior, que también es crema. -->
+    <section v-reveal class="section-spacing bg-cream" aria-labelledby="h-donde" style="border-top: 1px solid rgba(45,27,61,0.08)">
       <div class="section-wide">
-        <p class="eyebrow mb-4 block">{{ $t('home.s4_eyebrow') }}</p>
-        <h2 class="heading-display text-3xl sm:text-5xl text-berenjena mb-6" style="letter-spacing: -0.03em">
-          {{ $t('home.s4_heading') }}
+        <h2 id="h-donde" class="heading-display text-3xl sm:text-5xl text-berenjena mb-6" style="letter-spacing: -0.03em">
+          {{ $t('home.donde_heading') }}
         </h2>
-        <div class="space-y-4 text-base text-tinta leading-relaxed mb-8 max-w-2xl">
-          <p>
-            {{ $t('home.s4_p1')
-            }}<strong class="font-semibold text-berenjena">{{ $t('home.s4_p1_blind') }}</strong>.
-          </p>
-          <p>
-            {{ $t('home.s4_p2') }}
-          </p>
+        <p v-if="ahora" class="home-ahora">
+          <strong class="font-semibold text-berenjena">{{ $t('home.ahora') }}</strong>
+          {{ ahora.detalle }} · {{ ahora.fecha }}
+          <DatosSello v-if="ahora.sello" :s="ahora.sello" :lang="lang" />
+        </p>
+
+        <HomeProximosPasos />
+
+        <div v-if="peticiones.length" class="mt-12">
+          <h3 id="h-buscamos" class="font-display font-semibold text-berenjena text-2xl mb-4" style="letter-spacing: -0.02em">
+            {{ $t('home.buscamos_heading') }}
+          </h3>
+          <div class="max-w-3xl">
+            <QueBuscamos :fuente="peticiones" :limite="LIMITE_PETICIONES" :acciones="false" />
+          </div>
         </div>
 
-        <!-- Resumen de 4 categorías; el desglose completo (12 partidas) vive en
-             /gastos para no sobrecargar el home (DS §13: resúmenes al inicio). -->
-        <div class="card-base">
-          <p class="font-display font-semibold text-berenjena text-lg mb-4">{{ $t('home.s4_buckets_title') }}</p>
-          <ul class="grid sm:grid-cols-2 gap-x-10">
-            <li
-              v-for="(item, i) in $tm('home.s4_buckets')"
-              :key="i"
-              class="flex items-start gap-3 py-2.5 border-t border-berenjena/[0.07]"
-            >
-              <Icon
-                name="ph:check-circle-fill"
-                class="mt-[3px] w-4 h-4 text-miriam shrink-0"
-                aria-hidden="true"
-              />
-              <span class="text-sm text-tinta leading-relaxed">{{ $rt(item) }}</span>
-            </li>
-          </ul>
+        <!-- La fila de acciones es de la home: el botón de contacto profesional (con su rol ya marcado), «ver todas» solo si
+             quedan peticiones sin enseñar y el acceso al 3D. El evento de Umami de las dos primeras lo emite el plugin
+             por el href (VerPeticion, Contacto-clic). -->
+        <div class="mt-6 flex flex-col sm:flex-row sm:flex-wrap sm:items-center gap-x-6 gap-y-3">
           <NuxtLink
-            :to="localePath('gastos')"
-            class="link-action group mt-5 text-sm text-miriam"
+            v-if="peticiones.length"
+            :to="localePath({ name: 'contacto', query: { role: 'researcher' } })"
+            class="btn-secondary justify-center"
           >
-            {{ $t('home.s4_full_breakdown') }}
+            {{ $t('home.buscamos_escribir') }}
+          </NuxtLink>
+          <NuxtLink
+            v-if="hayMas"
+            :to="localePath({ name: 'datos', hash: '#que-buscamos' })"
+            class="link-action group min-h-[44px] text-sm text-miriam"
+          >
+            {{ $t('home.buscamos_todas') }}
+            <Icon name="ph:arrow-right" class="w-4 h-4 transition-transform group-hover:translate-x-0.5" aria-hidden="true" />
+          </NuxtLink>
+          <NuxtLink
+            :to="localePath('lesiones')"
+            class="link-action group min-h-[44px] text-sm text-miriam"
+            @click="trackLesiones('home_donde_estamos')"
+          >
+            {{ $t('home.donde_3d') }}<span class="sr-only">: {{ $t('nav.lesions') }}</span>
             <Icon name="ph:arrow-right" class="w-4 h-4 transition-transform group-hover:translate-x-0.5" aria-hidden="true" />
           </NuxtLink>
         </div>
       </div>
     </section>
 
-    <!-- Cierre · estado de la campaña + caso en prensa (lo último de todo) -->
-    <section v-reveal class="section-spacing bg-cream-card" :aria-label="$t('home.s5_eyebrow')" style="border-top: 1px solid rgba(45,27,61,0.08)">
+    <!-- 5 · A qué va el dinero. UNA frase de destino, la canónica (`money.destino`, criterio de legal-burocracia del
+         23-oct-2026: ni importes, ni «cada euro», ni «100 %»); los euros, con su fecha y solo aquí, en el bloque de la
+         campaña (ya público). El único botón coral de la zona es el de la propia tarjeta; si la tarjeta no está (la
+         campaña no respondió), el botón de siempre ocupa su lugar. -->
+    <section v-reveal id="campaign" class="section-spacing bg-cream-card" aria-labelledby="h-dinero">
       <div class="section-wide">
-        <p class="eyebrow mb-3 block">{{ $t('home.s5_eyebrow') }}</p>
-        <h2 class="font-display font-semibold text-berenjena text-2xl sm:text-3xl mb-6" style="letter-spacing: -0.02em">
-          {{ $t('home.s5_heading') }}
+        <p class="eyebrow mb-3 block">{{ $t('home.dinero_eyebrow') }}</p>
+        <h2 id="h-dinero" class="heading-display text-3xl sm:text-4xl text-berenjena mb-4" style="letter-spacing: -0.03em">
+          {{ $t('home.dinero_heading') }}
         </h2>
-        <GoFundMeProgress card />
+        <p class="text-base text-tinta leading-relaxed max-w-2xl">{{ $t('money.destino') }}</p>
+        <NuxtLink :to="localePath('gastos')" class="link-action group mt-1 mb-8 min-h-[44px] text-sm text-miriam">
+          {{ $t('home.dinero_informe') }}
+          <Icon name="ph:arrow-right" class="w-4 h-4 transition-transform group-hover:translate-x-0.5" aria-hidden="true" />
+        </NuxtLink>
 
-        <!-- Caso en prensa · tira de medios + contacto de prensa (estilo prototipo) -->
-        <div
-          class="mt-10 pt-6 flex flex-wrap items-baseline gap-x-7 gap-y-3"
-          style="border-top: 1px solid rgba(45,27,61,0.08)"
-        >
-          <span class="font-mono uppercase text-[11px] tracking-[0.12em] text-tinta self-center">
-            {{ $t('home.s9_strip_label') }}
-          </span>
+        <GoFundMeProgress card />
+        <div v-if="!gofundme">
           <a
-            :href="elPaisUrl"
+            :href="GOFUNDME_URL"
             target="_blank"
-            rel="noopener"
-            class="link-logo text-2xl sm:text-3xl"
-            @click="trackPress('El País')"
-          >El País<span class="sr-only"> {{ $t('a11y.new_tab') }}</span></a>
-          <a
-            :href="redaccionMedicaUrl"
-            target="_blank"
-            rel="noopener"
-            class="link-logo text-2xl sm:text-3xl"
-            @click="trackPress('Redacción Médica')"
-          >Redacción Médica<span class="sr-only"> {{ $t('a11y.new_tab') }}</span></a>
-          <a
-            :href="laVanguardiaUrl"
-            target="_blank"
-            rel="noopener"
-            class="link-logo text-2xl sm:text-3xl"
-            @click="trackPress('La Vanguardia')"
-          >La Vanguardia<span class="sr-only"> {{ $t('a11y.new_tab') }}</span></a>
-          <a
-            :href="elEspanolUrl"
-            target="_blank"
-            rel="noopener"
-            class="link-logo text-2xl sm:text-3xl"
-            @click="trackPress('El Español')"
-          >El Español<span class="sr-only"> {{ $t('a11y.new_tab') }}</span></a>
-          <a
-            :href="corresponsablesUrl"
-            target="_blank"
-            rel="noopener"
-            class="link-logo text-2xl sm:text-3xl"
-            @click="trackPress('Corresponsables')"
-          >Corresponsables<span class="sr-only"> {{ $t('a11y.new_tab') }}</span></a>
-          <a
-            :href="murciaUrl"
-            target="_blank"
-            rel="noopener"
-            class="link-logo text-2xl sm:text-3xl"
-            @click="trackPress('La Opinión de Murcia')"
-          >La Opinión de Murcia<span class="sr-only"> {{ $t('a11y.new_tab') }}</span></a>
-          <a
-            :href="la7Url"
-            target="_blank"
-            rel="noopener"
-            class="link-logo text-2xl sm:text-3xl"
-            @click="trackPress('La 7')"
-          >La 7<span class="sr-only"> {{ $t('a11y.new_tab') }}</span></a>
-          <NuxtLink
-            :to="localePath('prensa')"
-            class="link-action group sm:ml-auto self-center font-mono text-[12px] text-miriam"
+            rel="noopener noreferrer"
+            data-support-cta
+            class="btn-cta w-full sm:w-auto"
+            @click="trackSupport('home_dinero')"
           >
-            {{ $t('home.s9_press_contact') }}
-            <Icon name="ph:arrow-right" class="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5" aria-hidden="true" />
-          </NuxtLink>
+            <Icon name="ph:heart-fill" class="heart-beat w-4 h-4" aria-hidden="true" />
+            {{ $t('home.s4_cta_button') }}
+            <span class="sr-only"> {{ $t('a11y.new_tab') }}</span>
+          </a>
         </div>
+      </div>
+    </section>
+
+    <!-- 6 · En sus propias palabras. Las comillas en dos tonos —coral y violeta— son el guiño a las «dos caras» de las que
+         habla la cita; es su voz y su firma, no una afirmación de la web. -->
+    <section
+      v-reveal
+      class="relative overflow-hidden py-16 sm:py-24"
+      aria-labelledby="h-cita"
+      style="background: #2d1b3d; color: #faf6f0"
+    >
+      <div class="absolute inset-0 opacity-[0.04]" style="background-image: radial-gradient(circle at 1px 1px, #faf6f0 1px, transparent 0); background-size: 32px 32px;" aria-hidden="true" />
+      <div class="relative section-wide">
+        <h2 id="h-cita" class="eyebrow mb-8 block" style="color: #e8d4ed">{{ $t('home.s6_eyebrow') }}</h2>
+        <blockquote class="font-display text-2xl sm:text-3xl lg:text-4xl font-semibold leading-[1.2] max-w-3xl" style="letter-spacing: -0.025em">
+          <span style="color: #ff6b47" aria-hidden="true">«</span>{{ $t('home.s6_quote') }}<span style="color: #b870c3" aria-hidden="true">»</span>
+        </blockquote>
+        <p class="mt-8 font-display italic text-xl" style="color: #e8d4ed">
+          — {{ $t('home.s6_signature') }}
+        </p>
+      </div>
+    </section>
+
+    <!-- 7 · Cómo ayudar: las cuatro puertas (taxonomía única de utils/caminos.ts), sin minutos ni pasos -->
+    <section v-reveal class="section-spacing bg-cream" aria-labelledby="h-puertas">
+      <div class="section-wide">
+        <h2 id="h-puertas" class="heading-display text-3xl sm:text-4xl text-berenjena mb-8" style="letter-spacing: -0.03em">
+          {{ $t('home.puertas_heading') }}
+        </h2>
+        <Puertas />
       </div>
     </section>
   </div>
@@ -192,70 +168,55 @@
 <script setup lang="ts">
 const { locale } = useI18n()
 const localePath = useLocalePath()
-const { trackPress } = useSupport()
+const { GOFUNDME_URL, trackSupport, trackScience, trackLesiones } = useSupport()
 
-// Cobertura de prensa real (verificada). ORDEN CURADO (más importante primero),
-// el mismo que la Sala de prensa (content/<locale>/press.yml): nacionales de
-// mayor alcance/prestigio o relevancia para el acceso clínico antes que regionales →
-// credibilidad → confianza.
-const elPaisUrl =
-  'https://elpais.com/tecnologia/2026-04-23/asi-usa-una-paciente-con-cancer-metastasico-la-ia-para-entender-su-enfermedad-cual-es-el-mejor-metodo-para-hablar-de-salud-con-chatbots.html'
-const redaccionMedicaUrl =
-  'https://www.redaccionmedica.com/innovacion/20261021/miriam-gonzalez-una-ingeniera-de-software-con-metastasis-estadio-construye-su-propio-modelo-ia-para-buscar-vacuna-personalizada/362852_0.html'
-const laVanguardiaUrl =
-  'https://www.lavanguardia.com/clic/20260816/11613280/miriam-gonzalez-paciente-cancer-mama-raro-me-siento-desventaja-frente-paciente-tenga-cancer-mama-metastasico.html'
-const elEspanolUrl =
-  'https://www.elespanol.com/alicante/vivir/salud/20260619/miren-ingeniera-anos-usa-ia-luchar-cancer-mama-unico-contactan-oncologos-mundo/1003744290903_0.html'
-const corresponsablesUrl =
-  'https://www.corresponsables.com/entrevistas/miriam-gonzalez-polaris-colaboracion-paciente-ciencia-empresa/'
-const murciaUrl =
-  'https://www.laopiniondemurcia.es/comunidad/2026/05/30/paciente-murciana-aguarda-nuevo-tratamiento-130816775.html'
-const la7Url = 'https://www.instagram.com/p/DZDT2hIAMPU/?hl=es'
+const lang = computed(() => (locale.value === 'en' ? 'en' : 'es'))
+
+// Lo que la home lee de caso.json: las peticiones públicas y el tratamiento de hoy (ver useCasoHome).
+const { data: caso } = await useCasoHome()
+const peticiones = computed(() => caso.value?.peticiones ?? [])
+const ahora = computed(() => caso.value?.ahora ?? null)
+// «Qué buscamos» enseña las 3 de mayor prioridad; el enlace a todas sale solo si quedan más (regla de utils/peticiones.ts).
+const LIMITE_PETICIONES = 3
+const hayMas = computed(() =>
+  peticiones.value.length > 0 && hayEnlaceTodas(undefined, Math.min(LIMITE_PETICIONES, peticiones.value.length), peticiones.value.length),
+)
+
+// La campaña (la misma petición que comparten el hero y la tarjeta): sin ella, el bloque del dinero conserva su botón.
+const gofundme = await useFundraiser()
+
+// SEO (rediseño F5): sin «ultra-raro» (contradecía la cifra de rareza de la propia web) ni promesas de destino del dinero.
+// La identidad de cabecera es «ingeniera de software», no «paciente» + perfil molecular (test-afirmaciones-clinicas).
+const TITULO = {
+  es: 'Miriam González — Busca un tratamiento hecho a partir de su propio tumor',
+  en: 'Miriam González — Looking for a treatment made from her own tumor',
+}
+const DESCRIPCION = {
+  es: 'Miriam González, ingeniera de software, tiene un cáncer de mama metastásico que no encaja en los protocolos habituales. Lo estudia en abierto, con médicos y laboratorios de varios países.',
+  en: "Miriam González, a software engineer, has a metastatic breast cancer that doesn't fit the usual protocols. She studies it in the open, with doctors and labs in several countries.",
+}
+const DESCRIPCION_CORTA = {
+  es: 'Ingeniera de software. Su cáncer de mama metastásico no encaja en los protocolos habituales y lo estudia en abierto.',
+  en: "Software engineer. Her metastatic breast cancer doesn't fit the usual protocols, and she studies it in the open.",
+}
 
 defineOgImage('Default.takumi', {
-  title:
-    locale.value === 'es'
-      ? 'Oncología de precisión para un tumor ultra-raro'
-      : 'Precision Oncology for an Ultra-Rare Tumor',
-  description:
-    locale.value === 'es'
-      ? 'Investiga su propio cáncer de mama metastásico con IA y un equipo internacional, en abierto. Apoya el siguiente análisis.'
-      : 'She investigates her own metastatic breast cancer with AI and an international team, in the open. Support the next analysis.',
-  role: locale.value === 'es' ? 'Ingeniera de software y divulgadora tech' : 'Software engineer and tech communicator',
+  title: lang.value === 'es' ? 'Busca un tratamiento hecho a partir de su propio tumor' : 'Looking for a treatment made from her own tumor',
+  description: DESCRIPCION_CORTA[lang.value],
+  role: lang.value === 'es' ? 'Ingeniera de software y divulgadora tech' : 'Software engineer and tech communicator',
   colorMode: 'light',
 })
 
 useSeoMeta({
-  title: () =>
-    locale.value === 'es'
-      ? 'Miriam González — Oncología de precisión para un tumor ultra-raro'
-      : 'Miriam González — Precision Oncology for an Ultra-Rare Tumor',
-  description: () =>
-    locale.value === 'es'
-      ? 'Miriam González, ingeniera de software y divulgadora tech, investiga con IA y un equipo internacional su propio cáncer de mama metastásico ultra-raro. Apoya las pruebas de precisión que pueden cambiar su tratamiento.'
-      : 'Miriam González, software engineer and tech communicator, investigates her own ultra-rare metastatic breast cancer with AI and an international team. Support the precision tests that could change her treatment.',
-  ogTitle: () =>
-    locale.value === 'es'
-      ? 'Miriam González — Oncología de precisión para un tumor ultra-raro'
-      : 'Miriam González — Precision Oncology for an Ultra-Rare Tumor',
-  ogDescription: () =>
-    locale.value === 'es'
-      ? 'Ingeniera de software y divulgadora tech. Investiga su propio cáncer de mama metastásico con IA y un equipo internacional, en abierto. Apoya el siguiente análisis.'
-      : 'Software engineer and tech communicator. She investigates her own metastatic breast cancer with AI and an international team, in the open. Support the next analysis.',
+  title: () => TITULO[lang.value],
+  description: () => DESCRIPCION[lang.value],
+  ogTitle: () => TITULO[lang.value],
+  ogDescription: () => DESCRIPCION_CORTA[lang.value],
   ogType: 'website',
-  ogUrl: () =>
-    locale.value === 'es'
-      ? 'https://helpmiriam.com'
-      : 'https://helpmiriam.com/en',
+  ogUrl: () => (lang.value === 'es' ? 'https://helpmiriam.com' : 'https://helpmiriam.com/en'),
   twitterCard: 'summary_large_image',
-  twitterTitle: () =>
-    locale.value === 'es'
-      ? 'Miriam González — Oncología de precisión para un tumor ultra-raro'
-      : 'Miriam González — Precision Oncology for an Ultra-Rare Tumor',
-  twitterDescription: () =>
-    locale.value === 'es'
-      ? 'Ingeniera de software y divulgadora tech. Investiga su propio cáncer de mama metastásico con IA, en abierto.'
-      : 'Software engineer and tech communicator. She investigates her own metastatic breast cancer with AI, in the open.',
+  twitterTitle: () => TITULO[lang.value],
+  twitterDescription: () => DESCRIPCION_CORTA[lang.value],
 })
 
 // DonateAction JSON-LD: declara la vía canónica de donación (GoFundMe) para
@@ -288,3 +249,18 @@ useHead({
   script: [{ type: 'application/ld+json', innerHTML: donateJsonLd }],
 })
 </script>
+
+<style scoped>
+/* «Ahora»: una línea, la primera del bloque (lo que se hace hoy), antes de la ruta. */
+.home-ahora { margin: 0 0 1.5rem; max-width: 42rem; font-size: 1.0625rem; line-height: 1.55; color: var(--color-text); }
+
+/* El caso en tres frases: grandes y con aire, una por línea. El número es decoración (la lista ya lo dice). */
+.caso__frases { list-style: none; margin: 0; padding: 0; display: grid; gap: 1.25rem; max-width: 46rem; }
+.caso__frases li { display: flex; align-items: baseline; gap: 1rem; }
+.caso__num {
+  flex: none; width: 2rem; height: 2rem; display: inline-flex; align-items: center; justify-content: center;
+  border-radius: 999px; background: rgb(var(--color-text-rgb) / 0.06); color: var(--color-text);
+  font: 600 0.8125rem/1 var(--font-mono, ui-monospace, monospace); transform: translateY(-0.15rem);
+}
+.caso__texto { font: 600 clamp(1.25rem, 1rem + 1.2vw, 1.75rem)/1.3 var(--font-display, 'Fraunces', serif); letter-spacing: -0.015em; color: var(--color-text); }
+</style>

@@ -125,10 +125,12 @@ export function useSupport() {
     trackUmami('Navegar', { destino })
   }
 
-  // Tarjeta «Acabo de llegar» de VisitorPathways: no navega (abre el resumen en la misma
-  // página), así que sin evento propio era invisible.
-  function trackPathwayCurious() {
-    trackUmami('PathwayCurioso')
+  // Las cuatro puertas de la home (rediseño F5, 23-oct-2026): un solo evento, «Puerta», con la puerta como propiedad
+  // (apoyar · clinico · prensa · otras). Sustituye al «Pathway» de las siete tarjetas con minutos y pasos y al
+  // «PathwayCurioso» de la tarjeta «Acabo de llegar»: ambas desaparecen de la home, así que esas series se cortan ahí
+  // (el «Pathway» de los chips «por perfil» de /colabora sigue hasta F10). Línea base de antes: F0.
+  function trackPuerta(id: string) {
+    trackUmami('Puerta', { puerta: id })
   }
 
   // Página 404: qué ruta se pidió. Solo el pathname (sin query ni hash, que pueden llevar
@@ -184,7 +186,7 @@ export function useSupport() {
     trackLatest,
     trackNav,
     trackVideo,
-    trackPathwayCurious,
+    trackPuerta,
     track404,
   }
 }
