@@ -189,15 +189,20 @@
             </h3>
             <p class="text-sm text-tinta leading-relaxed mb-4">{{ $t('collaborate.profile4_text') }}</p>
             <ul class="space-y-1.5 mb-5">
-              <li v-for="(lnk, i) in arrObj('collaborate.profile4_links')" :key="i">
-                <a
-                  :href="lnk.url"
-                  target="_blank"
-                  rel="noopener"
+              <!-- Los enlaces del pipeline (fuera, pestaña nueva) y, al final, la salida a /marcas (dentro). La puerta «Tecnología, IA y marcas» de la
+                   home aterriza aquí: sin esta salida, quien llega por «marcas» se encontraba en una tarjeta de ingenieros que no las nombraba (revisión
+                   de T2a, 24-oct-2026). Misma etiqueta que en «Enlaces rápidos». Un solo elemento para los dos casos (<a> fuera, NuxtLink dentro): un solo
+                   glifo «→» (R6). Con NuxtLink también para los de fuera, «/design-system/» perdía su barra final. La salida a /marcas mide 44 px de
+                   alto (test:diseno-render no deja subir los controles pequeños de /colabora; los tres de fuera ya estaban en esa cuenta). -->
+              <li v-for="lnk in enlacesTech" :key="lnk.url">
+                <component
+                  :is="lnk.externo ? 'a' : EnlaceNuxt"
+                  v-bind="lnk.externo ? { href: lnk.url, target: '_blank', rel: 'noopener' } : { to: lnk.url }"
                   class="link-underline font-mono text-[13px]"
+                  :class="lnk.externo ? undefined : 'inline-flex items-center min-h-[44px]'"
                 >
                   → {{ lnk.label }}
-                </a>
+                </component>
               </li>
             </ul>
             <div class="mt-auto">
@@ -370,6 +375,15 @@ function arrObj<T extends Record<string, string>>(key: string): T[] {
   })
 }
 
+// Una sola etiqueta para el enlace a /marcas: la usan la tarjeta «Tech & IA» y los enlaces rápidos.
+const etiquetaMarcas = computed(() => (locale.value === 'es' ? 'Marcas · co-creación' : 'Brands · co-creation'))
+const EnlaceNuxt = resolveComponent('NuxtLink')
+// La lista de la tarjeta «Tech & IA»: los enlaces del pipeline y, al final, /marcas.
+const enlacesTech = computed(() => [
+  ...arrObj<{ label: string; url: string }>('collaborate.profile4_links').map((l) => ({ ...l, externo: true })),
+  { label: etiquetaMarcas.value, url: localePath('marcas'), externo: false },
+])
+
 interface QuickLink { label: string; url: string; external: boolean }
 const quickLinks = computed<QuickLink[]>(() => {
   const sciencePath = locale.value === 'es' ? '/ciencia' : '/en/science'
@@ -381,7 +395,7 @@ const quickLinks = computed<QuickLink[]>(() => {
     { label: t('nav.tools'), url: localePath({ name: 'herramientas' }), external: false },
     // «Cronología» y no «Timeline»: el mismo nombre que el menú (una fuente por etiqueta).
     { label: t('nav.timeline'), url: timelinePath, external: false },
-    { label: locale.value === 'es' ? 'Marcas · co-creación' : 'Brands · co-creation', url: localePath('marcas'), external: false },
+    { label: etiquetaMarcas.value, url: localePath('marcas'), external: false },
     { label: 'Repo · GitHub', url: 'https://github.com/beyondtheprotocol/miriam-gonzalez-case', external: true },
     { label: 'GoFundMe · ' + GOFUNDME_URL.replace('https://', ''), url: GOFUNDME_URL, external: true },
     // Las redes salen de REDES (app/utils/navegacion.ts), la misma lista que el pie y el schema.org del layout.

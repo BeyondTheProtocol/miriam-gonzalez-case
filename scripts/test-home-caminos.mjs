@@ -47,6 +47,12 @@
 //     de idioma; el menú móvil NO lleva un segundo selector.
 //   · §12: la salida común de las herramientas (Apoyar y volver al inicio) cabe, mide ≥ 44 px, no la tapa nada y no hay scroll horizontal; y
 //     el índice /herramientas: tarjetas sin desbordes, botones ≥ 44 px y el plegable «Qué buscamos» se abre con el teclado.
+//   · Revisión de T2a (24-oct-2026), dos frenos nuevos:
+//     §11: a 1024, 1039, 1280 y 1440 px, en ES y EN, ningún elemento de la cabecera supera 52 px de alto (una etiqueta que se parte en dos líneas
+//     mide 55 o 56 px) y la cabecera entera mide lo de siempre. A 1024 px, «La ciencia», «Cómo ayudar», «Apoyar a Miriam» y el nombre del logo
+//     saltaban a dos líneas en español; test «solo desbordes y solapes» no lo veía porque el selector y el botón no llegaban a pisarse.
+//     §13: el destino de cada puerta contiene una palabra de su rótulo, y la de «Tecnología, IA y marcas» nombra de verdad las dos cosas: la
+//     tarjeta de /colabora habla de tecnología y lleva una salida a /marcas (antes aterrizaba en una tarjeta de ingenieros sin una palabra de marcas).
 //
 // CAPTURAS=<carpeta> guarda capturas de la rejilla para la revisión de `diseno`.
 // Uso: pnpm exec nuxt generate && pnpm test:home-caminos
@@ -548,7 +554,11 @@ try {
     const apoyo = [...cab.querySelectorAll('a[href*="gofund.me"]')].find(visible)
     const hamb = cab.querySelector('button[aria-controls=mobile-nav]')
     const botones = g ? [...g.querySelectorAll('button')] : []
+    // Alto de todo lo que se ve en la cabecera (enlaces, botones, selector, menú y los textos del logo): un texto que se parte mide el doble.
+    const altos = [...cab.querySelectorAll('a, button, [role=group], nav, span')].filter(visible).filter((el) => !el.classList.contains('sr-only'))
+      .map((el) => ({ texto: (el.textContent || '').trim().replace(/\\s+/g, ' ').slice(0, 24), h: Math.round(el.getBoundingClientRect().height * 10) / 10 }))
     return {
+      altos, cabecera: Math.round(cab.getBoundingClientRect().height),
       visible: visible(g), botones: botones.map(caja), pulsados: botones.map((b) => b.getAttribute('aria-pressed')),
       grupo: g ? caja(g) : null, logo: caja(logo), apoyo: apoyo ? caja(apoyo) : null, hamburguesa: visible(hamb) ? caja(hamb) : null,
       grupos: cab.querySelectorAll('[role=group]').length, sw: document.documentElement.scrollWidth, vw: innerWidth,
@@ -556,7 +566,7 @@ try {
   })()`
   for (const loc of ['es', 'en']) {
     const E = ESPERADO[loc]
-    for (const w of [320, 375, 639, 640, 1024, 1440]) {
+    for (const w of [320, 375, 639, 640, 1024, 1039, 1280, 1440]) {
       await ancho(w)
       await cargar(E.home)
       const c = await evaluate(CABECERA)
@@ -565,6 +575,13 @@ try {
       const siguiente = c.apoyo ?? c.hamburguesa
       ok(c.grupo.left >= c.logo.right - 0.5 && (!siguiente || c.grupo.right <= siguiente.left + 0.5) && c.grupo.right <= c.vw, `${loc} ${w}px: va tras el logo y antes de ${c.apoyo ? '«Apoyar»' : 'la hamburguesa'}, sin pisarlos ni salirse de la pantalla (logo hasta ${Math.round(c.logo.right)}, selector ${Math.round(c.grupo.left)}–${Math.round(c.grupo.right)}, siguiente desde ${siguiente ? Math.round(siguiente.left) : '—'})`)
       ok(c.sw <= c.vw, `${loc} ${w}px: sin scroll horizontal (${c.sw} ≤ ${c.vw})`)
+      // La cabecera de escritorio no parte ninguna etiqueta (revisión de T2a): con el menú de escritorio a la vista (desde 1024 px), nada mide más de 52 px.
+      // 52 = los 44 px de un control con margen; una etiqueta en dos líneas mide 55 px o más.
+      if (w >= 1024) {
+        const alto = c.altos.reduce((a, b) => (b.h > a.h ? b : a), { texto: '', h: 0 })
+        ok(alto.h <= 52, `${loc} ${w}px: ningún elemento de la cabecera supera 52 px de alto (el mayor: «${alto.texto}», ${alto.h} px)`)
+        ok(c.cabecera <= 80, `${loc} ${w}px: la cabecera no crece por una etiqueta partida (${c.cabecera} px ≤ 80)`)
+      }
       ok(c.pulsados.join() === (loc === 'es' ? 'true,false' : 'false,true'), `${loc} ${w}px: marca el idioma activo (aria-pressed ${c.pulsados.join(',')})`)
     }
   }
@@ -657,6 +674,44 @@ try {
   await tecla('Enter', 'Enter', 13)
   await sleep(300)
   ok(await evaluate(`document.querySelector('article.herr details').open === false`), '375px: Enter lo cierra otra vez')
+
+  console.log('\n13. El destino de cada puerta promete lo que dice su rótulo (revisión de T2a, 24-oct-2026)')
+  // «Tecnología, IA y marcas» aterrizaba en una tarjeta de ingenieros que no mencionaba las marcas: el rótulo prometía lo que el destino no daba.
+  // Lo que se mide es el texto que ve quien llega: el ancla (#...) si la puerta lleva una, o la página entera; y se exige una palabra del rótulo.
+  const normalizar = (t) => t.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase()
+  const VACIAS = new Set(['y', 'o', 'de', 'la', 'el', 'los', 'las', 'and', 'or', 'the', 'of'])
+  // Raíz tosca para que «laboratorio» case con «Laboratorios», «brand» con «brands» y «lab» con «laboratories»: se quita la vocal final con su -s, o solo la
+  // -s (si queda una raíz de 3 letras o más), y casa cualquier palabra que EMPIECE por la raíz. Las de 1 o 2 letras (IA, AI) se comparan enteras: como
+  // prefijo casarían con «iatrogénico» o «aim». Es un suelo, no un techo: lo que pide es que el destino hable de lo que el rótulo nombra.
+  const raiz = (w) => { const r = w.replace(/(?:[aeiou]+s?|s)$/, ''); return r.length >= 3 ? r : w }
+  const contiene = (tokens, palabra) => (palabra.length <= 2 ? tokens.includes(palabra) : tokens.some((t) => t.startsWith(raiz(palabra))))
+  for (const loc of ['es', 'en']) {
+    const E = ESPERADO[loc]
+    await ancho(1280)
+    await cargar(E.home)
+    const puertas = (await evaluate(LEER)).puertas
+    for (const pu of puertas) {
+      if (/^https?:/.test(pu.href)) continue // «Apoyar» va a la campaña, fuera del sitio
+      const [ruta, ancla] = pu.href.split('#')
+      await cargar(ruta)
+      const destino = await evaluate(`(() => {
+        const raiz = ${JSON.stringify(ancla ?? '')} ? document.getElementById(${JSON.stringify(ancla ?? '')}) : document.querySelector('main')
+        return raiz ? { texto: raiz.textContent, enlaces: [...raiz.querySelectorAll('a[href]')].map((a) => a.getAttribute('href')) } : null
+      })()`)
+      ok(!!destino, `${loc} «${pu.texto}» → ${pu.href}: el destino existe${ancla ? ` (ancla #${ancla})` : ''}`)
+      if (!destino) continue
+      const palabrasRotulo = normalizar(pu.texto).split(/[^\p{L}]+/u).filter((x) => x.length >= 2 && !VACIAS.has(x))
+      const tokens = normalizar(destino.texto).split(/[^\p{L}]+/u).filter(Boolean)
+      const coinciden = palabrasRotulo.filter((x) => contiene(tokens, x))
+      ok(coinciden.length > 0, `${loc} «${pu.texto}» → ${pu.href}: el destino contiene una palabra de su rótulo (${coinciden.join(', ') || 'ninguna de ' + palabrasRotulo.join(', ')})`)
+      if (pu.href.includes('tech-ia')) {
+        // la puerta compuesta: tecnología e IA (la tarjeta lo es) Y marcas (lleva una salida a /marcas con la etiqueta de los enlaces rápidos)
+        ok(contiene(tokens, 'ia') || contiene(tokens, 'ai'), `${loc} «${pu.texto}»: la tarjeta habla de IA`)
+        ok(contiene(tokens, loc === 'es' ? 'marcas' : 'brands'), `${loc} «${pu.texto}»: la tarjeta nombra las marcas (no solo el rótulo de la puerta)`)
+        ok(destino.enlaces.includes(loc === 'es' ? '/marcas' : '/en/brands'), `${loc} «${pu.texto}»: y trae un enlace a ${loc === 'es' ? '/marcas' : '/en/brands'} dentro de la propia tarjeta`)
+      }
+    }
+  }
 } finally {
   await nav.cerrar()
   clearTimeout(tope)

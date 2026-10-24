@@ -53,6 +53,13 @@ ok(clinico.destino.tipo === 'ruta' && clinico.destino.name === 'datos' && clinic
 const tecnologia = PUERTAS.find((p) => p.id === 'tecnologia')!
 ok(tecnologia.destino.tipo === 'ruta' && tecnologia.destino.name === 'colabora' && tecnologia.destino.hash === '#tech-ia' && /id="tech-ia"/.test(lee('app/pages/colabora.vue')), '«Tecnología, IA y marcas» aterriza en /colabora#tech-ia, que existe')
 ok(get(es, 'puertas.tecnologia') === 'Tecnología, IA y marcas' && get(en, 'puertas.tecnologia') === 'Tech, AI and brands', 'y su rótulo es el pedido, en ES y EN')
+// Revisión de T2a (24-oct-2026): el rótulo promete «marcas», así que la tarjeta que recibe debe llevar a ellas. Antes era una tarjeta de ingenieros
+// sin una palabra de marcas. El comité decidió mantener #tech-ia como destino (es donde ya iban los contactos medidos) y añadir una salida a /marcas.
+// El texto renderizado y la salida real los mide test-home-caminos §13; aquí, que el código de la tarjeta la lleva.
+const colaboraVue = lee('app/pages/colabora.vue')
+const tarjetaTech = colaboraVue.match(/<article id="tech-ia"[\s\S]*?<\/article>/)?.[0] ?? ''
+const listaTech = colaboraVue.match(/const enlacesTech = computed\([\s\S]*?\n\]\)/)?.[0] ?? ''
+ok(/v-for="lnk in enlacesTech"/.test(tarjetaTech) && /localePath\('marcas'\)/.test(listaTech), 'la tarjeta #tech-ia de /colabora pinta enlacesTech, y esa lista lleva un enlace a /marcas (la puerta promete «marcas»)')
 ok(/<Puertas\b/.test(lee('app/pages/index.vue')), 'la home pinta las puertas con Puertas.vue')
 ok(get(es, 'nav.data_case') === 'El caso en datos' && get(en, 'nav.data_case') === 'The case in data' && get(es, 'nav.data') === 'Datos' && get(en, 'nav.data') === 'Data', 'nav.data sigue siendo «Datos»/«Data» y nav.data_case, «El caso en datos»/«The case in data» (la etiqueta larga del pie y de las tarjetas)')
 ok(get(es, 'nav.tools') === 'Herramientas' && get(en, 'nav.tools') === 'Tools' && get(es, 'nav.all_tools') === 'Todas las herramientas', 'nav.tools es «Herramientas»/«Tools» (el menú, desde T2a) y nav.all_tools, «Todas las herramientas» (el pie)')

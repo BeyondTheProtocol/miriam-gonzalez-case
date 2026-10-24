@@ -10,12 +10,14 @@
     "
     style="border-bottom: 1px solid rgb(var(--color-text-rgb) / 0.08)"
   >
-    <div class="section-wide flex items-center justify-between h-16 sm:h-18">
+    <!-- lg:gap-2: hueco mínimo de 8 px entre el logo, el menú y el bloque de la derecha. Con `whitespace-nowrap` en las etiquetas, si una
+           no cabe se ve como un desborde (el test de la cabecera lo mide), no como un salto de línea. -->
+      <div class="section-wide flex items-center justify-between h-16 sm:h-18 lg:gap-2">
       <!-- Logo -->
       <NuxtLink :to="localePath('/')" class="flex items-center gap-2.5 group" style="text-decoration: none">
           <!-- Logo redondo: monograma «m» + constelación de destellos (DS, violeta miriam) -->
           <BrandMark class="w-11 h-11 shrink-0" />
-          <span class="flex flex-col leading-none" translate="no">
+          <span class="flex flex-col leading-none sm:whitespace-nowrap" translate="no">
             <span class="font-display font-semibold text-berenjena text-sm tracking-tight">
               {{ $t('site.title') }}
             </span>
@@ -32,7 +34,7 @@
           v-for="item in MENU_ESCRITORIO"
           :key="item.key"
           :to="localePath({ name: item.name })"
-          :class="navClass(item.key)"
+          :class="navClass(item.key, true)"
           :aria-current="ariaCurrent(item.key)"
           @click="trackNav(item.key)"
         >
@@ -83,7 +85,7 @@
           target="_blank"
           rel="noopener noreferrer"
           @click="trackSupport('cabecera')"
-          class="donate-cta hidden sm:inline-flex items-center gap-1.5 min-h-[44px] px-4 py-2 bg-coral hover:bg-coral-hover text-berenjena text-sm font-semibold rounded-btn transition-all hover:-translate-y-0.5 hover:shadow-[0_10px_22px_-8px_rgba(255,107,71,0.55)]"
+          class="donate-cta hidden sm:inline-flex items-center gap-1.5 whitespace-nowrap min-h-[44px] px-4 py-2 bg-coral hover:bg-coral-hover text-berenjena text-sm font-semibold rounded-btn transition-all hover:-translate-y-0.5 hover:shadow-[0_10px_22px_-8px_rgba(255,107,71,0.55)]"
           style="text-decoration: none"
         >
           <Icon name="ph:heart-fill" class="heart-beat w-3.5 h-3.5" aria-hidden="true" />
@@ -184,9 +186,14 @@ const ariaCurrent = (key: string) => ariaCurrentSeccion(key, rutaActual.value)
 // · activo  → violeta miriam + subrayado fijo → distinto del hover ("estás aquí")
 // Alto mínimo de 44 px también en escritorio: a 1024 px (lg) es un iPad en
 // horizontal y se usa con el dedo. La cabecera mide 64 px, así que cabe.
-function navClass(key: string): (string | undefined)[] {
+// En escritorio, las etiquetas no se parten (`whitespace-nowrap`) y el relleno lateral baja de 12 a 8 px entre 1024 y 1279 px
+// (T2a, revisión del 24-oct-2026): con «Herramientas» (unos 66 px más ancha que «Datos») y el selector de 88 px, a 1024 px el
+// menú en español no cabía y «La ciencia», «Cómo ayudar» y «Apoyar a Miriam» saltaban a dos líneas. Así sobran 24 px a 1024 px; el
+// alto sigue siendo 44 px y el ancho de cada enlace, mayor que 44. El menú móvil (a todo ancho) conserva sus 12 px.
+function navClass(key: string, escritorio = false): (string | undefined)[] {
   return [
-    'inline-flex items-center min-h-[44px] px-3 py-1.5 text-sm font-medium rounded-lg transition-colors',
+    'inline-flex items-center min-h-[44px] py-1.5 text-sm font-medium rounded-lg transition-colors',
+    escritorio ? 'px-2 xl:px-3 whitespace-nowrap' : 'px-3',
     // hover (ratón) + active (táctil, sin hover): misma píldora miriam-soft
     'hover:bg-miriam-soft/60 hover:text-berenjena active:bg-miriam-soft/60 active:text-berenjena',
     ariaCurrent(key)
