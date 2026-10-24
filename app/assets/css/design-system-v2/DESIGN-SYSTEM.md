@@ -446,6 +446,7 @@ Siempre `Icon` de Phosphor (`ph:*`), decorativos con `aria-hidden="true"`. Nada 
 3. **Una excepción:** `ds-exc` con motivo, y se defiende en la revisión.
 4. `pnpm test:diseno` en verde y, si has bajado deuda, `--actualizar` para que baje la baseline.
 5. Si el cambio es visible, capturas con `node scripts/diseno-capturas.mjs` antes y después.
+6. **Un merge de `main` que trae un fichero nuevo con deuda** (otra rama lo escribió antes del sistema) pone `lint.yml` en rojo en el PR, porque la baseline no lo conoce. Se mezcla `main` en la rama y se absorbe con `pnpm test:diseno --actualizar --absorber`: solo añade ficheros que la baseline no conoce y se ve en el diff. A partir de ahí el fichero entra en el ratchet como los demás.
 
 La plantilla del PR (`.github/pull_request_template.md`) pregunta: ¿añade token?, ¿añade componente?, ¿lo documenta?, ¿baja la baseline?
 

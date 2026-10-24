@@ -3,6 +3,9 @@
 //
 //   pnpm test:diseno                 verde si ningún recuento sube ni baja respecto a la baseline
 //   pnpm test:diseno --actualizar    reescribe la baseline SOLO si nada sube (la deuda saldada queda en el diff)
+//   pnpm test:diseno --actualizar --absorber
+//                                    además admite los ficheros NUEVOS que trae un merge de main (escritos antes del sistema, por otra
+//                                    rama) con la deuda que traen. Solo añade ficheros que la baseline no conoce; jamás sube uno conocido.
 //   pnpm test:diseno --lista R3      imprime cada hallazgo de una regla (o de todas, sin argumento)
 //   pnpm test:diseno --archivo X     solo los ficheros cuya ruta contiene X (para trabajar; no comprueba la baseline)
 //
@@ -583,7 +586,11 @@ function main() {
       for (const r of Object.keys(rec.reglas)) {
         if (!previa.reglas[r]) continue // regla nueva: se inicializa
         for (const f of Object.keys(rec.reglas[r])) {
-          if ((rec.reglas[r][f] ?? 0) > (previa.reglas[r][f] ?? 0)) { sube = true; console.log(`✘ ${r} ${f}: ${previa.reglas[r][f] ?? 0} → ${rec.reglas[r][f]} (sube)\n${lineas(r, f)}`) }
+          if ((rec.reglas[r][f] ?? 0) <= (previa.reglas[r][f] ?? 0)) continue
+          const esNuevo = !(f in previa.reglas[r]) && !Object.values(previa.reglas).some((por) => f in por)
+          if (esNuevo && flag('--absorber')) { console.log(`absorbido: ${r} ${f} (${rec.reglas[r][f]})`); continue }
+          sube = true
+          console.log(`✘ ${r} ${f}: ${previa.reglas[r][f] ?? 0} → ${rec.reglas[r][f]} (sube)\n${lineas(r, f)}`)
         }
       }
       if (!flag('--subir-excepciones')) {
