@@ -106,7 +106,40 @@ export default {
         shell: 'var(--shell-max)',
         medida: 'var(--measure)',
       },
+      // Bordes, divisores y anillos por defecto desde los roles (S3). Sin esto salían de gris-200 (#e5e7eb) y azul-500 de
+      // Tailwind: separadores grises en /prensa, aros azules en cualquier `ring` sin color.
+      borderColor: {
+        DEFAULT: 'var(--trazo-sutil)',
+      },
+      divideColor: {
+        DEFAULT: 'var(--trazo-sutil)',
+      },
+      ringColor: {
+        DEFAULT: 'var(--anillo-foco)',
+      },
       typography: (theme) => ({
+        // `prose-ink` (legales): la prosa de marca con los roles. Antes no estaba definida y viñetas, contadores,
+        // filetes y citas salían en el gris de Tailwind.
+        ink: {
+          css: {
+            '--tw-prose-body': 'var(--texto-1)',
+            '--tw-prose-headings': 'var(--texto-1)',
+            '--tw-prose-lead': 'var(--texto-2)',
+            '--tw-prose-links': 'var(--identidad)',
+            '--tw-prose-bold': 'var(--texto-1)',
+            '--tw-prose-counters': 'var(--texto-2)',
+            '--tw-prose-bullets': 'var(--texto-3)',
+            '--tw-prose-hr': 'var(--trazo-medio)',
+            '--tw-prose-quotes': 'var(--texto-1)',
+            '--tw-prose-quote-borders': 'var(--trazo-fuerte)',
+            '--tw-prose-captions': 'var(--texto-3)',
+            '--tw-prose-code': 'var(--texto-1)',
+            '--tw-prose-pre-code': 'var(--texto-1)',
+            '--tw-prose-pre-bg': 'var(--superficie)',
+            '--tw-prose-th-borders': 'var(--trazo-fuerte)',
+            '--tw-prose-td-borders': 'var(--trazo-sutil)',
+          },
+        },
         DEFAULT: {
           css: {
             '--tw-prose-body': theme('colors.berenjena'),

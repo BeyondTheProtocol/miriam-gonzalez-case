@@ -143,7 +143,7 @@ const dragHint = computed(() => L('arrastra o usa ←/→ para girar', 'drag or 
         @error="imgFailed = true"
       >
       <div v-else class="absolute inset-0 flex items-center justify-center pointer-events-none">
-        <span class="bfv-spin" />
+        <span class="bfv-spin anima-esencial" />
       </div>
       <span class="bfv-hint">{{ dragHint }}</span>
     </div>

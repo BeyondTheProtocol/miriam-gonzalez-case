@@ -6,6 +6,15 @@
   html {
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    /* Controles nativos (casillas, selectores, barras de desplazamiento) en claro aunque el sistema esté en oscuro:
+       el sitio solo tiene un tema claro, con bandas oscuras editoriales. */
+    color-scheme: light;
+  }
+  /* WCAG 2.4.11 (foco no oculto): con la cabecera fija, el elemento que recibe el foco con el teclado no puede quedar
+     debajo. Solo mientras hay un foco de teclado, para no sumarse al `scroll-mt-*` de los destinos de los enlaces con
+     ancla que ya llevan su propio margen (con el ratón, el aterrizaje no cambia). */
+  html:has(:focus-visible) {
+    scroll-padding-top: calc(var(--cabecera-alto) + 16px);
   }
   /* Smooth-scroll solo si el usuario no pide menos movimiento (WCAG 2.3.3). */
   @media (prefers-reduced-motion: no-preference) {
@@ -26,8 +35,8 @@
     font-size: 0.875rem;
     font-weight: 600;
     text-decoration: none;
-    border-radius: 0 0 8px 0;
-    transition: top 0.15s ease;
+    border-radius: 0 0 var(--radius-md) 0;
+    transition: top var(--dur-micro) var(--curva-salida);
   }
   .skip-link:focus {
     top: 0;
@@ -53,14 +62,14 @@
   }
 
   /* Foco de teclado visible y consistente en toda la interfaz (WCAG 2.4.7).
-     El anillo violeta miriam destaca sobre las superficies claras; el halo
-     crema lo hace visible también sobre las secciones oscuras (berenjena).
+     El anillo lo da el rol --anillo-foco (violeta miriam sobre claro, violeta claro sobre berenjena) y el halo es el
+     fondo del propio contexto: en una banda con data-tema="oscuro" el anillo pasa de 2,9 a 5,5:1 sin tocar el componente.
      Solo :focus-visible → no molesta al click de ratón, sí guía al teclado. */
   :where(a, button, summary, [role="button"], [tabindex]):focus-visible {
-    outline: 2px solid var(--color-miriam);
+    outline: 2px solid var(--anillo-foco);
     outline-offset: 2px;
-    border-radius: 4px;
-    box-shadow: 0 0 0 4px rgba(250, 246, 240, 0.55);
+    border-radius: 4px; /* ds-exc: radio del propio anillo de foco, no de un componente */
+    box-shadow: 0 0 0 4px color-mix(in srgb, var(--fondo) 55%, transparent);
   }
 
   ::selection {
@@ -86,11 +95,12 @@
   }
 
   .section-wide {
-    @apply mx-auto px-6 sm:px-8 lg:px-12;
-    /* Ancho canónico ÚNICO para header, footer y cuerpo de todas las páginas
-       (D1). 1200px (antes max-w-6xl = 1152) respira mejor a 1920 y sigue cómodo
-       a 1440. En < 1200px el max-width no aplica → móvil intacto. */
-    max-width: 75rem;
+    @apply mx-auto;
+    /* Ancho canónico ÚNICO para header, footer y cuerpo de todas las páginas (D1): --shell-max, 1200 px, con el
+       relleno --gutter (24, 32 desde 640 y 48 desde 1024: lo que eran px-6 sm:px-8 lg:px-12). En < 1200 px el
+       max-width no aplica → móvil intacto. */
+    padding-inline: var(--gutter);
+    max-width: var(--shell-max);
   }
 
   /* Medida de lectura para párrafos largos DENTRO del shell ancho: limita el
@@ -207,22 +217,22 @@
   /* DS card — cream-card sobre cream */
   .card-base {
     @apply bg-cream-card rounded-card p-6 sm:p-8;
-    border: 1px solid rgb(var(--color-text-rgb) / 0.08);
+    border: 1px solid var(--trazo-sutil);
   }
 
   /* D8 · pulido desktop: lift sutil al pasar el cursor SOLO en tarjetas
      interactivas (las que son enlace o botón). Gated a punteros finos
      (@media hover) → el táctil/móvil no se ve afectado; sin movimiento con
      reduced-motion. Las tarjetas estáticas (div.card-base) no se mueven. */
-  @media (hover: hover) {
+  @media (hover: hover) and (pointer: fine) {
     a.card-base,
     button.card-base {
-      transition: transform 0.18s ease, box-shadow 0.18s ease;
+      transition: transform var(--dur-micro) var(--curva-salida), box-shadow var(--dur-micro) var(--curva-salida);
     }
     a.card-base:hover,
     button.card-base:hover {
       transform: translateY(-2px);
-      box-shadow: 0 14px 34px rgb(var(--color-text-rgb) / 0.1);
+      box-shadow: var(--sombra-hover);
     }
   }
   @media (prefers-reduced-motion: reduce) {
@@ -240,34 +250,49 @@
      marcado + sombra dura en offset, para la tarjeta que protagoniza cada
      grupo. Se aplica como clase adicional sobre .card-base, nunca sola. */
   .card-marked {
-    border-radius: 6px;
-    border: 1.5px solid var(--color-text);
-    box-shadow: 6px 6px 0 rgb(var(--color-text-rgb) / 0.9);
+    border-radius: var(--radius-sm);
+    border: 1.5px solid var(--texto-1);
+    box-shadow: var(--sombra-dura);
   }
-  @media (hover: hover) {
+  /* Solo se mueve si es enlace o botón: una tarjeta que no se pulsa no debe parecer pulsable. */
+  @media (hover: hover) and (pointer: fine) {
+    a.card-marked,
+    button.card-marked {
+      transition: transform var(--dur-micro) var(--curva-salida), box-shadow var(--dur-micro) var(--curva-salida);
+    }
     a.card-marked:hover,
-    button.card-marked:hover,
-    .card-marked:hover {
-      box-shadow: 8px 8px 0 rgb(var(--color-text-rgb) / 0.9);
+    button.card-marked:hover {
+      box-shadow: var(--sombra-dura-hover);
       transform: translate(-2px, -2px);
     }
   }
   @media (prefers-reduced-motion: reduce) {
     a.card-marked:hover,
-    button.card-marked:hover,
-    .card-marked:hover {
+    button.card-marked:hover {
       transform: none;
     }
   }
 
   /* DS botones */
+  /* Cuatro botones, cada uno con SU papel (sistema v3):
+       .btn-cta        solo para APOYAR (donar). Uno por pantalla. Coral con texto berenjena, en cualquier fondo.
+       .btn-dark       acción de explorar (reproducir, abrir un visor). Berenjena sobre crema; en una banda con
+                       data-tema="oscuro" se invierte solo (crema sobre berenjena), porque pinta con los roles.
+       .btn-secondary  navegar o contactar. Contorno.
+       .btn-ghost      terciario. Sin caja.
+     Todos tienen :disabled y [aria-busy], y su hover solo existe donde hay hover de verdad. */
   .btn-cta {
-    @apply inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-btn font-semibold text-berenjena bg-coral hover:bg-coral-hover transition-all;
+    @apply inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-btn font-semibold text-berenjena bg-coral;
+    min-height: var(--control-min);
     box-shadow: 0 0 0 0 transparent;
+    transition: background-color var(--dur-micro) var(--curva-salida), box-shadow var(--dur-micro) var(--curva-salida), transform var(--dur-micro) var(--curva-salida);
   }
-  .btn-cta:hover {
-    box-shadow: 0 10px 22px -8px rgb(var(--color-cta-rgb) / 0.55);
-    transform: translateY(-2px);
+  @media (hover: hover) and (pointer: fine) {
+    .btn-cta:hover {
+      background-color: var(--color-cta-hover);
+      box-shadow: 0 10px 22px -8px color-mix(in srgb, var(--color-cta) 55%, transparent);
+      transform: translateY(-2px);
+    }
   }
   @media (prefers-reduced-motion: reduce) {
     .btn-cta:hover {
@@ -275,26 +300,58 @@
     }
   }
   .btn-secondary {
-    @apply inline-flex items-center justify-center gap-2 px-5 py-3 rounded-btn font-semibold text-berenjena bg-transparent transition-colors;
-    border: 2px solid var(--color-text);
+    @apply inline-flex items-center justify-center gap-2 px-5 py-3 rounded-btn font-semibold bg-transparent;
+    min-height: var(--control-min);
+    color: var(--texto-1);
+    border: 2px solid var(--texto-1);
+    transition: background-color var(--dur-micro) var(--curva-salida), color var(--dur-micro) var(--curva-salida);
   }
-  .btn-secondary:hover {
-    @apply bg-berenjena text-cream;
+  @media (hover: hover) and (pointer: fine) {
+    .btn-secondary:hover {
+      background-color: var(--texto-1);
+      color: var(--fondo);
+    }
   }
-  /* DS botón sólido oscuro — berenjena sobre crema (hero, acciones secundarias) */
+  /* DS botón sólido oscuro — berenjena sobre crema (hero, acciones de explorar) */
   .btn-dark {
-    @apply inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-btn font-semibold text-cream bg-berenjena transition-all;
+    @apply inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-btn font-semibold;
+    min-height: var(--control-min);
+    background-color: var(--texto-1);
+    color: var(--fondo);
     box-shadow: 0 0 0 0 transparent;
+    transition: background-color var(--dur-micro) var(--curva-salida), transform var(--dur-micro) var(--curva-salida);
   }
-  .btn-dark:hover {
-    background: #3d2752;
-    transform: translateY(-1px);
+  @media (hover: hover) and (pointer: fine) {
+    .btn-dark:hover {
+      background-color: var(--btn-dark-hover);
+      transform: translateY(-1px);
+    }
+    [data-tema="oscuro"] .btn-dark:hover {
+      background-color: color-mix(in srgb, var(--color-bg) 84%, var(--color-miriam-claro));
+    }
   }
   .btn-ghost {
-    @apply inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-btn font-semibold text-berenjena bg-transparent transition-colors;
+    @apply inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-btn font-semibold bg-transparent;
+    min-height: var(--control-min);
+    color: var(--texto-1);
+    transition: color var(--dur-micro) var(--curva-salida);
   }
-  .btn-ghost:hover {
-    @apply text-miriam;
+  @media (hover: hover) and (pointer: fine) {
+    .btn-ghost:hover {
+      color: var(--identidad);
+    }
+  }
+  /* Deshabilitado y enviando: se ven y no se pulsan. La opacidad no es la única pista: el cursor y la ausencia de hover. */
+  .btn-cta:disabled, .btn-secondary:disabled, .btn-dark:disabled, .btn-ghost:disabled,
+  .btn-cta[aria-disabled="true"], .btn-secondary[aria-disabled="true"], .btn-dark[aria-disabled="true"], .btn-ghost[aria-disabled="true"] {
+    opacity: 0.55;
+    cursor: not-allowed;
+    box-shadow: none;
+    transform: none;
+  }
+  .btn-cta[aria-busy="true"], .btn-secondary[aria-busy="true"], .btn-dark[aria-busy="true"], .btn-ghost[aria-busy="true"] {
+    cursor: progress;
+    pointer-events: none;
   }
 
   /* Tag / eyebrow */
@@ -315,20 +372,21 @@
     color: var(--texto-2);
   }
 
-  .tag {
-    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-2xs font-medium tracking-wide uppercase;
-  }
-
   /* DS badge genómico — violet pill, mono */
   .badge-genomic {
-    @apply inline-block bg-miriam-soft text-berenjena rounded-full px-3 py-1 font-mono text-[13px] font-semibold;
+    @apply inline-block bg-miriam-soft text-berenjena rounded-pill px-3 py-1 font-mono text-xs font-semibold;
     letter-spacing: 0;
-    transition: box-shadow 0.2s ease;
+    transition: box-shadow var(--dur-micro) var(--curva-salida);
   }
   /* A4 · brillo sutil al pasar/enfocar — "hasta los detalles respiran".
      Sin movimiento (solo box-shadow), seguro siempre. */
-  .badge-genomic:hover, .badge-genomic:focus-visible {
+  .badge-genomic:focus-visible {
     box-shadow: 0 0 0 3px rgb(var(--color-miriam-rgb) / 0.18);
+  }
+  @media (hover: hover) and (pointer: fine) {
+    .badge-genomic:hover {
+      box-shadow: 0 0 0 3px rgb(var(--color-miriam-rgb) / 0.18);
+    }
   }
 
   /* ────────────────────────────────────────────────────────────
@@ -344,14 +402,14 @@
   }
   .data-table thead th {
     @apply text-left font-medium text-tinta;
-    font-size: 12px;
+    font-size: var(--texto-xs);
     letter-spacing: 0.02em;
     padding: 14px 16px;
     background: var(--color-bg-card); /* cream-card */
-    border-bottom: 1px solid rgb(var(--color-text-rgb) / 0.08);
+    border-bottom: 1px solid var(--trazo-sutil);
   }
-  .data-table thead th:first-child { border-top-left-radius: 12px; }
-  .data-table thead th:last-child  { border-top-right-radius: 12px; }
+  .data-table thead th:first-child { border-top-left-radius: var(--radius-btn); }
+  .data-table thead th:last-child  { border-top-right-radius: var(--radius-btn); }
   .data-table tbody td {
     padding: 14px 16px;
     border-bottom: 1px solid rgb(var(--color-text-rgb) / 0.06);
@@ -360,38 +418,40 @@
     font-variant-numeric: tabular-nums;
   }
   .data-table tbody tr:last-child td { border-bottom: 0; }
-  .data-table tbody tr:hover td { background: rgb(var(--color-miriam-rgb) / 0.04); }
+  @media (hover: hover) and (pointer: fine) {
+    .data-table tbody tr:hover td { background: rgb(var(--color-miriam-rgb) / 0.04); }
+  }
   .data-table .col-marker {
     @apply font-mono;
-    font-size: 13px;
+    font-size: var(--texto-xs);
     font-weight: 500;
     overflow-wrap: break-word;
     word-break: normal;
   }
   .data-table .col-note {
     color: var(--color-text-soft);
-    font-size: 13px;
+    font-size: var(--texto-xs);
     line-height: 1.5;
   }
 
   /* Dense variant: tighter rows + smaller type for clinical tables with many columns */
   .data-table--dense thead th {
     padding: 10px 12px;
-    font-size: 11px;
+    font-size: var(--texto-xs);
   }
   .data-table--dense tbody td {
     padding: 10px 12px;
-    font-size: 12.5px;
+    font-size: var(--texto-xs);
   }
   .data-table--dense .col-marker,
   .data-table--dense .col-note {
-    font-size: 12px;
+    font-size: var(--texto-xs);
   }
 
   /* Card wrapper around a data table — keeps the rounded look from the mockups */
   .data-card {
     @apply bg-cream rounded-card overflow-hidden;
-    border: 1px solid rgb(var(--color-text-rgb) / 0.08);
+    border: 1px solid var(--trazo-sutil);
   }
 
   /* ────────────────────────────────────────────────────────────
@@ -418,8 +478,10 @@
     .data-table--cards tbody tr:last-child {
       border-bottom: 0;
     }
-    .data-table--cards tbody tr:hover td {
-      background: transparent;
+    @media (hover: hover) and (pointer: fine) {
+      .data-table--cards tbody tr:hover td {
+        background: transparent;
+      }
     }
     .data-table--cards td {
       border: 0 !important;
@@ -431,14 +493,14 @@
       text-align: left;
       white-space: normal !important;
       overflow-wrap: anywhere;
-      font-size: 13px;
+      font-size: var(--texto-xs);
       line-height: 1.5;
     }
     .data-table--cards td::before {
       content: attr(data-label);
       text-align: left;
-      font-family: 'JetBrains Mono', ui-monospace, monospace;
-      font-size: 10.5px;
+      font-family: var(--font-mono);
+      font-size: var(--texto-2xs);
       letter-spacing: 0.04em;
       text-transform: uppercase;
       color: var(--color-text-soft);
@@ -452,9 +514,9 @@
       padding: 2px 0 9px !important;
       margin-bottom: 4px;
       border-bottom: 1px solid rgb(var(--color-text-rgb) / 0.06) !important;
-      font-family: 'Fraunces', Georgia, serif;
+      font-family: var(--font-display);
       font-weight: 600;
-      font-size: 16px;
+      font-size: var(--texto-ui);
       letter-spacing: -0.01em;
       color: var(--color-text);
     }
@@ -477,25 +539,66 @@
     }
   }
 
+  /* Estados con icono (sistema v3, D4): el color nunca es la única señal. Cada estado lleva un icono propio delante,
+     dibujado con una máscara (así toma el color del texto en cualquier fondo). Son trazos simples de 24x24:
+     hecho (check en círculo), curso (círculo a medias), pendiente (círculo de puntos), nopuede (círculo tachado),
+     atención (triángulo con admiración). Sin color escrito aquí: todo sale de los --estado-* del canon. */
+  :root {
+    --icono-hecho: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='9'/%3E%3Cpath d='M8 12.5l2.8 2.8L16 9.5'/%3E%3C/svg%3E");
+    --icono-curso: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.4'%3E%3Ccircle cx='12' cy='12' r='9'/%3E%3Cpath d='M12 3a9 9 0 0 1 0 18z' fill='black' stroke='none'/%3E%3C/svg%3E");
+    --icono-pendiente: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.4' stroke-linecap='round'%3E%3Ccircle cx='12' cy='12' r='9' stroke-dasharray='1 4.6'/%3E%3C/svg%3E");
+    --icono-nopuede: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.4' stroke-linecap='round'%3E%3Ccircle cx='12' cy='12' r='9'/%3E%3Cpath d='M5.6 5.6l12.8 12.8'/%3E%3C/svg%3E");
+    --icono-atencion: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 3.5l9.5 16.5h-19z'/%3E%3Cpath d='M12 10v4.5M12 17.2v.1'/%3E%3C/svg%3E");
+  }
+  .pill-data--info::before, .pill-data--warn::before, .pill-data--positive::before,
+  .status-badge--hecho::before, .status-badge--curso::before, .status-badge--pendiente::before,
+  .status-badge--nopuede::before, .status-badge--atencion::before {
+    content: '';
+    flex: none;
+    width: 1.05em;
+    height: 1.05em;
+    margin-right: 0.4em;
+    background-color: currentColor;
+    -webkit-mask: var(--icono-estado) center / contain no-repeat;
+    mask: var(--icono-estado) center / contain no-repeat;
+  }
+  .pill-data--info, .status-badge--pendiente { --icono-estado: var(--icono-pendiente); }
+  .pill-data--warn, .status-badge--atencion { --icono-estado: var(--icono-atencion); }
+  .pill-data--positive, .status-badge--hecho { --icono-estado: var(--icono-hecho); }
+  .status-badge--curso { --icono-estado: var(--icono-curso); }
+  .status-badge--nopuede { --icono-estado: var(--icono-nopuede); }
+
   /* Pills used inside cells to surface a value */
   .pill-data {
     @apply inline-flex items-center font-mono font-medium;
-    font-size: 12px;
+    font-size: var(--texto-xs);
     padding: 4px 10px;
-    border-radius: 999px;
+    border-radius: var(--radius-pill);
     letter-spacing: 0;
     line-height: 1.4;
-    white-space: nowrap;
+    max-width: 100%;
   }
-  .pill-data--info     { background: #e0ecf8; color: #1e4a6f; }
-  .pill-data--warn     { background: #fde4cc; color: #8a4a1a; }
-  .pill-data--positive { background: #d8ede0; color: #1f5a3a; }
+  /* Los nombres de clase se quedan (science.yml los escribe): info es neutro (pendiente), warn es atención y positive es hecho. */
+  .pill-data--info     { background: var(--estado-pendiente-fondo); color: var(--estado-pendiente-texto); box-shadow: inset 0 0 0 1px var(--estado-pendiente-borde); }
+  .pill-data--warn     { background: var(--estado-atencion-fondo);  color: var(--estado-atencion-texto);  box-shadow: inset 0 0 0 1px var(--estado-atencion-borde); }
+  .pill-data--positive { background: var(--estado-hecho-fondo);     color: var(--estado-hecho-texto);     box-shadow: inset 0 0 0 1px var(--estado-hecho-borde); }
   .pill-data--neutral  { background: rgb(var(--color-text-rgb) / 0.06); color: var(--color-text-soft); }
-  .pill-data--violet   { background: var(--color-miriam-soft); color: #5a2466; }
+  .pill-data--violet   { background: var(--color-miriam-soft); color: var(--color-text); }
   /* berenjena: pill de recuento (rima con la insignia de «N focos» del esqueleto, var(--color-text)). Tokens del DS; contraste ~13:1. */
   .pill-data--berenjena { background: var(--color-text); color: var(--color-bg); }
 
-  /* Status badges (uppercase mono) — for clinical/trial status */
+  /* Una píldora o insignia dentro de una tabla parte línea si no cabe, en vez de ensanchar su columna (CI-5: en /ciencia
+     desbordaba a 375 px). Fuera de las tablas conserva su línea única. */
+  .data-table .pill-data,
+  .data-table .status-badge {
+    white-space: normal;
+  }
+
+  /* Status badges (uppercase mono) — for clinical/trial status.
+     LEGADO: las variantes --active, --complete, --pending, --candidate, --reference, --paused, --firma y --shape llevan hex
+     fuera de la paleta. Se quedan tal cual porque la ruta de la home (BADGE_RUTA en utils/rutaPasos.ts) pinta con --active,
+     --firma, --pending y --candidate, y la home no cambia en esta fase. Las sustituyen las variantes de estado de abajo
+     cuando RutaPasos (P1) y las páginas migren; entonces salen estas. */
   .status-badge {
     @apply inline-flex items-center font-mono font-semibold uppercase;
     font-size: 10px;
@@ -525,19 +628,26 @@
   /* shape: tag teal de morfología/factibilidad (forma del hueso); recurre en /mapa. */
   .status-badge--shape     { background: rgba(31,107,87,0.12); color: #1f6b57; }
 
+  /* Variantes de estado del sistema v3 (hecho, curso, pendiente, nopuede, atencion): sin hex, con icono delante. */
+  .status-badge--hecho     { background: var(--estado-hecho-fondo);     color: var(--estado-hecho-texto);     box-shadow: inset 0 0 0 1px var(--estado-hecho-borde); }
+  .status-badge--curso     { background: var(--estado-curso-fondo);     color: var(--estado-curso-texto); }
+  .status-badge--pendiente { background: var(--estado-pendiente-fondo); color: var(--estado-pendiente-texto); box-shadow: inset 0 0 0 1px var(--estado-pendiente-borde); }
+  .status-badge--nopuede   { background: var(--estado-nopuede-fondo);   color: var(--estado-nopuede-texto);   box-shadow: inset 0 0 0 1px var(--estado-nopuede-borde); }
+  .status-badge--atencion  { background: var(--estado-atencion-fondo);  color: var(--estado-atencion-texto);  box-shadow: inset 0 0 0 1px var(--estado-atencion-borde); }
+
   /* Stat readout card — small label / big mono value / unit-range caption.
      Flex column with a fixed min-height so cards in a grid stay aligned and do
      not jump when labels/units wrap to a different number of lines: the label
      sits at the top, the value is pinned to the bottom (margin-top:auto). */
   .stat-readout {
     @apply bg-cream rounded-card flex flex-col;
-    border: 1px solid rgb(var(--color-text-rgb) / 0.08);
+    border: 1px solid var(--trazo-sutil);
     padding: 14px 16px;
     min-height: 108px;
   }
   .stat-readout__label {
     @apply font-body font-semibold text-berenjena;
-    font-size: 11px;
+    font-size: var(--texto-xs);
     line-height: 1.25;
     letter-spacing: 0.02em;
     text-transform: uppercase;
@@ -554,24 +664,24 @@
   }
   .stat-readout__unit {
     @apply font-body text-tinta;
-    font-size: 11px;
+    font-size: var(--texto-xs);
     line-height: 1.3;
     margin-top: 5px;
   }
 
-  /* Soft alert callout — peach background, berenjena text */
+  /* Aviso suave: fondo de atención (coral tenue, derivado) y texto berenjena. El icono lo pone el contenido. */
   .alert-callout {
-    background: #fceedb;
-    border: 1px solid rgba(138, 74, 26, 0.18);
-    border-radius: 12px;
+    background: var(--estado-atencion-fondo);
+    border: 1px solid var(--estado-atencion-borde);
+    border-radius: var(--radius-btn);
     padding: 14px 18px;
-    color: #5a3010;
-    font-size: 14px;
+    color: var(--estado-atencion-texto);
+    font-size: var(--texto-sm);
     line-height: 1.5;
   }
   .alert-callout__title {
     @apply font-semibold;
-    color: #5a3010;
+    color: var(--estado-atencion-texto);
     margin-bottom: 6px;
     display: flex;
     align-items: center;
@@ -579,16 +689,26 @@
   }
 
   /* Form controls — cream background, miriam focus ring */
+  /* Campo de formulario (sistema v3): 16 px (por debajo, iOS hace zoom al enfocar), 44 px de alto, borde del rol
+     --trazo-interactivo (3,6:1; el del 12 % daba 1,3:1, WCAG 1.4.11), placeholder en --texto-3 (4,9:1) y el anillo de foco
+     de los roles. `min-width: 0` para que no ensanche una rejilla (Turnstile, de 300 px, desbordaba a 375). */
   .form-input {
-    @apply w-full px-4 py-2.5 bg-cream rounded-btn text-sm text-berenjena transition-all;
-    border: 1px solid rgb(var(--color-text-rgb) / 0.12);
+    @apply w-full px-4 py-2 bg-cream rounded-btn text-berenjena;
+    box-sizing: border-box;
+    min-width: 0;
+    min-height: var(--control-min);
+    font-size: var(--texto-ui);
+    line-height: 1.5;
+    border: 1px solid var(--trazo-interactivo);
+    transition: border-color var(--dur-micro) var(--curva-salida), box-shadow var(--dur-micro) var(--curva-salida);
   }
-  .form-input::placeholder { color: rgb(var(--color-text-soft-rgb) / 0.55); }
-  .form-input:focus {
-    outline: none;
-    border-color: var(--color-miriam);
-    box-shadow: 0 0 0 3px rgb(var(--color-miriam-rgb) / 0.18);
+  .form-input::placeholder { color: var(--texto-3); opacity: 1; }
+  .form-input:focus-visible {
+    outline: 2px solid var(--anillo-foco);
+    outline-offset: 2px;
+    border-color: var(--anillo-foco);
   }
+  .form-input[aria-invalid="true"] { border-color: var(--texto-1); border-width: 2px; }
   .form-label {
     @apply block text-sm font-medium text-berenjena mb-1.5;
   }
@@ -616,35 +736,47 @@
     background-size: 0% 60%;
     background-position: 0 90%;
     background-repeat: no-repeat;
-    border-radius: 2px;
-    transition: background-size 0.3s ease, color 0.2s ease,
-      text-decoration-color 0.2s ease;
+    border-radius: 2px; /* ds-exc: marcador de enlace en línea, no el radio de un componente */
+    transition: background-size var(--dur-transicion) var(--curva-salida), color var(--dur-micro) var(--curva-salida),
+      text-decoration-color var(--dur-micro) var(--curva-salida);
   }
-  .link-inline:hover,
   .link-inline:focus-visible,
-  .link-underline:hover,
   .link-underline:focus-visible {
     color: var(--color-text);
     text-decoration-color: var(--color-miriam);
     background-size: 100% 60%;
+  }
+  @media (hover: hover) and (pointer: fine) {
+    .link-inline:hover,
+    .link-underline:hover {
+      color: var(--color-text);
+      text-decoration-color: var(--miriam-hover);
+      background-size: 100% 60%;
+    }
   }
 
   /* Variante sobre fondo oscuro (hero, sección historia): el texto crema
      se mantiene; el resaltado claro aporta el contraste al pasar. */
   .link-inline--invert {
     @apply text-cream;
-    text-decoration-color: rgba(250, 246, 240, 0.5);
+    text-decoration-color: color-mix(in srgb, var(--color-bg) 50%, transparent);
   }
 
+  /* La regla de los 44 px vive en la clase y no en cada uso (antes solo 16 de 34 usos llevaban `min-h-[44px]`). */
   .link-action {
     @apply inline-flex items-center gap-1.5 font-medium;
+    min-height: var(--control-min);
     text-decoration: none;
     text-underline-offset: 3px;
     text-decoration-thickness: 2px;
   }
-  .link-action:hover,
   .link-action:focus-visible {
     text-decoration: underline;
+  }
+  @media (hover: hover) and (pointer: fine) {
+    .link-action:hover {
+      text-decoration: underline;
+    }
   }
 
   /* Wordmarks de prensa — se leen como logos en gris, sin líneas en reposo.
@@ -653,15 +785,20 @@
      que son pinchables. Identificables como enlaces por el rótulo del grupo. */
   .link-logo {
     @apply font-display font-semibold tracking-tight;
-    color: #6b5d75; /* gris malva atenuado: 5:1 sobre la tarjeta, AA en texto normal */
+    color: var(--texto-3); /* tinta atenuada, derivada: 4,6:1 o más sobre crema y tarjeta (antes #6b5d75 escrito a mano) */
     text-decoration: none;
     display: inline-block;
-    transition: color 0.25s ease, transform 0.2s ease;
+    transition: color var(--dur-micro) var(--curva-salida), transform var(--dur-micro) var(--curva-salida);
   }
-  .link-logo:hover,
   .link-logo:focus-visible {
-    color: var(--color-miriam); /* miriam */
+    color: var(--color-miriam);
     transform: translateY(-1px);
+  }
+  @media (hover: hover) and (pointer: fine) {
+    .link-logo:hover {
+      color: var(--color-miriam); /* miriam */
+      transform: translateY(-1px);
+    }
   }
 
   /* Enlaces dentro de contenido (markdown/prose): el plugin typography ya
@@ -673,15 +810,21 @@
     background-size: 0% 60%;
     background-position: 0 90%;
     background-repeat: no-repeat;
-    border-radius: 2px;
-    transition: background-size 0.3s ease, color 0.2s ease,
-      text-decoration-color 0.2s ease;
+    border-radius: 2px; /* ds-exc: marcador de enlace en línea, no el radio de un componente */
+    transition: background-size var(--dur-transicion) var(--curva-salida), color var(--dur-micro) var(--curva-salida),
+      text-decoration-color var(--dur-micro) var(--curva-salida);
   }
-  .prose a:hover,
   .prose a:focus-visible {
     color: var(--color-text);
     text-decoration-color: var(--color-miriam);
     background-size: 100% 60%;
+  }
+  @media (hover: hover) and (pointer: fine) {
+    .prose a:hover {
+      color: var(--color-text);
+      text-decoration-color: var(--color-miriam);
+      background-size: 100% 60%;
+    }
   }
 
   /* ────────────────────────────────────────────────────────────
@@ -692,19 +835,20 @@
      violeta de firma al pasar/enfocar, como el resto de pistas
      interactivas del sistema. */
   .notes-disclosure {
-    border-top: 1px solid rgb(var(--color-text-rgb) / 0.08);
+    border-top: 1px solid var(--trazo-sutil);
   }
   .notes-disclosure > summary {
     @apply font-mono uppercase tracking-[0.12em] text-tinta;
-    font-size: 11px;
+    font-size: var(--texto-xs);
     font-weight: 500;
     list-style: none;
     cursor: pointer;
     display: flex;
     align-items: center;
     gap: 8px;
-    padding: 14px 0 0;
-    transition: color 0.2s ease;
+    min-height: var(--control-min);
+    padding: 0;
+    transition: color var(--dur-micro) var(--curva-salida);
   }
   .notes-disclosure > summary::-webkit-details-marker {
     display: none;
@@ -716,20 +860,24 @@
     border-right: 1.5px solid currentColor;
     border-bottom: 1.5px solid currentColor;
     transform: rotate(-45deg);
-    transition: transform 0.2s ease;
+    transition: transform var(--dur-micro) var(--curva-salida);
     flex-shrink: 0;
   }
   .notes-disclosure[open] > summary::before {
     transform: rotate(45deg);
   }
-  .notes-disclosure > summary:hover,
   .notes-disclosure > summary:focus-visible {
     color: var(--color-miriam);
+  }
+  @media (hover: hover) and (pointer: fine) {
+    .notes-disclosure > summary:hover {
+      color: var(--color-miriam);
+    }
   }
   /* El cambio de color solo no basta para el foco de teclado (tinta→violeta
      ≈2,2:1, por debajo del 3:1 de WCAG 1.4.11/2.4.7): anillo como el global. */
   .notes-disclosure > summary:focus-visible {
-    outline: 2px solid var(--color-miriam);
+    outline: 2px solid var(--anillo-foco);
     outline-offset: 2px;
   }
   .notes-disclosure[open] > summary {
@@ -743,14 +891,34 @@
     }
   }
 
+  /* Barra fija (cabecera al hacer scroll, menú móvil): casi opaca y SIN desenfoque. El token de sombra dice «nada de
+     glassmorphism»; el blur duplicaba además lo que el fondo ya resuelve. */
+  .barra-fija {
+    background-color: color-mix(in srgb, var(--fondo) 96%, transparent);
+  }
+
   /* Filete editorial entre capítulos de una página larga y continua
      (mismo lenguaje de línea fina que separa las bandas de la home).
      Marca "aquí empieza una sección" sin fragmentar el argumento ni
      competir con las bandas de color con significado (anomalía/objetivo). */
   .chapter-rule {
     border: 0;
-    border-top: 1px solid rgb(var(--color-text-rgb) / 0.08);
+    border-top: 1px solid var(--trazo-sutil);
     margin: 0 0 2.75rem;
+  }
+}
+
+/* Red de seguridad del movimiento reducido (WCAG 2.3.3): cualquier animación que alguien olvide proteger acaba al instante
+   y sin repetirse, en su estado final. NO es un `transform: none` global (rompería el centrado con translate): las
+   transiciones de transform se anulan clase a clase, junto a cada :hover. Excepción `.anima-esencial`: lo que comunica un
+   estado y no se entiende parado (el indicador de carga del visor de fotogramas). */
+@media (prefers-reduced-motion: reduce) {
+  :where(*):not(.anima-esencial),
+  :where(*):not(.anima-esencial)::before,
+  :where(*):not(.anima-esencial)::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
   }
 }
 
@@ -816,24 +984,32 @@
   will-change: transform;
 }
 @media (prefers-reduced-motion: no-preference) {
-  .btn-cta:hover .heart-beat,
   .btn-cta:focus-visible .heart-beat,
-  .donate-cta:hover .heart-beat,
   .donate-cta:focus-visible .heart-beat {
     animation: heart-beat 0.9s ease-in-out infinite;
+  }
+  @media (hover: hover) and (pointer: fine) {
+    .btn-cta:hover .heart-beat,
+    .donate-cta:hover .heart-beat {
+      animation: heart-beat 0.9s ease-in-out infinite;
+    }
   }
   /* Variante «viva»: latido suave permanente (ambiente), que pasa al latido
      potente al interactuar — calmado en reposo, vivo cuando actúas. */
   .heart-beat--alive {
     animation: heart-beat-soft 2.8s ease-in-out infinite;
   }
-  .btn-cta:hover .heart-beat--alive,
   .btn-cta:focus-visible .heart-beat--alive {
     animation: heart-beat 0.9s ease-in-out infinite;
   }
+  @media (hover: hover) and (pointer: fine) {
+    .btn-cta:hover .heart-beat--alive {
+      animation: heart-beat 0.9s ease-in-out infinite;
+    }
+  }
   .progress-fill {
     transform-origin: left center;
-    animation: grow-x 1.3s cubic-bezier(0.22, 1, 0.36, 1) both;
+    animation: grow-x 1.3s var(--curva-salida) both;
   }
   /* Latido perpetuo en el borde de avance: con la barra por fases (objetivo
      lejano, siempre queda hito por delante) el progreso sigue «vivo», así que
@@ -852,7 +1028,7 @@
   width: 8px;
   height: 8px;
   margin: -4px -4px 0 0;
-  border-radius: 9999px;
+  border-radius: var(--radius-pill);
   background: var(--color-cta);
 }
 
@@ -867,7 +1043,7 @@
 .link-underline:active,
 .prose a:active {
   color: var(--color-text);
-  text-decoration-color: var(--color-miriam);
+  text-decoration-color: var(--miriam-active);
   background-size: 100% 60%;
 }
 .link-logo:active {
@@ -875,6 +1051,9 @@
 }
 .link-action:active {
   text-decoration: underline;
+}
+.btn-cta:active {
+  background-color: var(--cta-active);
 }
 
 @media (prefers-reduced-motion: no-preference) {
@@ -898,7 +1077,7 @@
   .reveal-init {
     opacity: 0;
     transform: translateY(18px);
-    transition: opacity 0.6s ease, transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+    transition: opacity var(--dur-transicion) var(--curva-salida), transform var(--dur-transicion) var(--curva-salida);
     will-change: opacity, transform;
   }
   .reveal-init.reveal-in {
@@ -991,8 +1170,8 @@
     display: flex;
     align-items: baseline;
     gap: 0.45rem;
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 12px;
+    font-family: var(--font-mono);
+    font-size: var(--texto-xs);
     line-height: 1.55;
     color: rgb(var(--color-text-soft-rgb) / 0.82);
     margin-top: 0.25rem;
@@ -1016,28 +1195,30 @@
     gap: 0.45rem;
     min-height: 44px; /* objetivo táctil (diseno, tras el PR #269): antes 40 px */
     padding: 0.55rem 0.85rem;
-    border-radius: 999px;
-    border: 1px solid rgb(var(--color-text-rgb) / 0.12);
+    border-radius: var(--radius-pill);
+    border: 1px solid var(--trazo-medio);
     background: var(--color-bg);
     color: var(--color-text);
     font-size: 0.82rem;
     font-weight: 600;
     text-decoration: none;
-    transition: background 0.15s ease, border-color 0.15s ease;
+    transition: background var(--dur-micro) var(--curva-salida), border-color var(--dur-micro) var(--curva-salida);
   }
-  .pathway-chip:hover {
-    background: rgb(var(--color-miriam-rgb) / 0.1);
-    border-color: rgb(var(--color-miriam-rgb) / 0.28);
+  @media (hover: hover) and (pointer: fine) {
+    .pathway-chip:hover {
+      background: rgb(var(--color-miriam-rgb) / 0.1);
+      border-color: rgb(var(--color-miriam-rgb) / 0.28);
+    }
   }
   .pathway-chip__label {
     white-space: nowrap;
   }
   .pathway-chip__time {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 10px;
+    font-family: var(--font-mono);
+    font-size: var(--texto-2xs);
     letter-spacing: 0.04em;
     text-transform: uppercase;
-    color: rgb(var(--color-text-soft-rgb) / 0.65);
+    color: var(--texto-3);
     margin-left: 0.1rem;
   }
 
@@ -1078,12 +1259,12 @@
     display: none !important;
   }
   body {
-    background: #fff !important;
+    background: #fff !important; /* ds-exc: impresión en negro sobre blanco, otro medio */
     font-size: 11pt;
     line-height: 1.45;
   }
   * {
-    color: #1a1a1a !important;
+    color: #1a1a1a !important; /* ds-exc: impresión en negro sobre blanco, otro medio */
     box-shadow: none !important;
   }
   .card-base,
@@ -1092,8 +1273,8 @@
   li,
   tr {
     break-inside: avoid;
-    background: #fff !important;
-    border-color: #ccc !important;
+    background: #fff !important; /* ds-exc: impresión en negro sobre blanco, otro medio */
+    border-color: #ccc !important; /* ds-exc: impresión en negro sobre blanco, otro medio */
   }
   .heading-display,
   h1,
@@ -1106,13 +1287,13 @@
   }
   .data-table th,
   .data-table td {
-    border: 1px solid #ccc !important;
+    border: 1px solid #ccc !important; /* ds-exc: impresión en negro sobre blanco, otro medio */
     padding: 4px 6px !important;
   }
   main a[href^="http"]::after {
     content: " (" attr(href) ")";
     font-size: 0.85em;
-    color: #555 !important;
+    color: #555 !important; /* ds-exc: impresión en negro sobre blanco, otro medio */
     word-break: break-all;
   }
   main a[href^="/"]::after,

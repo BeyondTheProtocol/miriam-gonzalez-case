@@ -3,7 +3,7 @@
   "nota": "Generado por scripts/test-diseno.ts (pnpm test:diseno --actualizar). Un recuento puede bajar, nunca subir. No se edita a mano.",
   "reglas": {
     "R1": {
-      "app/assets/css/main.css": 32,
+      "app/assets/css/main.css": 11,
       "app/components/BoneFrameViewer.client.vue": 9,
       "app/components/BoneTriView.client.vue": 92,
       "app/components/BreastView.client.vue": 15,
@@ -30,7 +30,6 @@
       "app/components/ReservoirView.client.vue": 22,
       "app/components/SectionHero.vue": 1,
       "app/components/SiteFooter.vue": 1,
-      "app/components/SiteNav.vue": 1,
       "app/components/SpineMRIViewer.vue": 9,
       "app/components/StarMap.vue": 50,
       "app/components/TeamCard.vue": 1,
@@ -59,7 +58,7 @@
       "tailwind.config.js": 1
     },
     "R2": {
-      "app/assets/css/main.css": 13,
+      "app/assets/css/main.css": 1,
       "app/components/BoneFrameViewer.client.vue": 2,
       "app/components/BoneTriView.client.vue": 22,
       "app/components/BreastView.client.vue": 5,
@@ -118,7 +117,7 @@
       "app/pages/timeline.vue": 3
     },
     "R3": {
-      "app/assets/css/main.css": 12,
+      "app/assets/css/main.css": 1,
       "app/components/BoneFrameViewer.client.vue": 3,
       "app/components/BoneTriView.client.vue": 11,
       "app/components/BreastView.client.vue": 4,
@@ -179,7 +178,6 @@
       "app/pages/timeline.vue": 3
     },
     "R4": {
-      "app/assets/css/main.css": 20,
       "app/components/BoneTriView.client.vue": 5,
       "app/components/BreastView.client.vue": 1,
       "app/components/CienciaSectionNav.vue": 1,
@@ -199,7 +197,7 @@
       "app/components/NivelLectura.vue": 1,
       "app/components/ReservoirView.client.vue": 1,
       "app/components/SiteFooter.vue": 1,
-      "app/components/SiteNav.vue": 2,
+      "app/components/SiteNav.vue": 1,
       "app/components/StarMap.vue": 2,
       "app/components/TeamPortrait.vue": 1,
       "app/components/Term.vue": 2,
@@ -214,5 +212,7 @@
       "app/pages/timeline.vue": 1
     }
   },
-  "excepciones": {}
+  "excepciones": {
+    "app/assets/css/main.css": 9
+  }
 }

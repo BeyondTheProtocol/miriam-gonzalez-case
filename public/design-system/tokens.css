@@ -107,6 +107,7 @@
   --shell-max:   75rem;  /* 1200 px: ancho único de cabecera, cuerpo y pie (.section-wide) */
   --gutter:      1.5rem; /* 24 px; 32 desde 640 y 48 desde 1024 (abajo, tras los roles) */
   --control-min: 44px;   /* táctil mínimo y alto de campo */
+  --cabecera-alto: 4.0625rem; /* 65 px: la cabecera fija sola en móvil; 73 desde 640. app/plugins/cabecera-alto.client.ts lo sustituye por el real (con la barra «lo último» llega a +38) */
 
   /* ── Tipografía compuesta (los componentes usan ESTOS) — TYP-3 ──
      Atajo `font:` (familia+peso+tamaño+interlineado) por rol, para que
@@ -244,8 +245,8 @@
   --escena-velo:  color-mix(in srgb, var(--escena-fondo) 92%, transparent);
 }
 
-/* ── Gutter responsive: 24 px, 32 desde 640 y 48 desde 1024 (los px-6 sm:px-8 lg:px-12 de .section-wide) ────────── */
-@media (min-width: 640px)  { :root { --gutter: 2rem; } }
+/* ── Responsive de la retícula: gutter de 24 px, 32 desde 640 y 48 desde 1024 (los px-6 sm:px-8 lg:px-12 de .section-wide) ── */
+@media (min-width: 640px)  { :root { --gutter: 2rem; --cabecera-alto: 4.5625rem; } }
 @media (min-width: 1024px) { :root { --gutter: 3rem; } }
 
 /* Puente Tailwind: canales RGB para rgb(var(--x-rgb) / <alpha-value>) (Fase 0) */

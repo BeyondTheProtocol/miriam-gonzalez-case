@@ -2,10 +2,10 @@
   <header
     ref="headerRef"
     :aria-label="$t('footer.site_header')"
-    class="transition-all duration-300"
+    class="transition-[background-color,box-shadow] duration-transicion ease-salida"
     :class="
       scrolled
-        ? 'bg-cream/95 backdrop-blur-lg shadow-sm'
+        ? 'barra-fija shadow-flotante'
         : 'bg-cream'
     "
     style="border-bottom: 1px solid rgb(var(--color-text-rgb) / 0.08)"
@@ -121,7 +121,7 @@
       <div
         v-if="mobileOpen && !minimo"
         id="mobile-nav"
-        class="lg:hidden bg-cream/95 backdrop-blur-lg"
+        class="lg:hidden barra-fija"
         style="border-top: 1px solid rgb(var(--color-text-rgb) / 0.08)"
       >
         <nav

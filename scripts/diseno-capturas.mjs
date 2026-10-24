@@ -78,18 +78,23 @@ async function capturar({ salida, rutas, anchos }) {
     for (const ruta of rutas) {
       for (const ancho of anchos) {
         const clave = nombre(ruta, ancho)
-        try {
-          const { alto, trozos } = await conTope(capturarRuta(nav, ruta, ancho), TOPE_RUTA_MS, clave)
-          for (const t of trozos) writeFileSync(join(salida, `${clave}.${t.i}.png`), t.buf)
-          const porTrozo = trozos.map((t) => sha(t.buf))
-          hashes[clave] = { ruta, ancho, alto, hash: sha(porTrozo.join('')), trozos: porTrozo }
-          console.log(`✔ ${clave}  ${alto}px  ${hashes[clave].hash.slice(0, 12)}`)
-        } catch (e) {
-          hashes[clave] = { ruta, ancho, error: String(e.message || e) }
-          console.log(`✘ ${clave}  ${e.message || e}`)
-          // Chrome puede haber quedado en mal estado: se cierra y se abre otro para no arrastrar el fallo.
-          await Promise.race([nav.cerrar().catch(() => {}), new Promise((r) => setTimeout(r, 5000).unref())])
-          nav = await abrirNavegador({ ancho: anchos[0], alto: 900, escala: 1 })
+        // Chrome se cuelga al azar en alguna captura de página alta (otra ruta en cada pasada): un reintento con
+        // un Chrome nuevo lo resuelve. Si falla dos veces, la ruta queda con error y se dice.
+        for (let intento = 1; intento <= 2; intento++) {
+          try {
+            const { alto, trozos } = await conTope(capturarRuta(nav, ruta, ancho), TOPE_RUTA_MS, clave)
+            for (const t of trozos) writeFileSync(join(salida, `${clave}.${t.i}.png`), t.buf)
+            const porTrozo = trozos.map((t) => sha(t.buf))
+            hashes[clave] = { ruta, ancho, alto, hash: sha(porTrozo.join('')), trozos: porTrozo }
+            console.log(`✔ ${clave}  ${alto}px  ${hashes[clave].hash.slice(0, 12)}${intento > 1 ? '  (al 2.º intento)' : ''}`)
+            break
+          } catch (e) {
+            hashes[clave] = { ruta, ancho, error: String(e.message || e) }
+            console.log(`✘ ${clave}  ${e.message || e}${intento < 2 ? '  → reintento' : ''}`)
+            // Chrome puede haber quedado en mal estado: se cierra y se abre otro para no arrastrar el fallo.
+            await Promise.race([nav.cerrar().catch(() => {}), new Promise((r) => setTimeout(r, 5000).unref())])
+            nav = await abrirNavegador({ ancho: anchos[0], alto: 900, escala: 1 })
+          }
         }
       }
     }
