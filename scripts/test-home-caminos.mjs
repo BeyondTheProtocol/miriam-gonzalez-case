@@ -13,6 +13,8 @@
 //    Ajustes del 24-oct-2026: los 7 bloques van en este orden (hero › prensa › caso › cita › dónde estamos › dinero › puertas); la
 //    tira de prensa enseña 4 medios (no 7) en una o dos líneas de letra pequeña, cada uno de ≥ 44 px; y bajo las puertas hay una
 //    línea de apoyo entre pacientes cuyo enlace (≥ 44 px) lleva a la tarjeta #apoyo-mutuo de /colabora.
+//    Revisión de diseño (24-oct-2026): por debajo de 640 px la tira es etiqueta + 2 líneas (medios 2×2, ≤ 130 px de alto en total) y
+//    «Sala de prensa» se oculta (la puerta «Prensa» y el pie llevan a /prensa); desde 640 px sigue visible y de ≥ 44 px.
 //    320 y 640 px cubren también el zoom al 400 % y al 200 % de una pantalla de 1280.
 // 2. El tabulador recorre todo <main> en el orden del DOM (a 1280 y a 375 px) y el anillo de foco se ve.
 // 3. «Entender el caso» baja a #caso (clic y teclado): el título queda a la vista y por debajo de la cabecera fija.
@@ -188,10 +190,20 @@ try {
       ok(s.cta.h >= 44 && s.entender.h >= 44, `${w}px: «Apoyar» y «Entender el caso» de ≥ 44 px (${s.cta.h}, ${s.entender.h})`)
       ok(apilados ? s.entender.y >= s.cta.y + s.cta.h - 1 && s.entender.x === s.cta.x : s.entender.y === s.cta.y && s.entender.x > s.cta.x, `${w}px: los dos botones del hero ${apilados ? 'se apilan' : 'van lado a lado'}`)
       ok(s.pro.h >= 44 && s.pro.visible, `${w}px: el enlace «¿Eres clínico o laboratorio?» de ≥ 44 px (${s.pro.h})`)
-      ok(s.prensa.length === 4 && s.prensa.every((m) => m.visible && m.h >= 44) && s.sala.h >= 44, `${w}px: los 4 medios y «Sala de prensa» de ≥ 44 px (${s.prensa.map((m) => m.h).join(', ')}, ${s.sala.h})`)
+      // «Sala de prensa» solo se ve desde 640 px (por debajo se oculta: la puerta «Prensa» y el pie llevan a /prensa); si se ve, mide ≥ 44 px.
+      const salaVisible = !!s.sala?.visible
+      ok(s.prensa.length === 4 && s.prensa.every((m) => m.visible && m.h >= 44) && (w < 640 ? !salaVisible : salaVisible && s.sala.h >= 44), `${w}px: los 4 medios de ≥ 44 px y «Sala de prensa» ${w < 640 ? 'oculta en móvil' : `visible de ≥ 44 px (${s.sala?.h})`} (${s.prensa.map((m) => m.h).join(', ')})`)
       ok(JSON.stringify(s.prensa.map((m) => m.medio)) === JSON.stringify(['Redacción Médica', 'El País', 'La Vanguardia', 'El Español']), `${w}px: los medios de la tira, en este orden (${s.prensa.map((m) => m.medio).join(', ')})`)
       // Poco peso visual: letra pequeña (≤ 16 px, no los 18-24 px de antes) y los cuatro nombres en una o dos líneas.
       ok(s.prensa.every((m) => m.letra <= 16) && new Set(s.prensa.map((m) => m.y)).size <= 2, `${w}px: la tira pesa poco: letra de ${[...new Set(s.prensa.map((m) => m.letra))].join('/')} px y los medios en ${new Set(s.prensa.map((m) => m.y)).size} línea(s) (≤ 2)`)
+      // El peso REAL de la tira (revisión de diseño, 24-oct-2026): contar solo las filas de los medios no veía la etiqueta ni el enlace
+      // de la sala, y a 375 px la tira medía 158 px en cuatro filas. En móvil (< 640 px) la tira cabe en etiqueta + dos líneas (≤ 130 px) y
+      // los medios van 2×2, sin un medio huérfano en la segunda fila.
+      if (w < 640) {
+        ok(s.tira.h <= 130, `${w}px: la tira entera mide ≤ 130 px de alto, no cuatro filas (${s.tira.h})`)
+        const porFila = [...s.prensa.reduce((m, x) => m.set(x.y, (m.get(x.y) ?? 0) + 1), new Map()).values()]
+        ok(JSON.stringify(porFila) === JSON.stringify([2, 2]), `${w}px: los 4 medios van 2×2, sin huérfano (${porFila.join('+')})`)
+      }
       ok(s.prensa.every((m) => m.evento === 'Clic-prensa' && m.eventoMedio === m.medio), `${w}px: cada medio lleva data-umami-event="Clic-prensa" y data-umami-event-medio con su nombre`)
       ok(s.pares?.href === E.pares && s.pares.visible && s.pares.h >= 44, `${w}px: bajo las puertas, «Escribir a Miriam» enlaza a ${E.pares} y mide ≥ 44 px (${s.pares?.href}, ${s.pares?.h})`)
       ok(s.peticiones === 3, `${w}px: «Qué buscamos» enseña 3 peticiones (${s.peticiones})`)

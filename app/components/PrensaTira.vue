@@ -10,6 +10,9 @@
  * «Prensa-visible» se envía UNA vez por vista, cuando la tira entra en pantalla: es el denominador de «Clic-prensa» (clics ÷
  * veces que se vio la tira).
  *
+ * Móvil (< 640 px): etiqueta + los medios en rejilla 2×2 (dos líneas) y sin el enlace «Sala de prensa», que en pantallas anchas va a la
+ * derecha. Así la tira mide unos 115 px a 375 px y no cuatro filas; /prensa sigue a un toque en la puerta «Prensa» y en el pie.
+ *
  * Accesibilidad: cada medio es un enlace de ≥ 44 px (también con la letra pequeña) que se abre en pestaña nueva y lo avisa. Lleva
  * el nombre del medio, que es el texto; el gris malva de `link-logo` (≥ 5:1 sobre la tarjeta) pasa a violeta al enfocar o pasar el
  * cursor. La etiqueta es visible y nombra la región, así que el lector de pantalla oye lo mismo que se ve.
@@ -70,4 +73,11 @@ onBeforeUnmount(() => observador?.disconnect())
 /* 44 px de alto como mínimo: son destinos táctiles, aunque la letra sea pequeña */
 .prensa-tira__medio { display: inline-flex; align-items: center; min-height: 44px; }
 @media (min-width: 640px) { .prensa-tira__sala { margin-left: auto; } }
+/* Por debajo de 640 px (24-oct-2026, revisión de diseño): la tira es etiqueta + dos líneas, no cuatro filas. Los medios van en una
+   rejilla de 2 columnas (2×2, sin un medio huérfano en la segunda fila) y «Sala de prensa» se oculta (display: none: también sale del
+   tabulador y del lector de pantalla), porque la puerta «Prensa» de «Cómo ayudar» y el pie llevan a /prensa una pantalla más abajo. */
+@media (max-width: 639.98px) {
+  .prensa-tira__lista { display: grid; grid-template-columns: repeat(2, max-content); gap: 0 24px; }
+  .prensa-tira__sala { display: none; }
+}
 </style>

@@ -67,6 +67,10 @@ jobs:
       # en «De un vistazo» con clic y con carga directa).
       - run: pnpm test:home-caminos
 
+      # Medición de Umami: los nombres de evento de siempre no se renombran, y en Chrome la tira de prensa de la home manda UN
+      # «Prensa-visible» por vista y NO manda «Clic-prensa» a mano (lo cuenta el atributo data-umami-event; si no, contaría doble).
+      - run: pnpm test:umami-eventos
+
       # /laminillas: la matriz se pinta sin JS, sin scroll horizontal en móvil, y /biopsia-osea sale con 301 en
       # _redirects sin .html que lo sombree. Las teselas y la sincronía se prueban en local (LAMINILLAS_TESELAS_DIR).
       - run: pnpm test:laminillas-visor

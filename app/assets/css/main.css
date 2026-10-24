@@ -629,7 +629,7 @@
      que son pinchables. Identificables como enlaces por el rótulo del grupo. */
   .link-logo {
     @apply font-display font-semibold tracking-tight;
-    color: #6b5d75; /* gris malva atenuado, legible en texto grande */
+    color: #6b5d75; /* gris malva atenuado: 5:1 sobre la tarjeta, AA en texto normal */
     text-decoration: none;
     display: inline-block;
     transition: color 0.25s ease, transform 0.2s ease;

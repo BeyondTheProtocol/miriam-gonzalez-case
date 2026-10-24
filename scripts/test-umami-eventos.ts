@@ -13,9 +13,10 @@
 //    real solo envía desde helpmiriam.com): los clics y el scroll llegan de verdad al plugin.
 //    Si no hay build (o con SIN_NAVEGADOR=1, para una pasada rápida), A y B corren igual y C se omite con un aviso.
 //
-// OJO: este test NO está en package.json ni en e2e.yml (F0 no podía tocar ninguno de los dos: los
-// editan los PR abiertos de célula a célula). Se ejecuta a mano:
-//   pnpm exec nuxt generate && pnpm exec tsx scripts/test-umami-eventos.ts
+// Se ejecuta con `pnpm test:umami-eventos` (A y B no necesitan build; C necesita Chrome y el build estático):
+//   pnpm exec nuxt generate && pnpm test:umami-eventos
+// (F0 lo dejó fuera de package.json y de e2e.yml; la revisión de diseño del 24-oct-2026 lo añadió a los dos, porque su
+// bloque C3d es la única comprobación en navegador de que la tira de prensa no cuenta doble «Clic-prensa».)
 import { existsSync, readFileSync } from 'node:fs'
 import {
   EVENTO_CONTACTO_CLIC,
