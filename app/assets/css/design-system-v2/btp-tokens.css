@@ -1,14 +1,19 @@
-/* VENDORIZADO del canon btp-tokens.css (Fase 0 migracion web). Recortado @media reduced-motion global; anadido puente RGB. Fuente de verdad = canon. Re-vendorizar si cambia. */
-/* BTP DS v2.0 — 2026-07 · FUENTE ÚNICA DE TOKENS
-   «Beyond the Protocol» — editorial nocturno.
+/* BTP DS v3 · FUENTE ÚNICA DE TOKENS de helpmiriam.com — «Beyond the Protocol», editorial nocturno.
+   Este fichero ES el canon (deja de ser una copia «vendorizada» de otro sitio). Quién manda cuando dos cosas discrepan:
+     1. lo medido en la home (es la referencia visual);
+     2. este fichero;
+     3. app/assets/css/design-system-v2/DESIGN-SYSTEM.md, cuyas tablas se generan de aquí;
+     4. la guía viva (/guia-de-estilo), que pinta los componentes reales.
+   Si la home y un token discrepan, se ajusta el token y se documenta (decisión D1 del sistema v3).
+   Una copia byte a byte para agencias vive en public/design-system/tokens.css: la escribe `pnpm gen:design-doc` y
+   `pnpm test:diseno` falla si difiere. No la edites a mano.
    Decisiones de dirección de arte: Fable (auditoría 7-jul-2026).
 
-   REGLA DE ORO: no se añade NI UN HEX nuevo. Los 5 colores + 2 derivados
-   oficiales son los únicos átomos; todo estado/velo/trazo se deriva con
-   color-mix(). Si "hace falta" un color, la respuesta es no.
-   ÚNICA EXCEPCIÓN (Miriam, 19-oct-2026): los 14 tokens --viz-cat-* de la categórica
-   nominal del mapa del explorador (ver el bloque «Categórica NOMINAL»). No abre la puerta
-   a más colores: cualquier ampliación vuelve a pasar por su firma. */
+   REGLA DE ORO: no se añade NI UN HEX nuevo. Los 5 colores + 2 derivados oficiales son los únicos átomos; todo
+   estado/velo/trazo se deriva con color-mix(). Si "hace falta" un color, la respuesta es no.
+   EXCEPCIONES FIRMADAS (cada una con su fecha y quién; cualquier otra vuelve a pasar por Miriam):
+     · --viz-cat-* (Miriam, 19-oct-2026): los 14 tokens de la categórica NOMINAL del mapa del explorador (ver el bloque
+       «Categórica NOMINAL»). No abren la puerta a más colores. */
 
 :root {
   /* ── Paleta: 5 colores (disciplina máxima) ───────────────────── */
@@ -25,11 +30,6 @@
   --color-miriam-claro: #c77dd2; /* Violeta sobre fondo oscuro (berenjena); NUNCA sobre crema */
   --cielo-resplandor:   #3a2450; /* SOLO fondos de "cielo" (universo constelación) */
 
-  /* ── Aliases semánticos de identidad/acción (usa estos) ──────── */
-  --color-link:     var(--color-miriam);
-  --color-emphasis: var(--color-miriam);
-  --color-action:   var(--color-cta);
-
   /* ── Estados derivados (color-mix, sin hexes nuevos) — COL-5 ─── */
   --cta-active:        color-mix(in srgb, var(--color-cta) 85%, var(--color-text));
   --miriam-hover:      color-mix(in srgb, var(--color-miriam) 88%, var(--color-text));
@@ -40,7 +40,6 @@
 
   /* ── Velos (backdrops / cielos) ──────────────────────────────── */
   --velo-berenjena-60: color-mix(in srgb, var(--color-text) 60%, transparent); /* backdrop de dialog */
-  --velo-berenjena-12: color-mix(in srgb, var(--color-text) 12%, transparent);
 
   /* ── Sombra: sistema plano. Solo capas flotantes (LAY-3). En CAPAS a baja
      opacidad (hairline ring + contacto + ambiente) para huir del "sticker"
@@ -82,12 +81,6 @@
   --radius-card: 16px;
   --radius-pill: 9999px;
 
-  /* ── Breakpoints canónicos (doc; en @media van en literal) — LAY-1 */
-  --bp-sm: 480px;
-  --bp-md: 768px;
-  --bp-lg: 1024px;
-  --bp-xl: 1280px;
-
   /* ── Movimiento — CRAFT-4 ────────────────────────────────────── */
   --dur-micro:      150ms;  /* hovers, focos */
   --dur-transicion: 300ms;  /* entradas, toasts, dialog */
@@ -102,13 +95,11 @@
      Atajo `font:` (familia+peso+tamaño+interlineado) por rol, para que
      ninguna superficie declare fuentes a mano. El tracking va aparte
      (no cabe en el shorthand `font`). */
-  --tipo-eyebrow: italic 600 var(--texto-sm)/1.3 var(--font-display);
   --tipo-h1:      600 var(--texto-3xl)/1.08 var(--font-display);
   --tipo-h2:      700 var(--texto-2xl)/1.15 var(--font-display);
   --tipo-h3:      600 var(--texto-xl)/1.2  var(--font-display);
   --tipo-body:    400 var(--texto-base)/1.6 var(--font-body);
   --tipo-body-sm: 400 var(--texto-sm)/1.5  var(--font-body);
-  --tipo-dato:    500 var(--texto-base)/1.4 var(--font-mono);   /* SOLO tabular */
   --tipo-cifra:   700 var(--texto-3xl)/1    var(--font-display); /* «Cifra Fraunces» */
   --track-eyebrow: 0.08em;  /* versalitas espaciadas: único recurso «de sistema» */
   --track-cifra:  -0.02em;  /* display grande: tracking negativo */
@@ -202,7 +193,6 @@
   --color-miriam-claro-rgb: 199 125 210;
   --color-cta-rgb: 255 107 71;
   --color-cta-hover-rgb: 229 87 58;
-  --cielo-resplandor-rgb: 58 36 80;
   --berenjena-2-rgb: 58 35 80;
   /* categórica nominal del mapa del explorador (mismos valores que --viz-cat-*; lo lee paleta()) */
   --viz-cat-frio-1-rgb: 63 121 134;   --viz-cat-frio-1-osc-rgb: 85 149 163;

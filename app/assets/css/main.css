@@ -259,41 +259,15 @@
   }
 
   /* DS badge genómico — violet pill, mono */
-  .badge-genomic, .tag-gold {
+  .badge-genomic {
     @apply inline-block bg-miriam-soft text-berenjena rounded-full px-3 py-1 font-mono text-[13px] font-semibold;
     letter-spacing: 0;
     transition: box-shadow 0.2s ease;
   }
   /* A4 · brillo sutil al pasar/enfocar — "hasta los detalles respiran".
      Sin movimiento (solo box-shadow), seguro siempre. */
-  .badge-genomic:hover, .badge-genomic:focus-visible,
-  .tag-gold:hover, .tag-gold:focus-visible {
+  .badge-genomic:hover, .badge-genomic:focus-visible {
     box-shadow: 0 0 0 3px rgb(var(--color-miriam-rgb) / 0.18);
-  }
-
-  /* Ocean tag (legacy) → outlined berenjena */
-  .tag-ocean {
-    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-2xs font-medium tracking-wide uppercase;
-    background: rgb(var(--color-text-rgb) / 0.06);
-    color: var(--color-text);
-    border: 1px solid rgb(var(--color-text-rgb) / 0.12);
-  }
-
-  /* Stat number — Fraunces display */
-  .stat-number {
-    @apply font-display font-semibold text-berenjena;
-    font-size: clamp(48px, 6vw, 72px);
-    line-height: 0.95;
-    letter-spacing: -0.04em;
-  }
-  .stat-number--firma {
-    @apply text-miriam;
-  }
-  .stat-label {
-    @apply font-body text-tinta;
-    font-size: 13px;
-    letter-spacing: 0.02em;
-    text-transform: uppercase;
   }
 
   /* ────────────────────────────────────────────────────────────
@@ -542,17 +516,6 @@
     align-items: center;
     gap: 6px;
   }
-
-  /* Status dots — for in-range / out-of-range indicators */
-  .dot-status {
-    display: inline-block;
-    width: 8px;
-    height: 8px;
-    border-radius: 999px;
-    vertical-align: middle;
-  }
-  .dot-status--ok    { background: #2f8a5a; }
-  .dot-status--alert { background: #d4633c; }
 
   /* Form controls — cream background, miriam focus ring */
   .form-input {
@@ -959,43 +922,6 @@
       /* Un solo rango con nombre (mezclar entry y cover daba estados raros). */
       animation-range: entry 0% entry 60%;
     }
-  }
-}
-
-/* ────────────────────────────────────────────────────────────
-   Fotografía — tratamientos del sistema (DS §16).
-   Las fotos del caso pasan por uno de estos filtros para respirar
-   con la paleta cálida sin parecer "filtradas". Un filtro por pieza.
-   · .pic          → firma (default): cálido, editorial, fiel
-   · .pic.subtle   → press kit / headshots (más fiel al color real)
-   · .pic.cool     → escenas clínicas (frío, no romantiza)
-   · .pic.bw       → citas / openers (B/N cálido, no obituario)
-   · .pic.duotone  → editorial puro (berenjena→crema, vía filtro SVG)
-   El filtro SVG #duotone-berenjena vive en app.vue (global).
-   ──────────────────────────────────────────────────────────── */
-.pic {
-  display: block;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  filter: sepia(0.12) saturate(0.82) contrast(1.06) brightness(1.02) hue-rotate(-4deg);
-  transition: filter 240ms ease;
-}
-.pic.subtle {
-  filter: sepia(0.06) saturate(0.92) contrast(1.03) brightness(1.01);
-}
-.pic.cool {
-  filter: saturate(0.78) contrast(1.05) brightness(1.02) hue-rotate(8deg);
-}
-.pic.bw {
-  filter: grayscale(1) contrast(1.08) brightness(1.02) sepia(0.08);
-}
-.pic.duotone {
-  filter: contrast(1.1) brightness(1.05) url(#duotone-berenjena);
-}
-@media (prefers-reduced-motion: reduce) {
-  .pic {
-    transition: none;
   }
 }
 

@@ -65,16 +65,21 @@ async function capturarRuta(nav, ruta, ancho) {
   return { alto, trozos }
 }
 
+/** Una ruta que no termina en este tiempo se da por colgada (Chrome se reinicia y se sigue con la siguiente). */
+const TOPE_RUTA_MS = Number(process.env.CAPTURA_TOPE_MS || 120000)
+const conTope = (promesa, ms, que) =>
+  Promise.race([promesa, new Promise((_, rechazar) => setTimeout(() => rechazar(new Error(`colgada más de ${ms / 1000} s: ${que}`)), ms).unref())])
+
 async function capturar({ salida, rutas, anchos }) {
   mkdirSync(salida, { recursive: true })
-  const nav = await abrirNavegador({ ancho: anchos[0], alto: 900, escala: 1 })
+  let nav = await abrirNavegador({ ancho: anchos[0], alto: 900, escala: 1 })
   const hashes = {}
   try {
     for (const ruta of rutas) {
       for (const ancho of anchos) {
         const clave = nombre(ruta, ancho)
         try {
-          const { alto, trozos } = await capturarRuta(nav, ruta, ancho)
+          const { alto, trozos } = await conTope(capturarRuta(nav, ruta, ancho), TOPE_RUTA_MS, clave)
           for (const t of trozos) writeFileSync(join(salida, `${clave}.${t.i}.png`), t.buf)
           const porTrozo = trozos.map((t) => sha(t.buf))
           hashes[clave] = { ruta, ancho, alto, hash: sha(porTrozo.join('')), trozos: porTrozo }
@@ -82,11 +87,14 @@ async function capturar({ salida, rutas, anchos }) {
         } catch (e) {
           hashes[clave] = { ruta, ancho, error: String(e.message || e) }
           console.log(`✘ ${clave}  ${e.message || e}`)
+          // Chrome puede haber quedado en mal estado: se cierra y se abre otro para no arrastrar el fallo.
+          await Promise.race([nav.cerrar().catch(() => {}), new Promise((r) => setTimeout(r, 5000).unref())])
+          nav = await abrirNavegador({ ancho: anchos[0], alto: 900, escala: 1 })
         }
       }
     }
   } finally {
-    await nav.cerrar()
+    await Promise.race([nav.cerrar().catch(() => {}), new Promise((r) => setTimeout(r, 5000).unref())])
   }
   writeFileSync(join(salida, 'hashes.json'), JSON.stringify(hashes, null, 2))
   return hashes

@@ -55,50 +55,6 @@ export default {
           500: 'rgb(var(--color-cta-rgb) / <alpha-value>)',
           600: 'rgb(var(--color-cta-hover-rgb) / <alpha-value>)',
         },
-
-        // Legacy palette aliases — remapped to DS tokens so existing classNames
-        // produce design-system colors without rewriting every template.
-        ink: {
-          50:  '#faf6f0', // → cream bg
-          100: '#f5efe6', // → cream-card
-          200: '#ebe2d7', // borders soft
-          300: '#c8bdd3',
-          400: '#9a8ca8',
-          500: '#6b5d75',
-          600: '#3a3340', // → tinta soft
-          700: '#2d1b3d', // → berenjena
-          800: '#2d1b3d', // → berenjena
-          900: '#2d1b3d', // → berenjena
-          950: '#1c1126', // berenjena profundo (dark sections)
-        },
-        gold: {
-          // Antiguo "gold" → ahora miriam violet
-          50:  '#faf2fc',
-          100: '#e8d4ed', // → miriam-soft (badge bg)
-          200: '#d9b8e2',
-          300: '#c69bd2',
-          400: '#b870c3',
-          500: '#a44db2', // → miriam
-          600: '#8a3f97', // hover
-          700: '#6b3175', // texto sobre miriam-soft
-          800: '#4d2354', // texto deep
-          900: '#3a1a40',
-          950: '#23102a',
-        },
-        ocean: {
-          // Antiguo "ocean" → también miriam (DS = un solo accent)
-          50:  '#faf2fc',
-          100: '#e8d4ed',
-          200: '#d9b8e2',
-          300: '#c69bd2',
-          400: '#b870c3',
-          500: '#a44db2',
-          600: '#8a3f97',
-          700: '#6b3175',
-          800: '#4d2354',
-          900: '#3a1a40',
-          950: '#23102a',
-        },
       },
       fontFamily: {
         display: ['Fraunces', 'Georgia', 'serif'],
@@ -115,9 +71,23 @@ export default {
         // un no-op y el menú se quedaba en 64px (h-16) en todos los tamaños.
         18: '4.5rem',
       },
+      // Puente de los tokens de movimiento, sombra y radio (sistema v3, S1). Solo nombres NUEVOS o con el mismo valor
+      // que ya tenían: nada cambia de píxel. Las utilidades que nadie usa no salen en el CSS.
       borderRadius: {
-        btn: '12px',
-        card: '16px',
+        btn: 'var(--radius-btn)',
+        card: 'var(--radius-card)',
+        pill: 'var(--radius-pill)',
+      },
+      boxShadow: {
+        flotante: 'var(--sombra-flotante)',
+      },
+      transitionDuration: {
+        micro: 'var(--dur-micro)',
+        transicion: 'var(--dur-transicion)',
+      },
+      transitionTimingFunction: {
+        salida: 'var(--curva-salida)',
+        entrada: 'var(--curva-entrada)',
       },
       typography: (theme) => ({
         DEFAULT: {

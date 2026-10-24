@@ -3,8 +3,7 @@
   "nota": "Generado por scripts/test-diseno.ts (pnpm test:diseno --actualizar). Un recuento puede bajar, nunca subir. No se edita a mano.",
   "reglas": {
     "R1": {
-      "app/app.vue": 1,
-      "app/assets/css/main.css": 34,
+      "app/assets/css/main.css": 32,
       "app/components/BoneFrameViewer.client.vue": 9,
       "app/components/BoneTriView.client.vue": 92,
       "app/components/BreastView.client.vue": 15,
@@ -57,10 +56,10 @@
       "app/pages/privacidad.vue": 1,
       "app/pages/timeline.vue": 4,
       "app/utils/timeline.ts": 9,
-      "tailwind.config.js": 34
+      "tailwind.config.js": 1
     },
     "R2": {
-      "app/assets/css/main.css": 15,
+      "app/assets/css/main.css": 14,
       "app/components/BoneFrameViewer.client.vue": 2,
       "app/components/BoneTriView.client.vue": 22,
       "app/components/BreastView.client.vue": 5,
@@ -128,7 +127,7 @@
       "app/pages/timeline.vue": 3
     },
     "R3": {
-      "app/assets/css/main.css": 13,
+      "app/assets/css/main.css": 12,
       "app/components/BoneFrameViewer.client.vue": 3,
       "app/components/BoneTriView.client.vue": 11,
       "app/components/BreastView.client.vue": 4,
