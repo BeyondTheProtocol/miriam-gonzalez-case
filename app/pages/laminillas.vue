@@ -158,6 +158,7 @@ const superpuesta = ref(false)
 const modal = computed(() => superpuesta.value && fichaAbierta.value)
 const botonFicha = ref<HTMLElement | null>(null)
 const tituloFicha = ref<HTMLElement | null>(null)
+const peticion = ref<{ abre: () => void } | null>(null)
 async function alternaFicha() {
   fichaAbierta.value = !fichaAbierta.value
   await nextTick()
@@ -234,7 +235,12 @@ onBeforeUnmount(() => {
           'Los resultados que aparecen son los de los informes de anatomía patológica, cada uno con su fuente y su sello de verificación. Mirar la imagen no los sustituye: los interpreta el equipo médico.',
           'The results shown are those in the pathology reports, each with its source and verification seal. Looking at the image does not replace them: the medical team interprets them.') }}</p>
       </details>
+      <!-- Los TIFF a resolución completa, bajo petición (24-oct-2026). También abre con #ficheros / #files. -->
+      <button type="button" class="lam__accion lam__pedir lam__pedir--barra" :aria-label="L('Pedir los ficheros a resolución completa', 'Request the full-resolution files')" @click="peticion?.abre()">
+        <Icon name="ph:download-simple-bold" class="w-4 h-4" aria-hidden="true" /><span class="lam__accion-texto">{{ L('Pedir los ficheros', 'Request the files') }}</span><span class="lam__accion-corto" aria-hidden="true">{{ L('Ficheros', 'Files') }}</span>
+      </button>
     </div>
+    <ClientOnly><LaminillasPeticion ref="peticion" :idioma="idioma" /></ClientOnly>
 
     <div class="lam__cuerpo">
       <!-- Orden del DOM: el visor primero (lo principal; ← → y ‹ › cambian de laminilla sin pasar por
@@ -253,6 +259,10 @@ onBeforeUnmount(() => {
             </button>
             <button v-if="puedeHE && !(estrecho && comparando)" type="button" class="lam__accion" :aria-pressed="conHE" :aria-label="L('HE al lado', 'H&E alongside')" @click="alternaHE">
               <Icon name="ph:square-split-horizontal-bold" class="w-4 h-4" aria-hidden="true" /><span class="lam__accion-texto">{{ L('HE al lado', 'H&E alongside') }}</span><span class="lam__accion-corto" aria-hidden="true">{{ L('HE al lado', 'H&E') }}</span>
+            </button>
+            <!-- En móvil «Ficheros» va aquí y no en la barra: allí estrechaba el aviso hasta 5 líneas (comité diseno, 24-oct). -->
+            <button type="button" class="lam__accion lam__pedir lam__pedir--acciones" :aria-label="L('Pedir los ficheros a resolución completa', 'Request the full-resolution files')" @click="peticion?.abre()">
+              <Icon name="ph:download-simple-bold" class="w-4 h-4" aria-hidden="true" /><span class="lam__accion-texto">{{ L('Pedir los ficheros', 'Request the files') }}</span><span class="lam__accion-corto" aria-hidden="true">{{ L('Ficheros', 'Files') }}</span>
             </button>
             <button ref="botonFicha" type="button" class="lam__accion" :aria-expanded="fichaAbierta" aria-controls="lam-ficha" :aria-label="L('Informe', 'Report')" @click="alternaFicha">
               <Icon name="ph:file-text-bold" class="w-4 h-4" aria-hidden="true" /><span class="lam__accion-texto">{{ L('Informe', 'Report') }}</span><span class="lam__accion-corto" aria-hidden="true">{{ L('Informe', 'Report') }}</span>
@@ -318,6 +328,10 @@ onBeforeUnmount(() => {
             <p>{{ L(
               'Los marcadores neuroendocrinos son cromogranina, sinaptofisina, INSM1 y CD56.',
               'The neuroendocrine markers are chromogranin, synaptophysin, INSM1 and CD56.') }}</p>
+            <p>
+              {{ L('Si quieres los ficheros a resolución completa, pídemelos con «Pedir los ficheros». Licencia CC BY 4.0.', 'If you want the full-resolution files, ask me through “Request the files”. Licensed under CC BY 4.0.') }}
+              <a href="/laminillas-ficheros/SHA256SUMS.txt" class="link-inline">{{ L('Sumas SHA-256', 'SHA-256 checksums') }}</a>
+            </p>
           </details>
         </div>
       </aside>
@@ -333,6 +347,7 @@ onBeforeUnmount(() => {
 .lam__volver:focus-visible { outline: 3px solid var(--anillo-foco); outline-offset: 2px; border-radius: var(--radius-sm); }
 .lam__h1 { margin: 0; font-family: var(--font-display); font-weight: 600; font-size: var(--texto-lg); color: var(--color-text); }
 .lam__aviso { margin-left: auto; font-size: var(--texto-xs); color: var(--color-text); }
+.lam__pedir--acciones { display: none; }
 .lam__aviso summary { display: flex; align-items: center; gap: 6px; min-height: 36px; cursor: pointer; font-weight: 600; list-style: none; }
 .lam__aviso summary::-webkit-details-marker { display: none; }
 .lam__aviso-flecha { transition: transform var(--dur-micro, .15s) ease; }
@@ -402,6 +417,8 @@ onBeforeUnmount(() => {
   .lam__barra { padding: 4px 12px; gap: 0 12px; }
   .lam__volver-texto, .lam__h1 { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
   .lam__aviso { margin-left: 0; flex: 1; }
+  .lam__pedir--barra { display: none; }
+  .lam__pedir--acciones { display: inline-flex; }
   .lam__cuerpo, .lam--sin-ficha .lam__cuerpo { grid-template-columns: minmax(0, 1fr); grid-template-rows: minmax(0, 1fr) auto; grid-template-areas: 'visor' 'gal'; }
   .lam__galeria { border-right: 0; }
   /* Dos filas: el título y, debajo, las acciones con su rótulo visible (solo icono no se entendía). */

@@ -280,8 +280,9 @@ for (const ancho of [320, 390]) {
 }
 await carga('/laminillas', 390, 844)
 ok(await ev(`getComputedStyle(document.querySelector('#lam-ficha')).display === 'none'`), 'móvil: la ficha empieza plegada (cajón)')
-ok(await ev(`(() => { const b = [...document.querySelectorAll('.lam__accion')]; return b.length >= 2 && b.every((x) => { const c = x.querySelector('.lam__accion-corto'); return !!c && !!c.offsetParent && c.getBoundingClientRect().width > 10 && c.textContent.trim().length >= 2 }) })()`), 'móvil: CADA acción lleva su rótulo visible, no solo el icono')
-ok(await ev(`[...document.querySelectorAll('.lam__accion, .lam__flecha, .lam__volver')].every((b) => b.getBoundingClientRect().width >= 44 && b.getBoundingClientRect().height >= 44)`), 'móvil: acciones, ‹ › y volver de 44 px como mínimo')
+ok(await ev(`(() => { const b = [...document.querySelectorAll('.lam__accion')].filter((x) => x.offsetParent); return b.length >= 2 && b.every((x) => { const c = x.querySelector('.lam__accion-corto'); return !!c && !!c.offsetParent && c.getBoundingClientRect().width > 10 && c.textContent.trim().length >= 2 }) })()`), 'móvil: CADA acción lleva su rótulo visible, no solo el icono')
+ok(await ev(`[...document.querySelectorAll('.lam__pedir')].filter((x) => x.offsetParent).length === 1`), 'móvil: «Ficheros» se ve una sola vez')
+ok(await ev(`[...document.querySelectorAll('.lam__accion, .lam__flecha, .lam__volver')].filter((b) => b.offsetParent).every((b) => b.getBoundingClientRect().width >= 44 && b.getBoundingClientRect().height >= 44)`), 'móvil: acciones, ‹ › y volver de 44 px como mínimo')
 ok(await ev(`[...document.querySelectorAll('.gal__item .gal__corto')].filter((s) => /^HE/.test(s.textContent.trim())).map((s) => s.textContent.trim()).slice(0, 2).join() === 'HE 1,HE 2'`), 'móvil: los dos cortes de HE se distinguen en la tira («HE 1», «HE 2»)')
 await clic(`[...document.querySelectorAll('.lam__accion')].find((b) => b.getAttribute('aria-controls') === 'lam-ficha')`)
 ok(await espera(`getComputedStyle(document.querySelector('#lam-ficha')).display !== 'none' && document.activeElement?.id === 'lam-ficha-titulo'`, 4000), 'móvil: «Informe» abre el cajón con el foco en su título')
