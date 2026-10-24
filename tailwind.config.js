@@ -30,6 +30,13 @@ export default {
   ],
   theme: {
     extend: {
+      // Corte del menú de escritorio de la cabecera (SiteNav): `menu:` = desde 70rem (1120 px con la letra por defecto). En `rem`
+      // (no en px) a propósito: en una media query, `rem` es el tamaño de letra que ha elegido la persona en su navegador, así que si
+      // lo sube al 125 % o al 150 % el corte sube con él (1400 y 1680 px) y la cabecera pasa a la hamburguesa antes de desbordar.
+      // Con el `lg` de siempre (1024 px) y la letra al 125 %, el bloque de la derecha («Apoyar a Miriam») se salía de la pantalla.
+      screens: {
+        menu: '70rem',
+      },
       colors: {
         // Design system tokens — Caso Miriam
         // Base palette (5 colors): cream bg, berenjena text, miriam violet (accent), coral (CTA)

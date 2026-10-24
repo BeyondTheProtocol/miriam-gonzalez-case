@@ -10,9 +10,10 @@
     "
     style="border-bottom: 1px solid rgb(var(--color-text-rgb) / 0.08)"
   >
-    <!-- lg:gap-2: hueco mínimo de 8 px entre el logo, el menú y el bloque de la derecha. Con `whitespace-nowrap` en las etiquetas, si una
-           no cabe se ve como un desborde (el test de la cabecera lo mide), no como un salto de línea. -->
-      <div class="section-wide flex items-center justify-between h-16 sm:h-18 lg:gap-2">
+    <!-- menu:gap-2: hueco mínimo de 8 px entre el logo, el menú y el bloque de la derecha. Con `whitespace-nowrap` en las etiquetas, si una
+           no cabe se ve como un desborde (el test de la cabecera lo mide), no como un salto de línea. El menú de escritorio empieza en
+           `menu:` (70rem, ver tailwind.config.js), no en `lg`: por debajo, hamburguesa. -->
+      <div class="section-wide flex items-center justify-between h-16 sm:h-18 menu:gap-2">
       <!-- Logo -->
       <NuxtLink :to="localePath('/')" class="flex items-center gap-2.5 group" style="text-decoration: none">
           <!-- Logo redondo: monograma «m» + constelación de destellos (DS, violeta miriam) -->
@@ -28,7 +29,7 @@
       <nav
         v-if="!minimo"
         :aria-label="$t('nav.main_label')"
-        class="hidden lg:flex items-center gap-1"
+        class="hidden menu:flex items-center gap-1"
       >
         <NuxtLink
           v-for="item in MENU_ESCRITORIO"
@@ -100,7 +101,7 @@
           :aria-expanded="mobileOpen"
           aria-controls="mobile-nav"
           :aria-label="mobileOpen ? $t('nav.close_menu') : $t('nav.open_menu')"
-          class="lg:hidden inline-flex items-center justify-center min-w-[44px] min-h-[44px] -mr-2 text-berenjena"
+          class="menu:hidden inline-flex items-center justify-center min-w-[44px] min-h-[44px] -mr-2 text-berenjena"
         >
           <Icon
             :name="mobileOpen ? 'ph:x-bold' : 'ph:list-bold'"
@@ -123,7 +124,7 @@
       <div
         v-if="mobileOpen && !minimo"
         id="mobile-nav"
-        class="lg:hidden barra-fija"
+        class="menu:hidden barra-fija"
         style="border-top: 1px solid rgb(var(--color-text-rgb) / 0.08)"
       >
         <nav
@@ -184,12 +185,14 @@ const ariaCurrent = (key: string) => ariaCurrentSeccion(key, rutaActual.value)
 // · reposo  → gris (tinta)
 // · hover   → píldora de fondo miriam-soft + texto berenjena
 // · activo  → violeta miriam + subrayado fijo → distinto del hover ("estás aquí")
-// Alto mínimo de 44 px también en escritorio: a 1024 px (lg) es un iPad en
-// horizontal y se usa con el dedo. La cabecera mide 64 px, así que cabe.
-// En escritorio, las etiquetas no se parten (`whitespace-nowrap`) y el relleno lateral baja de 12 a 8 px entre 1024 y 1279 px
-// (T2a, revisión del 24-oct-2026): con «Herramientas» (unos 66 px más ancha que «Datos») y el selector de 88 px, a 1024 px el
-// menú en español no cabía y «La ciencia», «Cómo ayudar» y «Apoyar a Miriam» saltaban a dos líneas. Así sobran 24 px a 1024 px; el
-// alto sigue siendo 44 px y el ancho de cada enlace, mayor que 44. El menú móvil (a todo ancho) conserva sus 12 px.
+// Alto mínimo de 44 px también en escritorio: una tableta en horizontal se usa con el dedo. La cabecera mide 64 px, así que cabe.
+// En escritorio, las etiquetas no se parten (`whitespace-nowrap`) y el relleno lateral baja de 12 a 8 px entre el corte del menú y 1279 px
+// (T2a, revisión del 24-oct-2026): con «Herramientas» (unos 66 px más ancha que «Datos») y el selector de 88 px, a 1024 px el menú en
+// español no cabía y «La ciencia», «Cómo ayudar» y «Apoyar a Miriam» saltaban a dos líneas.
+// Segunda revisión (24-oct-2026): sin partir etiquetas, con la letra de la raíz al 125 % el bloque de la derecha se salía de la pantalla
+// (1037 px de contenido en 1024, y 1106 al 150 %). El menú de escritorio empieza ahora en `menu:` (70rem = 1120 px, tailwind.config.js) y
+// por debajo hay hamburguesa; al 125 % sobran unos 60 px en el corte. Como el corte está en rem, si la persona sube la letra de su
+// navegador el corte sube con ella. El alto sigue siendo 44 px y el ancho de cada enlace, mayor que 44. El menú móvil conserva sus 12 px.
 function navClass(key: string, escritorio = false): (string | undefined)[] {
   return [
     'inline-flex items-center min-h-[44px] py-1.5 text-sm font-medium rounded-lg transition-colors',

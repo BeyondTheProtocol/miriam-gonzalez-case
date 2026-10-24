@@ -54,6 +54,13 @@
 //     §13: el destino de cada puerta contiene una palabra de su rótulo, y la de «Tecnología, IA y marcas» nombra de verdad las dos cosas: la
 //     tarjeta de /colabora habla de tecnología y lleva una salida a /marcas (antes aterrizaba en una tarjeta de ingenieros sin una palabra de marcas).
 //
+//   · Revisión de T2a, 2.ª ronda (24-oct-2026), tres frenos más:
+//     §11: el corte del menú de escritorio está en 70rem (1120 px): desde ahí menú, por debajo hamburguesa. Con la letra de la raíz al 125 %, desde 640
+//     px, no hay scroll horizontal, lo más a la derecha de la cabecera («Apoyar a Miriam») deja ≥ 16 px de margen y ninguna etiqueta se parte. Antes, a
+//     1024 px el contenido medía 1037 px (el 150 %: 1106) y el botón de apoyo se salía de la pantalla.
+//     §12: ningún botón de las tarjetas de /herramientas supera 56 px (a 1280 y 1440 px «Escribir al equipo» se partía y medía 78 px).
+//     §14: barrido de 13 páginas por idioma, a 1280 y 1440 px: ningún .btn-* parte su etiqueta ni supera 56 px.
+//
 // CAPTURAS=<carpeta> guarda capturas de la rejilla para la revisión de `diseno`.
 // Uso: pnpm exec nuxt generate && pnpm test:home-caminos
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs'
@@ -557,7 +564,23 @@ try {
     // Alto de todo lo que se ve en la cabecera (enlaces, botones, selector, menú y los textos del logo): un texto que se parte mide el doble.
     const altos = [...cab.querySelectorAll('a, button, [role=group], nav, span')].filter(visible).filter((el) => !el.classList.contains('sr-only'))
       .map((el) => ({ texto: (el.textContent || '').trim().replace(/\\s+/g, ' ').slice(0, 24), h: Math.round(el.getBoundingClientRect().height * 10) / 10 }))
+    // Etiquetas de texto que ocupan más de una línea: se cuentan las líneas de cada nodo de texto (el logo lleva dos, cada una en su nodo).
+    const partidas = []
+    for (const el of cab.querySelectorAll('a, button')) {
+      if (!visible(el)) continue
+      const w = document.createTreeWalker(el, NodeFilter.SHOW_TEXT)
+      for (let n = w.nextNode(); n; n = w.nextNode()) {
+        if (n.parentElement.closest('.sr-only') || !n.textContent.trim()) continue
+        const r = document.createRange(); r.selectNodeContents(n)
+        const lineas = new Set([...r.getClientRects()].filter((q) => q.width > 0).map((q) => Math.round(q.top / 4))).size
+        if (lineas > 1) partidas.push(n.textContent.trim().replace(/\\s+/g, ' ').slice(0, 24) + ' (' + lineas + ')')
+      }
+    }
+    // El borde derecho de lo más a la derecha que se ve en la cabecera (el botón de apoyo, o la hamburguesa): que no se salga de la pantalla.
+    const derecha = Math.max(...[...cab.querySelectorAll('a, button, [role=group]')].filter(visible).map((el) => el.getBoundingClientRect().right))
+    const navEscritorio = cab.querySelector('nav')
     return {
+      partidas, derecha, menuEscritorio: visible(navEscritorio),
       altos, cabecera: Math.round(cab.getBoundingClientRect().height),
       visible: visible(g), botones: botones.map(caja), pulsados: botones.map((b) => b.getAttribute('aria-pressed')),
       grupo: g ? caja(g) : null, logo: caja(logo), apoyo: apoyo ? caja(apoyo) : null, hamburguesa: visible(hamb) ? caja(hamb) : null,
@@ -566,7 +589,7 @@ try {
   })()`
   for (const loc of ['es', 'en']) {
     const E = ESPERADO[loc]
-    for (const w of [320, 375, 639, 640, 1024, 1039, 1280, 1440]) {
+    for (const w of [320, 375, 639, 640, 1024, 1039, 1119, 1120, 1280, 1440]) {
       await ancho(w)
       await cargar(E.home)
       const c = await evaluate(CABECERA)
@@ -583,6 +606,20 @@ try {
         ok(c.cabecera <= 80, `${loc} ${w}px: la cabecera no crece por una etiqueta partida (${c.cabecera} px ≤ 80)`)
       }
       ok(c.pulsados.join() === (loc === 'es' ? 'true,false' : 'false,true'), `${loc} ${w}px: marca el idioma activo (aria-pressed ${c.pulsados.join(',')})`)
+      // El corte del menú de escritorio: desde 70rem (1120 px) el menú, por debajo la hamburguesa (nunca los dos, nunca ninguno).
+      ok(w >= 1120 ? c.menuEscritorio && !c.hamburguesa : !c.menuEscritorio && !!c.hamburguesa, `${loc} ${w}px: ${w >= 1120 ? 'menú de escritorio y sin hamburguesa' : 'hamburguesa y sin menú de escritorio'} (menú ${c.menuEscritorio ? 'sí' : 'no'}, hamburguesa ${c.hamburguesa ? 'sí' : 'no'})`)
+      // Con la letra de la raíz al 125 % (la persona que sube el tamaño de letra de su navegador): sin scroll horizontal, el botón de apoyo y el
+      // selector dentro de la pantalla con su margen, y ninguna etiqueta partida. Se inyecta en la raíz; las media queries en `rem` no se mueven
+      // con ella (con el ajuste real del navegador sí, y el corte sube), así que esto es el caso más duro del mismo ancho. Revisión de T2a, 2.ª ronda:
+      // a 1024 px con el menú de escritorio el contenido medía 1037 px (el 150 %: 1106) y «Apoyar a Miriam» quedaba recortado fuera de pantalla.
+      if (w >= 640) {
+        await evaluate(`document.documentElement.style.fontSize = '125%'`)
+        await sleep(200)
+        const g = await evaluate(CABECERA)
+        ok(g.sw <= g.vw, `${loc} ${w}px, letra al 125 %: sin scroll horizontal (${g.sw} ≤ ${g.vw})`)
+        ok(g.derecha <= g.vw - 16, `${loc} ${w}px, letra al 125 %: lo más a la derecha de la cabecera deja ≥ 16 px de margen (termina en ${Math.round(g.derecha)} de ${g.vw})`)
+        ok(g.partidas.length === 0, `${loc} ${w}px, letra al 125 %: ninguna etiqueta de la cabecera se parte en dos líneas${g.partidas.length ? ': ' + g.partidas.join(', ') : ''}`)
+      }
     }
   }
   // en móvil, el menú desplegable ya no lleva su propio selector (habría dos grupos «Idioma» a la vez)
@@ -657,6 +694,10 @@ try {
       ok(m.sw <= m.vw && m.h1 === 1, `${e}: sin scroll horizontal (${m.sw} ≤ ${m.vw}) y un solo <h1>`)
       ok(m.tarjetas.length >= 6 && m.tarjetas.every((c) => c.left >= -0.5 && c.right <= m.vw + 0.5), `${e}: las ${m.tarjetas.length} tarjetas caben en la pantalla`)
       ok(m.tarjetas.every((c) => c.botones.length >= 1 && c.botones.every((b) => b.h >= 44 && b.w >= 44 && b.left >= -0.5 && b.right <= m.vw + 0.5)) && m.tarjetas.filter((c) => c.resumen).every((c) => c.resumen.h >= 44), `${e}: los botones y los resúmenes de las tarjetas miden ≥ 44 px`)
+      // y ninguno supera 56 px: una etiqueta partida en dos líneas mide ~78 px (revisión de T2a, 2.ª ronda: a 1280 y 1440 px, en la rejilla de 3 columnas,
+      // «Escribir al equipo» / «Write to the team» se partía y «Abrir» se estiraba a 78 px; de 375 a 1279 px medían 53).
+      const grandes = m.tarjetas.flatMap((c) => c.botones).filter((b) => b.h > 56)
+      ok(grandes.length === 0, `${e}: ningún botón de tarjeta supera 56 px de alto (${grandes.length ? grandes.map((b) => `${Math.round(b.w)}×${Math.round(b.h)}`).join(', ') : 'mayor: ' + Math.round(Math.max(...m.tarjetas.flatMap((c) => c.botones).map((b) => b.h)))} px)`)
       ok(m.puertas.length === 3 && m.puertas.every((b) => b.h >= 44 && b.right <= m.vw + 0.5), `${e}: las tres puertas miden ≥ 44 px y caben (${m.puertas.map((b) => Math.round(b.h)).join(', ')})`)
       const ts = m.tarjetas
       ok(!ts.some((p, i) => ts.slice(i + 1).some((q) => Math.min(p.right, q.right) - Math.max(p.left, q.left) > 1 && Math.min(p.bottom, q.bottom) - Math.max(p.top, q.top) > 1)), `${e}: ninguna tarjeta se solapa con otra`)
@@ -710,6 +751,47 @@ try {
         ok(contiene(tokens, loc === 'es' ? 'marcas' : 'brands'), `${loc} «${pu.texto}»: la tarjeta nombra las marcas (no solo el rótulo de la puerta)`)
         ok(destino.enlaces.includes(loc === 'es' ? '/marcas' : '/en/brands'), `${loc} «${pu.texto}»: y trae un enlace a ${loc === 'es' ? '/marcas' : '/en/brands'} dentro de la propia tarjeta`)
       }
+    }
+  }
+
+  console.log('\n14. Ningún botón parte su etiqueta en el escritorio (revisión de T2a, 2.ª ronda, 24-oct-2026)')
+  // La misma clase que la etiqueta partida de la cabecera, en las rejillas de 3 columnas: «Escribir al equipo» se partía en dos líneas a 1280 y 1440 px en
+  // /herramientas (`flex: 1 1 9rem`). Se barren las páginas con botones en tarjetas o bandas (ES y EN): cada texto de un .btn-* ocupa UNA línea y ninguno
+  // supera 56 px de alto. A 1280 y 1440 px (la rejilla de 3 columnas y el escritorio más común); en móvil un botón puede envolver, aquí no se mide.
+  const BOTONES = `(() => {
+    const partidos = []
+    let n = 0
+    for (const el of document.querySelectorAll('main .btn-cta, main .btn-secondary, main .btn-dark, main .btn-ghost')) {
+      if (el.offsetParent === null) continue
+      n++
+      const tops = new Set()
+      const w = document.createTreeWalker(el, NodeFilter.SHOW_TEXT)
+      for (let t = w.nextNode(); t; t = w.nextNode()) {
+        if (t.parentElement.closest('.sr-only') || !t.textContent.trim()) continue
+        const r = document.createRange(); r.selectNodeContents(t)
+        for (const q of r.getClientRects()) if (q.width > 0) tops.add(Math.round(q.top / 4))
+      }
+      const h = el.getBoundingClientRect().height
+      if (tops.size > 1 || h > 56) partidos.push(el.textContent.trim().replace(/\\s+/g, ' ').slice(0, 40) + ' (' + tops.size + ' líneas, ' + Math.round(h) + ' px)')
+    }
+    return { n, partidos }
+  })()`
+  const PAGINAS_BOTONES = {
+    es: ['/', '/herramientas', '/colabora', '/marcas', '/prensa', '/datos', '/equipo', '/timeline', '/ciencia', '/gastos', '/historia', '/lesiones', '/reservorio'],
+    en: ['/en', '/en/tools', '/en/collaborate', '/en/brands', '/en/press', '/en/data', '/en/team', '/en/timeline', '/en/science', '/en/expenses', '/en/story', '/en/lesiones', '/en/reservorio'],
+  }
+  for (const loc of ['es', 'en']) {
+    for (const w of [1280, 1440]) {
+      await ancho(w)
+      const partidos = []
+      let total = 0
+      for (const ruta of PAGINAS_BOTONES[loc]) {
+        await cargar(ruta)
+        const r = await evaluate(BOTONES)
+        total += r.n
+        partidos.push(...r.partidos.map((x) => `${ruta}: ${x}`))
+      }
+      ok(total > 0 && partidos.length === 0, `${loc} ${w}px: ${total} botones en ${PAGINAS_BOTONES[loc].length} páginas, ninguno parte su etiqueta${partidos.length ? ' → ' + partidos.join('; ') : ''}`)
     }
   }
 } finally {
