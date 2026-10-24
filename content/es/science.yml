@@ -28,8 +28,8 @@ treatments:
       El PET-TC (24/03/2026) confirma progresión ósea (más captación en pelvis y
       fémur derecho; nuevos focos en D1 e ilíaco izquierdo), sin enfermedad
       visceral. El abemaciclib se suspende el 30/03/2026 por la progresión,
-      coincidiendo con una posible toxicidad hepática. Fulvestrant y Zoladex
-      siguen hasta el 28/05/2026.
+      coincidiendo con una posible toxicidad hepática. El fulvestrant sigue hasta
+      el 28/05/2026; la goserelina continúa.
     active: false
   - line: RT
     regimen: SBRT sobre D11 (15–19 de junio de 2026)
@@ -38,17 +38,19 @@ treatments:
       espacio epidural anterior en la RM de columna del 11 de junio de 2026.
     active: false
   - line: 3L
-    regimen: Fulvestrant + BG-75202 (inhibidor de KAT6), ensayo de fase 1 (julio–septiembre 2026)
+    regimen: Fulvestrant + BG-75202 (inhibidor de KAT6A/B), ensayo de fase 1a/1b, con goserelina de fondo (julio–septiembre 2026)
     outcome: >-
       Del 15 de julio al 9 de septiembre de 2026, en Vall d'Hebron. Las pruebas
       del cribado (julio) ya mostraban lesiones en el hígado: las metástasis,
       hasta entonces solo óseas (el primario de mama sigue presente), dejaron de
       estar confinadas al hueso. Sale del ensayo el 9 de septiembre por
-      progresión clínica hepática a las 8 semanas: RECIST daba enfermedad estable
-      (+8,8 %; lesiones diana del hígado de 18 a 20 mm y de 15 a 19 mm), pero
-      empeoraba la función hepática y el CA15.3 pasó de 145 a 510 U/mL. El
-      PET-FDG del 8 de septiembre describe progresión hepática y ósea con
-      lesiones nuevas. Con ello se agotan las opciones de terapia endocrina.
+      progresión clínica hepática a las 8 semanas: por RECIST 1.1 era enfermedad
+      estable (suma de las cuatro dianas 68 → 74 mm, +8,8 %, sin lesiones nuevas:
+      hígado s.II 18 → 20 y s.IVb 15 → 19, mama 14 → 15, vértebra dorsal
+      21 → 20), pero las lesiones hepáticas crecían con empeoramiento de la
+      función hepática y el CA 15-3 pasó de 145 a 509,5 U/mL. El PET-FDG del 8 de
+      septiembre describe progresión hepática y ósea con lesiones nuevas. Con
+      ello se agotan las opciones de terapia endocrina.
     active: false
   - line: 4L
     regimen: Datopotamab deruxtecan (Dato-DXd), ADC anti-TROP-2 · ensayo TROPION-Breast06 (NCT07205822)
@@ -60,10 +62,15 @@ treatments:
       octubre; el hospital documenta la inclusión y pauta el primer ciclo para
       el 7 de octubre de 2026. Antes de este ensayo nunca había recibido
       quimioterapia, ADC, inmunoterapia ni radioligandos. Estado funcional:
-      ECOG 0 (octubre de 2026).
+      ECOG 0 (octubre de 2026). Goserelina de fondo (última dosis documentada:
+      08/09/2026); ácido zoledrónico 4 mg cada 3 meses previsto desde el 2.º
+      ciclo. Línea basal RECIST del ensayo (6 de octubre de 2026): hígado s.II
+      27 mm, hígado s.VII 18 mm, mama 10 mm; suma 55 mm. No se compara con la del
+      ensayo anterior: otro centro y otra basal.
     active: true
 paperSections:
   - title: Transformación Neuroendocrina y Pérdida de RB1
+    anchor: transformacion-ne
     tag: Transformación NE
     tone: warn
     subtitle: '3 variantes de RB1 (p.V622Yfs*33, p.R661W, p.F226*) en ctDNA Guardant360 (abril 2026). No se confirman en la biopsia ósea de julio de 2026: el FoundationOne del tejido no encuentra alteración de RB1 ni de TP53'

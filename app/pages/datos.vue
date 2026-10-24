@@ -432,6 +432,19 @@ function irAPrueba(key: string, fecha: string) {
 }
 
 const n = (v: number) => numCaso(v, lang.value)
+
+/* ── La historia de tratamientos y el PET con Galio-68 (tanda 2, T2c, 24-oct-2026) ───────────────────────────────────
+   Salieron de /ciencia, que queda solo con la lectura profesional, y viven aquí tal cual estaban (con las correcciones clínicas
+   C5 y C6 aplicadas en science.yml). Siguen en content/<lang>/science.yml, no en caso.json: la dosis de la radioterapia sobre L3 y
+   los días de UCI solo viven ahí. Cuando pasen a caso.json, estos dos bloques leerán de él y llevarán sello por cifra. */
+import type { Collections, ScienceEnCollectionItem } from '@nuxt/content'
+const { data: ciencia } = await useAsyncData(
+  `datos-science-${locale.value}`,
+  () => queryCollection(`science_${locale.value || 'en'}` as keyof Collections).first() as Promise<ScienceEnCollectionItem | null>,
+  { watch: [locale] },
+)
+const tratamientos = computed(() => ciencia.value?.treatments ?? [])
+const imagenGalio = computed(() => ciencia.value?.imaging ?? null)
 </script>
 
 <template>
@@ -705,6 +718,42 @@ const n = (v: number) => numCaso(v, lang.value)
           <p class="dt-pie"><DatosSello :s="c.analiticas.sello" :lang="lang" /> {{ L('Cómo se leen y fechan: en «Fuentes y método».', 'How they are read and dated: under “Sources and method”.') }}</p>
         </section>
 
+        <!-- 5 bis · Historia de tratamientos y PET con Galio-68: dos plegables que salieron de /ciencia (T2c). Sin H2 ni chip nuevo (la barra
+             de secciones sigue en seis): son parte de «Evolución». Orden fijo: s-evo → s-historia → s-pet → reservorio. -->
+        <section v-if="tratamientos.length || imagenGalio" class="dt-sec" :aria-label="L('Historia de tratamientos e imagen funcional', 'Treatment history and functional imaging')">
+          <details v-if="tratamientos.length" id="s-historia" class="dt-det">
+            <summary>{{ $t('ciencia.treatment_history') }}</summary>
+            <p class="dt-nota">{{ L(
+              'Cada línea de tratamiento ha controlado la enfermedad durante un tiempo antes de que el tumor escape. Es un patrón compatible con atacar solo el eje hormonal y dejar fuera el componente neuroendocrino; la metástasis hepática de 2026, con RE 0 % y marcadores neuroendocrinos positivos, encaja con esa lectura, pero no la demuestra.',
+              'Each treatment line has held the disease for a while before the tumour escaped. The pattern is compatible with targeting only the hormonal axis and leaving out the neuroendocrine component; the 2026 liver metastasis, ER 0% with positive neuroendocrine markers, fits that reading but does not prove it.') }}</p>
+            <ol class="dt-hist">
+              <li v-for="tx in tratamientos" :key="tx.line" class="dt-hist__item">
+                <span class="dt-hist__linea" :class="{ 'dt-hist__linea--activa': tx.active }">{{ tx.line }}</span>
+                <div class="dt-hist__texto">
+                  <p class="dt-hist__reg">
+                    <span>{{ tx.regimen }}</span>
+                    <span :class="['status-badge', tx.active ? 'status-badge--active' : 'status-badge--complete']">{{ tx.badge || (tx.active ? L('Activo', 'Active') : L('Completado', 'Completed')) }}</span>
+                  </p>
+                  <p class="dt-hist__res">{{ tx.outcome }}</p>
+                </div>
+              </li>
+            </ol>
+            <p class="dt-pie">{{ L('Texto de la historia clínica, pasado aquí desde La ciencia sin cambios. Todavía no está en los datos de arriba, así que sus cifras no llevan sello por separado.', 'Clinical-history text, moved here from The science page unchanged. It is not yet in the data above, so its figures carry no separate seal.') }}</p>
+          </details>
+
+          <details v-if="imagenGalio" id="s-pet" class="dt-det">
+            <summary>{{ imagenGalio.title }} · {{ imagenGalio.date }}</summary>
+            <i18n-t keypath="ciencia.imaging_intro" tag="p" class="dt-nota">
+              <template #sstr><Term id="sstr" /></template>
+              <template #prrt><Term id="prrt" /></template>
+            </i18n-t>
+            <p class="dt-nota">{{ $t('ciencia.imaging_what') }}</p>
+            <blockquote v-if="imagenGalio.quote" class="dt-cita">«{{ imagenGalio.quote }}»</blockquote>
+            <p class="dt-hist__res"><span class="font-semibold">{{ $t('ciencia.meaning_label') }}:</span> {{ imagenGalio.meaning }}</p>
+            <p v-if="imagenGalio.caveat" class="dt-nota">{{ imagenGalio.caveat }}</p>
+          </details>
+        </section>
+
         <!-- 6 · Las herramientas y el reservorio: solo enlaces (tanda 2 del rediseño, T2a, 24-oct-2026). F4 (23-oct) había plegado aquí
              el índice /herramientas (franja #visores) y la página /reservorio (bloque plegado #reservorio, sin 3D) con sendos
              redirects; Miriam decidió el 24-oct que las dos vuelven a ser páginas, así que esta página ya no las repite: una fila con
@@ -921,6 +970,15 @@ const n = (v: number) => numCaso(v, lang.value)
 .dt-lista { margin: 0; padding-left: 18px; display: grid; gap: 6px; font: 400 14.5px/1.5 var(--font-body); color: var(--color-text); }
 .dt-lista-trat { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; font: 400 14px/1.45 var(--font-body); color: var(--color-text); }
 .dt-lista-trat p { margin: 0; }
+.dt-hist { list-style: none; margin: var(--sp-12) 0 0; padding: 0; display: grid; gap: var(--sp-16); }
+.dt-hist__item { display: grid; grid-template-columns: 3rem minmax(0, 1fr); gap: var(--sp-12); align-items: start; }
+.dt-hist__linea { display: inline-flex; align-items: center; justify-content: center; min-height: 2.25rem; border-radius: var(--radius-md); font: var(--tipo-etiqueta);
+  color: var(--texto-2); border: 1px solid var(--trazo-medio); }
+.dt-hist__linea--activa { background: var(--color-miriam-soft); color: var(--color-text); border-color: transparent; }
+.dt-hist__texto { min-width: 0; }
+.dt-hist__reg { display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-4) var(--sp-12); margin: 0 0 var(--sp-4); font: var(--tipo-h4); color: var(--texto-1); }
+.dt-hist__res { margin: 0 0 var(--sp-8); font: var(--tipo-body-sm); color: var(--texto-2); max-width: var(--measure); }
+.dt-cita { margin: 0 0 var(--sp-12); padding-left: var(--sp-12); border-left: 2px solid var(--trazo-medio); font: var(--tipo-body-sm); font-style: italic; color: var(--texto-2); max-width: var(--measure); }
 .dt-ficha { margin: 0; }
 .dt-ficha__fila { display: grid; grid-template-columns: 1fr; gap: 2px; padding: 8px 0; border-bottom: 1px solid rgb(var(--color-text-rgb) / 0.07); }
 @media (min-width: 700px) { .dt-ficha__fila { grid-template-columns: minmax(150px, 220px) 1fr; gap: 12px; } }

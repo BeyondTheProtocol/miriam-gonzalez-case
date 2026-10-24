@@ -28,8 +28,8 @@ treatments:
       The PET-CT (24 Mar 2026) confirms bone progression (increased uptake in
       pelvis and right femur; new foci in T1 and left iliac), with no visceral
       disease. Abemaciclib is stopped on 30 Mar 2026 for progression,
-      coinciding with possible liver toxicity. Fulvestrant and Zoladex continue
-      until 28 May 2026.
+      coinciding with possible liver toxicity. Fulvestrant continues until 28 May
+      2026; goserelin continues.
     active: false
   - line: RT
     regimen: SBRT to T11 (15–19 June 2026)
@@ -38,17 +38,18 @@ treatments:
       extension on the spine MRI of 11 June 2026.
     active: false
   - line: 3L
-    regimen: Fulvestrant + BG-75202 (KAT6 inhibitor), phase 1 trial (July–September 2026)
+    regimen: Fulvestrant + BG-75202 (KAT6A/B inhibitor), phase 1a/1b trial, with background goserelin (July–September 2026)
     outcome: >-
       From 15 July to 9 September 2026, at Vall d'Hebron. Screening imaging
       (July) already showed liver lesions: the metastases, until then bone-only
       (the breast primary is still present), were no longer confined to bone.
       She came off the trial on 9 September for clinical liver progression at 8
-      weeks: RECIST read stable disease (+8.8%; liver target lesions from 18 to
-      20 mm and from 15 to 19 mm), but liver function was worsening and CA15.3
-      went from 145 to 510 U/mL. The FDG-PET of 8 September describes liver and
-      bone progression with new lesions. This exhausts the endocrine therapy
-      options.
+      weeks: by RECIST 1.1 it was stable disease (sum of the four target lesions
+      68 → 74 mm, +8.8%, no new lesions: liver s.II 18 → 20 and s.IVb 15 → 19,
+      breast 14 → 15, thoracic vertebra 21 → 20), but the liver lesions were
+      growing, with worsening liver function, and CA 15-3 rose from 145 to
+      509.5 U/mL. The FDG-PET of 8 September describes liver and bone progression
+      with new lesions. This exhausts the endocrine therapy options.
     active: false
   - line: 4L
     regimen: Datopotamab deruxtecan (Dato-DXd), anti-TROP-2 ADC · TROPION-Breast06 trial (NCT07205822)
@@ -60,9 +61,15 @@ treatments:
       the hospital documents her enrolment and schedules cycle 1 for 7 October
       2026. Before this trial she had never received chemotherapy, ADCs,
       immunotherapy or radioligands. Performance status: ECOG 0 (October 2026).
+      Background goserelin (last documented dose: 8 September 2026); zoledronic
+      acid 4 mg every 3 months planned from cycle 2. RECIST baseline for the trial
+      (6 October 2026): liver s.II 27 mm, liver s.VII 18 mm, breast 10 mm; sum
+      55 mm. It is not compared with that of the earlier trial: another centre and
+      another baseline.
     active: true
 paperSections:
   - title: Neuroendocrine Transformation and RB1 Loss
+    anchor: transformacion-ne
     tag: NE transformation
     tone: warn
     subtitle: '3 RB1 variants (p.V622Yfs*33, p.R661W, p.F226*) in Guardant360 ctDNA (April 2026). Not confirmed in the July 2026 bone biopsy: the tissue FoundationOne finds no RB1 or TP53 alteration'

@@ -343,12 +343,13 @@ if (existsSync('seed/fundraiser.json')) {
 
   // lo generado, en ES y EN
   // T2a (24-oct-2026): la franja #visores salió de /datos (el índice /herramientas volvió a ser una página); #reservorio queda como una fila con un enlace
-  const IDS = ['id="s-hoy"', 'id="que-buscamos"', 'id="s-tejido"', 'id="s-higado"', 'id="s-evo"', 'id="reservorio"', 'id="s-vitrina"']
+  // T2c (24-oct-2026): la historia de tratamientos y el PET con Galio-68 salieron de /ciencia y viven en /datos, entre «Evolución» y el reservorio
+  const IDS = ['id="s-hoy"', 'id="que-buscamos"', 'id="s-tejido"', 'id="s-higado"', 'id="s-evo"', 'id="s-historia"', 'id="s-pet"', 'id="reservorio"', 'id="s-vitrina"']
   for (const [idioma, pagina, contacto] of [['es', 'datos.html', '/contacto?role=researcher'], ['en', 'en/data.html', '/en/contact?role=researcher']] as const) {
     const h = html(pagina)
     ok((h.match(/\bid="que-buscamos"/g)?.length ?? 0) === 1, `${pagina}: exactamente un id="que-buscamos"`)
     const pos = IDS.map((id) => h.indexOf(id))
-    ok(pos.every((p, i) => p >= 0 && (i === 0 || p > pos[i - 1]!)), `${pagina}: orden Hoy → Qué buscamos → Tejido → Carga tumoral → Evolución → reservorio → vitrina (${pos.join(' < ')})`)
+    ok(pos.every((p, i) => p >= 0 && (i === 0 || p > pos[i - 1]!)), `${pagina}: orden Hoy → Qué buscamos → Tejido → Carga tumoral → Evolución → Historia de tratamientos → PET Ga-68 → reservorio → vitrina (${pos.join(' < ')})`)
     ok(!h.includes('id="visores"') && !h.includes('href="#visores"'), `${pagina}: ya no lleva la franja #visores ni su chip (volvió a /herramientas)`)
     const bloque = h.slice(h.indexOf('id="que-buscamos"'), h.indexOf('id="s-tejido"'))
     ok((bloque.match(/<li\b/g)?.length ?? 0) === 5, `${pagina}: «Qué buscamos» pinta 5 peticiones (${bloque.match(/<li\b/g)?.length ?? 0})`)
