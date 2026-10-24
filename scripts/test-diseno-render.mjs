@@ -10,7 +10,7 @@
 //   foco_tapado         pasos de Tab cuyo foco queda debajo de la cabecera fija (WCAG 2.4.11).
 //
 // No mide el texto sobre degradados ni sobre imágenes (se salta cualquier nodo con un ancestro con background-image),
-// ni dispositivo real: es emulación de Chrome, y hover pegado, zoom de iOS y safe-area quedan «sin verificar en teléfono».
+// ni los visores 3D con WebGL (se miden sin él, para que el recuento no dependa de la GPU de cada máquina), ni dispositivo real: es emulación de Chrome, y hover pegado, zoom de iOS y safe-area quedan «sin verificar en teléfono».
 //
 //   pnpm exec nuxt generate && pnpm test:diseno-render
 //   pnpm test:diseno-render --actualizar           graba la baseline (solo si nada sube)
@@ -145,8 +145,19 @@ async function focoTapado(nav) {
   return { tapados, ej }
 }
 
+// Los visores 3D (/lesiones, /mapa-metastasis, el explorador) pintan un DOM distinto según si el Chrome tiene WebGL: el del Mac
+// y el del runner de Linux no coinciden (lo midió el primer run de diseno.yml, 24-oct-2026: solo esas dos rutas daban otro recuento).
+// Se mide SIEMPRE sin WebGL, que es el estado que ve quien no puede usarlo, y así el número es el mismo en cualquier máquina.
+const SIN_WEBGL = `(() => {
+  const original = HTMLCanvasElement.prototype.getContext
+  HTMLCanvasElement.prototype.getContext = function (tipo, ...resto) {
+    return /webgl/i.test(String(tipo)) ? null : original.call(this, tipo, ...resto)
+  }
+})()`
+
 async function medir(rutas) {
   const nav = await abrirNavegador({ ancho: ANCHOS[0], alto: 900, escala: 1 })
+  await nav.cdp('Page.addScriptToEvaluateOnNewDocument', { source: SIN_WEBGL })
   const res = {}
   const ejemplos = {}
   try {
