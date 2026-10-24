@@ -48,15 +48,16 @@ export default defineNuxtConfig({
   // de IP), con subsetting y font-display: swap. Sin <link> a Google Fonts.
   fonts: {
     families: [
-      // Fraunces va sin cursiva a propósito: desde el 16-ago-2026 Google Fonts
-      // devuelve 404 en el woff2 de la Fraunces itálica variable, y @nuxt/fonts
-      // aborta el build entero al descargarla. Reproducido en local con caché
-      // limpia y en los tres deploys de ese día. Las demás familias no están
-      // afectadas. Cuando Google lo arregle, devolver 'italic' aquí.
-      { name: 'Fraunces', provider: 'google', weights: [400, 500, 600, 700], styles: ['normal'] },
+      // Fraunces con cursiva real (sistema v3, S7). Estuvo sin ella desde el 16-ago-2026, cuando Google Fonts devolvió 404 en el
+      // woff2 de la itálica variable y @nuxt/fonts abortaba el build entero (reproducido en local con caché limpia y en los tres
+      // deploys de ese día). Probado el 24-oct-2026: `nuxt generate` termina con ella y en Chrome `document.fonts` lista Fraunces
+      // italic 400 y 600 como cargadas. Si el build vuelve a romperse, quitar 'italic' aquí: el sitio sigue (el navegador sintetiza
+      // la oblicua) y el plan B es @fontsource/fraunces, que además mantiene el cero a terceros.
+      { name: 'Fraunces', provider: 'google', weights: [400, 500, 600, 700], styles: ['normal', 'italic'] },
       { name: 'Hanken Grotesk', provider: 'google', weights: [400, 500, 600, 700], styles: ['normal', 'italic'] },
       { name: 'Source Sans 3', provider: 'google', weights: [400, 500, 600, 700], styles: ['normal', 'italic'] },
-      { name: 'JetBrains Mono', provider: 'google', weights: [400, 500] },
+      // El 600 existe de verdad: `.etiqueta`, `.badge-genomic` y `.status-badge` lo piden y sin él salía una negrita sintética.
+      { name: 'JetBrains Mono', provider: 'google', weights: [400, 500, 600] },
       // Manuscrita para las anotaciones «de cuaderno de laboratorio»
       // (las dos caras, las estrellas). Subset latino, font-display: swap.
       { name: 'Caveat', provider: 'google', weights: [400, 600, 700] },
@@ -92,6 +93,7 @@ export default defineNuxtConfig({
     exclude: [
       '/mapa-metastasis', '/en/mapa-metastasis',
       '/mapa-metastasis.md', '/en/mapa-metastasis.md',
+      '/guia-de-estilo', '/en/style-guide',
       '/contacto', '/en/contact',
       '/gracias', '/en/thank-you',
       '/aviso-legal', '/en/legal-notice',
@@ -197,6 +199,10 @@ export default defineNuxtConfig({
     detectBrowserLanguage: false,
     customRoutes: 'config',
     pages: {
+      // Guía viva del sistema de diseño (sistema v3). Probado el 24-oct-2026: con `false` (sin localizar) el cliente
+      // redirigía /guia-de-estilo a la home tras hidratar. Va localizada como el resto; el contenido es español en las dos
+      // (lang="es" en la página) y las dos son noindex y salen de sitemap y exports de IA.
+      'guia-de-estilo': { en: '/style-guide' },
       'laminillas': { en: '/slides' },
       'celula-a-celula': { en: '/cell-by-cell' },
       // Fichero plano y no pages/celula-a-celula/explorar.vue: así /celula-a-celula no pasa a ser ruta padre.
@@ -333,7 +339,8 @@ export default defineNuxtConfig({
       // /marcas (y /en/brands) es una página B2B SIN enlace en la navegación, así
       // que crawlLinks no la descubre: hay que listarla explícitamente para que
       // se prerenderice como HTML estático.
-      routes: ['/marcas', '/en/brands'],
+      // /guia-de-estilo (guía viva del sistema de diseño) tampoco tiene enlace desde la navegación: igual que /marcas.
+      routes: ['/marcas', '/en/brands', '/guia-de-estilo', '/en/style-guide'],
       // /design-system/ es un export estático en public/, no una ruta de Nuxt.
       // crawlLinks lo descubre desde /colabora, intenta prerenderizarlo, da 404
       // y aborta el build. Lo ignoramos: el archivo estático se copia igual.
@@ -342,6 +349,8 @@ export default defineNuxtConfig({
       // (ver nota «shadowing» en `routeRules` arriba). Así queda solo el 302 limpio.
       ignore: [
         '/design-system', '/mapa-metastasis.md', '/en/mapa-metastasis.md',
+        // guía viva del sistema de diseño: su export Markdown está bloqueado a propósito (utils/aiExportBlocklist.ts) y daría 404
+        '/guia-de-estilo.md', '/en/style-guide.md',
         '/3d', '/3d-x', '/3d-in', '/3d-ig', '/3d-tt', '/3d-yt', '/donar', '/caso', '/polaris',
         '/lesiones-x', '/lesiones-in', '/lesiones-ig', '/lesiones-tt', '/lesiones-yt',
         '/biopsia-x', '/biopsia-in', '/biopsia-ig', '/biopsia-tt', '/biopsia-yt',
