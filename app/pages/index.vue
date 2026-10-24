@@ -166,6 +166,8 @@
 </template>
 
 <script setup lang="ts">
+// «verificado» es lo normal: aquí no se pinta en cada dato; solo se marcan las excepciones (Miriam, 24-oct).
+provide('ocultarVerificado', true)
 const { locale } = useI18n()
 const localePath = useLocalePath()
 const { GOFUNDME_URL, trackSupport, trackScience, trackLesiones } = useSupport()

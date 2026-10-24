@@ -1,5 +1,8 @@
 <script setup lang="ts">
-/** El sello de evidencia de cada dato del panel, dicho en palabras y no solo en color. */
+/** El sello de evidencia de cada dato del panel, dicho en palabras y no solo en color.
+ * En las páginas que lo piden con provide('ocultarVerificado', true) (/datos y la home), «verificado» no se
+ * pinta: es lo normal y la leyenda de la página lo dice una vez (Miriam, 24-oct). Solo se marcan las
+ * excepciones. En el resto (célula a célula) se sigue pintando, porque allí el sello completa la frase. */
 const props = defineProps<{ s: string; lang: 'es' | 'en' }>()
 const TXT: Record<string, [string, string, string]> = {
   verificado: ['✓', 'verificado', 'verified'],
@@ -9,10 +12,11 @@ const TXT: Record<string, [string, string, string]> = {
   extraido: ['↧', 'extraído del informe', 'extracted from report'],
 }
 const t = computed(() => TXT[props.s] ?? ['?', props.s, props.s])
+const ocultarVerificado = inject<boolean>('ocultarVerificado', false)
 </script>
 
 <template>
-  <span class="sello" :class="`sello--${s}`"><span aria-hidden="true">{{ t[0] }}</span> {{ lang === 'en' ? t[2] : t[1] }}</span>
+  <span v-if="!(ocultarVerificado && s === 'verificado')" class="sello" :class="`sello--${s}`"><span aria-hidden="true">{{ t[0] }}</span> {{ lang === 'en' ? t[2] : t[1] }}</span>
 </template>
 
 <style scoped>

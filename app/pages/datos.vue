@@ -1,4 +1,6 @@
 <script setup lang="ts">
+// «verificado» es lo normal: aquí no se pinta en cada dato; solo se marcan las excepciones (Miriam, 24-oct).
+provide('ocultarVerificado', true)
 /**
  * /datos — el caso de Miriam en datos, para quien puede moverlo. Versión 2 (24-sep-2026, a
  * petición de Miriam): SOLO clínica (el perfil molecular ya está en /ciencia), móvil primero y
@@ -490,7 +492,7 @@ const n = (v: number) => numCaso(v, lang.value)
         </PageHeader>
         <p class="dt-aviso">
           <Icon name="ph:info-fill" class="w-4 h-4 shrink-0" aria-hidden="true" />
-          {{ L('Resumen de sus informes, como apoyo a la decisión. No es diagnóstico ni consejo médico.', 'A summary of her reports, as decision support. Not a diagnosis or medical advice.') }}
+          {{ L('Resumen de sus informes, como apoyo a la decisión. No es diagnóstico ni consejo médico. Cada cifra está cotejada con su informe original; solo se marca lo que no: inferido, lo dice Miriam o sin verificar.', 'A summary of her reports, as decision support. Not a diagnosis or medical advice. Every number is checked against its original report; only what isn’t gets a mark: inferred, per Miriam or unverified.') }}
         </p>
 
         <!-- 0 · el diagnóstico en una línea: sin esto, «Hoy» no tiene sujeto (oncologo-virtual). La anatomía
