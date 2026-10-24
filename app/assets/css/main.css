@@ -103,6 +103,14 @@
     max-width: var(--shell-max);
   }
 
+  /* Excepción firmada del shell: la zona de TRABAJO de /laminillas y del explorador ocupa todo el ancho, con el mismo
+     relleno lateral. La barra con el título va en .section-wide, para que su borde siga bajo el logo. */
+  .shell--pantalla {
+    @apply mx-auto;
+    max-width: none;
+    padding-inline: var(--gutter);
+  }
+
   /* Medida de lectura para párrafos largos DENTRO del shell ancho: limita el
      ancho pero alineado a la IZQUIERDA del shell (no centrado), para que cuadre
      con el logo y el H1. Solo es un tope: en móvil ocupa el 100%. */
@@ -113,6 +121,10 @@
 
   .section-spacing {
     @apply py-20 sm:py-28;
+  }
+  /* Relleno corto (los py-14 sm:py-20 que la home escribía a mano en «El caso en 3 frases»). */
+  .section-spacing--compacta {
+    @apply py-14 sm:py-20;
   }
 
   /* Hueco bajo el contenido para la barra de apoyo fija (<lg), SOLO en rutas
@@ -360,6 +372,11 @@
     letter-spacing: var(--track-eyebrow);
     text-transform: uppercase;
     color: var(--texto-2);
+  }
+  /* Un eyebrow que es un titular (h2.eyebrow, como la cita de la home) conserva el interlineado de titular: sin esto el
+     `font:` le daba 1,55 y la banda crecía 6 px. Un <p> o un <span> siguen con el del cuerpo. */
+  h1.eyebrow, h2.eyebrow, h3.eyebrow, h4.eyebrow {
+    line-height: 1.1;
   }
   /* Kicker de tarjeta o control: mono 600 en mayúsculas, 12 px. El suelo del sistema es 13 px y el 12 se reserva a
      mono en mayúsculas (.eyebrow, .etiqueta, ejes). `.eyebrow--sm` (11 px) era lo mismo con otro nombre: queda como alias
@@ -628,7 +645,11 @@
   /* shape: tag teal de morfología/factibilidad (forma del hueso); recurre en /mapa. */
   .status-badge--shape     { background: rgba(31,107,87,0.12); color: #1f6b57; }
 
-  /* Variantes de estado del sistema v3 (hecho, curso, pendiente, nopuede, atencion): sin hex, con icono delante. */
+  /* Variantes de estado del sistema v3 (hecho, curso, pendiente, nopuede, atencion): sin hex, con icono delante y al
+     suelo de 12 px (mono en mayúsculas). Las viejas de arriba siguen en 10 px hasta que se sustituyan. */
+  .status-badge--hecho, .status-badge--curso, .status-badge--pendiente, .status-badge--nopuede, .status-badge--atencion {
+    font-size: var(--texto-2xs);
+  }
   .status-badge--hecho     { background: var(--estado-hecho-fondo);     color: var(--estado-hecho-texto);     box-shadow: inset 0 0 0 1px var(--estado-hecho-borde); }
   .status-badge--curso     { background: var(--estado-curso-fondo);     color: var(--estado-curso-texto); }
   .status-badge--pendiente { background: var(--estado-pendiente-fondo); color: var(--estado-pendiente-texto); box-shadow: inset 0 0 0 1px var(--estado-pendiente-borde); }
@@ -785,7 +806,7 @@
      que son pinchables. Identificables como enlaces por el rótulo del grupo. */
   .link-logo {
     @apply font-display font-semibold tracking-tight;
-    color: var(--texto-3); /* tinta atenuada, derivada: 4,6:1 o más sobre crema y tarjeta (antes #6b5d75 escrito a mano) */
+    color: color-mix(in srgb, var(--color-bg) 30%, var(--color-text)); /* malva atenuado derivado: #6b5d73, 5,3:1 sobre la tarjeta (antes #6b5d75 escrito a mano; difiere 2 niveles de azul) */
     text-decoration: none;
     display: inline-block;
     transition: color var(--dur-micro) var(--curva-salida), transform var(--dur-micro) var(--curva-salida);
@@ -895,6 +916,198 @@
      glassmorphism»; el blur duplicaba además lo que el fondo ya resuelve. */
   .barra-fija {
     background-color: color-mix(in srgb, var(--fondo) 96%, transparent);
+  }
+
+  /* ────────────────────────────────────────────────────────────
+     Control segmentado (<Segmentado>): radios, pestañas o interruptores en píldoras. Activo = --seleccionado-bg y
+     --seleccionado-text más borde de 2 px del color del texto (el estado no depende solo del color); reposo con el borde
+     de los controles (--trazo-interactivo, ≥ 3:1); mínimo 44 px. `--desplazable`: en móvil la fila se desliza en horizontal.
+     ──────────────────────────────────────────────────────────── */
+  .segmentado {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--sp-4);
+  }
+  .segmentado--desplazable {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    scroll-snap-type: x proximity;
+    padding-block: 2px; /* aire para que el anillo de foco no se recorte en el eje del scroll */
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+  }
+  .segmentado__btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--sp-8);
+    flex: none;
+    box-sizing: border-box;
+    min-height: var(--control-min);
+    padding: 0 var(--sp-16);
+    border: 1px solid var(--trazo-interactivo);
+    border-radius: var(--radius-pill);
+    background: transparent;
+    color: var(--texto-1);
+    font: 600 var(--texto-sm) / 1 var(--font-body);
+    scroll-snap-align: start;
+    -webkit-tap-highlight-color: transparent;
+    transition: background-color var(--dur-micro) var(--curva-salida), color var(--dur-micro) var(--curva-salida),
+      box-shadow var(--dur-micro) var(--curva-salida), transform var(--dur-micro) var(--curva-salida);
+  }
+  .segmentado__icono {
+    width: 1rem;
+    height: 1rem;
+  }
+  .segmentado__btn[aria-checked="true"],
+  .segmentado__btn[aria-selected="true"],
+  .segmentado__btn[aria-pressed="true"] {
+    background: var(--seleccionado-bg);
+    color: var(--seleccionado-text);
+    border-color: var(--texto-1);
+    box-shadow: inset 0 0 0 1px var(--texto-1);
+  }
+  .segmentado__btn:focus-visible {
+    outline: 2px solid var(--anillo-foco);
+    outline-offset: 2px;
+  }
+  @media (hover: hover) and (pointer: fine) {
+    .segmentado__btn:hover {
+      background: var(--secundario-hover);
+    }
+    .segmentado__btn[aria-checked="true"]:hover,
+    .segmentado__btn[aria-selected="true"]:hover,
+    .segmentado__btn[aria-pressed="true"]:hover {
+      background: var(--seleccionado-bg);
+    }
+  }
+  .segmentado__btn:active {
+    transform: scale(0.97);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .segmentado__btn {
+      transition: none;
+    }
+    .segmentado__btn:active {
+      transform: none;
+    }
+  }
+  @media (forced-colors: active) {
+    .segmentado__btn[aria-checked="true"],
+    .segmentado__btn[aria-selected="true"],
+    .segmentado__btn[aria-pressed="true"] {
+      border-color: Highlight;
+      forced-color-adjust: none;
+      background: Highlight;
+      color: HighlightText;
+    }
+  }
+
+  /* ────────────────────────────────────────────────────────────
+     Visor (.visor): el escenario oscuro de los visores 3D y WebGL. Sustituye a #1c1126, #aeb6c2, #d9dee6 y
+     rgba(30,37,48,.92), repetidos en cuatro visores, y a tres placeholders de carga distintos. Se usa junto a
+     data-tema="oscuro" (el escenario es siempre oscuro): <div class="visor" data-tema="oscuro">. Los colores salen de
+     --escena-fondo, --escena-texto y --escena-velo (canon); no se escribe ninguno aquí.
+       .visor__velo    capa que atenúa la escena (un aviso, un estado de error) sin taparla del todo.
+       .visor__carga   UN solo estado de carga: anillo que gira. Es esencial (comunica que algo se está cargando), así
+                       que lleva .anima-esencial y sigue girando con movimiento reducido.
+     ──────────────────────────────────────────────────────────── */
+  .visor {
+    position: relative;
+    overflow: hidden;
+    background: var(--escena-fondo);
+    color: var(--escena-texto);
+    border-radius: var(--radius-card);
+  }
+  .visor__velo {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    padding: var(--sp-16);
+    background: var(--escena-velo);
+    color: var(--escena-texto);
+    text-align: center;
+  }
+  .visor__carga {
+    width: 1.75rem;
+    height: 1.75rem;
+    border-radius: 50%;
+    border: 3px solid color-mix(in srgb, var(--escena-texto) 25%, transparent);
+    border-top-color: var(--escena-texto);
+    animation: visor-giro 0.8s linear infinite;
+  }
+  @keyframes visor-giro {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  /* ────────────────────────────────────────────────────────────
+     Desplegable de sección (.desplegable): <details> legible para contenido de verdad (un método, una nota larga). No es
+     .notes-disclosure, que es la nota al pie en mono de 13 px. Resumen de 44 px, texto de UI, flecha en CSS.
+     ──────────────────────────────────────────────────────────── */
+  .desplegable {
+    border-top: 1px solid var(--trazo-medio);
+  }
+  .desplegable > summary {
+    display: flex;
+    align-items: center;
+    gap: var(--sp-8);
+    min-height: var(--control-min);
+    cursor: pointer;
+    list-style: none;
+    font: 600 var(--texto-ui) / 1.3 var(--font-body);
+    color: var(--texto-1);
+  }
+  .desplegable > summary::-webkit-details-marker {
+    display: none;
+  }
+  .desplegable > summary::before {
+    content: '';
+    flex: none;
+    width: 7px;
+    height: 7px;
+    border-right: 1.5px solid currentColor;
+    border-bottom: 1.5px solid currentColor;
+    transform: rotate(-45deg);
+    transition: transform var(--dur-micro) var(--curva-salida);
+  }
+  .desplegable[open] > summary::before {
+    transform: rotate(45deg);
+  }
+  .desplegable > summary:focus-visible {
+    outline: 2px solid var(--anillo-foco);
+    outline-offset: 2px;
+  }
+  @media (hover: hover) and (pointer: fine) {
+    .desplegable > summary:hover {
+      color: var(--identidad);
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .desplegable > summary::before {
+      transition: none;
+    }
+  }
+
+  /* ────────────────────────────────────────────────────────────
+     Tabla con scroll (.tabla-scroll): envoltorio de una tabla ancha. Cuando hay más a un lado, un degradado del fondo
+     y una sombra suave en ese borde lo dicen (sin JS, con background-attachment). Ponle tabindex="0" y un
+     aria-label para que se pueda recorrer con el teclado. Las clínicas llevan además <colgroup> con anchos.
+     ──────────────────────────────────────────────────────────── */
+  .tabla-scroll {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    background:
+      linear-gradient(to right, var(--fondo) 30%, transparent) left center / 2.5rem 100% no-repeat local,
+      linear-gradient(to left, var(--fondo) 30%, transparent) right center / 2.5rem 100% no-repeat local,
+      radial-gradient(farthest-side at 0 50%, var(--trazo-fuerte), transparent) left center / 0.875rem 100% no-repeat scroll,
+      radial-gradient(farthest-side at 100% 50%, var(--trazo-fuerte), transparent) right center / 0.875rem 100% no-repeat scroll;
+  }
+  .tabla-scroll:focus-visible {
+    outline: 2px solid var(--anillo-foco);
+    outline-offset: 2px;
   }
 
   /* Filete editorial entre capítulos de una página larga y continua

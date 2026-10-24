@@ -21,6 +21,12 @@ export default {
     'pill-data--neutral',
     'pill-data--violet',
     'pill-data--berenjena',
+    // <RutaPasos> las construye por nombre (utils/estadoInsignia.ts): ninguna página las escribe literales.
+    'status-badge--hecho',
+    'status-badge--curso',
+    'status-badge--pendiente',
+    'status-badge--nopuede',
+    'status-badge--atencion',
   ],
   theme: {
     extend: {
