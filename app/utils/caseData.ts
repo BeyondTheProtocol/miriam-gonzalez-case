@@ -24,5 +24,5 @@ export const caseData = {
   countries: 3,
   /** Fecha de la última revisión de la sala de prensa (AAAA-MM-DD). Se cambia a mano al revisar
    *  hechos, citas o bio: así «revisada el …» nunca promete más de lo que se hizo. */
-  pressAsOf: '2026-10-22',
+  pressAsOf: '2026-10-24',
 } as const

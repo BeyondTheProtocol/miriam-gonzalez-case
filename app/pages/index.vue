@@ -149,6 +149,13 @@
             @click="trackPress('Redacción Médica')"
           >Redacción Médica<span class="sr-only"> {{ $t('a11y.new_tab') }}</span></a>
           <a
+            :href="huffPostUrl"
+            target="_blank"
+            rel="noopener"
+            class="link-logo text-2xl sm:text-3xl"
+            @click="trackPress('El HuffPost')"
+          >El HuffPost<span class="sr-only"> {{ $t('a11y.new_tab') }}</span></a>
+          <a
             :href="laVanguardiaUrl"
             target="_blank"
             rel="noopener"
@@ -209,6 +216,8 @@ const elPaisUrl =
   'https://elpais.com/tecnologia/2026-04-23/asi-usa-una-paciente-con-cancer-metastasico-la-ia-para-entender-su-enfermedad-cual-es-el-mejor-metodo-para-hablar-de-salud-con-chatbots.html'
 const redaccionMedicaUrl =
   'https://www.redaccionmedica.com/innovacion/20261021/miriam-gonzalez-una-ingeniera-de-software-con-metastasis-estadio-construye-su-propio-modelo-ia-para-buscar-vacuna-personalizada/362852_0.html'
+const huffPostUrl =
+  'https://www.huffingtonpost.es/virales/miriam-gonzalez-ingeniera-investigando-propio-cancer-mama-raro-gracias-ia-sido-pasar-oscuras-enciclopedia-mi-tumor-f202610.html'
 const laVanguardiaUrl =
   'https://www.lavanguardia.com/clic/20260816/11613280/miriam-gonzalez-paciente-cancer-mama-raro-me-siento-desventaja-frente-paciente-tenga-cancer-mama-metastasico.html'
 const elEspanolUrl =
