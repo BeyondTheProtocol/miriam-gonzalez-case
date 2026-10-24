@@ -1,6 +1,6 @@
 # Miriam González Pérez — Precision Oncology
 
-An informational website about Miriam González Pérez's case: metastatic breast cancer with neuroendocrine differentiation (~80%) and FGFR1 amplification ×13.
+An informational website about Miriam González Pérez's case: metastatic breast cancer with neuroendocrine differentiation and FGFR1 amplification.
 
 ## Stack
 
