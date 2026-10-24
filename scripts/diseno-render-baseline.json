@@ -229,7 +229,7 @@
     "/prensa:390": {
       "desborde": 0,
       "h1_borde": 0,
-      "texto_bajo_suelo": 34,
+      "texto_bajo_suelo": 26,
       "objetivos_pequenos": 1,
       "contraste": 0,
       "foco_tapado": 0
@@ -237,7 +237,7 @@
     "/prensa:1280": {
       "desborde": 0,
       "h1_borde": 0,
-      "texto_bajo_suelo": 35,
+      "texto_bajo_suelo": 27,
       "objetivos_pequenos": 1,
       "contraste": 0,
       "foco_tapado": 0

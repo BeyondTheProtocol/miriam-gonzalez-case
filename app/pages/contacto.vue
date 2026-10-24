@@ -280,12 +280,12 @@ const route = useRoute()
 // Pre-relleno del selector de perfil desde ?role=… — los enlaces de la home y de
 // /colabora ya saben quién escribe (oncología, prensa, tech, paciente…), así que
 // llegan con su perfil elegido. Solo aceptamos valores válidos; si no, vacío.
-const VALID_ROLES = ['oncologist', 'researcher', 'journalist', 'patient', 'tech', 'other']
+// El vocabulario es ÚNICO (utils/rolesContacto.ts): el mismo que usan «Contacto», «Contacto-enviado» y «Contacto-clic» en Umami.
 const roleFromQuery = () => {
   const r = route.query.role
-  return typeof r === 'string' && VALID_ROLES.includes(r) ? r : ''
+  return esRolContacto(r) ? r : ''
 }
-const role = ref(roleFromQuery())
+const role = ref<string>(roleFromQuery())
 watch(() => route.query.role, () => { role.value = roleFromQuery() })
 
 const { t } = useI18n()
@@ -360,7 +360,8 @@ async function onSubmit(e: Event) {
       body,
     })
     sent.value = true
-    trackUmami('Contacto-enviado', { rol: role.value || 'otro' })
+    // Sin perfil elegido: `sin_rol` (antes `otro`, que se confundía con el perfil «Otro», `other`, que SÍ se eligió).
+    trackUmami('Contacto-enviado', { rol: rolDeContacto(role.value) })
   } catch {
     failed.value = true
   } finally {

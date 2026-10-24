@@ -13,7 +13,7 @@ import { LES, PHENO, PHENO_TEXT, BONE3D_KEY } from '#mapa-focos'
 
 const { locale } = useI18n()
 const localePath = useLocalePath()
-const { trackDatos, trackSupport, GOFUNDME_URL } = useSupport()
+const { trackDatos, trackMapa, trackSupport, GOFUNDME_URL } = useSupport()
 const lang = computed<'es' | 'en'>(() => (locale.value === 'en' ? 'en' : 'es'))
 const L = (es: string, en: string) => (lang.value === 'en' ? en : es)
 
@@ -84,7 +84,8 @@ const biopsia = computed(() =>
         <div class="grid gap-6 md:grid-cols-2 items-start mb-10">
           <section class="card-base" aria-labelledby="mama-titulo">
             <h2 id="mama-titulo" class="heading-display text-2xl text-berenjena mb-3" style="letter-spacing: -0.02em">{{ L('Mama derecha', 'Right breast') }}</h2>
-            <div class="mb-3">
+            <!-- data-visor / data-visor-accion: medición «Visor» (T2d; plugins/umami-visor.client.ts): la primera vez que alguien toca un visor. Solo atributos. -->
+            <div class="mb-3" data-visor="lesiones" data-visor-accion="mama">
               <ClientOnly>
                 <BreastView base="/lesiones/mama/" fallback="/lesiones/mama-2026-09-08.webp"
                   :fallback-alt="L('Reconstrucción 3D del tumor primario de mama de Miriam desde su resonancia del 8 de septiembre de 2026, dentro del tejido fibroglandular de la mama derecha', '3D reconstruction of Miriam’s primary breast tumour from her 8 September 2026 MRI, inside the fibroglandular tissue of the right breast')" />
@@ -101,7 +102,7 @@ const biopsia = computed(() =>
           </section>
           <section class="card-base" aria-labelledby="higado-titulo">
             <h2 id="higado-titulo" class="heading-display text-2xl text-berenjena mb-3" style="letter-spacing: -0.02em">{{ L('Hígado', 'Liver') }}</h2>
-            <div class="mb-3">
+            <div class="mb-3" data-visor="lesiones" data-visor-accion="higado">
               <ClientOnly>
                 <LiverView base="/lesiones/higado/" fallback="/lesiones/higado-2026-09-08.webp"
                   :fallback-alt="L('Reconstrucción 3D del hígado de Miriam desde su TC del 8 de septiembre de 2026, con los vasos y las lesiones: dos lesiones diana con anillo y la medida del radiólogo (segmento II, 20 mm; segmento IVb, 19 mm) y el resto, lesiones detectadas automáticamente y revisadas por un radiólogo, que las ha confirmado (no constan en el informe oficial firmado)', '3D reconstruction of Miriam’s liver from her 8 September 2026 CT, with the vessels and the lesions: two ringed target lesions with the radiologist’s measurement (segment II, 20 mm; segment IVb, 19 mm) and the rest, lesions detected automatically and reviewed by a radiologist, who confirmed them (not in the signed official report)')" />
@@ -141,7 +142,7 @@ const biopsia = computed(() =>
             {{ L('PET de marzo y mayo y RM de junio de 2026. El PET del 8 de septiembre, aún no incorporado, describe más lesiones óseas activas que las que se ven aquí.', 'PET scans from March and May and MRI from June 2026. The 8 September PET, not yet included, describes more active bone lesions than the ones shown here.') }}
           </p>
           <div class="grid gap-6 lg:grid-cols-[minmax(0,360px)_minmax(0,1fr)] items-start">
-            <div class="card-base !p-4">
+            <div class="card-base !p-4" data-visor="lesiones" data-visor-accion="foco">
               <EsqueletoFocos :selected="selected" @pick="selected = $event" />
             </div>
             <div class="min-w-0">
@@ -149,7 +150,7 @@ const biopsia = computed(() =>
               <p class="heading-display text-xl text-berenjena mb-1">{{ sel.level[lang] }}</p>
               <p class="text-[13px] font-semibold mb-2" :style="{ color: PHENO_TEXT[sel.pheno] }">{{ L(PHENO[sel.pheno].es, PHENO[sel.pheno].en) }}</p>
               <p class="text-[14px] text-tinta leading-relaxed mb-4">{{ sel.what[lang] }}</p>
-              <div role="group" :aria-label="L('Visor 3D del foco seleccionado', '3D viewer of the selected focus')">
+              <div role="group" :aria-label="L('Visor 3D del foco seleccionado', '3D viewer of the selected focus')" data-visor="lesiones" data-visor-accion="hueso">
                 <ClientOnly v-if="meshKey">
                   <BoneTriView :mesh-key="meshKey" :biopsied="biopsia != null" :no-target="sel.source === 'ia-david'" :biopsy-label="biopsia ?? undefined" />
                   <template #fallback>

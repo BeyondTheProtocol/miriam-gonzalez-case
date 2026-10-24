@@ -72,9 +72,10 @@ jobs:
       - run: pnpm test:home-caminos
 
       # Medición de Umami: los nombres de evento de siempre no se renombran; Clic-gofundme hereda el botón de Donar; Scroll,
-      # Hero-visto, Campana-visible (una vez por vista, también con la tarjeta que aparece tras montar) y Prensa-visible llegan de
-      # verdad en Chrome; `entrada` viaja en Donar y Clic-gofundme, también sin sessionStorage; y la tira de prensa de la home NO
-      # manda «Clic-prensa» a mano (lo cuenta el atributo data-umami-event; si no, contaría doble).
+      # Hero-visto, Campana-visible (una vez por vista, también con la tarjeta que aparece tras montar), Prensa-visible, Idioma y
+      # Visor (una vez por visita) llegan de verdad en Chrome; `entrada` viaja en Donar, Clic-gofundme, Contacto-enviado y Puerta,
+      # también sin sessionStorage; hay un solo vocabulario de roles de contacto; y la tira de prensa de la home NO manda
+      # «Clic-prensa» a mano (lo cuenta el atributo data-umami-event; si no, contaría doble).
       - run: pnpm test:umami-eventos
 
       # /laminillas: la matriz se pinta sin JS, sin scroll horizontal en móvil, y /biopsia-osea sale con 301 en

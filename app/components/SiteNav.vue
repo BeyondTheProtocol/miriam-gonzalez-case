@@ -164,7 +164,7 @@ const { locale, setLocale } = useI18n()
 const localePath = useLocalePath()
 const route = useRoute()
 const { y } = useWindowScroll()
-const { trackSupport, trackNav } = useSupport()
+const { trackSupport, trackNav, trackIdioma } = useSupport()
 const { minimo } = useChromeMinimo()
 
 const headerRef = ref<HTMLElement | null>(null)
@@ -214,7 +214,12 @@ function onMobileNav(key: string) {
 // elección del usuario prevalece sobre la detección del navegador (que solo
 // actúa en la primera visita, sin cookie).
 async function switchLang(code: 'es' | 'en') {
-  if (code !== locale.value) await setLocale(code)
+  if (code !== locale.value) {
+    // «Idioma» { de, a, pagina } (T2d): se mide ANTES de navegar. Después, la ruta ya es la de la página del otro idioma y `locale`
+    // ya es el nuevo. Solo cuenta un cambio real: pulsar el idioma que ya está activo no manda nada.
+    trackIdioma(locale.value, code, paginaBase(route.name))
+    await setLocale(code)
+  }
   mobileOpen.value = false
 }
 

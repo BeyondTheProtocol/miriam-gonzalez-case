@@ -7,6 +7,10 @@
 //   utils/umamiVistas.ts + composables/useUmamiVisto.ts (lo que se VE)
 //     Hero-visto { pagina, conEuros }    Campana-visible { pagina, conEuros }    Prensa-visible { pagina }
 //   y la propiedad `entrada` (primera página de la sesión) en los eventos de EVENTOS_CON_ENTRADA.
+//   T2d (24-oct-2026, decisión 4 de Miriam): `entrada` también en «Puerta»; «Idioma» { de, a, pagina } (el selector de la cabecera);
+//   «Visor» { herramienta, accion } (utils/umamiVisor.ts + plugins/umami-visor.client.ts: la primera vez que se toca un visor en la
+//   visita; /lesiones hoy, el explorador de célula a célula cuando se fusione #290); y UN vocabulario de roles (utils/rolesContacto.ts)
+//   para «Contacto», «Contacto-enviado» y «Contacto-clic».
 //   «Clic-prensa» de la tira de prensa de la home lo cuenta el atributo data-umami-event de cada medio; no se manda a mano.
 //
 // Cuatro niveles:
@@ -20,7 +24,7 @@
 // Se ejecuta con `pnpm test:umami-eventos`:  pnpm exec nuxt generate && pnpm test:umami-eventos
 // (Lo añadió a package.json y a e2e.yml la revisión de diseño del 24-oct-2026: su bloque C3d es la única comprobación en navegador de que
 // la tira de prensa no cuenta doble «Clic-prensa».)
-import { existsSync, readFileSync } from 'node:fs'
+import { existsSync, readFileSync, readdirSync } from 'node:fs'
 import {
   EVENTO_CONTACTO_CLIC,
   EVENTO_GOFUNDME,
@@ -54,6 +58,17 @@ import {
   paginaBase,
   reiniciarVistas,
 } from '../app/utils/umamiVistas'
+import { ROLES_CONTACTO, SIN_ROL, esRolContacto, rolDeContacto } from '../app/utils/rolesContacto'
+import {
+  CLAVE_VISOR,
+  EVENTO_VISOR,
+  SELECTOR_TOCABLE,
+  accionDeVisor,
+  esTeclaDeUso,
+  nombreDeVisor,
+  olvidarVisores,
+  registrarVisor,
+} from '../app/utils/umamiVisor'
 
 let fallos = 0
 const ok = (cond: boolean, msg: string) => {
@@ -157,7 +172,8 @@ igual(conEntrada('Contacto-enviado', { rol: 'tech' }, a1), { rol: 'tech', entrad
 igual(conEntrada('Donar', undefined, a1), { entrada: 'colabora' }, 'aun sin datos propios')
 igual(conEntrada('Scroll', { pct: 25, pagina: 'ciencia' }, a1), { pct: 25, pagina: 'ciencia' }, 'los demás eventos pasan intactos («Scroll»)')
 igual(conEntrada('Contacto-clic', { rol: 'tech', pagina: 'ciencia' }, a1), { rol: 'tech', pagina: 'ciencia' }, 'ídem «Contacto-clic»')
-igual([...EVENTOS_CON_ENTRADA].sort(), ['Clic-gofundme', 'Contacto-enviado', 'Donar'], 'esos tres llevan entrada (T2d añade «Puerta»)')
+igual(conEntrada('Puerta', { puerta: 'apoyar' }, a1), { puerta: 'apoyar', entrada: 'colabora' }, '«Puerta» lleva la entrada (T2d): se ve por qué página llegó quien elige cada puerta')
+igual([...EVENTOS_CON_ENTRADA].sort(), ['Clic-gofundme', 'Contacto-enviado', 'Donar', 'Puerta'], 'esos cuatro llevan entrada y ningún otro')
 
 olvidarEntrada()
 const sinAlmacen: null = null
@@ -211,6 +227,65 @@ olvidarEntrada()
   ok(REINTENTOS_UMAMI * ESPERA_UMAMI_MS >= 4000, `y espera como mínimo 4 s en total (${REINTENTOS_UMAMI * ESPERA_UMAMI_MS} ms)`)
 }
 
+// ── A3. roles de contacto y «Visor» (T2d) ───────────────────────────────────────────────────
+console.log('\nA3 · roles de contacto y «Visor»')
+igual([...ROLES_CONTACTO], ['oncologist', 'researcher', 'journalist', 'patient', 'tech', 'other'], 'los seis roles del selector del formulario, en un solo sitio')
+igual(SIN_ROL, 'sin_rol', 'y «sin_rol» cuando no hay ninguno')
+for (const r of ROLES_CONTACTO) igual(rolDeContacto(r), r, `«${r}» es un rol`)
+for (const malo of ['press', 'otro', 'brand', '', '<script>', 'Tech', 'oncologist ', null, undefined, ['tech'], 3]) igual(rolDeContacto(malo), 'sin_rol', `${JSON.stringify(malo)} no es un rol: sin_rol (el «press» y el «otro» de antes también)`)
+ok(esRolContacto('tech') && !esRolContacto('brand') && !esRolContacto(undefined), 'esRolContacto distingue un rol de lo que no lo es')
+igual(clasificarClic(`${SITIO}/contacto?role=journalist`, SITIO, 'prensa', null)?.datos.rol, 'journalist', 'Contacto-clic: «journalist» es el rol de prensa')
+igual(clasificarClic(`${SITIO}/contacto?role=press`, SITIO, 'colabora', null)?.datos.rol, 'sin_rol', 'Contacto-clic: «press» ya no es un rol (el vocabulario es el del formulario)')
+igual(clasificarClic(`${SITIO}/contacto?role=brand`, SITIO, 'colabora', null)?.datos.rol, 'sin_rol', 'Contacto-clic: una palabra cualquiera en minúsculas ya no pasa, solo las del vocabulario')
+igual(clasificarClic(`${SITIO}/en/contact?role=other`, SITIO, 'gracias', null)?.datos.rol, 'other', 'Contacto-clic: «other» (el perfil «Otro» elegido) pasa tal cual')
+
+ok(esTeclaDeUso('Enter') && esTeclaDeUso(' ') && ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].every(esTeclaDeUso), 'Intro, Espacio y las flechas son usar un control')
+ok(!esTeclaDeUso('Tab') && !esTeclaDeUso('a') && !esTeclaDeUso('Shift') && !esTeclaDeUso('Escape'), 'tabular, escribir una letra, una modificadora o Escape no lo son')
+igual(nombreDeVisor('lesiones'), 'lesiones', 'un nombre de herramienta vale')
+for (const malo of ['', 'a', 'Lesiones', 'les iones', '<script>', 'x'.repeat(31), null, undefined, 7]) igual(nombreDeVisor(malo), null, `${JSON.stringify(malo)} no es un nombre: no viaja a Umami`)
+igual(accionDeVisor('mama', 'CANVAS'), 'mama', 'la acción que declara el contenedor manda')
+igual(accionDeVisor(undefined, 'CANVAS'), 'mover', 'sin acción declarada, un lienzo es «mover»')
+igual(accionDeVisor(null, 'BUTTON'), 'control', 'y un botón, «control»')
+igual(accionDeVisor('<b>', 'BUTTON'), 'control', 'una acción declarada que no vale se ignora')
+ok(['canvas', 'button', 'select', '[role="option"]', '[role="tab"]', '[role="slider"]'].every((t) => SELECTOR_TOCABLE.split(', ').includes(t)), 'un lienzo, un botón, un selector, una opción, una pestaña y un deslizador se pueden tocar')
+ok(!SELECTOR_TOCABLE.split(', ').some((t) => ['a', 'img', 'p', 'div', 'svg', '[role="img"]'].includes(t)), 'un enlace, una imagen, un párrafo o un dibujo no cuentan como «usar el visor»')
+
+olvidarVisores()
+const v1 = almacen()
+ok(registrarVisor('lesiones', v1), 'la primera vez que se toca una herramienta en la visita: se manda')
+ok(!registrarVisor('lesiones', v1), 'la segunda: no')
+ok(registrarVisor('explorador', v1) && !registrarVisor('explorador', v1), 'otra herramienta cuenta aparte, también una sola vez')
+igual(v1.datos.get(CLAVE_VISOR), 'lesiones,explorador', 'se apunta en sessionStorage')
+olvidarVisores()
+ok(!registrarVisor('lesiones', v1), 'tras una recarga (la memoria vacía) sessionStorage lo recuerda: sigue sin repetirse en la misma visita')
+olvidarVisores()
+ok(registrarVisor('lesiones', almacen()), 'una sesión nueva (almacén vacío) vuelve a contar')
+olvidarVisores()
+ok(registrarVisor('lesiones', null) && !registrarVisor('lesiones', null), 'sin sessionStorage (null) queda en memoria: UNA vez')
+olvidarVisores()
+const bloqueadoV = {
+  getItem: () => {
+    throw new Error('SecurityError')
+  },
+  setItem: () => {
+    throw new Error('SecurityError')
+  },
+}
+let revientoV = false
+try {
+  ok(registrarVisor('lesiones', bloqueadoV) && !registrarVisor('lesiones', bloqueadoV), 'con el almacenamiento bloqueado (lanza) no revienta y cuenta UNA vez, en memoria')
+} catch {
+  revientoV = true
+}
+ok(!revientoV, 'el almacenamiento que lanza no rompe la página')
+olvidarVisores()
+ok(!registrarVisor('<script>', almacen()) && !registrarVisor('x', almacen()), 'un nombre que no vale no manda nada')
+const v2 = almacen()
+v2.datos.set(CLAVE_VISOR, '<script>,lesiones')
+olvidarVisores()
+ok(!registrarVisor('lesiones', v2), 'de lo guardado se leen solo los nombres válidos («lesiones» sigue contando como hecho)')
+olvidarVisores()
+
 // ── B. los nombres de siempre no se han tocado ───────────────────────────────────────────────
 console.log('\nB · los eventos que ya existían')
 const soporte = readFileSync('app/composables/useSupport.ts', 'utf-8')
@@ -263,6 +338,60 @@ ok(/addEventListener\(\s*'scroll'[\s\S]*?\{ passive: true \}/.test(plugin), 'el 
 ok(plugin.includes("addEventListener('auxclick'"), 'el botón central (auxclick) también cuenta')
 ok(['wheel', 'touchmove', 'keydown', 'pointerdown'].every((t) => plugin.includes(`'${t}'`)), 'el plugin anota los gestos de scroll del usuario (rueda, dedo, teclado, barra)')
 ok(/hook\('page:start'/.test(plugin), 'y empieza de cero en cada página nueva (page:start)')
+
+// ── B2. T2d (24-oct-2026): Idioma, Visor y un solo vocabulario de roles ──────────────────────────
+const raizApp = 'app'
+const ficheros = (extensiones: string[]): string[] =>
+  (readdirSync(raizApp, { recursive: true }) as string[]).filter((f) => extensiones.some((e) => f.endsWith(e))).map((f) => `${raizApp}/${f}`)
+const sinComentarios = (src: string) => src.replace(/<!--[\s\S]*?-->/g, '').replace(/\/\*[\s\S]*?\*\//g, '').replace(/(^|[^:])\/\/[^\n]*/g, '$1')
+
+// Idioma { de, a, pagina }
+const siteNav = readFileSync('app/components/SiteNav.vue', 'utf-8')
+ok(/trackUmami\('Idioma',\s*\{\s*de,\s*a,\s*pagina\s*\}\)/.test(soporte), 'useSupport.ts emite «Idioma» { de, a, pagina }')
+const iMide = siteNav.indexOf('trackIdioma(locale.value, code, paginaBase(route.name))')
+const iNavega = siteNav.indexOf('await setLocale(code)')
+ok(iMide > 0 && iNavega > iMide, '«Idioma» se mide ANTES de setLocale: después, la ruta y el idioma ya son los de llegada')
+ok(/if \(code !== locale\.value\) \{(\s*\/\/[^\n]*)*\s*trackIdioma\(/.test(siteNav), 'y solo cuando el idioma cambia de verdad (pulsar el que ya está activo no manda nada)')
+ok(![...ANTIGUOS, 'Contacto-enviado', 'Puerta', ...NUEVOS].includes('Idioma'), 'el nombre «Idioma» no pisa ninguno de los de siempre')
+
+// Visor { herramienta, accion }
+const lesionesVue = readFileSync('app/pages/lesiones.vue', 'utf-8')
+const marcados = [...lesionesVue.matchAll(/data-visor="([a-z0-9_]+)" data-visor-accion="([a-z0-9_]+)"/g)].map((m) => `${m[1]}:${m[2]}`).sort()
+igual(marcados, ['lesiones:foco', 'lesiones:higado', 'lesiones:hueso', 'lesiones:mama'], '/lesiones marca sus cuatro partes (mama, hígado, hueso y el esqueleto de focos) con data-visor / data-visor-accion')
+const pluginVisor = readFileSync('app/plugins/umami-visor.client.ts', 'utf-8')
+ok(/addEventListener\('pointerdown'[\s\S]*capture: true/.test(pluginVisor) && /addEventListener\('keydown'/.test(pluginVisor), 'el plugin del visor mira clics/toques y teclas de todo el documento, en captura (el visor puede parar sus propios gestos)')
+ok(/registrarVisor\(herramienta\)/.test(pluginVisor) && /enviarCuandoHaya\(/.test(pluginVisor) && /trackUmami\(EVENTO_VISOR,\s*\{\s*herramienta,\s*accion\s*\}\)/.test(pluginVisor), 'una vez por visita (registrarVisor), esperando al script de Umami (defer)')
+ok(EVENTO_VISOR === 'Visor' && ![...ANTIGUOS, 'Contacto-enviado', 'Idioma', ...NUEVOS].includes(EVENTO_VISOR), 'el nombre «Visor» no pisa ninguno de los demás')
+
+// Una llamada a trackX(…) en un componente sin haberla sacado de useSupport() revienta al hacer clic (T2a dejó así a /lesiones con trackMapa)
+const sinSacar: string[] = []
+for (const f of ficheros(['.vue'])) {
+  const src = sinComentarios(readFileSync(f, 'utf-8'))
+  const usados = new Set([...src.matchAll(/\b(track[A-Z][A-Za-z0-9]*)\s*\(/g)].map((m) => m[1]!))
+  usados.delete('trackUmami') // es una utilidad de auto-importación, no de useSupport()
+  const sacados = new Set([...src.matchAll(/const\s*\{([^}]*)\}\s*=\s*useSupport\(\)/g)].flatMap((m) => m[1]!.split(',').map((x) => x.trim().split(':')[0]!.trim())))
+  const locales = new Set([...src.matchAll(/(?:function|const)\s+(track[A-Z][A-Za-z0-9]*)/g)].map((m) => m[1]!))
+  const faltan = [...usados].filter((u) => !sacados.has(u) && !locales.has(u))
+  if (faltan.length) sinSacar.push(`${f}: ${faltan.join(', ')}`)
+}
+ok(sinSacar.length === 0, `todo trackX(…) que usa un componente sale de useSupport() o está definido en él${sinSacar.length ? ` (faltan: ${sinSacar.join('; ')})` : ''}`)
+
+// Un solo vocabulario de roles
+const enUso: string[] = []
+for (const f of ficheros(['.vue', '.ts'])) {
+  const src = sinComentarios(readFileSync(f, 'utf-8'))
+  for (const m of src.matchAll(/trackContact\('([^']*)'\)/g)) enUso.push(`${f}: trackContact('${m[1]}')`)
+  for (const m of src.matchAll(/[?&]role=([A-Za-z_]+)/g)) enUso.push(`${f}: ?role=${m[1]}`)
+  for (const m of src.matchAll(/query:\s*\{\s*role:\s*'([^']*)'/g)) enUso.push(`${f}: role '${m[1]}'`)
+}
+const fueraDeLista = enUso.filter((u) => !esRolContacto(/(?:trackContact\('|role=|role '|\?role=)([A-Za-z_]+)/.exec(u)?.[1]))
+ok(enUso.length >= 8 && fueraDeLista.length === 0, `los ${enUso.length} roles que escriben los enlaces y las tarjetas del código son del vocabulario único${fueraDeLista.length ? ` (fuera: ${fueraDeLista.join('; ')})` : ''}`)
+const rolesHerramienta = [...(/ROL_HERRAMIENTA[^{]*\{([\s\S]*?)\n\}/.exec(readFileSync('app/utils/navegacion.ts', 'utf-8'))?.[1] ?? '').matchAll(/:\s*'([a-z_]+)'/g)].map((m) => m[1])
+ok(rolesHerramienta.length >= 5 && rolesHerramienta.every(esRolContacto), `y los de ROL_HERRAMIENTA (${rolesHerramienta.join(', ')})`)
+const opcionesRol = [...(/<select id="role"[\s\S]*?<\/select>/.exec(contacto)?.[0] ?? '').matchAll(/<option value="([^"]+)"/g)].map((m) => m[1]).sort()
+igual(opcionesRol, [...ROLES_CONTACTO].sort(), 'el selector del formulario ofrece justo esos seis roles')
+ok(/esRolContacto\(r\)/.test(contacto) && /rolDeContacto\(role\.value\)/.test(contacto) && !/\|\| 'otro'/.test(contacto), 'el formulario lee el ?role= y manda «Contacto-enviado» por el vocabulario único (sin «otro»)')
+ok(/function trackContact\(role: RolContacto\)/.test(soporte), 'trackContact solo acepta un rol del vocabulario')
 
 // ── C. en Chrome, sobre el build estático ────────────────────────────────────────────────────
 console.log('\nC · en Chrome, sobre .output/public')
@@ -325,6 +454,28 @@ if (process.env.SIN_NAVEGADOR) {
       ok(c.length === 1 && c[0]?.d?.rol === 'oncologist' && c[0]?.d?.pagina === base, `${ruta}: «${EVENTO_CONTACTO_CLIC}» con rol oncologist y página «${base}» (${JSON.stringify(c[0]?.d)})`)
       ok(c[0]?.d !== undefined && !('entrada' in c[0].d), `${ruta}: «${EVENTO_CONTACTO_CLIC}» NO lleva entrada (solo Donar, Clic-gofundme y Contacto-enviado)`)
     }
+    // C2b · Idioma { de, a, pagina } (T2d): el selector de la cabecera. `pagina` es donde se cambió; pulsar el idioma activo no manda nada
+    {
+      const selectorIdioma = (nombre: string) => `[data-cabecera-fija] [role=group] button[aria-label="${nombre}"]`
+      await nav.cargar('/ciencia')
+      await vaciar()
+      ok(await nav.evaluate(`!!document.querySelector('${selectorIdioma('English')}')`), '/ciencia tiene el selector de idioma en la cabecera')
+      await nav.evaluate(`document.querySelector('${selectorIdioma('Español')}').click()`)
+      await nav.sleep(300)
+      ok((await de('Idioma')).length === 0, 'pulsar el idioma que ya está activo (ES en /ciencia) no manda «Idioma»')
+      await nav.evaluate(`document.querySelector('${selectorIdioma('English')}').click()`)
+      for (let i = 0; i < 25 && !(await nav.evaluate(`location.pathname.startsWith('/en')`)); i++) await nav.sleep(200)
+      const alEn = await de('Idioma')
+      ok(alEn.length === 1 && alEn[0]?.d?.de === 'es' && alEn[0]?.d?.a === 'en' && alEn[0]?.d?.pagina === 'ciencia', `ES → EN desde /ciencia: UN «Idioma» {de: es, a: en, pagina: ciencia} (${JSON.stringify(alEn.map((x) => x.d))})`)
+      ok((await nav.evaluate('location.pathname')) === '/en/science', `y navega a la página en inglés (${await nav.evaluate('location.pathname')})`)
+      await nav.sleep(600)
+      await nav.evaluate(`document.querySelector('${selectorIdioma('Español')}').click()`)
+      for (let i = 0; i < 25 && (await nav.evaluate(`location.pathname.startsWith('/en')`)); i++) await nav.sleep(200)
+      const todos = await de('Idioma')
+      ok(todos.length === 2 && todos[1]?.d?.de === 'en' && todos[1]?.d?.a === 'es' && todos[1]?.d?.pagina === 'ciencia', `EN → ES desde /en/science: otro «Idioma» {de: en, a: es, pagina: ciencia}, la misma página base (${JSON.stringify(todos.map((x) => x.d))})`)
+      ok(todos.every((x) => x.d !== undefined && !('entrada' in x.d)), '«Idioma» no lleva entrada (solo Donar, Clic-gofundme, Contacto-enviado y Puerta)')
+    }
+
     // C3 · la petición, cuando exista un enlace al ancla
     await nav.cargar('/')
     await vaciar()
@@ -672,6 +823,85 @@ if (process.env.SIN_NAVEGADOR) {
       await nav.sleep(150)
       const g = (await de(EVENTO_GOFUNDME))[0]
       ok(g?.d?.entrada === 'ciencia', `con sessionStorage bloqueado, la entrada se guarda en memoria y viaja igual (${JSON.stringify(g?.d)})`)
+    })
+
+    // «Puerta» (las puertas de la home) lleva la entrada de la sesión (T2d): entró por /ciencia y eligió «Clínico o laboratorio» en la home
+    await nav.cargar('/ciencia') // `cargar` parte de un almacenamiento vacío: la entrada de esta sesión es /ciencia
+    await irA('/')
+    await nav.sleep(900)
+    await vaciar()
+    await nav.evaluate(`document.querySelector('.puertas a[href="/datos#que-buscamos"]').click()`)
+    await nav.sleep(150)
+    const pu = (await de('Puerta'))[0]
+    ok(pu?.d?.puerta === 'clinico' && pu?.d?.entrada === 'ciencia', `«Puerta» lleva entrada «ciencia» aunque la elija ya en la home, y conserva su puerta (${JSON.stringify(pu?.d)})`)
+    ok((await de(EVENTO_PETICION))[0]?.d !== undefined && !('entrada' in ((await de(EVENTO_PETICION))[0]?.d ?? {})), 'y «VerPeticion», que sale del mismo clic, no la lleva')
+
+    // C11 · Visor { herramienta, accion } (T2d): la primera vez que se toca un visor en la visita; /lesiones marca sus cuatro partes.
+    // Este Chrome va sin GPU: los visores 3D caen a su imagen y no tienen lienzo, así que se pone uno en el contenedor para tocarlo
+    // (con WebGL el lienzo ya está). El esqueleto de focos es SVG y está siempre.
+    const toque = (parte: string, tipo: 'pointerdown' | 'keydown', init = '{}', objetivo = 'canvas') =>
+      nav.evaluate(`(() => {
+        const w = document.querySelector('[data-visor-accion="${parte}"]');
+        let t = '${objetivo}' === 'canvas' ? w.querySelector('canvas') : w.querySelector('${objetivo}');
+        if (!t && '${objetivo}' === 'canvas') { t = document.createElement('canvas'); w.appendChild(t) }
+        const init = Object.assign({ bubbles: true, cancelable: true }, ${init});
+        t.dispatchEvent('${tipo}' === 'pointerdown' ? new PointerEvent('pointerdown', Object.assign({ isPrimary: true, pointerType: 'mouse', button: 0 }, init)) : new KeyboardEvent('keydown', init));
+      })()`)
+    await nav.cargar('/lesiones') // (`cargar` parte de un almacenamiento vacío: es una sesión nueva)
+    await vaciar()
+    const visores = () => de(EVENTO_VISOR)
+    ok((await nav.evaluate(`document.querySelectorAll('[data-visor="lesiones"]').length`)) === 4, '/lesiones lleva sus cuatro partes marcadas en el HTML')
+    await nav.evaluate(`document.querySelector('[data-visor-accion="mama"]').dispatchEvent(new PointerEvent('pointerdown', { bubbles: true, isPrimary: true, pointerType: 'mouse', button: 0 }))`)
+    ok((await visores()).length === 0, 'un toque en el contenedor mismo (algo que no se puede tocar, como un párrafo) no cuenta')
+    await toque('mama', 'pointerdown', '{ button: 2 }')
+    ok((await visores()).length === 0, 'el botón derecho del ratón no cuenta')
+    await toque('mama', 'keydown', "{ key: 'Tab' }", 'canvas')
+    ok((await visores()).length === 0, 'tabular hasta el visor no cuenta')
+    await toque('mama', 'pointerdown')
+    const v0 = await visores()
+    ok(v0.length === 1 && v0[0]?.d?.herramienta === 'lesiones' && v0[0]?.d?.accion === 'mama', `el primer toque (la mama): UN «${EVENTO_VISOR}» {herramienta: lesiones, accion: mama} (${JSON.stringify(v0.map((x) => x.d))})`)
+    ok(v0[0]?.d !== undefined && !('entrada' in v0[0].d), '«Visor» no lleva entrada')
+    await toque('higado', 'pointerdown')
+    await nav.evaluate(`document.querySelector('[data-visor-accion="foco"] [role=option]').dispatchEvent(new PointerEvent('pointerdown', { bubbles: true, isPrimary: true, pointerType: 'mouse', button: 0 }))`)
+    ok((await visores()).length === 1, 'tocar después el hígado o un foco, en la misma visita, no manda otro: UNA vez por visita')
+    await nav.cargar('/lesiones', { conservar: true })
+    await vaciar()
+    await toque('higado', 'pointerdown')
+    ok((await visores()).length === 0, 'recargar /lesiones en la misma sesión tampoco: la visita es la sesión, no la vista de página')
+    await nav.cargar('/lesiones')
+    await vaciar()
+    await nav.evaluate(`document.querySelector('[data-visor-accion="foco"] [role=option]').dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }))`)
+    const vf = await visores()
+    ok(vf.length === 1 && vf[0]?.d?.accion === 'foco', `una sesión nueva vuelve a contar, y con el teclado (Intro en un foco del esqueleto): accion «foco» (${JSON.stringify(vf.map((x) => x.d))})`)
+    await nav.cargar('/lesiones')
+    await vaciar()
+    await nav.evaluate(`document.querySelector('[data-visor-accion="hueso"]').appendChild(Object.assign(document.createElement('button'), { id: 'boton-hueso' }))`)
+    await nav.evaluate(`document.getElementById('boton-hueso').dispatchEvent(new PointerEvent('pointerdown', { bubbles: true, isPrimary: true, pointerType: 'touch' }))`)
+    const vh = await visores()
+    ok(vh.length === 1 && vh[0]?.d?.accion === 'hueso', `con el dedo y sobre un botón del visor del hueso: accion «hueso» (${JSON.stringify(vh.map((x) => x.d))})`)
+    // otra página sin visor: nada
+    await nav.cargar('/')
+    await vaciar()
+    await nav.evaluate(`document.body.appendChild(Object.assign(document.createElement('button'), { id: 'suelto' })); document.getElementById('suelto').dispatchEvent(new PointerEvent('pointerdown', { bubbles: true, isPrimary: true, pointerType: 'mouse', button: 0 }))`)
+    ok((await visores()).length === 0, 'fuera de un contenedor con data-visor no se manda nada')
+    // sin almacenamiento: en memoria, también UNA vez
+    await conScript(`Object.defineProperty(window, 'sessionStorage', { get() { throw new DOMException('bloqueado', 'SecurityError') } });`, async () => {
+      await nav.cargar('/lesiones')
+      await vaciar()
+      await toque('mama', 'pointerdown')
+      await toque('higado', 'pointerdown')
+      ok((await visores()).length === 1, `con sessionStorage bloqueado, «${EVENTO_VISOR}» llega y se queda en UNA vez (en memoria; ${(await visores()).length})`)
+    })
+    // con el script de Umami sin cargar: el aviso espera y llega cuando carga
+    await conScript(UMAMI_AUSENTE, async () => {
+      await nav.cargar('/lesiones')
+      await vaciar()
+      await toque('mama', 'pointerdown')
+      await nav.sleep(500)
+      ok((await nav.evaluate('typeof window.umami')) === 'undefined' && (await visores()).length === 0, 'con el script de Umami sin cargar todavía no sale nada...')
+      await nav.evaluate(`window.__restaurarUmami()`)
+      await nav.sleep(900)
+      ok((await visores()).length === 1, `...y cuando carga, el aviso que esperaba llega UNA vez (${(await visores()).length})`)
     })
   } finally {
     await nav.cerrar()

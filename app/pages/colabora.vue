@@ -170,7 +170,7 @@
               <NuxtLink
                 :to="localePath('prensa')"
                 class="btn-secondary w-full h-12 justify-center"
-                @click="trackContact('press')"
+                @click="trackContact('journalist')"
               >
                 <Icon name="ph:megaphone-simple-fill" class="w-4 h-4" aria-hidden="true" />
                 {{ $t('collaborate.profile3_cta_label') }}

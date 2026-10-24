@@ -2,6 +2,7 @@
 // no ha cargado (defer): si `window.umami` no existe, no hace nada. Convive con
 // Plausible (ver useSupport.ts) — cada acción puede disparar ambos.
 // `conEntrada` (umamiVistas.ts) añade la propiedad `entrada` solo a los eventos que la llevan.
+import { rolDeContacto } from './rolesContacto'
 import { conEntrada } from './umamiVistas'
 
 export function trackUmami(event: string, data?: Record<string, string | number | boolean>) {
@@ -21,7 +22,7 @@ export function trackUmami(event: string, data?: Record<string, string | number 
 //
 //   Clic-gofundme   { pagina, origen }  clic a gofund.me / gofundme.com, desde cualquier enlace (y `entrada`: umamiVistas.ts)
 //   VerPeticion     { origen }          clic a un enlace con el ancla #que-buscamos
-//   Contacto-clic   { rol, pagina }     clic a /contacto (· /en/contact), con el rol de ?role=
+//   Contacto-clic   { rol, pagina }     clic a /contacto (· /en/contact), con el rol de ?role= (el vocabulario único: rolesContacto.ts)
 //   Scroll          { pct, pagina }     recorrido de scroll alcanzado: 25 · 50 · 75 · 100
 //
 // `pagina` es el nombre base de la ruta (index, ciencia, datos…) y no la URL, así ES y EN suman
@@ -57,7 +58,6 @@ export function apoyoReciente(ahora: number = Date.now()): string | null {
   return ultimoApoyo && ahora - ultimoApoyo.t <= APOYO_CADUCA_MS ? ultimoApoyo.origen : null
 }
 
-const ROL_VALIDO = /^[a-z]{2,20}$/
 const RUTAS_CONTACTO = new Set(['/contacto', '/en/contact'])
 
 /**
@@ -83,8 +83,7 @@ export function clasificarClic(href: string, origen: string, pagina: string, apo
   }
   const ruta = url.pathname.replace(/\/+$/, '')
   if (RUTAS_CONTACTO.has(ruta)) {
-    const rol = url.searchParams.get('role') ?? ''
-    return { evento: EVENTO_CONTACTO_CLIC, datos: { rol: ROL_VALIDO.test(rol) ? rol : 'sin_rol', pagina } }
+    return { evento: EVENTO_CONTACTO_CLIC, datos: { rol: rolDeContacto(url.searchParams.get('role')), pagina } }
   }
   return null
 }

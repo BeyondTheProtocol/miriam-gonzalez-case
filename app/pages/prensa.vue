@@ -310,7 +310,7 @@
                   <span class="block font-display font-semibold text-berenjena text-[15px] leading-snug">
                     {{ item.title }}
                   </span>
-                  <span class="mt-1 block font-mono text-[11.5px] uppercase tracking-[0.08em] text-tinta">
+                  <span class="mt-1 block font-mono text-[12px] uppercase tracking-[0.08em] text-tinta">
                     {{ item.outlet }}<template v-if="item.date"> · {{ fmtDate(item.date) }}</template>
                   </span>
                 </span>

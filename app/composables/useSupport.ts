@@ -1,3 +1,5 @@
+import type { RolContacto } from '../utils/rolesContacto'
+
 /**
  * Medición de conversión (plan §D.5).
  * Dispara el goal de Plausible `Apoyar` en cada clic de un CTA de apoyo/donar,
@@ -74,12 +76,12 @@ export function useSupport() {
     trackUmami('Clic-prensa', { medio: outlet })
   }
 
-  function trackContact(role: string) {
+  // «Contacto» { rol }: lo emiten las tarjetas de /colabora. El rol es del vocabulario ÚNICO de rolesContacto.ts, el mismo que usan el
+  // formulario («Contacto-enviado») y «Contacto-clic» (plugins/umami-delegado.client.ts, F0, el clic a /contacto desde cualquier página,
+  // con el rol de ?role=): desde T2d (24-oct-2026) los tres se pueden cruzar. Antes esta tarjeta decía `press`; ahora `journalist`.
+  function trackContact(role: RolContacto) {
     trackUmami('Contacto', { rol: role })
   }
-  // OJO: este «Contacto» solo lo emite /colabora, con sus propios valores de rol. El clic a /contacto desde
-  // cualquier página, con el rol de ?role=, es «Contacto-clic» (plugins/umami-delegado.client.ts, F0): evento
-  // nuevo para no mezclar series. Lo mismo vale para «Clic-gofundme», «VerPeticion» y «Scroll».
 
   function trackPathway(route: string) {
     trackUmami('Pathway', { ruta: route })
@@ -137,6 +139,13 @@ export function useSupport() {
   // (home, science, timeline…), no la ruta: así ES y EN suman en el mismo valor.
   function trackNav(destino: string) {
     trackUmami('Navegar', { destino })
+  }
+
+  // Cambio de idioma a mano (el selector ES/EN de la cabecera): «Idioma» { de, a, pagina }. `pagina` es la ruta base DONDE se cambió
+  // (ciencia, index…), no la de llegada, así que se lee antes de navegar. Mide el rebote entre `/` y `/en`: el 31 % de los visitantes
+  // llega con el navegador en inglés y pocos acaban en `/en`; hasta ahora solo había recorridos, que no ven el clic.
+  function trackIdioma(de: string, a: string, pagina: string) {
+    trackUmami('Idioma', { de, a, pagina })
   }
 
   // Las cuatro puertas de la home (rediseño F5, 23-oct-2026): un solo evento, «Puerta», con la puerta como propiedad
@@ -201,6 +210,7 @@ export function useSupport() {
     trackHerramienta,
     trackLatest,
     trackNav,
+    trackIdioma,
     trackVideo,
     trackPuerta,
     track404,
