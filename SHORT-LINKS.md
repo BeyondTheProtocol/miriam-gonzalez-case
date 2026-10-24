@@ -22,11 +22,15 @@ control y tu analítica.
 ## Cómo funciona
 
 `helpmiriam.com/3d-x` → redirige (302) a
-`helpmiriam.com/mapa-metastasis?utm_source=twitter&utm_medium=post&utm_campaign=lanzamiento-herramienta`
+`helpmiriam.com/lesiones?utm_source=twitter&utm_medium=post&utm_campaign=lanzamiento-herramienta`
 
 - **302 (temporal)** a propósito: permite repuntar o re-etiquetar un link sin que
   quede cacheado de forma permanente en los navegadores.
 - El UTM viaja en el destino → **Umami** lo registra (Campañas / UTM).
+
+> **Los `/3d*` llevan a `/lesiones` desde el 23-oct-2026** (rediseño de arquitectura, fase F4): «Mama, hígado y hueso»
+> ya incluye el mapa de hueso, y `/mapa-metastasis` pasó a archivo («Histórico · junio 2026», `noindex`, sin enlaces
+> internos). Siguen en 302 y con los **mismos UTM** (`lanzamiento-herramienta`), así que la serie en Umami no se rompe.
 
 ## Convención de nombres
 
@@ -56,12 +60,12 @@ control y tu analítica.
 
 | Link corto | Destino | Campaña |
 |---|---|---|
-| `/3d` | `/mapa-metastasis` | `lanzamiento-herramienta` (genérico) |
-| `/3d-x` | `/mapa-metastasis` | `lanzamiento-herramienta` (X) |
-| `/3d-in` | `/mapa-metastasis` | `lanzamiento-herramienta` (LinkedIn) |
-| `/3d-ig` | `/mapa-metastasis` | `lanzamiento-herramienta` (Instagram/bio) |
-| `/3d-tt` | `/mapa-metastasis` | `lanzamiento-herramienta` (TikTok/bio) |
-| `/3d-yt` | `/mapa-metastasis` | `lanzamiento-herramienta` (YouTube/bio) |
+| `/3d` | `/lesiones` | `lanzamiento-herramienta` (genérico) |
+| `/3d-x` | `/lesiones` | `lanzamiento-herramienta` (X) |
+| `/3d-in` | `/lesiones` | `lanzamiento-herramienta` (LinkedIn) |
+| `/3d-ig` | `/lesiones` | `lanzamiento-herramienta` (Instagram/bio) |
+| `/3d-tt` | `/lesiones` | `lanzamiento-herramienta` (TikTok/bio) |
+| `/3d-yt` | `/lesiones` | `lanzamiento-herramienta` (YouTube/bio) |
 | `/lesiones-x` | `/lesiones` | `lanzamiento-lesiones` (X) |
 | `/lesiones-in` | `/lesiones` | `lanzamiento-lesiones` (LinkedIn) |
 | `/lesiones-ig` | `/lesiones` | `lanzamiento-lesiones` (Instagram/bio) |
@@ -72,9 +76,24 @@ control y tu analítica.
 | `/biopsia-ig` | `/laminillas` | `lanzamiento-biopsia` (Instagram/bio) |
 | `/biopsia-tt` | `/laminillas` | `lanzamiento-biopsia` (TikTok/bio) |
 | `/biopsia-yt` | `/laminillas` | `lanzamiento-biopsia` (YouTube/bio) |
-| `/caso` | `/ciencia?nivel=pro#mapa-acceso` | `equipo-clinico` (reenvío a médicos, no redes) |
+| `/caso` | `/datos#que-buscamos` | `equipo-clinico` (reenvío a médicos, no redes) |
 | `/donar` | GoFundMe (externo) | — (sin UTM: salto externo, no medible en Umami) |
 | `/polaris` | repo público de Polaris en GitHub (externo) | medido vía Link de Umami `cloud.umami.is/q/polaris-repo` («General → Repo Polaris», en Umami → Links) |
+
+## Páginas fusionadas (redirecciones permanentes, no son cortos de campaña)
+
+Desde el 23-oct-2026 (rediseño, fase F4) estas páginas ya no existen: solo queda su redirección, sin query ni UTM.
+Cada una son **tres reglas** en `routeRules` (ES, EN y la variante `/en/<slug-es>` que crea i18n; dos si el slug EN es
+igual al ES) y las mismas rutas en `nitro.prerender.ignore`. `pnpm test:short-links` comprueba la tabla entera, con su
+código de estado.
+
+| Ruta | Destino | Código | Por qué |
+|---|---|---|---|
+| `/herramientas`, `/en/tools`, `/en/herramientas` | `/datos#visores` · `/en/data#visores` | 301 | el índice pasó a la franja de herramientas de `/datos` |
+| `/reservorio`, `/en/reservorio` | `/datos#reservorio` · `/en/data#reservorio` | 302 | bloque plegado de `/datos`; 302 hasta que Miriam confirme la fusión (G6) |
+| `/historia`, `/en/story`, `/en/historia` | `/timeline` · `/en/timeline` | 302 | la historia real puede volver |
+| `/historia/01-el-comienzo`, `/en/story/01-the-beginning`, `/en/historia/01-el-comienzo` | `/timeline` · `/en/timeline` | 301 | el capítulo 1 se borró |
+| `/videos`, `/en/videos` | `/ciencia` · `/en/science` | 301 | el ADC vive en `/ciencia`; el promo, en `/prensa` |
 
 ## Cómo añadir uno nuevo
 

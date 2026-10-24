@@ -85,7 +85,7 @@ entries:
     title: The team forms and the search begins
     description: >
       Miriam begins researching her own case with artificial intelligence. A thread on Twitter.
-      A few professionals who see it and say: I can help. Within days, a spontaneous
+      A few professionals who see it and say: “I can help”. Within days, a spontaneous
       multidisciplinary team forms with specialists from three countries.
     highlight: true
     link: https://x.com/miriamgonp/status/2041824144484917749
@@ -294,7 +294,8 @@ entries:
     description: >
       Within the trial, one of the liver lesions is biopsied: two cores, ultrasound-guided. It is
       the first time liver tissue is analysed rather than bone only, and the material will also
-      feed the studies being set up outside the hospital. The pathology report has not arrived yet.
+      feed the studies being set up outside the hospital. The pathology report was signed on
+      September 21.
     highlight: false
 
   - date: 'Sep 9, 2026'
@@ -311,10 +312,10 @@ entries:
 
   - date: 'Oct 7, 2026'
     tag: Clinical trials
-    title: Started TROPION-Breast06
+    title: Starts TROPION-Breast06
     description: >
-      I've started treatment in the trial. First cycle was on October 7, in Barcelona: an ADC
-      that targets TROP-2.
+      Miriam starts treatment in the trial. The first cycle was on October 7, in Barcelona: an
+      ADC that targets TROP-2.
     highlight: false
     link: https://x.com/miriamgonp/status/2108087307219923331
     linkLabel: 'Read it on X →'
@@ -323,8 +324,8 @@ entries:
     tag: Molecular
     title: First cell-by-cell results are in
     description: >
-      The first results of the cell-by-cell analysis of my liver and bone metastases have
-      arrived. Paloma Cejas’s lab at Dana-Farber did it. I explain it on a page, limits included.
+      The first results of the cell-by-cell analysis of her liver and bone metastases arrive.
+      Paloma Cejas’s lab at Dana-Farber did it. They are explained on a page, limits included.
     highlight: false
     link: /en/cell-by-cell
     linkLabel: 'See Cell by cell →'

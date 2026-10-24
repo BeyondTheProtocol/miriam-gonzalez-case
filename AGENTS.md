@@ -29,10 +29,17 @@ The website has two audiences: scientists/physicians (science page, molecular pr
 - UI strings live in `i18n/locales/es.json` and `i18n/locales/en.json`.
 
 ### Tailwind CSS
-- Custom warm palette: `ink` (warm grays), `ocean` (deep blue for scientific content).
-- Typography: **Fraunces** (serif, display/headings), **Source Sans 3** (sans, body), **JetBrains Mono** (mono, scientific data).
-- `@tailwindcss/typography` plugin for prose on the story page.
-- Custom utility classes in `app/assets/css/main.css`: `.section-container`, `.card-base`, `.tag-gold`, `.tag-ocean`, `.heading-display`, `.link-underline`, `.animate-fade-up`, `.stagger-children`.
+- Palette: five colors and two derived ones, defined as tokens in `app/assets/css/design-system-v2/btp-tokens.css` and bridged to Tailwind (`cream`, `cream-card`, `berenjena`, `tinta`, `miriam`, `coral`). The old `ink`, `gold` and `ocean` scales are gone.
+- Typography: **Fraunces** (serif, display/headings), **Hanken Grotesk** (sans, body and UI), **JetBrains Mono** (mono, labels and data).
+- `@tailwindcss/typography` plugin for prose (`prose prose-ink` on the legal pages).
+- Shared classes live in `app/assets/css/main.css`: `.section-wide`, `.card-base`, `.card-marked`, the four buttons, `.link-action`, `.link-inline`, the type roles (`.h1-pagina`, `.h2-seccion`, `.h3-seccion`, `.h4-tarjeta`, `.lede`, `.prosa`, `.eyebrow`, `.etiqueta`), `.segmentado`, `.visor`, `.desplegable`, `.tabla-scroll`.
+
+### Design system (read before touching the UI)
+- The rules, the tokens and the contract of every component are in `app/assets/css/design-system-v2/DESIGN-SYSTEM.md`. The live guide is `/guia-de-estilo` (noindex).
+- The canon of tokens is `btp-tokens.css`. Do not add a hex: derive with `color-mix()` from the five colors. After editing it, run `pnpm gen:design-doc` (it rewrites the doc tables and `public/design-system/tokens.css`).
+- Reuse `Banda`, `CabeceraSeccion`, `PageHeader`, `TarjetaEnlace`, `Dato`, `Aviso`, `Segmentado`, `Referencia` and `RutaPasos` instead of writing a local variant. Floor for text is 13 px (12 px only for mono uppercase); touch targets are 44 px; every `:hover` goes inside `@media (hover: hover) and (pointer: fine)`.
+- Run `pnpm test:diseno` before opening a PR. It is a ratchet: a count in `scripts/diseno-baseline.json` can go down, never up (`--actualizar` records the improvement). A justified exception is written `/* ds-exc: reason */`.
+- `scripts/diseno-capturas.mjs` takes screenshots of the 21 routes at 390 and 1280 px from a static build, and compares two runs by hash: use it when a commit promises "0 pixels".
 
 ### Icons
 - `@nuxt/icon` with Phosphor Icons (prefix `ph:`). Examples: `ph:heart-fill`, `ph:flask-fill`, `ph:stethoscope-fill`.
@@ -40,6 +47,11 @@ The website has two audiences: scientists/physicians (science page, molecular pr
 ### Analytics: @nuxtjs/plausible
 - Privacy-first analytics. Configured with `ignoredHostnames: ['localhost']` so local dev doesn't pollute stats.
 - No cookie banner needed (GDPR-compliant by design).
+
+### Analytics: Umami events
+- Umami Cloud (cookieless, aggregated) runs next to Plausible; the script is loaded from `nuxt.config.ts` (`data-domains` limits it to helpmiriam.com, so previews and localhost send nothing).
+- Events go through `trackUmami()` (`app/utils/umami.ts`). The long-standing ones are emitted by each link through `useSupport()` (Donar, VerCiencia, Contacto, Pathway, Navegar, Bio-link…): **never rename one**, it splits its series.
+- Four more are emitted by `app/plugins/umami-delegado.client.ts`, which watches clicks and scroll for the whole document (so links added later are measured without wiring): `Clic-gofundme {pagina, origen}`, `VerPeticion {origen}` (any link to `#que-buscamos`), `Contacto-clic {rol, pagina}` (any link to `/contacto`) and `Scroll {pct, pagina}` (25 · 50 · 75 · 100 of the scroll range, only scroll moved by the reader). `pagina` is the route base name, so ES and EN add up. Logic lives in `app/utils/umami.ts`; test: `pnpm exec tsx scripts/test-umami-eventos.ts` (needs a static build for its browser part).
 
 ### @vueuse/nuxt
 - Provides VueUse composables as Nuxt auto-imports. Currently used in `SiteNav.vue` via `useWindowScroll()` for scroll-aware header styling.
@@ -65,16 +77,13 @@ The website has two audiences: scientists/physicians (science page, molecular pr
 
 ### Nuxt Content v3
 - `@nuxt/content` v3 active. Collections defined in `content.config.ts`.
-- 12 collections: `timeline_es`, `timeline_en`, `historia_es`, `historia_en`, `ciencia_articles`, `science_articles`, `team_es`, `team_en`, `press_es`, `press_en`, `science_es`, `science_en`.
+- 8 collections: `timeline_es`, `timeline_en`, `team_es`, `team_en`, `press_es`, `press_en`, `science_es`, `science_en`. (`ciencia_articles` and `science_articles` and the `/ciencia/[slug]` route were removed on 2026-10-23: they never held an article. `historia_es` and `historia_en` went the same day, with the `/historia` page: see "Merged and archived pages" below.)
 - Timeline: `.yml` files in `content/es/timeline.yml` and `content/en/timeline.yml`.
-- Story and science: `.md` files in `content/es/historia/`, `content/en/story/`, `content/es/ciencia/`, `content/en/science/`.
 - Team data: `content/es/team.yml` and `content/en/team.yml` (3 groups: `coreTeam`, `medicalNetwork`, `integrativeSupport`).
 - Press mentions: `content/es/press.yml` and `content/en/press.yml`.
 - Science page data (treatments, papers, panel): `content/es/science.yml` and `content/en/science.yml`.
-- Articles/chapters are linked between languages with `translationKey` in frontmatter.
-- Language-specific slugs: ES `/ciencia/analisis-fgfr1`, EN `/en/science/fgfr1-analysis` — custom routes configured in `nuxt.config.ts` under `i18n.pages`.
-- **Page collections** (`historia_es`, `historia_en`, `ciencia_articles`, `science_articles`) have their schemas extended with `defineRobotsSchema()` and `defineSitemapSchema()`. This enables per-file SEO control via frontmatter (e.g. `robots: noindex`, `sitemap: { priority: 0.8 }`).
-- **Data collections** (timeline, team, press, science YML) do NOT have SEO schemas — they are not routed pages.
+- Language-specific slugs are configured in `nuxt.config.ts` under `i18n.pages`.
+- All collections are **data collections** (timeline, team, press, science YML): they have no SEO schemas because they are not routed pages. (Before 2026-10-23 the two story collections were page collections with `defineRobotsSchema()` / `defineSitemapSchema()`.)
 - If you modify `content.config.ts`, run `pnpm nuxt prepare` to regenerate types.
 
 ## Design Decisions
@@ -190,7 +199,12 @@ Edit `content/es/science.yml` and `content/en/science.yml`. The file has three s
 3. Use the same pattern: `<img src="/img/your-logo.ext" alt="Brand Name" class="h-10 w-auto object-contain" />` and a `<span>` label below.
 
 ### Alba's Text (Story)
-Replace the placeholder content in `app/pages/historia/index.vue` with the real text. Keep the `prose prose-ink` structure. If the text is long, consider migrating it to `content/es/historia.md` and `content/en/historia.md`.
+The `/historia` page (a placeholder that said "in preparation", plus an empty chapter 1) was merged into `/timeline` on 2026-10-23 (architecture redesign, phase F4): `/historia` and `/en/story` redirect to `/timeline` with a 302, because the real story may come back. When it does, restore `app/pages/historia/index.vue`, `[slug].vue`, the `historia_es` / `historia_en` collections in `content.config.ts` and the `i18n.pages` entries from git history (commit before `rediseno(F4)`), and drop the redirects from `routeRules` and `nitro.prerender.ignore`. The one human line `/timeline` shows today is `historia.story_teaser_1`.
+
+### Merged and archived pages (redesign F4, 2026-10-23)
+- `/herramientas` (301) → `/datos#visores`; `/reservorio` (302) → `/datos#reservorio` (folded block, no 3D); `/historia` (302) and its chapter (301) → `/timeline`; `/videos` (301) → `/ciencia` (ADC explainer, next to the TROP-2 axis; the Polaris promo lives in `/prensa`). Each redirect is three `routeRules` (ES, EN, `/en/<spanish-slug>`) and three entries in `nitro.prerender.ignore`; see `nuxt.config.ts` and `pnpm test:short-links`.
+- `/3d*` short links keep their 302 and UTM but now land on `/lesiones`.
+- `/mapa-metastasis` is an **archive** ("Histórico · junio 2026"): still 200, `noindex, follow`, out of the sitemap, no internal links. It is not deleted because `/lesiones` reads its foci at build time (`#mapa-focos`).
 
 ## Commands
 

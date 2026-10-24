@@ -86,7 +86,7 @@ entries:
     title: Se forma el equipo y empieza la búsqueda
     description: >
       Miriam empieza a investigar su caso con inteligencia artificial. Un hilo en Twitter.
-      Profesionales que lo ven y dicen: yo puedo ayudar. En días, se forma un equipo
+      Profesionales que lo ven y dicen: «yo puedo ayudar». En días, se forma un equipo
       multidisciplinar espontáneo con especialistas de tres países.
     highlight: true
     link: https://x.com/miriamgonp/status/2041824144484917749
@@ -298,25 +298,26 @@ entries:
       Dentro del ensayo se toma una biopsia de una de las lesiones del hígado: dos cilindros,
       guiada por ecografía. Es la primera vez que se analiza tejido hepático y no solo óseo, y
       el material servirá además para los estudios que se están montando fuera del hospital. El
-      informe de anatomía patológica todavía no ha llegado.
+      informe de anatomía patológica se firmó el 21 de septiembre.
     highlight: false
 
   - date: '9 sep 2026'
     tag: Progresión
     title: Se acaba el ensayo de KAT6 (BG-75202)
     description: >
-      Hemos intentado frenar la enfermedad bloqueando una proteína que se llama KAT6, de lo más
+      «Hemos intentado frenar la enfermedad bloqueando una proteína que se llama KAT6, de lo más
       avanzado que hay en epigenética. Que no funcione confirma que el tumor sabe avanzar sin
-      hormonas y es el momento de cambiar de estrategia.
+      hormonas y es el momento de cambiar de estrategia.» Ocho semanas después de la primera dosis
+      las lesiones del hígado progresan y Miriam sale del ensayo.
     highlight: false
     link: https://x.com/miriamgonp/status/2097729668380037166
     linkLabel: 'Leerlo en X →'
 
   - date: '7 oct 2026'
     tag: Ensayos clínicos
-    title: Empiezo el TROPION-Breast06
+    title: Empieza el TROPION-Breast06
     description: >
-      Ya he empezado el tratamiento del ensayo. El primer ciclo fue el 7 de octubre, en
+      Miriam empieza el tratamiento del ensayo. El primer ciclo fue el 7 de octubre, en
       Barcelona: un ADC dirigido contra TROP2.
     highlight: false
     link: https://x.com/miriamgonp/status/2108087307219923331
@@ -326,9 +327,9 @@ entries:
     tag: Molecular
     title: Llegan los primeros resultados célula a célula
     description: >
-      Han llegado los primeros resultados del análisis célula a célula de mis metástasis de
-      hígado y de hueso. Lo ha hecho el laboratorio de Paloma Cejas, en el Dana-Farber. Lo
-      cuento en una página, con sus límites.
+      Llegan los primeros resultados del análisis célula a célula de sus metástasis de hígado y
+      de hueso. Lo ha hecho el laboratorio de Paloma Cejas, en el Dana-Farber. Están explicados en
+      una página, con sus límites.
     highlight: false
     link: /celula-a-celula
     linkLabel: 'Ver Célula a célula →'

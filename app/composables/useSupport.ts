@@ -42,6 +42,9 @@ export function useSupport() {
     fire('Apoyar', location)
     // Umami (convivencia con Plausible): «Donar» con el botón como propiedad.
     trackUmami('Donar', { location })
+    // Deja la etiqueta para «Clic-gofundme» (plugins/umami-delegado.client.ts), que cuenta TODO clic a
+    // GoFundMe, también el de enlaces sin trackSupport, y le pone a cada uno el botón que lo originó.
+    recordarApoyo(location)
     // Marca para el aviso suave al volver de GoFundMe (DonationReturnPrompt).
     try {
       sessionStorage.setItem('hm_support_ts', String(Date.now()))
@@ -69,9 +72,26 @@ export function useSupport() {
     trackUmami('Clic-prensa', { medio: outlet })
   }
 
+  // «Prensa-visible»: la tira de prensa de la home entró en pantalla (una vez por vista; PrensaTira.vue). Es el denominador de
+  // «Clic-prensa» en la home: sin él solo se sabe cuántos clics hubo, no sobre cuántas veces se vio la tira. Los clics de la
+  // tira los cuenta Umami por sus atributos data-umami-event (no llaman a trackPress). Como la tira está justo bajo el hero, puede
+  // verse antes de que cargue el script `defer` de Umami: se reintenta unos segundos, igual que track404, antes de rendirse.
+  function trackPrensaVisible() {
+    if (!import.meta.client) return
+    let intentos = 0
+    const enviar = () => {
+      if ((window as unknown as { umami?: unknown }).umami) trackUmami('Prensa-visible')
+      else if (++intentos < 20) window.setTimeout(enviar, 250)
+    }
+    enviar()
+  }
+
   function trackContact(role: string) {
     trackUmami('Contacto', { rol: role })
   }
+  // OJO: este «Contacto» solo lo emite /colabora, con sus propios valores de rol. El clic a /contacto desde
+  // cualquier página, con el rol de ?role=, es «Contacto-clic» (plugins/umami-delegado.client.ts, F0): evento
+  // nuevo para no mezclar series. Lo mismo vale para «Clic-gofundme», «VerPeticion» y «Scroll».
 
   function trackPathway(route: string) {
     trackUmami('Pathway', { ruta: route })
@@ -120,8 +140,8 @@ export function useSupport() {
     else if (key === 'slides') trackLaminillas(origen)
   }
 
-  // Clic en «Lo último» (señal de recencia): desde el hero de la home o desde la barra global.
-  function trackLatest(origen: 'hero' | 'barra') {
+  // Clic en «Lo último» (señal de recencia): desde el hero de la home, desde la barra global o, tras donar, desde /gracias.
+  function trackLatest(origen: 'hero' | 'barra' | 'gracias') {
     trackUmami('VerUltimo', { origen })
   }
 
@@ -131,10 +151,12 @@ export function useSupport() {
     trackUmami('Navegar', { destino })
   }
 
-  // Tarjeta «Acabo de llegar» de VisitorPathways: no navega (abre el resumen en la misma
-  // página), así que sin evento propio era invisible.
-  function trackPathwayCurious() {
-    trackUmami('PathwayCurioso')
+  // Las cuatro puertas de la home (rediseño F5, 23-oct-2026): un solo evento, «Puerta», con la puerta como propiedad
+  // (apoyar · clinico · prensa · otras). Sustituye al «Pathway» de las siete tarjetas con minutos y pasos y al
+  // «PathwayCurioso» de la tarjeta «Acabo de llegar»: ambas desaparecen de la home, así que esas series se cortan ahí
+  // (el «Pathway» de los chips «por perfil» de /colabora sigue hasta F10). Línea base de antes: F0.
+  function trackPuerta(id: string) {
+    trackUmami('Puerta', { puerta: id })
   }
 
   // Página 404: qué ruta se pidió. Solo el pathname (sin query ni hash, que pueden llevar
@@ -166,7 +188,7 @@ export function useSupport() {
     trackUmami('Bio-link', { destino: destination })
   }
 
-  // Vídeos de /videos: un solo evento «VerVideo», al primer play de cada vídeo, con su id.
+  // Vídeos de la web (el ADC en /ciencia, el promo en /prensa; antes, /videos): un solo evento «VerVideo», al primer play de cada vídeo, con su id.
   function trackVideo(id: string) {
     trackUmami('VerVideo', { id })
   }
@@ -178,6 +200,7 @@ export function useSupport() {
     trackScience,
     trackOfficialCampaign,
     trackPress,
+    trackPrensaVisible,
     trackContact,
     trackPathway,
     trackShare,
@@ -192,7 +215,7 @@ export function useSupport() {
     trackLatest,
     trackNav,
     trackVideo,
-    trackPathwayCurious,
+    trackPuerta,
     track404,
   }
 }

@@ -1,5 +1,7 @@
 /**
- * Vídeos públicos de /videos (· /en/videos). Una sola fuente para la página.
+ * Vídeos públicos de la web. Una sola fuente para sus dos casas desde el rediseño (F4, 23-oct-2026), que fusionó
+ * /videos (· /en/videos, ahora un 301 a /ciencia): el explicativo del ADC vive en /ciencia, junto al eje TROP-2, y el
+ * promo de Polaris en /prensa. Los pinta app/components/VideoCaso.vue.
  *
  * Los ficheros viven en public/videos/ recodificados a 720p H.264 + AAC con
  * `-movflags +faststart` (≤ 12 MB cada uno). Los originales a 1080p están en el archivo
@@ -104,11 +106,11 @@ const adc: VideoWeb = {
     ],
 }
 
-/** Orden de cada página: primero el vídeo en el idioma de quien lee. */
-export const VIDEOS: Record<IdiomaVideo, VideoWeb[]> = {
-  es: [promoEs, adc],
-  en: [promoEn, adc],
-}
+/** El promo de Polaris, en el idioma de quien lee (/prensa). */
+export const VIDEO_PROMO: Record<IdiomaVideo, VideoWeb> = { es: promoEs, en: promoEn }
+
+/** El explicativo del ADC (/ciencia). Existe solo en español: en /en/science se avisa con `videos.voice_other`. */
+export const VIDEO_ADC: VideoWeb = adc
 
 /** «1:24», «2:12». Se trunca, como hace el reproductor, para que ambos digan lo mismo. */
 export function duracionVideo(segundos: number): string {

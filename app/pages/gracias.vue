@@ -1,5 +1,5 @@
 <template>
-  <main class="relative overflow-hidden section-container max-w-2xl py-20 sm:py-28 text-center">
+  <div class="relative overflow-hidden section-container max-w-2xl py-20 sm:py-28 text-center">
     <!-- B1 · constelación de quienes apoyan (decorativa, detrás del mensaje) -->
     <Constellation :count="donorCount" :donations="donations" />
     <div class="relative z-10">
@@ -19,17 +19,46 @@
       <template #firma><span class="firma">{{ $t('thanks.firma') }}</span></template>
     </i18n-t>
 
-    <p class="mt-6 text-lg text-tinta leading-relaxed max-w-xl mx-auto">
-      {{ $t('thanks.lede') }}
+    <!-- El recibo: la frase canónica (money.recibo, la de /gastos; criterio de legal-burocracia, 23-oct-2026), sin importes,
+         sin «100 %», sin «mensual», sin «sin intermediarios» y sin prometer un correo (quien lo envía, si lo envía, es GoFundMe).
+         «Escríbenos» lleva a /contacto con el rol «other» (ya válido; /privacidad §2 no cambia) y el informe de gastos, a /gastos.
+         Nada de email directo ni plazos de respuesta. -->
+    <p id="gracias-recibo" class="mt-6 text-lg text-tinta leading-relaxed max-w-xl mx-auto">
+      {{ $t('money.recibo') }}
     </p>
+    <ul class="mt-1 flex flex-wrap justify-center gap-x-6">
+      <li>
+        <NuxtLink
+          :to="localePath({ name: 'contacto', query: { role: 'other' } })"
+          class="link-action group min-h-[44px] text-miriam"
+          aria-describedby="gracias-recibo"
+        >
+          {{ $t('expenses.faq_help_link') }}
+          <Icon name="ph:arrow-right" class="w-4 h-4 shrink-0 transition-transform group-hover:translate-x-0.5" aria-hidden="true" />
+        </NuxtLink>
+      </li>
+      <li>
+        <NuxtLink :to="localePath('gastos')" class="link-action group min-h-[44px] text-miriam">
+          {{ $t('home.dinero_informe') }}
+          <Icon name="ph:arrow-right" class="w-4 h-4 shrink-0 transition-transform group-hover:translate-x-0.5" aria-hidden="true" />
+        </NuxtLink>
+      </li>
+    </ul>
 
-    <div class="mt-9 flex flex-wrap gap-3 justify-center">
+    <!-- Dos acciones, de 44 px como mínimo: compartir y el paso siguiente, que lleva a lo último del caso (antes, «Volver al
+         inicio»: la cabecera conserva el logo, que va a la home). -->
+    <div class="mt-8 flex flex-wrap gap-3 justify-center">
       <button type="button" class="btn-secondary w-full sm:w-auto" @click="share">
         <Icon :name="copied ? 'ph:check-bold' : 'ph:share-network-fill'" class="w-4 h-4" aria-hidden="true" />
         {{ copied ? $t('thanks.copied') : $t('thanks.share') }}
       </button>
-      <NuxtLink :to="localePath('/')" class="btn-secondary w-full sm:w-auto">
-        {{ $t('thanks.home') }}
+      <NuxtLink
+        :to="localePath({ name: 'timeline' }) + '#lo-ultimo'"
+        class="btn-secondary w-full sm:w-auto"
+        @click="trackLatest('gracias')"
+      >
+        {{ $t('thanks.next') }}
+        <Icon name="ph:arrow-right" class="w-4 h-4" aria-hidden="true" />
       </NuxtLink>
     </div>
 
@@ -37,13 +66,13 @@
       {{ $t('thanks.follow') }}
     </p>
     </div>
-  </main>
+  </div>
 </template>
 
 <script setup lang="ts">
 const { t } = useI18n()
 const localePath = useLocalePath()
-const { trackShare } = useSupport()
+const { trackShare, trackLatest } = useSupport()
 
 // Densidad de la constelación ~ donantes (solo para el cielo, no 1:1).
 // Datos de campaña: JSON estático de main (función Netlify), carga en cliente.

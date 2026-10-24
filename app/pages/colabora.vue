@@ -108,7 +108,7 @@
               <p class="text-sm text-tinta leading-relaxed mb-3">
                 {{ $t('collaborate.trust_social_body') }}
               </p>
-              <NuxtLink :to="localePath('gracias')" class="link-action text-sm text-miriam">
+              <NuxtLink :to="localePath('colabora') + '#gracias'" class="link-action text-sm text-miriam">
                 {{ $t('collaborate.trust_social_link') }}
                 <Icon name="ph:arrow-right" class="w-3.5 h-3.5" aria-hidden="true" />
               </NuxtLink>
@@ -378,17 +378,14 @@ const quickLinks = computed<QuickLink[]>(() => {
   return [
     { label: locale.value === 'es' ? 'Inicio' : 'Home', url: homePath, external: false },
     { label: locale.value === 'es' ? 'La ciencia' : 'The science', url: sciencePath, external: false },
-    { label: t('nav.tools'), url: localePath({ name: 'herramientas' }), external: false },
+    { label: t('nav.data'), url: localePath({ name: 'datos', hash: '#visores' }), external: false },
     // «Cronología» y no «Timeline»: el mismo nombre que el menú (una fuente por etiqueta).
     { label: t('nav.timeline'), url: timelinePath, external: false },
     { label: locale.value === 'es' ? 'Marcas · co-creación' : 'Brands · co-creation', url: localePath('marcas'), external: false },
     { label: 'Repo · GitHub', url: 'https://github.com/beyondtheprotocol/miriam-gonzalez-case', external: true },
     { label: 'GoFundMe · ' + GOFUNDME_URL.replace('https://', ''), url: GOFUNDME_URL, external: true },
-    { label: '@miriamgonp · Instagram', url: 'https://instagram.com/miriamgonp', external: true },
-    { label: '@miriamgonp · X', url: 'https://x.com/miriamgonp', external: true },
-    { label: '@miriamgonp · TikTok', url: 'https://tiktok.com/@miriamgonp', external: true },
-    { label: '@miriamgonp · YouTube', url: 'https://youtube.com/@miriamgonp', external: true },
-    { label: '@miriamgonp · LinkedIn', url: 'https://linkedin.com/in/miriamgonp', external: true },
+    // Las redes salen de REDES (app/utils/navegacion.ts), la misma lista que el pie y el schema.org del layout.
+    ...REDES.map((r) => ({ label: `${REDES_USUARIO} · ${r.nombre}`, url: r.url, external: true })),
     { label: locale.value === 'es' ? 'Contacto' : 'Contact', url: localePath('contacto'), external: false },
   ]
 })

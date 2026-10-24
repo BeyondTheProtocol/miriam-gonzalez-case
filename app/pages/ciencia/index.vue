@@ -372,30 +372,11 @@
             </p>
           </div>
 
-          <!-- (acceso médicos) mapa interactivo + encuadre «para tu equipo médico» + enlace compartible -->
+          <!-- (acceso médicos) encuadre «para tu equipo médico» + enlace compartible + las herramientas -->
           <p id="mapa-acceso" class="eyebrow mt-6 mb-2 block scroll-mt-[5.5rem]">{{ locale === 'es' ? 'Para tu equipo médico' : 'For your medical team' }}</p>
-          <NuxtLink
-            id="mapa-metastasis-link"
-            :to="localePath('/mapa-metastasis')"
-            @click="trackMapa('ciencia')"
-            class="group flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-3.5 rounded-2xl px-4 sm:px-5 py-4 transition-all active:scale-[0.99] sm:hover:-translate-y-0.5"
-            style="background:rgba(232,212,237,0.30);text-decoration:none"
-          >
-            <div class="flex items-start gap-3.5 flex-1">
-              <span class="shrink-0 w-9 h-9 rounded-xl bg-miriam-soft flex items-center justify-center">
-                <Icon name="ph:map-pin-fill" class="w-5 h-5 text-berenjena" aria-hidden="true" />
-              </span>
-              <p class="flex-1 text-sm text-tinta leading-relaxed">
-                {{ locale === 'es'
-                  ? 'Mapa interactivo de las metástasis óseas con doble trazador (Galio-68 y FDG): cada lesión, una a una, con su localización en 3D, sus SUV y la lectura de la RM de columna.'
-                  : 'Interactive bone-metastasis map with dual tracers (Gallium-68 and FDG): every lesion, one by one, with its 3D location, SUVs and the spine-MRI reading.' }}
-              </p>
-            </div>
-            <span class="inline-flex w-full sm:w-auto shrink-0 items-center justify-center sm:justify-start gap-2 text-sm font-semibold text-berenjena group-hover:text-miriam transition-colors rounded-xl bg-miriam-soft sm:bg-transparent px-4 sm:px-0 py-2.5 sm:py-0">
-              {{ locale === 'es' ? 'Abrir el mapa de metástasis' : 'Open the metastasis map' }}
-              <Icon name="ph:arrow-right" class="w-4 h-4 transition-transform group-hover:translate-x-0.5" aria-hidden="true" />
-            </span>
-          </NuxtLink>
+          <!-- La tarjeta «Abrir el mapa de metástasis» salió en el rediseño (F4, 23-oct-2026): el mapa pasó a archivo («Histórico ·
+               junio 2026», noindex, sin enlaces internos) y «Mama, hígado y hueso» (/lesiones) lo incluye. Este rótulo y el id
+               #mapa-acceso se quedan: es el ancla del enlace antiguo de /caso. La línea «Compártelo…» de debajo la revisa F7. -->
           <p class="text-[12px] text-tinta mt-2.5 leading-relaxed">{{ locale === 'es' ? 'Compártelo con tu médico o equipo de tumores:' : 'Share it with your doctor or tumor board:' }} <span class="font-mono font-semibold text-berenjena">helpmiriam.com/caso</span> {{ locale === 'es' ? '· apoyo a la decisión, no consejo médico.' : '· decision support, not medical advice.' }}</p>
 
           <!-- (acceso médicos) visor de laminillas (20-oct; sustituye al de la microfotografía de la biopsia) -->
@@ -446,7 +427,7 @@
           </NuxtLink>
           <!-- El resto de herramientas del caso (dictamen `diseno`, 14-oct-2026) -->
           <NuxtLink
-            :to="localePath({ name: 'herramientas' })"
+            :to="localePath({ name: 'datos', hash: '#visores' })"
             class="link-action group mt-3 min-h-[44px] text-sm text-miriam"
           >
             {{ $t('nav.all_tools') }}
@@ -493,7 +474,18 @@
             </p>
           </details>
         </section>
+        </div>
+        <!-- /capa de datos (ejes) -->
 
+        <!-- El explicativo del ADC (Dato-DXd, anti-TROP-2), pegado al eje TROP-2 de arriba. Venía de /videos, fusionada
+             aquí en el rediseño (F4, 23-oct-2026; /videos redirige a esta página). Va FUERA de la capa de datos a
+             propósito: es un explicativo para todos y quien llegaba desde /videos entra en el modo llano (el
+             conmutador desaparece en F7). Mismo vídeo y mismas palabras, con su transcripción. -->
+        <div v-show="showNarrative" class="mb-14 max-w-2xl">
+          <VideoCaso :video="VIDEO_ADC" />
+        </div>
+
+        <div style="display: contents" v-show="showData">
         <section v-if="panelRows.length">
           <p class="eyebrow mb-2 block">{{ locale === 'es' ? 'En curso' : 'Under way' }}</p>
           <h2
@@ -692,52 +684,6 @@
             </span>
           </NuxtLink>
         </div>
-
-        <div v-if="articles && articles.length > 0">
-          <p class="eyebrow mb-2 block">{{ locale === 'es' ? 'Profundizar' : 'Go deeper' }}</p>
-          <h2 class="heading-display text-2xl text-berenjena mb-2" style="letter-spacing: -0.02em">
-            {{ $t('ciencia.detailed_analyses') }}
-          </h2>
-          <p class="text-sm text-tinta leading-relaxed mb-6 max-w-2xl">
-            {{ locale === 'es'
-              ? 'Cada hallazgo, desarrollado en su propio artículo con la evidencia que lo respalda.'
-              : 'Each finding, developed in its own article with the evidence behind it.' }}
-          </p>
-          <div class="space-y-4">
-            <NuxtLink
-              v-for="(article, i) in articles"
-              :key="article.path"
-              :to="localePath(`/ciencia/${article.stem?.split('/').pop()}`)"
-              class="card-base flex items-start justify-between gap-4 transition-all group hover:-translate-y-0.5"
-              :class="{ 'card-marked': i % 2 === 0 }"
-              style="text-decoration:none"
-            >
-              <div class="flex-1 min-w-0">
-                <div class="flex flex-wrap items-center gap-1.5 mb-2">
-                  <span
-                    v-for="tag in article.tags"
-                    :key="tag"
-                    class="status-badge status-badge--reference"
-                    >{{ tag }}</span
-                  >
-                </div>
-                <h3
-                  class="font-display font-semibold text-berenjena text-base mb-1 group-hover:text-miriam transition-colors"
-                >
-                  {{ article.title }}
-                </h3>
-                <p class="text-xs text-tinta leading-relaxed line-clamp-2">
-                  {{ article.excerpt }}
-                </p>
-              </div>
-              <Icon
-                name="ph:arrow-right"
-                class="shrink-0 w-4 h-4 text-tinta group-hover:text-miriam transition-colors mt-0.5"
-                aria-hidden="true"
-              />
-            </NuxtLink>
-          </div>
-        </div>
         </div>
         <!-- /solo médicos -->
 
@@ -808,7 +754,7 @@ const localePath = useLocalePath()
 const L = (es: string, en: string) => (locale.value === 'es' ? es : en)
 // Cierre de conversión: donación (llano) y financiación como nota (pro). Mismo
 // patrón que el resto del sitio; dispara el goal de apoyo con su ubicación.
-const { GOFUNDME_URL, trackSupport, trackScience, trackMapa, trackExplorador } = useSupport()
+const { GOFUNDME_URL, trackSupport, trackScience, trackExplorador } = useSupport()
 const { hayReal: exploradorAbierto } = useCelulaExplorador()
 
 function printPage() {
@@ -841,8 +787,9 @@ const level = ref<ReadingLevel>(route.query.nivel === 'pro' ? 'pro' : 'simple')
 // investigación» del home y el enlace corto /caso seguían abriendo el modo llano.
 // Verificado en producción el 11-sep-2026, con ese arreglo ya desplegado.
 let levelFromUrl = false
-// Con ?nivel=pro y un #ancla del bloque pro (el botón de clínica de la home lleva #snapshot-title; /caso,
-// #mapa-acceso), el scroll al ancla lo hace el router (router.options.ts), también en la carga directa:
+// Con ?nivel=pro y un #ancla del bloque pro (el botón de clínica de la home lleva #snapshot-title; el enlace
+// antiguo de /caso, #mapa-acceso, que sigue funcionando: /caso aterriza hoy en /datos#que-buscamos), el scroll
+// al ancla lo hace el router (router.options.ts), también en la carga directa:
 // verificado en Chrome en producción el 20-oct-2026. Aquí solo se lleva el FOCO al ancla, una vez, como
 // hace goPro(), para que el lector de pantalla empiece ahí. Sin mover la página: un segundo scroll a la
 // vez que el del router (los dos suaves) se pisaba en el CI y la dejaba a medio camino.
@@ -1042,20 +989,6 @@ const conditionJsonLd = computed(() =>
 useHead({
   script: [{ type: 'application/ld+json', innerHTML: conditionJsonLd }],
 })
-
-const { data: articles } = await useAsyncData(
-  `ciencia-index-${locale.value}`,
-  async () => {
-    if (locale.value === 'en') {
-      const enArticles = await queryCollection('science_articles')
-        .order('date', 'DESC')
-        .all()
-      if (enArticles.length) return enArticles
-    }
-    return queryCollection('ciencia_articles').order('date', 'DESC').all()
-  },
-  { watch: [locale] }
-)
 
 import type { Collections, ScienceEnCollectionItem } from '@nuxt/content'
 import { TARJETA_EXPLORADOR } from '~/utils/celulaExploradorTexto'

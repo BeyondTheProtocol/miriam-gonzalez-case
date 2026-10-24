@@ -1,0 +1,37 @@
+name: Diseño
+
+# Regla R10 del lint de diseño (sistema v3): lo que solo se ve con la página pintada. Corre en Chrome sobre el build
+# ESTÁTICO, en 22 rutas a 390 y 1280 px: desborde horizontal, borde del H1 bajo el logo, texto por debajo de 13 px,
+# controles de menos de 44 px, contraste y foco que queda tapado por la cabecera fija. Mismo ratchet que test:diseno:
+# scripts/diseno-render-baseline.json solo puede bajar.
+#
+# Las reglas R1 a R9 no necesitan build y corren en lint.yml. Este workflow es APARTE a propósito: el e2e.yml lo
+# toca el PR #290 (explorador célula a célula) y no se mezcla.
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions: {}
+
+jobs:
+  render:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22 # la de Netlify (netlify.toml)
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      # `nuxt generate` a secas, como en e2e.yml: no hace falta pedir los datos a GoFundMe.
+      - run: pnpm exec nuxt generate
+
+      - run: pnpm test:diseno-render

@@ -1,20 +1,30 @@
 <script setup lang="ts">
+// «verificado» es lo normal: aquí no se pinta en cada dato; solo se marcan las excepciones (Miriam, 24-oct).
+provide('ocultarVerificado', true)
 /**
  * /datos — el caso de Miriam en datos, para quien puede moverlo. Versión 2 (24-sep-2026, a
  * petición de Miriam): SOLO clínica (el perfil molecular ya está en /ciencia), móvil primero y
- * con el dato por delante. Orden de lectura, de arriba abajo en un móvil de 375 px:
- *   1. hoy, en cuatro cifras · 2. línea de tiempo · 3. analíticas en pequeños múltiplos con la
- *   misma ventana y la misma fecha marcada · 4. carga tumoral · 5. tejido y reservorio ·
- *   6-9. lo demás, plegado.
+ * con el dato por delante. Orden de lectura, de arriba abajo en un móvil de 375 px (rediseño F1,
+ * 23-oct-2026: «Qué buscamos» sube al segundo lugar, con su ancla #que-buscamos):
+ *   1. hoy, en cuatro cifras · 2. qué buscamos (la petición a quien puede mover el caso) ·
+ *   3. tejido y muestras · 4. carga tumoral · 5. evolución (línea de tiempo + analíticas en
+ *   pequeños múltiplos con la misma ventana y la misma fecha marcada) · 6. las herramientas (franja
+ *   #visores, que sustituye al antiguo índice /herramientas) y el reservorio (bloque plegado #reservorio,
+ *   que sustituye a la antigua /reservorio; rediseño F4, 23-oct-2026) · 7. «el caso, visto de otra forma»
+ *   (la vitrina) y lo demás, plegado.
  * Todo sale de app/data/caso.json (Polaris, `tools/caso_publico.py`): cada cifra con su fuente y
  * su sello, fail-closed. Esta página ordena y dibuja; no interpreta.
  */
 import caso from '~/data/caso.json'
 import type { Analito, Contexto, Evento, Lang, Punto, Texto, Ventana } from '~/utils/datosCaso'
 import { unidadTxt, valCaso } from '~/utils/datosCaso'
+import type { PeticionFuente } from '~/utils/peticiones'
+import { peticionesPublicas } from '~/utils/peticiones'
 
-const { locale } = useI18n()
+const { locale, t: tr } = useI18n()
 const localePath = useLocalePath()
+const { trackHerramienta } = useSupport()
+const { herramientas } = useHerramientas()
 const lang = computed<Lang>(() => (locale.value === 'en' ? 'en' : 'es'))
 const L = (es: string, en: string) => (lang.value === 'en' ? en : es)
 const T = (v: Texto | null | undefined) => txtCaso(v as Texto, lang.value)
@@ -29,7 +39,9 @@ const lineas: any[] = c.lineas ?? []
 const em = c.enfermedad_medible ?? {}
 const material: any[] = c.material ?? []
 const reservorio: any[] = c.reservorio ?? []
-const seBusca: any[] = c.se_busca ?? []
+const seBusca: PeticionFuente[] = c.se_busca ?? []
+/* qué peticiones se publican y en qué orden, lo decide utils/peticiones.ts; sin ninguna, la sección no sale */
+const hayPeticiones = peticionesPublicas(seBusca).length > 0
 const eventos: Evento[] = c.eventos ?? []
 const grupos: Record<string, { analitos: Analito[] }> = c.analiticas.grupos
 const an = (k: string) => buscarAnalito(grupos, k)
@@ -47,22 +59,9 @@ defineOgImage('Default.takumi', { title: () => L('El caso en datos', 'The case i
 
 /* ── 1. hoy, en cuatro cifras ─────────────────────────────────────────────────── */
 const sistemicas = lineas.filter((l) => /^\d+L$/i.test(l.id))
-const actual = sistemicas.find((l) => { const i = rangoParcial(l.inicio); const f = l.fin ? rangoParcial(l.fin) : null; return i && i[0] <= hoyMs && (!f || f[1] >= hoyMs) })
 const proxima = sistemicas.find((l) => { const i = rangoParcial(l.inicio); return i && i[0] > hoyMs })
-const ultimaTerminada = [...sistemicas].filter((l) => l.fin && rangoParcial(l.fin)![1] < hoyMs).pop()
-const corto = (v: Texto) => T(v).split(' (')[0]
-const cifraTrat = computed(() => {
-  if (actual) return { valor: actual.id, detalle: corto(actual.tratamiento), fecha: L(`desde ${fechaCorta(actual.inicio, 'es')}`, `since ${fechaCorta(actual.inicio, 'en')}`), sello: actual.sello }
-  // «sin línea sistémica», no «sin tratamiento»: la supresión ovárica sigue (lo vio comite-medico)
-  const fondo = lineas.some((l) => l.id === 'LHRHa' && !l.fin) ? L('Goserelina en curso. ', 'Goserelin ongoing. ') : ''
-  // solo el mes de una cita futura (seguridad): «previsto en oct 2026», no «el»
-  const prep = proxima && /^\d{4}-\d{2}$/.test(proxima.inicio) ? 'en' : 'el'
-  const prox = proxima ? L(`Próximo: ${corto(proxima.tratamiento)}, previsto ${prep} ${fechaCorta(proxima.inicio, 'es')}.`, `Next: ${corto(proxima.tratamiento)}, planned for ${fechaCorta(proxima.inicio, 'en')}.`) : ''
-  return { valor: L('Sin línea sistémica', 'No systemic line'), detalle: fondo + prox,
-    fecha: ultimaTerminada ? L(`desde ${fechaCorta(ultimaTerminada.fin, 'es')} (fin de la ${ultimaTerminada.id})`, `since ${fechaCorta(ultimaTerminada.fin, 'en')} (end of ${ultimaTerminada.id})`) : '',
-    // el hecho (fin de la línea) lleva su sello; el plan futuro va aparte, marcado como «lo dice Miriam»
-    sello: ultimaTerminada?.sello, notaSello: proxima?.sello }
-})
+/* «Tratamiento» de hoy: la misma cuenta que la línea «Ahora» de la home (rediseño F5; utils/datosCaso.ts) */
+const cifraTrat = computed(() => tratamientoHoy(lineas, hoyMs, lang.value))
 /** últimos 90 días: ¿había una línea sistémica en curso? (solo días seguros; un mes aproximado cuenta como no) */
 const franja90 = Array.from({ length: 90 }, (_, i) => {
   const t = hoyMs - (89 - i) * 86400000
@@ -157,8 +156,8 @@ const PESTANAS: { k: string; es: string; en: string; minis: Mini[] }[] = [
 /** Una prueba con 1-2 valores no hace línea (y en la ventana de un año saldría vacía): va a una tabla. */
 const MIN_GRAFICO = 3
 const pestana = ref('marcadores')
-const ver3d = ref(false)
 const queCambio = ref<{ abrir: () => void } | null>(null)
+// (el antiguo ?ver3d=1, «enlace directo al catéter en 3D», ya no hace nada: el 3D del reservorio salió de /datos en F4)
 // enlace directo a una pestaña (/datos?pestana=higado): para compartir justo esa vista
 // OJO (mismo fallo que /ciencia con ?nivel=pro): en la página prerenderizada Nuxt hidrata con la
 // ruta del payload, SIN query; en setup y onMounted `route.query` llega vacía y la query aparece
@@ -166,7 +165,6 @@ const queCambio = ref<{ abrir: () => void } | null>(null)
 const ruta = useRoute()
 const aplicarPestana = () => {
   const q = String(ruta.query.pestana ?? ''); if (PESTANAS.some((p) => p.k === q)) pestana.value = q
-  if (ruta.query.ver3d === '1') ver3d.value = true // enlace directo al catéter en 3D
   if (ruta.query.cambio === '1') nextTick(() => queCambio.value?.abrir()) // enlace directo a «qué cambió»
 }
 onMounted(aplicarPestana)
@@ -295,18 +293,47 @@ function irAFecha(iso: string) {
 }
 
 /* barra de secciones: la activa es la última cuyo inicio ya pasó bajo la cabecera */
-// en el orden de lectura de un clínico o un investigador (Miriam, 25-sep; oncologo-virtual + diseno):
-// estado y elegibilidad → enfermedad medible → material → evolución → vitrina. Mismo orden que el DOM (scroll-spy).
-// «Carga tumoral» y no «Hígado»: la pestaña de analíticas ya se llama «Hígado» (diseno); el h2 lo dice igual
-const SECCIONES: [string, string, string][] = [['s-hoy', 'Hoy', 'Today'], ['s-higado', 'Carga tumoral', 'Tumor burden'],
-  ['s-tejido', 'Tejido', 'Tissue'], ['s-evo', 'Evolución', 'Clinical course'], ['s-vitrina', 'Otra vista', 'Another view']]
+// en el orden de lectura de un clínico o un investigador (Miriam, 25-sep; oncologo-virtual + diseno), con la
+// petición en segundo lugar desde el 23-oct (rediseño F1): estado y elegibilidad → qué buscamos → material →
+// enfermedad medible → evolución → vitrina. Mismo orden que el DOM (scroll-spy).
+// «Carga tumoral» y no «Hígado»: la pestaña de analíticas ya se llama «Hígado» (diseno); el h2 lo dice igual.
+// `que-buscamos` va SIN el prefijo `s-`: es el ancla que comparten /caso, la home y /ciencia. Estar aquí la
+// pone en la barra de secciones, en el scroll-spy y en la recolocación de alHash al llegar con #que-buscamos.
+// Un salto a esta ancla desde la barra de secciones cuenta como «VerPeticion» con origen `datos`
+// (el plugin de Umami mide todo enlace a #que-buscamos): se separa por origen.
+const SECCION_PETICION: [string, string, string][] = hayPeticiones ? [['que-buscamos', 'Qué buscamos', 'What we’re looking for']] : []
+// `visores` (F4, 23-oct-2026): la franja de herramientas, con su chip; el bloque plegado del reservorio (#reservorio) no lleva chip
+// (cuelga de ella en la barra de secciones). Sin el chip, al llegar a las herramientas la barra seguía marcando «Evolución».
+const SECCIONES: [string, string, string][] = [['s-hoy', 'Hoy', 'Today'], ...SECCION_PETICION,
+  ['s-tejido', 'Tejido', 'Tissue'], ['s-higado', 'Carga tumoral', 'Tumor burden'],
+  ['s-evo', 'Evolución', 'Clinical course'], ['visores', 'Herramientas', 'Tools'], ['s-vitrina', 'Otra vista', 'Another view']]
 const activa = ref('s-hoy')
 /* saltar a una sección SIN el router: su scrollBehavior (toda la web) fija top: 80 e ignora el
    scroll-margin-top de .dt-sec, y el título quedaba bajo la barra fija (medido por CDP a 390 px) */
 /** posición en la página sin transformaciones: la entrada animada de .dt-sec (translateY) engañaba a
  *  scrollIntoView y las secciones lejanas aterrizaban ~33 px más arriba */
 const yPagina = (el: HTMLElement) => { let y = 0; for (let n: HTMLElement | null = el; n; n = n.offsetParent as HTMLElement | null) y += n.offsetTop; return y }
-const MARGEN = 124 // = scroll-margin-top de .dt-sec: cabecera + barra de secciones
+/* La cabecera fija ([data-cabecera-fija]: la barra «lo último» + SiteNav) mide ~103 px en móvil y ~111 desde 640 px. La barra
+   de secciones se pegaba a `top: 64/72 px`, de antes de que se montara «lo último» (26-sep): la cabecera la tapaba (~40 px de
+   cada chip; quedaban ~13 de 44 px tocables, medido con elementFromPoint a 375, 1024 y 1280 px). Ahora se MIDE, como hace
+   router.options.ts, y llega a la CSS como --dt-cab (la CSS lleva un valor de reserva para el primer pintado y sin JS). */
+const cabAlto = ref(0)
+const estiloCab = computed(() => (cabAlto.value ? { '--dt-cab': `${cabAlto.value}px` } : undefined))
+let vigilaCab: ResizeObserver | undefined
+onMounted(() => {
+  const cab = document.querySelector<HTMLElement>('[data-cabecera-fija]')
+  if (!cab) return
+  const medir = () => { cabAlto.value = cab.offsetHeight }
+  medir()
+  if (typeof ResizeObserver !== 'undefined') { vigilaCab = new ResizeObserver(medir); vigilaCab.observe(cab) }
+})
+onBeforeUnmount(() => vigilaCab?.disconnect())
+/** hueco que dejan la cabecera fija y la barra de secciones (= scroll-margin-top de .dt-sec). Se lee del DOM en el momento:
+ *  así no hay carrera con el observador de arriba ni con una cabecera que cambie de alto (la barra «lo último» puede no estar). */
+function margen(): number {
+  const alto = (sel: string, reserva: number) => document.querySelector<HTMLElement>(sel)?.offsetHeight ?? reserva
+  return alto('[data-cabecera-fija]', 103) + alto('.dt-barra', 61)
+}
 /** clic normal: salto propio; con Cmd/Ctrl/Mayús o botón central, lo de siempre (abrir en pestaña nueva) */
 function clicSalto(ev: MouseEvent, id: string, antes?: () => void) {
   if (ev.metaKey || ev.ctrlKey || ev.shiftKey || ev.altKey || ev.button !== 0) return
@@ -318,12 +345,28 @@ function clicSalto(ev: MouseEvent, id: string, antes?: () => void) {
    y 50 ms después el scroll suave del router, ~1,3 s). Por eso se vigila ruta.hash, se espera a que
    el scroll se quede quieto 200 ms y se recoloca en seco ('instant': 'auto' heredaría el smooth). */
 let hashHecho = false
+/* Quien llega por /caso (el enlace que se reenvía a médicos) con teclado o con lector de pantalla empieza en «Qué buscamos»
+   y no en los chips ni en «Hoy»: sin esto el primer Tab caía en el chip «Tejido» y había que cruzar ~2.500 px de «Hoy» hasta
+   las peticiones. El destino antiguo (/ciencia#mapa-acceso) ya llevaba el foco a su ancla. Una vez, tras recolocar, y sin
+   mover la página (un segundo scroll a la vez que el de la recolocación se pisaría). */
+function enfocarPeticion() {
+  const h = document.getElementById('h-busca')
+  if (!h) return
+  h.setAttribute('tabindex', '-1')
+  h.focus({ preventScroll: true })
+}
 function alHash(h: string) {
   const id = h.slice(1)
-  // también las secciones sin chip de la vitrina (calendario y reservorio), que se pueden enlazar
-  if (hashHecho || !(SECCIONES.some(([s]) => s === id) || id === 's-dias' || id === 's-reservorio')) return
+  // también las secciones sin chip (el calendario de la vitrina y el reservorio), que se pueden enlazar. #visores, que tiene
+  // chip, lo usan el 301 de /herramientas y las migas de las herramientas; #reservorio, el 302 de /reservorio y /lesiones
+  if (hashHecho || !(SECCIONES.some(([s]) => s === id) || id === 's-dias' || id === 'reservorio')) return
   hashHecho = true
-  const recolocar = () => { const el = document.getElementById(id); if (el) window.scrollTo({ top: Math.max(0, yPagina(el) - MARGEN), behavior: 'instant' }) }
+  if (id === 'reservorio') reservorioAbierto.value = true // llegar por el ancla abre el bloque plegado
+  const recolocar = () => {
+    const el = document.getElementById(id)
+    if (el) window.scrollTo({ top: Math.max(0, yPagina(el) - margen()), behavior: 'instant' })
+    if (id === 'que-buscamos') enfocarPeticion()
+  }
   let quieto: ReturnType<typeof setTimeout> | undefined
   const t0 = performance.now()
   const alMover = () => {
@@ -337,7 +380,7 @@ onMounted(() => alHash(location.hash))
 watch(() => ruta.hash, (h) => alHash(h))
 function saltar(id: string) {
   const el = document.getElementById(id); if (!el) return
-  window.scrollTo({ top: Math.max(0, yPagina(el) - MARGEN), behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' })
+  window.scrollTo({ top: Math.max(0, yPagina(el) - margen()), behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' })
   history.replaceState(history.state, '', `#${id}`)
 }
 let chipActivo: HTMLElement | null = null
@@ -348,7 +391,7 @@ function espiar() {
   cancelAnimationFrame(rafSpy)
   rafSpy = requestAnimationFrame(() => {
     let a = SECCIONES[0]![0]
-    for (const [id] of SECCIONES) { const el = document.getElementById(id); if (el && yPagina(el) - window.scrollY <= MARGEN + 40) a = id }
+    for (const [id] of SECCIONES) { const el = document.getElementById(id); if (el && yPagina(el) - window.scrollY <= margen() + 40) a = id }
     activa.value = a
   })
 }
@@ -392,12 +435,43 @@ function irAPrueba(key: string, fecha: string) {
   nextTick(() => { plegadosAbiertos.value = minisPlegados.value.some((m) => m.a!.key === key); saltar('s-evo') })
 }
 
-const hayReservorio = computed(() => useRouter().getRoutes().some((r) => r.path === '/reservorio'))
+/* La franja #visores (herramientas): lo que era el índice /herramientas, con el título y la descripción YA publicados de
+   cada página (COPY_HERRAMIENTAS), sin copy nuevo. Sin /datos (es esta página) ni el mapa (archivo, sin enlaces); el
+   explorador solo con su puerta abierta (useHerramientas). */
+const visores = computed(() => herramientas.value.filter((h) => h.key !== 'data').map((h) => {
+  const [titulo, descripcion] = copyHerramienta(h.key, locale.value)
+  // el explorador y las laminillas llevan por etiqueta su público, «Para profesionales» (diseno, 19-oct)
+  const etiqueta = h.key === 'cell_explorer' || h.key === 'slides' ? tr('ciencia.level_pro') : tr(`nav.${h.key}`)
+  const repite = titulo.trim().toLowerCase().startsWith(etiqueta.trim().toLowerCase())
+  return { ...h, titulo, descripcion, etiqueta, repite, icono: ICONO_HERRAMIENTA[h.key] }
+}))
+/* Mismos eventos de siempre (VerLesiones, VerLaminillas…). Origen nuevo, `datos_visores`: el índice /herramientas, que
+   medía `herramientas`, ya no existe. */
+const medirVisor = (key: string) => trackHerramienta(key, 'datos_visores')
+
+/* #reservorio: bloque plegado. Llegar por el ancla (el 302 de /reservorio, el enlace de /lesiones) lo abre. */
+const reservorioAbierto = ref(false)
+const redondeo = (v: number) => numCaso(v, lang.value)
+/* La frase de medidas YA publicada en /reservorio, palabra por palabra, pero con las cifras leídas de caso.json (sin
+   copiar números a mano: un solo reloj). Solo con las tres fechas de siempre y si la diferencia cabe en el margen
+   (fail-closed): si caso.json cambia y ya no es verdad, no se dice. */
+const medidasReservorio = computed(() => {
+  const r = reservorio
+  if (r.length !== 3) return ''
+  const m = Math.max(...r.map((x) => Number(x.margen_mm)))
+  const vals = r.map((x) => Number(x.longitud_mm))
+  if (!Number.isFinite(m) || vals.some((v) => !Number.isFinite(v))) return ''
+  const lista = vals.map((v) => `${redondeo(v)} mm`).join(' · ')
+  const igual = Math.max(...vals) - Math.min(...vals) <= 2 * m
+  return lang.value === 'en'
+    ? `Catheter length, port→tip, across the three dates: ${lista} (± ${redondeo(m)} mm per measurement; ± ${redondeo(2 * m)} mm on the difference between dates).${igual ? ' Within that margin, it is the same measurement all three times.' : ''}`
+    : `Longitud del catéter, portal→punta, en las tres fechas: ${lista} (± ${redondeo(m)} mm cada medida; ± ${redondeo(2 * m)} mm en la diferencia entre fechas).${igual ? ' Dentro de ese margen, es la misma medida las tres veces.' : ''}`
+})
 const n = (v: number) => numCaso(v, lang.value)
 </script>
 
 <template>
-  <div class="overflow-x-clip">
+  <div class="dt-raiz overflow-x-clip" :style="estiloCab">
     <div class="dt-progreso" aria-hidden="true" />
     <ClientOnly>
       <DatosPelicula :abierta="peliAbierta" :eventos="eventos" :lineas="lineas" :series="seriesPeli" :contexto="contexto"
@@ -407,18 +481,18 @@ const n = (v: number) => numCaso(v, lang.value)
     <section class="section-spacing !pt-8 sm:!pt-12" :aria-label="L('El caso en datos', 'The case in data')">
       <div class="mx-auto w-full max-w-[1120px] px-4 sm:px-6 lg:px-8">
         <PageHeader
-          :parent="{ to: localePath({ name: 'herramientas' }), label: $t('nav.tools') }"
           :title="L('El caso en datos', 'The case in data')"
           :subtitle="L('La evolución clínica de Miriam de un vistazo, con la fuente de cada cifra.', 'Miriam’s clinical course at a glance, and where every number comes from.')"
         >
-          <p class="mt-4 font-mono text-[11px] uppercase tracking-[0.12em] text-tinta">
-            {{ L('Actualizado', 'Updated') }} {{ fechaCorta(hoy, lang) }} ·
-            <a href="/datos/caso.json" download class="text-miriam underline underline-offset-2">{{ L('Descargar los datos', 'Download the data') }}</a>
-          </p>
+          <!-- La fecha, con la voz de Nota que usan las demás páginas (rediseño F3): la de caso.json, no la del build. -->
+          <div class="mt-4 flex flex-wrap items-center gap-x-4">
+            <ActualizadoEl :fecha="c.actualizado" />
+            <a href="/datos/caso.json" download class="inline-flex items-center min-h-[44px] font-mono text-[11px] uppercase tracking-[0.12em] text-miriam underline underline-offset-2">{{ L('Descargar los datos', 'Download the data') }}</a>
+          </div>
         </PageHeader>
         <p class="dt-aviso">
           <Icon name="ph:info-fill" class="w-4 h-4 shrink-0" aria-hidden="true" />
-          {{ L('Resumen de sus informes, como apoyo a la decisión. No es diagnóstico ni consejo médico.', 'A summary of her reports, as decision support. Not a diagnosis or medical advice.') }}
+          {{ L('Resumen de sus informes, como apoyo a la decisión. No es diagnóstico ni consejo médico. Cada cifra está cotejada con su informe original; solo se marca lo que no: inferido, lo dice Miriam o sin verificar.', 'A summary of her reports, as decision support. Not a diagnosis or medical advice. Every number is checked against its original report; only what isn’t gets a mark: inferred, per Miriam or unverified.') }}
         </p>
 
         <!-- 0 · el diagnóstico en una línea: sin esto, «Hoy» no tiene sujeto (oncologo-virtual). La anatomía
@@ -512,7 +586,46 @@ const n = (v: number) => numCaso(v, lang.value)
           </section>
         </section>
 
-        <!-- 2 · Carga tumoral: lo segundo que busca un clínico (RECIST y PET de cuerpo entero, por eso no «en el hígado»); antes en el 5.º pantallazo -->
+        <!-- 2 · Qué buscamos: la petición a quien puede mover el caso. Antes colgaba al final de «Tejido» (y plegada a
+             partir de la tercera). Es la palanca más directa de la web hacia NED, y el ancla que comparten /caso (el
+             enlace que se reenvía a médicos), la home y /ciencia (rediseño F1, 23-oct-2026). Las 5 peticiones que ya
+             eran públicas, en un orden de prioridad PROVISIONAL (utils/peticiones.ts); sin plegar: el que llega aquí
+             por el ancla viene a leerlas. -->
+        <section v-if="hayPeticiones" id="que-buscamos" class="dt-sec" aria-labelledby="h-busca">
+          <h2 id="h-busca" class="dt-h2">{{ L('Qué buscamos', 'What we’re looking for') }}</h2>
+          <QueBuscamos :fuente="seBusca" />
+        </section>
+
+        <!-- 3 · Tejido: decide el acceso a la vacuna (ruta a NED), por eso antes que Evolución y que la carga tumoral -->
+        <section id="s-tejido" class="dt-sec" aria-labelledby="h-tejido">
+          <h2 id="h-tejido" class="dt-h2">{{ L('Tejido y muestras', 'Tissue and samples') }}</h2>
+          <p v-if="sinFresco" class="dt-resumen-tejido">
+            <strong>{{ L('Todo el material disponible está en parafina.', 'All available material is in paraffin.') }}</strong>
+            {{ L('No hay tejido fresco, congelado ni PBMC.', 'There is no fresh or frozen tissue and no PBMC.') }}
+            <DatosSello :s="sinFresco.sello" :lang="lang" />
+          </p>
+          <div class="dt-tarjetas">
+            <article v-for="(m, i) in material.slice(0, 3)" :key="i" class="dt-tarjeta">
+              <p class="dt-tarjeta__t">{{ tituloMuestra(m) }}</p>
+              <p v-if="detalleMuestra(m)" class="dt-tarjeta__det">{{ detalleMuestra(m) }}</p>
+              <p class="dt-tarjeta__l"><span>{{ L('Dónde', 'Where') }}</span> {{ T(m.donde) }} · <span>{{ L('Estado', 'Status') }}</span> {{ T(m.estado) }}</p>
+              <p class="dt-tarjeta__pie"><span class="nums">{{ m.fecha }}</span> <DatosSello :s="m.sello" :lang="lang" /></p>
+            </article>
+            <details v-if="material.length > 3" class="dt-det dt-tarjeta--ancha">
+              <summary>{{ material.length === 4 ? L('1 muestra más', '1 more sample') : L(`Otras ${material.length - 3} muestras`, `${material.length - 3} more samples`) }}</summary>
+              <div class="dt-tarjetas">
+                <article v-for="(m, i) in material.slice(3)" :key="i" class="dt-tarjeta">
+                  <p class="dt-tarjeta__t">{{ tituloMuestra(m) }}</p>
+              <p v-if="detalleMuestra(m)" class="dt-tarjeta__det">{{ detalleMuestra(m) }}</p>
+                  <p class="dt-tarjeta__l"><span>{{ L('Dónde', 'Where') }}</span> {{ T(m.donde) }} · <span>{{ L('Estado', 'Status') }}</span> {{ T(m.estado) }}</p>
+                  <p class="dt-tarjeta__pie"><span class="nums">{{ m.fecha }}</span> <DatosSello :s="m.sello" :lang="lang" /></p>
+                </article>
+              </div>
+            </details>
+          </div>
+        </section>
+
+        <!-- 4 · Carga tumoral: lo segundo que busca un clínico (RECIST y PET de cuerpo entero, por eso no «en el hígado»); antes en el 5.º pantallazo -->
         <section v-if="(em.recist ?? []).length" id="s-higado" class="dt-sec" aria-labelledby="h-carga">
           <h2 id="h-carga" class="dt-h2">{{ L('Carga tumoral', 'Tumor burden') }}</h2>
           <DatosCargaTumoral :recist="em.recist" :volumen="em.volumen ?? []" :lang="lang" />
@@ -547,46 +660,7 @@ const n = (v: number) => numCaso(v, lang.value)
           </details>
         </section>
 
-        <!-- 3 · Tejido: decide el acceso a la vacuna (ruta a NED), por eso antes que Evolución -->
-        <section id="s-tejido" class="dt-sec" aria-labelledby="h-tejido">
-          <h2 id="h-tejido" class="dt-h2">{{ L('Tejido y muestras', 'Tissue and samples') }}</h2>
-          <p v-if="sinFresco" class="dt-resumen-tejido">
-            <strong>{{ L('Todo el material disponible está en parafina.', 'All available material is in paraffin.') }}</strong>
-            {{ L('No hay tejido fresco, congelado ni PBMC.', 'There is no fresh or frozen tissue and no PBMC.') }}
-            <DatosSello :s="sinFresco.sello" :lang="lang" />
-          </p>
-          <div class="dt-tarjetas">
-            <article v-for="(m, i) in material.slice(0, 3)" :key="i" class="dt-tarjeta">
-              <p class="dt-tarjeta__t">{{ tituloMuestra(m) }}</p>
-              <p v-if="detalleMuestra(m)" class="dt-tarjeta__det">{{ detalleMuestra(m) }}</p>
-              <p class="dt-tarjeta__l"><span>{{ L('Dónde', 'Where') }}</span> {{ T(m.donde) }} · <span>{{ L('Estado', 'Status') }}</span> {{ T(m.estado) }}</p>
-              <p class="dt-tarjeta__pie"><span class="nums">{{ m.fecha }}</span> <DatosSello :s="m.sello" :lang="lang" /></p>
-            </article>
-            <details v-if="material.length > 3" class="dt-det dt-tarjeta--ancha">
-              <summary>{{ material.length === 4 ? L('1 muestra más', '1 more sample') : L(`Otras ${material.length - 3} muestras`, `${material.length - 3} more samples`) }}</summary>
-              <div class="dt-tarjetas">
-                <article v-for="(m, i) in material.slice(3)" :key="i" class="dt-tarjeta">
-                  <p class="dt-tarjeta__t">{{ tituloMuestra(m) }}</p>
-              <p v-if="detalleMuestra(m)" class="dt-tarjeta__det">{{ detalleMuestra(m) }}</p>
-                  <p class="dt-tarjeta__l"><span>{{ L('Dónde', 'Where') }}</span> {{ T(m.donde) }} · <span>{{ L('Estado', 'Status') }}</span> {{ T(m.estado) }}</p>
-                  <p class="dt-tarjeta__pie"><span class="nums">{{ m.fecha }}</span> <DatosSello :s="m.sello" :lang="lang" /></p>
-                </article>
-              </div>
-            </details>
-          </div>
-          <!-- lo que se pide a quien lee: antes plegado al final como «Cómo ayudar» (oncologo-virtual) -->
-          <h3 class="dt-h3">{{ L('Qué buscamos', 'What we’re looking for') }}</h3>
-          <ul class="dt-busca">
-            <li v-for="(b, i) in seBusca.slice(0, 3)" :key="i">{{ T(b.valor) }} <DatosSello :s="b.sello" :lang="lang" /><NuxtLink v-if="b.enlace === 'celula-a-celula'" :to="localePath('/celula-a-celula')" class="link-inline dt-busca__enlace">{{ L('Los primeros resultados están en Célula a célula', 'The first results are in Cell by cell') }}</NuxtLink></li>
-          </ul>
-          <details v-if="seBusca.slice(3, 5).length" class="dt-det">
-            <summary>{{ L(`${seBusca.slice(3, 5).length} más`, `${seBusca.slice(3, 5).length} more`) }}</summary>
-            <ul class="dt-busca"><li v-for="(b, i) in seBusca.slice(3, 5)" :key="i">{{ T(b.valor) }} <DatosSello :s="b.sello" :lang="lang" /></li></ul>
-          </details>
-          <NuxtLink :to="localePath('/contacto')" class="dt-boton">{{ L('Escríbenos', 'Write to us') }} →</NuxtLink>
-        </section>
-
-        <!-- 4 · Evolución: línea de tiempo + analíticas con la misma ventana (la profundidad, no la entrada) -->
+        <!-- 5 · Evolución: línea de tiempo + analíticas con la misma ventana (la profundidad, no la entrada) -->
         <section id="s-evo" class="dt-sec" aria-labelledby="h-evo">
           <h2 id="h-evo" class="dt-h2">{{ L('Evolución', 'Clinical course') }}</h2>
           <div class="dt-controles">
@@ -667,7 +741,59 @@ const n = (v: number) => numCaso(v, lang.value)
           <p class="dt-pie"><DatosSello :s="c.analiticas.sello" :lang="lang" /> {{ L('Cómo se leen y fechan: en «Fuentes y método».', 'How they are read and dated: under “Sources and method”.') }}</p>
         </section>
 
-        <!-- 5 · vitrina: lo más visual y menos accionable de un vistazo, al final (Miriam, 25-sep); un solo
+        <!-- 6 · Herramientas (#visores): lo que era el índice /herramientas, fusionado aquí en el rediseño (F4, 23-oct-2026;
+             /herramientas redirige a esta ancla con un 301). El título y el texto de cada tarjeta son los ya publicados de su
+             página. Antes de la vitrina: son lo accionable, la vitrina es el escaparate. -->
+        <section id="visores" class="dt-sec" aria-labelledby="h-visores">
+          <h2 id="h-visores" class="dt-h2">{{ $t('herramientas.title') }}</h2>
+          <p class="dt-nota">{{ $t('herramientas.intro') }}</p>
+          <ul class="dt-visores">
+            <li v-for="v in visores" :key="v.key" class="flex">
+              <NuxtLink
+                :to="localePath({ name: v.name })"
+                class="card-base flex flex-1 flex-col gap-2 min-h-[44px]"
+                style="text-decoration: none"
+                :aria-labelledby="v.repite ? `dv-${v.key}-t` : `dv-${v.key}-e dv-${v.key}-t`"
+                :aria-describedby="`dv-${v.key}-d`"
+                @click="medirVisor(v.key)"
+              >
+                <span class="shrink-0 w-9 h-9 rounded-xl bg-miriam-soft flex items-center justify-center" aria-hidden="true">
+                  <Icon :name="v.icono" class="w-5 h-5 text-berenjena" />
+                </span>
+                <!-- la etiqueta solo si dice algo que el título no dice (diseno, 14-oct): «Célula a célula» sobre «Célula a célula» se leía dos veces -->
+                <span v-if="!v.repite" :id="`dv-${v.key}-e`" class="eyebrow block">{{ v.etiqueta }}</span>
+                <!-- sin etiqueta, su línea se reserva desde sm, que es cuando hay dos columnas y los títulos de una misma fila
+                     tienen que quedar alineados (diseno, 19-oct); en una columna era un hueco sin motivo -->
+                <span v-else class="eyebrow hidden sm:block" aria-hidden="true">&nbsp;</span>
+                <h3 :id="`dv-${v.key}-t`" class="font-display font-semibold text-berenjena text-xl leading-snug" style="letter-spacing: -0.01em">{{ v.titulo }}</h3>
+                <p :id="`dv-${v.key}-d`" class="text-sm text-tinta leading-relaxed flex-1">{{ v.descripcion }}</p>
+                <Icon name="ph:arrow-right" class="mt-2 w-5 h-5 text-miriam" aria-hidden="true" />
+              </NuxtLink>
+            </li>
+          </ul>
+        </section>
+
+        <!-- 6b · Reservorio (#reservorio): lo que era la página /reservorio, fusionada aquí en F4 (302 hasta que Miriam
+             confirme, G6). Plegado y SIN 3D (el visor 3D del catéter anterior salió de la web). Las dos primeras frases de «qué
+             es un port-a-cath» y las medidas son las ya publicadas en /reservorio, palabra por palabra; la tarjeta con
+             el gráfico, su aviso y su sello son los de siempre de esta página. -->
+        <section v-if="reservorio.length" id="reservorio" class="dt-sec" aria-labelledby="h-reservorio">
+          <h2 id="h-reservorio" class="dt-h2">{{ L('Reservorio venoso', 'Venous port') }}</h2>
+          <details class="dt-det" :open="reservorioAbierto" @toggle="reservorioAbierto = ($event.target as HTMLDetailsElement).open">
+            <summary>{{ L('El reservorio: qué es y por qué se cambió', 'The port: what it is and why it was replaced') }}</summary>
+            <p class="dt-nota">{{ L('Es una cámara pequeña que se implanta bajo la piel del pecho, unida a un catéter fino que llega hasta una vena grande, cerca del corazón. Se pincha a través de una membrana con una aguja especial, y la membrana se cierra al sacarla.', 'It’s a small chamber implanted under the skin of the chest, joined to a thin catheter that runs to a large vein near the heart. A special needle goes in through a membrane, and the membrane seals again when the needle comes out.') }}</p>
+            <article class="dt-tarjeta">
+              <p class="dt-tarjeta__t">{{ L('Reservorio venoso: el catéter anterior se quedaba corto', 'Venous port: the previous catheter was too short') }}</p>
+              <p class="dt-tarjeta__l">{{ L('El primer reservorio dejó de dar retorno de sangre y en octubre de 2026 se cambió por otro. El informe de radiología del recambio da como motivo «PAC acortado a tronco innominado»: el catéter se quedaba corto. Longitud de su catéter, del portal a la punta, en tres TC:', 'The first port stopped giving blood return and was replaced in October 2026. The radiology report of the replacement gives the reason as «PAC acortado a tronco innominado» (port catheter short, ending at the innominate trunk). Its catheter length, port to tip, on three CT scans:') }}</p>
+              <DatosReservorio :medidas="reservorio" :lang="lang" />
+              <p v-if="medidasReservorio" class="dt-nota">{{ medidasReservorio }}</p>
+              <p class="dt-nota">{{ L('RECIST no aplica aquí, porque mide lesiones y esto es un catéter.', 'RECIST does not apply here, since it measures lesions and this is a catheter.') }}</p>
+              <p class="dt-pie">{{ L('Medida semiautomática sobre sus TC, sin validar por radiología.', 'Semi-automatic measurement on her CT scans, not validated by radiology.') }} <DatosSello :s="reservorio[0].sello" :lang="lang" /></p>
+            </article>
+          </details>
+        </section>
+
+        <!-- 6 · vitrina: lo más visual y menos accionable de un vistazo, al final (Miriam, 25-sep); un solo
              bloque con fondo propio, para que se lea como escaparate y no como piezas sueltas (diseno) -->
         <div class="dt-vitrina">
         <section id="s-vitrina" class="dt-sec" aria-labelledby="h-vitrina">
@@ -681,29 +807,6 @@ const n = (v: number) => numCaso(v, lang.value)
           <DatosDias :lineas="lineas" :eventos="eventos" :grupos="grupos" :tacs="(em.recist ?? []).map((r: any) => r.fecha)" :diagnostico="fechaDx" :hoy="hoy" :lang="lang" @fecha="irAFecha" />
         </section>
 
-        <!-- el reservorio: su estado importa (ADC iv), pero su historia y el 3D son para explorar (oncologo-virtual) -->
-        <section v-if="reservorio.length" id="s-reservorio" class="dt-sec" :aria-label="L('Reservorio venoso', 'Venous port')">
-          <article class="dt-tarjeta">
-              <p class="dt-tarjeta__t">{{ L('Reservorio venoso: el catéter anterior medía lo mismo en los tres TC', 'Venous port: the previous catheter measured the same length on all three CT scans') }}</p>
-              <p class="dt-tarjeta__l">{{ L('El primer reservorio dejó de dar retorno de sangre y en octubre de 2026 se cambió por otro. Longitud de su catéter, del portal a la punta, en tres TC:', 'The first port stopped giving blood return and was replaced in October 2026. Its catheter length, port to tip, on three CT scans:') }}</p>
-              <DatosReservorio :medidas="reservorio" :lang="lang" />
-              <!-- el 3D (mallas de ~4 MB) solo se descarga si se pide: el móvil no lo paga por defecto -->
-              <button v-if="!ver3d" type="button" class="dt-3d" @click="ver3d = true">
-                <Icon name="ph:cube-duotone" class="w-5 h-5" aria-hidden="true" />
-                {{ L('Girar el catéter en 3D', 'Rotate the catheter in 3D') }}
-              </button>
-              <div v-else class="dt-visor3d">
-                <ClientOnly>
-                  <ReservoirView base="/reservorio/" />
-                  <template #fallback>
-                    <div class="dt-visor3d__carga">{{ L('cargando el 3D…', 'loading 3D…') }}</div>
-                  </template>
-                </ClientOnly>
-              </div>
-              <p class="dt-pie">{{ L('Medida semiautomática sobre sus TC, sin validar por radiología.', 'Semi-automatic measurement on her CT scans, not validated by radiology.') }} <DatosSello :s="reservorio[0].sello" :lang="lang" /></p>
-              <NuxtLink v-if="hayReservorio" :to="localePath('/reservorio')" class="dt-boton">{{ L('La historia completa del reservorio', 'The full port story') }} →</NuxtLink>
-          </article>
-        </section>
         <section id="s-peli" class="dt-sec" aria-labelledby="h-peli">
           <h3 id="h-peli" class="dt-h3">{{ L('El caso en el tiempo', 'The case over time') }}</h3>
           <p class="dt-nota">{{ L('Del diagnóstico a hoy, a pantalla completa. Dale a reproducir, páralo o arrastra la línea de tiempo.', 'From diagnosis to today, full screen. Press play, pause, or drag the timeline.') }}</p>
@@ -731,7 +834,7 @@ const n = (v: number) => numCaso(v, lang.value)
         </section>
         </div>
 
-        <!-- 6 · lo demás, plegado -->
+        <!-- 7 · lo demás, plegado -->
         <section class="dt-sec dt-plegados" :aria-label="L('Más detalle', 'More detail')">
           <p class="dt-molecular">
             {{ L('El diagnóstico completo, los receptores, la historia de tratamientos y el perfil molecular los tienes en', 'You’ll find the full diagnosis, receptors, treatment history and molecular profile on') }}
@@ -760,11 +863,14 @@ const n = (v: number) => numCaso(v, lang.value)
     background: var(--color-miriam); transform-origin: 0 50%; animation: dt-avanza linear both; animation-timeline: scroll(root); }
   @keyframes dt-avanza { from { transform: scaleX(0); } to { transform: scaleX(1); } }
 }
-.dt-barra { position: sticky; top: 64px; z-index: 40; display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none;
+/* alto de la cabecera fija: valor de reserva (medido: «lo último» + nav) hasta que la página lo mide y lo pone en línea */
+.dt-raiz { --dt-cab: 103px; }
+@media (min-width: 640px) { .dt-raiz { --dt-cab: 111px; } }
+.dt-barra { position: sticky; top: var(--dt-cab); z-index: 40; display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none;
   margin: 16px -16px 0; padding: 8px 16px; background: rgb(var(--color-bg-rgb) / 0.92); backdrop-filter: saturate(1.4) blur(8px);
   border-bottom: 1px solid rgb(var(--color-text-rgb) / 0.08); }
 .dt-barra::-webkit-scrollbar { display: none; }
-@media (min-width: 640px) { .dt-barra { top: 72px; margin: 16px 0 0; padding: 8px 0; } }
+@media (min-width: 640px) { .dt-barra { margin: 16px 0 0; padding: 8px 0; } }
 .dt-chip { flex: none; display: inline-flex; align-items: center; min-height: 44px; padding: 0 14px; border-radius: 999px; white-space: nowrap;
   font: 600 13px var(--font-body); color: var(--color-text-soft); border: 1px solid rgb(var(--color-text-rgb) / 0.12);
   transition: background var(--dur-micro), color var(--dur-micro), border-color var(--dur-micro); }
@@ -774,7 +880,7 @@ const n = (v: number) => numCaso(v, lang.value)
 .dt-cifra-link:active { transform: scale(0.98); }
 .dt-cifra-link:focus-visible { outline: 2px solid var(--color-miriam); outline-offset: 3px; }
 .dt-cifra-link > * { height: 100%; }
-.dt-sec { padding-top: 32px; scroll-margin-top: 124px; }
+.dt-sec { padding-top: 32px; scroll-margin-top: calc(var(--dt-cab) + 61px); } /* 61 = alto de la barra de secciones */
 /* Sin entrada al hacer scroll (26-sep-2026): las secciones se leen, no se animan al pasar (skill
    `movimiento-movil`). Antes había un `animation-timeline: view()` que deslizaba cada sección. */
 .dt-h2 { font: var(--tipo-h2); color: var(--color-text); margin: 0 0 12px; }
@@ -817,7 +923,6 @@ const n = (v: number) => numCaso(v, lang.value)
 .dt-sitios li::before { content: ''; position: absolute; left: 0; top: 0.6em; width: 5px; height: 5px; border-radius: 50%; background: var(--color-miriam); }
 .dt-busca { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; font: 400 14px/1.5 var(--font-body); color: var(--color-text); }
 .dt-busca li { padding: 8px 12px; border-radius: 10px; background: var(--color-bg-card); }
-.dt-busca__enlace { display: block; width: fit-content; padding-block: 10px 2px; }
 .dt-pet { margin-top: 14px; padding: 12px 14px; border-radius: 14px; background: var(--color-bg-card); }
 .dt-pet__k { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; font: 600 12px var(--font-body); color: var(--color-text-soft); margin: 0 0 4px; }
 .dt-pet__v { font: 400 14px/1.5 var(--font-body); color: var(--color-text); margin: 0; }
@@ -879,13 +984,8 @@ const n = (v: number) => numCaso(v, lang.value)
 .dt-tarjeta__l { font: 400 13px/1.45 var(--font-body); color: var(--color-text); margin: 0 0 4px; }
 .dt-tarjeta__l span { font-weight: 600; color: var(--color-text-soft); margin-right: 4px; }
 .dt-tarjeta__pie { display: flex; gap: 8px; align-items: center; font: 500 11.5px var(--font-mono); color: var(--color-text-soft); margin: 8px 0 0; }
-.dt-3d { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; margin-top: 10px; padding: 0 16px; border-radius: 999px;
-  background: var(--color-text); color: var(--color-bg); font: 700 14px var(--font-body); }
-.dt-3d:focus-visible { outline: 2px solid var(--color-miriam); outline-offset: 2px; }
-.dt-visor3d { margin-top: 12px; max-width: 520px; }
-.dt-visor3d__carga { aspect-ratio: 1 / 1; border-radius: 12px; display: flex; align-items: center; justify-content: center;
-  background: var(--color-text); color: rgb(var(--color-bg-rgb) / 0.7); font: 500 12px var(--font-mono); }
-.dt-boton { display: inline-flex; align-items: center; min-height: 44px; margin-top: 6px; font: 700 14px var(--font-body); color: var(--color-miriam); text-decoration: underline; text-underline-offset: 3px; }
+.dt-visores { list-style: none; margin: 14px 0 0; padding: 0; display: grid; grid-template-columns: minmax(0, 1fr); gap: 16px; }
+@media (min-width: 640px) { .dt-visores { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; } }
 .dt-lista { margin: 0; padding-left: 18px; display: grid; gap: 6px; font: 400 14.5px/1.5 var(--font-body); color: var(--color-text); }
 .dt-lista-trat { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; font: 400 14px/1.45 var(--font-body); color: var(--color-text); }
 .dt-lista-trat p { margin: 0; }

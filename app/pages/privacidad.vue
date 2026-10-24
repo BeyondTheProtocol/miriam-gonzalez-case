@@ -1,5 +1,5 @@
 <template>
-  <main class="section-container max-w-3xl py-16 sm:py-20">
+  <div class="section-container max-w-3xl py-16 sm:py-20">
     <p class="eyebrow mb-3 block">Información legal</p>
     <h1 class="heading-display text-3xl sm:text-4xl text-berenjena mb-2" style="letter-spacing: -0.03em">
       Política de privacidad
@@ -90,7 +90,7 @@
 
       <p>Para el uso de cookies, consulta la <NuxtLink :to="localePath('cookies')" class="link-inline">Política de cookies</NuxtLink>.</p>
     </article>
-  </main>
+  </div>
 </template>
 
 <script setup lang="ts">

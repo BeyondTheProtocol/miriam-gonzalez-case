@@ -12,10 +12,12 @@
     "press": "Press",
     "contact": "Contact",
     "donate": "Support Miriam",
+    "donate_short": "Support",
     "collaborate": "How to help",
     "brands": "Brands",
-    "data": "The case in data",
-    "expenses": "Expenses",
+    "data": "Data",
+    "data_case": "The case in data",
+    "expenses": "Transparency",
     "main_label": "Primary navigation",
     "mobile_label": "Mobile navigation",
     "footer_label": "Site navigation",
@@ -229,14 +231,15 @@
     "legend_cgsyn": "Cg · Syn: neuroendocrine granules (80% of the tumor)."
   },
   "thanks": {
-    "eyebrow": "Donation received · Thank you",
+    "eyebrow": "Thank you",
     "title": "You've just brought the next {firma} closer.",
     "firma": "test",
     "lede": "You'll get the receipt by email. 100% goes to Miriam's case, with a monthly expense report and no middlemen. Thank you for being here.",
     "share": "Share the campaign",
-    "share_text": "Help Miriam fund precision cancer treatment.",
+    "share_text": "Miriam's case: a software engineer looking for a treatment made from her own tumor.",
     "copied": "Link copied!",
     "home": "Back to home",
+    "next": "See the latest on the case",
     "follow": "Want to follow the case closely? {'@'}miriamgonp on Instagram"
   },
   "error": {
@@ -272,7 +275,13 @@
     "updated_ago_one": "updated yesterday",
     "updated_ago": "updated {n} days ago",
     "photo_tag": "Engineer · Communicator",
-    "stat_cells_label": "cells from her biopsies read one by one"
+    "stat_cells_label": "cells from her biopsies read one by one",
+    "h1": "Miriam, {age}, is looking for a treatment made from {op}.",
+    "h1_emphasis": "her own tumor",
+    "lede": "She's a software engineer. Her tumor doesn't fit the usual protocols, and she has set out to investigate it in the open, with doctors and labs in several countries.",
+    "cta_understand": "Understand the case",
+    "pro_link": "Clinician or lab? See what we need",
+    "proof_support": "{n} people support the case"
   },
   "gofundme": {
     "title": "Why do we need your help?",
@@ -532,7 +541,8 @@
     "cookies": "Cookies",
     "group_case": "The case",
     "group_tools": "Tools",
-    "group_involved": "Get involved"
+    "group_involved": "Get involved",
+    "group_data": "Data"
   },
   "entry_disclaimer": {
     "badge": "May 2026 update",
@@ -603,7 +613,7 @@
     "s5_eyebrow": "Campaign status · Real time",
     "s5_heading": "Every euro brings the next priority molecular analysis closer.",
     "s6_eyebrow": "In her own words",
-    "s6_quote": "My tumor has two sides —the breast side and the neuroendocrine one— and the key is to treat both at once, not just one.",
+    "s6_quote": "My tumor has two sides, the breast side and the neuroendocrine one, and the key is to treat both at once, not just one.",
     "s6_signature": "Miriam González. May 2026.",
     "s6_photo_alt": "Portrait of Miriam González",
     "s8_eyebrow": "Where this is heading",
@@ -652,13 +662,14 @@
     "hero_cta_donate_caption": "Every euro funds clinical research applied to her case.",
     "hero_cta_science_caption": "Open the full molecular profile in The science.",
     "hero_social_proof": "Already supported by {n} people · featured in El País",
-    "hero_eyebrow": "Metastatic breast cancer · Ultra-rare molecular profile",
+    "hero_eyebrow": "Metastatic breast cancer · neuroendocrine differentiation",
     "story_eyebrow": "The story",
     "story_heading": "A diagnosis that fit no protocol.",
     "story_p1": "At 33, Miriam was diagnosed with a metastatic breast cancer so rare it is seen in ",
     "story_p1_tail": ". The standard treatment isn't enough: it has to be designed around her specific tumor.",
     "story_link": "Get to know Miriam (soon)",
     "s9_strip_label": "In the press",
+    "prensa_tira_etiqueta": "Her case in the press",
     "s9_press_contact": "Are you a journalist? Press room",
     "s3_summary": "In practice: hormonal treatment addresses the tumor's {luminal} side but leaves its {neuroendocrine} component untreated. Confirming and targeting it requires molecular analyses and international expert review — tests public healthcare doesn't cover for such a rare case. The rebiopsy and the first international review are already done.",
     "s4_buckets_title": "The money goes to:",
@@ -681,7 +692,23 @@
     "pasos_nota_barra": "The bar counts the steps of this route already taken. It does not measure progress toward any medical goal.",
     "pasos_cta_ruta": "See the full route",
     "pasos_cta_celula": "The cell-by-cell analysis, step by step",
-    "tools_new": "Latest"
+    "tools_new": "Latest",
+    "caso_heading": "The case in 3 sentences",
+    "caso_1": "Miriam has metastatic breast cancer.",
+    "caso_2": "A diagnosis that fit no protocol.",
+    "caso_3": "The standard treatment isn't enough: it has to be designed around her specific tumor.",
+    "donde_heading": "Where we are and what's left",
+    "ahora": "Now:",
+    "buscamos_heading": "What we’re looking for",
+    "buscamos_escribir": "Write to the team",
+    "buscamos_todas": "See everything we’re looking for",
+    "donde_3d": "See it in 3D",
+    "dinero_eyebrow": "Where the money goes",
+    "dinero_heading": "What the money is for",
+    "dinero_informe": "See the expense report",
+    "puertas_heading": "How to help",
+    "puertas_pares": "Going through something similar? You don't have to contribute anything.",
+    "puertas_pares_cta": "Write to Miriam"
   },
   "ciencia": {
     "ruta": {
@@ -1188,7 +1215,7 @@
   },
   "links": {
     "meta_title": "Miriam González · Links",
-    "meta_description": "Every link to Miriam González's case in one place: her lesions in 3D, the podcast with Carlos Roca, press coverage, brand collaborations and how to support her treatment.",
+    "meta_description": "Every link to Miriam González's case in one place: her lesions in 3D, the podcast with Carlos Roca, press coverage, brand collaborations and how to support the case.",
     "aria_page": "Miriam González's links",
     "aria_nav": "Featured links",
     "avatar_alt": "Portrait of Miriam González",
@@ -1198,18 +1225,22 @@
     "elespanol_sub": "“The engineer using AI to fight her cancer” (Spanish)",
     "marcas_title": "For brands and companies",
     "marcas_sub": "A showcase for your brand, in partnership",
-    "apoyar_title": "Support my treatment",
-    "apoyar_sub": "How to help, with full transparency",
+    "apoyar_title": "Support my case",
+    "apoyar_sub": "Takes you to my GoFundMe campaign",
     "caso_title": "My case, from the start",
     "caso_sub": "The full story on helpmiriam.com",
     "lesiones_title": "My lesions in 3D",
-    "lesiones_sub": "Liver and breast, rotatable: what the report measures and what the AI detects",
+    "lesiones_sub": "Breast, liver and bone, rotatable",
     "datos_title": "The case in data",
     "datos_sub": "Labs since 2021, treatments and tissue, every number with its source",
     "podcast_title": "My case on Roca Project",
     "podcast_sub": "Episode 100, with Carlos Roca: the diagnosis, family and fear",
     "celula_title": "My tumor, cell by cell",
-    "celula_sub": "What each cell in the liver and bone has switched on, and the first results"
+    "celula_sub": "What each cell in the liver and bone has switched on, and the first results",
+    "prensa_title": "My case in the press",
+    "prensa_sub": "What the media have said about it",
+    "cronologia_title": "My case, step by step",
+    "cronologia_sub": "What's happened, in order"
   },
   "herramientas": {
     "title": "Case tools",
@@ -1223,6 +1254,15 @@
     "transcript": "Read the transcript",
     "fallback": "Your browser can't play this video. You can read the transcript below it.",
     "list_label": "Video list"
+  },
+  "page": {
+    "updated": "Updated {date}"
+  },
+  "puertas": {
+    "apoyar": "Support",
+    "clinico": "Clinician or lab",
+    "prensa": "Press",
+    "otras": "Other ways"
   },
   "sectionNav": {
     "aria": "Section index",
@@ -1248,5 +1288,9 @@
       "table": "Appendix (table)",
       "cockpit": "How to read it · breakdown"
     }
+  },
+  "money": {
+    "destino": "The money received goes to the costs of the case; the expense report lists the line items, gift tax included, with its date.",
+    "recibo": "You can request a receipt by getting in touch."
   }
 }

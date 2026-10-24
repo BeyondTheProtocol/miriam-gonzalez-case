@@ -152,7 +152,9 @@ const nav = readFileSync('app/utils/navegacion.ts', 'utf-8')
 ok(/slides:\s*e\('slides',\s*'laminillas'\)/.test(nav) && /HERRAMIENTAS[^\n]*NAV\.slides/.test(nav), 'está en la navegación y en el índice de herramientas')
 
 const orden = nav.match(/export const HERRAMIENTAS: EnlaceNav\[\] = \[([^\]]*)\]/)?.[1] ?? ''
-ok(orden.replace(/\s/g, '') === 'NAV.data,NAV.lesions,NAV.slides,NAV.cellByCell,NAV.cellExplorer,NAV.port', 'herramientas en el orden «del cuerpo a la célula» (sin el mapa de solo hueso desde el 21-oct)')
+// F4 (23-oct-2026): el reservorio sale de las herramientas (ya no es página: es el bloque plegado #reservorio de /datos), así que la lista
+// acaba en el explorador. El resto del orden es el de siempre.
+ok(orden.replace(/\s/g, '') === 'NAV.data,NAV.lesions,NAV.slides,NAV.cellByCell,NAV.cellExplorer', 'herramientas en el orden «del cuerpo a la célula» (sin el mapa de solo hueso desde el 21-oct, ni el reservorio desde F4)')
 const ultimo = nav.match(/export const LO_ULTIMO: EnlaceNav = NAV\.(\w+)/)?.[1]
 ok(!!ultimo && orden.includes('NAV.' + ultimo), `la destacada «Lo último» (${ultimo}) es una de las herramientas`)
 
