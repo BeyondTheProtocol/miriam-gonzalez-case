@@ -151,6 +151,7 @@
             <span class="sr-only"> {{ $t('a11y.new_tab') }}</span>
           </a>
         </div>
+        <CampanaOficial location="home" />
       </div>
     </section>
 

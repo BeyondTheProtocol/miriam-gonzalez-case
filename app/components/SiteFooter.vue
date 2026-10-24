@@ -155,6 +155,10 @@
           </div>
         </nav>
 
+        <!-- Campaña oficial (23-oct-2026): el pie es lo único que cubre todas las
+             páginas; en la home se calla porque ya va bajo la barra de la campaña. -->
+        <CampanaOficial footer location="footer" />
+
         <p class="mt-10 text-[11px] font-mono text-tinta">
           {{ $t('footer.made_with') }}
         </p>

@@ -11,6 +11,7 @@
         <div class="card-base mb-8" data-print-hide>
           <p class="eyebrow mb-3 block">{{ $t('expenses.campaign_eyebrow') }}</p>
           <GoFundMeProgress />
+          <CampanaOficial location="gastos" />
         </div>
 
         <!-- Informe de gastos: cifras reales reconstruidas desde los extractos bancarios -->

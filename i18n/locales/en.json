@@ -1151,6 +1151,12 @@
     "popup_cta": "Tell me what you do",
     "popup_dismiss": "Not now"
   },
+  "campanaOficial": {
+    "titulo": "Official campaign",
+    "intro": "My official fundraiser is this one:",
+    "otras": "If you see any other campaign, fundraiser or initiative in my name, I didn't create it and I don't manage it.",
+    "actualizado": "Updated 23 October 2026. If it changes, I'll let you know here."
+  },
   "expenses": {
     "title": "Where the money goes",
     "subtitle": "Radical transparency: every euro, documented.",
