@@ -67,6 +67,12 @@ The website has two audiences: scientists/physicians (science page, molecular pr
 - `utils/seed.ts` `readSeed()` reads the build-time `seed/*.json` (bundled into the functions via `included_files`) as a fallback when GoFundMe is unreachable, so the total and stars never go blank.
 - CLI `pnpm update-fundraiser` (runs at build via `pnpm generate`) regenerates the seed. `seed/fundraiser.json` and `seed/donations.json` are **gitignored** — never committed, auto-generated at build.
 - The previous hourly scheduled function was removed: a Netlify function cannot rewrite the already-deployed static files, so writing the seed at runtime never reached the served assets (the data only changed on redeploy). The live endpoints replace it.
+- The figure carries where it comes from (T2b, 24-oct-2026): `origen` (`vivo` from the function, `semilla` from the build seed or the function's backup) and `actualizado` (when it was fetched). The site shows "cifra a <date>" only while the figure is `semilla`. The GoFundMe **goal is no longer requested or shown** (no goal, no %, no progress bar, no "Faltan"): `useFundraiser()` keeps only the fields the site uses.
+
+### Money figures (single source)
+- Miriam's rule (24-oct-2026): "somos transparentes: no detallamos ciertas cosas, pero sí mostramos algunas cifras y el desglose de gastos por categorías". Every figure the site publishes about money lives in `app/data/dinero.json` (spent and available at a cutoff date `corte`, the rebiopsy lines, and the state of the three campaign phases) and is read through `app/utils/dinero.ts`. Never write a € amount in an i18n key, a template or a comment (`pnpm test:dinero-fuente` fails). What is **raised** is not there: it comes live from GoFundMe.
+- To make a new cutoff: edit `app/data/dinero.json` (change `corte`; the test checks that the categories add up to `comprometido`).
+- The single canonical phrases live in one key each: `money.destino`, `money.recibo`, `money.transparencia`. Reuse them with `$t(...)`; do not copy them. The retired phrases (cada euro, transparencia radical/total, 100 % al caso, recibo disponible, presupuestos abiertos, cada gasto está documentado, nada se desvía, sin intermediarios) do not come back (`pnpm test:dinero-fuente`, and `test:salud-estatica` §13 on the generated HTML).
 
 ### Nitro Route Rules
 - `/colabora` and `/collaborate` → 301 redirect to `https://helpmiriam.notion.site/colabora`. This is the collaboration guide for new contributors.

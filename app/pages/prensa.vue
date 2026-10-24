@@ -485,7 +485,8 @@ const faq = computed(() => {
   }
   return [1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((i) => ({
     q: t(`press.faq_q${i}`),
-    a: t(`press.faq_a${i}`, { age: caseData.currentAge }),
+    // La 5.ª (de dónde sale el dinero) cierra con la frase canónica de transparencia, por referencia: no se copia en la clave.
+    a: t(`press.faq_a${i}`, { age: caseData.currentAge }) + (i === 5 ? ` ${t('money.transparencia')}` : ''),
     ...links[i],
   }))
 })

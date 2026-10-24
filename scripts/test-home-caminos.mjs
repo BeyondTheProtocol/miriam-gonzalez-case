@@ -416,12 +416,11 @@ try {
     const E = ESPERADO[loc]
     await ancho(1280)
     await cargar(E.home)
-    // Se exceptúa el botón de la propia tarjeta de la campaña (GoFundMeProgress, que esta fase no toca): lleva `mt-3`, el de
-    // reserva del bloque del dinero no, y no trae el aviso de pestaña nueva (hallazgo para el comité).
-    const ext = await evaluate(`[...document.querySelectorAll('main a[target="_blank"]')].filter((a) => !a.classList.contains('mt-3')).map((a) => ({ href: a.getAttribute('href'), rel: a.getAttribute('rel') || '', aviso: a.querySelector('.sr-only')?.textContent.trim() ?? '', donde: a.closest('.puertas') ? 'puertas' : a.closest('.prensa-tira') ? 'prensa' : a.closest('.hero') ? 'hero' : a.closest('#campaign') ? 'dinero' : 'otro' }))`)
+    // Sin excepciones: el botón de la tarjeta de la campaña (GoFundMeProgress) también avisa (T2b la reescribió entera y le puso el aviso).
+    const ext = await evaluate(`[...document.querySelectorAll('main a[target="_blank"]')].map((a) => ({ href: a.getAttribute('href'), rel: a.getAttribute('rel') || '', aviso: a.querySelector('.sr-only')?.textContent.trim() ?? '', donde: a.closest('.puertas') ? 'puertas' : a.closest('.prensa-tira') ? 'prensa' : a.closest('.hero') ? 'hero' : a.closest('#campaign') ? 'dinero' : 'otro' }))`)
     // 24-oct-2026: la tira de prensa pasó de 7 a 4 medios, así que el mínimo baja de 9 a 6 (hero 1 + prensa 4 + puerta «Apoyar» 1). El botón de
     // reserva del bloque del dinero también cuenta cuando sale, pero solo sale si la campaña no responde: el mínimo no depende de él.
-    ok(ext.length >= 6 && ext.every((a) => /noopener/.test(a.rel) && E.nuevaPestana.test(a.aviso)), `${loc}: los ${ext.length} enlaces de pestaña nueva (sin el de la tarjeta de la campaña) llevan rel="noopener" y aviso (${[...new Set(ext.map((a) => a.donde))].join(', ')})`)
+    ok(ext.length >= 6 && ext.every((a) => /noopener/.test(a.rel) && E.nuevaPestana.test(a.aviso)), `${loc}: los ${ext.length} enlaces de pestaña nueva (también el de la tarjeta de la campaña) llevan rel="noopener" y aviso (${[...new Set(ext.map((a) => a.donde))].join(', ')})`)
     const apoyar = ext.find((a) => a.donde === 'puertas')
     ok(!!apoyar && apoyar.href === 'https://gofund.me/3e25cae99' && apoyar.rel === 'noopener noreferrer', `${loc}: la puerta «Apoyar» abre GoFundMe con rel="noopener noreferrer"`)
     ok(ext.some((a) => a.donde === 'hero' && a.href === 'https://gofund.me/3e25cae99') && ext.filter((a) => a.donde === 'prensa').length === 4, `${loc}: el botón del hero y los 4 medios también avisan`)

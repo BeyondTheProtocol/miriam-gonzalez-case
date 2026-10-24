@@ -1,6 +1,14 @@
 import type { GoFundMeFundraiser } from '../../utils/fundraiser'
 
 /**
+ * Solo los campos que la web usa. Una semilla vieja o una copia de la CDN anterior a T2b todavía puede traer `goalAmount`: aquí se
+ * descarta, para que el objetivo no llegue al payload de Nuxt ni al estado del cliente (decisión de Miriam, 24-oct-2026).
+ */
+function soloCifras(v: GoFundMeFundraiser, origen: 'vivo' | 'semilla', actualizado?: string): GoFundMeFundraiser {
+  return { currentAmount: v.currentAmount, donationCount: v.donationCount, donationsEnabled: v.donationsEnabled, origen, actualizado }
+}
+
+/**
  * Total de la campaña de GoFundMe, para pintarlo YA en el HTML prerenderizado y refrescarlo en vivo.
  *
  * Antes la tarjeta (GoFundMeProgress) se cargaba en `onMounted`: buscadores, lectores de IA y quien
@@ -17,6 +25,14 @@ import type { GoFundMeFundraiser } from '../../utils/fundraiser'
  *   nada cambia: una cifra horneada vale más que un bloque en blanco.
  *
  * Una sola clave para toda la página: el hero de la home y la tarjeta comparten una petición.
+ *
+ * Cada cifra lleva `origen` y `actualizado` (rediseño T2b, 24-oct-2026; los pone `estampar`, utils/fundraiser.ts):
+ * · La sembrada es SIEMPRE `semilla`, con la fecha en que se escribió el fichero. Si el fichero es de antes de este cambio y no
+ *   la trae, se usa la de modificación del fichero; si ni eso se puede leer, no se enseña fecha (nunca una inventada).
+ * · La que llega de `/fundraiser.json` es `vivo`, salvo que la función diga `semilla` (GoFundMe no respondió y contestó con su
+ *   copia de seguridad). Una respuesta sin `origen` (una copia vieja de la CDN, anterior a este cambio) se toma por `vivo`: la
+ *   pidió esta misma visita.
+ * La web enseña la fecha solo cuando la cifra es `semilla`: ver GoFundMeProgress y SectionHero.
  *
  * Por qué no `useAsyncData` (la primera versión lo usaba), medido en el build con el fetch
  * interceptado el 23-oct-2026: su `refresh()` dentro de `onMounted` devuelve el payload sin pedir
@@ -48,7 +64,7 @@ export async function useFundraiser() {
       if (vivaEnEstaVista) return
       enVuelo ??= $fetch<GoFundMeFundraiser>('/fundraiser.json')
         .then((v) => {
-          viva.value = v
+          viva.value = soloCifras(v, v.origen ?? 'vivo', v.actualizado)
           vivaEnEstaVista = true
         })
         .catch(() => {
@@ -62,8 +78,10 @@ export async function useFundraiser() {
 
   if (import.meta.server && !sembrada.value) {
     try {
-      const { readFile } = await import('node:fs/promises')
-      sembrada.value = JSON.parse(await readFile('seed/fundraiser.json', 'utf-8')) as GoFundMeFundraiser
+      const { readFile, stat } = await import('node:fs/promises')
+      const semilla = JSON.parse(await readFile('seed/fundraiser.json', 'utf-8')) as GoFundMeFundraiser
+      const actualizado = semilla.actualizado ?? (await stat('seed/fundraiser.json').then((f) => f.mtime.toISOString()).catch(() => undefined))
+      sembrada.value = soloCifras(semilla, 'semilla', actualizado)
     } catch {
       /* sin semilla: el HTML sale sin tarjeta */
     }

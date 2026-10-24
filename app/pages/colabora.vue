@@ -88,7 +88,7 @@
                 {{ $t('collaborate.trust_transparency_title') }}
               </h3>
               <p class="text-sm text-tinta leading-relaxed mb-3">
-                {{ $t('collaborate.trust_transparency_body') }}
+                {{ $t('money.transparencia') }}
               </p>
               <NuxtLink :to="localePath('gastos')" class="link-action text-sm text-miriam">
                 {{ $t('collaborate.trust_transparency_link') }}
@@ -136,6 +136,10 @@
             <ul class="text-sm text-tinta leading-relaxed list-disc pl-5 space-y-1.5 mb-5 marker:text-berenjena">
               <li v-for="(item, i) in arr('collaborate.profile1_list')" :key="i">{{ item }}</li>
             </ul>
+            <!-- Para laboratorios: lo que pasa con un precio que nos ofrezcan (no se publica; se suma a su partida). Norma de transparencia de
+                 Miriam, 24-oct-2026: se muestran cifras y el gasto por categorías, no cada presupuesto. El rótulo dice a quién habla (la tarjeta
+                 es para clínicos e investigadores; sin él, «precio» no tiene referente) y la frase de Miriam va literal detrás. -->
+            <p class="text-sm text-tinta leading-relaxed mb-5"><strong class="font-semibold">{{ $t('collaborate.profile1_precio_para') }}</strong> {{ $t('collaborate.profile1_precio') }}</p>
             <div class="mt-auto">
               <NuxtLink
                 :to="localePath('contacto') + '?role=oncologist'"
@@ -265,8 +269,7 @@
                 <NuxtLink :to="localePath('gastos')" class="link-inline">{{ $t('collaborate.profile2_expenses_link') }}</NuxtLink>
               </template>
             </i18n-t>
-            <!-- En /colabora también se ve el dinero: misma barra con hitos que
-                 el resto del sitio (variante inline). -->
+            <!-- En /colabora también se ve el dinero: lo recaudado y los donantes, sin objetivo ni barra (variante en línea). -->
             <div class="mb-6">
               <GoFundMeProgress />
             </div>
@@ -283,7 +286,7 @@
                 <Icon name="ph:heart-fill" class="heart-beat heart-beat--alive w-4 h-4" aria-hidden="true" />
                 {{ $t('collaborate.profile2_cta_label') }}
               </a>
-              <p class="mt-2 text-xs text-tinta md:min-h-[2.25rem]">{{ $t('collaborate.profile2_cta_caption') }}</p>
+              <p class="mt-2 text-xs text-tinta md:min-h-[2.25rem]">{{ $t('collaborate.profile2_cta_caption') }} {{ $t('money.recibo') }}</p>
             </div>
           </article>
         </div>

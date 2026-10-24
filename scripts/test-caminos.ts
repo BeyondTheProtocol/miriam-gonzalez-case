@@ -9,15 +9,17 @@
 // sin desparejar y los destinos que existen.
 //
 // La clase del fallo: se le cuela a la home léxico que concluye («dianas», «mejor», «segunda opinión»), una frase del dinero
-// que no se puede sostener («cada euro», «100 %»), una afirmación nueva en «El caso en 3 frases», un importe en el hero o una
-// clave sin traducir. Nada de eso se ve hasta que alguien entra.
+// que no se puede sostener («cada euro», «100 %»), una afirmación nueva en «El caso en 3 frases», un importe del hero escrito a mano
+// (el de GoFundMe sí, en vivo y sin objetivo: decisión de Miriam, T2b, 24-oct-2026) o una clave sin traducir. Nada de eso se ve hasta que alguien entra.
 //
 // 1. Las cinco puertas: la taxonomía única, un nombre y un destino, con destinos que existen.
 // 2. Claves ES/EN iguales en lo que toca la home (hero, home, puertas, money, pathways) y arrays de la misma longitud.
 // 3. Léxico prohibido (comité médico, 20-oct) sobre toda la copy nueva de la home y de las puertas, ES y EN.
-// 4. Hero: H1 con la edad variable y la frase pedida, lede ≤ 35 palabras, sin «ultra-raro» y sin importes ni promesa de destino.
+// 4. Hero: H1 con la edad variable y la frase pedida, lede ≤ 35 palabras, sin «ultra-raro», sin promesa de destino, y la prueba con el importe y
+//    los donantes de GoFundMe (T2b) sin cifras a mano, objetivo ni porcentaje.
 // 5. «El caso en 3 frases»: solo las tres frases que la home ya publicaba (fijadas aquí) y ninguna afirmación nueva.
-// 6. El dinero: UNA frase de destino y UNA del recibo (F6), las canónicas de legal-burocracia (23-oct-2026), sin importes ni «cada euro».
+// 6. El dinero: UNA frase de destino y UNA del recibo (F6), las canónicas de legal-burocracia (23-oct-2026), sin importes ni «cada euro». La frase
+//    única de transparencia (money.transparencia, T2b) la vigila test-dinero-fuente.
 // 7. La home ya no usa lo que se fue (componentes, claves del dinero retiradas, euros en el hero).
 // 8. Ajustes de la home del 24-oct-2026: lede, cita (sube tras «El caso en 3 frases» y sin guiones largos), línea de apoyo entre
 //    pacientes bajo las puertas y «después» en minúscula en «Qué buscamos».
@@ -77,7 +79,7 @@ for (const ns of ['hero', 'home', 'puertas', 'money', 'pathways']) {
 }
 // Las claves que la home pinta ahora existen, traducidas y no vacías (una clave que falta se pinta como la propia clave).
 const USADAS = [
-  'home.hero_eyebrow', 'hero.h1', 'hero.h1_emphasis', 'hero.lede', 'hero.cta_donate', 'hero.cta_understand', 'hero.pro_link', 'hero.proof_support',
+  'home.hero_eyebrow', 'hero.h1', 'hero.h1_emphasis', 'hero.lede', 'hero.cta_donate', 'hero.cta_understand', 'hero.pro_link', 'hero.proof_money',
   'hero.latest_label', 'hero.photo_tag', 'hero.section_label', 'hero.cta_science',
   'home.s9_strip_label', 'home.prensa_tira_etiqueta', 'home.s9_press_contact', 'home.puertas_pares', 'home.puertas_pares_cta', 'home.caso_heading', 'home.caso_1', 'home.caso_2', 'home.caso_3',
   'home.donde_heading', 'home.ahora', 'home.pasos_intro', 'home.pasos_nota_barra', 'home.pasos_progreso', 'home.pasos_progreso_curso', 'home.pasos_cta_ruta',
@@ -106,7 +108,7 @@ const PROHIBIDO: [RegExp, string][] = [
 ]
 // Lo nuevo de la home. Excluidas a propósito las frases ya publicadas de otras páginas que la home reutiliza tal cual
 // (pasos_intro, s6_quote, las peticiones de caso.json): se revisan donde nacieron y su léxico no es el de esta copy.
-const NUEVAS = ['hero.h1', 'hero.h1_emphasis', 'hero.lede', 'hero.cta_understand', 'hero.pro_link', 'hero.proof_support',
+const NUEVAS = ['hero.h1', 'hero.h1_emphasis', 'hero.lede', 'hero.cta_understand', 'hero.pro_link', 'hero.proof_money',
   'home.caso_heading', 'home.caso_1', 'home.caso_2', 'home.caso_3', 'home.donde_heading', 'home.ahora', 'home.buscamos_heading', 'home.buscamos_escribir',
   'home.buscamos_todas', 'home.dinero_eyebrow', 'home.dinero_heading', 'home.dinero_informe', 'home.puertas_heading', 'home.prensa_tira_etiqueta', 'home.puertas_pares', 'home.puertas_pares_cta', 'money.destino', 'money.recibo',
   // T2a: la copy nueva de la banda y del índice. NO entran herramientas.linea_mapa ni linea_port: son las líneas de Miriam, literales («una pregunta
@@ -128,14 +130,17 @@ for (const [loc, d] of [['es', es], ['en', en]] as const) {
   ok(d.hero.h1 === H1[loc], `${loc}: el H1 es la frase pedida, con la edad como variable y «su propio tumor» como énfasis (${d.hero.h1})`)
   ok(String(d.hero.h1).includes('{age}'), `${loc}: la edad va como {age} (sube sola cada 1 de enero): ninguna edad escrita a mano`)
   ok(palabras(d.hero.lede) <= 35, `${loc}: el lede no pasa de 35 palabras (${palabras(d.hero.lede)})`)
-  const hero = [d.home.hero_eyebrow, d.hero.h1, d.hero.h1_emphasis, d.hero.lede, d.hero.cta_understand, d.hero.pro_link, d.hero.proof_support, d.hero.cta_donate].join(' ¶ ')
+  const hero = [d.home.hero_eyebrow, d.hero.h1, d.hero.h1_emphasis, d.hero.lede, d.hero.cta_understand, d.hero.pro_link, d.hero.proof_money, d.hero.cta_donate].join(' ¶ ')
   ok(!/ultra/i.test(hero), `${loc}: el hero no dice «ultra-raro» (contradecía la cifra de rareza de la propia web)`)
-  ok(!/[€$£]|\beuros?\b|\d[\d.,]*\s?%/i.test(hero), `${loc}: el hero no lleva importes, euros ni porcentajes`)
+  // T2b (24-oct-2026, decisión de Miriam): el hero lleva el importe y los donantes EN VIVO de GoFundMe, pero el importe viene de la campaña
+  // ({importe}), nunca escrito a mano, y sin objetivo ni porcentaje. Antes (F5) el hero no llevaba importes.
+  ok(!/[€$£]|\beuros?\b|\d[\d.,]*\s?%|objetivo|goal|target/i.test(hero), `${loc}: el hero no lleva ningún importe escrito a mano, ni porcentaje ni objetivo`)
   ok(!/financia|funds?\b|cada euro|every euro|sin intermediarios|100\s?%/i.test(d.hero.lede), `${loc}: el lede no promete a qué va el dinero (eso, en su bloque y con la frase canónica)`)
 }
 ok(es.home.hero_eyebrow === 'Cáncer de mama metastásico · diferenciación neuroendocrina' && en.home.hero_eyebrow === 'Metastatic breast cancer · neuroendocrine differentiation', 'el eyebrow es el pedido, en ES y EN')
 ok(es.hero.cta_understand === 'Entender el caso' && es.hero.cta_donate === 'Apoyar a Miriam', 'los dos botones del hero: «Apoyar a Miriam» y «Entender el caso»')
-ok(/\{n\}/.test(es.hero.proof_support) && /\{n\}/.test(en.hero.proof_support) && !/[€$£]/.test(es.hero.proof_support + en.hero.proof_support), 'la prueba lleva el número de personas ({n}) y ningún importe')
+ok(/\{n\}/.test(es.hero.proof_money) && /\{n\}/.test(en.hero.proof_money) && /\{importe\}/.test(es.hero.proof_money + en.hero.proof_money) && !/[€$£]/.test(es.hero.proof_money + en.hero.proof_money), 'la prueba lleva el número de donantes ({n}) y el importe ({importe}, el de GoFundMe), con ninguna cifra escrita a mano')
+ok(/en GoFundMe/.test(es.hero.proof_money) && /on GoFundMe/.test(en.hero.proof_money), 'la prueba dice de dónde sale el importe: «en GoFundMe» / «on GoFundMe»')
 
 console.log('5. «El caso en 3 frases»')
 // Las tres frases que la home YA publicaba (la home publicada el 23-oct-2026, antes del rediseño): cambiar una exige el OK de Miriam y del comité
@@ -204,7 +209,10 @@ const RETIRADAS = ['hero_cta_donate_caption', 'hero_cta_science_caption', 's4_p2
 const pintan = RETIRADAS.filter((k) => new RegExp(`home\\.${k}\\b`).test(home + hero + lee('app/components/HomeProximosPasos.vue') + lee('app/components/PrensaTira.vue') + lee('app/components/Puertas.vue')))
 ok(pintan.length === 0, `la home no pinta ninguna clave de las retiradas${pintan.length ? ` (${pintan.join(', ')})` : ''}`)
 const heroTexto = hero.replace(/<style[\s\S]*?<\/style>/, '')
-ok(!/raised|stat_raised|formatCurrency|currentAmount|goalAmount|celulasLeidas|resultados\.json|specialists/.test(heroTexto), 'el hero no calcula ni pinta recaudación, especialistas ni células (sin importes: euros solo en el bloque de la campaña)')
+// T2b (24-oct-2026): el hero SÍ pinta lo recaudado (importe y donantes de GoFundMe, con «en GoFundMe»); sigue sin objetivo, sin porcentaje y sin
+// especialistas ni células. Antes (F5) no pintaba recaudación.
+ok(!/stat_raised|goalAmount|celulasLeidas|resultados\.json|specialists|\bpct\b|progressbar/.test(heroTexto), 'el hero no lee el objetivo ni pinta porcentaje, barra, especialistas ni células')
+ok(/formatCurrency\(/.test(heroTexto) && /currentAmount/.test(heroTexto) && /donationCount/.test(heroTexto) && /hero\.proof_money/.test(heroTexto), 'el hero pinta el importe y los donantes de la campaña (hero.proof_money), leídos de useFundraiser')
 ok(!/\$t\('hero\.(stat_|title|subtitle)|pathways\.hero_sr_summary|aria-describedby/.test(heroTexto), 'el hero no usa el título/subtítulo viejos ni el resumen para lectores de pantalla (decía «ultra-raro» y «dos biologías»)')
 
 console.log('8. Ajustes de la home del 24-oct-2026')

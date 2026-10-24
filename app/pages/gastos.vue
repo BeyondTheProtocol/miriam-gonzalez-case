@@ -2,7 +2,7 @@
   <div>
     <section class="section-spacing bg-cream" :aria-label="$t('expenses.title')">
       <div class="section-wide">
-        <PageHeader :title="$t('expenses.title')" :subtitle="$t('expenses.subtitle')" />
+        <PageHeader :title="$t('expenses.title')" :subtitle="$t('money.transparencia')" />
 
         <p class="text-base text-tinta leading-relaxed mb-8 measure">
           {{ $t('expenses.intro') }}
@@ -16,28 +16,33 @@
 
         <!-- Informe de gastos: cifras reales reconstruidas desde los extractos bancarios -->
         <div class="card-base mb-8">
-          <p class="eyebrow mb-3 block">{{ $t('expenses.report_eyebrow') }}</p>
+          <p class="eyebrow mb-3 block">{{ $t('expenses.report_eyebrow', { fecha: corte }) }}</p>
           <h2 class="font-display font-semibold text-berenjena text-lg mb-2">
             {{ $t('expenses.report_title') }}
           </h2>
+          <p class="text-sm text-tinta leading-relaxed mb-3 max-w-2xl">
+            {{ $t('expenses.report_intro', { fecha: corte }) }}
+          </p>
+          <!-- Línea de cuadre: lo recaudado (arriba, en directo y bruto) y este informe (lo gastado y lo disponible a su corte) son
+               cifras distintas; sin esta línea parecería que no cuadran. Decisión de Miriam, 24-oct-2026. -->
           <p class="text-sm text-tinta leading-relaxed mb-5 max-w-2xl">
-            {{ $t('expenses.report_intro') }}
+            {{ $t('expenses.cuadre') }}
           </p>
 
           <ul class="mb-5">
             <li
-              v-for="item in REPORT.items"
-              :key="item.key"
+              v-for="item in DINERO.partidas"
+              :key="item.clave"
               class="flex items-baseline justify-between gap-4 py-2.5 border-t border-berenjena/[0.07]"
             >
               <span class="text-sm text-tinta leading-relaxed">
-                {{ $t(`expenses.report_item_${item.key}`) }}
+                {{ $t(`expenses.report_item_${item.clave}`) }}
               </span>
               <span
                 class="text-sm font-mono text-berenjena shrink-0"
                 style="font-variant-numeric: tabular-nums"
               >
-                {{ money(item.amount) }}
+                {{ money(item.importe) }}
               </span>
             </li>
             <li
@@ -50,7 +55,7 @@
                 class="text-sm font-mono font-semibold text-berenjena shrink-0"
                 style="font-variant-numeric: tabular-nums"
               >
-                {{ money(REPORT.committed) }}
+                {{ money(DINERO.comprometido) }}
               </span>
             </li>
           </ul>
@@ -73,7 +78,7 @@
               class="font-display font-semibold text-berenjena text-xl shrink-0"
               style="font-variant-numeric: tabular-nums"
             >
-              {{ money(REPORT.available) }}
+              {{ money(DINERO.disponible) }}
             </p>
           </div>
 
@@ -101,7 +106,7 @@
                   {{ $t(`expenses.phase${n}_title`) }}
                 </h3>
                 <p class="text-sm text-tinta leading-relaxed">
-                  {{ $t(`expenses.phase${n}_desc`) }}
+                  {{ $t(`expenses.phase${n}_desc`, { gastado: money(DINERO.rebiopsia.ejecutado) }) }}
                 </p>
               </div>
             </li>
@@ -132,10 +137,10 @@
                 class="font-display font-semibold text-berenjena text-xl mb-2"
                 style="font-variant-numeric: tabular-nums"
               >
-                {{ $t('expenses.rebiopsy_now_range') }}
+                {{ money(DINERO.rebiopsia.ejecutado) }}
               </p>
               <p class="text-sm text-tinta leading-relaxed">
-                {{ $t('expenses.rebiopsy_now_desc') }}
+                {{ $t('expenses.rebiopsy_now_desc', lineasRebiopsia) }}
               </p>
             </div>
             <div
@@ -170,11 +175,6 @@
             {{ $t('expenses.rebiopsy_note') }}
           </p>
         </div>
-
-        <!-- Coste vs objetivo: cierra la duda "¿40k lo cubre todo?" -->
-        <p class="text-sm text-tinta italic mb-8 max-w-2xl">
-          {{ $t('expenses.cost_vs_goal') }}
-        </p>
 
         <!-- Desglose completo · cuenta itemizada -->
         <div class="card-base mb-8">
@@ -231,7 +231,7 @@
         </div>
 
         <p class="text-sm text-tinta italic max-w-2xl">
-          {{ $t('expenses.note') }}
+          {{ $t('expenses.note', { fecha: corte }) }}
         </p>
 
         <div class="mt-8 flex flex-col sm:flex-row sm:items-center gap-3">
@@ -260,48 +260,31 @@ const { locale, t } = useI18n()
 const localePath = useLocalePath()
 const { GOFUNDME_URL, trackSupport } = useSupport()
 
-// Informe de gastos. Cifras a 17/08/2026, reconstruidas movimiento a movimiento
-// desde los extractos de Bankinter, Revolut y PayPal. Las partidas suman `committed`.
-const REPORT = {
-  // `committed` es la suma exacta de `items`; `available` es el saldo en cuenta
-  // (29.975,97 €) menos el impuesto aplazado (6.385,48 €).
-  committed: 39395.82,
-  available: 23590.49,
-  items: [
-    { key: 'travel', amount: 12282.27 },
-    { key: 'ai', amount: 8651.1 },
-    { key: 'tax', amount: 6385.48 },
-    { key: 'diagnostics', amount: 4476.28 },
-    { key: 'equipment', amount: 2523.53 },
-    { key: 'ops', amount: 2198.94 },
-    { key: 'legal', amount: 1573.0 },
-    { key: 'outreach', amount: 1305.22 },
-  ],
-} as const
-
-// useGrouping 'always': en es-ES el separador de millares se omite en números de
-// cuatro dígitos, lo que descuadra visualmente una columna de importes.
-const money = (n: number) =>
-  new Intl.NumberFormat(locale.value === 'es' ? 'es-ES' : 'en-IE', {
-    style: 'currency',
-    currency: 'EUR',
-    useGrouping: 'always',
-  }).format(n)
+// Informe de gastos. Las cifras, con su fecha de corte, viven en app/data/dinero.json (app/utils/dinero.ts): aquí no se escribe
+// ninguna a mano (lo vigila scripts/test-dinero-fuente.ts). El informe se reconstruye movimiento a movimiento desde los extractos.
+const money = (n: number) => euros(n, locale.value)
+const corte = computed(() => fechaDeCorte(DINERO.corte, locale.value))
+// Los tres importes de la rebiopsia, listos para la frase («Biopsia en Zúrich ({biopsia}), secuenciación ({secuenciacion})…»).
+const lineasRebiopsia = computed(() => ({
+  biopsia: money(DINERO.rebiopsia.biopsia),
+  secuenciacion: money(DINERO.rebiopsia.secuenciacion),
+  imagen: money(DINERO.rebiopsia.imagen),
+}))
 
 useSeoMeta({
   title: () => t('expenses.title'),
   description: () => t('expenses.meta_description'),
   ogTitle: () => t('expenses.title'),
-  ogDescription: () => t('expenses.subtitle'),
+  ogDescription: () => t('money.transparencia'),
   ogType: 'website',
   twitterCard: 'summary_large_image',
   twitterTitle: () => t('expenses.title'),
-  twitterDescription: () => t('expenses.subtitle'),
+  twitterDescription: () => t('money.transparencia'),
 })
 
 defineOgImage('Default.takumi', {
   title: () => t('expenses.title'),
-  description: () => t('expenses.subtitle'),
+  description: () => t('money.transparencia'),
 })
 
 // FAQPage JSON-LD: las 4 preguntas/respuestas de donantes para rich results (C.6).

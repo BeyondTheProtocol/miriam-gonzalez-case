@@ -82,12 +82,23 @@
         </div>
       </div>
 
-      <!-- Prueba: cuánta gente apoya el caso (sin importes: los euros, con su fecha, solo en el bloque de la campaña) y
-           la señal viva de recencia. -->
+      <!-- Prueba: lo recaudado y cuánta gente lo hace posible, en vivo y con el rótulo «en GoFundMe» (decisión de Miriam, 24-oct-2026:
+           importe y donantes sí; objetivo, porcentaje y barra no), y la señal viva de recencia. Si la cifra es la del build se dice con
+           su fecha (`cifraDe`): el HTML prerenderizado lleva la semilla y el cliente la cambia por la viva al montar. -->
       <div class="hero__proof animate-fade-up" style="animation-delay: 0.4s">
-        <p v-if="donantes" class="hero__support">
+        <p v-if="gofundme && importe" class="hero__support">
           <Icon name="ph:users-three" class="w-5 h-5 shrink-0 text-miriam" aria-hidden="true" />
-          <span class="nums">{{ $t('hero.proof_support', { n: donantes }) }}</span>
+          <span class="nums">
+            <i18n-t keypath="hero.proof_money" tag="span">
+              <template #importe>
+                <strong
+                  :data-gofundme-importe="gofundme.currentAmount.amount"
+                  :data-gofundme-origen="gofundme.origen ?? 'semilla'"
+                >{{ importe }}</strong>
+              </template>
+              <template #n>{{ donantes }}</template>
+            </i18n-t><template v-if="cifraDe"> · <time :datetime="cifraDe.iso">{{ $t('gofundme.cifra_a', { fecha: cifraDe.texto }) }}</time></template>
+          </span>
         </p>
         <NuxtLink
           v-if="latest"
@@ -121,15 +132,24 @@ const localePath = useLocalePath()
 const { locale } = useI18n()
 const { trackSupport, trackLatest } = useSupport()
 
-// El nº de personas que apoyan: semilla del build en el HTML y cifra viva al montar (useFundraiser lo comparte con la tarjeta
-// de la campaña: una sola petición por página). Solo el recuento; ningún importe en el hero. Sin dato, la línea no se pinta
-// (antes salía «—»: un guion donde debía ir una cifra).
+// Lo recaudado y el nº de donantes: semilla del build en el HTML y cifra viva al montar (useFundraiser lo comparte con la tarjeta
+// de la campaña: una sola petición por página). Sin objetivo ni porcentaje. Sin dato, la línea no se pinta (antes salía «—»: un
+// guion donde debía ir una cifra).
 const gofundme = await useFundraiser()
 const donantes = computed(() =>
   gofundme.value
     ? new Intl.NumberFormat(locale.value === 'es' ? 'es-ES' : 'en-US').format(gofundme.value.donationCount)
     : null,
 )
+const importe = computed(() =>
+  gofundme.value ? formatCurrency(gofundme.value.currentAmount.amount, gofundme.value.currentAmount.currencyCode, locale.value) : null,
+)
+// La fecha solo si la cifra es de la semilla Y sabemos de cuándo es (nunca una inventada).
+const cifraDe = computed(() => {
+  const v = gofundme.value
+  if (!v || v.origen !== 'semilla' || !v.actualizado) return null
+  return { iso: v.actualizado, texto: fechaDeCifra(v.actualizado, locale.value) }
+})
 
 const { latest, latestAgo } = useLatestUpdate()
 </script>
@@ -384,8 +404,8 @@ const { latest, latestAgo } = useLatestUpdate()
   line-height: 1.35;
 }
 
-/* Zona de prueba · una sola banda a ancho del shell con un único divisor: cuánta gente apoya el caso y la señal viva
-   de recencia («Lo último»). Sin importes. */
+/* Zona de prueba · una sola banda a ancho del shell con un único divisor: lo recaudado y cuánta gente lo hace posible, y la
+   señal viva de recencia («Lo último»). Sin objetivo ni porcentaje. */
 .hero__proof {
   margin-top: 2.5rem;
   padding-top: 1.75rem;
@@ -403,7 +423,7 @@ const { latest, latestAgo } = useLatestUpdate()
     justify-content: space-between;
     gap: 2rem 3rem;
   }
-  /* la frase de «personas» no se parte a media línea: el que cede el ancho es «Lo último» */
+  /* la frase del importe y los donantes no se parte a media línea: el que cede el ancho es «Lo último» */
   .hero__support {
     flex: none;
   }

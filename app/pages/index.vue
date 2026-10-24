@@ -118,10 +118,10 @@
       </div>
     </section>
 
-    <!-- 7 · A qué va el dinero. UNA frase de destino, la canónica (`money.destino`, criterio de legal-burocracia del
-         23-oct-2026: ni importes, ni «cada euro», ni «100 %»); los euros, con su fecha y solo aquí, en el bloque de la
-         campaña (ya público). El único botón coral de la zona es el de la propia tarjeta; si la tarjeta no está (la
-         campaña no respondió), el botón de siempre ocupa su lugar. -->
+    <!-- 7 · A qué va el dinero. UNA frase de destino, la canónica (`money.destino`; criterio de legal-burocracia del 23-oct-2026: ni
+         «cada euro» ni «100 %»). Desde el 24-oct-2026 los euros pueden estar en el hero y en la tarjeta de la campaña (importe y
+         donantes en vivo, de GoFundMe), nunca con objetivo, porcentaje, barra ni «Faltan». El único botón coral de la zona es el de la
+         propia tarjeta; si la tarjeta no está (la campaña no respondió), el botón de siempre ocupa su lugar. -->
     <section v-reveal id="campaign" class="section-spacing bg-cream-card" aria-labelledby="h-dinero">
       <div class="section-wide">
         <p class="eyebrow mb-3 block">{{ $t('home.dinero_eyebrow') }}</p>

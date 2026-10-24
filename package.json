@@ -32,6 +32,7 @@
     "test:cronologia-caso": "tsx scripts/test-cronologia-caso.ts",
     "test:sala-prensa": "tsx scripts/test-sala-prensa.ts",
     "test:donantes-total": "tsx scripts/test-donantes-total.ts",
+    "test:dinero-fuente": "tsx scripts/test-dinero-fuente.ts",
     "test:salud-estatica": "tsx scripts/test-salud-estatica.ts",
     "test:pie-fecha": "tsx scripts/test-pie-fecha.ts",
     "test:sitemap-explorador": "tsx scripts/test-sitemap-explorador.ts",

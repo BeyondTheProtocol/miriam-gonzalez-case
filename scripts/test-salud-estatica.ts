@@ -20,11 +20,15 @@
 // 6. La tarjeta de la campaña llega en el HTML prerenderizado (antes se cargaba al montar y buscadores,
 //    lectores de IA y quien no tiene JS veían un bloque vacío). Solo si hay semilla (seed/fundraiser.json,
 //    la escribe `pnpm update-fundraiser`): el CI corre `nuxt generate` a secas y ahí no hay cifra que pintar.
+//    Desde T2b (24-oct-2026, decisión de Miriam) lleva el IMPORTE y los DONANTES, con «en GoFundMe» y la fecha de la cifra (es la del
+//    build), y NO lleva objetivo, porcentaje, barra de progreso, «Faltan» ni importes en las fases: se mide aquí en el HTML generado.
 //
 // 7. La cifra viva sustituye a la del build (en Chrome), al cargar la página y al navegar por el sitio.
 //    Si el refresco se pierde, la tarjeta se queda con la cifra horneada y ningún otro test lo ve: el
 //    servidor del arnés no tiene /fundraiser.json. Aquí se intercepta `fetch` y se contesta otra cifra,
 //    o un error. Corre igual con o sin semilla (sin ella, el HTML llega sin tarjeta y el cliente la pinta).
+//    La cifra se lee de `data-gofundme-importe` (el importe sin formato) y `data-gofundme-origen` (vivo o semilla); la fecha
+//    «cifra a …» sale mientras la cifra es de la semilla y se va cuando llega la viva.
 //
 // Y la petición del rediseño (F1, 23-oct-2026):
 //
@@ -77,6 +81,16 @@
 //    recibida», «100 %», «mensual» ni «sin intermediarios»; el recibo como lo dice /gastos (money.recibo), con el rol «other» y sin
 //    correo directo; un paso siguiente útil y ≤ 70 palabras.
 //
+// Y el dinero del rediseño (T2b, 24-oct-2026):
+//
+// 13. Norma de transparencia de Miriam («mostramos algunas cifras y el desglose de gastos por categorías; no detallamos ciertas cosas») medida
+//    en el HTML generado, que es lo que ven los buscadores y los lectores de IA (el <head>, los metadatos, el JSON-LD y el texto): ni una de las
+//    frases retiradas («cada euro», «transparencia radical / total», «100 % al caso», «recibo disponible», «presupuestos abiertos», «cada gasto
+//    está documentado», «nada se desvía») en /gastos, /colabora, /prensa, la home, /gracias y /links, en español y en inglés; /gastos pinta TODAS las
+//    cifras de app/data/dinero.json (partidas, total, disponible y las tres líneas de la rebiopsia) con su fecha de corte y la línea de cuadre, y
+//    ya no dice «el primer objetivo de 40.000 €»; /colabora dice a los laboratorios que su precio no se publica; /prensa y /colabora llevan la
+//    frase única money.transparencia.
+//
 // Uso:  pnpm exec nuxt generate && pnpm test:salud-estatica
 import { existsSync, readFileSync, readdirSync } from 'node:fs'
 import { join } from 'node:path'
@@ -88,6 +102,8 @@ import { HERRAMIENTAS, HERRAMIENTAS_PASADAS, LEGAL, LO_ULTIMO, MENU_ESCRITORIO, 
 import { VIDEO_ADC, VIDEO_PROMO } from '../app/utils/videos'
 import { PUERTAS } from '../app/utils/caminos'
 import { caseData } from '../app/utils/caseData'
+import { formatCurrency } from '../app/utils/currency'
+import { DINERO, euros, fechaDeCifra, fechaDeCorte } from '../app/utils/dinero'
 import { msFecha, tratamientoHoy, txtCaso } from '../app/utils/datosCaso'
 import { estadoPuerta, type Manifiesto } from '../app/utils/celulaExplorador'
 import manifiestoExplorador from '../public/celula/explorador/manifiesto.json'
@@ -223,19 +239,53 @@ for (const [idioma, pagina, muro, agradecimiento] of [
 }
 
 // 6
+/** El contenido de la etiqueta <div> que empieza en `desde` (cuenta los <div> anidados; en el HTML generado no hay <div> en atributos). */
+function bloqueDiv(h: string, desde: number): string {
+  let nivel = 0
+  for (const m of h.slice(desde).matchAll(/<(\/?)div\b/g)) {
+    nivel += m[1] ? -1 : 1
+    if (nivel === 0) return h.slice(desde, desde + m.index! + '</div>'.length)
+  }
+  return h.slice(desde)
+}
+const textoDe = (trozo: string) => trozo.replace(/<style\b[\s\S]*?<\/style>/g, '').replace(/<[^>]+>/g, ' ').replace(/&nbsp;/g, ' ').replace(/&amp;/g, '&').replace(/\s+/g, ' ').trim()
 if (existsSync('seed/fundraiser.json')) {
   const semilla = JSON.parse(readFileSync('seed/fundraiser.json', 'utf-8')) as {
-    currentAmount: { amount: number }
-    goalAmount: { amount: number }
+    currentAmount: { amount: number; currencyCode: string }
     donationCount: number
+    actualizado?: string
+    origen?: string
   }
+  ok(semilla.origen === 'semilla' && !!semilla.actualizado && !Number.isNaN(Date.parse(semilla.actualizado)), `la semilla lleva origen «semilla» y la fecha en que se escribió (${semilla.origen}, ${semilla.actualizado}); si falta, es de antes de T2b: \`pnpm update-fundraiser --force\``)
   for (const [idioma, paginas] of [['es', ['index.html', 'colabora.html', 'gastos.html']], ['en', ['en.html', 'en/collaborate.html', 'en/expenses.html']]] as const) {
-    const etiqueta = JSON.parse(readFileSync(`i18n/locales/${idioma}.json`, 'utf-8')).gofundme.progress_label as string
+    const D = JSON.parse(readFileSync(`i18n/locales/${idioma}.json`, 'utf-8'))
+    const importeTexto = formatCurrency(semilla.currentAmount.amount, semilla.currentAmount.currencyCode, idioma).replace(/\s+/g, ' ')
+    const donantesTexto = new Intl.NumberFormat(idioma === 'es' ? 'es-ES' : 'en-US').format(semilla.donationCount)
+    const fecha = semilla.actualizado ? (D.gofundme.cifra_a as string).replace('{fecha}', fechaDeCifra(semilla.actualizado, idioma)) : null
     for (const pagina of paginas) {
-      const barras = [...html(pagina).matchAll(/<div\b[^>]*role="progressbar"[^>]*>/g)].map((m) => m[0]).filter((b) => b.includes(`aria-label="${etiqueta}"`))
-      const cuadra = barras.some((b) => b.includes(`aria-valuenow="${semilla.currentAmount.amount}"`) && b.includes(`aria-valuemax="${semilla.goalAmount.amount}"`))
-      ok(cuadra, `${pagina}: la barra de la campaña llega en el HTML con la cifra de la semilla (${semilla.currentAmount.amount} de ${semilla.goalAmount.amount})`)
+      const h = html(pagina)
+      const marcas = [...h.matchAll(/\bdata-gofundme-importe="([^"]+)"[^>]*\bdata-gofundme-origen="([^"]+)"/g)]
+      ok(marcas.length > 0 && marcas.every((m) => m[1] === String(semilla.currentAmount.amount) && m[2] === 'semilla'), `${pagina}: el importe de la campaña llega en el HTML con la cifra de la semilla (${semilla.currentAmount.amount}) y su origen «semilla» (${marcas.length} sitio/s)`)
+      const bloques = [...h.matchAll(/<div class="gfm gfm--(?:card|linea)"[^>]*>/g)].map((m) => textoDe(bloqueDiv(h, m.index!)))
+      ok(bloques.length > 0 && bloques.every((b) => b.replace(/\s/g, ' ').includes(importeTexto) && b.includes(`${donantesTexto} ${D.gofundme.donators}`)), `${pagina}: la tarjeta de la campaña dice «${importeTexto}» y «${donantesTexto} ${D.gofundme.donators}» (${bloques.length})`)
+      ok(bloques.every((b) => b.includes(D.gofundme.raised_on) || b.includes(D.gofundme.on_gofundme)), `${pagina}: y de dónde sale: «${D.gofundme.on_gofundme}»`)
+      ok(!fecha || (textoDe(h).includes(fecha) && bloques.every((b) => b.includes(fecha))), `${pagina}: la cifra del build lleva su fecha («${fecha ?? 'sin fecha en la semilla'}»)`)
+      // lo que se quitó: ni objetivo, ni porcentaje, ni barra, ni «Faltan», ni importes en las fases
+      ok(bloques.every((b) => !/faltan|remaining|objetivo|\bgoal\b|\btarget\b|%/i.test(b)), `${pagina}: la tarjeta no dice objetivo, porcentaje ni «faltan»`)
+      ok(!/goalAmount/.test(h), `${pagina}: el objetivo de GoFundMe no viaja en el HTML (ni en el payload de Nuxt): ya no se le pide`)
+      ok(!/<(div|span)\b[^>]*role="progressbar"[^>]*aria-label="[^"]*(GoFundMe|campaña|campaign)/i.test(h), `${pagina}: ninguna barra de progreso de la campaña`)
     }
+  }
+  const fasesES = JSON.parse(readFileSync('i18n/locales/es.json', 'utf-8')).gofundme
+  const fasesEN = JSON.parse(readFileSync('i18n/locales/en.json', 'utf-8')).gofundme
+  for (const [pagina, D] of [['index.html', fasesES], ['en.html', fasesEN]] as const) {
+    const h = html(pagina)
+    const tarjeta = textoDe(bloqueDiv(h, h.search(/<div class="gfm gfm--card"/)))
+    for (const f of DINERO.fases) {
+      ok(tarjeta.includes(`${D.phases[f.clave].label} · ${D.estado[f.estado]}`), `${pagina}: la fase «${D.phases[f.clave].label} · ${D.estado[f.estado]}» está en la tarjeta, con su estado en texto`)
+    }
+    ok(DINERO.fases.length === (bloqueDiv(h, h.search(/<div class="gfm gfm--card"/)).match(/<li\b/g)?.length ?? 0), `${pagina}: la tarjeta lista las ${DINERO.fases.length} fases, una por <li> de una <ol>`)
+    ok(!/[€$£]|\beuros?\b/i.test(DINERO.fases.map((f) => `${D.phases[f.clave].label} ${D.phases[f.clave].desc}`).join(' ')), `${pagina}: las fases no llevan importes`)
   }
 } else {
   console.log('  ⚠️  sin seed/fundraiser.json: se omite la comprobación de la tarjeta de la campaña (ejecuta `pnpm update-fundraiser` antes de generar)')
@@ -246,7 +296,9 @@ if (existsSync('seed/fundraiser.json')) {
   const { abrirNavegador } = await import('./lib/navegador-cdp.mjs')
   const nav = await abrirNavegador({ ancho: 1024, alto: 900, escala: 1 })
   try {
-    // ?fund=viva → la función contesta otra cifra · ?fund=caida → contesta 500
+    // ?fund=viva → la función contesta otra cifra, «vivo» · ?fund=vieja → una copia de la CDN anterior a T2b (sin origen y CON el objetivo que ya
+    // no se pide) · ?fund=semilla → GoFundMe no respondió y la función contesta su copia de seguridad (origen «semilla», con SU fecha) ·
+    // ?fund=caida → contesta 500
     await nav.cdp('Page.addScriptToEvaluateOnNewDocument', {
       source: `window.__pedidos = [];
         const modo = new URLSearchParams(location.search).get('fund');
@@ -256,37 +308,56 @@ if (existsSync('seed/fundraiser.json')) {
           if (!url.includes('/fundraiser.json')) return f(input, init);
           window.__pedidos.push(url);
           if (modo === 'caida') return Promise.resolve(new Response('no', { status: 500 }));
-          return Promise.resolve(new Response(JSON.stringify({ currentAmount: { amount: 12345, currencyCode: 'EUR' }, goalAmount: { amount: 100000, currencyCode: 'EUR' }, donationCount: 77, donationsEnabled: true }), { status: 200, headers: { 'content-type': 'application/json' } }));
+          const base = { currentAmount: { amount: 12345, currencyCode: 'EUR' }, donationCount: 77, donationsEnabled: true };
+          const cuerpo = modo === 'semilla' ? { ...base, origen: 'semilla', actualizado: '2026-10-20T08:00:00.000Z' }
+            : modo === 'vieja' ? { ...base, goalAmount: { amount: 777777, currencyCode: 'EUR' } }
+            : { ...base, origen: 'vivo', actualizado: new Date().toISOString() };
+          return Promise.resolve(new Response(JSON.stringify(cuerpo), { status: 200, headers: { 'content-type': 'application/json' } }));
         };`,
     })
-    const barras = (): Promise<string[]> =>
-      nav.evaluate(`[...document.querySelectorAll('[role=progressbar]')].filter((b) => /GoFundMe/.test(b.getAttribute('aria-label') || '')).map((b) => b.getAttribute('aria-valuenow'))`)
+    const importes = (): Promise<string[]> =>
+      nav.evaluate(`[...document.querySelectorAll('[data-gofundme-importe]')].map((e) => e.getAttribute('data-gofundme-importe'))`)
+    const origenes = (): Promise<string[]> =>
+      nav.evaluate(`[...document.querySelectorAll('[data-gofundme-importe]')].map((e) => e.getAttribute('data-gofundme-origen'))`)
+    const textoPagina = (): Promise<string> => nav.evaluate('document.body.innerText')
     const pedidos = (): Promise<number> => nav.evaluate('window.__pedidos.length')
-    // espera (hasta 10 s, la máquina puede ir cargada) a que TODAS las barras valgan `valor`
-    const esperaBarras = async (valor: string) => {
+    // espera (hasta 10 s, la máquina puede ir cargada) a que TODAS las cifras de la campaña valgan `valor`
+    const esperaImportes = async (valor: string) => {
       let b: string[] = []
       for (let i = 0; i < 50; i++) {
-        b = await barras()
+        b = await importes()
         if (b.length > 0 && b.every((v) => v === valor)) break
         await nav.sleep(200)
       }
       return b
     }
+    const FECHA_DE_CIFRA = /cifra a |figure as of /
     for (const ruta of ['/', '/colabora', '/gastos', '/en']) {
       await nav.cargar(`${ruta}?fund=viva`)
-      const b = await esperaBarras('12345')
-      ok(b.length > 0 && b.every((v) => v === '12345'), `${ruta}: la barra de la campaña pasa a la cifra viva (12345) al montar (${b.join(', ') || 'sin barra'})`)
+      const b = await esperaImportes('12345')
+      ok(b.length > 0 && b.every((v) => v === '12345'), `${ruta}: el importe de la campaña pasa a la cifra viva (12345) al montar (${b.join(', ') || 'sin importe'})`)
+      ok((await origenes()).every((o) => o === 'vivo') && !FECHA_DE_CIFRA.test(await textoPagina()), `${ruta}: y con la cifra viva se va la fecha de la semilla («cifra a …») y el origen pasa a «vivo»`)
       if (ruta === '/') ok((await pedidos()) === 1, `${ruta}: el hero y la tarjeta comparten UNA petición a /fundraiser.json (${await pedidos()})`)
     }
+    // una copia de la CDN anterior a T2b: sin origen (se toma por «vivo») y con un objetivo que NO debe llegar a la pantalla
+    await nav.cargar('/?fund=vieja')
+    const vieja = await esperaImportes('12345')
+    ok(vieja.length > 0 && vieja.every((v) => v === '12345') && (await origenes()).every((o) => o === 'vivo'), '/: una respuesta sin «origen» (copia vieja de la CDN) se toma por viva')
+    ok(!/777[.,\s]?777/.test(await textoPagina()), '/: y el objetivo que traiga una copia vieja de la CDN no llega a la pantalla')
+    // GoFundMe no respondió: la función contesta su copia de seguridad, que es de la semilla y lo dice con SU fecha
+    await nav.cargar('/?fund=semilla')
+    const sem = await esperaImportes('12345')
+    const fecha20 = (idioma: 'es' | 'en') => fechaDeCifra('2026-10-20T08:00:00.000Z', idioma)
+    ok(sem.length > 0 && (await origenes()).every((o) => o === 'semilla') && (await textoPagina()).includes(fecha20('es')), `/: si la función contesta con su copia de seguridad, la cifra sigue siendo «semilla» y enseña SU fecha (${fecha20('es')})`)
     // navegar dentro del sitio: al volver a una página con la tarjeta tras pasar por otra sin ella, Nuxt la monta
     // con la cifra del payload prerenderizado (la del build) aunque se acabe de traer la viva
     await nav.cargar('/?fund=viva')
-    await esperaBarras('12345')
+    await esperaImportes('12345')
     for (const destino of ['/colabora', '/equipo', '/colabora', '/gastos']) {
       await nav.evaluate(`document.querySelector('#__nuxt').__vue_app__.config.globalProperties.$nuxt.$router.push('${destino}')`)
       if (destino === '/equipo') { await nav.sleep(1500); continue }
-      const b = await esperaBarras('12345')
-      ok(b.length > 0 && b.every((v) => v === '12345'), `navegando por el sitio a ${destino}: la barra vuelve a mostrar la cifra viva (${b.join(', ') || 'sin barra'})`)
+      const b = await esperaImportes('12345')
+      ok(b.length > 0 && b.every((v) => v === '12345'), `navegando por el sitio a ${destino}: el importe vuelve a mostrar la cifra viva (${b.join(', ') || 'sin importe'})`)
     }
     if (existsSync('seed/fundraiser.json')) {
       const semilla = String((JSON.parse(readFileSync('seed/fundraiser.json', 'utf-8')) as { currentAmount: { amount: number } }).currentAmount.amount)
@@ -294,11 +365,12 @@ if (existsSync('seed/fundraiser.json')) {
         await nav.cargar(`${ruta}?fund=caida`)
         for (let i = 0; i < 25 && (await pedidos()) === 0; i++) await nav.sleep(200)
         await nav.sleep(800)
-        const b = await barras()
-        ok((await pedidos()) >= 1 && b.length > 0 && b.every((v) => v === semilla), `${ruta}: si /fundraiser.json falla, la barra conserva la cifra del build (${b.join(', ') || 'sin barra'}; ${await pedidos()} petición/es)`)
+        const b = await importes()
+        ok((await pedidos()) >= 1 && b.length > 0 && b.every((v) => v === semilla), `${ruta}: si /fundraiser.json falla, el importe conserva la cifra del build (${b.join(', ') || 'sin importe'}; ${await pedidos()} petición/es)`)
+        ok((await origenes()).every((o) => o === 'semilla') && FECHA_DE_CIFRA.test(await textoPagina()), `${ruta}: y sigue diciendo que es la cifra del build, con su fecha`)
       }
     } else {
-      console.log('  ⚠️  sin seed/fundraiser.json: se omite «si /fundraiser.json falla, la barra conserva la cifra del build»')
+      console.log('  ⚠️  sin seed/fundraiser.json: se omite «si /fundraiser.json falla, el importe conserva la cifra del build»')
     }
   } finally {
     await nav.cerrar()
@@ -742,7 +814,7 @@ if (existsSync('seed/fundraiser.json')) {
   const t = (loc: 'es' | 'en', clave: string) => clave.split('.').reduce<any>((o, k) => o?.[k], D[loc]) as string
   const caso = JSON.parse(readFileSync('app/data/caso.json', 'utf-8')) as { generado: string; lineas: never[]; se_busca: never[] }
   const publicas = peticionesPublicas(caso.se_busca)
-  const semilla = existsSync('seed/fundraiser.json') ? (JSON.parse(readFileSync('seed/fundraiser.json', 'utf-8')) as { donationCount: number }) : null
+  const semilla = existsSync('seed/fundraiser.json') ? (JSON.parse(readFileSync('seed/fundraiser.json', 'utf-8')) as { donationCount: number; currentAmount: { amount: number; currencyCode: string }; actualizado?: string }) : null
   // lo que la decisión quitó o la regla del dinero prohíbe: ni una de estas en el texto visible de la home
   const SE_FUERON: [RegExp, string][] = [
     [/cada euro|every euro/i, '«cada euro»'], [/100\s?%/, '«100 %»'], [/sin intermediarios|no intermediar/i, '«sin intermediarios»'], [/mensual|monthly/i, '«mensual»'],
@@ -783,17 +855,24 @@ if (existsSync('seed/fundraiser.json')) {
     const proRuta = loc === 'es' ? '/datos#que-buscamos' : '/en/data#que-buscamos'
     ok(new RegExp(`class="hero__pro[^"]*"[^>]*>|href="${proRuta}"[^>]*class="hero__pro`).test(hero) && hero.includes(`href="${proRuta}"`), `${pagina}: el enlace «¿Eres clínico o laboratorio?» va a ${proRuta}`)
     ok(hero.includes(`href="${loc === 'es' ? '/timeline' : '/en/timeline'}#lo-ultimo"`), `${pagina}: «Lo último» va a /timeline#lo-ultimo`)
-    ok(!/[€$£]|\beuros?\b/i.test(visible(hero)), `${pagina}: el hero no lleva importes ni «euros» (sin importes de recaudación hacia fuera)`)
+    // T2b (24-oct-2026, decisión de Miriam): el hero lleva el importe y los donantes EN VIVO, con «en GoFundMe»; nada de objetivo, porcentaje ni «faltan»
+    ok(!/faltan|remaining|objetivo|\bgoal\b|%/i.test(visible(hero)), `${pagina}: el hero no dice objetivo, porcentaje ni «faltan»`)
     if (semilla) {
       const n = new Intl.NumberFormat(loc === 'es' ? 'es-ES' : 'en-US').format(semilla.donationCount)
-      ok(visible(hero).includes(t(loc, 'hero.proof_support').replace('{n}', n)) && hero.includes('hero__support'), `${pagina}: la prueba dice «${t(loc, 'hero.proof_support').replace('{n}', n)}» (sin importe)`)
+      const importe = formatCurrency(semilla.currentAmount.amount, semilla.currentAmount.currencyCode, loc).replace(/\s+/g, ' ')
+      const linea = t(loc, 'hero.proof_money').replace('{importe}', importe).replace('{n}', n)
+      ok(visible(hero).includes(linea) && hero.includes('hero__support'), `${pagina}: la prueba dice «${linea}» (importe y donantes, con «en GoFundMe»)`)
+      const fecha = semilla.actualizado ? t(loc, 'gofundme.cifra_a').replace('{fecha}', fechaDeCifra(semilla.actualizado, loc)) : null
+      ok(!fecha || visible(hero).includes(fecha), `${pagina}: y, como la cifra es la del build, con su fecha («${fecha ?? 'la semilla no trae fecha'}»)`)
+      ok(/data-gofundme-importe="\d+/.test(hero) && /data-gofundme-origen="semilla"/.test(hero), `${pagina}: el importe del hero lleva su marca de cifra y de origen (la que lee el test de la cifra viva)`)
     } else {
-      ok(!hero.includes('hero__support') && !/\s—\s/.test(visible(hero)), `${pagina}: sin cifra de la campaña, la línea de «personas» no se pinta (nada de «—»)`)
+      ok(!hero.includes('hero__support') && !/\s—\s/.test(visible(hero)), `${pagina}: sin cifra de la campaña, la línea del importe no se pinta (nada de «—»)`)
     }
 
     // c) lo que se fue y lo que la regla del dinero prohíbe, en TODO el texto visible
     for (const [re, nombre] of SE_FUERON) ok(!re.test(texto), `${pagina}: sin ${nombre}`)
-    ok(!/[€$£]|\beuros?\b/i.test(visible(main.replace(campana, ''))), `${pagina}: ningún importe ni «euros» fuera del bloque de la campaña`)
+    ok(!/[€$£]|\beuros?\b/i.test(visible(main.replace(hero, '').replace(campana, ''))), `${pagina}: ningún importe ni «euros» fuera del hero y del bloque de la campaña (ambos, de GoFundMe en vivo)`)
+    ok(!/faltan|remaining|objetivo|\bgoal\b|%/i.test(visible(campana)) && !/role="progressbar"/.test(campana), `${pagina}: el bloque de la campaña no lleva objetivo, porcentaje, «faltan» ni barra de progreso`)
 
     // d) el dinero: UNA frase de destino, un solo botón coral
     const destino = t(loc, 'money.destino')
@@ -857,10 +936,10 @@ if (existsSync('seed/fundraiser.json')) {
       ok(!banda.includes(t(loc, 'herramientas.linea_mapa')) && ![RUTA_MAPA(loc), RUTA_PORT(loc)].some((r) => enlaces.some((e) => e.href === r)), `${pagina}: ni el mapa ni el reservorio (van en el índice, no en la banda)`)
     }
 
-    // g) todo enlace que abre pestaña nueva lo avisa. Se exceptúa el botón de la propia tarjeta de la campaña (GoFundMeProgress,
-    //    que esta fase no toca: lleva `mt-3`, el del botón de reserva no): no lleva el aviso y queda como hallazgo para el comité.
-    const nuevas = [...main.matchAll(/<a\b[^>]*target="_blank"[^>]*>[\s\S]*?<\/a>/g)].map((m) => m[0]).filter((a) => !/class="btn-cta mt-3\b/.test(a))
-    ok(nuevas.length >= 6 && nuevas.every((a) => /rel="noopener/.test(a) && a.includes(t(loc, 'a11y.new_tab'))), `${pagina}: los ${nuevas.length} enlaces de pestaña nueva (sin el de la tarjeta de la campaña) llevan rel="noopener" y el aviso para lectores de pantalla`)
+    // g) todo enlace que abre pestaña nueva lo avisa, sin excepciones: también el botón de la tarjeta de la campaña (GoFundMeProgress), que
+    //    T2b reescribió entera y al que puso el aviso.
+    const nuevas = [...main.matchAll(/<a\b[^>]*target="_blank"[^>]*>[\s\S]*?<\/a>/g)].map((m) => m[0])
+    ok(nuevas.length >= 6 && nuevas.every((a) => /rel="noopener/.test(a) && a.includes(t(loc, 'a11y.new_tab'))), `${pagina}: los ${nuevas.length} enlaces de pestaña nueva (también el de la tarjeta de la campaña) llevan rel="noopener" y el aviso para lectores de pantalla`)
 
     // h) presupuesto de palabras. La decisión puso un tope de 530 para toda la home; no contó que «Qué buscamos» va TAL CUAL (≈150
     //    palabras de caso.json) ni la tarjeta de la campaña (≈70, de otra fuente y «se queda como hoy»). Se vigila lo PROPIO de la
@@ -868,7 +947,7 @@ if (existsSync('seed/fundraiser.json')) {
     //    T2a (24-oct-2026) suma la banda de herramientas (≈ 110 palabras entre cabecera, frase de apertura, etiquetas y títulos). La descripción literal
     //    de la destacada (≈ 25) tampoco es texto propio: es la meta-description de su página, como las peticiones. El techo propio sube de 450 a 540
     //    y la decisión de 530 para toda la home sigue sin cumplirse, a la vista en el mensaje.
-    const sinAjenos = visible(main.replace(/<ul class="qb__lista"[\s\S]*?<\/ul>/, '').replace(/<span class="tarjeta-enlace__meta"[\s\S]*?<\/span>/, '').replace(/<div class="rounded-\[24px\][\s\S]*?<\/section>/, '</section>'))
+    const sinAjenos = visible(main.replace(/<ul class="qb__lista"[\s\S]*?<\/ul>/, '').replace(/<span class="tarjeta-enlace__meta"[\s\S]*?<\/span>/, '').replace(/<div class="gfm gfm--card"[\s\S]*?<\/section>/, '</section>'))
     const n = sinAjenos.split(' ').length
     ok(n <= 520, `${pagina}: el texto propio de la home (sin las peticiones literales, la descripción de la destacada ni la tarjeta de la campaña) cabe en 520 palabras: ${n} (con ellas: ${texto.split(' ').length}; tope de la decisión: 530)`)
 
@@ -1021,6 +1100,90 @@ if (existsSync('seed/fundraiser.json')) {
       ok(!/financ|fund\b|funding|tratamiento oncol|cancer treatment|[€$£]|\beuros?\b/i.test(t(loc, 'thanks.share_text')), `${gracias}: el texto de «Compartir» («${t(loc, 'thanks.share_text')}») no dice a qué va el dinero`)
       ok(/ingeniera de software|software engineer/.test(t(loc, 'thanks.share_text')), `${gracias}: y presenta a Miriam como ingeniera de software`)
     }
+  }
+}
+
+// 13
+{
+  const D = { es: JSON.parse(readFileSync('i18n/locales/es.json', 'utf-8')), en: JSON.parse(readFileSync('i18n/locales/en.json', 'utf-8')) }
+  const t = (loc: 'es' | 'en', clave: string) => clave.split('.').reduce<any>((o, k) => o?.[k], D[loc]) as string
+  const sinEtiquetas = (h: string) => h.replace(/<style\b[\s\S]*?<\/style>/g, '').replace(/<[^>]+>/g, ' ').replace(/&nbsp;/g, ' ').replace(/&amp;/g, '&').replace(/&quot;/g, '"').replace(/&#39;|&apos;/g, "'").replace(/\s+/g, ' ').trim()
+  // las frases retiradas, sobre el HTML ENTERO (cabecera, metadatos, JSON-LD y cuerpo): una clave fuera de la vista también las publica
+  const RETIRADAS: [RegExp, string][] = [
+    [/cada euro|every euro/i, '«cada euro»'],
+    [/transparencia (radical|total)|(radical|full|total) transparency|m[aá]xima transparencia|maximum transparency/i, '«transparencia radical / total»'],
+    [/100\s?%\s?(al caso|va |de lo|to (the )?(case|miriam)|goes)/i, '«100 % al caso»'],
+    [/recibo disponible|receipt available/i, '«recibo disponible»'],
+    [/presupuestos (abiertos|p[uú]blicos)|open budgets?|public budgets?/i, '«presupuestos abiertos»'],
+    [/cada gasto (est[aá]|se)|every (expense|cost) (is|will)/i, '«cada gasto está documentado»'],
+    [/nada se desv|nothing is diverted/i, '«nada se desvía»'],
+  ]
+  const PAGINAS: [string, string][] = [
+    ['gastos.html', 'es'], ['en/expenses.html', 'en'], ['colabora.html', 'es'], ['en/collaborate.html', 'en'], ['prensa.html', 'es'], ['en/press.html', 'en'],
+    ['index.html', 'es'], ['en.html', 'en'], ['gracias.html', 'es'], ['en/thank-you.html', 'en'], ['links.html', 'es'], ['en/links.html', 'en'],
+  ]
+  for (const [pagina] of PAGINAS) {
+    const h = html(pagina)
+    const hay = RETIRADAS.filter(([re]) => re.test(h)).map(([, n]) => n)
+    ok(hay.length === 0, `${pagina}: ninguna frase retirada en el HTML entero (cabecera, metadatos, JSON-LD y cuerpo)${hay.length ? ` (aún dice ${hay.join(', ')})` : ''}`)
+  }
+  // La CLASE «prometo detallar cada gasto / cada importe», por concepto y no por frase exacta («el destino de cada gasto», «cada importe se
+  // publicará», «where every expense goes»): la norma es «no detallamos ciertas cosas». Se mira el HTML entero (cabecera, metadatos,
+  // JSON-LD y cuerpo) de /prensa, /gastos y /colabora en ES y EN, su versión .md y su trozo de llms-full.txt (el agradecimiento de /gracias
+  // —«every amount brings the next test closer»— no es una promesa de detalle y no se mira).
+  const DETALLE_DE_CADA = /(cada|todo) (gasto|importe|factura|partida)|(destino|detalle) de cada|every (expense|amount|invoice|cost)|each amount/i
+  const DETALLE_PAGINAS: [string, string][] = [['prensa', '/prensa'], ['en/press', '/en/press'], ['gastos', '/gastos'], ['en/expenses', '/en/expenses'], ['colabora', '/colabora'], ['en/collaborate', '/en/collaborate']]
+  const llmsFull = existsSync(join(PUB, 'llms-full.txt')) ? html('llms-full.txt').split(/\n---\n/) : []
+  ok(llmsFull.length > 50, `llms-full.txt existe y trae las páginas por trozos (${llmsFull.length})`)
+  for (const [ruta, url] of DETALLE_PAGINAS) {
+    const md = existsSync(join(PUB, `${ruta}.md`)) ? html(`${ruta}.md`) : ''
+    const trozo = llmsFull.find((c) => c.includes(`Source: ${SITIO}${url}\n`)) ?? ''
+    ok(md.length > 500 && trozo.length > 500, `${ruta}: existen su .md y su trozo de llms-full.txt (${md.length} y ${trozo.length} caracteres)`)
+    for (const [donde, texto] of [[`${ruta}.html`, html(`${ruta}.html`)], [`${ruta}.md`, md], [`llms-full.txt (${url})`, trozo]] as const) {
+      const hallazgo = texto.match(DETALLE_DE_CADA)?.[0]
+      ok(!hallazgo, `${donde}: no promete detallar cada gasto ni cada importe${hallazgo ? ` (dice «${hallazgo}»)` : ''}`)
+    }
+  }
+
+  for (const [pagina, loc] of [['marcas.html', 'es'], ['en/brands.html', 'en']] as const) {
+    // solo las etiquetas <meta> y el <title>: «transparent» también es una palabra de CSS
+    const head = html(pagina).match(/<head>[\s\S]*?<\/head>/)?.[0] ?? ''
+    const metas = [...head.matchAll(/<(?:meta\b[^>]*|title>[^<]*)>?/g)].map((m) => m[0]).join(' ')
+    ok(metas.length > 200 && !/transparen/i.test(metas), `${pagina}: los metadatos (descripción, Open Graph, Twitter) no dicen «transparencia total» (el texto visible de /marcas espera a Miriam)`)
+    void loc
+  }
+
+  for (const [pagina, loc] of [['gastos.html', 'es'], ['en/expenses.html', 'en']] as const) {
+    const h = html(pagina)
+    const txt = sinEtiquetas(h.match(/<main\b[\s\S]*?<\/main>/)?.[0] ?? h)
+    const todas = [
+      ...DINERO.partidas.map((p) => p.importe), DINERO.comprometido, DINERO.disponible,
+      DINERO.rebiopsia.ejecutado, DINERO.rebiopsia.biopsia, DINERO.rebiopsia.secuenciacion, DINERO.rebiopsia.imagen,
+    ]
+    const faltan = [...new Set(todas)].filter((n) => !txt.replace(/\s/g, ' ').includes(euros(n, loc).replace(/\s/g, ' ')))
+    ok(faltan.length === 0, `${pagina}: pinta TODAS las cifras de dinero.json con el formato de siempre${faltan.length ? ` (faltan ${faltan.join(', ')})` : ''}`)
+    const corte = fechaDeCorte(DINERO.corte, loc)
+    ok(txt.includes(t(loc, 'expenses.report_eyebrow').replace('{fecha}', corte)) && txt.includes(t(loc, 'expenses.note').replace('{fecha}', corte)), `${pagina}: la fecha de corte (${corte}) sale en el informe y en la nota`)
+    ok(txt.includes(t(loc, 'expenses.cuadre')), `${pagina}: la línea de cuadre está («${t(loc, 'expenses.cuadre').slice(0, 60)}…»)`)
+    ok(txt.includes(t(loc, 'money.transparencia')), `${pagina}: la frase única de transparencia (money.transparencia) está`)
+    ok(!/40[.,]000/.test(txt) && !/primer objetivo|first €?\s?40|first target/i.test(txt), `${pagina}: ya no dice «el primer objetivo de 40.000 €»`)
+    ok(txt.includes(t(loc, 'expenses.rebiopsy_now_desc').replace('{biopsia}', euros(DINERO.rebiopsia.biopsia, loc)).replace('{secuenciacion}', euros(DINERO.rebiopsia.secuenciacion, loc)).replace('{imagen}', euros(DINERO.rebiopsia.imagen, loc)).replace(/\s/g, ' ')), `${pagina}: las tres sublíneas de la rebiopsia siguen (biopsia, secuenciación e imagen)`)
+    const faq = (h.match(/<script[^>]*application\/ld\+json[^>]*>[\s\S]*?<\/script>/g) ?? []).join(' ')
+    ok(faq.includes('FAQPage') && !RETIRADAS.some(([re]) => re.test(faq)), `${pagina}: el JSON-LD de las preguntas frecuentes no lleva frases retiradas`)
+    // lista GENÉRICA de entidades (la misma que test-dinero-fuente): nombrar solo las de la casa sería señalarlas
+    ok(!/\b(banco (santander|sabadell)|bbva|caixabank|openbank|n26|abanca|unicaja|ibercaja|kutxabank|bankia|cajamar|deutsche bank|bnp paribas|commerzbank|barclays|hsbc|lloyds|monzo|bunq)\b/i.test(h), `${pagina}: ningún banco por su nombre en el HTML (repo y web públicos)`)
+  }
+
+  for (const [pagina, loc] of [['colabora.html', 'es'], ['en/collaborate.html', 'en']] as const) {
+    const txt = sinEtiquetas(html(pagina).match(/<main\b[\s\S]*?<\/main>/)?.[0] ?? '')
+    ok(txt.includes(`${t(loc, 'collaborate.profile1_precio_para')} ${t(loc, 'collaborate.profile1_precio')}`), `${pagina}: a los laboratorios les dice «${t(loc, 'collaborate.profile1_precio_para')} ${t(loc, 'collaborate.profile1_precio')}» (el rótulo, delante, dice a quién habla)`)
+    ok(html(pagina).includes(`>${t(loc, 'collaborate.profile1_precio_para')}</strong>`), `${pagina}: el rótulo de los laboratorios va en negrita`)
+    ok(txt.includes(t(loc, 'money.transparencia')), `${pagina}: lleva la frase única de transparencia`)
+    ok(txt.includes(t(loc, 'money.recibo')), `${pagina}: el recibo lo dice la frase canónica (money.recibo)`)
+  }
+  for (const [pagina, loc] of [['prensa.html', 'es'], ['en/press.html', 'en']] as const) {
+    const txt = sinEtiquetas(html(pagina).match(/<main\b[\s\S]*?<\/main>/)?.[0] ?? '')
+    ok(txt.includes(`${t(loc, 'press.faq_a5')} ${t(loc, 'money.transparencia')}`), `${pagina}: «${t(loc, 'press.faq_q5')}» se responde con la frase única de transparencia`)
   }
 }
 

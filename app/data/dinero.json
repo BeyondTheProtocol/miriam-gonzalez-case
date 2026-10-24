@@ -1,0 +1,27 @@
+{
+  "corte": "2026-08-17",
+  "moneda": "EUR",
+  "comprometido": 39395.82,
+  "disponible": 23590.49,
+  "partidas": [
+    { "clave": "travel", "importe": 12282.27 },
+    { "clave": "ai", "importe": 8651.1 },
+    { "clave": "tax", "importe": 6385.48 },
+    { "clave": "diagnostics", "importe": 4476.28 },
+    { "clave": "equipment", "importe": 2523.53 },
+    { "clave": "ops", "importe": 2198.94 },
+    { "clave": "legal", "importe": 1573.0 },
+    { "clave": "outreach", "importe": 1305.22 }
+  ],
+  "rebiopsia": {
+    "ejecutado": 4476.28,
+    "biopsia": 2983.63,
+    "secuenciacion": 1041.92,
+    "imagen": 450.73
+  },
+  "fases": [
+    { "clave": "rebiopsy", "estado": "hecha" },
+    { "clave": "bank", "estado": "en_curso" },
+    { "clave": "treatment", "estado": "presupuesto" }
+  ]
+}

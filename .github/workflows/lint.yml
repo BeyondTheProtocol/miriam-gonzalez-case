@@ -25,3 +25,8 @@ jobs:
       - run: pnpm run test:afirmaciones-clinicas
       # Sistema de diseño: ratchet por fichero (scripts/diseno-baseline.json). Un recuento solo puede bajar.
       - run: pnpm run test:diseno
+      # pdftotext (poppler-utils) lee los PDF que se descargan de la web; en CI test:dinero-fuente falla si no está.
+      - run: sudo apt-get update -qq && sudo apt-get install -y -qq poppler-utils
+      # Las cifras de dinero tienen UNA fuente (app/data/dinero.json) y la norma de transparencia se cumple: ninguna cifra en € a mano,
+      # el JSON cuadra, la tarjeta de la campaña no lleva objetivo ni barra y las frases retiradas no vuelven.
+      - run: pnpm run test:dinero-fuente
