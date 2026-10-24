@@ -68,8 +68,7 @@
   --texto-base: 17px;
   --texto-lg:   clamp(19px, 1.6vw, 21px);
   --texto-xl:   clamp(22px, 2.2vw, 26px);
-  --texto-2xl:  clamp(26px, 3vw, 34px);   /* h2 canónico */
-  --texto-3xl:  clamp(32px, 4.2vw, 44px); /* h1 / hero */
+  --texto-3xl:  clamp(32px, 4.2vw, 44px); /* cifra grande (--tipo-cifra) */
 
   /* ── Espaciado: escala base-4 con el 12 legitimado — LAY-2 ───── */
   --sp-4:  4px;
@@ -102,7 +101,7 @@
   --curva-mover:    cubic-bezier(0.77, 0, 0.175, 1);
 
   /* ── Lectura ─────────────────────────────────────────────────── */
-  --measure: 65ch;
+  --measure: 68ch; /* valor mío para Hanken a 17 px (inferencia, sin probar con lectores) */
 
   /* ── Retícula: el borde izquierdo del H1 cae siempre bajo el logo ─ */
   --shell-max:   75rem;  /* 1200 px: ancho único de cabecera, cuerpo y pie (.section-wide) */
@@ -115,8 +114,8 @@
      (no cabe en el shorthand `font`). */
   --tipo-h1:      600 clamp(1.875rem, 1.2rem + 2.8vw, 3rem)/1.08 var(--font-display);                   /* H1 de página: 30 a 48 px */
   --tipo-hero:    600 clamp(1.75rem, 1.1rem + 2.6vw, 2.875rem)/1.08 var(--font-display);                 /* hero y /marcas: 28 a 46 px */
-  --tipo-h2:      700 var(--texto-2xl)/1.15 var(--font-display);
-  --tipo-h3:      600 var(--texto-xl)/1.2  var(--font-display);
+  --tipo-h2:      600 clamp(1.875rem, 1.45rem + 1.7vw, 2.25rem)/1.12 var(--font-display);               /* H2 de sección: 30 a 36 px; manda la home (D1) */
+  --tipo-h3:      600 clamp(1.25rem, 1.1rem + 0.6vw, 1.5rem)/1.2 var(--font-display);                    /* H3 de sección: 20 a 24 px */
   --tipo-h2-declaracion: 600 clamp(1.875rem, 1.2rem + 2.8vw, 3rem)/1.1 var(--font-display);               /* «Dónde estamos»: 30 a 48 px; máximo uno por página */
   --tipo-h4:      700 var(--texto-base)/1.3 var(--font-body);                                            /* título de tarjeta */
   --tipo-prosa:   400 var(--texto-base)/1.6 var(--font-body);                                            /* lectura larga: 17/1.6 */
@@ -124,9 +123,9 @@
   --tipo-body:    var(--tipo-prosa);                                                                     /* alias heredado de --tipo-prosa: no lo uses en código nuevo */
   --tipo-body-sm: 400 var(--texto-sm)/1.5  var(--font-body);
   --tipo-cifra:   700 var(--texto-3xl)/1    var(--font-display); /* «Cifra Fraunces» */
-  --tipo-eyebrow:  500 var(--texto-2xs)/1.3 var(--font-mono);                                            /* mono en mayúsculas, 12 px */
-  --tipo-etiqueta: 600 var(--texto-2xs)/1.3 var(--font-mono);                                            /* kicker de tarjeta o control, 12 px */
-  --track-eyebrow: 0.08em;  /* versalitas espaciadas: único recurso «de sistema» */
+  --tipo-eyebrow:  500 var(--texto-2xs)/1.55 var(--font-mono);                                            /* mono en mayúsculas, 12 px */
+  --tipo-etiqueta: 600 var(--texto-2xs)/1.4 var(--font-mono);                                            /* kicker de tarjeta o control, 12 px */
+  --track-eyebrow: 0.12em;  /* versalitas espaciadas: único recurso «de sistema» */
   --track-etiqueta: 0.1em;
   --track-titular: -0.03em; /* H1, H2 y hero: la home lo escribía en línea, seis veces */
   --track-cifra:  -0.02em;  /* display grande: tracking negativo */

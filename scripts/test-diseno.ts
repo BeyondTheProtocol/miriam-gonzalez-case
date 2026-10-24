@@ -162,15 +162,23 @@ const RE_TW_COLOR = new RegExp(
   'g',
 )
 
-/** Tamaños efectivos de las utilidades de Tailwind: se leen de tailwind.config.js (S2b sube xs y sm). */
+/** Tamaños efectivos de las utilidades de Tailwind, leídos de tailwind.config.js (resuelve var(--texto-*) contra el canon). */
 function tamanosTailwind(): Record<string, number> {
   const base: Record<string, number> = { xs: 12, sm: 14, '2xs': 10.4 }
   try {
     const cfg = readFileSync(join(RAIZ, 'tailwind.config.js'), 'utf8')
+    const canon = readFileSync(join(RAIZ, CANON), 'utf8')
+    const token = (n: string) => {
+      const m = canon.match(new RegExp(`${n}\\s*:\\s*([\\d.]+)px`))
+      return m ? Number(m[1]) : null
+    }
     const bloque = cfg.match(/fontSize:\s*\{([\s\S]*?)\n\s{6}\}/)
     if (bloque) {
-      for (const m of bloque[1].matchAll(/['"]?(2xs|xs|sm)['"]?\s*:\s*(?:\[\s*)?['"]([\d.]+)(rem|px)['"]/g)) {
-        base[m[1]] = Number(m[2]) * (m[3] === 'rem' ? 16 : 1)
+      for (const m of bloque[1].matchAll(/['"]?(2xs|xs|sm)['"]?\s*:\s*\[\s*['"]([^'"]+)['"]/g)) {
+        const v = m[2].match(/^var\((--[a-z0-9-]+)\)$/)
+        const lit = m[2].match(/^([\d.]+)(rem|px)$/)
+        const px = v ? token(v[1]) : lit ? Number(lit[1]) * (lit[2] === 'rem' ? 16 : 1) : null
+        if (px !== null) base[m[1]] = px
       }
     }
   } catch { /* sin config: valores por defecto */ }

@@ -63,8 +63,13 @@ export default {
         body: ['Hanken Grotesk', 'system-ui', 'sans-serif'],
         mono: ['JetBrains Mono', 'monospace'],
       },
+      // Suelo de la escala (sistema v3, S2b): el texto pequeño de Tailwind sale de los tokens y ya no baja de 13 px.
+      // `2xs` (12 px) está RESERVADO a mono en mayúsculas (.eyebrow, .etiqueta, ejes de gráfico). Las alturas de línea
+      // son las de siempre, para que solo cambie el cuerpo de la letra.
       fontSize: {
-        '2xs': ['0.65rem', { lineHeight: '1rem' }],
+        '2xs': ['var(--texto-2xs)', { lineHeight: '1rem' }],
+        xs: ['var(--texto-xs)', { lineHeight: '1rem' }],
+        sm: ['var(--texto-sm)', { lineHeight: '1.25rem' }],
       },
       spacing: {
         // Altura del header sticky en ≥sm (h-18). Sin este token, `sm:h-18` era

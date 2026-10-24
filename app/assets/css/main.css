@@ -97,7 +97,7 @@
      ancho pero alineado a la IZQUIERDA del shell (no centrado), para que cuadre
      con el logo y el H1. Solo es un tope: en móvil ocupa el 100%. */
   .measure {
-    max-width: 72ch;
+    max-width: var(--measure);
     margin-inline-start: 0;
   }
 
@@ -142,6 +142,60 @@
   /* DS firma — Fraunces italic en violeta miriam */
   .firma {
     @apply font-display italic text-miriam;
+  }
+
+  /* ────────────────────────────────────────────────────────────
+     Roles tipográficos (sistema v3, S2b). Cada clase es UN rol y lleva dentro su tamaño, su peso, su interlineado y su
+     tracking: ninguna página los vuelve a escribir (la home tenía `letter-spacing: -0.03em` en línea seis veces).
+     Los valores viven en btp-tokens.css; aquí solo se enlazan. El color lo pone el fondo (--texto-1/2), así que el rol
+     funciona igual en una banda con data-tema="oscuro".
+     · .h1-pagina      H1 de página (30 a 48 px)            · .h2-seccion     H2 de sección (30 a 36 px)
+     · .h2-declaracion H2 que declara (30 a 48; máx. uno)   · .h3-seccion     H3 de sección (20 a 24 px)
+     · .h4-tarjeta     título de tarjeta (Hanken 700, 17)   · .lede           entradilla bajo un titular
+     · .prosa          lectura larga (17/1.6)               · .etiqueta       kicker mono de tarjeta o control (12)
+     ──────────────────────────────────────────────────────────── */
+  .h1-pagina {
+    font: var(--tipo-h1);
+    letter-spacing: var(--track-titular);
+    text-wrap: balance;
+    color: var(--texto-1);
+  }
+  .h2-seccion {
+    font: var(--tipo-h2);
+    letter-spacing: var(--track-titular);
+    text-wrap: balance;
+    color: var(--texto-1);
+  }
+  .h2-declaracion {
+    font: var(--tipo-h2-declaracion);
+    letter-spacing: var(--track-titular);
+    text-wrap: balance;
+    color: var(--texto-1);
+  }
+  .h3-seccion {
+    font: var(--tipo-h3);
+    letter-spacing: -0.02em;
+    text-wrap: balance;
+    color: var(--texto-1);
+  }
+  .h4-tarjeta {
+    font: var(--tipo-h4);
+    letter-spacing: -0.02em;
+    color: var(--texto-1);
+  }
+  .lede {
+    font-family: var(--font-body);
+    font-size: var(--texto-lg);
+    line-height: 1.55;
+    color: var(--texto-2);
+    max-width: var(--measure);
+    text-wrap: pretty;
+  }
+  .prosa {
+    font: var(--tipo-prosa);
+    color: var(--texto-1);
+    max-width: var(--measure);
+    text-wrap: pretty;
   }
 
   /* Cifras alineadas: tabular-nums evita el "salto" de anchura al cambiar
@@ -245,13 +299,20 @@
 
   /* Tag / eyebrow */
   .eyebrow {
-    @apply font-mono uppercase text-[12px] font-medium tracking-[0.12em] text-tinta;
+    font: var(--tipo-eyebrow);
+    letter-spacing: var(--track-eyebrow);
+    text-transform: uppercase;
+    color: var(--texto-2);
   }
-  /* eyebrow pequeño: kicker de tarjeta/control (mono, 11px). Mismo lenguaje que .eyebrow.
-     El color por defecto es tinta; se sobreescribe con text-berenjena donde haga falta
-     (la utilidad gana a este @apply por orden de capas). */
+  /* Kicker de tarjeta o control: mono 600 en mayúsculas, 12 px. El suelo del sistema es 13 px y el 12 se reserva a
+     mono en mayúsculas (.eyebrow, .etiqueta, ejes). `.eyebrow--sm` (11 px) era lo mismo con otro nombre: queda como alias
+     hasta que las páginas migren, y entonces sale. El color por defecto es --texto-2; una utilidad de color lo gana. */
+  .etiqueta,
   .eyebrow--sm {
-    @apply font-mono uppercase text-[11px] font-semibold tracking-[0.1em] text-tinta;
+    font: var(--tipo-etiqueta);
+    letter-spacing: var(--track-etiqueta);
+    text-transform: uppercase;
+    color: var(--texto-2);
   }
 
   .tag {
