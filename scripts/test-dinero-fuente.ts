@@ -18,8 +18,13 @@
 //    la campaña lleva `origen` y `actualizado`.
 // 6. Los exports de app/utils/dinero.ts no se repiten en otro fichero de app/utils ni de app/composables: Nuxt los auto-importa y, si
 //    hay dos con el mismo nombre, descarta uno sin avisar (pasó con `fechaCorta`: /en/data mezcló dos formatos de fecha).
-// 7. Lo que se DESCARGA tampoco: los PDF de public/ (se leen con pdftotext) y las fuentes imprimibles de scripts/*.html no llevan cifras
-//    de dinero ni «% del objetivo». El dossier de marcas decía «38.897 € recaudados» y «~39% del objetivo» y ningún otro test lo veía.
+// 7. Lo que se DESCARGA tampoco: los PDF de public/ (se leen con pdftotext) y las fuentes imprimibles de scripts/*.html no llevan objetivo
+//    ni «% del objetivo». El dossier de marcas decía «38.897 € recaudados» y «~39% del objetivo» y ningún otro test lo veía. Las fuentes
+//    imprimibles no llevan NINGUNA cifra en € (solo marcadores que rellena el script de render desde la semilla de la campaña); en un
+//    PDF solo cabe la cifra recaudada «en GoFundMe», con su sello «Cifra a <fecha>».
+// 8. Los restos de la revisión de T2b: /gastos no se contradice (report_note no habla de lo recaudado), la «·» de la prueba del hero va
+//    unida a sus vecinos con espacios duros, la fecha de la cifra va en su línea y sin partirse, la lista de fases tiene nombre, y todo
+//    enlace de donar que abre pestaña nueva lo dice a quien lee con lector de pantalla.
 //
 // Las frases retiradas se vigilan por CONCEPTO y no solo por frase exacta (§4): «el destino de cada gasto», «cada importe se
 // publicará» o «where every expense goes» dicen lo mismo que «cada gasto está documentado» y la regex por frase no las cogía.
@@ -239,14 +244,15 @@ ok(vecinos.length >= 5, `se leen los demás ficheros de app/utils y app/composab
 const chocan = vecinos.flatMap((f) => exportados(f).filter((n) => propios.includes(n)).map((n) => `${n} (${f})`))
 ok(chocan.length === 0, `ningún export de dinero.ts se repite en otro fichero de app/utils ni de app/composables (${chocan.join(', ') || 'ninguno'})`)
 
-console.log('7. Lo que se descarga (PDF y su fuente imprimible) tampoco lleva cifras de dinero ni objetivo')
-// El PDF del dossier de marcas se enlaza desde /marcas y se baja tal cual: es una superficie pública que i18n/ y app/ no ven. Además de la
-// cifra en €, se busca la forma «~39% del objetivo» / «la meta son…», que es el objetivo y el porcentaje que la norma retiró.
+console.log('7. Lo que se descarga (PDF y su fuente imprimible) no lleva objetivo ni porcentaje, y solo la cifra recaudada en GoFundMe, con su fecha')
+// El PDF del dossier de marcas se enlaza desde /marcas y se baja tal cual: es una superficie pública que i18n/ y app/ no ven. Se busca la
+// forma «~39% del objetivo» / «la meta son…», que es el objetivo y el porcentaje que la norma retiró.
 const OBJETIVO_EN_DESCARGAS = /\d\s?%\s*(del|de la|of the)?\s*(objetivo|meta|goal|target)|\b(la meta|el objetivo) (son|es|era)\b|\bthe (goal|target) (is|was)\b/i
-const diceDinero = (t: string) => CIFRA_DE_DINERO.test(t) || OBJETIVO_EN_DESCARGAS.test(t)
-// Material ya enviado a marcas: regenerarlo (slide 06 sin objetivo ni % o sin cifra, y volver a renderizar el PDF) lo decide Miriam. Mientras,
-// queda aquí a la vista; en cuanto se regenere deja de decir nada retirado y el test obliga a sacarlo de la lista.
-const DESCARGAS_PENDIENTES_DE_MIRIAM = ['public/dossier-marcas-deck.pdf', 'scripts/dossier-marcas-deck.print.html']
+const EUROS_SUELTOS = /\d[\d.,]*\s?€|€\s?\d|\b(EUR|USD)\s?\d|\d\s?k\s?€|[$£]\s?\d/gi
+// La única cifra en € que cabe en un PDF: la recaudada, dicha como «97.868 € recaudados en GoFundMe» y con el sello «Cifra a 24 de octubre de 2026».
+const RECAUDADO_EN_GOFUNDME = /\d[\d.,]*\s?€\s+recaudados\s+en\s+GoFundMe/gi // global: solo para .match() (con .test() arrastraría lastIndex)
+const RECAUDADO_UNA_VEZ = new RegExp(RECAUDADO_EN_GOFUNDME.source, 'i')
+const SELLO_DE_FECHA = /Cifra a \d{1,2} de [a-záéíóú]+ de \d{4}/
 const hayPdftotext = spawnSync('pdftotext', ['-v']).error === undefined
 // En local, sin pdftotext se avisa y se miran solo las fuentes imprimibles. En CI NO: allí es el único sitio donde este test corre solo, y un
 // PDF que se salta en silencio haría el control decorativo (lint.yml instala poppler-utils justo antes).
@@ -258,15 +264,73 @@ const textoDeDescarga = (f: string): string | null => {
   const r = spawnSync('pdftotext', [f, '-'], { encoding: 'utf-8', maxBuffer: 64 * 1024 * 1024 })
   return r.status === 0 ? r.stdout : null
 }
-const descargas = [...ficheros('public', ['.pdf']), ...ficheros('scripts', ['.html'])]
-ok(descargas.length >= 3, `se leen los PDF de public/ y las fuentes imprimibles de scripts/ (${descargas.length})`)
-const textos = new Map(descargas.map((f) => [f, textoDeDescarga(f)] as const))
-const conDinero = descargas.filter((f) => { const t = textos.get(f); return t != null && diceDinero(t) })
-const sinPermiso = conDinero.filter((f) => !DESCARGAS_PENDIENTES_DE_MIRIAM.includes(f))
-ok(sinPermiso.length === 0, `ningún PDF ni fuente imprimible lleva una cifra en € ni «% del objetivo» (salvo lo que espera a Miriam): ${sinPermiso.join(', ') || 'ninguno'}`)
-const yaLimpios = DESCARGAS_PENDIENTES_DE_MIRIAM.filter((f) => { const t = textos.get(f); return t != null && !diceDinero(t) })
-ok(yaLimpios.length === 0, `la lista de descargas pendiente de Miriam es exacta: si ya no dicen nada retirado, hay que sacarlas de aquí (${yaLimpios.join(', ') || 'ninguna'})`)
-ok(DESCARGAS_PENDIENTES_DE_MIRIAM.every((f) => existsSync(f)), 'y las que esperan a Miriam existen (si se borran o se renombran, se actualiza la lista)')
+const pdfs = ficheros('public', ['.pdf'])
+const fuentesImprimibles = ficheros('scripts', ['.html'])
+ok(pdfs.length + fuentesImprimibles.length >= 3, `se leen los PDF de public/ y las fuentes imprimibles de scripts/ (${pdfs.length + fuentesImprimibles.length})`)
+for (const f of [...pdfs, ...fuentesImprimibles]) {
+  const t = textoDeDescarga(f)
+  if (t == null) continue
+  ok(!OBJETIVO_EN_DESCARGAS.test(t), `${f}: no dice objetivo, meta ni «% del objetivo»`)
+}
+// Las fuentes imprimibles: ninguna cifra en € (ni en un comentario). Las del PDF salen del script de render, desde la semilla.
+const imprimiblesConEuros = fuentesImprimibles.filter((f) => CIFRA_DE_DINERO.test(lee(f).split('\n').join(' ')))
+ok(imprimiblesConEuros.length === 0, `ninguna fuente imprimible lleva una cifra en € escrita a mano (${imprimiblesConEuros.join(', ') || 'ninguna'})`)
+// Los PDF: cada cifra en € es la recaudada «en GoFundMe» y el PDF lleva su sello de fecha.
+for (const f of pdfs) {
+  const t = textoDeDescarga(f)
+  if (t == null) continue
+  const euros = t.match(EUROS_SUELTOS) ?? []
+  const recaudadas = t.match(RECAUDADO_EN_GOFUNDME) ?? []
+  ok(euros.length === recaudadas.length, `${f}: toda cifra en € es la recaudada «en GoFundMe» (${euros.length} cifra/s en €, ${recaudadas.length} recaudada/s)`)
+  ok(euros.length === 0 || SELLO_DE_FECHA.test(t), `${f}: y, si lleva la cifra, lleva su fecha («Cifra a <día> de <mes> de <año>»)`)
+}
+// El dossier de marcas en concreto: su slide de campaña existe, con marcadores en la fuente y la cifra con fecha en el PDF.
+const FUENTE_DECK = 'scripts/dossier-marcas-deck.print.html'
+const deck = lee(FUENTE_DECK)
+ok(['{{RECAUDADO}}', '{{DONANTES}}', '{{FECHA_CIFRA}}'].every((m) => deck.includes(m)), 'la fuente del dossier de marcas pone el importe, los donantes y la fecha con marcadores (no a mano)')
+const render = lee('scripts/render-dossier-deck.mjs')
+ok(/seed\/fundraiser\.json|'seed', 'fundraiser\.json'/.test(render) && /actualizado/.test(render) && /process\.exit\(1\)/.test(render), 'el script de render lee la cifra de la semilla, exige su fecha y se detiene si falta (no genera un PDF sin fecha)')
+const textoDeck = textoDeDescarga('public/dossier-marcas-deck.pdf')
+ok(textoDeck == null || (RECAUDADO_UNA_VEZ.test(textoDeck) && SELLO_DE_FECHA.test(textoDeck) && !/38\.897|~1\.000 personas/.test(textoDeck)), 'el PDF del dossier de marcas lleva el importe recaudado en GoFundMe con su fecha, y ya no las cifras viejas (38.897 €, ~1.000 personas)')
+
+console.log('8. Los restos de la revisión de T2b: /gastos no se contradice, la «·» no cuelga, la fecha no se parte, la lista de fases tiene nombre')
+const NBSP = ' '
+for (const [loc, d] of [['es', es], ['en', en]] as const) {
+  // /gastos dice, en la línea de cuadre, que lo recaudado es la cifra bruta en directo y que ESTE informe muestra lo gastado y lo disponible.
+  // La nota del pie no puede volver a hablar de la recaudación (antes: «la recaudación combina el modelo 651…», que decía otra cosa).
+  ok(!/recauda|raised|651|gift-?tax|dep[oó]sit|ingres|income/i.test(d.expenses.report_note), `${loc}: expenses.report_note no habla de lo recaudado ni de su origen (lo dice expenses.cuadre): «${d.expenses.report_note}»`)
+  const fueraDelCuadre = Object.entries(d.expenses).filter(([k, v]) => k !== 'cuadre' && typeof v === 'string' && /modelo 651|gift-tax return/i.test(v as string)).map(([k]) => k)
+  ok(fueraDelCuadre.length === 0, `${loc}: ninguna otra clave de /gastos explica cómo se combina lo recaudado (${fueraDelCuadre.join(', ') || 'ninguna'})`)
+  // La «·» de la prueba del hero va entre dos espacios duros: nunca queda sola al final ni al principio de una línea.
+  ok(d.hero.proof_money.includes(`GoFundMe${NBSP}·${NBSP}{n}`), `${loc}: hero.proof_money une la «·» a «GoFundMe» y a la cifra con espacios duros, para que no cuelgue a 375 px`)
+}
+// La fecha de la cifra, en su línea y sin «·» delante; sin partirse (white-space: nowrap) en el hero, en la tarjeta y en la variante en línea.
+ok(!/·\s*<time/.test(hero) && !/·\s*<time/.test(card), 'ni el hero ni la tarjeta ponen una «·» delante de la fecha de la cifra (va en su línea)')
+ok(/\.hero__cifra\s*\{[^}]*white-space:\s*nowrap/.test(lee('app/components/SectionHero.vue')), 'el hero: la fecha de la cifra no se parte (white-space: nowrap)')
+const cardCss = lee('app/components/GoFundMeProgress.vue')
+ok(/\.gfm__rotulo--fecha\s*\{[^}]*white-space:\s*nowrap/.test(cardCss) && /\.gfm__fecha\s*\{[^}]*white-space:\s*nowrap/.test(cardCss), 'la tarjeta y su variante en línea: la fecha de la cifra no se parte (white-space: nowrap)')
+// La lista de fases: nombre accesible con aria-labelledby apuntando al título, con un id único por tarjeta (useId) y role="list" (con
+// list-style: none Safari deja de anunciarla como lista).
+ok(/const idFases = useId\(\)/.test(card) && /:id="idFases"[^>]*class="gfm__fases-titulo"|class="gfm__fases-titulo"[^>]*:id="idFases"/.test(card) && /<ol\b[^>]*role="list"[^>]*:aria-labelledby="idFases"|<ol\b[^>]*:aria-labelledby="idFases"[^>]*role="list"/.test(card), 'GoFundMeProgress: la lista de fases se nombra con aria-labelledby → el título «Fases de la campaña» (id de useId, role="list")')
+// Todo enlace de donar que abre pestaña nueva lo dice: el aviso sr-only de a11y.new_tab, dentro del enlace.
+{
+  const vues = ficheros('app', ['.vue'])
+  const sinAviso: string[] = []
+  let total = 0
+  for (const f of vues) {
+    const src = lee(f)
+    for (const m of src.matchAll(/<a\b[^>]*>/g)) {
+      const tag = m[0]
+      if (!/target="_blank"/.test(tag) || !/GOFUNDME_(CANONICAL_)?URL|gofund\.me|gofundme\.com/.test(tag)) continue
+      total++
+      const cierre = src.indexOf('</a>', m.index! + tag.length)
+      const cuerpo = src.slice(m.index!, cierre)
+      if (!/a11y\.new_tab/.test(cuerpo) && !/aria-label=/.test(tag)) sinAviso.push(`${f}:${src.slice(0, m.index!).split('\n').length}`)
+    }
+  }
+  ok(total >= 10, `se leen los enlaces de donar que abren pestaña nueva (${total})`)
+  ok(sinAviso.length === 0, `todo enlace a GoFundMe con target="_blank" dice «se abre en una pestaña nueva» (sr-only a11y.new_tab): ${sinAviso.join(', ') || 'todos lo dicen'}`)
+}
 
 console.log(fallos ? `\n❌ ${fallos} fallo(s)` : '\n✅ las cifras de dinero tienen una sola fuente y la norma de transparencia se cumple')
 process.exit(fallos ? 1 : 0)

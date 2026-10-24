@@ -286,6 +286,14 @@ if (existsSync('seed/fundraiser.json')) {
     }
     ok(DINERO.fases.length === (bloqueDiv(h, h.search(/<div class="gfm gfm--card"/)).match(/<li\b/g)?.length ?? 0), `${pagina}: la tarjeta lista las ${DINERO.fases.length} fases, una por <li> de una <ol>`)
     ok(!/[€$£]|\beuros?\b/i.test(DINERO.fases.map((f) => `${D.phases[f.clave].label} ${D.phases[f.clave].desc}`).join(' ')), `${pagina}: las fases no llevan importes`)
+    // La lista de fases tiene nombre (revisión de T2b): aria-labelledby → el título «Fases de la campaña», con un id que existe y es único en la página
+    const abierta = bloqueDiv(h, h.search(/<div class="gfm gfm--card"/)).match(/<ol\b[^>]*>/)?.[0] ?? ''
+    const idLista = abierta.match(/aria-labelledby="([^"]+)"/)?.[1]
+    const idEsc = (idLista ?? '').replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+    const titulos = idLista ? [...h.matchAll(new RegExp(`<p[^>]*\\bid="${idEsc}"[^>]*>([\\s\\S]*?)</p>`, 'g'))] : []
+    ok(/\brole="list"/.test(abierta) && !!idLista && titulos.length === 1 && textoDe(titulos[0]![1]!) === D.fases_titulo && (h.match(new RegExp(`\\bid="${idEsc}"`, 'g'))?.length ?? 0) === 1, `${pagina}: la lista de fases se nombra con aria-labelledby → «${D.fases_titulo}» (id ${idLista ?? 'sin id'} único en la página; role="list")`)
+    // la fecha de la cifra va en su línea (otro <p>) y sin «·» delante
+    ok(!/·\s*<time\b/.test(h), `${pagina}: ninguna «·» delante de una fecha de cifra (la fecha va en su línea)`)
   }
 } else {
   console.log('  ⚠️  sin seed/fundraiser.json: se omite la comprobación de la tarjeta de la campaña (ejecuta `pnpm update-fundraiser` antes de generar)')
@@ -349,6 +357,43 @@ if (existsSync('seed/fundraiser.json')) {
     const sem = await esperaImportes('12345')
     const fecha20 = (idioma: 'es' | 'en') => fechaDeCifra('2026-10-20T08:00:00.000Z', idioma)
     ok(sem.length > 0 && (await origenes()).every((o) => o === 'semilla') && (await textoPagina()).includes(fecha20('es')), `/: si la función contesta con su copia de seguridad, la cifra sigue siendo «semilla» y enseña SU fecha (${fecha20('es')})`)
+    // A 375 px (revisión de T2b): la fecha de la cifra no se parte en «cifra a / 24 oct 2026» y la «·» no cuelga al principio ni al final de una línea.
+    // Con la cifra «semilla» de la función (fecha fija del 20-oct) la fecha se ve en el hero, en la tarjeta y en la variante en línea.
+    await nav.cdp('Emulation.setDeviceMetricsOverride', { width: 375, height: 900, deviceScaleFactor: 1, mobile: false })
+    const LINEAS = `(() => {
+      // texto de cada línea de los bloques de la campaña: se agrupan los caracteres visibles por su posición vertical
+      const lineas = (el) => {
+        const w = document.createTreeWalker(el, NodeFilter.SHOW_TEXT)
+        const cs = []
+        for (let n = w.nextNode(); n; n = w.nextNode()) {
+          if (n.parentElement.closest('.sr-only')) continue
+          for (let i = 0; i < n.data.length; i++) {
+            if (/\\s/.test(n.data[i]) && n.data[i] !== '\\u00a0') continue
+            const r = document.createRange(); r.setStart(n, i); r.setEnd(n, i + 1)
+            const b = r.getBoundingClientRect()
+            if (b.width) cs.push({ c: n.data[i], top: Math.round(b.top) })
+          }
+        }
+        const l = []
+        for (const x of cs) { let g = l.find((y) => Math.abs(y.top - x.top) < 4); if (!g) l.push(g = { top: x.top, txt: '' }); g.txt += x.c }
+        return l.sort((a, b) => a.top - b.top).map((g) => g.txt)
+      }
+      const bloques = [...document.querySelectorAll('.hero__support, .gfm')]
+      return {
+        bloques: bloques.length,
+        fechas: [...document.querySelectorAll('.hero__support time, .gfm time')].map((t) => t.getClientRects().length),
+        colgadas: bloques.flatMap((b) => lineas(b)).filter((t) => t.startsWith('·') || t.endsWith('·')),
+        desborde: document.documentElement.scrollWidth > innerWidth,
+      }
+    })()`
+    for (const ruta of ['/?fund=semilla', '/en?fund=semilla', '/colabora?fund=semilla', '/gastos?fund=semilla']) {
+      await nav.cargar(ruta)
+      await esperaImportes('12345')
+      const m = (await nav.evaluate(LINEAS)) as { bloques: number; fechas: number[]; colgadas: string[]; desborde: boolean }
+      ok(m.bloques > 0 && m.fechas.length > 0 && m.fechas.every((n) => n === 1), `${ruta} a 375 px: la fecha de la cifra no se parte en dos líneas (${m.fechas.length} fecha/s en ${m.bloques} bloque/s, ${m.fechas.join('+')} línea/s)`)
+      ok(m.colgadas.length === 0 && !m.desborde, `${ruta} a 375 px: ninguna «·» al principio ni al final de una línea y sin scroll horizontal (${m.colgadas.join(' | ') || 'ninguna'})`)
+    }
+    await nav.cdp('Emulation.setDeviceMetricsOverride', { width: 1024, height: 900, deviceScaleFactor: 1, mobile: false })
     // navegar dentro del sitio: al volver a una página con la tarjeta tras pasar por otra sin ella, Nuxt la monta
     // con la cifra del payload prerenderizado (la del build) aunque se acabe de traer la viva
     await nav.cargar('/?fund=viva')
@@ -861,7 +906,8 @@ if (existsSync('seed/fundraiser.json')) {
     if (semilla) {
       const n = new Intl.NumberFormat(loc === 'es' ? 'es-ES' : 'en-US').format(semilla.donationCount)
       const importe = formatCurrency(semilla.currentAmount.amount, semilla.currentAmount.currencyCode, loc).replace(/\s+/g, ' ')
-      const linea = t(loc, 'hero.proof_money').replace('{importe}', importe).replace('{n}', n)
+      // la «·» va entre espacios duros (U+00A0) para no colgar a 375 px; el texto visible ya los lleva normalizados a espacio
+      const linea = t(loc, 'hero.proof_money').replace('{importe}', importe).replace('{n}', n).replace(/\u00a0/g, ' ')
       ok(visible(hero).includes(linea) && hero.includes('hero__support'), `${pagina}: la prueba dice «${linea}» (importe y donantes, con «en GoFundMe»)`)
       const fecha = semilla.actualizado ? t(loc, 'gofundme.cifra_a').replace('{fecha}', fechaDeCifra(semilla.actualizado, loc)) : null
       ok(!fecha || visible(hero).includes(fecha), `${pagina}: y, como la cifra es la del build, con su fecha («${fecha ?? 'la semilla no trae fecha'}»)`)

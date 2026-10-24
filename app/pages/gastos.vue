@@ -245,6 +245,7 @@
           >
             <Icon name="ph:heart-fill" class="heart-beat w-4 h-4" aria-hidden="true" />
             {{ $t('expenses.help_cta') }}
+            <span class="sr-only">{{ ' ' + $t('a11y.new_tab') }}</span>
           </a>
           <NuxtLink :to="localePath('colabora')" class="btn-secondary w-full sm:w-auto justify-center">
             {{ $t('expenses.transparency_link') }}

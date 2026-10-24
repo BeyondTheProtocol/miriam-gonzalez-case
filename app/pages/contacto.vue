@@ -118,6 +118,7 @@
                     class="font-semibold text-berenjena text-sm group-hover:text-coral transition-colors"
                   >
                     {{ $t('contact.gofundme_label') }}
+                    <span class="sr-only">{{ ' ' + $t('a11y.new_tab') }}</span>
                   </p>
                   <p class="text-xs text-tinta">gofund.me/3e25cae99</p>
                 </div>

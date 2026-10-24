@@ -279,7 +279,7 @@
     "lede": "Es ingeniera de software. Su tumor no encaja en los protocolos habituales y ella se ha puesto a investigarlo en abierto, con médicos y laboratorios de varios países.",
     "cta_understand": "Entender el caso",
     "pro_link": "¿Clínico o laboratorio? Mira qué necesitamos",
-    "proof_money": "{importe} recaudados en GoFundMe · {n} donantes"
+    "proof_money": "{importe} recaudados en GoFundMe\u00a0·\u00a0{n} donantes"
   },
   "gofundme": {
     "title": "¿Por qué necesitamos tu ayuda?",
@@ -1221,7 +1221,7 @@
     "report_item_legal": "Equipo legal",
     "report_item_outreach": "Difusión y comunicación",
     "report_total": "Total gastado y comprometido",
-    "report_note": "El gasto personal del periodo no se imputa a la campaña. Las cifras cuadran contra los extractos originales; la recaudación combina el modelo 651 presentado en junio con los ingresos posteriores verificados en cuenta.",
+    "report_note": "El gasto personal del periodo no se imputa a la campaña. Las cifras de este informe cuadran contra los extractos originales.",
     "report_available_desc": "Saldo en cuenta una vez descontado el impuesto aplazado."
   },
   "links": {

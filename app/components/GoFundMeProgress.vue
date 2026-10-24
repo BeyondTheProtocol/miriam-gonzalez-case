@@ -42,6 +42,9 @@ const cifraDe = computed(() => {
 // engancha cuando el bloque existe: sin semilla en el build la tarjeta se pinta al llegar las cifras, y entonces se mide. `conEuros`
 // es la misma medida que en el hero: ¿lleva el importe en euros?
 const raiz = ref<HTMLElement | null>(null)
+// Nombre accesible de la lista de fases. `useId()` (Vue 3.5) y no un id fijo: una página puede llevar más de una tarjeta y un id
+// repetido rompe aria-labelledby; además es el mismo en el servidor y en el cliente, así que no desajusta la hidratación.
+const idFases = useId()
 useUmamiVisto(raiz, EVENTO_CAMPANA_VISIBLE, () => ({ conEuros: !!importe.value }))
 
 // Estado de proceso de la campaña (hecha, en curso…) → estado del sistema (hecho, curso…): una sola paleta de estados en el sitio.
@@ -63,8 +66,11 @@ const fases = computed(() =>
       :data-gofundme-importe="data.currentAmount.amount"
       :data-gofundme-origen="data.origen ?? 'semilla'"
     >{{ importe }}</p>
-    <p class="gfm__rotulo">
-      {{ $t('gofundme.raised_on') }}<template v-if="cifraDe"> · <time :datetime="cifraDe.iso">{{ $t('gofundme.cifra_a', { fecha: cifraDe.texto }) }}</time></template>
+    <p class="gfm__rotulo">{{ $t('gofundme.raised_on') }}</p>
+    <!-- La fecha de la cifra va en su propia línea y sin «·» delante (como la variante en línea): así no puede partirse en
+         «cifra a» / «24 oct 2026» ni dejar un punto colgando al final de la línea del rótulo. -->
+    <p v-if="cifraDe" class="gfm__rotulo gfm__rotulo--fecha">
+      <time :datetime="cifraDe.iso">{{ $t('gofundme.cifra_a', { fecha: cifraDe.texto }) }}</time>
     </p>
     <p class="gfm__donantes">
       <NuxtLink :to="localePath('colabora') + '#gracias'" class="gfm__enlace nums">
@@ -75,8 +81,9 @@ const fases = computed(() =>
     </p>
 
     <!-- Las fases del caso, cada una con su estado en texto. Sin importes ni barra. -->
-    <p class="gfm__fases-titulo">{{ $t('gofundme.fases_titulo') }}</p>
-    <ol class="gfm__fases">
+    <p :id="idFases" class="gfm__fases-titulo">{{ $t('gofundme.fases_titulo') }}</p>
+    <!-- role="list": con `list-style: none` Safari/VoiceOver deja de anunciarla como lista, y sin lista no hay nombre que valga. -->
+    <ol class="gfm__fases" role="list" :aria-labelledby="idFases">
       <li v-for="f in fases" :key="f.clave" class="gfm__fase">
         <p class="gfm__fase-titulo">
           {{ $t(`gofundme.phases.${f.clave}.label`) }}
@@ -197,6 +204,11 @@ const fases = computed(() =>
   letter-spacing: 0.04em;
   color: var(--texto-2);
 }
+/* La fecha de la cifra, bajo el rótulo: una línea suya que no se parte en «cifra a / 24 oct 2026». */
+.gfm__rotulo--fecha {
+  margin-top: 0.125rem;
+  white-space: nowrap;
+}
 .gfm__donantes {
   margin: 0.5rem 0 0;
   font-family: var(--font-mono, ui-monospace, monospace);
@@ -274,5 +286,6 @@ const fases = computed(() =>
   margin: 0.25rem 0 0;
   font-size: 0.8125rem;
   color: var(--color-text-soft);
+  white-space: nowrap;
 }
 </style>

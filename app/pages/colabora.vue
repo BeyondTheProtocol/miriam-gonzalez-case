@@ -285,6 +285,7 @@
               >
                 <Icon name="ph:heart-fill" class="heart-beat heart-beat--alive w-4 h-4" aria-hidden="true" />
                 {{ $t('collaborate.profile2_cta_label') }}
+                <span class="sr-only">{{ ' ' + $t('a11y.new_tab') }}</span>
               </a>
               <p class="mt-2 text-xs text-tinta md:min-h-[2.25rem]">{{ $t('collaborate.profile2_cta_caption') }} {{ $t('money.recibo') }}</p>
             </div>

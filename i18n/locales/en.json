@@ -279,7 +279,7 @@
     "lede": "She's a software engineer. Her tumor doesn't fit the usual protocols, and she has set out to investigate it in the open, with doctors and labs in several countries.",
     "cta_understand": "Understand the case",
     "pro_link": "Clinician or lab? See what we need",
-    "proof_money": "{importe} raised on GoFundMe · {n} donors"
+    "proof_money": "{importe} raised on GoFundMe\u00a0·\u00a0{n} donors"
   },
   "gofundme": {
     "title": "Why do we need your help?",
@@ -1221,7 +1221,7 @@
     "report_item_legal": "Legal team",
     "report_item_outreach": "Outreach and communications",
     "report_total": "Total spent and committed",
-    "report_note": "Personal spending in this period is not charged to the campaign. Figures reconcile against the original statements; the amount raised combines the gift-tax return filed in June with later deposits verified in the account.",
+    "report_note": "Personal spending in this period is not charged to the campaign. The figures in this report reconcile against the original statements.",
     "report_available_desc": "Account balance once the deferred tax is set aside."
   },
   "links": {

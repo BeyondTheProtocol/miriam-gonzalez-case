@@ -97,7 +97,10 @@
                 >{{ importe }}</strong>
               </template>
               <template #n>{{ donantes }}</template>
-            </i18n-t><template v-if="cifraDe"> · <time :datetime="cifraDe.iso">{{ $t('gofundme.cifra_a', { fecha: cifraDe.texto }) }}</time></template>
+            </i18n-t>
+            <!-- La fecha, en su línea y sin «·»: no se parte en «cifra a» / «24 oct 2026» ni deja un punto colgando. La «·» de
+                 hero.proof_money va unida a sus dos vecinos con espacios duros: nunca queda sola al final ni al principio de una línea. -->
+            <time v-if="cifraDe" class="hero__cifra" :datetime="cifraDe.iso">{{ $t('gofundme.cifra_a', { fecha: cifraDe.texto }) }}</time>
           </span>
         </p>
         <NuxtLink
@@ -444,6 +447,15 @@ const { latest, latestAgo } = useLatestUpdate()
   font-size: 0.875rem;
   line-height: 1.4;
   color: var(--color-text);
+}
+
+/* La fecha de la cifra: bajo la frase, en su línea y sin partirse. 13 px, el suelo del sistema (R2). */
+.hero__cifra {
+  display: block;
+  margin-top: 0.125rem;
+  font-size: 0.8125rem;
+  color: var(--color-text-soft);
+  white-space: nowrap;
 }
 
 .hero__latest {
