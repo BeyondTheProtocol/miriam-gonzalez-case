@@ -88,6 +88,12 @@ export const TEMAS_HERRAMIENTA: Record<string, readonly TemaPeticion[]> = {
   cell_explorer: ['ihc'],
 }
 
+/**
+ * Los temas que enseña /ciencia (tanda 2, T2c): lo que pueden mover los científicos que llegan a la capa profesional, es decir,
+ * laboratorio, HLA e IHQ. El resto de peticiones (ensayos, radiología) sigue entero en /datos#que-buscamos.
+ */
+export const TEMAS_CIENCIA: readonly TemaPeticion[] = ['laboratorio', 'hla', 'ihc']
+
 /** Las que enseña un sitio concreto: primero el filtro por tema y después el tope. */
 export function seleccionarPeticiones(
   publicas: readonly Peticion[],

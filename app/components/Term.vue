@@ -44,12 +44,12 @@ const GLOSSARY: Record<string, Entry> = {
   },
   fgfr1: {
     es: {
-      label: 'FGFR1 ×13',
-      def: 'FGFR1 (cromosoma 8p11) amplificado: ×13 en el primario de 2024 y unas 33 copias en el hueso de 2026, con otra plataforma. Un gen que impulsa el crecimiento del tumor y una diana de tratamiento posible.',
+      label: 'FGFR1',
+      def: 'FGFR1 (cromosoma 8p11) amplificado: 13 copias en el primario de 2024 y «amplificación» sin cifra en el informe clínico del hueso de 2026. Las cifras vienen de plataformas y purezas distintas y no se comparan entre sí. Un gen que impulsa el crecimiento del tumor y una diana de tratamiento posible.',
     },
     en: {
-      label: 'FGFR1 ×13',
-      def: 'FGFR1 (chromosome 8p11) amplified: ×13 in the 2024 primary and about 33 copies in the 2026 bone sample, on another platform. A gene driving tumor growth and a possible treatment target.',
+      label: 'FGFR1',
+      def: 'FGFR1 (chromosome 8p11) amplified: 13 copies in the 2024 primary and “amplification” with no figure in the 2026 bone clinical report. The figures come from different platforms and purities and are not comparable with each other. A gene driving tumor growth and a possible treatment target.',
     },
   },
   bcned: {
@@ -74,12 +74,12 @@ const GLOSSARY: Record<string, Entry> = {
   },
   ccnd1: {
     es: {
-      label: 'CCND1 ×20',
-      def: 'Gen de la ciclina D1 (clúster 11q13, con FGF3/4/19) amplificado: ×20 en el primario de 2024 y unas 37 copias en el hueso de 2026. Acelera la división celular y se asocia a resistencia a ciertas terapias hormonales.',
+      label: 'CCND1',
+      def: 'Gen de la ciclina D1 (clúster 11q13, con FGF3/4/19) amplificado: 20 copias en el primario de 2024 y amplificado en el hueso de 2026 (las 37 copias salen del fichero de investigación y no son comparables). Acelera la división celular y se asocia a resistencia a ciertas terapias hormonales.',
     },
     en: {
-      label: 'CCND1 ×20',
-      def: 'Cyclin D1 gene (11q13 cluster, with FGF3/4/19) amplified: ×20 in the 2024 primary and about 37 copies in the 2026 bone sample. It speeds up cell division and is linked to resistance to some hormone therapies.',
+      label: 'CCND1',
+      def: 'Cyclin D1 gene (11q13 cluster, with FGF3/4/19) amplified: 20 copies in the 2024 primary and amplified in the 2026 bone (the 37 copies come from the research file and are not comparable). It speeds up cell division and is linked to resistance to some hormone therapies.',
     },
   },
   esr1: {
@@ -204,12 +204,12 @@ const GLOSSARY: Record<string, Entry> = {
   },
   axis_trop2: {
     es: {
-      label: 'TROP-2 → Dato-DXd (ensayo, oct 2026)',
-      def: 'Datopotamab deruxtecan: un anticuerpo contra TROP-2 que lleva un fármaco citotóxico (inhibidor de topoisomerasa I) al interior de la célula. Es el tratamiento del ensayo TROPION-Breast06, fase IIIb de un brazo para HR+/HER2 IHQ 0 sin quimioterapia previa; su primera dosis está prevista en octubre de 2026. El ensayo no exige medir TROP-2 y en su tejido no se ha medido.',
+      label: 'TROP-2 → Dato-DXd',
+      def: 'Datopotamab deruxtecan: un anticuerpo contra TROP-2 que lleva un fármaco citotóxico (inhibidor de topoisomerasa I) al interior de la célula. Es el tratamiento del ensayo TROPION-Breast06, fase IIIb de un brazo para HR+/HER2 IHQ 0 sin quimioterapia previa. El ensayo no exige medir TROP-2 y en su tejido no se ha medido.',
     },
     en: {
-      label: 'TROP-2 → Dato-DXd (trial, Oct 2026)',
-      def: 'Datopotamab deruxtecan: an anti-TROP-2 antibody that carries a cytotoxic drug (a topoisomerase I inhibitor) into the cell. It is the treatment in TROPION-Breast06, a single-arm phase IIIb trial for HR+/HER2 IHC 0 without prior chemotherapy; the first dose is expected in October 2026. The trial does not require TROP-2 testing and it has not been measured in her tissue.',
+      label: 'TROP-2 → Dato-DXd',
+      def: 'Datopotamab deruxtecan: an anti-TROP-2 antibody that carries a cytotoxic drug (a topoisomerase I inhibitor) into the cell. It is the treatment in TROPION-Breast06, a single-arm phase IIIb trial for HR+/HER2 IHC 0 without prior chemotherapy. The trial does not require TROP-2 testing and it has not been measured in her tissue.',
     },
   },
   axis_fgfr: {

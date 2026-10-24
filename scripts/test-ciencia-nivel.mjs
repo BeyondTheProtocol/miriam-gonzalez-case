@@ -1,15 +1,21 @@
 #!/usr/bin/env node
-// Test de navegador para el deep-link `?nivel=pro` de /ciencia, sobre el build
-// ESTÁTICO (`pnpm generate` → .output/public), que es lo que sirve Netlify.
+// Test de navegador de /ciencia como UNA sola capa, la profesional (tanda 2 del rediseño, T2c, 24-oct-2026), sobre el build ESTÁTICO
+// (`pnpm generate` → .output/public), que es lo que sirve Netlify.
 //
-// Por qué contra el build y no con `nuxt dev`: el fallo solo existe con la
-// página prerenderizada. Nuxt la hidrata en la ruta del payload (sin query) y
-// aplica la query después; en dev la página se renderiza con la query y el bug
-// no aparece. Así se coló el arreglo del 5-sep-2026.
+// Antes de T2c este test comprobaba el conmutador «para mentes curiosas / para profesionales» y el deep-link `?nivel=pro`. El conmutador
+// salió (la capa llana vive en la home) y el test se REESCRIBE en vez de borrarse, porque lo que protegía sigue importando:
+//   · no hay conmutador (ningún .reading-level__btn) y todo el contenido profesional está visible, con o sin parámetro;
+//   · `?nivel=pro`, `?nivel=simple` y lo que quedara guardado en localStorage (`hm_ciencia_nivel`) NO hacen nada: es el mismo resultado;
+//   · los enlaces antiguos siguen llevando al lector a su sitio: el destino antiguo de /caso (…#mapa-acceso) y el botón de clínica de la
+//     home (…#snapshot-title) aterrizan con la ancla A LA VISTA y con el FOCO en ella;
+//   · la ficha (#snapshot-title), la franja de herramientas (#mapa-acceso), Imprimir y el botón de donar están ahí.
 //
-// Sin dependencias: servidor estático propio + Chrome del sistema por CDP
-// (WebSocket nativo de Node ≥ 22). Chrome: $CHROME_PATH, o la ruta de macOS,
-// o `google-chrome` en Linux.
+// Por qué contra el build y no con `nuxt dev`: el fallo del foco solo existe con la página prerenderizada. Nuxt la hidrata en la ruta del
+// payload (sin query ni hash) y aplica la URL real después; en dev la página se renderiza con ella y el bug no aparece (así se coló el
+// arreglo del 5-sep-2026).
+//
+// Sin dependencias: servidor estático propio + Chrome del sistema por CDP (WebSocket nativo de Node ≥ 22). Chrome: $CHROME_PATH, o la
+// ruta de macOS, o `google-chrome` en Linux.
 //
 // Uso:  pnpm exec nuxt generate && pnpm test:ciencia-nivel   (CI: .github/workflows/e2e.yml)
 import { spawn } from 'node:child_process'
@@ -175,18 +181,25 @@ async function evaluate(expression) {
   return r.result.value
 }
 
-// Estado del conmutador y del bloque clínico, leído del DOM (lo que ve la persona).
+// Lo que ve la persona, leído del DOM: sin conmutador, con los bloques visibles, y dónde está el foco.
 const STATE = `(() => {
-  const btns = [...document.querySelectorAll('.reading-level__btn')]
-  const pressed = btns.find((b) => b.getAttribute('aria-pressed') === 'true')
-  const mapa = document.getElementById('mapa-acceso')
+  const visible = (id) => { const e = document.getElementById(id); return !!e && e.offsetParent !== null && e.getBoundingClientRect().height > 0 }
+  const ahora = document.querySelector('#ruta-title')?.closest('section')?.textContent ?? ''
   return {
-    level: pressed ? (pressed === btns[1] ? 'pro' : 'simple') : null,
-    mapaVisible: !!mapa && mapa.offsetParent !== null,
+    conmutador: document.querySelectorAll('.reading-level__btn').length,
+    mapa: visible('mapa-acceso'),
+    ficha: visible('snapshot-title'),
+    porQue: visible('por-que-no-encaja'),
+    molecular: visible('molecular-profile-title'),
+    ruta: visible('ruta-title'),
+    donar: !!document.querySelector('main a.btn-cta[href*="gofund.me"][rel~="noopener"]'),
+    imprimir: [...document.querySelectorAll('main button')].some((b) => /Imprimir|Print/.test(b.textContent)),
+    enCuartaLinea: /En cuarta línea desde el 7 de octubre de 2026|In fourth line since 7 October 2026/.test(ahora),
+    foco: document.activeElement?.id ?? '',
+    // la ancla pedida está a la vista: dentro de la ventana y por debajo de la cabecera fija
   }
 })()`
-// Hidratación terminada Y la URL real ya aplicada: sin esto, un «simple» leído
-// demasiado pronto daría el test por bueno.
+// Hidratación terminada Y la URL real ya aplicada: sin esto, una lectura demasiado pronto daría el test por bueno.
 const HYDRATED = `(() => {
   const n = document.querySelector('#__nuxt')?.__vue_app__?.config.globalProperties.$nuxt
   return !!n && !n.isHydrating && n.$router.currentRoute.value.fullPath === location.pathname + location.search + location.hash
@@ -223,72 +236,66 @@ function check(name, got, want) {
   )
 }
 
+const TODO_VISIBLE = {
+  conmutador: 0,
+  mapa: true,
+  ficha: true,
+  porQue: true,
+  molecular: true,
+  ruta: true,
+  donar: true,
+  imprimir: true,
+  enCuartaLinea: true,
+}
+const EN_PANTALLA = (id) => `(() => { const e = document.getElementById('${id}'); if (!e) return false; const r = e.getBoundingClientRect(); const cab = document.querySelector('[data-cabecera-fija]')?.getBoundingClientRect().bottom ?? 0; return r.top >= cab - 2 && r.bottom <= innerHeight })()`
+async function esperar(expresion, ms = 4000) {
+  for (let i = 0; i < ms / 100; i++) {
+    if (await evaluate(expresion).catch(() => false)) return true
+    await sleep(100)
+  }
+  return false
+}
+
 try {
   await cdp('Page.enable')
   await cdp('Runtime.enable')
 
+  check('/ciencia: sin conmutador y con todo el contenido profesional a la vista', await load('/ciencia'), TODO_VISIBLE)
+  check('/ciencia?nivel=pro: es lo mismo (el parámetro no hace nada)', await load('/ciencia?nivel=pro'), TODO_VISIBLE)
+  check('/ciencia?nivel=simple: también lo mismo (ya no hay capa llana aquí)', await load('/ciencia?nivel=simple'), TODO_VISIBLE)
+  check('/en/science: lo mismo en inglés, con la frase de la cuarta línea', await load('/en/science'), TODO_VISIBLE)
+  check('/en/science?nivel=pro: lo mismo', await load('/en/science?nivel=pro'), TODO_VISIBLE)
+
   check(
-    '/ciencia sin parámetro entra en el resumen llano',
-    await load('/ciencia'),
-    {
-      level: 'simple',
-      mapaVisible: false,
-    }
-  )
-  check(
-    '/ciencia?nivel=pro abre el modo clínico',
-    await load('/ciencia?nivel=pro'),
-    {
-      level: 'pro',
-      mapaVisible: true,
-    }
-  )
-  check(
-    'destino de /caso (?nivel=pro + UTM + #mapa-acceso) abre mapa y biopsia',
-    await load(
-      '/ciencia?nivel=pro&utm_source=referral&utm_medium=medico&utm_campaign=equipo-clinico#mapa-acceso'
-    ),
-    { level: 'pro', mapaVisible: true }
-  )
-  check(
-    '/en/science?nivel=pro abre el modo clínico',
-    await load('/en/science?nivel=pro'),
-    {
-      level: 'pro',
-      mapaVisible: true,
-    }
-  )
-  check(
-    '?nivel=simple manda sobre la elección guardada',
+    'lo que quedara guardado de la elección antigua (hm_ciencia_nivel=simple) no esconde nada',
     await (async () => {
       await load('/ciencia')
-      await evaluate(`localStorage.setItem('hm_ciencia_nivel', 'pro')`)
-      return load('/ciencia?nivel=simple', { keepStorage: true })
+      await evaluate(`localStorage.setItem('hm_ciencia_nivel', 'simple')`)
+      return load('/ciencia', { keepStorage: true })
     })(),
-    { level: 'simple', mapaVisible: false }
+    TODO_VISIBLE
   )
 
-  // El conmutador funciona a mano en los dos sentidos, también tras un deep-link.
-  await load('/ciencia?nivel=pro')
-  await evaluate(`document.querySelectorAll('.reading-level__btn')[0].click()`)
-  await sleep(300)
+  // Los enlaces antiguos: la ancla A LA VISTA y con el FOCO en ella (quien navega con teclado o con lector de pantalla empieza ahí)
+  for (const [nombre, ruta, ancla] of [
+    ['destino antiguo de /caso', '/ciencia?nivel=pro&utm_source=referral&utm_medium=medico&utm_campaign=equipo-clinico#mapa-acceso', 'mapa-acceso'],
+    ['botón de clínica de la home', '/ciencia?nivel=pro#snapshot-title', 'snapshot-title'],
+    ['ancla sin parámetro', '/ciencia#mapa-acceso', 'mapa-acceso'],
+    ['destino antiguo de /caso, en inglés', '/en/science?nivel=pro&utm_source=referral#mapa-acceso', 'mapa-acceso'],
+  ]) {
+    await load('/')
+    await load(ruta)
+    const aVista = await esperar(EN_PANTALLA(ancla), 6000)
+    const conFoco = await esperar(`document.activeElement?.id === '${ancla}'`, 3000)
+    check(`${nombre} (${ruta.split('#')[0].split('?')[0]}): #${ancla} queda a la vista y con el foco`, { aVista, conFoco }, { aVista: true, conFoco: true })
+  }
+
+  // Imprimir y donar son botones de verdad (teclado) y el de donar abre GoFundMe en pestaña nueva con aviso para el lector de pantalla
+  await load('/ciencia')
   check(
-    'clic en «para todos» tras el deep-link vuelve al llano',
-    await evaluate(STATE),
-    {
-      level: 'simple',
-      mapaVisible: false,
-    }
-  )
-  await evaluate(`document.querySelectorAll('.reading-level__btn')[1].click()`)
-  await sleep(300)
-  check(
-    'clic en «para profesionales» abre el modo clínico',
-    await evaluate(STATE),
-    {
-      level: 'pro',
-      mapaVisible: true,
-    }
+    'el botón de donar: enlace a GoFundMe, rel="noopener noreferrer", aviso de pestaña nueva y 44 px de alto',
+    await evaluate(`(() => { const a = document.querySelector('main a.btn-cta[href*="gofund.me"]'); if (!a) return {}; return { rel: a.getAttribute('rel'), blank: a.target === '_blank', aviso: !!a.querySelector('.sr-only'), alto44: a.getBoundingClientRect().height >= 44 } })()`),
+    { rel: 'noopener noreferrer', blank: true, aviso: true, alto44: true }
   )
 } finally {
   ws.close()

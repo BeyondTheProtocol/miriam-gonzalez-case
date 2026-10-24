@@ -118,6 +118,7 @@ paperSections:
           up in blood but not in bone.
         link: 'https://doi.org/10.1016/j.modpat.2024.100541'
   - title: Biology of Breast Carcinoma with Neuroendocrine Differentiation
+    anchor: biologia-bc-ned
     tag: BC-NED biology
     tone: info
     subtitle: What is known about the subtype, and where it does and does not match this tumour's profile
@@ -150,6 +151,7 @@ paperSections:
           possibility, not a frequency.
         link: 'https://doi.org/10.1136/jclinpath-2020-207052'
   - title: Receptor Conversion Between Primary and Metastasis
+    anchor: conversion-receptores
     tag: ER conversion
     tone: warn
     subtitle: 'The 2024 primary was ER 85-100%; the liver metastasis biopsied in August 2026 reads ER 0%, PR 5%, HER2 0, with positive chromogranin A and synaptophysin'
@@ -180,6 +182,7 @@ paperSections:
           It confirms with liver data what the meta-analysis gives in aggregate.
         link: 'https://doi.org/10.1007/s12672-025-03342-0'
   - title: SSTR2 Pathway and Radioligand Therapy (PRRT)
+    anchor: sstr2-prrt
     tag: SSTR2 · PRRT
     tone: positive
     subtitle: 'The 68Ga-DOTATOC PET (26 May 2026) showed somatostatin receptor overexpression in the bone metastases; the liver has not been studied, and SSTR2 IHC on tissue has not been done'
@@ -234,9 +237,10 @@ paperSections:
           about response rates.
         link: 'https://doi.org/10.1097/RLU.0000000000003005'
   - title: FGFR1/CCND1 Axis and CDK4/6i Resistance
+    anchor: fgfr1-ccnd1
     tag: FGFR1 / CCND1
     tone: violet
-    subtitle: '8p11 amplification (FGFR1, NSD3, ZNF703, ≈33 copies) and 11q13 amplification (CCND1, FGF3, FGF4, FGF19, ≈37 copies) in the July 2026 bone tissue'
+    subtitle: 'FGFR1 (8p11, with NSD3 and ZNF703): 13 copies in the 2024 primary and amplified in the 2026 bone (33 copies in the research file). CCND1, FGF3, FGF4 and FGF19 (11q13): 20 and 18 copies in the primary and amplified in the bone (37 in the research file)'
     papers:
       - ref: 'Formisano et al., 2019 — Nature Communications (DOI: 10.1038/s41467-019-09068-2)'
         finding: 'Aberrant FGFR signalling mediates resistance to CDK4/6 inhibitors in ER-positive breast cancer'
@@ -269,6 +273,7 @@ paperSections:
           subgroup that did not respond.
         link: 'https://doi.org/10.1200/JCO.19.02630'
   - title: 'Anti-TROP-2 ADC: Datopotamab Deruxtecan'
+    anchor: adc-trop2
     tag: TROP-2 · ADC
     tone: info
     subtitle: 'She entered TROPION-Breast06 (NCT07205822) on 7 October 2026, a single-arm phase IIIb trial, with no prior chemotherapy; the trial the drug rests on required 1-2 prior chemotherapy lines'
@@ -308,6 +313,7 @@ paperSections:
           for metastatic disease, which is not this case's entry situation.
         link: 'https://doi.org/10.1158/1078-0432.CCR-25-1388'
   - title: Liver Metastases and Systemic Immunity
+    anchor: higado-inmunidad
     tag: Liver · immunity
     tone: warn
     subtitle: 'The disease stopped being bone-confined in July 2026, and that bears on any personalised immunotherapy route, not just on the next line'
@@ -411,77 +417,6 @@ panelRows:
     status: 'Not possible today'
     statusTone: 'no'
     implication: 'Would test drugs on the tumour outside the body. There is no live tissue'
-liquidBiopsies:
-  - id: ctdna-1
-    date: Apr 7, 2026
-    source: VHIO360 — liquid biopsy trial
-    findings: 'ESR1 D538G (0.24%) · CCND1 ×6 · FGFR1 ×5 · MET p.E59* (VUS, 0.77%) · MSI-low · no fusions'
-  - id: ctdna-2
-    date: Drawn 2026-04-13 · report 2026-04-23
-    source: Guardant360
-    findings: 'RB1 ×3 (p.V622Yfs*33 1.58% · p.R661W 1.48% · p.F226* 0.28%) · CCND1 amp (7.63) · FGFR1 amp (6.95) · ESR1 D538G not detected in this sample'
-    highlight: true
-  - id: ctdna-3
-    date: Drawn 2026-05-13 · report 2026-05-26
-    source: Guardant360 CDx
-    findings: 'ESR1 D538G (0.84%) · CCND1 amp (6.83) · FGFR1 amp (5.86) · RB1 V622Yfs*33 (0.19%) · SMO V319D (0.26%) — new'
-    highlight: true
-  - id: ctdna-4
-    date: Drawn 2026-05-13 · report 2026-06-01
-    source: VHIO360
-    findings: 'ESR1 D538G (1.38%) · RB1 p.V622fs (0.68%) · ARID1A p.L2238fs (0.11%) — new · SMO V319D (0.56%, VUS) · CCND1 7.62 · FGFR1 6 · MSI-low'
-    highlight: true
-liquidBiopsyPivot:
-  samples:
-    - id: vhio360
-      label: VHIO360
-      date: 2026-04-07
-      matrix: plasma
-    - id: guardant1
-      label: Guardant360
-      date: 2026-04-13
-      matrix: plasma
-    - id: guardantcdx
-      label: Guardant360 CDx
-      date: 2026-05-13
-      matrix: plasma
-  rows:
-    - alteration: ESR1
-      subscript: p.D538G
-      values:
-        vhio360: { value: '0.24%', tone: warn }
-        guardant1: { value: 'not detected', plain: true }
-        guardantcdx: { value: '0.84%', tone: warn }
-    - alteration: RB1
-      subscript: p.V622Yfs*33
-      values:
-        vhio360: { plain: true }
-        guardant1: { value: '1.58%', tone: warn }
-        guardantcdx: { value: '0.19%', tone: warn }
-    - alteration: CCND1
-      subscript: amplification
-      values:
-        vhio360: { value: '6', tone: violet }
-        guardant1: { value: '7.63', tone: violet }
-        guardantcdx: { value: '6.83', tone: violet }
-    - alteration: FGFR1
-      subscript: amplification
-      values:
-        vhio360: { value: '5', tone: violet }
-        guardant1: { value: '6.95', tone: violet }
-        guardantcdx: { value: '5.86', tone: violet }
-    - alteration: SMO
-      subscript: 'p.V319D · VUS'
-      values:
-        vhio360: { plain: true }
-        guardant1: { plain: true }
-        guardantcdx: { value: '0.26% — new', tone: neutral }
-    - alteration: MSI Status
-      values:
-        vhio360: { value: 'MSI-LOW', plain: true }
-        guardant1: { plain: true }
-        guardantcdx: { plain: true }
-  sources: 'Sources: 2026-04-07 VHIO360 · 2026-04-13 Guardant360 · 2026-05-13 Guardant360 CDx (report 2026-05-26)'
 imaging:
   title: Gallium-68 DOTATOC PET-CT
   date: May 26, 2026
@@ -505,28 +440,3 @@ imaging:
     Study showing multiple blastic bone metastases with somatostatin receptor
     overexpression. Focal uptake in the right breast tail to be evaluated in a
     dedicated study.
-boneBiopsy:
-  title: Bone biopsy (right ilium)
-  date: 1st attempt 2026-04-30 (no tumor) · 2nd attempt 2026-07-08 (tumor) · reports 2026-07-17 and 2026-08-19
-  site: Right ilium
-  result: >-
-    The first attempt (April 2026) yielded no tumor: only “mineralized bone
-    trabeculae and skeletal muscle fibers”. The second one (July 2026) did yield
-    viable tumour tissue, and it is the first molecular characterisation
-    on metastatic tissue (the 2024 primary already had tissue NGS). Pathology concludes bone metastasis of the
-    breast neuroendocrine tumour, with positive synaptophysin and Ki67 around
-    15%. The pathologist states two explicit caveats: the sample contains little
-    tumour tissue, and grading of neuroendocrine tumours is not established on
-    small biopsies —with this morphology and that Ki67 a moderately
-    differentiated tumour is assumed—. Hormone
-    receptors and HER2 were not assessed on this sample: the most recent HER2
-    IHC 0 comes from the liver biopsy (report of 21-09-2026). The tissue molecular profile
-    (FoundationOne CDx, July 2026) shows 11q13 amplification
-    (CCND1, FGF3, FGF4, FGF19; ≈37 copies) and 8p11 amplification (FGFR1,
-    NSD3, ZNF703; ≈33 copies); TMB 4 Muts/Mb (low), MS-Stable, HRDsig negative
-    and no active mutational signatures; no reportable alteration in ESR1,
-    RB1, TP53, PIK3CA, PTEN, AKT1, BRCA1/2 or ERBB2. What is absent matters as
-    much as what is present: the RB1 variants and the ESR1 D538G mutation were
-    detected in ctDNA (April 2026) and are not confirmed in this bone — it may
-    be heterogeneity between lesions or subclonal populations in blood; ctDNA
-    has not been repeated on this same lesion.

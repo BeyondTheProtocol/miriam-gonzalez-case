@@ -207,11 +207,11 @@
     ],
     "ne_head": "diferenciación neuroendocrina",
     "ne_sub": "la que necesitamos conocer",
-    "pct": "80%",
+    "pct": "80 % de las células neoplásicas (2024)",
     "cgsyn": "Cg · Syn",
     "amplicon": "amplicones 8p11 y 11q13",
-    "amplicon_g1": "FGFR1 ×13 · CCND1 ×20",
-    "amplicon_g2": "FGF3/4/19 ×18",
+    "amplicon_g1": "FGFR1 · CCND1",
+    "amplicon_g2": "FGF3/4/19",
     "esr1": "ESR1 mut. (ctDNA)",
     "hr": "HR+",
     "her2": "HER2−",
@@ -222,13 +222,13 @@
     "hr_note": "receptores hormonales",
     "close1": "Dos poblaciones, un mismo tumor.",
     "close2": "Tratar una sola selecciona a la otra.",
-    "sr": "Esquema del tumor. Mama luminal, la parte conocida: receptores hormonales y HER2 negativo, amplificaciones de FGFR1 (8p11) y del clúster 11q13 (CCND1, FGF3/4/19) y mutación de ESR1 en ctDNA. En la metástasis del hígado (2026) el receptor de estrógeno ya es negativo. Diferenciación neuroendocrina (Cg/Syn en ~80 % de las células), apenas conocida: variantes de RB1 vistas en sangre y no confirmadas en tejido, y receptores de somatostatina (SSTR), diana de la PRRT. Si se bloquea un lado, escapa por el otro; hay que tratarlo entero.",
+    "sr": "Esquema del tumor. Mama luminal, la parte conocida: receptores hormonales y HER2 negativo, amplificaciones de FGFR1 (8p11) y del clúster 11q13 (CCND1, FGF3/4/19) y mutación de ESR1 en ctDNA. En la metástasis del hígado (2026) el receptor de estrógeno ya es negativo. Diferenciación neuroendocrina (Cg/Syn en el 80 % de las células neoplásicas en 2024; focal y heterogénea en 2026), apenas conocida: variantes de RB1 vistas en sangre y no confirmadas en tejido, y receptores de somatostatina (SSTR), diana de la PRRT. Si se bloquea un lado, escapa por el otro; hay que tratarlo entero.",
     "legend_rec": "Receptores: dianas para atacar (HR y SSTR).",
     "legend_amp": "Amplificaciones: copias de más que empujan el tumor.",
     "legend_mut": "Mutaciones: resistencias que el tumor crea para crecer.",
     "legend_rb1": "RB1: un freno alterado en sangre, sin confirmar en tejido.",
     "legend_her2": "HER2: un receptor que no tiene (sin diana).",
-    "legend_cgsyn": "Cg · Syn: gránulos neuroendocrinos (el 80% del tumor)."
+    "legend_cgsyn": "Cg · Syn: gránulos neuroendocrinos."
   },
   "thanks": {
     "eyebrow": "Gracias",
@@ -301,7 +301,7 @@
       "Comisiones de plataforma, pasarelas de pago y costes administrativos"
     ],
     "why_title": "¿Por qué no lo cubre la sanidad pública?",
-    "why_text": "Los protocolos clínicos actuales clasifican este tumor como \"HR+ estándar\", pero su biología real — con un 80% de diferenciación neuroendocrina y amplificación FGFR1 ×13 — necesita pruebas de precisión que no están incluidas en el protocolo. Sin ellas, el tratamiento es insuficiente para lo que realmente tiene Miriam.",
+    "why_text": "Los protocolos clínicos actuales clasifican este tumor como \"HR+ estándar\", pero su biología real, con diferenciación neuroendocrina y amplificación de FGFR1, necesita pruebas de precisión que no están incluidas en el protocolo. Sin ellas, el tratamiento es insuficiente para lo que realmente tiene Miriam.",
     "transparency_title": "Máxima transparencia",
     "transparency_text": "Cada gasto está documentado públicamente. Pedimos presupuestos a laboratorios y los compartimos con la comunidad.",
     "raised": "Recaudados",
@@ -458,7 +458,8 @@
   "science": {
     "title": "La ciencia detrás del caso",
     "subtitle": "Carcinoma de mama HR+/HER2 0 con diferenciación neuroendocrina (BC-NED) y amplificación de FGFR1 (8p11) y del clúster 11q13 (CCND1, FGF3/4/19). Lo más reciente, septiembre de 2026: la metástasis del hígado ya no expresa receptor de estrógeno (RE 0 %) y conserva el componente neuroendocrino.",
-    "subtitle_simple": "Un cáncer de mama poco común que se comporta como dos enfermedades a la vez. Aquí, explicado sin tecnicismos."
+    "subtitle_simple": "Un cáncer de mama poco común que se comporta como dos enfermedades a la vez. Aquí, explicado sin tecnicismos.",
+    "en_corto": "Cáncer de mama metastásico HR+/HER2 0 con diferenciación neuroendocrina, fuera de las guías estándar. Aquí: la patología, el perfil molecular, la hipótesis terapéutica y el material que existe. Abajo, lo que se busca."
   },
   "team": {
     "title": "El equipo",
@@ -585,7 +586,7 @@
     "s3_eyebrow": "Brecha clínica",
     "s3_heading": "Lo que los protocolos actuales no cubren, lo cubrimos nosotros.",
     "s3_subheading": "Los protocolos actuales solo contemplan la mitad de la biología del tumor: están pensados para el cáncer de mama HR+ estándar, y el de Miriam no lo es.",
-    "s3_p1": "Histológicamente es un carcinoma de mama luminal (HR+/HER2−). Pero la inmunohistoquímica detectó un ~80% de diferenciación neuroendocrina. Esa segunda biología no entra en el protocolo estándar español.",
+    "s3_p1": "Histológicamente es un carcinoma de mama luminal (HR+/HER2−). Pero la inmunohistoquímica detectó diferenciación neuroendocrina. Esa segunda biología no entra en el protocolo estándar español.",
     "s3_p2": "Resultado práctico: el tratamiento hormonal cubre la parte de mama (luminal). El componente neuroendocrino, con su propia dinámica y dianas, queda sin abordar.",
     "s3_p3": "El equipo oncológico no puede prescribir fuera de protocolo sin evidencia sólida. Generar esa evidencia exige paneles avanzados y revisiones internacionales: la rebiopsia molecular y el comité molecular internacional (WIN) ya se hicieron en 2026, y ahora toca analizar el tejido y seguir midiendo. Nada de eso está financiado por sanidad para un caso de baja frecuencia.",
     "s3_pet_label": "Último hallazgo de imagen",
@@ -656,7 +657,7 @@
     "pro_clinical": "Medicina / investigación",
     "pro_press": "Prensa / medios",
     "s8_markers": [
-      "FGFR1 ×13",
+      "FGFR1 amplificado",
       "BC-NED",
       "Ki67 60%",
       "ESR1 D538G",
@@ -737,7 +738,7 @@
     "ruta": {
       "eyebrow": "La ruta",
       "title": "Del tejido a una terapia hecha para su tumor",
-      "intro": "Los ensayos de vacuna que se exploraron en junio se cerraron para ella. Esta es la ruta para construir una terapia a partir de su propio tumor: cinco pasos, y cada uno depende del anterior. Hoy el caso está en el segundo, y en paralelo sigue el tratamiento para controlar la enfermedad.",
+      "intro": "Los ensayos de vacuna explorados en junio no fueron accesibles entonces (faltaba tejido para fabricar); no están cerrados de forma definitiva y se siguen revisando. Esta es la ruta para construir una terapia a partir de su propio tumor: cinco pasos, y cada uno depende del anterior. Hoy el caso está en el paso {paso}, y en paralelo sigue el tratamiento para controlar la enfermedad.",
       "estados": {
         "hecho": "Hecho",
         "curso": "En curso",
@@ -766,7 +767,8 @@
           "texto": "Un ensayo clínico o un fabricante que pueda hacerla. Se buscan puertas en cualquier país."
         }
       },
-      "nota": "Material divulgativo: describe el camino, no promete resultados. Las decisiones las toma su equipo médico."
+      "nota": "Material divulgativo: describe el camino, no promete resultados. Las decisiones las toma su equipo médico.",
+      "ahora": "Ahora: {estado}"
     },
     "level_hint": "Versión",
     "level_aria": "Elegir la versión de la página: para mentes curiosas o para profesionales",
@@ -787,7 +789,7 @@
     "pro_help_title": "Tu lectura puede mover el caso",
     "pro_help_contribute": "Aporta tu opinión clínica o una segunda lectura del caso",
     "pro_help_share": "Compártelo con un especialista que pueda ayudar",
-    "pro_help_fund": "El siguiente análisis molecular depende de financiación. Si conoces una vía —fondo, fundación o colega— para sostenerlo,",
+    "pro_help_fund": "El siguiente análisis molecular depende de financiación.",
     "pro_help_fund_cta": "aquí",
     "simple_eyebrow": "Resumen simple",
     "simple_title": "El caso, en lenguaje sencillo",
@@ -816,23 +818,23 @@
     "targets": "Dianas",
     "implication": "Implicación",
     "proposed_panel": "El análisis molecular, prueba a prueba",
-    "proposed_panel_caption": "Análisis molecular del tumor: componente, material y método, dianas, estado a 29 de septiembre de 2026 e implicación",
+    "proposed_panel_caption": "Análisis molecular del tumor: cada prueba y la pregunta que responde",
     "axes": [
-      "TROP-2 → Dato-DXd (ensayo, oct 2026)",
+      "TROP-2 → Dato-DXd",
       "FGFR1 amplificado → FGFRi",
       "SSTR+ en hueso → PRRT",
       "RE 0 % en hígado → eje endocrino",
       "CgA/Syn+ en hígado → eje neuroendocrino"
     ],
-    "axes_note": "Hipótesis derivadas del perfil molecular, no tratamientos prescritos. Solo el eje TROP-2 va a usarse, y dentro de un ensayo. El análisis de Dana-Farber y una inmunohistoquímica de dianas en el hígado (TROP-2, SSTR2, DLL3) podrían confirmar o descartar el resto.",
+    "axes_note": "Hipótesis derivadas del perfil molecular, no tratamientos prescritos. Solo el eje TROP-2 está en uso, y dentro de un ensayo. El análisis de Dana-Farber y una inmunohistoquímica de dianas en el hígado (TROP-2, SSTR2, DLL3) podrían confirmar o descartar el resto.",
     "goal_n_of_1": "Objetivo: un tratamiento N-of-1",
     "goal_n_of_1_desc": "Un tratamiento diseñado para una sola paciente, sobre el perfil real de su tumor y no sobre el promedio HR+. Hoy corren dos cosas en paralelo: un tratamiento para controlar la enfermedad (un ensayo con datopotamab deruxtecan, previsto desde octubre de 2026) y la lectura a fondo del tumor, que es de donde saldrían las dianas de una terapia personalizada.",
     "detailed_analyses": "Análisis detallados",
     "view_reference": "Ver referencia",
     "why_no_fit_guidelines": "¿Por qué este tumor no encaja en los protocolos?",
-    "why_no_fit_guidelines_text": "Sobre el papel es un cáncer de mama {luminal} (HR+/HER2−). En el microscopio, ~80% del tumor muestra diferenciación neuroendocrina, con amplificación {fgfr1} y {ccnd1}. Los protocolos actuales recomiendan tratarlo como luminal estándar e ignorar el componente {neuroendocrino}; sin embargo, la OMS reconoce las neoplasias neuroendocrinas de mama como entidad propia desde su clasificación de 2019, y la literatura clínica indica que este subtipo híbrido ({bcned}) tiene peor pronóstico y suele necesitar estrategias distintas.",
+    "why_no_fit_guidelines_text": "Sobre el papel es un cáncer de mama {luminal} (HR+/HER2−). En la biopsia diagnóstica de 2024, el 80 % de las células neoplásicas expresaban cromogranina y sinaptofisina (CD56 negativo); en la revisión del mismo bloque en 2026 la expresión es focal y heterogénea, y los marcadores aparecen también en el hueso (sinaptofisina) y en el hígado (cromogranina A y sinaptofisina), sin porcentaje.",
     "thesis": "La tesis: la biología, no el órgano de origen, debería guiar el tratamiento.",
-    "thesis_goal": "Objetivo: un ensayo N-of-1 que siente precedente para la oncología de precisión en subtipos ultra-raros.",
+    "thesis_goal": "Objetivo: una terapia diseñada sobre el perfil de este tumor (N-of-1), decidida por su equipo médico.",
     "updates_2026_title": "Actualizaciones moleculares 2026",
     "updates_2026_subtitle": "Resultados generados en 2026 que complementan el perfil de tejido primario de 2024.",
     "ctdna_title": "Secuenciación de ctDNA en plasma",
@@ -858,13 +860,13 @@
     "snapshot_title": "De un vistazo",
     "snapshot_intro": "Lo esencial en diez segundos, antes del detalle molecular.",
     "snapshot_diagnosis_label": "Diagnóstico",
-    "snapshot_diagnosis": "Carcinoma infiltrante (NST) con ~80 % de diferenciación neuroendocrina (BC-NED) · HR+/HER2 0 · premenopáusica · estadio IV de novo, dx enero 2024",
+    "snapshot_diagnosis": "Carcinoma infiltrante (NST) con diferenciación neuroendocrina (BC-NED) · HR+/HER2 0 · premenopáusica · estadio IV de novo, dx enero 2024",
     "snapshot_drivers_label": "Drivers moleculares",
-    "snapshot_drivers": "FGFR1 (8p11) · CCND1 + FGF3/4/19 (11q13) · ×13 y ×20 en el primario 2024 · 33 y 37 copias en hueso 2026",
+    "snapshot_drivers": "FGFR1 (8p11) · CCND1 + FGF3/4/19 (11q13) · 13 y 20 copias en el primario 2024",
     "snapshot_resistance_label": "Resistencia y progresión",
     "snapshot_resistance": "ESR1 D538G y 3 variantes de RB1 en ctDNA (abr–may 2026), no confirmadas en el tejido óseo · pérdida de RE en la metástasis hepática",
     "snapshot_target_label": "Dianas",
-    "snapshot_target": "TROP-2: diana del ADC del ensayo (sin medir en tejido) · SSTR+ en PET Ga-68, solo hueso (mayo 2026)",
+    "snapshot_target": "TROP-2: diana del ADC en curso (sin medir en tejido) · SSTR+ en PET Ga-68, solo hueso (mayo 2026)",
     "snapshot_status_label": "Estado 2026",
     "snapshot_status": "ECOG 0 · metástasis óseas y hepáticas · fuera del ensayo BG-75202 (KAT6i) desde el 9-sep por progresión hepática · en cribado para TROPION-Breast06 (Dato-DXd)",
     "snapshot_grade_label": "Receptores y grado",
@@ -886,7 +888,27 @@
     "app_hook_cta": "Solicitar acceso anticipado",
     "status": "Estado",
     "goal_lab_desc": "Paloma Cejas, codirectora del Center for Functional Cancer Epigenetics del Dana-Farber Cancer Institute, colabora en el estudio molecular. Su laboratorio tiene material en parafina de las tres localizaciones: mama (2024), hueso (julio de 2026) e hígado (agosto de 2026). El plan es single-cell RNA-seq con 10x Genomics Flex, que funciona sobre parafina, y secuenciación del exoma.",
-    "goal_lab_note": "Para separar lo que es del tumor de lo heredado falta su ADN sano (sangre), que todavía no ha salido hacia Boston."
+    "goal_lab_note": "Para separar lo que es del tumor de lo heredado falta su ADN sano (sangre), que todavía no ha salido hacia Boston.",
+    "ficha_histologia": "Histología",
+    "ficha_estadio": "Estadio",
+    "ficha_receptores": "Receptores",
+    "ficha_material": "Material y dónde está",
+    "ficha_hoy": "El estado de hoy, con su sello",
+    "ficha_tejido": "Todo el tejido y su estado",
+    "why_no_fit_protocols_text": "El tumor lleva además amplificación de {fgfr1} y {ccnd1}. Los protocolos actuales recomiendan tratarlo como luminal estándar e ignorar el componente {neuroendocrino}.",
+    "why_no_fit_oms_text": "La clasificación de la OMS de 2019 reserva «neoplasia neuroendocrina de mama» para los tumores con más del 90 % de células neuroendocrinas; este es un carcinoma NST con diferenciación neuroendocrina, que queda fuera de esa categoría y se trata con las guías del cáncer de mama luminal. La evidencia sobre su pronóstico es retrospectiva y no coincide entre series; ninguna cohorte publicada es de estadio IV de novo en premenopáusicas. En esta web lo llamamos {bcned} como etiqueta de trabajo, no como categoría diagnóstica.",
+    "estado_cuarta_linea": "En cuarta línea desde el {fecha}: datopotamab deruxtecan 6 mg/kg cada 3 semanas en TROPION-Breast06 (Vall d'Hebron); el curso clínico documenta la inclusión y pauta el primer ciclo ese día.",
+    "axis_trop2_fecha": "TROP-2 → Dato-DXd (en curso desde el {fecha})",
+    "axes_evidencia": "Ver la evidencia",
+    "panel_lede": "Qué pregunta responde cada análisis.",
+    "panel_tejido": "El tejido que hay, dónde está y en qué estado, en El caso en datos",
+    "panel_col_prueba": "Prueba",
+    "panel_col_responde": "Qué responde",
+    "panel_nota_titulo": "Apoyo a la decisión",
+    "panel_nota": "Material de apoyo a la consulta: describe qué análisis existen y qué responde cada uno; no es una indicación de tratamiento. Qué se analiza y cómo lo decide el laboratorio que lo hace, y las decisiones clínicas, el equipo médico tratante.",
+    "patologia_limites_titulo": "Lo que estas lecturas no dicen",
+    "nota_copias_titulo": "Cómo leer las copias de FGFR1 y CCND1",
+    "nota_copias": "FGFR1: 13 copias en el primario de 2024 (TSO500; el remitente estimó un 75 % de tumor y el laboratorio avisa de que el número de copias no es fiable por debajo del 50 %; VIGex midió un 50 % en el mismo bloque). En el hueso de 2026 el informe clínico de FoundationOne CDx dice «amplificación de FGFR1» sin cifra; las 33 copias de FGFR1 y 37 del clúster 11q13 salen del fichero de investigación de ese análisis («for research use only», pureza computacional 61 %). Plataformas, muestras y purezas distintas: la amplificación es firme, las cifras no se comparan entre sí."
   },
   "historia": {
     "chapter": "Capítulo",
@@ -954,7 +976,7 @@
     "profile1_tag": "Revisión clínica",
     "profile1_title": "Profesional de la medicina o la investigación",
     "profile1_list": [
-      "Segunda lectura del perfil molecular (FGFR1 ×13, CCND1 ×20, diferenciación neuroendocrina ~80%).",
+      "Segunda lectura del perfil molecular (FGFR1 y CCND1 amplificados; diferenciación neuroendocrina en el primario y en las metástasis).",
       "Acceso a ensayos N-of-1, FGFR, neuroendocrinos u oncología de precisión.",
       "Contactos con especialistas en BC-NED o amplificación 11q13.",
       "Propuestas de líneas terapéuticas dirigidas a las dianas activas."
@@ -1288,15 +1310,19 @@
     "jump": "Saltar a una sección",
     "contents": "Índice",
     "ciencia": {
-      "summary": "Resumen clínico",
+      "summary": "De un vistazo",
       "pathology": "Anatomía patológica",
       "three_sites": "Tres sitios · 2026",
       "molecular": "Perfil molecular",
       "imaging": "Imagen funcional",
       "map_biopsy": "Mapa y biopsia",
-      "panel": "Análisis en curso",
+      "panel": "Análisis",
       "history": "Historia clínica",
-      "route": "La ruta"
+      "route": "La ruta",
+      "busca": "Qué buscamos",
+      "tools": "Herramientas",
+      "why": "Por qué no encaja",
+      "axes": "Ejes terapéuticos"
     },
     "mapa": {
       "suitability": "Idoneidad como diana",

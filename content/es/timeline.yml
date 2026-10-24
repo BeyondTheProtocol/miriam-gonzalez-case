@@ -55,8 +55,8 @@ entries:
     title: El tumor revela su identidad molecular
     description: >
       Miriam participa en el estudio DIPCAN, que permite realizar un análisis genómico completo
-      del tumor (TSO500). Los resultados revelan los marcadores clave: FGFR1 amplificado ×13,
-      CCND1 ×20, FGF3/4/19 ×18 (cluster 11q13). Además, el análisis detecta una discrepancia
+      del tumor (TSO500). Los resultados revelan los marcadores clave: FGFR1 amplificado (13
+      copias), CCND1 (20 copias) y FGF3/4/19 (18 copias), estos dos del cluster 11q13. Además, el análisis detecta una discrepancia
       llamativa en el receptor de progesterona (PR): la misma muestra tumoral da un resultado
       de 5% en el laboratorio local pero 100% en el laboratorio de referencia externo — una
       diferencia con implicaciones directas en la elección del tratamiento hormonal.

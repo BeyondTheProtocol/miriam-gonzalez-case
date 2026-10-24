@@ -55,8 +55,8 @@ entries:
     title: The tumor reveals its molecular identity
     description: >
       Miriam participates in the DIPCAN study, enabling a complete genomic analysis of the
-      tumor (TSO500). The results reveal the key markers: FGFR1 amplified ×13, CCND1 ×20,
-      FGF3/4/19 ×18 (11q13 cluster). The analysis also detects a striking discrepancy in the
+      tumor (TSO500). The results reveal the key markers: FGFR1 amplified (13 copies), CCND1
+      (20 copies) and FGF3/4/19 (18 copies), the last two in the 11q13 cluster. The analysis also detects a striking discrepancy in the
       progesterone receptor (PR): the same tumor sample returns 5% at the local laboratory
       but 100% at the external reference laboratory — a difference with direct implications
       for hormonal treatment decisions.

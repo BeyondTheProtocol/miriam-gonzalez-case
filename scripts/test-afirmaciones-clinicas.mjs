@@ -35,6 +35,13 @@
 //   (BC-NED, FGFR1 ×13, SSTR+)». El diagnóstico molecular sigue siendo público donde está
 //   aprobado (ciencia, vídeo), pero no es la etiqueta de cabecera.
 //
+// - Las seis deudas del cotejo de cifras de la web contra los informes (23-oct-2026; textos literales del comité médico, 24-oct-2026,
+//   tanda 2 del rediseño, T2c). Cada una tiene su patrón y su canario (abajo): web-ne-80-del-tumor, web-oms-2019-entidad-propia,
+//   web-fgfr1-unidad-x, web-sinaptofisina-laminilla-sin-documento, web-recist-dianas-incompletas y web-goserelina-fin-28-may.
+//   Los patrones viven en scripts/lib/deudas-clinicas.mjs (UNA definición para este test y para scripts/test-ciencia-pro.ts, que mira el HTML
+//   generado de todas las páginas). Este lee el FUENTE (app, i18n y content; también app/data/caso.json), que es lo que corre en lint.yml sin
+//   build, y casa también con un texto partido en varias líneas (un yml con `>-`): se prueba sobre el fichero con los saltos de línea unidos.
+//
 // Uso: pnpm test:afirmaciones-clinicas   (CI: .github/workflows/lint.yml)
 import { readdirSync, readFileSync, statSync } from 'node:fs'
 import { extname, join, relative } from 'node:path'
@@ -74,6 +81,8 @@ const PROHIBIDO = [
   { re: /revisado por Oncología Radioterápica|Oncología Radioterápica ya los revisó|en seguimiento por Oncología Radioterápica|reviewed by Radiation Oncology|under Radiation Oncology follow/, por: 'sin documento de revisión por Oncología Radioterápica' },
 ]
 
+import { DEUDAS } from './lib/deudas-clinicas.mjs'
+
 function* ficheros(dir) {
   for (const n of readdirSync(dir)) {
     const p = join(dir, n)
@@ -83,16 +92,35 @@ function* ficheros(dir) {
 }
 
 const fallos = []
+
+// Canarios: un patrón que no casa con su texto MALO es decorativo (pasaría con el código roto), y uno que casa con su texto BUENO
+// prohibiría la corrección. Se comprueban antes de mirar nada: si fallan, el test está mal escrito y lo dice.
+for (const { id, re, malo, bueno } of DEUDAS) {
+  if (!re.test(malo)) fallos.push(`canario ${id}: el patrón NO casa con el texto malo («${malo.slice(0, 60)}…»): sería un test decorativo`)
+  if (re.test(bueno)) fallos.push(`canario ${id}: el patrón casa con el texto corregido («${bueno.slice(0, 60)}…»): prohibiría la corrección`)
+}
+
 for (const d of DIRS) {
   for (const f of ficheros(join(ROOT, d))) {
     const rel = relative(ROOT, f)
-    readFileSync(f, 'utf8').split('\n').forEach((linea, i) => {
+    const texto = readFileSync(f, 'utf8')
+    texto.split('\n').forEach((linea, i) => {
       for (const { re, por, saltar } of PROHIBIDO) {
         if (saltar?.test(rel)) continue
         const m = linea.match(re)
         if (m) fallos.push(`${rel}:${i + 1}  «${m[0]}»  → ${por}`)
       }
+      for (const { id, re, por } of DEUDAS) {
+        const m = linea.match(re)
+        if (m) fallos.push(`${rel}:${i + 1}  «${m[0]}»  → ${id}: ${por}`)
+      }
     })
+    // Texto partido en varias líneas (un yml con `>-`): saltos de línea y sangría unidos en un espacio. Solo se anota lo que NO casó ya línea a línea.
+    const unido = texto.replace(/\s*\n\s*/g, ' ')
+    for (const { id, re, por } of DEUDAS) {
+      const m = unido.match(re)
+      if (m && !texto.split('\n').some((l) => re.test(l))) fallos.push(`${rel}  «${m[0]}»  → ${id}: ${por}`)
+    }
   }
 }
 

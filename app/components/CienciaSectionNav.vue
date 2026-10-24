@@ -1,5 +1,5 @@
 <template>
-  <!-- Índice de secciones del dossier clínico (modo pro de /ciencia). Comité:
+  <!-- Índice de secciones del dossier clínico de /ciencia (capa única, profesional). Comité:
        rail pegajoso a la izquierda en lg+ (variant="rail"), desplegable
        «Saltar a…» en móvil (variant="mobile"); etiquetas clínicas en sans bajo
        un rótulo mono; activo en berenjena + punto violeta (NUNCA coral); foco
@@ -46,18 +46,17 @@ const props = withDefaults(defineProps<{ variant?: 'rail' | 'mobile' }>(), {
 })
 const { t } = useI18n()
 
-// Capítulos clínicos mapeados a ids de título ya existentes en la página
-// (orden de lectura tras subir el panel sobre la historia clínica). Las etiquetas,
-// en i18n (sectionNav.ciencia.*): una sola fuente por etiqueta.
+// Capítulos mapeados a ids de título ya existentes en la página (orden de lectura; tanda 2, T2c, 24-oct-2026: una sola capa, sin
+// historia clínica ni imagen funcional, que pasaron a /datos). Las etiquetas, en i18n (sectionNav.ciencia.*): una sola fuente por etiqueta.
 const CAPITULOS = [
+  { id: 'ciencia-busca', key: 'busca' },
+  { id: 'mapa-acceso', key: 'tools' },
   { id: 'snapshot-title', key: 'summary' },
+  { id: 'por-que-no-encaja', key: 'why' },
   { id: 'tejido-3veces', key: 'pathology' },
-  { id: 'tres-sitios', key: 'three_sites' },
   { id: 'molecular-profile-title', key: 'molecular' },
-  { id: 'imaging-tissue-title', key: 'imaging' },
-  { id: 'mapa-acceso', key: 'map_biopsy' },
+  { id: 'axes-title', key: 'axes' },
   { id: 'panel-title', key: 'panel' },
-  { id: 'treatment-title', key: 'history' },
   { id: 'ruta-title', key: 'route' },
 ]
 const chapters = computed(() => CAPITULOS.map((c) => ({ id: c.id, label: t(`sectionNav.ciencia.${c.key}`) })))
