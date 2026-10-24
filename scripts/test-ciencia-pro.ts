@@ -20,6 +20,7 @@ import { parse } from 'yaml'
 import caso from '../app/data/caso.json'
 import { cuartaLineaDe, fechaDia, leerCasoCiencia } from '../app/utils/casoCiencia'
 import { msFecha } from '../app/utils/datosCaso'
+import { formatearFechaCambio } from '../app/utils/fechaCambio'
 import { HERRAMIENTAS } from '../app/utils/navegacion'
 import { DEUDAS } from './lib/deudas-clinicas.mjs'
 
@@ -72,7 +73,7 @@ console.log('\n1. El estado se lee de caso.json')
   const es = leerCasoCiencia(c, 'es'), en = leerCasoCiencia(c, 'en')
   ok(es.actualizado === c.actualizado && /^\d{4}-\d{2}-\d{2}$/.test(es.actualizado), `la fecha de la página es la de caso.json (${es.actualizado})`)
   ok(es.filas.map((f) => f.clave).join() === 'diagnostico,histologia,estadio' && es.receptores.map((r) => r.marcador).join() === 'RE,RP,HER2 IHC,Ki67', 'la ficha trae diagnóstico, histología, estadio y los cuatro receptores, con las palabras de caso.json')
-  ok(es.material.length === 3 && en.material.length === 3 && /^Hueso, ilion derecho$/.test(es.material[0]!.muestra) && /^Hígado, segmento IVa$/.test(es.material[1]!.muestra) && /^Mama, primario$/.test(es.material[2]!.muestra), `el material de la ficha: hueso, hígado y mama (${es.material.map((m) => m.muestra).join(' · ')})`)
+  ok(es.material.length === 2 && en.material.length === 2 && /^Hueso, ilion derecho$/.test(es.material[0]!.muestra) && /^Hígado, segmento IVa$/.test(es.material[1]!.muestra) && es.material.every((m) => m.sello === 'verificado'), `el material de la ficha: solo el verificado, hueso e hígado (${es.material.map((m) => m.muestra).join(' · ')}); la mama, con ubicación deducida, va con su sello en /datos`)
   ok(es.peticiones.length === 5, `las peticiones son las 5 públicas (lista blanca), no las 7 de caso.json (${es.peticiones.length})`)
   ok(!JSON.stringify(es).includes('error del informe') && !JSON.stringify(en).includes('error in the report'), 'lo que lee la ficha NO incluye `detalle` (el de la sinaptofisina contaba la revisión de la laminilla como hecho verificado)')
   const hoy = msFecha(String(c.generado).slice(0, 10))
@@ -119,8 +120,9 @@ for (const loc of ['es', 'en'] as const) {
   const ficha = texto(h.slice(h.indexOf('id="snapshot-title"'), h.indexOf('id="por-que-no-encaja"')))
   ok(L.filas.every((r) => ficha.includes(r.valor)) && L.receptores.every((r) => ficha.includes(r.valor)) && L.material.every((m) => ficha.includes(m.muestra) && ficha.includes(m.donde)), `${f}: la ficha dice lo que caso.json (diagnóstico, histología, estadio, receptores y material con su «dónde está»)`)
   ok(!/Estado 2026|Status 2026|ECOG 0 ·/.test(ficha), `${f}: la ficha no lleva estado escrito a mano («Estado 2026»)`)
-  const actualizado = loc === 'es' ? 'Actualizado el 21 de octubre de 2026' : 'Updated on 21 October 2026'
-  ok(new Date((caso as any).actualizado).toISOString().slice(0, 10) === '2026-10-21' && txt.includes(actualizado) || txt.includes(t(loc, 'page.updated').replace('{date}', '').trim()), `${f}: «${t(loc, 'page.updated').replace('{date}', '…')}» con la fecha de caso.json`)
+  // «Actualizado el …»: la fecha de caso.json, con el MISMO formateador y la misma frase que ActualizadoEl (nada de una fecha escrita en el test)
+  const esperadoFecha = t(loc, 'page.updated').replace('{date}', formatearFechaCambio((caso as any).actualizado, loc))
+  ok(esperadoFecha.length > 12 && txt.includes(esperadoFecha), `${f}: dice «${esperadoFecha}», la fecha de caso.json`)
   ok(!/Última actualización: 29|Last updated: 29|septiembre de 2026\.? *$/m.test(txt) && !/al día de septiembre|current as of September/i.test(html(f)), `${f}: sin fecha de septiembre escrita a mano (ni en la página ni en la meta description)`)
   // Donar: UN botón coral en la zona de cierre
   const botones = [...main.matchAll(/<a\b[^>]*\bclass="[^"]*\bbtn-cta\b[^"]*"[^>]*>/g)].map((m) => m[0])

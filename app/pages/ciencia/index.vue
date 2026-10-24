@@ -30,7 +30,7 @@
             <!-- 2 · Qué buscamos: lo que pueden mover los científicos que llegan aquí (laboratorio, HLA, IHQ). El resto, en /datos#que-buscamos. -->
             <section v-if="peticiones.length" class="ci-sec" aria-labelledby="ciencia-busca">
               <CabeceraSeccion id="ciencia-busca" :titulo="L('Qué buscamos', 'What we’re looking for')" />
-              <QueBuscamos :fuente="peticiones" :filtro="TEMAS_CIENCIA" :ver-todas="false" :acciones="false" />
+              <QueBuscamos :fuente="peticiones" :filtro="TEMAS_CIENCIA" :ver-todas="false" :acciones="false" :sellos="false" />
               <div class="ci-acciones">
                 <NuxtLink :to="localePath({ name: 'contacto', query: { role: 'researcher' } })" class="btn-secondary">{{ $t('home.buscamos_escribir') }}</NuxtLink>
                 <NuxtLink :to="localePath({ name: 'datos', hash: '#que-buscamos' })" class="link-action group">
@@ -117,19 +117,19 @@
             <section class="ci-sec" aria-labelledby="por-que-no-encaja">
               <CabeceraSeccion id="por-que-no-encaja" :eyebrow="L('La anomalía', 'The anomaly')" :titulo="$t('ciencia.why_no_fit_guidelines')" />
               <div class="card-base ci-prosa">
+                <!-- Sin glosario en la prosa: un botón en línea mide ~24 px y el sistema pide 44 (R10). Los términos con definición están en los ejes. -->
                 <i18n-t keypath="ciencia.why_no_fit_guidelines_text" tag="p">
-                  <template #luminal><Term id="luminal" /></template>
+                  <template #luminal>luminal</template>
                 </i18n-t>
                 <i18n-t keypath="ciencia.why_no_fit_protocols_text" tag="p">
-                  <template #fgfr1><Term id="fgfr1" /></template>
-                  <template #ccnd1><Term id="ccnd1" /></template>
-                  <template #neuroendocrino><Term id="neuroendocrino" /></template>
+                  <template #fgfr1>FGFR1</template>
+                  <template #ccnd1>CCND1</template>
+                  <template #neuroendocrino>neuroendocrino</template>
                 </i18n-t>
                 <i18n-t keypath="ciencia.why_no_fit_oms_text" tag="p">
-                  <template #bcned><Term id="bcned" /></template>
+                  <template #bcned>BC-NED</template>
                 </i18n-t>
                 <p class="font-semibold">{{ $t('ciencia.thesis') }}</p>
-                <Nota icon="tap">{{ $t('glossary.hint') }}</Nota>
               </div>
             </section>
 
@@ -209,6 +209,7 @@
                   </NuxtLink>
                 </li>
               </ul>
+              <Nota icon="tap" class="mt-4">{{ $t('glossary.hint') }}</Nota>
               <p class="ci-nota-eje">{{ $t('ciencia.axes_note') }}</p>
             </section>
 
@@ -228,7 +229,7 @@
                     <tr v-for="(row, i) in panelRows" :key="i">
                       <td class="cell-head font-semibold">{{ row.component }}</td>
                       <td class="col-note cell-block" :data-label="$t('ciencia.panel_col_responde')">
-                        {{ row.implication }}<NuxtLink v-if="row.linkTo" :to="localePath(row.linkTo)" class="link-inline block mt-2">{{ row.linkText }}</NuxtLink>
+                        {{ row.implication }}<NuxtLink v-if="row.linkTo" :to="localePath(row.linkTo)" class="link-action group">{{ row.linkText }}<Icon name="ph:arrow-right" class="w-4 h-4 transition-transform group-hover:translate-x-0.5" aria-hidden="true" /></NuxtLink>
                       </td>
                     </tr>
                   </tbody>
@@ -512,11 +513,14 @@ useHead({ script: [{ type: 'application/ld+json', innerHTML: condicion }] })
 /* Ejes */
 .ci-ejes { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--sp-12); }
 .ci-eje { display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-4) var(--sp-16); }
+/* el término con su definición es un botón: 44 px de alto como cualquier control (R10) */
+.ci-eje :deep(.term--badge) { min-height: var(--control-min); }
 .ci-nota-eje { margin: var(--sp-16) 0 0; font: var(--tipo-body-sm); color: var(--texto-2); max-width: var(--measure); }
 
 /* Cierre profesional */
 .ci-pro { list-style: none; margin: 0 0 var(--sp-16); padding: 0; display: grid; gap: var(--sp-8); }
-.ci-pro li { display: flex; align-items: flex-start; gap: var(--sp-12); font: var(--tipo-ui); }
-.ci-pro__icono { flex: none; width: 1rem; height: 1rem; margin-top: 0.3rem; color: var(--identidad); }
+.ci-pro li { display: flex; align-items: center; gap: var(--sp-12); font: var(--tipo-ui); }
+.ci-pro a { display: inline-flex; align-items: center; min-height: var(--control-min); }
+.ci-pro__icono { flex: none; width: 1rem; height: 1rem; color: var(--identidad); }
 .ci-apoyo { margin: 0 0 var(--sp-12); font: var(--tipo-body-sm); color: var(--texto-2); }
 </style>

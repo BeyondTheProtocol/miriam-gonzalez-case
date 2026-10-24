@@ -105,7 +105,8 @@ export function leerCasoCiencia(caso: any, lang: Lang): CasoCiencia {
     .map((r: any) => ({ marcador: T(r.marcador), valor: T(r.valor), sello: sello(r) }))
   const material: MuestraCiencia[] = HUELLAS_MATERIAL
     .map((h) => (caso.material ?? []).find((m: any) => h.test(txtCaso(m.muestra, 'es'))))
-    .filter((m: any) => !!m)
+    // Solo el material VERIFICADO: lo inferido (p. ej. «ubicación del bloque deducida») va con su sello en /datos#s-tejido, no aquí sin él.
+    .filter((m: any) => !!m && m.sello === 'verificado')
     .map((m: any) => ({ muestra: T(m.muestra).split(/ \(|\. |: /)[0]!, donde: T(m.donde), sello: sello(m) }))
   return {
     actualizado: String(caso.actualizado ?? ''),

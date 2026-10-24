@@ -62,6 +62,8 @@ const idioma = computed(() => (locale.value === 'en' ? 'en' : 'es'))
 /* 16:9 reservado antes de cargar el póster: la página no salta. */
 .video-web {
   aspect-ratio: 16 / 9;
+  /* El texto alternativo del <video> (navegador sin soporte) iba berenjena sobre berenjena (1:1): ahora, crema sobre berenjena. */
+  color: var(--color-bg);
 }
 /* Objetivo táctil de 44 px en el resumen del plegable (la vara de la casa). */
 .video-transcripcion > summary {

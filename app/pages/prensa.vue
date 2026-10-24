@@ -153,7 +153,8 @@
         </div>
 
         <!-- Vídeo: el promo de Polaris, con su transcripción. Venía de /videos, fusionada aquí en el rediseño (F4,
-             23-oct-2026; /videos redirige a /ciencia, donde vive el explicativo del ADC). Mismo vídeo y mismas palabras. -->
+             23-oct-2026); desde T2c (24-oct-2026) /videos redirige a esta ancla (#video) y el explicativo del ADC vive en el hito
+             del 7-oct de /timeline. Mismo vídeo y mismas palabras. -->
         <div id="video" class="mt-16 scroll-mt-24">
           <h2 id="press-video" class="eyebrow mb-5 block">
             {{ $t('videos.title') }}

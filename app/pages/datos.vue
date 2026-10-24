@@ -732,20 +732,20 @@ const imagenGalio = computed(() => ciencia.value?.imaging ?? null)
                 <div class="dt-hist__texto">
                   <p class="dt-hist__reg">
                     <span>{{ tx.regimen }}</span>
-                    <span :class="['status-badge', tx.active ? 'status-badge--active' : 'status-badge--complete']">{{ tx.badge || (tx.active ? L('Activo', 'Active') : L('Completado', 'Completed')) }}</span>
+                    <span :class="['status-badge', tx.active ? 'status-badge--curso' : 'status-badge--hecho']">{{ tx.badge || (tx.active ? L('Activo', 'Active') : L('Completado', 'Completed')) }}</span>
                   </p>
                   <p class="dt-hist__res">{{ tx.outcome }}</p>
                 </div>
               </li>
             </ol>
-            <p class="dt-pie">{{ L('Texto de la historia clínica, pasado aquí desde La ciencia sin cambios. Todavía no está en los datos de arriba, así que sus cifras no llevan sello por separado.', 'Clinical-history text, moved here from The science page unchanged. It is not yet in the data above, so its figures carry no separate seal.') }}</p>
+            <p class="dt-nota">{{ L('Texto de la historia clínica, pasado aquí desde La ciencia sin cambios. Todavía no está en los datos de arriba, así que sus cifras no llevan sello por separado.', 'Clinical-history text, moved here from The science page unchanged. It is not yet in the data above, so its figures carry no separate seal.') }}</p>
           </details>
 
           <details v-if="imagenGalio" id="s-pet" class="dt-det">
             <summary>{{ imagenGalio.title }} · {{ imagenGalio.date }}</summary>
             <i18n-t keypath="ciencia.imaging_intro" tag="p" class="dt-nota">
-              <template #sstr><Term id="sstr" /></template>
-              <template #prrt><Term id="prrt" /></template>
+              <template #sstr>SSTR+</template>
+              <template #prrt>PRRT</template>
             </i18n-t>
             <p class="dt-nota">{{ $t('ciencia.imaging_what') }}</p>
             <blockquote v-if="imagenGalio.quote" class="dt-cita">«{{ imagenGalio.quote }}»</blockquote>
@@ -972,7 +972,7 @@ const imagenGalio = computed(() => ciencia.value?.imaging ?? null)
 .dt-lista-trat p { margin: 0; }
 .dt-hist { list-style: none; margin: var(--sp-12) 0 0; padding: 0; display: grid; gap: var(--sp-16); }
 .dt-hist__item { display: grid; grid-template-columns: 3rem minmax(0, 1fr); gap: var(--sp-12); align-items: start; }
-.dt-hist__linea { display: inline-flex; align-items: center; justify-content: center; min-height: 2.25rem; border-radius: var(--radius-md); font: var(--tipo-etiqueta);
+.dt-hist__linea { display: inline-flex; align-items: center; justify-content: center; min-height: 2.25rem; border-radius: var(--radius-md); font: var(--tipo-etiqueta); text-transform: uppercase;
   color: var(--texto-2); border: 1px solid var(--trazo-medio); }
 .dt-hist__linea--activa { background: var(--color-miriam-soft); color: var(--color-text); border-color: transparent; }
 .dt-hist__texto { min-width: 0; }

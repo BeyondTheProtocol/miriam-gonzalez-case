@@ -151,11 +151,13 @@ function jumpTo(e: Event, id: string) {
   align-items: center;
   gap: 0.5rem;
   margin-left: -1px;
+  /* 44 px de alto: al volverse la capa única y quedar siempre a la vista, el índice se mide (R10) y antes medía 30 px */
+  min-height: var(--control-min);
   padding: 6px 0 6px 14px;
   border-left: 2px solid transparent;
   font-size: 13.5px;
   line-height: 1.3;
-  color: rgb(var(--color-text-rgb) / 0.58);
+  color: var(--texto-2);
   text-decoration: none;
   transition: color 0.18s ease, border-color 0.18s ease;
 }
@@ -220,8 +222,10 @@ function jumpTo(e: Event, id: string) {
   flex-direction: column;
 }
 .cn-m__list a {
-  display: block;
-  padding: 9px 0;
+  display: flex;
+  align-items: center;
+  min-height: var(--control-min);
+  padding: 0;
   font-size: 14px;
   color: var(--color-text);
   text-decoration: none;
