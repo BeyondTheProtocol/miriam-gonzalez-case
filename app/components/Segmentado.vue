@@ -10,7 +10,9 @@
  * · modo="toggle"   filtros que se encienden y apagan (aria-pressed); `modelValue` es un array de valores.
  * · Activo = --seleccionado-bg y --seleccionado-text MÁS un borde de 2 px del color del texto: el estado no depende solo
  *   del color. Borde de reposo --trazo-interactivo (≥ 3:1), mínimo 44 px, píldora. El foco usa el anillo de los roles.
- * · `desplazable`: en móvil la fila se desliza en horizontal en vez de partirse en varias líneas.
+ * · `desplazable`: en móvil la fila se desliza en horizontal en vez de partirse en varias líneas. Lleva 6 px de aire arriba y
+ *   abajo y 4 a los lados (con margen negativo igual): el anillo de foco ocupa de 2 a 4 px fuera del botón y overflow-x:auto
+ *   recorta también en vertical, así que sin ese aire el anillo salía cortado.
  *
  * Los estilos viven en main.css (.segmentado, .segmentado__btn): nacen copiando el kit de CelulaExplorarExplorador sin
  * tocar ese fichero, que es del PR #290.

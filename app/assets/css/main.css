@@ -163,7 +163,8 @@
 
   /* DS firma — Fraunces italic en violeta miriam */
   .firma {
-    @apply font-display italic text-miriam;
+    @apply font-display italic;
+    color: var(--identidad);
   }
 
   /* ────────────────────────────────────────────────────────────
@@ -228,7 +229,8 @@
 
   /* DS card — cream-card sobre cream */
   .card-base {
-    @apply bg-cream-card rounded-card p-6 sm:p-8;
+    @apply rounded-card p-6 sm:p-8;
+    background-color: var(--superficie);
     border: 1px solid var(--trazo-sutil);
   }
 
@@ -418,25 +420,26 @@
     @apply w-full text-sm border-collapse;
   }
   .data-table thead th {
-    @apply text-left font-medium text-tinta;
+    @apply text-left font-medium;
+    color: var(--texto-2);
     font-size: var(--texto-xs);
     letter-spacing: 0.02em;
     padding: 14px 16px;
-    background: var(--color-bg-card); /* cream-card */
+    background: var(--superficie);
     border-bottom: 1px solid var(--trazo-sutil);
   }
   .data-table thead th:first-child { border-top-left-radius: var(--radius-btn); }
   .data-table thead th:last-child  { border-top-right-radius: var(--radius-btn); }
   .data-table tbody td {
     padding: 14px 16px;
-    border-bottom: 1px solid rgb(var(--color-text-rgb) / 0.06);
+    border-bottom: 1px solid color-mix(in srgb, var(--texto-1) 6%, transparent);
     vertical-align: middle;
-    color: var(--color-text);
+    color: var(--texto-1);
     font-variant-numeric: tabular-nums;
   }
   .data-table tbody tr:last-child td { border-bottom: 0; }
   @media (hover: hover) and (pointer: fine) {
-    .data-table tbody tr:hover td { background: rgb(var(--color-miriam-rgb) / 0.04); }
+    .data-table tbody tr:hover td { background: color-mix(in srgb, var(--identidad) 4%, transparent); }
   }
   .data-table .col-marker {
     @apply font-mono;
@@ -446,7 +449,7 @@
     word-break: normal;
   }
   .data-table .col-note {
-    color: var(--color-text-soft);
+    color: var(--texto-2);
     font-size: var(--texto-xs);
     line-height: 1.5;
   }
@@ -467,7 +470,8 @@
 
   /* Card wrapper around a data table — keeps the rounded look from the mockups */
   .data-card {
-    @apply bg-cream rounded-card overflow-hidden;
+    @apply rounded-card overflow-hidden;
+    background-color: var(--fondo);
     border: 1px solid var(--trazo-sutil);
   }
 
@@ -490,7 +494,7 @@
     }
     .data-table--cards tr {
       padding: 14px 16px;
-      border-bottom: 1px solid rgb(var(--color-text-rgb) / 0.10);
+      border-bottom: 1px solid color-mix(in srgb, var(--texto-1) 10%, transparent);
     }
     .data-table--cards tbody tr:last-child {
       border-bottom: 0;
@@ -520,7 +524,7 @@
       font-size: var(--texto-2xs);
       letter-spacing: 0.04em;
       text-transform: uppercase;
-      color: var(--color-text-soft);
+      color: var(--texto-2);
       font-weight: 500;
       line-height: 1.4;
     }
@@ -530,12 +534,12 @@
       text-align: left;
       padding: 2px 0 9px !important;
       margin-bottom: 4px;
-      border-bottom: 1px solid rgb(var(--color-text-rgb) / 0.06) !important;
+      border-bottom: 1px solid color-mix(in srgb, var(--texto-1) 6%, transparent) !important;
       font-family: var(--font-display);
       font-weight: 600;
       font-size: var(--texto-ui);
       letter-spacing: -0.01em;
-      color: var(--color-text);
+      color: var(--texto-1);
     }
     .data-table--cards td.cell-head::before {
       display: none;
@@ -559,7 +563,11 @@
   /* Estados con icono (sistema v3, D4): el color nunca es la única señal. Cada estado lleva un icono propio delante,
      dibujado con una máscara (así toma el color del texto en cualquier fondo). Son trazos simples de 24x24:
      hecho (check en círculo), curso (círculo a medias), pendiente (círculo de puntos), nopuede (círculo tachado),
-     atención (triángulo con admiración). Sin color escrito aquí: todo sale de los --estado-* del canon. */
+     atención (triángulo con admiración). Sin color escrito aquí: todo sale de los --estado-* del canon.
+     Solo en .status-badge--*, que dicen el estado de un PROCESO (un paso dado, en curso, pendiente). Las píldoras de datos
+     clínicos (.pill-data--*) llevan el tinte y su texto, y ningún icono: un icono de «hecho» sobre un dato favorable lo leería
+     como verificado o completado, y eso es concluir, no describir (revisión de la fase DS). Si algún día un dato clínico
+     necesita icono, pasa antes por el comité médico con la tabla de qué significa cada uno. */
   :root {
     --icono-hecho: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='9'/%3E%3Cpath d='M8 12.5l2.8 2.8L16 9.5'/%3E%3C/svg%3E");
     --icono-curso: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.4'%3E%3Ccircle cx='12' cy='12' r='9'/%3E%3Cpath d='M12 3a9 9 0 0 1 0 18z' fill='black' stroke='none'/%3E%3C/svg%3E");
@@ -567,7 +575,6 @@
     --icono-nopuede: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.4' stroke-linecap='round'%3E%3Ccircle cx='12' cy='12' r='9'/%3E%3Cpath d='M5.6 5.6l12.8 12.8'/%3E%3C/svg%3E");
     --icono-atencion: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 3.5l9.5 16.5h-19z'/%3E%3Cpath d='M12 10v4.5M12 17.2v.1'/%3E%3C/svg%3E");
   }
-  .pill-data--info::before, .pill-data--warn::before, .pill-data--positive::before,
   .status-badge--hecho::before, .status-badge--curso::before, .status-badge--pendiente::before,
   .status-badge--nopuede::before, .status-badge--atencion::before {
     content: '';
@@ -579,9 +586,9 @@
     -webkit-mask: var(--icono-estado) center / contain no-repeat;
     mask: var(--icono-estado) center / contain no-repeat;
   }
-  .pill-data--info, .status-badge--pendiente { --icono-estado: var(--icono-pendiente); }
-  .pill-data--warn, .status-badge--atencion { --icono-estado: var(--icono-atencion); }
-  .pill-data--positive, .status-badge--hecho { --icono-estado: var(--icono-hecho); }
+  .status-badge--pendiente { --icono-estado: var(--icono-pendiente); }
+  .status-badge--atencion { --icono-estado: var(--icono-atencion); }
+  .status-badge--hecho { --icono-estado: var(--icono-hecho); }
   .status-badge--curso { --icono-estado: var(--icono-curso); }
   .status-badge--nopuede { --icono-estado: var(--icono-nopuede); }
 
@@ -595,14 +602,15 @@
     line-height: 1.4;
     max-width: 100%;
   }
-  /* Los nombres de clase se quedan (science.yml los escribe): info es neutro (pendiente), warn es atención y positive es hecho. */
+  /* Los nombres de clase se quedan (science.yml los escribe). Solo tiñen: info es neutro, warn llama la atención y positive
+     es un tinte favorable. No significan «hecho» ni «verificado»; para eso están .status-badge--* y el sello de evidencia. */
   .pill-data--info     { background: var(--estado-pendiente-fondo); color: var(--estado-pendiente-texto); box-shadow: inset 0 0 0 1px var(--estado-pendiente-borde); }
   .pill-data--warn     { background: var(--estado-atencion-fondo);  color: var(--estado-atencion-texto);  box-shadow: inset 0 0 0 1px var(--estado-atencion-borde); }
   .pill-data--positive { background: var(--estado-hecho-fondo);     color: var(--estado-hecho-texto);     box-shadow: inset 0 0 0 1px var(--estado-hecho-borde); }
-  .pill-data--neutral  { background: rgb(var(--color-text-rgb) / 0.06); color: var(--color-text-soft); }
+  .pill-data--neutral  { background: var(--estado-pendiente-fondo); color: var(--estado-pendiente-texto); }
   .pill-data--violet   { background: var(--color-miriam-soft); color: var(--color-text); }
   /* berenjena: pill de recuento (rima con la insignia de «N focos» del esqueleto, var(--color-text)). Tokens del DS; contraste ~13:1. */
-  .pill-data--berenjena { background: var(--color-text); color: var(--color-bg); }
+  .pill-data--berenjena { background: var(--texto-1); color: var(--fondo); }
 
   /* Una píldora o insignia dentro de una tabla parte línea si no cabe, en vez de ensanchar su columna (CI-5: en /ciencia
      desbordaba a 375 px). Fuera de las tablas conserva su línea única. */
@@ -626,9 +634,9 @@
     white-space: nowrap;
   }
   .status-badge--active    { background: #d8ede0; color: #1f5a3a; }
-  .status-badge--complete  { background: rgb(var(--color-text-rgb) / 0.06); color: var(--color-text-soft); }
+  .status-badge--complete  { background: color-mix(in srgb, var(--texto-1) 6%, transparent); color: var(--texto-2); }
   /* «Pendiente»: mismos tokens que --complete, nombre que dice lo que representa. */
-  .status-badge--pending   { background: rgb(var(--color-text-rgb) / 0.06); color: var(--color-text-soft); }
+  .status-badge--pending   { background: color-mix(in srgb, var(--texto-1) 6%, transparent); color: var(--texto-2); }
   .status-badge--candidate { background: #fde4cc; color: #8a4a1a; }
   .status-badge--reference {
     background: #e0ecf8;
@@ -661,13 +669,15 @@
      not jump when labels/units wrap to a different number of lines: the label
      sits at the top, the value is pinned to the bottom (margin-top:auto). */
   .stat-readout {
-    @apply bg-cream rounded-card flex flex-col;
+    @apply rounded-card flex flex-col;
+    background-color: var(--fondo);
     border: 1px solid var(--trazo-sutil);
     padding: 14px 16px;
     min-height: 108px;
   }
   .stat-readout__label {
-    @apply font-body font-semibold text-berenjena;
+    @apply font-body font-semibold;
+    color: var(--texto-1);
     font-size: var(--texto-xs);
     line-height: 1.25;
     letter-spacing: 0.02em;
@@ -677,14 +687,16 @@
        contenido se ancla abajo */
   }
   .stat-readout__value {
-    @apply font-display font-semibold text-berenjena;
+    @apply font-display font-semibold;
+    color: var(--texto-1);
     margin-top: auto;
     font-size: 28px;
     line-height: 1.05;
     letter-spacing: -0.02em;
   }
   .stat-readout__unit {
-    @apply font-body text-tinta;
+    @apply font-body;
+    color: var(--texto-2);
     font-size: var(--texto-xs);
     line-height: 1.3;
     margin-top: 5px;
@@ -714,7 +726,9 @@
      --trazo-interactivo (3,6:1; el del 12 % daba 1,3:1, WCAG 1.4.11), placeholder en --texto-3 (4,9:1) y el anillo de foco
      de los roles. `min-width: 0` para que no ensanche una rejilla (Turnstile, de 300 px, desbordaba a 375). */
   .form-input {
-    @apply w-full px-4 py-2 bg-cream rounded-btn text-berenjena;
+    @apply w-full px-4 py-2 rounded-btn;
+    background-color: var(--fondo);
+    color: var(--texto-1);
     box-sizing: border-box;
     min-width: 0;
     min-height: var(--control-min);
@@ -731,7 +745,8 @@
   }
   .form-input[aria-invalid="true"] { border-color: var(--texto-1); border-width: 2px; }
   .form-label {
-    @apply block text-sm font-medium text-berenjena mb-1.5;
+    @apply block text-sm font-medium mb-1.5;
+    color: var(--texto-1);
   }
 
   /* ────────────────────────────────────────────────────────────
@@ -748,12 +763,13 @@
      ──────────────────────────────────────────────────────────── */
   .link-inline,
   .link-underline {
-    @apply text-miriam font-medium;
+    @apply font-medium;
+    color: var(--identidad);
     text-decoration: underline;
-    text-decoration-color: rgb(var(--color-miriam-rgb) / 0.45);
+    text-decoration-color: color-mix(in srgb, var(--identidad) 45%, transparent);
     text-decoration-thickness: 1px;
     text-underline-offset: 3px;
-    background-image: linear-gradient(var(--color-miriam-soft), var(--color-miriam-soft));
+    background-image: linear-gradient(var(--marcador), var(--marcador));
     background-size: 0% 60%;
     background-position: 0 90%;
     background-repeat: no-repeat;
@@ -763,14 +779,14 @@
   }
   .link-inline:focus-visible,
   .link-underline:focus-visible {
-    color: var(--color-text);
-    text-decoration-color: var(--color-miriam);
+    color: var(--texto-1);
+    text-decoration-color: var(--identidad);
     background-size: 100% 60%;
   }
   @media (hover: hover) and (pointer: fine) {
     .link-inline:hover,
     .link-underline:hover {
-      color: var(--color-text);
+      color: var(--texto-1);
       text-decoration-color: var(--miriam-hover);
       background-size: 100% 60%;
     }
@@ -825,9 +841,10 @@
   /* Enlaces dentro de contenido (markdown/prose): el plugin typography ya
      los subraya; aquí solo les añadimos el mismo resaltado de marca. */
   .prose a {
-    text-decoration-color: rgb(var(--color-miriam-rgb) / 0.45);
+    color: var(--identidad);
+    text-decoration-color: color-mix(in srgb, var(--identidad) 45%, transparent);
     text-underline-offset: 3px;
-    background-image: linear-gradient(var(--color-miriam-soft), var(--color-miriam-soft));
+    background-image: linear-gradient(var(--marcador), var(--marcador));
     background-size: 0% 60%;
     background-position: 0 90%;
     background-repeat: no-repeat;
@@ -836,14 +853,14 @@
       text-decoration-color var(--dur-micro) var(--curva-salida);
   }
   .prose a:focus-visible {
-    color: var(--color-text);
-    text-decoration-color: var(--color-miriam);
+    color: var(--texto-1);
+    text-decoration-color: var(--identidad);
     background-size: 100% 60%;
   }
   @media (hover: hover) and (pointer: fine) {
     .prose a:hover {
-      color: var(--color-text);
-      text-decoration-color: var(--color-miriam);
+      color: var(--texto-1);
+      text-decoration-color: var(--identidad);
       background-size: 100% 60%;
     }
   }
@@ -859,7 +876,8 @@
     border-top: 1px solid var(--trazo-sutil);
   }
   .notes-disclosure > summary {
-    @apply font-mono uppercase tracking-[0.12em] text-tinta;
+    @apply font-mono uppercase tracking-[0.12em];
+    color: var(--texto-2);
     font-size: var(--texto-xs);
     font-weight: 500;
     list-style: none;
@@ -888,11 +906,11 @@
     transform: rotate(45deg);
   }
   .notes-disclosure > summary:focus-visible {
-    color: var(--color-miriam);
+    color: var(--identidad);
   }
   @media (hover: hover) and (pointer: fine) {
     .notes-disclosure > summary:hover {
-      color: var(--color-miriam);
+      color: var(--identidad);
     }
   }
   /* El cambio de color solo no basta para el foco de teclado (tinta→violeta
@@ -902,7 +920,7 @@
     outline-offset: 2px;
   }
   .notes-disclosure[open] > summary {
-    color: var(--color-miriam);
+    color: var(--identidad);
     margin-bottom: 4px;
   }
   @media (prefers-reduced-motion: reduce) {
@@ -932,7 +950,13 @@
     flex-wrap: nowrap;
     overflow-x: auto;
     scroll-snap-type: x proximity;
-    padding-block: 2px; /* aire para que el anillo de foco no se recorte en el eje del scroll */
+    /* overflow-x:auto recorta TAMBIÉN en y, y el anillo de foco ocupa de 2 a 4 px fuera del borde (offset 2 + grosor 2):
+       con 2 px de aire se veían solo los arcos laterales. 6 px arriba y abajo y 4 a los lados lo dejan entero; el margen
+       negativo es el mismo, así que la fila no se mueve ni se ensancha. scroll-padding-inline: sin él, el snap pega el
+       primer botón al borde y el anillo vuelve a recortarse por la izquierda. */
+    padding: 6px 4px;
+    margin: -6px -4px;
+    scroll-padding-inline: 4px;
     -webkit-overflow-scrolling: touch;
     scrollbar-width: thin;
   }
@@ -1255,7 +1279,7 @@
 .link-inline:active,
 .link-underline:active,
 .prose a:active {
-  color: var(--color-text);
+  color: var(--texto-1);
   text-decoration-color: var(--miriam-active);
   background-size: 100% 60%;
 }
@@ -1439,7 +1463,7 @@
   @media (prefers-contrast: more) {
     .pathway-chip,
     .card-base {
-      border-color: rgb(var(--color-text-rgb) / 0.22);
+      border-color: color-mix(in srgb, var(--texto-1) 22%, transparent);
     }
     .pathway-comfort,
     .nota {

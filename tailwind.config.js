@@ -148,10 +148,12 @@ export default {
         },
         DEFAULT: {
           css: {
-            '--tw-prose-body': theme('colors.berenjena'),
-            '--tw-prose-headings': theme('colors.berenjena'),
-            '--tw-prose-links': theme('colors.miriam.DEFAULT'),
-            '--tw-prose-bold': theme('colors.berenjena'),
+            // Con los roles (en claro son berenjena y violeta, igual que antes): dentro de una banda con data-tema="oscuro" el
+            // texto y los enlaces de un .prose se invierten solos. Antes eran los colores de paleta y salían berenjena sobre berenjena.
+            '--tw-prose-body': 'var(--texto-1)',
+            '--tw-prose-headings': 'var(--texto-1)',
+            '--tw-prose-links': 'var(--identidad)',
+            '--tw-prose-bold': 'var(--texto-1)',
             fontFamily: theme('fontFamily.body').join(', '),
             h1: { fontFamily: theme('fontFamily.display').join(', ') },
             h2: { fontFamily: theme('fontFamily.display').join(', ') },

@@ -86,6 +86,7 @@
         <span class="status-badge status-badge--nopuede">No puede</span>
         <span class="status-badge status-badge--atencion">Atención</span>
       </div>
+      <p class="etiqueta g-subtitulo">Píldoras de datos: solo tiñen, sin icono, y no significan «hecho»</p>
       <div class="g-fila">
         <span class="pill-data pill-data--positive">positive</span>
         <span class="pill-data pill-data--info">info</span>
@@ -145,13 +146,38 @@
 
     <!-- Banda oscura y visor (la única oscura de la página) -->
     <Banda tono="oscura" titular="g-oscura">
-      <CabeceraSeccion id="g-oscura" eyebrow="Banda oscura" titulo="Una por página, siempre a sangre" lede="El texto, el enlace, el foco y los botones se invierten solos porque pintan con roles." />
+      <CabeceraSeccion id="g-oscura" eyebrow="Banda oscura" titulo="Una por página, siempre a sangre" lede="Lo que pinta con roles se invierte solo. Aquí está un ejemplo de cada pieza que lo cumple; la lista completa, y la de las que no, está en DESIGN-SYSTEM.md." />
       <div class="g-fila">
         <button type="button" class="btn-cta">Apoyar</button>
         <button type="button" class="btn-dark">Explorar</button>
         <button type="button" class="btn-secondary">Contactar</button>
       </div>
       <p class="prosa g-parrafo">Un enlace dentro de una <a href="#g-oscura" class="link-inline">frase en banda oscura</a> sigue siendo legible.</p>
+      <div class="g-rejilla g-separado">
+        <div class="card-base">
+          <p class="h4-tarjeta">card-base</p>
+          <p class="prosa g-parrafo">Tarjeta en banda oscura. Un enlace en línea no va dentro de ella: sobre esta superficie da 3,9:1.</p>
+        </div>
+        <TarjetaEnlace titulo="Interna, tono suave" meta="Lleva a otra página del sitio." icono="ph:compass" :to="'/'" />
+        <TarjetaEnlace titulo="Apoyo" meta="Solo para donar." icono="ph:heart" tono="apoyo" href="https://example.org/" />
+      </div>
+      <div class="g-fila g-separado">
+        <span class="status-badge status-badge--hecho">Hecho</span>
+        <span class="pill-data pill-data--neutral">neutral</span>
+        <span class="pill-data pill-data--info">info</span>
+        <span class="pill-data pill-data--berenjena">berenjena</span>
+      </div>
+      <div class="g-separado g-campo">
+        <label class="form-label" for="g-campo-oscuro">Campo de formulario en banda oscura</label>
+        <input id="g-campo-oscuro" class="form-input" type="text" placeholder="Texto de ejemplo" autocomplete="off">
+      </div>
+      <table class="data-table g-separado">
+        <thead><tr><th>Columna A</th><th>Columna B</th><th>Columna C</th></tr></thead>
+        <tbody>
+          <tr><td>Valor 1</td><td>Valor 2</td><td>Valor 3</td></tr>
+          <tr><td>Valor 4</td><td>Valor 5</td><td>Valor 6</td></tr>
+        </tbody>
+      </table>
       <div class="visor g-visor" data-tema="oscuro" role="img" aria-label="Escenario de ejemplo de un visor en estado de carga">
         <div class="visor__velo"><span class="visor__carga anima-esencial" aria-hidden="true" /></div>
       </div>
@@ -221,5 +247,7 @@ const ETIQUETAS = { hecho: 'Hecho', curso: 'En curso', pendiente: 'Pendiente', a
 .g-columna { display: grid; gap: var(--sp-16); }
 .g-separado { margin-top: var(--sp-24); }
 .g-ruta { max-width: 40rem; margin-top: var(--sp-24); }
+.g-subtitulo { margin: var(--sp-24) 0 var(--sp-8); }
+.g-campo { max-width: 28rem; }
 .g-visor { margin-top: var(--sp-24); aspect-ratio: 16 / 7; }
 </style>

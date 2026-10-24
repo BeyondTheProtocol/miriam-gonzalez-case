@@ -7,6 +7,9 @@
  * · etiqueta (qué es), valor (el número o la frase), unidad, fecha del dato (AAAA-MM-DD o AAAA-MM; sale formateada y
  *   con <time>), sello de evidencia (el de Sello.vue: verificado, inferido, lo dice Miriam…) y fuente (texto + enlace).
  * · `tam`: lg (cifra protagonista), md (la de una rejilla) o sm (una fila de ficha).
+ * · El espacio entre valor y unidad es un &nbsp; (texto, no margen): Vue, en modo condense, elimina el espacio inicial de un
+ *   <span> y de un <template>, y un margen de CSS no se lee: el lector de pantalla diría «1.234unidades». Lo mismo en el aviso
+ *   sr-only de pestaña nueva: el espacio va DENTRO de la expresión.
  * · El valor lleva tabular-nums para que no baile al cambiar. NUNCA lleva cifras inventadas: lo que se pinta es lo que
  *   se pasa. Una cifra clínica nueva pasa antes por `verificacion` y se cotea contra su fuente.
  * · Sin @container (soporte sin comprobar): `tam` hace de breakpoint.
@@ -34,13 +37,13 @@ const externa = computed(() => !!props.fuente?.href && /^https?:/.test(props.fue
   <div class="dato" :class="`dato--${tam}`">
     <p class="dato__etiqueta etiqueta">{{ etiqueta }}</p>
     <p class="dato__valor nums">
-      <span>{{ valor }}</span><span v-if="unidad" class="dato__unidad"> {{ unidad }}</span>
+      <span>{{ valor }}</span><span v-if="unidad" class="dato__unidad">&nbsp;{{ unidad }}</span>
     </p>
     <p v-if="fecha || sello || fuente" class="dato__pie">
       <time v-if="fecha" :datetime="fecha">{{ fechaLegible }}</time>
       <DatosSello v-if="sello" :s="sello" :lang="lang" />
       <template v-if="fuente">
-        <a v-if="fuente.href" :href="fuente.href" class="link-inline" :target="externa ? '_blank' : undefined" :rel="externa ? 'noopener noreferrer' : undefined">{{ fuente.texto }}<span v-if="externa" class="sr-only"> {{ $t('a11y.new_tab') }}</span></a>
+        <a v-if="fuente.href" :href="fuente.href" class="link-inline" :target="externa ? '_blank' : undefined" :rel="externa ? 'noopener noreferrer' : undefined">{{ fuente.texto }}<span v-if="externa" class="sr-only">{{ ' ' + $t('a11y.new_tab') }}</span></a>
         <span v-else>{{ fuente.texto }}</span>
       </template>
     </p>

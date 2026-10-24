@@ -290,6 +290,26 @@
     "R9": {
       "--tipo-hero": 1,
       "--tipo-ui": 1
+    },
+    "R11": {
+      "app/components/CampanaOficial.vue": 1,
+      "app/components/celula/CelulaExplorarTarjeta.vue": 1,
+      "app/components/datos/MiniSerie.vue": 1,
+      "app/components/datos/Pelicula.vue": 1,
+      "app/components/datos/QueCambio.vue": 1,
+      "app/components/MobileSupportBar.vue": 1,
+      "app/components/PrensaTira.vue": 1,
+      "app/components/Puertas.vue": 1,
+      "app/components/SectionHero.vue": 1,
+      "app/components/SiteFooter.vue": 3,
+      "app/components/SiteNav.vue": 2,
+      "app/components/TimelineEntry.vue": 1,
+      "app/pages/index.vue": 1,
+      "app/pages/lesiones.vue": 1,
+      "app/pages/mapa-metastasis.vue": 1,
+      "app/pages/marcas.vue": 3,
+      "app/pages/prensa.vue": 3,
+      "app/pages/timeline.vue": 1
     }
   },
   "excepciones": {

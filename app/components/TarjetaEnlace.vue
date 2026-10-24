@@ -52,7 +52,7 @@ const alPulsar = (ev: MouseEvent) => emit('click', ev)
     <span class="tarjeta-enlace__fila">
       <Icon v-if="icono" :name="icono" class="tarjeta-enlace__icono" aria-hidden="true" />
       <span class="tarjeta-enlace__texto">
-        <span class="h4-tarjeta tarjeta-enlace__titulo">{{ titulo }}<span class="sr-only"> {{ $t('a11y.new_tab') }}</span></span>
+        <span class="h4-tarjeta tarjeta-enlace__titulo">{{ titulo }}<span class="sr-only">{{ ' ' + $t('a11y.new_tab') }}</span></span>
         <span v-if="meta || $slots.default" class="tarjeta-enlace__meta"><slot>{{ meta }}</slot></span>
       </span>
       <Icon name="ph:arrow-up-right" class="tarjeta-enlace__flecha" aria-hidden="true" />
@@ -100,7 +100,8 @@ const alPulsar = (ev: MouseEvent) => emit('click', ev)
 .tarjeta-enlace--apoyo { background: var(--color-cta); border-color: var(--color-cta); color: var(--color-text); }
 .tarjeta-enlace__fila { display: flex; align-items: center; gap: var(--sp-12); }
 .tarjeta-enlace__icono { flex: none; width: 1.375rem; height: 1.375rem; color: var(--identidad); }
-.tarjeta-enlace--apoyo .tarjeta-enlace__icono { color: var(--color-text); }
+.tarjeta-enlace--apoyo .tarjeta-enlace__icono,
+.tarjeta-enlace--apoyo .tarjeta-enlace__titulo { color: var(--color-text); } /* .h4-tarjeta fuerza --texto-1 (crema en una banda oscura): sobre coral va berenjena */
 .tarjeta-enlace__texto { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; gap: var(--sp-4); }
 .tarjeta-enlace__titulo { display: block; }
 .tarjeta-enlace__meta { font: var(--tipo-body-sm); color: var(--texto-2); }

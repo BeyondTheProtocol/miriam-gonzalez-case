@@ -9,7 +9,8 @@
 //   contraste           elementos de texto por debajo de 4,5:1 (3:1 si es grande) sobre su fondo aplanado.
 //   foco_tapado         pasos de Tab cuyo foco queda debajo de la cabecera fija (WCAG 2.4.11).
 //
-// No mide el texto sobre degradados ni sobre imágenes (se salta cualquier nodo con un ancestro con background-image),
+// No mide el texto sobre degradados ni sobre imágenes (se salta cualquier nodo con un ANTEPASADO con background-image; el degradado del
+// propio nodo, el marcador de los enlaces en línea, sí se mide sobre su color de fondo y los de sus antepasados),
 // ni los visores 3D con WebGL (se miden sin él, para que el recuento no dependa de la GPU de cada máquina), ni dispositivo real: es emulación de Chrome, y hover pegado, zoom de iOS y safe-area quedan «sin verificar en teléfono».
 //
 //   pnpm exec nuxt generate && pnpm test:diseno-render
@@ -55,12 +56,15 @@ const MEDIR = `(() => {
     if (rh.width > 2 && Math.abs(rh.left - logo.getBoundingClientRect().left) > 1) cuenta.h1_borde = 1
   }
 
-  // fondo aplanado de un elemento (sin imágenes: se salta lo que tenga una por encima)
+  // fondo aplanado de un elemento. Se salta (null) lo que tenga una imagen o un degradado en un ANTEPASADO, porque detrás del texto
+  // hay algo que no se puede aplanar a un color. El degradado del PROPIO nodo no lo salta: es el marcador de .link-inline y
+  // .prose a (background-size 0 % en reposo), y saltárselo dejaba sin medir justo la clase de elemento que más contraste pierde
+  // (revisión de la fase DS: un enlace a 2,88:1 en /guia-de-estilo salía con contraste 0 y el CI en verde).
   const fondoDe = (e) => {
     let capas = []
     for (let n = e; n && n.nodeType === 1; n = n.parentElement) {
       const cs = getComputedStyle(n)
-      if (n !== document.body && n !== document.documentElement && cs.backgroundImage !== 'none') return null
+      if (n !== e && n !== document.body && n !== document.documentElement && cs.backgroundImage !== 'none') return null
       const c = rgba(cs.backgroundColor)
       if (c[3] > 0) capas.push(c)
       if (c[3] >= 1) break

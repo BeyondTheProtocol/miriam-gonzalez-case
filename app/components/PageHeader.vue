@@ -7,7 +7,7 @@
     <!-- Cabecera v3 (sistema v3, S4): se activa al pasar `variante`, `eyebrow`, `lede` o `align`. El H1 es SIEMPRE visible
          (nunca sr-only) y sale de la clase de rol .h1-pagina, que lleva dentro su tamaño y su tracking. El resto de props
          (title, subtitle, parent, el slot `fila`…) valen igual. Las páginas migran en las fases P2 a P11. -->
-    <NuxtLink v-if="parent" :to="parent.to" class="link-action cabecera-pagina__miga text-miriam">
+    <NuxtLink v-if="parent" :to="parent.to" class="link-action cabecera-pagina__miga">
       <Icon name="ph:caret-left-bold" class="w-3.5 h-3.5" aria-hidden="true" />
       {{ parent.label }}
     </NuxtLink>
@@ -86,7 +86,7 @@ const v3 = computed(() => !!(props.variante || props.eyebrow || props.lede || pr
 .cabecera-pagina--herramienta { margin-bottom: var(--sp-24); }
 .cabecera-pagina--centrada { text-align: center; }
 .cabecera-pagina--centrada .cabecera-pagina__lede { margin-inline: auto; }
-.cabecera-pagina__miga { margin: 0 0 var(--sp-8) calc(-1 * var(--sp-4)); padding-right: var(--sp-8); font-size: var(--texto-sm); }
+.cabecera-pagina__miga { margin: 0 0 var(--sp-8) calc(-1 * var(--sp-4)); padding-right: var(--sp-8); font-size: var(--texto-sm); color: var(--identidad); }
 .cabecera-pagina__eyebrow { margin: 0 0 var(--sp-12); }
 .cabecera-pagina__titulo { margin: 0; }
 .cabecera-pagina__fila { margin-top: var(--sp-16); }

@@ -6,8 +6,12 @@
  *
  * · tono="crema"   fondo --color-bg, el de siempre.
  * · tono="tarjeta" fondo --color-bg-card (crema profunda). Alterna con la crema para marcar capítulos.
- * · tono="oscura"  berenjena a sangre con data-tema="oscuro": el texto, el enlace, el anillo de foco y los botones
- *                  se invierten solos porque pintan con los roles (--texto-1, --identidad, --anillo-foco).
+ * · tono="oscura"  berenjena a sangre con data-tema="oscuro". Se invierten solos las piezas que pintan con los roles
+ *                  (--texto-1, --identidad, --marcador, --anillo-foco…): texto, enlaces, botones, tarjetas, campos, tablas,
+ *                  píldoras y los componentes base. NO todo lo que hay en main.css lo hace: la lista de lo que sí y de lo que
+ *                  no está en DESIGN-SYSTEM.md §3 (medida en render; lo que tiene ejemplo en la banda oscura de la guía
+ *                  viva lo vigila `pnpm test:diseno-render`). Antes de poner en una banda oscura algo que no esté en esa
+ *                  lista, añade su ejemplo a la guía. Un enlace en línea dentro de una TARJETA oscura da 3,9:1: fuera de ella.
  *
  * Reglas (están en DESIGN-SYSTEM.md §3):
  *   1. Una oscura por página, y siempre a sangre: no hay versión «caja redondeada».

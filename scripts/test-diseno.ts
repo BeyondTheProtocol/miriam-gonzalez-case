@@ -9,7 +9,7 @@
 //   pnpm test:diseno --lista R3      imprime cada hallazgo de una regla (o de todas, sin argumento)
 //   pnpm test:diseno --archivo X     solo los ficheros cuya ruta contiene X (para trabajar; no comprueba la baseline)
 //
-// Reglas R1 a R9 (esta herramienta; no necesitan build). La R10 (render en Chrome sobre el build estático) es
+// Reglas R1 a R9 y R11 (esta herramienta; no necesitan build). La R10 (render en Chrome sobre el build estático) es
 // scripts/test-diseno-render.mjs, con su propia baseline, y corre en .github/workflows/diseno.yml.
 //
 // Por qué un ratchet y no «cero»: el sitio nació con tres vocabularios de diseño y se corrige por páginas (fases P1 a P13).
@@ -44,6 +44,7 @@ export const REGLAS: Record<string, string> = {
   R7: 'clases clave: .link-action con min-height 44 y .form-input con 16 px y 44 px (se rompen, falla; no hay baseline que valga)',
   R8: 'cabeceras: <h2> de página sin .h2-seccion ni .h2-declaracion (o sin CabeceraSeccion)',
   R9: 'doc: tablas de DESIGN-SYSTEM.md y tokens.css público desfasados del canon, y tokens del canon que nadie lee',
+  R11: 'espacios: un espacio al principio o al final de un elemento (`<span> {{ x }}</span>`, `<template> <em>`): Vue lo elimina y el texto sale pegado',
 }
 
 /** Componentes base del sistema: aquí SÍ se declaran las clases de rol (R5). */
@@ -339,12 +340,28 @@ function reglaR5(archivo: string, bloques: Bloque[], salida: Hallazgo[]) {
   }
 }
 
-/** R6 y R8: sobre la plantilla. */
+/** Elementos sin hijos: un espacio detrás de ellos no es el primero de ningún elemento. */
+const VACIOS = new Set(['br', 'hr', 'img', 'input', 'meta', 'link', 'source', 'wbr', 'col', 'area', 'base', 'track'])
+/** R11. Vue compila con `whitespace: 'condense'`: un texto formado SOLO por espacios que es el primer o el último hijo de un
+ *  elemento (o de un <template>) desaparece. Es lo que pasa con `<span> {{ unidad }}</span>` («1.234unidades») y con
+ *  `<template v-if="x"> <em>` («ejemplo.Revista»). El espacio que se quiere ver va como texto: `{{ ' ' }}` o `&nbsp;`.
+ *  Solo mira lo que está en la MISMA línea: un salto de línea con sangría es formato y se pierde igual, a propósito. */
+const RE_ESPACIO_INI = /<(?!\/)([a-zA-Z][\w.-]*)(?:\s[^<>]*)?(?<!\/)>[ \t]+(?=\{\{|<[a-zA-Z])/g
+const RE_ESPACIO_FIN = /(?:\}\}|>)[ \t]+(?=<\/[a-zA-Z])/g
+export function hallazgosR11(tx: string): { idx: number; texto: string }[] {
+  const out: { idx: number; texto: string }[] = []
+  for (const m of tx.matchAll(RE_ESPACIO_INI)) if (!VACIOS.has(m[1].toLowerCase())) out.push({ idx: m.index!, texto: `espacio inicial: ${m[0]}` })
+  for (const m of tx.matchAll(RE_ESPACIO_FIN)) out.push({ idx: m.index!, texto: `espacio final: ${m[0]}` })
+  return out
+}
+
+/** R6, R8 y R11: sobre la plantilla. */
 function reglasEnPlantilla(archivo: string, r: Region, salida: Hallazgo[]) {
   const H = (regla: string, idx: number, texto: string) => salida.push({ regla, archivo, linea: lineaDe(r.texto, idx, r.desde), texto: texto.trim().split('\n')[0].slice(0, 110) })
   const tx = r.texto
   for (const m of tx.matchAll(/\bstyle\s*=\s*"[^"]*letter-spacing[^"]*"/g)) H('R6', m.index!, m[0])
   for (const m of tx.matchAll(RE_GLIFO)) H('R6', m.index!, `glifo ${m[0]}`)
+  for (const h of hallazgosR11(tx)) H('R11', h.idx, h.texto)
   if (archivo.startsWith('app/pages/')) {
     for (const m of tx.matchAll(/<h2\b([^>]*)>/g)) {
       if (!/\bh2-(?:seccion|declaracion)\b/.test(m[1])) H('R8', m.index!, m[0])
@@ -543,6 +560,14 @@ function autotest(): string[] {
   // R8
   eq('R8 h2 sin rol', cuenta('app/pages/x.vue', vue('<h2 class="text-3xl">a</h2><h2 id="x" class="h2-seccion">b</h2><h2>c</h2>'), 'R8'), 2)
   eq('R8 solo en páginas', cuenta('app/components/X.vue', vue('<h2>a</h2>'), 'R8'), 0)
+  // R11
+  eq('R11 espacio inicial en un span', cuenta('app/components/x.vue', vue('<p><span class="u"> {{ unidad }}</span></p>'), 'R11'), 1)
+  eq('R11 espacio inicial en un template', cuenta('app/components/x.vue', vue('<p><template v-if="r"> <em>{{ r }}</em></template></p>'), 'R11'), 1)
+  eq('R11 espacio final', cuenta('app/components/x.vue', vue('<p><span>{{ a }} </span></p>'), 'R11'), 1)
+  eq('R11 con texto no cuenta', cuenta('app/components/x.vue', vue('<p><span> de {{ a }}</span> <b>x</b></p>'), 'R11'), 0)
+  eq('R11 el espacio como texto no cuenta', cuenta('app/components/x.vue', vue('<p><span>{{ \' \' }}{{ a }}</span><span>&nbsp;{{ b }}</span></p>'), 'R11'), 0)
+  eq('R11 entre dos elementos no cuenta', cuenta('app/components/x.vue', vue('<p><b>{{ a }}</b> <i>{{ b }}</i></p>'), 'R11'), 0)
+  eq('R11 un vacío no cuenta', cuenta('app/components/x.vue', vue('<p>{{ a }}<br> <b>{{ b }}</b><Icon name="x" /> <b>y</b></p>'), 'R11'), 0)
   // R7
   const canonDePrueba = ':root {\n  --control-min: 44px;\n  --texto-ui: 16px;\n}\n'
   eq('R7 verde', reglaR7('.link-action { min-height: var(--control-min); } .form-input { font-size: var(--texto-ui); min-height: var(--control-min); }', canonDePrueba).length, 0)

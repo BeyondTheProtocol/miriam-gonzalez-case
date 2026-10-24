@@ -22,7 +22,7 @@ La copia pública de los tokens (`public/design-system/tokens.css`) es idéntica
 
 Cinco colores y dos derivados son los únicos átomos de color. Todo lo demás (estados, velos, trazos, escena) se deriva con `color-mix()`. **No se añade ni un hex nuevo.** Las únicas excepciones firmadas están en la sección 8.
 
-Los componentes no pintan con la paleta: pintan con **roles** (`--fondo`, `--superficie`, `--texto-1`, `--texto-2`, `--texto-3`, `--identidad`, `--anillo-foco`, `--cta-texto`, `--trazo-*`). Una banda con `data-tema="oscuro"` los remapea, y el componente no se entera. Por eso un token derivado de un rol se declara también bajo `[data-tema="oscuro"]`: una variable que apunta a otra se resuelve donde se declara.
+Los componentes no pintan con la paleta: pintan con **roles** (`--fondo`, `--superficie`, `--texto-1`, `--texto-2`, `--texto-3`, `--identidad`, `--marcador`, `--anillo-foco`, `--cta-texto`, `--trazo-*`). Una banda con `data-tema="oscuro"` los remapea, y el componente no se entera. Por eso un token derivado de un rol se declara también bajo `[data-tema="oscuro"]`: una variable que apunta a otra se resuelve donde se declara.
 
 Los puntos de ruptura son los de Tailwind: `sm` 640, `md` 768, `lg` 1024, `xl` 1280. No hay tokens de breakpoint (los `--bp-*` de la v2 no los leía nadie).
 
@@ -57,9 +57,9 @@ Generado desde `btp-tokens.css`. Un token que nadie lee se borra: `pnpm test:dis
 | Token | Valor | En banda oscura | Nota |
 |---|---|---|---|
 | `--cta-active` | `color-mix(in srgb, var(--color-cta) 85%, var(--color-text))` |  |  |
-| `--miriam-hover` | `color-mix(in srgb, var(--color-miriam) 88%, var(--color-text))` |  |  |
-| `--miriam-active` | `color-mix(in srgb, var(--color-miriam) 78%, var(--color-text))` |  |  |
-| `--secundario-hover` | `color-mix(in srgb, var(--color-text) 6%, transparent)` |  |  |
+| `--miriam-hover` | `color-mix(in srgb, var(--color-miriam) 88%, var(--color-text))` | `color-mix(in srgb, var(--color-miriam-claro) 88%, var(--color-bg))` |  |
+| `--miriam-active` | `color-mix(in srgb, var(--color-miriam) 78%, var(--color-text))` | `color-mix(in srgb, var(--color-miriam-claro) 78%, var(--color-bg))` |  |
+| `--secundario-hover` | `color-mix(in srgb, var(--color-text) 6%, transparent)` | `color-mix(in srgb, var(--color-bg) 8%, transparent)` |  |
 | `--seleccionado-bg` | `var(--color-miriam-soft)` |  |  |
 | `--seleccionado-text` | `var(--color-text)` |  |  |
 | `--btn-dark-hover` | `color-mix(in srgb, var(--color-text) 84%, var(--color-miriam))` |  | #3f224f; antes #3d2752 escrito a mano |
@@ -205,6 +205,7 @@ Generado desde `btp-tokens.css`. Un token que nadie lee se borra: `pnpm test:dis
 | `--texto-3` | `color-mix(in srgb, var(--color-text-soft) 72%, var(--color-bg))` | `color-mix(in srgb, var(--color-bg) 58%, transparent)` | terciario / mute — 72% = 4.9:1 AA verificado (62% daba 3.7, fallaba) |
 | `--identidad` | `var(--color-miriam)` | `var(--color-miriam-claro)` | violeta que porta identidad sobre este fondo |
 | `--anillo-foco` | `var(--color-miriam)` | `var(--color-miriam-claro)` |  |
+| `--marcador` | `var(--color-miriam-soft)` | `color-mix(in srgb, var(--color-miriam-claro) 30%, var(--color-text))` | resaltado «de rotulador» de un enlace al pasar o enfocar; el texto encima es --texto-1 |
 | `--cta-texto` | `var(--color-text)` | `var(--color-cta)` |  |
 | `--trazo-sutil` | `color-mix(in srgb, var(--color-text) 8%, transparent)` | `color-mix(in srgb, var(--color-bg) 10%, transparent)` |  |
 | `--trazo-medio` | `color-mix(in srgb, var(--color-text) 12%, transparent)` | `color-mix(in srgb, var(--color-bg) 16%, transparent)` |  |
@@ -339,6 +340,14 @@ Reglas:
 - **Una oscura por página**, y nunca pegada a la banda de logos del pie.
 - Alterna crema y tarjeta para marcar capítulos; no pongas dos bandas del mismo tono seguidas.
 
+**Qué se invierte solo en una banda oscura.** Contraste del texto medido en render (24 oct 2026, en reposo; el marcador del enlace al pasar y al enfocar da crema sobre `--marcador`, 8,8:1):
+
+- **Se invierten y se leen (todos ≥ 5,4:1).** Los nueve componentes base; `.btn-cta|dark|secondary|ghost`, `.link-inline` (también `.link-underline`), `.link-action`, `.prose`, `.firma`, `.card-base`, `.card-marked`, `.data-card`, `.data-table`, `.form-input` (con su placeholder, 5,8:1) y `.form-label`, `.pill-data--info|warn|positive|neutral|berenjena`, `.status-badge--hecho|curso|pendiente|nopuede|atencion`, `.sello`, `.stat-readout`, `.notes-disclosure`, `.alert-callout`, `.eyebrow` y `.etiqueta`. **Vigilado en CI**: lo que tiene su ejemplo en la banda oscura de `/guia-de-estilo` (botones, enlace, `card-base`, `TarjetaEnlace` suave y apoyo, `status-badge--hecho`, tres píldoras, campo y tabla): `pnpm test:diseno-render` lo mide en cada build. El resto se midió a mano y no lo vigila nadie: si lo vas a usar en una banda oscura, añade su ejemplo a la guía.
+- **Se leen porque llevan su propio par de fondo y texto, pero no cambian de lado.** `.pill-data--violet`, `.badge-genomic`, `.sello--verificado` y las `.status-badge` viejas con hex (`--active`, `--candidate`, `--paused`, `--firma`, `--reference`).
+- **NO se leen en una banda oscura. No las uses ahí hasta migrarlas.** `.status-badge--shape` (2,3:1), `.link-logo` (2,6:1) y la hora de `.pathway-chip` (1:1: texto de rol sobre una píldora de fondo fijo).
+- **Un enlace en línea sobre una tarjeta de banda oscura no cumple AA.** El violeta claro sobre `--superficie` oscura da 3,9:1 (solo texto grande). En una tarjeta de banda oscura el enlace va fuera de ella o es la tarjeta entera (`TarjetaEnlace`). Subir `--superficie` oscura al 94 % de berenjena lo arreglaría (4,6:1), pero cambia también el aspecto oscuro del explorador célula a célula, que es del PR #290: decisión pendiente.
+- La miga de `PageHeader` pinta con `--identidad`; no tiene ejemplo en la guía porque `PageHeader` lleva el H1 y solo hay uno por página.
+
 ## 4. Contrato por componente
 
 Cada componente dice cuándo sí, cuándo no, qué props tiene y qué no se hace nunca. Los nombres vivos (`btn-cta`, `card-base`, `link-action`) se mantienen: renombrar cientos de usos no ganaba nada visible.
@@ -375,7 +384,7 @@ Una tarjeta: `.card-base` (papel y filete), `.card-marked` (la protagonista: bor
 
 ### `Dato`
 
-Valor, unidad, etiqueta, fecha formateada, sello de evidencia y fuente enlazada. `tam`: `lg`, `md`, `sm`. **Nunca lleva una cifra que no venga de su fuente**: una cifra clínica nueva pasa antes por verificación.
+Valor, unidad, etiqueta, fecha formateada, sello de evidencia y fuente enlazada. `tam`: `lg`, `md`, `sm`. El valor y su unidad van separados por un `&nbsp;` de texto (no por un margen: el lector de pantalla no lo lee). **Nunca lleva una cifra que no venga de su fuente**: una cifra clínica nueva pasa antes por verificación.
 
 ### `Aviso`
 
@@ -383,7 +392,7 @@ Valor, unidad, etiqueta, fecha formateada, sello de evidencia y fuente enlazada.
 
 ### `Segmentado`
 
-`modo="radios|pestanas|toggle"`, `etiqueta` obligatoria, `desplazable`. Teclado completo (flechas, Inicio, Fin). El activo lleva borde de 2 px además del color. 44 px mínimo.
+`modo="radios|pestanas|toggle"`, `etiqueta` obligatoria, `desplazable`. Teclado completo (flechas, Inicio, Fin). El activo lleva borde de 2 px además del color. 44 px mínimo. `desplazable` (la fila se desliza en móvil) lleva 6 px de aire arriba y abajo y 4 a los lados, con margen negativo igual para no mover el diseño: el anillo de foco ocupa de 2 a 4 px fuera del botón y `overflow-x: auto` recorta también en vertical. Quien ponga un control enfocable dentro de otro contenedor con `overflow` debe dejarle ese aire.
 
 ### `Referencia`
 
@@ -403,17 +412,18 @@ Barra de pasos y lista con un único mapa de estado a insignia (`app/utils/estad
 
 ## 5. Estados y color
 
-Cinco estados, derivados de la paleta y **siempre con icono y palabra**. El color nunca es la única señal.
+Cinco estados **de proceso** (un paso dado, en curso, pendiente…), derivados de la paleta y **siempre con icono y palabra**. El color nunca es la única señal. Describen cómo va una tarea; no valoran un dato.
 
 | Estado | Fondo | Texto | Icono | Se usa para |
 |---|---|---|---|---|
-| `hecho` | violeta al 16 % sobre el fondo | `--texto-1` | check en círculo | Un paso dado o un dato verificado |
+| `hecho` | violeta al 16 % sobre el fondo | `--texto-1` | check en círculo | Un paso dado |
 | `curso` | `--texto-1` (invertido) | `--fondo` | círculo a medias | Lo que se hace hoy |
 | `pendiente` | `--texto-1` al 6 % | `--texto-2` | círculo de puntos | Lo que viene o lo neutro |
 | `nopuede` | transparente, borde discontinuo | `--texto-3` | círculo tachado | Lo que no puede hacerse (todavía) |
 | `atencion` | coral al 18 % sobre el fondo | `--texto-1` | triángulo | Lo que pide una decisión o un cuidado |
 
-- Clases: `.status-badge--hecho|curso|pendiente|nopuede|atencion`. Los tonos de `.pill-data` se mantienen por nombre (`info` es pendiente, `warn` es atención, `positive` es hecho), así `science.yml` no cambia.
+- Clases: `.status-badge--hecho|curso|pendiente|nopuede|atencion`. Son las únicas con icono.
+- Los tonos de `.pill-data` (`info`, `warn`, `positive`, `neutral`, `violet`, `berenjena`) se mantienen por nombre, así `science.yml` no cambia, pero **solo tiñen: no llevan icono y no significan «hecho» ni «verificado»**. Una píldora de dato clínico (RE−, ECOG 0, Estadio IV) describe y no concluye; un icono de «hecho» sobre un atributo favorable lo leería como completado. Para decir que un dato está verificado está el sello de evidencia. Si un dato clínico necesitara icono, pasa antes por el comité médico con la tabla de qué significa cada uno.
 - Las variantes viejas de `.status-badge` (`--active`, `--firma`, `--pending`, `--candidate`…) siguen existiendo hasta que `RutaPasos` y las páginas migren; entonces se borran.
 - **El coral no es texto sobre crema** (2,6:1): como texto se usa `--cta-texto` (berenjena sobre claro, coral sobre berenjena) y un icono.
 - Contrastes medidos del texto de cada estado sobre su fondo: de 4,6 a 14,6. Medidos con `color-mix` en sRGB, no en un teléfono.
@@ -465,7 +475,9 @@ La plantilla del PR (`.github/pull_request_template.md`) pregunta: ¿añade toke
 | R7 clases clave | `.link-action` sin 44 px y `.form-input` sin 16 px y 44 px (si se rompen, falla) |
 | R8 cabeceras | `<h2>` de página sin `.h2-seccion` ni `.h2-declaracion` |
 | R9 documento | Tablas de este documento o `tokens.css` público desfasados del canon, y tokens que nadie lee |
-| R10 render | `pnpm test:diseno-render`, en Chrome sobre el build estático (`diseno.yml`): desborde, borde del H1 bajo el logo, texto bajo 13 px, controles bajo 44 px, contraste y foco tapado por la cabecera fija. Mismo ratchet, con `scripts/diseno-render-baseline.json` |
+| R11 espacios | Un espacio al principio o al final de un elemento en una plantilla (`<span> {{ x }}</span>`, `<template> <em>`): Vue, en modo condense, lo elimina y el texto sale pegado. El espacio va como texto (`{{ ' ' }}` o `&nbsp;`). Con baseline |
+| R10 render | `pnpm test:diseno-render`, en Chrome sobre el build estático (`diseno.yml`): desborde, borde del H1 bajo el logo, texto bajo 13 px, controles bajo 44 px, contraste y foco tapado por la cabecera fija. Mismo ratchet, con `scripts/diseno-render-baseline.json`. El contraste mide también el enlace en línea (su degradado de marcador no lo exime); solo se salta el texto con una imagen o un degradado en un antepasado |
+| Texto de los componentes | `pnpm test:componentes-texto` (`diseno.yml`): en la guía viva, el texto que de verdad sale de `Dato`, `Referencia` y `TarjetaEnlace` (unidad pegada al valor, «ejemplo.Revista», «Externa(se abre…»). Sin baseline: si falla, falla |
 
 Lo que esto **no** hace: juzgar jerarquía o gusto, detectar duplicados con otro nombre ni sustituir un teléfono real. Eso sigue en la auditoría humana. El emulado de Chrome no prueba el hover pegado, el zoom de iOS con campos pequeños ni el `safe-area`: quedan «sin verificar en dispositivo».
 
@@ -490,5 +502,6 @@ Los documentos viejos (el Consolidado de junio, el cuadernillo v1 y v2) usaban o
 
 ## 11. Registro de cambios
 
+- **v3, revisión de la fase DS (24 de octubre de 2026).** `.link-inline`, `.prose a`, `.card-base`, `.data-card`, `.data-table`, `.form-*`, `.pill-data--neutral|berenjena`, `.sello`, `.stat-readout`, `.notes-disclosure` y la miga de `PageHeader` pintan con roles (en claro resuelven al mismo color: 0 px). Rol nuevo `--marcador` (el resaltado del enlace) y `--miriam-hover`, `--miriam-active` y `--secundario-hover` repetidos bajo `data-tema="oscuro"`. Las píldoras de datos pierden el icono de estado. `Dato`, `Referencia` y `TarjetaEnlace` ya no pierden espacios (R11 y `test:componentes-texto`). `Segmentado desplazable` deja el anillo de foco entero. R10 mide el contraste del enlace en línea.
 - **v3 (octubre de 2026).** Los tokens se ajustan a la home (H2 600 de 30 a 36 px, tracking -0,03em, shell de 1200 px, cuerpo de 16 px). Once tokens o roles nuevos, nueve componentes base y los arreglos de clase en `main.css`. Sin hex, fuentes ni radios nuevos. Suelo tipográfico de 13 px. Estados derivados con icono. Foco por rol, 44 px dentro de la clase, campos de 16 px, hover filtrado y red de movimiento reducido. `test:diseno` con baseline que solo baja. El canon deja de ser una copia vendorizada.
 - **v2 (julio de 2026).** Tokens de rol por tema, estados con `color-mix`, data-viz clínica derivada.

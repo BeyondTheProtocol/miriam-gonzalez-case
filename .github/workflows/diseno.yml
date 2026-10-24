@@ -1,6 +1,6 @@
 name: Diseño
 
-# Regla R10 del lint de diseño (sistema v3): lo que solo se ve con la página pintada. Corre en Chrome sobre el build
+# Regla R10 del lint de diseño (sistema v3) y test del texto de los componentes base: lo que solo se ve con la página pintada. Corre en Chrome sobre el build
 # ESTÁTICO, en 22 rutas a 390 y 1280 px: desborde horizontal, borde del H1 bajo el logo, texto por debajo de 13 px,
 # controles de menos de 44 px, contraste y foco que queda tapado por la cabecera fija. Mismo ratchet que test:diseno:
 # scripts/diseno-render-baseline.json solo puede bajar.
@@ -35,3 +35,6 @@ jobs:
       - run: pnpm exec nuxt generate
 
       - run: pnpm test:diseno-render
+
+      # El texto que de verdad sale de Dato, Referencia y TarjetaEnlace (espacios que Vue elimina en modo condense). Sin baseline.
+      - run: pnpm test:componentes-texto

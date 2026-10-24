@@ -21,8 +21,9 @@ const ocultarVerificado = inject<boolean>('ocultarVerificado', false)
 
 <style scoped>
 .sello { display: inline-flex; align-items: center; gap: 3px; font: 600 11px/1.4 var(--font-mono); padding: 1px 7px;
-  border-radius: 999px; white-space: nowrap; background: rgb(var(--color-text-rgb) / 0.06); color: var(--color-text-soft); }
+  border-radius: 999px; white-space: nowrap; background: color-mix(in srgb, var(--texto-1) 6%, transparent); color: var(--texto-2); }
+/* «verificado» lleva su propio par (violeta suave con berenjena): se lee igual en cualquier fondo. */
 .sello--verificado { background: var(--color-miriam-soft); color: var(--color-text); }
-.sello--sin_verificar { background: transparent; border: 1px dashed rgb(var(--color-text-rgb) / 0.45); }
+.sello--sin_verificar { background: transparent; border: 1px dashed color-mix(in srgb, var(--texto-1) 45%, transparent); }
 .sello--dicho { font-style: italic; }
 </style>

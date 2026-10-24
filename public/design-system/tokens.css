@@ -179,6 +179,7 @@
   --texto-3:      color-mix(in srgb, var(--color-text-soft) 72%, var(--color-bg)); /* terciario / mute — 72% = 4.9:1 AA verificado (62% daba 3.7, fallaba) */
   --identidad:    var(--color-miriam);     /* violeta que porta identidad sobre este fondo */
   --anillo-foco:  var(--color-miriam);
+  --marcador:     var(--color-miriam-soft); /* resaltado «de rotulador» de un enlace al pasar o enfocar; el texto encima es --texto-1 */
   /* Color con el que se ESCRIBE la acción en esta superficie.
      Sobre crema NO puede ser coral (Consolidado D6: «coral nunca sobre crema»;
      2.62:1 no llega ni al 3:1 de elemento gráfico) → berenjena.
@@ -200,11 +201,17 @@
   --texto-3:      color-mix(in srgb, var(--color-bg) 58%, transparent);
   --identidad:    var(--color-miriam-claro);
   --anillo-foco:  var(--color-miriam-claro);
+  --marcador:     color-mix(in srgb, var(--color-miriam-claro) 30%, var(--color-text)); /* crema sobre él: 8,7:1 */
   --cta-texto:    var(--color-cta);        /* coral pleno ≈5.6:1 sobre berenjena — AA */
   --trazo-sutil:  color-mix(in srgb, var(--color-bg) 10%, transparent);
   --trazo-medio:  color-mix(in srgb, var(--color-bg) 16%, transparent);
   --trazo-fuerte: color-mix(in srgb, var(--color-bg) 26%, transparent);
   --trazo-interactivo: color-mix(in srgb, var(--color-bg) 40%, transparent);  /* borde de controles ≥3:1 sobre berenjena (3.51) — MCP/Ceci */
+  /* Estados de enlace y de control que se derivan de los colores de PALETA y por eso hay que repetir aquí: una variable que
+     apunta a otra se resuelve donde se declara (arriba, en :root, serían violeta oscuro y berenjena sobre berenjena). */
+  --miriam-hover:     color-mix(in srgb, var(--color-miriam-claro) 88%, var(--color-bg));
+  --miriam-active:    color-mix(in srgb, var(--color-miriam-claro) 78%, var(--color-bg));
+  --secundario-hover: color-mix(in srgb, var(--color-bg) 8%, transparent);
 }
 
 /* ── Estados derivados de los ROLES (sistema v3, D4): hecho, en curso, pendiente, no puede y atención ──────────────
