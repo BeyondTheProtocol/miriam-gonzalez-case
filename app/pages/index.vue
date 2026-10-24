@@ -4,8 +4,10 @@
          1 hero · 2 prensa · 3 el caso en 3 frases · 4 cita de Miriam · 5 dónde estamos y qué falta · 6 a qué va el dinero ·
          7 cómo ayudar. Un solo <h1> (el del hero) y un <h2> por bloque. La cita sube justo detrás de «El caso en 3 frases»
          (24-oct-2026): es su voz y la primera cara humana antes de pasar a lo que falta. Lo que se fue: resumen de 2 minutos,
-         siete tarjetas con minutos, banda de herramientas, párrafo de historia y su «(pronto)», «5+ especialistas», «23.100
-         células», los euros del hero y el microcopy de relleno. -->
+         siete tarjetas con minutos, párrafo de historia y su «(pronto)», «5+ especialistas», «23.100 células», los euros del hero
+         y el microcopy de relleno.
+         Tanda 2 (T2a, 24-oct-2026): vuelve la banda de herramientas, como bloque 3 justo tras la prensa (la home pasa a 8 bloques).
+         Umami la había medido: su teaser fue el 8,7 % de los visitantes de la home. -->
 
     <!-- 1 · Hero: en cinco segundos, quién es, qué busca y qué puedes hacer -->
     <SectionHero />
@@ -13,7 +15,10 @@
     <!-- 2 · Prensa, justo debajo: credibilidad antes de pedir (medios leídos de content/<idioma>/press.yml) -->
     <PrensaTira />
 
-    <!-- 3 · El caso en 3 frases (#caso: a él baja «Entender el caso» del hero). La única capa llana del sitio, compuesta SOLO
+    <!-- 3 · Herramientas (T2a): lo que Miriam ha construido con Polaris, justo tras la prensa que lo cuenta -->
+    <SectionHerramientasTeaser />
+
+    <!-- 4 · El caso en 3 frases (#caso: a él baja «Entender el caso» del hero). La única capa llana del sitio, compuesta SOLO
          con frases que la home ya publicaba (verbatim o recortadas, sin afirmaciones nuevas): qué tiene, por qué no encaja,
          qué se hace. Sin «dos biologías» como hecho: eso espera a su gate (G1). -->
     <section
@@ -43,7 +48,7 @@
       </div>
     </section>
 
-    <!-- 4 · En sus propias palabras (sube tras «El caso en 3 frases», 24-oct-2026). Las comillas en dos tonos —coral y violeta— son el guiño a las «dos caras» de las que
+    <!-- 5 · En sus propias palabras (sube tras «El caso en 3 frases», 24-oct-2026). Las comillas en dos tonos —coral y violeta— son el guiño a las «dos caras» de las que
          habla la cita; es su voz y su firma, no una afirmación de la web. -->
     <section
       v-reveal
@@ -63,7 +68,7 @@
       </div>
     </section>
 
-    <!-- 5 · Dónde estamos y qué falta: la ruta, lo que se hace hoy y la petición concreta a quien puede moverla.
+    <!-- 6 · Dónde estamos y qué falta: la ruta, lo que se hace hoy y la petición concreta a quien puede moverla.
          «Ahora» sale de caso.json (el mismo cálculo que la cifra «Tratamiento» de /datos); sin línea en curso, no se pinta. -->
     <!-- Fondo crema (no «card»): las peticiones de «Qué buscamos» son tarjetas de papel y necesitan un fondo distinto del suyo.
          Sin línea de arriba: desde que la cita (oscura) va delante, el bloque anterior ya no es crema y no hace falta separarlos. -->
@@ -89,9 +94,10 @@
           </div>
         </div>
 
-        <!-- La fila de acciones es de la home: el botón de contacto profesional (con su rol ya marcado), «ver todas» solo si
-             quedan peticiones sin enseñar y el acceso al 3D. El evento de Umami de las dos primeras lo emite el plugin
-             por el href (VerPeticion, Contacto-clic). -->
+        <!-- La fila de acciones es de la home: el botón de contacto profesional (con su rol ya marcado) y «ver todas» solo si
+             quedan peticiones sin enseñar. El evento de Umami de las dos primeras lo emite el plugin por el href (VerPeticion,
+             Contacto-clic). El acceso «Míralo en 3D» salió en T2a (24-oct-2026): ahora «Mama, hígado y hueso» es una fila de la banda
+             de herramientas, dos bloques más arriba, y dos enlaces a /lesiones seguidos eran la clase de ruido que F5 quiso evitar. -->
         <div class="mt-6 flex flex-col sm:flex-row sm:flex-wrap sm:items-center gap-x-6 gap-y-3">
           <NuxtLink
             v-if="peticiones.length"
@@ -108,19 +114,11 @@
             {{ $t('home.buscamos_todas') }}
             <Icon name="ph:arrow-right" class="w-4 h-4 transition-transform group-hover:translate-x-0.5" aria-hidden="true" />
           </NuxtLink>
-          <NuxtLink
-            :to="localePath('lesiones')"
-            class="link-action group min-h-[44px] text-sm text-miriam"
-            @click="trackLesiones('home_donde_estamos')"
-          >
-            {{ $t('home.donde_3d') }}<span class="sr-only">: {{ $t('nav.lesions') }}</span>
-            <Icon name="ph:arrow-right" class="w-4 h-4 transition-transform group-hover:translate-x-0.5" aria-hidden="true" />
-          </NuxtLink>
         </div>
       </div>
     </section>
 
-    <!-- 6 · A qué va el dinero. UNA frase de destino, la canónica (`money.destino`, criterio de legal-burocracia del
+    <!-- 7 · A qué va el dinero. UNA frase de destino, la canónica (`money.destino`, criterio de legal-burocracia del
          23-oct-2026: ni importes, ni «cada euro», ni «100 %»); los euros, con su fecha y solo aquí, en el bloque de la
          campaña (ya público). El único botón coral de la zona es el de la propia tarjeta; si la tarjeta no está (la
          campaña no respondió), el botón de siempre ocupa su lugar. -->
@@ -155,7 +153,7 @@
       </div>
     </section>
 
-    <!-- 7 · Cómo ayudar: las cuatro puertas (taxonomía única de utils/caminos.ts), sin minutos ni pasos -->
+    <!-- 8 · Cómo ayudar: las cinco puertas (taxonomía única de utils/caminos.ts), sin minutos ni pasos -->
     <section v-reveal class="section-spacing bg-cream" aria-labelledby="h-puertas">
       <div class="section-wide">
         <h2 id="h-puertas" class="heading-display text-3xl sm:text-4xl text-berenjena mb-8" style="letter-spacing: -0.03em">
@@ -183,7 +181,7 @@
 provide('ocultarVerificado', true)
 const { locale } = useI18n()
 const localePath = useLocalePath()
-const { GOFUNDME_URL, trackSupport, trackScience, trackLesiones } = useSupport()
+const { GOFUNDME_URL, trackSupport, trackScience } = useSupport()
 
 const lang = computed(() => (locale.value === 'en' ? 'en' : 'es'))
 

@@ -37,7 +37,7 @@ export default defineNuxtConfig({
   aiReady: {
     llmsTxt: {
       notes: [
-        'The metastasis map (/mapa-metastasis) is an archived (June 2026) decision-SUPPORT tool — Miriam’s own case — not a diagnosis or medical advice. The raw Markdown export (/mapa-metastasis.md) stays out of AI exports; the page itself stays reachable at its URL but is noindex and no longer linked from the site (current view: /lesiones).',
+        'The metastasis map (/mapa-metastasis) is a public decision-SUPPORT tool — Miriam’s own case — not a diagnosis or medical advice. It was made in June 2026 with the March and May PET scans and is not updated (current view: /lesiones). The raw Markdown export (/mapa-metastasis.md) stays out of AI exports; the page itself is public.',
         'The slide viewer (/laminillas) is a public decision-SUPPORT tool with Miriam’s own scanned pathology slides — not a diagnosis or medical advice. Each report result it quotes carries its source and verification seal.',
       ],
     },
@@ -83,15 +83,13 @@ export default defineNuxtConfig({
   // data-production-content="index, follow…" lo que servirá producción. Comprobar:
   //   rm -rf .nuxt .output && pnpm generate   →  inspeccionar .output/public/<página>.html
   // ──────────────────────────────────────────────────────────────────────
-  // /mapa-metastasis es ARCHIVO desde el rediseño (F4, 23-oct-2026): sigue en 200 (la lee /lesiones en cada build
-  // —#mapa-focos— y puede tener enlaces entrantes), pero con `robots: noindex, follow`, sin enlaces internos y fuera
-  // del sitemap. Su export Markdown crudo queda además fuera de los exports de IA.
+  // /mapa-metastasis es público e indexable (herramienta de apoyo que «sirvió en un momento concreto», junio de 2026, y no se
+  // actualiza): entra en el sitemap. T2a (24-oct-2026) lo devolvió a su estado de antes de F4, cuando era un archivo con
+  // `noindex`. Solo se excluye su export Markdown crudo (queda fuera de los exports de IA).
   // Las páginas con `robots: noindex` tampoco van en el sitemap. Las españolas ya no salían;
   // las inglesas sí, porque su ruta traducida no casaba con la exclusión automática.
-  // NO se añade `Disallow` en public/_robots.txt: bloquearía el rastreo y Google nunca vería el noindex.
   sitemap: {
     exclude: [
-      '/mapa-metastasis', '/en/mapa-metastasis',
       '/mapa-metastasis.md', '/en/mapa-metastasis.md',
       '/guia-de-estilo', '/en/style-guide',
       '/contacto', '/en/contact',
@@ -209,13 +207,18 @@ export default defineNuxtConfig({
       'celula-a-celula-explorar': { es: '/celula-a-celula/explorar', en: '/cell-by-cell/explore' },
       'ciencia/index': { en: '/science' },
       'ciencia/evidencia': { en: '/science/evidence' },
+      // Tanda 2 del rediseño (T2a, 24-oct-2026): /historia, /herramientas y /reservorio vuelven a ser páginas vivas y se
+      // reponen sus rutas traducidas (las quitó F4 al fusionarlas). El slug EN de /reservorio es el mismo.
+      'historia/index': { en: '/story' },
       'equipo': { en: '/team' },
       'prensa': { en: '/press' },
       'contacto': { en: '/contact' },
       'colabora': { en: '/collaborate' },
       'marcas': { en: '/brands' },
+      'reservorio': { en: '/reservorio' },
       'gastos': { en: '/expenses' },
       'datos': { en: '/data' },
+      'herramientas': { en: '/tools' },
       'gracias': { en: '/thank-you' },
       'aviso-legal': { en: '/legal-notice' },
       'privacidad': { en: '/privacy' },
@@ -286,22 +289,16 @@ export default defineNuxtConfig({
     '/biopsia-ig': { redirect: { to: '/laminillas?utm_source=instagram&utm_medium=bio&utm_campaign=lanzamiento-biopsia', statusCode: 302 } },
     '/biopsia-tt': { redirect: { to: '/laminillas?utm_source=tiktok&utm_medium=bio&utm_campaign=lanzamiento-biopsia', statusCode: 302 } },
     '/biopsia-yt': { redirect: { to: '/laminillas?utm_source=youtube&utm_medium=bio&utm_campaign=lanzamiento-biopsia', statusCode: 302 } },
-    // ── Rediseño de arquitectura, F4 (23-oct-2026): páginas fusionadas ──────────────────────────────────────────
-    // Cada una son TRES reglas (ES, EN y la variante /en/<slug-es> que crea i18n) y las tres van en `prerender.ignore`
-    // (si no, su .html de meta-refresh sombrea el redirect). Donde el slug EN es igual al ES, bastan dos. Sin query: un
-    // destino con «?» lo trata test-short-links como corto de campaña. El fragmento # sí (como /caso).
-    // /herramientas (índice) → franja de visores de /datos. 301: la fusión es definitiva.
-    '/herramientas': { redirect: { to: '/datos#visores', statusCode: 301 } },
-    '/en/tools': { redirect: { to: '/en/data#visores', statusCode: 301 } },
-    '/en/herramientas': { redirect: { to: '/en/data#visores', statusCode: 301 } },
-    // /reservorio → bloque plegado de /datos. 302 hasta que Miriam confirme la fusión (G6; pidió ese enfoque el 17-oct).
-    '/reservorio': { redirect: { to: '/datos#reservorio', statusCode: 302 } },
-    '/en/reservorio': { redirect: { to: '/en/data#reservorio', statusCode: 302 } },
-    // /historia (solo tenía un aviso «pronto» y el capítulo 1) → /timeline. 302: la historia real puede volver.
-    '/historia': { redirect: { to: '/timeline', statusCode: 302 } },
-    '/en/story': { redirect: { to: '/en/timeline', statusCode: 302 } },
-    '/en/historia': { redirect: { to: '/en/timeline', statusCode: 302 } },
-    // El capítulo 1 se borra (ES y EN): 301.
+    // ── Páginas que se pliegan en otras (rediseño de arquitectura, F4, 23-oct-2026; tanda 2, T2a, 24-oct-2026) ─────────
+    // Cada redirección son TRES reglas (ES, EN y la variante /en/<slug-es> que crea i18n) y las tres van en
+    // `prerender.ignore` (si no, su .html de meta-refresh sombrea el redirect). Donde el slug EN es igual al ES, bastan dos. Sin
+    // query: un destino con «?» lo trata test-short-links como corto de campaña. El fragmento # sí (como /caso).
+    // T2a devolvió a la vida /herramientas, /reservorio e /historia (Miriam, 24-oct-2026): ya no tienen regla de ES ni de EN, y
+    // las tres salieron de `prerender.ignore` (casa por PREFIJO: dejarlas habría dejado la página viva sin prerenderizar).
+    // Solo queda lo que i18n inventa: la variante /en/<slug-es>, que apunta a la ruta inglesa de verdad.
+    '/en/herramientas': { redirect: { to: '/en/tools', statusCode: 301 } },
+    '/en/historia': { redirect: { to: '/en/story', statusCode: 301 } },
+    // El capítulo 1 de /historia se borró (ES y EN, 23-oct): 301 a la cronología.
     '/historia/01-el-comienzo': { redirect: { to: '/timeline', statusCode: 301 } },
     '/en/story/01-the-beginning': { redirect: { to: '/en/timeline', statusCode: 301 } },
     '/en/historia/01-el-comienzo': { redirect: { to: '/en/timeline', statusCode: 301 } },
@@ -340,7 +337,13 @@ export default defineNuxtConfig({
       // que crawlLinks no la descubre: hay que listarla explícitamente para que
       // se prerenderice como HTML estático.
       // /guia-de-estilo (guía viva del sistema de diseño) tampoco tiene enlace desde la navegación: igual que /marcas.
-      routes: ['/marcas', '/en/brands', '/guia-de-estilo', '/en/style-guide'],
+      // T2a: /herramientas, /reservorio e /historia (y sus rutas inglesas) también van aquí. El selector de idioma es un botón y
+      // no un enlace, así que el rastreo no descubre las rutas /en/…; y /historia no tiene enlace interno (su tráfico llega de
+      // Google). Lo que `crawlLinks` no ve, se lista.
+      routes: [
+        '/marcas', '/en/brands', '/guia-de-estilo', '/en/style-guide',
+        '/herramientas', '/en/tools', '/reservorio', '/en/reservorio', '/historia', '/en/story',
+      ],
       // /design-system/ es un export estático en public/, no una ruta de Nuxt.
       // crawlLinks lo descubre desde /colabora, intenta prerenderizarlo, da 404
       // y aborta el build. Lo ignoramos: el archivo estático se copia igual.
@@ -358,12 +361,10 @@ export default defineNuxtConfig({
         '/biopsia-osea', '/en/bone-biopsy', '/en/biopsia-osea',
         // la página retirada de AlphaFold: solo queda su 301 al explorador
         '/tres-dianas', '/en/three-targets', '/en/tres-dianas',
-        // páginas fusionadas (rediseño F4): solo queda su redirect. OJO: `ignore` casa por PREFIJO, y ninguna de estas
-        // es prefijo de una página viva (test-short-links §1.bis); los ficheros de public/ (reservorio/, videos/) no
-        // se prerenderizan, así que tampoco les afecta.
-        '/herramientas', '/en/tools', '/en/herramientas',
-        '/reservorio', '/en/reservorio',
-        '/historia', '/en/story', '/en/historia',
+        // lo que i18n inventa y ya solo es un redirect (T2a): /en/herramientas → /en/tools y /en/historia → /en/story. OJO: `ignore`
+        // casa por PREFIJO, y ninguna de estas es prefijo de una página viva (test-short-links §1.bis). /herramientas,
+        // /reservorio e /historia NO están aquí: son páginas vivas desde T2a.
+        '/en/herramientas', '/en/historia',
         '/historia/01-el-comienzo', '/en/story/01-the-beginning', '/en/historia/01-el-comienzo',
         '/videos', '/en/videos',
         // datos en vivo: que nitro NO prerenderice un fichero que sombree el 302

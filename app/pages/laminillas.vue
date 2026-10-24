@@ -221,8 +221,8 @@ onBeforeUnmount(() => {
 <template>
   <div class="lam" :class="{ 'lam--sin-ficha': !fichaAbierta }" :style="{ '--alto-cabecera': altoCabecera + 'px' }">
     <div class="lam__barra">
-      <NuxtLink :to="localePath({ name: 'datos', hash: '#visores' })" class="lam__volver">
-        <Icon name="ph:arrow-left-bold" class="w-4 h-4" aria-hidden="true" /><span class="lam__volver-texto">{{ $t('nav.data') }}</span>
+      <NuxtLink :to="localePath({ name: 'herramientas' })" class="lam__volver">
+        <Icon name="ph:arrow-left-bold" class="w-4 h-4" aria-hidden="true" /><span class="lam__volver-texto">{{ $t('nav.tools') }}</span>
       </NuxtLink>
       <h1 class="lam__h1">{{ L('Las laminillas, al microscopio', 'The slides, under the microscope') }}</h1>
       <details class="lam__aviso" role="note">

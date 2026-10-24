@@ -1240,11 +1240,29 @@
     "prensa_title": "My case in the press",
     "prensa_sub": "What the media have said about it",
     "cronologia_title": "My case, step by step",
-    "cronologia_sub": "What's happened, in order"
+    "cronologia_sub": "What's happened, in order",
+    "herramientas_title": "All my tools",
+    "herramientas_sub": "Maps, images and data from my case, to explore at your own pace"
   },
   "herramientas": {
     "title": "Case tools",
-    "intro": "Maps, images and data from Miriam's case, to explore at your own pace."
+    "intro": "Maps, images and data from Miriam's case, to explore at your own pace.",
+    "eyebrow": "Made with Polaris",
+    "apertura": "Miriam is an engineer. With Polaris, the AI system she built for her case, she turns reports, scans and samples into tools anyone can open.",
+    "apertura_cada_una": "Each one says who it is for and what we are looking for.",
+    "grupo_ahora": "The current ones",
+    "grupo_pasadas": "They served at a specific moment",
+    "para_labs": "For labs",
+    "para_clinicos": "For clinicians",
+    "para_todos": "For everyone",
+    "historico_mapa": "Archive · June 2026",
+    "historico_port": "Archive · September 2026",
+    "pasada_titulo": "When and why it was made",
+    "linea_mapa": "Made in June 2026 with the March (FDG) and May (Ga-68 DOTATOC) PET scans, to bring her doctors a better question after the April biopsy that found no tumor: where to biopsy again. It predates the liver lesions (July) and is not updated; the current picture is in Breast, liver and bone.",
+    "linea_port": "Used in September 2026 to check on three CT scans whether the catheter had moved; the October replacement report gives as its reason that it was too short.",
+    "abrir": "Open",
+    "salida": "After using the tool",
+    "salida_inicio": "Back to home"
   },
   "videos": {
     "title": "Videos",
@@ -1261,6 +1279,7 @@
   "puertas": {
     "apoyar": "Support",
     "clinico": "Clinician or lab",
+    "tecnologia": "Tech, AI and brands",
     "prensa": "Press",
     "otras": "Other ways"
   },

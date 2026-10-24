@@ -72,6 +72,22 @@ export function peticionesPublicas(seBusca: readonly PeticionFuente[]): Peticion
   return publicas.sort((a, b) => a.prioridad - b.prioridad)
 }
 
+/**
+ * Qué peticiones atañen a cada herramienta del índice /herramientas (tanda 2, T2a, 24-oct-2026): cada tarjeta enseña, plegado, solo
+ * lo que se pide a quien puede mover ESA herramienta. Se ata por `tema` (que esta tabla ya trae) y no por un campo nuevo en
+ * `caso_publico.py`: así no se toca el otro repo, y un cambio de orden de las peticiones no rompe nada.
+ * · Las claves son las `key` de navegacion.ts.
+ * · Una herramienta sin tema (las laminillas) no enseña peticiones: la tarjeta enlaza a la lista entera. Una petición nueva de
+ *   «segunda lectura de patología» sería dato clínico nuevo y pasaría antes por la gate G3; no se inventa aquí.
+ */
+export const TEMAS_HERRAMIENTA: Record<string, readonly TemaPeticion[]> = {
+  data: ['ensayo', 'hla'],
+  lesions: ['radiologia'],
+  slides: [],
+  cell_by_cell: ['laboratorio'],
+  cell_explorer: ['ihc'],
+}
+
 /** Las que enseña un sitio concreto: primero el filtro por tema y después el tope. */
 export function seleccionarPeticiones(
   publicas: readonly Peticion[],

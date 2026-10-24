@@ -12,10 +12,13 @@
 // 3. Los cortos están documentados en SHORT-LINKS.md (la tabla no se queda atrás).
 // 4. /caso, el enlace que se reenvía a médicos, aterriza en «Qué buscamos» de /datos (rediseño F1,
 //   23-oct-2026), y esa ancla existe en la página y en la tabla de SHORT-LINKS.md.
-// 5. Páginas fusionadas (rediseño F4, 23-oct-2026): /herramientas, /reservorio, /historia (y su capítulo) y /videos ya
-//   no existen y solo queda su redirección. Tabla EXACTA ruta → destino → código (cada 301 son tres reglas: ES, EN y la
-//   variante /en/<slug-es>), sin query, sin cadenas, con el destino real y su ancla, sin la página, sus claves de
-//   prerender ni su colección, y documentada en SHORT-LINKS.md. Los /3d* siguen en 302 con los MISMOS UTM, ahora a /lesiones.
+// 5. Páginas fusionadas y vueltas a la vida. F4 (23-oct-2026) plegó /herramientas, /reservorio, /historia (y su capítulo) y /videos con
+//   redirects; la tanda 2 (T2a, 24-oct-2026) devolvió a la vida las tres primeras (Miriam: herramientas en el menú, el reservorio con su 3D, y
+//   /historia no se redirige: 184 entradas de Google). Hoy: tabla EXACTA ruta → destino → código de lo que SIGUE siendo un redirect (la variante
+//   /en/<slug-es> que crea i18n, el capítulo borrado de /historia y /videos), sin query, sin cadenas, con el destino real y su ancla, y
+//   documentada en SHORT-LINKS.md; y, de lo que volvió: la página existe, su ruta inglesa está en i18n.pages, está en prerender.routes, NO tiene
+//   redirect ni está en prerender.ignore (casa por PREFIJO: dejarla ahí deja la página viva sin prerenderizar). Los /3d* siguen en 302 con los
+//   MISMOS UTM, a /lesiones.
 //
 // Uso:  pnpm test:short-links
 import { existsSync, readFileSync, readdirSync } from 'node:fs'
@@ -63,10 +66,9 @@ ok(/\|\s*`\/caso`\s*\|\s*`\/datos#que-buscamos`\s*\|/.test(doc), 'la fila de /ca
 
 // 5
 {
+  // Lo que SIGUE siendo un redirect (F4 y T2a)
   const FUSIONADAS: [string, string, number][] = [
-    ['/herramientas', '/datos#visores', 301], ['/en/tools', '/en/data#visores', 301], ['/en/herramientas', '/en/data#visores', 301],
-    ['/reservorio', '/datos#reservorio', 302], ['/en/reservorio', '/en/data#reservorio', 302],
-    ['/historia', '/timeline', 302], ['/en/story', '/en/timeline', 302], ['/en/historia', '/en/timeline', 302],
+    ['/en/herramientas', '/en/tools', 301], ['/en/historia', '/en/story', 301],
     ['/historia/01-el-comienzo', '/timeline', 301], ['/en/story/01-the-beginning', '/en/timeline', 301], ['/en/historia/01-el-comienzo', '/en/timeline', 301],
     ['/videos', '/ciencia', 301], ['/en/videos', '/en/science', 301],
   ]
@@ -79,35 +81,47 @@ ok(/\|\s*`\/caso`\s*\|\s*`\/datos#que-buscamos`\s*\|/.test(doc), 'la fila de /ca
     ok(doc.includes(`\`${ruta}\``), `${ruta} está en la tabla de «Páginas fusionadas» de SHORT-LINKS.md`)
   }
   // el destino es una página real y, si lleva ancla, el id existe en ella
-  const PAGINA_ES: Record<string, string> = { '/datos': 'app/pages/datos.vue', '/timeline': 'app/pages/timeline.vue', '/ciencia': 'app/pages/ciencia/index.vue' }
+  const PAGINA_ES: Record<string, string> = { '/datos': 'app/pages/datos.vue', '/timeline': 'app/pages/timeline.vue', '/ciencia': 'app/pages/ciencia/index.vue', '/herramientas': 'app/pages/herramientas.vue', '/historia': 'app/pages/historia/index.vue' }
+  const ES_DE: Record<string, string> = { '/data': '/datos', '/science': '/ciencia', '/tools': '/herramientas', '/story': '/historia' }
   for (const [, destino] of FUSIONADAS) {
     const [ruta, ancla] = destino.split('#') as [string, string | undefined]
     const es = ruta.replace(/^\/en(?=\/|$)/, '')
-    const fichero = PAGINA_ES[es === '' ? '/' : es.replace(/^\/(data)$/, '/datos').replace(/^\/(science)$/, '/ciencia')]
-    ok(!!fichero, `${destino}: apunta a una página conocida (${fichero ?? 'desconocida'})`)
+    const fichero = PAGINA_ES[ES_DE[es === '' ? '/' : es] ?? (es === '' ? '/' : es)]
+    ok(!!fichero && existsSync(fichero), `${destino}: apunta a una página que existe (${fichero ?? 'desconocida'})`)
     if (fichero && ancla) ok(readFileSync(fichero, 'utf-8').includes(`id="${ancla}"`), `${destino}: ${fichero} lleva id="${ancla}"`)
   }
   // los destinos EN son la ruta traducida REAL de i18n.pages (o la española con /en, si no está traducida)
   const enDe = (nombre: string) => cfg.match(new RegExp(`'${nombre}':\\s*\\{\\s*en:\\s*'([^']+)'`))?.[1]
   ok(enDe('datos') === '/data' && enDe('ciencia/index') === '/science', `i18n.pages: datos → /en/data y ciencia → /en/science (${enDe('datos')}, ${enDe('ciencia/index')})`)
   ok(!enDe('timeline'), '/timeline no está traducida: su ruta inglesa es /en/timeline')
-  // la página, sus claves de prerender y su colección ya no existen
-  for (const f of ['app/pages/herramientas.vue', 'app/pages/reservorio.vue', 'app/pages/videos.vue', 'app/pages/historia', 'content/es/historia', 'content/en/story'])
-    ok(!existsSync(f), `${f} ya no existe (solo queda su redirect)`)
-  ok(!/'(?:historia\/index|historia\/\[slug\]|reservorio|herramientas)':\s*\{\s*en:/.test(cfg), 'i18n.pages ya no traduce historia, reservorio ni herramientas')
-  ok(!/historia_(es|en)/.test(readFileSync('content.config.ts', 'utf-8')), 'content.config.ts ya no define las colecciones de historia')
+  ok(enDe('herramientas') === '/tools' && enDe('historia/index') === '/story' && enDe('reservorio') === '/reservorio', `i18n.pages: herramientas → /en/tools, historia → /en/story y reservorio → /en/reservorio (${enDe('herramientas')}, ${enDe('historia/index')}, ${enDe('reservorio')})`)
+
+  // lo que volvió a la vida (T2a): la página existe, se prerenderiza explícitamente, y NO es un redirect ni está en el ignore
+  const VIVAS: [string, string][] = [['/herramientas', '/en/tools'], ['/reservorio', '/en/reservorio'], ['/historia', '/en/story']]
   const rutasPrerender = cfg.match(/routes:\s*\[([^\]]*)\]/)?.[1] ?? ''
-  ok(!/herramientas|\/tools/.test(rutasPrerender), `nitro.prerender.routes ya no lista /herramientas (si no, su .html sombrea el 301): ${rutasPrerender.trim()}`)
-  // los /3d* siguen en 302, con los mismos UTM, y ahora llevan a /lesiones
+  for (const [es, en] of VIVAS) {
+    ok(existsSync(es === '/historia' ? 'app/pages/historia/index.vue' : `app/pages${es}.vue`), `${es}: la página existe`)
+    for (const r of [es, en]) {
+      ok(!porRuta.has(r), `${r}: ya no es un redirect (T2a)`)
+      ok(!ignorados.has(r), `${r}: no está en nitro.prerender.ignore (casa por prefijo y dejaría la página sin prerenderizar)`)
+      ok(new RegExp(`'${r}'`).test(rutasPrerender), `${r}: está en nitro.prerender.routes (el crawler no la descubre solo: el selector de idioma es un botón y /historia no tiene enlace interno)`)
+    }
+    ok(!new RegExp(`^\\|\\s*\`${es}\`\\s*\\|`, 'm').test(doc), `${es}: no figura como fila de redirect en SHORT-LINKS.md`)
+  }
+  // la página retirada de verdad, sus claves de prerender y su colección ya no existen
+  for (const f of ['app/pages/videos.vue', 'app/pages/historia/[slug].vue', 'content/es/historia', 'content/en/story'])
+    ok(!existsSync(f), `${f} ya no existe (solo queda su redirect)`)
+  ok(!/historia_(es|en)/.test(readFileSync('content.config.ts', 'utf-8')), 'content.config.ts no define las colecciones de historia (la página vive sin capítulos)')
+  // ningún redirect (de campaña o no) lleva a una página que ya no existe
+  const aMuertas = redirects.filter((r) => /^\/(?:en\/)?(?:videos|historia\/01-el-comienzo|story\/01-the-beginning)(?:[/?#]|$)/.test(r.destino))
+  ok(aMuertas.length === 0, `ningún redirect apunta a una página que ya no existe${aMuertas.length ? ` (${aMuertas.map((r) => r.ruta).join(', ')})` : ''}`)
+  // los /3d* siguen en 302, con los mismos UTM, y llevan a /lesiones
   const UTM3D: Record<string, string> = { '/3d': 'source=short&utm_medium=link', '/3d-x': 'source=twitter&utm_medium=post', '/3d-in': 'source=linkedin&utm_medium=post', '/3d-ig': 'source=instagram&utm_medium=bio', '/3d-tt': 'source=tiktok&utm_medium=bio', '/3d-yt': 'source=youtube&utm_medium=bio' }
   for (const [ruta, utm] of Object.entries(UTM3D)) {
     const r = porRuta.get(ruta)
     ok(r?.destino === `/lesiones?utm_${utm}&utm_campaign=lanzamiento-herramienta` && r?.codigo === 302, `${ruta} → /lesiones con los mismos UTM (302): ${r?.destino ?? 'sin regla'} ${r?.codigo ?? ''}`)
     ok(doc.includes(`| \`${ruta}\` | \`/lesiones\` |`), `${ruta}: la tabla de SHORT-LINKS.md dice /lesiones`)
   }
-  // ninguna regla sigue apuntando a las páginas retiradas, ni al mapa (archivo, sin enlaces ni redirects entrantes propios)
-  const aRetiradas = redirects.filter((r) => /^\/(?:en\/)?(?:herramientas|tools|reservorio|historia|story|videos|mapa-metastasis)(?:[/?#]|$)/.test(r.destino))
-  ok(aRetiradas.length === 0, `ningún redirect apunta a una página retirada o archivada${aRetiradas.length ? ` (${aRetiradas.map((r) => r.ruta).join(', ')})` : ''}`)
 }
 
 console.log(fallos ? `\n❌ ${fallos} fallo(s)` : '\n✅ enlaces cortos en verde')

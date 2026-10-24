@@ -201,7 +201,16 @@ const featured = computed<BioLink[]>(() => [
 ])
 
 // Secundarios — completan el hub sin robar protagonismo a los de arriba.
+// T2a (24-oct-2026): «Todas mis herramientas» entra la primera de los secundarios, a /herramientas. Las tres del bloque de arriba
+// (célula a célula, lesiones y datos) ya son herramientas; esta fila es la puerta al resto y al índice.
 const secondary = computed<BioLink[]>(() => [
+  {
+    id: 'herramientas',
+    title: 'links.herramientas_title',
+    sub: 'links.herramientas_sub',
+    icon: 'ph:wrench-fill',
+    to: localePath('herramientas'),
+  },
   {
     id: 'cronologia',
     title: 'links.cronologia_title',

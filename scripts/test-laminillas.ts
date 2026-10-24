@@ -152,9 +152,13 @@ const nav = readFileSync('app/utils/navegacion.ts', 'utf-8')
 ok(/slides:\s*e\('slides',\s*'laminillas'\)/.test(nav) && /HERRAMIENTAS[^\n]*NAV\.slides/.test(nav), 'está en la navegación y en el índice de herramientas')
 
 const orden = nav.match(/export const HERRAMIENTAS: EnlaceNav\[\] = \[([^\]]*)\]/)?.[1] ?? ''
-// F4 (23-oct-2026): el reservorio sale de las herramientas (ya no es página: es el bloque plegado #reservorio de /datos), así que la lista
-// acaba en el explorador. El resto del orden es el de siempre.
-ok(orden.replace(/\s/g, '') === 'NAV.data,NAV.lesions,NAV.slides,NAV.cellByCell,NAV.cellExplorer', 'herramientas en el orden «del cuerpo a la célula» (sin el mapa de solo hueso desde el 21-oct, ni el reservorio desde F4)')
+// T2a (24-oct-2026): el orden de «Las de ahora» es el que Miriam dio al decidir el menú y el índice (célula a célula, su explorador,
+// mama-hígado-hueso, el caso en datos y las laminillas); manda sobre el del 20-oct («del cuerpo a la célula»: datos, lesiones, laminillas,
+// célula, explorador), que era el de la franja #visores de /datos. Las dos que «sirvieron en un momento concreto» (el mapa de metástasis y el
+// reservorio) van en su propia lista, HERRAMIENTAS_PASADAS, no en esta: no salen en la banda de la home ni en el pie.
+ok(orden.replace(/\s/g, '') === 'NAV.cellByCell,NAV.cellExplorer,NAV.lesions,NAV.data,NAV.slides', 'herramientas «de ahora» en el orden de la decisión de Miriam del 24-oct (célula, explorador, lesiones, datos, laminillas)')
+const pasadas = nav.match(/export const HERRAMIENTAS_PASADAS: EnlaceNav\[\] = \[([^\]]*)\]/)?.[1] ?? ''
+ok(pasadas.replace(/\s/g, '') === 'NAV.map,NAV.port', 'y las dos pasadas, en su lista: el mapa de metástasis y el reservorio')
 const ultimo = nav.match(/export const LO_ULTIMO: EnlaceNav = NAV\.(\w+)/)?.[1]
 ok(!!ultimo && orden.includes('NAV.' + ultimo), `la destacada «Lo último» (${ultimo}) es una de las herramientas`)
 

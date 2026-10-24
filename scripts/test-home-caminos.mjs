@@ -37,6 +37,17 @@
 //    móvil no coinciden), y en la primera pantalla hay uno.
 //    El chrome reaparece y desaparece al navegar sin recargar (logo → home → atrás; el paso siguiente de /gracias → atrás).
 //
+// Tanda 2 (T2a, 24-oct-2026):
+//   · La home pasa a 8 bloques: la banda de herramientas (§1) va justo tras la prensa. La destacada («Lo último») y cada fila miden ≥ 64 px
+//     (la fila entera es el enlace), no se solapan y las filas van en 1 columna (< 640 px), 2 (640 a 1279 px) o 4 (≥ 1280 px).
+//   · Cinco puertas (no cuatro): «Tecnología, IA y marcas» es la tercera. En una fila desde 1280 px, 3 + 2 de 1024 a 1279, 2 + 2 + 1 de 640 a 1023 y
+//     una por fila en móvil. «Míralo en 3D» salió de «Dónde estamos».
+//   · /datos vuelve a tener 6 chips (sin «Herramientas»).
+//   · §11: el selector de idioma está en la cabecera a todos los anchos (320 a 1440 px), con 44 px, sin solapes ni scroll horizontal, y cambia
+//     de idioma; el menú móvil NO lleva un segundo selector.
+//   · §12: la salida común de las herramientas (Apoyar y volver al inicio) cabe, mide ≥ 44 px, no la tapa nada y no hay scroll horizontal; y
+//     el índice /herramientas: tarjetas sin desbordes, botones ≥ 44 px y el plegable «Qué buscamos» se abre con el teclado.
+//
 // CAPTURAS=<carpeta> guarda capturas de la rejilla para la revisión de `diseno`.
 // Uso: pnpm exec nuxt generate && pnpm test:home-caminos
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs'
@@ -60,19 +71,21 @@ if (CAPTURAS) mkdirSync(CAPTURAS, { recursive: true })
 const ESPERADO = {
   es: {
     home: '/',
-    puertas: ['https://gofund.me/3e25cae99', '/datos#que-buscamos', '/prensa', '/colabora'],
+    puertas: ['https://gofund.me/3e25cae99', '/datos#que-buscamos', '/colabora#tech-ia', '/prensa', '/colabora'],
     escribir: '/contacto?role=researcher',
     todas: '/datos#que-buscamos',
-    tresD: '/lesiones',
+    banda: ['/celula-a-celula', '/celula-a-celula/explorar', '/lesiones', '/datos', '/laminillas'],
+    todasHerr: '/herramientas',
     pares: '/colabora#apoyo-mutuo',
     nuevaPestana: /pestaña nueva/,
   },
   en: {
     home: '/en',
-    puertas: ['https://gofund.me/3e25cae99', '/en/data#que-buscamos', '/en/press', '/en/collaborate'],
+    puertas: ['https://gofund.me/3e25cae99', '/en/data#que-buscamos', '/en/collaborate#tech-ia', '/en/press', '/en/collaborate'],
     escribir: '/en/contact?role=researcher',
     todas: '/en/data#que-buscamos',
-    tresD: '/en/lesiones',
+    banda: ['/en/cell-by-cell', '/en/cell-by-cell/explore', '/en/lesiones', '/en/data', '/en/slides'],
+    todasHerr: '/en/tools',
     pares: '/en/collaborate#apoyo-mutuo',
     nuevaPestana: /new tab/,
   },
@@ -101,6 +114,7 @@ const LEER = `(() => {
     pares: q('.puertas-pares a'),
     sala: q('.prensa-tira__sala'),
     escribir: q('a.btn-secondary[href*="role=researcher"]', donde), todas: q('a[href$="#que-buscamos"]', donde), tresD: q('a[href$="/lesiones"]', donde),
+    banda: [...(main.querySelector('section[aria-labelledby="h-herramientas"]')?.querySelectorAll('a') ?? [])].map((a) => ({ href: a.getAttribute('href'), ...rect(a), visible: a.offsetParent !== null })),
     peticiones: donde.querySelectorAll('.qb__lista li').length,
     corales: [...dinero.querySelectorAll('a.btn-cta')].map((a) => a.getAttribute('href')),
     puertas: [...main.querySelectorAll('.puertas a')].map((a) => {
@@ -181,9 +195,17 @@ try {
       await cargar(E.home)
       const s = await evaluate(LEER)
       ok(s.sw <= s.vw, `${w}px: sin scroll horizontal (${s.sw} ≤ ${s.vw})`)
-      ok(s.secciones.length === 7 && s.secciones.every((x, i) => i === 0 || x.y > s.secciones[i - 1].y), `${w}px: 7 bloques, cada uno debajo del anterior (${s.secciones.map((x) => x.nombre).join(' › ')})`)
-      const ORDEN = ['hero', 'prensa-tira', 'caso', 'h-cita', 'h-donde', 'campaign', 'h-puertas']
-      ok(JSON.stringify(s.secciones.map((x) => x.nombre)) === JSON.stringify(ORDEN), `${w}px: los bloques van en este orden: ${ORDEN.join(' › ')} (la cita justo tras «El caso en 3 frases»)`)
+      ok(s.secciones.length === 8 && s.secciones.every((x, i) => i === 0 || x.y > s.secciones[i - 1].y), `${w}px: 8 bloques, cada uno debajo del anterior (${s.secciones.map((x) => x.nombre).join(' › ')})`)
+      const ORDEN = ['hero', 'prensa-tira', 'h-herramientas', 'caso', 'h-cita', 'h-donde', 'campaign', 'h-puertas']
+      ok(JSON.stringify(s.secciones.map((x) => x.nombre)) === JSON.stringify(ORDEN), `${w}px: los bloques van en este orden: ${ORDEN.join(' › ')} (la banda de herramientas justo tras la prensa; la cita tras «El caso en 3 frases»)`)
+      // la banda de herramientas (T2a): la destacada y las filas miden ≥ 64 px, se ven, van en el orden de HERRAMIENTAS y no se solapan
+      const B = s.banda
+      ok(JSON.stringify(B.map((x) => x.href)) === JSON.stringify([...E.banda, E.todasHerr]), `${w}px: la banda lleva la destacada, las filas en orden y «Todas las herramientas» (${B.map((x) => x.href).join(' · ')})`)
+      ok(B.slice(0, -1).every((x) => x.visible && x.h >= 64 && x.w >= 44) && B.at(-1).visible && B.at(-1).h >= 44, `${w}px: la destacada y las filas miden ≥ 64 px y «Todas las herramientas», ≥ 44 (${B.map((x) => x.h).join(', ')})`)
+      const filasBanda = B.slice(1, -1)
+      const columnasBanda = new Set(filasBanda.map((x) => x.x)).size
+      ok(columnasBanda === (w >= 1280 ? 4 : w >= 640 ? 2 : 1), `${w}px: las filas de la banda en ${w >= 1280 ? 4 : w >= 640 ? 2 : 1} columna(s) (${columnasBanda})`)
+      ok(!B.some((p, i) => B.slice(i + 1).some((q) => Math.min(p.x + p.w, q.x + q.w) - Math.max(p.x, q.x) > 1 && Math.min(p.y + p.h, q.y + q.h) - Math.max(p.y, q.y) > 1)), `${w}px: nada de la banda se solapa`)
       ok(s.h1.n === 1 && s.h1.w <= s.vw && s.h1.lineas <= 6, `${w}px: un solo H1, dentro de la pantalla y en ${s.h1.lineas} líneas (≤ 6)`)
       // lado a lado de 640 a 767 px (hero a todo el ancho) y desde 1024; apilados en móvil y en 768-1023 (la foto estrecha el texto)
       const apilados = w < 640 || (w >= 768 && w < 1024)
@@ -207,13 +229,15 @@ try {
       ok(s.prensa.every((m) => m.evento === 'Clic-prensa' && m.eventoMedio === m.medio), `${w}px: cada medio lleva data-umami-event="Clic-prensa" y data-umami-event-medio con su nombre`)
       ok(s.pares?.href === E.pares && s.pares.visible && s.pares.h >= 44, `${w}px: bajo las puertas, «Escribir a Miriam» enlaza a ${E.pares} y mide ≥ 44 px (${s.pares?.href}, ${s.pares?.h})`)
       ok(s.peticiones === 3, `${w}px: «Qué buscamos» enseña 3 peticiones (${s.peticiones})`)
-      ok(s.escribir?.href === E.escribir && s.todas?.href === E.todas && s.tresD?.href === E.tresD && [s.escribir, s.todas, s.tresD].every((x) => x.h >= 44), `${w}px: «Escribir al equipo», «Ver todo lo que buscamos» y «Míralo en 3D» con su href y ≥ 44 px (${[s.escribir, s.todas, s.tresD].map((x) => x?.h).join(', ')})`)
+      ok(s.escribir?.href === E.escribir && s.todas?.href === E.todas && [s.escribir, s.todas].every((x) => x.h >= 44), `${w}px: «Escribir al equipo» y «Ver todo lo que buscamos» con su href y ≥ 44 px (${[s.escribir, s.todas].map((x) => x?.h).join(', ')})`)
+      ok(s.tresD === null, `${w}px: «Dónde estamos» ya no lleva «Míralo en 3D» (T2a: es una fila de la banda de herramientas)`)
       ok(s.corales.length === 1 && s.corales[0] === 'https://gofund.me/3e25cae99', `${w}px: un solo botón coral en la zona del dinero (${s.corales.length})`)
       const P = s.puertas
-      ok(JSON.stringify(P.map((x) => x.href)) === JSON.stringify(E.puertas), `${w}px: las 4 puertas, con sus destinos (${P.map((x) => x.href).join(' · ')})`)
+      ok(JSON.stringify(P.map((x) => x.href)) === JSON.stringify(E.puertas), `${w}px: las 5 puertas, con sus destinos (${P.map((x) => x.href).join(' · ')})`)
       ok(P.every((x) => x.visible && x.h >= PUERTA_MIN && x.w >= 44), `${w}px: las puertas se ven y miden ≥ ${PUERTA_MIN} px (${P.map((x) => x.h).join(', ')})`)
       const filas = new Set(P.map((x) => x.y)).size
-      const esperadas = w >= 1024 ? 1 : w >= 640 ? 2 : 4
+      // cinco puertas: una fila desde 1280 px, 3 + 2 de 1024 a 1279, 2 + 2 + 1 de 640 a 1023 y una por fila en móvil
+      const esperadas = w >= 1280 ? 1 : w >= 1024 ? 2 : w >= 640 ? 3 : 5
       ok(filas === esperadas, `${w}px: las puertas en ${esperadas} fila(s) (${filas})`)
       const lectura = [...P].sort((a, b) => a.y - b.y || a.x - b.x).map((x) => x.href)
       ok(JSON.stringify(lectura) === JSON.stringify(E.puertas), `${w}px: orden visual de las puertas = orden del DOM`)
@@ -341,8 +365,8 @@ try {
       await hasta(BAJO_LA_BARRA('h-busca'), 6000)
       await sleep(500)
       const b = await evaluate(CHIPS_LIBRES)
-      // F4 (23-oct-2026): +1 chip, «Herramientas» (#visores): la franja que sustituye al índice /herramientas. Antes eran 6.
-      ok(!!b && b.chips.length === 7, `${w}px ${ruta}: la barra tiene sus 7 chips (${b?.chips.length})`)
+      // F4 (23-oct-2026) sumó un chip, «Herramientas» (#visores); T2a (24-oct-2026) lo quitó con la franja: vuelven a ser 6.
+      ok(!!b && b.chips.length === 6, `${w}px ${ruta}: la barra tiene sus 6 chips (${b?.chips.length})`)
       ok(!!b && b.pegada, `${w}px ${ruta}: la barra queda pegada justo bajo la cabecera (barra a ${b?.barraTop} px, cabecera hasta ${b?.suelo} px)`)
       const tapados = (b?.chips ?? []).filter((c) => !c.libre)
       ok(tapados.length === 0, `${w}px ${ruta}: ningún chip tapado por la cabecera${tapados.length ? ` (tapados: ${tapados.map((c) => `${c.texto} a ${c.top} px`).join(', ')})` : ''}`)
@@ -357,7 +381,7 @@ try {
       await ancho(w)
       await cargar('/')
       const s = await evaluate(LEER)
-      ok(s.puertas.length === 4 && s.puertas.every((a) => a.visible && a.h >= PUERTA_MIN && a.bordeAncho >= 1 && !/rgba\(0, 0, 0, 0\)|transparent/.test(a.borde)), `${nombre} ${w}px: las 4 puertas visibles, ≥ ${PUERTA_MIN} px y con borde`)
+      ok(s.puertas.length === 5 && s.puertas.every((a) => a.visible && a.h >= PUERTA_MIN && a.bordeAncho >= 1 && !/rgba\(0, 0, 0, 0\)|transparent/.test(a.borde)), `${nombre} ${w}px: las 5 puertas visibles, ≥ ${PUERTA_MIN} px y con borde`)
       ok(s.cta.h >= 44 && s.entender.h >= 44 && s.pro.visible, `${nombre} ${w}px: los dos botones del hero y el enlace profesional siguen a la vista y de 44 px`)
       await capturar(`${nombre}-${w}`)
     }
@@ -510,6 +534,129 @@ try {
     ok(await evaluate(`location.hash === '#lo-ultimo'`), `${c.ruta} → ${destino}: el hash #lo-ultimo llega`)
     ok(await evaluate(`window.__sinRecarga === true`), `${c.ruta} → ${destino}: sin recargar`)
   }
+
+  console.log('\n11. El selector de idioma está en la cabecera a todos los anchos (T2a, 24-oct-2026)')
+  // Hasta T2a, bajo `sm` (640 px) vivía solo dentro del menú desplegable: quien llegaba con el navegador en inglés (el 31 % de los visitantes)
+  // y abría `/` no lo veía, y casi nadie visita /en. Ahora está a la vista a todos los anchos, con 44 px, sin pisar el logo, el botón de apoyo
+  // ni la hamburguesa, y sin scroll horizontal; el menú móvil ya no lleva un segundo selector.
+  const CABECERA = `(() => {
+    const cab = document.querySelector('[data-cabecera-fija] header')
+    const caja = (el) => { const r = el.getBoundingClientRect(); return { left: r.left, right: r.right, top: r.top, bottom: r.bottom, w: r.width, h: r.height } }
+    const visible = (el) => !!el && el.offsetParent !== null && getComputedStyle(el).visibility !== 'hidden'
+    const g = cab.querySelector('[role=group]')
+    const logo = cab.querySelector('a')
+    const apoyo = [...cab.querySelectorAll('a[href*="gofund.me"]')].find(visible)
+    const hamb = cab.querySelector('button[aria-controls=mobile-nav]')
+    const botones = g ? [...g.querySelectorAll('button')] : []
+    return {
+      visible: visible(g), botones: botones.map(caja), pulsados: botones.map((b) => b.getAttribute('aria-pressed')),
+      grupo: g ? caja(g) : null, logo: caja(logo), apoyo: apoyo ? caja(apoyo) : null, hamburguesa: visible(hamb) ? caja(hamb) : null,
+      grupos: cab.querySelectorAll('[role=group]').length, sw: document.documentElement.scrollWidth, vw: innerWidth,
+    }
+  })()`
+  for (const loc of ['es', 'en']) {
+    const E = ESPERADO[loc]
+    for (const w of [320, 375, 639, 640, 1024, 1440]) {
+      await ancho(w)
+      await cargar(E.home)
+      const c = await evaluate(CABECERA)
+      // 44 × 44 px: la vara de la casa (--control-min). Hasta T2a el selector medía 35 px de ancho; con `min-w-control` y menos relleno cabe a 320 px.
+      ok(c.visible && c.botones.length === 2 && c.botones.every((b) => b.h >= 44 && b.w >= 44), `${loc} ${w}px: el selector de idioma está a la vista y sus dos botones miden ≥ 44 px (${c.botones.map((b) => `${Math.round(b.w)}×${Math.round(b.h)}`).join(', ')})`)
+      const siguiente = c.apoyo ?? c.hamburguesa
+      ok(c.grupo.left >= c.logo.right - 0.5 && (!siguiente || c.grupo.right <= siguiente.left + 0.5) && c.grupo.right <= c.vw, `${loc} ${w}px: va tras el logo y antes de ${c.apoyo ? '«Apoyar»' : 'la hamburguesa'}, sin pisarlos ni salirse de la pantalla (logo hasta ${Math.round(c.logo.right)}, selector ${Math.round(c.grupo.left)}–${Math.round(c.grupo.right)}, siguiente desde ${siguiente ? Math.round(siguiente.left) : '—'})`)
+      ok(c.sw <= c.vw, `${loc} ${w}px: sin scroll horizontal (${c.sw} ≤ ${c.vw})`)
+      ok(c.pulsados.join() === (loc === 'es' ? 'true,false' : 'false,true'), `${loc} ${w}px: marca el idioma activo (aria-pressed ${c.pulsados.join(',')})`)
+    }
+  }
+  // en móvil, el menú desplegable ya no lleva su propio selector (habría dos grupos «Idioma» a la vez)
+  await ancho(375)
+  await cargar('/')
+  await evaluate(`document.querySelector('button[aria-controls=mobile-nav]').click()`)
+  await sleep(400)
+  ok(await evaluate(`!!document.getElementById('mobile-nav') && document.querySelectorAll('[data-cabecera-fija] [role=group]').length === 1`), '375px: con el menú abierto, hay un solo selector de idioma (el de la cabecera)')
+  await evaluate(`document.querySelector('button[aria-controls=mobile-nav]').click()`)
+  // y cambia de idioma: ES → /en y EN → /
+  await cargar('/')
+  await evaluate(`document.querySelector('[data-cabecera-fija] [role=group] button[aria-label="English"]').click()`)
+  ok(await enRuta('/en'), '375px: pulsar «EN» en la cabecera lleva a /en')
+  await sleep(500)
+  await evaluate(`document.querySelector('[data-cabecera-fija] [role=group] button[aria-label="Español"]').click()`)
+  ok(await enRuta('/'), '375px: pulsar «ES» vuelve a /')
+
+  console.log('\n12. La salida de las herramientas y el índice /herramientas (T2a, 24-oct-2026)')
+  const SALIDA = (etiqueta) => `(() => {
+    const main = document.querySelector('main')
+    const s = main.querySelector('section[aria-label="${etiqueta}"]')
+    if (!s) return null
+    const caja = (el) => { const r = el.getBoundingClientRect(); return { top: r.top + scrollY, bottom: r.bottom + scrollY, left: r.left, right: r.right, w: r.width, h: r.height } }
+    const a = [...s.querySelectorAll('a')].map((x) => ({ href: x.getAttribute('href'), clase: x.className, ...caja(x), visible: x.offsetParent !== null }))
+    const pie = document.querySelector('footer')
+    return { salida: caja(s), enlaces: a, ultimo: [...main.querySelectorAll(':scope > *')].at(-1) === s, pieTop: pie ? caja(pie).top : null, sw: document.documentElement.scrollWidth, vw: innerWidth }
+  })()`
+  for (const [loc, etiqueta, inicio, rutas] of [
+    ['es', 'Después de usar la herramienta', '/', ['/datos', '/mapa-metastasis', '/reservorio', '/laminillas', '/celula-a-celula', '/celula-a-celula/explorar']],
+    ['en', 'After using the tool', '/en', ['/en/data', '/en/reservorio']],
+  ]) {
+    for (const w of [375, 1280]) {
+      await ancho(w, 800)
+      for (const ruta of rutas) {
+        await cargar(ruta)
+        // al fondo de la página y con la entrada animada (v-reveal, translateY 18 px) ya terminada: medida en reposo, no a medio mover
+        await evaluate('window.scrollTo(0, document.documentElement.scrollHeight)')
+        await sleep(900)
+        const m = await evaluate(SALIDA(etiqueta))
+        const e = `${loc} ${w}px ${ruta}`
+        ok(!!m && m.ultimo, `${e}: la salida existe y es lo último de <main>`)
+        if (!m) continue
+        const [apoyo, volver] = m.enlaces
+        ok(m.enlaces.length === 2 && apoyo.href === 'https://gofund.me/3e25cae99' && volver.href === inicio, `${e}: «Apoyar» (GoFundMe) y «Volver al inicio» (${inicio})`)
+        ok(m.enlaces.every((x) => x.visible && x.h >= 44 && x.w >= 44), `${e}: los dos miden ≥ 44 px (${m.enlaces.map((x) => `${Math.round(x.w)}×${Math.round(x.h)}`).join(', ')})`)
+        ok(m.enlaces.every((x) => x.left >= 0 && x.right <= m.vw) && m.salida.bottom <= m.pieTop + 1, `${e}: caben en la pantalla y no los tapa el pie (salida hasta ${Math.round(m.salida.bottom)}, pie desde ${Math.round(m.pieTop)})`)
+        ok(m.sw <= m.vw, `${e}: sin scroll horizontal (${m.sw} ≤ ${m.vw})`)
+        ok(!/\bbtn-cta\b/.test(volver.clase) && /\bbtn-cta\b/.test(apoyo.clase), `${e}: solo el de apoyar es coral`)
+        // en móvil, mientras el botón de apoyo de la salida está a la vista, la barra «Donar» no sale (data-support-cta): nunca dos a la vez
+        if (w === 375 && !ruta.includes('explor') && !ruta.includes('laminillas')) {
+          await evaluate(`window.scrollTo(0, ${Math.max(0, Math.round(apoyo.top - 300))})`)
+          await sleep(500)
+          const dobles = await evaluate(`[...document.querySelectorAll('a[href*="gofund.me"]')].filter((a) => { const r = a.getBoundingClientRect(); return a.offsetParent !== null && r.bottom > 0 && r.top < innerHeight && getComputedStyle(a).visibility !== 'hidden' }).length`)
+          ok(dobles <= 1, `${e}: con la salida a la vista no hay dos enlaces a GoFundMe a la vez (${dobles})`)
+        }
+      }
+    }
+  }
+  // el índice: sin desbordes, botones de 44 px y el plegable «Qué buscamos» se abre con el teclado
+  for (const [loc, ruta] of [['es', '/herramientas'], ['en', '/en/tools']]) {
+    for (const w of [320, 375, 768, 1024, 1280, 1440]) {
+      await ancho(w, 800)
+      await cargar(ruta)
+      const m = await evaluate(`(() => {
+        const main = document.querySelector('main')
+        const caja = (el) => { const r = el.getBoundingClientRect(); return { left: r.left, right: r.right, top: r.top + scrollY, bottom: r.bottom + scrollY, w: r.width, h: r.height } }
+        const tarjetas = [...main.querySelectorAll('article.herr')].map((a) => ({ ...caja(a), botones: [...a.querySelectorAll('.btn-dark, .btn-secondary')].map(caja), resumen: a.querySelector('summary') ? caja(a.querySelector('summary')) : null }))
+        const puertas = [...main.querySelectorAll('.herr-puertas > *')].map(caja)
+        return { tarjetas, puertas, sw: document.documentElement.scrollWidth, vw: innerWidth, h1: main.querySelectorAll('h1').length }
+      })()`)
+      const e = `${loc} ${w}px ${ruta}`
+      ok(m.sw <= m.vw && m.h1 === 1, `${e}: sin scroll horizontal (${m.sw} ≤ ${m.vw}) y un solo <h1>`)
+      ok(m.tarjetas.length >= 6 && m.tarjetas.every((c) => c.left >= -0.5 && c.right <= m.vw + 0.5), `${e}: las ${m.tarjetas.length} tarjetas caben en la pantalla`)
+      ok(m.tarjetas.every((c) => c.botones.length >= 1 && c.botones.every((b) => b.h >= 44 && b.w >= 44 && b.left >= -0.5 && b.right <= m.vw + 0.5)) && m.tarjetas.filter((c) => c.resumen).every((c) => c.resumen.h >= 44), `${e}: los botones y los resúmenes de las tarjetas miden ≥ 44 px`)
+      ok(m.puertas.length === 3 && m.puertas.every((b) => b.h >= 44 && b.right <= m.vw + 0.5), `${e}: las tres puertas miden ≥ 44 px y caben (${m.puertas.map((b) => Math.round(b.h)).join(', ')})`)
+      const ts = m.tarjetas
+      ok(!ts.some((p, i) => ts.slice(i + 1).some((q) => Math.min(p.right, q.right) - Math.max(p.left, q.left) > 1 && Math.min(p.bottom, q.bottom) - Math.max(p.top, q.top) > 1)), `${e}: ninguna tarjeta se solapa con otra`)
+    }
+  }
+  // «Qué buscamos» se abre y se cierra con el teclado, y deja ver sus peticiones
+  await ancho(375, 800)
+  await cargar('/herramientas')
+  const desplegado = await evaluate(`(() => { const d = document.querySelector('article.herr details'); const s = d.querySelector('summary'); s.focus(); return { abierto: d.open, foco: document.activeElement === s } })()`)
+  ok(desplegado.foco && desplegado.abierto === false, '375px: el plegable «Qué buscamos» empieza cerrado y se puede enfocar')
+  await tecla('Enter', 'Enter', 13)
+  await sleep(300)
+  const abierto = await evaluate(`(() => { const d = document.querySelector('article.herr details'); const li = d.querySelector('li'); return { abierto: d.open, visible: !!li && li.offsetParent !== null && li.getBoundingClientRect().height > 20 } })()`)
+  ok(abierto.abierto && abierto.visible, '375px: Enter lo abre y las peticiones quedan a la vista')
+  await tecla('Enter', 'Enter', 13)
+  await sleep(300)
+  ok(await evaluate(`document.querySelector('article.herr details').open === false`), '375px: Enter lo cierra otra vez')
 } finally {
   await nav.cerrar()
   clearTimeout(tope)

@@ -1,12 +1,13 @@
 <script setup lang="ts">
 /**
- * Las cuatro puertas (rediseño de arquitectura, F5, 23-oct-2026): «qué quiere hacer quien llega», con la taxonomía ÚNICA de
+ * Las cinco puertas (rediseño de arquitectura, F5, 23-oct-2026; la quinta, T2a, 24-oct-2026): «qué quiere hacer quien llega», con la taxonomía ÚNICA de
  * utils/caminos.ts (PUERTAS). Sustituye a las siete tarjetas con minutos y pasos de «Elige tu camino»: una puerta es un
  * nombre y un destino, nada más (ni minutos, ni pasos, ni subtítulo). La pintará también /colabora (F10).
  *
  * · Apoyar → la campaña (GoFundMe, pestaña nueva, mide `Donar`).
  * · Clínico o laboratorio → /datos#que-buscamos. El evento `VerPeticion` lo emite el plugin umami-delegado al ver el
  *   ancla en el href: no se llama aquí, o contaría doble.
+ * · Tecnología, IA y marcas → la tarjeta «Tech & IA» de /colabora (#tech-ia).
  * · Prensa y Otras formas → su página.
  * Todas miden `Puerta` con la puerta como propiedad (el evento `Pathway` de las tarjetas viejas se acaba aquí; la serie
  * se corta, se anota en el commit de F5).
@@ -24,6 +25,7 @@ const { GOFUNDME_URL, trackSupport, trackPuerta } = useSupport()
 const ICONOS: Record<string, string> = {
   apoyar: 'ph:heart-fill',
   clinico: 'ph:stethoscope',
+  tecnologia: 'ph:cpu',
   prensa: 'ph:megaphone-simple-fill',
   otras: 'ph:hands-praying-fill',
 }
@@ -68,10 +70,12 @@ function alPulsar(id: string) {
 </template>
 
 <style scoped>
-/* Una columna en móvil (se lee en el orden del DOM, sin esquinas), dos en tableta y cuatro en escritorio. */
+/* Una columna en móvil (se lee en el orden del DOM, sin esquinas), dos en tableta, tres desde 1024 (3 + 2) y las cinco en una fila
+   desde 1280, donde cada puerta aún mide ~220 px. Con cinco, cuatro columnas dejaban una puerta sola en la segunda fila. */
 .puertas { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; grid-template-columns: minmax(0, 1fr); }
 @media (min-width: 640px) { .puertas { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
-@media (min-width: 1024px) { .puertas { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+@media (min-width: 1024px) { .puertas { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+@media (min-width: 1280px) { .puertas { grid-template-columns: repeat(5, minmax(0, 1fr)); } }
 
 .puerta {
   display: flex; align-items: center; gap: 12px; min-height: 64px; height: 100%;

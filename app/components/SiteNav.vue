@@ -41,19 +41,19 @@
       </nav>
 
       <!-- Right side: lang switch + CTA + mobile menu -->
-      <div class="flex items-center gap-3">
+      <!-- gap-1.5 bajo `sm`: con el selector a la vista y de 44 px de ancho, a 320 px la cabecera se pasaba 3 px (scroll horizontal) -->
+      <div class="flex items-center gap-1.5 sm:gap-3">
         <!-- Language switch — toggle segmentado discreto: muestra ambos idiomas y
              marca el activo con un tinte suave (no una píldora rellena), para no
-             competir con el CTA coral. Oculto en móviles pequeños (<sm): allí vive
-             dentro del menú desplegable. setLocale() navega a la URL del
-             otro idioma; no hay cookie ni detección del navegador. Con el
-             chrome mínimo no hay menú desplegable: el selector se queda en la
-             cabecera también en móvil. -->
+             competir con el CTA coral. SIEMPRE visible en la cabecera, también en móvil
+             (T2a, 24-oct-2026): hasta entonces, bajo `sm`, vivía dentro del menú desplegable
+             y quien llegaba en el otro idioma no lo veía. Umami: el 31 % de los visitantes
+             tiene el navegador en inglés y casi ninguno visita /en. setLocale() navega a la URL del otro idioma;
+             no hay cookie ni detección del navegador. -->
         <div
           role="group"
           :aria-label="$t('nav.language')"
-          class="items-center rounded-md overflow-hidden font-mono text-[11px] font-semibold tracking-widest uppercase"
-          :class="minimo ? 'flex' : 'hidden sm:flex'"
+          class="flex items-center rounded-md overflow-hidden font-mono text-2xs font-semibold tracking-widest uppercase"
           style="border: 1px solid rgb(var(--color-text-rgb) / 0.1)"
         >
           <button
@@ -61,7 +61,7 @@
             @click="switchLang('es')"
             aria-label="Español"
             :aria-pressed="locale === 'es'"
-            class="inline-flex items-center justify-center px-2.5 py-2 min-h-[44px] transition-colors"
+            class="inline-flex items-center justify-center px-1 py-2 min-h-control min-w-control uppercase transition-colors"
             :class="locale === 'es' ? 'bg-berenjena text-cream' : 'text-tinta hover:text-berenjena'"
           >ES</button>
           <button
@@ -69,7 +69,7 @@
             @click="switchLang('en')"
             aria-label="English"
             :aria-pressed="locale === 'en'"
-            class="inline-flex items-center justify-center px-2.5 py-2 min-h-[44px] transition-colors"
+            class="inline-flex items-center justify-center px-1 py-2 min-h-control min-w-control uppercase transition-colors"
             :class="locale === 'en' ? 'bg-berenjena text-cream' : 'text-tinta hover:text-berenjena'"
           >EN</button>
         </div>
@@ -150,38 +150,6 @@
             {{ $t('nav.donate') }}<span class="sr-only"> {{ $t('a11y.new_tab') }}</span>
           </a>
 
-          <!-- Language switch — vive aquí en móvil para descongestionar la cabecera -->
-          <div
-            class="mt-3 pt-3 flex items-center justify-between"
-            style="border-top: 1px solid rgb(var(--color-text-rgb) / 0.08)"
-          >
-            <span class="font-mono text-[11px] uppercase tracking-widest text-tinta">
-              {{ $t('nav.language') }}
-            </span>
-            <div
-              role="group"
-              :aria-label="$t('nav.language')"
-              class="flex items-center rounded-md overflow-hidden font-mono text-[11px] font-semibold tracking-widest uppercase"
-              style="border: 1px solid rgb(var(--color-text-rgb) / 0.1)"
-            >
-              <button
-                type="button"
-                @click="switchLang('es')"
-                aria-label="Español"
-                :aria-pressed="locale === 'es'"
-                class="inline-flex items-center justify-center px-4 py-2 min-h-[44px] transition-colors"
-                :class="locale === 'es' ? 'bg-berenjena text-cream' : 'text-tinta'"
-              >ES</button>
-              <button
-                type="button"
-                @click="switchLang('en')"
-                aria-label="English"
-                :aria-pressed="locale === 'en'"
-                class="inline-flex items-center justify-center px-4 py-2 min-h-[44px] transition-colors"
-                :class="locale === 'en' ? 'bg-berenjena text-cream' : 'text-tinta'"
-              >EN</button>
-            </div>
-          </div>
         </nav>
       </div>
     </Transition>

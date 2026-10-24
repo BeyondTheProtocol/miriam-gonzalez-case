@@ -39,7 +39,7 @@ The website has two audiences: scientists/physicians (science page, molecular pr
 - The canon of tokens is `btp-tokens.css`. Do not add a hex: derive with `color-mix()` from the five colors. After editing it, run `pnpm gen:design-doc` (it rewrites the doc tables and `public/design-system/tokens.css`).
 - Reuse `Banda`, `CabeceraSeccion`, `PageHeader`, `TarjetaEnlace`, `Dato`, `Aviso`, `Segmentado`, `Referencia` and `RutaPasos` instead of writing a local variant. Floor for text is 13 px (12 px only for mono uppercase); touch targets are 44 px; every `:hover` goes inside `@media (hover: hover) and (pointer: fine)`.
 - Run `pnpm test:diseno` before opening a PR. It is a ratchet: a count in `scripts/diseno-baseline.json` can go down, never up (`--actualizar` records the improvement). A justified exception is written `/* ds-exc: reason */`.
-- `scripts/diseno-capturas.mjs` takes screenshots of the 21 routes at 390 and 1280 px from a static build, and compares two runs by hash: use it when a commit promises "0 pixels".
+- `scripts/diseno-capturas.mjs` takes screenshots of the 24 routes at 390 and 1280 px from a static build, and compares two runs by hash: use it when a commit promises "0 pixels".
 
 ### Icons
 - `@nuxt/icon` with Phosphor Icons (prefix `ph:`). Examples: `ph:heart-fill`, `ph:flask-fill`, `ph:stethoscope-fill`.
@@ -77,7 +77,7 @@ The website has two audiences: scientists/physicians (science page, molecular pr
 
 ### Nuxt Content v3
 - `@nuxt/content` v3 active. Collections defined in `content.config.ts`.
-- 8 collections: `timeline_es`, `timeline_en`, `team_es`, `team_en`, `press_es`, `press_en`, `science_es`, `science_en`. (`ciencia_articles` and `science_articles` and the `/ciencia/[slug]` route were removed on 2026-10-23: they never held an article. `historia_es` and `historia_en` went the same day, with the `/historia` page: see "Merged and archived pages" below.)
+- 8 collections: `timeline_es`, `timeline_en`, `team_es`, `team_en`, `press_es`, `press_en`, `science_es`, `science_en`. (`ciencia_articles` and `science_articles` and the `/ciencia/[slug]` route were removed on 2026-10-23: they never held an article. `historia_es` and `historia_en` went the same day; the `/historia` page came back on 2026-10-24 without chapters: see "Merged and archived pages" below.)
 - Timeline: `.yml` files in `content/es/timeline.yml` and `content/en/timeline.yml`.
 - Team data: `content/es/team.yml` and `content/en/team.yml` (3 groups: `coreTeam`, `medicalNetwork`, `integrativeSupport`).
 - Press mentions: `content/es/press.yml` and `content/en/press.yml`.
@@ -199,12 +199,13 @@ Edit `content/es/science.yml` and `content/en/science.yml`. The file has three s
 3. Use the same pattern: `<img src="/img/your-logo.ext" alt="Brand Name" class="h-10 w-auto object-contain" />` and a `<span>` label below.
 
 ### Alba's Text (Story)
-The `/historia` page (a placeholder that said "in preparation", plus an empty chapter 1) was merged into `/timeline` on 2026-10-23 (architecture redesign, phase F4): `/historia` and `/en/story` redirect to `/timeline` with a 302, because the real story may come back. When it does, restore `app/pages/historia/index.vue`, `[slug].vue`, the `historia_es` / `historia_en` collections in `content.config.ts` and the `i18n.pages` entries from git history (commit before `rediseno(F4)`), and drop the redirects from `routeRules` and `nitro.prerender.ignore`. The one human line `/timeline` shows today is `historia.story_teaser_1`.
+The `/historia` page (a placeholder that said "in preparation", plus four paragraphs; the empty chapter 1 was deleted) was merged into `/timeline` on 2026-10-23 (architecture redesign, phase F4) and **came back on 2026-10-24** (redesign round 2, T2a): Umami showed 184 of its 191 entries come from google.com, so it is alive again (no redirect, in the sitemap), built from the v3 pieces. It has no chapters and no `historia_es` / `historia_en` collections (`/historia/01-el-comienzo` and `/en/story/01-the-beginning` keep their 301 to `/timeline`). When the real text exists, put it in `app/pages/historia/index.vue` (or bring back `[slug].vue` and the collections from the commit before `rediseno(F4)`). The one human line `/timeline` shows is `historia.story_teaser_1`.
 
-### Merged and archived pages (redesign F4, 2026-10-23)
-- `/herramientas` (301) → `/datos#visores`; `/reservorio` (302) → `/datos#reservorio` (folded block, no 3D); `/historia` (302) and its chapter (301) → `/timeline`; `/videos` (301) → `/ciencia` (ADC explainer, next to the TROP-2 axis; the Polaris promo lives in `/prensa`). Each redirect is three `routeRules` (ES, EN, `/en/<spanish-slug>`) and three entries in `nitro.prerender.ignore`; see `nuxt.config.ts` and `pnpm test:short-links`.
-- `/3d*` short links keep their 302 and UTM but now land on `/lesiones`.
-- `/mapa-metastasis` is an **archive** ("Histórico · junio 2026"): still 200, `noindex, follow`, out of the sitemap, no internal links. It is not deleted because `/lesiones` reads its foci at build time (`#mapa-focos`).
+### Merged and archived pages (redesign F4, 2026-10-23; round 2, T2a, 2026-10-24)
+- Alive again since T2a: `/herramientas` (the tools index, two groups: "Las de ahora" and "Sirvieron en un momento concreto"), `/reservorio` (with its 3D) and `/historia`. They are no longer redirects and no longer in `nitro.prerender.ignore` (it matches by prefix: leaving them there would leave the live page unrendered). `/en/herramientas` (301 → `/en/tools`) and `/en/historia` (301 → `/en/story`) remain, because i18n invents the `/en/<spanish-slug>` variant. `/historia/01-el-comienzo` (and EN) → `/timeline` (301) and `/videos` (301) → `/ciencia` (ADC explainer, next to the TROP-2 axis; the Polaris promo lives in `/prensa`) remain; see `nuxt.config.ts` and `pnpm test:short-links`.
+- `/3d*` short links keep their 302 and UTM and land on `/lesiones`.
+- `/mapa-metastasis` is a **tool that served at a specific moment** ("Histórico · junio 2026"): public, indexable, in the sitemap, with a line at the top that says when and why it was made; it is not updated. `/lesiones` reads its foci at build time (`#mapa-focos`).
+- Tools live in two lists in `app/utils/navegacion.ts`: `HERRAMIENTAS` (the current ones, in Miriam's order) and `HERRAMIENTAS_PASADAS` (the map and the port). The menu, the footer, the home band and the index read them; so does `SalidaHerramienta`, the common "Support / Back to home" exit that `layouts/default.vue` paints at the end of every tool by route name (`SALIDA_HERRAMIENTA`).
 
 ## Commands
 

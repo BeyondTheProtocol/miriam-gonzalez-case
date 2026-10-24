@@ -1240,11 +1240,29 @@
     "prensa_title": "Mi caso en la prensa",
     "prensa_sub": "Lo que han contado los medios",
     "cronologia_title": "Mi caso, paso a paso",
-    "cronologia_sub": "Lo que ha pasado, en orden"
+    "cronologia_sub": "Lo que ha pasado, en orden",
+    "herramientas_title": "Todas mis herramientas",
+    "herramientas_sub": "Mapas, imágenes y datos de mi caso, para explorarlos a tu ritmo"
   },
   "herramientas": {
     "title": "Herramientas del caso",
-    "intro": "Mapas, imágenes y datos del caso de Miriam, para explorarlos a tu ritmo."
+    "intro": "Mapas, imágenes y datos del caso de Miriam, para explorarlos a tu ritmo.",
+    "eyebrow": "Hecho con Polaris",
+    "apertura": "Miriam es ingeniera. Con Polaris, el sistema de IA que ha montado para su caso, convierte informes, escáneres y muestras en herramientas que cualquiera puede abrir.",
+    "apertura_cada_una": "Cada una dice para quién es y qué se busca.",
+    "grupo_ahora": "Las de ahora",
+    "grupo_pasadas": "Sirvieron en un momento concreto",
+    "para_labs": "Para laboratorios",
+    "para_clinicos": "Para clínicos",
+    "para_todos": "Para todos",
+    "historico_mapa": "Histórico · junio 2026",
+    "historico_port": "Histórico · septiembre 2026",
+    "pasada_titulo": "Cuándo y para qué se hizo",
+    "linea_mapa": "Hecho en junio de 2026 con los PET de marzo (FDG) y mayo (Ga-68 DOTATOC) para llevar a sus médicos una pregunta mejor tras la biopsia de abril sin tumor: dónde volver a pinchar. Es anterior a las lesiones del hígado (julio) y no se actualiza; lo actual está en Mama, hígado y hueso.",
+    "linea_port": "Se usó en septiembre de 2026 para comprobar en tres TC si el catéter se había movido; el informe del recambio de octubre da como motivo que se quedaba corto.",
+    "abrir": "Abrir",
+    "salida": "Después de usar la herramienta",
+    "salida_inicio": "Volver al inicio"
   },
   "videos": {
     "title": "Vídeos",
@@ -1261,6 +1279,7 @@
   "puertas": {
     "apoyar": "Apoyar",
     "clinico": "Clínico o laboratorio",
+    "tecnologia": "Tecnología, IA y marcas",
     "prensa": "Prensa",
     "otras": "Otras formas"
   },

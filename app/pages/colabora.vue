@@ -378,7 +378,7 @@ const quickLinks = computed<QuickLink[]>(() => {
   return [
     { label: locale.value === 'es' ? 'Inicio' : 'Home', url: homePath, external: false },
     { label: locale.value === 'es' ? 'La ciencia' : 'The science', url: sciencePath, external: false },
-    { label: t('nav.data'), url: localePath({ name: 'datos', hash: '#visores' }), external: false },
+    { label: t('nav.tools'), url: localePath({ name: 'herramientas' }), external: false },
     // «Cronología» y no «Timeline»: el mismo nombre que el menú (una fuente por etiqueta).
     { label: t('nav.timeline'), url: timelinePath, external: false },
     { label: locale.value === 'es' ? 'Marcas · co-creación' : 'Brands · co-creation', url: localePath('marcas'), external: false },

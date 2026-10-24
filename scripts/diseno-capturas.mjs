@@ -1,4 +1,4 @@
-// Capturas de las 21 rutas del sitio a 390 y 1280 sobre el build ESTÁTICO (.output/public), para comprobar que un
+// Capturas de las 24 rutas del sitio a 390 y 1280 sobre el build ESTÁTICO (.output/public), para comprobar que un
 // commit del sistema de diseño que promete «0 píxeles» no mueve ninguno (sistema v3, fase S0).
 //
 // Qué hace: abre cada ruta en Chrome (arnés scripts/lib/navegador-cdp.mjs), con movimiento reducido emulado y sin
@@ -12,7 +12,7 @@
 // mismo, la ruta es no determinista y su «0 píxeles» no prueba nada (sale en la lista de «inestables»).
 //
 // Uso:
-//   node scripts/diseno-capturas.mjs --salida /ruta/capturas            capturar las 21 rutas a 390 y 1280
+//   node scripts/diseno-capturas.mjs --salida /ruta/capturas            capturar las 24 rutas a 390 y 1280
 //   node scripts/diseno-capturas.mjs --salida /ruta/capturas --rutas /,/datos --anchos 390
 //   node scripts/diseno-capturas.mjs --comparar /ruta/A /ruta/B          lista las rutas cuyo hash cambia
 import { createHash } from 'node:crypto'
@@ -20,11 +20,13 @@ import { mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { abrirNavegador } from './lib/navegador-cdp.mjs'
 
-/** Las 21 rutas del sitio (las mismas que mide la auditoría de diseño). */
+/** Las 24 rutas del sitio (las mismas que mide la auditoría de diseño). */
 export const RUTAS = [
   '/', '/ciencia', '/ciencia/evidencia', '/colabora', '/contacto', '/datos', '/equipo', '/gastos', '/gracias',
   '/laminillas', '/lesiones', '/links', '/mapa-metastasis', '/marcas', '/prensa', '/timeline', '/celula-a-celula',
   '/celula-a-celula/explorar', '/aviso-legal', '/privacidad', '/cookies',
+  // T2a (24-oct-2026): las tres páginas que volvieron a la vida
+  '/herramientas', '/reservorio', '/historia',
 ]
 export const ANCHOS = [390, 1280]
 const TROZO = 4000

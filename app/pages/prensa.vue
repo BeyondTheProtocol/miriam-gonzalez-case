@@ -159,6 +159,11 @@
             {{ $t('videos.title') }}
           </h2>
           <VideoCaso :video="VIDEO_PROMO[locale === 'en' ? 'en' : 'es']" nivel="h3" class="max-w-2xl" />
+          <!-- T2a (24-oct-2026): lo que cuenta el vídeo, abierto. El índice de herramientas vuelve a ser una página. -->
+          <NuxtLink :to="localePath('herramientas')" class="link-action group mt-4">
+            {{ $t('nav.all_tools') }}
+            <Icon name="ph:arrow-right" class="w-4 h-4 transition-transform group-hover:translate-x-0.5" aria-hidden="true" />
+          </NuxtLink>
         </div>
 
         <!-- Citas citables -->

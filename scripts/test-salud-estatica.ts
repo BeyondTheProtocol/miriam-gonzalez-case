@@ -40,38 +40,39 @@
 //
 // Y la navegación del rediseño (F3, 23-oct-2026):
 //
-// 9. El menú tiene 5 ítems («Datos» donde estaba «Herramientas») y marca la sección en las páginas de datos; el pie, 13
-//    enlaces en 3 columnas más Redes y Legal, sin chips «por perfil», sin fecha global ni los enlaces que salieron; las
-//    redes salen de UNA lista (pie, /colabora y schema.org); y /links y /gracias llevan el chrome mínimo (sin menú, sin barra
-//    «lo último», pie reducido y, desde F6, sin «Apoyar» en la cabecera de ninguna de las dos). Lo que no se ve en el HTML (el
-//    chrome al navegar sin recargar, los 44 px) lo prueba test-home-caminos §10 en Chrome.
+// 9. El menú tiene 5 ítems («Herramientas» vuelve al hueco de «Datos», tanda 2, T2a, 24-oct-2026; antes, F3, lo ocupó «Datos») y marca
+//    la sección en cada herramienta; el pie, 14 enlaces en 3 columnas (la de «Herramientas» abre con «Todas las herramientas») más
+//    Redes y Legal, sin chips «por perfil», sin fecha global ni los enlaces que salieron; las redes salen de UNA lista (pie, /colabora
+//    y schema.org); el selector de idioma está en la cabecera a todos los anchos; y /links y /gracias llevan el chrome mínimo (sin
+//    menú, sin barra «lo último», pie reducido y, desde F6, sin «Apoyar» en la cabecera de ninguna de las dos). Lo que no se ve en el
+//    HTML (el chrome al navegar sin recargar, los 44 px) lo prueba test-home-caminos §10 y §11 en Chrome.
 //
-// Y las fusiones del rediseño (F4, 23-oct-2026):
+// Y las fusiones del rediseño (F4, 23-oct-2026), revisadas por la tanda 2 (T2a, 24-oct-2026):
 //
-// 10. /herramientas, /reservorio, /historia (y su capítulo) y /videos ya no existen en lo generado (ni su .html ni su
-//    entrada del sitemap) y NADA enlaza a ellas, salvo las migas «← Herramientas» de célula a célula y su explorador
-//    (que esta fase no puede tocar y resuelven a través de una ruta de compatibilidad con 301). /datos lleva la franja
-//    #visores (las herramientas, con el título y el texto ya publicados de cada una) y el bloque plegado #reservorio
-//    (las dos frases y las medidas ya publicadas en /reservorio, palabra por palabra, SIN 3D). El mapa de metástasis
-//    es un archivo: 200, noindex, «Histórico · junio 2026», fuera del sitemap y sin ningún enlace. El ADC vive en
-//    /ciencia y el promo en /prensa, con su transcripción entera. El sitemap no lista redirigidas ni archivadas y su
-//    hreflang va por pares recíprocos.
+// 10. F4 plegó /herramientas, /reservorio, /historia (y su capítulo) y /videos con redirects. T2a devolvió a la vida las tres primeras
+//    (Miriam, 24-oct): hoy ESTÁN generadas, en el sitemap con su hreflang y sin redirect. Sigue sin existir lo que solo es un redirect
+//    (capítulo de /historia, /videos y las variantes /en/herramientas y /en/historia). /datos ya no lleva la franja #visores ni el
+//    bloque plegado: una fila a «Todas las herramientas» y otra al reservorio. El mapa de metástasis es público e indexable, con su
+//    rótulo «Histórico · junio 2026» y, arriba, la línea de Miriam. /herramientas: dos grupos, tarjetas con el mismo orden fijo y
+//    tres puertas. /reservorio: con su 3D, la línea de Miriam, el motivo del recambio (en inglés SIN «innominate trunk») y las
+//    medidas leídas de caso.json. /historia: viva, con su texto de siempre. La salida común (Apoyar y volver al inicio) cierra
+//    cada herramienta, menos el índice y /lesiones. El ADC vive en /ciencia y el promo en /prensa, con su transcripción entera.
 //
 // Y la home del rediseño (F5, 23-oct-2026):
 //
-// 11. Siete bloques en el orden decidido (hero · prensa · el caso en 3 frases · cita · dónde estamos y qué falta · dinero ·
-//    cómo ayudar; la cita subió tras «El caso en 3 frases» el 24-oct-2026), un solo <h1> con la edad y un <h2> por bloque; los euros solo dentro del bloque de la campaña y NINGUNA de
+// 11. Ocho bloques en el orden decidido (hero · prensa · herramientas · el caso en 3 frases · cita · dónde estamos y qué falta · dinero ·
+//    cómo ayudar; la cita subió tras «El caso en 3 frases» el 24-oct-2026 y la banda de herramientas volvió en T2a), un solo <h1> con la edad y un <h2> por bloque; los euros solo dentro del bloque de la campaña y NINGUNA de
 //    las frases retiradas por el criterio del dinero («cada euro», «100 %», «sin intermediarios», «mensual», «recibo
 //    disponible»); UNA frase de destino (money.destino) y UN solo botón coral en esa zona; «Ahora» = la misma cuenta que la cifra
 //    «Tratamiento» de /datos; «Qué buscamos» con las 3 primeras peticiones PÚBLICAS (ni la FoundationOne ni la anemia, ni en el
-//    HTML ni en el payload); la tira de prensa y las cuatro puertas con sus destinos; nada de «ultra-raro» en el SEO/OG/schema;
+//    HTML ni en el payload); la tira de prensa y las cinco puertas con sus destinos; nada de «ultra-raro» en el SEO/OG/schema;
 //    y el JSON de 230 KB del caso fuera del JS que carga la home.
 //
 // Y las puertas sociales del rediseño (F6, 23-oct-2026):
 //
 // 12. /lesiones lleva «En corto» arriba (≤ 40 palabras, con la fecha de la foto, hecho de frases que la propia página ya publica) y,
 //    antes de los dos enlaces de cierre de siempre, un cierre de apoyo ESTÁTICO con «Apoyar a Miriam» y «Entender el caso»; el texto
-//    sellado sigue entero. /links: ocho filas en el orden decidido, con el apoyo (GoFundMe directo, coral) en 2.º lugar y UN solo
+//    sellado sigue entero. /links: nueve filas (ocho de F6 y, desde T2a, «Todas mis herramientas») en el orden decidido, con el apoyo (GoFundMe directo, coral) en 2.º lugar y UN solo
 //    enlace a GoFundMe en la página; «mama, hígado y hueso»; la prensa va a /prensa#cobertura (que existe). /gracias: sin «Donación
 //    recibida», «100 %», «mensual» ni «sin intermediarios»; el recibo como lo dice /gastos (money.recibo), con el rol «other» y sin
 //    correo directo; un paso siguiente útil y ≤ 70 palabras.
@@ -82,8 +83,8 @@ import { join } from 'node:path'
 import { createSSRApp, defineComponent, h } from 'vue'
 import { parse, compileScript } from 'vue/compiler-sfc'
 import { renderToString } from 'vue/server-renderer'
-import { REGLAS_PETICIONES, hayEnlaceTodas, peticionesPublicas, seleccionarPeticiones } from '../app/utils/peticiones'
-import { HERRAMIENTAS, LEGAL, MENU_ESCRITORIO, MENU_MOVIL, PIE, REDES, SECCIONES, copyHerramienta, type EnlaceNav } from '../app/utils/navegacion'
+import { REGLAS_PETICIONES, TEMAS_HERRAMIENTA, hayEnlaceTodas, peticionesPublicas, seleccionarPeticiones } from '../app/utils/peticiones'
+import { HERRAMIENTAS, HERRAMIENTAS_PASADAS, LEGAL, LO_ULTIMO, MENU_ESCRITORIO, MENU_MOVIL, PARA_HERRAMIENTA, PIE, REDES, ROL_HERRAMIENTA, SALIDA_HERRAMIENTA, SECCIONES, copyHerramienta, type EnlaceNav } from '../app/utils/navegacion'
 import { VIDEO_ADC, VIDEO_PROMO } from '../app/utils/videos'
 import { PUERTAS } from '../app/utils/caminos'
 import { caseData } from '../app/utils/caseData'
@@ -147,11 +148,14 @@ for (const sm of sitemaps) {
 }
 ok(total > 0, `cada URL del sitemap existe y es indexable (${total} revisadas)`)
 
-// 3.bis — sitemap sin redirigidas ni archivadas, y hreflang por pares (F4)
+// 3.bis — sitemap sin redirigidas y con las páginas que volvieron a la vida, y hreflang por pares (F4 y T2a)
 {
   const cfg = readFileSync('nuxt.config.ts', 'utf-8')
   const redirigidas = new Set([...cfg.matchAll(/'(\/[^']*)':\s*\{\s*redirect:/g)].map((m) => m[1]!))
-  const ARCHIVADAS = ['/mapa-metastasis', '/en/mapa-metastasis']
+  // T2a (24-oct-2026): el mapa de metástasis dejó de ser archivo (volvió a ser público e indexable) y /herramientas, /reservorio e /historia
+  // volvieron a ser páginas: las ocho rutas TIENEN que estar en el sitemap, con su pareja de hreflang. Lo que sigue fuera es la guía viva.
+  const LISTADAS = ['/mapa-metastasis', '/en/mapa-metastasis', '/herramientas', '/en/tools', '/reservorio', '/en/reservorio', '/historia', '/en/story']
+  const FUERA = ['/guia-de-estilo', '/en/style-guide']
   type Entrada = { loc: string; alt: Record<string, string> }
   const entradas: Record<string, Entrada[]> = {}
   for (const sm of sitemaps) {
@@ -164,8 +168,10 @@ ok(total > 0, `cada URL del sitemap existe y es indexable (${total} revisadas)`)
   const ruta = (loc: string) => loc.slice(SITIO.length) || '/'
   const conRedirect = todas.filter((e) => redirigidas.has(ruta(e.loc)) || redirigidas.has(ruta(e.loc).replace(/\/$/, '')))
   ok(conRedirect.length === 0, `el sitemap no lista ninguna URL que redirige${conRedirect.length ? ` (${conRedirect.map((e) => e.loc).join(', ')})` : ''}`)
-  const archivadas = todas.filter((e) => ARCHIVADAS.includes(ruta(e.loc)))
-  ok(archivadas.length === 0, `el sitemap no lista el mapa de metástasis (archivo)${archivadas.length ? ` (${archivadas.map((e) => e.loc).join(', ')})` : ''}`)
+  const faltan = LISTADAS.filter((r) => !todas.some((e) => ruta(e.loc) === r))
+  ok(faltan.length === 0, `el sitemap lista el mapa de metástasis, /herramientas, /reservorio e /historia, en ES y EN${faltan.length ? ` (faltan: ${faltan.join(', ')})` : ''}`)
+  const sobran = todas.filter((e) => FUERA.includes(ruta(e.loc)))
+  ok(sobran.length === 0, `y no lista la guía viva del sistema de diseño (noindex)${sobran.length ? ` (${sobran.map((e) => e.loc).join(', ')})` : ''}`)
   // hreflang por pares: toda URL lleva es-ES, en-US y x-default; cada alternativa es una URL del sitemap de SU idioma; y el par es
   // recíproco (la página inglesa apunta de vuelta a la española). Antes, /historia/01-el-comienzo salía sin pareja.
   const idiomas: Record<string, string> = { 'es-ES': 'es-ES', 'en-US': 'en-US' }
@@ -336,12 +342,14 @@ if (existsSync('seed/fundraiser.json')) {
   }
 
   // lo generado, en ES y EN
-  const IDS = ['id="s-hoy"', 'id="que-buscamos"', 'id="s-tejido"', 'id="s-higado"', 'id="s-evo"', 'id="visores"', 'id="reservorio"', 'id="s-vitrina"']
+  // T2a (24-oct-2026): la franja #visores salió de /datos (el índice /herramientas volvió a ser una página); #reservorio queda como una fila con un enlace
+  const IDS = ['id="s-hoy"', 'id="que-buscamos"', 'id="s-tejido"', 'id="s-higado"', 'id="s-evo"', 'id="reservorio"', 'id="s-vitrina"']
   for (const [idioma, pagina, contacto] of [['es', 'datos.html', '/contacto?role=researcher'], ['en', 'en/data.html', '/en/contact?role=researcher']] as const) {
     const h = html(pagina)
     ok((h.match(/\bid="que-buscamos"/g)?.length ?? 0) === 1, `${pagina}: exactamente un id="que-buscamos"`)
     const pos = IDS.map((id) => h.indexOf(id))
-    ok(pos.every((p, i) => p >= 0 && (i === 0 || p > pos[i - 1]!)), `${pagina}: orden Hoy → Qué buscamos → Tejido → Carga tumoral → Evolución → herramientas (#visores) → reservorio → vitrina (${pos.join(' < ')})`)
+    ok(pos.every((p, i) => p >= 0 && (i === 0 || p > pos[i - 1]!)), `${pagina}: orden Hoy → Qué buscamos → Tejido → Carga tumoral → Evolución → reservorio → vitrina (${pos.join(' < ')})`)
+    ok(!h.includes('id="visores"') && !h.includes('href="#visores"'), `${pagina}: ya no lleva la franja #visores ni su chip (volvió a /herramientas)`)
     const bloque = h.slice(h.indexOf('id="que-buscamos"'), h.indexOf('id="s-tejido"'))
     ok((bloque.match(/<li\b/g)?.length ?? 0) === 5, `${pagina}: «Qué buscamos» pinta 5 peticiones (${bloque.match(/<li\b/g)?.length ?? 0})`)
     ok(!/<details\b/.test(bloque), `${pagina}: sin plegar: ninguna petición queda dentro de un <details>`)
@@ -373,19 +381,23 @@ if (existsSync('seed/fundraiser.json')) {
   const t = (locale: 'es' | 'en', clave: string) => clave.split('.').reduce<any>((o, k) => o?.[k], D[locale]) as string
   const etiqueta = (locale: 'es' | 'en', e: EnlaceNav) => t(locale, e.etiqueta ?? `nav.${e.key}`)
   const RUTA: Record<'es' | 'en', Record<string, string>> = {
-    es: { index: '/', ciencia: '/ciencia', 'ciencia-evidencia': '/ciencia/evidencia', timeline: '/timeline', equipo: '/equipo', datos: '/datos', lesiones: '/lesiones', laminillas: '/laminillas', 'celula-a-celula': '/celula-a-celula', 'celula-a-celula-explorar': '/celula-a-celula/explorar', colabora: '/colabora', prensa: '/prensa', gastos: '/gastos', contacto: '/contacto', 'aviso-legal': '/aviso-legal', privacidad: '/privacidad', cookies: '/cookies' },
-    en: { index: '/en', ciencia: '/en/science', 'ciencia-evidencia': '/en/science/evidence', timeline: '/en/timeline', equipo: '/en/team', datos: '/en/data', lesiones: '/en/lesiones', laminillas: '/en/slides', 'celula-a-celula': '/en/cell-by-cell', 'celula-a-celula-explorar': '/en/cell-by-cell/explore', colabora: '/en/collaborate', prensa: '/en/press', gastos: '/en/expenses', contacto: '/en/contact', 'aviso-legal': '/en/legal-notice', privacidad: '/en/privacy', cookies: '/en/cookies-policy' },
+    es: { index: '/', ciencia: '/ciencia', 'ciencia-evidencia': '/ciencia/evidencia', timeline: '/timeline', equipo: '/equipo', herramientas: '/herramientas', datos: '/datos', lesiones: '/lesiones', laminillas: '/laminillas', 'celula-a-celula': '/celula-a-celula', 'celula-a-celula-explorar': '/celula-a-celula/explorar', colabora: '/colabora', prensa: '/prensa', gastos: '/gastos', contacto: '/contacto', 'aviso-legal': '/aviso-legal', privacidad: '/privacidad', cookies: '/cookies' },
+    en: { index: '/en', ciencia: '/en/science', 'ciencia-evidencia': '/en/science/evidence', timeline: '/en/timeline', equipo: '/en/team', herramientas: '/en/tools', datos: '/en/data', lesiones: '/en/lesiones', laminillas: '/en/slides', 'celula-a-celula': '/en/cell-by-cell', 'celula-a-celula-explorar': '/en/cell-by-cell/explore', colabora: '/en/collaborate', prensa: '/en/press', gastos: '/en/expenses', contacto: '/en/contact', 'aviso-legal': '/en/legal-notice', privacidad: '/en/privacy', cookies: '/en/cookies-policy' },
   }
   const abierto = estadoPuerta(manifiestoExplorador as unknown as Manifiesto) === 'real'
   const visible = (e: EnlaceNav) => e.key !== 'cell_explorer' || abierto
 
   // — la fuente (navegacion.ts)
-  ok(JSON.stringify(MENU_ESCRITORIO.map((e) => e.key)) === JSON.stringify(['science', 'data', 'timeline', 'team', 'collaborate']), 'menú: La ciencia · Datos · Cronología · Equipo · Cómo ayudar')
+  ok(JSON.stringify(MENU_ESCRITORIO.map((e) => e.key)) === JSON.stringify(['science', 'tools', 'timeline', 'team', 'collaborate']), 'menú: La ciencia · Herramientas · Cronología · Equipo · Cómo ayudar (T2a: «Herramientas» vuelve al hueco de «Datos»; la key sigue siendo tools)')
   ok(MENU_MOVIL.length === 6 && MENU_MOVIL[0]!.key === 'home' && MENU_MOVIL.slice(1).every((e, i) => e === MENU_ESCRITORIO[i]), 'menú móvil: Inicio primero y luego los mismos cinco')
-  ok(PIE.flatMap((g) => g.enlaces).length === 13 && JSON.stringify(PIE.map((g) => g.enlaces.length)) === JSON.stringify([4, 5, 4]), 'pie: 13 enlaces de navegación en 3 columnas (4 + 5 + 4)')
-  ok(!('tools' in SECCIONES) && JSON.stringify(SECCIONES.data) === JSON.stringify(['datos', 'lesiones', 'laminillas', 'celula-a-celula', 'celula-a-celula-explorar', 'mapa-metastasis']), 'SECCIONES: «tools» pasa a «data» con sus 6 páginas')
-  const fuera = ['herramientas', 'reservorio', 'historia', 'historia-slug', 'ciencia-slug'].filter((n) => Object.values(SECCIONES).some((l) => l.includes(n)))
-  ok(fuera.length === 0, `SECCIONES: ya no marcan ítem /herramientas, /reservorio, /historia ni la ruta de artículos${fuera.length ? ` (siguen: ${fuera.join(', ')})` : ''}`)
+  ok(PIE.flatMap((g) => g.enlaces).length === 14 && JSON.stringify(PIE.map((g) => g.enlaces.length)) === JSON.stringify([4, 6, 4]), 'pie: 14 enlaces de navegación en 3 columnas (4 + 6 + 4)')
+  ok(JSON.stringify(PIE.find((g) => g.id === 'herramientas')?.enlaces.map((e) => e.key)) === JSON.stringify(['tools', ...HERRAMIENTAS.map((h) => h.key)]), 'pie: la columna «Herramientas» abre con «Todas las herramientas» y sigue con HERRAMIENTAS, en su orden')
+  ok(!('data' in SECCIONES) && JSON.stringify(SECCIONES.tools) === JSON.stringify(['herramientas', 'datos', 'lesiones', 'laminillas', 'celula-a-celula', 'celula-a-celula-explorar', 'mapa-metastasis', 'reservorio']), 'SECCIONES: «data» desaparece y «tools» recoge el índice y las siete herramientas, con el índice la primera (es la raíz: aria-current="page")')
+  ok(SECCIONES.timeline!.join() === 'timeline,historia', 'SECCIONES: /historia cuelga de la cronología')
+  const fuera = ['historia-slug', 'ciencia-slug'].filter((n) => Object.values(SECCIONES).some((l) => l.includes(n)))
+  ok(fuera.length === 0, `SECCIONES: la ruta de capítulos de /historia y la de artículos de ciencia siguen sin existir${fuera.length ? ` (siguen: ${fuera.join(', ')})` : ''}`)
+  ok(JSON.stringify(HERRAMIENTAS_PASADAS.map((e) => e.key)) === JSON.stringify(['map', 'port']), 'HERRAMIENTAS_PASADAS: el mapa de metástasis y el reservorio')
+  ok(JSON.stringify(SALIDA_HERRAMIENTA) === JSON.stringify(['datos', 'laminillas', 'celula-a-celula', 'celula-a-celula-explorar', 'mapa-metastasis', 'reservorio']), 'SALIDA_HERRAMIENTA: las herramientas menos el índice y /lesiones (que ya tiene su cierre de apoyo)')
   ok(MENU_ESCRITORIO.every((e) => e.key in SECCIONES), 'cada ítem del menú tiene su sección')
   ok(REDES.length === 5 && new Set(REDES.map((r) => r.id)).size === 5 && new Set(REDES.map((r) => r.url)).size === 5 && REDES.every((r) => r.url.startsWith('https://') && r.url.includes('miriamgonp')), 'REDES: 5 redes distintas, https, de @miriamgonp')
 
@@ -396,20 +408,22 @@ if (existsSync('seed/fundraiser.json')) {
     const m = enlaces(menu(limpio(home), t(loc, 'nav.main_label')))
     ok(JSON.stringify(m.map((e) => e.texto)) === JSON.stringify(MENU_ESCRITORIO.map((e) => etiqueta(loc, e))), `${home}: el menú dice ${m.map((e) => e.texto).join(' · ')}`)
     ok(JSON.stringify(m.map((e) => e.href)) === JSON.stringify(MENU_ESCRITORIO.map((e) => R[e.name])), `${home}: y lleva a ${m.map((e) => e.href).join(' · ')}`)
-    // La sección se marca por nombre de ruta: las seis de datos marcan «Datos»; las que salieron de SECCIONES, ninguna.
+    // La sección se marca por nombre de ruta: el índice marca «Herramientas» (page) y cada herramienta, también (true); /historia marca la cronología.
     const marcada = (pagina: string) => enlaces(menu(limpio(pagina), t(loc, 'nav.main_label'))).filter((e) => e.actual).map((e) => `${e.texto}=${e.actual}`)
     const pag = (es: string, en: string) => (loc === 'es' ? es : en)
-    const datos = t(loc, 'nav.data')
-    ok(JSON.stringify(marcada(pag('datos.html', 'en/data.html'))) === JSON.stringify([`${datos}=page`]), `${pag('datos.html', 'en/data.html')}: marca «${datos}» (page)`)
-    ok(JSON.stringify(marcada(pag('lesiones.html', 'en/lesiones.html'))) === JSON.stringify([`${datos}=true`]), `${pag('lesiones.html', 'en/lesiones.html')}: marca «${datos}» (true), como sección`)
+    const herr = t(loc, 'nav.tools')
+    ok(JSON.stringify(marcada(pag('herramientas.html', 'en/tools.html'))) === JSON.stringify([`${herr}=page`]), `${pag('herramientas.html', 'en/tools.html')}: marca «${herr}» (page)`)
+    for (const [es, en] of [['datos.html', 'en/data.html'], ['lesiones.html', 'en/lesiones.html'], ['laminillas.html', 'en/slides.html'], ['celula-a-celula.html', 'en/cell-by-cell.html'], ['mapa-metastasis.html', 'en/mapa-metastasis.html'], ['reservorio.html', 'en/reservorio.html']]) {
+      ok(JSON.stringify(marcada(pag(es, en))) === JSON.stringify([`${herr}=true`]), `${pag(es, en)}: marca «${herr}» (true), como sección`)
+    }
     ok(JSON.stringify(marcada(pag('timeline.html', 'en/timeline.html'))) === JSON.stringify([`${t(loc, 'nav.timeline')}=page`]), `${pag('timeline.html', 'en/timeline.html')}: marca la cronología`)
-    // F4: /herramientas se fusionó en /datos#visores; ya no hay página que marque ítem (ni que no lo marque). Lo comprueba §10.
-    ok(!existsSync(join(PUB, pag('herramientas.html', 'en/tools.html'))), `${pag('herramientas.html', 'en/tools.html')}: ya no existe (F4 la fusionó en /datos)`)
+    ok(JSON.stringify(marcada(pag('historia.html', 'en/story.html'))) === JSON.stringify([`${t(loc, 'nav.timeline')}=true`]), `${pag('historia.html', 'en/story.html')}: marca la cronología (true): la historia cuelga de ella`)
+    ok(existsSync(join(PUB, pag('herramientas.html', 'en/tools.html'))), `${pag('herramientas.html', 'en/tools.html')}: existe (T2a la devolvió a la vida)`)
 
     // — el pie
     const f = pie(limpio(home))
     const grupos = [...f.matchAll(/<h3 id="pie-([a-z]+)"[^>]*>([^<]*)<\/h3>\s*<ul[^>]*>([\s\S]*?)<\/ul>/g)].map((g) => ({ id: g[1]!, titulo: g[2]!, links: enlaces(g[3]!) }))
-    ok(JSON.stringify(grupos.map((g) => g.id)) === JSON.stringify(['caso', 'datos', 'participa', 'redes', 'legal']), `${home}: el pie tiene 5 columnas: ${grupos.map((g) => g.id).join(' · ')}`)
+    ok(JSON.stringify(grupos.map((g) => g.id)) === JSON.stringify(['caso', 'herramientas', 'participa', 'redes', 'legal']), `${home}: el pie tiene 5 columnas: ${grupos.map((g) => g.id).join(' · ')}`)
     for (const g of PIE) {
       const real = grupos.find((x) => x.id === g.id)
       const esperados = g.enlaces.filter(visible)
@@ -422,12 +436,16 @@ if (existsSync('seed/fundraiser.json')) {
     ok(!!redes && JSON.stringify(redes.links.slice(0, 5).map((e) => e.texto)) === JSON.stringify(REDES.map((r) => r.pie ?? r.nombre)), `${home} · redes: ${redes?.links.slice(0, 5).map((e) => e.texto).join(' · ')}`)
     const legal = grupos.find((g) => g.id === 'legal')
     ok(!!legal && JSON.stringify(legal.links.map((e) => e.href)) === JSON.stringify(LEGAL.map((l) => R[l.name])) && JSON.stringify(legal.links.map((e) => e.texto)) === JSON.stringify(LEGAL.map((l) => t(loc, l.etiqueta))), `${home} · legal: ${legal?.links.map((e) => e.texto).join(' · ')}`)
-    const salidos = (loc === 'es' ? ['/historia', '/videos', '/marcas', '/reservorio', '/herramientas'] : ['/en/story', '/en/videos', '/en/brands', '/en/reservorio', '/en/tools'])
+    const salidos = (loc === 'es' ? ['/historia', '/videos', '/marcas', '/reservorio', '/mapa-metastasis'] : ['/en/story', '/en/videos', '/en/brands', '/en/reservorio', '/en/mapa-metastasis'])
     const hrefsPie = enlaces(f).map((e) => e.href)
-    ok(salidos.every((r) => !hrefsPie.includes(r)), `${home}: el pie ya no enlaza ${salidos.join(', ')}`)
+    ok(salidos.every((r) => !hrefsPie.includes(r)), `${home}: el pie no enlaza ${salidos.join(', ')} (las pasadas van en el índice)`)
     ok(!/pathway-chip|<time\b|data-pie-fecha/.test(f), `${home}: el pie no lleva chips «por perfil» ni fecha`)
-    ok(!f.includes(t(loc, 'nav.all_tools')), `${home}: ni «${t(loc, 'nav.all_tools')}»`)
+    ok(f.includes(t(loc, 'nav.all_tools')) && hrefsPie.includes(R.herramientas!), `${home}: y sí «${t(loc, 'nav.all_tools')}» → ${R.herramientas}`)
     ok(new RegExp(`<section[^>]*aria-label="${t(loc, 'index.supported_by')}"`).test(f) && !new RegExp(`>\\s*${t(loc, 'index.supported_by')}\\s*<`).test(f), `${home}: los logos «${t(loc, 'index.supported_by')}» van sin rótulo visible y con su nombre accesible`)
+    // T2a (24-oct-2026): el selector de idioma está SIEMPRE en la cabecera, también en móvil (antes, bajo `sm`, solo dentro del menú desplegable)
+    const grupoIdiomaNormal = cabecera(limpio(home)).match(/<div\b[^>]*role="group"[^>]*>/)?.[0] ?? ''
+    const clasesNormal = (/class="([^"]*)"/.exec(grupoIdiomaNormal)?.[1] ?? '').split(/\s+/)
+    ok(clasesNormal.includes('flex') && !clasesNormal.includes('hidden') && !clasesNormal.some((c) => /^(sm|md|lg):hidden$/.test(c)), `${home}: el selector de idioma está en la cabecera a todos los anchos (clases: ${clasesNormal.slice(0, 3).join(' ')}…)`)
   }
 
   // — las redes, de una sola lista, en los tres sitios
@@ -464,111 +482,199 @@ if (existsSync('seed/fundraiser.json')) {
   }
 }
 
-// 10 — fusiones del rediseño (F4, 23-oct-2026)
+// 10 — las páginas fusionadas del rediseño (F4, 23-oct-2026) y las que volvieron a la vida (T2a, 24-oct-2026)
 {
   const limpio = (ruta: string) => html(ruta).replace(/<script\b[\s\S]*?<\/script>/g, '').replace(/<!--[\s\S]*?-->/g, '')
-  const decodifica = (x: string) => x.replace(/&#39;|&apos;/g, "'").replace(/&quot;/g, '"').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&')
-  const texto = (trozo: string) => decodifica(trozo.replace(/<[^>]+>/g, ' ')).replace(/\s+/g, ' ').trim()
+  const decodifica = (x: string) => x.replace(/&#39;|&apos;/g, "'").replace(/&quot;/g, '"').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&').replace(/&nbsp;/g, ' ')
+  const texto = (trozo: string) => decodifica(trozo.replace(/<style\b[\s\S]*?<\/style>/g, '').replace(/<[^>]+>/g, ' ')).replace(/\s+/g, ' ').trim()
+  const principal = (ruta: string) => limpio(ruta).match(/<main\b[\s\S]*?<\/main>/)?.[0] ?? ''
   const D = { es: JSON.parse(readFileSync('i18n/locales/es.json', 'utf-8')), en: JSON.parse(readFileSync('i18n/locales/en.json', 'utf-8')) }
   const t = (loc: 'es' | 'en', clave: string) => clave.split('.').reduce<any>((o, k) => o?.[k], D[loc]) as string
   const P = {
-    es: { datos: 'datos.html', lesiones: 'lesiones.html', laminillas: 'laminillas.html', celula: 'celula-a-celula.html', explorar: 'celula-a-celula/explorar.html', mapa: 'mapa-metastasis.html', ciencia: 'ciencia.html', prensa: 'prensa.html', timeline: 'timeline.html', home: 'index.html' },
-    en: { datos: 'en/data.html', lesiones: 'en/lesiones.html', laminillas: 'en/slides.html', celula: 'en/cell-by-cell.html', explorar: 'en/cell-by-cell/explore.html', mapa: 'en/mapa-metastasis.html', ciencia: 'en/science.html', prensa: 'en/press.html', timeline: 'en/timeline.html', home: 'en.html' },
+    es: { datos: 'datos.html', lesiones: 'lesiones.html', laminillas: 'laminillas.html', celula: 'celula-a-celula.html', explorar: 'celula-a-celula/explorar.html', mapa: 'mapa-metastasis.html', reservorio: 'reservorio.html', herramientas: 'herramientas.html', historia: 'historia.html', ciencia: 'ciencia.html', prensa: 'prensa.html', timeline: 'timeline.html', home: 'index.html', links: 'links.html' },
+    en: { datos: 'en/data.html', lesiones: 'en/lesiones.html', laminillas: 'en/slides.html', celula: 'en/cell-by-cell.html', explorar: 'en/cell-by-cell/explore.html', mapa: 'en/mapa-metastasis.html', reservorio: 'en/reservorio.html', herramientas: 'en/tools.html', historia: 'en/story.html', ciencia: 'en/science.html', prensa: 'en/press.html', timeline: 'en/timeline.html', home: 'en.html', links: 'en/links.html' },
   } as const
   const RUTA = {
-    es: { lesions: '/lesiones', slides: '/laminillas', cell_by_cell: '/celula-a-celula', cell_explorer: '/celula-a-celula/explorar', visores: '/datos#visores', reservorio: '/datos#reservorio' },
-    en: { lesions: '/en/lesiones', slides: '/en/slides', cell_by_cell: '/en/cell-by-cell', cell_explorer: '/en/cell-by-cell/explore', visores: '/en/data#visores', reservorio: '/en/data#reservorio' },
+    es: { tools: '/herramientas', lesions: '/lesiones', slides: '/laminillas', cell_by_cell: '/celula-a-celula', cell_explorer: '/celula-a-celula/explorar', data: '/datos', map: '/mapa-metastasis', port: '/reservorio', inicio: '/', prensa: '/prensa', contacto: '/contacto', timeline: '/timeline', ciencia: '/ciencia', prensaVideo: '/prensa#video' },
+    en: { tools: '/en/tools', lesions: '/en/lesiones', slides: '/en/slides', cell_by_cell: '/en/cell-by-cell', cell_explorer: '/en/cell-by-cell/explore', data: '/en/data', map: '/en/mapa-metastasis', port: '/en/reservorio', inicio: '/en', prensa: '/en/press', contacto: '/en/contact', timeline: '/en/timeline', ciencia: '/en/science', prensaVideo: '/en/press#video' },
   } as const
-
-  // a) las páginas fusionadas no existen en lo generado (ni .html ni carpeta con index)
-  const RETIRADAS = ['herramientas', 'reservorio', 'historia', 'historia/01-el-comienzo', 'videos', 'en/tools', 'en/herramientas', 'en/reservorio', 'en/story', 'en/historia', 'en/story/01-the-beginning', 'en/historia/01-el-comienzo', 'en/videos']
-  const quedan = RETIRADAS.filter((r) => existsSync(join(PUB, `${r}.html`)) || existsSync(join(PUB, r, 'index.html')))
-  ok(quedan.length === 0, `ninguna página fusionada sigue generada (su .html sombrearía el redirect)${quedan.length ? `: ${quedan.join(', ')}` : ''}`)
-  ok(existsSync(join(PUB, 'reservorio')) && existsSync(join(PUB, 'videos', 'como-funciona-un-adc.mp4')), 'public/reservorio/ y public/videos/ siguen ahí (los ficheros no se tocan; el redirect de /reservorio y los vídeos conviven con ellos)')
-
-  // b) nada enlaza a lo retirado (ni al mapa, que es archivo sin enlaces), salvo las migas de célula a célula y su explorador
-  const COMPAT = new Set(['celula-a-celula.html', 'celula-a-celula/explorar.html', 'en/cell-by-cell.html', 'en/cell-by-cell/explore.html'])
-  const RETIRADA_HREF = /^(?:\/en)?\/(?:herramientas|tools|reservorio|historia|story|videos|mapa-metastasis)(?:[/#?]|$)/
+  const GOFUNDME = 'https://gofund.me/3e25cae99'
+  const XABIERTO = estadoPuerta(manifiestoExplorador as unknown as Manifiesto) === 'real'
   const hrefsDe = (ruta: string) => [...limpio(ruta).matchAll(/<a\b([^>]*)>/g)].map((m) => /\bhref="([^"]*)"/.exec(m[1]!)?.[1])
+  const robotsDe = (f: string) => html(f).match(/<meta\b[^>]*\bname="robots"[^>]*>/gi)?.join(' ') ?? ''
+  const unaVez = (haystack: string, aguja: string) => haystack.split(aguja).length - 1 === 1
+
+  // a) viven las ocho (T2a) y siguen sin existir las que son solo redirect
+  const VIVAS = ['herramientas', 'reservorio', 'historia', 'mapa-metastasis', 'en/tools', 'en/reservorio', 'en/story', 'en/mapa-metastasis']
+  const muertas = VIVAS.filter((r) => !existsSync(join(PUB, `${r}.html`)))
+  ok(muertas.length === 0, `están generadas /herramientas, /reservorio, /historia y el mapa, en ES y EN${muertas.length ? ` (faltan: ${muertas.join(', ')})` : ''}`)
+  const RETIRADAS = ['historia/01-el-comienzo', 'videos', 'en/herramientas', 'en/historia', 'en/story/01-the-beginning', 'en/historia/01-el-comienzo', 'en/videos']
+  const quedan = RETIRADAS.filter((r) => existsSync(join(PUB, `${r}.html`)) || existsSync(join(PUB, r, 'index.html')))
+  ok(quedan.length === 0, `lo que solo es un redirect NO está generado (su .html sombrearía el redirect)${quedan.length ? `: ${quedan.join(', ')}` : ''}`)
+  ok(existsSync(join(PUB, 'reservorio')) && existsSync(join(PUB, 'videos', 'como-funciona-un-adc.mp4')), 'public/reservorio/ (las mallas) y public/videos/ siguen ahí, junto a reservorio.html: conviven (así estaban en producción antes de F4)')
+
+  // b) nada enlaza a lo que ya no existe, y ningún <a> se queda sin href (una miga a una ruta que no existe se pinta así)
+  const MUERTA_HREF = /^\/(?:videos|historia\/01-el-comienzo)(?:[/#?]|$)|^\/en\/(?:herramientas|historia|videos|story\/01-the-beginning|historia\/01-el-comienzo)(?:[/#?]|$)/
   const malos: string[] = [], sinHref: string[] = []
   for (const f of paginasNuxt) {
     for (const href of hrefsDe(f)) {
       if (href === undefined) sinHref.push(f)
-      else if (RETIRADA_HREF.test(href) && !(COMPAT.has(f) && /^(?:\/en\/tools|\/herramientas)$/.test(href)) && !(f.endsWith('mapa-metastasis.html') && href.includes('mapa-metastasis'))) malos.push(`${f} → ${href}`)
+      else if (MUERTA_HREF.test(href)) malos.push(`${f} → ${href}`)
     }
   }
-  ok(malos.length === 0, `ninguna página enlaza a /herramientas, /reservorio, /historia, /videos ni al mapa${malos.length ? `: ${malos.slice(0, 6).join(' · ')}` : ''}`)
-  ok(sinHref.length === 0, `ningún <a> sin href en ${paginasNuxt.length} páginas (una miga a una ruta que no existe se pinta así)${sinHref.length ? `: ${[...new Set(sinHref)].join(', ')}` : ''}`)
+  ok(malos.length === 0, `ninguna página enlaza a /videos, a los capítulos de /historia ni a las variantes /en/herramientas y /en/historia${malos.length ? `: ${malos.slice(0, 6).join(' · ')}` : ''}`)
+  ok(sinHref.length === 0, `ningún <a> sin href en ${paginasNuxt.length} páginas${sinHref.length ? `: ${[...new Set(sinHref)].join(', ')}` : ''}`)
+  // la decisión 6 (24-oct-2026): «PAC acortado a tronco innominado» se cita en español y NO se glosa en inglés como «innominate trunk»
+  const conTronco = paginasNuxt.filter((f) => /innominate trunk/i.test(html(f)))
+  ok(conTronco.length === 0, `ninguna página generada dice «innominate trunk»${conTronco.length ? ` (${conTronco.join(', ')})` : ''}`)
+
   for (const loc of ['es', 'en'] as const) {
-    // las migas de célula a célula siguen a la ruta de compatibilidad, que el CDN redirige (3 reglas en nuxt.config.ts)
-    for (const f of [P[loc].celula, P[loc].explorar]) {
-      const compat = loc === 'es' ? '/herramientas' : '/en/tools'
-      ok(hrefsDe(f).includes(compat), `${f}: su miga «${t(loc, 'nav.tools')}» lleva a ${compat} (301 a /datos#visores), no a un <a> vacío`)
+    const R = RUTA[loc]
+    // c) las migas «← Herramientas» de las seis herramientas vuelven al índice, que existe (celula* se resuelven solas al volver la ruta)
+    for (const f of [P[loc].lesiones, P[loc].laminillas, P[loc].mapa, P[loc].reservorio, P[loc].celula, P[loc].explorar]) {
+      // dentro de <main>: el ítem «Herramientas» del menú también lleva a ${R.tools}, y no es la miga
+      const enl = [...principal(f).matchAll(/<a\b([^>]*\bhref="([^"]*)"[^>]*)>([\s\S]*?)<\/a>/g)].filter((m) => m[2] === R.tools && texto(m[3]!) === t(loc, 'nav.tools'))
+      ok(enl.length === 1, `${f}: su miga «${t(loc, 'nav.tools')}» → ${R.tools} (${enl.length})`)
     }
-    // el resto de migas van a la franja de herramientas de /datos
-    for (const f of [P[loc].lesiones, P[loc].laminillas, P[loc].mapa]) {
-      const enl = [...limpio(f).matchAll(/<a\b([^>]*\bhref="([^"]*)"[^>]*)>([\s\S]*?)<\/a>/g)].filter((m) => m[2] === RUTA[loc].visores)
-      ok(enl.length === 1 && texto(enl[0]![3]!) === t(loc, 'nav.data'), `${f}: su miga es «${t(loc, 'nav.data')}» → ${RUTA[loc].visores} (${enl.length})`)
+    ok(!hrefsDe(P[loc].datos).some((h) => h?.includes('#visores')), `${P[loc].datos}: ningún enlace a #visores (la franja salió de /datos)`)
+
+    // d) /datos: una fila «Todas las herramientas» y otra al reservorio; ni franja ni bloque plegado
+    {
+      const f = P[loc].datos
+      const h = limpio(f)
+      ok((h.match(/\bid="reservorio"/g)?.length ?? 0) === 1, `${f}: exactamente un id="reservorio" (los enlaces de fuera que ya lo usaban siguen aterrizando)`)
+      const A = h.indexOf('id="reservorio"'), C = h.indexOf('id="s-vitrina"')
+      const bloque = h.slice(h.lastIndexOf('<section', A), C)
+      const enlaces = [...bloque.matchAll(/<a\b[^>]*\bhref="([^"]*)"[^>]*>([\s\S]*?)<\/a>/g)].map((m) => ({ href: m[1], texto: texto(m[2]!) }))
+      ok(enlaces.length === 1 && enlaces[0]!.href === R.port && enlaces[0]!.texto === (loc === 'es' ? 'El reservorio: qué es y por qué se cambió' : 'The port: what it is and why it was replaced'), `${f}: el reservorio es un enlace a ${R.port} con el H1 de su página (${enlaces.map((e) => e.href).join(', ')})`)
+      ok(!/<details\b/.test(bloque) && !/150[.,]8|PAC acortado|port-a-cath|catheter length|longitud del catéter/i.test(texto(bloque)), `${f}: sin el bloque plegado ni las medidas (viven en ${R.port})`)
+      const filas = [...principal(f).matchAll(/<a\b[^>]*\bhref="([^"]*)"[^>]*>([\s\S]*?)<\/a>/g)].filter((m) => m[1] === R.tools && texto(m[2]!) === t(loc, 'nav.all_tools'))
+      ok(filas.length === 1, `${f}: una fila «${t(loc, 'nav.all_tools')}» → ${R.tools} (${filas.length})`)
     }
-    ok(!hrefsDe(P[loc].datos).some((h) => h === RUTA[loc].visores), `${P[loc].datos}: no lleva miga a sí misma (es de primer nivel desde F3)`)
+
+    // e) el mapa de metástasis: público e indexable, rotulado, con la línea de Miriam arriba
+    {
+      const f = P[loc].mapa
+      const meta = robotsDe(f)
+      ok(!/noindex/i.test(meta) && /index/i.test(meta), `${f}: robots dice index (${meta.match(/content="([^"]*)"/)?.[1] ?? 'sin meta'}): ya no es noindex`)
+      const main = principal(f)
+      ok(texto(main).includes(t(loc, 'herramientas.historico_mapa')), `${f}: lleva su rótulo «${t(loc, 'herramientas.historico_mapa')}»`)
+      const aviso = [...main.matchAll(/<div\b[^>]*role="note"[^>]*>([\s\S]*?)<\/div>/g)].map((m) => texto(m[1]!)).find((x) => x.includes(t(loc, 'herramientas.pasada_titulo')))
+      ok(!!aviso && aviso.includes(t(loc, 'herramientas.linea_mapa')), `${f}: lleva arriba la línea de Miriam (cuándo se hizo y para qué sirvió), tal cual`)
+      ok(main.indexOf(t(loc, 'herramientas.pasada_titulo')) > 0 && main.indexOf(t(loc, 'herramientas.pasada_titulo')) < main.indexOf(loc === 'es' ? 'Foto de marzo a junio de 2026' : 'Snapshot from March to June 2026'), `${f}: y va antes que el detalle de la foto de marzo a junio`)
+      ok((main.match(/<h1\b/g)?.length ?? 0) === 1, `${f}: sigue en 200 y con un solo <h1>`)
+    }
+  }
+  ok(!/Disallow:\s*\/(?:en\/)?(?:mapa-metastasis|herramientas|tools|reservorio|historia|story)/.test(readFileSync('public/_robots.txt', 'utf-8')), 'public/_robots.txt no bloquea el mapa ni las páginas que volvieron')
+
+  // f) /herramientas: dos grupos, tarjetas con el mismo orden fijo, y tres puertas
+  {
+    const publicas = peticionesPublicas((JSON.parse(readFileSync('app/data/caso.json', 'utf-8')) as { se_busca: never[] }).se_busca)
+    const visibles = HERRAMIENTAS.filter((h) => h.key !== 'cell_explorer' || XABIERTO)
+    for (const loc of ['es', 'en'] as const) {
+      const R = RUTA[loc]
+      const f = P[loc].herramientas
+      const main = principal(f)
+      const meta = robotsDe(f)
+      ok(!/noindex/i.test(meta), `${f}: indexable`)
+      ok(unaVez(main, '<h1') && texto(main.match(/<h1\b[\s\S]*?<\/h1>/)?.[0] ?? '') === t(loc, 'herramientas.title'), `${f}: un solo <h1>, «${t(loc, 'herramientas.title')}» (el publicado)`)
+      const cab = texto(main.slice(0, main.indexOf('id="h-ahora"')))
+      ok(cab.includes(t(loc, 'herramientas.eyebrow')) && cab.includes(`${t(loc, 'herramientas.apertura')} ${t(loc, 'herramientas.apertura_cada_una')}`), `${f}: lleva la frase de apertura y «${t(loc, 'herramientas.eyebrow')}»`)
+      const h2 = [...main.matchAll(/<h2\b[^>]*>([\s\S]*?)<\/h2>/g)].map((m) => texto(m[1]!))
+      ok(JSON.stringify(h2) === JSON.stringify([t(loc, 'herramientas.grupo_ahora'), t(loc, 'herramientas.grupo_pasadas'), t(loc, 'home.puertas_heading')]), `${f}: los grupos son «${t(loc, 'herramientas.grupo_ahora')}» y «${t(loc, 'herramientas.grupo_pasadas')}», y luego las puertas (${h2.join(' · ')})`)
+      const tarjetas = [...main.matchAll(/<article\b([^>]*)aria-labelledby="herr-([a-z_]+)-t"([^>]*)>([\s\S]*?)<\/article>/g)].map((m) => ({ clave: m[2]!, attrs: `${m[1]}${m[3]}`, cuerpo: m[4]! }))
+      const ahora = tarjetas.filter((x) => !['map', 'port'].includes(x.clave)), pasadas = tarjetas.filter((x) => ['map', 'port'].includes(x.clave))
+      ok(JSON.stringify(ahora.map((x) => x.clave)) === JSON.stringify(visibles.map((h) => h.key)), `${f}: «Las de ahora», en el orden de HERRAMIENTAS (${ahora.map((x) => x.clave).join(' · ')})`)
+      ok(JSON.stringify(pasadas.map((x) => x.clave)) === JSON.stringify(HERRAMIENTAS_PASADAS.map((h) => h.key)), `${f}: «${t(loc, 'herramientas.grupo_pasadas')}»: el mapa y el reservorio (${pasadas.map((x) => x.clave).join(' · ')})`)
+      ok(!/<a\b[^>]*>\s*<article\b/.test(main), `${f}: ninguna tarjeta es un enlace envolvente (lleva un <details> dentro)`)
+      ok(main.split('card-marked').length - 1 === 1 && ahora.find((x) => x.attrs.includes('card-marked'))?.clave === 'cell_by_cell', `${f}: una sola tarjeta destacada, la de «Lo último» (célula a célula)`)
+
+      for (const h of visibles) {
+        const x = ahora.find((y) => y.clave === h.key)!
+        const cuerpo = texto(x.cuerpo)
+        const [titulo, descripcion] = copyHerramienta(h.key, loc)
+        ok(cuerpo.includes(titulo) && cuerpo.includes(descripcion), `${f} · ${h.key}: título y descripción ya publicados, palabra por palabra`)
+        ok(cuerpo.startsWith(t(loc, PARA_HERRAMIENTA[h.key]!)), `${f} · ${h.key}: abre con su etiqueta «${t(loc, PARA_HERRAMIENTA[h.key]!)}» (mismo orden en todas: etiqueta, título, descripción, qué buscamos, botones)`)
+        ok(cuerpo.includes(t(loc, 'home.tools_new')) === (h.key === 'cell_by_cell'), `${f} · ${h.key}: ${h.key === 'cell_by_cell' ? 'lleva' : 'no lleva'} «${t(loc, 'home.tools_new')}»`)
+        const botones = [...x.cuerpo.matchAll(/<a\b[^>]*\bhref="([^"]*)"[^>]*class="(btn-[a-z]+)"[^>]*>/g)].map((m) => `${m[2]} ${m[1]}`)
+        ok(botones.join() === `btn-dark ${R[h.key as 'lesions']},btn-secondary ${R.contacto}?role=${ROL_HERRAMIENTA[h.key]}`, `${f} · ${h.key}: «${t(loc, 'herramientas.abrir')}» → ${R[h.key as 'lesions']} y «${t(loc, 'home.buscamos_escribir')}» con el rol ${ROL_HERRAMIENTA[h.key]} (${botones.join(' | ')})`)
+        const temas = TEMAS_HERRAMIENTA[h.key] ?? []
+        const esperadas = publicas.filter((p) => temas.includes(p.tema))
+        const det = /<details\b([^>]*)>([\s\S]*?)<\/details>/.exec(x.cuerpo)
+        if (temas.length) {
+          const items = [...(det?.[2] ?? '').matchAll(/<li\b[^>]*>([\s\S]*?)<\/li>/g)].map((m) => texto(m[1]!))
+          ok(!!det && !/\bopen\b/.test(det[1]!) && items.length === esperadas.length && esperadas.every((p, i) => items[i]?.startsWith(txtCaso(p.valor, loc).slice(0, 40))), `${f} · ${h.key}: «${t(loc, 'home.buscamos_heading')}» plegado, con sus ${esperadas.length} petición(es) por tema (${temas.join('/')}), tal cual y por prioridad`)
+        } else {
+          ok(!det && x.cuerpo.includes(`href="${R.data}#que-buscamos"`) && cuerpo.includes(t(loc, 'home.buscamos_todas')), `${f} · ${h.key}: sin tema propio: enlaza a «${t(loc, 'home.buscamos_todas')}» (${R.data}#que-buscamos), sin inventar una petición nueva`)
+        }
+      }
+      for (const [clave, rotulo, linea] of [['map', 'herramientas.historico_mapa', 'herramientas.linea_mapa'], ['port', 'herramientas.historico_port', 'herramientas.linea_port']] as const) {
+        const x = pasadas.find((y) => y.clave === clave)!
+        const cuerpo = texto(x.cuerpo)
+        ok(cuerpo.startsWith(t(loc, rotulo)) && cuerpo.includes(copyHerramienta(clave, loc)[0]) && cuerpo.includes(t(loc, linea)), `${f} · ${clave}: «${t(loc, rotulo)}», su título y la línea de Miriam (cuándo y para qué), tal cual`)
+        ok(!/<details\b/.test(x.cuerpo) && [...x.cuerpo.matchAll(/<a\b[^>]*\bhref="([^"]*)"/g)].map((m) => m[1]).join() === R[clave === 'map' ? 'map' : 'port'], `${f} · ${clave}: un solo botón, «${t(loc, 'herramientas.abrir')}» → ${R[clave === 'map' ? 'map' : 'port']}`)
+      }
+      // el promo de Polaris vive en /prensa#video: aquí solo se enlaza, con su título y su duración
+      const promo = VIDEO_PROMO[loc]
+      const enlacePromo = [...main.matchAll(/<a\b[^>]*\bhref="([^"]*)"[^>]*>([\s\S]*?)<\/a>/g)].find((m) => m[1] === R.prensaVideo)
+      ok(!!enlacePromo && texto(enlacePromo[2]!).includes(promo.titulo) && texto(enlacePromo[2]!).includes(`${Math.floor(promo.segundos / 60)}:${String(Math.floor(promo.segundos) % 60).padStart(2, '0')}`) && !main.includes('<video'), `${f}: enlaza al promo («${promo.titulo}») en ${R.prensaVideo}, con su duración, sin copiarlo`)
+      // las tres puertas
+      const puertas = main.slice(main.indexOf('id="h-puertas"'))
+      const hp = [...puertas.matchAll(/<a\b([^>]*)>([\s\S]*?)<\/a>/g)].map((m) => ({ href: /\bhref="([^"]*)"/.exec(m[1]!)?.[1], clase: /class="([^"]*)"/.exec(m[1]!)?.[1] ?? '', texto: texto(m[2]!), atributos: m[1]! }))
+      ok(JSON.stringify(hp.map((x) => x.href)) === JSON.stringify([`${R.contacto}?role=researcher`, R.prensa, GOFUNDME]), `${f}: tres puertas: escribir al equipo, prensa y apoyar (${hp.map((x) => x.href).join(' · ')})`)
+      ok(hp[0]?.texto === t(loc, 'home.buscamos_escribir') && hp[1]?.texto === t(loc, 'nav.press') && hp[2]?.texto.startsWith(t(loc, 'nav.donate')), `${f}: con los rótulos ya publicados, sin copy nuevo`)
+      ok(/\bbtn-cta\b/.test(hp[2]?.clase ?? '') && /data-support-cta/.test(hp[2]?.atributos ?? '') && /rel="noopener noreferrer"/.test(hp[2]?.atributos ?? '') && (hp[2]?.texto ?? '').includes(t(loc, 'a11y.new_tab')) && (main.match(/\bbtn-cta\b/g)?.length ?? 0) === 1, `${f}: «Apoyar» es el único botón coral, abre pestaña nueva con rel y aviso`)
+      ok(!/[—]/.test(`${t(loc, 'herramientas.apertura')}${t(loc, 'herramientas.apertura_cada_una')}${t(loc, 'herramientas.grupo_ahora')}${t(loc, 'herramientas.grupo_pasadas')}`), `${f}: la copy nueva no lleva guion largo`)
+    }
   }
 
-  // c) /datos: la franja de herramientas y el bloque plegado del reservorio
-  const XABIERTO = estadoPuerta(manifiestoExplorador as unknown as Manifiesto) === 'real'
-  for (const loc of ['es', 'en'] as const) {
-    const f = P[loc].datos
-    const h = limpio(f)
-    const A = h.indexOf('id="visores"'), B = h.indexOf('id="reservorio"'), C = h.indexOf('id="s-vitrina"')
-    ok((h.match(/\bid="visores"/g)?.length ?? 0) === 1 && (h.match(/\bid="reservorio"/g)?.length ?? 0) === 1, `${f}: exactamente un id="visores" y un id="reservorio" (a ellos aterrizan los redirects)`)
-    const franja = h.slice(h.lastIndexOf('<section', A), h.lastIndexOf('<section', B)), bloque = h.slice(h.lastIndexOf('<section', B), C)
-    ok(texto(franja).startsWith(`${t(loc, 'herramientas.title')} ${t(loc, 'herramientas.intro')}`), `${f}: la franja se titula «${t(loc, 'herramientas.title')}» y lleva su intro ya publicada`)
-    const esperadas = HERRAMIENTAS.filter((x) => x.key !== 'data' && (x.key !== 'cell_explorer' || XABIERTO))
-    const tarjetas = [...franja.matchAll(/<li\b[^>]*>\s*<a\b[^>]*\bhref="([^"]*)"[^>]*>([\s\S]*?)<\/a>\s*<\/li>/g)]
-    ok(JSON.stringify(tarjetas.map((m) => m[1])) === JSON.stringify(esperadas.map((x) => RUTA[loc][x.key as 'lesions'])), `${f}: tarjetas en el orden de HERRAMIENTAS, sin /datos, sin el mapa y sin el reservorio (${tarjetas.map((m) => m[1]).join(' · ')})`)
-    esperadas.forEach((x, i) => {
-      const [titulo, descripcion] = copyHerramienta(x.key, loc)
-      const cuerpo = texto(tarjetas[i]?.[2] ?? '')
-      ok(cuerpo.includes(titulo) && cuerpo.includes(descripcion), `${f}: la tarjeta «${titulo}» lleva su título y su descripción ya publicados, palabra por palabra`)
-    })
-    ok(!/reservorio|port-a-cath|\bport\b/i.test(texto(franja).replace(t(loc, 'herramientas.intro'), '')), `${f}: la franja de herramientas no incluye el reservorio`)
-    ok(h.includes('href="#visores"'), `${f}: la barra de secciones tiene su chip «Herramientas» (sin él, el scroll-spy seguía marcando «Evolución»)`)
-    // el enlace «Todas las herramientas» que queda (/ciencia) lleva a la franja, no a la página que ya no existe. La home tenía otro,
-    // en su banda de herramientas; F5 (23-oct-2026) quitó la banda y, con ella, el enlace: la home ya no lo lleva.
-    for (const origen of [P[loc].ciencia]) {
-      const todas = [...limpio(origen).matchAll(/<a\b[^>]*\bhref="([^"]*)"[^>]*>([\s\S]*?)<\/a>/g)].filter((m) => texto(m[2]!).includes(t(loc, 'nav.all_tools')))
-      ok(todas.length === 1 && todas[0]![1] === RUTA[loc].visores, `${origen}: «${t(loc, 'nav.all_tools')}» lleva a ${RUTA[loc].visores} (${todas.map((m) => m[1]).join(', ') || 'no está'})`)
-    }
-    {
-      const enLaHome = [...limpio(P[loc].home).replace(/<footer\b[\s\S]*?<\/footer>/, '').matchAll(/<a\b[^>]*>([\s\S]*?)<\/a>/g)].filter((m) => texto(m[1]!).includes(t(loc, 'nav.all_tools')))
-      ok(enLaHome.length === 0, `${P[loc].home}: la banda de herramientas salió de la home (F5) y «${t(loc, 'nav.all_tools')}» con ella`)
-    }
-    // el bloque del reservorio: plegado, SIN 3D, con las frases y las medidas publicadas
-    const FRASES = {
-      es: 'Es una cámara pequeña que se implanta bajo la piel del pecho, unida a un catéter fino que llega hasta una vena grande, cerca del corazón. Se pincha a través de una membrana con una aguja especial, y la membrana se cierra al sacarla.',
-      en: 'It’s a small chamber implanted under the skin of the chest, joined to a thin catheter that runs to a large vein near the heart. A special needle goes in through a membrane, and the membrane seals again when the needle comes out.',
-    }
+  // g) /reservorio: vuelve con su 3D, la línea de Miriam, el motivo del recambio y las medidas leídas de caso.json
+  {
     const MEDIDAS = {
       es: 'Longitud del catéter, portal→punta, en las tres fechas: 150,8 mm · 152,2 mm · 151,7 mm (± 5 mm cada medida; ± 10 mm en la diferencia entre fechas). Dentro de ese margen, es la misma medida las tres veces.',
       en: 'Catheter length, port→tip, across the three dates: 150.8 mm · 152.2 mm · 151.7 mm (± 5 mm per measurement; ± 10 mm on the difference between dates). Within that margin, it is the same measurement all three times.',
     }
-    const det = /<details\b([^>]*)>/.exec(bloque)
-    ok(!!det && !/\bopen\b/.test(det[1]!), `${f}: el reservorio va en un <details> cerrado por defecto`)
-    ok(texto(bloque).includes(FRASES[loc]), `${f}: las dos frases de «qué es un port-a-cath», tal cual estaban en /reservorio`)
-    ok(texto(bloque).includes(MEDIDAS[loc]), `${f}: las medidas, tal cual estaban en /reservorio (si caso.json cambia una cifra, esto se pone en rojo: es dato clínico)`)
-    ok(!/<button\b|<canvas\b|3D|ReservoirView|\/reservorio\//i.test(bloque), `${f}: el bloque del reservorio no lleva 3D (ni botón, ni lienzo, ni mallas)`)
+    const FRASES = {
+      es: 'Es una cámara pequeña que se implanta bajo la piel del pecho, unida a un catéter fino que llega hasta una vena grande, cerca del corazón. Se pincha a través de una membrana con una aguja especial, y la membrana se cierra al sacarla.',
+      en: 'It’s a small chamber implanted under the skin of the chest, joined to a thin catheter that runs to a large vein near the heart. A special needle goes in through a membrane, and the membrane seals again when the needle comes out.',
+    }
+    const MOTIVO = {
+      es: 'El informe de radiología del recambio da como motivo «PAC acortado a tronco innominado»: el catéter se quedaba corto.',
+      en: 'The radiology report of the replacement gives as its reason «PAC acortado a tronco innominado» (in Spanish in the report): a short catheter that ended at the level of the innominate (brachiocephalic) vein.',
+    }
+    for (const loc of ['es', 'en'] as const) {
+      const f = P[loc].reservorio
+      const main = principal(f)
+      const txt = texto(main)
+      ok(!/noindex/i.test(robotsDe(f)), `${f}: indexable`)
+      ok(unaVez(main, '<h1') && texto(main.match(/<h1\b[\s\S]*?<\/h1>/)?.[0] ?? '') === copyHerramienta('port', loc)[0], `${f}: un solo <h1>, «${copyHerramienta('port', loc)[0]}»`)
+      const aviso = [...main.matchAll(/<div\b[^>]*role="note"[^>]*>([\s\S]*?)<\/div>/g)].map((m) => texto(m[1]!)).find((x) => x.includes(t(loc, 'herramientas.pasada_titulo')))
+      ok(!!aviso && aviso.includes(t(loc, 'herramientas.linea_port')), `${f}: lleva arriba la línea de Miriam (cuándo se usó y para qué), tal cual`)
+      ok(txt.includes(FRASES[loc]), `${f}: las dos frases de «qué es un port-a-cath», tal cual estaban`)
+      ok(txt.includes(MEDIDAS[loc]), `${f}: las medidas salen de caso.json y dicen lo de siempre (si caso.json cambia una cifra, esto se pone en rojo: es dato clínico)`)
+      ok(txt.includes(MOTIVO[loc]), `${f}: el motivo del recambio, «PAC acortado a tronco innominado» citado en español${loc === 'en' ? ' y glosado como catéter corto que terminaba en la vena innominada (braquiocefálica)' : ''}`)
+      ok(/class="visor res-visor-espera"/.test(main), `${f}: el visor 3D del catéter anterior vuelve (en el HTML sale su marco de carga, .visor; el visor es solo de cliente)`)
+      ok(new RegExp(`<p class="etiqueta res-historico[^"]*"[^>]*>${loc === 'es' ? 'Histórico' : 'Archive'}</p>`).test(main), `${f}: el 3D lleva su rótulo «${loc === 'es' ? 'Histórico' : 'Archive'}» (la etiqueta mono del sistema, no la píldora vieja)`)
+      const h2 = [...main.matchAll(/<h2\b[^>]*>([\s\S]*?)<\/h2>/g)].map((m) => texto(m[1]!))
+      ok(h2.length === 4 && h2.every((x) => x.length > 0), `${f}: cuatro capítulos con su <h2> (${h2.length})`)
+    }
   }
 
-  // d) el mapa de metástasis es un archivo: noindex, rotulado, fuera del sitemap y sin enlaces
-  for (const loc of ['es', 'en'] as const) {
-    const f = P[loc].mapa
-    const meta = html(f).match(/<meta\b[^>]*\bname="robots"[^>]*>/gi)?.join(' ') ?? ''
-    ok(/noindex/i.test(meta) && !/content="index/i.test(meta), `${f}: robots dice noindex (${meta.match(/content="([^"]*)"/)?.[1] ?? 'sin meta'})`)
-    ok(texto(limpio(f)).includes(loc === 'es' ? 'Histórico · junio 2026' : 'Archive · June 2026'), `${f}: lleva su rótulo «${loc === 'es' ? 'Histórico · junio 2026' : 'Archive · June 2026'}»`)
-    ok((limpio(f).match(/<h1\b/g)?.length ?? 0) === 1, `${f}: sigue en 200 y con un solo <h1>`)
+  // h) /historia: viva, sin redirect, con su texto de siempre y sin capítulos
+  {
+    for (const loc of ['es', 'en'] as const) {
+      const f = P[loc].historia
+      const main = principal(f)
+      const txt = texto(main)
+      ok(!/noindex/i.test(robotsDe(f)), `${f}: indexable`)
+      ok(unaVez(main, '<h1') && texto(main.match(/<h1\b[\s\S]*?<\/h1>/)?.[0] ?? '') === t(loc, 'story.title'), `${f}: un solo <h1>, «${t(loc, 'story.title')}»`)
+      ok(txt.includes(t(loc, 'historia.pending_notice')) && [1, 2, 3, 4].every((n) => txt.includes(t(loc, `historia.story_teaser_${n}`))), `${f}: el aviso y los cuatro párrafos de siempre, tal cual`)
+      const h = hrefsDe(f)
+      ok(h.includes(RUTA[loc].timeline) && h.includes(RUTA[loc].ciencia) && !h.some((x) => MUERTA_HREF.test(x ?? '')), `${f}: da salida a la cronología y a la ciencia, y no enlaza capítulos`)
+    }
   }
-  ok(!/Disallow:\s*\/(?:en\/)?mapa-metastasis/.test(readFileSync('public/_robots.txt', 'utf-8')), 'public/_robots.txt no bloquea el mapa: bloquearlo impediría ver su noindex')
 
-  // e) vídeos: el ADC en /ciencia (junto al eje TROP-2) y el promo en /prensa, con la transcripción entera
+  // i) vídeos: el ADC en /ciencia (junto al eje TROP-2) y el promo en /prensa, con la transcripción entera
   const chequeaVideo = (f: string, v: typeof VIDEO_ADC, extra: (cuerpo: string) => void) => {
     const cuerpo = limpio(f)
     const art = [...cuerpo.matchAll(/<article\b[^>]*>[\s\S]*?<\/article>/g)].map((m) => m[0]).find((a) => a.includes(v.src))
@@ -594,11 +700,35 @@ if (existsSync('seed/fundraiser.json')) {
     const abiertos: string[] = []
     for (const m of c.slice(0, adc).matchAll(/<(\/?)(div|section)\b([^>]*)>/g)) { if (m[1]) abiertos.pop(); else abiertos.push(m[3]!) }
     ok(adc > 0 && !abiertos.some((a) => /display:\s*none/.test(a)), `${P[loc].ciencia}: el vídeo del ADC se ve también en el modo llano (ningún contenedor suyo está oculto)`)
+    // T2a: el índice de herramientas es una página, así que «Todas las herramientas» (/ciencia, /prensa) lleva a ella
+    for (const origen of [P[loc].ciencia, P[loc].prensa]) {
+      const enMain = [...principal(origen).matchAll(/<a\b[^>]*\bhref="([^"]*)"[^>]*>([\s\S]*?)<\/a>/g)].filter((m) => texto(m[2]!).includes(t(loc, 'nav.all_tools')))
+      ok(enMain.length === 1 && enMain[0]![1] === RUTA[loc].tools, `${origen}: «${t(loc, 'nav.all_tools')}» lleva a ${RUTA[loc].tools} (${enMain.map((m) => m[1]).join(', ') || 'no está'})`)
+    }
   }
 
-  // f) /timeline: la línea humana de /historia (frase ya publicada), sin enlace a /historia
+  // j) /timeline: la línea humana de /historia (frase ya publicada)
   for (const loc of ['es', 'en'] as const) {
     ok(texto(limpio(P[loc].timeline)).includes(t(loc, 'historia.story_teaser_1')), `${P[loc].timeline}: lleva la línea de /historia (historia.story_teaser_1), tal cual`)
+  }
+
+  // k) la salida común de las herramientas (T2a): «Apoyar a Miriam» y «Volver al inicio» al final de cada una, y en ningún otro sitio
+  for (const loc of ['es', 'en'] as const) {
+    const R = RUTA[loc]
+    const rotulo = t(loc, 'herramientas.salida')
+    const CON = [P[loc].datos, P[loc].laminillas, P[loc].celula, P[loc].explorar, P[loc].mapa, P[loc].reservorio]
+    const SIN = [P[loc].herramientas, P[loc].lesiones, P[loc].home, P[loc].ciencia, P[loc].links, P[loc].prensa, P[loc].historia, P[loc].timeline]
+    for (const f of CON) {
+      const main = principal(f)
+      const bloque = main.match(new RegExp(`<section\\b[^>]*aria-label="${rotulo}"[^>]*>[\\s\\S]*?</section>`))?.[0] ?? ''
+      const a = [...bloque.matchAll(/<a\b([^>]*)>([\s\S]*?)<\/a>/g)].map((m) => ({ href: /\bhref="([^"]*)"/.exec(m[1]!)?.[1], clase: /class="([^"]*)"/.exec(m[1]!)?.[1] ?? '', atributos: m[1]!, texto: texto(m[2]!) }))
+      ok(bloque.length > 0 && unaVez(main, `aria-label="${rotulo}"`), `${f}: lleva la salida común («${rotulo}»), una vez`)
+      ok(a.length === 2 && a[0]!.href === GOFUNDME && a[1]!.href === R.inicio, `${f}: con «Apoyar» (GoFundMe) y «Volver al inicio» (${R.inicio}) (${a.map((x) => x.href).join(' · ')})`)
+      ok(a[0]?.texto.startsWith(t(loc, 'nav.donate')) && a[1]?.texto === t(loc, 'herramientas.salida_inicio'), `${f}: con los rótulos «${t(loc, 'nav.donate')}» y «${t(loc, 'herramientas.salida_inicio')}»`)
+      ok(/\bbtn-cta\b/.test(a[0]?.clase ?? '') && /data-support-cta/.test(a[0]?.atributos ?? '') && /target="_blank"/.test(a[0]?.atributos ?? '') && /rel="noopener noreferrer"/.test(a[0]?.atributos ?? '') && (a[0]?.texto ?? '').includes(t(loc, 'a11y.new_tab')) && /\bbtn-secondary\b/.test(a[1]?.clase ?? ''), `${f}: el de apoyo es el botón coral (data-support-cta, pestaña nueva con rel y aviso) y el otro, el secundario`)
+      ok(bloque.length > 0 && main.lastIndexOf('<section') === main.indexOf(bloque), `${f}: es el último bloque de <main>, tras el contenido de la página`)
+    }
+    for (const f of SIN) ok(!principal(f).includes(`aria-label="${rotulo}"`), `${f}: NO lleva la salida común (tiene la suya o no es una herramienta)`)
   }
 }
 
@@ -620,6 +750,8 @@ if (existsSync('seed/fundraiser.json')) {
     [/\(pronto\)|\(soon\)/i, '«(pronto)»'], [/Resumen del caso en 2 minutos|2-minute/i, 'resumen de 2 min'], [/Tómate el tiempo|Take the time/i, 'microcopy de relleno'],
     [/Sin registro\. Sin presión|No sign-up\. No pressure/i, 'microcopy de relleno'], [/dos biolog|two biolog/i, '«dos biologías» como hecho'], [/en el país que sea|wherever it is/i, 'lista de partidas del dinero'],
   ]
+  const RUTA_MAPA = (loc: 'es' | 'en') => (loc === 'es' ? '/mapa-metastasis' : '/en/mapa-metastasis')
+  const RUTA_PORT = (loc: 'es' | 'en') => (loc === 'es' ? '/reservorio' : '/en/reservorio')
   for (const [loc, pagina, edadTexto] of [
     ['es', 'index.html', `Miriam, ${caseData.currentAge} años, busca un tratamiento hecho a partir de su propio tumor.`],
     ['en', 'en.html', `Miriam, ${caseData.currentAge}, is looking for a treatment made from her own tumor.`],
@@ -635,13 +767,13 @@ if (existsSync('seed/fundraiser.json')) {
     const puertas = seccion(/<ul class="puertas"[\s\S]*?<\/ul>/)
 
     // a) estructura: 7 bloques, en orden, un h1 y un h2 por bloque
-    const marcas = ['<section class="hero', 'class="prensa-tira', 'id="caso"', 'aria-labelledby="h-cita"', 'aria-labelledby="h-donde"', 'id="campaign"', 'aria-labelledby="h-puertas"']
+    const marcas = ['<section class="hero', 'class="prensa-tira', 'aria-labelledby="h-herramientas"', 'id="caso"', 'aria-labelledby="h-cita"', 'aria-labelledby="h-donde"', 'id="campaign"', 'aria-labelledby="h-puertas"']
     const pos = marcas.map((m) => main.indexOf(m))
-    ok(pos.every((p, i) => p >= 0 && (i === 0 || p > pos[i - 1]!)), `${pagina}: los 7 bloques, en este orden: hero · prensa · caso · cita · dónde estamos · dinero · cómo ayudar (${pos.join(' < ')})`)
-    ok((main.match(/<section\b/g)?.length ?? 0) === 7, `${pagina}: exactamente 7 bloques (${main.match(/<section\b/g)?.length ?? 0})`)
+    ok(pos.every((p, i) => p >= 0 && (i === 0 || p > pos[i - 1]!)), `${pagina}: los 8 bloques, en este orden: hero · prensa · herramientas · caso · cita · dónde estamos · dinero · cómo ayudar (${pos.join(' < ')})`)
+    ok((main.match(/<section\b/g)?.length ?? 0) === 8, `${pagina}: exactamente 8 bloques (${main.match(/<section\b/g)?.length ?? 0}): los 7 de F5 y, desde T2a, la banda de herramientas tras la prensa`)
     ok((main.match(/<h1\b/g)?.length ?? 0) === 1 && decodificar((main.match(/<h1\b[\s\S]*?<\/h1>/)?.[0] ?? '').replace(/<[^>]+>/g, '')).replace(/\s+/g, ' ').trim() === edadTexto, `${pagina}: un solo <h1>, «${edadTexto}» (la edad sale de caseData)`)
     const h2 = [...main.matchAll(/<h2\b[^>]*>([\s\S]*?)<\/h2>/g)].map((m) => visible(m[1]!))
-    const H2 = ['home.caso_heading', 'home.s6_eyebrow', 'home.donde_heading', 'home.dinero_heading', 'home.puertas_heading'].map((k) => t(loc, k))
+    const H2 = ['herramientas.title', 'home.caso_heading', 'home.s6_eyebrow', 'home.donde_heading', 'home.dinero_heading', 'home.puertas_heading'].map((k) => t(loc, k))
     ok(JSON.stringify(h2) === JSON.stringify(H2), `${pagina}: un <h2> por bloque, sin saltos (${h2.join(' · ')})`)
     ok((main.match(/\bid="caso"/g)?.length ?? 0) === 1 && /<section id="caso"[^>]*\bscroll-mt-24\b/.test(main), `${pagina}: #caso existe una vez y deja hueco bajo la cabecera pegajosa (scroll-mt-24)`)
 
@@ -684,7 +816,9 @@ if (existsSync('seed/fundraiser.json')) {
     ok(!/FoundationOne CDx de hueso|hipoproliferativa|hypoproliferative/.test(crudo) && !donde.includes('qb__acciones'), `${pagina}: ni la FoundationOne ni la anemia en el HTML, y la fila de acciones es la de la home (no la del componente)`)
     const contacto = loc === 'es' ? '/contacto?role=researcher' : '/en/contact?role=researcher'
     const hrefs = [...donde.matchAll(/<a\b[^>]*\bhref="([^"]+)"/g)].map((m) => m[1]!)
-    ok(hrefs.includes(contacto) && hrefs.includes(proRuta) && hrefs.includes(loc === 'es' ? '/lesiones' : '/en/lesiones') && !/mailto:/.test(donde), `${pagina}: «${t(loc, 'home.buscamos_escribir')}» → ${contacto}, «ver todo» → ${proRuta}, «3D» → /lesiones, sin correo directo`)
+    ok(hrefs.includes(contacto) && hrefs.includes(proRuta) && !/mailto:/.test(donde), `${pagina}: «${t(loc, 'home.buscamos_escribir')}» → ${contacto}, «ver todo» → ${proRuta}, sin correo directo`)
+    // T2a: «Míralo en 3D» salió de aquí: «Mama, hígado y hueso» es una fila de la banda de herramientas, dos bloques más arriba
+    ok(!hrefs.includes(loc === 'es' ? '/lesiones' : '/en/lesiones') && !visible(donde).includes(t(loc, 'home.donde_3d')), `${pagina}: «Dónde estamos» ya no enlaza a /lesiones (el 3D está en la banda de herramientas)`)
     ok(visible(donde).includes(t(loc, 'home.pasos_nota_barra')) && donde.includes('role="progressbar"'), `${pagina}: la ruta de 5 pasos con su nota (la barra no mide cuánto falta para ninguna meta médica)`)
 
     // f) prensa y puertas
@@ -695,11 +829,33 @@ if (existsSync('seed/fundraiser.json')) {
     ok(visible(pares).includes(t(loc, 'home.puertas_pares')) && visible(pares).includes(t(loc, 'home.puertas_pares_cta')) && hrefPares === (loc === 'es' ? '/colabora#apoyo-mutuo' : '/en/collaborate#apoyo-mutuo') && main.indexOf('class="puertas-pares"') > main.indexOf('<ul class="puertas"'), `${pagina}: bajo las puertas, «${t(loc, 'home.puertas_pares')}» → ${hrefPares}`)
     const hp = [...puertas.matchAll(/<a\b[^>]*\bhref="([^"]+)"[^>]*>([\s\S]*?)<\/a>/g)].map((m) => ({ href: m[1]!, texto: visible(m[2]!).replace(t(loc, 'a11y.new_tab'), '').trim() }))
     const esperadas = [
-      'https://gofund.me/3e25cae99', loc === 'es' ? '/datos#que-buscamos' : '/en/data#que-buscamos', loc === 'es' ? '/prensa' : '/en/press', loc === 'es' ? '/colabora' : '/en/collaborate',
+      'https://gofund.me/3e25cae99', loc === 'es' ? '/datos#que-buscamos' : '/en/data#que-buscamos', loc === 'es' ? '/colabora#tech-ia' : '/en/collaborate#tech-ia', loc === 'es' ? '/prensa' : '/en/press', loc === 'es' ? '/colabora' : '/en/collaborate',
     ]
-    ok(JSON.stringify(hp.map((x) => x.href)) === JSON.stringify(esperadas), `${pagina}: las 4 puertas, en orden, con sus destinos (${hp.map((x) => x.href).join(' · ')})`)
+    ok(JSON.stringify(hp.map((x) => x.href)) === JSON.stringify(esperadas), `${pagina}: las 5 puertas, en orden, con sus destinos (${hp.map((x) => x.href).join(' · ')})`)
     ok(JSON.stringify(hp.map((x) => x.texto)) === JSON.stringify(PUERTAS.map((p) => t(loc, p.etiqueta))), `${pagina}: y con los rótulos de puertas.* (${hp.map((x) => x.texto).join(' · ')})`)
     ok(/rel="noopener noreferrer"/.test(puertas) && /\(se abre|\(opens/.test(puertas), `${pagina}: la puerta de GoFundMe abre en pestaña nueva y lo avisa`)
+
+    // f.bis) la banda de herramientas (T2a): tras la prensa, con la destacada «Lo último» y el resto en filas, todo con el título ya publicado
+    {
+      const banda = seccion(/<section[^>]*aria-labelledby="h-herramientas"[\s\S]*?<\/section>/)
+      const R = loc === 'es' ? { celula: '/celula-a-celula', todas: '/herramientas' } : { celula: '/en/cell-by-cell', todas: '/en/tools' }
+      const RUTAS: Record<string, string> = loc === 'es'
+        ? { cell_by_cell: '/celula-a-celula', cell_explorer: '/celula-a-celula/explorar', lesions: '/lesiones', data: '/datos', slides: '/laminillas' }
+        : { cell_by_cell: '/en/cell-by-cell', cell_explorer: '/en/cell-by-cell/explore', lesions: '/en/lesiones', data: '/en/data', slides: '/en/slides' }
+      const visibles = HERRAMIENTAS.filter((h) => h.key !== 'cell_explorer' || estadoPuerta(manifiestoExplorador as unknown as Manifiesto) === 'real')
+      const enlaces = [...banda.matchAll(/<a\b[^>]*\bhref="([^"]+)"[^>]*>([\s\S]*?)<\/a>/g)].map((m) => ({ href: m[1]!, texto: visible(m[2]!), cuerpo: m[0] }))
+      ok(visible(banda).startsWith(`${t(loc, 'herramientas.eyebrow')} ${t(loc, 'herramientas.title')} ${t(loc, 'herramientas.apertura')}`), `${pagina}: la banda abre con «${t(loc, 'herramientas.eyebrow')}», «${t(loc, 'herramientas.title')}» y la frase de apertura`)
+      const esperados = [...visibles.map((h) => RUTAS[h.key]!), R.todas]
+      // la destacada va la primera, aunque no sea la primera de HERRAMIENTAS
+      const orden = [LO_ULTIMO.key, ...visibles.map((h) => h.key).filter((k) => k !== LO_ULTIMO.key)].map((k) => RUTAS[k]!)
+      ok(JSON.stringify(enlaces.map((e) => e.href)) === JSON.stringify([...orden, R.todas]) && esperados.length === orden.length + 1, `${pagina}: la banda lleva la destacada, el resto de herramientas en el orden de HERRAMIENTAS y «${t(loc, 'nav.all_tools')}» (${enlaces.map((e) => e.href).join(' · ')})`)
+      const [titulo, descripcion] = copyHerramienta(LO_ULTIMO.key, loc)
+      ok(enlaces[0]!.texto.includes(titulo) && enlaces[0]!.texto.includes(descripcion) && enlaces[0]!.texto.includes(t(loc, 'home.tools_new')) && enlaces[0]!.texto.includes(t(loc, PARA_HERRAMIENTA[LO_ULTIMO.key]!)) && /card-marked/.test(enlaces[0]!.cuerpo), `${pagina}: la destacada es «${titulo}»: su título y su descripción ya publicados, «${t(loc, 'home.tools_new')}» y su etiqueta, como tarjeta marcada`)
+      const filas = enlaces.slice(1, -1)
+      ok(filas.every((e, i) => e.texto.startsWith(copyHerramienta(visibles.filter((h) => h.key !== LO_ULTIMO.key)[i]!.key, loc)[0]) && e.texto.includes(t(loc, PARA_HERRAMIENTA[visibles.filter((h) => h.key !== LO_ULTIMO.key)[i]!.key]!))), `${pagina}: cada fila lleva solo el título publicado y su etiqueta «Para…»`)
+      ok(!/\bbtn-cta\b/.test(banda) && !/<details\b/.test(banda), `${pagina}: la banda no lleva botón coral ni plegables`)
+      ok(!banda.includes(t(loc, 'herramientas.linea_mapa')) && ![RUTA_MAPA(loc), RUTA_PORT(loc)].some((r) => enlaces.some((e) => e.href === r)), `${pagina}: ni el mapa ni el reservorio (van en el índice, no en la banda)`)
+    }
 
     // g) todo enlace que abre pestaña nueva lo avisa. Se exceptúa el botón de la propia tarjeta de la campaña (GoFundMeProgress,
     //    que esta fase no toca: lleva `mt-3`, el del botón de reserva no): no lleva el aviso y queda como hallazgo para el comité.
@@ -709,9 +865,12 @@ if (existsSync('seed/fundraiser.json')) {
     // h) presupuesto de palabras. La decisión puso un tope de 530 para toda la home; no contó que «Qué buscamos» va TAL CUAL (≈150
     //    palabras de caso.json) ni la tarjeta de la campaña (≈70, de otra fuente y «se queda como hoy»). Se vigila lo PROPIO de la
     //    home (con los textos para lectores de pantalla): hoy ≈ 410; 450 deja margen sin dejar que crezca.
-    const sinAjenos = visible(main.replace(/<ul class="qb__lista"[\s\S]*?<\/ul>/, '').replace(/<div class="rounded-\[24px\][\s\S]*?<\/section>/, '</section>'))
+    //    T2a (24-oct-2026) suma la banda de herramientas (≈ 110 palabras entre cabecera, frase de apertura, etiquetas y títulos). La descripción literal
+    //    de la destacada (≈ 25) tampoco es texto propio: es la meta-description de su página, como las peticiones. El techo propio sube de 450 a 540
+    //    y la decisión de 530 para toda la home sigue sin cumplirse, a la vista en el mensaje.
+    const sinAjenos = visible(main.replace(/<ul class="qb__lista"[\s\S]*?<\/ul>/, '').replace(/<span class="tarjeta-enlace__meta"[\s\S]*?<\/span>/, '').replace(/<div class="rounded-\[24px\][\s\S]*?<\/section>/, '</section>'))
     const n = sinAjenos.split(' ').length
-    ok(n <= 450, `${pagina}: el texto propio de la home (sin las peticiones literales ni la tarjeta de la campaña) cabe en 450 palabras: ${n} (con ellas: ${texto.split(' ').length}; tope de la decisión: 530)`)
+    ok(n <= 520, `${pagina}: el texto propio de la home (sin las peticiones literales, la descripción de la destacada ni la tarjeta de la campaña) cabe en 520 palabras: ${n} (con ellas: ${texto.split(' ').length}; tope de la decisión: 530)`)
 
     // i) SEO: sin «ultra-raro» y con la identidad «ingeniera de software» (no «paciente» + perfil molecular)
     const cabeza = crudo.match(/<head\b[\s\S]*?<\/head>/)?.[0] ?? ''
@@ -749,8 +908,8 @@ if (existsSync('seed/fundraiser.json')) {
   const GOFUNDME = 'https://gofund.me/3e25cae99'
   const PODCAST = 'https://www.youtube.com/watch?v=zVUECrux6zA'
   const R = {
-    es: { celula: '/celula-a-celula', lesiones: '/lesiones', datos: '/datos', prensa: '/prensa#cobertura', timeline: '/timeline', marcas: '/marcas', inicio: '/', gastos: '/gastos', contacto: '/contacto?role=other', ultimo: '/timeline#lo-ultimo', caso: '/#caso', reservorio: '/datos#reservorio' },
-    en: { celula: '/en/cell-by-cell', lesiones: '/en/lesiones', datos: '/en/data', prensa: '/en/press#cobertura', timeline: '/en/timeline', marcas: '/en/brands', inicio: '/en', gastos: '/en/expenses', contacto: '/en/contact?role=other', ultimo: '/en/timeline#lo-ultimo', caso: '/en#caso', reservorio: '/en/data#reservorio' },
+    es: { celula: '/celula-a-celula', lesiones: '/lesiones', datos: '/datos', prensa: '/prensa#cobertura', timeline: '/timeline', marcas: '/marcas', inicio: '/', gastos: '/gastos', contacto: '/contacto?role=other', ultimo: '/timeline#lo-ultimo', caso: '/#caso', reservorio: '/reservorio', herramientas: '/herramientas' },
+    en: { celula: '/en/cell-by-cell', lesiones: '/en/lesiones', datos: '/en/data', prensa: '/en/press#cobertura', timeline: '/en/timeline', marcas: '/en/brands', inicio: '/en', gastos: '/en/expenses', contacto: '/en/contact?role=other', ultimo: '/en/timeline#lo-ultimo', caso: '/en#caso', reservorio: '/en/reservorio', herramientas: '/en/tools' },
   }
   // lo que el criterio de legal-burocracia (23-oct-2026) retira, y lo que la decisión quitó de estas tres páginas
   const DINERO_RETIRADO = /cada euro|every euro|100\s?%|sin intermediarios|middlem|no intermediar|mensual|monthly|recibo disponible|receipt available|por (email|correo)|by e-?mail|transparencia total|full transparency|[€$£]|\beuros?\b/i
@@ -796,7 +955,10 @@ if (existsSync('seed/fundraiser.json')) {
       ok(/target="_blank"/.test(ca[0]?.atributos ?? '') && /rel="noopener noreferrer"/.test(ca[0]?.atributos ?? '') && (ca[0]?.texto ?? '').includes(t(loc, 'a11y.new_tab')), `${lesiones}: el de GoFundMe abre pestaña nueva con rel="noopener noreferrer" y lo avisa`)
       ok((main.match(/\bbtn-cta\b/g)?.length ?? 0) === 1, `${lesiones}: un solo botón coral en toda la página`)
       const viejos = anclas(main.slice(main.indexOf('id="cierre-apoyo-titulo"'))).filter((a) => a.href === R[loc].datos || a.href === R[loc].reservorio).map((a) => a.href)
-      ok(JSON.stringify(viejos) === JSON.stringify([R[loc].datos, R[loc].reservorio]), `${lesiones}: los dos enlaces de cierre que ya había (${R[loc].datos}, ${R[loc].reservorio}) siguen, detrás del bloque nuevo`)
+      ok(JSON.stringify(viejos) === JSON.stringify([R[loc].datos, R[loc].reservorio]), `${lesiones}: los dos enlaces de cierre que ya había (${R[loc].datos}, ${R[loc].reservorio}) siguen, detrás del bloque nuevo (T2a: el del reservorio vuelve a llevar a su página)`)
+      // T2a: vuelve el enlace al mapa de metástasis desde el visor del hueso (F4 lo había quitado porque el mapa se quedó sin enlaces)
+      const aMapa = anclas(main).filter((a) => a.href === (loc === 'es' ? '/mapa-metastasis' : '/en/mapa-metastasis'))
+      ok(aMapa.length === 1 && aMapa[0]!.texto === (loc === 'es' ? 'Ver este foco con todo el detalle en el mapa de metástasis' : 'See this focus in full detail on the metastasis map'), `${lesiones}: vuelve el enlace al mapa de metástasis, con su texto de siempre (${aMapa.map((a) => a.texto).join(' | ')})`)
       ok(!DINERO_RETIRADO.test(visible(cierre)) && !DINERO_RETIRADO.test(cuerpo), `${lesiones}: ni «En corto» ni el cierre llevan importes ni frases del dinero retiradas`)
       ok(!h.includes('>Donación recibida<'), `${lesiones}: control del test (la página no habla de donaciones)`)
     }
@@ -806,10 +968,12 @@ if (existsSync('seed/fundraiser.json')) {
       const main = principal(links)
       const nav = main.match(/<nav\b[\s\S]*?<\/nav>/)?.[0] ?? ''
       const filas = anclas(nav)
-      const ESPERADAS = [R[loc].celula, GOFUNDME, R[loc].lesiones, R[loc].datos, R[loc].prensa, PODCAST, R[loc].timeline, R[loc].marcas]
-      ok(JSON.stringify(filas.map((a) => a.href)) === JSON.stringify(ESPERADAS), `${links}: ocho filas en el orden decidido: célula a célula · apoyar · lesiones · datos · prensa · podcast · cronología · marcas (${filas.map((a) => a.href).join(' · ')})`)
+      // T2a (24-oct-2026): «Todas mis herramientas» entra la primera de los secundarios (nueve filas)
+      const ESPERADAS = [R[loc].celula, GOFUNDME, R[loc].lesiones, R[loc].datos, R[loc].prensa, PODCAST, R[loc].herramientas, R[loc].timeline, R[loc].marcas]
+      ok(JSON.stringify(filas.map((a) => a.href)) === JSON.stringify(ESPERADAS), `${links}: nueve filas en el orden decidido: célula a célula · apoyar · lesiones · datos · prensa · podcast · herramientas · cronología · marcas (${filas.map((a) => a.href).join(' · ')})`)
       const hr = nav.indexOf('<hr')
-      ok(hr > 0 && anclas(nav.slice(0, hr)).length === 6 && anclas(nav.slice(hr)).length === 2, `${links}: seis destacados y, tras el filete, dos secundarios (cronología y marcas)`)
+      ok(hr > 0 && anclas(nav.slice(0, hr)).length === 6 && anclas(nav.slice(hr)).length === 3, `${links}: seis destacados y, tras el filete, tres secundarios (herramientas, cronología y marcas)`)
+      ok(filas[6]!.texto.includes(t(loc, 'links.herramientas_title')) && filas[6]!.texto.includes(t(loc, 'links.herramientas_sub')), `${links}: «${t(loc, 'links.herramientas_title')}» · ${t(loc, 'links.herramientas_sub')}`)
       const apoyo = filas[1]
       ok(!!apoyo && /bio-link--apoyo/.test(apoyo.clase) && /data-support-cta/.test(apoyo.atributos) && /target="_blank"/.test(apoyo.atributos) && /rel="noopener noreferrer"/.test(apoyo.atributos) && apoyo.texto.includes(t(loc, 'a11y.new_tab')), `${links}: la 2.ª fila es el apoyo: GoFundMe directo, coral, con data-support-cta, pestaña nueva con rel="noopener noreferrer" y aviso`)
       ok(filas.filter((a) => a.href.includes('gofund.me')).length === 1 && (sinScripts(links).match(/gofund\.me/g)?.length ?? 0) === 1, `${links}: un solo enlace a GoFundMe en toda la página (ni cabecera ni pie)`)
@@ -823,7 +987,8 @@ if (existsSync('seed/fundraiser.json')) {
       ok(!/financ|tratamiento|treatment/i.test(t(loc, 'links.meta_description')) || /apoyar el caso|support the case/.test(t(loc, 'links.meta_description')), `${links}: la meta description habla de apoyar el caso, no de financiar un tratamiento`)
       // el presupuesto: la decisión puso 100 palabras (hoy 158 con este recuento). Las ocho filas y sus subtítulos suman más; el techo es
       // lo que había antes de F6 (no puede crecer) y la cifra real queda en el mensaje para la revisión.
-      ok(palabras(texto) <= 158, `${links}: ${palabras(texto)} palabras (techo: las 158 de antes de F6; tope de la decisión: 100, no alcanzado)`)
+      // T2a suma una fila secundaria («Todas mis herramientas» y su subtítulo): el techo sube de 158 a 165 (hoy 162 en ES y 154 en EN) y la cifra real queda en el mensaje
+      ok(palabras(texto) <= 165, `${links}: ${palabras(texto)} palabras (techo: 158 de antes de F6 + la fila de herramientas de T2a; tope de la decisión: 100, no alcanzado)`)
     }
 
     // ── /prensa#cobertura (el destino de la fila de prensa de /links) ─────────────────────────────────────────
@@ -859,5 +1024,5 @@ if (existsSync('seed/fundraiser.json')) {
   }
 }
 
-console.log(fallos ? `\n❌ ${fallos} fallo(s)` : '\n✅ ancla, «hace N días», sitemap (sin redirigidas ni archivadas, hreflang por pares), <main> único, «Ver quién apoya», campaña (en el HTML y en vivo), «Qué buscamos», navegación (menú, pie, redes, chrome mínimo) fusiones de F4 (herramientas, reservorio, mapa archivado, vídeos), la home de F5 y las puertas sociales de F6 (/lesiones, /links, /gracias) en verde')
+console.log(fallos ? `\n❌ ${fallos} fallo(s)` : '\n✅ ancla, «hace N días», sitemap (sin redirigidas ni archivadas, hreflang por pares), <main> único, «Ver quién apoya», campaña (en el HTML y en vivo), «Qué buscamos», navegación (menú, pie, redes, chrome mínimo) herramientas, reservorio, historia y mapa de vuelta (T2a), la salida común, vídeos, la home de F5 con su banda de herramientas y las puertas sociales de F6 (/lesiones, /links, /gracias) en verde')
 process.exit(fallos ? 1 : 0)

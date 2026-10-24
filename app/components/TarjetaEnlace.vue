@@ -2,7 +2,7 @@
 /**
  * Tarjeta-enlace (sistema v3, S4): icono + título + meta + flecha, interna o externa. Sustituye a cinco recetas del mismo
  * patrón: `.puerta` (Puertas), las tarjetas de prensa (fork, mención, recurso), las de contacto, `.bio-link` de /links,
- * las tres de /ciencia y la tarjeta de herramienta de /datos#visores.
+ * las tres de /ciencia y la tarjeta de herramienta (hoy, la destacada y las filas de la banda de la home; el índice /herramientas usa su propio <article>, que lleva un <details> dentro).
  *
  * · Interna (`to`) o externa (`href`). La externa abre en pestaña nueva y avisa de ello a los lectores de pantalla
  *   (a11y.new_tab); la flecha cambia a la de salida.

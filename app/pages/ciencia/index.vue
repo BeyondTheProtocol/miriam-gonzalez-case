@@ -427,7 +427,7 @@
           </NuxtLink>
           <!-- El resto de herramientas del caso (dictamen `diseno`, 14-oct-2026) -->
           <NuxtLink
-            :to="localePath({ name: 'datos', hash: '#visores' })"
+            :to="localePath({ name: 'herramientas' })"
             class="link-action group mt-3 min-h-[44px] text-sm text-miriam"
           >
             {{ $t('nav.all_tools') }}

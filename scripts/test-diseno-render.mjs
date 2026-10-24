@@ -15,6 +15,9 @@
 //
 //   pnpm exec nuxt generate && pnpm test:diseno-render
 //   pnpm test:diseno-render --actualizar           graba la baseline (solo si nada sube)
+//   pnpm test:diseno-render --actualizar --absorber   además admite las RUTAS NUEVAS (las que la baseline no conoce) con el recuento que traen;
+//                                                  jamás sube una ruta conocida. Igual que `pnpm test:diseno --absorber`: una ruta nueva que
+//                                                  entra en RUTAS no puede «bajar» desde un 0 que nunca existió.
 //   pnpm test:diseno-render --rutas /,/datos       solo esas rutas (no compara la baseline)
 //   pnpm test:diseno-render --detalle              imprime los primeros ejemplos de cada recuento
 import { existsSync, readFileSync, writeFileSync } from 'node:fs'
@@ -26,6 +29,8 @@ export const RUTAS = [
   '/', '/ciencia', '/ciencia/evidencia', '/colabora', '/contacto', '/datos', '/equipo', '/gastos', '/gracias',
   '/laminillas', '/lesiones', '/links', '/mapa-metastasis', '/marcas', '/prensa', '/timeline', '/celula-a-celula',
   '/celula-a-celula/explorar', '/aviso-legal', '/privacidad', '/cookies', '/guia-de-estilo',
+  // T2a (24-oct-2026): las tres páginas que volvieron a la vida (el mapa ya estaba)
+  '/herramientas', '/reservorio', '/historia',
 ]
 const ANCHOS = [390, 1280]
 const METRICAS = ['desborde', 'h1_borde', 'texto_bajo_suelo', 'objetivos_pequenos', 'contraste', 'foco_tapado']
@@ -217,7 +222,11 @@ const resumen = METRICAS.map((m) => `${m} ${total(m)}`).join(' · ')
 if (args.includes('--actualizar')) {
   if (previa) {
     const sube = []
-    for (const [k, v] of Object.entries(res)) for (const m of METRICAS) if (v[m] > (previa.rutas[k]?.[m] ?? 0)) sube.push(`${k} ${m}: ${previa.rutas[k]?.[m] ?? 0} → ${v[m]}`)
+    const absorber = args.includes('--absorber')
+    for (const [k, v] of Object.entries(res)) {
+      if (absorber && !previa.rutas[k]) continue // ruta nueva: entra con lo que trae
+      for (const m of METRICAS) if (v[m] > (previa.rutas[k]?.[m] ?? 0)) sube.push(`${k} ${m}: ${previa.rutas[k]?.[m] ?? 0} → ${v[m]}`)
+    }
     if (sube.length) {
       console.log(`✘ La baseline no se actualiza: solo puede bajar.\n   ${sube.join('\n   ')}`)
       process.exit(1)

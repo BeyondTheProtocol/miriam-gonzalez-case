@@ -8,9 +8,9 @@ provide('ocultarVerificado', true)
  * 23-oct-2026: «Qué buscamos» sube al segundo lugar, con su ancla #que-buscamos):
  *   1. hoy, en cuatro cifras · 2. qué buscamos (la petición a quien puede mover el caso) ·
  *   3. tejido y muestras · 4. carga tumoral · 5. evolución (línea de tiempo + analíticas en
- *   pequeños múltiplos con la misma ventana y la misma fecha marcada) · 6. las herramientas (franja
- *   #visores, que sustituye al antiguo índice /herramientas) y el reservorio (bloque plegado #reservorio,
- *   que sustituye a la antigua /reservorio; rediseño F4, 23-oct-2026) · 7. «el caso, visto de otra forma»
+ *   pequeños múltiplos con la misma ventana y la misma fecha marcada) · 6. un enlace a «Todas las herramientas» (el índice
+ *   /herramientas vuelve a ser una página viva, tanda 2, T2a, 24-oct-2026: F4 lo había plegado aquí como franja #visores) y otro
+ *   a la página del reservorio (#reservorio; también vuelve a ser una página, con su 3D) · 7. «el caso, visto de otra forma»
  *   (la vitrina) y lo demás, plegado.
  * Todo sale de app/data/caso.json (Polaris, `tools/caso_publico.py`): cada cifra con su fuente y
  * su sello, fail-closed. Esta página ordena y dibuja; no interpreta.
@@ -21,10 +21,8 @@ import { unidadTxt, valCaso } from '~/utils/datosCaso'
 import type { PeticionFuente } from '~/utils/peticiones'
 import { peticionesPublicas } from '~/utils/peticiones'
 
-const { locale, t: tr } = useI18n()
+const { locale } = useI18n()
 const localePath = useLocalePath()
-const { trackHerramienta } = useSupport()
-const { herramientas } = useHerramientas()
 const lang = computed<Lang>(() => (locale.value === 'en' ? 'en' : 'es'))
 const L = (es: string, en: string) => (lang.value === 'en' ? en : es)
 const T = (v: Texto | null | undefined) => txtCaso(v as Texto, lang.value)
@@ -38,7 +36,6 @@ const fuenteTxt = (id: string) => T(fuentes[id]?.publico) || id
 const lineas: any[] = c.lineas ?? []
 const em = c.enfermedad_medible ?? {}
 const material: any[] = c.material ?? []
-const reservorio: any[] = c.reservorio ?? []
 const seBusca: PeticionFuente[] = c.se_busca ?? []
 /* qué peticiones se publican y en qué orden, lo decide utils/peticiones.ts; sin ninguna, la sección no sale */
 const hayPeticiones = peticionesPublicas(seBusca).length > 0
@@ -302,11 +299,11 @@ function irAFecha(iso: string) {
 // Un salto a esta ancla desde la barra de secciones cuenta como «VerPeticion» con origen `datos`
 // (el plugin de Umami mide todo enlace a #que-buscamos): se separa por origen.
 const SECCION_PETICION: [string, string, string][] = hayPeticiones ? [['que-buscamos', 'Qué buscamos', 'What we’re looking for']] : []
-// `visores` (F4, 23-oct-2026): la franja de herramientas, con su chip; el bloque plegado del reservorio (#reservorio) no lleva chip
-// (cuelga de ella en la barra de secciones). Sin el chip, al llegar a las herramientas la barra seguía marcando «Evolución».
+// Seis chips (T2a, 24-oct-2026): la franja de herramientas (#visores, con su chip «Herramientas») salió de esta página y volvió a
+// /herramientas. La fila de enlaces del final (herramientas y reservorio) no lleva chip: es un pie de página, no una sección.
 const SECCIONES: [string, string, string][] = [['s-hoy', 'Hoy', 'Today'], ...SECCION_PETICION,
   ['s-tejido', 'Tejido', 'Tissue'], ['s-higado', 'Carga tumoral', 'Tumor burden'],
-  ['s-evo', 'Evolución', 'Clinical course'], ['visores', 'Herramientas', 'Tools'], ['s-vitrina', 'Otra vista', 'Another view']]
+  ['s-evo', 'Evolución', 'Clinical course'], ['s-vitrina', 'Otra vista', 'Another view']]
 const activa = ref('s-hoy')
 /* saltar a una sección SIN el router: su scrollBehavior (toda la web) fija top: 80 e ignora el
    scroll-margin-top de .dt-sec, y el título quedaba bajo la barra fija (medido por CDP a 390 px) */
@@ -357,11 +354,10 @@ function enfocarPeticion() {
 }
 function alHash(h: string) {
   const id = h.slice(1)
-  // también las secciones sin chip (el calendario de la vitrina y el reservorio), que se pueden enlazar. #visores, que tiene
-  // chip, lo usan el 301 de /herramientas y las migas de las herramientas; #reservorio, el 302 de /reservorio y /lesiones
+  // también las secciones sin chip (el calendario de la vitrina y la fila del reservorio), que se pueden enlazar: #reservorio lo
+  // usaban el 302 de /reservorio y /lesiones, y puede seguir en enlaces de fuera; ya no abre nada, solo deja el título a la vista
   if (hashHecho || !(SECCIONES.some(([s]) => s === id) || id === 's-dias' || id === 'reservorio')) return
   hashHecho = true
-  if (id === 'reservorio') reservorioAbierto.value = true // llegar por el ancla abre el bloque plegado
   const recolocar = () => {
     const el = document.getElementById(id)
     if (el) window.scrollTo({ top: Math.max(0, yPagina(el) - margen()), behavior: 'instant' })
@@ -435,38 +431,6 @@ function irAPrueba(key: string, fecha: string) {
   nextTick(() => { plegadosAbiertos.value = minisPlegados.value.some((m) => m.a!.key === key); saltar('s-evo') })
 }
 
-/* La franja #visores (herramientas): lo que era el índice /herramientas, con el título y la descripción YA publicados de
-   cada página (COPY_HERRAMIENTAS), sin copy nuevo. Sin /datos (es esta página) ni el mapa (archivo, sin enlaces); el
-   explorador solo con su puerta abierta (useHerramientas). */
-const visores = computed(() => herramientas.value.filter((h) => h.key !== 'data').map((h) => {
-  const [titulo, descripcion] = copyHerramienta(h.key, locale.value)
-  // el explorador y las laminillas llevan por etiqueta su público, «Para profesionales» (diseno, 19-oct)
-  const etiqueta = h.key === 'cell_explorer' || h.key === 'slides' ? tr('ciencia.level_pro') : tr(`nav.${h.key}`)
-  const repite = titulo.trim().toLowerCase().startsWith(etiqueta.trim().toLowerCase())
-  return { ...h, titulo, descripcion, etiqueta, repite, icono: ICONO_HERRAMIENTA[h.key] }
-}))
-/* Mismos eventos de siempre (VerLesiones, VerLaminillas…). Origen nuevo, `datos_visores`: el índice /herramientas, que
-   medía `herramientas`, ya no existe. */
-const medirVisor = (key: string) => trackHerramienta(key, 'datos_visores')
-
-/* #reservorio: bloque plegado. Llegar por el ancla (el 302 de /reservorio, el enlace de /lesiones) lo abre. */
-const reservorioAbierto = ref(false)
-const redondeo = (v: number) => numCaso(v, lang.value)
-/* La frase de medidas YA publicada en /reservorio, palabra por palabra, pero con las cifras leídas de caso.json (sin
-   copiar números a mano: un solo reloj). Solo con las tres fechas de siempre y si la diferencia cabe en el margen
-   (fail-closed): si caso.json cambia y ya no es verdad, no se dice. */
-const medidasReservorio = computed(() => {
-  const r = reservorio
-  if (r.length !== 3) return ''
-  const m = Math.max(...r.map((x) => Number(x.margen_mm)))
-  const vals = r.map((x) => Number(x.longitud_mm))
-  if (!Number.isFinite(m) || vals.some((v) => !Number.isFinite(v))) return ''
-  const lista = vals.map((v) => `${redondeo(v)} mm`).join(' · ')
-  const igual = Math.max(...vals) - Math.min(...vals) <= 2 * m
-  return lang.value === 'en'
-    ? `Catheter length, port→tip, across the three dates: ${lista} (± ${redondeo(m)} mm per measurement; ± ${redondeo(2 * m)} mm on the difference between dates).${igual ? ' Within that margin, it is the same measurement all three times.' : ''}`
-    : `Longitud del catéter, portal→punta, en las tres fechas: ${lista} (± ${redondeo(m)} mm cada medida; ± ${redondeo(2 * m)} mm en la diferencia entre fechas).${igual ? ' Dentro de ese margen, es la misma medida las tres veces.' : ''}`
-})
 const n = (v: number) => numCaso(v, lang.value)
 </script>
 
@@ -741,56 +705,26 @@ const n = (v: number) => numCaso(v, lang.value)
           <p class="dt-pie"><DatosSello :s="c.analiticas.sello" :lang="lang" /> {{ L('Cómo se leen y fechan: en «Fuentes y método».', 'How they are read and dated: under “Sources and method”.') }}</p>
         </section>
 
-        <!-- 6 · Herramientas (#visores): lo que era el índice /herramientas, fusionado aquí en el rediseño (F4, 23-oct-2026;
-             /herramientas redirige a esta ancla con un 301). El título y el texto de cada tarjeta son los ya publicados de su
-             página. Antes de la vitrina: son lo accionable, la vitrina es el escaparate. -->
-        <section id="visores" class="dt-sec" aria-labelledby="h-visores">
-          <h2 id="h-visores" class="dt-h2">{{ $t('herramientas.title') }}</h2>
-          <p class="dt-nota">{{ $t('herramientas.intro') }}</p>
-          <ul class="dt-visores">
-            <li v-for="v in visores" :key="v.key" class="flex">
-              <NuxtLink
-                :to="localePath({ name: v.name })"
-                class="card-base flex flex-1 flex-col gap-2 min-h-[44px]"
-                style="text-decoration: none"
-                :aria-labelledby="v.repite ? `dv-${v.key}-t` : `dv-${v.key}-e dv-${v.key}-t`"
-                :aria-describedby="`dv-${v.key}-d`"
-                @click="medirVisor(v.key)"
-              >
-                <span class="shrink-0 w-9 h-9 rounded-xl bg-miriam-soft flex items-center justify-center" aria-hidden="true">
-                  <Icon :name="v.icono" class="w-5 h-5 text-berenjena" />
-                </span>
-                <!-- la etiqueta solo si dice algo que el título no dice (diseno, 14-oct): «Célula a célula» sobre «Célula a célula» se leía dos veces -->
-                <span v-if="!v.repite" :id="`dv-${v.key}-e`" class="eyebrow block">{{ v.etiqueta }}</span>
-                <!-- sin etiqueta, su línea se reserva desde sm, que es cuando hay dos columnas y los títulos de una misma fila
-                     tienen que quedar alineados (diseno, 19-oct); en una columna era un hueco sin motivo -->
-                <span v-else class="eyebrow hidden sm:block" aria-hidden="true">&nbsp;</span>
-                <h3 :id="`dv-${v.key}-t`" class="font-display font-semibold text-berenjena text-xl leading-snug" style="letter-spacing: -0.01em">{{ v.titulo }}</h3>
-                <p :id="`dv-${v.key}-d`" class="text-sm text-tinta leading-relaxed flex-1">{{ v.descripcion }}</p>
-                <Icon name="ph:arrow-right" class="mt-2 w-5 h-5 text-miriam" aria-hidden="true" />
-              </NuxtLink>
-            </li>
-          </ul>
+        <!-- 6 · Las herramientas y el reservorio: solo enlaces (tanda 2 del rediseño, T2a, 24-oct-2026). F4 (23-oct) había plegado aquí
+             el índice /herramientas (franja #visores) y la página /reservorio (bloque plegado #reservorio, sin 3D) con sendos
+             redirects; Miriam decidió el 24-oct que las dos vuelven a ser páginas, así que esta página ya no las repite: una fila con
+             «Todas las herramientas» y otra con el reservorio. #reservorio se conserva como ancla (enlaces de fuera que ya existían). -->
+        <section class="dt-sec" :aria-label="$t('nav.all_tools')">
+          <p class="dt-nota">
+            <NuxtLink :to="localePath('herramientas')" class="link-action group">
+              {{ $t('nav.all_tools') }}
+              <Icon name="ph:arrow-right" class="w-4 h-4 transition-transform group-hover:translate-x-0.5" aria-hidden="true" />
+            </NuxtLink>
+          </p>
         </section>
-
-        <!-- 6b · Reservorio (#reservorio): lo que era la página /reservorio, fusionada aquí en F4 (302 hasta que Miriam
-             confirme, G6). Plegado y SIN 3D (el visor 3D del catéter anterior salió de la web). Las dos primeras frases de «qué
-             es un port-a-cath» y las medidas son las ya publicadas en /reservorio, palabra por palabra; la tarjeta con
-             el gráfico, su aviso y su sello son los de siempre de esta página. -->
-        <section v-if="reservorio.length" id="reservorio" class="dt-sec" aria-labelledby="h-reservorio">
+        <section id="reservorio" class="dt-sec" aria-labelledby="h-reservorio">
           <h2 id="h-reservorio" class="dt-h2">{{ L('Reservorio venoso', 'Venous port') }}</h2>
-          <details class="dt-det" :open="reservorioAbierto" @toggle="reservorioAbierto = ($event.target as HTMLDetailsElement).open">
-            <summary>{{ L('El reservorio: qué es y por qué se cambió', 'The port: what it is and why it was replaced') }}</summary>
-            <p class="dt-nota">{{ L('Es una cámara pequeña que se implanta bajo la piel del pecho, unida a un catéter fino que llega hasta una vena grande, cerca del corazón. Se pincha a través de una membrana con una aguja especial, y la membrana se cierra al sacarla.', 'It’s a small chamber implanted under the skin of the chest, joined to a thin catheter that runs to a large vein near the heart. A special needle goes in through a membrane, and the membrane seals again when the needle comes out.') }}</p>
-            <article class="dt-tarjeta">
-              <p class="dt-tarjeta__t">{{ L('Reservorio venoso: el catéter anterior se quedaba corto', 'Venous port: the previous catheter was too short') }}</p>
-              <p class="dt-tarjeta__l">{{ L('El primer reservorio dejó de dar retorno de sangre y en octubre de 2026 se cambió por otro. El informe de radiología del recambio da como motivo «PAC acortado a tronco innominado»: el catéter se quedaba corto. Longitud de su catéter, del portal a la punta, en tres TC:', 'The first port stopped giving blood return and was replaced in October 2026. The radiology report of the replacement gives the reason as «PAC acortado a tronco innominado» (port catheter short, ending at the innominate trunk). Its catheter length, port to tip, on three CT scans:') }}</p>
-              <DatosReservorio :medidas="reservorio" :lang="lang" />
-              <p v-if="medidasReservorio" class="dt-nota">{{ medidasReservorio }}</p>
-              <p class="dt-nota">{{ L('RECIST no aplica aquí, porque mide lesiones y esto es un catéter.', 'RECIST does not apply here, since it measures lesions and this is a catheter.') }}</p>
-              <p class="dt-pie">{{ L('Medida semiautomática sobre sus TC, sin validar por radiología.', 'Semi-automatic measurement on her CT scans, not validated by radiology.') }} <DatosSello :s="reservorio[0].sello" :lang="lang" /></p>
-            </article>
-          </details>
+          <p class="dt-nota">
+            <NuxtLink :to="localePath('reservorio')" class="link-action group">
+              {{ L('El reservorio: qué es y por qué se cambió', 'The port: what it is and why it was replaced') }}
+              <Icon name="ph:arrow-right" class="w-4 h-4 transition-transform group-hover:translate-x-0.5" aria-hidden="true" />
+            </NuxtLink>
+          </p>
         </section>
 
         <!-- 6 · vitrina: lo más visual y menos accionable de un vistazo, al final (Miriam, 25-sep); un solo
@@ -984,8 +918,6 @@ const n = (v: number) => numCaso(v, lang.value)
 .dt-tarjeta__l { font: 400 13px/1.45 var(--font-body); color: var(--color-text); margin: 0 0 4px; }
 .dt-tarjeta__l span { font-weight: 600; color: var(--color-text-soft); margin-right: 4px; }
 .dt-tarjeta__pie { display: flex; gap: 8px; align-items: center; font: 500 11.5px var(--font-mono); color: var(--color-text-soft); margin: 8px 0 0; }
-.dt-visores { list-style: none; margin: 14px 0 0; padding: 0; display: grid; grid-template-columns: minmax(0, 1fr); gap: 16px; }
-@media (min-width: 640px) { .dt-visores { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; } }
 .dt-lista { margin: 0; padding-left: 18px; display: grid; gap: 6px; font: 400 14.5px/1.5 var(--font-body); color: var(--color-text); }
 .dt-lista-trat { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; font: 400 14px/1.45 var(--font-body); color: var(--color-text); }
 .dt-lista-trat p { margin: 0; }

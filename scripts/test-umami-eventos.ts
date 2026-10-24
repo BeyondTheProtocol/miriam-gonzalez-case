@@ -109,6 +109,16 @@ ok(/recordarApoyo\(location\)/.test(soporte), 'trackSupport deja la etiqueta de 
 ok(/trackUmami\('Puerta',\s*\{\s*puerta:/.test(soporte), 'useSupport.ts emite «Puerta» con la puerta como propiedad')
 ok(![...ANTIGUOS, 'Contacto-enviado', EVENTO_GOFUNDME, EVENTO_PETICION, EVENTO_CONTACTO_CLIC, EVENTO_SCROLL].includes('Puerta'), 'el nombre «Puerta» no pisa ninguno de los demás')
 ok(!soporte.includes("trackUmami('PathwayCurioso'"), '«PathwayCurioso» ya no se emite: su tarjeta se fue de la home (F5)')
+// T2a (24-oct-2026): los orígenes de lo que vuelve. Se miden con los eventos de siempre de cada herramienta (VerLesiones, VerCelula…), cada uno con SU origen:
+// `herramientas` (el índice, como antes de F4), `home_teaser` (la banda de la home: el mismo origen del teaser que F5 borró, para que las series se
+// puedan comparar) y `herramienta_<ruta>` en el «Donar» de la salida común. `datos_visores` (el origen de la franja de F4) ya no existe.
+const indice = readFileSync('app/pages/herramientas.vue', 'utf-8'), banda = readFileSync('app/components/SectionHerramientasTeaser.vue', 'utf-8'), salida = readFileSync('app/components/SalidaHerramienta.vue', 'utf-8')
+ok(/trackHerramienta\(key, 'herramientas'\)/.test(indice) && /trackSupport\('herramientas'\)/.test(indice), "el índice mide sus aperturas con origen «herramientas» y su «Apoyar» con «herramientas»")
+ok(/trackHerramienta\(key, 'home_teaser'\)/.test(banda), "la banda de la home mide con origen «home_teaser»")
+ok(/trackSupport\(origen\)/.test(salida) && /`herramienta_\$\{routeBaseName\(route\)/.test(salida), "la salida común mide «Donar» con origen «herramienta_<ruta>» (se ve cuál convierte)")
+ok(!readFileSync('app/pages/datos.vue', 'utf-8').includes('datos_visores'), 'el origen «datos_visores» (la franja que salió de /datos) ya no se emite')
+ok(/'tecnologia'/.test(readFileSync('app/utils/caminos.ts', 'utf-8')) && /trackPuerta\(id\)/.test(readFileSync('app/components/Puertas.vue', 'utf-8')), 'la puerta «Tecnología, IA y marcas» mide «Puerta» con su id (tecnologia), como las demás')
+ok(soporte.includes("if (key === 'map') trackMapa(origen)") && soporte.includes("else if (key === 'lesions') trackLesiones(origen)") && soporte.includes("else if (key === 'slides') trackLaminillas(origen)"), 'trackHerramienta sigue enrutando cada clave a su evento (el reservorio no tiene el suyo)')
 // y la medición no se duplica: VerPeticion, Contacto-clic y Clic-gofundme los emite el plugin por el href; la home no los llama a mano
 const homeVue = readFileSync('app/pages/index.vue', 'utf-8') + readFileSync('app/components/SectionHero.vue', 'utf-8') + readFileSync('app/components/Puertas.vue', 'utf-8')
 ok(!/trackUmami\('(VerPeticion|Contacto-clic|Clic-gofundme)'/.test(homeVue) && !/track(Peticion|ContactoClic)/.test(homeVue), 'la home no llama a mano a VerPeticion / Contacto-clic / Clic-gofundme (los emite el plugin: contarían doble)')

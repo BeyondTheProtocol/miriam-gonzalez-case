@@ -16,6 +16,8 @@
       :aria-label="$t('nav.main_content_label')"
     >
       <slot />
+      <!-- Salida común de las herramientas (T2a, 24-oct-2026): Apoyar y volver al inicio, tras el contenido de la página. -->
+      <SalidaHerramienta v-if="conSalida" />
     </main>
     <SiteFooter />
     <!-- /marcas (· /en/brands) negocia colaboración, NO donativo: ahí no se monta
@@ -35,6 +37,11 @@ const { locale } = useI18n()
 // su hueco (por ruta, no por visibilidad: sin saltos de layout al hacer scroll).
 const { isBrandsRoute, hasSupportBar } = useSupportBarRoute()
 const { minimo } = useChromeMinimo()
+
+// ¿Cierra esta ruta con la salida común de las herramientas? Por nombre de ruta (SALIDA_HERRAMIENTA, utils/navegacion.ts), igual en ES y EN.
+const route = useRoute()
+const routeBaseName = useRouteBaseName()
+const conSalida = computed(() => SALIDA_HERRAMIENTA.includes(routeBaseName(route) ?? ''))
 
 function focusMain() {
   nextTick(() => {

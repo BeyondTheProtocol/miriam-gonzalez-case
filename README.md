@@ -114,7 +114,7 @@ If you have a good idea, feature request, or notice something that could be impr
 - [x] ~~robots.txt~~ → managed by `nuxt-robots` (`public/_robots.txt`)
 - [x] ~~Sitemap~~ → `@nuxtjs/sitemap` with i18n hreflang auto-generated
 - [x] ~~AEO / agentic search~~ → `nuxt-ai-ready` serves `/llms.txt`
-- [ ] Alba's complete text (the story): `/historia` was merged into `/timeline` on 2026-10-23 (302); see "Alba's Text (Story)" in AGENTS.md to bring the page back
+- [ ] Alba's complete text (the story): `/historia` is alive again since 2026-10-24 (placeholder with four paragraphs, no chapters); see "Alba's Text (Story)" in AGENTS.md to put the real text in
 - [x] Add favicon (`public/favicon.ico` or `public/favicon.svg`)
 - [ ] Verify `helpmiriam.com` in Google Search Console and request indexing
 - [ ] Think about a way to auto-update the timeline from social media posts

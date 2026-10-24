@@ -88,12 +88,13 @@ Copiar este bloque al final de la lista (respetando la indentación de 2 espacio
 
 ---
 
-## 2. Historia (retirada)
+## 2. Historia
 
-La página `/historia` (un aviso de «en preparación» y un capítulo 1 vacío) y las carpetas
-`content/es/historia/` y `content/en/story/` se retiraron el 23-oct-2026, en el rediseño de arquitectura
-(fase F4): `/historia` redirige a `/timeline` con un 302, porque la historia real puede volver. Cuando vuelva,
-se recupera la página, las colecciones y las entradas de `i18n.pages` del historial de git (commit anterior a
+La página `/historia` (un aviso de «en preparación» y cuatro párrafos) está viva. Las carpetas `content/es/historia/` y
+`content/en/story/` (con el capítulo 1, vacío) se retiraron el 23-oct-2026, en el rediseño de arquitectura (fase F4), que
+además redirigió `/historia` a `/timeline`; el 24-oct-2026 (T2a) se quitó ese redirect, porque Umami mostró que 184 de sus 191
+entradas llegan de Google. No hay capítulos: `/historia/01-el-comienzo` sigue con su 301 a `/timeline`. Cuando haya texto, va en
+`app/pages/historia/index.vue` (o se recuperan `[slug].vue` y las colecciones del historial de git, commit anterior a
 `rediseno(F4)`); ver «Alba's Text (Story)» en AGENTS.md.
 
 ---
