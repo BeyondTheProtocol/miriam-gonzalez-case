@@ -122,8 +122,11 @@ ok(!/trackPress\('/.test(home), 'la home ya no llama a trackPress con un medio l
 const soporte = readFileSync('app/composables/useSupport.ts', 'utf-8')
 ok(/data-umami-event="Clic-prensa"/.test(tira) && /:data-umami-event-medio="m\.medio"/.test(tira), 'PrensaTira: cada medio lleva data-umami-event="Clic-prensa" y data-umami-event-medio="<medio>"')
 ok(!/trackPress/.test(tira), 'PrensaTira no llama a trackPress (Umami ya cuenta el clic por el atributo: contaría doble)')
-ok(/new IntersectionObserver/.test(tira) && /\.disconnect\(\)/.test(tira) && /trackPrensaVisible\(\)/.test(tira), 'PrensaTira envía «Prensa-visible» con IntersectionObserver y lo desconecta (una sola vez)')
-ok(/trackUmami\('Prensa-visible'\)/.test(soporte) && /trackUmami\('Clic-prensa'/.test(soporte), 'useSupport emite «Prensa-visible» y sigue emitiendo «Clic-prensa» (lo usa /prensa)')
+// «Prensa-visible» { pagina } lo envía useUmamiVisto (utils/umamiVistas.ts: una vez por vista, con la mitad de la tira en pantalla y espera al
+// script de Umami), el mismo medidor que «Hero-visto» y «Campana-visible» (T2d, 24-oct-2026; antes, un observador propio en la tira y
+// trackPrensaVisible en useSupport: dos maneras de medir lo mismo). test-umami-eventos comprueba en Chrome que llega UNA vez.
+ok(/useUmamiVisto\(tira,\s*EVENTO_PRENSA_VISIBLE\)/.test(tira) && /ref="tira"/.test(tira) && !/trackPrensaVisible/.test(tira + soporte), 'PrensaTira envía «Prensa-visible» con useUmamiVisto, el medidor común (y useSupport ya no tiene un emisor propio)')
+ok(/trackUmami\('Clic-prensa'/.test(soporte), 'useSupport sigue emitiendo «Clic-prensa» (lo usa /prensa)')
 ok(/trackPress\(item\.outlet\)/.test(pagina), '/prensa sigue midiendo «Clic-prensa» por trackPress (sin cambios)')
 
 // 7b · en el HTML generado (si hay build): mismos medios, mismo orden y el enlace de la primera pieza de cada uno

@@ -11,12 +11,14 @@
 #   2. El País (opinion column by Delia Rodríguez) — same masthead as no. 1; Miriam
 #      as the central example.
 #   3. Redacción Médica — health outlet read by clinicians; in-depth interview.
-#   4. La Vanguardia — major national masthead; a light piece (Clic section, built
+#   4. El HuffPost — major national digital daily (Prisa), long own interview,
+#      on the homepage the day it ran; ahead of La Vanguardia's light piece.
+#   5. La Vanguardia — major national masthead; a light piece (Clic section, built
 #      on a clip from the Roca Project podcast), hence behind El País.
-#   5. El Español — major national digital daily, strong on-message headline.
-#   6. Corresponsables — CSR outlet; exclusive interview.
-#   7. La Opinión de Murcia — regional, anchors the local/human angle.
-#   8. La 7 — regional TV (Instagram clip), closes the list.
+#   6. El Español — major national digital daily, strong on-message headline.
+#   7. Corresponsables — CSR outlet; exclusive interview.
+#   8. La Opinión de Murcia — regional, anchors the local/human angle.
+#   9. La 7 — regional TV (Instagram clip), closes the list.
 articles:
   - outlet: El País (English)
     home: 2
@@ -32,6 +34,10 @@ articles:
     url: https://www.redaccionmedica.com/innovacion/20261021/miriam-gonzalez-una-ingeniera-de-software-con-metastasis-estadio-construye-su-propio-modelo-ia-para-buscar-vacuna-personalizada/362852_0.html
     title: 'Miriam González, a software engineer with stage 4 metastatic cancer, builds her own AI model to search for a personalized vaccine (in Spanish)'
     date: '2026-10-21'
+  - outlet: El HuffPost
+    url: https://www.huffingtonpost.es/virales/miriam-gonzalez-ingeniera-investigando-propio-cancer-mama-raro-gracias-ia-sido-pasar-oscuras-enciclopedia-mi-tumor-f202610.html
+    title: 'Miriam González, the engineer researching her own rare breast cancer with AI: “It’s been like going from walking in the dark to having an encyclopedia of my tumor” (in Spanish)'
+    date: '2026-10-24'
   - outlet: La Vanguardia
     home: 3
     url: https://www.lavanguardia.com/clic/20260816/11613280/miriam-gonzalez-paciente-cancer-mama-raro-me-siento-desventaja-frente-paciente-tenga-cancer-mama-metastasico.html

@@ -1,5 +1,5 @@
 <template>
-  <section class="hero relative overflow-hidden bg-cream" :aria-label="$t('hero.section_label')">
+  <section ref="heroEl" class="hero relative overflow-hidden bg-cream" :aria-label="$t('hero.section_label')">
     <div class="hero__shell section-wide">
       <div class="hero__grid">
         <div class="hero__head">
@@ -150,6 +150,12 @@ const cifraDe = computed(() => {
   if (!v || v.origen !== 'semilla' || !v.actualizado) return null
   return { iso: v.actualizado, texto: fechaDeCifra(v.actualizado, locale.value) }
 })
+
+// Medición («Hero-visto», utils/umamiVistas.ts): se observa el hero ENTERO y no la línea de cifras, para que el denominador sea
+// quien pudo ver el botón de donar y no solo quien bajó hasta las cifras. `conEuros`: ¿había importe en el hero al verse? (sin
+// dato, la línea no se pinta).
+const heroEl = ref<HTMLElement | null>(null)
+useUmamiVisto(heroEl, EVENTO_HERO_VISTO, () => ({ conEuros: !!importe.value }))
 
 const { latest, latestAgo } = useLatestUpdate()
 </script>

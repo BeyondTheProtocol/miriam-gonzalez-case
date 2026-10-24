@@ -10,12 +10,14 @@
 #   2. El País (columna de opinión de Delia Rodríguez) — misma cabecera nº1; Miriam
 #      como ejemplo central.
 #   3. Redacción Médica — medio de salud que leen los clínicos; entrevista a fondo.
-#   4. La Vanguardia — gran cabecera nacional; pieza ligera (sección Clic, sobre un
+#   4. El HuffPost — gran nacional digital (Prisa), entrevista larga propia, en
+#      portada el día de salida; delante de la pieza ligera de La Vanguardia.
+#   5. La Vanguardia — gran cabecera nacional; pieza ligera (sección Clic, sobre un
 #      clip del pódcast Roca Project), por eso detrás de El País.
-#   5. El Español — gran nacional digital, titular fuerte y en mensaje.
-#   6. Corresponsables — medio de RSE; entrevista en exclusiva.
-#   7. La Opinión de Murcia — regional, ancla el ángulo local/humano.
-#   8. La 7 — TV regional (clip en Instagram), cierra la lista.
+#   6. El Español — gran nacional digital, titular fuerte y en mensaje.
+#   7. Corresponsables — medio de RSE; entrevista en exclusiva.
+#   8. La Opinión de Murcia — regional, ancla el ángulo local/humano.
+#   9. La 7 — TV regional (clip en Instagram), cierra la lista.
 articles:
   - outlet: El País
     home: 2
@@ -31,6 +33,10 @@ articles:
     url: https://www.redaccionmedica.com/innovacion/20261021/miriam-gonzalez-una-ingeniera-de-software-con-metastasis-estadio-construye-su-propio-modelo-ia-para-buscar-vacuna-personalizada/362852_0.html
     title: 'Miriam González, una ingeniera de software con metástasis estadio 4, construye su propio modelo con IA para buscar una vacuna personalizada'
     date: '2026-10-21'
+  - outlet: El HuffPost
+    url: https://www.huffingtonpost.es/virales/miriam-gonzalez-ingeniera-investigando-propio-cancer-mama-raro-gracias-ia-sido-pasar-oscuras-enciclopedia-mi-tumor-f202610.html
+    title: 'Miriam González, la ingeniera que está investigando su propio cáncer de mama raro gracias a la IA: “Ha sido pasar de ir a oscuras a tener una enciclopedia de mi tumor”'
+    date: '2026-10-24'
   - outlet: La Vanguardia
     home: 3
     url: https://www.lavanguardia.com/clic/20260816/11613280/miriam-gonzalez-paciente-cancer-mama-raro-me-siento-desventaja-frente-paciente-tenga-cancer-mama-metastasico.html

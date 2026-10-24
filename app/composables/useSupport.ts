@@ -66,24 +66,12 @@ export function useSupport() {
   // como «Apoyar» ni arma el «¿Has donado?» de DonationReturnPrompt.
   function trackOfficialCampaign(location: string) {
     trackUmami('CampanaOficial', { location })
+    // Ese enlace también va a GoFundMe: «Clic-gofundme» lo cuenta con su propio origen, no como «sin_etiqueta».
+    recordarApoyo(`campana_oficial_${location}`)
   }
 
   function trackPress(outlet: string) {
     trackUmami('Clic-prensa', { medio: outlet })
-  }
-
-  // «Prensa-visible»: la tira de prensa de la home entró en pantalla (una vez por vista; PrensaTira.vue). Es el denominador de
-  // «Clic-prensa» en la home: sin él solo se sabe cuántos clics hubo, no sobre cuántas veces se vio la tira. Los clics de la
-  // tira los cuenta Umami por sus atributos data-umami-event (no llaman a trackPress). Como la tira está justo bajo el hero, puede
-  // verse antes de que cargue el script `defer` de Umami: se reintenta unos segundos, igual que track404, antes de rendirse.
-  function trackPrensaVisible() {
-    if (!import.meta.client) return
-    let intentos = 0
-    const enviar = () => {
-      if ((window as unknown as { umami?: unknown }).umami) trackUmami('Prensa-visible')
-      else if (++intentos < 20) window.setTimeout(enviar, 250)
-    }
-    enviar()
   }
 
   function trackContact(role: string) {
@@ -200,7 +188,6 @@ export function useSupport() {
     trackScience,
     trackOfficialCampaign,
     trackPress,
-    trackPrensaVisible,
     trackContact,
     trackPathway,
     trackShare,

@@ -18,26 +18,12 @@
  * cursor. La etiqueta es visible y nombra la región, así que el lector de pantalla oye lo mismo que se ve.
  */
 const localePath = useLocalePath()
-const { trackPrensaVisible } = useSupport()
 const { data: medios } = await usePrensaMedios()
 
-// «Prensa-visible»: una sola vez por vista de la home (el observador se desconecta al primer aviso). Al menos la mitad de la
-// tira en pantalla, para que no cuente un roce de un píxel al hacer scroll rápido.
+// «Prensa-visible» { pagina }: UNA vez por vista de la home, cuando se ve la mitad de la tira (utils/umamiVistas.ts: lo mismo que
+// «Hero-visto» y «Campana-visible», con espera al script de Umami, que es `defer` y la tira está justo bajo el hero).
 const tira = ref<HTMLElement | null>(null)
-let observador: IntersectionObserver | null = null
-onMounted(() => {
-  if (!tira.value || typeof IntersectionObserver === 'undefined') return
-  observador = new IntersectionObserver(
-    (entradas) => {
-      if (!entradas.some((e) => e.isIntersecting)) return
-      observador?.disconnect()
-      trackPrensaVisible()
-    },
-    { threshold: 0.5 },
-  )
-  observador.observe(tira.value)
-})
-onBeforeUnmount(() => observador?.disconnect())
+useUmamiVisto(tira, EVENTO_PRENSA_VISIBLE)
 </script>
 
 <template>

@@ -1,12 +1,15 @@
 // Tracking de eventos de Umami (analytics). Seguro en SSR y si el script aún
 // no ha cargado (defer): si `window.umami` no existe, no hace nada. Convive con
 // Plausible (ver useSupport.ts) — cada acción puede disparar ambos.
+// `conEntrada` (umamiVistas.ts) añade la propiedad `entrada` solo a los eventos que la llevan.
+import { conEntrada } from './umamiVistas'
+
 export function trackUmami(event: string, data?: Record<string, string | number | boolean>) {
   if (!import.meta.client) return
   const w = window as unknown as {
     umami?: { track: (event: string, data?: Record<string, unknown>) => void }
   }
-  w.umami?.track(event, data)
+  w.umami?.track(event, conEntrada(event, data))
 }
 
 // ── Medición delegada (rediseño F0, 23-oct-2026) ─────────────────────────────────────────────
@@ -16,7 +19,7 @@ export function trackUmami(event: string, data?: Record<string, string | number 
 // tocando. Los eventos que ya existían (Donar, Contacto, Pathway…) NO se tocan ni se renombran:
 // cambiar un nombre parte la serie en Umami. Aquí solo hay lógica pura, sin DOM, para poder probarla.
 //
-//   Clic-gofundme   { pagina, origen }  clic a gofund.me / gofundme.com, desde cualquier enlace
+//   Clic-gofundme   { pagina, origen }  clic a gofund.me / gofundme.com, desde cualquier enlace (y `entrada`: umamiVistas.ts)
 //   VerPeticion     { origen }          clic a un enlace con el ancla #que-buscamos
 //   Contacto-clic   { rol, pagina }     clic a /contacto (· /en/contact), con el rol de ?role=
 //   Scroll          { pct, pagina }     recorrido de scroll alcanzado: 25 · 50 · 75 · 100

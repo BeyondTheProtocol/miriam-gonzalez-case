@@ -38,6 +38,12 @@ const cifraDe = computed(() => {
   return { iso: v.actualizado, texto: fechaDeCifra(v.actualizado, locale.value) }
 })
 
+// Medición («Campana-visible», utils/umamiVistas.ts): una vez por vista aunque haya dos tarjetas (/colabora lleva dos). El ref se
+// engancha cuando el bloque existe: sin semilla en el build la tarjeta se pinta al llegar las cifras, y entonces se mide. `conEuros`
+// es la misma medida que en el hero: ¿lleva el importe en euros?
+const raiz = ref<HTMLElement | null>(null)
+useUmamiVisto(raiz, EVENTO_CAMPANA_VISIBLE, () => ({ conEuros: !!importe.value }))
+
 // Estado de proceso de la campaña (hecha, en curso…) → estado del sistema (hecho, curso…): una sola paleta de estados en el sitio.
 const A_SISTEMA = { hecha: 'hecho', hecho: 'hecho', en_curso: 'curso', presupuesto: 'curso' } as const
 const fases = computed(() =>
@@ -51,7 +57,7 @@ const fases = computed(() =>
 
 <template>
   <!-- Variante tarjeta · bloque oscuro. `data-tema="oscuro"` remapea los roles (texto, identidad, insignias) sin hex en línea. -->
-  <div v-if="card && data" class="gfm gfm--card" data-tema="oscuro">
+  <div v-if="card && data" ref="raiz" class="gfm gfm--card" data-tema="oscuro">
     <p
       class="gfm__importe nums"
       :data-gofundme-importe="data.currentAmount.amount"
@@ -101,7 +107,7 @@ const fases = computed(() =>
   </div>
 
   <!-- Variante por defecto · una línea -->
-  <div v-else-if="data" class="gfm gfm--linea">
+  <div v-else-if="data" ref="raiz" class="gfm gfm--linea">
     <div class="gfm__fila">
       <p class="nums">
         {{ $t('gofundme.raised') }}
