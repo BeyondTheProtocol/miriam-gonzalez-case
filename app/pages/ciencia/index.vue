@@ -124,7 +124,7 @@
                 <i18n-t keypath="ciencia.why_no_fit_protocols_text" tag="p">
                   <template #fgfr1>FGFR1</template>
                   <template #ccnd1>CCND1</template>
-                  <template #neuroendocrino>neuroendocrino</template>
+                  <template #neuroendocrino>{{ L('neuroendocrino', 'neuroendocrine') }}</template>
                 </i18n-t>
                 <i18n-t keypath="ciencia.why_no_fit_oms_text" tag="p">
                   <template #bcned>BC-NED</template>

@@ -12,6 +12,8 @@
 //  5. /datos recibe la historia de tratamientos (con la dosis de la RT y la UCI, que solo vivían ahí) y el PET con Galio-68.
 //  6. La Cronología lleva los hitos del 19-jun y del 8-jul con lo que decidió Miriam, sin decir que el mapa eligiera la lesión.
 //  7. /videos apunta a un ancla que existe.
+//  8. La página en inglés no lleva palabras en español fuera de comillas, y ningún <template #slot> de i18n-t lleva texto fijo de un solo
+//     idioma (la clase del fallo «ignoring the neuroendocrino component» en /en/science, 24-oct-2026).
 //
 // Uso:  pnpm exec nuxt generate && pnpm test:ciencia-pro   (CI: .github/workflows/e2e.yml)
 import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs'
@@ -129,6 +131,13 @@ for (const loc of ['es', 'en'] as const) {
   // «Actualizado el …»: la fecha de caso.json, con el MISMO formateador y la misma frase que ActualizadoEl (nada de una fecha escrita en el test)
   const esperadoFecha = t(loc, 'page.updated').replace('{date}', formatearFechaCambio((caso as any).actualizado, loc))
   ok(esperadoFecha.length > 12 && txt.includes(esperadoFecha), `${f}: dice «${esperadoFecha}», la fecha de caso.json`)
+  // La página en inglés no lleva español fuera de comillas. La clase del fallo: un slot de i18n-t con el literal en español (en /en/science
+  // salía «ignoring the neuroendocrino component»). Lo entrecomillado puede ser español a propósito (se cita un informe tal cual).
+  if (loc === 'en') {
+    const fueraDeCitas = txt.replace(/«[^»]*»|“[^”]*”|"[^"]{0,200}"/g, ' ')
+    const espanol = fueraDeCitas.match(/\bneuroendocrin(?:o|a|os|as)\b/i)
+    ok(!espanol, `${f}: sin «neuroendocrino» (con o final) fuera de comillas${espanol ? `; sale «…${fueraDeCitas.slice(Math.max(0, espanol.index! - 30), espanol.index! + 40)}…»` : ''}`)
+  }
   ok(!/Última actualización: 29|Last updated: 29|septiembre de 2026\.? *$/m.test(txt) && !/al día de septiembre|current as of September/i.test(html(f)), `${f}: sin fecha de septiembre escrita a mano (ni en la página ni en la meta description)`)
   // Donar: UN botón coral en la zona de cierre
   const botones = [...main.matchAll(/<a\b[^>]*\bclass="[^"]*\bbtn-cta\b[^"]*"[^>]*>/g)].map((m) => m[0])
@@ -245,6 +254,26 @@ for (const loc of ['es', 'en'] as const) {
 // ═══ 7 · /videos: el ancla de destino existe ═══
 console.log('\n7. /videos → /prensa#video')
 for (const loc of ['es', 'en'] as const) ok(/\bid="video"/.test(limpio(P[loc].prensa)), `${P[loc].prensa}: tiene id="video" (el destino de ${loc === 'es' ? '/videos' : '/en/videos'})`)
+
+// ═══ 8 · ningún slot de i18n-t lleva texto fijo de un solo idioma ═══
+// Test de invariante estructural a propósito (mira el fuente, sin build): un <template #x>texto</template> dentro de un <i18n-t> pinta ese texto
+// en ES y en EN. Solo vale si es lo mismo en los dos idiomas (siglas, nombres de gen); una palabra común va con `L('es', 'en')` o con `$t()`.
+console.log('\n8. Slots de i18n-t con texto fijo')
+{
+  const NEUTROS = new Set(['luminal', 'FGFR1', 'CCND1', 'BC-NED', 'SSTR+', 'PRRT']) // iguales en español y en inglés
+  const SLOT_FIJO = () => /<template\s+#([\w-]+)>([^<>{}]+)<\/template>/g
+  const fijos: string[] = []
+  const recorre = (dir: string) => {
+    for (const n of readdirSync(dir)) {
+      const p = join(dir, n)
+      if (statSync(p).isDirectory()) recorre(p)
+      else if (n.endsWith('.vue')) for (const m of readFileSync(p, 'utf-8').matchAll(SLOT_FIJO())) { const lit = m[2]!.trim(); if (lit && !NEUTROS.has(lit)) fijos.push(`${p}: #${m[1]} → «${lit}»`) }
+    }
+  }
+  recorre('app')
+  ok(fijos.length === 0, `ningún slot de i18n-t lleva una palabra fija de un solo idioma${fijos.length ? ` (${fijos.join(' · ')})` : ''}`)
+  ok(SLOT_FIJO().test('<template #neuroendocrino>neuroendocrino</template>') && !SLOT_FIJO().test("<template #neuroendocrino>{{ L('neuroendocrino', 'neuroendocrine') }}</template>"), 'canario: el patrón casa con el slot fijo y no con el localizado')
+}
 
 console.log(fallos ? `\n❌ ${fallos} fallo(s)` : '\n✅ /ciencia en una capa, textos clínicos literales, las seis deudas fuera, /datos con la historia y el PET, la cronología y /videos en verde')
 process.exit(fallos ? 1 : 0)

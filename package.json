@@ -16,6 +16,7 @@
     "test:ciencia-nivel": "node scripts/test-ciencia-nivel.mjs",
     "test:ciencia-pro": "tsx scripts/test-ciencia-pro.ts",
     "test:afirmaciones-clinicas": "node scripts/test-afirmaciones-clinicas.mjs",
+    "test:caso-copias": "node scripts/test-caso-copias.mjs",
     "test:citas-futuras": "tsx scripts/test-citas-futuras.ts",
     "test:siglas-muestra": "tsx scripts/test-siglas-muestra.ts",
     "test:mapa-focos": "tsx scripts/test-mapa-focos.ts",

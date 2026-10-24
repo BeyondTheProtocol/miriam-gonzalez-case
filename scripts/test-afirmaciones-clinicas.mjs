@@ -39,7 +39,7 @@
 //   tanda 2 del rediseño, T2c). Cada una tiene su patrón y su canario (abajo): web-ne-80-del-tumor, web-oms-2019-entidad-propia,
 //   web-fgfr1-unidad-x, web-sinaptofisina-laminilla-sin-documento, web-recist-dianas-incompletas y web-goserelina-fin-28-may.
 //   Los patrones viven en scripts/lib/deudas-clinicas.mjs (UNA definición para este test y para scripts/test-ciencia-pro.ts, que mira el HTML
-//   generado de todas las páginas). Este lee el FUENTE (app, i18n y content; también app/data/caso.json), que es lo que corre en lint.yml sin
+//   generado de todas las páginas). Este lee el FUENTE (app, i18n y content; también app/data/caso.json y su copia pública public/datos/caso.json), que es lo que corre en lint.yml sin
 //   build, y casa también con un texto partido en varias líneas (un yml con `>-`): se prueba sobre el fichero con los saltos de línea unidos.
 //
 // Uso: pnpm test:afirmaciones-clinicas   (CI: .github/workflows/lint.yml)
@@ -47,7 +47,7 @@ import { readdirSync, readFileSync, statSync } from 'node:fs'
 import { extname, join, relative } from 'node:path'
 
 const ROOT = join(import.meta.dirname, '..')
-const DIRS = ['app', 'i18n', 'content']
+const DIRS = ['app', 'i18n', 'content', 'public/datos'] // public/datos: la copia DESCARGABLE de caso.json (antes quedaba fuera y conservó la sinaptofisina «verificada»)
 const EXT = new Set(['.vue', '.ts', '.json', '.yml', '.yaml', '.md'])
 // La cronología narra hechos fechados («hasta entonces, solo óseas»).
 const SALTAR_OSEAS = /content\/(es|en)\/timeline\.yml$/
