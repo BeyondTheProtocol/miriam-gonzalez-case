@@ -449,6 +449,25 @@ Siempre `Icon` de Phosphor (`ph:*`), decorativos con `aria-hidden="true"`. Nada 
 
 La plantilla del PR (`.github/pull_request_template.md`) pregunta: ¿añade token?, ¿añade componente?, ¿lo documenta?, ¿baja la baseline?
 
+### Comprobaciones
+
+`pnpm test:diseno` (en `lint.yml`, sin build) cuenta lo que se aparta del sistema, por regla y por fichero, y lo compara con `scripts/diseno-baseline.json`: un recuento puede bajar, nunca subir. `--lista R3` enseña cada hallazgo.
+
+| Regla | Qué atrapa |
+|---|---|
+| R1 color | Hex, `rgb()` o `hsl()` con números y familias de color o sombras de Tailwind fuera de la paleta |
+| R2 tamaño | Texto por debajo de 13 px (12 solo en mono y mayúsculas), `text-[Npx]`, `style="font-size"` |
+| R3 radio | `border-radius` literal y `rounded-lg`, `-xl`, `-2xl`, `-3xl` o `rounded-[...]` |
+| R4 movimiento | `transition-all`, `cubic-bezier()` literal, `ease-in`, `scale()` por debajo de 0,95 y `:hover` sin `@media (hover: hover)` |
+| R5 duplicados | Clases de rol (`-h2`, `-aviso`, `-tarjeta`, `-chip`, `-pill`) declaradas fuera de `main.css` y de los componentes base |
+| R6 en línea | `letter-spacing` en `style=""` y glifos usados como icono en una plantilla |
+| R7 clases clave | `.link-action` sin 44 px y `.form-input` sin 16 px y 44 px (si se rompen, falla) |
+| R8 cabeceras | `<h2>` de página sin `.h2-seccion` ni `.h2-declaracion` |
+| R9 documento | Tablas de este documento o `tokens.css` público desfasados del canon, y tokens que nadie lee |
+| R10 render | `pnpm test:diseno-render`, en Chrome sobre el build estático (`diseno.yml`): desborde, borde del H1 bajo el logo, texto bajo 13 px, controles bajo 44 px, contraste y foco tapado por la cabecera fija. Mismo ratchet, con `scripts/diseno-render-baseline.json` |
+
+Lo que esto **no** hace: juzgar jerarquía o gusto, detectar duplicados con otro nombre ni sustituir un teléfono real. Eso sigue en la auditoría humana. El emulado de Chrome no prueba el hover pegado, el zoom de iOS con campos pequeños ni el `safe-area`: quedan «sin verificar en dispositivo».
+
 ## 10. Nombre del documento y nombre vivo
 
 Los documentos viejos (el Consolidado de junio, el cuadernillo v1 y v2) usaban otros nombres. Esta tabla los traduce.

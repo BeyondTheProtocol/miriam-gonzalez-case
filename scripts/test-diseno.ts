@@ -6,6 +6,9 @@
 //   pnpm test:diseno --lista R3      imprime cada hallazgo de una regla (o de todas, sin argumento)
 //   pnpm test:diseno --archivo X     solo los ficheros cuya ruta contiene X (para trabajar; no comprueba la baseline)
 //
+// Reglas R1 a R9 (esta herramienta; no necesitan build). La R10 (render en Chrome sobre el build estático) es
+// scripts/test-diseno-render.mjs, con su propia baseline, y corre en .github/workflows/diseno.yml.
+//
 // Por qué un ratchet y no «cero»: el sitio nació con tres vocabularios de diseño y se corrige por páginas (fases P1 a P13).
 // Un cero obligatorio habría bloqueado todo. Con la baseline, lo viejo está anotado y cualquier cosa NUEVA que se aparte
 // del sistema falla en CI, también en una página que aún no se ha migrado.
@@ -17,6 +20,7 @@
 // Qué NO hace: juzgar jerarquía o gusto, ni detectar duplicados con otro nombre. Eso sigue en la auditoría humana.
 import { existsSync, readdirSync, readFileSync, statSync, writeFileSync } from 'node:fs'
 import { join, relative } from 'node:path'
+import { desfasados, leerTokens } from './gen-design-doc'
 
 const RAIZ = join(import.meta.dirname, '..')
 const RUTA_BASELINE = join(import.meta.dirname, 'diseno-baseline.json')
@@ -32,7 +36,21 @@ export const REGLAS: Record<string, string> = {
   R2: 'tamaño: texto por debajo de 13 px (12 px solo en mono y mayúsculas)',
   R3: 'radio: border-radius literal o rounded-* fuera del puente (sm, md, btn, card, pill)',
   R4: 'movimiento: transition-all, cubic-bezier literal, ease-in, scale(<.95) y :hover sin @media (hover:hover)',
+  R5: 'duplicados: clases de rol (-h2, -aviso, -tarjeta, -chip, -pill) declaradas fuera de main.css y de los componentes base',
+  R6: 'en línea: letter-spacing en style="" y glifos (→ ← ↗ ✓ ✱ × ‹ › ⓘ ↧) usados como icono en una plantilla',
+  R7: 'clases clave: .link-action con min-height 44 y .form-input con 16 px y 44 px (se rompen, falla; no hay baseline que valga)',
+  R8: 'cabeceras: <h2> de página sin .h2-seccion ni .h2-declaracion (o sin CabeceraSeccion)',
+  R9: 'doc: tablas de DESIGN-SYSTEM.md y tokens.css público desfasados del canon, y tokens del canon que nadie lee',
 }
+
+/** Componentes base del sistema: aquí SÍ se declaran las clases de rol (R5). */
+const BASE = new Set([
+  'app/components/Banda.vue', 'app/components/CabeceraSeccion.vue', 'app/components/PageHeader.vue',
+  'app/components/TarjetaEnlace.vue', 'app/components/Dato.vue', 'app/components/Aviso.vue',
+  'app/components/Segmentado.vue', 'app/components/Referencia.vue', 'app/components/RutaPasos.vue',
+])
+/** Tokens que forman una RAMPA o un juego: que se lea solo una parte no los hace sobrantes (R9). */
+const FAMILIAS_ESCALA = ['--sp-', '--viz-div-', '--viz-sev-', '--viz-cat-', '--texto-']
 
 /* ───────────────────────────── lectura y regiones ───────────────────────────── */
 
@@ -303,11 +321,45 @@ function reglasPlantilla(archivo: string, r: Region, salida: Hallazgo[]) {
 
 export type Analisis = { hallazgos: Hallazgo[]; excepciones: { linea: number; motivo: string }[] }
 
+const RE_ROL = /\.([\w-]*(?:__h2|-h2|__aviso|-aviso|__tarjeta|-tarjeta|__chip|-chip|__pill|-pill))(?![\w-])/g
+const RE_GLIFO = /[→←↗✓✱×‹›ⓘ↧]/g
+
+/** R5: raíces de rol declaradas en el <style> de un .vue que no es un componente base. Cuenta CLASES distintas por fichero. */
+function reglaR5(archivo: string, bloques: Bloque[], salida: Hallazgo[]) {
+  const vistas = new Set<string>()
+  for (const b of bloques) {
+    for (const m of b.selector.matchAll(RE_ROL)) {
+      if (vistas.has(m[1])) continue
+      vistas.add(m[1])
+      salida.push({ regla: 'R5', archivo, linea: b.linea, texto: `.${m[1]}` })
+    }
+  }
+}
+
+/** R6 y R8: sobre la plantilla. */
+function reglasEnPlantilla(archivo: string, r: Region, salida: Hallazgo[]) {
+  const H = (regla: string, idx: number, texto: string) => salida.push({ regla, archivo, linea: lineaDe(r.texto, idx, r.desde), texto: texto.trim().split('\n')[0].slice(0, 110) })
+  const tx = r.texto
+  for (const m of tx.matchAll(/\bstyle\s*=\s*"[^"]*letter-spacing[^"]*"/g)) H('R6', m.index!, m[0])
+  for (const m of tx.matchAll(RE_GLIFO)) H('R6', m.index!, `glifo ${m[0]}`)
+  if (archivo.startsWith('app/pages/')) {
+    for (const m of tx.matchAll(/<h2\b([^>]*)>/g)) {
+      if (!/\bh2-(?:seccion|declaracion)\b/.test(m[1])) H('R8', m.index!, m[0])
+    }
+  }
+}
+
 export function analizar(archivo: string, src: string): Analisis {
   const bruto: Hallazgo[] = []
   for (const r of regiones(archivo, src)) {
-    if (r.tipo === 'css' || r.tipo === 'style') reglasCss(archivo, bloquesCss(r.texto, r.desde), bruto)
-    else reglasPlantilla(archivo, r, bruto) // template, script y .ts: cadenas con clases y literales
+    if (r.tipo === 'css' || r.tipo === 'style') {
+      const bloques = bloquesCss(r.texto, r.desde)
+      reglasCss(archivo, bloques, bruto)
+      if (r.tipo === 'style' && !BASE.has(archivo)) reglaR5(archivo, bloques, bruto)
+    } else {
+      reglasPlantilla(archivo, r, bruto) // template, script y .ts: cadenas con clases y literales
+      if (r.tipo === 'template') reglasEnPlantilla(archivo, r, bruto)
+    }
   }
   // Excepciones firmadas: `ds-exc: motivo` en la misma línea o en la anterior.
   const exc = new Map<number, string>()
@@ -336,6 +388,66 @@ export function ficheros(): string[] {
   return lista.filter((f) => f !== CANON).sort()
 }
 
+const px = (v: string): number | null => {
+  const m = v.match(/^([\d.]+)(px|rem)$/)
+  return m ? Number(m[1]) * (m[2] === 'rem' ? 16 : 1) : null
+}
+/** Resuelve `var(--x)` contra el canon cuando es un tamaño en px. */
+const resolver = (v: string, canon: Map<string, string>): number | null => {
+  const m = v.match(/^var\((--[a-z0-9-]+)\)$/)
+  return m ? px(canon.get(m[1]) ?? '') : px(v)
+}
+
+/** R7: dos clases cuya regla vive en la clase y no en cada uso. No es un recuento: si se rompe, falla. */
+export function reglaR7(css: string, canonCss: string): Hallazgo[] {
+  const canon = new Map(leerTokens(canonCss).map((t) => [t.nombre, t.valor]))
+  const bloques = bloquesCss(enBlanco(css, /\/\*[\s\S]*?\*\//g))
+  const out: Hallazgo[] = []
+  const H = (linea: number, texto: string) => out.push({ regla: 'R7', archivo: 'app/assets/css/main.css', linea, texto })
+  const decl = (b: Bloque | undefined, prop: string) => b?.decls.find((d) => d.prop === prop)?.valor
+  const la = bloques.find((b) => b.selector === '.link-action')
+  const fi = bloques.find((b) => b.selector === '.form-input')
+  if (!la) H(1, '.link-action no existe')
+  else if ((resolver(decl(la, 'min-height') ?? '', canon) ?? 0) < 44) H(la.linea, '.link-action sin min-height de 44')
+  if (!fi) H(1, '.form-input no existe')
+  else {
+    if ((resolver(decl(fi, 'font-size') ?? '', canon) ?? 0) < 16) H(fi.linea, '.form-input con menos de 16 px')
+    if ((resolver(decl(fi, 'min-height') ?? '', canon) ?? 0) < 44) H(fi.linea, '.form-input con menos de 44 px de alto')
+  }
+  return out
+}
+
+/** Todo el texto donde puede leerse un token: app, config de Tailwind y scripts (no el canon ni la copia pública). */
+function textoDeUso(): string {
+  const partes = ficheros().map((f) => readFileSync(join(RAIZ, f), 'utf8'))
+  for (const f of listarTodo(join(RAIZ, 'scripts'))) partes.push(readFileSync(f, 'utf8'))
+  return partes.join('\n')
+}
+function listarTodo(dir: string, salida: string[] = []): string[] {
+  for (const f of readdirSync(dir)) {
+    const p = join(dir, f)
+    if (statSync(p).isDirectory()) listarTodo(p, salida)
+    else if (/\.(ts|mjs|js)$/.test(p) && !p.endsWith('test-diseno.ts') && !p.endsWith('gen-design-doc.ts')) salida.push(p)
+  }
+  return salida
+}
+
+/** R9 (tokens): los del canon que nadie lee, ni por nombre, ni por prefijo de plantilla (`--viz-cat-${x}`), ni dentro del canon. */
+export function tokensSinConsumo(canonCss: string, uso: string): string[] {
+  const nombres = [...new Set(leerTokens(canonCss).map((t) => t.nombre))]
+  const prefijos = [...uso.matchAll(/(--[a-z0-9-]+-)\$\{/g)].map((m) => m[1])
+  const sinConsumo: string[] = []
+  for (const n of nombres) {
+    const escapado = n.replace(/[-]/g, '\\-')
+    const re = new RegExp(`(?<![a-z0-9-])${escapado}(?![a-z0-9-])`)
+    const internos = (canonCss.match(new RegExp(`var\\(${escapado}[,)]`, 'g')) ?? []).length
+    if (re.test(uso) || internos > 0 || prefijos.some((p) => n.startsWith(p))) continue
+    if (FAMILIAS_ESCALA.some((f) => n.startsWith(f))) continue
+    sinConsumo.push(n)
+  }
+  return sinConsumo
+}
+
 function contar(filtroArchivo?: string): Recuentos {
   const reglas: Recuentos['reglas'] = Object.fromEntries(Object.keys(REGLAS).map((r) => [r, {}]))
   const excepciones: Recuentos['excepciones'] = {}
@@ -351,6 +463,20 @@ function contar(filtroArchivo?: string): Recuentos {
     if (a.excepciones.length) {
       excepciones[f] = a.excepciones.length
       motivos[f] = a.excepciones.map((e) => `L${e.linea}: ${e.motivo}`)
+    }
+  }
+  if (!filtroArchivo) {
+    const canonCss = readFileSync(join(RAIZ, CANON), 'utf8')
+    const mainCss = readFileSync(join(RAIZ, 'app/assets/css/main.css'), 'utf8')
+    for (const h of reglaR7(mainCss, canonCss)) { reglas.R7[h.archivo] = (reglas.R7[h.archivo] ?? 0) + 1; hallazgos.push(h) }
+    for (const f of desfasados()) {
+      const archivo = f.replace(/^.*?(app\/|public\/)/, '$1')
+      reglas.R9[archivo] = (reglas.R9[archivo] ?? 0) + 1
+      hallazgos.push({ regla: 'R9', archivo, linea: 1, texto: 'desfasado del canon: pnpm gen:design-doc' })
+    }
+    for (const t of tokensSinConsumo(canonCss, textoDeUso())) {
+      reglas.R9[t] = 1
+      hallazgos.push({ regla: 'R9', archivo: t, linea: 1, texto: 'token que nadie lee: se usa o se borra' })
     }
   }
   return { reglas, excepciones, hallazgos, motivos }
@@ -405,6 +531,22 @@ function autotest(): string[] {
   eq('R4 hover sin guarda', cuenta('x.vue', vue('<p/>', '.a:hover { color: red }'), 'R4'), 1)
   eq('R4 hover con guarda', cuenta('x.vue', vue('<p/>', '@media (hover: hover) and (pointer: fine) { .a:hover { color: red } }'), 'R4'), 0)
   eq('R4 hover en reduced-motion no cuenta', cuenta('x.vue', vue('<p/>', '@media (prefers-reduced-motion: reduce) { .a:hover { transform: none } }'), 'R4'), 0)
+  // R5
+  eq('R5 raíz de rol en una página', cuenta('app/pages/x.vue', vue('<p/>', '.dt-tarjeta { padding: 0 } .dt-h2 { margin: 0 } .dt-h2:hover { margin: 0 } .caja { margin: 0 }'), 'R5'), 2)
+  eq('R5 el componente base puede', cuenta('app/components/Aviso.vue', vue('<p/>', '.aviso__h2 { margin: 0 }'), 'R5'), 0)
+  // R6
+  eq('R6 letter-spacing en línea', cuenta('app/pages/x.vue', vue('<h2 style="letter-spacing: -0.03em">a</h2>'), 'R6'), 1)
+  eq('R6 glifo como icono', cuenta('app/pages/x.vue', vue('<a>Ver →</a> <span>✓</span>'), 'R6'), 2)
+  // R8
+  eq('R8 h2 sin rol', cuenta('app/pages/x.vue', vue('<h2 class="text-3xl">a</h2><h2 id="x" class="h2-seccion">b</h2><h2>c</h2>'), 'R8'), 2)
+  eq('R8 solo en páginas', cuenta('app/components/X.vue', vue('<h2>a</h2>'), 'R8'), 0)
+  // R7
+  const canonDePrueba = ':root {\n  --control-min: 44px;\n  --texto-ui: 16px;\n}\n'
+  eq('R7 verde', reglaR7('.link-action { min-height: var(--control-min); } .form-input { font-size: var(--texto-ui); min-height: var(--control-min); }', canonDePrueba).length, 0)
+  eq('R7 rojo', reglaR7('.link-action { display: flex; } .form-input { font-size: 14px; min-height: 42px; }', canonDePrueba).length, 3)
+  // R9
+  eq('R9 tokens con consumo', tokensSinConsumo(':root {\n  --a-b: 1px;\n  --c-d: var(--a-b);\n  --e-f: 2px;\n  --viz-cat-x: 3px;\n}\n', 'var(--c-d) var(--e-f)').length, 0)
+  eq('R9 token huérfano', tokensSinConsumo(':root {\n  --a-b: 1px;\n  --e-f: 2px;\n}\n', 'var(--e-f)').length, 1)
   return fallos
 }
 
