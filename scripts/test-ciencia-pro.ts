@@ -83,6 +83,12 @@ console.log('\n1. El estado se lee de caso.json')
   ok(cuartaLineaDe(terminada, hoy, 'es') === null, 'si la 4L termina, `cuartaLinea` es null: la página no pinta «en cuarta línea desde…»')
   const cinco = [...(c.lineas as any[]).map((l) => (l.id === '4L' ? { ...l, fin: '2026-10-14' } : l)), { id: '5L', tratamiento: { es: 'x' }, inicio: '2026-10-15', fin: null }]
   ok(cuartaLineaDe(cinco, hoy, 'es') === null, 'si la 4L termina y empieza una 5L, `cuartaLinea` es null (la línea actual ya no es la cuarta)')
+  // El estado «TROP-2 en uso / en curso» no vive en frases fijas: la ficha («Dianas») y la nota de los ejes lo dicen solo si `cuartaLinea` existe.
+  // Test de invariante estructural a propósito (mira el fuente): lo que se aprieta es QUIÉN pinta la frase de estado, no el texto.
+  const vue = readFileSync('app/pages/ciencia/index.vue', 'utf-8')
+  const ESTADO = /en curso|en uso|va a usarse|under way|in use|is going to be used/i
+  for (const loc of ['es', 'en'] as const) ok(!ESTADO.test(t(loc, 'ciencia.snapshot_target')) && !ESTADO.test(t(loc, 'ciencia.axes_note')) && !ESTADO.test(t(loc, 'ciencia.axes_note_cierre')) && ESTADO.test(t(loc, 'ciencia.axes_note_uso')), `(${loc}) «snapshot_target», «axes_note» y «axes_note_cierre» no dicen si TROP-2 está en uso; solo «axes_note_uso» lo dice`)
+  ok(/caso\.value\?\.cuartaLinea \? t\('ciencia\.axes_note_uso'\)/.test(vue) && (vue.match(/axes_note_uso/g)?.length ?? 0) === 1, 'la frase «Solo el eje TROP-2 está en uso» se pinta solo si `caso.cuartaLinea` existe, y desde un único sitio')
   ok(fechaDia('2026-10', 'es') === null && fechaDia('2026-13-01', 'es') === null && fechaDia('', 'es') === null && fechaDia('2026-10-07', 'es') !== null, 'una fecha de mes o año sueltos, o imposible, no es «desde el …»')
 }
 
@@ -137,6 +143,14 @@ for (const loc of ['es', 'en'] as const) {
   // Panel: solo «qué responde»; nada de estado ni de material a mano
   const panel = h.slice(h.indexOf('id="panel-title"'), h.indexOf('id="ruta-title"'))
   ok(!/Primeros resultados \(octubre|Material en el laboratorio|No posible hoy|Hecho \(julio|Pendiente: aún|First results \(October|Not possible today|Material at the lab/i.test(texto(panel)) && !/Ahora: el laboratorio|Now: Paloma Cejas/.test(texto(panel)), `${f}: el panel no lleva columnas de estado ni la frase «Ahora: …» escritas a mano`)
+  // El enlace de la fila que lo lleva (single-cell RNA-seq) va en su propio bloque: a 1280 la tabla no se pinta como tarjetas y, en línea y sin espacio, se pegaba al final de la frase.
+  const enlacesPanel = [...panel.matchAll(/<a\b[^>]*\bclass="[^"]*\blink-action\b[^"]*"[^>]*>/g)]
+  const enBloque = [...panel.matchAll(/<span class="block[^"]*"[^>]*>\s*<a\b[^>]*\bclass="[^"]*\blink-action\b/g)]
+  ok(enlacesPanel.length >= 2 && enBloque.length === 1, `${f}: el enlace de la fila del panel va en su propio bloque (${enBloque.length} envuelto; ${enlacesPanel.length} enlaces de acción en la sección)`)
+  ok(!/[^>\s]<a\b[^>]*\bclass="[^"]*\blink-action\b/.test(panel), `${f}: ningún enlace del panel empieza pegado a la letra de delante (la regresión de «…cada unaLos primeros resultados…»)`)
+  // Con la 4L viva (caso.json), la nota de los ejes lleva su frase de estado y la ficha no la repite fija
+  const notaEjes = texto(ejes.slice(ejes.indexOf('ci-nota-eje')))
+  ok(notaEjes.includes(t(loc, 'ciencia.axes_note')) && notaEjes.includes(t(loc, 'ciencia.axes_note_uso')) && notaEjes.includes(t(loc, 'ciencia.axes_note_cierre')), `${f}: la nota de los ejes lleva sus tres frases mientras el caso está en cuarta línea`)
   ok(/<th[^>]*>\s*(Qué responde|What it answers)/.test(panel) && !/(Método|Method)\s*<\/th>/.test(panel), `${f}: el panel tiene la columna «${t(loc, 'ciencia.panel_col_responde')}» y no la de método`)
 }
 

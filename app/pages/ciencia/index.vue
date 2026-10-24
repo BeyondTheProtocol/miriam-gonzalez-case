@@ -210,7 +210,7 @@
                 </li>
               </ul>
               <Nota icon="tap" class="mt-4">{{ $t('glossary.hint') }}</Nota>
-              <p class="ci-nota-eje">{{ $t('ciencia.axes_note') }}</p>
+              <p class="ci-nota-eje">{{ notaEjes }}</p>
             </section>
 
             <!-- 9 · Panel prueba a prueba: solo la pregunta que responde cada análisis. El estado y el material, en /datos (caso.json). -->
@@ -229,7 +229,7 @@
                     <tr v-for="(row, i) in panelRows" :key="i">
                       <td class="cell-head font-semibold">{{ row.component }}</td>
                       <td class="col-note cell-block" :data-label="$t('ciencia.panel_col_responde')">
-                        {{ row.implication }}<NuxtLink v-if="row.linkTo" :to="localePath(row.linkTo)" class="link-action group">{{ row.linkText }}<Icon name="ph:arrow-right" class="w-4 h-4 transition-transform group-hover:translate-x-0.5" aria-hidden="true" /></NuxtLink>
+                        {{ row.implication }}<span v-if="row.linkTo" class="block mt-2"><NuxtLink :to="localePath(row.linkTo)" class="link-action group">{{ row.linkText }}<Icon name="ph:arrow-right" class="w-4 h-4 transition-transform group-hover:translate-x-0.5" aria-hidden="true" /></NuxtLink></span>
                       </td>
                     </tr>
                   </tbody>
@@ -361,6 +361,9 @@ const ejes = computed(() => {
   if (caso.value?.cuartaLinea) etiquetas[0] = t('ciencia.axis_trop2_fecha', { fecha: caso.value.cuartaLinea.corta })
   return etiquetas.map((label, i) => ({ label, ancla: ANCLAS_EJE[i]! }))
 })
+
+// La nota de los ejes: «Solo el eje TROP-2 está en uso» es estado, así que solo se dice si el caso ESTÁ en cuarta línea (caso.json); si no, la nota se queda sin él.
+const notaEjes = computed(() => [t('ciencia.axes_note'), caso.value?.cuartaLinea ? t('ciencia.axes_note_uso') : '', t('ciencia.axes_note_cierre')].filter(Boolean).join(' '))
 
 // La línea «Ahora» de la ruta (E1): la frase de la cuarta línea con su fecha, o nada.
 const ahora = computed(() => (caso.value?.cuartaLinea ? t('ciencia.estado_cuarta_linea', { fecha: caso.value.cuartaLinea.larga }) : null))
