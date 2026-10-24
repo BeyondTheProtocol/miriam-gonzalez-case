@@ -94,7 +94,7 @@ lo que i18n inventa (la variante `/en/<slug-es>`, que apunta a la ruta inglesa d
 | `/en/herramientas` | `/en/tools` | 301 | i18n crea la variante `/en/<slug-es>` de `/herramientas`; apunta a la ruta inglesa de verdad |
 | `/en/historia` | `/en/story` | 301 | lo mismo para `/historia` |
 | `/historia/01-el-comienzo`, `/en/story/01-the-beginning`, `/en/historia/01-el-comienzo` | `/timeline` · `/en/timeline` | 301 | el capítulo 1 se borró (estaba vacío) |
-| `/videos`, `/en/videos` | `/ciencia` · `/en/science` | 301 | el ADC vive en `/ciencia`; el promo, en `/prensa` |
+| `/videos`, `/en/videos` | `/prensa#video` · `/en/press#video` | 301 | el promo de Polaris vive en `/prensa#video`; el ADC, en el hito del 7-oct de `/timeline` (T2c, 24-oct-2026; antes llevaba a `/ciencia`) |
 
 ## Cómo añadir uno nuevo
 

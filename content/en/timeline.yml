@@ -222,9 +222,9 @@ entries:
     tag: Outreach
     title: The metastasis map goes public
     description: >
-      Miriam openly publishes the interactive map of her metastases: the tool that helps her team
-      understand the case and decide, for example, where to biopsy. That same day, El Español tells
-      her story. She shares it on X with great excitement.
+      Miriam openly publishes the interactive map of her metastases. She does it to bring her
+      doctors a better question after the April biopsy that found no tumor: where to biopsy again.
+      That same day, El Español tells her story. She shares it on X with great excitement.
     highlight: true
     link: https://x.com/miriamgonp/status/2068004136621109648
     linkLabel: 'See the announcement on X →'
@@ -244,7 +244,8 @@ entries:
     title: First bone biopsy with viable tumour
     description: >
       The bone finally yields enough tissue to analyse, and for the first time the profile comes
-      from the tumour itself rather than from blood. Pathology confirms a bone metastasis of the
+      from the tumour itself rather than from blood. The lesion was the right ilium. The map's
+      lens, not validated, had already scored the right iliac high. Pathology confirms a bone metastasis of the
       breast neuroendocrine tumour, with positive synaptophysin and a Ki67 of around 15%; the
       pathologist warns that there is little tumour tissue and that grading is not established on
       small biopsies. The molecular profile confirms the axis already suspected: CCND1 and
@@ -317,6 +318,8 @@ entries:
       Miriam starts treatment in the trial. The first cycle was on October 7, in Barcelona: an
       ADC that targets TROP-2.
     highlight: false
+    video: adc
+    anchor: adc
     link: https://x.com/miriamgonp/status/2108087307219923331
     linkLabel: 'Read it on X →'
 

@@ -10,6 +10,11 @@ const timelineEntrySchema = z.object({
   linkLabel: z.string().optional(),
   image: z.string().optional(),
   imageAlt: z.string().optional(),
+  // Un vídeo de la web dentro del hito (clave de `videoPorId`, utils/videos.ts) y el id que lleva su <li>. Tanda 2, T2c
+  // (24-oct-2026): el explicativo del ADC vive en el hito del 7-oct. Hay que declararlos aquí: un campo que el esquema no
+  // conoce se descarta al leer la colección y el vídeo no saldría.
+  video: z.string().optional(),
+  anchor: z.string().optional(),
 })
 
 const teamMemberSchema = z.object({

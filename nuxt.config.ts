@@ -302,9 +302,11 @@ export default defineNuxtConfig({
     '/historia/01-el-comienzo': { redirect: { to: '/timeline', statusCode: 301 } },
     '/en/story/01-the-beginning': { redirect: { to: '/en/timeline', statusCode: 301 } },
     '/en/historia/01-el-comienzo': { redirect: { to: '/en/timeline', statusCode: 301 } },
-    // /videos → /ciencia (el ADC vive allí; el promo, en /prensa). /en/videos conserva su slug: dos reglas.
-    '/videos': { redirect: { to: '/ciencia', statusCode: 301 } },
-    '/en/videos': { redirect: { to: '/en/science', statusCode: 301 } },
+    // /videos → /prensa#video (tanda 2, T2c, 24-oct-2026). Antes, F4, llevaba a /ciencia, donde estuvo el ADC; el ADC vive ahora en el hito
+    // del 7-oct de la Cronología y el promo de Polaris, en /prensa#video: esa es la casa de lo que la antigua /videos enseñaba primero.
+    // /en/videos conserva su slug: dos reglas. El ancla #video existe en las dos versiones de /prensa (test-short-links §5).
+    '/videos': { redirect: { to: '/prensa#video', statusCode: 301 } },
+    '/en/videos': { redirect: { to: '/en/press#video', statusCode: 301 } },
     '/donar': { redirect: { to: 'https://www.gofundme.com/f/biopsia-molecular-que-puede-cambiar-su-tratamiento', statusCode: 302 } },
     // El repo público de Polaris. Destino EXTERNO: un 302 directo a GitHub no lo vería Umami (el
     // navegador nunca carga una página con su script, por eso /donar sale «no medible»). Así que

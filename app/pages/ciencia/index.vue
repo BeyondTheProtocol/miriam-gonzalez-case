@@ -477,14 +477,8 @@
         </div>
         <!-- /capa de datos (ejes) -->
 
-        <!-- El explicativo del ADC (Dato-DXd, anti-TROP-2), pegado al eje TROP-2 de arriba. Venía de /videos, fusionada
-             aquí en el rediseño (F4, 23-oct-2026; /videos redirige a esta página). Va FUERA de la capa de datos a
-             propósito: es un explicativo para todos y quien llegaba desde /videos entra en el modo llano (el
-             conmutador desaparece en F7). Mismo vídeo y mismas palabras, con su transcripción. -->
-        <div v-show="showNarrative" class="mb-14 max-w-2xl">
-          <VideoCaso :video="VIDEO_ADC" />
-        </div>
-
+        <!-- El explicativo del ADC (Dato-DXd, anti-TROP-2) salió de esta página en la tanda 2 (T2c, 24-oct-2026): vive en el hito del 7-oct de
+             /timeline (una casa por cosa). -->
         <div style="display: contents" v-show="showData">
         <section v-if="panelRows.length">
           <p class="eyebrow mb-2 block">{{ locale === 'es' ? 'En curso' : 'Under way' }}</p>
