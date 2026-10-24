@@ -67,6 +67,11 @@ jobs:
       # en «De un vistazo» con clic y con carga directa).
       - run: pnpm test:home-caminos
 
+      # Medición de Umami (sin cambios visibles): los nombres de evento de siempre no se renombran; Clic-gofundme hereda el
+      # botón de Donar; Scroll, Hero-visto, Campana-visible (una vez por vista, también con la tarjeta que aparece tras
+      # montar) y Prensa-visible llegan de verdad en Chrome; `entrada` viaja en Donar y Clic-gofundme, también sin sessionStorage.
+      - run: pnpm test:umami-eventos
+
       # /laminillas: la matriz se pinta sin JS, sin scroll horizontal en móvil, y /biopsia-osea sale con 301 en
       # _redirects sin .html que lo sombree. Las teselas y la sincronía se prueban en local (LAMINILLAS_TESELAS_DIR).
       - run: pnpm test:laminillas-visor

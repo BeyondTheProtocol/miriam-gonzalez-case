@@ -14,6 +14,11 @@ onMounted(async () => {
   data.value = await $fetch('/fundraiser.json')
 })
 
+// Medición («Campana-visible», utils/umamiVistas.ts): el bloque solo existe cuando llegan las cifras, y el ref
+// se engancha entonces. Una vez por vista aunque haya dos (/colabora). `conEuros`: la tarjeta lleva importes.
+const raiz = ref<HTMLElement | null>(null)
+useUmamiVisto(raiz, EVENTO_CAMPANA_VISIBLE, () => ({ conEuros: !!data.value }))
+
 const pct = computed(() => {
   if (!data.value) return 0
   return Math.round(
@@ -96,6 +101,7 @@ function rowBg(i: number) {
   <!-- Card variant — dark editorial progress block -->
   <div
     v-if="card && data"
+    ref="raiz"
     class="rounded-[24px] p-6 sm:p-8 lg:p-10"
     style="background: #2d1b3d; color: #faf6f0"
   >
@@ -300,6 +306,7 @@ function rowBg(i: number) {
   <!-- Default variant — inline bar -->
   <div
     v-else-if="data"
+    ref="raiz"
     class="mt-5 space-y-2 text-sm text-berenjena"
   >
     <div class="ms-track relative pb-6">

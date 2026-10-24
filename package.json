@@ -37,6 +37,7 @@
     "test:sitemap-explorador": "tsx scripts/test-sitemap-explorador.ts",
     "test:caminos": "tsx scripts/test-caminos.ts",
     "test:home-caminos": "node scripts/test-home-caminos.mjs",
+    "test:umami-eventos": "tsx scripts/test-umami-eventos.ts",
     "icons": "nuxt-seo-utils icons --source favicon.svg",
     "update-fundraiser": "tsx update-fundraiser.ts",
     "test:laminillas": "tsx scripts/test-laminillas.ts",
