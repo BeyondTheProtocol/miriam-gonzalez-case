@@ -32,8 +32,12 @@ const SUMAS = '/laminillas-ficheros/SHA256SUMS.txt'
 const dlg = ref<HTMLDialogElement | null>(null)
 const email = ref('')
 const sobre = ref('')
-const conjuntos = ref<string[]>(CONJUNTOS.map((c) => c.id))
+// Sin premarcar: que cada cual pida lo que va a usar (coste de salida; comité diseno).
+const conjuntos = ref<string[]>([])
 const consent = ref(false)
+const faltaConsent = ref(false)
+const faltaMuestra = ref(false)
+const faltaEmail = ref(false)
 const sending = ref(false)
 const sent = ref(false)
 const failed = ref(false)
@@ -60,7 +64,12 @@ function onCaptchaToken(token: string) { turnstileToken.value = token; captchaUn
 function onCaptchaError() { turnstileToken.value = ''; captchaUnavailable.value = true }
 
 async function onSubmit(e: Event) {
-  if (!consent.value || !conjuntos.value.length) return // RGPD: sin consentimiento, no se envía.
+  // Los motivos se dicen en texto, no con un botón gris (comité diseno). RGPD: sin consentimiento, no se envía.
+  const campoEmail = (e.target as HTMLFormElement).elements.namedItem('email') as HTMLInputElement
+  faltaEmail.value = !campoEmail.checkValidity()
+  faltaMuestra.value = !conjuntos.value.length
+  faltaConsent.value = !consent.value
+  if (faltaEmail.value || faltaMuestra.value || faltaConsent.value) return
   captchaFailed.value = false
   failed.value = false
   if (turnstileEnabled.value && !captchaUnavailable.value) {
@@ -107,14 +116,15 @@ async function onSubmit(e: Event) {
         {{ L('Recibido. El enlace te llega en 2 días laborables como mucho.', 'Got it. You’ll have the link within 2 working days.') }}
       </p>
 
-      <form v-else name="slides-request" method="POST" data-netlify="true" data-netlify-honeypot="bot-field" class="pet__form" @submit.prevent="onSubmit">
+      <form v-else name="slides-request" method="POST" novalidate data-netlify="true" data-netlify-honeypot="bot-field" class="pet__form" @submit.prevent="onSubmit">
         <input type="hidden" name="form-name" value="slides-request" />
         <p hidden><label>{{ L('No rellenes esto', 'Leave this empty') }} <input name="bot-field" /></label></p>
 
         <label class="pet__campo">
           <span>{{ L('Tu email', 'Your email') }}</span>
-          <input v-model="email" type="email" name="email" required autocomplete="email" class="pet__input" />
+          <input v-model="email" type="email" name="email" required autocomplete="email" class="pet__input" :aria-invalid="faltaEmail" @input="faltaEmail = false" />
         </label>
+        <p v-if="faltaEmail" class="pet__error text-coral-deep" role="alert">{{ L('Escribe un email válido para que pueda mandarte el enlace.', 'Enter a valid email so I can send you the link.') }}</p>
         <label class="pet__campo">
           <span>{{ L('Quién eres y para qué los quieres (opcional)', 'Who you are and what you’ll use them for (optional)') }}</span>
           <input v-model="sobre" type="text" name="about" maxlength="300" class="pet__input" />
@@ -142,12 +152,13 @@ async function onSubmit(e: Event) {
             <NuxtLink :to="localePath('privacidad')" class="link-inline">{{ L('Privacidad', 'Privacy') }}</NuxtLink>
           </span>
         </label>
+        <p v-if="faltaConsent && !consent" class="pet__error text-coral-deep" role="alert">{{ L('Marca la casilla para que pueda mandarte el enlace.', 'Tick the box so I can send you the link.') }}</p>
 
-        <p v-if="!conjuntos.length" class="pet__error text-coral-deep" role="alert">{{ L('Elige al menos una muestra.', 'Pick at least one sample.') }}</p>
+        <p v-if="faltaMuestra && !conjuntos.length" class="pet__error text-coral-deep" role="alert">{{ L('Elige al menos una muestra.', 'Pick at least one sample.') }}</p>
         <p v-if="captchaFailed" class="pet__error text-coral-deep" role="alert">{{ turnstileToken ? $t('captcha.failed') : $t('captcha.required') }}</p>
         <p v-if="failed" class="pet__error text-coral-deep" role="alert">{{ L('No se ha podido enviar. Prueba otra vez en un momento.', 'It couldn’t be sent. Please try again in a moment.') }}</p>
 
-        <button type="submit" class="btn-cta justify-center disabled:opacity-50 disabled:cursor-not-allowed" :disabled="sending || !consent || !conjuntos.length || (turnstileEnabled && !turnstileToken && !captchaUnavailable)">
+        <button type="submit" class="btn-cta justify-center disabled:opacity-50 disabled:cursor-not-allowed" :disabled="sending">
           {{ sending ? L('Enviando…', 'Sending…') : L('Pedir los ficheros', 'Request the files') }}
         </button>
       </form>
