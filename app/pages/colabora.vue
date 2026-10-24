@@ -188,18 +188,17 @@
               {{ $t('collaborate.profile4_title') }}
             </h3>
             <p class="text-sm text-tinta leading-relaxed mb-4">{{ $t('collaborate.profile4_text') }}</p>
-            <ul class="space-y-1.5 mb-5">
+            <ul class="mb-4">
               <!-- Los enlaces del pipeline (fuera, pestaña nueva) y, al final, la salida a /marcas (dentro). La puerta «Tecnología, IA y marcas» de la
                    home aterriza aquí: sin esta salida, quien llega por «marcas» se encontraba en una tarjeta de ingenieros que no las nombraba (revisión
                    de T2a, 24-oct-2026). Misma etiqueta que en «Enlaces rápidos». Un solo elemento para los dos casos (<a> fuera, NuxtLink dentro): un solo
-                   glifo «→» (R6). Con NuxtLink también para los de fuera, «/design-system/» perdía su barra final. La salida a /marcas mide 44 px de
-                   alto (test:diseno-render no deja subir los controles pequeños de /colabora; los tres de fuera ya estaban en esa cuenta). -->
+                   glifo «→» (R6). Con NuxtLink también para los de fuera, «/design-system/» perdía su barra final. Los cuatro enlaces miden
+                   44 px de alto (táctil ≥ 44 px, y el mismo ritmo en toda la lista: con solo el nuevo a 44 px, la lista perdía el compás). -->
               <li v-for="lnk in enlacesTech" :key="lnk.url">
                 <component
                   :is="lnk.externo ? 'a' : EnlaceNuxt"
                   v-bind="lnk.externo ? { href: lnk.url, target: '_blank', rel: 'noopener' } : { to: lnk.url }"
-                  class="link-underline font-mono text-[13px]"
-                  :class="lnk.externo ? undefined : 'inline-flex items-center min-h-[44px]'"
+                  class="link-underline font-mono text-[13px] inline-flex items-center min-h-[44px]"
                 >
                   → {{ lnk.label }}
                 </component>
