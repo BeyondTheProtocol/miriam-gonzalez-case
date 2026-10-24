@@ -128,6 +128,7 @@
 
         <!-- Caso en prensa · tira de medios + contacto de prensa (estilo prototipo) -->
         <div
+          ref="prensaTira"
           class="mt-10 pt-6 flex flex-wrap items-baseline gap-x-7 gap-y-3"
           style="border-top: 1px solid rgba(45,27,61,0.08)"
         >
@@ -200,6 +201,10 @@
 const { locale } = useI18n()
 const localePath = useLocalePath()
 const { trackPress } = useSupport()
+
+// «Prensa-visible» (utils/umamiVistas.ts): la tira de medios se vio. Es el denominador de «Clic-prensa» en la home.
+const prensaTira = ref<HTMLElement | null>(null)
+useUmamiVisto(prensaTira, EVENTO_PRENSA_VISIBLE)
 
 // Cobertura de prensa real (verificada). ORDEN CURADO (más importante primero),
 // el mismo que la Sala de prensa (content/<locale>/press.yml): nacionales de

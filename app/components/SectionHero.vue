@@ -1,5 +1,6 @@
 <template>
   <section
+    ref="heroEl"
     class="hero relative overflow-hidden bg-cream"
     :aria-label="$t('hero.section_label')"
     :aria-describedby="'hero-sr-summary'"
@@ -176,6 +177,12 @@ const { data: gofundme, refresh: refreshFundraiser } = await useAsyncData<GoFund
 onMounted(() => {
   refreshFundraiser()
 })
+
+// Medición («Hero-visto», utils/umamiVistas.ts): se observa el hero ENTERO y no la franja de cifras, para que el
+// denominador sea quien pudo ver el botón de donar y no solo quien bajó hasta las cifras. `conEuros`: ¿había
+// cifra recaudada en el hero al verse? (la raya «—» cuenta como no).
+const heroEl = ref<HTMLElement | null>(null)
+useUmamiVisto(heroEl, EVENTO_HERO_VISTO, () => ({ conEuros: !!gofundme.value }))
 
 const { latest, latestAgo } = useLatestUpdate()
 
