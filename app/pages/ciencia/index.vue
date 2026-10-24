@@ -1,1053 +1,526 @@
 <template>
   <div>
     <section class="section-spacing" :aria-label="$t('science.title')">
-      <div :class="level === 'pro' ? 'section-wide' : 'section-container'">
-        <!-- Layout pro: índice pegajoso (izq, lg+) + contenido en grid; la
-             cabecera va DENTRO de la columna de contenido para que el título
-             alinee con el cuerpo, no con el índice. En simple, sin grid. -->
-        <div
-          :class="level === 'pro' ? 'lg:grid lg:grid-cols-[220px_minmax(0,1fr)] lg:gap-12 xl:gap-16 lg:items-start' : ''"
-        >
-          <CienciaSectionNav
-            v-if="level === 'pro'"
-            variant="rail"
-            class="hidden lg:block lg:sticky lg:top-24 lg:self-start"
-          />
+      <div class="section-wide">
+        <!-- Una sola capa, la profesional (tanda 2, T2c, 24-oct-2026). El conmutador «para mentes curiosas / para profesionales» salió: la capa
+             llana vive en la home, y aquí quedan la lectura profesional, lo que se busca y el acceso a las herramientas. ?nivel= ya no hace nada
+             (los enlaces antiguos siguen abriendo la página, y el #ancla de cada uno recibe el foco). Índice pegajoso a la izquierda (lg+) y
+             desplegable «Saltar a…» en móvil; la cabecera va DENTRO de la columna de contenido para que el título alinee con el cuerpo. -->
+        <div class="lg:grid lg:grid-cols-[220px_minmax(0,1fr)] lg:gap-12 xl:gap-16 lg:items-start">
+          <CienciaSectionNav variant="rail" class="hidden lg:block lg:sticky lg:top-24 lg:self-start" />
           <div class="min-w-0">
-        <PageHeader
-          :title="$t('science.title')"
-          :subtitle="headerSubtitle"
-          :tag="level === 'simple' ? '' : L('BC-NED · FGFR1/CCND1 amp · RE− en hígado', 'BC-NED · FGFR1/CCND1 amp · ER− in liver')"
-        />
-
-        <!-- Ciencia en 3 capas (auditoría 3.4): la página es densa; cada lector
-             elige profundidad. 'Para médicos' es el nivel por defecto y muestra
-             todo (la página completa). Las capas usan v-show (display) sobre
-             contenedores `display:contents`, así el HTML estático no cambia y el
-             SEO/hidratación siguen intactos. -->
-        <p class="pathway-comfort mb-6 max-w-2xl" role="note">
-          <Icon name="ph:leaf" class="pathway-comfort__icon" aria-hidden="true" />
-          {{ $t('pathways.comfort') }}
-        </p>
-
-        <!-- AI SEO: bloque extractable de 40–60 palabras para agentes y buscadores. -->
-        <aside class="card-base mb-6" :aria-label="$t('ciencia.ai_summary_aria')">
-          <p class="eyebrow mb-2 block">{{ $t('ciencia.ai_summary_eyebrow') }}</p>
-          <p class="text-sm text-berenjena leading-relaxed max-w-3xl">
-            {{ $t('ciencia.ai_summary_text', { age: caseData.currentAge }) }}
-          </p>
-        </aside>
-
-        <div class="flex flex-wrap items-center gap-3 mb-6" data-print-hide>
-          <button
-            type="button"
-            class="btn-ghost text-sm"
-            @click="printPage"
-          >
-            <Icon name="ph:printer" class="w-4 h-4" aria-hidden="true" />
-            {{ $t('ciencia.print_btn') }}
-          </button>
-        </div>
-
-        <NivelLectura
-          :activo="level"
-          class="mb-10"
-          :opciones="levelOptions"
-          :hint="$t('ciencia.level_hint')"
-          :aria="$t('ciencia.level_aria')"
-          @update:activo="ponerNivel"
-        />
-
-        <!-- A11y: anuncia el cambio de modo a lectores de pantalla (el comité
-             marcó «nada de cambios de contenido silenciosos» como prioridad). -->
-        <div aria-live="polite" class="sr-only">{{ levelAnnounce }}</div>
-
-        <!-- Retorno claro al resumen desde el modo clínico (orientación ·
-             neurodivergencia: salida obvia, siempre en el mismo sitio). -->
-        <button
-          v-show="level === 'pro'"
-          type="button"
-          @click="level = 'simple'"
-          class="inline-flex items-center gap-1.5 mb-8 -mt-4 text-sm text-tinta hover:text-miriam transition-colors group"
-          style="text-decoration: none"
-        >
-          <Icon name="ph:arrow-left" class="w-4 h-4 transition-transform group-hover:-translate-x-0.5" aria-hidden="true" />
-          {{ $t('ciencia.back_to_summary') }}
-        </button>
-
-        <EcgDivider class="mb-12" />
-
-        <!-- Índice móvil: desplegable «Saltar a…» en el flujo, tras la cabecera
-             (solo pro, <lg). El rail de escritorio va arriba, junto al título. -->
-        <CienciaSectionNav v-if="level === 'pro'" variant="mobile" class="lg:hidden mb-8" />
-
-        <!-- Case snapshot (médicos + tabla completa; técnico, fuera del resumen simple) -->
-        <section v-show="showData" aria-labelledby="snapshot-title" class="mb-12">
-          <p class="eyebrow mb-2 block">{{ $t('ciencia.snapshot_eyebrow') }}</p>
-          <h2
-            id="snapshot-title"
-            class="heading-display text-2xl text-berenjena mb-2"
-            style="letter-spacing: -0.02em"
-          >
-            {{ $t('ciencia.snapshot_title') }}
-          </h2>
-          <p class="text-sm text-tinta leading-relaxed mb-6 max-w-2xl">
-            {{ $t('ciencia.snapshot_intro') }}
-          </p>
-          <div class="card-base">
-            <dl class="grid sm:grid-cols-2 gap-x-8 gap-y-5">
-              <div
-                v-for="row in snapshotRows"
-                :key="row.label"
-                :class="row.wide ? 'sm:col-span-2' : ''"
-              >
-                <dt class="flex items-center gap-2 mb-1.5">
-                  <span class="eyebrow">{{ row.label }}</span>
-                  <span
-                    v-if="row.tag"
-                    :class="['pill-data', `pill-data--${row.tone}`]"
-                    style="font-size: 10px; padding: 2px 8px"
-                  >{{ row.tag }}</span>
-                </dt>
-                <dd
-                  class="text-sm text-berenjena leading-relaxed"
-                  :class="{ 'font-mono': row.mono }"
-                  translate="no"
-                >
-                  <span class="font-semibold">{{ row.lead }}</span><span v-if="row.rest"> · {{ row.rest }}</span>
-                </dd>
-              </div>
-            </dl>
-            <p
-              class="mt-6 pt-5 text-sm text-berenjena leading-relaxed font-medium"
-              style="border-top: 1px solid rgba(45,27,61,0.10)"
+            <!-- 1 · Cabecera: H1, «En corto», la fecha de caso.json e Imprimir -->
+            <PageHeader
+              :eyebrow="L('BC-NED · FGFR1/CCND1 amp · RE− en hígado', 'BC-NED · FGFR1/CCND1 amp · ER− in liver')"
+              :title="$t('science.title')"
+              :lede="$t('science.en_corto')"
+              variante="pagina"
             >
-              {{ $t('ciencia.thesis') }}
-            </p>
-          </div>
-        </section>
-
-        <!-- El mismo tejido, leído tres veces (anatomía patológica · 3 lecturas) -->
-        <section v-show="showData" class="mb-12" aria-labelledby="tejido-3veces">
-          <p class="eyebrow mb-2 block">{{ L('Anatomía patológica', 'Pathology') }}</p>
-          <h2 id="tejido-3veces" class="heading-display text-2xl text-berenjena mb-2" style="letter-spacing: -0.02em">
-            {{ L('El mismo tejido, leído tres veces', 'The same tissue, read three times') }}
-          </h2>
-          <p class="text-sm text-tinta leading-relaxed mb-3 max-w-2xl">
-            {{ L('El mismo tumor se ha analizado tres veces, en tres centros y momentos distintos. Las diferencias entre lecturas son parte de la información, no un error: la columna más reciente (Vall d’Hebron, 2026) es la más completa, no necesariamente la «correcta».',
-                  'The same tumour has been analysed three times, at three centres and time points. The differences between reads are themselves information, not an error: the most recent column (Vall d’Hebron, 2026) is the most complete, not necessarily the “correct” one.') }}
-          </p>
-          <div class="data-card overflow-x-auto">
-            <table class="data-table data-table--dense data-table--cards">
-              <caption class="sr-only">{{ L('El mismo tejido, leído tres veces', 'The same tissue, read three times') }}</caption>
-              <thead>
-                <tr>
-                  <th scope="col"></th>
-                  <th scope="col">{{ L('Local · Murcia · 2024', 'Local · Murcia · 2024') }}</th>
-                  <th scope="col">MD Anderson · DIPCAN · 2024</th>
-                  <th scope="col" class="reads-vh">Vall d’Hebron · 2026</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr><td class="font-semibold text-berenjena cell-head">{{ L('RE (estrógeno)', 'ER (estrogen)') }}</td><td class="font-mono" data-label="Local · Murcia · 2024">95%</td><td class="font-mono" data-label="MD Anderson · DIPCAN · 2024">100%</td><td class="font-mono reads-vh" data-label="Vall d’Hebron · 2026">{{ L('85% · alta · H 225', '85% · high · H 225') }}</td></tr>
-                <tr><td class="font-semibold text-berenjena cell-head">{{ L('RP (progesterona)', 'PR (progesterone)') }}</td><td class="font-mono" data-label="Local · Murcia · 2024">5%</td><td class="font-mono" data-label="MD Anderson · DIPCAN · 2024">100%</td><td class="font-mono reads-vh" data-label="Vall d’Hebron · 2026">{{ L('20% · baja · H 25', '20% · low · H 25') }}</td></tr>
-                <tr><td class="font-semibold text-berenjena cell-head">HER2</td><td class="font-mono" data-label="Local · Murcia · 2024">0</td><td class="text-sm" data-label="MD Anderson · DIPCAN · 2024">{{ L('0 · tinción de membrana incompleta y casi imperceptible en menos del 10 % de las células', '0 · incomplete, barely perceptible membrane staining in fewer than 10% of cells') }}</td><td class="text-sm reads-vh" data-label="Vall d’Hebron · 2026">{{ L('0 (sin tinción de membrana)', '0 (no membrane staining)') }}</td></tr>
-                <tr><td class="font-semibold text-berenjena cell-head">Ki-67</td><td class="font-mono" data-label="Local · Murcia · 2024">60%</td><td class="font-mono" data-label="MD Anderson · DIPCAN · 2024">—</td><td class="font-mono reads-vh" data-label="Vall d’Hebron · 2026">40%</td></tr>
-                <tr><td class="font-semibold text-berenjena cell-head">{{ L('Grado (Nottingham)', 'Grade (Nottingham)') }}</td><td class="font-mono" data-label="Local · Murcia · 2024">II (3+2+2)</td><td class="font-mono" data-label="MD Anderson · DIPCAN · 2024">2 (2+2+2)</td><td class="font-mono reads-vh" data-label="Vall d’Hebron · 2026">2 (3+2+1)</td></tr>
-                <tr><td class="font-semibold text-berenjena cell-head">{{ L('Subtipo (IHQ)', 'Subtype (IHC)') }}</td><td data-label="Local · Murcia · 2024">—</td><td data-label="MD Anderson · DIPCAN · 2024">—</td><td class="reads-vh" data-label="Vall d’Hebron · 2026"><span class="pill-data pill-data--violet">Luminal B · HER2−</span></td></tr>
-                <tr><td class="font-semibold text-berenjena cell-head">{{ L('Diferenciación neuroendocrina', 'Neuroendocrine differentiation') }}</td><td class="text-sm" data-label="Local · Murcia · 2024">{{ L('Cromogranina 80 % · Sinaptofisina 80 % · CD56 −', 'Chromogranin 80% · Synaptophysin 80% · CD56 −') }}</td><td data-label="MD Anderson · DIPCAN · 2024">—</td><td class="text-sm reads-vh" data-label="Vall d’Hebron · 2026">{{ L('Sinaptofisina heterogénea · Cromogranina focal+ · INSM1 en mosaico', 'Heterogeneous synaptophysin · focal+ chromogranin · mosaic INSM1') }}</td></tr>
-                <tr><td class="font-semibold text-berenjena cell-head">{{ L('Otros marcadores', 'Other markers') }}</td><td class="text-sm" data-label="Local · Murcia · 2024">{{ L('CK19 + · GATA-3 + · carcinoma in situ 20 %', 'CK19 + · GATA-3 + · in situ carcinoma 20%') }}</td><td class="text-sm" data-label="MD Anderson · DIPCAN · 2024">{{ L('PD-L1 CPS 0 %', 'PD-L1 CPS 0%') }}</td><td class="text-sm reads-vh" data-label="Vall d’Hebron · 2026">{{ L('TILs menos del 5 % · E-cadherina + · CK19 en mosaico · sin invasión vascular', 'TILs under 5% · E-cadherin + · mosaic CK19 · no vascular invasion') }}</td></tr>
-              </tbody>
-            </table>
-          </div>
-          <p class="text-xs text-tinta mt-2 font-mono leading-relaxed">
-            {{ L('Murcia 2024 (biopsia local) · MD Anderson · DIPCAN 2024 (perfil ampliado) · Vall d\'Hebron · Anatomía Patológica · informe firmado el 10/06/2026 (firma previa 19/05/2026). Ese informe recoge la sinaptofisina dos veces («heterogénea» y «negativa»); la laminilla se revisó después y confirma la expresión, así que la entrada «negativa» es un error del informe.',
-                  'Murcia 2024 (local biopsy) · MD Anderson · DIPCAN 2024 (extended profile) · Vall d\'Hebron · Pathology · report signed 10/06/2026 (earlier signature 19/05/2026). That report lists synaptophysin twice (“heterogeneous” and “negative”); the slide was reviewed afterwards and confirms expression, so the “negative” entry is an error in the report.') }}
-          </p>
-          <Nota class="mt-3">
-            {{ L('Estas lecturas describen el tejido; no son un diagnóstico de consenso. Armonizar las discordancias está pendiente de valoración por el comité de tumores.',
-                  'These reads describe the tissue; they are not a consensus diagnosis. Reconciling the discordances is pending tumour-board review.') }}
-          </Nota>
-        </section>
-
-        <!-- El tumor en tres sitios (29-sep-2026): primario, hueso y la metástasis hepática que
-             progresa. Cifras cotejadas contra los informes: primario (3 lecturas, ver arriba),
-             hueso (Zúrich, 8-jul-2026 + FoundationOne CDx) e hígado (AP firmada el 21-sep-2026). -->
-        <section v-show="showData" class="mb-12" aria-labelledby="tres-sitios">
-          <p class="eyebrow mb-2 block">{{ L('Lo más reciente · septiembre 2026', 'Latest · September 2026') }}</p>
-          <h2 id="tres-sitios" class="heading-display text-2xl text-berenjena mb-2" style="letter-spacing: -0.02em">
-            {{ L('El tumor en tres sitios', 'The tumour at three sites') }}
-          </h2>
-          <p class="text-sm text-tinta leading-relaxed mb-3 max-w-2xl">
-            {{ L('Hay tejido de tres localizaciones y momentos. El componente neuroendocrino aparece en las tres. El receptor de estrógeno, que en el primario era alto, es negativo en la metástasis del hígado, la lesión que creció durante el último tratamiento hormonal.',
-                  'There is tissue from three sites and time points. The neuroendocrine component appears in all three. The estrogen receptor, high in the primary, is negative in the liver metastasis, the lesion that grew during the last hormonal treatment.') }}
-          </p>
-          <div class="data-card overflow-x-auto">
-            <table class="data-table data-table--dense data-table--cards">
-              <caption class="sr-only">{{ L('El tumor en tres sitios: mama 2024, hueso 2026 e hígado 2026', 'The tumour at three sites: breast 2024, bone 2026 and liver 2026') }}</caption>
-              <thead>
-                <tr>
-                  <th scope="col"></th>
-                  <th scope="col">{{ L('Mama · primario · 2024', 'Breast · primary · 2024') }}</th>
-                  <th scope="col">{{ L('Hueso · ilion derecho · jul 2026', 'Bone · right ilium · Jul 2026') }}</th>
-                  <th scope="col" class="reads-vh">{{ L('Hígado · ago 2026', 'Liver · Aug 2026') }}</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr><td class="font-semibold text-berenjena cell-head">{{ L('RE (estrógeno)', 'ER (estrogen)') }}</td><td class="font-mono" :data-label="L('Mama 2024', 'Breast 2024')">85–100%</td><td class="text-sm" :data-label="L('Hueso 2026', 'Bone 2026')">{{ L('no determinado', 'not tested') }}</td><td class="font-mono reads-vh" :data-label="L('Hígado 2026', 'Liver 2026')">0%</td></tr>
-                <tr><td class="font-semibold text-berenjena cell-head">{{ L('RP (progesterona)', 'PR (progesterone)') }}</td><td class="font-mono" :data-label="L('Mama 2024', 'Breast 2024')">5–100%</td><td class="text-sm" :data-label="L('Hueso 2026', 'Bone 2026')">{{ L('no determinado', 'not tested') }}</td><td class="font-mono reads-vh" :data-label="L('Hígado 2026', 'Liver 2026')">5% (2+)</td></tr>
-                <tr><td class="font-semibold text-berenjena cell-head">HER2</td><td class="font-mono" :data-label="L('Mama 2024', 'Breast 2024')">{{ L('0 (×3 lecturas)', '0 (×3 reads)') }}</td><td class="text-sm" :data-label="L('Hueso 2026', 'Bone 2026')">{{ L('IHQ no determinada · ERBB2 sin alteración', 'IHC not tested · ERBB2 unaltered') }}</td><td class="font-mono reads-vh" :data-label="L('Hígado 2026', 'Liver 2026')">0</td></tr>
-                <tr><td class="font-semibold text-berenjena cell-head">{{ L('Neuroendocrino', 'Neuroendocrine') }}</td><td class="text-sm" :data-label="L('Mama 2024', 'Breast 2024')">{{ L('CgA y Syn ~80%', 'CgA and Syn ~80%') }}</td><td class="text-sm" :data-label="L('Hueso 2026', 'Bone 2026')">{{ L('Sinaptofisina +', 'Synaptophysin +') }}</td><td class="text-sm reads-vh" :data-label="L('Hígado 2026', 'Liver 2026')">{{ L('Cromogranina A + · Sinaptofisina +', 'Chromogranin A + · Synaptophysin +') }}</td></tr>
-                <tr><td class="font-semibold text-berenjena cell-head">Ki-67</td><td class="font-mono" :data-label="L('Mama 2024', 'Breast 2024')">60% · 40%</td><td class="font-mono" :data-label="L('Hueso 2026', 'Bone 2026')">~15%</td><td class="text-sm reads-vh" :data-label="L('Hígado 2026', 'Liver 2026')">{{ L('no informado', 'not reported') }}</td></tr>
-                <tr><td class="font-semibold text-berenjena cell-head">{{ L('Genómica', 'Genomics') }}</td><td class="text-sm" :data-label="L('Mama 2024', 'Breast 2024')">{{ L('TSO500: FGFR1 ×13 · CCND1 ×20 · FGF3/4/19 ×18', 'TSO500: FGFR1 ×13 · CCND1 ×20 · FGF3/4/19 ×18') }}</td><td class="text-sm" :data-label="L('Hueso 2026', 'Bone 2026')">{{ L('FoundationOne CDx: FGFR1 33 copias · CCND1/FGF3/4/19 37 copias · TMB 4 · MSS · sin ESR1, RB1, TP53 ni PIK3CA', 'FoundationOne CDx: FGFR1 33 copies · CCND1/FGF3/4/19 37 copies · TMB 4 · MSS · no ESR1, RB1, TP53 or PIK3CA') }}</td><td class="text-sm reads-vh" :data-label="L('Hígado 2026', 'Liver 2026')">{{ L('pendiente (Dana-Farber)', 'pending (Dana-Farber)') }}</td></tr>
-              </tbody>
-            </table>
-          </div>
-          <p class="text-xs text-tinta mt-2 font-mono leading-relaxed">
-            {{ L('Mama: 3 lecturas del primario (tabla de arriba). Hueso: biopsia del ilion derecho en Zúrich, 8/07/2026, y FoundationOne CDx sobre ella. Hígado: biopsia con aguja gruesa del 18/08/2026 de una lesión de unos 2,2 cm del segmento IVa (no es una de las lesiones diana del RECIST); el informe de Vall d\'Hebron, firmado el 21/09/2026, es una revisión con inmunohistoquímica y no incluye Ki-67 ni SSTR2.',
-                  'Breast: 3 reads of the primary (table above). Bone: right-ilium biopsy in Zurich, 8/07/2026, and FoundationOne CDx on it. Liver: core needle biopsy of 18/08/2026 of a ~2.2 cm lesion in segment IVa (not one of the RECIST target lesions); the Vall d\'Hebron report, signed 21/09/2026, is an immunohistochemistry review and includes neither Ki-67 nor SSTR2.') }}
-          </p>
-          <Nota class="mt-3">
-            {{ L('Dos plataformas distintas dan 13 y 33 copias de FGFR1, con purezas tumorales distintas: la dirección es firme, la cifra exacta no. Las variantes de RB1 y la ESR1 D538G se vieron en sangre y no en el hueso; el hígado aún no tiene perfil genómico. El patólogo del hueso advierte de que la gradación neuroendocrina no está establecida en biopsias pequeñas. Que la pérdida del receptor de estrógeno explique la progresión es una hipótesis, no un hallazgo.',
-                  'Two different platforms give 13 and 33 copies of FGFR1, at different tumour purities: the direction is solid, the exact number is not. The RB1 variants and ESR1 D538G were seen in blood and not in bone; the liver has no genomic profile yet. The bone pathologist notes that neuroendocrine grading is not established on small biopsies. That the loss of the estrogen receptor explains the progression is a hypothesis, not a finding.') }}
-          </Nota>
-        </section>
-
-        <!-- Capa «Resumen simple»: VERSIÓN propia en lenguaje llano (no es la
-             página médica con secciones ocultas: es un texto escrito para quien
-             no es del campo). Solo se muestra en el nivel simple. -->
-        <section v-show="level === 'simple'" class="mb-12" aria-labelledby="simple-summary-title">
-          <p class="eyebrow mb-2 block">{{ $t('ciencia.simple_eyebrow') }}</p>
-          <h2 id="simple-summary-title" class="heading-display text-2xl text-berenjena mb-3" style="letter-spacing: -0.02em">
-            {{ $t('ciencia.simple_title') }}
-          </h2>
-          <p class="text-[15px] text-berenjena leading-relaxed mb-6 max-w-2xl">
-            {{ $t('ciencia.simple_body') }}
-          </p>
-          <div class="space-y-4">
-            <div v-for="(p, i) in simplePoints" :key="i" class="card-base">
-              <h3 class="font-display font-semibold text-berenjena text-base mb-1.5">{{ p.q }}</h3>
-              <p class="text-sm text-tinta leading-relaxed">{{ p.a }}</p>
-            </div>
-          </div>
-          <p class="mt-6 text-sm text-tinta leading-relaxed max-w-2xl">
-            {{ $t('ciencia.simple_more') }}
-          </p>
-          <!-- Puerta-invitación al detalle clínico (plain-first → pro). NO es coral
-               (el coral se reserva al CTA de campaña): es una invitación, no un muro.
-               Dice qué hay dentro y el tiempo de lectura. -->
-          <button
-            type="button"
-            @click="goPro()"
-            class="ciencia-door card-base w-full text-left flex items-start gap-4 hover:shadow-md transition-shadow group mt-8 max-w-2xl"
-            style="text-decoration: none"
-          >
-            <span class="w-10 h-10 rounded-xl bg-miriam-soft flex items-center justify-center shrink-0" aria-hidden="true">
-              <Icon name="ph:dna" class="w-5 h-5 text-berenjena" />
-            </span>
-            <span class="min-w-0 flex-1">
-              <span class="eyebrow mb-1 block">{{ $t('ciencia.door_eyebrow') }}</span>
-              <span class="block font-display font-semibold text-berenjena group-hover:text-miriam transition-colors">
-                {{ $t('ciencia.door_title') }}
-              </span>
-              <span class="block text-sm text-tinta leading-relaxed mt-0.5">{{ $t('ciencia.door_body') }}</span>
-            </span>
-            <Icon name="ph:arrow-right" class="w-4 h-4 text-tinta mt-1 shrink-0 transition-transform group-hover:translate-x-0.5" aria-hidden="true" />
-          </button>
-        </section>
-
-        <!-- Solo «Para médicos»: el marco técnico de por qué no encaja en guías
-             (usa términos como FGFR1/CCND1, por eso no va en el resumen simple). -->
-        <div style="display: contents" v-show="showMedicoOnly">
-        <!-- Thesis framing: why this tumor doesn't fit the protocols -->
-        <section class="alert-callout mb-12">
-          <p class="eyebrow mb-2 block">{{ locale === 'es' ? 'La anomalía' : 'The anomaly' }}</p>
-          <h2 class="alert-callout__title heading-display text-xl text-berenjena mb-3">
-            {{ $t('ciencia.why_no_fit_guidelines') }}
-          </h2>
-          <i18n-t
-            keypath="ciencia.why_no_fit_guidelines_text"
-            tag="p"
-            class="text-sm text-tinta leading-relaxed mb-4"
-          >
-            <template #luminal><Term id="luminal" /></template>
-            <template #fgfr1><Term id="fgfr1" /></template>
-            <template #ccnd1><Term id="ccnd1" /></template>
-            <template #neuroendocrino><Term id="neuroendocrino" /></template>
-            <template #bcned><Term id="bcned" /></template>
-          </i18n-t>
-          <Nota icon="tap" class="mb-4">{{ $t('glossary.hint') }}</Nota>
-          <p class="text-sm text-berenjena leading-relaxed font-medium">
-            {{ $t('ciencia.thesis_goal') }}
-          </p>
-        </section>
-        </div>
-        <!-- /solo médicos (marco técnico) -->
-
-        <!-- Capa narrativa (simple + médicos): el esquema visual de las dos caras. -->
-        <div style="display: contents" v-show="showNarrative">
-        <!-- El esquema de las dos caras: puente visual entre la anomalía y el
-             perfil molecular. Movido desde la home; con la leyenda completa, el
-             detalle vive mejor aquí. -->
-        <TwoFaces class="mb-12" />
-        </div>
-        <!-- /capa narrativa -->
-
-        <!-- Capa de datos (médicos + tabla completa): perfil molecular → panel. -->
-        <div style="display: contents" v-show="showData">
-        <!-- Molecular profile: single canonical source of alterations -->
-        <p class="eyebrow mb-2 block">{{ locale === 'es' ? 'Perfil molecular' : 'Molecular profile' }}</p>
-        <h2
-          id="molecular-profile-title"
-          class="heading-display text-2xl text-berenjena mb-2"
-          style="letter-spacing: -0.02em"
-        >
-          {{ $t('ciencia.molecular_profile_title') }}
-        </h2>
-        <p class="text-sm text-tinta leading-relaxed mb-6 max-w-2xl">
-          {{ locale === 'es'
-            ? 'El perfil cruza cuatro fuentes: el tejido primario (NGS, 2024), la biopsia ósea de julio de 2026 (FoundationOne CDx), la inmunohistoquímica de la metástasis hepática (agosto de 2026) y la biopsia líquida (ctDNA, 2026). En todo el tejido se repite el mismo motor: amplificación de FGFR1 (8p11) y del clúster 11q13 (CCND1, FGF3/FGF4/FGF19). Lo que cambia es el receptor de estrógeno, que desaparece en el hígado. Cada fila indica con qué prueba se midió.'
-            : 'The profile crosses four sources: the primary tissue (NGS, 2024), the July 2026 bone biopsy (FoundationOne CDx), immunohistochemistry of the liver metastasis (August 2026) and the liquid biopsy (ctDNA, 2026). The same engine recurs across all tissue: amplification of FGFR1 (8p11) and of the 11q13 cluster (CCND1, FGF3/FGF4/FGF19). What changes is the estrogen receptor, which is gone in the liver. Each row notes how it was measured.' }}
-        </p>
-        <MolecularProfileDetailed class="mb-12" />
-
-        <section v-if="imaging" class="mb-14" aria-labelledby="imaging-tissue-title">
-          <p class="eyebrow mb-2 block">{{ locale === 'es' ? 'Imagen funcional' : 'Functional imaging' }}</p>
-          <h2
-            id="imaging-tissue-title"
-            class="heading-display text-2xl text-berenjena mb-2"
-            style="letter-spacing: -0.02em"
-          >
-            {{ locale === 'es' ? 'Lo que muestra el PET de Galio-68' : 'What the Gallium-68 PET shows' }}
-          </h2>
-          <i18n-t
-            keypath="ciencia.imaging_intro"
-            tag="p"
-            class="text-sm text-tinta leading-relaxed mb-6 max-w-2xl"
-          >
-            <template #sstr><Term id="sstr" /></template>
-            <template #prrt><Term id="prrt" /></template>
-          </i18n-t>
-
-          <div class="card-base">
-            <div class="flex items-start gap-3 mb-3">
-              <span
-                class="shrink-0 w-9 h-9 rounded-xl bg-miriam-soft flex items-center justify-center"
-              >
-                <Icon name="ph:scan" class="w-5 h-5 text-berenjena" aria-hidden="true" />
-              </span>
-              <div>
-                <p class="eyebrow mb-1 block">{{ $t('ciencia.imaging_title') }}</p>
-                <h3 class="heading-display text-lg text-berenjena">
-                  {{ imaging.title }}
-                </h3>
+              <div class="ci-cabecera__meta">
+                <ActualizadoEl :fecha="caso?.actualizado" />
+                <button type="button" class="btn-ghost" data-print-hide @click="printPage">
+                  <Icon name="ph:printer" class="w-4 h-4" aria-hidden="true" />
+                  {{ $t('ciencia.print_btn') }}
+                </button>
               </div>
-            </div>
-            <dl class="text-xs text-tinta grid sm:grid-cols-2 gap-x-6 gap-y-1.5 mb-4 font-mono">
-              <div>
-                <dt class="inline font-semibold text-berenjena">{{ $t('ciencia.date_label') }}: </dt>
-                <dd class="inline">{{ imaging.date }}</dd>
-              </div>
-              <div v-if="imaging.center">
-                <dt class="inline font-semibold text-berenjena">{{ $t('ciencia.center_label') }}: </dt>
-                <dd class="inline">{{ imaging.center }}</dd>
-              </div>
-            </dl>
-            <p class="text-sm text-tinta leading-relaxed mb-3">
-              {{ $t('ciencia.imaging_what') }}
-            </p>
-            <blockquote
-              v-if="imaging.quote"
-              class="pl-3 text-xs italic text-tinta mb-3"
-              style="border-left: 2px solid rgba(45,27,61,0.20)"
-            >
-              «{{ imaging.quote }}»
-            </blockquote>
-            <p class="text-sm text-berenjena leading-relaxed">
-              <span class="font-semibold">{{ $t('ciencia.meaning_label') }}:</span>
-              {{ imaging.meaning }}
-            </p>
-            <p v-if="imaging.caveat" class="text-xs text-tinta leading-relaxed mt-3">
-              {{ imaging.caveat }}
-            </p>
-          </div>
+            </PageHeader>
 
-          <!-- (acceso médicos) encuadre «para tu equipo médico» + enlace compartible + las herramientas -->
-          <p id="mapa-acceso" class="eyebrow mt-6 mb-2 block scroll-mt-[5.5rem]">{{ locale === 'es' ? 'Para tu equipo médico' : 'For your medical team' }}</p>
-          <!-- La tarjeta «Abrir el mapa de metástasis» salió en el rediseño (F4, 23-oct-2026): el mapa pasó a archivo («Histórico ·
-               junio 2026», noindex, sin enlaces internos) y «Mama, hígado y hueso» (/lesiones) lo incluye. Este rótulo y el id
-               #mapa-acceso se quedan: es el ancla del enlace antiguo de /caso. La línea «Compártelo…» de debajo la revisa F7. -->
-          <p class="text-[12px] text-tinta mt-2.5 leading-relaxed">{{ locale === 'es' ? 'Compártelo con tu médico o equipo de tumores:' : 'Share it with your doctor or tumor board:' }} <span class="font-mono font-semibold text-berenjena">helpmiriam.com/caso</span> {{ locale === 'es' ? '· apoyo a la decisión, no consejo médico.' : '· decision support, not medical advice.' }}</p>
+            <CienciaSectionNav variant="mobile" class="lg:hidden mb-8" />
 
-          <!-- (acceso médicos) visor de laminillas (20-oct; sustituye al de la microfotografía de la biopsia) -->
-          <NuxtLink
-            id="laminillas-link"
-            :to="localePath('/laminillas')"
-            class="group mt-3 flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-3.5 rounded-2xl px-4 sm:px-5 py-4 transition-all active:scale-[0.99] sm:hover:-translate-y-0.5"
-            style="background:rgba(232,212,237,0.30);text-decoration:none"
-          >
-            <div class="flex items-start gap-3.5 flex-1">
-              <span class="shrink-0 w-9 h-9 rounded-xl bg-miriam-soft flex items-center justify-center">
-                <Icon name="ph:microscope-fill" class="w-5 h-5 text-berenjena" aria-hidden="true" />
-              </span>
-              <p class="flex-1 text-sm text-tinta leading-relaxed">
-                {{ locale === 'es'
-                  ? 'Las 32 laminillas escaneadas del caso (la mama del diagnóstico, su revisión de 2026 y el hígado), lado a lado y con el zoom a la par, con una regla en micras y lo que dice cada informe.'
-                  : 'The case’s 32 scanned slides (the diagnostic breast biopsy, its 2026 review and the liver), side by side with matched zoom, a micron ruler and what each report says.' }}
+            <!-- 2 · Qué buscamos: lo que pueden mover los científicos que llegan aquí (laboratorio, HLA, IHQ). El resto, en /datos#que-buscamos. -->
+            <section v-if="peticiones.length" class="ci-sec" aria-labelledby="ciencia-busca">
+              <CabeceraSeccion id="ciencia-busca" :titulo="L('Qué buscamos', 'What we’re looking for')" />
+              <QueBuscamos :fuente="peticiones" :filtro="TEMAS_CIENCIA" :ver-todas="false" :acciones="false" :sellos="false" />
+              <div class="ci-acciones">
+                <NuxtLink :to="localePath({ name: 'contacto', query: { role: 'researcher' } })" class="btn-secondary">{{ $t('home.buscamos_escribir') }}</NuxtLink>
+                <NuxtLink :to="localePath({ name: 'datos', hash: '#que-buscamos' })" class="link-action group">
+                  {{ $t('home.buscamos_todas') }}
+                  <Icon name="ph:arrow-right" class="w-4 h-4 transition-transform group-hover:translate-x-0.5" aria-hidden="true" />
+                </NuxtLink>
+              </div>
+            </section>
+
+            <!-- 3 · Herramientas para profesionales. El id #mapa-acceso se conserva (es el ancla del enlace antiguo de /caso y de los tests). -->
+            <section class="ci-sec" aria-labelledby="mapa-acceso">
+              <CabeceraSeccion id="mapa-acceso" :eyebrow="$t('ciencia.level_pro')" :titulo="$t('nav.tools')" />
+              <ul class="ci-herr" role="list">
+                <li v-for="h in herramientas" :key="h.key">
+                  <TarjetaEnlace
+                    :to="localePath({ name: h.name })"
+                    :icono="ICONO_HERRAMIENTA[h.key]"
+                    :titulo="copyHerramienta(h.key, locale)[0]"
+                    :meta="PARA_HERRAMIENTA[h.key] ? $t(PARA_HERRAMIENTA[h.key]!) : undefined"
+                    @click="trackHerramienta(h.key, 'ciencia_acceso')"
+                  />
+                </li>
+              </ul>
+              <p class="ci-compartir">
+                {{ L('Compártelo con tu médico o equipo de tumores:', 'Share it with your doctor or tumor board:') }}
+                <span class="font-mono font-semibold">helpmiriam.com/caso</span>
+                {{ L('· apoyo a la decisión, no consejo médico.', '· decision support, not medical advice.') }}
               </p>
-            </div>
-            <span class="inline-flex w-full sm:w-auto shrink-0 items-center justify-center sm:justify-start gap-2 text-sm font-semibold text-berenjena group-hover:text-miriam transition-colors rounded-xl bg-miriam-soft sm:bg-transparent px-4 sm:px-0 py-2.5 sm:py-0">
-              {{ locale === 'es' ? 'Abrir el visor de laminillas' : 'Open the slide viewer' }}
-              <Icon name="ph:arrow-right" class="w-4 h-4 transition-transform group-hover:translate-x-0.5" aria-hidden="true" />
-            </span>
-          </NuxtLink>
+              <NuxtLink :to="localePath({ name: 'herramientas' })" class="link-action group">
+                {{ $t('nav.all_tools') }}
+                <Icon name="ph:arrow-right" class="w-4 h-4 transition-transform group-hover:translate-x-0.5" aria-hidden="true" />
+              </NuxtLink>
+            </section>
 
-          <!-- (acceso médicos) el explorador de células (diseno, 19-oct): texto y botón de su tarjeta ya publicada;
-               solo con su puerta abierta -->
-          <NuxtLink
-            v-if="exploradorAbierto"
-            id="explorador-celulas-link"
-            :to="localePath({ name: 'celula-a-celula-explorar' })"
-            @click="trackExplorador('ciencia_acceso')"
-            class="group mt-3 flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-3.5 rounded-2xl px-4 sm:px-5 py-4 transition-all active:scale-[0.99] sm:hover:-translate-y-0.5"
-            style="background:rgba(232,212,237,0.30);text-decoration:none"
-          >
-            <div class="flex items-start gap-3.5 flex-1">
-              <span class="shrink-0 w-9 h-9 rounded-xl bg-miriam-soft flex items-center justify-center">
-                <Icon name="ph:magnifying-glass-fill" class="w-5 h-5 text-berenjena" aria-hidden="true" />
-              </span>
-              <p class="flex-1 text-sm text-tinta leading-relaxed">
-                {{ TARJETA_EXPLORADOR.texto[locale === 'en' ? 'en' : 'es'] }}
-              </p>
-            </div>
-            <span class="inline-flex w-full sm:w-auto shrink-0 items-center justify-center sm:justify-start gap-2 text-sm font-semibold text-berenjena group-hover:text-miriam transition-colors rounded-xl bg-miriam-soft sm:bg-transparent px-4 sm:px-0 py-2.5 sm:py-0">
-              {{ TARJETA_EXPLORADOR.boton[locale === 'en' ? 'en' : 'es'] }}
-              <Icon name="ph:arrow-right" class="w-4 h-4 transition-transform group-hover:translate-x-0.5" aria-hidden="true" />
-            </span>
-          </NuxtLink>
-          <!-- El resto de herramientas del caso (dictamen `diseno`, 14-oct-2026) -->
-          <NuxtLink
-            :to="localePath({ name: 'herramientas' })"
-            class="link-action group mt-3 min-h-[44px] text-sm text-miriam"
-          >
-            {{ $t('nav.all_tools') }}
-            <Icon name="ph:arrow-right" class="w-4 h-4 transition-transform group-hover:translate-x-0.5" aria-hidden="true" />
-          </NuxtLink>
-        </section>
-
-        <!-- Ejes terapéuticos → panel de rebiopsia, subidos por encima de la
-             historia clínica (es la «petición» del caso; no debe quedar al fondo).
-             Siguen dentro de la capa de datos (showData) abierta más arriba. -->
-        <DnaDivider class="mb-10" />
-        <section class="mb-14" aria-labelledby="axes-title">
-          <p class="eyebrow mb-2 block">{{ locale === 'es' ? 'Ejes terapéuticos' : 'Therapeutic axes' }}</p>
-          <h2
-            id="axes-title"
-            class="heading-display text-2xl text-berenjena mb-2"
-            style="letter-spacing: -0.02em"
-          >
-            {{ locale === 'es' ? 'Hacia dónde apuntar' : 'Where to aim' }}
-          </h2>
-          <p class="text-sm text-tinta leading-relaxed mb-6 max-w-2xl">
-            {{ locale === 'es'
-              ? 'De todo lo anterior se desprenden varias dianas. Estos son los ejes terapéuticos candidatos que sugiere el perfil molecular, cada uno con su propia lógica de tratamiento.'
-              : 'Several candidate targets follow from all of the above. These are the therapeutic axes the molecular profile points to, each with its own treatment rationale.' }}
-          </p>
-          <!-- Cada eje, con tooltip que explica qué hace esa opción de tratamiento. -->
-          <div class="flex flex-wrap gap-2" translate="no">
-            <template v-for="(axis, ai) in $tm('ciencia.axes')" :key="ai">
-              <Term
-                v-if="axisTerms[ai]"
-                :id="axisTerms[ai]"
-                :label="String($rt(axis))"
-                variant="badge"
+            <!-- 4 · Ficha: sale de caso.json, sin estado escrito a mano. #snapshot-title se conserva (ancla del botón de clínica de la home). -->
+            <section v-if="caso" class="ci-sec" aria-labelledby="snapshot-title">
+              <CabeceraSeccion
+                id="snapshot-title"
+                :eyebrow="$t('ciencia.snapshot_eyebrow')"
+                :titulo="$t('ciencia.snapshot_title')"
+                :lede="$t('ciencia.snapshot_intro')"
               />
-              <span v-else class="badge-genomic">{{ $rt(axis) }}</span>
-            </template>
-          </div>
-          <details class="notes-disclosure mt-4">
-            <summary>
-              {{ locale === 'es' ? 'Cómo interpretar estos ejes' : 'How to read these axes' }}
-            </summary>
-            <p class="text-xs text-tinta leading-relaxed max-w-2xl">
-              {{ $t('ciencia.axes_note') }}
-            </p>
-          </details>
-        </section>
-        </div>
-        <!-- /capa de datos (ejes) -->
-
-        <!-- El explicativo del ADC (Dato-DXd, anti-TROP-2), pegado al eje TROP-2 de arriba. Venía de /videos, fusionada
-             aquí en el rediseño (F4, 23-oct-2026; /videos redirige a esta página). Va FUERA de la capa de datos a
-             propósito: es un explicativo para todos y quien llegaba desde /videos entra en el modo llano (el
-             conmutador desaparece en F7). Mismo vídeo y mismas palabras, con su transcripción. -->
-        <div v-show="showNarrative" class="mb-14 max-w-2xl">
-          <VideoCaso :video="VIDEO_ADC" />
-        </div>
-
-        <div style="display: contents" v-show="showData">
-        <section v-if="panelRows.length">
-          <p class="eyebrow mb-2 block">{{ locale === 'es' ? 'En curso' : 'Under way' }}</p>
-          <h2
-            id="panel-title"
-            class="heading-display text-2xl text-berenjena mb-2"
-            style="letter-spacing: -0.02em"
-          >
-            {{ $t('ciencia.proposed_panel') }}
-          </h2>
-          <p class="text-sm text-tinta leading-relaxed mb-6 max-w-2xl">
-            {{ locale === 'es'
-              ? 'En junio se planteó sacar de una sola biopsia la caracterización más completa posible. La biopsia se hizo en Zúrich el 8 de julio de 2026 (ilion derecho) y obtuvo tumor; el 18 de agosto se biopsió además el hígado. Todo el tejido del que hay informe está en parafina; no consta material fresco ni congelado. Eso decide qué se puede hacer hoy y qué no, y la tabla lo dice prueba a prueba.'
-              : 'In June the plan was to get the most complete characterisation possible out of a single biopsy. The biopsy was done in Zurich on 8 July 2026 (right ilium) and yielded tumour; the liver was also biopsied on 18 August. All tissue with a report is in paraffin; there is no record of fresh or frozen material. That decides what can and cannot be done today, and the table says so test by test.' }}
-          </p>
-          <p class="text-sm text-berenjena leading-relaxed font-medium mb-6 max-w-2xl">
-            {{ locale === 'es'
-              ? 'Ahora: el laboratorio de Paloma Cejas en Dana-Farber tiene el material de mama, hueso e hígado (el último envío llegó el 23 de septiembre de 2026). Falta el ADN sano de sangre para el par tumor-normal y el tipado de HLA.'
-              : 'Now: Paloma Cejas’s lab at Dana-Farber holds the breast, bone and liver material (the last shipment arrived on 23 September 2026). Still missing: normal DNA from blood for the tumour-normal pair, and HLA typing.' }}
-          </p>
-          <div class="data-card mb-14">
-            <div class="overflow-x-auto">
-              <table
-                class="data-table data-table--dense data-table--cards"
-                :aria-labelledby="locale === 'es' ? 'panel-title' : undefined"
-              >
-                <caption class="sr-only">
-                  {{ $t('ciencia.proposed_panel_caption') }}
-                </caption>
-                <thead>
-                  <tr>
-                    <th scope="col">{{ $t('ciencia.component') }}</th>
-                    <th scope="col" class="col-marker">{{ $t('ciencia.method') }}</th>
-                    <th scope="col">{{ $t('ciencia.targets') }}</th>
-                    <th scope="col">{{ $t('ciencia.status') }}</th>
-                    <th scope="col" class="col-note">{{ $t('ciencia.implication') }}</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr v-for="(row, i) in panelRows" :key="i">
-                    <td class="cell-head font-semibold text-berenjena">{{ row.component }}</td>
-                    <td class="col-marker" :data-label="$t('ciencia.method')">{{ row.method }}</td>
-                    <td :data-label="$t('ciencia.targets')">{{ row.targets }}</td>
-                    <td :data-label="$t('ciencia.status')">
-                      <span v-if="row.status" :class="['status-badge', panelBadge[row.statusTone] || 'status-badge--pending']">{{ row.status }}</span>
-                    </td>
-                    <td class="col-note cell-block" :data-label="$t('ciencia.implication')">{{ row.implication }}<NuxtLink v-if="row.linkTo" :to="localePath(row.linkTo)" class="link-inline block mt-2">{{ row.linkText }}</NuxtLink></td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-            <details class="notes-disclosure px-4 sm:px-5 pb-4">
-              <summary>
-                {{ locale === 'es' ? 'Si hubiera una biopsia nueva' : 'If there were a new biopsy' }}
-              </summary>
-              <p class="text-xs text-tinta leading-relaxed">
-                {{ locale === 'es'
-                  ? 'Las pruebas marcadas «no posible hoy» necesitan tejido vivo o congelado. Solo existirían con una biopsia nueva que guarde cilindros frescos o congelados sin descalcificar, además de los de parafina, y con sangre extraída a la vez (ADN germinal, HLA y células mononucleares). El método de descalcificación del bloque óseo de Zúrich no consta; el propio single-cell mostrará si el tejido rinde.'
-                  : 'The tests marked “not possible today” need live or frozen tissue. They would only exist with a new biopsy that keeps fresh or frozen, non-decalcified cores in addition to the paraffin ones, with blood drawn at the same time (germline DNA, HLA and mononuclear cells). The decalcification method of the Zurich bone block is not documented; the single-cell run itself will show whether the tissue performs.' }}
-              </p>
-            </details>
-          </div>
-          <Nota class="mt-4">
-            {{ locale === 'es'
-              ? 'Material de apoyo a la consulta: describe qué análisis existen y en qué estado están; no es una indicación de tratamiento. Qué se analiza y cómo lo decide el laboratorio que lo hace, y las decisiones clínicas, el equipo médico tratante.'
-              : 'Consultation support material: it describes which analyses exist and where they stand; it is not a treatment indication. What is analysed and how is decided by the lab doing it, and clinical decisions by the treating medical team.' }}
-          </Nota>
-        </section>
-
-        <hr class="chapter-rule" aria-hidden="true" />
-        <p class="eyebrow mb-2 block">{{ locale === 'es' ? 'Historia clínica' : 'Clinical history' }}</p>
-        <h2
-          id="treatment-title"
-          class="heading-display text-2xl text-berenjena mb-2"
-          style="letter-spacing: -0.02em"
-        >
-          {{ $t('ciencia.treatment_history') }}
-        </h2>
-        <p class="text-sm text-tinta leading-relaxed mb-6 max-w-2xl">
-          {{ locale === 'es'
-            ? 'Cada línea de tratamiento ha controlado la enfermedad durante un tiempo antes de que el tumor escape. Es un patrón compatible con atacar solo el eje hormonal y dejar fuera el componente neuroendocrino; la metástasis hepática de 2026, con RE 0 % y marcadores neuroendocrinos positivos, encaja con esa lectura, pero no la demuestra.'
-            : 'Each treatment line has held the disease for a while before the tumour escaped. The pattern is compatible with targeting only the hormonal axis and leaving out the neuroendocrine component; the 2026 liver metastasis, ER 0% with positive neuroendocrine markers, fits that reading but does not prove it.' }}
-        </p>
-        <ul class="space-y-3 mb-14" aria-labelledby="treatment-title">
-          <li v-for="tx in treatments" :key="tx.line" class="card-base flex items-start gap-4">
-            <span
-              class="shrink-0 w-9 h-9 rounded-lg flex items-center justify-center font-mono text-xs font-bold"
-              :class="tx.active ? 'bg-miriam-soft text-berenjena' : 'bg-cream text-tinta'"
-              :style="tx.active ? '' : 'border: 1px solid rgba(45,27,61,0.10)'"
-            >
-              {{ tx.line }}
-            </span>
-            <div class="flex-1 min-w-0">
-              <div class="flex items-center justify-between gap-3 flex-wrap">
-                <h4 class="font-semibold text-berenjena text-sm">{{ tx.regimen }}</h4>
-                <span :class="['status-badge', tx.active ? 'status-badge--active' : 'status-badge--complete']">
-                  {{ tx.badge || (tx.active ? (locale === 'es' ? 'Activo' : 'Active') : (locale === 'es' ? 'Completado' : 'Completed')) }}
-                </span>
+              <div class="card-base">
+                <dl class="ci-ficha">
+                  <div v-for="f in caso.filas" :key="f.clave" class="ci-ficha__fila">
+                    <dt class="eyebrow">{{ f.clave === 'diagnostico' ? $t('ciencia.snapshot_diagnosis_label') : $t(`ciencia.ficha_${f.clave}`) }}</dt>
+                    <dd>{{ f.valor }} <DatosSello v-if="f.sello" :s="f.sello" :lang="lang" /></dd>
+                  </div>
+                  <div v-if="caso.receptores.length" class="ci-ficha__fila">
+                    <dt class="eyebrow">{{ $t('ciencia.ficha_receptores') }}</dt>
+                    <dd>
+                      <ul class="ci-lista" role="list">
+                        <li v-for="r in caso.receptores" :key="r.marcador"><span class="font-semibold">{{ r.marcador }}</span> · {{ r.valor }} <DatosSello v-if="r.sello" :s="r.sello" :lang="lang" /></li>
+                      </ul>
+                    </dd>
+                  </div>
+                  <div class="ci-ficha__fila">
+                    <dt class="eyebrow">{{ $t('ciencia.snapshot_target_label') }}</dt>
+                    <dd>{{ $t('ciencia.snapshot_target') }}</dd>
+                  </div>
+                  <div v-if="caso.material.length" class="ci-ficha__fila">
+                    <dt class="eyebrow">{{ $t('ciencia.ficha_material') }}</dt>
+                    <dd>
+                      <ul class="ci-lista" role="list">
+                        <li v-for="m in caso.material" :key="m.muestra"><span class="font-semibold">{{ m.muestra }}</span> · {{ m.donde }} <DatosSello v-if="m.sello" :s="m.sello" :lang="lang" /></li>
+                      </ul>
+                    </dd>
+                  </div>
+                </dl>
               </div>
-              <p class="text-xs text-tinta mt-1 leading-relaxed">{{ tx.outcome }}</p>
+              <div class="ci-acciones">
+                <NuxtLink :to="localePath({ name: 'datos', hash: '#s-hoy' })" class="link-action group">
+                  {{ $t('ciencia.ficha_hoy') }}
+                  <Icon name="ph:arrow-right" class="w-4 h-4 transition-transform group-hover:translate-x-0.5" aria-hidden="true" />
+                </NuxtLink>
+                <NuxtLink :to="localePath({ name: 'datos', hash: '#s-tejido' })" class="link-action group">
+                  {{ $t('ciencia.ficha_tejido') }}
+                  <Icon name="ph:arrow-right" class="w-4 h-4 transition-transform group-hover:translate-x-0.5" aria-hidden="true" />
+                </NuxtLink>
+              </div>
+            </section>
+
+            <!-- 5 · Por qué no encaja. Textos clínicos: los literales del comité médico (C1 y C2, 24-oct-2026). -->
+            <section class="ci-sec" aria-labelledby="por-que-no-encaja">
+              <CabeceraSeccion id="por-que-no-encaja" :eyebrow="L('La anomalía', 'The anomaly')" :titulo="$t('ciencia.why_no_fit_guidelines')" />
+              <div class="card-base ci-prosa">
+                <!-- Sin glosario en la prosa: un botón en línea mide ~24 px y el sistema pide 44 (R10). Los términos con definición están en los ejes. -->
+                <i18n-t keypath="ciencia.why_no_fit_guidelines_text" tag="p">
+                  <template #luminal>luminal</template>
+                </i18n-t>
+                <i18n-t keypath="ciencia.why_no_fit_protocols_text" tag="p">
+                  <template #fgfr1>FGFR1</template>
+                  <template #ccnd1>CCND1</template>
+                  <template #neuroendocrino>neuroendocrino</template>
+                </i18n-t>
+                <i18n-t keypath="ciencia.why_no_fit_oms_text" tag="p">
+                  <template #bcned>BC-NED</template>
+                </i18n-t>
+                <p class="font-semibold">{{ $t('ciencia.thesis') }}</p>
+              </div>
+            </section>
+
+            <!-- 6 · Anatomía patológica en UNA tabla: las tres lecturas del primario y los otros dos sitios (hueso e hígado), lado a lado. -->
+            <section class="ci-sec" aria-labelledby="tejido-3veces">
+              <CabeceraSeccion
+                id="tejido-3veces"
+                :eyebrow="L('Anatomía patológica', 'Pathology')"
+                :titulo="L('El mismo tumor, leído en tres sitios', 'The same tumour, read at three sites')"
+                :lede="L(
+                  'Hay tejido de tres localizaciones y momentos: la mama, leída tres veces en tres centros, el hueso y el hígado. Las diferencias entre lecturas son parte de la información, no un error: la columna más reciente de la mama (Vall d’Hebron, 2026) es la más completa, no necesariamente la «correcta». El componente neuroendocrino aparece en las tres localizaciones. El receptor de estrógeno, que en el primario era alto, es negativo en la metástasis del hígado, la lesión que creció durante el último tratamiento hormonal.',
+                  'There is tissue from three sites and time points: the breast, read three times at three centres, the bone and the liver. The differences between reads are themselves information, not an error: the most recent breast column (Vall d’Hebron, 2026) is the most complete, not necessarily the “correct” one. The neuroendocrine component appears at all three sites. The estrogen receptor, high in the primary, is negative in the liver metastasis, the lesion that grew during the last hormonal treatment.')"
+              />
+              <div class="tabla-scroll" tabindex="0" role="region" :aria-label="L('Anatomía patológica: mama, hueso e hígado', 'Pathology: breast, bone and liver')">
+                <table class="data-table data-table--dense data-table--cards">
+                  <caption class="sr-only">{{ L('El mismo tumor, leído en tres sitios: mama (tres lecturas), hueso e hígado', 'The same tumour, read at three sites: breast (three reads), bone and liver') }}</caption>
+                  <thead>
+                    <tr>
+                      <th scope="col"></th>
+                      <th v-for="(c, i) in columnasPat" :key="c" scope="col" :class="{ 'reads-vh': i === 2 }">{{ c }}</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr v-for="fila in filasPat" :key="fila.k">
+                      <td class="font-semibold cell-head">{{ fila.k }}</td>
+                      <td
+                        v-for="(celda, i) in fila.c"
+                        :key="i"
+                        :class="[claseCelda(celda), { 'reads-vh': i === 2 }]"
+                        :data-label="columnasPat[i]"
+                      >{{ celda }}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              <p class="ci-fuentes">{{ L(pieEs, pieEn) }}</p>
+              <Aviso tipo="limites" :titulo="$t('ciencia.patologia_limites_titulo')">
+                <p>{{ L(
+                  'Estas lecturas describen el tejido; no son un diagnóstico de consenso. Armonizar las discordancias está pendiente de valoración por el comité de tumores. Las variantes de RB1 y la ESR1 D538G se vieron en sangre y no en el hueso; el hígado aún no tiene perfil genómico. El patólogo del hueso advierte de que la gradación neuroendocrina no está establecida en biopsias pequeñas. Que la pérdida del receptor de estrógeno explique la progresión es una hipótesis, no un hallazgo.',
+                  'These reads describe the tissue; they are not a consensus diagnosis. Reconciling the discordances is pending tumour-board review. The RB1 variants and ESR1 D538G were seen in blood and not in bone; the liver has no genomic profile yet. The bone pathologist notes that neuroendocrine grading is not established on small biopsies. That the loss of the estrogen receptor explains the progression is a hypothesis, not a finding.') }}</p>
+              </Aviso>
+            </section>
+
+            <!-- 7 · Perfil molecular: una fila por alteración, con su método. La nota de unidades de FGFR1 y CCND1 sale UNA vez (C3). -->
+            <section class="ci-sec" aria-labelledby="molecular-profile-title">
+              <CabeceraSeccion
+                id="molecular-profile-title"
+                :eyebrow="L('Perfil molecular', 'Molecular profile')"
+                :titulo="$t('ciencia.molecular_profile_title')"
+                :lede="L(
+                  'El perfil cruza cuatro fuentes: el tejido primario (NGS, 2024), la biopsia ósea de julio de 2026 (FoundationOne CDx), la inmunohistoquímica de la metástasis hepática (agosto de 2026) y la biopsia líquida (ctDNA, 2026). En todo el tejido se repite el mismo motor: amplificación de FGFR1 (8p11) y del clúster 11q13 (CCND1, FGF3/FGF4/FGF19). Lo que cambia es el receptor de estrógeno, que desaparece en el hígado. Cada fila indica con qué prueba se midió.',
+                  'The profile crosses four sources: the primary tissue (NGS, 2024), the July 2026 bone biopsy (FoundationOne CDx), immunohistochemistry of the liver metastasis (August 2026) and the liquid biopsy (ctDNA, 2026). The same engine recurs across all tissue: amplification of FGFR1 (8p11) and of the 11q13 cluster (CCND1, FGF3/FGF4/FGF19). What changes is the estrogen receptor, which is gone in the liver. Each row notes how it was measured.')"
+              />
+              <MolecularProfileDetailed :cuarta-linea="caso?.cuartaLinea ?? null" />
+              <Aviso tipo="limites" :titulo="$t('ciencia.nota_copias_titulo')" class="mt-4">
+                <p>{{ $t('ciencia.nota_copias') }}</p>
+              </Aviso>
+            </section>
+
+            <!-- 8 · Ejes terapéuticos: cada uno enlaza a su sección de /ciencia/evidencia -->
+            <section class="ci-sec" aria-labelledby="axes-title">
+              <CabeceraSeccion
+                id="axes-title"
+                :eyebrow="L('Ejes terapéuticos', 'Therapeutic axes')"
+                :titulo="L('Hacia dónde apuntar', 'Where to aim')"
+                :lede="L(
+                  'De todo lo anterior se desprenden varias dianas. Estos son los ejes terapéuticos candidatos que sugiere el perfil molecular, cada uno con su propia lógica de tratamiento.',
+                  'Several candidate targets follow from all of the above. These are the therapeutic axes the molecular profile points to, each with its own treatment rationale.')"
+              />
+              <ul class="ci-ejes" role="list" translate="no">
+                <li v-for="(eje, i) in ejes" :key="eje.label" class="ci-eje">
+                  <Term v-if="axisTerms[i]" :id="axisTerms[i]!" :label="eje.label" variant="badge" />
+                  <span v-else class="badge-genomic">{{ eje.label }}</span>
+                  <NuxtLink :to="`${localePath({ name: 'ciencia-evidencia' })}#${eje.ancla}`" class="link-action group">
+                    {{ $t('ciencia.axes_evidencia') }}<span class="sr-only">: {{ eje.label }}</span>
+                    <Icon name="ph:arrow-right" class="w-4 h-4 transition-transform group-hover:translate-x-0.5" aria-hidden="true" />
+                  </NuxtLink>
+                </li>
+              </ul>
+              <Nota icon="tap" class="mt-4">{{ $t('glossary.hint') }}</Nota>
+              <p class="ci-nota-eje">{{ $t('ciencia.axes_note') }}</p>
+            </section>
+
+            <!-- 9 · Panel prueba a prueba: solo la pregunta que responde cada análisis. El estado y el material, en /datos (caso.json). -->
+            <section v-if="panelRows.length" class="ci-sec" aria-labelledby="panel-title">
+              <CabeceraSeccion id="panel-title" :eyebrow="L('Análisis molecular', 'Molecular workup')" :titulo="$t('ciencia.proposed_panel')" :lede="$t('ciencia.panel_lede')" />
+              <div class="tabla-scroll" tabindex="0" role="region" :aria-label="$t('ciencia.proposed_panel_caption')">
+                <table class="data-table data-table--dense data-table--cards">
+                  <caption class="sr-only">{{ $t('ciencia.proposed_panel_caption') }}</caption>
+                  <thead>
+                    <tr>
+                      <th scope="col">{{ $t('ciencia.panel_col_prueba') }}</th>
+                      <th scope="col" class="col-note">{{ $t('ciencia.panel_col_responde') }}</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr v-for="(row, i) in panelRows" :key="i">
+                      <td class="cell-head font-semibold">{{ row.component }}</td>
+                      <td class="col-note cell-block" :data-label="$t('ciencia.panel_col_responde')">
+                        {{ row.implication }}<NuxtLink v-if="row.linkTo" :to="localePath(row.linkTo)" class="link-action group">{{ row.linkText }}<Icon name="ph:arrow-right" class="w-4 h-4 transition-transform group-hover:translate-x-0.5" aria-hidden="true" /></NuxtLink>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              <div class="ci-acciones">
+                <NuxtLink :to="localePath({ name: 'datos', hash: '#s-tejido' })" class="link-action group">
+                  {{ $t('ciencia.panel_tejido') }}
+                  <Icon name="ph:arrow-right" class="w-4 h-4 transition-transform group-hover:translate-x-0.5" aria-hidden="true" />
+                </NuxtLink>
+              </div>
+              <Aviso tipo="apoyo" :titulo="$t('ciencia.panel_nota_titulo')" class="mt-4">
+                <p>{{ $t('ciencia.panel_nota') }}</p>
+              </Aviso>
+            </section>
+
+            <!-- 10 · La ruta, con el objetivo N-of-1 dentro (E5) y la línea «Ahora» leída de caso.json (E1) -->
+            <div class="ci-sec">
+              <RutaPersonalizada :objetivo="$t('ciencia.thesis_goal')" :ahora="ahora" />
             </div>
-          </li>
-        </ul>
-        </div>
-        <!-- /capa de datos (parte 1) -->
 
-        <!-- Solo «Para médicos»: enlace a la capa longitudinal de la app. -->
-        <div style="display: contents" v-show="showMedicoOnly">
-        <!-- App entry: the longitudinal layer (treatment response + ctDNA over time) lives in the app.
-             Mobile-first: en móvil el CTA baja a una píldora a ancho completo, claramente pulsable;
-             en sm+ vuelve a la fila con el CTA alineado a la derecha. -->
-        <NuxtLink
-          :to="localePath('/contacto') + '?role=oncologist'"
-          class="group flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-3.5 rounded-2xl px-4 sm:px-5 py-4 mb-14 transition-all active:scale-[0.99] sm:hover:-translate-y-0.5"
-          style="background:rgba(232,212,237,0.30);text-decoration:none"
-        >
-          <div class="flex items-start gap-3.5 flex-1">
-            <span
-              class="shrink-0 w-9 h-9 rounded-xl bg-miriam-soft flex items-center justify-center"
-            >
-              <Icon name="ph:squares-four-fill" class="w-5 h-5 text-berenjena" aria-hidden="true" />
-            </span>
-            <p class="flex-1 text-sm text-tinta leading-relaxed">
-              {{ $t('ciencia.app_inline_text') }}
-            </p>
-          </div>
-          <span
-            class="inline-flex w-full sm:w-auto shrink-0 items-center justify-center sm:justify-start gap-2 text-sm font-semibold text-berenjena group-hover:text-miriam transition-colors rounded-xl bg-miriam-soft sm:bg-transparent px-4 sm:px-0 py-2.5 sm:py-0"
-          >
-            {{ $t('ciencia.app_inline_cta') }}
-            <Icon name="ph:arrow-right" class="w-4 h-4 transition-transform group-hover:translate-x-0.5" aria-hidden="true" />
-          </span>
-        </NuxtLink>
-        </div>
-        <!-- /solo médicos -->
-
-        <!-- Capa narrativa (simple + médicos): el objetivo N-of-1. -->
-        <div v-show="showNarrative" class="card-base mb-16" style="background:#2d1b3d;color:#faf6f0;border:none">
-          <div class="flex items-center gap-2.5 mb-4">
-            <span
-              class="w-9 h-9 rounded-xl flex items-center justify-center"
-              style="background:rgba(232,212,237,0.18)"
-            >
-              <Icon name="ph:target-fill" class="w-5 h-5" style="color:#e8d4ed" aria-hidden="true" />
-            </span>
-            <div>
-              <p class="eyebrow" style="color:#e8d4ed;opacity:0.85">{{ locale === 'es' ? 'Objetivo' : 'Goal' }}</p>
-              <h3 class="heading-display text-lg" style="color:#faf6f0">
-                {{ $t('ciencia.goal_n_of_1') }}
-              </h3>
+            <!-- 11 · Evidencia, cierre profesional y «Sigue el caso» -->
+            <div class="ci-sec">
+              <TarjetaEnlace
+                :to="localePath({ name: 'ciencia-evidencia' })"
+                tono="destacada"
+                icono="ph:books-fill"
+                :titulo="$t('ciencia.key_evidence')"
+              >{{ $t('ciencia.evidence_hook_body') }}</TarjetaEnlace>
             </div>
+
+            <section class="ci-sec" aria-labelledby="ciencia-pro-help-title">
+              <CabeceraSeccion id="ciencia-pro-help-title" :eyebrow="$t('ciencia.pro_help_eyebrow')" :titulo="$t('ciencia.pro_help_title')" />
+              <ul class="ci-pro" role="list">
+                <li>
+                  <Icon name="ph:chat-circle-text-fill" class="ci-pro__icono" aria-hidden="true" />
+                  <NuxtLink :to="localePath({ name: 'contacto', query: { role: 'oncologist' } })" class="link-inline">{{ $t('ciencia.pro_help_contribute') }}</NuxtLink>
+                </li>
+                <li>
+                  <Icon name="ph:share-network-fill" class="ci-pro__icono" aria-hidden="true" />
+                  <NuxtLink :to="localePath({ name: 'colabora' })" class="link-inline">{{ $t('ciencia.pro_help_share') }}</NuxtLink>
+                </li>
+              </ul>
+              <!-- El botón de donar de /ciencia profesional (Miriam, 24-oct-2026; Umami: «Donar» fue el 2,8 % de /lesiones frente al 11,3 % de la
+                   home). Es el único coral de la zona. -->
+              <p class="ci-apoyo">{{ $t('ciencia.pro_help_fund') }}</p>
+              <a
+                :href="GOFUNDME_URL"
+                target="_blank"
+                rel="noopener noreferrer"
+                data-support-cta
+                class="btn-cta"
+                @click="trackSupport('ciencia_pro')"
+              >
+                <Icon name="ph:heart-fill" class="heart-beat w-4 h-4" aria-hidden="true" />
+                {{ $t('nav.donate') }}<span class="sr-only">{{ ' ' + $t('a11y.new_tab') }}</span>
+              </a>
+            </section>
+
+            <CaseFollowSignup class="mt-4" />
           </div>
-          <p class="text-sm leading-relaxed mb-3" style="color:rgba(250,246,240,0.85)">
-            {{ $t('ciencia.goal_n_of_1_desc') }}
-          </p>
-          <p class="text-sm leading-relaxed mb-3" style="color:rgba(250,246,240,0.70)">
-            {{ $t('ciencia.goal_lab_desc') }}
-          </p>
-          <p class="text-sm font-medium" style="color:#e8d4ed">
-            {{ $t('ciencia.goal_lab_note') }}
-          </p>
         </div>
-
-        <!-- Capa narrativa: la ruta a una terapia personalizada, animada y con el estado real
-             de cada paso (26-sep-2026). -->
-        <div v-show="showNarrative" class="mb-16">
-          <RutaPersonalizada />
-        </div>
-
-        <!-- Solo «Para médicos»: dossier de evidencia + análisis detallados. -->
-        <div style="display: contents" v-show="showMedicoOnly">
-        <!-- Deeper dive: full evidence dossier (its own page) -->
-        <div class="mb-16">
-          <!-- Teaser: full evidence dossier (moved to its own page) -->
-          <NuxtLink
-            :to="localePath('/ciencia/evidencia')"
-            class="card-base card-marked flex flex-col h-full transition-all group hover:-translate-y-0.5"
-            style="text-decoration:none"
-          >
-            <span
-              class="shrink-0 w-11 h-11 rounded-2xl bg-miriam-soft flex items-center justify-center mb-4"
-            >
-              <Icon name="ph:books-fill" class="w-5 h-5 text-berenjena" aria-hidden="true" />
-            </span>
-            <p class="eyebrow mb-1.5 block">{{ $t('ciencia.evidence_hook_eyebrow') }}</p>
-            <h3 class="heading-display text-lg text-berenjena mb-1.5 group-hover:text-miriam transition-colors">
-              {{ $t('ciencia.key_evidence') }}
-            </h3>
-            <p class="text-sm text-tinta leading-relaxed mb-4">
-              {{ $t('ciencia.evidence_hook_body') }}
-            </p>
-            <span
-              class="mt-auto inline-flex items-center gap-2 text-sm font-medium text-berenjena group-hover:text-miriam transition-colors"
-            >
-              {{ $t('ciencia.evidence_hook_cta') }}
-              <Icon name="ph:arrow-right" class="w-4 h-4 transition-transform group-hover:translate-x-0.5" aria-hidden="true" />
-            </span>
-          </NuxtLink>
-        </div>
-        </div>
-        <!-- /solo médicos -->
-
-        <!-- Cierre mode-aware (comité · conversión + psico-onco): en llano la
-             donación es la resolución; en pro, acción profesional con la
-             financiación como nota al pie (no como venta). Coral = solo
-             campaña; el resto, navegación. -->
-        <section v-show="level === 'simple'" class="card-base mt-4" aria-labelledby="ciencia-help-title">
-          <p class="eyebrow mb-2 block">{{ $t('ciencia.help_eyebrow') }}</p>
-          <h2 id="ciencia-help-title" class="heading-display text-xl text-berenjena mb-2">{{ $t('ciencia.help_title') }}</h2>
-          <p class="text-sm text-tinta leading-relaxed mb-5 max-w-2xl">{{ $t('ciencia.help_body') }}</p>
-          <div class="flex flex-col sm:flex-row gap-3">
-            <a
-              :href="GOFUNDME_URL"
-              target="_blank"
-              rel="noopener noreferrer"
-              @click="trackSupport('ciencia_simple')"
-              data-support-cta
-              class="btn-cta justify-center"
-            >
-              <Icon name="ph:heart-fill" class="heart-beat w-4 h-4" aria-hidden="true" />
-              {{ $t('ciencia.help_cta') }}
-            </a>
-            <NuxtLink :to="localePath('colabora')" class="btn-secondary justify-center">
-              {{ $t('ciencia.help_share') }}
-            </NuxtLink>
-          </div>
-        </section>
-
-        <section v-show="showData" class="card-base mt-4" aria-labelledby="ciencia-pro-help-title">
-          <p class="eyebrow mb-2 block">{{ $t('ciencia.pro_help_eyebrow') }}</p>
-          <h2 id="ciencia-pro-help-title" class="heading-display text-xl text-berenjena mb-3">{{ $t('ciencia.pro_help_title') }}</h2>
-          <ul class="space-y-2.5 mb-4">
-            <li class="flex items-start gap-3 text-sm text-tinta leading-relaxed">
-              <Icon name="ph:chat-circle-text-fill" class="w-4 h-4 mt-0.5 shrink-0 text-miriam" aria-hidden="true" />
-              <NuxtLink :to="localePath('/contacto') + '?role=oncologist'" class="link-inline">{{ $t('ciencia.pro_help_contribute') }}</NuxtLink>
-            </li>
-            <li class="flex items-start gap-3 text-sm text-tinta leading-relaxed">
-              <Icon name="ph:share-network-fill" class="w-4 h-4 mt-0.5 shrink-0 text-miriam" aria-hidden="true" />
-              <NuxtLink :to="localePath('colabora')" class="link-inline">{{ $t('ciencia.pro_help_share') }}</NuxtLink>
-            </li>
-          </ul>
-          <p class="text-xs text-tinta leading-relaxed">
-            {{ $t('ciencia.pro_help_fund') }}
-            <a :href="GOFUNDME_URL" target="_blank" rel="noopener noreferrer" @click="trackSupport('ciencia_pro')" class="link-inline">{{ $t('ciencia.pro_help_fund_cta') }}</a>.
-          </p>
-        </section>
-
-        <!-- Captura de audiencia (retención): sigue el caso por email. Visible
-             en ambos modos. RGPD-compliant (ver componente). -->
-        <CaseFollowSignup class="mt-4" />
-
-        <Nota class="mt-12 pt-6" style="border-top: 1px solid rgba(45,27,61,0.08)">
-          {{ locale === 'es' ? 'Última actualización: 29 de septiembre de 2026' : 'Last updated: 29 September 2026' }}
-        </Nota>
-          </div>
-          <!-- /columna de contenido del dossier -->
-        </div>
-        <!-- /grid índice + contenido (pro) -->
       </div>
     </section>
   </div>
 </template>
 
 <script setup lang="ts">
-const { locale, t } = useI18n()
+/**
+ * /ciencia: la capa profesional del caso (tanda 2 del rediseño, T2c, 24-oct-2026). Una sola capa, sin conmutador.
+ *
+ * Qué hay y de dónde sale:
+ *   · El ESTADO clínico (la ficha, el material, la fecha de actualización y «en cuarta línea desde…») se LEE de app/data/caso.json
+ *     (utils/casoCiencia.ts): no se escribe a mano aquí. Sin dato, la línea no se pinta.
+ *   · Los textos clínicos corregidos (C1 a C6 y E1 a E7) son los LITERALES del comité médico del 24-oct-2026; el inglés es una
+ *     traducción de ese literal y espera a `verificacion`.
+ *   · La historia de tratamientos y el PET con Galio-68 salieron a /datos (#s-historia, #s-pet); el vídeo del ADC, al hito del 7-oct
+ *     de /timeline; TwoFaces, el FAQ y el JSON-LD escritos a mano se borraron.
+ *   · `?nivel=` ya no hace nada: se ignora. Pero los enlaces antiguos llevan #ancla (#snapshot-title del botón de clínica de la home,
+ *     #mapa-acceso del enlace antiguo de /caso) y el FOCO sigue llegando a esa ancla (la lectura de pantalla empieza ahí).
+ */
+import type { Collections, ScienceEnCollectionItem } from '@nuxt/content'
+import { TEMAS_CIENCIA } from '~/utils/peticiones'
+
+// «verificado» es lo normal: solo se marcan las excepciones (como en /datos y en la home).
+provide('ocultarVerificado', true)
+
+const { locale, t, tm, rt } = useI18n()
 const localePath = useLocalePath()
+const route = useRoute()
+const lang = computed<'es' | 'en'>(() => (locale.value === 'en' ? 'en' : 'es'))
 const L = (es: string, en: string) => (locale.value === 'es' ? es : en)
-// Cierre de conversión: donación (llano) y financiación como nota (pro). Mismo
-// patrón que el resto del sitio; dispara el goal de apoyo con su ubicación.
-const { GOFUNDME_URL, trackSupport, trackScience, trackExplorador } = useSupport()
-const { hayReal: exploradorAbierto } = useCelulaExplorador()
+const { GOFUNDME_URL, trackSupport, trackHerramienta } = useSupport()
+const { herramientas } = useHerramientas()
+
+const { data: caso } = await useCasoCiencia()
+const peticiones = computed(() => caso.value?.peticiones ?? [])
 
 function printPage() {
   if (!import.meta.client) return
   window.print()
 }
 
-// Mapa eje terapéutico → id de glosario (Term), mismo orden que ciencia.axes.
-const axisTerms = ['axis_trop2', 'axis_fgfr', 'axis_sstr', 'axis_esr1', 'axis_ne']
-
-// Ciencia en 2 versiones por audiencia (auditoría 3.4). 'pro' por defecto =
-// página clínica completa. Las versiones controlan visibilidad con v-show (no
-// v-if) sobre contenedores `display:contents`, así no cambian el HTML estático
-// ni la hidratación.
-// Dos versiones por tipo de lector (la doble audiencia del sitio): «Para todos»
-// (sin tecnicismos, POR DEFECTO) y «Para profesionales» (la página clínica
-// completa). Plain-first: todos entran en el resumen llano; el modo clínico se
-// abre con un tap o llega directo vía ?nivel=pro (botón «Medicina/investigación»
-// del home). Todo el contenido pro sigue en el HTML vía v-show → SEO y agentes
-// de IA lo ven igual aunque entres en simple.
-type ReadingLevel = 'simple' | 'pro'
-const route = useRoute()
-const level = ref<ReadingLevel>(route.query.nivel === 'pro' ? 'pro' : 'simple')
-// La URL manda sobre lo recordado. Hay que VIGILAR la query, no leerla una vez:
-// en una carga directa de la página prerenderizada, Nuxt hidrata en la ruta del
-// payload (`/ciencia`, sin query) y solo cuando termina la hidratación reemplaza
-// por la URL real (`hasDeferredRoute` en el plugin de router de Nuxt). Así que en
-// setup y en onMounted `route.query` llega VACÍA, y `?nivel=pro` aparece después.
-// Leerla solo al montar (el arreglo del 5-sep) no bastaba: el botón «Medicina /
-// investigación» del home y el enlace corto /caso seguían abriendo el modo llano.
-// Verificado en producción el 11-sep-2026, con ese arreglo ya desplegado.
-let levelFromUrl = false
-// Con ?nivel=pro y un #ancla del bloque pro (el botón de clínica de la home lleva #snapshot-title; el enlace
-// antiguo de /caso, #mapa-acceso, que sigue funcionando: /caso aterriza hoy en /datos#que-buscamos), el scroll
-// al ancla lo hace el router (router.options.ts), también en la carga directa:
-// verificado en Chrome en producción el 20-oct-2026. Aquí solo se lleva el FOCO al ancla, una vez, como
-// hace goPro(), para que el lector de pantalla empiece ahí. Sin mover la página: un segundo scroll a la
-// vez que el del router (los dos suaves) se pisaba en el CI y la dejaba a medio camino.
-let anclaHecha = false
-function applyUrlLevel(): boolean {
-  const q = route.query.nivel
-  if (q !== 'pro' && q !== 'simple') return false
-  if (level.value !== q) {
-    levelFromUrl = true
-    level.value = q
-  }
-  if (q === 'pro' && route.hash && !anclaHecha) {
-    anclaHecha = true
-    enfocarAncla(route.hash.slice(1))
-  }
-  return true
-}
-onMounted(() => {
-  if (applyUrlLevel()) return
-  // Sin ?nivel, recupera la última elección.
-  try {
-    const saved = localStorage.getItem('hm_ciencia_nivel')
-    if (saved === 'pro' || saved === 'simple') level.value = saved as ReadingLevel
-  } catch {
-    /* sin localStorage */
-  }
-})
-watch(() => route.query.nivel, applyUrlLevel)
-watch(level, (v, prev) => {
-  try {
-    localStorage.setItem('hm_ciencia_nivel', v)
-  } catch {
-    /* noop */
-  }
-  // El goal mide quien ABRE el modo clínico con el conmutador; la llegada por
-  // enlace ya se ve en Umami por la URL con ?nivel=pro.
-  const fromUrl = levelFromUrl
-  levelFromUrl = false
-  if (!fromUrl && prev && v === 'pro' && prev !== 'pro') trackScience('ciencia_nivel_pro')
-})
-// A11y: texto que un lector de pantalla anuncia al cambiar de modo (región
-// aria-live) — para que el cambio de contenido nunca sea silencioso.
-const levelAnnounce = computed(() =>
-  level.value === 'pro' ? t('ciencia.announce_pro') : t('ciencia.announce_simple')
-)
-// Abre el detalle clínico desde la puerta-invitación y lleva al inicio de la capa
-// pro, gestionando el foco (a11y: el cambio de contenido no debe ser silencioso).
-function goPro() {
-  level.value = 'pro'
+// El foco llega a la ancla de la URL (una vez por ancla). Hay que VIGILAR route.hash y no leerlo al montar: en la carga directa de la página
+// prerenderizada Nuxt hidrata en la ruta del payload (`/ciencia`, sin hash) y solo al terminar la hidratación pone la URL real; en `setup` y en
+// `onMounted` el hash llega VACÍO (verificado en producción el 11-sep-2026 con ?nivel=pro; el mismo mecanismo). Solo foco, sin mover la página:
+// el scroll lo hace el router (router.options.ts) y un segundo scroll suave a la vez se pisaba en el CI.
+let anclaHecha = ''
+function enfocarAncla() {
+  const id = route.hash.slice(1)
+  if (!id || id === anclaHecha) return
   nextTick(() => {
-    const el = enfocar('snapshot-title')
-    el?.scrollIntoView({ behavior: 'smooth', block: 'start' })
-  })
-}
-function enfocar(id: string): HTMLElement | null {
-  const el = document.getElementById(id)
-  if (el) {
+    const el = document.getElementById(id)
+    if (!el) return
+    anclaHecha = id
     el.setAttribute('tabindex', '-1')
     el.focus({ preventScroll: true })
-  }
-  return el
+  })
 }
-function enfocarAncla(id: string) {
-  nextTick(() => enfocar(id))
-}
-// El componente devuelve el id como texto; aquí vuelve a ser un ReadingLevel.
-const ponerNivel = (v: string) => { level.value = v === 'pro' ? 'pro' : 'simple' }
-const levelOptions = computed(() => [
-  { id: 'simple' as const, label: t('ciencia.level_simple') },
-  { id: 'pro' as const, label: t('ciencia.level_pro') },
+onMounted(enfocarAncla)
+watch(() => route.hash, enfocarAncla)
+
+// ── Ejes terapéuticos: mapa eje → término del glosario y → sección de /ciencia/evidencia (anchor de science.yml), mismo orden que ciencia.axes
+const axisTerms = ['axis_trop2', 'axis_fgfr', 'axis_sstr', 'axis_esr1', 'axis_ne']
+const ANCLAS_EJE = ['adc-trop2', 'fgfr1-ccnd1', 'sstr2-prrt', 'conversion-receptores', 'transformacion-ne']
+const ejes = computed(() => {
+  const etiquetas = (tm('ciencia.axes') as unknown[]).map((x) => String(rt(x as never)))
+  // E7: el primer eje lleva «en curso desde el <día>» solo si el caso ESTÁ en cuarta línea (caso.json); si no, sin estado.
+  if (caso.value?.cuartaLinea) etiquetas[0] = t('ciencia.axis_trop2_fecha', { fecha: caso.value.cuartaLinea.corta })
+  return etiquetas.map((label, i) => ({ label, ancla: ANCLAS_EJE[i]! }))
+})
+
+// La línea «Ahora» de la ruta (E1): la frase de la cuarta línea con su fecha, o nada.
+const ahora = computed(() => (caso.value?.cuartaLinea ? t('ciencia.estado_cuarta_linea', { fecha: caso.value.cuartaLinea.larga }) : null))
+
+// ── Anatomía patológica en una tabla (mama ×3 lecturas · hueso · hígado). Las celdas son las de las dos tablas de antes, con C1, C4 y E6.
+const columnasPat = computed(() => [
+  'Murcia · 2024',
+  'MD Anderson · DIPCAN · 2024',
+  L('Vall d’Hebron · 2026 (mama)', 'Vall d’Hebron · 2026 (breast)'),
+  L('Hueso · ilion derecho · jul 2026', 'Bone · right ilium · Jul 2026'),
+  L('Hígado · ago 2026', 'Liver · Aug 2026'),
 ])
-// Todo el contenido técnico (snapshot, anomalía, perfil, imagen, tratamientos,
-// ejes, panel, dossier, artículos) solo en «Para profesionales». showData y
-// showMedicoOnly coinciden ahora que hay dos versiones; se mantienen ambos
-// nombres para no tocar las plantillas.
-const showData = computed(() => level.value === 'pro')
-const showMedicoOnly = computed(() => level.value === 'pro')
-// El esquema visual «dos caras» y el objetivo se muestran en ambas versiones.
-const showNarrative = true
+const NA = L('no determinado', 'not tested')
+const ND = L('sin dato', 'no data')
+const filasPat = computed<{ k: string; c: string[] }[]>(() => [
+  { k: L('RE (estrógeno)', 'ER (estrogen)'), c: ['95%', '100%', L('85% · alta · H 225', '85% · high · H 225'), NA, '0%'] },
+  { k: L('RP (progesterona)', 'PR (progesterone)'), c: ['5%', '100%', L('20% · baja · H 25', '20% · low · H 25'), NA, '5% (2+)'] },
+  { k: 'HER2', c: [
+    '0',
+    L('0 · tinción de membrana incompleta y casi imperceptible en menos del 10 % de las células', '0 · incomplete, barely perceptible membrane staining in fewer than 10% of cells'),
+    L('0 (sin tinción de membrana)', '0 (no membrane staining)'),
+    L('IHQ no determinada · ERBB2 sin alteración', 'IHC not tested · ERBB2 unaltered'),
+    '0',
+  ] },
+  { k: 'Ki-67', c: ['60%', ND, '40%', '~15%', L('no informado', 'not reported')] },
+  { k: L('Grado (Nottingham)', 'Grade (Nottingham)'), c: ['II (3+2+2)', '2 (2+2+2)', '2 (3+2+1)', ND, ND] },
+  { k: L('Subtipo (IHQ)', 'Subtype (IHC)'), c: [ND, ND, 'Luminal B · HER2−', ND, ND] },
+  { k: L('Diferenciación neuroendocrina', 'Neuroendocrine differentiation'), c: [
+    L('Cromogranina y sinaptofisina en el 80 % de las células neoplásicas · CD56 −', 'Chromogranin and synaptophysin in 80% of the neoplastic cells · CD56 −'),
+    L('sin marcadores NE en el informe', 'no NE markers in the report'),
+    L('Sinaptofisina heterogénea · Cromogranina focal+ · INSM1 en mosaico', 'Heterogeneous synaptophysin · focal+ chromogranin · mosaic INSM1'),
+    L('Sinaptofisina +', 'Synaptophysin +'),
+    L('Cromogranina A + · Sinaptofisina +', 'Chromogranin A + · Synaptophysin +'),
+  ] },
+  { k: L('Otros marcadores', 'Other markers'), c: [
+    L('CK19 + · GATA-3 + · carcinoma in situ 20 %', 'CK19 + · GATA-3 + · in situ carcinoma 20%'),
+    L('PD-L1 CPS 0 %', 'PD-L1 CPS 0%'),
+    L('TILs menos del 5 % · E-cadherina + · CK19 en mosaico · sin invasión vascular', 'TILs under 5% · E-cadherin + · mosaic CK19 · no vascular invasion'),
+    ND,
+    ND,
+  ] },
+  { k: L('Genómica', 'Genomics'), c: [
+    ND,
+    L('TSO500: FGFR1 13 copias · CCND1 20 copias · FGF3/4/19 18 copias', 'TSO500: FGFR1 13 copies · CCND1 20 copies · FGF3/4/19 18 copies'),
+    ND,
+    L('FoundationOne CDx: FGFR1 amplificado (33 copias en el fichero de investigación) · CCND1/FGF3/4/19 amplificados (37 en el fichero de investigación) · TMB 4 · MSS · sin ESR1, RB1, TP53 ni PIK3CA',
+      'FoundationOne CDx: FGFR1 amplified (33 copies in the research file) · CCND1/FGF3/4/19 amplified (37 in the research file) · TMB 4 · MSS · no ESR1, RB1, TP53 or PIK3CA'),
+    L('pendiente (Dana-Farber)', 'pending (Dana-Farber)'),
+  ] },
+])
+// Una celda corta y numérica va en mono; el texto, en sans.
+const claseCelda = (celda: string) => (celda.length <= 22 && /^[\d~<]/.test(celda) ? 'font-mono' : 'text-sm')
+// Pie de la tabla. C4 (literal del comité médico): la revisión de la laminilla es «dicha», sin informe escrito. C5: sin el paréntesis del RECIST.
+const pieEs = 'Murcia 2024 (biopsia local) · MD Anderson · DIPCAN 2024 (perfil ampliado) · Vall d’Hebron · Anatomía Patológica · informe firmado el 10/06/2026 (firma previa 19/05/2026). Ese informe recoge la sinaptofisina dos veces («heterogénea» y «negativa»). La laminilla se revisó en una reunión del 29 de septiembre de 2026 y, según lo dicho en ella, confirma la expresión; no hay informe escrito de esa revisión ni petición de aclaración al hospital. Aquí se usa «heterogénea», con esa reserva. Hueso: biopsia del ilion derecho en Zúrich, 8/07/2026, y FoundationOne CDx sobre ella. Hígado: biopsia con aguja gruesa del 18/08/2026 de una lesión de unos 2,2 cm del segmento IVa; el informe de Vall d’Hebron, firmado el 21/09/2026, es una revisión con inmunohistoquímica y no incluye Ki-67 ni SSTR2.'
+const pieEn = 'Murcia 2024 (local biopsy) · MD Anderson · DIPCAN 2024 (extended profile) · Vall d’Hebron · Pathology · report signed 10/06/2026 (earlier signature 19/05/2026). That report lists synaptophysin twice (“heterogeneous” and “negative”). The slide was reviewed in a meeting on 29 September 2026 and, according to what was said there, confirms the expression; there is no written report of that review and no request for clarification to the hospital. Here “heterogeneous” is used, with that reservation. Bone: right-ilium biopsy in Zurich, 8/07/2026, and FoundationOne CDx on it. Liver: core needle biopsy of 18/08/2026 of a ~2.2 cm lesion in segment IVa; the Vall d’Hebron report, signed 21/09/2026, is an immunohistochemistry review and includes neither Ki-67 nor SSTR2.'
 
-// Subtítulo de cabecera según el nivel: en simple, sin tecnicismos.
-const headerSubtitle = computed(() =>
-  level.value === 'simple' ? t('science.subtitle_simple') : t('science.subtitle')
+// ── Panel prueba a prueba (content/<lang>/science.yml)
+const { data: scienceData } = await useAsyncData(
+  `science-data-${locale.value}`,
+  () => queryCollection(`science_${locale.value || 'en'}` as keyof Collections).first() as Promise<ScienceEnCollectionItem | null>,
+  { watch: [locale] },
 )
+const panelRows = computed(() => scienceData.value?.panelRows ?? [])
 
-// Contenido propio del «Resumen simple»: preguntas en lenguaje llano.
-const simplePoints = computed(() =>
-  [1, 2, 3, 4].map((n) => ({
-    q: t(`ciencia.simple_q${n}`),
-    a: t(`ciencia.simple_a${n}`),
-  }))
-)
-
+// ── SEO. Sin fecha ni estado escritos a mano (E3, E1): la fecha de la página es `caso.actualizado` y sale en «Actualizado el».
 useSeoMeta({
-  title: () =>
-    locale.value === 'es'
-      ? 'Perfil molecular del tumor: BC-NED, FGFR1/CCND1 y RE− en hígado'
-      : 'Tumor molecular profile: BC-NED, FGFR1/CCND1, ER− in the liver',
+  title: () => L('Perfil molecular del tumor: BC-NED, FGFR1/CCND1 y RE− en hígado', 'Tumor molecular profile: BC-NED, FGFR1/CCND1, ER− in the liver'),
   description: () =>
-    locale.value === 'es'
-      ? 'El perfil molecular del tumor de Miriam: cáncer de mama con diferenciación neuroendocrina, amplificación de FGFR1 y CCND1, y una metástasis hepática RE−. Documentación clínica abierta, al día de septiembre de 2026.'
-      : "Miriam's tumor molecular profile: breast cancer with neuroendocrine differentiation, FGFR1 and CCND1 amplification, and an ER− liver metastasis. Open clinical documentation, current as of September 2026.",
-  ogTitle: () =>
-    locale.value === 'es'
-      ? 'Perfil molecular BC-NED · FGFR1/CCND1 · RE− en hígado'
-      : 'Molecular profile BC-NED · FGFR1/CCND1 · ER− in the liver',
+    L(
+      'El perfil molecular del tumor de Miriam: cáncer de mama con diferenciación neuroendocrina, amplificación de FGFR1 y CCND1, y una metástasis hepática RE−. Documentación clínica abierta.',
+      "Miriam's tumor molecular profile: breast cancer with neuroendocrine differentiation, FGFR1 and CCND1 amplification, and an ER− liver metastasis. Open clinical documentation.",
+    ),
+  ogTitle: () => L('Perfil molecular BC-NED · FGFR1/CCND1 · RE− en hígado', 'Molecular profile BC-NED · FGFR1/CCND1 · ER− in the liver'),
   ogDescription: () =>
-    locale.value === 'es'
-      ? 'Análisis científico del caso: BC-NED, HER2 0, amplificación de FGFR1 y CCND1, SSTR+ en hueso (PET Ga-68). Metástasis óseas y hepáticas; el hígado es RE 0 %. Tejido en análisis en Dana-Farber y, desde octubre de 2026, en ensayo con Dato-DXd.'
-      : 'Scientific case analysis: BC-NED, HER2 0, FGFR1 and CCND1 amplification, SSTR+ in bone (Ga-68 PET). Bone and liver metastases; the liver is ER 0%. Tissue under analysis at Dana-Farber and, since October 2026, on a Dato-DXd trial.',
+    L(
+      'Análisis científico del caso: BC-NED, HER2 0, amplificación de FGFR1 y CCND1, SSTR+ en hueso (PET Ga-68). Metástasis óseas y hepáticas; el hígado es RE 0 %.',
+      'Scientific case analysis: BC-NED, HER2 0, FGFR1 and CCND1 amplification, SSTR+ in bone (Ga-68 PET). Bone and liver metastases; the liver is ER 0%.',
+    ),
   ogType: 'article',
   twitterCard: 'summary_large_image',
-  twitterTitle: () =>
-    locale.value === 'es'
-      ? 'Perfil molecular BC-NED · FGFR1/CCND1 · RE− en hígado'
-      : 'Molecular profile BC-NED · FGFR1/CCND1 · ER− in the liver',
+  twitterTitle: () => L('Perfil molecular BC-NED · FGFR1/CCND1 · RE− en hígado', 'Molecular profile BC-NED · FGFR1/CCND1 · ER− in the liver'),
   twitterDescription: () =>
-    locale.value === 'es'
-      ? 'BC-NED, FGFR1 y CCND1 amplificados, metástasis hepática RE−. El perfil molecular del tumor de Miriam, al día.'
-      : "BC-NED, amplified FGFR1 and CCND1, ER− liver metastasis. Miriam's tumor molecular profile, up to date.",
+    L(
+      'BC-NED, FGFR1 y CCND1 amplificados, metástasis hepática RE−. El perfil molecular del tumor de Miriam.',
+      "BC-NED, amplified FGFR1 and CCND1, ER− liver metastasis. Miriam's tumor molecular profile.",
+    ),
 })
 
 defineOgImage('Default.takumi', {
   title: () => t('science.title'),
-  description: () =>
-    locale.value === 'es'
-      ? 'El perfil molecular completo del tumor, explicado.'
-      : "The tumor's full molecular profile, explained.",
+  description: () => L('El perfil molecular completo del tumor, explicado.', "The tumor's full molecular profile, explained."),
 })
 
-const faq =
-  locale.value === 'es'
-    ? [
-        {
-          q: '¿Por qué este cáncer de mama no encaja en los protocolos estándar?',
-          a: 'Sobre el papel es un tumor luminal (HR+/HER2−), pero ~80% muestra diferenciación neuroendocrina, con amplificación FGFR1 ×13 y CCND1 ×20. Este subtipo híbrido (BC-NED) tiene peor pronóstico y suele necesitar estrategias distintas a las del cáncer de mama luminal estándar.',
-        },
-        {
-          q: '¿Qué dianas tiene el tumor?',
-          a: 'El que se va a usar es TROP-2, diana del datopotamab deruxtecan de un ensayo que empieza en octubre de 2026 (su expresión en tejido no se ha medido). Como hipótesis, el PET con Galio-68 mostró receptores de somatostatina (SSTR) en hueso, diana de la terapia con radioligandos, y la amplificación de FGFR1 es una diana candidata para inhibidores de FGFR.',
-        },
-        {
-          q: '¿Cuál es el siguiente paso del caso?',
-          a: 'Dos pasos en paralelo: el ensayo TROPION-Breast06 con datopotamab deruxtecan para controlar la enfermedad, y el análisis del tejido de mama, hueso e hígado en el laboratorio de Paloma Cejas en Dana-Farber (single-cell RNA-seq y exoma), del que saldrían las dianas de una terapia personalizada. Los primeros resultados del single-cell ya están publicados en Célula a célula.',
-        },
-      ]
-    : [
-        {
-          q: 'Why doesn’t this breast cancer fit the standard protocols?',
-          a: 'On paper it is a luminal tumor (HR+/HER2−), but ~80% shows neuroendocrine differentiation, with FGFR1 ×13 and CCND1 ×20 amplification. This hybrid subtype (BC-NED) has a worse prognosis and usually needs strategies different from standard luminal breast cancer.',
-        },
-        {
-          q: 'What targets does the tumor have?',
-          a: 'The one about to be used is TROP-2, the target of datopotamab deruxtecan in a trial starting in October 2026 (its expression in tissue has not been measured). As hypotheses, the Gallium-68 PET showed somatostatin receptors (SSTR) in bone, the target of radioligand therapy, and FGFR1 amplification is a candidate target for FGFR inhibitors.',
-        },
-        {
-          q: 'What is the next step in the case?',
-          a: 'Two steps in parallel: the TROPION-Breast06 trial with datopotamab deruxtecan to control the disease, and analysis of the breast, bone and liver tissue in Paloma Cejas’s lab at Dana-Farber (single-cell RNA-seq and exome), which is where the targets of a personalised therapy would come from. The first single-cell results are published in Cell by cell.',
-        },
-      ]
-
-useSchemaOrg([
-  defineWebPage({
-    '@type': ['WebPage', 'MedicalWebPage'],
-    name: () => t('science.title'),
-  }),
-  ...faq.map((item) =>
-    defineQuestion({ name: item.q, acceptedAnswer: item.a })
-  ),
-])
-
-// MedicalCondition JSON-LD: describe la entidad clínica de forma estructurada
-// para buscadores médicos y agentes de IA. Datos verificados (ver CLAUDE.md);
-// deliberadamente NO declara tratamientos (mantener el principio de no prometer
-// terapias). Raw JSON-LD vía useHead, ya que schema-org no expone el helper.
-const conditionJsonLd = computed(() =>
-  JSON.stringify({
+// Datos estructurados: la página médica y, si hay caso.json, una MedicalCondition con su diagnóstico y su histología (verificados, de la ficha).
+// El FAQ y el JSON-LD escritos a mano se borraron (repetían «~80 %», «×13» y «cribado»); este se genera y no declara tratamientos.
+useSchemaOrg([defineWebPage({ '@type': ['WebPage', 'MedicalWebPage'], name: () => t('science.title') })])
+const condicion = computed(() => {
+  const f = caso.value?.filas
+  const dx = f?.find((x) => x.clave === 'diagnostico')?.valor
+  if (!dx) return ''
+  return JSON.stringify({
     '@context': 'https://schema.org',
     '@type': 'MedicalCondition',
-    name:
-      locale.value === 'es'
-        ? 'Cáncer de mama metastásico HR+/HER2− con diferenciación neuroendocrina (BC-NED)'
-        : 'Metastatic HR+/HER2− breast cancer with neuroendocrine differentiation (BC-NED)',
-    alternateName: ['BC-NED', 'Breast carcinoma with neuroendocrine differentiation'],
-    description:
-      locale.value === 'es'
-        ? 'Carcinoma de mama HR+/HER2 0 con ~80% de diferenciación neuroendocrina y amplificación de FGFR1 (8p11) y CCND1 (clúster 11q13); expresión de SSTR en PET Ga-68 (hueso). Metástasis óseas (desde el diagnóstico) y hepáticas (desde julio de 2026); la metástasis hepática es RE 0 %, RP 5 %, HER2 0, con cromogranina A y sinaptofisina positivas.'
-        : 'HR+/HER2 0 breast carcinoma with ~80% neuroendocrine differentiation and amplification of FGFR1 (8p11) and CCND1 (11q13 cluster); SSTR expression on Ga-68 PET (bone). Bone metastases (since diagnosis) and liver metastases (since July 2026); the liver metastasis is ER 0%, PR 5%, HER2 0, with chromogranin A and synaptophysin positive.',
-    associatedAnatomy: [
-      { '@type': 'AnatomicalStructure', name: locale.value === 'es' ? 'Mama' : 'Breast' },
-      { '@type': 'AnatomicalStructure', name: locale.value === 'es' ? 'Hueso (metástasis)' : 'Bone (metastases)' },
-      { '@type': 'AnatomicalStructure', name: locale.value === 'es' ? 'Hígado (metástasis)' : 'Liver (metastases)' },
-    ],
+    name: dx,
+    description: f?.find((x) => x.clave === 'histologia')?.valor ?? dx,
   })
-)
-
-useHead({
-  script: [{ type: 'application/ld+json', innerHTML: conditionJsonLd }],
 })
-
-import type { Collections, ScienceEnCollectionItem } from '@nuxt/content'
-import { TARJETA_EXPLORADOR } from '~/utils/celulaExploradorTexto'
-
-const { data: scienceData } = await useAsyncData(
-  `science-data-${locale.value}`,
-  () => {
-    const collection = `science_${locale.value || 'en'}` as keyof Collections
-    return queryCollection(
-      collection
-    ).first() as Promise<ScienceEnCollectionItem | null>
-  },
-  { watch: [locale] }
-)
-
-const treatments = computed(() => scienceData.value?.treatments ?? [])
-const panelRows = computed(() => scienceData.value?.panelRows ?? [])
-// Estado de cada análisis (a 29-sep-2026): hecho · en curso · pendiente · no posible hoy.
-const panelBadge: Record<string, string> = {
-  hecho: 'status-badge--complete',
-  curso: 'status-badge--firma',
-  pendiente: 'status-badge--pending',
-  no: 'status-badge--paused',
-}
-const imaging = computed(() => scienceData.value?.imaging ?? null)
-
-const snapshotRows = computed(() =>
-  [
-    { label: t('ciencia.snapshot_diagnosis_label'), value: t('ciencia.snapshot_diagnosis'), wide: true, mono: false, tag: t('ciencia.snapshot_diagnosis_tag'), tone: 'warn' },
-    { label: t('ciencia.snapshot_grade_label'), value: t('ciencia.snapshot_grade'), wide: true, mono: true, tag: t('ciencia.snapshot_grade_tag'), tone: 'info' },
-    { label: t('ciencia.snapshot_status_label'), value: t('ciencia.snapshot_status'), wide: true, mono: false, tag: t('ciencia.snapshot_status_tag'), tone: 'positive' },
-    { label: t('ciencia.snapshot_drivers_label'), value: t('ciencia.snapshot_drivers'), wide: false, mono: true, tag: t('ciencia.snapshot_drivers_tag'), tone: 'violet' },
-    { label: t('ciencia.snapshot_target_label'), value: t('ciencia.snapshot_target'), wide: false, mono: false, tag: t('ciencia.snapshot_target_tag'), tone: 'positive' },
-    { label: t('ciencia.snapshot_resistance_label'), value: t('ciencia.snapshot_resistance'), wide: true, mono: false, tag: t('ciencia.snapshot_resistance_tag'), tone: 'warn' },
-  ].map((row) => {
-    const parts = row.value.split(' · ')
-    return {
-      ...row,
-      lead: parts[0],
-      rest: parts.slice(1).join(' · '),
-    }
-  })
-)
+useHead({ script: [{ type: 'application/ld+json', innerHTML: condicion }] })
 </script>
 
 <style scoped>
-/* Salto por anclas del índice: el objetivo es el <h2>, pero encima lleva un
-   rótulo (eyebrow). El margen debe despejar la cabecera pegajosa (~73px) Y ese
-   rótulo, para que no quede medio tapado («no se ve Perfil molecular»). */
+/* Salto por anclas del índice: el objetivo es el <h2>, pero encima lleva un rótulo (eyebrow). El margen despeja la cabecera pegajosa (~73 px)
+   Y ese rótulo, para que no quede medio tapado. */
+#ciencia-busca,
+#mapa-acceso,
 #snapshot-title,
+#por-que-no-encaja,
 #tejido-3veces,
 #molecular-profile-title,
-#imaging-tissue-title,
-#panel-title,
-#treatment-title {
+#axes-title,
+#panel-title {
   scroll-margin-top: 7.5rem;
 }
-/* Columna de referencia (VHIO) resaltada en la tabla de patología "3 lecturas". */
-.reads-vh { background: rgb(var(--color-miriam-rgb) / 0.07); }
+.ci-sec { margin-bottom: var(--sp-64); }
+.ci-cabecera__meta { display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-8) var(--sp-24); margin-top: var(--sp-16); }
+.ci-acciones { display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-8) var(--sp-24); margin-top: var(--sp-16); }
 
-/* El conmutador de nivel vive en app/components/NivelLectura.vue (común con célula a célula, 19-oct). */
+/* Herramientas: rejilla compacta de tarjetas-enlace */
+.ci-herr { list-style: none; margin: 0 0 var(--sp-16); padding: 0; display: grid; gap: var(--sp-12); grid-template-columns: minmax(0, 1fr); }
+@media (min-width: 640px) { .ci-herr { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.ci-herr > li { display: flex; }
+.ci-herr > li > :deep(a) { width: 100%; }
+.ci-compartir { margin: 0 0 var(--sp-8); font: var(--tipo-body-sm); color: var(--texto-2); }
+
+/* Ficha */
+.ci-ficha { display: grid; gap: var(--sp-16); margin: 0; }
+.ci-ficha__fila { display: grid; gap: var(--sp-4); }
+@media (min-width: 700px) { .ci-ficha__fila { grid-template-columns: minmax(10rem, 14rem) minmax(0, 1fr); gap: var(--sp-16); } }
+.ci-ficha__fila dd { margin: 0; font: var(--tipo-ui); color: var(--texto-1); }
+.ci-lista { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--sp-8); }
+
+/* Por qué no encaja */
+.ci-prosa { display: grid; gap: var(--sp-16); max-width: var(--measure); }
+.ci-prosa p { margin: 0; font: var(--tipo-ui); color: var(--texto-1); }
+
+/* Anatomía patológica: la columna de la revisión más reciente de la mama (referencia), resaltada */
+.reads-vh { background: rgb(var(--color-miriam-rgb) / 0.07); }
+.ci-fuentes { margin: var(--sp-12) 0 var(--sp-16); font: var(--tipo-body-sm); color: var(--texto-2); max-width: var(--measure); }
+
+/* Ejes */
+.ci-ejes { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--sp-12); }
+.ci-eje { display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-4) var(--sp-16); }
+/* el término con su definición es un botón: 44 px de alto como cualquier control (R10) */
+.ci-eje :deep(.term--badge) { min-height: var(--control-min); }
+.ci-nota-eje { margin: var(--sp-16) 0 0; font: var(--tipo-body-sm); color: var(--texto-2); max-width: var(--measure); }
+
+/* Cierre profesional */
+.ci-pro { list-style: none; margin: 0 0 var(--sp-16); padding: 0; display: grid; gap: var(--sp-8); }
+.ci-pro li { display: flex; align-items: center; gap: var(--sp-12); font: var(--tipo-ui); }
+.ci-pro a { display: inline-flex; align-items: center; min-height: var(--control-min); }
+.ci-pro__icono { flex: none; width: 1rem; height: 1rem; color: var(--identidad); }
+.ci-apoyo { margin: 0 0 var(--sp-12); font: var(--tipo-body-sm); color: var(--texto-2); }
 </style>

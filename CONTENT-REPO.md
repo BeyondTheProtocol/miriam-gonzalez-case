@@ -103,7 +103,9 @@ entradas llegan de Google. No hay capítulos: `/historia/01-el-comienzo` sigue c
 
 Los análisis en Markdown (`content/es/ciencia/`, `content/en/science/`) y la ruta `/ciencia/[slug]` se
 retiraron el 23-oct-2026: nunca llegó a publicarse ningún artículo. La página de ciencia sale de
-`app/pages/ciencia/` y de los datos de la sección 6.
+`app/pages/ciencia/` y de los datos de la sección 6. Desde el 24-oct-2026 (T2c) es una sola capa, la
+profesional; el estado clínico (ficha, material, fecha, «en cuarta línea desde…») se lee de
+`app/data/caso.json`, no se escribe en la página.
 
 ---
 
@@ -192,10 +194,11 @@ debe consultarse con el equipo médico antes de cambiar:
 
 | Dato | Valor correcto |
 |------|----------------|
-| Amplificación FGFR1 | **×13** (no ×12, no ×14) |
-| Amplificación CCND1 | **×20** |
-| Amplificación FGF3/FGF4/FGF19 | **×18** |
-| Diferenciación neuroendocrina | **~80%** (no 70%, no 90%) |
+| Amplificación FGFR1 | **13 copias** en el primario de 2024 (TSO500); en el hueso de 2026, «amplificación» sin cifra en el informe clínico (las 33 copias salen del fichero de investigación). **Nunca «×13»**: las cifras de plataformas distintas no se comparan |
+| Amplificación CCND1 | **20 copias** (primario 2024); amplificado en el hueso de 2026 |
+| Amplificación FGF3/FGF4/FGF19 | **18 copias** (primario 2024); amplificado en el hueso de 2026 |
+| Diferenciación neuroendocrina | **80 % de las células neoplásicas** en la biopsia diagnóstica de 2024; **focal y heterogénea** en la revisión de 2026. **Nunca «el 80 % del tumor»** |
+| Goserelina | **continúa** (última dosis documentada 08/09/2026); solo el fulvestrant llegó hasta el 28/05/2026 |
 | Ki67 inicial | **60%** |
 | HER2 | **negativo (0)** |
 | ECOG actual | **0** (abril 2026) |

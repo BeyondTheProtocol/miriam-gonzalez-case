@@ -10,6 +10,11 @@ const timelineEntrySchema = z.object({
   linkLabel: z.string().optional(),
   image: z.string().optional(),
   imageAlt: z.string().optional(),
+  // Un vídeo de la web dentro del hito (clave de `videoPorId`, utils/videos.ts) y el id que lleva su <li>. Tanda 2, T2c
+  // (24-oct-2026): el explicativo del ADC vive en el hito del 7-oct. Hay que declararlos aquí: un campo que el esquema no
+  // conoce se descarta al leer la colección y el vídeo no saldría.
+  video: z.string().optional(),
+  anchor: z.string().optional(),
 })
 
 const teamMemberSchema = z.object({
@@ -68,6 +73,8 @@ const scienceSchema = z.object({
     .array(
       z.object({
         title: z.string(),
+        // Id de la sección en /ciencia/evidencia: a ella enlazan los ejes terapéuticos de /ciencia (T2c). Estable aunque se reordenen las secciones.
+        anchor: z.string().optional(),
         tag: z.string().optional(),
         tone: z.enum(['violet', 'info', 'warn', 'positive', 'neutral']).optional(),
         subtitle: z.string().optional(),
@@ -94,46 +101,6 @@ const scienceSchema = z.object({
       linkText: z.string().optional(),
     })
   ),
-  liquidBiopsies: z
-    .array(
-      z.object({
-        id: z.string(),
-        date: z.string(),
-        source: z.string(),
-        findings: z.string(),
-        highlight: z.boolean().optional(),
-      })
-    )
-    .optional(),
-  liquidBiopsyPivot: z
-    .object({
-      samples: z.array(
-        z.object({
-          id: z.string(),
-          label: z.string(),
-          date: z.string(),
-          matrix: z.string().optional(),
-        })
-      ),
-      rows: z.array(
-        z.object({
-          alteration: z.string(),
-          subscript: z.string().optional(),
-          values: z.record(
-            z.string(),
-            z.object({
-              value: z.string().optional(),
-              tone: z
-                .enum(['violet', 'info', 'warn', 'positive', 'neutral'])
-                .optional(),
-              plain: z.boolean().optional(),
-            })
-          ),
-        })
-      ),
-      sources: z.string().optional(),
-    })
-    .optional(),
   imaging: z
     .object({
       title: z.string(),
@@ -143,15 +110,6 @@ const scienceSchema = z.object({
       meaning: z.string(),
       quote: z.string().optional(),
       caveat: z.string().optional(),
-    })
-    .optional(),
-  boneBiopsy: z
-    .object({
-      title: z.string(),
-      date: z.string(),
-      center: z.string().optional(),
-      site: z.string(),
-      result: z.string(),
     })
     .optional(),
 })

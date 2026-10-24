@@ -27,9 +27,12 @@
 
         <!-- Evidence dossier -->
         <div class="space-y-8 mb-14">
+          <!-- `anchor` (science.yml): el id al que enlazan los ejes terapéuticos de /ciencia. scroll-mt-24 para que la cabecera fija no tape el título. -->
           <section
             v-for="(section, sectionIndex) in paperSections"
+            :id="section.anchor"
             :key="`${section.title}-${sectionIndex}`"
+            class="scroll-mt-24"
           >
             <div v-if="section.title" class="mb-4">
               <div class="flex items-center gap-2.5 mb-1.5 flex-wrap">

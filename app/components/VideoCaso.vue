@@ -1,5 +1,5 @@
 <template>
-  <!-- Un vídeo público de la web (el ADC de /ciencia, el promo de /prensa). Viene de la antigua /videos (fusionada en F4,
+  <!-- Un vídeo público de la web (el ADC del hito del 7-oct de la Cronología, el promo de /prensa). Viene de la antigua /videos (fusionada en F4,
        23-oct-2026): sin autoplay y sin descargar nada antes de pulsar play (preload="none": solo carga el póster). Los
        subtítulos van grabados en la imagen; la transcripción da el mismo texto a quien usa lector de pantalla. Tarjeta del
        sistema (card-base) y plegable de notas (notes-disclosure); sin animación de entrada. El nivel del título lo pone la
@@ -49,7 +49,7 @@
 <script setup lang="ts">
 import type { VideoWeb } from '~/utils/videos'
 
-withDefaults(defineProps<{ video: VideoWeb; nivel?: 'h2' | 'h3' }>(), { nivel: 'h2' })
+withDefaults(defineProps<{ video: VideoWeb; nivel?: 'h2' | 'h3' | 'h4' }>(), { nivel: 'h2' })
 
 const { locale } = useI18n()
 const { trackVideo } = useSupport()
@@ -62,6 +62,8 @@ const idioma = computed(() => (locale.value === 'en' ? 'en' : 'es'))
 /* 16:9 reservado antes de cargar el póster: la página no salta. */
 .video-web {
   aspect-ratio: 16 / 9;
+  /* El texto alternativo del <video> (navegador sin soporte) iba berenjena sobre berenjena (1:1): ahora, crema sobre berenjena. */
+  color: var(--color-bg);
 }
 /* Objetivo táctil de 44 px en el resumen del plegable (la vara de la casa). */
 .video-transcripcion > summary {

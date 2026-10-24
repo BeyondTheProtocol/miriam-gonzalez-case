@@ -2,7 +2,7 @@
 
 ## About this Project
 
-This is an informational website about **Miriam González Pérez**: a patient with metastatic HR+/HER2- breast cancer with neuroendocrine differentiation (~80%) and FGFR1 ×13 / CCND1 ×20 / 11q13 cluster amplification. The goal is to explain the case to the scientific community, raise funds for an advanced molecular rebiopsy (GoFundMe), and publicly document the process of a patient using AI and an international expert network to navigate precision oncology.
+This is an informational website about **Miriam González Pérez**: a patient with metastatic HR+/HER2- breast cancer with neuroendocrine differentiation and FGFR1 / CCND1 / 11q13 cluster amplification. The goal is to explain the case to the scientific community, raise funds for an advanced molecular rebiopsy (GoFundMe), and publicly document the process of a patient using AI and an international expert network to navigate precision oncology.
 
 The website has two audiences: scientists/physicians (science page, molecular profile, clinical trials) and general public/donors (story, GoFundMe, timeline).
 
@@ -87,7 +87,7 @@ The website has two audiences: scientists/physicians (science page, molecular pr
 - Timeline: `.yml` files in `content/es/timeline.yml` and `content/en/timeline.yml`.
 - Team data: `content/es/team.yml` and `content/en/team.yml` (3 groups: `coreTeam`, `medicalNetwork`, `integrativeSupport`).
 - Press mentions: `content/es/press.yml` and `content/en/press.yml`.
-- Science page data (treatments, papers, panel): `content/es/science.yml` and `content/en/science.yml`.
+- Science page data (treatments, papers, panel, functional imaging): `content/es/science.yml` and `content/en/science.yml`. Each `paperSections` entry has an `anchor` (the id of its section on `/ciencia/evidencia`, which the therapeutic axes of `/ciencia` link to). The treatment history and the Ga-68 PET are shown on `/datos` (`#s-historia`, `#s-pet`), not on `/ciencia`.
 - Language-specific slugs are configured in `nuxt.config.ts` under `i18n.pages`.
 - All collections are **data collections** (timeline, team, press, science YML): they have no SEO schemas because they are not routed pages. (Before 2026-10-23 the two story collections were page collections with `defineRobotsSchema()` / `defineSitemapSchema()`.)
 - If you modify `content.config.ts`, run `pnpm nuxt prepare` to regenerate types.
@@ -146,14 +146,18 @@ same piece. Science labels in handwriting go UPPERCASE. Never below 11px.
 
 These data are medically accurate and should not be modified without verification:
 
-- FGFR1 amplified ×13 (not ×12, not ×14)
-- CCND1 amplified ×20
-- FGF3/FGF4/FGF19 amplified ×18
-- Neuroendocrine differentiation ~80% (not 70%, not 90%)
+- FGFR1 amplified: **13 copies** in the 2024 primary (TSO500; the lab warns the copy number is unreliable below 50% tumour, and VIGex measured 50% in the same block). In the 2026 bone the clinical FoundationOne CDx report says "FGFR1 amplification" with no figure; the 33 copies of FGFR1 and 37 of the 11q13 cluster come from that run's research file ("for research use only", computational purity 61%). **Never write "×13"**: platforms, samples and purities differ, so the figures are not comparable. The text is `ciencia.nota_copias` (it appears once, on `/ciencia`).
+- CCND1 amplified: 20 copies, and FGF3/FGF4/FGF19: 18 copies (2024 primary); "amplified" in the 2026 bone (37 copies in the research file).
+- Neuroendocrine differentiation: **80% of the neoplastic cells** in the 2024 diagnostic biopsy (chromogranin and synaptophysin, CD56 negative); **focal and heterogeneous in the 2026 review**; markers also in bone (synaptophysin) and liver (chromogranin A and synaptophysin) with no percentage. **Never "80% of the tumour"**. The 2019 WHO category "neuroendocrine neoplasm of the breast" needs more than 90% neuroendocrine cells: this is a carcinoma NST with neuroendocrine differentiation, outside it. "BC-NED" is a working label, not a diagnostic category.
 - Initial Ki67: 60%
 - HER2 negative (0)
 - Discordant RP: 5% local vs 100% external
 - Low TMB, low MSI
+- Goserelin did **not** stop on 28/05/2026: only fulvestrant did; goserelin continues (last documented dose 08/09/2026).
+- The 3L RECIST had **four** target lesions (sum 68 → 74 mm, +8.8%).
+- The synaptophysin slide review of 29-sep-2026 is **"said"** (a meeting, no written report): never "the negative entry is an error in the report".
+
+The six debts above (and the exact patterns) are guarded by `pnpm test:afirmaciones-clinicas` (source, `scripts/lib/deudas-clinicas.mjs`) and `pnpm test:ciencia-pro` (generated HTML of every page).
 - No pathogenic SNVs or INDELs, no fusions
 - PIK3CA and ESR1 not detected in primary tissue
 - ECOG 1 (since April 2026; ECOG 0 from diagnosis until then)
@@ -207,8 +211,14 @@ Edit `content/es/science.yml` and `content/en/science.yml`. The file has three s
 ### Alba's Text (Story)
 The `/historia` page (a placeholder that said "in preparation", plus four paragraphs; the empty chapter 1 was deleted) was merged into `/timeline` on 2026-10-23 (architecture redesign, phase F4) and **came back on 2026-10-24** (redesign round 2, T2a): Umami showed 184 of its 191 entries come from google.com, so it is alive again (no redirect, in the sitemap), built from the v3 pieces. It has no chapters and no `historia_es` / `historia_en` collections (`/historia/01-el-comienzo` and `/en/story/01-the-beginning` keep their 301 to `/timeline`). When the real text exists, put it in `app/pages/historia/index.vue` (or bring back `[slug].vue` and the collections from the commit before `rediseno(F4)`). The one human line `/timeline` shows is `historia.story_teaser_1`.
 
+### `/ciencia` is one professional layer (round 2, T2c, 2026-10-24)
+- No reading-level switch (`?nivel=` is ignored; the plain layer lives on the home). `NivelLectura.vue` stays: `CelulaNivel` wraps it. Old links keep working because the anchor in the URL still gets the focus (`#mapa-acceso`, `#snapshot-title`).
+- Clinical **state is read from `app/data/caso.json`**, never written by hand: the sheet, the material, "Updated on", and "in fourth line since…" come from `app/utils/casoCiencia.ts` (`useCasoCiencia`). The fourth-line sentence is fail-closed: if the current line is no longer the 4th, it is not drawn.
+- The ADC explainer video lives in the 7-Oct milestone of the timeline (`video: adc` and `anchor: adc` in `timeline.yml`; `videoPorId` in `utils/videos.ts`). The `liquidBiopsies`, `liquidBiopsyPivot` and `boneBiopsy` blocks of `science.yml`, `TwoFaces` and `LiquidBiopsyPivot` were deleted.
+- Tests: `pnpm test:ciencia-nivel` (Chrome: no switch, anchors with focus, donate button) and `pnpm test:ciencia-pro` (generated HTML: order of blocks, literal clinical texts, the six debts on every page).
+
 ### Merged and archived pages (redesign F4, 2026-10-23; round 2, T2a, 2026-10-24)
-- Alive again since T2a: `/herramientas` (the tools index, two groups: "Las de ahora" and "Sirvieron en un momento concreto"), `/reservorio` (with its 3D) and `/historia`. They are no longer redirects and no longer in `nitro.prerender.ignore` (it matches by prefix: leaving them there would leave the live page unrendered). `/en/herramientas` (301 → `/en/tools`) and `/en/historia` (301 → `/en/story`) remain, because i18n invents the `/en/<spanish-slug>` variant. `/historia/01-el-comienzo` (and EN) → `/timeline` (301) and `/videos` (301) → `/ciencia` (ADC explainer, next to the TROP-2 axis; the Polaris promo lives in `/prensa`) remain; see `nuxt.config.ts` and `pnpm test:short-links`.
+- Alive again since T2a: `/herramientas` (the tools index, two groups: "Las de ahora" and "Sirvieron en un momento concreto"), `/reservorio` (with its 3D) and `/historia`. They are no longer redirects and no longer in `nitro.prerender.ignore` (it matches by prefix: leaving them there would leave the live page unrendered). `/en/herramientas` (301 → `/en/tools`) and `/en/historia` (301 → `/en/story`) remain, because i18n invents the `/en/<spanish-slug>` variant. `/historia/01-el-comienzo` (and EN) → `/timeline` (301) and `/videos` (301) → `/prensa#video` (the Polaris promo; the ADC explainer lives inside the 7-Oct milestone of `/timeline`) remain; see `nuxt.config.ts` and `pnpm test:short-links`.
 - `/3d*` short links keep their 302 and UTM and land on `/lesiones`.
 - `/mapa-metastasis` is a **tool that served at a specific moment** ("Histórico · junio 2026"): public, indexable, in the sitemap, with a line at the top that says when and why it was made; it is not updated. `/lesiones` reads its foci at build time (`#mapa-focos`).
 - Tools live in two lists in `app/utils/navegacion.ts`: `HERRAMIENTAS` (the current ones, in Miriam's order) and `HERRAMIENTAS_PASADAS` (the map and the port). The menu, the footer, the home band and the index read them; so does `SalidaHerramienta`, the common "Support / Back to home" exit that `layouts/default.vue` paints at the end of every tool by route name (`SALIDA_HERRAMIENTA`).

@@ -55,8 +55,8 @@ entries:
     title: El tumor revela su identidad molecular
     description: >
       Miriam participa en el estudio DIPCAN, que permite realizar un análisis genómico completo
-      del tumor (TSO500). Los resultados revelan los marcadores clave: FGFR1 amplificado ×13,
-      CCND1 ×20, FGF3/4/19 ×18 (cluster 11q13). Además, el análisis detecta una discrepancia
+      del tumor (TSO500). Los resultados revelan los marcadores clave: FGFR1 amplificado (13
+      copias), CCND1 (20 copias) y FGF3/4/19 (18 copias), estos dos del cluster 11q13. Además, el análisis detecta una discrepancia
       llamativa en el receptor de progesterona (PR): la misma muestra tumoral da un resultado
       de 5% en el laboratorio local pero 100% en el laboratorio de referencia externo — una
       diferencia con implicaciones directas en la elección del tratamiento hormonal.
@@ -224,9 +224,9 @@ entries:
     tag: Divulgación
     title: El mapa de metástasis se hace público
     description: >
-      Miriam publica en abierto el mapa interactivo de sus metástasis: la herramienta que ayuda
-      a su equipo a entender el caso y a decidir, por ejemplo, dónde biopsiar. Ese mismo día
-      El Español cuenta su historia. Lo comparte en X con mucha ilusión.
+      Miriam publica en abierto el mapa interactivo de sus metástasis. Lo hace para llevar a sus
+      médicos una pregunta mejor tras la biopsia de abril sin tumor: dónde volver a pinchar. Ese
+      mismo día El Español cuenta su historia. Lo comparte en X con mucha ilusión.
     highlight: true
     link: https://x.com/miriamgonp/status/2068004136621109648
     linkLabel: 'Ver el anuncio en X →'
@@ -246,7 +246,8 @@ entries:
     title: Primera biopsia ósea con tumor viable
     description: >
       El hueso da por fin tejido suficiente para analizar, y por primera vez el perfil sale del
-      tumor y no de la sangre. La anatomía patológica confirma metástasis del tumor neuroendocrino
+      tumor y no de la sangre. La lesión fue el ilion derecho. La lente del mapa, sin validar, ya
+      puntuaba alto el ilíaco derecho. La anatomía patológica confirma metástasis del tumor neuroendocrino
       de mama, con sinaptofisina positiva y un Ki67 de alrededor del 15%; el patólogo avisa de que
       hay poco tejido y de que la gradación no está establecida en biopsias pequeñas. El perfil
       molecular confirma el eje que ya se sospechaba: CCND1 y FGF3/4/19 amplificados junto a
@@ -320,6 +321,8 @@ entries:
       Miriam empieza el tratamiento del ensayo. El primer ciclo fue el 7 de octubre, en
       Barcelona: un ADC dirigido contra TROP2.
     highlight: false
+    video: adc
+    anchor: adc
     link: https://x.com/miriamgonp/status/2108087307219923331
     linkLabel: 'Leerlo en X →'
 

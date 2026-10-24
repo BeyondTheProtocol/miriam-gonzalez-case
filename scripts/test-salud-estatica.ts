@@ -60,7 +60,7 @@
 //    rótulo «Histórico · junio 2026» y, arriba, la línea de Miriam. /herramientas: dos grupos, tarjetas con el mismo orden fijo y
 //    tres puertas. /reservorio: con su 3D, la línea de Miriam, el motivo del recambio (en inglés SIN «innominate trunk») y las
 //    medidas leídas de caso.json. /historia: viva, con su texto de siempre. La salida común (Apoyar y volver al inicio) cierra
-//    cada herramienta, menos el índice y /lesiones. El ADC vive en /ciencia y el promo en /prensa, con su transcripción entera.
+//    cada herramienta, menos el índice y /lesiones. El ADC vive en el hito del 7-oct de /timeline (T2c) y el promo en /prensa, con su transcripción entera.
 //
 // Y la home del rediseño (F5, 23-oct-2026):
 //
@@ -415,12 +415,13 @@ if (existsSync('seed/fundraiser.json')) {
 
   // lo generado, en ES y EN
   // T2a (24-oct-2026): la franja #visores salió de /datos (el índice /herramientas volvió a ser una página); #reservorio queda como una fila con un enlace
-  const IDS = ['id="s-hoy"', 'id="que-buscamos"', 'id="s-tejido"', 'id="s-higado"', 'id="s-evo"', 'id="reservorio"', 'id="s-vitrina"']
+  // T2c (24-oct-2026): la historia de tratamientos y el PET con Galio-68 salieron de /ciencia y viven en /datos, entre «Evolución» y el reservorio
+  const IDS = ['id="s-hoy"', 'id="que-buscamos"', 'id="s-tejido"', 'id="s-higado"', 'id="s-evo"', 'id="s-historia"', 'id="s-pet"', 'id="reservorio"', 'id="s-vitrina"']
   for (const [idioma, pagina, contacto] of [['es', 'datos.html', '/contacto?role=researcher'], ['en', 'en/data.html', '/en/contact?role=researcher']] as const) {
     const h = html(pagina)
     ok((h.match(/\bid="que-buscamos"/g)?.length ?? 0) === 1, `${pagina}: exactamente un id="que-buscamos"`)
     const pos = IDS.map((id) => h.indexOf(id))
-    ok(pos.every((p, i) => p >= 0 && (i === 0 || p > pos[i - 1]!)), `${pagina}: orden Hoy → Qué buscamos → Tejido → Carga tumoral → Evolución → reservorio → vitrina (${pos.join(' < ')})`)
+    ok(pos.every((p, i) => p >= 0 && (i === 0 || p > pos[i - 1]!)), `${pagina}: orden Hoy → Qué buscamos → Tejido → Carga tumoral → Evolución → Historia de tratamientos → PET Ga-68 → reservorio → vitrina (${pos.join(' < ')})`)
     ok(!h.includes('id="visores"') && !h.includes('href="#visores"'), `${pagina}: ya no lleva la franja #visores ni su chip (volvió a /herramientas)`)
     const bloque = h.slice(h.indexOf('id="que-buscamos"'), h.indexOf('id="s-tejido"'))
     ok((bloque.match(/<li\b/g)?.length ?? 0) === 5, `${pagina}: «Qué buscamos» pinta 5 peticiones (${bloque.match(/<li\b/g)?.length ?? 0})`)
@@ -746,7 +747,7 @@ if (existsSync('seed/fundraiser.json')) {
     }
   }
 
-  // i) vídeos: el ADC en /ciencia (junto al eje TROP-2) y el promo en /prensa, con la transcripción entera
+  // i) vídeos: el ADC en la Cronología (dentro del hito del 7-oct, T2c, 24-oct-2026) y el promo en /prensa, con la transcripción entera
   const chequeaVideo = (f: string, v: typeof VIDEO_ADC, extra: (cuerpo: string) => void) => {
     const cuerpo = limpio(f)
     const art = [...cuerpo.matchAll(/<article\b[^>]*>[\s\S]*?<\/article>/g)].map((m) => m[0]).find((a) => a.includes(v.src))
@@ -759,19 +760,19 @@ if (existsSync('seed/fundraiser.json')) {
     extra(art)
   }
   for (const loc of ['es', 'en'] as const) {
-    chequeaVideo(P[loc].ciencia, VIDEO_ADC, (art) => {
-      ok(loc === 'es' ? !art.includes(t('es', 'videos.voice_other')) : texto(art).includes(t('en', 'videos.voice_other')) && texto(art).includes(VIDEO_ADC.resumenEn!), `${P[loc].ciencia}: ${loc === 'es' ? 'sin aviso de idioma' : 'avisa de que está narrado en español y lleva su resumen en inglés'}`)
+    chequeaVideo(P[loc].timeline, VIDEO_ADC, (art) => {
+      ok(loc === 'es' ? !art.includes(t('es', 'videos.voice_other')) : texto(art).includes(t('en', 'videos.voice_other')) && texto(art).includes(VIDEO_ADC.resumenEn!), `${P[loc].timeline}: ${loc === 'es' ? 'sin aviso de idioma' : 'avisa de que está narrado en español y lleva su resumen en inglés'}`)
+      ok(/<h4\b/.test(art) && !/<h2\b|<h3\b/.test(art), `${P[loc].timeline}: el título del vídeo es un h4 (el del hito es un h3, sin saltarse un escalón)`)
     })
     chequeaVideo(P[loc].prensa, VIDEO_PROMO[loc], () => {})
-    // el ADC está pegado al eje TROP-2: después de los ejes y antes del panel de rebiopsia
-    const c = limpio(P[loc].ciencia)
-    const ejes = c.indexOf('id="axes-title"'), adc = c.indexOf(VIDEO_ADC.src), panel = c.indexOf('id="panel-title"')
-    ok(ejes > 0 && adc > ejes && panel > adc, `${P[loc].ciencia}: el vídeo del ADC va justo después de los ejes terapéuticos y antes del panel (${ejes} < ${adc} < ${panel})`)
-    // fuera de la capa de datos (v-show) para que se vea también en el modo llano, que es el que abre quien venía de /videos:
-    // el HTML sale con el modo llano, así que la capa de datos lleva display:none y el vídeo NO puede estar dentro de ninguna.
-    const abiertos: string[] = []
-    for (const m of c.slice(0, adc).matchAll(/<(\/?)(div|section)\b([^>]*)>/g)) { if (m[1]) abiertos.pop(); else abiertos.push(m[3]!) }
-    ok(adc > 0 && !abiertos.some((a) => /display:\s*none/.test(a)), `${P[loc].ciencia}: el vídeo del ADC se ve también en el modo llano (ningún contenedor suyo está oculto)`)
+    // el ADC va DENTRO del hito del 7-oct (<li id="adc">), con el texto del hito intacto
+    const tl = limpio(P[loc].timeline)
+    const hito = tl.match(/<li\b[^>]*\bid="adc"[^>]*>[\s\S]*?<\/li>/)?.[0] ?? ''
+    ok(unaVez(tl, 'id="adc"'), `${P[loc].timeline}: exactamente un id="adc" (el del hito del 7-oct)`)
+    ok(hito.includes(VIDEO_ADC.src), `${P[loc].timeline}: el vídeo del ADC está dentro del hito con id="adc"`)
+    ok(texto(hito).includes(loc === 'es' ? 'Empieza el TROPION-Breast06' : 'Starts TROPION-Breast06') && texto(hito).includes(loc === 'es' ? 'un ADC dirigido contra TROP2' : 'an ADC that targets TROP-2'), `${P[loc].timeline}: el hito del 7-oct conserva su título y su texto (el vídeo lo presenta)`)
+    // y /ciencia ya no lo lleva: una casa por cosa
+    ok(!limpio(P[loc].ciencia).includes(VIDEO_ADC.src) && !limpio(P[loc].ciencia).includes('como-funciona-un-adc'), `${P[loc].ciencia}: ya no lleva el vídeo del ADC (vive en ${P[loc].timeline}, hito del 7-oct)`)
     // T2a: el índice de herramientas es una página, así que «Todas las herramientas» (/ciencia, /prensa) lleva a ella
     for (const origen of [P[loc].ciencia, P[loc].prensa]) {
       const enMain = [...principal(origen).matchAll(/<a\b[^>]*\bhref="([^"]*)"[^>]*>([\s\S]*?)<\/a>/g)].filter((m) => texto(m[2]!).includes(t(loc, 'nav.all_tools')))

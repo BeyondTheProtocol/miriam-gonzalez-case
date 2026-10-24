@@ -70,7 +70,7 @@ ok(/\|\s*`\/caso`\s*\|\s*`\/datos#que-buscamos`\s*\|/.test(doc), 'la fila de /ca
   const FUSIONADAS: [string, string, number][] = [
     ['/en/herramientas', '/en/tools', 301], ['/en/historia', '/en/story', 301],
     ['/historia/01-el-comienzo', '/timeline', 301], ['/en/story/01-the-beginning', '/en/timeline', 301], ['/en/historia/01-el-comienzo', '/en/timeline', 301],
-    ['/videos', '/ciencia', 301], ['/en/videos', '/en/science', 301],
+    ['/videos', '/prensa#video', 301], ['/en/videos', '/en/press#video', 301],
   ]
   const porRuta = new Map(redirects.map((r) => [r.ruta, r]))
   for (const [ruta, destino, codigo] of FUSIONADAS) {
@@ -81,8 +81,8 @@ ok(/\|\s*`\/caso`\s*\|\s*`\/datos#que-buscamos`\s*\|/.test(doc), 'la fila de /ca
     ok(doc.includes(`\`${ruta}\``), `${ruta} está en la tabla de «Páginas fusionadas» de SHORT-LINKS.md`)
   }
   // el destino es una página real y, si lleva ancla, el id existe en ella
-  const PAGINA_ES: Record<string, string> = { '/datos': 'app/pages/datos.vue', '/timeline': 'app/pages/timeline.vue', '/ciencia': 'app/pages/ciencia/index.vue', '/herramientas': 'app/pages/herramientas.vue', '/historia': 'app/pages/historia/index.vue' }
-  const ES_DE: Record<string, string> = { '/data': '/datos', '/science': '/ciencia', '/tools': '/herramientas', '/story': '/historia' }
+  const PAGINA_ES: Record<string, string> = { '/datos': 'app/pages/datos.vue', '/timeline': 'app/pages/timeline.vue', '/ciencia': 'app/pages/ciencia/index.vue', '/prensa': 'app/pages/prensa.vue', '/herramientas': 'app/pages/herramientas.vue', '/historia': 'app/pages/historia/index.vue' }
+  const ES_DE: Record<string, string> = { '/data': '/datos', '/science': '/ciencia', '/press': '/prensa', '/tools': '/herramientas', '/story': '/historia' }
   for (const [, destino] of FUSIONADAS) {
     const [ruta, ancla] = destino.split('#') as [string, string | undefined]
     const es = ruta.replace(/^\/en(?=\/|$)/, '')
@@ -93,6 +93,7 @@ ok(/\|\s*`\/caso`\s*\|\s*`\/datos#que-buscamos`\s*\|/.test(doc), 'la fila de /ca
   // los destinos EN son la ruta traducida REAL de i18n.pages (o la española con /en, si no está traducida)
   const enDe = (nombre: string) => cfg.match(new RegExp(`'${nombre}':\\s*\\{\\s*en:\\s*'([^']+)'`))?.[1]
   ok(enDe('datos') === '/data' && enDe('ciencia/index') === '/science', `i18n.pages: datos → /en/data y ciencia → /en/science (${enDe('datos')}, ${enDe('ciencia/index')})`)
+  ok(enDe('prensa') === '/press', `i18n.pages: prensa → /en/press (${enDe('prensa')}): destino de /en/videos`)
   ok(!enDe('timeline'), '/timeline no está traducida: su ruta inglesa es /en/timeline')
   ok(enDe('herramientas') === '/tools' && enDe('historia/index') === '/story' && enDe('reservorio') === '/reservorio', `i18n.pages: herramientas → /en/tools, historia → /en/story y reservorio → /en/reservorio (${enDe('herramientas')}, ${enDe('historia/index')}, ${enDe('reservorio')})`)
 

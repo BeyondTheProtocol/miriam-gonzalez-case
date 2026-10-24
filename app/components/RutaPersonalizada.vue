@@ -13,9 +13,18 @@
     >
       {{ $t('ciencia.ruta.title') }}
     </h2>
-    <p class="text-sm text-tinta leading-relaxed mb-8 max-w-2xl">
-      {{ $t('ciencia.ruta.intro') }}
+    <!-- El objetivo (N-of-1) va aquí, una sola vez (E5; antes, también en una tarjeta oscura aparte). La frase de la que parte la ruta y el paso
+         de hoy: el número sale de rutaPasos.ts (el primer paso que no está hecho), no de la prosa. -->
+    <p v-if="objetivo" class="text-sm text-berenjena leading-relaxed font-medium mb-3 max-w-2xl">
+      {{ objetivo }}
     </p>
+    <p class="text-sm text-tinta leading-relaxed mb-4 max-w-2xl">
+      {{ $t('ciencia.ruta.intro', { paso: pasoActual }) }}
+    </p>
+    <p v-if="ahora" class="text-sm text-berenjena leading-relaxed mb-8 max-w-2xl">
+      <span class="font-semibold">{{ $t('ciencia.ruta.ahora', { estado: ahora }) }}</span>
+    </p>
+    <div v-else class="mb-8" />
 
     <ol class="ruta-lista">
       <li
@@ -73,6 +82,13 @@
 // Los estados viven en app/utils/rutaPasos.ts (17-oct-2026): la home los enseña también.
 import { BADGE_RUTA, RUTA_PASOS } from '~/utils/rutaPasos'
 const pasos = RUTA_PASOS
+
+// `objetivo`: la frase del objetivo (la pone la página que usa la ruta). `ahora`: la frase del tratamiento de hoy, leída de caso.json; sin ella
+// no se pinta nada (sin dato no hay línea).
+defineProps<{ objetivo?: string | null; ahora?: string | null }>()
+
+// El paso en el que está el caso: el primero que no está hecho (los estados viven en rutaPasos.ts).
+const pasoActual = Math.min(Math.max(pasos.findIndex((p) => p.estado !== 'hecho'), 0) + 1, pasos.length)
 const badge = BADGE_RUTA
 
 const root = ref<HTMLElement | null>(null)

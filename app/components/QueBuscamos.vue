@@ -21,6 +21,8 @@
  *   acciones   la fila de «Escríbenos» y «Ver todo lo que buscamos». Por defecto sí; la home (F5) la quita y pinta la
  *              suya, con el botón «Escribir al equipo» y el enlace al 3D en la misma fila, para no tener dos enlaces
  *              seguidos al mismo sitio. Con `acciones` en false `verTodas` no hace nada.
+ *   sellos     el sello de evidencia de cada petición. Por defecto sí; /ciencia (T2c) lo quita para no sumar texto de 11 px a una página
+ *              que ya se mide en R10; el enlace «Ver todo lo que buscamos» lleva a /datos, donde cada petición sale con su sello.
  *
  * El enlace a /datos#que-buscamos lo mide el plugin de Umami (VerPeticion), igual que cualquier otro.
  */
@@ -38,7 +40,9 @@ const props = withDefaults(defineProps<{
   filtro?: readonly TemaPeticion[]
   verTodas?: boolean
   acciones?: boolean
-}>(), { verTodas: undefined, acciones: true })
+  /** el sello de evidencia de cada petición (11 px, mono). Por defecto sí; /ciencia lo quita (sus peticiones, con su sello, en /datos#que-buscamos) */
+  sellos?: boolean
+}>(), { verTodas: undefined, acciones: true, sellos: true })
 
 const { locale } = useI18n()
 const localePath = useLocalePath()
@@ -54,7 +58,7 @@ const enlaceTodas = computed(() => hayEnlaceTodas(props.verTodas, mostradas.valu
   <div v-if="mostradas.length" class="qb">
     <ul class="qb__lista">
       <li v-for="p in mostradas" :key="p.clave">
-        {{ txtCaso(p.valor, lang) }} <DatosSello :s="p.sello" :lang="lang" />
+        {{ txtCaso(p.valor, lang) }}<template v-if="sellos">{{ ' ' }}<DatosSello :s="p.sello" :lang="lang" /></template>
         <NuxtLink v-if="p.enlace === 'celula-a-celula'" :to="localePath('/celula-a-celula')" class="link-inline qb__resultados">{{ L('Los primeros resultados están en Célula a célula', 'The first results are in Cell by cell') }}</NuxtLink>
       </li>
     </ul>
