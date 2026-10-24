@@ -158,6 +158,7 @@ const superpuesta = ref(false)
 const modal = computed(() => superpuesta.value && fichaAbierta.value)
 const botonFicha = ref<HTMLElement | null>(null)
 const tituloFicha = ref<HTMLElement | null>(null)
+const peticion = ref<{ abre: () => void } | null>(null)
 async function alternaFicha() {
   fichaAbierta.value = !fichaAbierta.value
   await nextTick()
@@ -234,7 +235,12 @@ onBeforeUnmount(() => {
           'Los resultados que aparecen son los de los informes de anatomía patológica, cada uno con su fuente y su sello de verificación. Mirar la imagen no los sustituye: los interpreta el equipo médico.',
           'The results shown are those in the pathology reports, each with its source and verification seal. Looking at the image does not replace them: the medical team interprets them.') }}</p>
       </details>
+      <!-- Los TIFF a resolución completa, bajo petición (24-oct-2026). También abre con #ficheros / #files. -->
+      <button type="button" class="lam__accion lam__pedir" :aria-label="L('Pedir los ficheros a resolución completa', 'Request the full-resolution files')" @click="peticion?.abre()">
+        <Icon name="ph:download-simple-bold" class="w-4 h-4" aria-hidden="true" /><span class="lam__accion-texto">{{ L('Pedir los ficheros', 'Request the files') }}</span><span class="lam__accion-corto" aria-hidden="true">{{ L('Ficheros', 'Files') }}</span>
+      </button>
     </div>
+    <ClientOnly><LaminillasPeticion ref="peticion" :idioma="idioma" /></ClientOnly>
 
     <div class="lam__cuerpo">
       <!-- Orden del DOM: el visor primero (lo principal; ← → y ‹ › cambian de laminilla sin pasar por
@@ -318,6 +324,10 @@ onBeforeUnmount(() => {
             <p>{{ L(
               'Los marcadores neuroendocrinos son cromogranina, sinaptofisina, INSM1 y CD56.',
               'The neuroendocrine markers are chromogranin, synaptophysin, INSM1 and CD56.') }}</p>
+            <p>
+              {{ L('Si quieres los ficheros a resolución completa, pídemelos con «Pedir los ficheros». Licencia CC BY 4.0.', 'If you want the full-resolution files, ask me through “Request the files”. Licensed under CC BY 4.0.') }}
+              <a href="/laminillas-ficheros/SHA256SUMS.txt" class="link-inline">{{ L('Sumas SHA-256', 'SHA-256 checksums') }}</a>
+            </p>
           </details>
         </div>
       </aside>
