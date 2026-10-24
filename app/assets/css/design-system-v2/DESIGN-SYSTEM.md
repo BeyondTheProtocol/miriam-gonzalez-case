@@ -354,7 +354,7 @@ Cada componente dice cuándo sí, cuándo no, qué props tiene y qué no se hace
 
 ### Botones y enlaces (clases en `main.css`)
 
-- `.btn-cta`: **solo para apoyar** (donar). Uno por pantalla. Coral con texto berenjena en cualquier fondo. Nunca para navegar.
+- `.btn-cta`: **solo para apoyar** (donar). Uno por pantalla. Coral con texto berenjena en cualquier fondo, **en reposo (5,6:1)**: su `:hover` y su `:active` bajan de 4,5:1 (ver la sección 5, «Contraste de los estados de `.btn-cta`»). Nunca para navegar.
 - `.btn-dark`: acción de explorar (reproducir, abrir un visor). En una banda oscura se invierte solo.
 - `.btn-secondary`: navegar o contactar. Contorno.
 - `.btn-ghost`: terciario, sin caja.
@@ -376,7 +376,7 @@ Con `variante`, `eyebrow`, `lede` o `align` usa la cabecera v3: H1 siempre visib
 
 ### `TarjetaEnlace`
 
-Icono, título, meta y flecha; interna (`to`) o externa (`href`, con aviso de pestaña nueva). `tono`: `suave`, `destacada` (la protagonista, **una por grupo**) o `apoyo` (coral, **solo para donar**). Para una herramienta: `verbo`, `esfuerzo`, `nivel` y el slot `preview`. Hover: borde más oscuro y flecha 2 px; no se eleva. Nunca una tarjeta de las cinco recetas viejas.
+Icono, título, meta y flecha; interna (`to`) o externa (`href`, con aviso de pestaña nueva). `tono`: `suave`, `destacada` (la protagonista, **una por grupo**) o `apoyo` (coral, **solo para donar**). Para una herramienta: `verbo`, `esfuerzo`, `nivel` y el slot `preview`. Hover: borde más oscuro y flecha 2 px; no se eleva. En `apoyo` el fondo **no cambia** al pasar (el hover de la paleta no llega a AA con el texto de la tarjeta): avisan el borde, la flecha y `--sombra-hover`. Nunca una tarjeta de las cinco recetas viejas.
 
 ### `.card-base` y `.card-marked`
 
@@ -384,7 +384,7 @@ Una tarjeta: `.card-base` (papel y filete), `.card-marked` (la protagonista: bor
 
 ### `Dato`
 
-Valor, unidad, etiqueta, fecha formateada, sello de evidencia y fuente enlazada. `tam`: `lg`, `md`, `sm`. El valor y su unidad van separados por un `&nbsp;` de texto (no por un margen: el lector de pantalla no lo lee). **Nunca lleva una cifra que no venga de su fuente**: una cifra clínica nueva pasa antes por verificación.
+Valor, unidad, etiqueta, fecha formateada, sello de evidencia y fuente enlazada. `tam`: `lg`, `md`, `sm`. El valor y su unidad van separados por un `&nbsp;` de texto (no por un margen: el lector de pantalla no lo lee). El sello de evidencia dentro de `Dato` sube a `--texto-xs` (13 px, el suelo); fuera de `Dato` (la home) `Sello` conserva sus 11 px de siempre. Los glifos de `Sello` (`✓ ~ “ ? ↧`) pasarán a `Icon ph:*` en la fase P9, junto con el resto de la fila Iconos. **Nunca lleva una cifra que no venga de su fuente**: una cifra clínica nueva pasa antes por verificación.
 
 ### `Aviso`
 
@@ -426,7 +426,8 @@ Cinco estados **de proceso** (un paso dado, en curso, pendiente…), derivados d
 - Los tonos de `.pill-data` (`info`, `warn`, `positive`, `neutral`, `violet`, `berenjena`) se mantienen por nombre, así `science.yml` no cambia, pero **solo tiñen: no llevan icono y no significan «hecho» ni «verificado»**. Una píldora de dato clínico (RE−, ECOG 0, Estadio IV) describe y no concluye; un icono de «hecho» sobre un atributo favorable lo leería como completado. Para decir que un dato está verificado está el sello de evidencia. Si un dato clínico necesitara icono, pasa antes por el comité médico con la tabla de qué significa cada uno.
 - Las variantes viejas de `.status-badge` (`--active`, `--firma`, `--pending`, `--candidate`…) siguen existiendo hasta que `RutaPasos` y las páginas migren; entonces se borran.
 - **El coral no es texto sobre crema** (2,6:1): como texto se usa `--cta-texto` (berenjena sobre claro, coral sobre berenjena) y un icono.
-- Contrastes medidos del texto de cada estado sobre su fondo: de 4,6 a 14,6. Medidos con `color-mix` en sRGB, no en un teléfono.
+- Contrastes medidos del texto de cada estado sobre su fondo: de 4,6 a 14,6. Medidos con `color-mix` en sRGB, no en un teléfono. **Esa cifra es solo de las cinco insignias de estado**; los botones de donar tienen su apartado justo debajo.
+- **Contraste de los estados de `.btn-cta` (berenjena `#2d1b3d` sobre coral).** Medido por cálculo con los hex de la paleta (WCAG, sRGB); **no lo mide ningún test**, porque R10 no mide el hover: en reposo `--color-cta` da 5,57:1; `:hover` (`--color-cta-hover`, `#e5573a`) da 4,31:1; `:active` (`--cta-active`, el coral al 85 % con berenjena) da 4,40:1. El texto del botón (16 px heredados en `.btn-cta`, 14 px en el donar de `SiteNav`, ambos en seminegrita) no cuenta como texto grande (WCAG pide 24 px, o 18,66 px en negrita), así que los dos estados quedan bajo AA (4,5:1). **Decisión pendiente de Miriam**, porque `--color-cta-hover` es un átomo firmado de la paleta. Opción medida antes de proponerla: hover derivado más claro, `color-mix(in srgb, var(--color-cta) 85%, var(--color-bg))`, que da 6,34:1 y no mete ningún hex. Mientras tanto, `TarjetaEnlace` en tono `apoyo` no cambia de fondo al pasar y no hereda el problema; `.btn-cta` y el botón de donar de `SiteNav` sí lo tienen (el de `SiteNav` usa `hover:bg-coral-hover`).
 - No hay rojo ni verde: la visualización clínica los descarta por daltonismo.
 
 ## 6. Movimiento
@@ -503,5 +504,6 @@ Los documentos viejos (el Consolidado de junio, el cuadernillo v1 y v2) usaban o
 ## 11. Registro de cambios
 
 - **v3, revisión de la fase DS (24 de octubre de 2026).** `.link-inline`, `.prose a`, `.card-base`, `.data-card`, `.data-table`, `.form-*`, `.pill-data--neutral|berenjena`, `.sello`, `.stat-readout`, `.notes-disclosure` y la miga de `PageHeader` pintan con roles (en claro resuelven al mismo color: 0 px). Rol nuevo `--marcador` (el resaltado del enlace) y `--miriam-hover`, `--miriam-active` y `--secundario-hover` repetidos bajo `data-tema="oscuro"`. Las píldoras de datos pierden el icono de estado. `Dato`, `Referencia` y `TarjetaEnlace` ya no pierden espacios (R11 y `test:componentes-texto`). `Segmentado desplazable` deja el anillo de foco entero. R10 mide el contraste del enlace en línea.
+- **v3, segunda revisión de la fase DS (24 de octubre de 2026).** El sello de evidencia dentro de `Dato` sube de 11 a 13 px (suelo tipográfico; fuera de `Dato` no se mueve). `TarjetaEnlace` en tono `apoyo` deja de cambiar de fondo al pasar (el hover de `.btn-cta` mide 4,31:1 y su `:active` 4,40:1: documentado en la sección 5 y pendiente de decisión de Miriam). Pendiente para P9: glifos de `Sello` a `Icon ph:*`.
 - **v3 (octubre de 2026).** Los tokens se ajustan a la home (H2 600 de 30 a 36 px, tracking -0,03em, shell de 1200 px, cuerpo de 16 px). Once tokens o roles nuevos, nueve componentes base y los arreglos de clase en `main.css`. Sin hex, fuentes ni radios nuevos. Suelo tipográfico de 13 px. Estados derivados con icono. Foco por rol, 44 px dentro de la clase, campos de 16 px, hover filtrado y red de movimiento reducido. `test:diseno` con baseline que solo baja. El canon deja de ser una copia vendorizada.
 - **v2 (julio de 2026).** Tokens de rol por tema, estados con `color-mix`, data-viz clínica derivada.

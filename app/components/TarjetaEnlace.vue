@@ -92,7 +92,7 @@ const alPulsar = (ev: MouseEvent) => emit('click', ev)
   display: flex; flex-direction: column; gap: var(--sp-12); box-sizing: border-box; height: 100%; min-height: 4rem;
   padding: var(--sp-12) var(--sp-16);
   background: var(--superficie); color: var(--texto-1); text-decoration: none;
-  transition: border-color var(--dur-micro) var(--curva-salida), background-color var(--dur-micro) var(--curva-salida);
+  transition: border-color var(--dur-micro) var(--curva-salida), box-shadow var(--dur-micro) var(--curva-salida);
 }
 /* La destacada toma borde, radio y sombra de .card-marked (main.css); las demás, los de aquí. */
 .tarjeta-enlace:not(.card-marked) { border: 1px solid var(--trazo-medio); border-radius: var(--radius-card); }
@@ -110,7 +110,8 @@ const alPulsar = (ev: MouseEvent) => emit('click', ev)
 .tarjeta-enlace__etiquetas { display: flex; flex-wrap: wrap; gap: var(--sp-4) var(--sp-12); }
 @media (hover: hover) and (pointer: fine) {
   .tarjeta-enlace:hover { border-color: var(--texto-1); }
-  .tarjeta-enlace--apoyo:hover { background: var(--color-cta-hover); border-color: var(--color-cta-hover); }
+  /* Apoyo: el fondo NO cambia al pasar. Berenjena sobre --color-cta-hover mide 4,31:1 (bajo AA para texto de 15 a 17 px); el aviso es el borde --texto-1 de arriba, la flecha y la sombra. */
+  .tarjeta-enlace--apoyo:hover { box-shadow: var(--sombra-hover); }
   .tarjeta-enlace:hover .tarjeta-enlace__flecha { transform: translateX(2px); }
 }
 @media (prefers-reduced-motion: reduce) {

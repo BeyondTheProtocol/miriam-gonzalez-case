@@ -341,7 +341,7 @@
     "/guia-de-estilo:390": {
       "desborde": 0,
       "h1_borde": 0,
-      "texto_bajo_suelo": 9,
+      "texto_bajo_suelo": 5,
       "objetivos_pequenos": 1,
       "contraste": 0,
       "foco_tapado": 0
@@ -349,7 +349,7 @@
     "/guia-de-estilo:1280": {
       "desborde": 0,
       "h1_borde": 0,
-      "texto_bajo_suelo": 12,
+      "texto_bajo_suelo": 8,
       "objetivos_pequenos": 3,
       "contraste": 0,
       "foco_tapado": 0

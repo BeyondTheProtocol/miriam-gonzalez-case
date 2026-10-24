@@ -59,4 +59,6 @@ const externa = computed(() => !!props.fuente?.href && /^https?:/.test(props.fue
 .dato--sm .dato__valor { font-size: var(--texto-lg); line-height: 1.2; }
 .dato__unidad { font-family: var(--font-body); font-weight: 500; font-size: var(--texto-ui); letter-spacing: 0; color: var(--texto-2); }
 .dato__pie { margin: var(--sp-4) 0 0; display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-4) var(--sp-12); font: var(--tipo-body-sm); font-size: var(--texto-xs); color: var(--texto-2); }
+/* El sello (Sello.vue) va a 11 px en mono: bajo el suelo de 13 px. Dentro de Dato sube a --texto-xs; fuera de Dato (la home) no se toca. */
+.dato :deep(.sello) { font-size: var(--texto-xs); }
 </style>
