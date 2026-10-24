@@ -3,6 +3,7 @@
 //
 //   Clic-gofundme { pagina, origen }   VerPeticion { origen }
 //   Contacto-clic { rol, pagina }      Scroll { pct, pagina }
+//   (24-oct-2026, la tira de prensa de la home: «Prensa-visible», una vez por vista, y «Clic-prensa» por atributos data-umami-event)
 //
 // Tres niveles:
 // A. La lógica pura de app/utils/umami.ts (qué enlace es qué evento, qué umbral de scroll toca).
@@ -208,6 +209,28 @@ if (process.env.SIN_NAVEGADOR) {
     await nav.sleep(150)
     const cc = await de(EVENTO_CONTACTO_CLIC)
     ok(cc.length === 1 && cc[0]?.d?.rol === 'researcher' && cc[0]?.d?.pagina === 'index', `«Escribir al equipo» manda UN «${EVENTO_CONTACTO_CLIC}» con rol researcher desde «index» (${JSON.stringify(cc.map((x) => x.d))})`)
+
+    // C3d · la tira de prensa de la home (24-oct-2026): «Prensa-visible» UNA vez por vista, al entrar en pantalla, y el clic en un medio lo
+    // cuenta Umami por su atributo data-umami-event: el sitio no manda «Clic-prensa» a mano desde la tira (contaría doble). El stub de aquí no
+    // procesa atributos, así que un «Clic-prensa» recibido en este punto sería justo la doble cuenta.
+    await nav.cargar('/')
+    await vaciar()
+    await nav.evaluate(`window.scrollTo(0, 0)`)
+    await nav.sleep(400)
+    const tiraAbajo = await nav.evaluate(`document.querySelector('.prensa-tira').getBoundingClientRect().top > innerHeight`)
+    if (tiraAbajo) ok((await de('Prensa-visible')).length === 0, 'la tira de prensa está bajo el pliegue: sin verla no hay «Prensa-visible»')
+    await nav.evaluate(`document.querySelector('.prensa-tira').scrollIntoView({ block: 'center' })`)
+    await nav.sleep(600)
+    ok((await de('Prensa-visible')).length === 1, `al ver la tira de prensa manda UN «Prensa-visible» (${(await de('Prensa-visible')).length})`)
+    await nav.evaluate(`window.scrollTo(0, 0)`)
+    await nav.sleep(400)
+    await nav.evaluate(`document.querySelector('.prensa-tira').scrollIntoView({ block: 'center' })`)
+    await nav.sleep(600)
+    ok((await de('Prensa-visible')).length === 1, `y no se repite al volver a verla en la misma vista (${(await de('Prensa-visible')).length})`)
+    await vaciar()
+    await nav.evaluate(`document.querySelector('.prensa-tira__medio').click()`)
+    await nav.sleep(150)
+    ok((await de('Clic-prensa')).length === 0, 'un clic en un medio de la tira no manda «Clic-prensa» a mano (lo cuenta Umami por data-umami-event; si no, contaría doble)')
 
     // C3c · las puertas sociales (F6, 23-oct-2026): lo que mide el apoyo de /links y de /lesiones, y lo que mide /gracias. Un clic = un «Donar»
     // con SU origen y un «Clic-gofundme» que lo hereda; /links, además, un «Bio-link» (apoyar). Sin llamadas dobles: el plugin cuenta el href y

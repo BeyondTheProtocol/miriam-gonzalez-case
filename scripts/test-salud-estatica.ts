@@ -59,8 +59,8 @@
 //
 // Y la home del rediseño (F5, 23-oct-2026):
 //
-// 11. Siete bloques en el orden decidido (hero · prensa · el caso en 3 frases · dónde estamos y qué falta · dinero · cita ·
-//    cómo ayudar), un solo <h1> con la edad y un <h2> por bloque; los euros solo dentro del bloque de la campaña y NINGUNA de
+// 11. Siete bloques en el orden decidido (hero · prensa · el caso en 3 frases · cita · dónde estamos y qué falta · dinero ·
+//    cómo ayudar; la cita subió tras «El caso en 3 frases» el 24-oct-2026), un solo <h1> con la edad y un <h2> por bloque; los euros solo dentro del bloque de la campaña y NINGUNA de
 //    las frases retiradas por el criterio del dinero («cada euro», «100 %», «sin intermediarios», «mensual», «recibo
 //    disponible»); UNA frase de destino (money.destino) y UN solo botón coral en esa zona; «Ahora» = la misma cuenta que la cifra
 //    «Tratamiento» de /datos; «Qué buscamos» con las 3 primeras peticiones PÚBLICAS (ni la FoundationOne ni la anemia, ni en el
@@ -635,13 +635,13 @@ if (existsSync('seed/fundraiser.json')) {
     const puertas = seccion(/<ul class="puertas"[\s\S]*?<\/ul>/)
 
     // a) estructura: 7 bloques, en orden, un h1 y un h2 por bloque
-    const marcas = ['<section class="hero', 'class="prensa-tira', 'id="caso"', 'aria-labelledby="h-donde"', 'id="campaign"', 'aria-labelledby="h-cita"', 'aria-labelledby="h-puertas"']
+    const marcas = ['<section class="hero', 'class="prensa-tira', 'id="caso"', 'aria-labelledby="h-cita"', 'aria-labelledby="h-donde"', 'id="campaign"', 'aria-labelledby="h-puertas"']
     const pos = marcas.map((m) => main.indexOf(m))
-    ok(pos.every((p, i) => p >= 0 && (i === 0 || p > pos[i - 1]!)), `${pagina}: los 7 bloques, en este orden: hero · prensa · caso · dónde estamos · dinero · cita · cómo ayudar (${pos.join(' < ')})`)
+    ok(pos.every((p, i) => p >= 0 && (i === 0 || p > pos[i - 1]!)), `${pagina}: los 7 bloques, en este orden: hero · prensa · caso · cita · dónde estamos · dinero · cómo ayudar (${pos.join(' < ')})`)
     ok((main.match(/<section\b/g)?.length ?? 0) === 7, `${pagina}: exactamente 7 bloques (${main.match(/<section\b/g)?.length ?? 0})`)
     ok((main.match(/<h1\b/g)?.length ?? 0) === 1 && decodificar((main.match(/<h1\b[\s\S]*?<\/h1>/)?.[0] ?? '').replace(/<[^>]+>/g, '')).replace(/\s+/g, ' ').trim() === edadTexto, `${pagina}: un solo <h1>, «${edadTexto}» (la edad sale de caseData)`)
     const h2 = [...main.matchAll(/<h2\b[^>]*>([\s\S]*?)<\/h2>/g)].map((m) => visible(m[1]!))
-    const H2 = ['home.caso_heading', 'home.donde_heading', 'home.dinero_heading', 'home.s6_eyebrow', 'home.puertas_heading'].map((k) => t(loc, k))
+    const H2 = ['home.caso_heading', 'home.s6_eyebrow', 'home.donde_heading', 'home.dinero_heading', 'home.puertas_heading'].map((k) => t(loc, k))
     ok(JSON.stringify(h2) === JSON.stringify(H2), `${pagina}: un <h2> por bloque, sin saltos (${h2.join(' · ')})`)
     ok((main.match(/\bid="caso"/g)?.length ?? 0) === 1 && /<section id="caso"[^>]*\bscroll-mt-24\b/.test(main), `${pagina}: #caso existe una vez y deja hueco bajo la cabecera pegajosa (scroll-mt-24)`)
 
@@ -688,7 +688,11 @@ if (existsSync('seed/fundraiser.json')) {
     ok(visible(donde).includes(t(loc, 'home.pasos_nota_barra')) && donde.includes('role="progressbar"'), `${pagina}: la ruta de 5 pasos con su nota (la barra no mide cuánto falta para ninguna meta médica)`)
 
     // f) prensa y puertas
-    ok(/<li[^>]*>\s*<a\b[^>]*prensa-tira__medio/.test(main) && (main.match(/prensa-tira__medio/g)?.length ?? 0) === 7, `${pagina}: la tira de prensa pinta 7 medios (el detalle del orden y de las URLs, en test-sala-prensa)`)
+    ok(/<li[^>]*>\s*<a\b[^>]*prensa-tira__medio/.test(main) && (main.match(/prensa-tira__medio/g)?.length ?? 0) === 4, `${pagina}: la tira de prensa pinta 4 medios (el detalle del orden y de las URLs, en test-sala-prensa)`)
+    // y bajo las puertas, la línea de apoyo entre pacientes, enlazada a la tarjeta de /colabora (fuera de la lista de puertas)
+    const pares = seccion(/<p class="puertas-pares"[\s\S]*?<\/p>/)
+    const hrefPares = pares.match(/<a\b[^>]*\bhref="([^"]+)"/)?.[1]
+    ok(visible(pares).includes(t(loc, 'home.puertas_pares')) && visible(pares).includes(t(loc, 'home.puertas_pares_cta')) && hrefPares === (loc === 'es' ? '/colabora#apoyo-mutuo' : '/en/collaborate#apoyo-mutuo') && main.indexOf('class="puertas-pares"') > main.indexOf('<ul class="puertas"'), `${pagina}: bajo las puertas, «${t(loc, 'home.puertas_pares')}» → ${hrefPares}`)
     const hp = [...puertas.matchAll(/<a\b[^>]*\bhref="([^"]+)"[^>]*>([\s\S]*?)<\/a>/g)].map((m) => ({ href: m[1]!, texto: visible(m[2]!).replace(t(loc, 'a11y.new_tab'), '').trim() }))
     const esperadas = [
       'https://gofund.me/3e25cae99', loc === 'es' ? '/datos#que-buscamos' : '/en/data#que-buscamos', loc === 'es' ? '/prensa' : '/en/press', loc === 'es' ? '/colabora' : '/en/collaborate',
@@ -700,7 +704,7 @@ if (existsSync('seed/fundraiser.json')) {
     // g) todo enlace que abre pestaña nueva lo avisa. Se exceptúa el botón de la propia tarjeta de la campaña (GoFundMeProgress,
     //    que esta fase no toca: lleva `mt-3`, el del botón de reserva no): no lleva el aviso y queda como hallazgo para el comité.
     const nuevas = [...main.matchAll(/<a\b[^>]*target="_blank"[^>]*>[\s\S]*?<\/a>/g)].map((m) => m[0]).filter((a) => !/class="btn-cta mt-3\b/.test(a))
-    ok(nuevas.length >= 9 && nuevas.every((a) => /rel="noopener/.test(a) && a.includes(t(loc, 'a11y.new_tab'))), `${pagina}: los ${nuevas.length} enlaces de pestaña nueva (sin el de la tarjeta de la campaña) llevan rel="noopener" y el aviso para lectores de pantalla`)
+    ok(nuevas.length >= 6 && nuevas.every((a) => /rel="noopener/.test(a) && a.includes(t(loc, 'a11y.new_tab'))), `${pagina}: los ${nuevas.length} enlaces de pestaña nueva (sin el de la tarjeta de la campaña) llevan rel="noopener" y el aviso para lectores de pantalla`)
 
     // h) presupuesto de palabras. La decisión puso un tope de 530 para toda la home; no contó que «Qué buscamos» va TAL CUAL (≈150
     //    palabras de caso.json) ni la tarjeta de la campaña (≈70, de otra fuente y «se queda como hoy»). Se vigila lo PROPIO de la

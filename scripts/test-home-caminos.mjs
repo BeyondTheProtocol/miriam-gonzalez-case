@@ -10,6 +10,9 @@
 //    «Entender el caso» de ≥ 44 px (apilados en móvil y en 768-1023 px, lado a lado en 640-767 y desde 1024); el enlace «¿Eres clínico o laboratorio?», la
 //    tira de prensa y la fila de acciones de «Dónde estamos» con ≥ 44 px; las 4 puertas con su href, ≥ 56 px y en el orden del
 //    DOM (1 columna en móvil, 2 en tableta, 4 desde 1024); y UN solo botón coral en la zona del dinero.
+//    Ajustes del 24-oct-2026: los 7 bloques van en este orden (hero › prensa › caso › cita › dónde estamos › dinero › puertas); la
+//    tira de prensa enseña 4 medios (no 7) en una o dos líneas de letra pequeña, cada uno de ≥ 44 px; y bajo las puertas hay una
+//    línea de apoyo entre pacientes cuyo enlace (≥ 44 px) lleva a la tarjeta #apoyo-mutuo de /colabora.
 //    320 y 640 px cubren también el zoom al 400 % y al 200 % de una pantalla de 1280.
 // 2. El tabulador recorre todo <main> en el orden del DOM (a 1280 y a 375 px) y el anillo de foco se ve.
 // 3. «Entender el caso» baja a #caso (clic y teclado): el título queda a la vista y por debajo de la cabecera fija.
@@ -59,6 +62,7 @@ const ESPERADO = {
     escribir: '/contacto?role=researcher',
     todas: '/datos#que-buscamos',
     tresD: '/lesiones',
+    pares: '/colabora#apoyo-mutuo',
     nuevaPestana: /pestaña nueva/,
   },
   en: {
@@ -67,6 +71,7 @@ const ESPERADO = {
     escribir: '/en/contact?role=researcher',
     todas: '/en/data#que-buscamos',
     tresD: '/en/lesiones',
+    pares: '/en/collaborate#apoyo-mutuo',
     nuevaPestana: /new tab/,
   },
 }
@@ -89,7 +94,9 @@ const LEER = `(() => {
     secciones: secciones.map((s) => ({ ...rect(s), nombre: s.id || s.getAttribute('aria-labelledby') || s.className.split(' ')[0] })),
     h1: { ...rect(h1), lineas: Math.round(h1.getBoundingClientRect().height / lh), n: main.querySelectorAll('h1').length },
     cta: q('.hero__cta a.btn-cta'), entender: q('.hero__cta a.btn-secondary'), pro: q('.hero__pro'),
-    prensa: [...main.querySelectorAll('.prensa-tira__medio')].map((a) => ({ ...rect(a), visible: a.offsetParent !== null })),
+    prensa: [...main.querySelectorAll('.prensa-tira__medio')].map((a) => ({ ...rect(a), visible: a.offsetParent !== null, letra: parseFloat(getComputedStyle(a).fontSize), medio: a.firstChild.textContent.trim(), evento: a.getAttribute('data-umami-event'), eventoMedio: a.getAttribute('data-umami-event-medio') })),
+    tira: q('.prensa-tira'),
+    pares: q('.puertas-pares a'),
     sala: q('.prensa-tira__sala'),
     escribir: q('a.btn-secondary[href*="role=researcher"]', donde), todas: q('a[href$="#que-buscamos"]', donde), tresD: q('a[href$="/lesiones"]', donde),
     peticiones: donde.querySelectorAll('.qb__lista li').length,
@@ -173,13 +180,20 @@ try {
       const s = await evaluate(LEER)
       ok(s.sw <= s.vw, `${w}px: sin scroll horizontal (${s.sw} ≤ ${s.vw})`)
       ok(s.secciones.length === 7 && s.secciones.every((x, i) => i === 0 || x.y > s.secciones[i - 1].y), `${w}px: 7 bloques, cada uno debajo del anterior (${s.secciones.map((x) => x.nombre).join(' › ')})`)
+      const ORDEN = ['hero', 'prensa-tira', 'caso', 'h-cita', 'h-donde', 'campaign', 'h-puertas']
+      ok(JSON.stringify(s.secciones.map((x) => x.nombre)) === JSON.stringify(ORDEN), `${w}px: los bloques van en este orden: ${ORDEN.join(' › ')} (la cita justo tras «El caso en 3 frases»)`)
       ok(s.h1.n === 1 && s.h1.w <= s.vw && s.h1.lineas <= 6, `${w}px: un solo H1, dentro de la pantalla y en ${s.h1.lineas} líneas (≤ 6)`)
       // lado a lado de 640 a 767 px (hero a todo el ancho) y desde 1024; apilados en móvil y en 768-1023 (la foto estrecha el texto)
       const apilados = w < 640 || (w >= 768 && w < 1024)
       ok(s.cta.h >= 44 && s.entender.h >= 44, `${w}px: «Apoyar» y «Entender el caso» de ≥ 44 px (${s.cta.h}, ${s.entender.h})`)
       ok(apilados ? s.entender.y >= s.cta.y + s.cta.h - 1 && s.entender.x === s.cta.x : s.entender.y === s.cta.y && s.entender.x > s.cta.x, `${w}px: los dos botones del hero ${apilados ? 'se apilan' : 'van lado a lado'}`)
       ok(s.pro.h >= 44 && s.pro.visible, `${w}px: el enlace «¿Eres clínico o laboratorio?» de ≥ 44 px (${s.pro.h})`)
-      ok(s.prensa.length === 7 && s.prensa.every((m) => m.visible && m.h >= 44) && s.sala.h >= 44, `${w}px: los 7 medios y «Sala de prensa» de ≥ 44 px (${s.prensa.map((m) => m.h).join(', ')}, ${s.sala.h})`)
+      ok(s.prensa.length === 4 && s.prensa.every((m) => m.visible && m.h >= 44) && s.sala.h >= 44, `${w}px: los 4 medios y «Sala de prensa» de ≥ 44 px (${s.prensa.map((m) => m.h).join(', ')}, ${s.sala.h})`)
+      ok(JSON.stringify(s.prensa.map((m) => m.medio)) === JSON.stringify(['Redacción Médica', 'El País', 'La Vanguardia', 'El Español']), `${w}px: los medios de la tira, en este orden (${s.prensa.map((m) => m.medio).join(', ')})`)
+      // Poco peso visual: letra pequeña (≤ 16 px, no los 18-24 px de antes) y los cuatro nombres en una o dos líneas.
+      ok(s.prensa.every((m) => m.letra <= 16) && new Set(s.prensa.map((m) => m.y)).size <= 2, `${w}px: la tira pesa poco: letra de ${[...new Set(s.prensa.map((m) => m.letra))].join('/')} px y los medios en ${new Set(s.prensa.map((m) => m.y)).size} línea(s) (≤ 2)`)
+      ok(s.prensa.every((m) => m.evento === 'Clic-prensa' && m.eventoMedio === m.medio), `${w}px: cada medio lleva data-umami-event="Clic-prensa" y data-umami-event-medio con su nombre`)
+      ok(s.pares?.href === E.pares && s.pares.visible && s.pares.h >= 44, `${w}px: bajo las puertas, «Escribir a Miriam» enlaza a ${E.pares} y mide ≥ 44 px (${s.pares?.href}, ${s.pares?.h})`)
       ok(s.peticiones === 3, `${w}px: «Qué buscamos» enseña 3 peticiones (${s.peticiones})`)
       ok(s.escribir?.href === E.escribir && s.todas?.href === E.todas && s.tresD?.href === E.tresD && [s.escribir, s.todas, s.tresD].every((x) => x.h >= 44), `${w}px: «Escribir al equipo», «Ver todo lo que buscamos» y «Míralo en 3D» con su href y ≥ 44 px (${[s.escribir, s.todas, s.tresD].map((x) => x?.h).join(', ')})`)
       ok(s.corales.length === 1 && s.corales[0] === 'https://gofund.me/3e25cae99', `${w}px: un solo botón coral en la zona del dinero (${s.corales.length})`)
@@ -355,10 +369,12 @@ try {
     // Se exceptúa el botón de la propia tarjeta de la campaña (GoFundMeProgress, que esta fase no toca): lleva `mt-3`, el de
     // reserva del bloque del dinero no, y no trae el aviso de pestaña nueva (hallazgo para el comité).
     const ext = await evaluate(`[...document.querySelectorAll('main a[target="_blank"]')].filter((a) => !a.classList.contains('mt-3')).map((a) => ({ href: a.getAttribute('href'), rel: a.getAttribute('rel') || '', aviso: a.querySelector('.sr-only')?.textContent.trim() ?? '', donde: a.closest('.puertas') ? 'puertas' : a.closest('.prensa-tira') ? 'prensa' : a.closest('.hero') ? 'hero' : a.closest('#campaign') ? 'dinero' : 'otro' }))`)
-    ok(ext.length >= 9 && ext.every((a) => /noopener/.test(a.rel) && E.nuevaPestana.test(a.aviso)), `${loc}: los ${ext.length} enlaces de pestaña nueva (sin el de la tarjeta de la campaña) llevan rel="noopener" y aviso (${[...new Set(ext.map((a) => a.donde))].join(', ')})`)
+    // 24-oct-2026: la tira de prensa pasó de 7 a 4 medios, así que el mínimo baja de 9 a 6 (hero 1 + prensa 4 + puerta «Apoyar» 1). El botón de
+    // reserva del bloque del dinero también cuenta cuando sale, pero solo sale si la campaña no responde: el mínimo no depende de él.
+    ok(ext.length >= 6 && ext.every((a) => /noopener/.test(a.rel) && E.nuevaPestana.test(a.aviso)), `${loc}: los ${ext.length} enlaces de pestaña nueva (sin el de la tarjeta de la campaña) llevan rel="noopener" y aviso (${[...new Set(ext.map((a) => a.donde))].join(', ')})`)
     const apoyar = ext.find((a) => a.donde === 'puertas')
     ok(!!apoyar && apoyar.href === 'https://gofund.me/3e25cae99' && apoyar.rel === 'noopener noreferrer', `${loc}: la puerta «Apoyar» abre GoFundMe con rel="noopener noreferrer"`)
-    ok(ext.some((a) => a.donde === 'hero' && a.href === 'https://gofund.me/3e25cae99') && ext.filter((a) => a.donde === 'prensa').length === 7, `${loc}: el botón del hero y los 7 medios también avisan`)
+    ok(ext.some((a) => a.donde === 'hero' && a.href === 'https://gofund.me/3e25cae99') && ext.filter((a) => a.donde === 'prensa').length === 4, `${loc}: el botón del hero y los 4 medios también avisan`)
   }
 
   console.log('\n10. Chrome mínimo en /links y /gracias')

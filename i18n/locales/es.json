@@ -278,7 +278,7 @@
     "stat_cells_label": "células de sus biopsias leídas una a una",
     "h1": "Miriam, {age} años, busca un tratamiento hecho a partir de {op}.",
     "h1_emphasis": "su propio tumor",
-    "lede": "Es ingeniera de software. Su tumor no encaja en los protocolos habituales y ella lo estudia en abierto, con médicos y laboratorios de varios países.",
+    "lede": "Es ingeniera de software. Su tumor no encaja en los protocolos habituales y ella se ha puesto a investigarlo en abierto, con médicos y laboratorios de varios países.",
     "cta_understand": "Entender el caso",
     "pro_link": "¿Clínico o laboratorio? Mira qué necesitamos",
     "proof_support": "{n} personas apoyan el caso"
@@ -636,7 +636,7 @@
     "s5_eyebrow": "Estado de la campaña · Tiempo real",
     "s5_heading": "Cada euro acerca el siguiente análisis molecular prioritario.",
     "s6_eyebrow": "En sus propias palabras",
-    "s6_quote": "Mi tumor tiene dos caras —la de mama y la neuroendocrina— y la clave es tratar las dos a la vez, no solo una.",
+    "s6_quote": "Mi tumor tiene dos caras, la de mama y la neuroendocrina, y la clave es tratar las dos a la vez, no solo una.",
     "s6_signature": "Miriam González. Mayo de 2026.",
     "s6_photo_alt": "Retrato de Miriam González",
     "s8_eyebrow": "Hacia dónde va",
@@ -692,6 +692,7 @@
     "story_p1_tail": ". El tratamiento estándar no basta: hay que diseñarlo a medida de su tumor.",
     "story_link": "Conocer a Miriam (pronto)",
     "s9_strip_label": "Caso en prensa",
+    "prensa_tira_etiqueta": "Han contado su caso",
     "s9_press_contact": "¿Eres periodista? Sala de prensa",
     "s3_summary": "En la práctica: el tratamiento hormonal aborda la parte {luminal} del tumor, pero deja sin tratar su componente {neuroendocrino}. Confirmarlo y atacarlo exige análisis moleculares y revisión por expertos internacionales, pruebas que la sanidad pública no cubre para un caso tan infrecuente. La rebiopsia y la primera revisión internacional ya están hechas.",
     "s4_buckets_title": "El dinero se destina a:",
@@ -728,7 +729,9 @@
     "dinero_eyebrow": "Destino del dinero",
     "dinero_heading": "A qué va el dinero",
     "dinero_informe": "Ver el informe de gastos",
-    "puertas_heading": "Cómo ayudar"
+    "puertas_heading": "Cómo ayudar",
+    "puertas_pares": "¿Vives algo parecido? No tienes que aportar nada.",
+    "puertas_pares_cta": "Escribir a Miriam"
   },
   "ciencia": {
     "ruta": {

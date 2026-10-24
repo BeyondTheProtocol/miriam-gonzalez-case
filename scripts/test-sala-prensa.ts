@@ -12,8 +12,11 @@
 // 5. /prensa no lleva el contador de campaña ni la fecha fija «junio de 2026».
 // 6. `caseData.pressAsOf` es una fecha válida y no es futura.
 // 7. La tira de medios de la home se LEE de content/<idioma>/press.yml (rediseño F5, 23-oct-2026): ni un medio ni una URL escritos
-//    a mano en la página o en su componente; los medios únicos salen en el orden de la sala de prensa, con el enlace de su primera
-//    pieza, en ES y en EN. Si hay build (.output/public), se comprueba además en el HTML generado de las dos home.
+//    a mano en la página o en su componente. Desde el 24-oct-2026 la home enseña SOLO cuatro medios (Redacción Médica, El País,
+//    La Vanguardia, El Español), en ese orden, el que marca el campo `home: N` de cada pieza (no el orden curado de la sala de
+//    prensa); el resto sigue en press.yml y en /prensa. Cada enlace de la tira lleva los atributos de Umami (Clic-prensa + medio) y
+//    no llama a trackPress (contaría doble); «Prensa-visible» sale una vez, con IntersectionObserver. Si hay build
+//    (.output/public), se comprueba además en el HTML generado de las dos home.
 //
 // Uso:  pnpm test:sala-prensa
 import { existsSync, readFileSync } from 'node:fs'
@@ -79,28 +82,49 @@ if (m) {
 // 7 · la tira de medios de la home sale de press.yml (rediseño F5): antes eran 7 enlaces a mano en index.vue y se desincronizaban.
 // Se reproduce AQUÍ la regla de usePrensaMedios (un medio una vez, con la primera pieza; sin paréntesis) y se compara con el código y,
 // si hay build, con el HTML generado.
+const HOME_MEDIOS = ['Redacción Médica', 'El País', 'La Vanguardia', 'El Español'] // decisión de Miriam, 24-oct-2026
+const SOLO_SALA = ['Corresponsables', 'La Opinión de Murcia', 'La 7'] // siguen en /prensa; no salen en la home
 function leerPrensa(loc: 'es' | 'en') {
   const yml = readFileSync(`content/${loc}/press.yml`, 'utf-8')
-  const piezas: { medio: string; url: string }[] = []
+  const piezas: { medio: string; url: string; home?: number }[] = []
   for (const linea of yml.split('\n')) {
     const o = linea.match(/^\s*- outlet:\s*(.+?)\s*$/)
     if (o) { piezas.push({ medio: o[1].replace(/^['"]|['"]$/g, ''), url: '' }); continue }
+    const h = linea.match(/^\s*home:\s*(\d+)\s*$/)
+    if (h && piezas.length) piezas[piezas.length - 1].home = Number(h[1])
     const u = linea.match(/^\s*url:\s*(\S+)\s*$/)
     if (u && piezas.length) piezas[piezas.length - 1].url = u[1]
   }
-  const limpio = piezas.map((p) => ({ medio: p.medio.replace(/\s*\([^)]*\)\s*$/, '').trim(), url: p.url }))
-  return limpio.filter((p, i) => limpio.findIndex((q) => q.medio === p.medio) === i)
+  const limpia = (m: string) => m.replace(/\s*\([^)]*\)\s*$/, '').trim()
+  const unicos = <T extends { medio: string }>(l: T[]) => l.filter((p, i) => l.findIndex((q) => q.medio === p.medio) === i)
+  // Lo mismo que usePrensaMedios: solo las piezas con `home`, por ese número, y un medio una vez con el enlace de su pieza marcada.
+  const home = unicos(piezas.filter((p) => p.home !== undefined).sort((a, b) => a.home! - b.home!).map((p) => ({ medio: limpia(p.medio), url: p.url })))
+  return { home, todos: unicos(piezas.map((p) => ({ medio: limpia(p.medio), url: p.url }))) }
 }
 const home = readFileSync('app/pages/index.vue', 'utf-8')
 const tira = readFileSync('app/components/PrensaTira.vue', 'utf-8')
 const compo = readFileSync('app/composables/usePrensaMedios.ts', 'utf-8')
-const ymls = { es: leerPrensa('es'), en: leerPrensa('en') }
-ok(ymls.es.length > 0 && ymls.en.length > 0, `content/{es,en}/press.yml listan medios (${ymls.es.length} y ${ymls.en.length})`)
-ok(JSON.stringify(ymls.es.map((m) => m.medio)) === JSON.stringify(ymls.en.map((m) => m.medio)), `ES y EN tienen los mismos medios y en el mismo orden${JSON.stringify(ymls.es.map((m) => m.medio)) === JSON.stringify(ymls.en.map((m) => m.medio)) ? '' : ` (es: ${ymls.es.map((m) => m.medio).join(', ')} · en: ${ymls.en.map((m) => m.medio).join(', ')})`}`)
+const lecturas = { es: leerPrensa('es'), en: leerPrensa('en') }
+const ymls = { es: lecturas.es.home, en: lecturas.en.home } // lo que debe pintar la tira, por idioma
+ok(lecturas.es.todos.length > 0 && lecturas.en.todos.length > 0, `content/{es,en}/press.yml listan medios (${lecturas.es.todos.length} y ${lecturas.en.todos.length})`)
+for (const loc of ['es', 'en'] as const) {
+  const nombres = ymls[loc].map((m) => m.medio)
+  ok(JSON.stringify(nombres) === JSON.stringify(HOME_MEDIOS), `${loc}: la home marca (home: N) exactamente estos cuatro medios y en este orden: ${HOME_MEDIOS.join(', ')}${JSON.stringify(nombres) === JSON.stringify(HOME_MEDIOS) ? '' : ` — sale: ${nombres.join(', ')}`}`)
+  const todos = lecturas[loc].todos.map((m) => m.medio)
+  ok(SOLO_SALA.every((m) => todos.includes(m)), `${loc}: ${SOLO_SALA.join(', ')} siguen en press.yml (se quedan en /prensa, no se borran)`)
+}
+ok(/home:\s*z\.number\(\)/.test(readFileSync('content.config.ts', 'utf-8')), 'content.config.ts declara `home` en el esquema de press (un campo que el esquema no conoce se descarta y la tira saldría vacía)')
 ok(/<PrensaTira\b/.test(home) && /queryCollection\(/.test(compo) && /press_es/.test(compo) && /press_en/.test(compo) && /usePrensaMedios\(\)/.test(tira), 'la home pinta PrensaTira, que lee press_es / press_en con queryCollection (usePrensaMedios)')
-const escritos = [...ymls.es, ...ymls.en].flatMap((m) => [m.medio, m.url]).filter((x) => x && (home.includes(x) || tira.includes(x)))
+const escritos = [...lecturas.es.todos, ...lecturas.en.todos].flatMap((m) => [m.medio, m.url]).filter((x) => x && (home.includes(x) || tira.includes(x)))
 ok(escritos.length === 0, `ni index.vue ni PrensaTira.vue llevan un medio o una URL de press.yml escritos a mano${escritos.length ? ` (${[...new Set(escritos)].join(', ')})` : ''}`)
 ok(!/trackPress\('/.test(home), 'la home ya no llama a trackPress con un medio literal (lo hace la tira con el nombre leído)')
+// Medición de la tira (Umami): atributos en cada enlace, ningún trackPress en la tira (contaría doble) y «Prensa-visible» una vez.
+const soporte = readFileSync('app/composables/useSupport.ts', 'utf-8')
+ok(/data-umami-event="Clic-prensa"/.test(tira) && /:data-umami-event-medio="m\.medio"/.test(tira), 'PrensaTira: cada medio lleva data-umami-event="Clic-prensa" y data-umami-event-medio="<medio>"')
+ok(!/trackPress/.test(tira), 'PrensaTira no llama a trackPress (Umami ya cuenta el clic por el atributo: contaría doble)')
+ok(/new IntersectionObserver/.test(tira) && /\.disconnect\(\)/.test(tira) && /trackPrensaVisible\(\)/.test(tira), 'PrensaTira envía «Prensa-visible» con IntersectionObserver y lo desconecta (una sola vez)')
+ok(/trackUmami\('Prensa-visible'\)/.test(soporte) && /trackUmami\('Clic-prensa'/.test(soporte), 'useSupport emite «Prensa-visible» y sigue emitiendo «Clic-prensa» (lo usa /prensa)')
+ok(/trackPress\(item\.outlet\)/.test(pagina), '/prensa sigue midiendo «Clic-prensa» por trackPress (sin cambios)')
 
 // 7b · en el HTML generado (si hay build): mismos medios, mismo orden y el enlace de la primera pieza de cada uno
 const pub = '.output/public'
@@ -110,7 +134,9 @@ for (const [loc, fichero] of [['es', 'index.html'], ['en', 'en.html']] as const)
   const franja = h.match(/<section[^>]*class="[^"]*prensa-tira[^"]*"[\s\S]*?<\/section>/)?.[0] ?? ''
   ok(franja.length > 0, `${fichero}: la tira de prensa está en el HTML`)
   const enlaces = [...franja.matchAll(/<a\b[^>]*\bhref="([^"]+)"[^>]*class="[^"]*prensa-tira__medio[^"]*"[^>]*>([^<]*)</g)].map((m) => ({ medio: m[2].trim(), url: m[1].replace(/&amp;/g, '&') }))
-  ok(JSON.stringify(enlaces) === JSON.stringify(ymls[loc]), `${fichero}: la tira = press.yml (${ymls[loc].map((m) => m.medio).join(', ')})${JSON.stringify(enlaces) === JSON.stringify(ymls[loc]) ? '' : ` — sale: ${JSON.stringify(enlaces)}`}`)
+  ok(JSON.stringify(enlaces) === JSON.stringify(ymls[loc]), `${fichero}: la tira = las piezas con home de press.yml (${ymls[loc].map((m) => m.medio).join(', ')})${JSON.stringify(enlaces) === JSON.stringify(ymls[loc]) ? '' : ` — sale: ${JSON.stringify(enlaces)}`}`)
+  const atributos = [...franja.matchAll(/<a\b[^>]*class="[^"]*prensa-tira__medio[^"]*"[^>]*>/g)].map((m) => m[0])
+  ok(atributos.length === ymls[loc].length && atributos.every((a, i) => a.includes('data-umami-event="Clic-prensa"') && a.includes(`data-umami-event-medio="${ymls[loc][i].medio}"`)), `${fichero}: cada enlace de la tira lleva data-umami-event="Clic-prensa" y data-umami-event-medio con su medio`)
 }
 
 if (fallos) {

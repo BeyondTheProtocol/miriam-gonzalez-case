@@ -18,6 +18,8 @@
 // 5. «El caso en 3 frases»: solo las tres frases que la home ya publicaba (fijadas aquí) y ninguna afirmación nueva.
 // 6. El dinero: UNA frase de destino y UNA del recibo (F6), las canónicas de legal-burocracia (23-oct-2026), sin importes ni «cada euro».
 // 7. La home ya no usa lo que se fue (componentes, claves del dinero retiradas, euros en el hero).
+// 8. Ajustes de la home del 24-oct-2026: lede, cita (sube tras «El caso en 3 frases» y sin guiones largos), línea de apoyo entre
+//    pacientes bajo las puertas y «después» en minúscula en «Qué buscamos».
 //
 // Uso:  pnpm test:caminos
 import { existsSync, readFileSync } from 'node:fs'
@@ -63,7 +65,7 @@ for (const ns of ['hero', 'home', 'puertas', 'money', 'pathways']) {
 const USADAS = [
   'home.hero_eyebrow', 'hero.h1', 'hero.h1_emphasis', 'hero.lede', 'hero.cta_donate', 'hero.cta_understand', 'hero.pro_link', 'hero.proof_support',
   'hero.latest_label', 'hero.photo_tag', 'hero.section_label', 'hero.cta_science',
-  'home.s9_strip_label', 'home.s9_press_contact', 'home.caso_heading', 'home.caso_1', 'home.caso_2', 'home.caso_3',
+  'home.s9_strip_label', 'home.prensa_tira_etiqueta', 'home.s9_press_contact', 'home.puertas_pares', 'home.puertas_pares_cta', 'home.caso_heading', 'home.caso_1', 'home.caso_2', 'home.caso_3',
   'home.donde_heading', 'home.ahora', 'home.pasos_intro', 'home.pasos_nota_barra', 'home.pasos_progreso', 'home.pasos_progreso_curso', 'home.pasos_cta_ruta',
   'home.buscamos_heading', 'home.buscamos_escribir', 'home.buscamos_todas', 'home.donde_3d',
   'home.dinero_eyebrow', 'home.dinero_heading', 'home.dinero_informe', 'home.s4_cta_button', 'money.destino', 'money.recibo',
@@ -87,7 +89,7 @@ const PROHIBIDO: [RegExp, string][] = [
 // (pasos_intro, s6_quote, las peticiones de caso.json): se revisan donde nacieron y su léxico no es el de esta copy.
 const NUEVAS = ['hero.h1', 'hero.h1_emphasis', 'hero.lede', 'hero.cta_understand', 'hero.pro_link', 'hero.proof_support',
   'home.caso_heading', 'home.caso_1', 'home.caso_2', 'home.caso_3', 'home.donde_heading', 'home.ahora', 'home.buscamos_heading', 'home.buscamos_escribir',
-  'home.buscamos_todas', 'home.donde_3d', 'home.dinero_eyebrow', 'home.dinero_heading', 'home.dinero_informe', 'home.puertas_heading', 'money.destino', 'money.recibo']
+  'home.buscamos_todas', 'home.donde_3d', 'home.dinero_eyebrow', 'home.dinero_heading', 'home.dinero_informe', 'home.puertas_heading', 'home.prensa_tira_etiqueta', 'home.puertas_pares', 'home.puertas_pares_cta', 'money.destino', 'money.recibo']
 for (const [loc, d] of [['ES', es], ['EN', en]] as const) {
   const textos = [...NUEVAS.map((k) => [k, String(get(d, k))] as const), ...Object.entries(d.puertas as Record<string, string>).map(([k, v]) => [`puertas.${k}`, v] as const)]
   for (const [re, nombre] of PROHIBIDO) {
@@ -176,6 +178,33 @@ ok(pintan.length === 0, `la home no pinta ninguna clave de las retiradas${pintan
 const heroTexto = hero.replace(/<style[\s\S]*?<\/style>/, '')
 ok(!/raised|stat_raised|formatCurrency|currentAmount|goalAmount|celulasLeidas|resultados\.json|specialists/.test(heroTexto), 'el hero no calcula ni pinta recaudación, especialistas ni células (sin importes: euros solo en el bloque de la campaña)')
 ok(!/\$t\('hero\.(stat_|title|subtitle)|pathways\.hero_sr_summary|aria-describedby/.test(heroTexto), 'el hero no usa el título/subtítulo viejos ni el resumen para lectores de pantalla (decía «ultra-raro» y «dos biologías»)')
+
+console.log('8. Ajustes de la home del 24-oct-2026')
+// Lede: la frase decidida (ES), con «se ha puesto a investigarlo»; en EN el mismo sentido y la ortografía del resto del hero (tumor, no tumour).
+ok(es.hero.lede === 'Es ingeniera de software. Su tumor no encaja en los protocolos habituales y ella se ha puesto a investigarlo en abierto, con médicos y laboratorios de varios países.', 'es: el lede es el decidido')
+ok(en.hero.lede === "She's a software engineer. Her tumor doesn't fit the usual protocols, and she has set out to investigate it in the open, with doctors and labs in several countries.", 'en: el lede es el decidido (con «tumor», como el H1 de justo encima)')
+// Cita: comas en vez de guiones largos (ni —, ni –, ni « - ») y la frase decidida.
+ok(es.home.s6_quote === 'Mi tumor tiene dos caras, la de mama y la neuroendocrina, y la clave es tratar las dos a la vez, no solo una.', 'es: la cita es la decidida (con comas)')
+ok(en.home.s6_quote === 'My tumor has two sides, the breast side and the neuroendocrine one, and the key is to treat both at once, not just one.', 'en: la cita es la decidida (con comas)')
+for (const [loc, d] of [['es', es], ['en', en]] as const) {
+  const nuevo = [d.hero.lede, d.home.s6_quote, d.home.prensa_tira_etiqueta, d.home.puertas_pares, d.home.puertas_pares_cta].join(' ¶ ')
+  ok(!/[—–]|\s-\s/.test(nuevo), `${loc}: la copy nueva de estos ajustes no lleva guion largo`)
+}
+// Orden de la home: la cita va justo después de «El caso en 3 frases» y antes de «Dónde estamos» (el DOM manda el orden visual).
+const idx = (re: RegExp) => home.search(re)
+const iCaso = idx(/id="caso"/), iCita = idx(/aria-labelledby="h-cita"/), iDonde = idx(/aria-labelledby="h-donde"/), iDinero = idx(/id="campaign"/), iPuertas = idx(/aria-labelledby="h-puertas"/)
+ok(iCaso > 0 && iCaso < iCita && iCita < iDonde && iDonde < iDinero && iDinero < iPuertas, 'index.vue: caso › cita › dónde estamos › dinero › puertas (la cita sube tras «El caso en 3 frases»)')
+// Línea de apoyo entre pacientes: fuera de la lista de puertas (son cuatro), enlazada a la tarjeta de /colabora que existe.
+ok(/class="puertas-pares"[\s\S]*?name: 'colabora', hash: '#apoyo-mutuo'/.test(home), 'index.vue: la línea de apoyo entre pacientes enlaza a /colabora#apoyo-mutuo')
+ok(/id="apoyo-mutuo"/.test(lee('app/pages/colabora.vue')), '/colabora tiene la tarjeta #apoyo-mutuo a la que enlaza la home')
+ok(es.home.puertas_pares === '¿Vives algo parecido? No tienes que aportar nada.' && es.home.puertas_pares_cta === es.collaborate.profile5_cta_label, 'es: la línea es la decidida y su enlace es el rótulo ya publicado en /colabora («Escribir a Miriam»)')
+ok(en.home.puertas_pares_cta === en.collaborate.profile5_cta_label && /something similar/i.test(en.home.puertas_pares) && /don't have to contribute anything/i.test(en.home.puertas_pares), 'en: la línea sale de las frases ya publicadas en /colabora (peer_desc, profile5_text, profile5_cta_label)')
+// «después»: en minúscula en las peticiones de «Qué buscamos» (caso.json de la web, las dos copias; ES y EN). Solo esa palabra.
+for (const fich of ['app/data/caso.json', 'public/datos/caso.json']) {
+  const caso = lee(fich)
+  ok(!caso.includes('DESPUÉS') && !/for AFTER TROPION/.test(caso), `${fich}: «para DESPUÉS de» / «for AFTER» ya no van en mayúsculas`)
+  ok(caso.includes('para después de TROPION-Breast06, que admitan') && caso.includes('for after TROPION-Breast06 that accept'), `${fich}: la petición dice «para después de TROPION-Breast06» / «for after TROPION-Breast06»`)
+}
 
 console.log(fallos ? `\n❌ ${fallos} fallo(s)` : '\n✅ puertas y copy de la home en orden')
 process.exit(fallos ? 1 : 0)

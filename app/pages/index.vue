@@ -1,10 +1,11 @@
 <template>
   <div>
     <!-- Rediseño de arquitectura, F5 (23-oct-2026): la home pasa de 8 bloques a 7, en este orden (DOM = orden visual):
-         1 hero · 2 prensa · 3 el caso en 3 frases · 4 dónde estamos y qué falta · 5 a qué va el dinero · 6 cita de Miriam ·
-         7 cómo ayudar. Un solo <h1> (el del hero) y un <h2> por bloque. Lo que se fue: resumen de 2 minutos, siete tarjetas
-         con minutos, banda de herramientas, párrafo de historia y su «(pronto)», «5+ especialistas», «23.100 células», los
-         euros del hero y el microcopy de relleno. -->
+         1 hero · 2 prensa · 3 el caso en 3 frases · 4 cita de Miriam · 5 dónde estamos y qué falta · 6 a qué va el dinero ·
+         7 cómo ayudar. Un solo <h1> (el del hero) y un <h2> por bloque. La cita sube justo detrás de «El caso en 3 frases»
+         (24-oct-2026): es su voz y la primera cara humana antes de pasar a lo que falta. Lo que se fue: resumen de 2 minutos,
+         siete tarjetas con minutos, banda de herramientas, párrafo de historia y su «(pronto)», «5+ especialistas», «23.100
+         células», los euros del hero y el microcopy de relleno. -->
 
     <!-- 1 · Hero: en cinco segundos, quién es, qué busca y qué puedes hacer -->
     <SectionHero />
@@ -42,11 +43,31 @@
       </div>
     </section>
 
-    <!-- 4 · Dónde estamos y qué falta: la ruta, lo que se hace hoy y la petición concreta a quien puede moverla.
+    <!-- 4 · En sus propias palabras (sube tras «El caso en 3 frases», 24-oct-2026). Las comillas en dos tonos —coral y violeta— son el guiño a las «dos caras» de las que
+         habla la cita; es su voz y su firma, no una afirmación de la web. -->
+    <section
+      v-reveal
+      class="relative overflow-hidden py-16 sm:py-24"
+      aria-labelledby="h-cita"
+      style="background: #2d1b3d; color: #faf6f0"
+    >
+      <div class="absolute inset-0 opacity-[0.04]" style="background-image: radial-gradient(circle at 1px 1px, #faf6f0 1px, transparent 0); background-size: 32px 32px;" aria-hidden="true" />
+      <div class="relative section-wide">
+        <h2 id="h-cita" class="eyebrow mb-8 block" style="color: #e8d4ed">{{ $t('home.s6_eyebrow') }}</h2>
+        <blockquote class="font-display text-2xl sm:text-3xl lg:text-4xl font-semibold leading-[1.2] max-w-3xl" style="letter-spacing: -0.025em">
+          <span style="color: #ff6b47" aria-hidden="true">«</span>{{ $t('home.s6_quote') }}<span style="color: #b870c3" aria-hidden="true">»</span>
+        </blockquote>
+        <p class="mt-8 font-display italic text-xl" style="color: #e8d4ed">
+          — {{ $t('home.s6_signature') }}
+        </p>
+      </div>
+    </section>
+
+    <!-- 5 · Dónde estamos y qué falta: la ruta, lo que se hace hoy y la petición concreta a quien puede moverla.
          «Ahora» sale de caso.json (el mismo cálculo que la cifra «Tratamiento» de /datos); sin línea en curso, no se pinta. -->
     <!-- Fondo crema (no «card»): las peticiones de «Qué buscamos» son tarjetas de papel y necesitan un fondo distinto del suyo.
-         La línea de arriba separa este bloque del anterior, que también es crema. -->
-    <section v-reveal class="section-spacing bg-cream" aria-labelledby="h-donde" style="border-top: 1px solid rgba(45,27,61,0.08)">
+         Sin línea de arriba: desde que la cita (oscura) va delante, el bloque anterior ya no es crema y no hace falta separarlos. -->
+    <section v-reveal class="section-spacing bg-cream" aria-labelledby="h-donde">
       <div class="section-wide">
         <h2 id="h-donde" class="heading-display text-3xl sm:text-5xl text-berenjena mb-6" style="letter-spacing: -0.03em">
           {{ $t('home.donde_heading') }}
@@ -99,7 +120,7 @@
       </div>
     </section>
 
-    <!-- 5 · A qué va el dinero. UNA frase de destino, la canónica (`money.destino`, criterio de legal-burocracia del
+    <!-- 6 · A qué va el dinero. UNA frase de destino, la canónica (`money.destino`, criterio de legal-burocracia del
          23-oct-2026: ni importes, ni «cada euro», ni «100 %»); los euros, con su fecha y solo aquí, en el bloque de la
          campaña (ya público). El único botón coral de la zona es el de la propia tarjeta; si la tarjeta no está (la
          campaña no respondió), el botón de siempre ocupa su lugar. -->
@@ -133,26 +154,6 @@
       </div>
     </section>
 
-    <!-- 6 · En sus propias palabras. Las comillas en dos tonos —coral y violeta— son el guiño a las «dos caras» de las que
-         habla la cita; es su voz y su firma, no una afirmación de la web. -->
-    <section
-      v-reveal
-      class="relative overflow-hidden py-16 sm:py-24"
-      aria-labelledby="h-cita"
-      style="background: #2d1b3d; color: #faf6f0"
-    >
-      <div class="absolute inset-0 opacity-[0.04]" style="background-image: radial-gradient(circle at 1px 1px, #faf6f0 1px, transparent 0); background-size: 32px 32px;" aria-hidden="true" />
-      <div class="relative section-wide">
-        <h2 id="h-cita" class="eyebrow mb-8 block" style="color: #e8d4ed">{{ $t('home.s6_eyebrow') }}</h2>
-        <blockquote class="font-display text-2xl sm:text-3xl lg:text-4xl font-semibold leading-[1.2] max-w-3xl" style="letter-spacing: -0.025em">
-          <span style="color: #ff6b47" aria-hidden="true">«</span>{{ $t('home.s6_quote') }}<span style="color: #b870c3" aria-hidden="true">»</span>
-        </blockquote>
-        <p class="mt-8 font-display italic text-xl" style="color: #e8d4ed">
-          — {{ $t('home.s6_signature') }}
-        </p>
-      </div>
-    </section>
-
     <!-- 7 · Cómo ayudar: las cuatro puertas (taxonomía única de utils/caminos.ts), sin minutos ni pasos -->
     <section v-reveal class="section-spacing bg-cream" aria-labelledby="h-puertas">
       <div class="section-wide">
@@ -160,6 +161,17 @@
           {{ $t('home.puertas_heading') }}
         </h2>
         <Puertas />
+
+        <!-- Para quien no encaja en ninguna puerta (paciente o familiar): sin pedirle nada. Va a la tarjeta «Apoyo entre pacientes»
+             de /colabora (#apoyo-mutuo), cuyo texto ya está publicado allí; esta línea lo recoge literal. Fuera de la lista de
+             puertas a propósito: son cuatro y test-home-caminos las cuenta. -->
+        <p class="puertas-pares">
+          <span>{{ $t('home.puertas_pares') }}</span>
+          <NuxtLink :to="localePath({ name: 'colabora', hash: '#apoyo-mutuo' })" class="link-action group min-h-[44px] text-miriam">
+            {{ $t('home.puertas_pares_cta') }}
+            <Icon name="ph:arrow-right" class="w-4 h-4 transition-transform group-hover:translate-x-0.5" aria-hidden="true" />
+          </NuxtLink>
+        </p>
       </div>
     </section>
   </div>
@@ -253,6 +265,9 @@ useHead({
 </script>
 
 <style scoped>
+/* Línea de debajo de las puertas: el texto y el enlace en la misma línea si caben; si no, el enlace baja (siempre de 44 px). */
+.puertas-pares { margin: 1.25rem 0 0; max-width: 42rem; display: flex; flex-wrap: wrap; align-items: center; gap: 0 0.5rem; font-size: 1rem; line-height: 1.55; color: var(--color-text); }
+
 /* «Ahora»: una línea, la primera del bloque (lo que se hace hoy), antes de la ruta. */
 .home-ahora { margin: 0 0 1.5rem; max-width: 42rem; font-size: 1.0625rem; line-height: 1.55; color: var(--color-text); }
 

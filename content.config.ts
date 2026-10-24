@@ -35,6 +35,9 @@ const pressItemSchema = z.object({
   // Fecha de publicación (ISO o 'YYYY-MM'). Opcional: algunas piezas (TV, RRSS)
   // no tienen fecha exacta verificable.
   date: z.string().optional(),
+  // Puesto en la tira «Han contado su caso» de la home (1 = primero). Sin este campo, el medio solo sale en /prensa.
+  // Debe declararse aquí: un campo que el esquema no conoce se descarta al leer la colección y la tira saldría vacía.
+  home: z.number().int().positive().optional(),
 })
 
 const pressSchema = z.object({
