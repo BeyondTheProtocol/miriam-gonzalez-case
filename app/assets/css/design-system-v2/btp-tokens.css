@@ -79,7 +79,6 @@
   --sp-32: 32px;
   --sp-48: 48px;
   --sp-64: 64px;
-  --sp-96: 96px;
 
   /* ── Radios ──────────────────────────────────────────────────── */
   --radius-sm:   6px;
@@ -91,7 +90,6 @@
   /* ── Movimiento — CRAFT-4 ────────────────────────────────────── */
   --dur-micro:      150ms;  /* hovers, focos */
   --dur-transicion: 300ms;  /* entradas, toasts, dialog */
-  --dur-ambiente:   5s;     /* parpadeo/respiración de estrellas */
   --curva-salida:   cubic-bezier(0.22, 1, 0.36, 1);
   --curva-entrada:  cubic-bezier(0.16, 1, 0.3, 1);
   /* Dos más (decisión D11 del sistema v3, firmada por `diseno`; la skill movimiento-movil exige su aprobación):

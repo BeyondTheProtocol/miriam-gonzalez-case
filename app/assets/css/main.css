@@ -651,7 +651,7 @@
     font-size: var(--texto-2xs);
   }
   .status-badge--hecho     { background: var(--estado-hecho-fondo);     color: var(--estado-hecho-texto);     box-shadow: inset 0 0 0 1px var(--estado-hecho-borde); }
-  .status-badge--curso     { background: var(--estado-curso-fondo);     color: var(--estado-curso-texto); }
+  .status-badge--curso     { background: var(--estado-curso-fondo);     color: var(--estado-curso-texto);     box-shadow: inset 0 0 0 1px var(--estado-curso-borde); }
   .status-badge--pendiente { background: var(--estado-pendiente-fondo); color: var(--estado-pendiente-texto); box-shadow: inset 0 0 0 1px var(--estado-pendiente-borde); }
   .status-badge--nopuede   { background: var(--estado-nopuede-fondo);   color: var(--estado-nopuede-texto);   box-shadow: inset 0 0 0 1px var(--estado-nopuede-borde); }
   .status-badge--atencion  { background: var(--estado-atencion-fondo);  color: var(--estado-atencion-texto);  box-shadow: inset 0 0 0 1px var(--estado-atencion-borde); }

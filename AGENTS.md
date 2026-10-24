@@ -29,10 +29,17 @@ The website has two audiences: scientists/physicians (science page, molecular pr
 - UI strings live in `i18n/locales/es.json` and `i18n/locales/en.json`.
 
 ### Tailwind CSS
-- Custom warm palette: `ink` (warm grays), `ocean` (deep blue for scientific content).
-- Typography: **Fraunces** (serif, display/headings), **Source Sans 3** (sans, body), **JetBrains Mono** (mono, scientific data).
-- `@tailwindcss/typography` plugin for prose on the story page.
-- Custom utility classes in `app/assets/css/main.css`: `.section-container`, `.card-base`, `.tag-gold`, `.tag-ocean`, `.heading-display`, `.link-underline`, `.animate-fade-up`, `.stagger-children`.
+- Palette: five colors and two derived ones, defined as tokens in `app/assets/css/design-system-v2/btp-tokens.css` and bridged to Tailwind (`cream`, `cream-card`, `berenjena`, `tinta`, `miriam`, `coral`). The old `ink`, `gold` and `ocean` scales are gone.
+- Typography: **Fraunces** (serif, display/headings), **Hanken Grotesk** (sans, body and UI), **JetBrains Mono** (mono, labels and data).
+- `@tailwindcss/typography` plugin for prose (`prose prose-ink` on the legal pages).
+- Shared classes live in `app/assets/css/main.css`: `.section-wide`, `.card-base`, `.card-marked`, the four buttons, `.link-action`, `.link-inline`, the type roles (`.h1-pagina`, `.h2-seccion`, `.h3-seccion`, `.h4-tarjeta`, `.lede`, `.prosa`, `.eyebrow`, `.etiqueta`), `.segmentado`, `.visor`, `.desplegable`, `.tabla-scroll`.
+
+### Design system (read before touching the UI)
+- The rules, the tokens and the contract of every component are in `app/assets/css/design-system-v2/DESIGN-SYSTEM.md`. The live guide is `/guia-de-estilo` (noindex).
+- The canon of tokens is `btp-tokens.css`. Do not add a hex: derive with `color-mix()` from the five colors. After editing it, run `pnpm gen:design-doc` (it rewrites the doc tables and `public/design-system/tokens.css`).
+- Reuse `Banda`, `CabeceraSeccion`, `PageHeader`, `TarjetaEnlace`, `Dato`, `Aviso`, `Segmentado`, `Referencia` and `RutaPasos` instead of writing a local variant. Floor for text is 13 px (12 px only for mono uppercase); touch targets are 44 px; every `:hover` goes inside `@media (hover: hover) and (pointer: fine)`.
+- Run `pnpm test:diseno` before opening a PR. It is a ratchet: a count in `scripts/diseno-baseline.json` can go down, never up (`--actualizar` records the improvement). A justified exception is written `/* ds-exc: reason */`.
+- `scripts/diseno-capturas.mjs` takes screenshots of the 21 routes at 390 and 1280 px from a static build, and compares two runs by hash: use it when a commit promises "0 pixels".
 
 ### Icons
 - `@nuxt/icon` with Phosphor Icons (prefix `ph:`). Examples: `ph:heart-fill`, `ph:flask-fill`, `ph:stethoscope-fill`.
