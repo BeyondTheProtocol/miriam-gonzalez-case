@@ -58,7 +58,8 @@
 //     §11: el corte del menú de escritorio está en 70rem (1120 px): desde ahí menú, por debajo hamburguesa. Con la letra de la raíz al 125 %, desde 640
 //     px, no hay scroll horizontal, lo más a la derecha de la cabecera («Apoyar a Miriam») deja ≥ 16 px de margen y ninguna etiqueta se parte. Antes, a
 //     1024 px el contenido medía 1037 px (el 150 %: 1106) y el botón de apoyo se salía de la pantalla.
-//     §12: ningún botón de las tarjetas de /herramientas supera 56 px (a 1280 y 1440 px «Escribir al equipo» se partía y medía 78 px).
+//     §12: ningún botón de las tarjetas de /herramientas supera 56 px (a 1280 y 1440 px «Escribir al equipo» se partía y medía 78 px), y con la
+//     letra al 125 % y al 200 % en un móvil (320 y 375 px) ninguno se sale de su tarjeta.
 //     §14: barrido de 13 páginas por idioma, a 1280 y 1440 px: ningún .btn-* parte su etiqueta ni supera 56 px.
 //
 // CAPTURAS=<carpeta> guarda capturas de la rejilla para la revisión de `diseno`.
@@ -701,6 +702,20 @@ try {
       ok(m.puertas.length === 3 && m.puertas.every((b) => b.h >= 44 && b.right <= m.vw + 0.5), `${e}: las tres puertas miden ≥ 44 px y caben (${m.puertas.map((b) => Math.round(b.h)).join(', ')})`)
       const ts = m.tarjetas
       ok(!ts.some((p, i) => ts.slice(i + 1).some((q) => Math.min(p.right, q.right) - Math.max(p.left, q.left) > 1 && Math.min(p.bottom, q.bottom) - Math.max(p.top, q.top) > 1)), `${e}: ninguna tarjeta se solapa con otra`)
+    }
+  }
+  // con la letra de la raíz ampliada (125 % y 200 %) en un móvil, ningún botón se sale de su tarjeta: la etiqueta puede envolver, el botón no desborda
+  // (sin `nowrap`: con él, a 320 px y la letra al 200 % cinco botones se salían de la tarjeta; al 125 % y al 150 % cabían)
+  for (const [loc, ruta] of [['es', '/herramientas'], ['en', '/en/tools']]) {
+    for (const w of [320, 375]) {
+      await ancho(w, 800)
+      await cargar(ruta)
+      for (const pct of [125, 200]) {
+        await evaluate(`document.documentElement.style.fontSize = '${pct}%'`)
+        await sleep(200)
+        const fuera = await evaluate(`[...document.querySelectorAll('main article.herr')].flatMap((a) => { const t = a.getBoundingClientRect(); return [...a.querySelectorAll('.btn-dark, .btn-secondary')].filter((b) => { const r = b.getBoundingClientRect(); return r.right > t.right + 0.5 || r.left < t.left - 0.5 }).map((b) => b.textContent.trim().slice(0, 24)) })`)
+        ok(fuera.length === 0, `${loc} ${w}px, letra al ${pct} % ${ruta}: ningún botón se sale de su tarjeta${fuera.length ? ': ' + fuera.join(', ') : ''}`)
+      }
     }
   }
   // «Qué buscamos» se abre y se cierra con el teclado, y deja ver sus peticiones

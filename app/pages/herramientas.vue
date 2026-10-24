@@ -209,11 +209,12 @@ defineOgImage('Default.takumi', {
 .herr__busca { margin-top: auto; }
 .herr__busca--todas { margin-bottom: 0; }
 .herr__peticiones { padding-bottom: var(--sp-8); }
-/* Ninguna etiqueta de botón se parte en dos líneas (revisión de T2a): cada botón mide lo que su texto y crece para repartir la fila; si los dos no
-   caben juntos, el segundo baja y cada uno ocupa su fila entera. Con `flex: 1 1 9rem`, en la rejilla de 3 columnas (1280 y 1440 px) «Escribir
-   al equipo» se partía en dos líneas y «Abrir» se estiraba hasta los 78 px del vecino. */
+/* Ninguna etiqueta de botón se parte en dos líneas (revisión de T2a): cada botón mide lo que su texto (`flex: 1 1 auto`) y crece para repartir la
+   fila; si los dos no caben juntos, el segundo baja y cada uno ocupa su fila entera. Solo si un botón suelto no cupiera en la tarjeta (letra muy
+   ampliada en un móvil de 320 px) su etiqueta envuelve: mejor dos líneas que un botón fuera de la tarjeta, por eso no lleva `nowrap`. Con
+   `flex: 1 1 9rem`, en la rejilla de 3 columnas (1280 y 1440 px) «Escribir al equipo» se partía y «Abrir» se estiraba hasta los 78 px del vecino. */
 .herr__acciones { display: flex; flex-wrap: wrap; gap: var(--sp-12); }
-.herr__acciones > * { flex: 1 1 auto; justify-content: center; text-align: center; white-space: nowrap; }
+.herr__acciones > * { flex: 1 1 auto; justify-content: center; text-align: center; }
 
 .herr-puertas { display: flex; flex-wrap: wrap; gap: var(--sp-12); }
 .herr-puertas > * { flex: 1 1 14rem; justify-content: center; text-align: center; }
