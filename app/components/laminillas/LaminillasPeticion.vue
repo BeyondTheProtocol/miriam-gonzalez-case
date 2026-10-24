@@ -1,3 +1,9 @@
+<script lang="ts">
+// El hash de la carga, leído al evaluar el módulo: la página reescribe la URL con ?l= al hidratar
+// (router.replace) y el #ficheros/#files ya no está cuando se monta el diálogo.
+const HASH_INICIAL = import.meta.client ? window.location.hash : ''
+</script>
+
 <script setup lang="ts">
 /**
  * LaminillasPeticion — «Pide los ficheros»: los TIFF a resolución completa, bajo petición.
@@ -43,7 +49,11 @@ defineExpose({ abre })
 
 const ANCLAS = ['#ficheros', '#files']
 function alHash() { if (ANCLAS.includes(window.location.hash)) abre() }
-onMounted(() => { alHash(); window.addEventListener('hashchange', alHash) })
+const route = useRoute()
+onMounted(() => {
+  if ([HASH_INICIAL, route.hash, window.location.hash].some((h) => ANCLAS.includes(h))) abre()
+  window.addEventListener('hashchange', alHash)
+})
 onBeforeUnmount(() => window.removeEventListener('hashchange', alHash))
 
 function onCaptchaToken(token: string) { turnstileToken.value = token; captchaUnavailable.value = false }
