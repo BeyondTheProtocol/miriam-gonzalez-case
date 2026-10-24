@@ -70,6 +70,9 @@ export default {
         // Altura del header sticky en ≥sm (h-18). Sin este token, `sm:h-18` era
         // un no-op y el menú se quedaba en 64px (h-16) en todos los tamaños.
         18: '4.5rem',
+        // Retícula y táctil: `px-gutter` es el relleno de .section-wide; `min-h-control`, los 44 px.
+        control: 'var(--control-min)',
+        gutter: 'var(--gutter)',
       },
       // Puente de los tokens de movimiento, sombra y radio (sistema v3, S1). Solo nombres NUEVOS o con el mismo valor
       // que ya tenían: nada cambia de píxel. Las utilidades que nadie usa no salen en el CSS.
@@ -80,14 +83,23 @@ export default {
       },
       boxShadow: {
         flotante: 'var(--sombra-flotante)',
+        hover: 'var(--sombra-hover)',
+        dura: 'var(--sombra-dura)',
       },
       transitionDuration: {
         micro: 'var(--dur-micro)',
         transicion: 'var(--dur-transicion)',
+        explica: 'var(--dur-explica)',
       },
       transitionTimingFunction: {
         salida: 'var(--curva-salida)',
         entrada: 'var(--curva-entrada)',
+        mover: 'var(--curva-mover)',
+      },
+      // `max-w-shell` es el ancho de .section-wide; `max-w-medida`, la medida de lectura.
+      maxWidth: {
+        shell: 'var(--shell-max)',
+        medida: 'var(--measure)',
       },
       typography: (theme) => ({
         DEFAULT: {
