@@ -45,6 +45,10 @@
           <p class="prosa">{{ p.a }}</p>
         </li>
       </ul>
+      <!-- El esquema del tumor (fase «esquema» de la tanda 3, 25-oct-2026): la cuarta respuesta acaba en «Ya hay primeros resultados» y la figura es
+           esa frase en dibujo. Va aquí, sin tocar la rejilla de las cuatro respuestas. Se pinta solo si los bloques R4, R5 y R6 de /celula-a-celula
+           pasan su puerta (fail-closed). -->
+      <TumorEsquema class="ci-llano__esquema" />
       <!-- 10 · La ruta, con el objetivo N-of-1 dentro (E5). Antes cerraba la hoja profesional (al 81 % de la página); aquí es lo primero que ve quien
            lee en llano. SIN la línea «Ahora»: la cuarta respuesta de arriba ya cuenta el tratamiento de hoy en llano (Dato-DXd) y la hoja profesional lo
            dice con su dosis en `notaEjes`; repetirlo aquí, con otro nombre y con jerga, era lo más pesado de la banda. #ruta-title se conserva: el botón
@@ -539,6 +543,7 @@ useHead({ script: [{ type: 'application/ld+json', innerHTML: condicion }] })
 .ci-llano__item { border-top: 1px solid var(--trazo-medio); padding-top: var(--sp-16); }
 .ci-llano__item .h3-seccion { margin: 0 0 var(--sp-8); }
 .ci-llano__item .prosa { margin: 0; }
+.ci-llano__esquema { margin-top: var(--sp-48); }
 .ci-llano__ruta { margin-top: var(--sp-64); padding-top: var(--sp-64); border-top: 1px solid var(--trazo-medio); }
 
 .ci-sec { margin-bottom: var(--sp-64); }

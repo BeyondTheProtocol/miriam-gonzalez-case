@@ -17,6 +17,10 @@
 //  9. «Explicado sin tecnicismos» (fase «llano» de la tanda 3, 25-oct-2026): la capa llana de /ciencia, arriba. Cuatro preguntas con los literales de
 //     voz-miriam, la cuarta con la fecha de caso.json (y sin tratamiento si el caso deja de estar en cuarta línea: fail-closed), el enlace «Ir al detalle
 //     profesional» ANTES de la hoja profesional, y la ruta dentro del bloque.
+// 10. El esquema del tumor (TumorEsquema, fase «esquema» de la tanda 3, 25-oct-2026), entre las cuatro respuestas y la ruta: cero texto dentro de
+//     los SVG, RB1 y ESR1 solo en el panel de la sangre, ninguna cifra clínica escrita a mano (todo sale del i18n, que es el literal del cotejo de
+//     `verificacion`), una sola fuente por glifo y fail-closed con los bloques R4, R5 y R6 de /celula-a-celula. Con canarios: cada freno se prueba
+//     contra una copia rota a propósito, porque un test que pasa con el código roto es decorativo.
 //
 // Uso:  pnpm exec nuxt generate && pnpm test:ciencia-pro   (CI: .github/workflows/e2e.yml)
 import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs'
@@ -27,7 +31,10 @@ import { cuartaLineaDe, fechaDia, leerCasoCiencia } from '../app/utils/casoCienc
 import { msFecha } from '../app/utils/datosCaso'
 import { formatearFechaCambio } from '../app/utils/fechaCambio'
 import { HERRAMIENTAS } from '../app/utils/navegacion'
+import { fechaEstado } from '../app/utils/celulaResultados'
+import { gota, membranaPath, partirCifra, receptorDeMembrana } from '../app/utils/esquemaTumor'
 import { DEUDAS } from './lib/deudas-clinicas.mjs'
+import { ESQUEMA_LITERALES } from './lib/esquema-tumor-literales.mjs'
 
 const PUB = '.output/public'
 let fallos = 0
@@ -127,7 +134,10 @@ for (const loc of ['es', 'en'] as const) {
     const iLlano = h.indexOf('id="ciencia-llano"')
     const iHoja = h.indexOf('id="detalle-profesional"')
     const zona = h.slice(iLlano, iHoja)
-    const qa = [...zona.matchAll(/<h3\b[^>]*>([\s\S]*?)<\/h3>\s*<p\b[^>]*>([\s\S]*?)<\/p>/g)].map((m) => [texto(m[1]!), texto(m[2]!)] as const)
+    // Las cuatro respuestas son las del <ul class="ci-llano">: la zona entera lleva además el esquema del tumor, cuyo h3 no es una respuesta.
+    const iLista = zona.indexOf('class="ci-llano"')
+    const lista = iLista >= 0 ? zona.slice(iLista, zona.indexOf('</ul>', iLista)) : ''
+    const qa = [...lista.matchAll(/<h3\b[^>]*>([\s\S]*?)<\/h3>\s*<p\b[^>]*>([\s\S]*?)<\/p>/g)].map((m) => [texto(m[1]!), texto(m[2]!)] as const)
     const esperadas = (['q1', 'q2', 'q3', 'q4'] as const).map((id) => [t(loc, `ciencia.llano.${id}_q`), id === 'q4' ? t(loc, 'ciencia.llano.q4_a').replace('{desde}', cl?.larga ?? '') : t(loc, `ciencia.llano.${id}_a`)] as const)
     ok(iLlano >= 0 && iHoja > iLlano && /<h2\b[^>]*\bid="ciencia-llano"/.test(h) && texto(h.slice(iLlano, iLlano + 400)).includes(t(loc, 'ciencia.llano.titulo')), `${f}: «${t(loc, 'ciencia.llano.titulo')}» es el <h2> de la banda llana y va antes de la hoja profesional`)
     ok(texto(h.slice(h.lastIndexOf('<section', iLlano), iLlano)).includes(t(loc, 'ciencia.level_simple')), `${f}: el rótulo de la banda, encima del titular, es «${t(loc, 'ciencia.level_simple')}» (clave publicada)`)
@@ -311,5 +321,211 @@ console.log('\n8. Slots de i18n-t con texto fijo')
   ok(SLOT_FIJO().test('<template #neuroendocrino>neuroendocrino</template>') && !SLOT_FIJO().test("<template #neuroendocrino>{{ L('neuroendocrino', 'neuroendocrine') }}</template>"), 'canario: el patrón casa con el slot fijo y no con el localizado')
 }
 
-console.log(fallos ? `\n❌ ${fallos} fallo(s)` : '\n✅ /ciencia en una capa, textos clínicos literales, las seis deudas fuera, /datos con la historia y el PET, la cronología y /videos en verde')
+// ═══ 10 · el esquema del tumor (TumorEsquema, fase «esquema» de la tanda 3, 25-oct-2026) ═══
+// Las dos revisiones devuelven la lista de PROBLEMAS (vacía si todo está bien). Cada una se prueba dos veces: contra lo real (tiene que salir limpia) y
+// contra copias rotas a propósito (cada una tiene que salir con algún problema): «canario del autor», porque un test que pasa con el código roto es
+// decorativo. `revisaFuente` mira el fuente (sin build); `revisaHtml`, la página generada (lo que ve el lector).
+console.log('\n10. El esquema del tumor (TumorEsquema)')
+{
+  const NS = { es: D.es.esquemaTumor, en: D.en.esquemaTumor } as Record<'es' | 'en', Record<string, any>>
+  const LIT = ESQUEMA_LITERALES as { titulo: Record<string, string>; lede: Record<string, string>; cifras: Record<string, string[]>; limites: Record<string, Record<string, string>> }
+  // Genes y siglas clínicas: en el componente y en la geometría NO se escribe ninguna (el texto vive en el i18n, cotejado contra los informes).
+  const GENES = /\b(?:RB1|ESR1|FGFR1|CCND1|FGF3|FGF4|FGF19|PIK3CA|SSTR2|DLL3|INSM1|CHGA|SYP)\b/i
+  const RB1_ESR1 = /\b(?:RB1|ESR1)\b/
+  // Lo que la figura NO dice (cotejo y diseno): «dos caras», «escapa por el otro», «→ PRRT», «sin diana», «dianas para atacar», «se está perdiendo»,
+  // «el 80 % del tumor» y «×N». Va aquí y no en las deudas compartidas (scripts/lib/deudas-clinicas.mjs) porque las claves muertas `twofaces.*` y
+  // `pathways.brief_points` del i18n todavía llevan «dos biologías» y pondrían en rojo `test:afirmaciones-clinicas` sin que se pueda arreglar sin borrarlas.
+  const PROHIBIDO = /dos biolog[ií]as|two biologies|dos caras|two faces|escapa por el otro|escapes? through the other|dos poblaciones|two populations|\bPRRT\b|sin diana|dianas? para atacar|se est[aá] perdiendo|being lost|80\s?%\s*(?:del\s+tumor|of the tumou?r)|(?:FGFR1|CCND1|FGF3)[^\n]{0,20}(?:×|(?<![A-Za-z0-9&#])x)\s?\d|×/i
+  const ESPANOL = /\b(?:del|los|las|una|pero|aunque|también|hígado|mama|sangre|copias|rasgos|células|tumoral|lectura|lecturas|tinción|sin|según)\b/i
+  const sinCom = (s: string) => s.replace(/<!--[\s\S]*?-->/g, '').replace(/\/\*[\s\S]*?\*\//g, '').replace(/(^|[^:\w'"`])\/\/[^\n]*/g, '$1')
+  const trozo = (src: string, tag: string) => src.match(new RegExp(`^<${tag}\\b[^>]*>([\\s\\S]*?)^</${tag}>`, 'm'))?.[1] ?? ''
+
+  // ── El fuente: la plantilla no lleva texto propio, el script no lleva cifras, el estilo solo roles, y la puerta es R4, R5 y R6 ──
+  const revisaFuente = (vue: string, ts: string): string[] => {
+    const p: string[] = []
+    const v = sinCom(vue), u = sinCom(ts)
+    const tpl = trozo(v, 'template'), scr = trozo(v, 'script'), sty = trozo(v, 'style')
+    if (!tpl || !scr || !sty) p.push('no encuentro template, script y style en TumorEsquema.vue')
+    if (/(?<![\w&])#(?:[0-9a-f]{8}|[0-9a-f]{6}|[0-9a-f]{3,4})\b/i.test(v) || /\b(?:rgba?|hsla?)\(\s*\d/.test(v)) p.push('color escrito a mano (hex, rgb o hsl): solo roles del sistema')
+    for (const [re, que] of [
+      [/Caveat/, 'la fuente Caveat'],
+      [/<text\b|<tspan\b|<foreignObject\b/i, 'texto dentro de un SVG'],
+      [/<button\b/i, 'un <button> (el bloque llano no los lleva)'],
+      [/twofaces|two-faces/i, 'algo de twofaces'],
+      [/v-reveal/, 'v-reveal (la Banda ya lo lleva)'],
+      [/transition|animation|@keyframes/i, 'movimiento propio'],
+    ] as const) if (re.test(v)) p.push(`lleva ${que}`)
+    if (GENES.test(v) || GENES.test(u)) p.push('un gen o una sigla clínica escrita en el componente o en la geometría (el texto va en el i18n)')
+    const suelto = tpl.replace(/\{\{[\s\S]*?\}\}/g, '').replace(/<[^>]*>/g, '').replace(/\s+/g, ' ').trim()
+    if (suelto) p.push(`texto escrito en la plantilla: «${suelto.slice(0, 40)}»`)
+    const malas = [...tpl.matchAll(/\{\{\s*([\s\S]*?)\s*\}\}/g)].map((m) => m[1]!).filter((e) => !/^(?:\$t\('(?:esquemaTumor|sectionNav\.ciencia)\.[\w.]+'\)|[a-z]\w*(?:\.\w+)?)$/.test(e))
+    if (malas.length) p.push(`interpolación que no es una clave del i18n ni un dato de la lista: ${malas.slice(0, 2).join(' · ')}`)
+    const cadenas = [...scr.matchAll(/(['"`])((?:\\.|(?!\1)[^\\])*)\1/g), ...u.matchAll(/(['"`])((?:\\.|(?!\1)[^\\])*)\1/g)].map((m) => m[2]!)
+    const clinicas = cadenas.filter((c) => /%|×|copias|copies|\bx\s?\d/i.test(c))
+    if (clinicas.length) p.push(`cadena con cifra o «copias» escrita a mano: «${clinicas[0]}»`)
+    if (!(/useCelulaResultados\(\)/.test(scr) && /\['R4', 'R5', 'R6'\]/.test(scr) && /reales\.value\.includes/.test(scr) && /<section\s+v-if="abierta"/.test(tpl))) p.push('la figura no es fail-closed con los bloques R4, R5 y R6')
+    const definidos = new Set([...tpl.matchAll(/<symbol :id="`\$\{uid\}-(\w+)`"/g)].map((m) => m[1]!))
+    const usados = [...tpl.matchAll(/sym\('(\w+)'\)/g)].map((m) => m[1]!)
+    if (!definidos.size || !usados.length || usados.some((n) => !definidos.has(n))) p.push('un glifo se usa sin su <symbol> (una sola fuente por glifo)')
+    const medias = [...sty.matchAll(/@media\s*([^{]+)\{/g)].map((m) => m[1]!.trim())
+    if (!medias.length || medias.some((m) => m !== '(min-width: 1024px)')) p.push(`la composición cambia por debajo de lg (@media: ${medias.join(', ') || 'ninguno'}): mobile-first`)
+    return p
+  }
+  const vue = readFileSync('app/components/TumorEsquema.vue', 'utf-8')
+  const tsSrc = readFileSync('app/utils/esquemaTumor.ts', 'utf-8')
+  const rompe = (src: string, de: string, a: string) => { if (!src.includes(de)) throw new Error(`canario mal hecho: no encuentro «${de.slice(0, 50)}»`); return src.replace(de, a) }
+  const pf = revisaFuente(vue, tsSrc)
+  ok(pf.length === 0, `TumorEsquema.vue y utils/esquemaTumor.ts: sin texto ni cifras a mano, sin colores propios, sin texto en SVG, puerta R4+R5+R6, un symbol por glifo, mobile-first${pf.length ? ` (${pf.join(' · ')})` : ''}`)
+  const canariosFuente: [string, () => string[]][] = [
+    ['texto dentro de un SVG', () => revisaFuente(rompe(vue, '<path :d="GOTA_PATH" class="te__gota" />', '<path :d="GOTA_PATH" class="te__gota" /><text>x</text>'), tsSrc)],
+    ['una cifra escrita en la plantilla', () => revisaFuente(rompe(vue, `<p class="te__nota">{{ $t('esquemaTumor.nota') }}</p>`, '<p class="te__nota">13 copias</p>'), tsSrc)],
+    ['una interpolación con literal', () => revisaFuente(rompe(vue, `{{ $t('esquemaTumor.nota') }}`, `{{ 'hola' }}`), tsSrc)],
+    ['un hex en el estilo', () => revisaFuente(rompe(vue, '.te__fragmento { fill: var(--texto-3); }', '.te__fragmento { fill: #2d1b3d; }'), tsSrc)],
+    ['la puerta sin R6', () => revisaFuente(rompe(vue, "['R4', 'R5', 'R6']", "['R4', 'R5']"), tsSrc)],
+    ['un gen en una clase de la plantilla', () => revisaFuente(rompe(vue, 'class="te__membrana"', 'class="te__membrana rb1"'), tsSrc)],
+    ['un @media por debajo de lg', () => revisaFuente(rompe(vue, '@media (min-width: 1024px)', '@media (min-width: 640px)'), tsSrc)],
+    ['un símbolo que no existe', () => revisaFuente(rompe(vue, `sym('fragmento')`, `sym('inexistente')`), tsSrc)],
+    ['un botón', () => revisaFuente(rompe(vue, '<p class="eyebrow te__eyebrow">', '<button>x</button><p class="eyebrow te__eyebrow">'), tsSrc)],
+    ['una cadena clínica en la geometría', () => revisaFuente(vue, `${tsSrc}\nexport const MAL = '13 copias'\n`)],
+    ['un gen en la geometría', () => revisaFuente(vue, `${tsSrc}\nexport const MAL = 'FGFR1'\n`)],
+  ]
+  for (const [que, f] of canariosFuente) {
+    let r: string[] = []
+    try { r = f() } catch (e) { r = []; ok(false, `canario del fuente «${que}»: ${(e as Error).message}`); continue }
+    ok(r.length > 0, `canario del fuente: con «${que}» el test se pone ROJO`)
+  }
+
+  // ── La geometría: pura y determinista, y las cifras se pintan tal cual (cabeza + separador + resto = la fila exacta) ──
+  {
+    const a = JSON.stringify([gota(), membranaPath(), receptorDeMembrana(15, 1.4)])
+    ok(a === JSON.stringify([gota(), membranaPath(), receptorDeMembrana(15, 1.4)]), 'utils/esquemaTumor: determinista (la misma entrada da el mismo dibujo: el HTML estático y el cliente coinciden)')
+    const g = gota()
+    ok(g.arcos.length === 2 && g.puntos.length >= 55 && g.puntos.length <= 62, `la gota lleva unos 60 fragmentos: ${g.puntos.length} normales y ${g.arcos.length} con cambio`)
+    ok(g.arcos.every((x) => g.puntos.every((y) => Math.hypot(x.x - y.x, x.y - y.y) >= 11)), 'los dos fragmentos con cambio no se pisan con ningún punto')
+    const filas = [...LIT.cifras.es!, ...LIT.cifras.en!]
+    const partidas = filas.map((f) => partirCifra(f))
+    ok(partidas.every((x, i) => x.cabeza + x.sep + x.resto === filas[i] && x.cabeza.length > 0 && x.resto.length > 0), 'partirCifra: las 30 filas (ES y EN) se parten en cabeza y resto sin perder ni cambiar una letra (también las que no llevan « · »: A2, A4, B6 y C2)')
+  }
+
+  // ── El i18n: es el literal del cotejo, ES y EN a la vez ──
+  {
+    const claves = (o: Record<string, unknown>) => Object.keys(o).sort().join()
+    ok(claves(NS.es) === claves(NS.en), 'esquemaTumor.*: las mismas claves en ES y en EN')
+    for (const loc of ['es', 'en'] as const) {
+      const n = NS[loc]
+      const todas = Object.values(n).flat() as unknown[]
+      ok(todas.every((s) => typeof s === 'string' && s.trim() === s && s.length > 0), `(${loc}) ninguna cadena vacía, ni con espacios en los bordes`)
+      ok(n.titulo === LIT.titulo[loc] && n.lede === LIT.lede[loc], `(${loc}) título y subtítulo: los literales del cotejo («${n.titulo}»)`)
+      ok(Array.isArray(n.cifras) && n.cifras.length === 15 && n.cifras.every((c: string, i: number) => c === LIT.cifras[loc]![i]), `(${loc}) las 15 cifras (A1 a C4) son el literal del cotejo, fila a fila`)
+      ok(Object.entries(LIT.limites[loc]!).every(([k, lit]) => n[`limite_${k}`] === lit) && Object.keys(LIT.limites[loc]!).length === 7, `(${loc}) los límites 2 a 8 son el literal del cotejo (el 2 lleva {fecha} y define Polaris; el 1 es la nota de la figura)`)
+      ok(n.limite_2.includes('{fecha}') && !todas.some((s) => typeof s === 'string' && s !== n.limite_2 && /[{}]/.test(s)), `(${loc}) {fecha} solo en el límite 2 (la fecha sale de fechaEstado(), no escrita a mano)`)
+      ok(!todas.some((s) => typeof s === 'string' && PROHIBIDO.test(s)), `(${loc}) el namespace no dice «dos caras», «dos biologías», «escapa por el otro», «PRRT», «sin diana», «se está perdiendo», «el 80 % del tumor» ni «×N»`)
+      ok(!todas.some((s) => typeof s === 'string' && /[—–]/.test(s)), `(${loc}) sin guion largo en ningún texto`)
+      // RB1 y ESR1 solo en la gota de sangre: ni en los textos de la célula ni en los del tumor, ni en los rótulos
+      const sinSangre = Object.entries(n).filter(([k]) => !['alt_sangre', 'clave_sangre', 'cifras', 'limite_2', 'limite_3', 'limite_4', 'limite_5', 'limite_6', 'limite_7', 'limite_8'].includes(k)).flatMap(([, x]) => x as string[])
+      ok(!sinSangre.some((s) => RB1_ESR1.test(String(s))) && RB1_ESR1.test(n.alt_sangre) && /\bRB1\b/.test(n.clave_sangre) && /\bESR1\b/.test(n.clave_sangre) && /\bESR1\b/.test(n.alt_sangre), `(${loc}) RB1 y ESR1 solo en los textos del panel de la sangre (alt y leyenda); ninguno en el tumor, la célula, el rótulo ni las notas`)
+    }
+    ok(!NS.en.cifras.concat(Object.values(NS.en).filter((x): x is string => typeof x === 'string')).some((s: string) => ESPANOL.test(s.replace(/«[^»]*»|"[^"]*"/g, ' '))), '(en) ninguna palabra en español fuera de comillas')
+    ok(PROHIBIDO.test('Si se bloquea un lado, escapa por el otro') && PROHIBIDO.test('→ PRRT') && PROHIBIDO.test('FGFR1 ×13') && PROHIBIDO.test('el 80 % del tumor') && !PROHIBIDO.test(NS.es.cifras[11]) && !PROHIBIDO.test(NS.es.cifras[5]), 'canario: el patrón de frases retiradas casa con las malas y no con el literal corregido (80 % de las células tumorales; 13 copias)')
+  }
+
+  // ── El HTML generado ──
+  const revisaHtml = (h: string, loc: 'es' | 'en'): string[] => {
+    const p: string[] = []
+    const n = NS[loc]
+    const i = h.indexOf('aria-labelledby="te-titulo"')
+    if (i < 0) return ['no está la sección del esquema (aria-labelledby="te-titulo")']
+    const ini = h.lastIndexOf('<section', i)
+    const sec = h.slice(ini, h.indexOf('</section>', i) + 10)
+    const iLista = h.indexOf('class="ci-llano"'), iRuta = h.indexOf('id="ruta-title"')
+    if (!(iLista >= 0 && ini > iLista && ini < iRuta)) p.push('el esquema no está entre las cuatro respuestas y la ruta')
+    if ((h.match(/\bid="te-titulo"/g)?.length ?? 0) !== 1 || !/<h3\b[^>]*\bid="te-titulo"/.test(sec)) p.push('#te-titulo no es un único <h3>')
+    if (texto(sec.match(/<h3\b[^>]*\bid="te-titulo"[^>]*>([\s\S]*?)<\/h3>/)?.[1] ?? '') !== n.titulo) p.push('el <h3> no dice el título')
+    const txt = texto(sec)
+    for (const k of ['eyebrow', 'lede', 'nota', 'nota_procedencia', 'cifras_titulo', 'cifras_lead', 'limites_titulo', 'panel_tumor', 'panel_celula', 'panel_sangre', 'clave_luminal', 'clave_ne', 'clave_er', 'clave_her2', 'clave_copias', 'clave_sangre']) {
+      if (!txt.includes(sinMarcas(n[k]))) p.push(`falta el texto «${k}»`)
+    }
+    const alts = [...sec.matchAll(/<svg\b[^>]*\brole="img"[^>]*>/g)].map((m) => decodifica(m[0].match(/aria-label="([^"]*)"/)?.[1] ?? ''))
+    if (alts.join('|') !== [n.alt_tumor, n.alt_celula, n.alt_sangre].map(sinMarcas).join('|')) p.push(`los tres dibujos (role="img") y su texto alternativo no son los del i18n (hay ${alts.length})`)
+    const pildoras = [...sec.matchAll(/<span\b[^>]*\bclass="[^"]*\bpill-data--neutral\b[^"]*"[^>]*>([\s\S]*?)<\/span>/g)].map((m) => texto(m[1]!))
+    if (pildoras.join('|') !== [n.rotulo_esquema, n.rotulo_resultados].join('|')) p.push(`las dos píldoras no son «${n.rotulo_esquema}» y «${n.rotulo_resultados}» (hay ${pildoras.length})`)
+    if (/<text\b|<tspan\b|<foreignObject\b/i.test(sec)) p.push('hay texto dentro de un SVG')
+    if (/<button\b/i.test(sec)) p.push('hay un <button>')
+    const iT = sec.indexOf('data-panel="tumor"'), iC = sec.indexOf('data-panel="celula"'), iS = sec.indexOf('data-panel="sangre"'), iPie = sec.indexOf('<figcaption')
+    if (!(iT > 0 && iC > iT && iS > iC && iPie > iS)) p.push('los paneles no van en el orden tumor, célula, sangre y la nota')
+    else {
+      const sangre = sec.slice(iS, iPie)
+      const fuera = sec.slice(sec.indexOf('<figure'), iS) + sec.slice(iPie, sec.indexOf('</figure>'))
+      if (RB1_ESR1.test(fuera)) p.push('RB1 o ESR1 fuera del panel de la sangre (en el tumor, la célula, los rótulos o la nota)')
+      if (!(/\bRB1\b/.test(sangre) && /\bESR1\b/.test(sangre))) p.push('el panel de la sangre no nombra RB1 y ESR1')
+    }
+    // Una sola fuente por glifo: el dibujo y la leyenda apuntan al MISMO <symbol>
+    const simbolos = new Set([...sec.matchAll(/<symbol\b[^>]*\bid="([^"]+)"/g)].map((m) => m[1]!))
+    const usos = [...sec.matchAll(/<use\b[^>]*\bhref="#([^"]+)"/g)].map((m) => m[1]!)
+    if (!usos.length || usos.some((u) => !simbolos.has(u))) p.push('un <use> apunta a un <symbol> que no existe')
+    const dibujos = [...sec.matchAll(/<svg\b[^>]*\brole="img"[\s\S]*?<\/svg>/g)].map((m) => m[0]).join('')
+    const leyendas = [...sec.matchAll(/<ul\b[^>]*\bclass="te__clave"[\s\S]*?<\/ul>/g)].map((m) => m[0]).join('')
+    for (const g of ['er', 'her2', 'copias', 'fragmento']) {
+      const id = [...simbolos].find((x) => x.endsWith(`-${g}`))
+      if (!id || !dibujos.includes(`href="#${id}"`) || !leyendas.includes(`href="#${id}"`)) p.push(`el glifo «${g}» no es el mismo en el dibujo y en la leyenda`)
+    }
+    // Las cifras: 15 filas, el literal del cotejo, plegadas, con los dos enlaces a las tablas
+    const det = sec.match(/<details\b[^>]*\bclass="desplegable te__cifras"[^>]*>([\s\S]*?)<\/details>/)
+    if (!det) p.push('falta el desplegable de las cifras')
+    else {
+      if (/\bopen\b/.test(det[0].slice(0, det[0].indexOf('>') + 1))) p.push('el desplegable de las cifras va abierto de entrada')
+      const filas = [...det[1]!.matchAll(/<li\b[^>]*>([\s\S]*?)<\/li>/g)].map((m) => texto(m[1]!))
+      const lit = LIT.cifras[loc]!.map(sinMarcas)
+      const mala = filas.findIndex((f, k) => f !== lit[k])
+      if (filas.length !== 15 || mala >= 0) p.push(`las 15 cifras no son el literal del cotejo (hay ${filas.length}${mala >= 0 ? `; la ${mala + 1} difiere: «${filas[mala]?.slice(0, 60)}»` : ''})`)
+      if ((det[1]!.match(/<strong\b/g)?.length ?? 0) !== 15) p.push('cada cifra lleva su cabeza en negrita (15)')
+      const base = loc === 'es' ? '/ciencia' : '/en/science'
+      const hrefs = [...det[1]!.matchAll(/<a\b[^>]*\bhref="([^"]*)"/g)].map((m) => m[1]!)
+      if (hrefs.join('|') !== `${base}#tejido-3veces|${base}#molecular-profile-title`) p.push(`los enlaces a las tablas: ${hrefs.join(', ') || 'no hay'}`)
+    }
+    // Los límites: 2 a 8, plegados, con la fecha del estado de /celula-a-celula
+    const av = sec.match(/<details\b[^>]*\brole="note"[^>]*>[\s\S]*?<\/details>/)
+    if (!av) p.push('falta el aviso «Lo que este esquema no dice»')
+    else {
+      if (/\bopen\b/.test(av[0].slice(0, av[0].indexOf('>') + 1))) p.push('el aviso de límites va abierto de entrada')
+      const items = [...av[0].matchAll(/<li\b[^>]*>([\s\S]*?)<\/li>/g)].map((m) => texto(m[1]!))
+      const esperados = Object.keys(LIT.limites[loc]!).sort().map((k) => sinMarcas(LIT.limites[loc]![k]!.replace('{fecha}', fechaEstado(loc))))
+      if (items.join('|') !== esperados.join('|')) p.push(`los límites 2 a 8 no son el literal del cotejo con la fecha de fechaEstado() (hay ${items.length})`)
+    }
+    return p
+  }
+  const tocaSec = (h: string, f: (s: string) => string) => {
+    const i = h.indexOf('aria-labelledby="te-titulo"')
+    if (i < 0) throw new Error('canario mal hecho: no hay sección')
+    const a = h.lastIndexOf('<section', i), b = h.indexOf('</section>', i) + 10
+    return h.slice(0, a) + f(h.slice(a, b)) + h.slice(b)
+  }
+  for (const loc of ['es', 'en'] as const) {
+    const f = P[loc].ciencia
+    const h = limpio(f)
+    const pr = revisaHtml(h, loc)
+    ok(pr.length === 0, `${f}: la figura va entre las cuatro respuestas y la ruta; 3 dibujos con su texto alternativo, 2 píldoras, cero texto en los SVG, RB1/ESR1 solo en la sangre, un símbolo por glifo, 15 cifras y 7 límites literales${pr.length ? ` (${pr.join(' · ')})` : ''}`)
+    const n = NS[loc]
+    const sinCifra = loc === 'es' ? ['100 % y 85 %', '100 % y 86 %'] : ['100% and 85%', '100% and 86%']
+    const canariosHtml: [string, () => string[]][] = [
+      ['sin la figura (puerta cerrada)', () => revisaHtml(tocaSec(h, () => ''), loc)],
+      ['texto dentro de un SVG', () => revisaHtml(tocaSec(h, (s) => rompe(s, '<path d="M80 6', '<text>x</text><path d="M80 6')), loc)],
+      ['RB1 en el texto alternativo de la célula', () => revisaHtml(tocaSec(h, (s) => rompe(s, n.alt_celula, `${n.alt_celula} RB1`)), loc)],
+      ['ESR1 fuera de la sangre (en la leyenda de la célula)', () => revisaHtml(tocaSec(h, (s) => rompe(s, n.clave_copias, `${n.clave_copias} ESR1`)), loc)],
+      ['sin ESR1 en la sangre', () => revisaHtml(tocaSec(h, (s) => s.replaceAll('ESR1', 'XX')), loc)],
+      ['una cifra cambiada', () => revisaHtml(tocaSec(h, (s) => rompe(s, sinCifra[0]!, sinCifra[1]!)), loc)],
+      ['un dibujo sin role="img"', () => revisaHtml(tocaSec(h, (s) => rompe(s, 'role="img"', '')), loc)],
+      ['un botón', () => revisaHtml(tocaSec(h, (s) => rompe(s, '<figcaption', '<button>x</button><figcaption')), loc)],
+      ['un <use> sin su symbol', () => revisaHtml(tocaSec(h, (s) => rompe(s, 'href="#', 'href="#zz-')), loc)],
+      ['un límite cambiado', () => revisaHtml(tocaSec(h, (s) => rompe(s, n.limite_3, `${n.limite_3} x`)), loc)],
+    ]
+    for (const [que, g] of canariosHtml) {
+      let r: string[] = []
+      try { r = g() } catch (e) { ok(false, `${f}: canario «${que}»: ${(e as Error).message}`); continue }
+      ok(r.length > 0, `${f}: canario: con «${que}» el test se pone ROJO`)
+    }
+  }
+}
+
+console.log(fallos ? `\n❌ ${fallos} fallo(s)` : '\n✅ /ciencia en una capa, textos clínicos literales, las seis deudas fuera, /datos con la historia y el PET, la cronología, /videos y el esquema del tumor en verde')
 process.exit(fallos ? 1 : 0)
