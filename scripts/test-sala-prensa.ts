@@ -92,6 +92,28 @@ ok(tonos.filter((t) => t === 'oscura').length <= 1, '/prensa lleva como mucho un
 ok(tonos.at(-1) !== 'oscura', '/prensa no acaba en una banda oscura (el pie ya empieza con la suya)')
 ok(tonos.every((t, i) => i === 0 || t !== tonos[i - 1]), '/prensa no pone dos bandas del mismo tono seguidas')
 
+// 5d · enlaces de las preguntas frecuentes (revisión del 25-oct-2026): `link-action` es el enlace con flecha FUERA de un párrafo (DESIGN-SYSTEM §4).
+// Metido en la frase de la respuesta no se distinguía del texto (mismo color, sin subrayado, sin flecha: WCAG 1.4.1) y su caja de 44 px abría un hueco
+// entre las dos últimas líneas. La respuesta va en un <p>, el enlace debajo y con su flecha. Es una invariante de ESTRUCTURA, a propósito.
+const respuestasConEnlace = [...pagina.matchAll(/<dd>([\s\S]*?)<\/dd>/g)].map((x) => x[1]).filter((d) => d.includes('class="link-action'))
+ok(respuestasConEnlace.length > 0, `/prensa tiene respuestas con enlace (${respuestasConEnlace.length}) y este test las mira`)
+ok(
+  respuestasConEnlace.every((d) => d.includes('</p>') && d.indexOf('</p>') < d.indexOf('class="link-action')),
+  '/prensa: el enlace de cada pregunta frecuente va DESPUÉS de cerrar el párrafo de la respuesta, no dentro de la frase'
+)
+ok(
+  respuestasConEnlace.every((d) => (d.match(/<Icon\b[^>]*ph:arrow-right/g) ?? []).length === (d.match(/class="link-action/g) ?? []).length),
+  '/prensa: cada enlace de las preguntas frecuentes lleva su flecha (Icon ph:arrow-right), no solo el color'
+)
+for (const fichero of ['prensa.html', 'en/press.html']) {
+  const ruta = join('.output/public', fichero)
+  if (!existsSync(ruta)) { console.log(`  ⚠️  sin ${ruta}: se omite la comprobación del HTML de las preguntas frecuentes (ejecuta antes \`pnpm exec nuxt generate\`)`); continue }
+  const h = readFileSync(ruta, 'utf-8').replace(/<script\b[\s\S]*?<\/script>/g, '')
+  const dds = [...h.matchAll(/<dd\b[^>]*>((?:(?!<\/dd>)[\s\S])*)<\/dd>/g)].map((x) => x[1]).filter((d) => d.includes('link-action'))
+  ok(dds.length > 0 && dds.every((d) => d.startsWith('<p')), `${fichero}: ${dds.length} respuestas con enlace, todas con la respuesta en un <p> y el enlace fuera`)
+  ok(dds.every((d) => /<svg\b|iconify/.test(d.slice(d.indexOf('link-action')))), `${fichero}: el enlace de cada respuesta lleva icono en el HTML generado`)
+}
+
 // 6
 const m = caseData.match(/pressAsOf:\s*'(\d{4}-\d{2}-\d{2})'/)
 ok(!!m, 'caseData.pressAsOf existe (AAAA-MM-DD)')

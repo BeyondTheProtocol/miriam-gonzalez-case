@@ -179,13 +179,18 @@
           <dl class="pr-plegado pr-faq">
             <div v-for="item in faq" :key="item.q">
               <dt class="h4-tarjeta">{{ item.q }}</dt>
+              <!-- La respuesta es un párrafo y el enlace va DEBAJO, fuera de la frase: `link-action` es el enlace con flecha «fuera de un
+                   párrafo» (DESIGN-SYSTEM §4); dentro de una frase iría `link-inline`. Dentro del texto no se distinguía (mismo color,
+                   sin subrayado, sin flecha) y su caja de 44 px abría un hueco entre las dos últimas líneas. -->
               <dd>
-                {{ item.a }}
-                <NuxtLink v-if="item.to && !item.to.startsWith('#')" :to="item.to" class="link-action pr-faq__enlace">
+                <p class="m-0">{{ item.a }}</p>
+                <NuxtLink v-if="item.to && !item.to.startsWith('#')" :to="item.to" class="link-action group pr-faq__enlace">
                   {{ item.toLabel }}
+                  <Icon name="ph:arrow-right" class="w-4 h-4 transition-transform group-hover:translate-x-0.5" aria-hidden="true" />
                 </NuxtLink>
-                <a v-else-if="item.to" :href="item.to" class="link-action pr-faq__enlace">
+                <a v-else-if="item.to" :href="item.to" class="link-action group pr-faq__enlace">
                   {{ item.toLabel }}
+                  <Icon name="ph:arrow-right" class="w-4 h-4 transition-transform group-hover:translate-x-0.5" aria-hidden="true" />
                 </a>
               </dd>
             </div>
@@ -543,7 +548,7 @@ useHead({
 .pr-faq > div + div { border-top: 1px solid var(--trazo-sutil); }
 .pr-faq dt { margin: 0; }
 .pr-faq dd { margin: var(--sp-4) 0 0; max-width: var(--measure); font: var(--tipo-ui); color: var(--texto-1); }
-.pr-faq__enlace { margin-left: var(--sp-4); }
+.pr-faq__enlace { display: flex; width: fit-content; margin: var(--sp-4) 0 0; }
 .pr-cronologia { list-style: none; margin: var(--sp-12) 0 var(--sp-8); padding: 0; }
 .pr-cronologia > li { display: grid; gap: var(--sp-4) var(--sp-24); padding: var(--sp-12) 0; font: var(--tipo-ui); color: var(--texto-1); }
 .pr-cronologia > li + li { border-top: 1px solid var(--trazo-sutil); }
