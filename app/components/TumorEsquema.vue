@@ -15,7 +15,9 @@
  *  · Una sola fuente por glifo: la leyenda y el dibujo usan el MISMO <symbol>, así no pueden divergir.
  *  · Sin movimiento propio, sin botones (<details> y <summary> no lo son) y sin colores propios: roles del sistema.
  *  · Glifos: ninguno puede leerse como una letra o un signo pegado a la leyenda. El de «cambios» (`fragmento`) es un aro partido en DOS arcos con
- *    DOS huecos (la forma la fija `pnpm test:ciencia-pro`): con un solo hueco se leía «C'» a 20 px y «C)» pegado a «Cambios».
+ *    DOS huecos (la forma la fija `pnpm test:ciencia-pro`): con un solo hueco se leía «C'» a 20 px y «C)» pegado a «Cambios». El de «HER2 ausente» (`her2`) es la Y
+ *    del receptor en gris con UN tachón oscuro que forma 20° o más con cada trazo de la Y (también lo fija el test): a 41,6° se fundía con el brazo derecho y se leía
+ *    «X» con rabo; en gris a 29° se leía como una horquilla; el color oscuro del tachón lo separa. Se miró a 20 px, a 1x y 2x, en /ciencia y /en/science.
  *  · Altura en móvil (criterio de aceptación 6, re-fijado el 25-oct-2026): a 375 px la figura mide 1466 px y la sección 1972 (CDP). El criterio del
  *    dibujo era ≤1200 px sin desplegables (estimación). No se llega sin plegar los paneles B y C o sin encoger los dibujos hasta que pierdan
  *    legibilidad (recortar tamaños deja unos 1265-1316 px). Se dejan los tres paneles visibles (el HER2 y los cambios en RB1 y ESR1 son lo más afilado) y el
@@ -61,9 +63,14 @@ const limites = computed(() => CLAVES_LIMITES.map((k) => t(`esquemaTumor.${k}`, 
           <path d="M12 6.4 L17.6 12 L12 17.6 L6.4 12 Z" class="te__g-ne" />
         </symbol>
         <symbol :id="`${uid}-er`" viewBox="0 0 24 24"><path d="M12 21 V12 M12 12 L5.5 3.5 M12 12 L18.5 3.5" class="te__g-er" /></symbol>
+        <!-- HER2 ausente: la Y del receptor en gris («ausente») y un tachón OSCURO. El tachón forma 29° con la horizontal y los brazos, 52,6° y 127,4°: se CRUZA con ellos.
+             Con el tachón de antes (41,6°), casi paralelo al brazo derecho, los dos trazos se fundían en un brazo grueso y el glifo se leía como una «X» con rabo.
+             En gris y a 29° pasaba otra cosa: tachón y brazo salían del mismo punto casi en la misma dirección y se leían como una horquilla («Y» con una rama de más),
+             no como una «Y» tachada. Lo que los distingue es el color (texto principal frente al gris). Un halo no vale: con el color del fondo
+             queda un cerco claro (la tarjeta es la superficie) y mella la membrana; con el de la superficie y el tachón acortado, borra casi todo el brazo derecho. La forma la fija `pnpm test:ciencia-pro`. -->
         <symbol :id="`${uid}-her2`" viewBox="0 0 24 24">
           <path d="M12 21 V12 M12 12 L5.5 3.5 M12 12 L18.5 3.5" class="te__g-ausente" />
-          <path d="M3 20 L21 4" class="te__g-tachado" />
+          <path d="M3 17 L21 7" class="te__g-tachado" />
         </symbol>
         <symbol :id="`${uid}-copias`" viewBox="0 0 24 24">
           <circle cx="12" cy="12" r="8" class="te__g-copias-aro" />
@@ -220,7 +227,7 @@ const limites = computed(() => CLAVES_LIMITES.map((k) => t(`esquemaTumor.${k}`, 
 .te__g-ne { fill: var(--cta-texto); }
 .te__g-er { fill: none; stroke: var(--identidad); stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
 .te__g-ausente { fill: none; stroke: var(--texto-3); stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
-.te__g-tachado { fill: none; stroke: var(--texto-3); stroke-width: 2.2; stroke-linecap: round; }
+.te__g-tachado { fill: none; stroke: var(--texto-1); stroke-width: 2.2; stroke-linecap: round; }
 .te__g-copias-aro { fill: none; stroke: var(--identidad); stroke-width: 2.2; }
 .te__g-copias-punto { fill: var(--identidad); }
 .te__g-fragmento { fill: none; stroke: var(--texto-1); stroke-width: 2.6; stroke-linecap: round; }

@@ -21,6 +21,9 @@
 //     los SVG, RB1 y ESR1 solo en el panel de la sangre, ninguna cifra clínica escrita a mano (todo sale del i18n, que es el literal del cotejo de
 //     `verificacion`), una sola fuente por glifo y fail-closed con los bloques R4, R5 y R6 de /celula-a-celula. Con canarios: cada freno se prueba
 //     contra una copia rota a propósito, porque un test que pasa con el código roto es decorativo.
+// 11. Imprimir (Ctrl+P y el botón «Imprimir»): los dos desplegables del esquema (las 15 cifras y «Lo que este esquema no dice») salen ABIERTOS en el
+//     papel y, al terminar, vuelven a como estaban. Es la única sección que usa NAVEGADOR (scripts/lib/navegador-cdp.mjs): `beforeprint` y `afterprint`
+//     solo existen en uno. Con canarios: la misma comprobación contra cuatro implementaciones rotas a propósito tiene que salir ROJA.
 //
 // Uso:  pnpm exec nuxt generate && pnpm test:ciencia-pro   (CI: .github/workflows/e2e.yml)
 import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs'
@@ -35,6 +38,7 @@ import { fechaEstado } from '../app/utils/celulaResultados'
 import { gota, membranaPath, partirCifra, receptorDeMembrana } from '../app/utils/esquemaTumor'
 import { DEUDAS } from './lib/deudas-clinicas.mjs'
 import { ESQUEMA_LITERALES } from './lib/esquema-tumor-literales.mjs'
+import { abrirNavegador } from './lib/navegador-cdp.mjs'
 
 const PUB = '.output/public'
 let fallos = 0
@@ -383,6 +387,32 @@ console.log('\n10. El esquema del tumor (TumorEsquema)')
     const sobreEje = (c: number) => Math.min(c % 90, 90 - (c % 90)) < 15
     const finoF = piezasF === 2 && arcosF.length === 2 && arcosF.every((a) => a.tramo >= 100 && a.tramo <= 170) && huecosF.length === 2 && huecosF.every((h) => h >= 30) && centrosF.length === 2 && !centrosF.some(sobreEje)
     if (!finoF) p.push('el glifo «fragmento» no es un aro partido en dos arcos de 100° a 170° con dos huecos de 30° o más, fuera de los ejes (un arco con un solo hueco se lee «C»)')
+    // El glifo de «HER2 ausente» (`her2`): la Y del receptor y un tachón. Con el tachón casi paralelo a un brazo (41,6° frente a 52,6° en la versión
+    // anterior) los dos trazos se fundían en un brazo grueso y se leía como una «X» con rabo, sobre todo a 20 px. Es la misma clase de fallo que
+    // `fragmento` (un glifo que se lee como otra cosa), así que lleva la misma guarda de FORMA: el tachón forma ≥20° con cada trazo de la Y. Los
+    // ángulos son los de la RECTA (módulo 180°: un tachón escrito al revés no cambia nada) y los de la Y se leen del propio <symbol>, no de constantes.
+    const simH = tpl.match(/<symbol :id="`\$\{uid\}-her2`"[^>]*>([\s\S]*?)<\/symbol>/)?.[1] ?? ''
+    const trazosH = [...simH.matchAll(/<path\s+d="([^"]+)"/g)].map((m) => m[1]!)
+    const piezasH = (simH.match(/<(?:path|circle|ellipse|rect|line|polyline|polygon|use)\b/g) ?? []).length
+    const recta = (x0: number, y0: number, x1: number, y1: number) => ((Math.atan2(-(y1 - y0), x1 - x0) * 180) / Math.PI + 180) % 180
+    const entre = (a: number, b: number) => { const d = Math.abs(a - b) % 180; return Math.min(d, 180 - d) }
+    const segmentosH = (d: string) => {
+      const out: number[] = []
+      let x = 0, y = 0
+      for (const m of d.matchAll(/([MLVH])\s*(-?[\d.]+)(?:\s+(-?[\d.]+))?/g)) {
+        const [, c, a, b] = m
+        const nx = c === 'V' ? x : Number(a), ny = c === 'V' ? Number(a) : c === 'H' ? y : Number(b)
+        if (c !== 'M') out.push(recta(x, y, nx, ny))
+        x = nx; y = ny
+      }
+      return out
+    }
+    const tachonH = trazosH.filter((d) => /^M[\d.]+ [\d.]+ L[\d.]+ [\d.]+$/.test(d))
+    const yH = trazosH.filter((d) => !tachonH.includes(d))
+    const angTachon = tachonH.length === 1 ? segmentosH(tachonH[0]!)[0] : undefined
+    const angY = yH.flatMap(segmentosH)
+    const fnoH = piezasH === 2 && trazosH.length === 2 && tachonH.length === 1 && yH.length === 1 && angY.length === 3 && angTachon !== undefined && angY.every((a) => entre(a, angTachon) >= 20)
+    if (!fnoH) p.push('el glifo «her2» no es la Y del receptor (tallo y dos brazos) con UN tachón que forme 20° o más con cada trazo de la Y (un tachón casi paralelo a un brazo se funde con él y se lee «X»)')
     const medias = [...sty.matchAll(/@media\s*([^{]+)\{/g)].map((m) => m[1]!.trim())
     if (!medias.length || medias.some((m) => m !== '(min-width: 1024px)')) p.push(`la composición cambia por debajo de lg (@media: ${medias.join(', ') || 'ninguno'}): mobile-first`)
     return p
@@ -406,6 +436,11 @@ console.log('\n10. El esquema del tumor (TumorEsquema)')
     ['el glifo de cambios de 161deac (un hueco y un trozo suelto: «C\')»)', () => revisaFuente(rompe(rompe(vue, '<path d="M16.82 17.75 A7.5 7.5 0 0 1 4.53 11.35" class="te__g-fragmento" />', '<path d="M15 6.6 A7 7 0 1 0 15 17.4" class="te__g-fragmento" />'), '<path d="M7.18 6.25 A7.5 7.5 0 0 1 19.47 12.65" class="te__g-fragmento" />', '<path d="M20.5 8.8 Q22.6 12 20.5 15.2" class="te__g-fragmento" />'), tsSrc)],
     ['el glifo de cambios con los huecos casi cerrados (5°)', () => revisaFuente(rompe(vue, 'M16.82 17.75 A7.5 7.5 0 0 1 4.53 11.35', 'M16.82 17.75 A7.5 7.5 0 0 1 6.70 6.70'), tsSrc)],
     ['el glifo de cambios con los huecos arriba y abajo (se lee «( )»)', () => revisaFuente(rompe(rompe(vue, 'M16.82 17.75 A7.5 7.5 0 0 1 4.53 11.35', 'M8.83 18.80 A7.5 7.5 0 0 1 8.83 5.20'), 'M7.18 6.25 A7.5 7.5 0 0 1 19.47 12.65', 'M15.17 5.20 A7.5 7.5 0 0 1 15.17 18.80'), tsSrc)],
+    ['el glifo «her2» con el tachón de antes (41,6°: casi paralelo al brazo, se lee «X» con rabo)', () => revisaFuente(rompe(vue, 'M3 17 L21 7', 'M3 20 L21 4'), tsSrc)],
+    ['el glifo «her2» con ese mismo tachón escrito al revés (la recta es la misma)', () => revisaFuente(rompe(vue, 'M3 17 L21 7', 'M21 4 L3 20'), tsSrc)],
+    ['el glifo «her2» con el tachón paralelo al OTRO brazo (138° frente a 127°)', () => revisaFuente(rompe(vue, 'M3 17 L21 7', 'M3 4 L21 20'), tsSrc)],
+    ['el glifo «her2» con un brazo de la Y movido paralelo al tachón', () => revisaFuente(rompe(vue, 'M12 12 L18.5 3.5" class="te__g-ausente"', 'M12 12 L21 7" class="te__g-ausente"'), tsSrc)],
+    ['el glifo «her2» con una pieza de más', () => revisaFuente(rompe(vue, '<path d="M3 17 L21 7"', '<circle cx="12" cy="12" r="2" class="te__g-ausente" /><path d="M3 17 L21 7"'), tsSrc)],
     ['una cadena clínica en la geometría', () => revisaFuente(vue, `${tsSrc}\nexport const MAL = '13 copias'\n`)],
     ['un gen en la geometría', () => revisaFuente(vue, `${tsSrc}\nexport const MAL = 'FGFR1'\n`)],
   ]
@@ -414,6 +449,8 @@ console.log('\n10. El esquema del tumor (TumorEsquema)')
     try { r = f() } catch (e) { r = []; ok(false, `canario del fuente «${que}»: ${(e as Error).message}`); continue }
     ok(r.length > 0, `canario del fuente: con «${que}» el test se pone ROJO`)
   }
+  // La guarda de la forma no se pasa de lista: un tachón BIEN formado escrito al revés es la misma recta y NO es un fallo.
+  ok(!revisaFuente(rompe(vue, 'M3 17 L21 7', 'M21 7 L3 17'), tsSrc).some((x) => x.includes('her2')), 'el glifo «her2» con el tachón bueno escrito al revés sigue pasando (se miden rectas, no sentidos)')
 
   // ── La geometría: pura y determinista, y las cifras se pintan tal cual (cabeza + separador + resto = la fila exacta) ──
   {
@@ -547,5 +584,87 @@ console.log('\n10. El esquema del tumor (TumorEsquema)')
   }
 }
 
-console.log(fallos ? `\n❌ ${fallos} fallo(s)` : '\n✅ /ciencia en una capa, textos clínicos literales, las seis deudas fuera, /datos con la historia y el PET, la cronología, /videos y el esquema del tumor en verde')
+// ═══ 11 · Imprimir: los desplegables del esquema salen abiertos (fase «esquema» de la tanda 3, 25-oct-2026) ═══
+// Cerrados, el PDF trae los títulos «Las cifras, una a una…» y «Lo que este esquema no dice» huecos: se pierden las 15 cifras y los 7 límites, y con ellos
+// el marco de honestidad de la figura («El ARN no es la proteína», «Nada de esta página recomienda tratamiento»). El botón «Imprimir» no basta: Ctrl+P se lo
+// salta, así que lo cubre `beforeprint` (abre) y `afterprint` (restaura), que dispara tanto el botón como Ctrl+P. Se prueba en un navegador con el medio
+// `print` emulado y los dos eventos disparados a mano (el PDF real se mira aparte, con printToPDF y pdftotext).
+console.log('\n11. Imprimir: los desplegables del esquema salen abiertos y se restauran')
+{
+  type Nav = Awaited<ReturnType<typeof abrirNavegador>>
+  // Qué ve el lector de cada desplegable del esquema: si está abierto y si su primera fila se ve. Se mide con checkVisibility() y con el texto que se
+  // lee (innerText), NO con la caja: la de una fila dentro de un <details> cerrado sigue devolviendo su altura (Chrome 155 lo midió: 81 px cerrado y 81 abierto).
+  const ESTADO = `JSON.stringify([...document.querySelectorAll('.te details')].map((d) => { const li = d.querySelector('li'); return { abierto: d.open, visible: !!li && li.checkVisibility() && li.innerText.trim().length > 0, filas: d.querySelectorAll('li').length } }))`
+  const estado = async (nav: Nav) => JSON.parse(await nav.evaluate(ESTADO)) as { abierto: boolean; visible: boolean; filas: number }[]
+  const evento = (nav: Nav, tipo: 'beforeprint' | 'afterprint') => nav.evaluate(`window.dispatchEvent(new Event('${tipo}'))`)
+  const cierra = (nav: Nav) => nav.evaluate(`document.querySelectorAll('.te details').forEach((d) => { d.open = false })`)
+  const txt = (e: { abierto: boolean; visible: boolean }[]) => e.map((x) => `${x.abierto ? 'abierto' : 'cerrado'}${x.visible ? ' y visible' : ' y oculto'}`).join(' · ')
+  // Devuelve la lista de PROBLEMAS (vacía si todo va bien). Parte de la página recién cargada, con los dos desplegables cerrados.
+  const revisaImpresion = async (nav: Nav): Promise<string[]> => {
+    const p: string[] = []
+    const e0 = await estado(nav)
+    if (e0.length !== 2) return [`el esquema no lleva dos desplegables (hay ${e0.length})`]
+    if (e0.some((x) => x.abierto || x.visible)) p.push(`de entrada deberían estar cerrados y ocultos (${txt(e0)})`)
+    // 1 · Imprimir: los dos abiertos y con sus filas a la vista
+    await evento(nav, 'beforeprint')
+    const e1 = await estado(nav)
+    if (!e1.every((x) => x.abierto && x.visible)) p.push(`en beforeprint no se abren los dos con sus filas visibles (${txt(e1)})`)
+    // 2 · Terminar de imprimir: vuelven a cerrados
+    await evento(nav, 'afterprint')
+    const e2 = await estado(nav)
+    if (e2.some((x) => x.abierto || x.visible)) p.push(`en afterprint no vuelven a cerrados (${txt(e2)})`)
+    // 3 · El que el lector ya tenía abierto sigue abierto; el otro vuelve a cerrado
+    await nav.evaluate(`document.querySelector('.te details').open = true`)
+    await evento(nav, 'beforeprint'); await evento(nav, 'afterprint')
+    const e3 = await estado(nav)
+    if (!(e3[0]!.abierto && e3[0]!.visible && !e3[1]!.abierto && !e3[1]!.visible)) p.push(`el desplegable que el lector ya tenía abierto no sigue abierto, o el otro no vuelve a cerrado (${txt(e3)})`)
+    await cierra(nav)
+    // 4 · Dos beforeprint sin afterprint (Chrome lo hace al cambiar de impresora en la vista previa): el estado guardado es el primero, no el «ya abierto» por el evento anterior
+    await evento(nav, 'beforeprint'); await evento(nav, 'beforeprint'); await evento(nav, 'afterprint')
+    const e4 = await estado(nav)
+    if (e4.some((x) => x.abierto || x.visible)) p.push(`dos beforeprint seguidos dejan los desplegables abiertos al terminar (${txt(e4)})`)
+    await cierra(nav)
+    return p
+  }
+  // La estructura del esquema, sin la página: dos desplegables, con 15 y 7 filas (el del texto «cifras» y el aviso de límites).
+  const ESQUELETO = `document.body.insertAdjacentHTML('beforeend', '<section class="te"><details class="desplegable te__cifras"><summary>c</summary><ul>' + '<li>fila</li>'.repeat(15) + '</ul></details><details class="aviso"><summary>l</summary><ul>' + '<li>fila</li>'.repeat(7) + '</ul></details></section>')`
+  const nav = await abrirNavegador({ ancho: 1280, alto: 900, escala: 1 })
+  try {
+    await nav.cdp('Emulation.setEmulatedMedia', { media: 'print' })
+    for (const loc of ['es', 'en'] as const) {
+      const f = P[loc].ciencia
+      await nav.cargar(loc === 'es' ? '/ciencia' : '/en/science')
+      const e = await estado(nav)
+      ok(e.length === 2 && e[0]!.filas === 15 && e[1]!.filas === 7, `${f}: el esquema lleva dos desplegables, con las 15 cifras y los 7 límites (${e.map((x) => x.filas).join(' y ')} filas)`)
+      const pr = await revisaImpresion(nav)
+      ok(pr.length === 0, `${f}: al imprimir (beforeprint) abre los dos desplegables y los restaura (afterprint), sin pisar al que el lector ya tenía abierto${pr.length ? ` (${pr.join(' · ')})` : ''}`)
+    }
+    // Canarios: la MISMA comprobación contra cuatro implementaciones rotas, montadas sobre una página sin el oyente real (/prensa) con el mismo esqueleto.
+    const rotos: [string, string][] = [
+      ['sin nada (Ctrl+P se salta el botón y no abre nada)', ''],
+      ['abre y no restaura', `addEventListener('beforeprint', () => document.querySelectorAll('.te details').forEach((d) => { d.open = true }))`],
+      ['abre y al terminar los cierra todos (pisa al que el lector ya tenía abierto)', `addEventListener('beforeprint', () => document.querySelectorAll('.te details').forEach((d) => { d.open = true })); addEventListener('afterprint', () => document.querySelectorAll('.te details').forEach((d) => { d.open = false }))`],
+      ['guarda el estado sin cuidar el segundo beforeprint (lo pisa con «abierto»)', `const g = new Map(); addEventListener('beforeprint', () => document.querySelectorAll('.te details').forEach((d) => { g.set(d, d.open); d.open = true })); addEventListener('afterprint', () => { g.forEach((v, d) => { d.open = v }); g.clear() })`],
+    ]
+    for (const [que, oyente] of rotos) {
+      let r: string[] = []
+      try {
+        await nav.cargar('/prensa')
+        await nav.evaluate(`${ESQUELETO}; ${oyente}`)
+        r = await revisaImpresion(nav)
+      } catch (err) { ok(false, `canario de impresión «${que}»: ${(err as Error).message}`); continue }
+      ok(r.length > 0, `canario de impresión: con «${que}» el test se pone ROJO`)
+    }
+    // Y un oyente BIEN hecho montado en esa misma página sí pasa: la comprobación no es roja por el montaje.
+    await nav.cargar('/prensa')
+    await nav.evaluate(`${ESQUELETO}; const g = new Map(); addEventListener('beforeprint', () => document.querySelectorAll('.te details').forEach((d) => { if (!g.has(d)) g.set(d, d.open); d.open = true })); addEventListener('afterprint', () => { g.forEach((v, d) => { d.open = v }); g.clear() })`)
+    const bien = await revisaImpresion(nav)
+    ok(bien.length === 0, `canario de impresión: un oyente bien hecho, montado sobre el mismo esqueleto, pasa${bien.length ? ` (${bien.join(' · ')})` : ''}`)
+  } finally {
+    await nav.cdp('Emulation.setEmulatedMedia', { media: '' }).catch(() => {})
+    await nav.cerrar()
+  }
+}
+
+console.log(fallos ? `\n❌ ${fallos} fallo(s)` : '\n✅ /ciencia en una capa, textos clínicos literales, las seis deudas fuera, /datos con la historia y el PET, la cronología, /videos, el esquema del tumor y su impresión en verde')
 process.exit(fallos ? 1 : 0)

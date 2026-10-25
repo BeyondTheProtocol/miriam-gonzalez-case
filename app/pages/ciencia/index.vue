@@ -369,6 +369,31 @@ function printPage() {
   window.print()
 }
 
+// Al imprimir (el botón y Ctrl+P, que se salta printPage), los dos desplegables del esquema del tumor salen ABIERTOS: cerrados, el papel trae sus títulos
+// huecos y se pierde el marco de honestidad de la figura («El ARN no es la proteína», «Nada de esta página recomienda tratamiento»). `beforeprint` los abre y
+// `afterprint` los deja como estaban (el que el lector ya tenía abierto sigue abierto). Se buscan al disparar el evento y no al montar: la figura es
+// fail-closed (`v-if`) y puede no estar, y entonces no hay nada que hacer.
+const abiertoAntesDeImprimir = new Map<HTMLDetailsElement, boolean>()
+function abreParaImprimir() {
+  for (const d of document.querySelectorAll<HTMLDetailsElement>('.te details')) {
+    if (!abiertoAntesDeImprimir.has(d)) abiertoAntesDeImprimir.set(d, d.open) // un segundo `beforeprint` sin `afterprint` no pisa el estado guardado
+    d.open = true
+  }
+}
+function restauraTrasImprimir() {
+  for (const [d, estabaAbierto] of abiertoAntesDeImprimir) d.open = estabaAbierto
+  abiertoAntesDeImprimir.clear()
+}
+onMounted(() => {
+  window.addEventListener('beforeprint', abreParaImprimir)
+  window.addEventListener('afterprint', restauraTrasImprimir)
+})
+onBeforeUnmount(() => {
+  window.removeEventListener('beforeprint', abreParaImprimir)
+  window.removeEventListener('afterprint', restauraTrasImprimir)
+  abiertoAntesDeImprimir.clear()
+})
+
 // El foco llega a la ancla de la URL (una vez por ancla). Hay que VIGILAR route.hash y no leerlo al montar: en la carga directa de la página
 // prerenderizada Nuxt hidrata en la ruta del payload (`/ciencia`, sin hash) y solo al terminar la hidratación pone la URL real; en `setup` y en
 // `onMounted` el hash llega VACÍO (verificado en producción el 11-sep-2026 con ?nivel=pro; el mismo mecanismo). Solo foco, sin mover la página:
