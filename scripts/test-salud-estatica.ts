@@ -412,28 +412,38 @@ if (existsSync('seed/fundraiser.json')) {
       ok(m.colgadas.length === 0 && !m.desborde, `${ruta} a 375 px: ninguna «·» al principio ni al final de una línea y sin scroll horizontal (${m.colgadas.join(' | ') || 'ninguna'})`)
     }
     // A 375 px con la letra ampliada (revisión de T2b2; WCAG 1.4.4 y 1.4.10): ni un carácter del texto de los bloques de la campaña pasa del borde de su
-    // caja (la de su fase, en la tarjeta) ni del viewport. `white-space: nowrap` en la fecha de la cifra lo rompía y a 100 % no se ve: a 175 % la fecha de la tarjeta sobresalía 70 px
-    // en español y 142 px en inglés, y la de /en/expenses 38 px; a 200 % el hero inglés llegaba a x=478. Se mide con `html { font-size }`, como la revisión.
+    // bloque, de su fase (en la tarjeta) ni del viewport, y ninguna fase pasa del borde de la tarjeta. `white-space: nowrap` en la fecha de la cifra lo
+    // rompía y a 100 % no se ve (la revisión midió que a 175 % la fecha de la tarjeta sobresalía 70 px en español y 142 px en inglés, la de /en/expenses
+    // 38 px, y que a 200 % el hero inglés llegaba a x=478). Se mide con `html { font-size }`, como la revisión.
+    // Las fases de la tarjeta, con la letra al 200 %, ensanchaban su pista del grid con «personalizada» (la fase salía 36 px de la tarjeta) y la insignia
+    // «presupuesto en curso» sobresalía de su fase: se miden las dos cajas, porque el texto cabía en su fase aunque la fase no cupiera en la tarjeta.
     const DESBORDE = `(() => {
       const vista = document.documentElement.clientWidth
       const fuera = []
       let textos = 0
+      let fases = 0
       for (const b of document.querySelectorAll('.hero__support, .gfm')) {
+        const bloque = b.getBoundingClientRect()
+        for (const li of b.querySelectorAll('.gfm__fase')) {
+          fases++
+          const sobra = Math.round(Math.max(li.getBoundingClientRect().right - bloque.right, li.getBoundingClientRect().right - vista))
+          if (sobra > 1) fuera.push('fase «' + li.textContent.trim().slice(0, 20) + '» sale de la tarjeta +' + sobra + ' px')
+        }
         const w = document.createTreeWalker(b, NodeFilter.SHOW_TEXT)
         for (let n = w.nextNode(); n; n = w.nextNode()) {
           if (!n.data.trim() || n.parentElement.closest('.sr-only')) continue
           textos++
-          // su caja: la de su fase si es de una fase de la tarjeta (la insignia «presupuesto en curso» sobresalía de ella), si no la del bloque
-          const caja = (n.parentElement.closest('.gfm__fase') ?? b).getBoundingClientRect()
+          // las cajas del texto: la de su bloque y, si es de una fase de la tarjeta, también la de su fase (la insignia sobresalía de ella)
+          const fase = n.parentElement.closest('.gfm__fase')
           const r = document.createRange(); r.selectNodeContents(n)
           for (const q of r.getClientRects()) {
             if (!q.width) continue
-            const deCaja = Math.round(q.right - caja.right), deVista = Math.round(q.right - vista)
-            if (deCaja > 1 || deVista > 1 || q.left < -1) fuera.push(n.parentElement.className.toString().split(' ')[0] + ' «' + n.data.trim().slice(0, 30) + '» +' + Math.max(deCaja, deVista) + ' px')
+            const sobra = Math.round(Math.max(q.right - bloque.right, q.right - vista, fase ? q.right - fase.getBoundingClientRect().right : -Infinity))
+            if (sobra > 1 || q.left < -1) fuera.push(n.parentElement.className.toString().split(' ')[0] + ' «' + n.data.trim().slice(0, 30) + '» +' + sobra + ' px')
           }
         }
       }
-      return { bloques: document.querySelectorAll('.hero__support, .gfm').length, textos, fuera }
+      return { bloques: document.querySelectorAll('.hero__support, .gfm').length, textos, fases, fuera }
     })()`
     for (const ruta of ['/?fund=semilla', '/en?fund=semilla', '/gastos?fund=semilla', '/en/expenses?fund=semilla']) {
       await nav.cargar(ruta)
@@ -441,8 +451,9 @@ if (existsSync('seed/fundraiser.json')) {
       for (const zoom of [175, 200]) {
         await nav.evaluate(`document.documentElement.style.fontSize = '${zoom}%'`)
         await nav.sleep(400)
-        const m = (await nav.evaluate(DESBORDE)) as { bloques: number; textos: number; fuera: string[] }
-        ok(m.bloques > 0 && m.textos > 0 && m.fuera.length === 0, `${ruta.split('?')[0]} a 375 px con la letra al ${zoom} %: el texto de los bloques de la campaña no pasa del borde de su caja ni del viewport (${m.bloques} bloque/s, ${m.textos} texto/s; ${m.fuera.slice(0, 3).join(' | ') || 'nada fuera'})`)
+        const m = (await nav.evaluate(DESBORDE)) as { bloques: number; textos: number; fases: number; fuera: string[] }
+        const fasesEsperadas = ruta.startsWith('/gastos') || ruta.startsWith('/en/expenses') ? 0 : DINERO.fases.length // solo la tarjeta de la home lleva fases; la línea de /gastos, no
+        ok(m.bloques > 0 && m.textos > 0 && m.fases === fasesEsperadas && m.fuera.length === 0, `${ruta.split('?')[0]} a 375 px con la letra al ${zoom} %: el texto de los bloques de la campaña no pasa del borde de su bloque, de su fase ni del viewport, y ninguna fase sale de la tarjeta (${m.bloques} bloque/s, ${m.textos} texto/s, ${m.fases} fase/s; ${m.fuera.slice(0, 3).join(' | ') || 'nada fuera'})`)
       }
     }
     await nav.cdp('Emulation.setDeviceMetricsOverride', { width: 1024, height: 900, deviceScaleFactor: 1, mobile: false })
