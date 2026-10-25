@@ -72,7 +72,7 @@
             <li class="flex items-baseline justify-between gap-4 py-2.5 border-y border-berenjena/[0.07]">
               <span class="text-sm text-tinta leading-relaxed">
                 {{ $t('expenses.report_ingresado_label', { fecha: corte }) }}
-                <span class="block text-xs">{{ $t('expenses.report_ingresado_desc') }}</span>
+                <span class="block text-xs">{{ $t('expenses.report_ingresado_desc', { fecha: corte }) }}</span>
               </span>
               <span
                 class="text-sm font-mono text-berenjena shrink-0"
