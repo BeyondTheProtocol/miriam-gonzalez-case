@@ -11,6 +11,8 @@
 // 4. La guía pública no nombra lo que nunca se dice en público («Olune») ni «científica» como SÍ.
 // 5. /prensa no lleva el contador de campaña ni la fecha fija «junio de 2026».
 // 5c. Bandas de /prensa (sistema v3): como mucho una oscura, nunca la última, y sin dos del mismo tono seguidas.
+// 5e. PRENSA2 (25-oct-2026): sin enlace al PDF del kit, una sola etiqueta para los botones a /contacto?role=journalist, «Diagnóstico» sin
+//     receptores y la cronología plegable hasta su última clave `tl_N`.
 // 6. `caseData.pressAsOf` es una fecha válida y no es futura.
 // 7. La tira de medios de la home se LEE de content/<idioma>/press.yml (rediseño F5, 23-oct-2026): ni un medio ni una URL escritos
 //    a mano en la página o en su componente. Desde el 24-oct-2026 la home enseña SOLO cuatro medios (Redacción Médica, El País,
@@ -112,6 +114,30 @@ for (const fichero of ['prensa.html', 'en/press.html']) {
   const dds = [...h.matchAll(/<dd\b[^>]*>((?:(?!<\/dd>)[\s\S])*)<\/dd>/g)].map((x) => x[1]).filter((d) => d.includes('link-action'))
   ok(dds.length > 0 && dds.every((d) => d.startsWith('<p')), `${fichero}: ${dds.length} respuestas con enlace, todas con la respuesta en un <p> y el enlace fuera`)
   ok(dds.every((d) => /<svg\b|iconify/.test(d.slice(d.indexOf('link-action')))), `${fichero}: el enlace de cada respuesta lleva icono en el HTML generado`)
+}
+
+// 5e · PRENSA2 (25-oct-2026): lo que la revisión del comité dejó sin arreglar y que no debe volver.
+//  · El PDF del kit pedía financiar una rebiopsia y una revisión que ya estaban hechas, llevaba «vacuna» y la edad en la columna NO (vetos
+//    levantados) y 2 de 4 citas fuera del set aprobado: la sala no lo enlaza (el fichero sigue en public/, borrarlo es decisión de Miriam).
+//  · Dos botones al mismo destino (/contacto?role=journalist) con etiquetas distintas («Escribir a prensa» / «Escribir al equipo»): todos usan la misma clave.
+//  · «Diagnóstico» no lleva receptores (HR+/HER2−): la metástasis del hígado es RE 0 % (caso.json) y la guía de la sala veta las cifras moleculares.
+//  · La cronología plegable llega hasta la última clave `tl_N` que existe (una clave nueva sin sumar al rango nunca se pintaba).
+ok(!/press-kit-miriam-gonzalez\.pdf|kit_download_/.test(pagina), '/prensa no enlaza el PDF del kit de prensa (desfasado)')
+const botonesPrensa = [...pagina.matchAll(/<NuxtLink\b[^>]*\?role=journalist[^>]*>([\s\S]*?)<\/NuxtLink>/g)].map((x) => x[1].match(/\$t\('(press\.[a-z_0-9]+)'\)/)?.[1])
+ok(botonesPrensa.length >= 2 && new Set(botonesPrensa).size === 1, `los botones a /contacto?role=journalist usan UNA sola etiqueta (${botonesPrensa.join(', ')})`)
+for (const [lang, d] of [['ES', es], ['EN', en]] as const) {
+  ok(!/HR\s*\+|HER2/i.test(d.fact_diagnosis_value ?? ''), `${lang}: «Diagnóstico» no lleva receptores (HR+/HER2)`)
+}
+const ultimaTl = Math.max(...Object.keys(es).map((k) => Number(k.match(/^tl_(\d+)_date$/)?.[1] ?? 0)))
+const rangoTl = pagina.match(/\[([\d, ]+)\]\.map\(\(i\) => \(\{ date: t\(`press\.tl_\$\{i\}_date`\)/)?.[1]?.split(',').map((n) => Number(n.trim())) ?? []
+ok(ultimaTl > 0 && Math.max(...rangoTl) === ultimaTl && rangoTl.length === ultimaTl, `la cronología de /prensa pinta tl_1 a tl_${ultimaTl} (el rango de la página es ${rangoTl.join(', ')})`)
+for (const fichero of ['prensa.html', 'en/press.html']) {
+  const ruta = join('.output/public', fichero)
+  if (!existsSync(ruta)) { console.log(`  ⚠️  sin ${ruta}: se omite la comprobación del HTML del PDF y las etiquetas (ejecuta antes \`pnpm exec nuxt generate\`)`); continue }
+  const h = readFileSync(ruta, 'utf-8').replace(/<script\b[\s\S]*?<\/script>/g, '')
+  ok(!h.includes('press-kit-miriam-gonzalez.pdf'), `${fichero}: ningún enlace al PDF del kit`)
+  const etiquetas = [...h.matchAll(/<a\b[^>]*href="[^"]*role=journalist"[^>]*>([\s\S]*?)<\/a>/g)].map((x) => x[1].replace(/<[^>]+>/g, '').trim())
+  ok(etiquetas.length >= 2 && new Set(etiquetas).size === 1, `${fichero}: los ${etiquetas.length} botones a /contacto?role=journalist dicen lo mismo («${etiquetas[0] ?? ''}»)`)
 }
 
 // 6

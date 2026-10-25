@@ -41,7 +41,7 @@
           <div>
             <NuxtLink :to="localePath('contacto') + '?role=journalist'" class="btn-secondary">
               <Icon name="ph:envelope-simple" class="w-4 h-4" aria-hidden="true" />
-              {{ $t('press.collab_cta') }}
+              {{ $t('press.contact_cta') }}
             </NuxtLink>
           </div>
         </div>
@@ -236,9 +236,10 @@
       </div>
     </Banda>
 
-    <!-- 7 · El caso en los medios (#cobertura: el destino de «Mi caso en la prensa» de /links, F6) y material descargable.
-         Cada pieza es una TarjetaEnlace externa (avisa de la pestaña nueva sola). La meta se construye en el script: un
-         `<template> · {{ }}` perdería el espacio (R11). -->
+    <!-- 7 · El caso en los medios (#cobertura: el destino de «Mi caso en la prensa» de /links, F6) y material de apoyo.
+         Cada pieza de cobertura es una TarjetaEnlace externa (avisa de la pestaña nueva sola). La meta se construye en el script: un
+         `<template> · {{ }}` perdería el espacio (R11). La tarjeta del PDF del kit se retiró el 25-oct-2026 (PRENSA2): decía «Qué
+         necesita: financiar una rebiopsia…» cuando la rebiopsia y la revisión del comité ya estaban hechas. El fichero sigue en public/. -->
     <Banda tono="crema" titular="press-mentions">
       <div id="cobertura" class="scroll-mt-24">
         <CabeceraSeccion id="press-mentions" :titulo="$t('press.mentions_title')">
@@ -260,15 +261,6 @@
       <div class="pr-bloque">
         <CabeceraSeccion id="press-resources" :titulo="$t('press.resources_title')" />
         <ul aria-labelledby="press-resources" class="pr-lista pr-lista--dos pr-recursos" role="list">
-          <li>
-            <TarjetaEnlace
-              href="/press-kit-miriam-gonzalez.pdf"
-              download
-              :titulo="$t('press.kit_download_label')"
-              :meta="$t('press.kit_download_note')"
-              icono="ph:file-pdf"
-            />
-          </li>
           <li>
             <TarjetaEnlace
               :to="localePath('ciencia')"
@@ -384,6 +376,7 @@ const facts = computed(() => [
   { label: t('press.fact_who_label'), value: t('press.fact_who_value', { age: caseData.currentAge }) },
   { label: t('press.fact_diagnosis_label'), value: t('press.fact_diagnosis_value') },
   { label: t('press.fact_why_label'), value: t('press.fact_why_value') },
+  { label: t('press.fact_done_label'), value: t('press.fact_done_value') },
   { label: t('press.fact_need_label'), value: t('press.fact_need_value') },
   { label: t('press.fact_network_label'), value: t('press.fact_network_value', { countries: caseData.countries }) },
   { label: t('press.fact_lang_label'), value: t('press.fact_lang_value') },
@@ -405,7 +398,7 @@ const faq = computed(() => {
 })
 
 const timeline = computed(() =>
-  [1, 2, 3, 4, 5, 6, 7].map((i) => ({ date: t(`press.tl_${i}_date`), text: t(`press.tl_${i}_text`) }))
+  [1, 2, 3, 4, 5, 6, 7, 8].map((i) => ({ date: t(`press.tl_${i}_date`), text: t(`press.tl_${i}_text`) }))
 )
 
 // Apariciones en prensa (content/<locale>/press.yml).
@@ -435,17 +428,18 @@ const fmtDate = (d?: string) => {
 const metaMencion = (item: { outlet: string; date?: string }) =>
   item.date ? `${item.outlet} · ${fmtDate(item.date)}` : item.outlet
 
+// Sin «perfil molecular» en la descripción ni en la vista previa (Boilerplate-Prensa.md lo prohíbe en esos huecos; PRENSA2, 25-oct-2026).
 useSeoMeta({
   title: () => (locale.value === 'es' ? 'Sala de prensa' : 'Press room'),
   description: () =>
     locale.value === 'es'
-      ? 'Kit de prensa del caso de Miriam González: hechos verificados, perfil molecular, cobertura en medios y contacto para periodistas.'
-      : "Press kit for Miriam González's case: verified facts, molecular profile, media coverage and a contact for journalists.",
+      ? 'Kit de prensa del caso de Miriam González: hechos verificados, citas, fotografías, cobertura en medios y contacto para periodistas.'
+      : "Press kit for Miriam González's case: verified facts, quotes, photographs, media coverage and a contact for journalists.",
   ogTitle: () => (locale.value === 'es' ? 'Sala de prensa · Miriam González' : 'Press room · Miriam González'),
   ogDescription: () =>
     locale.value === 'es'
-      ? 'Hechos verificados, perfil molecular y contacto para medios.'
-      : 'Verified facts, molecular profile and a media contact.',
+      ? 'Hechos verificados, citas, fotografías y contacto para medios.'
+      : 'Verified facts, quotes, photographs and a media contact.',
   ogType: 'website',
   twitterCard: 'summary_large_image',
 })
@@ -497,8 +491,8 @@ useHead({
 .pr-lista--dos { gap: var(--sp-16); }
 @media (min-width: 640px) {
   .pr-lista--dos { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  /* Cinco recursos en dos columnas: el último ocupa el ancho entero, como antes. */
-  .pr-recursos > li:last-child { grid-column: 1 / -1; }
+  /* Si los recursos son impares, el último ocupa el ancho entero (con cuatro, dos filas de dos). */
+  .pr-recursos > li:last-child:nth-child(odd) { grid-column: 1 / -1; }
 }
 .pr-lista > li { display: flex; }
 .pr-lista > li > :deep(*) { width: 100%; }
