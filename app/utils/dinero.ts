@@ -61,9 +61,12 @@ const MES_CORTO = {
  * Los meses abreviados NO salen de Intl: cada versión de ICU puede abreviar el español a su manera (medido el 24-oct-2026:
  * Node 26.3.1, con ICU 78.3 y CLDR 48, escribe «sept»). Si el servidor y el navegador no comparten versión, la hidratación podría
  * discrepar justo en septiembre. Solo el día y el año (cifras, iguales en todas partes) se piden a Intl, en la zona fija de Madrid.
+ * Las tres piezas van unidas con espacios duros (U+00A0): la fecha nunca se parte, y una línea que no cabe solo puede saltar entre
+ * «cifra a» y la fecha. Es lo que permite NO usar `white-space: nowrap`, que sacaba el texto de su caja con la letra ampliada
+ * (WCAG 1.4.4 y 1.4.10, revisión de T2b2). Quien compare con el texto de la página debe normalizar U+00A0 a espacio.
  */
 export const fechaDeCifra = (iso: string, locale: string) => {
   const partes = new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'numeric', year: 'numeric', timeZone: 'Europe/Madrid' }).formatToParts(new Date(iso))
   const de = (tipo: string) => Number(partes.find((p) => p.type === tipo)?.value)
-  return `${de('day')} ${MES_CORTO[locale === 'es' ? 'es' : 'en'][de('month') - 1]} ${de('year')}`
+  return `${de('day')}\u00a0${MES_CORTO[locale === 'es' ? 'es' : 'en'][de('month') - 1]}\u00a0${de('year')}`
 }

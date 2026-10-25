@@ -67,8 +67,8 @@ const fases = computed(() =>
       :data-gofundme-origen="data.origen ?? 'semilla'"
     >{{ importe }}</p>
     <p class="gfm__rotulo">{{ $t('gofundme.raised_on') }}</p>
-    <!-- La fecha de la cifra va en su propia línea y sin «·» delante (como la variante en línea): así no puede partirse en
-         «cifra a» / «24 oct 2026» ni dejar un punto colgando al final de la línea del rótulo. -->
+    <!-- La fecha de la cifra va en su propia línea y sin «·» delante (como la variante en línea): así no deja un punto colgando al
+         final de la línea del rótulo, y la propia fecha no se parte (espacios duros en fechaDeCifra). -->
     <p v-if="cifraDe" class="gfm__rotulo gfm__rotulo--fecha">
       <time :datetime="cifraDe.iso">{{ $t('gofundme.cifra_a', { fecha: cifraDe.texto }) }}</time>
     </p>
@@ -204,10 +204,10 @@ const fases = computed(() =>
   letter-spacing: 0.04em;
   color: var(--texto-2);
 }
-/* La fecha de la cifra, bajo el rótulo: una línea suya que no se parte en «cifra a / 24 oct 2026». */
+/* La fecha de la cifra, bajo el rótulo: una línea suya. Sin `white-space: nowrap` (WCAG 1.4.4 y 1.4.10: con la letra ampliada se
+   salía de la tarjeta); la fecha lleva espacios duros (fechaDeCifra) y solo puede saltar de línea entre «cifra a» y ella. */
 .gfm__rotulo--fecha {
   margin-top: 0.125rem;
-  white-space: nowrap;
 }
 .gfm__donantes {
   margin: 0.5rem 0 0;
@@ -229,12 +229,17 @@ const fases = computed(() =>
   margin: 0;
   padding: 0;
   display: grid;
+  /* minmax(0, …) y no `1fr` a secas: con la letra al 200 % a 375 px una palabra larga («personalizada») ensanchaba la pista y la fase
+     se salía de la tarjeta (revisión de T2b2, WCAG 1.4.4 y 1.4.10). */
+  grid-template-columns: minmax(0, 1fr);
   gap: 0.75rem;
 }
 .gfm__fase {
   padding: 0.75rem 1rem;
   border-radius: var(--radius-btn);
   background: color-mix(in srgb, var(--texto-1) 5%, transparent);
+  /* solo parte una palabra si no cabe entera en la caja (letra muy ampliada); con la letra normal no cambia nada */
+  overflow-wrap: anywhere;
 }
 .gfm__fase-titulo {
   margin: 0;
@@ -246,6 +251,12 @@ const fases = computed(() =>
   font-size: 0.8125rem;
   line-height: 1.4;
   color: var(--texto-1);
+}
+/* La insignia de estado del sistema no parte línea (white-space: nowrap); dentro de la fase sí, como ya hace en las tablas: con la letra
+   al 200 % a 375 px «presupuesto en curso» sobresalía de su fase 48 px (revisión de T2b2). */
+.gfm__fase .status-badge {
+  white-space: normal;
+  max-width: 100%;
 }
 .gfm__fase-desc {
   margin: 0.375rem 0 0;
@@ -286,6 +297,5 @@ const fases = computed(() =>
   margin: 0.25rem 0 0;
   font-size: 0.8125rem;
   color: var(--color-text-soft);
-  white-space: nowrap;
 }
 </style>

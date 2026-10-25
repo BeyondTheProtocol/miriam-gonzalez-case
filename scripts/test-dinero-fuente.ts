@@ -215,7 +215,11 @@ ok(prensa.includes("t('money.transparencia')"), '/prensa cierra la respuesta «�
 ok(/DINERO\.partidas/.test(gastos) && !/const REPORT\b/.test(gastos), '/gastos lee las partidas de app/data/dinero.json (ya no hay un REPORT escrito en la página)')
 
 // La fecha corta no depende de la versión de ICU: septiembre es «sep» en el servidor y en el navegador, sea cual sea su ICU (medido el 24-oct-2026: Node 26.3.1, ICU 78.3, escribe «sept»).
-ok(fechaDeCifra('2026-09-05T10:00:00.000Z', 'es') === '5 sep 2026' && fechaDeCifra('2026-09-05T10:00:00.000Z', 'en') === '5 Sep 2026' && fechaDeCifra('2026-12-31T23:30:00.000Z', 'es') === '1 ene 2027', 'fechaDeCifra: «5 sep 2026» / «5 Sep 2026», y a las 23:30 UTC del 31-dic ya es 1 ene en Madrid (zona fija, sin Intl en el mes)')
+// Las tres piezas van unidas con espacios duros (U+00A0), no con espacios: la fecha no se parte nunca, y por eso la web no necesita `white-space: nowrap`
+// (que sacaba el texto de su caja con la letra ampliada, WCAG 1.4.4 y 1.4.10; revisión de T2b2).
+const duros = (s: string) => s.replace(/ /g, '\u00a0')
+ok(fechaDeCifra('2026-09-05T10:00:00.000Z', 'es') === duros('5 sep 2026') && fechaDeCifra('2026-09-05T10:00:00.000Z', 'en') === duros('5 Sep 2026') && fechaDeCifra('2026-12-31T23:30:00.000Z', 'es') === duros('1 ene 2027'), 'fechaDeCifra: «5 sep 2026» / «5 Sep 2026», y a las 23:30 UTC del 31-dic ya es 1 ene en Madrid (zona fija, sin Intl en el mes)')
+ok(!/ /.test(fechaDeCifra('2026-09-05T10:00:00.000Z', 'es')) && !/ /.test(fechaDeCifra('2026-10-24T10:00:00.000Z', 'en')), 'fechaDeCifra: ningún espacio normal dentro de la fecha, solo espacios duros (U+00A0): no hay dónde partirla')
 ok(fechaDeCorte('2026-08-17', 'es') === '17 de agosto de 2026' && fechaDeCorte('2026-08-17', 'en') === '17 August 2026', 'fechaDeCorte: «17 de agosto de 2026» / «17 August 2026» (el corte del informe, igual que estaba escrito)')
 
 const ahora = '2026-10-24T10:00:00.000Z'
@@ -304,11 +308,16 @@ for (const [loc, d] of [['es', es], ['en', en]] as const) {
   // La «·» de la prueba del hero va entre dos espacios duros: nunca queda sola al final ni al principio de una línea.
   ok(d.hero.proof_money.includes(`GoFundMe${NBSP}·${NBSP}{n}`), `${loc}: hero.proof_money une la «·» a «GoFundMe» y a la cifra con espacios duros, para que no cuelgue a 375 px`)
 }
-// La fecha de la cifra, en su línea y sin «·» delante; sin partirse (white-space: nowrap) en el hero, en la tarjeta y en la variante en línea.
+// La fecha de la cifra, en su línea y sin «·» delante. NO lleva `white-space: nowrap` (revisión de T2b2): con la letra al 200 % la fecha se salía de su
+// caja en las tres variantes (WCAG 1.4.4 y 1.4.10). La fecha no se parte porque fechaDeCifra la une con espacios duros; lo mide test-salud-estatica en el navegador.
 ok(!/·\s*<time/.test(hero) && !/·\s*<time/.test(card), 'ni el hero ni la tarjeta ponen una «·» delante de la fecha de la cifra (va en su línea)')
-ok(/\.hero__cifra\s*\{[^}]*white-space:\s*nowrap/.test(lee('app/components/SectionHero.vue')), 'el hero: la fecha de la cifra no se parte (white-space: nowrap)')
+const reglaCss = (fuente: string, selector: string) => fuente.match(new RegExp(`${selector.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\s*\\{([^}]*)\\}`))?.[1]
 const cardCss = lee('app/components/GoFundMeProgress.vue')
-ok(/\.gfm__rotulo--fecha\s*\{[^}]*white-space:\s*nowrap/.test(cardCss) && /\.gfm__fecha\s*\{[^}]*white-space:\s*nowrap/.test(cardCss), 'la tarjeta y su variante en línea: la fecha de la cifra no se parte (white-space: nowrap)')
+const heroCss = lee('app/components/SectionHero.vue')
+for (const [fuente, selector] of [[heroCss, '.hero__cifra'], [cardCss, '.gfm__rotulo--fecha'], [cardCss, '.gfm__fecha']] as const) {
+  const regla = reglaCss(fuente, selector)
+  ok(regla !== undefined && !/white-space\s*:\s*nowrap/.test(regla), `${selector}: la regla existe y NO usa white-space: nowrap (con la letra al 200 % la fecha se salía de su caja: WCAG 1.4.4 y 1.4.10)`)
+}
 // La lista de fases: nombre accesible con aria-labelledby apuntando al título, con un id único por tarjeta (useId) y role="list" (con
 // list-style: none Safari deja de anunciarla como lista).
 ok(/const idFases = useId\(\)/.test(card) && /:id="idFases"[^>]*class="gfm__fases-titulo"|class="gfm__fases-titulo"[^>]*:id="idFases"/.test(card) && /<ol\b[^>]*role="list"[^>]*:aria-labelledby="idFases"|<ol\b[^>]*:aria-labelledby="idFases"[^>]*role="list"/.test(card), 'GoFundMeProgress: la lista de fases se nombra con aria-labelledby → el título «Fases de la campaña» (id de useId, role="list")')

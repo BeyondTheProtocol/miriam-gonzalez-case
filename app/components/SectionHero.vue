@@ -98,7 +98,7 @@
               </template>
               <template #n>{{ donantes }}</template>
             </i18n-t>
-            <!-- La fecha, en su línea y sin «·»: no se parte en «cifra a» / «24 oct 2026» ni deja un punto colgando. La «·» de
+            <!-- La fecha, en su línea y sin «·»: ella no se parte (espacios duros en fechaDeCifra) ni deja un punto colgando. La «·» de
                  hero.proof_money va unida a sus dos vecinos con espacios duros: nunca queda sola al final ni al principio de una línea. -->
             <time v-if="cifraDe" class="hero__cifra" :datetime="cifraDe.iso">{{ $t('gofundme.cifra_a', { fecha: cifraDe.texto }) }}</time>
           </span>
@@ -449,13 +449,14 @@ const { latest, latestAgo } = useLatestUpdate()
   color: var(--color-text);
 }
 
-/* La fecha de la cifra: bajo la frase, en su línea y sin partirse. 13 px, el suelo del sistema (R2). */
+/* La fecha de la cifra: bajo la frase, en su línea. 13 px, el suelo del sistema (R2). Sin `white-space: nowrap`: con la letra
+   ampliada (WCAG 1.4.4 y 1.4.10) el texto se salía de su caja. La fecha lleva espacios duros (fechaDeCifra) y no se parte; lo que
+   no cabe salta de línea entre «cifra a» y la fecha. */
 .hero__cifra {
   display: block;
   margin-top: 0.125rem;
   font-size: 0.8125rem;
   color: var(--color-text-soft);
-  white-space: nowrap;
 }
 
 .hero__latest {

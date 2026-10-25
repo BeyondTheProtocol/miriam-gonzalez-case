@@ -249,6 +249,8 @@ function bloqueDiv(h: string, desde: number): string {
   return h.slice(desde)
 }
 const textoDe = (trozo: string) => trozo.replace(/<style\b[\s\S]*?<\/style>/g, '').replace(/<[^>]+>/g, ' ').replace(/&nbsp;/g, ' ').replace(/&amp;/g, '&').replace(/\s+/g, ' ').trim()
+// La fecha de la cifra (fechaDeCifra) lleva espacios duros (U+00A0) para no partirse; el texto visible los lleva a espacio normal.
+const sinDuros = (t: string) => t.replace(/\u00a0/g, ' ')
 if (existsSync('seed/fundraiser.json')) {
   const semilla = JSON.parse(readFileSync('seed/fundraiser.json', 'utf-8')) as {
     currentAmount: { amount: number; currencyCode: string }
@@ -261,7 +263,8 @@ if (existsSync('seed/fundraiser.json')) {
     const D = JSON.parse(readFileSync(`i18n/locales/${idioma}.json`, 'utf-8'))
     const importeTexto = formatCurrency(semilla.currentAmount.amount, semilla.currentAmount.currencyCode, idioma).replace(/\s+/g, ' ')
     const donantesTexto = new Intl.NumberFormat(idioma === 'es' ? 'es-ES' : 'en-US').format(semilla.donationCount)
-    const fecha = semilla.actualizado ? (D.gofundme.cifra_a as string).replace('{fecha}', fechaDeCifra(semilla.actualizado, idioma)) : null
+    const fechaDura = semilla.actualizado ? fechaDeCifra(semilla.actualizado, idioma) : null
+    const fecha = fechaDura ? sinDuros((D.gofundme.cifra_a as string).replace('{fecha}', fechaDura)) : null
     for (const pagina of paginas) {
       const h = html(pagina)
       const marcas = [...h.matchAll(/\bdata-gofundme-importe="([^"]+)"[^>]*\bdata-gofundme-origen="([^"]+)"/g)]
@@ -270,6 +273,9 @@ if (existsSync('seed/fundraiser.json')) {
       ok(bloques.length > 0 && bloques.every((b) => b.replace(/\s/g, ' ').includes(importeTexto) && b.includes(`${donantesTexto} ${D.gofundme.donators}`)), `${pagina}: la tarjeta de la campaña dice «${importeTexto}» y «${donantesTexto} ${D.gofundme.donators}» (${bloques.length})`)
       ok(bloques.every((b) => b.includes(D.gofundme.raised_on) || b.includes(D.gofundme.on_gofundme)), `${pagina}: y de dónde sale: «${D.gofundme.on_gofundme}»`)
       ok(!fecha || (textoDe(h).includes(fecha) && bloques.every((b) => b.includes(fecha))), `${pagina}: la cifra del build lleva su fecha («${fecha ?? 'sin fecha en la semilla'}»)`)
+      // la fecha llega al HTML con espacios duros: es lo que impide partirla sin `white-space: nowrap` (revisión de T2b2: nowrap sacaba el texto de su caja con la letra ampliada)
+      const tiempos = [...h.matchAll(/<time\b[^>]*\bdatetime="([^"]+)"[^>]*>([\s\S]*?)<\/time>/g)].filter((m) => m[1] === semilla.actualizado)
+      ok(!fechaDura || (fechaDura.includes('\u00a0') && tiempos.length >= bloques.length && tiempos.every((m) => m[2]!.includes(fechaDura))), `${pagina}: la fecha de la cifra llega con espacios duros dentro de su <time> y no se puede partir (${fechaDura ? sinDuros(fechaDura) : 'sin fecha en la semilla'}; ${tiempos.length} <time>)`)
       // lo que se quitó: ni objetivo, ni porcentaje, ni barra, ni «Faltan», ni importes en las fases
       ok(bloques.every((b) => !/faltan|remaining|objetivo|\bgoal\b|\btarget\b|%/i.test(b)), `${pagina}: la tarjeta no dice objetivo, porcentaje ni «faltan»`)
       ok(!/goalAmount/.test(h), `${pagina}: el objetivo de GoFundMe no viaja en el HTML (ni en el payload de Nuxt): ya no se le pide`)
@@ -356,8 +362,8 @@ if (existsSync('seed/fundraiser.json')) {
     await nav.cargar('/?fund=semilla')
     const sem = await esperaImportes('12345')
     const fecha20 = (idioma: 'es' | 'en') => fechaDeCifra('2026-10-20T08:00:00.000Z', idioma)
-    ok(sem.length > 0 && (await origenes()).every((o) => o === 'semilla') && (await textoPagina()).includes(fecha20('es')), `/: si la función contesta con su copia de seguridad, la cifra sigue siendo «semilla» y enseña SU fecha (${fecha20('es')})`)
-    // A 375 px (revisión de T2b): la fecha de la cifra no se parte en «cifra a / 24 oct 2026» y la «·» no cuelga al principio ni al final de una línea.
+    ok(sem.length > 0 && (await origenes()).every((o) => o === 'semilla') && sinDuros(await textoPagina()).includes(sinDuros(fecha20('es'))), `/: si la función contesta con su copia de seguridad, la cifra sigue siendo «semilla» y enseña SU fecha (${fecha20('es')})`)
+    // A 375 px (revisión de T2b): la fecha de la cifra («24 oct 2026») no se parte, aunque la frase pueda saltar entre «cifra a» y ella, y la «·» no cuelga al principio ni al final de una línea.
     // Con la cifra «semilla» de la función (fecha fija del 20-oct) la fecha se ve en el hero, en la tarjeta y en la variante en línea.
     await nav.cdp('Emulation.setDeviceMetricsOverride', { width: 375, height: 900, deviceScaleFactor: 1, mobile: false })
     const LINEAS = `(() => {
@@ -378,10 +384,22 @@ if (existsSync('seed/fundraiser.json')) {
         for (const x of cs) { let g = l.find((y) => Math.abs(y.top - x.top) < 4); if (!g) l.push(g = { top: x.top, txt: '' }); g.txt += x.c }
         return l.sort((a, b) => a.top - b.top).map((g) => g.txt)
       }
+      // la fecha ('24 oct 2026', con espacios duros) cabe entera en una línea: cuántas líneas ocupa (0 = no se encontró)
+      const FECHA = /\\d{1,2}\\u00a0\\S+\\u00a0\\d{4}/
+      const lineasDeLaFecha = (t) => {
+        const w = document.createTreeWalker(t, NodeFilter.SHOW_TEXT)
+        for (let n = w.nextNode(); n; n = w.nextNode()) {
+          const m = FECHA.exec(n.data)
+          if (!m) continue
+          const r = document.createRange(); r.setStart(n, m.index); r.setEnd(n, m.index + m[0].length)
+          return r.getClientRects().length
+        }
+        return 0
+      }
       const bloques = [...document.querySelectorAll('.hero__support, .gfm')]
       return {
         bloques: bloques.length,
-        fechas: [...document.querySelectorAll('.hero__support time, .gfm time')].map((t) => t.getClientRects().length),
+        fechas: [...document.querySelectorAll('.hero__support time, .gfm time')].map(lineasDeLaFecha),
         colgadas: bloques.flatMap((b) => lineas(b)).filter((t) => t.startsWith('·') || t.endsWith('·')),
         desborde: document.documentElement.scrollWidth > innerWidth,
       }
@@ -392,6 +410,40 @@ if (existsSync('seed/fundraiser.json')) {
       const m = (await nav.evaluate(LINEAS)) as { bloques: number; fechas: number[]; colgadas: string[]; desborde: boolean }
       ok(m.bloques > 0 && m.fechas.length > 0 && m.fechas.every((n) => n === 1), `${ruta} a 375 px: la fecha de la cifra no se parte en dos líneas (${m.fechas.length} fecha/s en ${m.bloques} bloque/s, ${m.fechas.join('+')} línea/s)`)
       ok(m.colgadas.length === 0 && !m.desborde, `${ruta} a 375 px: ninguna «·» al principio ni al final de una línea y sin scroll horizontal (${m.colgadas.join(' | ') || 'ninguna'})`)
+    }
+    // A 375 px con la letra ampliada (revisión de T2b2; WCAG 1.4.4 y 1.4.10): ni un carácter del texto de los bloques de la campaña pasa del borde de su
+    // caja (la de su fase, en la tarjeta) ni del viewport. `white-space: nowrap` en la fecha de la cifra lo rompía y a 100 % no se ve: a 175 % la fecha de la tarjeta sobresalía 70 px
+    // en español y 142 px en inglés, y la de /en/expenses 38 px; a 200 % el hero inglés llegaba a x=478. Se mide con `html { font-size }`, como la revisión.
+    const DESBORDE = `(() => {
+      const vista = document.documentElement.clientWidth
+      const fuera = []
+      let textos = 0
+      for (const b of document.querySelectorAll('.hero__support, .gfm')) {
+        const w = document.createTreeWalker(b, NodeFilter.SHOW_TEXT)
+        for (let n = w.nextNode(); n; n = w.nextNode()) {
+          if (!n.data.trim() || n.parentElement.closest('.sr-only')) continue
+          textos++
+          // su caja: la de su fase si es de una fase de la tarjeta (la insignia «presupuesto en curso» sobresalía de ella), si no la del bloque
+          const caja = (n.parentElement.closest('.gfm__fase') ?? b).getBoundingClientRect()
+          const r = document.createRange(); r.selectNodeContents(n)
+          for (const q of r.getClientRects()) {
+            if (!q.width) continue
+            const deCaja = Math.round(q.right - caja.right), deVista = Math.round(q.right - vista)
+            if (deCaja > 1 || deVista > 1 || q.left < -1) fuera.push(n.parentElement.className.toString().split(' ')[0] + ' «' + n.data.trim().slice(0, 30) + '» +' + Math.max(deCaja, deVista) + ' px')
+          }
+        }
+      }
+      return { bloques: document.querySelectorAll('.hero__support, .gfm').length, textos, fuera }
+    })()`
+    for (const ruta of ['/?fund=semilla', '/en?fund=semilla', '/gastos?fund=semilla', '/en/expenses?fund=semilla']) {
+      await nav.cargar(ruta)
+      await esperaImportes('12345')
+      for (const zoom of [175, 200]) {
+        await nav.evaluate(`document.documentElement.style.fontSize = '${zoom}%'`)
+        await nav.sleep(400)
+        const m = (await nav.evaluate(DESBORDE)) as { bloques: number; textos: number; fuera: string[] }
+        ok(m.bloques > 0 && m.textos > 0 && m.fuera.length === 0, `${ruta.split('?')[0]} a 375 px con la letra al ${zoom} %: el texto de los bloques de la campaña no pasa del borde de su caja ni del viewport (${m.bloques} bloque/s, ${m.textos} texto/s; ${m.fuera.slice(0, 3).join(' | ') || 'nada fuera'})`)
+      }
     }
     await nav.cdp('Emulation.setDeviceMetricsOverride', { width: 1024, height: 900, deviceScaleFactor: 1, mobile: false })
     // navegar dentro del sitio: al volver a una página con la tarjeta tras pasar por otra sin ella, Nuxt la monta
@@ -909,7 +961,7 @@ if (existsSync('seed/fundraiser.json')) {
       // la «·» va entre espacios duros (U+00A0) para no colgar a 375 px; el texto visible ya los lleva normalizados a espacio
       const linea = t(loc, 'hero.proof_money').replace('{importe}', importe).replace('{n}', n).replace(/\u00a0/g, ' ')
       ok(visible(hero).includes(linea) && hero.includes('hero__support'), `${pagina}: la prueba dice «${linea}» (importe y donantes, con «en GoFundMe»)`)
-      const fecha = semilla.actualizado ? t(loc, 'gofundme.cifra_a').replace('{fecha}', fechaDeCifra(semilla.actualizado, loc)) : null
+      const fecha = semilla.actualizado ? sinDuros(t(loc, 'gofundme.cifra_a').replace('{fecha}', fechaDeCifra(semilla.actualizado, loc))) : null
       ok(!fecha || visible(hero).includes(fecha), `${pagina}: y, como la cifra es la del build, con su fecha («${fecha ?? 'la semilla no trae fecha'}»)`)
       ok(/data-gofundme-importe="\d+/.test(hero) && /data-gofundme-origen="semilla"/.test(hero), `${pagina}: el importe del hero lleva su marca de cifra y de origen (la que lee el test de la cifra viva)`)
     } else {
