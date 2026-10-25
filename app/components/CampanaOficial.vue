@@ -1,13 +1,13 @@
 <template>
   <div
-    v-if="!(footer && isHome)"
+    v-if="!(footer && yaLoPinta)"
     :id="footer ? 'campana-oficial' : undefined"
     role="note"
     :aria-label="$t('campanaOficial.titulo')"
     class="campana-oficial"
     :class="footer ? 'mt-10 pt-8 scroll-mt-24' : 'mt-8 pt-6'"
   >
-    <div class="max-w-2xl">
+    <div class="measure">
       <p class="text-sm font-semibold text-berenjena">
         <Icon name="ph:asterisk-bold" class="campana-oficial__mark" aria-hidden="true" />
         {{ $t('campanaOficial.titulo') }}
@@ -46,23 +46,23 @@
  * botón de donar. El enlace muestra el slug largo para que se pueda comprobar a
  * ojo, y no lleva data-support-cta ni trackSupport (no es un clic de «Apoyar»).
  *
- * Tres instancias: pie (todas las páginas salvo la home, con ancla
- * #campana-oficial), home bajo la barra de la campaña y /gastos.
+ * Tres instancias: pie (todas las páginas salvo la home y /gastos, con ancla
+ * #campana-oficial), home bajo la barra de la campaña y /gastos. El texto va a la
+ * medida de lectura (`.measure`, 68ch) y no a un `max-w-2xl` suelto.
  */
 withDefaults(defineProps<{ footer?: boolean; location: string }>(), {
   footer: false,
 })
 
 const route = useRoute()
+const routeBaseName = useRouteBaseName()
 const { GOFUNDME_CANONICAL_URL, trackOfficialCampaign } = useSupport()
 
 const slug = GOFUNDME_CANONICAL_URL.replace(/^https:\/\/www\./, '')
 
-// La home ya lo lleva bajo la barra de la campaña: el del pie se calla ahí.
-const isHome = computed(() => {
-  const path = route.path.replace(/\/+$/, '') || '/'
-  return path === '/' || path === '/en'
-})
+// La home lo lleva bajo la barra de la campaña y /gastos lo pinta en su propia tarjeta: el del pie se calla en las dos, porque
+// dos avisos iguales en la misma página son ruido (en /gastos salían los dos). Por nombre de ruta, igual en ES y EN.
+const yaLoPinta = computed(() => ['index', 'gastos'].includes(routeBaseName(route) ?? ''))
 </script>
 
 <style scoped>

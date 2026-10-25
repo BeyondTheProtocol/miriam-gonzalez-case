@@ -228,6 +228,32 @@
       "app/pages/mapa-metastasis.vue": 1,
       "app/pages/marcas.vue": 3,
       "app/pages/timeline.vue": 1
+    },
+    "R12": {
+      "app/error.vue": 1,
+      "app/pages/aviso-legal.vue": 1,
+      "app/pages/celula-a-celula-explorar.vue": 1,
+      "app/pages/celula-a-celula.vue": 1,
+      "app/pages/ciencia/evidencia.vue": 1,
+      "app/pages/cookies.vue": 1,
+      "app/pages/datos.vue": 1,
+      "app/pages/mapa-metastasis.vue": 2,
+      "app/pages/privacidad.vue": 1
+    },
+    "R13": {
+      "app/components/HomeProximosPasos.vue": 1,
+      "app/components/MolecularProfileDetailed.vue": 1,
+      "app/components/PageHeader.vue": 1,
+      "app/components/RutaPersonalizada.vue": 3,
+      "app/components/VisitorPathways.vue": 1,
+      "app/pages/ciencia/evidencia.vue": 1,
+      "app/pages/colabora.vue": 3,
+      "app/pages/contacto.vue": 1,
+      "app/pages/equipo.vue": 2,
+      "app/pages/gastos.vue": 5,
+      "app/pages/index.vue": 1,
+      "app/pages/mapa-metastasis.vue": 28,
+      "app/pages/marcas.vue": 6
     }
   },
   "excepciones": {

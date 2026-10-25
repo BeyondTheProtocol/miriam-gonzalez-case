@@ -12,6 +12,16 @@
 //   objetivos_pequenos  controles de menos de 44 px (salvo un enlace dentro de una frase, que la norma exime).
 //   contraste           elementos de texto por debajo de 4,5:1 (3:1 si es grande) sobre su fondo aplanado.
 //   foco_tapado         pasos de Tab cuyo foco queda debajo de la cabecera fija (WCAG 2.4.11).
+//   linea_larga         bloques de texto cuya línea MÁS LARGA, tal como se pinta, pasa de 90 caracteres (lote 0 del repaso de escritorio,
+//                       25-oct-2026). Se cuenta el texto de verdad con Range (no el CSS): un `max-w-3xl` suelto da 100 a 190 caracteres y
+//                       ningún otro recuento lo veía. Por qué 90: `--measure` (68ch) da unos 80 a 85 caracteres con Hanken a 15 a 17 px, y el
+//                       umbral deja un 8 % de holgura (inferencia mía sobre el ancho medio de Hanken, sin probar con lectores). Un bloque
+//                       cuenta aunque tenga una sola línea: una línea de 120 caracteres es larga se parta o no. No se miran: tablas (columnas),
+//                       <pre>, SVG ni lo oculto. A 390 px da 0 en la práctica (342 px no dan para 90 caracteres), así que es una métrica de 1280.
+//   sticky_tapado       elementos `position: sticky` (fuera de la cabecera) cuyo `top` queda por encima del borde de abajo de la cabecera fija:
+//                       al pegarse, la cabecera los tapa (WCAG 2.4.11). Un `lg:top-24` son 96 px y la cabecera mide 73 (112 con la barra «lo
+//                       último»). Se mide por geometría y no haciendo scroll: solo cuenta el que SÍ puede pegarse (su contenedor es más alto
+//                       que él y ningún antepasado tiene overflow, que anularía el sticky) y se mueve con el viewport.
 //
 // No mide el texto sobre degradados ni sobre imágenes (se salta cualquier nodo con un ANTEPASADO con background-image; el degradado del
 // propio nodo, el marcador de los enlaces en línea, sí se mide sobre su color de fondo y los de sus antepasados),
@@ -37,13 +47,13 @@ export const RUTAS = [
   '/herramientas', '/reservorio', '/historia',
 ]
 const ANCHOS = [390, 1280]
-const METRICAS = ['desborde', 'h1_borde', 'texto_bajo_suelo', 'texto_svg_bajo_suelo', 'objetivos_pequenos', 'contraste', 'foco_tapado']
+const METRICAS = ['desborde', 'h1_borde', 'texto_bajo_suelo', 'texto_svg_bajo_suelo', 'objetivos_pequenos', 'contraste', 'foco_tapado', 'linea_larga', 'sticky_tapado']
 const PASOS_TAB = 14
 
 /** Corre dentro de la página. Devuelve recuentos y los primeros ejemplos de cada uno. */
 const MEDIR = `(() => {
-  const ej = { texto_bajo_suelo: [], texto_svg_bajo_suelo: [], objetivos_pequenos: [], contraste: [] }
-  const cuenta = { desborde: 0, h1_borde: 0, texto_bajo_suelo: 0, texto_svg_bajo_suelo: 0, objetivos_pequenos: 0, contraste: 0 }
+  const ej = { texto_bajo_suelo: [], texto_svg_bajo_suelo: [], objetivos_pequenos: [], contraste: [], linea_larga: [], sticky_tapado: [] }
+  const cuenta = { desborde: 0, h1_borde: 0, texto_bajo_suelo: 0, texto_svg_bajo_suelo: 0, objetivos_pequenos: 0, contraste: 0, linea_larga: 0, sticky_tapado: 0 }
   const lienzo = document.createElement('canvas'); lienzo.width = lienzo.height = 1
   const cx = lienzo.getContext('2d', { willReadFrequently: true })
   const rgba = (css) => { cx.clearRect(0, 0, 1, 1); cx.fillStyle = '#000'; cx.fillStyle = css; cx.fillRect(0, 0, 1, 1); const d = cx.getImageData(0, 0, 1, 1).data; return [d[0], d[1], d[2], d[3] / 255] }
@@ -85,6 +95,20 @@ const MEDIR = `(() => {
   }
   const opacidad = (e) => { let o = 1; for (let n = e; n && n.nodeType === 1; n = n.parentElement) o *= parseFloat(getComputedStyle(n).opacity); return o }
 
+  // cabecera fija: su borde de abajo (con el scroll en 0 es su alto). Un sticky con el top por encima queda tapado al pegarse.
+  const cabecera = document.querySelector('[data-cabecera-fija]') || document.querySelector('header')
+  const cabBorde = cabecera ? cabecera.getBoundingClientRect().bottom : 0
+  // ¿Se pega de verdad al viewport? Un antepasado con overflow (auto, scroll o hidden) es su contenedor de scroll y el sticky no llega a
+  // pegarse a la ventana; y si su contenedor no es más alto que él, no tiene recorrido para pegarse.
+  const sePegaAlViewport = (e) => {
+    for (let a = e.parentElement; a && a !== document.body && a !== document.documentElement; a = a.parentElement) {
+      const o = getComputedStyle(a)
+      if (/(auto|scroll|hidden)/.test(o.overflowX + ' ' + o.overflowY)) return false
+    }
+    const p = e.parentElement
+    return !!p && p.getBoundingClientRect().height > e.getBoundingClientRect().height + 1
+  }
+
   const w = document.createTreeWalker(document.body, NodeFilter.SHOW_ELEMENT)
   let n
   while ((n = w.nextNode())) {
@@ -93,6 +117,10 @@ const MEDIR = `(() => {
     const r = n.getBoundingClientRect()
     if (!visible(n, r) || srOnly(r, cs)) continue
     if (n.disabled || n.getAttribute('aria-disabled') === 'true') continue // un control deshabilitado está exento de contraste y de tamaño
+    if (cs.position === 'sticky' && cabecera && !n.closest('[data-cabecera-fija], header')) {
+      const arriba = parseFloat(cs.top)
+      if (!Number.isNaN(arriba) && arriba < cabBorde - 1 && sePegaAlViewport(n)) { cuenta.sticky_tapado++; if (ej.sticky_tapado.length < 6) ej.sticky_tapado.push('top ' + Math.round(arriba) + 'px < cabecera ' + Math.round(cabBorde) + 'px ' + nombre(n)) }
+    }
     const propio = [...n.childNodes].some((c) => c.nodeType === 3 && c.textContent.trim().length > 0)
 
     if (propio) {
@@ -138,6 +166,47 @@ const MEDIR = `(() => {
     const fs = parseFloat(cs.fontSize) * escala
     const mono = /mono|jetbrains/i.test(cs.fontFamily) && cs.textTransform === 'uppercase'
     if (fs < 12 || (fs < 13 && !mono)) { cuenta.texto_svg_bajo_suelo++; if (ej.texto_svg_bajo_suelo.length < 6) ej.texto_svg_bajo_suelo.push(fs.toFixed(1) + 'px ' + nombre(t)) }
+  }
+
+  // línea larga: se agrupa el texto por su bloque (el antepasado más cercano que no es en línea) y se cuentan los caracteres de cada línea
+  // PINTADA con Range. Una línea nueva empieza cuando un carácter cae más de media altura por debajo del anterior.
+  const LINEA_MAX = 90
+  const bloques = new Map()
+  const tw = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT)
+  let tn
+  while ((tn = tw.nextNode())) {
+    if (!tn.textContent.trim()) continue
+    const padre = tn.parentElement
+    if (!padre || padre.closest('svg, script, style, noscript, pre, table, textarea, [aria-hidden="true"], .sr-only')) continue
+    let b = padre
+    while (b && b !== document.body && /^(inline|contents)$/.test(getComputedStyle(b).display)) b = b.parentElement
+    if (!b || b === document.body) continue
+    if (!bloques.has(b)) bloques.set(b, [])
+    bloques.get(b).push(tn)
+  }
+  const rango = document.createRange()
+  for (const [b, nodos] of bloques) {
+    const rb = b.getBoundingClientRect()
+    const cb = getComputedStyle(b)
+    if (!visible(b, rb) || cb.display === 'none') continue
+    let total = 0
+    for (const t of nodos) total += t.textContent.length
+    if (total <= LINEA_MAX) continue
+    if (rb.width < LINEA_MAX * parseFloat(cb.fontSize) * 0.36) continue // ni con el carácter más estrecho caben 90 en esa anchura
+    let max = 0, actual = 0, arriba = null
+    for (const t of nodos) {
+      const txt = t.textContent
+      for (let i = 0; i < txt.length; i++) {
+        rango.setStart(t, i); rango.setEnd(t, i + 1)
+        const q = rango.getClientRects()
+        if (!q.length || (q[0].width === 0 && q[0].height === 0)) continue
+        if (arriba !== null && q[0].top > arriba + q[0].height * 0.5) { if (actual > max) max = actual; actual = 0 }
+        arriba = q[0].top
+        actual++
+      }
+    }
+    if (actual > max) max = actual
+    if (max > LINEA_MAX) { cuenta.linea_larga++; if (ej.linea_larga.length < 8) ej.linea_larga.push(max + ' car. en ' + Math.round(rb.width) + 'px (' + cb.fontSize + ') ' + nombre(b)) }
   }
   return { cuenta, ej }
 })()`

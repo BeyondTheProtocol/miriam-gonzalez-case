@@ -5,19 +5,23 @@
     "/:390": {
       "desborde": 0,
       "h1_borde": 0,
-      "texto_bajo_suelo": 2,
+      "texto_bajo_suelo": 0,
       "texto_svg_bajo_suelo": 0,
       "objetivos_pequenos": 0,
       "contraste": 0,
+      "linea_larga": 0,
+      "sticky_tapado": 0,
       "foco_tapado": 0
     },
     "/:1280": {
       "desborde": 0,
       "h1_borde": 0,
-      "texto_bajo_suelo": 2,
+      "texto_bajo_suelo": 0,
       "texto_svg_bajo_suelo": 0,
       "objetivos_pequenos": 0,
       "contraste": 0,
+      "linea_larga": 3,
+      "sticky_tapado": 0,
       "foco_tapado": 0
     },
     "/ciencia:390": {
@@ -27,6 +31,8 @@
       "texto_svg_bajo_suelo": 0,
       "objetivos_pequenos": 1,
       "contraste": 0,
+      "linea_larga": 0,
+      "sticky_tapado": 0,
       "foco_tapado": 0
     },
     "/ciencia:1280": {
@@ -36,6 +42,8 @@
       "texto_svg_bajo_suelo": 0,
       "objetivos_pequenos": 1,
       "contraste": 0,
+      "linea_larga": 13,
+      "sticky_tapado": 1,
       "foco_tapado": 0
     },
     "/ciencia/evidencia:390": {
@@ -45,6 +53,8 @@
       "texto_svg_bajo_suelo": 0,
       "objetivos_pequenos": 21,
       "contraste": 0,
+      "linea_larga": 0,
+      "sticky_tapado": 0,
       "foco_tapado": 0
     },
     "/ciencia/evidencia:1280": {
@@ -54,6 +64,8 @@
       "texto_svg_bajo_suelo": 0,
       "objetivos_pequenos": 21,
       "contraste": 0,
+      "linea_larga": 28,
+      "sticky_tapado": 0,
       "foco_tapado": 0
     },
     "/colabora:390": {
@@ -63,6 +75,8 @@
       "texto_svg_bajo_suelo": 0,
       "objetivos_pequenos": 14,
       "contraste": 5,
+      "linea_larga": 0,
+      "sticky_tapado": 0,
       "foco_tapado": 0
     },
     "/colabora:1280": {
@@ -72,6 +86,8 @@
       "texto_svg_bajo_suelo": 0,
       "objetivos_pequenos": 14,
       "contraste": 5,
+      "linea_larga": 1,
+      "sticky_tapado": 0,
       "foco_tapado": 0
     },
     "/contacto:390": {
@@ -81,6 +97,8 @@
       "texto_svg_bajo_suelo": 0,
       "objetivos_pequenos": 1,
       "contraste": 0,
+      "linea_larga": 0,
+      "sticky_tapado": 0,
       "foco_tapado": 0
     },
     "/contacto:1280": {
@@ -90,24 +108,30 @@
       "texto_svg_bajo_suelo": 0,
       "objetivos_pequenos": 1,
       "contraste": 0,
+      "linea_larga": 0,
+      "sticky_tapado": 0,
       "foco_tapado": 0
     },
     "/datos:390": {
       "desborde": 0,
       "h1_borde": 1,
-      "texto_bajo_suelo": 275,
+      "texto_bajo_suelo": 261,
       "texto_svg_bajo_suelo": 34,
       "objetivos_pequenos": 2,
       "contraste": 0,
+      "linea_larga": 0,
+      "sticky_tapado": 0,
       "foco_tapado": 0
     },
     "/datos:1280": {
       "desborde": 0,
       "h1_borde": 1,
-      "texto_bajo_suelo": 275,
+      "texto_bajo_suelo": 261,
       "texto_svg_bajo_suelo": 34,
       "objetivos_pequenos": 2,
       "contraste": 0,
+      "linea_larga": 19,
+      "sticky_tapado": 0,
       "foco_tapado": 0
     },
     "/equipo:390": {
@@ -117,6 +141,8 @@
       "texto_svg_bajo_suelo": 0,
       "objetivos_pequenos": 2,
       "contraste": 0,
+      "linea_larga": 0,
+      "sticky_tapado": 0,
       "foco_tapado": 0
     },
     "/equipo:1280": {
@@ -126,6 +152,8 @@
       "texto_svg_bajo_suelo": 0,
       "objetivos_pequenos": 2,
       "contraste": 0,
+      "linea_larga": 3,
+      "sticky_tapado": 0,
       "foco_tapado": 0
     },
     "/gastos:390": {
@@ -135,6 +163,8 @@
       "texto_svg_bajo_suelo": 0,
       "objetivos_pequenos": 1,
       "contraste": 0,
+      "linea_larga": 0,
+      "sticky_tapado": 0,
       "foco_tapado": 0
     },
     "/gastos:1280": {
@@ -144,6 +174,8 @@
       "texto_svg_bajo_suelo": 0,
       "objetivos_pequenos": 1,
       "contraste": 0,
+      "linea_larga": 12,
+      "sticky_tapado": 0,
       "foco_tapado": 0
     },
     "/gracias:390": {
@@ -153,6 +185,8 @@
       "texto_svg_bajo_suelo": 0,
       "objetivos_pequenos": 0,
       "contraste": 0,
+      "linea_larga": 0,
+      "sticky_tapado": 0,
       "foco_tapado": 0
     },
     "/gracias:1280": {
@@ -162,6 +196,8 @@
       "texto_svg_bajo_suelo": 0,
       "objetivos_pequenos": 0,
       "contraste": 0,
+      "linea_larga": 0,
+      "sticky_tapado": 0,
       "foco_tapado": 0
     },
     "/laminillas:390": {
@@ -171,6 +207,8 @@
       "texto_svg_bajo_suelo": 0,
       "objetivos_pequenos": 2,
       "contraste": 0,
+      "linea_larga": 0,
+      "sticky_tapado": 0,
       "foco_tapado": 0
     },
     "/laminillas:1280": {
@@ -180,6 +218,8 @@
       "texto_svg_bajo_suelo": 0,
       "objetivos_pequenos": 4,
       "contraste": 0,
+      "linea_larga": 0,
+      "sticky_tapado": 0,
       "foco_tapado": 0
     },
     "/lesiones:390": {
@@ -189,6 +229,8 @@
       "texto_svg_bajo_suelo": 0,
       "objetivos_pequenos": 1,
       "contraste": 0,
+      "linea_larga": 0,
+      "sticky_tapado": 0,
       "foco_tapado": 0
     },
     "/lesiones:1280": {
@@ -198,6 +240,8 @@
       "texto_svg_bajo_suelo": 0,
       "objetivos_pequenos": 1,
       "contraste": 0,
+      "linea_larga": 2,
+      "sticky_tapado": 0,
       "foco_tapado": 0
     },
     "/links:390": {
@@ -207,6 +251,8 @@
       "texto_svg_bajo_suelo": 0,
       "objetivos_pequenos": 0,
       "contraste": 0,
+      "linea_larga": 0,
+      "sticky_tapado": 0,
       "foco_tapado": 0
     },
     "/links:1280": {
@@ -216,6 +262,8 @@
       "texto_svg_bajo_suelo": 0,
       "objetivos_pequenos": 0,
       "contraste": 0,
+      "linea_larga": 0,
+      "sticky_tapado": 0,
       "foco_tapado": 0
     },
     "/mapa-metastasis:390": {
@@ -225,6 +273,8 @@
       "texto_svg_bajo_suelo": 47,
       "objetivos_pequenos": 62,
       "contraste": 42,
+      "linea_larga": 0,
+      "sticky_tapado": 0,
       "foco_tapado": 0
     },
     "/mapa-metastasis:1280": {
@@ -232,8 +282,10 @@
       "h1_borde": 1,
       "texto_bajo_suelo": 529,
       "texto_svg_bajo_suelo": 6,
-      "objetivos_pequenos": 64,
+      "objetivos_pequenos": 63,
       "contraste": 42,
+      "linea_larga": 71,
+      "sticky_tapado": 1,
       "foco_tapado": 0
     },
     "/marcas:390": {
@@ -243,6 +295,8 @@
       "texto_svg_bajo_suelo": 0,
       "objetivos_pequenos": 8,
       "contraste": 0,
+      "linea_larga": 0,
+      "sticky_tapado": 0,
       "foco_tapado": 0
     },
     "/marcas:1280": {
@@ -252,6 +306,8 @@
       "texto_svg_bajo_suelo": 0,
       "objetivos_pequenos": 9,
       "contraste": 0,
+      "linea_larga": 5,
+      "sticky_tapado": 0,
       "foco_tapado": 0
     },
     "/prensa:390": {
@@ -261,6 +317,8 @@
       "texto_svg_bajo_suelo": 0,
       "objetivos_pequenos": 1,
       "contraste": 0,
+      "linea_larga": 0,
+      "sticky_tapado": 0,
       "foco_tapado": 0
     },
     "/prensa:1280": {
@@ -270,6 +328,8 @@
       "texto_svg_bajo_suelo": 0,
       "objetivos_pequenos": 1,
       "contraste": 0,
+      "linea_larga": 7,
+      "sticky_tapado": 0,
       "foco_tapado": 0
     },
     "/timeline:390": {
@@ -279,6 +339,8 @@
       "texto_svg_bajo_suelo": 0,
       "objetivos_pequenos": 13,
       "contraste": 41,
+      "linea_larga": 0,
+      "sticky_tapado": 0,
       "foco_tapado": 0
     },
     "/timeline:1280": {
@@ -288,6 +350,8 @@
       "texto_svg_bajo_suelo": 0,
       "objetivos_pequenos": 13,
       "contraste": 41,
+      "linea_larga": 27,
+      "sticky_tapado": 1,
       "foco_tapado": 0
     },
     "/celula-a-celula:390": {
@@ -297,6 +361,8 @@
       "texto_svg_bajo_suelo": 0,
       "objetivos_pequenos": 11,
       "contraste": 0,
+      "linea_larga": 0,
+      "sticky_tapado": 0,
       "foco_tapado": 0
     },
     "/celula-a-celula:1280": {
@@ -306,6 +372,8 @@
       "texto_svg_bajo_suelo": 0,
       "objetivos_pequenos": 11,
       "contraste": 0,
+      "linea_larga": 3,
+      "sticky_tapado": 0,
       "foco_tapado": 0
     },
     "/celula-a-celula/explorar:390": {
@@ -315,6 +383,8 @@
       "texto_svg_bajo_suelo": 26,
       "objetivos_pequenos": 1,
       "contraste": 0,
+      "linea_larga": 0,
+      "sticky_tapado": 0,
       "foco_tapado": 0
     },
     "/celula-a-celula/explorar:1280": {
@@ -324,6 +394,8 @@
       "texto_svg_bajo_suelo": 0,
       "objetivos_pequenos": 1,
       "contraste": 0,
+      "linea_larga": 11,
+      "sticky_tapado": 0,
       "foco_tapado": 0
     },
     "/aviso-legal:390": {
@@ -333,6 +405,8 @@
       "texto_svg_bajo_suelo": 0,
       "objetivos_pequenos": 1,
       "contraste": 0,
+      "linea_larga": 0,
+      "sticky_tapado": 0,
       "foco_tapado": 0
     },
     "/aviso-legal:1280": {
@@ -342,6 +416,8 @@
       "texto_svg_bajo_suelo": 0,
       "objetivos_pequenos": 1,
       "contraste": 0,
+      "linea_larga": 13,
+      "sticky_tapado": 0,
       "foco_tapado": 0
     },
     "/privacidad:390": {
@@ -351,6 +427,8 @@
       "texto_svg_bajo_suelo": 0,
       "objetivos_pequenos": 1,
       "contraste": 0,
+      "linea_larga": 0,
+      "sticky_tapado": 0,
       "foco_tapado": 0
     },
     "/privacidad:1280": {
@@ -360,6 +438,8 @@
       "texto_svg_bajo_suelo": 0,
       "objetivos_pequenos": 1,
       "contraste": 0,
+      "linea_larga": 16,
+      "sticky_tapado": 0,
       "foco_tapado": 0
     },
     "/cookies:390": {
@@ -369,6 +449,8 @@
       "texto_svg_bajo_suelo": 0,
       "objetivos_pequenos": 1,
       "contraste": 0,
+      "linea_larga": 0,
+      "sticky_tapado": 0,
       "foco_tapado": 0
     },
     "/cookies:1280": {
@@ -378,6 +460,8 @@
       "texto_svg_bajo_suelo": 0,
       "objetivos_pequenos": 1,
       "contraste": 0,
+      "linea_larga": 4,
+      "sticky_tapado": 0,
       "foco_tapado": 0
     },
     "/guia-de-estilo:390": {
@@ -387,6 +471,8 @@
       "texto_svg_bajo_suelo": 0,
       "objetivos_pequenos": 1,
       "contraste": 0,
+      "linea_larga": 0,
+      "sticky_tapado": 0,
       "foco_tapado": 0
     },
     "/guia-de-estilo:1280": {
@@ -396,6 +482,8 @@
       "texto_svg_bajo_suelo": 0,
       "objetivos_pequenos": 1,
       "contraste": 0,
+      "linea_larga": 1,
+      "sticky_tapado": 0,
       "foco_tapado": 0
     },
     "/herramientas:390": {
@@ -405,6 +493,8 @@
       "texto_svg_bajo_suelo": 0,
       "objetivos_pequenos": 1,
       "contraste": 0,
+      "linea_larga": 0,
+      "sticky_tapado": 0,
       "foco_tapado": 0
     },
     "/herramientas:1280": {
@@ -414,6 +504,8 @@
       "texto_svg_bajo_suelo": 0,
       "objetivos_pequenos": 1,
       "contraste": 0,
+      "linea_larga": 0,
+      "sticky_tapado": 0,
       "foco_tapado": 0
     },
     "/reservorio:390": {
@@ -423,6 +515,8 @@
       "texto_svg_bajo_suelo": 0,
       "objetivos_pequenos": 1,
       "contraste": 0,
+      "linea_larga": 0,
+      "sticky_tapado": 0,
       "foco_tapado": 0
     },
     "/reservorio:1280": {
@@ -432,6 +526,8 @@
       "texto_svg_bajo_suelo": 0,
       "objetivos_pequenos": 1,
       "contraste": 0,
+      "linea_larga": 1,
+      "sticky_tapado": 0,
       "foco_tapado": 0
     },
     "/historia:390": {
@@ -441,6 +537,8 @@
       "texto_svg_bajo_suelo": 0,
       "objetivos_pequenos": 1,
       "contraste": 0,
+      "linea_larga": 0,
+      "sticky_tapado": 0,
       "foco_tapado": 0
     },
     "/historia:1280": {
@@ -450,6 +548,8 @@
       "texto_svg_bajo_suelo": 0,
       "objetivos_pequenos": 1,
       "contraste": 0,
+      "linea_larga": 0,
+      "sticky_tapado": 0,
       "foco_tapado": 0
     }
   }

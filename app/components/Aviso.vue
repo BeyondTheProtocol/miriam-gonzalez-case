@@ -50,6 +50,9 @@ const icono = computed(() => ICONO[props.tipo])
   background: var(--superficie); color: var(--texto-1); border-radius: var(--radius-btn);
   border: 1px solid var(--trazo-medio); border-left: 4px solid var(--identidad);
   padding: var(--sp-12) var(--sp-16);
+  /* Regla de retícula 3: la caja también llega solo hasta la medida (el cuerpo ya lo hacía). Un aviso de dos líneas en un shell de
+     1104 px dejaba la caja vacía a la derecha; alineada a la izquierda, como `.measure`. */
+  max-width: var(--measure);
 }
 .aviso__titulo { display: flex; align-items: center; gap: var(--sp-8); margin: 0; font: var(--tipo-h4); }
 .aviso__icono { flex: none; width: 1.25rem; height: 1.25rem; color: var(--identidad); }

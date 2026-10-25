@@ -144,6 +144,37 @@
       </div>
     </Banda>
 
+    <!-- Retícula: las tres reglas del repaso de escritorio (lote 0, 25-oct-2026) y el pegajoso bajo la cabecera. Todo desde lg. -->
+    <Banda tono="crema" titular="g-reticula">
+      <CabeceraSeccion id="g-reticula" eyebrow="Retícula" titulo="Que el ancho no quede vacío" lede="Tres reglas y una utilidad. Valen desde 1024 px; por debajo todo se apila, como siempre." />
+
+      <p class="etiqueta g-subtitulo">Regla 1 · Un texto con una pieza ancha va en dos columnas</p>
+      <div class="rejilla-par">
+        <div class="measure">
+          <p class="prosa">Texto de ejemplo en la medida de lectura (68ch). Sin <code class="g-codigo">.rejilla-par</code>, este párrafo y la pieza de al lado se apilarían y dejarían la mitad de la fila vacía.</p>
+        </div>
+        <div class="card-base">
+          <p class="h4-tarjeta">Pieza de ejemplo</p>
+          <p class="g-parrafo">Una tarjeta, una figura o una tabla.</p>
+        </div>
+      </div>
+
+      <p class="etiqueta g-subtitulo">Regla 2 · Un grupo de tarjetas no deja un hueco: seis columnas con spans de 2 y de 3</p>
+      <div class="grid gap-4 lg:grid-cols-6">
+        <TarjetaEnlace class="lg:col-span-2" titulo="Primera" meta="Ocupa 2 de 6 columnas." icono="ph:compass" :to="'/'" />
+        <TarjetaEnlace class="lg:col-span-2" titulo="Segunda" meta="Ocupa 2 de 6 columnas." icono="ph:compass" :to="'/'" />
+        <TarjetaEnlace class="lg:col-span-2" titulo="Tercera" meta="Ocupa 2 de 6 columnas." icono="ph:compass" :to="'/'" />
+        <TarjetaEnlace class="lg:col-span-3" titulo="Cuarta" meta="Ocupa 3 de 6 columnas." icono="ph:compass" :to="'/'" />
+        <TarjetaEnlace class="lg:col-span-3" titulo="Quinta" meta="Ocupa 3 de 6 columnas." icono="ph:compass" :to="'/'" />
+      </div>
+
+      <p class="etiqueta g-subtitulo">Regla 3 · Un aviso llega hasta la medida, alineado a la izquierda</p>
+      <Aviso tipo="limites" titulo="Lo que esto no dice"><p>Texto de ejemplo de un aviso corto. Mide como mucho 68ch y no se estira a todo el ancho del shell.</p></Aviso>
+
+      <p class="etiqueta g-subtitulo">Un bloque pegajoso se queda 24 px por debajo de la cabecera</p>
+      <p class="prosa g-parrafo">Se escribe <code class="g-codigo">lg:sticky lg:sticky-bajo-cabecera lg:self-start</code>. El borde de arriba es el alto real de la cabecera más 24 px; con <code class="g-codigo">lg:top-24</code> (96 px) la cabecera de 112 px tapaba el título.</p>
+    </Banda>
+
     <!-- Banda oscura y visor (la única oscura de la página) -->
     <Banda tono="oscura" titular="g-oscura">
       <CabeceraSeccion id="g-oscura" eyebrow="Banda oscura" titulo="Una por página, siempre a sangre" lede="Lo que pinta con roles se invierte solo. Aquí está un ejemplo de cada pieza que lo cumple; la lista completa, y la de las que no, está en DESIGN-SYSTEM.md." />
@@ -250,4 +281,5 @@ const ETIQUETAS = { hecho: 'Hecho', curso: 'En curso', pendiente: 'Pendiente', a
 .g-subtitulo { margin: var(--sp-24) 0 var(--sp-8); }
 .g-campo { max-width: 28rem; }
 .g-visor { margin-top: var(--sp-24); aspect-ratio: 16 / 7; }
+.g-codigo { font: 500 var(--texto-xs) / 1.4 var(--font-mono); padding: 1px var(--sp-4); border-radius: var(--radius-sm); background: color-mix(in srgb, var(--texto-1) 6%, transparent); }
 </style>

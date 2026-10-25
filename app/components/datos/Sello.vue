@@ -2,7 +2,12 @@
 /** El sello de evidencia de cada dato del panel, dicho en palabras y no solo en color.
  * En las páginas que lo piden con provide('ocultarVerificado', true) (/datos y la home), «verificado» no se
  * pinta: es lo normal y la leyenda de la página lo dice una vez (Miriam, 24-oct). Solo se marcan las
- * excepciones. En el resto (célula a célula) se sigue pintando, porque allí el sello completa la frase. */
+ * excepciones. En el resto (célula a célula) se sigue pintando, porque allí el sello completa la frase.
+ *
+ * Tamaño (lote 0 del repaso de escritorio, 25-oct-2026): en esas mismas páginas del panel el sello sube a 13 px (`sello--panel`, el
+ * suelo tipográfico); dentro de `Dato` también (override en Dato.vue). En célula a célula conserva sus 11 px hasta el PR #290, que es
+ * quien toca esas páginas: subirlo allí movería sus recuentos de R10 desde una capa compartida. Cuando #290 entre, `sello--panel`
+ * desaparece y el 13 px pasa a ser el único tamaño. */
 const props = defineProps<{ s: string; lang: 'es' | 'en' }>()
 const TXT: Record<string, [string, string, string]> = {
   verificado: ['✓', 'verificado', 'verified'],
@@ -16,7 +21,7 @@ const ocultarVerificado = inject<boolean>('ocultarVerificado', false)
 </script>
 
 <template>
-  <span v-if="!(ocultarVerificado && s === 'verificado')" class="sello" :class="`sello--${s}`"><span aria-hidden="true">{{ t[0] }}</span> {{ lang === 'en' ? t[2] : t[1] }}</span>
+  <span v-if="!(ocultarVerificado && s === 'verificado')" class="sello" :class="[`sello--${s}`, { 'sello--panel': ocultarVerificado }]"><span aria-hidden="true">{{ t[0] }}</span> {{ lang === 'en' ? t[2] : t[1] }}</span>
 </template>
 
 <style scoped>
@@ -26,4 +31,6 @@ const ocultarVerificado = inject<boolean>('ocultarVerificado', false)
 .sello--verificado { background: var(--color-miriam-soft); color: var(--color-text); }
 .sello--sin_verificar { background: transparent; border: 1px dashed color-mix(in srgb, var(--texto-1) 45%, transparent); }
 .sello--dicho { font-style: italic; }
+/* En las páginas del panel (las que piden ocultarVerificado): 13 px, el suelo. Va después de `.sello` para ganarle el tamaño. */
+.sello--panel { font-size: var(--texto-xs); }
 </style>

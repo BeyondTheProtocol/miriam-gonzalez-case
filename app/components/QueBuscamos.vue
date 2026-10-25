@@ -77,7 +77,10 @@ const enlaceTodas = computed(() => hayEnlaceTodas(props.verTodas, mostradas.valu
 </template>
 
 <style scoped>
-.qb__lista { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; font: 400 14px/1.5 var(--font-body); color: var(--color-text); }
+/* Medida a todos los anchos; el cuerpo sube de 14 px (fuera de escala) a --tipo-ui (16/1.5) desde `lg`, que es donde el repaso de escritorio
+   lo midió. Debajo de `lg` se queda en 14 px a propósito (regla móvil primero del lote 0): subirlo en el móvil pide su propio OK. */
+.qb__lista { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; max-width: var(--measure); font: 400 14px/1.5 var(--font-body); color: var(--color-text); }
+@media (min-width: 1024px) { .qb__lista { font: var(--tipo-ui); } }
 .qb__lista li { padding: 8px 12px; border-radius: var(--radius-btn); background: var(--color-bg-card); }
 /* el enlace va en su propia línea y con 44 px de alto: es un destino, no una palabra suelta del párrafo */
 .qb__resultados { display: flex; align-items: center; width: fit-content; min-height: 44px; }

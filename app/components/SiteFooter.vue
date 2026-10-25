@@ -82,14 +82,16 @@
         <!-- Marca y aviso, en una fila; debajo, cinco columnas (rediseño de arquitectura, F3): tres de
              navegación por intención (13 enlaces; salen de app/utils/navegacion.ts, la misma fuente que el
              menú), Redes y Legal. En móvil, dos columnas. Cada enlace mide 44 px de alto (vara táctil de la casa). -->
-        <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:gap-8">
+        <!-- Desde lg la fila es la misma rejilla de 5 columnas (y el mismo hueco) que el <nav> de abajo: la marca en la primera y el aviso en
+             la segunda, que es donde empieza «Herramientas». Debajo de lg no cambia nada (pila en móvil, fila desde sm). -->
+        <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:gap-8 lg:grid lg:grid-cols-5 lg:gap-x-6">
           <div class="flex items-center gap-2.5 shrink-0">
             <BrandMark class="w-8 h-8 shrink-0" />
             <span class="font-display font-semibold text-berenjena text-sm">
               {{ $t('site.title') }}
             </span>
           </div>
-          <p class="text-xs text-tinta leading-relaxed max-w-xl">
+          <p class="text-xs text-tinta leading-relaxed measure lg:col-start-2 lg:col-span-4">
             {{ $t('footer.disclaimer') }}
           </p>
         </div>

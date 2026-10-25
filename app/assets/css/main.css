@@ -119,6 +119,29 @@
     margin-inline-start: 0;
   }
 
+  /* Pegajoso bajo la cabecera fija (lote 0 del repaso de escritorio, 25-oct-2026). Un `lg:top-24` son 96 px y la cabecera mide
+     73 (112 con la barra «lo último»): el título del bloque pegado quedaba tapado. `--cabecera-alto` es el alto REAL (app/plugins/
+     cabecera-alto.client.ts lo publica), así que el bloque queda siempre 24 px por debajo. Solo fija el `top`: la posición la pone quien
+     lo usa, y con prefijo (`lg:sticky lg:sticky-bajo-cabecera lg:self-start`), para que el móvil no se pegue. */
+  .sticky-bajo-cabecera {
+    top: calc(var(--cabecera-alto) + var(--sp-24));
+  }
+
+  /* Texto + pieza (regla de retícula 1). Un texto estrecho encima de una pieza ancha deja la mitad de la fila vacía: desde `lg`, el
+     texto (en `.measure`, que lo limita a 68ch) va a la izquierda y la pieza a la derecha, a la misma altura de arranque. Debajo de
+     `lg` es una pila normal, así que el móvil queda como estaba. Hijos directos: uno de texto y una pieza (tarjeta, figura, tabla). */
+  .rejilla-par {
+    display: grid;
+    gap: var(--sp-32);
+  }
+  @media (min-width: 1024px) {
+    .rejilla-par {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      column-gap: var(--sp-48);
+      align-items: start;
+    }
+  }
+
   .section-spacing {
     @apply py-20 sm:py-28;
   }
@@ -711,6 +734,8 @@
     color: var(--estado-atencion-texto);
     font-size: var(--texto-sm);
     line-height: 1.5;
+    /* Regla de retícula 3: un aviso de dos líneas no ocupa 1104 px. Tope a la medida, alineado a la izquierda del shell. */
+    max-width: var(--measure);
   }
   .alert-callout__title {
     @apply font-semibold;
