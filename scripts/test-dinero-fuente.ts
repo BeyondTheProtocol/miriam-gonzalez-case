@@ -22,9 +22,11 @@
 //    ni «% del objetivo». El dossier de marcas decía «38.897 € recaudados» y «~39% del objetivo» y ningún otro test lo veía. Las fuentes
 //    imprimibles no llevan NINGUNA cifra en € (solo marcadores que rellena el script de render desde la semilla de la campaña); en un
 //    PDF solo cabe la cifra recaudada «en GoFundMe», con su sello «Cifra a <fecha>».
-// 8. Los restos de la revisión de T2b: /gastos no se contradice (report_note no habla de lo recaudado), la «·» de la prueba del hero va
-//    unida a sus vecinos con espacios duros, la fecha de la cifra va en su línea y sin partirse, la lista de fases tiene nombre, y todo
-//    enlace de donar que abre pestaña nueva lo dice a quien lee con lector de pantalla.
+// 8. Los restos de la revisión de T2b: /gastos no se contradice (ninguna clave fuera de la línea de cuadre explica cómo se combina lo
+//    recaudado), la «·» de la prueba del hero va unida a sus vecinos con espacios duros, la fecha de la cifra va en su línea y sin
+//    partirse, la lista de fases tiene nombre, y todo enlace de donar que abre pestaña nueva lo dice a quien lee con lector de pantalla.
+// 9. Lo que Miriam quitó de /gastos el 25-oct-2026 (la nota del cargo duplicado, lo recibido de GoFundMe, el cuadre de GoFundMe y la
+//    nota del gasto personal y los extractos) no vuelve: ni la clave, ni la plantilla, ni el campo del JSON, ni la frase con otras palabras.
 //
 // Las frases retiradas se vigilan por CONCEPTO y no solo por frase exacta (§4): «el destino de cada gasto», «cada importe se
 // publicará» o «where every expense goes» dicen lo mismo que «cada gasto está documentado» y la regex por frase no las cogía.
@@ -46,11 +48,8 @@ const dinero = JSON.parse(lee('app/data/dinero.json')) as {
   corte: string
   moneda: string
   comprometido: number
-  ingresado: number
   disponible: number
-  correccion: boolean
   partidas: { clave: string; importe: number }[]
-  gofundme: { fecha: string; donado: number; comisiones: number; transferido: number; aun: number }
   rebiopsia: { fecha: string; ejecutado: number; biopsia: number; secuenciacion: number; imagen: number }
   fases: { clave: string; estado: string }[]
 }
@@ -118,20 +117,15 @@ ok(!/banc|saldo|cuenta|account|balance|extracto|factura|invoice/i.test(JSON.stri
 // Lista blanca del corte a 30-sep-2026 (T2e): lo que finanzas dejó público y nada de lo que el borrador privado trae a su lado. Ni deuda,
 // ni tarjetas, ni proveedores, ni movimientos, ni devoluciones, ni el rango del estimado, ni el sello interno de cada partida.
 ok(!/deuda|debt|tarjeta|card\b|proveedor|supplier|vendor|movimiento|transaction|devoluc|reembols|refund|reimburs|iban|swift|sello|rango|desglose/i.test(JSON.stringify(dinero)), 'el JSON no lleva deuda, tarjetas, proveedores, movimientos, devoluciones, rangos ni sellos internos (lista blanca del corte)')
-ok(JSON.stringify(Object.keys(dinero).sort()) === JSON.stringify(['comprometido', 'corte', 'correccion', 'disponible', 'fases', 'gofundme', 'ingresado', 'moneda', 'partidas', 'rebiopsia'].sort()), 'el JSON tiene los campos previstos y ninguno más (un campo nuevo se piensa antes de publicarlo; T2e añadió ingresado, gofundme y correccion)')
+// Miriam quitó el 25-oct-2026 la fila de lo recibido (`ingresado`), el cuadre de GoFundMe (`gofundme`) y la nota del cargo duplicado
+// (`correccion`): no vuelven al JSON sin que ella lo pida (§9).
+ok(JSON.stringify(Object.keys(dinero).sort()) === JSON.stringify(['comprometido', 'corte', 'disponible', 'fases', 'moneda', 'partidas', 'rebiopsia'].sort()), 'el JSON tiene los campos previstos y ninguno más (un campo nuevo se piensa antes de publicarlo; ingresado, gofundme y correccion los quitó Miriam el 25-oct-2026)')
 ok(dinero.partidas.every((p) => JSON.stringify(Object.keys(p).sort()) === JSON.stringify(['clave', 'importe'])), 'cada partida es solo {clave, importe}: la etiqueta vive en i18n (es y en) y ningún sello ni nota viaja con ella')
-ok(JSON.stringify(Object.keys(dinero.gofundme).sort()) === JSON.stringify(['aun', 'comisiones', 'donado', 'fecha', 'transferido']), 'el cuadre de GoFundMe es solo fecha, donado, comisiones, transferido y lo que aún queda en la plataforma')
 ok(JSON.stringify(Object.keys(dinero.rebiopsia).sort()) === JSON.stringify(['biopsia', 'ejecutado', 'fecha', 'imagen', 'secuenciacion']), 'la rebiopsia es solo su fecha, lo ejecutado y las tres sublíneas')
-// El cuadre de GoFundMe, al céntimo: donado - comisiones - transferido = lo que aún está en la plataforma.
 {
-  const g = dinero.gofundme
-  ok(centimos(g.donado) - centimos(g.comisiones) - centimos(g.transferido) === centimos(g.aun), `GoFundMe cuadra al céntimo: donado - comisiones - transferido = aún en la plataforma (${centimos(g.donado)} - ${centimos(g.comisiones)} - ${centimos(g.transferido)} = ${centimos(g.aun)})`)
-  ok([g.donado, g.comisiones, g.transferido, g.aun].every((n) => n > 0) && centimos(g.comisiones) < centimos(g.donado), 'las cuatro cifras de GoFundMe son positivas y las comisiones son una parte de lo donado')
   const fechaReal = (f: string) => /^\d{4}-\d{2}-\d{2}$/.test(f) && !Number.isNaN(Date.parse(f)) && Date.parse(f) <= Date.now()
-  ok(fechaReal(g.fecha) && g.fecha >= dinero.corte, `el cuadre de GoFundMe lleva su propia fecha (${g.fecha}), real, no futura y no anterior al corte (${dinero.corte}): las comisiones se acumulan después y no se prorratean`)
   ok(fechaReal(dinero.rebiopsia.fecha) && dinero.rebiopsia.fecha <= dinero.corte, `la rebiopsia conserva su cifra con su fecha (${dinero.rebiopsia.fecha}), real y no posterior al corte: no se actualiza sola con el informe`)
-  ok(centimos(dinero.ingresado) > centimos(dinero.comprometido) && centimos(dinero.disponible) > 0 && centimos(dinero.disponible) < centimos(dinero.ingresado), 'ingresado > gastado, y lo disponible es positivo y menor que lo ingresado (lo único que se puede comprobar sin los extractos: no dice que las tres cifras cuadren entre sí)')
-  ok(typeof dinero.correccion === 'boolean', 'la nota de corrección se enciende o se apaga desde el JSON')
+  ok(centimos(dinero.disponible) > 0, 'lo disponible es positivo')
 }
 const ESTADOS = ['hecha', 'hecho', 'en_curso', 'presupuesto']
 ok(JSON.stringify(dinero.fases.map((f) => f.clave)) === JSON.stringify(['rebiopsy', 'bank', 'treatment']), 'las fases son tres y van en este orden: rebiopsia, banco de tejido, terapia personalizada')
@@ -143,8 +137,8 @@ ok(!['hecha', 'hecho'].includes(dinero.fases[1]!.estado), 'el banco de tejido no
 for (const [loc, d] of [['es', es], ['en', en]] as const) {
   ok(dinero.fases.every((f) => typeof d.gofundme.estado?.[f.estado] === 'string' && typeof d.gofundme.phases?.[f.clave]?.label === 'string' && typeof d.gofundme.phases?.[f.clave]?.desc === 'string'), `${loc}: cada fase tiene su rótulo, su descripción y la palabra de su estado`)
 }
-// Corte a 30-sep-2026 (T2e): los rótulos de las dos partidas nuevas, el estimado rotulado como tal, la nota de corrección genérica y el cuadre
-// de GoFundMe. Las etiquetas viven en i18n y no en el JSON (una sola fuente de la copy); las cifras, al revés.
+// Corte a 30-sep-2026 (T2e): los rótulos de las dos partidas nuevas y el estimado rotulado como tal. Las etiquetas viven en i18n y no
+// en el JSON (una sola fuente de la copy); las cifras, al revés.
 const ETIQUETAS_NUEVAS = {
   es: { treatment: 'Medicación y tratamiento de soporte', samples: 'Envío de muestras al laboratorio' },
   en: { treatment: 'Medication and supportive care', samples: 'Shipping samples to the lab' },
@@ -152,27 +146,17 @@ const ETIQUETAS_NUEVAS = {
 for (const [loc, d] of [['es', es], ['en', en]] as const) {
   ok(d.expenses.report_item_treatment === ETIQUETAS_NUEVAS[loc].treatment && d.expenses.report_item_samples === ETIQUETAS_NUEVAS[loc].samples, `${loc}: las dos partidas nuevas llevan su rótulo pedido («${ETIQUETAS_NUEVAS[loc].treatment}», «${ETIQUETAS_NUEVAS[loc].samples}»)`)
   ok(/estimad|estimated/i.test(d.expenses.report_available_desc) && /donaci|gift/i.test(d.expenses.report_available_desc) && /pendiente|pending/i.test(d.expenses.report_available_desc), `${loc}: lo disponible se rotula como ESTIMADO, descontado el impuesto de donaciones pendiente («${d.expenses.report_available_desc}»)`)
-  ok(!/\b(saldos?|cuentas?|account|balance|deuda|debt|tarjeta|card)\b/i.test(`${d.expenses.report_available_desc} ${d.expenses.report_ingresado_desc} ${d.expenses.gfm_intro} ${d.expenses.gfm_aun} ${d.expenses.gfm_nota}`), `${loc}: ni lo disponible, ni lo ingresado, ni el cuadre de GoFundMe hablan de saldos, cuentas, deuda ni tarjetas`)
-  ok(!/[\d€$%]|\b(duplicad\w+ de|partida)\b/i.test(d.expenses.report_correccion) && /duplicad|duplicat/i.test(d.expenses.report_correccion), `${loc}: la nota de corrección es genérica de verdad: dice «cargo duplicado» y nada más (sin importe, sin proveedor, sin partida): «${d.expenses.report_correccion}»`)
-  // Lo recibido (a la fecha del corte) y lo transferido (a la del cuadre de GoFundMe) son casi el mismo concepto con fechas distintas:
-  // mientras no sean iguales, la página tiene que decir POR QUÉ (lo transferido después del corte entra en el siguiente) SIN publicar la
-  // fecha de ningún movimiento: la fecha que se escribe es la del corte, que sale del JSON. Y lo disponible tiene que decir de dónde
-  // parte, sin ser circular («se calcula sobre lo disponible») y sin dejar la resta al lector. Sin cifras ni palabras de cuentas.
-  ok(['report_ingresado_label', 'report_ingresado_desc', 'report_available_desc'].every((k) => d.expenses[k].includes('{fecha}')), `${loc}: la etiqueta de lo recibido, su nota y la nota de lo disponible llevan la fecha del corte del JSON, no una escrita a mano`)
-  ok(!/\d|[€$%]|\b(enero|febrero|marzo|abril|mayo|junio|julio|agosto|septiembre|octubre|noviembre|diciembre|january|february|march|april|june|july|august|september|october|november|december)\b/i.test(`${d.expenses.report_ingresado_desc} ${d.expenses.report_available_desc}`), `${loc}: ni la nota de lo recibido ni la de lo disponible llevan una cifra ni una fecha escritas a mano (ni un mes por su nombre)`)
-  const noEsResta = loc === 'es' ? /no sale de restar lo gastado a lo recibido: parte de lo que había a \{fecha\}/i : /does not come from subtracting what was spent from what was received: it starts from what there was as of \{fecha\}/i
+  ok(!/\b(saldos?|cuentas?|account|balance|deuda|debt|tarjeta|card)\b/i.test(d.expenses.report_available_desc), `${loc}: lo disponible no habla de saldos, cuentas, deuda ni tarjetas`)
+  // Lo disponible tiene que decir de dónde parte, sin ser circular («se calcula sobre lo disponible») y sin dejar la resta al lector.
+  // Sin cifras ni palabras de cuentas, y con la fecha del corte que sale del JSON.
+  ok(d.expenses.report_available_desc.includes('{fecha}'), `${loc}: la nota de lo disponible lleva la fecha del corte del JSON, no una escrita a mano`)
+  ok(!/\d|[€$%]|\b(enero|febrero|marzo|abril|mayo|junio|julio|agosto|septiembre|octubre|noviembre|diciembre|january|february|march|april|june|july|august|september|october|november|december)\b/i.test(d.expenses.report_available_desc), `${loc}: la nota de lo disponible no lleva una cifra ni una fecha escritas a mano (ni un mes por su nombre)`)
+  // «Recaudado» y no «recibido» desde el 25-oct-2026: sin la fila de lo recibido, la única cifra de entrada que se ve es la recaudada.
+  const noEsResta = loc === 'es' ? /no sale de restar lo gastado a lo recaudado: parte de lo que había a \{fecha\}/i : /does not come from subtracting what was spent from what was raised: it starts from what there was as of \{fecha\}/i
   const circular = loc === 'es' ? /se calcula sobre lo disponible|calculad[oa] sobre lo disponible/i : /worked out from what was available|calculated (on|from) what was available/i
   ok(noEsResta.test(d.expenses.report_available_desc) && !circular.test(d.expenses.report_available_desc), `${loc}: lo disponible dice de dónde parte y que no sale de restar lo gastado a lo recibido, sin la frase circular («${d.expenses.report_available_desc}»)`)
-  const despues = loc === 'es' ? /transfiri[oó] despu[eé]s del \{fecha\} entra en el pr[oó]ximo corte/i : /transferred after \{fecha\} goes into the next cut-?off/i
-  if (centimos(dinero.ingresado) !== centimos(dinero.gofundme.transferido)) {
-    ok(despues.test(d.expenses.report_ingresado_desc), `${loc}: lo recibido (${dinero.corte}) no coincide con lo transferido (${dinero.gofundme.fecha}) y la página lo explica sin fecha de movimiento: lo transferido después del corte entra en el próximo («${d.expenses.report_ingresado_desc}»)`)
-  } else {
-    ok(!/transfiri|transferred|pr[oó]ximo corte|next cut-?off/i.test(d.expenses.report_ingresado_desc), `${loc}: lo recibido coincide con lo transferido (${dinero.corte}) y la nota de «lo transferido después del corte» sobra y se quita («${d.expenses.report_ingresado_desc}»)`)
-  }
-  if (loc === 'es') ok(!/\bingresad[oa]s?\b/i.test(`${d.expenses.report_ingresado_label} ${d.expenses.report_ingresado_desc} ${d.expenses.gfm_nota}`), 'es: lo recibido de GoFundMe no vuelve a llamarse «ingresado» al lado de «transferido» (dos palabras para lo mismo)')
-  ok(['gfm_eyebrow'].every((k) => d.expenses[k].includes('{fecha}')) && ['gfm_donado', 'gfm_comisiones', 'gfm_transferido', 'gfm_aun', 'gfm_cuadre', 'gfm_nota', 'gfm_title', 'gfm_intro', 'report_ingresado_label', 'report_ingresado_desc'].every((k) => typeof d.expenses[k] === 'string' && d.expenses[k].length > 5), `${loc}: el cuadre de GoFundMe y lo ingresado tienen todos sus rótulos, y la fecha sale del JSON`)
   ok(['rebiopsy_now_label', 'phase1_desc', 'rebiopsy_note'].every((k) => d.expenses[k].includes('{fecha}')) && d.expenses.rebiopsy_note.includes('{corte}'), `${loc}: el bloque de la rebiopsia dice a qué fecha están sus cifras (la suya, no la del corte) y por qué el informe suma más`)
-  ok(!/pr[oó]ximo corte|next cut/i.test(d.expenses.cuadre), `${loc}: la línea de cuadre ya no promete que «el próximo corte añadirá las comisiones» (este corte las muestra)`)
+  ok(!/pr[oó]ximo corte|next cut/i.test(d.expenses.cuadre), `${loc}: la línea de cuadre ya no promete que «el próximo corte añadirá las comisiones»`)
 }
 // La rebiopsia y su desglose: las tres sublíneas se quedan (decisión de Miriam) y se rellenan desde el JSON.
 for (const [loc, d] of [['es', es], ['en', en]] as const) {
@@ -253,7 +237,7 @@ for (const [loc, d] of [['es', es], ['en', en]] as const) {
   ok(donde(d.money.transparencia).join() === 'money.transparencia', `${loc}: la frase de transparencia vive en UNA sola clave (${donde(d.money.transparencia).join(', ')})`)
   ok(d.collaborate.profile1_precio === PRECIO[loc] && donde(PRECIO[loc]).join() === 'collaborate.profile1_precio', `${loc}: /colabora dice, para laboratorios, «${PRECIO[loc]}» (una sola clave)`)
   ok(d.collaborate.profile1_precio_para === PARA_PRECIO[loc] && donde(PARA_PRECIO[loc]).join() === 'collaborate.profile1_precio_para', `${loc}: y la frase lleva delante el rótulo que dice a quién habla, «${PARA_PRECIO[loc]}» (una sola clave)`)
-  ok(d.expenses.cuadre.includes('GoFundMe') && /bruta|gross/.test(d.expenses.cuadre) && /comisiones|fees/.test(d.expenses.cuadre), `${loc}: /gastos lleva la línea de cuadre (lo recaudado es la cifra bruta en directo; las comisiones van aparte, con su fecha)`)
+  ok(d.expenses.cuadre.includes('GoFundMe') && /bruta|gross/.test(d.expenses.cuadre) && !/comisiones|fees/.test(d.expenses.cuadre), `${loc}: /gastos lleva la línea de cuadre (lo recaudado es la cifra bruta en directo) y ya no promete un bloque de comisiones aparte, que Miriam quitó el 25-oct-2026`)
   ok(!/[\d€$%]/.test(d.money.transparencia), `${loc}: la frase de transparencia no lleva cifras ni símbolos de dinero`)
 }
 const gastos = lee('app/pages/gastos.vue')
@@ -264,8 +248,8 @@ ok(colabora.includes("$t('money.transparencia')") && colabora.includes("$t('coll
 ok(/<strong[^>]*>\{\{ \$t\('collaborate\.profile1_precio_para'\) \}\}<\/strong> \{\{ \$t\('collaborate\.profile1_precio'\) \}\}/.test(colabora), '/colabora pone el rótulo de los laboratorios, en negrita, justo delante de la frase del precio (no en otro sitio de la tarjeta)')
 ok(prensa.includes("t('money.transparencia')"), '/prensa cierra la respuesta «¿de dónde sale el dinero?» con money.transparencia')
 ok(/DINERO\.partidas/.test(gastos) && !/const REPORT\b/.test(gastos), '/gastos lee las partidas de app/data/dinero.json (ya no hay un REPORT escrito en la página)')
-ok(['DINERO.ingresado', 'DINERO.disponible', 'DINERO.gofundme.donado', 'DINERO.gofundme.comisiones', 'DINERO.gofundme.transferido', 'DINERO.gofundme.aun', 'DINERO.gofundme.fecha', 'DINERO.rebiopsia.fecha', 'DINERO.correccion'].every((c) => gastos.includes(c)), '/gastos pinta lo ingresado, lo disponible, las cuatro cifras de GoFundMe con su fecha, la fecha de la rebiopsia y la nota de corrección, todo desde el JSON')
-ok(['report_ingresado_label', 'report_ingresado_desc', 'report_available_desc'].every((k) => gastos.includes(`$t('expenses.${k}', { fecha: corte })`)), '/gastos le pasa la fecha del corte a la etiqueta de lo recibido, a su nota y a la de lo disponible (sin ella la web enseñaría «{fecha}» en crudo y las claves seguirían pareciendo bien)')
+ok(['DINERO.disponible', 'DINERO.rebiopsia.fecha'].every((c) => gastos.includes(c)), '/gastos pinta lo disponible y la fecha de la rebiopsia desde el JSON')
+ok(gastos.includes("$t('expenses.report_available_desc', { fecha: corte })"), '/gastos le pasa la fecha del corte a la nota de lo disponible (sin ella la web enseñaría «{fecha}» en crudo y la clave seguiría pareciendo bien)')
 ok(!/<li[^>]*v-for="item in DINERO\.partidas"[\s\S]{0,40}gofundme/i.test(gastos), 'las comisiones no se mezclan con la lista de partidas (no forman parte de lo gastado)')
 
 // La fecha corta no depende de la versión de ICU: septiembre es «sep» en el servidor y en el navegador, sea cual sea su ICU (medido el 24-oct-2026: Node 26.3.1, ICU 78.3, escribe «sept»).
@@ -356,7 +340,6 @@ const NBSP = ' '
 for (const [loc, d] of [['es', es], ['en', en]] as const) {
   // /gastos dice, en la línea de cuadre, que lo recaudado es la cifra bruta en directo y que ESTE informe muestra lo gastado y lo disponible.
   // La nota del pie no puede volver a hablar de la recaudación (antes: «la recaudación combina el modelo 651…», que decía otra cosa).
-  ok(!/recauda|raised|651|gift-?tax|dep[oó]sit|ingres|income/i.test(d.expenses.report_note), `${loc}: expenses.report_note no habla de lo recaudado ni de su origen (lo dice expenses.cuadre): «${d.expenses.report_note}»`)
   const fueraDelCuadre = Object.entries(d.expenses).filter(([k, v]) => k !== 'cuadre' && typeof v === 'string' && /modelo 651|gift-tax return/i.test(v as string)).map(([k]) => k)
   ok(fueraDelCuadre.length === 0, `${loc}: ninguna otra clave de /gastos explica cómo se combina lo recaudado (${fueraDelCuadre.join(', ') || 'ninguna'})`)
   // La «·» de la prueba del hero va entre dos espacios duros: nunca queda sola al final ni al principio de una línea.
@@ -393,6 +376,23 @@ ok(/const idFases = useId\(\)/.test(card) && /:id="idFases"[^>]*class="gfm__fase
   }
   ok(total >= 10, `se leen los enlaces de donar que abren pestaña nueva (${total})`)
   ok(sinAviso.length === 0, `todo enlace a GoFundMe con target="_blank" dice «se abre en una pestaña nueva» (sr-only a11y.new_tab): ${sinAviso.join(', ') || 'todos lo dicen'}`)
+}
+
+console.log('9. Lo que Miriam quitó de /gastos el 25-oct-2026 no vuelve')
+// «esto no es necesario», «esto tampoco», «esto lo quitamos»: la nota del cargo duplicado corregido, la fila «Recibido de GoFundMe a
+// {fecha}» con su nota, el cuadre de GoFundMe entero (donado, comisiones, transferido, aún en GoFundMe) y la nota del pie sobre el
+// gasto personal y los extractos. Se vigila la clave, la plantilla, el JSON y la frase por concepto (alguien la reescribe con otras
+// palabras y la clave nueva pasa).
+{
+  const QUITADAS = ['report_note', 'report_ingresado_label', 'report_ingresado_desc', 'report_correccion', 'gfm_eyebrow', 'gfm_title', 'gfm_intro', 'gfm_donado', 'gfm_comisiones', 'gfm_transferido', 'gfm_aun', 'gfm_cuadre', 'gfm_nota']
+  const FRASES = /cargo duplicado|duplicated? charge|no se imputa a la campa|not charged to the campaign|extractos originales|original statements|recibido de gofundme|received from gofundme|cuadre de gofundme|gofundme reconciliation|de lo donado a lo transferido|from donated to transferred|pendiente de transferir|waiting to be transferred|comisiones de la plataforma|platform'?s? fees/i
+  for (const [loc, d] of [['es', es], ['en', en]] as const) {
+    const vuelven = QUITADAS.filter((k) => k in d.expenses)
+    ok(vuelven.length === 0, `${loc}: las claves quitadas no vuelven a expenses (${vuelven.join(', ') || 'ninguna'})`)
+    const conFrase = Object.entries(d.expenses).filter(([, v]) => typeof v === 'string' && FRASES.test(v as string)).map(([k]) => k)
+    ok(conFrase.length === 0, `${loc}: ninguna clave de /gastos vuelve a decir lo quitado con otras palabras (${conFrase.join(', ') || 'ninguna'})`)
+  }
+  ok(!/DINERO\.(ingresado|gofundme|correccion)|expenses\.(report_note|report_ingresado|report_correccion|gfm_)/.test(gastos), '/gastos ya no pinta lo recibido, el cuadre de GoFundMe ni las dos notas')
 }
 
 console.log(fallos ? `\n❌ ${fallos} fallo(s)` : '\n✅ las cifras de dinero tienen una sola fuente y la norma de transparencia se cumple')

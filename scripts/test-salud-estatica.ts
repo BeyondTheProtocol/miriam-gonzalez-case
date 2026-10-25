@@ -1268,8 +1268,7 @@ if (existsSync('seed/fundraiser.json')) {
     const h = html(pagina)
     const txt = sinEtiquetas(h.match(/<main\b[\s\S]*?<\/main>/)?.[0] ?? h)
     const todas = [
-      ...DINERO.partidas.map((p) => p.importe), DINERO.comprometido, DINERO.ingresado, DINERO.disponible,
-      DINERO.gofundme.donado, DINERO.gofundme.comisiones, DINERO.gofundme.transferido, DINERO.gofundme.aun,
+      ...DINERO.partidas.map((p) => p.importe), DINERO.comprometido, DINERO.disponible,
       DINERO.rebiopsia.ejecutado, DINERO.rebiopsia.biopsia, DINERO.rebiopsia.secuenciacion, DINERO.rebiopsia.imagen,
     ]
     const faltan = [...new Set(todas)].filter((n) => !txt.replace(/\s/g, ' ').includes(euros(n, loc).replace(/\s/g, ' ')))
@@ -1277,20 +1276,14 @@ if (existsSync('seed/fundraiser.json')) {
     const corte = fechaDeCorte(DINERO.corte, loc)
     ok(txt.includes(t(loc, 'expenses.report_eyebrow').replace('{fecha}', corte)) && txt.includes(t(loc, 'expenses.note').replace('{fecha}', corte)), `${pagina}: la fecha de corte (${corte}) sale en el informe y en la nota`)
     ok(txt.includes(t(loc, 'expenses.cuadre')), `${pagina}: la línea de cuadre está («${t(loc, 'expenses.cuadre').slice(0, 60)}…»)`)
-    // Corte a 30-sep (T2e). Cada bloque lleva SU fecha: el informe, el cuadre de GoFundMe y la rebiopsia no comparten la del corte. Las
-    // comisiones van en el bloque de GoFundMe, no entre las partidas: no forman parte de lo gastado. Lo disponible se rotula ESTIMADO.
+    // Corte a 30-sep (T2e). El informe y la rebiopsia no comparten fecha: cada bloque lleva la suya. Lo disponible se rotula ESTIMADO.
+    // Lo recibido, el cuadre de GoFundMe y las dos notas los quitó Miriam el 25-oct-2026 y no vuelven a la página.
     const plano = txt.replace(/\s/g, ' ')
-    const fechaGfm = fechaDeCorte(DINERO.gofundme.fecha, loc)
     const fechaRebiopsia = fechaDeCorte(DINERO.rebiopsia.fecha, loc)
-    const alInformeLeAntecede = plano.indexOf(euros(DINERO.comprometido, loc).replace(/\s/g, ' '))
-    const inicioGfm = plano.indexOf(t(loc, 'expenses.gfm_eyebrow').replace('{fecha}', fechaGfm))
-    ok(inicioGfm > alInformeLeAntecede && alInformeLeAntecede > 0, `${pagina}: el cuadre de GoFundMe lleva su fecha (${fechaGfm}) y va después del total gastado`)
-    const comisiones = euros(DINERO.gofundme.comisiones, loc).replace(/\s/g, ' ')
-    ok(plano.indexOf(comisiones) > inicioGfm && !plano.slice(0, inicioGfm).includes(comisiones), `${pagina}: las comisiones (${comisiones}) salen en el bloque de GoFundMe y no antes: no están entre las partidas ni en el total gastado`)
+    ok(!/cargo duplicado|duplicated? charge|no se imputa a la campa|not charged to the campaign|extractos originales|original statements|recibido de gofundme|received from gofundme|cuadre de gofundme|gofundme reconciliation|pendiente de transferir|waiting to be transferred/i.test(plano), `${pagina}: ni lo recibido, ni el cuadre de GoFundMe, ni la nota del cargo duplicado, ni la del gasto personal (quitados por Miriam el 25-oct-2026)`)
     ok(plano.includes(t(loc, 'expenses.rebiopsy_now_label').replace('{fecha}', fechaRebiopsia)) && plano.includes(t(loc, 'expenses.phase1_desc').replace('{fecha}', fechaRebiopsia).replace('{gastado}', euros(DINERO.rebiopsia.ejecutado, loc)).replace(/\s/g, ' ')), `${pagina}: la rebiopsia conserva su cifra con su fecha (${fechaRebiopsia}) en su bloque y en la fase 1`)
-    ok(plano.includes(t(loc, 'expenses.report_available_desc').replace('{fecha}', corte)) && plano.includes(t(loc, 'expenses.report_ingresado_desc').replace('{fecha}', corte)) && plano.includes(t(loc, 'expenses.report_ingresado_label').replace('{fecha}', corte)), `${pagina}: lo disponible se rotula «${t(loc, 'expenses.report_available_desc').replace('{fecha}', corte)}» y lo recibido dice de dónde viene y a qué fecha`)
+    ok(plano.includes(t(loc, 'expenses.report_available_desc').replace('{fecha}', corte)), `${pagina}: lo disponible se rotula «${t(loc, 'expenses.report_available_desc').replace('{fecha}', corte)}»`)
     ok(!/\{\w+\}/.test(plano), `${pagina}: ningún marcador {…} sin rellenar en el texto de la página (una nota con {fecha} que no recibe su parámetro se vería en crudo)`)
-    ok(plano.includes(t(loc, 'expenses.report_correccion')) === DINERO.correccion, `${pagina}: la nota genérica de la corrección sale si y solo si el JSON la enciende`)
     ok(DINERO.partidas.every((p) => plano.includes(t(loc, `expenses.report_item_${p.clave}`))), `${pagina}: cada partida sale con su rótulo (${DINERO.partidas.length})`)
     ok(!/\b(saldos? en cuentas?|account balance|deuda de tarjeta|card debt)\b/i.test(plano), `${pagina}: ni saldos en cuentas ni deuda de tarjeta (lista blanca del corte)`)
     ok(txt.includes(t(loc, 'money.transparencia')), `${pagina}: la frase única de transparencia (money.transparencia) está`)
