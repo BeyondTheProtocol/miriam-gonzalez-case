@@ -431,6 +431,12 @@ const { latest, latestAgo } = useLatestUpdate()
   }
 }
 
+/* El texto de la cifra puede encogerse con la caja (min-width: 0) y, si una palabra no cabe, partirse: con la letra al 200 % a 375 px en Linux
+   la línea «recaudados en GoFundMe · N» sobresalía 10 px de su bloque (test-salud-estatica, CI del 25-oct-2026). */
+.hero__support .nums {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
 .hero__support {
   margin: 0;
   display: flex;
