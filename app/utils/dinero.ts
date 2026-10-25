@@ -7,7 +7,19 @@ import dinero from '../data/dinero.json'
  * plantilla (lo vigila scripts/test-dinero-fuente.ts). Al hacer un corte nuevo se edita el JSON y se cambia `corte`.
  *
  * Lo recaudado en GoFundMe NO está aquí: viene en vivo de `useFundraiser()`. Este fichero es lo GASTADO y lo DISPONIBLE a una
- * fecha, que es otra cosa y por eso /gastos lo dice (`expenses.cuadre`).
+ * fecha, que es otra cosa y por eso /gastos lo dice (`expenses.cuadre`). Lo único de GoFundMe que sí vive aquí es su cuadre
+ * (`gofundme`: donado, comisiones, transferido y lo que aún queda en la plataforma), con SU fecha, que no es la del corte: las
+ * comisiones se acumulan hasta una fecha posterior y no se prorratean. Las comisiones no entran en `comprometido`: GoFundMe las
+ * descuenta antes de transferir, así que `ingresado` ya viene sin ellas.
+ *
+ * `disponible` es una ESTIMACIÓN (descuenta el impuesto de donaciones pendiente, calculado por estimación) y /gastos
+ * la rotula así (`expenses.report_available_desc`). Si un corte futuro la confirma, se cambia ese texto a la vez que la cifra.
+ * `correccion` enciende la nota genérica de que el informe corrige un cargo duplicado del anterior; sin importe, sin proveedor y
+ * sin partida (nota acordada el 24-oct-2026). Al siguiente corte se quita.
+ *
+ * LISTA BLANCA: aquí NO va nada más que lo que /gastos pinta. Ni saldos, ni deuda, ni bancos, ni proveedores, ni movimientos, ni
+ * importes personales. La fuente privada del corte trae todo eso a su lado y se queda donde está: de ella se copian cifras sueltas,
+ * nunca el fichero. Lo vigila scripts/test-dinero-fuente.ts.
  *
  * `fases` es el estado de las tres fases de la campaña, DECLARADO aquí y no calculado desde el dinero: una barra contra una meta
  * que se va a mover es justo lo que se quitó (decisión de Miriam, 24-oct-2026).
@@ -27,9 +39,12 @@ export const DINERO = dinero as {
   corte: string
   moneda: string
   comprometido: number
+  ingresado: number
   disponible: number
+  correccion: boolean
   partidas: { clave: string; importe: number }[]
-  rebiopsia: { ejecutado: number; biopsia: number; secuenciacion: number; imagen: number }
+  gofundme: { fecha: string; donado: number; comisiones: number; transferido: number; aun: number }
+  rebiopsia: { fecha: string; ejecutado: number; biopsia: number; secuenciacion: number; imagen: number }
   fases: { clave: 'rebiopsy' | 'bank' | 'treatment'; estado: EstadoFase }[]
 }
 

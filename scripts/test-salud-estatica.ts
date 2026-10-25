@@ -1267,7 +1267,8 @@ if (existsSync('seed/fundraiser.json')) {
     const h = html(pagina)
     const txt = sinEtiquetas(h.match(/<main\b[\s\S]*?<\/main>/)?.[0] ?? h)
     const todas = [
-      ...DINERO.partidas.map((p) => p.importe), DINERO.comprometido, DINERO.disponible,
+      ...DINERO.partidas.map((p) => p.importe), DINERO.comprometido, DINERO.ingresado, DINERO.disponible,
+      DINERO.gofundme.donado, DINERO.gofundme.comisiones, DINERO.gofundme.transferido, DINERO.gofundme.aun,
       DINERO.rebiopsia.ejecutado, DINERO.rebiopsia.biopsia, DINERO.rebiopsia.secuenciacion, DINERO.rebiopsia.imagen,
     ]
     const faltan = [...new Set(todas)].filter((n) => !txt.replace(/\s/g, ' ').includes(euros(n, loc).replace(/\s/g, ' ')))
@@ -1275,6 +1276,21 @@ if (existsSync('seed/fundraiser.json')) {
     const corte = fechaDeCorte(DINERO.corte, loc)
     ok(txt.includes(t(loc, 'expenses.report_eyebrow').replace('{fecha}', corte)) && txt.includes(t(loc, 'expenses.note').replace('{fecha}', corte)), `${pagina}: la fecha de corte (${corte}) sale en el informe y en la nota`)
     ok(txt.includes(t(loc, 'expenses.cuadre')), `${pagina}: la línea de cuadre está («${t(loc, 'expenses.cuadre').slice(0, 60)}…»)`)
+    // Corte a 30-sep (T2e). Cada bloque lleva SU fecha: el informe, el cuadre de GoFundMe y la rebiopsia no comparten la del corte. Las
+    // comisiones van en el bloque de GoFundMe, no entre las partidas: no forman parte de lo gastado. Lo disponible se rotula ESTIMADO.
+    const plano = txt.replace(/\s/g, ' ')
+    const fechaGfm = fechaDeCorte(DINERO.gofundme.fecha, loc)
+    const fechaRebiopsia = fechaDeCorte(DINERO.rebiopsia.fecha, loc)
+    const alInformeLeAntecede = plano.indexOf(euros(DINERO.comprometido, loc).replace(/\s/g, ' '))
+    const inicioGfm = plano.indexOf(t(loc, 'expenses.gfm_eyebrow').replace('{fecha}', fechaGfm))
+    ok(inicioGfm > alInformeLeAntecede && alInformeLeAntecede > 0, `${pagina}: el cuadre de GoFundMe lleva su fecha (${fechaGfm}) y va después del total gastado`)
+    const comisiones = euros(DINERO.gofundme.comisiones, loc).replace(/\s/g, ' ')
+    ok(plano.indexOf(comisiones) > inicioGfm && !plano.slice(0, inicioGfm).includes(comisiones), `${pagina}: las comisiones (${comisiones}) salen en el bloque de GoFundMe y no antes: no están entre las partidas ni en el total gastado`)
+    ok(plano.includes(t(loc, 'expenses.rebiopsy_now_label').replace('{fecha}', fechaRebiopsia)) && plano.includes(t(loc, 'expenses.phase1_desc').replace('{fecha}', fechaRebiopsia).replace('{gastado}', euros(DINERO.rebiopsia.ejecutado, loc)).replace(/\s/g, ' ')), `${pagina}: la rebiopsia conserva su cifra con su fecha (${fechaRebiopsia}) en su bloque y en la fase 1`)
+    ok(plano.includes(t(loc, 'expenses.report_available_desc')) && plano.includes(t(loc, 'expenses.report_ingresado_desc')), `${pagina}: lo disponible se rotula «${t(loc, 'expenses.report_available_desc')}» y lo ingresado dice de dónde viene`)
+    ok(plano.includes(t(loc, 'expenses.report_correccion')) === DINERO.correccion, `${pagina}: la nota genérica de la corrección sale si y solo si el JSON la enciende`)
+    ok(DINERO.partidas.every((p) => plano.includes(t(loc, `expenses.report_item_${p.clave}`))), `${pagina}: cada partida sale con su rótulo (${DINERO.partidas.length})`)
+    ok(!/\b(saldos? en cuentas?|account balance|deuda de tarjeta|card debt)\b/i.test(plano), `${pagina}: ni saldos en cuentas ni deuda de tarjeta (lista blanca del corte)`)
     ok(txt.includes(t(loc, 'money.transparencia')), `${pagina}: la frase única de transparencia (money.transparencia) está`)
     ok(!/40[.,]000/.test(txt) && !/primer objetivo|first €?\s?40|first target/i.test(txt), `${pagina}: ya no dice «el primer objetivo de 40.000 €»`)
     ok(txt.includes(t(loc, 'expenses.rebiopsy_now_desc').replace('{biopsia}', euros(DINERO.rebiopsia.biopsia, loc)).replace('{secuenciacion}', euros(DINERO.rebiopsia.secuenciacion, loc)).replace('{imagen}', euros(DINERO.rebiopsia.imagen, loc)).replace(/\s/g, ' ')), `${pagina}: las tres sublíneas de la rebiopsia siguen (biopsia, secuenciación e imagen)`)
