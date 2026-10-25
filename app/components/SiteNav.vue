@@ -22,7 +22,7 @@
             <span class="font-display font-semibold text-berenjena text-sm tracking-tight">
               {{ $t('site.title') }}
             </span>
-            <span class="font-mono text-[11px] tracking-[0.04em] text-miriam mt-1">helpmiriam.com</span>
+            <span class="nav-dominio font-mono tracking-[0.04em] text-miriam mt-1">helpmiriam.com</span>
           </span>
         </NuxtLink>
       <!-- Desktop nav. Chrome mínimo (/links, /gracias): sin menú, ver useChromeMinimo. -->
@@ -234,3 +234,11 @@ onClickOutside(headerRef, () => {
   if (mobileOpen.value) mobileOpen.value = false
 })
 </script>
+
+<style scoped>
+/* «helpmiriam.com» bajo el nombre: 13 px, el suelo del sistema. Por debajo de 360 px de ancho no se pinta: a 13 px el bloque de la
+   derecha de la cabecera (ES/EN y «Apoyar») se salía 14 px de la pantalla a 320 px (lo mide test:home-caminos) y bajar la letra
+   a 11 px rompía el suelo. El nombre sigue ahí; la línea de abajo solo repite el dominio. */
+.nav-dominio { font-size: var(--texto-xs); }
+@media (max-width: 359.98px) { .nav-dominio { display: none; } }
+</style>

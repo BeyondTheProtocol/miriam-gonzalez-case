@@ -23,7 +23,7 @@
                 class="inline-flex items-center min-h-[44px] text-sm text-tinta hover:text-miriam hover:underline underline-offset-2 transition-colors"
                 @click="trackShare(red.id, 'footer_minimo')"
               >
-                {{ red.pie ?? red.nombre }}<span class="sr-only"> {{ $t('a11y.new_tab') }}</span>
+                {{ red.pie ?? red.nombre }}<span class="sr-only">{{ ' ' + $t('a11y.new_tab') }}</span>
               </a>
             </li>
           </ul>
@@ -38,7 +38,7 @@
             </li>
           </ul>
         </nav>
-        <p class="text-[11px] font-mono text-tinta">
+        <p class="text-xs font-mono text-tinta">
           {{ $t('footer.made_with') }}
         </p>
       </div>
@@ -125,14 +125,14 @@
                   class="inline-flex items-center min-h-[44px] text-sm text-tinta hover:text-miriam hover:underline underline-offset-2 transition-colors"
                   @click="trackShare(red.id, 'footer')"
                 >
-                  {{ red.pie ?? red.nombre }}<span class="sr-only"> {{ $t('a11y.new_tab') }}</span>
+                  {{ red.pie ?? red.nombre }}<span class="sr-only">{{ ' ' + $t('a11y.new_tab') }}</span>
                 </a>
               </li>
               <li>
                 <a href="https://gofund.me/3e25cae99" target="_blank" rel="noopener noreferrer"
                   @click="trackSupport('footer')"
                   class="inline-flex items-center min-h-[44px] gap-1 text-sm text-coral-deep hover:text-coral-hover hover:underline underline-offset-2 font-semibold transition-colors">
-                  GoFundMe<Icon name="ph:arrow-up-right-bold" class="w-3 h-3" aria-hidden="true" /><span class="sr-only"> {{ $t('a11y.new_tab') }}</span>
+                  GoFundMe<Icon name="ph:arrow-up-right-bold" class="w-3 h-3" aria-hidden="true" /><span class="sr-only">{{ ' ' + $t('a11y.new_tab') }}</span>
                 </a>
               </li>
             </ul>
@@ -159,7 +159,7 @@
              páginas; en la home se calla porque ya va bajo la barra de la campaña. -->
         <CampanaOficial footer location="footer" />
 
-        <p class="mt-10 text-[11px] font-mono text-tinta">
+        <p class="mt-10 text-xs font-mono text-tinta">
           {{ $t('footer.made_with') }}
         </p>
       </div>
@@ -225,9 +225,13 @@ a.logo-wall__item {
   padding-block: 0.45rem;
   margin-block: -0.45rem;
 }
-a.logo-wall__item:hover .logo-wall__mark,
 a.logo-wall__item:focus-visible .logo-wall__mark {
   opacity: 1;
+}
+@media (hover: hover) and (pointer: fine) {
+  a.logo-wall__item:hover .logo-wall__mark {
+    opacity: 1;
+  }
 }
 
 /* Vectores y PNG transparentes (GitHub, Notion, Tahe): monocromo claro.
