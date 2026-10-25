@@ -1,5 +1,5 @@
 <template>
-  <li :id="anchor ? 'lo-ultimo' : undefined" class="relative pl-8 pb-9 last:pb-0 group scroll-mt-24">
+  <li :id="anchor ? 'lo-ultimo' : entry.anchor" class="relative pl-8 pb-9 last:pb-0 group scroll-mt-24">
     <!-- Dot · color por categoría (clinical/molecular/network); el más reciente
          destacado late en coral. `echo` = doble pulso de saludo al aterrizar
          desde "Lo último" del hero. -->
@@ -41,6 +41,9 @@
       <p class="text-sm text-tinta leading-relaxed">
         {{ entry.description }}
       </p>
+      <!-- Vídeo del hito (`video:` en timeline.yml; hoy, el explicativo del ADC en el del 7-oct). Su título es un h4 porque el
+           del hito es un h3. Lleva su transcripción en un plegable y, en inglés, el aviso de que está narrado en español. -->
+      <VideoCaso v-if="video" :video="video" nivel="h4" class="mt-4 max-w-2xl" />
       <!-- aspect-[4/3] reserva el espacio antes de cargar (evita CLS); la imagen
            actual ya es 4:3 (1100×825) → se ve idéntica, object-cover encuadra. -->
       <NuxtImg v-if="entry.image" :src="entry.image" :alt="entry.imageAlt || ''"
@@ -73,8 +76,13 @@ const props = defineProps<{
     linkLabel?: string
     image?: string
     imageAlt?: string
+    video?: string
+    anchor?: string
   }
 }>()
+
+// El vídeo del hito, por su clave (utils/videos.ts). Una clave desconocida no pinta nada.
+const video = computed(() => videoPorId(props.entry.video))
 
 const meta = computed(() => CATEGORY_META[categoryForTag(props.entry.tag)])
 

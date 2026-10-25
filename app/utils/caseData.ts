@@ -7,7 +7,7 @@
 //
 // Auto-importado por Nuxt desde app/utils — usable en cualquier <script>/template
 // sin import. Para inyectarlo en textos i18n usar interpolación con nombre, p. ej.:
-//   $t('hero.subtitle_lead', { age: caseData.currentAge })
+//   t(`press.faq_a${i}`, { age: caseData.currentAge })   (o, en <i18n-t>, <template #age>{{ caseData.currentAge }}</template>: el H1 del hero)
 //   $t('hero.stat_specialists_label', { countries: caseData.countries })
 // Edad: sube sola cada 1 de enero, sin que nadie edite nada. Se calcula por AÑO a propósito:
 // con la fecha exacta, el código (repo público) publicaría su cumpleaños, que no es público.

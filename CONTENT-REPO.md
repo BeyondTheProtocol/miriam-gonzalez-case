@@ -14,26 +14,13 @@ content/
     team.yml              → equipo (3 grupos: coreTeam, medicalNetwork, integrativeSupport)
     press.yml             → menciones en prensa en español
     science.yml           → datos de la página de ciencia: tratamientos, papers, panel
-    historia/
-      01-el-comienzo.md   → capítulo 1 → genera /historia/01-...
-    ciencia/
-      analisis-fgfr1.md   → artículo → genera /ciencia/analisis-fgfr1
 
   en/
     timeline.yml          → cronología completa en inglés
     team.yml              → equipo en inglés
     press.yml             → menciones en prensa en inglés
     science.yml           → datos de la página de ciencia en inglés
-    story/
-      01-the-beginning.md → genera /en/story/01-...
-    science/
-      fgfr1-analysis.md   → genera /en/science/fgfr1-analysis
 ```
-
-> No es obligatorio tener todos los archivos en los dos idiomas.
-> Si un artículo o capítulo solo existe en español, la web lo muestra
-> en español independientemente del idioma seleccionado, con un aviso.
-> Es mejor leer en español que no leer nada.
 
 ---
 
@@ -101,125 +88,24 @@ Copiar este bloque al final de la lista (respetando la indentación de 2 espacio
 
 ---
 
-## 2. Historia (`content/es/historia/`)
+## 2. Historia
 
-Cada capítulo es un archivo `.md` separado. Al crear un archivo nuevo,
-la web genera automáticamente una nueva página con navegación prev/next.
-
-### Nombre del archivo
-
-Usar número de orden + slug descriptivo:
-
-```
-01-el-comienzo.md
-02-cuando-llego-el-cancer.md
-03-el-equipo.md
-```
-
-El número controla el orden en el índice y la paginación.
-
-### Formato del archivo
-
-```markdown
----
-order: 1
-title: Antes del diagnóstico
-subtitle: Quién es Miriam más allá del cáncer
-excerpt: Una ingeniera de software, divulgadora y podcaster que llevaba años hablando de tecnología cuando el cáncer llegó.
-translationKey: before-the-diagnosis
----
-
-Una ingeniera de software. Divulgadora. Podcaster. Curiosa compulsiva.
-
-Miriam no empezó a usar inteligencia artificial por su diagnóstico...
-
-## Una nueva sección
-
-El texto continúa aquí. Se puede usar **negrita**, *cursiva*, y cualquier
-formato estándar de Markdown.
-
-> Una cita si hace falta.
-```
-
-### Campos del frontmatter
-
-| Campo            | Obligatorio | Qué es |
-|------------------|-------------|--------|
-| `order`          | ✅ | Número de orden para el índice y la paginación |
-| `title`          | ✅ | Título del capítulo |
-| `subtitle`       | ❌ | Subtítulo opcional |
-| `excerpt`        | ✅ | Resumen de 1-2 frases. Aparece en el índice y en redes sociales |
-| `translationKey` | ❌ | Clave compartida con la versión EN para enlazar traducciones |
-| `robots`         | ❌ | Control de indexación. Ejemplo: `noindex` para capítulos en borrador |
-| `sitemap`        | ❌ | Control del sitemap. Ejemplo: `{ priority: 0.8, lastmod: 2026-05-01 }` |
-
-### Versión en inglés (`content/en/story/`)
-
-El archivo en inglés usa el mismo número de orden pero slug en inglés:
-- ES: `content/es/historia/01-el-comienzo.md`
-- EN: `content/en/story/01-the-beginning.md`
-
-Ambos deben tener el mismo `translationKey` en el frontmatter.
+La página `/historia` (un aviso de «en preparación» y cuatro párrafos) está viva. Las carpetas `content/es/historia/` y
+`content/en/story/` (con el capítulo 1, vacío) se retiraron el 23-oct-2026, en el rediseño de arquitectura (fase F4), que
+además redirigió `/historia` a `/timeline`; el 24-oct-2026 (T2a) se quitó ese redirect, porque Umami mostró que 184 de sus 191
+entradas llegan de Google. No hay capítulos: `/historia/01-el-comienzo` sigue con su 301 a `/timeline`. Cuando haya texto, va en
+`app/pages/historia/index.vue` (o se recuperan `[slug].vue` y las colecciones del historial de git, commit anterior a
+`rediseno(F4)`); ver «Alba's Text (Story)» en AGENTS.md.
 
 ---
 
-## 3. Ciencia (`content/es/ciencia/`)
+## 3. Ciencia (retirada)
 
-Cada análisis generado por IA es un archivo `.md` separado.
-La web genera automáticamente una página para cada uno y los lista en `/ciencia`.
-
-### Nombre del archivo
-
-Slug descriptivo en minúsculas con guiones:
-
-```
-analisis-fgfr1-amplificacion.md
-perfil-neuroendocrino.md
-resistencia-cdk4-6i.md
-```
-
-### Formato del archivo
-
-```markdown
----
-title: Amplificación FGFR1 ×13 como driver biológico dominante
-date: 2026-04-11
-tags: [FGFR1, amplificación, driver, BC-NED]
-excerpt: >
-  Análisis de la implicación terapéutica de la amplificación FGFR1 ×13
-  en el contexto de un tumor híbrido luminal-neuroendocrino.
-translationKey: fgfr1-analysis
-references:
-  - id: Drago 2019
-    link: https://pmc.ncbi.nlm.nih.gov/articles/PMC6825550/
-  - id: NCT04483505
-    link: https://www.nature.com/articles/s41698-025-01106-1
----
-
-## El problema
-
-La amplificación FGFR1 ×13 en este caso no es una alteración secundaria...
-```
-
-### Campos del frontmatter
-
-| Campo            | Obligatorio | Qué es |
-|------------------|-------------|--------|
-| `title`          | ✅ | Título del análisis |
-| `date`           | ✅ | Fecha en formato `YYYY-MM-DD` |
-| `tags`           | ✅ | Lista de etiquetas para filtrar y agrupar artículos |
-| `excerpt`        | ✅ | Resumen de 2-3 frases. Aparece en el índice |
-| `translationKey` | ❌ | Clave compartida con la versión EN para enlazar traducciones |
-| `references`     | ❌ | Referencias con `id` (cómo aparece en el texto) y `link` |
-| `robots`         | ❌ | Control de indexación. Ejemplo: `noindex` para artículos en borrador |
-| `sitemap`        | ❌ | Control del sitemap. Ejemplo: `{ priority: 0.9, lastmod: 2026-05-01 }` |
-
-### Versión en inglés (`content/en/science/`)
-
-- ES: `content/es/ciencia/analisis-fgfr1.md` → URL: `/ciencia/analisis-fgfr1`
-- EN: `content/en/science/fgfr1-analysis.md` → URL: `/en/science/fgfr1-analysis`
-
-Ambos deben tener el mismo `translationKey`.
+Los análisis en Markdown (`content/es/ciencia/`, `content/en/science/`) y la ruta `/ciencia/[slug]` se
+retiraron el 23-oct-2026: nunca llegó a publicarse ningún artículo. La página de ciencia sale de
+`app/pages/ciencia/` y de los datos de la sección 6. Desde el 24-oct-2026 (T2c) es una sola capa, la
+profesional; el estado clínico (ficha, material, fecha, «en cuarta línea desde…») se lee de
+`app/data/caso.json`, no se escribe en la página.
 
 ---
 
@@ -308,29 +194,22 @@ debe consultarse con el equipo médico antes de cambiar:
 
 | Dato | Valor correcto |
 |------|----------------|
-| Amplificación FGFR1 | **×13** (no ×12, no ×14) |
-| Amplificación CCND1 | **×20** |
-| Amplificación FGF3/FGF4/FGF19 | **×18** |
-| Diferenciación neuroendocrina | **~80%** (no 70%, no 90%) |
+| Amplificación FGFR1 | **13 copias** en el primario de 2024 (TSO500); en el hueso de 2026, «amplificación» sin cifra en el informe clínico (las 33 copias salen del fichero de investigación). **Nunca «×13»**: las cifras de plataformas distintas no se comparan |
+| Amplificación CCND1 | **20 copias** (primario 2024); amplificado en el hueso de 2026 |
+| Amplificación FGF3/FGF4/FGF19 | **18 copias** (primario 2024); amplificado en el hueso de 2026 |
+| Diferenciación neuroendocrina | **80 % de las células neoplásicas** en la biopsia diagnóstica de 2024; **focal y heterogénea** en la revisión de 2026. **Nunca «el 80 % del tumor»** |
+| Goserelina | **continúa** (última dosis documentada 08/09/2026); solo el fulvestrant llegó hasta el 28/05/2026 |
 | Ki67 inicial | **60%** |
 | HER2 | **negativo (0)** |
 | ECOG actual | **0** (abril 2026) |
 
 ---
 
-## SEO por artículo o capítulo
+## SEO
 
-Los archivos `.md` de `historia/` y `ciencia/` aceptan campos SEO en el frontmatter:
-
-```markdown
----
-title: Mi capítulo
-robots: noindex        # evita indexación (útil para borradores)
-sitemap:
-  priority: 0.8        # prioridad en el sitemap (0.0–1.0)
-  lastmod: 2026-05-01  # fecha de última modificación
----
-```
+Hoy no queda ninguna colección de páginas en Markdown, así que no hay frontmatter SEO que editar (las colecciones
+de YAML —cronología, equipo, prensa, ciencia— no son páginas). El SEO de cada página vive en su `.vue`
+(`useSeoMeta`); para pasar una página a `noindex` o al revés, ver la nota «Hacer PÚBLICA una página» en `nuxt.config.ts`.
 
 El `robots.txt` general lo gestiona automáticamente el módulo `nuxt-robots`.
 No editar ni crear `public/robots.txt` — el archivo fuente es `public/_robots.txt`.

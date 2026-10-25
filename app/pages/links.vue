@@ -1,13 +1,13 @@
 <template>
-  <main
-    class="relative overflow-hidden section-container max-w-xl py-14 sm:py-20"
-    :aria-label="$t('links.aria_page')"
-  >
+  <!-- Cielo a sangre (sistema v3, P1): la constelación pinta todo el ancho de la página, no solo la columna. La columna sigue siendo
+       .section-container (centrada a propósito, como /gracias). -->
+  <div class="relative overflow-hidden">
     <!-- Constelación de fondo (decorativa, on-brand) — el mismo cielo de /gracias,
          densidad baja para no competir con los botones. -->
     <Constellation :count="28" />
 
-    <div class="relative z-10">
+    <!-- py-8 en móvil (antes py-14): la fila de apoyo, la 2.ª, tiene que asomar en la primera pantalla de un móvil pequeño. -->
+    <div class="relative z-10 section-container max-w-xl py-8 sm:py-20">
       <!-- Cabecera: avatar + nombre + una línea de quién es. Móvil-first, centrado. -->
       <header class="text-center">
         <NuxtImg
@@ -16,13 +16,7 @@
           width="112"
           height="112"
           sizes="112px"
-          class="mx-auto w-24 h-24 sm:w-28 sm:h-28 rounded-full object-cover"
-          style="
-            aspect-ratio: 1 / 1;
-            box-shadow:
-              0 0 0 4px #faf6f0,
-              0 0 0 6px rgba(157, 68, 171, 0.22);
-          "
+          class="bio-avatar mx-auto w-24 h-24 sm:w-28 sm:h-28 rounded-full object-cover"
           loading="eager"
         />
 
@@ -32,108 +26,71 @@
         >
           Miriam González
         </h1>
-        <p class="mt-2 text-[15px] leading-relaxed text-tinta max-w-sm mx-auto">
+        <p class="mt-2 text-sm leading-relaxed text-tinta max-w-sm mx-auto">
           {{ $t('links.tagline') }}
         </p>
 
-        <p
-          class="mt-3 font-mono text-[11px] uppercase tracking-[0.12em] text-miriam"
-        >
-          helpmiriam.com
-        </p>
+        <p class="eyebrow mt-3 text-miriam">helpmiriam.com</p>
       </header>
 
-      <!-- Lista de enlaces. Botones grandes y tappables (≥56px), uno por fila,
-           jerarquía clara: los 3 primeros son los prominentes (destacados). -->
+      <!-- Lista de enlaces. Botones grandes y tappables (≥64px), uno por fila, en el orden decidido en el
+           rediseño (F6): seis destacados (el apoyo, el 2.º y en coral, es el único botón de acción de la página:
+           la cabecera ya no lo repite) y dos secundarios. Cada fila es una TarjetaEnlace (sistema v3, P1): la fila de apoyo, tono «apoyo»;
+           el resto, «suave». -->
       <nav
-        class="mt-9 flex flex-col gap-3 stagger-children"
+        class="mt-7 sm:mt-9 flex flex-col gap-3"
         :aria-label="$t('links.aria_nav')"
       >
-        <a
+        <TarjetaEnlace
           v-for="link in featured"
           :key="link.id"
-          :href="link.to"
-          :target="link.external ? '_blank' : undefined"
-          :rel="link.external ? 'noopener noreferrer' : undefined"
-          class="bio-link bio-link--featured group"
+          :to="link.external ? undefined : link.to"
+          :href="link.external ? link.to : undefined"
+          :icono="link.icon"
+          :titulo="$t(link.title)"
+          :meta="$t(link.sub)"
+          :tono="link.apoyo ? 'apoyo' : 'suave'"
+          :data-support-cta="link.apoyo ? '' : undefined"
           @click="onBioLink(link.id)"
-        >
-          <span class="bio-link__icon" aria-hidden="true">
-            <Icon :name="link.icon" class="w-5 h-5" />
-          </span>
-          <span class="bio-link__body">
-            <span class="bio-link__title">{{ $t(link.title) }}</span>
-            <span class="bio-link__sub">{{ $t(link.sub) }}</span>
-          </span>
-          <Icon
-            :name="
-              link.external ? 'ph:arrow-up-right-bold' : 'ph:arrow-right-bold'
-            "
-            class="bio-link__arrow"
-            aria-hidden="true"
-          />
-          <span v-if="link.external" class="sr-only">
-            {{ $t('a11y.new_tab') }}</span
-          >
-        </a>
+        />
 
         <!-- Separador editorial fino entre los destacados y los secundarios. -->
         <hr class="bio-rule" aria-hidden="true" />
 
-        <a
+        <TarjetaEnlace
           v-for="link in secondary"
           :key="link.id"
-          :href="link.to"
-          :target="link.external ? '_blank' : undefined"
-          :rel="link.external ? 'noopener noreferrer' : undefined"
-          class="bio-link bio-link--soft group"
-          :data-support-cta="link.id === 'apoyar' ? '' : undefined"
+          :to="link.external ? undefined : link.to"
+          :href="link.external ? link.to : undefined"
+          :icono="link.icon"
+          :titulo="$t(link.title)"
+          :meta="$t(link.sub)"
           @click="onBioLink(link.id)"
-        >
-          <span class="bio-link__icon bio-link__icon--soft" aria-hidden="true">
-            <Icon :name="link.icon" class="w-5 h-5" />
-          </span>
-          <span class="bio-link__body">
-            <span class="bio-link__title">{{ $t(link.title) }}</span>
-            <span class="bio-link__sub">{{ $t(link.sub) }}</span>
-          </span>
-          <Icon
-            :name="
-              link.external ? 'ph:arrow-up-right-bold' : 'ph:arrow-right-bold'
-            "
-            class="bio-link__arrow"
-            aria-hidden="true"
-          />
-          <span v-if="link.external" class="sr-only">
-            {{ $t('a11y.new_tab') }}</span
-          >
-        </a>
+        />
       </nav>
 
       <!-- Nota sobria al pie: marco honesto (apoyo, no consejo médico) sin saturar. -->
-      <p
-        class="mt-9 text-center font-mono text-[11px] leading-relaxed text-tinta/80"
-      >
+      <p class="mt-9 text-center font-mono text-xs leading-relaxed text-tinta">
         {{ $t('links.footnote') }}
       </p>
     </div>
-  </main>
+  </div>
 </template>
 
 <script setup lang="ts">
 const { t } = useI18n()
 const localePath = useLocalePath()
-const { trackBioLink, trackDatos } = useSupport()
+const { GOFUNDME_URL, trackBioLink, trackDatos, trackSupport } = useSupport()
 
-// «Bio-link» mide el hub; la entrada a /datos cuenta además en «VerDatos», con las demás.
+// «Bio-link» mide el hub; la entrada a /datos cuenta además en «VerDatos», con las demás, y el clic a GoFundMe en
+// «Donar» (con el botón «links» como origen), igual que cualquier otro botón de apoyo del sitio.
 function onBioLink(id: string) {
   trackBioLink(id)
   if (id === 'datos') trackDatos('links')
+  if (id === 'apoyar') trackSupport('links')
 }
 
-// El Español — artículo del 19/06/2026 (enlace externo, propiedad del medio).
-const EL_ESPANOL_URL =
-  'https://www.elespanol.com/alicante/vivir/salud/20260619/miren-ingeniera-anos-usa-ia-luchar-cancer-mama-unico-contactan-oncologos-mundo/1003744290903_0.html'
+const PODCAST_URL = 'https://www.youtube.com/watch?v=zVUECrux6zA'
 
 type BioLink = {
   id: string
@@ -142,26 +99,32 @@ type BioLink = {
   icon: string
   to: string
   external?: boolean
+  /** la fila de apoyo: coral, y la marca `data-support-cta` que apaga la barra «Donar» del móvil mientras está a la vista */
+  apoyo?: boolean
 }
 
-// Destacados — orden: LOS VISORES primero (el gancho novedoso e INTERNO: lo que la gente viene
-// a buscar y lo que la retiene en el sitio), luego el podcast, la prensa (credibilidad) y marcas.
-// `id` = la propiedad que viaja a Umami (Bio-link · destino) → debe ser estable
-// y en minúsculas-sin-acentos para agrupar bien en el panel.
-//
-// 20-sep-2026: fuera el mapa de metástasis y el corte de la biopsia (decisión de Miriam). El mapa
-// enseña hueso de marzo a junio y /lesiones es lo que se está lanzando; el corte era el enlace más
-// técnico de los cuatro y competía con él.
-const PODCAST_URL = 'https://www.youtube.com/watch?v=zVUECrux6zA'
-
+// Orden decidido en el rediseño de arquitectura (F6, 23-oct-2026): célula a célula (lo más nuevo, desde el 17-oct) ·
+// APOYAR (GoFundMe directo; antes llevaba a /colabora y vivía entre los secundarios, con el botón de la cabecera como
+// única puerta) · mama, hígado y hueso · el caso en datos · prensa · podcast; y de secundarios, la cronología y las marcas.
+// `id` = la propiedad que viaja a Umami (Bio-link · destino): estable y en minúsculas-sin-acentos. Continuidad de la serie:
+// `apoyar` cambia de destino (de /colabora a GoFundMe); `elespanol` (un enlace al artículo) pasa a `prensa` (la cobertura
+// entera, en /prensa#cobertura); `caso` (que llevaba a la home) deja paso a `cronologia`. La serie se corta ahí.
 const featured = computed<BioLink[]>(() => [
-  // 17-oct-2026 (Miriam): célula a célula, la herramienta más nueva, va la primera.
   {
     id: 'celula',
     title: 'links.celula_title',
     sub: 'links.celula_sub',
     icon: 'ph:circles-three-fill',
     to: localePath('celula-a-celula'),
+  },
+  {
+    id: 'apoyar',
+    title: 'links.apoyar_title',
+    sub: 'links.apoyar_sub',
+    icon: 'ph:heart-fill',
+    to: GOFUNDME_URL,
+    external: true,
+    apoyo: true,
   },
   {
     id: 'lesiones',
@@ -178,6 +141,13 @@ const featured = computed<BioLink[]>(() => [
     to: localePath('datos'),
   },
   {
+    id: 'prensa',
+    title: 'links.prensa_title',
+    sub: 'links.prensa_sub',
+    icon: 'ph:newspaper-clipping-fill',
+    to: localePath({ name: 'prensa', hash: '#cobertura' }),
+  },
+  {
     id: 'podcast',
     title: 'links.podcast_title',
     sub: 'links.podcast_sub',
@@ -185,13 +155,25 @@ const featured = computed<BioLink[]>(() => [
     to: PODCAST_URL,
     external: true,
   },
+])
+
+// Secundarios — completan el hub sin robar protagonismo a los de arriba.
+// T2a (24-oct-2026): «Todas mis herramientas» entra la primera de los secundarios, a /herramientas. Las tres del bloque de arriba
+// (célula a célula, lesiones y datos) ya son herramientas; esta fila es la puerta al resto y al índice.
+const secondary = computed<BioLink[]>(() => [
   {
-    id: 'elespanol',
-    title: 'links.elespanol_title',
-    sub: 'links.elespanol_sub',
-    icon: 'ph:newspaper-clipping-fill',
-    to: EL_ESPANOL_URL,
-    external: true,
+    id: 'herramientas',
+    title: 'links.herramientas_title',
+    sub: 'links.herramientas_sub',
+    icon: 'ph:wrench-fill',
+    to: localePath('herramientas'),
+  },
+  {
+    id: 'cronologia',
+    title: 'links.cronologia_title',
+    sub: 'links.cronologia_sub',
+    icon: 'ph:calendar-blank-fill',
+    to: localePath('timeline'),
   },
   {
     id: 'marcas',
@@ -199,24 +181,6 @@ const featured = computed<BioLink[]>(() => [
     sub: 'links.marcas_sub',
     icon: 'ph:handshake-fill',
     to: localePath('marcas'),
-  },
-])
-
-// Secundarios — completan el hub sin robar protagonismo a los 3 de arriba.
-const secondary = computed<BioLink[]>(() => [
-  {
-    id: 'apoyar',
-    title: 'links.apoyar_title',
-    sub: 'links.apoyar_sub',
-    icon: 'ph:heart-fill',
-    to: localePath('colabora'),
-  },
-  {
-    id: 'caso',
-    title: 'links.caso_title',
-    sub: 'links.caso_sub',
-    icon: 'ph:house-fill',
-    to: localePath('/'),
   },
 ])
 
@@ -239,148 +203,21 @@ defineOgImage('Default.takumi', {
 <style scoped>
 /* ────────────────────────────────────────────────────────────
    Link-in-bio — hub de enlaces (bio de Instagram/redes).
-   Móvil-first: filas grandes y tappables (alto ≥ 56px), un destino
-   por fila, jerarquía clara (destacados vs secundarios). Construido
-   sobre los tokens del DS (cream / berenjena / miriam / coral) y el
-   lenguaje de tarjeta (.card-base): bordes finos, radio de tarjeta,
-   lift sutil al pasar el cursor (gated a hover + reduced-motion).
+   Móvil-first: filas grandes y tappables (alto ≥ 64px), un destino
+   por fila, jerarquía clara (el apoyo en coral, el resto en papel).
+   Las filas son TarjetaEnlace (sistema v3, P1); aquí solo queda lo que es de la página:
+   el aro del avatar y el filete entre grupos.
    ──────────────────────────────────────────────────────────── */
-.bio-link {
-  display: flex;
-  align-items: center;
-  gap: 0.9rem;
-  min-height: 64px;
-  padding: 0.85rem 1rem;
-  border-radius: 16px; /* rounded-card */
-  text-decoration: none;
-  border: 1px solid rgb(var(--color-text-rgb) / 0.1);
-  background: var(--color-bg); /* cream */
-  transition:
-    transform 0.18s ease,
-    box-shadow 0.18s ease,
-    border-color 0.18s ease,
-    background-color 0.18s ease;
-}
-
-/* Destacados — los 3 prioritarios: superficie cream-card + acento violeta en el
-   icono, un punto más de presencia. El borde se tiñe de miriam al pasar/enfocar. */
-.bio-link--featured {
-  background: var(--color-bg-card); /* cream-card */
-  border-color: rgb(var(--color-miriam-rgb) / 0.22);
-}
-
-.bio-link__icon {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 2.6rem;
-  height: 2.6rem;
-  flex-shrink: 0;
-  border-radius: 12px;
-  background: rgb(var(--color-miriam-rgb) / 0.12); /* miriam soft tint */
-  color: var(--color-miriam); /* miriam */
-}
-.bio-link__icon--soft {
-  background: rgb(var(--color-text-rgb) / 0.06);
-  color: var(--color-text); /* berenjena */
-}
-
-.bio-link__body {
-  flex: 1;
-  min-width: 0; /* permite el truncado/wrap sin desbordar */
-  display: flex;
-  flex-direction: column;
-  gap: 0.1rem;
-}
-.bio-link__title {
-  font-family: 'Fraunces', Georgia, serif;
-  font-weight: 600;
-  font-size: 1rem;
-  line-height: 1.25;
-  letter-spacing: -0.01em;
-  color: var(--color-text); /* berenjena */
-  text-wrap: balance;
-}
-.bio-link__sub {
-  font-size: 0.8rem;
-  line-height: 1.4;
-  color: var(--color-text-soft); /* tinta — AA sobre cream/cream-card */
-}
-.bio-link__arrow {
-  width: 1.1rem;
-  height: 1.1rem;
-  flex-shrink: 0;
-  color: #6b5d75; /* gris malva atenuado */
-  transition:
-    transform 0.2s ease,
-    color 0.2s ease;
-}
-
-/* Hover/foco — solo en punteros finos para el lift; el color + flecha valen
-   siempre (también en táctil vía :active). */
-@media (hover: hover) {
-  .bio-link:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 14px 34px rgb(var(--color-text-rgb) / 0.1);
-  }
-  .bio-link--featured:hover {
-    border-color: rgb(var(--color-miriam-rgb) / 0.4);
-  }
-  .bio-link--soft:hover {
-    border-color: rgb(var(--color-text-rgb) / 0.18);
-  }
-}
-.bio-link:hover .bio-link__arrow,
-.bio-link:focus-visible .bio-link__arrow,
-.bio-link:active .bio-link__arrow {
-  color: var(--color-miriam); /* miriam */
-  transform: translateX(2px);
-}
-/* Enlaces externos: la flecha apunta arriba-derecha → al pasar «se va» en diagonal. */
-.bio-link[target='_blank']:hover .bio-link__arrow,
-.bio-link[target='_blank']:focus-visible .bio-link__arrow,
-.bio-link[target='_blank']:active .bio-link__arrow {
-  transform: translate(2px, -2px);
-}
-
-/* Táctil: feedback físico al pulsar (mismo lenguaje que los botones del DS). */
-.bio-link:active {
-  transform: scale(0.99);
+.bio-avatar {
+  aspect-ratio: 1 / 1;
+  box-shadow:
+    0 0 0 4px var(--fondo),
+    0 0 0 6px color-mix(in srgb, var(--identidad) 22%, transparent);
 }
 
 .bio-rule {
   border: 0;
-  border-top: 1px solid rgb(var(--color-text-rgb) / 0.08);
+  border-top: 1px solid var(--trazo-sutil);
   margin: 0.4rem 0;
-}
-
-/* Menos movimiento: sin lift ni desplazamientos; el cambio de color permanece. */
-@media (prefers-reduced-motion: reduce) {
-  .bio-link,
-  .bio-link__arrow {
-    transition:
-      color 0.18s ease,
-      border-color 0.18s ease,
-      background-color 0.18s ease;
-  }
-  .bio-link:hover,
-  .bio-link:active {
-    transform: none;
-  }
-  .bio-link:hover .bio-link__arrow,
-  .bio-link:focus-visible .bio-link__arrow,
-  .bio-link:active .bio-link__arrow {
-    transform: none;
-  }
-}
-
-/* Alto contraste: refuerza los bordes sin romper la marca. */
-@media (prefers-contrast: more) {
-  .bio-link {
-    border-color: rgb(var(--color-text-rgb) / 0.28);
-  }
-  .bio-link__sub {
-    color: var(--color-text);
-  }
 }
 </style>

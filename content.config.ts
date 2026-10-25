@@ -1,6 +1,4 @@
 import { defineCollection, defineContentConfig, z } from '@nuxt/content'
-import { defineRobotsSchema } from '@nuxtjs/robots/content'
-import { defineSitemapSchema } from '@nuxtjs/sitemap/content'
 
 const timelineEntrySchema = z.object({
   date: z.string(),
@@ -12,25 +10,11 @@ const timelineEntrySchema = z.object({
   linkLabel: z.string().optional(),
   image: z.string().optional(),
   imageAlt: z.string().optional(),
-})
-
-const chapterSchema = z.object({
-  order: z.number(),
-  title: z.string(),
-  subtitle: z.string().optional(),
-  excerpt: z.string(),
-  translationKey: z.string(),
-})
-
-const articleSchema = z.object({
-  title: z.string(),
-  date: z.string(),
-  tags: z.array(z.string()),
-  excerpt: z.string(),
-  translationKey: z.string().optional(),
-  references: z
-    .array(z.object({ id: z.string(), link: z.string() }))
-    .optional(),
+  // Un vídeo de la web dentro del hito (clave de `videoPorId`, utils/videos.ts) y el id que lleva su <li>. Tanda 2, T2c
+  // (24-oct-2026): el explicativo del ADC vive en el hito del 7-oct. Hay que declararlos aquí: un campo que el esquema no
+  // conoce se descarta al leer la colección y el vídeo no saldría.
+  video: z.string().optional(),
+  anchor: z.string().optional(),
 })
 
 const teamMemberSchema = z.object({
@@ -56,6 +40,9 @@ const pressItemSchema = z.object({
   // Fecha de publicación (ISO o 'YYYY-MM'). Opcional: algunas piezas (TV, RRSS)
   // no tienen fecha exacta verificable.
   date: z.string().optional(),
+  // Puesto en la tira «Han contado su caso» de la home (1 = primero). Sin este campo, el medio solo sale en /prensa.
+  // Debe declararse aquí: un campo que el esquema no conoce se descarta al leer la colección y la tira saldría vacía.
+  home: z.number().int().positive().optional(),
 })
 
 const pressSchema = z.object({
@@ -86,6 +73,8 @@ const scienceSchema = z.object({
     .array(
       z.object({
         title: z.string(),
+        // Id de la sección en /ciencia/evidencia: a ella enlazan los ejes terapéuticos de /ciencia (T2c). Estable aunque se reordenen las secciones.
+        anchor: z.string().optional(),
         tag: z.string().optional(),
         tone: z.enum(['violet', 'info', 'warn', 'positive', 'neutral']).optional(),
         subtitle: z.string().optional(),
@@ -112,46 +101,6 @@ const scienceSchema = z.object({
       linkText: z.string().optional(),
     })
   ),
-  liquidBiopsies: z
-    .array(
-      z.object({
-        id: z.string(),
-        date: z.string(),
-        source: z.string(),
-        findings: z.string(),
-        highlight: z.boolean().optional(),
-      })
-    )
-    .optional(),
-  liquidBiopsyPivot: z
-    .object({
-      samples: z.array(
-        z.object({
-          id: z.string(),
-          label: z.string(),
-          date: z.string(),
-          matrix: z.string().optional(),
-        })
-      ),
-      rows: z.array(
-        z.object({
-          alteration: z.string(),
-          subscript: z.string().optional(),
-          values: z.record(
-            z.string(),
-            z.object({
-              value: z.string().optional(),
-              tone: z
-                .enum(['violet', 'info', 'warn', 'positive', 'neutral'])
-                .optional(),
-              plain: z.boolean().optional(),
-            })
-          ),
-        })
-      ),
-      sources: z.string().optional(),
-    })
-    .optional(),
   imaging: z
     .object({
       title: z.string(),
@@ -163,24 +112,7 @@ const scienceSchema = z.object({
       caveat: z.string().optional(),
     })
     .optional(),
-  boneBiopsy: z
-    .object({
-      title: z.string(),
-      date: z.string(),
-      center: z.string().optional(),
-      site: z.string(),
-      result: z.string(),
-    })
-    .optional(),
 })
-
-// Las colecciones en español viven en content/es/…, así que su ruta de contenido es
-// /es/historia/…; con `prefix_except_default` la página real es /historia/…. El sitemap
-// publicaba la ruta de contenido tal cual y listaba una URL que da 404. En inglés no pasa
-// porque /en/story/… coincide con la ruta real.
-const sinPrefijoEs = (url: { loc: string }) => {
-  url.loc = url.loc.replace(/^\/es(?=\/)/, '')
-}
 
 export default defineContentConfig({
   collections: {
@@ -193,38 +125,6 @@ export default defineContentConfig({
       type: 'data',
       source: 'en/timeline.yml',
       schema: z.object({ entries: z.array(timelineEntrySchema) }),
-    }),
-    historia_es: defineCollection({
-      type: 'page',
-      source: 'es/historia/*.md',
-      schema: chapterSchema.extend({
-        robots: defineRobotsSchema(),
-        sitemap: defineSitemapSchema({ name: 'historia_es', onUrl: sinPrefijoEs }),
-      }),
-    }),
-    historia_en: defineCollection({
-      type: 'page',
-      source: 'en/story/*.md',
-      schema: chapterSchema.extend({
-        robots: defineRobotsSchema(),
-        sitemap: defineSitemapSchema(),
-      }),
-    }),
-    ciencia_articles: defineCollection({
-      type: 'page',
-      source: 'es/ciencia/*.md',
-      schema: articleSchema.extend({
-        robots: defineRobotsSchema(),
-        sitemap: defineSitemapSchema({ name: 'ciencia_articles', onUrl: sinPrefijoEs }),
-      }),
-    }),
-    science_articles: defineCollection({
-      type: 'page',
-      source: 'en/science/*.md',
-      schema: articleSchema.extend({
-        robots: defineRobotsSchema(),
-        sitemap: defineSitemapSchema(),
-      }),
     }),
     team_es: defineCollection({
       type: 'data',

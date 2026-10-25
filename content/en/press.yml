@@ -1,8 +1,12 @@
 # Press coverage — CURATED ORDER (most important first), not chronological.
 # Criterion (marketing/credibility, Adri's review prevails): reach + prestige
 # or relevance for clinical access + credibility. Serves the north star:
-# credibility → trust → allies/funding → vaccine. The home media strip follows
-# this same order.
+# credibility → trust → allies/funding → vaccine.
+# The home strip does NOT follow this order: it shows only the pieces with
+# `home: N` (N = position in the strip, 1 first) and sorts them by N. Today:
+# Redacción Médica, El País, La Vanguardia, El Español (Miriam's decision,
+# 24-Oct-2026; the rest stays here and on /press). An outlet without `home`
+# does not appear on the home.
 #   1. El País — Spain's #1 daily, tech section, with an English edition.
 #   2. El País (opinion column by Delia Rodríguez) — same masthead as no. 1; Miriam
 #      as the central example.
@@ -17,6 +21,7 @@
 #   9. La 7 — regional TV (Instagram clip), closes the list.
 articles:
   - outlet: El País (English)
+    home: 2
     url: https://english.elpais.com/technology/2026-04-25/whats-the-best-way-to-talk-about-health-with-chatbots.html?outputType=amp
     title: What's the best way to talk about health with chatbots
     date: '2026-04-25'
@@ -25,6 +30,7 @@ articles:
     title: 'Empowered: from “it’s nothing” to investigating your own tumor (in Spanish)'
     date: '2026-10-22'
   - outlet: Redacción Médica
+    home: 1
     url: https://www.redaccionmedica.com/innovacion/20261021/miriam-gonzalez-una-ingeniera-de-software-con-metastasis-estadio-construye-su-propio-modelo-ia-para-buscar-vacuna-personalizada/362852_0.html
     title: 'Miriam González, a software engineer with stage 4 metastatic cancer, builds her own AI model to search for a personalized vaccine (in Spanish)'
     date: '2026-10-21'
@@ -33,10 +39,12 @@ articles:
     title: 'Miriam González, the engineer researching her own rare breast cancer with AI: “It’s been like going from walking in the dark to having an encyclopedia of my tumor” (in Spanish)'
     date: '2026-10-24'
   - outlet: La Vanguardia
+    home: 3
     url: https://www.lavanguardia.com/clic/20260816/11613280/miriam-gonzalez-paciente-cancer-mama-raro-me-siento-desventaja-frente-paciente-tenga-cancer-mama-metastasico.html
     title: 'Miriam González on why a rare breast cancer leaves her at a disadvantage (in Spanish)'
     date: '2026-08-16'
   - outlet: El Español
+    home: 4
     url: https://www.elespanol.com/alicante/vivir/salud/20260619/miren-ingeniera-anos-usa-ia-luchar-cancer-mama-unico-contactan-oncologos-mundo/1003744290903_0.html
     title: "Miriam, an engineer, uses AI to fight her unique breast cancer… (in Spanish)"
     date: '2026-06-19'

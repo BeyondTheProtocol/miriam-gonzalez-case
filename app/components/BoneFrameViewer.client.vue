@@ -124,8 +124,8 @@ const dragHint = computed(() => L('arrastra o usa ←/→ para girar', 'drag or 
   <div class="w-full">
     <div
       v-if="meshKey && !imgFailed"
-      class="relative w-full select-none cursor-grab active:cursor-grabbing outline-none"
-      style="aspect-ratio:5/4;background:#1c1126;border-radius:0.5rem;overflow:hidden"
+      class="relative w-full select-none cursor-grab active:cursor-grabbing outline-none bfv-caja"
+      style="aspect-ratio:5/4;background:var(--escena-fondo);overflow:hidden"
       tabindex="0"
       role="img"
       :aria-label="kind === 'morfo'
@@ -139,11 +139,11 @@ const dragHint = computed(() => L('arrastra o usa ←/→ para girar', 'drag or 
         :src="display"
         alt=""
         class="absolute inset-0 w-full h-full pointer-events-none"
-        style="object-fit:contain;background:#1c1126"
+        style="object-fit:contain;background:var(--escena-fondo)"
         @error="imgFailed = true"
       >
       <div v-else class="absolute inset-0 flex items-center justify-center pointer-events-none">
-        <span class="bfv-spin" />
+        <span class="bfv-spin anima-esencial" />
       </div>
       <span class="bfv-hint">{{ dragHint }}</span>
     </div>
@@ -151,8 +151,8 @@ const dragHint = computed(() => L('arrastra o usa ←/→ para girar', 'drag or 
     <!-- sin fotogramas / error de carga: estado honesto -->
     <div
       v-else
-      class="relative w-full flex items-center justify-center text-center text-[12px] px-5 leading-snug"
-      style="aspect-ratio:5/4;background:#1c1126;border-radius:0.5rem;color:#aeb6c2"
+      class="relative w-full flex items-center justify-center text-center text-xs px-5 leading-snug bfv-caja"
+      style="aspect-ratio:5/4;background:var(--escena-fondo);color:var(--escena-texto)"
     >
       {{ L('Sin reconstrucción 3D individual para este foco.', 'No individual 3D reconstruction for this focus.') }}
     </div>
@@ -160,12 +160,14 @@ const dragHint = computed(() => L('arrastra o usa ←/→ para girar', 'drag or 
 </template>
 
 <style scoped>
+/* Escenario de los visores (sistema v3, P1): el fondo, el texto y el velo salen de --escena-*; el radio, el de los visores de /lesiones. */
+.bfv-caja { border-radius: var(--radius-btn); }
 .bfv-spin {
   width: 26px;
   height: 26px;
   border-radius: 50%;
-  border: 2.5px solid rgba(174, 182, 194, 0.25);
-  border-top-color: #c061d6;
+  border: 2.5px solid color-mix(in srgb, var(--escena-texto) 25%, transparent);
+  border-top-color: var(--color-miriam-claro);
   animation: bfv-rot 0.8s linear infinite;
 }
 @keyframes bfv-rot { to { transform: rotate(360deg); } }
@@ -173,13 +175,13 @@ const dragHint = computed(() => L('arrastra o usa ←/→ para girar', 'drag or 
   position: absolute;
   left: 8px;
   bottom: 7px;
-  font-size: 10px;
-  font-family: ui-monospace, monospace;
-  color: #cdd5e0;
-  background: rgba(13, 17, 23, 0.55);
+  font-size: var(--texto-xs);
+  font-family: var(--font-mono);
+  color: var(--escena-texto);
+  background: color-mix(in srgb, var(--escena-fondo) 70%, transparent);
   padding: 2px 7px;
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   pointer-events: none;
 }
-.outline-none:focus-visible { outline: 2px solid #c061d6; outline-offset: 2px; }
+.outline-none:focus-visible { outline: 2px solid var(--color-miriam-claro); outline-offset: 2px; }
 </style>

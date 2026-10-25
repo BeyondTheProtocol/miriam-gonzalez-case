@@ -152,6 +152,21 @@
           <p class="mt-4 text-sm text-tinta max-w-2xl">{{ $t('press.photo_download_note') }}</p>
         </div>
 
+        <!-- Vídeo: el promo de Polaris, con su transcripción. Venía de /videos, fusionada aquí en el rediseño (F4,
+             23-oct-2026); desde T2c (24-oct-2026) /videos redirige a esta ancla (#video) y el explicativo del ADC vive en el hito
+             del 7-oct de /timeline. Mismo vídeo y mismas palabras. -->
+        <div id="video" class="mt-16 scroll-mt-24">
+          <h2 id="press-video" class="eyebrow mb-5 block">
+            {{ $t('videos.title') }}
+          </h2>
+          <VideoCaso :video="VIDEO_PROMO[locale === 'en' ? 'en' : 'es']" nivel="h3" class="max-w-2xl" />
+          <!-- T2a (24-oct-2026): lo que cuenta el vídeo, abierto. El índice de herramientas vuelve a ser una página. -->
+          <NuxtLink :to="localePath('herramientas')" class="link-action group mt-4">
+            {{ $t('nav.all_tools') }}
+            <Icon name="ph:arrow-right" class="w-4 h-4 transition-transform group-hover:translate-x-0.5" aria-hidden="true" />
+          </NuxtLink>
+        </div>
+
         <!-- Citas citables -->
         <div class="mt-16">
           <h2 id="press-quotes" class="eyebrow mb-2 block">
@@ -271,8 +286,8 @@
           </div>
         </div>
 
-        <!-- El caso en los medios -->
-        <div class="mt-16">
+        <!-- El caso en los medios. #cobertura: el destino de «Mi caso en la prensa» de /links (F6). -->
+        <div id="cobertura" class="mt-16 scroll-mt-24">
           <h2 id="press-mentions" class="eyebrow mb-2 block">
             {{ $t('press.mentions_title') }}
           </h2>
@@ -295,7 +310,7 @@
                   <span class="block font-display font-semibold text-berenjena text-[15px] leading-snug">
                     {{ item.title }}
                   </span>
-                  <span class="mt-1 block font-mono text-[11.5px] uppercase tracking-[0.08em] text-tinta">
+                  <span class="mt-1 block font-mono text-[12px] uppercase tracking-[0.08em] text-tinta">
                     {{ item.outlet }}<template v-if="item.date"> · {{ fmtDate(item.date) }}</template>
                   </span>
                 </span>
@@ -399,9 +414,7 @@
           </div>
         </section>
 
-        <Nota class="mt-12 pt-6" style="border-top: 1px solid rgba(45,27,61,0.08)">
-          {{ $t('press.updated_label', { date: asOfLabel }) }}
-        </Nota>
+        <ActualizadoEl class="mt-12 pt-6" style="border-top: 1px solid rgba(45,27,61,0.08)" :fecha="caseData.pressAsOf" clave="press.updated_label" />
       </div>
     </section>
   </div>
@@ -432,18 +445,6 @@ const copyProps = (text: string) => ({
 const bioLong = computed(() =>
   t('press.bio_long_text', { age: caseData.currentAge, countries: caseData.countries })
 )
-
-// 'AAAA-MM-DD' → «14 de octubre de 2026» según idioma. La fecha sale de caseData.pressAsOf
-// (revisión humana), no del build: «revisada el …» no promete más de lo que se hizo.
-const asOfLabel = computed(() => {
-  const [y, m, d] = caseData.pressAsOf.split('-').map(Number)
-  return new Intl.DateTimeFormat(locale.value === 'es' ? 'es-ES' : 'en-GB', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-    timeZone: 'UTC',
-  }).format(new Date(Date.UTC(y, m - 1, d)))
-})
 
 const fork = computed(() => [
   { href: '#hechos', icon: 'ph:newspaper', title: t('press.fork_piece_title'), desc: t('press.fork_piece_desc') },
@@ -485,7 +486,8 @@ const faq = computed(() => {
   }
   return [1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((i) => ({
     q: t(`press.faq_q${i}`),
-    a: t(`press.faq_a${i}`, { age: caseData.currentAge }),
+    // La 5.ª (de dónde sale el dinero) cierra con la frase canónica de transparencia, por referencia: no se copia en la clave.
+    a: t(`press.faq_a${i}`, { age: caseData.currentAge }) + (i === 5 ? ` ${t('money.transparencia')}` : ''),
     ...links[i],
   }))
 })

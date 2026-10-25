@@ -22,11 +22,15 @@ control y tu analítica.
 ## Cómo funciona
 
 `helpmiriam.com/3d-x` → redirige (302) a
-`helpmiriam.com/mapa-metastasis?utm_source=twitter&utm_medium=post&utm_campaign=lanzamiento-herramienta`
+`helpmiriam.com/lesiones?utm_source=twitter&utm_medium=post&utm_campaign=lanzamiento-herramienta`
 
 - **302 (temporal)** a propósito: permite repuntar o re-etiquetar un link sin que
   quede cacheado de forma permanente en los navegadores.
 - El UTM viaja en el destino → **Umami** lo registra (Campañas / UTM).
+
+> **Los `/3d*` llevan a `/lesiones` desde el 23-oct-2026** (rediseño de arquitectura, fase F4): «Mama, hígado y hueso»
+> ya incluye el mapa de hueso, y `/mapa-metastasis` pasó a archivo («Histórico · junio 2026», `noindex`, sin enlaces
+> internos). Siguen en 302 y con los **mismos UTM** (`lanzamiento-herramienta`), así que la serie en Umami no se rompe.
 
 ## Convención de nombres
 
@@ -56,12 +60,12 @@ control y tu analítica.
 
 | Link corto | Destino | Campaña |
 |---|---|---|
-| `/3d` | `/mapa-metastasis` | `lanzamiento-herramienta` (genérico) |
-| `/3d-x` | `/mapa-metastasis` | `lanzamiento-herramienta` (X) |
-| `/3d-in` | `/mapa-metastasis` | `lanzamiento-herramienta` (LinkedIn) |
-| `/3d-ig` | `/mapa-metastasis` | `lanzamiento-herramienta` (Instagram/bio) |
-| `/3d-tt` | `/mapa-metastasis` | `lanzamiento-herramienta` (TikTok/bio) |
-| `/3d-yt` | `/mapa-metastasis` | `lanzamiento-herramienta` (YouTube/bio) |
+| `/3d` | `/lesiones` | `lanzamiento-herramienta` (genérico) |
+| `/3d-x` | `/lesiones` | `lanzamiento-herramienta` (X) |
+| `/3d-in` | `/lesiones` | `lanzamiento-herramienta` (LinkedIn) |
+| `/3d-ig` | `/lesiones` | `lanzamiento-herramienta` (Instagram/bio) |
+| `/3d-tt` | `/lesiones` | `lanzamiento-herramienta` (TikTok/bio) |
+| `/3d-yt` | `/lesiones` | `lanzamiento-herramienta` (YouTube/bio) |
 | `/lesiones-x` | `/lesiones` | `lanzamiento-lesiones` (X) |
 | `/lesiones-in` | `/lesiones` | `lanzamiento-lesiones` (LinkedIn) |
 | `/lesiones-ig` | `/lesiones` | `lanzamiento-lesiones` (Instagram/bio) |
@@ -72,9 +76,25 @@ control y tu analítica.
 | `/biopsia-ig` | `/laminillas` | `lanzamiento-biopsia` (Instagram/bio) |
 | `/biopsia-tt` | `/laminillas` | `lanzamiento-biopsia` (TikTok/bio) |
 | `/biopsia-yt` | `/laminillas` | `lanzamiento-biopsia` (YouTube/bio) |
-| `/caso` | `/ciencia?nivel=pro#mapa-acceso` | `equipo-clinico` (reenvío a médicos, no redes) |
+| `/caso` | `/datos#que-buscamos` | `equipo-clinico` (reenvío a médicos, no redes) |
 | `/donar` | GoFundMe (externo) | — (sin UTM: salto externo, no medible en Umami) |
 | `/polaris` | repo público de Polaris en GitHub (externo) | medido vía Link de Umami `cloud.umami.is/q/polaris-repo` («General → Repo Polaris», en Umami → Links) |
+
+## Páginas fusionadas y redirecciones de i18n (redirecciones permanentes, no son cortos de campaña)
+
+Desde el 23-oct-2026 (rediseño, fase F4) algunas páginas se plegaron en otras con una redirección, sin query ni UTM. El 24-oct-2026
+(tanda 2, T2a) **`/herramientas`, `/reservorio` e `/historia` volvieron a ser páginas vivas**: ya no tienen redirect de ES ni de EN, y
+salieron de `nitro.prerender.ignore` (que casa por **prefijo**: dejarlas habría dejado la página viva sin prerenderizar). Solo queda
+lo que i18n inventa (la variante `/en/<slug-es>`, que apunta a la ruta inglesa de verdad), el capítulo borrado de `/historia` y
+`/videos`. Cada redirección que existe son las reglas que dice la tabla en `routeRules` y las mismas rutas en `nitro.prerender.ignore`.
+`pnpm test:short-links` comprueba la tabla entera, con su código de estado.
+
+| Ruta | Destino | Código | Por qué |
+|---|---|---|---|
+| `/en/herramientas` | `/en/tools` | 301 | i18n crea la variante `/en/<slug-es>` de `/herramientas`; apunta a la ruta inglesa de verdad |
+| `/en/historia` | `/en/story` | 301 | lo mismo para `/historia` |
+| `/historia/01-el-comienzo`, `/en/story/01-the-beginning`, `/en/historia/01-el-comienzo` | `/timeline` · `/en/timeline` | 301 | el capítulo 1 se borró (estaba vacío) |
+| `/videos`, `/en/videos` | `/prensa#video` · `/en/press#video` | 301 | el promo de Polaris vive en `/prensa#video`; el ADC, en el hito del 7-oct de `/timeline` (T2c, 24-oct-2026; antes llevaba a `/ciencia`) |
 
 ## Cómo añadir uno nuevo
 

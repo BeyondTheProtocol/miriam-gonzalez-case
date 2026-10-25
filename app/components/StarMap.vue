@@ -190,6 +190,7 @@
           />
         </svg>
         {{ $t('thanksWall.sky_cta') }}
+        <span class="sr-only">{{ ' ' + $t('a11y.new_tab') }}</span>
       </a>
       <p class="mt-2 text-xs text-tinta/80">{{ $t('thanksWall.sky_cta_note') }}</p>
     </div>

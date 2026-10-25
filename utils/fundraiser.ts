@@ -7,9 +7,18 @@ export interface GoFundMeAmount {
 
 export interface GoFundMeFundraiser {
   currentAmount: GoFundMeAmount
-  goalAmount: GoFundMeAmount
+  // Sin `goalAmount` a propósito (decisión de Miriam, 24-oct-2026: ni objetivo, ni porcentaje, ni barra). Ya no se pide a GoFundMe:
+  // una cifra que no se pide no puede acabar en el HTML, en el payload ni en /fundraiser.json por descuido.
   donationCount: number
   donationsEnabled: boolean
+  /**
+   * De dónde sale la cifra y cuándo se trajo. Lo ponemos nosotros, no GoFundMe:
+   * · `vivo`: la función de Netlify la acaba de pedir a GoFundMe (la CDN la guarda hasta ~15 min).
+   * · `semilla`: la del build (`seed/fundraiser.json`) o, si GoFundMe no responde, la copia de seguridad de la función.
+   * La web enseña la fecha cuando es `semilla`: una cifra horneada no puede pasar por una cifra de hoy.
+   */
+  actualizado?: string
+  origen?: 'vivo' | 'semilla'
 }
 
 export interface GoFundMeResponse {
@@ -30,10 +39,6 @@ const query = `query GetFundraiser($slug: ID!) {
       amount
       currencyCode
     }
-    goalAmount {
-      amount
-      currencyCode
-    }
     donationCount
     donationsEnabled
   }
@@ -49,6 +54,13 @@ const headers = {
   'User-Agent':
     'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36',
 }
+
+/** Marca de dónde y cuándo se trajo la cifra (ver `GoFundMeFundraiser.origen`). */
+export const estampar = (
+  fundraiser: GoFundMeFundraiser,
+  origen: 'vivo' | 'semilla',
+  actualizado: string = new Date().toISOString()
+): GoFundMeFundraiser => ({ ...fundraiser, origen, actualizado })
 
 export const getFundraiser = () =>
   fetch(request, {
@@ -83,7 +95,7 @@ export async function saveFundraiser(overwrite = false) {
     }
   }
   try {
-    const fundraiser = await getFundraiser()
+    const fundraiser = estampar(await getFundraiser(), 'semilla')
     await fs.mkdir('seed', { recursive: true })
     await fs.writeFile(path, JSON.stringify(fundraiser))
     console.log(`✔ Fundraiser saved to: ${path}`)

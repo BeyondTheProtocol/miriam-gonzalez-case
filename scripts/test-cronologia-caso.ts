@@ -7,6 +7,7 @@
 // 1. Mismo número de entradas.
 // 2. Mismas entradas y en el mismo orden, por fecha de texto y título en español.
 // 3. Ninguna entrada repetida (fecha + título es también la clave del v-for de /timeline).
+// 4. Una sola voz: tercera persona fuera de comillas, en ES y EN.
 //
 // Uso:  pnpm test:cronologia-caso
 import { readFileSync } from 'node:fs'
@@ -42,4 +43,18 @@ const repetidas = deYaml.filter((c, i) => deYaml.indexOf(c) !== i)
 ok(repetidas.length === 0, `ninguna entrada repetida${repetidas.length ? `: ${repetidas.join(' | ')}` : ''}`)
 
 console.log(fallos ? `\n❌ ${fallos} fallo(s): si has tocado la cronología, sincroniza \`eventos\` de app/data/caso.json` : '\n✅ cronología y caso.json coinciden')
+// 4. Una sola voz (Miriam, 24-oct-2026: «a veces habla de mí en tercera persona y luego "hemos
+//    intentado"»). La cronología se narra en tercera persona; lo que ella dijo en primera va entre
+//    comillas («…» o “…”). Fuera de comillas no puede quedar ninguna forma de primera persona.
+const sinCitas = (t: string) => String(t ?? '').replace(/«[^»]*»|“[^”]*”|"[^"]*"/g, '')
+const PRIMERA: Record<string, RegExp> = {
+  es: /\b(hemos|he|mi|mis|me|nos|nuestr[oa]s?|tengo|estoy|empiezo|cuento|yo)\b/i,
+  en: /\b(I|I've|I'm|my|we|we've|our|us)\b/,
+}
+for (const lang of ['es', 'en'] as const) {
+  const d = parse(readFileSync(`content/${lang}/timeline.yml`, 'utf-8')) as { entries: (Entrada & { description?: string })[] }
+  const malas = d.entries.filter((e) => PRIMERA[lang]!.test(sinCitas(e.title)) || PRIMERA[lang]!.test(sinCitas(e.description ?? '')))
+  ok(malas.length === 0, `${lang}: todo en tercera persona fuera de comillas${malas.length ? `; en primera: ${malas.map((e) => e.date).join(' | ')}` : ''}`)
+}
+
 process.exit(fallos ? 1 : 0)

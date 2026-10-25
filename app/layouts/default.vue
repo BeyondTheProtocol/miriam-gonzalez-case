@@ -4,7 +4,8 @@
       $t('nav.skip_to_content')
     }}</a>
     <div class="sticky top-0 z-50" data-cabecera-fija>
-      <LatestUpdateBar />
+      <!-- Chrome mínimo (/links, /gracias): sin la barra «lo último» (useChromeMinimo). -->
+      <LatestUpdateBar v-if="!minimo" />
       <SiteNav />
     </div>
     <main
@@ -15,6 +16,8 @@
       :aria-label="$t('nav.main_content_label')"
     >
       <slot />
+      <!-- Salida común de las herramientas (T2a, 24-oct-2026): Apoyar y volver al inicio, tras el contenido de la página. -->
+      <SalidaHerramienta v-if="conSalida" />
     </main>
     <SiteFooter />
     <!-- /marcas (· /en/brands) negocia colaboración, NO donativo: ahí no se monta
@@ -33,6 +36,12 @@ const { locale } = useI18n()
 // hasSupportBar: ¿puede aparecer la barra en esta ruta? Decide si <main> reserva
 // su hueco (por ruta, no por visibilidad: sin saltos de layout al hacer scroll).
 const { isBrandsRoute, hasSupportBar } = useSupportBarRoute()
+const { minimo } = useChromeMinimo()
+
+// ¿Cierra esta ruta con la salida común de las herramientas? Por nombre de ruta (SALIDA_HERRAMIENTA, utils/navegacion.ts), igual en ES y EN.
+const route = useRoute()
+const routeBaseName = useRouteBaseName()
+const conSalida = computed(() => SALIDA_HERRAMIENTA.includes(routeBaseName(route) ?? ''))
 
 function focusMain() {
   nextTick(() => {
@@ -54,25 +63,22 @@ useHead({
         : 'Miriam González · helpmiriam.com',
 })
 
-// Datos estructurados base (Schema.org / JSON-LD) en todo el sitio.
+// Datos estructurados base (Schema.org / JSON-LD) en todo el sitio. Las redes salen de REDES
+// (app/utils/navegacion.ts), la misma lista que el pie y /colabora.
+const urlsRedes = REDES.map((r) => r.url)
 useSchemaOrg([
   defineOrganization({
     name: 'Beyond the Protocol',
     url: 'https://helpmiriam.com',
     logo: 'https://helpmiriam.com/img/miriam-avatar.webp',
-    sameAs: [
-      'https://github.com/beyondtheprotocol/miriam-gonzalez-case',
-      'https://x.com/miriamgonp',
-      'https://www.instagram.com/miriamgonp',
-      'https://www.linkedin.com/in/miriamgonp',
-    ],
+    sameAs: [REPO_URL, ...urlsRedes],
   }),
   defineWebSite({
     name: 'Help Miriam',
     description:
       locale.value === 'es'
-        ? 'Caso de Miriam González: oncología de precisión para un cáncer de mama metastásico de perfil molecular ultra-raro.'
-        : "Miriam González's case: precision oncology for a metastatic breast cancer with an ultra-rare molecular profile.",
+        ? 'Caso de Miriam González: un cáncer de mama metastásico estudiado en abierto, en busca de un tratamiento hecho a partir de su propio tumor.'
+        : "Miriam González's case: a metastatic breast cancer studied in the open, in search of a treatment made from her own tumor.",
     inLanguage: locale.value === 'es' ? 'es-ES' : 'en-US',
   }),
   definePerson({
@@ -85,11 +91,7 @@ useSchemaOrg([
       locale.value === 'es'
         ? 'Ingeniera de software y divulgadora tech. Investiga su propio cáncer de mama metastásico con inteligencia artificial y un equipo internacional, en abierto.'
         : 'Software engineer and tech communicator. She investigates her own metastatic breast cancer with artificial intelligence and an international team, in the open.',
-    sameAs: [
-      'https://x.com/miriamgonp',
-      'https://www.instagram.com/miriamgonp',
-      'https://www.linkedin.com/in/miriamgonp',
-    ],
+    sameAs: urlsRedes,
   }),
 ])
 </script>

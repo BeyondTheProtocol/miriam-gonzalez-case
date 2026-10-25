@@ -1,295 +1,104 @@
 <script setup lang="ts">
-import type { GoFundMeFundraiser } from '../../utils/fundraiser'
-
+/**
+ * La campaña de GoFundMe en la web: lo recaudado y quién lo hace posible (rediseño T2b, 24-oct-2026).
+ *
+ * Norma de Miriam: la tarjeta enseña el importe y los donantes EN VIVO, y las fases de la campaña con su estado en texto. NO lleva
+ * objetivo, ni porcentaje, ni barra de progreso, ni «Faltan X €», ni importes en las fases: una barra contra una meta que se va a
+ * mover es justo lo que se quitó. Lo vigilan scripts/test-dinero-fuente.ts (el fuente) y test-salud-estatica §6 (el HTML).
+ *
+ * · `card` (home): bloque oscuro con el importe grande, los donantes, las tres fases con su estado y el botón de donar.
+ * · por defecto (/gastos y /colabora): una línea con el importe y los donantes, sin fases (las fases de /gastos ya son su bloque
+ *   «Financiación por fases»).
+ *
+ * El estado de cada fase se DECLARA en app/data/dinero.json (`fases`); no se calcula desde el dinero. Se pinta con las insignias
+ * del sistema (`.status-badge`, utils/estadoInsignia.ts), que dicen el estado con icono y palabra, no solo con color.
+ *
+ * La cifra del HTML prerenderizado es la semilla del build; el cliente la sustituye por la viva al montar (ver useFundraiser). Si
+ * la cifra es de la semilla se dice con su fecha («cifra a 24 oct 2026»): una cifra horneada no pasa por una cifra de hoy.
+ */
 withDefaults(defineProps<{ card?: boolean }>(), { card: false })
 
 const { locale, t } = useI18n()
 const localePath = useLocalePath()
 const { trackSupport } = useSupport()
 
-// Datos de la campaña: JSON estático regenerado por la función de Netlify
-// (arquitectura de main). Se carga en cliente; las cifras tienen fallback.
-const data = ref<GoFundMeFundraiser | null>(null)
-onMounted(async () => {
-  data.value = await $fetch('/fundraiser.json')
+const data = await useFundraiser()
+
+const importe = computed(() =>
+  data.value ? formatCurrency(data.value.currentAmount.amount, data.value.currentAmount.currencyCode, locale.value) : ''
+)
+// Los donantes, con el mismo formato que el hero (en inglés, «2,335»): dos formatos para el mismo número en la misma página no.
+const donantes = computed(() =>
+  data.value ? new Intl.NumberFormat(locale.value === 'es' ? 'es-ES' : 'en-US').format(data.value.donationCount) : ''
+)
+// La fecha solo si la cifra es de la semilla Y sabemos de cuándo es (nunca una inventada).
+const cifraDe = computed(() => {
+  const v = data.value
+  if (!v || v.origen !== 'semilla' || !v.actualizado) return null
+  return { iso: v.actualizado, texto: fechaDeCifra(v.actualizado, locale.value) }
 })
 
-// Medición («Campana-visible», utils/umamiVistas.ts): el bloque solo existe cuando llegan las cifras, y el ref
-// se engancha entonces. Una vez por vista aunque haya dos (/colabora). `conEuros`: la tarjeta lleva importes.
+// Medición («Campana-visible», utils/umamiVistas.ts): una vez por vista aunque haya dos tarjetas (/colabora lleva dos). El ref se
+// engancha cuando el bloque existe: sin semilla en el build la tarjeta se pinta al llegar las cifras, y entonces se mide. `conEuros`
+// es la misma medida que en el hero: ¿lleva el importe en euros?
 const raiz = ref<HTMLElement | null>(null)
-useUmamiVisto(raiz, EVENTO_CAMPANA_VISIBLE, () => ({ conEuros: !!data.value }))
+// Nombre accesible de la lista de fases. `useId()` (Vue 3.5) y no un id fijo: una página puede llevar más de una tarjeta y un id
+// repetido rompe aria-labelledby; además es el mismo en el servidor y en el cliente, así que no desajusta la hidratación.
+const idFases = useId()
+useUmamiVisto(raiz, EVENTO_CAMPANA_VISIBLE, () => ({ conEuros: !!importe.value }))
 
-const pct = computed(() => {
-  if (!data.value) return 0
-  return Math.round(
-    (data.value.currentAmount.amount * 100) / data.value.goalAmount.amount
-  )
-})
-
-// Hitos del caso: la barra se segmenta en fases para que NUNCA «parezca
-// terminada» — siempre hay un hito por delante. Los importes intermedios salen
-// de la página de gastos (rebiopsia ≈ 40k; +banco de tejido ≈ 60k). El último
-// hito es SIEMPRE el objetivo vivo de GoFundMe (goalAmount): si la meta sube en
-// GoFundMe, el tramo final sube con ella sin tocar código.
-const INTERMEDIATE_MILESTONES = [
-  { amount: 40000, key: 'rebiopsy' },
-  { amount: 60000, key: 'bank' },
-]
-
-const milestones = computed(() => {
-  if (!data.value) return []
-  const goal = data.value.goalAmount.amount
-  const current = data.value.currentAmount.amount
-  const stops = [
-    ...INTERMEDIATE_MILESTONES.filter((m) => m.amount < goal),
-    { amount: goal, key: 'treatment' },
-  ]
-  return stops.map((m) => ({
-    key: m.key,
-    amount: m.amount,
-    pct: Math.min(100, Math.round((m.amount / goal) * 100)),
-    reached: current >= m.amount,
+// Estado de proceso de la campaña (hecha, en curso…) → estado del sistema (hecho, curso…): una sola paleta de estados en el sitio.
+const A_SISTEMA = { hecha: 'hecho', hecho: 'hecho', en_curso: 'curso', presupuesto: 'curso' } as const
+const fases = computed(() =>
+  DINERO.fases.map((f) => ({
+    clave: f.clave,
+    insignia: insigniaDe(A_SISTEMA[f.estado]),
+    estado: t(`gofundme.estado.${f.estado}`),
   }))
-})
-
-// Hito activo = primero no alcanzado (o el último si ya están todos).
-const activeIndex = computed(() => {
-  const i = milestones.value.findIndex((m) => !m.reached)
-  return i === -1 ? Math.max(0, milestones.value.length - 1) : i
-})
-const remainingToNext = computed(() => {
-  const next = milestones.value[activeIndex.value]
-  if (!data.value || !next) return 0
-  return Math.max(0, next.amount - data.value.currentAmount.amount)
-})
-
-// Progreso hacia el hito activo → anillo «casi lleno» en la leyenda. Una bandera
-// o un check en el hito en curso daban sensación de «ya logrado»; el anillo
-// parcial deja claro que está EN CURSO (en el hito 1 va ≈ 97 %). RING_C = perímetro
-// del círculo (r=6.4) para el stroke-dasharray.
-const RING_C = 2 * Math.PI * 6.4
-const activeProgress = computed(() => {
-  const m = milestones.value[activeIndex.value]
-  if (!data.value || !m || m.amount <= 0) return 0
-  return Math.max(0, Math.min(1, data.value.currentAmount.amount / m.amount))
-})
-
-// Vista previa de hito: al pinchar una fila del listado, la barra proyecta en
-// translúcido desde lo recaudado hasta ese hito («ver cuánto faltaría»). Volver
-// a pinchar lo quita. Solo aplica a la variante con listado (card).
-const preview = ref<number | null>(null)
-function togglePreview(i: number) {
-  preview.value = preview.value === i ? null : i
-}
-const previewPct = computed(() => {
-  if (preview.value === null) return null
-  return milestones.value[preview.value]?.pct ?? null
-})
-const previewRemaining = computed(() => {
-  if (preview.value === null || !data.value) return 0
-  const m = milestones.value[preview.value]
-  return m ? Math.max(0, m.amount - data.value.currentAmount.amount) : 0
-})
-function rowBg(i: number) {
-  if (preview.value === i) return 'background: rgba(255,107,71,0.18)'
-  if (i === activeIndex.value) return 'background: rgba(255,107,71,0.10)'
-  return 'background: rgba(250,246,240,0.04)'
-}
+)
 </script>
 
 <template>
-  <!-- Card variant — dark editorial progress block -->
-  <div
-    v-if="card && data"
-    ref="raiz"
-    class="rounded-[24px] p-6 sm:p-8 lg:p-10"
-    style="background: #2d1b3d; color: #faf6f0"
-  >
+  <!-- Variante tarjeta · bloque oscuro. `data-tema="oscuro"` remapea los roles (texto, identidad, insignias) sin hex en línea. -->
+  <div v-if="card && data" ref="raiz" class="gfm gfm--card" data-tema="oscuro">
     <p
-      class="font-display font-semibold leading-none text-coral nums"
-      style="font-size: clamp(48px, 6vw, 72px); letter-spacing: -0.04em"
-    >
-      {{ formatCurrency(data.currentAmount.amount, data.currentAmount.currencyCode, locale) }}
+      class="gfm__importe nums"
+      :data-gofundme-importe="data.currentAmount.amount"
+      :data-gofundme-origen="data.origen ?? 'semilla'"
+    >{{ importe }}</p>
+    <p class="gfm__rotulo">{{ $t('gofundme.raised_on') }}</p>
+    <!-- La fecha de la cifra va en su propia línea y sin «·» delante (como la variante en línea): así no deja un punto colgando al
+         final de la línea del rótulo, y la propia fecha no se parte (espacios duros en fechaDeCifra). -->
+    <p v-if="cifraDe" class="gfm__rotulo gfm__rotulo--fecha">
+      <time :datetime="cifraDe.iso">{{ $t('gofundme.cifra_a', { fecha: cifraDe.texto }) }}</time>
     </p>
-    <p class="mt-2.5 font-mono text-[13px] tracking-[0.06em] nums" style="color: rgba(250,246,240,0.65)">
-      {{ formatCurrency(data.goalAmount.amount, data.goalAmount.currencyCode, locale) }} · {{ $t('gofundme.goal_total') }}
-    </p>
-
-    <div class="ms-track mt-6 relative pb-7">
-      <div
-        class="relative h-2.5 w-full overflow-hidden rounded-full"
-        style="background: rgba(250,246,240,0.12)"
-        role="progressbar"
-        :aria-valuenow="data.currentAmount.amount"
-        aria-valuemin="0"
-        :aria-valuemax="data.goalAmount.amount"
-        :aria-label="$t('gofundme.progress_label')"
-      >
-        <!-- Proyección translúcida hasta el hito pinchado en el listado. -->
-        <div
-          v-if="previewPct !== null && previewPct > pct"
-          class="ms-ghost absolute inset-y-0"
-          :style="{ left: `${pct}%`, width: `${previewPct - pct}%` }"
-          aria-hidden="true"
-        />
-        <div class="progress-fill h-full rounded-full bg-coral relative" :style="{ width: `${pct}%` }">
-          <span class="progress-pulse" aria-hidden="true" />
-        </div>
-      </div>
-      <!-- Marcas de hito por enmedio con el IMPORTE siempre visible bajo cada
-           tick: de un vistazo se ve qué objetivo hay en cada punto y cuál es
-           cuál, sin tener que pasar el cursor. Alcanzado → coral con ✓. -->
-      <template v-for="(m, i) in milestones" :key="m.key">
-        <span
-          v-if="m.pct < 100"
-          class="ms-marker"
-          :class="{ 'ms-marker--alt': i % 2 === 1 }"
-          :style="{ left: `${m.pct}%` }"
-        >
-          <span class="ms-tick ms-tick--light" aria-hidden="true" />
-          <span
-            class="ms-amt font-mono nums"
-            :style="{ color: m.reached ? '#ff6b47' : 'rgba(250,246,240,0.72)' }"
-          >
-            <span v-if="m.reached" aria-hidden="true">✓ </span>{{ formatCurrency(m.amount, data.goalAmount.currencyCode, locale) }}
-          </span>
-        </span>
-      </template>
-      <span class="ms-spacer" aria-hidden="true" />
-    </div>
-
-    <div
-      class="mt-4 flex flex-wrap items-center justify-between gap-x-5 gap-y-1.5 font-mono text-[12px] tracking-[0.04em]"
-      style="color: rgba(250,246,240,0.65)"
-    >
-      <span class="nums" style="color: #faf6f0">{{ pct }}% {{ $t('gofundme.pct_raised') }}</span>
-      <NuxtLink
-        :to="localePath('colabora') + '#gracias'"
-        class="dw-donors-link inline-flex items-center gap-1.5 nums"
-      >
-        <Icon name="ph:users-three" class="size-3.5" aria-hidden="true" />
-        {{ data.donationCount }} {{ $t('gofundme.donators') }}
-        <Icon name="ph:arrow-right" class="size-3 transition-transform" aria-hidden="true" />
+    <p class="gfm__donantes">
+      <NuxtLink :to="localePath('colabora') + '#gracias'" class="gfm__enlace nums">
+        <Icon name="ph:users-three" class="size-4" aria-hidden="true" />
+        {{ donantes }} {{ $t('gofundme.donators') }}
+        <Icon name="ph:arrow-right" class="size-3 gfm__flecha" aria-hidden="true" />
       </NuxtLink>
-    </div>
-
-    <!-- Hitos del caso: cada fase con su estado (✓ alcanzado · ▸ activo · ○
-         próximo). El activo muestra cuánto falta. La barra nunca «parece
-         terminada» porque siempre queda un hito por delante. -->
-    <p
-      v-if="milestones.length"
-      class="mt-6 font-mono text-[11px] uppercase tracking-[0.12em]"
-      style="color: rgba(250,246,240,0.5)"
-    >
-      {{ t('gofundme.phase_count', { current: activeIndex + 1, total: milestones.length }) }}
     </p>
-    <ol v-if="milestones.length" class="mt-2 space-y-px overflow-hidden rounded-xl">
-      <li v-for="(m, i) in milestones" :key="m.key">
-        <!-- Fila clicable: proyecta en la barra cuánto faltaría para este hito. -->
-        <button
-          type="button"
-          class="ms-row flex w-full items-start gap-3 px-4 py-3 text-left"
-          :style="rowBg(i)"
-          :aria-pressed="preview === i"
-          @click="togglePreview(i)"
-        >
-          <!-- Estado del hito: ○ pendiente → anillo en curso → ✓ cumplido. -->
-          <Icon
-            v-if="m.reached"
-            name="ph:check-circle-fill"
-            class="size-4 shrink-0 mt-0.5"
-            style="color: #ff6b47"
-            aria-hidden="true"
-          />
-          <svg
-            v-else-if="i === activeIndex"
-            viewBox="0 0 16 16"
-            class="size-4 shrink-0 mt-0.5 -rotate-90"
-            aria-hidden="true"
-          >
-            <circle cx="8" cy="8" r="6.4" fill="none" stroke="rgba(255,107,71,0.28)" stroke-width="2.3" />
-            <circle
-              cx="8"
-              cy="8"
-              r="6.4"
-              fill="none"
-              stroke="#ff6b47"
-              stroke-width="2.3"
-              stroke-linecap="round"
-              :stroke-dasharray="RING_C"
-              :stroke-dashoffset="RING_C * (1 - activeProgress)"
-            />
-          </svg>
-          <Icon
-            v-else
-            name="ph:circle"
-            class="size-4 shrink-0 mt-0.5"
-            style="color: rgba(250,246,240,0.3)"
-            aria-hidden="true"
-          />
-          <div class="min-w-0 flex-1">
-            <div class="flex items-baseline justify-between gap-3">
-              <p
-                class="font-mono text-[13px] nums"
-                :style="{ color: m.reached || i === activeIndex || preview === i ? '#faf6f0' : 'rgba(250,246,240,0.55)' }"
-              >
-                {{ t(`gofundme.milestones.${m.key}.label`) }}
-              </p>
-              <span
-                class="shrink-0 font-mono text-[12px] nums"
-                :style="{ color: m.reached || preview === i ? '#ff6b47' : 'rgba(250,246,240,0.55)' }"
-              >{{ formatCurrency(m.amount, data.goalAmount.currencyCode, locale) }}</span>
-            </div>
-            <i18n-t
-              v-if="preview === i && previewRemaining > 0"
-              keypath="gofundme.remaining_here"
-              tag="p"
-              class="mt-0.5 font-mono text-[11.5px] leading-snug nums"
-              style="color: rgba(250,246,240,0.72)"
-            >
-              <template #amount>
-                <span class="font-semibold text-coral">{{
-                  formatCurrency(previewRemaining, data.goalAmount.currencyCode, locale)
-                }}</span>
-              </template>
-            </i18n-t>
-            <i18n-t
-              v-else-if="preview === null && i === activeIndex && remainingToNext > 0"
-              keypath="gofundme.remaining"
-              tag="p"
-              class="mt-0.5 font-mono text-[11.5px] leading-snug nums"
-              style="color: rgba(250,246,240,0.72)"
-            >
-              <template #amount>
-                <span class="font-semibold text-coral">{{
-                  formatCurrency(remainingToNext, data.goalAmount.currencyCode, locale)
-                }}</span>
-              </template>
-            </i18n-t>
-            <p
-              v-else
-              class="mt-0.5 font-mono text-[11px] leading-snug"
-              style="color: rgba(250,246,240,0.5)"
-            >
-              {{ t(`gofundme.milestones.${m.key}.desc`) }}
-            </p>
-          </div>
-        </button>
+
+    <!-- Las fases del caso, cada una con su estado en texto. Sin importes ni barra. -->
+    <p :id="idFases" class="gfm__fases-titulo">{{ $t('gofundme.fases_titulo') }}</p>
+    <!-- role="list": con `list-style: none` Safari/VoiceOver deja de anunciarla como lista, y sin lista no hay nombre que valga. -->
+    <ol class="gfm__fases" role="list" :aria-labelledby="idFases">
+      <li v-for="f in fases" :key="f.clave" class="gfm__fase">
+        <p class="gfm__fase-titulo">
+          {{ $t(`gofundme.phases.${f.clave}.label`) }}
+          <!-- «Terapia personalizada · presupuesto en curso»: el punto lo dice el lector de pantalla; a la vista, la insignia ya separa (a 375 px
+               la insignia baja de línea y un punto suelto al final de la primera quedaba huérfano). -->
+          <span class="sr-only"> · </span>
+          <span class="status-badge" :class="f.insignia">{{ f.estado }}</span>
+        </p>
+        <p class="gfm__fase-desc">{{ $t(`gofundme.phases.${f.clave}.desc`) }}</p>
       </li>
     </ol>
-    <p
-      v-if="milestones.length"
-      class="mt-2 px-1 font-mono text-[10.5px] tracking-[0.04em]"
-      style="color: rgba(250,246,240,0.4)"
-    >
-      {{ $t('gofundme.tap_hint') }}
-    </p>
 
-    <!-- Prueba social (auditoría 4.3): «únete a quienes ya lo hacen». El número
-         de donantes ya aparece arriba, así que aquí solo va el encuadre. -->
-    <p class="mt-6 font-mono text-[12px] tracking-[0.03em]" style="color: rgba(250,246,240,0.7)">
-      {{ $t('gofundme.social_proof') }}
-    </p>
+    <!-- Prueba social (auditoría 4.3): «únete a quienes ya lo hacen». El número de donantes ya aparece arriba, así que aquí
+         solo va el encuadre. -->
+    <p class="gfm__prueba">{{ $t('gofundme.social_proof') }}</p>
     <a
       href="https://gofund.me/3e25cae99"
       target="_blank"
@@ -300,202 +109,193 @@ function rowBg(i: number) {
     >
       <Icon name="ph:heart-fill" class="heart-beat w-4 h-4" aria-hidden="true" />
       {{ $t('gofundme.donate_now') }}
+      <span class="sr-only">{{ ' ' + $t('a11y.new_tab') }}</span>
     </a>
   </div>
 
-  <!-- Default variant — inline bar -->
-  <div
-    v-else-if="data"
-    ref="raiz"
-    class="mt-5 space-y-2 text-sm text-berenjena"
-  >
-    <div class="ms-track relative pb-6">
-      <div
-        class="h-2 w-full rounded-full"
-        style="background: rgba(45,27,61,0.10)"
-        role="progressbar"
-        :aria-valuenow="data.currentAmount.amount"
-        aria-valuemin="0"
-        :aria-valuemax="data.goalAmount.amount"
-        :aria-label="$t('gofundme.progress_label')"
-      >
-        <div
-          class="progress-fill h-full rounded-full bg-coral relative"
-          :style="{ width: `${pct}%` }"
-        >
-          <!-- A2 · latido en el borde de avance (decorativo). El % sigue como texto. -->
-          <span class="progress-pulse" aria-hidden="true" />
-        </div>
-      </div>
-      <!-- Importe del hito siempre visible bajo cada tick (mismo patrón que la
-           tarjeta; tono berenjena sobre fondo claro). -->
-      <template v-for="(m, i) in milestones" :key="m.key">
-        <span
-          v-if="m.pct < 100"
-          class="ms-marker"
-          :class="{ 'ms-marker--alt': i % 2 === 1 }"
-          :style="{ left: `${m.pct}%` }"
-        >
-          <span class="ms-tick ms-tick--dark" aria-hidden="true" />
-          <span
-            class="ms-amt font-mono nums"
-            :style="{ color: m.reached ? '#ff6b47' : 'rgba(45,27,61,0.6)' }"
-          >
-            <span v-if="m.reached" aria-hidden="true">✓ </span>{{ formatCurrency(m.amount, data.goalAmount.currencyCode, locale) }}
-          </span>
-        </span>
-      </template>
-      <span class="ms-spacer" aria-hidden="true" />
-    </div>
-    <div class="flex flex-wrap items-center justify-between gap-x-4 gap-y-1">
+  <!-- Variante por defecto · una línea -->
+  <div v-else-if="data" ref="raiz" class="gfm gfm--linea">
+    <div class="gfm__fila">
       <p class="nums">
         {{ $t('gofundme.raised') }}
-        <strong class="font-display text-berenjena">{{
-          formatCurrency(
-            data.currentAmount.amount,
-            data.currentAmount.currencyCode,
-            locale
-          )
-        }}</strong>
-        <span class="text-tinta">/</span>
-        <span class="text-tinta">{{
-          formatCurrency(
-            data.goalAmount.amount,
-            data.goalAmount.currencyCode,
-            locale
-          )
-        }}</span>
+        <strong
+          class="gfm__cifra"
+          :data-gofundme-importe="data.currentAmount.amount"
+          :data-gofundme-origen="data.origen ?? 'semilla'"
+        >{{ importe }}</strong>
+        {{ $t('gofundme.on_gofundme') }}
       </p>
-      <NuxtLink
-        :to="localePath('colabora') + '#gracias'"
-        class="dw-donors-link inline-flex items-center gap-2 text-tinta nums"
-      >
+      <NuxtLink :to="localePath('colabora') + '#gracias'" class="gfm__enlace nums">
         <Icon name="ph:users-three" class="size-4" aria-hidden="true" />
-        {{ data.donationCount }} {{ $t('gofundme.donators') }}
-        <Icon name="ph:arrow-right" class="size-3 transition-transform" aria-hidden="true" />
+        {{ donantes }} {{ $t('gofundme.donators') }}
+        <Icon name="ph:arrow-right" class="size-3 gfm__flecha" aria-hidden="true" />
       </NuxtLink>
     </div>
+    <p v-if="cifraDe" class="gfm__fecha">
+      <time :datetime="cifraDe.iso">{{ $t('gofundme.cifra_a', { fecha: cifraDe.texto }) }}</time>
+    </p>
   </div>
 </template>
 
 <style scoped>
-.dw-donors-link {
+.gfm__enlace {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  min-height: 44px;
   text-decoration: none;
-  transition: opacity 0.2s ease;
   cursor: pointer;
+}
+.gfm__enlace:focus-visible {
+  outline: 2px solid var(--anillo-foco, var(--color-cta));
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
 }
 /* hover solo donde hay hover: en el móvil el primer toque lo dejaría pegado */
 @media (hover: hover) and (pointer: fine) {
-  .dw-donors-link:hover {
+  .gfm__enlace:hover {
     text-decoration: underline;
     text-underline-offset: 3px;
   }
-  .dw-donors-link:hover svg:last-child {
+  .gfm__enlace:hover .gfm__flecha {
     transform: translateX(2px);
   }
 }
-.dw-donors-link:focus-visible {
-  outline: 2px solid var(--color-cta);
-  outline-offset: 2px;
-  border-radius: 4px;
-}
-
-/* ── Marcas de hito con el importe SIEMPRE visible bajo cada tick ───────────
-   Tick fino sobre la barra + el importe del objetivo justo debajo, alineado a
-   su posición (left = % del hito), para ver de un vistazo qué objetivo hay en
-   cada punto. Alcanzado → coral con ✓ (color desde el template por variante). */
-.ms-marker {
-  position: absolute;
-  top: 0;
-  transform: translateX(-50%);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  pointer-events: none;
-}
-.ms-tick {
-  width: 2px;
-  border-radius: 9999px;
-}
-.ms-tick--light {
-  height: 10px;
-  background: rgba(250, 246, 240, 0.6);
-}
-.ms-tick--dark {
-  height: 8px;
-  background: rgb(var(--color-text-rgb) / 0.45);
-}
-.ms-amt {
-  margin-top: 7px;
-  font-size: 11px;
-  line-height: 1;
-  white-space: nowrap;
-  font-variant-numeric: tabular-nums;
-}
-
-/* Barra estrecha (móvil): los hitos de 40k y 60k quedan a un 20 % de
-   distancia, unos 50 px a 375, y cada importe mide ~66 px → se pisaban.
-   Por debajo de 560 px de barra, los hitos pares bajan a una segunda línea
-   y el espaciador reserva ese alto (los marcadores son absolutos y no lo
-   empujan solos). El umbral va holgado a propósito: si la meta sube en
-   GoFundMe, los hitos se juntan más y el solape empezaría más ancho. */
-.ms-track {
-  container-type: inline-size;
-}
-.ms-spacer {
-  display: block;
-  height: 0;
-}
-@container (max-width: 560px) {
-  .ms-marker--alt .ms-amt {
-    position: relative;
-    margin-top: 21px;
-  }
-  /* Trazo guía tick → importe: sin él no se ve a qué tick pertenece el
-     importe que ha bajado de línea (comité de diseño, PR #234). */
-  .ms-marker--alt .ms-amt::before {
-    content: '';
-    position: absolute;
-    left: 50%;
-    bottom: 100%;
-    width: 1px;
-    height: 16px;
-    margin-bottom: 3px;
-    background: currentColor;
-    opacity: 0.35;
-  }
-  .ms-spacer {
-    height: 14px;
-  }
-}
-
-/* Proyección «cuánto faltaría» al pinchar un hito del listado. Translúcida →
-   se distingue del recaudado real (coral sólido) y no falsea la cifra. */
-.ms-ghost {
-  background: rgb(var(--color-cta-rgb) / 0.32);
-  transition: width 0.35s ease, left 0.35s ease;
-}
-/* Filas del listado clicables (vista previa). */
-.ms-row {
-  cursor: pointer;
-  border-radius: 8px;
-  transition: background 0.15s ease;
-  -webkit-tap-highlight-color: transparent;
-}
-@media (hover: hover) and (pointer: fine) {
-  .ms-row:hover {
-    background: rgb(var(--color-cta-rgb) / 0.14) !important;
-  }
-}
-/* sin destello nativo (tap-highlight transparente), la respuesta al tocar la da :active */
-.ms-row:active {
-  background: rgb(var(--color-cta-rgb) / 0.14) !important;
-}
-.ms-row:focus-visible {
-  outline: 2px solid var(--color-cta);
-  outline-offset: -2px;
+.gfm__flecha {
+  transition: transform var(--dur-micro) var(--curva-salida);
 }
 @media (prefers-reduced-motion: reduce) {
-  .ms-ghost { transition: none; }
+  .gfm__flecha {
+    transition: none;
+  }
+}
+
+/* ── Tarjeta oscura ────────────────────────────────────────────────────────── */
+.gfm--card {
+  border-radius: var(--radius-card);
+  padding: 1.5rem;
+  background: var(--fondo);
+  color: var(--texto-1);
+}
+@media (min-width: 640px) {
+  .gfm--card {
+    padding: 2rem;
+  }
+}
+@media (min-width: 1024px) {
+  .gfm--card {
+    padding: 2.5rem;
+  }
+}
+.gfm__importe {
+  margin: 0;
+  font-family: var(--font-display, 'Fraunces', serif);
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: -0.04em;
+  font-size: clamp(48px, 6vw, 72px);
+  color: var(--cta-texto);
+}
+.gfm__rotulo {
+  margin: 0.625rem 0 0;
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  letter-spacing: 0.04em;
+  color: var(--texto-2);
+}
+/* La fecha de la cifra, bajo el rótulo: una línea suya. Sin `white-space: nowrap` (WCAG 1.4.4 y 1.4.10: con la letra ampliada se
+   salía de la tarjeta); la fecha lleva espacios duros (fechaDeCifra) y solo puede saltar de línea entre «cifra a» y ella. */
+.gfm__rotulo--fecha {
+  margin-top: 0.125rem;
+}
+.gfm__donantes {
+  margin: 0.5rem 0 0;
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 0.8125rem;
+  letter-spacing: 0.04em;
+  color: var(--texto-1);
+}
+.gfm__fases-titulo {
+  margin: 1.5rem 0 0.5rem;
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--texto-3);
+}
+.gfm__fases {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  /* minmax(0, …) y no `1fr` a secas: con la letra al 200 % a 375 px una palabra larga («personalizada») ensanchaba la pista y la fase
+     se salía de la tarjeta (revisión de T2b2, WCAG 1.4.4 y 1.4.10). */
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0.75rem;
+}
+.gfm__fase {
+  padding: 0.75rem 1rem;
+  border-radius: var(--radius-btn);
+  background: color-mix(in srgb, var(--texto-1) 5%, transparent);
+  /* solo parte una palabra si no cabe entera en la caja (letra muy ampliada); con la letra normal no cambia nada */
+  overflow-wrap: anywhere;
+}
+.gfm__fase-titulo {
+  margin: 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.25rem 0.5rem;
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 0.8125rem;
+  line-height: 1.4;
+  color: var(--texto-1);
+}
+/* La insignia de estado del sistema no parte línea (white-space: nowrap); dentro de la fase sí, como ya hace en las tablas: con la letra
+   al 200 % a 375 px «presupuesto en curso» sobresalía de su fase 48 px (revisión de T2b2). */
+.gfm__fase .status-badge {
+  white-space: normal;
+  max-width: 100%;
+}
+.gfm__fase-desc {
+  margin: 0.375rem 0 0;
+  font-size: 0.8125rem;
+  line-height: 1.45;
+  color: var(--texto-2);
+}
+.gfm__prueba {
+  margin: 1.5rem 0 0;
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 0.8125rem;
+  letter-spacing: 0.03em;
+  color: var(--texto-2);
+}
+
+/* ── Línea (/gastos, /colabora) ────────────────────────────────────────────── */
+.gfm--linea {
+  margin-top: 1.25rem;
+  font-size: 0.9375rem;
+  color: var(--color-text);
+}
+.gfm__fila {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.25rem 1rem;
+}
+.gfm__cifra {
+  font-family: var(--font-display, 'Fraunces', serif);
+  font-weight: 600;
+  color: var(--color-text);
+}
+.gfm--linea .gfm__enlace {
+  color: var(--color-text-soft);
+}
+.gfm__fecha {
+  margin: 0.25rem 0 0;
+  font-size: 0.8125rem;
+  color: var(--color-text-soft);
 }
 </style>

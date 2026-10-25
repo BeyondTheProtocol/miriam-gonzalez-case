@@ -1,5 +1,8 @@
 /**
- * Vídeos públicos de /videos (· /en/videos). Una sola fuente para la página.
+ * Vídeos públicos de la web. Una sola fuente para sus dos casas desde el rediseño (F4, 23-oct-2026; tanda 2, T2c, 24-oct-2026), que
+ * fusionó /videos (· /en/videos, ahora un 301 a /prensa#video): el explicativo del ADC vive en la Cronología, dentro del hito del
+ * 7 de octubre de 2026 (el del primer ciclo de Dato-DXd; antes, F4, estuvo en /ciencia junto al eje TROP-2), y el promo de Polaris en
+ * /prensa#video. Los pinta app/components/VideoCaso.vue.
  *
  * Los ficheros viven en public/videos/ recodificados a 720p H.264 + AAC con
  * `-movflags +faststart` (≤ 12 MB cada uno). Los originales a 1080p están en el archivo
@@ -104,10 +107,19 @@ const adc: VideoWeb = {
     ],
 }
 
-/** Orden de cada página: primero el vídeo en el idioma de quien lee. */
-export const VIDEOS: Record<IdiomaVideo, VideoWeb[]> = {
-  es: [promoEs, adc],
-  en: [promoEn, adc],
+/** El promo de Polaris, en el idioma de quien lee (/prensa). */
+export const VIDEO_PROMO: Record<IdiomaVideo, VideoWeb> = { es: promoEs, en: promoEn }
+
+/** El explicativo del ADC (Cronología, hito del 7-oct). Existe solo en español: en /en/timeline se avisa con `videos.voice_other`. */
+export const VIDEO_ADC: VideoWeb = adc
+
+/**
+ * Los vídeos que un hito de la cronología puede llevar (`video:` en timeline.yml), por su clave. Solo el ADC: el promo depende del
+ * idioma y vive en /prensa. Una clave que no existe devuelve `undefined` y el hito sale sin vídeo (no rompe la página).
+ */
+const POR_CLAVE: Record<string, VideoWeb> = { adc: VIDEO_ADC }
+export function videoPorId(clave: string | null | undefined): VideoWeb | undefined {
+  return clave ? POR_CLAVE[clave] : undefined
 }
 
 /** «1:24», «2:12». Se trunca, como hace el reproductor, para que ambos digan lo mismo. */

@@ -5,6 +5,9 @@
 export const AI_EXPORT_BLOCKLIST = [
   '/mapa-metastasis',
   '/en/mapa-metastasis',
+  // guía viva del sistema de diseño: página de trabajo, noindex, sin contenido para un lector ni para un agente
+  '/guia-de-estilo',
+  '/en/style-guide',
 ] as const
 
 export function normalizeAiRoute(route: string): string {

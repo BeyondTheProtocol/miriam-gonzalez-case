@@ -17,10 +17,8 @@
         @click="trackLatest('barra')"
       >
         <span class="hero-live-dot h-2 w-2 shrink-0 rounded-full bg-coral" aria-hidden="true" />
-        <span class="font-mono uppercase text-[11px] tracking-[0.16em] font-semibold text-coral-deep shrink-0">
-          {{ $t('hero.latest_label') }}
-        </span>
-        <span v-if="latestAgo" class="font-mono text-[11px] text-tinta shrink-0 hidden sm:inline">· {{ latestAgo }}</span>
+        <span class="etiqueta shrink-0">{{ $t('hero.latest_label') }}</span>
+        <span v-if="latestAgo" class="font-mono text-xs text-tinta shrink-0 hidden sm:inline">· {{ latestAgo }}</span>
         <span class="latest-bar__title">
           {{ latest.title }}
           <Icon
@@ -53,7 +51,7 @@ const isHome = computed(() => {
 
 <style scoped>
 .latest-bar {
-  border-bottom: 1px solid rgb(var(--color-text-rgb) / 0.08);
+  border-bottom: 1px solid var(--trazo-sutil);
 }
 .latest-bar__inner {
   display: flex;
@@ -78,8 +76,8 @@ const isHome = computed(() => {
 .latest-bar__title {
   display: block;
   min-width: 0;
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 0.78rem;
+  font-family: var(--font-mono);
+  font-size: var(--texto-xs);
   color: var(--color-miriam);
   text-decoration: underline;
   text-decoration-color: rgb(var(--color-miriam-rgb) / 0.5);
@@ -87,10 +85,14 @@ const isHome = computed(() => {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  transition: text-decoration-color 0.15s ease;
+  transition: text-decoration-color var(--dur-micro) var(--curva-salida);
 }
-.latest-bar__link:hover .latest-bar__title,
 .latest-bar__link:focus-visible .latest-bar__title {
   text-decoration-color: var(--color-miriam);
+}
+@media (hover: hover) and (pointer: fine) {
+  .latest-bar__link:hover .latest-bar__title {
+    text-decoration-color: var(--color-miriam);
+  }
 }
 </style>

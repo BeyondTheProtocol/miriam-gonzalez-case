@@ -21,9 +21,22 @@ export default {
     'pill-data--neutral',
     'pill-data--violet',
     'pill-data--berenjena',
+    // <RutaPasos> las construye por nombre (utils/estadoInsignia.ts): ninguna página las escribe literales.
+    'status-badge--hecho',
+    'status-badge--curso',
+    'status-badge--pendiente',
+    'status-badge--nopuede',
+    'status-badge--atencion',
   ],
   theme: {
     extend: {
+      // Corte del menú de escritorio de la cabecera (SiteNav): `menu:` = desde 70rem (1120 px con la letra por defecto). En `rem`
+      // (no en px) a propósito: en una media query, `rem` es el tamaño de letra que ha elegido la persona en su navegador, así que si
+      // lo sube al 125 % o al 150 % el corte sube con él (1400 y 1680 px) y la cabecera pasa a la hamburguesa antes de desbordar.
+      // Con el `lg` de siempre (1024 px) y la letra al 125 %, el bloque de la derecha («Apoyar a Miriam») se salía de la pantalla.
+      screens: {
+        menu: '70rem',
+      },
       colors: {
         // Design system tokens — Caso Miriam
         // Base palette (5 colors): cream bg, berenjena text, miriam violet (accent), coral (CTA)
@@ -55,50 +68,6 @@ export default {
           500: 'rgb(var(--color-cta-rgb) / <alpha-value>)',
           600: 'rgb(var(--color-cta-hover-rgb) / <alpha-value>)',
         },
-
-        // Legacy palette aliases — remapped to DS tokens so existing classNames
-        // produce design-system colors without rewriting every template.
-        ink: {
-          50:  '#faf6f0', // → cream bg
-          100: '#f5efe6', // → cream-card
-          200: '#ebe2d7', // borders soft
-          300: '#c8bdd3',
-          400: '#9a8ca8',
-          500: '#6b5d75',
-          600: '#3a3340', // → tinta soft
-          700: '#2d1b3d', // → berenjena
-          800: '#2d1b3d', // → berenjena
-          900: '#2d1b3d', // → berenjena
-          950: '#1c1126', // berenjena profundo (dark sections)
-        },
-        gold: {
-          // Antiguo "gold" → ahora miriam violet
-          50:  '#faf2fc',
-          100: '#e8d4ed', // → miriam-soft (badge bg)
-          200: '#d9b8e2',
-          300: '#c69bd2',
-          400: '#b870c3',
-          500: '#a44db2', // → miriam
-          600: '#8a3f97', // hover
-          700: '#6b3175', // texto sobre miriam-soft
-          800: '#4d2354', // texto deep
-          900: '#3a1a40',
-          950: '#23102a',
-        },
-        ocean: {
-          // Antiguo "ocean" → también miriam (DS = un solo accent)
-          50:  '#faf2fc',
-          100: '#e8d4ed',
-          200: '#d9b8e2',
-          300: '#c69bd2',
-          400: '#b870c3',
-          500: '#a44db2',
-          600: '#8a3f97',
-          700: '#6b3175',
-          800: '#4d2354',
-          900: '#3a1a40',
-          950: '#23102a',
-        },
       },
       fontFamily: {
         display: ['Fraunces', 'Georgia', 'serif'],
@@ -107,25 +76,91 @@ export default {
         body: ['Hanken Grotesk', 'system-ui', 'sans-serif'],
         mono: ['JetBrains Mono', 'monospace'],
       },
+      // Suelo de la escala (sistema v3, S2b): el texto pequeño de Tailwind sale de los tokens y ya no baja de 13 px.
+      // `2xs` (12 px) está RESERVADO a mono en mayúsculas (.eyebrow, .etiqueta, ejes de gráfico). Las alturas de línea
+      // son las de siempre, para que solo cambie el cuerpo de la letra.
       fontSize: {
-        '2xs': ['0.65rem', { lineHeight: '1rem' }],
+        '2xs': ['var(--texto-2xs)', { lineHeight: '1rem' }],
+        xs: ['var(--texto-xs)', { lineHeight: '1rem' }],
+        sm: ['var(--texto-sm)', { lineHeight: '1.25rem' }],
       },
       spacing: {
         // Altura del header sticky en ≥sm (h-18). Sin este token, `sm:h-18` era
         // un no-op y el menú se quedaba en 64px (h-16) en todos los tamaños.
         18: '4.5rem',
+        // Retícula y táctil: `px-gutter` es el relleno de .section-wide; `min-h-control`, los 44 px.
+        control: 'var(--control-min)',
+        gutter: 'var(--gutter)',
       },
+      // Puente de los tokens de movimiento, sombra y radio (sistema v3, S1). Solo nombres NUEVOS o con el mismo valor
+      // que ya tenían: nada cambia de píxel. Las utilidades que nadie usa no salen en el CSS.
       borderRadius: {
-        btn: '12px',
-        card: '16px',
+        btn: 'var(--radius-btn)',
+        card: 'var(--radius-card)',
+        pill: 'var(--radius-pill)',
+      },
+      boxShadow: {
+        flotante: 'var(--sombra-flotante)',
+        hover: 'var(--sombra-hover)',
+        dura: 'var(--sombra-dura)',
+      },
+      transitionDuration: {
+        micro: 'var(--dur-micro)',
+        transicion: 'var(--dur-transicion)',
+        explica: 'var(--dur-explica)',
+      },
+      transitionTimingFunction: {
+        salida: 'var(--curva-salida)',
+        entrada: 'var(--curva-entrada)',
+        mover: 'var(--curva-mover)',
+      },
+      // `max-w-shell` es el ancho de .section-wide; `max-w-medida`, la medida de lectura.
+      maxWidth: {
+        shell: 'var(--shell-max)',
+        medida: 'var(--measure)',
+      },
+      // Bordes, divisores y anillos por defecto desde los roles (S3). Sin esto salían de gris-200 (#e5e7eb) y azul-500 de
+      // Tailwind: separadores grises en /prensa, aros azules en cualquier `ring` sin color.
+      borderColor: {
+        DEFAULT: 'var(--trazo-sutil)',
+      },
+      divideColor: {
+        DEFAULT: 'var(--trazo-sutil)',
+      },
+      ringColor: {
+        DEFAULT: 'var(--anillo-foco)',
       },
       typography: (theme) => ({
+        // `prose-ink` (legales): la prosa de marca con los roles. Antes no estaba definida y viñetas, contadores,
+        // filetes y citas salían en el gris de Tailwind.
+        ink: {
+          css: {
+            '--tw-prose-body': 'var(--texto-1)',
+            '--tw-prose-headings': 'var(--texto-1)',
+            '--tw-prose-lead': 'var(--texto-2)',
+            '--tw-prose-links': 'var(--identidad)',
+            '--tw-prose-bold': 'var(--texto-1)',
+            '--tw-prose-counters': 'var(--texto-2)',
+            '--tw-prose-bullets': 'var(--texto-3)',
+            '--tw-prose-hr': 'var(--trazo-medio)',
+            '--tw-prose-quotes': 'var(--texto-1)',
+            '--tw-prose-quote-borders': 'var(--trazo-fuerte)',
+            '--tw-prose-captions': 'var(--texto-3)',
+            '--tw-prose-code': 'var(--texto-1)',
+            '--tw-prose-pre-code': 'var(--texto-1)',
+            '--tw-prose-pre-bg': 'var(--superficie)',
+            '--tw-prose-th-borders': 'var(--trazo-fuerte)',
+            '--tw-prose-td-borders': 'var(--trazo-sutil)',
+          },
+        },
         DEFAULT: {
           css: {
-            '--tw-prose-body': theme('colors.berenjena'),
-            '--tw-prose-headings': theme('colors.berenjena'),
-            '--tw-prose-links': theme('colors.miriam.DEFAULT'),
-            '--tw-prose-bold': theme('colors.berenjena'),
+            // Con los roles (en claro son berenjena y violeta, igual que antes): dentro de una banda con data-tema="oscuro" el
+            // texto y los enlaces de un .prose se invierten solos. Antes eran los colores de paleta y salían berenjena sobre berenjena.
+            '--tw-prose-body': 'var(--texto-1)',
+            '--tw-prose-headings': 'var(--texto-1)',
+            '--tw-prose-links': 'var(--identidad)',
+            '--tw-prose-bold': 'var(--texto-1)',
             fontFamily: theme('fontFamily.body').join(', '),
             h1: { fontFamily: theme('fontFamily.display').join(', ') },
             h2: { fontFamily: theme('fontFamily.display').join(', ') },

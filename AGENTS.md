@@ -2,7 +2,7 @@
 
 ## About this Project
 
-This is an informational website about **Miriam González Pérez**: a patient with metastatic HR+/HER2- breast cancer with neuroendocrine differentiation (~80%) and FGFR1 ×13 / CCND1 ×20 / 11q13 cluster amplification. The goal is to explain the case to the scientific community, raise funds for an advanced molecular rebiopsy (GoFundMe), and publicly document the process of a patient using AI and an international expert network to navigate precision oncology.
+This is an informational website about **Miriam González Pérez**: a patient with metastatic HR+/HER2- breast cancer with neuroendocrine differentiation and FGFR1 / CCND1 / 11q13 cluster amplification. The goal is to explain the case to the scientific community, raise funds for an advanced molecular rebiopsy (GoFundMe), and publicly document the process of a patient using AI and an international expert network to navigate precision oncology.
 
 The website has two audiences: scientists/physicians (science page, molecular profile, clinical trials) and general public/donors (story, GoFundMe, timeline).
 
@@ -29,10 +29,17 @@ The website has two audiences: scientists/physicians (science page, molecular pr
 - UI strings live in `i18n/locales/es.json` and `i18n/locales/en.json`.
 
 ### Tailwind CSS
-- Custom warm palette: `ink` (warm grays), `ocean` (deep blue for scientific content).
-- Typography: **Fraunces** (serif, display/headings), **Source Sans 3** (sans, body), **JetBrains Mono** (mono, scientific data).
-- `@tailwindcss/typography` plugin for prose on the story page.
-- Custom utility classes in `app/assets/css/main.css`: `.section-container`, `.card-base`, `.tag-gold`, `.tag-ocean`, `.heading-display`, `.link-underline`, `.animate-fade-up`, `.stagger-children`.
+- Palette: five colors and two derived ones, defined as tokens in `app/assets/css/design-system-v2/btp-tokens.css` and bridged to Tailwind (`cream`, `cream-card`, `berenjena`, `tinta`, `miriam`, `coral`). The old `ink`, `gold` and `ocean` scales are gone.
+- Typography: **Fraunces** (serif, display/headings), **Hanken Grotesk** (sans, body and UI), **JetBrains Mono** (mono, labels and data).
+- `@tailwindcss/typography` plugin for prose (`prose prose-ink` on the legal pages).
+- Shared classes live in `app/assets/css/main.css`: `.section-wide`, `.card-base`, `.card-marked`, the four buttons, `.link-action`, `.link-inline`, the type roles (`.h1-pagina`, `.h2-seccion`, `.h3-seccion`, `.h4-tarjeta`, `.lede`, `.prosa`, `.eyebrow`, `.etiqueta`), `.segmentado`, `.visor`, `.desplegable`, `.tabla-scroll`.
+
+### Design system (read before touching the UI)
+- The rules, the tokens and the contract of every component are in `app/assets/css/design-system-v2/DESIGN-SYSTEM.md`. The live guide is `/guia-de-estilo` (noindex).
+- The canon of tokens is `btp-tokens.css`. Do not add a hex: derive with `color-mix()` from the five colors. After editing it, run `pnpm gen:design-doc` (it rewrites the doc tables and `public/design-system/tokens.css`).
+- Reuse `Banda`, `CabeceraSeccion`, `PageHeader`, `TarjetaEnlace`, `Dato`, `Aviso`, `Segmentado`, `Referencia` and `RutaPasos` instead of writing a local variant. Floor for text is 13 px (12 px only for mono uppercase); touch targets are 44 px; every `:hover` goes inside `@media (hover: hover) and (pointer: fine)`.
+- Run `pnpm test:diseno` before opening a PR. It is a ratchet: a count in `scripts/diseno-baseline.json` can go down, never up (`--actualizar` records the improvement). A justified exception is written `/* ds-exc: reason */`.
+- `scripts/diseno-capturas.mjs` takes screenshots of the 24 routes at 390 and 1280 px from a static build, and compares two runs by hash: use it when a commit promises "0 pixels".
 
 ### Icons
 - `@nuxt/icon` with Phosphor Icons (prefix `ph:`). Examples: `ph:heart-fill`, `ph:flask-fill`, `ph:stethoscope-fill`.
@@ -40,6 +47,18 @@ The website has two audiences: scientists/physicians (science page, molecular pr
 ### Analytics: @nuxtjs/plausible
 - Privacy-first analytics. Configured with `ignoredHostnames: ['localhost']` so local dev doesn't pollute stats.
 - No cookie banner needed (GDPR-compliant by design).
+
+### Analytics: Umami events
+- Umami Cloud (cookieless, aggregated) runs next to Plausible; the script is loaded from `nuxt.config.ts` (`data-domains` limits it to helpmiriam.com, so previews and localhost send nothing).
+- Events go through `trackUmami()` (`app/utils/umami.ts`). The long-standing ones are emitted by each link through `useSupport()` (Donar, VerCiencia, Contacto, Pathway, Navegar, Bio-link…): **never rename one**, it splits its series.
+- Four more are emitted by `app/plugins/umami-delegado.client.ts`, which watches clicks and scroll for the whole document (so links added later are measured without wiring): `Clic-gofundme {pagina, origen}`, `VerPeticion {origen}` (any link to `#que-buscamos`), `Contacto-clic {rol, pagina}` (any link to `/contacto`) and `Scroll {pct, pagina}` (25 · 50 · 75 · 100 of the scroll range, only scroll moved by the reader). `pagina` is the route base name, so ES and EN add up. Logic lives in `app/utils/umami.ts`; test: `pnpm exec tsx scripts/test-umami-eventos.ts` (needs a static build for its browser part).
+
+- What is *seen* (phase M, `app/utils/umamiVistas.ts` + `app/composables/useUmamiVisto.ts`): `Hero-visto {pagina, conEuros}`, `Campana-visible {pagina, conEuros}` and `Prensa-visible {pagina}`, once per page view when half of what fits on screen is visible (the denominator of the click events). `conEuros` = the block shows the amount raised. The names are a contract: do not rename them.
+- Property `entrada` (the first page of the session, `sessionStorage` key `hm_entrada`, in memory if the browser blocks it) travels in the events listed in `EVENTOS_CON_ENTRADA`: `Donar`, `Clic-gofundme`, `Contacto-enviado` and `Puerta`. Add an event there to give it the entrance.
+- `Idioma {de, a, pagina}`: the ES/EN switch in `SiteNav.vue` (only a real change; `pagina` is where it was changed, read before navigating).
+- `Visor {herramienta, accion}`: the first time a viewer is touched in the visit (once per tool per browser session). Mark a viewer with `data-visor="<tool>"` and, optionally, `data-visor-accion="<part>"` on its container; `app/plugins/umami-visor.client.ts` does the rest (logic in `app/utils/umamiVisor.ts`). `/lesiones` marks its four parts. **Pending:** the cell explorer (`app/pages/celula-a-celula-explorar.vue`) is shared with PR #290, so it is not marked yet; once #290 lands, add `data-visor="explorador"` to its viewer container.
+- Contact roles are ONE vocabulary (`app/utils/rolesContacto.ts`: oncologist, researcher, journalist, patient, tech, other, and `sin_rol` when there is none) for `Contacto`, `Contacto-enviado` and `Contacto-clic`. Since 2026-10-24 `Contacto` says `journalist` (it said `press`) and `Contacto-enviado` says `sin_rol` (it said `otro`): those two buckets split in Umami on that date.
+- Test: `pnpm test:umami-eventos` (the pure logic and the structure need no build; the browser part needs `pnpm exec nuxt generate`).
 
 ### @vueuse/nuxt
 - Provides VueUse composables as Nuxt auto-imports. Currently used in `SiteNav.vue` via `useWindowScroll()` for scroll-aware header styling.
@@ -55,6 +74,12 @@ The website has two audiences: scientists/physicians (science page, molecular pr
 - `utils/seed.ts` `readSeed()` reads the build-time `seed/*.json` (bundled into the functions via `included_files`) as a fallback when GoFundMe is unreachable, so the total and stars never go blank.
 - CLI `pnpm update-fundraiser` (runs at build via `pnpm generate`) regenerates the seed. `seed/fundraiser.json` and `seed/donations.json` are **gitignored** — never committed, auto-generated at build.
 - The previous hourly scheduled function was removed: a Netlify function cannot rewrite the already-deployed static files, so writing the seed at runtime never reached the served assets (the data only changed on redeploy). The live endpoints replace it.
+- The figure carries where it comes from (T2b, 24-oct-2026): `origen` (`vivo` from the function, `semilla` from the build seed or the function's backup) and `actualizado` (when it was fetched). The site shows "cifra a <date>" only while the figure is `semilla`. The GoFundMe **goal is no longer requested or shown** (no goal, no %, no progress bar, no "Faltan"): `useFundraiser()` keeps only the fields the site uses.
+
+### Money figures (single source)
+- Miriam's rule (24-oct-2026): "somos transparentes: no detallamos ciertas cosas, pero sí mostramos algunas cifras y el desglose de gastos por categorías". Every figure the site publishes about money lives in `app/data/dinero.json` (spent and available at a cutoff date `corte`, the rebiopsy lines, and the state of the three campaign phases) and is read through `app/utils/dinero.ts`. Never write a € amount in an i18n key, a template or a comment (`pnpm test:dinero-fuente` fails). What is **raised** is not there: it comes live from GoFundMe.
+- To make a new cutoff: edit `app/data/dinero.json` (change `corte`; the test checks that the categories add up to `comprometido`).
+- The single canonical phrases live in one key each: `money.destino`, `money.recibo`, `money.transparencia`. Reuse them with `$t(...)`; do not copy them. The retired phrases (cada euro, transparencia radical/total, 100 % al caso, recibo disponible, presupuestos abiertos, cada gasto está documentado, nada se desvía, sin intermediarios) do not come back (`pnpm test:dinero-fuente`, and `test:salud-estatica` §13 on the generated HTML).
 
 ### Nitro Route Rules
 - `/colabora` and `/collaborate` → 301 redirect to `https://helpmiriam.notion.site/colabora`. This is the collaboration guide for new contributors.
@@ -65,16 +90,13 @@ The website has two audiences: scientists/physicians (science page, molecular pr
 
 ### Nuxt Content v3
 - `@nuxt/content` v3 active. Collections defined in `content.config.ts`.
-- 12 collections: `timeline_es`, `timeline_en`, `historia_es`, `historia_en`, `ciencia_articles`, `science_articles`, `team_es`, `team_en`, `press_es`, `press_en`, `science_es`, `science_en`.
+- 8 collections: `timeline_es`, `timeline_en`, `team_es`, `team_en`, `press_es`, `press_en`, `science_es`, `science_en`. (`ciencia_articles` and `science_articles` and the `/ciencia/[slug]` route were removed on 2026-10-23: they never held an article. `historia_es` and `historia_en` went the same day; the `/historia` page came back on 2026-10-24 without chapters: see "Merged and archived pages" below.)
 - Timeline: `.yml` files in `content/es/timeline.yml` and `content/en/timeline.yml`.
-- Story and science: `.md` files in `content/es/historia/`, `content/en/story/`, `content/es/ciencia/`, `content/en/science/`.
 - Team data: `content/es/team.yml` and `content/en/team.yml` (3 groups: `coreTeam`, `medicalNetwork`, `integrativeSupport`).
 - Press mentions: `content/es/press.yml` and `content/en/press.yml`.
-- Science page data (treatments, papers, panel): `content/es/science.yml` and `content/en/science.yml`.
-- Articles/chapters are linked between languages with `translationKey` in frontmatter.
-- Language-specific slugs: ES `/ciencia/analisis-fgfr1`, EN `/en/science/fgfr1-analysis` — custom routes configured in `nuxt.config.ts` under `i18n.pages`.
-- **Page collections** (`historia_es`, `historia_en`, `ciencia_articles`, `science_articles`) have their schemas extended with `defineRobotsSchema()` and `defineSitemapSchema()`. This enables per-file SEO control via frontmatter (e.g. `robots: noindex`, `sitemap: { priority: 0.8 }`).
-- **Data collections** (timeline, team, press, science YML) do NOT have SEO schemas — they are not routed pages.
+- Science page data (treatments, papers, panel, functional imaging): `content/es/science.yml` and `content/en/science.yml`. Each `paperSections` entry has an `anchor` (the id of its section on `/ciencia/evidencia`, which the therapeutic axes of `/ciencia` link to). The treatment history and the Ga-68 PET are shown on `/datos` (`#s-historia`, `#s-pet`), not on `/ciencia`.
+- Language-specific slugs are configured in `nuxt.config.ts` under `i18n.pages`.
+- All collections are **data collections** (timeline, team, press, science YML): they have no SEO schemas because they are not routed pages. (Before 2026-10-23 the two story collections were page collections with `defineRobotsSchema()` / `defineSitemapSchema()`.)
 - If you modify `content.config.ts`, run `pnpm nuxt prepare` to regenerate types.
 
 ## Design Decisions
@@ -131,14 +153,18 @@ same piece. Science labels in handwriting go UPPERCASE. Never below 11px.
 
 These data are medically accurate and should not be modified without verification:
 
-- FGFR1 amplified ×13 (not ×12, not ×14)
-- CCND1 amplified ×20
-- FGF3/FGF4/FGF19 amplified ×18
-- Neuroendocrine differentiation ~80% (not 70%, not 90%)
+- FGFR1 amplified: **13 copies** in the 2024 primary (TSO500; the lab warns the copy number is unreliable below 50% tumour, and VIGex measured 50% in the same block). In the 2026 bone the clinical FoundationOne CDx report says "FGFR1 amplification" with no figure; the 33 copies of FGFR1 and 37 of the 11q13 cluster come from that run's research file ("for research use only", computational purity 61%). **Never write "×13"**: platforms, samples and purities differ, so the figures are not comparable. The text is `ciencia.nota_copias` (it appears once, on `/ciencia`).
+- CCND1 amplified: 20 copies, and FGF3/FGF4/FGF19: 18 copies (2024 primary); "amplified" in the 2026 bone (37 copies in the research file).
+- Neuroendocrine differentiation: **80% of the neoplastic cells** in the 2024 diagnostic biopsy (chromogranin and synaptophysin, CD56 negative); **focal and heterogeneous in the 2026 review**; markers also in bone (synaptophysin) and liver (chromogranin A and synaptophysin) with no percentage. **Never "80% of the tumour"**. The 2019 WHO category "neuroendocrine neoplasm of the breast" needs more than 90% neuroendocrine cells: this is a carcinoma NST with neuroendocrine differentiation, outside it. "BC-NED" is a working label, not a diagnostic category.
 - Initial Ki67: 60%
 - HER2 negative (0)
 - Discordant RP: 5% local vs 100% external
 - Low TMB, low MSI
+- Goserelin did **not** stop on 28/05/2026: only fulvestrant did; goserelin continues (last documented dose 08/09/2026).
+- The 3L RECIST had **four** target lesions (sum 68 → 74 mm, +8.8%).
+- The synaptophysin slide review of 29-sep-2026 is **"said"** (a meeting, no written report): never "the negative entry is an error in the report".
+
+The six debts above (and the exact patterns) are guarded by `pnpm test:afirmaciones-clinicas` (source, `scripts/lib/deudas-clinicas.mjs`) and `pnpm test:ciencia-pro` (generated HTML of every page).
 - No pathogenic SNVs or INDELs, no fusions
 - PIK3CA and ESR1 not detected in primary tissue
 - ECOG 1 (since April 2026; ECOG 0 from diagnosis until then)
@@ -190,7 +216,21 @@ Edit `content/es/science.yml` and `content/en/science.yml`. The file has three s
 3. Use the same pattern: `<img src="/img/your-logo.ext" alt="Brand Name" class="h-10 w-auto object-contain" />` and a `<span>` label below.
 
 ### Alba's Text (Story)
-Replace the placeholder content in `app/pages/historia/index.vue` with the real text. Keep the `prose prose-ink` structure. If the text is long, consider migrating it to `content/es/historia.md` and `content/en/historia.md`.
+The `/historia` page (a placeholder that said "in preparation", plus four paragraphs; the empty chapter 1 was deleted) was merged into `/timeline` on 2026-10-23 (architecture redesign, phase F4) and **came back on 2026-10-24** (redesign round 2, T2a): Umami showed 184 of its 191 entries come from google.com, so it is alive again (no redirect, in the sitemap), built from the v3 pieces. It has no chapters and no `historia_es` / `historia_en` collections (`/historia/01-el-comienzo` and `/en/story/01-the-beginning` keep their 301 to `/timeline`). When the real text exists, put it in `app/pages/historia/index.vue` (or bring back `[slug].vue` and the collections from the commit before `rediseno(F4)`). The one human line `/timeline` shows is `historia.story_teaser_1`.
+
+### `/ciencia` is one professional layer (round 2, T2c, 2026-10-24)
+- No reading-level switch (`?nivel=` is ignored; the plain layer lives on the home). `NivelLectura.vue` stays: `CelulaNivel` wraps it. Old links keep working because the anchor in the URL still gets the focus (`#mapa-acceso`, `#snapshot-title`).
+- Clinical **state is read from `app/data/caso.json`**, never written by hand: the sheet, the material, "Updated on", and "in fourth line since…" come from `app/utils/casoCiencia.ts` (`useCasoCiencia`). The fourth-line sentence is fail-closed: if the current line is no longer the 4th, it is not drawn.
+- `caso.json` lives in TWO copies: `app/data/caso.json` (imported by the pages) and `public/datos/caso.json` (the download on `/datos`). They must stay identical: whoever corrects one corrects the other. `pnpm test:caso-copias` (lint.yml, no build) fails if they differ or if the synaptophysin row is sealed "verificado"; `pnpm test:afirmaciones-clinicas` also scans `public/datos`.
+- In an `<i18n-t>`, a `<template #slot>` with fixed text prints that text in both languages. Only language-neutral tokens (gene names, acronyms, "luminal") may be literal; a plain word goes through `L('es', 'en')` or `$t()` (`pnpm test:ciencia-pro`, section 8, plus a check that `/en/science` carries no Spanish "neuroendocrino" outside quotes).
+- The ADC explainer video lives in the 7-Oct milestone of the timeline (`video: adc` and `anchor: adc` in `timeline.yml`; `videoPorId` in `utils/videos.ts`). The `liquidBiopsies`, `liquidBiopsyPivot` and `boneBiopsy` blocks of `science.yml`, `TwoFaces` and `LiquidBiopsyPivot` were deleted.
+- Tests: `pnpm test:ciencia-nivel` (Chrome: no switch, anchors with focus, donate button) and `pnpm test:ciencia-pro` (generated HTML: order of blocks, literal clinical texts, the six debts on every page).
+
+### Merged and archived pages (redesign F4, 2026-10-23; round 2, T2a, 2026-10-24)
+- Alive again since T2a: `/herramientas` (the tools index, two groups: "Las de ahora" and "Sirvieron en un momento concreto"), `/reservorio` (with its 3D) and `/historia`. They are no longer redirects and no longer in `nitro.prerender.ignore` (it matches by prefix: leaving them there would leave the live page unrendered). `/en/herramientas` (301 → `/en/tools`) and `/en/historia` (301 → `/en/story`) remain, because i18n invents the `/en/<spanish-slug>` variant. `/historia/01-el-comienzo` (and EN) → `/timeline` (301) and `/videos` (301) → `/prensa#video` (the Polaris promo; the ADC explainer lives inside the 7-Oct milestone of `/timeline`) remain; see `nuxt.config.ts` and `pnpm test:short-links`.
+- `/3d*` short links keep their 302 and UTM and land on `/lesiones`.
+- `/mapa-metastasis` is a **tool that served at a specific moment** ("Histórico · junio 2026"): public, indexable, in the sitemap, with a line at the top that says when and why it was made; it is not updated. `/lesiones` reads its foci at build time (`#mapa-focos`).
+- Tools live in two lists in `app/utils/navegacion.ts`: `HERRAMIENTAS` (the current ones, in Miriam's order) and `HERRAMIENTAS_PASADAS` (the map and the port). The menu, the footer, the home band and the index read them; so does `SalidaHerramienta`, the common "Support / Back to home" exit that `layouts/default.vue` paints at the end of every tool by route name (`SALIDA_HERRAMIENTA`).
 
 ## Commands
 

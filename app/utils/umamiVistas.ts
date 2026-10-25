@@ -6,7 +6,7 @@
 //   Hero-visto        { pagina, conEuros }   el hero de la home se vio (≥ la mitad de lo que cabe en pantalla)
 //   Campana-visible   { pagina, conEuros }   una tarjeta de la campaña (GoFundMeProgress) se vio, una vez por vista
 //   Prensa-visible    { pagina }             la tira de medios de la home se vio
-//   entrada                                   propiedad que viaja en Donar, Clic-gofundme y Contacto-enviado
+//   entrada                                   propiedad que viaja en Donar, Clic-gofundme, Contacto-enviado y Puerta (EVENTOS_CON_ENTRADA)
 //
 // Para qué sirven. «Donar» y «Clic-gofundme» cuentan clics, pero un porcentaje de conversión necesita el
 // denominador: cuántas veces se vio lo que se pulsó. Y «conEuros» deja comparar, con la misma medida, la
@@ -26,8 +26,11 @@ export const PROP_ENTRADA = 'entrada'
 // Misma familia de claves que `hm_support_ts` (useSupport.ts). sessionStorage: por pestaña, se borra al cerrarla.
 export const CLAVE_ENTRADA = 'hm_entrada'
 
-/** Eventos que llevan `entrada`. Para añadir uno (p. ej. «Puerta», en el rediseño) basta con ponerlo aquí. */
-export const EVENTOS_CON_ENTRADA: ReadonlySet<string> = new Set(['Donar', 'Clic-gofundme', 'Contacto-enviado'])
+/**
+ * Eventos que llevan `entrada`. Para añadir uno basta con ponerlo aquí. «Puerta» (las puertas de la home, rediseño F5) se añadió en
+ * T2d (24-oct-2026): con ella se ve por qué página llegó quien elige «Apoyar», «Clínico o laboratorio»… (conversión por puerta de entrada).
+ */
+export const EVENTOS_CON_ENTRADA: ReadonlySet<string> = new Set(['Donar', 'Clic-gofundme', 'Contacto-enviado', 'Puerta'])
 
 export type DatosUmami = Record<string, string | number | boolean>
 

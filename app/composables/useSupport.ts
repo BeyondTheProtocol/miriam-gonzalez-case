@@ -1,3 +1,5 @@
+import type { RolContacto } from '../utils/rolesContacto'
+
 /**
  * Medición de conversión (plan §D.5).
  * Dispara el goal de Plausible `Apoyar` en cada clic de un CTA de apoyo/donar,
@@ -74,12 +76,12 @@ export function useSupport() {
     trackUmami('Clic-prensa', { medio: outlet })
   }
 
-  function trackContact(role: string) {
+  // «Contacto» { rol }: lo emiten las tarjetas de /colabora. El rol es del vocabulario ÚNICO de rolesContacto.ts, el mismo que usan el
+  // formulario («Contacto-enviado») y «Contacto-clic» (plugins/umami-delegado.client.ts, F0, el clic a /contacto desde cualquier página,
+  // con el rol de ?role=): desde T2d (24-oct-2026) los tres se pueden cruzar. Antes esta tarjeta decía `press`; ahora `journalist`.
+  function trackContact(role: RolContacto) {
     trackUmami('Contacto', { rol: role })
   }
-  // OJO: este «Contacto» solo lo emite /colabora, con sus propios valores de rol. El clic a /contacto desde
-  // cualquier página, con el rol de ?role=, es «Contacto-clic» (plugins/umami-delegado.client.ts, F0): evento
-  // nuevo para no mezclar series. Lo mismo vale para «Clic-gofundme», «VerPeticion» y «Scroll».
 
   function trackPathway(route: string) {
     trackUmami('Pathway', { ruta: route })
@@ -128,8 +130,8 @@ export function useSupport() {
     else if (key === 'slides') trackLaminillas(origen)
   }
 
-  // Clic en «Lo último» (señal de recencia): desde el hero de la home o desde la barra global.
-  function trackLatest(origen: 'hero' | 'barra') {
+  // Clic en «Lo último» (señal de recencia): desde el hero de la home, desde la barra global o, tras donar, desde /gracias.
+  function trackLatest(origen: 'hero' | 'barra' | 'gracias') {
     trackUmami('VerUltimo', { origen })
   }
 
@@ -139,10 +141,19 @@ export function useSupport() {
     trackUmami('Navegar', { destino })
   }
 
-  // Tarjeta «Acabo de llegar» de VisitorPathways: no navega (abre el resumen en la misma
-  // página), así que sin evento propio era invisible.
-  function trackPathwayCurious() {
-    trackUmami('PathwayCurioso')
+  // Cambio de idioma a mano (el selector ES/EN de la cabecera): «Idioma» { de, a, pagina }. `pagina` es la ruta base DONDE se cambió
+  // (ciencia, index…), no la de llegada, así que se lee antes de navegar. Mide el rebote entre `/` y `/en`: el 31 % de los visitantes
+  // llega con el navegador en inglés y pocos acaban en `/en`; hasta ahora solo había recorridos, que no ven el clic.
+  function trackIdioma(de: string, a: string, pagina: string) {
+    trackUmami('Idioma', { de, a, pagina })
+  }
+
+  // Las cuatro puertas de la home (rediseño F5, 23-oct-2026): un solo evento, «Puerta», con la puerta como propiedad
+  // (apoyar · clinico · prensa · otras). Sustituye al «Pathway» de las siete tarjetas con minutos y pasos y al
+  // «PathwayCurioso» de la tarjeta «Acabo de llegar»: ambas desaparecen de la home, así que esas series se cortan ahí
+  // (el «Pathway» de los chips «por perfil» de /colabora sigue hasta F10). Línea base de antes: F0.
+  function trackPuerta(id: string) {
+    trackUmami('Puerta', { puerta: id })
   }
 
   // Página 404: qué ruta se pidió. Solo el pathname (sin query ni hash, que pueden llevar
@@ -174,7 +185,7 @@ export function useSupport() {
     trackUmami('Bio-link', { destino: destination })
   }
 
-  // Vídeos de /videos: un solo evento «VerVideo», al primer play de cada vídeo, con su id.
+  // Vídeos de la web (el ADC en el hito del 7-oct de la Cronología, el promo en /prensa; antes, /videos): un solo evento «VerVideo», al primer play de cada vídeo, con su id.
   function trackVideo(id: string) {
     trackUmami('VerVideo', { id })
   }
@@ -199,8 +210,9 @@ export function useSupport() {
     trackHerramienta,
     trackLatest,
     trackNav,
+    trackIdioma,
     trackVideo,
-    trackPathwayCurious,
+    trackPuerta,
     track404,
   }
 }

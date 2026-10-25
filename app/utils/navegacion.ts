@@ -1,18 +1,25 @@
 /**
  * Fuente única de la navegación del sitio (dictamen `diseno`, 14-oct-2026).
  *
- * La leen el menú (SiteNav), el pie (SiteFooter) y el índice de herramientas
- * (/herramientas). Cada enlace lleva:
+ * La leen el menú (SiteNav), el pie (SiteFooter), la banda de herramientas de la home y el índice /herramientas (que
+ * volvió a ser una página viva en la tanda 2 del rediseño, T2a, 24-oct-2026). Cada enlace lleva:
  * · `key`  → la etiqueta (`nav.<key>` en i18n) y el valor `destino` del evento
  *            «Navegar» de Umami. Es la misma en ES y EN, así que suman juntos.
  * · `name` → el nombre BASE de la ruta (sin el sufijo `___es`/`___en` que añade
  *            i18n). Se navega por nombre, nunca por path escrito a mano, y así
  *            funciona igual en /lesiones y en /en/lesiones.
+ * · `etiqueta` (opcional) → la clave i18n de la etiqueta cuando no es `nav.<key>`.
+ *
+ * Aquí viven también las redes (REDES) y los enlaces legales (LEGAL): el pie, el pie reducido de
+ * /links y /gracias, los enlaces rápidos de /colabora y el schema.org del layout leen la misma lista.
  */
 
 export interface EnlaceNav {
   key: string
   name: string
+  // Clave i18n de la etiqueta cuando NO es `nav.<key>` (p. ej. el pie lleva «El caso en datos» donde `nav.data` dice «Datos»).
+  // La key, y con ella la analítica y el icono, no cambian.
+  etiqueta?: string
 }
 
 const e = (key: string, name: string): EnlaceNav => ({ key, name })
@@ -22,8 +29,9 @@ export const NAV = {
   home: e('home', 'index'),
   science: e('science', 'ciencia'),
   evidence: e('evidence', 'ciencia-evidencia'),
+  // El índice de herramientas. La key `tools` es la que usó el evento «Navegar» de Umami durante los diez días de datos
+  // previos al rediseño: se conserva para que la serie siga siendo comparable.
   tools: e('tools', 'herramientas'),
-  allTools: e('all_tools', 'herramientas'),
   data: e('data', 'datos'),
   lesions: e('lesions', 'lesiones'),
   map: e('map', 'mapa-metastasis'),
@@ -31,8 +39,6 @@ export const NAV = {
   slides: e('slides', 'laminillas'),
   cellByCell: e('cell_by_cell', 'celula-a-celula'),
   cellExplorer: e('cell_explorer', 'celula-a-celula-explorar'),
-  story: e('story', 'historia'),
-  videos: e('videos', 'videos'),
   timeline: e('timeline', 'timeline'),
   team: e('team', 'equipo'),
   collaborate: e('collaborate', 'colabora'),
@@ -42,33 +48,37 @@ export const NAV = {
   contact: e('contact', 'contacto'),
 } as const
 
-// Menú principal. En escritorio no va «Inicio»: el logo ya lleva a la home y así
-// cabe «Herramientas» a 1024 px. En móvil sí va, el primero.
+// Menú principal (tanda 2 del rediseño, T2a, 24-oct-2026): La ciencia · Herramientas · Cronología · Equipo · Cómo ayudar.
+// «Herramientas» vuelve al hueco de «Datos» (que había ocupado en F3, 23-oct): en los diez días medidos fue el 24 % de los clics
+// del menú (empatada en cabeza con Cronología), y /datos pasa a ser una de sus tarjetas. La key sigue siendo `tools`.
+// En escritorio no va «Inicio»: el logo ya lleva a la home. En móvil sí va, el primero.
 export const MENU_ESCRITORIO: EnlaceNav[] = [NAV.science, NAV.tools, NAV.timeline, NAV.team, NAV.collaborate]
 export const MENU_MOVIL: EnlaceNav[] = [NAV.home, ...MENU_ESCRITORIO]
 
-// Las herramientas, en el orden del índice, de la banda de la home y del pie.
-// Orden con criterio (Miriam, 20-oct-2026: «hay que poner un orden en las herramientas»; antes iban por fecha de
-// estreno): del cuerpo a la célula. Primero el caso en datos (la entrada), después la imagen (mama, hígado y hueso),
-// luego el tejido (las laminillas), la célula (célula a célula y, justo detrás, su explorador, que la página madre
-// presenta) y al final la infraestructura del tratamiento (el reservorio).
-// El mapa de metástasis (solo hueso) sale de la lista (Miriam, 21-oct-2026: «el del hueso solo lo eliminamos y
-// laminillas lo dejamos»): «Mama, hígado y hueso» ya lo incluye. La página sigue publicada y enlazada desde
-// /lesiones y /ciencia, porque /lesiones lee sus focos de ella en cada build (#mapa-focos).
-// Una herramienta nueva entra en su sitio de ese recorrido, no al principio. La que se destaca como «Lo último» en la
-// home ya no es la primera de esta lista: es LO_ULTIMO (abajo). El explorador se oculta mientras su puerta no esté
-// abierta (useHerramientas).
-export const HERRAMIENTAS: EnlaceNav[] = [NAV.data, NAV.lesions, NAV.slides, NAV.cellByCell, NAV.cellExplorer, NAV.port]
+// Las herramientas, en DOS grupos (Miriam, 24-oct-2026). Lo que sale en la home, en el índice /herramientas y en el pie sale de
+// aquí: una sola lista, para que las tres superficies digan lo mismo y en el mismo orden.
+//
+// «Las de ahora» (HERRAMIENTAS): célula a célula, su explorador, mama-hígado-hueso, el caso en datos y las laminillas. Es el
+// orden en que la decisión de Miriam del 24-oct las nombra, y manda sobre el del 20-oct («del cuerpo a la célula»: datos,
+// lesiones, laminillas, célula, explorador), que era el de la franja #visores de /datos y de la banda de la home. Una herramienta
+// nueva entra en su sitio de este recorrido, no al principio. La que se destaca como «Lo último» en la home ya no es la primera de
+// esta lista: es LO_ULTIMO (abajo). El explorador se oculta mientras su puerta no esté abierta (useHerramientas).
+export const HERRAMIENTAS: EnlaceNav[] = [NAV.cellByCell, NAV.cellExplorer, NAV.lesions, NAV.data, NAV.slides]
+
+// «Sirvieron en un momento concreto» (HERRAMIENTAS_PASADAS): el mapa de metástasis (junio de 2026) y el reservorio (septiembre de
+// 2026). Siguen vivas e indexables, con una línea arriba que dice cuándo y para qué se hicieron, pero no se actualizan: lo actual
+// está en «Mama, hígado y hueso». Van en el índice y en la página de cada una; no en la banda de la home ni en el pie.
+export const HERRAMIENTAS_PASADAS: EnlaceNav[] = [NAV.map, NAV.port]
 
 // La herramienta que la home destaca en grande con la etiqueta «Lo último». Tiene que ser la misma que anuncia la
 // barra global «LO ÚLTIMO» (la última entrada de la cronología): hoy, célula a célula. Cuando se anuncie otra, se
 // cambia aquí y en la cronología a la vez.
 export const LO_ULTIMO: EnlaceNav = NAV.cellByCell
 
-// Icono de cada herramienta (decorativo, aria-hidden) para las tarjetas de /herramientas.
+// Icono de cada herramienta (decorativo, aria-hidden) para las tarjetas del índice /herramientas y de la banda de la home.
 // Son los que la web ya usaba para cada una: el pin del teaser de la home y de /ciencia
 // (mapa), el microscopio de /ciencia (biopsia), el cubo y la gráfica de /links (lesiones,
-// datos). El reservorio no tenía ninguno: la jeringa es elección de este PR.
+// datos).
 export const ICONO_HERRAMIENTA: Record<string, string> = {
   data: 'ph:chart-line-fill',
   lesions: 'ph:cube-fill',
@@ -82,25 +92,85 @@ export const ICONO_HERRAMIENTA: Record<string, string> = {
   cell_explorer: 'ph:magnifying-glass-fill',
 }
 
-// Pie: tres columnas por intención (`heading` es la clave i18n de su título).
+// Para quién es cada herramienta (clave i18n de su etiqueta «Para…») y a qué rol de /contacto lleva su «Escribir al equipo». Los
+// roles son los que /contacto ya acepta: crear uno obligaría a tocar /privacidad §2. Las laminillas y el explorador llevan la
+// etiqueta ya publicada de /ciencia («Para profesionales»). Las dos pasadas no llevan «Para…»: su etiqueta es «Histórico».
+export const PARA_HERRAMIENTA: Record<string, string> = {
+  cell_by_cell: 'herramientas.para_labs',
+  cell_explorer: 'ciencia.level_pro',
+  lesions: 'herramientas.para_todos',
+  data: 'herramientas.para_clinicos',
+  slides: 'ciencia.level_pro',
+}
+export const ROL_HERRAMIENTA: Record<string, 'oncologist' | 'researcher'> = {
+  cell_by_cell: 'researcher',
+  cell_explorer: 'researcher',
+  lesions: 'oncologist',
+  data: 'oncologist',
+  slides: 'researcher',
+}
+
+// «El caso en datos» con su nombre largo: en el pie, bajo el título «Herramientas», un enlace que se llamase «Datos» no diría
+// nada. Misma key y misma ruta que NAV.data (la analítica no cambia); solo cambia la etiqueta.
+const DATOS_CASO: EnlaceNav = { ...NAV.data, etiqueta: 'nav.data_case' }
+// «Todas las herramientas»: el índice, con su rótulo largo. Misma key y misma ruta que el ítem del menú.
+const TODAS_HERRAMIENTAS: EnlaceNav = { ...NAV.tools, etiqueta: 'nav.all_tools' }
+
+// Pie (tanda 2 del rediseño, T2a, 24-oct-2026): 14 enlaces de navegación en tres columnas (`heading` es la clave i18n de su
+// título) y, a su lado, las otras dos del pie: REDES y LEGAL (abajo). La columna «Herramientas» abre con «Todas las
+// herramientas» y sigue con las de HERRAMIENTAS, en su orden. Fuera del pie, que no tiene sitio para ellos: Historia, Vídeos,
+// Marcas, el mapa y el reservorio (van en el índice) y el selector «por perfil». El explorador de células solo sale con su
+// puerta abierta (useHerramientas).
 export const PIE: { id: string; heading: string; enlaces: EnlaceNav[] }[] = [
-  { id: 'caso', heading: 'footer.group_case', enlaces: [NAV.science, NAV.evidence, NAV.story, NAV.videos, NAV.timeline, NAV.team] },
-  { id: 'herramientas', heading: 'footer.group_tools', enlaces: [NAV.allTools, ...HERRAMIENTAS] },
-  { id: 'participa', heading: 'footer.group_involved', enlaces: [NAV.collaborate, NAV.press, NAV.brands, NAV.expenses, NAV.contact] },
+  { id: 'caso', heading: 'footer.group_case', enlaces: [NAV.science, NAV.evidence, NAV.timeline, NAV.team] },
+  { id: 'herramientas', heading: 'footer.group_tools', enlaces: [TODAS_HERRAMIENTAS, ...HERRAMIENTAS.map((h) => (h.key === 'data' ? DATOS_CASO : h))] },
+  { id: 'participa', heading: 'footer.group_involved', enlaces: [NAV.collaborate, NAV.press, NAV.expenses, NAV.contact] },
+]
+
+// Redes de Miriam, UNA vez. Las leen el pie (y el pie reducido de /links y /gracias), los enlaces rápidos de /colabora y el
+// schema.org del layout (`sameAs`). `nombre` es el de la red; `pie` solo cuando el pie la llama distinto.
+export const REDES_USUARIO = '@miriamgonp'
+export interface Red {
+  id: string
+  nombre: string
+  pie?: string
+  url: string
+}
+export const REDES: Red[] = [
+  { id: 'x', nombre: 'X', pie: 'X / Twitter', url: 'https://x.com/miriamgonp' },
+  { id: 'instagram', nombre: 'Instagram', url: 'https://www.instagram.com/miriamgonp' },
+  { id: 'linkedin', nombre: 'LinkedIn', url: 'https://www.linkedin.com/in/miriamgonp' },
+  { id: 'tiktok', nombre: 'TikTok', url: 'https://tiktok.com/@miriamgonp' },
+  { id: 'youtube', nombre: 'YouTube', url: 'https://youtube.com/@miriamgonp' },
+]
+
+// Legal: los tres textos viven en su propia página (no en i18n), así que aquí solo van el nombre de la ruta y el rótulo.
+export const LEGAL: { name: string; etiqueta: string }[] = [
+  { name: 'aviso-legal', etiqueta: 'footer.legal_notice' },
+  { name: 'privacidad', etiqueta: 'footer.privacy' },
+  { name: 'cookies', etiqueta: 'footer.cookies' },
 ]
 
 // Estado activo del menú: qué rutas cuelgan de cada ítem. La primera de cada lista
 // es la raíz de la sección (allí el ítem lleva aria-current="page"); en las demás,
 // aria-current="true" y el mismo estilo activo. Por nombre de ruta y no por prefijo
 // de path, porque las herramientas no cuelgan de la URL /herramientas.
+// T2a (24-oct-2026): «Herramientas» vuelve y recoge las siete herramientas más el índice; `data` desaparece. Entre F3 y T2a las
+// herramientas colgaron de «Datos». /historia cuelga de la cronología (es su misma intención: la historia de Miriam).
+// La ruta de artículos de ciencia se borró en F0.
 export const SECCIONES: Record<string, string[]> = {
   home: ['index'],
-  science: ['ciencia', 'ciencia-evidencia', 'ciencia-slug'],
-  tools: ['herramientas', 'datos', 'lesiones', 'mapa-metastasis', 'reservorio', 'laminillas', 'celula-a-celula', 'celula-a-celula-explorar'],
-  timeline: ['timeline', 'historia', 'historia-slug'],
+  science: ['ciencia', 'ciencia-evidencia'],
+  tools: ['herramientas', 'datos', 'lesiones', 'laminillas', 'celula-a-celula', 'celula-a-celula-explorar', 'mapa-metastasis', 'reservorio'],
+  timeline: ['timeline', 'historia'],
   team: ['equipo'],
   collaborate: ['colabora', 'prensa', 'marcas', 'gastos', 'contacto'],
 }
+
+// Las herramientas que cierran con la salida común (SalidaHerramienta: «Apoyar a Miriam» y «Volver al inicio»), por nombre de ruta.
+// Son las de la sección «Herramientas» menos el índice (sus tres puertas ya son esa salida) y /lesiones (F6 le puso su propio cierre de
+// apoyo, con «Apoyar» y «Entender el caso»: dos botones coral en el mismo cierre serían uno de más).
+export const SALIDA_HERRAMIENTA: string[] = SECCIONES.tools!.filter((n) => n !== 'herramientas' && n !== 'lesiones')
 
 /** aria-current del ítem `key` estando en la ruta de nombre base `actual`. */
 export function ariaCurrentSeccion(key: string, actual: string | undefined): 'page' | 'true' | undefined {
@@ -111,7 +181,7 @@ export function ariaCurrentSeccion(key: string, actual: string | undefined): 'pa
 }
 
 // Copia LITERAL del H1 y de la meta-description de cada herramienta (el fichero va al
-// lado). La usan el índice /herramientas y el teaser de la home. Si una de esas páginas
+// lado). La usan el índice /herramientas y la banda de la home. Si una de esas páginas
 // cambia su título o su descripción, se cambia también aquí.
 export const COPY_HERRAMIENTAS: Record<string, { es: [string, string]; en: [string, string] }> = {
   // app/pages/datos.vue

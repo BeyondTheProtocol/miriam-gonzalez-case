@@ -1,5 +1,5 @@
 <template>
-  <!-- Índice de secciones del dossier clínico (modo pro de /ciencia). Comité:
+  <!-- Índice de secciones del dossier clínico de /ciencia (capa única, profesional). Comité:
        rail pegajoso a la izquierda en lg+ (variant="rail"), desplegable
        «Saltar a…» en móvil (variant="mobile"); etiquetas clínicas en sans bajo
        un rótulo mono; activo en berenjena + punto violeta (NUNCA coral); foco
@@ -46,18 +46,17 @@ const props = withDefaults(defineProps<{ variant?: 'rail' | 'mobile' }>(), {
 })
 const { t } = useI18n()
 
-// Capítulos clínicos mapeados a ids de título ya existentes en la página
-// (orden de lectura tras subir el panel sobre la historia clínica). Las etiquetas,
-// en i18n (sectionNav.ciencia.*): una sola fuente por etiqueta.
+// Capítulos mapeados a ids de título ya existentes en la página (orden de lectura; tanda 2, T2c, 24-oct-2026: una sola capa, sin
+// historia clínica ni imagen funcional, que pasaron a /datos). Las etiquetas, en i18n (sectionNav.ciencia.*): una sola fuente por etiqueta.
 const CAPITULOS = [
+  { id: 'ciencia-busca', key: 'busca' },
+  { id: 'mapa-acceso', key: 'tools' },
   { id: 'snapshot-title', key: 'summary' },
+  { id: 'por-que-no-encaja', key: 'why' },
   { id: 'tejido-3veces', key: 'pathology' },
-  { id: 'tres-sitios', key: 'three_sites' },
   { id: 'molecular-profile-title', key: 'molecular' },
-  { id: 'imaging-tissue-title', key: 'imaging' },
-  { id: 'mapa-acceso', key: 'map_biopsy' },
+  { id: 'axes-title', key: 'axes' },
   { id: 'panel-title', key: 'panel' },
-  { id: 'treatment-title', key: 'history' },
   { id: 'ruta-title', key: 'route' },
 ]
 const chapters = computed(() => CAPITULOS.map((c) => ({ id: c.id, label: t(`sectionNav.ciencia.${c.key}`) })))
@@ -137,6 +136,7 @@ function jumpTo(e: Event, id: string) {
 </script>
 
 <style scoped>
+/* Sistema v3 (P1): radios, tiempos y colores de los tokens; el hover solo donde hay hover; el tamaño del texto, de la escala. */
 /* Desktop */
 .cn-d__title {
   margin-bottom: 0.75rem;
@@ -145,34 +145,38 @@ function jumpTo(e: Event, id: string) {
   display: flex;
   flex-direction: column;
   gap: 1px;
-  border-left: 1px solid rgb(var(--color-text-rgb) / 0.12);
+  border-left: 1px solid var(--trazo-medio);
 }
 .cn-d__link {
   display: flex;
   align-items: center;
   gap: 0.5rem;
   margin-left: -1px;
+  /* 44 px de alto: al volverse la capa única y quedar siempre a la vista, el índice se mide (R10) y antes medía 30 px */
+  min-height: var(--control-min);
   padding: 6px 0 6px 14px;
   border-left: 2px solid transparent;
-  font-size: 13.5px;
+  font-size: var(--texto-xs);
   line-height: 1.3;
-  color: rgb(var(--color-text-rgb) / 0.58);
+  color: var(--texto-2);
   text-decoration: none;
-  transition: color 0.18s ease, border-color 0.18s ease;
+  transition: color var(--dur-micro) var(--curva-salida), border-color var(--dur-micro) var(--curva-salida);
 }
 .cn-d__dot {
   width: 5px;
   height: 5px;
-  border-radius: 9999px;
+  border-radius: var(--radius-pill);
   background: transparent;
   flex-shrink: 0;
-  transition: background 0.18s ease;
+  transition: background var(--dur-micro) var(--curva-salida);
 }
-.cn-d__link:hover {
-  color: var(--color-text);
+@media (hover: hover) and (pointer: fine) {
+  .cn-d__link:hover {
+    color: var(--texto-1);
+  }
 }
 .cn-d__link.is-active {
-  color: var(--color-text);
+  color: var(--texto-1);
   font-weight: 600;
   border-left-color: var(--color-miriam);
 }
@@ -182,26 +186,25 @@ function jumpTo(e: Event, id: string) {
 .cn-d__link:focus-visible {
   outline: 2px solid var(--anillo-foco);
   outline-offset: 2px;
-  border-radius: 2px;
+  border-radius: var(--radius-sm);
 }
 
 /* Móvil */
 .cn-m {
-  border: 1px solid rgb(var(--color-text-rgb) / 0.12);
-  border-radius: 12px;
-  background: var(--color-bg-card);
+  border: 1px solid var(--trazo-medio);
+  border-radius: var(--radius-btn);
+  background: var(--superficie);
 }
 .cn-m__summary {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  min-height: 44px;
+  min-height: var(--control-min);
   padding: 0 14px;
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 12px;
-  letter-spacing: 0.06em;
+  font: 500 var(--texto-2xs)/1.4 var(--font-mono);
+  letter-spacing: var(--track-eyebrow);
   text-transform: uppercase;
-  color: var(--color-text);
+  color: var(--texto-1);
   cursor: pointer;
   list-style: none;
 }
@@ -210,7 +213,7 @@ function jumpTo(e: Event, id: string) {
 }
 .cn-m__caret {
   margin-left: auto;
-  transition: transform 0.2s ease;
+  transition: transform var(--dur-micro) var(--curva-salida);
 }
 .cn-m[open] .cn-m__caret {
   transform: rotate(180deg);
@@ -221,12 +224,14 @@ function jumpTo(e: Event, id: string) {
   flex-direction: column;
 }
 .cn-m__list a {
-  display: block;
-  padding: 9px 0;
-  font-size: 14px;
-  color: var(--color-text);
+  display: flex;
+  align-items: center;
+  min-height: var(--control-min);
+  padding: 0;
+  font-size: var(--texto-sm);
+  color: var(--texto-1);
   text-decoration: none;
-  border-top: 1px solid rgb(var(--color-text-rgb) / 0.07);
+  border-top: 1px solid var(--trazo-sutil);
 }
 .cn-m__summary:focus-visible,
 .cn-m__list a:focus-visible {

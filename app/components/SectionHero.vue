@@ -1,12 +1,5 @@
 <template>
-  <section
-    ref="heroEl"
-    class="hero relative overflow-hidden bg-cream"
-    :aria-label="$t('hero.section_label')"
-    :aria-describedby="'hero-sr-summary'"
-  >
-    <p id="hero-sr-summary" class="sr-only">{{ $t('pathways.hero_sr_summary') }}</p>
-
+  <section ref="heroEl" class="hero relative overflow-hidden bg-cream" :aria-label="$t('hero.section_label')">
     <div class="hero__shell section-wide">
       <div class="hero__grid">
         <div class="hero__head">
@@ -15,12 +8,13 @@
           </div>
 
           <i18n-t
-            keypath="hero.title"
+            keypath="hero.h1"
             tag="h1"
             class="hero__title heading-display text-berenjena animate-fade-up"
             style="animation-delay: 0.1s"
           >
-            <template #op><span class="italic text-miriam">{{ $t('hero.title_emphasis') }}</span></template>
+            <template #age>{{ caseData.currentAge }}</template>
+            <template #op><span class="italic text-miriam">{{ $t('hero.h1_emphasis') }}</span></template>
           </i18n-t>
         </div>
 
@@ -53,175 +47,118 @@
         </figure>
 
         <div class="hero__body">
-          <i18n-t
-            keypath="hero.subtitle"
-            tag="p"
-            class="hero__lede text-tinta animate-fade-up"
-            style="animation-delay: 0.2s"
-          >
-            <template #lead>
-              <strong class="font-semibold text-berenjena">{{ $t('hero.subtitle_lead', { age: caseData.currentAge }) }}</strong>
-            </template>
-            <template #twofaces>
-              <span class="two-faces">{{ $t('hero.twofaces') }}<svg
-                class="two-faces__stroke"
-                viewBox="0 0 100 8"
-                preserveAspectRatio="none"
-                aria-hidden="true"
-              >
-                <path class="tf-line" pathLength="1" d="M2 5.4 C 16 3.4, 38 7, 58 4.8 C 74 3.2, 90 6, 98 4.6" />
-              </svg></span>
-            </template>
-          </i18n-t>
+          <p class="hero__lede text-tinta animate-fade-up" style="animation-delay: 0.2s">{{ $t('hero.lede') }}</p>
 
+          <!-- Dos acciones, apiladas en móvil y de 44 px como mínimo. «Entender el caso» baja a #caso en la misma
+               página (enlace nativo: funciona sin JS; #caso lleva scroll-margin para no quedar bajo la cabecera). -->
           <div class="hero__cta animate-fade-up" style="animation-delay: 0.3s">
-            <div class="hero__cta-cell">
-              <a
-                href="https://gofund.me/3e25cae99"
-                target="_blank"
-                rel="noopener noreferrer"
-                @click="trackSupport('home_hero')"
-                data-support-cta
-                class="btn-cta w-full justify-center"
-              >
-                <Icon name="ph:heart-fill" class="heart-beat heart-beat--alive w-4 h-4" aria-hidden="true" />
-                {{ $t('hero.cta_donate') }}
-              </a>
-              <p class="hero__cta-caption">{{ $t('home.hero_cta_donate_caption') }}</p>
-            </div>
-            <div class="hero__cta-cell">
-              <NuxtLink
-                :to="localePath({ name: 'ciencia' })"
-                class="btn-secondary w-full justify-center"
-                @click="trackScience('home_hero')"
-              >
-                <Icon name="ph:flask-fill" class="w-4 h-4" aria-hidden="true" />
-                {{ $t('hero.cta_science') }}
-              </NuxtLink>
-              <p class="hero__cta-caption">{{ $t('home.hero_cta_science_caption') }}</p>
-            </div>
+            <a
+              href="https://gofund.me/3e25cae99"
+              target="_blank"
+              rel="noopener noreferrer"
+              @click="trackSupport('home_hero')"
+              data-support-cta
+              class="btn-cta justify-center"
+            >
+              <Icon name="ph:heart-fill" class="heart-beat heart-beat--alive w-4 h-4" aria-hidden="true" />
+              {{ $t('hero.cta_donate') }}
+              <span class="sr-only">{{ ' ' + $t('a11y.new_tab') }}</span>
+            </a>
+            <a href="#caso" class="btn-secondary justify-center">
+              <Icon name="ph:arrow-down" class="w-4 h-4" aria-hidden="true" />
+              {{ $t('hero.cta_understand') }}
+            </a>
           </div>
 
+          <!-- Para quien llega por trabajo: va a la petición concreta (el plugin de Umami mide el ancla como VerPeticion). -->
+          <NuxtLink
+            :to="localePath({ name: 'datos', hash: '#que-buscamos' })"
+            class="hero__pro link-action group text-miriam animate-fade-up"
+            style="animation-delay: 0.35s"
+          >
+            {{ $t('hero.pro_link') }}
+            <Icon name="ph:arrow-right" class="w-4 h-4 shrink-0 transition-transform group-hover:translate-x-0.5" aria-hidden="true" />
+          </NuxtLink>
         </div>
       </div>
 
-      <!-- Zona de evidencia · una sola banda a ancho del shell con un único
-           divisor: la señal viva (recencia) arriba, cifras debajo.
-           El nº de donantes vive SOLO en las cifras (sin duplicar el 997). -->
+      <!-- Prueba: lo recaudado y cuánta gente lo hace posible, en vivo y con el rótulo «en GoFundMe» (decisión de Miriam, 24-oct-2026:
+           importe y donantes sí; objetivo, porcentaje y barra no), y la señal viva de recencia. Si la cifra es la del build se dice con
+           su fecha (`cifraDe`): el HTML prerenderizado lleva la semilla y el cliente la cambia por la viva al montar. -->
       <div class="hero__proof animate-fade-up" style="animation-delay: 0.4s">
-        <div class="hero__pulse">
-          <NuxtLink
-            v-if="latest"
-            :to="localePath({ name: 'timeline' }) + '#lo-ultimo'"
-            class="hero__latest group"
-            @click="trackLatest('hero')"
-          >
-            <span class="hero__latest-meta">
-              <span class="hero-live-dot h-2 w-2 shrink-0 rounded-full bg-coral" aria-hidden="true" />
-              <span class="font-mono uppercase text-[11px] tracking-[0.16em] font-semibold text-coral-deep">
-                {{ $t('hero.latest_label') }}
-              </span>
-              <span v-if="latestAgo" class="font-mono text-[11px] text-tinta">· {{ latestAgo }}</span>
-            </span>
-            <span class="hero__latest-title">
-              {{ latest.title }}
-              <Icon
-                name="ph:arrow-right"
-                class="ml-1.5 inline-block w-3.5 h-3.5 align-[-2px] transition-transform group-hover:translate-x-0.5"
-                aria-hidden="true"
-              />
-            </span>
-          </NuxtLink>
-        </div>
-
-        <div class="hero__stats">
-          <div
-            v-for="(stat, i) in stats"
-            :key="stat.label"
-            class="hero__stat"
-            :class="{ 'hero__stat--firma': i === 3 }"
-          >
-            <p class="hero__stat-value nums" :class="i === 3 ? 'firma' : 'text-berenjena'">
-              {{ stat.value }}
-            </p>
-            <p class="hero__stat-label">{{ stat.label }}</p>
-          </div>
-        </div>
+        <p v-if="gofundme && importe" class="hero__support">
+          <Icon name="ph:users-three" class="w-5 h-5 shrink-0 text-miriam" aria-hidden="true" />
+          <span class="nums">
+            <i18n-t keypath="hero.proof_money" tag="span">
+              <template #importe>
+                <strong
+                  :data-gofundme-importe="gofundme.currentAmount.amount"
+                  :data-gofundme-origen="gofundme.origen ?? 'semilla'"
+                >{{ importe }}</strong>
+              </template>
+              <template #n>{{ donantes }}</template>
+            </i18n-t>
+            <!-- La fecha, en su línea y sin «·»: ella no se parte (espacios duros en fechaDeCifra) ni deja un punto colgando. La «·» de
+                 hero.proof_money va unida a sus dos vecinos con espacios duros: nunca queda sola al final ni al principio de una línea. -->
+            <time v-if="cifraDe" class="hero__cifra" :datetime="cifraDe.iso">{{ $t('gofundme.cifra_a', { fecha: cifraDe.texto }) }}</time>
+          </span>
+        </p>
+        <NuxtLink
+          v-if="latest"
+          :to="localePath({ name: 'timeline' }) + '#lo-ultimo'"
+          class="hero__latest group"
+          @click="trackLatest('hero')"
+        >
+          <span class="hero__latest-meta">
+            <span class="hero-live-dot h-2 w-2 shrink-0 rounded-full bg-coral" aria-hidden="true" />
+            <span class="etiqueta">{{ $t('hero.latest_label') }}</span>
+            <span v-if="latestAgo" class="font-mono text-xs text-tinta">· {{ latestAgo }}</span>
+          </span>
+          <span class="hero__latest-title">
+            {{ latest.title }}
+            <Icon
+              name="ph:arrow-right"
+              class="ml-1.5 inline-block w-3.5 h-3.5 align-[-2px] transition-transform group-hover:translate-x-0.5"
+              aria-hidden="true"
+            />
+          </span>
+        </NuxtLink>
       </div>
     </div>
   </section>
 </template>
 
 <script setup lang="ts">
-import resultadosCelula from '~~/public/celula/resultados.json'
-
 const localePath = useLocalePath()
-const { locale, t } = useI18n()
-const { trackSupport, trackScience, trackLatest } = useSupport()
+const { locale } = useI18n()
+const { trackSupport, trackLatest } = useSupport()
 
-type GoFundMeFundraiser = import('../../utils/fundraiser').GoFundMeFundraiser
-const { data: gofundme, refresh: refreshFundraiser } = await useAsyncData<GoFundMeFundraiser | null>(
-  'hero-fundraiser',
-  async () => {
-    if (import.meta.server) {
-      try {
-        const { readFile } = await import('node:fs/promises')
-        return JSON.parse(await readFile('seed/fundraiser.json', 'utf-8'))
-      } catch {
-        return null
-      }
-    }
-    return $fetch<GoFundMeFundraiser>('/fundraiser.json')
-  }
+// Lo recaudado y el nº de donantes: semilla del build en el HTML y cifra viva al montar (useFundraiser lo comparte con la tarjeta
+// de la campaña: una sola petición por página). Sin objetivo ni porcentaje. Sin dato, la línea no se pinta (antes salía «—»: un
+// guion donde debía ir una cifra).
+const gofundme = await useFundraiser()
+const donantes = computed(() =>
+  gofundme.value
+    ? new Intl.NumberFormat(locale.value === 'es' ? 'es-ES' : 'en-US').format(gofundme.value.donationCount)
+    : null,
 )
-onMounted(() => {
-  refreshFundraiser()
+const importe = computed(() =>
+  gofundme.value ? formatCurrency(gofundme.value.currentAmount.amount, gofundme.value.currentAmount.currencyCode, locale.value) : null,
+)
+// La fecha solo si la cifra es de la semilla Y sabemos de cuándo es (nunca una inventada).
+const cifraDe = computed(() => {
+  const v = gofundme.value
+  if (!v || v.origen !== 'semilla' || !v.actualizado) return null
+  return { iso: v.actualizado, texto: fechaDeCifra(v.actualizado, locale.value) }
 })
 
-// Medición («Hero-visto», utils/umamiVistas.ts): se observa el hero ENTERO y no la franja de cifras, para que el
-// denominador sea quien pudo ver el botón de donar y no solo quien bajó hasta las cifras. `conEuros`: ¿había
-// cifra recaudada en el hero al verse? (la raya «—» cuenta como no).
+// Medición («Hero-visto», utils/umamiVistas.ts): se observa el hero ENTERO y no la línea de cifras, para que el denominador sea
+// quien pudo ver el botón de donar y no solo quien bajó hasta las cifras. `conEuros`: ¿había importe en el hero al verse? (sin
+// dato, la línea no se pinta).
 const heroEl = ref<HTMLElement | null>(null)
-useUmamiVisto(heroEl, EVENTO_HERO_VISTO, () => ({ conEuros: !!gofundme.value }))
+useUmamiVisto(heroEl, EVENTO_HERO_VISTO, () => ({ conEuros: !!importe.value }))
 
 const { latest, latestAgo } = useLatestUpdate()
-
-const raisedFormatted = computed(() => {
-  if (!gofundme.value) return '—'
-  return formatCurrency(
-    gofundme.value.currentAmount.amount,
-    gofundme.value.currentAmount.currencyCode,
-    locale.value
-  )
-})
-
-const donorsFormatted = computed(() => {
-  if (!gofundme.value) return '—'
-  return new Intl.NumberFormat(locale.value === 'es' ? 'es-ES' : 'en-US').format(
-    gofundme.value.donationCount
-  )
-})
-
-// Cuarta cifra (Miriam, 17-oct-2026): fuera el «80 % neuroendocrino» (y nada de Ki67, que cambia
-// con cada informe). Células de sus BIOPSIAS (no «del tumor»: el hígado trae también células sanas)
-// leídas una a una, antes del control de calidad (verificacion, 17-oct: 20.625 → 16.891 en el hígado
-// tras QC). Es la misma cifra, «unas», que publica /celula-a-celula en R0. Sale del
-// bloque R0 de resultados.json SOLO si está sellado como verificado y con su OK, así que se pone
-// al día solo y nunca enseña una cifra sin cotejar. Sin dato válido, la cifra no se muestra.
-const celulasLeidas = computed(() => {
-  const r0 = (resultadosCelula as any)?.bloques?.R0
-  if (!r0 || r0.sello !== 'verificado' || r0.ok_miriam !== true) return null
-  const total = Object.values(r0.datos?.muestras ?? {}).reduce(
-    (n: number, m: any) => n + (typeof m?.celulas === 'number' ? m.celulas : 0), 0)
-  return total > 0 ? new Intl.NumberFormat(locale.value === 'es' ? 'es-ES' : 'en-US').format(total) : null
-})
-
-const stats = computed(() => [
-  { value: raisedFormatted.value, label: t('hero.stat_raised_label') },
-  { value: donorsFormatted.value, label: t('hero.stat_donors_label') },
-  { value: caseData.specialists, label: t('hero.stat_specialists_label', { countries: caseData.countries }) },
-  ...(celulasLeidas.value ? [{ value: celulasLeidas.value, label: t('hero.stat_cells_label') }] : []),
-])
 </script>
 
 <style scoped>
@@ -319,16 +256,16 @@ const stats = computed(() => [
 
 .hero__title {
   margin-top: 1.25rem;
-  font-size: clamp(1.8125rem, 4.2vw, 3.25rem);
-  letter-spacing: -0.03em;
-  line-height: 1.08;
-  max-width: 14ch;
+  /* El H1 es una frase entera (≈70 caracteres), no un lema: tamaño más contenido que el del antiguo «Un cáncer raro, una
+     oportunidad real.» para que en 375 px ocupe 4 líneas y no 6. */
+  font-size: clamp(1.75rem, 1.1rem + 2.6vw, 2.875rem);
+  letter-spacing: var(--track-titular);
+  line-height: 1.1;
   text-wrap: balance;
 }
 @media (min-width: 640px) {
   .hero__title {
     margin-top: 1.5rem;
-    max-width: 16ch;
   }
 }
 @media (min-width: 1024px) {
@@ -359,7 +296,7 @@ const stats = computed(() => [
 
 .hero__portrait-frame {
   overflow: hidden;
-  border-radius: 20px;
+  border-radius: var(--radius-card);
   box-shadow: 0 18px 44px -22px rgb(var(--color-text-rgb) / 0.45);
   aspect-ratio: 1;
 }
@@ -375,18 +312,17 @@ const stats = computed(() => [
   position: absolute;
   z-index: 2;
   padding: 0.35rem 0.7rem;
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   background: var(--color-miriam);
   color: var(--color-bg);
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 10px;
+  font-family: var(--font-mono);
+  font-size: var(--texto-xs);
   letter-spacing: 0.04em;
   box-shadow: 0 8px 20px -8px rgb(var(--color-text-rgb) / 0.45);
   transform: rotate(2deg);
 }
 @media (min-width: 640px) {
   .hero__handle {
-    font-size: 11px;
     padding: 0.45rem 0.85rem;
   }
 }
@@ -410,20 +346,16 @@ const stats = computed(() => [
 }
 .hero__portrait-tag span {
   display: inline-block;
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   background: var(--color-text);
   color: var(--color-bg);
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 10px;
-  letter-spacing: 0.12em;
+  font-family: var(--font-mono);
+  font-size: var(--texto-2xs);
+  letter-spacing: 0.08em;
+  white-space: nowrap; /* a 12 px el rótulo mide casi lo que el retrato (224 px): no parte en dos líneas */
   text-transform: uppercase;
   padding: 0.4rem 0.9rem;
   box-shadow: 0 10px 24px -12px rgb(var(--color-text-rgb) / 0.55);
-}
-@media (min-width: 640px) {
-  .hero__portrait-tag span {
-    font-size: 11px;
-  }
 }
 
 /* Cuerpo textual */
@@ -452,78 +384,90 @@ const stats = computed(() => [
   }
 }
 
-/* CTAs · misma anchura y captions alineadas */
+/* CTAs · dos acciones del mismo ancho. Lado a lado cuando caben sin partir su texto: de 640 a 767 px (el hero va a todo el
+   ancho) y desde 1024 px; apiladas en móvil y en 768-1023 px, donde la foto le quita media columna al texto. */
 .hero__cta {
   display: grid;
-  gap: 1rem;
+  gap: 0.75rem;
   max-width: 36rem;
 }
-@media (min-width: 768px) {
+@media (min-width: 640px) and (max-width: 767px), (min-width: 1024px) {
   .hero__cta {
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 1rem 1.25rem;
+    gap: 1rem;
   }
 }
 
-.hero__cta-cell {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  min-width: 0;
+/* Enlace de texto para quien llega por trabajo (clínico o laboratorio): 44 px de alto, a la izquierda de la columna. */
+.hero__pro {
+  width: fit-content;
+  min-height: 44px;
+  font-size: 0.9375rem;
+  line-height: 1.35;
 }
 
-.hero__cta-caption {
-  margin: 0;
-  font-size: 0.75rem;
-  line-height: 1.45;
-  color: var(--color-text-soft);
-  min-height: 2.25rem;
-}
-/* En móvil los CTAs se apilan (1 col), no hay que igualar captions → sin hueco muerto. */
-@media (max-width: 767px) {
-  .hero__cta-caption {
-    min-height: 0;
-  }
-}
-
-/* Zona de evidencia · una sola banda a ancho del shell (señales vivas + cifras)
-   con un único divisor. Sustituye al antiguo hero__status, que vivía estrecho en
-   la columna izquierda y duplicaba el 997 con las cifras. */
+/* Zona de prueba · una sola banda a ancho del shell con un único divisor: lo recaudado y cuánta gente lo hace posible, y la
+   señal viva de recencia («Lo último»). Sin objetivo ni porcentaje. */
 .hero__proof {
   margin-top: 2.5rem;
   padding-top: 1.75rem;
   border-top: 1px solid rgb(var(--color-text-rgb) / 0.1);
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: 1.25rem;
 }
 @media (min-width: 768px) {
   .hero__proof {
     margin-top: 3rem;
     padding-top: 2rem;
+    flex-direction: row;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 2rem 3rem;
+  }
+  /* la frase del importe y los donantes no se parte a media línea: el que cede el ancho es «Lo último» */
+  .hero__support {
+    flex: none;
   }
 }
 
-.hero__pulse {
-  display: flex;
-  flex-direction: column;
-  gap: 0.875rem;
+/* El texto de la cifra puede encogerse con la caja (min-width: 0) y, si una palabra no cabe, partirse: con la letra al 200 % a 375 px en Linux
+   la línea «recaudados en GoFundMe · N» sobresalía 10 px de su bloque (test-salud-estatica, CI del 25-oct-2026). */
+.hero__support .nums {
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
-/* Al retirarse el contador de días (ago-2026) esta fila se quedó con un solo
-   elemento, «lo último». El reparto a dos columnas que había aquí —contador a
-   la izquierda, novedad alineada a la derecha— dejaba el texto colgando del
-   margen derecho sin nada que lo equilibrase, así que se alinea a la izquierda
-   como el resto del hero. */
-@media (min-width: 768px) {
-  .hero__pulse .hero__latest {
-    max-width: 34rem;
-  }
+.hero__support {
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.875rem;
+  line-height: 1.4;
+  color: var(--color-text);
+}
+
+/* La fecha de la cifra: bajo la frase, en su línea. 13 px, el suelo del sistema (R2). Sin `white-space: nowrap`: con la letra
+   ampliada (WCAG 1.4.4 y 1.4.10) el texto se salía de su caja. La fecha lleva espacios duros (fechaDeCifra) y no se parte; lo que
+   no cabe salta de línea entre «cifra a» y la fecha. */
+.hero__cifra {
+  display: block;
+  margin-top: 0.125rem;
+  font-size: 0.8125rem;
+  color: var(--color-text-soft);
 }
 
 .hero__latest {
   display: block;
+  min-height: var(--control-min);
   text-decoration: none;
   color: inherit;
+}
+@media (min-width: 768px) {
+  .hero__latest {
+    max-width: 34rem;
+  }
 }
 
 .hero__latest-meta {
@@ -548,101 +492,6 @@ const stats = computed(() => [
 @media (hover: hover) and (pointer: fine) {
   .hero__latest:hover .hero__latest-title {
     text-decoration-color: var(--color-miriam);
-  }
-}
-
-/* Stats · rejilla cerrada, alturas iguales. Sin divisor propio: cuelga de hero__proof. */
-.hero__stats {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 1.25rem 1rem;
-}
-@media (min-width: 768px) {
-  .hero__stats {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: 0;
-  }
-}
-
-.hero__stat {
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-start;
-  min-height: 4.5rem;
-}
-@media (min-width: 640px) {
-  .hero__stat {
-    padding-inline: 1.75rem;
-    border-left: 1px solid rgb(var(--color-text-rgb) / 0.14);
-    min-height: 5rem;
-  }
-  .hero__stat:first-child {
-    padding-left: 0;
-    border-left: 0;
-  }
-}
-
-.hero__stat-value {
-  margin: 0;
-  font-family: 'Fraunces', serif;
-  font-weight: 600;
-  font-size: clamp(1.875rem, 5vw, 3.75rem);
-  line-height: 1;
-  letter-spacing: -0.04em;
-}
-
-.hero__stat-label {
-  margin: 0.625rem 0 0;
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 10px;
-  line-height: 1.35;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: var(--color-text-soft);
-  word-break: break-word;
-}
-@media (min-width: 1024px) {
-  .hero__stat-label {
-    font-size: 11px;
-    letter-spacing: 0.08em;
-  }
-}
-
-/* «dos caras» */
-.two-faces {
-  position: relative;
-  font-style: italic;
-  font-weight: 700;
-  white-space: normal;
-}
-@media (min-width: 480px) {
-  .two-faces {
-    white-space: nowrap;
-  }
-}
-.two-faces__stroke {
-  position: absolute;
-  left: -1.5%;
-  bottom: -0.22em;
-  width: 103%;
-  height: 0.34em;
-  overflow: visible;
-  pointer-events: none;
-}
-.tf-line {
-  fill: none;
-  stroke: var(--color-miriam);
-  stroke-width: 2.6;
-  stroke-linecap: round;
-}
-@media (prefers-reduced-motion: no-preference) {
-  .tf-line {
-    stroke-dasharray: 1;
-    stroke-dashoffset: 1;
-    animation: tf-draw 0.55s ease-out 0.8s forwards;
-  }
-  @keyframes tf-draw {
-    to { stroke-dashoffset: 0; }
   }
 }
 

@@ -9,7 +9,7 @@
   >
     <div class="max-w-2xl">
       <p class="text-sm font-semibold text-berenjena">
-        <span class="campana-oficial__mark" aria-hidden="true">✱</span>
+        <Icon name="ph:asterisk-bold" class="campana-oficial__mark" aria-hidden="true" />
         {{ $t('campanaOficial.titulo') }}
       </p>
       <p class="mt-1 text-sm text-tinta leading-relaxed">
@@ -24,13 +24,13 @@
         class="campana-oficial__slug link-inline font-mono"
         @click="trackOfficialCampaign(location)"
       >
-        {{ slug }}<span class="sr-only"> {{ $t('a11y.new_tab') }}</span>
+        {{ slug }}<span class="sr-only">{{ ' ' + $t('a11y.new_tab') }}</span>
       </a>
       <p class="text-sm text-tinta leading-relaxed">
         {{ $t('campanaOficial.otras') }}
       </p>
       <p
-        class="mt-2 font-mono text-[12px] leading-relaxed campana-oficial__meta"
+        class="mt-2 font-mono text-xs leading-relaxed campana-oficial__meta"
       >
         {{ $t('campanaOficial.actualizado') }}
       </p>
@@ -70,14 +70,18 @@ const isHome = computed(() => {
   border-top: 1px solid var(--trazo-sutil);
 }
 .campana-oficial__mark {
-  color: var(--color-miriam);
+  display: inline-block;
+  width: 0.875rem;
+  height: 0.875rem;
+  vertical-align: -0.1em;
+  color: var(--identidad);
   margin-right: 0.35rem;
 }
 .campana-oficial__slug {
   display: inline-flex;
   align-items: center;
-  min-height: 44px;
-  font-size: 13px;
+  min-height: var(--control-min);
+  font-size: var(--texto-xs);
   overflow-wrap: anywhere;
   word-break: break-word;
 }

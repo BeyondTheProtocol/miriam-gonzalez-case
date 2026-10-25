@@ -6,6 +6,15 @@
   html {
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    /* Controles nativos (casillas, selectores, barras de desplazamiento) en claro aunque el sistema esté en oscuro:
+       el sitio solo tiene un tema claro, con bandas oscuras editoriales. */
+    color-scheme: light;
+  }
+  /* WCAG 2.4.11 (foco no oculto): con la cabecera fija, el elemento que recibe el foco con el teclado no puede quedar
+     debajo. Solo mientras hay un foco de teclado, para no sumarse al `scroll-mt-*` de los destinos de los enlaces con
+     ancla que ya llevan su propio margen (con el ratón, el aterrizaje no cambia). */
+  html:has(:focus-visible) {
+    scroll-padding-top: calc(var(--cabecera-alto) + 16px);
   }
   /* Smooth-scroll solo si el usuario no pide menos movimiento (WCAG 2.3.3). */
   @media (prefers-reduced-motion: no-preference) {
@@ -26,8 +35,8 @@
     font-size: 0.875rem;
     font-weight: 600;
     text-decoration: none;
-    border-radius: 0 0 8px 0;
-    transition: top 0.15s ease;
+    border-radius: 0 0 var(--radius-md) 0;
+    transition: top var(--dur-micro) var(--curva-salida);
   }
   .skip-link:focus {
     top: 0;
@@ -53,14 +62,14 @@
   }
 
   /* Foco de teclado visible y consistente en toda la interfaz (WCAG 2.4.7).
-     El anillo violeta miriam destaca sobre las superficies claras; el halo
-     crema lo hace visible también sobre las secciones oscuras (berenjena).
+     El anillo lo da el rol --anillo-foco (violeta miriam sobre claro, violeta claro sobre berenjena) y el halo es el
+     fondo del propio contexto: en una banda con data-tema="oscuro" el anillo pasa de 2,9 a 5,5:1 sin tocar el componente.
      Solo :focus-visible → no molesta al click de ratón, sí guía al teclado. */
   :where(a, button, summary, [role="button"], [tabindex]):focus-visible {
-    outline: 2px solid var(--color-miriam);
+    outline: 2px solid var(--anillo-foco);
     outline-offset: 2px;
-    border-radius: 4px;
-    box-shadow: 0 0 0 4px rgba(250, 246, 240, 0.55);
+    border-radius: 4px; /* ds-exc: radio del propio anillo de foco, no de un componente */
+    box-shadow: 0 0 0 4px color-mix(in srgb, var(--fondo) 55%, transparent);
   }
 
   ::selection {
@@ -86,23 +95,36 @@
   }
 
   .section-wide {
-    @apply mx-auto px-6 sm:px-8 lg:px-12;
-    /* Ancho canónico ÚNICO para header, footer y cuerpo de todas las páginas
-       (D1). 1200px (antes max-w-6xl = 1152) respira mejor a 1920 y sigue cómodo
-       a 1440. En < 1200px el max-width no aplica → móvil intacto. */
-    max-width: 75rem;
+    @apply mx-auto;
+    /* Ancho canónico ÚNICO para header, footer y cuerpo de todas las páginas (D1): --shell-max, 1200 px, con el
+       relleno --gutter (24, 32 desde 640 y 48 desde 1024: lo que eran px-6 sm:px-8 lg:px-12). En < 1200 px el
+       max-width no aplica → móvil intacto. */
+    padding-inline: var(--gutter);
+    max-width: var(--shell-max);
+  }
+
+  /* Excepción firmada del shell: la zona de TRABAJO de /laminillas y del explorador ocupa todo el ancho, con el mismo
+     relleno lateral. La barra con el título va en .section-wide, para que su borde siga bajo el logo. */
+  .shell--pantalla {
+    @apply mx-auto;
+    max-width: none;
+    padding-inline: var(--gutter);
   }
 
   /* Medida de lectura para párrafos largos DENTRO del shell ancho: limita el
      ancho pero alineado a la IZQUIERDA del shell (no centrado), para que cuadre
      con el logo y el H1. Solo es un tope: en móvil ocupa el 100%. */
   .measure {
-    max-width: 72ch;
+    max-width: var(--measure);
     margin-inline-start: 0;
   }
 
   .section-spacing {
     @apply py-20 sm:py-28;
+  }
+  /* Relleno corto (los py-14 sm:py-20 que la home escribía a mano en «El caso en 3 frases»). */
+  .section-spacing--compacta {
+    @apply py-14 sm:py-20;
   }
 
   /* Hueco bajo el contenido para la barra de apoyo fija (<lg), SOLO en rutas
@@ -141,7 +163,62 @@
 
   /* DS firma — Fraunces italic en violeta miriam */
   .firma {
-    @apply font-display italic text-miriam;
+    @apply font-display italic;
+    color: var(--identidad);
+  }
+
+  /* ────────────────────────────────────────────────────────────
+     Roles tipográficos (sistema v3, S2b). Cada clase es UN rol y lleva dentro su tamaño, su peso, su interlineado y su
+     tracking: ninguna página los vuelve a escribir (la home tenía `letter-spacing: -0.03em` en línea seis veces).
+     Los valores viven en btp-tokens.css; aquí solo se enlazan. El color lo pone el fondo (--texto-1/2), así que el rol
+     funciona igual en una banda con data-tema="oscuro".
+     · .h1-pagina      H1 de página (30 a 48 px)            · .h2-seccion     H2 de sección (30 a 36 px)
+     · .h2-declaracion H2 que declara (30 a 48; máx. uno)   · .h3-seccion     H3 de sección (20 a 24 px)
+     · .h4-tarjeta     título de tarjeta (Hanken 700, 17)   · .lede           entradilla bajo un titular
+     · .prosa          lectura larga (17/1.6)               · .etiqueta       kicker mono de tarjeta o control (12)
+     ──────────────────────────────────────────────────────────── */
+  .h1-pagina {
+    font: var(--tipo-h1);
+    letter-spacing: var(--track-titular);
+    text-wrap: balance;
+    color: var(--texto-1);
+  }
+  .h2-seccion {
+    font: var(--tipo-h2);
+    letter-spacing: var(--track-titular);
+    text-wrap: balance;
+    color: var(--texto-1);
+  }
+  .h2-declaracion {
+    font: var(--tipo-h2-declaracion);
+    letter-spacing: var(--track-titular);
+    text-wrap: balance;
+    color: var(--texto-1);
+  }
+  .h3-seccion {
+    font: var(--tipo-h3);
+    letter-spacing: -0.02em;
+    text-wrap: balance;
+    color: var(--texto-1);
+  }
+  .h4-tarjeta {
+    font: var(--tipo-h4);
+    letter-spacing: -0.02em;
+    color: var(--texto-1);
+  }
+  .lede {
+    font-family: var(--font-body);
+    font-size: var(--texto-lg);
+    line-height: 1.55;
+    color: var(--texto-2);
+    max-width: var(--measure);
+    text-wrap: pretty;
+  }
+  .prosa {
+    font: var(--tipo-prosa);
+    color: var(--texto-1);
+    max-width: var(--measure);
+    text-wrap: pretty;
   }
 
   /* Cifras alineadas: tabular-nums evita el "salto" de anchura al cambiar
@@ -152,23 +229,24 @@
 
   /* DS card — cream-card sobre cream */
   .card-base {
-    @apply bg-cream-card rounded-card p-6 sm:p-8;
-    border: 1px solid rgb(var(--color-text-rgb) / 0.08);
+    @apply rounded-card p-6 sm:p-8;
+    background-color: var(--superficie);
+    border: 1px solid var(--trazo-sutil);
   }
 
   /* D8 · pulido desktop: lift sutil al pasar el cursor SOLO en tarjetas
      interactivas (las que son enlace o botón). Gated a punteros finos
      (@media hover) → el táctil/móvil no se ve afectado; sin movimiento con
      reduced-motion. Las tarjetas estáticas (div.card-base) no se mueven. */
-  @media (hover: hover) {
+  @media (hover: hover) and (pointer: fine) {
     a.card-base,
     button.card-base {
-      transition: transform 0.18s ease, box-shadow 0.18s ease;
+      transition: transform var(--dur-micro) var(--curva-salida), box-shadow var(--dur-micro) var(--curva-salida);
     }
     a.card-base:hover,
     button.card-base:hover {
       transform: translateY(-2px);
-      box-shadow: 0 14px 34px rgb(var(--color-text-rgb) / 0.1);
+      box-shadow: var(--sombra-hover);
     }
   }
   @media (prefers-reduced-motion: reduce) {
@@ -186,34 +264,49 @@
      marcado + sombra dura en offset, para la tarjeta que protagoniza cada
      grupo. Se aplica como clase adicional sobre .card-base, nunca sola. */
   .card-marked {
-    border-radius: 6px;
-    border: 1.5px solid var(--color-text);
-    box-shadow: 6px 6px 0 rgb(var(--color-text-rgb) / 0.9);
+    border-radius: var(--radius-sm);
+    border: 1.5px solid var(--texto-1);
+    box-shadow: var(--sombra-dura);
   }
-  @media (hover: hover) {
+  /* Solo se mueve si es enlace o botón: una tarjeta que no se pulsa no debe parecer pulsable. */
+  @media (hover: hover) and (pointer: fine) {
+    a.card-marked,
+    button.card-marked {
+      transition: transform var(--dur-micro) var(--curva-salida), box-shadow var(--dur-micro) var(--curva-salida);
+    }
     a.card-marked:hover,
-    button.card-marked:hover,
-    .card-marked:hover {
-      box-shadow: 8px 8px 0 rgb(var(--color-text-rgb) / 0.9);
+    button.card-marked:hover {
+      box-shadow: var(--sombra-dura-hover);
       transform: translate(-2px, -2px);
     }
   }
   @media (prefers-reduced-motion: reduce) {
     a.card-marked:hover,
-    button.card-marked:hover,
-    .card-marked:hover {
+    button.card-marked:hover {
       transform: none;
     }
   }
 
   /* DS botones */
+  /* Cuatro botones, cada uno con SU papel (sistema v3):
+       .btn-cta        solo para APOYAR (donar). Uno por pantalla. Coral con texto berenjena, en cualquier fondo.
+       .btn-dark       acción de explorar (reproducir, abrir un visor). Berenjena sobre crema; en una banda con
+                       data-tema="oscuro" se invierte solo (crema sobre berenjena), porque pinta con los roles.
+       .btn-secondary  navegar o contactar. Contorno.
+       .btn-ghost      terciario. Sin caja.
+     Todos tienen :disabled y [aria-busy], y su hover solo existe donde hay hover de verdad. */
   .btn-cta {
-    @apply inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-btn font-semibold text-berenjena bg-coral hover:bg-coral-hover transition-all;
+    @apply inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-btn font-semibold text-berenjena bg-coral;
+    min-height: var(--control-min);
     box-shadow: 0 0 0 0 transparent;
+    transition: background-color var(--dur-micro) var(--curva-salida), box-shadow var(--dur-micro) var(--curva-salida), transform var(--dur-micro) var(--curva-salida);
   }
-  .btn-cta:hover {
-    box-shadow: 0 10px 22px -8px rgb(var(--color-cta-rgb) / 0.55);
-    transform: translateY(-2px);
+  @media (hover: hover) and (pointer: fine) {
+    .btn-cta:hover {
+      background-color: var(--color-cta-hover);
+      box-shadow: 0 10px 22px -8px color-mix(in srgb, var(--color-cta) 55%, transparent);
+      transform: translateY(-2px);
+    }
   }
   @media (prefers-reduced-motion: reduce) {
     .btn-cta:hover {
@@ -221,79 +314,98 @@
     }
   }
   .btn-secondary {
-    @apply inline-flex items-center justify-center gap-2 px-5 py-3 rounded-btn font-semibold text-berenjena bg-transparent transition-colors;
-    border: 2px solid var(--color-text);
+    @apply inline-flex items-center justify-center gap-2 px-5 py-3 rounded-btn font-semibold bg-transparent;
+    min-height: var(--control-min);
+    color: var(--texto-1);
+    border: 2px solid var(--texto-1);
+    transition: background-color var(--dur-micro) var(--curva-salida), color var(--dur-micro) var(--curva-salida);
   }
-  .btn-secondary:hover {
-    @apply bg-berenjena text-cream;
+  @media (hover: hover) and (pointer: fine) {
+    .btn-secondary:hover {
+      background-color: var(--texto-1);
+      color: var(--fondo);
+    }
   }
-  /* DS botón sólido oscuro — berenjena sobre crema (hero, acciones secundarias) */
+  /* DS botón sólido oscuro — berenjena sobre crema (hero, acciones de explorar) */
   .btn-dark {
-    @apply inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-btn font-semibold text-cream bg-berenjena transition-all;
+    @apply inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-btn font-semibold;
+    min-height: var(--control-min);
+    background-color: var(--texto-1);
+    color: var(--fondo);
     box-shadow: 0 0 0 0 transparent;
+    transition: background-color var(--dur-micro) var(--curva-salida), transform var(--dur-micro) var(--curva-salida);
   }
-  .btn-dark:hover {
-    background: #3d2752;
-    transform: translateY(-1px);
+  @media (hover: hover) and (pointer: fine) {
+    .btn-dark:hover {
+      background-color: var(--btn-dark-hover);
+      transform: translateY(-1px);
+    }
+    [data-tema="oscuro"] .btn-dark:hover {
+      background-color: color-mix(in srgb, var(--color-bg) 84%, var(--color-miriam-claro));
+    }
   }
   .btn-ghost {
-    @apply inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-btn font-semibold text-berenjena bg-transparent transition-colors;
+    @apply inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-btn font-semibold bg-transparent;
+    min-height: var(--control-min);
+    color: var(--texto-1);
+    transition: color var(--dur-micro) var(--curva-salida);
   }
-  .btn-ghost:hover {
-    @apply text-miriam;
+  @media (hover: hover) and (pointer: fine) {
+    .btn-ghost:hover {
+      color: var(--identidad);
+    }
+  }
+  /* Deshabilitado y enviando: se ven y no se pulsan. La opacidad no es la única pista: el cursor y la ausencia de hover. */
+  .btn-cta:disabled, .btn-secondary:disabled, .btn-dark:disabled, .btn-ghost:disabled,
+  .btn-cta[aria-disabled="true"], .btn-secondary[aria-disabled="true"], .btn-dark[aria-disabled="true"], .btn-ghost[aria-disabled="true"] {
+    opacity: 0.55;
+    cursor: not-allowed;
+    box-shadow: none;
+    transform: none;
+  }
+  .btn-cta[aria-busy="true"], .btn-secondary[aria-busy="true"], .btn-dark[aria-busy="true"], .btn-ghost[aria-busy="true"] {
+    cursor: progress;
+    pointer-events: none;
   }
 
   /* Tag / eyebrow */
   .eyebrow {
-    @apply font-mono uppercase text-[12px] font-medium tracking-[0.12em] text-tinta;
+    font: var(--tipo-eyebrow);
+    letter-spacing: var(--track-eyebrow);
+    text-transform: uppercase;
+    color: var(--texto-2);
   }
-  /* eyebrow pequeño: kicker de tarjeta/control (mono, 11px). Mismo lenguaje que .eyebrow.
-     El color por defecto es tinta; se sobreescribe con text-berenjena donde haga falta
-     (la utilidad gana a este @apply por orden de capas). */
+  /* Un eyebrow que es un titular (h2.eyebrow, como la cita de la home) conserva el interlineado de titular: sin esto el
+     `font:` le daba 1,55 y la banda crecía 6 px. Un <p> o un <span> siguen con el del cuerpo. */
+  h1.eyebrow, h2.eyebrow, h3.eyebrow, h4.eyebrow {
+    line-height: 1.1;
+  }
+  /* Kicker de tarjeta o control: mono 600 en mayúsculas, 12 px. El suelo del sistema es 13 px y el 12 se reserva a
+     mono en mayúsculas (.eyebrow, .etiqueta, ejes). `.eyebrow--sm` (11 px) era lo mismo con otro nombre: queda como alias
+     hasta que las páginas migren, y entonces sale. El color por defecto es --texto-2; una utilidad de color lo gana. */
+  .etiqueta,
   .eyebrow--sm {
-    @apply font-mono uppercase text-[11px] font-semibold tracking-[0.1em] text-tinta;
-  }
-
-  .tag {
-    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-2xs font-medium tracking-wide uppercase;
+    font: var(--tipo-etiqueta);
+    letter-spacing: var(--track-etiqueta);
+    text-transform: uppercase;
+    color: var(--texto-2);
   }
 
   /* DS badge genómico — violet pill, mono */
-  .badge-genomic, .tag-gold {
-    @apply inline-block bg-miriam-soft text-berenjena rounded-full px-3 py-1 font-mono text-[13px] font-semibold;
+  .badge-genomic {
+    @apply inline-block bg-miriam-soft text-berenjena rounded-pill px-3 py-1 font-mono text-xs font-semibold;
     letter-spacing: 0;
-    transition: box-shadow 0.2s ease;
+    transition: box-shadow var(--dur-micro) var(--curva-salida);
   }
   /* A4 · brillo sutil al pasar/enfocar — "hasta los detalles respiran".
      Sin movimiento (solo box-shadow), seguro siempre. */
-  .badge-genomic:hover, .badge-genomic:focus-visible,
-  .tag-gold:hover, .tag-gold:focus-visible {
+  .badge-genomic:focus-visible {
     box-shadow: 0 0 0 3px rgb(var(--color-miriam-rgb) / 0.18);
   }
-
-  /* Ocean tag (legacy) → outlined berenjena */
-  .tag-ocean {
-    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-2xs font-medium tracking-wide uppercase;
-    background: rgb(var(--color-text-rgb) / 0.06);
-    color: var(--color-text);
-    border: 1px solid rgb(var(--color-text-rgb) / 0.12);
-  }
-
-  /* Stat number — Fraunces display */
-  .stat-number {
-    @apply font-display font-semibold text-berenjena;
-    font-size: clamp(48px, 6vw, 72px);
-    line-height: 0.95;
-    letter-spacing: -0.04em;
-  }
-  .stat-number--firma {
-    @apply text-miriam;
-  }
-  .stat-label {
-    @apply font-body text-tinta;
-    font-size: 13px;
-    letter-spacing: 0.02em;
-    text-transform: uppercase;
+  @media (hover: hover) and (pointer: fine) {
+    .badge-genomic:hover {
+      box-shadow: 0 0 0 3px rgb(var(--color-miriam-rgb) / 0.18);
+    }
   }
 
   /* ────────────────────────────────────────────────────────────
@@ -308,55 +420,59 @@
     @apply w-full text-sm border-collapse;
   }
   .data-table thead th {
-    @apply text-left font-medium text-tinta;
-    font-size: 12px;
+    @apply text-left font-medium;
+    color: var(--texto-2);
+    font-size: var(--texto-xs);
     letter-spacing: 0.02em;
     padding: 14px 16px;
-    background: var(--color-bg-card); /* cream-card */
-    border-bottom: 1px solid rgb(var(--color-text-rgb) / 0.08);
+    background: var(--superficie);
+    border-bottom: 1px solid var(--trazo-sutil);
   }
-  .data-table thead th:first-child { border-top-left-radius: 12px; }
-  .data-table thead th:last-child  { border-top-right-radius: 12px; }
+  .data-table thead th:first-child { border-top-left-radius: var(--radius-btn); }
+  .data-table thead th:last-child  { border-top-right-radius: var(--radius-btn); }
   .data-table tbody td {
     padding: 14px 16px;
-    border-bottom: 1px solid rgb(var(--color-text-rgb) / 0.06);
+    border-bottom: 1px solid color-mix(in srgb, var(--texto-1) 6%, transparent);
     vertical-align: middle;
-    color: var(--color-text);
+    color: var(--texto-1);
     font-variant-numeric: tabular-nums;
   }
   .data-table tbody tr:last-child td { border-bottom: 0; }
-  .data-table tbody tr:hover td { background: rgb(var(--color-miriam-rgb) / 0.04); }
+  @media (hover: hover) and (pointer: fine) {
+    .data-table tbody tr:hover td { background: color-mix(in srgb, var(--identidad) 4%, transparent); }
+  }
   .data-table .col-marker {
     @apply font-mono;
-    font-size: 13px;
+    font-size: var(--texto-xs);
     font-weight: 500;
     overflow-wrap: break-word;
     word-break: normal;
   }
   .data-table .col-note {
-    color: var(--color-text-soft);
-    font-size: 13px;
+    color: var(--texto-2);
+    font-size: var(--texto-xs);
     line-height: 1.5;
   }
 
   /* Dense variant: tighter rows + smaller type for clinical tables with many columns */
   .data-table--dense thead th {
     padding: 10px 12px;
-    font-size: 11px;
+    font-size: var(--texto-xs);
   }
   .data-table--dense tbody td {
     padding: 10px 12px;
-    font-size: 12.5px;
+    font-size: var(--texto-xs);
   }
   .data-table--dense .col-marker,
   .data-table--dense .col-note {
-    font-size: 12px;
+    font-size: var(--texto-xs);
   }
 
   /* Card wrapper around a data table — keeps the rounded look from the mockups */
   .data-card {
-    @apply bg-cream rounded-card overflow-hidden;
-    border: 1px solid rgb(var(--color-text-rgb) / 0.08);
+    @apply rounded-card overflow-hidden;
+    background-color: var(--fondo);
+    border: 1px solid var(--trazo-sutil);
   }
 
   /* ────────────────────────────────────────────────────────────
@@ -378,13 +494,15 @@
     }
     .data-table--cards tr {
       padding: 14px 16px;
-      border-bottom: 1px solid rgb(var(--color-text-rgb) / 0.10);
+      border-bottom: 1px solid color-mix(in srgb, var(--texto-1) 10%, transparent);
     }
     .data-table--cards tbody tr:last-child {
       border-bottom: 0;
     }
-    .data-table--cards tbody tr:hover td {
-      background: transparent;
+    @media (hover: hover) and (pointer: fine) {
+      .data-table--cards tbody tr:hover td {
+        background: transparent;
+      }
     }
     .data-table--cards td {
       border: 0 !important;
@@ -396,17 +514,17 @@
       text-align: left;
       white-space: normal !important;
       overflow-wrap: anywhere;
-      font-size: 13px;
+      font-size: var(--texto-xs);
       line-height: 1.5;
     }
     .data-table--cards td::before {
       content: attr(data-label);
       text-align: left;
-      font-family: 'JetBrains Mono', ui-monospace, monospace;
-      font-size: 10.5px;
+      font-family: var(--font-mono);
+      font-size: var(--texto-2xs);
       letter-spacing: 0.04em;
       text-transform: uppercase;
-      color: var(--color-text-soft);
+      color: var(--texto-2);
       font-weight: 500;
       line-height: 1.4;
     }
@@ -416,12 +534,12 @@
       text-align: left;
       padding: 2px 0 9px !important;
       margin-bottom: 4px;
-      border-bottom: 1px solid rgb(var(--color-text-rgb) / 0.06) !important;
-      font-family: 'Fraunces', Georgia, serif;
+      border-bottom: 1px solid color-mix(in srgb, var(--texto-1) 6%, transparent) !important;
+      font-family: var(--font-display);
       font-weight: 600;
-      font-size: 16px;
+      font-size: var(--texto-ui);
       letter-spacing: -0.01em;
-      color: var(--color-text);
+      color: var(--texto-1);
     }
     .data-table--cards td.cell-head::before {
       display: none;
@@ -442,25 +560,70 @@
     }
   }
 
+  /* Estados con icono (sistema v3, D4): el color nunca es la única señal. Cada estado lleva un icono propio delante,
+     dibujado con una máscara (así toma el color del texto en cualquier fondo). Son trazos simples de 24x24:
+     hecho (check en círculo), curso (círculo a medias), pendiente (círculo de puntos), nopuede (círculo tachado),
+     atención (triángulo con admiración). Sin color escrito aquí: todo sale de los --estado-* del canon.
+     Solo en .status-badge--*, que dicen el estado de un PROCESO (un paso dado, en curso, pendiente). Las píldoras de datos
+     clínicos (.pill-data--*) llevan el tinte y su texto, y ningún icono: un icono de «hecho» sobre un dato favorable lo leería
+     como verificado o completado, y eso es concluir, no describir (revisión de la fase DS). Si algún día un dato clínico
+     necesita icono, pasa antes por el comité médico con la tabla de qué significa cada uno. */
+  :root {
+    --icono-hecho: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='9'/%3E%3Cpath d='M8 12.5l2.8 2.8L16 9.5'/%3E%3C/svg%3E");
+    --icono-curso: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.4'%3E%3Ccircle cx='12' cy='12' r='9'/%3E%3Cpath d='M12 3a9 9 0 0 1 0 18z' fill='black' stroke='none'/%3E%3C/svg%3E");
+    --icono-pendiente: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.4' stroke-linecap='round'%3E%3Ccircle cx='12' cy='12' r='9' stroke-dasharray='1 4.6'/%3E%3C/svg%3E");
+    --icono-nopuede: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.4' stroke-linecap='round'%3E%3Ccircle cx='12' cy='12' r='9'/%3E%3Cpath d='M5.6 5.6l12.8 12.8'/%3E%3C/svg%3E");
+    --icono-atencion: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 3.5l9.5 16.5h-19z'/%3E%3Cpath d='M12 10v4.5M12 17.2v.1'/%3E%3C/svg%3E");
+  }
+  .status-badge--hecho::before, .status-badge--curso::before, .status-badge--pendiente::before,
+  .status-badge--nopuede::before, .status-badge--atencion::before {
+    content: '';
+    flex: none;
+    width: 1.05em;
+    height: 1.05em;
+    margin-right: 0.4em;
+    background-color: currentColor;
+    -webkit-mask: var(--icono-estado) center / contain no-repeat;
+    mask: var(--icono-estado) center / contain no-repeat;
+  }
+  .status-badge--pendiente { --icono-estado: var(--icono-pendiente); }
+  .status-badge--atencion { --icono-estado: var(--icono-atencion); }
+  .status-badge--hecho { --icono-estado: var(--icono-hecho); }
+  .status-badge--curso { --icono-estado: var(--icono-curso); }
+  .status-badge--nopuede { --icono-estado: var(--icono-nopuede); }
+
   /* Pills used inside cells to surface a value */
   .pill-data {
     @apply inline-flex items-center font-mono font-medium;
-    font-size: 12px;
+    font-size: var(--texto-xs);
     padding: 4px 10px;
-    border-radius: 999px;
+    border-radius: var(--radius-pill);
     letter-spacing: 0;
     line-height: 1.4;
-    white-space: nowrap;
+    max-width: 100%;
   }
-  .pill-data--info     { background: #e0ecf8; color: #1e4a6f; }
-  .pill-data--warn     { background: #fde4cc; color: #8a4a1a; }
-  .pill-data--positive { background: #d8ede0; color: #1f5a3a; }
-  .pill-data--neutral  { background: rgb(var(--color-text-rgb) / 0.06); color: var(--color-text-soft); }
-  .pill-data--violet   { background: var(--color-miriam-soft); color: #5a2466; }
+  /* Los nombres de clase se quedan (science.yml los escribe). Solo tiñen: info es neutro, warn llama la atención y positive
+     es un tinte favorable. No significan «hecho» ni «verificado»; para eso están .status-badge--* y el sello de evidencia. */
+  .pill-data--info     { background: var(--estado-pendiente-fondo); color: var(--estado-pendiente-texto); box-shadow: inset 0 0 0 1px var(--estado-pendiente-borde); }
+  .pill-data--warn     { background: var(--estado-atencion-fondo);  color: var(--estado-atencion-texto);  box-shadow: inset 0 0 0 1px var(--estado-atencion-borde); }
+  .pill-data--positive { background: var(--estado-hecho-fondo);     color: var(--estado-hecho-texto);     box-shadow: inset 0 0 0 1px var(--estado-hecho-borde); }
+  .pill-data--neutral  { background: var(--estado-pendiente-fondo); color: var(--estado-pendiente-texto); }
+  .pill-data--violet   { background: var(--color-miriam-soft); color: var(--color-text); }
   /* berenjena: pill de recuento (rima con la insignia de «N focos» del esqueleto, var(--color-text)). Tokens del DS; contraste ~13:1. */
-  .pill-data--berenjena { background: var(--color-text); color: var(--color-bg); }
+  .pill-data--berenjena { background: var(--texto-1); color: var(--fondo); }
 
-  /* Status badges (uppercase mono) — for clinical/trial status */
+  /* Una píldora o insignia dentro de una tabla parte línea si no cabe, en vez de ensanchar su columna (CI-5: en /ciencia
+     desbordaba a 375 px). Fuera de las tablas conserva su línea única. */
+  .data-table .pill-data,
+  .data-table .status-badge {
+    white-space: normal;
+  }
+
+  /* Status badges (uppercase mono) — for clinical/trial status.
+     LEGADO: las variantes --active, --complete, --pending, --candidate, --reference, --paused, --firma y --shape llevan hex
+     fuera de la paleta. Se quedan tal cual porque la ruta de la home (BADGE_RUTA en utils/rutaPasos.ts) pinta con --active,
+     --firma, --pending y --candidate, y la home no cambia en esta fase. Las sustituyen las variantes de estado de abajo
+     cuando RutaPasos (P1) y las páginas migren; entonces salen estas. */
   .status-badge {
     @apply inline-flex items-center font-mono font-semibold uppercase;
     font-size: 10px;
@@ -471,9 +634,9 @@
     white-space: nowrap;
   }
   .status-badge--active    { background: #d8ede0; color: #1f5a3a; }
-  .status-badge--complete  { background: rgb(var(--color-text-rgb) / 0.06); color: var(--color-text-soft); }
+  .status-badge--complete  { background: color-mix(in srgb, var(--texto-1) 6%, transparent); color: var(--texto-2); }
   /* «Pendiente»: mismos tokens que --complete, nombre que dice lo que representa. */
-  .status-badge--pending   { background: rgb(var(--color-text-rgb) / 0.06); color: var(--color-text-soft); }
+  .status-badge--pending   { background: color-mix(in srgb, var(--texto-1) 6%, transparent); color: var(--texto-2); }
   .status-badge--candidate { background: #fde4cc; color: #8a4a1a; }
   .status-badge--reference {
     background: #e0ecf8;
@@ -490,19 +653,32 @@
   /* shape: tag teal de morfología/factibilidad (forma del hueso); recurre en /mapa. */
   .status-badge--shape     { background: rgba(31,107,87,0.12); color: #1f6b57; }
 
+  /* Variantes de estado del sistema v3 (hecho, curso, pendiente, nopuede, atencion): sin hex, con icono delante y al
+     suelo de 12 px (mono en mayúsculas). Las viejas de arriba siguen en 10 px hasta que se sustituyan. */
+  .status-badge--hecho, .status-badge--curso, .status-badge--pendiente, .status-badge--nopuede, .status-badge--atencion {
+    font-size: var(--texto-2xs);
+  }
+  .status-badge--hecho     { background: var(--estado-hecho-fondo);     color: var(--estado-hecho-texto);     box-shadow: inset 0 0 0 1px var(--estado-hecho-borde); }
+  .status-badge--curso     { background: var(--estado-curso-fondo);     color: var(--estado-curso-texto);     box-shadow: inset 0 0 0 1px var(--estado-curso-borde); }
+  .status-badge--pendiente { background: var(--estado-pendiente-fondo); color: var(--estado-pendiente-texto); box-shadow: inset 0 0 0 1px var(--estado-pendiente-borde); }
+  .status-badge--nopuede   { background: var(--estado-nopuede-fondo);   color: var(--estado-nopuede-texto);   box-shadow: inset 0 0 0 1px var(--estado-nopuede-borde); }
+  .status-badge--atencion  { background: var(--estado-atencion-fondo);  color: var(--estado-atencion-texto);  box-shadow: inset 0 0 0 1px var(--estado-atencion-borde); }
+
   /* Stat readout card — small label / big mono value / unit-range caption.
      Flex column with a fixed min-height so cards in a grid stay aligned and do
      not jump when labels/units wrap to a different number of lines: the label
      sits at the top, the value is pinned to the bottom (margin-top:auto). */
   .stat-readout {
-    @apply bg-cream rounded-card flex flex-col;
-    border: 1px solid rgb(var(--color-text-rgb) / 0.08);
+    @apply rounded-card flex flex-col;
+    background-color: var(--fondo);
+    border: 1px solid var(--trazo-sutil);
     padding: 14px 16px;
     min-height: 108px;
   }
   .stat-readout__label {
-    @apply font-body font-semibold text-berenjena;
-    font-size: 11px;
+    @apply font-body font-semibold;
+    color: var(--texto-1);
+    font-size: var(--texto-xs);
     line-height: 1.25;
     letter-spacing: 0.02em;
     text-transform: uppercase;
@@ -511,62 +687,66 @@
        contenido se ancla abajo */
   }
   .stat-readout__value {
-    @apply font-display font-semibold text-berenjena;
+    @apply font-display font-semibold;
+    color: var(--texto-1);
     margin-top: auto;
     font-size: 28px;
     line-height: 1.05;
     letter-spacing: -0.02em;
   }
   .stat-readout__unit {
-    @apply font-body text-tinta;
-    font-size: 11px;
+    @apply font-body;
+    color: var(--texto-2);
+    font-size: var(--texto-xs);
     line-height: 1.3;
     margin-top: 5px;
   }
 
-  /* Soft alert callout — peach background, berenjena text */
+  /* Aviso suave: fondo de atención (coral tenue, derivado) y texto berenjena. El icono lo pone el contenido. */
   .alert-callout {
-    background: #fceedb;
-    border: 1px solid rgba(138, 74, 26, 0.18);
-    border-radius: 12px;
+    background: var(--estado-atencion-fondo);
+    border: 1px solid var(--estado-atencion-borde);
+    border-radius: var(--radius-btn);
     padding: 14px 18px;
-    color: #5a3010;
-    font-size: 14px;
+    color: var(--estado-atencion-texto);
+    font-size: var(--texto-sm);
     line-height: 1.5;
   }
   .alert-callout__title {
     @apply font-semibold;
-    color: #5a3010;
+    color: var(--estado-atencion-texto);
     margin-bottom: 6px;
     display: flex;
     align-items: center;
     gap: 6px;
   }
 
-  /* Status dots — for in-range / out-of-range indicators */
-  .dot-status {
-    display: inline-block;
-    width: 8px;
-    height: 8px;
-    border-radius: 999px;
-    vertical-align: middle;
-  }
-  .dot-status--ok    { background: #2f8a5a; }
-  .dot-status--alert { background: #d4633c; }
-
   /* Form controls — cream background, miriam focus ring */
+  /* Campo de formulario (sistema v3): 16 px (por debajo, iOS hace zoom al enfocar), 44 px de alto, borde del rol
+     --trazo-interactivo (3,6:1; el del 12 % daba 1,3:1, WCAG 1.4.11), placeholder en --texto-3 (4,9:1) y el anillo de foco
+     de los roles. `min-width: 0` para que no ensanche una rejilla (Turnstile, de 300 px, desbordaba a 375). */
   .form-input {
-    @apply w-full px-4 py-2.5 bg-cream rounded-btn text-sm text-berenjena transition-all;
-    border: 1px solid rgb(var(--color-text-rgb) / 0.12);
+    @apply w-full px-4 py-2 rounded-btn;
+    background-color: var(--fondo);
+    color: var(--texto-1);
+    box-sizing: border-box;
+    min-width: 0;
+    min-height: var(--control-min);
+    font-size: var(--texto-ui);
+    line-height: 1.5;
+    border: 1px solid var(--trazo-interactivo);
+    transition: border-color var(--dur-micro) var(--curva-salida), box-shadow var(--dur-micro) var(--curva-salida);
   }
-  .form-input::placeholder { color: rgb(var(--color-text-soft-rgb) / 0.55); }
-  .form-input:focus {
-    outline: none;
-    border-color: var(--color-miriam);
-    box-shadow: 0 0 0 3px rgb(var(--color-miriam-rgb) / 0.18);
+  .form-input::placeholder { color: var(--texto-3); opacity: 1; }
+  .form-input:focus-visible {
+    outline: 2px solid var(--anillo-foco);
+    outline-offset: 2px;
+    border-color: var(--anillo-foco);
   }
+  .form-input[aria-invalid="true"] { border-color: var(--texto-1); border-width: 2px; }
   .form-label {
-    @apply block text-sm font-medium text-berenjena mb-1.5;
+    @apply block text-sm font-medium mb-1.5;
+    color: var(--texto-1);
   }
 
   /* ────────────────────────────────────────────────────────────
@@ -583,44 +763,57 @@
      ──────────────────────────────────────────────────────────── */
   .link-inline,
   .link-underline {
-    @apply text-miriam font-medium;
+    @apply font-medium;
+    color: var(--identidad);
     text-decoration: underline;
-    text-decoration-color: rgb(var(--color-miriam-rgb) / 0.45);
+    text-decoration-color: color-mix(in srgb, var(--identidad) 45%, transparent);
     text-decoration-thickness: 1px;
     text-underline-offset: 3px;
-    background-image: linear-gradient(var(--color-miriam-soft), var(--color-miriam-soft));
+    background-image: linear-gradient(var(--marcador), var(--marcador));
     background-size: 0% 60%;
     background-position: 0 90%;
     background-repeat: no-repeat;
-    border-radius: 2px;
-    transition: background-size 0.3s ease, color 0.2s ease,
-      text-decoration-color 0.2s ease;
+    border-radius: 2px; /* ds-exc: marcador de enlace en línea, no el radio de un componente */
+    transition: background-size var(--dur-transicion) var(--curva-salida), color var(--dur-micro) var(--curva-salida),
+      text-decoration-color var(--dur-micro) var(--curva-salida);
   }
-  .link-inline:hover,
   .link-inline:focus-visible,
-  .link-underline:hover,
   .link-underline:focus-visible {
-    color: var(--color-text);
-    text-decoration-color: var(--color-miriam);
+    color: var(--texto-1);
+    text-decoration-color: var(--identidad);
     background-size: 100% 60%;
+  }
+  @media (hover: hover) and (pointer: fine) {
+    .link-inline:hover,
+    .link-underline:hover {
+      color: var(--texto-1);
+      text-decoration-color: var(--miriam-hover);
+      background-size: 100% 60%;
+    }
   }
 
   /* Variante sobre fondo oscuro (hero, sección historia): el texto crema
      se mantiene; el resaltado claro aporta el contraste al pasar. */
   .link-inline--invert {
     @apply text-cream;
-    text-decoration-color: rgba(250, 246, 240, 0.5);
+    text-decoration-color: color-mix(in srgb, var(--color-bg) 50%, transparent);
   }
 
+  /* La regla de los 44 px vive en la clase y no en cada uso (antes solo 16 de 34 usos llevaban `min-h-[44px]`). */
   .link-action {
     @apply inline-flex items-center gap-1.5 font-medium;
+    min-height: var(--control-min);
     text-decoration: none;
     text-underline-offset: 3px;
     text-decoration-thickness: 2px;
   }
-  .link-action:hover,
   .link-action:focus-visible {
     text-decoration: underline;
+  }
+  @media (hover: hover) and (pointer: fine) {
+    .link-action:hover {
+      text-decoration: underline;
+    }
   }
 
   /* Wordmarks de prensa — se leen como logos en gris, sin líneas en reposo.
@@ -629,35 +822,47 @@
      que son pinchables. Identificables como enlaces por el rótulo del grupo. */
   .link-logo {
     @apply font-display font-semibold tracking-tight;
-    color: #6b5d75; /* gris malva atenuado, legible en texto grande */
+    color: color-mix(in srgb, var(--color-bg) 30%, var(--color-text)); /* malva atenuado derivado: #6b5d73, 5,3:1 sobre la tarjeta (antes #6b5d75 escrito a mano; difiere 2 niveles de azul) */
     text-decoration: none;
     display: inline-block;
-    transition: color 0.25s ease, transform 0.2s ease;
+    transition: color var(--dur-micro) var(--curva-salida), transform var(--dur-micro) var(--curva-salida);
   }
-  .link-logo:hover,
   .link-logo:focus-visible {
-    color: var(--color-miriam); /* miriam */
+    color: var(--color-miriam);
     transform: translateY(-1px);
+  }
+  @media (hover: hover) and (pointer: fine) {
+    .link-logo:hover {
+      color: var(--color-miriam); /* miriam */
+      transform: translateY(-1px);
+    }
   }
 
   /* Enlaces dentro de contenido (markdown/prose): el plugin typography ya
      los subraya; aquí solo les añadimos el mismo resaltado de marca. */
   .prose a {
-    text-decoration-color: rgb(var(--color-miriam-rgb) / 0.45);
+    color: var(--identidad);
+    text-decoration-color: color-mix(in srgb, var(--identidad) 45%, transparent);
     text-underline-offset: 3px;
-    background-image: linear-gradient(var(--color-miriam-soft), var(--color-miriam-soft));
+    background-image: linear-gradient(var(--marcador), var(--marcador));
     background-size: 0% 60%;
     background-position: 0 90%;
     background-repeat: no-repeat;
-    border-radius: 2px;
-    transition: background-size 0.3s ease, color 0.2s ease,
-      text-decoration-color 0.2s ease;
+    border-radius: 2px; /* ds-exc: marcador de enlace en línea, no el radio de un componente */
+    transition: background-size var(--dur-transicion) var(--curva-salida), color var(--dur-micro) var(--curva-salida),
+      text-decoration-color var(--dur-micro) var(--curva-salida);
   }
-  .prose a:hover,
   .prose a:focus-visible {
-    color: var(--color-text);
-    text-decoration-color: var(--color-miriam);
+    color: var(--texto-1);
+    text-decoration-color: var(--identidad);
     background-size: 100% 60%;
+  }
+  @media (hover: hover) and (pointer: fine) {
+    .prose a:hover {
+      color: var(--texto-1);
+      text-decoration-color: var(--identidad);
+      background-size: 100% 60%;
+    }
   }
 
   /* ────────────────────────────────────────────────────────────
@@ -668,19 +873,21 @@
      violeta de firma al pasar/enfocar, como el resto de pistas
      interactivas del sistema. */
   .notes-disclosure {
-    border-top: 1px solid rgb(var(--color-text-rgb) / 0.08);
+    border-top: 1px solid var(--trazo-sutil);
   }
   .notes-disclosure > summary {
-    @apply font-mono uppercase tracking-[0.12em] text-tinta;
-    font-size: 11px;
+    @apply font-mono uppercase tracking-[0.12em];
+    color: var(--texto-2);
+    font-size: var(--texto-xs);
     font-weight: 500;
     list-style: none;
     cursor: pointer;
     display: flex;
     align-items: center;
     gap: 8px;
-    padding: 14px 0 0;
-    transition: color 0.2s ease;
+    min-height: var(--control-min);
+    padding: 0;
+    transition: color var(--dur-micro) var(--curva-salida);
   }
   .notes-disclosure > summary::-webkit-details-marker {
     display: none;
@@ -692,24 +899,28 @@
     border-right: 1.5px solid currentColor;
     border-bottom: 1.5px solid currentColor;
     transform: rotate(-45deg);
-    transition: transform 0.2s ease;
+    transition: transform var(--dur-micro) var(--curva-salida);
     flex-shrink: 0;
   }
   .notes-disclosure[open] > summary::before {
     transform: rotate(45deg);
   }
-  .notes-disclosure > summary:hover,
   .notes-disclosure > summary:focus-visible {
-    color: var(--color-miriam);
+    color: var(--identidad);
+  }
+  @media (hover: hover) and (pointer: fine) {
+    .notes-disclosure > summary:hover {
+      color: var(--identidad);
+    }
   }
   /* El cambio de color solo no basta para el foco de teclado (tinta→violeta
      ≈2,2:1, por debajo del 3:1 de WCAG 1.4.11/2.4.7): anillo como el global. */
   .notes-disclosure > summary:focus-visible {
-    outline: 2px solid var(--color-miriam);
+    outline: 2px solid var(--anillo-foco);
     outline-offset: 2px;
   }
   .notes-disclosure[open] > summary {
-    color: var(--color-miriam);
+    color: var(--identidad);
     margin-bottom: 4px;
   }
   @media (prefers-reduced-motion: reduce) {
@@ -719,14 +930,232 @@
     }
   }
 
+  /* Barra fija (cabecera al hacer scroll, menú móvil): casi opaca y SIN desenfoque. El token de sombra dice «nada de
+     glassmorphism»; el blur duplicaba además lo que el fondo ya resuelve. */
+  .barra-fija {
+    background-color: color-mix(in srgb, var(--fondo) 96%, transparent);
+  }
+
+  /* ────────────────────────────────────────────────────────────
+     Control segmentado (<Segmentado>): radios, pestañas o interruptores en píldoras. Activo = --seleccionado-bg y
+     --seleccionado-text más borde de 2 px del color del texto (el estado no depende solo del color); reposo con el borde
+     de los controles (--trazo-interactivo, ≥ 3:1); mínimo 44 px. `--desplazable`: en móvil la fila se desliza en horizontal.
+     ──────────────────────────────────────────────────────────── */
+  .segmentado {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--sp-4);
+  }
+  .segmentado--desplazable {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    scroll-snap-type: x proximity;
+    /* overflow-x:auto recorta TAMBIÉN en y, y el anillo de foco ocupa de 2 a 4 px fuera del borde (offset 2 + grosor 2):
+       con 2 px de aire se veían solo los arcos laterales. 6 px arriba y abajo y 4 a los lados lo dejan entero; el margen
+       negativo es el mismo, así que la fila no se mueve ni se ensancha. scroll-padding-inline: sin él, el snap pega el
+       primer botón al borde y el anillo vuelve a recortarse por la izquierda. */
+    padding: 6px 4px;
+    margin: -6px -4px;
+    scroll-padding-inline: 4px;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+  }
+  .segmentado__btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--sp-8);
+    flex: none;
+    box-sizing: border-box;
+    min-height: var(--control-min);
+    padding: 0 var(--sp-16);
+    border: 1px solid var(--trazo-interactivo);
+    border-radius: var(--radius-pill);
+    background: transparent;
+    color: var(--texto-1);
+    font: 600 var(--texto-sm) / 1 var(--font-body);
+    scroll-snap-align: start;
+    -webkit-tap-highlight-color: transparent;
+    transition: background-color var(--dur-micro) var(--curva-salida), color var(--dur-micro) var(--curva-salida),
+      box-shadow var(--dur-micro) var(--curva-salida), transform var(--dur-micro) var(--curva-salida);
+  }
+  .segmentado__icono {
+    width: 1rem;
+    height: 1rem;
+  }
+  .segmentado__btn[aria-checked="true"],
+  .segmentado__btn[aria-selected="true"],
+  .segmentado__btn[aria-pressed="true"] {
+    background: var(--seleccionado-bg);
+    color: var(--seleccionado-text);
+    border-color: var(--texto-1);
+    box-shadow: inset 0 0 0 1px var(--texto-1);
+  }
+  .segmentado__btn:focus-visible {
+    outline: 2px solid var(--anillo-foco);
+    outline-offset: 2px;
+  }
+  @media (hover: hover) and (pointer: fine) {
+    .segmentado__btn:hover {
+      background: var(--secundario-hover);
+    }
+    .segmentado__btn[aria-checked="true"]:hover,
+    .segmentado__btn[aria-selected="true"]:hover,
+    .segmentado__btn[aria-pressed="true"]:hover {
+      background: var(--seleccionado-bg);
+    }
+  }
+  .segmentado__btn:active {
+    transform: scale(0.97);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .segmentado__btn {
+      transition: none;
+    }
+    .segmentado__btn:active {
+      transform: none;
+    }
+  }
+  @media (forced-colors: active) {
+    .segmentado__btn[aria-checked="true"],
+    .segmentado__btn[aria-selected="true"],
+    .segmentado__btn[aria-pressed="true"] {
+      border-color: Highlight;
+      forced-color-adjust: none;
+      background: Highlight;
+      color: HighlightText;
+    }
+  }
+
+  /* ────────────────────────────────────────────────────────────
+     Visor (.visor): el escenario oscuro de los visores 3D y WebGL. Sustituye a #1c1126, #aeb6c2, #d9dee6 y
+     rgba(30,37,48,.92), repetidos en cuatro visores, y a tres placeholders de carga distintos. Se usa junto a
+     data-tema="oscuro" (el escenario es siempre oscuro): <div class="visor" data-tema="oscuro">. Los colores salen de
+     --escena-fondo, --escena-texto y --escena-velo (canon); no se escribe ninguno aquí.
+       .visor__velo    capa que atenúa la escena (un aviso, un estado de error) sin taparla del todo.
+       .visor__carga   UN solo estado de carga: anillo que gira. Es esencial (comunica que algo se está cargando), así
+                       que lleva .anima-esencial y sigue girando con movimiento reducido.
+     ──────────────────────────────────────────────────────────── */
+  .visor {
+    position: relative;
+    overflow: hidden;
+    background: var(--escena-fondo);
+    color: var(--escena-texto);
+    border-radius: var(--radius-card);
+  }
+  .visor__velo {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    padding: var(--sp-16);
+    background: var(--escena-velo);
+    color: var(--escena-texto);
+    text-align: center;
+  }
+  .visor__carga {
+    width: 1.75rem;
+    height: 1.75rem;
+    border-radius: 50%;
+    border: 3px solid color-mix(in srgb, var(--escena-texto) 25%, transparent);
+    border-top-color: var(--escena-texto);
+    animation: visor-giro 0.8s linear infinite;
+  }
+  @keyframes visor-giro {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  /* ────────────────────────────────────────────────────────────
+     Desplegable de sección (.desplegable): <details> legible para contenido de verdad (un método, una nota larga). No es
+     .notes-disclosure, que es la nota al pie en mono de 13 px. Resumen de 44 px, texto de UI, flecha en CSS.
+     ──────────────────────────────────────────────────────────── */
+  .desplegable {
+    border-top: 1px solid var(--trazo-medio);
+  }
+  .desplegable > summary {
+    display: flex;
+    align-items: center;
+    gap: var(--sp-8);
+    min-height: var(--control-min);
+    cursor: pointer;
+    list-style: none;
+    font: 600 var(--texto-ui) / 1.3 var(--font-body);
+    color: var(--texto-1);
+  }
+  .desplegable > summary::-webkit-details-marker {
+    display: none;
+  }
+  .desplegable > summary::before {
+    content: '';
+    flex: none;
+    width: 7px;
+    height: 7px;
+    border-right: 1.5px solid currentColor;
+    border-bottom: 1.5px solid currentColor;
+    transform: rotate(-45deg);
+    transition: transform var(--dur-micro) var(--curva-salida);
+  }
+  .desplegable[open] > summary::before {
+    transform: rotate(45deg);
+  }
+  .desplegable > summary:focus-visible {
+    outline: 2px solid var(--anillo-foco);
+    outline-offset: 2px;
+  }
+  @media (hover: hover) and (pointer: fine) {
+    .desplegable > summary:hover {
+      color: var(--identidad);
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .desplegable > summary::before {
+      transition: none;
+    }
+  }
+
+  /* ────────────────────────────────────────────────────────────
+     Tabla con scroll (.tabla-scroll): envoltorio de una tabla ancha. Cuando hay más a un lado, un degradado del fondo
+     y una sombra suave en ese borde lo dicen (sin JS, con background-attachment). Ponle tabindex="0" y un
+     aria-label para que se pueda recorrer con el teclado. Las clínicas llevan además <colgroup> con anchos.
+     ──────────────────────────────────────────────────────────── */
+  .tabla-scroll {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    background:
+      linear-gradient(to right, var(--fondo) 30%, transparent) left center / 2.5rem 100% no-repeat local,
+      linear-gradient(to left, var(--fondo) 30%, transparent) right center / 2.5rem 100% no-repeat local,
+      radial-gradient(farthest-side at 0 50%, var(--trazo-fuerte), transparent) left center / 0.875rem 100% no-repeat scroll,
+      radial-gradient(farthest-side at 100% 50%, var(--trazo-fuerte), transparent) right center / 0.875rem 100% no-repeat scroll;
+  }
+  .tabla-scroll:focus-visible {
+    outline: 2px solid var(--anillo-foco);
+    outline-offset: 2px;
+  }
+
   /* Filete editorial entre capítulos de una página larga y continua
      (mismo lenguaje de línea fina que separa las bandas de la home).
      Marca "aquí empieza una sección" sin fragmentar el argumento ni
      competir con las bandas de color con significado (anomalía/objetivo). */
   .chapter-rule {
     border: 0;
-    border-top: 1px solid rgb(var(--color-text-rgb) / 0.08);
+    border-top: 1px solid var(--trazo-sutil);
     margin: 0 0 2.75rem;
+  }
+}
+
+/* Red de seguridad del movimiento reducido (WCAG 2.3.3): cualquier animación que alguien olvide proteger acaba al instante
+   y sin repetirse, en su estado final. NO es un `transform: none` global (rompería el centrado con translate): las
+   transiciones de transform se anulan clase a clase, junto a cada :hover. Excepción `.anima-esencial`: lo que comunica un
+   estado y no se entiende parado (el indicador de carga del visor de fotogramas). */
+@media (prefers-reduced-motion: reduce) {
+  :where(*):not(.anima-esencial),
+  :where(*):not(.anima-esencial)::before,
+  :where(*):not(.anima-esencial)::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
   }
 }
 
@@ -792,24 +1221,32 @@
   will-change: transform;
 }
 @media (prefers-reduced-motion: no-preference) {
-  .btn-cta:hover .heart-beat,
   .btn-cta:focus-visible .heart-beat,
-  .donate-cta:hover .heart-beat,
   .donate-cta:focus-visible .heart-beat {
     animation: heart-beat 0.9s ease-in-out infinite;
+  }
+  @media (hover: hover) and (pointer: fine) {
+    .btn-cta:hover .heart-beat,
+    .donate-cta:hover .heart-beat {
+      animation: heart-beat 0.9s ease-in-out infinite;
+    }
   }
   /* Variante «viva»: latido suave permanente (ambiente), que pasa al latido
      potente al interactuar — calmado en reposo, vivo cuando actúas. */
   .heart-beat--alive {
     animation: heart-beat-soft 2.8s ease-in-out infinite;
   }
-  .btn-cta:hover .heart-beat--alive,
   .btn-cta:focus-visible .heart-beat--alive {
     animation: heart-beat 0.9s ease-in-out infinite;
   }
+  @media (hover: hover) and (pointer: fine) {
+    .btn-cta:hover .heart-beat--alive {
+      animation: heart-beat 0.9s ease-in-out infinite;
+    }
+  }
   .progress-fill {
     transform-origin: left center;
-    animation: grow-x 1.3s cubic-bezier(0.22, 1, 0.36, 1) both;
+    animation: grow-x 1.3s var(--curva-salida) both;
   }
   /* Latido perpetuo en el borde de avance: con la barra por fases (objetivo
      lejano, siempre queda hito por delante) el progreso sigue «vivo», así que
@@ -828,7 +1265,7 @@
   width: 8px;
   height: 8px;
   margin: -4px -4px 0 0;
-  border-radius: 9999px;
+  border-radius: var(--radius-pill);
   background: var(--color-cta);
 }
 
@@ -842,8 +1279,8 @@
 .link-inline:active,
 .link-underline:active,
 .prose a:active {
-  color: var(--color-text);
-  text-decoration-color: var(--color-miriam);
+  color: var(--texto-1);
+  text-decoration-color: var(--miriam-active);
   background-size: 100% 60%;
 }
 .link-logo:active {
@@ -851,6 +1288,9 @@
 }
 .link-action:active {
   text-decoration: underline;
+}
+.btn-cta:active {
+  background-color: var(--cta-active);
 }
 
 @media (prefers-reduced-motion: no-preference) {
@@ -874,7 +1314,7 @@
   .reveal-init {
     opacity: 0;
     transform: translateY(18px);
-    transition: opacity 0.6s ease, transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+    transition: opacity var(--dur-transicion) var(--curva-salida), transform var(--dur-transicion) var(--curva-salida);
     will-change: opacity, transform;
   }
   .reveal-init.reveal-in {
@@ -962,50 +1402,13 @@
   }
 }
 
-/* ────────────────────────────────────────────────────────────
-   Fotografía — tratamientos del sistema (DS §16).
-   Las fotos del caso pasan por uno de estos filtros para respirar
-   con la paleta cálida sin parecer "filtradas". Un filtro por pieza.
-   · .pic          → firma (default): cálido, editorial, fiel
-   · .pic.subtle   → press kit / headshots (más fiel al color real)
-   · .pic.cool     → escenas clínicas (frío, no romantiza)
-   · .pic.bw       → citas / openers (B/N cálido, no obituario)
-   · .pic.duotone  → editorial puro (berenjena→crema, vía filtro SVG)
-   El filtro SVG #duotone-berenjena vive en app.vue (global).
-   ──────────────────────────────────────────────────────────── */
-.pic {
-  display: block;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  filter: sepia(0.12) saturate(0.82) contrast(1.06) brightness(1.02) hue-rotate(-4deg);
-  transition: filter 240ms ease;
-}
-.pic.subtle {
-  filter: sepia(0.06) saturate(0.92) contrast(1.03) brightness(1.01);
-}
-.pic.cool {
-  filter: saturate(0.78) contrast(1.05) brightness(1.02) hue-rotate(8deg);
-}
-.pic.bw {
-  filter: grayscale(1) contrast(1.08) brightness(1.02) sepia(0.08);
-}
-.pic.duotone {
-  filter: contrast(1.1) brightness(1.05) url(#duotone-berenjena);
-}
-@media (prefers-reduced-motion: reduce) {
-  .pic {
-    transition: none;
-  }
-}
-
 /* ── Visitor pathways · orientación por persona ─────────────────────────── */
 .pathway-comfort {
     display: flex;
     align-items: baseline;
     gap: 0.45rem;
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 12px;
+    font-family: var(--font-mono);
+    font-size: var(--texto-xs);
     line-height: 1.55;
     color: rgb(var(--color-text-soft-rgb) / 0.82);
     margin-top: 0.25rem;
@@ -1016,291 +1419,6 @@
     color: var(--color-miriam);
     flex-shrink: 0;
     align-self: center;
-  }
-
-  /* Bento asimétrico (hallazgo #1 auditoría 26-sep-26): en vez de tarjetas
-     idénticas, la de "supporter" (donar, CTA primario) protagoniza en un
-     bloque 2x2; el resto se reparte en bloques desiguales. Son 7 desde el
-     20-oct-26 (clínica y laboratorio/single-cell separados). Mobile-first:
-     bajo 640px todo colapsa a una columna — la asimetría es cosa de
-     tablet/desktop, donde hay sitio para respirar. */
-  .pathway-grid {
-    display: grid;
-    gap: 1rem;
-    grid-template-columns: 1fr;
-    align-items: stretch;
-  }
-  @media (min-width: 640px) {
-    .pathway-grid {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-    /* La tarjeta protagonista (donar) ocupa las dos columnas en tablet;
-       el resto sigue en pares — asimetría ligera sin forzar el espacio. */
-    .pathway-card--supporter {
-      grid-column: 1 / -1;
-    }
-  }
-  /* ≥ 1024: 12 columnas (diseno, 20-oct). Filas 1 y 2 como en el PR #306: donar 2×2 y clínica y
-     laboratorio/single-cell lado a lado (3/12 = ¼). La fila 3 va en tercios (4/12): con ¼ los accesos
-     de prensa y tech pasaban a 3 líneas con las fuentes de Linux (CI); con ⅓ caben en 2 con cualquier
-     fuente. Mismo orden visual que el del DOM (supporter, curious, clinician, research, press, tech,
-     peer), que es el del tabulador. Lo vigilan test-caminos (teselado) y test-home-caminos (≤ 2 líneas). */
-  @media (min-width: 1024px) {
-    .pathway-grid { grid-template-columns: repeat(12, minmax(0, 1fr)); }
-    .pathway-card--supporter { grid-column: 1 / span 6;  grid-row: 1 / span 2; }
-    .pathway-card--curious   { grid-column: 7 / span 6;  grid-row: 1; }
-    .pathway-card--clinician { grid-column: 7 / span 3;  grid-row: 2; }
-    .pathway-card--research  { grid-column: 10 / span 3; grid-row: 2; }
-    .pathway-card--press     { grid-column: 1 / span 4;  grid-row: 3; }
-    .pathway-card--tech      { grid-column: 5 / span 4;  grid-row: 3; }
-    .pathway-card--peer      { grid-column: 9 / span 4;  grid-row: 3; }
-  }
-
-  .pathway-card {
-    display: flex;
-    flex-direction: column;
-    gap: 0.65rem;
-    height: 100%;
-    padding: 1.25rem 1.35rem;
-    border-radius: 16px;
-    background: var(--color-bg);
-    border: 1px solid rgb(var(--color-text-rgb) / 0.08);
-    transition: box-shadow 0.18s ease, transform 0.18s ease;
-  }
-  @media (hover: hover) {
-    .pathway-card:hover {
-      box-shadow: 0 10px 28px rgb(var(--color-text-rgb) / 0.08);
-    }
-  }
-  /* Alternancia de superficie (hallazgo #2): no todas las tarjetas llevan
-     la misma receta de "radius 16 + sombra suave". Las de índice par pasan
-     a papel con borde marcado y sombra dura en offset — la protagonista
-     (supporter) también, para que el CTA de donar tire del ojo primero. */
-  .pathway-card--supporter,
-  .pathway-card--clinician,
-  .pathway-card--tech {
-    border-radius: 6px;
-    border: 1.5px solid var(--color-text);
-    box-shadow: 6px 6px 0 rgb(var(--color-text-rgb) / 0.9);
-  }
-  @media (hover: hover) {
-    .pathway-card--supporter:hover,
-    .pathway-card--clinician:hover,
-    .pathway-card--tech:hover {
-      box-shadow: 8px 8px 0 rgb(var(--color-text-rgb) / 0.9);
-      transform: translate(-2px, -2px);
-    }
-  }
-  .pathway-card--supporter {
-    padding: 1.75rem 1.85rem;
-    background: var(--color-bg-card);
-  }
-  .pathway-card--supporter .pathway-card__title {
-    font-size: 1.4rem;
-  }
-  .pathway-card--supporter .pathway-card__num {
-    font-size: 2.75rem;
-  }
-  .pathway-card__head {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 0.5rem;
-  }
-  /* Numeración tipográfica grande en vez del badge-icono circular violeta:
-     el sitio no tiene un set propio de iconos ilustrados (solo Phosphor
-     genérico), así que el número en Fraunces hace de ancla visual editorial
-     sin inventar una ilustración de baja calidad. */
-  .pathway-card__num {
-    font-family: 'Fraunces', serif;
-    font-weight: 600;
-    font-size: 2rem;
-    line-height: 1;
-    color: rgb(var(--color-text-rgb) / 0.22);
-    font-variant-numeric: tabular-nums;
-  }
-  .pathway-card__time {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 10.5px;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    color: rgb(var(--color-text-soft-rgb) / 0.72);
-    white-space: nowrap;
-  }
-  .pathway-card__title {
-    display: flex;
-    align-items: baseline;
-    gap: 0.4rem;
-    font-family: 'Fraunces', serif;
-    font-weight: 600;
-    font-size: 1.05rem;
-    line-height: 1.25;
-    color: var(--color-text);
-    text-wrap: balance;
-  }
-  .pathway-card__title-icon {
-    width: 0.95em;
-    height: 0.95em;
-    color: var(--color-miriam);
-    flex-shrink: 0;
-    transform: translateY(0.1em);
-  }
-  /* Cuerpo de la tarjeta: misma columna y mismo hueco que la tarjeta, para que
-     envolverlo (plegado en móvil) no cambie nada a ≥ 640 px. */
-  .pathway-card__body {
-    display: flex;
-    flex-direction: column;
-    gap: 0.65rem;
-    flex: 1;
-  }
-  /* Botón de plegado (solo existe en móvil): ocupa la fila del título entera,
-     44 px de alto mínimo, sin hover propio (en táctil se quedaría pegado). */
-  .pathway-card__toggle {
-    display: flex;
-    align-items: center;
-    gap: 0.4rem;
-    width: 100%;
-    min-height: 44px;
-    margin: -0.35rem 0;
-    padding: 0;
-    background: none;
-    border: 0;
-    font: inherit;
-    color: inherit;
-    text-align: left;
-    cursor: pointer;
-    -webkit-tap-highlight-color: transparent;
-    /* el margen negativo acerca el anillo de foco al numeral: sin separación no lo roza (diseno, 14-oct) */
-    outline-offset: 0;
-  }
-  .pathway-card__toggle .pathway-card__title-icon {
-    transform: none;
-  }
-  /* Plegada (solo existe en móvil): menos aire y el número más pequeño, para que
-     los siete títulos quepan casi en una pantalla. */
-  .pathway-card.is-plegada {
-    gap: 0.35rem;
-    padding: 0.85rem 1.1rem;
-  }
-  .pathway-card.is-plegada .pathway-card__num {
-    font-size: 1.35rem;
-  }
-  .pathway-card__caret {
-    width: 1rem;
-    height: 1rem;
-    flex-shrink: 0;
-    color: var(--color-miriam);
-    transition: transform var(--dur-micro, 150ms) var(--curva-salida, ease-out);
-  }
-  .pathway-card__toggle[aria-expanded='true'] .pathway-card__caret {
-    transform: rotate(180deg);
-  }
-  .pathway-card__desc {
-    font-size: 0.875rem;
-    line-height: 1.55;
-    color: var(--color-text-soft);
-    flex: 1;
-  }
-  .pathway-card__steps {
-    margin: 0;
-    padding: 0;
-    list-style: none;
-    display: flex;
-    flex-direction: column;
-    gap: 0.35rem;
-    font-size: 0.78rem;
-    line-height: 1.45;
-    color: rgb(var(--color-text-soft-rgb) / 0.88);
-  }
-  .pathway-card__steps li {
-    display: flex;
-    gap: 0.4rem;
-    align-items: baseline;
-  }
-  .pathway-card__steps li::before {
-    content: '→';
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 10px;
-    color: var(--color-miriam);
-    flex-shrink: 0;
-  }
-  /* Accesos directos de los caminos profesionales (plan del 20-oct). Clase propia: .pathway-chip
-     (cápsula, texto sin cortes) la comparten el pie y /colabora y no se toca. Filas de 44 px que
-     envuelven, borde de control ≥3:1 (--trazo-interactivo), icono de la herramienta delante y
-     flecha detrás, ambos SVG. Hover solo con puntero fino: en táctil se quedaría pegado. */
-  .pathway-accesos {
-    margin: 0;
-    padding: 0;
-    list-style: none;
-    display: flex;
-    flex-direction: column;
-    gap: 0.4rem;
-  }
-  .pathway-acceso {
-    display: flex;
-    align-items: center;
-    gap: 0.55rem;
-    width: 100%;
-    min-height: 44px;
-    padding: 0.5rem 0.7rem;
-    border-radius: 10px;
-    border: 1px solid var(--trazo-interactivo);
-    background: var(--color-bg);
-    color: var(--color-text);
-    font-size: 0.875rem;
-    font-weight: 600;
-    line-height: 1.3;
-    text-decoration: none;
-    -webkit-tap-highlight-color: transparent;
-    transition: border-color var(--dur-micro, 150ms) var(--curva-salida, ease-out),
-      background-color var(--dur-micro, 150ms) var(--curva-salida, ease-out);
-  }
-  .pathway-acceso__icono {
-    width: 1.05rem;
-    height: 1.05rem;
-    flex-shrink: 0;
-    color: var(--color-miriam);
-  }
-  .pathway-acceso__label {
-    flex: 1;
-    min-width: 0;
-    overflow-wrap: anywhere;
-  }
-  .pathway-acceso__flecha {
-    width: 0.95rem;
-    height: 0.95rem;
-    flex-shrink: 0;
-    color: var(--color-miriam);
-  }
-  @media (hover: hover) {
-    .pathway-acceso:hover {
-      border-color: var(--color-miriam);
-      background: rgb(var(--color-miriam-rgb) / 0.06);
-    }
-  }
-  .pathway-acceso:active {
-    background: rgb(var(--color-miriam-rgb) / 0.1);
-  }
-  @media (forced-colors: active) {
-    .pathway-acceso {
-      border-color: LinkText;
-    }
-  }
-  .pathway-card__cta {
-    margin-top: auto;
-    padding-top: 0.35rem;
-  }
-  /* Sin palabra huérfana en el botón cuando envuelve («Escribir al equipo / tech»; diseno, 20-oct). */
-  .pathway-card__cta .btn-cta,
-  .pathway-card__cta .btn-secondary {
-    text-wrap: balance;
-  }
-  .pathway-card__caption {
-    margin-top: 0.45rem;
-    font-size: 0.72rem;
-    line-height: 1.45;
-    color: rgb(var(--color-text-soft-rgb) / 0.78);
-    min-height: 2rem;
   }
 
   .pathway-chips {
@@ -1314,103 +1432,39 @@
     gap: 0.45rem;
     min-height: 44px; /* objetivo táctil (diseno, tras el PR #269): antes 40 px */
     padding: 0.55rem 0.85rem;
-    border-radius: 999px;
-    border: 1px solid rgb(var(--color-text-rgb) / 0.12);
+    border-radius: var(--radius-pill);
+    border: 1px solid var(--trazo-medio);
     background: var(--color-bg);
     color: var(--color-text);
     font-size: 0.82rem;
     font-weight: 600;
     text-decoration: none;
-    transition: background 0.15s ease, border-color 0.15s ease;
+    transition: background var(--dur-micro) var(--curva-salida), border-color var(--dur-micro) var(--curva-salida);
   }
-  .pathway-chip:hover {
-    background: rgb(var(--color-miriam-rgb) / 0.1);
-    border-color: rgb(var(--color-miriam-rgb) / 0.28);
+  @media (hover: hover) and (pointer: fine) {
+    .pathway-chip:hover {
+      background: rgb(var(--color-miriam-rgb) / 0.1);
+      border-color: rgb(var(--color-miriam-rgb) / 0.28);
+    }
   }
   .pathway-chip__label {
     white-space: nowrap;
   }
   .pathway-chip__time {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 10px;
+    font-family: var(--font-mono);
+    font-size: var(--texto-2xs);
     letter-spacing: 0.04em;
     text-transform: uppercase;
-    color: rgb(var(--color-text-soft-rgb) / 0.65);
+    color: var(--texto-3);
     margin-left: 0.1rem;
-  }
-
-  .pathway-brief__summary {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 0.5rem 0.75rem;
-    cursor: pointer;
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 0.82rem;
-    font-weight: 600;
-    color: var(--color-text);
-    list-style: none;
-    padding: 0.65rem 0;
-  }
-  .pathway-brief__summary::-webkit-details-marker {
-    display: none;
-  }
-  .pathway-brief__summary::before {
-    content: '▸';
-    color: var(--color-miriam);
-    transition: transform 0.15s ease;
-  }
-  .pathway-brief[open] .pathway-brief__summary::before {
-    transform: rotate(90deg);
-  }
-  .pathway-brief__badge {
-    font-size: 10px;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    padding: 0.2rem 0.55rem;
-    border-radius: 999px;
-    background: rgb(var(--color-miriam-rgb) / 0.12);
-    color: var(--color-text);
-  }
-  .pathway-brief__list {
-    margin: 0;
-    padding: 0;
-    list-style: none;
-    display: flex;
-    flex-direction: column;
-    gap: 0.85rem;
-  }
-  .pathway-brief__list li {
-    display: flex;
-    gap: 0.75rem;
-    align-items: flex-start;
-    font-size: 0.9rem;
-    line-height: 1.55;
-    color: var(--color-text-soft);
-  }
-  .pathway-brief__num {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 1.5rem;
-    height: 1.5rem;
-    border-radius: 6px;
-    background: rgb(var(--color-miriam-rgb) / 0.14);
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 11px;
-    font-weight: 700;
-    color: var(--color-text);
-    flex-shrink: 0;
   }
 
   /* Alto contraste: refuerzo suave sin romper la marca */
   @media (prefers-contrast: more) {
-    .pathway-card,
     .pathway-chip,
     .card-base {
-      border-color: rgb(var(--color-text-rgb) / 0.22);
+      border-color: color-mix(in srgb, var(--texto-1) 22%, transparent);
     }
-    .pathway-card__desc,
     .pathway-comfort,
     .nota {
       color: var(--color-text);
@@ -1420,16 +1474,6 @@
     }
   }
 
-@media (prefers-reduced-motion: reduce) {
-  .pathway-brief__summary::before {
-    transition: none;
-  }
-  .pathway-card,
-  .pathway-card__caret,
-  .pathway-acceso {
-    transition: none;
-  }
-}
 
 /* ── Impresión ──────────────────────────────────────────────────────────────
    Pensado sobre todo para /ciencia: un oncólogo imprime el caso y se lo lleva
@@ -1452,12 +1496,12 @@
     display: none !important;
   }
   body {
-    background: #fff !important;
+    background: #fff !important; /* ds-exc: impresión en negro sobre blanco, otro medio */
     font-size: 11pt;
     line-height: 1.45;
   }
   * {
-    color: #1a1a1a !important;
+    color: #1a1a1a !important; /* ds-exc: impresión en negro sobre blanco, otro medio */
     box-shadow: none !important;
   }
   .card-base,
@@ -1466,8 +1510,8 @@
   li,
   tr {
     break-inside: avoid;
-    background: #fff !important;
-    border-color: #ccc !important;
+    background: #fff !important; /* ds-exc: impresión en negro sobre blanco, otro medio */
+    border-color: #ccc !important; /* ds-exc: impresión en negro sobre blanco, otro medio */
   }
   .heading-display,
   h1,
@@ -1480,13 +1524,13 @@
   }
   .data-table th,
   .data-table td {
-    border: 1px solid #ccc !important;
+    border: 1px solid #ccc !important; /* ds-exc: impresión en negro sobre blanco, otro medio */
     padding: 4px 6px !important;
   }
   main a[href^="http"]::after {
     content: " (" attr(href) ")";
     font-size: 0.85em;
-    color: #555 !important;
+    color: #555 !important; /* ds-exc: impresión en negro sobre blanco, otro medio */
     word-break: break-all;
   }
   main a[href^="/"]::after,

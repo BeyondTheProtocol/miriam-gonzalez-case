@@ -5,11 +5,11 @@
        cambia entre páginas va por props: opacidad por grupo (filtros y línea de tiempo del
        mapa), ticks, textos de accesibilidad y si el componente gestiona el teclado o lo hace la
        página. Vista anterior: la derecha del cuerpo queda a la izquierda. -->
-  <div>
-    <p class="text-[10px] text-tinta leading-snug px-1 mb-1.5">
+  <div ref="caja">
+    <p class="text-xs text-tinta leading-snug px-1 mb-1.5">
       {{ L('Vista de frente · la derecha del cuerpo queda a tu izquierda', 'Front view · the body’s right is on your left') }}
     </p>
-    <div class="flex justify-between text-[11px] font-semibold text-berenjena px-1 mb-1">
+    <div class="flex justify-between text-xs font-semibold text-berenjena px-1 mb-1">
       <span>{{ L('Dcha. del cuerpo', 'Body’s right') }}</span>
       <span>{{ L('Izq. del cuerpo', 'Body’s left') }}</span>
     </div>
@@ -22,28 +22,15 @@
       :aria-describedby="describedby"
       @keydown="onKey">
       <defs>
-        <!-- Negativoscopio de marca: el mismo #1c1126 que los visores 3D (BreastView, LiverView,
-             BoneTriView). El hueso va en gris pálido y NUNCA en dorado: el dorado está reservado
-             a «lesión» en las tarjetas de la mama y el hígado, y competiría con ese código. -->
-        <linearGradient :id="pfx + 'Bone'" x1="0" y1="0" x2="0.5" y2="1">
-          <stop offset="0%" stop-color="#d7dbe2" /><stop offset="48%" stop-color="#bcc2cc" /><stop offset="100%" stop-color="#959daa" />
-        </linearGradient>
-        <linearGradient :id="pfx + 'BoneV'" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stop-color="#dde1e8" /><stop offset="50%" stop-color="#c3c9d3" /><stop offset="100%" stop-color="#9aa2af" />
-        </linearGradient>
-        <radialGradient :id="pfx + 'BoneHi'" cx="36%" cy="20%" r="75%">
-          <stop offset="0%" stop-color="#ffffff" stop-opacity="0.32" /><stop offset="55%" stop-color="#ffffff" stop-opacity="0" />
-        </radialGradient>
-        <filter :id="pfx + 'BoneShadow'" x="-30%" y="-30%" width="160%" height="160%">
-          <feDropShadow dx="0" dy="1.2" stdDeviation="3.2" flood-color="#000000" flood-opacity="0.45" />
-        </filter>
+        <!-- Escenario de los visores 3D (sistema v3, P1): el fondo, el texto y el velo salen de --escena-* y no de hex. El hueso es la imagen
+             PNG de abajo; antes había aquí cuatro degradados de hueso (gris azulado) que ningún elemento usaba, y se han borrado. -->
         <linearGradient :id="pfx + 'Fundido'" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stop-color="#1c1126" stop-opacity="0" /><stop offset="100%" stop-color="#1c1126" stop-opacity="0.95" />
+          <stop offset="0%" style="stop-color: var(--escena-fondo)" stop-opacity="0" /><stop offset="100%" style="stop-color: var(--escena-fondo)" stop-opacity="0.95" />
         </linearGradient>
       </defs>
-      <!-- fondo plano #1c1126, el mismo que los visores 3D (auditoría diseño, 27-sep-26: el
+      <!-- fondo plano (--escena-fondo), el mismo que los visores 3D (auditoría diseño, 27-sep-26: el
            degradado radial era el único fondo distinto de los seis visores) -->
-      <rect x="0" y="0" :width="VB_W" :height="VB_VIS" rx="18" fill="#1c1126" />
+      <rect x="0" y="0" :width="VB_W" :height="VB_VIS" rx="18" style="fill: var(--escena-fondo)" />
       <!-- Esqueleto de REFERENCIA, de cuerpo entero, del atlas BodyParts3D (CC BY 4.0), hecho con
            tools/esqueleto_referencia.py en claudecode. Sustituye al de su TC (27-sep-2026): su TC
            va de la cabeza al muslo con los brazos en alto y no daba una figura completa. Lo que
@@ -51,13 +38,17 @@
       <image href="/esqueleto/esqueleto-anterior.png" x="0" y="0" :width="VB_W" :height="VB_H"
         preserveAspectRatio="xMidYMid meet" :aria-hidden="true" />
       <!-- contorno oscuro: con el esqueleto entero las etiquetas T12, L1, L5 y S caen sobre el brazo
-           izquierdo y sin él no se leían -->
-      <g font-family="JetBrains Mono, monospace" font-size="9" fill="#aeb6c2" font-weight="600" stroke="#1c1126" stroke-width="3" paint-order="stroke" stroke-linejoin="round">
-        <text v-for="tk in ticksUsados" :key="tk.t" x="362" :y="(tk.ty ?? tk.y) + 3" text-anchor="start">{{ tk.t }}</text>
+           izquierdo y sin él no se leían.
+           Tamaño (revisión de P1): el viewBox mide 440 y el dibujo se muestra a ~240-330 px, o sea a escala 0,54-0,75, así que el texto del SVG
+           se escribe en unidades de viewBox y no en px: con 9 unidades salían 6,0 px reales. TEXTO sale de la escala real (ver el script) y garantiza
+           ≥ 13 px; scripts/test-diseno-render.mjs lo mide en pantalla (texto_svg_bajo_suelo). El centrado vertical es del propio texto
+           (dominant-baseline), no un `+ 3` calculado para 9. -->
+      <g font-family="JetBrains Mono, monospace" :font-size="TEXTO" style="fill: var(--escena-texto); stroke: var(--escena-fondo)" font-weight="600" stroke-width="5" paint-order="stroke" stroke-linejoin="round">
+        <text v-for="tk in ticksUsados" :key="tk.t" x="362" :y="tk.ty ?? tk.y" dominant-baseline="central" text-anchor="start">{{ tk.t }}</text>
         <!-- la marca va en la altura REAL y el texto donde se lea; el codo une las dos -->
         <path v-for="tk in ticksUsados" :key="'l' + tk.t"
           :d="`M344,${tk.y} L352,${tk.y} L358,${tk.ty ?? tk.y}`"
-          fill="none" stroke="#7d8593" stroke-width="1" />
+          fill="none" style="stroke: color-mix(in srgb, var(--escena-texto) 65%, var(--escena-fondo))" stroke-width="1" />
       </g>
       <g v-for="{ g, p } in CONPOS" :key="g.key" class="sk-foco"
         :style="opacidad ? { opacity: opacidad(g) } : undefined">
@@ -72,13 +63,13 @@
              oscuro por fuera y uno claro por dentro se ven sobre CUALQUIER fondo, como la
              línea de un mapa. Solo aparece al seleccionar, así que no ensucia el resto. -->
         <circle v-if="esSel(g)" :cx="p.x" :cy="p.y" :r="R + 4.6"
-          fill="none" stroke="#120b1a" stroke-width="3" aria-hidden="true" />
+          fill="none" style="stroke: color-mix(in srgb, var(--escena-fondo) 65%, black)" stroke-width="3" aria-hidden="true" />
         <circle
           :id="idPrefix + g.primary.id"
           :cx="p.x" :cy="p.y"
           :r="R + (esSel(g) ? 2.5 : 0)"
           :fill="PHENO[g.primary.pheno].c"
-          :stroke="esSel(g) ? '#F5EFE6' : '#1c1126'"
+          :style="{ stroke: esSel(g) ? 'var(--color-bg-card)' : 'var(--escena-fondo)' }"
           :stroke-width="esSel(g) ? 4 : 1.4"
           :stroke-dasharray="(g.primary.source ?? 'informe') === 'ia-david' ? '2 1.6' : undefined"
           class="cursor-pointer sk-marker"
@@ -87,32 +78,34 @@
           @click="emit('pick', g.primary.id)"
           @mouseenter="emit('hover', $event, g)" @mouseleave="emit('leave')"
           @focus="emit('hover', $event, g)" @blur="emit('leave')" />
+        <!-- Insignia con el nº de focos: el círculo crece con el texto (r 6,5 → 10,5 para un número de 20 unidades, ≥ 13 px reales) y se aleja del
+             marcador lo justo para no taparlo. -->
         <g v-if="g.multi" class="pointer-events-none select-none">
-          <circle :cx="p.x + R + 1.5" :cy="p.y - R - 1.5" r="6.5" fill="#F5EFE6" stroke="#1c1126" stroke-width="1.2" />
-          <text :x="p.x + R + 1.5" :y="p.y - R - 1.5" text-anchor="middle" dominant-baseline="central"
-            font-family="Source Sans 3, sans-serif" font-size="9" font-weight="700" fill="#1c1126">{{ g.foci.length }}</text>
+          <circle :cx="p.x + R + 5" :cy="p.y - R - 5" :r="R_INSIGNIA" style="fill: var(--color-bg-card); stroke: var(--escena-fondo)" stroke-width="1.6" />
+          <text :x="p.x + R + 5" :y="p.y - R - 5" text-anchor="middle" dominant-baseline="central"
+            :font-size="TEXTO" font-weight="700" style="font-family: var(--font-body); fill: var(--escena-fondo)">{{ g.foci.length }}</text>
         </g>
       </g>
       <!-- recortado en las rodillas: un degradado al fondo del panel dice «sigue», no «se acaba» -->
       <rect v-if="!entero" x="0" :y="VB_VIS - 70" :width="VB_W" height="70" :fill="`url(#${pfx}Fundido)`" pointer-events="none" />
     </svg>
-    <button type="button" class="mt-1.5 w-full text-[12px] font-semibold text-berenjena underline underline-offset-2 min-h-[44px]"
+    <button type="button" class="mt-1.5 w-full text-xs font-semibold text-berenjena underline underline-offset-2 min-h-[44px]"
       :aria-expanded="entero" @click="entero = !entero">
       {{ entero ? L('Ver hasta las rodillas', 'Show down to the knees') : L('Ver el cuerpo entero', 'Show the whole body') }}
     </button>
     <div class="mt-3 px-1">
       <div class="h-2.5 rounded-full" :style="{ background: PHENO_RAMP_CSS }" />
-      <div class="flex justify-between text-[10px] text-tinta mt-1">
+      <div class="flex justify-between gap-3 text-xs text-tinta mt-1">
         <span>{{ L('SSTR-dominante (⁶⁸Ga⁺/FDG⁻)', 'SSTR-dominant (⁶⁸Ga⁺/FDG⁻)') }}</span>
         <span>{{ L('Glucolítico-dom. (FDG⁺/SSTR⁻)', 'Glycolytic-dom. (FDG⁺/SSTR⁻)') }}</span>
       </div>
-      <p class="mt-1.5 text-[10.5px] text-tinta leading-snug">
+      <p class="mt-1.5 text-xs text-tinta leading-snug">
         {{ L('Color = trazador · insignia = nº de focos en esa vértebra · contorno punteado = detectado por IA (por confirmar).', 'Color = tracer · badge = nº of foci in that vertebra · dashed outline = AI-detected (to confirm).') }}
       </p>
-      <p class="mt-1 text-[10.5px] text-tinta leading-snug">
+      <p class="mt-1 text-xs text-tinta leading-snug">
         {{ L('El dibujo es un esqueleto de referencia de cuerpo entero: su TC llega de la cabeza al muslo y se hace con los brazos en alto, así que de él no sale una figura completa. Lo suyo son los focos. Cada uno va en el hueso que nombra el informe; su altura dentro del hueso es estimada.', 'The drawing is a full-body reference skeleton: her CT runs from head to thigh with the arms raised, so it cannot give a complete figure. The foci are hers. Each sits on the bone named in the report; its height within the bone is estimated.') }}
       </p>
-      <p class="mt-1 text-[9.5px] text-tinta/80 leading-snug">
+      <p class="mt-1 text-xs text-tinta leading-snug">
         {{ ESQ.fuente }}
       </p>
     </div>
@@ -155,6 +148,15 @@ const VB_W = 440
    sale ~0,6 veces más estrecho y un punto de 9 tapaba la vértebra entera (Miriam, 27-sep-26).
    6 deja ver el hueso alrededor. La diana táctil va aparte (`hit`), y no baja de 44 px. */
 const R = 6
+/* Texto del SVG, en unidades del viewBox, para que en pantalla mida ≥ 13 px (el suelo de la guía) a cualquier ancho. El viewBox mide 440 y el dibujo
+   se pinta al ancho del contenedor: ≈ 293 px en un móvil de 375 (escala 0,67), ≈ 238 en uno de 320 (0,54) y ≈ 326 en escritorio (0,74). Con una cifra
+   fija, 20 unidades dan 13,3 px a 375 pero 10,8 a 320; por eso el tamaño sale de la escala real (13,2 px entre la escala), con 20 de suelo: de 375 px
+   en adelante vale 20 y solo crece en pantallas más estrechas. En el servidor no hay ancho y se pinta con 20; el cliente lo corrige al montar. Las
+   marcas de vértebra y el contador de la insignia comparten tamaño. */
+const caja = ref<HTMLElement | null>(null)
+const anchoCaja = useAncho(caja, VB_W, 1)
+const TEXTO = computed(() => Math.max(20, Math.ceil(13.2 / (anchoCaja.value / VB_W))))
+const R_INSIGNIA = computed(() => TEXTO.value / 2 + 0.5)
 const VB_H = Math.round(VB_W * ESQ.tamano[1] / ESQ.tamano[0])
 /* Por defecto, de la cabeza a las rodillas (Miriam, 27-sep-26, elegido entre tres opciones): la
    figura entera medía 777 px en un móvil de 812 y tapaba la lectura de la página. Las rótulas
@@ -189,7 +191,7 @@ const ticksUsados = computed(() => {
   if (props.ticks) return props.ticks
   const t = NIVELES.filter(([, h]) => HUESOS[h])
     .map(([t, h]) => ({ t, y: HUESOS[h].v * VB_H, ty: HUESOS[h].v * VB_H }))
-  const MIN = 11
+  const MIN = TEXTO.value + 2 // el texto mide TEXTO de alto: dos etiquetas vecinas no se pisan
   for (let i = 1; i < t.length; i++) {
     if (t[i].ty - t[i - 1].ty < MIN) t[i].ty = t[i - 1].ty + MIN
   }
@@ -212,11 +214,11 @@ function onKey(e: KeyboardEvent) {
 
 <style scoped>
 /* Foco de teclado propio: sobre el panel oscuro, el outline automático del navegador (azul de
-   sistema) queda pobre. Blanco cálido, el mismo de los rótulos de los visores 3D. */
+   sistema) queda pobre. Crema profunda de la paleta, la de los rótulos de los visores 3D. */
 circle[role='option']:focus-visible {
-  outline: 3px solid #F5EFE6;
+  outline: 3px solid var(--color-bg-card);
   outline-offset: 2px;
-  border-radius: 9999px;
+  border-radius: var(--radius-pill);
 }
 /* las mismas curvas que el mapa: esqueleto, scatter y tabla se modulan al unísono */
 .sk-foco { transition: opacity var(--ease-salida); }

@@ -88,7 +88,7 @@
                 {{ $t('collaborate.trust_transparency_title') }}
               </h3>
               <p class="text-sm text-tinta leading-relaxed mb-3">
-                {{ $t('collaborate.trust_transparency_body') }}
+                {{ $t('money.transparencia') }}
               </p>
               <NuxtLink :to="localePath('gastos')" class="link-action text-sm text-miriam">
                 {{ $t('collaborate.trust_transparency_link') }}
@@ -108,7 +108,7 @@
               <p class="text-sm text-tinta leading-relaxed mb-3">
                 {{ $t('collaborate.trust_social_body') }}
               </p>
-              <NuxtLink :to="localePath('gracias')" class="link-action text-sm text-miriam">
+              <NuxtLink :to="localePath('colabora') + '#gracias'" class="link-action text-sm text-miriam">
                 {{ $t('collaborate.trust_social_link') }}
                 <Icon name="ph:arrow-right" class="w-3.5 h-3.5" aria-hidden="true" />
               </NuxtLink>
@@ -136,6 +136,10 @@
             <ul class="text-sm text-tinta leading-relaxed list-disc pl-5 space-y-1.5 mb-5 marker:text-berenjena">
               <li v-for="(item, i) in arr('collaborate.profile1_list')" :key="i">{{ item }}</li>
             </ul>
+            <!-- Para laboratorios: lo que pasa con un precio que nos ofrezcan (no se publica; se suma a su partida). Norma de transparencia de
+                 Miriam, 24-oct-2026: se muestran cifras y el gasto por categorías, no cada presupuesto. El rótulo dice a quién habla (la tarjeta
+                 es para clínicos e investigadores; sin él, «precio» no tiene referente) y la frase de Miriam va literal detrás. -->
+            <p class="text-sm text-tinta leading-relaxed mb-5"><strong class="font-semibold">{{ $t('collaborate.profile1_precio_para') }}</strong> {{ $t('collaborate.profile1_precio') }}</p>
             <div class="mt-auto">
               <NuxtLink
                 :to="localePath('contacto') + '?role=oncologist'"
@@ -166,7 +170,7 @@
               <NuxtLink
                 :to="localePath('prensa')"
                 class="btn-secondary w-full h-12 justify-center"
-                @click="trackContact('press')"
+                @click="trackContact('journalist')"
               >
                 <Icon name="ph:megaphone-simple-fill" class="w-4 h-4" aria-hidden="true" />
                 {{ $t('collaborate.profile3_cta_label') }}
@@ -188,16 +192,20 @@
               {{ $t('collaborate.profile4_title') }}
             </h3>
             <p class="text-sm text-tinta leading-relaxed mb-4">{{ $t('collaborate.profile4_text') }}</p>
-            <ul class="space-y-1.5 mb-5">
-              <li v-for="(lnk, i) in arrObj('collaborate.profile4_links')" :key="i">
-                <a
-                  :href="lnk.url"
-                  target="_blank"
-                  rel="noopener"
-                  class="link-underline font-mono text-[13px]"
+            <ul class="mb-4">
+              <!-- Los enlaces del pipeline (fuera, pestaña nueva) y, al final, la salida a /marcas (dentro). La puerta «Tecnología, IA y marcas» de la
+                   home aterriza aquí: sin esta salida, quien llega por «marcas» se encontraba en una tarjeta de ingenieros que no las nombraba (revisión
+                   de T2a, 24-oct-2026). Misma etiqueta que en «Enlaces rápidos». Un solo elemento para los dos casos (<a> fuera, NuxtLink dentro): un solo
+                   glifo «→» (R6). Con NuxtLink también para los de fuera, «/design-system/» perdía su barra final. Los cuatro enlaces miden
+                   44 px de alto (táctil ≥ 44 px, y el mismo ritmo en toda la lista: con solo el nuevo a 44 px, la lista perdía el compás). -->
+              <li v-for="lnk in enlacesTech" :key="lnk.url">
+                <component
+                  :is="lnk.externo ? 'a' : EnlaceNuxt"
+                  v-bind="lnk.externo ? { href: lnk.url, target: '_blank', rel: 'noopener' } : { to: lnk.url }"
+                  class="link-underline font-mono text-[13px] inline-flex items-center min-h-[44px]"
                 >
                   → {{ lnk.label }}
-                </a>
+                </component>
               </li>
             </ul>
             <div class="mt-auto">
@@ -261,8 +269,7 @@
                 <NuxtLink :to="localePath('gastos')" class="link-inline">{{ $t('collaborate.profile2_expenses_link') }}</NuxtLink>
               </template>
             </i18n-t>
-            <!-- En /colabora también se ve el dinero: misma barra con hitos que
-                 el resto del sitio (variante inline). -->
+            <!-- En /colabora también se ve el dinero: lo recaudado y los donantes, sin objetivo ni barra (variante en línea). -->
             <div class="mb-6">
               <GoFundMeProgress />
             </div>
@@ -278,8 +285,9 @@
               >
                 <Icon name="ph:heart-fill" class="heart-beat heart-beat--alive w-4 h-4" aria-hidden="true" />
                 {{ $t('collaborate.profile2_cta_label') }}
+                <span class="sr-only">{{ ' ' + $t('a11y.new_tab') }}</span>
               </a>
-              <p class="mt-2 text-xs text-tinta md:min-h-[2.25rem]">{{ $t('collaborate.profile2_cta_caption') }}</p>
+              <p class="mt-2 text-xs text-tinta md:min-h-[2.25rem]">{{ $t('collaborate.profile2_cta_caption') }} {{ $t('money.recibo') }}</p>
             </div>
           </article>
         </div>
@@ -370,6 +378,15 @@ function arrObj<T extends Record<string, string>>(key: string): T[] {
   })
 }
 
+// Una sola etiqueta para el enlace a /marcas: la usan la tarjeta «Tech & IA» y los enlaces rápidos.
+const etiquetaMarcas = computed(() => (locale.value === 'es' ? 'Marcas · co-creación' : 'Brands · co-creation'))
+const EnlaceNuxt = resolveComponent('NuxtLink')
+// La lista de la tarjeta «Tech & IA»: los enlaces del pipeline y, al final, /marcas.
+const enlacesTech = computed(() => [
+  ...arrObj<{ label: string; url: string }>('collaborate.profile4_links').map((l) => ({ ...l, externo: true })),
+  { label: etiquetaMarcas.value, url: localePath('marcas'), externo: false },
+])
+
 interface QuickLink { label: string; url: string; external: boolean }
 const quickLinks = computed<QuickLink[]>(() => {
   const sciencePath = locale.value === 'es' ? '/ciencia' : '/en/science'
@@ -381,14 +398,11 @@ const quickLinks = computed<QuickLink[]>(() => {
     { label: t('nav.tools'), url: localePath({ name: 'herramientas' }), external: false },
     // «Cronología» y no «Timeline»: el mismo nombre que el menú (una fuente por etiqueta).
     { label: t('nav.timeline'), url: timelinePath, external: false },
-    { label: locale.value === 'es' ? 'Marcas · co-creación' : 'Brands · co-creation', url: localePath('marcas'), external: false },
+    { label: etiquetaMarcas.value, url: localePath('marcas'), external: false },
     { label: 'Repo · GitHub', url: 'https://github.com/beyondtheprotocol/miriam-gonzalez-case', external: true },
     { label: 'GoFundMe · ' + GOFUNDME_URL.replace('https://', ''), url: GOFUNDME_URL, external: true },
-    { label: '@miriamgonp · Instagram', url: 'https://instagram.com/miriamgonp', external: true },
-    { label: '@miriamgonp · X', url: 'https://x.com/miriamgonp', external: true },
-    { label: '@miriamgonp · TikTok', url: 'https://tiktok.com/@miriamgonp', external: true },
-    { label: '@miriamgonp · YouTube', url: 'https://youtube.com/@miriamgonp', external: true },
-    { label: '@miriamgonp · LinkedIn', url: 'https://linkedin.com/in/miriamgonp', external: true },
+    // Las redes salen de REDES (app/utils/navegacion.ts), la misma lista que el pie y el schema.org del layout.
+    ...REDES.map((r) => ({ label: `${REDES_USUARIO} · ${r.nombre}`, url: r.url, external: true })),
     { label: locale.value === 'es' ? 'Contacto' : 'Contact', url: localePath('contacto'), external: false },
   ]
 })

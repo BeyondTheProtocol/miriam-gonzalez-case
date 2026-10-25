@@ -28,6 +28,11 @@ const seoDescription = () =>
     ? 'A support tool, not a diagnosis. Miriam’s bone lesions seen with dual-tracer PET (Gallium-68 DOTATOC and FDG) over her own reports, to help her decide the next steps with her medical team.'
     : 'Una herramienta de apoyo, no un diagnóstico. Las lesiones óseas de Miriam vistas con PET doble trazador (Galio-68 DOTATOC y FDG) sobre sus propios informes, para ayudarle a decidir con su equipo médico.'
 
+/* «Sirvió en un momento concreto» (junio de 2026): la página vuelve a ser pública e indexable (tanda 2 del rediseño, T2a, 24-oct-2026).
+   F4 (23-oct) la había dejado como archivo, con `noindex, follow`, fuera del sitemap y sin enlaces internos; Miriam decidió el 24-oct
+   que vuelve a ser una página viva, con una línea arriba que dice cuándo se hizo y para qué sirvió (abajo, en el cuerpo). Para
+   hacerla pública hay que tocar los tres sitios de la nota «Hacer PÚBLICA una página» de nuxt.config.ts: esta meta, la línea de
+   public/_robots.txt (nunca hubo Disallow) y su exclusión del sitemap. La lee /lesiones en cada build (#mapa-focos). */
 useSeoMeta({
   title: seoTitle,
   description: seoDescription,
@@ -2296,6 +2301,9 @@ const manifestValidated = (() => {
           :tag="L('PET doble trazador · ' + confirmedFoci.length + ' focos · +' + aiFoci.length + ' por confirmar', 'Dual-tracer PET · ' + confirmedFoci.length + ' foci · +' + aiFoci.length + ' to confirm')"
         >
           <template #emblema>
+            <!-- Rótulo de «sirvió en un momento concreto»: el mapa se hizo en junio para decidir dónde biopsiar y ya no se actualiza.
+                 Mismo distintivo «Histórico» (status-badge--reference) que lleva el 3D del reservorio. -->
+            <span class="status-badge status-badge--reference mb-3">{{ $t('herramientas.historico_mapa') }}</span>
             <!-- Va tras la miga «‹ Herramientas» (diseno, tras el PR #269): antes la empujaba a ~197 px. -->
             <svg viewBox="0 0 24 24" width="26" height="26" aria-hidden="true" class="block mb-3 split-disc-sigil">
               <path d="M12 2 A10 10 0 0 0 12 22 Z" fill="rgb(28,150,158)" />
@@ -2304,6 +2312,12 @@ const manifestValidated = (() => {
             </svg>
           </template>
         </PageHeader>
+
+        <!-- La línea de Miriam (24-oct-2026): cuándo se hizo, con qué y para qué sirvió. La misma que lleva su tarjeta en /herramientas.
+             Va la primera: lo que sigue (la foto de marzo a junio, con lo que pasó después) es el detalle. -->
+        <Aviso tipo="limites" :titulo="$t('herramientas.pasada_titulo')" class="mb-6">
+          <p>{{ $t('herramientas.linea_mapa') }}</p>
+        </Aviso>
 
         <!-- Fecha de la foto (29-sep-2026): el mapa se construyó en junio para decidir dónde
              biopsiar. Lo que pasó después se dice aquí arriba, no en cada foco. -->

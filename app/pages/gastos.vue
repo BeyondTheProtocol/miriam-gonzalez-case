@@ -2,7 +2,7 @@
   <div>
     <section class="section-spacing bg-cream" :aria-label="$t('expenses.title')">
       <div class="section-wide">
-        <PageHeader :title="$t('expenses.title')" :subtitle="$t('expenses.subtitle')" />
+        <PageHeader :title="$t('expenses.title')" :subtitle="$t('money.transparencia')" />
 
         <p class="text-base text-tinta leading-relaxed mb-8 measure">
           {{ $t('expenses.intro') }}
@@ -16,28 +16,33 @@
 
         <!-- Informe de gastos: cifras reales reconstruidas desde los extractos bancarios -->
         <div class="card-base mb-8">
-          <p class="eyebrow mb-3 block">{{ $t('expenses.report_eyebrow') }}</p>
+          <p class="eyebrow mb-3 block">{{ $t('expenses.report_eyebrow', { fecha: corte }) }}</p>
           <h2 class="font-display font-semibold text-berenjena text-lg mb-2">
             {{ $t('expenses.report_title') }}
           </h2>
+          <p class="text-sm text-tinta leading-relaxed mb-3 max-w-2xl">
+            {{ $t('expenses.report_intro', { fecha: corte }) }}
+          </p>
+          <!-- Línea de cuadre: lo recaudado (arriba, en directo y bruto) y este informe (lo gastado y lo disponible a su corte) son
+               cifras distintas; sin esta línea parecería que no cuadran. Decisión de Miriam, 24-oct-2026. -->
           <p class="text-sm text-tinta leading-relaxed mb-5 max-w-2xl">
-            {{ $t('expenses.report_intro') }}
+            {{ $t('expenses.cuadre') }}
           </p>
 
           <ul class="mb-5">
             <li
-              v-for="item in REPORT.items"
-              :key="item.key"
+              v-for="item in DINERO.partidas"
+              :key="item.clave"
               class="flex items-baseline justify-between gap-4 py-2.5 border-t border-berenjena/[0.07]"
             >
               <span class="text-sm text-tinta leading-relaxed">
-                {{ $t(`expenses.report_item_${item.key}`) }}
+                {{ $t(`expenses.report_item_${item.clave}`) }}
               </span>
               <span
                 class="text-sm font-mono text-berenjena shrink-0"
                 style="font-variant-numeric: tabular-nums"
               >
-                {{ money(item.amount) }}
+                {{ money(item.importe) }}
               </span>
             </li>
             <li
@@ -50,7 +55,30 @@
                 class="text-sm font-mono font-semibold text-berenjena shrink-0"
                 style="font-variant-numeric: tabular-nums"
               >
-                {{ money(REPORT.committed) }}
+                {{ money(DINERO.comprometido) }}
+              </span>
+            </li>
+          </ul>
+
+          <!-- Nota genérica: solo dice que se corrigió un cargo duplicado del informe anterior. Sin importe, sin proveedor y sin
+               partida (se apaga con `correccion` en app/data/dinero.json). -->
+          <p v-if="DINERO.correccion" class="text-xs text-tinta italic mb-5 -mt-2">
+            {{ $t('expenses.report_correccion') }}
+          </p>
+
+          <!-- Lo ingresado a la fecha de corte (GoFundMe ya descontadas sus comisiones). Es contexto del informe, no su cifra
+               protagonista: va como fila y no como panel. -->
+          <ul class="mb-5">
+            <li class="flex items-baseline justify-between gap-4 py-2.5 border-y border-berenjena/[0.07]">
+              <span class="text-sm text-tinta leading-relaxed">
+                {{ $t('expenses.report_ingresado_label', { fecha: corte }) }}
+                <span class="block text-xs">{{ $t('expenses.report_ingresado_desc', { fecha: corte }) }}</span>
+              </span>
+              <span
+                class="text-sm font-mono text-berenjena shrink-0"
+                style="font-variant-numeric: tabular-nums"
+              >
+                {{ money(DINERO.ingresado) }}
               </span>
             </li>
           </ul>
@@ -66,18 +94,49 @@
                 {{ $t('expenses.report_available_label') }}
               </p>
               <p class="text-sm text-tinta leading-relaxed">
-                {{ $t('expenses.report_available_desc') }}
+                {{ $t('expenses.report_available_desc', { fecha: corte }) }}
               </p>
             </div>
             <p
               class="font-display font-semibold text-berenjena text-xl shrink-0"
               style="font-variant-numeric: tabular-nums"
             >
-              {{ money(REPORT.available) }}
+              {{ money(DINERO.disponible) }}
             </p>
           </div>
 
           <p class="text-xs text-tinta italic">{{ $t('expenses.report_note') }}</p>
+        </div>
+
+        <!-- Cuadre de GoFundMe: lo donado, sus comisiones, lo transferido y lo que aún está en la plataforma. Lleva SU fecha, que no es
+             la del corte del informe. Las comisiones van aquí y no en la lista de partidas: no forman parte de lo gastado. -->
+        <div class="card-base mb-8">
+          <p class="eyebrow mb-3 block">{{ $t('expenses.gfm_eyebrow', { fecha: fechaGfm }) }}</p>
+          <h3 class="font-display font-semibold text-berenjena text-lg mb-2">
+            {{ $t('expenses.gfm_title') }}
+          </h3>
+          <p class="text-sm text-tinta leading-relaxed mb-5 max-w-2xl">
+            {{ $t('expenses.gfm_intro') }}
+          </p>
+          <ul class="mb-5">
+            <li
+              v-for="fila in filasGfm"
+              :key="fila.clave"
+              class="flex items-baseline justify-between gap-4 py-2.5 border-t border-berenjena/[0.07]"
+            >
+              <span class="text-sm text-tinta leading-relaxed">
+                {{ $t(`expenses.gfm_${fila.clave}`) }}
+              </span>
+              <span
+                class="text-sm font-mono text-berenjena shrink-0"
+                style="font-variant-numeric: tabular-nums"
+              >
+                {{ money(fila.importe) }}
+              </span>
+            </li>
+          </ul>
+          <p class="text-sm text-tinta leading-relaxed mb-2 max-w-2xl">{{ $t('expenses.gfm_cuadre') }}</p>
+          <p class="text-xs text-tinta italic max-w-2xl">{{ $t('expenses.gfm_nota') }}</p>
         </div>
 
         <div class="card-base mb-8">
@@ -101,7 +160,7 @@
                   {{ $t(`expenses.phase${n}_title`) }}
                 </h3>
                 <p class="text-sm text-tinta leading-relaxed">
-                  {{ $t(`expenses.phase${n}_desc`) }}
+                  {{ $t(`expenses.phase${n}_desc`, { gastado: money(DINERO.rebiopsia.ejecutado), fecha: fechaRebiopsia }) }}
                 </p>
               </div>
             </li>
@@ -126,16 +185,16 @@
               <p
                 class="font-mono uppercase text-[11px] tracking-[0.12em] font-medium text-tinta mb-1"
               >
-                {{ $t('expenses.rebiopsy_now_label') }}
+                {{ $t('expenses.rebiopsy_now_label', { fecha: fechaRebiopsia }) }}
               </p>
               <p
                 class="font-display font-semibold text-berenjena text-xl mb-2"
                 style="font-variant-numeric: tabular-nums"
               >
-                {{ $t('expenses.rebiopsy_now_range') }}
+                {{ money(DINERO.rebiopsia.ejecutado) }}
               </p>
               <p class="text-sm text-tinta leading-relaxed">
-                {{ $t('expenses.rebiopsy_now_desc') }}
+                {{ $t('expenses.rebiopsy_now_desc', lineasRebiopsia) }}
               </p>
             </div>
             <div
@@ -167,14 +226,9 @@
             <span>{{ $t('expenses.rebiopsy_value') }}</span>
           </p>
           <p class="mt-3 text-xs text-tinta italic">
-            {{ $t('expenses.rebiopsy_note') }}
+            {{ $t('expenses.rebiopsy_note', { fecha: fechaRebiopsia, corte }) }}
           </p>
         </div>
-
-        <!-- Coste vs objetivo: cierra la duda "¿40k lo cubre todo?" -->
-        <p class="text-sm text-tinta italic mb-8 max-w-2xl">
-          {{ $t('expenses.cost_vs_goal') }}
-        </p>
 
         <!-- Desglose completo · cuenta itemizada -->
         <div class="card-base mb-8">
@@ -231,7 +285,7 @@
         </div>
 
         <p class="text-sm text-tinta italic max-w-2xl">
-          {{ $t('expenses.note') }}
+          {{ $t('expenses.note', { fecha: corte }) }}
         </p>
 
         <div class="mt-8 flex flex-col sm:flex-row sm:items-center gap-3">
@@ -245,6 +299,7 @@
           >
             <Icon name="ph:heart-fill" class="heart-beat w-4 h-4" aria-hidden="true" />
             {{ $t('expenses.help_cta') }}
+            <span class="sr-only">{{ ' ' + $t('a11y.new_tab') }}</span>
           </a>
           <NuxtLink :to="localePath('colabora')" class="btn-secondary w-full sm:w-auto justify-center">
             {{ $t('expenses.transparency_link') }}
@@ -260,48 +315,40 @@ const { locale, t } = useI18n()
 const localePath = useLocalePath()
 const { GOFUNDME_URL, trackSupport } = useSupport()
 
-// Informe de gastos. Cifras a 17/08/2026, reconstruidas movimiento a movimiento
-// desde los extractos de Bankinter, Revolut y PayPal. Las partidas suman `committed`.
-const REPORT = {
-  // `committed` es la suma exacta de `items`; `available` es el saldo en cuenta
-  // (29.975,97 €) menos el impuesto aplazado (6.385,48 €).
-  committed: 39395.82,
-  available: 23590.49,
-  items: [
-    { key: 'travel', amount: 12282.27 },
-    { key: 'ai', amount: 8651.1 },
-    { key: 'tax', amount: 6385.48 },
-    { key: 'diagnostics', amount: 4476.28 },
-    { key: 'equipment', amount: 2523.53 },
-    { key: 'ops', amount: 2198.94 },
-    { key: 'legal', amount: 1573.0 },
-    { key: 'outreach', amount: 1305.22 },
-  ],
-} as const
-
-// useGrouping 'always': en es-ES el separador de millares se omite en números de
-// cuatro dígitos, lo que descuadra visualmente una columna de importes.
-const money = (n: number) =>
-  new Intl.NumberFormat(locale.value === 'es' ? 'es-ES' : 'en-IE', {
-    style: 'currency',
-    currency: 'EUR',
-    useGrouping: 'always',
-  }).format(n)
+// Informe de gastos. Las cifras, con su fecha de corte, viven en app/data/dinero.json (app/utils/dinero.ts): aquí no se escribe
+// ninguna a mano (lo vigila scripts/test-dinero-fuente.ts). El informe se reconstruye movimiento a movimiento desde los extractos.
+const money = (n: number) => euros(n, locale.value)
+const corte = computed(() => fechaDeCorte(DINERO.corte, locale.value))
+// El cuadre de GoFundMe y el bloque de la rebiopsia llevan cada uno su fecha: ninguna es la del corte del informe.
+const fechaGfm = computed(() => fechaDeCorte(DINERO.gofundme.fecha, locale.value))
+const fechaRebiopsia = computed(() => fechaDeCorte(DINERO.rebiopsia.fecha, locale.value))
+const filasGfm = computed(() => [
+  { clave: 'donado', importe: DINERO.gofundme.donado },
+  { clave: 'comisiones', importe: DINERO.gofundme.comisiones },
+  { clave: 'transferido', importe: DINERO.gofundme.transferido },
+  { clave: 'aun', importe: DINERO.gofundme.aun },
+])
+// Los tres importes de la rebiopsia, listos para la frase («Biopsia en Zúrich ({biopsia}), secuenciación ({secuenciacion})…»).
+const lineasRebiopsia = computed(() => ({
+  biopsia: money(DINERO.rebiopsia.biopsia),
+  secuenciacion: money(DINERO.rebiopsia.secuenciacion),
+  imagen: money(DINERO.rebiopsia.imagen),
+}))
 
 useSeoMeta({
   title: () => t('expenses.title'),
   description: () => t('expenses.meta_description'),
   ogTitle: () => t('expenses.title'),
-  ogDescription: () => t('expenses.subtitle'),
+  ogDescription: () => t('money.transparencia'),
   ogType: 'website',
   twitterCard: 'summary_large_image',
   twitterTitle: () => t('expenses.title'),
-  twitterDescription: () => t('expenses.subtitle'),
+  twitterDescription: () => t('money.transparencia'),
 })
 
 defineOgImage('Default.takumi', {
   title: () => t('expenses.title'),
-  description: () => t('expenses.subtitle'),
+  description: () => t('money.transparencia'),
 })
 
 // FAQPage JSON-LD: las 4 preguntas/respuestas de donantes para rich results (C.6).
