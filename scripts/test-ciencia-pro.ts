@@ -367,6 +367,22 @@ console.log('\n10. El esquema del tumor (TumorEsquema)')
     const definidos = new Set([...tpl.matchAll(/<symbol :id="`\$\{uid\}-(\w+)`"/g)].map((m) => m[1]!))
     const usados = [...tpl.matchAll(/sym\('(\w+)'\)/g)].map((m) => m[1]!)
     if (!definidos.size || !usados.length || usados.some((n) => !definidos.has(n))) p.push('un glifo se usa sin su <symbol> (una sola fuente por glifo)')
+    // El glifo de «cambios» (`fragmento`): un aro partido en DOS arcos con DOS huecos, girado. Con un solo hueco (con o sin trozo suelto) se leía como la
+    // letra «C» («C'» a 20 px; «C)» pegado a «Cambios»): falló dos veces seguidas, a ojo. Es un test de FORMA a propósito (invariante estructural, como
+    // tests/test_fuga.sh): fija la geometría del <symbol>, no el aspecto. Con huecos sobre los ejes (arriba y abajo) los dos arcos se leen «( )».
+    const simF = tpl.match(/<symbol :id="`\$\{uid\}-fragmento`"[^>]*>([\s\S]*?)<\/symbol>/)?.[1] ?? ''
+    const angulo = (x: string, y: string) => ((Math.atan2(Number(y) - 12, Number(x) - 12) * 180) / Math.PI + 360) % 360
+    const arcosF = [...simF.matchAll(/<path\s+d="M([\d.]+) ([\d.]+) A([\d.]+) ([\d.]+) 0 0 1 ([\d.]+) ([\d.]+)"/g)].map((m) => {
+      const a0 = angulo(m[1]!, m[2]!), a1 = angulo(m[5]!, m[6]!)
+      return { a0, a1, tramo: (a1 - a0 + 360) % 360 }
+    })
+    const piezasF = (simF.match(/<(?:path|circle|ellipse|rect|line|polyline|polygon|use)\b/g) ?? []).length
+    const [f1, f2] = arcosF
+    const huecosF = f1 && f2 ? [(f2.a0 - f1.a1 + 360) % 360, (f1.a0 - f2.a1 + 360) % 360] : []
+    const centrosF = f1 && f2 ? [(f1.a1 + huecosF[0]! / 2) % 360, (f2.a1 + huecosF[1]! / 2) % 360] : []
+    const sobreEje = (c: number) => Math.min(c % 90, 90 - (c % 90)) < 15
+    const finoF = piezasF === 2 && arcosF.length === 2 && arcosF.every((a) => a.tramo >= 100 && a.tramo <= 170) && huecosF.length === 2 && huecosF.every((h) => h >= 30) && centrosF.length === 2 && !centrosF.some(sobreEje)
+    if (!finoF) p.push('el glifo «fragmento» no es un aro partido en dos arcos de 100° a 170° con dos huecos de 30° o más, fuera de los ejes (un arco con un solo hueco se lee «C»)')
     const medias = [...sty.matchAll(/@media\s*([^{]+)\{/g)].map((m) => m[1]!.trim())
     if (!medias.length || medias.some((m) => m !== '(min-width: 1024px)')) p.push(`la composición cambia por debajo de lg (@media: ${medias.join(', ') || 'ninguno'}): mobile-first`)
     return p
@@ -386,6 +402,10 @@ console.log('\n10. El esquema del tumor (TumorEsquema)')
     ['un @media por debajo de lg', () => revisaFuente(rompe(vue, '@media (min-width: 1024px)', '@media (min-width: 640px)'), tsSrc)],
     ['un símbolo que no existe', () => revisaFuente(rompe(vue, `sym('fragmento')`, `sym('inexistente')`), tsSrc)],
     ['un botón', () => revisaFuente(rompe(vue, '<p class="eyebrow te__eyebrow">', '<button>x</button><p class="eyebrow te__eyebrow">'), tsSrc)],
+    ['el glifo de cambios con un solo arco (la «C»)', () => revisaFuente(rompe(vue, '<path d="M7.18 6.25 A7.5 7.5 0 0 1 19.47 12.65" class="te__g-fragmento" />', ''), tsSrc)],
+    ['el glifo de cambios de 161deac (un hueco y un trozo suelto: «C\')»)', () => revisaFuente(rompe(rompe(vue, '<path d="M16.82 17.75 A7.5 7.5 0 0 1 4.53 11.35" class="te__g-fragmento" />', '<path d="M15 6.6 A7 7 0 1 0 15 17.4" class="te__g-fragmento" />'), '<path d="M7.18 6.25 A7.5 7.5 0 0 1 19.47 12.65" class="te__g-fragmento" />', '<path d="M20.5 8.8 Q22.6 12 20.5 15.2" class="te__g-fragmento" />'), tsSrc)],
+    ['el glifo de cambios con los huecos casi cerrados (5°)', () => revisaFuente(rompe(vue, 'M16.82 17.75 A7.5 7.5 0 0 1 4.53 11.35', 'M16.82 17.75 A7.5 7.5 0 0 1 6.70 6.70'), tsSrc)],
+    ['el glifo de cambios con los huecos arriba y abajo (se lee «( )»)', () => revisaFuente(rompe(rompe(vue, 'M16.82 17.75 A7.5 7.5 0 0 1 4.53 11.35', 'M8.83 18.80 A7.5 7.5 0 0 1 8.83 5.20'), 'M7.18 6.25 A7.5 7.5 0 0 1 19.47 12.65', 'M15.17 5.20 A7.5 7.5 0 0 1 15.17 18.80'), tsSrc)],
     ['una cadena clínica en la geometría', () => revisaFuente(vue, `${tsSrc}\nexport const MAL = '13 copias'\n`)],
     ['un gen en la geometría', () => revisaFuente(vue, `${tsSrc}\nexport const MAL = 'FGFR1'\n`)],
   ]

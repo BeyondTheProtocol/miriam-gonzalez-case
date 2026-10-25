@@ -14,6 +14,13 @@
  *    ellos sale lo que dice (tumor frío, hígado y hueso el mismo tumor, rasgos neuroendocrinos repartidos). Sin ellos, no hay figura.
  *  · Una sola fuente por glifo: la leyenda y el dibujo usan el MISMO <symbol>, así no pueden divergir.
  *  · Sin movimiento propio, sin botones (<details> y <summary> no lo son) y sin colores propios: roles del sistema.
+ *  · Glifos: ninguno puede leerse como una letra o un signo pegado a la leyenda. El de «cambios» (`fragmento`) es un aro partido en DOS arcos con
+ *    DOS huecos (la forma la fija `pnpm test:ciencia-pro`): con un solo hueco se leía «C'» a 20 px y «C)» pegado a «Cambios».
+ *  · Altura en móvil (criterio de aceptación 6, re-fijado el 25-oct-2026): a 375 px la figura mide 1466 px y la sección 1972 (CDP). El criterio del
+ *    dibujo era ≤1200 px sin desplegables (estimación). No se llega sin plegar los paneles B y C o sin encoger los dibujos hasta que pierdan
+ *    legibilidad (recortar tamaños deja unos 1265-1316 px). Se dejan los tres paneles visibles (el HER2 y los cambios en RB1 y ESR1 son lo más afilado) y el
+ *    criterio queda en ≤1500 px a 375. Alternativa si Miriam la ve larga: plegar B y C por debajo de lg en un solo <details> (pide DOM doble o
+ *    ::details-content, y tocar el canario de «3 dibujos»).
  *
  * La lesión del panel A es CelulaLesion (el esquema ya publicado en /celula-a-celula). Sobre crema, su óvalo por defecto deja el punto violeta a
  * 1,22:1; aquí se aclara con un override local (`:deep`), porque `celula/` no se toca en esta tanda (es zona del PR #290).
@@ -62,10 +69,11 @@ const limites = computed(() => CLAVES_LIMITES.map((k) => t(`esquemaTumor.${k}`, 
           <circle cx="12" cy="12" r="8" class="te__g-copias-aro" />
           <circle cx="12" cy="12" r="3" class="te__g-copias-punto" />
         </symbol>
-        <!-- Un fragmento con cambios: el aro roto y el trozo desplazado en el hueco (si no, un arco solo se lee como la letra C). -->
+        <!-- Un fragmento con cambios: un aro partido en DOS arcos de 135° con DOS huecos, girado. Un arco con un solo hueco (con o sin trozo suelto)
+             se lee como la letra «C» o como «C)» pegado a «Cambios» (lo vieron las revisiones de 161deac y la siguiente). Dos huecos no cierran ninguna letra. -->
         <symbol :id="`${uid}-fragmento`" viewBox="0 0 24 24">
-          <path d="M15 6.6 A7 7 0 1 0 15 17.4" class="te__g-fragmento" />
-          <path d="M20.5 8.8 Q22.6 12 20.5 15.2" class="te__g-fragmento" />
+          <path d="M16.82 17.75 A7.5 7.5 0 0 1 4.53 11.35" class="te__g-fragmento" />
+          <path d="M7.18 6.25 A7.5 7.5 0 0 1 19.47 12.65" class="te__g-fragmento" />
         </symbol>
       </defs>
     </svg>
