@@ -64,8 +64,8 @@ const limites = computed(() => CLAVES_LIMITES.map((k) => t(`esquemaTumor.${k}`, 
         </symbol>
         <!-- Un fragmento con cambios: el aro roto y el trozo desplazado en el hueco (si no, un arco solo se lee como la letra C). -->
         <symbol :id="`${uid}-fragmento`" viewBox="0 0 24 24">
-          <path d="M16.75 7.2 A7.5 7.5 0 1 0 16.75 16.8" class="te__g-fragmento" />
-          <path d="M21.2 9.8 Q22.8 12 21.2 14.2" class="te__g-fragmento" />
+          <path d="M15 6.6 A7 7 0 1 0 15 17.4" class="te__g-fragmento" />
+          <path d="M20.5 8.8 Q22.6 12 20.5 15.2" class="te__g-fragmento" />
         </symbol>
       </defs>
     </svg>
@@ -132,7 +132,7 @@ const limites = computed(() => CLAVES_LIMITES.map((k) => t(`esquemaTumor.${k}`, 
             <svg class="te__svg" :viewBox="`0 0 ${SANGRE.ancho} ${SANGRE.alto}`" role="img" :aria-label="$t('esquemaTumor.alt_sangre')" focusable="false">
               <path :d="GOTA_PATH" class="te__gota" />
               <circle v-for="(p, i) in fragmentos" :key="i" :cx="p.x" :cy="p.y" r="2.2" class="te__fragmento" />
-              <use v-for="(a, i) in conCambio" :key="`c${i}`" :href="sym('fragmento')" :x="a.x - 9" :y="a.y - 9" width="18" height="18" />
+              <use v-for="(a, i) in conCambio" :key="`c${i}`" :href="sym('fragmento')" :x="a.x - 10" :y="a.y - 10" width="20" height="20" />
             </svg>
           </div>
           <ul class="te__clave" role="list">
