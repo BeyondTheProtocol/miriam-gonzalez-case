@@ -53,6 +53,17 @@ const APROBADAS_EN = [
 APROBADAS_ES.forEach((q, i) => ok(es[`quote_${i + 1}`] === q, `ES cita ${i + 1} = set aprobado`))
 APROBADAS_EN.forEach((q, i) => ok(en[`quote_${i + 1}`] === q, `EN cita ${i + 1} = set aprobado`))
 
+// 2b · la nota de traducción de /en/press enseña el ORIGINAL en español. Antes lo pedía a vue-i18n con { locale: 'es' }: en /en/press esos mensajes no
+// están cargados y la página (y producción, 25-oct-2026) decía «Original: «press.quote_1»». Ahora la página lleva los tres originales y aquí se
+// comprueba que son el set aprobado, que no se vuelve al truco y, si hay build, que el HTML inglés dice el original y no una clave.
+APROBADAS_ES.slice(0, 3).forEach((q, i) => ok(pagina.includes(`'${q}'`), `la página lleva el original en español de la cita ${i + 1} (nota de /en/press)`))
+ok(!/\{\s*locale:\s*'es'\s*\}/.test(pagina), "la página no pide los originales con { locale: 'es' } (en /en/press no están cargados)")
+if (existsSync('.output/public/en/press.html')) {
+  const hEn = readFileSync('.output/public/en/press.html', 'utf-8')
+  ok(!/Original: «press\./.test(hEn), 'en/press.html: ninguna nota enseña una clave («Original: «press.quote_1»»)')
+  APROBADAS_ES.slice(0, 3).forEach((q, i) => ok(hEn.includes(`Original: «${q}»`), `en/press.html: la cita ${i + 1} dice su original en español`))
+} else console.log('  ⚠️  sin .output/public/en/press.html: se omite la comprobación del HTML inglés (ejecuta antes `pnpm exec nuxt generate`)')
+
 // 3
 ok(!/verbatim/i.test(en.quotes_title ?? ''), 'EN: el título de las citas no dice «verbatim»')
 

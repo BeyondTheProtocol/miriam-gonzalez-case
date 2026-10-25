@@ -351,10 +351,19 @@ const fork = computed(() => [
 
 // Hechos clave · las cifras que pueden desincronizarse (edad, nº de países)
 // vienen de la fuente única (caseData), no del texto i18n.
+// Los originales en español de las citas 1 a 3 (el set aprobado el 27-jun-2026), para la nota de la versión inglesa. No se piden a
+// vue-i18n con la opción de idioma «es»: en /en/press los mensajes en español no están cargados (carga perezosa) y la nota decía «Original: «press.quote_1»»
+// (así estaba en producción el 25-oct-2026). test-sala-prensa los compara con el set aprobado y mira el HTML generado.
+const ORIGINALES_ES = [
+  'No pido garantías, pido oportunidades.',
+  'Que los casos raros dejen de ser notas a pie de página y pasen a ser datos, estudios, opciones reales.',
+  'Uso la IA para amplificar mi conocimiento.',
+] as const
+
 // En inglés, las citas 1 a 3 son traducciones: se dice, y se enseña el original en español.
 const quotes = computed(() => {
   const en = locale.value === 'en'
-  const original = (n: number) => t(`press.quote_${n}`, {}, { locale: 'es' })
+  const original = (n: number) => ORIGINALES_ES[n - 1]
   return [1, 2, 3, 4].map((n) => ({
     text: t(`press.quote_${n}`),
     source: t(`press.quote_${n}_source`),
