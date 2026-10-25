@@ -5,7 +5,7 @@
        cambia entre páginas va por props: opacidad por grupo (filtros y línea de tiempo del
        mapa), ticks, textos de accesibilidad y si el componente gestiona el teclado o lo hace la
        página. Vista anterior: la derecha del cuerpo queda a la izquierda. -->
-  <div>
+  <div ref="caja">
     <p class="text-xs text-tinta leading-snug px-1 mb-1.5">
       {{ L('Vista de frente · la derecha del cuerpo queda a tu izquierda', 'Front view · the body’s right is on your left') }}
     </p>
@@ -38,9 +38,13 @@
       <image href="/esqueleto/esqueleto-anterior.png" x="0" y="0" :width="VB_W" :height="VB_H"
         preserveAspectRatio="xMidYMid meet" :aria-hidden="true" />
       <!-- contorno oscuro: con el esqueleto entero las etiquetas T12, L1, L5 y S caen sobre el brazo
-           izquierdo y sin él no se leían -->
-      <g font-family="JetBrains Mono, monospace" font-size="9" style="fill: var(--escena-texto); stroke: var(--escena-fondo)" font-weight="600" stroke-width="3" paint-order="stroke" stroke-linejoin="round">
-        <text v-for="tk in ticksUsados" :key="tk.t" x="362" :y="(tk.ty ?? tk.y) + 3" text-anchor="start">{{ tk.t }}</text>
+           izquierdo y sin él no se leían.
+           Tamaño (revisión de P1): el viewBox mide 440 y el dibujo se muestra a ~240-330 px, o sea a escala 0,54-0,75, así que el texto del SVG
+           se escribe en unidades de viewBox y no en px: con 9 unidades salían 6,0 px reales. TEXTO sale de la escala real (ver el script) y garantiza
+           ≥ 13 px; scripts/test-diseno-render.mjs lo mide en pantalla (texto_svg_bajo_suelo). El centrado vertical es del propio texto
+           (dominant-baseline), no un `+ 3` calculado para 9. -->
+      <g font-family="JetBrains Mono, monospace" :font-size="TEXTO" style="fill: var(--escena-texto); stroke: var(--escena-fondo)" font-weight="600" stroke-width="5" paint-order="stroke" stroke-linejoin="round">
+        <text v-for="tk in ticksUsados" :key="tk.t" x="362" :y="tk.ty ?? tk.y" dominant-baseline="central" text-anchor="start">{{ tk.t }}</text>
         <!-- la marca va en la altura REAL y el texto donde se lea; el codo une las dos -->
         <path v-for="tk in ticksUsados" :key="'l' + tk.t"
           :d="`M344,${tk.y} L352,${tk.y} L358,${tk.ty ?? tk.y}`"
@@ -74,10 +78,12 @@
           @click="emit('pick', g.primary.id)"
           @mouseenter="emit('hover', $event, g)" @mouseleave="emit('leave')"
           @focus="emit('hover', $event, g)" @blur="emit('leave')" />
+        <!-- Insignia con el nº de focos: el círculo crece con el texto (r 6,5 → 10,5 para un número de 20 unidades, ≥ 13 px reales) y se aleja del
+             marcador lo justo para no taparlo. -->
         <g v-if="g.multi" class="pointer-events-none select-none">
-          <circle :cx="p.x + R + 1.5" :cy="p.y - R - 1.5" r="6.5" style="fill: var(--color-bg-card); stroke: var(--escena-fondo)" stroke-width="1.2" />
-          <text :x="p.x + R + 1.5" :y="p.y - R - 1.5" text-anchor="middle" dominant-baseline="central"
-            font-size="9" font-weight="700" style="font-family: var(--font-body); fill: var(--escena-fondo)">{{ g.foci.length }}</text>
+          <circle :cx="p.x + R + 5" :cy="p.y - R - 5" :r="R_INSIGNIA" style="fill: var(--color-bg-card); stroke: var(--escena-fondo)" stroke-width="1.6" />
+          <text :x="p.x + R + 5" :y="p.y - R - 5" text-anchor="middle" dominant-baseline="central"
+            :font-size="TEXTO" font-weight="700" style="font-family: var(--font-body); fill: var(--escena-fondo)">{{ g.foci.length }}</text>
         </g>
       </g>
       <!-- recortado en las rodillas: un degradado al fondo del panel dice «sigue», no «se acaba» -->
@@ -142,6 +148,15 @@ const VB_W = 440
    sale ~0,6 veces más estrecho y un punto de 9 tapaba la vértebra entera (Miriam, 27-sep-26).
    6 deja ver el hueso alrededor. La diana táctil va aparte (`hit`), y no baja de 44 px. */
 const R = 6
+/* Texto del SVG, en unidades del viewBox, para que en pantalla mida ≥ 13 px (el suelo de la guía) a cualquier ancho. El viewBox mide 440 y el dibujo
+   se pinta al ancho del contenedor: ≈ 293 px en un móvil de 375 (escala 0,67), ≈ 238 en uno de 320 (0,54) y ≈ 326 en escritorio (0,74). Con una cifra
+   fija, 20 unidades dan 13,3 px a 375 pero 10,8 a 320; por eso el tamaño sale de la escala real (13,2 px entre la escala), con 20 de suelo: de 375 px
+   en adelante vale 20 y solo crece en pantallas más estrechas. En el servidor no hay ancho y se pinta con 20; el cliente lo corrige al montar. Las
+   marcas de vértebra y el contador de la insignia comparten tamaño. */
+const caja = ref<HTMLElement | null>(null)
+const anchoCaja = useAncho(caja, VB_W, 1)
+const TEXTO = computed(() => Math.max(20, Math.ceil(13.2 / (anchoCaja.value / VB_W))))
+const R_INSIGNIA = computed(() => TEXTO.value / 2 + 0.5)
 const VB_H = Math.round(VB_W * ESQ.tamano[1] / ESQ.tamano[0])
 /* Por defecto, de la cabeza a las rodillas (Miriam, 27-sep-26, elegido entre tres opciones): la
    figura entera medía 777 px en un móvil de 812 y tapaba la lectura de la página. Las rótulas
@@ -176,7 +191,7 @@ const ticksUsados = computed(() => {
   if (props.ticks) return props.ticks
   const t = NIVELES.filter(([, h]) => HUESOS[h])
     .map(([t, h]) => ({ t, y: HUESOS[h].v * VB_H, ty: HUESOS[h].v * VB_H }))
-  const MIN = 11
+  const MIN = TEXTO.value + 2 // el texto mide TEXTO de alto: dos etiquetas vecinas no se pisan
   for (let i = 1; i < t.length; i++) {
     if (t[i].ty - t[i - 1].ty < MIN) t[i].ty = t[i - 1].ty + MIN
   }

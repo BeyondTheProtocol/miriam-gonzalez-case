@@ -5,6 +5,10 @@
 //   desborde            1 si la página se sale del ancho (scroll horizontal).
 //   h1_borde            1 si el borde izquierdo del H1 no cae bajo el del logo (±1 px).
 //   texto_bajo_suelo    elementos con texto por debajo de 13 px (12 solo en mono y mayúsculas; por debajo de 12, nunca).
+//   texto_svg_bajo_suelo  lo mismo para el texto DENTRO de un <svg>, que el recuento anterior no mira (el recorrido salta todo lo que está en un SVG):
+//                       el tamaño que cuenta es el de pantalla, font-size del <text> × escala de su viewBox (getScreenCTM). Un `font-size="9"` en un
+//                       viewBox de 440 mostrado a 290 px son 6 px, y eso es lo que lee quien mira (revisión de P1: las marcas de vértebra y el contador
+//                       de la insignia de EsqueletoFocos salían a 6 px y el `texto_bajo_suelo 33 → 0` de /lesiones lo daba por resuelto sin contarlos).
 //   objetivos_pequenos  controles de menos de 44 px (salvo un enlace dentro de una frase, que la norma exime).
 //   contraste           elementos de texto por debajo de 4,5:1 (3:1 si es grande) sobre su fondo aplanado.
 //   foco_tapado         pasos de Tab cuyo foco queda debajo de la cabecera fija (WCAG 2.4.11).
@@ -15,8 +19,8 @@
 //
 //   pnpm exec nuxt generate && pnpm test:diseno-render
 //   pnpm test:diseno-render --actualizar           graba la baseline (solo si nada sube)
-//   pnpm test:diseno-render --actualizar --absorber   además admite las RUTAS NUEVAS (las que la baseline no conoce) con el recuento que traen;
-//                                                  jamás sube una ruta conocida. Igual que `pnpm test:diseno --absorber`: una ruta nueva que
+//   pnpm test:diseno-render --actualizar --absorber   además admite las RUTAS NUEVAS (las que la baseline no conoce) y las MÉTRICAS NUEVAS (las que
+//                                                  su ruta aún no trae) con el recuento que traen; jamás sube un recuento conocido. Igual que `pnpm test:diseno --absorber`: una ruta nueva que
 //                                                  entra en RUTAS no puede «bajar» desde un 0 que nunca existió.
 //   pnpm test:diseno-render --rutas /,/datos       solo esas rutas (no compara la baseline)
 //   pnpm test:diseno-render --detalle              imprime los primeros ejemplos de cada recuento
@@ -33,13 +37,13 @@ export const RUTAS = [
   '/herramientas', '/reservorio', '/historia',
 ]
 const ANCHOS = [390, 1280]
-const METRICAS = ['desborde', 'h1_borde', 'texto_bajo_suelo', 'objetivos_pequenos', 'contraste', 'foco_tapado']
+const METRICAS = ['desborde', 'h1_borde', 'texto_bajo_suelo', 'texto_svg_bajo_suelo', 'objetivos_pequenos', 'contraste', 'foco_tapado']
 const PASOS_TAB = 14
 
 /** Corre dentro de la página. Devuelve recuentos y los primeros ejemplos de cada uno. */
 const MEDIR = `(() => {
-  const ej = { texto_bajo_suelo: [], objetivos_pequenos: [], contraste: [] }
-  const cuenta = { desborde: 0, h1_borde: 0, texto_bajo_suelo: 0, objetivos_pequenos: 0, contraste: 0 }
+  const ej = { texto_bajo_suelo: [], texto_svg_bajo_suelo: [], objetivos_pequenos: [], contraste: [] }
+  const cuenta = { desborde: 0, h1_borde: 0, texto_bajo_suelo: 0, texto_svg_bajo_suelo: 0, objetivos_pequenos: 0, contraste: 0 }
   const lienzo = document.createElement('canvas'); lienzo.width = lienzo.height = 1
   const cx = lienzo.getContext('2d', { willReadFrequently: true })
   const rgba = (css) => { cx.clearRect(0, 0, 1, 1); cx.fillStyle = '#000'; cx.fillStyle = css; cx.fillRect(0, 0, 1, 1); const d = cx.getImageData(0, 0, 1, 1).data; return [d[0], d[1], d[2], d[3] / 255] }
@@ -120,6 +124,20 @@ const MEDIR = `(() => {
       }
       if (!enFrase && (r.height < 43.5 || r.width < 43.5)) { cuenta.objetivos_pequenos++; if (ej.objetivos_pequenos.length < 6) ej.objetivos_pequenos.push(Math.round(r.width) + 'x' + Math.round(r.height) + ' ' + nombre(n)) }
     }
+  }
+
+  // texto dentro de un SVG, a su tamaño de pantalla (el recorrido de arriba salta todo lo que cuelga de un <svg>)
+  for (const t of document.querySelectorAll('svg text')) {
+    if (!(t.textContent || '').trim()) continue
+    const r = t.getBoundingClientRect()
+    const cs = getComputedStyle(t)
+    if (!visible(t, r) || cs.display === 'none') continue
+    const ctm = t.getScreenCTM()
+    if (!ctm) continue
+    const escala = Math.sqrt(Math.abs(ctm.a * ctm.d - ctm.b * ctm.c)) // escala de área: vale también si el SVG se gira
+    const fs = parseFloat(cs.fontSize) * escala
+    const mono = /mono|jetbrains/i.test(cs.fontFamily) && cs.textTransform === 'uppercase'
+    if (fs < 12 || (fs < 13 && !mono)) { cuenta.texto_svg_bajo_suelo++; if (ej.texto_svg_bajo_suelo.length < 6) ej.texto_svg_bajo_suelo.push(fs.toFixed(1) + 'px ' + nombre(t)) }
   }
   return { cuenta, ej }
 })()`
@@ -225,7 +243,10 @@ if (args.includes('--actualizar')) {
     const absorber = args.includes('--absorber')
     for (const [k, v] of Object.entries(res)) {
       if (absorber && !previa.rutas[k]) continue // ruta nueva: entra con lo que trae
-      for (const m of METRICAS) if (v[m] > (previa.rutas[k]?.[m] ?? 0)) sube.push(`${k} ${m}: ${previa.rutas[k]?.[m] ?? 0} → ${v[m]}`)
+      for (const m of METRICAS) {
+        if (absorber && !(m in previa.rutas[k])) continue // métrica nueva (la baseline no la conoce): entra con lo que trae
+        if (v[m] > (previa.rutas[k]?.[m] ?? 0)) sube.push(`${k} ${m}: ${previa.rutas[k]?.[m] ?? 0} → ${v[m]}`)
+      }
     }
     if (sube.length) {
       console.log(`✘ La baseline no se actualiza: solo puede bajar.\n   ${sube.join('\n   ')}`)

@@ -89,7 +89,7 @@ const alPulsar = (ev: MouseEvent) => emit('click', ev)
 
 <style scoped>
 .tarjeta-enlace {
-  display: flex; flex-direction: column; gap: var(--sp-12); box-sizing: border-box; height: 100%; min-height: 4rem;
+  display: flex; flex-direction: column; justify-content: center; gap: var(--sp-12); box-sizing: border-box; height: 100%; min-height: 4rem;
   padding: var(--sp-12) var(--sp-16);
   background: var(--superficie); color: var(--texto-1); text-decoration: none;
   transition: border-color var(--dur-micro) var(--curva-salida), box-shadow var(--dur-micro) var(--curva-salida);
@@ -107,7 +107,11 @@ const alPulsar = (ev: MouseEvent) => emit('click', ev)
 .tarjeta-enlace__meta { font: var(--tipo-body-sm); color: var(--texto-2); }
 .tarjeta-enlace--apoyo .tarjeta-enlace__meta { color: var(--color-text); }
 .tarjeta-enlace__flecha { flex: none; width: 1rem; height: 1rem; transition: transform var(--dur-micro) var(--curva-salida); }
-.tarjeta-enlace__etiquetas { display: flex; flex-wrap: wrap; gap: var(--sp-4) var(--sp-12); }
+/* Centrado óptico (revisión de P1): la tarjeta se estira a la altura de la fila de la rejilla y la .puerta de antes centraba su contenido; sin
+   justify-content el título quedaba arriba (13 px del borde de arriba y 29 del de abajo en la de 64 px) y, en una misma fila, la de una línea y
+   la de dos caían a alturas distintas. Sin etiquetas, la fila icono-título-flecha se centra; con ellas (tarjeta de herramienta), el margin-top:auto
+   las lleva al borde de abajo, así que todas quedan en el mismo raíl aunque el texto de encima mida distinto. */
+.tarjeta-enlace__etiquetas { display: flex; flex-wrap: wrap; gap: var(--sp-4) var(--sp-12); margin-top: auto; }
 @media (hover: hover) and (pointer: fine) {
   .tarjeta-enlace:hover { border-color: var(--texto-1); }
   /* Apoyo: el fondo NO cambia al pasar. Berenjena sobre --color-cta-hover mide 4,31:1 (bajo AA para texto de 15 a 17 px); el aviso es el borde --texto-1 de arriba, la flecha y la sombra. */

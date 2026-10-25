@@ -5,13 +5,15 @@
  * un móvil de 375 y en un escritorio de 1280 (con un viewBox fijo, la letra encogía en el móvil
  * y crecía en el escritorio). En el servidor no hay ancho: se pinta a 360 (móvil primero) y el
  * cliente lo corrige al montar, sin desajuste de hidratación porque es un cambio posterior.
+ * `minimo` (280 por defecto) es el suelo de lo que devuelve; con `1` devuelve el ancho tal cual (EsqueletoFocos lo necesita para
+ * calcular la escala de su viewBox en un móvil de 320 px, donde el contenedor mide ~238).
  */
-export function useAncho(el: Ref<HTMLElement | null>, inicial = 360) {
+export function useAncho(el: Ref<HTMLElement | null>, inicial = 360, minimo = 280) {
   const ancho = ref(inicial)
   let ro: ResizeObserver | null = null
   onMounted(() => {
     if (!el.value) return
-    const medir = () => { if (el.value) ancho.value = Math.max(280, Math.round(el.value.clientWidth)) }
+    const medir = () => { if (el.value) ancho.value = Math.max(minimo, Math.round(el.value.clientWidth)) }
     medir()
     ro = new ResizeObserver(medir)
     ro.observe(el.value)
