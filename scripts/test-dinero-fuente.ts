@@ -130,7 +130,7 @@ ok(JSON.stringify(Object.keys(dinero.rebiopsia).sort()) === JSON.stringify(['bio
   const fechaReal = (f: string) => /^\d{4}-\d{2}-\d{2}$/.test(f) && !Number.isNaN(Date.parse(f)) && Date.parse(f) <= Date.now()
   ok(fechaReal(g.fecha) && g.fecha >= dinero.corte, `el cuadre de GoFundMe lleva su propia fecha (${g.fecha}), real, no futura y no anterior al corte (${dinero.corte}): las comisiones se acumulan después y no se prorratean`)
   ok(fechaReal(dinero.rebiopsia.fecha) && dinero.rebiopsia.fecha <= dinero.corte, `la rebiopsia conserva su cifra con su fecha (${dinero.rebiopsia.fecha}), real y no posterior al corte: no se actualiza sola con el informe`)
-  ok(centimos(dinero.ingresado) > centimos(dinero.comprometido) && centimos(dinero.disponible) > 0 && centimos(dinero.disponible) < centimos(dinero.ingresado), 'ingresado, gastado y disponible son coherentes entre sí (el disponible es positivo y menor que lo ingresado)')
+  ok(centimos(dinero.ingresado) > centimos(dinero.comprometido) && centimos(dinero.disponible) > 0 && centimos(dinero.disponible) < centimos(dinero.ingresado), 'ingresado > gastado, y lo disponible es positivo y menor que lo ingresado (lo único que se puede comprobar sin los extractos: no dice que las tres cifras cuadren entre sí)')
   ok(typeof dinero.correccion === 'boolean', 'la nota de corrección se enciende o se apaga desde el JSON')
 }
 const ESTADOS = ['hecha', 'hecho', 'en_curso', 'presupuesto']
