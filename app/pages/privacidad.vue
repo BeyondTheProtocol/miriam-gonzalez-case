@@ -1,32 +1,29 @@
 <template>
-  <div class="section-container max-w-3xl py-16 sm:py-20">
-    <p class="eyebrow mb-3 block">Información legal</p>
-    <h1 class="heading-display text-3xl sm:text-4xl text-berenjena mb-2" style="letter-spacing: -0.03em">
-      Política de privacidad
-    </h1>
-    <p class="font-mono text-xs text-tinta mb-8">
-      Última actualización · 20 de octubre de 2026
-    </p>
-
-    <div class="alert-callout mb-10">
-      <p class="alert-callout__title">
-        <Icon name="ph:warning-circle-fill" class="w-4 h-4" aria-hidden="true" />
-        Pendiente: NIF y domicilio
+  <div class="section-wide py-16 sm:py-20">
+    <!-- T3-LOTE1 (A16, 25-oct-2026): shell único (el H1 cae bajo el logo), cabecera v3 y la prosa en `.measure`, a la izquierda. El texto legal
+         es el de antes, palabra por palabra: solo cambian el contenedor, los roles de titular y el aviso pendiente (`Aviso`, con su filete en
+         vez del salmón con coral). -->
+    <PageHeader variante="pagina" eyebrow="Información legal" title="Política de privacidad">
+      <p class="font-mono text-xs text-tinta mt-2">
+        Última actualización · 20 de octubre de 2026
       </p>
-      Estructura conforme al RGPD (UE 2016/679) y la LOPDGDD. El NIF y el domicilio social se añadirán al constituirse Beyond the Protocol.
-    </div>
+    </PageHeader>
 
-    <article class="prose prose-ink max-w-none">
+    <Aviso tipo="legal" titulo="Pendiente: NIF y domicilio" class="mb-10">
+      Estructura conforme al RGPD (UE 2016/679) y la LOPDGDD. El NIF y el domicilio social se añadirán al constituirse Beyond the Protocol.
+    </Aviso>
+
+    <article class="prose prose-ink measure">
       <p>De conformidad con lo dispuesto en el Reglamento (UE) 2016/679 del Parlamento Europeo y del Consejo, de 27 de abril de 2016, relativo a la protección de las personas físicas en lo que respecta al tratamiento de datos personales y a la libre circulación de estos datos (RGPD), se informa a continuación sobre los siguientes puntos relacionados con el tratamiento de los datos de carácter personal que el usuario facilite voluntariamente al acceder al sitio web helpmiriam.com.</p>
 
-      <h2>1 · Responsable del tratamiento</h2>
+      <h2 class="h2-seccion">1 · Responsable del tratamiento</h2>
       <ul>
         <li><strong>Responsable:</strong> Beyond the Protocol (iniciativa sin ánimo de lucro)</li>
-        <li><strong>NIF:</strong> <span class="text-coral-deep">[pendiente — en proceso de constitución]</span></li>
+        <li><strong>NIF:</strong> <span class="font-semibold">[pendiente — en proceso de constitución]</span></li>
         <li><strong>Contacto:</strong> beyondtheprotocolteam@gmail.com</li>
       </ul>
 
-      <h2>2 · Procedencia, finalidad y base jurídica</h2>
+      <h2 class="h2-seccion">2 · Procedencia, finalidad y base jurídica</h2>
       <p>Los datos personales del usuario serán tratados de forma confidencial y quedarán incorporados a la correspondiente actividad de tratamiento de Beyond the Protocol. En caso de que el usuario proporcione datos de terceros, debe garantizar que cuenta con su consentimiento para tratarlos.</p>
       <p>Las actividades de tratamiento que lleva a cabo Beyond the Protocol son las siguientes:</p>
 
@@ -54,7 +51,7 @@
         <li><strong>Plazo de conservación:</strong> mientras el usuario no retire su consentimiento, cosa que puede hacer en cualquier momento escribiéndonos, y después durante los plazos legalmente necesarios para atender posibles responsabilidades.</li>
       </ul>
 
-      <h2>3 · Destinatarios y encargados del tratamiento</h2>
+      <h2 class="h2-seccion">3 · Destinatarios y encargados del tratamiento</h2>
       <p>Con carácter general, Beyond the Protocol no comunica ni cede los datos personales de los usuarios a terceros, salvo cuando exista una obligación legal o cuando dicha comunicación resulte necesaria para prestar el servicio solicitado.</p>
       <p>Determinados proveedores podrán acceder a datos personales en calidad de encargados del tratamiento, conforme al artículo 28 del RGPD. La información sobre estos proveedores y, en su caso, sobre las transferencias internacionales de datos se detalla en cada actividad de tratamiento descrita en esta Política de privacidad.</p>
       <p>El sitio web utiliza las herramientas <strong>Plausible Analytics</strong> y <strong>Umami Cloud</strong> para obtener estadísticas agregadas sobre el uso y el funcionamiento del sitio, lo que permite analizar el rendimiento de la página y mejorar la experiencia de navegación. Ambas están configuradas para una analítica respetuosa con la privacidad: no utilizan cookies de seguimiento ni elaboran perfiles individualizados.</p>
@@ -63,12 +60,12 @@
       <p>El sitio web incluye enlaces a la plataforma GoFundMe para realizar donaciones u obtener información adicional sobre las campañas publicadas. Los datos personales que el usuario facilite directamente en esa plataforma los trata exclusivamente GoFundMe como responsable independiente del tratamiento, conforme a su propia política de privacidad y condiciones de uso. Beyond the Protocol no tiene acceso a esos datos.</p>
       <p>Las tipografías se sirven <strong>desde nuestro propio dominio</strong> (auto-alojadas): no se cargan desde servidores de terceros ni se transfiere tu dirección IP a Google.</p>
 
-      <h2>4 · Uso de herramientas de inteligencia artificial</h2>
+      <h2 class="h2-seccion">4 · Uso de herramientas de inteligencia artificial</h2>
       <p>El sitio web utiliza herramientas basadas en inteligencia artificial para apoyar la elaboración y estructuración del resumen clínico del caso, el análisis y la organización de la documentación médica disponible, y la divulgación y comunicación del proyecto a través del sitio web.</p>
       <p>Estas funcionalidades actúan exclusivamente como herramientas de apoyo y asistencia. Los resultados, resúmenes o estructuraciones que generan los revisa y valida la titular antes de publicarlos o de comunicarlos a terceros, incluidos los profesionales sanitarios o de investigación que soliciten acceso a la documentación clínica.</p>
       <p>La titular no utiliza sistemas de inteligencia artificial para adoptar decisiones exclusivamente automatizadas sin supervisión humana, ni para elaborar perfiles destinados a evaluar de forma automatizada aspectos personales de los usuarios o visitantes del sitio.</p>
 
-      <h2>5 · Tus derechos</h2>
+      <h2 class="h2-seccion">5 · Tus derechos</h2>
       <p>El RGPD te reconoce los siguientes derechos sobre el tratamiento de tus datos personales:</p>
       <ul>
         <li><strong>Supresión:</strong> puedes pedir que se eliminen tus datos cuando ya no sean necesarios para los fines para los que se recogieron; cuando retires tu consentimiento y el tratamiento no se base en otro fundamento jurídico; cuando te opongas al tratamiento y no existan motivos legítimos imperiosos para continuarlo; o cuando los datos se hayan tratado de forma ilícita.</li>
@@ -82,10 +79,10 @@
       <p><strong>Cómo ejercerlos:</strong> envía un correo electrónico a beyondtheprotocolteam@gmail.com indicando el derecho que quieres ejercer.</p>
       <p>Si consideras que el tratamiento de tus datos no se ajusta a la normativa, tienes derecho a presentar una reclamación ante la autoridad de control competente. En España es la Agencia Española de Protección de Datos (<a href="https://www.aepd.es" class="link-inline" target="_blank" rel="noopener">aepd.es</a>). Los usuarios de la Unión Europea pueden dirigirse también a la autoridad de su lugar de residencia habitual, de trabajo o de la supuesta infracción; el listado está en la <a href="https://edpb.europa.eu/about-edpb/about-edpb/members_es" class="link-inline" target="_blank" rel="noopener">web del Comité Europeo de Protección de Datos</a>.</p>
 
-      <h2>6 · Seguridad</h2>
+      <h2 class="h2-seccion">6 · Seguridad</h2>
       <p>Beyond the Protocol emplea tecnologías actualizadas conforme al estado de la técnica para salvaguardar tus datos e información personal. Se han implementado medidas técnicas y organizativas para proteger los datos personales y evitar su alteración, pérdida, tratamiento indebido o acceso no autorizado. Estas medidas se adaptan al estado tecnológico, a la naturaleza de los datos almacenados y a los riesgos a los que puedan estar expuestos.</p>
 
-      <h2>7 · Cambios en esta Política de privacidad</h2>
+      <h2 class="h2-seccion">7 · Cambios en esta Política de privacidad</h2>
       <p>Beyond the Protocol se reserva el derecho de modificar esta Política de privacidad para adaptarla a novedades legislativas, jurisprudenciales o prácticas del sector. En tal caso, comunicará los cambios en esta página con una antelación razonable antes de su entrada en vigor.</p>
 
       <p>Para el uso de cookies, consulta la <NuxtLink :to="localePath('cookies')" class="link-inline">Política de cookies</NuxtLink>.</p>

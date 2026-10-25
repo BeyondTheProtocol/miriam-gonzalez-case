@@ -6,7 +6,7 @@
            < lg la rejilla no aplica → se apila idéntico al móvil de hoy. -->
       <div class="section-wide lg:grid lg:grid-cols-[320px_minmax(0,1fr)] lg:gap-16 xl:gap-24">
         <!-- Columna izquierda · cabecera + filtros (sticky en desktop) -->
-        <aside class="lg:sticky lg:top-24 lg:self-start">
+        <aside class="lg:sticky lg:sticky-bajo-cabecera lg:self-start">
         <PageHeader
           :title="$t('timeline.title')"
           :subtitle="$t('timeline.subtitle')"

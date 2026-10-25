@@ -456,7 +456,7 @@ const imagenGalio = computed(() => ciencia.value?.imaging ?? null)
                      :sello="c.analiticas.sello" :lang="lang" @cerrar="cerrarPeli" @ver="verDatosDesdePeli" @fecha="fechaPeli" />
     </ClientOnly>
     <section class="section-spacing !pt-8 sm:!pt-12" :aria-label="L('El caso en datos', 'The case in data')">
-      <div class="mx-auto w-full max-w-[1120px] px-4 sm:px-6 lg:px-8">
+      <div class="section-wide">
         <PageHeader
           :title="L('El caso en datos', 'The case in data')"
           :subtitle="L('La evolución clínica de Miriam de un vistazo, con la fuente de cada cifra.', 'Miriam’s clinical course at a glance, and where every number comes from.')"

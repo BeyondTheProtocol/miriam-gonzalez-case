@@ -2279,10 +2279,10 @@ const manifestValidated = (() => {
   <div class="overflow-x-clip">
     <section class="section-spacing" aria-label="Mapa de metástasis">
       <!-- ANCHO CENTRADO (ya no full-bleed tipo wiki): el panel se centra en una
-           columna ancha pero ACOTADA (max-w 1280px + mx-auto). En monitores grandes
+           columna ancha pero ACOTADA (.section-wide: 1200 px del shell, el mismo que cabecera y pie; T3-LOTE1, A12). En monitores grandes
            queda centrado y la lectura no se dispersa; de paso la columna del visor
-           3D se estrecha un poco. Padding lateral cómodo (px-4 → lg:px-8). -->
-      <div class="px-4 sm:px-6 lg:px-8 max-w-[1280px] mx-auto">
+           3D se estrecha un poco. Relleno lateral: --gutter del shell. -->
+      <div class="section-wide">
         <!-- Layout wiki · SIN ÍNDICE (petición paciente: «quitamos el índice,
              maquetamos bien»). El contenido (foci↔3D) usa TODO el ancho del
              viewport; las anclas (id/scroll-mt) de las secciones se conservan
@@ -2509,7 +2509,7 @@ const manifestValidated = (() => {
                  (↑/↓/←/→, Home/End, escribir un número) para los TRES modos a la vez,
                  sin secuestrar Tab; las teclas se manejan cuando el foco está en un
                  marcador/option del navegador. -->
-            <div class="lg:sticky lg:top-24" @keydown="onFocoNavKey">
+            <div class="lg:sticky lg:sticky-bajo-cabecera" @keydown="onFocoNavKey">
 
             <!-- (A · a11y) ANUNCIO VIVO para lector de pantalla: al cambiar de foco
                  (teclado, clic o flechas) describe «Foco N de M · localización ·
@@ -3264,14 +3264,14 @@ const manifestValidated = (() => {
         <!-- ZONA WIKI · FONDO SUTIL (opción A): un tinte muy tenue detrás de TODA la
              sección general la separa de la herramienta de arriba. Lee como «zona de
              referencia», no como caja. -mx + px re-encajan el contenido al ancho de la
-             columna (banda a todo el ancho de 1280, no un recuadro inset). El tinte es
+             columna (banda a todo el ancho del viewport, no un recuadro inset). El tinte es
              el divisor; el header va dentro, sin regla ni caja. -->
         <!-- (#15) Zona wiki a PANTALLA COMPLETA (full-bleed al viewport) con fondo del DS
              (cream-card). El margen calc(50%-50vw) saca la banda al borde del viewport sin
              scroll horizontal (en flujo, sin transform → la barra sticky del rail sigue ok);
-             el contenido se RE-ACOTA a 1280 con el contenedor interior. -->
+             el contenido se RE-ACOTA al shell (.section-wide) con el contenedor interior. -->
         <div class="ml-[calc(50%-50vw)] mr-[calc(50%-50vw)] bg-cream-card py-10 lg:py-12 mt-4">
-          <div class="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8">
+          <div class="section-wide">
           <!-- (homogeneidad) divisor del sitio en el corte herramienta→wiki, como home/ciencia. -->
           <EcgDivider class="mb-10" />
           <!-- Header de la sección general (eyebrow + h2 a la izquierda, sin caja). -->
@@ -3302,7 +3302,7 @@ const manifestValidated = (() => {
         <div class="lg:grid lg:grid-cols-[220px_minmax(0,1fr)] lg:gap-8 lg:items-start">
           <MapaSectionNav
             variant="rail"
-            class="hidden lg:block lg:sticky lg:top-24 lg:self-start"
+            class="hidden lg:block lg:sticky lg:sticky-bajo-cabecera lg:self-start"
           />
           <div class="min-w-0">
             <!-- Índice móvil: desplegable «Saltar a…» en el flujo (solo <lg). El rail
@@ -3963,8 +3963,24 @@ const manifestValidated = (() => {
             {{ L('Pulsa una cabecera para ordenar. Primero van los focos del informe oficial y, al final, en su propio grupo, los detectados por IA (medidas aproximadas sobre los DICOM, por confirmar con Medicina Nuclear). La extensión metabólica es lo que cada foco capta por encima del umbral (41% del SUVmáx local), confinado a hueso; no es el tamaño anatómico exacto y el volumen parcial subestima los focos < ~10 mm.',
                   'Click a header to sort. Report foci come first and, at the end, in their own group, the AI-detected ones (approximate DICOM measurements, to confirm with Nuclear Medicine). The metabolic extent is what each focus takes up above the threshold (41% of the local SUVmax), confined to bone; it is not the exact anatomical size and partial volume underestimates foci < ~10 mm.') }}
           </p>
-          <div class="data-card overflow-x-auto tabla-focos">
-            <table class="data-table data-table--dense">
+          <!-- T3-LOTE1 (A13, 25-oct-2026): la tabla (1137 px) vive en una columna de ~850 px junto al raíl, así que SIEMPRE se desliza. Va en `.tabla-scroll` (degradado
+               y sombra en el borde que desborda, y recorrible con el teclado), con `<colgroup>` y la primera columna (el número de foco) fija. El nombre de la región es
+               el titular de arriba (`#tabla`), sin texto nuevo. -->
+          <div class="data-card">
+          <div class="tabla-scroll tabla-focos" tabindex="0" role="region" aria-labelledby="tabla">
+            <table class="data-table data-table--dense tabla-focos__t">
+              <colgroup>
+                <col style="width: 2.75rem" />
+                <col style="width: 7.5rem" />
+                <col style="width: 4rem" />
+                <col style="width: 6.5rem" />
+                <col style="width: 7rem" />
+                <col style="width: 8.25rem" />
+                <col style="width: 7.5rem" />
+                <col style="width: 5.75rem" />
+                <col style="width: 12rem" />
+                <col style="width: 9.25rem" />
+              </colgroup>
               <!-- (A · a11y) CAPTION = nombre accesible de la tabla y ANCLA de la
                    alternativa textual del visor 3D (id tabla-focos-alt, referenciada
                    por aria-describedby desde el listbox del esqueleto/lista y el
@@ -4034,6 +4050,7 @@ const manifestValidated = (() => {
                 </template>
               </tbody>
             </table>
+          </div>
           </div>
 
           <!-- nota: cosas por aclarar -->
@@ -4394,7 +4411,7 @@ const manifestValidated = (() => {
         </div>
           </div><!-- /columna derecha (contenido wiki, 1fr) -->
         </div><!-- /rejilla rail+contenido (solo Zona 2) -->
-          </div><!-- /contenedor centrado · re-acota el contenido a 1280 -->
+          </div><!-- /contenedor centrado · re-acota el contenido al shell -->
         </div><!-- /zona wiki · full-bleed · fondo cream-card del DS -->
         <!-- ╚══════════════ FIN ZONA 2 · «Visión general del caso» ══════════════╝ -->
           </div>
@@ -4858,6 +4875,13 @@ svg [role="option"]:focus-visible {
 }
 .tabla-focos thead th:first-child { border-top-left-radius: 0; }
 .tabla-focos thead th:last-child { border-top-right-radius: 0; }
+/* T3-LOTE1 (A13): la tabla no se estrecha por debajo de sus columnas (la suma del <colgroup>) y la primera columna, el número de foco, queda fija a la izquierda
+   mientras se desliza; la cabecera de esa columna es pegajosa en las dos direcciones (z 7, por encima del resto de la cabecera, que es 6). El fondo es opaco
+   para que lo que pasa por debajo no se transparente. */
+.tabla-focos__t { min-width: 70rem; }
+.tabla-focos thead th:first-child { left: 0; z-index: 7; }
+.tabla-focos tbody th[scope='row'] { position: sticky; left: 0; z-index: 2; background: var(--fondo); }
+.tabla-focos tbody tr[aria-selected='true'] th[scope='row'] { background: color-mix(in srgb, var(--identidad) 8%, var(--fondo)); }
 /* el subtítulo del grupo de IA (un <td> dentro del tbody) queda por debajo
    del thead pegajoso al pasar bajo él */
 .tabla-focos .ai-group-head td { position: relative; z-index: 1; }

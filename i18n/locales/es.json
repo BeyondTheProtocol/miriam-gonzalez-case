@@ -842,6 +842,7 @@
     "goal_n_of_1_desc": "Un tratamiento diseñado para una sola paciente, sobre el perfil real de su tumor y no sobre el promedio HR+. Hoy corren dos cosas en paralelo: un tratamiento para controlar la enfermedad (un ensayo con datopotamab deruxtecan, previsto desde octubre de 2026) y la lectura a fondo del tumor, que es de donde saldrían las dianas de una terapia personalizada.",
     "detailed_analyses": "Análisis detallados",
     "view_reference": "Ver referencia",
+    "view_study": "Ver estudio",
     "why_no_fit_guidelines": "¿Por qué este tumor no encaja en los protocolos?",
     "why_no_fit_guidelines_text": "Sobre el papel es un cáncer de mama {luminal} (HR+/HER2−). En la biopsia diagnóstica de 2024, el 80 % de las células neoplásicas expresaban cromogranina y sinaptofisina (CD56 negativo); en la revisión del mismo bloque en 2026 la expresión es focal y heterogénea, y los marcadores aparecen también en el hueso (sinaptofisina) y en el hígado (cromogranina A y sinaptofisina), sin porcentaje.",
     "thesis": "La tesis: la biología, no el órgano de origen, debería guiar el tratamiento.",

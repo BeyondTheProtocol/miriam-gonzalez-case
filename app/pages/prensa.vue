@@ -92,6 +92,8 @@
     <!-- 4 · Fotografías de prensa y vídeo -->
     <Banda tono="tarjeta">
       <CabeceraSeccion id="press-photos" :titulo="$t('press.photos_title')" />
+      <!-- T3-LOTE1 (A10, 25-oct-2026): desde `lg` las dos fotos se recortan a 4/5 (de 606 a 505 px de alto a 1280), con el encuadre puesto a mano para no
+           cortar la cara ni las manos del retrato «ingeniera»; hasta `lg` conservan su proporción de siempre (2/3). Solo cambia lo que se ve en la página, no el fichero. `sizes` pide 540 px aunque hoy se pintan a unos 404: holgura para pantallas de 1,33x. -->
       <div class="pr-fotos" role="group" aria-labelledby="press-photos">
         <figure class="m-0">
           <NuxtImg
@@ -99,8 +101,8 @@
             :alt="$t('press.photo_retrato_alt')"
             width="800"
             height="1200"
-            sizes="sm:100vw md:400px"
-            class="w-full h-auto rounded-card aspect-[2/3] object-cover"
+            sizes="sm:100vw md:540px"
+            class="w-full h-auto rounded-card aspect-[2/3] lg:aspect-[4/5] object-cover lg:object-[50%_25%]"
             loading="lazy"
           />
           <figcaption class="pr-pie">{{ $t('press.photo_retrato_caption') }}</figcaption>
@@ -111,8 +113,8 @@
             :alt="$t('press.photo_ingeniera_alt')"
             width="800"
             height="1200"
-            sizes="sm:100vw md:400px"
-            class="w-full h-auto rounded-card aspect-[2/3] object-cover"
+            sizes="sm:100vw md:540px"
+            class="w-full h-auto rounded-card aspect-[2/3] lg:aspect-[4/5] object-cover lg:object-[50%_65%]"
             loading="lazy"
           />
           <figcaption class="pr-pie">{{ $t('press.photo_ingeniera_caption') }}</figcaption>

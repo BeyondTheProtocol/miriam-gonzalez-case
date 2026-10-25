@@ -61,10 +61,13 @@
     <!-- Zona B · la hoja profesional: lo que se busca, las herramientas, la ficha, la anomalía, la patología, el perfil, los ejes y el panel. -->
     <section id="detalle-profesional" class="section-spacing" :aria-label="$t('ciencia.level_pro')">
       <div class="section-wide">
-        <div class="lg:grid lg:grid-cols-[220px_minmax(0,1fr)] lg:gap-12 xl:gap-16 lg:items-start">
-          <CienciaSectionNav variant="rail" class="hidden lg:block lg:sticky lg:top-24 lg:self-start" />
+        <!-- T3-LOTE1 (A11 y A17, 25-oct-2026): el índice lateral y su rejilla empiezan en `xl` (1280), no en `lg`. A 1024 el raíl se comía 220 +
+             48 px y la columna de lectura quedaba en 660, más estrecha que las tablas de dentro (679 y 687 px); con el desplegable «Saltar a…» en
+             su lugar la columna mide 928. Y el pegajoso del raíl va con `.sticky-bajo-cabecera`: `lg:top-24` (96 px) lo dejaba bajo la cabecera de 112. -->
+        <div class="xl:grid xl:grid-cols-[220px_minmax(0,1fr)] xl:gap-16 xl:items-start">
+          <CienciaSectionNav variant="rail" class="hidden xl:block xl:sticky xl:sticky-bajo-cabecera xl:self-start" />
           <div class="min-w-0">
-            <CienciaSectionNav variant="mobile" class="lg:hidden mb-8" />
+            <CienciaSectionNav variant="mobile" class="xl:hidden mb-8" />
 
             <!-- 2 · Qué buscamos: lo que pueden mover los científicos que llegan aquí (laboratorio, HLA, IHQ). El resto, en /datos#que-buscamos. -->
             <section v-if="peticiones.length" class="ci-sec" aria-labelledby="ciencia-busca">

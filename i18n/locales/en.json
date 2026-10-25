@@ -819,6 +819,7 @@
     "goal_n_of_1_desc": "A treatment designed for a single patient, built on her tumour’s actual profile rather than the HR+ average. Two things run in parallel today: a treatment to control the disease (a datopotamab deruxtecan trial, expected from October 2026) and an in-depth reading of the tumour, which is where the targets of a personalised therapy would come from.",
     "detailed_analyses": "Detailed analyses",
     "view_reference": "View reference",
+    "view_study": "View study",
     "why_no_fit_guidelines": "Why doesn't this tumor fit the protocols?",
     "why_no_fit_guidelines_text": "On paper this is a {luminal} breast cancer (HR+/HER2−). In the 2024 diagnostic biopsy, 80% of the neoplastic cells expressed chromogranin and synaptophysin (CD56 negative); on review of the same block in 2026 the expression is focal and heterogeneous, and the markers also appear in bone (synaptophysin) and in the liver (chromogranin A and synaptophysin), with no percentage.",
     "thesis": "The thesis: biology, not the organ of origin, should guide treatment.",

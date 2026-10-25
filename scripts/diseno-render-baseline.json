@@ -43,15 +43,15 @@
       "objetivos_pequenos": 1,
       "contraste": 0,
       "linea_larga": 13,
-      "sticky_tapado": 1,
+      "sticky_tapado": 0,
       "foco_tapado": 0
     },
     "/ciencia/evidencia:390": {
       "desborde": 0,
       "h1_borde": 0,
-      "texto_bajo_suelo": 18,
+      "texto_bajo_suelo": 0,
       "texto_svg_bajo_suelo": 0,
-      "objetivos_pequenos": 21,
+      "objetivos_pequenos": 1,
       "contraste": 0,
       "linea_larga": 0,
       "sticky_tapado": 0,
@@ -59,12 +59,12 @@
     },
     "/ciencia/evidencia:1280": {
       "desborde": 0,
-      "h1_borde": 1,
-      "texto_bajo_suelo": 18,
+      "h1_borde": 0,
+      "texto_bajo_suelo": 0,
       "texto_svg_bajo_suelo": 0,
-      "objetivos_pequenos": 21,
+      "objetivos_pequenos": 1,
       "contraste": 0,
-      "linea_larga": 28,
+      "linea_larga": 0,
       "sticky_tapado": 0,
       "foco_tapado": 0
     },
@@ -114,10 +114,10 @@
     },
     "/datos:390": {
       "desborde": 0,
-      "h1_borde": 1,
+      "h1_borde": 0,
       "texto_bajo_suelo": 261,
       "texto_svg_bajo_suelo": 34,
-      "objetivos_pequenos": 2,
+      "objetivos_pequenos": 1,
       "contraste": 0,
       "linea_larga": 0,
       "sticky_tapado": 0,
@@ -125,7 +125,7 @@
     },
     "/datos:1280": {
       "desborde": 0,
-      "h1_borde": 1,
+      "h1_borde": 0,
       "texto_bajo_suelo": 261,
       "texto_svg_bajo_suelo": 34,
       "objetivos_pequenos": 2,
@@ -268,24 +268,24 @@
     },
     "/mapa-metastasis:390": {
       "desborde": 0,
-      "h1_borde": 1,
+      "h1_borde": 0,
       "texto_bajo_suelo": 529,
       "texto_svg_bajo_suelo": 47,
       "objetivos_pequenos": 62,
-      "contraste": 42,
+      "contraste": 38,
       "linea_larga": 0,
       "sticky_tapado": 0,
       "foco_tapado": 0
     },
     "/mapa-metastasis:1280": {
       "desborde": 0,
-      "h1_borde": 1,
+      "h1_borde": 0,
       "texto_bajo_suelo": 529,
       "texto_svg_bajo_suelo": 6,
       "objetivos_pequenos": 63,
-      "contraste": 42,
-      "linea_larga": 71,
-      "sticky_tapado": 1,
+      "contraste": 38,
+      "linea_larga": 70,
+      "sticky_tapado": 0,
       "foco_tapado": 0
     },
     "/marcas:390": {
@@ -351,7 +351,7 @@
       "objetivos_pequenos": 13,
       "contraste": 41,
       "linea_larga": 27,
-      "sticky_tapado": 1,
+      "sticky_tapado": 0,
       "foco_tapado": 0
     },
     "/celula-a-celula:390": {
@@ -411,12 +411,12 @@
     },
     "/aviso-legal:1280": {
       "desborde": 0,
-      "h1_borde": 1,
+      "h1_borde": 0,
       "texto_bajo_suelo": 0,
       "texto_svg_bajo_suelo": 0,
       "objetivos_pequenos": 1,
       "contraste": 0,
-      "linea_larga": 13,
+      "linea_larga": 0,
       "sticky_tapado": 0,
       "foco_tapado": 0
     },
@@ -433,12 +433,12 @@
     },
     "/privacidad:1280": {
       "desborde": 0,
-      "h1_borde": 1,
+      "h1_borde": 0,
       "texto_bajo_suelo": 0,
       "texto_svg_bajo_suelo": 0,
       "objetivos_pequenos": 1,
       "contraste": 0,
-      "linea_larga": 16,
+      "linea_larga": 0,
       "sticky_tapado": 0,
       "foco_tapado": 0
     },
@@ -455,12 +455,12 @@
     },
     "/cookies:1280": {
       "desborde": 0,
-      "h1_borde": 1,
+      "h1_borde": 0,
       "texto_bajo_suelo": 0,
       "texto_svg_bajo_suelo": 0,
       "objetivos_pequenos": 1,
       "contraste": 0,
-      "linea_larga": 4,
+      "linea_larga": 0,
       "sticky_tapado": 0,
       "foco_tapado": 0
     },

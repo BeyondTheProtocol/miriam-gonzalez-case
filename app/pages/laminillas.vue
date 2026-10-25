@@ -221,24 +221,29 @@ onBeforeUnmount(() => {
 <template>
   <div class="lam" :class="{ 'lam--sin-ficha': !fichaAbierta }" :style="{ '--alto-cabecera': altoCabecera + 'px' }">
     <div class="lam__barra">
-      <NuxtLink :to="localePath({ name: 'herramientas' })" class="lam__volver">
-        <Icon name="ph:arrow-left-bold" class="w-4 h-4" aria-hidden="true" /><span class="lam__volver-texto">{{ $t('nav.tools') }}</span>
-      </NuxtLink>
-      <h1 class="lam__h1">{{ L('Las laminillas, al microscopio', 'The slides, under the microscope') }}</h1>
-      <details class="lam__aviso" role="note">
-        <summary>
-          <Icon name="ph:info-fill" class="w-4 h-4 shrink-0" aria-hidden="true" />
-          <span>{{ L('Herramienta de APOYO a la decisión. No es diagnóstico ni consejo médico.', 'A decision-SUPPORT tool. Not a diagnosis or medical advice.') }}</span>
-          <Icon name="ph:caret-down-bold" class="lam__aviso-flecha w-3 h-3 shrink-0" aria-hidden="true" />
-        </summary>
-        <p>{{ L(
-          'Los resultados que aparecen son los de los informes de anatomía patológica, cada uno con su fuente y su sello de verificación. Mirar la imagen no los sustituye: los interpreta el equipo médico.',
-          'The results shown are those in the pathology reports, each with its source and verification seal. Looking at the image does not replace them: the medical team interprets them.') }}</p>
-      </details>
-      <!-- Los TIFF a resolución completa, bajo petición (24-oct-2026). También abre con #ficheros / #files. -->
-      <button type="button" class="lam__accion lam__pedir lam__pedir--barra" :aria-label="L('Pedir los ficheros a resolución completa', 'Request the full-resolution files')" @click="peticion?.abre()">
-        <Icon name="ph:download-simple-bold" class="w-4 h-4" aria-hidden="true" /><span class="lam__accion-texto">{{ L('Pedir los ficheros', 'Request the files') }}</span><span class="lam__accion-corto" aria-hidden="true">{{ L('Ficheros', 'Files') }}</span>
-      </button>
+      <!-- T3-LOTE1 (A18, 25-oct-2026): el contenido de la barra va en el shell (`.section-wide`, DS §3), para que «← Herramientas» y el
+           título caigan bajo el logo; el filete de abajo sigue a sangre. La zona de trabajo (visor, galería y ficha) conserva su ancho
+           completo. Hasta `lg` la barra es la de antes (mismo relleno), así que tableta y móvil no cambian. -->
+      <div class="lam__barra-in section-wide">
+        <NuxtLink :to="localePath({ name: 'herramientas' })" class="lam__volver">
+          <Icon name="ph:arrow-left-bold" class="w-4 h-4" aria-hidden="true" /><span class="lam__volver-texto">{{ $t('nav.tools') }}</span>
+        </NuxtLink>
+        <h1 class="lam__h1">{{ L('Las laminillas, al microscopio', 'The slides, under the microscope') }}</h1>
+        <details class="lam__aviso" role="note">
+          <summary>
+            <Icon name="ph:info-fill" class="w-4 h-4 shrink-0" aria-hidden="true" />
+            <span>{{ L('Herramienta de APOYO a la decisión. No es diagnóstico ni consejo médico.', 'A decision-SUPPORT tool. Not a diagnosis or medical advice.') }}</span>
+            <Icon name="ph:caret-down-bold" class="lam__aviso-flecha w-3 h-3 shrink-0" aria-hidden="true" />
+          </summary>
+          <p>{{ L(
+            'Los resultados que aparecen son los de los informes de anatomía patológica, cada uno con su fuente y su sello de verificación. Mirar la imagen no los sustituye: los interpreta el equipo médico.',
+            'The results shown are those in the pathology reports, each with its source and verification seal. Looking at the image does not replace them: the medical team interprets them.') }}</p>
+        </details>
+        <!-- Los TIFF a resolución completa, bajo petición (24-oct-2026). También abre con #ficheros / #files. -->
+        <button type="button" class="lam__accion lam__pedir lam__pedir--barra" :aria-label="L('Pedir los ficheros a resolución completa', 'Request the full-resolution files')" @click="peticion?.abre()">
+          <Icon name="ph:download-simple-bold" class="w-4 h-4" aria-hidden="true" /><span class="lam__accion-texto">{{ L('Pedir los ficheros', 'Request the files') }}</span><span class="lam__accion-corto" aria-hidden="true">{{ L('Ficheros', 'Files') }}</span>
+        </button>
+      </div>
     </div>
     <ClientOnly><LaminillasPeticion ref="peticion" :idioma="idioma" /></ClientOnly>
 
@@ -342,7 +347,11 @@ onBeforeUnmount(() => {
 <style scoped>
 /* La herramienta llena la pantalla bajo la cabecera fija del sitio: no hay que desplazar la página. */
 .lam { height: calc(100dvh - var(--alto-cabecera, 112px)); min-height: 420px; display: flex; flex-direction: column; background: var(--color-bg); }
-.lam__barra { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 16px; padding: 8px 16px; border-bottom: 1px solid color-mix(in srgb, var(--color-text) 12%, transparent); }
+/* La barra: el filete va a sangre y el contenido, en el shell (.section-wide: el borde de «← Herramientas» cae bajo el logo). Hasta `lg` el relleno
+   es el de siempre (16 px; 12 en móvil), así que solo el escritorio se alinea con la cabecera. */
+.lam__barra { border-bottom: 1px solid color-mix(in srgb, var(--color-text) 12%, transparent); }
+.lam__barra-in { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 16px; padding-block: 8px; }
+@media (max-width: 1023px) { .lam__barra-in { padding-inline: 16px; } }
 .lam__volver { display: inline-flex; align-items: center; gap: 6px; min-height: 44px; min-width: 44px; font-size: var(--texto-sm); color: var(--color-text); text-decoration: none; }
 .lam__volver:focus-visible { outline: 3px solid var(--anillo-foco); outline-offset: 2px; border-radius: var(--radius-sm); }
 .lam__h1 { margin: 0; font-family: var(--font-display); font-weight: 600; font-size: var(--texto-lg); color: var(--color-text); }
@@ -414,7 +423,7 @@ onBeforeUnmount(() => {
 }
 /* Móvil: el visor arriba, la tira de la galería debajo y la ficha en un cajón desde abajo. */
 @media (max-width: 767px) {
-  .lam__barra { padding: 4px 12px; gap: 0 12px; }
+  .lam__barra-in { padding: 4px 12px; gap: 0 12px; }
   .lam__volver-texto, .lam__h1 { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
   .lam__aviso { margin-left: 0; flex: 1; }
   .lam__pedir--barra { display: none; }

@@ -32,7 +32,6 @@
       "app/components/TurnstileWidget.vue": 1,
       "app/composables/useAlVer.ts": 2,
       "app/error.vue": 12,
-      "app/pages/aviso-legal.vue": 1,
       "app/pages/colabora.vue": 1,
       "app/pages/contacto.vue": 6,
       "app/pages/datos.vue": 1,
@@ -41,7 +40,6 @@
       "app/pages/gracias.vue": 6,
       "app/pages/mapa-metastasis.vue": 430,
       "app/pages/marcas.vue": 11,
-      "app/pages/privacidad.vue": 1,
       "app/pages/timeline.vue": 4,
       "app/utils/timeline.ts": 9,
       "tailwind.config.js": 1
@@ -184,26 +182,19 @@
       "app/components/SpineMRIViewer.vue": 2,
       "app/components/VideoCaso.vue": 1,
       "app/error.vue": 2,
-      "app/pages/aviso-legal.vue": 1,
-      "app/pages/ciencia/evidencia.vue": 1,
       "app/pages/colabora.vue": 5,
-      "app/pages/cookies.vue": 1,
       "app/pages/datos.vue": 5,
       "app/pages/equipo.vue": 2,
       "app/pages/gracias.vue": 1,
       "app/pages/lesiones.vue": 10,
       "app/pages/mapa-metastasis.vue": 39,
-      "app/pages/marcas.vue": 5,
-      "app/pages/privacidad.vue": 1
+      "app/pages/marcas.vue": 5
     },
     "R7": {},
     "R8": {
-      "app/pages/aviso-legal.vue": 11,
       "app/pages/celula-a-celula-explorar.vue": 2,
-      "app/pages/ciencia/evidencia.vue": 1,
       "app/pages/colabora.vue": 2,
       "app/pages/contacto.vue": 2,
-      "app/pages/cookies.vue": 4,
       "app/pages/datos.vue": 8,
       "app/pages/equipo.vue": 4,
       "app/pages/gastos.vue": 5,
@@ -211,7 +202,6 @@
       "app/pages/laminillas.vue": 2,
       "app/pages/lesiones.vue": 1,
       "app/pages/mapa-metastasis.vue": 12,
-      "app/pages/privacidad.vue": 7,
       "app/pages/timeline.vue": 1
     },
     "R9": {
@@ -231,14 +221,8 @@
     },
     "R12": {
       "app/error.vue": 1,
-      "app/pages/aviso-legal.vue": 1,
       "app/pages/celula-a-celula-explorar.vue": 1,
-      "app/pages/celula-a-celula.vue": 1,
-      "app/pages/ciencia/evidencia.vue": 1,
-      "app/pages/cookies.vue": 1,
-      "app/pages/datos.vue": 1,
-      "app/pages/mapa-metastasis.vue": 2,
-      "app/pages/privacidad.vue": 1
+      "app/pages/celula-a-celula.vue": 1
     },
     "R13": {
       "app/components/HomeProximosPasos.vue": 1,
@@ -246,7 +230,6 @@
       "app/components/PageHeader.vue": 1,
       "app/components/RutaPersonalizada.vue": 3,
       "app/components/VisitorPathways.vue": 1,
-      "app/pages/ciencia/evidencia.vue": 1,
       "app/pages/colabora.vue": 3,
       "app/pages/contacto.vue": 1,
       "app/pages/equipo.vue": 2,
