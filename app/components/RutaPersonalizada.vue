@@ -2,17 +2,12 @@
   <section
     ref="root"
     class="ruta"
-    :class="{ 'ruta-in': inView }"
+    :class="{ 'ruta-armada': armada, 'ruta-in': inView }"
     aria-labelledby="ruta-title"
   >
-    <p class="eyebrow mb-2 block">{{ $t('ciencia.ruta.eyebrow') }}</p>
-    <h2
-      id="ruta-title"
-      class="heading-display text-2xl text-berenjena mb-2 scroll-mt-[5.5rem]"
-      style="letter-spacing: -0.02em"
-    >
-      {{ $t('ciencia.ruta.title') }}
-    </h2>
+    <!-- Sistema v3 (P1): el titular es CabeceraSeccion (eyebrow + H2 por rol); el texto de cada paso se ve desde el principio y solo se
+         anima el trazo. -->
+    <CabeceraSeccion id="ruta-title" class="ruta-cabecera" :eyebrow="$t('ciencia.ruta.eyebrow')" :titulo="$t('ciencia.ruta.title')" />
     <!-- El objetivo (N-of-1) va aquí, una sola vez (E5; antes, también en una tarjeta oscura aparte). La frase de la que parte la ruta y el paso
          de hoy: el número sale de rutaPasos.ts (el primer paso que no está hecho), no de la prosa. -->
     <p v-if="objetivo" class="text-sm text-berenjena leading-relaxed font-medium mb-3 max-w-2xl">
@@ -55,8 +50,8 @@
 
         <div class="ruta-texto">
           <div class="flex items-center gap-2.5 flex-wrap mb-1">
-            <span class="font-mono text-xs text-tinta opacity-70">{{ String(i + 1).padStart(2, '0') }}</span>
-            <h3 class="font-semibold text-berenjena text-base">{{ $t(`ciencia.ruta.pasos.${paso.key}.titulo`) }}</h3>
+            <span class="font-mono text-xs text-tinta">{{ String(i + 1).padStart(2, '0') }}</span>
+            <h3 class="h4-tarjeta">{{ $t(`ciencia.ruta.pasos.${paso.key}.titulo`) }}</h3>
             <span :class="['status-badge', badge[paso.estado]]">
               {{ $t(`ciencia.ruta.estados.${paso.estado}`) }}
             </span>
@@ -93,13 +88,21 @@ const badge = BADGE_RUTA
 
 const root = ref<HTMLElement | null>(null)
 const inView = ref(false)
+// `armada`: la animación se prepara (los tramos de línea sin trazar) SOLO cuando hay JS, IntersectionObserver y movimiento permitido, y
+// solo si la ruta está bajo el pliegue. Sin eso, todo queda visible y completo desde el HTML.
+const armada = ref(false)
 let io: IntersectionObserver | null = null
 
 onMounted(() => {
-  if (typeof window === 'undefined' || !('IntersectionObserver' in window)) {
+  if (typeof window === 'undefined' || !('IntersectionObserver' in window) || window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) {
     inView.value = true
     return
   }
+  if (root.value && root.value.getBoundingClientRect().top < window.innerHeight * 0.9) {
+    inView.value = true
+    return
+  }
+  armada.value = true
   io = new IntersectionObserver(
     (entries) => {
       if (entries.some((e) => e.isIntersecting)) {
@@ -178,27 +181,31 @@ onBeforeUnmount(() => io?.disconnect())
 .ruta-paso--abierto .ruta-icono { color: var(--color-text); }
 .ruta-paso--hecho .ruta-tramo line { stroke: var(--color-text); }
 
+/* Movimiento (sistema v3, P1): el TEXTO de cada paso no se anima nunca (lo que se lee no se mueve por estilo). Al entrar la ruta en pantalla
+   solo se trazan las líneas y se enciende el nodo, con las duraciones y las curvas del sistema y un escalonado total de 240 ms. El paso
+   en curso late 3 veces y se para. Sin JS o con movimiento reducido no se arma nada: todo se ve completo. */
 @media (prefers-reduced-motion: no-preference) {
-  /* Antes de entrar: pasos apagados y líneas sin trazar */
-  .ruta:not(.ruta-in) .ruta-paso { opacity: 0; transform: translateY(6px); }
-  .ruta:not(.ruta-in) .ruta-tramo line { stroke-dashoffset: 100; }
+  .ruta-armada:not(.ruta-in) .ruta-tramo line { stroke-dashoffset: 100; }
+  .ruta-armada:not(.ruta-in) .ruta-nodo,
+  .ruta-armada:not(.ruta-in) .ruta-icono { opacity: 0; }
 
-  .ruta-in .ruta-paso {
-    animation: paso-in 0.5s ease both;
-    animation-delay: calc(var(--i) * 0.35s);
+  .ruta-in .ruta-nodo,
+  .ruta-in .ruta-icono {
+    animation: nodo-in var(--dur-transicion) var(--curva-salida) both;
+    animation-delay: calc(var(--i) * 60ms);
   }
   .ruta-in .ruta-tramo line {
-    animation: tramo-in 0.4s ease both;
-    animation-delay: calc(var(--i) * 0.35s + 0.3s);
+    animation: tramo-in var(--dur-transicion) var(--curva-salida) both;
+    animation-delay: calc(var(--i) * 60ms + 60ms);
   }
-  /* El paso en curso late: es donde está el caso hoy */
+  /* El paso en curso late: es donde está el caso hoy. Tres latidos y se queda quieto. */
   .ruta-in .ruta-paso--curso .ruta-halo {
     transform-origin: 22px 22px;
-    animation: latido 2.4s ease-in-out calc(var(--i) * 0.35s + 0.6s) infinite;
+    animation: latido 2.4s var(--curva-salida) calc(var(--i) * 60ms + 300ms) 3;
   }
-  @keyframes paso-in {
-    from { opacity: 0; transform: translateY(6px); }
-    to { opacity: 1; transform: none; }
+  @keyframes nodo-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
   }
   @keyframes tramo-in {
     from { stroke-dashoffset: 100; }

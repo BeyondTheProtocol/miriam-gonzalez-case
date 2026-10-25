@@ -2,13 +2,13 @@
   <section :aria-labelledby="'perfil-molecular-detallado-title'">
     <div class="flex items-baseline justify-between flex-wrap gap-2 mb-3">
       <p class="eyebrow">{{ locale === 'es' ? 'Perfil molecular detallado' : 'Detailed molecular profile' }}</p>
-      <p class="text-[11px] text-tinta font-mono">
+      <p class="text-xs text-tinta font-mono">
         {{ locale === 'es' ? 'TSO500 2024 + FoundationOne CDx 2026 + VIGex + IHQ + ctDNA + PET Ga-68' : 'TSO500 2024 + FoundationOne CDx 2026 + VIGex + IHC + ctDNA + Ga-68 PET' }}
       </p>
     </div>
     <h3
       id="perfil-molecular-detallado-title"
-      class="heading-display text-xl text-berenjena mb-1"
+      class="h3-seccion mb-1"
     >
       {{ locale === 'es' ? 'Alteraciones, métodos e implicación clínica' : 'Alterations, methods and clinical implication' }}
     </h3>
@@ -157,6 +157,6 @@ const rows = computed<Row[]>(() =>
    cortarse en móvil. */
 .pill-data {
   white-space: normal;
-  border-radius: 12px;
+  border-radius: var(--radius-btn);
 }
 </style>

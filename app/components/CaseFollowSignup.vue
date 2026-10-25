@@ -7,7 +7,7 @@
        (solo email) y honeypot anti-bot. -->
   <section class="card-base" aria-labelledby="case-follow-title">
     <p class="eyebrow mb-2 block">{{ $t('follow.eyebrow') }}</p>
-    <h2 id="case-follow-title" class="heading-display text-xl text-berenjena mb-2">
+    <h2 id="case-follow-title" class="h2-seccion mb-2">
       {{ $t('follow.title') }}
     </h2>
     <p class="text-sm text-tinta leading-relaxed mb-5 max-w-xl">{{ $t('follow.body') }}</p>
@@ -45,13 +45,12 @@
           required
           autocomplete="email"
           :placeholder="$t('follow.placeholder')"
-          class="flex-1 min-h-[44px] rounded-btn bg-cream px-4 py-2.5 text-sm text-berenjena placeholder:text-tinta/60"
-          style="border: 1px solid rgba(45, 27, 61, 0.15)"
+          class="form-input flex-1"
         />
         <button
           type="submit"
           :disabled="sending || !consent || (turnstileEnabled && !turnstileToken && !captchaUnavailable)"
-          class="btn-cta justify-center disabled:opacity-50 disabled:cursor-not-allowed"
+          class="btn-secondary justify-center"
         >
           {{ sending ? $t('follow.sending') : $t('follow.cta') }}
         </button>
@@ -66,15 +65,19 @@
         @error="onCaptchaError"
       />
 
-      <label class="flex items-start gap-2.5 mt-3 text-xs text-tinta leading-relaxed cursor-pointer">
-        <input
-          v-model="consent"
-          type="checkbox"
-          name="consent"
-          required
-          class="mt-0.5 shrink-0 accent-miriam"
-          style="width: 16px; height: 16px"
-        />
+      <label class="flex items-center gap-1 mt-1 text-sm text-tinta leading-relaxed cursor-pointer">
+        <!-- La casilla nativa mide 44 × 44 (objetivo táctil del sistema) y va transparente encima de la marca que se ve, de 20 px: el
+             teclado, el lector de pantalla y el envío del formulario son los de siempre. -->
+        <span class="cfs__control">
+          <input
+            v-model="consent"
+            type="checkbox"
+            name="consent"
+            required
+            class="cfs__casilla"
+          />
+          <span class="cfs__marca" aria-hidden="true"><Icon name="ph:check-bold" class="cfs__check" /></span>
+        </span>
         <span>
           <i18n-t keypath="follow.consent" tag="span">
             <template #privacy>
@@ -84,10 +87,15 @@
         </span>
       </label>
 
-      <p v-if="captchaFailed" class="mt-2 text-xs text-coral-deep" role="alert">
+      <!-- Errores: texto del color del cuerpo con icono (el coral no es texto sobre crema, 2,6:1; el color nunca es la única señal) -->
+      <p v-if="captchaFailed" class="mt-2 flex items-center gap-2 text-sm font-medium text-berenjena" role="alert">
+        <Icon name="ph:warning-circle-fill" class="w-4 h-4 shrink-0" aria-hidden="true" />
         {{ turnstileToken ? $t('captcha.failed') : $t('captcha.required') }}
       </p>
-      <p v-if="failed" class="mt-2 text-xs text-coral-deep" role="alert">{{ $t('follow.failed') }}</p>
+      <p v-if="failed" class="mt-2 flex items-center gap-2 text-sm font-medium text-berenjena" role="alert">
+        <Icon name="ph:warning-circle-fill" class="w-4 h-4 shrink-0" aria-hidden="true" />
+        {{ $t('follow.failed') }}
+      </p>
     </form>
   </section>
 </template>
@@ -157,3 +165,51 @@ async function onSubmit(e: Event) {
   }
 }
 </script>
+
+<style scoped>
+.cfs__control {
+  position: relative;
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: var(--control-min);
+  height: var(--control-min);
+}
+.cfs__casilla {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+.cfs__marca {
+  display: grid;
+  place-items: center;
+  width: 1.25rem;
+  height: 1.25rem;
+  box-sizing: border-box;
+  border: 2px solid var(--trazo-interactivo); /* >= 3:1 sobre el fondo (WCAG 1.4.11) */
+  border-radius: var(--radius-sm);
+  background: var(--fondo);
+  color: transparent;
+  pointer-events: none;
+  transition: background-color var(--dur-micro) var(--curva-salida), border-color var(--dur-micro) var(--curva-salida);
+}
+.cfs__check { width: 0.875rem; height: 0.875rem; }
+.cfs__casilla:checked + .cfs__marca {
+  background: var(--identidad);
+  border-color: var(--identidad);
+  color: var(--color-bg);
+}
+.cfs__casilla:focus-visible + .cfs__marca {
+  outline: 2px solid var(--anillo-foco);
+  outline-offset: 2px;
+}
+@media (prefers-reduced-motion: reduce) { .cfs__marca { transition: none; } }
+@media (forced-colors: active) {
+  .cfs__marca { border-color: CanvasText; }
+  .cfs__casilla:checked + .cfs__marca { background: Highlight; border-color: Highlight; color: HighlightText; forced-color-adjust: none; }
+}
+</style>

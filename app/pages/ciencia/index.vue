@@ -5,26 +5,28 @@
         <!-- Una sola capa, la profesional (tanda 2, T2c, 24-oct-2026). El conmutador «para mentes curiosas / para profesionales» salió: la capa
              llana vive en la home, y aquí quedan la lectura profesional, lo que se busca y el acceso a las herramientas. ?nivel= ya no hace nada
              (los enlaces antiguos siguen abriendo la página, y el #ancla de cada uno recibe el foco). Índice pegajoso a la izquierda (lg+) y
-             desplegable «Saltar a…» en móvil; la cabecera va DENTRO de la columna de contenido para que el título alinee con el cuerpo. -->
+             desplegable «Saltar a…» en móvil. Sistema v3 (P1): la cabecera va ENCIMA de la rejilla, a todo el ancho del shell, porque el borde
+             izquierdo del H1 cae siempre bajo el logo (regla del sistema; T2c la había metido en la columna de contenido para alinear el
+             título con el cuerpo y a 1280 px el H1 empezaba 270 px a la derecha del logo). El índice y el cuerpo empiezan debajo. -->
+        <!-- 1 · Cabecera: H1, «En corto», la fecha de caso.json e Imprimir -->
+        <PageHeader
+          :eyebrow="L('BC-NED · FGFR1/CCND1 amp · RE− en hígado', 'BC-NED · FGFR1/CCND1 amp · ER− in liver')"
+          :title="$t('science.title')"
+          :lede="$t('science.en_corto')"
+          variante="pagina"
+        >
+          <div class="ci-cabecera__meta">
+            <ActualizadoEl :fecha="caso?.actualizado" />
+            <button type="button" class="btn-ghost" data-print-hide @click="printPage">
+              <Icon name="ph:printer" class="w-4 h-4" aria-hidden="true" />
+              {{ $t('ciencia.print_btn') }}
+            </button>
+          </div>
+        </PageHeader>
+
         <div class="lg:grid lg:grid-cols-[220px_minmax(0,1fr)] lg:gap-12 xl:gap-16 lg:items-start">
           <CienciaSectionNav variant="rail" class="hidden lg:block lg:sticky lg:top-24 lg:self-start" />
           <div class="min-w-0">
-            <!-- 1 · Cabecera: H1, «En corto», la fecha de caso.json e Imprimir -->
-            <PageHeader
-              :eyebrow="L('BC-NED · FGFR1/CCND1 amp · RE− en hígado', 'BC-NED · FGFR1/CCND1 amp · ER− in liver')"
-              :title="$t('science.title')"
-              :lede="$t('science.en_corto')"
-              variante="pagina"
-            >
-              <div class="ci-cabecera__meta">
-                <ActualizadoEl :fecha="caso?.actualizado" />
-                <button type="button" class="btn-ghost" data-print-hide @click="printPage">
-                  <Icon name="ph:printer" class="w-4 h-4" aria-hidden="true" />
-                  {{ $t('ciencia.print_btn') }}
-                </button>
-              </div>
-            </PageHeader>
-
             <CienciaSectionNav variant="mobile" class="lg:hidden mb-8" />
 
             <!-- 2 · Qué buscamos: lo que pueden mover los científicos que llegan aquí (laboratorio, HLA, IHQ). El resto, en /datos#que-buscamos. -->

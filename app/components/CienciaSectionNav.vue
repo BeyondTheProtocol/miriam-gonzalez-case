@@ -136,6 +136,7 @@ function jumpTo(e: Event, id: string) {
 </script>
 
 <style scoped>
+/* Sistema v3 (P1): radios, tiempos y colores de los tokens; el hover solo donde hay hover; el tamaño del texto, de la escala. */
 /* Desktop */
 .cn-d__title {
   margin-bottom: 0.75rem;
@@ -144,7 +145,7 @@ function jumpTo(e: Event, id: string) {
   display: flex;
   flex-direction: column;
   gap: 1px;
-  border-left: 1px solid rgb(var(--color-text-rgb) / 0.12);
+  border-left: 1px solid var(--trazo-medio);
 }
 .cn-d__link {
   display: flex;
@@ -155,25 +156,27 @@ function jumpTo(e: Event, id: string) {
   min-height: var(--control-min);
   padding: 6px 0 6px 14px;
   border-left: 2px solid transparent;
-  font-size: 13.5px;
+  font-size: var(--texto-xs);
   line-height: 1.3;
   color: var(--texto-2);
   text-decoration: none;
-  transition: color 0.18s ease, border-color 0.18s ease;
+  transition: color var(--dur-micro) var(--curva-salida), border-color var(--dur-micro) var(--curva-salida);
 }
 .cn-d__dot {
   width: 5px;
   height: 5px;
-  border-radius: 9999px;
+  border-radius: var(--radius-pill);
   background: transparent;
   flex-shrink: 0;
-  transition: background 0.18s ease;
+  transition: background var(--dur-micro) var(--curva-salida);
 }
-.cn-d__link:hover {
-  color: var(--color-text);
+@media (hover: hover) and (pointer: fine) {
+  .cn-d__link:hover {
+    color: var(--texto-1);
+  }
 }
 .cn-d__link.is-active {
-  color: var(--color-text);
+  color: var(--texto-1);
   font-weight: 600;
   border-left-color: var(--color-miriam);
 }
@@ -183,26 +186,25 @@ function jumpTo(e: Event, id: string) {
 .cn-d__link:focus-visible {
   outline: 2px solid var(--anillo-foco);
   outline-offset: 2px;
-  border-radius: 2px;
+  border-radius: var(--radius-sm);
 }
 
 /* Móvil */
 .cn-m {
-  border: 1px solid rgb(var(--color-text-rgb) / 0.12);
-  border-radius: 12px;
-  background: var(--color-bg-card);
+  border: 1px solid var(--trazo-medio);
+  border-radius: var(--radius-btn);
+  background: var(--superficie);
 }
 .cn-m__summary {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  min-height: 44px;
+  min-height: var(--control-min);
   padding: 0 14px;
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 12px;
-  letter-spacing: 0.06em;
+  font: 500 var(--texto-2xs)/1.4 var(--font-mono);
+  letter-spacing: var(--track-eyebrow);
   text-transform: uppercase;
-  color: var(--color-text);
+  color: var(--texto-1);
   cursor: pointer;
   list-style: none;
 }
@@ -211,7 +213,7 @@ function jumpTo(e: Event, id: string) {
 }
 .cn-m__caret {
   margin-left: auto;
-  transition: transform 0.2s ease;
+  transition: transform var(--dur-micro) var(--curva-salida);
 }
 .cn-m[open] .cn-m__caret {
   transform: rotate(180deg);
@@ -226,10 +228,10 @@ function jumpTo(e: Event, id: string) {
   align-items: center;
   min-height: var(--control-min);
   padding: 0;
-  font-size: 14px;
-  color: var(--color-text);
+  font-size: var(--texto-sm);
+  color: var(--texto-1);
   text-decoration: none;
-  border-top: 1px solid rgb(var(--color-text-rgb) / 0.07);
+  border-top: 1px solid var(--trazo-sutil);
 }
 .cn-m__summary:focus-visible,
 .cn-m__list a:focus-visible {
