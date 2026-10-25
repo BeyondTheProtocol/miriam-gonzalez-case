@@ -7,15 +7,16 @@ import dinero from '../data/dinero.json'
  * plantilla (lo vigila scripts/test-dinero-fuente.ts). Al hacer un corte nuevo se edita el JSON y se cambia `corte`.
  *
  * Lo recaudado en GoFundMe NO está aquí: viene en vivo de `useFundraiser()`. Este fichero es lo GASTADO y lo DISPONIBLE a una
- * fecha, que es otra cosa y por eso /gastos lo dice (`expenses.cuadre`). Lo único de GoFundMe que sí vive aquí es su cuadre
- * (`gofundme`: donado, comisiones, transferido y lo que aún queda en la plataforma), con SU fecha, que no es la del corte: las
- * comisiones se acumulan hasta una fecha posterior y no se prorratean. Las comisiones no entran en `comprometido`: GoFundMe las
- * descuenta antes de transferir, así que `ingresado` ya viene sin ellas.
+ * fecha, que es otra cosa y por eso /gastos lo dice (`expenses.cuadre`). Las comisiones de GoFundMe no entran en `comprometido`:
+ * GoFundMe las descuenta antes de transferir.
  *
  * `disponible` es una ESTIMACIÓN (descuenta el impuesto de donaciones pendiente, calculado por estimación) y /gastos
  * la rotula así (`expenses.report_available_desc`). Si un corte futuro la confirma, se cambia ese texto a la vez que la cifra.
- * `correccion` enciende la nota genérica de que el informe corrige un cargo duplicado del anterior; sin importe, sin proveedor y
- * sin partida (nota acordada el 24-oct-2026). Al siguiente corte se quita.
+ *
+ * Quitado por Miriam el 25-oct-2026 («esto no es necesario», «esto lo quitamos»): la fila de lo recibido de GoFundMe a la fecha
+ * del corte (`ingresado`), el cuadre de GoFundMe entero (`gofundme`: donado, comisiones, transferido y lo que aún quedaba en la
+ * plataforma), la nota del cargo duplicado corregido (`correccion`) y la del pie sobre el gasto personal y los extractos
+ * (`expenses.report_note`). test-dinero-fuente vigila que no vuelvan.
  *
  * LISTA BLANCA: aquí NO va nada más que lo que /gastos pinta. Ni saldos, ni deuda, ni bancos, ni proveedores, ni movimientos, ni
  * importes personales. La fuente privada del corte trae todo eso a su lado y se queda donde está: de ella se copian cifras sueltas,
@@ -39,11 +40,8 @@ export const DINERO = dinero as {
   corte: string
   moneda: string
   comprometido: number
-  ingresado: number
   disponible: number
-  correccion: boolean
   partidas: { clave: string; importe: number }[]
-  gofundme: { fecha: string; donado: number; comisiones: number; transferido: number; aun: number }
   rebiopsia: { fecha: string; ejecutado: number; biopsia: number; secuenciacion: number; imagen: number }
   fases: { clave: 'rebiopsy' | 'bank' | 'treatment'; estado: EstadoFase }[]
 }
