@@ -2,9 +2,7 @@
   "corte": "2026-09-30",
   "moneda": "EUR",
   "comprometido": 49071.16,
-  "ingresado": 81573.1,
   "disponible": 9829.47,
-  "correccion": true,
   "partidas": [
     { "clave": "travel", "importe": 13571.66 },
     { "clave": "ai", "importe": 10249.37 },
@@ -17,13 +15,6 @@
     { "clave": "treatment", "importe": 896.16 },
     { "clave": "ops", "importe": 882.19 }
   ],
-  "gofundme": {
-    "fecha": "2026-10-24",
-    "donado": 97738.0,
-    "comisiones": 3420.49,
-    "transferido": 87777.02,
-    "aun": 6540.49
-  },
   "rebiopsia": {
     "fecha": "2026-08-17",
     "ejecutado": 4476.28,

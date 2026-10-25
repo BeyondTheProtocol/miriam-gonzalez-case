@@ -60,31 +60,8 @@
             </li>
           </ul>
 
-          <!-- Nota genérica: solo dice que se corrigió un cargo duplicado del informe anterior. Sin importe, sin proveedor y sin
-               partida (se apaga con `correccion` en app/data/dinero.json). -->
-          <p v-if="DINERO.correccion" class="text-xs text-tinta italic mb-5 -mt-2">
-            {{ $t('expenses.report_correccion') }}
-          </p>
-
-          <!-- Lo ingresado a la fecha de corte (GoFundMe ya descontadas sus comisiones). Es contexto del informe, no su cifra
-               protagonista: va como fila y no como panel. -->
-          <ul class="mb-5">
-            <li class="flex items-baseline justify-between gap-4 py-2.5 border-y border-berenjena/[0.07]">
-              <span class="text-sm text-tinta leading-relaxed">
-                {{ $t('expenses.report_ingresado_label', { fecha: corte }) }}
-                <span class="block text-xs">{{ $t('expenses.report_ingresado_desc', { fecha: corte }) }}</span>
-              </span>
-              <span
-                class="text-sm font-mono text-berenjena shrink-0"
-                style="font-variant-numeric: tabular-nums"
-              >
-                {{ money(DINERO.ingresado) }}
-              </span>
-            </li>
-          </ul>
-
           <div
-            class="rounded-card bg-cream p-4 mb-5 flex items-baseline justify-between gap-4 flex-wrap"
+            class="rounded-card bg-cream p-4 flex items-baseline justify-between gap-4 flex-wrap"
             style="border: 1px solid rgba(45,27,61,0.08)"
           >
             <div>
@@ -104,39 +81,6 @@
               {{ money(DINERO.disponible) }}
             </p>
           </div>
-
-          <p class="text-xs text-tinta italic">{{ $t('expenses.report_note') }}</p>
-        </div>
-
-        <!-- Cuadre de GoFundMe: lo donado, sus comisiones, lo transferido y lo que aún está en la plataforma. Lleva SU fecha, que no es
-             la del corte del informe. Las comisiones van aquí y no en la lista de partidas: no forman parte de lo gastado. -->
-        <div class="card-base mb-8">
-          <p class="eyebrow mb-3 block">{{ $t('expenses.gfm_eyebrow', { fecha: fechaGfm }) }}</p>
-          <h3 class="font-display font-semibold text-berenjena text-lg mb-2">
-            {{ $t('expenses.gfm_title') }}
-          </h3>
-          <p class="text-sm text-tinta leading-relaxed mb-5 max-w-2xl">
-            {{ $t('expenses.gfm_intro') }}
-          </p>
-          <ul class="mb-5">
-            <li
-              v-for="fila in filasGfm"
-              :key="fila.clave"
-              class="flex items-baseline justify-between gap-4 py-2.5 border-t border-berenjena/[0.07]"
-            >
-              <span class="text-sm text-tinta leading-relaxed">
-                {{ $t(`expenses.gfm_${fila.clave}`) }}
-              </span>
-              <span
-                class="text-sm font-mono text-berenjena shrink-0"
-                style="font-variant-numeric: tabular-nums"
-              >
-                {{ money(fila.importe) }}
-              </span>
-            </li>
-          </ul>
-          <p class="text-sm text-tinta leading-relaxed mb-2 max-w-2xl">{{ $t('expenses.gfm_cuadre') }}</p>
-          <p class="text-xs text-tinta italic max-w-2xl">{{ $t('expenses.gfm_nota') }}</p>
         </div>
 
         <div class="card-base mb-8">
@@ -319,15 +263,8 @@ const { GOFUNDME_URL, trackSupport } = useSupport()
 // ninguna a mano (lo vigila scripts/test-dinero-fuente.ts). El informe se reconstruye movimiento a movimiento desde los extractos.
 const money = (n: number) => euros(n, locale.value)
 const corte = computed(() => fechaDeCorte(DINERO.corte, locale.value))
-// El cuadre de GoFundMe y el bloque de la rebiopsia llevan cada uno su fecha: ninguna es la del corte del informe.
-const fechaGfm = computed(() => fechaDeCorte(DINERO.gofundme.fecha, locale.value))
+// El bloque de la rebiopsia lleva su fecha, que no es la del corte del informe.
 const fechaRebiopsia = computed(() => fechaDeCorte(DINERO.rebiopsia.fecha, locale.value))
-const filasGfm = computed(() => [
-  { clave: 'donado', importe: DINERO.gofundme.donado },
-  { clave: 'comisiones', importe: DINERO.gofundme.comisiones },
-  { clave: 'transferido', importe: DINERO.gofundme.transferido },
-  { clave: 'aun', importe: DINERO.gofundme.aun },
-])
 // Los tres importes de la rebiopsia, listos para la frase («Biopsia en Zúrich ({biopsia}), secuenciación ({secuenciacion})…»).
 const lineasRebiopsia = computed(() => ({
   biopsia: money(DINERO.rebiopsia.biopsia),
