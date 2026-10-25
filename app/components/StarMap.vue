@@ -6,7 +6,7 @@
       v-if="donationCount && total"
       keypath="thanksWall.stars_line"
       tag="p"
-      class="mb-4 text-tinta leading-relaxed max-w-2xl"
+      class="mb-4 text-tinta leading-relaxed measure"
     >
       <template #star>
         <svg class="inline-block w-4 h-4" style="vertical-align: -0.08em" viewBox="0 0 20 20" aria-hidden="true">
@@ -14,10 +14,10 @@
         </svg>
       </template>
       <template #n>
-        <strong class="font-semibold text-coral-deep nums">{{ donationCount }}</strong>
+        <strong class="font-semibold text-berenjena nums">{{ donationCount }}</strong>
       </template>
       <template #total>
-        <strong class="font-semibold text-coral-deep nums" style="white-space: nowrap">{{ total }}</strong>
+        <strong class="font-semibold text-berenjena nums" style="white-space: nowrap">{{ total }}</strong>
       </template>
     </i18n-t>
 
@@ -920,7 +920,7 @@ const tipStyle = computed(() => {
   pointer-events: none;
 }
 .starmap__m44 small {
-  font-size: 12px;
+  font-size: var(--texto-xs);
   font-weight: 400;
   color: rgba(58, 51, 64, 0.6);
 }
@@ -946,7 +946,7 @@ const tipStyle = computed(() => {
 }
 .starmap__tip-meta {
   font-family: 'JetBrains Mono', monospace;
-  font-size: 11px;
+  font-size: var(--texto-xs);
   color: rgba(250, 246, 240, 0.78);
 }
 .starmap__anchor--patron {
@@ -1009,6 +1009,18 @@ const tipStyle = computed(() => {
 .starmap__zoom-btn:focus-visible {
   outline: 2px solid #ff6b47;
   outline-offset: 2px;
+}
+/* T3-LOTE2 (A23): las notas a mano del mapa pasan de Caveat a Hanken Grotesk a 15 px desde `lg` (la letra a mano se leía mal a 15 y 16 px y es la única
+   fuente que no es del sistema). Por debajo de `lg` el mapa conserva Caveat: las etiquetas se colocan por porcentaje sobre un mapa de 327 px y con Hanken, que es
+   más ancha, se pisarían; ese cambio, si Miriam lo quiere, es de móvil y no entra en este lote. El título (una cabecera, no una nota) toma Fraunces. */
+@media (min-width: 1024px) {
+  .starmap__title { font-family: var(--font-display); font-weight: 600; font-size: 28px; letter-spacing: var(--track-titular); line-height: 1; }
+  .starmap__title small { font-family: var(--font-body); font-size: var(--texto-sm); letter-spacing: 0; }
+  .starmap__label,
+  .starmap__label--patron { font-family: var(--font-body); font-size: var(--texto-sm); font-weight: 600; }
+  .starmap__m44 { font-family: var(--font-body); font-size: var(--texto-sm); font-weight: 700; }
+  .starmap__m44 small { font-family: var(--font-body); font-size: var(--texto-xs); }
+  .starmap__tip-name { font-family: var(--font-body); font-size: var(--texto-sm); font-weight: 700; }
 }
 @keyframes star-ignite {
   0% { opacity: 0; }

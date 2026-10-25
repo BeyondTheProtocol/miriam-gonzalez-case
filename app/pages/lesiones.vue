@@ -144,7 +144,7 @@ const biopsia = computed(() =>
                cuadro: concluye «progresión ósea por aparición de nuevas lesiones activas», con más
                lesiones activas en columna, escápula derecha, costillas, pelvis y ambos fémures. Con
                tráfico de campaña, un aviso neutro se lee como el estado de hoy. -->
-          <p class="text-sm text-tinta leading-relaxed mb-4">
+          <p class="text-sm text-tinta leading-relaxed measure mb-4">
             {{ L('PET de marzo y mayo y RM de junio de 2026. El PET del 8 de septiembre, aún no incorporado, describe más lesiones óseas activas que las que se ven aquí.', 'PET scans from March and May and MRI from June 2026. The 8 September PET, not yet included, describes more active bone lesions than the ones shown here.') }}
           </p>
           <div class="grid gap-6 lg:grid-cols-[minmax(0,360px)_minmax(0,1fr)] items-start">
@@ -155,7 +155,7 @@ const biopsia = computed(() =>
               <p class="eyebrow mb-1">#{{ sel.id }} · {{ sel.region[lang] }}</p>
               <p class="h3-seccion mb-1">{{ sel.level[lang] }}</p>
               <p class="text-sm font-semibold mb-2" :style="{ color: PHENO_TEXT[sel.pheno] }">{{ L(PHENO[sel.pheno].es, PHENO[sel.pheno].en) }}</p>
-              <p class="text-sm text-tinta leading-relaxed mb-4">{{ sel.what[lang] }}</p>
+              <p class="text-sm text-tinta leading-relaxed measure mb-4">{{ sel.what[lang] }}</p>
               <div role="group" :aria-label="L('Visor 3D del foco seleccionado', '3D viewer of the selected focus')" data-visor="lesiones" data-visor-accion="hueso">
                 <ClientOnly v-if="meshKey">
                   <BoneTriView :mesh-key="meshKey" :biopsied="biopsia != null" :no-target="sel.source === 'ia-david'" :biopsy-label="biopsia ?? undefined" />

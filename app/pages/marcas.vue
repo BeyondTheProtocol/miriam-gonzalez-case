@@ -10,10 +10,10 @@
         · UN ACENTO POR BLOQUE: violeta = identidad (miriam / miriam-claro
           en oscuro), coral = SOLO acción (botones CTA). Crema, nunca
           blanco; texto berenjena, nunca negro.
-        · Dos bandas oscuras (hero · cierre) = berenjena plano (bg-berenjena) +
+        · UNA banda oscura (el hero) = <Banda tono="oscura">: berenjena plano +
           la MISMA retícula de puntos crema al 4 % que las bandas oscuras del
           resto del sitio (index.vue / equipo.vue). Sin tinte violeta: el fondo
-          es exactamente el del resto de la web (.band-fx). En el hero, además,
+          es exactamente el del resto de la web. En el hero, además,
           una constelación CELULAR (.cluster) ANCLADA junto al avatar —el racimo de
           células del dibujo, hecho con el GLYPH CANÓNICO de estrella de 4 puntas de
           la marca (BrandMark/Constellation, STAR_D), no bolitas de química—: 3-4
@@ -25,6 +25,11 @@
         · Pop-up de contacto propio (MarcasContactPrompt): SOLO aquí, apunta a
           /contacto, NO a donación (el aviso global de donación se mantiene en
           el resto del sitio).
+
+        T3-LOTE2 (A21, 25-oct-2026): las bandas oscuras pasan al sistema (Banda). El hero es LA banda oscura de la página; el cierre pasa a crema, porque
+        una segunda oscura iría pegada a la banda de logos del pie (DESIGN-SYSTEM §3: «una oscura por página, y nunca pegada a la banda de logos»).
+        Los tres `btn-cta` (coral = solo donar) pasan a `btn-secondary` (contactar). Las cadenas, su orden y el texto de cada botón son los de antes: el texto
+        único de CTA lo decide Miriam.
 
         ── ESTRUCTURA (4 bloques, plan de marketing 18-jun-2026) ──
           1 · Por qué colaborar / la atención que voy a tener  (hero, banda oscura)
@@ -62,16 +67,11 @@
                largo plazo, no patrocinios de usar y tirar.
           CTA: Contáctame →
     -->
-    <section
-      v-reveal
-      class="relative overflow-hidden section-spacing bg-berenjena"
-      :aria-labelledby="'m-hero'"
-    >
-      <div class="band-fx" aria-hidden="true"></div>
-      <div class="section-wide relative z-10">
+    <Banda tono="oscura" titular="m-hero">
+      <div class="relative z-10">
         <div class="grid lg:grid-cols-[1fr_auto] gap-10 lg:gap-16 items-center">
           <div>
-            <p class="dark-eyebrow mb-5">{{ t('marcas.hero_eyebrow') }}</p>
+            <p class="eyebrow mb-5 block">{{ t('marcas.hero_eyebrow') }}</p>
             <i18n-t
               keypath="marcas.hero_title"
               tag="h1"
@@ -83,15 +83,15 @@
                 <em class="italic text-miriam-claro">{{ t('marcas.hero_title_em') }}</em>
               </template>
             </i18n-t>
-            <p class="mt-6 text-lg text-cream/85 leading-relaxed max-w-2xl">
+            <p class="mt-6 text-lg text-cream/85 leading-relaxed measure">
               {{ t('marcas.hero_subtitle') }}
             </p>
-            <p class="mt-5 text-sm text-cream/70 leading-relaxed max-w-2xl">
+            <p class="mt-5 text-sm text-cream/70 leading-relaxed measure">
               {{ t('marcas.hero_context') }}
             </p>
 
             <div class="mt-8 flex flex-col sm:flex-row sm:items-center gap-4">
-              <NuxtLink :to="localePath('contacto')" class="btn-cta" style="text-decoration: none">
+              <NuxtLink :to="localePath('contacto')" class="btn-secondary" style="text-decoration: none">
                 {{ t('marcas.hero_cta') }}
               </NuxtLink>
               <a href="/dossier-marcas-deck.pdf" download class="link-action group font-mono text-sm text-cream">
@@ -215,7 +215,7 @@
           </figure>
         </div>
       </div>
-    </section>
+    </Banda>
 
     <!-- ░░ 2 · FORMAS DE COLABORAR — 4 PILARES ░░ crema · el bloque clave, arriba -->
     <section v-reveal class="section-spacing bg-cream" :aria-labelledby="'m-pilares'">
@@ -230,7 +230,7 @@
         >
           <template #em><em class="italic text-miriam">{{ t('marcas.pilares_title_em') }}</em></template>
         </i18n-t>
-        <p class="text-lg text-tinta leading-relaxed mb-9 max-w-3xl">{{ t('marcas.pilares_intro') }}</p>
+        <p class="text-lg text-tinta leading-relaxed mb-9 measure">{{ t('marcas.pilares_intro') }}</p>
 
         <!-- 4 pilares — tarjeta del sistema (mismo patrón que la "escalera de CTAs"
              de la home: .card-base sobre crema, número mono de índice, titular
@@ -240,7 +240,7 @@
              on-brand, sin el borde grueso del round-2 que rompía el vibe. -->
         <div class="pilares grid sm:grid-cols-2 gap-5 mb-12">
           <article v-for="(card, ci) in pilaresCards" :key="ci" class="pilar card-base flex flex-col" style="background: #faf6f0">
-            <p class="pilar-num font-mono uppercase text-[11px] tracking-[0.12em] text-tinta mb-2" aria-hidden="true">0{{ ci + 1 }}</p>
+            <p class="pilar-num font-mono uppercase text-2xs tracking-[0.12em] text-tinta mb-2" aria-hidden="true">0{{ ci + 1 }}</p>
             <h3 class="heading-display text-xl text-berenjena mb-3">{{ rt(card.title) }}</h3>
             <p class="text-sm text-tinta leading-relaxed mb-4 flex-1">{{ rt(card.what) }}</p>
             <p class="pilar-gain text-sm text-berenjena leading-relaxed font-medium">
@@ -260,7 +260,7 @@
              Adri: aunque ya haya una marca del sector, sigue habiendo sitio. -->
         <div class="encajes mb-12">
           <h3 class="heading-display text-xl text-berenjena mb-2">{{ t('marcas.encajes_title') }}</h3>
-          <p class="text-sm text-tinta leading-relaxed mb-7 max-w-3xl">{{ t('marcas.encajes_intro') }}</p>
+          <p class="text-sm text-tinta leading-relaxed mb-7 measure">{{ t('marcas.encajes_intro') }}</p>
           <div class="encajes-grid">
             <div v-for="(g, gi) in encajesGroups" :key="gi" class="encajes-group card-base" style="background: #faf6f0">
               <p class="encajes-group__label">{{ rt(g.label) }}</p>
@@ -310,20 +310,20 @@
             >
               {{ rt(s.value) }}
             </p>
-            <p class="mt-2 font-mono uppercase text-[11px] tracking-[0.06em] text-tinta leading-snug">
+            <p class="mt-2 font-mono uppercase text-2xs tracking-[0.06em] text-tinta leading-snug">
               {{ rt(s.caption) }}
             </p>
           </div>
         </div>
 
-        <p class="text-tinta leading-relaxed mb-9 max-w-3xl">{{ t('marcas.audiencia_frame') }}</p>
+        <p class="text-tinta leading-relaxed mb-9 measure">{{ t('marcas.audiencia_frame') }}</p>
 
         <!-- Se movilizan a la orden — la comunidad empuja un objetivo concreto cuando
              se lo pido. Prueba = magnitud de movilización (~335K acciones) de una
              campaña reciente. NO se detalla el resultado del concurso (confidencial). -->
         <div class="movilizan card-base bg-cream mb-9">
           <h3 class="heading-display text-xl text-berenjena mb-3">{{ t('marcas.movilizan_title') }}</h3>
-          <p class="text-base text-tinta leading-relaxed mb-4 max-w-3xl">
+          <p class="text-base text-tinta leading-relaxed mb-4 measure">
             <i18n-t keypath="marcas.movilizan_p" tag="span">
               <template #b><strong class="font-semibold text-berenjena">{{ t('marcas.movilizan_proof') }}</strong></template>
             </i18n-t>
@@ -334,14 +334,14 @@
           >
             {{ t('marcas.movilizan_proof') }}
           </p>
-          <p class="mt-2 font-mono uppercase text-[11px] tracking-[0.06em] text-tinta leading-snug">
+          <p class="mt-2 font-mono uppercase text-2xs tracking-[0.06em] text-tinta leading-snug">
             {{ t('marcas.movilizan_caption') }}
           </p>
         </div>
 
         <!-- Prueba social ligera: marcas que ya se atrevieron (+ teaser) + prensa -->
         <div class="flex flex-wrap items-center gap-x-3 gap-y-3 mb-7">
-          <span class="font-mono uppercase text-[11px] tracking-[0.12em] text-tinta self-center mr-1">
+          <span class="font-mono uppercase text-2xs tracking-[0.12em] text-tinta self-center mr-1">
             {{ t('marcas.audiencia_partners_label') }}
           </span>
           <a
@@ -356,7 +356,7 @@
         </div>
 
         <div class="flex flex-wrap items-baseline gap-x-7 gap-y-3 mb-9">
-          <span class="font-mono uppercase text-[11px] tracking-[0.12em] text-tinta self-center">
+          <span class="font-mono uppercase text-2xs tracking-[0.12em] text-tinta self-center">
             {{ t('home.s9_strip_label') }}
           </span>
           <a :href="pressElPais" target="_blank" rel="noopener" class="link-logo text-2xl sm:text-3xl">El País<span class="sr-only"> {{ t('a11y.new_tab') }}</span></a>
@@ -371,54 +371,47 @@
              cierre natural de la sección, no como un CTA perdido. -->
         <div class="audiencia-cta-row">
           <p class="text-base text-berenjena leading-relaxed m-0 max-w-md">{{ t('marcas.audiencia_cta_line') }}</p>
-          <NuxtLink :to="localePath('contacto')" class="btn-cta shrink-0" style="text-decoration: none">
+          <NuxtLink :to="localePath('contacto')" class="btn-secondary shrink-0" style="text-decoration: none">
             {{ t('marcas.audiencia_cta') }}
           </NuxtLink>
         </div>
       </div>
     </section>
 
-    <!-- ░░ 4 · PONTE EN CONTACTO ░░ banda oscura, centrada -->
-    <section
-      v-reveal
-      class="cta-band relative overflow-hidden bg-berenjena"
-      :aria-labelledby="'m-cta'"
-    >
-      <div class="band-fx" aria-hidden="true"></div>
-      <div class="section-wide relative z-10">
-        <div class="max-w-2xl mx-auto text-center">
-          <p class="dark-eyebrow mb-4">{{ t('marcas.cta_eyebrow') }}</p>
-          <i18n-t
-            keypath="marcas.cta_title"
-            tag="h2"
-            id="m-cta"
-            class="heading-display text-3xl sm:text-4xl text-cream mb-5"
-            style="letter-spacing: -0.02em"
-          >
-            <template #em><em class="italic text-coral">{{ t('marcas.cta_title_em') }}</em></template>
-          </i18n-t>
-          <p class="text-lg text-cream/85 leading-relaxed mb-8 max-w-xl mx-auto">{{ t('marcas.cta_p') }}</p>
-          <!-- Cierre con UN solo CTA: contactar. El enlace de dossier se retiró
-               aquí (redundante con el del hero, el de la dossier-row y el botón
-               flotante) para que el cierre empuje una única acción. El
-               cta_microcopy («benéfico/profesional») se retiró: ya vive en el
-               hero (hero_context) y repetirlo re-justificaba el cierre. -->
-          <div class="flex justify-center mb-6">
-            <NuxtLink :to="localePath('contacto')" class="btn-cta" style="text-decoration: none">
-              {{ t('marcas.cta_button') }}
-            </NuxtLink>
-          </div>
-          <!-- Teaser final (abre boca, sin desvelar): el detalle va al dossier. -->
-          <p class="text-sm text-cream/85 leading-relaxed max-w-xl mx-auto">{{ t('marcas.cta_podcast') }}</p>
-          <!-- Remate personal y poético — cierra la página con la firma de Miriam.
-               Usa la .firma del DS (Fraunces italic, la rúbrica de la marca) en
-               miriam-claro para que contraste sobre la berenjena. NO es escasez:
-               es un guiño íntimo a que ella es única/irrepetible, en el mismo tono
-               win-win del resto. Hairline superior = el divisor editorial del sitio. -->
-          <p class="m-signoff firma heading-display text-lg text-miriam-claro">{{ t('marcas.cta_tagline') }}</p>
+    <!-- ░░ 4 · PONTE EN CONTACTO ░░ banda crema, centrada. Antes era la segunda banda oscura y quedaba pegada a la banda de logos del pie (también
+         berenjena): una costura que había que tapar con un margen negativo. Ahora el pie arranca con su propia banda y el hero es la única oscura. -->
+    <Banda tono="crema" titular="m-cta">
+      <div class="max-w-2xl mx-auto text-center">
+        <p class="eyebrow mb-4 block">{{ t('marcas.cta_eyebrow') }}</p>
+        <i18n-t
+          keypath="marcas.cta_title"
+          tag="h2"
+          id="m-cta"
+          class="heading-display text-3xl sm:text-4xl text-berenjena mb-5"
+          style="letter-spacing: -0.02em"
+        >
+          <template #em><em class="italic text-miriam">{{ t('marcas.cta_title_em') }}</em></template>
+        </i18n-t>
+        <p class="text-lg text-tinta leading-relaxed mb-8 max-w-xl mx-auto">{{ t('marcas.cta_p') }}</p>
+        <!-- Cierre con UN solo CTA: contactar. El enlace de dossier se retiró
+             aquí (redundante con el del hero, el de la dossier-row y el botón
+             flotante) para que el cierre empuje una única acción. El
+             cta_microcopy («benéfico/profesional») se retiró: ya vive en el
+             hero (hero_context) y repetirlo re-justificaba el cierre. -->
+        <div class="flex justify-center mb-6">
+          <NuxtLink :to="localePath('contacto')" class="btn-secondary" style="text-decoration: none">
+            {{ t('marcas.cta_button') }}
+          </NuxtLink>
         </div>
+        <!-- Teaser final (abre boca, sin desvelar): el detalle va al dossier. -->
+        <p class="text-sm text-tinta leading-relaxed max-w-xl mx-auto">{{ t('marcas.cta_podcast') }}</p>
+        <!-- Remate personal y poético — cierra la página con la firma de Miriam.
+             Usa la .firma del DS (Fraunces italic, la rúbrica de la marca). NO es escasez:
+             es un guiño íntimo a que ella es única/irrepetible, en el mismo tono
+             win-win del resto. Hairline superior = el divisor editorial del sitio. -->
+        <p class="m-signoff firma heading-display text-lg">{{ t('marcas.cta_tagline') }}</p>
       </div>
-    </section>
+    </Banda>
 
     <!-- Botón flotante · descarga el dossier en PDF (oculto en impresión).
          Icono de descarga = misma señal que los enlaces de dossier del cuerpo. -->
@@ -482,51 +475,14 @@ export default { name: 'MarcasPage' }
 </script>
 
 <style scoped>
-/* Eyebrow sobre banda oscura: el .eyebrow del DS es text-tinta (oscuro) e
-   invisible aquí; usamos crema atenuada (≈6:1 sobre berenjena). */
-.dark-eyebrow {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 12px;
-  font-weight: 500;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: rgba(250, 246, 240, 0.7);
-  display: block;
-}
-
-/* Banda de cierre/CTA: ritmo equilibrado. El contenido es corto (eyebrow → h2 →
-   subtítulo → botones → microcopy), así que en vez del py-28 simétrico del DS, que
-   dejaba un hueco muerto, usamos un padding inferior algo menor que el superior:
-   la composición queda centrada y la banda "abraza" el muro de logos del footer.
-
-   Flush con el footer: la banda CTA y el muro de logos del footer son ambos
-   berenjena y deben tocarse sin costura. El borde compartido cae en un píxel
-   fraccionario (la altura de la página no es entera) y dejaba asomar 1px del
-   fondo crema del <footer> → fina línea clara antiestética. Sangramos la banda
-   2px hacia el footer (margin-bottom negativo) y extendemos su fondo berenjena
-   esos 2px (padding-bottom) para que la costura quede siempre cubierta. */
-.cta-band {
-  padding-top: 5rem;    /* 80px */
-  padding-bottom: calc(4.25rem + 2px); /* 68px + 2px de sangrado */
-  margin-bottom: -2px;  /* tapa la costura sub-píxel con el muro de logos */
-}
-@media (min-width: 640px) {
-  .cta-band {
-    padding-top: 7rem;    /* 112px, = section-spacing sm */
-    padding-bottom: calc(5.5rem + 2px); /* 88px + 2px de sangrado (ver .cta-band) */
-  }
-}
-
 /* Remate personal del cierre — la firma íntima de Miriam ("Única. Como yo.").
    Filete fino superior centrado (mismo divisor editorial que .dossier-row, pero
    estrecho y centrado bajo el teaser) + margen que la separa del párrafo anterior
-   sin pegarse. Hereda .firma (Fraunces italic) del DS; el color miriam-claro se
-   fija con utilidad Tailwind en el template para contraste sobre berenjena
-   (gana al text-miriam de .firma por orden de capas). Puro remate, no CTA. */
+   sin pegarse. Hereda .firma (Fraunces italic, color --identidad) del DS. Puro remate, no CTA. */
 .m-signoff {
   margin-top: 1.5rem;
   padding-top: 1.25rem;
-  border-top: 1px solid rgb(var(--color-miriam-soft-rgb) / 0.22);
+  border-top: 1px solid var(--trazo-medio);
   width: fit-content;
   margin-left: auto;
   margin-right: auto;
@@ -704,25 +660,6 @@ export default { name: 'MarcasPage' }
   }
 }
 
-/* ── Textura de las bandas oscuras ───────────────────────────────────────────
-   MISMA que el resto del sitio: las bandas berenjena de la home (index.vue, banda
-   "la historia") y del equipo (equipo.vue, panel "lo que NO somos") llevan una
-   retícula de puntos crema tenue al 4 % sobre berenjena plano —sin tinte violeta—.
-   Antes esta página añadía un resplandor lila + estrellas que teñían la banda y
-   la hacían distinta al resto (feedback de Miriam: "el fondo/el lila no coincide").
-   Ahora el fondo es EXACTAMENTE el del resto del sitio: berenjena (bg-berenjena)
-   + esta retícula. Estático → seguro siempre y sin coste de contraste. */
-.band-fx {
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-  pointer-events: none;
-  overflow: hidden;
-  opacity: 0.04;
-  background-image: radial-gradient(circle at 1px 1px, var(--color-bg) 1px, transparent 0);
-  background-size: 32px 32px;
-}
-
 /* ── Constelación celular del hero (.avatar-stage > .cluster) ─────────────────
    Opción A, aprobada por Miriam. El racimo de células del avatar dibujado con el
    GLYPH CANÓNICO de estrella de 4 puntas de la marca (#m-star = STAR_D de
@@ -788,15 +725,15 @@ export default { name: 'MarcasPage' }
   }
 }
 
-/* Botón flotante de descarga del dossier — solo en desktop (≥ lg).
-   En móvil se oculta: el enlace de descarga ya existe en el hero y en la
-   dossier-row, y el pop-up de contacto ocupa el espacio flotante.
-   Color = tokens del DS (berenjena/crema, vía @apply); el hover reutiliza el
-   mismo valor que .btn-dark:hover del DS. Layout fijo/pill: bespoke (FAB). */
+/* Botón flotante de descarga del dossier — solo en pantallas MUY anchas.
+   Se oculta bajo 1600 px (T3-LOTE2, A21): es un botón fijo de unos 160 px de ancho a 24 px del borde, así que solo queda fuera del contenido (el shell mide
+   1200 px, centrado) cuando a cada lado sobran unos 200 px. Entre 1024 y 1599 px se pintaba encima de la última columna del contenido (a 1280 px, 80 px de
+   margen libre por lado). El enlace de descarga ya existe en el hero y en la dossier-row, y el pop-up de contacto ocupa el espacio flotante en móvil.
+   Color = tokens del DS (berenjena/crema, vía @apply); el hover usa --btn-dark-hover, el mismo que .btn-dark:hover. Layout fijo/pill: bespoke (FAB). */
 .m-print-btn {
-  display: none; /* oculto en móvil; se activa desde lg */
+  display: none; /* oculto bajo 1600 px */
 }
-@media (min-width: 1024px) {
+@media (min-width: 1600px) {
   .m-print-btn {
     @apply bg-berenjena text-cream;
     position: fixed;
@@ -809,13 +746,13 @@ export default { name: 'MarcasPage' }
     padding: 0.6rem 0.95rem;
     border-radius: 999px;
     font-family: 'JetBrains Mono', monospace;
-    font-size: 12px;
+    font-size: var(--texto-xs);
     letter-spacing: 0.04em;
     box-shadow: 0 12px 28px -10px rgb(var(--color-text-rgb) / 0.6);
     transition: transform 0.15s ease, background 0.2s ease;
   }
   .m-print-btn:hover {
-    background: #3d2752; /* = .btn-dark:hover (DS, main.css) */
+    background: var(--btn-dark-hover); /* = .btn-dark:hover (DS) */
     transform: translateY(-2px);
   }
 }
@@ -831,7 +768,6 @@ export default { name: 'MarcasPage' }
   .no-print {
     display: none !important;
   }
-  .band-fx,
   .cluster {
     display: none !important;
   }

@@ -103,7 +103,7 @@ const initial = computed(
 .team-portrait__role {
   font-family: var(--font-mono, 'JetBrains Mono', monospace);
   text-transform: uppercase;
-  font-size: 11px;
+  font-size: var(--texto-2xs); /* 12 px: el mínimo del mono en mayúsculas (antes 11 px, bajo el suelo) */
   font-weight: 500;
   letter-spacing: 0.12em;
   line-height: 1.3;
@@ -112,7 +112,7 @@ const initial = computed(
      sin esto, en tablet/desktop (grid de 2–3 columnas) un rol de 1 línea
      junto a otro de 2 descuadra la fila. En móvil ya respiraba; esto no le
      resta nada. */
-  min-height: 2.6em; /* 2 × line-height a 11px */
+  min-height: 2.6em; /* 2 × line-height a 12px */
 }
 
 .team-portrait__name {

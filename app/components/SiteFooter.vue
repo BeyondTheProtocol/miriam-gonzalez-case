@@ -133,7 +133,7 @@
               <li>
                 <a href="https://gofund.me/3e25cae99" target="_blank" rel="noopener noreferrer"
                   @click="trackSupport('footer')"
-                  class="inline-flex items-center min-h-[44px] gap-1 text-sm text-coral-deep hover:text-coral-hover hover:underline underline-offset-2 font-semibold transition-colors">
+                  class="inline-flex items-center min-h-[44px] gap-1 text-sm text-berenjena hover:text-miriam hover:underline underline-offset-2 font-semibold transition-colors">
                   GoFundMe<Icon name="ph:arrow-up-right-bold" class="w-3 h-3" aria-hidden="true" /><span class="sr-only">{{ ' ' + $t('a11y.new_tab') }}</span>
                 </a>
               </li>

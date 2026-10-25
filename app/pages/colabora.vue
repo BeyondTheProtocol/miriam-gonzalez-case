@@ -12,8 +12,10 @@
           prefers-reduced-motion) — igual que home/timeline.
         · Parrilla de perfiles en bento asimétrico (auditoría 26-sep-26):
           numeración tipográfica en Fraunces + icono pequeño en el eyebrow
-          en vez del cuadradito de icono repetido; superficie alterna
-          (borde marcado con sombra dura / papel). Ver <style scoped>.
+          en vez del cuadradito de icono repetido. T3-LOTE2 (A23, 25-oct-2026):
+          las cinco tarjetas son planas (`.card-base`); la sombra dura alterna
+          por paridad (01, 03 y 05) se fue: la protagonista de un grupo no la
+          decide el número de orden. Ver <style scoped>.
         · Financiación es una card más de la parrilla (una opción entre
           iguales), pero conserva el único coral de la página: el CTA
           primario marca el camino principal sin gritar.
@@ -32,14 +34,14 @@
         >
           {{ $t('collaborate.hero_title') }}
         </h1>
-        <p class="text-lg text-tinta leading-relaxed mb-10 max-w-2xl">
+        <p class="text-lg text-tinta leading-relaxed mb-10 measure">
           {{ $t('collaborate.hero_intro') }}
         </p>
 
         <!-- El hero NO lleva botón de donar; solo el espíritu. La card de
              financiación vive en la parrilla de perfiles, como una opción más.
              Cita / principio: card-base en violet-soft (badge genómico del DS) -->
-        <aside class="max-w-2xl pl-4" style="border-left: 2px solid #9d44ab">
+        <aside class="max-w-2xl pl-4" style="border-left: 2px solid var(--identidad)">
           <p class="eyebrow mb-2 block">{{ $t('collaborate.hero_claim_label') }}</p>
           <p class="font-display italic font-medium text-berenjena text-xl leading-snug">
             {{ $t('collaborate.hero_principle') }}
@@ -49,7 +51,7 @@
         <i18n-t
           keypath="collaborate.hero_context"
           tag="p"
-          class="text-sm text-tinta leading-relaxed mt-10 max-w-2xl"
+          class="text-sm text-tinta leading-relaxed mt-10 measure"
         >
           <template #science>
             <NuxtLink :to="localePath({ name: 'ciencia' })" class="link-inline">{{ $t('nav.science') }}</NuxtLink>
@@ -72,7 +74,7 @@
         >
           {{ $t('collaborate.profiles_title') }}
         </h2>
-        <p class="text-tinta leading-relaxed mb-6 max-w-2xl">
+        <p class="text-tinta leading-relaxed mb-6 measure">
           {{ $t('collaborate.profiles_sub') }}
         </p>
 
@@ -122,7 +124,7 @@
              abajo, en <style scoped>. -->
         <div class="collab-grid">
           <!-- ─ Card 1 — revisión clínica ─ -->
-          <article id="revision-clinica" class="collab-card collab-card--clinica collab-card--hard collab-card--lead card-base bg-cream flex flex-col scroll-mt-24">
+          <article id="revision-clinica" class="collab-card collab-card--clinica collab-card--lead card-base bg-cream flex flex-col scroll-mt-24">
             <div class="collab-card__head">
               <span class="collab-card__num" aria-hidden="true">01</span>
               <p class="eyebrow collab-card__tag">
@@ -180,7 +182,7 @@
           </article>
 
           <!-- ─ Card 4 — tech & IA ─ -->
-          <article id="tech-ia" class="collab-card collab-card--tech collab-card--hard card-base bg-cream flex flex-col scroll-mt-24">
+          <article id="tech-ia" class="collab-card collab-card--tech card-base bg-cream flex flex-col scroll-mt-24">
             <div class="collab-card__head">
               <span class="collab-card__num" aria-hidden="true">03</span>
               <p class="eyebrow collab-card__tag">
@@ -249,45 +251,51 @@
 
           <!-- ─ Card final — financiar (la que más mueve la aguja cierra la lista;
                único coral de la página, posición de remate) ─ -->
-          <article id="financiar" class="collab-card collab-card--financiar collab-card--hard card-base bg-cream flex flex-col scroll-mt-24">
-            <div class="collab-card__head">
-              <span class="collab-card__num" aria-hidden="true">05</span>
-              <p class="eyebrow collab-card__tag">
-                <Icon name="ph:hand-heart-fill" class="collab-card__tag-icon" aria-hidden="true" />
-                {{ $t('collaborate.profile2_tag') }}
-              </p>
-            </div>
-            <h3 class="heading-display text-xl text-berenjena mb-3">
-              {{ $t('collaborate.profile2_title') }}
-            </h3>
-            <i18n-t
-              keypath="collaborate.profile2_text"
-              tag="p"
-              class="text-sm text-tinta leading-relaxed mb-5"
-            >
-              <template #expenses>
-                <NuxtLink :to="localePath('gastos')" class="link-inline">{{ $t('collaborate.profile2_expenses_link') }}</NuxtLink>
-              </template>
-            </i18n-t>
-            <!-- En /colabora también se ve el dinero: lo recaudado y los donantes, sin objetivo ni barra (variante en línea). -->
-            <div class="mb-6">
-              <GoFundMeProgress />
-            </div>
-            <div class="mt-auto">
-              <a
-                :href="GOFUNDME_URL"
-                target="_blank"
-                rel="noopener"
-                data-support-cta
-                class="btn-cta w-full h-12 justify-center"
-                style="text-decoration: none"
-                @click="trackSupport('colabora_cierre')"
-              >
-                <Icon name="ph:heart-fill" class="heart-beat heart-beat--alive w-4 h-4" aria-hidden="true" />
-                {{ $t('collaborate.profile2_cta_label') }}
-                <span class="sr-only">{{ ' ' + $t('a11y.new_tab') }}</span>
-              </a>
-              <p class="mt-2 text-xs text-tinta md:min-h-[2.25rem]">{{ $t('collaborate.profile2_cta_caption') }} {{ $t('money.recibo') }}</p>
+          <!-- T3-LOTE2 (A23): texto + pieza (regla de retícula 1). La tarjeta ocupa toda la fila (1104 px) y el texto corría a unos 150 caracteres por línea con la
+               campaña debajo; desde `lg`, el texto a la izquierda y la campaña con su botón a la derecha. Debajo de `lg`, la misma pila de siempre. -->
+          <article id="financiar" class="collab-card collab-card--financiar card-base bg-cream scroll-mt-24">
+            <div class="rejilla-par collab-card__par">
+              <div>
+                <div class="collab-card__head">
+                  <span class="collab-card__num" aria-hidden="true">05</span>
+                  <p class="eyebrow collab-card__tag">
+                    <Icon name="ph:hand-heart-fill" class="collab-card__tag-icon" aria-hidden="true" />
+                    {{ $t('collaborate.profile2_tag') }}
+                  </p>
+                </div>
+                <h3 class="heading-display text-xl text-berenjena mb-3">
+                  {{ $t('collaborate.profile2_title') }}
+                </h3>
+                <i18n-t
+                  keypath="collaborate.profile2_text"
+                  tag="p"
+                  class="text-sm text-tinta leading-relaxed mb-5 measure"
+                >
+                  <template #expenses>
+                    <NuxtLink :to="localePath('gastos')" class="link-inline">{{ $t('collaborate.profile2_expenses_link') }}</NuxtLink>
+                  </template>
+                </i18n-t>
+              </div>
+              <div>
+                <!-- En /colabora también se ve el dinero: lo recaudado y los donantes, sin objetivo ni barra (variante en línea). -->
+                <div class="mb-6">
+                  <GoFundMeProgress />
+                </div>
+                <a
+                  :href="GOFUNDME_URL"
+                  target="_blank"
+                  rel="noopener"
+                  data-support-cta
+                  class="btn-cta w-full h-12 justify-center"
+                  style="text-decoration: none"
+                  @click="trackSupport('colabora_cierre')"
+                >
+                  <Icon name="ph:heart-fill" class="heart-beat heart-beat--alive w-4 h-4" aria-hidden="true" />
+                  {{ $t('collaborate.profile2_cta_label') }}
+                  <span class="sr-only">{{ ' ' + $t('a11y.new_tab') }}</span>
+                </a>
+                <p class="mt-2 text-xs text-tinta md:min-h-[2.25rem]">{{ $t('collaborate.profile2_cta_caption') }} {{ $t('money.recibo') }}</p>
+              </div>
             </div>
           </article>
         </div>
@@ -319,14 +327,14 @@
         >
           {{ $t('collaborate.links_title') }}
         </h2>
-        <p class="text-tinta leading-relaxed mb-6 max-w-2xl">
+        <p class="text-tinta leading-relaxed mb-6 measure">
           {{ $t('collaborate.links_sub') }}
         </p>
 
         <div class="card-base bg-cream">
           <ul class="grid sm:grid-cols-2 gap-x-10 gap-y-3">
             <li v-for="lnk in quickLinks" :key="lnk.url" class="flex items-baseline gap-3">
-              <span class="font-mono text-tinta text-[11px] shrink-0 min-w-[18px]" aria-hidden="true">→</span>
+              <Icon name="ph:arrow-right" class="w-3.5 h-3.5 shrink-0 text-tinta" aria-hidden="true" />
               <NuxtLink
                 v-if="!lnk.external"
                 :to="lnk.url"
@@ -510,16 +518,10 @@ export default { name: 'CollaboratePage' }
   .collab-card--financiar { grid-area: financiar; }
 }
 
-/* Superficie alterna en orden de lectura: dura (01, 03, 05) / papel
-   (02, 04). La dura cambia radius suave + borde 8 % por borde de trazo
-   entero y sombra dura en offset, sin desenfoque. Las de papel se quedan
-   con la receta de .card-base. Sin hover: son <article> estáticos, y la
-   regla D8 de main.css reserva el lift para tarjetas que son enlace. */
-.collab-card--hard {
-  border-radius: 6px;
-  border: 1.5px solid var(--color-text);
-  box-shadow: 6px 6px 0 rgb(var(--color-text-rgb) / 0.9);
-}
+/* Bento plano (A23): las cinco son `.card-base` (papel y filete). La superficie «dura» (borde de 1,5 px y sombra dura, en 01, 03 y 05 por
+   paridad) se fue: la sombra dura es de `.card-marked`, la protagonista de UN grupo, y aquí nadie lo es. Sin hover: son <article> estáticos. */
+/* La pila de la tarjeta 05 conserva el aire de siempre (texto mb-5, campaña mb-6): el hueco de `.rejilla-par` solo cuenta entre columnas. */
+.collab-card__par { row-gap: 0; }
 
 .collab-card__head {
   display: flex;
@@ -534,7 +536,7 @@ export default { name: 'CollaboratePage' }
   font-weight: 600;
   font-size: 2.25rem;
   line-height: 1;
-  color: rgb(var(--color-text-rgb) / 0.22);
+  color: var(--texto-3); /* antes berenjena al 22 % (1,56:1); el rol mide 4,9:1 */
   font-variant-numeric: tabular-nums;
   letter-spacing: -0.02em;
 }
@@ -554,9 +556,4 @@ export default { name: 'CollaboratePage' }
   flex-shrink: 0;
 }
 
-@media (prefers-contrast: more) {
-  .collab-card__num {
-    color: rgb(var(--color-text-rgb) / 0.55);
-  }
-}
 </style>

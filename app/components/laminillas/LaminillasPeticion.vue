@@ -124,7 +124,7 @@ async function onSubmit(e: Event) {
           <span>{{ L('Tu email', 'Your email') }}</span>
           <input v-model="email" type="email" name="email" required autocomplete="email" class="pet__input" :aria-invalid="faltaEmail" @input="faltaEmail = false" />
         </label>
-        <p v-if="faltaEmail" class="pet__error text-coral-deep" role="alert">{{ L('Escribe un email válido para que pueda mandarte el enlace.', 'Enter a valid email so I can send you the link.') }}</p>
+        <p v-if="faltaEmail" class="pet__error msg-atencion" role="alert">{{ L('Escribe un email válido para que pueda mandarte el enlace.', 'Enter a valid email so I can send you the link.') }}</p>
         <label class="pet__campo">
           <span>{{ L('Quién eres y para qué los quieres (opcional)', 'Who you are and what you’ll use them for (optional)') }}</span>
           <input v-model="sobre" type="text" name="about" maxlength="300" class="pet__input" />
@@ -152,11 +152,11 @@ async function onSubmit(e: Event) {
             <NuxtLink :to="localePath('privacidad')" class="link-inline">{{ L('Privacidad', 'Privacy') }}</NuxtLink>
           </span>
         </label>
-        <p v-if="faltaConsent && !consent" class="pet__error text-coral-deep" role="alert">{{ L('Marca la casilla para que pueda mandarte el enlace.', 'Tick the box so I can send you the link.') }}</p>
+        <p v-if="faltaConsent && !consent" class="pet__error msg-atencion" role="alert">{{ L('Marca la casilla para que pueda mandarte el enlace.', 'Tick the box so I can send you the link.') }}</p>
 
-        <p v-if="faltaMuestra && !conjuntos.length" class="pet__error text-coral-deep" role="alert">{{ L('Elige al menos una muestra.', 'Pick at least one sample.') }}</p>
-        <p v-if="captchaFailed" class="pet__error text-coral-deep" role="alert">{{ turnstileToken ? $t('captcha.failed') : $t('captcha.required') }}</p>
-        <p v-if="failed" class="pet__error text-coral-deep" role="alert">{{ L('No se ha podido enviar. Prueba otra vez en un momento.', 'It couldn’t be sent. Please try again in a moment.') }}</p>
+        <p v-if="faltaMuestra && !conjuntos.length" class="pet__error msg-atencion" role="alert">{{ L('Elige al menos una muestra.', 'Pick at least one sample.') }}</p>
+        <p v-if="captchaFailed" class="pet__error msg-atencion" role="alert">{{ turnstileToken ? $t('captcha.failed') : $t('captcha.required') }}</p>
+        <p v-if="failed" class="pet__error msg-atencion" role="alert">{{ L('No se ha podido enviar. Prueba otra vez en un momento.', 'It couldn’t be sent. Please try again in a moment.') }}</p>
 
         <button type="submit" class="btn-cta justify-center disabled:opacity-50 disabled:cursor-not-allowed" :disabled="sending">
           {{ sending ? L('Enviando…', 'Sending…') : L('Pedir los ficheros', 'Request the files') }}
@@ -184,6 +184,6 @@ async function onSubmit(e: Event) {
 .pet__check { display: flex; align-items: flex-start; gap: 10px; min-height: 44px; padding-top: 10px; font-size: var(--texto-sm); cursor: pointer; }
 .pet__check input { width: 18px; height: 18px; margin-top: 1px; flex-shrink: 0; accent-color: var(--color-miriam, currentColor); }
 .pet__consent { font-size: var(--texto-xs); line-height: 1.5; }
-.pet__error { margin: 0; font-size: var(--texto-xs); }
+.pet__error { margin: 0; } /* el aspecto es el de `.msg-atencion` (main.css): estado atencion en forma de frase, con icono; antes coral como texto */
 .pet__ok { display: flex; align-items: center; gap: 8px; margin: 0; font-size: var(--texto-sm); font-weight: 600; }
 </style>

@@ -85,7 +85,7 @@
             <!-- 3 · Herramientas para profesionales. El id #mapa-acceso se conserva (es el ancla del enlace antiguo de /caso y de los tests). -->
             <section class="ci-sec" aria-labelledby="mapa-acceso">
               <CabeceraSeccion id="mapa-acceso" :eyebrow="$t('ciencia.level_pro')" :titulo="$t('nav.tools')" />
-              <ul class="ci-herr" role="list">
+              <ul class="ci-herr" :class="`ci-herr--${herramientas.length}`" role="list">
                 <li v-for="h in herramientas" :key="h.key">
                   <TarjetaEnlace
                     :to="localePath({ name: h.name })"
@@ -581,6 +581,14 @@ useHead({ script: [{ type: 'application/ld+json', innerHTML: condicion }] })
 /* Herramientas: rejilla compacta de tarjetas-enlace */
 .ci-herr { list-style: none; margin: 0 0 var(--sp-16); padding: 0; display: grid; gap: var(--sp-12); grid-template-columns: minmax(0, 1fr); }
 @media (min-width: 640px) { .ci-herr { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+/* T3-LOTE2 (A28): sin hueco (regla de retícula 2). Desde `lg`, tres columnas con 3 o 6 tarjetas y, con 5, seis columnas con spans de 2, 2, 2, 3 y 3; con 4,
+   las dos columnas de siempre ya cuadran. El número sale de la lista real (el explorador entra solo si su puerta está abierta). */
+@media (min-width: 1024px) {
+  .ci-herr--3, .ci-herr--6 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .ci-herr--5 { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+  .ci-herr--5 > li { grid-column: span 2; }
+  .ci-herr--5 > li:nth-child(n + 4) { grid-column: span 3; }
+}
 .ci-herr > li { display: flex; }
 .ci-herr > li > :deep(a) { width: 100%; }
 .ci-compartir { margin: 0 0 var(--sp-8); font: var(--tipo-body-sm); color: var(--texto-2); }

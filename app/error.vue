@@ -30,7 +30,7 @@
         </svg>
 
         <p class="eyebrow mb-4 block">
-          <span class="font-semibold text-coral-deep">{{ code }}</span> · {{ label }}
+          <span class="font-semibold text-berenjena">{{ code }}</span> · {{ label }}
         </p>
 
         <i18n-t :keypath="titleKey" tag="h1" class="heading-display text-3xl sm:text-4xl" style="letter-spacing: -0.03em">

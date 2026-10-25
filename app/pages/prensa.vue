@@ -78,11 +78,13 @@
         </aside>
       </div>
 
-      <div class="pr-bloque">
+      <!-- T3-LOTE2 (A19, 25-oct-2026): texto + pieza (regla de retícula 1). Desde `lg` el titular con su nota va a la izquierda y la tarjeta del texto
+           listo para copiar a la derecha, en vez de una caja de 1104 px con el texto a unos 150 caracteres por línea; debajo de `lg` es la pila de siempre. -->
+      <div class="pr-bloque rejilla-par pr-par">
         <CabeceraSeccion id="press-boilerplate" :titulo="$t('press.boilerplate_title')">
           <p class="pr-nota">{{ $t('press.boilerplate_note') }}</p>
         </CabeceraSeccion>
-        <div class="card-base">
+        <div class="card-base pr-boilerplate">
           <p id="press-boilerplate-text" class="prosa whitespace-pre-line">{{ boilerplateText }}</p>
           <CopyButton class="mt-5" v-bind="copyProps(boilerplateText)" />
         </div>
@@ -247,7 +249,7 @@
         <CabeceraSeccion id="press-mentions" :titulo="$t('press.mentions_title')">
           <p class="pr-nota">{{ $t('press.mentions_note') }}</p>
         </CabeceraSeccion>
-        <ul aria-labelledby="press-mentions" class="pr-lista" role="list">
+        <ul aria-labelledby="press-mentions" class="pr-lista pr-lista--cobertura" role="list">
           <li v-for="item in mentions" :key="item.url">
             <TarjetaEnlace
               :href="item.url"
@@ -498,11 +500,25 @@ useHead({
 }
 .pr-lista > li { display: flex; }
 .pr-lista > li > :deep(*) { width: 100%; }
+/* Titulares de medios (T3-LOTE2, A19): en una columna cada titular medía 1008 px (112 a 132 caracteres por línea, `linea_larga`). Desde `lg`, dos columnas;
+   si el número es impar, la última ocupa la fila entera (regla de retícula 2: sin hueco) y su texto se queda en la medida. */
+@media (min-width: 1024px) {
+  .pr-lista--cobertura { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .pr-lista--cobertura > li:last-child:nth-child(odd) { grid-column: 1 / -1; }
+  .pr-lista--cobertura > li:last-child:nth-child(odd) :deep(.tarjeta-enlace__texto) { max-width: var(--measure); }
+}
 
 /* Bloque dentro de una banda (después del primero): el aire de un capítulo corto. */
 .pr-bloque { margin-top: var(--sp-64); }
 .pr-nota { margin: var(--sp-16) 0 0; max-width: var(--measure); font: var(--tipo-body-sm); color: var(--texto-2); }
 .pr-nota--sin-margen { margin-top: 0; }
+/* Boilerplate: la cabecera ya no suma su margen a la pila (el hueco entre las dos piezas lo pone `.rejilla-par`: 32 px, los mismos de antes). */
+.pr-par > .cabecera-seccion { margin-bottom: 0; }
+.pr-boilerplate { max-width: var(--measure); }
+/* Texto explicativo de 15 a 16 px desde `lg` (A19): el móvil conserva los 15 px de antes. */
+@media (min-width: 1024px) {
+  .pr-nota { font: var(--tipo-ui); }
+}
 
 /* Cómo trabajo con medios */
 .pr-colab { display: grid; gap: var(--sp-16); justify-items: start; max-width: var(--measure); }
@@ -528,9 +544,10 @@ useHead({
 .pr-citas { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--sp-32) var(--sp-48); grid-template-columns: minmax(0, 1fr); }
 @media (min-width: 768px) { .pr-citas { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 .pr-cita { border-top: 1px solid var(--trazo-medio); padding-top: var(--sp-16); }
-.pr-cita__texto { margin: 0; font: var(--tipo-h3); letter-spacing: var(--track-cifra); color: var(--texto-1); text-wrap: balance; }
-.pr-cita__fuente { margin-top: var(--sp-12); font: var(--tipo-body-sm); color: var(--texto-2); }
-.pr-cita__nota { margin: var(--sp-8) 0 0; font-size: var(--texto-xs); line-height: 1.5; color: var(--texto-2); }
+.pr-cita__texto { margin: 0; max-width: var(--measure); font: var(--tipo-h3); letter-spacing: var(--track-cifra); color: var(--texto-1); text-wrap: balance; }
+.pr-cita__fuente { margin-top: var(--sp-12); max-width: var(--measure); font: var(--tipo-body-sm); color: var(--texto-2); }
+.pr-cita__nota { margin: var(--sp-8) 0 0; max-width: var(--measure); font-size: var(--texto-xs); line-height: 1.5; color: var(--texto-2); }
+@media (min-width: 1024px) { .pr-cita__fuente { font: var(--tipo-ui); } }
 
 /* Plegados: biografía, preguntas frecuentes, cronología */
 .pr-plegados { border-bottom: 1px solid var(--trazo-medio); }
@@ -553,7 +570,7 @@ useHead({
 @media (min-width: 640px) {
   .pr-cronologia > li { grid-template-columns: 14rem minmax(0, 1fr); }
   .pr-cronologia > li > .etiqueta { white-space: nowrap; }
-  .pr-cronologia > li > span:last-child { text-wrap: pretty; } /* la columna de texto 3rem más estrecha dejaba «países.» sola en la 2.ª línea de la primera fila */
+  .pr-cronologia > li > span:last-child { max-width: var(--measure); text-wrap: pretty; } /* la columna de texto 3rem más estrecha dejaba «países.» sola en la 2.ª línea de la primera fila */
 }
 
 /* Guía editorial Sí / No: dos columnas con filete. El icono no es la única señal: lleva su palabra. */
@@ -564,7 +581,8 @@ useHead({
 .pr-guia__icono { flex: none; width: 1.25rem; height: 1.25rem; }
 .pr-guia__icono--si { color: var(--identidad); }
 .pr-guia__icono--no { color: var(--texto-1); }
-.pr-guia__texto { margin: 0; font: var(--tipo-body-sm); color: var(--texto-1); }
+.pr-guia__texto { margin: 0; max-width: var(--measure); font: var(--tipo-body-sm); color: var(--texto-1); }
+@media (min-width: 1024px) { .pr-guia__texto { font: var(--tipo-ui); } }
 
 /* Contacto */
 .pr-contacto { display: grid; gap: var(--sp-24); justify-items: start; max-width: var(--measure); }

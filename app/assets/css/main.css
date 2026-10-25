@@ -696,6 +696,26 @@
   .status-badge--nopuede   { background: var(--estado-nopuede-fondo);   color: var(--estado-nopuede-texto);   box-shadow: inset 0 0 0 1px var(--estado-nopuede-borde); }
   .status-badge--atencion  { background: var(--estado-atencion-fondo);  color: var(--estado-atencion-texto);  box-shadow: inset 0 0 0 1px var(--estado-atencion-borde); }
 
+  /* El estado `atencion` escrito como FRASE (lote 2 del repaso de escritorio, A26 y A29, 25-oct-2026): el mensaje de un error o de «esto pide un
+     cuidado» (un envío que falló, un captcha que no cargó, un campo sin rellenar). Es el mismo estado que la insignia (mismos --estado-atencion-*, mismo
+     icono de triángulo, por máscara: el color nunca es la única señal), pero en una o dos líneas de texto normal y no en una etiqueta mono en mayúsculas de
+     una sola línea. Sustituye a `text-coral-deep`: el coral no porta significado como texto (DESIGN-SYSTEM §5). Lleva `role="alert"` quien lo use. */
+  .msg-atencion {
+    display: flex; align-items: flex-start; gap: var(--sp-8);
+    box-sizing: border-box; max-width: var(--measure);
+    padding: var(--sp-8) var(--sp-12);
+    border-radius: var(--radius-btn);
+    background: var(--estado-atencion-fondo); color: var(--estado-atencion-texto);
+    box-shadow: inset 0 0 0 1px var(--estado-atencion-borde);
+    font: var(--tipo-body-sm);
+  }
+  .msg-atencion::before {
+    content: ''; flex: none; width: 1.2em; height: 1.2em; margin-top: 0.1em;
+    background-color: currentColor;
+    -webkit-mask: var(--icono-atencion) center / contain no-repeat;
+    mask: var(--icono-atencion) center / contain no-repeat;
+  }
+
   /* Stat readout card — small label / big mono value / unit-range caption.
      Flex column with a fixed min-height so cards in a grid stay aligned and do
      not jump when labels/units wrap to a different number of lines: the label

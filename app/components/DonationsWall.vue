@@ -50,7 +50,7 @@
               {{ $t('thanksWall.find_star_btn') }}
             </button>
           </div>
-          <p v-if="findError" class="dw-panel__error" role="status">{{ findError }}</p>
+          <p v-if="findError" class="dw-panel__error msg-atencion" role="status">{{ findError }}</p>
         </form>
 
         <div class="dw-panel__toolbar">
@@ -88,50 +88,57 @@
 
       <p v-if="pageRows.length" class="mb-3 text-xs text-tinta/80">{{ $t('thanksWall.find_star_table_hint') }}</p>
 
-      <!-- El catálogo: la versión accesible y ordenable del mismo cielo. -->
+      <!-- El catálogo: la versión accesible y ordenable del mismo cielo. T3-LOTE2 (A23, 25-oct-2026): desde `lg`, en dos columnas (la mitad de las filas a cada
+           lado, en el mismo orden de lectura); debajo de `lg` las dos tablas se apilan y se leen como una sola lista, como antes. Cada fila ocupaba 1104 px con el
+           nombre en un extremo y el importe en el otro. El importe va en `--texto-1` con peso 600, no en coral (el coral no es texto: DESIGN-SYSTEM §5). -->
       <div
         v-if="pageRows.length"
-        class="rounded-2xl border border-berenjena/10 bg-cream overflow-hidden"
+        class="rounded-card border border-berenjena/10 bg-cream overflow-hidden"
       >
-        <table class="w-full">
-          <caption class="sr-only">{{ $t('thanksWall.title') }}</caption>
-          <tbody>
-            <tr
-              v-for="(d, i) in pageRows"
-              :key="d.id"
-              class="dw-row border-b border-berenjena/[0.07] last:border-b-0"
-              :class="{ 'dw-row--active': activeDonorId === d.id }"
-              tabindex="0"
-              role="button"
-              @click="focusDonor(d)"
-              @keydown.enter.prevent="focusDonor(d)"
-              @keydown.space.prevent="focusDonor(d)"
-            >
-              <td
-                v-if="sort === 'top'"
-                class="py-2.5 pl-4 pr-1 w-8 text-right font-mono text-xs text-tinta/60 nums tabular-nums"
+        <div class="dw-cols">
+          <table v-for="(col, ci) in columnas" :key="ci" class="w-full dw-col">
+            <caption v-if="ci === 0" class="sr-only">{{ $t('thanksWall.title') }}</caption>
+            <tbody>
+              <tr
+                v-for="(d, i) in col"
+                :key="d.id"
+                class="dw-row border-b border-berenjena/[0.07]"
+                :class="[
+                  { 'dw-row--active': activeDonorId === d.id },
+                  ci === columnas.length - 1 ? 'last:border-b-0' : 'lg:last:border-b-0',
+                ]"
+                tabindex="0"
+                role="button"
+                @click="focusDonor(d)"
+                @keydown.enter.prevent="focusDonor(d)"
+                @keydown.space.prevent="focusDonor(d)"
               >
-                {{ rankStart + i + 1 }}
-              </td>
-              <td class="py-2.5 px-4">
-                <span class="flex items-center gap-2 font-display font-semibold text-berenjena leading-tight">
-                  <Icon
-                    v-if="isPatron(d.id)"
-                    name="ph:star-four-fill"
-                    class="w-3.5 h-3.5 shrink-0"
-                    :class="patronRank(d.id) === 1 ? 'text-coral' : 'text-miriam'"
-                    aria-hidden="true"
-                  />
-                  {{ d.name }}
-                </span>
-                <span class="block mt-0.5 text-xs text-tinta">{{ timeAgo(d.createdAt) }}</span>
-              </td>
-              <td class="py-2.5 pr-4 pl-2 text-right font-mono text-sm font-semibold text-coral-deep nums whitespace-nowrap">
-                {{ money(d) }}
-              </td>
-            </tr>
-          </tbody>
-        </table>
+                <td
+                  v-if="sort === 'top'"
+                  class="py-2.5 pl-4 pr-1 w-8 text-right font-mono text-xs text-tinta/60 nums tabular-nums"
+                >
+                  {{ rankStart + ci * mitad + i + 1 }}
+                </td>
+                <td class="py-2.5 px-4">
+                  <span class="flex items-center gap-2 font-display font-semibold text-berenjena leading-tight">
+                    <Icon
+                      v-if="isPatron(d.id)"
+                      name="ph:star-four-fill"
+                      class="w-3.5 h-3.5 shrink-0"
+                      :class="patronRank(d.id) === 1 ? 'text-coral' : 'text-miriam'"
+                      aria-hidden="true"
+                    />
+                    {{ d.name }}
+                  </span>
+                  <span class="block mt-0.5 text-xs text-tinta">{{ timeAgo(d.createdAt) }}</span>
+                </td>
+                <td class="py-2.5 pr-4 pl-2 text-right font-mono text-sm font-semibold text-berenjena nums whitespace-nowrap">
+                  {{ money(d) }}
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
       </div>
       <p v-else-if="loaded" class="text-tinta text-sm">{{ $t('thanksWall.empty') }}</p>
 
@@ -263,6 +270,13 @@ const pageRows = computed(() => {
   return sorted.value.slice(start, start + PAGE_SIZE)
 })
 
+// Las filas de la página, en dos mitades (la primera, la mayor) para las dos columnas de `lg`. Con una sola fila, una sola tabla.
+const mitad = computed(() => Math.ceil(pageRows.value.length / 2))
+const columnas = computed(() => {
+  const filas = pageRows.value
+  return filas.length > 1 ? [filas.slice(0, mitad.value), filas.slice(mitad.value)] : [filas]
+})
+
 function money(d: PublicDonationSafe) {
   return new Intl.NumberFormat(locale.value === 'es' ? 'es-ES' : 'en-US', {
     style: 'currency',
@@ -362,8 +376,6 @@ function timeAgo(iso?: string): string {
 }
 .dw-panel__error {
   margin-top: 0.5rem;
-  font-size: 0.75rem;
-  color: #bb4128;
 }
 .dw-panel__toolbar {
   display: flex;
@@ -382,7 +394,7 @@ function timeAgo(iso?: string): string {
   border: 1px solid rgb(var(--color-text-rgb) / 0.12);
   background: rgba(250, 246, 240, 0.8);
   font-family: 'JetBrains Mono', monospace;
-  font-size: 12px;
+  font-size: var(--texto-xs);
   font-weight: 600;
 }
 .dw-segment__btn {
@@ -431,8 +443,13 @@ function timeAgo(iso?: string): string {
 .dw-pager__label {
   min-width: 4.5rem;
   text-align: center;
-  font-size: 12px;
+  font-size: var(--texto-xs);
   color: var(--color-text-soft);
+}
+/* Dos columnas desde `lg` (A23): un filete entre ellas; debajo, las dos tablas apiladas. */
+@media (min-width: 1024px) {
+  .dw-cols { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .dw-col + .dw-col { border-left: 1px solid rgb(var(--color-text-rgb) / 0.07); }
 }
 .dw-segment__btn:focus-visible,
 .dw-pager__btn:focus-visible,
