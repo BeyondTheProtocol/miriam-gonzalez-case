@@ -13,6 +13,8 @@
 // 5c. Bandas de /prensa (sistema v3): como mucho una oscura, nunca la última, y sin dos del mismo tono seguidas.
 // 5e. PRENSA2 (25-oct-2026): sin enlace al PDF del kit, una sola etiqueta para los botones a /contacto?role=journalist, «Diagnóstico» sin
 //     receptores y la cronología plegable hasta su última clave `tl_N`.
+// 5f. Con el plegable abierto, en Chrome y a 640/768/1280/1920 px: ninguna etiqueta de fecha de la cronología (ni la peor posible, «30 de septiembre
+//     de 2026») ocupa más de una línea ni se sale de su columna. Necesita .output/public; sin él, o con SIN_NAVEGADOR=1, se omite con aviso.
 // 6. `caseData.pressAsOf` es una fecha válida y no es futura.
 // 7. La tira de medios de la home se LEE de content/<idioma>/press.yml (rediseño F5, 23-oct-2026): ni un medio ni una URL escritos
 //    a mano en la página o en su componente. Desde el 24-oct-2026 la home enseña SOLO cuatro medios (Redacción Médica, El País,
@@ -138,6 +140,57 @@ for (const fichero of ['prensa.html', 'en/press.html']) {
   ok(!h.includes('press-kit-miriam-gonzalez.pdf'), `${fichero}: ningún enlace al PDF del kit`)
   const etiquetas = [...h.matchAll(/<a\b[^>]*href="[^"]*role=journalist"[^>]*>([\s\S]*?)<\/a>/g)].map((x) => x[1].replace(/<[^>]+>/g, '').trim())
   ok(etiquetas.length >= 2 && new Set(etiquetas).size === 1, `${fichero}: los ${etiquetas.length} botones a /contacto?role=journalist dicen lo mismo («${etiquetas[0] ?? ''}»)`)
+}
+
+// 5f · las etiquetas de fecha de la cronología plegable no se parten ni se salen de su columna (revisión de PRENSA2, 25-oct-2026).
+// La columna de fecha es fija desde 640 px y la etiqueta es mono 12 px en mayúsculas: «16 DE OCTUBRE DE 2026» (21 caracteres) no cabía en 11rem y dejaba
+// «2026» huérfano en una segunda línea. El fuente no lo enseña: hay que mirarlo con la página pintada y el plegable ABIERTO (cerrado no mide nada).
+// Dos medidas por etiqueta, no una: una sola línea Y que el texto cabe en su caja. Con `white-space: nowrap` la falta de sitio ya no parte la fecha, la saca
+// de su columna y la monta sobre la frase, y un test que solo contase líneas saldría verde. Además de las fechas de hoy, mide una copia con la peor fecha
+// que puede escribir cada idioma (30 de septiembre, 24 caracteres en ES): así el freno cubre la clase «columna fija contra etiqueta más larga» y no solo
+// los datos de esta semana. Se mide a 640 (donde nace la segunda columna y es la más estrecha), 768, 1280 y 1920.
+if (process.env.SIN_NAVEGADOR) {
+  console.log('  ⚠️  SIN_NAVEGADOR=1: se omite la comprobación de las fechas de la cronología en Chrome')
+} else if (!existsSync('.output/public/prensa.html')) {
+  console.log('  ⚠️  sin .output/public/prensa.html: se omite la comprobación de las fechas de la cronología en Chrome (ejecuta antes `pnpm exec nuxt generate`)')
+} else {
+  const { abrirNavegador } = await import('./lib/navegador-cdp.mjs')
+  const nav = await abrirNavegador({ ancho: 1280, alto: 900, escala: 1 })
+  const PEOR_FECHA: Record<string, string> = { '/prensa': '30 de septiembre de 2026', '/en/press': 'September 30, 2026' }
+  const medirFechas = (peor: string) => `(async () => {
+    await document.fonts.ready
+    document.querySelectorAll('details').forEach((d) => { d.open = true })
+    const ol = document.querySelector('.pr-cronologia')
+    if (!ol) return null
+    const reales = ol.querySelectorAll(':scope > li').length
+    const copia = ol.lastElementChild.cloneNode(true)
+    copia.querySelector('.etiqueta').textContent = ${JSON.stringify(peor)}
+    ol.appendChild(copia)
+    const etiquetas = [...ol.querySelectorAll(':scope > li > .etiqueta')].map((e) => {
+      const r = document.createRange(); r.selectNodeContents(e)
+      const lineas = new Set([...r.getClientRects()].map((q) => Math.round(q.top))).size
+      const sobra = Math.max(r.getBoundingClientRect().width - e.getBoundingClientRect().width, e.scrollWidth - e.clientWidth)
+      return { texto: e.textContent.trim(), lineas, sobra: Math.round(sobra) }
+    })
+    return { reales, etiquetas }
+  })()`
+  try {
+    for (const ruta of ['/prensa', '/en/press']) {
+      for (const ancho of [640, 768, 1280, 1920]) {
+        await nav.cdp('Emulation.setDeviceMetricsOverride', { width: ancho, height: 900, deviceScaleFactor: 1, mobile: false })
+        await nav.cargar(ruta)
+        const r = (await nav.evaluate(medirFechas(PEOR_FECHA[ruta]))) as { reales: number; etiquetas: { texto: string; lineas: number; sobra: number }[] } | null
+        const mal = (r?.etiquetas ?? []).filter((e) => e.lineas !== 1 || e.sobra > 1)
+        ok(
+          !!r && r.reales === ultimaTl && r.etiquetas.length === ultimaTl + 1 && mal.length === 0,
+          `${ruta} a ${ancho} px, plegables abiertos: las ${r?.reales ?? 0} fechas de la cronología y la peor posible («${PEOR_FECHA[ruta]}») caben en una línea y dentro de su columna` +
+            (mal.length ? ` — mal: ${mal.map((e) => `«${e.texto}» (${e.lineas} líneas, se sale ${e.sobra} px)`).join('; ')}` : '')
+        )
+      }
+    }
+  } finally {
+    await nav.cerrar()
+  }
 }
 
 // 6

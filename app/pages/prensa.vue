@@ -546,7 +546,13 @@ useHead({
 .pr-cronologia { list-style: none; margin: var(--sp-12) 0 var(--sp-8); padding: 0; }
 .pr-cronologia > li { display: grid; gap: var(--sp-4) var(--sp-24); padding: var(--sp-12) 0; font: var(--tipo-ui); color: var(--texto-1); }
 .pr-cronologia > li + li { border-top: 1px solid var(--trazo-sutil); }
-@media (min-width: 640px) { .pr-cronologia > li { grid-template-columns: 11rem minmax(0, 1fr); } }
+/* Columna de fecha: 14rem (224 px) cabe «30 DE SEPTIEMBRE DE 2026» (24 caracteres, unos 202 px en mono 12 px en mayúsculas); en 11rem «16 DE OCTUBRE DE 2026»
+   dejaba «2026» huérfano en una segunda línea. `nowrap` para que la fecha nunca se parta; test-sala-prensa (5f) mide líneas y desborde con el plegable abierto. */
+@media (min-width: 640px) {
+  .pr-cronologia > li { grid-template-columns: 14rem minmax(0, 1fr); }
+  .pr-cronologia > li > .etiqueta { white-space: nowrap; }
+  .pr-cronologia > li > span:last-child { text-wrap: pretty; } /* la columna de texto 3rem más estrecha dejaba «países.» sola en la 2.ª línea de la primera fila */
+}
 
 /* Guía editorial Sí / No: dos columnas con filete. El icono no es la única señal: lleva su palabra. */
 .pr-guia { display: grid; gap: var(--sp-32) var(--sp-48); grid-template-columns: minmax(0, 1fr); }
