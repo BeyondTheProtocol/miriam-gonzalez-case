@@ -11,6 +11,9 @@
 //   · la ficha (#snapshot-title), la franja de herramientas (#mapa-acceso), Imprimir y el botón de donar están ahí.
 //   · «Explicado sin tecnicismos» (#ciencia-llano, fase «llano» de la tanda 3, 25-oct-2026) está arriba, a la vista, y su enlace «Ir al detalle
 //     profesional» lleva a «Qué buscamos» (#ciencia-busca) con la ancla a la vista y el foco en ella.
+//   · en un móvil corto (375x667) la banda llana se REVELA con unos pocos píxeles de scroll (150): `v-reveal` (app/plugins/reveal.ts)
+//     pedía el 10 % de su alto, y una Banda de ~3.300 px no llegaba nunca a ese umbral en las primeras pantallas (el lector veía un
+//     hueco crema y de golpe el bloque). Es una CLASE: vale para cualquier Banda más alta que ~3 pantallas.
 //
 // Por qué contra el build y no con `nuxt dev`: el fallo del foco solo existe con la página prerenderizada. Nuxt la hidrata en la ruta del
 // payload (sin query ni hash) y aplica la URL real después; en dev la página se renderiza con ella y el bug no aparece (así se coló el
@@ -310,7 +313,26 @@ try {
     await evaluate(`(() => { const a = document.querySelector('main a.btn-cta[href*="gofund.me"]'); if (!a) return {}; return { rel: a.getAttribute('rel'), blank: a.target === '_blank', aviso: !!a.querySelector('.sr-only'), alto44: a.getBoundingClientRect().height >= 44 } })()`),
     { rel: 'noopener noreferrer', blank: true, aviso: true, alto44: true }
   )
+
+  // Móvil corto (iPhone SE/8, 375x667): la banda llana mide varias pantallas y lleva v-reveal. Con 150 px de scroll ya tiene que
+  // estar revelada (opacity 1, sin quedarse en reveal-init). Con el umbral fijo del 10 % de SU alto seguía en 0 hasta ~450 px.
+  // El viewport se pone ANTES de cargar (v-reveal decide al montar con la ventana que hay) y se quita en el finally.
+  await cdp('Emulation.setDeviceMetricsOverride', { width: 375, height: 667, deviceScaleFactor: 2, mobile: true })
+  const LLANO_REVELADO = `(() => { const s = document.getElementById('ciencia-llano')?.closest('section'); if (!s) return { hay: false }; const c = s.classList; return { hay: true, opacidad: getComputedStyle(s).opacity, atascada: c.contains('reveal-init') && !c.contains('reveal-in') } })()`
+  for (const ruta of ['/ciencia', '/en/science']) {
+    await load(ruta)
+    const vp = await evaluate(`({ ancho: innerWidth, alto: innerHeight })`)
+    await evaluate('window.scrollTo(0, 150)')
+    const revelada = await esperar(`${LLANO_REVELADO}.opacidad === '1'`, 3000)
+    const estado = await evaluate(LLANO_REVELADO)
+    check(
+      `${ruta} a 375x667: con 150 px de scroll la banda llana ya está revelada (opacity 1)`,
+      { vp: `${vp.ancho}x${vp.alto}`, revelada, ...estado },
+      { vp: '375x667', revelada: true, hay: true, opacidad: '1', atascada: false }
+    )
+  }
 } finally {
+  await cdp('Emulation.clearDeviceMetricsOverride').catch(() => {})
   ws.close()
   chrome.kill()
   server.close()

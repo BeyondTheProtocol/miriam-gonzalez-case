@@ -19,6 +19,10 @@ export default defineNuxtPlugin((nuxtApp) => {
       if (rect.top < window.innerHeight * 0.9) return
 
       el.classList.add('reveal-init')
+      // Umbral: el 10 % del elemento, pero nunca más del 15 % de la ventana. Con un 10 % fijo, un bloque de varias
+      // pantallas (una Banda de ~3.300 px en un móvil de 667) no se revelaba hasta tener ~330 px dentro: el lector veía
+      // un hueco vacío y de golpe el bloque. Para elementos bajos (< 1,5 pantallas) sigue siendo el 10 % de siempre.
+      const threshold = Math.min(0.1, (window.innerHeight * 0.15) / (rect.height || 1))
       const io = new IntersectionObserver(
         (entries) => {
           for (const entry of entries) {
@@ -29,7 +33,7 @@ export default defineNuxtPlugin((nuxtApp) => {
             }
           }
         },
-        { threshold: 0.1, rootMargin: '0px 0px -8% 0px' }
+        { threshold, rootMargin: '0px 0px -8% 0px' }
       )
       io.observe(el)
     },
