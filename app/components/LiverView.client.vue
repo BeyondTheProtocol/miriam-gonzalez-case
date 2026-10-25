@@ -645,7 +645,7 @@ onBeforeUnmount(() => {
         <p class="lv-tooltip__titulo">{{ tooltipEntry.titulo[langIdx] }}</p>
         <p v-for="(ln, i) in tooltipEntry.lineas" :key="i" class="lv-tooltip__linea">{{ ln[langIdx] }}</p>
       </div>
-      <div v-if="loading" class="absolute inset-0 flex items-center justify-center text-[12px]" style="color:#aeb6c2">
+      <div v-if="loading" class="absolute inset-0 flex items-center justify-center text-xs" style="color:var(--escena-texto)">
         {{ L('reconstruyendo 3D…', 'rebuilding 3D…') }}
       </div>
       <button
@@ -699,25 +699,24 @@ onBeforeUnmount(() => {
       <p class="lv-tooltip__titulo">{{ tooltipEntry.titulo[langIdx] }}</p>
       <p v-for="(ln, i) in tooltipEntry.lineas" :key="i" class="lv-tooltip__linea">{{ ln[langIdx] }}</p>
     </div>
-    <p v-if="!failed" class="text-[11px] text-tinta mt-1.5">
+    <p v-if="!failed" class="text-xs text-tinta mt-1.5">
       {{ L('Arrastra para girar · Ctrl o ⌘ + rueda para acercar', 'Drag to rotate · Ctrl or ⌘ + scroll to zoom') }}
     </p>
     <!-- DOS LENTES sobre los mismos cuerpos. Por defecto la de tamaño, que es la gramática
          de color que ya tenía la página (dorado ≥10 mm, violeta <10 mm). La del PET pinta lo
          que dice el PET de cada lesión, que es información visual y no tiene por qué leerse
          en un párrafo (Miriam, 20-sep). -->
-    <div v-if="pet && !loading && !failed" class="mt-2.5 flex items-center gap-1" role="group" :aria-label="L('Cómo se pintan las lesiones', 'How the lesions are coloured')">
-      <button v-for="op in ([['tamano', L('Por tamaño', 'By size')], ['pet', L('Por el PET', 'By PET')]] as const)" :key="op[0]"
-        type="button"
-        class="lv-lente border transition-colors"
-        :class="lente === op[0]
-          ? 'bg-berenjena/10 border-berenjena/40 text-berenjena font-semibold'
-          : 'bg-transparent border-berenjena/20 text-tinta hover:border-berenjena/40'"
-        :aria-pressed="lente === op[0]" @click="lente = op[0]">{{ op[1] }}</button>
-    </div>
+    <Segmentado
+      v-if="pet && !loading && !failed"
+      v-model="lente"
+      class="mt-2.5"
+      modo="radios"
+      :etiqueta="L('Cómo se pintan las lesiones', 'How the lesions are coloured')"
+      :opciones="[{ valor: 'tamano', etiqueta: L('Por tamaño', 'By size') }, { valor: 'pet', etiqueta: L('Por el PET', 'By PET') }]"
+    />
 
     <!-- subtítulo ancla, antes del detalle (comité de diseño, 26-sep) -->
-    <p v-if="!loading && !failed && lente === 'tamano'" class="mt-2 text-[11px] font-semibold text-berenjena">
+    <p v-if="!loading && !failed && lente === 'tamano'" class="mt-2 text-xs font-semibold text-berenjena">
       {{ L('Sus 55 marcas, no solo las 20 que mide la IA', 'All 55 of his marks, not just the 20 the AI measures') }}
     </p>
     <!-- leyenda de la lente de TAMAÑO; los recuentos salen de escena.json. Los CUATRO puntos
@@ -725,7 +724,7 @@ onBeforeUnmount(() => {
          al 3:1 de contraste no-textual de WCAG 2.2 1.4.11 sobre el fondo crema de esta lista
          (comité de diseño, 26-sep — medido: dorado ≈1,7:1, violeta similar; con el borde, los
          cuatro pasan de sobra). -->
-    <ul v-if="!loading && !failed && lente === 'tamano'" class="mt-1 space-y-1 text-[11px] text-tinta">
+    <ul v-if="!loading && !failed && lente === 'tamano'" class="mt-1 space-y-1 text-xs text-tinta">
       <li class="flex items-start gap-1.5">
         <span class="inline-block w-2.5 h-2.5 mt-[3px] shrink-0 rounded-full border border-berenjena/70" style="background:#f2b23c" aria-hidden="true" />
         {{ L(`${cuenta.dianas} lesiones diana, con anillo: medida del radiólogo`, `${cuenta.dianas} target lesions, ringed: radiologist's measurement`) }}
@@ -749,10 +748,10 @@ onBeforeUnmount(() => {
     <!-- PRIMERO cuántos focos activos hay, y solo después cuántas lesiones coinciden. Sin esta
          frase, «1 capta por encima del umbral» se lee como «el hígado tiene un solo punto
          activo», que es justo lo contrario de lo que dice el informe. -->
-    <p v-if="pet?.focos_higado && !loading && !failed && lente === 'pet'" class="mt-2 text-[11px] text-tinta leading-snug">
+    <p v-if="pet?.focos_higado && !loading && !failed && lente === 'pet'" class="mt-2 text-xs text-tinta leading-snug">
       {{ L(`En el hígado hay ${pet.focos_higado} focos activos por encima del umbral. ${pet.focos_sobre_lesion} coincide con una lesión de las que marca el TC; ${pet.focos_sin_lesion} caen donde la segmentación no puso ninguna.`, `There are ${pet.focos_higado} active foci above the threshold in the liver. ${pet.focos_sobre_lesion} matches a lesion marked on the CT; ${pet.focos_sin_lesion} fall where the segmentation placed none.`) }}
     </p>
-    <ul v-if="pet && !loading && !failed && lente === 'pet'" class="mt-2 space-y-1 text-[11px] text-tinta">
+    <ul v-if="pet && !loading && !failed && lente === 'pet'" class="mt-2 space-y-1 text-xs text-tinta">
       <li class="flex items-start gap-1.5">
         <span class="inline-block w-2.5 h-2.5 mt-[3px] shrink-0 rounded-full" style="background:#9aa4b2" aria-hidden="true" />
         {{ L(`${petCuenta.en_fondo} indistinguibles del fondo del hígado`, `${petCuenta.en_fondo} indistinguishable from liver background`) }}
@@ -774,21 +773,21 @@ onBeforeUnmount(() => {
         {{ L(`${pet.focos_sin_lesion} puntos: señal del PET por encima del umbral sin lesión en el TC`, `${pet.focos_sin_lesion} dots: PET signal above the threshold with no lesion on the CT`) }}
       </li>
     </ul>
-    <p v-if="pet?.focos_sin_lesion && !loading && !failed && lente === 'pet'" class="mt-1.5 text-[11px] text-tinta leading-snug">
+    <p v-if="pet?.focos_sin_lesion && !loading && !failed && lente === 'pet'" class="mt-1.5 text-xs text-tinta leading-snug">
       {{ L('Los puntos marcan DÓNDE hay señal, no cuánta ni de qué tamaño: su tamaño es fijo, medio vóxel del PET, y no mide nada. Uno de ellos, en el segmento VIII, es el que el informe del PET nombra; los otros dos no aparecen en el informe.', 'The dots mark WHERE there is signal, not how much or how large: their size is fixed, half a PET voxel, and measures nothing. One of them, in segment VIII, is the one named in the PET report; the other two do not appear in it.') }}
     </p>
-    <p v-if="pet && !loading && !failed && lente === 'pet'" class="mt-1.5 text-[11px] text-tinta leading-snug">
+    <p v-if="pet && !loading && !failed && lente === 'pet'" class="mt-1.5 text-xs text-tinta leading-snug">
       {{ L('Poca captación NO descarta lesión: con vóxel de 4 mm, el volumen parcial hunde en el fondo a las lesiones pequeñas. Por eso ninguna se pinta como «PET negativa».', 'Low uptake does NOT rule out a lesion: with a 4 mm voxel, partial volume sinks small lesions into the background. That is why none is coloured as “PET negative”.') }}
     </p>
-    <p v-if="pet && !loading && !failed && lente === 'pet'" class="mt-1 text-[11px] text-tinta leading-snug">
+    <p v-if="pet && !loading && !failed && lente === 'pet'" class="mt-1 text-xs text-tinta leading-snug">
       {{ L(`PET-TC FDG del mismo día · fondo del hígado SUV ${pet.fondo_suvmean} ± ${pet.fondo_suvsd} · umbral PERCIST ${pet.umbral_percist} · registro del hígado TC↔PET, Dice ${pet.dice_registro}.`, `Same-day FDG PET-CT · liver background SUV ${pet.fondo_suvmean} ± ${pet.fondo_suvsd} · PERCIST threshold ${pet.umbral_percist} · CT↔PET liver registration, Dice ${pet.dice_registro}.`) }}
     </p>
-    <ul class="flex flex-wrap gap-x-4 gap-y-1 mt-1.5 text-[11px] text-tinta">
+    <ul class="flex flex-wrap gap-x-4 gap-y-1 mt-1.5 text-xs text-tinta">
       <li v-for="[c, es, en] in [['#5236b0', 'Vena porta', 'Portal vein'], ['#2d63d6', 'Vasos hepáticos', 'Hepatic vessels'], ['#1f45a8', 'Vena cava inferior', 'Inferior vena cava'], ['#6f9a3a', 'Vesícula', 'Gallbladder']]" :key="c" class="inline-flex items-center gap-1.5">
         <span class="inline-block w-2.5 h-2.5 rounded-full" :style="{ background: c }" aria-hidden="true" />{{ L(es!, en!) }}
       </li>
     </ul>
-    <p v-if="!loading && !failed" class="mt-1.5 text-[11px] text-tinta leading-snug">
+    <p v-if="!loading && !failed" class="mt-1.5 text-xs text-tinta leading-snug">
       {{ L('RECIST 1.1 solo mide lesiones de 10 mm o más. Las lesiones vienen de segmentación automática (IA, 100 % local): un radiólogo ha revisado las que marcó la IA y las ha confirmado, pero esa revisión fue una lectura informal y no consta en el informe oficial firmado. Puede haber de más o de menos, y en las dianas el modelo mide 2-6 mm por debajo del radiólogo. Las venas más finas pueden salir incompletas.', 'RECIST 1.1 only measures lesions of 10 mm or more. The lesions come from automatic segmentation (AI, 100% local): a radiologist reviewed the ones the AI flagged and confirmed them, but that review was an informal read and is not in the signed official report. It may miss some or flag extra ones, and on the targets it measures 2-6 mm below the radiologist. The thinnest veins may appear incomplete.') }}
     </p>
 
@@ -838,35 +837,32 @@ onBeforeUnmount(() => {
 </template>
 
 <style scoped>
-.lv-caja { aspect-ratio: 1 / 1; background: #1c1126; border-radius: 0.75rem; overflow: hidden; }
-.lv-lente {
-  font-size: 11px;
-  line-height: 1;
-  padding: 7px 11px;
-  min-height: 32px;
-  border-radius: 999px;
-}
-@media (pointer: coarse) { .lv-lente { min-height: 44px; padding: 0 14px; } }
+/* El escenario oscuro y sus controles salen de los tokens --escena-* (sistema v3, P1): antes llevaban hex y grises azulados.
+   El selector de lente es <Segmentado> (antes `.lv-lente`, 11 px y 32 px de alto). */
+.lv-caja { aspect-ratio: 1 / 1; background: var(--escena-fondo); border-radius: var(--radius-btn); overflow: hidden; }
 
 .lv-anillo {
-  position: absolute; transform: translate(-50%, -50%); border-radius: 9999px;
-  border: 2px solid rgba(245, 239, 230, 0.92);
+  position: absolute; transform: translate(-50%, -50%); border-radius: var(--radius-pill);
+  border: 2px solid color-mix(in srgb, var(--color-bg-card) 92%, transparent);
 }
 .lv-rotulo {
   position: absolute; transform: translate(-50%, -100%); white-space: nowrap;
-  font: 600 12px/1.2 'JetBrains Mono', ui-monospace, monospace; color: #F5EFE6;
-  background: rgba(28, 17, 38, 0.72); padding: 2px 6px; border-radius: 4px;
+  font: 600 var(--texto-xs)/1.2 var(--font-mono); color: var(--color-bg-card);
+  background: color-mix(in srgb, var(--escena-fondo) 72%, transparent); padding: 2px 6px; border-radius: var(--radius-sm);
 }
 .lv-reencuadre {
-  position: absolute; bottom: 10px; right: 10px; width: 44px; height: 44px;
-  display: inline-flex; align-items: center; justify-content: center; border-radius: 10px;
-  color: #d9dee6; background: rgba(20, 24, 32, 0.78); border: 1px solid rgba(174, 182, 194, 0.3);
+  position: absolute; bottom: 10px; right: 10px; width: var(--control-min); height: var(--control-min);
+  display: inline-flex; align-items: center; justify-content: center; border-radius: var(--radius-btn);
+  color: var(--escena-texto); background: color-mix(in srgb, var(--escena-fondo) 78%, transparent);
+  border: 1px solid color-mix(in srgb, var(--escena-texto) 30%, transparent);
 }
-.lv-reencuadre:hover { background: rgba(30, 37, 48, 0.92); border-color: rgba(174, 182, 194, 0.5); }
-.lv-reencuadre:focus-visible { outline: 2px solid #1c969e; outline-offset: 2px; }
+@media (hover: hover) and (pointer: fine) {
+  .lv-reencuadre:hover { background: var(--escena-velo); border-color: color-mix(in srgb, var(--escena-texto) 50%, transparent); }
+}
+.lv-reencuadre:focus-visible { outline: 2px solid var(--color-miriam-claro); outline-offset: 2px; }
 .lv-boton-2 { right: 62px; }
 .lv-boton-3 { right: 114px; }
-.lv-reencuadre[aria-pressed='true'] { color: #1c1126; background: rgba(217, 222, 230, 0.92); border-color: #d9dee6; }
+.lv-reencuadre[aria-pressed='true'] { color: var(--escena-fondo); background: color-mix(in srgb, var(--escena-texto) 92%, transparent); border-color: var(--escena-texto); }
 
 /* Tooltip por lesión: tokens del sistema (sección 3 de la spec), cero hex nuevo. Nunca más
    ancho que el visor menos 16 px de margen; envuelve, no desborda (2.3). Puramente visual
@@ -884,20 +880,23 @@ onBeforeUnmount(() => {
 
 /* Tabla sincronizada (2.5): siempre en el DOM, colapsada con <details> nativo. */
 .lv-detalle__resumen {
-  cursor: pointer; font-size: 12px; font-weight: 600; color: var(--color-text, #2d1b3d);
-  padding: 6px 0; min-height: 32px; display: inline-flex; align-items: center;
+  cursor: pointer; font-size: var(--texto-xs); font-weight: 600; color: var(--texto-1);
+  padding: 6px 0; min-height: var(--control-min); display: inline-flex; align-items: center;
 }
-.lv-detalle__resumen:focus-visible { outline: 2px solid #1c969e; outline-offset: 2px; }
+.lv-detalle__resumen:focus-visible { outline: 2px solid var(--anillo-foco); outline-offset: 2px; }
 .lv-tabla-envoltorio { overflow-x: auto; margin-top: 6px; }
-.lv-tabla { width: 100%; border-collapse: collapse; font-size: 11px; }
+.lv-tabla { width: 100%; border-collapse: collapse; font-size: var(--texto-xs); }
 .lv-tabla th, .lv-tabla td {
-  text-align: left; padding: 6px 8px; border-bottom: 1px solid rgba(45, 27, 61, 0.12);
+  text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--trazo-medio);
   white-space: nowrap;
 }
-.lv-tabla th { font-weight: 600; color: var(--color-text, #2d1b3d); }
+.lv-tabla th { font-weight: 600; color: var(--texto-1); }
 .lv-tabla tbody tr { cursor: pointer; }
-.lv-tabla tbody tr:hover, .lv-fila--activa { background: rgba(28, 150, 158, 0.08); }
+.lv-fila--activa { background: color-mix(in srgb, var(--identidad) 8%, transparent); }
+@media (hover: hover) and (pointer: fine) {
+  .lv-tabla tbody tr:hover { background: color-mix(in srgb, var(--identidad) 8%, transparent); }
+}
 .lv-tabla tbody tr:focus-visible, .lv-tabla tbody tr:focus {
-  outline: 2px solid #1c969e; outline-offset: -2px;
+  outline: 2px solid var(--anillo-foco); outline-offset: -2px;
 }
 </style>

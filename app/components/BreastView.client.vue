@@ -280,7 +280,7 @@ onBeforeUnmount(() => {
           <span v-if="r.visible" class="bv-rotulo" :style="{ left: r.tx + 'px', top: r.ty + 'px' }">{{ r.texto }}</span>
         </template>
       </div>
-      <div v-if="loading" class="absolute inset-0 flex items-center justify-center text-[12px]" style="color:#aeb6c2">
+      <div v-if="loading" class="absolute inset-0 flex items-center justify-center text-xs" style="color:var(--escena-texto)">
         {{ L('reconstruyendo 3D…', 'rebuilding 3D…') }}
       </div>
       <button
@@ -297,10 +297,10 @@ onBeforeUnmount(() => {
         </svg>
       </button>
     </div>
-    <p v-if="!failed" class="text-[11px] text-tinta mt-1.5">
+    <p v-if="!failed" class="text-xs text-tinta mt-1.5">
       {{ L('Arrastra para girar · Ctrl o ⌘ + rueda para acercar', 'Drag to rotate · Ctrl or ⌘ + scroll to zoom') }}
     </p>
-    <ul v-if="!loading && !failed" class="mt-2 space-y-1 text-[11px] text-tinta">
+    <ul v-if="!loading && !failed" class="mt-2 space-y-1 text-xs text-tinta">
       <li class="flex items-start gap-1.5">
         <span class="inline-block w-2.5 h-2.5 mt-[3px] shrink-0 rounded-full border border-berenjena" style="background:#f2b23c" aria-hidden="true" />
         {{ L('Tumor primario, con anillo: la medida es la del radiólogo', 'Primary tumour, ringed: the measurement is the radiologist’s') }}
@@ -318,7 +318,7 @@ onBeforeUnmount(() => {
         {{ L('Vasos de la mama, los que le llevan la sangre (y el contraste) al tumor', 'Vessels of the breast, the ones carrying blood (and contrast) to the tumour') }}
       </li>
     </ul>
-    <p v-if="!loading && !failed" class="mt-1.5 text-[11px] text-tinta leading-snug">
+    <p v-if="!loading && !failed" class="mt-1.5 text-xs text-tinta leading-snug">
       {{ L(
         'El contorno es el de su mama, sacado de su resonancia por IA en local y sin revisar por un radiólogo. La medida que vale es la del informe. El PET de galio del 26-may describe además una captación en la cola de mama derecha (SUVmáx 2,64), a valorar en estudio dirigido; no se dibuja porque sale de otro estudio.',
         'The outline is her own breast, taken from her MRI by AI running locally and not reviewed by a radiologist. The measurement that counts is the one in the report. The 26 May gallium PET also describes uptake in the right axillary tail of the breast (SUVmax 2.64), to be assessed in a dedicated study; it is not drawn because it comes from a different study.') }}
@@ -327,21 +327,25 @@ onBeforeUnmount(() => {
 </template>
 
 <style scoped>
-.bv-caja { aspect-ratio: 1 / 1; background: #1c1126; border-radius: 0.75rem; overflow: hidden; }
+/* El escenario oscuro y sus controles salen de los tokens --escena-* (sistema v3, P1): antes llevaban hex y grises azulados. */
+.bv-caja { aspect-ratio: 1 / 1; background: var(--escena-fondo); border-radius: var(--radius-btn); overflow: hidden; }
 .bv-anillo {
-  position: absolute; transform: translate(-50%, -50%); border-radius: 9999px;
-  border: 2px solid rgba(245, 239, 230, 0.92);
+  position: absolute; transform: translate(-50%, -50%); border-radius: var(--radius-pill);
+  border: 2px solid color-mix(in srgb, var(--color-bg-card) 92%, transparent);
 }
 .bv-rotulo {
   position: absolute; transform: translate(-50%, -100%); white-space: nowrap;
-  font: 600 12px/1.2 'JetBrains Mono', ui-monospace, monospace; color: #F5EFE6;
-  background: rgba(28, 17, 38, 0.72); padding: 2px 6px; border-radius: 4px;
+  font: 600 var(--texto-xs)/1.2 var(--font-mono); color: var(--color-bg-card);
+  background: color-mix(in srgb, var(--escena-fondo) 72%, transparent); padding: 2px 6px; border-radius: var(--radius-sm);
 }
 .bv-reencuadre {
-  position: absolute; bottom: 10px; right: 10px; width: 44px; height: 44px;
-  display: inline-flex; align-items: center; justify-content: center; border-radius: 10px;
-  color: #d9dee6; background: rgba(20, 24, 32, 0.78); border: 1px solid rgba(174, 182, 194, 0.3);
+  position: absolute; bottom: 10px; right: 10px; width: var(--control-min); height: var(--control-min);
+  display: inline-flex; align-items: center; justify-content: center; border-radius: var(--radius-btn);
+  color: var(--escena-texto); background: color-mix(in srgb, var(--escena-fondo) 78%, transparent);
+  border: 1px solid color-mix(in srgb, var(--escena-texto) 30%, transparent);
 }
-.bv-reencuadre:hover { background: rgba(30, 37, 48, 0.92); border-color: rgba(174, 182, 194, 0.5); }
-.bv-reencuadre:focus-visible { outline: 2px solid #1c969e; outline-offset: 2px; }
+@media (hover: hover) and (pointer: fine) {
+  .bv-reencuadre:hover { background: var(--escena-velo); border-color: color-mix(in srgb, var(--escena-texto) 50%, transparent); }
+}
+.bv-reencuadre:focus-visible { outline: 2px solid var(--color-miriam-claro); outline-offset: 2px; }
 </style>

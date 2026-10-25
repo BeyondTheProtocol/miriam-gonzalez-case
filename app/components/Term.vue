@@ -3,8 +3,11 @@
  * Glosario en línea (DS §13): término con subrayado punteado que revela su
  * definición en hover/focus/tap, sin sacar al usuario de la página. El
  * `aria-label` lleva término + definición para lectores de pantalla.
+ *
+ * `icono` (sistema v3, P1): un icono de Phosphor (decorativo) delante de la etiqueta, para los usos que son un control y no una palabra
+ * dentro de una frase («Cómo se lee el mapa»). Con él, el control mide 44 px de alto como cualquier otro.
  */
-const props = defineProps<{ id: string; label?: string; variant?: 'inline' | 'badge' }>()
+const props = defineProps<{ id: string; label?: string; variant?: 'inline' | 'badge'; icono?: string }>()
 const { locale } = useI18n()
 
 type Entry = { es: { label: string; def: string }; en: { label: string; def: string } }
@@ -349,7 +352,7 @@ onClickOutside(triggerRef, () => hide(), { ignore: [popRef] })
     <button
       ref="triggerRef"
       type="button"
-      :class="['term', variant === 'badge' && 'term--badge']"
+      :class="['term', variant === 'badge' && 'term--badge', icono && 'term--icono']"
       :aria-label="`${entry.label}. ${entry.def}`"
       :aria-expanded="open"
       @click="toggle"
@@ -357,7 +360,7 @@ onClickOutside(triggerRef, () => hide(), { ignore: [popRef] })
       @mouseleave="canHover() && hide()"
       @keydown.escape="hide"
       @blur="hide"
-    >{{ label ?? entry.label }}</button>
+    ><Icon v-if="icono" :name="icono" class="term__icono" aria-hidden="true" />{{ label ?? entry.label }}</button>
     <Teleport to="body">
       <span
         v-if="open && entry.def"
@@ -395,21 +398,39 @@ onClickOutside(triggerRef, () => hide(), { ignore: [popRef] })
   text-decoration-thickness: 1.5px;
   text-underline-offset: 3px;
   text-decoration-color: rgb(var(--color-miriam-rgb) / 0.6);
-  transition: text-decoration-color 0.2s ease;
+  transition: text-decoration-color var(--dur-micro) var(--curva-salida);
   white-space: normal;
   -webkit-tap-highlight-color: transparent;
   touch-action: manipulation;
 }
-.term:hover,
 .term:focus-visible,
 .term[aria-expanded='true'] {
   text-decoration-style: solid;
   text-decoration-color: var(--color-miriam);
 }
+@media (hover: hover) and (pointer: fine) {
+  .term:hover {
+    text-decoration-style: solid;
+    text-decoration-color: var(--color-miriam);
+  }
+}
+/* El anillo de foco es el del sistema (--anillo-foco), no el coral: coral sobre crema da 2,6:1 y el canon lo prohíbe en anillos de foco. */
 .term:focus-visible {
-  outline: 2px solid var(--color-cta);
+  outline: 2px solid var(--anillo-foco);
   outline-offset: 2px;
-  border-radius: 2px;
+  border-radius: var(--radius-sm);
+}
+/* Con icono es un control, no una palabra de la frase: 44 px de alto. */
+.term--icono {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  min-height: var(--control-min);
+}
+.term__icono {
+  flex: none;
+  width: 1rem;
+  height: 1rem;
 }
 /* Variante "badge": mantiene el pill genómico (miriam-soft) pero es disparador
    de tooltip. Anula los resets de .term (sin subrayado, con fondo y padding). */
@@ -417,7 +438,7 @@ onClickOutside(triggerRef, () => hide(), { ignore: [popRef] })
   display: inline-block;
   background: var(--color-miriam-soft); /* miriam-soft */
   color: var(--color-text); /* berenjena */
-  border-radius: 9999px;
+  border-radius: var(--radius-pill);
   padding: 4px 12px;
   font-family: 'JetBrains Mono', monospace;
   font-size: 13px;
@@ -427,18 +448,24 @@ onClickOutside(triggerRef, () => hide(), { ignore: [popRef] })
   text-decoration: none;
   border: 1px solid transparent;
   cursor: help;
-  transition: box-shadow 0.2s ease, border-color 0.2s ease;
+  transition: box-shadow var(--dur-micro) var(--curva-salida), border-color var(--dur-micro) var(--curva-salida);
 }
 /* A4 · brillo sutil al pasar/enfocar: refuerza que el badge abre tooltip. */
-.term--badge:hover,
 .term--badge:focus-visible,
 .term--badge[aria-expanded='true'] {
   text-decoration: none;
   border-color: var(--color-miriam); /* miriam */
   box-shadow: 0 0 0 3px rgb(var(--color-miriam-rgb) / 0.18);
 }
+@media (hover: hover) and (pointer: fine) {
+  .term--badge:hover {
+    text-decoration: none;
+    border-color: var(--color-miriam); /* miriam */
+    box-shadow: 0 0 0 3px rgb(var(--color-miriam-rgb) / 0.18);
+  }
+}
 .term--badge:focus-visible {
-  border-radius: 9999px;
+  border-radius: var(--radius-pill);
 }
 @media (prefers-reduced-motion: reduce) {
   .term {
@@ -449,7 +476,7 @@ onClickOutside(triggerRef, () => hide(), { ignore: [popRef] })
   position: fixed;
   z-index: 60;
   padding: 11px 13px;
-  border-radius: 11px;
+  border-radius: var(--radius-btn);
   background: var(--color-text);
   color: var(--color-bg);
   font-family: 'Hanken Grotesk', system-ui, sans-serif;
@@ -459,7 +486,7 @@ onClickOutside(triggerRef, () => hide(), { ignore: [popRef] })
   box-shadow: 0 14px 34px -12px rgb(var(--color-text-rgb) / 0.55);
   opacity: 0;
   transform: translateY(3px);
-  transition: opacity 0.16s ease, transform 0.16s ease;
+  transition: opacity var(--dur-micro) var(--curva-salida), transform var(--dur-micro) var(--curva-salida);
 }
 .term-pop.is-positioned {
   opacity: 1;

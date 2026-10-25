@@ -1013,8 +1013,8 @@ onBeforeUnmount(() => {
     <!-- sin reconstrucción 3D individual para este foco (honesto, sin inventar) -->
     <div
       v-if="noMesh"
-      class="relative w-full flex items-center justify-center text-center text-[12px] px-5 leading-snug"
-      style="aspect-ratio:5/4;background:#1c1126;border-radius:0.5rem;color:#aeb6c2"
+      class="relative w-full flex items-center justify-center text-center text-xs px-5 leading-snug btv-caja"
+      style="aspect-ratio:5/4;background:var(--escena-fondo);color:var(--escena-texto)"
     >
       {{ L('Sin reconstrucción 3D individual para este foco.', 'No individual 3D reconstruction for this focus.') }}
     </div>
@@ -1074,8 +1074,8 @@ onBeforeUnmount(() => {
            ancho → ~448px de alto, un solo hueso grande y claro (~la mitad de antes). El
            núcleo Three.js NO se toca: solo el dimensionado del contenedor responsive. -->
       <div
-        class="relative w-full select-none"
-        :style="`aspect-ratio:${stacked ? '4/5' : '12/5'};background:#1c1126;border-radius:0.5rem;overflow:hidden`"
+        class="relative w-full select-none btv-caja"
+        :style="`aspect-ratio:${stacked ? '4/5' : '12/5'};background:var(--escena-fondo);overflow:hidden`"
       >
         <div ref="host" role="img" :aria-label="L('Hueso en 3D · tres mapas del mismo hueso: captación de receptores de somatostatina (⁶⁸Ga-DOTATOC), glucolítica (¹⁸F-FDG) y densidad (TC). Arrástralo para girar; la tabla y las imágenes clave son la alternativa textual.', '3D bone · three maps of the same bone: somatostatin-receptor (⁶⁸Ga-DOTATOC) uptake, glycolytic (¹⁸F-FDG) uptake and density (CT). Drag to rotate; the table and key images are the text alternative.')" class="absolute inset-0 cursor-grab active:cursor-grabbing" :style="failed ? 'opacity:0;pointer-events:none' : ''" />
 
@@ -1181,15 +1181,15 @@ onBeforeUnmount(() => {
         <!-- cargando -->
         <div v-if="loading && !failed" class="absolute inset-0 flex flex-col items-center justify-center gap-2 pointer-events-none">
           <span class="btv-spin" />
-          <span class="text-[11px]" style="color:#aeb6c2">{{ L('reconstruyendo 3D…', 'building 3D…') }}</span>
+          <span class="text-xs" style="color:var(--escena-texto)">{{ L('reconstruyendo 3D…', 'building 3D…') }}</span>
         </div>
 
         <!-- fallback digno sin-WebGL: fotograma del MISMO CT -->
         <div v-if="failed" class="absolute inset-0">
           <BoneFrameViewer :mesh-key="meshKey" kind="vertebra" />
           <div
-            class="absolute bottom-0 inset-x-0 px-2 py-1 text-[10px] text-center"
-            style="color:#cdd5e0;background:linear-gradient(to top,rgba(8,11,16,0.88),rgba(8,11,16,0));pointer-events:none"
+            class="absolute bottom-0 inset-x-0 px-2 py-1 text-xs text-center"
+            style="color:var(--escena-texto);background:linear-gradient(to top,color-mix(in srgb,var(--escena-fondo) 88%,black),transparent);pointer-events:none"
           >
             {{ L('Vista estática · este navegador no permite 3D interactivo', 'Static view · this browser does not support interactive 3D') }}
           </div>
@@ -1211,7 +1211,7 @@ onBeforeUnmount(() => {
              diseñador). Voz neutral: informa, no concluye. -->
         <!-- (homogeneidad · §13) ⓘ «Cómo se lee el mapa» → tooltip Term (al pasar/enfocar),
              en vez de un <details> de clic-para-ver. La info queda en el aria-label de Term. -->
-        <Term v-if="!failed" id="lectura_mapa3d" :label="L('ⓘ Cómo se lee el mapa', 'ⓘ How to read the map')" />
+        <Term v-if="!failed" id="lectura_mapa3d" icono="ph:info" :label="L('Cómo se lee el mapa', 'How to read the map')" />
       </div>
 
       <!-- RÓTULO HONESTO de la DIANA orientativa (ADITIVO · sólo con el toggle activo).
@@ -1244,6 +1244,13 @@ onBeforeUnmount(() => {
 </template>
 
 <style scoped>
+/* Sistema v3 (P1): la interfaz HTML del visor pinta con los tokens. El escenario oscuro y sus controles salen de --escena-*;
+   la parte clara (pestañas, títulos, pie), de los roles. Quedan con color propio los trazadores (teal de 68Ga, ámbar de FDG y de la aguja
+   y el coral de la diana): están PENDIENTES DE FIRMA de Miriam (canon, D7) y salen de aquí cuando se firmen. */
+
+/* El recuadro oscuro del visor (y su versión sin reconstrucción): el radio de los tres visores de /lesiones (--radius-btn). */
+.btv-caja { border-radius: var(--radius-btn); }
+
 /* ---- títulos + leyenda por panel ---- */
 .btv-titles {
   display: grid;
@@ -1251,7 +1258,8 @@ onBeforeUnmount(() => {
   gap: 8px;
   margin-bottom: 8px;
 }
-.btv-titles--hidden { opacity: 0.45; }
+/* Sin WebGL no hay tres paneles que titular. Antes los títulos se quedaban al 45 % de opacidad (1,9:1 de contraste); ahora no se pintan. */
+.btv-titles--hidden { display: none; }
 /* MÓVIL-PESTAÑAS: un solo título/leyenda (el del panel activo) → una columna a ancho completo. */
 .btv-titles--single { grid-template-columns: 1fr; }
 @media (max-width: 639px) {
@@ -1259,8 +1267,8 @@ onBeforeUnmount(() => {
 }
 
 /* ---- PESTAÑAS de trazador (solo MÓVIL · stacked) ----
-   Fila de 3 pestañas táctiles (≥44px) para alternar Galio/FDG/Densidad sobre el panel único.
-   Activa = berenjena/miriam (DS): fondo malva, texto claro. Inactivas: chip neutro legible. */
+   Fila de 3 pestañas táctiles (≥44px) para alternar Galio/FDG/Densidad sobre el panel único. Mismo lenguaje que <Segmentado>:
+   activa = --seleccionado-bg con borde de 2 px (no solo el color); inactivas con el borde de los controles. */
 .btv-tabs {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -1273,56 +1281,56 @@ onBeforeUnmount(() => {
   align-items: flex-start;
   justify-content: center;
   gap: 1px;
-  min-height: 44px;
+  min-height: var(--control-min);
   padding: 6px 9px;
-  border-radius: 9px;
-  border: 1px solid rgba(45, 27, 61, 0.18);
-  background: #f3eef7;
-  color: #6b6275;
+  border-radius: var(--radius-btn);
+  border: 1px solid var(--trazo-interactivo);
+  background: transparent;
+  color: var(--texto-2);
   cursor: pointer;
   text-align: left;
   line-height: 1.15;
-  transition: background 0.15s, border-color 0.15s, color 0.15s;
+  transition: background var(--dur-micro) var(--curva-salida), border-color var(--dur-micro) var(--curva-salida), color var(--dur-micro) var(--curva-salida);
 }
-.btv-tab:hover { background: #ece4f2; border-color: rgba(45, 27, 61, 0.32); }
-.btv-tab:focus-visible { outline: 2px solid #6d2b7d; outline-offset: 2px; }
+@media (hover: hover) and (pointer: fine) {
+  .btv-tab:hover { background: var(--secundario-hover); border-color: var(--texto-1); }
+}
+.btv-tab:focus-visible { outline: 2px solid var(--anillo-foco); outline-offset: 2px; }
 .btv-tab.is-active {
-  background: #6d2b7d;            /* berenjena · DS miriam */
-  border-color: #6d2b7d;
-  color: #fdf7ff;
-  box-shadow: 0 1px 5px rgba(45, 27, 61, 0.28);
+  background: var(--seleccionado-bg);
+  border-color: var(--texto-1);
+  color: var(--seleccionado-text);
+  box-shadow: inset 0 0 0 1px var(--texto-1);
 }
 .btv-tab-title {
-  font-size: 12px;
+  font-size: var(--texto-xs);
   font-weight: 700;
   color: inherit;
 }
 .btv-tab-sub {
-  font-size: 9.5px;
+  font-size: var(--texto-xs);
   color: inherit;
-  opacity: 0.75;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  /* a 13 px el trazador no cabe en una línea de una pestaña de ~115 px: parte en vez de cortarse con «…» */
+  overflow-wrap: anywhere;
   max-width: 100%;
   /* trazador isotópico → mono de instrumento (consistente con el subtítulo del panel) */
-  font-family: ui-monospace, "SFMono-Regular", Menlo, monospace;
+  font-family: var(--font-mono);
   letter-spacing: -0.01em;
 }
 .btv-title-cell { min-width: 0; }
 .btv-title {
-  font-size: 13px;
+  font-size: var(--texto-xs);
   font-weight: 700;
-  color: #2d1b3d;
+  color: var(--texto-1);
   line-height: 1.2;
 }
 .btv-sub {
-  font-size: 10.5px;
-  color: #6b6275;
+  font-size: var(--texto-xs);
+  color: var(--texto-2);
   line-height: 1.2;
   margin-top: 1px;
   /* el subtítulo lleva el trazador isotópico (⁶⁸Ga-DOTATOC / ¹⁸F-FDG) → mono de instrumento */
-  font-family: ui-monospace, "SFMono-Regular", Menlo, monospace;
+  font-family: var(--font-mono);
   font-variant-numeric: tabular-nums;
   letter-spacing: -0.01em;
 }
@@ -1335,27 +1343,25 @@ onBeforeUnmount(() => {
 .btv-legend-bar {
   flex: 1 1 auto;
   height: 7px;
-  border-radius: 4px;
-  border: 1px solid rgba(45, 27, 61, 0.14);
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--trazo-medio);
   min-width: 28px;
 }
 .btv-legend-min, .btv-legend-max {
-  font-size: 10px;
-  color: #6b6275;
+  font-size: var(--texto-xs);
+  color: var(--texto-2);
   white-space: nowrap;
   display: inline-flex;
   align-items: baseline;
   gap: 2px;
 }
 /* cifra de instrumento: mono + tabular-nums (los dígitos no «bailan» al cambiar de foco) */
-.btv-legend-min { font-family: ui-monospace, "SFMono-Regular", Menlo, monospace; font-variant-numeric: tabular-nums; }
-.btv-figure { font-family: ui-monospace, "SFMono-Regular", Menlo, monospace; font-variant-numeric: tabular-nums; }
-/* UNIDAD: jerarquía → pequeña y volada respecto a la cifra (la cifra manda) */
+.btv-legend-min { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+.btv-figure { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+/* UNIDAD: jerarquía por color y por no ser mono, no por tamaño (bajo 13 px no se baja) */
 .btv-legend-unit {
-  color: #8a8392;
-  font-size: 0.78em;
+  color: var(--texto-3);
   font-weight: 400;
-  transform: translateY(-0.12em);
 }
 
 /* ---- canvas / vistas ---- */
@@ -1364,7 +1370,7 @@ onBeforeUnmount(() => {
   top: 0;
   bottom: 0;
   width: 1px;
-  background: rgba(174, 182, 194, 0.22);
+  background: color-mix(in srgb, var(--escena-texto) 22%, transparent);
   pointer-events: none;
   z-index: 1;
 }
@@ -1372,43 +1378,45 @@ onBeforeUnmount(() => {
   width: 26px;
   height: 26px;
   border-radius: 50%;
-  border: 2.5px solid rgba(174, 182, 194, 0.25);
-  border-top-color: #1c969e;
+  border: 2.5px solid color-mix(in srgb, var(--escena-texto) 25%, transparent);
+  border-top-color: var(--color-miriam-claro);
   animation: btv-rot 0.8s linear infinite;
 }
 @keyframes btv-rot { to { transform: rotate(360deg); } }
 
 .btv-reframe {
   position: absolute;
-  /* inset > radio del contenedor del visor (0.5rem = 8px, overflow:hidden) → el botón
+  /* inset > radio del contenedor del visor (--radius-md, 8px, overflow:hidden) → el botón
      despeja la esquina redondeada con aire (a 8px quedaba justo en la tangente). */
   top: 10px;
   right: 10px;
   z-index: 2;
   width: 30px;
   height: 30px;
-  border-radius: 8px;
-  border: 1px solid rgba(174, 182, 194, 0.28);
-  background: rgba(13, 17, 23, 0.7);
-  color: #cdd5e0;
+  border-radius: var(--radius-md);
+  border: 1px solid color-mix(in srgb, var(--escena-texto) 28%, transparent);
+  background: color-mix(in srgb, var(--escena-fondo) 70%, transparent);
+  color: var(--escena-texto);
   line-height: 1;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 0;
-  transition: background 0.15s, border-color 0.15s;
+  transition: background var(--dur-micro) var(--curva-salida), border-color var(--dur-micro) var(--curva-salida);
 }
 .btv-reframe__svg {
   display: block;
   width: 17px;
   height: 17px;
 }
-.btv-reframe:hover { background: rgba(30, 37, 48, 0.92); border-color: rgba(174, 182, 194, 0.5); }
-.btv-reframe:focus-visible { outline: 2px solid #1c969e; outline-offset: 2px; }
+@media (hover: hover) and (pointer: fine) {
+  .btv-reframe:hover { background: var(--escena-velo); border-color: color-mix(in srgb, var(--escena-texto) 50%, transparent); }
+}
+.btv-reframe:focus-visible { outline: 2px solid var(--color-miriam-claro); outline-offset: 2px; }
 
 /* ---- SONDA DE HOVER · tooltip neutro (sobrio, DS) ----
-   Placa oscura translúcida sobre el canvas #1c1126, sin color de marca (neutro): el
+   Placa oscura translúcida sobre el escenario, sin color de marca (neutro): el
    valor lo dan magnitud cualitativa + redondeo grosero, y el doble caveat lo enmarca.
    pointer-events:none → nunca captura el giro/raycast; se desplaza un poco del cursor. */
 .btv-probe {
@@ -1416,14 +1424,14 @@ onBeforeUnmount(() => {
   z-index: 3;
   pointer-events: none;
   transform: translate(12px, 14px);
-  max-width: 230px;
+  max-width: 260px;
   padding: 7px 9px;
-  border-radius: 7px;
-  border: 1px solid rgba(174, 182, 194, 0.3);
-  background: rgba(13, 17, 23, 0.92);
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4);
-  color: #d7dde6;
-  font-size: 11px;
+  border-radius: var(--radius-sm);
+  border: 1px solid color-mix(in srgb, var(--escena-texto) 30%, transparent);
+  background: color-mix(in srgb, var(--escena-fondo) 92%, black);
+  box-shadow: 0 4px 14px color-mix(in srgb, black 40%, transparent);
+  color: var(--escena-texto);
+  font-size: var(--texto-xs);
   line-height: 1.3;
 }
 /* cerca del borde derecho → abrir hacia la IZQUIERDA del cursor (no se sale del visor) */
@@ -1434,14 +1442,14 @@ onBeforeUnmount(() => {
   justify-content: space-between;
   gap: 10px;
   margin: 0;
-  color: #9aa3b0;          /* filas no activas atenuadas */
+  color: color-mix(in srgb, var(--escena-texto) 80%, transparent);          /* filas no activas atenuadas */
 }
-.btv-probe-row.is-active { color: #eef2f7; }   /* el panel sondeado, resaltado */
+.btv-probe-row.is-active { color: var(--color-bg); }   /* el panel sondeado, resaltado */
 /* etiqueta del trazador: mono (instrumento), superíndices isotópicos ya en el texto */
 .btv-probe-k {
-  font-size: 10px;
+  font-size: var(--texto-xs);
   white-space: nowrap;
-  font-family: ui-monospace, "SFMono-Regular", Menlo, monospace;
+  font-family: var(--font-mono);
   letter-spacing: -0.01em;
 }
 .btv-probe-v {
@@ -1451,11 +1459,11 @@ onBeforeUnmount(() => {
 }
 /* valor PROYECTADO (sonda) — DISTINTO de un SUVmáx de informe: peso ligero, color
    atenuado, cifra mono tabular-nums, marca de aproximación ≈ aún más ligera, unidad
-   pequeña y volada. La honestidad la codifica la tipografía: dato blando, no duro. */
+   en el mismo cuerpo. La honestidad la codifica la tipografía: dato blando, no duro. */
 .btv-probe-num {
   font-weight: 400;
-  font-size: 10px;
-  color: #8b95a3;
+  font-size: var(--texto-xs);
+  color: color-mix(in srgb, var(--escena-texto) 75%, transparent);
   display: inline-flex;
   align-items: baseline;
   gap: 1px;
@@ -1466,28 +1474,26 @@ onBeforeUnmount(() => {
   margin-right: 0.5px;
 }
 .btv-probe-num .btv-figure {
-  color: #aab2bf;          /* la cifra un punto más clara que el resto del bloque proyectado */
+  color: color-mix(in srgb, var(--escena-texto) 90%, transparent);          /* la cifra un punto más clara que el resto del bloque proyectado */
 }
 .btv-probe-num .btv-unit {
-  font-size: 0.82em;
   font-weight: 400;
-  color: #79828f;
-  transform: translateY(-0.1em);
+  color: color-mix(in srgb, var(--escena-texto) 70%, transparent);
   margin-left: 1px;
 }
 .btv-probe-caveat {
   margin: 5px 0 0;
   padding-top: 5px;
-  border-top: 1px solid rgba(174, 182, 194, 0.16);
-  font-size: 9.5px;
+  border-top: 1px solid color-mix(in srgb, var(--escena-texto) 16%, transparent);
+  font-size: var(--texto-xs);
   line-height: 1.35;
-  color: #9097a3;
+  color: color-mix(in srgb, var(--escena-texto) 80%, transparent);
   font-style: italic;
 }
 /* en táctil el tooltip un punto mayor (se lee sin cursor fino) */
 @media (pointer: coarse) {
-  .btv-probe { font-size: 12px; max-width: 250px; }
-  .btv-probe-caveat { font-size: 10px; }
+  .btv-probe { font-size: var(--texto-sm); max-width: 280px; }
+  .btv-probe-k, .btv-probe-num, .btv-probe-caveat { font-size: var(--texto-xs); }
 }
 
 /* TOGGLES dentro del visor (abajo-izquierda, columna). Ambos botones (diana + aguja)
@@ -1495,7 +1501,7 @@ onBeforeUnmount(() => {
    del canvas pero sin tapar el botón de reencuadre (arriba-derecha). */
 .btv-toggles {
   position: absolute;
-  /* inset > radio del contenedor del visor (0.5rem = 8px, overflow:hidden) → los chips
+  /* inset > radio del contenedor del visor (--radius-md, 8px, overflow:hidden) → los chips
      despejan la esquina inf-izq redondeada (a 8px quedaban en la tangente). */
   left: 10px;
   bottom: 10px;
@@ -1507,53 +1513,57 @@ onBeforeUnmount(() => {
 }
 
 /* Toggle de la DIANA orientativa — overlay (mismo patrón que la aguja), punto coral.
-   DS: borde malva/coral sobre placa oscura translúcida, legible sobre el canvas #1c1126. */
+   DS: borde coral sobre placa oscura translúcida, legible sobre el escenario. El coral es la acción (--color-cta). */
 .btv-target-toggle {
   display: inline-flex;
   align-items: center;
   gap: 6px;
   padding: 6px 10px;
-  border-radius: 8px;
-  border: 1px solid rgba(255, 107, 71, 0.55);
-  background: rgba(13, 17, 23, 0.72);
-  color: #f1b9a6;
-  font-size: 11px;
+  border-radius: var(--radius-md);
+  border: 1px solid color-mix(in srgb, var(--color-cta) 55%, transparent);
+  background: color-mix(in srgb, var(--escena-fondo) 72%, transparent);
+  color: color-mix(in srgb, var(--color-cta) 40%, var(--color-bg));
+  font-size: var(--texto-xs);
   font-weight: 600;
   line-height: 1;
   cursor: pointer;
-  transition: background 0.15s, border-color 0.15s, color 0.15s;
+  transition: background var(--dur-micro) var(--curva-salida), border-color var(--dur-micro) var(--curva-salida), color var(--dur-micro) var(--curva-salida);
 }
-.btv-target-toggle:hover { background: rgba(30, 37, 48, 0.92); border-color: rgba(255, 107, 71, 0.85); }
-.btv-target-toggle:focus-visible { outline: 2px solid #ff6b47; outline-offset: 2px; }
-.btv-target-toggle.is-on { background: rgba(255, 107, 71, 0.18); border-color: rgba(255, 107, 71, 0.95); color: #ffcabb; }
+@media (hover: hover) and (pointer: fine) {
+  .btv-target-toggle:hover { background: var(--escena-velo); border-color: color-mix(in srgb, var(--color-cta) 85%, transparent); }
+}
+.btv-target-toggle:focus-visible { outline: 2px solid var(--color-cta); outline-offset: 2px; }
+.btv-target-toggle.is-on { background: color-mix(in srgb, var(--color-cta) 18%, transparent); border-color: color-mix(in srgb, var(--color-cta) 95%, transparent); color: color-mix(in srgb, var(--color-cta) 26%, var(--color-bg)); }
 .btv-target-dot {
   width: 8px;
   height: 8px;
   border-radius: 50%;
   flex-shrink: 0;
-  border: 2px solid #ff6b47;
-  box-shadow: 0 0 0 1.5px rgba(157, 68, 171, 0.4);
+  border: 2px solid var(--color-cta);
+  box-shadow: 0 0 0 1.5px color-mix(in srgb, var(--color-miriam) 40%, transparent);
   background: transparent;
 }
-.btv-target-toggle.is-on .btv-target-dot { background: #ff6b47; }
+.btv-target-toggle.is-on .btv-target-dot { background: var(--color-cta); }
 
-/* Toggle de la aguja de biopsia ILUSTRATIVA — mismo overlay (la posición la da .btv-toggles). */
+/* Toggle de la aguja de biopsia ILUSTRATIVA — mismo overlay (la posición la da .btv-toggles). Ámbar de la aguja (C_NEEDLE): PENDIENTE DE FIRMA. */
 .btv-biopsy-toggle {
   display: inline-flex;
   align-items: center;
   gap: 6px;
   padding: 6px 10px;
-  border-radius: 8px;
+  border-radius: var(--radius-md);
   border: 1px solid rgba(217, 138, 43, 0.55);
-  background: rgba(13, 17, 23, 0.72);
+  background: color-mix(in srgb, var(--escena-fondo) 72%, transparent);
   color: #e7c79a;
-  font-size: 11px;
+  font-size: var(--texto-xs);
   font-weight: 600;
   line-height: 1;
   cursor: pointer;
-  transition: background 0.15s, border-color 0.15s, color 0.15s;
+  transition: background var(--dur-micro) var(--curva-salida), border-color var(--dur-micro) var(--curva-salida), color var(--dur-micro) var(--curva-salida);
 }
-.btv-biopsy-toggle:hover { background: rgba(30, 37, 48, 0.92); border-color: rgba(217, 138, 43, 0.85); }
+@media (hover: hover) and (pointer: fine) {
+  .btv-biopsy-toggle:hover { background: var(--escena-velo); border-color: rgba(217, 138, 43, 0.85); }
+}
 .btv-biopsy-toggle:focus-visible { outline: 2px solid #d98a2b; outline-offset: 2px; }
 .btv-biopsy-toggle.is-on { background: rgba(217, 138, 43, 0.18); border-color: rgba(217, 138, 43, 0.95); color: #f3d8ad; }
 .btv-biopsy-dot {
@@ -1564,18 +1574,18 @@ onBeforeUnmount(() => {
   box-shadow: 0 0 0 2px rgba(217, 138, 43, 0.25);
 }
 
-/* rótulo honesto de la aguja */
+/* rótulo honesto de la aguja: prosa, así que en la fuente del cuerpo (no en mono) y a 13 px */
 .btv-biopsy-cap {
-  font-size: 10px;
+  font-size: var(--texto-xs);
   text-align: left;
   margin-top: 6px;
   padding: 7px 9px;
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
   border: 1px solid rgba(217, 138, 43, 0.35);
   background: rgba(217, 138, 43, 0.07);
-  font-family: ui-monospace, monospace;
+  font-family: var(--font-body);
   line-height: 1.45;
-  color: #8a5a1a;
+  color: var(--texto-1);
 }
 .btv-biopsy-cap-head {
   display: inline-flex;
@@ -1589,24 +1599,24 @@ onBeforeUnmount(() => {
   display: inline-block;
   width: 14px;
   height: 4px;
-  border-radius: 2px;
-  border: 1px solid rgba(125, 133, 143, 0.7);
+  border-radius: var(--radius-sm);
+  border: 1px solid color-mix(in srgb, var(--escena-texto) 70%, var(--escena-fondo));
 }
 .btv-biopsy-key { display: inline-flex; align-items: center; gap: 5px; margin-left: 2px; }
 .btv-biopsy-mk { display: inline-block; width: 8px; height: 8px; border-radius: 50%; }
 
 /* rótulo honesto de la DIANA orientativa (ADITIVO · clon del de la aguja, tono coral/malva) */
 .btv-target-cap {
-  font-size: 10px;
+  font-size: var(--texto-xs);
   text-align: left;
   margin-top: 6px;
   padding: 7px 9px;
-  border-radius: 6px;
-  border: 1px solid rgba(255, 107, 71, 0.35);
-  background: rgba(255, 107, 71, 0.07);
-  font-family: ui-monospace, monospace;
+  border-radius: var(--radius-sm);
+  border: 1px solid color-mix(in srgb, var(--color-cta) 35%, transparent);
+  background: color-mix(in srgb, var(--color-cta) 7%, transparent);
+  font-family: var(--font-body);
   line-height: 1.45;
-  color: #8a3a2a;
+  color: var(--texto-1);
 }
 .btv-target-cap-head {
   display: inline-flex;
@@ -1622,8 +1632,8 @@ onBeforeUnmount(() => {
   height: 9px;
   border-radius: 50%;
   flex-shrink: 0;
-  border: 2px solid #ff6b47;
-  box-shadow: 0 0 0 1.5px rgba(157, 68, 171, 0.55);
+  border: 2px solid var(--color-cta);
+  box-shadow: 0 0 0 1.5px color-mix(in srgb, var(--color-miriam) 55%, transparent);
 }
 
 /* PIE del visor · una sola línea de interacción + el desplegable de honestidad, en una
@@ -1640,11 +1650,11 @@ onBeforeUnmount(() => {
 /* CAPTION sobre fondo CREAM (no oscuro): fuente del cuerpo, color legible (AA),
    alineado a la izquierda. UNA sola línea de interacción; lo demás va al desplegable. */
 .btv-cap {
-  font-size: 11.5px;
+  font-size: var(--texto-xs);
   text-align: left;
   font-family: inherit;
   line-height: 1.4;
-  color: #6b6470;
+  color: var(--texto-2);
   margin: 0;
 }
 
@@ -1655,35 +1665,20 @@ onBeforeUnmount(() => {
    leyenda crecen para cumplir la diana táctil sin descuadrar el escritorio (ratón).
    El marcador 3D y su parpadeo NO se tocan; esto es solo dimensionado de la UI HTML. */
 @media (pointer: coarse) {
-  .btv-reframe { width: 44px; height: 44px; }
+  .btv-reframe { width: var(--control-min); height: var(--control-min); }
   .btv-reframe__svg { width: 22px; height: 22px; }
   .btv-target-toggle,
   .btv-biopsy-toggle {
-    min-height: 44px;
+    min-height: var(--control-min);
     padding: 9px 12px;
-    font-size: 12px;
   }
   .btv-toggles { gap: 8px; }
   .btv-tab { min-height: 48px; }
-  .btv-tab-title { font-size: 12.5px; }
-}
-/* leyenda de cada panel un punto más legible en pantallas pequeñas (≥11px) */
-@media (max-width: 639px) {
-  .btv-legend-min, .btv-legend-max { font-size: 11px; }
-  .btv-sub { font-size: 11px; }
 }
 
 /* ── MOTION · transiciones de estado del CHROME (pestañas, toggles, reencuadre) ──────
-   Curva suave y corta para los cambios de estado de la UI HTML del visor (no el canvas
-   3D). prefers-reduced-motion: sin transición y sin giro del spinner. El núcleo Three.js,
-   el marcador y su pulso se gestionan en JS (reduceMotion) — aquí solo la UI HTML. */
-.btv-tab,
-.btv-target-toggle,
-.btv-biopsy-toggle,
-.btv-reframe {
-  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);  /* suave y corta */
-  transition-duration: 0.16s;
-}
+   Las curvas y duraciones son las del sistema (--curva-salida, --dur-micro). prefers-reduced-motion: sin transición y sin giro del
+   spinner. El núcleo Three.js, el marcador y su pulso se gestionan en JS (reduceMotion) — aquí solo la UI HTML. */
 @media (prefers-reduced-motion: reduce) {
   .btv-tab,
   .btv-target-toggle,
