@@ -121,7 +121,7 @@ for (const loc of ['es', 'en'] as const) {
   ok(IDS.every((id) => (h.match(new RegExp(`\\bid="${id}"`, 'g'))?.length ?? 0) === 1), `${f}: cada id de bloque aparece una sola vez`)
   ok(/<h2\b[^>]*\bid="mapa-acceso"/.test(h) && /<h2\b[^>]*\bid="snapshot-title"/.test(h), `${f}: #mapa-acceso y #snapshot-title (las anclas de los enlaces antiguos) son los <h2> de su bloque`)
   // ── «Explicado sin tecnicismos» (zona A2): la capa llana, arriba. Los literales son los de voz-miriam (ciencia.llano.* en el i18n); la fecha de la
-  // cuarta respuesta es la de caso.json, la misma que la línea «Ahora» de la ruta.
+  // cuarta respuesta es la de caso.json.
   {
     const cl = leerCasoCiencia(caso as any, loc).cuartaLinea
     const iLlano = h.indexOf('id="ciencia-llano"')
@@ -137,6 +137,9 @@ for (const loc of ['es', 'en'] as const) {
     const enlaceIr = [...zona.matchAll(/<a\b[^>]*\bhref="([^"]*)"[^>]*>([\s\S]*?)<\/a>/g)].find((m) => texto(m[2]!).includes(t(loc, 'ciencia.llano.ir_detalle')))
     ok(!!enlaceIr && enlaceIr[1] === (loc === 'es' ? '/ciencia#ciencia-busca' : '/en/science#ciencia-busca') && zona.indexOf(enlaceIr[0]) < zona.indexOf('class="ci-llano"'), `${f}: «${t(loc, 'ciencia.llano.ir_detalle')}» va bajo el titular, antes de las preguntas, hacia #ciencia-busca (${enlaceIr?.[1] ?? 'no está'})`)
     ok(zona.includes('id="ruta-title"') && zona.indexOf('id="ruta-title"') > zona.indexOf('class="ci-llano"'), `${f}: la ruta (#ruta-title, ancla del botón de la home) está dentro del bloque llano, debajo de las preguntas`)
+    // La ruta NO repite el tratamiento de hoy con la línea «Ahora»: la 4.ª respuesta ya lo cuenta en llano (y la hoja profesional lo dice en `notaEjes`)
+    const rutaTxt = texto(zona.slice(zona.indexOf('id="ruta-title"')))
+    ok(rutaTxt.length > 0 && !/En cuarta línea desde|In fourth line since|datopotamab|\b(Ahora|Now):/i.test(rutaTxt), `${f}: la ruta de la banda llana no lleva la línea «Ahora» (el tratamiento de hoy ya lo dice la 4.ª respuesta)`)
     // Invariante estructural del índice pegajoso: la hoja profesional NO cuelga de una Banda (su overflow:hidden anula el sticky)
     ok(/<\/section>\s*<section\s+$/.test(zona) && /<section\b[^>]*\bid="detalle-profesional"[^>]*>/.test(h), `${f}: la banda llana se cierra antes de la hoja profesional (el índice pegajoso no queda dentro de una Banda)`)
     ok(!/<button\b/.test(zona), `${f}: el bloque llano no lleva glosario en línea (un botón de 24 px; el sistema pide 44)`)
@@ -210,7 +213,8 @@ console.log('\n3. Los textos clínicos corregidos (C1 a C6, E1, E2, E5, E6, E7)'
   ok(es.includes(C.e2), 'E2 (ES): PD-L1 CPS 0 en el primario y en la biopsia hepática')
   ok(es.includes(C.e6), 'E6 (ES): el informe de MD Anderson no trae marcadores neuroendocrinos')
   ok(es.includes(C.e7), 'E7 (ES): el primer eje, «en curso desde el 7-oct-2026»')
-  ok(es.includes(C.e1) && es.split(C.e1).length - 1 === 2, 'E1 (ES): la frase de la cuarta línea, literal, en la fila TROP-2 y en la ruta (2 veces)')
+  // Una sola vez: en la fila TROP-2 de la hoja profesional. La banda llana (4.ª respuesta, en llano) NO la repite bajo la ruta: era el mismo hecho con otro nombre.
+  ok(es.includes(C.e1) && es.split(C.e1).length - 1 === 1, 'E1 (ES): la frase de la cuarta línea, literal, una sola vez (fila TROP-2); la ruta de la banda llana no la repite')
   ok(es.includes(C.e5), 'E5 (ES): el objetivo N-of-1 (la frase de la gate G1: pendiente de la firma del comité médico y de Miriam)')
   ok(!/previsto desde octubre|previsto para octubre|Está en cribado|en cribado para|en curso desde oct/.test(es), 'E1 (ES): ningún «cribado» ni «previsto para octubre»')
   ok(es.includes('no fueron accesibles entonces (faltaba tejido para fabricar); no están cerrados de forma definitiva y se siguen revisando'), 'E4 (ES): los ensayos de vacuna de junio no fueron accesibles, no están cerrados')

@@ -189,7 +189,8 @@ async function evaluate(expression) {
 // Lo que ve la persona, leído del DOM: sin conmutador, con los bloques visibles, y dónde está el foco.
 const STATE = `(() => {
   const visible = (id) => { const e = document.getElementById(id); return !!e && e.offsetParent !== null && e.getBoundingClientRect().height > 0 }
-  const ahora = document.querySelector('#ruta-title')?.closest('section')?.textContent ?? ''
+  const ruta = document.querySelector('#ruta-title')?.closest('section')?.textContent ?? ''
+  const q4 = document.querySelector('#ciencia-llano')?.closest('section')?.querySelector('.ci-llano__item:nth-child(4)')?.textContent ?? ''
   return {
     conmutador: document.querySelectorAll('.reading-level__btn').length,
     mapa: visible('mapa-acceso'),
@@ -200,7 +201,10 @@ const STATE = `(() => {
     ruta: visible('ruta-title'),
     donar: !!document.querySelector('main a.btn-cta[href*="gofund.me"][rel~="noopener"]'),
     imprimir: [...document.querySelectorAll('main button')].some((b) => /Imprimir|Print/.test(b.textContent)),
-    enCuartaLinea: /En cuarta línea desde el 7 de octubre de 2026|In fourth line since 7 October 2026/.test(ahora),
+    // El tratamiento de hoy lo cuenta UNA vez en llano: la 4.ª respuesta lleva la fecha de la cuarta línea, y la ruta de debajo no repite la línea «Ahora»
+    // (otro nombre para el mismo fármaco, dosis y jerga; era lo más pesado de la banda). Las dos mitades: sin la primera, la banda no diría nada de hoy.
+    q4Fecha: /Desde el 7 de octubre de 2026 recibe Dato-DXd|Since 7 October 2026 she's been on Dato-DXd/.test(q4),
+    rutaSinAhora: ruta.length > 0 && !/En cuarta línea desde|In fourth line since|datopotamab|Ahora:|Now:/i.test(ruta),
     foco: document.activeElement?.id ?? '',
     // la ancla pedida está a la vista: dentro de la ventana y por debajo de la cabecera fija
   }
@@ -252,7 +256,8 @@ const TODO_VISIBLE = {
   ruta: true,
   donar: true,
   imprimir: true,
-  enCuartaLinea: true,
+  q4Fecha: true,
+  rutaSinAhora: true,
 }
 const EN_PANTALLA = (id) => `(() => { const e = document.getElementById('${id}'); if (!e) return false; const r = e.getBoundingClientRect(); const cab = document.querySelector('[data-cabecera-fija]')?.getBoundingClientRect().bottom ?? 0; return r.top >= cab - 2 && r.bottom <= innerHeight })()`
 async function esperar(expresion, ms = 4000) {
@@ -270,7 +275,7 @@ try {
   check('/ciencia: sin conmutador y con todo el contenido profesional a la vista', await load('/ciencia'), TODO_VISIBLE)
   check('/ciencia?nivel=pro: es lo mismo (el parámetro no hace nada)', await load('/ciencia?nivel=pro'), TODO_VISIBLE)
   check('/ciencia?nivel=simple: también lo mismo (el parámetro ya no elige capa; el bloque llano está siempre)', await load('/ciencia?nivel=simple'), TODO_VISIBLE)
-  check('/en/science: lo mismo en inglés, con la frase de la cuarta línea', await load('/en/science'), TODO_VISIBLE)
+  check('/en/science: lo mismo en inglés, con la fecha de la cuarta línea en la 4.ª respuesta', await load('/en/science'), TODO_VISIBLE)
   check('/en/science?nivel=pro: lo mismo', await load('/en/science?nivel=pro'), TODO_VISIBLE)
 
   check(

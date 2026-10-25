@@ -45,10 +45,12 @@
           <p class="prosa">{{ p.a }}</p>
         </li>
       </ul>
-      <!-- 10 · La ruta, con el objetivo N-of-1 dentro (E5) y la línea «Ahora» leída de caso.json (E1). Antes cerraba la hoja profesional (al 81 % de
-           la página); aquí es lo primero que ve quien lee en llano. #ruta-title se conserva: el botón de la home aterriza ahí. -->
+      <!-- 10 · La ruta, con el objetivo N-of-1 dentro (E5). Antes cerraba la hoja profesional (al 81 % de la página); aquí es lo primero que ve quien
+           lee en llano. SIN la línea «Ahora»: la cuarta respuesta de arriba ya cuenta el tratamiento de hoy en llano (Dato-DXd) y la hoja profesional lo
+           dice con su dosis en `notaEjes`; repetirlo aquí, con otro nombre y con jerga, era lo más pesado de la banda. #ruta-title se conserva: el botón
+           de la home aterriza ahí. -->
       <div class="ci-llano__ruta">
-        <RutaPersonalizada :objetivo="$t('ciencia.thesis_goal')" :ahora="ahora" />
+        <RutaPersonalizada :objetivo="$t('ciencia.thesis_goal')" />
       </div>
     </Banda>
 
@@ -395,11 +397,8 @@ const ejes = computed(() => {
 // La nota de los ejes: «Solo el eje TROP-2 está en uso» es estado, así que solo se dice si el caso ESTÁ en cuarta línea (caso.json); si no, la nota se queda sin él.
 const notaEjes = computed(() => [t('ciencia.axes_note'), caso.value?.cuartaLinea ? t('ciencia.axes_note_uso') : '', t('ciencia.axes_note_cierre')].filter(Boolean).join(' '))
 
-// La línea «Ahora» de la ruta (E1): la frase de la cuarta línea con su fecha, o nada.
-const ahora = computed(() => (caso.value?.cuartaLinea ? t('ciencia.estado_cuarta_linea', { fecha: caso.value.cuartaLinea.larga }) : null))
-
 // ── Explicado sin tecnicismos (zona A2). Cuatro preguntas con sus respuestas literales de voz-miriam (`ciencia.llano.*`). La cuarta lleva «Desde
-// el <día> recibe Dato-DXd…» y solo se pinta con la fecha de caso.json (la misma que la línea «Ahora»); sin cuarta línea, la versión sin tratamiento.
+// el <día> recibe Dato-DXd…» y solo se pinta con la fecha de caso.json; sin cuarta línea, la versión sin tratamiento.
 const llano = computed(() => {
   const desde = caso.value?.cuartaLinea?.larga
   return (['q1', 'q2', 'q3', 'q4'] as const).map((id) => ({
