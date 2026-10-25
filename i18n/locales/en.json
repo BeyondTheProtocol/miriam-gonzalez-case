@@ -704,6 +704,19 @@
     "puertas_pares_cta": "Write to Miriam"
   },
   "ciencia": {
+    "llano": {
+      "titulo": "Explained without jargon",
+      "ir_detalle": "Go to the professional detail",
+      "q1_q": "What does she have?",
+      "q1_a": "A breast cancer that spread to the bones and, since July 2026, to the liver. It's mostly luminal, the type that usually depends on hormones, but some of its cells have features of another type, called neuroendocrine.",
+      "q2_q": "Why isn't standard treatment enough?",
+      "q2_a": "Guidelines treat it as a luminal breast cancer and leave the neuroendocrine part out. Hormone therapies stopped holding it back. And in the liver, the test for the estrogen receptor, the very target of those therapies, came back negative.",
+      "q3_q": "Is there a way to target it?",
+      "q3_a": "Yes, there are leads. Analysis of the tumor, including cell by cell, has found possible weak points: altered or active genes that some treatments use as targets. They're still hypotheses, and need confirming first.",
+      "q4_q": "What's being done now?",
+      "q4_a": "Since {desde} she's been on Dato-DXd, an antibody that carries a drug to the tumor, in the TROPION-Breast06 trial. And at Dana-Farber, her liver and bone biopsies are being read cell by cell. The first results are in.",
+      "q4_a_sin_linea": "At Dana-Farber, her liver and bone biopsies are being read cell by cell, to look for the targets of a therapy made for her. The first results are in."
+    },
     "ruta": {
       "eyebrow": "The route",
       "title": "From tissue to a therapy made for her tumour",

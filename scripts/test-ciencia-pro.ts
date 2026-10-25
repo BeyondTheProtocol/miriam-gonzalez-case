@@ -14,6 +14,9 @@
 //  7. /videos apunta a un ancla que existe.
 //  8. La página en inglés no lleva palabras en español fuera de comillas, y ningún <template #slot> de i18n-t lleva texto fijo de un solo
 //     idioma (la clase del fallo «ignoring the neuroendocrino component» en /en/science, 24-oct-2026).
+//  9. «Explicado sin tecnicismos» (fase «llano» de la tanda 3, 25-oct-2026): la capa llana de /ciencia, arriba. Cuatro preguntas con los literales de
+//     voz-miriam, la cuarta con la fecha de caso.json (y sin tratamiento si el caso deja de estar en cuarta línea: fail-closed), el enlace «Ir al detalle
+//     profesional» ANTES de la hoja profesional, y la ruta dentro del bloque.
 //
 // Uso:  pnpm exec nuxt generate && pnpm test:ciencia-pro   (CI: .github/workflows/e2e.yml)
 import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs'
@@ -91,6 +94,11 @@ console.log('\n1. El estado se lee de caso.json')
   const ESTADO = /en curso|en uso|va a usarse|under way|in use|is going to be used/i
   for (const loc of ['es', 'en'] as const) ok(!ESTADO.test(t(loc, 'ciencia.snapshot_target')) && !ESTADO.test(t(loc, 'ciencia.axes_note')) && !ESTADO.test(t(loc, 'ciencia.axes_note_cierre')) && ESTADO.test(t(loc, 'ciencia.axes_note_uso')), `(${loc}) «snapshot_target», «axes_note» y «axes_note_cierre» no dicen si TROP-2 está en uso; solo «axes_note_uso» lo dice`)
   ok(/caso\.value\?\.cuartaLinea \? t\('ciencia\.axes_note_uso'\)/.test(vue) && (vue.match(/axes_note_uso/g)?.length ?? 0) === 1, 'la frase «Solo el eje TROP-2 está en uso» se pinta solo si `caso.cuartaLinea` existe, y desde un único sitio')
+  // «Explicado sin tecnicismos»: la 4.ª respuesta nombra el tratamiento de hoy, así que (como «Solo el eje TROP-2 está en uso») solo se pinta con la
+  // cuarta línea viva; si no, la versión sin tratamiento. Invariante estructural a propósito (mira el fuente): QUIÉN decide cuál se pinta, y que la
+  // versión de reserva no pueda nombrar el tratamiento.
+  for (const loc of ['es', 'en'] as const) ok(/\{desde\}/.test(t(loc, 'ciencia.llano.q4_a')) && !/\{/.test(t(loc, 'ciencia.llano.q4_a_sin_linea')) && !/Dato-DXd|TROPION|datopotamab/i.test(t(loc, 'ciencia.llano.q4_a_sin_linea')), `(${loc}) «llano.q4_a» lleva {desde}; «q4_a_sin_linea» no lleva fecha ni nombra Dato-DXd ni TROPION`)
+  ok(/desde \? t\('ciencia\.llano\.q4_a', \{ desde \}\) : t\('ciencia\.llano\.q4_a_sin_linea'\)/.test(vue) && /const desde = caso\.value\?\.cuartaLinea\?\.larga/.test(vue), 'la 4.ª respuesta usa la fecha de `caso.cuartaLinea` y cae a «q4_a_sin_linea» sin ella (fail-closed)')
   ok(fechaDia('2026-10', 'es') === null && fechaDia('2026-13-01', 'es') === null && fechaDia('', 'es') === null && fechaDia('2026-10-07', 'es') !== null, 'una fecha de mes o año sueltos, o imposible, no es «desde el …»')
 }
 
@@ -107,11 +115,35 @@ for (const loc of ['es', 'en'] as const) {
   const ld = [...html(f).matchAll(/<script type="application\/ld\+json"[^>]*>([\s\S]*?)<\/script>/g)].map((m) => m[1]!).join('\n')
   ok(/MedicalCondition/.test(ld) && !/cribado|screening|×13|ultra-?raro|ultra-?rare|~80/i.test(ld), `${f}: el JSON-LD de la condición se genera de caso.json y no dice «cribado», «×13», «ultra-raro» ni «~80»`)
   // orden de los bloques (ids de sus títulos)
-  const IDS = ['ciencia-busca', 'mapa-acceso', 'snapshot-title', 'por-que-no-encaja', 'tejido-3veces', 'molecular-profile-title', 'axes-title', 'panel-title', 'ruta-title', 'ciencia-pro-help-title']
+  const IDS = ['ciencia-llano', 'ruta-title', 'ciencia-busca', 'mapa-acceso', 'snapshot-title', 'por-que-no-encaja', 'tejido-3veces', 'molecular-profile-title', 'axes-title', 'panel-title', 'ciencia-pro-help-title']
   const pos = IDS.map((id) => h.indexOf(`id="${id}"`))
-  ok(pos.every((p, i) => p >= 0 && (i === 0 || p > pos[i - 1]!)), `${f}: orden Qué buscamos → Herramientas → De un vistazo → Por qué no encaja → Patología → Perfil molecular → Ejes → Panel → La ruta → cierre (${pos.join(' < ')})`)
+  ok(pos.every((p, i) => p >= 0 && (i === 0 || p > pos[i - 1]!)), `${f}: orden Explicado sin tecnicismos → La ruta → Qué buscamos → Herramientas → De un vistazo → Por qué no encaja → Patología → Perfil molecular → Ejes → Panel → cierre (${pos.join(' < ')})`)
   ok(IDS.every((id) => (h.match(new RegExp(`\\bid="${id}"`, 'g'))?.length ?? 0) === 1), `${f}: cada id de bloque aparece una sola vez`)
   ok(/<h2\b[^>]*\bid="mapa-acceso"/.test(h) && /<h2\b[^>]*\bid="snapshot-title"/.test(h), `${f}: #mapa-acceso y #snapshot-title (las anclas de los enlaces antiguos) son los <h2> de su bloque`)
+  // ── «Explicado sin tecnicismos» (zona A2): la capa llana, arriba. Los literales son los de voz-miriam (ciencia.llano.* en el i18n); la fecha de la
+  // cuarta respuesta es la de caso.json, la misma que la línea «Ahora» de la ruta.
+  {
+    const cl = leerCasoCiencia(caso as any, loc).cuartaLinea
+    const iLlano = h.indexOf('id="ciencia-llano"')
+    const iHoja = h.indexOf('id="detalle-profesional"')
+    const zona = h.slice(iLlano, iHoja)
+    const qa = [...zona.matchAll(/<h3\b[^>]*>([\s\S]*?)<\/h3>\s*<p\b[^>]*>([\s\S]*?)<\/p>/g)].map((m) => [texto(m[1]!), texto(m[2]!)] as const)
+    const esperadas = (['q1', 'q2', 'q3', 'q4'] as const).map((id) => [t(loc, `ciencia.llano.${id}_q`), id === 'q4' ? t(loc, 'ciencia.llano.q4_a').replace('{desde}', cl?.larga ?? '') : t(loc, `ciencia.llano.${id}_a`)] as const)
+    ok(iLlano >= 0 && iHoja > iLlano && /<h2\b[^>]*\bid="ciencia-llano"/.test(h) && texto(h.slice(iLlano, iLlano + 400)).includes(t(loc, 'ciencia.llano.titulo')), `${f}: «${t(loc, 'ciencia.llano.titulo')}» es el <h2> de la banda llana y va antes de la hoja profesional`)
+    ok(texto(h.slice(h.lastIndexOf('<section', iLlano), iLlano)).includes(t(loc, 'ciencia.level_simple')), `${f}: el rótulo de la banda, encima del titular, es «${t(loc, 'ciencia.level_simple')}» (clave publicada)`)
+    ok(qa.length === 4 && qa.every((x, i) => x[0] === sinMarcas(esperadas[i]![0]) && x[1] === sinMarcas(esperadas[i]![1])), `${f}: las cuatro preguntas y sus respuestas, literales de voz-miriam${qa.length === 4 ? '' : ` (hay ${qa.length})`}`)
+    ok(!!cl && qa[3]?.[1].includes(cl.larga) && /Dato-DXd/.test(qa[3]![1]) && /TROPION-Breast06/.test(qa[3]![1]), `${f}: la 4.ª respuesta nombra Dato-DXd y TROPION-Breast06 con la fecha de la cuarta línea de caso.json (${cl?.larga ?? 'sin 4L'})`)
+    // El enlace va ANTES de la hoja profesional (el 62 % que pasaba a la capa profesional no tiene que cruzar el bloque) y lleva a «Qué buscamos»
+    const enlaceIr = [...zona.matchAll(/<a\b[^>]*\bhref="([^"]*)"[^>]*>([\s\S]*?)<\/a>/g)].find((m) => texto(m[2]!).includes(t(loc, 'ciencia.llano.ir_detalle')))
+    ok(!!enlaceIr && enlaceIr[1] === (loc === 'es' ? '/ciencia#ciencia-busca' : '/en/science#ciencia-busca') && zona.indexOf(enlaceIr[0]) < zona.indexOf('class="ci-llano"'), `${f}: «${t(loc, 'ciencia.llano.ir_detalle')}» va bajo el titular, antes de las preguntas, hacia #ciencia-busca (${enlaceIr?.[1] ?? 'no está'})`)
+    ok(zona.includes('id="ruta-title"') && zona.indexOf('id="ruta-title"') > zona.indexOf('class="ci-llano"'), `${f}: la ruta (#ruta-title, ancla del botón de la home) está dentro del bloque llano, debajo de las preguntas`)
+    // Invariante estructural del índice pegajoso: la hoja profesional NO cuelga de una Banda (su overflow:hidden anula el sticky)
+    ok(/<\/section>\s*<section\s+$/.test(zona) && /<section\b[^>]*\bid="detalle-profesional"[^>]*>/.test(h), `${f}: la banda llana se cierra antes de la hoja profesional (el índice pegajoso no queda dentro de una Banda)`)
+    ok(!/<button\b/.test(zona), `${f}: el bloque llano no lleva glosario en línea (un botón de 24 px; el sistema pide 44)`)
+    ok(!/dos caras|dos enfermedades a la vez|two faces|two diseases at once|previsto|expected to start|está previsto/i.test(texto(zona)), `${f}: el bloque llano no repite el copy viejo («dos caras», «dos enfermedades a la vez», «previsto en octubre»)`)
+    // La mama en célula a célula NO está verificada (lo publicado son dos muestras: hígado y hueso): ninguna respuesta lo dice
+    ok(!qa.some((x) => /(mama|breast)[^.]{0,60}(célula a célula|cell by cell)|(célula a célula|cell by cell)[^.]{0,60}(mama|breast)/i.test(x[1])), `${f}: ninguna respuesta dice que la mama se lea célula a célula (solo hígado y hueso)`)
+  }
   // Qué buscamos: 3 peticiones (laboratorio, HLA, IHQ), con el botón de escribir y el enlace a todas
   const busca = h.slice(h.indexOf('id="ciencia-busca"'), h.indexOf('id="mapa-acceso"'))
   ok((busca.match(/<li\b/g)?.length ?? 0) === 3, `${f}: «Qué buscamos» enseña 3 peticiones (${busca.match(/<li\b/g)?.length ?? 0})`)
@@ -150,7 +182,7 @@ for (const loc of ['es', 'en'] as const) {
   const hEv = html(P[loc].evidencia)
   ok(evid.every((m) => new RegExp(`<section\\b[^>]*\\bid="${m[2]}"`).test(hEv)), `${f}: cada ancla (${evid.map((m) => m[2]).join(', ')}) es el id de una sección de ${P[loc].evidencia}`)
   // Panel: solo «qué responde»; nada de estado ni de material a mano
-  const panel = h.slice(h.indexOf('id="panel-title"'), h.indexOf('id="ruta-title"'))
+  const panel = h.slice(h.indexOf('id="panel-title"'), h.indexOf('id="ciencia-pro-help-title"'))
   ok(!/Primeros resultados \(octubre|Material en el laboratorio|No posible hoy|Hecho \(julio|Pendiente: aún|First results \(October|Not possible today|Material at the lab/i.test(texto(panel)) && !/Ahora: el laboratorio|Now: Paloma Cejas/.test(texto(panel)), `${f}: el panel no lleva columnas de estado ni la frase «Ahora: …» escritas a mano`)
   // El enlace de la fila que lo lleva (single-cell RNA-seq) va en su propio bloque: a 1280 la tabla no se pinta como tarjetas y, en línea y sin espacio, se pegaba al final de la frase.
   const enlacesPanel = [...panel.matchAll(/<a\b[^>]*\bclass="[^"]*\blink-action\b[^"]*"[^>]*>/g)]

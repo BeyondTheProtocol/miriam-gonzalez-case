@@ -48,6 +48,7 @@ const { t } = useI18n()
 
 // Capítulos mapeados a ids de título ya existentes en la página (orden de lectura; tanda 2, T2c, 24-oct-2026: una sola capa, sin
 // historia clínica ni imagen funcional, que pasaron a /datos). Las etiquetas, en i18n (sectionNav.ciencia.*): una sola fuente por etiqueta.
+// La ruta ya no es un capítulo de la hoja profesional (fase «llano», 25-oct-2026): está arriba, en «Explicado sin tecnicismos», fuera de este índice.
 const CAPITULOS = [
   { id: 'ciencia-busca', key: 'busca' },
   { id: 'mapa-acceso', key: 'tools' },
@@ -57,7 +58,6 @@ const CAPITULOS = [
   { id: 'molecular-profile-title', key: 'molecular' },
   { id: 'axes-title', key: 'axes' },
   { id: 'panel-title', key: 'panel' },
-  { id: 'ruta-title', key: 'route' },
 ]
 const chapters = computed(() => CAPITULOS.map((c) => ({ id: c.id, label: t(`sectionNav.ciencia.${c.key}`) })))
 

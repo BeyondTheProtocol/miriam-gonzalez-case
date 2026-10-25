@@ -1,13 +1,15 @@
 <template>
   <div>
-    <section class="section-spacing" :aria-label="$t('science.title')">
+    <section class="section-spacing ci-zona-a" :aria-label="$t('science.title')">
       <div class="section-wide">
-        <!-- Una sola capa, la profesional (tanda 2, T2c, 24-oct-2026). El conmutador «para mentes curiosas / para profesionales» salió: la capa
-             llana vive en la home, y aquí quedan la lectura profesional, lo que se busca y el acceso a las herramientas. ?nivel= ya no hace nada
+        <!-- Sin conmutador (tanda 2, T2c, 24-oct-2026). El conmutador «para mentes curiosas / para profesionales» salió: la capa
+             llana vive en la home (y desde la fase «llano» de la tanda 3, 25-oct-2026, también aquí arriba, como bloque propio y no como modo), y aquí quedan la lectura profesional, lo que se busca y el acceso a las herramientas. ?nivel= ya no hace nada
              (los enlaces antiguos siguen abriendo la página, y el #ancla de cada uno recibe el foco). Índice pegajoso a la izquierda (lg+) y
              desplegable «Saltar a…» en móvil. Sistema v3 (P1): la cabecera va ENCIMA de la rejilla, a todo el ancho del shell, porque el borde
              izquierdo del H1 cae siempre bajo el logo (regla del sistema; T2c la había metido en la columna de contenido para alinear el
              título con el cuerpo y a 1280 px el H1 empezaba 270 px a la derecha del logo). El índice y el cuerpo empiezan debajo. -->
+        <!-- Tres zonas (rediseño tanda 3, fase «llano», 25-oct-2026): A cabecera, A2 «Explicado sin tecnicismos» (Banda tarjeta, con la ruta
+             dentro) y B la hoja profesional con el índice pegajoso. B NO va dentro de Banda: su overflow:hidden anularía el sticky. -->
         <!-- 1 · Cabecera: H1, «En corto», la fecha de caso.json e Imprimir -->
         <PageHeader
           :eyebrow="L('BC-NED · FGFR1/CCND1 amp · RE− en hígado', 'BC-NED · FGFR1/CCND1 amp · ER− in liver')"
@@ -23,7 +25,36 @@
             </button>
           </div>
         </PageHeader>
+      </div>
+    </section>
 
+    <!-- Zona A2 · Explicado sin tecnicismos. Es la capa llana de /ciencia: cuatro preguntas y la ruta. El enlace al detalle profesional va ARRIBA, bajo
+         el titular, para que quien viene a la parte clínica no tenga que cruzar el bloque. Sin conmutador y sin glosario en línea (un botón de
+         glosario mide ~24 px y el sistema pide 44). Los literales son los de voz-miriam; la cuarta respuesta nombra el tratamiento de hoy y solo
+         se pinta con su fecha de caso.json: si el caso deja de estar en cuarta línea, sale la versión sin tratamiento. -->
+    <Banda tono="tarjeta" titular="ciencia-llano">
+      <CabeceraSeccion id="ciencia-llano" :eyebrow="$t('ciencia.level_simple')" :titulo="$t('ciencia.llano.titulo')">
+        <NuxtLink :to="irDetalle" class="link-action group ci-llano__ir">
+          {{ $t('ciencia.llano.ir_detalle') }}
+          <Icon name="ph:arrow-down" class="w-4 h-4 transition-transform group-hover:translate-y-0.5" aria-hidden="true" />
+        </NuxtLink>
+      </CabeceraSeccion>
+      <ul class="ci-llano" role="list">
+        <li v-for="p in llano" :key="p.id" class="ci-llano__item">
+          <h3 class="h3-seccion">{{ p.q }}</h3>
+          <p class="prosa">{{ p.a }}</p>
+        </li>
+      </ul>
+      <!-- 10 · La ruta, con el objetivo N-of-1 dentro (E5) y la línea «Ahora» leída de caso.json (E1). Antes cerraba la hoja profesional (al 81 % de
+           la página); aquí es lo primero que ve quien lee en llano. #ruta-title se conserva: el botón de la home aterriza ahí. -->
+      <div class="ci-llano__ruta">
+        <RutaPersonalizada :objetivo="$t('ciencia.thesis_goal')" :ahora="ahora" />
+      </div>
+    </Banda>
+
+    <!-- Zona B · la hoja profesional: lo que se busca, las herramientas, la ficha, la anomalía, la patología, el perfil, los ejes y el panel. -->
+    <section id="detalle-profesional" class="section-spacing" :aria-label="$t('ciencia.level_pro')">
+      <div class="section-wide">
         <div class="lg:grid lg:grid-cols-[220px_minmax(0,1fr)] lg:gap-12 xl:gap-16 lg:items-start">
           <CienciaSectionNav variant="rail" class="hidden lg:block lg:sticky lg:top-24 lg:self-start" />
           <div class="min-w-0">
@@ -248,11 +279,6 @@
               </Aviso>
             </section>
 
-            <!-- 10 · La ruta, con el objetivo N-of-1 dentro (E5) y la línea «Ahora» leída de caso.json (E1) -->
-            <div class="ci-sec">
-              <RutaPersonalizada :objetivo="$t('ciencia.thesis_goal')" :ahora="ahora" />
-            </div>
-
             <!-- 11 · Evidencia, cierre profesional y «Sigue el caso» -->
             <div class="ci-sec">
               <TarjetaEnlace
@@ -302,6 +328,8 @@
 <script setup lang="ts">
 /**
  * /ciencia: la capa profesional del caso (tanda 2 del rediseño, T2c, 24-oct-2026). Una sola capa, sin conmutador.
+ * Fase «llano» de la tanda 3 (25-oct-2026): arriba va «Explicado sin tecnicismos» (cuatro preguntas, con la ruta debajo) y el índice pegajoso
+ * queda en la hoja profesional, que NO cuelga de una Banda (su overflow:hidden anularía el sticky).
  *
  * Qué hay y de dónde sale:
  *   · El ESTADO clínico (la ficha, el material, la fecha de actualización y «en cuarta línea desde…») se LEE de app/data/caso.json
@@ -369,6 +397,19 @@ const notaEjes = computed(() => [t('ciencia.axes_note'), caso.value?.cuartaLinea
 
 // La línea «Ahora» de la ruta (E1): la frase de la cuarta línea con su fecha, o nada.
 const ahora = computed(() => (caso.value?.cuartaLinea ? t('ciencia.estado_cuarta_linea', { fecha: caso.value.cuartaLinea.larga }) : null))
+
+// ── Explicado sin tecnicismos (zona A2). Cuatro preguntas con sus respuestas literales de voz-miriam (`ciencia.llano.*`). La cuarta lleva «Desde
+// el <día> recibe Dato-DXd…» y solo se pinta con la fecha de caso.json (la misma que la línea «Ahora»); sin cuarta línea, la versión sin tratamiento.
+const llano = computed(() => {
+  const desde = caso.value?.cuartaLinea?.larga
+  return (['q1', 'q2', 'q3', 'q4'] as const).map((id) => ({
+    id,
+    q: t(`ciencia.llano.${id}_q`),
+    a: id === 'q4' ? (desde ? t('ciencia.llano.q4_a', { desde }) : t('ciencia.llano.q4_a_sin_linea')) : t(`ciencia.llano.${id}_a`),
+  }))
+})
+// «Ir al detalle profesional»: al primer capítulo de la hoja profesional que exista («Qué buscamos» solo se pinta si hay peticiones públicas).
+const irDetalle = computed(() => localePath({ name: 'ciencia', hash: peticiones.value.length ? '#ciencia-busca' : '#mapa-acceso' }))
 
 // ── Anatomía patológica en una tabla (mama ×3 lecturas · hueso · hígado). Las celdas son las de las dos tablas de antes, con C1, C4 y E6.
 const columnasPat = computed(() => [
@@ -489,6 +530,18 @@ useHead({ script: [{ type: 'application/ld+json', innerHTML: condicion }] })
 #panel-title {
   scroll-margin-top: 7.5rem;
 }
+/* Zona A: la cabecera se queda sin relleno inferior, el aire hasta la banda lo da el margen del PageHeader (si no, se sumaba el de dos secciones). */
+.ci-zona-a { padding-bottom: 0; }
+
+/* Zona A2 · Explicado sin tecnicismos: cuatro preguntas en dos columnas desde 768 px (una columna debajo), cada una con su filete, y la ruta debajo. */
+.ci-llano__ir { margin-top: var(--sp-16); }
+.ci-llano { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--sp-32) var(--sp-48); grid-template-columns: minmax(0, 1fr); }
+@media (min-width: 768px) { .ci-llano { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.ci-llano__item { border-top: 1px solid var(--trazo-medio); padding-top: var(--sp-16); }
+.ci-llano__item .h3-seccion { margin: 0 0 var(--sp-8); }
+.ci-llano__item .prosa { margin: 0; }
+.ci-llano__ruta { margin-top: var(--sp-64); padding-top: var(--sp-64); border-top: 1px solid var(--trazo-medio); }
+
 .ci-sec { margin-bottom: var(--sp-64); }
 .ci-cabecera__meta { display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-8) var(--sp-24); margin-top: var(--sp-16); }
 .ci-acciones { display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-8) var(--sp-24); margin-top: var(--sp-16); }

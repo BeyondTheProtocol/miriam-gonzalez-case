@@ -727,6 +727,19 @@
     "puertas_pares_cta": "Escribir a Miriam"
   },
   "ciencia": {
+    "llano": {
+      "titulo": "Explicado sin tecnicismos",
+      "ir_detalle": "Ir al detalle profesional",
+      "q1_q": "¿Qué tiene?",
+      "q1_a": "Un cáncer de mama que se extendió a los huesos y, desde julio de 2026, al hígado. Es sobre todo luminal, el tipo que suele depender de hormonas, pero parte de sus células tiene rasgos de otro tipo, el neuroendocrino.",
+      "q2_q": "¿Por qué no basta el tratamiento estándar?",
+      "q2_a": "Las guías lo tratan como un cáncer de mama luminal y dejan fuera la parte neuroendocrina. Los tratamientos hormonales dejaron de frenarlo. Y en el hígado, la prueba del receptor de estrógeno, la diana de esos tratamientos, salió negativa.",
+      "q3_q": "¿Hay por dónde atacarlo?",
+      "q3_a": "Sí, hay pistas. El análisis del tumor, también célula a célula, ha encontrado posibles puntos débiles: genes alterados o activos que algunos tratamientos usan como diana. Todavía son hipótesis y hay que confirmarlas antes de actuar.",
+      "q4_q": "¿Qué se está haciendo ahora?",
+      "q4_a": "Desde el {desde} recibe Dato-DXd, un anticuerpo que lleva un fármaco hasta el tumor, dentro del ensayo TROPION-Breast06. Y en Dana-Farber se leen célula a célula sus biopsias de hígado y hueso. Ya hay primeros resultados.",
+      "q4_a_sin_linea": "En Dana-Farber se leen célula a célula sus biopsias de hígado y hueso, para buscar las dianas de una terapia hecha a su medida. Ya hay primeros resultados."
+    },
     "ruta": {
       "eyebrow": "La ruta",
       "title": "Del tejido a una terapia hecha para su tumor",

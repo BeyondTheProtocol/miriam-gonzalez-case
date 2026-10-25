@@ -9,6 +9,8 @@
 //   · los enlaces antiguos siguen llevando al lector a su sitio: el destino antiguo de /caso (…#mapa-acceso) y el botón de clínica de la
 //     home (…#snapshot-title) aterrizan con la ancla A LA VISTA y con el FOCO en ella;
 //   · la ficha (#snapshot-title), la franja de herramientas (#mapa-acceso), Imprimir y el botón de donar están ahí.
+//   · «Explicado sin tecnicismos» (#ciencia-llano, fase «llano» de la tanda 3, 25-oct-2026) está arriba, a la vista, y su enlace «Ir al detalle
+//     profesional» lleva a «Qué buscamos» (#ciencia-busca) con la ancla a la vista y el foco en ella.
 //
 // Por qué contra el build y no con `nuxt dev`: el fallo del foco solo existe con la página prerenderizada. Nuxt la hidrata en la ruta del
 // payload (sin query ni hash) y aplica la URL real después; en dev la página se renderiza con ella y el bug no aparece (así se coló el
@@ -191,6 +193,7 @@ const STATE = `(() => {
     ficha: visible('snapshot-title'),
     porQue: visible('por-que-no-encaja'),
     molecular: visible('molecular-profile-title'),
+    llano: visible('ciencia-llano'),
     ruta: visible('ruta-title'),
     donar: !!document.querySelector('main a.btn-cta[href*="gofund.me"][rel~="noopener"]'),
     imprimir: [...document.querySelectorAll('main button')].some((b) => /Imprimir|Print/.test(b.textContent)),
@@ -242,6 +245,7 @@ const TODO_VISIBLE = {
   ficha: true,
   porQue: true,
   molecular: true,
+  llano: true,
   ruta: true,
   donar: true,
   imprimir: true,
@@ -262,7 +266,7 @@ try {
 
   check('/ciencia: sin conmutador y con todo el contenido profesional a la vista', await load('/ciencia'), TODO_VISIBLE)
   check('/ciencia?nivel=pro: es lo mismo (el parámetro no hace nada)', await load('/ciencia?nivel=pro'), TODO_VISIBLE)
-  check('/ciencia?nivel=simple: también lo mismo (ya no hay capa llana aquí)', await load('/ciencia?nivel=simple'), TODO_VISIBLE)
+  check('/ciencia?nivel=simple: también lo mismo (el parámetro ya no elige capa; el bloque llano está siempre)', await load('/ciencia?nivel=simple'), TODO_VISIBLE)
   check('/en/science: lo mismo en inglés, con la frase de la cuarta línea', await load('/en/science'), TODO_VISIBLE)
   check('/en/science?nivel=pro: lo mismo', await load('/en/science?nivel=pro'), TODO_VISIBLE)
 
@@ -288,6 +292,15 @@ try {
     const aVista = await esperar(EN_PANTALLA(ancla), 6000)
     const conFoco = await esperar(`document.activeElement?.id === '${ancla}'`, 3000)
     check(`${nombre} (${ruta.split('#')[0].split('?')[0]}): #${ancla} queda a la vista y con el foco`, { aVista, conFoco }, { aVista: true, conFoco: true })
+  }
+
+  // «Ir al detalle profesional»: el enlace de debajo del titular de la banda llana lleva a «Qué buscamos» con la ancla a la vista y el foco en ella
+  for (const ruta of ['/ciencia', '/en/science']) {
+    await load(ruta)
+    const hay = await evaluate(`(() => { const a = document.getElementById('ciencia-llano')?.closest('section')?.querySelector('a[href$="#ciencia-busca"]'); if (!a) return false; a.click(); return true })()`)
+    const aVista = hay && (await esperar(EN_PANTALLA('ciencia-busca'), 6000))
+    const conFoco = hay && (await esperar(`document.activeElement?.id === 'ciencia-busca'`, 3000))
+    check(`${ruta}: el enlace al detalle profesional lleva a #ciencia-busca, a la vista y con el foco`, { hay, aVista, conFoco }, { hay: true, aVista: true, conFoco: true })
   }
 
   // Imprimir y donar son botones de verdad (teclado) y el de donar abre GoFundMe en pestaña nueva con aviso para el lector de pantalla
