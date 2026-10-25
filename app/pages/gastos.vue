@@ -71,7 +71,7 @@
           <ul class="mb-5">
             <li class="flex items-baseline justify-between gap-4 py-2.5 border-y border-berenjena/[0.07]">
               <span class="text-sm text-tinta leading-relaxed">
-                {{ $t('expenses.report_ingresado_label') }}
+                {{ $t('expenses.report_ingresado_label', { fecha: corte }) }}
                 <span class="block text-xs">{{ $t('expenses.report_ingresado_desc') }}</span>
               </span>
               <span
@@ -94,7 +94,7 @@
                 {{ $t('expenses.report_available_label') }}
               </p>
               <p class="text-sm text-tinta leading-relaxed">
-                {{ $t('expenses.report_available_desc') }}
+                {{ $t('expenses.report_available_desc', { fecha: corte }) }}
               </p>
             </div>
             <p

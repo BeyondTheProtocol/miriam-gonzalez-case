@@ -1224,9 +1224,9 @@
     "report_item_samples": "Envío de muestras al laboratorio",
     "report_total": "Total gastado y comprometido",
     "report_note": "El gasto personal del periodo no se imputa a la campaña. Las cifras de gasto de este informe cuadran contra los extractos originales.",
-    "report_available_desc": "Estimado, descontado el impuesto de donaciones pendiente.",
-    "report_ingresado_label": "Ingresado desde GoFundMe",
-    "report_ingresado_desc": "Neto de comisiones, hasta la fecha de corte.",
+    "report_available_desc": "Estimado, descontado el impuesto de donaciones pendiente. No es lo recibido menos lo gastado: se calcula sobre lo disponible a {fecha}.",
+    "report_ingresado_label": "Recibido de GoFundMe a {fecha}",
+    "report_ingresado_desc": "Neto de comisiones. El pago del 1 de octubre entra en el próximo corte.",
     "report_correccion": "Corregido un cargo duplicado del informe anterior.",
     "gfm_eyebrow": "Cuadre de GoFundMe · {fecha}",
     "gfm_title": "De lo donado a lo transferido",
@@ -1236,7 +1236,7 @@
     "gfm_transferido": "Transferido por GoFundMe",
     "gfm_aun": "Aún en GoFundMe, pendiente de transferir",
     "gfm_cuadre": "Donado menos comisiones es igual a lo transferido más lo que aún está en GoFundMe.",
-    "gfm_nota": "Las comisiones no están en el total gastado: GoFundMe las descuenta antes de transferir, y lo ingresado ya viene sin ellas."
+    "gfm_nota": "Las comisiones no están en el total gastado: GoFundMe las descuenta antes de transferir, y lo recibido ya viene sin ellas."
   },
   "links": {
     "meta_title": "Miriam González · Enlaces",
