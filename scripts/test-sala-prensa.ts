@@ -10,6 +10,7 @@
 // 3. En EN el título no dice «verbatim» (las citas 1 a 3 son traducciones).
 // 4. La guía pública no nombra lo que nunca se dice en público («Olune») ni «científica» como SÍ.
 // 5. /prensa no lleva el contador de campaña ni la fecha fija «junio de 2026».
+// 5c. Bandas de /prensa (sistema v3): como mucho una oscura, nunca la última, y sin dos del mismo tono seguidas.
 // 6. `caseData.pressAsOf` es una fecha válida y no es futura.
 // 7. La tira de medios de la home se LEE de content/<idioma>/press.yml (rediseño F5, 23-oct-2026): ni un medio ni una URL escritos
 //    a mano en la página o en su componente. Desde el 24-oct-2026 la home enseña SOLO cuatro medios (Redacción Médica, El País,
@@ -70,6 +71,15 @@ ok(!pagina.includes('month_updated'), '/prensa no usa la fecha fija «junio de»
 const ids = [...pagina.matchAll(/\sid="([^"]+)"/g)].map((x) => x[1])
 const repetidos = ids.filter((id, i) => ids.indexOf(id) !== i)
 ok(repetidos.length === 0, `/prensa no repite ningún id${repetidos.length ? ` (${[...new Set(repetidos)].join(', ')})` : ''}`)
+
+// 5c · bandas (sistema v3, tanda 3, 25-oct-2026): como mucho UNA oscura y nunca la última (el pie empieza con su banda berenjena de logos y dos
+// oscuras seguidas se leen como una; el panel oscuro de contacto, en caja y pegado al pie, llevaba un botón berenjena sobre berenjena, 1,00:1) y dos
+// bandas del mismo tono nunca seguidas (alternan crema y tarjeta para marcar capítulos). Es una invariante de ESTRUCTURA del fuente, a propósito.
+const tonos = [...pagina.matchAll(/<Banda\b[^>]*\btono="(crema|tarjeta|oscura)"/g)].map((x) => x[1])
+ok(tonos.length >= 4, `/prensa se compone de bandas (${tonos.length}: ${tonos.join(' · ')})`)
+ok(tonos.filter((t) => t === 'oscura').length <= 1, '/prensa lleva como mucho una banda oscura')
+ok(tonos.at(-1) !== 'oscura', '/prensa no acaba en una banda oscura (el pie ya empieza con la suya)')
+ok(tonos.every((t, i) => i === 0 || t !== tonos[i - 1]), '/prensa no pone dos bandas del mismo tono seguidas')
 
 // 6
 const m = caseData.match(/pressAsOf:\s*'(\d{4}-\d{2}-\d{2})'/)

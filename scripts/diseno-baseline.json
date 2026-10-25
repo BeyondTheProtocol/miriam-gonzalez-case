@@ -41,7 +41,6 @@
       "app/pages/gracias.vue": 6,
       "app/pages/mapa-metastasis.vue": 430,
       "app/pages/marcas.vue": 11,
-      "app/pages/prensa.vue": 13,
       "app/pages/privacidad.vue": 1,
       "app/pages/timeline.vue": 4,
       "app/utils/timeline.ts": 9,
@@ -83,7 +82,6 @@
       "app/pages/gastos.vue": 4,
       "app/pages/mapa-metastasis.vue": 190,
       "app/pages/marcas.vue": 6,
-      "app/pages/prensa.vue": 8,
       "app/pages/timeline.vue": 3
     },
     "R3": {
@@ -128,7 +126,6 @@
       "app/pages/datos.vue": 17,
       "app/pages/mapa-metastasis.vue": 41,
       "app/pages/marcas.vue": 3,
-      "app/pages/prensa.vue": 1,
       "app/pages/timeline.vue": 3
     },
     "R4": {
@@ -153,7 +150,6 @@
       "app/pages/datos.vue": 3,
       "app/pages/mapa-metastasis.vue": 28,
       "app/pages/marcas.vue": 14,
-      "app/pages/prensa.vue": 1,
       "app/pages/timeline.vue": 1
     },
     "R5": {
@@ -198,7 +194,6 @@
       "app/pages/lesiones.vue": 10,
       "app/pages/mapa-metastasis.vue": 39,
       "app/pages/marcas.vue": 5,
-      "app/pages/prensa.vue": 3,
       "app/pages/privacidad.vue": 1
     },
     "R7": {},
@@ -216,7 +211,6 @@
       "app/pages/laminillas.vue": 2,
       "app/pages/lesiones.vue": 1,
       "app/pages/mapa-metastasis.vue": 12,
-      "app/pages/prensa.vue": 11,
       "app/pages/privacidad.vue": 7,
       "app/pages/timeline.vue": 1
     },
@@ -233,7 +227,6 @@
       "app/components/TimelineEntry.vue": 1,
       "app/pages/mapa-metastasis.vue": 1,
       "app/pages/marcas.vue": 3,
-      "app/pages/prensa.vue": 3,
       "app/pages/timeline.vue": 1
     }
   },

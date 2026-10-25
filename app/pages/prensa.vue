@@ -1,422 +1,320 @@
 <template>
   <div>
-    <section class="section-spacing" :aria-label="$t('press.title')">
-      <div class="section-wide">
-        <PageHeader
-          :tag="$t('press.tag')"
-          :title="$t('press.title')"
-          :subtitle="$t('press.subtitle')"
-        />
+    <!-- Sistema v3 (rediseño tanda 3, fase «prensa», 25-oct-2026). Solo estilo: cada cadena, cada id y cada ancla son los de antes
+         (el copy publicado no se toca aquí). Ocho bloques que alternan tono como la home: crema · tarjeta · crema · tarjeta · oscura ·
+         tarjeta · crema · tarjeta. Una sola banda oscura (las citas), en medio y nunca al final: el panel oscuro de contacto, en caja y
+         pegado al pie, llevaba un botón berenjena sobre berenjena (1,00:1). Las tarjetas (`card-base`, `TarjetaEnlace`) van en bandas
+         crema: sobre una banda tarjeta tienen el mismo color que el fondo y solo las separa un filete. Los id de ancla van en un `div`
+         de dentro de la banda, con scroll-mt-24 (los lee test-salud-estatica y el 301 de /videos). -->
 
-        <!-- Bifurcador: quien escribe una pieza y quien invita necesitan cosas distintas
-             (de 7 peticiones recientes, 6 eran invitaciones). Dos enlaces, 44 px o más. -->
-        <nav aria-labelledby="press-fork" class="-mt-4">
-          <h2 id="press-fork" class="eyebrow mb-4 block">{{ $t('press.fork_title') }}</h2>
-          <ul class="grid gap-4 sm:grid-cols-2">
+    <!-- 1 · Cabecera y bifurcador. Quien escribe una pieza y quien invita necesitan cosas distintas (de 7 peticiones recientes, 6 eran
+         invitaciones). Dos enlaces de 64 px de alto. -->
+    <Banda tono="crema" class="pr-cabecera">
+      <PageHeader
+        :eyebrow="$t('press.tag')"
+        :title="$t('press.title')"
+        :lede="$t('press.subtitle')"
+        variante="pagina"
+      >
+        <nav aria-labelledby="press-fork" class="pr-fork">
+          <p id="press-fork" class="eyebrow">{{ $t('press.fork_title') }}</p>
+          <ul class="pr-lista pr-lista--dos" role="list">
             <li v-for="f in fork" :key="f.href">
-              <a :href="f.href" class="press-fork card-base group flex min-h-[44px] items-start gap-4 h-full">
-                <Icon :name="f.icon" class="size-6 shrink-0 mt-0.5 text-miriam" aria-hidden="true" />
-                <span class="flex-1">
-                  <span class="block font-display font-semibold text-berenjena text-lg leading-snug">
-                    {{ f.title }}
-                  </span>
-                  <span class="mt-1 block text-[14px] text-tinta leading-relaxed">{{ f.desc }}</span>
-                </span>
-                <Icon name="ph:arrow-down" class="size-4 shrink-0 mt-1.5 text-tinta" aria-hidden="true" />
-              </a>
+              <TarjetaEnlace :to="f.href" :titulo="f.title" :meta="f.desc" :icono="f.icon" />
             </li>
           </ul>
         </nav>
+      </PageHeader>
+    </Banda>
 
-        <!-- Cómo trabajo con medios (primera persona): lo que piden quienes invitan -->
-        <section id="colaboracion" class="mt-16 scroll-mt-24" aria-labelledby="press-collab">
-          <div class="card-base" style="border-left: 4px solid #9d44ab">
-            <h2
-              id="press-collab"
-              class="heading-display text-2xl sm:text-3xl text-berenjena mb-3"
-              style="letter-spacing: -0.02em"
-            >
-              {{ $t('press.collab_title') }}
-            </h2>
-            <p class="text-[15px] text-berenjena leading-relaxed max-w-2xl">{{ $t('press.collab_intro') }}</p>
-            <h3 class="eyebrow mt-6 mb-3 block">{{ $t('press.collab_list_title') }}</h3>
-            <ol class="list-decimal pl-5 space-y-1.5 text-[15px] text-berenjena leading-relaxed max-w-2xl">
-              <li v-for="n in 7" :key="n">{{ $t(`press.collab_item_${n}`) }}</li>
-            </ol>
-            <p class="mt-6 text-[15px] text-berenjena leading-relaxed max-w-2xl">{{ $t('press.collab_reply') }}</p>
-            <NuxtLink :to="localePath('contacto') + '?role=journalist'" class="btn-dark mt-6 min-h-[44px]">
+    <!-- 2 · Cómo trabajo con medios (primera persona): lo que piden quienes invitan -->
+    <Banda tono="tarjeta" titular="press-collab">
+      <div id="colaboracion" class="scroll-mt-24">
+        <CabeceraSeccion id="press-collab" :titulo="$t('press.collab_title')" />
+        <div class="pr-colab">
+          <p class="prosa">{{ $t('press.collab_intro') }}</p>
+          <p id="press-collab-lista" class="h4-tarjeta">{{ $t('press.collab_list_title') }}</p>
+          <ol class="prosa pr-numerada" aria-labelledby="press-collab-lista">
+            <li v-for="n in 7" :key="n">{{ $t(`press.collab_item_${n}`) }}</li>
+          </ol>
+          <p class="prosa">{{ $t('press.collab_reply') }}</p>
+          <div>
+            <NuxtLink :to="localePath('contacto') + '?role=journalist'" class="btn-secondary">
               <Icon name="ph:envelope-simple" class="w-4 h-4" aria-hidden="true" />
               {{ $t('press.collab_cta') }}
             </NuxtLink>
           </div>
-        </section>
-
-        <!-- Ficha del caso · hechos clave (izq) + retrato (der) -->
-        <div id="hechos" class="mt-16 scroll-mt-24 grid gap-10 lg:grid-cols-[1.6fr_1fr] lg:gap-14 items-start">
-          <!-- Hechos clave -->
-          <div>
-            <h2 id="press-facts" class="eyebrow mb-5 block">
-              {{ $t('press.facts_title') }}
-            </h2>
-            <dl
-              aria-labelledby="press-facts"
-              class="divide-y"
-              style="border-color: rgba(45,27,61,0.08)"
-            >
-              <div
-                v-for="fact in facts"
-                :key="fact.label"
-                class="grid sm:grid-cols-[160px_1fr] gap-x-6 gap-y-1 py-4"
-              >
-                <dt class="font-mono uppercase text-[11px] tracking-[0.1em] text-tinta pt-0.5">
-                  {{ fact.label }}
-                </dt>
-                <dd class="text-[15px] text-berenjena leading-relaxed">
-                  {{ fact.value }}
-                </dd>
-              </div>
-            </dl>
-          </div>
-
-          <!-- Retrato (el contador de campaña ya no vive aquí: la sala no lleva importes) -->
-          <aside class="card-base">
-            <figure class="m-0">
-              <NuxtImg
-                src="/img/miriam-avatar.webp"
-                alt="Miriam González"
-                width="480"
-                height="480"
-                sizes="sm:100vw md:360px"
-                class="w-full h-auto rounded-[16px]"
-                style="aspect-ratio: 1 / 1; object-fit: cover"
-                loading="lazy"
-              />
-              <figcaption class="mt-3 font-mono text-[11.5px] leading-relaxed text-tinta">
-                {{ $t('press.photo_caption') }}
-              </figcaption>
-            </figure>
-          </aside>
         </div>
+      </div>
+    </Banda>
 
-        <!-- Boilerplate listo para copiar (kit prensa) -->
-        <div class="mt-16">
-          <h2 id="press-boilerplate" class="eyebrow mb-2 block">
-            {{ $t('press.boilerplate_title') }}
-          </h2>
-          <p class="text-sm text-tinta mb-4 max-w-2xl">{{ $t('press.boilerplate_note') }}</p>
-          <div class="card-base">
-            <p id="press-boilerplate-text" class="text-sm text-berenjena leading-relaxed whitespace-pre-line">
-              {{ boilerplateText }}
-            </p>
-            <CopyButton class="mt-5" v-bind="copyProps(boilerplateText)" />
-          </div>
-        </div>
-
-        <!-- Fotografías de prensa -->
-        <div class="mt-16">
-          <h2 id="press-photos" class="eyebrow mb-5 block">
-            {{ $t('press.photos_title') }}
-          </h2>
-          <div class="grid sm:grid-cols-2 gap-6" aria-labelledby="press-photos">
-            <figure class="m-0">
-              <NuxtImg
-                src="/img/miriam-prensa-retrato.jpg"
-                :alt="$t('press.photo_retrato_alt')"
-                width="800"
-                height="1200"
-                sizes="sm:100vw md:400px"
-                class="w-full h-auto rounded-card"
-                style="aspect-ratio: 2 / 3; object-fit: cover"
-                loading="lazy"
-              />
-              <figcaption class="mt-2 font-mono text-[12px] leading-relaxed text-tinta">
-                {{ $t('press.photo_retrato_caption') }}
-              </figcaption>
-            </figure>
-            <figure class="m-0">
-              <NuxtImg
-                src="/img/miriam-prensa-ingeniera.jpg"
-                :alt="$t('press.photo_ingeniera_alt')"
-                width="800"
-                height="1200"
-                sizes="sm:100vw md:400px"
-                class="w-full h-auto rounded-card"
-                style="aspect-ratio: 2 / 3; object-fit: cover"
-                loading="lazy"
-              />
-              <figcaption class="mt-2 font-mono text-[12px] leading-relaxed text-tinta">
-                {{ $t('press.photo_ingeniera_caption') }}
-              </figcaption>
-            </figure>
-          </div>
-          <p class="mt-4 text-sm text-tinta max-w-2xl">{{ $t('press.photo_download_note') }}</p>
-        </div>
-
-        <!-- Vídeo: el promo de Polaris, con su transcripción. Venía de /videos, fusionada aquí en el rediseño (F4,
-             23-oct-2026); desde T2c (24-oct-2026) /videos redirige a esta ancla (#video) y el explicativo del ADC vive en el hito
-             del 7-oct de /timeline. Mismo vídeo y mismas palabras. -->
-        <div id="video" class="mt-16 scroll-mt-24">
-          <h2 id="press-video" class="eyebrow mb-5 block">
-            {{ $t('videos.title') }}
-          </h2>
-          <VideoCaso :video="VIDEO_PROMO[locale === 'en' ? 'en' : 'es']" nivel="h3" class="max-w-2xl" />
-          <!-- T2a (24-oct-2026): lo que cuenta el vídeo, abierto. El índice de herramientas vuelve a ser una página. -->
-          <NuxtLink :to="localePath('herramientas')" class="link-action group mt-4">
-            {{ $t('nav.all_tools') }}
-            <Icon name="ph:arrow-right" class="w-4 h-4 transition-transform group-hover:translate-x-0.5" aria-hidden="true" />
-          </NuxtLink>
-        </div>
-
-        <!-- Citas citables -->
-        <div class="mt-16">
-          <h2 id="press-quotes" class="eyebrow mb-2 block">
-            {{ $t('press.quotes_title') }}
-          </h2>
-          <p class="text-sm text-tinta mb-6 max-w-2xl">{{ $t('press.quotes_note') }}</p>
-          <ul aria-labelledby="press-quotes" class="space-y-4">
-            <li
-              v-for="(quote, i) in quotes"
-              :key="i"
-              class="card-base border-l-4"
-              style="border-left-color: #9d44ab"
-            >
-              <blockquote
-                class="m-0"
-                :aria-label="$t('press.quote_aria', { n: i + 1, total: quotes.length, source: quote.source })"
-              >
-                <p class="font-display text-lg text-berenjena leading-snug" style="letter-spacing: -0.01em">
-                  {{ quote.text }}
-                </p>
-                <footer class="mt-2 text-sm text-tinta">{{ quote.source }}</footer>
-              </blockquote>
-              <p v-if="quote.note" class="mt-2 font-mono text-[12px] leading-relaxed text-tinta">
-                {{ quote.note }}
-              </p>
-            </li>
-          </ul>
-        </div>
-
-        <!-- Plegados: biografía, preguntas frecuentes y cronología (nunca bloquean lo principal) -->
-        <div class="mt-16 space-y-1">
-          <details class="notes-disclosure press-disclosure">
-            <summary>{{ $t('press.bio_title') }}</summary>
-            <div class="grid gap-4 pt-4 sm:grid-cols-2">
-              <div class="card-base">
-                <h3 class="eyebrow mb-3 block">{{ $t('press.bio_short_label') }}</h3>
-                <p class="text-sm text-berenjena leading-relaxed">{{ $t('press.bio_short_text') }}</p>
-                <CopyButton class="mt-5" v-bind="copyProps($t('press.bio_short_text'))" />
-              </div>
-              <div class="card-base">
-                <h3 class="eyebrow mb-3 block">{{ $t('press.bio_long_label') }}</h3>
-                <p class="text-sm text-berenjena leading-relaxed">{{ bioLong }}</p>
-                <CopyButton class="mt-5" v-bind="copyProps(bioLong)" />
-              </div>
+    <!-- 3 · Ficha del caso · hechos clave (izq) + retrato (der), y el texto listo para copiar (kit prensa) -->
+    <Banda tono="crema" titular="press-facts">
+      <div id="hechos" class="scroll-mt-24 pr-hechos">
+        <div>
+          <CabeceraSeccion id="press-facts" :titulo="$t('press.facts_title')" />
+          <dl aria-labelledby="press-facts" class="pr-ficha">
+            <div v-for="fact in facts" :key="fact.label" class="pr-ficha__fila">
+              <dt class="etiqueta">{{ fact.label }}</dt>
+              <dd>{{ fact.value }}</dd>
             </div>
-          </details>
+          </dl>
+        </div>
 
-          <details class="notes-disclosure press-disclosure">
-            <summary>{{ $t('press.faq_title') }}</summary>
-            <dl class="divide-y pt-2" style="border-color: rgba(45,27,61,0.08)">
-              <div v-for="item in faq" :key="item.q" class="py-4">
-                <dt class="font-display font-semibold text-berenjena text-[16px] leading-snug">{{ item.q }}</dt>
-                <dd class="mt-1 text-[15px] text-berenjena leading-relaxed max-w-2xl">
-                  {{ item.a }}
-                  <NuxtLink
-                    v-if="item.to && !item.to.startsWith('#')"
-                    :to="item.to"
-                    class="link-action ml-1 min-h-[44px] text-miriam"
-                  >
-                    {{ item.toLabel }}
-                  </NuxtLink>
-                  <a
-                    v-else-if="item.to"
-                    :href="item.to"
-                    class="link-action ml-1 min-h-[44px] text-miriam"
-                  >
-                    {{ item.toLabel }}
-                  </a>
-                </dd>
-              </div>
-            </dl>
-          </details>
+        <!-- Retrato (el contador de campaña ya no vive aquí: la sala no lleva importes) -->
+        <aside class="card-base">
+          <figure class="m-0">
+            <NuxtImg
+              src="/img/miriam-avatar.webp"
+              alt="Miriam González"
+              width="480"
+              height="480"
+              sizes="sm:100vw md:360px"
+              class="w-full h-auto rounded-card aspect-square object-cover"
+              loading="lazy"
+            />
+            <figcaption class="pr-pie">{{ $t('press.photo_caption') }}</figcaption>
+          </figure>
+        </aside>
+      </div>
 
-          <details class="notes-disclosure press-disclosure">
-            <summary>{{ $t('press.timeline_title') }}</summary>
-            <p class="pt-3 text-sm text-tinta">{{ $t('press.timeline_intro') }}</p>
-            <ol class="mt-3 divide-y" style="border-color: rgba(45,27,61,0.08)">
-              <li
-                v-for="item in timeline"
-                :key="item.date"
-                class="grid gap-x-6 gap-y-1 py-3 sm:grid-cols-[170px_1fr]"
-              >
-                <span class="font-mono uppercase text-[11px] tracking-[0.1em] text-tinta pt-0.5">{{ item.date }}</span>
-                <span class="text-[15px] text-berenjena leading-relaxed">{{ item.text }}</span>
+      <div class="pr-bloque">
+        <CabeceraSeccion id="press-boilerplate" :titulo="$t('press.boilerplate_title')">
+          <p class="pr-nota">{{ $t('press.boilerplate_note') }}</p>
+        </CabeceraSeccion>
+        <div class="card-base">
+          <p id="press-boilerplate-text" class="prosa whitespace-pre-line">{{ boilerplateText }}</p>
+          <CopyButton class="mt-5" v-bind="copyProps(boilerplateText)" />
+        </div>
+      </div>
+    </Banda>
+
+    <!-- 4 · Fotografías de prensa y vídeo -->
+    <Banda tono="tarjeta">
+      <CabeceraSeccion id="press-photos" :titulo="$t('press.photos_title')" />
+      <div class="pr-fotos" role="group" aria-labelledby="press-photos">
+        <figure class="m-0">
+          <NuxtImg
+            src="/img/miriam-prensa-retrato.jpg"
+            :alt="$t('press.photo_retrato_alt')"
+            width="800"
+            height="1200"
+            sizes="sm:100vw md:400px"
+            class="w-full h-auto rounded-card aspect-[2/3] object-cover"
+            loading="lazy"
+          />
+          <figcaption class="pr-pie">{{ $t('press.photo_retrato_caption') }}</figcaption>
+        </figure>
+        <figure class="m-0">
+          <NuxtImg
+            src="/img/miriam-prensa-ingeniera.jpg"
+            :alt="$t('press.photo_ingeniera_alt')"
+            width="800"
+            height="1200"
+            sizes="sm:100vw md:400px"
+            class="w-full h-auto rounded-card aspect-[2/3] object-cover"
+            loading="lazy"
+          />
+          <figcaption class="pr-pie">{{ $t('press.photo_ingeniera_caption') }}</figcaption>
+        </figure>
+      </div>
+      <p class="pr-nota">{{ $t('press.photo_download_note') }}</p>
+
+      <!-- Vídeo: el promo de Polaris, con su transcripción. Venía de /videos, fusionada aquí en el rediseño (F4,
+           23-oct-2026); desde T2c (24-oct-2026) /videos redirige a esta ancla (#video) y el explicativo del ADC vive en el hito
+           del 7-oct de /timeline. Mismo vídeo y mismas palabras. -->
+      <div id="video" class="scroll-mt-24 pr-bloque">
+        <CabeceraSeccion id="press-video" :titulo="$t('videos.title')" />
+        <VideoCaso :video="VIDEO_PROMO[locale === 'en' ? 'en' : 'es']" nivel="h3" class="max-w-2xl" />
+        <!-- T2a (24-oct-2026): lo que cuenta el vídeo, abierto. El índice de herramientas vuelve a ser una página. -->
+        <NuxtLink :to="localePath('herramientas')" class="link-action group mt-4">
+          {{ $t('nav.all_tools') }}
+          <Icon name="ph:arrow-right" class="w-4 h-4 transition-transform group-hover:translate-x-0.5" aria-hidden="true" />
+        </NuxtLink>
+      </div>
+    </Banda>
+
+    <!-- 5 · Citas citables. La única banda oscura. El set de cuatro es el aprobado por Miriam (27-jun-2026); sin raya lateral ni tarjeta,
+         con el texto en el rol de H3 y la fuente debajo. En inglés, las citas 1 a 3 llevan su nota de traducción a 13 px. -->
+    <Banda tono="oscura" titular="press-quotes">
+      <CabeceraSeccion id="press-quotes" :titulo="$t('press.quotes_title')">
+        <p class="pr-nota">{{ $t('press.quotes_note') }}</p>
+      </CabeceraSeccion>
+      <ul aria-labelledby="press-quotes" class="pr-citas" role="list">
+        <li v-for="(quote, i) in quotes" :key="i" class="pr-cita">
+          <blockquote
+            class="m-0"
+            :aria-label="$t('press.quote_aria', { n: i + 1, total: quotes.length, source: quote.source })"
+          >
+            <p class="pr-cita__texto">{{ quote.text }}</p>
+            <footer class="pr-cita__fuente">{{ quote.source }}</footer>
+          </blockquote>
+          <p v-if="quote.note" class="pr-cita__nota">{{ quote.note }}</p>
+        </li>
+      </ul>
+    </Banda>
+
+    <!-- 6 · Plegados (biografía, preguntas frecuentes y cronología: nunca bloquean lo principal) y guía editorial SÍ/NO. La guía NO se
+         pliega: es la única barrera del muro hacia el periodista. Sin tarjetas aquí: sobre una banda tarjeta no se ven. -->
+    <Banda tono="tarjeta">
+      <div class="pr-plegados">
+        <details class="desplegable">
+          <summary>{{ $t('press.bio_title') }}</summary>
+          <div class="pr-plegado pr-bio">
+            <div>
+              <h3 class="etiqueta">{{ $t('press.bio_short_label') }}</h3>
+              <p>{{ $t('press.bio_short_text') }}</p>
+              <CopyButton class="mt-5" v-bind="copyProps($t('press.bio_short_text'))" />
+            </div>
+            <div>
+              <h3 class="etiqueta">{{ $t('press.bio_long_label') }}</h3>
+              <p>{{ bioLong }}</p>
+              <CopyButton class="mt-5" v-bind="copyProps(bioLong)" />
+            </div>
+          </div>
+        </details>
+
+        <details class="desplegable">
+          <summary>{{ $t('press.faq_title') }}</summary>
+          <dl class="pr-plegado pr-faq">
+            <div v-for="item in faq" :key="item.q">
+              <dt class="h4-tarjeta">{{ item.q }}</dt>
+              <dd>
+                {{ item.a }}
+                <NuxtLink v-if="item.to && !item.to.startsWith('#')" :to="item.to" class="link-action pr-faq__enlace">
+                  {{ item.toLabel }}
+                </NuxtLink>
+                <a v-else-if="item.to" :href="item.to" class="link-action pr-faq__enlace">
+                  {{ item.toLabel }}
+                </a>
+              </dd>
+            </div>
+          </dl>
+        </details>
+
+        <details class="desplegable">
+          <summary>{{ $t('press.timeline_title') }}</summary>
+          <div class="pr-plegado">
+            <p class="pr-nota pr-nota--sin-margen">{{ $t('press.timeline_intro') }}</p>
+            <ol class="pr-cronologia">
+              <li v-for="item in timeline" :key="item.date">
+                <span class="etiqueta">{{ item.date }}</span>
+                <span>{{ item.text }}</span>
               </li>
             </ol>
-            <NuxtLink :to="localePath('timeline')" class="link-action mt-2 min-h-[44px] text-miriam">
+            <NuxtLink :to="localePath('timeline')" class="link-action group">
               {{ $t('press.timeline_link') }}
-            </NuxtLink>
-          </details>
-        </div>
-
-        <!-- Guía editorial SÍ/NO -->
-        <div class="mt-16">
-          <h2 id="press-guide" class="eyebrow mb-5 block">
-            {{ $t('press.guide_title') }}
-          </h2>
-          <div class="grid sm:grid-cols-2 gap-6" aria-labelledby="press-guide">
-            <div class="card-base">
-              <div class="flex items-center gap-2 mb-3">
-                <Icon name="ph:check-circle" class="size-5 text-green-600 shrink-0" aria-hidden="true" />
-                <span class="font-mono uppercase text-[11px] tracking-[0.1em] text-tinta font-semibold">
-                  {{ $t('press.guide_yes_label') }}
-                </span>
-              </div>
-              <p class="text-[14px] text-berenjena leading-relaxed">{{ $t('press.guide_yes', { age: caseData.currentAge }) }}</p>
-            </div>
-            <div class="card-base">
-              <div class="flex items-center gap-2 mb-3">
-                <Icon name="ph:x-circle" class="size-5 text-red-600 shrink-0" aria-hidden="true" />
-                <span class="font-mono uppercase text-[11px] tracking-[0.1em] text-tinta font-semibold">
-                  {{ $t('press.guide_no_label') }}
-                </span>
-              </div>
-              <p class="text-[14px] text-berenjena leading-relaxed">{{ $t('press.guide_no') }}</p>
-            </div>
-          </div>
-        </div>
-
-        <!-- El caso en los medios. #cobertura: el destino de «Mi caso en la prensa» de /links (F6). -->
-        <div id="cobertura" class="mt-16 scroll-mt-24">
-          <h2 id="press-mentions" class="eyebrow mb-2 block">
-            {{ $t('press.mentions_title') }}
-          </h2>
-          <p class="text-sm text-tinta mb-6">{{ $t('press.mentions_note') }}</p>
-          <ul aria-labelledby="press-mentions" class="space-y-3">
-            <li v-for="item in mentions" :key="item.url">
-              <a
-                :href="item.url"
-                target="_blank"
-                rel="noopener"
-                class="press-mention card-base flex items-start gap-4 group"
-                @click="trackPress(item.outlet)"
-              >
-                <Icon
-                  name="ph:newspaper-clipping"
-                  class="size-5 shrink-0 mt-0.5 text-miriam"
-                  aria-hidden="true"
-                />
-                <span class="flex-1">
-                  <span class="block font-display font-semibold text-berenjena text-[15px] leading-snug">
-                    {{ item.title }}
-                  </span>
-                  <span class="mt-1 block font-mono text-[12px] uppercase tracking-[0.08em] text-tinta">
-                    {{ item.outlet }}<template v-if="item.date"> · {{ fmtDate(item.date) }}</template>
-                  </span>
-                </span>
-                <Icon
-                  name="ph:arrow-up-right"
-                  class="size-4 shrink-0 mt-0.5 text-tinta transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
-                  aria-hidden="true"
-                />
-                <span class="sr-only"> {{ $t('a11y.new_tab') }}</span>
-              </a>
-            </li>
-          </ul>
-        </div>
-
-        <!-- Material descargable / enlaces de referencia -->
-        <div class="mt-16">
-          <h2 id="press-resources" class="eyebrow mb-6 block">
-            {{ $t('press.resources_title') }}
-          </h2>
-          <div aria-labelledby="press-resources" class="grid sm:grid-cols-2 gap-4">
-            <a
-              href="/press-kit-miriam-gonzalez.pdf"
-              target="_blank"
-              rel="noopener"
-              class="press-resource card-base group"
-              download
-            >
-              <Icon name="ph:file-pdf" class="size-5 text-miriam mb-3" aria-hidden="true" />
-              <span class="block font-display font-semibold text-berenjena text-[15px]">
-                {{ $t('press.kit_download_label') }}<span class="sr-only"> {{ $t('a11y.new_tab') }}</span>
-              </span>
-              <span class="mt-1 block text-[13px] text-tinta leading-relaxed">
-                {{ $t('press.kit_download_note') }}
-              </span>
-            </a>
-            <NuxtLink :to="localePath('ciencia')" class="press-resource card-base group">
-              <Icon name="ph:flask" class="size-5 text-miriam mb-3" aria-hidden="true" />
-              <span class="block font-display font-semibold text-berenjena text-[15px]">
-                {{ $t('press.resource_science') }}
-              </span>
-              <span class="mt-1 block text-[13px] text-tinta leading-relaxed">
-                {{ $t('press.resource_science_desc') }}
-              </span>
-            </NuxtLink>
-            <a href="/llms.txt" target="_blank" rel="noopener" class="press-resource card-base group">
-              <Icon name="ph:robot" class="size-5 text-miriam mb-3" aria-hidden="true" />
-              <span class="block font-display font-semibold text-berenjena text-[15px]">
-                {{ $t('press.resource_llms') }}<span class="sr-only"> {{ $t('a11y.new_tab') }}</span>
-              </span>
-              <span class="mt-1 block text-[13px] text-tinta leading-relaxed">
-                {{ $t('press.resource_llms_desc') }}
-              </span>
-            </a>
-            <NuxtLink :to="localePath('gastos')" class="press-resource card-base group">
-              <Icon name="ph:receipt" class="size-5 text-miriam mb-3" aria-hidden="true" />
-              <span class="block font-display font-semibold text-berenjena text-[15px]">
-                {{ $t('press.resource_expenses') }}
-              </span>
-              <span class="mt-1 block text-[13px] text-tinta leading-relaxed">
-                {{ $t('press.resource_expenses_desc') }}
-              </span>
-            </NuxtLink>
-            <NuxtLink :to="localePath('colabora')" class="press-resource card-base group sm:col-span-2">
-              <Icon name="ph:hand-heart" class="size-5 text-miriam mb-3" aria-hidden="true" />
-              <span class="block font-display font-semibold text-berenjena text-[15px]">
-                {{ $t('press.resource_collaborate') }}
-              </span>
-              <span class="mt-1 block text-[13px] text-tinta leading-relaxed">
-                {{ $t('press.resource_collaborate_desc') }}
-              </span>
+              <Icon name="ph:arrow-right" class="w-4 h-4 transition-transform group-hover:translate-x-0.5" aria-hidden="true" />
             </NuxtLink>
           </div>
-        </div>
-
-        <!-- Contacto de prensa -->
-        <section
-          class="mt-16 relative overflow-hidden rounded-card p-8 sm:p-12"
-          style="background: #2d1b3d; color: #faf6f0"
-          aria-labelledby="press-contact-title"
-        >
-          <div
-            aria-hidden="true"
-            class="absolute inset-0 opacity-[0.04]"
-            style="background-image: radial-gradient(circle at 1px 1px, #faf6f0 1px, transparent 0); background-size: 32px 32px"
-          />
-          <div class="relative max-w-2xl">
-            <h2
-              id="press-contact-title"
-              class="heading-display text-2xl sm:text-3xl mb-4"
-              style="color: #faf6f0; letter-spacing: -0.02em"
-            >
-              {{ $t('press.contact_title') }}
-            </h2>
-            <p class="text-[15px] leading-relaxed" style="color: rgba(250,246,240,0.85)">
-              {{ $t('press.contact_body') }}
-            </p>
-            <NuxtLink :to="localePath('contacto') + '?role=journalist'" class="btn-dark mt-7">
-              <Icon name="ph:envelope-simple" class="w-4 h-4" aria-hidden="true" />
-              {{ $t('press.contact_cta') }}
-            </NuxtLink>
-          </div>
-        </section>
-
-        <ActualizadoEl class="mt-12 pt-6" style="border-top: 1px solid rgba(45,27,61,0.08)" :fecha="caseData.pressAsOf" clave="press.updated_label" />
+        </details>
       </div>
-    </section>
+
+      <div class="pr-bloque">
+        <CabeceraSeccion id="press-guide" :titulo="$t('press.guide_title')" />
+        <div class="pr-guia" role="group" aria-labelledby="press-guide">
+          <div class="pr-guia__col">
+            <p class="pr-guia__rotulo">
+              <Icon name="ph:check-circle" class="pr-guia__icono pr-guia__icono--si" aria-hidden="true" />
+              <span class="etiqueta">{{ $t('press.guide_yes_label') }}</span>
+            </p>
+            <p class="pr-guia__texto">{{ $t('press.guide_yes', { age: caseData.currentAge }) }}</p>
+          </div>
+          <div class="pr-guia__col">
+            <p class="pr-guia__rotulo">
+              <Icon name="ph:x-circle" class="pr-guia__icono pr-guia__icono--no" aria-hidden="true" />
+              <span class="etiqueta">{{ $t('press.guide_no_label') }}</span>
+            </p>
+            <p class="pr-guia__texto">{{ $t('press.guide_no') }}</p>
+          </div>
+        </div>
+      </div>
+    </Banda>
+
+    <!-- 7 · El caso en los medios (#cobertura: el destino de «Mi caso en la prensa» de /links, F6) y material descargable.
+         Cada pieza es una TarjetaEnlace externa (avisa de la pestaña nueva sola). La meta se construye en el script: un
+         `<template> · {{ }}` perdería el espacio (R11). -->
+    <Banda tono="crema" titular="press-mentions">
+      <div id="cobertura" class="scroll-mt-24">
+        <CabeceraSeccion id="press-mentions" :titulo="$t('press.mentions_title')">
+          <p class="pr-nota">{{ $t('press.mentions_note') }}</p>
+        </CabeceraSeccion>
+        <ul aria-labelledby="press-mentions" class="pr-lista" role="list">
+          <li v-for="item in mentions" :key="item.url">
+            <TarjetaEnlace
+              :href="item.url"
+              :titulo="item.title"
+              :meta="metaMencion(item)"
+              icono="ph:newspaper-clipping"
+              @click="trackPress(item.outlet)"
+            />
+          </li>
+        </ul>
+      </div>
+
+      <div class="pr-bloque">
+        <CabeceraSeccion id="press-resources" :titulo="$t('press.resources_title')" />
+        <ul aria-labelledby="press-resources" class="pr-lista pr-lista--dos pr-recursos" role="list">
+          <li>
+            <TarjetaEnlace
+              href="/press-kit-miriam-gonzalez.pdf"
+              download
+              :titulo="$t('press.kit_download_label')"
+              :meta="$t('press.kit_download_note')"
+              icono="ph:file-pdf"
+            />
+          </li>
+          <li>
+            <TarjetaEnlace
+              :to="localePath('ciencia')"
+              :titulo="$t('press.resource_science')"
+              :meta="$t('press.resource_science_desc')"
+              icono="ph:flask"
+            />
+          </li>
+          <li>
+            <TarjetaEnlace
+              href="/llms.txt"
+              :titulo="$t('press.resource_llms')"
+              :meta="$t('press.resource_llms_desc')"
+              icono="ph:robot"
+            />
+          </li>
+          <li>
+            <TarjetaEnlace
+              :to="localePath('gastos')"
+              :titulo="$t('press.resource_expenses')"
+              :meta="$t('press.resource_expenses_desc')"
+              icono="ph:receipt"
+            />
+          </li>
+          <li>
+            <TarjetaEnlace
+              :to="localePath('colabora')"
+              :titulo="$t('press.resource_collaborate')"
+              :meta="$t('press.resource_collaborate_desc')"
+              icono="ph:hand-heart"
+            />
+          </li>
+        </ul>
+      </div>
+    </Banda>
+
+    <!-- 8 · Contacto de prensa. Banda tarjeta, no oscura: el pie empieza con su banda berenjena de logos y dos oscuras seguidas se leen
+         como una. El botón pasa de btn-dark a btn-secondary («navegar o contactar»). -->
+    <Banda tono="tarjeta" titular="press-contact-title">
+      <CabeceraSeccion id="press-contact-title" :titulo="$t('press.contact_title')" />
+      <div class="pr-contacto">
+        <p class="prosa">{{ $t('press.contact_body') }}</p>
+        <div>
+          <NuxtLink :to="localePath('contacto') + '?role=journalist'" class="btn-secondary">
+            <Icon name="ph:envelope-simple" class="w-4 h-4" aria-hidden="true" />
+            {{ $t('press.contact_cta') }}
+          </NuxtLink>
+        </div>
+      </div>
+      <ActualizadoEl class="pr-actualizado" :fecha="caseData.pressAsOf" clave="press.updated_label" />
+    </Banda>
   </div>
 </template>
 
@@ -519,6 +417,10 @@ const fmtDate = (d?: string) => {
   }).format(date)
 }
 
+// «Medio · mes año», armado aquí y no en la plantilla (R11: el espacio de `<template> · {{ }}` se pierde).
+const metaMencion = (item: { outlet: string; date?: string }) =>
+  item.date ? `${item.outlet} · ${fmtDate(item.date)}` : item.outlet
+
 useSeoMeta({
   title: () => (locale.value === 'es' ? 'Sala de prensa' : 'Press room'),
   description: () =>
@@ -569,30 +471,87 @@ useHead({
 </script>
 
 <style scoped>
-.press-mention,
-.press-resource,
-.press-fork {
-  text-decoration: none;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+/* Sistema v3: solo tokens (cero hex, cero tamaños sueltos). Cada bloque ya tiene su relleno por la Banda; aquí solo el aire de dentro. */
+
+/* Cabecera: el bifurcador va dentro del PageHeader; el aire hasta la banda siguiente lo pone el relleno de la Banda. */
+.pr-cabecera :deep(.cabecera-pagina) { margin-bottom: 0; }
+.pr-fork { margin-top: var(--sp-32); }
+.pr-fork .eyebrow { margin: 0 0 var(--sp-12); }
+
+/* Lista de tarjetas-enlace: una columna y dos desde 640 px. La tarjeta se estira a la altura de su fila. */
+.pr-lista { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--sp-12); grid-template-columns: minmax(0, 1fr); }
+.pr-lista--dos { gap: var(--sp-16); }
+@media (min-width: 640px) {
+  .pr-lista--dos { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  /* Cinco recursos en dos columnas: el último ocupa el ancho entero, como antes. */
+  .pr-recursos > li:last-child { grid-column: 1 / -1; }
 }
-@media (prefers-reduced-motion: no-preference) {
-  .press-mention:hover,
-  .press-resource:hover,
-  .press-fork:hover {
-    transform: translateY(-2px);
-  }
-}
-.press-resource {
-  display: block;
-}
-/* El resumen del plegable es el único control: objetivo táctil de 44 px (WCAG 2.5.8 + vara de la casa)
-   y foco visible. El resto del estilo es el de `.notes-disclosure`. */
-.press-disclosure > summary {
-  min-height: 44px;
-  padding-top: 0;
-}
-.press-disclosure > summary:focus-visible {
-  outline: 2px solid var(--color-miriam);
-  outline-offset: 2px;
-}
+.pr-lista > li { display: flex; }
+.pr-lista > li > :deep(*) { width: 100%; }
+
+/* Bloque dentro de una banda (después del primero): el aire de un capítulo corto. */
+.pr-bloque { margin-top: var(--sp-64); }
+.pr-nota { margin: var(--sp-16) 0 0; max-width: var(--measure); font: var(--tipo-body-sm); color: var(--texto-2); }
+.pr-nota--sin-margen { margin-top: 0; }
+
+/* Cómo trabajo con medios */
+.pr-colab { display: grid; gap: var(--sp-16); justify-items: start; max-width: var(--measure); }
+.pr-colab > p { margin: 0; }
+.pr-numerada { margin: 0; padding-left: var(--sp-24); list-style: decimal; display: grid; gap: var(--sp-8); }
+
+/* Hechos clave: la ficha (filas con filete) y el retrato */
+.pr-hechos { display: grid; gap: var(--sp-32); grid-template-columns: minmax(0, 1fr); align-items: start; }
+@media (min-width: 1024px) { .pr-hechos { grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr); gap: var(--sp-48); } }
+.pr-ficha { margin: 0; }
+.pr-ficha__fila { display: grid; gap: var(--sp-4); padding: var(--sp-16) 0; }
+.pr-ficha__fila + .pr-ficha__fila { border-top: 1px solid var(--trazo-sutil); }
+@media (min-width: 640px) { .pr-ficha__fila { grid-template-columns: 10rem minmax(0, 1fr); gap: var(--sp-24); } }
+.pr-ficha dt { padding-top: var(--sp-4); }
+.pr-ficha dd { margin: 0; font: var(--tipo-ui); color: var(--texto-1); }
+.pr-pie { margin-top: var(--sp-12); font-size: var(--texto-xs); line-height: 1.5; color: var(--texto-2); }
+
+/* Fotografías */
+.pr-fotos { display: grid; gap: var(--sp-24); grid-template-columns: minmax(0, 1fr); max-width: 52rem; }
+@media (min-width: 640px) { .pr-fotos { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+
+/* Citas (banda oscura): dos columnas desde 768 px, cada una con su filete */
+.pr-citas { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--sp-32) var(--sp-48); grid-template-columns: minmax(0, 1fr); }
+@media (min-width: 768px) { .pr-citas { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.pr-cita { border-top: 1px solid var(--trazo-medio); padding-top: var(--sp-16); }
+.pr-cita__texto { margin: 0; font: var(--tipo-h3); letter-spacing: var(--track-cifra); color: var(--texto-1); text-wrap: balance; }
+.pr-cita__fuente { margin-top: var(--sp-12); font: var(--tipo-body-sm); color: var(--texto-2); }
+.pr-cita__nota { margin: var(--sp-8) 0 0; font-size: var(--texto-xs); line-height: 1.5; color: var(--texto-2); }
+
+/* Plegados: biografía, preguntas frecuentes, cronología */
+.pr-plegados { border-bottom: 1px solid var(--trazo-medio); }
+.pr-plegado { padding: var(--sp-8) 0 var(--sp-32); }
+.pr-bio { display: grid; gap: var(--sp-32) var(--sp-48); grid-template-columns: minmax(0, 1fr); }
+@media (min-width: 768px) { .pr-bio { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.pr-bio h3 { margin: 0 0 var(--sp-8); }
+.pr-bio p { margin: 0; font: var(--tipo-ui); color: var(--texto-1); }
+.pr-faq { margin: 0; }
+.pr-faq > div { padding: var(--sp-16) 0; }
+.pr-faq > div + div { border-top: 1px solid var(--trazo-sutil); }
+.pr-faq dt { margin: 0; }
+.pr-faq dd { margin: var(--sp-4) 0 0; max-width: var(--measure); font: var(--tipo-ui); color: var(--texto-1); }
+.pr-faq__enlace { margin-left: var(--sp-4); }
+.pr-cronologia { list-style: none; margin: var(--sp-12) 0 var(--sp-8); padding: 0; }
+.pr-cronologia > li { display: grid; gap: var(--sp-4) var(--sp-24); padding: var(--sp-12) 0; font: var(--tipo-ui); color: var(--texto-1); }
+.pr-cronologia > li + li { border-top: 1px solid var(--trazo-sutil); }
+@media (min-width: 640px) { .pr-cronologia > li { grid-template-columns: 11rem minmax(0, 1fr); } }
+
+/* Guía editorial Sí / No: dos columnas con filete. El icono no es la única señal: lleva su palabra. */
+.pr-guia { display: grid; gap: var(--sp-32) var(--sp-48); grid-template-columns: minmax(0, 1fr); }
+@media (min-width: 768px) { .pr-guia { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.pr-guia__col { border-top: 1px solid var(--trazo-medio); padding-top: var(--sp-16); }
+.pr-guia__rotulo { display: flex; align-items: center; gap: var(--sp-8); margin: 0 0 var(--sp-12); }
+.pr-guia__icono { flex: none; width: 1.25rem; height: 1.25rem; }
+.pr-guia__icono--si { color: var(--identidad); }
+.pr-guia__icono--no { color: var(--texto-1); }
+.pr-guia__texto { margin: 0; font: var(--tipo-body-sm); color: var(--texto-1); }
+
+/* Contacto */
+.pr-contacto { display: grid; gap: var(--sp-24); justify-items: start; max-width: var(--measure); }
+.pr-contacto > p { margin: 0; }
+.pr-actualizado { margin-top: var(--sp-48); padding-top: var(--sp-24); border-top: 1px solid var(--trazo-sutil); }
 </style>
