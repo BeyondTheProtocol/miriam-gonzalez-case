@@ -1310,12 +1310,11 @@ onBeforeUnmount(() => {
 .btv-tab-sub {
   font-size: var(--texto-xs);
   color: inherit;
-  /* a 13 px el trazador no cabe en una línea de una pestaña de ~115 px: parte en vez de cortarse con «…» */
-  overflow-wrap: anywhere;
+  /* a 13 px el trazador no cabe en una línea de una pestaña de ~105 px: parte entre palabras (en la fuente del cuerpo, más estrecha que
+     la mono) en vez de cortarse con «…» o romper una palabra. El panel de debajo repite el subtítulo del trazador activo. */
+  overflow-wrap: break-word;
   max-width: 100%;
-  /* trazador isotópico → mono de instrumento (consistente con el subtítulo del panel) */
-  font-family: var(--font-mono);
-  letter-spacing: -0.01em;
+  line-height: 1.2;
 }
 .btv-title-cell { min-width: 0; }
 .btv-title {

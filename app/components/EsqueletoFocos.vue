@@ -25,12 +25,12 @@
         <!-- Escenario de los visores 3D (sistema v3, P1): el fondo, el texto y el velo salen de --escena-* y no de hex. El hueso es la imagen
              PNG de abajo; antes había aquí cuatro degradados de hueso (gris azulado) que ningún elemento usaba, y se han borrado. -->
         <linearGradient :id="pfx + 'Fundido'" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stop-color="var(--escena-fondo)" stop-opacity="0" /><stop offset="100%" stop-color="var(--escena-fondo)" stop-opacity="0.95" />
+          <stop offset="0%" style="stop-color: var(--escena-fondo)" stop-opacity="0" /><stop offset="100%" style="stop-color: var(--escena-fondo)" stop-opacity="0.95" />
         </linearGradient>
       </defs>
       <!-- fondo plano (--escena-fondo), el mismo que los visores 3D (auditoría diseño, 27-sep-26: el
            degradado radial era el único fondo distinto de los seis visores) -->
-      <rect x="0" y="0" :width="VB_W" :height="VB_VIS" rx="18" fill="var(--escena-fondo)" />
+      <rect x="0" y="0" :width="VB_W" :height="VB_VIS" rx="18" style="fill: var(--escena-fondo)" />
       <!-- Esqueleto de REFERENCIA, de cuerpo entero, del atlas BodyParts3D (CC BY 4.0), hecho con
            tools/esqueleto_referencia.py en claudecode. Sustituye al de su TC (27-sep-2026): su TC
            va de la cabeza al muslo con los brazos en alto y no daba una figura completa. Lo que
@@ -39,12 +39,12 @@
         preserveAspectRatio="xMidYMid meet" :aria-hidden="true" />
       <!-- contorno oscuro: con el esqueleto entero las etiquetas T12, L1, L5 y S caen sobre el brazo
            izquierdo y sin él no se leían -->
-      <g font-family="JetBrains Mono, monospace" font-size="9" fill="var(--escena-texto)" font-weight="600" stroke="var(--escena-fondo)" stroke-width="3" paint-order="stroke" stroke-linejoin="round">
+      <g font-family="JetBrains Mono, monospace" font-size="9" style="fill: var(--escena-texto); stroke: var(--escena-fondo)" font-weight="600" stroke-width="3" paint-order="stroke" stroke-linejoin="round">
         <text v-for="tk in ticksUsados" :key="tk.t" x="362" :y="(tk.ty ?? tk.y) + 3" text-anchor="start">{{ tk.t }}</text>
         <!-- la marca va en la altura REAL y el texto donde se lea; el codo une las dos -->
         <path v-for="tk in ticksUsados" :key="'l' + tk.t"
           :d="`M344,${tk.y} L352,${tk.y} L358,${tk.ty ?? tk.y}`"
-          fill="none" stroke="color-mix(in srgb, var(--escena-texto) 65%, var(--escena-fondo))" stroke-width="1" />
+          fill="none" style="stroke: color-mix(in srgb, var(--escena-texto) 65%, var(--escena-fondo))" stroke-width="1" />
       </g>
       <g v-for="{ g, p } in CONPOS" :key="g.key" class="sk-foco"
         :style="opacidad ? { opacity: opacidad(g) } : undefined">
@@ -59,13 +59,13 @@
              oscuro por fuera y uno claro por dentro se ven sobre CUALQUIER fondo, como la
              línea de un mapa. Solo aparece al seleccionar, así que no ensucia el resto. -->
         <circle v-if="esSel(g)" :cx="p.x" :cy="p.y" :r="R + 4.6"
-          fill="none" stroke="color-mix(in srgb, var(--escena-fondo) 65%, black)" stroke-width="3" aria-hidden="true" />
+          fill="none" style="stroke: color-mix(in srgb, var(--escena-fondo) 65%, black)" stroke-width="3" aria-hidden="true" />
         <circle
           :id="idPrefix + g.primary.id"
           :cx="p.x" :cy="p.y"
           :r="R + (esSel(g) ? 2.5 : 0)"
           :fill="PHENO[g.primary.pheno].c"
-          :stroke="esSel(g) ? 'var(--color-bg-card)' : 'var(--escena-fondo)'"
+          :style="{ stroke: esSel(g) ? 'var(--color-bg-card)' : 'var(--escena-fondo)' }"
           :stroke-width="esSel(g) ? 4 : 1.4"
           :stroke-dasharray="(g.primary.source ?? 'informe') === 'ia-david' ? '2 1.6' : undefined"
           class="cursor-pointer sk-marker"
@@ -75,9 +75,9 @@
           @mouseenter="emit('hover', $event, g)" @mouseleave="emit('leave')"
           @focus="emit('hover', $event, g)" @blur="emit('leave')" />
         <g v-if="g.multi" class="pointer-events-none select-none">
-          <circle :cx="p.x + R + 1.5" :cy="p.y - R - 1.5" r="6.5" fill="var(--color-bg-card)" stroke="var(--escena-fondo)" stroke-width="1.2" />
+          <circle :cx="p.x + R + 1.5" :cy="p.y - R - 1.5" r="6.5" style="fill: var(--color-bg-card); stroke: var(--escena-fondo)" stroke-width="1.2" />
           <text :x="p.x + R + 1.5" :y="p.y - R - 1.5" text-anchor="middle" dominant-baseline="central"
-            font-family="var(--font-body)" font-size="9" font-weight="700" fill="var(--escena-fondo)">{{ g.foci.length }}</text>
+            font-size="9" font-weight="700" style="font-family: var(--font-body); fill: var(--escena-fondo)">{{ g.foci.length }}</text>
         </g>
       </g>
       <!-- recortado en las rodillas: un degradado al fondo del panel dice «sigue», no «se acaba» -->
