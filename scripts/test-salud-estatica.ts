@@ -1132,7 +1132,8 @@ if (existsSync('seed/fundraiser.json')) {
         : ['A radiologist, in an informal DM read and without a signed report, marked 55 measurements on the liver in this CT and considers them 55 distinct lesions', 'The official report says multiple M1.', 'A decision-SUPPORT tool. Not a diagnosis or medical advice.', 'The breast, the liver and the bone lesions.']
       ok(SELLADO.every((f) => txt.includes(f)), `${lesiones}: el texto sellado de la página sigue entero (${SELLADO.length} frases)`)
       // orden del DOM = orden visual: título · «En corto» · aviso · …; y el aviso va DESPUÉS de «En corto»
-      const pos = ['<h1', 'id="en-corto-titulo"', 'class="alert-callout', 'id="mama-titulo"', 'id="hueso-titulo"', 'id="cierre-apoyo-titulo"'].map((m) => main.indexOf(m))
+      // (sistema v3, P1: el aviso de apoyo es <Aviso tipo="apoyo">, que pinta class="aviso aviso--apoyo"; antes era .alert-callout)
+      const pos = ['<h1', 'id="en-corto-titulo"', 'class="aviso aviso--apoyo', 'id="mama-titulo"', 'id="hueso-titulo"', 'id="cierre-apoyo-titulo"'].map((m) => main.indexOf(m))
       ok(pos.every((p, i) => p >= 0 && (i === 0 || p > pos[i - 1]!)), `${lesiones}: título · En corto · aviso · mama · hueso · cierre de apoyo, en ese orden (${pos.join(' < ')})`)
       ok((main.match(/<h1\b/g)?.length ?? 0) === 1, `${lesiones}: un solo <h1>`)
       // el cierre de apoyo: estático (en el HTML), con los dos botones del hero y los dos enlaces de antes intactos
@@ -1164,7 +1165,7 @@ if (existsSync('seed/fundraiser.json')) {
       ok(hr > 0 && anclas(nav.slice(0, hr)).length === 6 && anclas(nav.slice(hr)).length === 3, `${links}: seis destacados y, tras el filete, tres secundarios (herramientas, cronología y marcas)`)
       ok(filas[6]!.texto.includes(t(loc, 'links.herramientas_title')) && filas[6]!.texto.includes(t(loc, 'links.herramientas_sub')), `${links}: «${t(loc, 'links.herramientas_title')}» · ${t(loc, 'links.herramientas_sub')}`)
       const apoyo = filas[1]
-      ok(!!apoyo && /bio-link--apoyo/.test(apoyo.clase) && /data-support-cta/.test(apoyo.atributos) && /target="_blank"/.test(apoyo.atributos) && /rel="noopener noreferrer"/.test(apoyo.atributos) && apoyo.texto.includes(t(loc, 'a11y.new_tab')), `${links}: la 2.ª fila es el apoyo: GoFundMe directo, coral, con data-support-cta, pestaña nueva con rel="noopener noreferrer" y aviso`)
+      ok(!!apoyo && /tarjeta-enlace--apoyo/.test(apoyo.clase) && /data-support-cta/.test(apoyo.atributos) && /target="_blank"/.test(apoyo.atributos) && /rel="noopener noreferrer"/.test(apoyo.atributos) && apoyo.texto.includes(t(loc, 'a11y.new_tab')), `${links}: la 2.ª fila es el apoyo: GoFundMe directo, coral, con data-support-cta, pestaña nueva con rel="noopener noreferrer" y aviso`)
       ok(filas.filter((a) => a.href.includes('gofund.me')).length === 1 && (sinScripts(links).match(/gofund\.me/g)?.length ?? 0) === 1, `${links}: un solo enlace a GoFundMe en toda la página (ni cabecera ni pie)`)
       ok(!!apoyo && apoyo.texto.startsWith(t(loc, 'links.apoyar_title')) && apoyo.texto.includes(t(loc, 'links.apoyar_sub')), `${links}: «${t(loc, 'links.apoyar_title')}» · ${t(loc, 'links.apoyar_sub')}`)
       // la fila de lesiones dice las TRES zonas (antes «el hígado y la mama»: faltaba el hueso)
