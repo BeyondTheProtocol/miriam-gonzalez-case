@@ -29,20 +29,20 @@ useUmamiVisto(tira, EVENTO_PRENSA_VISIBLE)
 <template>
   <section v-if="medios?.length" ref="tira" class="prensa-tira bg-cream-card" :aria-label="$t('home.prensa_tira_etiqueta')">
     <div class="section-wide prensa-tira__interior">
-      <p class="prensa-tira__etiqueta font-mono uppercase text-[11px] tracking-[0.12em] text-tinta">{{ $t('home.prensa_tira_etiqueta') }}</p>
+      <p class="prensa-tira__etiqueta eyebrow">{{ $t('home.prensa_tira_etiqueta') }}</p>
       <ul class="prensa-tira__lista" role="list">
         <li v-for="m in medios" :key="m.medio">
           <a
             :href="m.url"
             target="_blank"
             rel="noopener"
-            class="link-logo prensa-tira__medio text-[15px]"
+            class="link-logo prensa-tira__medio text-sm"
             data-umami-event="Clic-prensa"
             :data-umami-event-medio="m.medio"
-          >{{ m.medio }}<span class="sr-only"> {{ $t('a11y.new_tab') }}</span></a>
+          >{{ m.medio }}<span class="sr-only">{{ ' ' + $t('a11y.new_tab') }}</span></a>
         </li>
       </ul>
-      <NuxtLink :to="localePath('prensa')" class="link-action group prensa-tira__sala min-h-[44px] font-mono text-[12px] text-miriam">
+      <NuxtLink :to="localePath('prensa')" class="link-action group prensa-tira__sala min-h-[44px] font-mono text-xs text-miriam">
         {{ $t('home.s9_press_contact') }}
         <Icon name="ph:arrow-right" class="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5" aria-hidden="true" />
       </NuxtLink>
@@ -51,7 +51,7 @@ useUmamiVisto(tira, EVENTO_PRENSA_VISIBLE)
 </template>
 
 <style scoped>
-.prensa-tira { border-top: 1px solid rgb(var(--color-text-rgb) / 0.08); border-bottom: 1px solid rgb(var(--color-text-rgb) / 0.08); }
+.prensa-tira { border-top: 1px solid var(--trazo-sutil); border-bottom: 1px solid var(--trazo-sutil); }
 /* Poco aire a propósito: los enlaces ya miden 44 px, así que la tira no necesita colchón vertical propio. */
 .prensa-tira__interior { display: flex; flex-wrap: wrap; align-items: center; gap: 0 20px; padding-block: 4px; }
 .prensa-tira__etiqueta { margin: 0; }

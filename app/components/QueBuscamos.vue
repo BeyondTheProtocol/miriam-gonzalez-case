@@ -78,7 +78,7 @@ const enlaceTodas = computed(() => hayEnlaceTodas(props.verTodas, mostradas.valu
 
 <style scoped>
 .qb__lista { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; font: 400 14px/1.5 var(--font-body); color: var(--color-text); }
-.qb__lista li { padding: 8px 12px; border-radius: 10px; background: var(--color-bg-card); }
+.qb__lista li { padding: 8px 12px; border-radius: var(--radius-btn); background: var(--color-bg-card); }
 /* el enlace va en su propia línea y con 44 px de alto: es un destino, no una palabra suelta del párrafo */
 .qb__resultados { display: flex; align-items: center; width: fit-content; min-height: 44px; }
 .qb__acciones { display: flex; flex-wrap: wrap; gap: 0 24px; margin-top: 6px; }

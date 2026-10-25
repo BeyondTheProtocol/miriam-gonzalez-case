@@ -62,7 +62,7 @@
             >
               <Icon name="ph:heart-fill" class="heart-beat heart-beat--alive w-4 h-4" aria-hidden="true" />
               {{ $t('hero.cta_donate') }}
-              <span class="sr-only"> {{ $t('a11y.new_tab') }}</span>
+              <span class="sr-only">{{ ' ' + $t('a11y.new_tab') }}</span>
             </a>
             <a href="#caso" class="btn-secondary justify-center">
               <Icon name="ph:arrow-down" class="w-4 h-4" aria-hidden="true" />
@@ -111,10 +111,8 @@
         >
           <span class="hero__latest-meta">
             <span class="hero-live-dot h-2 w-2 shrink-0 rounded-full bg-coral" aria-hidden="true" />
-            <span class="font-mono uppercase text-[11px] tracking-[0.16em] font-semibold text-coral-deep">
-              {{ $t('hero.latest_label') }}
-            </span>
-            <span v-if="latestAgo" class="font-mono text-[11px] text-tinta">· {{ latestAgo }}</span>
+            <span class="etiqueta">{{ $t('hero.latest_label') }}</span>
+            <span v-if="latestAgo" class="font-mono text-xs text-tinta">· {{ latestAgo }}</span>
           </span>
           <span class="hero__latest-title">
             {{ latest.title }}
@@ -261,7 +259,7 @@ const { latest, latestAgo } = useLatestUpdate()
   /* El H1 es una frase entera (≈70 caracteres), no un lema: tamaño más contenido que el del antiguo «Un cáncer raro, una
      oportunidad real.» para que en 375 px ocupe 4 líneas y no 6. */
   font-size: clamp(1.75rem, 1.1rem + 2.6vw, 2.875rem);
-  letter-spacing: -0.03em;
+  letter-spacing: var(--track-titular);
   line-height: 1.1;
   text-wrap: balance;
 }
@@ -298,7 +296,7 @@ const { latest, latestAgo } = useLatestUpdate()
 
 .hero__portrait-frame {
   overflow: hidden;
-  border-radius: 20px;
+  border-radius: var(--radius-card);
   box-shadow: 0 18px 44px -22px rgb(var(--color-text-rgb) / 0.45);
   aspect-ratio: 1;
 }
@@ -314,18 +312,17 @@ const { latest, latestAgo } = useLatestUpdate()
   position: absolute;
   z-index: 2;
   padding: 0.35rem 0.7rem;
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   background: var(--color-miriam);
   color: var(--color-bg);
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 10px;
+  font-family: var(--font-mono);
+  font-size: var(--texto-xs);
   letter-spacing: 0.04em;
   box-shadow: 0 8px 20px -8px rgb(var(--color-text-rgb) / 0.45);
   transform: rotate(2deg);
 }
 @media (min-width: 640px) {
   .hero__handle {
-    font-size: 11px;
     padding: 0.45rem 0.85rem;
   }
 }
@@ -349,20 +346,16 @@ const { latest, latestAgo } = useLatestUpdate()
 }
 .hero__portrait-tag span {
   display: inline-block;
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   background: var(--color-text);
   color: var(--color-bg);
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 10px;
-  letter-spacing: 0.12em;
+  font-family: var(--font-mono);
+  font-size: var(--texto-2xs);
+  letter-spacing: 0.08em;
+  white-space: nowrap; /* a 12 px el rótulo mide casi lo que el retrato (224 px): no parte en dos líneas */
   text-transform: uppercase;
   padding: 0.4rem 0.9rem;
   box-shadow: 0 10px 24px -12px rgb(var(--color-text-rgb) / 0.55);
-}
-@media (min-width: 640px) {
-  .hero__portrait-tag span {
-    font-size: 11px;
-  }
 }
 
 /* Cuerpo textual */
@@ -461,6 +454,7 @@ const { latest, latestAgo } = useLatestUpdate()
 
 .hero__latest {
   display: block;
+  min-height: var(--control-min);
   text-decoration: none;
   color: inherit;
 }

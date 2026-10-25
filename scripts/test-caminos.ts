@@ -227,10 +227,11 @@ for (const [loc, d] of [['es', es], ['en', en]] as const) {
   ok(!/[—–]|\s-\s/.test(nuevo), `${loc}: la copy nueva de estos ajustes no lleva guion largo`)
 }
 // Orden de la home: la cita va justo después de «El caso en 3 frases» y antes de «Dónde estamos» (el DOM manda el orden visual).
+// (sistema v3, P1: la cita es <Banda tono="oscura" titular="h-cita">, que pinta el aria-labelledby; en el código fuente ya no está escrito a mano.)
 const idx = (re: RegExp) => home.search(re)
 const iPrensa = idx(/<PrensaTira\b/), iHerr = idx(/<SectionHerramientasTeaser\b/)
 ok(iPrensa > 0 && iPrensa < iHerr && iHerr < idx(/id="caso"/), 'index.vue: la banda de herramientas va justo después de la prensa y antes de «El caso en 3 frases»')
-const iCaso = idx(/id="caso"/), iCita = idx(/aria-labelledby="h-cita"/), iDonde = idx(/aria-labelledby="h-donde"/), iDinero = idx(/id="campaign"/), iPuertas = idx(/aria-labelledby="h-puertas"/)
+const iCaso = idx(/id="caso"/), iCita = idx(/(?:aria-labelledby|titular)="h-cita"/), iDonde = idx(/aria-labelledby="h-donde"/), iDinero = idx(/id="campaign"/), iPuertas = idx(/aria-labelledby="h-puertas"/)
 ok(iCaso > 0 && iCaso < iCita && iCita < iDonde && iDonde < iDinero && iDinero < iPuertas, 'index.vue: caso › cita › dónde estamos › dinero › puertas (la cita sube tras «El caso en 3 frases»)')
 // Línea de apoyo entre pacientes: fuera de la lista de puertas (son cinco), enlazada a la tarjeta de /colabora que existe.
 ok(/class="puertas-pares"[\s\S]*?name: 'colabora', hash: '#apoyo-mutuo'/.test(home), 'index.vue: la línea de apoyo entre pacientes enlaza a /colabora#apoyo-mutuo')

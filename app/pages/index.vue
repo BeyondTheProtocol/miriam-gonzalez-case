@@ -24,11 +24,11 @@
     <section
       id="caso"
       v-reveal
-      class="scroll-mt-24 bg-cream py-14 sm:py-20"
+      class="scroll-mt-24 bg-cream section-spacing--compacta"
       aria-labelledby="h-caso"
     >
       <div class="section-wide">
-        <h2 id="h-caso" class="heading-display text-3xl sm:text-4xl text-berenjena mb-8" style="letter-spacing: -0.03em">
+        <h2 id="h-caso" class="h2-seccion mb-8">
           {{ $t('home.caso_heading') }}
         </h2>
         <ol class="caso__frases" role="list">
@@ -50,23 +50,18 @@
 
     <!-- 5 · En sus propias palabras (sube tras «El caso en 3 frases», 24-oct-2026). Las comillas en dos tonos —coral y violeta— son el guiño a las «dos caras» de las que
          habla la cita; es su voz y su firma, no una afirmación de la web. -->
-    <section
-      v-reveal
-      class="relative overflow-hidden py-16 sm:py-24"
-      aria-labelledby="h-cita"
-      style="background: #2d1b3d; color: #faf6f0"
-    >
-      <div class="absolute inset-0 opacity-[0.04]" style="background-image: radial-gradient(circle at 1px 1px, #faf6f0 1px, transparent 0); background-size: 32px 32px;" aria-hidden="true" />
-      <div class="relative section-wide">
-        <h2 id="h-cita" class="eyebrow mb-8 block" style="color: #e8d4ed">{{ $t('home.s6_eyebrow') }}</h2>
-        <blockquote class="font-display text-2xl sm:text-3xl lg:text-4xl font-semibold leading-[1.2] max-w-3xl" style="letter-spacing: -0.025em">
-          <span style="color: #ff6b47" aria-hidden="true">«</span>{{ $t('home.s6_quote') }}<span style="color: #b870c3" aria-hidden="true">»</span>
-        </blockquote>
-        <p class="mt-8 font-display italic text-xl" style="color: #e8d4ed">
-          — {{ $t('home.s6_signature') }}
-        </p>
-      </div>
-    </section>
+    <!-- Sistema v3 (P1): la banda oscura de la cita es <Banda tono="oscura">. Los colores salen de los roles (ya no hay hex): el
+         berenjena es --fondo, la crema --texto-1, la comilla de apertura en coral (--cta-texto, que en una banda oscura es el coral)
+         y la de cierre en el violeta claro (--identidad). Banda lleva el v-reveal, la retícula de puntos y el relleno. -->
+    <Banda tono="oscura" compacta titular="h-cita">
+      <h2 id="h-cita" class="eyebrow mb-8 block cita__rotulo">{{ $t('home.s6_eyebrow') }}</h2>
+      <blockquote class="cita__texto font-display text-2xl sm:text-3xl lg:text-4xl font-semibold leading-[1.2] max-w-3xl">
+        <span class="cita__comilla cita__comilla--abre" aria-hidden="true">«</span>{{ $t('home.s6_quote') }}<span class="cita__comilla cita__comilla--cierra" aria-hidden="true">»</span>
+      </blockquote>
+      <p class="cita__firma mt-8 font-display italic text-xl">
+        — {{ $t('home.s6_signature') }}
+      </p>
+    </Banda>
 
     <!-- 6 · Dónde estamos y qué falta: la ruta, lo que se hace hoy y la petición concreta a quien puede moverla.
          «Ahora» sale de caso.json (el mismo cálculo que la cifra «Tratamiento» de /datos); sin línea en curso, no se pinta. -->
@@ -74,7 +69,7 @@
          Sin línea de arriba: desde que la cita (oscura) va delante, el bloque anterior ya no es crema y no hace falta separarlos. -->
     <section v-reveal class="section-spacing bg-cream" aria-labelledby="h-donde">
       <div class="section-wide">
-        <h2 id="h-donde" class="heading-display text-3xl sm:text-5xl text-berenjena mb-6" style="letter-spacing: -0.03em">
+        <h2 id="h-donde" class="h2-declaracion mb-6">
           {{ $t('home.donde_heading') }}
         </h2>
         <p v-if="ahora" class="home-ahora">
@@ -86,7 +81,7 @@
         <HomeProximosPasos />
 
         <div v-if="peticiones.length" class="mt-12">
-          <h3 id="h-buscamos" class="font-display font-semibold text-berenjena text-2xl mb-4" style="letter-spacing: -0.02em">
+          <h3 id="h-buscamos" class="h3-seccion mb-4">
             {{ $t('home.buscamos_heading') }}
           </h3>
           <div class="max-w-3xl">
@@ -125,7 +120,7 @@
     <section v-reveal id="campaign" class="section-spacing bg-cream-card" aria-labelledby="h-dinero">
       <div class="section-wide">
         <p class="eyebrow mb-3 block">{{ $t('home.dinero_eyebrow') }}</p>
-        <h2 id="h-dinero" class="heading-display text-3xl sm:text-4xl text-berenjena mb-4" style="letter-spacing: -0.03em">
+        <h2 id="h-dinero" class="h2-seccion mb-4">
           {{ $t('home.dinero_heading') }}
         </h2>
         <p class="text-base text-tinta leading-relaxed max-w-2xl">{{ $t('money.destino') }}</p>
@@ -146,7 +141,7 @@
           >
             <Icon name="ph:heart-fill" class="heart-beat w-4 h-4" aria-hidden="true" />
             {{ $t('home.s4_cta_button') }}
-            <span class="sr-only"> {{ $t('a11y.new_tab') }}</span>
+            <span class="sr-only">{{ ' ' + $t('a11y.new_tab') }}</span>
           </a>
         </div>
         <CampanaOficial location="home" />
@@ -156,7 +151,7 @@
     <!-- 8 · Cómo ayudar: las cinco puertas (taxonomía única de utils/caminos.ts), sin minutos ni pasos -->
     <section v-reveal class="section-spacing bg-cream" aria-labelledby="h-puertas">
       <div class="section-wide">
-        <h2 id="h-puertas" class="heading-display text-3xl sm:text-4xl text-berenjena mb-8" style="letter-spacing: -0.03em">
+        <h2 id="h-puertas" class="h2-seccion mb-8">
           {{ $t('home.puertas_heading') }}
         </h2>
         <Puertas />
@@ -275,8 +270,16 @@ useHead({
 .caso__frases li { display: flex; align-items: baseline; gap: 1rem; }
 .caso__num {
   flex: none; width: 2rem; height: 2rem; display: inline-flex; align-items: center; justify-content: center;
-  border-radius: 999px; background: rgb(var(--color-text-rgb) / 0.06); color: var(--color-text);
+  border-radius: var(--radius-pill); background: rgb(var(--color-text-rgb) / 0.06); color: var(--color-text);
   font: 600 0.8125rem/1 var(--font-mono, ui-monospace, monospace); transform: translateY(-0.15rem);
 }
 .caso__texto { font: 600 clamp(1.25rem, 1rem + 1.2vw, 1.75rem)/1.3 var(--font-display, 'Fraunces', serif); letter-spacing: -0.015em; color: var(--color-text); }
+
+/* La cita (sistema v3, P1): antes escrita con hex y con el tracking en línea. El rótulo y la firma van en el violeta suave de la paleta;
+   las comillas, en coral (--cta-texto: coral sobre berenjena) y en el violeta claro de la banda (--identidad). */
+.cita__rotulo { color: var(--color-miriam-soft); }
+.cita__texto { letter-spacing: var(--track-titular); }
+.cita__comilla--abre { color: var(--cta-texto); }
+.cita__comilla--cierra { color: var(--identidad); }
+.cita__firma { color: var(--color-miriam-soft); }
 </style>

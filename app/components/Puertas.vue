@@ -12,8 +12,8 @@
  * Todas miden `Puerta` con la puerta como propiedad (el evento `Pathway` de las tarjetas viejas se acaba aquí; la serie
  * se corta, se anota en el commit de F5).
  *
- * Accesibilidad: lista real (`role="list"` para que Safari no la pierda sin viñetas), cada puerta un enlace de ≥ 56 px, el
- * icono es decorativo y la flecha también; la externa avisa de la pestaña nueva a los lectores de pantalla.
+ * Accesibilidad: lista real (`role="list"` para que Safari no la pierda sin viñetas), cada puerta un enlace de ≥ 64 px (TarjetaEnlace, sistema
+ * v3), el icono es decorativo y la flecha también; la externa avisa de la pestaña nueva a los lectores de pantalla.
  */
 import { PUERTAS } from '~/utils/caminos'
 
@@ -47,24 +47,24 @@ function alPulsar(id: string) {
 <template>
   <ul class="puertas" role="list">
     <li v-for="p in puertas" :key="p.id">
-      <a
+      <!-- Sistema v3 (P1): cada puerta es una TarjetaEnlace de tono «suave» (también «Apoyar»: el único coral de la zona es el botón de la
+           tarjeta de la campaña). `puerta` queda como gancho para los tests y el CSS de la lista, sin estilos propios. -->
+      <TarjetaEnlace
         v-if="p.externa"
-        :href="p.href"
-        target="_blank"
-        rel="noopener noreferrer"
         class="puerta"
+        :href="p.href"
+        :icono="ICONOS[p.id]"
+        :titulo="$t(p.etiqueta)"
         @click="alPulsar(p.id)"
-      >
-        <Icon :name="ICONOS[p.id]!" class="puerta__icono" aria-hidden="true" />
-        <span class="puerta__etiqueta">{{ $t(p.etiqueta) }}</span>
-        <span class="sr-only"> {{ $t('a11y.new_tab') }}</span>
-        <Icon name="ph:arrow-up-right" class="puerta__flecha" aria-hidden="true" />
-      </a>
-      <NuxtLink v-else :to="p.to" class="puerta" @click="alPulsar(p.id)">
-        <Icon :name="ICONOS[p.id]!" class="puerta__icono" aria-hidden="true" />
-        <span class="puerta__etiqueta">{{ $t(p.etiqueta) }}</span>
-        <Icon name="ph:arrow-right" class="puerta__flecha" aria-hidden="true" />
-      </NuxtLink>
+      />
+      <TarjetaEnlace
+        v-else
+        class="puerta"
+        :to="p.to"
+        :icono="ICONOS[p.id]"
+        :titulo="$t(p.etiqueta)"
+        @click="alPulsar(p.id)"
+      />
     </li>
   </ul>
 </template>
@@ -72,30 +72,8 @@ function alPulsar(id: string) {
 <style scoped>
 /* Una columna en móvil (se lee en el orden del DOM, sin esquinas), dos en tableta, tres desde 1024 (3 + 2) y las cinco en una fila
    desde 1280, donde cada puerta aún mide ~220 px. Con cinco, cuatro columnas dejaban una puerta sola en la segunda fila. */
-.puertas { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; grid-template-columns: minmax(0, 1fr); }
+.puertas { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--sp-12); grid-template-columns: minmax(0, 1fr); }
 @media (min-width: 640px) { .puertas { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 @media (min-width: 1024px) { .puertas { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
 @media (min-width: 1280px) { .puertas { grid-template-columns: repeat(5, minmax(0, 1fr)); } }
-
-.puerta {
-  display: flex; align-items: center; gap: 12px; min-height: 64px; height: 100%;
-  padding: 12px 16px; box-sizing: border-box;
-  border-radius: 16px; background: var(--color-bg-card); color: var(--color-text); text-decoration: none;
-  border: 1px solid rgb(var(--color-text-rgb) / 0.14);
-  transition: border-color 0.15s ease, background-color 0.15s ease;
-}
-.puerta__icono { flex: none; width: 22px; height: 22px; color: var(--color-miriam); }
-.puerta__etiqueta { flex: 1 1 auto; min-width: 0; font: 600 16px/1.3 var(--font-body); }
-.puerta__flecha { flex: none; width: 16px; height: 16px; transition: transform 0.15s ease; }
-@media (hover: hover) and (pointer: fine) {
-  .puerta:hover { border-color: var(--color-text); }
-  .puerta:hover .puerta__flecha { transform: translateX(2px); }
-}
-@media (prefers-reduced-motion: reduce) {
-  .puerta, .puerta__flecha { transition: none; }
-  .puerta:hover .puerta__flecha { transform: none; }
-}
-/* Colores forzados / contraste alto: el borde pasa a ser el del texto y se ve siempre. */
-@media (forced-colors: active) { .puerta { border-color: CanvasText; } }
-@media (prefers-contrast: more) { .puerta { border-color: var(--color-text); } }
 </style>

@@ -4,6 +4,8 @@
  * distintas. Los textos viven en i18n (`ciencia.ruta.pasos.<key>`); aquí solo el estado.
  * Cambiar un estado = cambiar una línea, y cotejarlo antes con la fuente de verdad del caso.
  */
+import { insigniaDe } from './estadoInsignia'
+
 export type EstadoRuta = 'hecho' | 'curso' | 'pendiente' | 'abierto'
 
 export const RUTA_PASOS: { key: string, estado: EstadoRuta, icono: string }[] = [
@@ -14,11 +16,13 @@ export const RUTA_PASOS: { key: string, estado: EstadoRuta, icono: string }[] = 
   { key: 'llegar', estado: 'abierto', icono: 'ph:globe-hemisphere-west-fill' },
 ]
 
+// Sistema v3 (P1): la insignia de cada paso es la del mapa ÚNICO de estados (utils/estadoInsignia.ts): hecho, en curso, pendiente y
+// «abierto» (que pide atención), todos con icono y palabra y sin hex. Antes eran cuatro variantes viejas de .status-badge con hex y 10 px.
 export const BADGE_RUTA: Record<EstadoRuta, string> = {
-  hecho: 'status-badge--active',
-  curso: 'status-badge--firma',
-  pendiente: 'status-badge--pending',
-  abierto: 'status-badge--candidate',
+  hecho: insigniaDe('hecho'),
+  curso: insigniaDe('curso'),
+  pendiente: insigniaDe('pendiente'),
+  abierto: insigniaDe('abierto'),
 }
 
 /** Solo los `hecho` cuentan como pasos dados; `curso` se cuenta aparte y no suma. */

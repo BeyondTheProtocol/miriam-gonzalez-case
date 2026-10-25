@@ -67,7 +67,7 @@ const idBarra = useId()
 <style scoped>
 .hpp__barra { display: flex; gap: 4px; margin-top: 12px; }
 .hpp__seg {
-  flex: 1 1 0; height: 12px; border-radius: 4px; box-sizing: border-box;
+  flex: 1 1 0; height: 12px; border-radius: var(--radius-sm); box-sizing: border-box;
   border: 2px solid rgb(var(--color-text-rgb) / 0.55); /* >= 3:1 sobre el fondo (WCAG 1.4.11) */
 }
 .hpp__seg--hecho { background: var(--color-miriam); border-color: var(--color-miriam); }
@@ -81,8 +81,8 @@ const idBarra = useId()
 .hpp__lista { list-style: none; margin: 20px 0 0; padding: 0; display: grid; gap: 10px; }
 .hpp__paso { display: flex; align-items: center; gap: 10px; min-height: 32px; }
 .hpp__num {
-  flex: none; width: 22px; height: 22px; border-radius: 999px; display: inline-flex; align-items: center;
-  justify-content: center; font: 600 12px/1 var(--font-mono, ui-monospace, monospace);
+  flex: none; width: 24px; height: 24px; border-radius: var(--radius-pill); display: inline-flex; align-items: center;
+  justify-content: center; font: 600 var(--texto-xs)/1 var(--font-mono);
   color: var(--color-text); background: rgb(var(--color-text-rgb) / 0.06);
 }
 </style>
