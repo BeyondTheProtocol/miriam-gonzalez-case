@@ -31,7 +31,9 @@
               </div>
               <p v-if="section.subtitle" class="measure text-sm text-tinta leading-relaxed">{{ section.subtitle }}</p>
             </div>
-            <ul class="space-y-4" :aria-labelledby="`papers-title-${sectionIndex}`">
+            <!-- Desde `lg` la lista se acota a lo que ocupan el texto (`--measure`) y el enlace «Ver estudio» (112 px + 16 de hueco + 66 de relleno y borde de
+                 la tarjeta = 194 px, 13rem con holgura): a la izquierda, como los subtítulos de grupo y los legales, sin un vacío entre el texto y el enlace. -->
+            <ul class="space-y-4 lg:max-w-[calc(var(--measure)+13rem)]" :aria-labelledby="`papers-title-${sectionIndex}`">
               <li v-for="paper in section.papers" :key="paper.ref" class="card-base">
                 <div class="flex items-start justify-between gap-4">
                   <div class="min-w-0 measure">
