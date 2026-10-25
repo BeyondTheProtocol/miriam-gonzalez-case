@@ -44,6 +44,7 @@
     "test:diseno": "tsx scripts/test-diseno.ts",
     "test:diseno-render": "node scripts/test-diseno-render.mjs",
     "test:componentes-texto": "node scripts/test-componentes-texto.mjs",
+    "test:tarjeta-activa": "node scripts/test-tarjeta-activa.mjs",
     "gen:design-doc": "tsx scripts/gen-design-doc.ts",
     "icons": "nuxt-seo-utils icons --source favicon.svg",
     "update-fundraiser": "tsx update-fundraiser.ts",

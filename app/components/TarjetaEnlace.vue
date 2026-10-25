@@ -13,6 +13,8 @@
  *   Los microtextos son copy: los pone quien usa la tarjeta, y pasan por voz-miriam y el muro.
  * · Hover (solo donde hay hover de verdad): el borde se oscurece y la flecha avanza 2 px. No se eleva: la elevación es
  *   de .card-base cuando la tarjeta es un enlace de bloque, aquí la fila entera es el objetivo.
+ * · Pulsar (táctil): el borde se oscurece (siempre) y, si no se pide menos movimiento, la tarjeta cede a 0,99 y la flecha avanza 2 px (--dur-micro,
+ *   --curva-salida). En la destacada manda el cede al avance de -2 px del hover.
  * · Objetivo táctil: 64 px de alto mínimo, la fila entera es el enlace. El icono y la flecha son decorativos.
  *
  * No usa @container: el soporte está sin comprobar (web.dev) y la rejilla se resuelve con media queries.
@@ -92,7 +94,7 @@ const alPulsar = (ev: MouseEvent) => emit('click', ev)
   display: flex; flex-direction: column; justify-content: center; gap: var(--sp-12); box-sizing: border-box; height: 100%; min-height: 4rem;
   padding: var(--sp-12) var(--sp-16);
   background: var(--superficie); color: var(--texto-1); text-decoration: none;
-  transition: border-color var(--dur-micro) var(--curva-salida), box-shadow var(--dur-micro) var(--curva-salida);
+  transition: border-color var(--dur-micro) var(--curva-salida), box-shadow var(--dur-micro) var(--curva-salida), transform var(--dur-micro) var(--curva-salida);
 }
 /* La destacada toma borde, radio y sombra de .card-marked (main.css); las demás, los de aquí. */
 .tarjeta-enlace:not(.card-marked) { border: 1px solid var(--trazo-medio); border-radius: var(--radius-card); }
@@ -117,6 +119,13 @@ const alPulsar = (ev: MouseEvent) => emit('click', ev)
   /* Apoyo: el fondo NO cambia al pasar. Berenjena sobre --color-cta-hover mide 4,31:1 (bajo AA para texto de 15 a 17 px); el aviso es el borde --texto-1 de arriba, la flecha y la sombra. */
   .tarjeta-enlace--apoyo:hover { box-shadow: var(--sombra-hover); }
   .tarjeta-enlace:hover .tarjeta-enlace__flecha { transform: translateX(2px); }
+}
+/* Táctil (revisión de P1): sin hover, el feedback vive en :active (mismo bloque que .btn-* en main.css). El color vale siempre; el movimiento,
+   solo si no se pide menos. Sin esto, /links (la página más táctil: viene de la bio de redes) y las Puertas no respondían al toque. */
+.tarjeta-enlace:active { border-color: var(--texto-1); }
+@media (prefers-reduced-motion: no-preference) {
+  .tarjeta-enlace:active { transform: scale(0.99); }
+  .tarjeta-enlace:active .tarjeta-enlace__flecha { transform: translateX(2px); }
 }
 @media (prefers-reduced-motion: reduce) {
   .tarjeta-enlace, .tarjeta-enlace__flecha { transition: none; }

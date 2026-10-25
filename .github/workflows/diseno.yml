@@ -38,3 +38,6 @@ jobs:
 
       # El texto que de verdad sale de Dato, Referencia y TarjetaEnlace (espacios que Vue elimina en modo condense). Sin baseline.
       - run: pnpm test:componentes-texto
+
+      # TarjetaEnlace responde al toque: :active forzado a 375 px, con movimiento normal y reducido. Sin baseline.
+      - run: pnpm test:tarjeta-activa
