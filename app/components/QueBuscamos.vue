@@ -84,7 +84,7 @@ const enlaceTodas = computed(() => hayEnlaceTodas(props.verTodas, mostradas.valu
 .qb__lista li { padding: 8px 12px; border-radius: var(--radius-btn); background: var(--color-bg-card); }
 /* El sello (Sello.vue) va a 11 px en mono: bajo el suelo de 13 px. Aquí sube a --texto-xs, como dentro de Dato. No depende de `sello--panel`
    (que solo existe donde la página hace provide('ocultarVerificado')): /herramientas no lo hace y pintaba 5 sellos a 11 px dentro de los
-   <details>, que R10 no ve porque se miden cerrados. */
+   <details> (con este override, `texto_bajo_suelo` de /herramientas baja de 10 a 0 en R10). */
 .qb__lista :deep(.sello) { font-size: var(--texto-xs); }
 /* el enlace va en su propia línea y con 44 px de alto: es un destino, no una palabra suelta del párrafo */
 .qb__resultados { display: flex; align-items: center; width: fit-content; min-height: 44px; }
