@@ -638,6 +638,14 @@ try {
   ok(await enRuta('/'), '375px: pulsar «ES» vuelve a /')
 
   console.log('\n12. La salida de las herramientas y el índice /herramientas (T2a, 24-oct-2026)')
+  // Movimiento reducido para medir la salida EN REPOSO (revisión de P1, 25-oct-2026). Con movimiento normal, v-reveal (app/plugins/reveal.ts) deja la
+  // Banda de la salida con opacity 0 y translateY(18 px) hasta que un IntersectionObserver la ve entrar. El pie mide más que la pantalla (886 px a
+  // 1280 y 1522 a 375, frente a 800 de alto), así que al final del scroll la salida queda ENCIMA de lo que se ve: si el scroll hasta abajo salta
+  // en vez de barrerla, no se revela nunca y su borde de abajo cae 18 px dentro del pie. Reproducido en local con scrollTo({ behavior: 'instant' });
+  // con 'smooth' se revela al pasar. Es lo que pintó el E2E en rojo (run 40157312460: /mapa-metastasis a 375 y /reservorio a 1280, ES y EN, con
+  // los mismos 18 px que el run anterior a P1); que el runner pinte pocos fotogramas durante el scroll suave es una inferencia, no se midió allí.
+  // Con movimiento reducido la directiva no oculta nada y el scroll es instantáneo: la medida no depende del reloj ni del runner.
+  await cdp('Emulation.setEmulatedMedia', { features: [{ name: 'prefers-reduced-motion', value: 'reduce' }] })
   const SALIDA = (etiqueta) => `(() => {
     const main = document.querySelector('main')
     const s = main.querySelector('section[aria-label="${etiqueta}"]')
@@ -645,7 +653,8 @@ try {
     const caja = (el) => { const r = el.getBoundingClientRect(); return { top: r.top + scrollY, bottom: r.bottom + scrollY, left: r.left, right: r.right, w: r.width, h: r.height } }
     const a = [...s.querySelectorAll('a')].map((x) => ({ href: x.getAttribute('href'), clase: x.className, ...caja(x), visible: x.offsetParent !== null }))
     const pie = document.querySelector('footer')
-    return { salida: caja(s), enlaces: a, ultimo: [...main.querySelectorAll(':scope > *')].at(-1) === s, pieTop: pie ? caja(pie).top : null, sw: document.documentElement.scrollWidth, vw: innerWidth }
+    return { salida: caja(s), enlaces: a, ultimo: [...main.querySelectorAll(':scope > *')].at(-1) === s, pieTop: pie ? caja(pie).top : null, sw: document.documentElement.scrollWidth, vw: innerWidth,
+      sinRevelar: s.classList.contains('reveal-init') && !s.classList.contains('reveal-in') }
   })()`
   for (const [loc, etiqueta, inicio, rutas] of [
     ['es', 'Después de usar la herramienta', '/', ['/datos', '/mapa-metastasis', '/reservorio', '/laminillas', '/celula-a-celula', '/celula-a-celula/explorar']],
@@ -655,7 +664,7 @@ try {
       await ancho(w, 800)
       for (const ruta of rutas) {
         await cargar(ruta)
-        // al fondo de la página y con la entrada animada (v-reveal, translateY 18 px) ya terminada: medida en reposo, no a medio mover
+        // al fondo de la página, en reposo (sin v-reveal: ver arriba)
         await evaluate('window.scrollTo(0, document.documentElement.scrollHeight)')
         await sleep(900)
         const m = await evaluate(SALIDA(etiqueta))
@@ -665,7 +674,7 @@ try {
         const [apoyo, volver] = m.enlaces
         ok(m.enlaces.length === 2 && apoyo.href === 'https://gofund.me/3e25cae99' && volver.href === inicio, `${e}: «Apoyar» (GoFundMe) y «Volver al inicio» (${inicio})`)
         ok(m.enlaces.every((x) => x.visible && x.h >= 44 && x.w >= 44), `${e}: los dos miden ≥ 44 px (${m.enlaces.map((x) => `${Math.round(x.w)}×${Math.round(x.h)}`).join(', ')})`)
-        ok(m.enlaces.every((x) => x.left >= 0 && x.right <= m.vw) && m.salida.bottom <= m.pieTop + 1, `${e}: caben en la pantalla y no los tapa el pie (salida hasta ${Math.round(m.salida.bottom)}, pie desde ${Math.round(m.pieTop)})`)
+        ok(m.enlaces.every((x) => x.left >= 0 && x.right <= m.vw) && m.salida.bottom <= m.pieTop + 1, `${e}: caben en la pantalla y no los tapa el pie (salida hasta ${Math.round(m.salida.bottom)}, pie desde ${Math.round(m.pieTop)}${m.sinRevelar ? '; OJO: la Banda sigue sin revelar, la medida incluye su translateY' : ''})`)
         ok(m.sw <= m.vw, `${e}: sin scroll horizontal (${m.sw} ≤ ${m.vw})`)
         ok(!/\bbtn-cta\b/.test(volver.clase) && /\bbtn-cta\b/.test(apoyo.clase), `${e}: solo el de apoyar es coral`)
         // en móvil, mientras el botón de apoyo de la salida está a la vista, la barra «Donar» no sale (data-support-cta): nunca dos a la vez
@@ -678,6 +687,7 @@ try {
       }
     }
   }
+  await cdp('Emulation.setEmulatedMedia', { features: [] })
   // el índice: sin desbordes, botones de 44 px y el plegable «Qué buscamos» se abre con el teclado
   for (const [loc, ruta] of [['es', '/herramientas'], ['en', '/en/tools']]) {
     for (const w of [320, 375, 768, 1024, 1280, 1440]) {
