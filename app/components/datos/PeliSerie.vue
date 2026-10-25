@@ -58,10 +58,17 @@ const geo = computed(() => {
     ticks = (ref0 ? [ref0.low, ref0.high] : [lo, hi]).map((v) => ({ v, y: Y(v), txt: numCaso(Math.abs(v) >= 100 ? Math.round(v) : Math.round(v * 10) / 10, props.lang) }))
     if (ref0) banda = { y0: Y(ref0.high), y1: Y(ref0.low) }
   }
+  // Mismo rotulado que MiniSerie (T3-LOTE2, A24): las líneas de referencia, todas; los rótulos, solo los que distan 15 px o más de los ya puestos.
+  const rotulos = new Set<number>()
+  const puestos: number[] = []
+  const prioridad = (t: { v: number }) => (props.modo === 'lsn' ? (t.v === 1 ? 0 : 1) : -t.v)
+  for (const t of [...ticks].sort((a, b) => prioridad(a) - prioridad(b) || a.y - b.y)) {
+    if (puestos.every((y) => Math.abs(y - t.y) >= 15)) { rotulos.add(t.v); puestos.push(t.y) }
+  }
   const pts = enVentana.map((p) => ({ p, v: val(p), t: msFecha(p.f) })).filter((q): q is { p: Punto; v: number; t: number } => q.v != null)
     .map((q) => ({ ...q, x: X(q.t), y: Y(q.v) }))
   return {
-    X, pts, ticks, banda,
+    X, pts, ticks, rotulos, banda,
     d: pts.map((q, i) => `${i ? 'L' : 'M'}${q.x},${q.y}`).join(''),
     bandas: props.contexto.bandas.filter((b) => b.fin > props.desde && b.ini < props.hasta)
       .map((b) => ({ id: b.id, x: X(Math.max(b.ini, props.desde)), w: Math.max(0, X(Math.min(b.fin, props.hasta)) - X(Math.max(b.ini, props.desde))) })),
@@ -100,7 +107,7 @@ const marca = (p: Punto) => (p.fuera === 'bajo' ? '▼ ' : p.fuera === 'alto' ? 
         <line :x1="X0" :x2="W - 6" :y1="Y1" :y2="Y1" class="ps__eje" />
         <template v-for="tk in geo.ticks" :key="tk.v">
           <line :x1="X0" :x2="W - 6" :y1="tk.y" :y2="tk.y" :class="tk.v === 1 && modo === 'lsn' ? 'ps__uno' : 'ps__rej'" />
-          <text :x="X0 - 4" :y="tk.y + 3.5" text-anchor="end" class="ps__tick">{{ tk.txt }}</text>
+          <text v-if="geo.rotulos.has(tk.v)" :x="X0 - 4" :y="tk.y + 3.5" text-anchor="end" class="ps__tick">{{ tk.txt }}</text>
         </template>
         <path :d="geo.d" class="ps__linea" :clip-path="`url(#${recorte})`" />
         <template v-for="q in pasados" :key="q.p.f">
@@ -119,7 +126,7 @@ const marca = (p: Punto) => (p.fuera === 'bajo' ? '▼ ' : p.fuera === 'alto' ? 
 .ps { padding: 8px 0 2px; border-top: 1px solid rgb(var(--color-text-rgb) / 0.08); }
 .ps__cab { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
 .ps__nombre { font: 700 14px/1.25 var(--font-body); color: var(--color-text); margin: 0; }
-.ps__lee { font: 400 12px var(--font-body); color: var(--color-text-soft); margin: 0; text-align: right; }
+.ps__lee { font: 400 var(--texto-xs) var(--font-body); color: var(--color-text-soft); margin: 0; text-align: right; }
 .ps__caja { position: relative; }
 .ps__svg { display: block; }
 .ps__valor { font: 700 13px var(--font-mono); color: var(--color-text); white-space: nowrap; }
@@ -128,7 +135,7 @@ const marca = (p: Punto) => (p.fuera === 'bajo' ? '▼ ' : p.fuera === 'alto' ? 
 .ps__eje { stroke: var(--viz-eje); }
 .ps__rej { stroke: var(--viz-rejilla); }
 .ps__uno { stroke: var(--color-text); stroke-opacity: 0.55; stroke-width: 1.2; }
-.ps__tick { font: 500 10px var(--font-mono); fill: var(--color-text-soft); }
+.ps__tick { font: 500 var(--texto-xs) var(--font-mono); fill: var(--color-text-soft); }
 .ps__linea { fill: none; stroke: var(--color-text); stroke-width: 1.8; stroke-linejoin: round; }
 .ps__fuera { fill: var(--color-miriam); stroke: var(--color-text); stroke-width: 0.7; }
 .ps__marcado { fill: var(--color-bg); stroke: var(--color-miriam); stroke-width: 1.5; }

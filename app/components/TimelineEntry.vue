@@ -21,7 +21,7 @@
           <span class="tl-sep" aria-hidden="true">·</span>
           <span
             class="font-mono uppercase text-2xs tracking-[0.12em] font-semibold"
-            :style="{ color: meta.accent }"
+            :style="{ color: colorEtiqueta }"
           >
             {{ entry.tag }}
           </span>
@@ -86,6 +86,8 @@ const props = defineProps<{
 const video = computed(() => videoPorId(props.entry.video))
 
 const meta = computed(() => CATEGORY_META[categoryForTag(props.entry.tag)])
+// El acento de «red» es el coral, que como texto sobre crema da 2,6:1 (lote 2, A22): la etiqueta va en --texto-1 y el color de la categoría lo lleva el punto del raíl.
+const colorEtiqueta = computed(() => (categoryForTag(props.entry.tag) === 'network' ? 'var(--texto-1)' : meta.value.accent))
 
 // El dot: vivo → coral; destacado → relleno suave + aro de su categoría;
 // normal → crema con aro tenue. El interior lleva el acento de la categoría.

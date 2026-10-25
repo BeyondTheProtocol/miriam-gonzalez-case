@@ -357,10 +357,10 @@ const miles = (n: number) => String(n).replace(/\B(?=(\d{3})+(?!\d))/g, props.la
 .dias__caja { position: relative; }
 .dias__lienzo { display: block; touch-action: pan-y; cursor: crosshair; }
 .dias__lienzo:focus-visible { outline: 2px solid var(--color-miriam); outline-offset: 2px; border-radius: 4px; }
-.dias__lee { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; min-height: 44px; margin: 6px 0 0; font: 500 12.5px/1.4 var(--font-mono); color: var(--color-text); }
+.dias__lee { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; min-height: 44px; margin: 6px 0 0; font: 500 var(--texto-xs)/1.4 var(--font-mono); color: var(--color-text); }
 .dias__ir { font: 700 13px var(--font-body); color: var(--color-miriam); min-height: 44px; }
 .dias__ir:focus-visible { outline: 2px solid var(--color-miriam); outline-offset: 2px; }
-.dias__ley { display: flex; flex-wrap: wrap; gap: 4px 12px; margin: 6px 0 0; font: 400 12px var(--font-body); color: var(--color-text-soft); }
+.dias__ley { display: flex; flex-wrap: wrap; gap: 4px 12px; margin: 6px 0 0; font: 400 var(--texto-xs) var(--font-body); color: var(--color-text-soft); }
 .dias__ley span { display: inline-flex; align-items: center; gap: 5px; }
 .dias__c { width: 16px; height: 6px; border-radius: 3px; display: inline-block; }
 .dias__c--solida { background: rgb(var(--color-miriam-rgb) / 0.9); }

@@ -50,7 +50,7 @@
             type="button"
             class="tl-chip"
             :class="{ 'tl-chip--active': selected === opt.key }"
-            :style="selected === opt.key && opt.accent ? { borderColor: opt.accent, color: opt.accent } : null"
+            :style="selected === opt.key && opt.accent ? { borderColor: opt.accent } : null"
             :aria-pressed="selected === opt.key"
             @click="selected = opt.key"
           >

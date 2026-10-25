@@ -726,14 +726,14 @@ export default { name: 'MarcasPage' }
 }
 
 /* Botón flotante de descarga del dossier — solo en pantallas MUY anchas.
-   Se oculta bajo 1600 px (T3-LOTE2, A21): es un botón fijo de unos 160 px de ancho a 24 px del borde, así que solo queda fuera del contenido (el shell mide
-   1200 px, centrado) cuando a cada lado sobran unos 200 px. Entre 1024 y 1599 px se pintaba encima de la última columna del contenido (a 1280 px, 80 px de
-   margen libre por lado). El enlace de descarga ya existe en el hero y en la dossier-row, y el pop-up de contacto ocupa el espacio flotante en móvil.
+   Se oculta bajo 1520 px (T3-LOTE2, A21): es un botón fijo de 161 px de ancho (medido) a 24 px del borde. El contenido del shell acaba en W/2 + 552 px y el
+   botón empieza en W - 185 px, así que solo cabe fuera del contenido desde unos 1474 px; 1520 deja holgura. Entre 1024 y 1519 px se pintaba encima de la última
+   columna (a 1280 px, el botón empezaba en 1095 y el contenido acababa en 1192). El enlace de descarga ya existe en el hero y en la dossier-row, y el pop-up de contacto ocupa el espacio flotante en móvil.
    Color = tokens del DS (berenjena/crema, vía @apply); el hover usa --btn-dark-hover, el mismo que .btn-dark:hover. Layout fijo/pill: bespoke (FAB). */
 .m-print-btn {
-  display: none; /* oculto bajo 1600 px */
+  display: none; /* oculto bajo 1520 px */
 }
-@media (min-width: 1600px) {
+@media (min-width: 1520px) {
   .m-print-btn {
     @apply bg-berenjena text-cream;
     position: fixed;

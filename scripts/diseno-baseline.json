@@ -3,7 +3,7 @@
   "nota": "Generado por scripts/test-diseno.ts (pnpm test:diseno --actualizar). Un recuento puede bajar, nunca subir. No se edita a mano.",
   "reglas": {
     "R1": {
-      "app/assets/css/main.css": 11,
+      "app/assets/css/main.css": 9,
       "app/components/BoneTriView.client.vue": 28,
       "app/components/BreastView.client.vue": 4,
       "app/components/celula/CelulaProximosPasos.vue": 1,
@@ -39,20 +39,7 @@
     "R2": {
       "app/assets/css/main.css": 1,
       "app/components/celula/explorar/CelulaExplorarPerfil.vue": 1,
-      "app/components/datos/CargaTumoral.vue": 5,
-      "app/components/datos/Cielo.vue": 4,
-      "app/components/datos/CifraClave.vue": 8,
-      "app/components/datos/CintaHigado.vue": 4,
-      "app/components/datos/Dias.vue": 2,
-      "app/components/datos/LineaTiempo.vue": 3,
-      "app/components/datos/MiniSerie.vue": 5,
-      "app/components/datos/Pelicula.vue": 1,
-      "app/components/datos/PeliSerie.vue": 2,
-      "app/components/datos/QueCambio.vue": 18,
-      "app/components/datos/RangoBarra.vue": 1,
-      "app/components/datos/Reservorio.vue": 4,
       "app/components/datos/Sello.vue": 1,
-      "app/components/datos/Tip.vue": 3,
       "app/components/DonationReturnPrompt.vue": 1,
       "app/components/ImageZoomViewer.client.vue": 1,
       "app/components/laminillas/LaminillasVisor.vue": 1,
@@ -61,9 +48,7 @@
       "app/components/NivelLectura.vue": 2,
       "app/components/SpineMRIViewer.vue": 3,
       "app/error.vue": 1,
-      "app/pages/datos.vue": 13,
-      "app/pages/gastos.vue": 4,
-      "app/pages/mapa-metastasis.vue": 190
+      "app/pages/gastos.vue": 4
     },
     "R3": {
       "app/assets/css/main.css": 1,
@@ -211,7 +196,7 @@
       "app/pages/contacto.vue": 1,
       "app/pages/gastos.vue": 5,
       "app/pages/index.vue": 1,
-      "app/pages/mapa-metastasis.vue": 28
+      "app/pages/mapa-metastasis.vue": 1
     }
   },
   "excepciones": {

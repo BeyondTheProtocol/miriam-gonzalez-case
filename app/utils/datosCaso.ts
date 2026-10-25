@@ -209,8 +209,8 @@ export const rangoVentana = (v: Ventana, hoyMs: number): [number, number] => {
 }
 
 /** Marcas de contexto que se repiten en cada mini: progresiones (líneas) y líneas sistémicas (bandas). */
-/** Márgenes horizontales COMPARTIDOS por LineaTiempo y MiniSerie: misma fecha, misma x. */
-export const EJE_IZQ = 34
+/** Márgenes horizontales COMPARTIDOS por LineaTiempo y MiniSerie: misma fecha, misma x. EJE_IZQ era 34 px hasta el lote 2 (T3): la marca «0.25×» en mono a 13 px mide unos 39 px y se cortaba. */
+export const EJE_IZQ = 46
 export const EJE_DER = 6
 
 export interface Contexto { progresiones: number[]; bandas: { ini: number; fin: number; id: string }[] }

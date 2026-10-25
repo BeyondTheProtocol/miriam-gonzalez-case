@@ -40,8 +40,8 @@ const pos = computed(() => {
 
 <style scoped>
 .tip { position: absolute; z-index: 5; pointer-events: none; max-width: min(260px, calc(100% - 8px)); padding: 7px 10px; border-radius: 10px;
-  background: var(--viz-tooltip-bg); color: var(--viz-tooltip-text); font: 400 12px/1.4 var(--font-body); box-shadow: 0 6px 18px rgb(0 0 0 / 0.18); }
-.tip :deep(.tip__n) { display: block; font: 500 11px var(--font-body); opacity: 0.75; }
+  background: var(--viz-tooltip-bg); color: var(--viz-tooltip-text); font: 400 var(--texto-xs)/1.4 var(--font-body); box-shadow: 0 6px 18px rgb(0 0 0 / 0.18); }
+.tip :deep(.tip__n) { display: block; font: 500 var(--texto-xs) var(--font-body); opacity: 0.75; }
 .tip :deep(.tip__v) { display: block; font: 700 14px var(--font-mono); }
-.tip :deep(.tip__l) { display: block; font: 500 11px var(--font-mono); opacity: 0.85; }
+.tip :deep(.tip__l) { display: block; font: 500 var(--texto-xs) var(--font-mono); opacity: 0.85; }
 </style>

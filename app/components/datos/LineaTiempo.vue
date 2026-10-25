@@ -146,7 +146,7 @@ const elegido = computed(() => (props.cabezal != null ? eventos.value[eventos.va
 .lt__svg { display: block; overflow: visible; }
 .lt__rej { stroke: var(--viz-rejilla); }
 .lt__rej-anio { stroke: var(--viz-eje); }
-.lt__tick { font: 500 10px var(--font-mono); fill: var(--color-text-soft); }
+.lt__tick { font: 500 var(--texto-xs) var(--font-mono); fill: var(--color-text-soft); }
 .lt__tick--anio { font-weight: 700; fill: var(--color-text); }
 /* el trazo lleva el contraste ≥3:1 del objeto (WCAG 1.4.11); el relleno claro deja leer «1L» */
 .lt__linea { fill: var(--viz-sev-2); stroke: var(--color-text); stroke-opacity: 0.8; }
@@ -155,7 +155,7 @@ const elegido = computed(() => (props.cabezal != null ? eventos.value[eventos.va
 .lt__lin { cursor: pointer; outline: none; }
 .lt__linea--sel { stroke: var(--color-miriam); stroke-opacity: 1; stroke-width: 2.5; }
 .lt__lin:focus-visible .lt__linea { stroke: var(--color-miriam); stroke-opacity: 1; stroke-width: 2.5; }
-.lt__linea-txt { font: 700 11px var(--font-mono); fill: var(--color-text); pointer-events: none; }
+.lt__linea-txt { font: 700 var(--texto-xs) var(--font-mono); fill: var(--color-text); pointer-events: none; }
 .lt__hoy { stroke: var(--color-miriam); stroke-width: 1.5; }
 .lt__cabezal { stroke: var(--color-miriam); stroke-width: 2.5; }
 .lt__ev { cursor: pointer; outline: none; }
@@ -182,6 +182,6 @@ const elegido = computed(() => (props.cabezal != null ? eventos.value[eventos.va
 .lt__pie { flex: 1; font: 400 14px/1.4 var(--font-body); color: var(--color-text); margin: 0; min-height: 2.8em; display: flex; align-items: center; }
 .lt__nav--compacta .lt__pie { display: block; min-height: 1.4em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 13px; }
 .lt__etapa { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; line-clamp: 2; overflow: hidden; }
-.lt__ley { display: flex; flex-wrap: wrap; gap: 4px 12px; font: 400 12px var(--font-body); color: var(--color-text-soft); margin: 4px 0 0; }
+.lt__ley { display: flex; flex-wrap: wrap; gap: 4px 12px; font: 400 var(--texto-xs) var(--font-body); color: var(--color-text-soft); margin: 4px 0 0; }
 .lt__ley span { display: inline-flex; align-items: center; gap: 4px; }
 </style>

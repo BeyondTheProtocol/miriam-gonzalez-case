@@ -70,13 +70,21 @@ const geo = computed(() => {
     ticks = (ref0 ? [ref0.low, ref0.high] : [lo, hi]).map((v) => ({ v, y: Y(v), txt: numCaso(redondo(v), props.lang) }))
     if (ref0) banda = { y0: Y(ref0.high), y1: Y(ref0.low) }
   }
+  // T3-LOTE2 (A24): a 13 px (el suelo) caben pocos rótulos en una mini de 92 px. Las LÍNEAS de referencia se dibujan todas, sin tocar; los RÓTULOS, solo los que distan
+  // 15 px o más de los ya puestos, con el 1× (el límite normal) primero y, sin él, el valor mayor primero. Es un cambio de rotulado y no de escala ni de datos.
+  const rotulos = new Set<number>()
+  const puestos: number[] = []
+  const prioridad = (t: { v: number }) => (props.modo === 'lsn' ? (t.v === 1 ? 0 : 1) : -t.v)
+  for (const t of [...ticks].sort((a, b) => prioridad(a) - prioridad(b) || a.y - b.y)) {
+    if (puestos.every((y) => Math.abs(y - t.y) >= 15)) { rotulos.add(t.v); puestos.push(t.y) }
+  }
   const pts = vis.value.map((p) => ({ p, v: val(p) })).filter((q): q is { p: Punto; v: number } => q.v != null)
     .map((q) => ({ ...q, x: X(msFecha(q.p.f)), y: Y(q.v) }))
   const anios: { x: number; a: number }[] = []
   for (let a = new Date(props.desde).getUTCFullYear() + 1; a <= new Date(props.hasta).getUTCFullYear(); a++)
     anios.push({ x: X(Date.UTC(a, 0, 1)), a })
   return {
-    X, pts, ticks, banda, anios, uno: props.modo === 'lsn' ? Y(1) : null,
+    X, pts, ticks, rotulos, banda, anios, uno: props.modo === 'lsn' ? Y(1) : null,
     d: pts.map((q, i) => `${i ? 'L' : 'M'}${q.x},${q.y}`).join(''),
     bandas: props.contexto.bandas.filter((b) => b.fin > props.desde && b.ini < props.hasta)
       .map((b) => ({ id: b.id, x: X(Math.max(b.ini, props.desde)), w: Math.max(0, X(Math.min(b.fin, props.hasta)) - X(Math.max(b.ini, props.desde))) })),
@@ -182,7 +190,7 @@ const valorTxt = (p: Punto) => {
         <line :x1="X0" :x2="W - 6" :y1="Y1" :y2="Y1" class="ms__eje" />
         <template v-for="tk in geo.ticks" :key="tk.v">
           <line :x1="X0" :x2="W - 6" :y1="tk.y" :y2="tk.y" :class="tk.v === 1 && modo === 'lsn' ? 'ms__uno' : 'ms__rej'" />
-          <text :x="X0 - 4" :y="tk.y + 3.5" text-anchor="end" class="ms__tick">{{ tk.txt }}</text>
+          <text v-if="geo.rotulos.has(tk.v)" :x="X0 - 4" :y="tk.y + 3.5" text-anchor="end" class="ms__tick">{{ tk.txt }}</text>
         </template>
         <path :key="`${desde}-${hasta}`" :d="geo.d" class="ms__linea" pathLength="1" />
         <template v-for="q in geo.pts" :key="q.p.f">
@@ -216,12 +224,12 @@ const valorTxt = (p: Punto) => {
 .ms__svg:focus-visible { outline: 2px solid var(--color-miriam); outline-offset: 2px; border-radius: 4px; }
 .ms { padding: 10px 0 8px; border-top: 1px solid rgb(var(--color-text-rgb) / 0.08); }
 .ms__cab { display: flex; flex-direction: column; gap: 1px; }
-@media (min-width: 520px) { .ms__cab { flex-direction: row; justify-content: space-between; align-items: baseline; gap: 8px; } }
+@media (min-width: 520px) { .ms__cab { flex-direction: row; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 1px 8px; } .ms__nombre { white-space: nowrap; } }
 .ms__nombre { font: 700 14px/1.25 var(--font-body); color: var(--color-text); margin: 0; }
 .ms__valor { font: 600 13px var(--font-mono); color: var(--color-text); margin: 0; }
 .ms__valor--cursor { color: var(--color-miriam); }
 .ms__marca { color: var(--color-miriam); }
-.ms__fecha { font: 400 11px var(--font-body); color: var(--color-text-soft); margin-left: 4px; }
+.ms__fecha { font: 400 var(--texto-xs) var(--font-body); color: var(--color-text-soft); margin-left: 4px; }
 .ms__svg { display: block; margin-top: 4px; touch-action: pan-y; cursor: crosshair; }
 .ms__banda-linea { fill: var(--color-miriam); fill-opacity: 0.05; }
 .ms__banda-linea { transition: fill-opacity var(--dur-micro) var(--curva-salida); }
@@ -232,7 +240,7 @@ const valorTxt = (p: Punto) => {
 .ms__eje { stroke: var(--viz-eje); }
 .ms__rej { stroke: var(--viz-rejilla); }
 .ms__uno { stroke: var(--color-text); stroke-opacity: 0.55; stroke-width: 1.2; }
-.ms__tick { font: 500 10px var(--font-mono); fill: var(--color-text-soft); }
+.ms__tick { font: 500 var(--texto-xs) var(--font-mono); fill: var(--color-text-soft); }
 .ms__linea { fill: none; stroke: var(--color-text); stroke-width: 1.6; stroke-linejoin: round; }
 .ms__dentro { fill: var(--color-bg); stroke: var(--color-text); stroke-width: 1.2; }
 .ms__fuera { fill: var(--color-miriam); stroke: var(--color-text); stroke-width: 0.7; }
@@ -247,12 +255,12 @@ const valorTxt = (p: Punto) => {
 @keyframes ms-trazo { from { stroke-dashoffset: 1; } to { stroke-dashoffset: 0; } }
 @keyframes ms-pop { 0% { opacity: 0; transform: scale(0.2); } 70% { opacity: 1; transform: scale(1.5); } 100% { opacity: 1; transform: scale(1); } }
 @media (prefers-reduced-motion: reduce) { .ms--visto .ms__linea, .ms--visto .ms__fuera { animation: none; } }
-.ms__det summary { font: 600 12.5px var(--font-body); color: var(--color-miriam); cursor: pointer; margin-top: 2px; min-height: 44px; display: flex; align-items: center; gap: 8px; list-style: none; }
+.ms__det summary { font: 600 var(--texto-xs) var(--font-body); color: var(--color-miriam); cursor: pointer; margin-top: 2px; min-height: 44px; display: flex; align-items: center; gap: 8px; list-style: none; }
 .ms__det summary::-webkit-details-marker { display: none; }
 .ms__det summary::after { content: ''; width: 6px; height: 6px; border-right: 1.5px solid currentColor; border-bottom: 1.5px solid currentColor; transform: rotate(45deg) translateY(-2px); transition: transform var(--dur-micro) var(--curva-salida); }
 .ms__det[open] summary::after { transform: rotate(-135deg) translateY(-2px); }
-.ms__tabla { width: 100%; font: 400 12px var(--font-mono); border-collapse: collapse; margin-top: 4px; }
-.ms__tabla th { text-align: left; font: 600 11px var(--font-body); color: var(--color-text-soft); padding: 4px; }
+.ms__tabla { width: 100%; font: 400 var(--texto-xs) var(--font-mono); border-collapse: collapse; margin-top: 4px; }
+.ms__tabla th { text-align: left; font: 600 var(--texto-xs) var(--font-body); color: var(--color-text-soft); padding: 4px; }
 .ms__tabla td { padding: 3px 4px; border-top: 1px solid rgb(var(--color-text-rgb) / 0.06); }
 .ms__td-fuera { font-weight: 700; }
 </style>

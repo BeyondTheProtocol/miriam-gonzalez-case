@@ -1019,7 +1019,7 @@ const tipStyle = computed(() => {
   .starmap__label,
   .starmap__label--patron { font-family: var(--font-body); font-size: var(--texto-sm); font-weight: 600; }
   .starmap__m44 { font-family: var(--font-body); font-size: var(--texto-sm); font-weight: 700; }
-  .starmap__m44 small { font-family: var(--font-body); font-size: var(--texto-xs); }
+  .starmap__m44 small { font-family: var(--font-body); font-size: var(--texto-xs); max-width: 8.5rem; }
   .starmap__tip-name { font-family: var(--font-body); font-size: var(--texto-sm); font-weight: 700; }
 }
 @keyframes star-ignite {

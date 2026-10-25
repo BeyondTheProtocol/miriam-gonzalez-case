@@ -670,16 +670,6 @@
   /* «Pendiente»: mismos tokens que --complete, nombre que dice lo que representa. */
   .status-badge--pending   { background: color-mix(in srgb, var(--texto-1) 6%, transparent); color: var(--texto-2); }
   .status-badge--candidate { background: #fde4cc; color: #8a4a1a; }
-  .status-badge--reference {
-    background: #e0ecf8;
-    color: #1e4a6f;
-    /* References can be long citations — allow wrapping so they never
-       force horizontal overflow on narrow screens. */
-    white-space: normal;
-    text-align: left;
-    max-width: 100%;
-    overflow-wrap: anywhere;
-  }
   .status-badge--paused    { background: #f0d4cc; color: #7a3018; }
   .status-badge--firma     { background: var(--color-miriam-soft); color: #5a2466; }
   /* shape: tag teal de morfología/factibilidad (forma del hueso); recurre en /mapa. */

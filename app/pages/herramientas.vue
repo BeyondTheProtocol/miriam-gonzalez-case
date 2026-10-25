@@ -215,7 +215,7 @@ defineOgImage('Default.takumi', {
 .herr__cab { display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-4) var(--sp-12); }
 .herr__icono { flex: none; width: 1.5rem; height: 1.5rem; color: var(--identidad); }
 .herr__ultimo { color: var(--identidad); }
-.herr__desc { margin: 0; font: var(--tipo-body-sm); color: var(--texto-2); }
+.herr__desc { margin: 0; max-width: var(--measure); font: var(--tipo-body-sm); color: var(--texto-2); }
 .herr__busca { margin-top: auto; }
 .herr__busca--todas { margin-bottom: 0; }
 .herr__peticiones { padding-bottom: var(--sp-8); }

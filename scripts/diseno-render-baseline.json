@@ -42,7 +42,7 @@
       "texto_svg_bajo_suelo": 0,
       "objetivos_pequenos": 1,
       "contraste": 0,
-      "linea_larga": 13,
+      "linea_larga": 7,
       "sticky_tapado": 0,
       "foco_tapado": 0
     },
@@ -71,10 +71,10 @@
     "/colabora:390": {
       "desborde": 0,
       "h1_borde": 0,
-      "texto_bajo_suelo": 13,
+      "texto_bajo_suelo": 0,
       "texto_svg_bajo_suelo": 0,
       "objetivos_pequenos": 14,
-      "contraste": 5,
+      "contraste": 0,
       "linea_larga": 0,
       "sticky_tapado": 0,
       "foco_tapado": 0
@@ -82,18 +82,18 @@
     "/colabora:1280": {
       "desborde": 0,
       "h1_borde": 0,
-      "texto_bajo_suelo": 13,
+      "texto_bajo_suelo": 0,
       "texto_svg_bajo_suelo": 0,
       "objetivos_pequenos": 14,
-      "contraste": 5,
-      "linea_larga": 1,
+      "contraste": 0,
+      "linea_larga": 0,
       "sticky_tapado": 0,
       "foco_tapado": 0
     },
     "/contacto:390": {
       "desborde": 0,
       "h1_borde": 0,
-      "texto_bajo_suelo": 1,
+      "texto_bajo_suelo": 0,
       "texto_svg_bajo_suelo": 0,
       "objetivos_pequenos": 1,
       "contraste": 0,
@@ -104,7 +104,7 @@
     "/contacto:1280": {
       "desborde": 0,
       "h1_borde": 0,
-      "texto_bajo_suelo": 1,
+      "texto_bajo_suelo": 0,
       "texto_svg_bajo_suelo": 0,
       "objetivos_pequenos": 1,
       "contraste": 0,
@@ -115,8 +115,8 @@
     "/datos:390": {
       "desborde": 0,
       "h1_borde": 0,
-      "texto_bajo_suelo": 261,
-      "texto_svg_bajo_suelo": 34,
+      "texto_bajo_suelo": 0,
+      "texto_svg_bajo_suelo": 0,
       "objetivos_pequenos": 1,
       "contraste": 0,
       "linea_larga": 0,
@@ -126,18 +126,18 @@
     "/datos:1280": {
       "desborde": 0,
       "h1_borde": 0,
-      "texto_bajo_suelo": 261,
-      "texto_svg_bajo_suelo": 34,
+      "texto_bajo_suelo": 0,
+      "texto_svg_bajo_suelo": 0,
       "objetivos_pequenos": 2,
       "contraste": 0,
-      "linea_larga": 19,
+      "linea_larga": 12,
       "sticky_tapado": 0,
       "foco_tapado": 0
     },
     "/equipo:390": {
       "desborde": 0,
       "h1_borde": 0,
-      "texto_bajo_suelo": 4,
+      "texto_bajo_suelo": 0,
       "texto_svg_bajo_suelo": 0,
       "objetivos_pequenos": 2,
       "contraste": 0,
@@ -148,11 +148,11 @@
     "/equipo:1280": {
       "desborde": 0,
       "h1_borde": 0,
-      "texto_bajo_suelo": 4,
+      "texto_bajo_suelo": 0,
       "texto_svg_bajo_suelo": 0,
       "objetivos_pequenos": 2,
       "contraste": 0,
-      "linea_larga": 3,
+      "linea_larga": 0,
       "sticky_tapado": 0,
       "foco_tapado": 0
     },
@@ -240,7 +240,7 @@
       "texto_svg_bajo_suelo": 0,
       "objetivos_pequenos": 1,
       "contraste": 0,
-      "linea_larga": 2,
+      "linea_larga": 0,
       "sticky_tapado": 0,
       "foco_tapado": 0
     },
@@ -269,7 +269,7 @@
     "/mapa-metastasis:390": {
       "desborde": 0,
       "h1_borde": 0,
-      "texto_bajo_suelo": 529,
+      "texto_bajo_suelo": 4,
       "texto_svg_bajo_suelo": 47,
       "objetivos_pequenos": 62,
       "contraste": 38,
@@ -280,18 +280,18 @@
     "/mapa-metastasis:1280": {
       "desborde": 0,
       "h1_borde": 0,
-      "texto_bajo_suelo": 529,
+      "texto_bajo_suelo": 4,
       "texto_svg_bajo_suelo": 6,
       "objetivos_pequenos": 63,
       "contraste": 38,
-      "linea_larga": 70,
+      "linea_larga": 39,
       "sticky_tapado": 0,
       "foco_tapado": 0
     },
     "/marcas:390": {
       "desborde": 0,
       "h1_borde": 0,
-      "texto_bajo_suelo": 10,
+      "texto_bajo_suelo": 0,
       "texto_svg_bajo_suelo": 0,
       "objetivos_pequenos": 8,
       "contraste": 0,
@@ -302,11 +302,11 @@
     "/marcas:1280": {
       "desborde": 0,
       "h1_borde": 0,
-      "texto_bajo_suelo": 11,
+      "texto_bajo_suelo": 0,
       "texto_svg_bajo_suelo": 0,
-      "objetivos_pequenos": 9,
+      "objetivos_pequenos": 8,
       "contraste": 0,
-      "linea_larga": 5,
+      "linea_larga": 0,
       "sticky_tapado": 0,
       "foco_tapado": 0
     },
@@ -328,17 +328,17 @@
       "texto_svg_bajo_suelo": 0,
       "objetivos_pequenos": 1,
       "contraste": 0,
-      "linea_larga": 7,
+      "linea_larga": 0,
       "sticky_tapado": 0,
       "foco_tapado": 0
     },
     "/timeline:390": {
       "desborde": 0,
       "h1_borde": 0,
-      "texto_bajo_suelo": 74,
+      "texto_bajo_suelo": 0,
       "texto_svg_bajo_suelo": 0,
       "objetivos_pequenos": 13,
-      "contraste": 41,
+      "contraste": 0,
       "linea_larga": 0,
       "sticky_tapado": 0,
       "foco_tapado": 0
@@ -346,11 +346,11 @@
     "/timeline:1280": {
       "desborde": 0,
       "h1_borde": 0,
-      "texto_bajo_suelo": 74,
+      "texto_bajo_suelo": 0,
       "texto_svg_bajo_suelo": 0,
-      "objetivos_pequenos": 13,
-      "contraste": 41,
-      "linea_larga": 27,
+      "objetivos_pequenos": 1,
+      "contraste": 0,
+      "linea_larga": 0,
       "sticky_tapado": 0,
       "foco_tapado": 0
     },
@@ -511,7 +511,7 @@
     "/reservorio:390": {
       "desborde": 0,
       "h1_borde": 0,
-      "texto_bajo_suelo": 2,
+      "texto_bajo_suelo": 0,
       "texto_svg_bajo_suelo": 0,
       "objetivos_pequenos": 1,
       "contraste": 0,
@@ -522,11 +522,11 @@
     "/reservorio:1280": {
       "desborde": 0,
       "h1_borde": 0,
-      "texto_bajo_suelo": 2,
+      "texto_bajo_suelo": 0,
       "texto_svg_bajo_suelo": 0,
       "objetivos_pequenos": 1,
       "contraste": 0,
-      "linea_larga": 1,
+      "linea_larga": 0,
       "sticky_tapado": 0,
       "foco_tapado": 0
     },

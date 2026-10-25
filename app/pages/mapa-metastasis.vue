@@ -2302,8 +2302,8 @@ const manifestValidated = (() => {
         >
           <template #emblema>
             <!-- Rótulo de «sirvió en un momento concreto»: el mapa se hizo en junio para decidir dónde biopsiar y ya no se actualiza.
-                 Mismo distintivo «Histórico» (status-badge--reference) que lleva el 3D del reservorio. -->
-            <span class="status-badge status-badge--reference mb-3">{{ $t('herramientas.historico_mapa') }}</span>
+                 Distintivo «Histórico» neutro (`pill-data--neutral`; antes la píldora azul `status-badge--reference`, de 10 px y con hex). -->
+            <span class="pill-data pill-data--neutral mb-3">{{ $t('herramientas.historico_mapa') }}</span>
             <!-- Va tras la miga «‹ Herramientas» (diseno, tras el PR #269): antes la empujaba a ~197 px. -->
             <svg viewBox="0 0 24 24" width="26" height="26" aria-hidden="true" class="block mb-3 split-disc-sigil">
               <path d="M12 2 A10 10 0 0 0 12 22 Z" fill="rgb(28,150,158)" />
@@ -2321,15 +2321,14 @@ const manifestValidated = (() => {
 
         <!-- Fecha de la foto (29-sep-2026): el mapa se construyó en junio para decidir dónde
              biopsiar. Lo que pasó después se dice aquí arriba, no en cada foco. -->
-        <div class="alert-callout mb-6" role="note" :aria-label="L('Aviso: foto de marzo a junio de 2026', 'Notice: snapshot from March to June 2026')">
-          <p class="alert-callout__title">
-            <Icon name="ph:calendar-blank-fill" class="w-4 h-4 shrink-0" aria-hidden="true" />
-            {{ L('Foto de marzo a junio de 2026', 'Snapshot from March to June 2026') }}
-          </p>
-          {{ L(
+        <!-- T3-LOTE2 (A25): el aviso salmón (`.alert-callout`) pasa a `<Aviso>`: mismo texto, mismo título, con el filete violeta y la caja a la medida. -->
+        <Aviso tipo="limites" :titulo="L('Foto de marzo a junio de 2026', 'Snapshot from March to June 2026')" :aria-label="L('Aviso: foto de marzo a junio de 2026', 'Notice: snapshot from March to June 2026')" class="mb-6">
+          <p>
+            {{ L(
             'Este mapa se hizo en junio de 2026 para decidir dónde biopsiar. Después: biopsia ósea con tumor el 8/07/2026 en el ilion derecho (Zúrich); metástasis hepáticas desde el PET del 10/07/2026, con un TC que describe lesiones óseas incontables; y el 8/09/2026 el PET-FDG informa nuevas lesiones óseas activas (costillas, escápula, pelvis, fémures) mientras el TC y la RM de ese mismo día informan estabilidad ósea. Los 19 focos de abajo son los que captaban trazador en marzo–mayo.',
             'This map was built in June 2026 to decide where to biopsy. Since then: tumour-positive bone biopsy on 8/07/2026 in the right ilium (Zurich); liver metastases from the 10/07/2026 PET, with a CT describing innumerable bone lesions; and on 8/09/2026 the FDG-PET reports new active bone lesions (ribs, scapula, pelvis, femurs) while the same-day CT and MRI report bone stability. The 19 foci below are those with tracer uptake in March–May.') }}
-        </div>
+          </p>
+        </Aviso>
 
         <!-- Aviso PERSISTENTE · herramienta de APOYO (petición de la paciente:
              que se diga «todo el rato»). El titular del disclaimer va SIEMPRE
@@ -2338,14 +2337,12 @@ const manifestValidated = (() => {
              plegado debajo para no empujar lo primario, pero el encuadre
              «apoyo, no diagnóstico» no se esconde nunca. role=note → el lector
              de pantalla lo anuncia. -->
-        <div class="alert-callout mb-6" role="note" :aria-label="L('Aviso: herramienta de apoyo, no diagnóstico', 'Notice: support tool, not a diagnosis')">
-          <p class="alert-callout__title">
-            <Icon name="ph:info-fill" class="w-4 h-4 shrink-0" aria-hidden="true" />
-            {{ L('Herramienta de APOYO a la decisión. No es diagnóstico ni consejo médico.', 'A decision-SUPPORT tool. Not a diagnosis or medical advice.') }}
-          </p>
-          {{ L(
+        <Aviso tipo="apoyo" :titulo="L('Herramienta de APOYO a la decisión. No es diagnóstico ni consejo médico.', 'A decision-SUPPORT tool. Not a diagnosis or medical advice.')" :aria-label="L('Aviso: herramienta de apoyo, no diagnóstico', 'Notice: support tool, not a diagnosis')" class="mb-6">
+          <p>
+            {{ L(
             'Es el caso de Miriam, abierto para entender su enfermedad y decidir mejor con su equipo médico — no sustituye su criterio. Deciden sus médicos.',
             'This is Miriam’s case, opened to understand her disease and to decide better with her medical team — it does not replace their judgment. Her doctors decide.') }}
+          </p>
           <details class="mt-2.5 group">
             <summary class="cursor-pointer font-semibold list-none inline-flex items-center gap-1.5">
               <Icon name="ph:caret-right" class="w-3.5 h-3.5 shrink-0 transition-transform group-open:rotate-90" aria-hidden="true" />
@@ -2357,7 +2354,7 @@ const manifestValidated = (() => {
               'This page gathers and visualizes Miriam’s own studies (¹⁸F-FDG PET-CT 24/03/2026, ⁶⁸Ga-DOTATOC PET-CT 26/05/2026 and the 11 Jun 2026 spine MRI: images from the cervical and thoracic series; the written report covers the thoracic and lumbar spine down to S2). SUVs are those of the official PET reports; the images (PET and MRI) were reconstructed from the DICOM. The MRI is shown for viewing: its formal reading belongs to the radiologist. The FDG “prior” is the value the 24/03/2026 report assigns to the January study; the January report itself (13/01/2026, a different scanner) gives other figures (T11 6.6; right femur 3.6; L5 2.3): SUVs are not comparable across scanners. Per-focus sizes were measured on the DICOM; the reports do not give them. The vertebra with epidural extension is labelled T11 in Murcia and on the RECIST sheet, and T12 on the Barcelona MRI: same lesion, different numbering across centres.') }}
             </p>
           </details>
-        </div>
+        </Aviso>
 
         <!-- ╔══════════════ ZONA 1 · «Análisis de la lesión» (la herramienta, SIN menú) ══════════════╗
              La herramienta limpia: el cintillo de contexto (cockpit, order-1) y el
@@ -2378,7 +2375,7 @@ const manifestValidated = (() => {
         <section class="mb-14" aria-labelledby="contexto-general">
           <p class="eyebrow mb-2 block">{{ L('Contexto · el panorama', 'Context · the big picture') }}</p>
           <h2 id="contexto-general" class="heading-display text-2xl text-berenjena mb-2 scroll-mt-[5.5rem]">{{ L('Enfermedad ósea — el caso de un vistazo', 'Bone disease — the case at a glance') }}</h2>
-          <p class="text-sm text-tinta leading-relaxed mb-5 max-w-3xl">{{ L('Cuánta enfermedad hay y cómo evoluciona, antes de entrar foco a foco.', 'How much disease there is and how it is evolving, before going focus by focus.') }}</p>
+          <p class="text-sm text-tinta leading-relaxed mb-5 measure">{{ L('Cuánta enfermedad hay y cómo evoluciona, antes de entrar foco a foco.', 'How much disease there is and how it is evolving, before going focus by focus.') }}</p>
           <!-- enfermedad · KPIs -->
           <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-5">
             <div class="stat-readout">
@@ -2405,7 +2402,7 @@ const manifestValidated = (() => {
           <!-- (auditoría) evolución condensada a UNA línea aquí (panorama); el detalle de los
                4 KPIs + el matiz «solo FDG, sin previo de Galio» viven en la sección «trayectoria»
                (antes se duplicaba el mismo grid en los dos sitios). -->
-          <p class="text-sm text-tinta mt-1 leading-relaxed max-w-3xl">
+          <p class="text-sm text-tinta mt-1 leading-relaxed measure">
             <span class="eyebrow--sm text-berenjena mr-1">{{ L('Evolución (¹⁸F-FDG)', 'Evolution (¹⁸F-FDG)') }}</span>{{ L((trajectory.up + trajectory.neu) + ' focos con captación glucolítica al alza (incl. ' + trajectory.neu + ' nuevos), ' + trajectory.down + ' a la baja, ' + trajectory.stable + ' estables — solo ¹⁸F-FDG (ene→mar 2026). ', (trajectory.up + trajectory.neu) + ' foci with rising glycolytic uptake (incl. ' + trajectory.neu + ' new), ' + trajectory.down + ' falling, ' + trajectory.stable + ' stable — ¹⁸F-FDG only (Jan→Mar 2026). ') }}<a href="#trayectoria" class="link-action text-miriam font-semibold whitespace-nowrap">{{ L('Ver la trayectoria ↓', 'See the trajectory ↓') }}</a>
           </p>
         </section>
@@ -2424,7 +2421,7 @@ const manifestValidated = (() => {
             </div>
             <span class="status-badge status-badge--firma self-start mt-1">{{ L('equipa, no indica', 'equips, does not indicate') }}</span>
           </div>
-          <p class="text-sm text-tinta leading-relaxed mb-4 max-w-3xl">
+          <p class="text-sm text-tinta leading-relaxed mb-4 measure">
             {{ L('Una orientación heurística (estimación orientativa, no validada) que EQUIPA al equipo médico: los focos que la lente sitúa mejor como diana por las señales de imagen — captación (FDG/Ga), rendimiento del tejido y tamaño. Toca uno para verlo en el navegador y en 3D, justo abajo. Ayuda a sopesar; el equipo decide qué biopsiar.',
                   'A heuristic orientation (an indicative estimate, not validated) that EQUIPS the medical team: the foci the lens places best as a target by the imaging signals — tracer uptake (FDG/Ga), tissue yield and size. Tap one to see it in the navigator and in 3D, right below. It helps to weigh; the team decides what to biopsy.') }}
           </p>
@@ -2439,39 +2436,38 @@ const manifestValidated = (() => {
                 <span class="inline-flex items-center gap-2 min-w-0">
                   <span class="w-3 h-3 shrink-0 rounded-full" :style="{ background: phenoColor(le), boxShadow: sourceOf(le) === 'ia-david' ? '0 0 0 1.5px #fff, 0 0 0 3px ' + phenoColor(le) : 'none' }" aria-hidden="true" />
                   <span class="font-semibold text-berenjena text-[13px] leading-tight truncate">{{ le.level[lang] }}</span>
-                  <span class="font-mono text-[10px] text-tinta shrink-0">#{{ le.id }}</span>
-                  <span v-if="coCount(le) > 1" class="pill-data pill-data--berenjena !text-[10px] !px-1.5 !py-0 shrink-0" role="img" :aria-label="coCount(le) + ' ' + L('focos co-localizados en esta vértebra', 'co-located foci in this vertebra')">{{ coCount(le) }} {{ L('focos', 'foci') }}</span>
+                  <span class="font-mono text-xs text-tinta shrink-0">#{{ le.id }}</span>
+                  <span v-if="coCount(le) > 1" class="pill-data pill-data--berenjena !text-xs !px-1.5 !py-0 shrink-0" role="img" :aria-label="coCount(le) + ' ' + L('focos co-localizados en esta vértebra', 'co-located foci in this vertebra')">{{ coCount(le) }} {{ L('focos', 'foci') }}</span>
                 </span>
                 <span class="text-right shrink-0">
                   <span class="font-display text-xl text-berenjena tabular-nums leading-none block">{{ suitabilityScore(le) }}</span>
                   <span class="eyebrow--sm">{{ L('idoneidad', 'suitability') }}</span>
                 </span>
               </div>
-              <p class="text-[10.5px] text-tinta leading-snug mt-1.5"><span class="font-mono">¹⁸F-FDG {{ le.fdg != null ? le.fdg.toFixed(1) : '—' }} · ⁶⁸Ga {{ le.dota != null ? le.dota.toFixed(1) : '—' }}</span> · {{ morphShort(le) }}</p>
-              <p class="text-[11px] text-tinta leading-snug mt-1"><Icon :name="dianaMk(le).icon" class="inline-block w-2.5 h-2.5 align-[-0.12em] shrink-0" :style="{ color: dianaMk(le).color }" aria-hidden="true" /> <span class="font-semibold text-berenjena">{{ L('Diana', 'Target') }}:</span> {{ BIOPSY[le.id]?.zone[lang] }}</p>
-              <p class="text-[11px] text-tinta leading-snug italic mt-0.5">«{{ whyOneLiner(le) }}»</p>
+              <p class="text-xs text-tinta leading-snug mt-1.5"><span class="font-mono">¹⁸F-FDG {{ le.fdg != null ? le.fdg.toFixed(1) : '—' }} · ⁶⁸Ga {{ le.dota != null ? le.dota.toFixed(1) : '—' }}</span> · {{ morphShort(le) }}</p>
+              <p class="text-xs text-tinta leading-snug mt-1"><Icon :name="dianaMk(le).icon" class="inline-block w-2.5 h-2.5 align-[-0.12em] shrink-0" :style="{ color: dianaMk(le).color }" aria-hidden="true" /> <span class="font-semibold text-berenjena">{{ L('Diana', 'Target') }}:</span> {{ BIOPSY[le.id]?.zone[lang] }}</p>
+              <p class="text-xs text-tinta leading-snug italic mt-0.5">«{{ whyOneLiner(le) }}»</p>
               <!-- aviso PROMINENTE si una biopsia ya falló aquí (no repetir el error de diana) -->
-              <div v-if="le.priorBiopsy" class="mt-2 rounded-card px-2 py-1 text-[10px] font-semibold leading-snug flex items-start gap-1" :style="{ background: '#f6d9b8', color: '#8a4a1a' }">
+              <div v-if="le.priorBiopsy" class="mt-2 rounded-card px-2 py-1 text-xs font-semibold leading-snug flex items-start gap-1" :style="{ background: '#f6d9b8', color: '#8a4a1a' }">
                 <Icon name="ph:flag-fill" class="w-2.5 h-2.5 shrink-0 mt-px" aria-hidden="true" /><span>{{ L('Biopsia previa no diagnóstica en este foco: solo hueso y músculo, sin tejido tumoral', 'Prior non-diagnostic biopsy at this focus: bone and muscle only, no tumor tissue') }}</span>
               </div>
               <div v-if="hasSoftTissue(le)" class="mt-1.5 flex flex-wrap gap-1">
-                <span class="pill-data !px-1.5 !py-0 !text-[10px]" :style="{ background: 'rgba(31,107,87,0.12)', color: '#1f6b57' }">{{ L('+ partes blandas (RMN)', '+ soft tissue (MRI)') }}</span>
+                <span class="pill-data !px-1.5 !py-0 !text-xs" :style="{ background: 'rgba(31,107,87,0.12)', color: '#1f6b57' }">{{ L('+ partes blandas (RMN)', '+ soft tissue (MRI)') }}</span>
               </div>
             </button>
           </div>
           <div class="mt-2.5 flex items-center justify-between flex-wrap gap-x-4 gap-y-1">
-            <p class="text-[11px] text-tinta leading-snug max-w-xl">{{ L('Un resumen para empezar; toca una diana para abrirla en el navegador de abajo.', 'A summary to start; tap a target to open it in the navigator below.') }}</p>
-            <a href="#idoneidad" @click="jumpToIdoneidad" class="link-action text-miriam text-[12.5px] inline-flex items-center gap-1 font-semibold shrink-0">
+            <p class="text-xs text-tinta leading-snug max-w-xl">{{ L('Un resumen para empezar; toca una diana para abrirla en el navegador de abajo.', 'A summary to start; tap a target to open it in the navigator below.') }}</p>
+            <a href="#idoneidad" @click="jumpToIdoneidad" class="link-action text-miriam text-xs inline-flex items-center gap-1 font-semibold shrink-0">
               {{ L('Ver cómo se calcula · lista completa', 'See how it is computed · full list') }} <span aria-hidden="true">↓</span>
             </a>
           </div>
 
           <!-- (BIOPSIA · por qué el ilíaco y no el fémur) — explica el cambio de criterio
                (señal cruda → mejor tejido del clon adecuado, de forma segura), para que no parezca arbitrario. -->
-          <details class="alert-callout mt-5 leading-relaxed">
-            <summary class="cursor-pointer font-semibold">{{ L('Criterios de selección de dianas para caracterización molecular (y la salvedad del cuello femoral)', 'Target-selection criteria for molecular characterization (and the femoral-neck caveat)') }}</summary>
+          <Aviso tipo="limites" plegable :titulo="L('Criterios de selección de dianas para caracterización molecular (y la salvedad del cuello femoral)', 'Target-selection criteria for molecular characterization (and the femoral-neck caveat)')" class="mt-5">
             <p class="mt-2">{{ L('El criterio orientativo no es el SUVmáx más alto, sino el subvolumen con mayor probabilidad de aportar celularidad tumoral viable representativa —con integridad de ARN suficiente (DV200) para WES + RNA-seq— mediante un abordaje percutáneo TC-guiado de riesgo aceptable. Bajo este criterio heurístico (estimación orientativa, no validada), el equipo podría sopesar el ilíaco supra-acetabular (#14): ¹⁸F-FDG en aumento, atenuación TC no esclerótica y corredor posterolateral accesible; y, según el clon a caracterizar, también el pedículo L1 (#10), discordante ¹⁸F-FDG⁺ / ⁶⁸Ga-DOTATOC⁻. El cuello femoral (#16) tiene el ¹⁸F-FDG más alto y podría tener interés biológico, pero asienta en hueso de carga: los cores conllevan riesgo de fractura patológica, cuya indicación valoran Oncología Radioterápica/Ortopedia; se documenta como consideración, no exclusión. Esto orienta, no decide: la selección final de la diana corresponde al comité; salvedades de cuantificación en «Fuentes, método y salvedades».', 'The indicative criterion is not the highest SUVmax, but the subvolume most likely to provide representative viable tumor cellularity — with RNA integrity sufficient (DV200) for WES + RNA-seq — via a CT-guided percutaneous approach of acceptable risk. Under this heuristic criterion (an indicative estimate, not validated), the team could weigh the supra-acetabular iliac (#14): rising ¹⁸F-FDG, non-sclerotic CT attenuation and an accessible posterolateral corridor; and, depending on the clone to be characterized, also the L1 pedicle (#10), discordant ¹⁸F-FDG⁺ / ⁶⁸Ga-DOTATOC⁻. The femoral neck (#16) has the highest ¹⁸F-FDG and may be of biological interest, but lies in weight-bearing bone: core sampling carries pathologic-fracture risk, whose indication is assessed by Radiation Oncology/Orthopedics; documented as a consideration, not an exclusion. This orients, it does not decide: final target selection rests with the tumor board; quantification caveats in “Sources, method and caveats”.') }}</p>
-          </details>
+          </Aviso>
         </section>
 
         <!-- ===== HÉROE · NAVEGAR FOCOS ↔ VER LA LESIÓN EN 3D (lo PRIMARIO) =====
@@ -2486,7 +2482,7 @@ const manifestValidated = (() => {
           <h2 id="mapa" class="heading-display text-2xl text-berenjena mb-2 scroll-mt-[5.5rem]">
             {{ L('El mapa, lesión a lesión', 'The map, lesion by lesion') }}
           </h2>
-          <p class="text-sm text-tinta leading-relaxed mb-4 max-w-3xl">
+          <p class="text-sm text-tinta leading-relaxed mb-4 measure">
             {{ L('Elige un foco —en el esqueleto o en la tabla— y, sin moverte, cambian al instante el resumen y el hueso en 3D. El color recorre el eje de discordancia, del violeta (SSTR-dominante, ⁶⁸Ga⁺/FDG⁻) al coral (glucolítico-dominante, FDG⁺/SSTR⁻); el número es el id del foco. El esqueleto es un esquema orientativo; la tabla, una lista compacta y ordenable.',
                   'Pick a focus —on the skeleton or in the table— and, without moving, the summary and the 3D bone update instantly. Colour runs along the discordance axis, from violet (SSTR-dominant, ⁶⁸Ga⁺/FDG⁻) to coral (glycolytic-dominant, FDG⁺/SSTR⁻); the number is the focus id. The skeleton is a schematic guide; the table, a compact, sortable list.') }}
           </p>
@@ -2540,7 +2536,7 @@ const manifestValidated = (() => {
                 <button type="button" @click="pickStep(-1)"
                   class="nav-step nav-step--prev w-8 h-8 rounded-full border border-[rgba(45,27,61,0.2)] flex items-center justify-center hover:border-[rgba(45,27,61,0.45)] hover:text-berenjena"
                   :aria-label="L('Foco anterior', 'Previous focus')">‹</button>
-                <span class="font-mono text-[11px] tabular-nums w-11 text-center select-none">{{ focoPos || '–' }}<span class="text-[10px] text-tinta">/{{ visibleFocusList.length }}</span></span>
+                <span class="font-mono text-xs tabular-nums w-11 text-center select-none">{{ focoPos || '–' }}<span class="text-xs text-tinta">/{{ visibleFocusList.length }}</span></span>
                 <button type="button" @click="pickStep(1)"
                   class="nav-step nav-step--next w-8 h-8 rounded-full border border-[rgba(45,27,61,0.2)] flex items-center justify-center hover:border-[rgba(45,27,61,0.45)] hover:text-berenjena"
                   :aria-label="L('Foco siguiente', 'Next focus')">›</button>
@@ -2587,12 +2583,12 @@ const manifestValidated = (() => {
 
               <!-- filtros: qué focos muestra el esqueleto (y las demás vistas) -->
               <div class="rounded-card border border-[rgba(45,27,61,0.12)] bg-cream-card !p-3 mb-2.5">
-                <p class="text-[10px] font-semibold text-tinta mb-1.5">{{ L('Filtrar focos del mapa', 'Filter map foci') }}</p>
+                <p class="text-xs font-semibold text-tinta mb-1.5">{{ L('Filtrar focos del mapa', 'Filter map foci') }}</p>
                 <div class="flex flex-wrap gap-1.5" role="group" :aria-label="L('Filtrar focos del mapa', 'Filter map foci')">
                   <button v-for="f in filters" :key="f.key" type="button"
                     @click="filter = f.key"
                     :aria-pressed="filter === f.key"
-                    class="filter-chip inline-flex items-center gap-1.5 text-[12px] px-2.5 py-1 rounded-full border"
+                    class="filter-chip inline-flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-full border"
                     :class="filter === f.key ? 'bg-berenjena text-cream border-berenjena' : 'bg-transparent text-tinta border-[rgba(45,27,61,0.2)] hover:border-[rgba(45,27,61,0.4)]'">
                     <span v-if="f.c" class="w-2 h-2 rounded-full" :style="{ background: f.c }" aria-hidden="true" />
                     {{ f.label }}
@@ -2621,7 +2617,7 @@ const manifestValidated = (() => {
                 </div>
                 <div class="flex justify-between mt-2 px-0.5">
                   <button v-for="(d, i) in FDATES" :key="i" type="button" @click="setFrame(i)"
-                    class="tl-date text-[10px] font-mono tabular-nums px-1.5 py-1 rounded"
+                    class="tl-date text-xs font-mono tabular-nums px-1.5 py-1 rounded"
                     :class="frame === i ? 'text-berenjena font-bold' : 'text-tinta hover:text-berenjena'">{{ d[lang].split(' ')[0] }}</button>
                 </div>
                 <!-- (B · plan comité web) nota larga → PLEGABLE (notes-disclosure, patrón
@@ -2629,7 +2625,7 @@ const manifestValidated = (() => {
                      desaparece (accesible por teclado, sin JS). -->
                 <details class="notes-disclosure mt-2">
                   <summary>{{ L('Cómo leer esta línea de tiempo', 'How to read this timeline') }}</summary>
-                  <p class="mt-2 text-[10px] text-tinta leading-snug">{{ L('Compara solo el FDG (ene→mar 2026). El paso de mayo es el ⁶⁸Ga-DOTATOC, estudio único (26/05): no comparable en el tiempo.', 'Compares FDG only (Jan→Mar 2026). The May step is the ⁶⁸Ga-DOTATOC, a single study (26 May): not comparable over time.') }}</p>
+                  <p class="mt-2 text-xs text-tinta leading-snug">{{ L('Compara solo el FDG (ene→mar 2026). El paso de mayo es el ⁶⁸Ga-DOTATOC, estudio único (26/05): no comparable en el tiempo.', 'Compares FDG only (Jan→Mar 2026). The May step is the ⁶⁸Ga-DOTATOC, a single study (26 May): not comparable over time.') }}</p>
                 </details>
               </div>
             </div>
@@ -2653,7 +2649,7 @@ const manifestValidated = (() => {
                 type="search"
                 :placeholder="L('Buscar por nombre o zona…', 'Search by name or area…')"
                 :aria-label="L('Buscar foco por nombre o zona', 'Search focus by name or area')"
-                class="w-full mb-1.5 rounded-card border border-[rgba(45,27,61,0.14)] bg-cream-card px-2.5 py-1.5 text-[12px] text-berenjena placeholder:text-tinta focus:outline-none focus:border-[#9d44ab]" />
+                class="w-full mb-1.5 rounded-card border border-[rgba(45,27,61,0.14)] bg-cream-card px-2.5 py-1.5 text-xs text-berenjena placeholder:text-tinta focus:outline-none focus:border-[#9d44ab]" />
               <!-- (A · a11y) la lista de focos es un LISTBOX: role=listbox + cada
                    botón role=option con roving tabindex (solo el seleccionado es
                    tabbable). Las flechas/Home/End/número los gobierna onFocoNavKey
@@ -2663,7 +2659,7 @@ const manifestValidated = (() => {
                 :aria-activedescendant="'list-opt-' + selected"
                 aria-describedby="tabla-focos-alt"
                 class="space-y-1 overflow-y-auto pr-0.5" style="max-height:600px">
-                <li v-if="!tableFocusList.length" class="px-2 py-3 text-[11px] text-tinta text-center" role="presentation">{{ L('Sin focos que coincidan.', 'No matching foci.') }}</li>
+                <li v-if="!tableFocusList.length" class="px-2 py-3 text-xs text-tinta text-center" role="presentation">{{ L('Sin focos que coincidan.', 'No matching foci.') }}</li>
                 <!-- linking de estado: el FILTRO atenúa (no oculta) → la fila no
                      coincidente se queda con baja opacidad (focoOpacity) en vez de
                      desaparecer; un foco con hover en CUALQUIER vista resalta su fila. -->
@@ -2680,15 +2676,15 @@ const manifestValidated = (() => {
                     :aria-label="`#${le.id} ${le.level[lang]} — ${phenoLabel(le)}`">
                     <span class="shrink-0 w-3 h-3 rounded-full" :style="{ background: phenoColor(le), boxShadow: sourceOf(le) === 'ia-david' ? '0 0 0 1.5px #fff, 0 0 0 3px ' + phenoColor(le) : 'none' }" aria-hidden="true" />
                     <span class="min-w-0 flex-1">
-                      <span class="flex items-center gap-1.5"><span class="text-[12px] font-semibold text-berenjena leading-tight truncate">{{ le.level[lang] }}</span><span class="font-mono text-[10px] text-tinta shrink-0">#{{ le.id }}</span><span v-if="coCount(le) > 1" class="pill-data pill-data--berenjena !text-[10px] !px-1.5 !py-0 shrink-0" role="img" :aria-label="coCount(le) + ' ' + L('focos co-localizados en esta vértebra', 'co-located foci in this vertebra')">{{ coCount(le) }}</span></span>
+                      <span class="flex items-center gap-1.5"><span class="text-xs font-semibold text-berenjena leading-tight truncate">{{ le.level[lang] }}</span><span class="font-mono text-xs text-tinta shrink-0">#{{ le.id }}</span><span v-if="coCount(le) > 1" class="pill-data pill-data--berenjena !text-xs !px-1.5 !py-0 shrink-0" role="img" :aria-label="coCount(le) + ' ' + L('focos co-localizados en esta vértebra', 'co-located foci in this vertebra')">{{ coCount(le) }}</span></span>
                       <span class="flex flex-wrap items-center gap-1 mt-0.5">
-                        <span v-if="le.dota != null" class="inline-flex items-center text-[10px] font-semibold leading-none px-1 py-0.5 rounded-full" style="background:#1c969e1a;color:#0c5a61">⁶⁸Ga {{ le.dota.toFixed(1) }}</span>
-                        <span v-if="le.fdg != null" class="inline-flex items-center text-[10px] font-semibold leading-none px-1 py-0.5 rounded-full" style="background:#d66e1c1a;color:#8a4a12">FDG {{ le.fdg.toFixed(1) }}</span>
-                        <span v-if="sourceOf(le) === 'ia-david'" class="text-[10px] text-tinta">{{ L('IA·conf.', 'AI·conf.') }}</span>
+                        <span v-if="le.dota != null" class="inline-flex items-center text-xs font-semibold leading-none px-1 py-0.5 rounded-full" style="background:#1c969e1a;color:#0c5a61">⁶⁸Ga {{ le.dota.toFixed(1) }}</span>
+                        <span v-if="le.fdg != null" class="inline-flex items-center text-xs font-semibold leading-none px-1 py-0.5 rounded-full" style="background:#d66e1c1a;color:#8a4a12">FDG {{ le.fdg.toFixed(1) }}</span>
+                        <span v-if="sourceOf(le) === 'ia-david'" class="text-xs text-tinta">{{ L('IA·conf.', 'AI·conf.') }}</span>
                       </span>
                     </span>
                     <span class="shrink-0 w-10 text-right" :aria-label="L('idoneidad ' + suitabilityScore(le) + ' sobre 100', 'suitability ' + suitabilityScore(le) + ' out of 100')">
-                      <span class="block font-mono text-[11px] text-berenjena leading-none data-soft">{{ suitabilityScore(le) }}</span>
+                      <span class="block font-mono text-xs text-berenjena leading-none data-soft">{{ suitabilityScore(le) }}</span>
                       <span class="block h-1 rounded-full mt-0.5 bg-[rgba(45,27,61,0.08)] overflow-hidden">
                         <span class="block h-full rounded-full" :style="{ width: suitabilityScore(le) + '%', background: SCORE_RAMP_CSS }" />
                       </span>
@@ -2696,7 +2692,7 @@ const manifestValidated = (() => {
                   </button>
                 </li>
               </ul>
-              <p class="text-[10px] text-tinta leading-snug px-1.5 pt-1.5 mt-1 border-t border-[rgba(45,27,61,0.08)]">
+              <p class="text-xs text-tinta leading-snug px-1.5 pt-1.5 mt-1 border-t border-[rgba(45,27,61,0.08)]">
                 {{ L('Confirmados primero (por nivel anatómico), IA al final (anillo punteado). Color = trazador · ⁶⁸Ga-DOTATOC (SSTR) / ¹⁸F-FDG (glucólisis) · nº = id del foco.', 'Confirmed first (by anatomical level), AI last (dashed ring). Colour = tracer · ⁶⁸Ga-DOTATOC (SSTR) / ¹⁸F-FDG (glycolysis) · nº = focus id.') }}
               </p>
             </div>
@@ -2730,8 +2726,8 @@ const manifestValidated = (() => {
                   <div class="flex items-baseline gap-2 flex-wrap">
                     <span class="font-mono font-bold text-base leading-none text-berenjena bg-miriam-soft rounded px-2 py-1 tracking-tight">{{ selLevelCode }}</span>
                     <h3 v-if="selLevelRest" class="heading-display text-lg text-berenjena leading-tight">{{ selLevelRest }}</h3>
-                    <span class="font-mono text-[12px] text-tinta">#{{ sel.id }}</span>
-                    <span v-if="coCount(sel) > 1" class="pill-data pill-data--berenjena !text-[10px] !px-1.5 !py-0" role="img" :aria-label="coCount(sel) + ' ' + L('focos co-localizados en esta vértebra', 'co-located foci in this vertebra')">{{ coCount(sel) }} {{ L('focos', 'foci') }}</span>
+                    <span class="font-mono text-xs text-tinta">#{{ sel.id }}</span>
+                    <span v-if="coCount(sel) > 1" class="pill-data pill-data--berenjena !text-xs !px-1.5 !py-0" role="img" :aria-label="coCount(sel) + ' ' + L('focos co-localizados en esta vértebra', 'co-located foci in this vertebra')">{{ coCount(sel) }} {{ L('focos', 'foci') }}</span>
                   </div>
                   <p class="text-xs text-tinta">{{ sel.region[lang] }} ·
                     {{ sel.side === 'R' ? L('lado derecho', 'right side') : sel.side === 'L' ? L('lado izquierdo', 'left side') : L('línea media', 'midline') }}</p>
@@ -2749,11 +2745,11 @@ const manifestValidated = (() => {
                   <span class="pill-data" :style="{ background: phenoColor(sel) + '22', color: phenoText(sel) }">{{ phenoLabel(sel) }}</span>
                 </div>
               </div>
-              <p v-if="selIsAi" class="mb-2 text-[11px] font-semibold leading-snug flex items-center gap-1.5 flex-wrap" style="color:#8a4a1a">
+              <p v-if="selIsAi" class="mb-2 text-xs font-semibold leading-snug flex items-center gap-1.5 flex-wrap" style="color:#8a4a1a">
                 <span class="inline-block w-2 h-2 rounded-full" style="background:#bf7d2c" aria-hidden="true" />
                 {{ L('Detectado por IA · por confirmar', 'AI-detected · to confirm') }}
               </p>
-              <p v-if="isMultiFocusBone" class="mb-2 text-[11px] text-tinta leading-snug">
+              <p v-if="isMultiFocusBone" class="mb-2 text-xs text-tinta leading-snug">
                 {{ L('Zona con ' + coFoci.length + ' focos · resumen del principal', 'Area with ' + coFoci.length + ' foci · summary of the main one') }}
               </p>
               <!-- Lectura clínica (registro técnico para el equipo médico). Página
@@ -2777,7 +2773,7 @@ const manifestValidated = (() => {
                   :aria-label="L('Idoneidad ' + suitabilityScore(sel) + ' sobre 100', 'Suitability ' + suitabilityScore(sel) + ' out of 100')">
                   <div class="h-full rounded-full" :style="{ width: suitabilityScore(sel) + '%', background: SCORE_RAMP_CSS }" />
                 </div>
-                <p class="text-[10px] text-tinta mt-1 leading-snug">{{ L('orientativa · viable × rendimiento × tamaño.', 'indicative · viable × yield × size.') }}</p>
+                <p class="text-xs text-tinta mt-1 leading-snug">{{ L('orientativa · viable × rendimiento × tamaño.', 'indicative · viable × yield × size.') }}</p>
               </div>
 
               <!-- barra de discordancia: proporción SSTR (violeta) ↔ glucólisis (coral) -->
@@ -2787,7 +2783,7 @@ const manifestValidated = (() => {
                   <div :style="{ width: (neShare(sel) * 100).toFixed(0) + '%', background: GA_FILL }" />
                   <div :style="{ width: ((1 - neShare(sel)) * 100).toFixed(0) + '%', background: FDG_FILL }" />
                 </div>
-                <div class="flex justify-between text-[10px] mt-1">
+                <div class="flex justify-between text-xs mt-1">
                   <span :style="{ color: GA_TEXT }">{{ L('SSTR · ⁶⁸Ga', 'SSTR · ⁶⁸Ga') }}{{ sel.dota != null ? ' ' + sel.dota.toFixed(1) : ' —' }}</span>
                   <span :style="{ color: FDG_TEXT }">{{ L('glucólisis · FDG', 'glycolysis · FDG') }}{{ sel.fdg != null ? ' ' + sel.fdg.toFixed(1) : ' —' }}</span>
                 </div>
@@ -2796,20 +2792,20 @@ const manifestValidated = (() => {
               <!-- NÚMEROS CLAVE · 4 cifras a ancho completo (la imagen clave subió a «Imágenes») -->
               <div class="grid grid-cols-2 gap-2 mb-3">
                 <div class="rounded-card bg-cream-card px-2.5 py-1.5 border-l-4" :style="{ borderColor: GA_FILL }">
-                  <p class="text-[10px] text-tinta leading-none flex items-center gap-1">{{ L('SSTR · ⁶⁸Ga', 'SSTR · ⁶⁸Ga') }}<ProvDot :le="sel" field="dota" /></p>
+                  <p class="text-xs text-tinta leading-none flex items-center gap-1">{{ L('SSTR · ⁶⁸Ga', 'SSTR · ⁶⁸Ga') }}<ProvDot :le="sel" field="dota" /></p>
                   <p class="font-mono text-base leading-tight text-berenjena"><span :class="{ 'data-soft': selIsAi }">{{ fmtSuv(sel, sel.dota) }}</span><span v-if="sel.dota != null" class="unit">{{ L('SUVmáx', 'SUVmax') }}</span></p>
                 </div>
                 <div class="rounded-card bg-cream-card px-2.5 py-1.5 border-l-4" :style="{ borderColor: FDG_FILL }">
-                  <p class="text-[10px] text-tinta leading-none flex items-center gap-1">{{ L('Glucólisis · FDG', 'Glycolysis · FDG') }}<ProvDot :le="sel" field="fdg" /></p>
-                  <p class="font-mono text-base leading-tight text-berenjena"><span :class="{ 'data-soft': selIsAi }">{{ fmtSuv(sel, sel.fdg) }}</span><span v-if="sel.fdg != null" class="unit">{{ L('SUVmáx', 'SUVmax') }}</span><span v-if="trend(sel)" class="text-[11px] ml-1" :style="deltaStyle(sel)">({{ deltaFdg(sel) }})</span></p>
+                  <p class="text-xs text-tinta leading-none flex items-center gap-1">{{ L('Glucólisis · FDG', 'Glycolysis · FDG') }}<ProvDot :le="sel" field="fdg" /></p>
+                  <p class="font-mono text-base leading-tight text-berenjena"><span :class="{ 'data-soft': selIsAi }">{{ fmtSuv(sel, sel.fdg) }}</span><span v-if="sel.fdg != null" class="unit">{{ L('SUVmáx', 'SUVmax') }}</span><span v-if="trend(sel)" class="text-xs ml-1" :style="deltaStyle(sel)">({{ deltaFdg(sel) }})</span></p>
                 </div>
                 <div class="rounded-card bg-cream-card px-2.5 py-1.5 border-l-4" :style="{ borderColor: '#1f6b57' }">
-                  <p class="text-[10px] text-tinta leading-none flex items-center gap-1">{{ L('Forma (CT)', 'Shape (CT)') }}<ProvDot :le="sel" field="morfologia" /></p>
-                  <p class="text-[12px] font-semibold leading-tight text-berenjena">{{ morphLabel(sel) }}</p>
+                  <p class="text-xs text-tinta leading-none flex items-center gap-1">{{ L('Forma (CT)', 'Shape (CT)') }}<ProvDot :le="sel" field="morfologia" /></p>
+                  <p class="text-xs font-semibold leading-tight text-berenjena">{{ morphLabel(sel) }}</p>
                 </div>
                 <div class="rounded-card bg-cream-card px-2.5 py-1.5 border-l-4" :style="{ borderColor: '#6b6470' }">
-                  <p class="text-[10px] text-tinta leading-none flex items-center gap-1">{{ L('Extensión metab.', 'Metabolic extent') }}<ProvDot :le="sel" field="extentMm" /></p>
-                  <p class="font-mono text-[12px] font-semibold leading-tight text-berenjena">{{ metExtentLabel(sel) }}</p>
+                  <p class="text-xs text-tinta leading-none flex items-center gap-1">{{ L('Extensión metab.', 'Metabolic extent') }}<ProvDot :le="sel" field="extentMm" /></p>
+                  <p class="font-mono text-xs font-semibold leading-tight text-berenjena">{{ metExtentLabel(sel) }}</p>
                 </div>
               </div>
 
@@ -2831,7 +2827,7 @@ const manifestValidated = (() => {
                   {{ L('Ver en grande', 'View larger') }}
                 </button>
               </div>
-              <p v-if="isMultiFocusBone && bone3dKeyOf(sel)" class="text-[12px] text-tinta leading-snug mb-2 max-w-3xl">
+              <p v-if="isMultiFocusBone && bone3dKeyOf(sel)" class="text-xs text-tinta leading-snug mb-2 measure">
                 {{ L('Esta zona tiene ' + coFoci.length + ' focos co-localizados (captación SSTR/glucolítica); el realce señala la zona. Detalle de cada foco abajo y en la tabla.', 'This area has ' + coFoci.length + ' co-localized foci (SSTR/glycolytic uptake); the highlight marks the area. Each focus is detailed below and in the table.') }}
               </p>
               <!-- visor en línea a ANCHO COMPLETO de la columna; el botón de arriba lo abre grande.
@@ -2852,12 +2848,12 @@ const manifestValidated = (() => {
                     :biopsy-label="bonePriorBiopsy ?? undefined"
                   />
                   <template #fallback>
-                    <div class="rounded-lg flex items-center justify-center text-[12px]" style="aspect-ratio:12/5;background:#0d1117;color:#aeb6c2">
+                    <div class="rounded-lg flex items-center justify-center text-xs" style="aspect-ratio:12/5;background:#0d1117;color:#aeb6c2">
                       {{ L('cargando visor…', 'loading viewer…') }}
                     </div>
                   </template>
                 </ClientOnly>
-                <div v-else class="rounded-lg flex items-center justify-center text-center text-[12px] px-4" style="aspect-ratio:12/5;background:#0d1117;color:#aeb6c2">
+                <div v-else class="rounded-lg flex items-center justify-center text-center text-xs px-4" style="aspect-ratio:12/5;background:#0d1117;color:#aeb6c2">
                   {{ L('Visor abierto a pantalla completa', 'Viewer open in full screen') }}
                 </div>
               </template>
@@ -2878,10 +2874,10 @@ const manifestValidated = (() => {
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7" /><line x1="21" y1="21" x2="16.5" y2="16.5" /><line x1="11" y1="8" x2="11" y2="14" /><line x1="8" y1="11" x2="14" y2="11" /></svg>
                   </span>
                 </button>
-                <div v-else class="rounded-lg border border-dashed border-[rgba(45,27,61,0.28)] bg-cream-card flex items-center justify-center text-center px-5 py-10 text-[12px] text-tinta">
+                <div v-else class="rounded-lg border border-dashed border-[rgba(45,27,61,0.28)] bg-cream-card flex items-center justify-center text-center px-5 py-10 text-xs text-tinta">
                   {{ L('Imagen por confirmar', 'Image to confirm') }}
                 </div>
-                <p class="text-[11px] text-tinta leading-snug mt-2">
+                <p class="text-xs text-tinta leading-snug mt-2">
                   <span class="font-semibold" style="color:#8a4a1a">{{ L('Propuesta · por confirmar.', 'Proposal · to confirm.') }}</span>
                   {{ L(' Foco detectado por IA y no localizable con fiabilidad en esta zona, así que no se reconstruye en 3D. Se muestra el corte del estudio con la ubicación aproximada (marca punteada) para que el equipo la valore.', ' AI-detected focus that cannot be reliably localized in this area, so it is not reconstructed in 3D. The study slice is shown with the approximate location (dashed marker) for the team to assess.') }}
                 </p>
@@ -2890,7 +2886,7 @@ const manifestValidated = (() => {
               <!-- Foco IA en el visor 3D: no hay malla propia de su localización exacta,
                    así que se muestra sobre el hueso reconstruido más cercano como referencia
                    de zona. Aviso de honestidad para que no se lea como localización fina. -->
-              <p v-if="selIsAi && bone3dKeyOf(sel)" class="text-[11px] leading-snug mt-2" style="color:#8a4a1a">
+              <p v-if="selIsAi && bone3dKeyOf(sel)" class="text-xs leading-snug mt-2" style="color:#8a4a1a">
                 <span class="font-semibold">{{ L('Detectado por IA · por confirmar.', 'AI-detected · to confirm.') }}</span>
                 {{ L(' Sin malla propia de esta localización: se muestra sobre el hueso reconstruido más cercano (referencia de zona, no localización fina); a validar con Medicina Nuclear.', ' No dedicated mesh for this location: shown on the nearest reconstructed bone (a zone reference, not a fine localization); to be validated with Nuclear Medicine.') }}
               </p>
@@ -2898,12 +2894,12 @@ const manifestValidated = (() => {
                    con el anillo del SUVmáx vive en el detalle profundo, en la galería
                    «una por foco» y en el lightbox. Aquí, el 3D es la imagen.) -->
               <!-- caveat del 3D (proyección + co-registro): remite al BLOQUE CANÓNICO, sin duplicar -->
-              <p v-if="bone3dKeyOf(sel)" class="text-[10.5px] text-tinta leading-snug mt-2">
+              <p v-if="bone3dKeyOf(sel)" class="text-xs text-tinta leading-snug mt-2">
                 {{ L('El color por vértice es una proyección del PET sobre la malla (indica dónde, no SUVmáx); el ¹⁸F-FDG y el ⁶⁸Ga-DOTATOC son de fechas distintas co-registrados sobre el TC (localización aproximada por co-registro). ', 'The per-vertex colour is a projection of the PET onto the mesh (it shows where, not SUVmax); ¹⁸F-FDG and ⁶⁸Ga-DOTATOC are from different dates co-registered onto the CT (approximate localization by co-registration). ') }}<a href="#metodo-caveats" class="link-action text-miriam font-semibold whitespace-nowrap">{{ L('Método y salvedades ↓', 'Method and caveats ↓') }}</a>
               </p>
               <!-- (A · a11y) alternativa textual explícita y visible: el visor 3D apunta
                    a la TABLA de valores como su equivalente en texto (mismas cifras). -->
-              <p v-if="sel" class="text-[10.5px] text-tinta leading-snug mt-1">
+              <p v-if="sel" class="text-xs text-tinta leading-snug mt-1">
                 <a href="#tabla" class="link-action text-miriam font-semibold whitespace-nowrap">{{ L('Ver estos valores en texto, en la tabla ↓', 'See these values in text, in the table ↓') }}</a>
                 {{ L(' — alternativa textual del visor (todos los focos y sus cifras).', ' — the viewer’s textual alternative (all foci and their figures).') }}
               </p>
@@ -2931,7 +2927,7 @@ const manifestValidated = (() => {
                 <h3 class="heading-display text-xl text-berenjena leading-tight">{{ L('Detalle completo del foco', 'Full focus detail') }} #{{ sel.id }}</h3>
                 <p class="text-xs text-tinta">{{ L('Las 3 lecturas, la forma del hueso, la extensión y la cuantificación', 'The 3 readings, bone shape, extent and quantification') }}</p>
               </div>
-              <span class="ml-auto shrink-0 self-center inline-flex items-center gap-1 text-[12px] font-semibold text-miriam">
+              <span class="ml-auto shrink-0 self-center inline-flex items-center gap-1 text-xs font-semibold text-miriam">
                 <span class="foco-detalle__open">{{ L('Ampliar', 'Expand') }}</span>
                 <span class="foco-detalle__close">{{ L('Contraer', 'Collapse') }}</span>
                 <svg class="foco-detalle__chev" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
@@ -2959,12 +2955,12 @@ const manifestValidated = (() => {
                  selector hace que la gente se pierda). Lista breve, etiquetada por
                  trazador; el realce 3D señala la zona, no cada foco. -->
             <div v-if="isMultiFocusBone" class="mb-3 rounded-card border border-[rgba(45,27,61,0.12)] bg-cream-card p-3">
-              <p class="text-[11px] font-semibold text-berenjena leading-snug">
+              <p class="text-xs font-semibold text-berenjena leading-snug">
                 {{ L('Esta zona aloja ' + coFoci.length + ' focos', 'This area hosts ' + coFoci.length + ' foci') }}
                 <span class="font-normal text-tinta">· {{ L('se muestran como un solo hueso', 'shown as a single bone') }}</span>
               </p>
               <ul class="mt-2 space-y-1.5">
-                <li v-for="f in coFoci" :key="f.id" class="text-[12px] leading-snug flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
+                <li v-for="f in coFoci" :key="f.id" class="text-xs leading-snug flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
                   <span class="font-mono text-berenjena">#{{ f.id }}</span>
                   <span class="text-tinta">{{ focusPart(f) }}</span>
                   <span class="text-tinta">·</span>
@@ -2972,43 +2968,43 @@ const manifestValidated = (() => {
                   <span :style="{ color: FDG_TEXT }">{{ L('glucólisis · FDG', 'glycolysis · FDG') }} <span class="font-mono">{{ fmtSuv(f, f.fdg) }}</span></span>
                 </li>
               </ul>
-              <p class="text-[10px] text-tinta mt-2 leading-relaxed">{{ L('El detalle ampliado de abajo corresponde al foco principal de la zona; el resto está en la tabla.', 'The expanded detail below is for the area’s main focus; the rest is in the table.') }}</p>
+              <p class="text-xs text-tinta mt-2 leading-relaxed">{{ L('El detalle ampliado de abajo corresponde al foco principal de la zona; el resto está en la tabla.', 'The expanded detail below is for the area’s main focus; the rest is in the table.') }}</p>
             </div>
 
               <!-- ===== LAS TRES LECTURAS · una por prueba (etiquetadas por prueba) ===== -->
               <div class="mb-4 rounded-card border border-[rgba(45,27,61,0.12)] overflow-hidden">
                 <div class="px-3 py-2 bg-[rgba(45,27,61,0.04)] border-b border-[rgba(45,27,61,0.08)]">
                   <p class="eyebrow--sm text-berenjena">{{ L('Las tres lecturas · una por prueba', 'The three readings · one per test') }}</p>
-                  <p class="text-[11px] text-tinta leading-snug mt-0.5">{{ L('Tres pruebas miran el mismo foco. Etiquetadas por la prueba, no por la biología.', 'Three tests look at the same focus. Labelled by the test, not the biology.') }}</p>
+                  <p class="text-xs text-tinta leading-snug mt-0.5">{{ L('Tres pruebas miran el mismo foco. Etiquetadas por la prueba, no por la biología.', 'Three tests look at the same focus. Labelled by the test, not the biology.') }}</p>
                 </div>
                 <div class="grid sm:grid-cols-3 divide-y sm:divide-y-0 sm:divide-x divide-[rgba(45,27,61,0.08)]">
                   <!-- 1 · SSTR (⁶⁸Ga-DOTATOC) -->
                   <div class="p-3 border-l-4" :style="{ borderColor: GA_FILL }">
-                    <p class="text-[11px] font-semibold leading-tight" :style="{ color: GA_TEXT }">{{ L('SSTR', 'SSTR') }} · ⁶⁸Ga-DOTATOC</p>
-                    <p class="text-[10px] text-tinta mb-1.5">{{ L('densidad de receptores de somatostatina', 'somatostatin-receptor density') }}</p>
+                    <p class="text-xs font-semibold leading-tight" :style="{ color: GA_TEXT }">{{ L('SSTR', 'SSTR') }} · ⁶⁸Ga-DOTATOC</p>
+                    <p class="text-xs text-tinta mb-1.5">{{ L('densidad de receptores de somatostatina', 'somatostatin-receptor density') }}</p>
                     <p class="font-mono text-lg leading-none text-berenjena">{{ fmtSuv(sel, sel.dota) }}</p>
-                    <p class="text-[11px] text-tinta mt-1">{{ sel.dota != null ? L('SUVmáx SSTR', 'SSTR SUVmax') : L('sin captación de receptores (SSTR⁻)', 'no receptor uptake (SSTR⁻)') }}</p>
+                    <p class="text-xs text-tinta mt-1">{{ sel.dota != null ? L('SUVmáx SSTR', 'SSTR SUVmax') : L('sin captación de receptores (SSTR⁻)', 'no receptor uptake (SSTR⁻)') }}</p>
                   </div>
                   <!-- 2 · Glucólisis (¹⁸F-FDG) -->
                   <div class="p-3 border-l-4" :style="{ borderColor: FDG_FILL }">
-                    <p class="text-[11px] font-semibold leading-tight" :style="{ color: FDG_TEXT }">{{ L('Glucólisis', 'Glycolysis') }} · ¹⁸F-FDG</p>
-                    <p class="text-[10px] text-tinta mb-1.5">{{ L('metabolismo glucolítico (glucosa marcada)', 'glycolytic metabolism (labelled glucose)') }}</p>
+                    <p class="text-xs font-semibold leading-tight" :style="{ color: FDG_TEXT }">{{ L('Glucólisis', 'Glycolysis') }} · ¹⁸F-FDG</p>
+                    <p class="text-xs text-tinta mb-1.5">{{ L('metabolismo glucolítico (glucosa marcada)', 'glycolytic metabolism (labelled glucose)') }}</p>
                     <p class="font-mono text-lg leading-none text-berenjena">
-                      {{ fmtSuv(sel, sel.fdg) }}<span v-if="trend(sel)" class="text-[12px] ml-1" :style="deltaStyle(sel)">({{ deltaFdg(sel) }})</span>
+                      {{ fmtSuv(sel, sel.fdg) }}<span v-if="trend(sel)" class="text-xs ml-1" :style="deltaStyle(sel)">({{ deltaFdg(sel) }})</span>
                     </p>
-                    <p class="text-[11px] text-tinta mt-1">{{ sel.fdg != null ? (trend(sel) ? L('SUVmáx · Δ vs previo', 'SUVmax · Δ vs prior') : L('SUVmáx', 'SUVmax')) : L('sin captación glucolítica (FDG⁻)', 'no glycolytic uptake (FDG⁻)') }}</p>
+                    <p class="text-xs text-tinta mt-1">{{ sel.fdg != null ? (trend(sel) ? L('SUVmáx · Δ vs previo', 'SUVmax · Δ vs prior') : L('SUVmáx', 'SUVmax')) : L('sin captación glucolítica (FDG⁻)', 'no glycolytic uptake (FDG⁻)') }}</p>
                   </div>
                   <!-- 3 · RMN (forma) — color distinto, NO violeta/coral: no es un trazador -->
                   <div class="p-3 border-l-4" :style="{ borderColor: '#1f6b57' }">
-                    <p class="text-[11px] font-semibold leading-tight" :style="{ color: '#1f6b57' }">{{ L('RMN', 'MRI') }} · {{ L('forma', 'shape') }}</p>
-                    <p class="text-[10px] text-tinta mb-1.5">{{ L('morfología — canal de forma, no un 3er color', 'morphology — a shape channel, not a 3rd color') }}</p>
+                    <p class="text-xs font-semibold leading-tight" :style="{ color: '#1f6b57' }">{{ L('RMN', 'MRI') }} · {{ L('forma', 'shape') }}</p>
+                    <p class="text-xs text-tinta mb-1.5">{{ L('morfología — canal de forma, no un 3er color', 'morphology — a shape channel, not a 3rd color') }}</p>
                     <template v-if="mriCovers(sel)">
-                      <p class="text-[12px] text-berenjena leading-snug">{{ rmnNote(sel) }}</p>
-                      <button type="button" @click="goToMRI()" class="link-action text-miriam text-[12px] mt-1.5 inline-flex items-center gap-1">
+                      <p class="text-xs text-berenjena leading-snug">{{ rmnNote(sel) }}</p>
+                      <button type="button" @click="goToMRI()" class="link-action text-miriam text-xs mt-1.5 inline-flex items-center gap-1">
                         {{ L('Ver en el visor RMN', 'Open the MRI viewer') }} <span aria-hidden="true">→</span>
                       </button>
                     </template>
-                    <p v-else class="text-[12px] text-tinta leading-snug">{{ L('Las imágenes de RMN disponibles (series cervical y dorsal) no cubren este nivel; el informe de la RM describe la columna dorsal y lumbar hasta S2, pero no la pelvis, la escápula ni el fémur.', 'The available MRI images (cervical and thoracic series) do not cover this level; the MRI report covers the thoracic and lumbar spine down to S2, but not the pelvis, scapula or femur.') }}</p>
+                    <p v-else class="text-xs text-tinta leading-snug">{{ L('Las imágenes de RMN disponibles (series cervical y dorsal) no cubren este nivel; el informe de la RM describe la columna dorsal y lumbar hasta S2, pero no la pelvis, la escápula ni el fémur.', 'The available MRI images (cervical and thoracic series) do not cover this level; the MRI report covers the thoracic and lumbar spine down to S2, but not the pelvis, scapula or femur.') }}</p>
                   </div>
                 </div>
               </div>
@@ -3029,18 +3025,18 @@ const manifestValidated = (() => {
                     <span class="status-badge status-badge--firma">{{ L('campo a campo', 'field by field') }}</span>
                   </span>
                 </summary>
-                <p class="text-[11px] text-tinta mt-3 mb-3 leading-relaxed max-w-2xl">
+                <p class="text-xs text-tinta mt-3 mb-3 leading-relaxed max-w-2xl">
                   {{ L('Cada cifra de este foco con su origen: fuente, fecha del estudio, trazador, si es MEDIDA o INTERPRETADA y su referencia. Es la misma fuente que el manifiesto descargable (CSV/JSON) — lo que se ve aquí es lo que se descarga.', 'Each figure for this focus with its origin: source, study date, tracer, whether it is MEASURED or INTERPRETED, and its reference. It is the same source as the downloadable manifest (CSV/JSON) — what you see here is what you download.') }}
                 </p>
                 <ul class="prov-list">
                   <li v-for="r in provRows(sel)" :key="r.field" class="prov-list__row">
                     <ProvShapeMark :shape="r.shape" :tone="r.tone" lg :title="r.fuente" class="shrink-0 mt-0.5" />
                     <div class="min-w-0">
-                      <p class="text-[12.5px] leading-snug">
+                      <p class="text-xs leading-snug">
                         <span class="font-semibold text-berenjena">{{ r.label }}</span>
                         <span class="font-mono text-berenjena ml-1.5">{{ r.valor }}<span v-if="r.unidad && r.valor !== '—'" class="text-tinta"> {{ r.unidad }}</span></span>
                       </p>
-                      <p class="text-[11px] text-tinta leading-snug mt-0.5 flex flex-wrap gap-x-2 gap-y-0">
+                      <p class="text-xs text-tinta leading-snug mt-0.5 flex flex-wrap gap-x-2 gap-y-0">
                         <span>{{ r.fuente }}</span>
                         <span class="prov-mi" :class="r.medido ? 'prov-mi--measured' : 'prov-mi--interp'">{{ miLabel(r.medido) }}</span>
                         <span v-if="r.trazador">· {{ r.trazador }}</span>
@@ -3051,7 +3047,7 @@ const manifestValidated = (() => {
                   </li>
                 </ul>
                 <ProvLegend class="mt-3" />
-                <p class="text-[10px] text-tinta mt-2 leading-relaxed">{{ L('Anti-PHI: solo ids sintéticos #1–19; cualquier referencia a un corte DICOM es un índice/código, sin metadatos de paciente.', 'Anti-PHI: synthetic ids #1–19 only; any reference to a DICOM slice is an index/code, with no patient metadata.') }}</p>
+                <p class="text-xs text-tinta mt-2 leading-relaxed">{{ L('Anti-PHI: solo ids sintéticos #1–19; cualquier referencia a un corte DICOM es un índice/código, sin metadatos de paciente.', 'Anti-PHI: synthetic ids #1–19 only; any reference to a DICOM slice is an index/code, with no patient metadata.') }}</p>
               </details>
 
               <!-- ===== MORFOLOGÍA (forma del hueso) + MTV · dato de PRIMERA CLASE =====
@@ -3067,24 +3063,24 @@ const manifestValidated = (() => {
                 <div class="grid sm:grid-cols-3 gap-3">
                   <!-- morfología (forma) -->
                   <div class="rounded-card bg-cream px-3 py-2 border-l-4" :style="{ borderColor: '#1f6b57' }">
-                    <p class="text-[11px] text-tinta">{{ L('Morfología (forma)', 'Morphology (shape)') }}</p>
+                    <p class="text-xs text-tinta">{{ L('Morfología (forma)', 'Morphology (shape)') }}</p>
                     <p class="font-semibold text-berenjena leading-snug">{{ morphLabel(sel) }}</p>
-                    <p class="text-[12px] text-tinta leading-snug mt-1">{{ morphYieldNote(sel) }}</p>
+                    <p class="text-xs text-tinta leading-snug mt-1">{{ morphYieldNote(sel) }}</p>
                   </div>
                   <!-- extensión metabólica medida (mm) · MTV (ml) -->
                   <div class="rounded-card bg-cream px-3 py-2 border-l-4" :style="{ borderColor: '#6b6470' }">
-                    <p class="text-[11px] text-tinta">{{ L('Extensión metabólica (mm) · MTV (ml)', 'Metabolic extent (mm) · MTV (ml)') }}</p>
+                    <p class="text-xs text-tinta">{{ L('Extensión metabólica (mm) · MTV (ml)', 'Metabolic extent (mm) · MTV (ml)') }}</p>
                     <p class="font-mono font-semibold text-berenjena leading-snug mt-0.5">{{ metExtentLabel(sel) }}</p>
-                    <p class="text-[12px] text-tinta leading-snug mt-1">{{ L('lo que capta por encima del umbral (41% del SUVmáx local), confinado a hueso — no el tamaño anatómico exacto.', 'what it takes up above the threshold (41% of local SUVmax), confined to bone — not the exact anatomical size.') }}</p>
+                    <p class="text-xs text-tinta leading-snug mt-1">{{ L('lo que capta por encima del umbral (41% del SUVmáx local), confinado a hueso — no el tamaño anatómico exacto.', 'what it takes up above the threshold (41% of local SUVmax), confined to bone — not the exact anatomical size.') }}</p>
                   </div>
                   <!-- MTV por trazador (verificación) -->
                   <div class="rounded-card bg-cream px-3 py-2 border-l-4" :style="{ borderColor: '#6b6470' }">
-                    <p class="text-[11px] text-tinta">{{ L('MTV por trazador', 'MTV by tracer') }}</p>
+                    <p class="text-xs text-tinta">{{ L('MTV por trazador', 'MTV by tracer') }}</p>
                     <p v-if="hasMtv" class="leading-snug mt-0.5">
                       <span v-for="(m, i) in mtvList(sel)" :key="i" class="font-mono text-berenjena mr-2">{{ m.tr }} {{ m.v }} ml</span>
                     </p>
                     <p v-else class="font-semibold text-tinta mt-0.5">{{ L('— · no medido', '— · not measured') }}</p>
-                    <p class="text-[12px] text-tinta leading-snug mt-1">{{ L('volumen metabólico por trazador (verificación, orientativo)', 'metabolic volume per tracer (verification, indicative)') }}</p>
+                    <p class="text-xs text-tinta leading-snug mt-1">{{ L('volumen metabólico por trazador (verificación, orientativo)', 'metabolic volume per tracer (verification, indicative)') }}</p>
                   </div>
                 </div>
               </div>
@@ -3118,7 +3114,7 @@ const manifestValidated = (() => {
                   <div><dt class="inline font-semibold text-berenjena">{{ L('Seguridad', 'Safety') }}: </dt><dd class="inline">{{ selBiopsy.safety[lang] }}</dd></div>
                   <div><dt class="inline font-semibold text-berenjena">{{ L('Rendimiento (estimación heurística orientativa, no validada)', 'Yield (indicative heuristic estimate, not validated)') }}: </dt><dd class="inline">{{ selBiopsy.rend[lang] }}</dd></div>
                 </dl>
-                <p class="text-[10px] text-tinta mt-2 leading-relaxed">{{ L('Acceso y anatomía del propio caso, para que radiología intervencionista y el comité decidan sobre la imagen en vivo.', 'Access and anatomy from the case itself, for interventional radiology and the tumor board to decide on live imaging.') }}</p>
+                <p class="text-xs text-tinta mt-2 leading-relaxed">{{ L('Acceso y anatomía del propio caso, para que radiología intervencionista y el comité decidan sobre la imagen en vivo.', 'Access and anatomy from the case itself, for interventional radiology and the tumor board to decide on live imaging.') }}</p>
               </div>
 
               <!-- (Página estrictamente clínica: sin capa de lenguaje llano.) -->
@@ -3135,7 +3131,7 @@ const manifestValidated = (() => {
                     <span class="text-tinta">{{ lang === 'en' ? tg.en : tg.es }}</span>
                   </li>
                 </ul>
-                <p class="text-[10px] text-tinta mt-2 leading-relaxed">{{ L('Derivado de los SUV, la tendencia y la morfología del propio foco.', 'Derived from the focus’s own SUVs, trend and morphology.') }}</p>
+                <p class="text-xs text-tinta mt-2 leading-relaxed">{{ L('Derivado de los SUV, la tendencia y la morfología del propio foco.', 'Derived from the focus’s own SUVs, trend and morphology.') }}</p>
               </div>
 
               <!-- CUANTIFICACIÓN AUTOMÁTICA medida sobre los DICOM (verificación) — abierta por defecto (vista clínica) -->
@@ -3148,8 +3144,8 @@ const manifestValidated = (() => {
                 </p>
                 <div class="grid grid-cols-2 gap-3">
                   <div class="rounded-card bg-cream px-3 py-2 border-l-4" :style="{ borderColor: FDG_FILL }">
-                    <p class="text-[11px] font-semibold mb-1" :style="{ color: FDG_TEXT }">¹⁸F-FDG · {{ L('glucólisis', 'glycolysis') }}</p>
-                    <div class="text-[12.5px] text-tinta leading-relaxed">
+                    <p class="text-xs font-semibold mb-1" :style="{ color: FDG_TEXT }">¹⁸F-FDG · {{ L('glucólisis', 'glycolysis') }}</p>
+                    <div class="text-xs text-tinta leading-relaxed">
                       <div>{{ L('Tabla', 'Table') }} <span class="font-mono text-berenjena font-semibold">{{ fmtSuv(sel, sel.fdg) }}</span>
                         <template v-if="selAuto?.fdgAuto != null"> · {{ L('auto', 'auto') }} <span class="font-mono">{{ selAuto?.fdgAuto?.toFixed(2) }}</span>
                           <span v-if="sel.fdg != null" class="font-semibold" :style="{ color: '#8a5a1a' }">{{ isAiDavid(sel) ? ' · IA' : (Math.abs((sel.fdg || 0) - (selAuto?.fdgAuto || 0)) < 0.6 ? ' ✓' : ' ≈') }}</span>
@@ -3159,8 +3155,8 @@ const manifestValidated = (() => {
                     </div>
                   </div>
                   <div class="rounded-card bg-cream px-3 py-2 border-l-4" :style="{ borderColor: GA_FILL }">
-                    <p class="text-[11px] font-semibold mb-1" :style="{ color: GA_TEXT }">⁶⁸Ga-DOTATOC · {{ L('SSTR', 'SSTR') }}</p>
-                    <div class="text-[12.5px] text-tinta leading-relaxed">
+                    <p class="text-xs font-semibold mb-1" :style="{ color: GA_TEXT }">⁶⁸Ga-DOTATOC · {{ L('SSTR', 'SSTR') }}</p>
+                    <div class="text-xs text-tinta leading-relaxed">
                       <div>{{ L('Tabla', 'Table') }} <span class="font-mono text-berenjena font-semibold">{{ fmtSuv(sel, sel.dota) }}</span>
                         <template v-if="selAuto?.gaAuto != null"> · {{ L('auto', 'auto') }} <span class="font-mono">{{ selAuto?.gaAuto?.toFixed(2) }}</span>
                           <span v-if="sel.dota != null" class="font-semibold" :style="{ color: isAiDavid(sel) ? '#8a5a1a' : (Math.abs((sel.dota || 0) - (selAuto?.gaAuto || 0)) < 1.2 ? '#1f5a3a' : '#8a5a1a') }">{{ isAiDavid(sel) ? ' · IA' : (Math.abs((sel.dota || 0) - (selAuto?.gaAuto || 0)) < 1.2 ? ' ✓' : ' ≈') }}</span>
@@ -3171,7 +3167,7 @@ const manifestValidated = (() => {
                     </div>
                   </div>
                 </div>
-                <p class="text-[10px] text-tinta mt-2 leading-relaxed">{{ L('SUV recalculado del DICOM (corrección de decaimiento), MTV y TLG con máscara ósea del CT; morfología por densidad CT. El ¹⁸F-FDG (1,65 mm) tiene mayor resolución espacial que el ⁶⁸Ga-DOTATOC (4 mm). Verificación: manda la tabla.', 'SUV recomputed from the DICOM (decay-corrected), MTV and TLG with a CT bone mask; morphology from CT density. ¹⁸F-FDG (1.65 mm) has higher spatial resolution than ⁶⁸Ga-DOTATOC (4 mm). Verification: the table prevails.') }}</p>
+                <p class="text-xs text-tinta mt-2 leading-relaxed">{{ L('SUV recalculado del DICOM (corrección de decaimiento), MTV y TLG con máscara ósea del CT; morfología por densidad CT. El ¹⁸F-FDG (1,65 mm) tiene mayor resolución espacial que el ⁶⁸Ga-DOTATOC (4 mm). Verificación: manda la tabla.', 'SUV recomputed from the DICOM (decay-corrected), MTV and TLG with a CT bone mask; morphology from CT density. ¹⁸F-FDG (1.65 mm) has higher spatial resolution than ⁶⁸Ga-DOTATOC (4 mm). Verification: the table prevails.') }}</p>
               </details>
 
               <!-- EVOLUCIÓN FDG + IMAGEN CLAVE · 2 columnas (la gráfica a ancho completo
@@ -3180,12 +3176,12 @@ const manifestValidated = (() => {
               <!-- evolución del FDG (solo si hay dos medidas; el Galio tiene una sola) -->
               <div>
                 <div class="flex items-center justify-between mb-1">
-                  <span class="text-[11px] font-semibold text-berenjena">{{ L('Evolución glucolítica (¹⁸F-FDG)', 'Glycolytic (¹⁸F-FDG) evolution') }}</span>
-                  <span v-if="hasFdgEvo" class="text-[10px] text-tinta">{{ L('ene → mar 2026', 'Jan → Mar 2026') }}</span>
+                  <span class="text-xs font-semibold text-berenjena">{{ L('Evolución glucolítica (¹⁸F-FDG)', 'Glycolytic (¹⁸F-FDG) evolution') }}</span>
+                  <span v-if="hasFdgEvo" class="text-xs text-tinta">{{ L('ene → mar 2026', 'Jan → Mar 2026') }}</span>
                 </div>
                 <!-- eslint-disable-next-line vue/no-v-html -->
                 <div v-if="hasFdgEvo" v-html="evoChartSvg" class="max-w-[460px]" />
-                <div v-else class="rounded-card border px-3 py-2 text-[12.5px] leading-snug flex items-start gap-2"
+                <div v-else class="rounded-card border px-3 py-2 text-xs leading-snug flex items-start gap-2"
                   :style="sel.fdg != null
                     ? { borderColor: '#efb27a', background: '#fbf0df', color: '#7a4a12' }
                     : { borderColor: 'rgba(45,27,61,0.12)', background: 'rgba(45,27,61,0.04)', color: '#3a3340' }">
@@ -3200,7 +3196,7 @@ const manifestValidated = (() => {
                    Columna derecha del grid (al lado de la gráfica de evolución). -->
               <figure class="!mb-0">
                 <div class="flex items-center justify-between mb-1.5 flex-wrap gap-1">
-                  <span class="text-[11px] font-semibold text-berenjena">{{ L('Imagen clave del foco', 'Focus key image') }}</span>
+                  <span class="text-xs font-semibold text-berenjena">{{ L('Imagen clave del foco', 'Focus key image') }}</span>
                   <span v-if="selKey.dotted || !selKey.hasReliable" class="status-badge status-badge--candidate">{{ L('localización aproximada · por confirmar', 'approximate location · to confirm') }}</span>
                   <span v-else class="status-badge status-badge--firma">{{ L('PET-CT fusionado', 'fused PET-CT') }}</span>
                 </div>
@@ -3222,14 +3218,14 @@ const manifestValidated = (() => {
                     </span>
                     <span v-if="selKey.planes.length > 1" class="foco-key-thumb__planes" aria-hidden="true">{{ selKey.planes.map((p) => p.label[lang]).join(' · ') }}</span>
                   </button>
-                  <figcaption class="text-[10px] text-tinta text-center mt-1.5 leading-relaxed max-w-md mx-auto">
+                  <figcaption class="text-xs text-tinta text-center mt-1.5 leading-relaxed max-w-md mx-auto">
                     {{ selKeyCaption }}
                   </figcaption>
                 </template>
 
                 <!-- fallback (sin imagen fiable) → NOTA. Hoy ningún foco lo usa:
                      todos los focos IA (#17/#19) muestran su imagen con marca punteada. -->
-                <div v-else class="rounded-card border-l-4 px-3 py-3 text-[12.5px] leading-snug flex items-start gap-2"
+                <div v-else class="rounded-card border-l-4 px-3 py-3 text-xs leading-snug flex items-start gap-2"
                   style="border-left-color:#8a5a1a;background:#fbf6ec;color:#7a4a12">
                   <span class="status-badge status-badge--candidate shrink-0">{{ L('por confirmar', 'to confirm') }}</span>
                   <span>{{ L('Foco detectado por IA sobre los DICOM, de baja intensidad: la localización es aproximada y aún no hay un círculo fiable que marcarlo. No es una relectura formal — a correlacionar con Medicina Nuclear.', 'AI-detected focus on the DICOM, low intensity: the location is approximate and there is no reliable ring to mark it yet. Not a formal re-read — to correlate with Nuclear Medicine.') }}</span>
@@ -3286,7 +3282,7 @@ const manifestValidated = (() => {
             {{ L('Sección general', 'General section') }}
           </p>
           <h2 class="heading-display text-2xl text-berenjena mb-2 scroll-mt-[5.5rem]">{{ L('Visión general del caso', 'Case overview') }}</h2>
-          <p class="text-sm text-tinta leading-relaxed max-w-3xl">{{ L(
+          <p class="text-sm text-tinta leading-relaxed measure">{{ L(
             'Lo general del caso, de más a menos relevante para decidir: idoneidad (cómo se calcula), fenotipo, imágenes, evolución, la tabla y la visión general. Usa el índice para navegarlo.',
             'The general view of the case, from most to least relevant for deciding: suitability (how it is computed), phenotype, imaging, evolution, the table and the case overview. Use the index to navigate it.') }}</p>
         </div>
@@ -3331,23 +3327,23 @@ const manifestValidated = (() => {
           </div>
 
           <!-- LOS FACTORES que componen la idoneidad (explícitos, etiquetados por trazador/forma) -->
-          <p class="text-sm text-tinta leading-relaxed mb-3 max-w-3xl">
+          <p class="text-sm text-tinta leading-relaxed mb-3 measure">
             {{ L('El cálculo completo: la idoneidad es el producto de tres factores visibles, más tres avisos de FACTIBILIDAD que el equipo pondera (no van en el número). El resumen con las dianas que la lente sitúa mejor está arriba, en «Dianas que la lente heurística sitúa mejor».',
                   'The full calculation: suitability is the product of three visible factors, plus three FEASIBILITY flags the team weighs (not part of the number). The summary with the targets the lens places best is at the top, in “Targets the heuristic lens places best”.') }}
           </p>
           <!-- GRUPO A · los 3 factores que MULTIPLICAN el número → grid de 3 col (llena exacto). -->
           <div class="grid sm:grid-cols-3 gap-3 mb-3">
             <div class="card-base !p-3.5 border-t-4" :style="{ borderColor: FDG_FILL }">
-              <p class="text-[12px] font-semibold mb-1" :style="{ color: FDG_TEXT }">{{ L('1 · Captación (¹⁸F-FDG / ⁶⁸Ga)', '1 · Uptake (¹⁸F-FDG / ⁶⁸Ga)') }}</p>
-              <p class="text-[12.5px] text-tinta leading-snug">{{ L('¹⁸F-FDG SUVmáx: a mayor captación glucolítica, más señal metabólica viable que muestrear; el ⁶⁸Ga-DOTATOC aporta la densidad de receptores de somatostatina (SSTR).', '¹⁸F-FDG SUVmax: the higher the glycolytic uptake, the more viable metabolic signal to sample; ⁶⁸Ga-DOTATOC adds the somatostatin-receptor (SSTR) density.') }}</p>
+              <p class="text-xs font-semibold mb-1" :style="{ color: FDG_TEXT }">{{ L('1 · Captación (¹⁸F-FDG / ⁶⁸Ga)', '1 · Uptake (¹⁸F-FDG / ⁶⁸Ga)') }}</p>
+              <p class="text-xs text-tinta leading-snug">{{ L('¹⁸F-FDG SUVmáx: a mayor captación glucolítica, más señal metabólica viable que muestrear; el ⁶⁸Ga-DOTATOC aporta la densidad de receptores de somatostatina (SSTR).', '¹⁸F-FDG SUVmax: the higher the glycolytic uptake, the more viable metabolic signal to sample; ⁶⁸Ga-DOTATOC adds the somatostatin-receptor (SSTR) density.') }}</p>
             </div>
             <div class="card-base !p-3.5 border-t-4" :style="{ borderColor: '#1f6b57' }">
-              <p class="text-[12px] font-semibold mb-1" :style="{ color: '#1f6b57' }">{{ L('2 · Rendimiento (estimación heurística)', '2 · Yield (heuristic estimate)') }}</p>
-              <p class="text-[12.5px] text-tinta leading-snug">{{ L('Forma del hueso: lítico / partes blandas suele rendir más tejido; blástico denso rinde poco (como falló la biopsia ilíaca previa). Es FORMA, no biología.', 'Bone shape: lytic / soft tissue usually yields more tissue; dense blastic yields little (as the prior iliac biopsy failed). It is SHAPE, not biology.') }}</p>
+              <p class="text-xs font-semibold mb-1" :style="{ color: '#1f6b57' }">{{ L('2 · Rendimiento (estimación heurística)', '2 · Yield (heuristic estimate)') }}</p>
+              <p class="text-xs text-tinta leading-snug">{{ L('Forma del hueso: lítico / partes blandas suele rendir más tejido; blástico denso rinde poco (como falló la biopsia ilíaca previa). Es FORMA, no biología.', 'Bone shape: lytic / soft tissue usually yields more tissue; dense blastic yields little (as the prior iliac biopsy failed). It is SHAPE, not biology.') }}</p>
             </div>
             <div class="card-base !p-3.5 border-t-4" :style="{ borderColor: '#6b6470' }">
-              <p class="text-[12px] font-semibold mb-1 text-tinta">{{ L('3 · Tamaño / cantidad', '3 · Size / amount') }}</p>
-              <p class="text-[12.5px] text-tinta leading-snug">{{ L('Eje mayor de la lesión (más grande = más fácil y más tejido) y, donde se midió, el MTV (volumen tumoral metabólico).', 'Lesion major axis (larger = easier and more tissue) and, where measured, the MTV (metabolic tumor volume).') }}</p>
+              <p class="text-xs font-semibold mb-1 text-tinta">{{ L('3 · Tamaño / cantidad', '3 · Size / amount') }}</p>
+              <p class="text-xs text-tinta leading-snug">{{ L('Eje mayor de la lesión (más grande = más fácil y más tejido) y, donde se midió, el MTV (volumen tumoral metabólico).', 'Lesion major axis (larger = easier and more tissue) and, where measured, the MTV (metabolic tumor volume).') }}</p>
             </div>
           </div>
           <!-- GRUPO B · 3 avisos de factibilidad + «La fórmula» = 4 tarjetas → grid que LLENA parejo
@@ -3356,23 +3352,23 @@ const manifestValidated = (() => {
                modo wiki. En móvil apila en 1 col. -->
           <div class="grid sm:grid-cols-2 xl:grid-cols-4 gap-3 mb-6">
             <div class="card-base !p-3.5 border-t-4" :style="{ borderColor: '#8a5a1a' }">
-              <p class="text-[12px] font-semibold mb-1 flex items-center gap-1.5 flex-wrap" :style="{ color: '#8a5a1a' }">{{ L('Aviso · biopsia previa', 'Flag · prior biopsy') }}<span class="status-badge status-badge--candidate">{{ L('lección', 'lesson') }}</span></p>
-              <p class="text-[12.5px] text-tinta leading-snug">{{ L('La biopsia previa (ilíaco derecho, #13) FALLÓ: solo dio hueso y músculo, sin tumor evaluable. La lección: la zona biopsiada era hueso denso (blástico), que rinde poco — por eso el rendimiento (forma) pesa en la lente: el tejido lítico / partes blandas suele rendir más tumor evaluable que el hueso denso. Se muestra como aviso; no entra en el número.', 'The prior biopsy (right iliac, #13) FAILED: only bone and muscle, no evaluable tumor. The lesson: the sampled zone was dense (blastic) bone, which yields little — that is why yield (shape) weighs in the lens: lytic / soft-tissue tissue usually yields more evaluable tumor than dense bone. Shown as a flag; not part of the number.') }}</p>
+              <p class="text-xs font-semibold mb-1 flex items-center gap-1.5 flex-wrap" :style="{ color: '#8a5a1a' }">{{ L('Aviso · biopsia previa', 'Flag · prior biopsy') }}<span class="status-badge status-badge--candidate">{{ L('lección', 'lesson') }}</span></p>
+              <p class="text-xs text-tinta leading-snug">{{ L('La biopsia previa (ilíaco derecho, #13) FALLÓ: solo dio hueso y músculo, sin tumor evaluable. La lección: la zona biopsiada era hueso denso (blástico), que rinde poco — por eso el rendimiento (forma) pesa en la lente: el tejido lítico / partes blandas suele rendir más tumor evaluable que el hueso denso. Se muestra como aviso; no entra en el número.', 'The prior biopsy (right iliac, #13) FAILED: only bone and muscle, no evaluable tumor. The lesson: the sampled zone was dense (blastic) bone, which yields little — that is why yield (shape) weighs in the lens: lytic / soft-tissue tissue usually yields more evaluable tumor than dense bone. Shown as a flag; not part of the number.') }}</p>
             </div>
             <div class="card-base !p-3.5 border-t-4" :style="{ borderColor: '#1f6b57' }">
-              <p class="text-[12px] font-semibold mb-1 flex items-center gap-1.5 flex-wrap" :style="{ color: '#1f6b57' }">{{ L('Aviso · partes blandas (RMN)', 'Flag · soft tissue (MRI)') }}<span class="status-badge status-badge--shape">{{ L('factibilidad', 'feasibility') }}</span></p>
-              <p class="text-[12.5px] text-tinta leading-snug">{{ L('Donde la RMN describe partes blandas / extensión extraósea (p.ej. epidural de D11, #7), hay una diana de tejido blando que suele rentabilizar más que el hueso blástico denso; la cercanía al canal/raíces la valora intervencionista. No entra en el número.', 'Where the MRI describes soft tissue / extraosseous extension (e.g. D11 epidural, #7), there is a soft-tissue target that usually yields more than dense blastic bone; proximity to the canal/roots is assessed by interventional radiology. Not part of the number.') }}</p>
+              <p class="text-xs font-semibold mb-1 flex items-center gap-1.5 flex-wrap" :style="{ color: '#1f6b57' }">{{ L('Aviso · partes blandas (RMN)', 'Flag · soft tissue (MRI)') }}<span class="status-badge status-badge--shape">{{ L('factibilidad', 'feasibility') }}</span></p>
+              <p class="text-xs text-tinta leading-snug">{{ L('Donde la RMN describe partes blandas / extensión extraósea (p.ej. epidural de D11, #7), hay una diana de tejido blando que suele rentabilizar más que el hueso blástico denso; la cercanía al canal/raíces la valora intervencionista. No entra en el número.', 'Where the MRI describes soft tissue / extraosseous extension (e.g. D11 epidural, #7), there is a soft-tissue target that usually yields more than dense blastic bone; proximity to the canal/roots is assessed by interventional radiology. Not part of the number.') }}</p>
             </div>
             <div class="card-base !p-3.5 border-t-4" :style="{ borderColor: '#6b6470' }">
-              <p class="text-[12px] font-semibold mb-1 text-tinta">{{ L('Aviso · accesibilidad', 'Flag · accessibility') }}</p>
-              <p class="text-[12.5px] text-tinta leading-snug">{{ L('La accesibilidad y la seguridad no las tenemos como dato fiable: las valora radiología intervencionista. No se inventan ni se puntúan.', 'Accessibility and safety are not available to us as a reliable datum: interventional radiology assesses them. They are neither invented nor scored.') }}</p>
+              <p class="text-xs font-semibold mb-1 text-tinta">{{ L('Aviso · accesibilidad', 'Flag · accessibility') }}</p>
+              <p class="text-xs text-tinta leading-snug">{{ L('La accesibilidad y la seguridad no las tenemos como dato fiable: las valora radiología intervencionista. No se inventan ni se puntúan.', 'Accessibility and safety are not available to us as a reliable datum: interventional radiology assesses them. They are neither invented nor scored.') }}</p>
             </div>
             <div class="card-base !p-3.5 border-t-4" :style="{ borderColor: GA_FILL }">
-              <p class="text-[12px] font-semibold mb-1" :style="{ color: GA_TEXT }">{{ L('La fórmula', 'The formula') }}</p>
-              <p class="text-[12px] text-tinta leading-snug font-mono">idoneidad = 100 · viable · rendimiento · tamaño</p>
-              <p class="text-[11px] text-tinta leading-snug mt-1">{{ L('viable = 0.78·(FDG/10) + 0.22·(Ga/14) · rendimiento = lítico 1 / mixto 0.6 / blástico 0.3 · tamaño = 0.6–1 por el eje mayor de la extensión metabólica medida. Orientativa.', 'viable = 0.78·(FDG/10) + 0.22·(Ga/14) · yield = lytic 1 / mixed 0.6 / blastic 0.3 · size = 0.6–1 by the major axis of the measured metabolic extent. Indicative.') }}</p>
-              <p class="text-[10.5px] text-tinta leading-snug mt-1">{{ L('Los pesos de los tres factores (por defecto 1) son un CRITERIO puesto a mano: muévelos en el stress-test de abajo y verás que el orden cambia → no es una verdad medida, es una orientación.', 'The weights of the three factors (default 1) are a hand-set CRITERION: move them in the stress-test below and you will see the order change → it is not a measured truth, it is an orientation.') }}</p>
-              <p class="text-[10.5px] text-tinta leading-snug mt-1">{{ L('Extensión metabólica = lo que cada foco capta por encima del umbral (41% del SUVmáx local), confinada a hueso, medida sobre el DICOM. Es lo que se ve por imagen, no el tamaño anatómico exacto; el volumen parcial subestima los focos < ~10 mm.', 'Metabolic extent = what each focus takes up above the threshold (41% of the local SUVmax), confined to bone, measured on the DICOM. It is what imaging shows, not the exact anatomical size; partial-volume effect underestimates foci < ~10 mm.') }}</p>
+              <p class="text-xs font-semibold mb-1" :style="{ color: GA_TEXT }">{{ L('La fórmula', 'The formula') }}</p>
+              <p class="text-xs text-tinta leading-snug font-mono">idoneidad = 100 · viable · rendimiento · tamaño</p>
+              <p class="text-xs text-tinta leading-snug mt-1">{{ L('viable = 0.78·(FDG/10) + 0.22·(Ga/14) · rendimiento = lítico 1 / mixto 0.6 / blástico 0.3 · tamaño = 0.6–1 por el eje mayor de la extensión metabólica medida. Orientativa.', 'viable = 0.78·(FDG/10) + 0.22·(Ga/14) · yield = lytic 1 / mixed 0.6 / blastic 0.3 · size = 0.6–1 by the major axis of the measured metabolic extent. Indicative.') }}</p>
+              <p class="text-xs text-tinta leading-snug mt-1">{{ L('Los pesos de los tres factores (por defecto 1) son un CRITERIO puesto a mano: muévelos en el stress-test de abajo y verás que el orden cambia → no es una verdad medida, es una orientación.', 'The weights of the three factors (default 1) are a hand-set CRITERION: move them in the stress-test below and you will see the order change → it is not a measured truth, it is an orientation.') }}</p>
+              <p class="text-xs text-tinta leading-snug mt-1">{{ L('Extensión metabólica = lo que cada foco capta por encima del umbral (41% del SUVmáx local), confinada a hueso, medida sobre el DICOM. Es lo que se ve por imagen, no el tamaño anatómico exacto; el volumen parcial subestima los focos < ~10 mm.', 'Metabolic extent = what each focus takes up above the threshold (41% of the local SUVmax), confined to bone, measured on the DICOM. It is what imaging shows, not the exact anatomical size; partial-volume effect underestimates foci < ~10 mm.') }}</p>
             </div>
           </div>
 
@@ -3381,7 +3377,7 @@ const manifestValidated = (() => {
                (estimación heurística orientativa, no validada). Ofrece, no condiciona. -->
           <div class="flex items-baseline justify-between flex-wrap gap-x-2 gap-y-1.5 mb-2">
             <h3 class="heading-display text-lg text-berenjena">{{ orderByIdoneidad ? L('Focos del informe, ordenados por idoneidad', 'Report foci, ordered by suitability') : L('Focos del informe, por nivel anatómico', 'Report foci, by anatomical level') }}</h3>
-            <span class="text-[11px] text-tinta">{{ L('toca un foco para abrir su ficha', 'tap a focus to open its card') }}</span>
+            <span class="text-xs text-tinta">{{ L('toca un foco para abrir su ficha', 'tap a focus to open its card') }}</span>
           </div>
           <!-- CONTROL · activa la lente de idoneidad (no es el orden por defecto). Texto SIEMPRE
                visible; nunca un botón que oculte contenido. -->
@@ -3391,7 +3387,7 @@ const manifestValidated = (() => {
               :aria-label="L('Ordenar por idoneidad (heurística orientativa, no validada)', 'Sort by suitability (indicative heuristic, not validated)')" />
             <span class="min-w-0">
               <span class="text-[13px] font-semibold text-berenjena leading-snug block">{{ L('Ordenar por idoneidad (estimación heurística orientativa, no validada)', 'Sort by suitability (indicative heuristic estimate, not validated)') }}</span>
-              <span class="text-[11px] text-tinta leading-snug block mt-0.5">{{ orderByIdoneidad ? L('Activada: la lista se reordena por el score. Es una orientación que el equipo sopesa; el orden de referencia es el nivel anatómico.', 'On: the list is reordered by the score. It is an orientation the team weighs; the reference order is the anatomical level.') : L('Por defecto, los focos van por nivel anatómico (hecho neutro). Actívala para verlos reordenados por la estimación de idoneidad.', 'By default, foci go by anatomical level (a neutral fact). Turn it on to see them reordered by the suitability estimate.') }}</span>
+              <span class="text-xs text-tinta leading-snug block mt-0.5">{{ orderByIdoneidad ? L('Activada: la lista se reordena por el score. Es una orientación que el equipo sopesa; el orden de referencia es el nivel anatómico.', 'On: the list is reordered by the score. It is an orientation the team weighs; the reference order is the anatomical level.') : L('Por defecto, los focos van por nivel anatómico (hecho neutro). Actívala para verlos reordenados por la estimación de idoneidad.', 'By default, foci go by anatomical level (a neutral fact). Turn it on to see them reordered by the suitability estimate.') }}</span>
             </span>
           </label>
 
@@ -3409,11 +3405,11 @@ const manifestValidated = (() => {
                 <span v-if="weightsDirty" class="status-badge status-badge--candidate">{{ L('pesos modificados', 'weights modified') }}</span>
               </p>
               <button v-if="weightsDirty" type="button" @click="resetWeights"
-                class="link-action text-miriam text-[12px] font-semibold inline-flex items-center gap-1 shrink-0 min-h-[44px] sm:min-h-0">
+                class="link-action text-miriam text-xs font-semibold inline-flex items-center gap-1 shrink-0 min-h-[44px] sm:min-h-0">
                 ↺ {{ L('restablecer pesos', 'reset weights') }}
               </button>
             </div>
-            <p class="text-[12.5px] text-berenjena leading-relaxed mb-3.5 max-w-3xl">
+            <p class="text-xs text-berenjena leading-relaxed mb-3.5 measure">
               {{ L('Mueve los pesos de los tres factores: el orden de los focos cambia ante tus ojos. Eso es lo que demuestra: el score es una HEURÍSTICA orientativa con criterios puestos a mano, no una verdad medida. No es «ajústalo hasta que salga lo que quieres» — es ver que el orden depende de un criterio. El equipo decide.',
                     'Move the weights of the three factors: the order of the foci changes before your eyes. That is what it demonstrates: the score is an indicative HEURISTIC with hand-set criteria, not a measured truth. It is not “tune it until it says what you want” — it is seeing that the order depends on a criterion. The team decides.') }}
             </p>
@@ -3421,8 +3417,8 @@ const manifestValidated = (() => {
               <!-- Slider 1 · Captación / viabilidad -->
               <div>
                 <label :for="'w-viable'" class="flex items-baseline justify-between gap-2 mb-1 cursor-pointer">
-                  <span class="text-[12.5px] font-semibold" :style="{ color: FDG_TEXT }">{{ L('1 · Captación / viabilidad', '1 · Uptake / viability') }}</span>
-                  <span class="font-mono text-[11.5px]" :class="wViable !== 1 ? 'text-berenjena font-semibold' : 'text-tinta'">×{{ wViable.toFixed(1) }}<span class="text-[10px] text-tinta"> ({{ L('peso', 'weight') }})</span></span>
+                  <span class="text-xs font-semibold" :style="{ color: FDG_TEXT }">{{ L('1 · Captación / viabilidad', '1 · Uptake / viability') }}</span>
+                  <span class="font-mono text-xs" :class="wViable !== 1 ? 'text-berenjena font-semibold' : 'text-tinta'">×{{ wViable.toFixed(1) }}<span class="text-xs text-tinta"> ({{ L('peso', 'weight') }})</span></span>
                 </label>
                 <input id="w-viable" type="range" min="0" max="2" step="0.1" v-model.number="wViable"
                   class="stress-slider" :style="{ '--slider-accent': FDG_FILL }"
@@ -3432,8 +3428,8 @@ const manifestValidated = (() => {
               <!-- Slider 2 · Rendimiento -->
               <div>
                 <label :for="'w-yield'" class="flex items-baseline justify-between gap-2 mb-1 cursor-pointer">
-                  <span class="text-[12.5px] font-semibold" :style="{ color: '#1f6b57' }">{{ L('2 · Rendimiento (forma)', '2 · Yield (shape)') }}</span>
-                  <span class="font-mono text-[11.5px]" :class="wYield !== 1 ? 'text-berenjena font-semibold' : 'text-tinta'">×{{ wYield.toFixed(1) }}<span class="text-[10px] text-tinta"> ({{ L('peso', 'weight') }})</span></span>
+                  <span class="text-xs font-semibold" :style="{ color: '#1f6b57' }">{{ L('2 · Rendimiento (forma)', '2 · Yield (shape)') }}</span>
+                  <span class="font-mono text-xs" :class="wYield !== 1 ? 'text-berenjena font-semibold' : 'text-tinta'">×{{ wYield.toFixed(1) }}<span class="text-xs text-tinta"> ({{ L('peso', 'weight') }})</span></span>
                 </label>
                 <input id="w-yield" type="range" min="0" max="2" step="0.1" v-model.number="wYield"
                   class="stress-slider" :style="{ '--slider-accent': '#1f6b57' }"
@@ -3443,8 +3439,8 @@ const manifestValidated = (() => {
               <!-- Slider 3 · Tamaño -->
               <div>
                 <label :for="'w-size'" class="flex items-baseline justify-between gap-2 mb-1 cursor-pointer">
-                  <span class="text-[12.5px] font-semibold text-tinta">{{ L('3 · Tamaño / cantidad', '3 · Size / amount') }}</span>
-                  <span class="font-mono text-[11.5px]" :class="wSize !== 1 ? 'text-berenjena font-semibold' : 'text-tinta'">×{{ wSize.toFixed(1) }}<span class="text-[10px] text-tinta"> ({{ L('peso', 'weight') }})</span></span>
+                  <span class="text-xs font-semibold text-tinta">{{ L('3 · Tamaño / cantidad', '3 · Size / amount') }}</span>
+                  <span class="font-mono text-xs" :class="wSize !== 1 ? 'text-berenjena font-semibold' : 'text-tinta'">×{{ wSize.toFixed(1) }}<span class="text-xs text-tinta"> ({{ L('peso', 'weight') }})</span></span>
                 </label>
                 <input id="w-size" type="range" min="0" max="2" step="0.1" v-model.number="wSize"
                   class="stress-slider" :style="{ '--slider-accent': '#6b6470' }"
@@ -3452,7 +3448,7 @@ const manifestValidated = (() => {
                   :aria-valuetext="L('peso ' + wSize.toFixed(1) + ', por defecto 1', 'weight ' + wSize.toFixed(1) + ', default 1')" />
               </div>
             </div>
-            <p class="text-[11px] text-tinta leading-snug mt-3">
+            <p class="text-xs text-tinta leading-snug mt-3">
               {{ orderByIdoneidad
                   ? L('Con la lente de orden activada, la lista de abajo se reordena en vivo al mover un peso. Peso 0 = ese factor se ignora; peso 1 = como está hoy; peso 2 = pesa el doble.', 'With the order lens on, the list below reorders live as you move a weight. Weight 0 = that factor is ignored; weight 1 = as it is today; weight 2 = it weighs double.')
                   : L('Activa arriba «Ordenar por idoneidad» para ver la lista reordenarse en vivo al mover un peso. Peso 0 = ese factor se ignora; peso 1 = como está hoy; peso 2 = pesa el doble.', 'Turn on “Sort by suitability” above to see the list reorder live as you move a weight. Weight 0 = that factor is ignored; weight 1 = as it is today; weight 2 = it weighs double.') }}
@@ -3468,7 +3464,7 @@ const manifestValidated = (() => {
                   <span class="foco-id-casing inline-flex w-7 h-7 shrink-0 rounded-full items-center justify-center text-xs font-semibold leading-none" :style="{ background: phenoColor(le), color: markerInk(le) }">{{ le.id }}</span>
                   <div class="flex-1 min-w-0">
                     <p class="font-semibold text-berenjena text-sm leading-tight">{{ le.level[lang] }}</p>
-                    <p class="text-[11px] text-tinta leading-tight">{{ le.region[lang] }} · {{ le.side === 'R' ? L('dcha', 'R') : le.side === 'L' ? L('izda', 'L') : L('centro', 'mid') }}</p>
+                    <p class="text-xs text-tinta leading-tight">{{ le.region[lang] }} · {{ le.side === 'R' ? L('dcha', 'R') : le.side === 'L' ? L('izda', 'L') : L('centro', 'mid') }}</p>
                   </div>
                   <div class="text-right shrink-0">
                     <div class="font-display text-2xl text-berenjena tabular-nums leading-none">{{ suitabilityScore(le) }}</div>
@@ -3478,7 +3474,7 @@ const manifestValidated = (() => {
                 <!-- los tres factores que componen el número (visibles, no solo el total) -->
                 <div class="mt-3 grid sm:grid-cols-3 gap-x-4 gap-y-2">
                   <div>
-                    <div class="flex justify-between items-baseline text-[10.5px] mb-0.5">
+                    <div class="flex justify-between items-baseline text-xs mb-0.5">
                       <span class="text-tinta">{{ L('Captación (¹⁸F-FDG/⁶⁸Ga)', 'Uptake (¹⁸F-FDG/⁶⁸Ga)') }}</span>
                       <span class="font-mono" :style="{ color: FDG_TEXT }">¹⁸F-FDG {{ le.fdg != null ? le.fdg.toFixed(1) : '—' }} · ⁶⁸Ga {{ le.dota != null ? le.dota.toFixed(1) : '—' }}</span>
                     </div>
@@ -3487,7 +3483,7 @@ const manifestValidated = (() => {
                     </div>
                   </div>
                   <div>
-                    <div class="flex justify-between items-baseline text-[10.5px] mb-0.5">
+                    <div class="flex justify-between items-baseline text-xs mb-0.5">
                       <span class="text-tinta">{{ L('Rendimiento (forma)', 'Yield (shape)') }}</span>
                       <span class="font-mono" :style="{ color: '#1f6b57' }">{{ morphShort(le) }}</span>
                     </div>
@@ -3496,7 +3492,7 @@ const manifestValidated = (() => {
                     </div>
                   </div>
                   <div>
-                    <div class="flex justify-between items-baseline text-[10.5px] mb-0.5">
+                    <div class="flex justify-between items-baseline text-xs mb-0.5">
                       <span class="text-tinta">{{ L('Extensión metabólica', 'Metabolic extent') }}</span>
                       <span class="font-mono text-tinta">{{ metExtentLabel(le) }}</span>
                     </div>
@@ -3514,7 +3510,7 @@ const manifestValidated = (() => {
               </button>
             </li>
           </TransitionGroup>
-          <p class="text-[12px] text-tinta leading-relaxed mb-8 max-w-3xl">
+          <p class="text-xs text-tinta leading-relaxed mb-8 measure">
             {{ L('Recordatorio: es un ORDEN ORIENTATIVO por las señales de imagen, no una orden de qué biopsiar. La decisión —incluida la accesibilidad y la seguridad— es del equipo médico con radiología intervencionista.',
                   'Reminder: this is an INDICATIVE ORDER by imaging signals, not an instruction on what to biopsy. The decision — including accessibility and safety — belongs to the medical team with interventional radiology.') }}
           </p>
@@ -3526,7 +3522,7 @@ const manifestValidated = (() => {
               {{ L('Detectados por IA · fuera del orden', 'AI-detected · outside the order') }}
               <span class="status-badge status-badge--candidate">{{ L('sin confirmar', 'unconfirmed') }}</span>
             </p>
-            <p class="text-[12.5px] text-tinta leading-relaxed mb-3">
+            <p class="text-xs text-tinta leading-relaxed mb-3">
               {{ L('Estos focos los detectó una IA sobre los DICOM y no constan en el informe oficial. Candidatos sí, peso real no: requieren correlación de imagen con Medicina Nuclear antes de considerarse diana. Por eso quedan fuera del orden de arriba.',
                     'These foci were detected by an AI on the DICOM and are not in the official report. Candidates yes, real weight no: they require imaging correlation with Nuclear Medicine before being considered a target. That is why they stay outside the order above.') }}
             </p>
@@ -3539,7 +3535,7 @@ const manifestValidated = (() => {
                     <span class="foco-id-casing inline-flex w-7 h-7 shrink-0 rounded-full items-center justify-center text-xs font-semibold leading-none ai-dot" :style="{ background: phenoColor(le), color: markerInk(le) }">{{ le.id }}</span>
                     <div class="flex-1 min-w-0">
                       <p class="font-semibold text-berenjena text-sm leading-tight">{{ le.level[lang] }}</p>
-                      <p class="text-[11px] text-tinta leading-tight">{{ le.region[lang] }} · {{ le.side === 'R' ? L('dcha', 'R') : le.side === 'L' ? L('izda', 'L') : L('centro', 'mid') }}</p>
+                      <p class="text-xs text-tinta leading-tight">{{ le.region[lang] }} · {{ le.side === 'R' ? L('dcha', 'R') : le.side === 'L' ? L('izda', 'L') : L('centro', 'mid') }}</p>
                     </div>
                     <div class="text-right shrink-0">
                       <div class="font-display text-2xl tabular-nums leading-none" :style="{ color: '#8a4a1a' }">{{ suitabilityScore(le) }}</div>
@@ -3549,7 +3545,7 @@ const manifestValidated = (() => {
                   <!-- los MISMOS tres factores que un foco confirmado (visibles, no solo el total) -->
                   <div class="mt-3 grid sm:grid-cols-3 gap-x-4 gap-y-2">
                     <div>
-                      <div class="flex justify-between items-baseline text-[10.5px] mb-0.5">
+                      <div class="flex justify-between items-baseline text-xs mb-0.5">
                         <span class="text-tinta">{{ L('Captación (¹⁸F-FDG/⁶⁸Ga)', 'Uptake (¹⁸F-FDG/⁶⁸Ga)') }}</span>
                         <span class="font-mono italic" :style="{ color: FDG_TEXT }">¹⁸F-FDG <span class="data-soft__approx">~</span>{{ le.fdg != null ? le.fdg.toFixed(1) : '—' }} · ⁶⁸Ga <span class="data-soft__approx">~</span>{{ le.dota != null ? le.dota.toFixed(1) : '—' }}</span>
                       </div>
@@ -3558,7 +3554,7 @@ const manifestValidated = (() => {
                       </div>
                     </div>
                     <div>
-                      <div class="flex justify-between items-baseline text-[10.5px] mb-0.5">
+                      <div class="flex justify-between items-baseline text-xs mb-0.5">
                         <span class="text-tinta">{{ L('Rendimiento (forma)', 'Yield (shape)') }}</span>
                         <span class="font-mono" :style="{ color: '#1f6b57' }">{{ morphShort(le) }}</span>
                       </div>
@@ -3567,7 +3563,7 @@ const manifestValidated = (() => {
                       </div>
                     </div>
                     <div>
-                      <div class="flex justify-between items-baseline text-[10.5px] mb-0.5">
+                      <div class="flex justify-between items-baseline text-xs mb-0.5">
                         <span class="text-tinta">{{ L('Extensión metabólica', 'Metabolic extent') }}</span>
                         <span class="font-mono text-tinta">{{ metExtentLabel(le) }}</span>
                       </div>
@@ -3592,7 +3588,7 @@ const manifestValidated = (() => {
           <h2 id="fenotipo" class="heading-display text-2xl text-berenjena mb-2 scroll-mt-[5.5rem]">
             {{ L('Mapa de fenotipo — la tercera vista enlazada', 'Phenotype map — the third linked view') }}
           </h2>
-          <p class="text-sm text-tinta leading-relaxed mb-5 max-w-3xl">
+          <p class="text-sm text-tinta leading-relaxed mb-5 measure">
             {{ L(
               'Cada lesión situada por sus dos trazadores a la vez: el eje horizontal es la captación glucolítica (¹⁸F-FDG SUVmáx) y el vertical la densidad de receptores de somatostatina (⁶⁸Ga-DOTATOC SUVmáx). Cada cuadrante está rotulado en el propio gráfico. Toca un punto para abrir su ficha; las divisiones son orientativas.',
               'Each lesion placed by both tracers at once: the horizontal axis is glycolytic uptake (¹⁸F-FDG SUVmax) and the vertical the somatostatin-receptor density (⁶⁸Ga-DOTATOC SUVmax). Each quadrant is labelled on the chart itself. Tap a dot to open its card; the dividers are indicative.') }}
@@ -3679,7 +3675,7 @@ const manifestValidated = (() => {
                    mitades. Leyenda mínima de UNA sola fuente (mismas fns gaHalf/fdgHalf
                    que los puntos) + la distinción confirmado↔IA + el encuadre. -->
               <div class="mt-2.5 pt-2.5 border-t border-[rgba(45,27,61,0.08)] space-y-2">
-                <p class="inline-flex items-center gap-1.5 text-[11.5px] text-tinta">
+                <p class="inline-flex items-center gap-1.5 text-xs text-tinta">
                   <svg width="16" height="16" viewBox="0 0 16 16" class="shrink-0" aria-hidden="true">
                     <path d="M 8 1.5 A 6.5 6.5 0 0 0 8 14.5 Z" :fill="halfFill(7, GLYPH_GA_PEAK)" />
                     <path d="M 8 1.5 A 6.5 6.5 0 0 1 8 14.5 Z" :fill="halfFill(7, GLYPH_FDG_PEAK)" />
@@ -3688,13 +3684,13 @@ const manifestValidated = (() => {
                   </svg>
                   <span><strong class="text-berenjena font-semibold">{{ L('disco partido', 'split disc') }}</strong> {{ L('= mitad izq. ⁶⁸Ga-DOTATOC (teal) · mitad dcha. ¹⁸F-FDG (ámbar); más intenso = más SUVmáx. La asimetría es la discordancia.', '= left half ⁶⁸Ga-DOTATOC (teal) · right half ¹⁸F-FDG (amber); more intense = higher SUVmax. The asymmetry is the discordance.') }}</span>
                 </p>
-                <p class="inline-flex items-center gap-1.5 text-[11.5px] text-tinta">
+                <p class="inline-flex items-center gap-1.5 text-xs text-tinta">
                   <svg width="16" height="16" viewBox="0 0 16 16" class="shrink-0" aria-hidden="true">
                     <circle cx="8" cy="8" r="6.5" fill="none" stroke="#6b6470" stroke-width="1.3" stroke-dasharray="2 1.6" />
                   </svg>
                   <span><strong class="text-berenjena font-semibold">{{ L('contorno punteado', 'dashed outline') }}</strong> {{ L('= detectado por IA, por confirmar (#17/#18/#19)', '= AI-detected, to confirm (#17/#18/#19)') }}</span>
                 </p>
-                <p class="text-[10.5px] text-tinta leading-relaxed">{{ L('SUVmáx de los informes. El color encoda el TRAZADOR, no biología ni pronóstico.', 'SUVmax from the reports. Colour encodes the TRACER, not biology or prognosis.') }}</p>
+                <p class="text-xs text-tinta leading-relaxed">{{ L('SUVmáx de los informes. El color encoda el TRAZADOR, no biología ni pronóstico.', 'SUVmax from the reports. Colour encodes the TRACER, not biology or prognosis.') }}</p>
               </div>
           </div>
         </section>
@@ -3704,7 +3700,7 @@ const manifestValidated = (() => {
           <h2 id="imagen" class="heading-display text-2xl text-berenjena mb-2 scroll-mt-[5.5rem]">
             {{ L('La imagen real, reconstruida de los DICOM', 'The real imaging, reconstructed from the DICOM') }}
           </h2>
-          <p class="text-sm text-tinta leading-relaxed mb-5 max-w-3xl">
+          <p class="text-sm text-tinta leading-relaxed mb-5 measure">
             {{ L('Reconstruido de los DICOM. Lo valioso de un vistazo: cuerpo entero (MIP) y columna en PET, con los dos trazadores. Pulsa cualquiera para abrirla en grande y recorrerlas todas con las flechas. La resonancia (RMN), debajo.',
                   'Reconstructed from the DICOM. The valuable bits at a glance: whole body (MIP) and the spine on PET, with both tracers. Tap any to open it large and browse them all with the arrows. The MRI is below.') }}
           </p>
@@ -3735,12 +3731,12 @@ const manifestValidated = (() => {
           <!-- (auditoría de propósito) fuera el botón «Ver las 4» (la cuadrícula vive dentro del
                lightbox al ampliar una imagen) y el toggle Gris/Calor (el propio «calor» se lee
                peor; gris por defecto, más diagnóstico). Queda el caption honesto. -->
-          <p class="text-[11px] text-tinta leading-snug max-w-3xl mt-3">{{ L('MIP cualitativa (el SUVmáx está en la tabla y la ficha). Lo más intenso es biodistribución fisiológica: en ¹⁸F-FDG (24/03/2026), encéfalo, miocardio (variable), sistema excretor y vejiga; en ⁶⁸Ga-DOTATOC (26/05/2026), hipófisis, bazo, hígado, riñones, suprarrenales y vejiga. Las metástasis son los focos del esqueleto.', 'Qualitative MIP (SUVmax is in the table and card). The most intense areas are physiological biodistribution: on ¹⁸F-FDG (24/03/2026), brain, myocardium (variable), excretory system and bladder; on ⁶⁸Ga-DOTATOC (26/05/2026), pituitary, spleen, liver, kidneys, adrenals and bladder. The metastases are the skeletal foci.') }}</p>
+          <p class="text-xs text-tinta leading-snug measure mt-3">{{ L('MIP cualitativa (el SUVmáx está en la tabla y la ficha). Lo más intenso es biodistribución fisiológica: en ¹⁸F-FDG (24/03/2026), encéfalo, miocardio (variable), sistema excretor y vejiga; en ⁶⁸Ga-DOTATOC (26/05/2026), hipófisis, bazo, hígado, riñones, suprarrenales y vejiga. Las metástasis son los focos del esqueleto.', 'Qualitative MIP (SUVmax is in the table and card). The most intense areas are physiological biodistribution: on ¹⁸F-FDG (24/03/2026), brain, myocardium (variable), excretory system and bladder; on ⁶⁸Ga-DOTATOC (26/05/2026), pituitary, spleen, liver, kidneys, adrenals and bladder. The metastases are the skeletal foci.') }}</p>
 
           <!-- columna en RMN · debajo (su propio visor de cortes; los hallazgos son cita del informe) -->
           <div class="mt-8 pt-6 border-t border-[rgba(45,27,61,0.1)]">
             <p class="eyebrow mb-2 block">{{ L('La columna en resonancia', 'The spine on MRI') }}</p>
-            <p class="text-sm text-tinta leading-relaxed mb-4 max-w-3xl">
+            <p class="text-sm text-tinta leading-relaxed mb-4 measure">
               {{ L('La RMN ve el hueso y la médula ósea con más detalle que el CT del PET. Desliza para recorrer los cortes.',
                     'The MRI shows bone and bone marrow in more detail than the PET-CT. Slide to scroll through the slices.') }}
             </p>
@@ -3761,7 +3757,7 @@ const manifestValidated = (() => {
                 {{ L('Texto transcrito del informe de RM, recogido en el documento de apoyo (12/06/2026). Es el texto del informe, no una relectura de la imagen por esta herramienta.',
                       'Text transcribed from the MRI report, captured in the supportive document (12 Jun 2026). It is the report’s text, not a re-reading of the image by this tool.') }}
               </p>
-              <p class="text-[12px] font-semibold text-berenjena mb-1.5">{{ L('Niveles afectados (multinivel). S1-S2: el informe describe una alteración de predominio graso, «a valorar cambios postratamiento», y no la llama metástasis:', 'Affected levels (multilevel). S1-S2: the report describes a fat-predominant change, “to be assessed as post-treatment change”, and does not call it metastasis:') }}</p>
+              <p class="text-xs font-semibold text-berenjena mb-1.5">{{ L('Niveles afectados (multinivel). S1-S2: el informe describe una alteración de predominio graso, «a valorar cambios postratamiento», y no la llama metástasis:', 'Affected levels (multilevel). S1-S2: the report describes a fat-predominant change, “to be assessed as post-treatment change”, and does not call it metastasis:') }}</p>
               <div class="flex flex-wrap gap-1.5 mb-4">
                 <span v-for="lv in MRI_LEVELS" :key="lv" class="pill-data pill-data--violet">{{ lv }}</span>
               </div>
@@ -3772,7 +3768,7 @@ const manifestValidated = (() => {
               </ul>
               <!-- la RMN, conectada a la FACTIBILIDAD de la biopsia (descriptivo, no concluye) -->
               <div class="mt-3 rounded-card border-l-4 px-3 py-2.5" :style="{ borderLeftColor: '#1f6b57', background: '#eef6f2' }">
-                <p class="text-[12.5px] text-tinta leading-snug">
+                <p class="text-xs text-tinta leading-snug">
                   <strong :style="{ color: '#1f6b57' }">{{ L('La RMN y la factibilidad de la biopsia:', 'MRI and biopsy feasibility:') }}</strong>
                   {{ L('el componente epidural de D11 es una diana de tejido blando que suele rentabilizar más que el hueso denso; su vecindad al canal y a las raíces la valora radiología intervencionista. Alimenta los avisos de factibilidad de la lente.',
                         'the D11 epidural component is a soft-tissue target that usually yields more than dense bone; its proximity to the canal and roots is assessed by interventional radiology. It feeds the lens’s feasibility flags.') }}
@@ -3799,7 +3795,7 @@ const manifestValidated = (() => {
         <section class="mb-14" aria-labelledby="imagenes-clave">
             <p class="eyebrow mb-2 block">{{ L('Una por foco · todas en fila', 'One per focus · all in a row') }}</p>
             <h2 id="imagenes-clave" class="heading-display text-2xl text-berenjena mb-2 scroll-mt-[5.5rem]">{{ L('Imágenes clave por foco · PET-CT', 'Key images per focus · PET-CT') }}</h2>
-            <p class="text-sm text-tinta leading-relaxed mb-4 max-w-3xl">
+            <p class="text-sm text-tinta leading-relaxed mb-4 measure">
               {{ L('Cada foco confirmado, con su corte axial PET-CT y el anillo del SUVmáx. Pulsa cualquiera para abrirla en grande (zoom, arrastre y los planos que tenga: sagital o coronal). Los focos detectados por IA van al final, por confirmar.',
                     'Each confirmed focus, with its axial PET-CT slice and the SUVmax ring. Tap any to open it large (zoom, drag and the planes it has: sagittal or coronal). AI-detected foci are at the end, to confirm.') }}
             </p>
@@ -3862,7 +3858,7 @@ const manifestValidated = (() => {
               </li>
             </ul>
 
-            <p class="text-[11px] text-tinta mt-3 leading-relaxed max-w-3xl">
+            <p class="text-xs text-tinta mt-3 leading-relaxed measure">
               {{ L('Imágenes reconstruidas del PET-CT; el anillo marca el SUVmáx (un vóxel), aproximado por resolución/co-registro; no sustituye la lectura formal.',
                     'Images reconstructed from the PET-CT; the ring marks the SUVmax (a single voxel), approximate due to resolution/co-registration; it does not replace the formal reading.') }}
             </p>
@@ -3874,7 +3870,7 @@ const manifestValidated = (() => {
           <h2 id="trayectoria" class="heading-display text-2xl text-berenjena mb-2 scroll-mt-[5.5rem]">
             {{ L('Trayectoria desde el estudio previo', 'Trajectory since the prior study') }}
           </h2>
-          <p class="text-sm text-tinta leading-relaxed mb-5 max-w-3xl">
+          <p class="text-sm text-tinta leading-relaxed mb-5 measure">
             {{ L(
               'Comparación de la captación glucolítica (¹⁸F-FDG) entre el estudio previo (ene 2026, con las cifras que cita el informe de marzo) y el actual (mar 2026), sobre los ' + trajectory.withPrev + ' focos con valor previo. El ⁶⁸Ga-DOTATOC (SSTR) procede del estudio de mayo 2026, sin previo con el que comparar.',
               'Glycolytic-uptake (¹⁸F-FDG) comparison between the prior study (Jan 2026, using the figures the March report quotes) and the current one (Mar 2026), over the ' + trajectory.withPrev + ' foci with a prior value. The ⁶⁸Ga-DOTATOC (SSTR) is from the May 2026 study, with no prior to compare.') }}
@@ -3917,10 +3913,10 @@ const manifestValidated = (() => {
         <section class="mb-14" aria-labelledby="tabla">
           <p class="eyebrow mb-2 block">{{ L('Para el equipo · referencia', 'For the team · reference') }}</p>
           <h2 id="tabla" class="heading-display text-2xl text-berenjena mb-2 scroll-mt-[5.5rem]">{{ L('Apéndice: los focos en una tabla', 'Appendix: the foci in a table') }}</h2>
-          <p class="text-sm text-tinta leading-relaxed mb-2 max-w-3xl">{{ L('Tabla completa con la idoneidad como diana (estimación heurística orientativa, no validada), SUVmáx por trazador, tendencia, extensión metabólica medida y patrón, más los focos extra detectados de forma automática. Por defecto ordena por id (nivel anatómico, hecho neutro); pulsa una cabecera para reordenar —incluida la de idoneidad. Los focos detectados por IA van siempre al final, en su propio grupo, sin confirmar.', 'Full table with suitability as a target (an indicative heuristic estimate, not validated), SUVmax per tracer, trend, measured metabolic extent and pattern, plus the automatically detected extra foci. It defaults to id order (anatomical level, a neutral fact); click a header to re-sort — including the suitability one. AI-detected foci always go last, in their own group, unconfirmed.') }}</p>
+          <p class="text-sm text-tinta leading-relaxed mb-2 measure">{{ L('Tabla completa con la idoneidad como diana (estimación heurística orientativa, no validada), SUVmáx por trazador, tendencia, extensión metabólica medida y patrón, más los focos extra detectados de forma automática. Por defecto ordena por id (nivel anatómico, hecho neutro); pulsa una cabecera para reordenar —incluida la de idoneidad. Los focos detectados por IA van siempre al final, en su propio grupo, sin confirmar.', 'Full table with suitability as a target (an indicative heuristic estimate, not validated), SUVmax per tracer, trend, measured metabolic extent and pattern, plus the automatically detected extra foci. It defaults to id order (anatomical level, a neutral fact); click a header to re-sort — including the suitability one. AI-detected foci always go last, in their own group, unconfirmed.') }}</p>
           <!-- (A · a11y) declara la tabla como ALTERNATIVA TEXTUAL del visor 3D y del
                esquema del esqueleto (la fuente-de-verdad accesible). id en su <caption>. -->
-          <p id="tabla-focos-alt-note" class="text-[12px] text-tinta leading-relaxed mb-4 max-w-3xl">
+          <p id="tabla-focos-alt-note" class="text-xs text-tinta leading-relaxed mb-4 measure">
             <Icon name="ph:table" class="inline w-3.5 h-3.5 -mt-0.5 mr-1" aria-hidden="true" />{{ L('Esta tabla es la alternativa textual del visor 3D y del esquema del esqueleto: las mismas cifras de cada foco, en texto y navegables. La fila del foco que tengas seleccionado arriba aparece resaltada aquí.', 'This table is the textual alternative to the 3D viewer and the skeleton schematic: the same per-focus figures, in text and navigable. The row of the focus you have selected above is highlighted here.') }}
           </p>
           <!-- ── MANIFIESTO DE DATOS · descarga (CSV/JSON) + nota de validación ──
@@ -3933,7 +3929,7 @@ const manifestValidated = (() => {
                 {{ L('Manifiesto de datos · descargable', 'Data manifest · downloadable') }}
                 <span class="status-badge status-badge--active">{{ manifestValidated ? L('validado', 'validated') : L('revisar', 'review') }}</span>
               </p>
-              <p class="text-[12px] text-tinta leading-relaxed mb-3 max-w-3xl">{{ L('Los 19 focos con sus valores y su PROCEDENCIA campo a campo: de dónde sale cada cifra (informe · medición sobre el DICOM · RMN literal · derivado · aproximado-IA) y si es MEDIDA (SUVmáx, mm, ml) o INTERPRETADA (morfología, fenotipo, score). El JSON incluye el esquema (el contrato clonable). Solo ids sintéticos #1–19, sin datos de paciente.', 'The 19 foci with their values and field-by-field PROVENANCE: where each figure comes from (report · DICOM measurement · MRI verbatim · derived · AI-approximate) and whether it is MEASURED (SUVmax, mm, ml) or INTERPRETED (morphology, phenotype, score). The JSON includes the schema (the clonable contract). Synthetic ids #1–19 only, no patient data.') }}</p>
+              <p class="text-xs text-tinta leading-relaxed mb-3 measure">{{ L('Los 19 focos con sus valores y su PROCEDENCIA campo a campo: de dónde sale cada cifra (informe · medición sobre el DICOM · RMN literal · derivado · aproximado-IA) y si es MEDIDA (SUVmáx, mm, ml) o INTERPRETADA (morfología, fenotipo, score). El JSON incluye el esquema (el contrato clonable). Solo ids sintéticos #1–19, sin datos de paciente.', 'The 19 foci with their values and field-by-field PROVENANCE: where each figure comes from (report · DICOM measurement · MRI verbatim · derived · AI-approximate) and whether it is MEASURED (SUVmax, mm, ml) or INTERPRETED (morphology, phenotype, score). The JSON includes the schema (the clonable contract). Synthetic ids #1–19 only, no patient data.') }}</p>
               <div class="flex flex-wrap items-center gap-2">
                 <button type="button" class="manifest-dl" @click="downloadManifestCsv">
                   <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12" /><path d="M7 11l5 5 5-5" /><path d="M5 21h14" /></svg>
@@ -3944,7 +3940,7 @@ const manifestValidated = (() => {
                   {{ L('Descargar JSON (+ esquema)', 'Download JSON (+ schema)') }}
                 </button>
               </div>
-              <p class="text-[11.5px] text-tinta leading-relaxed mt-2.5">
+              <p class="text-xs text-tinta leading-relaxed mt-2.5">
                 {{ manifestValidated
                   ? L('Validación: el manifiesto deriva de los mismos valores que la tabla y reproduce, por construcción, cada SUVmáx y score que se muestran arriba (verificado en build). No recalcula precisión: separa lo medido de lo interpretado.', 'Validation: the manifest derives from the same values as the table and reproduces, by construction, every SUVmax and score shown above (verified at build). It does not recompute precision: it separates measured from interpreted.')
                   : L('Aviso: el manifiesto no cuadra con la tabla — revisar antes de publicar.', 'Notice: the manifest does not match the table — review before publishing.') }}
@@ -3959,7 +3955,7 @@ const manifestValidated = (() => {
 
           <details class="notes-disclosure" open>
             <summary>{{ L('Abrir la tabla y los focos extra', 'Open the table and extra foci') }}</summary>
-          <p class="text-[12px] text-tinta mt-3 mb-4 leading-relaxed max-w-3xl">
+          <p class="text-xs text-tinta mt-3 mb-4 leading-relaxed measure">
             {{ L('Pulsa una cabecera para ordenar. Primero van los focos del informe oficial y, al final, en su propio grupo, los detectados por IA (medidas aproximadas sobre los DICOM, por confirmar con Medicina Nuclear). La extensión metabólica es lo que cada foco capta por encima del umbral (41% del SUVmáx local), confinado a hueso; no es el tamaño anatómico exacto y el volumen parcial subestima los focos < ~10 mm.',
                   'Click a header to sort. Report foci come first and, at the end, in their own group, the AI-detected ones (approximate DICOM measurements, to confirm with Nuclear Medicine). The metabolic extent is what each focus takes up above the threshold (41% of the local SUVmax), confined to bone; it is not the exact anatomical size and partial volume underestimates foci < ~10 mm.') }}
           </p>
@@ -4026,9 +4022,9 @@ const manifestValidated = (() => {
                       </span>
                     </div>
                     <div class="flex flex-wrap gap-1 mt-1">
-                      <span v-if="hasSoftTissue(row.le)" class="pill-data !px-1.5 !py-0 !text-[10px]" :style="{ background: 'rgba(31,107,87,0.12)', color: '#1f6b57' }">{{ L('+ partes blandas', '+ soft tissue') }}</span>
-                      <span v-if="row.le.priorBiopsy" class="pill-data !px-1.5 !py-0 !text-[10px]" :style="{ background: '#f0e2c8', color: '#8a5a1a' }">{{ L('⚑ biopsia previa falló', '⚑ prior biopsy failed') }}</span>
-                      <span v-if="isAiDavid(row.le)" class="pill-data !px-1.5 !py-0 !text-[10px]" :style="{ background: '#fde4cc', color: '#8a4a1a' }">{{ L('sin confirmar', 'unconfirmed') }}</span>
+                      <span v-if="hasSoftTissue(row.le)" class="pill-data !px-1.5 !py-0 !text-xs" :style="{ background: 'rgba(31,107,87,0.12)', color: '#1f6b57' }">{{ L('+ partes blandas', '+ soft tissue') }}</span>
+                      <span v-if="row.le.priorBiopsy" class="pill-data !px-1.5 !py-0 !text-xs" :style="{ background: '#f0e2c8', color: '#8a5a1a' }">{{ L('⚑ biopsia previa falló', '⚑ prior biopsy failed') }}</span>
+                      <span v-if="isAiDavid(row.le)" class="pill-data !px-1.5 !py-0 !text-xs" :style="{ background: '#fde4cc', color: '#8a4a1a' }">{{ L('sin confirmar', 'unconfirmed') }}</span>
                     </div>
                   </td>
                   <td class="font-mono" :title="provTitle(row.le, 'dota')"><span :class="{ 'data-soft': isAiDavid(row.le) }">{{ row.le.dota != null ? (isAiDavid(row.le) ? '~' : '') + row.le.dota.toFixed(1) : '—' }}</span></td>
@@ -4054,14 +4050,13 @@ const manifestValidated = (() => {
           </div>
 
           <!-- nota: cosas por aclarar -->
-          <div class="alert-callout leading-relaxed mt-4">
-            <strong>{{ L('Por aclarar', 'To clarify') }}</strong>
+          <Aviso tipo="limites" :titulo="L('Por aclarar', 'To clarify')" class="mt-4">
             <p class="mt-1 mb-1.5">{{ L('Los datos de este panel provienen de una re-lectura cuantitativa sobre el DICOM nativo (validada): es una medición asistida, no sustituye la lectura formal de Medicina Nuclear. Quedan estas incertidumbres reales:', 'The data in this panel come from a quantitative re-reading of the native DICOM (validated): it is an assisted measurement, it does not replace the formal Nuclear Medicine reading. These genuine uncertainties remain:') }}</p>
             <ul class="list-disc pl-5 mt-1.5 space-y-1">
               <li>{{ L('La extensión metabólica del #2 (C4) y del #6 (D9) no es fiable: su captación es ≈ el fondo óseo y no se separa del hueso normal.', 'The metabolic extent of #2 (C4) and #6 (D9) is not reliable: their uptake is ≈ bone background and cannot be separated from normal bone.') }}</li>
               <li>{{ L('Los focos detectados por IA #17 (costilla), #18 (ilíaco-femoral) y #19 (cervicotorácica) no constan en el informe oficial — a revisar con Medicina Nuclear (#17 y #19 además con medida poco fiable / no medible).', 'AI-detected foci #17 (rib), #18 (iliac-femoral) and #19 (cervicothoracic) are not in the official report — to review with Nuclear Medicine (#17 and #19 also with unreliable / non-measurable values).') }}</li>
             </ul>
-          </div>
+          </Aviso>
 
           <!-- FOCOS EXTRA detectados automáticamente (no en la tabla) -->
           <div class="data-card mt-4">
@@ -4070,7 +4065,7 @@ const manifestValidated = (() => {
                 {{ L('Focos extra detectados (automático, no en la tabla)', 'Extra foci detected (automatic, not in the table)') }}
                 <span class="status-badge status-badge--active">{{ L('verificación', 'verification') }}</span>
               </p>
-              <p class="text-[12px] text-tinta leading-relaxed mb-2">{{ L('Focos FDG que la detección automática halló sobre el DICOM y que NO están en la tabla. No es diagnóstico: es para que el equipo decida si añadir alguno. El primero (HU 1) probablemente es captación de partes blandas; el blástico de SUVmáx 5,82 (HU 704, lado izq.) es el más sugestivo de lesión real no listada.', 'FDG foci the automatic detection found on the DICOM that are NOT in the table. Not a diagnosis: for the team to decide whether to add any. The first (HU 1) is likely soft-tissue uptake; the blastic SUVmax 5.82 (HU 704, left) is the most suggestive of a real unlisted lesion.') }}</p>
+              <p class="text-xs text-tinta leading-relaxed mb-2">{{ L('Focos FDG que la detección automática halló sobre el DICOM y que NO están en la tabla. No es diagnóstico: es para que el equipo decida si añadir alguno. El primero (HU 1) probablemente es captación de partes blandas; el blástico de SUVmáx 5,82 (HU 704, lado izq.) es el más sugestivo de lesión real no listada.', 'FDG foci the automatic detection found on the DICOM that are NOT in the table. Not a diagnosis: for the team to decide whether to add any. The first (HU 1) is likely soft-tissue uptake; the blastic SUVmax 5.82 (HU 704, left) is the most suggestive of a real unlisted lesion.') }}</p>
               <!-- pills-wrap: estos chips son frases largas (SUVmáx·forma·tamaño·lado·aviso),
                    no etiquetas cortas → el nowrap global de .pill-data los recortaba en móvil.
                    Aquí permitimos que su texto se ajuste (solo en este contenedor) para que
@@ -4093,7 +4088,7 @@ const manifestValidated = (() => {
           <p class="eyebrow mb-2 block">{{ L('Referencia · cómo se lee y desglose', 'Reference · how to read it and the breakdown') }}</p>
           <div class="flex items-baseline justify-between flex-wrap gap-x-3 gap-y-1 mb-3">
             <h2 id="cockpit" class="heading-display text-2xl text-berenjena scroll-mt-[5.5rem]">{{ L('Cómo se lee · desglose del caso', 'How to read it · case breakdown') }}</h2>
-            <p class="text-[11px] text-tinta">{{ L('la codificación de los dos trazadores y la concordancia · sin interpretación', 'the two-tracer coding and concordance · no interpretation') }}</p>
+            <p class="text-xs text-tinta">{{ L('la codificación de los dos trazadores y la concordancia · sin interpretación', 'the two-tracer coding and concordance · no interpretation') }}</p>
           </div>
           <!-- Las cifras del caso (carga, reparto, rangos SUV, evolución) viven ARRIBA en
                la banda de contexto (#contexto-general); aquí NO se repiten. Esta sección
@@ -4116,7 +4111,7 @@ const manifestValidated = (() => {
                    se repite además en la leyenda inferior (siempre legible, AA). -->
               <div class="relative">
                 <!-- etiquetas externas para los segmentos que no admiten la cifra dentro -->
-                <div class="flex h-4 mb-0.5 text-[10px] font-semibold leading-none">
+                <div class="flex h-4 mb-0.5 text-xs font-semibold leading-none">
                   <div v-if="concordance.ne" :style="{ width: concPct(concordance.ne) }" class="flex items-end justify-center">
                     <span v-if="concNarrow(concordance.ne)" :style="{ color: '#7a2e85' }">{{ concordance.ne }}</span>
                   </div>
@@ -4129,12 +4124,12 @@ const manifestValidated = (() => {
                 </div>
                 <div class="flex h-7 rounded-full overflow-hidden border border-[rgba(45,27,61,0.1)]" role="img"
                   :aria-label="L(concordance.ne + ' SSTR-dominantes, ' + concordance.mix + ' con captación dual, ' + concordance.agg + ' glucolítico-dominante', concordance.ne + ' SSTR-dominant, ' + concordance.mix + ' dual uptake, ' + concordance.agg + ' glycolytic-dominant')">
-                  <div v-if="concordance.ne" :style="{ width: concPct(concordance.ne), background: GA_FILL }" class="flex items-center justify-center text-[12px] font-semibold text-berenjena">{{ concNarrow(concordance.ne) ? '' : concordance.ne }}</div>
-                  <div v-if="concordance.mix" :style="{ width: concPct(concordance.mix), background: PHENO.mixBal.c }" class="flex items-center justify-center text-[12px] font-semibold text-berenjena">{{ concNarrow(concordance.mix) ? '' : concordance.mix }}</div>
-                  <div v-if="concordance.agg" :style="{ width: concPct(concordance.agg), background: FDG_FILL }" class="flex items-center justify-center text-[12px] font-semibold text-berenjena">{{ concNarrow(concordance.agg) ? '' : concordance.agg }}</div>
+                  <div v-if="concordance.ne" :style="{ width: concPct(concordance.ne), background: GA_FILL }" class="flex items-center justify-center text-xs font-semibold text-berenjena">{{ concNarrow(concordance.ne) ? '' : concordance.ne }}</div>
+                  <div v-if="concordance.mix" :style="{ width: concPct(concordance.mix), background: PHENO.mixBal.c }" class="flex items-center justify-center text-xs font-semibold text-berenjena">{{ concNarrow(concordance.mix) ? '' : concordance.mix }}</div>
+                  <div v-if="concordance.agg" :style="{ width: concPct(concordance.agg), background: FDG_FILL }" class="flex items-center justify-center text-xs font-semibold text-berenjena">{{ concNarrow(concordance.agg) ? '' : concordance.agg }}</div>
                 </div>
               </div>
-              <div class="flex flex-wrap gap-x-4 gap-y-1 mt-2 text-[12px] text-tinta">
+              <div class="flex flex-wrap gap-x-4 gap-y-1 mt-2 text-xs text-tinta">
                 <span class="inline-flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full" :style="{ background: GA_FILL }" /><span class="font-semibold tabular-nums text-berenjena">{{ concordance.ne }}</span> {{ L('SSTR-dominante (⁶⁸Ga⁺/FDG⁻)', 'SSTR-dominant (⁶⁸Ga⁺/FDG⁻)') }}</span>
                 <span class="inline-flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full" :style="{ background: '#df7a44' }" /><span class="font-semibold tabular-nums text-berenjena">{{ concordance.mix }}</span> {{ L('captación dual (ambos)', 'dual uptake (both)') }}</span>
                 <span class="inline-flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full" :style="{ background: FDG_FILL }" /><span class="font-semibold tabular-nums text-berenjena">{{ concordance.agg }}</span> {{ L('glucolítico-dominante (⁶⁸Ga⁻/FDG⁺)', 'glycolytic-dominant (⁶⁸Ga⁻/FDG⁺)') }}</span>
@@ -4143,12 +4138,12 @@ const manifestValidated = (() => {
             <div class="card-base !p-4">
               <p class="eyebrow--sm text-berenjena mb-2">{{ L('Captación glucolítica (¹⁸F-FDG) vs estudio previo', 'Glycolytic uptake (¹⁸F-FDG) vs prior study') }}</p>
               <div class="grid grid-cols-4 gap-2 text-center">
-                <div><div class="font-display text-2xl" :style="{ color: FDG_TEXT }">{{ trajectory.neu }}</div><div class="text-[11px] text-tinta mt-0.5">{{ L('nuevos', 'new') }}</div></div>
-                <div><div class="font-display text-2xl" :style="{ color: FDG_TEXT }">↑ {{ trajectory.up }}</div><div class="text-[11px] text-tinta mt-0.5">{{ L('más FDG', 'more FDG') }}</div></div>
-                <div><div class="font-display text-2xl" :style="{ color: '#1f5a3a' }">↓ {{ trajectory.down }}</div><div class="text-[11px] text-tinta mt-0.5">{{ L('menos FDG', 'less FDG') }}</div></div>
-                <div><div class="font-display text-2xl text-berenjena">{{ trajectory.stable }}</div><div class="text-[11px] text-tinta mt-0.5">{{ L('estables', 'stable') }}</div></div>
+                <div><div class="font-display text-2xl" :style="{ color: FDG_TEXT }">{{ trajectory.neu }}</div><div class="text-xs text-tinta mt-0.5">{{ L('nuevos', 'new') }}</div></div>
+                <div><div class="font-display text-2xl" :style="{ color: FDG_TEXT }">↑ {{ trajectory.up }}</div><div class="text-xs text-tinta mt-0.5">{{ L('más FDG', 'more FDG') }}</div></div>
+                <div><div class="font-display text-2xl" :style="{ color: '#1f5a3a' }">↓ {{ trajectory.down }}</div><div class="text-xs text-tinta mt-0.5">{{ L('menos FDG', 'less FDG') }}</div></div>
+                <div><div class="font-display text-2xl text-berenjena">{{ trajectory.stable }}</div><div class="text-xs text-tinta mt-0.5">{{ L('estables', 'stable') }}</div></div>
               </div>
-              <p class="text-[11px] text-tinta mt-2">{{ L('sobre ' + trajectory.withPrev + ' focos con valor en el PET previo (ene 2026)', 'over ' + trajectory.withPrev + ' foci with a value in the prior PET (Jan 2026)') }}</p>
+              <p class="text-xs text-tinta mt-2">{{ L('sobre ' + trajectory.withPrev + ' focos con valor en el PET previo (ene 2026)', 'over ' + trajectory.withPrev + ' foci with a value in the prior PET (Jan 2026)') }}</p>
             </div>
           </div>
 
@@ -4167,7 +4162,7 @@ const manifestValidated = (() => {
                dentro de este desglose plegado, como material de referencia. -->
           <div id="dos-caras" class="mt-6 pt-5 border-t border-[rgba(45,27,61,0.1)] scroll-mt-[5.5rem]">
           <p class="eyebrow mb-2 block">{{ L('Cómo se lee · una lesión, dos trazadores', 'How to read it · one lesion, two tracers') }}</p>
-          <p class="text-sm text-tinta leading-relaxed mb-4 max-w-3xl">
+          <p class="text-sm text-tinta leading-relaxed mb-4 measure">
             {{ L(
               'Cada foco óseo se estudia con dos trazadores PET, cada uno sensible a una propiedad distinta del mismo punto: ⁶⁸Ga-DOTATOC mide la densidad de receptores de somatostatina (SSTR) y ¹⁸F-FDG mide el metabolismo glucolítico. Comparar ambas captaciones define el patrón de discordancia de trazadores de cada lesión.',
               'Each bone focus is studied with two PET tracers, each sensitive to a different property of the same spot: ⁶⁸Ga-DOTATOC measures somatostatin-receptor (SSTR) density and ¹⁸F-FDG measures glycolytic metabolism. Comparing the two uptakes defines each lesion’s tracer-discordance pattern.') }}
@@ -4182,11 +4177,11 @@ const manifestValidated = (() => {
                 <div style="width: 42%; background: #d66e1c" />
               </div>
             </div>
-            <div class="flex justify-between text-[11px] mt-1.5">
+            <div class="flex justify-between text-xs mt-1.5">
               <span class="font-semibold" :style="{ color: GA_TEXT }">{{ L('SSTR · ⁶⁸Ga', 'SSTR · ⁶⁸Ga') }}</span>
               <span class="font-semibold" :style="{ color: FDG_TEXT }">{{ L('glucólisis · ¹⁸F-FDG', 'glycolysis · ¹⁸F-FDG') }}</span>
             </div>
-            <p class="text-[12px] text-tinta leading-relaxed mt-2">
+            <p class="text-xs text-tinta leading-relaxed mt-2">
               {{ L('En cada ficha y cada fila, la proporción violeta↔coral resume la captación SSTR frente a la glucolítica del foco. El color recorre el eje de discordancia, del violeta (SSTR-dominante) al coral (glucolítico-dominante).',
                     'On every card and row, the violet↔coral share sums up the focus’s SSTR versus glycolytic uptake. Color runs along the discordance axis, from violet (SSTR-dominant) to coral (glycolytic-dominant).') }}
             </p>
@@ -4250,9 +4245,9 @@ const manifestValidated = (() => {
           <p class="eyebrow mb-2 block">{{ L('Método · reproducible', 'Method · reproducible') }}</p>
           <div class="flex items-baseline justify-between flex-wrap gap-x-3 gap-y-1 mb-2">
             <h2 id="metodo-titulo" class="heading-display text-2xl text-berenjena">{{ L('Cómo se construye esto (y cómo clonarlo)', 'How this is built (and how to clone it)') }}</h2>
-            <p class="text-[11px] text-tinta">{{ L('el pipeline + el esquema, publicados como contrato', 'the pipeline + the schema, published as a contract') }}</p>
+            <p class="text-xs text-tinta">{{ L('el pipeline + el esquema, publicados como contrato', 'the pipeline + the schema, published as a contract') }}</p>
           </div>
-          <p class="text-sm text-tinta leading-relaxed mb-4 max-w-3xl">
+          <p class="text-sm text-tinta leading-relaxed mb-4 measure">
             {{ L(
               'Lo que hace esta página reutilizable no es el visor 3D: es que el MÉTODO y el ESQUEMA del dato están publicados como un contrato que otro caso N-of-1 rellena con LOS SUYOS. Aquí abajo, el pipeline paso a paso, las herramientas open-source que intervienen, sus límites, y el esquema descargable.',
               'What makes this page reusable is not the 3D viewer: it is that the data METHOD and SCHEMA are published as a contract that another N-of-1 case fills in with THEIRS. Below: the pipeline step by step, the open-source tools involved, their limits, and the downloadable schema.') }}
@@ -4264,7 +4259,7 @@ const manifestValidated = (() => {
             <!-- 1 · EL PIPELINE PASO A PASO -->
             <div class="mt-4">
               <p class="eyebrow--sm text-berenjena mb-2">{{ L('1 · El pipeline, paso a paso', '1 · The pipeline, step by step') }}</p>
-              <p class="text-[13px] text-tinta leading-relaxed mb-3 max-w-3xl">
+              <p class="text-[13px] text-tinta leading-relaxed mb-3 measure">
                 {{ L(
                   'De dos estudios PET-CT con trazadores distintos a un instrumento navegable. Cada paso declara qué herramienta open-source interviene y dónde está su límite.',
                   'From two PET-CT studies with different tracers to a navigable instrument. Each step declares which open-source tool is involved and where its limit lies.') }}
@@ -4318,7 +4313,7 @@ const manifestValidated = (() => {
               </ol>
               <div class="method-tools mt-3">
                 <p class="eyebrow--sm text-berenjena mb-1.5">{{ L('Herramientas open-source · y qué es medición propia', 'Open-source tools · and what is in-house measurement') }}</p>
-                <ul class="text-[12.5px] text-tinta leading-relaxed space-y-1">
+                <ul class="text-xs text-tinta leading-relaxed space-y-1">
                   <li>{{ L(
                     '· TotalSegmentator — segmentación ósea automática del TC (open-source, reproducible públicamente sobre cualquier TC).',
                     '· TotalSegmentator — automatic bone segmentation from the CT (open-source, publicly reproducible on any CT).') }}</li>
@@ -4332,17 +4327,17 @@ const manifestValidated = (() => {
               </div>
               <div class="method-limits mt-3">
                 <p class="eyebrow--sm mb-1.5" style="color:#8a4a1a">{{ L('Los límites (honestos)', 'The limits (honest)') }}</p>
-                <p class="text-[12.5px] text-tinta leading-relaxed max-w-3xl">{{ L(
+                <p class="text-xs text-tinta leading-relaxed measure">{{ L(
                   'La proyección por vértice NO es un SUVmáx cuantificado (dónde, no cuánto). El score de idoneidad es heurístico, no validado. El co-registro es espacial y aproximado (fechas distintas, error de mm). El SUVmáx sufre volumen parcial (subestima focos < ~10 mm). Lo reproducible públicamente es la segmentación (TotalSegmentator) y el esquema del dato; la re-cuantificación sobre los DICOM fue medición propia, marcada como tal en cada cifra.',
                   'The per-vertex projection is NOT a quantified SUVmax (where, not how much). The suitability score is heuristic, not validated. Co-registration is spatial and approximate (different dates, mm error). SUVmax suffers partial volume (underestimates foci < ~10 mm). What is publicly reproducible is the segmentation (TotalSegmentator) and the data schema; the DICOM re-quantification was an in-house measurement, flagged as such in every figure.') }}</p>
-                <p class="text-[12px] text-tinta mt-1.5"><a href="#metodo-caveats" class="link-action text-miriam font-semibold">{{ L('Las cuatro salvedades de método, en detalle ↑', 'The four method caveats, in detail ↑') }}</a></p>
+                <p class="text-xs text-tinta mt-1.5"><a href="#metodo-caveats" class="link-action text-miriam font-semibold">{{ L('Las cuatro salvedades de método, en detalle ↑', 'The four method caveats, in detail ↑') }}</a></p>
               </div>
             </div>
 
             <!-- 2 · EL ESQUEMA-MANIFIESTO COMO CONTRATO CLONABLE -->
             <div class="mt-6 pt-5 border-t border-[rgba(45,27,61,0.1)]">
               <p class="eyebrow--sm text-berenjena mb-2">{{ L('2 · El esquema-manifiesto · un contrato clonable', '2 · The schema-manifest · a clonable contract') }}</p>
-              <p class="text-[13px] text-tinta leading-relaxed mb-3 max-w-3xl">{{ L(
+              <p class="text-[13px] text-tinta leading-relaxed mb-3 measure">{{ L(
                 'El dato vive en un manifiesto con procedencia campo a campo. Cada cifra es una celda con su esquema; otro caso rellena la misma estructura con SUS datos. El esquema viaja DENTRO del JSON descargable (es el contrato, no una etiqueta pintada encima).',
                 'The data lives in a manifest with field-by-field provenance. Each figure is a cell with its schema; another case fills the same structure with THEIR data. The schema travels INSIDE the downloadable JSON (it is the contract, not a label painted on top).') }}</p>
               <pre class="method-schema" aria-label="Cell schema"><code>Cell {
@@ -4355,7 +4350,7 @@ const manifestValidated = (() => {
   ref      : <span class="method-schema__c">// código de biopsia / nota (opcional)</span>
   medido   : boolean   <span class="method-schema__c">// true = MEDIDO (cantidad física) · false = INTERPRETADO</span>
 }</code></pre>
-              <p class="text-[12.5px] text-tinta leading-relaxed mt-3 max-w-3xl">{{ L(
+              <p class="text-xs text-tinta leading-relaxed mt-3 measure">{{ L(
                 'El JSON incluye este esquema más los 19 focos. Anti-PHI: ids sintéticos #1–19, sin nombre ni nº de historia. Es la misma fuente que la tabla de arriba — lo que se ve es lo que se descarga.',
                 'The JSON includes this schema plus the 19 foci. Anti-PHI: synthetic ids #1–19, no name or record number. It is the same source as the table above — what you see is what you download.') }}</p>
               <div class="flex flex-wrap items-center gap-2 mt-3">
@@ -4373,7 +4368,7 @@ const manifestValidated = (() => {
             <!-- 3 · FORK ESTO -->
             <div class="mt-6 pt-5 border-t border-[rgba(45,27,61,0.1)]">
               <p class="eyebrow--sm text-berenjena mb-2">{{ L('3 · Fork esto · para otro caso N-of-1', '3 · Fork this · for another N-of-1 case') }}</p>
-              <p class="text-[13px] text-tinta leading-relaxed max-w-3xl">{{ L(
+              <p class="text-[13px] text-tinta leading-relaxed measure">{{ L(
                 'Clona el esquema + el pipeline para tu caso: rellena la misma celda con TUS estudios (informes + DICOM), corre la segmentación con TotalSegmentator, proyecta tu PET sobre la malla, y conserva los principios. Lo que heredas no es un dato, es un MÉTODO: describe y equipa, no concluye; procedencia campo a campo; idoneidad opt-in heurística. Sin sobre-prometer: la segmentación y el esquema son reproducibles públicamente; la re-cuantificación sobre los DICOM dependerá de tu acceso a las imágenes nativas.',
                 'Clone the schema + the pipeline for your case: fill the same cell with YOUR studies (reports + DICOM), run the segmentation with TotalSegmentator, project your PET onto the mesh, and keep the principles. What you inherit is not a datum, it is a METHOD: describe and equip, do not conclude; field-by-field provenance; opt-in heuristic suitability. Without over-promising: the segmentation and the schema are publicly reproducible; the DICOM re-quantification will depend on your access to the native images.') }}</p>
             </div>
@@ -4381,7 +4376,7 @@ const manifestValidated = (() => {
             <!-- 4 · PRINCIPIOS DE HONESTIDAD (parte del método, no decoración) -->
             <div class="mt-6 pt-5 border-t border-[rgba(45,27,61,0.1)]">
               <p class="eyebrow--sm text-berenjena mb-2">{{ L('4 · Principios de honestidad · son parte del método', '4 · Honesty principles · they are part of the method') }}</p>
-              <ul class="text-[12.5px] text-tinta leading-relaxed space-y-1.5 max-w-3xl">
+              <ul class="text-xs text-tinta leading-relaxed space-y-1.5 measure">
                 <li><span class="method-principle">{{ L('Describe / equipa, no concluye.', 'Describe / equip, do not conclude.') }}</span> {{ L('La página reúne la evidencia para que el equipo elija su diana; la lectura formal y la decisión son humanas.', 'The page gathers the evidence so the team can choose its target; the formal reading and the decision are human.') }}</li>
                 <li><span class="method-principle">{{ L('Medido vs interpretado.', 'Measured vs interpreted.') }}</span> {{ L('Cada cifra declara si es una cantidad física medida (SUVmáx, mm, ml) o una lectura/regla (morfología, fenotipo, score). El manifiesto no inventa precisión.', 'Every figure declares whether it is a measured physical quantity (SUVmax, mm, ml) or a reading/rule (morphology, phenotype, score). The manifest does not invent precision.') }}</li>
                 <li><span class="method-principle">{{ L('Idoneidad orientativa, no validada.', 'Suitability is indicative, not validated.') }}</span> {{ L('El score es heurístico (pesos a mano); se ofrece como lente, nunca se impone como veredicto ni como orden por defecto.', 'The score is heuristic (hand-set weights); offered as a lens, never imposed as a verdict or as the default order.') }}</li>
@@ -4702,10 +4697,12 @@ const manifestValidated = (() => {
    En esta página el mono (JetBrains) es SIEMPRE dato o id → tabular global.
    (.data-table ya lo trae; aquí lo extendemos a las cifras fuera de la tabla.) */
 .font-mono { font-variant-numeric: tabular-nums; }
+/* Las insignias heredadas (`status-badge`, mono en mayúsculas) pintaban 10 px; aquí, 12 (el mínimo del mono en mayúsculas). El resto del sitio no cambia. */
+.status-badge { font-size: var(--texto-2xs); }
 /* Jerarquía de UNIDAD vs cifra: la unidad («SUVmáx», «HU», «/100») va volada,
    pequeña y atenuada; manda la cifra. El sufijo «aprox.» (≈) de un dato BLANDO. */
 .unit {
-  font-size: 0.66em;
+  font-size: max(0.66em, var(--texto-xs)); /* la unidad sigue más pequeña que la cifra, pero nunca bajo el suelo de 13 px */
   font-weight: 600;
   letter-spacing: 0.02em;
   color: #6b6470;
@@ -4775,7 +4772,7 @@ const manifestValidated = (() => {
   padding: 0.65rem 0.8rem;
 }
 .prov-legend__title {
-  font-size: 11px;
+  font-size: var(--texto-xs);
   font-weight: 700;
   letter-spacing: 0.04em;
   text-transform: uppercase;
@@ -4795,14 +4792,14 @@ const manifestValidated = (() => {
   display: flex;
   align-items: baseline;
   gap: 0.38rem;
-  font-size: 12px;
+  font-size: var(--texto-xs);
   line-height: 1.3;
   color: #3a3340;
 }
 .prov-legend__label { flex: 0 1 auto; }
 .prov-legend__sep { color: rgba(45, 27, 61, 0.32); flex: 0 0 auto; }
 .prov-legend__note {
-  font-size: 10.5px;
+  font-size: var(--texto-xs);
   line-height: 1.4;
   color: #6b6470;
   margin-top: 0.5rem;
@@ -4916,7 +4913,7 @@ svg [role="option"]:focus-visible {
 }
 .th-sort:hover { color: #2d1b3d; }
 .th-sort:focus-visible { outline: 2px solid #9d44ab; outline-offset: 1px; }
-.th-arrow { font-size: 9px; opacity: 0.55; }
+.th-arrow { font-size: var(--texto-xs); opacity: 0.55; }
 /* grupo de focos detectados por IA (al final de la tabla) — fila de subtítulo
    + tinte cálido sutil en las filas; el marcado fuerte es la POSICIÓN + rótulo. */
 .ai-group-head td { padding-top: 0.4rem; padding-bottom: 0.4rem; }
@@ -4965,7 +4962,7 @@ svg [role="option"]:focus-visible {
   left: 10px;
   bottom: 10px;
   font-family: 'JetBrains Mono', monospace;
-  font-size: 10px;
+  font-size: var(--texto-xs);
   line-height: 1;
   padding: 3px 6px;
   border-radius: 9999px;
@@ -5004,7 +5001,7 @@ svg [role="option"]:focus-visible {
 .foco-key-strip__label {
   flex: 1 1 auto;
   min-width: 0;
-  font-size: 12px;
+  font-size: var(--texto-xs);
   line-height: 1.3;
   color: #3a3340;
   font-weight: 500;
@@ -5114,7 +5111,7 @@ svg [role="option"]:focus-visible {
   left: 9px;
   bottom: 9px;
   font-family: 'JetBrains Mono', monospace;
-  font-size: 9.5px;
+  font-size: var(--texto-xs);
   line-height: 1;
   padding: 2.5px 5px;
   border-radius: 9999px;
@@ -5126,7 +5123,7 @@ svg [role="option"]:focus-visible {
   /* inset > radio del frame (0.55rem ≈ 8.8px) → la pill despeja la esquina sup-izq */
   left: 9px;
   top: 9px;
-  font-size: 9.5px;
+  font-size: var(--texto-xs);
   font-weight: 700;
   line-height: 1;
   padding: 2.5px 5px;
@@ -5140,10 +5137,10 @@ svg [role="option"]:focus-visible {
   gap: 1px;
   padding: 0.4rem 0.1rem 0;
 }
-.foco-key-tile__id { font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 700; color: #2d1b3d; }
-.foco-key-tile__loc { font-size: 11.5px; line-height: 1.25; color: #3a3340; }
-.foco-key-tile__suv { font-family: 'JetBrains Mono', monospace; font-size: 10.5px; font-weight: 600; }
-.foco-key-tile__confirm { font-size: 9.5px; line-height: 1.3; color: #8a4a1a; margin-top: 1px; }
+.foco-key-tile__id { font-family: 'JetBrains Mono', monospace; font-size: var(--texto-xs); font-weight: 700; color: #2d1b3d; }
+.foco-key-tile__loc { font-size: var(--texto-xs); line-height: 1.25; color: #3a3340; }
+.foco-key-tile__suv { font-family: 'JetBrains Mono', monospace; font-size: var(--texto-xs); font-weight: 600; }
+.foco-key-tile__confirm { font-size: var(--texto-xs); line-height: 1.3; color: #8a4a1a; margin-top: 1px; }
 
 /* ---- Imagen real PET: botón «ampliar» por figura ---- */
 .pet-fig { position: relative; }
@@ -5157,7 +5154,7 @@ svg [role="option"]:focus-visible {
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  font-size: 11px;
+  font-size: var(--texto-xs);
   font-weight: 600;
   line-height: 1;
   padding: 5px 9px;
@@ -5228,7 +5225,7 @@ svg [role="option"]:focus-visible {
   /* inset > radio del frame (0.55rem ≈ 8.8px) → la pill despeja la esquina sup-izq */
   left: 9px;
   top: 9px;
-  font-size: 9.5px;
+  font-size: var(--texto-xs);
   font-weight: 600;
   line-height: 1;
   padding: 4px 7px;
@@ -5239,7 +5236,7 @@ svg [role="option"]:focus-visible {
 .study-thumb__meta {
   display: block;
   margin-top: 0.4rem;
-  font-size: 11px;
+  font-size: var(--texto-xs);
   font-weight: 600;
   line-height: 1.25;
 }
@@ -5281,7 +5278,7 @@ svg [role="option"]:focus-visible {
 .pet-lb-grid__cap {
   margin-top: 0.4rem;
   text-align: center;
-  font-size: 0.72rem;
+  font-size: var(--texto-xs);
   font-weight: 600;
   line-height: 1.2;
 }
@@ -5297,10 +5294,10 @@ svg [role="option"]:focus-visible {
   border-bottom: 1px solid rgba(45, 27, 61, 0.12);
 }
 .foco-key-lb__title { font-weight: 700; color: #2d1b3d; font-size: 0.95rem; line-height: 1.1; }
-.foco-key-lb__sub { color: #6b6470; font-size: 0.72rem; margin-top: 1px; }
+.foco-key-lb__sub { color: #6b6470; font-size: var(--texto-xs); margin-top: 1px; }
 .foco-key-lb__planes { display: inline-flex; border: 1px solid rgba(45, 27, 61, 0.2); border-radius: 9999px; overflow: hidden; }
 .foco-key-lb__plane {
-  font-size: 0.72rem;
+  font-size: var(--texto-xs);
   font-weight: 600;
   padding: 0.28rem 0.7rem;
   color: #6b6470;
@@ -5323,7 +5320,7 @@ svg [role="option"]:focus-visible {
   border: 1px solid rgba(45, 27, 61, 0.2);
   background: #fff;
   color: #2d1b3d;
-  font-size: 0.78rem;
+  font-size: var(--texto-xs);
   font-weight: 600;
   cursor: pointer;
   transition: background 0.15s, border-color 0.15s;
@@ -5343,7 +5340,7 @@ svg [role="option"]:focus-visible {
   border: 1px solid rgba(45, 27, 61, 0.2);
   background: #fff;
   color: #2d1b3d;
-  font-size: 0.8rem;
+  font-size: var(--texto-xs);
   font-weight: 600;
   cursor: pointer;
   transition: background 0.15s, border-color 0.15s;
@@ -5377,7 +5374,7 @@ svg [role="option"]:focus-visible {
   background: #2d1b3d;
   color: #fdf6ef;
   font-family: 'JetBrains Mono', monospace;
-  font-size: 0.72rem;
+  font-size: var(--texto-xs);
   font-weight: 700;
 }
 .method-step__h {
@@ -5387,7 +5384,7 @@ svg [role="option"]:focus-visible {
   line-height: 1.3;
 }
 .method-step__b {
-  font-size: 0.8rem;
+  font-size: var(--texto-xs);
   line-height: 1.5;
   color: #6b6470;
   margin-top: 0.1rem;
@@ -5400,7 +5397,7 @@ svg [role="option"]:focus-visible {
   background: #fbf7f0;
   overflow-x: auto;
   font-family: 'JetBrains Mono', monospace;
-  font-size: 0.72rem;
+  font-size: var(--texto-xs);
   line-height: 1.6;
   color: #2d1b3d;
 }
@@ -5430,7 +5427,7 @@ svg [role="option"]:focus-visible {
 .foco-key-lb__count {
   margin-left: 0.5rem;
   font-family: 'JetBrains Mono', monospace;
-  font-size: 0.72rem;
+  font-size: var(--texto-xs);
   font-weight: 600;
   color: #6b6470;
 }
@@ -5467,7 +5464,7 @@ svg [role="option"]:focus-visible {
 .foco-key-lb__nav--next { text-indent: 1px; }
 .foco-key-lb__cap {
   padding: 0.5rem 0.9rem 0.85rem;
-  font-size: 0.72rem;
+  font-size: var(--texto-xs);
   line-height: 1.45;
   color: #6b6470;
   border-top: 1px solid rgba(45, 27, 61, 0.08);
@@ -5485,7 +5482,7 @@ svg [role="option"]:focus-visible {
   display: inline-flex;
   align-items: center;
   gap: 0.35rem;
-  font-size: 0.78rem;
+  font-size: var(--texto-xs);
   font-weight: 600;
   padding: 0.32rem 0.85rem;
   color: #6b6470;
@@ -5508,7 +5505,7 @@ svg [role="option"]:focus-visible {
   display: inline-flex;
   align-items: center;
   gap: 0.4rem;
-  font-size: 0.78rem;
+  font-size: var(--texto-xs);
   font-weight: 600;
   padding: 0.3rem 0.75rem;
   border-radius: 9999px;
@@ -5529,7 +5526,7 @@ svg [role="option"]:focus-visible {
   display: inline-flex;
   align-items: center;
   gap: 0.35rem;
-  font-size: 0.72rem;
+  font-size: var(--texto-xs);
   font-weight: 600;
   padding: 0.22rem 0.6rem;
   border-radius: 9999px;
@@ -5569,7 +5566,7 @@ svg [role="option"]:focus-visible {
   background: #2d1b3d;
   color: #faf6f0;
   font-family: 'Source Sans 3', system-ui, sans-serif;
-  font-size: 12.5px;
+  font-size: var(--texto-xs);
   line-height: 1.45;
   white-space: normal;
   pointer-events: none;

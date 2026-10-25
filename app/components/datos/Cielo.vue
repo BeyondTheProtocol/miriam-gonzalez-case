@@ -257,13 +257,13 @@ const lectura = computed(() => {
 .cielo__sub { font: 400 14.5px/1.45 var(--font-body); color: rgb(var(--color-bg-rgb) / 0.8); margin: 8px 0 14px; max-width: 46ch; }
 .cielo__lienzo { cursor: crosshair; touch-action: pan-y; }
 .cielo__canvas:focus-visible { outline: 2px solid var(--color-miriam-claro); outline-offset: 3px; border-radius: 4px; }
-.cielo__lee { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; min-height: 44px; font: 500 12.5px/1.45 var(--font-mono); color: var(--color-bg); margin: 8px 0 0; }
-.cielo__sello { font: 600 11px var(--font-mono); color: rgb(var(--color-bg-rgb) / 0.7); }
+.cielo__lee { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; min-height: 44px; font: 500 var(--texto-xs)/1.45 var(--font-mono); color: var(--color-bg); margin: 8px 0 0; }
+.cielo__sello { font: 600 var(--texto-xs) var(--font-mono); color: rgb(var(--color-bg-rgb) / 0.7); }
 .cielo__ir { min-height: 44px; font: 700 13px var(--font-body); color: var(--color-miriam-claro); text-decoration: underline; text-underline-offset: 3px; }
 .cielo__ir:focus-visible { outline: 2px solid var(--color-miriam-claro); outline-offset: 2px; }
-.cielo__pista { font: 600 12px var(--font-body); color: var(--color-miriam-claro); margin: 8px 0 0; }
+.cielo__pista { font: 600 var(--texto-xs) var(--font-body); color: var(--color-miriam-claro); margin: 8px 0 0; }
 .cielo__lienzo canvas { display: block; }
-.cielo__ley { display: flex; flex-wrap: wrap; gap: 4px 14px; margin: 10px 0 0; font: 400 12px var(--font-body); color: rgb(var(--color-bg-rgb) / 0.75); }
+.cielo__ley { display: flex; flex-wrap: wrap; gap: 4px 14px; margin: 10px 0 0; font: 400 var(--texto-xs) var(--font-body); color: rgb(var(--color-bg-rgb) / 0.75); }
 .cielo__ley span { display: inline-flex; align-items: center; gap: 6px; }
 .cielo__px { width: 6px; height: 5px; background: rgb(var(--color-bg-rgb) / 0.45); display: inline-block; }
 .cielo__px--fuera { background: var(--color-miriam-claro); box-shadow: 0 0 6px var(--color-miriam-claro); }
