@@ -129,9 +129,13 @@
 
   /* Texto + pieza (regla de retícula 1). Un texto estrecho encima de una pieza ancha deja la mitad de la fila vacía: desde `lg`, el
      texto (en `.measure`, que lo limita a 68ch) va a la izquierda y la pieza a la derecha, a la misma altura de arranque. Debajo de
-     `lg` es una pila normal, así que el móvil queda como estaba. Hijos directos: uno de texto y una pieza (tarjeta, figura, tabla). */
+     `lg` es una pila normal, así que el móvil queda como estaba. Hijos directos: uno de texto y una pieza (tarjeta, figura, tabla).
+     La pista de la pila es `minmax(0, 1fr)` y no la `auto` implícita: con `auto`, una pieza ancha (un SVG de 700 px, una tabla con `nowrap`)
+     ensanchaba la columna ENTERA y el texto con ella (609 px en un móvil de 375, medido en revisión). Con `minmax(0, 1fr)` el texto se queda en
+     el ancho del contenedor y la pieza ancha pelea sola con su desborde (una tabla va dentro de `.tabla-scroll`). */
   .rejilla-par {
     display: grid;
+    grid-template-columns: minmax(0, 1fr);
     gap: var(--sp-32);
   }
   @media (min-width: 1024px) {

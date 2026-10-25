@@ -18,10 +18,18 @@
 //                       umbral deja un 8 % de holgura (inferencia mía sobre el ancho medio de Hanken, sin probar con lectores). Un bloque
 //                       cuenta aunque tenga una sola línea: una línea de 120 caracteres es larga se parta o no. No se miran: tablas (columnas),
 //                       <pre>, SVG ni lo oculto. A 390 px da 0 en la práctica (342 px no dan para 90 caracteres), así que es una métrica de 1280.
+//                       ¿Da lo mismo en otra máquina? (revisión del lote 0) Hay decenas de bloques con la línea más larga entre 86 y 94 caracteres, y el
+//                       ratchet falla también cuando un recuento BAJA, así que un corte de línea distinto pondría rojo el PR. Comprobado (25-oct-2026): el
+//                       mismo build da los mismos recuentos, ruta por ruta, en el Chrome del Mac y en el Chromium 156 de Debian 12 (Linux arm64, en un
+//                       contenedor), con y sin `--font-render-hinting=none`. Aun así el test fija ese flag y espera a `document.fonts.ready`, para que el
+//                       corte no dependa del hinting ni de que la fuente haya cargado. SIN probar: el Google Chrome de ubuntu-latest (x86_64) de
+//                       diseno.yml. Si su primer run da otro recuento, mira `--detalle` antes de tocar la baseline.
 //   sticky_tapado       elementos `position: sticky` (fuera de la cabecera) cuyo `top` queda por encima del borde de abajo de la cabecera fija:
 //                       al pegarse, la cabecera los tapa (WCAG 2.4.11). Un `lg:top-24` son 96 px y la cabecera mide 73 (112 con la barra «lo
 //                       último»). Se mide por geometría y no haciendo scroll: solo cuenta el que SÍ puede pegarse (su contenedor es más alto
 //                       que él y ningún antepasado tiene overflow, que anularía el sticky) y se mueve con el viewport.
+//
+// Y una comprobación SIN baseline (o cumple o no): `.rejilla-par` a 390 px, con un SVG de 700 px dentro, no ensancha la columna del texto.
 //
 // No mide el texto sobre degradados ni sobre imágenes (se salta cualquier nodo con un ANTEPASADO con background-image; el degradado del
 // propio nodo, el marcador de los enlaces en línea, sí se mide sobre su color de fondo y los de sus antepasados),
@@ -251,11 +259,26 @@ const SIN_WEBGL = `(() => {
   }
 })()`
 
+// `.rejilla-par` en el móvil (revisión del lote 0): una pieza ancha (aquí un SVG de 700 px) no debe ensanchar la columna del texto. Con la pista `auto`
+// implícita el texto pasaba a medir 700 px en una ventana de 390; con `minmax(0, 1fr)` conserva el ancho del contenedor. No lleva baseline: o cumple o no.
+const REJILLA_PAR = `(() => {
+  const w = document.createElement('div'); w.className = 'rejilla-par'
+  w.innerHTML = '<div class="measure"><p>Texto de ejemplo en la medida de lectura.</p></div><div><svg width="700" height="40" aria-hidden="true"></svg></div>'
+  ;(document.querySelector('main') || document.body).appendChild(w)
+  const r = { texto: Math.round(w.children[0].getBoundingClientRect().width), ancho: innerWidth, pista: getComputedStyle(w).gridTemplateColumns }
+  w.remove()
+  return r
+})()`
+
 async function medir(rutas) {
-  const nav = await abrirNavegador({ ancho: ANCHOS[0], alto: 900, escala: 1 })
+  // `--font-render-hinting=none`: el avance de cada letra no se redondea al píxel según la plataforma. `linea_larga` cuenta caracteres por línea
+  // pintada y el corte de línea depende de ese avance; sin el flag, un Chrome de Linux con hinting podría partir una línea una palabra antes o
+  // después que el del Mac. Es endurecimiento: en el Chromium de Linux que probé (ver la cabecera) daba lo mismo con y sin él.
+  const nav = await abrirNavegador({ ancho: ANCHOS[0], alto: 900, escala: 1, chromeArgs: ['--font-render-hinting=none'] })
   await nav.cdp('Page.addScriptToEvaluateOnNewDocument', { source: SIN_WEBGL })
   const res = {}
   const ejemplos = {}
+  let rejilla
   try {
     for (const ruta of rutas) {
       for (const ancho of ANCHOS) {
@@ -264,6 +287,8 @@ async function medir(rutas) {
           await nav.cdp('Emulation.setDeviceMetricsOverride', { width: ancho, height: 900, deviceScaleFactor: 1, mobile: false })
           await nav.cdp('Emulation.setEmulatedMedia', { features: [{ name: 'prefers-reduced-motion', value: 'reduce' }] })
           await nav.cargar(ruta)
+          // Las fuentes son propias con `font-display: swap`: hasta que cargan, el texto se pinta con la de reserva y sus líneas cortan en otro sitio.
+          await nav.evaluate('document.fonts.ready.then(() => true)')
           await nav.evaluate("(() => { const s = document.createElement('style'); s.textContent = '*{animation:none!important;transition:none!important}'; document.documentElement.appendChild(s) })()")
           await nav.sleep(300)
           const { cuenta, ej } = await nav.evaluate(MEDIR)
@@ -277,10 +302,13 @@ async function medir(rutas) {
         }
       }
     }
+    await nav.cdp('Emulation.setDeviceMetricsOverride', { width: ANCHOS[0], height: 900, deviceScaleFactor: 1, mobile: false })
+    await nav.cargar('/guia-de-estilo')
+    rejilla = await nav.evaluate(REJILLA_PAR)
   } finally {
     await nav.cerrar()
   }
-  return { res, ejemplos }
+  return { res, ejemplos, rejilla }
 }
 
 const args = process.argv.slice(2)
@@ -291,10 +319,14 @@ if (!existsSync(ROOT)) {
   process.exit(2)
 }
 const rutas = arg('--rutas') ? arg('--rutas').split(',') : RUTAS
-const { res, ejemplos } = await medir(rutas)
+const { res, ejemplos, rejilla } = await medir(rutas)
 const errores = Object.entries(res).filter(([, v]) => v.error)
 if (errores.length) {
   console.log(`\n✘ ${errores.length} medición(es) con error: ${errores.map(([k]) => k).join(', ')}`)
+  process.exit(1)
+}
+if (rejilla.texto > rejilla.ancho) {
+  console.log(`\n✘ .rejilla-par a ${ANCHOS[0]} px: el texto mide ${rejilla.texto} px en una ventana de ${rejilla.ancho} (pista «${rejilla.pista}»). Una pieza ancha ensancha la columna: la pista de la pila debe ser minmax(0, 1fr).`)
   process.exit(1)
 }
 if (args.includes('--detalle')) {

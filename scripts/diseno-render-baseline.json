@@ -489,7 +489,7 @@
     "/herramientas:390": {
       "desborde": 0,
       "h1_borde": 0,
-      "texto_bajo_suelo": 10,
+      "texto_bajo_suelo": 0,
       "texto_svg_bajo_suelo": 0,
       "objetivos_pequenos": 1,
       "contraste": 0,
@@ -500,7 +500,7 @@
     "/herramientas:1280": {
       "desborde": 0,
       "h1_borde": 0,
-      "texto_bajo_suelo": 10,
+      "texto_bajo_suelo": 0,
       "texto_svg_bajo_suelo": 0,
       "objetivos_pequenos": 1,
       "contraste": 0,

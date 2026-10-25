@@ -5,9 +5,10 @@
  * excepciones. En el resto (célula a célula) se sigue pintando, porque allí el sello completa la frase.
  *
  * Tamaño (lote 0 del repaso de escritorio, 25-oct-2026): en esas mismas páginas del panel el sello sube a 13 px (`sello--panel`, el
- * suelo tipográfico); dentro de `Dato` también (override en Dato.vue). En célula a célula conserva sus 11 px hasta el PR #290, que es
- * quien toca esas páginas: subirlo allí movería sus recuentos de R10 desde una capa compartida. Cuando #290 entre, `sello--panel`
- * desaparece y el 13 px pasa a ser el único tamaño. */
+ * suelo tipográfico); dentro de `Dato` y de `QueBuscamos` también (override `:deep(.sello)` en cada uno: `/herramientas` pinta
+ * `QueBuscamos` sin hacer el provide, así que `sello--panel` no le llega). La ÚNICA excepción de 11 px es célula a célula (los
+ * componentes `celula/*` y sus páginas), hasta el PR #290, que es quien toca esas páginas: subirlo allí movería sus recuentos de R10
+ * desde una capa compartida. Cuando #290 entre, `sello--panel` y los overrides desaparecen y el 13 px pasa a ser el único tamaño. */
 const props = defineProps<{ s: string; lang: 'es' | 'en' }>()
 const TXT: Record<string, [string, string, string]> = {
   verificado: ['✓', 'verificado', 'verified'],
