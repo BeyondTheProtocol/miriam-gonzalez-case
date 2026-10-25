@@ -3,7 +3,8 @@
     <section class="section-spacing" :aria-label="$t('ciencia.key_evidence')">
       <div class="section-wide">
         <!-- T3-LOTE1 (A15, 25-oct-2026): shell único (el H1 cae bajo el logo) y cabecera v3 (H1 por rol, entradilla en `.lede`, la miga como
-             `.link-action` de 44 px). Los textos son los de antes; solo la etiqueta del enlace al estudio es nueva (`ciencia.view_study`). -->
+             `.link-action` de 44 px). Los textos son los de antes; solo la etiqueta del enlace al estudio es nueva (`ciencia.view_study`).
+             El H2 de cada grupo lleva `.h3-seccion` (20 a 24 px): con `.h2-seccion` (30 px) igualaba al H1 a 375 px y luego saltaba a los 15 px del estudio (DS §8, R8). -->
         <PageHeader
           variante="pagina"
           :parent="{ to: localePath('/ciencia'), label: $t('ciencia.back_to_science') }"
@@ -23,7 +24,7 @@
           >
             <div v-if="section.title" class="mb-4">
               <div class="flex items-center gap-2.5 mb-1.5 flex-wrap">
-                <h2 :id="`papers-title-${sectionIndex}`" class="h2-seccion">{{ section.title }}</h2>
+                <h2 :id="`papers-title-${sectionIndex}`" class="h3-seccion">{{ section.title }}</h2>
                 <span
                   v-if="section.tag"
                   :class="['pill-data', `pill-data--${section.tone || 'neutral'}`]"

@@ -247,11 +247,11 @@
     max-width: var(--measure);
     text-wrap: pretty;
   }
-  /* Un H2 de rol dentro de una prosa larga (las tres páginas legales, lote 1 del repaso de escritorio): el plugin de tipografía le da un margen en em de
-     SU tamaño (2em y 1em de 36 px son 72 y 36 px) y la sección se separaba demasiado. Aquí el aire es el del sistema: 48 px arriba y 16 abajo; el primero
-     de la prosa sigue pegado a su cabecera. */
-  .prose > .h2-seccion { margin-bottom: var(--sp-16); }
-  .prose > .h2-seccion:not(:first-child) { margin-top: var(--sp-48); }
+  /* Un titular de rol dentro de una prosa larga (las tres páginas legales llevan `.h3-seccion` en el <h2> de cada capítulo; `.h2-seccion` queda para
+     una prosa que lo pida): el plugin de tipografía le da un margen en em de SU tamaño (2em y 1em de 36 px son 72 y 36 px) y la sección se separaba
+     demasiado. Aquí el aire es el del sistema: 48 px arriba y 16 abajo; el primero de la prosa sigue pegado a su cabecera. */
+  .prose > :is(.h2-seccion, .h3-seccion) { margin-bottom: var(--sp-16); }
+  .prose > :is(.h2-seccion, .h3-seccion):not(:first-child) { margin-top: var(--sp-48); }
 
   /* Cifras alineadas: tabular-nums evita el "salto" de anchura al cambiar
      dígitos (importes de campaña, %, contadores, celdas de datos). */

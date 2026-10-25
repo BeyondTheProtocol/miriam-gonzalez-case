@@ -221,9 +221,11 @@ onBeforeUnmount(() => {
 <template>
   <div class="lam" :class="{ 'lam--sin-ficha': !fichaAbierta }" :style="{ '--alto-cabecera': altoCabecera + 'px' }">
     <div class="lam__barra">
-      <!-- T3-LOTE1 (A18, 25-oct-2026): el contenido de la barra va en el shell (`.section-wide`, DS §3), para que «← Herramientas» y el
-           título caigan bajo el logo; el filete de abajo sigue a sangre. La zona de trabajo (visor, galería y ficha) conserva su ancho
-           completo. Hasta `lg` la barra es la de antes (mismo relleno), así que tableta y móvil no cambian. -->
+      <!-- T3-LOTE1 (A18, 25-oct-2026): el contenido de la barra va en el shell (`.section-wide`, DS §3): «← Herramientas» cae bajo el logo
+           y «Pedir los ficheros» acaba donde «Apoyar a Miriam»; el filete de abajo sigue a sangre. El título va a continuación de la flecha,
+           como en cualquier barra de app, y NO cae bajo el logo: en esta ruta `h1_borde` sigue en 1 por diseño de la barra compacta (una
+           barra de dos filas rompería la pantalla completa de la herramienta). La zona de trabajo (visor, galería y ficha) conserva su
+           ancho completo. Hasta `lg` la barra es la de antes (mismo relleno), así que tableta y móvil no cambian. -->
       <div class="lam__barra-in section-wide">
         <NuxtLink :to="localePath({ name: 'herramientas' })" class="lam__volver">
           <Icon name="ph:arrow-left-bold" class="w-4 h-4" aria-hidden="true" /><span class="lam__volver-texto">{{ $t('nav.tools') }}</span>
