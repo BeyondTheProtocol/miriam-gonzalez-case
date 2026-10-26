@@ -24,7 +24,7 @@
       "app/components/OgImage/Default.takumi.vue": 12,
       "app/components/ReservoirView.client.vue": 22,
       "app/components/SpineMRIViewer.vue": 9,
-      "app/components/StarMap.vue": 48,
+      "app/components/StarMap.vue": 47,
       "app/components/TimelineEntry.vue": 6,
       "app/composables/useAlVer.ts": 2,
       "app/error.vue": 11,

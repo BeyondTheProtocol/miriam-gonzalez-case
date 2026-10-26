@@ -916,7 +916,7 @@ const tipStyle = computed(() => {
   font-size: 16px;
   font-weight: 700;
   line-height: 1;
-  color: #bb4128;
+  color: var(--color-text); /* A23: el coral no es texto (DESIGN-SYSTEM §5); el mapa tiene fondo crema fijo, así que berenjena y no un rol de tema */
   pointer-events: none;
 }
 .starmap__m44 small {

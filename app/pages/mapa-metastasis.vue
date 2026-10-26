@@ -2797,7 +2797,7 @@ const manifestValidated = (() => {
                 </div>
                 <div class="rounded-card bg-cream-card px-2.5 py-1.5 border-l-4" :style="{ borderColor: FDG_FILL }">
                   <p class="text-xs text-tinta leading-none flex items-center gap-1">{{ L('Glucólisis · FDG', 'Glycolysis · FDG') }}<ProvDot :le="sel" field="fdg" /></p>
-                  <p class="font-mono text-base leading-tight text-berenjena"><span :class="{ 'data-soft': selIsAi }">{{ fmtSuv(sel, sel.fdg) }}</span><span v-if="sel.fdg != null" class="unit">{{ L('SUVmáx', 'SUVmax') }}</span><span v-if="trend(sel)" class="text-xs ml-1" :style="deltaStyle(sel)">({{ deltaFdg(sel) }})</span></p>
+                  <p class="font-mono text-base leading-tight text-berenjena"><span :class="{ 'data-soft': selIsAi }">{{ fmtSuv(sel, sel.fdg) }}</span><span v-if="sel.fdg != null" class="unit">{{ L('SUVmáx', 'SUVmax') }}</span> <span v-if="trend(sel)" class="text-xs" :style="deltaStyle(sel)">({{ deltaFdg(sel) }})</span></p>
                 </div>
                 <div class="rounded-card bg-cream-card px-2.5 py-1.5 border-l-4" :style="{ borderColor: '#1f6b57' }">
                   <p class="text-xs text-tinta leading-none flex items-center gap-1">{{ L('Forma (CT)', 'Shape (CT)') }}<ProvDot :le="sel" field="morfologia" /></p>
@@ -2990,7 +2990,7 @@ const manifestValidated = (() => {
                     <p class="text-xs font-semibold leading-tight" :style="{ color: FDG_TEXT }">{{ L('Glucólisis', 'Glycolysis') }} · ¹⁸F-FDG</p>
                     <p class="text-xs text-tinta mb-1.5">{{ L('metabolismo glucolítico (glucosa marcada)', 'glycolytic metabolism (labelled glucose)') }}</p>
                     <p class="font-mono text-lg leading-none text-berenjena">
-                      {{ fmtSuv(sel, sel.fdg) }}<span v-if="trend(sel)" class="text-xs ml-1" :style="deltaStyle(sel)">({{ deltaFdg(sel) }})</span>
+                      {{ fmtSuv(sel, sel.fdg) }} <span v-if="trend(sel)" class="text-xs" :style="deltaStyle(sel)">({{ deltaFdg(sel) }})</span>
                     </p>
                     <p class="text-xs text-tinta mt-1">{{ sel.fdg != null ? (trend(sel) ? L('SUVmáx · Δ vs previo', 'SUVmax · Δ vs prior') : L('SUVmáx', 'SUVmax')) : L('sin captación glucolítica (FDG⁻)', 'no glycolytic uptake (FDG⁻)') }}</p>
                   </div>

@@ -302,7 +302,9 @@
         </i18n-t>
 
         <!-- Tira macro: 3 cifras, sin tablas (el desglose fino vive en el dossier) -->
-        <div class="grid grid-cols-3 gap-x-6 gap-y-8 mb-8">
+        <!-- T3-LOTE2 (revisión): una cifra por fila por debajo de `sm`. Con el suelo de 12 px los rótulos largos («multiplataforma», «visualizaciones»)
+             no caben en una de tres columnas de ~95 px y se pisaban; desde `sm` (640 px) son las tres columnas de siempre. -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-x-6 gap-y-8 mb-8">
           <div v-for="(s, i) in audienciaStats" :key="i">
             <p
               class="font-display font-semibold tracking-tight nums text-berenjena"
