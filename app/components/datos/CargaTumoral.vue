@@ -39,7 +39,9 @@ const geo = computed(() => {
   // el globo va DEBAJO de su título: centro = título + margen + radio máximo (no pisa el texto)
   const cy = 98 + rMax
   const marcas = [0, 20, 40, 60, 80, 100, 120].filter((t) => t <= maxMm * 0.97)
-  return { XR, R, cx: w / 2, cy, H: cy + rMax + 26, umbral: XR((r0.value.suma_mm ?? 0) * 1.2), marcas }
+  // H ENTERO (T3-CI): con rMax = w × 0,26 (figura de menos de ~338 px) H salía fraccional (294,04 a 327 px); Chrome ajusta el `height` del SVG a 1/64 px
+  // (294,03125) y, con `meet`, la escala baja a 0,99997: las etiquetas de 13 px se pintan a 12,9996 px y el suelo de 13 las cuenta. Con viewBox y alto enteros la escala es 1.
+  return { XR, R, cx: w / 2, cy, H: Math.ceil(cy + rMax + 26), umbral: XR((r0.value.suma_mm ?? 0) * 1.2), marcas }
 })
 const mm = computed(() => lerp(r0.value.suma_mm ?? 0, r1.value.suma_mm ?? 0))
 const ml = computed(() => lerp(v0.value.ml ?? 0, v1.value.ml ?? 0))
