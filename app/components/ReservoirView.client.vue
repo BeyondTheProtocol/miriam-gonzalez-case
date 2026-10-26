@@ -400,44 +400,48 @@ function fechaLegible(f: string) {
       {{ L('Arrastra para girar · botones + y −, o Ctrl o ⌘ + rueda, para acercar · clic derecho o dos dedos para desplazar', 'Drag to rotate · + and − buttons, or Ctrl or ⌘ + scroll, to zoom · right-click or two fingers to pan') }}
     </p>
 
-    <!-- vistas rápidas: llevan el punto de giro a lo que se quiere mirar -->
-    <div v-if="!loading && !failed" class="mt-2.5 flex flex-wrap items-center gap-1" role="group" :aria-label="L('Qué mirar', 'What to look at')">
-      <button v-for="v in ([['todo', L('Todo el trayecto', 'Whole path')], ['reservorio', L('El reservorio', 'The port')], ['punta', L('La punta', 'The tip')]] as [Vista, string][])" :key="v[0]"
-        type="button"
-        class="rv-fecha border transition-colors"
-        :class="vista === v[0]
-          ? 'bg-berenjena/10 border-berenjena/40 text-berenjena font-semibold'
-          : 'bg-transparent border-berenjena/20 text-tinta hover:border-berenjena/40'"
-        :aria-pressed="vista === v[0]" @click="enfoca(v[0])">{{ v[1] }}</button>
-    </div>
+    <!-- Los chips (qué mirar, fecha del TC y capa ilustrativa) son una sola fila que se parte donde haga falta desde `lg` (revisión del barrido); por debajo
+         de `lg` cada grupo conserva su fila, como siempre. Cada grupo sigue siendo su `role="group"` con su nombre. -->
+    <div v-if="!loading && !failed" class="lg:mt-2.5 lg:flex lg:flex-wrap lg:items-center lg:gap-x-4 lg:gap-y-1">
+      <!-- vistas rápidas: llevan el punto de giro a lo que se quiere mirar -->
+      <div class="mt-2.5 lg:mt-0 flex flex-wrap items-center gap-1" role="group" :aria-label="L('Qué mirar', 'What to look at')">
+        <button v-for="v in ([['todo', L('Todo el trayecto', 'Whole path')], ['reservorio', L('El reservorio', 'The port')], ['punta', L('La punta', 'The tip')]] as [Vista, string][])" :key="v[0]"
+          type="button"
+          class="rv-fecha border transition-colors"
+          :class="vista === v[0]
+            ? 'bg-berenjena/10 border-berenjena/40 text-berenjena font-semibold'
+            : 'bg-transparent border-berenjena/20 text-tinta hover:border-berenjena/40'"
+          :aria-pressed="vista === v[0]" @click="enfoca(v[0])">{{ v[1] }}</button>
+      </div>
 
-    <!-- selector de fecha: 3 TC separados por meses, la misma reconstrucción cada vez -->
-    <div v-if="!loading && !failed && fechas.length > 1" class="mt-2.5 flex flex-wrap items-center gap-1" role="group" :aria-label="L('Elegir fecha del TC', 'Choose CT date')">
-      <button v-for="f in fechas" :key="f"
-        type="button"
-        class="rv-fecha border transition-colors"
-        :class="fechaActual === f
-          ? 'bg-berenjena/10 border-berenjena/40 text-berenjena font-semibold'
-          : 'bg-transparent border-berenjena/20 text-tinta hover:border-berenjena/40'"
-        :aria-pressed="fechaActual === f" @click="cargaFecha(f)">{{ fechaLegible(f) }}</button>
-    </div>
+      <!-- selector de fecha: 3 TC separados por meses, la misma reconstrucción cada vez -->
+      <div v-if="fechas.length > 1" class="mt-2.5 lg:mt-0 flex flex-wrap items-center gap-1" role="group" :aria-label="L('Elegir fecha del TC', 'Choose CT date')">
+        <button v-for="f in fechas" :key="f"
+          type="button"
+          class="rv-fecha border transition-colors"
+          :class="fechaActual === f
+            ? 'bg-berenjena/10 border-berenjena/40 text-berenjena font-semibold'
+            : 'bg-transparent border-berenjena/20 text-tinta hover:border-berenjena/40'"
+          :aria-pressed="fechaActual === f" @click="cargaFecha(f)">{{ fechaLegible(f) }}</button>
+      </div>
 
-    <!-- capa ilustrativa: un botón con estado, igual que los de fecha -->
-    <div v-if="!loading && !failed && hayModelo" class="mt-2.5">
-      <button
-        type="button"
-        class="rv-fecha border transition-colors"
-        :class="verModelo
-          ? 'bg-berenjena/10 border-berenjena/40 text-berenjena font-semibold'
-          : 'bg-transparent border-berenjena/20 text-tinta hover:border-berenjena/40'"
-        :aria-pressed="verModelo" @click="alternaModelo">{{ L('Ver el dispositivo (ilustración)', 'Show the device (illustration)') }}</button>
-      <label v-if="verModelo" class="rv-opacidad">
-        <span>{{ L('Opacidad del dispositivo', 'Device opacity') }}</span>
-        <input v-model.number="opacidad" type="range" min="10" max="100" step="5"
-          :aria-valuetext="opacidad + ' %'">
-        <output aria-hidden="true">{{ opacidad }} %</output>
-      </label>
+      <!-- capa ilustrativa: un botón con estado, igual que los de fecha -->
+      <div v-if="hayModelo" class="mt-2.5 lg:mt-0">
+        <button
+          type="button"
+          class="rv-fecha border transition-colors"
+          :class="verModelo
+            ? 'bg-berenjena/10 border-berenjena/40 text-berenjena font-semibold'
+            : 'bg-transparent border-berenjena/20 text-tinta hover:border-berenjena/40'"
+          :aria-pressed="verModelo" @click="alternaModelo">{{ L('Ver el dispositivo (ilustración)', 'Show the device (illustration)') }}</button>
+      </div>
     </div>
+    <label v-if="!loading && !failed && hayModelo && verModelo" class="rv-opacidad">
+      <span>{{ L('Opacidad del dispositivo', 'Device opacity') }}</span>
+      <input v-model.number="opacidad" type="range" min="10" max="100" step="5"
+        :aria-valuetext="opacidad + ' %'">
+      <output aria-hidden="true">{{ opacidad }} %</output>
+    </label>
 
     <!-- leyenda: píldoras, forma + color, reusando .badge-genomic -->
     <div v-if="!loading && !failed" class="mt-2.5 flex flex-wrap items-center gap-2">

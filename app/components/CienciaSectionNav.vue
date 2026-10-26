@@ -4,7 +4,7 @@
        «Saltar a…» en móvil (variant="mobile"); etiquetas clínicas en sans bajo
        un rótulo mono; activo en berenjena + punto violeta (NUNCA coral); foco
        gestionado al saltar y respeto por prefers-reduced-motion. -->
-  <nav :aria-label="$t('sectionNav.aria')">
+  <nav :aria-label="copia ? undefined : $t('sectionNav.aria')" :aria-hidden="copia ? 'true' : undefined">
     <!-- Móvil: desplegable en el flujo (no pegajoso) -->
     <details v-if="variant === 'mobile'" class="cn-m">
       <summary class="cn-m__summary">
@@ -29,6 +29,7 @@
             class="cn-d__link"
             :class="{ 'is-active': activeId === c.id }"
             :aria-current="activeId === c.id ? 'location' : undefined"
+            :tabindex="copia ? -1 : undefined"
             @click="jumpTo($event, c.id)"
           >
             <span class="cn-d__dot" aria-hidden="true" />
@@ -41,8 +42,11 @@
 </template>
 
 <script setup lang="ts">
-const props = withDefaults(defineProps<{ variant?: 'rail' | 'mobile' }>(), {
+// `copia`: una segunda instancia del raíl (la de los ejes, en /ciencia) para el ratón. No es un segundo punto de referencia: sin nombre y fuera del árbol de
+// accesibilidad, con sus enlaces fuera del orden de tabulación (el primer raíl sigue ahí). No lleva `inert`: `inert` también quita el clic.
+const props = withDefaults(defineProps<{ variant?: 'rail' | 'mobile'; copia?: boolean }>(), {
   variant: 'rail',
+  copia: false,
 })
 const { t } = useI18n()
 

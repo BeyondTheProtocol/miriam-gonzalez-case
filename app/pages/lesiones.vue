@@ -66,7 +66,7 @@ const biopsia = computed(() =>
                el comentario de la sección Hueso). Sin cifras, sin el «55» del radiólogo (va con sus dos salvedades, abajo) y sin
                interpretación. No sustituye ni mueve nada de lo ya publicado: el aviso y el texto sellado de debajo siguen igual. -->
           <section class="mt-6 max-w-2xl" aria-labelledby="en-corto-titulo">
-            <h2 id="en-corto-titulo" class="eyebrow mb-1 block">{{ L('En corto', 'In short') }}</h2>
+            <h2 id="en-corto-titulo" class="eyebrow lg:h2-seccion lg:normal-case mb-1 lg:mb-3 block">{{ L('En corto', 'In short') }}</h2>
             <p class="prosa">
               {{ L(
                 'Mama e hígado: 8 de septiembre de 2026. Hueso: PET de marzo y mayo y RM de junio de 2026. El PET del 8 de septiembre, aún no incorporado, describe más lesiones óseas activas que las que se ven aquí.',

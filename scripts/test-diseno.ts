@@ -42,7 +42,7 @@ export const REGLAS: Record<string, string> = {
   R5: 'duplicados: clases de rol (-h2, -aviso, -tarjeta, -chip, -pill) declaradas fuera de main.css y de los componentes base',
   R6: 'en línea: letter-spacing en style="" y glifos (→ ← ↗ ✓ ✱ × ‹ › ⓘ ↧) usados como icono en una plantilla',
   R7: 'clases clave: .link-action con min-height 44 y .form-input con 16 px y 44 px (se rompen, falla; no hay baseline que valga)',
-  R8: 'cabeceras: <h2> de página sin .h2-seccion ni .h2-declaracion (o sin CabeceraSeccion); en las cuatro páginas de H2_COMO_H3 vale también .h3-seccion',
+  R8: 'cabeceras: <h2> de página sin .h2-seccion ni .h2-declaracion (o sin CabeceraSeccion); en las tres legales y /contacto (H2_COMO_H3) vale también .h3-seccion',
   R9: 'doc: tablas de DESIGN-SYSTEM.md y tokens.css público desfasados del canon, y tokens del canon que nadie lee',
   R11: 'espacios: un espacio al principio o al final de un elemento (`<span> {{ x }}</span>`, `<template> <em>`): Vue lo elimina y el texto sale pegado',
   R12: 'contenedor: `max-w-[Npx]` con el relleno de página (`px-4 sm:px-6 lg:px-8`) o `section-container` fuera de /gracias y /links: el H1 no cae bajo el logo, se usa .section-wide',
@@ -52,11 +52,13 @@ export const REGLAS: Record<string, string> = {
 /** Las dos páginas donde `.section-container` (896 px, centrado) es a propósito: una sola columna centrada (DS sección 3). */
 const CONTENEDOR_CENTRADO = new Set(['app/pages/gracias.vue', 'app/pages/links.vue'])
 
-/** Las cuatro páginas cuyo `<h2>` puede llevar `.h3-seccion` (20 a 24 px) en vez de `.h2-seccion` (30 a 36 px): R8 las admite solo aquí.
- *  Motivo (excepción firmada en el DS, sección 8): a 375 px el H1 mide 30 px y `.h2-seccion` también, así que en los capítulos de las tres legales y en los
- *  grupos de /ciencia/evidencia el titular de grupo igualaba al de página y luego saltaba de 30 a 15 px en el título de cada estudio. El nivel semántico
- *  no cambia (sigue siendo un `<h2>`). Una página nueva que lo necesite se añade aquí con su motivo, no se acepta por defecto. */
-const H2_COMO_H3 = new Set(['app/pages/ciencia/evidencia.vue', 'app/pages/aviso-legal.vue', 'app/pages/privacidad.vue', 'app/pages/cookies.vue'])
+/** Las tres páginas legales y /contacto, cuyo `<h2>` puede llevar `.h3-seccion` (20 a 24 px) en vez de `.h2-seccion` (30 a 36 px): R8 las admite solo aquí.
+ *  Motivo (excepción firmada en el DS, sección 8): en los 11 capítulos de una legal, 36 px bajo un H1 de 48 a 1280 pesan más que el texto que titulan, y a 375 px
+ *  el H1 mide 30 px y `.h2-seccion` también; en /contacto, el único H2 de la página es el titular de una tarjeta lateral de 530 px, y a 36 px ocupa dos líneas más
+ *  que las tres de su texto. El nivel semántico no cambia (sigue siendo un `<h2>`). /ciencia/evidencia estaba en la lista (a 375 px el titular de grupo igualaba
+ *  al de página) y salió en la revisión del barrido: ahora lleva `bajo-lg:h3-seccion lg:h2-seccion`, que R8 admite por el segundo.
+ *  Una página nueva que lo necesite se añade aquí con su motivo, no se acepta por defecto. */
+const H2_COMO_H3 = new Set(['app/pages/aviso-legal.vue', 'app/pages/privacidad.vue', 'app/pages/cookies.vue', 'app/pages/contacto.vue'])
 
 /** Componentes base del sistema: aquí SÍ se declaran las clases de rol (R5). */
 const BASE = new Set([
@@ -597,7 +599,10 @@ function autotest(): string[] {
   // R8
   eq('R8 h2 sin rol', cuenta('app/pages/x.vue', vue('<h2 class="text-3xl">a</h2><h2 id="x" class="h2-seccion">b</h2><h2>c</h2>'), 'R8'), 2)
   eq('R8 solo en páginas', cuenta('app/components/X.vue', vue('<h2>a</h2>'), 'R8'), 0)
-  eq('R8 .h3-seccion en un h2 de las cuatro páginas de la excepción no cuenta', cuenta('app/pages/aviso-legal.vue', vue('<h2 class="h3-seccion">a</h2><h2 :id="`t-${i}`" class="h3-seccion">b</h2>'), 'R8') + cuenta('app/pages/ciencia/evidencia.vue', vue('<h2 class="h3-seccion">a</h2>'), 'R8'), 0)
+  eq('R8 .h3-seccion en un h2 de /contacto no cuenta', cuenta('app/pages/contacto.vue', vue('<h2 class="bajo-lg:text-sm lg:h3-seccion">a</h2>'), 'R8'), 0)
+  eq('R8 .h3-seccion en un h2 de las tres legales no cuenta', cuenta('app/pages/aviso-legal.vue', vue('<h2 class="h3-seccion">a</h2><h2 :id="`t-${i}`" class="h3-seccion">b</h2>'), 'R8') + cuenta('app/pages/cookies.vue', vue('<h2 class="h3-seccion">a</h2>'), 'R8'), 0)
+  eq('R8 bajo-lg:h3-seccion lg:h2-seccion vale en cualquier página (el rol entra desde lg)', cuenta('app/pages/ciencia/evidencia.vue', vue('<h2 class="bajo-lg:h3-seccion lg:h2-seccion">a</h2>'), 'R8'), 0)
+  eq('R8 /ciencia/evidencia con solo .h3-seccion ya cuenta', cuenta('app/pages/ciencia/evidencia.vue', vue('<h2 class="h3-seccion">a</h2>'), 'R8'), 1)
   eq('R8 en esas páginas un h2 sin rol sigue contando', cuenta('app/pages/privacidad.vue', vue('<h2 class="text-3xl">a</h2><h2 class="h3-seccion">b</h2><h2>c</h2>'), 'R8'), 2)
   eq('R8 .h3-seccion en un h2 de cualquier otra página cuenta', cuenta('app/pages/x.vue', vue('<h2 class="h3-seccion">a</h2>'), 'R8') + cuenta('app/pages/ciencia/index.vue', vue('<h2 class="h3-seccion">a</h2>'), 'R8'), 2)
   // R11

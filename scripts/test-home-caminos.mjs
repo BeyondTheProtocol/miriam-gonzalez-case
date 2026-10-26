@@ -761,7 +761,13 @@ try {
       await cargar(ruta)
       const destino = await evaluate(`(() => {
         const raiz = ${JSON.stringify(ancla ?? '')} ? document.getElementById(${JSON.stringify(ancla ?? '')}) : document.querySelector('main')
-        return raiz ? { texto: raiz.textContent, enlaces: [...raiz.querySelectorAll('a[href]')].map((a) => a.getAttribute('href')) } : null
+        if (!raiz) return null
+        // El texto se une con un espacio ENTRE nodos de texto: textContent pega los de dos elementos contiguos («…Sistema de diseño» y «Marcas · co-creación» salían como
+        // «diseñoMarcas», sin ningún espacio, desde que la flecha de la lista dejó de ser un glifo «→ » dentro del enlace) y la palabra del rótulo no aparecía como tal.
+        const partes = []
+        const w = document.createTreeWalker(raiz, NodeFilter.SHOW_TEXT)
+        for (let n = w.nextNode(); n; n = w.nextNode()) partes.push(n.textContent)
+        return { texto: partes.join(' '), enlaces: [...raiz.querySelectorAll('a[href]')].map((a) => a.getAttribute('href')) }
       })()`)
       ok(!!destino, `${loc} «${pu.texto}» → ${pu.href}: el destino existe${ancla ? ` (ancla #${ancla})` : ''}`)
       if (!destino) continue

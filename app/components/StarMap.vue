@@ -139,7 +139,7 @@
             :class="['starmap__label', 'starmap__label--patron', a.side ? 'starmap__label--' + a.side : '']"
             :style="{ left: a.x + '%', top: a.y + '%' }"
           >{{ a.name }}</span>
-          <span class="starmap__m44" :style="{ left: BEEHIVE.x + '%', top: BEEHIVE.y + '%' }">
+          <span class="starmap__m44" :style="{ left: BEEHIVE.x + '%', top: BEEHIVE.y + '%', maxWidth: 'calc(' + BEEHIVE.x + '% - 14px)' }">
             M44 · el Pesebre<small>{{ $t('thanksWall.m44_subtitle') }}</small>
           </span>
         </div>
@@ -166,11 +166,22 @@
       </div>
     </div>
 
-    <Nota v-if="anchorMarkers.length" class="starmap__nota mt-3">{{ $t('thanksWall.patrons_note') }}</Nota>
+    <!-- Las tres notas son prosa de lectura, no la «Última actualización» (la única que el sistema deja a `Nota`): un `<p class="measure">` con su icono, mono
+         de 13 px por debajo de `lg` (el móvil no cambia) y Hanken a 15 px desde `lg` (revisión del barrido). -->
+    <p v-if="anchorMarkers.length" class="starmap__nota measure mt-3">
+      <Icon name="ph:asterisk-bold" class="starmap__nota-icono" aria-hidden="true" />
+      <span>{{ $t('thanksWall.patrons_note') }}</span>
+    </p>
     <!-- Cómo se juega: nota de gesto (dedito), pequeña, bajo el mapa. -->
-    <Nota icon="tap" class="starmap__nota mt-2">{{ $t('thanksWall.sky_hint') }}</Nota>
+    <p class="starmap__nota measure mt-2">
+      <Icon name="ph:hand-tap" class="starmap__nota-icono" aria-hidden="true" />
+      <span>{{ $t('thanksWall.sky_hint') }}</span>
+    </p>
     <!-- Cómo leerlo: el brillo crece en escala log (✱ nota al margen). -->
-    <Nota class="starmap__nota mt-2">{{ $t('thanksWall.magnitude_note') }}</Nota>
+    <p class="starmap__nota measure mt-2">
+      <Icon name="ph:asterisk-bold" class="starmap__nota-icono" aria-hidden="true" />
+      <span>{{ $t('thanksWall.magnitude_note') }}</span>
+    </p>
 
     <!-- El juego: tu estrella se enciende donando (solo el botón; el resto
          del texto se quitó — el pie manuscrito ya cuenta la historia). -->
@@ -1022,6 +1033,23 @@ const tipStyle = computed(() => {
   outline: 2px solid #ff6b47;
   outline-offset: 2px;
 }
+/* Las tres notas bajo el mapa (antes `Nota`): la misma receta que tenía, mono de 13 px con su icono; desde `lg`, Hanken a 15 px (más abajo). */
+.starmap__nota {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.45rem;
+  font-family: var(--font-mono);
+  font-size: var(--texto-xs);
+  line-height: 1.55;
+  color: var(--texto-3);
+}
+.starmap__nota-icono {
+  width: 14px;
+  height: 14px;
+  color: var(--identidad);
+  flex-shrink: 0;
+  margin-top: 3px;
+}
 /* T3-LOTE2 (A23): las notas a mano del mapa pasan de Caveat a Hanken Grotesk a 15 px desde `lg` (la letra a mano se leía mal a 15 y 16 px y es la única
    fuente que no es del sistema). Por debajo de `lg` el mapa conserva Caveat: las etiquetas se colocan por porcentaje sobre un mapa de 327 px y con Hanken, que es
    más ancha, se pisarían; ese cambio, si Miriam lo quiere, es de móvil y no entra en este lote. El título (una cabecera, no una nota) toma Fraunces. */
@@ -1033,9 +1061,10 @@ const tipStyle = computed(() => {
   .starmap__m44 { font-family: var(--font-body); font-size: var(--texto-sm); font-weight: 700; }
   .starmap__m44 small { font-family: var(--font-body); font-size: var(--texto-xs); max-width: none; }
   .starmap__tip-name { font-family: var(--font-body); font-size: var(--texto-sm); font-weight: 700; }
-  /* T3-BARRIDO (colabora): las tres notas bajo el mapa son prosa, no datos tabulares: Hanken a 15 px desde `lg` (por debajo conservan el mono de 13 px de
-     `Nota`; el móvil no se toca en esta tanda). `p.` sube la especificidad por encima de la de `.nota`, que es del componente. */
-  p.starmap__nota { font-family: var(--font-body); font-size: var(--texto-sm); line-height: 1.5; }
+  /* T3-BARRIDO (colabora): las tres notas bajo el mapa son prosa, no datos tabulares: Hanken a 15 px desde `lg` (por debajo conservan el mono de 13 px; el
+     móvil no se toca en esta tanda). */
+  .starmap__nota { font-family: var(--font-body); font-size: var(--texto-sm); line-height: 1.5; }
+  .starmap__nota-icono { margin-top: 4px; }
 }
 /* T3-BARRIDO (colabora): las puntas de las estrellas cruzaban los rótulos del mapa (en «M44 · el Pesebre», el rótulo y su subtítulo). Un halo del color del mapa
    (crema fijo) los separa; no mueve nada. */

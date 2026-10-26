@@ -64,6 +64,10 @@
         <!-- T3-LOTE1 (A11 y A17, 25-oct-2026): el índice lateral y su rejilla empiezan en `xl` (1280), no en `lg`. A 1024 el raíl se comía 220 +
              48 px y la columna de lectura quedaba en 660, más estrecha que las tablas de dentro (679 y 687 px); con el desplegable «Saltar a…» en
              su lugar la columna mide 928. Y el pegajoso del raíl va con `.sticky-bajo-cabecera`: `lg:top-24` (96 px) lo dejaba bajo la cabecera de 112. -->
+        <!-- Revisión del barrido (26-oct-2026): el raíl no recorre toda la hoja. En 1280 px las tablas (anatomía patológica, perfil molecular, panel) quedaban en
+             la columna de 820 px de al lado del raíl, con celdas de hasta 11 líneas; a 1024 px, sin raíl, la tabla mide 926 px. Ahora el raíl acompaña a las secciones
+             2 a 5, se cierra, las tablas de la 6 y la 7 van a los 1104 px del shell, se reabre solo para los ejes (8) y el panel (9) y el cierre vuelven a ancho completo.
+             Por debajo de `xl` no cambia nada: el desplegable «Saltar a…» de arriba y una sola columna. -->
         <div class="xl:grid xl:grid-cols-[220px_minmax(0,1fr)] xl:gap-16 xl:items-start">
           <CienciaSectionNav variant="rail" class="hidden xl:block xl:sticky xl:sticky-bajo-cabecera xl:self-start" />
           <div class="min-w-0">
@@ -175,62 +179,74 @@
               </div>
             </section>
 
-            <!-- 6 · Anatomía patológica en UNA tabla: las tres lecturas del primario y los otros dos sitios (hueso e hígado), lado a lado. -->
-            <section class="ci-sec" aria-labelledby="tejido-3veces">
-              <CabeceraSeccion
-                id="tejido-3veces"
-                :eyebrow="L('Anatomía patológica', 'Pathology')"
-                :titulo="L('El mismo tumor, leído en tres sitios', 'The same tumour, read at three sites')"
-                :lede="L(
-                  'Hay tejido de tres localizaciones y momentos: la mama, leída tres veces en tres centros, el hueso y el hígado. Las diferencias entre lecturas son parte de la información, no un error: la columna más reciente de la mama (Vall d’Hebron, 2026) es la más completa, no necesariamente la «correcta». El componente neuroendocrino aparece en las tres localizaciones. El receptor de estrógeno, que en el primario era alto, es negativo en la metástasis del hígado, la lesión que creció durante el último tratamiento hormonal.',
-                  'There is tissue from three sites and time points: the breast, read three times at three centres, the bone and the liver. The differences between reads are themselves information, not an error: the most recent breast column (Vall d’Hebron, 2026) is the most complete, not necessarily the “correct” one. The neuroendocrine component appears at all three sites. The estrogen receptor, high in the primary, is negative in the liver metastasis, the lesion that grew during the last hormonal treatment.')"
-              />
-              <div class="tabla-scroll" tabindex="0" role="region" :aria-label="L('Anatomía patológica: mama, hueso e hígado', 'Pathology: breast, bone and liver')">
-                <table class="data-table data-table--dense data-table--cards">
-                  <caption class="sr-only">{{ L('El mismo tumor, leído en tres sitios: mama (tres lecturas), hueso e hígado', 'The same tumour, read at three sites: breast (three reads), bone and liver') }}</caption>
-                  <thead>
-                    <tr>
-                      <th scope="col"></th>
-                      <th v-for="(c, i) in columnasPat" :key="c" scope="col" :class="{ 'reads-vh': i === 2 }">{{ c }}</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr v-for="fila in filasPat" :key="fila.k">
-                      <td class="font-semibold cell-head">{{ fila.k }}</td>
-                      <td
-                        v-for="(celda, i) in fila.c"
-                        :key="i"
-                        :class="[claseCelda(celda), { 'reads-vh': i === 2 }]"
-                        :data-label="columnasPat[i]"
-                      >{{ celda }}</td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-              <p class="ci-fuentes">{{ L(pieEs, pieEn) }}</p>
-              <Aviso tipo="limites" :titulo="$t('ciencia.patologia_limites_titulo')">
-                <p>{{ L(
-                  'Estas lecturas describen el tejido; no son un diagnóstico de consenso. Armonizar las discordancias está pendiente de valoración por el comité de tumores. Las variantes de RB1 y la ESR1 D538G se vieron en sangre y no en el hueso; el hígado aún no tiene perfil genómico. El patólogo del hueso advierte de que la gradación neuroendocrina no está establecida en biopsias pequeñas. Que la pérdida del receptor de estrógeno explique la progresión es una hipótesis, no un hallazgo.',
-                  'These reads describe the tissue; they are not a consensus diagnosis. Reconciling the discordances is pending tumour-board review. The RB1 variants and ESR1 D538G were seen in blood and not in bone; the liver has no genomic profile yet. The bone pathologist notes that neuroendocrine grading is not established on small biopsies. That the loss of the estrogen receptor explains the progression is a hypothesis, not a finding.') }}</p>
-              </Aviso>
-            </section>
+          </div>
+        </div>
 
-            <!-- 7 · Perfil molecular: una fila por alteración, con su método. La nota de unidades de FGFR1 y CCND1 sale UNA vez (C3). -->
-            <section class="ci-sec" aria-labelledby="molecular-profile-title">
-              <CabeceraSeccion
-                id="molecular-profile-title"
-                :eyebrow="L('Perfil molecular', 'Molecular profile')"
-                :titulo="$t('ciencia.molecular_profile_title')"
-                :lede="L(
-                  'El perfil cruza cuatro fuentes: el tejido primario (NGS, 2024), la biopsia ósea de julio de 2026 (FoundationOne CDx), la inmunohistoquímica de la metástasis hepática (agosto de 2026) y la biopsia líquida (ctDNA, 2026). En todo el tejido se repite el mismo motor: amplificación de FGFR1 (8p11) y del clúster 11q13 (CCND1, FGF3/FGF4/FGF19). Lo que cambia es el receptor de estrógeno, que desaparece en el hígado. Cada fila indica con qué prueba se midió.',
-                  'The profile crosses four sources: the primary tissue (NGS, 2024), the July 2026 bone biopsy (FoundationOne CDx), immunohistochemistry of the liver metastasis (August 2026) and the liquid biopsy (ctDNA, 2026). The same engine recurs across all tissue: amplification of FGFR1 (8p11) and of the 11q13 cluster (CCND1, FGF3/FGF4/FGF19). What changes is the estrogen receptor, which is gone in the liver. Each row notes how it was measured.')"
-              />
-              <MolecularProfileDetailed :cuarta-linea="caso?.cuartaLinea ?? null" />
-              <Aviso tipo="limites" :titulo="$t('ciencia.nota_copias_titulo')" class="mt-4">
-                <p>{{ $t('ciencia.nota_copias') }}</p>
-              </Aviso>
-            </section>
+        <!-- Tablas a todo el ancho del shell (1104 px a 1280): anatomía patológica y perfil molecular. -->
+        <div class="min-w-0">
+          <!-- 6 · Anatomía patológica en UNA tabla: las tres lecturas del primario y los otros dos sitios (hueso e hígado), lado a lado. -->
+          <section class="ci-sec" aria-labelledby="tejido-3veces">
+            <CabeceraSeccion
+              id="tejido-3veces"
+              :eyebrow="L('Anatomía patológica', 'Pathology')"
+              :titulo="L('El mismo tumor, leído en tres sitios', 'The same tumour, read at three sites')"
+              :lede="L(
+                'Hay tejido de tres localizaciones y momentos: la mama, leída tres veces en tres centros, el hueso y el hígado. Las diferencias entre lecturas son parte de la información, no un error: la columna más reciente de la mama (Vall d’Hebron, 2026) es la más completa, no necesariamente la «correcta». El componente neuroendocrino aparece en las tres localizaciones. El receptor de estrógeno, que en el primario era alto, es negativo en la metástasis del hígado, la lesión que creció durante el último tratamiento hormonal.',
+                'There is tissue from three sites and time points: the breast, read three times at three centres, the bone and the liver. The differences between reads are themselves information, not an error: the most recent breast column (Vall d’Hebron, 2026) is the most complete, not necessarily the “correct” one. The neuroendocrine component appears at all three sites. The estrogen receptor, high in the primary, is negative in the liver metastasis, the lesion that grew during the last hormonal treatment.')"
+            />
+            <div class="tabla-scroll" tabindex="0" role="region" :aria-label="L('Anatomía patológica: mama, hueso e hígado', 'Pathology: breast, bone and liver')">
+              <table class="data-table data-table--dense data-table--cards">
+                <caption class="sr-only">{{ L('El mismo tumor, leído en tres sitios: mama (tres lecturas), hueso e hígado', 'The same tumour, read at three sites: breast (three reads), bone and liver') }}</caption>
+                <thead>
+                  <tr>
+                    <th scope="col"></th>
+                    <th v-for="(c, i) in columnasPat" :key="c" scope="col" :class="{ 'reads-vh': i === 2 }">{{ c }}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr v-for="fila in filasPat" :key="fila.k">
+                    <td class="font-semibold cell-head">{{ fila.k }}</td>
+                    <td
+                      v-for="(celda, i) in fila.c"
+                      :key="i"
+                      :class="[claseCelda(celda), { 'reads-vh': i === 2 }]"
+                      :data-label="columnasPat[i]"
+                    >{{ celda }}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <p class="ci-fuentes">{{ L(pieEs, pieEn) }}</p>
+            <Aviso tipo="limites" :titulo="$t('ciencia.patologia_limites_titulo')">
+              <p>{{ L(
+                'Estas lecturas describen el tejido; no son un diagnóstico de consenso. Armonizar las discordancias está pendiente de valoración por el comité de tumores. Las variantes de RB1 y la ESR1 D538G se vieron en sangre y no en el hueso; el hígado aún no tiene perfil genómico. El patólogo del hueso advierte de que la gradación neuroendocrina no está establecida en biopsias pequeñas. Que la pérdida del receptor de estrógeno explique la progresión es una hipótesis, no un hallazgo.',
+                'These reads describe the tissue; they are not a consensus diagnosis. Reconciling the discordances is pending tumour-board review. The RB1 variants and ESR1 D538G were seen in blood and not in bone; the liver has no genomic profile yet. The bone pathologist notes that neuroendocrine grading is not established on small biopsies. That the loss of the estrogen receptor explains the progression is a hypothesis, not a finding.') }}</p>
+            </Aviso>
+          </section>
 
+          <!-- 7 · Perfil molecular: una fila por alteración, con su método. La nota de unidades de FGFR1 y CCND1 sale UNA vez (C3). -->
+          <section class="ci-sec" aria-labelledby="molecular-profile-title">
+            <CabeceraSeccion
+              id="molecular-profile-title"
+              :eyebrow="L('Perfil molecular', 'Molecular profile')"
+              :titulo="$t('ciencia.molecular_profile_title')"
+              :lede="L(
+                'El perfil cruza cuatro fuentes: el tejido primario (NGS, 2024), la biopsia ósea de julio de 2026 (FoundationOne CDx), la inmunohistoquímica de la metástasis hepática (agosto de 2026) y la biopsia líquida (ctDNA, 2026). En todo el tejido se repite el mismo motor: amplificación de FGFR1 (8p11) y del clúster 11q13 (CCND1, FGF3/FGF4/FGF19). Lo que cambia es el receptor de estrógeno, que desaparece en el hígado. Cada fila indica con qué prueba se midió.',
+                'The profile crosses four sources: the primary tissue (NGS, 2024), the July 2026 bone biopsy (FoundationOne CDx), immunohistochemistry of the liver metastasis (August 2026) and the liquid biopsy (ctDNA, 2026). The same engine recurs across all tissue: amplification of FGFR1 (8p11) and of the 11q13 cluster (CCND1, FGF3/FGF4/FGF19). What changes is the estrogen receptor, which is gone in the liver. Each row notes how it was measured.')"
+            />
+            <MolecularProfileDetailed :cuarta-linea="caso?.cuartaLinea ?? null" />
+            <Aviso tipo="limites" :titulo="$t('ciencia.nota_copias_titulo')" class="mt-4">
+              <p>{{ $t('ciencia.nota_copias') }}</p>
+            </Aviso>
+          </section>
+
+        </div>
+
+        <div class="xl:grid xl:grid-cols-[220px_minmax(0,1fr)] xl:gap-16 xl:items-start">
+          <!-- Segundo raíl, el de los ejes: el mismo índice, una copia para el ratón. `copia` lo saca del árbol de accesibilidad y del orden de tabulación (el
+               primero sigue ahí, y dos `<nav>` con el mismo nombre serían dos puntos de referencia iguales); no usa `inert`, que también quitaría el clic. -->
+          <CienciaSectionNav variant="rail" copia class="hidden xl:block xl:sticky xl:sticky-bajo-cabecera xl:self-start" />
+          <div class="min-w-0">
             <!-- 8 · Ejes terapéuticos: cada uno enlaza a su sección de /ciencia/evidencia -->
             <section class="ci-sec" aria-labelledby="axes-title">
               <CabeceraSeccion
@@ -255,79 +271,83 @@
               <p class="ci-nota-eje">{{ notaEjes }}</p>
             </section>
 
-            <!-- 9 · Panel prueba a prueba: solo la pregunta que responde cada análisis. El estado y el material, en /datos (caso.json). -->
-            <section v-if="panelRows.length" class="ci-sec" aria-labelledby="panel-title">
-              <CabeceraSeccion id="panel-title" :eyebrow="L('Análisis molecular', 'Molecular workup')" :titulo="$t('ciencia.proposed_panel')" :lede="$t('ciencia.panel_lede')" />
-              <div class="tabla-scroll" tabindex="0" role="region" :aria-label="$t('ciencia.proposed_panel_caption')">
-                <table class="data-table data-table--dense data-table--cards">
-                  <caption class="sr-only">{{ $t('ciencia.proposed_panel_caption') }}</caption>
-                  <thead>
-                    <tr>
-                      <th scope="col">{{ $t('ciencia.panel_col_prueba') }}</th>
-                      <th scope="col" class="col-note">{{ $t('ciencia.panel_col_responde') }}</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr v-for="(row, i) in panelRows" :key="i">
-                      <td class="cell-head font-semibold">{{ row.component }}</td>
-                      <td class="col-note cell-block" :data-label="$t('ciencia.panel_col_responde')">
-                        {{ row.implication }}<span v-if="row.linkTo" class="block mt-2"><NuxtLink :to="localePath(row.linkTo)" class="link-action group">{{ row.linkText }}<Icon name="ph:arrow-right" class="w-4 h-4 transition-transform group-hover:translate-x-0.5" aria-hidden="true" /></NuxtLink></span>
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-              <div class="ci-acciones">
-                <NuxtLink :to="localePath({ name: 'datos', hash: '#s-tejido' })" class="link-action group">
-                  {{ $t('ciencia.panel_tejido') }}
-                  <Icon name="ph:arrow-right" class="w-4 h-4 transition-transform group-hover:translate-x-0.5" aria-hidden="true" />
-                </NuxtLink>
-              </div>
-              <Aviso tipo="apoyo" :titulo="$t('ciencia.panel_nota_titulo')" class="mt-4">
-                <p>{{ $t('ciencia.panel_nota') }}</p>
-              </Aviso>
-            </section>
-
-            <!-- 11 · Evidencia, cierre profesional y «Sigue el caso» -->
-            <div class="ci-sec">
-              <TarjetaEnlace
-                :to="localePath({ name: 'ciencia-evidencia' })"
-                tono="destacada"
-                icono="ph:books-fill"
-                :titulo="$t('ciencia.key_evidence')"
-              >{{ $t('ciencia.evidence_hook_body') }}</TarjetaEnlace>
-            </div>
-
-            <section class="ci-sec" aria-labelledby="ciencia-pro-help-title">
-              <CabeceraSeccion id="ciencia-pro-help-title" :eyebrow="$t('ciencia.pro_help_eyebrow')" :titulo="$t('ciencia.pro_help_title')" />
-              <ul class="ci-pro" role="list">
-                <li>
-                  <Icon name="ph:chat-circle-text-fill" class="ci-pro__icono" aria-hidden="true" />
-                  <NuxtLink :to="localePath({ name: 'contacto', query: { role: 'oncologist' } })" class="link-inline">{{ $t('ciencia.pro_help_contribute') }}</NuxtLink>
-                </li>
-                <li>
-                  <Icon name="ph:share-network-fill" class="ci-pro__icono" aria-hidden="true" />
-                  <NuxtLink :to="localePath({ name: 'colabora' })" class="link-inline">{{ $t('ciencia.pro_help_share') }}</NuxtLink>
-                </li>
-              </ul>
-              <!-- El botón de donar de /ciencia profesional (Miriam, 24-oct-2026; Umami: «Donar» fue el 2,8 % de /lesiones frente al 11,3 % de la
-                   home). Es el único coral de la zona. -->
-              <p class="ci-apoyo">{{ $t('ciencia.pro_help_fund') }}</p>
-              <a
-                :href="GOFUNDME_URL"
-                target="_blank"
-                rel="noopener noreferrer"
-                data-support-cta
-                class="btn-cta"
-                @click="trackSupport('ciencia_pro')"
-              >
-                <Icon name="ph:heart-fill" class="heart-beat w-4 h-4" aria-hidden="true" />
-                {{ $t('nav.donate') }}<span class="sr-only">{{ ' ' + $t('a11y.new_tab') }}</span>
-              </a>
-            </section>
-
-            <CaseFollowSignup class="mt-4" />
           </div>
+        </div>
+
+        <!-- Panel, evidencia y cierre, otra vez a ancho completo (la tabla del panel y la tarjeta de evidencia miden 1104 px). -->
+        <div class="min-w-0">
+          <!-- 9 · Panel prueba a prueba: solo la pregunta que responde cada análisis. El estado y el material, en /datos (caso.json). -->
+          <section v-if="panelRows.length" class="ci-sec" aria-labelledby="panel-title">
+            <CabeceraSeccion id="panel-title" :eyebrow="L('Análisis molecular', 'Molecular workup')" :titulo="$t('ciencia.proposed_panel')" :lede="$t('ciencia.panel_lede')" />
+            <div class="tabla-scroll" tabindex="0" role="region" :aria-label="$t('ciencia.proposed_panel_caption')">
+              <table class="data-table data-table--dense data-table--cards">
+                <caption class="sr-only">{{ $t('ciencia.proposed_panel_caption') }}</caption>
+                <thead>
+                  <tr>
+                    <th scope="col">{{ $t('ciencia.panel_col_prueba') }}</th>
+                    <th scope="col" class="col-note">{{ $t('ciencia.panel_col_responde') }}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr v-for="(row, i) in panelRows" :key="i">
+                    <td class="cell-head font-semibold">{{ row.component }}</td>
+                    <td class="col-note cell-block" :data-label="$t('ciencia.panel_col_responde')">
+                      {{ row.implication }}<span v-if="row.linkTo" class="block mt-2"><NuxtLink :to="localePath(row.linkTo)" class="link-action group">{{ row.linkText }}<Icon name="ph:arrow-right" class="w-4 h-4 transition-transform group-hover:translate-x-0.5" aria-hidden="true" /></NuxtLink></span>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="ci-acciones">
+              <NuxtLink :to="localePath({ name: 'datos', hash: '#s-tejido' })" class="link-action group">
+                {{ $t('ciencia.panel_tejido') }}
+                <Icon name="ph:arrow-right" class="w-4 h-4 transition-transform group-hover:translate-x-0.5" aria-hidden="true" />
+              </NuxtLink>
+            </div>
+            <Aviso tipo="apoyo" :titulo="$t('ciencia.panel_nota_titulo')" class="mt-4">
+              <p>{{ $t('ciencia.panel_nota') }}</p>
+            </Aviso>
+          </section>
+
+          <!-- 11 · Evidencia, cierre profesional y «Sigue el caso» -->
+          <div class="ci-sec">
+            <TarjetaEnlace
+              :to="localePath({ name: 'ciencia-evidencia' })"
+              tono="destacada"
+              icono="ph:books-fill"
+              :titulo="$t('ciencia.key_evidence')"
+            >{{ $t('ciencia.evidence_hook_body') }}</TarjetaEnlace>
+          </div>
+
+          <section class="ci-sec" aria-labelledby="ciencia-pro-help-title">
+            <CabeceraSeccion id="ciencia-pro-help-title" :eyebrow="$t('ciencia.pro_help_eyebrow')" :titulo="$t('ciencia.pro_help_title')" />
+            <ul class="ci-pro" role="list">
+              <li>
+                <Icon name="ph:chat-circle-text-fill" class="ci-pro__icono" aria-hidden="true" />
+                <NuxtLink :to="localePath({ name: 'contacto', query: { role: 'oncologist' } })" class="link-inline">{{ $t('ciencia.pro_help_contribute') }}</NuxtLink>
+              </li>
+              <li>
+                <Icon name="ph:share-network-fill" class="ci-pro__icono" aria-hidden="true" />
+                <NuxtLink :to="localePath({ name: 'colabora' })" class="link-inline">{{ $t('ciencia.pro_help_share') }}</NuxtLink>
+              </li>
+            </ul>
+            <!-- El botón de donar de /ciencia profesional (Miriam, 24-oct-2026; Umami: «Donar» fue el 2,8 % de /lesiones frente al 11,3 % de la
+                 home). Es el único coral de la zona. -->
+            <p class="ci-apoyo">{{ $t('ciencia.pro_help_fund') }}</p>
+            <a
+              :href="GOFUNDME_URL"
+              target="_blank"
+              rel="noopener noreferrer"
+              data-support-cta
+              class="btn-cta"
+              @click="trackSupport('ciencia_pro')"
+            >
+              <Icon name="ph:heart-fill" class="heart-beat w-4 h-4" aria-hidden="true" />
+              {{ $t('nav.donate') }}<span class="sr-only">{{ ' ' + $t('a11y.new_tab') }}</span>
+            </a>
+          </section>
+
+          <CaseFollowSignup class="mt-4" />
         </div>
       </div>
     </section>

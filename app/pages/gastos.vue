@@ -17,7 +17,7 @@
         <!-- Informe de gastos: cifras reales reconstruidas desde los extractos bancarios -->
         <div class="card-base mb-8">
           <p class="eyebrow mb-3 block">{{ $t('expenses.report_eyebrow', { fecha: corte }) }}</p>
-          <h2 class="font-display font-semibold text-berenjena text-lg mb-2">
+          <h2 class="bajo-lg:font-display bajo-lg:font-semibold bajo-lg:text-berenjena bajo-lg:text-lg lg:h2-seccion mb-2">
             {{ $t('expenses.report_title') }}
           </h2>
           <p class="text-sm text-tinta leading-relaxed mb-3 measure">
@@ -84,7 +84,7 @@
         </div>
 
         <div class="card-base mb-8">
-          <h2 class="font-display font-semibold text-berenjena text-lg mb-2">
+          <h2 class="bajo-lg:font-display bajo-lg:font-semibold bajo-lg:text-berenjena bajo-lg:text-lg lg:h2-seccion mb-2">
             {{ $t('expenses.phases_title') }}
           </h2>
           <p class="text-sm text-tinta leading-relaxed mb-5 measure">
@@ -115,7 +115,7 @@
 
         <!-- Coste de la rebiopsia: dos bloques (analizar ahora / preservar y bancar) -->
         <div class="card-base mb-8">
-          <h2 class="font-display font-semibold text-berenjena text-lg mb-2">
+          <h2 class="bajo-lg:font-display bajo-lg:font-semibold bajo-lg:text-berenjena bajo-lg:text-lg lg:h2-seccion mb-2">
             {{ $t('expenses.rebiopsy_title') }}
           </h2>
           <p class="text-sm text-tinta leading-relaxed mb-5 measure">
@@ -176,7 +176,7 @@
 
         <!-- Desglose completo · cuenta itemizada -->
         <div class="card-base mb-8">
-          <h2 class="font-display font-semibold text-berenjena text-lg mb-4">
+          <h2 class="bajo-lg:font-display bajo-lg:font-semibold bajo-lg:text-berenjena bajo-lg:text-lg lg:h2-seccion mb-4">
             {{ $t('home.s4_list_intro') }}
           </h2>
           <ul class="grid sm:grid-cols-2 gap-x-10">
@@ -197,7 +197,7 @@
 
         <!-- Preguntas frecuentes de donantes -->
         <div class="card-base mb-8">
-          <h2 class="font-display font-semibold text-berenjena text-lg mb-4">
+          <h2 class="bajo-lg:font-display bajo-lg:font-semibold bajo-lg:text-berenjena bajo-lg:text-lg lg:h2-seccion mb-4">
             {{ $t('expenses.faq_title') }}
           </h2>
           <div class="space-y-4">

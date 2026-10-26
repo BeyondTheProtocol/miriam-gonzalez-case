@@ -9,13 +9,27 @@
 //                       el tamaño que cuenta es el de pantalla, font-size del <text> × escala de su viewBox (getScreenCTM). Un `font-size="9"` en un
 //                       viewBox de 440 mostrado a 290 px son 6 px, y eso es lo que lee quien mira (revisión de P1: las marcas de vértebra y el contador
 //                       de la insignia de EsqueletoFocos salían a 6 px y el `texto_bajo_suelo 33 → 0` de /lesiones lo daba por resuelto sin contarlos).
-//   objetivos_pequenos  controles de menos de 44 px (salvo un enlace dentro de una frase, que la norma exime).
+//   objetivos_pequenos  controles de menos de 44 px (salvo un enlace dentro de una frase, que la norma exime). Cuenta la zona pulsable, no solo el dibujo: un
+//                       `::before` o `::after` absoluto de 44 px (sin `pointer-events: none`) la amplía (revisión del barrido).
 //   objetivos_svg       controles que cuelgan de un <svg> (`[role=button]`, `[role=tab]`, `a[href]`) y miden menos de 24 px por algún lado, el MÍNIMO de WCAG 2.5.8
 //                       (T3-BARRIDO). El recorrido del DOM de arriba salta todo lo que está dentro de un SVG, así que los marcadores de evento de 22 × 22 px y las
 //                       barras de línea de 20 px de alto de «El caso en el tiempo» no los veía nadie. Umbral de 24 y no de 44 porque una figura no puede crecer como un
 //                       botón. Se mide la caja de su <g>, zona táctil transparente incluida. Es una métrica NUEVA con su propia baseline (objetivos_pequenos no puede subir).
+//   El build estático no trae /donations.json (es una función de Netlify): sin datos, /colabora no pinta el muro de donantes ni sus controles (zoom del
+//   mapa de estrellas, «Recientes» y «Top», paginador), y siete controles de 36 px no los veía nadie (revisión del barrido). Se inyecta un `fetch` con
+//   datos SINTÉTICOS (nombres inventados, solo para medir; nunca entran en el repo ni en la web) para /colabora y /en/collaborate.
+//   La barra fija de apoyo del móvil (`.mobile-support-bar`) solo aparece tras pasar el hero (480 px de scroll): con el scroll en 0 no existía y su texto
+//   de 11,5 px y su enlace de 20 px de alto salían en verde. A 390 px, tras bajar, se miden sus controles y su texto y se suman a `objetivos_pequenos`
+//   y `texto_bajo_suelo` de la ruta (0 si la ruta no la pinta).
 //   RUTAS lleva también las páginas en inglés (T3-BARRIDO): las palabras de la cabecera y del pie son más cortas y un enlace de 36 px de ancho («Team», «Press»)
 //   que en español mide 60 no saltaba en ninguna medición.
+//   desborde_oculto     cajas visibles cuyo borde derecho cae fuera de la ventana y que NO están dentro de un contenedor de scroll o de recorte más estrecho que
+//                       ella (revisión del barrido, 26-oct-2026). `desborde` mira solo `scrollWidth` de la página, y la raíz lleva `overflow-x: clip`: lo que se
+//                       sale queda cortado y el recuento da 0. Así pasó con la gráfica del FDG del mapa a 375 px: una rejilla sin columna explícita la dejaba en
+//                       460 px dentro de una tarjeta de 277, se perdían el segundo punto, la fecha y el final de los párrafos, y ningún test lo veía. Se cuenta la
+//                       caja más externa que se sale; lo decorativo (`aria-hidden`) y lo fijo no cuentan. Una pieza que se desliza a propósito (`.tabla-scroll`,
+//                       la galería de /laminillas: `overflow-x: auto` o `scroll`) no cuenta, ni un recorte (`hidden`, `clip`) dentro de una caja más estrecha que la
+//                       ventana. Sí cuenta lo que solo tapa la raíz o un contenedor tan ancho como la ventana.
 //   contraste           elementos de texto por debajo de 4,5:1 (3:1 si es grande) sobre su fondo aplanado.
 //   foco_tapado         pasos de Tab cuyo foco queda debajo de la cabecera fija (WCAG 2.4.11).
 //   linea_larga         bloques de texto cuya línea MÁS LARGA, tal como se pinta, pasa de 90 caracteres (lote 0 del repaso de escritorio,
@@ -66,13 +80,15 @@ export const RUTAS = [
   '/en', '/en/science', '/en/science/evidence', '/en/data', '/en/tools', '/en/team',
 ]
 const ANCHOS = [390, 1280]
-const METRICAS = ['desborde', 'h1_borde', 'texto_bajo_suelo', 'texto_svg_bajo_suelo', 'objetivos_pequenos', 'objetivos_svg', 'contraste', 'foco_tapado', 'linea_larga', 'sticky_tapado']
+const METRICAS = ['desborde', 'desborde_oculto', 'h1_borde', 'texto_bajo_suelo', 'texto_svg_bajo_suelo', 'objetivos_pequenos', 'objetivos_svg', 'contraste', 'foco_tapado', 'linea_larga', 'sticky_tapado']
 const PASOS_TAB = 14
+// Nombre corto de cada métrica en la línea de salida (con slice(0, 8), «desborde» y «desborde_oculto», u «objetivos_pequenos» y «objetivos_svg», salían iguales).
+const ETIQUETA = { desborde: 'desborde', desborde_oculto: 'desb_ocu', h1_borde: 'h1_borde', texto_bajo_suelo: 'txt_bajo', texto_svg_bajo_suelo: 'txt_svg', objetivos_pequenos: 'obj_peq', objetivos_svg: 'obj_svg', contraste: 'contraste', foco_tapado: 'foco_tap', linea_larga: 'lin_larg', sticky_tapado: 'sticky' }
 
 /** Corre dentro de la página. Devuelve recuentos y los primeros ejemplos de cada uno. */
 const MEDIR = `(() => {
-  const ej = { texto_bajo_suelo: [], texto_svg_bajo_suelo: [], objetivos_pequenos: [], objetivos_svg: [], contraste: [], linea_larga: [], sticky_tapado: [] }
-  const cuenta = { desborde: 0, h1_borde: 0, texto_bajo_suelo: 0, texto_svg_bajo_suelo: 0, objetivos_pequenos: 0, objetivos_svg: 0, contraste: 0, linea_larga: 0, sticky_tapado: 0 }
+  const ej = { desborde_oculto: [], texto_bajo_suelo: [], texto_svg_bajo_suelo: [], objetivos_pequenos: [], objetivos_svg: [], contraste: [], linea_larga: [], sticky_tapado: [] }
+  const cuenta = { desborde: 0, desborde_oculto: 0, h1_borde: 0, texto_bajo_suelo: 0, texto_svg_bajo_suelo: 0, objetivos_pequenos: 0, objetivos_svg: 0, contraste: 0, linea_larga: 0, sticky_tapado: 0 }
   const lienzo = document.createElement('canvas'); lienzo.width = lienzo.height = 1
   const cx = lienzo.getContext('2d', { willReadFrequently: true })
   const rgba = (css) => { cx.clearRect(0, 0, 1, 1); cx.fillStyle = '#000'; cx.fillStyle = css; cx.fillRect(0, 0, 1, 1); const d = cx.getImageData(0, 0, 1, 1).data; return [d[0], d[1], d[2], d[3] / 255] }
@@ -85,6 +101,29 @@ const MEDIR = `(() => {
 
   // desborde
   if (document.documentElement.scrollWidth > innerWidth + 1) cuenta.desborde = 1
+
+  // desborde oculto: una caja que se sale por la derecha y que ningún contenedor de scroll o de recorte más estrecho que la ventana explica. Se cuenta la más
+  // externa (si su padre ya se sale, el hijo no suma).
+  const clipEstrecho = (el) => {
+    for (let a = el.parentElement; a && a !== document.documentElement; a = a.parentElement) {
+      const o = getComputedStyle(a).overflowX
+      if (o === 'auto' || o === 'scroll') return true // se desliza: llega a todo (la galería de /laminillas ocupa la ventana entera y se desliza)
+      if ((o === 'hidden' || o === 'clip') && a.getBoundingClientRect().width < innerWidth - 2) return true // recorte dentro de una caja más estrecha que la ventana
+    }
+    return false
+  }
+  for (const el of document.body.querySelectorAll('*')) {
+    if (['SCRIPT', 'STYLE', 'NOSCRIPT'].includes(el.tagName) || el.closest('[aria-hidden="true"]')) continue
+    if (el.closest('svg') && el.tagName.toLowerCase() !== 'svg') continue
+    const cs = getComputedStyle(el)
+    if (cs.display === 'none' || cs.visibility === 'hidden' || cs.position === 'fixed') continue
+    const r = el.getBoundingClientRect()
+    if (r.width < 2 || r.height < 2 || r.right <= innerWidth + 1.5 || clipEstrecho(el)) continue
+    const p = el.parentElement
+    if (p && p !== document.body && p.getBoundingClientRect().right > innerWidth + 1.5 && getComputedStyle(p).display !== 'none') continue
+    cuenta.desborde_oculto++
+    if (ej.desborde_oculto.length < 6) ej.desborde_oculto.push('right ' + Math.round(r.right) + ' > ' + innerWidth + ', ' + Math.round(r.width) + 'px de ancho ' + nombre(el))
+  }
 
   // H1 bajo el logo
   const logo = document.querySelector('header a[href="/"], header a[href="/en"], header a')
@@ -169,7 +208,16 @@ const MEDIR = `(() => {
         const otro = [...pariente.childNodes].filter((c) => c !== n && (c.nodeType === 3 ? c.textContent.trim().length > 2 : (c.nodeType === 1 && getComputedStyle(c).display === 'inline'))).length
         enFrase = otro > 0
       }
-      if (!enFrase && (r.height < 43.5 || r.width < 43.5)) { cuenta.objetivos_pequenos++; if (ej.objetivos_pequenos.length < 6) ej.objetivos_pequenos.push(Math.round(r.width) + 'x' + Math.round(r.height) + ' ' + nombre(n)) }
+      // La zona pulsable también es la de un ::before o ::after absoluto y con ratón (el patrón del botón de descargar la imagen clave del mapa: dibujo de 28 px,
+      // zona de 44 con inset de -8 px). Se mide su caja real (getComputedStyle da el ancho y el alto usados de un pseudo posicionado); un pseudo con
+      // pointer-events none es decoración y no cuenta.
+      let ancho = r.width, alto = r.height
+      for (const q of ['::before', '::after']) {
+        const ps = getComputedStyle(n, q)
+        if (ps.content === 'none' || ps.display === 'none' || ps.position !== 'absolute' || ps.pointerEvents === 'none') continue
+        ancho = Math.max(ancho, parseFloat(ps.width) || 0); alto = Math.max(alto, parseFloat(ps.height) || 0)
+      }
+      if (!enFrase && (alto < 43.5 || ancho < 43.5)) { cuenta.objetivos_pequenos++; if (ej.objetivos_pequenos.length < 6) ej.objetivos_pequenos.push(Math.round(ancho) + 'x' + Math.round(alto) + ' ' + nombre(n)) }
     }
   }
 
@@ -278,6 +326,46 @@ const SIN_WEBGL = `(() => {
   }
 })()`
 
+// Datos SINTÉTICOS del muro de donantes (revisión del barrido). Nombres inventados; el importe y la fecha, también. Solo en /colabora y /en/collaborate.
+const STUB_DONACIONES = `(() => {
+  if (!/^\\/(colabora|en\\/collaborate)\\/?$/.test(location.pathname)) return
+  const nombres = ['Lucía M.', 'Carlos R. G.', 'Marta', 'Álvaro S.', 'Noelia P. T.', 'Iván', 'Sofía L.', 'Pablo D.', 'Elena V.', 'Jorge C.', 'Irene', 'Hugo B.', 'Clara F.', 'Rubén A.', 'Paula N.', 'Daniel O.', 'Inés', 'Adrián M.', 'Carmen R.', 'Sergio L.', 'Beatriz', 'Óscar T.', 'Laura G.', 'Mario P.', 'Anónimo']
+  const importes = [5, 10, 10, 15, 20, 20, 25, 30, 40, 50, 50, 60, 75, 100, 100, 120, 150, 200, 250, 300, 500, 8, 12, 18, 35]
+  const donaciones = []
+  for (let i = 0; i < 120; i++) donaciones.push({ id: 'sint' + i, name: nombres[i % nombres.length] + (i >= 25 ? ' ' + String.fromCharCode(65 + (i % 26)) + '.' : ''), amount: importes[(i * 7) % importes.length], currencyCode: 'EUR', createdAt: '2026-10-' + String((i % 25) + 1).padStart(2, '0') })
+  const campana = { currentAmount: { amount: 97972, currencyCode: 'EUR' }, donationCount: 2339, donationsEnabled: true, origen: 'vivo', actualizado: new Date().toISOString() }
+  const original = window.fetch.bind(window)
+  window.fetch = (entrada, init) => {
+    const url = typeof entrada === 'string' ? entrada : (entrada && entrada.url) || ''
+    const json = (d) => Promise.resolve(new Response(JSON.stringify(d), { status: 200, headers: { 'content-type': 'application/json' } }))
+    if (/\\/donations\\.json(\\?|$)/.test(url)) return json(donaciones)
+    if (/\\/fundraiser\\.json(\\?|$)/.test(url)) return json(campana)
+    return original(entrada, init)
+  }
+})()`
+
+// La barra fija de apoyo del móvil, tras bajar: sus controles y su texto, medidos como el resto (44 px de alto y de ancho; 13 px como suelo, 12 en mono y mayúsculas).
+const BARRA_FIJA = `(async () => {
+  for (let i = 0; i < 30 && !document.querySelector('.mobile-support-bar'); i++) await new Promise((r) => setTimeout(r, 100))
+  await new Promise((r) => setTimeout(r, 300))
+  const b = document.querySelector('.mobile-support-bar')
+  if (!b) return { existe: false, pequenos: [], bajoSuelo: [] }
+  const nombre = (e) => e.tagName.toLowerCase() + (typeof e.className === 'string' && e.className ? '.' + e.className.trim().split(/ +/).slice(0, 2).join('.') : '') + ' «' + (e.textContent || '').trim().slice(0, 24) + '»'
+  const pequenos = [], bajoSuelo = []
+  for (const c of b.querySelectorAll('a[href], button')) {
+    const r = c.getBoundingClientRect()
+    if (r.height < 43.5 || r.width < 43.5) pequenos.push(Math.round(r.width) + 'x' + Math.round(r.height) + ' ' + nombre(c))
+  }
+  for (const e of [b, ...b.querySelectorAll('*')]) {
+    if (![...e.childNodes].some((c) => c.nodeType === 3 && c.textContent.trim())) continue
+    const cs = getComputedStyle(e)
+    const fs = parseFloat(cs.fontSize)
+    const mono = /mono|jetbrains/i.test(cs.fontFamily) && cs.textTransform === 'uppercase'
+    if (fs < 12 || (fs < 13 && !mono)) bajoSuelo.push(fs + 'px ' + nombre(e))
+  }
+  return { existe: true, alto: Math.round(b.getBoundingClientRect().height), pequenos, bajoSuelo }
+})()`
+
 // `.rejilla-par` en el móvil (revisión del lote 0): una pieza ancha (aquí un SVG de 700 px) no debe ensanchar la columna del texto. Con la pista `auto`
 // implícita el texto pasaba a medir 700 px en una ventana de 390; con `minmax(0, 1fr)` conserva el ancho del contenedor. No lleva baseline: o cumple o no.
 const REJILLA_PAR = `(() => {
@@ -330,6 +418,7 @@ async function medir(rutas) {
   // después que el del Mac. Es endurecimiento: en el Chromium de Linux que probé (ver la cabecera) daba lo mismo con y sin él.
   const nav = await abrirNavegador({ ancho: ANCHOS[0], alto: 900, escala: 1, chromeArgs: ['--font-render-hinting=none'] })
   await nav.cdp('Page.addScriptToEvaluateOnNewDocument', { source: SIN_WEBGL })
+  await nav.cdp('Page.addScriptToEvaluateOnNewDocument', { source: STUB_DONACIONES })
   const res = {}
   const ejemplos = {}
   let rejilla
@@ -348,9 +437,19 @@ async function medir(rutas) {
           await nav.sleep(300)
           const { cuenta, ej } = await nav.evaluate(MEDIR)
           const f = await focoTapado(nav)
+          if (ancho < 1024) {
+            // La barra fija solo existe tras pasar el hero (480 px) y si ningún botón coral está a la vista: se baja a 700 px y se espera a que entre.
+            await nav.evaluate('window.scrollTo(0, 700)')
+            const barra = await nav.evaluate(BARRA_FIJA)
+            cuenta.objetivos_pequenos += barra.pequenos.length
+            cuenta.texto_bajo_suelo += barra.bajoSuelo.length
+            ej.objetivos_pequenos.push(...barra.pequenos.map((x) => 'barra fija: ' + x))
+            ej.texto_bajo_suelo.push(...barra.bajoSuelo.map((x) => 'barra fija: ' + x))
+            if (barra.existe) console.log(`    (barra fija de ${clave}: ${barra.alto} px de alto)`)
+          }
           res[clave] = { ...cuenta, foco_tapado: f.tapados }
           ejemplos[clave] = { ...ej, foco_tapado: f.ej }
-          console.log(`  ${clave.padEnd(34)} ${METRICAS.map((m) => `${m.slice(0, 8)} ${res[clave][m]}`).join('  ')}`)
+          console.log(`  ${clave.padEnd(34)} ${METRICAS.map((m) => `${ETIQUETA[m]} ${res[clave][m]}`).join('  ')}`)
         } catch (e) {
           res[clave] = { error: String(e.message || e) }
           console.log(`✘ ${clave}  ${e.message || e}`)

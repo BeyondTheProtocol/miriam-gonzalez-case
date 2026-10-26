@@ -570,6 +570,11 @@ function neShare(le: Lesion): number {
   return le.dota / (le.dota + le.fdg)
 }
 function phenoColor(le: Lesion) { return PHENO[le.pheno].c }
+/* Relleno de la ficha con el número del foco (`.foco-id-casing`): el color de la rampa aclarado un 8 %. La tinta berenjena da 4,34 a 4,42:1 sobre el teal y el neutro
+   de la rampa (AA pide 4,5); con el 8 % de blanco da de 4,9 a 5,3:1 en los cinco fenotipos. El casing blanco del dígito sigue. Los discos del esqueleto y del diagrama
+   (SVG) no cambian: ahí el dígito lleva su contorno y no hay texto corrido. */
+function aclara8(color: string) { return 'color-mix(in srgb, ' + color + ' 92%, white)' }
+function phenoChipFill(le: Lesion) { return aclara8(PHENO[le.pheno].c) }
 function phenoLabel(le: Lesion) { return L(PHENO[le.pheno].es, PHENO[le.pheno].en) }
 /* TINTA del número de foco: el berenjena (#2d1b3d) NO alcanza AA texto sobre los
    rellenos teal/neutro de la rampa (4.34–4.42:1 < 4.5; el blanco pleno tampoco,
@@ -2344,7 +2349,7 @@ const manifestValidated = (() => {
             'This is Miriam’s case, opened to understand her disease and to decide better with her medical team — it does not replace their judgment. Her doctors decide.') }}
           </p>
           <details class="mt-2.5 group">
-            <summary class="cursor-pointer font-semibold list-none inline-flex items-center gap-1.5">
+            <summary class="cursor-pointer font-semibold list-none inline-flex items-center gap-1.5 lg:min-h-control">
               <Icon name="ph:caret-right" class="w-3.5 h-3.5 shrink-0 transition-transform group-open:rotate-90" aria-hidden="true" />
               {{ L('De dónde salen los datos', 'Where the data comes from') }}
             </summary>
@@ -2452,7 +2457,7 @@ const manifestValidated = (() => {
                 <Icon name="ph:flag-fill" class="w-2.5 h-2.5 shrink-0 mt-px" aria-hidden="true" /><span>{{ L('Biopsia previa no diagnóstica en este foco: solo hueso y músculo, sin tejido tumoral', 'Prior non-diagnostic biopsy at this focus: bone and muscle only, no tumor tissue') }}</span>
               </div>
               <div v-if="hasSoftTissue(le)" class="mt-1.5 flex flex-wrap gap-1">
-                <span class="pill-data !px-1.5 !py-0 !text-xs" :style="{ background: 'rgba(31,107,87,0.12)', color: '#1f6b57' }">{{ L('+ partes blandas (RMN)', '+ soft tissue (MRI)') }}</span>
+                <span class="pill-data !px-1.5 !py-0 !text-xs" :style="{ background: 'rgba(31,107,87,0.12)', color: 'var(--texto-1)' }">{{ L('+ partes blandas (RMN)', '+ soft tissue (MRI)') }}</span>
               </div>
             </button>
           </div>
@@ -2581,8 +2586,10 @@ const manifestValidated = (() => {
                 {{ L('Controles', 'Controls') }}
               </p>
 
-              <!-- filtros: qué focos muestra el esqueleto (y las demás vistas) -->
-              <div class="rounded-card border border-[rgba(45,27,61,0.12)] bg-cream-card !p-3 mb-2.5">
+              <!-- filtros: qué focos muestra el esqueleto (y las demás vistas). Por debajo de `lg` van aquí, en la tarjeta del esqueleto; desde `lg` salen de esta
+                   columna y se pintan bajo el visor (copia de la columna derecha), para equilibrar las dos (revisión del barrido: la izquierda medía 1439 px y la derecha 1032).
+                   Mismo `filter`, misma lista: no hay dos estados. -->
+              <div class="rounded-card border border-[rgba(45,27,61,0.12)] bg-cream-card !p-3 mb-2.5 lg:hidden">
                 <p class="text-xs font-semibold text-tinta mb-1.5">{{ L('Filtrar focos del mapa', 'Filter map foci') }}</p>
                 <div class="flex flex-wrap gap-1.5" role="group" :aria-label="L('Filtrar focos del mapa', 'Filter map foci')">
                   <button v-for="f in filters" :key="f.key" type="button"
@@ -2905,6 +2912,22 @@ const manifestValidated = (() => {
               </p>
             </div>
 
+            <!-- ===== 4 · FILTROS (solo desde `lg`) ===== bajo el visor y las cifras. Es la copia de los filtros de la tarjeta del esqueleto (que solo se ve por debajo de `lg`):
+                 el mismo `filter`, los mismos botones. Se ve con el navegador en modo esqueleto, como allí. -->
+            <div v-show="navMode === 'skeleton'" class="hidden lg:block rounded-card border border-[var(--trazo-medio)] bg-cream-card !p-3">
+              <p class="text-xs font-semibold text-tinta mb-1.5">{{ L('Filtrar focos del mapa', 'Filter map foci') }}</p>
+              <div class="flex flex-wrap gap-1.5" role="group" :aria-label="L('Filtrar focos del mapa', 'Filter map foci')">
+                <button v-for="f in filters" :key="f.key" type="button"
+                  @click="filter = f.key"
+                  :aria-pressed="filter === f.key"
+                  class="filter-chip inline-flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-full border"
+                  :class="filter === f.key ? 'bg-berenjena text-cream border-berenjena' : 'bg-transparent text-tinta border-[var(--trazo-fuerte)] hover:border-[color-mix(in_srgb,var(--color-text)_40%,transparent)]'">
+                  <span v-if="f.c" class="w-2 h-2 rounded-full" :style="{ background: f.c }" aria-hidden="true" />
+                  {{ f.label }}
+                </button>
+              </div>
+            </div>
+
             </div><!-- /COLUMNA DERECHA · VER LA LESIÓN -->
           </div><!-- /grid primario (navegar | visor) -->
 
@@ -3172,9 +3195,11 @@ const manifestValidated = (() => {
 
               <!-- EVOLUCIÓN FDG + IMAGEN CLAVE · 2 columnas (la gráfica a ancho completo
                    quedaba GIGANTE; al lado de la imagen ocupa la mitad y se equilibra). -->
-              <div class="grid md:grid-cols-2 gap-5 mb-4 items-start">
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-4 items-start">
               <!-- evolución del FDG (solo si hay dos medidas; el Galio tiene una sola) -->
-              <div>
+              <!-- `grid-cols-1` y `min-w-0`: sin columna explícita la pista es `auto`, y el `min-width: 460px` de la gráfica ensanchaba la columna hasta 460 px
+                   dentro de una tarjeta de 277 (regresión del barrido: se perdía el segundo punto, la fecha y el final de los párrafos bajo el `overflow-x-clip` de la raíz). -->
+              <div class="min-w-0">
                 <div class="flex items-center justify-between mb-1">
                   <span id="evo-fdg-titulo" class="text-xs font-semibold text-berenjena">{{ L('Evolución glucolítica (¹⁸F-FDG)', 'Glycolytic (¹⁸F-FDG) evolution') }}</span>
                   <span v-if="hasFdgEvo" class="text-xs text-tinta">{{ L('ene → mar 2026', 'Jan → Mar 2026') }}</span>
@@ -3194,7 +3219,7 @@ const manifestValidated = (() => {
                    única imagen del foco: el círculo va SOBRE el hueso (no un marcador
                    aproximado anterior que parecía víscera y restaba confianza).
                    Columna derecha del grid (al lado de la gráfica de evolución). -->
-              <figure class="!mb-0">
+              <figure class="!mb-0 min-w-0">
                 <div class="flex items-center justify-between mb-1.5 flex-wrap gap-1">
                   <span class="text-xs font-semibold text-berenjena">{{ L('Imagen clave del foco', 'Focus key image') }}</span>
                   <span v-if="selKey.dotted || !selKey.hasReliable" class="status-badge status-badge--candidate">{{ L('localización aproximada · por confirmar', 'approximate location · to confirm') }}</span>
@@ -3461,7 +3486,7 @@ const manifestValidated = (() => {
                 class="foco-card w-full text-left rounded-card border px-3.5 py-3"
                 :class="selected === le.id ? 'border-[#9d44ab] bg-[rgba(157,68,171,0.07)]' : 'border-[rgba(45,27,61,0.12)] bg-cream-card hover:border-[rgba(45,27,61,0.3)]'">
                 <div class="flex items-center gap-3">
-                  <span class="foco-id-casing inline-flex w-7 h-7 shrink-0 rounded-full items-center justify-center text-xs font-semibold leading-none" :style="{ background: phenoColor(le), color: markerInk(le) }">{{ le.id }}</span>
+                  <span class="foco-id-casing inline-flex w-7 h-7 shrink-0 rounded-full items-center justify-center text-xs font-semibold leading-none" :style="{ background: phenoChipFill(le), color: markerInk(le) }">{{ le.id }}</span>
                   <div class="flex-1 min-w-0">
                     <p class="font-semibold text-berenjena text-sm leading-tight">{{ le.level[lang] }}</p>
                     <p class="text-xs text-tinta leading-tight">{{ le.region[lang] }} · {{ le.side === 'R' ? L('dcha', 'R') : le.side === 'L' ? L('izda', 'L') : L('centro', 'mid') }}</p>
@@ -3503,7 +3528,7 @@ const manifestValidated = (() => {
                 </div>
                 <!-- avisos de factibilidad (no van en el número): partes blandas / antecedente / hueso de carga -->
                 <div v-if="hasSoftTissue(le) || le.priorBiopsy || le.load" class="mt-2.5 flex flex-wrap gap-1.5">
-                  <span v-if="hasSoftTissue(le)" class="pill-data" :style="{ background: 'rgba(31,107,87,0.12)', color: '#1f6b57' }">{{ L('+ partes blandas (RMN) · suele rendir más tejido', '+ soft tissue (MRI) · usually yields more tissue') }}</span>
+                  <span v-if="hasSoftTissue(le)" class="pill-data" :style="{ background: 'rgba(31,107,87,0.12)', color: 'var(--texto-1)' }">{{ L('+ partes blandas (RMN) · suele rendir más tejido', '+ soft tissue (MRI) · usually yields more tissue') }}</span>
                   <span v-if="le.priorBiopsy" class="pill-data" :style="{ background: '#f0e2c8', color: '#8a5a1a' }">{{ L('⚑ biopsia previa FALLÓ aquí', '⚑ prior biopsy FAILED here') }}</span>
                   <span v-if="le.load" class="pill-data" :style="{ background: 'rgba(45,27,61,0.06)', color: '#3a3340' }">{{ L('hueso de carga', 'weight-bearing') }}</span>
                 </div>
@@ -3532,7 +3557,7 @@ const manifestValidated = (() => {
                   class="foco-card w-full text-left rounded-card border px-3.5 py-3"
                   :class="selected === le.id ? 'border-[#bf7d2c] bg-[rgba(191,125,44,0.08)]' : 'border-[rgba(138,74,26,0.25)] bg-cream hover:border-[rgba(138,74,26,0.5)]'">
                   <div class="flex items-center gap-3">
-                    <span class="foco-id-casing inline-flex w-7 h-7 shrink-0 rounded-full items-center justify-center text-xs font-semibold leading-none ai-dot" :style="{ background: phenoColor(le), color: markerInk(le) }">{{ le.id }}</span>
+                    <span class="foco-id-casing inline-flex w-7 h-7 shrink-0 rounded-full items-center justify-center text-xs font-semibold leading-none ai-dot" :style="{ background: phenoChipFill(le), color: markerInk(le) }">{{ le.id }}</span>
                     <div class="flex-1 min-w-0">
                       <p class="font-semibold text-berenjena text-sm leading-tight">{{ le.level[lang] }}</p>
                       <p class="text-xs text-tinta leading-tight">{{ le.region[lang] }} · {{ le.side === 'R' ? L('dcha', 'R') : le.side === 'L' ? L('izda', 'L') : L('centro', 'mid') }}</p>
@@ -3775,7 +3800,7 @@ const manifestValidated = (() => {
                   <strong :style="{ color: '#1f6b57' }">{{ L('La RMN y la factibilidad de la biopsia:', 'MRI and biopsy feasibility:') }}</strong>
                   {{ L('el componente epidural de D11 es una diana de tejido blando que suele rentabilizar más que el hueso denso; su vecindad al canal y a las raíces la valora radiología intervencionista. Alimenta los avisos de factibilidad de la lente.',
                         'the D11 epidural component is a soft-tissue target that usually yields more than dense bone; its proximity to the canal and roots is assessed by interventional radiology. It feeds the lens’s feasibility flags.') }}
-                  <button type="button" @click="pickAndShow(7)" class="bajo-lg:link-action lg:link-inline text-miriam bajo-lg:inline-flex bajo-lg:items-center bajo-lg:gap-1">{{ L('ver el foco D11 (#7)', 'see the D11 focus (#7)') }} <span aria-hidden="true">→</span></button>
+                  <button type="button" @click="pickAndShow(7)" class="link-action text-miriam gap-1 lg:flex lg:w-fit">{{ L('ver el foco D11 (#7)', 'see the D11 focus (#7)') }} <Icon name="ph:arrow-right" class="w-4 h-4" aria-hidden="true" /></button>
                 </p>
               </div>
             </div>
@@ -4014,7 +4039,7 @@ const manifestValidated = (() => {
                 </tr>
                 <tr v-else class="cursor-pointer" :aria-selected="selected === row.le.id" :class="selected === row.le.id ? 'bg-[rgba(157,68,171,0.08)]' : (isAiDavid(row.le) ? 'ai-row' : '')" @click="pickAndShow(row.le.id)">
                   <template v-if="row.kind === 'lesion'">
-                  <th scope="row" class="!font-normal !text-left"><span class="foco-id-casing inline-flex w-6 h-6 rounded-full items-center justify-center text-xs font-semibold leading-none" :class="isAiDavid(row.le) ? 'ai-dot' : ''" :style="{ background: phenoColor(row.le), color: markerInk(row.le) }">{{ row.le.id }}</span></th>
+                  <th scope="row" class="!font-normal !text-left"><span class="foco-id-casing inline-flex w-6 h-6 rounded-full items-center justify-center text-xs font-semibold leading-none" :class="isAiDavid(row.le) ? 'ai-dot' : ''" :style="{ background: phenoChipFill(row.le), color: markerInk(row.le) }">{{ row.le.id }}</span></th>
                   <td class="font-semibold text-berenjena">{{ row.le.level[lang] }}</td>
                   <td class="text-xs">{{ row.le.side === 'R' ? L('Dcha', 'R') : row.le.side === 'L' ? L('Izda', 'L') : L('Centro', 'Mid') }}</td>
                   <td>
@@ -4025,7 +4050,7 @@ const manifestValidated = (() => {
                       </span>
                     </div>
                     <div class="flex flex-wrap gap-1 mt-1">
-                      <span v-if="hasSoftTissue(row.le)" class="pill-data !px-1.5 !py-0 !text-xs" :style="{ background: 'rgba(31,107,87,0.12)', color: '#1f6b57' }">{{ L('+ partes blandas', '+ soft tissue') }}</span>
+                      <span v-if="hasSoftTissue(row.le)" class="pill-data !px-1.5 !py-0 !text-xs" :style="{ background: 'rgba(31,107,87,0.12)', color: 'var(--texto-1)' }">{{ L('+ partes blandas', '+ soft tissue') }}</span>
                       <span v-if="row.le.priorBiopsy" class="pill-data !px-1.5 !py-0 !text-xs" :style="{ background: '#f0e2c8', color: '#8a5a1a' }">{{ L('⚑ biopsia previa falló', '⚑ prior biopsy failed') }}</span>
                       <span v-if="isAiDavid(row.le)" class="pill-data !px-1.5 !py-0 !text-xs" :style="{ background: '#fde4cc', color: '#8a4a1a' }">{{ L('sin confirmar', 'unconfirmed') }}</span>
                     </div>
@@ -4127,9 +4152,9 @@ const manifestValidated = (() => {
                 </div>
                 <div class="flex h-7 rounded-full overflow-hidden border border-[rgba(45,27,61,0.1)]" role="img"
                   :aria-label="L(concordance.ne + ' SSTR-dominantes, ' + concordance.mix + ' con captación dual, ' + concordance.agg + ' glucolítico-dominante', concordance.ne + ' SSTR-dominant, ' + concordance.mix + ' dual uptake, ' + concordance.agg + ' glycolytic-dominant')">
-                  <div v-if="concordance.ne" :style="{ width: concPct(concordance.ne), background: GA_FILL }" class="flex items-center justify-center text-xs font-semibold text-berenjena">{{ concNarrow(concordance.ne) ? '' : concordance.ne }}</div>
-                  <div v-if="concordance.mix" :style="{ width: concPct(concordance.mix), background: PHENO.mixBal.c }" class="flex items-center justify-center text-xs font-semibold text-berenjena">{{ concNarrow(concordance.mix) ? '' : concordance.mix }}</div>
-                  <div v-if="concordance.agg" :style="{ width: concPct(concordance.agg), background: FDG_FILL }" class="flex items-center justify-center text-xs font-semibold text-berenjena">{{ concNarrow(concordance.agg) ? '' : concordance.agg }}</div>
+                  <div v-if="concordance.ne" :style="{ width: concPct(concordance.ne), background: aclara8(GA_FILL) }" class="flex items-center justify-center text-xs font-semibold text-berenjena">{{ concNarrow(concordance.ne) ? '' : concordance.ne }}</div>
+                  <div v-if="concordance.mix" :style="{ width: concPct(concordance.mix), background: aclara8(PHENO.mixBal.c) }" class="flex items-center justify-center text-xs font-semibold text-berenjena">{{ concNarrow(concordance.mix) ? '' : concordance.mix }}</div>
+                  <div v-if="concordance.agg" :style="{ width: concPct(concordance.agg), background: aclara8(FDG_FILL) }" class="flex items-center justify-center text-xs font-semibold text-berenjena">{{ concNarrow(concordance.agg) ? '' : concordance.agg }}</div>
                 </div>
               </div>
               <div class="flex flex-wrap gap-x-4 gap-y-1 mt-2 text-xs text-tinta">
@@ -4333,7 +4358,7 @@ const manifestValidated = (() => {
                 <p class="text-xs text-tinta leading-relaxed measure">{{ L(
                   'La proyección por vértice NO es un SUVmáx cuantificado (dónde, no cuánto). El score de idoneidad es heurístico, no validado. El co-registro es espacial y aproximado (fechas distintas, error de mm). El SUVmáx sufre volumen parcial (subestima focos < ~10 mm). Lo reproducible públicamente es la segmentación (TotalSegmentator) y el esquema del dato; la re-cuantificación sobre los DICOM fue medición propia, marcada como tal en cada cifra.',
                   'The per-vertex projection is NOT a quantified SUVmax (where, not how much). The suitability score is heuristic, not validated. Co-registration is spatial and approximate (different dates, mm error). SUVmax suffers partial volume (underestimates foci < ~10 mm). What is publicly reproducible is the segmentation (TotalSegmentator) and the data schema; the DICOM re-quantification was an in-house measurement, flagged as such in every figure.') }}</p>
-                <p class="text-xs text-tinta mt-1.5"><a href="#metodo-caveats" class="bajo-lg:link-action lg:link-inline text-miriam font-semibold">{{ L('Las cuatro salvedades de método, en detalle ↑', 'The four method caveats, in detail ↑') }}</a></p>
+                <p class="text-xs text-tinta mt-1.5"><a href="#metodo-caveats" class="link-action text-miriam font-semibold">{{ L('Las cuatro salvedades de método, en detalle ↑', 'The four method caveats, in detail ↑') }}</a></p>
               </div>
             </div>
 
@@ -5722,7 +5747,21 @@ svg [role="option"]:focus-visible {
   .seg__btn, .manifest-dl, .btn-copylink, .btn-expand3d { min-height: var(--control-min); }
   .nav-step, .tl-play { width: var(--control-min); height: var(--control-min); }
   .manifest-dl { height: auto; }
+  /* Revisión del barrido: de ancho también (las fechas de la línea de tiempo medían 35 × 44 y el botón de orden de «#», 32 × 44), el resumen del foco y los
+     deslizadores (6 y 16 px de alto). El dibujo del deslizador sigue siendo una pista de 6 px: la caja de 44 es transparente. */
+  .tl-date, .th-sort { min-width: var(--control-min); justify-content: center; }
+  .foco-detalle__sum { min-height: var(--control-min); }
+  .tl-range { height: var(--control-min); }
+  .stress-slider {
+    height: var(--control-min);
+    background: transparent;
+    background-image: linear-gradient(rgba(45, 27, 61, 0.12), rgba(45, 27, 61, 0.12));
+    background-size: 100% 6px;
+    background-position: 0 center;
+    background-repeat: no-repeat;
+  }
 }
-/* Descargar la imagen clave: 28 px de dibujo y 44 de zona pulsable, sin mover nada (el área extra es invisible). */
-.foco-key-dl::after { content: ''; position: absolute; inset: -8px; border-radius: var(--radius-pill); }
+/* Descargar la imagen clave: 28 px de dibujo y 44 de zona pulsable, sin mover nada (el área extra es invisible). El `inset` es de -9 px y no de -8: la caja
+   de relleno mide 26 (28 menos el borde de 1 px por lado), y con -8 la zona salía de 42 × 42 (R10 la mide). */
+.foco-key-dl::after { content: ''; position: absolute; inset: -9px; border-radius: var(--radius-pill); }
 </style>

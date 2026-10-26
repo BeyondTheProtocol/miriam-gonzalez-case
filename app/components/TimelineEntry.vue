@@ -133,6 +133,12 @@ const innerStyle = computed(() => {
 /* Separador «·» entre la fecha y la etiqueta (decorativo): `--texto-3` en lugar de `text-tinta/40` (2,19:1); el rol mide 4,9:1. */
 .tl-sep { color: var(--texto-3); }
 /* Afordancia del enlace: leve realce de fondo al pasar/enfocar (toque cómodo). */
+/* Por debajo de `lg` el enlace mide 28 px (desde `lg`, 44 reales con `min-h-control`). Zona pulsable de 44: un ::after invisible de 8 px arriba y abajo. No mueve
+   nada (con 44 px visibles, cada hito con enlace crecía 16 px); R10 cuenta la zona y no solo el dibujo. */
+@media (max-width: 1023.98px) {
+  .tl-link { position: relative; }
+  .tl-link::after { content: ''; position: absolute; inset: -8px 0; }
+}
 .tl-link:hover,
 .tl-link:focus-visible {
   color: var(--color-text);

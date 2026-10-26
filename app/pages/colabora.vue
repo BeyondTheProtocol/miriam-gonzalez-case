@@ -197,16 +197,18 @@
             <ul class="mb-4">
               <!-- Los enlaces del pipeline (fuera, pestaña nueva) y, al final, la salida a /marcas (dentro). La puerta «Tecnología, IA y marcas» de la
                    home aterriza aquí: sin esta salida, quien llega por «marcas» se encontraba en una tarjeta de ingenieros que no las nombraba (revisión
-                   de T2a, 24-oct-2026). Misma etiqueta que en «Enlaces rápidos». Un solo elemento para los dos casos (<a> fuera, NuxtLink dentro): un solo
-                   glifo «→» (R6). Con NuxtLink también para los de fuera, «/design-system/» perdía su barra final. Los cuatro enlaces miden
-                   44 px de alto (táctil ≥ 44 px, y el mismo ritmo en toda la lista: con solo el nuevo a 44 px, la lista perdía el compás). -->
-              <li v-for="lnk in enlacesTech" :key="lnk.url">
+                   de T2a, 24-oct-2026). Misma etiqueta que en «Enlaces rápidos». Un solo elemento para los dos casos (<a> fuera, NuxtLink dentro). La
+                   flecha es un `Icon` y no el glifo «→» (R6). Con NuxtLink también para los de fuera, «/design-system/» perdía su barra final. Los cuatro
+                   enlaces miden 44 px de alto (táctil ≥ 44 px, y el mismo ritmo en toda la lista: con solo el nuevo a 44 px, la lista perdía el compás).
+                   Son enlaces, no datos tabulares: Hanken a 15 px desde `lg`; por debajo conservan su mono de 13 px (el móvil no se toca en esta tanda). -->
+              <li v-for="lnk in enlacesTech" :key="lnk.url" class="flex items-center gap-2">
+                <Icon name="ph:arrow-right" class="w-3.5 h-3.5 shrink-0 text-tinta" aria-hidden="true" />
                 <component
                   :is="lnk.externo ? 'a' : EnlaceNuxt"
                   v-bind="lnk.externo ? { href: lnk.url, target: '_blank', rel: 'noopener' } : { to: lnk.url }"
-                  class="link-underline font-mono text-[13px] inline-flex items-center min-h-[44px]"
+                  class="link-underline font-mono text-[13px] lg:font-body lg:text-sm inline-flex items-center min-h-[44px]"
                 >
-                  → {{ lnk.label }}
+                  {{ lnk.label }}
                 </component>
               </li>
             </ul>
@@ -332,13 +334,15 @@
         </p>
 
         <div class="card-base bg-cream">
-          <ul class="grid sm:grid-cols-2 gap-x-10 gap-y-3">
+          <!-- Cada enlace mide 44 px de alto Y de ancho (zona pulsable: «Inicio» medía 35 × 44). Por debajo de `sm` la lista es de una columna y las 14 filas
+               ya son de 44 px, así que el hueco entre ellas es 0 (con `gap-y-3` la lista crecía 339 px frente a los 20 px de antes; así, 180). -->
+          <ul class="grid sm:grid-cols-2 gap-x-10 gap-y-0 sm:gap-y-3">
             <li v-for="lnk in quickLinks" :key="lnk.url" class="flex items-baseline gap-3">
               <Icon name="ph:arrow-right" class="w-3.5 h-3.5 shrink-0 text-tinta" aria-hidden="true" />
               <NuxtLink
                 v-if="!lnk.external"
                 :to="lnk.url"
-                class="link-underline text-sm inline-flex items-center min-h-[44px]"
+                class="link-underline text-sm inline-flex items-center min-h-[44px] min-w-[44px]"
               >
                 {{ lnk.label }}
               </NuxtLink>
@@ -347,7 +351,7 @@
                 :href="lnk.url"
                 target="_blank"
                 rel="noopener"
-                class="link-underline text-sm inline-flex items-center min-h-[44px]"
+                class="link-underline text-sm inline-flex items-center min-h-[44px] min-w-[44px]"
               >
                 {{ lnk.label }}
               </a>
@@ -511,6 +515,10 @@ export default { name: 'CollaboratePage' }
       'tech tech tech tech tech tech apoyo apoyo apoyo apoyo apoyo apoyo'
       'financiar financiar financiar financiar financiar financiar financiar financiar financiar financiar financiar financiar';
   }
+  /* Revisión del barrido: con las tarjetas estiradas a la altura de su fila y el botón anclado abajo (`mt-auto`), la 02 y la 04 dejaban de 168 a 244 px
+     entre su texto y su botón (la 01 y la 03 llevan una lista y un párrafo más). Cada tarjeta mide lo que mide su contenido y el botón queda pegado al
+     texto: el hueco pasa a estar FUERA de la tarjeta corta, no entre su texto y su acción. */
+  .collab-grid { align-items: start; }
   .collab-card--clinica   { grid-area: clinica; }
   .collab-card--alcance   { grid-area: alcance; }
   .collab-card--tech      { grid-area: tech; }
@@ -540,8 +548,12 @@ export default { name: 'CollaboratePage' }
   font-variant-numeric: tabular-nums;
   letter-spacing: -0.02em;
 }
-.collab-card--lead .collab-card__num {
-  font-size: 3rem;
+/* Por debajo de `lg` la 01 ocupa toda la fila (o la columna) y lleva el numeral grande. Desde `lg` es 6/6 con la 02: el mismo numeral (36 px) y el título
+   a la misma altura (revisión del barrido: la 01 llevaba 48 px y su título quedaba 12 px más abajo que el de la 02). */
+@media (max-width: 1023.98px) {
+  .collab-card--lead .collab-card__num {
+    font-size: 3rem;
+  }
 }
 /* El icono baja a acento: pequeño, violeta firma, pegado al eyebrow. */
 .collab-card__tag {

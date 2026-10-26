@@ -31,7 +31,7 @@
       "app/pages/datos.vue": 1,
       "app/pages/gastos.vue": 3,
       "app/pages/gracias.vue": 6,
-      "app/pages/mapa-metastasis.vue": 429,
+      "app/pages/mapa-metastasis.vue": 428,
       "app/pages/marcas.vue": 9,
       "app/pages/timeline.vue": 4,
       "app/utils/timeline.ts": 9
@@ -45,7 +45,6 @@
       "app/components/laminillas/LaminillasVisor.vue": 1,
       "app/components/MarcasContactPrompt.vue": 1,
       "app/components/NivelLectura.vue": 2,
-      "app/components/SpineMRIViewer.vue": 3,
       "app/error.vue": 1
     },
     "R3": {
@@ -145,22 +144,19 @@
       "app/components/SpineMRIViewer.vue": 2,
       "app/components/VideoCaso.vue": 1,
       "app/error.vue": 2,
-      "app/pages/colabora.vue": 4,
+      "app/pages/colabora.vue": 3,
       "app/pages/datos.vue": 5,
       "app/pages/gracias.vue": 1,
       "app/pages/lesiones.vue": 10,
-      "app/pages/mapa-metastasis.vue": 39,
+      "app/pages/mapa-metastasis.vue": 38,
       "app/pages/marcas.vue": 5
     },
     "R7": {},
     "R8": {
       "app/pages/celula-a-celula-explorar.vue": 2,
       "app/pages/colabora.vue": 2,
-      "app/pages/contacto.vue": 2,
-      "app/pages/gastos.vue": 5,
       "app/pages/index.vue": 1,
       "app/pages/laminillas.vue": 2,
-      "app/pages/lesiones.vue": 1,
       "app/pages/timeline.vue": 1
     },
     "R9": {

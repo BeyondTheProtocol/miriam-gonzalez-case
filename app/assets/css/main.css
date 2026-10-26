@@ -156,12 +156,14 @@
 
   /* Hueco bajo el contenido para la barra de apoyo fija (<lg), SOLO en rutas
      donde puede aparecer (clase puesta por el layout vía useSupportBarRoute).
-     6.25rem = 100px ≥ alto real de la barra (99px + safe-area, medido a 375px);
+     6.75rem = 108px ≥ alto real de la barra (106px + safe-area, medido a 375px);
      con 4.5rem (72px) la barra tapaba 27px del final de main. En las rutas
-     silenciadas no hay reserva: no queda hueco vacío. */
+     silenciadas no hay reserva: no queda hueco vacío. (Eran 6,25 rem con una
+     barra de 99 px; el enlace «Más formas de ayudar» a 44 px la llevó a 123 y
+     la reserva a 7,9 rem; el relleno se recortó y quedó en 106, y esta en 6,75.) */
   @media (max-width: 1023px) {
     main.has-support-bar {
-      padding-bottom: calc(7.9rem + env(safe-area-inset-bottom, 0px));
+      padding-bottom: calc(6.75rem + env(safe-area-inset-bottom, 0px));
     }
   }
 

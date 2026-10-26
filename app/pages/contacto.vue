@@ -2,6 +2,10 @@
   <div>
     <section class="section-spacing" :aria-label="$t('contact.title')">
       <div class="section-wide">
+        <!-- Cabecera heredada, A PROPÓSITO (revisión del barrido): con `variante="pagina"` el H1 pasaría a `.h1-pagina` y la entradilla a `.lede`, y el móvil cambiaría
+             (el interlineado del H1, de 36 a 32,4 px; la entradilla, de 18 a 19 px) sin que Miriam lo haya firmado. /datos sí la lleva (la aplicó el barrido). Decidir las
+             dos páginas a la vez, con el mismo criterio, está en DESIGN-SYSTEM.md sección 8 (cabecera v3). La doble entradilla (`contact.subtitle` más `contact.message`)
+             sigue: es la decisión G4 de Miriam. El eyebrow sería copy nuevo. -->
         <PageHeader
           :title="$t('contact.title')"
           :subtitle="$t('contact.subtitle')"
@@ -42,7 +46,9 @@
             </ul>
 
             <div class="mt-10 card-base">
-              <h2 class="font-display font-semibold text-berenjena text-sm mb-2">
+              <!-- Titular de una tarjeta lateral de 530 px: `.h3-seccion` (24 px) y no `.h2-seccion` (36), que en dos líneas pesaba más que las tres de texto de la tarjeta
+                   (DS sección 8: /contacto está en la lista de `H2_COMO_H3`). -->
+              <h2 class="bajo-lg:font-display bajo-lg:font-semibold bajo-lg:text-berenjena bajo-lg:text-sm lg:h3-seccion mb-2">
                 {{ $t('contact.for_professionals') }}
               </h2>
               <p class="text-xs text-tinta leading-relaxed measure">
@@ -60,7 +66,7 @@
               aria-live="polite"
             >
               <Icon name="ph:heart-fill" class="heart-beat heart-beat--alive w-8 h-8 mx-auto text-coral" aria-hidden="true" />
-              <h2 class="heading-display text-2xl text-berenjena mt-4 mb-2">
+              <h2 class="heading-display bajo-lg:text-2xl lg:h2-seccion text-berenjena mt-4 mb-2">
                 {{ $t('contact.sent_title') }}
               </h2>
               <p class="text-sm text-tinta leading-relaxed max-w-xs mx-auto">

@@ -361,9 +361,9 @@
           <span class="font-mono uppercase text-2xs tracking-[0.12em] text-tinta self-center">
             {{ t('home.s9_strip_label') }}
           </span>
-          <a :href="pressElPais" target="_blank" rel="noopener" class="link-logo inline-flex items-center min-h-control text-2xl sm:text-3xl">El País<span class="sr-only"> {{ t('a11y.new_tab') }}</span></a>
-          <a :href="pressMurcia" target="_blank" rel="noopener" class="link-logo inline-flex items-center min-h-control text-2xl sm:text-3xl">La Opinión de Murcia<span class="sr-only"> {{ t('a11y.new_tab') }}</span></a>
-          <a :href="pressLa7" target="_blank" rel="noopener" class="link-logo inline-flex items-center min-h-control text-2xl sm:text-3xl">La 7<span class="sr-only"> {{ t('a11y.new_tab') }}</span></a>
+          <a :href="pressElPais" target="_blank" rel="noopener" class="link-logo marcas-logo text-2xl sm:text-3xl">El País<span class="sr-only"> {{ t('a11y.new_tab') }}</span></a>
+          <a :href="pressMurcia" target="_blank" rel="noopener" class="link-logo marcas-logo text-2xl sm:text-3xl">La Opinión de Murcia<span class="sr-only"> {{ t('a11y.new_tab') }}</span></a>
+          <a :href="pressLa7" target="_blank" rel="noopener" class="link-logo marcas-logo text-2xl sm:text-3xl">La 7<span class="sr-only"> {{ t('a11y.new_tab') }}</span></a>
         </div>
 
         <!-- Cierre de la sección de audiencia: el CTA dejaba de flotar suelto tras
@@ -561,12 +561,17 @@ export default { name: 'MarcasPage' }
   font-family: 'JetBrains Mono', monospace;
   font-size: 13px;
   font-weight: 500;
-  padding: 0 0.85rem;
-  min-height: var(--control-min);
+  padding: 0.4rem 0.85rem;
   border-radius: 999px;
   text-decoration: none;
   transition: background 0.2s ease, color 0.2s ease, transform 0.2s ease;
 }
+/* Zona pulsable de 44 px (la pastilla dibuja 33): un ::after invisible de 6 px arriba y abajo, que R10 ya cuenta. No mueve nada: a 375 px la tira de pastillas y la de
+   logos miden lo mismo que antes del barrido (con `min-height` de 44 la página crecía 57 px). Las filas van a 12 px una de otra, así que las zonas no se pisan. */
+.partner-pill,
+.marcas-logo { position: relative; }
+.partner-pill::after,
+.marcas-logo::after { content: ''; position: absolute; inset: -6px 0; }
 .partner-pill:hover,
 .partner-pill:focus-visible {
   @apply bg-miriam text-cream;

@@ -4,6 +4,7 @@
   "rutas": {
     "/:390": {
       "desborde": 0,
+      "desborde_oculto": 0,
       "h1_borde": 0,
       "texto_bajo_suelo": 0,
       "texto_svg_bajo_suelo": 0,
@@ -16,6 +17,7 @@
     },
     "/:1280": {
       "desborde": 0,
+      "desborde_oculto": 0,
       "h1_borde": 0,
       "texto_bajo_suelo": 0,
       "texto_svg_bajo_suelo": 0,
@@ -28,6 +30,7 @@
     },
     "/ciencia:390": {
       "desborde": 0,
+      "desborde_oculto": 0,
       "h1_borde": 0,
       "texto_bajo_suelo": 0,
       "texto_svg_bajo_suelo": 0,
@@ -40,6 +43,7 @@
     },
     "/ciencia:1280": {
       "desborde": 0,
+      "desborde_oculto": 0,
       "h1_borde": 0,
       "texto_bajo_suelo": 0,
       "texto_svg_bajo_suelo": 0,
@@ -52,6 +56,7 @@
     },
     "/ciencia/evidencia:390": {
       "desborde": 0,
+      "desborde_oculto": 0,
       "h1_borde": 0,
       "texto_bajo_suelo": 0,
       "texto_svg_bajo_suelo": 0,
@@ -64,6 +69,7 @@
     },
     "/ciencia/evidencia:1280": {
       "desborde": 0,
+      "desborde_oculto": 0,
       "h1_borde": 0,
       "texto_bajo_suelo": 0,
       "texto_svg_bajo_suelo": 0,
@@ -76,10 +82,11 @@
     },
     "/colabora:390": {
       "desborde": 0,
+      "desborde_oculto": 0,
       "h1_borde": 0,
       "texto_bajo_suelo": 0,
       "texto_svg_bajo_suelo": 0,
-      "objetivos_pequenos": 2,
+      "objetivos_pequenos": 1,
       "objetivos_svg": 0,
       "contraste": 0,
       "linea_larga": 0,
@@ -88,10 +95,11 @@
     },
     "/colabora:1280": {
       "desborde": 0,
+      "desborde_oculto": 0,
       "h1_borde": 0,
       "texto_bajo_suelo": 0,
       "texto_svg_bajo_suelo": 0,
-      "objetivos_pequenos": 2,
+      "objetivos_pequenos": 1,
       "objetivos_svg": 0,
       "contraste": 0,
       "linea_larga": 0,
@@ -100,6 +108,7 @@
     },
     "/contacto:390": {
       "desborde": 0,
+      "desborde_oculto": 0,
       "h1_borde": 0,
       "texto_bajo_suelo": 0,
       "texto_svg_bajo_suelo": 0,
@@ -112,6 +121,7 @@
     },
     "/contacto:1280": {
       "desborde": 0,
+      "desborde_oculto": 0,
       "h1_borde": 0,
       "texto_bajo_suelo": 0,
       "texto_svg_bajo_suelo": 0,
@@ -124,6 +134,7 @@
     },
     "/datos:390": {
       "desborde": 0,
+      "desborde_oculto": 0,
       "h1_borde": 0,
       "texto_bajo_suelo": 0,
       "texto_svg_bajo_suelo": 0,
@@ -136,6 +147,7 @@
     },
     "/datos:1280": {
       "desborde": 0,
+      "desborde_oculto": 0,
       "h1_borde": 0,
       "texto_bajo_suelo": 0,
       "texto_svg_bajo_suelo": 0,
@@ -148,6 +160,7 @@
     },
     "/equipo:390": {
       "desborde": 0,
+      "desborde_oculto": 0,
       "h1_borde": 0,
       "texto_bajo_suelo": 0,
       "texto_svg_bajo_suelo": 0,
@@ -160,6 +173,7 @@
     },
     "/equipo:1280": {
       "desborde": 0,
+      "desborde_oculto": 0,
       "h1_borde": 0,
       "texto_bajo_suelo": 0,
       "texto_svg_bajo_suelo": 0,
@@ -172,6 +186,7 @@
     },
     "/gastos:390": {
       "desborde": 0,
+      "desborde_oculto": 0,
       "h1_borde": 0,
       "texto_bajo_suelo": 0,
       "texto_svg_bajo_suelo": 0,
@@ -184,6 +199,7 @@
     },
     "/gastos:1280": {
       "desborde": 0,
+      "desborde_oculto": 0,
       "h1_borde": 0,
       "texto_bajo_suelo": 0,
       "texto_svg_bajo_suelo": 0,
@@ -196,6 +212,7 @@
     },
     "/gracias:390": {
       "desborde": 0,
+      "desborde_oculto": 0,
       "h1_borde": 0,
       "texto_bajo_suelo": 0,
       "texto_svg_bajo_suelo": 0,
@@ -208,6 +225,7 @@
     },
     "/gracias:1280": {
       "desborde": 0,
+      "desborde_oculto": 0,
       "h1_borde": 1,
       "texto_bajo_suelo": 0,
       "texto_svg_bajo_suelo": 0,
@@ -220,6 +238,7 @@
     },
     "/laminillas:390": {
       "desborde": 0,
+      "desborde_oculto": 0,
       "h1_borde": 0,
       "texto_bajo_suelo": 1,
       "texto_svg_bajo_suelo": 0,
@@ -232,6 +251,7 @@
     },
     "/laminillas:1280": {
       "desborde": 0,
+      "desborde_oculto": 0,
       "h1_borde": 1,
       "texto_bajo_suelo": 1,
       "texto_svg_bajo_suelo": 0,
@@ -244,6 +264,7 @@
     },
     "/lesiones:390": {
       "desborde": 0,
+      "desborde_oculto": 0,
       "h1_borde": 0,
       "texto_bajo_suelo": 0,
       "texto_svg_bajo_suelo": 0,
@@ -256,6 +277,7 @@
     },
     "/lesiones:1280": {
       "desborde": 0,
+      "desborde_oculto": 0,
       "h1_borde": 0,
       "texto_bajo_suelo": 0,
       "texto_svg_bajo_suelo": 0,
@@ -268,6 +290,7 @@
     },
     "/links:390": {
       "desborde": 0,
+      "desborde_oculto": 0,
       "h1_borde": 0,
       "texto_bajo_suelo": 0,
       "texto_svg_bajo_suelo": 0,
@@ -280,6 +303,7 @@
     },
     "/links:1280": {
       "desborde": 0,
+      "desborde_oculto": 0,
       "h1_borde": 1,
       "texto_bajo_suelo": 0,
       "texto_svg_bajo_suelo": 0,
@@ -292,30 +316,33 @@
     },
     "/mapa-metastasis:390": {
       "desborde": 0,
+      "desborde_oculto": 0,
       "h1_borde": 0,
-      "texto_bajo_suelo": 4,
+      "texto_bajo_suelo": 0,
       "texto_svg_bajo_suelo": 0,
-      "objetivos_pequenos": 62,
+      "objetivos_pequenos": 43,
       "objetivos_svg": 0,
-      "contraste": 19,
+      "contraste": 0,
       "linea_larga": 0,
       "sticky_tapado": 0,
       "foco_tapado": 0
     },
     "/mapa-metastasis:1280": {
       "desborde": 0,
+      "desborde_oculto": 0,
       "h1_borde": 0,
-      "texto_bajo_suelo": 4,
+      "texto_bajo_suelo": 0,
       "texto_svg_bajo_suelo": 0,
-      "objetivos_pequenos": 41,
+      "objetivos_pequenos": 3,
       "objetivos_svg": 0,
-      "contraste": 19,
+      "contraste": 0,
       "linea_larga": 0,
       "sticky_tapado": 0,
       "foco_tapado": 0
     },
     "/marcas:390": {
       "desborde": 0,
+      "desborde_oculto": 0,
       "h1_borde": 0,
       "texto_bajo_suelo": 0,
       "texto_svg_bajo_suelo": 0,
@@ -328,6 +355,7 @@
     },
     "/marcas:1280": {
       "desborde": 0,
+      "desborde_oculto": 0,
       "h1_borde": 0,
       "texto_bajo_suelo": 0,
       "texto_svg_bajo_suelo": 0,
@@ -340,6 +368,7 @@
     },
     "/prensa:390": {
       "desborde": 0,
+      "desborde_oculto": 0,
       "h1_borde": 0,
       "texto_bajo_suelo": 0,
       "texto_svg_bajo_suelo": 0,
@@ -352,6 +381,7 @@
     },
     "/prensa:1280": {
       "desborde": 0,
+      "desborde_oculto": 0,
       "h1_borde": 0,
       "texto_bajo_suelo": 0,
       "texto_svg_bajo_suelo": 0,
@@ -364,10 +394,11 @@
     },
     "/timeline:390": {
       "desborde": 0,
+      "desborde_oculto": 0,
       "h1_borde": 0,
       "texto_bajo_suelo": 0,
       "texto_svg_bajo_suelo": 0,
-      "objetivos_pequenos": 13,
+      "objetivos_pequenos": 1,
       "objetivos_svg": 0,
       "contraste": 0,
       "linea_larga": 0,
@@ -376,6 +407,7 @@
     },
     "/timeline:1280": {
       "desborde": 0,
+      "desborde_oculto": 0,
       "h1_borde": 0,
       "texto_bajo_suelo": 0,
       "texto_svg_bajo_suelo": 0,
@@ -436,6 +468,7 @@
     },
     "/aviso-legal:390": {
       "desborde": 0,
+      "desborde_oculto": 0,
       "h1_borde": 0,
       "texto_bajo_suelo": 0,
       "texto_svg_bajo_suelo": 0,
@@ -448,6 +481,7 @@
     },
     "/aviso-legal:1280": {
       "desborde": 0,
+      "desborde_oculto": 0,
       "h1_borde": 0,
       "texto_bajo_suelo": 0,
       "texto_svg_bajo_suelo": 0,
@@ -460,6 +494,7 @@
     },
     "/privacidad:390": {
       "desborde": 0,
+      "desborde_oculto": 0,
       "h1_borde": 0,
       "texto_bajo_suelo": 0,
       "texto_svg_bajo_suelo": 0,
@@ -472,6 +507,7 @@
     },
     "/privacidad:1280": {
       "desborde": 0,
+      "desborde_oculto": 0,
       "h1_borde": 0,
       "texto_bajo_suelo": 0,
       "texto_svg_bajo_suelo": 0,
@@ -484,6 +520,7 @@
     },
     "/cookies:390": {
       "desborde": 0,
+      "desborde_oculto": 0,
       "h1_borde": 0,
       "texto_bajo_suelo": 0,
       "texto_svg_bajo_suelo": 0,
@@ -496,6 +533,7 @@
     },
     "/cookies:1280": {
       "desborde": 0,
+      "desborde_oculto": 0,
       "h1_borde": 0,
       "texto_bajo_suelo": 0,
       "texto_svg_bajo_suelo": 0,
@@ -508,6 +546,7 @@
     },
     "/guia-de-estilo:390": {
       "desborde": 0,
+      "desborde_oculto": 0,
       "h1_borde": 0,
       "texto_bajo_suelo": 0,
       "texto_svg_bajo_suelo": 0,
@@ -520,6 +559,7 @@
     },
     "/guia-de-estilo:1280": {
       "desborde": 0,
+      "desborde_oculto": 0,
       "h1_borde": 0,
       "texto_bajo_suelo": 0,
       "texto_svg_bajo_suelo": 0,
@@ -532,6 +572,7 @@
     },
     "/herramientas:390": {
       "desborde": 0,
+      "desborde_oculto": 0,
       "h1_borde": 0,
       "texto_bajo_suelo": 0,
       "texto_svg_bajo_suelo": 0,
@@ -544,6 +585,7 @@
     },
     "/herramientas:1280": {
       "desborde": 0,
+      "desborde_oculto": 0,
       "h1_borde": 0,
       "texto_bajo_suelo": 0,
       "texto_svg_bajo_suelo": 0,
@@ -556,6 +598,7 @@
     },
     "/reservorio:390": {
       "desborde": 0,
+      "desborde_oculto": 0,
       "h1_borde": 0,
       "texto_bajo_suelo": 0,
       "texto_svg_bajo_suelo": 0,
@@ -568,6 +611,7 @@
     },
     "/reservorio:1280": {
       "desborde": 0,
+      "desborde_oculto": 0,
       "h1_borde": 0,
       "texto_bajo_suelo": 0,
       "texto_svg_bajo_suelo": 0,
@@ -580,6 +624,7 @@
     },
     "/historia:390": {
       "desborde": 0,
+      "desborde_oculto": 0,
       "h1_borde": 0,
       "texto_bajo_suelo": 0,
       "texto_svg_bajo_suelo": 0,
@@ -592,6 +637,7 @@
     },
     "/historia:1280": {
       "desborde": 0,
+      "desborde_oculto": 0,
       "h1_borde": 0,
       "texto_bajo_suelo": 0,
       "texto_svg_bajo_suelo": 0,
@@ -604,6 +650,7 @@
     },
     "/en:390": {
       "desborde": 0,
+      "desborde_oculto": 0,
       "h1_borde": 0,
       "texto_bajo_suelo": 0,
       "texto_svg_bajo_suelo": 0,
@@ -616,6 +663,7 @@
     },
     "/en:1280": {
       "desborde": 0,
+      "desborde_oculto": 0,
       "h1_borde": 0,
       "texto_bajo_suelo": 0,
       "texto_svg_bajo_suelo": 0,
@@ -628,6 +676,7 @@
     },
     "/en/science:390": {
       "desborde": 0,
+      "desborde_oculto": 0,
       "h1_borde": 0,
       "texto_bajo_suelo": 0,
       "texto_svg_bajo_suelo": 0,
@@ -640,6 +689,7 @@
     },
     "/en/science:1280": {
       "desborde": 0,
+      "desborde_oculto": 0,
       "h1_borde": 0,
       "texto_bajo_suelo": 0,
       "texto_svg_bajo_suelo": 0,
@@ -652,6 +702,7 @@
     },
     "/en/science/evidence:390": {
       "desborde": 0,
+      "desborde_oculto": 0,
       "h1_borde": 0,
       "texto_bajo_suelo": 0,
       "texto_svg_bajo_suelo": 0,
@@ -664,6 +715,7 @@
     },
     "/en/science/evidence:1280": {
       "desborde": 0,
+      "desborde_oculto": 0,
       "h1_borde": 0,
       "texto_bajo_suelo": 0,
       "texto_svg_bajo_suelo": 0,
@@ -676,6 +728,7 @@
     },
     "/en/data:390": {
       "desborde": 0,
+      "desborde_oculto": 0,
       "h1_borde": 0,
       "texto_bajo_suelo": 0,
       "texto_svg_bajo_suelo": 0,
@@ -688,6 +741,7 @@
     },
     "/en/data:1280": {
       "desborde": 0,
+      "desborde_oculto": 0,
       "h1_borde": 0,
       "texto_bajo_suelo": 0,
       "texto_svg_bajo_suelo": 0,
@@ -700,6 +754,7 @@
     },
     "/en/tools:390": {
       "desborde": 0,
+      "desborde_oculto": 0,
       "h1_borde": 0,
       "texto_bajo_suelo": 0,
       "texto_svg_bajo_suelo": 0,
@@ -712,6 +767,7 @@
     },
     "/en/tools:1280": {
       "desborde": 0,
+      "desborde_oculto": 0,
       "h1_borde": 0,
       "texto_bajo_suelo": 0,
       "texto_svg_bajo_suelo": 0,
@@ -724,6 +780,7 @@
     },
     "/en/team:390": {
       "desborde": 0,
+      "desborde_oculto": 0,
       "h1_borde": 0,
       "texto_bajo_suelo": 0,
       "texto_svg_bajo_suelo": 0,
@@ -736,6 +793,7 @@
     },
     "/en/team:1280": {
       "desborde": 0,
+      "desborde_oculto": 0,
       "h1_borde": 0,
       "texto_bajo_suelo": 0,
       "texto_svg_bajo_suelo": 0,
