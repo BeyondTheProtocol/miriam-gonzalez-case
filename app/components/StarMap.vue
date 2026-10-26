@@ -922,7 +922,7 @@ const tipStyle = computed(() => {
 .starmap__m44 small {
   font-size: var(--texto-xs);
   font-weight: 400;
-  color: rgba(58, 51, 64, 0.6);
+  color: rgba(58, 51, 64, 0.8); /* sobre el crema fijo del mapa: 0,6 daba 3,54:1 (AA pide 4,5:1 a 13 px, peso 400); 0,8 da 6,2:1 */
 }
 .starmap__tip {
   position: absolute;

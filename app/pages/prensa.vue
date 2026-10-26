@@ -501,11 +501,13 @@ useHead({
 .pr-lista > li { display: flex; }
 .pr-lista > li > :deep(*) { width: 100%; }
 /* Titulares de medios (T3-LOTE2, A19): en una columna cada titular medía 1008 px (112 a 132 caracteres por línea, `linea_larga`). Desde `lg`, dos columnas;
-   si el número es impar, la última ocupa la fila entera (regla de retícula 2: sin hueco) y su texto se queda en la medida. */
+   si el número es impar, la última ocupa la fila entera (regla de retícula 2: sin hueco) y su título se queda en la medida. La medida va en el título y no
+   en `.tarjeta-enlace__texto` (la meta ya la lleva en TarjetaEnlace): si el bloque de texto deja de crecer, la flecha lo sigue y queda a 416 px del borde en
+   vez de a 17 (raíl de flechas de las otras ocho). */
 @media (min-width: 1024px) {
   .pr-lista--cobertura { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .pr-lista--cobertura > li:last-child:nth-child(odd) { grid-column: 1 / -1; }
-  .pr-lista--cobertura > li:last-child:nth-child(odd) :deep(.tarjeta-enlace__texto) { max-width: var(--measure); }
+  .pr-lista--cobertura > li:last-child:nth-child(odd) :deep(.tarjeta-enlace__titulo) { max-width: var(--measure); }
 }
 
 /* Bloque dentro de una banda (después del primero): el aire de un capítulo corto. */
