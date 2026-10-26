@@ -4,7 +4,8 @@
   <div class="relative overflow-hidden">
     <!-- Constelación de fondo (decorativa, on-brand) — el mismo cielo de /gracias,
          densidad baja para no competir con los botones. -->
-    <Constellation :count="28" />
+    <!-- tu-tope-px: desde lg la estrella coral «tú» queda a 40 px del borde de arriba, sobre el avatar (que empieza a 80); a 7 % del alto de la caja quedaba detrás de él. -->
+    <Constellation :count="28" :tu-tope-px="40" />
 
     <!-- py-8 en móvil (antes py-14): la fila de apoyo, la 2.ª, tiene que asomar en la primera pantalla de un móvil pequeño. -->
     <div class="relative z-10 section-container max-w-xl py-8 sm:py-20">

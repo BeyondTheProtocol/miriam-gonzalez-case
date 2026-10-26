@@ -30,7 +30,9 @@
 //                       que él y ningún antepasado tiene overflow, que anularía el sticky) y se mueve con el viewport.
 //
 // Y dos comprobaciones SIN baseline (o cumplen o no): `.rejilla-par` a 390 px, con un SVG de 700 px dentro, no ensancha la columna del texto; y el cielo de
-// /links a 1920 px (caja ancha) enseña la estrella coral «tú», la violeta guía y las once ancladas dentro de su caja (lote 3, A36).
+// /links a 1024, 1280, 1440 y 1920 px (desde `lg`) deja ver la estrella coral «tú» (al menos el 90 % de su área, sin el avatar ni nada encima) y la
+// guía dentro de su caja, y a 1920 (caja ancha) las once ancladas (lote 3, A36). Por debajo de `lg` no se afirma nada: ahí la «tú» sigue detrás del
+// avatar (a 375 px se ve un 0,6 %, a 768 un 4,3 %; arreglarlo toca la composición del móvil).
 //
 // No mide el texto sobre degradados ni sobre imágenes (se salta cualquier nodo con un ANTEPASADO con background-image; el degradado del
 // propio nodo, el marcador de los enlaces en línea, sí se mide sobre su color de fondo y los de sus antepasados),
@@ -271,11 +273,14 @@ const REJILLA_PAR = `(() => {
   return r
 })()`
 
-// El cielo de /links en una caja ANCHA (lote 3, A36). El SVG de la constelación usa un viewBox de 100 × 100 con `slice`: en una caja más ancha que alta
-// solo se ve la franja central en vertical, y las dos estrellas protagonistas (la coral «tú», y = 7, y la violeta guía, y = 9) quedaban fuera, arriba (a
-// 1920 px, `.cn-you` a -57 px del borde de la página). Ahora `Constellation.vue` mide su caja y reparte las posiciones por la franja visible. Esta
-// comprobación no lleva baseline: o las dos estrellas y las once ancladas caben dentro de la caja del cielo a 1920, o no. Hay que esperar al cielo: es
-// ClientOnly y se redibuja cuando el ResizeObserver le da la proporción.
+// El cielo de /links desde `lg` (lote 3, A36). El SVG de la constelación usa un viewBox de 100 × 100 con `slice`: en una caja más ancha que alta solo se ve la
+// franja central en vertical, y las dos estrellas protagonistas (la coral «tú», y = 7, y la violeta guía, y = 9) quedaban fuera, arriba (a 1920 px, `.cn-you`
+// a -57 px del borde de la página). `Constellation.vue` mide su caja y reparte las posiciones por la franja visible. Pero que quepa en la caja no es que se
+// vea: la «tú» cae a unos 97 px del borde de arriba y el avatar de /links empieza a 80, así que quedaba detrás de él (un 4 % de su área a 1280, 1440 y 1920,
+// medido en la revisión). Por eso aquí se cuenta lo que se ve de verdad: se muestrea el relleno de la estrella (isPointInFill, en su espacio de 20 × 20) y, de
+// cada punto, se mira qué hay encima con elementsFromPoint (el SVG lleva pointer-events: none, así que no sale: solo salen los elementos de la página).
+// Tapa lo que sea imagen, titular, párrafo, enlace o botón, y cualquier cosa fija o pegada (la cabecera). Sin baseline: o se ve o no. Hay que esperar al cielo:
+// es ClientOnly y se redibuja cuando el ResizeObserver le da la caja.
 const CIELO = `(async () => {
   for (let i = 0; i < 50 && !document.querySelector('.cn-you'); i++) await new Promise((r) => setTimeout(r, 100))
   await new Promise((r) => setTimeout(r, 500))
@@ -284,8 +289,24 @@ const CIELO = `(async () => {
   const caja = svg.getBoundingClientRect()
   const dentro = (e) => { if (!e) return false; const r = e.getBoundingClientRect(); return r.left >= caja.left - 1 && r.right <= caja.right + 1 && r.top >= caja.top - 1 && r.bottom <= caja.bottom + 1 }
   const anclas = [...document.querySelectorAll('.cn-anchor')]
-  return { ancho: innerWidth, proporcion: +(caja.width / caja.height).toFixed(2), tu: dentro(document.querySelector('.cn-you')), guia: dentro(anclas[0]), anclas: anclas.length, visibles: anclas.filter(dentro).length }
+  const tu = document.querySelector('.cn-you')
+  const molde = document.querySelector('#cn-star')
+  const m = tu.getScreenCTM()
+  const N = 24
+  let relleno = 0, libres = 0
+  for (let a = 0; a < N; a++) for (let b = 0; b < N; b++) {
+    const p = new DOMPoint(1.6 + ((a + 0.5) * 16.8) / N, 1.6 + ((b + 0.5) * 16.8) / N)
+    if (!molde.isPointInFill(p)) continue
+    relleno++
+    const q = p.matrixTransform(m)
+    const tapada = document.elementsFromPoint(q.x, q.y).some((e) => e.matches('img, h1, h2, p, a, button') || ['fixed', 'sticky'].includes(getComputedStyle(e).position))
+    if (!tapada) libres++
+  }
+  return { ancho: innerWidth, proporcion: +(caja.width / caja.height).toFixed(2), tu: dentro(tu), guia: dentro(anclas[0]), anclas: anclas.length, visibles: anclas.filter(dentro).length, tuLibre: relleno ? +((libres / relleno) * 100).toFixed(1) : 0 }
 })()`
+// Anchos de la comprobación: desde `lg` (1024 px). 1024 y 1280 son cajas ALTAS (la página mide ~1390 px), 1440 casi cuadrada y 1920 ancha.
+const ANCHOS_CIELO = [1024, 1280, 1440, 1920]
+const TU_LIBRE_MIN = 90
 
 async function medir(rutas) {
   // `--font-render-hinting=none`: el avance de cada letra no se redondea al píxel según la plataforma. `linea_larga` cuenta caracteres por línea
@@ -323,9 +344,12 @@ async function medir(rutas) {
     await nav.cdp('Emulation.setDeviceMetricsOverride', { width: ANCHOS[0], height: 900, deviceScaleFactor: 1, mobile: false })
     await nav.cargar('/guia-de-estilo')
     rejilla = await nav.evaluate(REJILLA_PAR)
-    await nav.cdp('Emulation.setDeviceMetricsOverride', { width: 1920, height: 900, deviceScaleFactor: 1, mobile: false })
-    await nav.cargar('/links')
-    cielo = await nav.evaluate(CIELO)
+    cielo = []
+    for (const ancho of ANCHOS_CIELO) {
+      await nav.cdp('Emulation.setDeviceMetricsOverride', { width: ancho, height: 900, deviceScaleFactor: 1, mobile: false })
+      await nav.cargar('/links')
+      cielo.push(await nav.evaluate(CIELO))
+    }
   } finally {
     await nav.cerrar()
   }
@@ -350,8 +374,15 @@ if (rejilla.texto > rejilla.ancho) {
   console.log(`\n✘ .rejilla-par a ${ANCHOS[0]} px: el texto mide ${rejilla.texto} px en una ventana de ${rejilla.ancho} (pista «${rejilla.pista}»). Una pieza ancha ensancha la columna: la pista de la pila debe ser minmax(0, 1fr).`)
   process.exit(1)
 }
-if (cielo.error || !cielo.tu || !cielo.guia || cielo.visibles !== cielo.anclas) {
-  console.log(`\n✘ El cielo de /links a ${cielo.ancho ?? 1920} px (proporción ${cielo.proporcion ?? '?'}): ${cielo.error ?? `la estrella «tú» ${cielo.tu ? 'cabe' : 'NO cabe'}, la guía ${cielo.guia ? 'cabe' : 'NO cabe'} y caben ${cielo.visibles} de ${cielo.anclas} ancladas`} dentro de su caja. En una caja ancha, Constellation.vue debe repartir las posiciones por la franja que \`slice\` deja ver.`)
+const fallosCielo = []
+for (const c of cielo) {
+  if (c.error) { fallosCielo.push(`a ${c.ancho ?? '?'} px: ${c.error}`); continue }
+  if (!c.tu || !c.guia) fallosCielo.push(`a ${c.ancho} px (proporción ${c.proporcion}): la estrella «tú» ${c.tu ? 'cabe' : 'NO cabe'} y la guía ${c.guia ? 'cabe' : 'NO cabe'} dentro de su caja`)
+  if (c.tuLibre < TU_LIBRE_MIN) fallosCielo.push(`a ${c.ancho} px (proporción ${c.proporcion}): de la estrella «tú» se ve solo el ${c.tuLibre} % (mínimo ${TU_LIBRE_MIN} %): hay algo encima, y en /links es el avatar. Constellation.vue debe anclarla a unos px del borde de arriba, por encima de él`)
+  if (c.ancho >= 1920 && c.visibles !== c.anclas) fallosCielo.push(`a ${c.ancho} px: caben ${c.visibles} de ${c.anclas} ancladas dentro de la caja. En una caja ancha, Constellation.vue debe repartir las posiciones por la franja que \`slice\` deja ver`)
+}
+if (fallosCielo.length) {
+  console.log(`\n✘ El cielo de /links:\n   ${fallosCielo.join('\n   ')}`)
   process.exit(1)
 }
 if (args.includes('--detalle')) {
