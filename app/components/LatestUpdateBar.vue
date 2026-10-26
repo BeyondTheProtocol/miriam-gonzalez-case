@@ -54,13 +54,15 @@ const isHome = computed(() => {
   border-bottom: 1px solid var(--trazo-sutil);
 }
 .latest-bar__inner {
+  --latest-bar-pad: 0.4rem;
   display: flex;
   align-items: center;
-  padding-top: 0.4rem;
-  padding-bottom: 0.4rem;
+  padding-top: var(--latest-bar-pad);
+  padding-bottom: var(--latest-bar-pad);
   min-height: 32px;
 }
 .latest-bar__link {
+  position: relative;
   display: flex;
   align-items: center;
   gap: 0.4rem;
@@ -68,10 +70,20 @@ const isHome = computed(() => {
   width: 100%;
   text-decoration: none;
   color: inherit;
-  /* El área clicable es toda la fila (no solo el texto pequeño). Mide 25 px de alto, por debajo de los 44 px de la vara de marca (DESIGN-SYSTEM.md, sección 4):
-     NO es una excepción firmada. Está pendiente de decisión (sección 8, «Barra "Lo último"»): la salida recomendada es una zona pulsable de 44 px con un `::after`
-     sin crecer la barra. Se deja así en esta rama porque la barra se pinta también en célula y alphafold (PR #290) y su baseline no se toca. */
+  /* El área clicable es toda la fila (no solo el texto pequeño). El enlace mide 25 px de alto; la zona pulsable de 44 px (`--control-min`, la vara de marca,
+     DESIGN-SYSTEM.md sección 4) es el `::after` de abajo, que no mueve nada: la barra sigue midiendo 39 px. */
   padding-block: 0.15rem;
+}
+/* Zona pulsable de 44 px sin que la barra crezca (decisión de diseño del 26-oct-2026, DESIGN-SYSTEM.md sección 8). La barra va pegada al borde de arriba de la pantalla,
+   así que lo que sobresaliera por arriba no se podría tocar: la zona arranca en el borde de arriba de la barra (el relleno de `__inner`) y baja 44 px, unos 5 px por
+   debajo de la barra. Ahí está el aire de la cabecera y no sus controles (empiezan a 10 px de la barra o más). `scripts/test-diseno-render.mjs` lo comprueba con
+   `elementFromPoint`: la zona mide 44 y no tapa el borde de ningún enlace ni botón de la cabecera. Sin `pointer-events: none`: tiene que recibir el toque. */
+.latest-bar__link::after {
+  content: '';
+  position: absolute;
+  inset-inline: 0;
+  top: calc(-1 * var(--latest-bar-pad));
+  height: var(--control-min);
 }
 .latest-bar__title {
   display: block;

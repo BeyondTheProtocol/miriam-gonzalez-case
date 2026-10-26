@@ -54,6 +54,9 @@
 // /links a 1024, 1280, 1440 y 1920 px (desde `lg`) deja ver la estrella coral «tú» (al menos el 90 % de su área, sin el avatar ni nada encima) y la
 // guía dentro de su caja, y en las cajas anchas (1440 y 1920) las once ancladas (lote 3, A36). Por debajo de `lg` no se afirma nada: ahí la «tú» sigue detrás del
 // avatar (a 375 px se ve un 0,6 %, a 768 un 4,3 %; arreglarlo toca la composición del móvil).
+// Y dos más, también sin baseline (T3-CIERRE, 26-oct-2026; ver `BARRA_ULTIMO` y `PROSA_LEGAL`): en /equipo, la barra «Lo último» no crece (39 px) y su zona pulsable mide 44 px
+// de verdad (`elementFromPoint`, no solo el `::after` que R10 cuenta) sin tapar el borde de ningún control de la cabecera; y en /privacidad, el `<h3>` suelto de la prosa legal es el
+// rol `.h4-tarjeta` (17 px, Hanken 700) con 32 px de aire arriba y 12 abajo, y el `<h2>` de capítulo es mayor. Los dos corren a 390 y 1280 px.
 //
 // No mide el texto sobre degradados ni sobre imágenes (se salta cualquier nodo con un ANTEPASADO con background-image; el degradado del
 // propio nodo, el marcador de los enlaces en línea, sí se mide sobre su color de fondo y los de sus antepasados),
@@ -417,6 +420,67 @@ const CIELO = `(async () => {
 const ANCHOS_CIELO = [1024, 1280, 1440, 1920]
 const TU_LIBRE_MIN = 90
 
+// La barra «Lo último» (LatestUpdateBar), T3-CIERRE (26-oct-2026, decisión D). El enlace mide 25 px de alto en una barra de 39: la zona pulsable de 44 px es un `::after`
+// absoluto que cubre desde el borde de arriba de la pantalla y sin que la barra crezca. objetivos_pequenos la cuenta por el recuento (el `::after` mide 44), pero eso solo
+// dice que el pseudo existe: aquí se mira lo que un dedo toca de verdad. Con `elementFromPoint` a lo largo de la columna central, la zona pulsable (contigua desde el borde de
+// arriba) debe medir al menos 44 px; la barra no puede haber crecido (ALTO_BARRA_MAX, 38,7 px medidos antes del cambio); y la zona no puede tapar ningún control de la cabecera
+// de debajo (se pulsa a 1,5 px del borde de arriba de cada uno: si lo recibe el enlace de la barra, le ha robado el clic). Sin baseline: o cumple o no. Se mide en una ruta
+// cualquiera con barra (/equipo), a los dos anchos.
+const ALTO_BARRA_MAX = 39
+const BARRA_ULTIMO = `(() => {
+  const barra = document.querySelector('.latest-bar')
+  const enlace = document.querySelector('.latest-bar__link')
+  if (!barra || !enlace) return { error: 'la página no pinta la barra «Lo último»' }
+  window.scrollTo(0, 0)
+  const rb = barra.getBoundingClientRect()
+  const re = enlace.getBoundingClientRect()
+  const x = re.left + re.width / 2
+  const dentro = (e) => !!e && (e === enlace || enlace.contains(e))
+  // Filas de 1 px de la columna central que reciben el toque del enlace, contiguas a la del medio del enlace (desde 0: más arriba no hay pantalla).
+  const fila = (k) => dentro(document.elementFromPoint(x, k + 0.5))
+  const k0 = Math.floor(re.top + re.height / 2)
+  let k1 = k0, k2 = k0
+  if (fila(k0)) { while (k1 > 0 && fila(k1 - 1)) k1--; while (k2 < 150 && fila(k2 + 1)) k2++ }
+  const pulsable = fila(k0) ? k2 - k1 + 1 : 0
+  const robados = []
+  for (const c of document.querySelectorAll('header a[href], header button')) {
+    const r = c.getBoundingClientRect()
+    if (r.width < 2 || r.height < 2 || getComputedStyle(c).visibility === 'hidden') continue
+    const sobre = document.elementFromPoint(r.left + r.width / 2, r.top + 1.5)
+    if (dentro(sobre)) robados.push((c.textContent || c.getAttribute('aria-label') || c.tagName).trim().slice(0, 20))
+  }
+  return { ancho: innerWidth, barra: Math.round(rb.height * 10) / 10, enlace: Math.round(re.height * 10) / 10, pulsable, robados }
+})()`
+
+// Los <h3> de la prosa legal (T3-CIERRE, decisión G). El plugin de tipografía les daba 20 px en Fraunces (el tamaño de los H2 de capítulo a 375 px: no se distinguía el nivel) y márgenes en
+// em de su propio tamaño. main.css los lleva al rol `.h4-tarjeta` (Hanken 700, 17 px) con 32 px de aire arriba y 12 abajo. Se compara con un `.h4-tarjeta` de verdad
+// (así sigue al token) y se exige que el H2 de capítulo sea mayor. /privacidad es la única legal con <h3> (dos). Sin baseline.
+const PROSA_LEGAL = `(() => {
+  const art = document.querySelector('.prose-ink')
+  const h3 = art ? [...art.querySelectorAll(':scope > h3')] : []
+  const h2 = art ? art.querySelector(':scope > h2') : null
+  if (!h3.length || !h2) return { error: 'la página no pinta un <h2> y un <h3> directos dentro de .prose-ink' }
+  const rol = document.createElement('p')
+  rol.className = 'h4-tarjeta'
+  rol.textContent = 'x'
+  art.parentElement.appendChild(rol)
+  const base = getComputedStyle(rol)
+  const esperado = { fontSize: base.fontSize, fontWeight: base.fontWeight, lineHeight: base.lineHeight, fontFamily: base.fontFamily }
+  rol.remove()
+  const px = (n) => parseFloat(getComputedStyle(document.documentElement).getPropertyValue(n))
+  const fallos = []
+  for (const h of h3) {
+    const s = getComputedStyle(h)
+    const corto = (k, v) => (k === 'fontFamily' ? v.split(',')[0] : v)
+    for (const k of Object.keys(esperado)) if (s[k] !== esperado[k]) fallos.push(k + ' ' + corto(k, s[k]) + ' en vez de ' + corto(k, esperado[k]) + ' («' + h.textContent.trim().slice(0, 24) + '»)')
+    if (parseFloat(s.marginTop) !== px('--sp-32')) fallos.push('margin-top ' + s.marginTop + ' en vez de ' + px('--sp-32') + 'px')
+    if (parseFloat(s.marginBottom) !== px('--sp-12')) fallos.push('margin-bottom ' + s.marginBottom + ' en vez de ' + px('--sp-12') + 'px')
+  }
+  const t2 = parseFloat(getComputedStyle(h2).fontSize), t3 = parseFloat(esperado.fontSize)
+  if (!(t2 > t3 + 1)) fallos.push('el <h2> de capítulo (' + t2 + ' px) no es mayor que el <h3> (' + t3 + ' px)')
+  return { ancho: innerWidth, h2: t2, h3: t3, n: h3.length, fallos }
+})()`
+
 // Los controles del visor 3D de /lesiones (BoneTriView), revisión del barrido (26-oct-2026). Las rutas de arriba se miden SIN WebGL, y los controles del visor solo existen
 // con WebGL: el reencuadre medía 30 × 30 y el toggle de la diana 27 de alto, y ningún recuento los veía. Aquí se abre /lesiones a 1280 px con ratón y WebGL por software
 // (SwiftShader, como test-celula-explorador-html.mjs) y cada control debe tener una zona pulsable de 44 px: su caja, o un ::before o ::after absoluto sin
@@ -471,6 +535,8 @@ async function medir(rutas) {
   const ejemplos = {}
   let rejilla
   let cielo
+  let barra
+  let prosa
   try {
     for (const ruta of rutas) {
       for (const ancho of ANCHOS) {
@@ -513,10 +579,20 @@ async function medir(rutas) {
       await nav.cargar('/links')
       cielo.push(await nav.evaluate(CIELO))
     }
+    // T3-CIERRE: la barra «Lo último» y los <h3> de la prosa legal, a los dos anchos de las rutas.
+    barra = []
+    prosa = []
+    for (const ancho of ANCHOS) {
+      await nav.cdp('Emulation.setDeviceMetricsOverride', { width: ancho, height: 900, deviceScaleFactor: 1, mobile: false })
+      await nav.cargar('/equipo')
+      barra.push(await nav.evaluate(BARRA_ULTIMO))
+      await nav.cargar('/privacidad')
+      prosa.push(await nav.evaluate(PROSA_LEGAL))
+    }
   } finally {
     await nav.cerrar()
   }
-  return { res, ejemplos, rejilla, cielo }
+  return { res, ejemplos, rejilla, cielo, barra, prosa }
 }
 
 const args = process.argv.slice(2)
@@ -527,7 +603,7 @@ if (!existsSync(ROOT)) {
   process.exit(2)
 }
 const rutas = arg('--rutas') ? arg('--rutas').split(',') : RUTAS
-const { res, ejemplos, rejilla, cielo } = await medir(rutas)
+const { res, ejemplos, rejilla, cielo, barra, prosa } = await medir(rutas)
 const errores = Object.entries(res).filter(([, v]) => v.error)
 if (errores.length) {
   console.log(`\n✘ ${errores.length} medición(es) con error: ${errores.map(([k]) => k).join(', ')}`)
@@ -548,6 +624,23 @@ if (fallosCielo.length) {
   console.log(`\n✘ El cielo de /links:\n   ${fallosCielo.join('\n   ')}`)
   process.exit(1)
 }
+const fallosBarra = []
+for (const b of barra) {
+  if (b.error) { fallosBarra.push(b.error); continue }
+  if (b.barra > ALTO_BARRA_MAX) fallosBarra.push(`a ${b.ancho} px la barra mide ${b.barra} px de alto (tope ${ALTO_BARRA_MAX}): la zona pulsable de 44 px va en un ::after absoluto y no puede hacerla crecer`)
+  if (b.pulsable < 44) fallosBarra.push(`a ${b.ancho} px lo que un dedo toca de la barra mide ${b.pulsable} px de alto (mínimo 44; el enlace mide ${b.enlace}): falta el ::after de 44 px de .latest-bar__link`)
+  if (b.robados.length) fallosBarra.push(`a ${b.ancho} px la zona de la barra tapa el borde de arriba de ${b.robados.length} control(es) de la cabecera: ${b.robados.join(', ')}`)
+}
+if (fallosBarra.length) console.log(`\n✘ La barra «Lo último» (/equipo):\n   ${fallosBarra.join('\n   ')}`)
+const fallosProsa = []
+for (const p of prosa) {
+  if (p.error) { fallosProsa.push(p.error); continue }
+  for (const f of p.fallos) fallosProsa.push(`a ${p.ancho} px: ${f}`)
+}
+if (fallosProsa.length) console.log(`\n✘ Los <h3> de la prosa legal (/privacidad):\n   ${fallosProsa.join('\n   ')}\n   Deben ser el rol .h4-tarjeta con 32 px de aire arriba y 12 abajo: \`.prose-ink > h3\` en main.css.`)
+if (fallosBarra.length || fallosProsa.length) process.exit(1)
+console.log(`  barra «Lo último» (/equipo): ${barra.map((b) => `${b.ancho} px: barra ${b.barra}, enlace ${b.enlace}, pulsable ${b.pulsable}`).join(' · ')}`)
+console.log(`  <h3> legales (/privacidad): ${prosa.map((p) => `${p.ancho} px: H2 ${p.h2} · h3 ${p.h3} (${p.n})`).join(' · ')}`)
 if (!arg('--rutas') || args.includes('--visor')) {
   const v = await medirVisor3D()
   const fallosVisor = v.error ? [v.error] : v.controles.filter((c) => c.w < 43.5 || c.h < 43.5).map((c) => `${c.clase}: zona pulsable de ${c.w} × ${c.h} px, mínimo 44 × 44 (WCAG 2.5.8 pide 24; la vara de marca, 44)`)

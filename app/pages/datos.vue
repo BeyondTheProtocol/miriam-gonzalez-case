@@ -452,7 +452,7 @@ const imagenGalio = computed(() => ciencia.value?.imaging ?? null)
 </script>
 
 <template>
-  <div class="dt-raiz overflow-x-clip" :style="estiloCab">
+  <div class="dt-raiz overflow-x-clip [--measure:58ch]" :style="estiloCab">
     <div class="dt-progreso" aria-hidden="true" />
     <ClientOnly>
       <DatosPelicula :abierta="peliAbierta" :eventos="eventos" :lineas="lineas" :series="seriesPeli" :contexto="contexto"

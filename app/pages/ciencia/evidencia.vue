@@ -1,5 +1,6 @@
 <template>
-  <div>
+  <div class="[--measure:58ch]">
+    <!-- `[--measure:58ch]` en la raíz: la medida de lectura de esta página es de 58ch (T3-CIERRE, decisión E del DS sección 8); el token global sigue en 68ch hasta el PR #290. -->
     <section class="section-spacing" :aria-label="$t('ciencia.key_evidence')">
       <div class="section-wide">
         <!-- T3-LOTE1 (A15, 25-oct-2026): shell único (el H1 cae bajo el logo) y cabecera v3 (H1 por rol, entradilla en `.lede`, la miga como
@@ -46,7 +47,7 @@
                     <h3 class="bajo-lg:font-semibold bajo-lg:text-berenjena bajo-lg:text-sm lg:h4-tarjeta mb-1.5">
                       {{ paper.finding }}
                     </h3>
-                    <p class="measure text-xs lg:text-sm text-tinta leading-relaxed">
+                    <p class="measure text-xs lg:text-sm text-tinta leading-relaxed lg:leading-relaxed">
                       {{ paper.relevance }}
                     </p>
                   </div>

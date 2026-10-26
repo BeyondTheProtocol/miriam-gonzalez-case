@@ -229,6 +229,10 @@ function jumpTo(e: Event, id: string) {
   text-decoration: none;
   border-top: 1px solid rgb(var(--color-text-rgb) / 0.07);
 }
+/* Con el dedo, 44 px de alto (T3-CIERRE, decisión C del DS sección 8): con el relleno de 9 px medían 41. Solo el alto; el texto sigue donde estaba. */
+@media (pointer: coarse) {
+  .mn-m__list a { display: flex; align-items: center; min-height: var(--control-min); }
+}
 .mn-m__summary:focus-visible,
 .mn-m__list a:focus-visible {
   outline: 2px solid var(--anillo-foco);

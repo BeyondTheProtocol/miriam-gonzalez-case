@@ -1,5 +1,6 @@
 <template>
-  <div>
+  <div class="[--measure:58ch]">
+    <!-- `[--measure:58ch]` en la raíz: la medida de lectura de esta página es de 58ch (T3-CIERRE, decisión E del DS sección 8); el token global sigue en 68ch hasta el PR #290. -->
     <section class="section-spacing" :aria-label="$t('team.title')">
       <div class="section-wide">
         <!-- T3-BARRIDO (K7): desde `lg` los tres titulares de bloque (que parecían un eyebrow) y el de «Lo que NO somos» son `.h2-seccion`, el rol del sistema; por

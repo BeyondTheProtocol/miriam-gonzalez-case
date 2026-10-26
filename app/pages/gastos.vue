@@ -1,5 +1,6 @@
 <template>
-  <div>
+  <div class="[--measure:58ch]">
+    <!-- `[--measure:58ch]` en la raíz: la medida de lectura de esta página es de 58ch (T3-CIERRE, decisión E del DS sección 8); el token global sigue en 68ch hasta el PR #290. -->
     <section class="section-spacing bg-cream" :aria-label="$t('expenses.title')">
       <div class="section-wide">
         <PageHeader :title="$t('expenses.title')" :subtitle="$t('money.transparencia')" />

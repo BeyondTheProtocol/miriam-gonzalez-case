@@ -1,5 +1,6 @@
 <template>
-  <div>
+  <div class="[--measure:58ch]">
+    <!-- `[--measure:58ch]` en la raíz: la medida de lectura de esta página es de 58ch (T3-CIERRE, decisión E del DS sección 8); el token global sigue en 68ch hasta el PR #290. -->
     <section class="section-spacing ci-zona-a" :aria-label="$t('science.title')">
       <div class="section-wide">
         <!-- Sin conmutador (tanda 2, T2c, 24-oct-2026). El conmutador «para mentes curiosas / para profesionales» salió: la capa

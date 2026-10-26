@@ -31,7 +31,7 @@
       "app/pages/datos.vue": 1,
       "app/pages/gastos.vue": 3,
       "app/pages/gracias.vue": 6,
-      "app/pages/mapa-metastasis.vue": 428,
+      "app/pages/mapa-metastasis.vue": 420,
       "app/pages/marcas.vue": 9,
       "app/pages/timeline.vue": 4,
       "app/utils/timeline.ts": 9
@@ -84,7 +84,7 @@
       "app/components/TimelineEntry.vue": 1,
       "app/components/VideoCaso.vue": 2,
       "app/pages/datos.vue": 17,
-      "app/pages/mapa-metastasis.vue": 41,
+      "app/pages/mapa-metastasis.vue": 40,
       "app/pages/marcas.vue": 3,
       "app/pages/timeline.vue": 3
     },
@@ -108,7 +108,7 @@
       "app/components/TimelineEntry.vue": 1,
       "app/error.vue": 1,
       "app/pages/datos.vue": 3,
-      "app/pages/mapa-metastasis.vue": 28,
+      "app/pages/mapa-metastasis.vue": 26,
       "app/pages/marcas.vue": 14,
       "app/pages/timeline.vue": 1
     },

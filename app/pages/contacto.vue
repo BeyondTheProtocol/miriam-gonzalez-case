@@ -2,11 +2,11 @@
   <div>
     <section class="section-spacing" :aria-label="$t('contact.title')">
       <div class="section-wide">
-        <!-- Cabecera heredada, A PROPÓSITO (revisión del barrido): con `variante="pagina"` el H1 pasaría a `.h1-pagina` y la entradilla a `.lede`, y el móvil cambiaría
-             (el interlineado del H1, de 36 a 32,4 px; la entradilla, de 18 a 19 px) sin que Miriam lo haya firmado. /datos sí la lleva (la aplicó el barrido). Decidir las
-             dos páginas a la vez, con el mismo criterio, está en DESIGN-SYSTEM.md sección 8 (cabecera v3). La doble entradilla (`contact.subtitle` más `contact.message`)
-             sigue: es la decisión G4 de Miriam. El eyebrow sería copy nuevo. -->
+        <!-- Cabecera v3, como /datos (T3-CIERRE, 26-oct-2026, decisión B del DS sección 8: un solo rol de H1 en las dos páginas). El H1 pasa a `.h1-pagina` y la entradilla
+             a `.lede`: en el móvil el interlineado del H1 baja de 36 a 32,4 px y la entradilla sube de 18 a 19 px. Los textos son los de siempre. La doble entradilla
+             (`contact.subtitle` más `contact.message`) sigue: es la decisión G4 de Miriam. Sin eyebrow: sería copy nuevo. -->
         <PageHeader
+          variante="pagina"
           :title="$t('contact.title')"
           :subtitle="$t('contact.subtitle')"
         />

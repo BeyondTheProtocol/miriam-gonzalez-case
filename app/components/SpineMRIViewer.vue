@@ -45,12 +45,12 @@ const seqs = [
     <div class="flex flex-wrap items-center gap-2 mb-3">
       <div class="inline-flex rounded-full border border-[rgba(45,27,61,0.2)] overflow-hidden text-xs font-semibold">
         <button v-for="r in regions" :key="r.k" type="button" @click="region = r.k as any"
-          class="px-3 py-1.5 lg:min-h-[44px] lg:px-4 transition-colors"
+          class="px-3 py-1.5 lg:min-h-[44px] [@media(pointer:coarse)]:min-h-[44px] lg:px-4 transition-colors"
           :class="region === r.k ? 'bg-berenjena text-cream' : 'text-tinta hover:text-berenjena'">{{ r.label }}</button>
       </div>
       <div class="inline-flex rounded-full border border-[rgba(45,27,61,0.2)] overflow-hidden text-xs font-semibold">
         <button v-for="s in seqs" :key="s.k" type="button" @click="seq = s.k as any"
-          class="px-3 py-1.5 lg:min-h-[44px] lg:px-4 transition-colors"
+          class="px-3 py-1.5 lg:min-h-[44px] [@media(pointer:coarse)]:min-h-[44px] lg:px-4 transition-colors"
           :class="seq === s.k ? 'bg-miriam text-cream' : 'text-tinta hover:text-berenjena'">{{ s.label }}</button>
       </div>
     </div>
@@ -71,11 +71,11 @@ const seqs = [
 
     <!-- slider de corte -->
     <div class="flex items-center gap-3 mt-3 mx-auto" style="max-width:520px">
-      <button type="button" @click="step(-1)" class="shrink-0 w-8 h-8 lg:w-11 lg:h-11 rounded-full border border-[rgba(45,27,61,0.2)] text-tinta hover:border-berenjena transition-colors" :aria-label="L('Corte anterior', 'Previous slice')">‹</button>
+      <button type="button" @click="step(-1)" class="shrink-0 w-8 h-8 lg:w-11 lg:h-11 [@media(pointer:coarse)]:w-11 [@media(pointer:coarse)]:h-11 rounded-full border border-[rgba(45,27,61,0.2)] text-tinta hover:border-berenjena transition-colors" :aria-label="L('Corte anterior', 'Previous slice')">‹</button>
       <input type="range" min="1" :max="N" step="1" :value="slice"
         @input="slice = +($event.target as HTMLInputElement).value"
-        class="flex-1 accent-miriam lg:h-11" :aria-label="L('Deslizar entre cortes sagitales', 'Scroll through sagittal slices')" />
-      <button type="button" @click="step(1)" class="shrink-0 w-8 h-8 lg:w-11 lg:h-11 rounded-full border border-[rgba(45,27,61,0.2)] text-tinta hover:border-berenjena transition-colors" :aria-label="L('Corte siguiente', 'Next slice')">›</button>
+        class="flex-1 accent-miriam lg:h-11 [@media(pointer:coarse)]:h-11" :aria-label="L('Deslizar entre cortes sagitales', 'Scroll through sagittal slices')" />
+      <button type="button" @click="step(1)" class="shrink-0 w-8 h-8 lg:w-11 lg:h-11 [@media(pointer:coarse)]:w-11 [@media(pointer:coarse)]:h-11 rounded-full border border-[rgba(45,27,61,0.2)] text-tinta hover:border-berenjena transition-colors" :aria-label="L('Corte siguiente', 'Next slice')">›</button>
     </div>
 
     <p class="text-[13px] text-tinta leading-relaxed mt-3 max-w-xl mx-auto text-center">{{ seqInfo }}</p>

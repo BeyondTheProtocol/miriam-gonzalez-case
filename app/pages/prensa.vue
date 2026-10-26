@@ -1,5 +1,6 @@
 <template>
-  <div>
+  <div class="[--measure:58ch]">
+    <!-- `[--measure:58ch]` en la raíz: la medida de lectura de esta página es de 58ch (T3-CIERRE, decisión E del DS sección 8); el token global sigue en 68ch hasta el PR #290. -->
     <!-- Sistema v3 (rediseño tanda 3, fase «prensa», 25-oct-2026). Solo estilo: cada cadena, cada id y cada ancla son los de antes
          (el copy publicado no se toca aquí). Ocho bloques que alternan tono como la home: crema · tarjeta · crema · tarjeta · oscura ·
          tarjeta · crema · tarjeta. Una sola banda oscura (las citas), en medio y nunca al final: el panel oscuro de contacto, en caja y

@@ -9,7 +9,7 @@
       <h3 class="font-display font-semibold text-berenjena text-sm">
         {{ member.role }}
       </h3>
-      <p class="text-xs lg:text-sm text-tinta mt-1 leading-relaxed"><template v-for="(part, i) in descParts" :key="i"><Term v-if="part.term" :id="part.value" /><template v-else>{{ part.value }}</template></template></p>
+      <p class="text-xs lg:text-sm text-tinta mt-1 leading-relaxed lg:leading-relaxed"><template v-for="(part, i) in descParts" :key="i"><Term v-if="part.term" :id="part.value" /><template v-else>{{ part.value }}</template></template></p>
     </div>
   </div>
 </template>
