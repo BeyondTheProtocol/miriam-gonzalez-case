@@ -34,8 +34,9 @@
 //   foco_tapado         pasos de Tab cuyo foco queda debajo de la cabecera fija (WCAG 2.4.11).
 //   linea_larga         bloques de texto cuya línea MÁS LARGA, tal como se pinta, pasa de 90 caracteres (lote 0 del repaso de escritorio,
 //                       25-oct-2026). Se cuenta el texto de verdad con Range (no el CSS): un `max-w-3xl` suelto da 100 a 190 caracteres y
-//                       ningún otro recuento lo veía. Por qué 90: `--measure` (68ch) da unos 80 a 85 caracteres con Hanken a 15 a 17 px, y el
-//                       umbral deja un 8 % de holgura (inferencia mía sobre el ancho medio de Hanken, sin probar con lectores). Un bloque
+//                       ningún otro recuento lo veía. Por qué 90: `--measure` (68ch) da de 81 a 90 caracteres con Hanken a 13 a 16 px (medido por la revisión del
+//                       barrido, 26-oct-2026; el lote 0 suponía unos 80 a 85, inferencia sobre el ancho medio de Hanken sin probar), así que 90 es el tope de lo que el token
+//                       ya permite y no una holgura. Con 58ch, que es lo recomendado (DS sección 8, punto d), el umbral baja a 80. Un bloque
 //                       cuenta aunque tenga una sola línea: una línea de 120 caracteres es larga se parta o no. No se miran: tablas (columnas),
 //                       <pre>, SVG ni lo oculto. A 390 px da 0 en la práctica (342 px no dan para 90 caracteres), así que es una métrica de 1280.
 //                       ¿Da lo mismo en otra máquina? (revisión del lote 0) Hay decenas de bloques con la línea más larga entre 86 y 94 caracteres, y el
@@ -49,7 +50,7 @@
 //                       último»). Se mide por geometría y no haciendo scroll: solo cuenta el que SÍ puede pegarse (su contenedor es más alto
 //                       que él y ningún antepasado tiene overflow, que anularía el sticky) y se mueve con el viewport.
 //
-// Y dos comprobaciones SIN baseline (o cumplen o no): `.rejilla-par` a 390 px, con un SVG de 700 px dentro, no ensancha la columna del texto; y el cielo de
+// Y tres comprobaciones SIN baseline (o cumplen o no): el visor 3D de /lesiones con WebGL por software (ver `VISOR_3D`); `.rejilla-par` a 390 px, con un SVG de 700 px dentro, no ensancha la columna del texto; y el cielo de
 // /links a 1024, 1280, 1440 y 1920 px (desde `lg`) deja ver la estrella coral «tú» (al menos el 90 % de su área, sin el avatar ni nada encima) y la
 // guía dentro de su caja, y en las cajas anchas (1440 y 1920) las once ancladas (lote 3, A36). Por debajo de `lg` no se afirma nada: ahí la «tú» sigue detrás del
 // avatar (a 375 px se ve un 0,6 %, a 768 un 4,3 %; arreglarlo toca la composición del móvil).
@@ -64,6 +65,7 @@
 //                                                  su ruta aún no trae) con el recuento que traen; jamás sube un recuento conocido. Igual que `pnpm test:diseno --absorber`: una ruta nueva que
 //                                                  entra en RUTAS no puede «bajar» desde un 0 que nunca existió.
 //   pnpm test:diseno-render --rutas /,/datos       solo esas rutas (no compara la baseline)
+//   pnpm test:diseno-render --rutas / --visor      además, la comprobación del visor 3D de /lesiones (con `--rutas` sola no corre: levanta un segundo Chrome)
 //   pnpm test:diseno-render --detalle              imprime los primeros ejemplos de cada recuento
 import { existsSync, readFileSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
@@ -78,6 +80,9 @@ export const RUTAS = [
   '/herramientas', '/reservorio', '/historia',
   // T3-BARRIDO: las páginas en inglés más largas y el pie, que se pinta en todas (la palabra inglesa del pie es más corta: «Team», «Press», «Slides»)
   '/en', '/en/science', '/en/science/evidence', '/en/data', '/en/tools', '/en/team',
+  // T3-BARRIDO (revisión): el espejo EN de cada página que toca la tanda. Un chip «All» de 37 px de ancho en /en/mapa-metastasis (en español, «Todos», mide más de 44)
+  // no lo veía ninguna ruta de esta lista.
+  '/en/mapa-metastasis', '/en/timeline', '/en/collaborate', '/en/contact', '/en/expenses', '/en/brands', '/en/press', '/en/lesiones', '/en/reservorio',
 ]
 const ANCHOS = [390, 1280]
 const METRICAS = ['desborde', 'desborde_oculto', 'h1_borde', 'texto_bajo_suelo', 'texto_svg_bajo_suelo', 'objetivos_pequenos', 'objetivos_svg', 'contraste', 'foco_tapado', 'linea_larga', 'sticky_tapado']
@@ -412,6 +417,49 @@ const CIELO = `(async () => {
 const ANCHOS_CIELO = [1024, 1280, 1440, 1920]
 const TU_LIBRE_MIN = 90
 
+// Los controles del visor 3D de /lesiones (BoneTriView), revisión del barrido (26-oct-2026). Las rutas de arriba se miden SIN WebGL, y los controles del visor solo existen
+// con WebGL: el reencuadre medía 30 × 30 y el toggle de la diana 27 de alto, y ningún recuento los veía. Aquí se abre /lesiones a 1280 px con ratón y WebGL por software
+// (SwiftShader, como test-celula-explorador-html.mjs) y cada control debe tener una zona pulsable de 44 px: su caja, o un ::before o ::after absoluto sin
+// `pointer-events: none` (igual que objetivos_pequenos). Con el dedo ya medían 44 (el bloque táctil de BoneTriView) y no se repite. Sin baseline. Si el visor no llega a
+// pintarse, FALLA y lo dice: un «no medido» no es un «cumple». Solo corre en la pasada completa (o con `--visor`), porque levanta un segundo Chrome.
+// SIN probar en el Chrome de ubuntu-latest de diseno.yml: el precedente es que test-celula-explorador-html.mjs pinta WebGL por software ahí (e2e.yml, mismo flag). Si el primer
+// run falla con «sin medir», es el entorno y no el código: mira antes de tocar nada. En el Mac, la pasada completa tardó 3 min 57 s (medido el 26-oct-2026, con el visor incluido).
+const VISOR_3D = `(async () => {
+  const esperar = (ms) => new Promise((r) => setTimeout(r, ms))
+  for (let i = 0; i < 200 && !document.querySelector('.btv-reframe'); i++) {
+    document.querySelector('.btv-tabs')?.scrollIntoView({ block: 'center' })
+    await esperar(200)
+  }
+  await esperar(600)
+  const zona = (e) => {
+    const r = e.getBoundingClientRect()
+    let w = r.width, h = r.height
+    for (const p of ['::before', '::after']) {
+      const cs = getComputedStyle(e, p)
+      if (cs.content !== 'none' && cs.position === 'absolute' && cs.pointerEvents !== 'none') { w = Math.max(w, parseFloat(cs.width) || 0); h = Math.max(h, parseFloat(cs.height) || 0) }
+    }
+    return { w: Math.round(w * 10) / 10, h: Math.round(h * 10) / 10 }
+  }
+  const controles = []
+  for (const sel of ['.btv-reframe', '.btv-target-toggle', '.btv-biopsy-toggle']) {
+    const e = document.querySelector(sel)
+    if (e) controles.push({ clase: sel, ...zona(e) })
+  }
+  const hay = (sel) => controles.some((c) => c.clase === sel)
+  if (!hay('.btv-reframe') || !hay('.btv-target-toggle')) return { error: 'el visor 3D de /lesiones no pintó el botón de reencuadre y el toggle de la diana (WebGL por software): sin medir' }
+  return { controles }
+})()`
+async function medirVisor3D() {
+  const nav = await abrirNavegador({ ancho: 1280, alto: 900, escala: 1, gl: true, chromeArgs: ['--font-render-hinting=none'] })
+  try {
+    await nav.cdp('Emulation.setEmulatedMedia', { features: [{ name: 'prefers-reduced-motion', value: 'reduce' }] })
+    await nav.cargar('/lesiones')
+    return await nav.evaluate(VISOR_3D)
+  } finally {
+    await nav.cerrar()
+  }
+}
+
 async function medir(rutas) {
   // `--font-render-hinting=none`: el avance de cada letra no se redondea al píxel según la plataforma. `linea_larga` cuenta caracteres por línea
   // pintada y el corte de línea depende de ese avance; sin el flag, un Chrome de Linux con hinting podría partir una línea una palabra antes o
@@ -499,6 +547,15 @@ for (const c of cielo) {
 if (fallosCielo.length) {
   console.log(`\n✘ El cielo de /links:\n   ${fallosCielo.join('\n   ')}`)
   process.exit(1)
+}
+if (!arg('--rutas') || args.includes('--visor')) {
+  const v = await medirVisor3D()
+  const fallosVisor = v.error ? [v.error] : v.controles.filter((c) => c.w < 43.5 || c.h < 43.5).map((c) => `${c.clase}: zona pulsable de ${c.w} × ${c.h} px, mínimo 44 × 44 (WCAG 2.5.8 pide 24; la vara de marca, 44)`)
+  if (fallosVisor.length) {
+    console.log(`\n✘ El visor 3D de /lesiones a 1280 px, con ratón:\n   ${fallosVisor.join('\n   ')}`)
+    process.exit(1)
+  }
+  console.log(`  visor 3D (/lesiones:1280, WebGL por software): ${v.controles.map((c) => `${c.clase} ${c.w} × ${c.h}`).join(' · ')}`)
 }
 if (args.includes('--detalle')) {
   for (const [clave, por] of Object.entries(ejemplos)) for (const [m, lista] of Object.entries(por)) if (lista.length) console.log(`\n${clave} ${m}:\n   ${lista.join('\n   ')}`)

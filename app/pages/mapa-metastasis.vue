@@ -3411,8 +3411,8 @@ const manifestValidated = (() => {
             <input type="checkbox" v-model="orderByIdoneidad" class="mt-0.5 accent-[#9d44ab] w-4 h-4 shrink-0"
               :aria-label="L('Ordenar por idoneidad (heurística orientativa, no validada)', 'Sort by suitability (indicative heuristic, not validated)')" />
             <span class="min-w-0 measure">
-              <span class="text-[13px] font-semibold text-berenjena leading-snug block">{{ L('Ordenar por idoneidad (estimación heurística orientativa, no validada)', 'Sort by suitability (indicative heuristic estimate, not validated)') }}</span>
-              <span class="text-xs text-tinta leading-snug block mt-0.5">{{ orderByIdoneidad ? L('Activada: la lista se reordena por el score. Es una orientación que el equipo sopesa; el orden de referencia es el nivel anatómico.', 'On: the list is reordered by the score. It is an orientation the team weighs; the reference order is the anatomical level.') : L('Por defecto, los focos van por nivel anatómico (hecho neutro). Actívala para verlos reordenados por la estimación de idoneidad.', 'By default, foci go by anatomical level (a neutral fact). Turn it on to see them reordered by the suitability estimate.') }}</span>
+              <span class="text-[13px] font-semibold text-berenjena leading-snug block measure">{{ L('Ordenar por idoneidad (estimación heurística orientativa, no validada)', 'Sort by suitability (indicative heuristic estimate, not validated)') }}</span>
+              <span class="text-xs text-tinta leading-snug block mt-0.5 measure">{{ orderByIdoneidad ? L('Activada: la lista se reordena por el score. Es una orientación que el equipo sopesa; el orden de referencia es el nivel anatómico.', 'On: the list is reordered by the score. It is an orientation the team weighs; the reference order is the anatomical level.') : L('Por defecto, los focos van por nivel anatómico (hecho neutro). Actívala para verlos reordenados por la estimación de idoneidad.', 'By default, foci go by anatomical level (a neutral fact). Turn it on to see them reordered by the suitability estimate.') }}</span>
             </span>
           </label>
 
@@ -5747,9 +5747,9 @@ svg [role="option"]:focus-visible {
   .seg__btn, .manifest-dl, .btn-copylink, .btn-expand3d { min-height: var(--control-min); }
   .nav-step, .tl-play { width: var(--control-min); height: var(--control-min); }
   .manifest-dl { height: auto; }
-  /* Revisión del barrido: de ancho también (las fechas de la línea de tiempo medían 35 × 44 y el botón de orden de «#», 32 × 44), el resumen del foco y los
+  /* Revisión del barrido: de ancho también (las fechas de la línea de tiempo medían 35 × 44, el botón de orden de «#», 32 × 44 y el chip «All» de EN, 37 × 44), el resumen del foco y los
      deslizadores (6 y 16 px de alto). El dibujo del deslizador sigue siendo una pista de 6 px: la caja de 44 es transparente. */
-  .tl-date, .th-sort { min-width: var(--control-min); justify-content: center; }
+  .filter-chip, .tl-date, .th-sort { min-width: var(--control-min); justify-content: center; }
   .foco-detalle__sum { min-height: var(--control-min); }
   .tl-range { height: var(--control-min); }
   .stress-slider {

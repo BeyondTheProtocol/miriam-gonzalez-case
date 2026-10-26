@@ -68,9 +68,9 @@ const isHome = computed(() => {
   width: 100%;
   text-decoration: none;
   color: inherit;
-  /* El área clicable es toda la fila (no solo el texto pequeño): sobra
-     margen de toque real aunque el tipo sea de 11-13px. No exige los 44px
-     del nav principal porque no es un control de navegación, es informativo. */
+  /* El área clicable es toda la fila (no solo el texto pequeño). Mide 25 px de alto, por debajo de los 44 px de la vara de marca (DESIGN-SYSTEM.md, sección 4):
+     NO es una excepción firmada. Está pendiente de decisión (sección 8, «Barra "Lo último"»): la salida recomendada es una zona pulsable de 44 px con un `::after`
+     sin crecer la barra. Se deja así en esta rama porque la barra se pinta también en célula y alphafold (PR #290) y su baseline no se toca. */
   padding-block: 0.15rem;
 }
 .latest-bar__title {
