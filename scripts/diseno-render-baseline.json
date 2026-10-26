@@ -20,7 +20,7 @@
       "texto_svg_bajo_suelo": 0,
       "objetivos_pequenos": 0,
       "contraste": 0,
-      "linea_larga": 3,
+      "linea_larga": 0,
       "sticky_tapado": 0,
       "foco_tapado": 0
     },
@@ -159,7 +159,7 @@
     "/gastos:390": {
       "desborde": 0,
       "h1_borde": 0,
-      "texto_bajo_suelo": 6,
+      "texto_bajo_suelo": 0,
       "texto_svg_bajo_suelo": 0,
       "objetivos_pequenos": 1,
       "contraste": 0,
@@ -170,11 +170,11 @@
     "/gastos:1280": {
       "desborde": 0,
       "h1_borde": 0,
-      "texto_bajo_suelo": 6,
+      "texto_bajo_suelo": 0,
       "texto_svg_bajo_suelo": 0,
       "objetivos_pequenos": 1,
       "contraste": 0,
-      "linea_larga": 12,
+      "linea_larga": 0,
       "sticky_tapado": 0,
       "foco_tapado": 0
     },

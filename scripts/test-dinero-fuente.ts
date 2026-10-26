@@ -27,6 +27,8 @@
 //    partirse, la lista de fases tiene nombre, y todo enlace de donar que abre pestaña nueva lo dice a quien lee con lector de pantalla.
 // 9. Lo que Miriam quitó de /gastos el 25-oct-2026 (la nota del cargo duplicado, lo recibido de GoFundMe, el cuadre de GoFundMe y la
 //    nota del gasto personal y los extractos) no vuelve: ni la clave, ni la plantilla, ni el campo del JSON, ni la frase con otras palabras.
+// 10. /gastos tiene UN nombre en sus enlaces y títulos («Destino del dinero» / «Where the money goes»): el pie, la caja de confianza y la
+//    tarjeta 02 de /colabora, la sala de prensa y el título de la propia página dicen lo mismo.
 //
 // Las frases retiradas se vigilan por CONCEPTO y no solo por frase exacta (§4): «el destino de cada gasto», «cada importe se
 // publicará» o «where every expense goes» dicen lo mismo que «cada gasto está documentado» y la regex por frase no las cogía.
@@ -393,6 +395,23 @@ console.log('9. Lo que Miriam quitó de /gastos el 25-oct-2026 no vuelve')
     ok(conFrase.length === 0, `${loc}: ninguna clave de /gastos vuelve a decir lo quitado con otras palabras (${conFrase.join(', ') || 'ninguna'})`)
   }
   ok(!/DINERO\.(ingresado|gofundme|correccion)|expenses\.(report_note|report_ingresado|report_correccion|gfm_)/.test(gastos), '/gastos ya no pinta lo recibido, el cuadre de GoFundMe ni las dos notas')
+}
+
+console.log('10. /gastos tiene un solo nombre en sus enlaces y títulos (lote 3 del repaso de escritorio, 26-oct-2026)')
+// Había cuatro («Transparencia», «Destino del dinero», «Ver destino del dinero» y «Ver el gasto por categorías»): el que llegaba a /gastos por el pie,
+// por /colabora o por la prensa no sabía que era la misma página. Decisión 2 del repaso: «Destino del dinero» (en inglés, «Where the money goes», el
+// título que la página ya llevaba). Se miran las claves que SON un enlace o un título de /gastos, no las frases que la mencionan («Somos
+// transparentes…», «Ver el informe de gastos» de la home y de /gracias, que la especificación del lote no nombra).
+{
+  const NOMBRE = { es: 'Destino del dinero', en: 'Where the money goes' } as const
+  const CLAVES: [string, string][] = [
+    ['nav', 'expenses'], ['expenses', 'title'], ['press', 'resource_expenses'],
+    ['collaborate', 'trust_transparency_title'], ['collaborate', 'trust_transparency_link'], ['collaborate', 'profile2_expenses_link'],
+  ]
+  for (const [loc, d] of [['es', es], ['en', en]] as const) {
+    const distintas = CLAVES.filter(([ns, k]) => d[ns]?.[k] !== NOMBRE[loc]).map(([ns, k]) => `${ns}.${k} = «${d[ns]?.[k]}»`)
+    ok(distintas.length === 0, `${loc}: los enlaces y títulos que nombran /gastos dicen «${NOMBRE[loc]}» (${distintas.join('; ') || 'los seis'})`)
+  }
 }
 
 console.log(fallos ? `\n❌ ${fallos} fallo(s)` : '\n✅ las cifras de dinero tienen una sola fuente y la norma de transparencia se cumple')

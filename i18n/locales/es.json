@@ -17,7 +17,7 @@
     "brands": "Marcas",
     "data": "Datos",
     "data_case": "El caso en datos",
-    "expenses": "Transparencia",
+    "expenses": "Destino del dinero",
     "main_label": "Navegación principal",
     "mobile_label": "Navegación móvil",
     "footer_label": "Navegación del sitio",
@@ -238,7 +238,7 @@
     "copied": "¡Enlace copiado!",
     "home": "Volver al inicio",
     "next": "Ver lo último del caso",
-    "follow": "¿Quieres seguir el caso de cerca? {'@'}miriamgonp en Instagram"
+    "follow": "¿Quieres seguir el caso de cerca? {handle} en Instagram"
   },
   "error": {
     "e404_code": "404",
@@ -998,11 +998,11 @@
     "profile2_tag": "La que más mueve la aguja",
     "profile2_title": "Financiar la investigación del caso",
     "profile2_text": "El dinero financia investigación aplicada a un solo caso: el análisis profundo del tejido de la rebiopsia ósea, transcriptómica, segundas opiniones internacionales y el ensayo N-of-1 cuando la biología lo justifique. {expenses}.",
-    "profile2_expenses_link": "Ver el gasto por categorías",
+    "profile2_expenses_link": "Destino del dinero",
     "trust_aria": "Transparencia y estado de la campaña",
     "trust_eyebrow": "Antes de elegir",
-    "trust_transparency_title": "Transparencia",
-    "trust_transparency_link": "Ver destino del dinero",
+    "trust_transparency_title": "Destino del dinero",
+    "trust_transparency_link": "Destino del dinero",
     "trust_campaign_title": "Campaña en vivo",
     "trust_social_title": "Prueba social",
     "trust_social_body": "Cada donación aparece en el muro de gracias.",

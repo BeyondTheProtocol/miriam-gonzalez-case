@@ -20,11 +20,14 @@
 
     <!-- 4 · El caso en 3 frases (#caso: a él baja «Entender el caso» del hero). La única capa llana del sitio, compuesta SOLO
          con frases que la home ya publicaba (verbatim o recortadas, sin afirmaciones nuevas): qué tiene, por qué no encaja,
-         qué se hace. Sin «dos biologías» como hecho: eso espera a su gate (G1). -->
+         qué se hace. Sin «dos biologías» como hecho: eso espera a su gate (G1).
+         T3-LOTE3 (A31): desde `lg` la banda es tarjeta y no crema. Justo antes va la banda de herramientas, también crema, y el DS (§3)
+         no deja dos bandas del mismo tono seguidas. Por debajo de `lg` se queda crema como hasta ahora: el tono de una banda se ve en el
+         móvil y la regla móvil primero de la tanda solo deja tocar el suelo de 13 px, el contenedor y la medida. -->
     <section
       id="caso"
       v-reveal
-      class="scroll-mt-24 bg-cream section-spacing--compacta"
+      class="scroll-mt-24 bg-cream lg:bg-cream-card section-spacing--compacta"
       aria-labelledby="h-caso"
     >
       <div class="section-wide">
@@ -78,37 +81,41 @@
           <DatosSello v-if="ahora.sello" :s="ahora.sello" :lang="lang" />
         </p>
 
-        <HomeProximosPasos />
+        <!-- T3-LOTE3 (A30): texto + pieza (regla de retícula 1). La ruta (a la izquierda) y «Qué buscamos» (a la derecha) iban una bajo la otra y
+             cada una a media fila (la ruta con un tope de 768 px; las peticiones, con el de 68ch): desde `lg` son dos columnas iguales con
+             `.rejilla-par`. Por debajo de `lg` es la misma pila de siempre: el mt-12 de la segunda mitad y el mt-6 de sus botones se quedan como
+             estaban, y el hueco de fila de la rejilla no cuenta (solo el de columna). Sin peticiones no hay segunda columna, y la ruta no se
+             queda a media fila. -->
+        <div :class="peticiones.length ? 'rejilla-par home-donde' : ''">
+          <HomeProximosPasos />
 
-        <div v-if="peticiones.length" class="mt-12">
-          <h3 id="h-buscamos" class="h3-seccion mb-4">
-            {{ $t('home.buscamos_heading') }}
-          </h3>
-          <div class="max-w-3xl">
+          <div v-if="peticiones.length" class="mt-12 lg:mt-0">
+            <h3 id="h-buscamos" class="h3-seccion mb-4">
+              {{ $t('home.buscamos_heading') }}
+            </h3>
             <QueBuscamos :fuente="peticiones" :limite="LIMITE_PETICIONES" :acciones="false" />
-          </div>
-        </div>
 
-        <!-- La fila de acciones es de la home: el botón de contacto profesional (con su rol ya marcado) y «ver todas» solo si
-             quedan peticiones sin enseñar. El evento de Umami de las dos primeras lo emite el plugin por el href (VerPeticion,
-             Contacto-clic). El acceso «Míralo en 3D» salió en T2a (24-oct-2026): ahora «Mama, hígado y hueso» es una fila de la banda
-             de herramientas, dos bloques más arriba, y dos enlaces a /lesiones seguidos eran la clase de ruido que F5 quiso evitar. -->
-        <div class="mt-6 flex flex-col sm:flex-row sm:flex-wrap sm:items-center gap-x-6 gap-y-3">
-          <NuxtLink
-            v-if="peticiones.length"
-            :to="localePath({ name: 'contacto', query: { role: 'researcher' } })"
-            class="btn-secondary justify-center"
-          >
-            {{ $t('home.buscamos_escribir') }}
-          </NuxtLink>
-          <NuxtLink
-            v-if="hayMas"
-            :to="localePath({ name: 'datos', hash: '#que-buscamos' })"
-            class="link-action group min-h-[44px] text-sm text-miriam"
-          >
-            {{ $t('home.buscamos_todas') }}
-            <Icon name="ph:arrow-right" class="w-4 h-4 transition-transform group-hover:translate-x-0.5" aria-hidden="true" />
-          </NuxtLink>
+            <!-- La fila de acciones es de la home: el botón de contacto profesional (con su rol ya marcado) y «ver todas» solo si
+                 quedan peticiones sin enseñar. El evento de Umami de las dos primeras lo emite el plugin por el href (VerPeticion,
+                 Contacto-clic). El acceso «Míralo en 3D» salió en T2a (24-oct-2026): ahora «Mama, hígado y hueso» es una fila de la banda
+                 de herramientas, dos bloques más arriba, y dos enlaces a /lesiones seguidos eran la clase de ruido que F5 quiso evitar. -->
+            <div class="mt-6 flex flex-col sm:flex-row sm:flex-wrap sm:items-center gap-x-6 gap-y-3">
+              <NuxtLink
+                :to="localePath({ name: 'contacto', query: { role: 'researcher' } })"
+                class="btn-secondary justify-center"
+              >
+                {{ $t('home.buscamos_escribir') }}
+              </NuxtLink>
+              <NuxtLink
+                v-if="hayMas"
+                :to="localePath({ name: 'datos', hash: '#que-buscamos' })"
+                class="link-action group min-h-[44px] text-sm text-miriam"
+              >
+                {{ $t('home.buscamos_todas') }}
+                <Icon name="ph:arrow-right" class="w-4 h-4 transition-transform group-hover:translate-x-0.5" aria-hidden="true" />
+              </NuxtLink>
+            </div>
+          </div>
         </div>
       </div>
     </section>
@@ -123,7 +130,7 @@
         <h2 id="h-dinero" class="h2-seccion mb-4">
           {{ $t('home.dinero_heading') }}
         </h2>
-        <p class="text-base text-tinta leading-relaxed max-w-2xl">{{ $t('money.destino') }}</p>
+        <p class="text-base text-tinta leading-relaxed measure">{{ $t('money.destino') }}</p>
         <NuxtLink :to="localePath('gastos')" class="link-action group mt-1 mb-8 min-h-[44px] text-sm text-miriam">
           {{ $t('home.dinero_informe') }}
           <Icon name="ph:arrow-right" class="w-4 h-4 transition-transform group-hover:translate-x-0.5" aria-hidden="true" />
@@ -261,6 +268,10 @@ useHead({
 <style scoped>
 /* Línea de debajo de las puertas: el texto y el enlace en la misma línea si caben; si no, el enlace baja (siempre de 44 px). */
 .puertas-pares { margin: 1.25rem 0 0; max-width: 42rem; display: flex; flex-wrap: wrap; align-items: center; gap: 0 0.5rem; font-size: 1rem; line-height: 1.55; color: var(--color-text); }
+
+/* «Dónde estamos» en dos columnas desde `lg` (A30): la pila de debajo de `lg` conserva sus márgenes de siempre (mt-12 y mt-6), así que el hueco de fila
+   de `.rejilla-par` (32 px) no cuenta; el de columna (48 px, solo desde `lg`) sí. */
+.home-donde { row-gap: 0; }
 
 /* «Ahora»: una línea, la primera del bloque (lo que se hace hoy), antes de la ruta. */
 .home-ahora { margin: 0 0 1.5rem; max-width: 42rem; font-size: 1.0625rem; line-height: 1.55; color: var(--color-text); }

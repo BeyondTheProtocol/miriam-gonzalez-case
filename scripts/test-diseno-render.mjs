@@ -29,7 +29,8 @@
 //                       último»). Se mide por geometría y no haciendo scroll: solo cuenta el que SÍ puede pegarse (su contenedor es más alto
 //                       que él y ningún antepasado tiene overflow, que anularía el sticky) y se mueve con el viewport.
 //
-// Y una comprobación SIN baseline (o cumple o no): `.rejilla-par` a 390 px, con un SVG de 700 px dentro, no ensancha la columna del texto.
+// Y dos comprobaciones SIN baseline (o cumplen o no): `.rejilla-par` a 390 px, con un SVG de 700 px dentro, no ensancha la columna del texto; y el cielo de
+// /links a 1920 px (caja ancha) enseña la estrella coral «tú», la violeta guía y las once ancladas dentro de su caja (lote 3, A36).
 //
 // No mide el texto sobre degradados ni sobre imágenes (se salta cualquier nodo con un ANTEPASADO con background-image; el degradado del
 // propio nodo, el marcador de los enlaces en línea, sí se mide sobre su color de fondo y los de sus antepasados),
@@ -270,6 +271,22 @@ const REJILLA_PAR = `(() => {
   return r
 })()`
 
+// El cielo de /links en una caja ANCHA (lote 3, A36). El SVG de la constelación usa un viewBox de 100 × 100 con `slice`: en una caja más ancha que alta
+// solo se ve la franja central en vertical, y las dos estrellas protagonistas (la coral «tú», y = 7, y la violeta guía, y = 9) quedaban fuera, arriba (a
+// 1920 px, `.cn-you` a -57 px del borde de la página). Ahora `Constellation.vue` mide su caja y reparte las posiciones por la franja visible. Esta
+// comprobación no lleva baseline: o las dos estrellas y las once ancladas caben dentro de la caja del cielo a 1920, o no. Hay que esperar al cielo: es
+// ClientOnly y se redibuja cuando el ResizeObserver le da la proporción.
+const CIELO = `(async () => {
+  for (let i = 0; i < 50 && !document.querySelector('.cn-you'); i++) await new Promise((r) => setTimeout(r, 100))
+  await new Promise((r) => setTimeout(r, 500))
+  const svg = document.querySelector('svg.constellation')
+  if (!svg) return { error: 'la página no pinta el cielo' }
+  const caja = svg.getBoundingClientRect()
+  const dentro = (e) => { if (!e) return false; const r = e.getBoundingClientRect(); return r.left >= caja.left - 1 && r.right <= caja.right + 1 && r.top >= caja.top - 1 && r.bottom <= caja.bottom + 1 }
+  const anclas = [...document.querySelectorAll('.cn-anchor')]
+  return { ancho: innerWidth, proporcion: +(caja.width / caja.height).toFixed(2), tu: dentro(document.querySelector('.cn-you')), guia: dentro(anclas[0]), anclas: anclas.length, visibles: anclas.filter(dentro).length }
+})()`
+
 async function medir(rutas) {
   // `--font-render-hinting=none`: el avance de cada letra no se redondea al píxel según la plataforma. `linea_larga` cuenta caracteres por línea
   // pintada y el corte de línea depende de ese avance; sin el flag, un Chrome de Linux con hinting podría partir una línea una palabra antes o
@@ -279,6 +296,7 @@ async function medir(rutas) {
   const res = {}
   const ejemplos = {}
   let rejilla
+  let cielo
   try {
     for (const ruta of rutas) {
       for (const ancho of ANCHOS) {
@@ -305,10 +323,13 @@ async function medir(rutas) {
     await nav.cdp('Emulation.setDeviceMetricsOverride', { width: ANCHOS[0], height: 900, deviceScaleFactor: 1, mobile: false })
     await nav.cargar('/guia-de-estilo')
     rejilla = await nav.evaluate(REJILLA_PAR)
+    await nav.cdp('Emulation.setDeviceMetricsOverride', { width: 1920, height: 900, deviceScaleFactor: 1, mobile: false })
+    await nav.cargar('/links')
+    cielo = await nav.evaluate(CIELO)
   } finally {
     await nav.cerrar()
   }
-  return { res, ejemplos, rejilla }
+  return { res, ejemplos, rejilla, cielo }
 }
 
 const args = process.argv.slice(2)
@@ -319,7 +340,7 @@ if (!existsSync(ROOT)) {
   process.exit(2)
 }
 const rutas = arg('--rutas') ? arg('--rutas').split(',') : RUTAS
-const { res, ejemplos, rejilla } = await medir(rutas)
+const { res, ejemplos, rejilla, cielo } = await medir(rutas)
 const errores = Object.entries(res).filter(([, v]) => v.error)
 if (errores.length) {
   console.log(`\n✘ ${errores.length} medición(es) con error: ${errores.map(([k]) => k).join(', ')}`)
@@ -327,6 +348,10 @@ if (errores.length) {
 }
 if (rejilla.texto > rejilla.ancho) {
   console.log(`\n✘ .rejilla-par a ${ANCHOS[0]} px: el texto mide ${rejilla.texto} px en una ventana de ${rejilla.ancho} (pista «${rejilla.pista}»). Una pieza ancha ensancha la columna: la pista de la pila debe ser minmax(0, 1fr).`)
+  process.exit(1)
+}
+if (cielo.error || !cielo.tu || !cielo.guia || cielo.visibles !== cielo.anclas) {
+  console.log(`\n✘ El cielo de /links a ${cielo.ancho ?? 1920} px (proporción ${cielo.proporcion ?? '?'}): ${cielo.error ?? `la estrella «tú» ${cielo.tu ? 'cabe' : 'NO cabe'}, la guía ${cielo.guia ? 'cabe' : 'NO cabe'} y caben ${cielo.visibles} de ${cielo.anclas} ancladas`} dentro de su caja. En una caja ancha, Constellation.vue debe repartir las posiciones por la franja que \`slice\` deja ver.`)
   process.exit(1)
 }
 if (args.includes('--detalle')) {

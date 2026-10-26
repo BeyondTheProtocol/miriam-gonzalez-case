@@ -17,7 +17,7 @@
     "brands": "Brands",
     "data": "Data",
     "data_case": "The case in data",
-    "expenses": "Transparency",
+    "expenses": "Where the money goes",
     "main_label": "Primary navigation",
     "mobile_label": "Mobile navigation",
     "footer_label": "Site navigation",
@@ -238,7 +238,7 @@
     "copied": "Link copied!",
     "home": "Back to home",
     "next": "See the latest on the case",
-    "follow": "Want to follow the case closely? {'@'}miriamgonp on Instagram"
+    "follow": "Want to follow the case closely? {handle} on Instagram"
   },
   "error": {
     "e404_code": "404",
@@ -998,11 +998,11 @@
     "profile2_tag": "What moves the needle most",
     "profile2_title": "Fund the research behind the case",
     "profile2_text": "The money funds research applied to a single case: deep analysis of the bone rebiopsy tissue, transcriptomics, international second opinions and the N-of-1 trial when biology justifies it. {expenses}.",
-    "profile2_expenses_link": "See spending by category",
+    "profile2_expenses_link": "Where the money goes",
     "trust_aria": "Transparency and campaign status",
     "trust_eyebrow": "Before you choose",
-    "trust_transparency_title": "Transparency",
-    "trust_transparency_link": "See where the money goes",
+    "trust_transparency_title": "Where the money goes",
+    "trust_transparency_link": "Where the money goes",
     "trust_campaign_title": "Live campaign",
     "trust_social_title": "Social proof",
     "trust_social_body": "Every donation appears on the thanks wall.",

@@ -70,10 +70,20 @@ function alPulsar(id: string) {
 </template>
 
 <style scoped>
-/* Una columna en móvil (se lee en el orden del DOM, sin esquinas), dos en tableta, tres desde 1024 (3 + 2) y las cinco en una fila
-   desde 1280, donde cada puerta aún mide ~220 px. Con cinco, cuatro columnas dejaban una puerta sola en la segunda fila. */
+/* Una columna en móvil (se lee en el orden del DOM, sin esquinas), dos en tableta, seis columnas desde 1024 con spans 2, 2, 2, 3 y 3 (tres
+   puertas arriba y dos más anchas debajo: sin hueco) y las cinco en una fila desde 1280, donde cada puerta aún mide ~220 px. Antes, de 1024 a
+   1279 eran tres columnas y la segunda fila dejaba un hueco (3 + 2). Con cinco, cuatro columnas dejaban una puerta sola en la segunda fila.
+   (Regla de retícula 2 del DS, §3. Entre 640 y 1023 son dos columnas y la última puerta queda sola: eso es debajo de `lg` y no se toca en
+   este lote.) */
 .puertas { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--sp-12); grid-template-columns: minmax(0, 1fr); }
 @media (min-width: 640px) { .puertas { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
-@media (min-width: 1024px) { .puertas { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
-@media (min-width: 1280px) { .puertas { grid-template-columns: repeat(5, minmax(0, 1fr)); } }
+@media (min-width: 1024px) {
+  .puertas { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+  .puertas > li { grid-column: span 2; }
+  .puertas > li:nth-child(n + 4) { grid-column: span 3; }
+}
+@media (min-width: 1280px) {
+  .puertas { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+  .puertas > li, .puertas > li:nth-child(n + 4) { grid-column: auto; }
+}
 </style>

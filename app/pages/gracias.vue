@@ -1,8 +1,10 @@
 <template>
-  <div class="relative overflow-hidden section-container max-w-2xl py-20 sm:py-28 text-center">
+  <!-- Cielo a sangre (T3-LOTE3, A35), como /links: la constelación pinta todo el ancho de la página y no solo la columna de 672 px, que la cortaba en
+       un rectángulo de estrellas (a 1280 se veía el borde donde acababan). La columna sigue siendo `.section-container` (centrada a propósito). -->
+  <div class="relative overflow-hidden">
     <!-- B1 · constelación de quienes apoyan (decorativa, detrás del mensaje) -->
     <Constellation :count="donorCount" :donations="donations" />
-    <div class="relative z-10">
+    <div class="relative z-10 section-container max-w-2xl py-20 sm:py-28 text-center">
     <!-- Monograma redondo con constelación -->
     <svg class="mx-auto mb-8 w-24 h-24 sm:w-28 sm:h-28" viewBox="0 0 240 240" aria-hidden="true">
       <path d="M192.94 24.47 L199.74 37.67 L212.94 44.47 L199.74 51.27 L192.94 64.47 L186.14 51.27 L172.94 44.47 L186.14 37.67 Z" fill="#9d44ab" />
@@ -62,9 +64,15 @@
       </NuxtLink>
     </div>
 
-    <p class="mt-10 font-mono text-xs text-tinta">
-      {{ $t('thanks.follow') }}
-    </p>
+    <!-- T3-LOTE3 (A35): el usuario es un enlace de 44 px a su Instagram (el texto dice «en Instagram») y, desde `lg`, la frase va en Hanken de 15 px
+         y no en mono de 13 (por debajo de `lg` la tipografía no cambia: la regla móvil primero de la tanda no deja tocarla). El texto visible es
+         el de siempre: `thanks.follow` lleva ahora el hueco {handle} donde estaba «@miriamgonp». El usuario y la URL salen de REDES y
+         REDES_USUARIO (app/utils/navegacion.ts), una sola vez. -->
+    <i18n-t keypath="thanks.follow" tag="p" class="mt-10 font-mono text-xs lg:font-body lg:text-sm text-tinta">
+      <template #handle>
+        <a :href="instagram.url" target="_blank" rel="noopener noreferrer" class="link-inline gracias__handle" translate="no">{{ REDES_USUARIO }}<span class="sr-only">{{ ' ' + $t('a11y.new_tab') }}</span></a>
+      </template>
+    </i18n-t>
     </div>
   </div>
 </template>
@@ -73,6 +81,9 @@
 const { t } = useI18n()
 const localePath = useLocalePath()
 const { trackShare, trackLatest } = useSupport()
+
+// «@miriamgonp en Instagram»: la red y el usuario salen de REDES y REDES_USUARIO (app/utils/navegacion.ts), una sola vez.
+const instagram = REDES.find((r) => r.id === 'instagram') ?? REDES[0]!
 
 // Densidad de la constelación ~ donantes (solo para el cielo, no 1:1).
 // Datos de campaña: JSON estático de main (función Netlify), carga en cliente.
@@ -120,3 +131,8 @@ async function share() {
   }
 }
 </script>
+
+<style scoped>
+/* El enlace del usuario mide 44 px (como `.link-action`): es un destino, no una palabra suelta. La frase queda centrada y la línea que lo lleva crece. */
+.gracias__handle { display: inline-flex; align-items: center; min-height: var(--control-min); }
+</style>

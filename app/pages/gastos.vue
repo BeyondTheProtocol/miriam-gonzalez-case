@@ -20,12 +20,12 @@
           <h2 class="font-display font-semibold text-berenjena text-lg mb-2">
             {{ $t('expenses.report_title') }}
           </h2>
-          <p class="text-sm text-tinta leading-relaxed mb-3 max-w-2xl">
+          <p class="text-sm text-tinta leading-relaxed mb-3 measure">
             {{ $t('expenses.report_intro', { fecha: corte }) }}
           </p>
           <!-- Línea de cuadre: lo recaudado (arriba, en directo y bruto) y este informe (lo gastado y lo disponible a su corte) son
                cifras distintas; sin esta línea parecería que no cuadran. Decisión de Miriam, 24-oct-2026. -->
-          <p class="text-sm text-tinta leading-relaxed mb-5 max-w-2xl">
+          <p class="text-sm text-tinta leading-relaxed mb-5 measure">
             {{ $t('expenses.cuadre') }}
           </p>
 
@@ -66,11 +66,11 @@
           >
             <div>
               <p
-                class="font-mono uppercase text-[11px] tracking-[0.12em] font-medium text-tinta mb-1"
+                class="font-mono uppercase text-2xs tracking-[0.12em] font-medium text-tinta mb-1"
               >
                 {{ $t('expenses.report_available_label') }}
               </p>
-              <p class="text-sm text-tinta leading-relaxed">
+              <p class="text-sm text-tinta leading-relaxed measure">
                 {{ $t('expenses.report_available_desc', { fecha: corte }) }}
               </p>
             </div>
@@ -87,7 +87,7 @@
           <h2 class="font-display font-semibold text-berenjena text-lg mb-2">
             {{ $t('expenses.phases_title') }}
           </h2>
-          <p class="text-sm text-tinta leading-relaxed mb-5 max-w-2xl">
+          <p class="text-sm text-tinta leading-relaxed mb-5 measure">
             {{ $t('expenses.phases_intro') }}
           </p>
           <ol class="space-y-4">
@@ -96,14 +96,14 @@
               :key="n"
               class="flex items-start gap-3 border-t border-berenjena/[0.07] pt-4 first:border-t-0 first:pt-0"
             >
-              <span class="font-mono text-[11px] uppercase tracking-[0.1em] text-tinta shrink-0 pt-0.5">
+              <span class="font-mono text-2xs uppercase tracking-[0.1em] text-tinta shrink-0 pt-0.5">
                 {{ String(n).padStart(2, '0') }}
               </span>
               <div>
                 <h3 class="text-sm font-semibold text-berenjena mb-1">
                   {{ $t(`expenses.phase${n}_title`) }}
                 </h3>
-                <p class="text-sm text-tinta leading-relaxed">
+                <p class="text-sm text-tinta leading-relaxed measure">
                   {{ $t(`expenses.phase${n}_desc`, { gastado: money(DINERO.rebiopsia.ejecutado), fecha: fechaRebiopsia }) }}
                 </p>
               </div>
@@ -118,7 +118,7 @@
           <h2 class="font-display font-semibold text-berenjena text-lg mb-2">
             {{ $t('expenses.rebiopsy_title') }}
           </h2>
-          <p class="text-sm text-tinta leading-relaxed mb-5 max-w-2xl">
+          <p class="text-sm text-tinta leading-relaxed mb-5 measure">
             {{ $t('expenses.rebiopsy_intro') }}
           </p>
           <div class="grid sm:grid-cols-2 gap-4">
@@ -127,7 +127,7 @@
               style="border: 1px solid rgba(45,27,61,0.08)"
             >
               <p
-                class="font-mono uppercase text-[11px] tracking-[0.12em] font-medium text-tinta mb-1"
+                class="font-mono uppercase text-2xs tracking-[0.12em] font-medium text-tinta mb-1"
               >
                 {{ $t('expenses.rebiopsy_now_label', { fecha: fechaRebiopsia }) }}
               </p>
@@ -146,7 +146,7 @@
               style="border: 1px solid rgba(45,27,61,0.08)"
             >
               <p
-                class="font-mono uppercase text-[11px] tracking-[0.12em] font-medium text-tinta mb-1"
+                class="font-mono uppercase text-2xs tracking-[0.12em] font-medium text-tinta mb-1"
               >
                 {{ $t('expenses.rebiopsy_bank_label') }}
               </p>
@@ -161,7 +161,7 @@
               </p>
             </div>
           </div>
-          <p class="mt-5 flex items-start gap-2 text-sm text-berenjena font-medium">
+          <p class="mt-5 flex items-start gap-2 text-sm text-berenjena font-medium measure">
             <Icon
               name="ph:seal-check-fill"
               class="w-4 h-4 mt-0.5 shrink-0 text-miriam"
@@ -169,7 +169,7 @@
             />
             <span>{{ $t('expenses.rebiopsy_value') }}</span>
           </p>
-          <p class="mt-3 text-xs text-tinta italic">
+          <p class="mt-3 text-xs text-tinta italic measure">
             {{ $t('expenses.rebiopsy_note', { fecha: fechaRebiopsia, corte }) }}
           </p>
         </div>
@@ -209,7 +209,7 @@
               <h3 class="text-sm font-semibold text-berenjena mb-1">
                 {{ $t(`expenses.faq_q${n}`) }}
               </h3>
-              <div class="text-sm text-tinta leading-relaxed">
+              <div class="text-sm text-tinta leading-relaxed measure">
                 {{ $t(`expenses.faq_a${n}`) }}
                 <NuxtLink
                   v-if="n === 4"
@@ -228,7 +228,7 @@
           </p>
         </div>
 
-        <p class="text-sm text-tinta italic max-w-2xl">
+        <p class="text-sm text-tinta italic measure">
           {{ $t('expenses.note', { fecha: corte }) }}
         </p>
 

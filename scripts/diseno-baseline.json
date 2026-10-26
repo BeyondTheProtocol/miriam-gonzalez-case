@@ -47,8 +47,7 @@
       "app/components/MobileSupportBar.vue": 1,
       "app/components/NivelLectura.vue": 2,
       "app/components/SpineMRIViewer.vue": 3,
-      "app/error.vue": 1,
-      "app/pages/gastos.vue": 4
+      "app/error.vue": 1
     },
     "R3": {
       "app/assets/css/main.css": 1,
@@ -189,13 +188,10 @@
       "app/pages/celula-a-celula.vue": 1
     },
     "R13": {
-      "app/components/HomeProximosPasos.vue": 1,
       "app/components/MolecularProfileDetailed.vue": 1,
       "app/components/PageHeader.vue": 1,
       "app/components/VisitorPathways.vue": 1,
       "app/pages/contacto.vue": 1,
-      "app/pages/gastos.vue": 5,
-      "app/pages/index.vue": 1,
       "app/pages/mapa-metastasis.vue": 1
     }
   },

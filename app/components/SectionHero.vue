@@ -253,6 +253,13 @@ const { latest, latestAgo } = useLatestUpdate()
   line-height: 1.35;
   max-width: 28rem;
 }
+/* T3-LOTE3 (A32): el DS pide un eyebrow sin salto de línea. Los 28rem (448 px) lo partían en dos líneas en escritorio aunque la columna del
+   titular mide ~570 px a 1024 y el texto unos 500. Desde `lg` el tope se va (sin `nowrap`: con la letra ampliada tiene que poder partir). Por
+   debajo de `lg` se queda como estaba (regla móvil primero de la tanda): a 375 px el texto sigue en dos líneas, porque mide ~500 px en una
+   columna de 327; quitarlo ahí es cambiar el texto o el tamaño. */
+@media (min-width: 1024px) {
+  .hero__eyebrow { max-width: none; }
+}
 
 .hero__title {
   margin-top: 1.25rem;
