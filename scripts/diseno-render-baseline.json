@@ -721,6 +721,30 @@
       "linea_larga": 0,
       "sticky_tapado": 0,
       "foco_tapado": 0
+    },
+    "/en/team:390": {
+      "desborde": 0,
+      "h1_borde": 0,
+      "texto_bajo_suelo": 0,
+      "texto_svg_bajo_suelo": 0,
+      "objetivos_pequenos": 2,
+      "objetivos_svg": 0,
+      "contraste": 0,
+      "linea_larga": 0,
+      "sticky_tapado": 0,
+      "foco_tapado": 0
+    },
+    "/en/team:1280": {
+      "desborde": 0,
+      "h1_borde": 0,
+      "texto_bajo_suelo": 0,
+      "texto_svg_bajo_suelo": 0,
+      "objetivos_pequenos": 2,
+      "objetivos_svg": 0,
+      "contraste": 0,
+      "linea_larga": 0,
+      "sticky_tapado": 0,
+      "foco_tapado": 0
     }
   }
 }

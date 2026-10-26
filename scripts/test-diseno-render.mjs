@@ -63,7 +63,7 @@ export const RUTAS = [
   // T2a (24-oct-2026): las tres páginas que volvieron a la vida (el mapa ya estaba)
   '/herramientas', '/reservorio', '/historia',
   // T3-BARRIDO: las páginas en inglés más largas y el pie, que se pinta en todas (la palabra inglesa del pie es más corta: «Team», «Press», «Slides»)
-  '/en', '/en/science', '/en/science/evidence', '/en/data', '/en/tools',
+  '/en', '/en/science', '/en/science/evidence', '/en/data', '/en/tools', '/en/team',
 ]
 const ANCHOS = [390, 1280]
 const METRICAS = ['desborde', 'h1_borde', 'texto_bajo_suelo', 'texto_svg_bajo_suelo', 'objetivos_pequenos', 'objetivos_svg', 'contraste', 'foco_tapado', 'linea_larga', 'sticky_tapado']

@@ -3176,11 +3176,11 @@ const manifestValidated = (() => {
               <!-- evolución del FDG (solo si hay dos medidas; el Galio tiene una sola) -->
               <div>
                 <div class="flex items-center justify-between mb-1">
-                  <span class="text-xs font-semibold text-berenjena">{{ L('Evolución glucolítica (¹⁸F-FDG)', 'Glycolytic (¹⁸F-FDG) evolution') }}</span>
+                  <span id="evo-fdg-titulo" class="text-xs font-semibold text-berenjena">{{ L('Evolución glucolítica (¹⁸F-FDG)', 'Glycolytic (¹⁸F-FDG) evolution') }}</span>
                   <span v-if="hasFdgEvo" class="text-xs text-tinta">{{ L('ene → mar 2026', 'Jan → Mar 2026') }}</span>
                 </div>
                 <!-- eslint-disable-next-line vue/no-v-html -->
-                <div v-if="hasFdgEvo" v-html="evoChartSvg" class="evo-wrap max-w-[460px] bajo-lg:overflow-x-auto" />
+                <div v-if="hasFdgEvo" v-html="evoChartSvg" class="evo-wrap max-w-[460px] bajo-lg:tabla-scroll" tabindex="0" role="group" aria-labelledby="evo-fdg-titulo" />
                 <div v-else class="rounded-card border px-3 py-2 text-xs leading-snug flex items-start gap-2"
                   :style="sel.fdg != null
                     ? { borderColor: '#efb27a', background: '#fbf0df', color: '#7a4a12' }
@@ -3597,7 +3597,9 @@ const manifestValidated = (() => {
                «gigante»); leyenda mínima como banda fina DEBAJO, no muro lateral. -->
           <!-- (A · a11y) @keydown gobierna la navegación por teclado del scatter con
                las MISMAS teclas que el esqueleto/lista (flechas, Home/End, número). -->
-          <div class="card-base !p-3 bajo-lg:overflow-x-auto" @keydown="onFocoNavKey">
+          <div class="card-base !p-3" @keydown="onFocoNavKey">
+              <!-- Por debajo de `lg` el diagrama mide 680 px y se desliza: `.tabla-scroll` pinta la pista de borde (con el fondo de la tarjeta). El `svg` es focusable por dentro (los marcadores), así que el teclado llega. -->
+              <div class="bajo-lg:tabla-scroll bajo-lg:[--fondo:var(--color-bg-card)]">
               <svg viewBox="0 0 440 340" class="w-full bajo-lg:min-w-[680px]" role="listbox"
                 :aria-label="L('Diagrama de fenotipo: SSTR (⁶⁸Ga-DOTATOC) frente a captación glucolítica (¹⁸F-FDG) — flechas para recorrer, Intro para abrir su ficha, o escribe un número de foco', 'Phenotype scatter: SSTR (⁶⁸Ga-DOTATOC) versus glycolytic uptake (¹⁸F-FDG) — arrows to step, Enter to open its card, or type a focus number')"
                 :aria-activedescendant="'sc-opt-' + selected"
@@ -3670,6 +3672,7 @@ const manifestValidated = (() => {
                   <text :x="d.px" :y="d.py" text-anchor="middle" dominant-baseline="central" font-family="Source Sans 3, sans-serif" :font-size="d.le.id > 9 ? 8.5 : 9.5" font-weight="700" :fill="markerInk(d.le)" class="pointer-events-none select-none" paint-order="stroke" stroke="#ffffff" stroke-width="2.2" stroke-linejoin="round">{{ d.le.id }}</text>
                 </g>
               </svg>
+              </div>
 
               <!-- MICRO-NOTA · el GLYPH split-disc es bivariado: hay que leer las dos
                    mitades. Leyenda mínima de UNA sola fuente (mismas fns gaHalf/fdgHalf
