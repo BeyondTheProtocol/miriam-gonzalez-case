@@ -29,7 +29,7 @@ export const ESQUEMA_LITERALES = {
       "PIK3CA sin mutar en mama 2024, hueso 2026 y sangre 2026 (es una de las alteraciones más frecuentes en este tipo de tumor, y no la tiene)",
       "Rasgos neuroendocrinos (cromogranina, sinaptofisina, INSM1) · 80 % de las células tumorales en una lectura de la biopsia de mama de 2024; otra lectura de 2024 no los informó · relectura 2026: cromogranina focal, sinaptofisina heterogénea, INSM1 en mosaico · hueso 2026: sinaptofisina positiva (poco tejido tumoral; cromogranina no consta) · hígado 2026: cromogranina A y sinaptofisina positivas, sin porcentaje · célula a célula: repartidos, sin grupo aparte; INSM1 real en hígado",
       "Hígado y hueso: compatibles con el mismo tumor (mismos genes principales, FGFR1 activo en ambos, perfil de copias en ARN compatible con un solo clon; el exoma podría confirmarlo)",
-      "Casi sin defensas dentro: tumor «frío» · linfocitos T en torno a 1 de cada 100 células en el hígado · TILs <5 % en el tumor de mama (2026) · PD-L1 CPS 0 en mama (2024) y en hígado (2026)",
+      "Casi sin defensas dentro: tumor «frío» · linfocitos T en torno a 1 de cada 100 células en el hígado, o menos · TILs <5 % en el tumor de mama (2026) · PD-L1 CPS 0 en mama (2024) y en hígado (2026)",
       "Velocidad de división (Ki67) · 60 % mama 2024 · 40 % relectura 2026 · ≈15 % hueso 2026 (poca muestra, descalcificada) · no informado en hígado. No es una tendencia: tejidos y métodos distintos"
     ],
     "en": [
@@ -46,7 +46,7 @@ export const ESQUEMA_LITERALES = {
       "PIK3CA not mutated in breast 2024, bone 2026 and blood 2026 (one of the most frequent alterations in this tumor type, and she does not have it)",
       "Neuroendocrine features (chromogranin, synaptophysin, INSM1) · 80% of tumor cells in one reading of the 2024 breast biopsy; another 2024 reading did not report them · 2026 re-read: focal chromogranin, heterogeneous synaptophysin, mosaic INSM1 · bone 2026: synaptophysin positive (little tumor tissue; chromogranin not reported) · liver 2026: chromogranin A and synaptophysin positive, no percentage · cell by cell: scattered, no separate group; real INSM1 in the liver",
       "Liver and bone: compatible with the same tumor (same main genes, FGFR1 active in both, RNA copy profile compatible with a single clone; the exome could confirm it)",
-      "Almost no defences inside: a \"cold\" tumor · T lymphocytes around 1 in 100 cells in the liver · TILs <5% in the breast tumor (2026) · PD-L1 CPS 0 in breast (2024) and liver (2026)",
+      "Almost no defences inside: a \"cold\" tumor · T lymphocytes around 1 in 100 cells in the liver, or fewer · TILs <5% in the breast tumor (2026) · PD-L1 CPS 0 in breast (2024) and liver (2026)",
       "Division rate (Ki67) · 60% breast 2024 · 40% 2026 re-read · ≈15% bone 2026 (small, decalcified sample) · not reported in the liver. Not a trend: different tissues and methods"
     ]
   },

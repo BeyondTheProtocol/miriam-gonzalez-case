@@ -341,7 +341,7 @@
     "fact_diagnosis_value": "Cáncer de mama metastásico, con biología tumoral fuera de las guías estándar.",
     "fact_why_label": "Por qué es relevante",
     "fact_why_value": "Su biología tumoral se sale de las guías clínicas estándar. Miriam usa inteligencia artificial y una red internacional de especialistas para impulsar una oncología de precisión que el protocolo aún no contempla.",
-    "fact_done_label": "Hecho",
+    "fact_done_label": "Hasta ahora",
     "fact_done_value": "Ya están hechas la revisión del comité molecular internacional (WIN Consortium, 21 de mayo de 2026) y la rebiopsia ósea con panel molecular (Zúrich, 8 de julio de 2026). Los primeros resultados del análisis célula a célula llegaron el 16 de octubre de 2026; los análisis del tejido siguen en curso.",
     "fact_need_label": "Qué necesita",
     "fact_need_value": "Ahora necesita cubrir el análisis del tejido, las consultas y los viajes que lleven a un tratamiento personalizado.",
@@ -1383,7 +1383,7 @@
       "PIK3CA sin mutar en mama 2024, hueso 2026 y sangre 2026 (es una de las alteraciones más frecuentes en este tipo de tumor, y no la tiene)",
       "Rasgos neuroendocrinos (cromogranina, sinaptofisina, INSM1) · 80 % de las células tumorales en una lectura de la biopsia de mama de 2024; otra lectura de 2024 no los informó · relectura 2026: cromogranina focal, sinaptofisina heterogénea, INSM1 en mosaico · hueso 2026: sinaptofisina positiva (poco tejido tumoral; cromogranina no consta) · hígado 2026: cromogranina A y sinaptofisina positivas, sin porcentaje · célula a célula: repartidos, sin grupo aparte; INSM1 real en hígado",
       "Hígado y hueso: compatibles con el mismo tumor (mismos genes principales, FGFR1 activo en ambos, perfil de copias en ARN compatible con un solo clon; el exoma podría confirmarlo)",
-      "Casi sin defensas dentro: tumor «frío» · linfocitos T en torno a 1 de cada 100 células en el hígado · TILs <5 % en el tumor de mama (2026) · PD-L1 CPS 0 en mama (2024) y en hígado (2026)",
+      "Casi sin defensas dentro: tumor «frío» · linfocitos T en torno a 1 de cada 100 células en el hígado, o menos · TILs <5 % en el tumor de mama (2026) · PD-L1 CPS 0 en mama (2024) y en hígado (2026)",
       "Velocidad de división (Ki67) · 60 % mama 2024 · 40 % relectura 2026 · ≈15 % hueso 2026 (poca muestra, descalcificada) · no informado en hígado. No es una tendencia: tejidos y métodos distintos"
     ],
     "limites_titulo": "Lo que este esquema no dice",

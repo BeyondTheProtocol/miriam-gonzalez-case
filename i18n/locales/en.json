@@ -341,7 +341,7 @@
     "fact_diagnosis_value": "Metastatic breast cancer with tumor biology outside standard guidelines.",
     "fact_why_label": "Why it matters",
     "fact_why_value": "Her tumor biology falls outside standard clinical guidelines. Miriam uses artificial intelligence and an international network of specialists to push for the precision oncology the protocol does not yet contemplate.",
-    "fact_done_label": "Done",
+    "fact_done_label": "So far",
     "fact_done_value": "Already done: the review by the international molecular tumor board (WIN Consortium, 21 May 2026) and the bone rebiopsy with a molecular panel (Zürich, 8 July 2026). The first results of the cell-by-cell analysis arrived on 16 October 2026; analysis of the tissue is still under way.",
     "fact_need_label": "What she needs",
     "fact_need_value": "What she needs now is funding for the tissue analysis, consultations and travel on the way to a personalized treatment.",
@@ -1383,7 +1383,7 @@
       "PIK3CA not mutated in breast 2024, bone 2026 and blood 2026 (one of the most frequent alterations in this tumor type, and she does not have it)",
       "Neuroendocrine features (chromogranin, synaptophysin, INSM1) · 80% of tumor cells in one reading of the 2024 breast biopsy; another 2024 reading did not report them · 2026 re-read: focal chromogranin, heterogeneous synaptophysin, mosaic INSM1 · bone 2026: synaptophysin positive (little tumor tissue; chromogranin not reported) · liver 2026: chromogranin A and synaptophysin positive, no percentage · cell by cell: scattered, no separate group; real INSM1 in the liver",
       "Liver and bone: compatible with the same tumor (same main genes, FGFR1 active in both, RNA copy profile compatible with a single clone; the exome could confirm it)",
-      "Almost no defences inside: a \"cold\" tumor · T lymphocytes around 1 in 100 cells in the liver · TILs <5% in the breast tumor (2026) · PD-L1 CPS 0 in breast (2024) and liver (2026)",
+      "Almost no defences inside: a \"cold\" tumor · T lymphocytes around 1 in 100 cells in the liver, or fewer · TILs <5% in the breast tumor (2026) · PD-L1 CPS 0 in breast (2024) and liver (2026)",
       "Division rate (Ki67) · 60% breast 2024 · 40% 2026 re-read · ≈15% bone 2026 (small, decalcified sample) · not reported in the liver. Not a trend: different tissues and methods"
     ],
     "limites_titulo": "What this diagram does not say",
