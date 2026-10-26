@@ -908,7 +908,9 @@ const imagenGalio = computed(() => ciencia.value?.imaging ?? null)
 @media (min-width: 900px) { .dt-funcion__lista { grid-template-columns: repeat(6, minmax(0, 1fr)); } }
 /* T3-LOTE2 (revisión): con el suelo de 13 px la palabra de `RangoBarra` («dentro», «por debajo», «within») ya no cabía al lado de la pista en tarjetas de
    133 a 150 px (900 a ~1050 px y 360 px) y salía de la tarjeta. Ahora baja bajo la pista cuando no cabe. `margin-right: -8px` le deja usar hasta 8 px del
-   relleno de 12 antes de bajar: donde ya cabía dentro de la tarjeta (375 px o más, unos 1100 px o más) no cambia nada. */
+   relleno de 12 antes de bajar: las etiquetas cortas que ya cabían dentro de la tarjeta (375 px o más, unos 1100 px o más) no cambian. La etiqueta larga
+   («por debajo», la tarjeta de Linfocitos) sí baja también en esos anchos, de 375 px en adelante: antes se partía en dos líneas junto a la pista (99 px de
+   alto) y ahora cabe en una, bajo la pista (98 px). */
 .dt-funcion__lista :deep(.rb) { flex-wrap: wrap; row-gap: 2px; margin-right: -8px; }
 .dt-funcion__item { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; width: 100%; min-height: 44px; text-align: left; padding: 10px 12px; border-radius: 12px;
   border: 1px solid rgb(var(--color-text-rgb) / 0.1); background: var(--color-bg); color: inherit; transition: border-color var(--dur-micro); }
