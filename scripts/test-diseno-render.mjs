@@ -31,7 +31,7 @@
 //
 // Y dos comprobaciones SIN baseline (o cumplen o no): `.rejilla-par` a 390 px, con un SVG de 700 px dentro, no ensancha la columna del texto; y el cielo de
 // /links a 1024, 1280, 1440 y 1920 px (desde `lg`) deja ver la estrella coral «tú» (al menos el 90 % de su área, sin el avatar ni nada encima) y la
-// guía dentro de su caja, y a 1920 (caja ancha) las once ancladas (lote 3, A36). Por debajo de `lg` no se afirma nada: ahí la «tú» sigue detrás del
+// guía dentro de su caja, y en las cajas anchas (1440 y 1920) las once ancladas (lote 3, A36). Por debajo de `lg` no se afirma nada: ahí la «tú» sigue detrás del
 // avatar (a 375 px se ve un 0,6 %, a 768 un 4,3 %; arreglarlo toca la composición del móvil).
 //
 // No mide el texto sobre degradados ni sobre imágenes (se salta cualquier nodo con un ANTEPASADO con background-image; el degradado del
@@ -276,8 +276,8 @@ const REJILLA_PAR = `(() => {
 // El cielo de /links desde `lg` (lote 3, A36). El SVG de la constelación usa un viewBox de 100 × 100 con `slice`: en una caja más ancha que alta solo se ve la
 // franja central en vertical, y las dos estrellas protagonistas (la coral «tú», y = 7, y la violeta guía, y = 9) quedaban fuera, arriba (a 1920 px, `.cn-you`
 // a -57 px del borde de la página). `Constellation.vue` mide su caja y reparte las posiciones por la franja visible. Pero que quepa en la caja no es que se
-// vea: la «tú» cae a unos 97 px del borde de arriba y el avatar de /links empieza a 80, así que quedaba detrás de él (un 4 % de su área a 1280, 1440 y 1920,
-// medido en la revisión). Por eso aquí se cuenta lo que se ve de verdad: se muestrea el relleno de la estrella (isPointInFill, en su espacio de 20 × 20) y, de
+// vea: la «tú» cae a unos 97 px del borde de arriba y el avatar de /links empieza a 80, así que quedaba detrás de él (entre un 4 y un 7 % de su área a 1024,
+// 1280, 1440 y 1920). Por eso aquí se cuenta lo que se ve de verdad: se muestrea el relleno de la estrella (isPointInFill, en su espacio de 20 × 20) y, de
 // cada punto, se mira qué hay encima con elementsFromPoint (el SVG lleva pointer-events: none, así que no sale: solo salen los elementos de la página).
 // Tapa lo que sea imagen, titular, párrafo, enlace o botón, y cualquier cosa fija o pegada (la cabecera). Sin baseline: o se ve o no. Hay que esperar al cielo:
 // es ClientOnly y se redibuja cuando el ResizeObserver le da la caja.
@@ -379,7 +379,7 @@ for (const c of cielo) {
   if (c.error) { fallosCielo.push(`a ${c.ancho ?? '?'} px: ${c.error}`); continue }
   if (!c.tu || !c.guia) fallosCielo.push(`a ${c.ancho} px (proporción ${c.proporcion}): la estrella «tú» ${c.tu ? 'cabe' : 'NO cabe'} y la guía ${c.guia ? 'cabe' : 'NO cabe'} dentro de su caja`)
   if (c.tuLibre < TU_LIBRE_MIN) fallosCielo.push(`a ${c.ancho} px (proporción ${c.proporcion}): de la estrella «tú» se ve solo el ${c.tuLibre} % (mínimo ${TU_LIBRE_MIN} %): hay algo encima, y en /links es el avatar. Constellation.vue debe anclarla a unos px del borde de arriba, por encima de él`)
-  if (c.ancho >= 1920 && c.visibles !== c.anclas) fallosCielo.push(`a ${c.ancho} px: caben ${c.visibles} de ${c.anclas} ancladas dentro de la caja. En una caja ancha, Constellation.vue debe repartir las posiciones por la franja que \`slice\` deja ver`)
+  if (c.proporcion > 1 && c.visibles !== c.anclas) fallosCielo.push(`a ${c.ancho} px (proporción ${c.proporcion}): caben ${c.visibles} de ${c.anclas} ancladas dentro de la caja. En una caja ancha, Constellation.vue debe repartir las posiciones por la franja que \`slice\` deja ver`)
 }
 if (fallosCielo.length) {
   console.log(`\n✘ El cielo de /links:\n   ${fallosCielo.join('\n   ')}`)

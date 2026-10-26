@@ -109,7 +109,7 @@
  * toca nada: mismo dibujo, mismo orden de números aleatorios. La primera pintura, antes de medir, es esa misma.
  *
  * LA «TÚ» SE VE (T3-LOTE3, revisión). Que quepa en la caja no es que se vea: en /links la estrella cae a un 7 % del alto de la caja (unos 97 px de los
- * ~1390 que mide la página) y el avatar empieza a 80, así que quedaba detrás de él (se veía un 4 % de su área a 1280, 1440 y 1920). Con la prop `tuTopePx`
+ * ~1390 que mide la página) y el avatar empieza a 80, así que quedaba detrás de él (se veía entre un 4 y un 7 % de su área a 1024, 1280, 1440 y 1920). Con la prop `tuTopePx`
  * (solo la pasa /links), desde `lg` (1024 px, la media query real) el CENTRO de la estrella queda como mucho a esos px del borde de arriba de la caja,
  * en cualquier proporción: también en cajas altas, donde la rama ancha de arriba no entra (1024 a 1389 px). Sin prop, o por debajo de `lg`, no se toca
  * nada (/gracias y el móvil quedan como estaban). El cálculo necesita los lados de la caja en px, porque `slice` escala por el MAYOR (el ancho si la caja es
