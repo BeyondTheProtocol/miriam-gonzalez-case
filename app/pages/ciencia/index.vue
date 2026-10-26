@@ -96,7 +96,7 @@
                   />
                 </li>
               </ul>
-              <p class="ci-compartir">
+              <p class="ci-compartir measure">
                 {{ L('Compártelo con tu médico o equipo de tumores:', 'Share it with your doctor or tumor board:') }}
                 <span class="font-mono font-semibold">helpmiriam.com/caso</span>
                 {{ L('· apoyo a la decisión, no consejo médico.', '· decision support, not medical advice.') }}

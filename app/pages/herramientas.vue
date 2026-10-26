@@ -225,6 +225,9 @@ defineOgImage('Default.takumi', {
    `flex: 1 1 9rem`, en la rejilla de 3 columnas (1280 y 1440 px) «Escribir al equipo» se partía y «Abrir» se estiraba hasta los 78 px del vecino. */
 .herr__acciones { display: flex; flex-wrap: wrap; gap: var(--sp-12); }
 .herr__acciones > * { flex: 1 1 auto; justify-content: center; text-align: center; }
+/* T3-BARRIDO (L327): las tarjetas «históricas» no llevan el bloque «Qué buscamos» (que es lo que ancla con `margin-top: auto`), así que su botón subía con el texto
+   y quedaba 23 px más arriba que el de la vecina. Solo actúa cuando los botones siguen directamente a la descripción. */
+.herr__desc + .herr__acciones { margin-top: auto; }
 
 .herr-puertas { display: flex; flex-wrap: wrap; gap: var(--sp-12); }
 .herr-puertas > * { flex: 1 1 14rem; justify-content: center; text-align: center; }

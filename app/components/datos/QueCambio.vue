@@ -361,6 +361,8 @@ button.qc-fila__caja:hover .qc-fila__ir { text-decoration: underline; }
 }
 @keyframes qc-traza { from { stroke-dashoffset: 1; } to { stroke-dashoffset: 0; } }
 @keyframes qc-viaja { from { transform: translateX(var(--dx)); } }
+/* T3-BARRIDO: a la escala 13/15/16/17 desde `lg`; el móvil conserva su valor (regla de la tanda). */
+@media (min-width: 1024px) { .qc-res__n, .qc-fila__n { font-size: var(--texto-sm); } }
 </style>
 
 <style>

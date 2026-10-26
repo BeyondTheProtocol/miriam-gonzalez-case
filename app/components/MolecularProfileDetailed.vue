@@ -12,7 +12,7 @@
     >
       {{ locale === 'es' ? 'Alteraciones, métodos e implicación clínica' : 'Alterations, methods and clinical implication' }}
     </h3>
-    <p class="text-sm text-tinta leading-relaxed mb-5 max-w-2xl">
+    <p class="text-sm text-tinta leading-relaxed mb-5 measure">
       {{
         locale === 'es'
           ? 'Cruce de todas las fuentes moleculares disponibles, sin interpretación añadida. Cada fila indica el método con el que se obtuvo el resultado.'
@@ -64,21 +64,21 @@
       <summary>
         {{ locale === 'es' ? 'Fuentes y notas metodológicas' : 'Sources and methodological notes' }}
       </summary>
-      <p class="mt-3 text-xs text-tinta leading-relaxed">
+      <p class="mt-3 text-xs text-tinta leading-relaxed measure">
         {{
           locale === 'es'
             ? 'La primera biopsia ósea (ilíaca derecha, abril de 2026) no tenía tumor evaluable. La segunda (Zúrich, 8 de julio de 2026) sí, y el FoundationOne CDx se hizo sobre ella, con una pureza tumoral del 61 %. La metástasis hepática (biopsia del 18 de agosto de 2026) se ha estudiado por inmunohistoquímica y todavía no tiene perfil genómico. FoundationOne no lleva normal pareado: el exoma con ADN germinal en Dana-Farber es el que podrá separar lo somático de lo heredado.'
             : 'The first bone biopsy (right iliac, April 2026) had no evaluable tumour. The second (Zurich, 8 July 2026) did, and FoundationOne CDx was run on it at 61% tumour purity. The liver metastasis (biopsy of 18 August 2026) has been studied by immunohistochemistry and has no genomic profile yet. FoundationOne has no matched normal: the exome with germline DNA at Dana-Farber is what will separate somatic from inherited.'
         }}
       </p>
-      <p class="mt-3 text-xs text-tinta leading-relaxed font-mono">
+      <p class="mt-3 text-xs text-tinta leading-relaxed font-mono measure">
         {{
           locale === 'es'
             ? 'Fuentes: TSO500 sobre tejido FFPE primario (DIPCAN, MD Anderson Madrid, 2024) · FoundationOne CDx sobre la biopsia ósea de Zúrich (julio 2026) · IHQ del primario (2024 y revisión 2026), del hueso (2026) y del hígado (Anatomía Patológica de Vall d\'Hebron, informe del 21-09-2026) · ctDNA: VHIO360 (abril y mayo 2026), Guardant360 (abril 2026) y Guardant360 CDx (mayo 2026) · expresión génica VIGex (VHIO, junio 2026) sobre el bloque del primario · PET-CT Galio-68 DOTATOC (mayo 2026).'
             : 'Sources: TSO500 on primary FFPE tissue (DIPCAN, MD Anderson Madrid, 2024) · FoundationOne CDx on the Zurich bone biopsy (July 2026) · IHC of the primary (2024 and 2026 review), bone (2026) and liver (Vall d\'Hebron Pathology, report of 21-09-2026) · ctDNA: VHIO360 (April and May 2026), Guardant360 (April 2026) and Guardant360 CDx (May 2026) · VIGex gene expression (VHIO, June 2026) on the primary block · Ga-68 DOTATOC PET-CT (May 2026).'
         }}
       </p>
-      <p class="mt-2 text-xs text-tinta leading-relaxed">
+      <p class="mt-2 text-xs text-tinta leading-relaxed measure">
         {{
           locale === 'es'
             ? '⁺⁺ En oncología neuroendocrina, el Ki67 es el marcador principal de gradación: G1 (<3%), G2 (3–20%), G3 (>20%). Por esa lógica, un Ki67 alto sería compatible con un componente neuroendocrino de alto grado (NEC G3): una hipótesis, no el grado asignado. El grado histológico confirmado es Grado II de Nottingham; armonizarlo queda pendiente del comité de tumores.'

@@ -166,11 +166,11 @@
       </div>
     </div>
 
-    <Nota v-if="anchorMarkers.length" class="mt-3">{{ $t('thanksWall.patrons_note') }}</Nota>
+    <Nota v-if="anchorMarkers.length" class="starmap__nota mt-3">{{ $t('thanksWall.patrons_note') }}</Nota>
     <!-- Cómo se juega: nota de gesto (dedito), pequeña, bajo el mapa. -->
-    <Nota icon="tap" class="mt-2">{{ $t('thanksWall.sky_hint') }}</Nota>
+    <Nota icon="tap" class="starmap__nota mt-2">{{ $t('thanksWall.sky_hint') }}</Nota>
     <!-- Cómo leerlo: el brillo crece en escala log (✱ nota al margen). -->
-    <Nota class="mt-2">{{ $t('thanksWall.magnitude_note') }}</Nota>
+    <Nota class="starmap__nota mt-2">{{ $t('thanksWall.magnitude_note') }}</Nota>
 
     <!-- El juego: tu estrella se enciende donando (solo el botón; el resto
          del texto se quitó — el pie manuscrito ya cuenta la historia). -->
@@ -965,7 +965,8 @@ const tipStyle = computed(() => {
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-/* Controles de zoom: barra segmentada (design system). */
+/* Controles de zoom: barra segmentada (design system). Cada botón mide 44 px (zona táctil) y dibuja su círculo de 36 con ::before, así que la barra mide lo
+   mismo de alto que antes (T3-BARRIDO: los botones eran de 36 px). */
 .starmap__zoom {
   position: absolute;
   right: 12px;
@@ -974,7 +975,7 @@ const tipStyle = computed(() => {
   display: inline-flex;
   align-items: center;
   gap: 2px;
-  padding: 4px;
+  padding: 0;
   border-radius: 9999px;
   border: 1px solid rgba(45, 27, 61, 0.14);
   background: rgba(250, 246, 240, 0.94);
@@ -988,8 +989,10 @@ const tipStyle = computed(() => {
   background: rgba(45, 27, 61, 0.14);
 }
 .starmap__zoom-btn {
-  width: 36px;
-  height: 36px;
+  position: relative;
+  isolation: isolate;
+  width: var(--control-min);
+  height: var(--control-min);
   border: none;
   border-radius: 9999px;
   background: transparent;
@@ -1000,7 +1003,16 @@ const tipStyle = computed(() => {
   justify-content: center;
   transition: background 0.15s ease, color 0.15s ease;
 }
-.starmap__zoom-btn:hover {
+.starmap__zoom-btn::before {
+  content: '';
+  position: absolute;
+  inset: 4px;
+  z-index: -1;
+  border-radius: var(--radius-pill);
+  background: transparent;
+  transition: background 0.15s ease;
+}
+.starmap__zoom-btn:hover::before {
   background: rgba(45, 27, 61, 0.08);
 }
 .starmap__zoom-btn--reset:hover {
@@ -1019,8 +1031,18 @@ const tipStyle = computed(() => {
   .starmap__label,
   .starmap__label--patron { font-family: var(--font-body); font-size: var(--texto-sm); font-weight: 600; }
   .starmap__m44 { font-family: var(--font-body); font-size: var(--texto-sm); font-weight: 700; }
-  .starmap__m44 small { font-family: var(--font-body); font-size: var(--texto-xs); max-width: 8.5rem; }
+  .starmap__m44 small { font-family: var(--font-body); font-size: var(--texto-xs); max-width: none; }
   .starmap__tip-name { font-family: var(--font-body); font-size: var(--texto-sm); font-weight: 700; }
+  /* T3-BARRIDO (colabora): las tres notas bajo el mapa son prosa, no datos tabulares: Hanken a 15 px desde `lg` (por debajo conservan el mono de 13 px de
+     `Nota`; el móvil no se toca en esta tanda). `p.` sube la especificidad por encima de la de `.nota`, que es del componente. */
+  p.starmap__nota { font-family: var(--font-body); font-size: var(--texto-sm); line-height: 1.5; }
+}
+/* T3-BARRIDO (colabora): las puntas de las estrellas cruzaban los rótulos del mapa (en «M44 · el Pesebre», el rótulo y su subtítulo). Un halo del color del mapa
+   (crema fijo) los separa; no mueve nada. */
+.starmap__label,
+.starmap__label--patron,
+.starmap__m44 {
+  text-shadow: 0 0 3px var(--color-bg), 0 0 6px var(--color-bg);
 }
 @keyframes star-ignite {
   0% { opacity: 0; }

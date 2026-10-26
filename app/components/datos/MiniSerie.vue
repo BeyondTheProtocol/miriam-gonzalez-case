@@ -263,4 +263,6 @@ const valorTxt = (p: Punto) => {
 .ms__tabla th { text-align: left; font: 600 var(--texto-xs) var(--font-body); color: var(--color-text-soft); padding: 4px; }
 .ms__tabla td { padding: 3px 4px; border-top: 1px solid rgb(var(--color-text-rgb) / 0.06); }
 .ms__td-fuera { font-weight: 700; }
+/* T3-BARRIDO: a la escala 13/15/16/17 desde `lg`; el móvil conserva su valor (regla de la tanda). */
+@media (min-width: 1024px) { .ms__nombre { font-size: var(--texto-sm); } }
 </style>

@@ -29,6 +29,7 @@ defineProps<{ icon?: 'tap' }>()
   font-size: var(--texto-xs);
   line-height: 1.55;
   color: var(--texto-3);
+  max-width: var(--measure);
 }
 .nota-icon {
   width: 14px;

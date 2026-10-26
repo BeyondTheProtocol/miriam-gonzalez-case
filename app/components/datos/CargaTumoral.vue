@@ -116,4 +116,6 @@ const fechaTxt = computed(() => (f.value < 0.5 ? fechaCorta(r0.value.fecha, prop
 .ct__resumen strong { font-family: var(--font-mono); }
 .ct__concilia { font: 400 var(--texto-xs)/1.45 var(--font-body); color: var(--color-text-soft); margin: 2px 0 0; padding-left: 10px; border-left: 2px solid rgb(var(--color-miriam-rgb) / 0.5); }
 .ct__otra { justify-self: start; min-height: 44px; font: 700 13px var(--font-body); color: var(--color-miriam); text-decoration: underline; text-underline-offset: 3px; }
+/* T3-BARRIDO: a la escala 13/15/16/17 desde `lg`; el móvil conserva su valor (regla de la tanda). */
+@media (min-width: 1024px) { .ct__resumen { font-size: var(--texto-xs); } }
 </style>

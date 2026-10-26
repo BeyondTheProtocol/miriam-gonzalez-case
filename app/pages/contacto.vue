@@ -9,7 +9,7 @@
 
         <p
           v-if="roleLabel"
-          class="pathway-comfort mb-8 max-w-2xl"
+          class="pathway-comfort mb-8 measure"
           role="status"
           aria-live="polite"
         >
@@ -17,7 +17,7 @@
           {{ $t('a11y.role_detected', { role: roleLabel }) }}
         </p>
 
-        <div class="grid md:grid-cols-2 gap-8 lg:gap-12">
+        <div class="grid md:grid-cols-2 xl:grid-cols-[1.3fr_1fr] gap-8 lg:gap-12">
           <div>
             <p class="text-tinta leading-relaxed mb-8">
               {{ $t('contact.message') }}
@@ -45,7 +45,7 @@
               <h2 class="font-display font-semibold text-berenjena text-sm mb-2">
                 {{ $t('contact.for_professionals') }}
               </h2>
-              <p class="text-xs text-tinta leading-relaxed">
+              <p class="text-xs text-tinta leading-relaxed measure">
                 {{ $t('contact.for_professionals_desc') }}
               </p>
             </div>
@@ -166,7 +166,7 @@
 
               <button
                 type="submit"
-                class="btn-cta w-full"
+                class="btn-secondary w-full"
                 :disabled="sending || (turnstileEnabled && !turnstileToken && !captchaUnavailable)"
               >
                 {{ sending ? $t('contact.sending') : $t('contact.submit') }}

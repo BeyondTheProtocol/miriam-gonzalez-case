@@ -44,4 +44,6 @@ const pos = computed(() => {
 .tip :deep(.tip__n) { display: block; font: 500 var(--texto-xs) var(--font-body); opacity: 0.75; }
 .tip :deep(.tip__v) { display: block; font: 700 14px var(--font-mono); }
 .tip :deep(.tip__l) { display: block; font: 500 var(--texto-xs) var(--font-mono); opacity: 0.85; }
+/* T3-BARRIDO: a la escala 13/15/16/17 desde `lg`; el móvil conserva su valor (regla de la tanda). */
+@media (min-width: 1024px) { .tip :deep(.tip__v) { font-size: var(--texto-xs); } }
 </style>

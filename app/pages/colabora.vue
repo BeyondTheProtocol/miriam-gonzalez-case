@@ -135,13 +135,13 @@
             <h3 class="heading-display text-xl text-berenjena mb-3">
               {{ $t('collaborate.profile1_title') }}
             </h3>
-            <ul class="text-sm text-tinta leading-relaxed list-disc pl-5 space-y-1.5 mb-5 marker:text-berenjena">
+            <ul class="text-sm text-tinta leading-relaxed list-disc pl-5 space-y-1.5 mb-5 marker:text-berenjena measure">
               <li v-for="(item, i) in arr('collaborate.profile1_list')" :key="i">{{ item }}</li>
             </ul>
             <!-- Para laboratorios: lo que pasa con un precio que nos ofrezcan (no se publica; se suma a su partida). Norma de transparencia de
                  Miriam, 24-oct-2026: se muestran cifras y el gasto por categorías, no cada presupuesto. El rótulo dice a quién habla (la tarjeta
                  es para clínicos e investigadores; sin él, «precio» no tiene referente) y la frase de Miriam va literal detrás. -->
-            <p class="text-sm text-tinta leading-relaxed mb-5"><strong class="font-semibold">{{ $t('collaborate.profile1_precio_para') }}</strong> {{ $t('collaborate.profile1_precio') }}</p>
+            <p class="text-sm text-tinta leading-relaxed mb-5 measure"><strong class="font-semibold">{{ $t('collaborate.profile1_precio_para') }}</strong> {{ $t('collaborate.profile1_precio') }}</p>
             <div class="mt-auto">
               <NuxtLink
                 :to="localePath('contacto') + '?role=oncologist'"
@@ -338,7 +338,7 @@
               <NuxtLink
                 v-if="!lnk.external"
                 :to="lnk.url"
-                class="link-underline text-sm"
+                class="link-underline text-sm inline-flex items-center min-h-[44px]"
               >
                 {{ lnk.label }}
               </NuxtLink>
@@ -347,7 +347,7 @@
                 :href="lnk.url"
                 target="_blank"
                 rel="noopener"
-                class="link-underline text-sm"
+                class="link-underline text-sm inline-flex items-center min-h-[44px]"
               >
                 {{ lnk.label }}
               </a>
@@ -355,7 +355,7 @@
           </ul>
         </div>
 
-        <p class="font-mono text-xs text-tinta tracking-wide mt-6 text-center">
+        <p class="font-mono text-xs lg:font-body lg:text-sm lg:tracking-normal text-tinta tracking-wide mt-6 text-center">
           {{ $t('collaborate.links_signature') }}
         </p>
       </div>
@@ -507,8 +507,8 @@ export default { name: 'CollaboratePage' }
   .collab-grid {
     grid-template-columns: repeat(12, minmax(0, 1fr));
     grid-template-areas:
-      'clinica clinica clinica clinica clinica clinica clinica clinica alcance alcance alcance alcance'
-      'tech tech tech tech tech tech tech apoyo apoyo apoyo apoyo apoyo'
+      'clinica clinica clinica clinica clinica clinica alcance alcance alcance alcance alcance alcance'
+      'tech tech tech tech tech tech apoyo apoyo apoyo apoyo apoyo apoyo'
       'financiar financiar financiar financiar financiar financiar financiar financiar financiar financiar financiar financiar';
   }
   .collab-card--clinica   { grid-area: clinica; }

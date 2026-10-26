@@ -168,5 +168,9 @@ export default {
   },
   plugins: [
     require('@tailwindcss/typography'),
+    // Variante «por debajo de lg» (T3-BARRIDO). `max-lg:` NO se genera: `screens` mezcla px con el `menu: 70rem` de arriba y Tailwind 3 no admite
+    // `min-*`/`max-*` con unidades mezcladas (avisa en el build y no emite la clase, sin fallar). Sirve para fijar la receta del móvil y que el rol del
+    // sistema entre solo desde `lg` (`bajo-lg:text-2xl lg:h2-seccion`): el móvil no se toca en esta tanda.
+    ({ addVariant }) => addVariant('bajo-lg', '@media (max-width: 1023.98px)'),
   ],
 }

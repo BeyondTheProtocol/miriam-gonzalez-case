@@ -57,7 +57,7 @@ const miles = (n: number) => String(n).replace(/\B(?=(\d{3})+(?!\d))/g, props.la
 const caja = ref<HTMLElement | null>(null)
 const lienzo = ref<HTMLCanvasElement | null>(null)
 const W = useAncho(caja)
-const IZQ = 84
+const IZQ = 96 // el rótulo más largo («Hígado y riñón», unos 85 px a 13 px) cabe antes de la primera columna
 const ALTO_FILA = computed(() => (W.value < 520 ? 5 : 7))
 const H = computed(() => filas.value.length * ALTO_FILA.value + 40)
 
@@ -97,7 +97,7 @@ function pintar() {
   cx.setLineDash([])
 
   // separadores y nombres de grupo
-  cx.font = '600 10px "Hanken Grotesk", system-ui, sans-serif'
+  cx.font = '600 13px "Hanken Grotesk", system-ui, sans-serif'
   cx.textBaseline = 'middle'
   let i0 = 0
   for (const [g, es, en] of ORDEN) {
@@ -135,7 +135,7 @@ function pintar() {
   }
 
   // años
-  cx.fillStyle = 'rgba(250,246,240,0.6)'; cx.font = '600 10px "JetBrains Mono", ui-monospace, monospace'
+  cx.fillStyle = 'rgba(250,246,240,0.6)'; cx.font = '600 12px "JetBrains Mono", ui-monospace, monospace'
   for (let a = new Date(desde).getUTCFullYear() + 1; a <= new Date(hasta).getUTCFullYear(); a++) {
     const x = X(Date.UTC(a, 0, 1))
     cx.fillRect(x, 8 + filas.value.length * fila + 2, 1, 5)
@@ -269,4 +269,6 @@ const lectura = computed(() => {
 .cielo__px--fuera { background: var(--color-miriam-claro); box-shadow: 0 0 6px var(--color-miriam-claro); }
 .cielo__raya { width: 1px; height: 12px; border-left: 1px dashed rgb(var(--color-bg-rgb) / 0.5); display: inline-block; }
 .cielo__franja { width: 14px; height: 10px; background: rgb(199 125 210 / 0.25); display: inline-block; }
+/* T3-BARRIDO: a la escala 13/15/16/17 desde `lg`; el móvil conserva su valor (regla de la tanda). */
+@media (min-width: 1024px) { .cielo__sub { font-size: var(--texto-sm); } }
 </style>

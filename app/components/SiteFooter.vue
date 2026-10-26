@@ -104,7 +104,7 @@
             <ul :aria-labelledby="`pie-${grupo.id}`" class="flex flex-col">
               <li v-for="item in grupo.enlaces.filter(visible)" :key="item.key">
                 <NuxtLink :to="localePath({ name: item.name })"
-                  class="inline-flex items-center min-h-[44px] text-sm text-tinta hover:text-miriam transition-colors"
+                  class="inline-flex items-center min-h-[44px] min-w-[44px] text-sm text-tinta hover:text-miriam transition-colors"
                   style="text-decoration: none"
                   @click="medirPie(item.key)">
                   {{ $t(item.etiqueta ?? `nav.${item.key}`) }}
@@ -124,7 +124,7 @@
                   :href="red.url"
                   target="_blank"
                   rel="noopener noreferrer"
-                  class="inline-flex items-center min-h-[44px] text-sm text-tinta hover:text-miriam hover:underline underline-offset-2 transition-colors"
+                  class="inline-flex items-center min-h-[44px] min-w-[44px] text-sm text-tinta hover:text-miriam hover:underline underline-offset-2 transition-colors"
                   @click="trackShare(red.id, 'footer')"
                 >
                   {{ red.pie ?? red.nombre }}<span class="sr-only">{{ ' ' + $t('a11y.new_tab') }}</span>
@@ -148,7 +148,7 @@
             <ul aria-labelledby="pie-legal" class="flex flex-col">
               <li v-for="l in LEGAL" :key="l.name">
                 <NuxtLink :to="localePath({ name: l.name })"
-                  class="inline-flex items-center min-h-[44px] text-sm text-tinta hover:text-miriam transition-colors"
+                  class="inline-flex items-center min-h-[44px] min-w-[44px] text-sm text-tinta hover:text-miriam transition-colors"
                   style="text-decoration: none">
                   {{ $t(l.etiqueta) }}
                 </NuxtLink>

@@ -441,9 +441,9 @@ function fechaLegible(f: string) {
 
     <!-- leyenda: píldoras, forma + color, reusando .badge-genomic -->
     <div v-if="!loading && !failed" class="mt-2.5 flex flex-wrap items-center gap-2">
-      <span class="badge-genomic" style="color:#c2410c;background:rgba(255,107,71,0.14)"><span class="rv-muestra rv-muestra--lisa" aria-hidden="true" />{{ L('medido', 'measured') }}</span>
-      <span class="badge-genomic" style="color:#c2410c;background:rgba(255,107,71,0.14)"><span class="rv-muestra rv-muestra--rayas" aria-hidden="true" />{{ L('interpolado', 'interpolated') }}</span>
-      <span v-if="verModelo" class="badge-genomic" style="color:#5b3fa8;background:rgba(168,131,245,0.22)"><span class="rv-muestra rv-muestra--lila" aria-hidden="true" />{{ L('ilustración', 'illustration') }}</span>
+      <span class="badge-genomic rv-ley rv-ley--medido"><span class="rv-muestra rv-muestra--lisa" aria-hidden="true" />{{ L('medido', 'measured') }}</span>
+      <span class="badge-genomic rv-ley rv-ley--medido"><span class="rv-muestra rv-muestra--rayas" aria-hidden="true" />{{ L('interpolado', 'interpolated') }}</span>
+      <span v-if="verModelo" class="badge-genomic rv-ley rv-ley--ilustracion"><span class="rv-muestra rv-muestra--lila" aria-hidden="true" />{{ L('ilustración', 'illustration') }}</span>
     </div>
     <p v-if="!loading && !failed" class="mt-2 text-xs text-tinta leading-snug measure">
       {{ L('Medido: los dos puntos leídos directamente en el corte del TC: el portal y la punta. Interpolado: la ruta más probable entre ambos sobre el propio TC, no una medida punto a punto; por eso se dibuja a rayas. Hueso y tráquea, en gris, son solo referencia anatómica.', 'Measured: the two points read directly on the CT slice: the port and the tip. Interpolated: the most likely route between them on the CT itself, not a point-by-point measurement; that is why it is drawn striped. Bone and trachea, in grey, are anatomical reference only.') }}
@@ -467,8 +467,13 @@ function fechaLegible(f: string) {
 .rv-caja { aspect-ratio: 1 / 1; background: #1c1126; border-radius: 0.75rem; overflow: hidden; }
 .rv-host:focus-visible { outline: 2px solid #1c969e; outline-offset: -2px; }
 .rv-fecha {
-  font-size: var(--texto-xs); line-height: 1; padding: 7px 11px; min-height: 32px; border-radius: 999px;
+  font-size: var(--texto-xs); line-height: 1; padding: 0 11px; min-height: var(--control-min); border-radius: 999px;
 }
+/* T3-BARRIDO: la leyenda lleva el texto en --texto-1 (el naranja #c2410c sobre el coral al 14 % daba 4,19:1) y el color va en la muestra de al lado, que ya es
+   «forma + color». El fondo de cada píldora se deriva de la paleta con color-mix (cero hex y cero rgba). */
+.rv-ley { color: var(--texto-1); }
+.rv-ley--medido { background: color-mix(in srgb, var(--color-cta) 14%, var(--color-bg)); }
+.rv-ley--ilustracion { background: color-mix(in srgb, var(--color-miriam) 16%, var(--color-bg)); }
 @media (pointer: coarse) { .rv-fecha { min-height: 44px; padding: 0 14px; } }
 .rv-caja:fullscreen { aspect-ratio: auto; width: 100vw; height: 100vh; border-radius: 0; }
 .rv-mandos { position: absolute; bottom: 10px; right: 10px; display: flex; flex-direction: column; gap: 6px; }

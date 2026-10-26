@@ -226,6 +226,11 @@ onBeforeUnmount(() => clearTimeout(aviso))
   @keyframes pl-entra { from { opacity: 0; transform: scale(0.97); } to { opacity: 1; transform: scale(1); } }
 }
 @media (prefers-reduced-motion: reduce) { .pl__play, .pl__paso, .pl__vel, .pl__x { transition: none; } }
+/* T3-BARRIDO: a la escala 13/15/16/17 desde `lg`; el móvil conserva su valor (regla de la tanda). */
+@media (min-width: 1024px) {
+  .pl__cap { font-size: var(--texto-sm); }
+  .pl__paso, .pl__vel, .pl__ver { font-size: var(--texto-xs); }
+}
 </style>
 
 <style>

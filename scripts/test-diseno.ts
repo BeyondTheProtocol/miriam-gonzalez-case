@@ -312,6 +312,12 @@ function reglasPlantilla(archivo: string, r: Region, salida: Hallazgo[]) {
     const clases = m[2] ?? m[3] ?? ''
     claseTam(clases, /\bfont-mono\b/.test(clases) && /\buppercase\b/.test(clases), (x) => H('R2', m.index!, x))
   }
+  // R2 · lienzo: `cx.font = '600 10px …'`. El canvas no lee CSS y R10 no mide ese texto (solo el del DOM y el de los <text> de un SVG),
+  // así que sin esta regla un rótulo de 9 o 10 px vuelve sin que nadie lo vea. 12 px solo vale en mono (mayúsculas o cifras de eje).
+  for (const m of tx.matchAll(/\.font\s*=\s*['"`]([^\n]*)/g)) {
+    const t = m[1].match(/(?:^|\s)(\d+(?:\.\d+)?)px\b/)
+    if (t && (Number(t[1]) < 12 || (Number(t[1]) < 13 && !/mono/i.test(m[1])))) H('R2', m.index!, `canvas font = ${m[1].trim()}`)
+  }
   for (const m of tx.matchAll(/\bstyle\s*=\s*"([^"]*)"/g)) {
     for (const d of m[1].split(';')) {
       const k = d.indexOf(':')
@@ -564,6 +570,13 @@ function autotest(): string[] {
   eq('R2 font abreviado 11px', cuenta('x.vue', vue('<p/>', '.a { font: 600 11px/1.4 var(--font-mono) }'), 'R2'), 1)
   eq('R2 text-[10px]', cuenta('x.vue', vue('<p class="text-[10px] md:text-[11.5px] text-[13px]"/>'), 'R2'), 2)
   eq('R2 style inline', cuenta('x.vue', vue('<p style="font-size: 11px"/>'), 'R2'), 1)
+  // R2 en el lienzo (cx.font): 9 a 11 px nunca; 12 px solo en mono; 13 px o más vale
+  const lienzo = (f: string) => `<script setup lang="ts">\nfunction pintar(cx: CanvasRenderingContext2D) {\n  cx.font = ${f}\n}\n</script>\n`
+  eq('R2 lienzo 10px', cuenta('x.vue', lienzo(`'600 10px "Hanken Grotesk", sans-serif'`), 'R2'), 1)
+  eq('R2 lienzo 9px mono', cuenta('x.vue', lienzo(`'700 9px "JetBrains Mono", monospace'`), 'R2'), 1)
+  eq('R2 lienzo 12px sin mono', cuenta('x.vue', lienzo(`'600 12px "Hanken Grotesk", sans-serif'`), 'R2'), 1)
+  eq('R2 lienzo 12px mono vale', cuenta('x.vue', lienzo(`'600 12px "JetBrains Mono", ui-monospace, monospace'`), 'R2'), 0)
+  eq('R2 lienzo 13px vale', cuenta('x.vue', lienzo(`'600 13px "Hanken Grotesk", sans-serif'`), 'R2'), 0)
   // R3
   eq('R3 radio literal', cuenta('x.vue', vue('<p/>', '.a { border-radius: 14px } .b { border-radius: 999px } .c { border-radius: var(--radius-card) } .d { border-radius: 50% }'), 'R3'), 2)
   eq('R3 rounded', cuenta('x.vue', vue('<p class="rounded-xl rounded-[10px] rounded-card rounded-full rounded-t-2xl"/>'), 'R3'), 3)

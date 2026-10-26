@@ -90,11 +90,11 @@
               {{ t('marcas.hero_context') }}
             </p>
 
-            <div class="mt-8 flex flex-col sm:flex-row sm:items-center gap-4">
-              <NuxtLink :to="localePath('contacto')" class="btn-secondary" style="text-decoration: none">
+            <div class="mt-8 flex flex-col sm:flex-row sm:items-center gap-4 lg:flex-wrap lg:gap-x-6 lg:gap-y-3">
+              <NuxtLink :to="localePath('contacto')" class="btn-secondary lg:whitespace-nowrap" style="text-decoration: none">
                 {{ t('marcas.hero_cta') }}
               </NuxtLink>
-              <a href="/dossier-marcas-deck.pdf" download class="link-action group font-mono text-sm text-cream">
+              <a href="/dossier-marcas-deck.pdf" download class="link-action group font-mono text-sm text-cream lg:whitespace-nowrap">
                 {{ t('marcas.hero_cta_dossier') }}
                 <Icon name="ph:download-simple" class="w-4 h-4 transition-transform group-hover:translate-y-0.5" aria-hidden="true" />
               </a>
@@ -102,7 +102,7 @@
                 href="https://pillar.io/miriamgonp/mediakit"
                 target="_blank"
                 rel="noopener"
-                class="link-action group font-mono text-sm text-cream"
+                class="link-action group font-mono text-sm text-cream lg:whitespace-nowrap"
               >
                 {{ t('marcas.hero_cta_mediakit') }}
                 <Icon name="ph:arrow-square-out" class="w-4 h-4 transition-transform group-hover:translate-y-0.5" aria-hidden="true" />
@@ -361,9 +361,9 @@
           <span class="font-mono uppercase text-2xs tracking-[0.12em] text-tinta self-center">
             {{ t('home.s9_strip_label') }}
           </span>
-          <a :href="pressElPais" target="_blank" rel="noopener" class="link-logo text-2xl sm:text-3xl">El País<span class="sr-only"> {{ t('a11y.new_tab') }}</span></a>
-          <a :href="pressMurcia" target="_blank" rel="noopener" class="link-logo text-2xl sm:text-3xl">La Opinión de Murcia<span class="sr-only"> {{ t('a11y.new_tab') }}</span></a>
-          <a :href="pressLa7" target="_blank" rel="noopener" class="link-logo text-2xl sm:text-3xl">La 7<span class="sr-only"> {{ t('a11y.new_tab') }}</span></a>
+          <a :href="pressElPais" target="_blank" rel="noopener" class="link-logo inline-flex items-center min-h-control text-2xl sm:text-3xl">El País<span class="sr-only"> {{ t('a11y.new_tab') }}</span></a>
+          <a :href="pressMurcia" target="_blank" rel="noopener" class="link-logo inline-flex items-center min-h-control text-2xl sm:text-3xl">La Opinión de Murcia<span class="sr-only"> {{ t('a11y.new_tab') }}</span></a>
+          <a :href="pressLa7" target="_blank" rel="noopener" class="link-logo inline-flex items-center min-h-control text-2xl sm:text-3xl">La 7<span class="sr-only"> {{ t('a11y.new_tab') }}</span></a>
         </div>
 
         <!-- Cierre de la sección de audiencia: el CTA dejaba de flotar suelto tras
@@ -561,7 +561,8 @@ export default { name: 'MarcasPage' }
   font-family: 'JetBrains Mono', monospace;
   font-size: 13px;
   font-weight: 500;
-  padding: 0.4rem 0.85rem;
+  padding: 0 0.85rem;
+  min-height: var(--control-min);
   border-radius: 999px;
   text-decoration: none;
   transition: background 0.2s ease, color 0.2s ease, transform 0.2s ease;
@@ -745,7 +746,8 @@ export default { name: 'MarcasPage' }
     display: inline-flex;
     align-items: center;
     gap: 0.4rem;
-    padding: 0.6rem 0.95rem;
+    padding: 0 0.95rem;
+    min-height: var(--control-min);
     border-radius: 999px;
     font-family: 'JetBrains Mono', monospace;
     font-size: var(--texto-xs);

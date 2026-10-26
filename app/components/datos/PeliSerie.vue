@@ -141,4 +141,6 @@ const marca = (p: Punto) => (p.fuera === 'bajo' ? '▼ ' : p.fuera === 'alto' ? 
 .ps__marcado { fill: var(--color-bg); stroke: var(--color-miriam); stroke-width: 1.5; }
 .ps__ahora { fill: var(--color-bg); stroke: var(--color-miriam); stroke-width: 2.5; }
 .ps__cabezal { stroke: var(--color-miriam); stroke-width: 1.5; }
+/* T3-BARRIDO: a la escala 13/15/16/17 desde `lg`; el móvil conserva su valor (regla de la tanda). */
+@media (min-width: 1024px) { .ps__nombre { font-size: var(--texto-sm); } }
 </style>

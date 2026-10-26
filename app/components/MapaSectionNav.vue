@@ -153,6 +153,7 @@ function jumpTo(e: Event, id: string) {
   gap: 0.5rem;
   margin-left: -1px;
   padding: 6px 0 6px 14px;
+  min-height: var(--control-min);
   border-left: 2px solid transparent;
   font-size: 13.5px;
   line-height: 1.3;

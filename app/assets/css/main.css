@@ -161,7 +161,7 @@
      silenciadas no hay reserva: no queda hueco vacío. */
   @media (max-width: 1023px) {
     main.has-support-bar {
-      padding-bottom: calc(6.25rem + env(safe-area-inset-bottom, 0px));
+      padding-bottom: calc(7.9rem + env(safe-area-inset-bottom, 0px));
     }
   }
 
@@ -1456,6 +1456,15 @@
     line-height: 1.55;
     color: rgb(var(--color-text-soft-rgb) / 0.82);
     margin-top: 0.25rem;
+  }
+  /* T3-BARRIDO (colabora): la nota «Tómate el tiempo» es prosa y el mono es para datos tabulares (DS sección 1): desde `lg`, Hanken a 15 px. Por debajo
+     conserva su mono de 13 px (el móvil no se toca en esta tanda). */
+  @media (min-width: 1024px) {
+    .pathway-comfort {
+      font-family: var(--font-body);
+      font-size: var(--texto-sm);
+      line-height: 1.5;
+    }
   }
   .pathway-comfort__icon {
     width: 14px;

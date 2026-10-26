@@ -398,7 +398,8 @@ function timeAgo(iso?: string): string {
   font-weight: 600;
 }
 .dw-segment__btn {
-  min-height: 36px;
+  min-height: var(--control-min);
+  min-width: var(--control-min);
   padding: 0 1rem;
   border: none;
   border-radius: 9999px;
@@ -423,8 +424,8 @@ function timeAgo(iso?: string): string {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 36px;
-  height: 36px;
+  width: var(--control-min);
+  height: var(--control-min);
   border-radius: 9999px;
   border: 1px solid rgb(var(--color-text-rgb) / 0.14);
   background: var(--color-bg);

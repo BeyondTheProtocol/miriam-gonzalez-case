@@ -106,7 +106,7 @@ onBeforeUnmount(() => {
   }
 }
 
-/* Alto real ≈ 99px + safe-area (medido a 375px). Si cambia, ajustar la reserva
+/* Alto real ≈ 123px + safe-area (medido a 375px; 99 antes de que «Más formas de ayudar» pasara a 44 px de alto). Si cambia, ajustar la reserva
    de `main.has-support-bar` en main.css o la barra tapará el final de main. */
 .mobile-support-bar {
   position: fixed;
@@ -128,8 +128,9 @@ onBeforeUnmount(() => {
   justify-content: center;
   gap: 0.3rem;
   font-family: 'JetBrains Mono', monospace;
-  font-size: 0.72rem;
+  font-size: var(--texto-xs); /* suelo de 13 px: eran 11,52 px en mono sin mayúsculas */
   font-weight: 600;
+  min-height: var(--control-min);
   color: rgba(250, 246, 240, 0.72);
   text-decoration: none;
   padding-bottom: 2px;

@@ -78,6 +78,8 @@ const eventos = computed(() => {
 const sel = ref<string | null>(null)
 /* tocar una línea de tratamiento la elige (o la suelta): no mueve nada, solo dice dónde mirar */
 function elegirEtapa(id: string) { sel.value = null; emit('etapa', props.etapa === id ? null : id) }
+// Las barras de línea llevan una zona táctil transparente de 44 px de alto que llega hasta el carril de la radioterapia: las de RT se pintan después, para que no las tape.
+const lineasPintadas = computed(() => [...lineas.value.filter((l) => !l.rt), ...lineas.value.filter((l) => l.rt)])
 const etapaTxt = computed(() => { const l = lineas.value.find((x) => x.id === props.etapa); return l ? `${l.id} · ${txtCaso(l.tratamiento, props.lang).split(' (')[0]}` : '' })
 // Con el dedo, símbolos a 14-16 px no se aciertan (lo midió `diseno`): anterior/siguiente de 44 px.
 function mover(d: 1 | -1) {
@@ -100,10 +102,11 @@ const elegido = computed(() => (props.cabezal != null ? eventos.value[eventos.va
         <line :x1="tk.x" :x2="tk.x" :y1="Y_EJE + 3" :y2="H" :class="tk.anio ? 'lt__rej-anio' : 'lt__rej'" />
         <text :x="tk.x + 3" :y="Y_EJE" :class="['lt__tick', { 'lt__tick--anio': tk.anio }]">{{ tk.txt }}</text>
       </g>
-      <g v-for="l in lineas" :key="l.id" :class="{ 'lt__lin': !l.rt && !compacta }" :tabindex="l.rt || compacta ? undefined : 0" :role="l.rt || compacta ? undefined : 'button'"
+      <g v-for="l in lineasPintadas" :key="l.id" :class="{ 'lt__lin': !l.rt && !compacta }" :tabindex="l.rt || compacta ? undefined : 0" :role="l.rt || compacta ? undefined : 'button'"
          :aria-pressed="l.rt || compacta ? undefined : etapa === l.id" :aria-label="l.rt || compacta ? undefined : `${l.id}: ${txtCaso(l.tratamiento, lang)}. ${L('Resaltar en las analíticas', 'Highlight on the charts')}`"
          @click="!l.rt && !compacta && elegirEtapa(l.id)" @keydown.enter.prevent="!l.rt && !compacta && elegirEtapa(l.id)" @keydown.space.prevent="!l.rt && !compacta && elegirEtapa(l.id)">
         <title>{{ l.id }} · {{ txtCaso(l.tratamiento, lang) }}{{ l.motivo_fin ? ` → ${txtCaso(l.motivo_fin, lang)}` : '' }}</title>
+        <rect v-if="!l.rt && !compacta" :x="l.x" :y="Y_LIN - 12" :width="Math.max(l.w, 24)" height="44" fill="transparent" />
         <rect :x="l.x" :y="l.rt ? Y_RT : Y_LIN" :width="l.w" :height="l.rt ? 8 : 20" rx="3"
               :class="['lt__linea', 'lt__crece', { 'lt__linea--rt': l.rt, 'lt__linea--futura': l.futura, 'lt__linea--sel': etapa === l.id }]"
               :style="{ animationDelay: `${Math.round((l.x / W) * 900)}ms` }" />
@@ -115,7 +118,7 @@ const elegido = computed(() => (props.cabezal != null ? eventos.value[eventos.va
          :aria-label="`${e.fecha_texto}: ${txtCaso(e.titulo, lang)}`" :aria-pressed="sel === e.id"
          @click="sel = sel === e.id ? null : e.id; emit('etapa', null)" @keydown.enter.prevent="sel = e.id" @keydown.space.prevent="sel = e.id">
         <rect v-if="!e.puntual" :x="e.xa" :y="e.y - 2" :width="Math.max(2, e.xb - e.xa)" height="4" class="lt__franja" />
-        <rect :x="e.x - 11" :y="e.y - 11" width="22" height="22" fill="transparent" />
+        <rect :x="e.x - 12" :y="e.y - 12" width="24" height="24" fill="transparent" />
         <path :d="pathForma(FORMA[e.clase ?? ''] ?? 'circulo', e.x, e.y, 5)"
               :class="['lt__glifo', { 'lt__glifo--fuerte': e.clase === 'progresion' || e.clase === 'diagnostico', 'lt__glifo--sel': sel === e.id }]" />
       </g>
@@ -184,4 +187,6 @@ const elegido = computed(() => (props.cabezal != null ? eventos.value[eventos.va
 .lt__etapa { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; line-clamp: 2; overflow: hidden; }
 .lt__ley { display: flex; flex-wrap: wrap; gap: 4px 12px; font: 400 var(--texto-xs) var(--font-body); color: var(--color-text-soft); margin: 4px 0 0; }
 .lt__ley span { display: inline-flex; align-items: center; gap: 4px; }
+/* T3-BARRIDO: a la escala 13/15/16/17 desde `lg`; el móvil conserva su valor (regla de la tanda). */
+@media (min-width: 1024px) { .lt__pie { font-size: var(--texto-sm); } }
 </style>

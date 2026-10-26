@@ -8,7 +8,7 @@
         class="team-portrait__img"
         width="400"
         height="400"
-        sizes="165px md:230px lg:380px"
+        sizes="100vw sm:50vw lg:260px"
         format="webp"
         loading="lazy"
         decoding="async"

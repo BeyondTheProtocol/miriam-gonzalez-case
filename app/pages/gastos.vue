@@ -29,7 +29,7 @@
             {{ $t('expenses.cuadre') }}
           </p>
 
-          <ul class="mb-5">
+          <ul class="mb-5 measure">
             <li
               v-for="item in DINERO.partidas"
               :key="item.clave"
@@ -61,7 +61,7 @@
           </ul>
 
           <div
-            class="rounded-card bg-cream p-4 flex items-baseline justify-between gap-4 flex-wrap"
+            class="rounded-card bg-cream p-4 flex items-baseline justify-between gap-4 flex-wrap measure"
             style="border: 1px solid rgba(45,27,61,0.08)"
           >
             <div>

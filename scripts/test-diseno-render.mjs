@@ -10,6 +10,12 @@
 //                       viewBox de 440 mostrado a 290 px son 6 px, y eso es lo que lee quien mira (revisión de P1: las marcas de vértebra y el contador
 //                       de la insignia de EsqueletoFocos salían a 6 px y el `texto_bajo_suelo 33 → 0` de /lesiones lo daba por resuelto sin contarlos).
 //   objetivos_pequenos  controles de menos de 44 px (salvo un enlace dentro de una frase, que la norma exime).
+//   objetivos_svg       controles que cuelgan de un <svg> (`[role=button]`, `[role=tab]`, `a[href]`) y miden menos de 24 px por algún lado, el MÍNIMO de WCAG 2.5.8
+//                       (T3-BARRIDO). El recorrido del DOM de arriba salta todo lo que está dentro de un SVG, así que los marcadores de evento de 22 × 22 px y las
+//                       barras de línea de 20 px de alto de «El caso en el tiempo» no los veía nadie. Umbral de 24 y no de 44 porque una figura no puede crecer como un
+//                       botón. Se mide la caja de su <g>, zona táctil transparente incluida. Es una métrica NUEVA con su propia baseline (objetivos_pequenos no puede subir).
+//   RUTAS lleva también las páginas en inglés (T3-BARRIDO): las palabras de la cabecera y del pie son más cortas y un enlace de 36 px de ancho («Team», «Press»)
+//   que en español mide 60 no saltaba en ninguna medición.
 //   contraste           elementos de texto por debajo de 4,5:1 (3:1 si es grande) sobre su fondo aplanado.
 //   foco_tapado         pasos de Tab cuyo foco queda debajo de la cabecera fija (WCAG 2.4.11).
 //   linea_larga         bloques de texto cuya línea MÁS LARGA, tal como se pinta, pasa de 90 caracteres (lote 0 del repaso de escritorio,
@@ -56,15 +62,17 @@ export const RUTAS = [
   '/celula-a-celula/explorar', '/aviso-legal', '/privacidad', '/cookies', '/guia-de-estilo',
   // T2a (24-oct-2026): las tres páginas que volvieron a la vida (el mapa ya estaba)
   '/herramientas', '/reservorio', '/historia',
+  // T3-BARRIDO: las páginas en inglés más largas y el pie, que se pinta en todas (la palabra inglesa del pie es más corta: «Team», «Press», «Slides»)
+  '/en', '/en/science', '/en/science/evidence', '/en/data', '/en/tools',
 ]
 const ANCHOS = [390, 1280]
-const METRICAS = ['desborde', 'h1_borde', 'texto_bajo_suelo', 'texto_svg_bajo_suelo', 'objetivos_pequenos', 'contraste', 'foco_tapado', 'linea_larga', 'sticky_tapado']
+const METRICAS = ['desborde', 'h1_borde', 'texto_bajo_suelo', 'texto_svg_bajo_suelo', 'objetivos_pequenos', 'objetivos_svg', 'contraste', 'foco_tapado', 'linea_larga', 'sticky_tapado']
 const PASOS_TAB = 14
 
 /** Corre dentro de la página. Devuelve recuentos y los primeros ejemplos de cada uno. */
 const MEDIR = `(() => {
-  const ej = { texto_bajo_suelo: [], texto_svg_bajo_suelo: [], objetivos_pequenos: [], contraste: [], linea_larga: [], sticky_tapado: [] }
-  const cuenta = { desborde: 0, h1_borde: 0, texto_bajo_suelo: 0, texto_svg_bajo_suelo: 0, objetivos_pequenos: 0, contraste: 0, linea_larga: 0, sticky_tapado: 0 }
+  const ej = { texto_bajo_suelo: [], texto_svg_bajo_suelo: [], objetivos_pequenos: [], objetivos_svg: [], contraste: [], linea_larga: [], sticky_tapado: [] }
+  const cuenta = { desborde: 0, h1_borde: 0, texto_bajo_suelo: 0, texto_svg_bajo_suelo: 0, objetivos_pequenos: 0, objetivos_svg: 0, contraste: 0, linea_larga: 0, sticky_tapado: 0 }
   const lienzo = document.createElement('canvas'); lienzo.width = lienzo.height = 1
   const cx = lienzo.getContext('2d', { willReadFrequently: true })
   const rgba = (css) => { cx.clearRect(0, 0, 1, 1); cx.fillStyle = '#000'; cx.fillStyle = css; cx.fillRect(0, 0, 1, 1); const d = cx.getImageData(0, 0, 1, 1).data; return [d[0], d[1], d[2], d[3] / 255] }
@@ -177,6 +185,14 @@ const MEDIR = `(() => {
     const fs = parseFloat(cs.fontSize) * escala
     const mono = /mono|jetbrains/i.test(cs.fontFamily) && cs.textTransform === 'uppercase'
     if (fs < 12 || (fs < 13 && !mono)) { cuenta.texto_svg_bajo_suelo++; if (ej.texto_svg_bajo_suelo.length < 6) ej.texto_svg_bajo_suelo.push(fs.toFixed(1) + 'px ' + nombre(t)) }
+  }
+
+  // controles dentro de un SVG: el recorrido de arriba salta todo lo que cuelga de un <svg>. Umbral de WCAG 2.5.8 (24 px), no los 44 de la marca.
+  for (const c of document.querySelectorAll('svg [role=button], svg [role=tab], svg a[href]')) {
+    const r = c.getBoundingClientRect()
+    const cs = getComputedStyle(c)
+    if (!visible(c, r) || cs.display === 'none' || c.getAttribute('aria-disabled') === 'true') continue
+    if (r.width < 23.5 || r.height < 23.5) { cuenta.objetivos_svg++; if (ej.objetivos_svg.length < 6) ej.objetivos_svg.push(Math.round(r.width) + 'x' + Math.round(r.height) + ' ' + nombre(c)) }
   }
 
   // línea larga: se agrupa el texto por su bloque (el antepasado más cercano que no es en línea) y se cuentan los caracteres de cada línea

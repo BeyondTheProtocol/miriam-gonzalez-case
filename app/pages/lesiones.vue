@@ -16,6 +16,8 @@ const localePath = useLocalePath()
 const { trackDatos, trackMapa, trackSupport, GOFUNDME_URL } = useSupport()
 const lang = computed<'es' | 'en'>(() => (locale.value === 'en' ? 'en' : 'es'))
 const L = (es: string, en: string) => (lang.value === 'en' ? en : es)
+/* Frase sellada del hígado (26-sep-26): una sola fuente para sus dos sitios. Texto sin tocar. */
+const fraseRadiologo = computed(() => L('Un radiólogo, en lectura informal por DM y sin informe firmado, marcó 55 medidas en el hígado de este TC y las considera 55 lesiones distintas, muy sugestivas de metástasis, con dos salvedades suyas: en la imagen 127 hay tres lesiones que se tocan entre sí y él las cuenta como tres, y en la imagen 123 hay una pegada a la cápsula del hígado, que limita su crecimiento y la hace más difícil de valorar. Las 20 lesiones automáticas de Polaris están entre sus marcas; las otras 35 se ven abajo como puntos. El informe oficial dice M1 múltiples.', 'A radiologist, in an informal DM read and without a signed report, marked 55 measurements on the liver in this CT and considers them 55 distinct lesions, highly suggestive of metastases, with two caveats of his own: in image 127 there are three lesions touching each other, which he counts as three, and in image 123 there is one right against the liver capsule, which limits its growth and makes it harder to assess. Polaris’s 20 automatic lesions are among his marks; the other 35 are shown below as points. The official report says multiple M1.'))
 
 const seoTitle = () =>
   lang.value === 'en'
@@ -85,7 +87,7 @@ const biopsia = computed(() =>
         </Aviso>
 
         <!-- ===== MAMA E HÍGADO · medidas del informe; en el hígado, además, la detección automática ===== -->
-        <div class="grid gap-6 md:grid-cols-2 items-start mb-10">
+        <div class="grid gap-6 md:grid-cols-2 items-start mb-10 lg:mb-6">
           <section class="card-base" aria-labelledby="mama-titulo">
             <h2 id="mama-titulo" class="h2-seccion mb-3">{{ L('Mama derecha', 'Right breast') }}</h2>
             <!-- data-visor / data-visor-accion: medición «Visor» (T2d; plugins/umami-visor.client.ts): la primera vez que alguien toca un visor. Solo atributos. -->
@@ -127,11 +129,17 @@ const biopsia = computed(() =>
                  tres; imagen 123: subcapsular, más difícil de valorar). No decir «55 metástasis»
                  ni que «todas han aparecido o crecido». Copy ya publicado — cambia con el gate de
                  salida (Miriam entiende y mergea el PR). -->
-            <p class="text-sm text-tinta leading-relaxed mt-2">
-              {{ L('Un radiólogo, en lectura informal por DM y sin informe firmado, marcó 55 medidas en el hígado de este TC y las considera 55 lesiones distintas, muy sugestivas de metástasis, con dos salvedades suyas: en la imagen 127 hay tres lesiones que se tocan entre sí y él las cuenta como tres, y en la imagen 123 hay una pegada a la cápsula del hígado, que limita su crecimiento y la hace más difícil de valorar. Las 20 lesiones automáticas de Polaris están entre sus marcas; las otras 35 se ven abajo como puntos. El informe oficial dice M1 múltiples.', 'A radiologist, in an informal DM read and without a signed report, marked 55 measurements on the liver in this CT and considers them 55 distinct lesions, highly suggestive of metastases, with two caveats of his own: in image 127 there are three lesions touching each other, which he counts as three, and in image 123 there is one right against the liver capsule, which limits its growth and makes it harder to assess. Polaris’s 20 automatic lesions are among his marks; the other 35 are shown below as points. The official report says multiple M1.') }}
+            <p class="text-sm text-tinta leading-relaxed mt-2 lg:hidden">
+              {{ fraseRadiologo }}
             </p>
           </section>
         </div>
+        <!-- T3-BARRIDO (L290): desde `lg`, la frase sellada del hígado va bajo las dos tarjetas: dentro de la del hígado la dejaba 249 px más alta que la de la mama y
+             abría un hueco bajo «Mama derecha». Por debajo de `lg` sigue dentro de su tarjeta (copia de arriba, `lg:hidden`); `hidden` saca del árbol de
+             accesibilidad la que no se ve, así que no se lee dos veces. -->
+        <p class="hidden lg:block measure text-sm text-tinta leading-relaxed mb-10">
+          {{ fraseRadiologo }}
+        </p>
 
         <!-- ===== HUESO · el visor del mapa de metástasis, trasladado ===== -->
         <section class="mb-10" aria-labelledby="hueso-titulo">
@@ -151,7 +159,7 @@ const biopsia = computed(() =>
             <div class="card-base !p-4" data-visor="lesiones" data-visor-accion="foco">
               <EsqueletoFocos :selected="selected" @pick="selected = $event" />
             </div>
-            <div class="min-w-0">
+            <div class="min-w-0 lg:sticky lg:sticky-bajo-cabecera lg:self-start">
               <p class="eyebrow mb-1">#{{ sel.id }} · {{ sel.region[lang] }}</p>
               <p class="h3-seccion mb-1">{{ sel.level[lang] }}</p>
               <p class="text-sm font-semibold mb-2" :style="{ color: PHENO_TEXT[sel.pheno] }">{{ L(PHENO[sel.pheno].es, PHENO[sel.pheno].en) }}</p>

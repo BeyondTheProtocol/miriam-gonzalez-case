@@ -2,10 +2,12 @@
   <div>
     <section class="section-spacing" :aria-label="$t('team.title')">
       <div class="section-wide">
+        <!-- T3-BARRIDO (K7): desde `lg` los tres titulares de bloque (que parecían un eyebrow) y el de «Lo que NO somos» son `.h2-seccion`, el rol del sistema; por
+             debajo conservan su receta de siempre (el móvil no se toca en esta tanda: queda como excepción pendiente). -->
         <PageHeader :title="$t('team.title')" :subtitle="$t('team.subtitle')" />
 
         <!-- El equipo de Miriam · retratos del círculo cercano (Miriam, primera) -->
-        <h2 id="team-miriam" class="eyebrow mb-3 block">
+        <h2 id="team-miriam" class="eyebrow lg:h2-seccion lg:normal-case mb-3 block">
           {{ $t('team.miriam_team') }}
         </h2>
         <p class="text-sm text-tinta leading-relaxed measure mb-8">
@@ -21,7 +23,7 @@
         </ul>
 
         <!-- Red médica de apoyo · tarjetas de rol (anónimas) -->
-        <h2 id="team-medical" class="eyebrow mb-6 block">
+        <h2 id="team-medical" class="eyebrow lg:h2-seccion lg:normal-case mb-6 block">
           {{ $t('team.medical_support_network') }}
         </h2>
         <ul
@@ -34,7 +36,7 @@
         </ul>
 
         <!-- Apoyo integral · tarjetas de rol (anónimas) -->
-        <h2 id="team-integrative" class="eyebrow mb-6 block">
+        <h2 id="team-integrative" class="eyebrow lg:h2-seccion lg:normal-case mb-6 block">
           {{ $t('team.integrative_support') }}
         </h2>
         <ul
@@ -56,7 +58,7 @@
       <p class="eyebrow mb-3 block">
         {{ $t('team.notus_eyebrow') }}
       </p>
-      <h2 id="notus-title" class="heading-display text-2xl sm:text-3xl mb-6">
+      <h2 id="notus-title" class="heading-display bajo-lg:text-2xl bajo-lg:sm:text-3xl lg:h2-seccion mb-6">
         {{ $t('team.notus_title') }}
       </h2>
 

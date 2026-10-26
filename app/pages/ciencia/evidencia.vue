@@ -41,7 +41,8 @@
                     <!-- La cita en una línea de mono a 13 px, sin mayúsculas ni píldora (la píldora `status-badge--reference` era de 10 px y
                          rompía el DOI en mayúsculas: Referencia.vue explica por qué). La cadena `paper.ref` es la de siempre. -->
                     <p class="ev-ref">{{ paper.ref }}</p>
-                    <h3 class="font-semibold text-berenjena text-sm lg:text-base mb-1.5">
+                    <!-- T3-BARRIDO: desde `lg` el título del estudio es `.h4-tarjeta` (Hanken 700, 17), el rol del sistema; por debajo conserva su receta (el móvil no se toca). -->
+                    <h3 class="bajo-lg:font-semibold bajo-lg:text-berenjena bajo-lg:text-sm lg:h4-tarjeta mb-1.5">
                       {{ paper.finding }}
                     </h3>
                     <p class="measure text-xs lg:text-sm text-tinta leading-relaxed">

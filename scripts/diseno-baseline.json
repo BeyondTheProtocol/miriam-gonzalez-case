@@ -22,7 +22,7 @@
       "app/components/MarcasContactPrompt.vue": 1,
       "app/components/MobileSupportBar.vue": 2,
       "app/components/OgImage/Default.takumi.vue": 12,
-      "app/components/ReservoirView.client.vue": 22,
+      "app/components/ReservoirView.client.vue": 16,
       "app/components/SpineMRIViewer.vue": 9,
       "app/components/StarMap.vue": 47,
       "app/components/TimelineEntry.vue": 6,
@@ -31,7 +31,7 @@
       "app/pages/datos.vue": 1,
       "app/pages/gastos.vue": 3,
       "app/pages/gracias.vue": 6,
-      "app/pages/mapa-metastasis.vue": 430,
+      "app/pages/mapa-metastasis.vue": 429,
       "app/pages/marcas.vue": 9,
       "app/pages/timeline.vue": 4,
       "app/utils/timeline.ts": 9
@@ -44,7 +44,6 @@
       "app/components/ImageZoomViewer.client.vue": 1,
       "app/components/laminillas/LaminillasVisor.vue": 1,
       "app/components/MarcasContactPrompt.vue": 1,
-      "app/components/MobileSupportBar.vue": 1,
       "app/components/NivelLectura.vue": 2,
       "app/components/SpineMRIViewer.vue": 3,
       "app/error.vue": 1
@@ -119,7 +118,7 @@
       "app/components/celula/explorar/CelulaExplorarEstructura.client.vue": 1,
       "app/components/celula/explorar/CelulaExplorarExplorador.vue": 2,
       "app/pages/celula-a-celula.vue": 1,
-      "app/pages/datos.vue": 4,
+      "app/pages/datos.vue": 3,
       "app/pages/laminillas.vue": 1,
       "app/pages/mapa-metastasis.vue": 1,
       "app/pages/marcas.vue": 1,
@@ -158,13 +157,10 @@
       "app/pages/celula-a-celula-explorar.vue": 2,
       "app/pages/colabora.vue": 2,
       "app/pages/contacto.vue": 2,
-      "app/pages/datos.vue": 8,
-      "app/pages/equipo.vue": 4,
       "app/pages/gastos.vue": 5,
       "app/pages/index.vue": 1,
       "app/pages/laminillas.vue": 2,
       "app/pages/lesiones.vue": 1,
-      "app/pages/mapa-metastasis.vue": 12,
       "app/pages/timeline.vue": 1
     },
     "R9": {
@@ -188,11 +184,7 @@
       "app/pages/celula-a-celula.vue": 1
     },
     "R13": {
-      "app/components/MolecularProfileDetailed.vue": 1,
-      "app/components/PageHeader.vue": 1,
-      "app/components/VisitorPathways.vue": 1,
-      "app/pages/contacto.vue": 1,
-      "app/pages/mapa-metastasis.vue": 1
+      "app/components/PageHeader.vue": 1
     }
   },
   "excepciones": {

@@ -38,8 +38,10 @@
       <h3 class="font-display font-semibold text-berenjena mt-1 mb-1.5 text-base">
         {{ entry.title }}
       </h3>
-      <!-- T3-LOTE2 (A22): el hito a 16 px desde `lg` (15 antes; el móvil no cambia) y con la medida (68ch), no a los 94 a 101 caracteres de antes. -->
-      <p class="text-sm lg:text-base text-tinta leading-relaxed measure">
+      <!-- T3-LOTE2 (A22): el hito a 16 px desde `lg` (15 antes; el móvil no cambia) y con la medida (68ch), no a los 94 a 101 caracteres de antes.
+           T3-BARRIDO: 68ch dejaba hasta 90 caracteres por línea en español y 93 en inglés (Hanken a 16 px). `[--measure:58ch]` sustituye el token SOLO en este
+           elemento (interino: el token global `--measure: 58ch` mueve la medida de /celula-a-celula, que es del PR #290, y se firma después). -->
+      <p class="text-sm lg:text-base text-tinta leading-relaxed measure [--measure:58ch]">
         {{ entry.description }}
       </p>
       <!-- Vídeo del hito (`video:` en timeline.yml; hoy, el explicativo del ADC en el del 7-oct). Su título es un h4 porque el
